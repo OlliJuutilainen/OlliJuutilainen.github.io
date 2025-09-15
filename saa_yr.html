@@ -1,0 +1,114 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sää — tänään (Yr/MET, tunnit)</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body{height:100%}
+  body{
+    margin:0; padding:20px 16px 28px;
+    background:#000; color:#e8e8e8;
+    font: 17px/1.5 Arial, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  h1{ font-size:18px; margin:0 0 10px; font-weight:600; letter-spacing:.2px; }
+  .sub{ color:#9aa; font-size:13px; margin:0 0 14px; }
+  .row{ display:grid; grid-template-columns: 54px 60px 1fr 70px 64px;
+        gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; }
+  .row.head{ color:#a8b0ba; border-color:#2a2a2a; padding-top:0; }
+  .muted{ color:#95a0aa; }
+  .err{ color:#ff6b6b; white-space:pre-wrap; }
+  .ok{ color:#8ff098; }
+  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid #2b2b2b; border-top-color:#7d7d7d; border-radius:50%; animation:spin .8s linear infinite; vertical-align:-2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<h1>Tänään</h1>
+<p class="sub" id="meta"><span class="spinner"></span> Ladataan ennustetta Yr/MET:ltä…</p>
+
+<div class="row head">
+  <div>klo</div><div>°C</div><div>kuvaus</div><div>sade</div><div>tuuli</div>
+</div>
+<div id="out" aria-live="polite"></div>
+
+<script>
+const urlParams = new URLSearchParams(location.search);
+const LAT = urlParams.get('lat') || '60.1699';
+const LON = urlParams.get('lon') || '24.9384';
+const TZ  = 'Europe/Helsinki';
+
+const apiUrl = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${encodeURIComponent(LAT)}&lon=${encodeURIComponent(LON)}`;
+
+const metaEl = document.getElementById('meta');
+const outEl  = document.getElementById('out');
+
+const codeText = (code) => {
+  if (!code) return '';
+  const base = String(code).split('_')[0];
+  const m = {
+    clearsky:'selkeää',
+    fair:'puolipilvistä',
+    partlycloudy:'puolipilvistä',
+    cloudy:'pilvistä',
+    fog:'sumua',
+    lightrain:'heikkoa sadetta',
+    rain:'sadetta',
+    heavyrain:'rankkasadetta',
+    snow:'lunta',
+    heavysnow:'runsasta lunta',
+    rainshowers:'sadekuuroja',
+    lightrainshowers:'heikkoja kuuroja'
+  };
+  return m[base] || base;
+};
+
+const fmtTime = (d) => new Intl.DateTimeFormat('fi-FI',{
+  hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ
+}).format(d);
+
+function fetchWithTimeout(ms=9000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  return { signal: ctrl.signal, clear:()=>clearTimeout(t) };
+}
+
+(async () => {
+  metaEl.innerHTML = `<span class="spinner"></span> Ladataan Yr/MET:ltä…`;
+  try {
+    const t = fetchWithTimeout(9000);
+    const res = await fetch(apiUrl, { cache:'no-store', signal: t.signal });
+    t.clear();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const now = new Date();
+    const nowLocal = new Date(now.toLocaleString('en-CA', { timeZone: TZ }));
+    const end = new Date(nowLocal); end.setHours(23,59,59,999);
+
+    const items = (data.properties?.timeseries || []).filter(ts => {
+      const t = new Date(ts.time);
+      const tLocal = new Date(t.toLocaleString('en-CA', { timeZone: TZ }));
+      return tLocal >= nowLocal && tLocal <= end;
+    });
+
+    const rows = items.map(ts => {
+      const t = new Date(ts.time);
+      const tLocal = new Date(t.toLocaleString('en-CA', { timeZone: TZ }));
+      const inst = ts.data?.instant?.details || {};
+      const next1 = ts.data?.next_1_hours;
+      const temp = inst.air_temperature;
+      const wind = inst.wind_speed;
+      const precip = next1?.details?.precipitation_amount;
+      const symbol = next1?.summary?.symbol_code;
+      return `<div class="row"><div>${fmtTime(tLocal)}</div><div>${temp!=null?Math.round(temp):'–'}</div><div>${codeText(symbol)}</div><div>${precip!=null?(precip.toFixed(1)+' mm'):'–'}</div><div>${wind!=null?(wind.toFixed(1)+' m/s'):'–'}</div></div>`;
+    }).join('');
+
+    outEl.innerHTML = rows || `<div class="muted">Ei rivejä tälle päivälle.</div>`;
+    metaEl.innerHTML = `<span class="ok">Valmis</span> · Lähde: MET Norway / Yr · ${LAT}, ${LON}`;
+  } catch (e) {
+    outEl.innerHTML = `<div class="err">${String(e.message || e)}</div>`;
+    metaEl.textContent = 'Virhe haussa';
+  }
+})();
+</script>
