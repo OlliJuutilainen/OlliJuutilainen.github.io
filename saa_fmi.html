@@ -1,0 +1,150 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sää — tänään (FMI, tunnit)</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body{height:100%}
+  body{
+    margin:0; padding:20px 16px 28px;
+    background:#000; color:#e8e8e8;
+    font: 17px/1.5 Arial, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  h1{ font-size:18px; margin:0 0 10px; font-weight:600; letter-spacing:.2px; }
+  .sub{ color:#9aa; font-size:13px; margin:0 0 14px; }
+  .row{ display:grid; grid-template-columns: 54px 60px 1fr 70px 64px;
+        gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; }
+  .row.head{ color:#a8b0ba; border-color:#2a2a2a; padding-top:0; }
+  .muted{ color:#95a0aa; }
+  .err{ color:#ff6b6b; white-space:pre-wrap; }
+  .ok{ color:#8ff098; }
+  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid #2b2b2b; border-top-color:#7d7d7d; border-radius:50%; animation:spin .8s linear infinite; vertical-align:-2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<h1>Tänään</h1>
+<p class="sub" id="meta"><span class="spinner"></span> Ladataan ennustetta FMI:ltä…</p>
+
+<div class="row head">
+  <div>klo</div><div>°C</div><div>kuvaus</div><div>sade</div><div>tuuli</div>
+</div>
+<div id="out" aria-live="polite"></div>
+
+<script>
+/* Käyttö:
+   https://<käyttäjä>.github.io/saa_fmi.html?lat=60.1699&lon=24.9384
+*/
+const urlParams = new URLSearchParams(location.search);
+const LAT = urlParams.get('lat') || '60.1699';
+const LON = urlParams.get('lon') || '24.9384';
+const TZ  = 'Europe/Helsinki';
+
+const WFS = (() => {
+  const base = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
+  const sq = 'fmi::forecast::harmonie::surface::point::timevaluepair';
+  const params = ['temperature','precipitation1h','windspeedms','Weathersymbol3'].join(',');
+  const now = new Date();
+  const nowLocal = new Date(now.toLocaleString('en-CA', { timeZone: TZ }));
+  const endLocal = new Date(nowLocal); endLocal.setHours(23,59,59,999);
+  const toISO = d => d.toISOString().replace(/\.\d{3}Z$/,'Z');
+  const qs = [
+    'storedquery_id='+encodeURIComponent(sq),
+    'latlon='+encodeURIComponent(LAT+','+LON),
+    'parameters='+encodeURIComponent(params),
+    'starttime='+encodeURIComponent(toISO(now)),
+    'endtime='+encodeURIComponent(toISO(endLocal)),
+    'timestep=60'
+  ].join('&');
+  return base + '&' + qs;
+})();
+
+const metaEl = document.getElementById('meta');
+const outEl  = document.getElementById('out');
+
+const symbolTextFI = (code) => {
+  const m = {
+    1:'selkeää', 2:'puolipilvistä', 3:'pilvistä',
+    21:'sumua', 22:'utua',
+    41:'heikkoja kuuroja', 42:'kuuroja', 43:'voimakkaita kuuroja',
+    61:'heikkoa sadetta', 62:'sadetta', 63:'rankkasadetta',
+    71:'heikkoa lunta', 72:'lumisadetta', 73:'runsasta lunta',
+    80:'ukkosta', 95:'ukkoskuuroja'
+  };
+  return m[code] || '';
+};
+
+const parseXML = (xmlText) => {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'application/xml');
+  const exc = xml.querySelector('Exception, ows\\:Exception');
+  if (exc) {
+    const txt = xml.querySelector('ExceptionText, ows\\:ExceptionText');
+    throw new Error('FMI virhe: ' + (txt ? txt.textContent : 'Tuntematon virhe'));
+  }
+  return xml;
+};
+
+const extractSeries = (xml) => {
+  const get = (el, name) => el.getElementsByTagNameNS('*', name)[0];
+  const allSeries = xml.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTimeseries');
+  const out = {};
+  for (const ser of allSeries) {
+    const id = (ser.getAttribute('gml:id') || '').toLowerCase();
+    let param = '';
+    if (id.includes('temperature')) param='temperature';
+    else if (id.includes('precipitation1h')) param='precipitation1h';
+    else if (id.includes('windspeedms')) param='windspeedms';
+    else if (id.includes('weathersymbol3')) param='Weathersymbol3';
+    if (!param) continue;
+    const points = ser.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP');
+    const map = new Map();
+    for (const p of points) {
+      const t = get(p,'time')?.textContent;
+      const v = get(p,'value')?.textContent;
+      if (!t) continue;
+      const num = v!=null ? Number(v) : null;
+      map.set(t, isNaN(num)? null : num);
+    }
+    out[param] = map;
+  }
+  return out;
+};
+
+const fmtTime = (d) => new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ}).format(d);
+
+(async () => {
+  try {
+    metaEl.textContent = `Haetaan FMI (HARMONIE) ${LAT}, ${LON}`;
+    const res = await fetch(WFS, { cache: 'no-store' });
+    const txt = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,300)}`);
+    const xml = parseXML(txt);
+    const series = extractSeries(xml);
+
+    const now = new Date();
+    const nowLocal = new Date(now.toLocaleString('en-CA', { timeZone: TZ }));
+    const start = new Date(nowLocal);
+    if (start.getMinutes() || start.getSeconds() || start.getMilliseconds()) start.setHours(start.getHours()+1,0,0,0);
+    const end = new Date(nowLocal); end.setHours(23,59,59,999);
+
+    const rows = [];
+    for (let d=new Date(start); d<=end; d.setHours(d.getHours()+1)) {
+      const utcIso = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours())).toISOString().replace(/\.\d{3}Z$/,'Z');
+      const tStr  = `<div>${fmtTime(d)}</div>`;
+      const temp  = series.temperature?.get(utcIso);
+      const rain  = series.precipitation1h?.get(utcIso);
+      const wind  = series.windspeedms?.get(utcIso);
+      const symb  = series.Weathersymbol3?.get(utcIso);
+      rows.push(`<div class="row">${tStr}<div>${temp!=null?Math.round(temp):'–'}</div><div>${symbolTextFI(symb)}</div><div>${rain!=null?(rain.toFixed(1)+' mm'):'–'}</div><div>${wind!=null?(wind.toFixed(1)+' m/s'):'–'}</div></div>`);
+    }
+
+    outEl.innerHTML = rows.length ? rows.join('') : `<div class="muted">Ei rivejä tälle päivälle.</div>`;
+    metaEl.innerHTML = `<span class="ok">Valmis</span> · Lähde: FMI HARMONIE · ${LAT}, ${LON}`;
+  } catch (e) {
+    outEl.innerHTML = `<div class="err">${String(e)}</div>`;
+    metaEl.textContent = 'Virhe haussa';
+  }
+})();
+</script>
