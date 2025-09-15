@@ -104,7 +104,10 @@ function fetchWithTimeout(ms=9000) {
     outEl.innerHTML = rows || `<div class="muted">Ei rivejä (rajapinta ei palauttanut 12 h ikkunassa).</div>`;
     metaEl.innerHTML = `<span class="ok">Valmis</span> · Lähde: MET Norway / Yr · ${LAT}, ${LON}`;
   } catch (e) {
-    outEl.innerHTML = `<div class="err">${String(e.message || e)}</div>`;
+    // korvaa nykyinen catch-runko tällä:
+    let more = '';
+    if (e?.message?.includes('HTTP')) more = ' (rajapinnan vastaus saattoi olla 403/429 tms.)';
+    outEl.innerHTML = `<div class="err">${String(e.message || e)}${more}</div>`;
     metaEl.textContent = 'Virhe haussa';
   }
 })();
