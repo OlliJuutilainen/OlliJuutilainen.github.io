@@ -6,29 +6,31 @@
   :root { color-scheme: dark; }
   html,body{height:100%}
   body{
-    margin:0; padding:12px 14px 24px; background:#000; color:#e8e8e8;
+    margin:0; padding:28px 14px 24px; background:#000; color:#e8e8e8;
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
+  .meta {font-size:15px; font-weight:600; letter-spacing:.5px; margin-bottom:12px; color:#aaa}
   .row{
-    display:grid; grid-template-columns:54px 56px 1fr 70px 64px;
+    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
     gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c;
   }
   .muted{ color:#95a0aa }
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 
-<!-- Ei otsikoita; vain rivit. -->
+<div class="meta">SEURAAVAT 12 H — FMI</div>
 <div id="out" aria-live="polite"></div>
 
 <script>
-/* FMI super-min: seuraavat 12 h, tumma, ei otsikkoriviä, lämpötila '12°' */
 const p=new URLSearchParams(location.search),
       LAT=p.get('lat')||'60.1699',
       LON=p.get('lon')||'24.9384',
       TZ='Europe/Helsinki';
 const out=document.getElementById('out');
-const tfi=new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+const tfi=new Intl.DateTimeFormat('fi-FI',{
+  hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23'
+});
 const sym=code=>({1:'selkeää',2:'puolipilvistä',3:'pilvistä',21:'sumua',22:'utua',
   41:'heikkoja kuuroja',42:'kuuroja',43:'voimakkaita kuuroja',
   61:'heikkoa sadetta',62:'sadetta',63:'rankkasadetta',
@@ -71,14 +73,11 @@ const extract=x=>{
 function fetchWithTimeout(ms=9000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return{signal:c.signal,clear:()=>clearTimeout(t)}}
 
 (async()=>{try{
-  // 1px “osoitepalkin piilottaja”
-  scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
-
+  scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150); // piilota palkki
   const t=fetchWithTimeout(9000);
   const r=await fetch(url,{cache:'no-store',signal:t.signal}); t.clear();
   const txt=await r.text(); if(!r.ok) throw new Error(`HTTP ${r.status}\n${txt.slice(0,200)}`);
   const ser=extract(parseXML(txt));
-
   const now=new Date(), end=new Date(now); end.setHours(end.getHours()+12);
   let html=''; for(let d=new Date(now); d<=end; d.setHours(d.getHours()+1)){
     const utc=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours())).toISOString().replace(/\.\d{3}Z$/,'Z');
@@ -88,7 +87,7 @@ function fetchWithTimeout(ms=9000){const c=new AbortController(),t=setTimeout(()
           ws=ser.Weathersymbol3?.get(utc);
     html+=`<div class="row">
       <div>${tfi.format(d)}</div>
-      <div>${temp!=null?Math.round(temp)+'°':'–'}</div>
+      <div>${temp!=null?Math.round(temp)+'°C':'–'}</div>
       <div>${sym(ws)}</div>
       <div>${rain!=null?rain.toFixed(1)+' mm':'–'}</div>
       <div>${wind!=null?wind.toFixed(1)+' m/s':'–'}</div>
