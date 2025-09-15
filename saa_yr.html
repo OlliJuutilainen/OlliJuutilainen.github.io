@@ -1,62 +1,65 @@
 <!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Sää — seuraavat 12 h (Yr/MET)</title>
+<title>Sää — seuraavat 12 h (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
-  body{
-    margin:0; padding:20px 16px 28px;
-    background:#000; color:#e8e8e8;
-    font: 17px/1.5 Arial, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
-    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-  }
-  h1{ font-size:18px; margin:0 0 10px; font-weight:600; letter-spacing:.2px; }
-  .sub{ color:#9aa; font-size:13px; margin:0 0 14px; }
-  .row{ display:grid; grid-template-columns: 54px 60px 1fr 70px 64px;
-        gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; }
-  .row.head{ color:#a8b0ba; border-color:#2a2a2a; padding-top:0; }
-  .muted{ color:#95a0aa; }
-  .err{ color:#ff6b6b; white-space:pre-wrap; }
-  .ok{ color:#8ff098; }
-  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid #2b2b2b; border-top-color:#7d7d7d; border-radius:50%; animation:spin .8s linear infinite; vertical-align:-2px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  body{margin:0;padding:20px 16px 28px;background:#000;color:#e8e8e8;
+       font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif}
+  h1{font-size:18px;margin:0 0 10px;font-weight:600;letter-spacing:.2px}
+  .sub{color:#9aa;font-size:13px;margin:0 0 14px}
+  .row{display:grid;grid-template-columns:54px 60px 1fr 70px 64px;gap:8px;
+       padding:6px 0;border-bottom:1px solid #1c1c1c}
+  .row.head{color:#a8b0ba;border-color:#2a2a2a;padding-top:0}
+  .muted{color:#95a0aa}.err{color:#ff6b6b;white-space:pre-wrap}.ok{color:#8ff098}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid #2b2b2b;
+           border-top-color:#7d7d7d;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-
 <h1>Seuraavat 12 h</h1>
-<p class="sub" id="meta"><span class="spinner"></span> Ladataan ennustetta Yr/MET:ltä…</p>
-
-<div class="row head">
-  <div>klo</div><div>°C</div><div>kuvaus</div><div>sade</div><div>tuuli</div>
-</div>
+<p class="sub" id="meta"><span class="spinner"></span> Ladataan ennustetta FMI:ltä…</p>
+<div class="row head"><div>klo</div><div>°C</div><div>kuvaus</div><div>sade</div><div>tuuli</div></div>
 <div id="out" aria-live="polite"></div>
-
 <script>
-const urlParams = new URLSearchParams(location.search);
-const LAT = urlParams.get('lat') || '60.1699';
-const LON = urlParams.get('lon') || '24.9384';
-const TZ  = 'Europe/Helsinki';
-
-const apiUrl = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${encodeURIComponent(LAT)}&lon=${encodeURIComponent(LON)}`;
-
-const metaEl = document.getElementById('meta');
-const outEl  = document.getElementById('out');
-
-const codeText = (code) => {
-  if (!code) return '';
-  const base = String(code).split('_')[0];
-  const m = {
-    clearsky:'selkeää', fair:'puolipilvistä', partlycloudy:'puolipilvistä',
-    cloudy:'pilvistä', fog:'sumua', lightrain:'heikkoa sadetta',
-    rain:'sadetta', heavyrain:'rankkasadetta', snow:'lunta', heavysnow:'runsasta lunta',
-    rainshowers:'sadekuuroja', lightrainshowers:'heikkoja kuuroja'
-  };
-  return m[base] || base;
-};
-
-// Muodostetaan formatteri, joka näyttää ajan suoraan Europe/Helsinki-ajassa
-const timeFmt = new Intl.DateTimeFormat('fi-FI', {
-  hour:'2-digit', minute:'2-digit', hour12:false, timeZone: TZ
-});
-const fmtTime
+const p=new URLSearchParams(location.search),LAT=p.get('lat')||'60.1699',LON=p.get('lon')||'24.9384',TZ='Europe/Helsinki';
+const meta=document.getElementById('meta'),out=document.getElementById('out');
+const tfi=new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+const sym=code=>({1:'selkeää',2:'puolipilvistä',3:'pilvistä',21:'sumua',22:'utua',41:'heikkoja kuuroja',42:'kuuroja',43:'voimakkaita kuuroja',61:'heikkoa sadetta',62:'sadetta',63:'rankkasadetta',71:'heikkoa lunta',72:'lumisadetta',73:'runsasta lunta',80:'ukkosta',95:'ukkoskuuroja'})[code]||'';
+const url=(()=>{const b='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
+  const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
+  const params='temperature,precipitation1h,windspeedms,Weathersymbol3';
+  const now=new Date(), end=new Date(now); end.setHours(end.getHours()+12);
+  const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
+  return `${b}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(LAT+','+LON)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(now))}&endtime=${encodeURIComponent(iso(end))}&timestep=60`;
+})();
+const parseXML=txt=>{const x=new DOMParser().parseFromString(txt,'application/xml');
+  const ex=x.querySelector('Exception, ows\\:Exception'); if(ex){const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); throw new Error('FMI virhe: '+(t?t.textContent:'Tuntematon virhe'));} return x;};
+const extract=x=>{const get=(e,n)=>e.getElementsByTagNameNS('*',n)[0];
+  const all=x.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTimeseries'); const o={};
+  for(const s of all){const id=(s.getAttribute('gml:id')||'').toLowerCase(); let k='';
+    if(id.includes('temperature'))k='temperature'; else if(id.includes('precipitation1h'))k='precipitation1h';
+    else if(id.includes('windspeedms'))k='windspeedms'; else if(id.includes('weathersymbol3'))k='Weathersymbol3';
+    if(!k)continue; const map=new Map();
+    for(const p of s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP')){
+      const t=get(p,'time')?.textContent, v=get(p,'value')?.textContent; if(!t)continue;
+      const num=v!=null?Number(v):null; map.set(t, isNaN(num)?null:num);
+    } o[k]=map;
+  } return o;};
+function fetchWithTimeout(ms=9000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return{signal:c.signal,clear:()=>clearTimeout(t)}}
+(async()=>{meta.innerHTML=`<span class="spinner"></span> Ladataan FMI:ltä…`;
+  try{
+    const t=fetchWithTimeout(9000); const r=await fetch(url,{cache:'no-store',signal:t.signal}); t.clear();
+    const txt=await r.text(); if(!r.ok) throw new Error(`HTTP ${r.status}\n${txt.slice(0,200)}`);
+    const ser=extract(parseXML(txt));
+    const now=new Date(), end=new Date(now); end.setHours(end.getHours()+12);
+    let rows=''; for(let d=new Date(now); d<=end; d.setHours(d.getHours()+1)){
+      const utc=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours())).toISOString().replace(/\.\d{3}Z$/,'Z');
+      const temp=ser.temperature?.get(utc), rain=ser.precipitation1h?.get(utc), wind=ser.windspeedms?.get(utc), ws=ser.Weathersymbol3?.get(utc);
+      rows+=`<div class="row"><div>${tfi.format(d)}</div><div>${temp!=null?Math.round(temp):'–'}</div><div>${sym(ws)}</div><div>${rain!=null?(rain.toFixed(1)+' mm'):'–'}</div><div>${wind!=null?(wind.toFixed(1)+' m/s'):'–'}</div></div>`;
+    }
+    out.innerHTML=rows||`<div class="muted">Ei rivejä tälle ajalle.</div>`;
+    meta.innerHTML=`<span class="ok">Valmis</span> · Lähde: FMI HARMONIE · ${LAT}, ${LON}`;
+  }catch(e){out.innerHTML=`<div class="err">${String(e.message||e)}</div>`; meta.textContent='Virhe haussa';}
+})();
+</script>
