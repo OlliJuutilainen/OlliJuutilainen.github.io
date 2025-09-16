@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 TUNTIA (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -10,15 +10,50 @@
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
-  .row{
-    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
-    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c;
+
+  /* Kääre listalle: yläreunan harmaa viiva */
+  .list{
+    border-top:1px solid #2a2a2a;
+    margin-top:6px;
   }
+
+  /* Pieni harmaa "klo" -ankkuri ensimmäisen sarakkeen ylle */
+  .klohdr{
+    color:#9aa; font-size:12px; letter-spacing:.3px;
+    margin:6px 0 4px 0;
+    display:grid;
+    grid-template-columns:54px 64px 1fr 70px 64px; /* sama rytmi kuin riveillä */
+  }
+  .klohdr > div:first-child{ /* kohdistus vain 1. sarakkeeseen */
+    border-right:1px solid #2a2a2a;  /* sama pystyviiva kuin riveillä */
+    padding-right:10px; margin-right:4px;
+  }
+  .klohdr > div:not(:first-child){ visibility:hidden; } /* ei muita otsakkeita */
+
+  /* Rivit */
+  .row{
+    display:grid;
+    grid-template-columns:54px 64px 1fr 70px 64px;
+    gap:8px; padding:6px 0;
+    border-bottom:1px solid #1c1c1c;
+  }
+
+  /* Pystyviiva kellonaikasarakkeen oikeaan reunaan,
+     pieni sisennys ettei teksti liimaudu. */
+  .row > div:first-child{
+    border-right:1px solid #2a2a2a;
+    padding-right:10px; margin-right:4px;
+  }
+
   .muted{ color:#95a0aa }
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 
-<div id="out" aria-live="polite"></div>
+<!-- "klo" ankkuri -->
+<div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
+
+<!-- lista + rivit -->
+<div class="list" id="out" aria-live="polite"></div>
 
 <script>
 /* FMI super-min: seuraavat 12 h
@@ -44,13 +79,13 @@ function fmtHM(d){
   return `${hh}:${mm}`;
 }
 
-// Weathersymbol3 → lyhyt FI-teksti (pidetään entisellään)
+// Weathersymbol3 → lyhyt FI-teksti
 const sym = code => ({
-  1:'selkeää', 2:'hattaraa', 3:'pilvistä',
+  1:'selkeää', 2:'puolipilvistä', 3:'pilvistä',
   21:'sumua', 22:'utua',
-  41:'kuurohkoja', 42:'kuuroja', 43:'isokuuroja',
-  61:'ripsii', 62:'sataa', 63:'Esterin',
-  71:'hiutaloi', 72:'lunta', 73:'pyryttää',
+  41:'heikkoja kuuroja', 42:'kuuroja', 43:'voimakkaita kuuroja',
+  61:'heikkoa sadetta', 62:'sadetta', 63:'rankkasadetta',
+  71:'heikkoa lunta', 72:'lumisadetta', 73:'runsasta lunta',
   80:'ukkosta', 95:'ukkoskuuroja'
 })[code] || '';
 
@@ -106,7 +141,7 @@ function fetchWithTimeout(ms=9000){
 }
 
 (async () => {
-  // pikkutemppu: koita pudottaa osoitepalkki heti
+  // pieni kikka: yritä tiputtaa osoitepalkki
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1), 150);
 
   if (!LAT || !LON) {
@@ -123,14 +158,12 @@ function fetchWithTimeout(ms=9000){
     if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,200)}`);
 
     const ser = extract(parseXML(txt));
-
     const now = new Date(), end = new Date(now); end.setHours(end.getHours()+12);
 
     let html = '';
     let prevDesc = null; // peräkkäisten kuvausten piilottamiseen
 
     for (let d = new Date(now); d <= end; d.setHours(d.getHours()+1)) {
-      // Muodosta FMI:n UTC-ISO ilman millisekunteja
       const utc = new Date(Date.UTC(
         d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours()
       )).toISOString().replace(/\.\d{3}Z$/,'Z');
