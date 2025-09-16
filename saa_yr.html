@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 TUNTIA (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -11,35 +11,31 @@
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
 
-  /* Kääre listalle: yläreunan harmaa viiva */
+  /* yläreunan harmaa viiva + lista */
   .list{
     border-top:1px solid #2a2a2a;
     margin-top:6px;
   }
 
-  /* Pieni harmaa "klo" -ankkuri ensimmäisen sarakkeen ylle */
+  /* pieni harmaa "klo" ankkuri kellosarakkeen ylle */
   .klohdr{
     color:#9aa; font-size:12px; letter-spacing:.3px;
     margin:6px 0 4px 0;
     display:grid;
     grid-template-columns:54px 64px 1fr 70px 64px; /* sama rytmi kuin riveillä */
   }
-  .klohdr > div:first-child{ /* kohdistus vain 1. sarakkeeseen */
-    border-right:1px solid #2a2a2a;  /* sama pystyviiva kuin riveillä */
+  .klohdr > div:first-child{
+    border-right:1px solid #2a2a2a;
     padding-right:10px; margin-right:4px;
   }
-  .klohdr > div:not(:first-child){ visibility:hidden; } /* ei muita otsakkeita */
+  .klohdr > div:not(:first-child){ visibility:hidden; } /* muut otsakkeet piiloon */
 
-  /* Rivit */
+  /* rivit */
   .row{
-    display:grid;
-    grid-template-columns:54px 64px 1fr 70px 64px;
-    gap:8px; padding:6px 0;
-    border-bottom:1px solid #1c1c1c;
+    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
+    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c;
   }
-
-  /* Pystyviiva kellonaikasarakkeen oikeaan reunaan,
-     pieni sisennys ettei teksti liimaudu. */
+  /* pystyviiva kellosarakkeen jälkeen */
   .row > div:first-child{
     border-right:1px solid #2a2a2a;
     padding-right:10px; margin-right:4px;
@@ -56,10 +52,8 @@
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* FMI super-min: seuraavat 12 h
-   - Aika HH:MM (pakotettu kaksoispiste)
-   - Peräkkäiset samat kuvaukset piilotetaan
-   - Koordinaatit vain URL:sta (?lat=...&lon=...)
+/* FMI super-min 12 h — HH:MM, dedup-kuvaukset, laajennettu Weathersymbol3, fallback sateesta
+   Koordinaatit vain URL:sta (?lat=...&lon=...)
 */
 const q = new URLSearchParams(location.search);
 const LAT = q.get('lat');
@@ -68,7 +62,7 @@ const TZ  = 'Europe/Helsinki';
 
 const out = document.getElementById('out');
 
-// Aika: pakota aina HH:MM kaksoispisteellä
+/* Aika: pakota aina HH:MM (kaksoispiste), ei 13.45-muotoa */
 const tFmt = new Intl.DateTimeFormat('fi-FI', {
   hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23'
 });
@@ -79,17 +73,59 @@ function fmtHM(d){
   return `${hh}:${mm}`;
 }
 
-// Weathersymbol3 → lyhyt FI-teksti
-const sym = code => ({
-  1:'selkeää', 2:'puolipilvistä', 3:'pilvistä',
-  21:'sumua', 22:'utua',
-  41:'heikkoja kuuroja', 42:'kuuroja', 43:'voimakkaita kuuroja',
-  61:'heikkoa sadetta', 62:'sadetta', 63:'rankkasadetta',
-  71:'heikkoa lunta', 72:'lumisadetta', 73:'runsasta lunta',
-  80:'ukkosta', 95:'ukkoskuuroja'
-})[code] || '';
+/* Weathersymbol3 → FI-teksti (laajennettu). Palauttaa '' jos ei tunnisteta. */
+function sym(code){
+  const m = {
+    // pouta & pilvisyys
+    1:'poutaa',
+    2:'pilvipoutaa',
+    3:'pilvistä',
+    21:'sumua',
+    22:'utua',
 
-// Pyyntö FMI:lle (12 h ikkuna)
+    // tihku (drizzle)
+    51:'tihkuntapaista',
+    52:'tihkua',
+    53:'sakeaa tihkua',
+
+    // sade (jatkuva)
+    61:'ripsii',
+    62:'sataa',
+    63:'Esterin',
+
+    // lumi
+    71:'hiutaloi',
+    72:'lunta',
+    73:'pyryttää',
+
+    // räntä (sleet / rain+snow)
+    68:'räntää',
+    69:'Eiran Räntä',
+
+    // kuurot (showers)
+    41:'kuurohkoja',
+    42:'kuuroja',
+    43:'suurkuuroja',
+
+    // ukkonen
+    80:'ukkosta',
+    95:'ukkoskuuroja',
+    96:'raeukkosta',
+    97:'ISO VASARA'
+  };
+  return m[Number(code)] || '';
+}
+
+/* Fallback-kuvaus sademäärästä, jos symbolia ei tunnisteta/puutu */
+function fallbackFromRain(rain){
+  const p = (rain == null ? 0 : Number(rain));
+  if (p >= 7.0) return 'Esterin';
+  if (p >= 2.0) return 'sataa';
+  if (p >  0.1) return 'ripsii';
+  return '–'; // pouta → viiva (pidetään minimalistisena)
+}
+
+/* WFS-kysely (nyt..+12h) */
 function buildUrl(lat, lon){
   const base = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq   = 'fmi::forecast::harmonie::surface::point::timevaluepair';
@@ -141,7 +177,7 @@ function fetchWithTimeout(ms=9000){
 }
 
 (async () => {
-  // pieni kikka: yritä tiputtaa osoitepalkki
+  // pikkutemppu: tiputa osoitepalkki heti avauksessa
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1), 150);
 
   if (!LAT || !LON) {
@@ -161,7 +197,7 @@ function fetchWithTimeout(ms=9000){
     const now = new Date(), end = new Date(now); end.setHours(end.getHours()+12);
 
     let html = '';
-    let prevDesc = null; // peräkkäisten kuvausten piilottamiseen
+    let prevDesc = null; // peräkkäisten kuvausten piilotus
 
     for (let d = new Date(now); d <= end; d.setHours(d.getHours()+1)) {
       const utc = new Date(Date.UTC(
@@ -173,8 +209,11 @@ function fetchWithTimeout(ms=9000){
       const wind = ser.windspeedms?.get(utc);
       const wsym = ser.Weathersymbol3?.get(utc);
 
-      const desc = sym(wsym) || '';
-      const shownDesc = (desc === prevDesc) ? '' : desc;
+      const rawDesc   = sym(wsym);
+      const descCore  = (rawDesc !== '') ? rawDesc : fallbackFromRain(rain);
+      const desc      = descCore; // ei näytetä (WS3:xx) -koodia oletuksena
+
+      const shownDesc = (desc === prevDesc && desc !== '–') ? '' : desc;
       prevDesc = desc;
 
       html += `<div class="row">
