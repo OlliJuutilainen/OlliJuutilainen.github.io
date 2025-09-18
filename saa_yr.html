@@ -39,16 +39,27 @@ const LON = q.get('lon');
 const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
 
-// Aika: pakota aina HH:MM kaksoispisteellä
+/* Aika: HH:MM kaksoispisteellä (formatToParts → varma kaksoispiste) */
 const tFmt = new Intl.DateTimeFormat('fi-FI', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23' });
-function fmtHM_local(dLocal){
-  const parts = tFmt.formatToParts(dLocal);
+function fmtHM(dUtc){
+  const parts = tFmt.formatToParts(dUtc);
   const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
   const mm = parts.find(p=>p.type==='minute')?.value ?? '00';
   return `${hh}:${mm}`;
 }
 
-// SmartSymbol → tiivis FI-teksti; yö (101..199) normalisoidaan %100
+/* Hae "nyt" UTC:na ja muodosta local-osat TZ:ssä luotettavasti (ilman Date-parsausta) */
+const partsFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'
+});
+function getParts(dUtc){
+  const ps = partsFmt.formatToParts(dUtc);
+  const g = t => Number(ps.find(p=>p.type===t)?.value);
+  return { y:g('year'), m:g('month'), d:g('day'), h:g('hour'), min:g('minute'), s:g('second') };
+}
+function partsId(p){ return ((p.y*100+p.m)*100+p.d)*100 + p.h; } // päivä+tunti vertailuun
+
+/* SmartSymbol → tiivis FI-teksti; yö (101..199) normalisoidaan %100 */
 function symSmart(code){
   if (code == null) return '';
   const day = Number(code) % 100;
@@ -115,7 +126,7 @@ function symSmart(code){
   return 'ukkosta';
 }
 
-// WS3 → tiivis FI-teksti (varmistus)
+/* WS3 → tiivis FI-teksti (varmistus) */
 function symWS3(code){
   const m = {
     1:'selkeää', 2:'puolipilvistä', 3:'pilvistä',
@@ -130,7 +141,7 @@ function symWS3(code){
   return m[Number(code)] || '';
 }
 
-// Fallback-kuvaus sademäärästä, jos symboli puuttuu/tuntematon
+/* Sade-fallback, jos symboli puuttuu/tuntematon */
 function fallbackFromRain(rain){
   const p = (rain == null ? 0 : Number(rain));
   if (p >= 7.0) return 'rankkasadetta';
@@ -139,41 +150,21 @@ function fallbackFromRain(rain){
   return '–';
 }
 
-// Aikaikkuna: viimeisin mennyt tasatunti + 12 seuraavaa tasatuntia (13 kpl)
-function computeLocalHours(){
-  // “seinäkello” TZ:ssä
-  const nowLocal = new Date(new Date().toLocaleString('en-CA', { timeZone: TZ }));
-  const start = new Date(nowLocal); start.setMinutes(0,0,0); // floor
-  const hours = [];
-  for (let i=0;i<=12;i++){
-    const d = new Date(start);
-    d.setHours(d.getHours()+i);
-    hours.push(d); // paikallisaika
-  }
-  return hours;
-}
-
-// Rakenna FMI-haku (reilu marginaali kattamaan kaikki rivit)
+/* Rakenna FMI-haku: väljä ikkuna “nyt-1h … nyt+24h”, jotta 13 riviä varmasti löytyy */
 function buildUrl(lat, lon){
   const base = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq   = 'fmi::forecast::harmonie::surface::point::timevaluepair';
   const params = 'temperature,precipitation1h,windspeedms,SmartSymbol,Weathersymbol3';
 
-  const hours = computeLocalHours();
-  const startFetchLocal = new Date(hours[0]);   startFetchLocal.setHours(startFetchLocal.getHours()-1);
-  const endFetchLocal   = new Date(hours.at(-1)); endFetchLocal.setHours(endFetchLocal.getHours()+2);
+  const now = new Date();
+  const startFetch = new Date(now); startFetch.setHours(startFetch.getHours()-1);
+  const endFetch   = new Date(now); endFetch.setHours(endFetch.getHours()+24);
+  const iso = d => d.toISOString().replace(/\.\d{3}Z$/,'Z');
 
-  const isoUTC = dLocal => new Date(Date.UTC(
-    dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
-  )).toISOString().replace(/\.\d{3}Z$/,'Z');
-
-  const startISO = isoUTC(startFetchLocal);
-  const endISO   = isoUTC(endFetchLocal);
-
-  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(startISO)}&endtime=${encodeURIComponent(endISO)}&timestep=60`;
+  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(startFetch))}&endtime=${encodeURIComponent(iso(endFetch))}&timestep=60`;
 }
 
-// XML → sarjat Mapiksi (key = ISO UTC string)
+/* XML → sarjat Mapiksi (key = ISO UTC string) */
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt, 'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
@@ -230,19 +221,35 @@ function fetchWithTimeout(ms=9000){
     t.clear();
     const txt = await res.text();
     if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,200)}`);
-
     const ser = extract(parseXML(txt));
 
-    const hoursLocal = computeLocalHours();
-    const isoUTC = dLocal => new Date(Date.UTC(
-      dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
-    )).toISOString().replace(/\.\d{3}Z$/,'Z');
+    // Hae kaikki saatavilla olevat aikaleimat lämpötilasta, lajittele
+    const keys = Array.from(ser.temperature?.keys?.() || []);
+    keys.sort();
+
+    // Laske viimeisin mennyt tasatunti paikallisesti (TZ) ilman Date-parsausta
+    const nowUtc = new Date();
+    const nowParts = getParts(nowUtc);
+    const startParts = { y:nowParts.y, m:nowParts.m, d:nowParts.d, h:nowParts.h, min:0, s:0 };
+    const startId = partsId(startParts);
+
+    // Valitse 13 riviä: start + 12 seuraavaa tasatuntia (TZ:ssä)
+    const rows = [];
+    for (const iso of keys) {
+      const p = getParts(new Date(iso)); // parts TZ:ssä tälle datapisteelle
+      if (partsId(p) >= startId) {
+        rows.push({ iso, parts:p });
+        if (rows.length === 13) break;
+      }
+    }
 
     let html = '';
     let prevDesc = null;
 
-    for (const dLocal of hoursLocal) {
-      const key = isoUTC(dLocal); // haetaan tällä kaikista sarjoista
+    for (const row of rows) {
+      const key = row.iso;
+      const dUtc = new Date(key);
+
       const temp = ser.temperature?.get(key);
       const rain = ser.precipitation1h?.get(key);
       const wind = ser.windspeedms?.get(key);
@@ -258,7 +265,7 @@ function fetchWithTimeout(ms=9000){
       prevDesc = desc;
 
       html += `<div class="row">
-        <div>${fmtHM_local(dLocal)}</div>
+        <div>${fmtHM(dUtc)}</div>
         <div>${temp!=null ? Math.round(temp) + '°C' : '–'}</div>
         <div>${shownDesc}</div>
         <div>${rain!=null ? rain.toFixed(1) + ' mm' : '–'}</div>
