@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 TUNTIA (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -52,7 +52,9 @@
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* FMI super-min 12 h — HH:MM, dedup-kuvaukset, laajennettu Weathersymbol3, fallback sateesta
+/* FMI super-min — SmartSymbol ensisijainen (yö normalisoidaan), WS3 varmistus, sade-fallback
+   Aika: viimeisin mennyt tasatunti → seuraava klo 11:00 (paikallista aikaa)
+   HH:MM, peräkkäisten kuvausten dedup, tumma, pystyviiva + "klo", yläviiva
    Koordinaatit vain URL:sta (?lat=...&lon=...)
 */
 const q = new URLSearchParams(location.search);
@@ -62,7 +64,7 @@ const TZ  = 'Europe/Helsinki';
 
 const out = document.getElementById('out');
 
-/* Aika: pakota aina HH:MM (kaksoispiste), ei 13.45-muotoa */
+/* Aika: pakota aina HH:MM (kaksoispiste) */
 const tFmt = new Intl.DateTimeFormat('fi-FI', {
   hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23'
 });
@@ -73,66 +75,120 @@ function fmtHM(d){
   return `${hh}:${mm}`;
 }
 
-/* Weathersymbol3 → FI-teksti (laajennettu). Palauttaa '' jos ei tunnisteta. */
-function sym(code){
+/* SmartSymbol → tiivis FI-teksti.
+   Huom: yö (101..199) normalisoidaan day = code % 100, ei näytetä "yö"-päätteitä. */
+function symSmart(code){
+  if (code == null) return '';
+  const day = Number(code) % 100; // 101..199 → 1..99
   const m = {
-    // pouta & pilvisyys
-    1:'poutaa',
-    2:'pilvipoutaa',
-    3:'pilvistä',
-    21:'sumua',
-    22:'utua',
+    // pouta/pilvisyys
+    1:'selkeää',
+    2:'lähes selkeää',
+    3:'puolipilvistä',
+    4:'pilvistä',
 
-    // tihku (drizzle)
-    51:'tihkuntapaista',
+    // tihku
+    51:'heikkoa tihkua',
     52:'tihkua',
-    53:'sakeaa tihkua',
+    53:'voimakasta tihkua',
 
     // sade (jatkuva)
-    61:'ripsii',
-    62:'sataa',
-    63:'Esterin',
+    61:'heikkoa sadetta',
+    62:'sadetta',
+    63:'rankkasadetta',
 
     // lumi
-    71:'hiutaloi',
-    72:'lunta',
-    73:'pyryttää',
+    71:'heikkoa lunta',
+    72:'lumisadetta',
+    73:'runsasta lunta',
 
-    // räntä (sleet / rain+snow)
+    // räntä
     68:'räntää',
-    69:'Eiran Räntä',
+    69:'voimakasta räntää',
 
-    // kuurot (showers)
-    41:'kuurohkoja',
+    // kuurot
+    41:'heikkoja kuuroja',
     42:'kuuroja',
-    43:'suurkuuroja',
+    43:'voimakkaita kuuroja',
 
     // ukkonen
     80:'ukkosta',
     95:'ukkoskuuroja',
-    96:'raeukkosta',
-    97:'ISO VASARA'
+    96:'ukkosta ja rakeita',
+    97:'voimakasta ukkosta'
+  };
+  return m[day] || '';
+}
+
+/* Weathersymbol3 → tiivis FI-teksti (fallback SS:n jälkeen) */
+function symWS3(code){
+  const m = {
+    1:'selkeää',
+    2:'puolipilvistä',
+    3:'pilvistä',
+    21:'sumua',
+    22:'utua',
+    41:'heikkoja kuuroja',
+    42:'kuuroja',
+    43:'voimakkaita kuuroja',
+    51:'heikkoa tihkua',
+    52:'tihkua',
+    53:'voimakasta tihkua',
+    61:'heikkoa sadetta',
+    62:'sadetta',
+    63:'rankkasadetta',
+    68:'räntää',
+    69:'voimakasta räntää',
+    71:'heikkoa lunta',
+    72:'lumisadetta',
+    73:'runsasta lunta',
+    80:'ukkosta',
+    95:'ukkoskuuroja',
+    96:'ukkosta ja rakeita',
+    97:'voimakasta ukkosta'
   };
   return m[Number(code)] || '';
 }
 
-/* Fallback-kuvaus sademäärästä, jos symbolia ei tunnisteta/puutu */
+/* Fallback-kuvaus sademäärästä, jos symboli puuttuu/tuntematon */
 function fallbackFromRain(rain){
   const p = (rain == null ? 0 : Number(rain));
-  if (p >= 7.0) return 'Esterin';
-  if (p >= 2.0) return 'sataa';
-  if (p >  0.1) return 'ripsii';
-  return '–'; // pouta → viiva (pidetään minimalistisena)
+  if (p >= 7.0) return 'rankkasadetta';
+  if (p >= 2.0) return 'sadetta';
+  if (p >  0.1) return 'heikkoa sadetta';
+  return '–'; // pouta → viiva (minimalistinen oletus)
 }
 
-/* WFS-kysely (nyt..+12h) */
+/* Aikaväli: start = viimeisin mennyt tasatunti, end = seuraava klo 11:00 paikallista aikaa */
+function computeLocalWindow(){
+  const nowUTC = new Date();
+  const nowLocal = new Date(nowUTC.toLocaleString('en-CA', { timeZone: TZ }));
+
+  // start = floor to full hour (menneen tunnin alku)
+  const startLocal = new Date(nowLocal);
+  startLocal.setMinutes(0,0,0);
+
+  // end = seuraava klo 11:00
+  const endLocal = new Date(nowLocal);
+  if (nowLocal.getHours() < 11) {
+    endLocal.setHours(11,0,0,0); // tänään 11
+  } else {
+    endLocal.setDate(endLocal.getDate()+1);
+    endLocal.setHours(11,0,0,0); // huomenna 11
+  }
+  return { startLocal, endLocal };
+}
+
+/* WFS-haku (väljä ikkuna: -3h → +24h), pyydetään myös SmartSymbol */
 function buildUrl(lat, lon){
   const base = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq   = 'fmi::forecast::harmonie::surface::point::timevaluepair';
-  const params = 'temperature,precipitation1h,windspeedms,Weathersymbol3';
-  const now = new Date(), end = new Date(now); end.setHours(end.getHours()+12);
+  const params = 'temperature,precipitation1h,windspeedms,SmartSymbol,Weathersymbol3';
+  const now = new Date();
+  const startFetch = new Date(now); startFetch.setHours(startFetch.getHours()-3);
+  const endFetch   = new Date(now); endFetch.setHours(endFetch.getHours()+24);
   const iso = d => d.toISOString().replace(/\.\d{3}Z$/,'Z');
-  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(now))}&endtime=${encodeURIComponent(iso(end))}&timestep=60`;
+  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(startFetch))}&endtime=${encodeURIComponent(iso(endFetch))}&timestep=60`;
 }
 
 const parseXML = txt => {
@@ -155,6 +211,7 @@ const extract = x => {
     if      (id.includes('temperature'))      k = 'temperature';
     else if (id.includes('precipitation1h'))  k = 'precipitation1h';
     else if (id.includes('windspeedms'))      k = 'windspeedms';
+    else if (id.includes('smartsymbol'))      k = 'SmartSymbol';
     else if (id.includes('weathersymbol3'))   k = 'Weathersymbol3';
     if (!k) continue;
     const map = new Map();
@@ -176,8 +233,14 @@ function fetchWithTimeout(ms=9000){
   return { signal: ctrl.signal, clear: ()=>clearTimeout(t) };
 }
 
+/* Apuri: ISO UTC -> paikallinen Date (TZ) */
+function isoToLocalDate(iso){
+  const d = new Date(iso); // UTC instant
+  return new Date(d.toLocaleString('en-CA', { timeZone: TZ })); // seinäkello TZ:ssä
+}
+
 (async () => {
-  // pikkutemppu: tiputa osoitepalkki heti avauksessa
+  // yritä tiputtaa osoitepalkki heti avauksessa
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1), 150);
 
   if (!LAT || !LON) {
@@ -187,6 +250,8 @@ function fetchWithTimeout(ms=9000){
   }
 
   try{
+    const { startLocal, endLocal } = computeLocalWindow();
+
     const t = fetchWithTimeout(9000);
     const res = await fetch(buildUrl(LAT, LON), { cache:'no-store', signal: t.signal });
     t.clear();
@@ -194,30 +259,35 @@ function fetchWithTimeout(ms=9000){
     if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,200)}`);
 
     const ser = extract(parseXML(txt));
-    const now = new Date(), end = new Date(now); end.setHours(end.getHours()+12);
+
+    // käytä lämpötilan aikaleimoja master-listana
+    const keys = Array.from(ser.temperature?.keys?.() || []);
+    keys.sort(); // ISOt nousevaan
 
     let html = '';
-    let prevDesc = null; // peräkkäisten kuvausten piilotus
+    let prevDesc = null;
 
-    for (let d = new Date(now); d <= end; d.setHours(d.getHours()+1)) {
-      const utc = new Date(Date.UTC(
-        d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours()
-      )).toISOString().replace(/\.\d{3}Z$/,'Z');
+    for (const iso of keys) {
+      const local = isoToLocalDate(iso);
+      if (local < startLocal || local > endLocal) continue;
 
-      const temp = ser.temperature?.get(utc);
-      const rain = ser.precipitation1h?.get(utc);
-      const wind = ser.windspeedms?.get(utc);
-      const wsym = ser.Weathersymbol3?.get(utc);
+      const temp = ser.temperature?.get(iso);
+      const rain = ser.precipitation1h?.get(iso);
+      const wind = ser.windspeedms?.get(iso);
 
-      const rawDesc   = sym(wsym);
-      const descCore  = (rawDesc !== '') ? rawDesc : fallbackFromRain(rain);
-      const desc      = descCore; // ei näytetä (WS3:xx) -koodia oletuksena
+      const ss   = ser.SmartSymbol?.get(iso);
+      const ws3  = ser.Weathersymbol3?.get(iso);
+
+      const rawSmart = symSmart(ss);
+      const rawWS3   = symWS3(ws3);
+      const descCore = rawSmart || rawWS3 || fallbackFromRain(rain);
+      const desc     = descCore;
 
       const shownDesc = (desc === prevDesc && desc !== '–') ? '' : desc;
       prevDesc = desc;
 
       html += `<div class="row">
-        <div>${fmtHM(new Date(d))}</div>
+        <div>${fmtHM(local)}</div>
         <div>${temp!=null ? Math.round(temp) + '°C' : '–'}</div>
         <div>${shownDesc}</div>
         <div>${rain!=null ? rain.toFixed(1) + ' mm' : '–'}</div>
@@ -225,7 +295,7 @@ function fetchWithTimeout(ms=9000){
       </div>`;
     }
 
-    out.innerHTML = html || `<div class="muted">Ei rivejä tälle ajalle.</div>`;
+    out.innerHTML = html || `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
   } catch (e) {
     out.innerHTML = `<div class="err">${String(e.message || e)}</div>`;
   }
