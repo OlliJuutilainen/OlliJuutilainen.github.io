@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 TUNTIA (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -23,6 +23,7 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
   .muted{ color:#95a0aa } .err{ color:#ff6b6b; white-space:pre-wrap }
+  .ditto{ color:#9aa }
 </style>
 
 <div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
@@ -238,8 +239,15 @@ function fetchWithTimeout(ms=9000){
         const wind = ser.windspeedms?.get(key);
         const ss   = ser.SmartSymbol?.get(key);
 
-        const desc = symSmart(ss) || '–';                 // aina jokin arvo
-        const shownDesc = (desc === prevDesc && desc !== '–') ? '' : desc;
+        const desc = symSmart(ss) || '–'; // aina jokin arvo
+        let shownDesc;
+        if (desc === '–') {
+        shownDesc = '–';                         // viiva ei muutu ditoksi
+        } else if (desc === prevDesc) {
+        shownDesc = '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">〃</span>';
+        } else {
+        shownDesc = desc;
+        }
         prevDesc = desc;
 
         html += `<div class="row">
