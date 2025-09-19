@@ -218,11 +218,7 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   return null;
 }
 
-/* Sade-solun muotoilu:
-   - null/undefined → '–' (harmaa)
-   - 0 → em dash — (valkoinen; HRM-fallbackissa t1/t2 harmaa)
-   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
-*/
+/* Sade-solun muotoilu */
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
@@ -406,7 +402,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>`
+        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
         : desc;
 
       html += `<div class="row">
