@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 h</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -10,41 +10,44 @@
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
+  .mini{ color:#5d676f; font-size:12px; letter-spacing:.3px }
+  .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+
+  /* Grid: [time | temp | desc | rain | wind] */
   .klohdr{
     color:#5d676f; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
-    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
+    display:grid; grid-template-columns:54px 64px 1fr 70px 64px; align-items:end;
   }
   .klohdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
-  .klohdr > div:not(:first-child){ visibility:hidden; }
+  .klohdr > div:nth-child(2), .klohdr > div:nth-child(3){ visibility:hidden } /* ei otsikoita näille */
 
   .row{
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
-    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c;
+    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; align-items:center;
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
 
-  .muted{ color:#515a62 }
-  .soft{  color:#515a62 }
-
-  .t{ text-align:left }      /* t0–t2 vasen */
-  .t.hh{ text-align:right }  /* ennusterivit oikea */
-
-  .desc .ditto{ display:inline }
-  .ditto{ color:inherit }
-
+  .muted{ color:#515a62 } .soft{ color:#515a62 }
+  .t{ text-align:left } .t.hh{ text-align:right }
+  .desc .ditto{ display:inline } .ditto{ color:inherit }
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 
-<div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
+<!-- Otsakerivi: klo | ( ) | ( ) | SADE | TUULI -->
+<div class="klohdr">
+  <div>klo</div><div></div><div></div>
+  <div class="caps">SADE</div>
+  <div class="caps">TUULI</div>
+</div>
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* Sade-lähteet:
-   - t0: FMI-tutka RR (openwms geoserver, GFI). Jos puuttuu → erikoisfallback (HARMONIE edellisestä tasatunnista, tai harmaa em dash).
-   - t1/t2: MET Norway Nowcast 2.0 (/complete). Jos puuttuu → HARMONIE harmaana; 0 → harmaa em dash.
-   - t3→: HARMONIE; 0 → “—”.
-   Debug: lisää ?dbg=1 → näyttää lähdetagit (RR / NC / HRM / HRM-prev) sateen solussa; HRM:iin liitetään sulkeissa NC-virheen syy.
+/* Lähteet:
+   - t0, t+1h, t+2h: MET Norway Nowcast 2.0 (/complete) → sade (mm/h kertymä: next_1_hours.amount, muuten instant rate).
+   - t3→t12: FMI HARMONIE (temperature, precipitation1h, windspeedms, SmartSymbol).
+   - Havainto (FMI): t0 lämpötila & tuuli, jos tarjolla (t2m, ws_10min).
+   Debug: lisää ?dbg=1 → näyttää sateen lähdetagin (NC / HRM / HRM-prev).
 */
 
 const q = new URLSearchParams(location.search);
@@ -56,15 +59,12 @@ const out = document.getElementById('out');
 const DBG = q.has('dbg');
 function srcTag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
 
-/* Tutkan pienen ripplen kynnys (mm/h). Oletus 0.6, säädettävissä ?minrr=0.2 jne. */
-const MIN_RR = Math.max(0, parseFloat(q.get('minrr')||'0.6'));
-
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol (demo; vaihda halutessasi omaan täyteen sanakirjaasi) */
+/* SmartSymbol – suppea demosanakirja (voit vaihtaa omaasi myöhemmin) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -76,7 +76,7 @@ const SS_TEXT = {
 };
 const ssText = c => (c==null?'':(SS_TEXT[Number(c)%100]||''));
 
-/* FMI HARMONIE (malli) */
+/* FMI WFS rakennus */
 function buildWfsForecast(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
@@ -86,8 +86,6 @@ function buildWfsForecast(lat,lon){
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
   return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(s))}&endtime=${encodeURIComponent(iso(e))}&timestep=60`;
 }
-
-/* FMI havainnot (t2m, ws_10min) */
 function buildWfsObs(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::observations::weather::timevaluepair';
@@ -133,48 +131,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* Tutka RR (FMI openwms geoserver → WMS GetFeatureInfo) */
-function wmsRRUrl(lat, lon, pad=0.2){
-  const service='https://openwms.fmi.fi/geoserver/Radar/wms';
-  const L='radar:composite:rr';
-  const minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
-  const WIDTH=121, HEIGHT=121, I=60, J=60;
-  const qs = new URLSearchParams({
-    service:'WMS', request:'GetFeatureInfo', version:'1.3.0',
-    layers:L, query_layers:L, styles:'',
-    crs:'EPSG:4326',
-    bbox:`${minLat},${minLon},${maxLat},${maxLon}`,
-    width:String(WIDTH), height:String(HEIGHT),
-    i:String(I), j:String(J),
-    info_format:'text/plain',
-    time:'latest'
-  });
-  return `${service}?${qs.toString()}`;
-}
-async function fetchRadarRR(lat, lon, timeoutMs=9000){
-  async function once(pad){
-    const ctrl=new AbortController();
-    const t=setTimeout(()=>ctrl.abort(),timeoutMs);
-    try{
-      const res=await fetch(wmsRRUrl(lat,lon,pad),{cache:'no-store',signal:ctrl.signal});
-      const txt=await res.text();
-      clearTimeout(t);
-      if (!res.ok) return { val:null, meta:`RR!${res.status}` };
-      if (/nan|none|nodata/i.test(txt)) return { val:null, meta:'RR!nodata' };
-      const m = txt.match(/([-+]?\d+(?:\.\d+)?)/);
-      if (!m) return { val:null, meta:'RR!parse' };
-      const v = Number(m[1]);
-      return isNaN(v) ? { val:null, meta:'RR!nan' } : { val:v, meta:'RR' };
-    }catch{ clearTimeout(t); return { val:null, meta:'RR!err' }; }
-  }
-  const a = await once(0.2);
-  if (a.val!=null) return a;
-  return await once(0.3);
-}
-
-/* NOWCAST (api.met.no/weatherapi/nowcast/2.0/complete)
-   Valitse rivi, jonka periodi kattaa target-tunnin: täsmälleen targetUTC, tai seuraava ≥ targetUTC (≤ +30 min),
-   muutoin lähin |Δ| ≤ 20 min. Käytä ensisijaisesti next_1_hours.precipitation_amount (mm); muuten instant rate. */
+/* MET Nowcast 2.0 complete → valitse rivi, joka kattaa tavoitetunnin */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -184,69 +141,50 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     const ts = js?.properties?.timeseries;
     if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
-    const targetUTC = dUTC.getTime(); // <-- korjaus: dUTC on jo FMI:n UTC-aika
+    const targetUTC = dUTC.getTime();
 
     let best = ts.find(it => new Date(it.time).getTime() === targetUTC);
-
     if (!best){
-      const future = ts
-        .map(it => ({ t:new Date(it.time).getTime(), it }))
-        .filter(x => x.t >= targetUTC)
-        .sort((a,b)=>a.t-b.t)[0];
-      if (future && (future.t - targetUTC) <= 30*60*1000) best = future.it;
+      const fut = ts.map(it=>({t:new Date(it.time).getTime(), it})).filter(x=>x.t>=targetUTC).sort((a,b)=>a.t-b.t)[0];
+      if (fut && (fut.t - targetUTC) <= 30*60*1000) best = fut.it;
     }
-
     if (!best){
-      let cand=null, diffMin=1e9;
-      for (const it of ts){
-        const dt = Math.abs(new Date(it.time).getTime() - targetUTC);
-        if (dt < diffMin){ diffMin = dt; cand = it; }
-      }
-      if (cand && diffMin <= 20*60*1000) best = cand;
+      let cand=null, diff=1e12;
+      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=dt; cand=it;} }
+      if (cand && diff <= 20*60*1000) best = cand;
     }
-
     if (!best) return { val:null, meta:'NC!miss' };
 
     const acc = best?.data?.next_1_hours?.details?.precipitation_amount;
     if (typeof acc === 'number') return { val:acc, meta:'NC' };
-
     const pr = best?.data?.instant?.details?.precipitation_rate;
     if (typeof pr === 'number') return { val:pr, meta:'NC' };
-
     return { val:null, meta:'NC!nodata' };
-  }catch{
-    return { val:null, meta:'NC!err' };
-  }
+  }catch{ return { val:null, meta:'NC!err' }; }
 }
 
-/* Lähin havainto hetkeen (obs) */
+/* Havainto lähimmästä ajasta (°C ja m/s) */
 function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   if (!mapUTC) return null;
   const targetUTC = new Date(Date.UTC(
     targetLocalDate.getFullYear(), targetLocalDate.getMonth(), targetLocalDate.getDate(),
     targetLocalDate.getHours(), targetLocalDate.getMinutes(), 0
   ));
-  let bestKey=null, bestDiff=1e12;
+  let bestKey=null, best=1e12;
   for (const k of mapUTC.keys()){
     const d=new Date(k);
     const diff=Math.abs(d - targetUTC)/60000;
-    if (diff < bestDiff){ bestDiff=diff; bestKey=k; }
+    if (diff<best){best=diff; bestKey=k;}
   }
-  if (bestKey && bestDiff <= maxDiffMin) return mapUTC.get(bestKey);
+  if (bestKey && best <= maxDiffMin) return mapUTC.get(bestKey);
   return null;
 }
 
-/* Sade-solun muotoilu:
-   - null/undefined → '–' (harmaa)
-   - 0 → em dash — (valkoinen; HRM-fallbackissa t1/t2 harmaa)
-   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
-*/
-function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
+/* Sade-solun muotoilu */
+function rainCell(val, {markGrey=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
-  if (n === 0){
-    return { text:'—', cls: (forceGreyDash ? 'soft' : '') };
-  }
+  if (n === 0) return { text:'—', cls: (markGrey ? 'soft' : '') };
   return { text:n.toFixed(1) + ' mm', cls:(markGrey ? 'soft' : '') };
 }
 
@@ -271,8 +209,9 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
 
     const now = new Date();
     const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));
-    const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
 
+    /* Nouki 13 tuntia alkaen tästä tasatunnista */
+    const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
     const pickKeys = [];
     for (const k of fKeys){
       const d = new Date(k);
@@ -280,19 +219,12 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     }
     if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    /* Tutka t0 */
-    const rrHit = await fetchRadarRR(LAT, LON);
-    let rrNow = rrHit.val;
-    const rrMeta = rrHit.meta;
-    const noRadarFallback = (rrNow == null);
-
-    /* Siivoa pieni tihku t0: alle MIN_RR → “—” */
-    if (rrNow != null && rrNow < MIN_RR) rrNow = 0;
-
-    /* Nowcast t1/t2 */
+    /* Nowcast t0/t1/t2 (t0 käyttää samaa tuntiavainta kuin mallissa, lähin periodi valitaan funktiossa) */
+    const d0 = pickKeys[0] ? new Date(pickKeys[0]) : null;
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
     const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
-    const [nc1, nc2] = await Promise.all([
+    const [nc0, nc1, nc2] = await Promise.all([
+      d0 ? fetchNowcastForHour(LAT, LON, d0) : Promise.resolve({val:null, meta:'NC!skip'}),
       d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve({val:null, meta:'NC!skip'}),
       d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve({val:null, meta:'NC!skip'})
     ]);
@@ -300,7 +232,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     let html = '';
     let prevDesc = null;
 
-    /* t0 (nyt) */
+    /* t0 (nyt) – sade NC; lämpö & tuuli havainnoista jos mahdollista */
     {
       const key = pickKeys[0];
       const fTemp = forecast.temperature?.get(key);
@@ -316,19 +248,16 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const windCls = (oWind!=null?'':'soft');
 
       let rainObj, rainHtml;
-      let rrShown = rrNow;
-      if (rrShown != null && rrShown < MIN_RR) rrShown = 0;
-
-      if (!noRadarFallback){
-        rainObj = rainCell(rrShown);
-        rainHtml = `${rainObj.text}${srcTag(rrMeta || 'RR')}`;
+      if (nc0 && typeof nc0.val === 'number'){
+        rainObj = rainCell(nc0.val);
+        rainHtml = `${rainObj.text}${srcTag('NC')}`;
       }else{
-        // Edellinen tasatunti HRM tai harmaa viiva
+        // fallback: edellinen tasatunti mallista
         const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
         const prevKey = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0)).toISOString().replace(/\.\d{3}Z$/,'Z');
         const fPrevRain = forecast.precipitation1h?.get(prevKey);
         if (fPrevRain!=null && fPrevRain>0){
-          rainObj = rainCell(fPrevRain, {markGrey:true});
+          rainObj = rainCell(fPrevRain, { markGrey:true });
           rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
         }else{
           rainObj = { text:'—', cls:'soft' };
@@ -361,25 +290,15 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
 
       let rainObj, rainHtml;
-      if (noRadarFallback){
-        // t0 ei saanut tutkaa → t1: harmaa em dash
-        rainObj = { text:'—', cls:'soft' };
-        rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
-      } else if (nc1 && nc1.val != null){
-        // nowcast osui
+      if (nc1 && typeof nc1.val === 'number'){
         rainObj = rainCell(nc1.val);
         rainHtml = `${rainObj.text}${srcTag('NC')}`;
       } else {
-        // nowcast puuttuu → HRM harmaana (0 → harmaa viiva)
-        if (fRain == null) {
-          rainObj = { text:'–', cls:'soft' };
-        } else if (Number(fRain) === 0) {
-          rainObj = { text:'—', cls:'soft' };
-        } else {
-          rainObj = rainCell(fRain, { markGrey:true });
-        }
+        if (fRain == null) { rainObj = { text:'–', cls:'soft' }; }
+        else if (Number(fRain)===0) { rainObj = { text:'—', cls:'soft' }; }
+        else { rainObj = rainCell(fRain, { markGrey:true }); }
         const reason = (nc1 && nc1.meta && nc1.meta.startsWith('NC!')) ? ` (${nc1.meta})` : '';
-        rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
+        rainHtml = `${rainObj.text}${srcTag('HRM'+reason)}`;
       }
 
       const desc = ssText(fSS) || '–';
@@ -410,22 +329,15 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
 
       let rainObj, rainHtml;
-      if (noRadarFallback){
-        rainObj = { text:'—', cls:'soft' };
-        rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
-      } else if (nc2 && nc2.val != null){
+      if (nc2 && typeof nc2.val === 'number'){
         rainObj = rainCell(nc2.val);
         rainHtml = `${rainObj.text}${srcTag('NC')}`;
       } else {
-        if (fRain == null) {
-          rainObj = { text:'–', cls:'soft' };
-        } else if (Number(fRain) === 0) {
-          rainObj = { text:'—', cls:'soft' };
-        } else {
-          rainObj = rainCell(fRain, { markGrey:true });
-        }
+        if (fRain == null) { rainObj = { text:'–', cls:'soft' }; }
+        else if (Number(fRain)===0) { rainObj = { text:'—', cls:'soft' }; }
+        else { rainObj = rainCell(fRain, { markGrey:true }); }
         const reason = (nc2 && nc2.meta && nc2.meta.startsWith('NC!')) ? ` (${nc2.meta})` : '';
-        rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
+        rainHtml = `${rainObj.text}${srcTag('HRM'+reason)}`;
       }
 
       const desc = ssText(fSS) || '–';
@@ -443,7 +355,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       prevDesc = desc;
     }
 
-    /* 10 ennusteriviä */
+    /* 10 ennusteriviä: HH + "klo" mini-teksti ennen tuntia; sateessa HRM */
     let written = 0;
     for (let i=3; i<pickKeys.length && written<10; i++, written++){
       const key = pickKeys[i];
@@ -454,17 +366,10 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const ss   = forecast.SmartSymbol?.get(key);
       const desc = ssText(ss) || '–';
 
-      let rainObj, rainHtml;
-      if (rainVal==null){ 
-        rainObj = { text:'–', cls:'soft' }; 
-        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
-      } else if (Number(rainVal)===0){ 
-        rainObj = { text:'—', cls:'' }; 
-        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
-      } else { 
-        rainObj = rainCell(rainVal); 
-        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
-      }
+      let rainObj;
+      if (rainVal==null){ rainObj = { text:'–', cls:'soft' }; }
+      else if (Number(rainVal)===0){ rainObj = { text:'—', cls:'' }; }
+      else { rainObj = rainCell(rainVal); }
 
       const shownDesc = (desc === prevDesc && desc !== '–')
         ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
@@ -472,10 +377,10 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       prevDesc = desc;
 
       html += `<div class="row">
-        <div class="t hh">${fmtH(dUtc)}</div>
+        <div class="t hh"><span class="mini">klo&nbsp;</span>${fmtH(dUtc)}</div>
         <div>${temp!=null?Math.round(temp)+'°C':'–'}</div>
         <div class="desc">${shownDesc}</div>
-        <div class="${rainObj.cls}">${rainHtml}</div>
+        <div class="${rainObj.cls}">${rainObj.text}${srcTag('HRM')}</div>
         <div>${wind!=null?wind.toFixed(1)+' m/s':'–'}</div>
       </div>`;
     }
