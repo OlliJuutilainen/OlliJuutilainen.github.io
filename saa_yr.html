@@ -41,8 +41,8 @@
 
 <script>
 /* Sade-lähteet:
-   - t0: FMI-tutka RR. Jos puuttuu → erikoisfallback (HARMONIE edellisestä tasatunnista, tai harmaa em dash).
-   - t1/t2: MET Norway Nowcast 2.0. Jos puuttuu → HARMONIE harmaana; 0 → “—”.
+   - t0: FMI-tutka RR (openwms geoserver, GFI). Jos puuttuu → erikoisfallback (HARMONIE edellisestä tasatunnista, tai harmaa em dash).
+   - t1/t2: MET Norway Nowcast 2.0 (api.met.no). Jos puuttuu → HARMONIE harmaana; 0 → “—”.
    - t3→: HARMONIE; 0 → “—”.
    Debug: lisää ?dbg=1 → näyttää lähdetagit (RR / NC / HRM / HRM-prev) sateen solussa.
 */
@@ -62,9 +62,8 @@ function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
 function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
-const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
 
-/* SmartSymbol (demo; sinulla täydellinen lista) */
+/* SmartSymbol (demo; voit vaihtaa omaan täydelliseen sanakirjaasi) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -133,9 +132,9 @@ const extractSeries = x => {
   return o;
 };
 
-/* Tutka RR (FMI WMS GetFeatureInfo) */
+/* Tutka RR (FMI openwms geoserver → WMS GetFeatureInfo) */
 function wmsRRUrl(lat, lon, pad=0.2){
-  const service='https://opendata.fmi.fi/wms';
+  const service='https://openwms.fmi.fi/geoserver/Radar/wms';
   const L='radar:composite:rr';
   const minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
   const WIDTH=121, HEIGHT=121, I=60, J=60;
@@ -159,29 +158,29 @@ async function fetchRadarRR(lat, lon, timeoutMs=9000){
       const res=await fetch(wmsRRUrl(lat,lon,pad),{cache:'no-store',signal:ctrl.signal});
       const txt=await res.text();
       clearTimeout(t);
-      if (!res.ok) return null;
-      if (/nan|none|nodata/i.test(txt)) return null;
+      if (!res.ok) return { val:null, meta:`RR!${res.status}` };
+      if (/nan|none|nodata/i.test(txt)) return { val:null, meta:'RR!nodata' };
       const m = txt.match(/([-+]?\d+(?:\.\d+)?)/);
-      if (!m) return null;
+      if (!m) return { val:null, meta:'RR!parse' };
       const v = Number(m[1]);
-      return isNaN(v) ? null : v;
-    }catch{ clearTimeout(t); return null; }
+      return isNaN(v) ? { val:null, meta:'RR!nan' } : { val:v, meta:'RR' };
+    }catch{ clearTimeout(t); return { val:null, meta:'RR!err' }; }
   }
-  const v1 = await once(0.2);
-  if (v1!=null) return v1;
+  const a = await once(0.2);
+  if (a.val!=null) return a;
   return await once(0.3);
 }
 
 /* NOWCAST (api.met.no/weatherapi/nowcast/2.0) — sateen rate mm/h 0–2 h, 5 min välein.
-   Palauttaa pyydetylle tasatunnille lähimmän aikaleiman arvon, jos etäisyys ≤ 7 min. */
+   Palauttaa pyydetylle tasatunnille lähimmän aikaleiman arvon, jos etäisyys ≤ 10 min. */
 async function fetchNowcastForHour(lat, lon, dLocal){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
     const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
-    if (!res.ok) return null;
+    if (!res.ok) return { val:null, meta:`NC!${res.status}` };
     const js = await res.json();
     const ts = js?.properties?.timeseries;
-    if (!Array.isArray(ts) || !ts.length) return null;
+    if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
     const targetUTC = new Date(Date.UTC(
       dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
@@ -192,16 +191,16 @@ async function fetchNowcastForHour(lat, lon, dLocal){
       const diff = Math.abs(t - targetUTC);
       if (diff < bestDiff){ bestDiff = diff; best = it; }
     }
-    if (!best || bestDiff > 7*60*1000) return null;
+    if (!best || bestDiff > 10*60*1000) return { val:null, meta:'NC!miss' };
 
     const pr = best?.data?.instant?.details?.precipitation_rate;
-    if (typeof pr === 'number') return pr;
+    if (typeof pr === 'number') return { val:pr, meta:'NC' };
 
     const acc = best?.data?.next_1_hours?.details?.precipitation_amount;
-    if (typeof acc === 'number') return acc;
+    if (typeof acc === 'number') return { val:acc, meta:'NC' };
 
-    return null;
-  }catch{ return null; }
+    return { val:null, meta:'NC!nodata' };
+  }catch{ return { val:null, meta:'NC!err' }; }
 }
 
 /* Lähin havainto hetkeen (obs) */
@@ -221,7 +220,11 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   return null;
 }
 
-/* Sade-solun muotoilu */
+/* Sade-solun muotoilu:
+   - null/undefined → '–' (harmaa)
+   - 0 → em dash — (valkoinen)
+   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
+*/
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
@@ -261,14 +264,18 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     }
     if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    const rrNow = await fetchRadarRR(LAT, LON);
+    /* Tutka t0 */
+    const rrHit = await fetchRadarRR(LAT, LON);
+    const rrNow = rrHit.val;
+    const rrMeta = rrHit.meta;
     const noRadarFallback = (rrNow == null);
 
+    /* Nowcast t1/t2 */
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
     const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
     const [nc1, nc2] = await Promise.all([
-      d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve(null),
-      d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve(null)
+      d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve({val:null, meta:'NC!skip'}),
+      d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve({val:null, meta:'NC!skip'})
     ]);
 
     let html = '';
@@ -292,8 +299,9 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       let rainObj, rainHtml;
       if (!noRadarFallback){
         rainObj = rainCell(rrNow);
-        rainHtml = `${rainObj.text}${srcTag('RR')}`;
+        rainHtml = `${rainObj.text}${srcTag(rrMeta || 'RR')}`;
       }else{
+        // Edellinen tasatunti HRM tai harmaa viiva
         const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
         const prevKey = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0)).toISOString().replace(/\.\d{3}Z$/,'Z');
         const fPrevRain = forecast.precipitation1h?.get(prevKey);
@@ -332,15 +340,23 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
 
       let rainObj, rainHtml;
       if (noRadarFallback){
+        // t0 ei saanut tutkaa → t1: harmaa em dash
         rainObj = { text:'—', cls:'soft' };
         rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
-      }else if (nc1!=null){
-        rainObj = rainCell(nc1);
-        rainHtml = `${rainObj.text}${srcTag('NC')}`;
-      }else{
-        if (fRain==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-        else if (Number(fRain)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-        else { rainObj = rainCell(fRain, {markGrey:true}); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+      } else if (nc1 && nc1.val != null){
+        // nowcast osui
+        rainObj = rainCell(nc1.val);
+        rainHtml = `${rainObj.text}${srcTag(nc1.meta || 'NC')}`;
+      } else {
+        // nowcast puuttuu → HRM harmaana (0 → valkoinen viiva)
+        if (fRain == null) { 
+          rainObj = { text:'–', cls:'soft' }; 
+        } else if (Number(fRain) === 0) { 
+          rainObj = { text:'—', cls:'' }; 
+        } else { 
+          rainObj = rainCell(fRain, { markGrey:true }); 
+        }
+        rainHtml = `${rainObj.text}${srcTag((nc1 && nc1.meta) ? nc1.meta : 'HRM')}`;
       }
 
       const desc = ssText(fSS) || '–';
@@ -374,13 +390,18 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       if (noRadarFallback){
         rainObj = { text:'—', cls:'soft' };
         rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
-      }else if (nc2!=null){
-        rainObj = rainCell(nc2);
-        rainHtml = `${rainObj.text}${srcTag('NC')}`;
-      }else{
-        if (fRain==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-        else if (Number(fRain)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-        else { rainObj = rainCell(fRain, {markGrey:true}); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+      } else if (nc2 && nc2.val != null){
+        rainObj = rainCell(nc2.val);
+        rainHtml = `${rainObj.text}${srcTag(nc2.meta || 'NC')}`;
+      } else {
+        if (fRain == null) { 
+          rainObj = { text:'–', cls:'soft' }; 
+        } else if (Number(fRain) === 0) { 
+          rainObj = { text:'—', cls:'' }; 
+        } else { 
+          rainObj = rainCell(fRain, { markGrey:true }); 
+        }
+        rainHtml = `${rainObj.text}${srcTag((nc2 && nc2.meta) ? nc2.meta : 'HRM')}`;
       }
 
       const desc = ssText(fSS) || '–';
@@ -410,9 +431,16 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const desc = ssText(ss) || '–';
 
       let rainObj, rainHtml;
-      if (rainVal==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-      else if (Number(rainVal)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
-      else { rainObj = rainCell(rainVal); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+      if (rainVal==null){ 
+        rainObj = { text:'–', cls:'soft' }; 
+        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
+      } else if (Number(rainVal)===0){ 
+        rainObj = { text:'—', cls:'' }; 
+        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
+      } else { 
+        rainObj = rainCell(rainVal); 
+        rainHtml = `${rainObj.text}${srcTag('HRM')}`;
+      }
 
       const shownDesc = (desc === prevDesc && desc !== '–')
         ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
