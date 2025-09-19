@@ -12,7 +12,7 @@
   }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
   .klohdr{
-    color:#85919b; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    color:#7a848d; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
   }
   .klohdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
@@ -24,11 +24,14 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
 
-  .muted{ color:#7b8690 }          /* aavistuksen tummempi harmaa */
+  /* tummemmat harmaat */
+  .muted{ color:#606870 }
+  .soft{  color:#606870 }
+
+  /* ditto-merkki vasempaan laitaan, ei keskitystä */
+  .desc .ditto{ display:inline; }
+  .ditto{ color:inherit }  /* valkoinen, perii sarakkeen värin */
   .err{ color:#ff6b6b; white-space:pre-wrap }
-  .soft{ color:#7b8690 }           /* tummennettu “soft”-harmaa */
-  .desc .ditto{ display:block; text-align:center; }
-  .ditto{ color:inherit }          /* ditto valkoisena (perii sarakkeen värin) */
 </style>
 
 <div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
@@ -39,8 +42,8 @@
    1) NYT (HH:MM): sade tutkasta; lämpö/tuuli havainnoista jos löytyy, muuten mallista(soft); SS soft.
    2) SEURAAVA tasatunti (HH:00): sade tutkasta (persist nyt); lämpö/tuuli mallista(soft); SS soft.
    3) Loput tasatunnein mallista normaalisti (valkoisena).
-   Sade-sarake: jos arvo != 0.0 mm → harmaa (soft). 0.0 mm jätetään valkoiseksi.
-   Ei WS3:aa, ei sade-fallbackia; SS-tekstit SmartSymbol-sanastosta.
+   Sade-sarake: t0/t1: 0.0 mm harmaana. t2→: 0.0 mm = tyhjä; ≥0.1 mm valkoinen; “–” harmaa.
+   Ditto “–»–” vasempaan laitaan.
 */
 
 const q = new URLSearchParams(location.search);
@@ -52,6 +55,7 @@ const out = document.getElementById('out');
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
+function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
 function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
 const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
@@ -180,13 +184,20 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   return null;
 }
 
-/* Sade-solun muotoilu: 0.0 mm = valkoinen; muu tai ‘–’ = .soft */
-function rainCell(val){
-  if (val==null) return { text:'–', cls:'soft' };
+/* Sade-solun muotoilu:
+   - showZero=true → 0.0 mm näytetään harmaana
+   - showZero=false → 0.0 mm = tyhjä
+   - null/undefined → '–' harmaana
+   - >=0.1 mm → valkoinen teksti
+*/
+function rainCell(val, showZero){
+  if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
-  const text = n.toFixed(1) + ' mm';
-  const cls  = (n === 0 ? '' : 'soft');
-  return { text, cls };
+  if (n === 0){
+    if (showZero) return { text:'0.0 mm', cls:'soft' };
+    return { text:'', cls:'' }; // tyhjä solu
+  }
+  return { text:n.toFixed(1) + ' mm', cls:'' };
 }
 
 (async function(){
@@ -243,9 +254,7 @@ function rainCell(val){
       const tempCls = (oTemp!=null?'':'soft');
       const windCls = (oWind!=null?'':'soft');
 
-      const rainVal = (rr!=null ? rr : forecast.precipitation1h?.get(key));
-      const rain = rainCell(rainVal);
-
+      const rain = rainCell(rr!=null ? rr : forecast.precipitation1h?.get(key), /*showZero*/ true);
       const desc = ssText(fSS) || '–';
 
       html += `<div class="row">
@@ -270,8 +279,7 @@ function rainCell(val){
       const tempStr = (fTemp!=null?Math.round(fTemp)+'°C':'–');
       const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
 
-      const rainVal = (rr!=null ? rr : fRain);
-      const rain = rainCell(rainVal);
+      const rain = rainCell(rr!=null ? rr : fRain, /*showZero*/ true);
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -298,16 +306,15 @@ function rainCell(val){
       const ss   = forecast.SmartSymbol?.get(key);
       const desc = ssText(ss) || '–';
 
-      const rain = rainCell(rainVal);
+      const rain = rainCell(rainVal, /*showZero*/ false);
 
-      // Ditto kuvaus: sama kuin edellinen ja ei ‘–’ → näytä –»– (valkoinen)
       const shownDesc = (desc === prevDesc && desc !== '–')
         ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
         : desc;
       prevDesc = desc;
 
       html += `<div class="row">
-        <div>${fmtHM(dUtc)}</div>
+        <div>${fmtH(dUtc)}</div>
         <div>${temp!=null?Math.round(temp)+'°C':'–'}</div>
         <div class="desc">${shownDesc}</div>
         <div class="${rain.cls}">${rain.text}</div>
