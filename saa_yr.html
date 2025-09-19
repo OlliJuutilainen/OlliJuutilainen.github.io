@@ -61,7 +61,7 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol (demo; voit vaihtaa omaan täydelliseen sanakirjaasi) */
+/* SmartSymbol (demo; vaihda halutessasi omaan täyteen sanakirjaasi) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -169,8 +169,9 @@ async function fetchRadarRR(lat, lon, timeoutMs=9000){
   return await once(0.3);
 }
 
-/* NOWCAST (api.met.no/weatherapi/nowcast/2.0/complete) — sateen rate mm/h 0–2 h, 5 min välein.
-   Palauttaa pyydetylle tasatunnille lähimmän aikaleiman arvon, jos etäisyys ≤ 10 min. */
+/* NOWCAST (api.met.no/weatherapi/nowcast/2.0/complete)
+   Valitse rivi, jonka periodi kattaa target-tunnin: täsmälleen targetUTC, tai seuraava ≥ targetUTC (≤ +30 min),
+   muutoin lähin |Δ| ≤ 20 min. Käytä ensisijaisesti next_1_hours.precipitation_amount (mm); muuten instant rate. */
 async function fetchNowcastForHour(lat, lon, dLocal){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -182,23 +183,39 @@ async function fetchNowcastForHour(lat, lon, dLocal){
 
     const targetUTC = new Date(Date.UTC(
       dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
-    ));
-    let best=null, bestDiff=1e15;
-    for (const it of ts){
-      const t = new Date(it.time);
-      const diff = Math.abs(t - targetUTC);
-      if (diff < bestDiff){ bestDiff = diff; best = it; }
-    }
-    if (!best || bestDiff > 10*60*1000) return { val:null, meta:'NC!miss' };
+    )).getTime();
 
-    const pr = best?.data?.instant?.details?.precipitation_rate;
-    if (typeof pr === 'number') return { val:pr, meta:'NC' };
+    let best = ts.find(it => new Date(it.time).getTime() === targetUTC);
+
+    if (!best){
+      const future = ts
+        .map(it => ({ t:new Date(it.time).getTime(), it }))
+        .filter(x => x.t >= targetUTC)
+        .sort((a,b)=>a.t-b.t)[0];
+      if (future && (future.t - targetUTC) <= 30*60*1000) best = future.it;
+    }
+
+    if (!best){
+      let cand=null, diffMin=1e9;
+      for (const it of ts){
+        const dt = Math.abs(new Date(it.time).getTime() - targetUTC);
+        if (dt < diffMin){ diffMin = dt; cand = it; }
+      }
+      if (cand && diffMin <= 20*60*1000) best = cand;
+    }
+
+    if (!best) return { val:null, meta:'NC!miss' };
 
     const acc = best?.data?.next_1_hours?.details?.precipitation_amount;
     if (typeof acc === 'number') return { val:acc, meta:'NC' };
 
+    const pr = best?.data?.instant?.details?.precipitation_rate;
+    if (typeof pr === 'number') return { val:pr, meta:'NC' };
+
     return { val:null, meta:'NC!nodata' };
-  }catch{ return { val:null, meta:'NC!err' }; }
+  }catch{
+    return { val:null, meta:'NC!err' };
+  }
 }
 
 /* Lähin havainto hetkeen (obs) */
@@ -218,7 +235,11 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   return null;
 }
 
-/* Sade-solun muotoilu */
+/* Sade-solun muotoilu:
+   - null/undefined → '–' (harmaa)
+   - 0 → em dash — (valkoinen; HRM-fallbackissa t1/t2 harmaa)
+   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
+*/
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
@@ -260,9 +281,12 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
 
     /* Tutka t0 */
     const rrHit = await fetchRadarRR(LAT, LON);
-    const rrNow = rrHit.val;
+    let rrNow = rrHit.val;
     const rrMeta = rrHit.meta;
     const noRadarFallback = (rrNow == null);
+
+    /* SIIVOA pieni tihku t0: alle 0.2 mm/h → “—” */
+    if (rrNow != null && rrNow < 0.2) rrNow = 0;
 
     /* Nowcast t1/t2 */
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
