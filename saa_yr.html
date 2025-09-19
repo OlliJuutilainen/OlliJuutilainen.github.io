@@ -56,6 +56,9 @@ const out = document.getElementById('out');
 const DBG = q.has('dbg');
 function srcTag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
 
+/* Tutkan pienen ripplen kynnys (mm/h). Oletus 0.6, säädettävissä ?minrr=0.2 jne. */
+const MIN_RR = Math.max(0, parseFloat(q.get('minrr')||'0.6'));
+
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
@@ -172,7 +175,7 @@ async function fetchRadarRR(lat, lon, timeoutMs=9000){
 /* NOWCAST (api.met.no/weatherapi/nowcast/2.0/complete)
    Valitse rivi, jonka periodi kattaa target-tunnin: täsmälleen targetUTC, tai seuraava ≥ targetUTC (≤ +30 min),
    muutoin lähin |Δ| ≤ 20 min. Käytä ensisijaisesti next_1_hours.precipitation_amount (mm); muuten instant rate. */
-async function fetchNowcastForHour(lat, lon, dLocal){
+async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
     const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
@@ -181,9 +184,7 @@ async function fetchNowcastForHour(lat, lon, dLocal){
     const ts = js?.properties?.timeseries;
     if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
-    const targetUTC = new Date(Date.UTC(
-      dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
-    )).getTime();
+    const targetUTC = dUTC.getTime(); // <-- korjaus: dUTC on jo FMI:n UTC-aika
 
     let best = ts.find(it => new Date(it.time).getTime() === targetUTC);
 
@@ -285,8 +286,8 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     const rrMeta = rrHit.meta;
     const noRadarFallback = (rrNow == null);
 
-    /* SIIVOA pieni tihku t0: alle 0.2 mm/h → “—” */
-    if (rrNow != null && rrNow < 0.2) rrNow = 0;
+    /* Siivoa pieni tihku t0: alle MIN_RR → “—” */
+    if (rrNow != null && rrNow < MIN_RR) rrNow = 0;
 
     /* Nowcast t1/t2 */
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
@@ -315,8 +316,11 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const windCls = (oWind!=null?'':'soft');
 
       let rainObj, rainHtml;
+      let rrShown = rrNow;
+      if (rrShown != null && rrShown < MIN_RR) rrShown = 0;
+
       if (!noRadarFallback){
-        rainObj = rainCell(rrNow);
+        rainObj = rainCell(rrShown);
         rainHtml = `${rainObj.text}${srcTag(rrMeta || 'RR')}`;
       }else{
         // Edellinen tasatunti HRM tai harmaa viiva
