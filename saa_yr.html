@@ -24,15 +24,12 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
 
-  /* vielä himmeämmät harmaat */
   .muted{ color:#515a62 }
   .soft{  color:#515a62 }
 
-  /* kellonajan kohdistus: oletuksena vasen; ennusteriveillä oikea */
-  .t{ text-align:left }
-  .t.hh{ text-align:right }
+  .t{ text-align:left }      /* t0–t2 vasen */
+  .t.hh{ text-align:right }  /* ennusterivit oikea */
 
-  /* ditto vasempaan laitaan */
   .desc .ditto{ display:inline }
   .ditto{ color:inherit }
 
@@ -44,19 +41,10 @@
 
 <script>
 /* Sade-lähteet:
-   - t0 (nyt): tutka RR (WMS GetFeatureInfo). Jos puuttuu → “erikoisfallback”:
-       * katso edellisen tasatunnin (thisHour-1) HARMONIE-ennuste: jos >0 → näytä harmaana n.nn mm,
-         muuten harmaa em dash.
-       * samalla t1 ja t2 sateet: harmaat em dashit (ei numeroita).
-   - t1, t2: yritä NOWCAST-sadetta (TODO: kytke oikea endpoint). Jos puuttuu → HARMONIE numero harmaana, 0 → valkoinen em dash.
-   - t3..: HARMONIE normaalisti; 0 → valkoinen em dash; >0 → valkoinen numero.
-
-   HUOM: Tämä tiedosto ei vielä kytke oikeaa nowcast-endpointtia (FMI-PPN tms.), vaan
-   fetchNowcast() palauttaa null → t1/t2 näyttävät HARMONIE-sateen harmaana. Kun nowcast-API
-   tiedossa, täytä fetchNowcast().
-
-   Muut sarakkeet kuten ennen: t0 lämpö/tuuli havainnoista jos saatavilla, muutoin malli (soft).
-   t1/t2 lämpö/tuuli mallista (soft). SS: t0–t2 soft, loput valkoisena; ditto-merkki kuvaussarakkeessa.
+   - t0: FMI-tutka RR (WMS GetFeatureInfo, TIME=latest). Jos puuttuu → “erikoisfallback” (katso edellinen tasatunti HARMONIE; jos ei >0, harmaa em dash).
+   - t1/t2: MET Norway Nowcast 2.0 (api.met.no). Jos puuttuu → HARMONIE harmaana; 0 → “—”.
+   - t3→: HARMONIE normaalisti; 0 → “—”.
+   Muut: kuten aiemmin (t0 lämpö/tuuli havainnoista jos saatavilla, muuten malli).
 */
 
 const q = new URLSearchParams(location.search);
@@ -73,7 +61,7 @@ const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',mon
 function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
 const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
 
-/* SmartSymbol-sanakirja (suppea, riittää demoihin — sinulla on täydellinen lista) */
+/* SmartSymbol (tiivis demo; sinulla on täydellinen lista) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -142,12 +130,12 @@ const extractSeries = x => {
   return o;
 };
 
-/* Tutka RR: WMS GetFeatureInfo (keskipikseli, TIME=latest) */
-function wmsRRUrl(lat, lon){
+/* Tutka RR (FMI WMS GetFeatureInfo, TIME=latest) – hieman leveämpi bbox ja retry */
+function wmsRRUrl(lat, lon, pad=0.2){
   const service='https://opendata.fmi.fi/wms';
   const L='radar:composite:rr';
-  const pad=0.1, minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
-  const WIDTH=101, HEIGHT=101, I=50, J=50;
+  const minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
+  const WIDTH=121, HEIGHT=121, I=60, J=60;
   const qs = new URLSearchParams({
     service:'WMS', request:'GetFeatureInfo', version:'1.3.0',
     layers:L, query_layers:L, styles:'',
@@ -160,26 +148,69 @@ function wmsRRUrl(lat, lon){
   });
   return `${service}?${qs.toString()}`;
 }
-async function fetchRadarRR(lat, lon, timeoutMs=6000){
+async function fetchRadarRR(lat, lon, timeoutMs=9000){
+  async function once(pad){
+    const ctrl=new AbortController();
+    const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res=await fetch(wmsRRUrl(lat,lon,pad),{cache:'no-store',signal:ctrl.signal});
+      const txt=await res.text();
+      clearTimeout(t);
+      if (!res.ok) return null;
+      if (/nan|none|nodata/i.test(txt)) return null;
+      const m = txt.match(/([-+]?\d+(?:\.\d+)?)/);
+      if (!m) return null;
+      const v = Number(m[1]);
+      return isNaN(v) ? null : v;
+    }catch{ clearTimeout(t); return null; }
+  }
+  const v1 = await once(0.2);
+  if (v1!=null) return v1;
+  return await once(0.3);
+}
+
+/* NOWCAST (api.met.no/weatherapi/nowcast/2.0) — sateen rate mm/h 0–2 h, 5 min välein.
+   Palauttaa pyydetylle tasatunnille (dLocal) lähimmän aikaleiman arvon, jos etäisyys ≤ 7 min. */
+async function fetchNowcastForHour(lat, lon, dLocal){
   try{
-    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
-    const res=await fetch(wmsRRUrl(lat,lon),{cache:'no-store',signal:ctrl.signal});
-    clearTimeout(t);
-    const txt=await res.text();
-    if (!res.ok) throw new Error(`WMS ${res.status}`);
-    const m = txt.match(/([-+]?\d+(?:\.\d+)?)/);
-    if (m){ const v=Number(m[1]); return isNaN(v)?null:v; }
+    const url = `https://api.met.no/weatherapi/nowcast/2.0?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+    const res = await fetch(url, {
+      cache:'no-store',
+      headers: { 'Accept': 'application/json' }
+      // User-Agentia ei voi asettaa selaimessa; selain lähettää oman UA:n.
+    });
+    if (!res.ok) return null;
+    const js = await res.json();
+    const ts = js?.properties?.timeseries;
+    if (!Array.isArray(ts) || !ts.length) return null;
+
+    // Etsitään lähin nowcast timestamp (UTC) suhteessa haluttuun paikalliseen tasatuntiin
+    const targetUTC = new Date(Date.UTC(
+      dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
+    ));
+    let best=null, bestDiff=1e15;
+
+    for (const it of ts){
+      const t = new Date(it.time); // ISO Z
+      const diff = Math.abs(t - targetUTC);
+      if (diff < bestDiff){ bestDiff = diff; best = it; }
+    }
+    // hyväksytään vain jos ≤ 7 min päässä tasatunnista
+    if (!best || bestDiff > 7*60*1000) return null;
+
+    // Poimi saderate: ensisijaisesti instant.details.precipitation_rate
+    const pr = best?.data?.instant?.details?.precipitation_rate;
+    if (typeof pr === 'number') return pr;
+
+    // vaihtoehtoinen: data.next_1_hours?.details?.precipitation_amount (mm) / 1 h → rate
+    const acc = best?.data?.next_1_hours?.details?.precipitation_amount;
+    if (typeof acc === 'number') return acc; // jo valmiiksi “mm/h” integraalina
+
     return null;
-  }catch(_e){ return null; }
+  }catch{ return null; }
 }
 
-/* NOWCAST-sade (TODO: kytke oikeaan endpointtiin; nyt palauttaa null → fallback HARMONIEen t1/t2) */
-async function fetchNowcast(lat, lon, hoursAhead /* 1 tai 2 */){
-  // Tähän kun liität FMI-PPN / muun nowcast-API:n, palauta mm/h (numero) tai null.
-  return null;
-}
-
-/* Lähin havainto hetkeen */
+/* Lähin havainto hetkeen (obs) */
 function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   if (!mapUTC) return null;
   const targetUTC = new Date(Date.UTC(
@@ -197,9 +228,9 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
 }
 
 /* Sade-solun muotoilu:
-   - null/undefined → '–' (harmaana)
-   - 0 → pitkä ajatusviiva — (valkoisena) [paitsi erikoisfallback t0/t1/t2, jossa harmaa]
-   - >0 → n.mm (valkoisena), tai harmaana jos markGrey=true
+   - null/undefined → '–' (harmaa)
+   - 0 → em dash — (valkoinen)
+   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
 */
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
@@ -218,7 +249,6 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   }
 
   try{
-    // Hae malli + havainnot rinnakkain
     const [fRes, oRes] = await Promise.all([
       fetch(buildWfsForecast(LAT,LON), {cache:'no-store'}),
       fetch(buildWfsObs(LAT,LON), {cache:'no-store'})
@@ -230,12 +260,11 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     const forecast = extractSeries(parseXML(fTxt));
     const obs      = extractSeries(parseXML(oTxt));
 
-    // ennusteen tasatunnit alkaen kuluvasta tasatunnista
     const now = new Date();
     const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));   // HH:00
     const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
 
-    // valitaan thisHour, +1h, +2h, ja lisäksi 10 lisää (yht. 13 riviä)
+    // Poimitaan thisHour, +1h, +2h, +10 lisää (yht. 13)
     const pickKeys = [];
     for (const k of fKeys){
       const d = new Date(k);
@@ -247,14 +276,18 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     const rrNow = await fetchRadarRR(LAT, LON);
     const noRadarFallback = (rrNow == null);
 
-    // Hae mahdolliset nowcastit t1/t2 (palautuu nykytilassa null)
-    const nc1 = await fetchNowcast(LAT, LON, 1); // t+1h
-    const nc2 = await fetchNowcast(LAT, LON, 2); // t+2h
+    // Nowcast t1/t2: haetaan lähin aikaleima tasatunneille (pickKeys[1], pickKeys[2]) paikallisajassa
+    const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
+    const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
+    const [nc1, nc2] = await Promise.all([
+      d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve(null),
+      d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve(null)
+    ]);
 
     let html = '';
     let prevDesc = null;
 
-    // --- 1) NYT (HH:MM) — bucket = pickKeys[0], kellonaika = now
+    // --- 1) NYT (HH:MM)
     {
       const key = pickKeys[0];
       const fTemp = forecast.temperature?.get(key);
@@ -274,19 +307,13 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       if (!noRadarFallback){
         rainObj = rainCell(rrNow);
       }else{
-        // erikoisfallback: katso edellinen tasatunti (thisHour-1) HARMONIE
-        const prevHourUTCKey = (()=>{
-          const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
-          // muodostetaan kello-UTC-ISO avain
-          const iso = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0))
-                       .toISOString().replace(/\.\d{3}Z$/,'Z');
-          return iso;
-        })();
-        const fPrevRain = forecast.precipitation1h?.get(prevHourUTCKey);
+        const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
+        const prevKey = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0)).toISOString().replace(/\.\d{3}Z$/,'Z');
+        const fPrevRain = forecast.precipitation1h?.get(prevKey);
         if (fPrevRain!=null && fPrevRain>0){
           rainObj = rainCell(fPrevRain, {markGrey:true});
         }else{
-          rainObj = { text:'—', cls:'soft' }; // harmaa em dash
+          rainObj = { text:'—', cls:'soft' };
         }
       }
 
@@ -302,7 +329,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       prevDesc = desc;
     }
 
-    // --- 2) t+1h (HH:MM) — pickKeys[1]; sade = nowcast (jos ei → HARMONIE harmaana; erikoisfallbackissa harmaa em dash)
+    // --- 2) t+1h (HH:MM) — MET Nowcast jos saatavilla, muuten HARMONIE harmaana
     if (pickKeys.length >= 2){
       const key = pickKeys[1];
       const dUtc = new Date(key);
@@ -316,13 +343,12 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
 
       let rainObj;
       if (noRadarFallback){
-        // koko t0–t2 erikoisfallback: harmaat em dashit t1/t2
+        // t0: ei tutkaa → t1/t2 harmaa em dash
         rainObj = { text:'—', cls:'soft' };
       }else{
         if (nc1!=null){
-          rainObj = rainCell(nc1); // nowcast → valkoisena
+          rainObj = rainCell(nc1);
         }else{
-          // ei nowcastia → käytä HARMONIEa harmaana
           if (fRain==null) rainObj = { text:'–', cls:'soft' };
           else if (Number(fRain)===0) rainObj = { text:'—', cls:'' };
           else rainObj = rainCell(fRain, {markGrey:true});
@@ -344,7 +370,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       prevDesc = desc;
     }
 
-    // --- 3) t+2h (HH:MM) — pickKeys[2]; sama logiikka kuin t+1h
+    // --- 3) t+2h (HH:MM)
     if (pickKeys.length >= 3){
       const key = pickKeys[2];
       const dUtc = new Date(key);
@@ -384,7 +410,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       prevDesc = desc;
     }
 
-    // --- 4) Ennusterivit: aloita pickKeys[3] → ota vielä 10 riviä (jos riittää)
+    // --- 4) 10 ennusteriviä: pickKeys[3..]
     let written = 0;
     for (let i=3; i<pickKeys.length && written<10; i++, written++){
       const key = pickKeys[i];
