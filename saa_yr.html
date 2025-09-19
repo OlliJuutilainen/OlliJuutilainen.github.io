@@ -346,18 +346,22 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       } else if (nc1 && nc1.val != null){
         // nowcast osui
         rainObj = rainCell(nc1.val);
-        rainHtml = `${rainObj.text}${srcTag(nc1.meta || 'NC')}`;
+        rainHtml = `${rainObj.text}${srcTag('NC')}`;
       } else {
-        // nowcast puuttuu → HRM harmaana (0 → valkoinen viiva)
-        if (fRain == null) { 
-          rainObj = { text:'–', cls:'soft' }; 
-        } else if (Number(fRain) === 0) { 
-          rainObj = { text:'—', cls:'' }; 
-        } else { 
-          rainObj = rainCell(fRain, { markGrey:true }); 
+        // nowcast puuttuu → käytä HRM:ää, ja TAGI = HRM (näytä debugissa syy)
+        if (fRain == null) {
+          rainObj = { text:'–', cls:'soft' };
+        } else if (Number(fRain) === 0) {
+          // 0 → harmaa em dash HRM-fallbackissa
+          rainObj = { text:'—', cls:'soft' };
+        } else {
+          // >0 → harmaana numero
+          rainObj = rainCell(fRain, { markGrey:true });
         }
-        rainHtml = `${rainObj.text}${srcTag((nc1 && nc1.meta) ? nc1.meta : 'HRM')}`;
+        const reason = (nc1 && nc1.meta && nc1.meta.startsWith('NC!')) ? ` (${nc1.meta})` : '';
+        rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
       }
+
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -392,17 +396,20 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
       } else if (nc2 && nc2.val != null){
         rainObj = rainCell(nc2.val);
-        rainHtml = `${rainObj.text}${srcTag(nc2.meta || 'NC')}`;
+        rainHtml = `${rainObj.text}${srcTag('NC')}`;
       } else {
-        if (fRain == null) { 
-          rainObj = { text:'–', cls:'soft' }; 
-        } else if (Number(fRain) === 0) { 
-          rainObj = { text:'—', cls:'' }; 
-        } else { 
-          rainObj = rainCell(fRain, { markGrey:true }); 
+        if (fRain == null) {
+          rainObj = { text:'–', cls:'soft' };
+        } else if (Number(fRain) === 0) {
+          // 0 → harmaa em dash HRM-fallbackissa
+          rainObj = { text:'—', cls:'soft' };
+        } else {
+          rainObj = rainCell(fRain, { markGrey:true });
         }
-        rainHtml = `${rainObj.text}${srcTag((nc2 && nc2.meta) ? nc2.meta : 'HRM')}`;
+        const reason = (nc2 && nc2.meta && nc2.meta.startsWith('NC!')) ? ` (${nc2.meta})` : '';
+        rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
       }
+
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
