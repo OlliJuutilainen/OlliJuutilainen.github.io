@@ -1,0 +1,267 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body{height:100%}
+  body{
+    margin:0; padding:28px 14px 24px; background:#000; color:#e8e8e8;
+    font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
+  }
+  .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .klohdr{
+    color:#9aa; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
+  }
+  .klohdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
+  .klohdr > div:not(:first-child){ visibility:hidden; }
+  .row{
+    display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
+    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c;
+  }
+  .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
+  .muted{ color:#95a0aa } .err{ color:#ff6b6b; white-space:pre-wrap }
+</style>
+
+<div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
+<div class="list" id="out" aria-live="polite"></div>
+
+<script>
+/* SmartSymbol ONLY (yö normalisoidaan: code % 100), EI WS3:aa, EI fallbackia.
+   Näytä: viimeisin mennyt tasatunti + 12 seuraavaa (13 riviä).
+   HH:MM kaksoispisteellä, peräkkäisten kuvausten dedup (mutta ‘–’ ei piiloudu).
+   Kuvaussolussa on aina arvo: SS-teksti tai ‘–’. Koordinaatit URL:sta (?lat=...&lon=...). */
+
+const q = new URLSearchParams(location.search);
+const LAT = q.get('lat');
+const LON = q.get('lon');
+const TZ  = 'Europe/Helsinki';
+const out = document.getElementById('out');
+
+/* Aika: HH:MM (varma kaksoispiste) */
+const tFmt = new Intl.DateTimeFormat('fi-FI', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23' });
+function fmtHM(dUtc){
+  const parts = tFmt.formatToParts(dUtc);
+  const hh = parts.find(p=>p.type==='hour')?.value ?? '00';
+  const mm = parts.find(p=>p.type==='minute')?.value ?? '00';
+  return `${hh}:${mm}`;
+}
+
+/* Seinäkello-osat TZ:ssä ilman locale-parsausta */
+const partsFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'
+});
+function getParts(dUtc){
+  const ps = partsFmt.formatToParts(dUtc);
+  const g = t => Number(ps.find(p=>p.type===t)?.value);
+  return { y:g('year'), m:g('month'), d:g('day'), h:g('hour'), min:g('minute'), s:g('second') };
+}
+function partsId(p){ return ((p.y*100+p.m)*100+p.d)*100 + p.h; }
+
+/* ——— SMARTSYMBOL-SANAKIRJA (täsmälleen sinun listasi mukaan; yö 101..199 → %100) ———
+   Jos koodi puuttuu tästä → UI näyttää ‘–’.
+   (Listassa ovat kaikki rivit, jotka olivat selkeästi luettavissa toimittamastasi md/pdf:stä.) */
+const SS_TEXT = {
+  // Perustilat (sää + ukkos-/sadekuurot jne.)
+  1:'Selkeää',
+  2:'Enimmäkseen selkeää',
+  4:'Puolipilvistä',
+  6:'Enimmäkseen pilvistä',
+  7:'Pilvistä',
+  9:'Sumua',
+
+  71:'Yksittäisiä ukkoskuuroja',
+  74:'Paikoin ukkoskuuroja',
+  77:'Ukkoskuuroja',
+
+  21:'Yksittäisiä sadekuuroja',
+  24:'Paikoin sadekuuroja',
+  27:'Sadekuuroja',
+
+  14:'Jäätävää tihkua',
+  17:'Jäätävää sadetta',
+  11:'Tihkusadetta',
+
+  // Vesisade: heikko/kohtalainen/voimakas + “puolipilvistä/enimmäkseen pilvistä ja ajoittain …”
+  31:'Puolipilvistä ja ajoittain heikkoa vesisadetta',
+  34:'Enimmäkseen pilvistä ja ajoittain heikkoa vesisadetta',
+  37:'Heikkoa vesisadetta',
+
+  32:'Puolipilvistä ja ajoittain kohtalaista vesisadetta',
+  35:'Enimmäkseen pilvistä ja ajoittain kohtalaista vesisadetta',
+  38:'Kohtalaista vesisadetta',
+
+  33:'Puolipilvistä ja ajoittain voimakasta vesisadetta',
+  36:'Enimmäkseen pilvistä ja ajoittain voimakasta vesisadetta',
+  39:'Voimakasta vesisadetta',
+
+  // Räntä: heikko/kohtalainen/voimakas + yhdistelmät
+  41:'Puolipilvistä ja ajoittain heikkoa räntäsadetta tai räntäkuuroja',
+  44:'Enimmäkseen pilvistä ja ajoittain heikkoa räntäsadetta tai räntäkuuroja',
+  47:'Heikkoa räntäsadetta',
+
+  42:'Puolipilvistä ja ajoittain kohtalaista räntäsadetta tai räntäkuuroja',
+  45:'Enimmäkseen pilvistä ja ajoittain kohtalaista räntäsadetta tai räntäkuuroja',
+  48:'Kohtalaista räntäsadetta',
+
+  43:'Puolipilvistä ja ajoittain voimakasta räntäsadetta tai räntäkuuroja',
+  46:'Enimmäkseen pilvistä ja ajoittain voimakasta räntäsadetta tai räntäkuuroja',
+  49:'Voimakasta räntäsadetta',
+
+  // Lumi: heikko/kohtalainen/sakea/runsas + yhdistelmät
+  51:'Puolipilvistä ja ajoittain heikkoa lumisadetta tai lumikuuroja',
+  54:'Enimmäkseen pilvistä ja ajoittain heikkoa lumisadetta tai lumikuuroja',
+  57:'Heikkoa lumisadetta',
+
+  52:'Puolipilvistä ja ajoittain kohtalaista lumisadetta tai lumikuuroja',
+  55:'Enimmäkseen pilvistä ja ajoittain kohtalaista lumisadetta tai lumikuuroja',
+  58:'Kohtalaista lumisadetta',
+
+  53:'Puolipilvistä ja ajoittain sakeaa lumisadetta tai lumikuuroja',
+  56:'Enimmäkseen pilvistä ja ajoittain sakeaa lumisadetta tai lumikuuroja',
+  59:'Runsasta lumisadetta',
+
+  // Raekuurot
+  61:'Yksittäisiä raekuuroja',
+  64:'Paikoin raekuuroja',
+  67:'Raekuuroja'
+};
+
+/* SmartSymbol → teksti (yö 100+ → %100). Tuntematon → '' → UI: ‘–’. */
+function symSmart(code){
+  if (code == null) return '';
+  const day = Number(code) % 100;
+  return SS_TEXT[day] || '';
+}
+
+/* WFS-haku: SmartSymbol mukana */
+function buildUrl(lat, lon){
+  const base = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
+  const sq   = 'fmi::forecast::harmonie::surface::point::timevaluepair';
+  const params = 'temperature,precipitation1h,windspeedms,SmartSymbol';
+  const now = new Date();
+  const startFetch = new Date(now); startFetch.setHours(startFetch.getHours()-1);
+  const endFetch   = new Date(now); endFetch.setHours(endFetch.getHours()+24);
+  const iso = d => d.toISOString().replace(/\.\d{3}Z$/,'Z');
+  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(startFetch))}&endtime=${encodeURIComponent(iso(endFetch))}&timestep=60`;
+}
+
+/* XML → sarjat Mapiksi (key = ISO UTC string) */
+const parseXML = txt => {
+  const x = new DOMParser().parseFromString(txt, 'application/xml');
+  const ex = x.querySelector('Exception, ows\\:Exception');
+  if (ex) {
+    const t = x.querySelector('ExceptionText, ows\\:ExceptionText');
+    throw new Error('FMI virhe: ' + (t ? t.textContent : 'Tuntematon virhe'));
+  }
+  return x;
+};
+const extract = x => {
+  const get = (e,n)=>e.getElementsByTagNameNS('*',n)[0];
+  const all = x.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTimeseries');
+  const o = {};
+  for (const s of all) {
+    const id = (s.getAttribute('gml:id') || '').toLowerCase();
+    let k = '';
+    if      (id.includes('temperature'))      k = 'temperature';
+    else if (id.includes('precipitation1h'))  k = 'precipitation1h';
+    else if (id.includes('windspeedms'))      k = 'windspeedms';
+    else if (id.includes('smartsymbol'))      k = 'SmartSymbol';
+    if (!k) continue;
+    const map = new Map();
+    for (const p of s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP')){
+      const t = get(p,'time')?.textContent;
+      const v = get(p,'value')?.textContent;
+      if (!t) continue;
+      const num = v!=null ? Number(v) : null;
+      map.set(t, isNaN(num) ? null : num);
+    }
+    o[k] = map;
+  }
+  return o;
+}
+
+function fetchWithTimeout(ms=9000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), ms);
+  return { signal: ctrl.signal, clear: ()=>clearTimeout(t) };
+}
+
+/* Renderöinti: viimeisin tasatunti + 12 seuraavaa (13 riviä) */
+(function(){
+  scrollTo(0,1); setTimeout(()=>scrollTo(0,1), 150);
+  if (!LAT || !LON) {
+    out.innerHTML = `<div class="err">Puuttuvat koordinaatit. Käytä osoitetta:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
+    return;
+  }
+  const partsFmtTZ = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'
+  });
+  const getP = d => {
+    const ps = partsFmtTZ.formatToParts(d);
+    const g = t => Number(ps.find(p=>p.type===t)?.value);
+    return { y:g('year'), m:g('month'), d:g('day'), h:g('hour'), min:0, s:0 };
+  };
+  const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
+
+  (async () => {
+    try{
+      const t = fetchWithTimeout(9000);
+      const res = await fetch(buildUrl(LAT, LON), { cache:'no-store', signal: t.signal });
+      t.clear();
+      const txt = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,200)}`);
+      const ser = extract(parseXML(txt));
+
+      const keys = Array.from(ser.temperature?.keys?.() || []).sort();
+
+      const startId = idOf(getP(new Date()));
+      const rows = [];
+      for (let i=0;i<keys.length;i++){
+        const dUtc = new Date(keys[i]);
+        const pid = idOf(getP(dUtc));
+        if (pid >= startId){
+          rows.push(keys[i]);
+          if (rows.length === 13) break;
+        }
+      }
+
+      let html = '';
+      let prevDesc = null;
+
+      for (const key of rows) {
+        const dUtc = new Date(key);
+        const temp = ser.temperature?.get(key);
+        const rain = ser.precipitation1h?.get(key);
+        const wind = ser.windspeedms?.get(key);
+        const ss   = ser.SmartSymbol?.get(key);
+
+        const desc = symSmart(ss) || '–'; // aina jokin arvo
+        let shownDesc;
+        if (desc === '–') {
+        shownDesc = '–';                         // viiva ei muutu ditoksi
+        } else if (desc === prevDesc) {
+        shownDesc = '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>';
+        } else {
+        shownDesc = desc;
+        }
+        prevDesc = desc;
+
+        html += `<div class="row">
+          <div>${fmtHM(dUtc)}</div>
+          <div>${temp!=null ? Math.round(temp) + '°C' : '–'}</div>
+          <div>${shownDesc}</div>
+          <div>${rain!=null ? rain.toFixed(1) + ' mm' : '–'}</div>
+          <div>${wind!=null ? wind.toFixed(1) + ' m/s' : '–'}</div>
+        </div>`;
+      }
+
+      out.innerHTML = html || `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    } catch (e) {
+      out.innerHTML = `<div class="err">${String(e.message || e)}</div>`;
+    }
+  })();
+})();
+</script>
