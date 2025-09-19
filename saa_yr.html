@@ -41,10 +41,10 @@
 
 <script>
 /* Sade-lähteet:
-   - t0: FMI-tutka RR (WMS GetFeatureInfo, TIME=latest). Jos puuttuu → “erikoisfallback” (katso edellinen tasatunti HARMONIE; jos ei >0, harmaa em dash).
-   - t1/t2: MET Norway Nowcast 2.0 (api.met.no). Jos puuttuu → HARMONIE harmaana; 0 → “—”.
-   - t3→: HARMONIE normaalisti; 0 → “—”.
-   Muut: kuten aiemmin (t0 lämpö/tuuli havainnoista jos saatavilla, muuten malli).
+   - t0: FMI-tutka RR. Jos puuttuu → erikoisfallback (HARMONIE edellisestä tasatunnista, tai harmaa em dash).
+   - t1/t2: MET Norway Nowcast 2.0. Jos puuttuu → HARMONIE harmaana; 0 → “—”.
+   - t3→: HARMONIE; 0 → “—”.
+   Debug: lisää ?dbg=1 → näyttää lähdetagit (RR / NC / HRM / HRM-prev) sateen solussa.
 */
 
 const q = new URLSearchParams(location.search);
@@ -52,6 +52,9 @@ const LAT = parseFloat(q.get('lat'));
 const LON = parseFloat(q.get('lon'));
 const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
+
+const DBG = q.has('dbg');
+function srcTag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
 
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
@@ -61,7 +64,7 @@ const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',mon
 function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
 const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
 
-/* SmartSymbol (tiivis demo; sinulla on täydellinen lista) */
+/* SmartSymbol (demo; sinulla täydellinen lista) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -130,7 +133,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* Tutka RR (FMI WMS GetFeatureInfo, TIME=latest) – hieman leveämpi bbox ja retry */
+/* Tutka RR (FMI WMS GetFeatureInfo) */
 function wmsRRUrl(lat, lon, pad=0.2){
   const service='https://opendata.fmi.fi/wms';
   const L='radar:composite:rr';
@@ -170,41 +173,32 @@ async function fetchRadarRR(lat, lon, timeoutMs=9000){
 }
 
 /* NOWCAST (api.met.no/weatherapi/nowcast/2.0) — sateen rate mm/h 0–2 h, 5 min välein.
-   Palauttaa pyydetylle tasatunnille (dLocal) lähimmän aikaleiman arvon, jos etäisyys ≤ 7 min. */
+   Palauttaa pyydetylle tasatunnille lähimmän aikaleiman arvon, jos etäisyys ≤ 7 min. */
 async function fetchNowcastForHour(lat, lon, dLocal){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
-    const res = await fetch(url, {
-      cache:'no-store',
-      headers: { 'Accept': 'application/json' }
-      // User-Agentia ei voi asettaa selaimessa; selain lähettää oman UA:n.
-    });
+    const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
     if (!res.ok) return null;
     const js = await res.json();
     const ts = js?.properties?.timeseries;
     if (!Array.isArray(ts) || !ts.length) return null;
 
-    // Etsitään lähin nowcast timestamp (UTC) suhteessa haluttuun paikalliseen tasatuntiin
     const targetUTC = new Date(Date.UTC(
       dLocal.getFullYear(), dLocal.getMonth(), dLocal.getDate(), dLocal.getHours(), 0, 0
     ));
     let best=null, bestDiff=1e15;
-
     for (const it of ts){
-      const t = new Date(it.time); // ISO Z
+      const t = new Date(it.time);
       const diff = Math.abs(t - targetUTC);
       if (diff < bestDiff){ bestDiff = diff; best = it; }
     }
-    // hyväksytään vain jos ≤ 7 min päässä tasatunnista
     if (!best || bestDiff > 7*60*1000) return null;
 
-    // Poimi saderate: ensisijaisesti instant.details.precipitation_rate
     const pr = best?.data?.instant?.details?.precipitation_rate;
     if (typeof pr === 'number') return pr;
 
-    // vaihtoehtoinen: data.next_1_hours?.details?.precipitation_amount (mm) / 1 h → rate
     const acc = best?.data?.next_1_hours?.details?.precipitation_amount;
-    if (typeof acc === 'number') return acc; // jo valmiiksi “mm/h” integraalina
+    if (typeof acc === 'number') return acc;
 
     return null;
   }catch{ return null; }
@@ -227,11 +221,7 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
   return null;
 }
 
-/* Sade-solun muotoilu:
-   - null/undefined → '–' (harmaa)
-   - 0 → em dash — (valkoinen)
-   - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
-*/
+/* Sade-solun muotoilu */
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
@@ -261,10 +251,9 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     const obs      = extractSeries(parseXML(oTxt));
 
     const now = new Date();
-    const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));   // HH:00
+    const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));
     const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
 
-    // Poimitaan thisHour, +1h, +2h, +10 lisää (yht. 13)
     const pickKeys = [];
     for (const k of fKeys){
       const d = new Date(k);
@@ -272,11 +261,9 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     }
     if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    // Tutkan RR (t0). Jos puuttuu → erikoisfallback vaikuttaa myös t1/t2 sateen soluihin.
     const rrNow = await fetchRadarRR(LAT, LON);
     const noRadarFallback = (rrNow == null);
 
-    // Nowcast t1/t2: haetaan lähin aikaleima tasatunneille (pickKeys[1], pickKeys[2]) paikallisajassa
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
     const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
     const [nc1, nc2] = await Promise.all([
@@ -287,13 +274,12 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
     let html = '';
     let prevDesc = null;
 
-    // --- 1) NYT (HH:MM)
+    /* t0 (nyt) */
     {
       const key = pickKeys[0];
       const fTemp = forecast.temperature?.get(key);
       const fWind = forecast.windspeedms?.get(key);
       const fSS   = forecast.SmartSymbol?.get(key);
-      const fRainThis = forecast.precipitation1h?.get(key);
 
       const oTemp = nearestObs(obs.t2m, now, 20);
       const oWind = nearestObs(obs.ws_10min, now, 20);
@@ -303,17 +289,20 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const tempCls = (oTemp!=null?'':'soft');
       const windCls = (oWind!=null?'':'soft');
 
-      let rainObj;
+      let rainObj, rainHtml;
       if (!noRadarFallback){
         rainObj = rainCell(rrNow);
+        rainHtml = `${rainObj.text}${srcTag('RR')}`;
       }else{
         const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
         const prevKey = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0)).toISOString().replace(/\.\d{3}Z$/,'Z');
         const fPrevRain = forecast.precipitation1h?.get(prevKey);
         if (fPrevRain!=null && fPrevRain>0){
           rainObj = rainCell(fPrevRain, {markGrey:true});
+          rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
         }else{
           rainObj = { text:'—', cls:'soft' };
+          rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
         }
       }
 
@@ -323,13 +312,13 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         <div class="t">${fmtHM(now)}</div>
         <div class="${tempCls}">${tempStr}</div>
         <div class="desc soft">${desc}</div>
-        <div class="${rainObj.cls}">${rainObj.text}</div>
+        <div class="${rainObj.cls}">${rainHtml}</div>
         <div class="${windCls}">${windStr}</div>
       </div>`;
       prevDesc = desc;
     }
 
-    // --- 2) t+1h (HH:MM) — MET Nowcast jos saatavilla, muuten HARMONIE harmaana
+    /* t+1h */
     if (pickKeys.length >= 2){
       const key = pickKeys[1];
       const dUtc = new Date(key);
@@ -341,18 +330,17 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const tempStr = (fTemp!=null?Math.round(fTemp)+'°C':'–');
       const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
 
-      let rainObj;
+      let rainObj, rainHtml;
       if (noRadarFallback){
-        // t0: ei tutkaa → t1/t2 harmaa em dash
         rainObj = { text:'—', cls:'soft' };
+        rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
+      }else if (nc1!=null){
+        rainObj = rainCell(nc1);
+        rainHtml = `${rainObj.text}${srcTag('NC')}`;
       }else{
-        if (nc1!=null){
-          rainObj = rainCell(nc1);
-        }else{
-          if (fRain==null) rainObj = { text:'–', cls:'soft' };
-          else if (Number(fRain)===0) rainObj = { text:'—', cls:'' };
-          else rainObj = rainCell(fRain, {markGrey:true});
-        }
+        if (fRain==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+        else if (Number(fRain)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+        else { rainObj = rainCell(fRain, {markGrey:true}); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
       }
 
       const desc = ssText(fSS) || '–';
@@ -364,13 +352,13 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         <div class="t">${fmtHM(dUtc)}</div>
         <div class="soft">${tempStr}</div>
         <div class="desc soft">${shownDesc}</div>
-        <div class="${rainObj.cls}">${rainObj.text}</div>
+        <div class="${rainObj.cls}">${rainHtml}</div>
         <div class="soft">${windStr}</div>
       </div>`;
       prevDesc = desc;
     }
 
-    // --- 3) t+2h (HH:MM)
+    /* t+2h */
     if (pickKeys.length >= 3){
       const key = pickKeys[2];
       const dUtc = new Date(key);
@@ -382,17 +370,17 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const tempStr = (fTemp!=null?Math.round(fTemp)+'°C':'–');
       const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
 
-      let rainObj;
+      let rainObj, rainHtml;
       if (noRadarFallback){
         rainObj = { text:'—', cls:'soft' };
+        rainHtml = `${rainObj.text}${srcTag('HRM-prev')}`;
+      }else if (nc2!=null){
+        rainObj = rainCell(nc2);
+        rainHtml = `${rainObj.text}${srcTag('NC')}`;
       }else{
-        if (nc2!=null){
-          rainObj = rainCell(nc2);
-        }else{
-          if (fRain==null) rainObj = { text:'–', cls:'soft' };
-          else if (Number(fRain)===0) rainObj = { text:'—', cls:'' };
-          else rainObj = rainCell(fRain, {markGrey:true});
-        }
+        if (fRain==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+        else if (Number(fRain)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+        else { rainObj = rainCell(fRain, {markGrey:true}); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
       }
 
       const desc = ssText(fSS) || '–';
@@ -404,13 +392,13 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         <div class="t">${fmtHM(dUtc)}</div>
         <div class="soft">${tempStr}</div>
         <div class="desc soft">${shownDesc}</div>
-        <div class="${rainObj.cls}">${rainObj.text}</div>
+        <div class="${rainObj.cls}">${rainHtml}</div>
         <div class="soft">${windStr}</div>
       </div>`;
       prevDesc = desc;
     }
 
-    // --- 4) 10 ennusteriviä: pickKeys[3..]
+    /* 10 ennusteriviä */
     let written = 0;
     for (let i=3; i<pickKeys.length && written<10; i++, written++){
       const key = pickKeys[i];
@@ -421,10 +409,10 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
       const ss   = forecast.SmartSymbol?.get(key);
       const desc = ssText(ss) || '–';
 
-      let rainObj;
-      if (rainVal==null) rainObj = { text:'–', cls:'soft' };
-      else if (Number(rainVal)===0) rainObj = { text:'—', cls:'' };
-      else rainObj = rainCell(rainVal);
+      let rainObj, rainHtml;
+      if (rainVal==null){ rainObj = { text:'–', cls:'soft' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+      else if (Number(rainVal)===0){ rainObj = { text:'—', cls:'' }; rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
+      else { rainObj = rainCell(rainVal); rainHtml = `${rainObj.text}${srcTag('HRM')}`; }
 
       const shownDesc = (desc === prevDesc && desc !== '–')
         ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
@@ -435,7 +423,7 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         <div class="t hh">${fmtH(dUtc)}</div>
         <div>${temp!=null?Math.round(temp)+'°C':'–'}</div>
         <div class="desc">${shownDesc}</div>
-        <div class="${rainObj.cls}">${rainObj.text}</div>
+        <div class="${rainObj.cls}">${rainHtml}</div>
         <div>${wind!=null?wind.toFixed(1)+' m/s':'–'}</div>
       </div>`;
     }
