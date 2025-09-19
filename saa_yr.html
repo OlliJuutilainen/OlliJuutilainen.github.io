@@ -14,13 +14,12 @@
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
 
-  /* Grid: [time | temp | desc | rain | wind] */
   .klohdr{
     color:#5d676f; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px; align-items:end;
   }
   .klohdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
-  .klohdr > div:nth-child(2), .klohdr > div:nth-child(3){ visibility:hidden } /* ei otsikoita näille */
+  .klohdr > div:nth-child(2), .klohdr > div:nth-child(3){ visibility:hidden }
 
   .row{
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
@@ -48,9 +47,9 @@
 <script>
 /* Lähteet:
    - t0–t2: Sade MET Nowcast 2.0 (/complete). t0 lämpö & tuuli FMI-havainnoista (t2m, ws_10min, wg_10min) jos saatavilla.
-   - t3→: FMI HARMONIE (temperature, precipitation1h, windspeedms, gustspeedms, SmartSymbol).
-   - t1–t2 tuuli: FMI windspeedms (harmaa) ja puuska MET Nowcast gust (harmaa), jos saatavilla.
-   Debug: lisää ?dbg=1 → näyttää sateen/tuulen lähdetagit (NC / HRM / OBS / HRM-prev).
+   - t3→: FMI HARMONIE (temperature, precipitation1h, windspeedms, SmartSymbol).  // HUOM: ei gustspeedms-ennustetta tässä.
+   - t1–t2 tuuli: keskituuli HRM (harmaa), puuska Nowcast gust (harmaa) jos tarjolla.
+   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM / OBS / HRM-prev).
 */
 
 const q = new URLSearchParams(location.search);
@@ -81,7 +80,8 @@ const ssText = c => (c==null?'':(SS_TEXT[Number(c)%100]||''));
 function buildWfsForecast(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
-  const params='temperature,precipitation1h,windspeedms,gustspeedms,SmartSymbol';
+  // POISTETTU gustspeedms → aiheutti 400
+  const params='temperature,precipitation1h,windspeedms,SmartSymbol';
   const now=new Date(), s=new Date(now), e=new Date(now);
   s.setHours(s.getHours()-2); e.setHours(e.getHours()+24);
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
@@ -114,7 +114,6 @@ const extractSeries = x => {
     if (id.includes('temperature')) k='temperature';
     else if (id.includes('precipitation1h')) k='precipitation1h';
     else if (id.includes('windspeedms')) k='windspeedms';
-    else if (id.includes('gustspeedms')) k='gustspeedms';
     else if (id.includes('smartsymbol')) k='SmartSymbol';
     else if (id.includes('t2m')) k='t2m';
     else if (id.includes('ws_10min')) k='ws_10min';
@@ -221,8 +220,15 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       fetch(buildWfsObs(LAT,LON), {cache:'no-store'})
     ]);
     const [fTxt, oTxt] = await Promise.all([fRes.text(), oRes.text()]);
-    if (!fRes.ok) throw new Error(`FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,200)}`);
-    if (!oRes.ok) throw new Error(`FMI havainnot HTTP ${oRes.status}\n${oTxt.slice(0,200)}`);
+
+    if (!fRes.ok){
+      out.innerHTML = `<div class="err">FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,400)}</div>`;
+      return;
+    }
+    if (!oRes.ok){
+      out.innerHTML = `<div class="err">FMI havainnot HTTP ${oRes.status}\n${oTxt.slice(0,400)}</div>`;
+      return;
+    }
 
     const forecast = extractSeries(parseXML(fTxt));
     const obs      = extractSeries(parseXML(oTxt));
@@ -257,7 +263,6 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       const key = pickKeys[0];
       const fTemp = forecast.temperature?.get(key);
       const fWind = forecast.windspeedms?.get(key);
-      const fGust = forecast.gustspeedms?.get?.(key);
       const fSS   = forecast.SmartSymbol?.get(key);
 
       const oTemp = nearestObs(obs.t2m, now, 20);
@@ -267,14 +272,11 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       const tempStr = (oTemp!=null ? Math.round(oTemp)+'°C' : (fTemp!=null?Math.round(fTemp)+'°C':'–'));
       const tempCls = (oTemp!=null?'':'soft');
 
-      // Sade: NC
       let rainObj;
       if (nc0 && typeof nc0.val === 'number'){
-        // nolla → harmaa ja keskitetty dash
         if (nc0.val === 0) rainObj = rainCell(0, { markGrey:true, centerDash:true });
         else rainObj = rainCell(nc0.val);
       }else{
-        // fallback: malli edellisestä tasatunnista harmaana
         const prev = new Date(thisHourLocal); prev.setHours(prev.getHours()-1);
         const prevKey = new Date(Date.UTC(prev.getFullYear(),prev.getMonth(),prev.getDate(),prev.getHours(),0,0)).toISOString().replace(/\.\d{3}Z$/,'Z');
         const fPrevRain = forecast.precipitation1h?.get(prevKey);
@@ -285,10 +287,9 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
         }
       }
 
-      // Tuuli: havainnot jos saatavilla; puuska suluissa jos ≥ +5
       const wind = windCell(
         (oWind!=null ? oWind : (fWind!=null?fWind:null)),
-        (oGust!=null ? oGust : (fGust!=null?fGust:null)),
+        (oGust!=null ? oGust : null),
         { markGrey: (oWind==null), src: (oWind!=null?'OBS':'HRM') }
       );
 
@@ -310,29 +311,24 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       const dUtc = new Date(key);
       const fTemp = forecast.temperature?.get(key);
       const fWind = forecast.windspeedms?.get(key);
-      const fGust = forecast.gustspeedms?.get?.(key);
       const fRain = forecast.precipitation1h?.get(key);
       const fSS   = forecast.SmartSymbol?.get(key);
 
       const tempStr = (fTemp!=null?Math.round(fTemp)+'°C':'–');
 
-      // Sade: NC ensisijainen; nolla → harmaa dash keskitettynä
       let rainObj, rainSrc='NC';
       if (nc1 && typeof nc1.val === 'number'){
         if (nc1.val === 0) rainObj = rainCell(0, { markGrey:true, centerDash:true });
         else rainObj = rainCell(nc1.val, { markGrey:false });
       } else {
-        // HRM harmaana
         rainSrc='HRM';
         if (fRain == null) { rainObj = { text:'–', cls:'soft' }; }
         else if (Number(fRain)===0) { rainObj = { text:'—', cls:'soft dash' }; }
         else { rainObj = rainCell(fRain, { markGrey:true }); }
       }
 
-      // Tuuli: keskituuli HRM (harmaa), puuska NC-gust jos saatavilla (harmaa)
-      const mean = (fWind!=null?fWind:null);
-      const gust = (nc1 && typeof nc1.gust==='number') ? nc1.gust : (fGust!=null?fGust:null);
-      const wind = windCell(mean, gust, { markGrey:true, src: (nc1 && nc1.gust!=null?'NC-gust':'HRM') });
+      const gust = (nc1 && typeof nc1.gust==='number') ? nc1.gust : null;
+      const wind = windCell(fWind, gust, { markGrey:true, src: (gust!=null?'NC-gust':'HRM') });
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -355,7 +351,6 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       const dUtc = new Date(key);
       const fTemp = forecast.temperature?.get(key);
       const fWind = forecast.windspeedms?.get(key);
-      const fGust = forecast.gustspeedms?.get?.(key);
       const fRain = forecast.precipitation1h?.get(key);
       const fSS   = forecast.SmartSymbol?.get(key);
 
@@ -372,9 +367,8 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
         else { rainObj = rainCell(fRain, { markGrey:true }); }
       }
 
-      const mean = (fWind!=null?fWind:null);
-      const gust = (nc2 && typeof nc2.gust==='number') ? nc2.gust : (fGust!=null?fGust:null);
-      const wind = windCell(mean, gust, { markGrey:true, src: (nc2 && nc2.gust!=null?'NC-gust':'HRM') });
+      const gust = (nc2 && typeof nc2.gust==='number') ? nc2.gust : null;
+      const wind = windCell(fWind, gust, { markGrey:true, src: (gust!=null?'NC-gust':'HRM') });
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -391,7 +385,7 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       prevDesc = desc;
     }
 
-    /* 10 ennusteriviä */
+    /* 10 ennusteriviä (ei puuskia HRM:stä tässä) */
     let written = 0;
     for (let i=3; i<pickKeys.length && written<10; i++, written++){
       const key = pickKeys[i];
@@ -399,13 +393,12 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
       const temp = forecast.temperature?.get(key);
       const rainVal = forecast.precipitation1h?.get(key);
       const wind = forecast.windspeedms?.get(key);
-      const gust = forecast.gustspeedms?.get?.(key);
       const ss   = forecast.SmartSymbol?.get(key);
       const desc = ssText(ss) || '–';
 
       let rainObj;
       if (rainVal==null){ rainObj = { text:'–', cls:'soft' }; }
-      else if (Number(rainVal)===0){ rainObj = { text:'—', cls:'dash' }; }  /* ennusteriveillä nolla valkoisena ja keskitettynä */
+      else if (Number(rainVal)===0){ rainObj = { text:'—', cls:'dash' }; }
       else { rainObj = rainCell(rainVal); }
 
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -413,7 +406,7 @@ function windCell(mean, gust, {markGrey=false, src='' }={}){
         : desc;
       prevDesc = desc;
 
-      const windObj = windCell(wind, gust, { markGrey:false, src:'HRM' });
+      const windObj = windCell(wind, null, { markGrey:false, src:'HRM' });
 
       html += `<div class="row">
         <div class="t hh"><span class="mini">klo&nbsp;</span>${fmtH(dUtc)}</div>
