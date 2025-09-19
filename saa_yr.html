@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SÄÄ SEURAAVAT 12 h (FMI)</title>
+<title>SÄÄ SEURAAVAT 12 TUNTIA (FMI)</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -23,18 +23,22 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
   .muted{ color:#95a0aa } .err{ color:#ff6b6b; white-space:pre-wrap }
-  .ditto{ color:#9aa }              /* jos käytät “–»–” dittoa */
-  .desc.soft{ color:#9aa }          /* himmennetty SmartSymbol t0/t1:lle */
+  .soft{ color:#9aa }               /* harmaannus malliarvoille a/b/c-riveillä */
   .desc .ditto{ display:block; text-align:center; }
+  .ditto{ color:#9aa }              /* jos käytät –»– -dittoa jossain kohtaa */
 </style>
 
 <div class="klohdr"><div>klo</div><div></div><div></div><div></div><div></div></div>
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* SmartSymbol ONLY (yö %100), EI WS3:aa, EI fallbackia.
-   Taulukko: t0 = nyt (HH:MM) + t1..t12 tasatunnein. t0/t1 sateet tutkasta (RR),
-   muuten mallista. t0/t1 SmartSymbol-teksti harmaana (.soft). */
+/* Sekoitusmalli:
+   a) prevHour HH:00 → RR (tutka), T/tuuli havainnoista, kuvaus SS harmaana
+   b) nyt HH:MM → RR (tutka), T/tuuli havainnoista, kuvaus SS harmaana
+   c) nextHour HH:00 → RR (persist nyt), T/tuuli mallista (harmaana), kuvaus SS harmaana
+   d) loput tasatunnein mallista normaalisti (valkoisena)
+   Ei WS3:aa, ei sade-fallbackia; SS-tekstit sinun sanakirjasta.
+*/
 
 const q = new URLSearchParams(location.search);
 const LAT = parseFloat(q.get('lat'));
@@ -42,27 +46,14 @@ const LON = parseFloat(q.get('lon'));
 const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
 
-/* Aika: HH:MM */
-const tFmt = new Intl.DateTimeFormat('fi-FI', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:TZ, hourCycle:'h23' });
-function fmtHM(dUtc){
-  const ps = tFmt.formatToParts(dUtc);
-  const hh = ps.find(p=>p.type==='hour')?.value ?? '00';
-  const mm = ps.find(p=>p.type==='minute')?.value ?? '00';
-  return `${hh}:${mm}`;
-}
-
-/* TZ “seinäkello”-osat ilman locale-parsausta */
-const partsFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hourCycle:'h23'
-});
-function parts(dUtc){
-  const ps = partsFmt.formatToParts(dUtc);
-  const g = t => Number(ps.find(p=>p.type===t)?.value);
-  return { y:g('year'), m:g('month'), d:g('day'), h:g('hour'), min:g('minute') };
-}
+/* Aikaformatit */
+const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
+function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
+const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
 const idOf = p => ((p.y*100+p.m)*100+p.d)*100 + p.h;
 
-/* — SmartSymbol-sanakirja: käytä omaasi — */
+/* SmartSymbol-sanakirja (tiivistetty tähän – käytä aiempaa täydellistä listaa tarvittaessa) */
 const SS_TEXT = {
   1:'Selkeää', 2:'Enimmäkseen selkeää', 4:'Puolipilvistä', 6:'Enimmäkseen pilvistä', 7:'Pilvistä', 9:'Sumua',
   71:'Yksittäisiä ukkoskuuroja', 74:'Paikoin ukkoskuuroja', 77:'Ukkoskuuroja',
@@ -79,26 +70,38 @@ const SS_TEXT = {
   53:'Puolipilvistä ja ajoittain sakeaa lumisadetta tai lumikuuroja', 56:'Enimmäkseen pilvistä ja ajoittain sakeaa lumisadetta tai lumikuuroja', 59:'Runsasta lumisadetta',
   61:'Yksittäisiä raekuuroja', 64:'Paikoin raekuuroja', 67:'Raekuuroja'
 };
-function ssText(code){ if (code==null) return ''; const d = Number(code)%100; return SS_TEXT[d]||''; }
+const ssText = c => (c==null?'':(SS_TEXT[Number(c)%100]||''));
 
-/* FMI HARMONIE WFS */
-function buildWfs(lat, lon){
+/* FMI HARMONIE (malli) */
+function buildWfsForecast(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
   const params='temperature,precipitation1h,windspeedms,SmartSymbol';
-  const now=new Date();
-  const s=new Date(now); s.setHours(s.getHours()-1);
-  const e=new Date(now); e.setHours(e.getHours()+24);
+  const now=new Date(), s=new Date(now), e=new Date(now);
+  s.setHours(s.getHours()-2); e.setHours(e.getHours()+24);
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
   return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(s))}&endtime=${encodeURIComponent(iso(e))}&timestep=60`;
 }
+
+/* FMI havainnot (t2m, ws_10min) – lähin kohta lat/lonissa */
+function buildWfsObs(lat,lon){
+  const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
+  const sq='fmi::observations::weather::timevaluepair';
+  const params='t2m,ws_10min';
+  const now=new Date(), s=new Date(now), e=new Date(now);
+  s.setHours(s.getHours()-3); // 3h taakse, löytyy prevHour ja nyt
+  const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
+  return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(s))}&endtime=${encodeURIComponent(iso(e))}&timestep=10`;
+}
+
+/* XML parsiminen (Forecast & Obs) */
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt,'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
   if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); throw new Error('FMI virhe: '+(t?t.textContent:'Tuntematon virhe')); }
   return x;
 };
-const extract = x => {
+const extractSeries = x => {
   const get=(e,n)=>e.getElementsByTagNameNS('*',n)[0];
   const all=x.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTimeseries');
   const o={};
@@ -109,9 +112,12 @@ const extract = x => {
     else if (id.includes('precipitation1h')) k='precipitation1h';
     else if (id.includes('windspeedms')) k='windspeedms';
     else if (id.includes('smartsymbol')) k='SmartSymbol';
+    else if (id.includes('t2m')) k='t2m';
+    else if (id.includes('ws_10min')) k='ws_10min';
     if (!k) continue;
     const map=new Map();
-    for (const p of s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP')){
+    const pts=s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP');
+    for (const p of pts){
       const t=get(p,'time')?.textContent;
       const v=get(p,'value')?.textContent;
       if (!t) continue;
@@ -123,15 +129,13 @@ const extract = x => {
   return o;
 };
 
-/* Tutka RR: WMS GetFeatureInfo (viimeisin) — jos epäonnistuu, palauttaa null */
+/* Tutka RR: WMS GetFeatureInfo keskikohdasta */
 function wmsRRUrl(lat, lon){
-  // Käytetään WMS 1.3.0, CRS=EPSG:4326 (lat,lon -järjestys bboxissa)
   const service='https://opendata.fmi.fi/wms';
   const L='radar:composite:rr';
-  const pad=0.1; // pieni laatikko pisteen ympärille
-  const minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
-  const WIDTH=101, HEIGHT=101, I=50, J=50; // keskimmäinen pikseli
-  const params = new URLSearchParams({
+  const pad=0.1, minLat=lat-pad, maxLat=lat+pad, minLon=lon-pad, maxLon=lon+pad;
+  const WIDTH=101, HEIGHT=101, I=50, J=50;
+  const qs = new URLSearchParams({
     service:'WMS', request:'GetFeatureInfo', version:'1.3.0',
     layers:L, query_layers:L, styles:'',
     crs:'EPSG:4326',
@@ -139,25 +143,41 @@ function wmsRRUrl(lat, lon){
     width:String(WIDTH), height:String(HEIGHT),
     i:String(I), j:String(J),
     info_format:'text/plain',
-    time:'latest' // pyydä uusin komposiitti
+    time:'latest'
   });
-  return `${service}?${params.toString()}`;
+  return `${service}?${qs.toString()}`;
 }
 async function fetchRadarRR(lat, lon, timeoutMs=6000){
   try{
-    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(), timeoutMs);
-    const res=await fetch(wmsRRUrl(lat,lon), { cache:'no-store', signal:ctrl.signal });
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    const res=await fetch(wmsRRUrl(lat,lon),{cache:'no-store',signal:ctrl.signal});
     clearTimeout(t);
     const txt=await res.text();
     if (!res.ok) throw new Error(`WMS ${res.status}`);
-    // Palvelun text/plain vastaus sisältää yleensä rivin jossa arvo mm/h — poimi numero:
     const m = txt.match(/([-+]?\d+(?:\.\d+)?)/);
     if (m){ const v=Number(m[1]); return isNaN(v)?null:v; }
     return null;
   }catch(_e){ return null; }
 }
 
-/* Renderöinti */
+/* Apu: hae lähin havaintohetki annetulle paikalliselle minuutille (t0 = now, a = prevHour) */
+function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
+  if (!mapUTC) return null;
+  // etsi lähin aikaleima (UTC), vertaamalla targetLocalDate (TZ) muutettuna UTC:ksi
+  const targetUTC = new Date(Date.UTC(
+    targetLocalDate.getFullYear(), targetLocalDate.getMonth(), targetLocalDate.getDate(),
+    targetLocalDate.getHours(), targetLocalDate.getMinutes(), 0
+  ));
+  let bestKey=null, bestDiff=1e12;
+  for (const k of mapUTC.keys()){
+    const d=new Date(k);
+    const diff=Math.abs(d - targetUTC)/60000; // min
+    if (diff < bestDiff){ bestDiff=diff; bestKey=k; }
+  }
+  if (bestKey && bestDiff <= maxDiffMin) return mapUTC.get(bestKey);
+  return null;
+}
+
 (async function(){
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
   if (!LAT || !LON || isNaN(LAT) || isNaN(LON)){
@@ -166,91 +186,143 @@ async function fetchRadarRR(lat, lon, timeoutMs=6000){
   }
 
   try{
-    // 1) Hae malli
-    const res = await fetch(buildWfs(LAT,LON), { cache:'no-store' });
-    const txt = await res.text();
-    if (!res.ok) throw new Error(`HTTP ${res.status}\n${txt.slice(0,200)}`);
-    const ser = extract(parseXML(txt));
+    // Hae malli + havainnot + tutka
+    const [fRes, oRes] = await Promise.all([
+      fetch(buildWfsForecast(LAT,LON), {cache:'no-store'}),
+      fetch(buildWfsObs(LAT,LON), {cache:'no-store'})
+    ]);
+    const [fTxt, oTxt] = await Promise.all([fRes.text(), oRes.text()]);
+    if (!fRes.ok) throw new Error(`FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,200)}`);
+    if (!oRes.ok) throw new Error(`FMI havainnot HTTP ${oRes.status}\n${oTxt.slice(0,200)}`);
 
-    // 2) Kerää mallin saatavilla olevat tunnit
-    const keys = Array.from(ser.temperature?.keys?.() || []).sort();
-    if (!keys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
+    const forecast = extractSeries(parseXML(fTxt));
+    const obs      = extractSeries(parseXML(oTxt));
 
-    // 3) Määritä t0 (nyt) + t1.. tasatunneittain
     const now = new Date();
-    const pNow = parts(now);              // paikalliset osat
-    const startHour = { y:pNow.y, m:pNow.m, d:pNow.d, h:pNow.h, min:0 };
-    const startId = idOf(startHour);
+    const pN  = parts(now);
+    const prevHourLocal = new Date(new Date(now).setMinutes(0,0,0));       // floor HH:00
+    const nextHourLocal = new Date(new Date(prevHourLocal).setHours(prevHourLocal.getHours()+1));
 
-    // Etsi listasta 13 tunnin mallirivit alkaen nykyisestä tasatunnista
-    const hourlyKeys = [];
-    for (let i=0;i<keys.length;i++){
-      const dUtc=new Date(keys[i]);
-      const pid=idOf(parts(dUtc));
-      if (pid>=startId){ hourlyKeys.push(keys[i]); if (hourlyKeys.length===13) break; }
+    // Luo listat ennustekeyt: alkaen prevHour → seuraavat (otetaan riittävästi)
+    const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
+    const pickKeys = [];
+    const startId = idOf({y:pN.y,m:pN.m,d:pN.d,h:prevHourLocal.getHours(),min:0});
+    for (const k of fKeys){
+      const pid = idOf(parts(new Date(k)));
+      if (pid >= startId){ pickKeys.push(k); if (pickKeys.length>=14) break; } // prevHour + 13 lisää
     }
-    if (!hourlyKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
+    if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    // 4) Hae tutka RR (viimeisin). Käytetään t0 ja t1:lle (persistenssi).
-    const rr = await fetchRadarRR(LAT, LON); // mm/h tai null
+    // Tutkan RR (mm/h) – käytetään a,b,c
+    const rr = await fetchRadarRR(LAT, LON); // voi olla null
 
-    // 5) Rakenna HTML: ENSIN t0 (nyt), sitten 12 riviä tasatunnein (hourlyKeys[0..11])
     let html = '';
     let prevDesc = null;
 
-    // --- t0 (nyt HH:MM), käyttää mallin nykyisen tasatunnin dataa mutta sade=rr (jos saatavilla)
+    // --- a) prevHour HH:00 (käytä pickKeys[0])
     {
-      const key0 = hourlyKeys[0];                   // mallin nykyinen tasatunti
-      const temp = ser.temperature?.get(key0);
-      const rain = ser.precipitation1h?.get(key0);
-      const wind = ser.windspeedms?.get(key0);
-      const ss   = ser.SmartSymbol?.get(key0);
+      const key = pickKeys[0];
+      const dUtc = new Date(key);
+      // Malli
+      const fTemp = forecast.temperature?.get(key);
+      const fWind = forecast.windspeedms?.get(key);
+      const fRain = forecast.precipitation1h?.get(key);
+      const fSS   = forecast.SmartSymbol?.get(key);
+      // Havainnot (lähin prevHourLocal)
+      const oTemp = nearestObs(obs.t2m, prevHourLocal, 30);      // t2m 10 min välein
+      const oWind = nearestObs(obs.ws_10min, prevHourLocal, 30); // m/s 10 min välein
+      const tempStr = (oTemp!=null ? Math.round(oTemp)+'°C' : (fTemp!=null?Math.round(fTemp)+'°C':'–'));
+      const windStr = (oWind!=null ? oWind.toFixed(1)+' m/s' : (fWind!=null?fWind.toFixed(1)+' m/s':'–'));
+      const tempCls = (oTemp!=null?'':'soft');
+      const windCls = (oWind!=null?'':'soft');
 
-      const desc = ssText(ss) || '–';
-      const shownDesc = desc; // t0 näytetään aina; himmennetään CSS:llä
-
-      const rainStr = (rr!=null ? rr.toFixed(1) : (rain!=null?rain.toFixed(1):'–')) + (rr!=null||rain!=null ? ' mm' : '');
+      const rainVal = (rr!=null ? rr : fRain);
+      const rainStr = (rainVal!=null ? rainVal.toFixed(1)+' mm' : '–');
+      const desc    = ssText(fSS) || '–';
 
       html += `<div class="row">
-        <div>${fmtHM(now)}</div>
-        <div>${temp!=null ? Math.round(temp) + '°C' : '–'}</div>
-        <div class="desc soft">${shownDesc}</div>
-        <div>${rainStr || '–'}</div>
-        <div>${wind!=null ? wind.toFixed(1) + ' m/s' : '–'}</div>
+        <div>${fmtHM(prevHourLocal)}</div>
+        <div class="${tempCls}">${tempStr}</div>
+        <div class="desc soft">${desc}</div>
+        <div>${rainStr}</div>
+        <div class="${windCls}">${windStr}</div>
       </div>`;
       prevDesc = desc;
     }
 
-    // --- t1..t12 tasatunnein (12 riviä)
-    for (let idx=0; idx<12 && idx<hourlyKeys.length; idx++){
-      const key = hourlyKeys[idx];
-      const dUtc = new Date(key);
-      const temp = ser.temperature?.get(key);
-      const rain = ser.precipitation1h?.get(key);
-      const wind = ser.windspeedms?.get(key);
-      const ss   = ser.SmartSymbol?.get(key);
+    // --- b) nyt HH:MM (käytä mallin nykyistä tasatuntia, mutta aika = nyt)
+    {
+      const key = pickKeys[0]; // sama tunnin “bucket”
+      const fTemp = forecast.temperature?.get(key);
+      const fWind = forecast.windspeedms?.get(key);
+      const fSS   = forecast.SmartSymbol?.get(key);
 
+      const oTemp = nearestObs(obs.t2m, now, 20);
+      const oWind = nearestObs(obs.ws_10min, now, 20);
+      const tempStr = (oTemp!=null ? Math.round(oTemp)+'°C' : (fTemp!=null?Math.round(fTemp)+'°C':'–'));
+      const windStr = (oWind!=null ? oWind.toFixed(1)+' m/s' : (fWind!=null?fWind.toFixed(1)+' m/s':'–'));
+      const tempCls = (oTemp!=null?'':'soft');
+      const windCls = (oWind!=null?'':'soft');
+
+      const rainVal = (rr!=null ? rr : forecast.precipitation1h?.get(key));
+      const rainStr = (rainVal!=null ? rainVal.toFixed(1)+' mm' : '–');
+      const desc    = ssText(fSS) || '–';
+
+      html += `<div class="row">
+        <div>${fmtHM(now)}</div>
+        <div class="${tempCls}">${tempStr}</div>
+        <div class="desc soft">${desc}</div>
+        <div>${rainStr}</div>
+        <div class="${windCls}">${windStr}</div>
+      </div>`;
+      prevDesc = desc;
+    }
+
+    // --- c) nextHour HH:00 (pickKeys[1]); sade = rr persist, T/tuuli mallista (harmaana)
+    if (pickKeys.length >= 2){
+      const key = pickKeys[1];
+      const dUtc = new Date(key);
+      const fTemp = forecast.temperature?.get(key);
+      const fWind = forecast.windspeedms?.get(key);
+      const fRain = forecast.precipitation1h?.get(key);
+      const fSS   = forecast.SmartSymbol?.get(key);
+
+      const tempStr = (fTemp!=null?Math.round(fTemp)+'°C':'–');
+      const windStr = (fWind!=null?fWind.toFixed(1)+' m/s':'–');
+      const rainVal = (rr!=null ? rr : fRain);
+      const rainStr = (rainVal!=null ? rainVal.toFixed(1)+' mm' : '–');
+      const desc    = ssText(fSS) || '–';
+
+      html += `<div class="row">
+        <div>${fmtHM(dUtc)}</div>
+        <div class="soft">${tempStr}</div>
+        <div class="desc soft">${desc}</div>
+        <div>${rainStr}</div>
+        <div class="soft">${windStr}</div>
+      </div>`;
+      prevDesc = desc;
+    }
+
+    // --- d) loput ennusterivit (jatka pickKeys[2..] → otetaan yhteensä 13 riviä)
+    for (let i=2; i<pickKeys.length && (i<=12); i++){
+      const key = pickKeys[i];
+      const dUtc = new Date(key);
+      const temp = forecast.temperature?.get(key);
+      const rain = forecast.precipitation1h?.get(key);
+      const wind = forecast.windspeedms?.get(key);
+      const ss   = forecast.SmartSymbol?.get(key);
       const desc = ssText(ss) || '–';
 
-      // t1 = ensimmäinen tasatunti rivin jälkeen: idx===0 → tämä on sama tunti kuin t0:n malli,
-      // joten "t1" on oikeasti seuraava tunti → käytä rr myös idx===1:lle.
-      const useRadarForThis = (idx===1); // vain t1:lle; halutessasi myös idx===0 mutta se on jo piirretty t0:na
-      const rainVal = useRadarForThis && rr!=null ? rr : rain;
-      const rainStr = (rainVal!=null ? rainVal.toFixed(1)+' mm' : '–');
-
-      // Himmennä myös t1:n SmartSymbol (koska sade on tutkasta)
-      const descClass = (idx===1) ? 'desc soft' : 'desc';
-
-      // Dedup-kuvaukset (mutta älä piilota ‘–’)
-      const shownDesc = (desc === prevDesc && desc !== '–' && idx!==0 && idx!==1) ? '' : desc;
+      // dedup (älä piilota ‘–’)
+      const shownDesc = (desc === prevDesc && desc !== '–') ? '' : desc;
       prevDesc = desc;
 
       html += `<div class="row">
         <div>${fmtHM(dUtc)}</div>
-        <div>${temp!=null ? Math.round(temp) + '°C' : '–'}</div>
-        <div class="${descClass}">${shownDesc}</div>
-        <div>${rainStr}</div>
-        <div>${wind!=null ? wind.toFixed(1) + ' m/s' : '–'}</div>
+        <div>${temp!=null?Math.round(temp)+'°C':'–'}</div>
+        <div class="desc">${shownDesc}</div>
+        <div>${rain!=null?rain.toFixed(1)+' mm':'–'}</div>
+        <div>${wind!=null?wind.toFixed(1)+' m/s':'–'}</div>
       </div>`;
     }
 
