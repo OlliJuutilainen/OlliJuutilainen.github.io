@@ -42,9 +42,9 @@
 <script>
 /* Sade-lähteet:
    - t0: FMI-tutka RR (openwms geoserver, GFI). Jos puuttuu → erikoisfallback (HARMONIE edellisestä tasatunnista, tai harmaa em dash).
-   - t1/t2: MET Norway Nowcast 2.0 (api.met.no). Jos puuttuu → HARMONIE harmaana; 0 → “—”.
+   - t1/t2: MET Norway Nowcast 2.0 (/complete). Jos puuttuu → HARMONIE harmaana; 0 → harmaa em dash.
    - t3→: HARMONIE; 0 → “—”.
-   Debug: lisää ?dbg=1 → näyttää lähdetagit (RR / NC / HRM / HRM-prev) sateen solussa.
+   Debug: lisää ?dbg=1 → näyttää lähdetagit (RR / NC / HRM / HRM-prev) sateen solussa; HRM:iin liitetään sulkeissa NC-virheen syy.
 */
 
 const q = new URLSearchParams(location.search);
@@ -60,8 +60,6 @@ function srcTag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
-const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-function parts(d){ const ps=partsFmt.formatToParts(d); const g=t=>Number(ps.find(p=>p.type===t)?.value); return {y:g('year'),m:g('month'),d:g('day'),h:g('hour'),min:g('minute')}; }
 
 /* SmartSymbol (demo; voit vaihtaa omaan täydelliseen sanakirjaasi) */
 const SS_TEXT = {
@@ -171,11 +169,11 @@ async function fetchRadarRR(lat, lon, timeoutMs=9000){
   return await once(0.3);
 }
 
-/* NOWCAST (api.met.no/weatherapi/nowcast/2.0) — sateen rate mm/h 0–2 h, 5 min välein.
+/* NOWCAST (api.met.no/weatherapi/nowcast/2.0/complete) — sateen rate mm/h 0–2 h, 5 min välein.
    Palauttaa pyydetylle tasatunnille lähimmän aikaleiman arvon, jos etäisyys ≤ 10 min. */
 async function fetchNowcastForHour(lat, lon, dLocal){
   try{
-    const url = `https://api.met.no/weatherapi/nowcast/2.0?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+    const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
     const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
     if (!res.ok) return { val:null, meta:`NC!${res.status}` };
     const js = await res.json();
@@ -222,7 +220,7 @@ function nearestObs(mapUTC, targetLocalDate, maxDiffMin=20){
 
 /* Sade-solun muotoilu:
    - null/undefined → '–' (harmaa)
-   - 0 → em dash — (valkoinen)
+   - 0 → em dash — (valkoinen; HRM-fallbackissa t1/t2 harmaa)
    - >0 → n.mm (valkoinen), tai harmaana jos markGrey=true
 */
 function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
@@ -348,20 +346,17 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         rainObj = rainCell(nc1.val);
         rainHtml = `${rainObj.text}${srcTag('NC')}`;
       } else {
-        // nowcast puuttuu → käytä HRM:ää, ja TAGI = HRM (näytä debugissa syy)
+        // nowcast puuttuu → HRM harmaana (0 → harmaa viiva)
         if (fRain == null) {
           rainObj = { text:'–', cls:'soft' };
         } else if (Number(fRain) === 0) {
-          // 0 → harmaa em dash HRM-fallbackissa
           rainObj = { text:'—', cls:'soft' };
         } else {
-          // >0 → harmaana numero
           rainObj = rainCell(fRain, { markGrey:true });
         }
         const reason = (nc1 && nc1.meta && nc1.meta.startsWith('NC!')) ? ` (${nc1.meta})` : '';
         rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
       }
-
 
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
@@ -401,7 +396,6 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         if (fRain == null) {
           rainObj = { text:'–', cls:'soft' };
         } else if (Number(fRain) === 0) {
-          // 0 → harmaa em dash HRM-fallbackissa
           rainObj = { text:'—', cls:'soft' };
         } else {
           rainObj = rainCell(fRain, { markGrey:true });
@@ -410,10 +404,9 @@ function rainCell(val, {markGrey=false, forceGreyDash=false}={}){
         rainHtml = `${rainObj.text}${srcTag('HRM' + reason)}`;
       }
 
-
       const desc = ssText(fSS) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>'
+        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">–»–</span>`
         : desc;
 
       html += `<div class="row">
