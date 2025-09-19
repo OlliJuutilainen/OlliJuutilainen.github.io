@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>TUSINASÄÄ 12</title>
+<title>TUSINASÄÄ·12</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -33,7 +33,7 @@
   .t{ text-align:left } .t.hh{ text-align:right }
 
   .desc .ditto{ display:inline } .ditto{ color:inherit } /* pelkkä » */
-  .dash{ text-align:center } /* sateettomuusviiva keskelle */
+  .dash{ text-align:center } /* 0-sade keskelle */
 
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
@@ -51,7 +51,7 @@
    - Sade t0–t2: MET Nowcast 2.0 (/complete). Muut tunnit: FMI HARMONIE (precipitation1h).
    - Lämpötila: aina FMI HARMONIE (temperature).
    - Tuuli: aina FMI HARMONIE (windspeedms).
-     • Puuska: t0–t2 yritetään poimia Nowcastista (wind_speed_of_gust); jos ei ole, puuskaa ei näytetä.
+     • Puuska: t0–t2 Nowcast (wind_speed_of_gust); jos ei ole, ei puuskaa.
      • t3→ ei puuskaa tässä kyselyssä.
    - Kuvaus: FMI HARMONIE SmartSymbol.
    Debug: ?dbg=1 näyttää lähdetageja (NC / HRM).
@@ -70,7 +70,7 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – täysi sanasto (päiväarvot; yöarvot normalisoidaan %100) */
+/* SmartSymbol – täysi sanasto + sinun uudelleennimet */
 const SS_TEXT = {
   // Taivas / näkyväisyys
   1: 'Sinistä',
@@ -95,7 +95,7 @@ const SS_TEXT = {
   14: 'Kryotihkua',
   17: 'Kryosadetta',
 
-  // Jatkuva vesisade (uudelleennimetyt + muut ennallaan)
+  // Jatkuva vesisade
   31: 'Ripsii',
   34: 'Enimmäkseen pilvistä ja ajoittain heikkoa vesisadetta',
   37: 'Heikkoa vesisadetta',
@@ -139,14 +139,8 @@ const SS_TEXT = {
   64: 'Raekuurot 2',
   67: 'Raekuurot 3'
 };
-
 /* Palauta teksti; yöarvot normalisoidaan 100:lla (101→1, jne.) */
-const ssText = c => {
-  if (c == null) return '';
-  const key = Number(c) % 100;
-  return SS_TEXT[key] || '';
-};
-
+const ssText = c => { if (c == null) return ''; const key = Number(c) % 100; return SS_TEXT[key] || ''; };
 
 /* FMI WFS */
 function buildWfsForecast(lat,lon){
@@ -216,14 +210,14 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     if (!best) return { val:null, meta:'NC!miss' };
 
     const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
-    const pr   = best?.data?.instant?.details?.precipitation_rate;
+    the_pr    = best?.data?.instant?.details?.precipitation_rate;
     const gust = best?.data?.instant?.details?.wind_speed_of_gust;
 
     let p = null;
     if (typeof acc === 'number') p = acc;
-    else if (typeof pr === 'number') p = pr;
+    else if (typeof the_pr === 'number') p = the_pr;
 
-    return { val: (typeof p==='number'?p:null), meta:'NC', gust:(typeof gust==='number'?gust:null) };
+    return { val:(typeof p==='number'?p:null), meta:'NC', gust:(typeof gust==='number'?gust:null) };
   }catch{ return { val:null, meta:'NC!err' }; }
 }
 
@@ -231,7 +225,7 @@ async function fetchNowcastForHour(lat, lon, dUTC){
 function rainCell(val, {markGrey=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft' };
   const n = Number(val);
-  if (n === 0) return { text:'—', cls:'soft dash' };      // aina harmaa keskitetty
+  if (n === 0) return { text:'—', cls:'soft dash' };      // 0 aina harmaa keskitetty
   return { text:n.toFixed(1)+' mm', cls: (markGrey? 'soft' : '') }; // >0 → oletuksena valkoinen (ellei erikseen harmaa)
 }
 function windCell(mean, gust, {baseGrey=true}={}){
@@ -243,24 +237,19 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
   let txt = (mOk ? meanV.toFixed(1)+' m/s' : '–');
 
-  // puuska näkyviin aina jos ≥15.0 m/s
+  // puuska suluissa vain numerona; jos ≥15 m/s → numero valkoisena spanissa
   let gustTxt = '';
   let gustWhite = false;
   if (gOk && gustV >= 15){
-    gustTxt = ` (${gustV.toFixed(1)} m/s)`;
+    gustTxt = ` (<span style="color:#e8e8e8">${gustV.toFixed(1)}</span>)`;
     gustWhite = true;
   }
 
-  // valkoinen jos keskituuli ≥12
+  // keskituuli ≥12 → valkoinen
   const meanWhite = (mOk && meanV >= 12);
 
   // perusluokka harmaa, mutta jos jompikumpi ehto täyttyy → valkoinen
   const cls = (meanWhite || gustWhite) ? '' : (baseGrey ? 'soft' : '');
-
-  // jos halutaan puuskateksti varmasti valkoisena vaikka koko solu olisi harmaa → wrapataan spanilla
-  if (gustWhite){
-    gustTxt = ` (<span style="color:#e8e8e8">puuska ${gustV.toFixed(1)}</span>)`;
-  }
 
   return { text: txt + gustTxt, cls };
 }
@@ -380,7 +369,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const desc = ssText(ss) || '–';
       const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">&raquo;</span>`
+        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">&raquo;</span>'
         : desc;
 
       html += `<div class="row">
