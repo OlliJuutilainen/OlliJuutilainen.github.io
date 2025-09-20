@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>TUSINASAA 12</title>
+<title>TUSINASÄÄ 12</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -22,7 +22,7 @@
     justify-items: center;
   }
   .hdr div:nth-child(-n+3){ justify-self: start; text-align: left; }
-  .hdr div:nth-child(4){ position:relative; left:-2px; }
+  .hdr div:nth-child(4){ position:relative; left:-2px; } /* hienosäätö keskelle viivoihin */
   .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
 
   .row{
@@ -34,10 +34,9 @@
   .muted{ color:#74808a } .soft{ color:#7f8a93 }
   .t{ text-align:left } .t.hh{ text-align:right }
 
-  .desc .ditto{ display:inline } .ditto{ color:inherit } /* » */
-
-  .dash{ text-align:center }
-  .row > div:nth-child(4){ text-align:center; } /* sade-sarake keskelle */
+  .desc .ditto{ display:inline } .ditto{ color:inherit } /* » vain */
+  .dash{ text-align:center }                 /* 0-sade keskelle */
+  .row > div:nth-child(4){ text-align:center } /* koko sade-sarake keskelle */
 
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
@@ -54,7 +53,12 @@
    - Sade t0–t2: MET Nowcast 2.0 (/complete). Muut tunnit: FMI HARMONIE (precipitation1h).
    - Lämpötila: aina FMI HARMONIE (temperature).
    - Tuuli: aina FMI HARMONIE (windspeedms). Puuska t0–t2 Nowcastista (näytetään vain numerona, jos ≥15 m/s).
-   - Kuvaus: HARMONIE SmartSymbol (yö %100). t0–t2 voidaan yliajaa Nowcast-satetekstillä (alla).
+   - Kuvaus: HARMONIE SmartSymbol (yö %100).
+   - t0–t2:
+       * Jos NC-sade ≥0.1 → base = NC-lyhytteksti (Kuuroja/Ripsii./Sadetta./Reipasta…/Rankkasade.)
+       * Jos NC-sade <0.1 → base = (kuurokoodit≠ukkonen → “siniharmaata”) / muuten HARMONIE tai sen downgrade-pilvisyys
+       * **Ukkonen (71/74/77) lisätään AINA base:n perään**: " ( <em>Seppoa …</em>? )"
+   - t3→: force-grey sääntö kuten ennen (SS drizzle-set & sade <0.3).
    Debug: ?dbg=1 näyttää lähdetageja (NC / HRM).
 */
 
@@ -71,12 +75,12 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – sanakirja (päiväkoodit; yö %100) */
+/* SmartSymbol – sanakirja (päiväkoodit; yö %100) — päivityksillä */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
   9:'MIST!',
-  71:'Ukkoa kutittaa.', 74:'Ukkoa ärsyttää.', 77:'Ukko on vihainen.',
-  21:'Kuuroja ˆ 1', 24:'Kuuroja ˆ 2', 27:'Kuuroja ˆ 3',
+  71:'Seppoa kutittaa.', 74:'Seppoa ärsyttää.', 77:'Seppo on vihainen.',
+  21:'Kuuro jossain.', 24:'Kuuroja.', 27:'Kuuroja sakeana.',
   11:'Tihkuu.', 14:'Kryotihkua.', 17:'Kryosadetta.',
   31:'Siniharmaasta ripsii.', 34:'Sangen harmaasta ripsii.', 37:'Ripsii.',
   32:'Siniharmaasta satelee.', 35:'Sangen harmaasta satelee.', 38:'Satelee.',
@@ -85,36 +89,47 @@ const SS_TEXT = {
   42:'Siniharmaasta räntää.', 45:'Sangen harmaasta räntää.', 48:'Räntää.',
   43:'Siniharmaasta tiskirättiä.', 46:'Sangen harmaasta tiskirättiä.', 49:'Tiskirättiä.',
   51:'Sinihirmaasta kevyt hiutale.', 54:'Sangen harmaasta kevyt hiutale.', 57:'Kevyt hiutale.',
-  52:'Siniharmaasta lunta.', 55:'Sangen harmaasta lunta.', 58:'Lunta.', 53:'Siniharmaasta pyryä.',
-  56:'Sangen harmaasta pyryä.', 59:'Pyryttää.',
-  61:'Raekuuroja ˆ 1', 64:'Raekuuroja ˆ 2', 67:'Raekuuroja ˆ 3'
+  52:'Siniharmaasta lunta.', 55:'Sangen harmaasta lunta.', 58:'Lunta.',
+  53:'Siniharmaasta pyryä.', 56:'Sangen harmaasta pyryä.', 59:'Pyryttää.',
+  61:'Rakeita jossain.', 64:'Rakeita.', 67:'Rakeiden tulitus.'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
-/* t0–t2: sulkumuoto (HARMONIE-SS) kun NC ei yliaja
-   - koodi 9 → (<em>MIST!</em>)
-   - muut → pienellä, piste pois, + '?'
-*/
-function prettyDescFirst3(descRaw, code){
-  if (!descRaw) return '–';
-  if ((Number(code)%100) === 9) return `(<em>MIST!</em>)`;
-  let d = descRaw.replace(/[.!?]+$/,'').trim().toLowerCase();
-  return `(<em>${d}?</em>)`;
+const PRECIP_CODES = new Set([
+  11,14,17,                    // tihku/jäätävä
+  21,24,27,                    // kuurot
+  31,32,33,34,35,36,37,38,39,  // vesi
+  41,42,43,44,45,46,47,48,49,  // räntä
+  51,52,53,54,55,56,57,58,59,  // lumi
+  61,64,67,                    // rakeet
+  71,74,77                     // ukkoskuurot
+]);
+const THUNDER_CODES = new Set([71,74,77]);
+const SHOWER_NON_THUNDER = new Set([21,24,27,61,64,67]);
+
+/* Downgrade sateinen SS → pilvisyydeksi (tekstiheuriistiikka) */
+function downgradeToCloudiness(descRaw){
+  if (!descRaw) return 'pilvistä';
+  const s = descRaw.toLowerCase();
+  if (s.includes('siniharmaasta') || s.includes('sinihirmaasta')) return 'siniharmaata';
+  if (s.includes('sangen harmaasta')) return 'sangen harmaata';
+  return 'pilvistä';
 }
+
+/* Poista lopetusmerkit ja väliin jäävät pisteet/kysymysmerkit */
+function stripPunct(s){ return (s||'').replace(/[.!?]+$/,'').trim(); }
 
 /* t3→ käytä sanakirjan tekstiä sellaisenaan */
-function prettyDescNonFirst(descRaw){
-  return descRaw || '–';
-}
+function prettyDescNonFirst(descRaw){ return descRaw || '–'; }
 
-/* Nowcast-sade → lyhyt selite t0–t2:lle (yliajaa HARMONIE-SS:n) */
-const SHOWER_CODES = new Set([21,24,27,61,64,67]); // Kuuroja/raekuuroja
+/* Nowcast-sade → lyhyt selite t0–t2:lle (yliajaa HARMONIE-SS:n) — ei ukkosrajoitusta, koska ukkonen lisätään erikseen */
+const SHOWER_CODES_FOR_NC = new Set([21,24,27,61,64,67]);
 function ncTextForRain(n, ssCode){
   if (!(typeof n === 'number')) return null;
-  if (n < 0.1) return null;          // alle 0.1 → ei overridea (sade-solussa ‘—’)
+  if (n < 0.1) return null; // alle 0.1 → ei overridea
   const day = (ssCode!=null) ? Number(ssCode)%100 : null;
   if (n < 2.0){
-    if (day!=null && SHOWER_CODES.has(day)) return 'Kuuroja';
+    if (day!=null && SHOWER_CODES_FOR_NC.has(day)) return 'Kuuroja';
     if (n < 0.3) return 'Ripsii.';   // 0.1–0.2
     return 'Sadetta.';               // 0.3–1.9
   }
@@ -269,6 +284,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const temp = forecast.temperature?.get(key);
       const wind = forecast.windspeedms?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
+      const ssDay = (ss!=null) ? Number(ss)%100 : null;
 
       const rainVal0 = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
       const rObj = (rainVal0!=null && rainVal0<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(rainVal0);
@@ -277,14 +293,28 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), { baseGrey:true });
 
-      // Kuvaus: NC override?
-      const ncTxt = ncTextForRain(rainVal0, ss);
-      const desc = ncTxt ?? prettyDescFirst3(ssText(ss) || '–', ss);
+      // Base-kuvaus (NC / downgrade / SS)
+      let baseDesc;
+      if (rainVal0!=null && rainVal0>=0.1){
+        baseDesc = ncTextForRain(rainVal0, ss);
+      }else{
+        const raw = ssText(ss) || '–';
+        if ((rainVal0!=null && rainVal0<0.1) && SHOWER_NON_THUNDER.has(ssDay)){
+          baseDesc = 'siniharmaata';
+        }else if ((rainVal0!=null && rainVal0<0.1) && ssDay!=null && PRECIP_CODES.has(ssDay)){
+          baseDesc = downgradeToCloudiness(raw);
+        }else{
+          baseDesc = raw;
+        }
+      }
+      // Ukkonen lisäviitteenä aina
+      const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
+      const desc = baseDesc + thunderNote;
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ncTxt?'': 'soft'}">${desc}</div>
+        <div class="desc ${ (rainVal0!=null && rainVal0>=0.1) ? '' : 'soft' }">${desc}</div>
         <div class="${rObj.cls||''}">${rainHtml}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
@@ -298,6 +328,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wind = forecast.windspeedms?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
+      const ssDay = (ss!=null) ? Number(ss)%100 : null;
 
       let rObj, rTag='NC', rainUsed=null;
       if (nc1 && typeof nc1.val==='number'){
@@ -310,19 +341,29 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const wObj = windCell(wind, (nc1 && typeof nc1.gust==='number' ? nc1.gust : null), { baseGrey:true });
 
-      // Kuvaus: Nowcast override jos rainUsed ≥0.1
-      const ncTxt = (rainUsed!=null && rainUsed>=0.1) ? ncTextForRain(rainUsed, ss) : null;
-      const descRaw = ssText(ss) || '–';
-      const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
-      const desc = ncTxt
-        ? ncTxt
-        : (sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescFirst3(descRaw, ss));
-      prevDescRaw = descRaw;
+      // Base-kuvaus ja ukkoslisä
+      let baseDesc;
+      if (rainUsed!=null && rainUsed>=0.1){
+        baseDesc = ncTextForRain(rainUsed, ss);
+      }else{
+        const raw = ssText(ss) || '–';
+        if ((rainUsed!=null && rainUsed<0.1) && SHOWER_NON_THUNDER.has(ssDay)){
+          baseDesc = 'siniharmaata';
+        }else if ((rainUsed!=null && rainUsed<0.1) && ssDay!=null && PRECIP_CODES.has(ssDay)){
+          baseDesc = downgradeToCloudiness(raw);
+        }else{
+          baseDesc = raw;
+          if (raw === prevDescRaw && raw !== '–') baseDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>';
+        }
+      }
+      const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
+      const desc = baseDesc + thunderNote;
+      prevDescRaw = ssText(ss) || '–';
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ncTxt?'': 'soft'}">${desc}</div>
+        <div class="desc ${ (rainUsed!=null && rainUsed>=0.1) ? '' : 'soft' }">${desc}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
@@ -335,6 +376,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wind = forecast.windspeedms?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
+      const ssDay = (ss!=null) ? Number(ss)%100 : null;
 
       let rObj, rTag='NC', rainUsed=null;
       if (nc2 && typeof nc2.val==='number'){
@@ -347,24 +389,34 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const wObj = windCell(wind, (nc2 && typeof nc2.gust==='number' ? nc2.gust : null), { baseGrey:true });
 
-      const ncTxt = (rainUsed!=null && rainUsed>=0.1) ? ncTextForRain(rainUsed, ss) : null;
-      const descRaw = ssText(ss) || '–';
-      const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
-      const desc = ncTxt
-        ? ncTxt
-        : (sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescFirst3(descRaw, ss));
-      prevDescRaw = descRaw;
+      let baseDesc;
+      if (rainUsed!=null && rainUsed>=0.1){
+        baseDesc = ncTextForRain(rainUsed, ss);
+      }else{
+        const raw = ssText(ss) || '–';
+        if ((rainUsed!=null && rainUsed<0.1) && SHOWER_NON_THUNDER.has(ssDay)){
+          baseDesc = 'siniharmaata';
+        }else if ((rainUsed!=null && rainUsed<0.1) && ssDay!=null && PRECIP_CODES.has(ssDay)){
+          baseDesc = downgradeToCloudiness(raw);
+        }else{
+          baseDesc = raw;
+          if (raw === prevDescRaw && raw !== '–') baseDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>';
+        }
+      }
+      const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
+      const desc = baseDesc + thunderNote;
+      prevDescRaw = ssText(ss) || '–';
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ncTxt?'': 'soft'}">${desc}</div>
+        <div class="desc ${ (rainUsed!=null && rainUsed>=0.1) ? '' : 'soft' }">${desc}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
     }
 
-    /* t+3…t+12 – forceGrey, jos (SS drizzle-setissä) & (sade <0.3) */
+    /* t+3…t+12 – kuten ennen (forceGrey jos (drizzle-set) & sade <0.3) */
     const drizzleCodes = new Set([11,31,34,37,41,44,47,51,54,57]); // + yö %100
     for (let i=3; i<pickKeys.length; i++){
       const key = pickKeys[i], dUtc = new Date(key);
