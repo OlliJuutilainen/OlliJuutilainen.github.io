@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>TUSINASÄÄ·12</title>
+<title>TUSINASÄÄ-12</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -11,6 +11,7 @@
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
   .mini{ color:#5d676f; font-size:12px; letter-spacing:.3px }
+  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
 
@@ -18,17 +19,14 @@
   .hdr{
     color:#5d676f; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px; align-items:end;
-
-    /* UUSI: keskitä oletuksena kaikki otsakesolut täsmäkeskelle */
     justify-items: center;
   }
-  /* UUSI: kolme ensimmäistä otsakesolua vasempaan laitaan kuten ennen */
   .hdr div:nth-child(-n+3){
     justify-self: start;
     text-align: left;
   }
-  /* (entinen säätö saa jäädä — ei haittaa) */
-  .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center } /* SADE, TUULI */
+  .hdr div:nth-child(4){ position:relative; left:-2px; } /* optinen nykäisy vasemmalle */
+  .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
 
   .row{
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px;
@@ -39,17 +37,14 @@
   .muted{ color:#515a62 } .soft{ color:#515a62 }
   .t{ text-align:left } .t.hh{ text-align:right }
 
-  .desc .ditto{ display:inline } .ditto{ color:inherit } /* pelkkä » */
+  .desc .ditto{ display:inline } .ditto{ color:inherit } /* » */
 
-  /* 0-sade ajatusviiva keskelle — mutta otetaan lisäksi KOKO sade-sarake keskelle */
   .dash{ text-align:center }
-  /* UUSI (valinnainen, mutta nyt mukana): keskitetään kaiken sisällön sade-sarakkeessa */
-  .row > div:nth-child(4){ text-align:center; }
+  .row > div:nth-child(4){ text-align:center; } /* koko sade-sarake keskelle */
 
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 
-<!-- Otsakerivi: (tyhjä) | ( ) | ( ) | SADE | TUULI -->
 <div class="hdr">
   <div></div><div></div><div></div>
   <div class="caps">SADE</div>
@@ -61,10 +56,8 @@
 /* Lähteet:
    - Sade t0–t2: MET Nowcast 2.0 (/complete). Muut tunnit: FMI HARMONIE (precipitation1h).
    - Lämpötila: aina FMI HARMONIE (temperature).
-   - Tuuli: aina FMI HARMONIE (windspeedms).
-     • Puuska: t0–t2 Nowcast (wind_speed_of_gust); jos ei ole, ei puuskaa.
-     • t3→ ei puuskaa tässä kyselyssä.
-   - Kuvaus: FMI HARMONIE SmartSymbol.
+   - Tuuli: aina FMI HARMONIE (windspeedms). Puuska t0–t2 Nowcastista.
+   - Kuvaus: FMI SmartSymbol (yö %100).
    Debug: ?dbg=1 näyttää lähdetageja (NC / HRM).
 */
 
@@ -81,77 +74,56 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – täysi sanasto + sinun uudelleennimet */
+/* SmartSymbol – (päiväarvot; yö normalisoidaan) + sinun nimet */
 const SS_TEXT = {
-  // Taivas / näkyväisyys
-  1: 'Sinistä',
-  2: 'Sangen sinistä',
-  4: 'Siniharmaata',
-  6: 'Sangen harmaata',
-  7: 'Harmaata',
-  9: 'MIST!',
-
-  // Ukkoskuurot
-  71: 'Ukkoa kutittaa',
-  74: 'Ukkoa ärsyttää',
-  77: 'Ukko on vihainen',
-
-  // Sadekuurot (vesi)
-  21: 'Kuurot 1',
-  24: 'Kuurot 2',
-  27: 'Kuurot 3',
-
-  // Tihku / jäätävä sade
-  11: 'Tihkua',
-  14: 'Kryotihkua',
-  17: 'Kryosadetta',
-
-  // Jatkuva vesisade
-  31: 'Siniharmaasta ripsii',
-  34: 'Sangen harmaasta ripsii',
-  37: 'Ripsii',
-
-  32: 'Siniharmaasta satelee',
-  35: 'Sangen harmaasta satelee',
-  38: 'Satelee',
-
-  33: 'Siniharmaasta kaatosadettakin',
-  36: 'Sangen harmaasta myös kaatosadettakin',
-  39: 'Kaatosadetta',
-
-  // Räntä
-  41: 'Siniharmaasta märkä hiutale',
-  44: 'Sangen harmaasta märkä hiutale',
-  47: 'Märkä hiutale',
-
-  42: 'Siniharmaasta räntää',
-  45: 'Sangen harmaasta räntää',
-  48: 'Räntää',
-
-  43: 'Siniharmaasta tiskirättiä',
-  46: 'Sangen harmaasta tiskirättiä',
-  49: 'Tiskirättiä',
-
-  // Lumi
-  51: 'Sinihirmaasta kevyt hiutale',
-  54: 'Sangen harmaasta kevyt hiutale',
-  57: 'Kevyt hiutale',
-
-  52: 'Siniharmaasta lunta',
-  55: 'Sangen harmaasta lunta',
-  58: 'Lunta',
-
-  53: 'Siniharmaasta pyryä',
-  56: 'Sangen harmaasta pyryä',
-  59: 'Pyryttää.',
-
-  // Rakeet
-  61: 'Raekuurot 1',
-  64: 'Raekuurot 2',
-  67: 'Raekuurot 3'
+  1:'Sinistä', 2:'Sangen sinistä', 4:'Siniharmaata', 6:'Sangen harmaata', 7:'Harmaata', 9:'MIST!',
+  71:'Ukkoa kutittaa', 74:'Ukkoa ärsyttää', 77:'Ukko on vihainen',
+  21:'Kuurot 1', 24:'Kuurot 2', 27:'Kuurot 3',
+  11:'Tihkua', 14:'Kryotihkua', 17:'Kryosadetta',
+  31:'Ripsii', 34:'Enimmäkseen pilvistä ja ajoittain heikkoa vesisadetta', 37:'Heikkoa vesisadetta',
+  32:'Siniharmaasta satelee', 35:'Sangen harmaasta satelee', 38:'Satelee',
+  33:'Siniharmaasta kaatosadettakin', 36:'Sangen harmaasta myös kaatosadettakin', 39:'Kaatosadetta',
+  41:'Siniharmaasta märkä hiutale', 44:'Sangen harmaasta märkä hiutale', 47:'Märkä hiutale',
+  42:'Siniharmaasta räntää', 45:'Sangen harmaasta räntää', 48:'Räntää',
+  43:'Siniharmaasta tiskirättiä', 46:'Sangen harmaasta tiskirättiä', 49:'Tiskirättiä',
+  51:'Sinihirmaasta kevyt hiutale', 54:'Sangen harmaasta kevyt hiutale', 57:'Kevyt hiutale',
+  52:'Siniharmaasta lunta', 55:'Sangen harmaasta lunta', 58:'Lunta',
+  53:'Siniharmaasta pyryä', 56:'Sangen harmaasta pyryä', 59:'Pyryttää.',
+  61:'Raekuurot 1', 64:'Raekuurot 2', 67:'Raekuurot 3'
 };
-/* Palauta teksti; yöarvot normalisoidaan 100:lla (101→1, jne.) */
-const ssText = c => { if (c == null) return ''; const key = Number(c) % 100; return SS_TEXT[key] || ''; };
+const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
+
+/* Kuvauksen typografinen muotoilu:
+   - ilmiöt → iso alkukirjain (sade/lumi/räntä/rakeet/ukkonen…)
+   - ei-ilmiöt (esim. “siniharmaata”) → pienellä
+   - “verbaalinen sademielikuva” → lisätään piste, jos puuttuu
+   - t0–t2: (kursivoitu?) suluissa
+   - lopun “ 1/2/3” → “^1/^2/^3”
+*/
+const PHEN = /(sade|satelee|ripsii|ränt|hiutale|lumi|pyry|raek|ukkos)/i;
+const VERBISH = /(satelee|ripsii|pyryttää|kaatosadetta(?:kin)?)/i;
+
+function addHatAtEnd(desc){
+  // poista välilyönti ennen loppunumeron hattua: " … 3" -> " …^3"
+  return desc.replace(/\s([123])$/,'^$1');
+}
+function prettyDesc(desc, {first3=false}={}){
+  if (!desc) return '–';
+
+  // iso alkukirjain ilmiöihin, muuten pidä pienellä
+  if (PHEN.test(desc)) desc = desc[0].toUpperCase() + desc.slice(1);
+  else                 desc = desc[0].toLowerCase() + desc.slice(1);
+
+  // jos on “verbaalinen” sademielikuva → piste loppuun jos puuttuu
+  if (VERBISH.test(desc) && !/[.!?]$/.test(desc)) desc += '.';
+
+  // lopun 1/2/3 → ^1/^2/^3
+  desc = addHatAtEnd(desc);
+
+  // t0–t2 kursivoituna + kysymysmerkki suluissa
+  if (first3) return `(<em>${desc}?</em>)`;
+  return desc;
+}
 
 /* FMI WFS */
 function buildWfsForecast(lat,lon){
@@ -197,7 +169,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* MET Nowcast 2.0 complete – sade ja (t0–t2) tuulen puuska */
+/* MET Nowcast – sade + puuska (t0–t2) */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -232,36 +204,28 @@ async function fetchNowcastForHour(lat, lon, dUTC){
   }catch{ return { val:null, meta:'NC!err' }; }
 }
 
-/* Solumuotoilut */
+/* Solut */
 function rainCell(val, {markGrey=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft', num:null };
   const n = Number(val);
-  if (n === 0) return { text:'—', cls:'soft dash', num:0 };   // 0 aina harmaa keskitetty
-  return { text:n.toFixed(1)+' mm', cls:(markGrey?'soft':''), num:n }; // >0 → valkoinen (ellei erikseen harmaa)
+  if (n === 0) return { text:'—', cls:'soft dash', num:0 };
+  return { text:n.toFixed(1)+' mm', cls:(markGrey?'soft':''), num:n };
 }
 function windCell(mean, gust, {baseGrey=true}={}){
   const mOk = (mean!=null && !isNaN(Number(mean)));
   const gOk = (gust!=null && !isNaN(Number(gust)));
-
   const meanV = mOk ? Number(mean) : null;
   const gustV = gOk ? Number(gust) : null;
-
   let txt = (mOk ? meanV.toFixed(1)+' m/s' : '–');
 
-  // puuska suluissa vain numerona; jos ≥15 m/s → numero valkoisena spanissa
   let gustTxt = '';
   let gustWhite = false;
   if (gOk && gustV >= 15){
     gustTxt = ` (<span style="color:#e8e8e8">${gustV.toFixed(1)}</span>)`;
     gustWhite = true;
   }
-
-  // keskituuli ≥12 → valkoinen
   const meanWhite = (mOk && meanV >= 12);
-
-  // perusluokka harmaa, mutta jos jompikumpi ehto täyttyy → valkoinen
   const cls = (meanWhite || gustWhite) ? '' : (baseGrey ? 'soft' : '');
-
   return { text: txt + gustTxt, cls };
 }
 
@@ -269,7 +233,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
 (async function(){
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
   if (!LAT || !LON || isNaN(LAT) || isNaN(LON)){
-    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä osoitetta:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
+    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
     return;
   }
 
@@ -277,13 +241,11 @@ function windCell(mean, gust, {baseGrey=true}={}){
     const fRes = await fetch(buildWfsForecast(LAT,LON), {cache:'no-store'});
     const fTxt = await fRes.text();
     if (!fRes.ok){ out.innerHTML = `<div class="err">FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,400)}</div>`; return; }
-
     const forecast = extractSeries(parseXML(fTxt));
 
     const now = new Date();
     const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));
 
-    // Nouki 13 tasatuntia alkaen tästä tasatunnista
     const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
     const pickKeys = [];
     for (const k of fKeys){
@@ -292,7 +254,6 @@ function windCell(mean, gust, {baseGrey=true}={}){
     }
     if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    // Nowcast t0–t2 (sade + puuska)
     const d0 = new Date(pickKeys[0]);
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
     const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
@@ -305,23 +266,22 @@ function windCell(mean, gust, {baseGrey=true}={}){
     let html = '';
     let prevDesc = null;
 
-    /* t0 (nyt) – kellonaika valkoiseksi vain jos sade > 0 */
+    /* t0 (nyt) */
     {
       const key = pickKeys[0];
       const temp = forecast.temperature?.get(key);
       const wind = forecast.windspeedms?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      // Sade: Nowcast
       const rainVal0 = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
       const rObj = rainCell(rainVal0);
       const rainHtml = `${rObj.text}${tag('NC')}`;
       const timeClass = (rObj.num!=null && rObj.num > 0) ? 't' : 't soft';
 
-      // Tuuli: HARMONIE + puuska NC:stä
       const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), { baseGrey:true });
 
-      const desc = ssText(ss) || '–';
+      const descRaw = ssText(ss) || '–';
+      const desc = prettyDesc(descRaw, {first3:true});
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
@@ -330,97 +290,89 @@ function windCell(mean, gust, {baseGrey=true}={}){
         <div class="${rObj.cls||''}">${rainHtml}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
-      prevDesc = desc;
+      prevDesc = descRaw;
     }
 
     /* t+1h */
     if (pickKeys.length >= 2){
-      const key = pickKeys[1];
-      const dUtc = new Date(key);
+      const key = pickKeys[1], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
       const wind = forecast.windspeedms?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      let rObj, rTag='NC', rainUsed = null;
-      if (nc1 && typeof nc1.val==='number'){ rObj = rainCell(nc1.val); rainUsed = nc1.val; }
-      else { rObj = rainCell(rain, {markGrey:true}); rainUsed = (typeof rain==='number'?rain:null); rTag='HRM'; }
-
+      let rObj, rTag='NC', rainUsed=null;
+      if (nc1 && typeof nc1.val==='number'){ rObj = rainCell(nc1.val); rainUsed=nc1.val; }
+      else { rObj = rainCell(rain, {markGrey:true}); rainUsed=(typeof rain==='number'?rain:null); rTag='HRM'; }
       const timeClass = (rainUsed!=null && rainUsed > 0) ? 't' : 't soft';
 
       const wObj = windCell(wind, (nc1 && typeof nc1.gust==='number' ? nc1.gust : null), { baseGrey:true });
 
-      const desc = ssText(ss) || '–';
-      const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">&raquo;</span>'
-        : desc;
+      const descRaw = ssText(ss) || '–';
+      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
+      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw, {first3:true});
+      prevDesc = descRaw;
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc soft">${shownDesc}</div>
+        <div class="desc soft">${desc}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
-      prevDesc = desc;
     }
 
     /* t+2h */
     if (pickKeys.length >= 3){
-      const key = pickKeys[2];
-      const dUtc = new Date(key);
+      const key = pickKeys[2], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
       const wind = forecast.windspeedms?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      let rObj, rTag='NC', rainUsed = null;
-      if (nc2 && typeof nc2.val==='number'){ rObj = rainCell(nc2.val); rainUsed = nc2.val; }
-      else { rObj = rainCell(rain, {markGrey:true}); rainUsed = (typeof rain==='number'?rain:null); rTag='HRM'; }
-
+      let rObj, rTag='NC', rainUsed=null;
+      if (nc2 && typeof nc2.val==='number'){ rObj = rainCell(nc2.val); rainUsed=nc2.val; }
+      else { rObj = rainCell(rain, {markGrey:true}); rainUsed=(typeof rain==='number'?rain:null); rTag='HRM'; }
       const timeClass = (rainUsed!=null && rainUsed > 0) ? 't' : 't soft';
 
       const wObj = windCell(wind, (nc2 && typeof nc2.gust==='number' ? nc2.gust : null), { baseGrey:true });
 
-      const desc = ssText(ss) || '–';
-      const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">&raquo;</span>'
-        : desc;
+      const descRaw = ssText(ss) || '–';
+      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
+      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw, {first3:true});
+      prevDesc = descRaw;
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc soft">${shownDesc}</div>
+        <div class="desc soft">${desc}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
-      prevDesc = desc;
     }
 
-    /* t+3…t+12 – kellonaika valkoiseksi vain jos HRM-sade > 0 */
+    /* t+3…t+12 */
     for (let i=3; i<pickKeys.length; i++){
-      const key = pickKeys[i];
-      const dUtc = new Date(key);
+      const key = pickKeys[i], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const wind = forecast.windspeedms?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
       const rObj = rainCell(rain);
-      const timeWhite = (rObj.num!=null && rObj.num > 0);
+      const wet  = (rObj.num!=null && rObj.num > 0);
 
-      const desc = ssText(ss) || '–';
-      const shownDesc = (desc === prevDesc && desc !== '–')
-        ? '<span class="ditto" aria-label="sama kuin edellä" title="sama kuin edellä">&raquo;</span>'
-        : desc;
-      prevDesc = desc;
+      const descRaw = ssText(ss) || '–';
+      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
+      const descPretty = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw);
+      prevDesc = descRaw;
 
       const wObj = windCell(wind, null, { baseGrey:true });
 
       html += `<div class="row">
-        <div class="t hh ${timeWhite?'':'soft'}"><span class="mini">klo&nbsp;</span>${fmtH(dUtc)}</div>
+        <div class="t hh ${wet?'':'soft'}"><span class="${wet?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc soft">${shownDesc}</div>
+        <div class="desc ${wet?'':'soft'}">${descPretty}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag('HRM')}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
