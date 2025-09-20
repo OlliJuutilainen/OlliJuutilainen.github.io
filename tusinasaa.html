@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>TUSINASÄÄ-12</title>
+<title>TUSINASAA 12</title>
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
@@ -25,7 +25,7 @@
     justify-self: start;
     text-align: left;
   }
-  .hdr div:nth-child(4){ position:relative; left:-2px; } /* optinen nykäisy vasemmalle */
+  .hdr div:nth-child(4){ position:relative; left:-2px; } /* hienosäätö */
   .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
 
   .row{
@@ -74,55 +74,92 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – (päiväarvot; yö normalisoidaan) + sinun nimet */
+/* SmartSymbol – sanakirja (päiväkoodit; yö %100):
+   - 1–7 pienellä, ei pistettä
+   - 9 MIST! (aina isoilla, huuto säilyy)
+   - Kuurot/Raekuurot isolla, ei pistettä + “ˆ1/2/3”
+   - Tihku/Jatkuva vesisade/Räntä/Lumi isolla + piste
+*/
 const SS_TEXT = {
-  1:'Sinistä', 2:'Sangen sinistä', 4:'Siniharmaata', 6:'Sangen harmaata', 7:'Harmaata', 9:'MIST!',
-  71:'Ukkoa kutittaa', 74:'Ukkoa ärsyttää', 77:'Ukko on vihainen',
-  21:'Kuurot 1', 24:'Kuurot 2', 27:'Kuurot 3',
-  11:'Tihkua', 14:'Kryotihkua', 17:'Kryosadetta',
-  31:'Ripsii', 34:'Enimmäkseen pilvistä ja ajoittain heikkoa vesisadetta', 37:'Heikkoa vesisadetta',
-  32:'Siniharmaasta satelee', 35:'Sangen harmaasta satelee', 38:'Satelee',
-  33:'Siniharmaasta kaatosadettakin', 36:'Sangen harmaasta myös kaatosadettakin', 39:'Kaatosadetta',
-  41:'Siniharmaasta märkä hiutale', 44:'Sangen harmaasta märkä hiutale', 47:'Märkä hiutale',
-  42:'Siniharmaasta räntää', 45:'Sangen harmaasta räntää', 48:'Räntää',
-  43:'Siniharmaasta tiskirättiä', 46:'Sangen harmaasta tiskirättiä', 49:'Tiskirättiä',
-  51:'Sinihirmaasta kevyt hiutale', 54:'Sangen harmaasta kevyt hiutale', 57:'Kevyt hiutale',
-  52:'Siniharmaasta lunta', 55:'Sangen harmaasta lunta', 58:'Lunta',
-  53:'Siniharmaasta pyryä', 56:'Sangen harmaasta pyryä', 59:'Pyryttää.',
-  61:'Raekuurot 1', 64:'Raekuurot 2', 67:'Raekuurot 3'
+  // Taivas / näkyvyys
+  1:'sinistä',
+  2:'sangen sinistä',
+  4:'siniharmaata',
+  6:'sangen harmaata',
+  7:'harmaata',
+  9:'MIST!',
+
+  // Ukkoskuurot – omat fraasit, isolla + piste
+  71:'Ukkoa kutittaa.',
+  74:'Ukkoa ärsyttää.',
+  77:'Ukko on vihainen.',
+
+  // Kuurot – isolla, ei pistettä
+  21:'Kuuroja ˆ1',
+  24:'Kuuroja ˆ2',
+  27:'Kuuroja ˆ3',
+
+  // Tihku / jäätävä sade – isolla + piste
+  11:'Tihkuu.',
+  14:'Kryotihkua.',
+  17:'Kryosadetta.',
+
+  // Jatkuva vesisade – isolla + piste
+  31:'Siniharmaasta ripsii.',
+  34:'Sangen harmaasta ripsii.',
+  37:'Ripsii.',
+  32:'Siniharmaasta satelee.',
+  35:'Sangen harmaasta satelee.',
+  38:'Satelee.',
+  33:'Siniharmaasta kaatosadettakin.',
+  36:'Sangen harmaasta myös kaatosadettakin.',
+  39:'Kaatosadetta.',
+
+  // Räntä – isolla + piste
+  41:'Siniharmaasta märkä hiutale.',
+  44:'Sangen harmaasta märkä hiutale.',
+  47:'Märkä hiutale.',
+  42:'Siniharmaasta räntää.',
+  45:'Sangen harmaasta räntää.',
+  48:'Räntää.',
+  43:'Siniharmaasta tiskirättiä.',
+  46:'Sangen harmaasta tiskirättiä.',
+  49:'Tiskirättiä.',
+
+  // Lumi – isolla + piste
+  51:'Sinihirmaasta kevyt hiutale.',
+  54:'Sangen harmaasta kevyt hiutale.',
+  57:'Kevyt hiutale.',
+  52:'Siniharmaasta lunta.',
+  55:'Sangen harmaasta lunta.',
+  58:'Lunta.',
+  53:'Siniharmaasta pyryä.',
+  56:'Sangen harmaasta pyryä.',
+  59:'Pyryttää.',
+
+  // Raekuurot – isolla, ei pistettä
+  61:'Raekuuroja ˆ1',
+  64:'Raekuuroja ˆ2',
+  67:'Raekuuroja ˆ3'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
-/* Kuvauksen typografinen muotoilu:
-   - ilmiöt → iso alkukirjain (sade/lumi/räntä/rakeet/ukkonen…)
-   - ei-ilmiöt (esim. “siniharmaata”) → pienellä
-   - “verbaalinen sademielikuva” → lisätään piste, jos puuttuu
-   - t0–t2: (kursivoitu?) suluissa
-   - lopun “ 1/2/3” → “^1/^2/^3”
+/* Yläosan (t0–t2) sulkumuoto:
+   - jos koodi 9 → säilytä “MIST!” isoilla: (<em>MIST!</em>)
+   - muut: muunna pieneksi, poista lopun .!? ja lisää “?”
 */
-const PHEN = /(sade|satelee|ripsii|ränt|hiutale|lumi|pyry|raek|ukkos)/i;
-const VERBISH = /(satelee|ripsii|pyryttää|kaatosadetta(?:kin)?)/i;
-
-function addHatAtEnd(desc){
-  // poista välilyönti ennen loppunumeron hattua: " … 3" -> " …^3"
-  return desc.replace(/\s([123])$/,'^$1');
+function prettyDescFirst3(descRaw, code){
+  if (!descRaw) return '–';
+  if ((Number(code)%100) === 9){
+    return `(<em>MIST!</em>)`;
+  }
+  let d = descRaw.replace(/[.!?]+$/,'').trim().toLowerCase();
+  return `(<em>${d}?</em>)`;
 }
-function prettyDesc(desc, {first3=false}={}){
-  if (!desc) return '–';
 
-  // iso alkukirjain ilmiöihin, muuten pidä pienellä
-  if (PHEN.test(desc)) desc = desc[0].toUpperCase() + desc.slice(1);
-  else                 desc = desc[0].toLowerCase() + desc.slice(1);
-
-  // jos on “verbaalinen” sademielikuva → piste loppuun jos puuttuu
-  if (VERBISH.test(desc) && !/[.!?]$/.test(desc)) desc += '.';
-
-  // lopun 1/2/3 → ^1/^2/^3
-  desc = addHatAtEnd(desc);
-
-  // t0–t2 kursivoituna + kysymysmerkki suluissa
-  if (first3) return `(<em>${desc}?</em>)`;
-  return desc;
+/* t3→ käytä sanakirjan tekstiä sellaisenaan */
+function prettyDescNonFirst(descRaw){
+  return descRaw || '–';
 }
 
 /* FMI WFS */
@@ -187,7 +224,7 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     }
     if (!best){
       let cand=null, diff=1e12;
-      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=dt; cand=it;} }
+      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=it; cand=it;} }
       if (cand && diff <= 20*60*1000) best = cand;
     }
     if (!best) return { val:null, meta:'NC!miss' };
@@ -264,7 +301,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
     ]);
 
     let html = '';
-    let prevDesc = null;
+    let prevDescRaw = null;
 
     /* t0 (nyt) */
     {
@@ -281,7 +318,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), { baseGrey:true });
 
       const descRaw = ssText(ss) || '–';
-      const desc = prettyDesc(descRaw, {first3:true});
+      const desc = prettyDescFirst3(descRaw, ss);
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
@@ -290,7 +327,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
         <div class="${rObj.cls||''}">${rainHtml}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
-      prevDesc = descRaw;
+      prevDescRaw = descRaw;
     }
 
     /* t+1h */
@@ -309,9 +346,9 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wObj = windCell(wind, (nc1 && typeof nc1.gust==='number' ? nc1.gust : null), { baseGrey:true });
 
       const descRaw = ssText(ss) || '–';
-      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
-      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw, {first3:true});
-      prevDesc = descRaw;
+      const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
+      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescFirst3(descRaw, ss);
+      prevDescRaw = descRaw;
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
@@ -338,9 +375,9 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wObj = windCell(wind, (nc2 && typeof nc2.gust==='number' ? nc2.gust : null), { baseGrey:true });
 
       const descRaw = ssText(ss) || '–';
-      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
-      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw, {first3:true});
-      prevDesc = descRaw;
+      const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
+      const desc = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescFirst3(descRaw, ss);
+      prevDescRaw = descRaw;
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
@@ -363,9 +400,9 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wet  = (rObj.num!=null && rObj.num > 0);
 
       const descRaw = ssText(ss) || '–';
-      const sameAsPrev = (descRaw === prevDesc && descRaw !== '–');
-      const descPretty = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDesc(descRaw);
-      prevDesc = descRaw;
+      const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
+      const descPretty = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescNonFirst(descRaw);
+      prevDescRaw = descRaw;
 
       const wObj = windCell(wind, null, { baseGrey:true });
 
