@@ -10,14 +10,14 @@
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
-  .mini{ color:#5d676f; font-size:12px; letter-spacing:.3px }
+  .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
 
   /* Grid: [time | temp | desc | rain | wind] */
   .hdr{
-    color:#5d676f; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 64px 1fr 70px 64px; align-items:end;
     justify-items: center;
   }
@@ -34,7 +34,7 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; }
 
-  .muted{ color:#515a62 } .soft{ color:#515a62 }
+  .muted{ color:#74808a } .soft{ color:#7f8a93 }
   .t{ text-align:left } .t.hh{ text-align:right }
 
   .desc .ditto{ display:inline } .ditto{ color:inherit } /* » */
@@ -77,7 +77,7 @@ function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type===
 /* SmartSymbol – sanakirja (päiväkoodit; yö %100):
    - 1–7 pienellä, ei pistettä
    - 9 MIST! (aina isoilla, huuto säilyy)
-   - Kuurot/Raekuurot isolla, ei pistettä + “ˆ1/2/3”
+   - Kuurot/Raekuurot isolla, ei pistettä + “ˆ 1/2/3”
    - Tihku/Jatkuva vesisade/Räntä/Lumi isolla + piste
 */
 const SS_TEXT = {
@@ -94,10 +94,10 @@ const SS_TEXT = {
   74:'Ukkoa ärsyttää.',
   77:'Ukko on vihainen.',
 
-  // Kuurot – isolla, ei pistettä
-  21:'Kuuroja ˆ1',
-  24:'Kuuroja ˆ2',
-  27:'Kuuroja ˆ3',
+  // Kuurot – isolla, ei pistettä (välilyönti myös hatun ja numeron väliin)
+  21:'Kuuroja ˆ 1',
+  24:'Kuuroja ˆ 2',
+  27:'Kuuroja ˆ 3',
 
   // Tihku / jäätävä sade – isolla + piste
   11:'Tihkuu.',
@@ -137,10 +137,10 @@ const SS_TEXT = {
   56:'Sangen harmaasta pyryä.',
   59:'Pyryttää.',
 
-  // Raekuurot – isolla, ei pistettä
-  61:'Raekuuroja ˆ1',
-  64:'Raekuuroja ˆ2',
-  67:'Raekuuroja ˆ3'
+  // Raekuurot – isolla, ei pistettä (välilyönti hatun ja numeron väliin)
+  61:'Raekuuroja ˆ 1',
+  64:'Raekuuroja ˆ 2',
+  67:'Raekuuroja ˆ 3'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
@@ -224,7 +224,7 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     }
     if (!best){
       let cand=null, diff=1e12;
-      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=it; cand=it;} }
+      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=dt; cand=it;} }
       if (cand && diff <= 20*60*1000) best = cand;
     }
     if (!best) return { val:null, meta:'NC!miss' };
