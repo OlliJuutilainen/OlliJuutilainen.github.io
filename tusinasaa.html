@@ -74,14 +74,9 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – sanakirja (päiväkoodit; yö %100):
-   - 1–7 pienellä, ei pistettä
-   - 9 MIST! (aina isoilla, huuto säilyy)
-   - Kuurot/Raekuurot isolla, ei pistettä + “ˆ 1/2/3”
-   - Tihku/Jatkuva vesisade/Räntä/Lumi isolla + piste
-*/
+/* SmartSymbol – sanakirja (päiväkoodit; yö %100) */
 const SS_TEXT = {
-  // Taivas / näkyvyys
+  // Taivas / näkyvyys (pienellä)
   1:'sinistä',
   2:'sangen sinistä',
   4:'siniharmaata',
@@ -89,12 +84,12 @@ const SS_TEXT = {
   7:'harmaata',
   9:'MIST!',
 
-  // Ukkoskuurot – omat fraasit, isolla + piste
+  // Ukkoskuurot (isolla + piste)
   71:'Ukkoa kutittaa.',
   74:'Ukkoa ärsyttää.',
   77:'Ukko on vihainen.',
 
-  // Kuurot – isolla, ei pistettä (välilyönti myös hatun ja numeron väliin)
+  // Kuurot – isolla, ei pistettä (välilyönti hatun ja numeron väliin)
   21:'Kuuroja ˆ 1',
   24:'Kuuroja ˆ 2',
   27:'Kuuroja ˆ 3',
@@ -137,16 +132,16 @@ const SS_TEXT = {
   56:'Sangen harmaasta pyryä.',
   59:'Pyryttää.',
 
-  // Raekuurot – isolla, ei pistettä (välilyönti hatun ja numeron väliin)
+  // Raekuurot – isolla, ei pistettä
   61:'Raekuuroja ˆ 1',
   64:'Raekuuroja ˆ 2',
   67:'Raekuuroja ˆ 3'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
-/* Yläosan (t0–t2) sulkumuoto:
-   - jos koodi 9 → säilytä “MIST!” isoilla: (<em>MIST!</em>)
-   - muut: muunna pieneksi, poista lopun .!? ja lisää “?”
+/* t0–t2: sulkumuoto
+   - koodi 9 → (<em>MIST!</em>)
+   - muut → pienellä, piste pois, + '?'
 */
 function prettyDescFirst3(descRaw, code){
   if (!descRaw) return '–';
@@ -389,6 +384,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
     }
 
     /* t+3…t+12 */
+    const drizzleCodes = new Set([11,31,34,37,41,44,47,51,54,57]); // + yö hoituu %100
     for (let i=3; i<pickKeys.length; i++){
       const key = pickKeys[i], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
@@ -396,22 +392,35 @@ function windCell(mean, gust, {baseGrey=true}={}){
       const wind = forecast.windspeedms?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      const rObj = rainCell(rain);
-      const wet  = (rObj.num!=null && rObj.num > 0);
+      const ssDay = (ss!=null) ? (Number(ss)%100) : null;
+
+      // Sade: tee solu valkoiseksi vain jos >0 ja ei forceGrey-tilaa
+      // forceGrey = (SS ∈ drizzleCodes) AND (sade < 0.3 mm)
+      const tmpObj = rainCell(rain);             // alustavasti ilman pakkoharmaata
+      const wet  = (tmpObj.num!=null && tmpObj.num > 0);
+      const forceGrey = (wet && tmpObj.num < 0.3 && drizzleCodes.has(ssDay));
+
+      const rObj = forceGrey ? rainCell(rain, {markGrey:true}) : rainCell(rain);
 
       const descRaw = ssText(ss) || '–';
       const sameAsPrev = (descRaw === prevDescRaw && descRaw !== '–');
-      const descPretty = sameAsPrev ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>' : prettyDescNonFirst(descRaw);
+      const descPretty = sameAsPrev
+        ? '<span class="ditto" title="sama kuin edellä">&raquo;</span>'
+        : prettyDescNonFirst(descRaw);
       prevDescRaw = descRaw;
 
+      // Tuuli HRM (ei puuskaa näissä riveissä)
       const wObj = windCell(wind, null, { baseGrey:true });
 
+      // Korostukset: vain jos on “wet” JA EI forceGrey
+      const highlight = wet && !forceGrey;
+
       html += `<div class="row">
-        <div class="t hh ${wet?'':'soft'}"><span class="${wet?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}</div>
-        <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${wet?'':'soft'}">${descPretty}</div>
+        <div class="t hh ${highlight?'':'soft'}"><span class="${highlight?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}</div>
+        <div class="${highlight?'':'soft'}">${temp!=null?Math.round(temp)+'°C':'–'}</div>
+        <div class="desc ${highlight?'':'soft'}">${descPretty}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag('HRM')}</div>
-        <div class="${wObj.cls||''}">${wObj.text}</div>
+        <div class="${highlight?'':'soft'}">${wObj.text}</div>
       </div>`;
     }
 
