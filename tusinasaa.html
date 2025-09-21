@@ -34,7 +34,7 @@
   .muted{ color:#74808a } .soft{ color:#7f8a93 }
   .t{ text-align:left } .t.hh{ text-align:right }
 
-  .desc .ditto{ display:inline } .ditto{ color:inherit } /* » vain */
+  .desc .ditto{ display:inline } .ditto{ color:inherit } /* pelkkä » */
   .dash{ text-align:center }                 /* 0-sade keskelle */
   .row > div:nth-child(4){ text-align:center } /* koko sade-sarake keskelle */
 
@@ -56,7 +56,8 @@
    - Kuvaus: t0–t2 ensisijaisesti Nowcast symbol_code (alla oleva sanakirja, yö/päivä normalisoitu). Fallback: HARMONIE SmartSymbol (yö %100).
      * Ukkonen SS-koodeista (71/74/77) lisätään t0–t2 aina lisäviitteenä sulkeissa: " (…?) ".
    - t3→: kuvaus SmartSymbol-sanakirjasta kuten ennen; force-grey sääntö säilyy.
-   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM) sekä t0–t2 Nowcast symbol_code -merkkijonon neliöissä: [code].
+   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM) sekä t0–t2 Nowcast symbol_code -merkkijonon neliöissä: [code]
+          tai jos koodi puuttuu, näytetään [NC!...]-meta.
 */
 
 const q = new URLSearchParams(location.search);
@@ -66,7 +67,12 @@ const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
 const DBG = q.has('dbg');
 function tag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
-function dbgSym(code){ return (DBG && code) ? ` <span class="soft" style="font-size:12px">[${code}]</span>` : ''; }
+/* DBG: näytä symbol_code tai, jos puuttuu, NC-meta (NC!miss tms.) */
+function dbgSym(code, meta){
+  if (!DBG) return '';
+  const label = (code && String(code)) || (meta && String(meta)) || '–';
+  return ` <span class="soft" style="font-size:12px">[${label}]</span>`;
+}
 
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
@@ -125,8 +131,22 @@ function ncSymbolText(code){
   const base = code.replace(/_(day|night)$/,'');
   return NC_SYMBOL[base] || '';
 }
+/* Onko Nowcast-symboli sateinen (sade/räntä/lumi/kuurot)? */
+function ncIsPrecip(code){
+  if (!code) return false;
+  const base = code.replace(/_(day|night)$/,'');
+  return [
+    'lightrain','heavyrain',
+    'lightrainshowers','heavyrainshowers',
+    'rainshowersandthunder',
+    'sleet',
+    'lightsleetshowers_and_thunder',
+    'snow','heavysnow',
+    'snowshowers_and_thunder'
+  ].includes(base);
+}
 
-/* Downgrade sateinen SS → pilvisyydeksi (tekstiheuriistiikka) */
+/* Pilvisyys-downgrade sateisista ilmaisuista */
 function downgradeToCloudiness(descRaw){
   if (!descRaw) return 'pilvistä';
   const s = descRaw.toLowerCase();
@@ -311,12 +331,14 @@ function windCell(mean, gust, {baseGrey=true}={}){
         }
       }
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote + dbgSym(nc0?.sym);
+      const desc = baseDesc + thunderNote;
+
+      const descIsWhite = ( (rObj.num!=null && rObj.num>=0.1) || ncIsPrecip(nc0?.sym) );
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ (rObj.num!=null && rObj.num>=0.1) || nc0?.sym ? '' : 'soft' }">${desc}</div>
+        <div class="desc ${ descIsWhite ? '' : 'soft' }">${desc}${dbgSym(nc0?.sym, nc0?.meta)}</div>
         <div class="${rObj.cls||''}">${rainHtml}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
@@ -360,16 +382,18 @@ function windCell(mean, gust, {baseGrey=true}={}){
         }
       }
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote + dbgSym(nc1?.sym);
-      prevDescRaw = ssText(ss) || '–';
+      const desc = baseDesc + thunderNote;
+
+      const descIsWhite1 = ( (rainUsed!=null && rainUsed>=0.1) || ncIsPrecip(nc1?.sym) );
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ (rainUsed!=null && rainUsed>=0.1) || nc1?.sym ? '' : 'soft' }">${desc}</div>
+        <div class="desc ${ descIsWhite1 ? '' : 'soft' }">${desc}${dbgSym(nc1?.sym, nc1?.meta)}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
+      prevDescRaw = ssText(ss) || '–';
     }
 
     /* t+2h */
@@ -409,16 +433,18 @@ function windCell(mean, gust, {baseGrey=true}={}){
         }
       }
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote + dbgSym(nc2?.sym);
-      prevDescRaw = ssText(ss) || '–';
+      const desc = baseDesc + thunderNote;
+
+      const descIsWhite2 = ( (rainUsed!=null && rainUsed>=0.1) || ncIsPrecip(nc2?.sym) );
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ (rainUsed!=null && rainUsed>=0.1) || nc2?.sym ? '' : 'soft' }">${desc}</div>
+        <div class="desc ${ descIsWhite2 ? '' : 'soft' }">${desc}${dbgSym(nc2?.sym, nc2?.meta)}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
+      prevDescRaw = ssText(ss) || '–';
     }
 
     /* t+3…t+12 – forceGrey jos (drizzle-set) & sade <0.3 */
