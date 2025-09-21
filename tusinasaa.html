@@ -56,7 +56,7 @@
    - Kuvaus: t0–t2 ensisijaisesti Nowcast symbol_code (alla oleva sanakirja, yö/päivä normalisoitu). Fallback: HARMONIE SmartSymbol (yö %100).
      * Ukkonen SS-koodeista (71/74/77) lisätään t0–t2 aina lisäviitteenä sulkeissa: " (…?) ".
    - t3→: kuvaus SmartSymbol-sanakirjasta kuten ennen; force-grey sääntö säilyy.
-   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM).
+   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM) sekä t0–t2 Nowcast symbol_code -merkkijonon neliöissä: [code].
 */
 
 const q = new URLSearchParams(location.search);
@@ -66,13 +66,14 @@ const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
 const DBG = q.has('dbg');
 function tag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
+function dbgSym(code){ return (DBG && code) ? ` <span class="soft" style="font-size:12px">[${code}]</span>` : ''; }
 
 /* Aikaformatit */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – (päiväkoodit; yö %100) — sinun aiempi sanasto */
+/* SmartSymbol – (päiväkoodit; yö %100) — mukautettu sanasto */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
   9:'MIST!',
@@ -99,7 +100,7 @@ const PRECIP_CODES = new Set([
 const THUNDER_CODES = new Set([71,74,77]);
 const SHOWER_NON_THUNDER = new Set([21,24,27,61,64,67]);
 
-/* Nowcast symbol_code sanasto (yö/päivä normalisoitu) — täsmälleen pyyntösi mukaan */
+/* Nowcast symbol_code sanasto (yö/päivä normalisoitu) — käyttäjän määrittelemä */
 const NC_SYMBOL = {
   'clearsky': "sinistä",
   'fair': "sangen sinistä",
@@ -293,11 +294,11 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), { baseGrey:true });
 
-      // Kuvaus: ensisijaisesti Nowcast symbol_code, muuten aiempi logiikka
+      // Kuvaus: ensisijaisesti Nowcast symbol_code, muuten fallback-logiikka
       let baseDesc = ncSymbolText(nc0?.sym);
       if (!baseDesc){
         if (rainVal0!=null && rainVal0>=0.1){
-          baseDesc = 'Sadetta.'; // varmistus jos SS puuttuu; (aiemmassa versiossa käytettiin ncTextForRain)
+          baseDesc = 'Sadetta.';
         }else{
           const raw = ssText(ss) || '–';
           if ((rainVal0!=null && rainVal0<0.1) && SHOWER_NON_THUNDER.has(ssDay)){
@@ -309,9 +310,8 @@ function windCell(mean, gust, {baseGrey=true}={}){
           }
         }
       }
-      // Ukkonen lisäviitteenä aina SS:stä
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote;
+      const desc = baseDesc + thunderNote + dbgSym(nc0?.sym);
 
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
@@ -343,7 +343,6 @@ function windCell(mean, gust, {baseGrey=true}={}){
 
       const wObj = windCell(wind, (nc1 && typeof nc1.gust==='number' ? nc1.gust : null), { baseGrey:true });
 
-      // desc: ensisijaisesti Nowcast symbol_code
       let baseDesc = ncSymbolText(nc1?.sym);
       if (!baseDesc){
         if (rainUsed!=null && rainUsed>=0.1){
@@ -361,7 +360,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
         }
       }
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote;
+      const desc = baseDesc + thunderNote + dbgSym(nc1?.sym);
       prevDescRaw = ssText(ss) || '–';
 
       html += `<div class="row">
@@ -410,7 +409,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
         }
       }
       const thunderNote = THUNDER_CODES.has(ssDay) ? ` (<em>${stripPunct(ssText(ss)||'')}?</em>)` : '';
-      const desc = baseDesc + thunderNote;
+      const desc = baseDesc + thunderNote + dbgSym(nc2?.sym);
       prevDescRaw = ssText(ss) || '–';
 
       html += `<div class="row">
