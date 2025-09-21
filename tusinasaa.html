@@ -56,8 +56,8 @@
    - Kuvaus: t0–t2 ensisijaisesti Nowcast symbol_code (alla oleva sanakirja, yö/päivä normalisoitu). Fallback: HARMONIE SmartSymbol (yö %100).
      * Ukkonen SS-koodeista (71/74/77) lisätään t0–t2 aina lisäviitteenä sulkeissa: " (…?) ".
    - t3→: kuvaus SmartSymbol-sanakirjasta kuten ennen; force-grey sääntö säilyy.
-   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM) sekä t0–t2 Nowcast symbol_code -merkkijonon neliöissä: [code]
-          tai jos koodi puuttuu, näytetään [NC!...]-meta.
+   Debug: ?dbg=1 näyttää lähdetageja (NC / HRM) sekä t0–t2 Nowcast symbol_code -merkkijonon neliöissä:
+     [code] tai jos koodi puuttui, [NC!...]; jos koodi haettiin lähistöltä, näytetään myös offset @±Xm.
 */
 
 const q = new URLSearchParams(location.search);
@@ -67,10 +67,13 @@ const TZ  = 'Europe/Helsinki';
 const out = document.getElementById('out');
 const DBG = q.has('dbg');
 function tag(s){ return DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : ''; }
-/* DBG: näytä symbol_code tai, jos puuttuu, NC-meta (NC!miss tms.) */
-function dbgSym(code, meta){
+/* DBG: näytä symbol_code tai, jos puuttuu, NC-meta + mahdollinen offset @±Xm */
+function dbgSym(code, meta, offsetMin){
   if (!DBG) return '';
-  const label = (code && String(code)) || (meta && String(meta)) || '–';
+  let label = (code && String(code)) || (meta && String(meta)) || '–';
+  if (code && (offsetMin || offsetMin===0) && offsetMin!==0){
+    label += `@${offsetMin>0?'+':''}${offsetMin}m`;
+  }
   return ` <span class="soft" style="font-size:12px">[${label}]</span>`;
 }
 
@@ -201,6 +204,33 @@ const extractSeries = x => {
   return o;
 };
 
+/* ===== Nowcast symboli: lähin koodi ±60 min (ensisijaisesti tuleva), offset @±Xm ===== */
+function minutesDiff(a, b){ return Math.round((a - b) / 60000); }
+
+function findNearestSymbolCodeWithOffset(timeseries, targetUTC){
+  let futureBest = null, futureBestDiff = Infinity;
+  let pastBest   = null, pastBestDiff   = Infinity;
+
+  for (const it of timeseries){
+    const t = new Date(it.time).getTime();
+    const sc = it?.data?.next_1_hours?.summary?.symbol_code;
+    if (!sc) continue;
+    const diff = t - targetUTC;
+    const adiff = Math.abs(diff);
+
+    if (diff >= 0 && adiff < futureBestDiff){
+      futureBestDiff = adiff; futureBest = { code: sc, offsetMin: minutesDiff(t, targetUTC) };
+    } else if (diff < 0 && adiff < pastBestDiff){
+      pastBestDiff = adiff; pastBest = { code: sc, offsetMin: minutesDiff(t, targetUTC) };
+    }
+  }
+
+  // Hyväksy vain jos kohtuullisen lähellä: ±60 min
+  if (futureBest && futureBestDiff <= 60*60000) return futureBest;
+  if (pastBest   && pastBestDiff   <= 60*60000) return pastBest;
+  return null;
+}
+
 /* MET Nowcast – sade + puuska + symbol_code (t0–t2) */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
@@ -214,12 +244,16 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     const targetUTC = dUTC.getTime();
     let best = ts.find(it => new Date(it.time).getTime() === targetUTC);
     if (!best){
-      const fut = ts.map(it=>({t:new Date(it.time).getTime(), it})).filter(x=>x.t>=targetUTC).sort((a,b)=>a.t-b.t)[0];
+      const fut = ts.map(it=>({t:new Date(it.time).getTime(), it}))
+                    .filter(x=>x.t>=targetUTC).sort((a,b)=>a.t-b.t)[0];
       if (fut && (fut.t - targetUTC) <= 30*60*1000) best = fut.it;
     }
     if (!best){
       let cand=null, diff=1e12;
-      for (const it of ts){ const dt=Math.abs(new Date(it.time).getTime()-targetUTC); if (dt<diff){diff=dt; cand=it;} }
+      for (const it of ts){
+        const dt=Math.abs(new Date(it.time).getTime()-targetUTC);
+        if (dt<diff){ diff=dt; cand=it; }
+      }
       if (cand && diff <= 20*60*1000) best = cand;
     }
     if (!best) return { val:null, meta:'NC!miss' };
@@ -227,14 +261,29 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
     const pr   = best?.data?.instant?.details?.precipitation_rate;
     const gust = best?.data?.instant?.details?.wind_speed_of_gust;
-    const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+
+    // symbol_code: tältä riviltä tai lähin ±60 min (ensisijaisesti tuleva)
+    let sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+    let symOffsetMin = 0;
+    if (!sym){
+      const near = findNearestSymbolCodeWithOffset(ts, targetUTC);
+      if (near){ sym = near.code; symOffsetMin = near.offsetMin; }
+    }
 
     let p = null;
     if (typeof acc === 'number') p = acc;
     else if (typeof pr === 'number') p = pr;
 
-    return { val:(typeof p==='number'?p:null), meta:'NC', gust:(typeof gust==='number'?gust:null), sym };
-  }catch{ return { val:null, meta:'NC!err' }; }
+    return {
+      val:(typeof p==='number'?p:null),
+      meta:'NC',
+      gust:(typeof gust==='number'?gust:null),
+      sym,
+      symOffsetMin
+    };
+  }catch{
+    return { val:null, meta:'NC!err' };
+  }
 }
 
 /* Solut */
@@ -260,6 +309,21 @@ function windCell(mean, gust, {baseGrey=true}={}){
   const meanWhite = (mOk && meanV >= 12);
   const cls = (meanWhite || gustWhite) ? '' : (baseGrey ? 'soft' : '');
   return { text: txt + gustTxt, cls };
+}
+
+/* Onko Nowcast-symboli sade/räntä/lumi -kategoriaa? (ei ukkosta yksinään) */
+function ncIsPrecip(code){
+  if (!code) return false;
+  const base = code.replace(/_(day|night)$/,'');
+  return [
+    'lightrain','heavyrain',
+    'lightrainshowers','heavyrainshowers',
+    'rainshowersandthunder',
+    'sleet',
+    'lightsleetshowers_and_thunder',
+    'snow','heavysnow',
+    'snowshowers_and_thunder'
+  ].includes(base);
 }
 
 /* Taulukon teko */
@@ -338,7 +402,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(now)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ descIsWhite ? '' : 'soft' }">${desc}${dbgSym(nc0?.sym, nc0?.meta)}</div>
+        <div class="desc ${ descIsWhite ? '' : 'soft' }">${desc}${dbgSym(nc0?.sym, nc0?.meta, nc0?.symOffsetMin)}</div>
         <div class="${rObj.cls||''}">${rainHtml}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
@@ -389,7 +453,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ descIsWhite1 ? '' : 'soft' }">${desc}${dbgSym(nc1?.sym, nc1?.meta)}</div>
+        <div class="desc ${ descIsWhite1 ? '' : 'soft' }">${desc}${dbgSym(nc1?.sym, nc1?.meta, nc1?.symOffsetMin)}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
@@ -440,7 +504,7 @@ function windCell(mean, gust, {baseGrey=true}={}){
       html += `<div class="row">
         <div class="${timeClass}">${fmtHM(dUtc)}</div>
         <div class="soft">${temp!=null?Math.round(temp)+'°C':'–'}</div>
-        <div class="desc ${ descIsWhite2 ? '' : 'soft' }">${desc}${dbgSym(nc2?.sym, nc2?.meta)}</div>
+        <div class="desc ${ descIsWhite2 ? '' : 'soft' }">${desc}${dbgSym(nc2?.sym, nc2?.meta, nc2?.symOffsetMin)}</div>
         <div class="${rObj.cls||''}">${rObj.text}${tag(rTag)}</div>
         <div class="${wObj.cls||''}">${wObj.text}</div>
       </div>`;
