@@ -46,6 +46,7 @@
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
+/* ===== perusasetukset ===== */
 const q = new URLSearchParams(location.search);
 const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
 const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
@@ -54,21 +55,20 @@ const DBG = q.has('dbg');
 const out = document.getElementById('out');
 const pageTitle = document.getElementById('pageTitle');
 
-/* erikoisotsikot */
 if (LAT_STR === '60.3281' && LON_STR === '25.0551'){
   pageTitle.textContent = 'TUSINASÄÄ 12 · ASOLA'; pageTitle.style.display = '';
 } else if (LAT_STR === '60.1562' && LON_STR === '24.7767'){
-  pageTitle.textContent = 'TUSINASÄÄ 12 · MERIKOTO'; pageTitle.style.display = '';
+  pageTitle.textContent = 'TUSINASÄÄ 12 · RANTAKOTO'; pageTitle.style.display = '';
 }
 
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
 
-/* aika */
+/* ===== aikaformaatit ===== */
 const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ,hourCycle:'h23'});
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SS – käyttäjän sanasto */
+/* ===== sääkuvaukset (SmartSymbol + NC) – samat kuin aiemmin ===== */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
   9:'MIST!',
@@ -88,10 +88,8 @@ const SS_TEXT = {
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
-/* pienisade-poikkeus */
 const SMALL_RAIN_EXCEPT = new Set([71,74,77,21,24,27,14,17,32,35,38,33,36,39,42,45,48,43,46,49,52,55,58,53,56,59,61,64,67]);
 
-/* MET nowcast symbolit */
 const NC_SYMBOL = {
   'clearsky': "sinistä", 'fair': "sangen sinistä", 'partlycloudy': "siniharmaata", 'cloudy': "harmaata",
   'lightrainshowers': "jokunen kuuro.", 'heavyrainshowers': "äänekästä kuuroa.",
@@ -105,23 +103,10 @@ const ncSymbolText = code => (NC_SYMBOL[ncBase(code)] || '');
 const ncIsPrecip = code => !!({
   lightrain:1, heavyrain:1, lightrainshowers:1, heavyrainshowers:1,
   rainshowersandthunder:1, sleet:1, lightsleetshowers_and_thunder:1,
-  snow:1, heavysnow:1, snowshowers_and_thunder:1
+  snow:1, heavysnow:1, snowshowers_and_thunder:1, fog:1, thunderstorm:1
 }[ncBase(code)]);
 
-function downgradeToCloudiness(descRaw){
-  if (!descRaw) return 'pilvistä';
-  const s = descRaw.toLowerCase();
-  if (s.includes('siniharmaasta') || s.includes('sinihirmaasta')) return 'siniharmaata';
-  if (s.includes('sangen harmaasta')) return 'sangen harmaata';
-  return 'pilvistä';
-}
-function lowerFirstIfPeriod(s){
-  if (!s) return s;
-  const t = s.trim();
-  if (!/[.!?]$/.test(t)) return t;
-  return t.charAt(0).toLowerCase() + t.slice(1);
-}
-
+/* ===== tuulen suunta teksti ===== */
 function dir8(deg){
   if (deg==null || isNaN(deg)) return '';
   const d = ((deg%360)+360)%360;
@@ -135,7 +120,7 @@ function dir8(deg){
   return 'luoteesta';
 }
 
-/* FMI WFS – ilman puuskaa (puuska ei ole tässä storedqueryssä) */
+/* ===== FMI WFS (ei puuskaa tässä storedqueryssa) ===== */
 function buildWfsForecast(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
@@ -145,8 +130,6 @@ function buildWfsForecast(lat,lon){
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
   return `${base}&storedquery_id=${encodeURIComponent(sq)}&latlon=${encodeURIComponent(lat+','+lon)}&parameters=${encodeURIComponent(params)}&starttime=${encodeURIComponent(iso(s))}&endtime=${encodeURIComponent(iso(e))}&timestep=60`;
 }
-
-/* XML → sarjat */
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt,'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
@@ -180,7 +163,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* Nowcast (t0 sade + puuska + symboli) */
+/* ===== MET Nowcast (t0 sade+puuska+symboli; t1–t2 sade+symboli kun saatavilla) ===== */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -198,8 +181,7 @@ async function fetchNowcastForHour(lat, lon, dUTC){
       if (diff<0  && ad<pDiff){pDiff=ad; past=it;}
     }
     let best=null;
-    if (future && fDiff<=60*60000) best=future;
-    else if (past && pDiff<=60*60000) best=past;
+    if (future && fDiff<=60*60000) best=future; else if (past && pDiff<=60*60000) best=past;
     if (!best) return { val:null, meta:'NC!miss' };
 
     const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
@@ -212,7 +194,7 @@ async function fetchNowcastForHour(lat, lon, dUTC){
   }catch{ return { val:null, meta:'NC!err' }; }
 }
 
-/* solut */
+/* ===== solujen formatterit ===== */
 function rainCell(val, {markGrey=false}={}){
   if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft', num:null };
   const n = Number(val);
@@ -241,7 +223,7 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
   return { text: txt + gustTxt + dirHtml, cls };
 }
 
-/* ditto */
+/* ===== Ditto ===== */
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
@@ -265,7 +247,158 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
   );
 }
 
-/* render */
+/* ===== HÄMÄRÄ – aurinkoaltitudi ja vaiheet ===== */
+
+/* tz offset (min) Helsingin aikavyöhykkeellä annetulle Date:lle */
+function tzOffsetMin(d, tz){
+  const s = d.toLocaleString('en-CA',{timeZone:tz});
+  const ld = new Date(s);
+  return Math.round((ld - new Date(d.toISOString().slice(0,19))) / 60000);
+}
+
+/* NOAA-tyylinen aurinkoaltitudi (asteina). Riittävän tarkka minuutin sisällä. */
+function sunAltitudeDeg(dateUTC, latDeg, lonDeg, tzName){
+  const rad = Math.PI/180, deg = 180/Math.PI;
+  const d = new Date(dateUTC);
+  const tzMin = tzOffsetMin(d, tzName); // esim. 120 tai 180
+  // Juliaaninen päivä
+  const JD = (Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes(),d.getUTCSeconds())/86400000) + 2440587.5;
+  const T = (JD - 2451545.0)/36525.0;
+
+  const L0 = (280.46646 + T*(36000.76983 + T*0.0003032)) % 360;
+  const M  = 357.52911 + T*(35999.05029 - 0.0001537*T);
+  const e  = 0.016708634 - T*(0.000042037 + 0.0000001267*T);
+  const C  = (1.914602 - T*(0.004817 + 0.000014*T))*Math.sin(M*rad)
+           + (0.019993 - 0.000101*T)*Math.sin(2*M*rad)
+           + 0.000289*Math.sin(3*M*rad);
+  const trueLong = L0 + C;
+  const omega = 125.04 - 1934.136*T;
+  const lambda = trueLong - 0.00569 - 0.00478*Math.sin(omega*rad);
+
+  const epsilon0 = 23 + (26 + ((21.448 - T*(46.815 + T*(0.00059 - 0.001813*T))))/60)/60;
+  const epsilon = epsilon0 + 0.00256*Math.cos(omega*rad);
+  const delta = Math.asin(Math.sin(epsilon*rad)*Math.sin(lambda*rad)); // deklinaatio (rad)
+
+  // Equation of time (min)
+  const y = Math.tan((epsilon*rad)/2); const y2 = y*y;
+  const Etime = 4*deg*( y2*Math.sin(2*L0*rad) - 2*e*Math.sin(M*rad)
+    + 4*e*y2*Math.sin(M*rad)*Math.cos(2*L0*rad)
+    - 0.5*y2*y2*Math.sin(4*L0*rad)
+    - 1.25*e*e*Math.sin(2*M*rad) );
+
+  // Tosi aurinkoaika (min)
+  const minutes = d.getUTCHours()*60 + d.getUTCMinutes() + tzMin;
+  let tst = (minutes + Etime + 4*lonDeg) % 1440;
+  if (tst < 0) tst += 1440;
+  let ha = (tst/4 < 0) ? (tst/4 + 180) : (tst/4 - 180); // tuntikulma (deg)
+
+  // Altitudi
+  const lat = latDeg*rad;
+  const H = ha*rad;
+  const alt = Math.asin( Math.sin(lat)*Math.sin(delta) + Math.cos(lat)*Math.cos(delta)*Math.cos(H) );
+  return alt*deg;
+}
+
+const TW = { DAY:0, CIV:1, NAU:2, AST:3, DARK:4 };
+function twPhaseFromAlt(altDeg){
+  if (altDeg > 0) return TW.DAY;
+  if (altDeg > -6) return TW.CIV;
+  if (altDeg > -12) return TW.NAU;
+  if (altDeg > -18) return TW.AST;
+  return TW.DARK;
+}
+function twNameFI(phase){
+  return (phase===TW.CIV)?'porvarillinen hämärä'
+       : (phase===TW.NAU)?'nauttinen hämärä'
+       : (phase===TW.AST)?'astronominen hämärä'
+       : 'säkkipimeä';
+}
+
+/* Palauttaa vaiheen annetulla minuutilla sekä (jos osuu tunnille) raja-ajan ja tyypin */
+function phaseInfoForHour(dUTC, lat, lon){
+  const tzMin = tzOffsetMin(dUTC, TZ);
+  const start = new Date(dUTC); start.setUTCMinutes(0,0,0);
+  const end = new Date(start); end.setUTCHours(end.getUTCHours()+1);
+
+  const a0 = sunAltitudeDeg(start, lat, lon, TZ);
+  const a1 = sunAltitudeDeg(end,   lat, lon, TZ);
+  const p0 = twPhaseFromAlt(a0), p1 = twPhaseFromAlt(a1);
+
+  // Etsi mahdollinen raja binäärihaulla minuutin tarkkuuteen
+  let change = null;
+  if (p0 !== p1){
+    let lo=0, hi=60;
+    while (hi-lo>1){
+      const mid = Math.floor((lo+hi)/2);
+      const t = new Date(start); t.setUTCMinutes(mid);
+      const a = sunAltitudeDeg(t, lat, lon, TZ);
+      const pm = twPhaseFromAlt(a);
+      if (pm===p0) lo=mid; else hi=mid;
+    }
+    change = { minute: hi, alt: sunAltitudeDeg(new Date(start.setUTCMinutes(hi)), lat, lon, TZ) };
+  }
+
+  // Auringon nousu/lasku jos altitudi ylittää 0 rajan
+  let sunEvent = null;
+  if ((a0>0 && a1<=0) || (a0<=0 && a1>0)){
+    // binaari 0°:lle
+    let lo=0, hi=60;
+    while (hi-lo>1){
+      const mid=Math.floor((lo+hi)/2);
+      const t=new Date(new Date(start).setUTCMinutes(mid));
+      const a=sunAltitudeDeg(t,lat,lon,TZ);
+      if ((a0>0)?(a>0):(a<=0)) lo=mid; else hi=mid;
+    }
+    const t = new Date(new Date(start).setUTCMinutes(hi));
+    sunEvent = { minute: hi, rising: a1>0 }; // jos tunnin lopussa >0 → nousi
+  }
+
+  return { phaseStart: p0, phaseEnd: p1, change, sunEvent, tzMin };
+}
+
+/* Pikkutagi-tekstit */
+function miniTagForHour(info, isWet, isCivMain, isTopRow){
+  // prioriteetti: aurinko → aloitus/vaihto → "nyt-vaihe" t0:lle
+  const toHM = m => String(m).padStart(2,'0');
+  const m2txt = m => `${toHM(Math.floor(m/60))}:${toHM(m%60)}`;
+
+  if (info.sunEvent){
+    const hhmm = m2txt(info.sunEvent.minute*60);
+    return info.sunEvent.rising ? `aurinko nousee ${hhmm}` : `aurinko laskee ${hhmm}`;
+  }
+  if (info.change){
+    // minkä suuntaan mennään
+    const pTo = info.phaseEnd;
+    const hhmm = m2txt(info.change.minute*60);
+    if (isWet){
+      // sateisella vain aloitus-tags
+      if (pTo===TW.NAU) return `Nauttinen hämärä alkaa ${hhmm}`;
+      if (pTo===TW.AST) return `Astronominen hämärä alkaa ${hhmm}`;
+      if (pTo===TW.CIV && info.phaseStart===TW.DAY) return `Porvarillinen hämärä alkaa ${hhmm}`;
+      if (pTo===TW.DARK) return `säkkipimeäksi ${hhmm}`;
+      if (pTo===TW.DAY && info.phaseStart===TW.CIV) return `aurinko nousee ${hhmm}`;
+      return null;
+    } else {
+      // kuiva: näytetään vaihto-muotoilu
+      if (pTo===TW.NAU) return `vaihtuu nauttiseksi ${hhmm}`;
+      if (pTo===TW.AST) return `vaihtuu astronomiseksi ${hhmm}`;
+      if (pTo===TW.DARK) return `säkkipimeäksi ${hhmm}`;
+      if (pTo===TW.CIV && info.phaseStart===TW.DAY) return `porvarillinen hämärä alkaa ${hhmm}`;
+      if (pTo===TW.DAY && info.phaseStart===TW.CIV) return `aurinko nousee ${hhmm}`;
+      return null;
+    }
+  }
+  // t0: jos ollaan hämärässä/pimeässä eikä yllä mikään, kerro missä mennään
+  if (isTopRow){
+    if (info.phaseStart===TW.CIV) return 'porvarillinen hämärä';
+    if (info.phaseStart===TW.NAU) return 'nauttinen hämärä';
+    if (info.phaseStart===TW.AST) return 'astronominen hämärä';
+    if (info.phaseStart===TW.DARK) return 'säkkipimeä';
+  }
+  return null;
+}
+
+/* ===== render ===== */
 (async function(){
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
   if (!LAT || !LON || isNaN(LAT) || isNaN(LON)){
@@ -298,10 +431,29 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve({val:null, meta:'NC!skip'})
     ]);
 
-    const html = [];
+    const rows = [];
     const prevDescRef = { val: null };
 
-    /* t0 */
+    /* apu: päättää kuiva/märkä + palauttaa kuvauksen ja minitagit hämärän kanssa */
+    function decorateDesc(baseMain, hourUTC, wetInfo, sourceHint, topRow, civAsMini=true){
+      const info = phaseInfoForHour(hourUTC, LAT, LON);
+      const isWet = wetInfo.isWet || wetInfo.isFogOrThunder;
+      // pitäisikö hämärä nousta päätekstiksi?
+      let main = baseMain, white = wetInfo.highlight;
+      if (!isWet){
+        if (info.phaseStart===TW.NAU || info.phaseStart===TW.AST || info.phaseStart===TW.DARK){
+          main = twNameFI(info.phaseStart); white = false; // hämäräteksti harmaana, highlight säilyy sateelle erikseen
+        } else if (info.phaseStart===TW.CIV && civAsMini){
+          // porvarillinen vain minitagiin
+        }
+      }
+      const mini = miniTagForHour(info, isWet, info.phaseStart===TW.CIV, topRow);
+      const dbg = DBG ? ` <span class="soft mini">[${sourceHint}]</span>` : '';
+      const miniHtml = mini ? `<br><span class="mini">${mini}</span>` : '';
+      return { html: `${main}${dbg}${miniHtml}`, white };
+    }
+
+    /* t0 – NC sade + symboli ensisijainen */
     {
       const key = pickKeys[0];
       const temp = forecast.temperature?.get(key);
@@ -310,95 +462,4 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const ss   = forecast.SmartSymbol?.get(key);
 
       const rainVal0 = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
-      const rObj = (rainVal0!=null && rainVal0<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(rainVal0);
-      const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), wdir, { baseGrey:true });
-
-      let descRaw = ncSymbolText(nc0?.sym);
-      if (!descRaw){
-        let hrm = ssText(ss) || '–';
-        if ((rainVal0!=null && rainVal0<0.1) && (ss!=null)) hrm = downgradeToCloudiness(hrm);
-        descRaw = hrm;
-      }
-      descRaw = lowerFirstIfPeriod(descRaw);
-      const descIsWhite = ( (rObj.num!=null && rObj.num>=0.1) && ncIsPrecip(nc0?.sym) );
-      const src = nc0?.sym ? ncBase(nc0.sym) : 'HRM';
-
-      pushRow(html, {
-        timeHtml: fmtHM(now),
-        temp, descHtml: `${descRaw}${DBG?` <span class="soft" style="font-size:12px">[${src}]</span>`:''}`,
-        descWhite: descIsWhite,
-        rainObj: rObj, rainTag: 'NC',
-        windObj: wObj,
-        prevKeyRef: prevDescRef
-      });
-    }
-
-    /* t+1, t+2 – ilman FMI-puuskia */
-    function renderFutureHour(idx, ncPack){
-      if (pickKeys.length <= idx) return;
-      const key = pickKeys[idx], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-
-      let rObj, rTag='NC', rainUsed=null;
-      if (ncPack && typeof ncPack.val==='number'){
-        rObj = (ncPack.val<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(ncPack.val);
-        rainUsed = (ncPack.val<0.1) ? 0 : ncPack.val;
-      } else {
-        rObj = rainCell(rain, {markGrey:true}); rTag='HRM'; rainUsed=(typeof rain==='number'?rain:null);
-      }
-      const wObj = windCell(wind, null, wdir, { baseGrey:true });
-
-      let hrm = ssText(ss) || '–';
-      hrm = lowerFirstIfPeriod(hrm);
-      const hrmItalicQ = `<em>${hrm.replace(/\s*$/, '')}?</em>`;
-      const descWhite = (rainUsed!=null && rainUsed>=0.1);
-
-      pushRow(html, {
-        timeHtml: `<span class="soft">${fmtHM(dUtc)}</span>`,
-        temp, descHtml: `${hrmItalicQ}${DBG?` <span class="soft" style="font-size:12px">[HRM]</span>`:''}`,
-        descWhite, rainObj: rObj, rainTag: rTag, windObj: wObj, prevKeyRef: prevDescRef
-      });
-    }
-    renderFutureHour(1, nc1);
-    renderFutureHour(2, nc2);
-
-    /* t+3…t+12 */
-    for (let i=3; i<pickKeys.length; i++){
-      const key = pickKeys[i], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-      const ssDay = (ss!=null) ? (Number(ss)%100) : null;
-
-      let rObj = rainCell(rain);
-      const wet = (rObj.num!=null && rObj.num > 0);
-      const smallWet = (wet && rObj.num < 0.3);
-      if (smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay))){
-        rObj = rainCell(rain, {markGrey:true});
-      }
-
-      let descRaw = ssText(ss) || '–';
-      descRaw = lowerFirstIfPeriod(descRaw);
-
-      const wObj = windCell(wind, null, wdir, { baseGrey:true });
-      const highlight = wet && !(smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay)));
-      const timeHtml = `<span class="${highlight?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-
-      pushRow(html, {
-        timeHtml, temp, descHtml: descRaw, descWhite: highlight,
-        rainObj: rObj, rainTag: 'HRM', windObj: wObj, prevKeyRef: prevDescRef
-      });
-    }
-
-    out.innerHTML = html.join('') || `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
-  }catch(e){
-    out.innerHTML = `<div class="err">${String(e.message||e)}</div>`;
-  }
-})();
-</script>
+      const rObj = (rainVal0!=null && rainVal0<0.1) ? {text
