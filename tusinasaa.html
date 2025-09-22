@@ -61,7 +61,8 @@
              t1–t2 HRM-kuvaus kursiivilla ja ?-merkillä. t3→ HRM; jos sade <0.3 mm ja SS ei ole “poikkeusjoukossa”, pakota harmaa.
    - Aika: t0 HH:MM; t1–t2 HH:MM harmaana; t3→ “klo HH” (pieni teksti).
    - Tuuli: keskituuli (m/s) + suunta {pohjoisesta, koillisesta, idästä, kaakosta, etelästä, lounasta, lännestä, luoteesta}.
-            Keskituuli valkoisena ≥10 m/s; puuska kursiivina suluissa ≥15 m/s (t0–t2 NC:stä jos saatavilla).
+            Keskituuli valkoisena ≥10 m/s; puuska kursiivina suluissa ≥15 m/s.
+            Puuskan lähde: t0 Nowcast, t1–t2 HARMONIE, t3→ HARMONIE.
    - Ditto: jos peräkkäinen kuvaus sama (lähteestä riippumatta), näytetään vain ».
    - Asola-otsake: jos ?lat=60.3281&lon=25.0551 → “TUSINASÄÄ 12 · ASOLA”. Debug-tagit: ?dbg.
 */
@@ -158,7 +159,7 @@ function dir8(deg){
 function buildWfsForecast(lat,lon){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
   const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
-  const params='temperature,precipitation1h,windspeedms,winddirection,SmartSymbol';
+  const params='temperature,precipitation1h,windspeedms,winddirection,WindGustMS,SmartSymbol';
   const now=new Date(), s=new Date(now), e=new Date(now);
   s.setHours(s.getHours()-2); e.setHours(e.getHours()+24);
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
@@ -183,6 +184,7 @@ const extractSeries = x => {
     else if (id.includes('precipitation1h')) k='precipitation1h';
     else if (id.includes('windspeedms')) k='windspeedms';
     else if (id.includes('winddirection')) k='winddirection';
+    else if (id.includes('windgustms') || id.includes('windgust')) k='windgustms';
     else if (id.includes('smartsymbol')) k='SmartSymbol';
     if (!k) continue;
     const map=new Map();
@@ -335,7 +337,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
     const html = [];
     const prevDescRef = { val: null };
 
-    /* t0 (nyt) */
+    /* t0 (nyt) – NC puuska */
     {
       const key = pickKeys[0];
       const temp = forecast.temperature?.get(key);
@@ -367,12 +369,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       });
     }
 
-    /* t+1h ja t+2h – HRM kuvaus (kursiivi + ?) ja sade NC/HRM */
+    /* t+1h ja t+2h – HRM puuska (WindGustMS), kuvaus kursiivilla + ? */
     function renderFutureHour(idx, ncPack){
       if (pickKeys.length <= idx) return;
       const key = pickKeys[idx], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
       const wind = forecast.windspeedms?.get(key);
+      const gust = forecast.windgustms?.get(key);      // HARMONIE puuska
       const wdir = forecast.winddirection?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
@@ -384,11 +387,11 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       } else {
         rObj = rainCell(rain, {markGrey:true}); rTag='HRM'; rainUsed=(typeof rain==='number'?rain:null);
       }
-      const wObj = windCell(wind, (ncPack && typeof ncPack.gust==='number' ? ncPack.gust : null), wdir, { baseGrey:true });
+      const wObj = windCell(wind, (typeof gust==='number'?gust:null), wdir, { baseGrey:true });
 
       let hrm = ssText(ss) || '–';
       hrm = lowerFirstIfPeriod(hrm);
-      const hrmItalicQ = `<em>${hrm.replace(/\s*$/, '')}?</em>`; // kursiivi + ? (ei sulkeita)
+      const hrmItalicQ = `<em>${hrm.replace(/\s*$/, '')}?</em>`;
       const descWhite = (rainUsed!=null && rainUsed>=0.1);
 
       pushRow(html, {
@@ -400,12 +403,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
     renderFutureHour(1, nc1);
     renderFutureHour(2, nc2);
 
-    /* t+3…t+12 */
+    /* t+3…t+12 – HRM puuska (näytetään vain jos ≥15 m/s kuten ennenkin) */
     for (let i=3; i<pickKeys.length; i++){
       const key = pickKeys[i], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
       const rain = forecast.precipitation1h?.get(key);
       const wind = forecast.windspeedms?.get(key);
+      const gust = forecast.windgustms?.get(key);      // HARMONIE puuska
       const wdir = forecast.winddirection?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
       const ssDay = (ss!=null) ? (Number(ss)%100) : null;
@@ -414,7 +418,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const wet = (rObj.num!=null && rObj.num > 0);
       const smallWet = (wet && rObj.num < 0.3);
 
-      // uusi sääntö: jos sade < 0.3 ja SS EI kuulu poikkeuksiin → pakota harmaaksi
       if (smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay))){
         rObj = rainCell(rain, {markGrey:true});
       }
@@ -422,7 +425,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       let descRaw = ssText(ss) || '–';
       descRaw = lowerFirstIfPeriod(descRaw);
 
-      const wObj = windCell(wind, null, wdir, { baseGrey:true });
+      const wObj = windCell(wind, (typeof gust==='number'?gust:null), wdir, { baseGrey:true });
       const highlight = wet && !(smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay)));
 
       const timeHtml = `<span class="${highlight?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
