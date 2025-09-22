@@ -312,6 +312,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
 		const forecast = {};
 		for (const key in ts[0].data.instant.details){ forecast[key] = new Map(); }
 		for (const key in ts[0].data.next_1_hours?.details){ forecast[key] = new Map(); }
+		forecast.SmartSymbol = new Map();
 
 		for (const item of ts){
 			const time = item.time;
