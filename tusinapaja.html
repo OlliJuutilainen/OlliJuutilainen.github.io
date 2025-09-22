@@ -46,6 +46,8 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+
 <script>
 /* --------- perusinfra & virheet näkyviin --------- */
 const out = document.getElementById('out');
@@ -217,31 +219,91 @@ function offsetHHMM(d){
   const mm = String(abs%60).padStart(2,'0');
   return `${sign}${hh}:${mm}`;
 }
+function offsetToMinutes(offset){
+  const m = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
+  if (!m) return 0;
+  const sign = m[1] === '+' ? 1 : -1;
+  const h = Number(m[2]);
+  const min = Number(m[3]);
+  return sign * (h*60 + min);
+}
+function isValidDate(d){
+  return d instanceof Date && !isNaN(d.getTime());
+}
+function formatWithOffset(date, offset){
+  if (!isValidDate(date)) return null;
+  const offMin = offsetToMinutes(offset);
+  const shifted = new Date(date.getTime() + offMin*60000);
+  const y = shifted.getUTCFullYear();
+  const m = String(shifted.getUTCMonth()+1).padStart(2,'0');
+  const d = String(shifted.getUTCDate()).padStart(2,'0');
+  const hh = String(shifted.getUTCHours()).padStart(2,'0');
+  const mm = String(shifted.getUTCMinutes()).padStart(2,'0');
+  const ss = String(shifted.getUTCSeconds()).padStart(2,'0');
+  return `${y}-${m}-${d}T${hh}:${mm}:${ss}${offset}`;
+}
+function wrapTimeEntry(str, offset){
+  if (!str) return null;
+  const dt = new Date(str);
+  if (!isValidDate(dt)) return null;
+  const formatted = formatWithOffset(dt, offset);
+  return formatted ? { time: formatted } : null;
+}
+function wrapFromDate(dt, offset){
+  if (!isValidDate(dt)) return null;
+  const formatted = formatWithOffset(dt, offset);
+  return formatted ? { time: formatted } : null;
+}
 /* Cache per YYYY-MM-DD */
 const sunriseCache = new Map();
 async function fetchSunriseDay(dateLocal, lat, lon){
-  const y = dateLocal.getFullYear();
-  const m = String(dateLocal.getMonth()+1).padStart(2,'0');
-  const d = String(dateLocal.getDate()).padStart(2,'0');
-  const key = `${y}-${m}-${d}`;
+  const year = dateLocal.getFullYear();
+  const monthIdx = dateLocal.getMonth();
+  const day = dateLocal.getDate();
+  const key = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   if (sunriseCache.has(key)) return sunriseCache.get(key);
+  const offset = offsetHHMM(dateLocal);
+  const url = `https://api.met.no/weatherapi/sunrise/3.0/sun?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&date=${key}&offset=${encodeURIComponent(offset)}`;
   try{
-    const offset = offsetHHMM(dateLocal);
-    const url = `https://api.met.no/weatherapi/sunrise/2.0/.json?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&date=${key}&offset=${encodeURIComponent(offset)}`;
     const res = await fetch(url, {cache:'no-store', headers:{'Accept':'application/json'}});
     if (!res.ok){
-      const err = `Sunrise HTTP ${res.status}`;
-      sunriseCache.set(key, { __error: err });
-      return { __error: err };
+      const errObj = { __error: `Sunrise v3 HTTP ${res.status}` };
+      sunriseCache.set(key, errObj);
+      return errObj;
     }
     const js = await res.json();
-    const time = js?.location?.time?.[0] || null;
-    sunriseCache.set(key, time||{__error:'Sunrise empty'});
-    return time||{__error:'Sunrise empty'};
+    const props = js?.properties || (Array.isArray(js?.features) ? js.features[0]?.properties : null) || js?.feature?.properties || null;
+    if (!props){
+      const errObj = { __error: 'Sunrise v3 empty' };
+      sunriseCache.set(key, errObj);
+      return errObj;
+    }
+    const result = {
+      sunrise: wrapTimeEntry(props.sunrise?.time, offset),
+      sunset: wrapTimeEntry(props.sunset?.time, offset),
+      solarnoon: wrapTimeEntry(props.solarnoon?.time, offset),
+      solarmidnight: wrapTimeEntry(props.solarmidnight?.time, offset)
+    };
+    const hasSunCalc = typeof SunCalc === 'object' && SunCalc && typeof SunCalc.getTimes === 'function';
+    if (hasSunCalc){
+      const offMin = offsetToMinutes(offset);
+      const midRef = new Date(Date.UTC(year, monthIdx, day, 12) - offMin*60000);
+      const times = SunCalc.getTimes(midRef, lat, lon) || {};
+      result.civil_twilight_begin = wrapFromDate(times.dawn, offset);
+      result.civil_twilight_end = wrapFromDate(times.dusk, offset);
+      result.nautical_twilight_begin = wrapFromDate(times.nauticalDawn, offset);
+      result.nautical_twilight_end = wrapFromDate(times.nauticalDusk, offset);
+      result.astronomical_twilight_begin = wrapFromDate(times.nightEnd, offset);
+      result.astronomical_twilight_end = wrapFromDate(times.night, offset);
+    } else {
+      result.__warn = 'SunCalc unavailable';
+    }
+    sunriseCache.set(key, result);
+    return result;
   }catch(e){
-    const err = `Sunrise ERR ${String(e.message||e)}`;
-    sunriseCache.set(key, { __error: err });
-    return { __error: err };
+    const errObj = { __error: `Sunrise v3 ERR ${String(e && e.message || e)}` };
+    sunriseCache.set(key, errObj);
+    return errObj;
   }
 }
 const tp = s => s ? new Date(s) : null;
