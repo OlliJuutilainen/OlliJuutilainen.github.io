@@ -55,12 +55,13 @@
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* Yhteenveto (siistitty):
-   - Sade: t0–t2 MET Nowcast; muissa FMI HARMONIE (precipitation1h). 0.0 → '—' (harmaa & keskitetty), ≥0.1 → numerona (valkoinen).
-   - Kuvaus: t0 priorisoi NC symbolin; jos puuttuu → HRM SmartSymbol (ja jos NC=0 mutta HRM on sateinen → “pilvistä/siniharmaata...” downgrade).
-            t1–t2 kuvaus HRM:stä (ei sulkeita/kursivointeja). t3→ HRM kuvaus; harmaana jos “tihkuu/ripsii”-tyyppinen ja sade <0.3 mm.
-   - Aika: t0 HH:MM; t1–t2 HH:MM harmaana; t3→ “klo HH” (pieni teksti) ja HH oikealle.
-   - Tuuli: keskituuli (m/s) + pienellä alla suunta {pohjoisesta…}; keskituuli valkoisena ≥10 m/s; puuska kursiivina suluissa ≥15 m/s (t0–t2 NC:stä jos saatavilla).
+/* Yhteenveto:
+   - Sade: t0–t2 MET Nowcast; muissa FMI HARMONIE (precipitation1h). 0.0 → '—' (harmaa, keskitetty), ≥0.1 → numerona (valkoinen).
+   - Kuvaus: t0 NC-symboli jos saatavilla, muuten HRM (ja jos NC=0 mutta HRM on sateinen → downgrade pilvisyydeksi).
+             t1–t2 HRM-kuvaus kursiivilla ja ?-merkillä. t3→ HRM; jos sade <0.3 mm ja SS ei ole “poikkeusjoukossa”, pakota harmaa.
+   - Aika: t0 HH:MM; t1–t2 HH:MM harmaana; t3→ “klo HH” (pieni teksti).
+   - Tuuli: keskituuli (m/s) + suunta {pohjoisesta, koillisesta, idästä, kaakosta, etelästä, lounasta, lännestä, luoteesta}.
+            Keskituuli valkoisena ≥10 m/s; puuska kursiivina suluissa ≥15 m/s (t0–t2 NC:stä jos saatavilla).
    - Ditto: jos peräkkäinen kuvaus sama (lähteestä riippumatta), näytetään vain ».
    - Asola-otsake: jos ?lat=60.3281&lon=25.0551 → “TUSINASÄÄ 12 · ASOLA”. Debug-tagit: ?dbg.
 */
@@ -103,10 +104,9 @@ const SS_TEXT = {
   61:'rakeita jossain.', 64:'rakeita.', 67:'rakeiden tulitus.'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
-const PRECIP_CODES = new Set([
-  11,14,17,21,24,27,31,32,33,34,35,36,37,38,39,41,42,43,44,45,46,47,48,49,
-  51,52,53,54,55,56,57,58,59,61,64,67,71,74,77
-]);
+
+/* pieni-sateen “poikkeusjoukko” (jos ss kuuluu näihin, <0.3 mm saa silti korostuksen) */
+const SMALL_RAIN_EXCEPT = new Set([71,74,77,21,24,27,14,17,32,35,38,33,36,39,42,45,48,43,46,49,52,55,58,53,56,59,61,64,67]);
 
 /* Nowcast symbol_code → kuvaus (normalisoitu) */
 const NC_SYMBOL = {
@@ -125,7 +125,7 @@ const ncIsPrecip = code => !!({
   snow:1, heavysnow:1, snowshowers_and_thunder:1
 }[ncBase(code)]);
 
-/* Pilvisyys-downgrade HRM-sateisesta kuvauksesta, kun NC=0 */
+/* Downgrade sateisesta HRM-tekstistä pilvisyydeksi, jos NC=0 */
 function downgradeToCloudiness(descRaw){
   if (!descRaw) return 'pilvistä';
   const s = descRaw.toLowerCase();
@@ -133,7 +133,6 @@ function downgradeToCloudiness(descRaw){
   if (s.includes('sangen harmaasta')) return 'sangen harmaata';
   return 'pilvistä';
 }
-/* Pisteeseen päättyvän virkkeen alun pienentäminen, jotta yhdistyminen NC-teksteihin näyttää luonnolliselta */
 function lowerFirstIfPeriod(s){
   if (!s) return s;
   const t = s.trim();
@@ -141,7 +140,7 @@ function lowerFirstIfPeriod(s){
   return t.charAt(0).toLowerCase() + t.slice(1);
 }
 
-/* Ilmansuunnat halutussa muodossa */
+/* Ilmansuunnat */
 function dir8(deg){
   if (deg==null || isNaN(deg)) return '';
   const d = ((deg%360)+360)%360;
@@ -200,7 +199,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* MET Nowcast – sade + puuska + symbol_code (symboli käytössä vain t0:ssa) */
+/* MET Nowcast – sade + puuska + symbol_code (symboli vain t0:ssa) */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -270,13 +269,13 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
   return { text: txt + gustTxt + dirHtml, cls };
 }
 
-/* Dittotus (lähteestä riippumatta) */
+/* Ditto-normalisointi */
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'')
            .replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
 
-/* Apurenderi yhdelle riville */
+/* Render-apuri */
 function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag, windObj, prevKeyRef}){
   const plain = descHtml.replace(/<[^>]*>/g,'').trim();
   let displayDesc = descHtml;
@@ -351,9 +350,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       let descRaw = ncSymbolText(nc0?.sym);
       if (!descRaw){
         let hrm = ssText(ss) || '–';
-        if ((rainVal0!=null && rainVal0<0.1) && (ss!=null) && PRECIP_CODES.has(Number(ss)%100)){
-          hrm = downgradeToCloudiness(hrm);
-        }
+        if ((rainVal0!=null && rainVal0<0.1) && (ss!=null)) hrm = downgradeToCloudiness(hrm);
         descRaw = hrm;
       }
       descRaw = lowerFirstIfPeriod(descRaw);
@@ -370,7 +367,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       });
     }
 
-    /* t+1h ja t+2h – sama logiikka (HRM-kuvaus, NC/HRM sade) */
+    /* t+1h ja t+2h – HRM kuvaus (kursiivi + ?) ja sade NC/HRM */
     function renderFutureHour(idx, ncPack){
       if (pickKeys.length <= idx) return;
       const key = pickKeys[idx], dUtc = new Date(key);
@@ -391,11 +388,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
 
       let hrm = ssText(ss) || '–';
       hrm = lowerFirstIfPeriod(hrm);
+      const hrmItalicQ = `<em>${hrm.replace(/\s*$/, '')}?</em>`; // kursiivi + ? (ei sulkeita)
       const descWhite = (rainUsed!=null && rainUsed>=0.1);
 
       pushRow(html, {
         timeHtml: `<span class="soft">${fmtHM(dUtc)}</span>`,
-        temp, descHtml: `${hrm}${DBG?` <span class="soft" style="font-size:12px">[HRM]</span>`:''}`,
+        temp, descHtml: `${hrmItalicQ}${DBG?` <span class="soft" style="font-size:12px">[HRM]</span>`:''}`,
         descWhite, rainObj: rObj, rainTag: rTag, windObj: wObj, prevKeyRef: prevDescRef
       });
     }
@@ -403,7 +401,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
     renderFutureHour(2, nc2);
 
     /* t+3…t+12 */
-    const drizzleCodes = new Set([11,31,34,37,41,44,47,51,54,57]); // + yö → %100 jo ssText:ssa
     for (let i=3; i<pickKeys.length; i++){
       const key = pickKeys[i], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
@@ -413,16 +410,20 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const ss   = forecast.SmartSymbol?.get(key);
       const ssDay = (ss!=null) ? (Number(ss)%100) : null;
 
-      const tmp = rainCell(rain);
-      const wet  = (tmp.num!=null && tmp.num > 0);
-      const forceGrey = (wet && tmp.num < 0.3 && drizzleCodes.has(ssDay));
-      const rObj = forceGrey ? rainCell(rain, {markGrey:true}) : rainCell(rain);
+      let rObj = rainCell(rain);
+      const wet = (rObj.num!=null && rObj.num > 0);
+      const smallWet = (wet && rObj.num < 0.3);
+
+      // uusi sääntö: jos sade < 0.3 ja SS EI kuulu poikkeuksiin → pakota harmaaksi
+      if (smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay))){
+        rObj = rainCell(rain, {markGrey:true});
+      }
 
       let descRaw = ssText(ss) || '–';
       descRaw = lowerFirstIfPeriod(descRaw);
 
       const wObj = windCell(wind, null, wdir, { baseGrey:true });
-      const highlight = wet && !forceGrey;
+      const highlight = wet && !(smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay)));
 
       const timeHtml = `<span class="${highlight?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
       pushRow(html, {
