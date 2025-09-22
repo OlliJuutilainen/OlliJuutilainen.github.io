@@ -64,7 +64,10 @@
             Keskituuli valkoisena ≥10 m/s; puuska kursiivina suluissa ≥15 m/s.
             Puuskan lähde: t0 Nowcast, t1–t2 HARMONIE, t3→ HARMONIE.
    - Ditto: jos peräkkäinen kuvaus sama (lähteestä riippumatta), näytetään vain ».
-   - Asola-otsake: jos ?lat=60.3281&lon=25.0551 → “TUSINASÄÄ 12 · ASOLA”. Debug-tagit: ?dbg.
+   - Erikoisotsikot:
+       * ?lat=60.3281&lon=25.0551 → “TUSINASÄÄ 12 · ASOLA”
+       * ?lat=60.1562&lon=24.7767 → “TUSINASÄÄ 12 · MERIKOTO”
+   - Debug-tagit: ?dbg.
 */
 
 const q = new URLSearchParams(location.search);
@@ -75,10 +78,15 @@ const DBG = q.has('dbg');
 const out = document.getElementById('out');
 const pageTitle = document.getElementById('pageTitle');
 
+/* Erikoisotsikot */
 if (LAT_STR === '60.3281' && LON_STR === '25.0551'){
   pageTitle.textContent = 'TUSINASÄÄ 12 · ASOLA';
   pageTitle.style.display = '';
+} else if (LAT_STR === '60.1562' && LON_STR === '24.7767'){
+  pageTitle.textContent = 'TUSINASÄÄ 12 · MERIKOTO';
+  pageTitle.style.display = '';
 }
+
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
 
 /* Aika */
