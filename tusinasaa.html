@@ -6,12 +6,19 @@
   :root { color-scheme: dark; }
   html,body{height:100%}
   body{
-    margin:0; padding:28px 14px 24px; background:#000; color:#e8e8e8;
+    margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
   }
-  .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px }
-  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px }
+
+  /* Sivun näkyvä otsikko (näytetään vain Asola-koordinaateilla) */
+  .pageTitle{
+    font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
+    text-transform:uppercase; margin:0 0 4px 0
+  }
+
+  .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
 
@@ -22,7 +29,6 @@
     justify-items: center;
   }
   .hdr div:nth-child(-n+3){ justify-self: start; text-align: left; }
-  .hdr div:nth-child(4){ position:relative; left:-1px; }
   .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
 
   .row{
@@ -42,6 +48,9 @@
   .err{ color:#ff6b6b; white-space:pre-wrap }
 </style>
 
+<!-- Näkyvä sivuotsikko: näytetään vain Asola-koordinaateilla -->
+<h1 id="pageTitle" class="pageTitle" style="display:none"></h1>
+
 <div class="hdr">
   <div></div><div></div><div></div>
   <div class="caps">SADE</div>
@@ -50,18 +59,25 @@
 <div class="list" id="out" aria-live="polite"></div>
 
 <script>
-/* Yhteenveto muutoksista:
-   - NC symboli vain t0 (nyt). t1–t2 kuvaus aina HRM:stä (sulut, kursiivi, ?). Jos NC-sade > 0 → kuvaus valkoisella.
-   - Dittot vertailu tehdään valmiiseen tekstiin, joten lähdetagit eivät estä »:tä.
-   - Tuulensuunta mukaan (FMI winddirection), näytetään pienenä rivin alla: poh, koi, itä, kaa, et, lou, län, luo.
-*/
+/* NC symboli vain t0 (nyt). t1–t2 kuvaus HRM:stä (sulut, kursiivi, ?);
+   valkoinen vain jos NC-sade > 0.
+   Tuulen suunta (FMI winddirection) näytetään pienellä rivillä: pohjoinen, koillinen, itä, kaakko, etelä, lounas, länsi, luode.
+   Keskituuli korostuu valkoisena jo ≥10 m/s; puuska kursiivina suluissa, jos ≥15 m/s. */
 
 const q = new URLSearchParams(location.search);
-const LAT = parseFloat(q.get('lat'));
-const LON = parseFloat(q.get('lon'));
+const LAT_STR = q.get('lat');
+const LON_STR = q.get('lon');
+const LAT = parseFloat(LAT_STR);
+const LON = parseFloat(LON_STR);
 const TZ  = 'Europe/Helsinki';
 const DBG = q.has('dbg');
 const out = document.getElementById('out');
+const pageTitle = document.getElementById('pageTitle');
+
+if (LAT_STR === '60.3281' && LON_STR === '25.0551'){
+  pageTitle.textContent = 'TUSINASÄÄ 12 · ASOLA';
+  pageTitle.style.display = '';
+}
 
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
 
@@ -70,7 +86,7 @@ const hmFi = new Intl.DateTimeFormat('fi-FI',{hour:'2-digit',minute:'2-digit',ho
 function fmtHM(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}:${ps.find(p=>p.type==='minute')?.value||'00'}`; }
 function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type==='hour')?.value||'00'}`; }
 
-/* SmartSymbol – täysi sanasto (päiväkoodit; yö %100) – käyttäjän räätälöimä */
+/* SmartSymbol – käyttäjän sanasto */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
   9:'MIST!',
@@ -89,13 +105,10 @@ const SS_TEXT = {
   61:'rakeita jossain.', 64:'rakeita.', 67:'rakeiden tulitus.'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
-
 const PRECIP_CODES = new Set([
   11,14,17,21,24,27,31,32,33,34,35,36,37,38,39,41,42,43,44,45,46,47,48,49,
   51,52,53,54,55,56,57,58,59,61,64,67,71,74,77
 ]);
-const THUNDER_CODES = new Set([71,74,77]);
-const SHOWER_NON_THUNDER = new Set([21,24,27,61,64,67]);
 
 /* Nowcast symbol_code sanasto – normalisoitu (_day/_night pois) */
 const NC_SYMBOL = {
@@ -140,18 +153,18 @@ function lowerFirstIfPeriod(s){
   return t.charAt(0).toLowerCase() + t.slice(1);
 }
 
-/* Suuntakirjaimet 8-ilmansuunnalle */
+/* Suuntanimet 8-ilmansuunnalle – pitkät nimet */
 function dir8(deg){
   if (deg==null || isNaN(deg)) return '';
   const d = ((deg%360)+360)%360;
-  if (d>=337.5 || d<22.5)   return 'poh';
-  if (d<67.5)               return 'koi';
+  if (d>=337.5 || d<22.5)   return 'pohjoinen';
+  if (d<67.5)               return 'koillinen';
   if (d<112.5)              return 'itä';
-  if (d<157.5)              return 'kaa';
-  if (d<202.5)              return 'et';
-  if (d<247.5)              return 'lou';
-  if (d<292.5)              return 'län';
-  return 'luo';
+  if (d<157.5)              return 'kaakko';
+  if (d<202.5)              return 'etelä';
+  if (d<247.5)              return 'lounas';
+  if (d<292.5)              return 'länsi';
+  return 'luode';
 }
 
 /* FMI WFS */
@@ -199,7 +212,7 @@ const extractSeries = x => {
   return o;
 };
 
-/* Nowcast – sade + puuska + symbol_code (vain t0; t1–t2 ei käytetä symbolia) */
+/* Nowcast – sade + puuska + symbol_code (symboli käytössä vain t0:ssa) */
 async function fetchNowcastForHour(lat, lon, dUTC){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
@@ -210,8 +223,6 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
     const targetUTC = dUTC.getTime();
-
-    // Lähin piste (ensisijaisesti tuleva), ±60min
     let future=null,fDiff=Infinity,past=null,pDiff=Infinity;
     for (const it of ts){
       const t=new Date(it.time).getTime(), diff=t-targetUTC, ad=Math.abs(diff);
@@ -250,11 +261,19 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
   const gOk = (gust!=null && !isNaN(Number(gust)));
   const meanV = mOk ? Number(mean) : null;
   const gustV = gOk ? Number(gust) : null;
+
   let txt = (mOk ? meanV.toFixed(1)+' m/s' : '–');
 
+  // puuska kursiivilla, valkoisena, jos ≥15 m/s
   let gustTxt = '', gustWhite = false;
-  if (gOk && gustV >= 15){ gustTxt = ` (<span style="color:#e8e8e8">${gustV.toFixed(1)}</span>)`; gustWhite = true; }
-  const meanWhite = (mOk && meanV >= 12);
+  if (gOk && gustV >= 15){
+    gustTxt = ` (<em style="color:#e8e8e8">${gustV.toFixed(1)}</em>)`;
+    gustWhite = true;
+  }
+
+  // keskituuli ≥10 → valkoinen
+  const meanWhite = (mOk && meanV >= 10);
+
   const cls = (meanWhite || gustWhite) ? '' : (baseGrey ? 'soft' : '');
 
   const dirTxt = dir8(dirDeg);
@@ -288,7 +307,6 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
     }
     if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    // NC vain t0..t2 — mutta symboli otetaan käyttöön vain t0:ssa
     const d0 = new Date(pickKeys[0]);
     const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
     const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
@@ -301,20 +319,26 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
     let html = '';
     let prevShownText = null;
 
+    function normalizedDittoKey(s){
+      return s.toLowerCase().replace(/[()[\]{}?.,\s]+/g,' ').trim();
+    }
     function showRow(timeHtml, temp, descHtml, descWhite, rainObj, rainTag, windObj){
-      // ditto-logiikka: vertaillaan valmista tekstiä ilman HTML-tageja
       const plain = descHtml.replace(/<[^>]*>/g,'').trim();
       let displayDesc = descHtml;
-      if (plain && prevShownText && plain === prevShownText){
+
+      if (plain && prevShownText && normalizedDittoKey(plain) === normalizedDittoKey(prevShownText)){
         displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>';
       } else {
         prevShownText = plain || null;
       }
+
+      const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
+
       html += `<div class="row">
         <div class="${(rainObj.num!=null && rainObj.num>0) ? 't' : 't soft'}">${timeHtml}</div>
-        <div class="${descWhite?'':'soft'}">${temp!=null?Math.round(temp)+'°C':'–'}</div>
+        <div class="${descWhite?'':'soft'}">${temp!=null?Math.round(temp)+'°':'–'}</div>
         <div class="desc ${descWhite?'':'soft'}">${displayDesc}</div>
-        <div class="${rainObj.cls||''}">${rainObj.text}${tag(rainTag||'')}</div>
+        <div class="${rainObj.cls||''}">${rainObj.text}${rainTagHtml}</div>
         <div class="${windObj.cls||''}">${windObj.text}</div>
       </div>`;
     }
@@ -331,7 +355,6 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
       const rObj = (rainVal0!=null && rainVal0<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(rainVal0);
       const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), wdir, { baseGrey:true });
 
-      // Kuvaus: NC-symboli → teksti; muuten HRM + mahdollinen downgrade
       let descRaw = ncSymbolText(nc0?.sym);
       if (!descRaw){
         let hrm = ssText(ss) || '–';
@@ -343,10 +366,11 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
       descRaw = lowerFirstIfPeriod(descRaw);
       const descIsWhite = ( (rObj.num!=null && rObj.num>=0.1) && ncIsPrecip(nc0?.sym) );
 
-      showRow(fmtHM(now), temp, `${descRaw}${DBG?` <span class="soft" style="font-size:12px">[${nc0?.sym?ncBase(nc0.sym):'HRM'}]</span>`:''}`, descIsWhite, rObj, 'NC', wObj);
+      const src = nc0?.sym ? ncBase(nc0.sym) : 'HRM';
+      showRow(fmtHM(now), temp, `${descRaw}${DBG?` <span class="soft" style="font-size:12px">[${src}]</span>`:''}`, descIsWhite, rObj, 'NC', wObj);
     }
 
-    /* t+1h — kuvaus HRM:stä (sulut, kursiivi, ?) ; valkoinen vain jos NC-sade > 0 */
+    /* t+1h — HRM kuvaus (sulut, kursiivi, ?); valkea vain jos NC-sade > 0 */
     if (pickKeys.length >= 2){
       const key = pickKeys[1], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
@@ -367,12 +391,12 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
       let hrm = ssText(ss) || '–';
       hrm = lowerFirstIfPeriod(hrm);
       const descWrapped = hrm==='–' ? '–' : `(<em>${hrm.replace(/[.?]+$/,'')}?</em>)`;
-      const descWhite = (rainUsed!=null && rainUsed>=0.1); // korosta vain jos NC-sade > 0
+      const descWhite = (rainUsed!=null && rainUsed>=0.1);
 
       showRow(fmtHM(dUtc), temp, `${descWrapped}${DBG?` <span class="soft" style="font-size:12px">[HRM]</span>`:''}`, descWhite, rObj, rTag, wObj);
     }
 
-    /* t+2h — sama logiikka kuin t+1h */
+    /* t+2h — sama kuin t+1h */
     if (pickKeys.length >= 3){
       const key = pickKeys[2], dUtc = new Date(key);
       const temp = forecast.temperature?.get(key);
@@ -398,7 +422,7 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
       showRow(fmtHM(dUtc), temp, `${descWrapped}${DBG?` <span class="soft" style="font-size:12px">[HRM]</span>`:''}`, descWhite, rObj, rTag, wObj);
     }
 
-    /* t+3…t+12 – vanhat säännöt (drizzle<0.3 → forceGrey), HRM-tekstit normaalisti */
+    /* t+3…t+12 – perussäännöt */
     const drizzleCodes = new Set([11,31,34,37,41,44,47,51,54,57]); // + yö %100
     for (let i=3; i<pickKeys.length; i++){
       const key = pickKeys[i], dUtc = new Date(key);
