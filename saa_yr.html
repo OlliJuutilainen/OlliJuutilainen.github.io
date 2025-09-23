@@ -1,137 +1,472 @@
-diff --git a/saa_yr.html b/saa_yr.html
-index f25240231697f01103989164536cb42ee12e5fd0..17662084356debe6956b77d6173b40537184b6e3 100644
---- a/saa_yr.html
-+++ b/saa_yr.html
-@@ -52,50 +52,75 @@
- 
- <script>
- (function(){
-   var out = document.getElementById('out');
-   window.addEventListener('error', function(e){
-     var msg = (e && e.message) ? e.message : String(e);
-     var where = (e && e.filename) ? "\n@ "+e.filename+":"+(e.lineno||'')+":"+(e.colno||'') : '';
-     out.innerHTML = '<div class="err">Virhe: '+msg+where+'</div>' + out.innerHTML;
-   });
- 
-   var q = new URLSearchParams(location.search);
-   var LAT_STR = q.get('lat'); var LON_STR = q.get('lon');
-   var LAT = parseFloat(LAT_STR); var LON = parseFloat(LON_STR);
-   var TZ  = 'Europe/Helsinki';
-   var DBG = q.has('dbg');
-   function tag(s){ return DBG ? ' <span class="soft" style="font-size:12px">'+s+'</span>' : ''; }
- 
-   var pageTitle = document.getElementById('pageTitle');
-   if (LAT_STR === '60.3281' && LON_STR === '25.0551'){ pageTitle.textContent = 'Korso'; pageTitle.style.display='block'; }
-   if (LAT_STR === '60.1562' && LON_STR === '24.7767'){ pageTitle.textContent = 'MERIKOTO'; pageTitle.style.display='block'; }
- 
-   function fmt(d, opts){ return d.toLocaleString('fi-FI', Object.assign({timeZone:TZ}, opts||{})); }
-   function fmtH(d){ return fmt(d, {hour:'numeric'}); }
-   function fmtHM(d){ return fmt(d, {hour:'numeric', minute:'2-digit'}); }
- 
-+  function toZonedDate(date, timeZone){
-+    var parts = new Intl.DateTimeFormat('en-CA', {
-+      timeZone: timeZone,
-+      year: 'numeric',
-+      month: 'numeric',
-+      day: 'numeric',
-+      hour: 'numeric',
-+      minute: 'numeric',
-+      second: 'numeric',
-+      hour12: false
-+    }).formatToParts(date);
-+    var obj = {};
-+    for (var i=0;i<parts.length;i++){
-+      if (parts[i].type !== 'literal') obj[parts[i].type] = parts[i].value;
-+    }
-+    return new Date(
-+      Number(obj.year || 0),
-+      Number(obj.month || 1)-1,
-+      Number(obj.day || 1),
-+      Number(obj.hour || 0),
-+      Number(obj.minute || 0),
-+      Number(obj.second || 0)
-+    );
-+  }
-+
-   function baseSym(s){
-     if (!s) return '';
-     // MET symbolit voivat olla tyyppiä "partlycloudy_day"
-     var i = s.indexOf('_'); return (i>0 ? s.slice(0,i) : s);
-   }
-   function isNcClear(s){
-     var b = baseSym(s);
-     return (b==='clearsky' || b==='fair' || b==='partlycloudy');
-   }
-   function ncSymbolText(sym){
-     if (!sym) return null;
-     var b = baseSym(sym);
-     var MAP = {
-       clearsky: "sinistä",
-       fair: "sangen sinistä",
-       partlycloudy: "siniharmaata",
-       cloudy: "harmaata",
-       lightrainshowers: "Jokunen kuuro.",
-       heavyrainshowers: "Äänekästä kuuroa.",
-       rainshowersandthunder: "Sepon välisuihkut.",
-       thunderstorm: "Seppo riehuu.",
-       heavyrain: "Saavista kaatuu.",
-       lightrain: "Ripsii.",
-       sleet: "Räntää.",
-       lightsleetshowers_and_thunder: "Sepon tiskivuoro.",
-diff --git a/saa_yr.html b/saa_yr.html
-index f25240231697f01103989164536cb42ee12e5fd0..17662084356debe6956b77d6173b40537184b6e3 100644
---- a/saa_yr.html
-+++ b/saa_yr.html
-@@ -333,51 +358,51 @@
-               };
-             }
-           }
-           return null;
-         }
-         var nc0 = pickNc(keys[0]) || null;
-         var nc1 = keys[1] ? (pickNc(keys[1]) || null) : null;
-         var nc2 = keys[2] ? (pickNc(keys[2]) || null) : null;
- 
-         // päivän auringonajat cacheen
-         var dayObjs = {};
-         function dayObjFor(d){
-           var y=d.getFullYear(), m=d.getMonth(), da=d.getDate();
-           var key = y+'-'+m+'-'+da;
-           if (dayObjs[key]) return Promise.resolve(dayObjs[key]);
-           return fetchSunDay(new Date(y,m,da,12,0,0), LAT, LON).then(function(o){ dayObjs[key]=o; return o; });
-         }
- 
-         var html = [];
-         var prevDescRef = { val:null };
- 
-         function renderHour(idx){
-           if (idx>=keys.length) return Promise.resolve();
-           var key = keys[idx];
-           var dUtc = new Date(key);
--          var dLoc = new Date(dUtc.toLocaleString('en-CA',{timeZone:TZ}));
-+          var dLoc = toZonedDate(dUtc, TZ);
- 
-           var T = forecast.air_temperature.get(key);
-           var W = forecast.wind_speed.get(key);
-           var WD = forecast.wind_from_direction.get(key);
-           var R = forecast.precipitation_amount.get(key);
-           var SYM = forecast.SmartSymbol.get(key);
- 
-           var isNow = (idx===0);
-           var isFutureNc = (idx===1 || idx===2);
- 
-           // sade
-           var rObj, rTag, usedRain=null;
-           if (isNow || isFutureNc){
-             var pack = idx===0?nc0:(idx===1?nc1:nc2);
-             var val = (pack && typeof pack.val==='number') ? pack.val : null;
-             if (val!=null && val<0.1) rObj = {text:'—', cls:'soft dash', num:0};
-             else rObj = rainCell(val, false);
-             rTag='NC'; usedRain = (typeof val==='number'?val:null);
-           } else {
-             rObj = rainCell(R, false);
-             usedRain = (typeof R==='number'?R:null);
-             rTag='HRM';
-             if (usedRain>0 && usedRain<0.3){
-               var b = baseSym(SYM||'');
-               var except = { thunderstorm:1, rainshowers:1, sleetshowers:1, snowshowers:1, heavyrainshowers:1 };
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TUSINASÄÄ 12</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body{height:100%}
+  body{
+    margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
+    font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
+  }
+  .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
+    text-transform:uppercase; margin:0 0 4px 0 }
+  .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniTag{ text-transform:uppercase; font-style:normal !important; color:#9aa6b0 }
+  .caps{ text-transform:uppercase; letter-spacing:.5px }
+  .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .hdr{
+    color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    display:grid; grid-template-columns:54px 56px 1fr 70px 76px; align-items:end; justify-items:center;
+  }
+  .hdr div:nth-child(-n+3){ justify-self:start; text-align:left }
+  .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
+  .row{
+    display:grid; grid-template-columns:54px 56px 1fr 70px 76px;
+    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; align-items:center;
+  }
+  .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
+  .muted{ color:#74808a } .soft{ color:#7f8a93 }
+  .t{ text-align:left } .t.hh{ text-align:right }
+  .row > div:nth-child(4){ text-align:center }
+  .desc .ditto{ display:inline } .ditto{ color:inherit }
+  .dash{ text-align:center }
+  .windDir{ display:block; margin-top:2px }
+  em{ font-style:italic }
+  .err{ color:#ff6b6b; white-space:pre-wrap; font-size:14px; margin-top:8px }
+</style>
+
+<h1 id="pageTitle" class="pageTitle" style="display:none"></h1>
+
+<div class="hdr">
+  <div></div><div></div><div></div>
+  <div class="caps">SADE</div>
+  <div class="caps">TUULEE</div>
+</div>
+<div class="list" id="out" aria-live="polite"></div>
+
+<!-- SunCalc (jos ei lataudu, näkymä toimii – vain hämärät puuttuvat) -->
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+
+<script>
+(function(){
+  var out = document.getElementById('out');
+  window.addEventListener('error', function(e){
+    var msg = (e && e.message) ? e.message : String(e);
+    var where = (e && e.filename) ? "\n@ "+e.filename+":"+(e.lineno||'')+":"+(e.colno||'') : '';
+    out.innerHTML = '<div class="err">Virhe: '+msg+where+'</div>' + out.innerHTML;
+  });
+
+  var q = new URLSearchParams(location.search);
+  var LAT_STR = q.get('lat'); var LON_STR = q.get('lon');
+  var LAT = parseFloat(LAT_STR); var LON = parseFloat(LON_STR);
+  var TZ  = 'Europe/Helsinki';
+  var DBG = q.has('dbg');
+  function tag(s){ return DBG ? ' <span class="soft" style="font-size:12px">'+s+'</span>' : ''; }
+
+  var pageTitle = document.getElementById('pageTitle');
+  if (LAT_STR === '60.3281' && LON_STR === '25.0551'){ pageTitle.textContent = 'Korso'; pageTitle.style.display='block'; }
+  if (LAT_STR === '60.1562' && LON_STR === '24.7767'){ pageTitle.textContent = 'MERIKOTO'; pageTitle.style.display='block'; }
+
+  /* --- Aika-apurit --- */
+  function fmt(d, opts){ return d.toLocaleString('fi-FI', Object.assign({timeZone:TZ}, opts||{})); }
+  function fmtH(d){ return fmt(d, {hour:'numeric'}); }
+  function fmtHM(d){ return fmt(d, {hour:'numeric', minute:'2-digit'}); }
+
+  // VAKAA paikallisen ajan olio MET:n ISO-UTC:stä (ei toLocaleString-parsausta)
+  function localFromUtc(iso){
+    var u = new Date(iso);
+    if (!isFinite(u.getTime())) return new Date(NaN);
+    return new Date(u.getUTCFullYear(), u.getUTCMonth(), u.getUTCDate(), u.getUTCHours(), u.getUTCMinutes(), u.getUTCSeconds(), 0);
+  }
+
+  function baseSym(s){
+    if (!s) return '';
+    var i = s.indexOf('_'); return (i>0 ? s.slice(0,i) : s);
+  }
+  function isNcClear(s){
+    var b = baseSym(s);
+    return (b==='clearsky' || b==='fair' || b==='partlycloudy');
+  }
+  function ncSymbolText(sym){
+    if (!sym) return null;
+    var b = baseSym(sym);
+    var MAP = {
+      clearsky: "sinistä",
+      fair: "sangen sinistä",
+      partlycloudy: "siniharmaata",
+      cloudy: "harmaata",
+      lightrainshowers: "Jokunen kuuro.",
+      heavyrainshowers: "Äänekästä kuuroa.",
+      rainshowersandthunder: "Sepon välisuihkut.",
+      thunderstorm: "Seppo riehuu.",
+      heavyrain: "Saavista kaatuu.",
+      lightrain: "Ripsii.",
+      sleet: "Räntää.",
+      lightsleetshowers_and_thunder: "Sepon tiskivuoro.",
+      snowshowers_and_thunder: "Lumiukkonen.",
+      snow: "Lunta.",
+      heavysnow: "Pyryttää.",
+      fog: "MIST!"
+    };
+    return MAP[b] || null;
+  }
+
+  function minutesBetween(a,b){ return (b.getTime()-a.getTime())/60000; }
+
+  /* --- Hämärä (SunCalc) --- */
+  var sunriseCache = {};
+  function fetchSunDay(dl, lat, lon){
+    var key = dl.getFullYear()+'-'+(dl.getMonth()+1)+'-'+dl.getDate();
+    if (sunriseCache[key]) return Promise.resolve(sunriseCache[key]);
+    try{
+      if (typeof SunCalc === 'undefined'){
+        sunriseCache[key] = {__noSunCalc:true};
+        return Promise.resolve(sunriseCache[key]);
+      }
+      var d = new Date(dl); d.setHours(12,0,0,0);
+      var t = SunCalc.getTimes(d, lat, lon);
+      var obj = {
+        sunrise: t.sunrise ? new Date(t.sunrise) : null,
+        sunset:  t.sunset  ? new Date(t.sunset)  : null,
+        dawn:    t.dawn    ? new Date(t.dawn)    : null,
+        dusk:    t.dusk    ? new Date(t.dusk)    : null,
+        nauticalDawn: t.nauticalDawn ? new Date(t.nauticalDawn) : null,
+        nauticalDusk: t.nauticalDusk ? new Date(t.nauticalDusk) : null,
+        nightEnd: t.nightEnd ? new Date(t.nightEnd) : null,
+        night:    t.night    ? new Date(t.night)    : null
+      };
+      sunriseCache[key] = obj;
+      return Promise.resolve(obj);
+    }catch(e){
+      sunriseCache[key] = {__err:String(e&&e.message||e)};
+      return Promise.resolve(sunriseCache[key]);
+    }
+  }
+  function phaseLabel(phase){
+    if (phase==='civil') return 'porvarillinen hämärä';
+    if (phase==='nautical') return 'nauttinen hämärä';
+    if (phase==='astronomical') return 'astronominen hämärä';
+    if (phase==='night') return 'säkkipimeää';
+    return null;
+  }
+  function nextLabelFor(to){
+    if (to==='civil') return 'porvarillinen alkaa';
+    if (to==='nautical') return 'nauttinen alkaa';
+    if (to==='astronomical') return 'astronominen alkaa';
+    if (to==='night') return 'säkkipimeä alkaa';
+    return null;
+  }
+  function analyzeTwilightForHour(dLocal, day){
+    if (!day || day.__noSunCalc || day.__err) return {phase:null, withinChange:null, sunEvent:null, sunrise:null, sunset:null};
+    var rise = day.sunrise, set = day.sunset;
+    var civStart = day.dawn, civEnd = day.dusk;
+    var nautStart = day.nauticalDawn, nautEnd = day.nauticalDusk;
+    var astroStart = day.nightEnd, astroEnd = day.night;
+
+    var t0 = new Date(dLocal); t0.setMinutes(0,0,0);
+    var t1 = new Date(t0); t1.setHours(t1.getHours()+1);
+
+    function where(t){
+      if (astroStart && t<astroStart) return 'night';
+      if (astroStart && nautStart && t>=astroStart && t<nautStart) return 'astronomical';
+      if (nautStart && civStart && t>=nautStart && t<civStart) return 'nautical';
+      if (civStart && rise && t>=civStart && t<rise) return 'civil';
+      if (rise && set && t>=rise && t<set) return 'day';
+      if (set && civEnd && t>=set && t<civEnd) return 'civil';
+      if (civEnd && nautEnd && t>=civEnd && t<nautEnd) return 'nautical';
+      if (nautEnd && astroEnd && t>=nautEnd && t<astroEnd) return 'astronomical';
+      if (astroEnd && t>=astroEnd) return 'night';
+      return null;
+    }
+    var phase = where(t0);
+
+    var withinChange=null, sunEvent=null;
+    if (rise && rise>=t0 && rise<t1) sunEvent={type:'rise',at:rise};
+    if (set  && set >=t0 && set <t1) sunEvent={type:'set', at:set};
+
+    if (!sunEvent){
+      var cands=[civStart,civEnd,nautStart,nautEnd,astroStart,astroEnd].filter(function(t){return t && t>=t0 && t<t1;}).sort(function(a,b){return a-b;});
+      var at=cands[0]||null;
+      if (at){
+        var to=where(new Date(at.getTime()+1));
+        if (to) withinChange={to:to,at:at};
+      }
+    }
+    return {phase:phase, withinChange:withinChange, sunEvent:sunEvent, sunrise:rise, sunset:set};
+  }
+  function shouldMarkGolden(start, rise, set, descIsClear){
+    if (!descIsClear) return false;
+    var ok=false;
+    if (rise){ var d1=minutesBetween(start,rise); if (Math.abs(d1)<=15) ok=true; }
+    if (set){ var d2=minutesBetween(start,set); if (d2>=30 && d2<=70) ok=true; }
+    return ok;
+  }
+
+  /* --- Solut --- */
+  function rainCell(val, markGrey){
+    if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft', num:null };
+    var n = Number(val);
+    if (n === 0) return { text:'—', cls:'soft dash', num:0 };
+    return { text:n.toFixed(1)+' mm', cls:(markGrey?'soft':''), num:n };
+  }
+  function dirText(deg){
+    if (deg==null || isNaN(Number(deg))) return '';
+    var d = Number(deg);
+    var dirs = ['pohjoisesta','koillisesta','idästä','kaakosta','etelästä','lounaasta','lännestä','luoteesta','pohjoisesta'];
+    return dirs[Math.round(d/45)];
+  }
+  function windCell(mean, gust, dirDeg, baseGrey){
+    var mOk = (mean!=null && !isNaN(Number(mean)));
+    var gOk = (gust!=null && !isNaN(Number(gust)));
+    var m = mOk ? Number(mean) : null;
+    var g = gOk ? Number(gust) : null;
+
+    var txt = (mOk ? m.toFixed(1)+' m/s' : '–');
+    var gustTxt = '', gustWhite=false;
+    if (gOk && g>=15){ gustTxt = ' (<em style="color:#e8e8e8">'+g.toFixed(1)+'</em>)'; gustWhite=true; }
+    var meanWhite = (mOk && m>=10);
+    var cls = (meanWhite || gustWhite) ? '' : (baseGrey?'soft':'');
+
+    return {
+      html:'<div class="'+cls+'">'+txt+gustTxt+'<span class="windDir">'+dirText(dirDeg)+'</span></div>',
+      val:m
+    };
+  }
+  function tempCell(v){
+    if (v==null || isNaN(Number(v))) return '–';
+    var n = Number(v);
+    var cls = (n>25 || n<-15) ? '' : 'soft';
+    return '<span class="'+cls+'">'+n.toFixed(0)+'&nbsp;°</span>';
+  }
+
+  function pushRow(htmlArr, obj){
+    var desc = (obj.descHtml||'').trim();
+    var useDitto = (obj.prevKeyRef.val === desc && desc !== '');
+    htmlArr.push(
+      '<div class="row">'
+      + '<div class="t hh">'+obj.timeHtml+'</div>'
+      + '<div class="t">'+tempCell(obj.temp)+'</div>'
+      + '<div class="desc '+(obj.descWhite?'':'soft')+'">'+(useDitto?'<span class="ditto">”</span>':desc)+'</div>'
+      + '<div class="'+obj.rainObj.cls+'">'+obj.rainObj.text+tag(obj.rainTag)+'</div>'
+      + obj.windObj.html
+      + '</div>'
+    );
+    if (!useDitto) obj.prevKeyRef.val = desc;
+  }
+
+  function timeCell(d, mode){
+    if (!isFinite(d.getTime())) return '–';
+    if (mode==='now') return fmtHM(new Date());
+    if (mode==='futureNc') return '<span class="soft">'+fmtHM(d)+'</span>';
+    return '<span class="mini">klo&nbsp;</span>'+fmtH(d);
+  }
+
+  function hasPrecipWord(txt){
+    if (!txt) return false;
+    var s = String(txt).toLowerCase();
+    return (s.indexOf('ripsii')>=0 || s.indexOf('satelee')>=0 || s.indexOf('kaatosadetta')>=0 ||
+            s.indexOf('räntä')>=0 || s.indexIndexOf('hiutale')>=0 || s.indexOf('pyry')>=0 ||
+            s.indexOf('rake')>=0 || s.indexOf('ukkos')>=0);
+  }
+
+  (function main(){
+    try{
+      if (!LAT_STR || !LON_STR){
+        out.innerHTML = '<div class="muted">Anna koordinaatit: ?lat=60.1699&lon=24.9384</div>';
+        return;
+      }
+      out.innerHTML = '<div class="muted">Ladataan…</div>';
+
+      Promise.all([
+        fetch('https://api.met.no/weatherapi/locationforecast/2.0/complete?lat='+encodeURIComponent(LAT)+'&lon='+encodeURIComponent(LON)),
+        fetch('https://api.met.no/weatherapi/nowcast/2.0/complete?lat='+encodeURIComponent(LAT)+'&lon='+encodeURIComponent(LON))
+      ]).then(function(rs){
+        var fRes = rs[0], ncRes = rs[1];
+        if (!fRes.ok){ out.innerHTML = '<div class="err">Ennuste: HTTP '+fRes.status+'</div>'; throw 'fHTTP'; }
+        return Promise.all([fRes.json(), ncRes.ok?ncRes.json():null]);
+      }).then(function(js){
+        var fJson = js[0], ncJson = js[1];
+
+        var ts = (fJson && fJson.properties && fJson.properties.timeseries) ? fJson.properties.timeseries : [];
+        var forecast = {
+          air_temperature: new Map(),
+          wind_speed: new Map(),
+          wind_from_direction: new Map(),
+          precipitation_amount: new Map(),
+          SmartSymbol: new Map()
+        };
+        for (var i=0;i<ts.length;i++){
+          var it = ts[i];
+          var t = it.time;
+          var inst = it.data && it.data.instant && it.data.instant.details ? it.data.instant.details : {};
+          if (typeof inst.air_temperature === 'number') forecast.air_temperature.set(t, inst.air_temperature);
+          if (typeof inst.wind_speed === 'number') forecast.wind_speed.set(t, inst.wind_speed);
+          if (typeof inst.wind_from_direction === 'number') forecast.wind_from_direction.set(t, inst.wind_from_direction);
+          var n1 = it.data && it.data.next_1_hours ? it.data.next_1_hours : null;
+          if (n1){
+            var det = n1.details || {};
+            if (typeof det.precipitation_amount === 'number') forecast.precipitation_amount.set(t, det.precipitation_amount);
+            var sym = n1.summary && n1.summary.symbol_code ? n1.summary.symbol_code : null;
+            if (sym) forecast.SmartSymbol.set(t, sym);
+          }
+        }
+
+        // aloitushetki: tämä tasatunti (paikallinen)
+        var now = new Date();
+        var start = new Date(now); start.setMinutes(0,0,0);
+
+        var allKeys = Array.from(forecast.air_temperature.keys());
+        allKeys.sort();
+        var keys=[];
+        for (var j=0;j<allKeys.length;j++){
+          var dLoc = localFromUtc(allKeys[j]);
+          if (isFinite(dLoc.getTime()) && dLoc >= start){
+            keys.push(allKeys[j]);
+            if (keys.length>=13) break;
+          }
+        }
+        if (!keys.length){ out.innerHTML = '<div class="muted">Ei rivejä tälle ikkunalle.</div>'; return; }
+
+        // nowcast t0–t2
+        var ncTs = (ncJson && ncJson.properties && ncJson.properties.timeseries) ? ncJson.properties.timeseries : [];
+        function pickNc(iso){
+          for (var k=0;k<ncTs.length;k++){
+            if (ncTs[k].time === iso){
+              var it = ncTs[k];
+              var d1 = it.data ? it.data : {};
+              var inst = d1.instant && d1.instant.details ? d1.instant.details : {};
+              var n1 = d1.next_1_hours ? d1.next_1_hours : null;
+              return {
+                val: n1 && n1.details && typeof n1.details.precipitation_amount === 'number' ? n1.details.precipitation_amount : null,
+                sym: n1 && n1.summary ? n1.summary.symbol_code : null,
+                gust: typeof inst.wind_speed_of_gust === 'number' ? inst.wind_speed_of_gust : null
+              };
+            }
+          }
+          return null;
+        }
+        var nc0 = pickNc(keys[0]) || null;
+        var nc1 = keys[1] ? (pickNc(keys[1]) || null) : null;
+        var nc2 = keys[2] ? (pickNc(keys[2]) || null) : null;
+
+        // hämäräcache päivittäin (paikallispäivä)
+        var dayObjs = {};
+        function dayObjFor(dLoc){
+          var y=dLoc.getFullYear(), m=dLoc.getMonth(), da=dLoc.getDate();
+          var key = y+'-'+m+'-'+da;
+          if (dayObjs[key]) return Promise.resolve(dayObjs[key]);
+          return fetchSunDay(new Date(y,m,da,12,0,0), LAT, LON).then(function(o){ dayObjs[key]=o; return o; });
+        }
+
+        var html = [];
+        var prevDescRef = { val:null };
+
+        function renderHour(idx){
+          if (idx>=keys.length) return Promise.resolve();
+          var key = keys[idx];
+          var dLoc = localFromUtc(key);
+          var T = forecast.air_temperature.get(key);
+          var W = forecast.wind_speed.get(key);
+          var WD = forecast.wind_from_direction.get(key);
+          var R = forecast.precipitation_amount.get(key);
+          var SYM = forecast.SmartSymbol.get(key);
+
+          var isNow = (idx===0);
+          var isFutureNc = (idx===1 || idx===2);
+
+          // sade
+          var rObj, rTag, usedRain=null, ncPack=null;
+          if (isNow || isFutureNc){
+            ncPack = idx===0?nc0:(idx===1?nc1:nc2);
+            var val = (ncPack && typeof ncPack.val==='number') ? ncPack.val : null;
+            if (val!=null && val<0.1) rObj = {text:'—', cls:'soft dash', num:0};
+            else rObj = rainCell(val, false);
+            rTag='NC'; usedRain = (typeof val==='number'?val:null);
+          } else {
+            rObj = rainCell(R, false);
+            usedRain = (typeof R==='number'?R:null);
+            rTag='HRM';
+            if (usedRain>0 && usedRain<0.3){
+              var b = baseSym(SYM||'');
+              var except = { thunderstorm:1, rainshowers:1, sleetshowers:1, snowshowers:1, heavyrainshowers:1 };
+              if (!except[b]) rObj.cls = 'soft';
+            }
+          }
+
+          // tuuli
+          var gust = (isNow && nc0) ? nc0.gust : null;
+          var windObj = windCell(W, gust, WD, true);
+
+          // kuvaus + hämärä
+          return dayObjFor(dLoc).then(function(day){
+            var tw = analyzeTwilightForHour(dLoc, day);
+            var phase = phaseLabel(tw.phase);
+
+            var symNow = ncPack ? ncPack.sym : SYM;
+            var descIsClear = isNcClear(symNow);
+            var golden = (!usedRain || usedRain<0.1) && shouldMarkGolden(dLoc, tw.sunrise, tw.sunset, descIsClear);
+
+            var main=null, italic=false, white=false;
+            var symTxt = ncSymbolText(symNow);
+
+            if (golden){
+              main = 'kultainen tunti'; italic=true;
+            } else if (!usedRain || usedRain<0.1){
+              if (phase && phase!=='porvarillinen hämärä'){ main = phase; italic=true; }
+              else { main = symTxt || '–'; }
+            } else {
+              main = symTxt || '–';
+              white = true;
+            }
+
+            // tunnisteet
+            var tags=[];
+            if (tw.sunEvent && isFinite(tw.sunEvent.at.getTime())){
+              tags.push((tw.sunEvent.type==='set'?'auringonlasku':'auringonnousu')+' '+fmtHM(tw.sunEvent.at));
+            } else if (tw.withinChange && isFinite(tw.withinChange.at.getTime())){
+              var lbl = nextLabelFor(tw.withinChange.to);
+              if (lbl) tags.push(lbl+' '+fmtHM(tw.withinChange.at));
+            } else if (phase){
+              if (phase==='porvarillinen hämärä') tags.push(phase);
+            }
+
+            var descHtml = (italic?('<em>'+main+'</em>'):main) + (tags.length ? ' '+tags.map(function(t){return '<span class="miniTag">'+t+'</span>';}).join(' ') : '');
+
+            var timeHtml = isNow ? timeCell(dLoc,'now') : (isFutureNc ? timeCell(dLoc,'futureNc') : timeCell(dLoc));
+
+            pushRow(html, {
+              timeHtml: timeHtml,
+              temp: T,
+              descHtml: descHtml,
+              descWhite: white,
+              rainObj: rObj, rainTag: rTag,
+              windObj: windObj,
+              prevKeyRef: prevDescRef
+            });
+          });
+        }
+
+        (function chain(i){
+          if (i>=keys.length || i>=13){
+            out.innerHTML = html.join('') || '<div class="muted">Ei rivejä tälle ikkunalle.</div>';
+            return;
+          }
+          renderHour(i).then(function(){ chain(i+1); }).catch(function(e){
+            out.innerHTML = '<div class="err">'+String(e&&e.message||e)+'</div>';
+          });
+        })(0);
+
+      }).catch(function(e){
+        if (e==='fHTTP') return;
+        out.innerHTML = '<div class="err">'+String(e&&e.message||e)+'</div>';
+      });
+
+    }catch(e){
+      out.innerHTML = '<div class="err">'+String(e&&e.message||e)+'</div>';
+    }
+  })();
+})();
+</script>
