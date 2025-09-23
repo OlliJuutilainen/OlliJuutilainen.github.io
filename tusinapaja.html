@@ -438,11 +438,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   goldenHour = isGoldenHour(tw, hourStart, baseText);
 
   if (goldenHour){
-<<<<<<< ours
     main = '<em>kultainen tunti</em>';
-=======
-    main = 'KULTAINEN TUNTI';
->>>>>>> theirs
   } else if (!precipish && phaseMain){
     main = `<em>${phaseMain}</em>`;
     twilightMain = true;
