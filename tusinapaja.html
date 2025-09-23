@@ -15,6 +15,7 @@
   .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
+  .timeSub{ display:block; margin-top:2px; font-size:11px; letter-spacing:.4px; text-transform:uppercase }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
@@ -90,19 +91,19 @@ function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type===
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
   9:'MIST!',
-  71:'seppoa kutittaa.', 74:'seppoa ärsyttää.', 77:'seppo on vihainen.',
-  21:'kuuro jossain.', 24:'kuuroja.', 27:'kuuroja sakeana.',
-  11:'tihkuu.', 14:'kryotihkua.', 17:'kryosadetta.',
-  31:'siniharmaasta ripsii.', 34:'sangen harmaasta ripsii.', 37:'ripsii.',
-  32:'siniharmaasta satelee.', 35:'sangen harmaasta satelee.', 38:'satelee.',
-  33:'siniharmaasta kaatosadettakin.', 36:'sangen harmaasta myös kaatosadettakin.', 39:'kaatosadetta.',
-  41:'siniharmaasta märkä hiutale.', 44:'sangen harmaasta märkä hiutale.', 47:'märkä hiutale.',
-  42:'siniharmaasta räntää.', 45:'sangen harmaasta räntää.', 48:'räntää.',
-  43:'siniharmaasta tiskirättiä.', 46:'sangen harmaasta tiskirättiä.', 49:'tiskirättiä.',
-  51:'sinihirmaasta kevyt hiutale.', 54:'sangen harmaasta kevyt hiutale.', 57:'kevyt hiutale.',
-  52:'siniharmaasta lunta.', 55:'sangen harmaasta lunta.', 58:'lunta.',
-  53:'siniharmaasta pyryä.', 56:'sangen harmaasta pyryä.', 59:'pyryttää.',
-  61:'rakeita jossain.', 64:'rakeita.', 67:'rakeiden tulitus.'
+  71:'seppoa kutittaa', 74:'seppoa ärsyttää', 77:'seppo on vihainen',
+  21:'kuuro jossain', 24:'kuuroja', 27:'kuuroja sakeana',
+  11:'tihkuu', 14:'kryotihkua', 17:'kryosadetta',
+  31:'siniharmaasta ripsii', 34:'sangen harmaasta ripsii', 37:'ripsii',
+  32:'siniharmaasta satelee', 35:'sangen harmaasta satelee', 38:'satelee',
+  33:'siniharmaasta kaatosadettakin', 36:'sangen harmaasta myös kaatosadettakin', 39:'kaatosadetta',
+  41:'siniharmaasta märkä hiutale', 44:'sangen harmaasta märkä hiutale', 47:'märkä hiutale',
+  42:'siniharmaasta räntää', 45:'sangen harmaasta räntää', 48:'räntää',
+  43:'siniharmaasta tiskirättiä', 46:'sangen harmaasta tiskirättiä', 49:'tiskirättiä',
+  51:'sinihirmaasta kevyt hiutale', 54:'sangen harmaasta kevyt hiutale', 57:'kevyt hiutale',
+  52:'siniharmaasta lunta', 55:'sangen harmaasta lunta', 58:'lunta',
+  53:'siniharmaasta pyryä', 56:'sangen harmaasta pyryä', 59:'pyryttää',
+  61:'rakeita jossain', 64:'rakeita', 67:'rakeiden tulitus'
 };
 const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
 
@@ -112,11 +113,11 @@ const SMALL_RAIN_EXCEPT = new Set([71,74,77,21,24,27,14,17,32,35,38,33,36,39,42,
 /* --------- MET Nowcast symbolit (NC) --------- */
 const NC_SYMBOL = {
   'clearsky': "sinistä", 'fair': "sangen sinistä", 'partlycloudy': "siniharmaata", 'cloudy': "harmaata",
-  'lightrainshowers': "jokunen kuuro.", 'heavyrainshowers': "äänekästä kuuroa.",
-  'rainshowersandthunder': "sepon välisuihkut.", 'thunderstorm': "seppo riehuu.",
-  'heavyrain': "saavista kaatuu.", 'lightrain': "ripsii.", 'sleet': "räntää.",
-  'lightsleetshowers_and_thunder': "sepon tiskivuoro.", 'snowshowers_and_thunder': "lumiukkonen.",
-  'snow': "lunta.", 'heavysnow': "pyryttää.", 'fog': "MIST!"
+  'lightrainshowers': "jokunen kuuro", 'heavyrainshowers': "äänekästä kuuroa",
+  'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
+  'heavyrain': "saavista kaatuu", 'lightrain': "ripsii", 'sleet': "räntää",
+  'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
+  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "MIST!"
 };
 const ncBase = code => code ? code.replace(/_(day|night)$/,'') : '';
 const ncSymbolText = code => (NC_SYMBOL[ncBase(code)] || '');
@@ -330,7 +331,7 @@ function phaseLabel(phase){
 function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
   if (toPhase==='astronomical') return 'vaihtuu astronomiseksi hämäräksi';
-  if (toPhase==='night') return 'säkkipimeäksi';
+  if (toPhase==='night') return '-> säkkipimeäksi';
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
 }
@@ -470,6 +471,7 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHo
     if (!descWeak) descWhite = true;
     else if (rainVal!=null && rainVal>=0.3) descWhite = true;
   }
+  if (rainVal === 0) descWhite = false;
   if (goldenHour) descWhite = false;
   return { rainWhite, descWhite };
 }
@@ -649,7 +651,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
       pushRow(html, {
-        timeHtml: fmtHM(new Date()),
+        timeHtml: `${fmtHM(new Date())}<span class="timeSub">NYT</span>`,
         temp,
         descHtml,
         descWhite,
