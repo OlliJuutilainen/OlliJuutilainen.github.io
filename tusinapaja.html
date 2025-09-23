@@ -435,11 +435,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   goldenHour = isGoldenHour(tw, hourStart, baseText);
 
   if (goldenHour){
-<<<<<<< ours
     main = '<em>kultainen tunti</em>';
-=======
-    main = 'KULTAINEN TUNTI';
->>>>>>> theirs
   } else if (!precipish && phaseMain){
     main = `<em>${phaseMain}</em>`;
     twilightMain = true;
@@ -530,7 +526,15 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
   htmlArr.push(
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
+<<<<<<< ours
+<<<<<<< ours
       `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°C':'–'}</div>`+
+=======
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+' °C':'–'}</div>`+
+>>>>>>> theirs
+=======
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+' °C':'–'}</div>`+
+>>>>>>> theirs
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
       `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
