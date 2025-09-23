@@ -29,6 +29,10 @@
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
   .muted{ color:#74808a } .soft{ color:#7f8a93 }
   .cell{ color:#e8e8e8 }
+<<<<<<< ours
+=======
+  .cell.soft{ color:#7f8a93 }
+>>>>>>> theirs
   .desc{ color:#7f8a93 }
   .descWhite{ color:#e8e8e8 }
   .t{ text-align:left } .t.hh{ text-align:right }
@@ -434,7 +438,11 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   goldenHour = isGoldenHour(tw, hourStart, baseText);
 
   if (goldenHour){
+<<<<<<< ours
     main = '<em>kultainen tunti</em>';
+=======
+    main = 'KULTAINEN TUNTI';
+>>>>>>> theirs
   } else if (!precipish && phaseMain){
     main = `<em>${phaseMain}</em>`;
     twilightMain = true;
