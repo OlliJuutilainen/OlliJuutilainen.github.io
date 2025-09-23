@@ -29,10 +29,7 @@
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
   .muted{ color:#74808a } .soft{ color:#7f8a93 }
   .cell{ color:#e8e8e8 }
-<<<<<<< ours
-=======
   .cell.soft{ color:#7f8a93 }
->>>>>>> theirs
   .desc{ color:#7f8a93 }
   .descWhite{ color:#e8e8e8 }
   .t{ text-align:left } .t.hh{ text-align:right }
@@ -438,7 +435,11 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   goldenHour = isGoldenHour(tw, hourStart, baseText);
 
   if (goldenHour){
+<<<<<<< ours
     main = '<em>kultainen tunti</em>';
+=======
+    main = 'KULTAINEN TUNTI';
+>>>>>>> theirs
   } else if (!precipish && phaseMain){
     main = `<em>${phaseMain}</em>`;
     twilightMain = true;
@@ -460,7 +461,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
 function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHour }){
   const rainWhite = (rainVal!=null && rainVal>0 && !(rowIndex>=3 && descWeak && rainVal<0.3));
-  let descWhite = !!goldenHour;
+  let descWhite = false;
   if (rowIndex < 3){
     if (rainWhite) descWhite = true;
     else if (descWet && !descWeak) descWhite = true;
@@ -468,6 +469,7 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHo
     if (!descWeak) descWhite = true;
     else if (rainVal!=null && rainVal>=0.3) descWhite = true;
   }
+  if (goldenHour) descWhite = false;
   return { rainWhite, descWhite };
 }
 
@@ -528,7 +530,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
   htmlArr.push(
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
-      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°':'–'}</div>`+
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°C':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
       `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
