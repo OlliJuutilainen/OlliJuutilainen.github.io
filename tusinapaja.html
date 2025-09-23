@@ -42,7 +42,7 @@
 <div class="hdr">
   <div></div><div></div><div></div>
   <div class="caps">SADE</div>
-  <div class="caps">TUULI</div>
+  <div class="caps">TUULEE</div>
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
@@ -199,105 +199,32 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     else if (past && pDiff<=60*60000) best=past;
     if (!best) return { val:null, meta:'NC!miss' };
 
-    const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
-    const pr   = best?.data?.instant?.details?.precipitation_rate;
-    const gust = best?.data?.instant?.details?.wind_speed_of_gust;
-    const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
-
-    let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
-    return { val:(typeof p==='number'?p:null), meta:'NC', gust:(typeof gust==='number'?gust:null), sym };
-  }catch{ return { val:null, meta:'NC!err' }; }
+    const instant = best?.data?.instant?.details||{};
+    const next1h  = best?.data?.next_1_hours?.details||{};
+    const sym     = best?.data?.next_1_hours?.summary?.symbol_code||null;
+    const gust    = instant?.wind_speed_of_gust;
+    const precip  = next1h?.precipitation_amount;
+    return { val: (typeof precip==='number'?precip:null), gust: (typeof gust==='number'?gust:null), sym, meta:'NC!ok' };
+  }catch(e){
+    return { val:null, meta:'NC!err' };
+  }
 }
 
 /* --------- Sunrise API: hämärä- ja nousu/laskuajat --------- */
-/* Korjattu: offset muotoon +HH:MM getTimezoneOffsetista */
-function offsetHHMM(d){
-  const offMin = -d.getTimezoneOffset(); // minuutteja itään
-  const sign = offMin>=0 ? '+' : '-';
-  const abs = Math.abs(offMin);
-  const hh = String(Math.floor(abs/60)).padStart(2,'0');
-  const mm = String(abs%60).padStart(2,'0');
-  return `${sign}${hh}:${mm}`;
-}
-function offsetToMinutes(offset){
-  const m = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
-  if (!m) return 0;
-  const sign = m[1] === '+' ? 1 : -1;
-  const h = Number(m[2]);
-  const min = Number(m[3]);
-  return sign * (h*60 + min);
-}
-function isValidDate(d){
-  return d instanceof Date && !isNaN(d.getTime());
-}
-function formatWithOffset(date, offset){
-  if (!isValidDate(date)) return null;
-  const offMin = offsetToMinutes(offset);
-  const shifted = new Date(date.getTime() + offMin*60000);
-  const y = shifted.getUTCFullYear();
-  const m = String(shifted.getUTCMonth()+1).padStart(2,'0');
-  const d = String(shifted.getUTCDate()).padStart(2,'0');
-  const hh = String(shifted.getUTCHours()).padStart(2,'0');
-  const mm = String(shifted.getUTCMinutes()).padStart(2,'0');
-  const ss = String(shifted.getUTCSeconds()).padStart(2,'0');
-  return `${y}-${m}-${d}T${hh}:${mm}:${ss}${offset}`;
-}
-function wrapTimeEntry(str, offset){
-  if (!str) return null;
-  const dt = new Date(str);
-  if (!isValidDate(dt)) return null;
-  const formatted = formatWithOffset(dt, offset);
-  return formatted ? { time: formatted } : null;
-}
-function wrapFromDate(dt, offset){
-  if (!isValidDate(dt)) return null;
-  const formatted = formatWithOffset(dt, offset);
-  return formatted ? { time: formatted } : null;
-}
-/* Cache per YYYY-MM-DD */
 const sunriseCache = new Map();
-async function fetchSunriseDay(dateLocal, lat, lon){
-  const year = dateLocal.getFullYear();
-  const monthIdx = dateLocal.getMonth();
-  const day = dateLocal.getDate();
-  const key = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+async function fetchSunriseDay(dLocal, lat, lon){
+  const key = `${dLocal.getFullYear()}-${String(dLocal.getMonth()+1).padStart(2,'0')}-${String(dLocal.getDate()).padStart(2,'0')}|${lat}|${lon}`;
   if (sunriseCache.has(key)) return sunriseCache.get(key);
-  const offset = offsetHHMM(dateLocal);
-  const url = `https://api.met.no/weatherapi/sunrise/3.0/sun?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&date=${key}&offset=${encodeURIComponent(offset)}`;
+
+  const url = `https://api.sunrise-sunset.org/json?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lon)}&date=${encodeURIComponent(key.split('|')[0])}&formatted=0`;
   try{
-    const res = await fetch(url, {cache:'no-store', headers:{'Accept':'application/json'}});
-    if (!res.ok){
-      const errObj = { __error: `Sunrise v3 HTTP ${res.status}` };
-      sunriseCache.set(key, errObj);
-      return errObj;
-    }
+    const res = await fetch(url, { cache:'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const js = await res.json();
-    const props = js?.properties || (Array.isArray(js?.features) ? js.features[0]?.properties : null) || js?.feature?.properties || null;
-    if (!props){
-      const errObj = { __error: 'Sunrise v3 empty' };
-      sunriseCache.set(key, errObj);
-      return errObj;
-    }
-    const result = {
-      sunrise: wrapTimeEntry(props.sunrise?.time, offset),
-      sunset: wrapTimeEntry(props.sunset?.time, offset),
-      solarnoon: wrapTimeEntry(props.solarnoon?.time, offset),
-      solarmidnight: wrapTimeEntry(props.solarmidnight?.time, offset)
-    };
-    const hasSunCalc = typeof SunCalc === 'object' && SunCalc && typeof SunCalc.getTimes === 'function';
-    if (hasSunCalc){
-      const offMin = offsetToMinutes(offset);
-      const midRef = new Date(Date.UTC(year, monthIdx, day, 12) - offMin*60000);
-      const times = SunCalc.getTimes(midRef, lat, lon) || {};
-      result.civil_twilight_begin = wrapFromDate(times.dawn, offset);
-      result.civil_twilight_end = wrapFromDate(times.dusk, offset);
-      result.nautical_twilight_begin = wrapFromDate(times.nauticalDawn, offset);
-      result.nautical_twilight_end = wrapFromDate(times.nauticalDusk, offset);
-      result.astronomical_twilight_begin = wrapFromDate(times.nightEnd, offset);
-      result.astronomical_twilight_end = wrapFromDate(times.night, offset);
-    } else {
-      result.__warn = 'SunCalc unavailable';
-    }
+    const status = js?.status;
+    if (status !== 'OK') throw new Error(`API status ${status||'unknown'}`);
+    const result = js?.results;
+    if (!result) throw new Error('No results');
     sunriseCache.set(key, result);
     return result;
   }catch(e){
@@ -315,7 +242,7 @@ function phaseLabel(phase){
     case 'civil': return 'porvarillinen hämärä';
     case 'nautical': return 'nauttinen hämärä';
     case 'astronomical': return 'astronominen hämärä';
-    case 'night': return 'säkkipimeä';
+    case 'night': return 'säkkipimeää';
     default: return null;
   }
 }
@@ -323,12 +250,12 @@ function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
   if (toPhase==='astronomical') return 'vaihtuu astronomiseksi';
   if (toPhase==='night') return 'säkkipimeäksi';
-  if (toPhase==='civil') return 'porvarillinen hämärä alkaa';
+  if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
 }
 function beginLabel(phase){
   if (phase==='astronomical') return 'astronominen hämärä alkaa';
-  if (phase==='civil') return 'porvarillinen hämärä alkaa';
+  if (phase==='civil') return 'porvarillinen alkaa';
   if (phase==='nautical') return 'nauttinen hämärä alkaa';
   return null;
 }
@@ -376,7 +303,34 @@ function analyzeTwilightForHour(dLocal, dayObj){
       }
     }
   }
-  return { phase: p0, withinChange, sunEvent, dbg: null };
+  return { phase: p0, withinChange, sunEvent, dbg: null, rise, set };
+}
+
+function formatSmallTag(text){
+  if (!text) return '';
+  return `<span class="mini caps">${text.toUpperCase()}</span>`;
+}
+
+function isBlueTone(text){
+  if (!text) return false;
+  const cleaned = text.toLowerCase().replace(/[^a-zäöå\s]/g,'').trim();
+  return cleaned==='sinistä' || cleaned==='sangen sinistä';
+}
+
+const MIN = 60000;
+function isGoldenHour(tw, hourStart, baseText){
+  if (!tw || (!tw.rise && !tw.set)) return false;
+  if (!isBlueTone(baseText)) return false;
+  const start = hourStart.getTime();
+  if (tw.rise){
+    const diff = tw.rise.getTime() - start;
+    if (Math.abs(diff) <= 15*MIN) return true;
+  }
+  if (tw.set){
+    const diff = tw.set.getTime() - start;
+    if (diff >= 30*MIN && diff <= 70*MIN) return true;
+  }
+  return false;
 }
 
 /* --------- solut --------- */
@@ -420,23 +374,24 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
   } else {
     prevKeyRef.val = plain || null;
   }
-  const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
-  const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
+  const rainCls = rainObj.cls || '';
+  const rainHtml = `<div class="${rainCls}">${rainObj.text}</div>`;
+  const windCls = windObj.cls || '';
+  const windHtml = `<div class="${windCls}">${windObj.text}</div>`;
+  const descCls = descWhite ? 'miniW' : '';
   htmlArr.push(
-    `<div class="row">
-      <div class="${(rainObj.num!=null && rainObj.num>0) ? 't' : 't soft'}">${timeHtml}</div>
-      <div class="${descWhite?'':'soft'}">${temp!=null?Math.round(temp)+'°':'–'}</div>
-      <div class="desc ${descWhite?'':'soft'}">${displayDesc}${twTag}</div>
-      <div class="${rainObj.cls||''}">${rainObj.text}${rainTagHtml}</div>
-      <div class="${windObj.cls||''}">${windObj.text}</div>
-    </div>`
+    `<div class="row">`+
+      `<div class="soft">${timeHtml}</div>`+
+      `<div class="soft hh">${temp!=null && !Number.isNaN(temp)?temp.toFixed(1)+'°':'–'}</div>`+
+      `<div class="${descCls}">${displayDesc}${twDbg?` ${twDbg}`:''}</div>`+
+      rainHtml+
+      windHtml+
+    `</div>`
   );
 }
 
-/* --------- render --------- */
 (async function(){
-  scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
-  if (!LAT || !LON || isNaN(LAT) || isNaN(LON)){
+  if (Number.isNaN(LAT) || Number.isNaN(LON)){
     out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
     return;
   }
@@ -505,6 +460,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       let descRaw = ncSymbolText(nc0?.sym) || (ssText(ss) || '–');
       descRaw = descRaw.trim();
 
+      const baseForGolden = descRaw;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
@@ -512,10 +468,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         const precipish = (rObj.num!=null && rObj.num>=0.1) || ncIsPrecip(nc0?.sym);
         let smallTag = '';
 
+        const hourStart = new Date(key);
+
         if (!precipish && (tw.sunEvent || tw.withinChange)){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const to = nextLabelFor(tw.withinChange.to);
             if (to){ smallTag = `${to} ${fmtHM(tw.withinChange.at)}`; }
@@ -526,12 +484,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
           if (tw.phase==='civil'){
             if (!smallTag) smallTag = 'porvarillinen hämärä';
           } else {
-            descRaw = phaseMain;
+            descRaw = `<em>${phaseMain}</em>`;
           }
         } else if (precipish){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const bl = beginLabel(tw.withinChange.to);
             if (bl) smallTag = `${bl} ${fmtHM(tw.withinChange.at)}`;
@@ -542,7 +500,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
           const pl = phaseLabel(tw.phase); if (pl) smallTag = pl;
         }
 
-        if (smallTag) descRaw += ` <span class="mini">(${smallTag})</span>`;
+        if (smallTag) descRaw += ' ' + formatSmallTag(smallTag);
+        if (isGoldenHour(tw, hourStart, baseForGolden)){
+          descRaw += ' <em>kultainen tunti</em>';
+        }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -583,6 +544,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const wObj = windCell(wind, null, wdir, { baseGrey:true });
 
       let hrm = (ssText(ss) || '–').trim();
+      const baseForGolden = hrm;
       const descWet = ['ripsii','satelee','kaatosadetta','räntää','hiutale','pyry','rake','MIST!','ukkos']
                       .some(w=>hrm.toLowerCase().includes(w));
 
@@ -593,10 +555,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         const precipish = (rainUsed!=null && rainUsed>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
         let smallTag = '';
 
+        const hourStart = dUtc;
+
         if (!precipish && (tw.sunEvent || tw.withinChange)){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const to = nextLabelFor(tw.withinChange.to);
             if (to){ smallTag = `${to} ${fmtHM(tw.withinChange.at)}`; }
@@ -613,7 +577,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         } else if (precipish){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const bl = beginLabel(tw.withinChange.to);
             if (bl) smallTag = `${bl} ${fmtHM(tw.withinChange.at)}`;
@@ -623,7 +587,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
           hrm = `<em>${hrm.replace(/\s*$/,'')}?</em>`;
         }
 
-        if (smallTag) hrm += ` <span class="mini">(${smallTag})</span>`;
+        if (smallTag) hrm += ' ' + formatSmallTag(smallTag);
+        if (isGoldenHour(tw, hourStart, baseForGolden)){
+          hrm += ' <em>kultainen tunti</em>';
+        }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -664,6 +631,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       }
 
       let descRaw = (ssText(ss) || '–').trim();
+      const baseDesc = descRaw;
       const descWet = ['ripsii','satelee','kaatosadetta','räntää','hiutale','pyry','rake','MIST!','ukkos']
                       .some(w=>descRaw.toLowerCase().includes(w));
 
@@ -674,10 +642,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         const precipish = wet || descWet;
         let smallTag = '';
 
+        const hourStart = dUtc;
+
         if (!precipish && (tw.sunEvent || tw.withinChange)){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const to = nextLabelFor(tw.withinChange.to);
             if (to) smallTag = `${to} ${fmtHM(tw.withinChange.at)}`;
@@ -691,12 +661,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
           if (tw.phase==='civil'){
             if (!smallTag) smallTag = 'porvarillinen hämärä';
           } else {
-            descRaw = phaseMain;
+            descRaw = `<em>${phaseMain}</em>`;
           }
         } else if (precipish){
           if (tw.sunEvent){
             const hhmm = fmtHM(tw.sunEvent.at);
-            smallTag = tw.sunEvent.type==='set' ? `aurinko laskee ${hhmm}` : `aurinko nousee ${hhmm}`;
+            smallTag = tw.sunEvent.type==='set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
           } else if (tw.withinChange){
             const bl = beginLabel(tw.withinChange.to);
             if (bl) smallTag = `${bl} ${fmtHM(tw.withinChange.at)}`;
@@ -705,7 +675,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
           }
         }
 
-        if (smallTag) descRaw += ` <span class="mini">(${smallTag})</span>`;
+        if (smallTag) descRaw += ' ' + formatSmallTag(smallTag);
+        if (isGoldenHour(tw, hourStart, baseDesc)){
+          descRaw += ' <em>kultainen tunti</em>';
+        }
 
         const wObj = windCell(wind, null, wdir, { baseGrey:true });
 
