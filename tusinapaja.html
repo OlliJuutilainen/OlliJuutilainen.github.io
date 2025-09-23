@@ -28,6 +28,8 @@
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
   .muted{ color:#74808a } .soft{ color:#7f8a93 }
+  .cell{ color:#e8e8e8 }
+  .desc{ color:#7f8a93 }
   .descWhite{ color:#e8e8e8 }
   .t{ text-align:left } .t.hh{ text-align:right }
   .row > div:nth-child(4){ text-align:center }
@@ -321,7 +323,7 @@ function phaseLabel(phase){
 }
 function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
-  if (toPhase==='astronomical') return 'vaihtuu astronomiseksi';
+  if (toPhase==='astronomical') return 'vaihtuu astronomiseksi hämäräksi';
   if (toPhase==='night') return 'säkkipimeäksi';
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
@@ -415,49 +417,64 @@ function isWetDescriptor(text){
   ].some(w => low.includes(w));
 }
 
+function isWeakWetDescriptor(text){
+  if (!text) return false;
+  const low = text.toLowerCase();
+  return ['tihku', 'kevyt hiutale', 'märkä hiutale'].some(w => low.includes(w));
+}
+
 function decorateDescription(baseText, tw, { precipish, hourStart }){
-  let desc = baseText;
+  let main = baseText;
   let twilightMain = false;
-  if (!tw) return { desc, twilightMain };
+  const tags = [];
+  let goldenHour = false;
+  if (!tw) return { main, twilightMain, tags, goldenHour };
 
   const phaseMain = phaseLabel(tw.phase);
-  if (!precipish && phaseMain){
-    desc = `<em>${phaseMain}</em>`;
+  goldenHour = isGoldenHour(tw, hourStart, baseText);
+
+  if (goldenHour){
+    main = '<em>kultainen tunti</em>';
+  } else if (!precipish && phaseMain){
+    main = `<em>${phaseMain}</em>`;
     twilightMain = true;
   }
 
-  let smallTag = '';
   if (tw.sunEvent){
     const hhmm = fmtHM(tw.sunEvent.at);
-    smallTag = tw.sunEvent.type === 'set' ? `auringonlasku ${hhmm}` : `auringonnousu ${hhmm}`;
+    const isRise = tw.sunEvent.type === 'rise';
+    tags.push(isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
-    if (label) smallTag = `${label} ${fmtHM(tw.withinChange.at)}`;
+    if (label) tags.push(`${label} ${fmtHM(tw.withinChange.at)}`);
+  } else if (!goldenHour && phaseMain){
+    if (precipish || !twilightMain) tags.push(phaseMain);
   }
 
-  if (!smallTag && precipish && phaseMain){
-    smallTag = phaseMain;
-  }
+  return { main, twilightMain, tags, goldenHour };
+}
 
-  if (smallTag && !(twilightMain && smallTag === phaseMain)){
-    desc += ' ' + formatSmallTag(smallTag);
+function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHour }){
+  const rainWhite = (rainVal!=null && rainVal>0 && !(rowIndex>=3 && descWeak && rainVal<0.3));
+  let descWhite = !!goldenHour;
+  if (rowIndex < 3){
+    if (rainWhite) descWhite = true;
+    else if (descWet && !descWeak) descWhite = true;
+  } else if (descWet){
+    if (!descWeak) descWhite = true;
+    else if (rainVal!=null && rainVal>=0.3) descWhite = true;
   }
-
-  if (isGoldenHour(tw, hourStart, baseText)){
-    desc += ' <em>kultainen tunti</em>';
-  }
-
-  return { desc, twilightMain };
+  return { rainWhite, descWhite };
 }
 
 /* --------- solut --------- */
 function rainCell(val, {markGrey=false}={}){
-  if (val==null || isNaN(Number(val))) return { text:'–', cls:'soft', num:null };
+  if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true };
   const n = Number(val);
-  if (n === 0) return { text:'—', cls:'soft dash', num:0 };
-  return { text:n.toFixed(1)+' mm', cls:(markGrey?'soft':''), num:n };
+  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true };
+  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey };
 }
-function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
+function windCell(mean, gust, dirDeg){
   const mOk = (mean!=null && !isNaN(Number(mean)));
   const gOk = (gust!=null && !isNaN(Number(gust)));
   const meanV = mOk ? Number(mean) : null;
@@ -465,25 +482,25 @@ function windCell(mean, gust, dirDeg, {baseGrey=true}={}){
 
   let txt = (mOk ? meanV.toFixed(1)+' m/s' : '–');
 
-  let gustTxt = '', gustWhite = false;
+  let gustTxt = '';
+  let highlight = false;
   if (gOk && gustV >= 15){
     gustTxt = ` (<em style="color:#e8e8e8">${gustV.toFixed(1)}</em>)`;
-    gustWhite = true;
+    highlight = true;
   }
-  const meanWhite = (mOk && meanV >= 10);
-  const cls = (meanWhite || gustWhite) ? '' : (baseGrey ? 'soft' : '');
+  if (mOk && meanV >= 10) highlight = true;
 
   const dirTxt = dir8(dirDeg);
-  const dirHtml = dirTxt ? `<span class="${cls? 'mini' : 'miniW'} windDir">${dirTxt}</span>` : '';
+  const dirHtml = dirTxt ? `<span class="${highlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
 
-  return { text: txt + gustTxt + dirHtml, cls };
+  return { html: txt + gustTxt + dirHtml, white: highlight };
 }
 
 /* Ditto */
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
-function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag, windObj, prevKeyRef, twDbg}){
+function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false}){
   const plain = descHtml.replace(/<[^>]*>/g,'').trim();
   let displayDesc = descHtml;
   if (plain && prevKeyRef.val && normalizedDittoKey(plain) === normalizedDittoKey(prevKeyRef.val)){
@@ -494,14 +511,23 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
   const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
   const descClasses = ['desc'];
-  if (descWhite) descClasses.push('descWhite');
+  if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
+  const timeClasses = ['cell'];
+  if (!timeWhite) timeClasses.push('soft');
+  const tempClasses = ['cell','hh'];
+  if (!tempWhite) tempClasses.push('soft');
+  const rainClasses = ['cell'];
+  if (!rainWhite || rainObj.forceGrey) rainClasses.push('soft');
+  if (rainObj.extraClass) rainClasses.push(rainObj.extraClass);
+  const windClasses = ['cell'];
+  if (!windWhite) windClasses.push('soft');
   htmlArr.push(
     `<div class="row">`+
-      `<div class="soft">${timeHtml}</div>`+
-      `<div class="soft hh">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°':'–'}</div>`+
+      `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
-      `<div class="${rainObj.cls||''}">${rainObj.text}${rainTagHtml}</div>`+
-      `<div class="${windObj.cls||''}">${windObj.text}</div>`+
+      `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
+      `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
     `</div>`
   );
 }
@@ -571,19 +597,27 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const wdir = forecast.winddirection?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      const rainVal0 = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
-      const rObj = (rainVal0!=null && rainVal0<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(rainVal0);
-      const wObj = windCell(wind, (nc0 && typeof nc0.gust==='number' ? nc0.gust : null), wdir, { baseGrey:true });
+      const rawNowcastRain = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
+      const rainVal0 = (rawNowcastRain!=null && rawNowcastRain<0.1) ? 0 : rawNowcastRain;
+      const rObj = rainCell(rainVal0);
+      const gust0 = (nc0 && typeof nc0.gust==='number') ? nc0.gust : null;
+      const wObj = windCell(wind, gust0, wdir);
 
       const baseDesc = (ncSymbolText(nc0?.sym) || ssText(ss) || '–').trim() || '–';
-      let descRaw = baseDesc;
-      const precipish = ((rObj.num!=null && rObj.num>=0.1) || ncIsPrecip(nc0?.sym) || isWetDescriptor(baseDesc));
+      const descWet = isWetDescriptor(baseDesc);
+      const descWeak = isWeakWetDescriptor(baseDesc);
+      const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
       const hourStart = new Date(key);
+      let descHtml = baseDesc || '–';
+      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
-        descRaw = decorated.desc;
+        goldenHour = decorated.goldenHour;
+        const mainHtml = decorated.main || baseDesc || '–';
+        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -597,11 +631,27 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         if (DBG) twDbg = `[TW!err]`;
       }
 
-      const descIsWhite = precipish && !(rObj.cls && rObj.cls.includes('soft'));
+      const { rainWhite, descWhite } = computeHighlightStates({
+        rowIndex: 0,
+        rainVal: rainVal0,
+        descWet,
+        descWeak,
+        goldenHour
+      });
+      const timeWhite = rainWhite || descWhite || wObj.white;
       pushRow(html, {
         timeHtml: fmtHM(new Date()),
-        temp, descHtml: descRaw, descWhite: descIsWhite,
-        rainObj: rObj, rainTag: 'NC', windObj: wObj, prevKeyRef: prevDescRef, twDbg
+        temp,
+        descHtml,
+        descWhite,
+        rainObj: rObj,
+        rainWhite,
+        windObj: wObj,
+        windWhite: wObj.white,
+        prevKeyRef: prevDescRef,
+        twDbg,
+        rainTag: 'NC',
+        timeWhite
       });
     }
 
@@ -614,24 +664,35 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      let rObj, rTag='NC', rainUsed=null;
+      let rainTag = 'NC';
+      let rainVal = null;
+      let rObj;
       if (ncPack && typeof ncPack.val==='number'){
-        rObj = (ncPack.val<0.1) ? {text:'—', cls:'soft dash', num:0} : rainCell(ncPack.val);
-        rainUsed = (ncPack.val<0.1) ? 0 : ncPack.val;
+        rainVal = ncPack.val < 0.1 ? 0 : ncPack.val;
+        rObj = rainCell(rainVal);
       } else {
-        rObj = rainCell(rain, {markGrey:true}); rTag='HRM'; rainUsed=(typeof rain==='number'?rain:null);
+        const hrmVal = (typeof rain==='number') ? rain : null;
+        rainVal = hrmVal;
+        const markGrey = idx >= 3;
+        rObj = rainCell(hrmVal, {markGrey});
+        rainTag = 'HRM';
       }
-      const wObj = windCell(wind, null, wdir, { baseGrey:true });
+      const wObj = windCell(wind, null, wdir);
 
       const baseDesc = (ssText(ss) || '–').trim() || '–';
       const descWet = isWetDescriptor(baseDesc);
-      const precipish = (rainUsed!=null && rainUsed>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
-      let descRaw = baseDesc;
+      const descWeak = isWeakWetDescriptor(baseDesc);
+      const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
+      let descHtml = baseDesc;
+      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        descRaw = decorated.desc;
+        goldenHour = decorated.goldenHour;
+        const mainHtml = decorated.main || baseDesc;
+        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -644,18 +705,35 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       }
 
       if (DBG){
-        const tagText = (rTag==='NC' && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rTag}]`;
-        descRaw += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
+        const tagText = (rainTag==='NC' && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
+        descHtml += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
         if (twDbg && !twDbg.startsWith('[TW!err]')){
-          descRaw += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
+          descHtml += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
           twDbg = '';
         }
       }
 
-      const descWhite = precipish && !(rObj.cls && rObj.cls.includes('soft'));
+      const { rainWhite, descWhite } = computeHighlightStates({
+        rowIndex: idx,
+        rainVal,
+        descWet,
+        descWeak,
+        goldenHour
+      });
+      const timeWhite = rainWhite || descWhite || wObj.white;
       pushRow(html, {
         timeHtml: fmtHM(dUtc),
-        temp, descHtml: descRaw, descWhite, rainObj: rObj, rainTag: rTag, windObj: wObj, prevKeyRef: prevDescRef, twDbg
+        temp,
+        descHtml,
+        descWhite,
+        rainObj: rObj,
+        rainWhite,
+        windObj: wObj,
+        windWhite: wObj.white,
+        prevKeyRef: prevDescRef,
+        twDbg,
+        rainTag,
+        timeWhite
       });
     }
     renderFutureHour(1, nc1);
@@ -671,23 +749,26 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
       const ss   = forecast.SmartSymbol?.get(key);
       const ssDay = (ss!=null) ? (Number(ss)%100) : null;
 
-      let rObj = rainCell(rain);
-      const wet = (rObj.num!=null && rObj.num > 0);
-      const smallWet = (wet && rObj.num < 0.3);
+      const rainVal = (typeof rain==='number') ? rain : null;
+      const wet = (rainVal!=null && rainVal > 0);
+      const smallWet = (wet && rainVal < 0.3);
       const useGreyRain = smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay));
-      if (useGreyRain){
-        rObj = rainCell(rain, {markGrey:true});
-      }
+      const rObj = rainCell(rainVal, {markGrey:useGreyRain});
 
       const baseDesc = (ssText(ss) || '–').trim() || '–';
       const descWet = isWetDescriptor(baseDesc);
+      const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = wet || descWet;
-      let descRaw = baseDesc;
+      let descHtml = baseDesc;
+      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        descRaw = decorated.desc;
+        goldenHour = decorated.goldenHour;
+        const mainHtml = decorated.main || baseDesc;
+        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -699,15 +780,30 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainTag
         if (DBG) twDbg = '[TW!err]';
       }
 
-      const highlight = precipish && !useGreyRain;
-      const timeHtml = `<span class="${highlight?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-      const wObj = windCell(wind, null, wdir, { baseGrey:true });
+      const { rainWhite, descWhite } = computeHighlightStates({
+        rowIndex: i,
+        rainVal,
+        descWet,
+        descWeak,
+        goldenHour
+      });
+      const wObj = windCell(wind, null, wdir);
+      const timeWhite = rainWhite || descWhite || wObj.white;
+      const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
 
       pushRow(html, {
-        timeHtml, temp,
-        descHtml: descRaw,
-        descWhite: highlight,
-        rainObj: rObj, rainTag: 'HRM', windObj: wObj, prevKeyRef: prevDescRef, twDbg
+        timeHtml,
+        temp,
+        descHtml,
+        descWhite,
+        rainObj: rObj,
+        rainWhite,
+        windObj: wObj,
+        windWhite: wObj.white,
+        prevKeyRef: prevDescRef,
+        twDbg,
+        rainTag: 'HRM',
+        timeWhite
       });
     }
 
