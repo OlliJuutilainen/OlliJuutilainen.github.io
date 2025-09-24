@@ -693,6 +693,15 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
     if (label) tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
+    if (
+      label &&
+      tw.withinChange?.at instanceof Date &&
+      typeof tw.withinChange?.to === 'string' &&
+      TWILIGHT_PHASES.has(tw.withinChange.to)
+    ){
+      const key = `${tw.withinChange.to}-${tw.withinChange.at.getTime()}`;
+      twilightState.announced.add(key);
+    }
   } else if (!goldenHour && phaseMain){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
   }
