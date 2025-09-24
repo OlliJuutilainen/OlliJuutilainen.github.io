@@ -444,7 +444,24 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (tw.sunEvent){
     const hhmm = fmtHM(tw.sunEvent.at);
     const isRise = tw.sunEvent.type === 'rise';
-    tags.push(isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`);
+    let tagText = null;
+    if (
+      !isRise &&
+      twilightMain &&
+      phaseMain === 'porvarillinen hämärä' &&
+      tw.sunEvent.at instanceof Date &&
+      hourStart instanceof Date
+    ){
+      const eventMs = tw.sunEvent.at.getTime();
+      const hourMs = hourStart.getTime();
+      if (Number.isFinite(eventMs) && Number.isFinite(hourMs) && eventMs > hourMs){
+        tagText = `...auringon laskettua ${hhmm}`;
+      }
+    }
+    if (!tagText){
+      tagText = isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`;
+    }
+    tags.push(tagText);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
     if (label) tags.push(`${label} ${fmtHM(tw.withinChange.at)}`);
