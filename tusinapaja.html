@@ -650,19 +650,12 @@ function windCell(mean, gust, dirDeg){
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
-<<<<<<< ours
-function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false, skipDitto=false}){
-  const plain = descHtml.replace(/<[^>]*>/g,'').trim();
-  let displayDesc = descHtml;
-  if (!skipDitto && plain && prevKeyRef.val && normalizedDittoKey(plain) === normalizedDittoKey(prevKeyRef.val)){
-    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>';
-=======
-function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false}){
-  const mainHtml = descMainHtml || '–';
+function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false, skipDitto=false}){
+  const mainHtml = descMainHtml || descHtml || '–';
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
-  let displayDesc = descHtml || mainHtml;
-  if (normalized && prevKeyRef.val && normalized === prevKeyRef.val){
+  let displayDesc = (typeof descHtml === 'string' && descHtml.length) ? descHtml : mainHtml;
+  if (!skipDitto && normalized && prevKeyRef.val && normalized === prevKeyRef.val){
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -675,7 +668,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
     }
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + tailHtml;
->>>>>>> theirs
   } else {
     prevKeyRef.val = normalized || null;
   }
@@ -807,15 +799,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         if (DBG) twDbg = `[TW!err]`;
       }
 
-      const contradiction = applyContradiction({
-        descHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal: rainVal0,
-        rainDisplay: rObj.num
-      });
-      descHtml = contradiction.html;
-
       const { rainWhite, descWhite } = computeHighlightStates({
         rowIndex: 0,
         rainVal: rainVal0,
@@ -824,11 +807,21 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         goldenHour
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
-      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const contradiction = applyContradiction({
+        descHtml: initialDescHtml,
+        baseDesc,
+        ssCode: ss,
+        rainVal: rainVal0,
+        rainDisplay: rObj.num
+      });
+      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
+        ? contradiction.html
+        : initialDescHtml;
       pushRow(html, {
         timeHtml: `<span class="timeSub">nyt,</span>${fmtHM(new Date())}`,
         temp,
-        descHtml,
+        descHtml: finalDescHtml,
         descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
@@ -839,7 +832,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twDbg,
         rainTag: 'NC',
         timeWhite,
-        skipDitto: contradiction.flagged
+        skipDitto: !!(contradiction && contradiction.flagged)
       });
     }
 
@@ -904,15 +897,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }
 
-      const contradiction = applyContradiction({
-        descHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      descHtml = contradiction.html;
-
       const { rainWhite, descWhite } = computeHighlightStates({
         rowIndex: idx,
         rainVal,
@@ -921,11 +905,21 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         goldenHour
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
-      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const contradiction = applyContradiction({
+        descHtml: initialDescHtml,
+        baseDesc,
+        ssCode: ss,
+        rainVal,
+        rainDisplay: rObj.num
+      });
+      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
+        ? contradiction.html
+        : initialDescHtml;
       pushRow(html, {
         timeHtml: fmtHM(dUtc),
         temp,
-        descHtml,
+        descHtml: finalDescHtml,
         descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
@@ -936,7 +930,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twDbg,
         rainTag,
         timeWhite,
-        skipDitto: contradiction.flagged
+        skipDitto: !!(contradiction && contradiction.flagged)
       });
     }
     renderFutureHour(1, nc1);
@@ -986,15 +980,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         if (DBG) twDbg = '[TW!err]';
       }
 
-      const contradiction = applyContradiction({
-        descHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      descHtml = contradiction.html;
-
       const { rainWhite, descWhite } = computeHighlightStates({
         rowIndex: i,
         rainVal,
@@ -1005,12 +990,22 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const wObj = windCell(wind, null, wdir);
       const timeWhite = rainWhite || descWhite || wObj.white;
       const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const contradiction = applyContradiction({
+        descHtml: initialDescHtml,
+        baseDesc,
+        ssCode: ss,
+        rainVal,
+        rainDisplay: rObj.num
+      });
+      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
+        ? contradiction.html
+        : initialDescHtml;
 
       pushRow(html, {
         timeHtml,
         temp,
-        descHtml,
+        descHtml: finalDescHtml,
         descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
@@ -1021,7 +1016,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twDbg,
         rainTag: 'HRM',
         timeWhite,
-        skipDitto: contradiction.flagged
+        skipDitto: !!(contradiction && contradiction.flagged)
       });
     }
 
