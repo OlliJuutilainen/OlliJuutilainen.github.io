@@ -728,6 +728,24 @@ function isThunderOrHailDescriptor(text){
   return isThunderDescriptor(text) || isHailDescriptor(text);
 }
 
+function hasPrecipFogOrThunderDescriptor(text){
+  if (!text) return false;
+  return isWetDescriptor(text) || isThunderDescriptor(text);
+}
+
+function ensureQuestionSuffix(text){
+  if (text == null) return '?';
+  const body = String(text).trim().replace(/[.?!]+$/,'');
+  return body ? body + '?' : '?';
+}
+
+function wrapItalic(text){
+  if (text == null) return text;
+  const trimmed = text.trim();
+  if (/^<\s*em[>\s]/i.test(trimmed) && /<\/\s*em\s*>$/i.test(trimmed)) return text;
+  return `<em>${text}</em>`;
+}
+
 function buildThunderTag({ baseText, source }){
   if (!isThunderOrHailDescriptor(baseText)) return null;
   let text = baseText.trim();
@@ -855,7 +873,57 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   twilightState.lastPhase = tw.phase || null;
   twilightState.lastHourStart = hourStart || null;
 
-  return { main, twilightMain, tags, wrapTags };
+  return { main, twilightMain, tags, wrapTags, twilightLabel: phaseMain || null };
+}
+
+function maybeApplyTwilightPrecipOverride({
+  decorated,
+  rainVal,
+  baseDesc,
+  descTags,
+  tw,
+  rowIndex,
+  fallbackFromNowcast,
+  descSource
+}){
+  const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
+  if (!decorated || !decorated.twilightMain) return result;
+  if (!(Number.isFinite(rainVal) && rainVal > 0)) return result;
+  if (!hasPrecipFogOrThunderDescriptor(baseDesc)) return result;
+
+  const tags = Array.isArray(descTags) ? [...descTags] : [];
+  if (decorated.twilightLabel){
+    tags.unshift({ text: decorated.twilightLabel, italic: true, preserveCase: true });
+  }
+
+  let main = (typeof baseDesc === 'string') ? baseDesc : '';
+  if (main && main !== '–'){
+    let tinted = maybeApplyGoldTint(main, tw);
+    if (tw && tw.phase === 'day'){
+      tinted = capitalizeDayDescription(tinted);
+    }
+    main = tinted;
+  }
+
+  let mainHtml = main || baseDesc || '–';
+
+  const italicizeThunder = (
+    rowIndex === 2 &&
+    !!fallbackFromNowcast &&
+    descSource === 'harmonie' &&
+    isThunderOrHailDescriptor(baseDesc)
+  );
+  if (italicizeThunder){
+    const body = ensureQuestionSuffix(mainHtml);
+    mainHtml = wrapItalic(body);
+  }
+
+  result.applied = true;
+  result.main = mainHtml;
+  result.tags = tags;
+  result.forceDescWhite = true;
+  result.forceRainWhite = true;
+  return result;
 }
 
 function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
@@ -1053,6 +1121,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       });
       const baseDesc = descSelection0.text || '–';
       const descSource = descSelection0.source;
+      const fallbackFromNowcast = descSelection0.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
@@ -1063,18 +1132,37 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
+      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
+      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
+        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc || '–';
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        let thunderTag = null;
         if (decorated.twilightMain){
-          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-          if (thunderTag){
-            descTags.unshift(thunderTag);
-            insertedThunderTag = true;
-          }
+          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+        }
+        const override = maybeApplyTwilightPrecipOverride({
+          decorated,
+          rainVal: rainVal0,
+          baseDesc,
+          descTags,
+          tw,
+          rowIndex: 0,
+          fallbackFromNowcast,
+          descSource
+        });
+        twilightOverride = override;
+        if (override.applied){
+          twilightFlags.overrideApplied = true;
+          descMain = override.main;
+          descTags = Array.isArray(override.tags) ? override.tags : [];
+        } else if (thunderTag){
+          descTags.unshift(thunderTag);
+          insertedThunderTag = true;
         }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -1099,8 +1187,16 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         descWeak
       });
       let { rainWhite, descWhite } = highlight0;
+      if (twilightOverride.applied){
+        if (twilightOverride.forceRainWhite) rainWhite = true;
+        if (twilightOverride.forceDescWhite) descWhite = true;
+        if (rObj.forceGrey) rObj.forceGrey = false;
+      }
+      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
+        descWhite = false;
+      }
       if (insertedThunderTag) descWhite = false;
-      const timeWhite = rainWhite || descWhite || wObj.white;
+      const timeWhite = (rainWhite || descWhite || wObj.white);
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       const contradiction = applyContradiction({
         descHtml: initialDescHtml,
@@ -1161,6 +1257,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       });
       const baseDesc = descSelection.text || '–';
       const descSource = descSelection.source;
+      const fallbackFromNowcast = descSelection.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
@@ -1170,18 +1267,37 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
+      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
+      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
+        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc;
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        let thunderTag = null;
         if (decorated.twilightMain){
-          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-          if (thunderTag){
-            descTags.unshift(thunderTag);
-            insertedThunderTag = true;
-          }
+          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+        }
+        const override = maybeApplyTwilightPrecipOverride({
+          decorated,
+          rainVal,
+          baseDesc,
+          descTags,
+          tw,
+          rowIndex: idx,
+          fallbackFromNowcast,
+          descSource
+        });
+        twilightOverride = override;
+        if (override.applied){
+          twilightFlags.overrideApplied = true;
+          descMain = override.main;
+          descTags = Array.isArray(override.tags) ? override.tags : [];
+        } else if (thunderTag){
+          descTags.unshift(thunderTag);
+          insertedThunderTag = true;
         }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -1214,8 +1330,16 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         descWeak
       });
       let { rainWhite, descWhite } = highlightF;
+      if (twilightOverride.applied){
+        if (twilightOverride.forceRainWhite) rainWhite = true;
+        if (twilightOverride.forceDescWhite) descWhite = true;
+        if (rObj.forceGrey) rObj.forceGrey = false;
+      }
+      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
+        descWhite = false;
+      }
       if (insertedThunderTag) descWhite = false;
-      const timeWhite = rainWhite || descWhite || wObj.white;
+      const timeWhite = (rainWhite || descWhite || wObj.white);
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       const contradiction = applyContradiction({
         descHtml: initialDescHtml,
@@ -1270,6 +1394,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       });
       const baseDesc = descSelectionHrm.text || '–';
       const descSource = descSelectionHrm.source;
+      const fallbackFromNowcast = descSelectionHrm.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = wet || descWet;
@@ -1279,18 +1404,37 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
+      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
+      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
+        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc;
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        let thunderTag = null;
         if (decorated.twilightMain){
-          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-          if (thunderTag){
-            descTags.unshift(thunderTag);
-            insertedThunderTag = true;
-          }
+          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+        }
+        const override = maybeApplyTwilightPrecipOverride({
+          decorated,
+          rainVal,
+          baseDesc,
+          descTags,
+          tw,
+          rowIndex: i,
+          fallbackFromNowcast,
+          descSource
+        });
+        twilightOverride = override;
+        if (override.applied){
+          twilightFlags.overrideApplied = true;
+          descMain = override.main;
+          descTags = Array.isArray(override.tags) ? override.tags : [];
+        } else if (thunderTag){
+          descTags.unshift(thunderTag);
+          insertedThunderTag = true;
         }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -1303,6 +1447,8 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         if (DBG) twDbg = '[TW!err]';
       }
 
+      const wObj = windCell(wind, null, wdir);
+
       const highlightHrm = computeHighlightStates({
         rowIndex: i,
         rainVal,
@@ -1310,9 +1456,16 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         descWeak
       });
       let { rainWhite, descWhite } = highlightHrm;
+      if (twilightOverride.applied){
+        if (twilightOverride.forceRainWhite) rainWhite = true;
+        if (twilightOverride.forceDescWhite) descWhite = true;
+        if (rObj.forceGrey) rObj.forceGrey = false;
+      }
+      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
+        descWhite = false;
+      }
       if (insertedThunderTag) descWhite = false;
-      const wObj = windCell(wind, null, wdir);
-      const timeWhite = rainWhite || descWhite || wObj.white;
+      const timeWhite = (rainWhite || descWhite || wObj.white);
       const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       const contradiction = applyContradiction({
