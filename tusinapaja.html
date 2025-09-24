@@ -328,6 +328,7 @@ function phaseLabel(phase){
     default: return null;
   }
 }
+const TWILIGHT_PHASES = new Set(['civil','nautical','astronomical','night']);
 function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
   if (toPhase==='astronomical') return 'vaihtuu astronomiseksi hämäräksi';
@@ -341,6 +342,8 @@ function beginLabel(phase){
   if (phase==='nautical') return 'nauttinen hämärä alkaa';
   return null;
 }
+
+const MIN = 60000;
 
 function analyzeTwilightForHour(dLocal, dayObj){
   if (!dayObj || dayObj.__error) return { phase: null, withinChange: null, sunEvent: null, dbg: dayObj?.__error||null };
@@ -371,6 +374,44 @@ function analyzeTwilightForHour(dLocal, dayObj){
   const p0 = where(t0);
   const p1 = where(t1);
 
+  const transitions = [civStart,civEnd,nautStart,nautEnd,astroStart,astroEnd]
+    .filter(Boolean)
+    .sort((a,b)=>a-b);
+  const times = [t0];
+  for (const t of transitions){ if (t>t0 && t<t1) times.push(t); }
+  times.push(t1);
+  const segments = [];
+  for (let i=0; i<times.length-1; i++){
+    const start = times[i];
+    const end = times[i+1];
+    if (!start || !end || end<=start) continue;
+    const mid = new Date((start.getTime()+end.getTime())/2);
+    const phase = where(mid);
+    segments.push({ phase, start, end, duration: end-start });
+  }
+
+  let dominantPhase = p0;
+  let dominantSegment = null;
+  for (const seg of segments){
+    if (!seg.phase || !TWILIGHT_PHASES.has(seg.phase)) continue;
+    if (seg.duration > 30*MIN && (!dominantSegment || seg.duration > dominantSegment.duration)){
+      dominantPhase = seg.phase;
+      dominantSegment = seg;
+    }
+  }
+
+  let phaseStart = null;
+  if (dominantPhase && TWILIGHT_PHASES.has(dominantPhase)){
+    for (const t of transitions){
+      if (t > (dominantSegment?.end || t1)) break;
+      const to = where(new Date(t.getTime()+1000));
+      if (to === dominantPhase) phaseStart = t;
+    }
+    if (!phaseStart && dominantSegment){
+      phaseStart = dominantSegment.start;
+    }
+  }
+
   let withinChange = null, sunEvent = null;
   if (rise && rise>=t0 && rise<t1) sunEvent = { type:'rise', at: rise };
   if (set  && set >=t0 && set <t1) sunEvent = { type:'set',  at: set  };
@@ -385,7 +426,17 @@ function analyzeTwilightForHour(dLocal, dayObj){
       }
     }
   }
-  return { phase: p0, withinChange, sunEvent, dbg: null, rise, set };
+  const startedWithinHour = !!(phaseStart && phaseStart>t0 && phaseStart<t1);
+  return {
+    phase: dominantPhase,
+    withinChange,
+    sunEvent,
+    dbg: null,
+    rise,
+    set,
+    phaseStart,
+    startedWithinHour
+  };
 }
 
 function formatSmallTag(text){
@@ -398,8 +449,6 @@ function isBlueTone(text){
   const cleaned = text.toLowerCase().replace(/[^a-zäöå\s]/g,'').trim();
   return cleaned==='sinistä' || cleaned==='sangen sinistä';
 }
-
-const MIN = 60000;
 function isGoldenHour(tw, hourStart, baseText){
   if (!tw || (!tw.rise && !tw.set)) return false;
   if (!isBlueTone(baseText)) return false;
@@ -430,6 +479,8 @@ function isWeakWetDescriptor(text){
   return ['tihku', 'kevyt hiutale', 'märkä hiutale'].some(w => low.includes(w));
 }
 
+const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
+
 function decorateDescription(baseText, tw, { precipish, hourStart }){
   let main = baseText;
   let twilightMain = false;
@@ -447,16 +498,40 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     twilightMain = true;
   }
 
+  let startTag = null;
+  let startKey = null;
+  if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
+    const phaseStart = tw.phaseStart;
+    startKey = `${tw.phase}-${phaseStart.getTime()}`;
+    if (tw.startedWithinHour){
+      startTag = `ALKAA ${fmtHM(phaseStart)}`;
+    } else if (
+      tw.phase !== twilightState.lastPhase &&
+      !twilightState.announced.has(startKey)
+    ){
+      const prevHourStart = twilightState.lastHourStart;
+      if (prevHourStart && phaseStart >= prevHourStart){
+        startTag = `alkoi ${fmtHM(phaseStart)}`;
+      }
+    }
+  }
+
   if (tw.sunEvent){
     const hhmm = fmtHM(tw.sunEvent.at);
     const isRise = tw.sunEvent.type === 'rise';
     tags.push(isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`);
+  } else if (startTag){
+    tags.push(startTag);
+    if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
     if (label) tags.push(`${label} ${fmtHM(tw.withinChange.at)}`);
   } else if (!goldenHour && phaseMain){
     if (precipish || !twilightMain) tags.push(phaseMain);
   }
+
+  twilightState.lastPhase = tw.phase || null;
+  twilightState.lastHourStart = hourStart || null;
 
   return { main, twilightMain, tags, goldenHour };
 }
