@@ -717,18 +717,28 @@ function rainCell(val, {markGrey=false}={}){
   if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true };
   return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey };
 }
+function formatWindSpeed(val){
+  if (!Number.isFinite(val)) return null;
+  const rounded = Math.round(val);
+  return (Object.is(rounded, -0) ? 0 : rounded).toString();
+}
+
 function windCell(mean, gust, dirDeg){
   const mOk = (mean!=null && !isNaN(Number(mean)));
   const gOk = (gust!=null && !isNaN(Number(gust)));
   const meanV = mOk ? Number(mean) : null;
   const gustV = gOk ? Number(gust) : null;
 
-  let txt = (mOk ? meanV.toFixed(1)+' m/s' : '–');
+  const meanTxt = formatWindSpeed(meanV);
+  let txt = (mOk && meanTxt!=null ? meanTxt+' m/s' : '–');
 
   let gustTxt = '';
   let highlight = false;
   if (gOk && gustV >= 15){
-    gustTxt = ` (<em style="color:#e8e8e8">${gustV.toFixed(1)}</em>)`;
+    const gustFmt = formatWindSpeed(gustV);
+    if (gustFmt != null){
+      gustTxt = ` (<em style="color:#e8e8e8">${gustFmt}</em>)`;
+    }
     highlight = true;
   }
   if (mOk && meanV >= 10) highlight = true;
