@@ -452,10 +452,14 @@ function formatSmallTag(text){
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
-  const tagBody = tagList.map(formatSmallTag).join('<br>');
-  const tagHtml = tagList.length
-    ? `<br>${wrapTags ? '(' : ''}${tagBody}${wrapTags ? ')' : ''}`
-    : '';
+  const formattedTags = tagList.map(formatSmallTag);
+  if (wrapTags && formattedTags.length){
+    formattedTags[0] = formattedTags[0].replace('<span class="mini">', '<span class="mini">(');
+    const lastIndex = formattedTags.length - 1;
+    formattedTags[lastIndex] = formattedTags[lastIndex].replace('</span>', ')</span>');
+  }
+  const tagBody = formattedTags.join('<br>');
+  const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
   return `${safeMain}${tagHtml}${extra || ''}`;
 }
 
