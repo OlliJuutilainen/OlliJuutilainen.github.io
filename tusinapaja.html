@@ -14,6 +14,11 @@
     text-transform:uppercase; margin:0 0 4px 0 }
   .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniTwilight{ font-style:italic }
+  .miniPrefixed::before{
+    content:'';
+    display:inline-block;
+    width:var(--mini-ellipsis-width, 10px);
+  }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .timeSub{ display:flex; justify-content:flex-end; margin-bottom:2px; font-size:11px; letter-spacing:.4px; text-transform:none; text-align:right }
@@ -68,6 +73,32 @@ window.addEventListener('unhandledrejection', e => {
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
   out.innerHTML = `<div class="err">Virhe (lupaus): ${msg}</div>` + out.innerHTML;
 });
+
+/* --------- mittaa ellipsin leveys pienitekstissä --------- */
+function initMiniEllipsisWidth(){
+  if (!document?.body) return;
+  const span = document.createElement('span');
+  span.className = 'mini';
+  span.textContent = '...';
+  span.style.visibility = 'hidden';
+  span.style.position = 'absolute';
+  span.style.whiteSpace = 'pre';
+  span.style.pointerEvents = 'none';
+  document.body.appendChild(span);
+  const rect = span.getBoundingClientRect();
+  span.remove();
+  const width = rect?.width;
+  if (Number.isFinite(width) && width > 0){
+    const px = width.toFixed(2)+'px';
+    document.documentElement.style.setProperty('--mini-ellipsis-width', px);
+    window.__miniEllipsisWidth = width;
+  }
+}
+if (document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initMiniEllipsisWidth, { once: true });
+} else {
+  initMiniEllipsisWidth();
+}
 
 /* --------- URL-parametrit --------- */
 const q = new URLSearchParams(location.search);
@@ -449,13 +480,19 @@ function formatSmallTag(entry){
   if (!entry) return '';
   let text = '';
   let italic = false;
+  let prefix = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
+    prefix = !!entry.prefix;
   }
   if (!text) return '';
-  const cls = italic ? 'mini miniTwilight' : 'mini';
+  if (prefix && text.startsWith('...')) prefix = false;
+  const classes = ['mini'];
+  if (italic) classes.push('miniTwilight');
+  if (prefix) classes.push('miniPrefixed');
+  const cls = classes.join(' ');
   return `<span class="${cls}">${text.toLocaleLowerCase('fi-FI')}</span>`;
 }
 
@@ -516,7 +553,8 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
       text = `auringonlasku ${hhmm}`;
     }
   }
-  return { text, italic: false };
+  const needsPrefix = !text.startsWith('...');
+  return { text, italic: false, prefix: needsPrefix };
 }
 
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
@@ -644,13 +682,13 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     const entry = formatSunEventTag(tw.sunEvent, { hourStart, twilightMain, phaseMain });
     if (entry) tags.push(entry);
   } else if (startTag){
-    tags.push({ text: startTag, italic: true });
+    tags.push({ text: startTag, italic: true, prefix: true });
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
     if (label) tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
   } else if (!goldenHour && phaseMain){
-    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
+    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
   }
 
   if (
