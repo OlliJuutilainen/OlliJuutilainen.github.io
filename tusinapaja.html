@@ -606,7 +606,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
-    if (label) tags.push({ text: `${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
+    if (label) tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
   } else if (!goldenHour && phaseMain){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
   }
