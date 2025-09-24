@@ -236,35 +236,122 @@ const extractSeries = x => {
 };
 
 /* --------- MET Nowcast – sade + puuska + symbol_code --------- */
-async function fetchNowcastForHour(lat, lon, dUTC){
+const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
+const NOWCAST_RETRY_COOLDOWN = 60 * 1000;
+const nowcastShared = new Map();
+
+function nowcastKey(lat, lon){
+  return `${Number(lat).toFixed(4)},${Number(lon).toFixed(4)}`;
+}
+
+async function fetchNowcastTimeseries(lat, lon){
   try{
     const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
     const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
-    if (!res.ok) return { val:null, meta:`NC!${res.status}` };
+    if (!res.ok) return { ok:false, meta:`NC!${res.status}` };
     const js = await res.json();
     const ts = js?.properties?.timeseries;
-    if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
+    if (!Array.isArray(ts) || !ts.length) return { ok:false, meta:'NC!empty' };
+    return { ok:true, timeseries: ts };
+  }catch{
+    return { ok:false, meta:'NC!err' };
+  }
+}
 
-    const targetUTC = dUTC.getTime();
-    let future=null,fDiff=Infinity,past=null,pDiff=Infinity;
-    for (const it of ts){
-      const t=new Date(it.time).getTime(), diff=t-targetUTC, ad=Math.abs(diff);
-      if (diff>=0 && ad<fDiff){fDiff=ad; future=it;}
-      if (diff<0  && ad<pDiff){pDiff=ad; past=it;}
+function pickNowcastFromSeries(ts, dUTC, metaBase){
+  if (!(dUTC instanceof Date) || Number.isNaN(dUTC.getTime())) return { val:null, meta:'NC!date' };
+  if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
+
+  const targetUTC = dUTC.getTime();
+  let future=null,fDiff=Infinity,past=null,pDiff=Infinity;
+  for (const it of ts){
+    const t=new Date(it.time).getTime(), diff=t-targetUTC, ad=Math.abs(diff);
+    if (diff>=0 && ad<fDiff){fDiff=ad; future=it;}
+    if (diff<0  && ad<pDiff){pDiff=ad; past=it;}
+  }
+  let best=null;
+  if (future && fDiff<=60*60000) best=future;
+  else if (past && pDiff<=60*60000) best=past;
+  if (!best) return { val:null, meta:'NC!miss' };
+
+  const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
+  const pr   = best?.data?.instant?.details?.precipitation_rate;
+  const gust = best?.data?.instant?.details?.wind_speed_of_gust;
+  const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+
+  let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
+  const meta = metaBase || 'NC';
+  return { val:(typeof p==='number'?p:null), meta, gust:(typeof gust==='number'?gust:null), sym };
+}
+
+async function ensureNowcastBundle(lat, lon){
+  const key = nowcastKey(lat, lon);
+  const now = Date.now();
+  let entry = nowcastShared.get(key);
+  if (!entry){
+    entry = { timeseries:null, fetchedAt:0, stale:false, meta:'NC!init', promise:null, retryAt:0 };
+    nowcastShared.set(key, entry);
+  }
+
+  if (entry.promise){
+    return entry.promise;
+  }
+
+  if (entry.timeseries){
+    if (!entry.stale && (now - entry.fetchedAt) <= NOWCAST_CACHE_TTL){
+      return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
     }
-    let best=null;
-    if (future && fDiff<=60*60000) best=future;
-    else if (past && pDiff<=60*60000) best=past;
-    if (!best) return { val:null, meta:'NC!miss' };
+    if (entry.stale && now < entry.retryAt){
+      return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
+    }
+  }
 
-    const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
-    const pr   = best?.data?.instant?.details?.precipitation_rate;
-    const gust = best?.data?.instant?.details?.wind_speed_of_gust;
-    const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+  entry.promise = (async()=>{
+    try{
+      const res = await fetchNowcastTimeseries(lat, lon);
+      if (res.ok){
+        entry.timeseries = res.timeseries;
+        entry.fetchedAt = Date.now();
+        entry.stale = false;
+        entry.meta = 'NC';
+        entry.retryAt = 0;
+        return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
+      }
+      entry.meta = res.meta || 'NC!err';
+      entry.retryAt = Date.now() + NOWCAST_RETRY_COOLDOWN;
+      if (entry.timeseries){
+        entry.stale = true;
+        return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
+      }
+      entry.timeseries = null;
+      entry.stale = false;
+      return { ok:false, timeseries:null, meta:entry.meta, stale:false };
+    } finally {
+      entry.promise = null;
+    }
+  })();
 
-    let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
-    return { val:(typeof p==='number'?p:null), meta:'NC', gust:(typeof gust==='number'?gust:null), sym };
-  }catch{ return { val:null, meta:'NC!err' }; }
+  return entry.promise;
+}
+
+async function fetchNowcastForHour(lat, lon, dUTC){
+  const bundle = await ensureNowcastBundle(lat, lon);
+  if (!bundle || !bundle.ok){
+    return { val:null, meta: bundle?.meta || 'NC!err' };
+  }
+  const metaBase = bundle.meta || (bundle.stale ? 'NC~stale' : 'NC');
+  const picked = pickNowcastFromSeries(bundle.timeseries, dUTC, metaBase);
+  if (bundle.stale && picked.meta === 'NC'){
+    return { ...picked, meta:'NC~stale' };
+  }
+  return picked;
+}
+
+function nowcastMetaTag(meta){
+  if (typeof meta !== 'string') return 'NC';
+  if (meta.startsWith('NC~')) return 'NC~';
+  if (meta.startsWith('NC!')) return 'NC!';
+  return 'NC';
 }
 
 /* --------- Sunrise API: hämärä- ja nousu/laskuajat --------- */
@@ -869,10 +956,22 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
     const uniqDays = new Set(pickKeys.map(k=>{
       const dl=new Date(k); return dl.getFullYear()+'-'+String(dl.getMonth()+1).padStart(2,'0')+'-'+String(dl.getDate()).padStart(2,'0');
     }));
-    for (const key of uniqDays){
+    const sunriseEntries = Array.from(uniqDays, key => {
       const [Y,M,D] = key.split('-').map(Number);
       const dl = new Date(Y, M-1, D, 12, 0, 0); // keskipäivä
-      dayMap[key] = await fetchSunriseDay(dl, LAT, LON);
+      return { key, dl };
+    });
+    const sunriseResults = await Promise.all(sunriseEntries.map(async ({ key, dl }) => {
+      try{
+        const value = await fetchSunriseDay(dl, LAT, LON);
+        return { key, value };
+      }catch(e){
+        const msg = (e && e.message) ? e.message : String(e);
+        return { key, value: { __error: `Sunrise run fail: ${msg}` } };
+      }
+    }));
+    for (const { key, value } of sunriseResults){
+      dayMap[key] = value;
     }
 
     function twilightFor(dLocal){
@@ -897,6 +996,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const rObj = rainCell(rainVal0);
       const gust0 = (nc0 && typeof nc0.gust==='number') ? nc0.gust : null;
       const wObj = windCell(wind, gust0, wdir);
+      const rainTag0 = nowcastMetaTag(nc0?.meta);
 
       const baseDesc = (ncSymbolText(nc0?.sym) || ssText(ss) || '–').trim() || '–';
       const descWet = isWetDescriptor(baseDesc);
@@ -925,6 +1025,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }catch(e){
         if (DBG) twDbg = `[TW!err]`;
+      }
+      if (DBG && nc0?.meta && nc0.meta !== 'NC'){
+        descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
       }
 
       const { rainWhite, descWhite } = computeHighlightStates({
@@ -957,7 +1060,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         windWhite: wObj.white,
         prevKeyRef: prevDescRef,
         twDbg,
-        rainTag: 'NC',
+        rainTag: rainTag0,
         timeWhite,
         skipDitto: !!(contradiction && contradiction.flagged)
       });
@@ -972,7 +1075,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const rain = forecast.precipitation1h?.get(key);
       const ss   = forecast.SmartSymbol?.get(key);
 
-      let rainTag = 'NC';
+      let rainTag = nowcastMetaTag(ncPack?.meta);
       let rainVal = null;
       let rObj;
       if (ncPack && typeof ncPack.val==='number'){
@@ -1014,8 +1117,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
 
       if (DBG){
-        const tagText = (rainTag==='NC' && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
+        const isNcTag = rainTag.startsWith('NC');
+        const tagText = (isNcTag && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
         descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
+        if (ncPack?.meta && ncPack.meta !== 'NC'){
+          descExtra += ` <span class="soft" style="font-size:12px">[${ncPack.meta}]</span>`;
+        }
         if (twDbg && !twDbg.startsWith('[TW!err]')){
           descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
           twDbg = '';
