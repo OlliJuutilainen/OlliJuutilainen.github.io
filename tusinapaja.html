@@ -891,7 +891,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
       const wObj = windCell(wind, null, wdir);
 
-      const baseDesc = (ssText(ss) || '–').trim() || '–';
+      const baseDesc = (ncSymbolText(ncPack?.sym) || ssText(ss) || '–').trim() || '–';
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
