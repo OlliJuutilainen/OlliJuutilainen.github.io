@@ -914,7 +914,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         ? contradiction.html
         : initialDescHtml;
       pushRow(html, {
-        timeHtml: `<span class="timeSub">Nyt:</span>${fmtHM(new Date())}`,
+        timeHtml: fmtHM(new Date()),
         temp,
         descHtml: finalDescHtml,
         descMainHtml: descMain,
