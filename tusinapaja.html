@@ -488,6 +488,26 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
       text = `...auringon laskettua ${hhmm}`;
     }
   }
+  if (
+    !text &&
+    isRise &&
+    twilightMain &&
+    phaseMain === 'porvarillinen hämärä' &&
+    hourStart instanceof Date
+  ){
+    const eventMs = sunEvent.at.getTime();
+    const hourMs = hourStart.getTime();
+    const mins = Number(hhmm.slice(3,5));
+    if (
+      Number.isFinite(eventMs) &&
+      Number.isFinite(hourMs) &&
+      eventMs > hourMs &&
+      Number.isInteger(mins) &&
+      mins >= 30 && mins <= 59
+    ){
+      text = `...auringon nousuun ${hhmm} asti`;
+    }
+  }
   if (!text){
     if (isRise){
       const range = hourStart instanceof Date ? formatHourRange(hourStart) : null;
