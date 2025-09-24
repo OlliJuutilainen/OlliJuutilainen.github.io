@@ -441,7 +441,7 @@ function analyzeTwilightForHour(dLocal, dayObj){
 
 function formatSmallTag(text){
   if (!text) return '';
-  return `<span class="mini caps">${text.toUpperCase()}</span>`;
+  return `<span class="mini">${text.toLocaleLowerCase('fi-FI')}</span>`;
 }
 
 function isBlueTone(text){
