@@ -28,7 +28,6 @@
   }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
-  .timeSub{ display:flex; justify-content:flex-start; margin-bottom:2px; font-size:11px; letter-spacing:.4px; text-transform:none; text-align:left }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
@@ -52,7 +51,6 @@
   .descWhite{ color:#e8e8e8 }
   .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:#a65050; text-decoration-skip-ink:auto }
   .contradictionNote{ display:block; font-size:9px; font-style:italic; color:#888; letter-spacing:.2px; margin-top:2px }
-  .t{ text-align:left } .t.hh{ text-align:right }
   .row > div:nth-child(4){ text-align:center }
   .row > div:nth-child(5){ font-size:16px }
   .desc .ditto{ display:inline } .ditto{ color:inherit }
@@ -600,18 +598,7 @@ function formatSmallTag(entry){
   return `<span class="${cls}">${body}</span>`;
 }
 
-function formatHourRange(hourStart){
-  if (!(hourStart instanceof Date)) return null;
-  const start = fmtHM(hourStart);
-  const end = fmtHM(new Date(hourStart.getTime() + 60 * MIN));
-  if (!start || !end) return null;
-  const from = start.slice(0, 2);
-  const to = end.slice(0, 2);
-  if (!from || !to) return null;
-  return `${from}–${to}`;
-}
-
-function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
+function formatSunEventTag(sunEvent){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const hhmm = fmtHM(sunEvent.at);
   if (!hhmm) return null;
@@ -620,7 +607,7 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
   return { text: sentence, italic: true, prefix: false, preserveCase: true };
 }
 
-function buildDescriptionHtml({ main, tags, wrapTags, extra }){
+function buildDescriptionHtml({ main, tags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
   let extraHtml = extra || '';
@@ -799,8 +786,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let tintedMain = baseText;
   let twilightMain = false;
   const tags = [];
-  let wrapTags = false;
-  if (!tw) return { main: tintedMain, twilightMain, tags, wrapTags };
+  if (!tw) return { main: tintedMain, twilightMain, tags };
 
   const phaseMain = phaseLabel(tw.phase);
   tintedMain = maybeApplyGoldTint(baseText, tw);
@@ -833,7 +819,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   }
 
   if (tw.sunEvent){
-    const entry = formatSunEventTag(tw.sunEvent, { hourStart, twilightMain, phaseMain });
+    const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
   } else if (startTag){
     tags.push({ text: startTag, italic: true, prefix: true });
@@ -854,26 +840,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
   }
 
-  if (
-    twilightMain &&
-    tags.length &&
-    tw.phaseStart instanceof Date &&
-    hourStart instanceof Date
-  ){
-    const phaseStartMs = tw.phaseStart.getTime();
-    const hourStartMs = hourStart.getTime();
-    if (Number.isFinite(phaseStartMs) && Number.isFinite(hourStartMs)){
-      const halfHourEarlier = hourStartMs - 30 * MIN;
-      if (phaseStartMs < hourStartMs && phaseStartMs >= halfHourEarlier){
-        wrapTags = true;
-      }
-    }
-  }
-
   twilightState.lastPhase = tw.phase || null;
   twilightState.lastHourStart = hourStart || null;
 
-  return { main, twilightMain, tags, wrapTags, twilightLabel: phaseMain || null };
+  return { main, twilightMain, tags, twilightLabel: phaseMain || null };
 }
 
 function maybeApplyTwilightPrecipOverride({
@@ -1128,7 +1098,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const hourStart = new Date(key);
       let descMain = baseDesc || '–';
       let descTags = [];
-      let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
@@ -1140,7 +1109,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc || '–';
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        wrapTags = !!decorated.wrapTags;
         let thunderTag = null;
         if (decorated.twilightMain){
           thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
@@ -1197,7 +1165,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
       if (insertedThunderTag) descWhite = false;
       const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
       const contradiction = applyContradiction({
         descHtml: initialDescHtml,
         baseDesc,
@@ -1263,7 +1231,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
       let descMain = baseDesc;
       let descTags = [];
-      let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
@@ -1275,7 +1242,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc;
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        wrapTags = !!decorated.wrapTags;
         let thunderTag = null;
         if (decorated.twilightMain){
           thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
@@ -1340,7 +1306,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
       if (insertedThunderTag) descWhite = false;
       const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
       const contradiction = applyContradiction({
         descHtml: initialDescHtml,
         baseDesc,
@@ -1400,7 +1366,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const precipish = wet || descWet;
       let descMain = baseDesc;
       let descTags = [];
-      let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
       let insertedThunderTag = false;
@@ -1412,7 +1377,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         twilightFlags.hadTwilightMain = !!decorated.twilightMain;
         descMain = decorated.main || baseDesc;
         descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        wrapTags = !!decorated.wrapTags;
         let thunderTag = null;
         if (decorated.twilightMain){
           thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
@@ -1467,7 +1431,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       if (insertedThunderTag) descWhite = false;
       const timeWhite = (rainWhite || descWhite || wObj.white);
       const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
+      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
       const contradiction = applyContradiction({
         descHtml: initialDescHtml,
         baseDesc,
