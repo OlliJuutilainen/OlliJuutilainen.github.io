@@ -617,7 +617,7 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
   if (!hhmm) return null;
   const isRise = sunEvent.type === 'rise';
   const sentence = isRise ? `Aurinko nousee ${hhmm}` : `Aurinko laskee ${hhmm}`;
-  return { text: sentence, italic: false, prefix: false, preserveCase: true };
+  return { text: sentence, italic: true, prefix: false, preserveCase: true };
 }
 
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
