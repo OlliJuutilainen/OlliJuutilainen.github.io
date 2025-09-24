@@ -488,11 +488,13 @@ function formatSmallTag(entry){
   let text = '';
   let italic = false;
   let prefix = false;
+  let preserveCase = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
     prefix = !!entry.prefix;
+    preserveCase = !!entry.preserveCase;
   }
   if (!text) return '';
   if (prefix && text.startsWith('...')) prefix = false;
@@ -500,7 +502,8 @@ function formatSmallTag(entry){
   if (italic) classes.push('miniTwilight');
   if (prefix) classes.push('miniPrefixed');
   const cls = classes.join(' ');
-  return `<span class="${cls}">${text.toLocaleLowerCase('fi-FI')}</span>`;
+  const body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
+  return `<span class="${cls}">${body}</span>`;
 }
 
 function formatHourRange(hourStart){
@@ -519,50 +522,8 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
   const hhmm = fmtHM(sunEvent.at);
   if (!hhmm) return null;
   const isRise = sunEvent.type === 'rise';
-  let text = null;
-  if (
-    !isRise &&
-    twilightMain &&
-    phaseMain === 'porvarillinen hämärä' &&
-    hourStart instanceof Date
-  ){
-    const eventMs = sunEvent.at.getTime();
-    const hourMs = hourStart.getTime();
-    if (Number.isFinite(eventMs) && Number.isFinite(hourMs) && eventMs > hourMs){
-      text = `...auringon laskettua ${hhmm}`;
-    }
-  }
-  if (
-    !text &&
-    isRise &&
-    twilightMain &&
-    phaseMain === 'porvarillinen hämärä' &&
-    hourStart instanceof Date
-  ){
-    const eventMs = sunEvent.at.getTime();
-    const hourMs = hourStart.getTime();
-    const mins = Number(hhmm.slice(3,5));
-    if (
-      Number.isFinite(eventMs) &&
-      Number.isFinite(hourMs) &&
-      eventMs > hourMs &&
-      Number.isInteger(mins) &&
-      mins >= 30 && mins <= 59
-    ){
-      text = `...auringon nousuun ${hhmm} asti`;
-    }
-  }
-  if (!text){
-    if (isRise){
-      const range = hourStart instanceof Date ? formatHourRange(hourStart) : null;
-      text = range ? `auringonnousu ${hhmm} (klo ${range})` : `auringonnousu ${hhmm}`;
-    } else {
-      text = `auringonlasku ${hhmm}`;
-    }
-  }
-  const normalized = text.toLocaleLowerCase('fi-FI').trimStart();
-  const needsPrefix = !normalized.startsWith('...') && !normalized.startsWith('auringon');
-  return { text, italic: false, prefix: needsPrefix };
+  const sentence = isRise ? `Aurinko nousee ${hhmm}.` : `Aurinko laskee ${hhmm}.`;
+  return { text: sentence, italic: false, prefix: false, preserveCase: true };
 }
 
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
@@ -579,24 +540,36 @@ function buildDescriptionHtml({ main, tags, wrapTags, extra }){
   return `${safeMain}${tagHtml}${extra || ''}`;
 }
 
-function isBlueTone(text){
-  if (!text) return false;
-  const cleaned = text.toLowerCase().replace(/[^a-zäöå\s]/g,'').trim();
-  return cleaned==='sinistä' || cleaned==='sangen sinistä';
-}
-function isGoldenHour(tw, hourStart, baseText){
-  if (!tw || (!tw.rise && !tw.set)) return false;
-  if (!isBlueTone(baseText)) return false;
-  const start = hourStart.getTime();
-  if (tw.rise){
-    const diff = tw.rise.getTime() - start;
-    if (Math.abs(diff) <= 15*MIN) return true;
-  }
-  if (tw.set){
-    const diff = tw.set.getTime() - start;
-    if (diff >= 30*MIN && diff <= 70*MIN) return true;
-  }
+function shouldTintForGold(tw){
+  if (!tw || !tw.sunEvent || !(tw.sunEvent.at instanceof Date)) return false;
+  const mins = tw.sunEvent.at.getMinutes();
+  if (!Number.isInteger(mins)) return false;
+  if (tw.sunEvent.type === 'rise'){ return mins < 30; }
+  if (tw.sunEvent.type === 'set'){ return mins <= 30; }
   return false;
+}
+
+function replaceBlueWithGold(text){
+  if (!text || typeof text !== 'string') return text;
+  let out = text;
+  out = out.replace(/sangen\s+sinistä/gi, match => match[0] === match[0].toUpperCase() ? 'Sangen kultaista' : 'sangen kultaista');
+  out = out.replace(/sinistä/gi, match => match[0] === match[0].toUpperCase() ? 'Kultaista' : 'kultaista');
+  out = out.replace(/siniharmaa([a-zäöå]*)/gi, (match, tail) => {
+    const repl = `kultaharmaa${tail||''}`;
+    return match[0] === match[0].toUpperCase() ? repl.charAt(0).toUpperCase() + repl.slice(1) : repl;
+  });
+  out = out.replace(/sinihirmaa([a-zäöå]*)/gi, (match, tail) => {
+    const repl = `kultahirmaa${tail||''}`;
+    return match[0] === match[0].toUpperCase() ? repl.charAt(0).toUpperCase() + repl.slice(1) : repl;
+  });
+  return out;
+}
+
+function maybeApplyGoldTint(baseText, tw){
+  if (!baseText || typeof baseText !== 'string') return baseText;
+  if (!shouldTintForGold(tw)) return baseText;
+  if (!/sini/i.test(baseText)) return baseText;
+  return replaceBlueWithGold(baseText);
 }
 
 function isWetDescriptor(text){
@@ -651,19 +624,17 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
 const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
 
 function decorateDescription(baseText, tw, { precipish, hourStart }){
-  let main = baseText;
+  let tintedMain = baseText;
   let twilightMain = false;
   const tags = [];
-  let goldenHour = false;
   let wrapTags = false;
-  if (!tw) return { main, twilightMain, tags, goldenHour, wrapTags };
+  if (!tw) return { main: tintedMain, twilightMain, tags, wrapTags };
 
   const phaseMain = phaseLabel(tw.phase);
-  goldenHour = isGoldenHour(tw, hourStart, baseText);
+  tintedMain = maybeApplyGoldTint(baseText, tw);
+  let main = tintedMain;
 
-  if (goldenHour){
-    main = '<em>kultainen tunti</em>';
-  } else if (!precipish && phaseMain){
+  if (!precipish && phaseMain){
     main = `<span class="twilightMainText">${phaseMain}</span>`;
     twilightMain = true;
   }
@@ -704,7 +675,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const key = `${tw.withinChange.to}-${tw.withinChange.at.getTime()}`;
       twilightState.announced.add(key);
     }
-  } else if (!goldenHour && phaseMain){
+  } else if (phaseMain){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
   }
 
@@ -727,10 +698,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   twilightState.lastPhase = tw.phase || null;
   twilightState.lastHourStart = hourStart || null;
 
-  return { main, twilightMain, tags, goldenHour, wrapTags };
+  return { main, twilightMain, tags, wrapTags };
 }
 
-function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHour }){
+function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
   const rainWhite = (rainVal!=null && rainVal>0 && !(rowIndex>=3 && descWeak && rainVal<0.3));
   let descWhite = false;
   if (rowIndex < 3){
@@ -741,7 +712,6 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHo
     else if (rainVal!=null && rainVal>=0.3) descWhite = true;
   }
   if (rainVal === 0) descWhite = false;
-  if (goldenHour) descWhite = false;
   return { rainWhite, descWhite };
 }
 
@@ -905,12 +875,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descTags = [];
       let wrapTags = false;
       let descExtra = '';
-      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
-        goldenHour = decorated.goldenHour;
         descMain = decorated.main || baseDesc || '–';
         descTags = decorated.tags || [];
         wrapTags = !!decorated.wrapTags;
@@ -931,8 +899,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         rowIndex: 0,
         rainVal: rainVal0,
         descWet,
-        descWeak,
-        goldenHour
+        descWeak
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
@@ -996,12 +963,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descTags = [];
       let wrapTags = false;
       let descExtra = '';
-      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        goldenHour = decorated.goldenHour;
         descMain = decorated.main || baseDesc;
         descTags = decorated.tags || [];
         wrapTags = !!decorated.wrapTags;
@@ -1029,8 +994,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         rowIndex: idx,
         rainVal,
         descWet,
-        descWeak,
-        goldenHour
+        descWeak
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
@@ -1088,12 +1052,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let descTags = [];
       let wrapTags = false;
       let descExtra = '';
-      let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        goldenHour = decorated.goldenHour;
         descMain = decorated.main || baseDesc;
         descTags = decorated.tags || [];
         wrapTags = !!decorated.wrapTags;
@@ -1112,8 +1074,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         rowIndex: i,
         rainVal,
         descWet,
-        descWeak,
-        goldenHour
+        descWeak
       });
       const wObj = windCell(wind, null, wdir);
       const timeWhite = rainWhite || descWhite || wObj.white;
