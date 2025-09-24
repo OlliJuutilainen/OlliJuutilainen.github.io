@@ -25,12 +25,12 @@
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
-    display:grid; grid-template-columns:54px 56px 1fr 70px 76px; align-items:end; justify-items:center;
+    display:grid; grid-template-columns:54px 46px 1fr 70px 76px; align-items:end; justify-items:center;
   }
   .hdr div:nth-child(-n+3){ justify-self:start; text-align:left }
   .hdr div:nth-child(4), .hdr div:nth-child(5){ text-align:center }
   .row{
-    display:grid; grid-template-columns:54px 56px 1fr 70px 76px;
+    display:grid; grid-template-columns:54px 46px 1fr 70px 76px;
     gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; align-items:center;
   }
   .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; text-align:right }
@@ -798,7 +798,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   htmlArr.push(
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
-      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?temp.toFixed(1)+'°C':'–'}</div>`+
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
       `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
