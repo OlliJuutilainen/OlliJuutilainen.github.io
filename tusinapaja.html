@@ -449,6 +449,16 @@ function formatSmallTag(text){
   return `<span class="mini">${text.toLocaleLowerCase('fi-FI')}</span>`;
 }
 
+function buildDescriptionHtml({ main, tags, wrapTags, extra }){
+  const safeMain = main || '–';
+  const tagList = Array.isArray(tags) ? tags : [];
+  const tagBody = tagList.map(formatSmallTag).join('<br>');
+  const tagHtml = tagList.length
+    ? `<br>${wrapTags ? '(' : ''}${tagBody}${wrapTags ? ')' : ''}`
+    : '';
+  return `${safeMain}${tagHtml}${extra || ''}`;
+}
+
 function isBlueTone(text){
   if (!text) return false;
   const cleaned = text.toLowerCase().replace(/[^a-zäöå\s]/g,'').trim();
@@ -640,13 +650,34 @@ function windCell(mean, gust, dirDeg){
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
+<<<<<<< ours
 function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false, skipDitto=false}){
   const plain = descHtml.replace(/<[^>]*>/g,'').trim();
   let displayDesc = descHtml;
   if (!skipDitto && plain && prevKeyRef.val && normalizedDittoKey(plain) === normalizedDittoKey(prevKeyRef.val)){
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>';
+=======
+function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false}){
+  const mainHtml = descMainHtml || '–';
+  const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
+  const normalized = plain ? normalizedDittoKey(plain) : '';
+  let displayDesc = descHtml || mainHtml;
+  if (normalized && prevKeyRef.val && normalized === prevKeyRef.val){
+    let tailHtml = '';
+    if (typeof descHtml === 'string' && descHtml.length){
+      if (descHtml.startsWith(mainHtml)){
+        tailHtml = descHtml.slice(mainHtml.length);
+      } else {
+        const idx = descHtml.indexOf(mainHtml);
+        if (idx >= 0){
+          tailHtml = descHtml.slice(idx + mainHtml.length);
+        }
+      }
+    }
+    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + tailHtml;
+>>>>>>> theirs
   } else {
-    prevKeyRef.val = plain || null;
+    prevKeyRef.val = normalized || null;
   }
   const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
@@ -750,19 +781,19 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
       const hourStart = new Date(key);
-      let descHtml = baseDesc || '–';
+      let descMain = baseDesc || '–';
+      let descTags = [];
+      let wrapTags = false;
+      let descExtra = '';
       let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
         goldenHour = decorated.goldenHour;
-        const mainHtml = decorated.main || baseDesc || '–';
-        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
-        const tagHtml = decorated.tags.length
-          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
-          : '';
-        descHtml = `${mainHtml}${tagHtml}`;
+        descMain = decorated.main || baseDesc || '–';
+        descTags = decorated.tags || [];
+        wrapTags = !!decorated.wrapTags;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -793,10 +824,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         goldenHour
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
+      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       pushRow(html, {
         timeHtml: `<span class="timeSub">nyt,</span>${fmtHM(new Date())}`,
         temp,
         descHtml,
+        descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
         rainWhite,
@@ -838,19 +871,19 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
-      let descHtml = baseDesc;
+      let descMain = baseDesc;
+      let descTags = [];
+      let wrapTags = false;
+      let descExtra = '';
       let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         goldenHour = decorated.goldenHour;
-        const mainHtml = decorated.main || baseDesc;
-        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
-        const tagHtml = decorated.tags.length
-          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
-          : '';
-        descHtml = `${mainHtml}${tagHtml}`;
+        descMain = decorated.main || baseDesc;
+        descTags = decorated.tags || [];
+        wrapTags = !!decorated.wrapTags;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -864,9 +897,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
 
       if (DBG){
         const tagText = (rainTag==='NC' && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
-        descHtml += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
+        descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
         if (twDbg && !twDbg.startsWith('[TW!err]')){
-          descHtml += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
+          descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
           twDbg = '';
         }
       }
@@ -888,10 +921,12 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         goldenHour
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
+      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       pushRow(html, {
         timeHtml: fmtHM(dUtc),
         temp,
         descHtml,
+        descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
         rainWhite,
@@ -927,19 +962,19 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = wet || descWet;
-      let descHtml = baseDesc;
+      let descMain = baseDesc;
+      let descTags = [];
+      let wrapTags = false;
+      let descExtra = '';
       let goldenHour = false;
       let twDbg = '';
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         goldenHour = decorated.goldenHour;
-        const mainHtml = decorated.main || baseDesc;
-        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
-        const tagHtml = decorated.tags.length
-          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
-          : '';
-        descHtml = `${mainHtml}${tagHtml}`;
+        descMain = decorated.main || baseDesc;
+        descTags = decorated.tags || [];
+        wrapTags = !!decorated.wrapTags;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -970,11 +1005,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       const wObj = windCell(wind, null, wdir);
       const timeWhite = rainWhite || descWhite || wObj.white;
       const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
+      const descHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
 
       pushRow(html, {
         timeHtml,
         temp,
         descHtml,
+        descMainHtml: descMain,
         descWhite,
         rainObj: rObj,
         rainWhite,
