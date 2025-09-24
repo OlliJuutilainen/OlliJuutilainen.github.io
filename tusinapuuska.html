@@ -382,9 +382,59 @@ function analyzeTwilightForHour(dLocal, dayObj){
   return { phase: p0, withinChange, sunEvent, dbg: null, rise, set };
 }
 
-function formatSmallTag(text){
+function formatSmallTag(entry){
+  if (!entry) return '';
+  let text = '';
+  let italic = false;
+  if (typeof entry === 'string'){ text = entry; }
+  else if (typeof entry === 'object' && entry){
+    text = entry.text || '';
+    italic = !!entry.italic;
+  }
   if (!text) return '';
-  return `<span class="mini">${text.toLocaleLowerCase('fi-FI')}</span>`;
+  let body = text.toLocaleLowerCase('fi-FI');
+  if (italic) body = `<em>${body}</em>`;
+  return `<span class="mini">${body}</span>`;
+}
+
+function formatHourRange(hourStart){
+  if (!(hourStart instanceof Date)) return null;
+  const start = fmtHM(hourStart);
+  const end = fmtHM(new Date(hourStart.getTime() + 60 * MIN));
+  if (!start || !end) return null;
+  const from = start.slice(0, 2);
+  const to = end.slice(0, 2);
+  if (!from || !to) return null;
+  return `${from}–${to}`;
+}
+
+function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
+  if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
+  const hhmm = fmtHM(sunEvent.at);
+  if (!hhmm) return null;
+  const isRise = sunEvent.type === 'rise';
+  let text = null;
+  if (
+    !isRise &&
+    twilightMain &&
+    phaseMain === 'porvarillinen hämärä' &&
+    hourStart instanceof Date
+  ){
+    const eventMs = sunEvent.at.getTime();
+    const hourMs = hourStart.getTime();
+    if (Number.isFinite(eventMs) && Number.isFinite(hourMs) && eventMs > hourMs){
+      text = `...auringon laskettua ${hhmm}`;
+    }
+  }
+  if (!text){
+    if (isRise){
+      const range = hourStart instanceof Date ? formatHourRange(hourStart) : null;
+      text = range ? `auringonnousu ${hhmm} (klo ${range})` : `auringonnousu ${hhmm}`;
+    } else {
+      text = `auringonlasku ${hhmm}`;
+    }
+  }
+  return { text, italic: false };
 }
 
 function isBlueTone(text){
@@ -442,31 +492,13 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   }
 
   if (tw.sunEvent){
-    const hhmm = fmtHM(tw.sunEvent.at);
-    const isRise = tw.sunEvent.type === 'rise';
-    let tagText = null;
-    if (
-      !isRise &&
-      twilightMain &&
-      phaseMain === 'porvarillinen hämärä' &&
-      tw.sunEvent.at instanceof Date &&
-      hourStart instanceof Date
-    ){
-      const eventMs = tw.sunEvent.at.getTime();
-      const hourMs = hourStart.getTime();
-      if (Number.isFinite(eventMs) && Number.isFinite(hourMs) && eventMs > hourMs){
-        tagText = `...auringon laskettua ${hhmm}`;
-      }
-    }
-    if (!tagText){
-      tagText = isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`;
-    }
-    tags.push(tagText);
+    const entry = formatSunEventTag(tw.sunEvent, { hourStart, twilightMain, phaseMain });
+    if (entry) tags.push(entry);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
-    if (label) tags.push(`${label} ${fmtHM(tw.withinChange.at)}`);
+    if (label) tags.push({ text: `${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
   } else if (!goldenHour && phaseMain){
-    if (precipish || !twilightMain) tags.push(phaseMain);
+    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
   }
 
   return { main, twilightMain, tags, goldenHour };
