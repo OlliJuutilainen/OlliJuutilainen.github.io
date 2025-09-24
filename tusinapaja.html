@@ -559,7 +559,8 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
       text = `auringonlasku ${hhmm}`;
     }
   }
-  const needsPrefix = !text.startsWith('...');
+  const normalized = text.toLocaleLowerCase('fi-FI').trimStart();
+  const needsPrefix = !normalized.startsWith('...') && !normalized.startsWith('auringon');
   return { text, italic: false, prefix: needsPrefix };
 }
 
