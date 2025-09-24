@@ -13,6 +13,7 @@
   .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
     text-transform:uppercase; margin:0 0 4px 0 }
   .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniTwilight{ font-style:italic }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .timeSub{ display:block; margin-bottom:2px; font-size:11px; letter-spacing:.4px; text-transform:none }
@@ -444,9 +445,18 @@ function analyzeTwilightForHour(dLocal, dayObj){
   };
 }
 
-function formatSmallTag(text){
+function formatSmallTag(entry){
+  if (!entry) return '';
+  let text = '';
+  let italic = false;
+  if (typeof entry === 'string'){ text = entry; }
+  else if (typeof entry === 'object' && entry){
+    text = entry.text || '';
+    italic = !!entry.italic;
+  }
   if (!text) return '';
-  return `<span class="mini">${text.toLocaleLowerCase('fi-FI')}</span>`;
+  const cls = italic ? 'mini miniTwilight' : 'mini';
+  return `<span class="${cls}">${text.toLocaleLowerCase('fi-FI')}</span>`;
 }
 
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
@@ -454,9 +464,9 @@ function buildDescriptionHtml({ main, tags, wrapTags, extra }){
   const tagList = Array.isArray(tags) ? tags : [];
   const formattedTags = tagList.map(formatSmallTag);
   if (wrapTags && formattedTags.length){
-    formattedTags[0] = formattedTags[0].replace('<span class="mini">', '<span class="mini">(');
+    formattedTags[0] = formattedTags[0].replace(/(<span\b[^>]*>)/, '$1(');
     const lastIndex = formattedTags.length - 1;
-    formattedTags[lastIndex] = formattedTags[lastIndex].replace('</span>', ')</span>');
+    formattedTags[lastIndex] = formattedTags[lastIndex].replace(/<\/span>$/, ')</span>');
   }
   const tagBody = formattedTags.join('<br>');
   const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
@@ -575,13 +585,13 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     const isRise = tw.sunEvent.type === 'rise';
     tags.push(isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`);
   } else if (startTag){
-    tags.push(startTag);
+    tags.push({ text: startTag, italic: true });
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
-    if (label) tags.push(`${label} ${fmtHM(tw.withinChange.at)}`);
+    if (label) tags.push({ text: `${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
   } else if (!goldenHour && phaseMain){
-    if (precipish || !twilightMain) tags.push(phaseMain);
+    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
   }
 
   if (
