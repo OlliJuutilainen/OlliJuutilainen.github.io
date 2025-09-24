@@ -374,7 +374,7 @@ function phaseLabel(phase){
 const TWILIGHT_PHASES = new Set(['civil','nautical','astronomical','night']);
 function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
-  if (toPhase==='astronomical') return 'vaihtuu astronomiseksi hämäräksi';
+  if (toPhase==='astronomical') return 'astronominen hämärä';
   if (toPhase==='night') return '-> säkkipimeäksi';
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
