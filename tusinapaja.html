@@ -581,16 +581,18 @@ function formatSmallTag(entry){
   let italic = false;
   let prefix = false;
   let preserveCase = false;
+  let white = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
     prefix = !!entry.prefix;
     preserveCase = !!entry.preserveCase;
+    white = !!entry.white;
   }
   if (!text) return '';
   if (prefix && text.startsWith('...')) prefix = false;
-  const classes = ['mini'];
+  const classes = [white ? 'miniW' : 'mini'];
   if (italic) classes.push('miniTwilight');
   if (prefix) classes.push('miniPrefixed');
   const cls = classes.join(' ');
@@ -697,6 +699,52 @@ function isDryDescriptor(text){
   if (!text) return false;
   const low = text.toLowerCase().trim();
   return DRY_DESCRIPTOR.has(low);
+}
+
+function selectDescription({ nowcastText, harmonieText, expectedNowcast=false }){
+  const now = (typeof nowcastText === 'string') ? nowcastText.trim() : '';
+  if (now){
+    return { text: now, source: 'nowcast', fallbackFromNowcast: false };
+  }
+  const hrm = (typeof harmonieText === 'string') ? harmonieText.trim() : '';
+  if (hrm){
+    return { text: hrm, source: 'harmonie', fallbackFromNowcast: !!expectedNowcast };
+  }
+  return { text: '–', source: 'none', fallbackFromNowcast: false };
+}
+
+function isThunderDescriptor(text){
+  if (!text) return false;
+  const low = text.toLowerCase();
+  return ['ukkos', 'seppo', 'välisuihkut', 'lumiukko'].some(word => low.includes(word));
+}
+
+function isHailDescriptor(text){
+  if (!text) return false;
+  return text.toLowerCase().includes('rake');
+}
+
+function isThunderOrHailDescriptor(text){
+  return isThunderDescriptor(text) || isHailDescriptor(text);
+}
+
+function buildThunderTag({ baseText, source }){
+  if (!isThunderOrHailDescriptor(baseText)) return null;
+  let text = baseText.trim();
+  if (!text || text === '–') return null;
+  const fromHarmonie = (source === 'harmonie');
+  let italic = false;
+  if (fromHarmonie){
+    italic = true;
+    text = text.replace(/\.+$/,'');
+    if (!text.endsWith('?')) text += '?';
+  }
+  return {
+    text,
+    italic,
+    preserveCase: true,
+    white: true
+  };
 }
 
 function wrapContradiction(descHtml){
@@ -998,7 +1046,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const wObj = windCell(wind, gust0, wdir);
       const rainTag0 = nowcastMetaTag(nc0?.meta);
 
-      const baseDesc = (ncSymbolText(nc0?.sym) || ssText(ss) || '–').trim() || '–';
+      const descSelection0 = selectDescription({
+        nowcastText: ncSymbolText(nc0?.sym),
+        harmonieText: ssText(ss),
+        expectedNowcast: true
+      });
+      const baseDesc = descSelection0.text || '–';
+      const descSource = descSelection0.source;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
@@ -1008,12 +1062,20 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
+      let insertedThunderTag = false;
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
         descMain = decorated.main || baseDesc || '–';
-        descTags = decorated.tags || [];
+        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        if (decorated.twilightMain){
+          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+          if (thunderTag){
+            descTags.unshift(thunderTag);
+            insertedThunderTag = true;
+          }
+        }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -1030,12 +1092,14 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
       }
 
-      const { rainWhite, descWhite } = computeHighlightStates({
+      const highlight0 = computeHighlightStates({
         rowIndex: 0,
         rainVal: rainVal0,
         descWet,
         descWeak
       });
+      let { rainWhite, descWhite } = highlight0;
+      if (insertedThunderTag) descWhite = false;
       const timeWhite = rainWhite || descWhite || wObj.white;
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       const contradiction = applyContradiction({
@@ -1090,7 +1154,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       }
       const wObj = windCell(wind, null, wdir);
 
-      const baseDesc = (ncSymbolText(ncPack?.sym) || ssText(ss) || '–').trim() || '–';
+      const descSelection = selectDescription({
+        nowcastText: ncSymbolText(ncPack?.sym),
+        harmonieText: ssText(ss),
+        expectedNowcast: idx <= 2
+      });
+      const baseDesc = descSelection.text || '–';
+      const descSource = descSelection.source;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
@@ -1099,12 +1169,20 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
+      let insertedThunderTag = false;
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         descMain = decorated.main || baseDesc;
-        descTags = decorated.tags || [];
+        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        if (decorated.twilightMain){
+          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+          if (thunderTag){
+            descTags.unshift(thunderTag);
+            insertedThunderTag = true;
+          }
+        }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -1129,12 +1207,14 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }
 
-      const { rainWhite, descWhite } = computeHighlightStates({
+      const highlightF = computeHighlightStates({
         rowIndex: idx,
         rainVal,
         descWet,
         descWeak
       });
+      let { rainWhite, descWhite } = highlightF;
+      if (insertedThunderTag) descWhite = false;
       const timeWhite = rainWhite || descWhite || wObj.white;
       const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, wrapTags, extra: descExtra });
       const contradiction = applyContradiction({
@@ -1183,7 +1263,13 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       const useGreyRain = smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay));
       const rObj = rainCell(rainVal, {markGrey:useGreyRain});
 
-      const baseDesc = (ssText(ss) || '–').trim() || '–';
+      const descSelectionHrm = selectDescription({
+        nowcastText: null,
+        harmonieText: ssText(ss),
+        expectedNowcast: false
+      });
+      const baseDesc = descSelectionHrm.text || '–';
+      const descSource = descSelectionHrm.source;
       const descWet = isWetDescriptor(baseDesc);
       const descWeak = isWeakWetDescriptor(baseDesc);
       const precipish = wet || descWet;
@@ -1192,12 +1278,20 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
       let wrapTags = false;
       let descExtra = '';
       let twDbg = '';
+      let insertedThunderTag = false;
       try{
         const tw = twilightFor(new Date(key));
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         descMain = decorated.main || baseDesc;
-        descTags = decorated.tags || [];
+        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
         wrapTags = !!decorated.wrapTags;
+        if (decorated.twilightMain){
+          const thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+          if (thunderTag){
+            descTags.unshift(thunderTag);
+            insertedThunderTag = true;
+          }
+        }
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
           else {
@@ -1209,12 +1303,14 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         if (DBG) twDbg = '[TW!err]';
       }
 
-      const { rainWhite, descWhite } = computeHighlightStates({
+      const highlightHrm = computeHighlightStates({
         rowIndex: i,
         rainVal,
         descWet,
         descWeak
       });
+      let { rainWhite, descWhite } = highlightHrm;
+      if (insertedThunderTag) descWhite = false;
       const wObj = windCell(wind, null, wdir);
       const timeWhite = rainWhite || descWhite || wObj.white;
       const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
