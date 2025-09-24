@@ -486,7 +486,8 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let twilightMain = false;
   const tags = [];
   let goldenHour = false;
-  if (!tw) return { main, twilightMain, tags, goldenHour };
+  let wrapTags = false;
+  if (!tw) return { main, twilightMain, tags, goldenHour, wrapTags };
 
   const phaseMain = phaseLabel(tw.phase);
   goldenHour = isGoldenHour(tw, hourStart, baseText);
@@ -530,10 +531,26 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     if (precipish || !twilightMain) tags.push(phaseMain);
   }
 
+  if (
+    twilightMain &&
+    tags.length &&
+    tw.phaseStart instanceof Date &&
+    hourStart instanceof Date
+  ){
+    const phaseStartMs = tw.phaseStart.getTime();
+    const hourStartMs = hourStart.getTime();
+    if (Number.isFinite(phaseStartMs) && Number.isFinite(hourStartMs)){
+      const halfHourEarlier = hourStartMs - 30 * MIN;
+      if (phaseStartMs < hourStartMs && phaseStartMs >= halfHourEarlier){
+        wrapTags = true;
+      }
+    }
+  }
+
   twilightState.lastPhase = tw.phase || null;
   twilightState.lastHourStart = hourStart || null;
 
-  return { main, twilightMain, tags, goldenHour };
+  return { main, twilightMain, tags, goldenHour, wrapTags };
 }
 
 function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, goldenHour }){
@@ -702,7 +719,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
         goldenHour = decorated.goldenHour;
         const mainHtml = decorated.main || baseDesc || '–';
-        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
+        const tagHtml = decorated.tags.length
+          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
+          : '';
         descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -777,7 +797,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         goldenHour = decorated.goldenHour;
         const mainHtml = decorated.main || baseDesc;
-        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
+        const tagHtml = decorated.tags.length
+          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
+          : '';
         descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -853,7 +876,10 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
         goldenHour = decorated.goldenHour;
         const mainHtml = decorated.main || baseDesc;
-        const tagHtml = decorated.tags.length ? '<br>' + decorated.tags.map(formatSmallTag).join('<br>') : '';
+        const tagBody = decorated.tags.map(formatSmallTag).join('<br>');
+        const tagHtml = decorated.tags.length
+          ? `<br>${decorated.wrapTags ? '(' : ''}${tagBody}${decorated.wrapTags ? ')' : ''}`
+          : '';
         descHtml = `${mainHtml}${tagHtml}`;
         if (DBG){
           if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
