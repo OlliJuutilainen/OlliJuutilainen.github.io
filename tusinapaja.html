@@ -529,10 +529,17 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
 function buildDescriptionHtml({ main, tags, wrapTags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
+  let extraHtml = extra || '';
+  if (typeof safeMain === 'string'){
+    const normalizedMain = safeMain.replace(/<[^>]*>/g, '').trim().toUpperCase();
+    if (normalizedMain === 'MIST!' && !/siis sumua\. siis sumupainintaa\./i.test(extraHtml)){
+      extraHtml += ` <span class="mini">siis sumua. siis sumupainintaa.</span>`;
+    }
+  }
   const formattedTags = tagList.map(formatSmallTag);
   const tagBody = formattedTags.join('<br>');
   const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
-  return `${safeMain}${tagHtml}${extra || ''}`;
+  return `${safeMain}${tagHtml}${extraHtml}`;
 }
 
 function shouldTintForGold(tw){
