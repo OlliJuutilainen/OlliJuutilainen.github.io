@@ -687,7 +687,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
         rObj = rainCell(hrmVal, {markGrey});
         rainTag = 'HRM';
       }
-      const wObj = windCell(wind, null, wdir);
+      const wObj = windCell(wind, ncPack?.gust ?? null, wdir);
 
       const baseDesc = (ssText(ss) || '–').trim() || '–';
       const descWet = isWetDescriptor(baseDesc);
