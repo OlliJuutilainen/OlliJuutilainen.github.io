@@ -14,6 +14,12 @@
     text-transform:uppercase; margin:0 0 4px 0 }
   .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniTwilight{ font-style:italic }
+  .twilightMainText{
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    font-style:normal;
+  }
   .miniPrefixed::before{
     content:'';
     display:inline-block;
@@ -656,7 +662,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (goldenHour){
     main = '<em>kultainen tunti</em>';
   } else if (!precipish && phaseMain){
-    main = `<em>${phaseMain}</em>`;
+    main = `<span class="twilightMainText">${phaseMain}</span>`;
     twilightMain = true;
   }
 
