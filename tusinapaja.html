@@ -530,11 +530,6 @@ function buildDescriptionHtml({ main, tags, wrapTags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
   const formattedTags = tagList.map(formatSmallTag);
-  if (wrapTags && formattedTags.length){
-    formattedTags[0] = formattedTags[0].replace(/(<span\b[^>]*>)/, '$1(');
-    const lastIndex = formattedTags.length - 1;
-    formattedTags[lastIndex] = formattedTags[lastIndex].replace(/<\/span>$/, ')</span>');
-  }
   const tagBody = formattedTags.join('<br>');
   const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
   return `${safeMain}${tagHtml}${extra || ''}`;
