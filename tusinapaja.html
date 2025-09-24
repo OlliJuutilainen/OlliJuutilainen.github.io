@@ -15,7 +15,7 @@
   .mini{ color:#7a858e; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
-  .timeSub{ display:block; margin-top:2px; font-size:11px; letter-spacing:.4px; text-transform:uppercase }
+  .timeSub{ display:block; margin-bottom:2px; font-size:11px; letter-spacing:.4px; text-transform:none }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
@@ -726,7 +726,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descWhite, rainObj, rainWhi
       });
       const timeWhite = rainWhite || descWhite || wObj.white;
       pushRow(html, {
-        timeHtml: `${fmtHM(new Date())}<span class="timeSub">NYT</span>`,
+        timeHtml: `<span class="timeSub">nyt,</span>${fmtHM(new Date())}`,
         temp,
         descHtml,
         descWhite,
