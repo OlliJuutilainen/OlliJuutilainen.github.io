@@ -1,5 +1,8 @@
 <!doctype html>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>TUSINASÄÄ 12</title>
 <style>
@@ -58,6 +61,8 @@
   .windDir{ display:block; margin-top:2px; font-size:11px }
   .err{ color:#ff6b6b; white-space:pre-wrap; font-size:14px; margin-top:8px }
 </style>
+</head>
+<body>
 
 <h1 id="pageTitle" class="pageTitle" style="display:none"></h1>
 
@@ -1233,7 +1238,7 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         ? contradiction.html
         : initialDescHtml;
       pushRow(html, {
-        timeHtml: fmtHM(new Date()),
+        timeHtml: fmtHM(new Date(key)),
         temp,
         descHtml: finalDescHtml,
         descMainHtml: descMain,
@@ -1523,3 +1528,6 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   }
 })();
 </script>
+
+</body>
+</html>
