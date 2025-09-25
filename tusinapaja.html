@@ -786,6 +786,17 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
 
 const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
 
+function allowTwilightAsMain(tw){
+  if (!tw || !tw.sunEvent) return true;
+  const at = tw.sunEvent.at;
+  if (!(at instanceof Date)) return true;
+  const minutes = at.getMinutes();
+  if (!Number.isFinite(minutes)) return true;
+  if (tw.sunEvent.type === 'rise') return minutes >= 30;
+  if (tw.sunEvent.type === 'set') return minutes < 30;
+  return true;
+}
+
 function decorateDescription(baseText, tw, { precipish, hourStart }){
   let tintedMain = baseText;
   let twilightMain = false;
@@ -801,7 +812,9 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   const mainIsNautical = !precipish && phaseMain === 'nauttinen hämärä';
 
-  if (!precipish && phaseMain){
+  const twilightMainAllowed = allowTwilightAsMain(tw);
+
+  if (!precipish && phaseMain && twilightMainAllowed){
     main = `<span class="twilightMainText">${phaseMain}</span>`;
     twilightMain = true;
   }
