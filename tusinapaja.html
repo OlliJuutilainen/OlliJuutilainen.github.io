@@ -799,6 +799,8 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   }
   let main = tintedMain;
 
+  const mainIsNautical = !precipish && phaseMain === 'nauttinen hämärä';
+
   if (!precipish && phaseMain){
     main = `<span class="twilightMainText">${phaseMain}</span>`;
     twilightMain = true;
@@ -846,8 +848,11 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
           if (toPhase === 'nautical' && isTwilightPhase(fromPhase)){
             text = `nauttinen ${hhmm}`;
             dittoEllipsis = true;
+          } else if (toPhase === 'civil' && fromPhase === 'nautical' && mainIsNautical){
+            text = `porvarillinen ${hhmm}`;
+            dittoEllipsis = true;
           } else if (toPhase === 'astronomical' && isTwilightPhase(fromPhase)){
-            text = `astronominen hämärä ${hhmm}`;
+            text = `${mainIsNautical ? 'astronominen' : 'astronominen hämärä'} ${hhmm}`;
             dittoEllipsis = true;
           }
         }
