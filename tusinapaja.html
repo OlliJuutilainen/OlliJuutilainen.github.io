@@ -556,7 +556,8 @@ function analyzeTwilightForHour(dLocal, dayObj){
     if (at){
       const toPhase = where(new Date(at.getTime()+1));
       if (toPhase){
-        withinChange = { to: toPhase, at };
+        const fromPhase = where(new Date(at.getTime()-1));
+        withinChange = { to: toPhase, at, from: fromPhase || null };
       }
     }
   }
@@ -595,7 +596,10 @@ function formatSmallTag(entry){
   if (prefix) classes.push('miniPrefixed');
   const cls = classes.join(' ');
   const body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
-  return `<span class="${cls}">${body}</span>`;
+  const attrs = [];
+  if (entry && entry.dittoEllipsis) attrs.push('data-ditto-ellipsis="1"');
+  const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
+  return `<span class="${cls}"${attrStr}>${body}</span>`;
 }
 
 function formatSunEventTag(sunEvent){
@@ -826,7 +830,34 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
-    if (label) tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
+    const at = tw.withinChange.at;
+    const hhmm = at instanceof Date ? fmtHM(at) : null;
+    if (label && hhmm){
+      const toPhase = tw.withinChange.to;
+      const minutes = at.getMinutes();
+      const fromPhase = tw.withinChange.from || tw.phase;
+      const isTwilightPhase = phase => phase === 'civil' || phase === 'nautical' || phase === 'astronomical';
+      let text = `...${label} ${hhmm}`;
+      let dittoEllipsis = false;
+      if (!precipish){
+        if (toPhase === 'astronomical' && fromPhase === 'night'){
+          text = `astronominen hämärä ${hhmm}`;
+        } else if (typeof minutes === 'number' && minutes >= 30){
+          if (toPhase === 'nautical' && isTwilightPhase(fromPhase)){
+            text = `nauttinen ${hhmm}`;
+            dittoEllipsis = true;
+          } else if (toPhase === 'astronomical' && isTwilightPhase(fromPhase)){
+            text = `astronominen hämärä ${hhmm}`;
+            dittoEllipsis = true;
+          }
+        }
+      }
+      const entry = { text, italic: true };
+      if (dittoEllipsis) entry.dittoEllipsis = true;
+      tags.push(entry);
+    } else if (label){
+      tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
+    }
     if (
       label &&
       tw.withinChange?.at instanceof Date &&
@@ -970,7 +1001,14 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }
     }
-    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + tailHtml;
+    if (tailHtml){
+      tailHtml = tailHtml.replace(/(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?!\.\.\.)([^<]*)/gi, (match, open, ws, text) => {
+        const trimmed = text || '';
+        if (trimmed.startsWith('...')) return open + ws + trimmed;
+        return open + ws + '...' + trimmed;
+      });
+    }
+    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     prevKeyRef.val = normalized || null;
   }
