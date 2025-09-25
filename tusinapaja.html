@@ -832,7 +832,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     ){
       const prevHourStart = twilightState.lastHourStart;
       if (prevHourStart && phaseStart >= prevHourStart){
-        startTag = `alkanut ${fmtHM(phaseStart)}`;
+        startTag = `(alkoi ${fmtHM(phaseStart)})`;
       }
     }
   }
