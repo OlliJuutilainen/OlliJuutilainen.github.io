@@ -290,6 +290,27 @@ const extractSeries = x => {
   return o;
 };
 
+async function fetchForecast(lat, lon){
+  const url = buildWfsForecast(lat, lon);
+  const res = await fetch(url, { cache: 'no-store' });
+  const txt = await res.text();
+  if (!res.ok){
+    throw new Error(`FMI ennuste HTTP ${res.status}\n${txt.slice(0,400)}`);
+  }
+  const forecastSeries = extractSeries(parseXML(txt));
+  const keys = Array.from(forecastSeries.temperature?.keys?.() || []).sort();
+  const hours = keys.map(key => ({
+    key,
+    time: new Date(key),
+    temperature: forecastSeries.temperature?.get(key) ?? null,
+    precipitation: forecastSeries.precipitation1h?.get(key) ?? null,
+    windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
+    windDirection: forecastSeries.winddirection?.get(key) ?? null,
+    smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null
+  }));
+  return { hours, series: forecastSeries };
+}
+
 /* --------- MET Nowcast – sade + puuska + symbol_code --------- */
 const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
 const NOWCAST_RETRY_COOLDOWN = 60 * 1000;
@@ -400,6 +421,22 @@ async function fetchNowcastForHour(lat, lon, dUTC){
     return { ...picked, meta:'NC~stale' };
   }
   return picked;
+}
+
+async function fetchNowcasts(lat, lon, targetHours){
+  if (!Array.isArray(targetHours) || !targetHours.length){
+    return new Map();
+  }
+  const results = await Promise.all(targetHours.map(h => {
+    const date = h?.time instanceof Date ? h.time : new Date(h?.key || h);
+    return fetchNowcastForHour(lat, lon, date).catch(() => ({ val:null, meta:'NC!err' }));
+  }));
+  const map = new Map();
+  targetHours.forEach((hour, idx) => {
+    const key = hour?.key || (hour?.time instanceof Date ? hour.time.toISOString() : null);
+    if (key) map.set(key, results[idx] || { val:null, meta:'NC!err' });
+  });
+  return map;
 }
 
 function nowcastMetaTag(meta){
@@ -611,6 +648,35 @@ async function fetchSunriseDay(dateLocal, lat, lon){
   }
 }
 const tp = s => s ? new Date(s) : null;
+
+async function fetchSunPhases(lat, lon, hours){
+  const uniq = new Map();
+  if (Array.isArray(hours)){
+    for (const hour of hours){
+      const baseDate = hour?.time instanceof Date ? hour.time : new Date(hour?.key || hour);
+      if (!isValidDate(baseDate)) continue;
+      const key = dateKeyForZone(baseDate, TZ) || (
+        Number.isFinite(baseDate.getFullYear())
+          ? `${baseDate.getFullYear()}-${String(baseDate.getMonth()+1).padStart(2,'0')}-${String(baseDate.getDate()).padStart(2,'0')}`
+          : null
+      );
+      if (!key || uniq.has(key)) continue;
+      uniq.set(key, { key, date: baseDate });
+    }
+  }
+  if (!uniq.size) return new Map();
+  const entries = Array.from(uniq.values()).map(({ key, date }) => (
+    fetchSunriseDay(date, lat, lon)
+      .then(value => ({ key, value }))
+      .catch(e => ({ key, value: { __error: `Sunrise run fail: ${e?.message || e}` } }))
+  ));
+  const results = await Promise.all(entries);
+  const map = new Map();
+  for (const { key, value } of results){
+    map.set(key, value);
+  }
+  return map;
+}
 
 /* Päättele vaihe & mahdollinen vaihtominuutti tunnin sisällä */
 function phaseLabel(phase){
@@ -996,6 +1062,12 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
 
 const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
 
+function resetTwilightState(){
+  twilightState.lastPhase = null;
+  twilightState.lastHourStart = null;
+  twilightState.announced.clear();
+}
+
 function allowTwilightAsMain(tw){
   if (!tw || !tw.sunEvent) return true;
   const at = tw.sunEvent.at;
@@ -1217,12 +1289,30 @@ function windCell(mean, gust, dirDeg){
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
-function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false, skipDitto=false}){
+function renderRow(row, state){
+  const {
+    timeHtml,
+    temp,
+    descHtml,
+    descMainHtml,
+    descWhite,
+    rainObj,
+    rainWhite,
+    windObj,
+    windWhite,
+    twDbg,
+    rainTag,
+    timeWhite = false,
+    tempWhite = false,
+    skipDitto = false
+  } = row || {};
+  const rain = rainObj || { text: '–', num: null, extraClass: '', forceGrey: false };
+  const wind = windObj || { html: '–', white: false };
   const mainHtml = descMainHtml || descHtml || '–';
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
   let displayDesc = (typeof descHtml === 'string' && descHtml.length) ? descHtml : mainHtml;
-  if (!skipDitto && normalized && prevKeyRef.val && normalized === prevKeyRef.val){
+  if (!skipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1243,9 +1333,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
     }
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
-    prevKeyRef.val = normalized || null;
+    state.prevDescKey = normalized || null;
   }
-  const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
+  const rainTagHtml = (rain.text === '—') ? '' : tag(rainTag || '');
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
@@ -1254,19 +1344,225 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   const tempClasses = ['cell','hh'];
   if (!tempWhite) tempClasses.push('soft');
   const rainClasses = ['cell'];
-  if (!rainWhite || rainObj.forceGrey) rainClasses.push('soft');
-  if (rainObj.extraClass) rainClasses.push(rainObj.extraClass);
+  if (!rainWhite || rain.forceGrey) rainClasses.push('soft');
+  if (rain.extraClass) rainClasses.push(rain.extraClass);
   const windClasses = ['cell'];
   if (!windWhite) windClasses.push('soft');
-  htmlArr.push(
+  return (
     `<div class="row">`+
-      `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
+      `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
       `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
-      `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
-      `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
+      `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}</div>`+
+      `<div class="${windClasses.join(' ')}">${wind.html}</div>`+
     `</div>`
   );
+}
+
+function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
+  if (!hour || !(hour.time instanceof Date) || Number.isNaN(hour.time.getTime())) return null;
+  const dUtc = new Date(hour.time);
+  const isNowcastHour = index <= 2;
+  const expectedNowcast = isNowcastHour;
+  let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
+  let rainVal = null;
+  let rainObj = null;
+  if (isNowcastHour && nowcast && typeof nowcast.val === 'number'){
+    rainVal = nowcast.val < 0.1 ? 0 : nowcast.val;
+    rainObj = rainCell(rainVal);
+  } else {
+    const hrmVal = (typeof hour.precipitation === 'number') ? hour.precipitation : null;
+    rainVal = hrmVal;
+    if (!isNowcastHour){
+      const wet = (rainVal != null && rainVal > 0);
+      const smallWet = (wet && rainVal < 0.3);
+      const ssDay = (hour.smartSymbol != null) ? (Number(hour.smartSymbol) % 100) : null;
+      const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
+      rainObj = rainCell(rainVal, { markGrey: useGreyRain });
+    } else {
+      rainObj = rainCell(rainVal, { markGrey: index >= 3 });
+      rainTag = 'HRM';
+    }
+  }
+  if (!rainObj) rainObj = rainCell(rainVal);
+  const gust = (index === 0 && nowcast && typeof nowcast.gust === 'number') ? nowcast.gust : null;
+  const windObj = windCell(hour.windSpeed, gust, hour.windDirection);
+  const descSelection = selectDescription({
+    nowcastText: isNowcastHour ? ncSymbolText(nowcast?.sym) : null,
+    harmonieText: ssText(hour.smartSymbol),
+    expectedNowcast
+  });
+  const fogInfo = analyzeFogDescriptor({ text: descSelection.text, source: descSelection.source });
+  const baseDesc = fogInfo.baseText || descSelection.text || '–';
+  const descSource = descSelection.source;
+  const fallbackFromNowcast = descSelection.fallbackFromNowcast;
+  const descWet = isWetDescriptor(baseDesc);
+  const descWeak = isWeakWetDescriptor(baseDesc);
+  let precipish;
+  if (isNowcastHour){
+    precipish = ((rainVal != null && rainVal >= 0.1) || (nowcast?.sym && ncIsPrecip(nowcast.sym)) || descWet);
+  } else {
+    const wet = (rainVal != null && rainVal > 0);
+    precipish = wet || descWet;
+  }
+  let descMain = baseDesc || '–';
+  let descTags = [];
+  let descExtra = '';
+  let twDbg = '';
+  let insertedThunderTag = false;
+  let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
+  let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
+  try{
+    const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
+    const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
+    twilightFlags.hadTwilightMain = !!decorated.twilightMain;
+    descMain = decorated.main || baseDesc || '–';
+    descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
+    let thunderTag = null;
+    if (decorated.twilightMain){
+      thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+    }
+    const override = maybeApplyTwilightPrecipOverride({
+      decorated,
+      rainVal,
+      baseDesc,
+      descTags,
+      tw,
+      rowIndex: index,
+      fallbackFromNowcast,
+      descSource
+    });
+    twilightOverride = override;
+    if (override.applied){
+      twilightFlags.overrideApplied = true;
+      descMain = override.main;
+      descTags = Array.isArray(override.tags) ? override.tags : [];
+    } else if (thunderTag){
+      descTags.unshift(thunderTag);
+      insertedThunderTag = true;
+    }
+    if (DBG){
+      if (tw?.dbg) twDbg = `[TW ${tw.dbg}]`;
+      else if (tw){
+        const p = tw.phase || 'n/a';
+        if (tw.sunEvent) twDbg = `[TW ${p} | ${tw.sunEvent.type === 'set' ? 'set' : 'rise'} ${fmtHM(tw.sunEvent.at)}]`;
+        else if (tw.withinChange) twDbg = `[TW ${p} | change→${tw.withinChange.to} ${fmtHM(tw.withinChange.at)}]`;
+        else twDbg = `[TW ${p}]`;
+      }
+    }
+  }catch{
+    if (DBG) twDbg = '[TW!err]';
+  }
+  if (fogInfo.isFog){
+    descMain = fogInfo.displayText;
+  }
+  if (DBG && isNowcastHour){
+    const isNcTag = rainTag.startsWith('NC');
+    const tagText = (isNcTag && nowcast?.sym && !ncIsPrecip(nowcast.sym)) ? `[${ncBase(nowcast.sym)}]` : `[${rainTag}]`;
+    descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
+    if (nowcast?.meta && nowcast.meta !== 'NC'){
+      descExtra += ` <span class="soft" style="font-size:12px">[${nowcast.meta}]</span>`;
+    }
+    if (twDbg && !twDbg.startsWith('[TW!err]')){
+      descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
+      twDbg = '';
+    }
+  }
+  const sourceBadge = buildSourceBadge({
+    source: descSource,
+    expectedNowcast,
+    fallbackFromNowcast
+  });
+  if (sourceBadge){
+    descExtra += ` ${sourceBadge}`;
+  }
+  const highlight = computeHighlightStates({
+    rowIndex: index,
+    rainVal,
+    descWet,
+    descWeak
+  });
+  let { rainWhite, descWhite } = highlight;
+  if (twilightOverride.applied){
+    if (twilightOverride.forceRainWhite) rainWhite = true;
+    if (twilightOverride.forceDescWhite) descWhite = true;
+    if (rainObj.forceGrey) rainObj.forceGrey = false;
+  }
+  if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
+    descWhite = false;
+  }
+  if (insertedThunderTag) descWhite = false;
+  const timeWhite = (rainWhite || descWhite || windObj.white);
+  const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
+  const contradiction = applyContradiction({
+    descHtml: initialDescHtml,
+    baseDesc,
+    ssCode: hour.smartSymbol,
+    rainVal,
+    rainDisplay: rainObj.num
+  });
+  const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
+    ? contradiction.html
+    : initialDescHtml;
+  let timeHtml;
+  if (index === 0){
+    timeHtml = fmtHM(dUtc);
+  } else {
+    const timeClass = timeWhite ? 'miniW' : 'mini';
+    timeHtml = `<span class="${timeClass}">klo&nbsp;</span>${fmtH(dUtc)}`;
+  }
+  return {
+    key: hour.key,
+    time: dUtc,
+    timeHtml,
+    timeWhite,
+    temp: hour.temperature,
+    tempWhite: false,
+    descHtml: finalDescHtml,
+    descMainHtml: descMain,
+    descWhite,
+    rainObj,
+    rainWhite,
+    rainTag,
+    windObj,
+    windWhite: windObj.white,
+    twDbg,
+    skipDitto: !!(contradiction && contradiction.flagged)
+  };
+}
+
+function buildHourlyModel({ hours, nowcasts, sunPhases }){
+  if (!Array.isArray(hours) || !hours.length) return { rows: [] };
+  resetTwilightState();
+  const nowcastMap = nowcasts instanceof Map ? nowcasts : new Map();
+  const sunMap = sunPhases instanceof Map ? sunPhases : new Map();
+  const rows = [];
+  const resolver = (date) => {
+    const key = dateKeyForZone(date, TZ) || (
+      Number.isFinite(date.getFullYear())
+        ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
+        : null
+    );
+    const dayObj = key ? (sunMap.get(key) || sunMap.get(String(key)) || null) : null;
+    return analyzeTwilightForHour(date, dayObj);
+  };
+  hours.forEach((hour, index) => {
+    const nowcast = nowcastMap.get(hour.key) || nowcastMap.get(hour.time?.toISOString()) || null;
+    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver });
+    if (row) rows.push(row);
+  });
+  return { rows };
+}
+
+function renderHourlyModel(model){
+  const rows = model?.rows || [];
+  if (!rows.length){
+    out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    return;
+  }
+  const state = { prevDescKey: null };
+  const html = rows.map(row => renderRow(row, state));
+  out.innerHTML = html.join('');
 }
 
 /* --------- render --------- */
@@ -1280,496 +1576,30 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
 
   try{
-    /* FMI ennuste */
-    const fRes = await fetch(buildWfsForecast(LAT,LON), {cache:'no-store'});
-    const fTxt = await fRes.text();
-    if (!fRes.ok){ out.innerHTML = `<div class="err">FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,400)}</div>`; return; }
-    const forecast = extractSeries(parseXML(fTxt));
-
-    /* 13 tasatuntia alkaen tästä tasatunnista */
+    const forecastData = await fetchForecast(LAT, LON);
     const now = new Date();
-    const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));
+    const thisHourLocal = new Date(new Date(now).setMinutes(0,0,0));
+    const upcoming = forecastData.hours.filter(hour => {
+      const time = hour?.time instanceof Date ? hour.time : new Date(hour?.key || hour);
+      return time instanceof Date && !Number.isNaN(time.getTime()) && time >= thisHourLocal;
+    }).slice(0, 13);
 
-    const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
-    const pickKeys = [];
-    for (const k of fKeys){
-      const d = new Date(k);
-      if (d >= thisHourLocal){ pickKeys.push(k); if (pickKeys.length>=13) break; }
+    if (!upcoming.length){
+      out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+      return;
     }
-    if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    /* Nowcast t0–t2 */
-    const d0 = new Date(pickKeys[0]);
-    const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
-    const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
-    const [nc0, nc1, nc2] = await Promise.all([
-      fetchNowcastForHour(LAT, LON, d0),
-      d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve({val:null, meta:'NC!skip'}),
-      d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve({val:null, meta:'NC!skip'})
+    const nowcastTargets = upcoming.slice(0, 3);
+    const [nowcasts, sunPhases] = await Promise.all([
+      fetchNowcasts(LAT, LON, nowcastTargets),
+      fetchSunPhases(LAT, LON, upcoming)
     ]);
 
-    /* Sunrise API – hae kaikki päivät joita riveissä esiintyy */
-    const dayMap = {};
-    const uniqDays = new Set();
-    for (const k of pickKeys){
-      const dl = new Date(k);
-      const key = dateKeyForZone(dl, TZ) || (Number.isFinite(dl.getFullYear())
-        ? `${dl.getFullYear()}-${String(dl.getMonth()+1).padStart(2,'0')}-${String(dl.getDate()).padStart(2,'0')}`
-        : null);
-      if (key) uniqDays.add(key);
-    }
-    const sunriseEntries = Array.from(uniqDays, key => {
-      const [Y,M,D] = key.split('-').map(Number);
-      const dl = makeDateInTimeZone(Y, M, D, 12, 0, 0, TZ); // keskipäivä paikallisessa ajassa
-      return { key, dl };
-    });
-    const sunriseResults = await Promise.all(sunriseEntries.map(async ({ key, dl }) => {
-      try{
-        const value = await fetchSunriseDay(dl, LAT, LON);
-        return { key, value };
-      }catch(e){
-        const msg = (e && e.message) ? e.message : String(e);
-        return { key, value: { __error: `Sunrise run fail: ${msg}` } };
-      }
-    }));
-    for (const { key, value } of sunriseResults){
-      dayMap[key] = value;
-    }
-
-    function twilightFor(dLocal){
-      const key = dLocal.getFullYear()+'-'+String(dLocal.getMonth()+1).padStart(2,'0')+'-'+String(dLocal.getDate()).padStart(2,'0');
-      const tObj = dayMap[key] || null;
-      return analyzeTwilightForHour(dLocal, tObj);
-    }
-
-    const html = [];
-    const prevDescRef = { val: null };
-
-    /* t0 */
-    {
-      const key = pickKeys[0];
-      const temp = forecast.temperature?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-
-      const rawNowcastRain = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
-      const rainVal0 = (rawNowcastRain!=null && rawNowcastRain<0.1) ? 0 : rawNowcastRain;
-      const rObj = rainCell(rainVal0);
-      const gust0 = (nc0 && typeof nc0.gust==='number') ? nc0.gust : null;
-      const wObj = windCell(wind, gust0, wdir);
-      const rainTag0 = nowcastMetaTag(nc0?.meta);
-
-      const descSelection0 = selectDescription({
-        nowcastText: ncSymbolText(nc0?.sym),
-        harmonieText: ssText(ss),
-        expectedNowcast: true
-      });
-      const fogInfo0 = analyzeFogDescriptor({ text: descSelection0.text, source: descSelection0.source });
-      const baseDesc = fogInfo0.baseText || descSelection0.text || '–';
-      const descSource = descSelection0.source;
-      const fallbackFromNowcast = descSelection0.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
-      const hourStart = new Date(key);
-      let descMain = baseDesc || '–';
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc || '–';
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal: rainVal0,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: 0,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            if (tw.sunEvent) twDbg = `[TW ${p} | ${tw.sunEvent.type==='set'?'set':'rise'} ${fmtHM(tw.sunEvent.at)}]`;
-            else if (tw.withinChange) twDbg = `[TW ${p} | change→${tw.withinChange.to} ${fmtHM(tw.withinChange.at)}]`;
-            else twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch(e){
-        if (DBG) twDbg = `[TW!err]`;
-      }
-      if (fogInfo0.isFog){
-        descMain = fogInfo0.displayText;
-      }
-      if (DBG && nc0?.meta && nc0.meta !== 'NC'){
-        descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
-      }
-
-      const sourceBadge0 = buildSourceBadge({
-        source: descSource,
-        expectedNowcast: true,
-        fallbackFromNowcast
-      });
-      if (sourceBadge0){
-        descExtra += ` ${sourceBadge0}`;
-      }
-
-      const highlight0 = computeHighlightStates({
-        rowIndex: 0,
-        rainVal: rainVal0,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlight0;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal: rainVal0,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-      pushRow(html, {
-        timeHtml: fmtHM(new Date(key)),
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag: rainTag0,
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-
-    function renderFutureHour(idx, ncPack){
-      if (pickKeys.length <= idx) return;
-      const key = pickKeys[idx], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-
-      let rainTag = nowcastMetaTag(ncPack?.meta);
-      let rainVal = null;
-      let rObj;
-      if (ncPack && typeof ncPack.val==='number'){
-        rainVal = ncPack.val < 0.1 ? 0 : ncPack.val;
-        rObj = rainCell(rainVal);
-      } else {
-        const hrmVal = (typeof rain==='number') ? rain : null;
-        rainVal = hrmVal;
-        const markGrey = idx >= 3;
-        rObj = rainCell(hrmVal, {markGrey});
-        rainTag = 'HRM';
-      }
-      const wObj = windCell(wind, null, wdir);
-
-      const descSelection = selectDescription({
-        nowcastText: ncSymbolText(ncPack?.sym),
-        harmonieText: ssText(ss),
-        expectedNowcast: idx <= 2
-      });
-      const fogInfo = analyzeFogDescriptor({ text: descSelection.text, source: descSelection.source });
-      const baseDesc = fogInfo.baseText || descSelection.text || '–';
-      const descSource = descSelection.source;
-      const fallbackFromNowcast = descSelection.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
-      let descMain = baseDesc;
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc;
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: idx,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch{
-        if (DBG) twDbg = '[TW!err]';
-      }
-      if (fogInfo.isFog){
-        descMain = fogInfo.displayText;
-      }
-
-      if (DBG){
-        const isNcTag = rainTag.startsWith('NC');
-        const tagText = (isNcTag && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
-        descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
-        if (ncPack?.meta && ncPack.meta !== 'NC'){
-          descExtra += ` <span class="soft" style="font-size:12px">[${ncPack.meta}]</span>`;
-        }
-        if (twDbg && !twDbg.startsWith('[TW!err]')){
-          descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
-          twDbg = '';
-        }
-      }
-
-      const sourceBadgeF = buildSourceBadge({
-        source: descSource,
-        expectedNowcast: idx <= 2,
-        fallbackFromNowcast
-      });
-      if (sourceBadgeF){
-        descExtra += ` ${sourceBadgeF}`;
-      }
-
-      const highlightF = computeHighlightStates({
-        rowIndex: idx,
-        rainVal,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlightF;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-      pushRow(html, {
-        timeHtml: fmtHM(dUtc),
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag,
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-    renderFutureHour(1, nc1);
-    renderFutureHour(2, nc2);
-
-    /* t+3…t+12 – HRM; hämärälogiikka ja pienen sateen harmaannus */
-    for (let i=3; i<pickKeys.length; i++){
-      const key = pickKeys[i], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-      const ssDay = (ss!=null) ? (Number(ss)%100) : null;
-
-      const rainVal = (typeof rain==='number') ? rain : null;
-      const wet = (rainVal!=null && rainVal > 0);
-      const smallWet = (wet && rainVal < 0.3);
-      const useGreyRain = smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay));
-      const rObj = rainCell(rainVal, {markGrey:useGreyRain});
-
-      const descSelectionHrm = selectDescription({
-        nowcastText: null,
-        harmonieText: ssText(ss),
-        expectedNowcast: false
-      });
-      const fogInfoHrm = analyzeFogDescriptor({ text: descSelectionHrm.text, source: descSelectionHrm.source });
-      const baseDesc = fogInfoHrm.baseText || descSelectionHrm.text || '–';
-      const descSource = descSelectionHrm.source;
-      const fallbackFromNowcast = descSelectionHrm.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = wet || descWet;
-      let descMain = baseDesc;
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc;
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: i,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch{
-        if (DBG) twDbg = '[TW!err]';
-      }
-      if (fogInfoHrm.isFog){
-        descMain = fogInfoHrm.displayText;
-      }
-
-      const wObj = windCell(wind, null, wdir);
-
-      const highlightHrm = computeHighlightStates({
-        rowIndex: i,
-        rainVal,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlightHrm;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-
-      pushRow(html, {
-        timeHtml,
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag: 'HRM',
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-
-    out.innerHTML = html.join('') || `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases });
+    renderHourlyModel(model);
   }catch(e){
-    out.innerHTML = `<div class="err">${String(e.message||e)}</div>`;
+    const msg = (e && e.message) ? e.message : String(e);
+    out.innerHTML = `<div class="err">${msg}</div>`;
   }
 })();
 </script>
