@@ -213,7 +213,7 @@ const SS_TEXT = {
   41:'siniharmaasta märkä hiutale', 44:'sangen harmaasta märkä hiutale', 47:'märkä hiutale',
   42:'siniharmaasta räntää', 45:'sangen harmaasta räntää', 48:'räntää',
   43:'siniharmaasta tiskirättiä', 46:'sangen harmaasta tiskirättiä', 49:'tiskirättiä',
-  51:'sinihirmaasta kevyt hiutale', 54:'sangen harmaasta kevyt hiutale', 57:'kevyt hiutale',
+  51:'siniharmaasta kevyt hiutale', 54:'sangen harmaasta kevyt hiutale', 57:'kevyt hiutale',
   52:'siniharmaasta lunta', 55:'sangen harmaasta lunta', 58:'lunta',
   53:'siniharmaasta pyryä', 56:'sangen harmaasta pyryä', 59:'pyryttää',
   61:'rakeita jossain', 64:'rakeita', 67:'rakeiden tulitus'
@@ -996,10 +996,6 @@ function replaceBlueWithGold(text){
   out = out.replace(/sinistä/gi, match => match[0] === match[0].toUpperCase() ? 'Kultaista' : 'kultaista');
   out = out.replace(/siniharmaa([a-zäöå]*)/gi, (match, tail) => {
     const repl = `kultaharmaa${tail||''}`;
-    return match[0] === match[0].toUpperCase() ? repl.charAt(0).toUpperCase() + repl.slice(1) : repl;
-  });
-  out = out.replace(/sinihirmaa([a-zäöå]*)/gi, (match, tail) => {
-    const repl = `kultahirmaa${tail||''}`;
     return match[0] === match[0].toUpperCase() ? repl.charAt(0).toUpperCase() + repl.slice(1) : repl;
   });
   return out;
