@@ -143,6 +143,7 @@ const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
 const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
 const TZ  = 'Europe/Helsinki';
 const DBG = q.has('dbg');
+const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
 
 /* --------- erikoisotsikot --------- */
@@ -732,7 +733,7 @@ function selectDescription({ nowcastText, harmonieText, expectedNowcast=false })
 }
 
 function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=false }){
-  if (!expectedNowcast) return '';
+  if (!SHOW_SOURCE_BADGES || !expectedNowcast) return '';
   if (source === 'nowcast'){
     return '<span class="sourceBadge sourceBadgeNc">NC</span>';
   }
