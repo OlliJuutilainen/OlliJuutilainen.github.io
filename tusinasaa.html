@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>TUSINASÄÄ 12</title>
+<!-- ohjelman leima: TUSINASÄÄ 12 versio 1.1.1 -->
 <style>
   :root { color-scheme: dark; }
   html,body{height:100%}
   body{
     margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    font-synthesis:none;
   }
   .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
     text-transform:uppercase; margin:0 0 4px 0 }
@@ -22,7 +24,13 @@
     text-transform:uppercase;
     letter-spacing:.6px;
     font-style:italic;
-    font-weight:300;
+    font-weight:350;
+    font-variation-settings:'wght' 350;
+  }
+  @supports not (font-weight: 350){
+    .twilightMainText{
+      font-weight:300;
+    }
   }
   .miniPrefixed::before{
     content:'';
@@ -32,6 +40,20 @@
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .sourceBadge{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 5px 0;
+    border:1px solid #2a2a2a;
+    border-radius:3px;
+    font-size:11px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+    color:#7f8a93;
+  }
+  .sourceBadgeNc{ color:#9fb6ff; border-color:#35415a; }
+  .sourceBadgeHrm{ color:#b7b7b7; border-color:#3a3a3a; }
+  .sourceBadgeFallback{ color:#d9b27d; border-color:#5a4528; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px; align-items:end; justify-items:center;
@@ -73,10 +95,23 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/dist/tz.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 
 <script>
 /* --------- perusinfra & virheet näkyviin --------- */
+/* --------- tonttien työlista (palaverin jatkotoimet) --------- */
+/*
+1. Yhtenäistä pääselitteen kirjainkoko niin, että `lowercaseMainDescription`
+   ajetaan kaikissa vaiheissa ilman päivä-vaiherajausta, ja varmista samalla,
+   ettei tyhjät tai HTML-elementillä alkavat selitteet muutu.
+2. Selvitä nousua edeltävien kuivien tuntien käsittely: kun hämärävaihe ei enää
+   päädy päätekstiksi, varmista että kuivan sään kuvaus nostaa ensimmäisen
+   kirjaimen isoksi ja ettei hämärän CSS-yläsuuraus laukea vahingossa.
+3. Päivitä testisuunnitelma kattamaan sumu-, sade- ja kuivatapaukset sekä
+   aurinkotapahtumien molemmat kieliasut, jotta kirjaimiston poikkeamat eivät
+   palaa jatkokehityksessä.
+*/
 const out = document.getElementById('out');
 window.addEventListener('error', e => {
   const msg = (e && e.message) ? e.message : String(e);
@@ -119,9 +154,39 @@ if (document.readyState === 'loading'){
 const q = new URLSearchParams(location.search);
 const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
 const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
-const TZ  = 'Europe/Helsinki';
 const DBG = q.has('dbg');
+const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
+
+const FALLBACK_TIME_ZONE = (() => {
+  try {
+    const resolved = Intl.DateTimeFormat().resolvedOptions()?.timeZone;
+    return (typeof resolved === 'string' && resolved) ? resolved : 'UTC';
+  } catch (err) {
+    return 'UTC';
+  }
+})();
+
+function inferTimeZone(lat, lon){
+  const fallback = FALLBACK_TIME_ZONE || 'UTC';
+  if (Number.isFinite(lat) && Number.isFinite(lon)){
+    try {
+      if (typeof tzlookup === 'function'){
+        const guess = tzlookup(lat, lon);
+        if (typeof guess === 'string' && guess) return guess;
+      }
+    } catch (err) {
+      if (DBG) console.warn('tzlookup fail', err);
+    }
+  }
+  return fallback;
+}
+
+let timeZone = inferTimeZone(LAT, LON);
+if (typeof timeZone !== 'string' || !timeZone){
+  timeZone = FALLBACK_TIME_ZONE || 'UTC';
+}
+const TZ = timeZone;
 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
@@ -139,7 +204,7 @@ function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type===
 /* --------- SS-sanakirja (sovittu) --------- */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
-  9:'MIST!',
+  9:'sumua',
   71:'seppoa kutittaa', 74:'seppoa ärsyttää', 77:'seppo on vihainen',
   21:'kuuro jossain', 24:'kuuroja', 27:'kuuroja sakeana',
   11:'tihkuu', 14:'kryotihkua', 17:'kryosadetta',
@@ -154,13 +219,83 @@ const SS_TEXT = {
   53:'siniharmaasta pyryä', 56:'sangen harmaasta pyryä', 59:'pyryttää',
   61:'rakeita jossain', 64:'rakeita', 67:'rakeiden tulitus'
 };
-const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
+const SMART_SYMBOL_INFO = {
+  1:  { label: 'clear', dry: true },
+  2:  { label: 'mostly_clear', dry: true },
+  4:  { label: 'partly_cloudy', dry: true },
+  6:  { label: 'cloudy', dry: true },
+  7:  { label: 'overcast', dry: true },
+  9:  { label: 'fog', fog: true },
+  11: { label: 'drizzle', precip: true, weak: true },
+  14: { label: 'freezing_drizzle', precip: true, weak: true, highlightSmall: true },
+  17: { label: 'freezing_rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  21: { label: 'shower_light', precip: true, highlightSmall: true },
+  24: { label: 'shower', precip: true, highlightSmall: true, contradictionHeavy: true },
+  27: { label: 'shower_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  31: { label: 'light_rain', precip: true },
+  32: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  33: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  34: { label: 'light_rain', precip: true },
+  35: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  36: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  37: { label: 'light_rain', precip: true },
+  38: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  39: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  41: { label: 'wet_snow_light', precip: true, weak: true },
+  42: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  43: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  44: { label: 'wet_snow', precip: true },
+  45: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  46: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  47: { label: 'wet_snow', precip: true },
+  48: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  49: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  51: { label: 'snow_light', precip: true, weak: true },
+  52: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  53: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  54: { label: 'snow_light', precip: true },
+  55: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  56: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  57: { label: 'snow_light', precip: true },
+  58: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  59: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  61: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  64: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  67: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  71: { label: 'thunder', precip: true, thunder: true, highlightSmall: true },
+  74: { label: 'thunder', precip: true, thunder: true, highlightSmall: true },
+  77: { label: 'thunder', precip: true, thunder: true, highlightSmall: true }
+};
+const ssText = c => {
+  if (c == null) return '';
+  const num = Number(c);
+  if (!Number.isFinite(num)) return '';
+  const key = ((num % 100) + 100) % 100;
+  return SS_TEXT[key] || '';
+};
+const SMART_SYMBOL_SMALL_RAIN = new Set(
+  Object.entries(SMART_SYMBOL_INFO)
+    .filter(([, info]) => info.highlightSmall)
+    .map(([key]) => Number(key))
+);
+const SMART_SYMBOL_HEAVY = new Set(
+  Object.entries(SMART_SYMBOL_INFO)
+    .filter(([, info]) => info.contradictionHeavy)
+    .map(([key]) => Number(key))
+);
+const DRY_TEXTS = new Set(['sinistä','sangen sinistä','siniharmaata','sangen harmaata','harmaata']);
+
+function smartSymbolInfo(code){
+  if (code == null) return null;
+  const num = Number(code);
+  if (!Number.isFinite(num)) return null;
+  const key = ((num % 100) + 100) % 100;
+  return SMART_SYMBOL_INFO[key] || null;
+}
 
 /* pienen sateen ( <0.3 mm ) poikkeuslista (säilytä valkoisena jos nämä) */
-const SMALL_RAIN_EXCEPT = new Set([71,74,77,21,24,27,14,17,32,35,38,33,36,39,42,45,48,43,46,49,52,55,58,53,56,59,61,64,67]);
-
-const DRY_DESCRIPTOR = new Set(['sinistä','sangen sinistä','siniharmaata','sangen harmaata','harmaata']);
-const HEAVY_SSCODE = new Set([67,64,59,56,53,58,55,52,49,46,43,48,45,42,39,36,33,38,35,32,17,27,24]);
+const SMALL_RAIN_EXCEPT = SMART_SYMBOL_SMALL_RAIN;
+const HEAVY_SSCODE = SMART_SYMBOL_HEAVY;
 
 /* --------- MET Nowcast symbolit (NC) --------- */
 const NC_SYMBOL = {
@@ -169,15 +304,36 @@ const NC_SYMBOL = {
   'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
   'heavyrain': "saavista kaatuu", 'lightrain': "ripsii", 'sleet': "räntää",
   'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
-  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "MIST!"
+  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
+};
+const NOWCAST_INFO = {
+  clearsky: { label: 'clear', dry: true },
+  fair: { label: 'mostly_clear', dry: true },
+  partlycloudy: { label: 'partly_cloudy', dry: true },
+  cloudy: { label: 'overcast', dry: true },
+  lightrainshowers: { label: 'shower_light', precip: true, weak: true },
+  heavyrainshowers: { label: 'shower_heavy', precip: true },
+  rainshowersandthunder: { label: 'thunder_shower', precip: true, thunder: true },
+  thunderstorm: { label: 'thunder', precip: true, thunder: true },
+  heavyrain: { label: 'rain_heavy', precip: true },
+  lightrain: { label: 'rain_light', precip: true, weak: true },
+  sleet: { label: 'sleet', precip: true },
+  lightsleetshowers_and_thunder: { label: 'thunder_sleet', precip: true, thunder: true },
+  snowshowers_and_thunder: { label: 'thunder_snow', precip: true, thunder: true },
+  snow: { label: 'snow', precip: true },
+  heavysnow: { label: 'snow_heavy', precip: true },
+  fog: { label: 'fog', fog: true }
 };
 const ncBase = code => code ? code.replace(/_(day|night)$/,'') : '';
+function ncSymbolInfo(code){
+  const base = ncBase(code);
+  return base ? (NOWCAST_INFO[base] || null) : null;
+}
 const ncSymbolText = code => (NC_SYMBOL[ncBase(code)] || '');
-const ncIsPrecip = code => !!({
-  lightrain:1, heavyrain:1, lightrainshowers:1, heavyrainshowers:1,
-  rainshowersandthunder:1, sleet:1, lightsleetshowers_and_thunder:1,
-  snow:1, heavysnow:1, snowshowers_and_thunder:1, fog:1, thunderstorm:1
-}[ncBase(code)]);
+function ncIsPrecip(code){
+  const info = ncSymbolInfo(code);
+  return !!(info && (info.precip || info.fog || info.thunder));
+}
 
 /* --------- Tuulensuunta tekstit --------- */
 function dir8(deg){
@@ -237,6 +393,27 @@ const extractSeries = x => {
   }
   return o;
 };
+
+async function fetchForecast(lat, lon){
+  const url = buildWfsForecast(lat, lon);
+  const res = await fetch(url, { cache: 'no-store' });
+  const txt = await res.text();
+  if (!res.ok){
+    throw new Error(`FMI ennuste HTTP ${res.status}\n${txt.slice(0,400)}`);
+  }
+  const forecastSeries = extractSeries(parseXML(txt));
+  const keys = Array.from(forecastSeries.temperature?.keys?.() || []).sort();
+  const hours = keys.map(key => ({
+    key,
+    time: new Date(key),
+    temperature: forecastSeries.temperature?.get(key) ?? null,
+    precipitation: forecastSeries.precipitation1h?.get(key) ?? null,
+    windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
+    windDirection: forecastSeries.winddirection?.get(key) ?? null,
+    smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null
+  }));
+  return { hours, series: forecastSeries };
+}
 
 /* --------- MET Nowcast – sade + puuska + symbol_code --------- */
 const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
@@ -350,6 +527,22 @@ async function fetchNowcastForHour(lat, lon, dUTC){
   return picked;
 }
 
+async function fetchNowcasts(lat, lon, targetHours){
+  if (!Array.isArray(targetHours) || !targetHours.length){
+    return new Map();
+  }
+  const results = await Promise.all(targetHours.map(h => {
+    const date = h?.time instanceof Date ? h.time : new Date(h?.key || h);
+    return fetchNowcastForHour(lat, lon, date).catch(() => ({ val:null, meta:'NC!err' }));
+  }));
+  const map = new Map();
+  targetHours.forEach((hour, idx) => {
+    const key = hour?.key || (hour?.time instanceof Date ? hour.time.toISOString() : null);
+    if (key) map.set(key, results[idx] || { val:null, meta:'NC!err' });
+  });
+  return map;
+}
+
 function nowcastMetaTag(meta){
   if (typeof meta !== 'string') return 'NC';
   if (meta.startsWith('NC~')) return 'NC~';
@@ -358,14 +551,116 @@ function nowcastMetaTag(meta){
 }
 
 /* --------- Sunrise API: hämärä- ja nousu/laskuajat --------- */
-/* Korjattu: offset muotoon +HH:MM getTimezoneOffsetista */
-function offsetHHMM(d){
-  const offMin = -d.getTimezoneOffset(); // minuutteja itään
-  const sign = offMin>=0 ? '+' : '-';
+const TZ_PARTS_CACHE = new Map();
+function getTimeZoneFormatter(timeZone){
+  const key = timeZone || 'UTC';
+  if (TZ_PARTS_CACHE.has(key)) return TZ_PARTS_CACHE.get(key);
+  let fmt;
+  try {
+    fmt = new Intl.DateTimeFormat('en-US',{
+      timeZone: key,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      fractionalSecondDigits: 3
+    });
+  } catch (err) {
+    fmt = new Intl.DateTimeFormat('en-US',{
+      timeZone: key,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+  TZ_PARTS_CACHE.set(key, fmt);
+  return fmt;
+}
+function partsForZone(date, timeZone){
+  if (!isValidDate(date)) return null;
+  try {
+    const parts = getTimeZoneFormatter(timeZone).formatToParts(date);
+    const obj = {};
+    for (const part of parts){
+      if (part.type === 'literal') continue;
+      if (obj[part.type] == null) obj[part.type] = part.value;
+    }
+    if (obj.second == null) obj.second = '00';
+    return obj;
+  } catch (err) {
+    if (DBG) console.warn('partsForZone fail', err);
+    return null;
+  }
+}
+function numOrNaN(value){
+  const n = Number(value);
+  return Number.isFinite(n) ? n : NaN;
+}
+function fractionalToMillis(value){
+  if (value == null) return 0;
+  const str = String(value).replace(/\D/g,'');
+  if (!str) return 0;
+  return Number(str.slice(0,3).padEnd(3,'0'));
+}
+function calendarParts(date, timeZone){
+  const parts = partsForZone(date, timeZone);
+  if (!parts) return null;
+  const year = numOrNaN(parts.year);
+  const month = numOrNaN(parts.month);
+  const day = numOrNaN(parts.day);
+  const hour = numOrNaN(parts.hour);
+  const minute = numOrNaN(parts.minute);
+  const second = numOrNaN(parts.second);
+  if (![year, month, day, hour, minute, second].every(Number.isFinite)) return null;
+  const millisecond = fractionalToMillis(parts.fractionalSecond);
+  return { year, month, day, hour, minute, second, millisecond };
+}
+function makeDateInTimeZone(year, month, day, hour, minute, second, timeZone){
+  const base = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+  const parts = calendarParts(base, timeZone);
+  if (!parts) return base;
+  const utc = Date.UTC(parts.year, parts.month-1, parts.day, parts.hour, parts.minute, parts.second);
+  const diff = utc + parts.millisecond - base.getTime();
+  return new Date(base.getTime() - diff);
+}
+function getTimeZoneOffsetMinutes(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return -date.getTimezoneOffset();
+  const utc = Date.UTC(parts.year, parts.month-1, parts.day, parts.hour, parts.minute, parts.second);
+  return Math.round((utc + parts.millisecond - date.getTime()) / 60000);
+}
+function canonicalDateForDay(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return date;
+  return makeDateInTimeZone(parts.year, parts.month, parts.day, 12, 0, 0, timeZone);
+}
+function formatOffsetFromMinutes(offMin){
+  if (!Number.isFinite(offMin)) return '+00:00';
+  const sign = offMin >= 0 ? '+' : '-';
   const abs = Math.abs(offMin);
-  const hh = String(Math.floor(abs/60)).padStart(2,'0');
-  const mm = String(abs%60).padStart(2,'0');
+  const hh = String(Math.trunc(abs/60)).padStart(2,'0');
+  const mm = String(Math.trunc(abs%60)).padStart(2,'0');
   return `${sign}${hh}:${mm}`;
+}
+function dateKeyForZone(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return null;
+  const y = String(parts.year).padStart(4,'0');
+  const m = String(parts.month).padStart(2,'0');
+  const d = String(parts.day).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function offsetHHMM(d){
+  const ref = canonicalDateForDay(isValidDate(d) ? d : new Date(), TZ);
+  const offMin = getTimeZoneOffsetMinutes(ref, TZ);
+  return formatOffsetFromMinutes(offMin);
 }
 function offsetToMinutes(offset){
   const m = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
@@ -405,12 +700,14 @@ function wrapFromDate(dt, offset){
 /* Cache per YYYY-MM-DD */
 const sunriseCache = new Map();
 async function fetchSunriseDay(dateLocal, lat, lon){
-  const year = dateLocal.getFullYear();
-  const monthIdx = dateLocal.getMonth();
-  const day = dateLocal.getDate();
-  const key = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const canonical = canonicalDateForDay(dateLocal, TZ);
+  const parts = calendarParts(canonical, TZ) || calendarParts(dateLocal, TZ);
+  const year = parts?.year ?? canonical.getUTCFullYear();
+  const monthIdx = (parts ? parts.month - 1 : canonical.getUTCMonth());
+  const day = parts?.day ?? canonical.getUTCDate();
+  const key = dateKeyForZone(canonical, TZ) || `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   if (sunriseCache.has(key)) return sunriseCache.get(key);
-  const offset = offsetHHMM(dateLocal);
+  const offset = offsetHHMM(canonical);
   const url = `https://api.met.no/weatherapi/sunrise/3.0/sun?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&date=${key}&offset=${encodeURIComponent(offset)}`;
   try{
     const res = await fetch(url, {cache:'no-store', headers:{'Accept':'application/json'}});
@@ -455,6 +752,35 @@ async function fetchSunriseDay(dateLocal, lat, lon){
   }
 }
 const tp = s => s ? new Date(s) : null;
+
+async function fetchSunPhases(lat, lon, hours){
+  const uniq = new Map();
+  if (Array.isArray(hours)){
+    for (const hour of hours){
+      const baseDate = hour?.time instanceof Date ? hour.time : new Date(hour?.key || hour);
+      if (!isValidDate(baseDate)) continue;
+      const key = dateKeyForZone(baseDate, TZ) || (
+        Number.isFinite(baseDate.getFullYear())
+          ? `${baseDate.getFullYear()}-${String(baseDate.getMonth()+1).padStart(2,'0')}-${String(baseDate.getDate()).padStart(2,'0')}`
+          : null
+      );
+      if (!key || uniq.has(key)) continue;
+      uniq.set(key, { key, date: baseDate });
+    }
+  }
+  if (!uniq.size) return new Map();
+  const entries = Array.from(uniq.values()).map(({ key, date }) => (
+    fetchSunriseDay(date, lat, lon)
+      .then(value => ({ key, value }))
+      .catch(e => ({ key, value: { __error: `Sunrise run fail: ${e?.message || e}` } }))
+  ));
+  const results = await Promise.all(entries);
+  const map = new Map();
+  for (const { key, value } of results){
+    map.set(key, value);
+  }
+  return map;
+}
 
 /* Päättele vaihe & mahdollinen vaihtominuutti tunnin sisällä */
 function phaseLabel(phase){
@@ -624,23 +950,35 @@ function formatSunEventTag(sunEvent){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const sentence = baseSunEventText(sunEvent.at, sunEvent.type);
   if (!sentence) return null;
-  return { text: sentence, italic: true, prefix: false, preserveCase: true };
+  const minutes = sunEvent.at.getMinutes();
+  const beforeMain = Number.isInteger(minutes) && minutes < 30;
+  return {
+    text: sentence,
+    italic: true,
+    prefix: false,
+    preserveCase: true,
+    beforeMain
+  };
 }
 
 function buildDescriptionHtml({ main, tags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
   let extraHtml = extra || '';
-  if (typeof safeMain === 'string'){
-    const normalizedMain = safeMain.replace(/<[^>]*>/g, '').trim().toUpperCase();
-    if (normalizedMain === 'MIST!' && !/siis sumua\./i.test(extraHtml)){
-      extraHtml += ` <span class="mini">siis sumua.</span>`;
-    }
+  const formattedAfter = [];
+  const formattedBefore = [];
+  for (const entry of tagList){
+    const html = formatSmallTag(entry);
+    if (!html) continue;
+    const beforeMain = typeof entry === 'object' && entry && entry.beforeMain;
+    if (beforeMain) formattedBefore.push(html);
+    else formattedAfter.push(html);
   }
-  const formattedTags = tagList.map(formatSmallTag);
-  const tagBody = formattedTags.join('<br>');
-  const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
-  return `${safeMain}${tagHtml}${extraHtml}`;
+  const beforeHtml = formattedBefore.join('<br>');
+  const afterHtml = formattedAfter.join('<br>');
+  const beforeSection = beforeHtml ? `${beforeHtml}<br>` : '';
+  const afterSection = afterHtml ? `<br>${afterHtml}` : '';
+  return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
 }
 
 function shouldTintForGold(tw){
@@ -671,19 +1009,22 @@ function maybeApplyGoldTint(baseText, tw){
   return replaceBlueWithGold(baseText);
 }
 
-function capitalizeDayDescription(text){
+function lowercaseMainDescription(text){
   if (!text || typeof text !== 'string') return text;
   if (!text.trim()) return text;
   if (/^\s*</.test(text)) return text;
-  const idx = text.search(/[A-Za-zÅÄÖåäö]/);
-  if (idx < 0) return text;
-  const ch = text[idx];
-  const upper = ch.toLocaleUpperCase('fi-FI');
-  if (ch === upper) return text;
-  return text.slice(0, idx) + upper + text.slice(idx + 1);
+  return text.toLocaleLowerCase('fi-FI');
 }
 
-function isWetDescriptor(text){
+function descriptorInfoFromOptions(opts){
+  if (!opts) return null;
+  const { smartSymbolCode, nowcastCode } = opts;
+  return smartSymbolInfo(smartSymbolCode) || ncSymbolInfo(nowcastCode) || null;
+}
+
+function isWetDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && (info.precip || info.fog || info.thunder)) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return [
@@ -692,16 +1033,56 @@ function isWetDescriptor(text){
   ].some(w => low.includes(w));
 }
 
-function isWeakWetDescriptor(text){
+function isWeakWetDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.weak) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return ['tihku', 'kevyt hiutale', 'märkä hiutale'].some(w => low.includes(w));
 }
 
-function isDryDescriptor(text){
+function isDryDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && !(info.precip || info.fog || info.thunder)) return true;
   if (!text) return false;
   const low = text.toLowerCase().trim();
-  return DRY_DESCRIPTOR.has(low);
+  return DRY_TEXTS.has(low);
+}
+
+function capitalizeDryDescriptor(text, opts = {}){
+  if (typeof text !== 'string') return text;
+  const trimmed = text.trim();
+  if (!trimmed) return text;
+  const info = descriptorInfoFromOptions(opts);
+  let dry = false;
+  if (info){
+    if (!(info.precip || info.fog || info.thunder)) dry = true;
+  }
+  if (!dry){
+    const normalized = trimmed.toLocaleLowerCase('fi-FI');
+    dry = DRY_TEXTS.has(normalized);
+  }
+  if (!dry) return text;
+  const leading = text.match(/^\s*/)?.[0] ?? '';
+  const rest = text.slice(leading.length);
+  if (!rest) return text;
+  const firstChar = rest.charAt(0);
+  const upper = firstChar.toLocaleUpperCase('fi-FI');
+  if (firstChar === upper) return text;
+  return leading + upper + rest.slice(1);
+}
+
+function analyzeFogDescriptor({ text, source }){
+  const raw = (typeof text === 'string') ? text.trim() : '';
+  if (!raw) return { isFog: false, baseText: raw, displayText: raw };
+  const normalized = raw.toLocaleLowerCase('fi-FI');
+  if (normalized === 'sumua' || normalized === 'sumu'){
+    let displayText = 'sumua';
+    if (source === 'harmonie') displayText = 'näkyvyys: mahdollinen';
+    else if (source === 'nowcast') displayText = 'näkyvyys: ei ole';
+    return { isFog: true, baseText: 'sumua', displayText };
+  }
+  return { isFog: false, baseText: raw, displayText: raw };
 }
 
 function selectDescription({ nowcastText, harmonieText, expectedNowcast=false }){
@@ -716,24 +1097,46 @@ function selectDescription({ nowcastText, harmonieText, expectedNowcast=false })
   return { text: '–', source: 'none', fallbackFromNowcast: false };
 }
 
-function isThunderDescriptor(text){
+function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=false }){
+  if (!SHOW_SOURCE_BADGES) return '';
+  if (source == null || source === 'none') return '';
+  if (source === 'nowcast'){
+    return '<span class="sourceBadge sourceBadgeNc">NC</span>';
+  }
+  if (source === 'harmonie'){
+    const classes = ['sourceBadge', 'sourceBadgeHrm'];
+    if (fallbackFromNowcast && expectedNowcast) classes.push('sourceBadgeFallback');
+    return `<span class="${classes.join(' ')}">HRM</span>`;
+  }
+  const label = (typeof source === 'string') ? source.trim().toUpperCase() : '';
+  if (!label) return '';
+  return `<span class="sourceBadge">${label}</span>`;
+}
+
+function isThunderDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.thunder) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return ['ukkos', 'seppo', 'välisuihkut', 'lumiukko'].some(word => low.includes(word));
 }
 
-function isHailDescriptor(text){
+function isHailDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.hail) return true;
   if (!text) return false;
   return text.toLowerCase().includes('rake');
 }
 
-function isThunderOrHailDescriptor(text){
-  return isThunderDescriptor(text) || isHailDescriptor(text);
+function isThunderOrHailDescriptor(text, opts = {}){
+  return isThunderDescriptor(text, opts) || isHailDescriptor(text, opts);
 }
 
-function hasPrecipFogOrThunderDescriptor(text){
-  if (!text) return false;
-  return isWetDescriptor(text) || isThunderDescriptor(text);
+function hasPrecipFogOrThunderDescriptor(text, opts = {}){
+  if (isWetDescriptor(text, opts)) return true;
+  if (isThunderDescriptor(text, opts)) return true;
+  const info = descriptorInfoFromOptions(opts);
+  return !!(info && info.fog);
 }
 
 function ensureQuestionSuffix(text){
@@ -749,8 +1152,8 @@ function wrapItalic(text){
   return `<em>${text}</em>`;
 }
 
-function buildThunderTag({ baseText, source }){
-  if (!isThunderOrHailDescriptor(baseText)) return null;
+function buildThunderTag({ baseText, source, descriptorOpts }){
+  if (!isThunderOrHailDescriptor(baseText, descriptorOpts)) return null;
   let text = baseText.trim();
   if (!text || text === '–') return null;
   const fromHarmonie = (source === 'harmonie');
@@ -785,8 +1188,9 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
   const hasDesc = base && base !== '–';
   const rainNum = (typeof rainVal === 'number' && !Number.isNaN(rainVal)) ? rainVal : null;
   const rainShown = (typeof rainDisplay === 'number' && !Number.isNaN(rainDisplay)) ? rainDisplay : null;
+  const descriptorOpts = { smartSymbolCode: ssCode };
   let strike = false;
-  if (rainNum != null && rainNum > 0.3 && isDryDescriptor(base)){
+  if (rainNum != null && rainNum > 0.3 && isDryDescriptor(base, descriptorOpts)){
     strike = true;
   } else if (hasDesc && rainShown === 0){
     const code = (ssCode != null) ? Number(ssCode) % 100 : null;
@@ -797,6 +1201,12 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
 }
 
 const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
+
+function resetTwilightState(){
+  twilightState.lastPhase = null;
+  twilightState.lastHourStart = null;
+  twilightState.announced.clear();
+}
 
 function allowTwilightAsMain(tw){
   if (!tw || !tw.sunEvent) return true;
@@ -817,12 +1227,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   const phaseMain = phaseLabel(tw.phase);
   tintedMain = maybeApplyGoldTint(baseText, tw);
-  if (tw.phase === 'day'){
-    tintedMain = capitalizeDayDescription(tintedMain);
-  }
   let main = tintedMain;
-
-  const mainIsNautical = !precipish && phaseMain === 'nauttinen hämärä';
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
 
@@ -863,7 +1268,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
-      const isTwilightPhase = phase => phase === 'civil' || phase === 'nautical' || phase === 'astronomical';
       let text = `...${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (toPhase === 'night'){
@@ -872,15 +1276,19 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
-          if (toPhase === 'nautical' && isTwilightPhase(fromPhase)){
-            text = `nauttinen ${hhmm}`;
-            dittoEllipsis = true;
-          } else if (toPhase === 'civil' && fromPhase === 'nautical' && mainIsNautical){
-            text = `porvarillinen ${hhmm}`;
-            dittoEllipsis = true;
-          } else if (toPhase === 'astronomical' && isTwilightPhase(fromPhase)){
-            text = `${mainIsNautical ? 'astronominen' : 'astronominen hämärä'} ${hhmm}`;
-            dittoEllipsis = true;
+          const toPhaseIsTwilight = toPhase && TWILIGHT_PHASES.has(toPhase);
+          const fromPhaseIsTwilight = fromPhase && TWILIGHT_PHASES.has(fromPhase);
+          if (toPhaseIsTwilight && fromPhaseIsTwilight){
+            const twilightShortLabels = {
+              civil: 'porvarillinen',
+              nautical: 'nauttinen',
+              astronomical: 'astronominen',
+            };
+            const shortLabel = twilightShortLabels[toPhase];
+            if (shortLabel){
+              text = `${shortLabel} ${hhmm}`;
+              dittoEllipsis = true;
+            }
           }
         }
       }
@@ -919,12 +1327,13 @@ function maybeApplyTwilightPrecipOverride({
   tw,
   rowIndex,
   fallbackFromNowcast,
-  descSource
+  descSource,
+  descriptorOpts
 }){
   const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
   if (!decorated || !decorated.twilightMain) return result;
   if (!(Number.isFinite(rainVal) && rainVal > 0)) return result;
-  if (!hasPrecipFogOrThunderDescriptor(baseDesc)) return result;
+  if (!hasPrecipFogOrThunderDescriptor(baseDesc, descriptorOpts)) return result;
 
   const tags = Array.isArray(descTags) ? [...descTags] : [];
   if (decorated.twilightLabel){
@@ -934,9 +1343,6 @@ function maybeApplyTwilightPrecipOverride({
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
     let tinted = maybeApplyGoldTint(main, tw);
-    if (tw && tw.phase === 'day'){
-      tinted = capitalizeDayDescription(tinted);
-    }
     main = tinted;
   }
 
@@ -946,7 +1352,7 @@ function maybeApplyTwilightPrecipOverride({
     rowIndex === 2 &&
     !!fallbackFromNowcast &&
     descSource === 'harmonie' &&
-    isThunderOrHailDescriptor(baseDesc)
+    isThunderOrHailDescriptor(baseDesc, descriptorOpts)
   );
   if (italicizeThunder){
     const body = ensureQuestionSuffix(mainHtml);
@@ -976,11 +1382,11 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
 }
 
 /* --------- solut --------- */
-function rainCell(val, {markGrey=false}={}){
-  if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true };
+function rainCell(val, { markGrey=false, source=null } = {}){
+  if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
-  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true };
-  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey };
+  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
+  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
   if (!Number.isFinite(val)) return null;
@@ -988,7 +1394,7 @@ function formatWindSpeed(val){
   return (Object.is(rounded, -0) ? 0 : rounded).toString();
 }
 
-function windCell(mean, gust, dirDeg){
+function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null } = {}){
   const mOk = (mean!=null && !isNaN(Number(mean)));
   const gOk = (gust!=null && !isNaN(Number(gust)));
   const meanV = mOk ? Number(mean) : null;
@@ -1011,19 +1417,50 @@ function windCell(mean, gust, dirDeg){
   const dirTxt = dir8(dirDeg);
   const dirHtml = dirTxt ? `<span class="${highlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
 
-  return { html: txt + gustTxt + dirHtml, white: highlight };
+  const sources = new Set();
+  if (meanSource) sources.add(meanSource);
+  if (gOk && gustSource) sources.add(gustSource);
+
+  return { html: txt + gustTxt + dirHtml, white: highlight, sources: Array.from(sources) };
 }
 
 /* Ditto */
 function normalizedDittoKey(s){
   return s.toLowerCase().replace(/<[^>]*>/g,'').replace(/[()[\]{}?.,]/g,'').replace(/\s+/g,' ').trim();
 }
-function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, rainObj, rainWhite, windObj, windWhite, prevKeyRef, twDbg, rainTag, timeWhite=false, tempWhite=false, skipDitto=false}){
+function renderRow(row, state){
+  const {
+    timeHtml,
+    temp,
+    descHtml,
+    descMainHtml,
+    descWhite,
+    descDisplaySource,
+    descExpectedNowcast = false,
+    descFallbackFromNowcast = false,
+    rainObj,
+    rainWhite,
+    rainSource,
+    rainExpectedNowcast = false,
+    rainFallbackFromNowcast = false,
+    windObj,
+    windWhite,
+    windSources,
+    windExpectedNowcast = false,
+    windFallbackFromNowcast = false,
+    twDbg,
+    rainTag,
+    timeWhite = false,
+    tempWhite = false,
+    skipDitto = false
+  } = row || {};
+  const rain = rainObj || { text: '–', num: null, extraClass: '', forceGrey: false, source: null };
+  const wind = windObj || { html: '–', white: false, sources: [] };
   const mainHtml = descMainHtml || descHtml || '–';
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
   let displayDesc = (typeof descHtml === 'string' && descHtml.length) ? descHtml : mainHtml;
-  if (!skipDitto && normalized && prevKeyRef.val && normalized === prevKeyRef.val){
+  if (!skipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1044,9 +1481,24 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
     }
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
-    prevKeyRef.val = normalized || null;
+    state.prevDescKey = normalized || null;
   }
-  const rainTagHtml = (rainObj.text==='—') ? '' : tag(rainTag||'');
+  const descBadge = buildSourceBadge({
+    source: descDisplaySource,
+    expectedNowcast: !!descExpectedNowcast,
+    fallbackFromNowcast: !!descFallbackFromNowcast
+  });
+  if (descBadge){
+    displayDesc += ` ${descBadge}`;
+  }
+  const resolvedRainSource = rainSource != null ? rainSource : rain.source;
+  const rainBadge = buildSourceBadge({
+    source: resolvedRainSource,
+    expectedNowcast: !!rainExpectedNowcast,
+    fallbackFromNowcast: !!rainFallbackFromNowcast
+  });
+  const rainTagHtml = (rain.text === '—') ? '' : tag(rainTag || '');
+  const rainBadgeHtml = rainBadge ? ` ${rainBadge}` : '';
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
@@ -1055,19 +1507,270 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   const tempClasses = ['cell','hh'];
   if (!tempWhite) tempClasses.push('soft');
   const rainClasses = ['cell'];
-  if (!rainWhite || rainObj.forceGrey) rainClasses.push('soft');
-  if (rainObj.extraClass) rainClasses.push(rainObj.extraClass);
+  if (!rainWhite || rain.forceGrey) rainClasses.push('soft');
+  if (rain.extraClass) rainClasses.push(rain.extraClass);
   const windClasses = ['cell'];
   if (!windWhite) windClasses.push('soft');
-  htmlArr.push(
+  const resolvedWindSources = Array.isArray(windSources) && windSources.length
+    ? windSources
+    : (Array.isArray(wind.sources) ? wind.sources : []);
+  const uniqueWindSources = Array.from(new Set(resolvedWindSources.filter(Boolean)));
+  const windBadges = uniqueWindSources
+    .map(src => buildSourceBadge({
+      source: src,
+      expectedNowcast: !!(windExpectedNowcast && src === 'nowcast'),
+      fallbackFromNowcast: !!(windFallbackFromNowcast && src === 'harmonie')
+    }))
+    .filter(Boolean)
+    .join(' ');
+  const windBadgeHtml = windBadges ? ` ${windBadges}` : '';
+  return (
     `<div class="row">`+
-      `<div class="${timeClasses.join(' ')}">${timeHtml}</div>`+
+      `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
       `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
-      `<div class="${rainClasses.join(' ')}">${rainObj.text}${rainTagHtml}</div>`+
-      `<div class="${windClasses.join(' ')}">${windObj.html}</div>`+
+      `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}${rainBadgeHtml}</div>`+
+      `<div class="${windClasses.join(' ')}">${wind.html}${windBadgeHtml}</div>`+
     `</div>`
   );
+}
+
+function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTime }){
+  if (!hour || !(hour.time instanceof Date) || Number.isNaN(hour.time.getTime())) return null;
+  const dUtc = new Date(hour.time);
+  const isNowcastHour = index <= 2;
+  const expectedNowcast = isNowcastHour;
+  const smartSymbolCode = hour.smartSymbol;
+  const nowcastCode = isNowcastHour ? nowcast?.sym : null;
+  const descriptorOpts = { smartSymbolCode, nowcastCode };
+  let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
+  let rainVal = null;
+  let rainObj = null;
+  let rainSource = null;
+  let rainFallbackFromNowcast = false;
+  if (isNowcastHour && nowcast && typeof nowcast.val === 'number'){
+    rainVal = nowcast.val < 0.1 ? 0 : nowcast.val;
+    rainSource = 'nowcast';
+    rainObj = rainCell(rainVal, { source: rainSource });
+  } else {
+    const hrmVal = (typeof hour.precipitation === 'number') ? hour.precipitation : null;
+    rainVal = hrmVal;
+    rainSource = 'harmonie';
+    if (isNowcastHour) rainFallbackFromNowcast = true;
+    if (!isNowcastHour){
+      const wet = (rainVal != null && rainVal > 0);
+      const smallWet = (wet && rainVal < 0.3);
+      const ssDay = (smartSymbolCode != null) ? (Number(smartSymbolCode) % 100) : null;
+      const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
+      rainObj = rainCell(rainVal, { markGrey: useGreyRain, source: rainSource });
+    } else {
+      rainObj = rainCell(rainVal, { markGrey: index >= 3, source: rainSource });
+      rainTag = 'HRM';
+    }
+  }
+  if (!rainObj) rainObj = rainCell(rainVal, { source: rainSource });
+  const gustAvailable = (index === 0 && nowcast && typeof nowcast.gust === 'number');
+  const gust = gustAvailable ? nowcast.gust : null;
+  const gustSource = gustAvailable ? 'nowcast' : null;
+  const windObj = windCell(hour.windSpeed, gust, hour.windDirection, { meanSource: 'harmonie', gustSource });
+  const rainExpectedNowcast = expectedNowcast;
+  const descSelection = selectDescription({
+    nowcastText: isNowcastHour ? ncSymbolText(nowcast?.sym) : null,
+    harmonieText: ssText(hour.smartSymbol),
+    expectedNowcast
+  });
+  const fogInfo = analyzeFogDescriptor({ text: descSelection.text, source: descSelection.source });
+  let baseDesc = fogInfo.baseText || descSelection.text || '–';
+  const descSource = descSelection.source;
+  const fallbackFromNowcast = descSelection.fallbackFromNowcast;
+  let descDisplaySource = descSource;
+  let descDisplayFallbackFromNowcast = fallbackFromNowcast;
+  baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
+  const descWet = isWetDescriptor(baseDesc, descriptorOpts);
+  const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
+  let precipish;
+  if (isNowcastHour){
+    precipish = ((rainVal != null && rainVal >= 0.1) || (nowcastCode && ncIsPrecip(nowcastCode)) || descWet);
+  } else {
+    const wet = (rainVal != null && rainVal > 0);
+    precipish = wet || descWet;
+  }
+  let descMain = baseDesc || '–';
+  let descTags = [];
+  let descExtra = '';
+  let twDbg = '';
+  let insertedThunderTag = false;
+  let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
+  let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
+  try{
+    const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
+    const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
+    twilightFlags.hadTwilightMain = !!decorated.twilightMain;
+    descMain = decorated.main || baseDesc || '–';
+    descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
+    let thunderTag = null;
+    if (decorated.twilightMain){
+      thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource, descriptorOpts });
+    }
+    const override = maybeApplyTwilightPrecipOverride({
+      decorated,
+      rainVal,
+      baseDesc,
+      descTags,
+      tw,
+      rowIndex: index,
+      fallbackFromNowcast,
+      descSource,
+      descriptorOpts
+    });
+    twilightOverride = override;
+    if (override.applied){
+      twilightFlags.overrideApplied = true;
+      descMain = override.main;
+      descTags = Array.isArray(override.tags) ? override.tags : [];
+      descDisplaySource = descSource;
+      descDisplayFallbackFromNowcast = fallbackFromNowcast;
+    } else if (thunderTag){
+      descTags.unshift(thunderTag);
+      insertedThunderTag = true;
+      if (decorated.twilightMain){
+        descDisplaySource = 'twilight';
+        descDisplayFallbackFromNowcast = false;
+      }
+    } else if (decorated.twilightMain){
+      descDisplaySource = 'twilight';
+      descDisplayFallbackFromNowcast = false;
+    }
+    if (DBG){
+      if (tw?.dbg) twDbg = `[TW ${tw.dbg}]`;
+      else if (tw){
+        const p = tw.phase || 'n/a';
+        if (tw.sunEvent) twDbg = `[TW ${p} | ${tw.sunEvent.type === 'set' ? 'set' : 'rise'} ${fmtHM(tw.sunEvent.at)}]`;
+        else if (tw.withinChange) twDbg = `[TW ${p} | change→${tw.withinChange.to} ${fmtHM(tw.withinChange.at)}]`;
+        else twDbg = `[TW ${p}]`;
+      }
+    }
+  }catch{
+    if (DBG) twDbg = '[TW!err]';
+  }
+  if (fogInfo.isFog){
+    descMain = fogInfo.displayText;
+    descDisplaySource = descSource;
+    descDisplayFallbackFromNowcast = fallbackFromNowcast;
+  }
+  if (DBG && isNowcastHour){
+    const isNcTag = rainTag.startsWith('NC');
+    const tagText = (isNcTag && nowcast?.sym && !ncIsPrecip(nowcast.sym)) ? `[${ncBase(nowcast.sym)}]` : `[${rainTag}]`;
+    descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
+    if (nowcast?.meta && nowcast.meta !== 'NC'){
+      descExtra += ` <span class="soft" style="font-size:12px">[${nowcast.meta}]</span>`;
+    }
+    if (twDbg && !twDbg.startsWith('[TW!err]')){
+      descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
+      twDbg = '';
+    }
+  }
+  const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
+  const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
+  const windFallbackFromNowcast = false;
+  const highlight = computeHighlightStates({
+    rowIndex: index,
+    rainVal,
+    descWet,
+    descWeak
+  });
+  let { rainWhite, descWhite } = highlight;
+  if (twilightOverride.applied){
+    if (twilightOverride.forceRainWhite) rainWhite = true;
+    if (twilightOverride.forceDescWhite) descWhite = true;
+    if (rainObj.forceGrey) rainObj.forceGrey = false;
+  }
+  if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
+    descWhite = false;
+  }
+  if (insertedThunderTag) descWhite = false;
+  const timeWhite = (rainWhite || descWhite || windObj.white);
+  const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
+  const contradiction = applyContradiction({
+    descHtml: initialDescHtml,
+    baseDesc,
+    ssCode: hour.smartSymbol,
+    rainVal,
+    rainDisplay: rainObj.num
+  });
+  const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
+    ? contradiction.html
+    : initialDescHtml;
+  let timeHtml;
+  if (index === 0){
+    const launch = (launchTime instanceof Date && !Number.isNaN(launchTime.getTime())) ? launchTime : null;
+    const displayTime = launch || dUtc;
+    timeHtml = fmtHM(displayTime);
+  } else {
+    const timeClass = timeWhite ? 'miniW' : 'mini';
+    timeHtml = `<span class="${timeClass}">klo&nbsp;</span>${fmtH(dUtc)}`;
+  }
+  return {
+    key: hour.key,
+    time: dUtc,
+    timeHtml,
+    timeWhite,
+    temp: hour.temperature,
+    tempWhite: false,
+    descHtml: finalDescHtml,
+    descMainHtml: descMain,
+    descWhite,
+    descDisplaySource,
+    descExpectedNowcast: expectedNowcast,
+    descFallbackFromNowcast: descDisplayFallbackFromNowcast,
+    rainObj,
+    rainWhite,
+    rainTag,
+    rainSource,
+    rainExpectedNowcast,
+    rainFallbackFromNowcast,
+    windObj,
+    windWhite: windObj.white,
+    windSources,
+    windExpectedNowcast,
+    windFallbackFromNowcast,
+    twDbg,
+    skipDitto: !!(contradiction && contradiction.flagged)
+  };
+}
+
+function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
+  if (!Array.isArray(hours) || !hours.length) return { rows: [] };
+  resetTwilightState();
+  const nowcastMap = nowcasts instanceof Map ? nowcasts : new Map();
+  const sunMap = sunPhases instanceof Map ? sunPhases : new Map();
+  const rows = [];
+  const resolver = (date) => {
+    const key = dateKeyForZone(date, TZ) || (
+      Number.isFinite(date.getFullYear())
+        ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
+        : null
+    );
+    const dayObj = key ? (sunMap.get(key) || sunMap.get(String(key)) || null) : null;
+    return analyzeTwilightForHour(date, dayObj);
+  };
+  hours.forEach((hour, index) => {
+    const nowcast = nowcastMap.get(hour.key) || nowcastMap.get(hour.time?.toISOString()) || null;
+    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime });
+    if (row) rows.push(row);
+  });
+  return { rows };
+}
+
+function renderHourlyModel(model){
+  const rows = model?.rows || [];
+  if (!rows.length){
+    out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    return;
+  }
+  const state = { prevDescKey: null };
+  const html = rows.map(row => renderRow(row, state));
+  out.innerHTML = html.join('');
 }
 
 /* --------- render --------- */
@@ -1081,461 +1784,30 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
   out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
 
   try{
-    /* FMI ennuste */
-    const fRes = await fetch(buildWfsForecast(LAT,LON), {cache:'no-store'});
-    const fTxt = await fRes.text();
-    if (!fRes.ok){ out.innerHTML = `<div class="err">FMI ennuste HTTP ${fRes.status}\n${fTxt.slice(0,400)}</div>`; return; }
-    const forecast = extractSeries(parseXML(fTxt));
-
-    /* 13 tasatuntia alkaen tästä tasatunnista */
+    const forecastData = await fetchForecast(LAT, LON);
     const now = new Date();
-    const thisHourLocal  = new Date(new Date(now).setMinutes(0,0,0));
+    const thisHourLocal = new Date(new Date(now).setMinutes(0,0,0));
+    const upcoming = forecastData.hours.filter(hour => {
+      const time = hour?.time instanceof Date ? hour.time : new Date(hour?.key || hour);
+      return time instanceof Date && !Number.isNaN(time.getTime()) && time >= thisHourLocal;
+    }).slice(0, 13);
 
-    const fKeys = Array.from(forecast.temperature?.keys?.()||[]).sort();
-    const pickKeys = [];
-    for (const k of fKeys){
-      const d = new Date(k);
-      if (d >= thisHourLocal){ pickKeys.push(k); if (pickKeys.length>=13) break; }
+    if (!upcoming.length){
+      out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+      return;
     }
-    if (!pickKeys.length){ out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`; return; }
 
-    /* Nowcast t0–t2 */
-    const d0 = new Date(pickKeys[0]);
-    const d1 = pickKeys[1] ? new Date(pickKeys[1]) : null;
-    const d2 = pickKeys[2] ? new Date(pickKeys[2]) : null;
-    const [nc0, nc1, nc2] = await Promise.all([
-      fetchNowcastForHour(LAT, LON, d0),
-      d1 ? fetchNowcastForHour(LAT, LON, d1) : Promise.resolve({val:null, meta:'NC!skip'}),
-      d2 ? fetchNowcastForHour(LAT, LON, d2) : Promise.resolve({val:null, meta:'NC!skip'})
+    const nowcastTargets = upcoming.slice(0, 3);
+    const [nowcasts, sunPhases] = await Promise.all([
+      fetchNowcasts(LAT, LON, nowcastTargets),
+      fetchSunPhases(LAT, LON, upcoming)
     ]);
 
-    /* Sunrise API – hae kaikki päivät joita riveissä esiintyy */
-    const dayMap = {};
-    const uniqDays = new Set(pickKeys.map(k=>{
-      const dl=new Date(k); return dl.getFullYear()+'-'+String(dl.getMonth()+1).padStart(2,'0')+'-'+String(dl.getDate()).padStart(2,'0');
-    }));
-    const sunriseEntries = Array.from(uniqDays, key => {
-      const [Y,M,D] = key.split('-').map(Number);
-      const dl = new Date(Y, M-1, D, 12, 0, 0); // keskipäivä
-      return { key, dl };
-    });
-    const sunriseResults = await Promise.all(sunriseEntries.map(async ({ key, dl }) => {
-      try{
-        const value = await fetchSunriseDay(dl, LAT, LON);
-        return { key, value };
-      }catch(e){
-        const msg = (e && e.message) ? e.message : String(e);
-        return { key, value: { __error: `Sunrise run fail: ${msg}` } };
-      }
-    }));
-    for (const { key, value } of sunriseResults){
-      dayMap[key] = value;
-    }
-
-    function twilightFor(dLocal){
-      const key = dLocal.getFullYear()+'-'+String(dLocal.getMonth()+1).padStart(2,'0')+'-'+String(dLocal.getDate()).padStart(2,'0');
-      const tObj = dayMap[key] || null;
-      return analyzeTwilightForHour(dLocal, tObj);
-    }
-
-    const html = [];
-    const prevDescRef = { val: null };
-
-    /* t0 */
-    {
-      const key = pickKeys[0];
-      const temp = forecast.temperature?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-
-      const rawNowcastRain = (nc0 && typeof nc0.val==='number') ? nc0.val : null;
-      const rainVal0 = (rawNowcastRain!=null && rawNowcastRain<0.1) ? 0 : rawNowcastRain;
-      const rObj = rainCell(rainVal0);
-      const gust0 = (nc0 && typeof nc0.gust==='number') ? nc0.gust : null;
-      const wObj = windCell(wind, gust0, wdir);
-      const rainTag0 = nowcastMetaTag(nc0?.meta);
-
-      const descSelection0 = selectDescription({
-        nowcastText: ncSymbolText(nc0?.sym),
-        harmonieText: ssText(ss),
-        expectedNowcast: true
-      });
-      const baseDesc = descSelection0.text || '–';
-      const descSource = descSelection0.source;
-      const fallbackFromNowcast = descSelection0.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = ((rainVal0!=null && rainVal0>=0.1) || ncIsPrecip(nc0?.sym) || descWet);
-      const hourStart = new Date(key);
-      let descMain = baseDesc || '–';
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc || '–';
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal: rainVal0,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: 0,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            if (tw.sunEvent) twDbg = `[TW ${p} | ${tw.sunEvent.type==='set'?'set':'rise'} ${fmtHM(tw.sunEvent.at)}]`;
-            else if (tw.withinChange) twDbg = `[TW ${p} | change→${tw.withinChange.to} ${fmtHM(tw.withinChange.at)}]`;
-            else twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch(e){
-        if (DBG) twDbg = `[TW!err]`;
-      }
-      if (DBG && nc0?.meta && nc0.meta !== 'NC'){
-        descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
-      }
-
-      const highlight0 = computeHighlightStates({
-        rowIndex: 0,
-        rainVal: rainVal0,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlight0;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal: rainVal0,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-      pushRow(html, {
-        timeHtml: fmtHM(new Date(key)),
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag: rainTag0,
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-
-    function renderFutureHour(idx, ncPack){
-      if (pickKeys.length <= idx) return;
-      const key = pickKeys[idx], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-
-      let rainTag = nowcastMetaTag(ncPack?.meta);
-      let rainVal = null;
-      let rObj;
-      if (ncPack && typeof ncPack.val==='number'){
-        rainVal = ncPack.val < 0.1 ? 0 : ncPack.val;
-        rObj = rainCell(rainVal);
-      } else {
-        const hrmVal = (typeof rain==='number') ? rain : null;
-        rainVal = hrmVal;
-        const markGrey = idx >= 3;
-        rObj = rainCell(hrmVal, {markGrey});
-        rainTag = 'HRM';
-      }
-      const wObj = windCell(wind, null, wdir);
-
-      const descSelection = selectDescription({
-        nowcastText: ncSymbolText(ncPack?.sym),
-        harmonieText: ssText(ss),
-        expectedNowcast: idx <= 2
-      });
-      const baseDesc = descSelection.text || '–';
-      const descSource = descSelection.source;
-      const fallbackFromNowcast = descSelection.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = (rainVal!=null && rainVal>=0.1) || (ncPack?.sym && ncIsPrecip(ncPack.sym)) || descWet;
-      let descMain = baseDesc;
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc;
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: idx,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch{
-        if (DBG) twDbg = '[TW!err]';
-      }
-
-      if (DBG){
-        const isNcTag = rainTag.startsWith('NC');
-        const tagText = (isNcTag && ncPack?.sym && !ncIsPrecip(ncPack.sym)) ? `[${ncBase(ncPack.sym)}]` : `[${rainTag}]`;
-        descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
-        if (ncPack?.meta && ncPack.meta !== 'NC'){
-          descExtra += ` <span class="soft" style="font-size:12px">[${ncPack.meta}]</span>`;
-        }
-        if (twDbg && !twDbg.startsWith('[TW!err]')){
-          descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
-          twDbg = '';
-        }
-      }
-
-      const highlightF = computeHighlightStates({
-        rowIndex: idx,
-        rainVal,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlightF;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-      pushRow(html, {
-        timeHtml: fmtHM(dUtc),
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag,
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-    renderFutureHour(1, nc1);
-    renderFutureHour(2, nc2);
-
-    /* t+3…t+12 – HRM; hämärälogiikka ja pienen sateen harmaannus */
-    for (let i=3; i<pickKeys.length; i++){
-      const key = pickKeys[i], dUtc = new Date(key);
-      const temp = forecast.temperature?.get(key);
-      const rain = forecast.precipitation1h?.get(key);
-      const wind = forecast.windspeedms?.get(key);
-      const wdir = forecast.winddirection?.get(key);
-      const ss   = forecast.SmartSymbol?.get(key);
-      const ssDay = (ss!=null) ? (Number(ss)%100) : null;
-
-      const rainVal = (typeof rain==='number') ? rain : null;
-      const wet = (rainVal!=null && rainVal > 0);
-      const smallWet = (wet && rainVal < 0.3);
-      const useGreyRain = smallWet && (ssDay==null || !SMALL_RAIN_EXCEPT.has(ssDay));
-      const rObj = rainCell(rainVal, {markGrey:useGreyRain});
-
-      const descSelectionHrm = selectDescription({
-        nowcastText: null,
-        harmonieText: ssText(ss),
-        expectedNowcast: false
-      });
-      const baseDesc = descSelectionHrm.text || '–';
-      const descSource = descSelectionHrm.source;
-      const fallbackFromNowcast = descSelectionHrm.fallbackFromNowcast;
-      const descWet = isWetDescriptor(baseDesc);
-      const descWeak = isWeakWetDescriptor(baseDesc);
-      const precipish = wet || descWet;
-      let descMain = baseDesc;
-      let descTags = [];
-      let descExtra = '';
-      let twDbg = '';
-      let insertedThunderTag = false;
-      let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
-      let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
-      try{
-        const tw = twilightFor(new Date(key));
-        const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-        twilightFlags.hadTwilightMain = !!decorated.twilightMain;
-        descMain = decorated.main || baseDesc;
-        descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
-        let thunderTag = null;
-        if (decorated.twilightMain){
-          thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
-        }
-        const override = maybeApplyTwilightPrecipOverride({
-          decorated,
-          rainVal,
-          baseDesc,
-          descTags,
-          tw,
-          rowIndex: i,
-          fallbackFromNowcast,
-          descSource
-        });
-        twilightOverride = override;
-        if (override.applied){
-          twilightFlags.overrideApplied = true;
-          descMain = override.main;
-          descTags = Array.isArray(override.tags) ? override.tags : [];
-        } else if (thunderTag){
-          descTags.unshift(thunderTag);
-          insertedThunderTag = true;
-        }
-        if (DBG){
-          if (tw.dbg) twDbg = `[TW ${tw.dbg}]`;
-          else {
-            const p = tw.phase || 'n/a';
-            twDbg = `[TW ${p}]`;
-          }
-        }
-      }catch{
-        if (DBG) twDbg = '[TW!err]';
-      }
-
-      const wObj = windCell(wind, null, wdir);
-
-      const highlightHrm = computeHighlightStates({
-        rowIndex: i,
-        rainVal,
-        descWet,
-        descWeak
-      });
-      let { rainWhite, descWhite } = highlightHrm;
-      if (twilightOverride.applied){
-        if (twilightOverride.forceRainWhite) rainWhite = true;
-        if (twilightOverride.forceDescWhite) descWhite = true;
-        if (rObj.forceGrey) rObj.forceGrey = false;
-      }
-      if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-        descWhite = false;
-      }
-      if (insertedThunderTag) descWhite = false;
-      const timeWhite = (rainWhite || descWhite || wObj.white);
-      const timeHtml = `<span class="${timeWhite?'miniW':'mini'}">klo&nbsp;</span>${fmtH(dUtc)}`;
-      const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
-      const contradiction = applyContradiction({
-        descHtml: initialDescHtml,
-        baseDesc,
-        ssCode: ss,
-        rainVal,
-        rainDisplay: rObj.num
-      });
-      const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-        ? contradiction.html
-        : initialDescHtml;
-
-      pushRow(html, {
-        timeHtml,
-        temp,
-        descHtml: finalDescHtml,
-        descMainHtml: descMain,
-        descWhite,
-        rainObj: rObj,
-        rainWhite,
-        windObj: wObj,
-        windWhite: wObj.white,
-        prevKeyRef: prevDescRef,
-        twDbg,
-        rainTag: 'HRM',
-        timeWhite,
-        skipDitto: !!(contradiction && contradiction.flagged)
-      });
-    }
-
-    out.innerHTML = html.join('') || `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now });
+    renderHourlyModel(model);
   }catch(e){
-    out.innerHTML = `<div class="err">${String(e.message||e)}</div>`;
+    const msg = (e && e.message) ? e.message : String(e);
+    out.innerHTML = `<div class="err">${msg}</div>`;
   }
 })();
 </script>
