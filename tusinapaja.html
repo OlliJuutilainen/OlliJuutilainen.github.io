@@ -1482,7 +1482,7 @@ function renderRow(row, state){
   );
 }
 
-function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
+function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTime }){
   if (!hour || !(hour.time instanceof Date) || Number.isNaN(hour.time.getTime())) return null;
   const dUtc = new Date(hour.time);
   const isNowcastHour = index <= 2;
@@ -1633,7 +1633,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
     : initialDescHtml;
   let timeHtml;
   if (index === 0){
-    timeHtml = fmtHM(dUtc);
+    const launch = (launchTime instanceof Date && !Number.isNaN(launchTime.getTime())) ? launchTime : null;
+    const displayTime = launch || dUtc;
+    timeHtml = fmtHM(displayTime);
   } else {
     const timeClass = timeWhite ? 'miniW' : 'mini';
     timeHtml = `<span class="${timeClass}">klo&nbsp;</span>${fmtH(dUtc)}`;
@@ -1658,7 +1660,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
   };
 }
 
-function buildHourlyModel({ hours, nowcasts, sunPhases }){
+function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
   if (!Array.isArray(hours) || !hours.length) return { rows: [] };
   resetTwilightState();
   const nowcastMap = nowcasts instanceof Map ? nowcasts : new Map();
@@ -1675,7 +1677,7 @@ function buildHourlyModel({ hours, nowcasts, sunPhases }){
   };
   hours.forEach((hour, index) => {
     const nowcast = nowcastMap.get(hour.key) || nowcastMap.get(hour.time?.toISOString()) || null;
-    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver });
+    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime });
     if (row) rows.push(row);
   });
   return { rows };
@@ -1722,7 +1724,7 @@ function renderHourlyModel(model){
       fetchSunPhases(LAT, LON, upcoming)
     ]);
 
-    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases });
+    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now });
     renderHourlyModel(model);
   }catch(e){
     const msg = (e && e.message) ? e.message : String(e);
