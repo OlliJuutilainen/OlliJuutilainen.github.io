@@ -1036,7 +1036,7 @@ function isWetDescriptor(text, opts = {}){
   if (!text) return false;
   const low = text.toLowerCase();
   return [
-    'ripsii', 'satelee', 'kaatosad', 'ränt', 'hiutale', 'pyry', 'rake', 'mist',
+    'ripsii', 'satelee', 'kaatosad', 'ränt', 'hiutale', 'pyry', 'rake',
     'kuuro', 'ukkos', 'tihkuu', 'sadetta', 'märkä', 'lunta', 'sumu'
   ].some(w => low.includes(w));
 }
@@ -1061,7 +1061,7 @@ function analyzeFogDescriptor({ text, source }){
   const raw = (typeof text === 'string') ? text.trim() : '';
   if (!raw) return { isFog: false, baseText: raw, displayText: raw };
   const normalized = raw.toLocaleLowerCase('fi-FI');
-  if (normalized === 'mist!' || normalized === 'sumua' || normalized === 'sumu'){
+  if (normalized === 'sumua' || normalized === 'sumu'){
     let displayText = 'sumua';
     if (source === 'harmonie') displayText = 'Näkyvyys: mahdollinen';
     else if (source === 'nowcast') displayText = 'Näkyvyys: ei ole';
