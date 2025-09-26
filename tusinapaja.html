@@ -218,13 +218,83 @@ const SS_TEXT = {
   53:'siniharmaasta pyryä', 56:'sangen harmaasta pyryä', 59:'pyryttää',
   61:'rakeita jossain', 64:'rakeita', 67:'rakeiden tulitus'
 };
-const ssText = c => { if (c==null) return ''; const key=Number(c)%100; return SS_TEXT[key]||''; };
+const SMART_SYMBOL_INFO = {
+  1:  { label: 'clear', dry: true },
+  2:  { label: 'mostly_clear', dry: true },
+  4:  { label: 'partly_cloudy', dry: true },
+  6:  { label: 'cloudy', dry: true },
+  7:  { label: 'overcast', dry: true },
+  9:  { label: 'fog', fog: true },
+  11: { label: 'drizzle', precip: true, weak: true },
+  14: { label: 'freezing_drizzle', precip: true, weak: true, highlightSmall: true },
+  17: { label: 'freezing_rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  21: { label: 'shower_light', precip: true, highlightSmall: true },
+  24: { label: 'shower', precip: true, highlightSmall: true, contradictionHeavy: true },
+  27: { label: 'shower_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  31: { label: 'light_rain', precip: true },
+  32: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  33: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  34: { label: 'light_rain', precip: true },
+  35: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  36: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  37: { label: 'light_rain', precip: true },
+  38: { label: 'rain', precip: true, highlightSmall: true, contradictionHeavy: true },
+  39: { label: 'rain_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  41: { label: 'wet_snow_light', precip: true, weak: true },
+  42: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  43: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  44: { label: 'wet_snow', precip: true },
+  45: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  46: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  47: { label: 'wet_snow', precip: true },
+  48: { label: 'sleet', precip: true, highlightSmall: true, contradictionHeavy: true },
+  49: { label: 'sleet_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  51: { label: 'snow_light', precip: true, weak: true },
+  52: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  53: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  54: { label: 'snow_light', precip: true },
+  55: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  56: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  57: { label: 'snow_light', precip: true },
+  58: { label: 'snow', precip: true, highlightSmall: true, contradictionHeavy: true },
+  59: { label: 'snow_heavy', precip: true, highlightSmall: true, contradictionHeavy: true },
+  61: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  64: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  67: { label: 'hail', precip: true, hail: true, highlightSmall: true, contradictionHeavy: true },
+  71: { label: 'thunder', precip: true, thunder: true, highlightSmall: true },
+  74: { label: 'thunder', precip: true, thunder: true, highlightSmall: true },
+  77: { label: 'thunder', precip: true, thunder: true, highlightSmall: true }
+};
+const ssText = c => {
+  if (c == null) return '';
+  const num = Number(c);
+  if (!Number.isFinite(num)) return '';
+  const key = ((num % 100) + 100) % 100;
+  return SS_TEXT[key] || '';
+};
+const SMART_SYMBOL_SMALL_RAIN = new Set(
+  Object.entries(SMART_SYMBOL_INFO)
+    .filter(([, info]) => info.highlightSmall)
+    .map(([key]) => Number(key))
+);
+const SMART_SYMBOL_HEAVY = new Set(
+  Object.entries(SMART_SYMBOL_INFO)
+    .filter(([, info]) => info.contradictionHeavy)
+    .map(([key]) => Number(key))
+);
+const DRY_TEXTS = new Set(['sinistä','sangen sinistä','siniharmaata','sangen harmaata','harmaata']);
+
+function smartSymbolInfo(code){
+  if (code == null) return null;
+  const num = Number(code);
+  if (!Number.isFinite(num)) return null;
+  const key = ((num % 100) + 100) % 100;
+  return SMART_SYMBOL_INFO[key] || null;
+}
 
 /* pienen sateen ( <0.3 mm ) poikkeuslista (säilytä valkoisena jos nämä) */
-const SMALL_RAIN_EXCEPT = new Set([71,74,77,21,24,27,14,17,32,35,38,33,36,39,42,45,48,43,46,49,52,55,58,53,56,59,61,64,67]);
-
-const DRY_DESCRIPTOR = new Set(['sinistä','sangen sinistä','siniharmaata','sangen harmaata','harmaata']);
-const HEAVY_SSCODE = new Set([67,64,59,56,53,58,55,52,49,46,43,48,45,42,39,36,33,38,35,32,17,27,24]);
+const SMALL_RAIN_EXCEPT = SMART_SYMBOL_SMALL_RAIN;
+const HEAVY_SSCODE = SMART_SYMBOL_HEAVY;
 
 /* --------- MET Nowcast symbolit (NC) --------- */
 const NC_SYMBOL = {
@@ -235,13 +305,34 @@ const NC_SYMBOL = {
   'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
   'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
+const NOWCAST_INFO = {
+  clearsky: { label: 'clear', dry: true },
+  fair: { label: 'mostly_clear', dry: true },
+  partlycloudy: { label: 'partly_cloudy', dry: true },
+  cloudy: { label: 'overcast', dry: true },
+  lightrainshowers: { label: 'shower_light', precip: true, weak: true },
+  heavyrainshowers: { label: 'shower_heavy', precip: true },
+  rainshowersandthunder: { label: 'thunder_shower', precip: true, thunder: true },
+  thunderstorm: { label: 'thunder', precip: true, thunder: true },
+  heavyrain: { label: 'rain_heavy', precip: true },
+  lightrain: { label: 'rain_light', precip: true, weak: true },
+  sleet: { label: 'sleet', precip: true },
+  lightsleetshowers_and_thunder: { label: 'thunder_sleet', precip: true, thunder: true },
+  snowshowers_and_thunder: { label: 'thunder_snow', precip: true, thunder: true },
+  snow: { label: 'snow', precip: true },
+  heavysnow: { label: 'snow_heavy', precip: true },
+  fog: { label: 'fog', fog: true }
+};
 const ncBase = code => code ? code.replace(/_(day|night)$/,'') : '';
+function ncSymbolInfo(code){
+  const base = ncBase(code);
+  return base ? (NOWCAST_INFO[base] || null) : null;
+}
 const ncSymbolText = code => (NC_SYMBOL[ncBase(code)] || '');
-const ncIsPrecip = code => !!({
-  lightrain:1, heavyrain:1, lightrainshowers:1, heavyrainshowers:1,
-  rainshowersandthunder:1, sleet:1, lightsleetshowers_and_thunder:1,
-  snow:1, heavysnow:1, snowshowers_and_thunder:1, fog:1, thunderstorm:1
-}[ncBase(code)]);
+function ncIsPrecip(code){
+  const info = ncSymbolInfo(code);
+  return !!(info && (info.precip || info.fog || info.thunder));
+}
 
 /* --------- Tuulensuunta tekstit --------- */
 function dir8(deg){
@@ -933,7 +1024,15 @@ function capitalizeDayDescription(text){
   return text.slice(0, idx) + upper + text.slice(idx + 1);
 }
 
-function isWetDescriptor(text){
+function descriptorInfoFromOptions(opts){
+  if (!opts) return null;
+  const { smartSymbolCode, nowcastCode } = opts;
+  return smartSymbolInfo(smartSymbolCode) || ncSymbolInfo(nowcastCode) || null;
+}
+
+function isWetDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && (info.precip || info.fog || info.thunder)) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return [
@@ -942,16 +1041,20 @@ function isWetDescriptor(text){
   ].some(w => low.includes(w));
 }
 
-function isWeakWetDescriptor(text){
+function isWeakWetDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.weak) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return ['tihku', 'kevyt hiutale', 'märkä hiutale'].some(w => low.includes(w));
 }
 
-function isDryDescriptor(text){
+function isDryDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && !(info.precip || info.fog || info.thunder)) return true;
   if (!text) return false;
   const low = text.toLowerCase().trim();
-  return DRY_DESCRIPTOR.has(low);
+  return DRY_TEXTS.has(low);
 }
 
 function analyzeFogDescriptor({ text, source }){
@@ -992,24 +1095,30 @@ function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=f
   return '';
 }
 
-function isThunderDescriptor(text){
+function isThunderDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.thunder) return true;
   if (!text) return false;
   const low = text.toLowerCase();
   return ['ukkos', 'seppo', 'välisuihkut', 'lumiukko'].some(word => low.includes(word));
 }
 
-function isHailDescriptor(text){
+function isHailDescriptor(text, opts = {}){
+  const info = descriptorInfoFromOptions(opts);
+  if (info && info.hail) return true;
   if (!text) return false;
   return text.toLowerCase().includes('rake');
 }
 
-function isThunderOrHailDescriptor(text){
-  return isThunderDescriptor(text) || isHailDescriptor(text);
+function isThunderOrHailDescriptor(text, opts = {}){
+  return isThunderDescriptor(text, opts) || isHailDescriptor(text, opts);
 }
 
-function hasPrecipFogOrThunderDescriptor(text){
-  if (!text) return false;
-  return isWetDescriptor(text) || isThunderDescriptor(text);
+function hasPrecipFogOrThunderDescriptor(text, opts = {}){
+  if (isWetDescriptor(text, opts)) return true;
+  if (isThunderDescriptor(text, opts)) return true;
+  const info = descriptorInfoFromOptions(opts);
+  return !!(info && info.fog);
 }
 
 function ensureQuestionSuffix(text){
@@ -1025,8 +1134,8 @@ function wrapItalic(text){
   return `<em>${text}</em>`;
 }
 
-function buildThunderTag({ baseText, source }){
-  if (!isThunderOrHailDescriptor(baseText)) return null;
+function buildThunderTag({ baseText, source, descriptorOpts }){
+  if (!isThunderOrHailDescriptor(baseText, descriptorOpts)) return null;
   let text = baseText.trim();
   if (!text || text === '–') return null;
   const fromHarmonie = (source === 'harmonie');
@@ -1061,8 +1170,9 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }
   const hasDesc = base && base !== '–';
   const rainNum = (typeof rainVal === 'number' && !Number.isNaN(rainVal)) ? rainVal : null;
   const rainShown = (typeof rainDisplay === 'number' && !Number.isNaN(rainDisplay)) ? rainDisplay : null;
+  const descriptorOpts = { smartSymbolCode: ssCode };
   let strike = false;
-  if (rainNum != null && rainNum > 0.3 && isDryDescriptor(base)){
+  if (rainNum != null && rainNum > 0.3 && isDryDescriptor(base, descriptorOpts)){
     strike = true;
   } else if (hasDesc && rainShown === 0){
     const code = (ssCode != null) ? Number(ssCode) % 100 : null;
@@ -1202,12 +1312,13 @@ function maybeApplyTwilightPrecipOverride({
   tw,
   rowIndex,
   fallbackFromNowcast,
-  descSource
+  descSource,
+  descriptorOpts
 }){
   const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
   if (!decorated || !decorated.twilightMain) return result;
   if (!(Number.isFinite(rainVal) && rainVal > 0)) return result;
-  if (!hasPrecipFogOrThunderDescriptor(baseDesc)) return result;
+  if (!hasPrecipFogOrThunderDescriptor(baseDesc, descriptorOpts)) return result;
 
   const tags = Array.isArray(descTags) ? [...descTags] : [];
   if (decorated.twilightLabel){
@@ -1229,7 +1340,7 @@ function maybeApplyTwilightPrecipOverride({
     rowIndex === 2 &&
     !!fallbackFromNowcast &&
     descSource === 'harmonie' &&
-    isThunderOrHailDescriptor(baseDesc)
+    isThunderOrHailDescriptor(baseDesc, descriptorOpts)
   );
   if (italicizeThunder){
     const body = ensureQuestionSuffix(mainHtml);
@@ -1376,6 +1487,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
   const dUtc = new Date(hour.time);
   const isNowcastHour = index <= 2;
   const expectedNowcast = isNowcastHour;
+  const smartSymbolCode = hour.smartSymbol;
+  const nowcastCode = isNowcastHour ? nowcast?.sym : null;
+  const descriptorOpts = { smartSymbolCode, nowcastCode };
   let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
   let rainVal = null;
   let rainObj = null;
@@ -1388,7 +1502,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
     if (!isNowcastHour){
       const wet = (rainVal != null && rainVal > 0);
       const smallWet = (wet && rainVal < 0.3);
-      const ssDay = (hour.smartSymbol != null) ? (Number(hour.smartSymbol) % 100) : null;
+      const ssDay = (smartSymbolCode != null) ? (Number(smartSymbolCode) % 100) : null;
       const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
       rainObj = rainCell(rainVal, { markGrey: useGreyRain });
     } else {
@@ -1408,11 +1522,11 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
   const baseDesc = fogInfo.baseText || descSelection.text || '–';
   const descSource = descSelection.source;
   const fallbackFromNowcast = descSelection.fallbackFromNowcast;
-  const descWet = isWetDescriptor(baseDesc);
-  const descWeak = isWeakWetDescriptor(baseDesc);
+  const descWet = isWetDescriptor(baseDesc, descriptorOpts);
+  const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
   let precipish;
   if (isNowcastHour){
-    precipish = ((rainVal != null && rainVal >= 0.1) || (nowcast?.sym && ncIsPrecip(nowcast.sym)) || descWet);
+    precipish = ((rainVal != null && rainVal >= 0.1) || (nowcastCode && ncIsPrecip(nowcastCode)) || descWet);
   } else {
     const wet = (rainVal != null && rainVal > 0);
     precipish = wet || descWet;
@@ -1432,7 +1546,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
     descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
     let thunderTag = null;
     if (decorated.twilightMain){
-      thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource });
+      thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource, descriptorOpts });
     }
     const override = maybeApplyTwilightPrecipOverride({
       decorated,
@@ -1442,7 +1556,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
       tw,
       rowIndex: index,
       fallbackFromNowcast,
-      descSource
+      descSource,
+      descriptorOpts
     });
     twilightOverride = override;
     if (override.applied){
