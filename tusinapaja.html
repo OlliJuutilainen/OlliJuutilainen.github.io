@@ -861,8 +861,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   }
   let main = tintedMain;
 
-  const mainIsNautical = !precipish && phaseMain === 'nauttinen hämärä';
-
   const twilightMainAllowed = allowTwilightAsMain(tw);
 
   if (!precipish && phaseMain && twilightMainAllowed){
@@ -902,22 +900,25 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
-      const isTwilightPhase = phase => phase === 'civil' || phase === 'nautical' || phase === 'astronomical';
       let text = `...${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (!precipish){
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
-          if (toPhase === 'nautical' && isTwilightPhase(fromPhase)){
-            text = `nauttinen ${hhmm}`;
-            dittoEllipsis = true;
-          } else if (toPhase === 'civil' && fromPhase === 'nautical' && mainIsNautical){
-            text = `porvarillinen ${hhmm}`;
-            dittoEllipsis = true;
-          } else if (toPhase === 'astronomical' && isTwilightPhase(fromPhase)){
-            text = `${mainIsNautical ? 'astronominen' : 'astronominen hämärä'} ${hhmm}`;
-            dittoEllipsis = true;
+          const toPhaseIsTwilight = toPhase && TWILIGHT_PHASES.has(toPhase);
+          const fromPhaseIsTwilight = fromPhase && TWILIGHT_PHASES.has(fromPhase);
+          if (toPhaseIsTwilight && fromPhaseIsTwilight){
+            const twilightShortLabels = {
+              civil: 'porvarillinen',
+              nautical: 'nauttinen',
+              astronomical: 'astronominen',
+            };
+            const shortLabel = twilightShortLabels[toPhase];
+            if (shortLabel){
+              text = `${shortLabel} ${hhmm}`;
+              dittoEllipsis = true;
+            }
           }
         }
       }
