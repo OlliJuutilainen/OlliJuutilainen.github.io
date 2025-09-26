@@ -11,7 +11,8 @@
   body{
     margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    font-synthesis:none;
   }
   .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
     text-transform:uppercase; margin:0 0 4px 0 }
@@ -22,7 +23,14 @@
     text-transform:uppercase;
     letter-spacing:.6px;
     font-style:italic;
-    font-weight:300;
+    font-weight:350;
+    color:#b5bfc8;
+    font-variation-settings:'wght' 350;
+  }
+  @supports not (font-weight: 350){
+    .twilightMainText{
+      font-weight:300;
+    }
   }
   .miniPrefixed::before{
     content:'';
