@@ -161,7 +161,7 @@ function fmtH(d){ const ps=hmFi.formatToParts(d); return `${ps.find(p=>p.type===
 /* --------- SS-sanakirja (sovittu) --------- */
 const SS_TEXT = {
   1:'sinistä', 2:'sangen sinistä', 4:'siniharmaata', 6:'sangen harmaata', 7:'harmaata',
-  9:'MIST!',
+  9:'sumua',
   71:'seppoa kutittaa', 74:'seppoa ärsyttää', 77:'seppo on vihainen',
   21:'kuuro jossain', 24:'kuuroja', 27:'kuuroja sakeana',
   11:'tihkuu', 14:'kryotihkua', 17:'kryosadetta',
@@ -191,7 +191,7 @@ const NC_SYMBOL = {
   'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
   'heavyrain': "saavista kaatuu", 'lightrain': "ripsii", 'sleet': "räntää",
   'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
-  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "MIST!"
+  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
 const ncBase = code => code ? code.replace(/_(day|night)$/,'') : '';
 const ncSymbolText = code => (NC_SYMBOL[ncBase(code)] || '');
@@ -661,12 +661,6 @@ function buildDescriptionHtml({ main, tags, extra }){
   const safeMain = main || '–';
   const tagList = Array.isArray(tags) ? tags : [];
   let extraHtml = extra || '';
-  if (typeof safeMain === 'string'){
-    const normalizedMain = safeMain.replace(/<[^>]*>/g, '').trim().toUpperCase();
-    if (normalizedMain === 'MIST!' && !/siis sumua\. siis sumupainintaa\./i.test(extraHtml)){
-      extraHtml += ` <span class="mini">siis sumua. siis sumupainintaa.</span>`;
-    }
-  }
   const formattedAfter = [];
   const formattedBefore = [];
   for (const entry of tagList){
@@ -746,6 +740,19 @@ function isDryDescriptor(text){
   if (!text) return false;
   const low = text.toLowerCase().trim();
   return DRY_DESCRIPTOR.has(low);
+}
+
+function analyzeFogDescriptor({ text, source }){
+  const raw = (typeof text === 'string') ? text.trim() : '';
+  if (!raw) return { isFog: false, baseText: raw, displayText: raw };
+  const normalized = raw.toLocaleLowerCase('fi-FI');
+  if (normalized === 'mist!' || normalized === 'sumua' || normalized === 'sumu'){
+    let displayText = 'sumua';
+    if (source === 'harmonie') displayText = 'Näkyvyys: mahdollinen';
+    else if (source === 'nowcast') displayText = 'Näkyvyys: ei ole';
+    return { isFog: true, baseText: 'sumua', displayText };
+  }
+  return { isFog: false, baseText: raw, displayText: raw };
 }
 
 function selectDescription({ nowcastText, harmonieText, expectedNowcast=false }){
@@ -1215,7 +1222,8 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         harmonieText: ssText(ss),
         expectedNowcast: true
       });
-      const baseDesc = descSelection0.text || '–';
+      const fogInfo0 = analyzeFogDescriptor({ text: descSelection0.text, source: descSelection0.source });
+      const baseDesc = fogInfo0.baseText || descSelection0.text || '–';
       const descSource = descSelection0.source;
       const fallbackFromNowcast = descSelection0.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
@@ -1269,6 +1277,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }catch(e){
         if (DBG) twDbg = `[TW!err]`;
+      }
+      if (fogInfo0.isFog){
+        descMain = fogInfo0.displayText;
       }
       if (DBG && nc0?.meta && nc0.meta !== 'NC'){
         descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
@@ -1358,7 +1369,8 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         harmonieText: ssText(ss),
         expectedNowcast: idx <= 2
       });
-      const baseDesc = descSelection.text || '–';
+      const fogInfo = analyzeFogDescriptor({ text: descSelection.text, source: descSelection.source });
+      const baseDesc = fogInfo.baseText || descSelection.text || '–';
       const descSource = descSelection.source;
       const fallbackFromNowcast = descSelection.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
@@ -1409,6 +1421,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }catch{
         if (DBG) twDbg = '[TW!err]';
+      }
+      if (fogInfo.isFog){
+        descMain = fogInfo.displayText;
       }
 
       if (DBG){
@@ -1502,7 +1517,8 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         harmonieText: ssText(ss),
         expectedNowcast: false
       });
-      const baseDesc = descSelectionHrm.text || '–';
+      const fogInfoHrm = analyzeFogDescriptor({ text: descSelectionHrm.text, source: descSelectionHrm.source });
+      const baseDesc = fogInfoHrm.baseText || descSelectionHrm.text || '–';
       const descSource = descSelectionHrm.source;
       const fallbackFromNowcast = descSelectionHrm.fallbackFromNowcast;
       const descWet = isWetDescriptor(baseDesc);
@@ -1553,6 +1569,9 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         }
       }catch{
         if (DBG) twDbg = '[TW!err]';
+      }
+      if (fogInfoHrm.isFog){
+        descMain = fogInfoHrm.displayText;
       }
 
       const wObj = windCell(wind, null, wdir);
