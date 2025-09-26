@@ -1049,6 +1049,29 @@ function isDryDescriptor(text, opts = {}){
   return DRY_TEXTS.has(low);
 }
 
+function capitalizeDryDescriptor(text, opts = {}){
+  if (typeof text !== 'string') return text;
+  const trimmed = text.trim();
+  if (!trimmed) return text;
+  const info = descriptorInfoFromOptions(opts);
+  let dry = false;
+  if (info){
+    if (!(info.precip || info.fog || info.thunder)) dry = true;
+  }
+  if (!dry){
+    const normalized = trimmed.toLocaleLowerCase('fi-FI');
+    dry = DRY_TEXTS.has(normalized);
+  }
+  if (!dry) return text;
+  const leading = text.match(/^\s*/)?.[0] ?? '';
+  const rest = text.slice(leading.length);
+  if (!rest) return text;
+  const firstChar = rest.charAt(0);
+  const upper = firstChar.toLocaleUpperCase('fi-FI');
+  if (firstChar === upper) return text;
+  return leading + upper + rest.slice(1);
+}
+
 function analyzeFogDescriptor({ text, source }){
   const raw = (typeof text === 'string') ? text.trim() : '';
   if (!raw) return { isFog: false, baseText: raw, displayText: raw };
@@ -1557,11 +1580,12 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     expectedNowcast
   });
   const fogInfo = analyzeFogDescriptor({ text: descSelection.text, source: descSelection.source });
-  const baseDesc = fogInfo.baseText || descSelection.text || '–';
+  let baseDesc = fogInfo.baseText || descSelection.text || '–';
   const descSource = descSelection.source;
   const fallbackFromNowcast = descSelection.fallbackFromNowcast;
   let descDisplaySource = descSource;
   let descDisplayFallbackFromNowcast = fallbackFromNowcast;
+  baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
   const descWet = isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
   let precipish;
