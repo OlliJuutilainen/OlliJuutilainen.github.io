@@ -646,7 +646,15 @@ function formatSunEventTag(sunEvent){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const sentence = baseSunEventText(sunEvent.at, sunEvent.type);
   if (!sentence) return null;
-  return { text: sentence, italic: true, prefix: false, preserveCase: true };
+  const minutes = sunEvent.at.getMinutes();
+  const beforeMain = Number.isInteger(minutes) && minutes < 30;
+  return {
+    text: sentence,
+    italic: true,
+    prefix: false,
+    preserveCase: true,
+    beforeMain
+  };
 }
 
 function buildDescriptionHtml({ main, tags, extra }){
@@ -659,10 +667,20 @@ function buildDescriptionHtml({ main, tags, extra }){
       extraHtml += ` <span class="mini">siis sumua. siis sumupainintaa.</span>`;
     }
   }
-  const formattedTags = tagList.map(formatSmallTag);
-  const tagBody = formattedTags.join('<br>');
-  const tagHtml = formattedTags.length ? `<br>${tagBody}` : '';
-  return `${safeMain}${tagHtml}${extraHtml}`;
+  const formattedAfter = [];
+  const formattedBefore = [];
+  for (const entry of tagList){
+    const html = formatSmallTag(entry);
+    if (!html) continue;
+    const beforeMain = typeof entry === 'object' && entry && entry.beforeMain;
+    if (beforeMain) formattedBefore.push(html);
+    else formattedAfter.push(html);
+  }
+  const beforeHtml = formattedBefore.join('<br>');
+  const afterHtml = formattedAfter.join('<br>');
+  const beforeSection = beforeHtml ? `${beforeHtml}<br>` : '';
+  const afterSection = afterHtml ? `<br>${afterHtml}` : '';
+  return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
 }
 
 function shouldTintForGold(tw){
