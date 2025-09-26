@@ -101,7 +101,7 @@
 /* --------- perusinfra & virheet näkyviin --------- */
 /* --------- tonttien työlista (palaverin jatkotoimet) --------- */
 /*
-1. Yhtenäistä pääselitteen kirjainkoko niin, että `capitalizeDayDescription`
+1. Yhtenäistä pääselitteen kirjainkoko niin, että `normalizeMainDescription`
    ajetaan kaikissa vaiheissa ilman päivä-vaiherajausta, ja varmista samalla,
    ettei tyhjät tai HTML-elementillä alkavat selitteet muutu.
 2. Selvitä nousua edeltävien kuivien tuntien käsittely: kun hämärävaihe ei enää
@@ -1008,16 +1008,28 @@ function maybeApplyGoldTint(baseText, tw){
   return replaceBlueWithGold(baseText);
 }
 
-function capitalizeDayDescription(text){
+const LOWERCASE_MAIN_DESCRIPTIONS = new Set([
+  'näkyvyys: mahdollinen',
+  'näkyvyys: ei ole'
+]);
+
+function normalizeMainDescription(text){
   if (!text || typeof text !== 'string') return text;
   if (!text.trim()) return text;
   if (/^\s*</.test(text)) return text;
-  const idx = text.search(/[A-Za-zÅÄÖåäö]/);
-  if (idx < 0) return text;
-  const ch = text[idx];
-  const upper = ch.toLocaleUpperCase('fi-FI');
-  if (ch === upper) return text;
-  return text.slice(0, idx) + upper + text.slice(idx + 1);
+  const leading = text.match(/^\s*/)?.[0] ?? '';
+  const trailing = text.match(/\s*$/)?.[0] ?? '';
+  const trimmed = text.trim();
+  const trimmedLower = trimmed.toLocaleLowerCase('fi-FI');
+  if (LOWERCASE_MAIN_DESCRIPTIONS.has(trimmedLower)){
+    return `${leading}${trimmedLower}${trailing}`;
+  }
+  const match = text.match(/^(\s*)([A-Za-zÅÄÖåäö])/);
+  if (!match) return text;
+  const [, lead, firstChar] = match;
+  const upper = firstChar.toLocaleUpperCase('fi-FI');
+  if (upper === firstChar) return text;
+  return `${lead}${upper}${text.slice(lead.length + firstChar.length)}`;
 }
 
 function descriptorInfoFromOptions(opts){
@@ -1059,8 +1071,8 @@ function analyzeFogDescriptor({ text, source }){
   const normalized = raw.toLocaleLowerCase('fi-FI');
   if (normalized === 'sumua' || normalized === 'sumu'){
     let displayText = 'sumua';
-    if (source === 'harmonie') displayText = 'Näkyvyys: mahdollinen';
-    else if (source === 'nowcast') displayText = 'Näkyvyys: ei ole';
+    if (source === 'harmonie') displayText = 'näkyvyys: mahdollinen';
+    else if (source === 'nowcast') displayText = 'näkyvyys: ei ole';
     return { isFog: true, baseText: 'sumua', displayText };
   }
   return { isFog: false, baseText: raw, displayText: raw };
@@ -1208,9 +1220,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   const phaseMain = phaseLabel(tw.phase);
   tintedMain = maybeApplyGoldTint(baseText, tw);
-  if (tw.phase === 'day'){
-    tintedMain = capitalizeDayDescription(tintedMain);
-  }
+  tintedMain = normalizeMainDescription(tintedMain);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1327,9 +1337,7 @@ function maybeApplyTwilightPrecipOverride({
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
     let tinted = maybeApplyGoldTint(main, tw);
-    if (tw && tw.phase === 'day'){
-      tinted = capitalizeDayDescription(tinted);
-    }
+    tinted = normalizeMainDescription(tinted);
     main = tinted;
   }
 
