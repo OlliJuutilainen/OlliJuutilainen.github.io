@@ -633,8 +633,8 @@ function buildDescriptionHtml({ main, tags, extra }){
   let extraHtml = extra || '';
   if (typeof safeMain === 'string'){
     const normalizedMain = safeMain.replace(/<[^>]*>/g, '').trim().toUpperCase();
-    if (normalizedMain === 'MIST!' && !/siis sumua\. siis sumupainintaa\./i.test(extraHtml)){
-      extraHtml += ` <span class="mini">siis sumua. siis sumupainintaa.</span>`;
+    if (normalizedMain === 'MIST!' && !/siis sumua\./i.test(extraHtml)){
+      extraHtml += ` <span class="mini">siis sumua.</span>`;
     }
   }
   const formattedTags = tagList.map(formatSmallTag);
