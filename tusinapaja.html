@@ -101,7 +101,7 @@
 /* --------- perusinfra & virheet näkyviin --------- */
 /* --------- tonttien työlista (palaverin jatkotoimet) --------- */
 /*
-1. Yhtenäistä pääselitteen kirjainkoko niin, että `capitalizeDayDescription`
+1. Yhtenäistä pääselitteen kirjainkoko niin, että `lowercaseMainDescription`
    ajetaan kaikissa vaiheissa ilman päivä-vaiherajausta, ja varmista samalla,
    ettei tyhjät tai HTML-elementillä alkavat selitteet muutu.
 2. Selvitä nousua edeltävien kuivien tuntien käsittely: kun hämärävaihe ei enää
@@ -1008,16 +1008,11 @@ function maybeApplyGoldTint(baseText, tw){
   return replaceBlueWithGold(baseText);
 }
 
-function capitalizeDayDescription(text){
+function lowercaseMainDescription(text){
   if (!text || typeof text !== 'string') return text;
   if (!text.trim()) return text;
   if (/^\s*</.test(text)) return text;
-  const idx = text.search(/[A-Za-zÅÄÖåäö]/);
-  if (idx < 0) return text;
-  const ch = text[idx];
-  const upper = ch.toLocaleUpperCase('fi-FI');
-  if (ch === upper) return text;
-  return text.slice(0, idx) + upper + text.slice(idx + 1);
+  return text.toLocaleLowerCase('fi-FI');
 }
 
 function descriptorInfoFromOptions(opts){
@@ -1208,9 +1203,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   const phaseMain = phaseLabel(tw.phase);
   tintedMain = maybeApplyGoldTint(baseText, tw);
-  if (tw.phase === 'day'){
-    tintedMain = capitalizeDayDescription(tintedMain);
-  }
+  tintedMain = lowercaseMainDescription(tintedMain);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1327,9 +1320,7 @@ function maybeApplyTwilightPrecipOverride({
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
     let tinted = maybeApplyGoldTint(main, tw);
-    if (tw && tw.phase === 'day'){
-      tinted = capitalizeDayDescription(tinted);
-    }
+    tinted = lowercaseMainDescription(tinted);
     main = tinted;
   }
 
