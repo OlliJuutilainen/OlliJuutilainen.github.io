@@ -94,6 +94,7 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/dist/tz.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 
 <script>
@@ -140,10 +141,39 @@ if (document.readyState === 'loading'){
 const q = new URLSearchParams(location.search);
 const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
 const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
-const TZ  = 'Europe/Helsinki';
 const DBG = q.has('dbg');
 const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
+
+const FALLBACK_TIME_ZONE = (() => {
+  try {
+    const resolved = Intl.DateTimeFormat().resolvedOptions()?.timeZone;
+    return (typeof resolved === 'string' && resolved) ? resolved : 'UTC';
+  } catch (err) {
+    return 'UTC';
+  }
+})();
+
+function inferTimeZone(lat, lon){
+  const fallback = FALLBACK_TIME_ZONE || 'UTC';
+  if (Number.isFinite(lat) && Number.isFinite(lon)){
+    try {
+      if (typeof tzlookup === 'function'){
+        const guess = tzlookup(lat, lon);
+        if (typeof guess === 'string' && guess) return guess;
+      }
+    } catch (err) {
+      if (DBG) console.warn('tzlookup fail', err);
+    }
+  }
+  return fallback;
+}
+
+let timeZone = inferTimeZone(LAT, LON);
+if (typeof timeZone !== 'string' || !timeZone){
+  timeZone = FALLBACK_TIME_ZONE || 'UTC';
+}
+const TZ = timeZone;
 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
@@ -380,14 +410,116 @@ function nowcastMetaTag(meta){
 }
 
 /* --------- Sunrise API: hämärä- ja nousu/laskuajat --------- */
-/* Korjattu: offset muotoon +HH:MM getTimezoneOffsetista */
-function offsetHHMM(d){
-  const offMin = -d.getTimezoneOffset(); // minuutteja itään
-  const sign = offMin>=0 ? '+' : '-';
+const TZ_PARTS_CACHE = new Map();
+function getTimeZoneFormatter(timeZone){
+  const key = timeZone || 'UTC';
+  if (TZ_PARTS_CACHE.has(key)) return TZ_PARTS_CACHE.get(key);
+  let fmt;
+  try {
+    fmt = new Intl.DateTimeFormat('en-US',{
+      timeZone: key,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      fractionalSecondDigits: 3
+    });
+  } catch (err) {
+    fmt = new Intl.DateTimeFormat('en-US',{
+      timeZone: key,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+  TZ_PARTS_CACHE.set(key, fmt);
+  return fmt;
+}
+function partsForZone(date, timeZone){
+  if (!isValidDate(date)) return null;
+  try {
+    const parts = getTimeZoneFormatter(timeZone).formatToParts(date);
+    const obj = {};
+    for (const part of parts){
+      if (part.type === 'literal') continue;
+      if (obj[part.type] == null) obj[part.type] = part.value;
+    }
+    if (obj.second == null) obj.second = '00';
+    return obj;
+  } catch (err) {
+    if (DBG) console.warn('partsForZone fail', err);
+    return null;
+  }
+}
+function numOrNaN(value){
+  const n = Number(value);
+  return Number.isFinite(n) ? n : NaN;
+}
+function fractionalToMillis(value){
+  if (value == null) return 0;
+  const str = String(value).replace(/\D/g,'');
+  if (!str) return 0;
+  return Number(str.slice(0,3).padEnd(3,'0'));
+}
+function calendarParts(date, timeZone){
+  const parts = partsForZone(date, timeZone);
+  if (!parts) return null;
+  const year = numOrNaN(parts.year);
+  const month = numOrNaN(parts.month);
+  const day = numOrNaN(parts.day);
+  const hour = numOrNaN(parts.hour);
+  const minute = numOrNaN(parts.minute);
+  const second = numOrNaN(parts.second);
+  if (![year, month, day, hour, minute, second].every(Number.isFinite)) return null;
+  const millisecond = fractionalToMillis(parts.fractionalSecond);
+  return { year, month, day, hour, minute, second, millisecond };
+}
+function makeDateInTimeZone(year, month, day, hour, minute, second, timeZone){
+  const base = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+  const parts = calendarParts(base, timeZone);
+  if (!parts) return base;
+  const utc = Date.UTC(parts.year, parts.month-1, parts.day, parts.hour, parts.minute, parts.second);
+  const diff = utc + parts.millisecond - base.getTime();
+  return new Date(base.getTime() - diff);
+}
+function getTimeZoneOffsetMinutes(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return -date.getTimezoneOffset();
+  const utc = Date.UTC(parts.year, parts.month-1, parts.day, parts.hour, parts.minute, parts.second);
+  return Math.round((utc + parts.millisecond - date.getTime()) / 60000);
+}
+function canonicalDateForDay(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return date;
+  return makeDateInTimeZone(parts.year, parts.month, parts.day, 12, 0, 0, timeZone);
+}
+function formatOffsetFromMinutes(offMin){
+  if (!Number.isFinite(offMin)) return '+00:00';
+  const sign = offMin >= 0 ? '+' : '-';
   const abs = Math.abs(offMin);
-  const hh = String(Math.floor(abs/60)).padStart(2,'0');
-  const mm = String(abs%60).padStart(2,'0');
+  const hh = String(Math.trunc(abs/60)).padStart(2,'0');
+  const mm = String(Math.trunc(abs%60)).padStart(2,'0');
   return `${sign}${hh}:${mm}`;
+}
+function dateKeyForZone(date, timeZone){
+  const parts = calendarParts(date, timeZone);
+  if (!parts) return null;
+  const y = String(parts.year).padStart(4,'0');
+  const m = String(parts.month).padStart(2,'0');
+  const d = String(parts.day).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function offsetHHMM(d){
+  const ref = canonicalDateForDay(isValidDate(d) ? d : new Date(), TZ);
+  const offMin = getTimeZoneOffsetMinutes(ref, TZ);
+  return formatOffsetFromMinutes(offMin);
 }
 function offsetToMinutes(offset){
   const m = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
@@ -427,12 +559,14 @@ function wrapFromDate(dt, offset){
 /* Cache per YYYY-MM-DD */
 const sunriseCache = new Map();
 async function fetchSunriseDay(dateLocal, lat, lon){
-  const year = dateLocal.getFullYear();
-  const monthIdx = dateLocal.getMonth();
-  const day = dateLocal.getDate();
-  const key = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const canonical = canonicalDateForDay(dateLocal, TZ);
+  const parts = calendarParts(canonical, TZ) || calendarParts(dateLocal, TZ);
+  const year = parts?.year ?? canonical.getUTCFullYear();
+  const monthIdx = (parts ? parts.month - 1 : canonical.getUTCMonth());
+  const day = parts?.day ?? canonical.getUTCDate();
+  const key = dateKeyForZone(canonical, TZ) || `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   if (sunriseCache.has(key)) return sunriseCache.get(key);
-  const offset = offsetHHMM(dateLocal);
+  const offset = offsetHHMM(canonical);
   const url = `https://api.met.no/weatherapi/sunrise/3.0/sun?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&date=${key}&offset=${encodeURIComponent(offset)}`;
   try{
     const res = await fetch(url, {cache:'no-store', headers:{'Accept':'application/json'}});
@@ -1169,12 +1303,17 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
 
     /* Sunrise API – hae kaikki päivät joita riveissä esiintyy */
     const dayMap = {};
-    const uniqDays = new Set(pickKeys.map(k=>{
-      const dl=new Date(k); return dl.getFullYear()+'-'+String(dl.getMonth()+1).padStart(2,'0')+'-'+String(dl.getDate()).padStart(2,'0');
-    }));
+    const uniqDays = new Set();
+    for (const k of pickKeys){
+      const dl = new Date(k);
+      const key = dateKeyForZone(dl, TZ) || (Number.isFinite(dl.getFullYear())
+        ? `${dl.getFullYear()}-${String(dl.getMonth()+1).padStart(2,'0')}-${String(dl.getDate()).padStart(2,'0')}`
+        : null);
+      if (key) uniqDays.add(key);
+    }
     const sunriseEntries = Array.from(uniqDays, key => {
       const [Y,M,D] = key.split('-').map(Number);
-      const dl = new Date(Y, M-1, D, 12, 0, 0); // keskipäivä
+      const dl = makeDateInTimeZone(Y, M, D, 12, 0, 0, TZ); // keskipäivä paikallisessa ajassa
       return { key, dl };
     });
     const sunriseResults = await Promise.all(sunriseEntries.map(async ({ key, dl }) => {
