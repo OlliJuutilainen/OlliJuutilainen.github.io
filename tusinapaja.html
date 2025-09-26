@@ -630,12 +630,23 @@ function formatSmallTag(entry){
   return `<span class="${cls}"${attrStr}>${body}</span>`;
 }
 
+function baseSunEventText(at, type){
+  if (!(at instanceof Date)) return null;
+  const hhmm = fmtHM(at);
+  if (!hhmm) return null;
+  const mins = at.getMinutes();
+  const isRise = type === 'rise';
+  if (typeof mins === 'number' && mins < 30){
+    return isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`;
+  }
+  const verb = isRise ? 'Aurinko nousee' : 'Aurinko laskee';
+  return `${verb} ${hhmm}.`;
+}
+
 function formatSunEventTag(sunEvent){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
-  const hhmm = fmtHM(sunEvent.at);
-  if (!hhmm) return null;
-  const isRise = sunEvent.type === 'rise';
-  const sentence = isRise ? `Aurinko nousee ${hhmm}` : `Aurinko laskee ${hhmm}`;
+  const sentence = baseSunEventText(sunEvent.at, sunEvent.type);
+  if (!sentence) return null;
   return { text: sentence, italic: true, prefix: false, preserveCase: true };
 }
 

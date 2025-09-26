@@ -386,13 +386,15 @@ function formatSmallTag(entry){
   if (!entry) return '';
   let text = '';
   let italic = false;
+  let preserveCase = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
+    preserveCase = !!entry.preserveCase;
   }
   if (!text) return '';
-  let body = text.toLocaleLowerCase('fi-FI');
+  let body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
   if (italic) body = `<em>${body}</em>`;
   return `<span class="mini">${body}</span>`;
 }
@@ -408,12 +410,26 @@ function formatHourRange(hourStart){
   return `${from}–${to}`;
 }
 
+function baseSunEventText(at, type){
+  if (!(at instanceof Date)) return null;
+  const hhmm = fmtHM(at);
+  if (!hhmm) return null;
+  const mins = at.getMinutes();
+  const isRise = type === 'rise';
+  if (typeof mins === 'number' && mins < 30){
+    return isRise ? `auringonnousu ${hhmm}` : `auringonlasku ${hhmm}`;
+  }
+  const verb = isRise ? 'Aurinko nousee' : 'Aurinko laskee';
+  return `${verb} ${hhmm}.`;
+}
+
 function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const hhmm = fmtHM(sunEvent.at);
   if (!hhmm) return null;
   const isRise = sunEvent.type === 'rise';
   let text = null;
+  let preserveCase = false;
   if (
     !isRise &&
     twilightMain &&
@@ -427,14 +443,27 @@ function formatSunEventTag(sunEvent, { hourStart, twilightMain, phaseMain }){
     }
   }
   if (!text){
-    if (isRise){
-      const range = hourStart instanceof Date ? formatHourRange(hourStart) : null;
-      text = range ? `auringonnousu ${hhmm} (klo ${range})` : `auringonnousu ${hhmm}`;
-    } else {
-      text = `auringonlasku ${hhmm}`;
+    const base = baseSunEventText(sunEvent.at, sunEvent.type);
+    if (base){
+      preserveCase = true;
+      if (isRise){
+        const range = hourStart instanceof Date ? formatHourRange(hourStart) : null;
+        if (range){
+          if (base.endsWith('.')){
+            text = `${base.slice(0, -1)} (klo ${range}).`;
+          } else {
+            text = `${base} (klo ${range})`;
+          }
+        } else {
+          text = base;
+        }
+      } else {
+        text = base;
+      }
     }
   }
-  return { text, italic: false };
+  if (!text) return null;
+  return { text, italic: false, preserveCase };
 }
 
 function isBlueTone(text){
