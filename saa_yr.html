@@ -74,6 +74,18 @@
   function fmt(d, opts){ return d.toLocaleString('fi-FI', Object.assign({timeZone:TZ}, opts||{})); }
   function fmtH(d){ return fmt(d, {hour:'numeric'}); }
   function fmtHM(d){ return fmt(d, {hour:'numeric', minute:'2-digit'}); }
+  function formatSunEventLabel(date, type){
+    if (!(date instanceof Date)) return null;
+    var hhmm = fmtHM(date);
+    if (!hhmm) return null;
+    var mins = date.getMinutes();
+    var isRise = type === 'rise';
+    if (typeof mins === 'number' && mins < 30){
+      return (isRise ? 'auringonnousu ' : 'auringonlasku ') + hhmm;
+    }
+    var prefix = isRise ? 'Aurinko nousee ' : 'Aurinko laskee ';
+    return prefix + hhmm + '.';
+  }
 
   // VAKAA paikallisen ajan olio MET:n ISO-UTC:stä (ei toLocaleString-parsausta)
   function localFromUtc(iso){
@@ -425,7 +437,8 @@
             // tunnisteet
             var tags=[];
             if (tw.sunEvent && isFinite(tw.sunEvent.at.getTime())){
-              tags.push((tw.sunEvent.type==='set'?'auringonlasku':'auringonnousu')+' '+fmtHM(tw.sunEvent.at));
+              var sunLabel = formatSunEventLabel(tw.sunEvent.at, tw.sunEvent.type);
+              if (sunLabel) tags.push(sunLabel);
             } else if (tw.withinChange && isFinite(tw.withinChange.at.getTime())){
               var lbl = nextLabelFor(tw.withinChange.to);
               if (lbl) tags.push(lbl+' '+fmtHM(tw.withinChange.at));
