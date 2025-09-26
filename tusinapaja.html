@@ -32,6 +32,20 @@
   .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .sourceBadge{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 5px 0;
+    border:1px solid #2a2a2a;
+    border-radius:3px;
+    font-size:11px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+    color:#7f8a93;
+  }
+  .sourceBadgeNc{ color:#9fb6ff; border-color:#35415a; }
+  .sourceBadgeHrm{ color:#b7b7b7; border-color:#3a3a3a; }
+  .sourceBadgeFallback{ color:#d9b27d; border-color:#5a4528; }
   .hdr{
     color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px; align-items:end; justify-items:center;
@@ -709,6 +723,19 @@ function selectDescription({ nowcastText, harmonieText, expectedNowcast=false })
   return { text: '–', source: 'none', fallbackFromNowcast: false };
 }
 
+function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=false }){
+  if (!expectedNowcast) return '';
+  if (source === 'nowcast'){
+    return '<span class="sourceBadge sourceBadgeNc">NC</span>';
+  }
+  if (source === 'harmonie'){
+    const classes = ['sourceBadge', 'sourceBadgeHrm'];
+    if (fallbackFromNowcast) classes.push('sourceBadgeFallback');
+    return `<span class="${classes.join(' ')}">HRM</span>`;
+  }
+  return '';
+}
+
 function isThunderDescriptor(text){
   if (!text) return false;
   const low = text.toLowerCase();
@@ -1209,6 +1236,15 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
         descExtra += ` <span class="soft" style="font-size:12px">[${nc0.meta}]</span>`;
       }
 
+      const sourceBadge0 = buildSourceBadge({
+        source: descSource,
+        expectedNowcast: true,
+        fallbackFromNowcast
+      });
+      if (sourceBadge0){
+        descExtra += ` ${sourceBadge0}`;
+      }
+
       const highlight0 = computeHighlightStates({
         rowIndex: 0,
         rainVal: rainVal0,
@@ -1348,6 +1384,15 @@ function pushRow(htmlArr, {timeHtml, temp, descHtml, descMainHtml, descWhite, ra
           descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
           twDbg = '';
         }
+      }
+
+      const sourceBadgeF = buildSourceBadge({
+        source: descSource,
+        expectedNowcast: idx <= 2,
+        fallbackFromNowcast
+      });
+      if (sourceBadgeF){
+        descExtra += ` ${sourceBadgeF}`;
       }
 
       const highlightF = computeHighlightStates({
