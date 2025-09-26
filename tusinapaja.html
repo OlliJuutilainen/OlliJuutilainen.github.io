@@ -1054,8 +1054,8 @@ function analyzeFogDescriptor({ text, source }){
   const normalized = raw.toLocaleLowerCase('fi-FI');
   if (normalized === 'sumua' || normalized === 'sumu'){
     let displayText = 'sumua';
-    if (source === 'harmonie') displayText = 'Näkyvyys: mahdollinen';
-    else if (source === 'nowcast') displayText = 'Näkyvyys: ei ole';
+    if (source === 'harmonie') displayText = 'näkyvyys: mahdollinen';
+    else if (source === 'nowcast') displayText = 'näkyvyys: ei ole';
     return { isFog: true, baseText: 'sumua', displayText };
   }
   return { isFog: false, baseText: raw, displayText: raw };
@@ -1203,7 +1203,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   const phaseMain = phaseLabel(tw.phase);
   tintedMain = maybeApplyGoldTint(baseText, tw);
-  tintedMain = lowercaseMainDescription(tintedMain);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1320,7 +1319,6 @@ function maybeApplyTwilightPrecipOverride({
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
     let tinted = maybeApplyGoldTint(main, tw);
-    tinted = lowercaseMainDescription(tinted);
     main = tinted;
   }
 
