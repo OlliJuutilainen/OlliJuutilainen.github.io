@@ -471,7 +471,7 @@ const TWILIGHT_PHASES = new Set(['civil','nautical','astronomical','night']);
 function nextLabelFor(toPhase){
   if (toPhase==='nautical') return 'vaihtuu nauttiseksi';
   if (toPhase==='astronomical') return 'astronominen hämärä';
-  if (toPhase==='night') return '-> säkkipimeäksi';
+  if (toPhase==='night') return 'säkkipimeä';
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
 }
@@ -870,7 +870,9 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const isTwilightPhase = phase => phase === 'civil' || phase === 'nautical' || phase === 'astronomical';
       let text = `...${label} ${hhmm}`;
       let dittoEllipsis = false;
-      if (!precipish){
+      if (toPhase === 'night'){
+        text = `säkkipimeä ${hhmm}`;
+      } else if (!precipish){
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
@@ -890,7 +892,9 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       if (dittoEllipsis) entry.dittoEllipsis = true;
       tags.push(entry);
     } else if (label){
-      tags.push({ text: `...${label} ${fmtHM(tw.withinChange.at)}`, italic: true });
+      const base = `...${label} ${fmtHM(tw.withinChange.at)}`;
+      const text = tw.withinChange?.to === 'night' ? base.replace(/^\.\.\./, '').trimStart() : base;
+      tags.push({ text, italic: true });
     }
     if (
       label &&
