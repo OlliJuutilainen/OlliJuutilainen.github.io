@@ -980,16 +980,19 @@ function selectDescription({ nowcastText, harmonieText, expectedNowcast=false })
 }
 
 function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=false }){
-  if (!SHOW_SOURCE_BADGES || !expectedNowcast) return '';
+  if (!SHOW_SOURCE_BADGES) return '';
+  if (source == null || source === 'none') return '';
   if (source === 'nowcast'){
     return '<span class="sourceBadge sourceBadgeNc">NC</span>';
   }
   if (source === 'harmonie'){
     const classes = ['sourceBadge', 'sourceBadgeHrm'];
-    if (fallbackFromNowcast) classes.push('sourceBadgeFallback');
+    if (fallbackFromNowcast && expectedNowcast) classes.push('sourceBadgeFallback');
     return `<span class="${classes.join(' ')}">HRM</span>`;
   }
-  return '';
+  const label = (typeof source === 'string') ? source.trim().toUpperCase() : '';
+  if (!label) return '';
+  return `<span class="sourceBadge">${label}</span>`;
 }
 
 function isThunderDescriptor(text){
@@ -1259,11 +1262,11 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
 }
 
 /* --------- solut --------- */
-function rainCell(val, {markGrey=false}={}){
-  if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true };
+function rainCell(val, { markGrey=false, source=null } = {}){
+  if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
-  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true };
-  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey };
+  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
+  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
   if (!Number.isFinite(val)) return null;
@@ -1271,7 +1274,7 @@ function formatWindSpeed(val){
   return (Object.is(rounded, -0) ? 0 : rounded).toString();
 }
 
-function windCell(mean, gust, dirDeg){
+function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null } = {}){
   const mOk = (mean!=null && !isNaN(Number(mean)));
   const gOk = (gust!=null && !isNaN(Number(gust)));
   const meanV = mOk ? Number(mean) : null;
@@ -1294,7 +1297,11 @@ function windCell(mean, gust, dirDeg){
   const dirTxt = dir8(dirDeg);
   const dirHtml = dirTxt ? `<span class="${highlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
 
-  return { html: txt + gustTxt + dirHtml, white: highlight };
+  const sources = new Set();
+  if (meanSource) sources.add(meanSource);
+  if (gOk && gustSource) sources.add(gustSource);
+
+  return { html: txt + gustTxt + dirHtml, white: highlight, sources: Array.from(sources) };
 }
 
 /* Ditto */
@@ -1310,16 +1317,22 @@ function renderRow(row, state){
     descWhite,
     rainObj,
     rainWhite,
+    rainSource,
+    rainExpectedNowcast = false,
+    rainFallbackFromNowcast = false,
     windObj,
     windWhite,
+    windSources,
+    windExpectedNowcast = false,
+    windFallbackFromNowcast = false,
     twDbg,
     rainTag,
     timeWhite = false,
     tempWhite = false,
     skipDitto = false
   } = row || {};
-  const rain = rainObj || { text: '–', num: null, extraClass: '', forceGrey: false };
-  const wind = windObj || { html: '–', white: false };
+  const rain = rainObj || { text: '–', num: null, extraClass: '', forceGrey: false, source: null };
+  const wind = windObj || { html: '–', white: false, sources: [] };
   const mainHtml = descMainHtml || descHtml || '–';
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
@@ -1347,7 +1360,14 @@ function renderRow(row, state){
   } else {
     state.prevDescKey = normalized || null;
   }
+  const resolvedRainSource = rainSource != null ? rainSource : rain.source;
+  const rainBadge = buildSourceBadge({
+    source: resolvedRainSource,
+    expectedNowcast: !!rainExpectedNowcast,
+    fallbackFromNowcast: !!rainFallbackFromNowcast
+  });
   const rainTagHtml = (rain.text === '—') ? '' : tag(rainTag || '');
+  const rainBadgeHtml = rainBadge ? ` ${rainBadge}` : '';
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
@@ -1360,13 +1380,26 @@ function renderRow(row, state){
   if (rain.extraClass) rainClasses.push(rain.extraClass);
   const windClasses = ['cell'];
   if (!windWhite) windClasses.push('soft');
+  const resolvedWindSources = Array.isArray(windSources) && windSources.length
+    ? windSources
+    : (Array.isArray(wind.sources) ? wind.sources : []);
+  const uniqueWindSources = Array.from(new Set(resolvedWindSources.filter(Boolean)));
+  const windBadges = uniqueWindSources
+    .map(src => buildSourceBadge({
+      source: src,
+      expectedNowcast: !!(windExpectedNowcast && src === 'nowcast'),
+      fallbackFromNowcast: !!(windFallbackFromNowcast && src === 'harmonie')
+    }))
+    .filter(Boolean)
+    .join(' ');
+  const windBadgeHtml = windBadges ? ` ${windBadges}` : '';
   return (
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
       `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
-      `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}</div>`+
-      `<div class="${windClasses.join(' ')}">${wind.html}</div>`+
+      `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}${rainBadgeHtml}</div>`+
+      `<div class="${windClasses.join(' ')}">${wind.html}${windBadgeHtml}</div>`+
     `</div>`
   );
 }
@@ -1379,26 +1412,34 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
   let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
   let rainVal = null;
   let rainObj = null;
+  let rainSource = null;
+  let rainFallbackFromNowcast = false;
   if (isNowcastHour && nowcast && typeof nowcast.val === 'number'){
     rainVal = nowcast.val < 0.1 ? 0 : nowcast.val;
-    rainObj = rainCell(rainVal);
+    rainSource = 'nowcast';
+    rainObj = rainCell(rainVal, { source: rainSource });
   } else {
     const hrmVal = (typeof hour.precipitation === 'number') ? hour.precipitation : null;
     rainVal = hrmVal;
+    rainSource = 'harmonie';
+    if (isNowcastHour) rainFallbackFromNowcast = true;
     if (!isNowcastHour){
       const wet = (rainVal != null && rainVal > 0);
       const smallWet = (wet && rainVal < 0.3);
       const ssDay = (hour.smartSymbol != null) ? (Number(hour.smartSymbol) % 100) : null;
       const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
-      rainObj = rainCell(rainVal, { markGrey: useGreyRain });
+      rainObj = rainCell(rainVal, { markGrey: useGreyRain, source: rainSource });
     } else {
-      rainObj = rainCell(rainVal, { markGrey: index >= 3 });
+      rainObj = rainCell(rainVal, { markGrey: index >= 3, source: rainSource });
       rainTag = 'HRM';
     }
   }
-  if (!rainObj) rainObj = rainCell(rainVal);
-  const gust = (index === 0 && nowcast && typeof nowcast.gust === 'number') ? nowcast.gust : null;
-  const windObj = windCell(hour.windSpeed, gust, hour.windDirection);
+  if (!rainObj) rainObj = rainCell(rainVal, { source: rainSource });
+  const gustAvailable = (index === 0 && nowcast && typeof nowcast.gust === 'number');
+  const gust = gustAvailable ? nowcast.gust : null;
+  const gustSource = gustAvailable ? 'nowcast' : null;
+  const windObj = windCell(hour.windSpeed, gust, hour.windDirection, { meanSource: 'harmonie', gustSource });
+  const rainExpectedNowcast = expectedNowcast;
   const descSelection = selectDescription({
     nowcastText: isNowcastHour ? ncSymbolText(nowcast?.sym) : null,
     harmonieText: ssText(hour.smartSymbol),
@@ -1480,6 +1521,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
       twDbg = '';
     }
   }
+  const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
+  const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
+  const windFallbackFromNowcast = false;
   const sourceBadge = buildSourceBadge({
     source: descSource,
     expectedNowcast,
@@ -1536,8 +1580,14 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver }){
     rainObj,
     rainWhite,
     rainTag,
+    rainSource,
+    rainExpectedNowcast,
+    rainFallbackFromNowcast,
     windObj,
     windWhite: windObj.white,
+    windSources,
+    windExpectedNowcast,
+    windFallbackFromNowcast,
     twDbg,
     skipDitto: !!(contradiction && contradiction.flagged)
   };
