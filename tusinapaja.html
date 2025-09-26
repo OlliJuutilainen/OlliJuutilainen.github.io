@@ -1426,6 +1426,9 @@ function renderRow(row, state){
     descHtml,
     descMainHtml,
     descWhite,
+    descDisplaySource,
+    descExpectedNowcast = false,
+    descFallbackFromNowcast = false,
     rainObj,
     rainWhite,
     rainSource,
@@ -1470,6 +1473,14 @@ function renderRow(row, state){
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     state.prevDescKey = normalized || null;
+  }
+  const descBadge = buildSourceBadge({
+    source: descDisplaySource,
+    expectedNowcast: !!descExpectedNowcast,
+    fallbackFromNowcast: !!descFallbackFromNowcast
+  });
+  if (descBadge){
+    displayDesc += ` ${descBadge}`;
   }
   const resolvedRainSource = rainSource != null ? rainSource : rain.source;
   const rainBadge = buildSourceBadge({
@@ -1563,6 +1574,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const baseDesc = fogInfo.baseText || descSelection.text || '–';
   const descSource = descSelection.source;
   const fallbackFromNowcast = descSelection.fallbackFromNowcast;
+  let descDisplaySource = descSource;
+  let descDisplayFallbackFromNowcast = fallbackFromNowcast;
   const descWet = isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
   let precipish;
@@ -1605,9 +1618,18 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
       twilightFlags.overrideApplied = true;
       descMain = override.main;
       descTags = Array.isArray(override.tags) ? override.tags : [];
+      descDisplaySource = descSource;
+      descDisplayFallbackFromNowcast = fallbackFromNowcast;
     } else if (thunderTag){
       descTags.unshift(thunderTag);
       insertedThunderTag = true;
+      if (decorated.twilightMain){
+        descDisplaySource = 'twilight';
+        descDisplayFallbackFromNowcast = false;
+      }
+    } else if (decorated.twilightMain){
+      descDisplaySource = 'twilight';
+      descDisplayFallbackFromNowcast = false;
     }
     if (DBG){
       if (tw?.dbg) twDbg = `[TW ${tw.dbg}]`;
@@ -1623,6 +1645,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   }
   if (fogInfo.isFog){
     descMain = fogInfo.displayText;
+    descDisplaySource = descSource;
+    descDisplayFallbackFromNowcast = fallbackFromNowcast;
   }
   if (DBG && isNowcastHour){
     const isNcTag = rainTag.startsWith('NC');
@@ -1639,14 +1663,6 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
   const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
   const windFallbackFromNowcast = false;
-  const sourceBadge = buildSourceBadge({
-    source: descSource,
-    expectedNowcast,
-    fallbackFromNowcast
-  });
-  if (sourceBadge){
-    descExtra += ` ${sourceBadge}`;
-  }
   const highlight = computeHighlightStates({
     rowIndex: index,
     rainVal,
@@ -1694,6 +1710,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     descHtml: finalDescHtml,
     descMainHtml: descMain,
     descWhite,
+    descDisplaySource,
+    descExpectedNowcast: expectedNowcast,
+    descFallbackFromNowcast: descDisplayFallbackFromNowcast,
     rainObj,
     rainWhite,
     rainTag,
