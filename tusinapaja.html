@@ -1302,16 +1302,24 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let startKey = null;
   if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
-    startKey = `${tw.phase}-${phaseStart.getTime()}`;
-    if (tw.startedWithinHour){
-      startTag = `ALKAA ${fmtHM(phaseStart)}`;
-    } else if (
-      tw.phase !== twilightState.lastPhase &&
-      !twilightState.announced.has(startKey)
-    ){
-      const prevHourStart = twilightState.lastHourStart;
-      if (prevHourStart && phaseStart >= prevHourStart){
-        startTag = `(alkoi ${fmtHM(phaseStart)})`;
+    const hhmm = fmtHM(phaseStart);
+    const minutes = phaseStart.getMinutes();
+    const beforeMain = Number.isInteger(minutes) && minutes < 30;
+    let label = beginLabel(tw.phase);
+    if (!label && phaseMain) label = `${phaseMain} alkaa`;
+    if (label && hhmm){
+      const entry = { text: `${label} ${hhmm}`, italic: true, beforeMain };
+      startKey = `${tw.phase}-${phaseStart.getTime()}`;
+      if (tw.startedWithinHour){
+        startTag = entry;
+      } else if (
+        tw.phase !== twilightState.lastPhase &&
+        !twilightState.announced.has(startKey)
+      ){
+        const prevHourStart = twilightState.lastHourStart;
+        if (prevHourStart && phaseStart >= prevHourStart){
+          startTag = entry;
+        }
       }
     }
   }
@@ -1320,7 +1328,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
   } else if (startTag){
-    tags.push({ text: startTag, italic: true, prefix: true });
+    tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
@@ -1355,6 +1363,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
         }
       }
       const entry = { text, italic: true };
+      if (Number.isInteger(minutes) && minutes < 30) entry.beforeMain = true;
       if (dittoEllipsis) entry.dittoEllipsis = true;
       tags.push(entry);
     } else if (label){
