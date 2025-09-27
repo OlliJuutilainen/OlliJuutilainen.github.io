@@ -143,7 +143,7 @@
 <script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/dist/tz.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 
-<script>
+<script type="module">
 /* --------- perusinfra & virheet näkyviin --------- */
 /* --------- tonttien työlista (palaverin jatkotoimet) --------- */
 /*
@@ -158,16 +158,105 @@
    palaa jatkokehityksessä.
 */
 const out = document.getElementById('out');
+
+function prependError(message){
+  out.innerHTML = `<div class="err">${message}</div>` + out.innerHTML;
+}
+
 window.addEventListener('error', e => {
+  if (e?.error && typeof e.error === 'object' && e.error.__tusinaHandled){
+    return;
+  }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  out.innerHTML = `<div class="err">Virhe: ${msg}${where}</div>` + out.innerHTML;
+  prependError(`Virhe: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
+  if (reason && typeof reason === 'object' && reason.__tusinaHandled){
+    return;
+  }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  out.innerHTML = `<div class="err">Virhe (lupaus): ${msg}</div>` + out.innerHTML;
+  prependError(`Virhe (lupaus): ${msg}`);
 });
+
+function base64urlToBytes(b64u){
+  if (typeof b64u !== 'string' || !b64u){
+    throw new Error('Virheellinen base64url-merkkijono.');
+  }
+  const normalized = b64u.replace(/-/g, '+').replace(/_/g, '/');
+  const padLength = (4 - normalized.length % 4) % 4;
+  const padded = normalized + '='.repeat(padLength);
+  const bin = atob(padded);
+  const outArr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) outArr[i] = bin.charCodeAt(i);
+  return outArr;
+}
+
+async function fetchAndDecryptLocation(token, keyB64u){
+  const endpoint = `/api/loc?t=${encodeURIComponent(token)}`;
+  const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  if (!res.ok){
+    const errMsg = res.status === 404 ? 'Sijaintitokenia ei löytynyt.' : `Sijaintipalvelu vastasi virheellä (${res.status}).`;
+    throw new Error(errMsg);
+  }
+
+  let payload;
+  try {
+    payload = await res.json();
+  } catch (err) {
+    throw new Error('Sijaintipalvelu palautti virheellistä dataa.');
+  }
+
+  if (!payload || typeof payload !== 'object'){
+    throw new Error('Sijaintipaketti puuttuu.');
+  }
+
+  const { v, iv, ct } = payload;
+  if (v !== 1){
+    throw new Error('Tuntematon sijaintipaketin versio.');
+  }
+  if (typeof iv !== 'string' || typeof ct !== 'string'){
+    throw new Error('Sijaintipaketista puuttuu salausdata.');
+  }
+
+  let keyBytes, ivBytes, ctBytes;
+  try {
+    keyBytes = base64urlToBytes(keyB64u);
+    ivBytes = base64urlToBytes(iv);
+    ctBytes = base64urlToBytes(ct);
+  } catch (err) {
+    throw new Error('Sijaintipaketin base64url-muunnos epäonnistui.');
+  }
+
+  let cryptoKey;
+  try {
+    cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
+  } catch (err) {
+    throw new Error('Sijaintiavain ei kelpaa AES-GCM -purkuun.');
+  }
+
+  let plaintext;
+  try {
+    plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
+  } catch (err) {
+    throw new Error('Sijaintipaketin purku epäonnistui (AES-GCM).');
+  }
+
+  let parsed;
+  try {
+    const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
+    parsed = JSON.parse(decoded);
+  } catch (err) {
+    throw new Error('Sijaintipaketin sisältö on virheellinen.');
+  }
+
+  if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
+    throw new Error('Sijaintipaketista puuttuu kelvolliset lat/lon-arvot.');
+  }
+
+  return parsed;
+}
 
 /* --------- mittaa ellipsin leveys pienitekstissä --------- */
 function initMiniEllipsisWidth(){
@@ -195,13 +284,53 @@ if (document.readyState === 'loading'){
   initMiniEllipsisWidth();
 }
 
-/* --------- URL-parametrit --------- */
+/* --------- URL-parametrit & sijainti --------- */
 const q = new URLSearchParams(location.search);
-const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
-const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
 const DBG = q.has('dbg');
 const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
+
+let LAT_STR = q.get('lat');
+let LON_STR = q.get('lon');
+let ZOOM_PARAM = q.get('z');
+let LOCATION_SOURCE = 'query';
+
+const hashRaw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+const hashParams = new URLSearchParams(hashRaw);
+const HASH_TOKEN = hashParams.get('t');
+const HASH_KEY = hashParams.get('k');
+
+if (HASH_TOKEN || HASH_KEY){
+  if (!HASH_TOKEN || !HASH_KEY){
+    const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
+    const msg = `Sijaintilinkistä puuttuu ${which}.`;
+    prependError(msg);
+    throw new Error(msg);
+  }
+
+  try {
+    /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
+    const decrypted = await fetchAndDecryptLocation(HASH_TOKEN, HASH_KEY);
+    LAT_STR = String(decrypted.lat);
+    LON_STR = String(decrypted.lon);
+    if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
+    LOCATION_SOURCE = 'hash';
+    if (DBG){
+      console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
+    }
+  } catch (err) {
+    const detail = err?.message ? `: ${err.message}` : '';
+    prependError(`Sijaintipaketin purku epäonnistui${detail}`);
+    console.error('Sijaintipaketin purku epäonnistui', err);
+    if (err && typeof err === 'object') err.__tusinaHandled = true;
+    throw err;
+  }
+} else if (DBG && HASH_TOKEN == null && HASH_KEY == null){
+  console.info('Hash-fragmenttia ei annettu; käytetään kehityksen query-parametreja.', { lat: LAT_STR, lon: LON_STR });
+}
+
+const LAT = parseFloat(LAT_STR);
+const LON = parseFloat(LON_STR);
 
 const FALLBACK_TIME_ZONE = (() => {
   try {
