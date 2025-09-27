@@ -8,7 +8,7 @@
 - Palvelin (Cloudflare Worker) ei koskaan näe **K**:ta.
 - Ratkaisu toimii sekä web-linkkinä että Androidin deeplinkkinä.
 
-**Web-linkin malli:** `https://<domain>/app.html#t=<TOKEN>&k=<KEY>`  
+**Web-linkin malli:** `https://<domain>/tusinapaja.html#t=<TOKEN>&k=<KEY>`
 **Android QR -deeplink:** `tusinasaa://open/v1#t=<TOKEN>&k=<KEY>`
 
 ---
@@ -68,7 +68,7 @@ export default {
 <label>Lat <input id="lat" type="number" step="any"></label><br>
 <label>Lon <input id="lon" type="number" step="any"></label><br>
 <label>Z   <input id="z" type="number" value="13"></label><br>
-<label>Base URL (web) <input id="base" value="https://example.com/app.html" size="50"></label><br>
+<label>Base URL (web) <input id="base" value="https://example.com/tusinapaja.html" size="50"></label><br>
 <button id="go">Generate</button>
 <pre id="out"></pre>
 <script>
@@ -117,6 +117,16 @@ ${android}
 ```
 
 **Käyttöohje:** Aja selaimessa paikallisesti, syötä `lat/lon/z`, talleta `kv` Cloudflare KV:hen avaimella `TOKEN`, ja muodosta QR-koodi web- tai Android-linkistä.
+
+---
+
+## 4) Worker-julkaisu ja tokenien revokointi
+
+- Tässä repossa oleva `worker.js` vastaa `GET /api/loc` -pyyntöihin ja hakee salatut paketit `LOCATIONS`-KV:stä.
+- `wrangler.toml` sisältää valmiin kokoonpanopohjan – täytä oma tuotanto- ja esikatselu-ID ennen julkaisuja.
+- Julkaisu Cloudflareen: `wrangler deploy` (tai esikatselu `wrangler dev`).
+- Tokeneita voi poistaa (revoke) Cloudflarelta esimerkiksi: `wrangler kv:key delete --namespace-id <ID> <TOKEN>`.
+- Muista pitää AES-avaimet vain hash-fragmentissa ja poistaa vanhat tokenit KV:stä, kun QR halutaan mitätöidä.
 
 ---
 

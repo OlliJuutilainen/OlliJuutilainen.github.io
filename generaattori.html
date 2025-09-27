@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tusinasää – token+avain generaattori</title>
+<style>
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin:24px auto;
+    max-width:720px;
+    padding:0 16px 48px;
+    background:#f5f5f7;
+    color:#1c1c1f;
+  }
+  h1{ font-size:24px; margin-bottom:12px; }
+  label{ display:block; margin:12px 0 4px; font-weight:600; }
+  input[type="number"], input[type="text"]{
+    width:100%; max-width:360px; font-size:16px; padding:8px 10px;
+    border:1px solid #b6bcc8; border-radius:6px; box-sizing:border-box;
+  }
+  button{
+    margin-top:18px; padding:10px 20px; font-size:16px; font-weight:600;
+    border:none; border-radius:999px; background:#2f4ad0; color:white;
+    cursor:pointer;
+  }
+  button:disabled{ opacity:0.6; cursor:progress; }
+  pre{
+    background:#111; color:#e8e8e8; padding:18px; border-radius:10px;
+    overflow:auto; margin-top:24px; white-space:pre-wrap;
+  }
+  .note{ font-size:14px; color:#444; margin-top:6px; }
+  .err{ color:#b00020; font-weight:600; margin-top:12px; }
+</style>
+</head>
+<body>
+<h1>Tusinasää – token+avain generaattori</h1>
+<p class="note">Työkalu arpoo tokenin ja salausavaimen, salaa koordinaatit AES-GCM:llä ja tulostaa Cloudflare KV -talletteen sekä valmiit web- ja Android-linkit.</p>
+
+<label for="lat">Leveysaste (lat)</label>
+<input id="lat" type="number" step="any" placeholder="60.1699" required>
+
+<label for="lon">Pituusaste (lon)</label>
+<input id="lon" type="number" step="any" placeholder="24.9384" required>
+
+<label for="z">Zoom / karttatarkkuus (z)</label>
+<input id="z" type="number" value="13" min="1" max="18">
+
+<label for="baseUrl">Base URL (web)</label>
+<input id="baseUrl" type="text" value="https://example.com/tusinapaja.html">
+<p class="note">Tätä URL:ia käytetään web-linkin rungossa. Android-deeplink muodostetaan kiinteästä skeemasta <code>tusinasaa://open/v1</code>.</p>
+
+<button id="generate">Generoi token &amp; linkit</button>
+<div id="error" class="err" role="alert" style="display:none"></div>
+<pre id="output" aria-live="polite">Anna sijainti ja paina "Generoi".</pre>
+
+<script type="module">
+const latInput = document.getElementById('lat');
+const lonInput = document.getElementById('lon');
+const zInput = document.getElementById('z');
+const baseInput = document.getElementById('baseUrl');
+const generateBtn = document.getElementById('generate');
+const output = document.getElementById('output');
+const errorBox = document.getElementById('error');
+
+const encoder = new TextEncoder();
+
+function clearError(){
+  errorBox.style.display = 'none';
+  errorBox.textContent = '';
+}
+
+function showError(msg){
+  errorBox.textContent = msg;
+  errorBox.style.display = '';
+}
+
+function randomBytes(length){
+  const buf = new Uint8Array(length);
+  crypto.getRandomValues(buf);
+  return buf;
+}
+
+function toBase64Url(bytes){
+  let binary = '';
+  bytes.forEach(b => { binary += String.fromCharCode(b); });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function randomToken(length = 32){
+  // Token syötetään URL:iin ja KV:hen -> pidetään URL-ystävällisenä.
+  const raw = toBase64Url(randomBytes(length));
+  return raw.replace(/[^A-Za-z0-9_-]/g, '').slice(0, length);
+}
+
+async function encryptLocation(keyBytes, payload){
+  const iv = randomBytes(12);
+  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt']);
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, cryptoKey, encoder.encode(payload));
+  return { iv: toBase64Url(iv), ct: toBase64Url(new Uint8Array(ciphertext)) };
+}
+
+generateBtn.addEventListener('click', async () => {
+  clearError();
+  generateBtn.disabled = true;
+  output.textContent = 'Generoidaan…';
+
+  try {
+    const lat = parseFloat(latInput.value);
+    const lon = parseFloat(lonInput.value);
+    const zoom = zInput.value === '' ? null : parseInt(zInput.value, 10);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)){
+      throw new Error('Anna kelvolliset koordinaatit.');
+    }
+
+    const payloadObject = { lat, lon };
+    if (Number.isInteger(zoom)) payloadObject.z = zoom;
+
+    const payloadJson = JSON.stringify(payloadObject);
+    const token = randomToken(32);
+    const keyBytes = randomBytes(32); // 256-bit AES-avain
+    const keyB64u = toBase64Url(keyBytes);
+    const encrypted = await encryptLocation(keyBytes, payloadJson);
+
+    const kvValue = JSON.stringify({ v: 1, iv: encrypted.iv, ct: encrypted.ct }, null, 2);
+    const baseUrl = baseInput.value.trim() || 'https://example.com/tusinapaja.html';
+    const webUrl = `${baseUrl}#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
+    const androidUrl = `tusinasaa://open/v1#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
+
+    output.textContent = `# KV talletus
+TOKEN:
+${token}
+
+VALUE (JSON talteen LOCATIONS[${token}]):
+${kvValue}
+
+# Web-linkki (QR)
+${webUrl}
+
+# Android-deeplink (QR)
+${androidUrl}
+
+# Muistilista
+- Talleta JSON Cloudflare KV -namespaceen komennolla esim.:
+  wrangler kv:key put --namespace-id <ID> ${token} '${kvValue.replace(/'/g, "'\\''")}'
+- QR-koodia varten käytä web- tai Android-linkkiä.
+- Revoke: wrangler kv:key delete --namespace-id <ID> ${token}`;
+  } catch (err) {
+    console.error(err);
+    showError(err?.message || 'Tuntematon virhe.');
+    output.textContent = 'Anna sijainti ja paina "Generoi".';
+  } finally {
+    generateBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
