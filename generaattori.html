@@ -46,6 +46,9 @@
 <label for="z">Zoom / karttatarkkuus (z)</label>
 <input id="z" type="number" value="13" min="1" max="18">
 
+<label for="title">Erikoisotsikko (valinnainen)</label>
+<input id="title" type="text" placeholder="TUSINASÄÄ 12 · NIMI">
+
 <label for="baseUrl">Base URL (web)</label>
 <input id="baseUrl" type="text" value="https://example.com/tusinapaja.html">
 <p class="note">Tätä URL:ia käytetään web-linkin rungossa. Android-deeplink muodostetaan kiinteästä skeemasta <code>tusinasaa://open/v1</code>.</p>
@@ -58,6 +61,7 @@
 const latInput = document.getElementById('lat');
 const lonInput = document.getElementById('lon');
 const zInput = document.getElementById('z');
+const titleInput = document.getElementById('title');
 const baseInput = document.getElementById('baseUrl');
 const generateBtn = document.getElementById('generate');
 const output = document.getElementById('output');
@@ -115,6 +119,10 @@ generateBtn.addEventListener('click', async () => {
     }
 
     const payloadObject = { lat, lon };
+    const titleRaw = titleInput.value.trim();
+    if (titleRaw){
+      payloadObject.title = titleRaw.slice(0, 160);
+    }
     if (Number.isInteger(zoom)) payloadObject.z = zoom;
 
     const payloadJson = JSON.stringify(payloadObject);

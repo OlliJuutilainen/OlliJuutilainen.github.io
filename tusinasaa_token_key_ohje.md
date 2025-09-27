@@ -1,7 +1,7 @@
 # Tusinasää – token+key QR -arkkitehtuuri (web + android)
 
 ## Missio tonttulaumalle
-- Erityislokaatiot pysyvät pois selväkielisestä verkosta ja avoimesta koodista.
+- Erityislokaatiot (koordinaatit ja niihin liittyvät erikoisotsikot) pysyvät pois selväkielisestä verkosta ja avoimesta koodista.
 - QR- ja deeplink-linkit kuljettavat **tokenin (T)** ja **avaimen (K)** vain `hash`-fragmentissa (`#…`).
 - Frontti saa pelkän salatun paketin `GET /api/loc?t=T` -reitiltä.
 - Selaimen/WebView'n puolella purku tehdään avaimella **K** käyttäen AES-GCM:ää (Web Crypto API).
@@ -53,10 +53,10 @@ export default {
 
 ## 2) Generaattori – `generaattori.html`
 
-1. Syötteet: `lat`, `lon`, `z`, sekä valinnainen `Base URL (web)`.
+1. Syötteet: `lat`, `lon`, `z`, valinnainen `title` (erikoisotsikko) sekä valinnainen `Base URL (web)`.
 2. Generaattori arpoo `TOKEN`, `KEY`, `iv` ja salaa paikannusdatan AES-GCM:llä.
 3. Ulostulo on kehittäjälle:
-   - KV-payload `{v, iv, ct}` talletettavaksi avaimella `TOKEN`.
+   - KV-payload `{v, iv, ct}` talletettavaksi avaimella `TOKEN` (JSON dekryptattuna sisältää vähintään `lat` & `lon`, ja tarvittaessa myös `z` sekä `title`).
    - Valmiit web- ja Android-linkit (QR-koodien lähde).
 4. `TOKEN` toimii julkisena hakukirjaimena KV:ssä, `KEY` pidetään vain QR:ssä/linkissä.
 5. Generaattori toimii paikallisesti; mitään ei lähetetä verkkoon.
