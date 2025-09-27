@@ -294,6 +294,7 @@ let LAT_STR = q.get('lat');
 let LON_STR = q.get('lon');
 let ZOOM_PARAM = q.get('z');
 let LOCATION_SOURCE = 'query';
+let specialTitle = null;
 
 const hashRaw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
 const hashParams = new URLSearchParams(hashRaw);
@@ -314,6 +315,10 @@ if (HASH_TOKEN || HASH_KEY){
     LAT_STR = String(decrypted.lat);
     LON_STR = String(decrypted.lon);
     if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
+    if (typeof decrypted?.title === 'string'){
+      const trimmed = decrypted.title.trim();
+      if (trimmed) specialTitle = trimmed.slice(0, 160);
+    }
     LOCATION_SOURCE = 'hash';
     if (DBG){
       console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
@@ -364,23 +369,11 @@ const TZ = timeZone;
 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
-const SPECIAL_TITLES = {
-  '60.3281,25.0551': 'TUSINASÄÄ 12 · ASOLA',
-  '60.1562,24.7767': 'TUSINASÄÄ 12 · RANTAKOTO',
-  '60.2038,24.8030': 'TUSINASÄÄ 12 · HEINJOKI',
-  '60.2040,25.0320': 'TUSINASÄÄ 12 · PORTIMO',
-  '60.1620,24.8791': 'TUSINASÄÄ 12 · KOTKAVUORI',
-};
-let specialTitle = null;
-if (LAT_STR && LON_STR){
-  specialTitle = SPECIAL_TITLES[`${LAT_STR},${LON_STR}`] || null;
-  if (!specialTitle){
-    const latNum = Number(LAT_STR);
-    const lonNum = Number(LON_STR);
-    if (Number.isFinite(latNum) && Number.isFinite(lonNum)){
-      const normalizedKey = `${latNum.toFixed(4)},${lonNum.toFixed(4)}`;
-      specialTitle = SPECIAL_TITLES[normalizedKey] || null;
-    }
+if (!specialTitle){
+  const queryTitleRaw = q.get('title');
+  if (typeof queryTitleRaw === 'string'){
+    const trimmed = queryTitleRaw.trim();
+    if (trimmed) specialTitle = trimmed.slice(0, 160);
   }
 }
 if (specialTitle){
