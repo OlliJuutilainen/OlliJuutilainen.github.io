@@ -1,36 +1,34 @@
-function withCORS(res, origin = '*') {
-  res.headers.set('access-control-allow-origin', origin);
-  res.headers.set('access-control-allow-methods', 'GET,OPTIONS');
-  res.headers.set('access-control-allow-headers', '*');
-  if (!res.headers.has('cache-control')) res.headers.set('cache-control', 'no-store');
-  return res;
+const ALLOWED = new Set(["https://ollijuutilainen.github.io"]);
+
+function corsify(resp, origin) {
+  const h = new Headers(resp.headers);
+  const allow = ALLOWED.has(origin) ? origin : "null";
+  h.set("Access-Control-Allow-Origin", allow);
+  h.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  h.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  h.set("Vary", "Origin");
+  return new Response(resp.body, { status: resp.status, headers: h });
+}
+
+async function handleLoc(req) {
+  // TODO: korvaa oikealla logiikalla
+  return { ok: true, ts: Date.now() };
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req) {
     const url = new URL(req.url);
+    const origin = req.headers.get("Origin") || "";
 
-    // Preflight
-    if (req.method === 'OPTIONS') {
-      return withCORS(new Response(null, { status: 204 }));
+    if (req.method === "OPTIONS") {
+      return corsify(new Response(null, { status: 204 }), origin);
     }
-
-    if (url.pathname !== '/api/loc') {
-      return withCORS(new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain' } }));
+    if (url.pathname === "/api/loc") {
+      const data = await handleLoc(req);
+      return corsify(new Response(JSON.stringify(data), {
+        headers: { "Content-Type": "application/json" }
+      }), origin);
     }
-
-    const t = url.searchParams.get('t') || url.searchParams.get('token');
-    if (!t) {
-      return withCORS(new Response('Missing token', { status: 400, headers: { 'content-type': 'text/plain' } }));
-    }
-
-    const item = await env.LOCATIONS.get(t, { type: 'json' });
-    if (!item) {
-      return withCORS(new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain' } }));
-    }
-
-    return withCORS(new Response(JSON.stringify(item), {
-      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
-    }));
+    return corsify(new Response("not found", { status: 404 }), origin);
   }
-}
+};
