@@ -238,10 +238,22 @@ function base64urlToBytes(b64u){
 }
 
 async function fetchAndDecryptLocation(token, keyB64u){
-  const endpoint = `/api/loc?t=${encodeURIComponent(token)}`;
+  const host = (typeof location === 'object' && typeof location.hostname === 'string')
+    ? location.hostname.toLowerCase()
+    : '';
+  const configuredWorkerBase = (typeof window !== 'undefined' && (
+    window.TUSINASAA_API_BASE || window.TUSINA_WORKER_BASE || window.TUSINA_API_BASE
+  )) || 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
+  const workerBase = configuredWorkerBase.replace(/\/+$/, '');
+  const useWorkerEndpoint = /\.github\.io$/.test(host);
+  const endpointBase = useWorkerEndpoint ? workerBase : '';
+  const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
   const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
   if (!res.ok){
-    const errMsg = res.status === 404 ? 'Sijaintitokenia ei löytynyt.' : `Sijaintipalvelu vastasi virheellä (${res.status}).`;
+    const sourceLabel = useWorkerEndpoint ? 'Cloudflare-työntekijästä' : 'palvelimelta';
+    const errMsg = res.status === 404
+      ? `Sijaintitokenia ei löytynyt (${sourceLabel}).`
+      : `Sijaintipalvelu (${sourceLabel}) vastasi virheellä (${res.status}).`;
     throw new Error(errMsg);
   }
 
