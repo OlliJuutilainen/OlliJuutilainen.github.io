@@ -1,9 +1,5 @@
-name = "tusinasaa-locations"
-main = "worker.js"
-compatibility_date = "2024-06-20"
-
-# Lisää oman Cloudflare-tilisi namespace-ID:t ennen julkaisua.
-[[kv_namespaces]]
-binding = "LOCATIONS"
-id = "TODO_REPLACE_WITH_PRODUCTION_NAMESPACE_ID"
-preview_id = "TODO_REPLACE_WITH_PREVIEW_NAMESPACE_ID"
+name = "tusinasaa-worker"
+main = "worker/src/index.js"
+compatibility_date = "2025-09-28"
+[observability]
+enabled = true
