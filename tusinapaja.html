@@ -1222,12 +1222,39 @@ function buildDescriptionHtml({ main, tags, extra }){
   return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
 }
 
-function shouldTintForGold(tw){
-  if (!tw || !tw.sunEvent || !(tw.sunEvent.at instanceof Date)) return false;
-  const mins = tw.sunEvent.at.getMinutes();
+function shouldTintForGold(tw, hourStart){
+  if (!tw) return false;
+  const sunEvent = (tw.sunEvent && tw.sunEvent.at instanceof Date) ? tw.sunEvent : null;
+
+  if (sunEvent && sunEvent.type === 'rise'){
+    const mins = sunEvent.at.getMinutes();
+    return Number.isInteger(mins) && mins < 30;
+  }
+
+  const setTime = (
+    sunEvent && sunEvent.type === 'set'
+      ? sunEvent.at
+      : (tw.set instanceof Date ? tw.set : null)
+  );
+  if (!(setTime instanceof Date)) return false;
+
+  const mins = setTime.getMinutes();
   if (!Number.isInteger(mins)) return false;
-  if (tw.sunEvent.type === 'rise'){ return mins < 30; }
-  if (tw.sunEvent.type === 'set'){ return mins <= 30; }
+
+  const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+  if (!startValid) return !!sunEvent && sunEvent.type === 'set' && mins >= 30;
+
+  const startMs = hourStart.getTime();
+  const eventMs = setTime.getTime();
+  if (!Number.isFinite(eventMs)) return false;
+
+  const endMs = startMs + 60*MIN;
+  if (eventMs >= startMs && eventMs < endMs){
+    return mins >= 30;
+  }
+  if (eventMs >= endMs && eventMs < endMs + 5*MIN){
+    return true;
+  }
   return false;
 }
 
@@ -1243,9 +1270,9 @@ function replaceBlueWithGold(text){
   return out;
 }
 
-function maybeApplyGoldTint(baseText, tw){
+function maybeApplyGoldTint(baseText, tw, hourStart){
   if (!baseText || typeof baseText !== 'string') return baseText;
-  if (!shouldTintForGold(tw)) return baseText;
+  if (!shouldTintForGold(tw, hourStart)) return baseText;
   if (!/sini/i.test(baseText)) return baseText;
   return replaceBlueWithGold(baseText);
 }
@@ -1467,7 +1494,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (!tw) return { main: tintedMain, twilightMain, tags };
 
   const phaseMain = phaseLabel(tw.phase);
-  tintedMain = maybeApplyGoldTint(baseText, tw);
+  tintedMain = maybeApplyGoldTint(baseText, tw, hourStart);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1578,7 +1605,8 @@ function maybeApplyTwilightPrecipOverride({
   rowIndex,
   fallbackFromNowcast,
   descSource,
-  descriptorOpts
+  descriptorOpts,
+  hourStart
 }){
   const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
   if (!decorated || !decorated.twilightMain) return result;
@@ -1592,7 +1620,7 @@ function maybeApplyTwilightPrecipOverride({
 
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
-    let tinted = maybeApplyGoldTint(main, tw);
+    let tinted = maybeApplyGoldTint(main, tw, hourStart);
     main = tinted;
   }
 
@@ -1871,7 +1899,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
       rowIndex: index,
       fallbackFromNowcast,
       descSource,
-      descriptorOpts
+      descriptorOpts,
+      hourStart: dUtc
     });
     twilightOverride = override;
     if (override.applied){
