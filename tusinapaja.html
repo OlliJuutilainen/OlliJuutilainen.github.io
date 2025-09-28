@@ -1,6 +1,62 @@
 <!doctype html>
 <html lang="fi">
 <head>
+<script>
+(function() {
+  // Hyväksy sekä #fragment että ?query, ja sekä t/token että k/key
+  const url = new URL(location.href);
+  const params = new URLSearchParams(
+    (url.hash && url.hash.startsWith('#')) ? url.hash.slice(1) :
+    (url.search && url.search.startsWith('?')) ? url.search.slice(1) : ''
+  );
+  const T = params.get('t') || params.get('token');
+  const K = params.get('k') || params.get('key');
+
+  if (!T) {
+    console.error('Sijaintitokenia ei löytynyt (t/token).');
+    // näytä käyttäjällekin jos haluat:
+    // document.body.innerText = 'Sijaintipaketin purku epäonnistui: Sijaintitokenia ei löytynyt.'
+    return;
+  }
+
+  // Jos worker on eri domainissa kuin tämä sivu, käytä TÄYTTÄ osoitetta:
+  const API_BASE = 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
+
+  // Hae salattu paketti
+  fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(T)}`, { cache: 'no-store' })
+    .then(r => {
+      if (!r.ok) throw new Error('TOKEN not found in KV');
+      return r.json();
+    })
+    .then(({v, iv, ct}) => decryptAndUse(K, iv, ct))
+    .catch(err => {
+      console.error('Haku epäonnistui:', err);
+    });
+
+  // ---- apufunktiot ----
+  function b64uToBytes(s){
+    s = s.replace(/-/g,'+').replace(/_/g,'/'); const pad = (4 - s.length % 4) % 4;
+    s += '='.repeat(pad); const bin = atob(s); const out = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i); return out;
+  }
+  async function decryptAndUse(k, iv, ct){
+    if (!k) { console.error('Avain (k/key) puuttuu'); return; }
+    try {
+      const keyBytes = b64uToBytes(k);
+      const ivBytes  = b64uToBytes(iv);
+      const ctBytes  = b64uToBytes(ct);
+      const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['decrypt']);
+      const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv: ivBytes}, cryptoKey, ctBytes);
+      const cfg = JSON.parse(new TextDecoder().decode(new Uint8Array(plain)));
+      const { lat, lon, z=13 } = cfg;
+      console.log('Tusinasää coords:', lat, lon, z);
+      // TODO: käytä lat/lon/z (päivitä UI)
+    } catch (e) {
+      console.error('Purku epäonnistui:', e);
+    }
+  }
+})();
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
