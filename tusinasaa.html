@@ -999,11 +999,23 @@ function buildDescriptionHtml({ main, tags, extra }){
   return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
 }
 
-function shouldTintForGold(tw){
+function shouldTintForGold(tw, hourStart){
   if (!tw || !tw.sunEvent || !(tw.sunEvent.at instanceof Date)) return false;
-  const mins = tw.sunEvent.at.getMinutes();
+  const eventTime = tw.sunEvent.at;
+  const mins = eventTime.getMinutes();
   if (!Number.isInteger(mins)) return false;
-  if (tw.sunEvent.type === 'rise'){ return mins < 30; }
+  if (tw.sunEvent.type === 'rise'){
+    const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+    if (startValid){
+      const startMs = hourStart.getTime();
+      const eventMs = eventTime.getTime();
+      if (!Number.isFinite(eventMs)) return false;
+      if (eventMs >= startMs - 5*MIN && eventMs < startMs) return true;
+      if (eventMs >= startMs && eventMs < startMs + 30*MIN) return true;
+      return false;
+    }
+    return mins < 30;
+  }
   if (tw.sunEvent.type === 'set'){ return mins <= 30; }
   return false;
 }
@@ -1020,9 +1032,9 @@ function replaceBlueWithGold(text){
   return out;
 }
 
-function maybeApplyGoldTint(baseText, tw){
+function maybeApplyGoldTint(baseText, tw, hourStart){
   if (!baseText || typeof baseText !== 'string') return baseText;
-  if (!shouldTintForGold(tw)) return baseText;
+  if (!shouldTintForGold(tw, hourStart)) return baseText;
   if (!/sini/i.test(baseText)) return baseText;
   return replaceBlueWithGold(baseText);
 }
@@ -1244,7 +1256,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (!tw) return { main: tintedMain, twilightMain, tags };
 
   const phaseMain = phaseLabel(tw.phase);
-  tintedMain = maybeApplyGoldTint(baseText, tw);
+  tintedMain = maybeApplyGoldTint(baseText, tw, hourStart);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1360,7 +1372,7 @@ function maybeApplyTwilightPrecipOverride({
 
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
-    let tinted = maybeApplyGoldTint(main, tw);
+    let tinted = maybeApplyGoldTint(main, tw, hourStart);
     main = tinted;
   }
 

@@ -1227,7 +1227,17 @@ function shouldTintForGold(tw, hourStart){
   const sunEvent = (tw.sunEvent && tw.sunEvent.at instanceof Date) ? tw.sunEvent : null;
 
   if (sunEvent && sunEvent.type === 'rise'){
-    const mins = sunEvent.at.getMinutes();
+    const riseTime = sunEvent.at;
+    const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+    if (startValid){
+      const startMs = hourStart.getTime();
+      const eventMs = riseTime.getTime();
+      if (!Number.isFinite(eventMs)) return false;
+      if (eventMs >= startMs - 5*MIN && eventMs < startMs) return true;
+      if (eventMs >= startMs && eventMs < startMs + 30*MIN) return true;
+      return false;
+    }
+    const mins = riseTime.getMinutes();
     return Number.isInteger(mins) && mins < 30;
   }
 
