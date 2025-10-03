@@ -1,7 +1,12 @@
 const ALLOWED = new Set([
   "https://ollijuutilainen.github.io",
-  // "http://localhost:8080", // lisää devissä tarvittaessa
+  "http://localhost:8080",
 ]);
+
+function logEvent(type, extra = {}) {
+  const data = Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "";
+  console.log(`[loc] ${type}${data}`);
+}
 
 function appendVary(headers, value) {
   const existing = headers.get("Vary");
@@ -27,7 +32,7 @@ function corsify(resp, { origin, requestHeaders } = {}) {
     headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
   }
 
-  headers.set("Access-Control-Max-Age", "600");
+  headers.set("Access-Control-Max-Age", "86400");
 
   appendVary(headers, "Origin");
 
@@ -53,10 +58,12 @@ async function handleLoc(req, env) {
   const token = (url.searchParams.get("t") || "").trim();
 
   if (!token) {
+    logEvent("missing_token");
     return errorResponse("missing_token", 400);
   }
 
   if (!env.LOCATIONS || typeof env.LOCATIONS.get !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
     return errorResponse("bad_payload", 500);
   }
 
@@ -64,10 +71,12 @@ async function handleLoc(req, env) {
   try {
     raw = await env.LOCATIONS.get(token);
   } catch (err) {
+    logEvent("kv_error", { reason: "fetch_failed" });
     return errorResponse("bad_payload", 500);
   }
 
   if (!raw) {
+    logEvent("not_found");
     return errorResponse("not_found", 404);
   }
 
@@ -75,6 +84,7 @@ async function handleLoc(req, env) {
   try {
     data = JSON.parse(raw);
   } catch (err) {
+    logEvent("bad_payload");
     return errorResponse("bad_payload", 500);
   }
 
@@ -82,15 +92,22 @@ async function handleLoc(req, env) {
     !data ||
     typeof data !== "object" ||
     typeof data.iv !== "string" ||
-    typeof data.ct !== "string"
+    data.iv.trim().length === 0 ||
+    typeof data.ct !== "string" ||
+    data.ct.trim().length === 0
   ) {
+    logEvent("invalid_fields");
     return errorResponse("invalid_fields", 500);
   }
 
-  const version = data.v ?? 1;
-  if (version !== 1) {
+  const versionRaw = data.v ?? 1;
+  const version = Number(versionRaw);
+  if (!Number.isFinite(version) || version !== 1) {
+    logEvent("invalid_fields", { version: versionRaw });
     return errorResponse("invalid_fields", 500);
   }
+
+  logEvent("200");
 
   return jsonResponse(
     { v: version, iv: data.iv, ct: data.ct },
