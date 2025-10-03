@@ -27,14 +27,75 @@ function corsify(resp, { origin, requestHeaders } = {}) {
     headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
   }
 
+  headers.set("Access-Control-Max-Age", "600");
+
   appendVary(headers, "Origin");
 
   return new Response(resp.body, { status: resp.status, headers });
 }
 
-async function handleLoc(req) {
-  // TODO: täytä oikea sijaintilogiikka
-  return { ok: true, ts: Date.now() };
+function jsonResponse(payload, { status = 200, headers = {} } = {}) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+}
+
+function errorResponse(error, status) {
+  return jsonResponse({ error }, { status });
+}
+
+async function handleLoc(req, env) {
+  const url = new URL(req.url);
+  const token = (url.searchParams.get("t") || "").trim();
+
+  if (!token) {
+    return errorResponse("missing_token", 400);
+  }
+
+  if (!env.LOCATIONS || typeof env.LOCATIONS.get !== "function") {
+    return errorResponse("bad_payload", 500);
+  }
+
+  let raw;
+  try {
+    raw = await env.LOCATIONS.get(token);
+  } catch (err) {
+    return errorResponse("bad_payload", 500);
+  }
+
+  if (!raw) {
+    return errorResponse("not_found", 404);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    return errorResponse("bad_payload", 500);
+  }
+
+  if (
+    !data ||
+    typeof data !== "object" ||
+    typeof data.iv !== "string" ||
+    typeof data.ct !== "string"
+  ) {
+    return errorResponse("invalid_fields", 500);
+  }
+
+  const version = data.v ?? 1;
+  if (version !== 1) {
+    return errorResponse("invalid_fields", 500);
+  }
+
+  return jsonResponse(
+    { v: version, iv: data.iv, ct: data.ct },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export default {
@@ -52,23 +113,18 @@ export default {
 
     try {
       if (url.pathname === "/api/loc") {
-        const data = await handleLoc(req, env);
-        return corsify(new Response(JSON.stringify(data), {
-          headers: { "Content-Type": "application/json" }
-        }), {
+        const response = await handleLoc(req, env);
+        return corsify(response, {
           origin,
           requestHeaders: acrHeaders,
         });
       }
-      return corsify(new Response("not found", { status: 404 }), {
+      return corsify(errorResponse("not_found", 404), {
         origin,
         requestHeaders: acrHeaders,
       });
     } catch (e) {
-      return corsify(new Response(JSON.stringify({ error: "bad_request" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      }), {
+      return corsify(errorResponse("bad_request", 400), {
         origin,
         requestHeaders: acrHeaders,
       });

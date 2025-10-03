@@ -3,3 +3,8 @@ main = "worker/src/index.js"
 compatibility_date = "2025-09-28"
 [observability]
 enabled = true
+
+[[kv_namespaces]]
+binding = "LOCATIONS"
+id = "00000000000000000000000000000000"
+preview_id = "00000000000000000000000000000000"
