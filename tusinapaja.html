@@ -32,10 +32,79 @@
 
   const API_BASE = 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
 
+  let errorShown = false;
+
+  function showError(message) {
+    if (errorShown) return;
+    errorShown = true;
+    const errEl = document.createElement('div');
+    errEl.className = 'err';
+    errEl.textContent = message;
+    const attach = () => {
+      if (document.body) {
+        document.body.prepend(errEl);
+      } else {
+        document.documentElement.appendChild(errEl);
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attach, { once: true });
+    } else {
+      attach();
+    }
+  }
+
+  function validatePackage(pkg) {
+    if (!pkg || typeof pkg !== 'object') {
+      throw new Error('Virheellinen tai puuttuva paketti');
+    }
+
+    const versionRaw = pkg.v ?? 1;
+    const version = Number(versionRaw);
+    if (!Number.isFinite(version) || version !== 1) {
+      console.warn('Tuntematon pakettiversio', pkg);
+      showError('Tuntematon pakettiversio. Päivitä sovellus.');
+      const err = new Error('Tuntematon pakettiversio');
+      err.silenced = true;
+      throw err;
+    }
+
+    if (
+      typeof pkg.iv !== 'string' || pkg.iv.trim().length === 0 ||
+      typeof pkg.ct !== 'string' || pkg.ct.trim().length === 0
+    ) {
+      throw new Error('Paketti puuttuu kenttiä (iv/ct)');
+    }
+
+    return { iv: pkg.iv, ct: pkg.ct };
+  }
+
   fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(T)}`, { cache: 'no-store' })
-    .then(r => { if (!r.ok) throw new Error(`KV 404/400 (${r.status})`); return r.json(); })
-    .then(({v, iv, ct}) => decryptAndUse(K, iv, ct))
-    .catch(err => console.error('Haku epäonnistui:', err));
+    .then(async (r) => {
+      if (!r.ok) {
+        let detail = '';
+        try {
+          const payload = await r.json();
+          if (payload && typeof payload.error === 'string') {
+            detail = ` (${payload.error})`;
+          }
+        } catch (e) {
+          // ignore JSON parse error
+        }
+        throw new Error(`KV-vastaus epäonnistui: ${r.status}${detail}`);
+      }
+      return r.json();
+    })
+    .then((pkg) => {
+      const { iv, ct } = validatePackage(pkg);
+      return decryptAndUse(K, iv, ct);
+    })
+    .catch(err => {
+      console.error('Haku epäonnistui:', err);
+      if (!err || !err.silenced) {
+        showError('Sijaintitietojen nouto epäonnistui. Yritä uudelleen myöhemmin.');
+      }
+    });
 
   function b64uToBytes(s){
     if (typeof s !== 'string' || s.length === 0){
