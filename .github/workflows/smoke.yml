@@ -1,0 +1,104 @@
+name: Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  api-smoke:
+    runs-on: ubuntu-latest
+    env:
+      ORIGIN_URL: ${{ secrets.ORIGIN_URL }}
+      WORKER_URL: ${{ secrets.WORKER_URL }}
+      TEST_T: ${{ secrets.TEST_T }}
+    steps:
+      - name: Check GET CORS + JSON shape
+        run: |
+          set -euo pipefail
+          echo "GET $WORKER_URL/api/loc?t=$TEST_T"
+          curl -sI "$WORKER_URL/api/loc?t=$TEST_T" \
+            -H "Origin: $ORIGIN_URL" | tee headers.txt
+          grep -i "^access-control-allow-origin: $ORIGIN_URL" headers.txt
+          grep -i "^vary: .*Origin" headers.txt
+          curl -s "$WORKER_URL/api/loc?t=$TEST_T" \
+            -H "Origin: $ORIGIN_URL" | tee body.json
+          jq -e '.v and .iv and .ct and (.v==1 or .v=="1")' body.json > /dev/null
+
+      - name: Check OPTIONS preflight
+        run: |
+          set -euo pipefail
+          curl -si -X OPTIONS "$WORKER_URL/api/loc" \
+            -H "Origin: $ORIGIN_URL" \
+            -H "Access-Control-Request-Method: GET" \
+            -H "Access-Control-Request-Headers: content-type" \
+            | tee opt.txt
+          grep -i "^HTTP/.* 204" opt.txt
+          grep -i "^access-control-allow-origin: $ORIGIN_URL" opt.txt
+          grep -i "^vary: .*Origin" opt.txt
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: api-smoke
+    env:
+      ORIGIN_URL: ${{ secrets.ORIGIN_URL }}
+      TEST_T: ${{ secrets.TEST_T }}
+      TEST_K: ${{ secrets.TEST_K }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm i -D @playwright/test
+          npx playwright install --with-deps
+
+      - name: Write test file
+        run: |
+          mkdir -p tests
+          cat > tests/e2e.spec.ts <<'TS'
+          import { test, expect } from '@playwright/test';
+
+          const ORIGIN = process.env.ORIGIN_URL!;
+          const T = process.env.TEST_T!;
+          const K = process.env.TEST_K!;
+          const URL = `${ORIGIN}/tusinapaja.html#t=${encodeURIComponent(T)}&k=${encodeURIComponent(K)}`;
+
+          test('tusinapaja: /api/loc 200, ei CORS-virheitä, sivu ei kaadu', async ({ page }) => {
+            const errors: string[] = [];
+            page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+            page.on('console', msg => {
+              if (msg.type() === 'error') errors.push(`console: ${msg.text()}`);
+            });
+
+            // Odota että /api/loc vastaa 200
+            const [resp] = await Promise.all([
+              page.waitForResponse(r => r.url().includes('/api/loc') && r.status() === 200, { timeout: 30000 }),
+              page.goto(URL, { waitUntil: 'domcontentloaded' }),
+            ]);
+            const json = await resp.json();
+            expect(json.v === 1 || json.v === "1").toBeTruthy();
+            expect(typeof json.iv).toBe('string');
+            expect(typeof json.ct).toBe('string');
+
+            // Pieni lisäodotus mahdolliselle purulle/renderille
+            await page.waitForTimeout(1000);
+
+            // Ei tunnettuja CORS/MIME-virheitä
+            const bad = errors.filter(e =>
+              /CORS policy|MIME type|nosniff|NetworkError/i.test(e)
+            );
+            if (errors.length) {
+              console.log('Collected errors:\\n' + errors.join('\\n'));
+            }
+            expect(bad).toHaveLength(0);
+          });
+          TS
+
+      - name: Run Playwright
+        run: npx playwright test -c .
