@@ -310,39 +310,64 @@ let ZOOM_PARAM = q.get('z');
 let LOCATION_SOURCE = 'query';
 let specialTitle = null;
 
+const tzOverrideRaw = q.get('tz');
+let tzOverride = null;
+if (typeof tzOverrideRaw === 'string'){
+  const trimmed = tzOverrideRaw.trim();
+  if (trimmed){
+    tzOverride = trimmed;
+  }
+}
+
 const hashRaw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
 const hashParams = new URLSearchParams(hashRaw);
 const HASH_TOKEN = hashParams.get('t');
 const HASH_KEY = hashParams.get('k');
 
+let hashError = null;
+
 if (HASH_TOKEN || HASH_KEY){
   if (!HASH_TOKEN || !HASH_KEY){
     const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
-    const msg = `Sijaintilinkistä puuttuu ${which}.`;
-    prependError(msg);
-    throw new Error(msg);
+    hashError = `Sijaintilinkistä puuttuu ${which}.`;
+  } else {
+    try {
+      /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
+      const decrypted = await fetchAndDecryptLocation(HASH_TOKEN, HASH_KEY);
+      LAT_STR = String(decrypted.lat);
+      LON_STR = String(decrypted.lon);
+      if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
+      if (typeof decrypted?.title === 'string'){
+        const trimmed = decrypted.title.trim();
+        if (trimmed) specialTitle = trimmed.slice(0, 160);
+      }
+      LOCATION_SOURCE = 'hash';
+      if (DBG){
+        console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
+      }
+    } catch (err) {
+      const detail = err?.message ? `: ${err.message}` : '';
+      hashError = `Sijaintipaketin purku epäonnistui${detail}`;
+      console.error('Sijaintipaketin purku epäonnistui', err);
+      if (err && typeof err === 'object') err.__tusinaHandled = true;
+    }
   }
 
-  try {
-    /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
-    const decrypted = await fetchAndDecryptLocation(HASH_TOKEN, HASH_KEY);
-    LAT_STR = String(decrypted.lat);
-    LON_STR = String(decrypted.lon);
-    if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
-    if (typeof decrypted?.title === 'string'){
-      const trimmed = decrypted.title.trim();
-      if (trimmed) specialTitle = trimmed.slice(0, 160);
+  if (hashError){
+    prependError(hashError);
+    const noFallbackCoords = (LAT_STR == null || LON_STR == null);
+    if (noFallbackCoords){
+      const fatal = new Error(hashError);
+      fatal.__tusinaHandled = true;
+      throw fatal;
     }
-    LOCATION_SOURCE = 'hash';
     if (DBG){
-      console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
+      console.warn('Hash-fragmentti epäonnistui; käytetään query-parametreja.', {
+        lat: LAT_STR,
+        lon: LON_STR,
+        reason: hashError
+      });
     }
-  } catch (err) {
-    const detail = err?.message ? `: ${err.message}` : '';
-    prependError(`Sijaintipaketin purku epäonnistui${detail}`);
-    console.error('Sijaintipaketin purku epäonnistui', err);
-    if (err && typeof err === 'object') err.__tusinaHandled = true;
-    throw err;
   }
 } else if (DBG && HASH_TOKEN == null && HASH_KEY == null){
   console.info('Hash-fragmenttia ei annettu; käytetään kehityksen query-parametreja.', { lat: LAT_STR, lon: LON_STR });
@@ -360,6 +385,16 @@ const FALLBACK_TIME_ZONE = (() => {
   }
 })();
 
+function isValidTimeZone(tz){
+  if (typeof tz !== 'string' || !tz.trim()) return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz }).format();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 function inferTimeZone(lat, lon){
   const fallback = FALLBACK_TIME_ZONE || 'UTC';
   if (Number.isFinite(lat) && Number.isFinite(lon)){
@@ -375,7 +410,24 @@ function inferTimeZone(lat, lon){
   return fallback;
 }
 
-let timeZone = inferTimeZone(LAT, LON);
+let timeZone = null;
+if (tzOverride){
+  if (isValidTimeZone(tzOverride)){
+    timeZone = tzOverride;
+    if (DBG){
+      console.info('Aikavyöhyke asetettu query-parametrista', { tz: tzOverride });
+    }
+  } else {
+    const msg = `Aikavyöhykeparametri (${tzOverride}) ei kelpaa; käytetään automaattista tunnistusta.`;
+    prependError(msg);
+    if (DBG){
+      console.warn('Aikavyöhykeparametri ei kelpaa', { tz: tzOverride });
+    }
+  }
+}
+if (!timeZone){
+  timeZone = inferTimeZone(LAT, LON);
+}
 if (typeof timeZone !== 'string' || !timeZone){
   timeZone = FALLBACK_TIME_ZONE || 'UTC';
 }
