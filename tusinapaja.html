@@ -2065,7 +2065,7 @@ function renderHourlyModel(model){
 (async function(){
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
   if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
-    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
+    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä sijaintilinkkiä, joka sisältää hash-parametrit (#t ja #k), esim.:<br><code>tusinapaja.html#t=…&k=…</code></div>`;
     return;
   }
 
