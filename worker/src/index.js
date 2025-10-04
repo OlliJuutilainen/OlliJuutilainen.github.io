@@ -1,7 +1,29 @@
-const ALLOWED = new Set([
+const DEFAULT_ALLOWED = [
   "https://ollijuutilainen.github.io",
   "http://localhost:8080",
-]);
+  "https://tusinasaa.fi",
+];
+
+const DEFAULT_ALLOWED_SET = new Set(DEFAULT_ALLOWED);
+
+function parseAllowedOrigins(env) {
+  if (!env || typeof env.ALLOWED_ORIGINS !== "string") {
+    return [];
+  }
+
+  return env.ALLOWED_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+}
+
+function resolveAllowedOrigins(env) {
+  const extras = parseAllowedOrigins(env);
+  if (!extras.length) {
+    return DEFAULT_ALLOWED_SET;
+  }
+
+  return new Set([...DEFAULT_ALLOWED_SET, ...extras]);
+}
 
 function logEvent(type, extra = {}) {
   const data = Object.keys(extra).length ? ` ${JSON.stringify(extra)}` : "";
@@ -20,9 +42,9 @@ function appendVary(headers, value) {
   }
 }
 
-function corsify(resp, { origin, requestHeaders } = {}) {
+function corsify(resp, { origin, requestHeaders, allowedOrigins = DEFAULT_ALLOWED_SET } = {}) {
   const headers = new Headers(resp.headers);
-  const allowOrigin = ALLOWED.has(origin) ? origin : "null";
+  const allowOrigin = allowedOrigins.has(origin) ? origin : "null";
   headers.set("Access-Control-Allow-Origin", allowOrigin);
   headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
 
@@ -120,11 +142,13 @@ export default {
     const url = new URL(req.url);
     const origin = req.headers.get("Origin") || "";
     const acrHeaders = req.headers.get("Access-Control-Request-Headers") || "";
+    const allowedOrigins = resolveAllowedOrigins(env);
 
     if (req.method === "OPTIONS") {
       return corsify(new Response(null, { status: 204 }), {
         origin,
         requestHeaders: acrHeaders,
+        allowedOrigins,
       });
     }
 
@@ -134,16 +158,19 @@ export default {
         return corsify(response, {
           origin,
           requestHeaders: acrHeaders,
+          allowedOrigins,
         });
       }
       return corsify(errorResponse("not_found", 404), {
         origin,
         requestHeaders: acrHeaders,
+        allowedOrigins,
       });
     } catch (e) {
       return corsify(errorResponse("bad_request", 400), {
         origin,
         requestHeaders: acrHeaders,
+        allowedOrigins,
       });
     }
   }
