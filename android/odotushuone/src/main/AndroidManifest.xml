@@ -11,9 +11,7 @@
             android:name="fi.tusinasaa.odotushuone.MainActivity"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"
             android:launchMode="singleTask"
-            android:noHistory="true"
             android:resizeableActivity="false"
             android:screenOrientation="portrait">
             <intent-filter>
