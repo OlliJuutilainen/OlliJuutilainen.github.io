@@ -1,0 +1,3 @@
+# Keep this directory in version control without committing large binary assets.
+# Drop the local gong audio here when building the app.
+kello.mp3

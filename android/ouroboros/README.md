@@ -13,3 +13,10 @@ sijoitettu täysin Composeen ilman XML- tai WebView-kerroksia.
 Sovellus pitää näytön hereillä, piilottaa järjestelmäpalkit ja lukitsee
 suunnan pystyasentoon. Viimeistelyvaihe näkyy kahden sekunnin ajan ennen kuin
 ajastin palaa lepotilaan.
+
+## Paikallinen äänitiedosto
+
+Sovellus etsii kellon sointia tiedostosta `android/ouroboros/src/main/res/raw/kello.mp3`.
+Binaaritiedostoja ei säilytetä tässä repossa, joten lisää äänitiedosto
+paikallisesti kyseiseen kansioon (tai korvaa polku haluamallasi äänellä) ennen
+kuin ajat sovelluksen.
