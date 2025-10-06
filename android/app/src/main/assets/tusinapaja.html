@@ -7,17 +7,62 @@
 <title>TUSINASÄÄ 12</title>
 <!-- ohjelman leima: TUSINASÄÄ 12 versio 1.1.1 -->
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    --color-bg: #000;
+    --color-text: #e8e8e8;
+    --color-page-title: #9aa6b0;
+    --color-mini: #7f8a93;
+    --color-mini-strong: #e8e8e8;
+    --color-muted: #74808a;
+    --color-soft: #7f8a93;
+    --color-border: #2a2a2a;
+    --color-border-strong: #1c1c1c;
+    --color-badge-default: #7f8a93;
+    --color-badge-nc: #9fb6ff;
+    --color-badge-nc-border: #35415a;
+    --color-badge-hrm: #b7b7b7;
+    --color-badge-hrm-border: #3a3a3a;
+    --color-badge-fallback: #d9b27d;
+    --color-badge-fallback-border: #5a4528;
+    --color-error: #ff6b6b;
+    --color-error-note: #888;
+    --color-contradiction: #a65050;
+  }
+  @media (prefers-color-scheme: light){
+    :root {
+      color-scheme: light;
+      --color-bg: #f7f8fa;
+      --color-text: #1c1f22;
+      --color-page-title: #5a6570;
+      --color-mini: #646f78;
+      --color-mini-strong: #1c1f22;
+      --color-muted: #596470;
+      --color-soft: #68737e;
+      --color-border: #d5d9df;
+      --color-border-strong: #c5c9cf;
+      --color-badge-default: #68737e;
+      --color-badge-nc: #4a5dab;
+      --color-badge-nc-border: #a8b4cf;
+      --color-badge-hrm: #555b60;
+      --color-badge-hrm-border: #c3c6ca;
+      --color-badge-fallback: #8d6c3f;
+      --color-badge-fallback-border: #d8c2a3;
+      --color-error: #c34242;
+      --color-error-note: #666;
+      --color-contradiction: #c46464;
+    }
+  }
   html,body{height:100%}
   body{
-    margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
+    margin:0; padding:22px 14px 24px; background:var(--color-bg); color:var(--color-text);
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     font-synthesis:none;
   }
-  .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
+  .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:var(--color-page-title);
     text-transform:uppercase; margin:0 0 4px 0 }
-  .mini{ color:#7f8a93; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .mini{ color:var(--color-mini); font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniTwilight{ font-style:italic; font-weight:300 }
   .twilightMainText{
     font-size:13px;
@@ -37,51 +82,51 @@
     display:inline-block;
     width:var(--mini-ellipsis-width, 10px);
   }
-  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniW{ color:var(--color-mini-strong); font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
-  .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .list{ border-top:1px solid var(--color-border); margin-top:6px; }
   .sourceBadge{
     display:inline-block;
     margin-left:6px;
     padding:1px 5px 0;
-    border:1px solid #2a2a2a;
+    border:1px solid var(--color-border);
     border-radius:3px;
     font-size:11px;
     letter-spacing:.3px;
     text-transform:uppercase;
-    color:#7f8a93;
+    color:var(--color-badge-default);
   }
-  .sourceBadgeNc{ color:#9fb6ff; border-color:#35415a; }
-  .sourceBadgeHrm{ color:#b7b7b7; border-color:#3a3a3a; }
-  .sourceBadgeFallback{ color:#d9b27d; border-color:#5a4528; }
+  .sourceBadgeNc{ color:var(--color-badge-nc); border-color:var(--color-badge-nc-border); }
+  .sourceBadgeHrm{ color:var(--color-badge-hrm); border-color:var(--color-badge-hrm-border); }
+  .sourceBadgeFallback{ color:var(--color-badge-fallback); border-color:var(--color-badge-fallback-border); }
   .hdr{
-    color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    color:var(--color-muted); font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px; align-items:end; justify-items:center;
     gap:8px;
   }
-  .hdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
+  .hdr > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px }
   .hdr div:nth-child(-n+3){ justify-self:start; text-align:left }
   .hdr div:nth-child(4){ justify-self:center; text-align:center; transform:translateX(-1px) }
   .hdr div:nth-child(5){ justify-self:start; text-align:left; font-size:11px }
   .row{
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px;
-    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; align-items:center;
+    gap:8px; padding:6px 0; border-bottom:1px solid var(--color-border-strong); align-items:center;
     min-height:54px;
   }
-  .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; text-align:right }
-  .muted{ color:#74808a } .soft{ color:#7f8a93 }
-  .cell{ color:#e8e8e8 }
-  .cell.soft{ color:#7f8a93 }
-  .desc{ color:#7f8a93 }
-  .descWhite{ color:#e8e8e8 }
-  .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:#a65050; text-decoration-skip-ink:auto }
-  .contradictionNote{ display:block; font-size:9px; font-style:italic; color:#888; letter-spacing:.2px; margin-top:2px }
+  .row > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px; text-align:right }
+  .muted{ color:var(--color-muted) } .soft{ color:var(--color-soft) }
+  .cell{ color:var(--color-text) }
+  .cell.soft{ color:var(--color-soft) }
+  .desc{ color:var(--color-soft) }
+  .descWhite{ color:var(--color-mini-strong) }
+  .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:var(--color-contradiction); text-decoration-skip-ink:auto }
+  .contradictionNote{ display:block; font-size:9px; font-style:italic; color:var(--color-error-note); letter-spacing:.2px; margin-top:2px }
   .row > div:nth-child(4){ text-align:center }
   .row > div:nth-child(5){ font-size:16px }
   .desc .ditto{ display:inline } .ditto{ color:inherit }
   .dash{ text-align:center }
   .windDir{ display:block; margin-top:2px; font-size:11px }
-  .err{ color:#ff6b6b; white-space:pre-wrap; font-size:14px; margin-top:8px }
+  .err{ color:var(--color-error); white-space:pre-wrap; font-size:14px; margin-top:8px }
 </style>
 </head>
 <body>
@@ -95,34 +140,126 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
-<script src="tz.js"></script>
-<script src="suncalc.js"></script>
+<script src="https://unpkg.com/tz-lookup@6.1.25/dist/tz.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 
-<script>
+<script type="module">
 /* --------- perusinfra & virheet näkyviin --------- */
-/* --------- tonttien työlista (palaverin jatkotoimet) --------- */
-/*
-1. Yhtenäistä pääselitteen kirjainkoko niin, että `lowercaseMainDescription`
-   ajetaan kaikissa vaiheissa ilman päivä-vaiherajausta, ja varmista samalla,
-   ettei tyhjät tai HTML-elementillä alkavat selitteet muutu.
-2. Selvitä nousua edeltävien kuivien tuntien käsittely: kun hämärävaihe ei enää
-   päädy päätekstiksi, varmista että kuivan sään kuvaus nostaa ensimmäisen
-   kirjaimen isoksi ja ettei hämärän CSS-yläsuuraus laukea vahingossa.
-3. Päivitä testisuunnitelma kattamaan sumu-, sade- ja kuivatapaukset sekä
-   aurinkotapahtumien molemmat kieliasut, jotta kirjaimiston poikkeamat eivät
-   palaa jatkokehityksessä.
-*/
+/* backlog: docs/tusinapaja-backlog.md */
 const out = document.getElementById('out');
+
+function prependError(message){
+  out.innerHTML = `<div class="err">${message}</div>` + out.innerHTML;
+}
+
 window.addEventListener('error', e => {
+  if (e?.error && typeof e.error === 'object' && e.error.__tusinaHandled){
+    return;
+  }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  out.innerHTML = `<div class="err">Virhe: ${msg}${where}</div>` + out.innerHTML;
+  prependError(`Virhe: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
+  if (reason && typeof reason === 'object' && reason.__tusinaHandled){
+    return;
+  }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  out.innerHTML = `<div class="err">Virhe (lupaus): ${msg}</div>` + out.innerHTML;
+  prependError(`Virhe (lupaus): ${msg}`);
 });
+
+function base64urlToBytes(b64u){
+  if (typeof b64u !== 'string' || !b64u){
+    throw new Error('Virheellinen base64url-merkkijono.');
+  }
+  const normalized = b64u.replace(/-/g, '+').replace(/_/g, '/');
+  const padLength = (4 - normalized.length % 4) % 4;
+  const padded = normalized + '='.repeat(padLength);
+  const bin = atob(padded);
+  const outArr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) outArr[i] = bin.charCodeAt(i);
+  return outArr;
+}
+
+async function fetchAndDecryptLocation(token, keyB64u){
+  const host = (typeof location === 'object' && typeof location.hostname === 'string')
+    ? location.hostname.toLowerCase()
+    : '';
+  const configuredWorkerBase = (typeof window !== 'undefined' && (
+    window.TUSINASAA_API_BASE || window.TUSINA_WORKER_BASE || window.TUSINA_API_BASE
+  )) || 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
+  const workerBase = configuredWorkerBase.replace(/\/+$/, '');
+  const useWorkerEndpoint = /\.github\.io$/.test(host);
+  const endpointBase = useWorkerEndpoint ? workerBase : '';
+  const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
+  const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  if (!res.ok){
+    const sourceLabel = useWorkerEndpoint ? 'Cloudflare-työntekijästä' : 'palvelimelta';
+    const errMsg = res.status === 404
+      ? `Sijaintitokenia ei löytynyt (${sourceLabel}).`
+      : `Sijaintipalvelu (${sourceLabel}) vastasi virheellä (${res.status}).`;
+    throw new Error(errMsg);
+  }
+
+  let payload;
+  try {
+    payload = await res.json();
+  } catch (err) {
+    throw new Error('Sijaintipalvelu palautti virheellistä dataa.');
+  }
+
+  if (!payload || typeof payload !== 'object'){
+    throw new Error('Sijaintipaketti puuttuu.');
+  }
+
+  const { v, iv, ct } = payload;
+  const version = typeof v === 'string' ? parseInt(v, 10) : v;
+  if (!Number.isFinite(version) || version !== 1){
+    console.error('Tuntematon sijaintipaketin versio. Vastaanotettu paketti:', payload);
+    throw new Error('Tuntematon sijaintipaketin versio.');
+  }
+  if (typeof iv !== 'string' || typeof ct !== 'string'){
+    throw new Error('Sijaintipaketista puuttuu salausdata.');
+  }
+
+  let keyBytes, ivBytes, ctBytes;
+  try {
+    keyBytes = base64urlToBytes(keyB64u);
+    ivBytes = base64urlToBytes(iv);
+    ctBytes = base64urlToBytes(ct);
+  } catch (err) {
+    throw new Error('Sijaintipaketin base64url-muunnos epäonnistui.');
+  }
+
+  let cryptoKey;
+  try {
+    cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
+  } catch (err) {
+    throw new Error('Sijaintiavain ei kelpaa AES-GCM -purkuun.');
+  }
+
+  let plaintext;
+  try {
+    plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
+  } catch (err) {
+    throw new Error('Sijaintipaketin purku epäonnistui (AES-GCM).');
+  }
+
+  let parsed;
+  try {
+    const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
+    parsed = JSON.parse(decoded);
+  } catch (err) {
+    throw new Error('Sijaintipaketin sisältö on virheellinen.');
+  }
+
+  if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
+    throw new Error('Sijaintipaketista puuttuu kelvolliset lat/lon-arvot.');
+  }
+
+  return parsed;
+}
 
 /* --------- mittaa ellipsin leveys pienitekstissä --------- */
 function initMiniEllipsisWidth(){
@@ -150,13 +287,83 @@ if (document.readyState === 'loading'){
   initMiniEllipsisWidth();
 }
 
-/* --------- URL-parametrit --------- */
+/* --------- URL-parametrit & sijainti --------- */
 const q = new URLSearchParams(location.search);
-const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
-const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
 const DBG = q.has('dbg');
 const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
+
+let LAT_STR = q.get('lat');
+let LON_STR = q.get('lon');
+let ZOOM_PARAM = q.get('z');
+let LOCATION_SOURCE = 'query';
+let specialTitle = null;
+
+const tzOverrideRaw = q.get('tz');
+let tzOverride = null;
+if (typeof tzOverrideRaw === 'string'){
+  const trimmed = tzOverrideRaw.trim();
+  if (trimmed){
+    tzOverride = trimmed;
+  }
+}
+
+const hashRaw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+const hashParams = new URLSearchParams(hashRaw);
+const HASH_TOKEN = hashParams.get('t');
+const HASH_KEY = hashParams.get('k');
+
+let hashError = null;
+
+if (HASH_TOKEN || HASH_KEY){
+  if (!HASH_TOKEN || !HASH_KEY){
+    const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
+    hashError = `Sijaintilinkistä puuttuu ${which}.`;
+  } else {
+    try {
+      /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
+      const decrypted = await fetchAndDecryptLocation(HASH_TOKEN, HASH_KEY);
+      LAT_STR = String(decrypted.lat);
+      LON_STR = String(decrypted.lon);
+      if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
+      if (typeof decrypted?.title === 'string'){
+        const trimmed = decrypted.title.trim();
+        if (trimmed) specialTitle = trimmed.slice(0, 160);
+      }
+      LOCATION_SOURCE = 'hash';
+      if (DBG){
+        console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
+      }
+    } catch (err) {
+      const detail = err?.message ? `: ${err.message}` : '';
+      hashError = `Sijaintipaketin purku epäonnistui${detail}`;
+      console.error('Sijaintipaketin purku epäonnistui', err);
+      if (err && typeof err === 'object') err.__tusinaHandled = true;
+    }
+  }
+
+  if (hashError){
+    prependError(hashError);
+    const noFallbackCoords = (LAT_STR == null || LON_STR == null);
+    if (noFallbackCoords){
+      const fatal = new Error(hashError);
+      fatal.__tusinaHandled = true;
+      throw fatal;
+    }
+    if (DBG){
+      console.warn('Hash-fragmentti epäonnistui; käytetään query-parametreja.', {
+        lat: LAT_STR,
+        lon: LON_STR,
+        reason: hashError
+      });
+    }
+  }
+} else if (DBG && HASH_TOKEN == null && HASH_KEY == null){
+  console.info('Hash-fragmenttia ei annettu; käytetään kehityksen query-parametreja.', { lat: LAT_STR, lon: LON_STR });
+}
+
+const LAT = parseFloat(LAT_STR);
+const LON = parseFloat(LON_STR);
 
 const FALLBACK_TIME_ZONE = (() => {
   try {
@@ -166,6 +373,16 @@ const FALLBACK_TIME_ZONE = (() => {
     return 'UTC';
   }
 })();
+
+function isValidTimeZone(tz){
+  if (typeof tz !== 'string' || !tz.trim()) return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz }).format();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 function inferTimeZone(lat, lon){
   const fallback = FALLBACK_TIME_ZONE || 'UTC';
@@ -182,7 +399,24 @@ function inferTimeZone(lat, lon){
   return fallback;
 }
 
-let timeZone = inferTimeZone(LAT, LON);
+let timeZone = null;
+if (tzOverride){
+  if (isValidTimeZone(tzOverride)){
+    timeZone = tzOverride;
+    if (DBG){
+      console.info('Aikavyöhyke asetettu query-parametrista', { tz: tzOverride });
+    }
+  } else {
+    const msg = `Aikavyöhykeparametri (${tzOverride}) ei kelpaa; käytetään automaattista tunnistusta.`;
+    prependError(msg);
+    if (DBG){
+      console.warn('Aikavyöhykeparametri ei kelpaa', { tz: tzOverride });
+    }
+  }
+}
+if (!timeZone){
+  timeZone = inferTimeZone(LAT, LON);
+}
 if (typeof timeZone !== 'string' || !timeZone){
   timeZone = FALLBACK_TIME_ZONE || 'UTC';
 }
@@ -190,12 +424,16 @@ const TZ = timeZone;
 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
-if (LAT_STR === '60.3281' && LON_STR === '25.0551'){
-  pageTitle.textContent = 'TUSINASÄÄ 12 · ASOLA'; pageTitle.style.display = '';
-} else if (LAT_STR === '60.1562' && LON_STR === '24.7767'){
-  pageTitle.textContent = 'TUSINASÄÄ 12 · RANTAKOTO'; pageTitle.style.display = '';
-} else if (LAT_STR === '60.1620' && LON_STR === '24.8791'){
-  pageTitle.textContent = 'TUSINASÄÄ 12 · ...KOTKAVUORI'; pageTitle.style.display = '';
+if (!specialTitle){
+  const queryTitleRaw = q.get('title');
+  if (typeof queryTitleRaw === 'string'){
+    const trimmed = queryTitleRaw.trim();
+    if (trimmed) specialTitle = trimmed.slice(0, 160);
+  }
+}
+if (specialTitle){
+  pageTitle.textContent = specialTitle;
+  pageTitle.style.display = '';
 }
 
 /* --------- aikaformatit --------- */
@@ -983,12 +1221,49 @@ function buildDescriptionHtml({ main, tags, extra }){
   return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
 }
 
-function shouldTintForGold(tw){
-  if (!tw || !tw.sunEvent || !(tw.sunEvent.at instanceof Date)) return false;
-  const mins = tw.sunEvent.at.getMinutes();
+function shouldTintForGold(tw, hourStart){
+  if (!tw) return false;
+  const sunEvent = (tw.sunEvent && tw.sunEvent.at instanceof Date) ? tw.sunEvent : null;
+
+  if (sunEvent && sunEvent.type === 'rise'){
+    const riseTime = sunEvent.at;
+    const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+    if (startValid){
+      const startMs = hourStart.getTime();
+      const eventMs = riseTime.getTime();
+      if (!Number.isFinite(eventMs)) return false;
+      if (eventMs >= startMs - 5*MIN && eventMs < startMs) return true;
+      if (eventMs >= startMs && eventMs < startMs + 30*MIN) return true;
+      return false;
+    }
+    const mins = riseTime.getMinutes();
+    return Number.isInteger(mins) && mins < 30;
+  }
+
+  const setTime = (
+    sunEvent && sunEvent.type === 'set'
+      ? sunEvent.at
+      : (tw.set instanceof Date ? tw.set : null)
+  );
+  if (!(setTime instanceof Date)) return false;
+
+  const mins = setTime.getMinutes();
   if (!Number.isInteger(mins)) return false;
-  if (tw.sunEvent.type === 'rise'){ return mins < 30; }
-  if (tw.sunEvent.type === 'set'){ return mins <= 30; }
+
+  const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+  if (!startValid) return !!sunEvent && sunEvent.type === 'set' && mins >= 30;
+
+  const startMs = hourStart.getTime();
+  const eventMs = setTime.getTime();
+  if (!Number.isFinite(eventMs)) return false;
+
+  const endMs = startMs + 60*MIN;
+  if (eventMs >= startMs && eventMs < endMs){
+    return mins >= 30;
+  }
+  if (eventMs >= endMs && eventMs < endMs + 5*MIN){
+    return true;
+  }
   return false;
 }
 
@@ -1004,9 +1279,9 @@ function replaceBlueWithGold(text){
   return out;
 }
 
-function maybeApplyGoldTint(baseText, tw){
+function maybeApplyGoldTint(baseText, tw, hourStart){
   if (!baseText || typeof baseText !== 'string') return baseText;
-  if (!shouldTintForGold(tw)) return baseText;
+  if (!shouldTintForGold(tw, hourStart)) return baseText;
   if (!/sini/i.test(baseText)) return baseText;
   return replaceBlueWithGold(baseText);
 }
@@ -1228,7 +1503,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (!tw) return { main: tintedMain, twilightMain, tags };
 
   const phaseMain = phaseLabel(tw.phase);
-  tintedMain = maybeApplyGoldTint(baseText, tw);
+  tintedMain = maybeApplyGoldTint(baseText, tw, hourStart);
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
@@ -1242,16 +1517,24 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let startKey = null;
   if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
-    startKey = `${tw.phase}-${phaseStart.getTime()}`;
-    if (tw.startedWithinHour){
-      startTag = `ALKAA ${fmtHM(phaseStart)}`;
-    } else if (
-      tw.phase !== twilightState.lastPhase &&
-      !twilightState.announced.has(startKey)
-    ){
-      const prevHourStart = twilightState.lastHourStart;
-      if (prevHourStart && phaseStart >= prevHourStart){
-        startTag = `(alkoi ${fmtHM(phaseStart)})`;
+    const hhmm = fmtHM(phaseStart);
+    const minutes = phaseStart.getMinutes();
+    const beforeMain = Number.isInteger(minutes) && minutes < 30;
+    let label = beginLabel(tw.phase);
+    if (!label && phaseMain) label = `${phaseMain} alkaa`;
+    if (label && hhmm){
+      const entry = { text: `${label} ${hhmm}`, italic: true, beforeMain };
+      startKey = `${tw.phase}-${phaseStart.getTime()}`;
+      if (tw.startedWithinHour){
+        startTag = entry;
+      } else if (
+        tw.phase !== twilightState.lastPhase &&
+        !twilightState.announced.has(startKey)
+      ){
+        const prevHourStart = twilightState.lastHourStart;
+        if (prevHourStart && phaseStart >= prevHourStart){
+          startTag = entry;
+        }
       }
     }
   }
@@ -1260,7 +1543,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
   } else if (startTag){
-    tags.push({ text: startTag, italic: true, prefix: true });
+    tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
   } else if (tw.withinChange){
     const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
@@ -1295,6 +1578,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
         }
       }
       const entry = { text, italic: true };
+      if (Number.isInteger(minutes) && minutes < 30) entry.beforeMain = true;
       if (dittoEllipsis) entry.dittoEllipsis = true;
       tags.push(entry);
     } else if (label){
@@ -1330,7 +1614,8 @@ function maybeApplyTwilightPrecipOverride({
   rowIndex,
   fallbackFromNowcast,
   descSource,
-  descriptorOpts
+  descriptorOpts,
+  hourStart
 }){
   const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
   if (!decorated || !decorated.twilightMain) return result;
@@ -1344,7 +1629,7 @@ function maybeApplyTwilightPrecipOverride({
 
   let main = (typeof baseDesc === 'string') ? baseDesc : '';
   if (main && main !== '–'){
-    let tinted = maybeApplyGoldTint(main, tw);
+    let tinted = maybeApplyGoldTint(main, tw, hourStart);
     main = tinted;
   }
 
@@ -1410,7 +1695,7 @@ function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null }
   if (gOk && gustV >= 15){
     const gustFmt = formatWindSpeed(gustV);
     if (gustFmt != null){
-      gustTxt = ` (<em style="color:#e8e8e8">${gustFmt}</em>)`;
+      gustTxt = ` (<em style="color:var(--color-mini-strong)">${gustFmt}</em>)`;
     }
     highlight = true;
   }
@@ -1623,7 +1908,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
       rowIndex: index,
       fallbackFromNowcast,
       descSource,
-      descriptorOpts
+      descriptorOpts,
+      hourStart: dUtc
     });
     twilightOverride = override;
     if (override.applied){
