@@ -80,7 +80,6 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         }.coerceIn(0L, DURATION_MS)
         outState.putString(KEY_STATE, state.name)
         outState.putLong(KEY_ELAPSED, effectiveElapsed)
-        outState.putFloat(KEY_PROGRESS, currentProgress)
         outState.putBoolean(KEY_AUDIO_AVAILABLE, audioAvailable)
     }
 
@@ -381,7 +380,6 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         private const val KEY_STATE = "timer_state"
         private const val KEY_ELAPSED = "timer_elapsed"
-        private const val KEY_PROGRESS = "timer_progress"
         private const val KEY_AUDIO_AVAILABLE = "timer_audio_available"
     }
 }
