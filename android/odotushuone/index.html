@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Odotushuone</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ring-color-active: #f5f5f5;
+        --ring-color-paused: #3a3a3a;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #000;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+      }
+
+      #app {
+        position: relative;
+        width: min(100vw, 100vh * 1080 / 1240);
+        aspect-ratio: 1080 / 1240;
+        touch-action: none;
+      }
+
+      #ouroboros-bg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      #ring-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      #interaction-layer {
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      #ouroboros-ring {
+        stroke: var(--ring-color-active);
+        stroke-linecap: round;
+        transform: rotate(-90deg);
+        transform-origin: 540px 1157.5px;
+      }
+
+      #ouroboros-ring.paused {
+        stroke: var(--ring-color-paused);
+      }
+
+      #ouroboros-ring.hidden {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <img id="ouroboros-bg" src="ouroboros.svg" alt="" draggable="false" />
+      <svg id="ring-layer" viewBox="0 0 1080 1240" aria-hidden="true">
+        <circle
+          id="ouroboros-ring"
+          cx="540"
+          cy="1157.5"
+          r="37.5"
+          fill="none"
+          stroke-width="4.7"
+        ></circle>
+      </svg>
+      <div id="interaction-layer" role="button" aria-label="Odotushuone ajastin"></div>
+    </div>
+    <audio id="gong" src="kello.mp3" preload="auto"></audio>
+    <script>
+      const DURATION_MS = (22 * 60 + 22) * 1000;
+      const LONG_PRESS_MS = 1000;
+      const DOUBLE_TAP_MS = 300;
+
+      const ring = document.getElementById('ouroboros-ring');
+      const interaction = document.getElementById('interaction-layer');
+      const audio = document.getElementById('gong');
+
+      const radius = parseFloat(ring.getAttribute('r'));
+      const circumference = 2 * Math.PI * radius;
+
+      let state = 'idle';
+      let rafId = null;
+      let startTimestamp = 0;
+      let elapsedBeforePause = 0;
+      let longPressTimer = null;
+      let longPressTriggered = false;
+      let pointerId = null;
+      let singleTapTimer = null;
+      let lastTapTime = 0;
+
+      function setProgress(fraction) {
+        const clamped = Math.max(0, Math.min(1, fraction));
+        if (clamped >= 1) {
+          ring.style.strokeDasharray = `0 ${circumference}`;
+        } else {
+          const visible = circumference * (1 - clamped);
+          const gap = circumference - visible;
+          ring.style.strokeDasharray = `${visible} ${gap}`;
+        }
+        ring.style.strokeDashoffset = '0';
+      }
+
+      function resetAnimation() {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      function updateFrame() {
+        if (state !== 'running') {
+          return;
+        }
+        const now = performance.now();
+        const elapsed = elapsedBeforePause + (now - startTimestamp);
+        const progress = elapsed / DURATION_MS;
+        if (progress >= 1) {
+          setProgress(1);
+          finishRun();
+          return;
+        }
+        setProgress(progress);
+        rafId = requestAnimationFrame(updateFrame);
+      }
+
+      function startRun({ playSound }) {
+        resetAnimation();
+        elapsedBeforePause = 0;
+        startTimestamp = performance.now();
+        state = 'running';
+        ring.classList.remove('paused', 'hidden');
+        setProgress(0);
+        rafId = requestAnimationFrame(updateFrame);
+        if (playSound && audio.paused) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+      }
+
+      function resumeRun() {
+        if (state !== 'paused') {
+          return;
+        }
+        state = 'running';
+        ring.classList.remove('paused');
+        startTimestamp = performance.now();
+        rafId = requestAnimationFrame(updateFrame);
+      }
+
+      function pauseRun() {
+        if (state !== 'running') {
+          return;
+        }
+        const now = performance.now();
+        elapsedBeforePause += now - startTimestamp;
+        state = 'paused';
+        ring.classList.add('paused');
+        resetAnimation();
+      }
+
+      function resetToIdle() {
+        resetAnimation();
+        elapsedBeforePause = 0;
+        state = 'idle';
+        ring.classList.remove('paused');
+        ring.classList.remove('hidden');
+        setProgress(0);
+      }
+
+      function finishRun() {
+        resetAnimation();
+        elapsedBeforePause = DURATION_MS;
+        state = 'finishing';
+        ring.classList.add('hidden');
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+
+      audio.addEventListener('ended', () => {
+        if (state === 'finishing') {
+          resetToIdle();
+        }
+      });
+
+      function handleShortTap() {
+        if (state === 'idle') {
+          startRun({ playSound: true });
+        } else if (state === 'running') {
+          pauseRun();
+        } else if (state === 'paused') {
+          resumeRun();
+        }
+      }
+
+      function handleLongPress() {
+        if (state === 'idle') {
+          return;
+        }
+        resetToIdle();
+      }
+
+      function handleDoubleTap() {
+        if (state === 'idle') {
+          return;
+        }
+        startRun({ playSound: false });
+      }
+
+      interaction.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (pointerId !== null) {
+          return;
+        }
+        pointerId = event.pointerId;
+        longPressTriggered = false;
+        longPressTimer = setTimeout(() => {
+          longPressTriggered = true;
+          handleLongPress();
+        }, LONG_PRESS_MS);
+        interaction.setPointerCapture(pointerId);
+      });
+
+      function clearPointerState() {
+        if (pointerId !== null) {
+          try {
+            interaction.releasePointerCapture(pointerId);
+          } catch (error) {
+            // ignore
+          }
+        }
+        pointerId = null;
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
+      interaction.addEventListener('pointerup', (event) => {
+        if (event.pointerId !== pointerId) {
+          return;
+        }
+        clearPointerState();
+        if (longPressTriggered) {
+          return;
+        }
+        const now = performance.now();
+        if (singleTapTimer) {
+          clearTimeout(singleTapTimer);
+          singleTapTimer = null;
+        }
+        if (now - lastTapTime <= DOUBLE_TAP_MS) {
+          lastTapTime = 0;
+          handleDoubleTap();
+        } else {
+          lastTapTime = now;
+          singleTapTimer = setTimeout(() => {
+            singleTapTimer = null;
+            handleShortTap();
+          }, DOUBLE_TAP_MS);
+        }
+      });
+
+      interaction.addEventListener('pointercancel', (event) => {
+        if (event.pointerId !== pointerId) {
+          return;
+        }
+        clearPointerState();
+      });
+
+      interaction.addEventListener('pointerleave', (event) => {
+        if (event.pointerId !== pointerId) {
+          return;
+        }
+        clearPointerState();
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && state === 'running') {
+          pauseRun();
+        }
+      });
+
+      setProgress(0);
+    </script>
+  </body>
+</html>
