@@ -102,6 +102,7 @@
       const ring = document.getElementById('ouroboros-ring');
       const interaction = document.getElementById('interaction-layer');
       const audio = document.getElementById('gong');
+      let audioAvailable = true;
 
       const radius = parseFloat(ring.getAttribute('r'));
       const circumference = 2 * Math.PI * radius;
@@ -157,7 +158,7 @@
         ring.classList.remove('paused', 'hidden');
         setProgress(0);
         rafId = requestAnimationFrame(updateFrame);
-        if (playSound && audio.paused) {
+        if (playSound && audioAvailable && audio.paused) {
           audio.currentTime = 0;
           audio.play().catch(() => {});
         }
@@ -198,14 +199,29 @@
         elapsedBeforePause = DURATION_MS;
         state = 'finishing';
         ring.classList.add('hidden');
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
+        if (audioAvailable) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        } else {
+          resetToIdle();
+        }
       }
 
       audio.addEventListener('ended', () => {
         if (state === 'finishing') {
           resetToIdle();
         }
+      });
+
+      audio.addEventListener('error', () => {
+        audioAvailable = false;
+        if (state === 'finishing') {
+          resetToIdle();
+        }
+      });
+
+      audio.addEventListener('loadeddata', () => {
+        audioAvailable = true;
       });
 
       function handleShortTap() {
