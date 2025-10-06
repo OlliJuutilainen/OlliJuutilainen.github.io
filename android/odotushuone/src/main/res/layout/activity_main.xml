@@ -9,6 +9,7 @@
         android:id="@+id/timer_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:contentDescription="@string/timer_description"
         android:importantForAccessibility="no" />
 
@@ -16,6 +17,7 @@
         android:id="@+id/interaction_layer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:contentDescription="@string/timer_description"
         android:clickable="true"
         android:focusable="true"

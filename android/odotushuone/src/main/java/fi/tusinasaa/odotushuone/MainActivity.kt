@@ -1,26 +1,28 @@
 package fi.tusinasaa.odotushuone
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.Choreographer
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
+import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), Choreographer.FrameCallback {
 
     private lateinit var timerView: TimerRingView
     private lateinit var interactionLayer: View
+    private lateinit var gestureDetector: GestureDetector
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val frameCallback = Choreographer.FrameCallback { updateFrame() }
+    private val choreographer: Choreographer by lazy { Choreographer.getInstance() }
 
     private var state: TimerState = TimerState.IDLE
     private var startUptimeMs: Long = 0L
@@ -29,12 +31,6 @@ class MainActivity : Activity() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var audioAvailable: Boolean = true
-
-    private var pointerId: Int? = null
-    private var longPressTriggered = false
-    private var longPressRunnable: Runnable? = null
-    private var singleTapRunnable: Runnable? = null
-    private var lastTapUpTimeMs: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +41,14 @@ class MainActivity : Activity() {
 
         timerView = findViewById(R.id.timer_view)
         interactionLayer = findViewById(R.id.interaction_layer)
-        interactionLayer.setOnTouchListener { _, event -> handleTouch(event) }
-        interactionLayer.setOnClickListener { handleShortTap() }
+
+        gestureDetector = createGestureDetector()
+        interactionLayer.setOnTouchListener { _, event ->
+            handleTouchEvent(event)
+        }
+        interactionLayer.setOnClickListener {
+            handleShortTap()
+        }
         interactionLayer.setOnLongClickListener {
             handleLongPress()
             true
@@ -89,88 +91,66 @@ class MainActivity : Activity() {
         super.onPause()
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (state == TimerState.RUNNING) {
+            pauseRun()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         cancelFrame()
         releasePlayer()
     }
 
-    private fun handleTouch(event: MotionEvent): Boolean {
+    override fun doFrame(frameTimeNanos: Long) {
+        if (state != TimerState.RUNNING) {
+            return
+        }
+        val now = SystemClock.uptimeMillis()
+        val elapsed = elapsedBeforePauseMs + (now - startUptimeMs)
+        val progress = (elapsed.toFloat() / DURATION_MS.toFloat()).coerceIn(0f, 1f)
+        currentProgress = progress
+        timerView.setProgress(progress)
+        if (progress >= 1f) {
+            finishRun()
+        } else {
+            choreographer.postFrameCallback(this)
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun handleTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                if (pointerId != null) {
-                    return false
-                }
-                pointerId = event.getPointerId(event.actionIndex)
-                longPressTriggered = false
-                scheduleLongPress()
-                interactionLayer.isPressed = true
-                return true
-            }
-            MotionEvent.ACTION_POINTER_DOWN -> {
-                return false
-            }
-            MotionEvent.ACTION_UP -> {
-                if (event.getPointerId(event.actionIndex) != pointerId) {
-                    return false
-                }
-                interactionLayer.isPressed = false
-                val wasLongPress = longPressTriggered
-                clearLongPress()
-                longPressTriggered = false
-                pointerId = null
-                if (wasLongPress) {
-                    return true
-                }
-                val now = SystemClock.uptimeMillis()
-                if (singleTapRunnable != null && now - lastTapUpTimeMs <= DOUBLE_TAP_MS) {
-                    handler.removeCallbacks(singleTapRunnable!!)
-                    singleTapRunnable = null
-                    lastTapUpTimeMs = 0L
-                    handleDoubleTap()
-                } else {
-                    lastTapUpTimeMs = now
-                    singleTapRunnable = Runnable {
-                        interactionLayer.performClick()
-                        singleTapRunnable = null
-                    }
-                    handler.postDelayed(singleTapRunnable!!, DOUBLE_TAP_MS)
-                }
-                return true
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                interactionLayer.isPressed = false
-                clearTouchState()
-                return true
-            }
-            MotionEvent.ACTION_MOVE -> {
-                return pointerId != null
-            }
+            MotionEvent.ACTION_DOWN -> interactionLayer.isPressed = true
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> interactionLayer.isPressed = false
         }
-        return false
+        gestureDetector.onTouchEvent(event)
+        return true
     }
 
-    private fun scheduleLongPress() {
-        clearLongPress()
-        longPressRunnable = Runnable {
-            longPressTriggered = true
-            interactionLayer.performLongClick()
-        }
-        handler.postDelayed(longPressRunnable!!, LONG_PRESS_MS)
-    }
+    private fun createGestureDetector(): GestureDetector {
+        return GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent): Boolean {
+                return true
+            }
 
-    private fun clearTouchState() {
-        pointerId = null
-        longPressTriggered = false
-        clearLongPress()
-        singleTapRunnable?.let { handler.removeCallbacks(it) }
-        singleTapRunnable = null
-        lastTapUpTimeMs = 0L
-    }
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                interactionLayer.performClick()
+                return true
+            }
 
-    private fun clearLongPress() {
-        longPressRunnable?.let { handler.removeCallbacks(it) }
-        longPressRunnable = null
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                handleDoubleTap()
+                return true
+            }
+
+            override fun onLongPress(e: MotionEvent) {
+                interactionLayer.isPressed = false
+                handleLongPress()
+            }
+        })
     }
 
     private fun handleShortTap() {
@@ -190,6 +170,7 @@ class MainActivity : Activity() {
 
     private fun handleLongPress() {
         if (state != TimerState.IDLE) {
+            interactionLayer.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             resetToIdle()
         }
     }
@@ -203,7 +184,8 @@ class MainActivity : Activity() {
         timerView.setProgress(0f)
         state = TimerState.RUNNING
         startUptimeMs = SystemClock.uptimeMillis()
-        Choreographer.getInstance().postFrameCallback(frameCallback)
+        choreographer.postFrameCallback(this)
+        interactionLayer.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         if (playSound) {
             playGong(resetAfterPlayback = false)
         }
@@ -216,7 +198,8 @@ class MainActivity : Activity() {
         state = TimerState.RUNNING
         timerView.setPaused(false)
         startUptimeMs = SystemClock.uptimeMillis()
-        Choreographer.getInstance().postFrameCallback(frameCallback)
+        choreographer.postFrameCallback(this)
+        interactionLayer.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
     private fun pauseRun() {
@@ -224,11 +207,11 @@ class MainActivity : Activity() {
             return
         }
         val now = SystemClock.uptimeMillis()
-        elapsedBeforePauseMs += now - startUptimeMs
-        elapsedBeforePauseMs = elapsedBeforePauseMs.coerceIn(0L, DURATION_MS)
+        elapsedBeforePauseMs = (elapsedBeforePauseMs + (now - startUptimeMs)).coerceIn(0L, DURATION_MS)
         state = TimerState.PAUSED
         timerView.setPaused(true)
         cancelFrame()
+        interactionLayer.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
     private fun finishRun() {
@@ -254,24 +237,8 @@ class MainActivity : Activity() {
         timerView.setProgress(0f)
     }
 
-    private fun updateFrame() {
-        if (state != TimerState.RUNNING) {
-            return
-        }
-        val now = SystemClock.uptimeMillis()
-        val elapsed = elapsedBeforePauseMs + (now - startUptimeMs)
-        val progress = (elapsed.toFloat() / DURATION_MS.toFloat()).coerceIn(0f, 1f)
-        currentProgress = progress
-        timerView.setProgress(progress)
-        if (progress >= 1f) {
-            finishRun()
-        } else {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
-        }
-    }
-
     private fun cancelFrame() {
-        Choreographer.getInstance().removeFrameCallback(frameCallback)
+        choreographer.removeFrameCallback(this)
     }
 
     private fun playGong(resetAfterPlayback: Boolean) {
@@ -282,15 +249,36 @@ class MainActivity : Activity() {
             return
         }
         releasePlayer()
-        val player = MediaPlayer.create(this, R.raw.kello)
-        if (player == null) {
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        val player = MediaPlayer()
+        player.setAudioAttributes(attributes)
+        val asset = resources.openRawResourceFd(R.raw.kello)
+        if (asset == null) {
             audioAvailable = false
             if (resetAfterPlayback) {
                 resetToIdle()
             }
             return
         }
-        mediaPlayer = player
+        val dataSourceConfigured = try {
+            player.setDataSource(asset.fileDescriptor, asset.startOffset, asset.length)
+            true
+        } catch (error: Exception) {
+            false
+        } finally {
+            asset.close()
+        }
+        if (!dataSourceConfigured) {
+            audioAvailable = false
+            releasePlayer()
+            if (resetAfterPlayback && state == TimerState.FINISHING) {
+                resetToIdle()
+            }
+            return
+        }
         player.setOnCompletionListener {
             if (resetAfterPlayback && state == TimerState.FINISHING) {
                 resetToIdle()
@@ -306,8 +294,10 @@ class MainActivity : Activity() {
             true
         }
         try {
+            mediaPlayer = player
+            player.prepare()
             player.start()
-        } catch (error: IllegalStateException) {
+        } catch (error: Exception) {
             audioAvailable = false
             releasePlayer()
             if (resetAfterPlayback && state == TimerState.FINISHING) {
@@ -388,8 +378,6 @@ class MainActivity : Activity() {
 
     companion object {
         private const val DURATION_MS = (22 * 60 + 22) * 1000L
-        private const val LONG_PRESS_MS = 1000L
-        private const val DOUBLE_TAP_MS = 300L
 
         private const val KEY_STATE = "timer_state"
         private const val KEY_ELAPSED = "timer_elapsed"

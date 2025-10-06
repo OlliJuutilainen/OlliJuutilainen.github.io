@@ -27,17 +27,25 @@ class TimerRingView @JvmOverloads constructor(
     private var hidden: Boolean = false
 
     init {
-        updateStrokeWidth()
         ringPaint.color = COLOR_ACTIVE
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val size = min(w, h).toFloat()
-        val diameter = (size - strokeWidthPx).coerceAtLeast(0f)
-        val left = (w - diameter) / 2f
-        val top = (h - diameter) / 2f
-        arcBounds.set(left, top, left + diameter, top + diameter)
+        if (w == 0 || h == 0) {
+            return
+        }
+        val scale = min(w / BASE_WIDTH, h / BASE_HEIGHT)
+        strokeWidthPx = (BASE_STROKE * scale).coerceAtLeast(MIN_STROKE_PX)
+        val radius = BASE_RING_RADIUS * scale
+        val centerX = (w - BASE_WIDTH * scale) / 2f + BASE_RING_CENTER_X * scale
+        val centerY = (h - BASE_HEIGHT * scale) / 2f + BASE_RING_CENTER_Y * scale
+        arcBounds.set(
+            centerX - radius,
+            centerY - radius,
+            centerX + radius,
+            centerY + radius
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -81,13 +89,16 @@ class TimerRingView @JvmOverloads constructor(
 
     fun isHidden(): Boolean = hidden
 
-    private fun updateStrokeWidth() {
-        val density = resources.displayMetrics.density
-        strokeWidthPx = 6f * density
-    }
-
     companion object {
         private const val COLOR_ACTIVE = Color.WHITE
         private const val COLOR_PAUSED = 0xFF3A3A3A.toInt()
+
+        private const val BASE_WIDTH = 1080f
+        private const val BASE_HEIGHT = 1240f
+        private const val BASE_RING_CENTER_X = 540f
+        private const val BASE_RING_CENTER_Y = 1157.5f
+        private const val BASE_RING_RADIUS = 37.5f
+        private const val BASE_STROKE = 4.7f
+        private const val MIN_STROKE_PX = 2f
     }
 }
