@@ -3,4 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    android:keepScreenOn="true" />
+    android:keepScreenOn="true">
+
+    <fi.tusinasaa.odotushuone.TimerRingView
+        android:id="@+id/timer_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/timer_description"
+        android:importantForAccessibility="no" />
+
+    <View
+        android:id="@+id/interaction_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/timer_description"
+        android:clickable="true"
+        android:focusable="true"
+        android:importantForAccessibility="yes" />
+</FrameLayout>

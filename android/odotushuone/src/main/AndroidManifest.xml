@@ -4,7 +4,7 @@
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:label="Odotushuone"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Odotushuone">
         <activity
