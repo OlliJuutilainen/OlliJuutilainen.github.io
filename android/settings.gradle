@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TusinaSaaKotkavuori"
 include(":app")
+include(":odotushuone")
