@@ -20,3 +20,12 @@ Sovellus etsii kellon sointia tiedostosta `android/ouroboros/src/main/res/raw/ke
 Binaaritiedostoja ei säilytetä tässä repossa, joten lisää äänitiedosto
 paikallisesti kyseiseen kansioon (tai korvaa polku haluamallasi äänellä) ennen
 kuin ajat sovelluksen.
+
+## Assetit ja visuaalinen rakenne
+
+- Compose-pohjainen sovellus ei käytä SVG-kuvaa ajan etenemisen rinkulaan, vaan
+  piirtää taustan ja etenemiskaaren `Canvas`-komponentilla
+  (`TimerRing`-funktio `MainActivity.kt`:ssä).
+- WebView-pohjainen **Odotushuone**-moduuli tarvitsee tiedoston
+  `android/odotushuone/src/main/assets/ouroboros.svg`, joten jos testaat myös
+  sitä, varmista että kyseinen tiedosto löytyy luomastasi `assets`-kansiosta.
