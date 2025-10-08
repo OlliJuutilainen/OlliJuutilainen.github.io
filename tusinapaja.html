@@ -659,18 +659,34 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
     if (diff<0  && ad<pDiff){pDiff=ad; past=it;}
   }
   let best=null;
-  if (future && fDiff<=60*60000) best=future;
-  else if (past && pDiff<=60*60000) best=past;
+  const limit = 60 * 60000;
+  const futureOk = future && fDiff <= limit;
+  const pastOk = past && pDiff <= limit;
+  if (futureOk && pastOk){
+    best = (fDiff <= pDiff) ? future : past;
+  } else if (futureOk){
+    best = future;
+  } else if (pastOk){
+    best = past;
+  }
   if (!best) return { val:null, meta:'NC!miss' };
 
-  const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
+  const hasNextHour = !!best?.data?.next_1_hours;
+  const acc  = hasNextHour ? best?.data?.next_1_hours?.details?.precipitation_amount : undefined;
   const pr   = best?.data?.instant?.details?.precipitation_rate;
   const gust = best?.data?.instant?.details?.wind_speed_of_gust;
-  const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+  const sym  = hasNextHour ? (best?.data?.next_1_hours?.summary?.symbol_code || null) : null;
 
   let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
   const meta = metaBase || 'NC';
-  return { val:(typeof p==='number'?p:null), meta, gust:(typeof gust==='number'?gust:null), sym };
+  const metaStr = typeof meta === 'string' ? meta : 'NC';
+  const metaTag = (!hasNextHour && !metaStr.startsWith('NC!')) ? 'NC!sym' : metaStr;
+  return {
+    val:(typeof p==='number'?p:null),
+    meta: metaTag,
+    gust:(typeof gust==='number'?gust:null),
+    sym
+  };
 }
 
 async function ensureNowcastBundle(lat, lon){
