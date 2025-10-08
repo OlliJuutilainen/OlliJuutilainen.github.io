@@ -16,6 +16,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix '.dev'
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -34,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.8'
+        kotlinCompilerExtensionVersion '1.5.10'
     }
 
     packagingOptions {
