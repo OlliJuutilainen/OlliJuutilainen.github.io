@@ -45,7 +45,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val TAG = "Ouroboros"
+private const val TAG = "ΒΟΡΟΦΘΟΡΟΣ"
 private const val DURATION_MS = (22 * 60 + 22) * 1000L
 private const val DOUBLE_TAP_MS = 300L
 private const val LONG_PRESS_MS = 1000L

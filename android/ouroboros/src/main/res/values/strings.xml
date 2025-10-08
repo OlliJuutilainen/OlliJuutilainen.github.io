@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Ouroboros</string>
+    <string name="app_name">ΒΟΡΟΦΘΟΡΟΣ</string>
     <string name="timer_idle">Valmis aloittamaan</string>
     <string name="timer_running">Kierros käynnissä</string>
     <string name="timer_paused">Tauolla</string>
