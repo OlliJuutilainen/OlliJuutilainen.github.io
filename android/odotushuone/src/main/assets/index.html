@@ -98,6 +98,7 @@
       const DURATION_MS = (22 * 60 + 22) * 1000;
       const LONG_PRESS_MS = 1000;
       const DOUBLE_TAP_MS = 300;
+      const START_SOUND_DELAY_MS = 120;
 
       const ring = document.getElementById('ouroboros-ring');
       const interaction = document.getElementById('interaction-layer');
@@ -114,8 +115,9 @@
       let longPressTimer = null;
       let longPressTriggered = false;
       let pointerId = null;
-      let singleTapTimer = null;
       let lastTapTime = 0;
+      let pendingStartSoundTimeout = null;
+      let lastTapAllowsDouble = false;
 
       function setProgress(fraction) {
         const clamped = Math.max(0, Math.min(1, fraction));
@@ -150,7 +152,25 @@
         rafId = requestAnimationFrame(updateFrame);
       }
 
-      function startRun({ playSound }) {
+      function clearPendingStartSound() {
+        if (pendingStartSoundTimeout !== null) {
+          clearTimeout(pendingStartSoundTimeout);
+          pendingStartSoundTimeout = null;
+        }
+      }
+
+      function scheduleStartSound() {
+        clearPendingStartSound();
+        pendingStartSoundTimeout = setTimeout(() => {
+          pendingStartSoundTimeout = null;
+          if (audioAvailable) {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+          }
+        }, START_SOUND_DELAY_MS);
+      }
+
+      function startRun({ playSound } = {}) {
         resetAnimation();
         elapsedBeforePause = 0;
         startTimestamp = performance.now();
@@ -158,9 +178,12 @@
         ring.classList.remove('paused', 'hidden');
         setProgress(0);
         rafId = requestAnimationFrame(updateFrame);
-        if (playSound && audioAvailable && audio.paused) {
-          audio.currentTime = 0;
-          audio.play().catch(() => {});
+        if (playSound) {
+          clearPendingStartSound();
+          if (audioAvailable) {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+          }
         }
       }
 
@@ -168,6 +191,7 @@
         if (state !== 'paused') {
           return;
         }
+        clearPendingStartSound();
         state = 'running';
         ring.classList.remove('paused');
         startTimestamp = performance.now();
@@ -178,6 +202,7 @@
         if (state !== 'running') {
           return;
         }
+        clearPendingStartSound();
         const now = performance.now();
         elapsedBeforePause += now - startTimestamp;
         state = 'paused';
@@ -192,6 +217,7 @@
         ring.classList.remove('paused');
         ring.classList.remove('hidden');
         setProgress(0);
+        clearPendingStartSound();
       }
 
       function finishRun() {
@@ -199,6 +225,7 @@
         elapsedBeforePause = DURATION_MS;
         state = 'finishing';
         ring.classList.add('hidden');
+        clearPendingStartSound();
         if (audioAvailable) {
           audio.currentTime = 0;
           audio.play().catch(() => {});
@@ -214,6 +241,7 @@
       });
 
       audio.addEventListener('error', () => {
+        clearPendingStartSound();
         audioAvailable = false;
         if (state === 'finishing') {
           resetToIdle();
@@ -226,7 +254,8 @@
 
       function handleShortTap() {
         if (state === 'idle') {
-          startRun({ playSound: true });
+          startRun({ playSound: false });
+          scheduleStartSound();
         } else if (state === 'running') {
           pauseRun();
         } else if (state === 'paused') {
@@ -239,12 +268,14 @@
           return;
         }
         resetToIdle();
+        lastTapAllowsDouble = false;
       }
 
       function handleDoubleTap() {
         if (state === 'idle') {
           return;
         }
+        clearPendingStartSound();
         startRun({ playSound: false });
       }
 
@@ -281,22 +312,22 @@
         }
         clearPointerState();
         if (longPressTriggered) {
+          lastTapTime = 0;
+          lastTapAllowsDouble = false;
           return;
         }
         const now = performance.now();
-        if (singleTapTimer) {
-          clearTimeout(singleTapTimer);
-          singleTapTimer = null;
-        }
-        if (now - lastTapTime <= DOUBLE_TAP_MS) {
-          lastTapTime = 0;
+        const isDoubleTap =
+          lastTapAllowsDouble && (now - lastTapTime) <= DOUBLE_TAP_MS;
+        const previousState = state;
+        lastTapTime = now;
+        if (isDoubleTap) {
+          clearPendingStartSound();
+          lastTapAllowsDouble = false;
           handleDoubleTap();
         } else {
-          lastTapTime = now;
-          singleTapTimer = setTimeout(() => {
-            singleTapTimer = null;
-            handleShortTap();
-          }, DOUBLE_TAP_MS);
+          handleShortTap();
+          lastTapAllowsDouble = previousState !== 'idle';
         }
       });
 
@@ -305,6 +336,9 @@
           return;
         }
         clearPointerState();
+        clearPendingStartSound();
+        lastTapTime = 0;
+        lastTapAllowsDouble = false;
       });
 
       interaction.addEventListener('pointerleave', (event) => {
@@ -312,6 +346,9 @@
           return;
         }
         clearPointerState();
+        clearPendingStartSound();
+        lastTapTime = 0;
+        lastTapAllowsDouble = false;
       });
 
       document.addEventListener('visibilitychange', () => {
