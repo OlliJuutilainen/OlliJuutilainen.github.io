@@ -268,6 +268,7 @@
           return;
         }
         resetToIdle();
+        triggerHapticFeedback();
         lastTapAllowsDouble = false;
       }
 
@@ -292,6 +293,21 @@
         }, LONG_PRESS_MS);
         interaction.setPointerCapture(pointerId);
       });
+
+      function triggerHapticFeedback() {
+        if (typeof navigator === 'undefined') {
+          return;
+        }
+        const vibrate = navigator.vibrate;
+        if (typeof vibrate !== 'function') {
+          return;
+        }
+        try {
+          vibrate.call(navigator, 10);
+        } catch (error) {
+          // ignore errors from unsupported environments
+        }
+      }
 
       function clearPointerState() {
         if (pointerId !== null) {
