@@ -77,11 +77,6 @@
       font-weight:300;
     }
   }
-  .miniPrefixed::before{
-    content:'';
-    display:inline-block;
-    width:var(--mini-ellipsis-width, 10px);
-  }
   .miniW{ color:var(--color-mini-strong); font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
   .list{ border-top:1px solid var(--color-border); margin-top:6px; }
@@ -259,32 +254,6 @@ async function fetchAndDecryptLocation(token, keyB64u){
   }
 
   return parsed;
-}
-
-/* --------- mittaa ellipsin leveys pienitekstissä --------- */
-function initMiniEllipsisWidth(){
-  if (!document?.body) return;
-  const span = document.createElement('span');
-  span.className = 'mini';
-  span.textContent = '...';
-  span.style.visibility = 'hidden';
-  span.style.position = 'absolute';
-  span.style.whiteSpace = 'pre';
-  span.style.pointerEvents = 'none';
-  document.body.appendChild(span);
-  const rect = span.getBoundingClientRect();
-  span.remove();
-  const width = rect?.width;
-  if (Number.isFinite(width) && width > 0){
-    const px = width.toFixed(2)+'px';
-    document.documentElement.style.setProperty('--mini-ellipsis-width', px);
-    window.__miniEllipsisWidth = width;
-  }
-}
-if (document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', initMiniEllipsisWidth, { once: true });
-} else {
-  initMiniEllipsisWidth();
 }
 
 /* --------- URL-parametrit & sijainti --------- */
@@ -1149,22 +1118,18 @@ function formatSmallTag(entry){
   if (!entry) return '';
   let text = '';
   let italic = false;
-  let prefix = false;
   let preserveCase = false;
   let white = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
-    prefix = !!entry.prefix;
     preserveCase = !!entry.preserveCase;
     white = !!entry.white;
   }
   if (!text) return '';
-  if (prefix && text.startsWith('...')) prefix = false;
   const classes = [white ? 'miniW' : 'mini'];
   if (italic) classes.push('miniTwilight');
-  if (prefix) classes.push('miniPrefixed');
   const cls = classes.join(' ');
   const body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
   const attrs = [];
@@ -1553,7 +1518,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
-      let text = `...${label} ${hhmm}`;
+      let text = `${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (toPhase === 'night'){
         text = `säkkipimeä ${hhmm}`;
@@ -1582,8 +1547,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       if (dittoEllipsis) entry.dittoEllipsis = true;
       tags.push(entry);
     } else if (label){
-      const base = `...${label} ${fmtHM(tw.withinChange.at)}`;
-      const text = tw.withinChange?.to === 'night' ? base.replace(/^\.\.\./, '').trimStart() : base;
+      const text = `${label} ${fmtHM(tw.withinChange.at)}`;
       tags.push({ text, italic: true });
     }
     if (
@@ -1596,7 +1560,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       twilightState.announced.add(key);
     }
   } else if (phaseMain){
-    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
+    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
   }
 
   twilightState.lastPhase = tw.phase || null;
@@ -1760,11 +1724,13 @@ function renderRow(row, state){
       }
     }
     if (tailHtml){
-      tailHtml = tailHtml.replace(/(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?!\.\.\.)([^<]*)/gi, (match, open, ws, text) => {
-        const trimmed = text || '';
-        if (trimmed.startsWith('...')) return open + ws + trimmed;
-        return open + ws + '...' + trimmed;
-      });
+      tailHtml = tailHtml.replace(
+        /(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?:\.\.\.\s*)?([^<]*)/gi,
+        (match, open, ws, text) => {
+          const trimmed = (text || '').replace(/^\.\.\.\s*/, '');
+          return open + ws + trimmed;
+        }
+      );
     }
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
