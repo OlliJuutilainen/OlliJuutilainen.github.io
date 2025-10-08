@@ -40,14 +40,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import fi.ouroboros.android.R
 import fi.ouroboros.android.ui.theme.OuroborosTheme
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "ΒΟΡΟΦΘΟΡΟΣ"
 private const val DURATION_MS = (22 * 60 + 22) * 1000L
-private const val DOUBLE_TAP_MS = 300L
 private const val LONG_PRESS_MS = 1000L
 private const val CLOCK_VOLUME = 0.25118864f // -12 dB
 
@@ -257,8 +255,6 @@ private fun OuroborosTimer() {
             .fillMaxSize()
             .pointerInput(state) {
                 coroutineScope {
-                    var lastTapTime = 0L
-                    var pendingSingleTap: Job? = null
                     awaitEachGesture {
                         awaitFirstDown(requireUnconsumed = false)
                         var longPressTriggered = false
@@ -273,51 +269,17 @@ private fun OuroborosTimer() {
                         val up = waitForUpOrCancellation()
                         longPressJob.cancel()
 
-                        if (up == null) {
-                            pendingSingleTap?.cancel()
-                            pendingSingleTap = null
-                            lastTapTime = 0L
+                        if (up == null || longPressTriggered) {
                             return@awaitEachGesture
                         }
 
-                        if (longPressTriggered) {
-                            pendingSingleTap?.cancel()
-                            pendingSingleTap = null
-                            lastTapTime = 0L
-                            return@awaitEachGesture
-                        }
-
-                        val now = up.uptimeMillis
-                        if (now - lastTapTime <= DOUBLE_TAP_MS) {
-                            pendingSingleTap?.cancel()
-                            pendingSingleTap = null
-                            lastTapTime = 0L
-                            if (state != TimerState.Idle) {
-                                startRun(playStartSound = false)
+                        when (state) {
+                            TimerState.Idle -> startRun(playStartSound = true)
+                            TimerState.Running -> pauseRun()
+                            TimerState.Paused -> resumeRun()
+                            TimerState.Finishing -> {
+                                // ignore taps while finishing
                             }
-                        } else {
-                            lastTapTime = now
-                            pendingSingleTap?.cancel()
-                            pendingSingleTap = null
-                            var jobRef: Job? = null
-                            jobRef = launch {
-                                try {
-                                    delay(DOUBLE_TAP_MS)
-                                    when (state) {
-                                        TimerState.Idle -> startRun(playStartSound = true)
-                                        TimerState.Running -> pauseRun()
-                                        TimerState.Paused -> resumeRun()
-                                        TimerState.Finishing -> {
-                                            // ignore taps while finishing
-                                        }
-                                    }
-                                } finally {
-                                    if (pendingSingleTap === jobRef) {
-                                        pendingSingleTap = null
-                                    }
-                                }
-                            }
-                            pendingSingleTap = jobRef
                         }
                     }
                 }
