@@ -1,6 +1,6 @@
-# Ouroboros (Android)
+# ΒΟΡΟΦΘΟΡΟΣ (Android)
 
-Ouroboros on Jetpack Compose -pohjainen erillinen Android-sovellus, joka tarjoaa
+ΒΟΡΟΦΘΟΡΟΣ on Jetpack Compose -pohjainen erillinen Android-sovellus, joka tarjoaa
 22 minuutin ja 22 sekunnin mittaisen rauhoittumisajastimen. Käyttöliittymä on
 sijoitettu täysin Composeen ilman XML- tai WebView-kerroksia.
 
@@ -41,7 +41,7 @@ kuin ajat sovelluksen.
    `ouroboros/build/outputs/apk/debug/`.
 3. Asenna paketti laitteelle komennolla `adb install -r` ja valitse
    `ouroboros-debug.apk`. Asennuksen jälkeen sovellus löytyy nimellä
-   **Ouroboros**.
+   **ΒΟΡΟΦΘΟΡΟΣ**.
 4. Ensimmäisellä käynnistyskerralla sovellus jää lepotilaan, kunnes napautat
    näyttöä. Jos sovellus katoaa heti, tarkista laitteesta, ettei järjestelmä
    sulje sitä oikeuksien tai virransäästöasetusten vuoksi, ja varmista tarvittaessa
