@@ -12,7 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,8 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.times
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -248,7 +248,7 @@ private fun OuroborosTimer() {
         else -> Color(0xFFF5F5F5)
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(state) {
@@ -320,16 +320,20 @@ private fun OuroborosTimer() {
             }
             .background(Color.Black)
     ) {
+        val ringDiameter = (75f / 1080f) * maxWidth
+        val ringStroke = ringDiameter * (4.7f / 75f)
+        val bottomMargin = (45f / 1240f) * maxHeight
+
         CircularProgressIndicator(
             progress = 1f - progressFraction,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp)
-                .size(75.dp)
+                .padding(bottom = bottomMargin)
+                .size(ringDiameter)
                 .alpha(ringAlpha),
             color = ringColor,
             trackColor = Color.Transparent,
-            strokeWidth = 4.7.dp
+            strokeWidth = ringStroke
         )
     }
 }
