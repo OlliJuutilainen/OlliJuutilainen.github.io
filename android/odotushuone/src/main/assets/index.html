@@ -97,7 +97,6 @@
     <script>
       const DURATION_MS = (22 * 60 + 22) * 1000;
       const LONG_PRESS_MS = 1000;
-      const DOUBLE_TAP_MS = 300;
       const START_SOUND_DELAY_MS = 120;
 
       const ring = document.getElementById('ouroboros-ring');
@@ -115,9 +114,7 @@
       let longPressTimer = null;
       let longPressTriggered = false;
       let pointerId = null;
-      let lastTapTime = 0;
       let pendingStartSoundTimeout = null;
-      let lastTapAllowsDouble = false;
 
       function setProgress(fraction) {
         const clamped = Math.max(0, Math.min(1, fraction));
@@ -265,19 +262,24 @@
 
       function handleLongPress() {
         if (state === 'idle') {
+          clearPendingStartSound();
+          startRun({ playSound: false });
           return;
         }
-        resetToIdle();
-        triggerHapticFeedback();
-        lastTapAllowsDouble = false;
-      }
-
-      function handleDoubleTap() {
-        if (state === 'idle') {
+        if (state === 'running') {
+          clearPendingStartSound();
+          startRun({ playSound: false });
           return;
         }
-        clearPendingStartSound();
-        startRun({ playSound: false });
+        if (state === 'paused') {
+          triggerHapticFeedback();
+          resetToIdle();
+          return;
+        }
+        if (state === 'finishing') {
+          triggerHapticFeedback();
+          resetToIdle();
+        }
       }
 
       interaction.addEventListener('pointerdown', (event) => {
@@ -328,23 +330,9 @@
         }
         clearPointerState();
         if (longPressTriggered) {
-          lastTapTime = 0;
-          lastTapAllowsDouble = false;
           return;
         }
-        const now = performance.now();
-        const isDoubleTap =
-          lastTapAllowsDouble && (now - lastTapTime) <= DOUBLE_TAP_MS;
-        const previousState = state;
-        lastTapTime = now;
-        if (isDoubleTap) {
-          clearPendingStartSound();
-          lastTapAllowsDouble = false;
-          handleDoubleTap();
-        } else {
-          handleShortTap();
-          lastTapAllowsDouble = previousState !== 'idle';
-        }
+        handleShortTap();
       });
 
       interaction.addEventListener('pointercancel', (event) => {
@@ -353,8 +341,6 @@
         }
         clearPointerState();
         clearPendingStartSound();
-        lastTapTime = 0;
-        lastTapAllowsDouble = false;
       });
 
       interaction.addEventListener('pointerleave', (event) => {
@@ -363,8 +349,6 @@
         }
         clearPointerState();
         clearPendingStartSound();
-        lastTapTime = 0;
-        lastTapAllowsDouble = false;
       });
 
       document.addEventListener('visibilitychange', () => {
