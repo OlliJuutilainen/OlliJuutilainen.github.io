@@ -29,3 +29,20 @@ kuin ajat sovelluksen.
 - WebView-pohjainen **Odotushuone**-moduuli tarvitsee tiedoston
   `android/odotushuone/src/main/assets/ouroboros.svg`, joten jos testaat myös
   sitä, varmista että kyseinen tiedosto löytyy luomastasi `assets`-kansiosta.
+
+## Asennusvinkit
+
+1. Varmista, että paikallinen Android SDK on asennettu ja että joko
+   `ANDROID_HOME`-ympäristömuuttuja osoittaa sen juureen tai että
+   `android/local.properties` sisältää rivin `sdk.dir=/polku/android-sdk`.
+   Ilman tätä Gradle ei löydä tarvittavia työkaluja ja kokoaminen katkeaa.
+2. Suorita komentoriviltä `./gradlew :ouroboros:assembleDebug` projektin
+   `android`-kansion juuresta. Tämä kokoaa APK:n kansioon
+   `ouroboros/build/outputs/apk/debug/`.
+3. Asenna paketti laitteelle komennolla `adb install -r` ja valitse
+   `ouroboros-debug.apk`. Asennuksen jälkeen sovellus löytyy nimellä
+   **Ouroboros**.
+4. Ensimmäisellä käynnistyskerralla sovellus jää lepotilaan, kunnes napautat
+   näyttöä. Jos sovellus katoaa heti, tarkista laitteesta, ettei järjestelmä
+   sulje sitä oikeuksien tai virransäästöasetusten vuoksi, ja varmista tarvittaessa
+   `adb logcat` -lokista ettei ajossa näy poikkeuksia.
