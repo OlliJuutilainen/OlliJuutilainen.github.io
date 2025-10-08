@@ -1448,6 +1448,12 @@ function buildThunderTag({ baseText, source, descriptorOpts }){
   };
 }
 
+// "Ristiriitamenettely" = fallback, jossa sateeseen viittaava symboli tai mitta
+// ajaa varsinaisen selitteen ylle vastakommentin. Jos tunnilla on kuivaksi
+// merkattu teksti mutta mitta tai symboli lupaa sadetta, wrapContradiction
+// korostaa alkuperäisen rivin ja lisää perään "tai niin ne lupasivat" -notin.
+// applyContradiction hallinnoi sitä, koska sen pitää katsoa sekä mittaa että
+// symbolia (HEAVY_SSCODE) ja päättää aktivoidaanko ristiriitamoodi.
 function wrapContradiction(descHtml){
   if (!descHtml || descHtml.includes('contradictionMain')) return descHtml;
   const parts = descHtml.split('<br>');
