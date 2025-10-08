@@ -48,6 +48,7 @@ private const val TAG = "Ouroboros"
 private const val DURATION_MS = (22 * 60 + 22) * 1000L
 private const val DOUBLE_TAP_MS = 300L
 private const val LONG_PRESS_MS = 1000L
+private const val CLOCK_VOLUME = 0.25118864f // -12 dB
 
 private enum class TimerState { Idle, Running, Paused, Finishing }
 
@@ -108,7 +109,9 @@ private fun OuroborosTimer() {
     val context = LocalContext.current
     val mediaPlayer = remember {
         try {
-            MediaPlayer.create(context, R.raw.kello)
+            MediaPlayer.create(context, R.raw.kello)?.apply {
+                setVolume(CLOCK_VOLUME, CLOCK_VOLUME)
+            }
         } catch (error: Throwable) {
             Log.w(TAG, "MediaPlayer create failed", error)
             null
