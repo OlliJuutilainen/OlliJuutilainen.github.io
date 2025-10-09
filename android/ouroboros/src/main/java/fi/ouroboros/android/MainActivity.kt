@@ -128,6 +128,7 @@ private fun OuroborosTimer() {
     var elapsed by remember { mutableStateOf(0L) }
     var elapsedBeforePause by remember { mutableStateOf(0L) }
     var audioAvailable by remember { mutableStateOf(mediaPlayer != null) }
+    var runIteration by remember { mutableStateOf(0) }
 
     fun stopAudio() {
         mediaPlayer?.let { player ->
@@ -191,6 +192,7 @@ private fun OuroborosTimer() {
         elapsed = 0L
         elapsedBeforePause = 0L
         state = TimerState.Running
+        runIteration++
         if (playStartSound && audioAvailable) {
             mediaPlayer?.let { player ->
                 try {
@@ -234,7 +236,7 @@ private fun OuroborosTimer() {
         }
     }
 
-    LaunchedEffect(state, elapsedBeforePause) {
+    LaunchedEffect(state, elapsedBeforePause, runIteration) {
         if (state == TimerState.Running) {
             val base = elapsedBeforePause
             val start = SystemClock.elapsedRealtime()
