@@ -274,9 +274,15 @@ private fun OuroborosTimer() {
                         val longPressJob = launch {
                             delay(LONG_PRESS_MS)
                             longPressTriggered = true
-                            if (state != TimerState.Idle && state != TimerState.IdleAudioLock) {
-                                val lockAudio = state == TimerState.Paused && mediaPlayer?.isPlaying == true
-                                resetToIdle(lockUntilAudioEnds = lockAudio)
+                            when (state) {
+                                TimerState.Idle -> startRun(playStartSound = false)
+                                TimerState.IdleAudioLock -> Unit
+                                TimerState.Paused -> {
+                                    val lockAudio = mediaPlayer?.isPlaying == true
+                                    resetToIdle(lockUntilAudioEnds = lockAudio)
+                                }
+                                TimerState.Running -> startRun(playStartSound = false)
+                                TimerState.Finishing -> Unit
                             }
                         }
 
