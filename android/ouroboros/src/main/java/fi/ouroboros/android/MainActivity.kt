@@ -33,7 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.times
 import androidx.core.view.WindowCompat
@@ -119,6 +121,8 @@ private fun OuroborosTimer() {
             null
         }
     }
+
+    val haptics = LocalHapticFeedback.current
 
     var state by remember { mutableStateOf(TimerState.Idle) }
     var elapsed by remember { mutableStateOf(0L) }
@@ -275,13 +279,20 @@ private fun OuroborosTimer() {
                             delay(LONG_PRESS_MS)
                             longPressTriggered = true
                             when (state) {
-                                TimerState.Idle -> startRun(playStartSound = false)
+                                TimerState.Idle -> {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    startRun(playStartSound = false)
+                                }
                                 TimerState.IdleAudioLock -> Unit
                                 TimerState.Paused -> {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                     val lockAudio = mediaPlayer?.isPlaying == true
                                     resetToIdle(lockUntilAudioEnds = lockAudio)
                                 }
-                                TimerState.Running -> startRun(playStartSound = false)
+                                TimerState.Running -> {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    startRun(playStartSound = false)
+                                }
                                 TimerState.Finishing -> Unit
                             }
                         }
