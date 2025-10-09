@@ -1,6 +1,6 @@
 package fi.ouroboros.android
 
-import android.graphics.Color
+import android.graphics.Color as AndroidColor
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate start")
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+        window.setBackgroundDrawable(ColorDrawable(AndroidColor.BLACK))
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContent {
