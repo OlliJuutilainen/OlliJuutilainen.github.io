@@ -49,7 +49,7 @@ private const val DURATION_MS = (22 * 60 + 22) * 1000L
 private const val LONG_PRESS_MS = 1000L
 private const val CLOCK_VOLUME = 0.25118864f // -12 dB
 
-private enum class TimerState { Idle, Running, Paused, Finishing }
+private enum class TimerState { Idle, IdleAudioLock, Running, Paused, Finishing }
 
 class MainActivity : ComponentActivity() {
 
@@ -139,16 +139,23 @@ private fun OuroborosTimer() {
         }
     }
 
-    fun resetToIdle() {
-        stopAudio()
+    fun resetToIdle(lockUntilAudioEnds: Boolean = false) {
+        val shouldLock = lockUntilAudioEnds && (mediaPlayer?.isPlaying == true)
+        if (shouldLock) {
+            state = TimerState.IdleAudioLock
+        } else {
+            stopAudio()
+            state = TimerState.Idle
+        }
         elapsed = 0L
         elapsedBeforePause = 0L
-        state = TimerState.Idle
     }
 
     val onFinishAudio by rememberUpdatedState(newValue = {
-        if (state == TimerState.Finishing) {
-            resetToIdle()
+        when (state) {
+            TimerState.Finishing -> resetToIdle()
+            TimerState.IdleAudioLock -> resetToIdle()
+            else -> Unit
         }
     })
 
@@ -170,6 +177,9 @@ private fun OuroborosTimer() {
     }
 
     fun startRun(playStartSound: Boolean) {
+        if (state == TimerState.IdleAudioLock) {
+            return
+        }
         stopAudio()
         elapsed = 0L
         elapsedBeforePause = 0L
@@ -261,8 +271,9 @@ private fun OuroborosTimer() {
                         val longPressJob = launch {
                             delay(LONG_PRESS_MS)
                             longPressTriggered = true
-                            if (state != TimerState.Idle) {
-                                resetToIdle()
+                            if (state != TimerState.Idle && state != TimerState.IdleAudioLock) {
+                                val lockAudio = state == TimerState.Paused && mediaPlayer?.isPlaying == true
+                                resetToIdle(lockUntilAudioEnds = lockAudio)
                             }
                         }
 
@@ -275,6 +286,9 @@ private fun OuroborosTimer() {
 
                         when (state) {
                             TimerState.Idle -> startRun(playStartSound = true)
+                            TimerState.IdleAudioLock -> {
+                                // ignore taps until audio lock clears
+                            }
                             TimerState.Running -> pauseRun()
                             TimerState.Paused -> resumeRun()
                             TimerState.Finishing -> {

@@ -108,6 +108,7 @@
       const circumference = 2 * Math.PI * radius;
 
       let state = 'idle';
+      const STATE_IDLE_AUDIO_LOCK = 'idle-audio-lock';
       let rafId = null;
       let startTimestamp = 0;
       let elapsedBeforePause = 0;
@@ -207,6 +208,10 @@
         resetAnimation();
       }
 
+      function isAudioActivelyPlaying() {
+        return !audio.paused && !audio.ended && audio.currentTime > 0;
+      }
+
       function resetToIdle() {
         resetAnimation();
         elapsedBeforePause = 0;
@@ -234,6 +239,8 @@
       audio.addEventListener('ended', () => {
         if (state === 'finishing') {
           resetToIdle();
+        } else if (state === STATE_IDLE_AUDIO_LOCK) {
+          state = 'idle';
         }
       });
 
@@ -242,6 +249,8 @@
         audioAvailable = false;
         if (state === 'finishing') {
           resetToIdle();
+        } else if (state === STATE_IDLE_AUDIO_LOCK) {
+          state = 'idle';
         }
       });
 
@@ -250,6 +259,9 @@
       });
 
       function handleShortTap() {
+        if (state === STATE_IDLE_AUDIO_LOCK) {
+          return;
+        }
         if (state === 'idle') {
           startRun({ playSound: false });
           scheduleStartSound();
@@ -261,6 +273,9 @@
       }
 
       function handleLongPress() {
+        if (state === STATE_IDLE_AUDIO_LOCK) {
+          return;
+        }
         if (state === 'idle') {
           clearPendingStartSound();
           startRun({ playSound: false });
@@ -272,8 +287,12 @@
           return;
         }
         if (state === 'paused') {
+          const lockAudio = isAudioActivelyPlaying();
           triggerHapticFeedback();
           resetToIdle();
+          if (lockAudio) {
+            state = STATE_IDLE_AUDIO_LOCK;
+          }
           return;
         }
         if (state === 'finishing') {
