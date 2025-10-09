@@ -278,22 +278,21 @@ private fun OuroborosTimer() {
                         val longPressJob = launch {
                             delay(LONG_PRESS_MS)
                             longPressTriggered = true
-                            when (state) {
-                                TimerState.Idle -> {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    startRun(playStartSound = false)
+                            val longPressAction: (() -> Unit)? = when (state) {
+                                TimerState.Idle, TimerState.Running -> {
+                                    { startRun(playStartSound = false) }
                                 }
-                                TimerState.IdleAudioLock -> Unit
                                 TimerState.Paused -> {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                     val lockAudio = mediaPlayer?.isPlaying == true
-                                    resetToIdle(lockUntilAudioEnds = lockAudio)
+                                    { resetToIdle(lockUntilAudioEnds = lockAudio) }
                                 }
-                                TimerState.Running -> {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    startRun(playStartSound = false)
-                                }
-                                TimerState.Finishing -> Unit
+
+                                TimerState.IdleAudioLock, TimerState.Finishing -> null
+                            }
+
+                            if (longPressAction != null) {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                longPressAction()
                             }
                         }
 
