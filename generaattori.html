@@ -68,6 +68,8 @@ const output = document.getElementById('output');
 const errorBox = document.getElementById('error');
 
 const encoder = new TextEncoder();
+const TOKEN_LENGTH = 32;
+const TOKEN_BYTES = 24; // 24 satunnaistavua -> 32 Base64URL-merkkiä ilman paddingia
 
 function clearError(){
   errorBox.style.display = 'none';
@@ -91,10 +93,12 @@ function toBase64Url(bytes){
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
-function randomToken(length = 32){
-  // Token syötetään URL:iin ja KV:hen -> pidetään URL-ystävällisenä.
-  const raw = toBase64Url(randomBytes(length));
-  return raw.replace(/[^A-Za-z0-9_-]/g, '').slice(0, length);
+function randomToken(){
+  const token = toBase64Url(randomBytes(TOKEN_BYTES));
+  if (token.length !== TOKEN_LENGTH){
+    throw new Error('Tokenin generointi epäonnistui. Yritä uudelleen.');
+  }
+  return token;
 }
 
 async function encryptLocation(keyBytes, payload){
@@ -126,7 +130,7 @@ generateBtn.addEventListener('click', async () => {
     if (Number.isInteger(zoom)) payloadObject.z = zoom;
 
     const payloadJson = JSON.stringify(payloadObject);
-    const token = randomToken(32);
+    const token = randomToken();
     const keyBytes = randomBytes(32); // 256-bit AES-avain
     const keyB64u = toBase64Url(keyBytes);
     const encrypted = await encryptLocation(keyBytes, payloadJson);
@@ -161,8 +165,8 @@ ${androidUrl}
 
 ### Komennot (KV)
 \`\`\`bash
-wrangler kv:key put --namespace-id <KV_NAMESPACE_ID> ${token} '${kvValueMin}'
-wrangler kv:key delete --namespace-id <KV_NAMESPACE_ID> ${token}
+wrangler kv:key put --binding=LOCATIONS ${token} '${kvValueMin}'
+wrangler kv:key delete --binding=LOCATIONS ${token}
 \`\`\``;
   } catch (err) {
     console.error(err);
