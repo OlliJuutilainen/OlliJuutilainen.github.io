@@ -1,7 +1,11 @@
-# Tusinasää Kotkavuori (Android)
+# Tusinasää 12 (Android)
 
 Tämä hakemisto sisältää Android-sovelluksen, joka käynnistää Tusinasään työpajaversion
-(`tusinapaja.html`) WebView-näkymässä Kotkavuoren koordinaateilla (lat 60.1620, lon 24.8791).
+(`tusinapaja.html`) WebView-näkymässä. Sovellus odottaa ensisijaisesti, että se avataan
+deeplinkillä (esim. QR-koodista), joka sisältää sijaintitiedon joko koordinaatteina tai
+Cloudflare Worker -palvelusta haettavana tunnisteena. Jos sovellus käynnistetään ilman
+deeplinkkiä, oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikoksi
+muodostuu **"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
 
 ## Rakentaminen
 
@@ -15,9 +19,10 @@ Android Gradle Plugin 8.3.2.
 
 ## QR-intentin pohja
 
-Manifestissa on tällä hetkellä vain `MAIN/LAUNCHER` -intentti. Jos sovellus halutaan
-käynnistää QR-koodilla, lisää manifestiin toinen `intent-filter`, joka reagoi haluamaasi
-URI:in (`https://`-linkki tai oma skeema) ja generoi vastaava QR-koodi.
+Manifestissa on sekä `MAIN/LAUNCHER` -intentti että valmiit `VIEW`-intentit, jotka
+hyväksyvät `https://tusinasaa.fi/...`, `https://ollijuutilainen.github.io/...`,
+`https://localhost/...` sekä `tusinasaa://...` -linkit. Deeplink täyttää automaattisesti
+WebView:lle välitettävät parametrit (lat/lon, otsikko sekä mahdolliset hash-tunnisteet).
 
 ## Manifestimuistio (kevät 2024)
 
