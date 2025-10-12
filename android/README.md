@@ -1,11 +1,14 @@
 # Tusinasää 12 (Android)
 
 Tämä hakemisto sisältää Android-sovelluksen, joka käynnistää Tusinasään työpajaversion
-(`tusinapaja.html`) WebView-näkymässä. Sovellus odottaa ensisijaisesti, että se avataan
-deeplinkillä (esim. QR-koodista), joka sisältää sijaintitiedon joko koordinaatteina tai
-Cloudflare Worker -palvelusta haettavana tunnisteena. Jos sovellus käynnistetään ilman
-deeplinkkiä, oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikoksi
-muodostuu **"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
+(`tusinapaja.html`) WebView-näkymässä. Sovellus lataa sivun verkosta
+(`https://ollijuutilainen.github.io/tusinapaja.html`), jotta tuorein frontti päivittyy ilman
+uutta buildiä. Verkoton ympäristö ei ole tuettu, koska itse työpajasivu hakee säätiedot
+API-kutsuilla. Sovellus odottaa ensisijaisesti, että se avataan deeplinkillä (esim.
+QR-koodista), joka sisältää sijaintitiedon joko koordinaatteina tai Cloudflare Worker
+-palvelusta haettavana tunnisteena. Jos sovellus käynnistetään ilman deeplinkkiä,
+oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikoksi muodostuu
+**"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
 
 ## Rakentaminen
 
