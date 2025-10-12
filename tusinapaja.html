@@ -344,10 +344,16 @@ function coordsNearlyEqual(a, b){
   return Math.abs(a - b) < 1e-4;
 }
 
+let defaultCoordinateNoticeMessage = '';
+
 if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
   const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
-  prependError(`Lisää osoitteeseen koordinaatit muodossa:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`);
+  defaultCoordinateNoticeMessage = `Oletussijainti (Lemmenkäisen temppeli) käytössä.<br>` +
+    `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
+    `<code>?lat=${sampleLat}&lon=${sampleLon}</code><br>` +
+    `Korvaa esimerkin arvot haluamillasi desimaalikoordinaateilla.`;
+  prependError(defaultCoordinateNoticeMessage);
   LAT = DEFAULT_COORDINATES.lat;
   LON = DEFAULT_COORDINATES.lon;
   LAT_STR = String(DEFAULT_COORDINATES.lat);
@@ -2209,24 +2215,32 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
 
 function renderHourlyModel(model){
   const rows = model?.rows || [];
+  const htmlParts = [];
+  if (defaultCoordinateNoticeMessage){
+    htmlParts.push(`<div class="err">${defaultCoordinateNoticeMessage}</div>`);
+  }
   if (!rows.length){
-    out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    htmlParts.push('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
+    out.innerHTML = htmlParts.join('');
     return;
   }
   const state = { prevDescKey: null, skipDittoKey: null };
-  const html = rows.map(row => renderRow(row, state));
-  out.innerHTML = html.join('');
+  htmlParts.push(...rows.map(row => renderRow(row, state)));
+  out.innerHTML = htmlParts.join('');
 }
 
 /* --------- render --------- */
-(async function(){
-  scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
-  if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
-    const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
-    const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
-    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code></div>`;
-    return;
-  }
+  (async function(){
+    scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
+    if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
+      const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
+      const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
+      const fallbackMessage = defaultCoordinateNoticeMessage || (
+        `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`
+      );
+      out.innerHTML = `<div class="err">${fallbackMessage}</div>`;
+      return;
+    }
 
   out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
 
