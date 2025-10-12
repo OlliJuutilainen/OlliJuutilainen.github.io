@@ -3,8 +3,13 @@ package fi.tusinasaa;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -23,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEFAULT_TITLE = "TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI";
 
     private WebView webView;
+    @Nullable
+    private Intent lastIntent;
+    private boolean usingAssetFallback = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -38,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setAllowFileAccessFromFileURLs(true);
         settings.setAllowUniversalAccessFromFileURLs(false);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new TusinaWebViewClient());
         loadFromIntent(getIntent());
     }
 
