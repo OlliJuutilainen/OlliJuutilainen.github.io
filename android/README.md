@@ -10,12 +10,29 @@ muodostuu **"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
 ## Rakentaminen
 
 ```bash
-./gradlew assembleDebug
+./gradlew :app:assembleDebug
 ```
 
 Rakennettu APK löytyy `app/build/outputs/apk/debug/` -hakemistosta. Se voidaan asentaa
-esimerkiksi `adb install` -komennolla. Projektissa on mukana Gradlen 8.4 wrapperi ja
-Android Gradle Plugin 8.3.2.
+esimerkiksi `adb install` -komennolla. Huomaa, että juuriprojektiin on liitetty myös
+kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`). Siksi komennossa on
+moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa kaikki moduulit.
+
+Projektissa on mukana Gradlen 8.4 wrapperi ja Android Gradle Plugin 8.3.2.
+
+## Asentaminen laitteelle
+
+Kun olet tässä `android`-hakemistossa ja Android-laite on yhdistetty USB:llä sekä ADB
+on sallittu, voit asentaa debug-version suoraan komennolla:
+
+```bash
+./gradlew :app:installDebug
+```
+
+Gradle kokoaa sovelluksen tarvittaessa ja kutsuu taustalla `adb install` -prosessia
+vain `:app`-moduulille. Näin kehitysvaiheen sivuprojektit (`:odotushuone`,
+`:ouroboros`) eivät päädy laitteelle vahingossa. Jos tarvitset muiden moduulien
+asennuksia, kohdenna komento vastaavaan moduuliin (esim. `./gradlew :ouroboros:installDebug`).
 
 ## QR-intentin pohja
 
