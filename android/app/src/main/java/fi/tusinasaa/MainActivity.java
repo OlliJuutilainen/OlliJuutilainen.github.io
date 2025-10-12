@@ -1,4 +1,4 @@
-package fi.tusinasaa.kotkavuori;
+package fi.tusinasaa;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

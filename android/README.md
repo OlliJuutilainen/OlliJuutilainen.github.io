@@ -26,7 +26,7 @@ WebView:lle välitettävät parametrit (lat/lon, otsikko sekä mahdolliset hash-
 
 ## Manifestimuistio (kevät 2024)
 
-Kevään 2024 paikalliseen Android-bildiin (`Tusinasää Kotkavuori`) on lisätty seuraavat
+Kevään 2024 paikalliseen Android-bildiin (`Tusinasää`) on lisätty seuraavat
 manifestikovennukset. Ne eivät ole tällä hetkellä gitissä, joten muista kopioida ne
 manifestiin, kun teet seuraavan APK:n:
 
@@ -34,7 +34,7 @@ manifestiin, kun teet seuraavan APK:n:
   sulkeutuu WebView:n poistuttua eikä jää viimeisimpien sovellusten listalle.
 - `android:screenOrientation="portrait"`, jotta näkymä lukittuu pystysuuntaan.
 - `android:resizeableActivity="false"`, jotta moniajo/pienennys ei ole käytössä.
-- Manifestissa käytetään paketilla `fi.tusinasaa.kotkavuori` ja
+- Manifestissa käytetään paketilla `fi.tusinasaa` ja
   `@string/app_name` -resurssia sovelluksen nimenä.
 
 Alla muistutus koko aktiviteettilohkosta:
