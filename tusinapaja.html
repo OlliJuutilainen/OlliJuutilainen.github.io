@@ -257,6 +257,11 @@ async function fetchAndDecryptLocation(token, keyB64u){
 }
 
 /* --------- URL-parametrit & sijainti --------- */
+const DEFAULT_COORDINATES = Object.freeze({
+  lat: 60.2633,
+  lon: 25.3244,
+  title: 'TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI'
+});
 const q = new URLSearchParams(location.search);
 const DBG = q.has('dbg');
 const SHOW_SOURCE_BADGES = DBG || q.has('src');
@@ -331,8 +336,34 @@ if (HASH_TOKEN || HASH_KEY){
   console.info('Hash-fragmenttia ei annettu; käytetään kehityksen query-parametreja.', { lat: LAT_STR, lon: LON_STR });
 }
 
-const LAT = parseFloat(LAT_STR);
-const LON = parseFloat(LON_STR);
+let LAT = parseFloat(LAT_STR);
+let LON = parseFloat(LON_STR);
+
+function coordsNearlyEqual(a, b){
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  return Math.abs(a - b) < 1e-4;
+}
+
+if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
+  const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
+  const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
+  prependError(`Lisää osoitteeseen koordinaatit muodossa:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`);
+  LAT = DEFAULT_COORDINATES.lat;
+  LON = DEFAULT_COORDINATES.lon;
+  LAT_STR = String(DEFAULT_COORDINATES.lat);
+  LON_STR = String(DEFAULT_COORDINATES.lon);
+  if (!specialTitle){
+    specialTitle = DEFAULT_COORDINATES.title;
+  }
+  if (LOCATION_SOURCE !== 'hash'){
+    LOCATION_SOURCE = 'default';
+  }
+  if (DBG){
+    console.info('Käytetään oletussijaintia', { lat: LAT_STR, lon: LON_STR });
+  }
+} else if (!specialTitle && coordsNearlyEqual(LAT, DEFAULT_COORDINATES.lat) && coordsNearlyEqual(LON, DEFAULT_COORDINATES.lon)){
+  specialTitle = DEFAULT_COORDINATES.title;
+}
 
 const FALLBACK_TIME_ZONE = (() => {
   try {
@@ -2112,7 +2143,9 @@ function renderHourlyModel(model){
 (async function(){
   scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
   if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
-    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
+    const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
+    const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
+    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code></div>`;
     return;
   }
 
