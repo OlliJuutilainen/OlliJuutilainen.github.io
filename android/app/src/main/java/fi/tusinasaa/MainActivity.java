@@ -22,7 +22,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String ASSET_BASE_URL = "file:///android_asset/tusinapaja.html";
     private static final String REMOTE_BASE_URL = "https://ollijuutilainen.github.io/tusinapaja.html";
     private static final String DEFAULT_LAT = "60.2633";
     private static final String DEFAULT_LON = "25.3244";
@@ -62,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
         if (webView == null) {
             return;
         }
-        lastIntent = intent;
-        usingAssetFallback = false;
         webView.stopLoading();
         webView.loadUrl(buildStartUrl(intent, REMOTE_BASE_URL));
     }
@@ -257,42 +254,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void triggerAssetFallback() {
-        if (usingAssetFallback || webView == null) {
-            return;
-        }
-        usingAssetFallback = true;
-        webView.post(() -> webView.loadUrl(buildStartUrl(lastIntent, ASSET_BASE_URL)));
-    }
-
-    private class TusinaWebViewClient extends WebViewClient {
-        @Override
-        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-            super.onReceivedError(view, request, error);
-            if (request == null || request.isForMainFrame()) {
-                triggerAssetFallback();
-            }
-        }
-
-        @Override
-        @SuppressWarnings("deprecation")
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            super.onReceivedError(view, errorCode, description, failingUrl);
-            triggerAssetFallback();
-        }
-
-        @Override
-        public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-            super.onReceivedHttpError(view, request, errorResponse);
-            if (request == null || request.isForMainFrame()) {
-                triggerAssetFallback();
-            }
-        }
-
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            handler.cancel();
-            triggerAssetFallback();
-        }
-    }
 }
