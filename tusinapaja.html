@@ -1674,27 +1674,33 @@ function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null }
   const gustV = gOk ? Number(gust) : null;
 
   const meanTxt = formatWindSpeed(meanV);
+  const meanHighlight = (mOk && meanV >= 10);
   let txt = (mOk && meanTxt!=null ? meanTxt+' m/s' : '–');
 
   let gustTxt = '';
-  let highlight = false;
-  if (gOk && gustV >= 15){
+  if (gOk){
     const gustFmt = formatWindSpeed(gustV);
-    if (gustFmt != null){
-      gustTxt = ` (<em style="color:var(--color-mini-strong)">${gustFmt}</em>)`;
+    const gustDelta = (mOk && Number.isFinite(meanV) && Number.isFinite(gustV)) ? (gustV - meanV) : null;
+    const gustAbsStrong = (Number.isFinite(gustV) && gustV >= 15);
+    const gustNotable = (
+      gustFmt != null && (
+        (Number.isFinite(gustDelta) && gustDelta >= 5) ||
+        gustAbsStrong
+      )
+    );
+    if (gustNotable){
+      gustTxt = ` (<span class="miniW">${gustFmt}</span>)`;
     }
-    highlight = true;
   }
-  if (mOk && meanV >= 10) highlight = true;
 
   const dirTxt = dir8(dirDeg);
-  const dirHtml = dirTxt ? `<span class="${highlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
+  const dirHtml = dirTxt ? `<span class="${meanHighlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
 
   const sources = new Set();
   if (meanSource) sources.add(meanSource);
   if (gOk && gustSource) sources.add(gustSource);
 
-  return { html: txt + gustTxt + dirHtml, white: highlight, sources: Array.from(sources) };
+  return { html: txt + gustTxt + dirHtml, white: meanHighlight, sources: Array.from(sources) };
 }
 
 /* Ditto */
@@ -1965,7 +1971,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     descWhite = false;
   }
   if (insertedThunderTag) descWhite = false;
-  const timeWhite = (rainWhite || descWhite || windObj.white);
+  const timeWhite = (rainWhite || descWhite);
   const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
   const contradiction = applyContradiction({
     descHtml: initialDescHtml,
