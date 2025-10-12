@@ -190,7 +190,7 @@ function b64uToBytes(s){
 ```
 
 ```java
-package fi.tusinasaa.kotkavuori;
+package fi.tusinasaa;
 
 import android.content.Intent;
 import android.net.Uri;

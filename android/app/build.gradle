@@ -3,15 +3,15 @@ plugins {
 }
 
 android {
-    namespace 'fi.tusinasaa.kotkavuori'
+    namespace 'fi.tusinasaa'
     compileSdk 34
 
     defaultConfig {
-        applicationId 'fi.tusinasaa.kotkavuori'
+        applicationId 'fi.tusinasaa'
         minSdk 24
         targetSdk 34
         versionCode 1
-        versionName '1.1.1-kotkavuori'
+        versionName '1.1.1'
     }
 
     buildTypes {
