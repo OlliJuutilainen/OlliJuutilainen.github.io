@@ -1446,8 +1446,11 @@ function wrapContradiction(descHtml){
   return final;
 }
 
-function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }){
+function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay, rowIndex }){
   if (!descHtml) return { html: descHtml, flagged: false };
+  if (typeof rowIndex === 'number' && rowIndex >= 3){
+    return { html: descHtml, flagged: false };
+  }
   const base = baseDesc ? baseDesc.trim() : '';
   const hasDesc = base && base !== '–';
   const rainNum = (typeof rainVal === 'number' && !Number.isNaN(rainVal)) ? rainVal : null;
@@ -1688,31 +1691,51 @@ function maybeApplyTwilightPrecipOverride({
   result.applied = true;
   result.main = mainHtml;
   result.tags = tags;
-  result.forceDescWhite = true;
-  result.forceRainWhite = true;
   return result;
 }
 
-function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
-  const rainWhite = (rainVal!=null && rainVal>0 && !(rowIndex>=3 && descWeak && rainVal<0.3));
+function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, descThunder, descFog }){
+  const frontSection = rowIndex <= 2;
+  const hasWet = !!descWet;
+  const isWeakWet = !!descWeak;
+  const hasThunder = !!descThunder;
+  const hasFog = !!descFog;
+  const amount = Number.isFinite(rainVal) ? rainVal : null;
+  const amountPositive = amount != null && amount > 0;
+
+  let rainWhite = false;
   let descWhite = false;
-  if (rowIndex < 3){
-    if (rainWhite) descWhite = true;
-    else if (descWet && !descWeak) descWhite = true;
-  } else if (descWet){
-    if (!descWeak) descWhite = true;
-    else if (rainVal!=null && rainVal>=0.3) descWhite = true;
+
+  if (frontSection){
+    if (amountPositive){
+      rainWhite = true;
+      if (hasWet) descWhite = true;
+    }
+  } else {
+    const descriptorAllowsWhite = hasWet && (!isWeakWet || hasThunder);
+    const highlightByDescriptor = descriptorAllowsWhite && (!hasFog || hasThunder);
+    const highlightByAmount = amount != null && amount > 0.3;
+    if (highlightByDescriptor || highlightByAmount){
+      rainWhite = true;
+      descWhite = true;
+    }
   }
-  if (rainVal === 0) descWhite = false;
+
+  if (frontSection){
+    if (!hasWet) descWhite = false;
+    if (!amountPositive) rainWhite = false;
+  }
+
   return { rainWhite, descWhite };
 }
 
 /* --------- solut --------- */
-function rainCell(val, { markGrey=false, source=null } = {}){
+function rainCell(val, { markGrey=false, source=null, forceZeroText=false } = {}){
   if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
-  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
-  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey, source };
+  if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
+  const text = (n === 0 && forceZeroText) ? '0.0 mm' : n.toFixed(1)+' mm';
+  return { text, num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
   if (!Number.isFinite(val)) return null;
@@ -1922,6 +1945,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
   const descWet = isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
+  const descThunder = isThunderOrHailDescriptor(baseDesc, descriptorOpts);
   let precipish;
   if (isNowcastHour){
     precipish = ((rainVal != null && rainVal >= 0.1) || (nowcastCode && ncIsPrecip(nowcastCode)) || descWet);
@@ -2008,41 +2032,58 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
   const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
   const windFallbackFromNowcast = false;
+  const descFog = !!fogInfo.isFog;
   const highlight = computeHighlightStates({
     rowIndex: index,
     rainVal,
     descWet,
-    descWeak
+    descWeak,
+    descThunder,
+    descFog
   });
+  const hasRainOrThunderDescriptor = descThunder || (descWet && !descFog);
+  if (index >= 3 && rainVal === 0 && hasRainOrThunderDescriptor){
+    const markGrey = rainObj ? !!rainObj.forceGrey : false;
+    rainObj = rainCell(rainVal, { markGrey, source: rainSource, forceZeroText: true });
+  }
+
   let { rainWhite, descWhite } = highlight;
   if (twilightOverride.applied){
     if (twilightOverride.forceRainWhite) rainWhite = true;
     if (twilightOverride.forceDescWhite) descWhite = true;
     if (rainObj.forceGrey) rainObj.forceGrey = false;
   }
-  if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-    descWhite = false;
+  if (index <= 2){
+    const amountPositive = Number.isFinite(rainVal) && rainVal > 0;
+    if (!amountPositive){
+      rainWhite = false;
+      if (!descWet) descWhite = false;
+    }
   }
+  if (rainWhite && rainObj && rainObj.forceGrey) rainObj.forceGrey = false;
   if (insertedThunderTag) descWhite = false;
-  const timeWhite = (rainWhite || descWhite);
+  const cellsWhite = rainWhite && descWhite;
   const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
   const contradiction = applyContradiction({
     descHtml: initialDescHtml,
     baseDesc,
     ssCode: hour.smartSymbol,
     rainVal,
-    rainDisplay: rainObj.num
+    rainDisplay: rainObj.num,
+    rowIndex: index
   });
   const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
     ? contradiction.html
     : initialDescHtml;
+  const timeWhite = cellsWhite;
+  const tempWhite = cellsWhite;
   let timeHtml;
   if (index === 0){
     const launch = (launchTime instanceof Date && !Number.isNaN(launchTime.getTime())) ? launchTime : null;
     const displayTime = launch || dUtc;
     timeHtml = fmtHM(displayTime);
   } else {
-    const timeClass = timeWhite ? 'miniW' : 'mini';
+    const timeClass = cellsWhite ? 'miniW' : 'mini';
     timeHtml = `<span class="${timeClass}">klo&nbsp;</span>${fmtH(dUtc)}`;
   }
   return {
@@ -2051,7 +2092,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     timeHtml,
     timeWhite,
     temp: hour.temperature,
-    tempWhite: false,
+    tempWhite,
     descHtml: finalDescHtml,
     descMainHtml: descMain,
     descWhite,
