@@ -49,9 +49,9 @@
 <label for="title">Erikoisotsikko (valinnainen)</label>
 <input id="title" type="text" placeholder="TUSINASÄÄ 12 · NIMI">
 
-<label for="baseUrl">Base URL (web)</label>
-<input id="baseUrl" type="text" value="https://example.com/tusinapaja.html">
-<p class="note">Tätä URL:ia käytetään web-linkin rungossa. Android-deeplink muodostetaan kiinteästä skeemasta <code>tusinasaa://open/v1</code>.</p>
+<label for="baseUrl">Base URL (lukittu)</label>
+<input id="baseUrl" type="text" value="https://ollijuutilainen.github.io/tusinapaja.html" readonly>
+<p class="note">Base URL on kiinteä, jotta generaattorin tuloste vastaa “pahvi”-spesia. Kenttä säilyy DOM:ssa yhteensopivuuden vuoksi.</p>
 
 <button id="generate">Generoi token &amp; linkit</button>
 <div id="error" class="err" role="alert" style="display:none"></div>
@@ -131,29 +131,39 @@ generateBtn.addEventListener('click', async () => {
     const keyB64u = toBase64Url(keyBytes);
     const encrypted = await encryptLocation(keyBytes, payloadJson);
 
-    const kvValue = JSON.stringify({ v: 1, iv: encrypted.iv, ct: encrypted.ct }, null, 2);
-    const baseUrl = baseInput.value.trim() || 'https://example.com/tusinapaja.html';
+    const kvPayload = { v: 1, iv: encrypted.iv, ct: encrypted.ct };
+    const kvValue = JSON.stringify(kvPayload, null, 2);
+    const kvValueMin = JSON.stringify(kvPayload);
+    const baseUrl = 'https://ollijuutilainen.github.io/tusinapaja.html';
+    if (baseInput.value !== baseUrl) {
+      baseInput.value = baseUrl;
+    }
     const webUrl = `${baseUrl}#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
     const androidUrl = `tusinasaa://open/v1#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
 
-    output.textContent = `# KV talletus
-TOKEN:
+    output.textContent = `### KV (Cloudflare)
+KEY:
+
+\`\`\`
 ${token}
+\`\`\`
 
-VALUE (JSON talteen LOCATIONS[${token}]):
+VALUE (JSON):
+\`\`\`json
 ${kvValue}
+\`\`\`
 
-# Web-linkki (QR)
+### Web-linkki (QR)
 ${webUrl}
 
-# Android-deeplink (QR)
+### Android-deeplink (QR)
 ${androidUrl}
 
-# Muistilista
-- Talleta JSON Cloudflare KV -namespaceen komennolla esim.:
-  wrangler kv:key put --namespace-id <ID> ${token} '${kvValue.replace(/'/g, "'\\''")}'
-- QR-koodia varten käytä web- tai Android-linkkiä.
-- Revoke: wrangler kv:key delete --namespace-id <ID> ${token}`;
+### Komennot (KV)
+\`\`\`bash
+wrangler kv:key put --namespace-id <KV_NAMESPACE_ID> ${token} '${kvValueMin}'
+wrangler kv:key delete --namespace-id <KV_NAMESPACE_ID> ${token}
+\`\`\``;
   } catch (err) {
     console.error(err);
     showError(err?.message || 'Tuntematon virhe.');
