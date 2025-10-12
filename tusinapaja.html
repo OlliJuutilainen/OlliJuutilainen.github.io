@@ -349,10 +349,8 @@ let defaultCoordinateNoticeMessage = '';
 if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
   const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
-  defaultCoordinateNoticeMessage = `Oletussijainti (Lemmenkäisen temppeli) käytössä.<br>` +
-    `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
-    `<code>?lat=${sampleLat}&lon=${sampleLon}</code><br>` +
-    `Korvaa esimerkin arvot haluamillasi desimaalikoordinaateilla.`;
+  defaultCoordinateNoticeMessage = `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
+    `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`;
   prependError(defaultCoordinateNoticeMessage);
   LAT = DEFAULT_COORDINATES.lat;
   LON = DEFAULT_COORDINATES.lon;
