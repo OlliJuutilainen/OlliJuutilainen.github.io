@@ -2208,6 +2208,7 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
     const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime });
     if (row) rows.push(row);
   });
+  applyTemperatureMilestones(rows);
   return { rows };
 }
 
@@ -2225,6 +2226,46 @@ function renderHourlyModel(model){
   const state = { prevDescKey: null, skipDittoKey: null };
   htmlParts.push(...rows.map(row => renderRow(row, state)));
   out.innerHTML = htmlParts.join('');
+}
+
+function applyTemperatureMilestones(rows){
+  if (!Array.isArray(rows) || !rows.length) return;
+  let seenBelowZero = false;
+  let seenHeat = false;
+  const reachedFreezingMilestones = new Set();
+  const MIN_FREEZE_MILESTONE = -100;
+
+  rows.forEach(row => {
+    const temp = (row && Number.isFinite(row.temp)) ? row.temp : null;
+    if (temp == null) return;
+    let highlight = false;
+
+    if (!seenBelowZero && temp < 0){
+      seenBelowZero = true;
+      highlight = true;
+    }
+
+    for (let milestone = -10; milestone >= MIN_FREEZE_MILESTONE; milestone -= 10){
+      if (temp <= milestone && !reachedFreezingMilestones.has(milestone)){
+        reachedFreezingMilestones.add(milestone);
+        highlight = true;
+      }
+    }
+
+    if (!seenHeat && temp > 25){
+      seenHeat = true;
+      highlight = true;
+    }
+
+    if (!highlight) return;
+
+    if (row.timeWhite !== true) row.timeWhite = true;
+    if (row.tempWhite !== true) row.tempWhite = true;
+
+    if (typeof row.timeHtml === 'string' && row.timeHtml.includes('class="mini"')){
+      row.timeHtml = row.timeHtml.replace('class="mini"', 'class="miniW"');
+    }
+  });
 }
 
 /* --------- render --------- */
