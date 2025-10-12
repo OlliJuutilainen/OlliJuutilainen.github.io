@@ -1057,6 +1057,13 @@ function nextLabelFor(toPhase){
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
 }
+function inlineNextLabelFor(toPhase){
+  if (toPhase==='civil') return 'porvarillinen hämärä';
+  if (toPhase==='nautical') return 'nauttinen hämärä';
+  if (toPhase==='astronomical') return 'astronominen hämärä';
+  if (toPhase==='night') return 'säkkipimeä';
+  return null;
+}
 function beginLabel(phase){
   if (phase==='astronomical') return 'astronominen hämärä alkaa';
   if (phase==='civil') return 'porvarillinen alkaa';
@@ -1569,6 +1576,9 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       if (twilightSuppressed){
         entry.suppressedHasOwnStart = suppressedHasOwnStart;
         suppressedTwilightEntry = entry;
+      } else if (twilightMain && !precipish){
+        const trimmed = text.trim().toLocaleLowerCase('fi-FI');
+        entry.inlineCandidate = trimmed.startsWith('alkaa ');
       }
       startKey = `${tw.phase}-${phaseStart.getTime()}`;
       if (tw.startedWithinHour){
@@ -1607,6 +1617,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
+      const startInlineCandidate = !!(startTag && startTag.inlineCandidate);
+      const phaseActuallyChanges = toPhase && fromPhase && toPhase !== fromPhase;
+      const currentPhase = tw.phase || null;
+      const inlineCanDescribeNext = phaseActuallyChanges && (!currentPhase || toPhase !== currentPhase);
       let text = `${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (toPhase === 'night'){
@@ -1631,20 +1645,35 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
           }
         }
       }
-      const entry = { text, italic: true };
-      if (dittoEllipsis) entry.dittoEllipsis = true;
-      if (suppressedTwilightEntry){
-        if (suppressedTwilightEntry.suppressedHasOwnStart){
-          const appended = { text, italic: true };
-          if (dittoEllipsis) appended.dittoEllipsis = true;
-          tags.push(appended);
-        } else {
-          suppressedTwilightEntry.text += ` – ${text}`;
-          if (dittoEllipsis) suppressedTwilightEntry.dittoEllipsis = true;
+      let appendedInline = false;
+      if (startInlineCandidate){
+        if (inlineCanDescribeNext){
+          const inlineLabel = inlineNextLabelFor(toPhase);
+          if (inlineLabel){
+            startTag.text += ` – ${inlineLabel} ${hhmm}`;
+            appendedInline = true;
+          }
+        } else if (!phaseActuallyChanges || (currentPhase && toPhase === currentPhase)){
+          appendedInline = true;
         }
-      } else {
-        entry.beforeMain = false;
-        tags.push(entry);
+        if (appendedInline) startTag.inlineCandidate = false;
+      }
+      if (!appendedInline){
+        const entry = { text, italic: true };
+        if (dittoEllipsis) entry.dittoEllipsis = true;
+        if (suppressedTwilightEntry){
+          if (suppressedTwilightEntry.suppressedHasOwnStart){
+            const appended = { text, italic: true };
+            if (dittoEllipsis) appended.dittoEllipsis = true;
+            tags.push(appended);
+          } else {
+            suppressedTwilightEntry.text += ` – ${text}`;
+            if (dittoEllipsis) suppressedTwilightEntry.dittoEllipsis = true;
+          }
+        } else {
+          entry.beforeMain = false;
+          tags.push(entry);
+        }
       }
     } else if (label){
       const text = `${label} ${fmtHM(tw.withinChange.at)}`;
