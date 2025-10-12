@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TusinaSaaKotkavuori"
+rootProject.name = "tusinasaa"
 include(":app")
 include(":odotushuone")
 include(":ouroboros")
