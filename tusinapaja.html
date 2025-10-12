@@ -1815,7 +1815,9 @@ function renderRow(row, state){
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
   let displayDesc = (typeof descHtml === 'string' && descHtml.length) ? descHtml : mainHtml;
-  if (!skipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
+  const skipCarryActive = !!(normalized && state.skipDittoKey && normalized === state.skipDittoKey);
+  const effectiveSkipDitto = skipDitto || skipCarryActive;
+  if (!effectiveSkipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1839,6 +1841,13 @@ function renderRow(row, state){
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     state.prevDescKey = normalized || null;
+  }
+  if (skipDitto && normalized){
+    state.skipDittoKey = normalized;
+  } else if (skipCarryActive){
+    state.skipDittoKey = null;
+  } else if (!skipDitto){
+    state.skipDittoKey = null;
   }
   const descBadge = buildSourceBadge({
     source: descDisplaySource,
@@ -2144,7 +2153,7 @@ function renderHourlyModel(model){
     out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
     return;
   }
-  const state = { prevDescKey: null };
+  const state = { prevDescKey: null, skipDittoKey: null };
   const html = rows.map(row => renderRow(row, state));
   out.innerHTML = html.join('');
 }
