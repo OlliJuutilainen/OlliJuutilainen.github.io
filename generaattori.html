@@ -145,29 +145,31 @@ generateBtn.addEventListener('click', async () => {
     const webUrl = `${baseUrl}#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
     const androidUrl = `tusinasaa://open/v1#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
 
-    output.textContent = `### KV (Cloudflare)
-KEY:
-
-\`\`\`
-${token}
-\`\`\`
-
-VALUE (JSON):
-\`\`\`json
-${kvValue}
-\`\`\`
-
-### Web-linkki (QR)
-${webUrl}
-
-### Android-deeplink (QR)
-${androidUrl}
-
-### Komennot (KV)
-\`\`\`bash
-wrangler kv:key put --binding=LOCATIONS ${token} '${kvValueMin}'
-wrangler kv:key delete --binding=LOCATIONS ${token}
-\`\`\``;
+    const cardLines = [
+      '### KV (Cloudflare)',
+      'KEY:',
+      '```',
+      token,
+      '```',
+      '',
+      'VALUE (JSON):',
+      '```json',
+      kvValue,
+      '```',
+      '',
+      '### Web-linkki (QR)',
+      webUrl,
+      '',
+      '### Android-deeplink (QR)',
+      androidUrl,
+      '',
+      '### Komennot (KV)',
+      '```bash',
+      `npx wrangler kv:key put --binding=LOCATIONS ${token} '${kvValueMin}'`,
+      `npx wrangler kv:key delete --binding=LOCATIONS ${token}`,
+      '```'
+    ];
+    output.textContent = cardLines.join('\n');
   } catch (err) {
     console.error(err);
     showError(err?.message || 'Tuntematon virhe.');
