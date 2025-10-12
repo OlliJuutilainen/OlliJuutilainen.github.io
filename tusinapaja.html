@@ -1494,6 +1494,8 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
+  const twilightCandidate = !!(phaseMain && twilightMainAllowed);
+  const twilightSuppressed = twilightCandidate && !!precipish;
 
   if (!precipish && phaseMain && twilightMainAllowed){
     main = `<span class="twilightMainText">${phaseMain}</span>`;
@@ -1502,6 +1504,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   let startTag = null;
   let startKey = null;
+  let suppressedTwilightEntry = null;
   if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
     const hhmm = fmtHM(phaseStart);
@@ -1510,7 +1513,29 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     let label = beginLabel(tw.phase);
     if (!label && phaseMain) label = `${phaseMain} alkaa`;
     if (label && hhmm){
-      const entry = { text: `${label} ${hhmm}`, italic: true, beforeMain };
+      let text = `${label} ${hhmm}`;
+      let italic = true;
+      let preserveCase = false;
+      let suppressedHasOwnStart = false;
+      if (!precipish && twilightMain){
+        text = `alkaa ${hhmm}`;
+      } else if (twilightSuppressed){
+        const upper = (phaseMain || label || '').toLocaleUpperCase('fi-FI');
+        italic = false;
+        preserveCase = true;
+        if (beforeMain){
+          text = `${upper} – alkaa ${hhmm}`;
+          suppressedHasOwnStart = true;
+        } else {
+          text = upper;
+        }
+      }
+      const entry = { text, italic, beforeMain: false };
+      if (preserveCase) entry.preserveCase = true;
+      if (twilightSuppressed){
+        entry.suppressedHasOwnStart = suppressedHasOwnStart;
+        suppressedTwilightEntry = entry;
+      }
       startKey = `${tw.phase}-${phaseStart.getTime()}`;
       if (tw.startedWithinHour){
         startTag = entry;
@@ -1526,14 +1551,22 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     }
   }
 
+  const hasSunEvent = !!(tw && tw.sunEvent);
+
   if (tw.sunEvent){
     const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
-  } else if (startTag){
+  }
+  if (!hasSunEvent && startTag){
     tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
-  } else if (tw.withinChange){
-    const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
+  }
+  if (!hasSunEvent && tw.withinChange){
+    const preferNextLabel = !!suppressedTwilightEntry || !precipish;
+    let label = preferNextLabel ? nextLabelFor(tw.withinChange.to) : null;
+    if (!label){
+      label = beginLabel(tw.withinChange.to);
+    }
     const at = tw.withinChange.at;
     const hhmm = at instanceof Date ? fmtHM(at) : null;
     if (label && hhmm){
@@ -1544,7 +1577,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       let dittoEllipsis = false;
       if (toPhase === 'night'){
         text = `säkkipimeä ${hhmm}`;
-      } else if (!precipish){
+      } else if (!precipish || suppressedTwilightEntry){
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
@@ -1565,12 +1598,32 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
         }
       }
       const entry = { text, italic: true };
-      if (Number.isInteger(minutes) && minutes < 30) entry.beforeMain = true;
       if (dittoEllipsis) entry.dittoEllipsis = true;
-      tags.push(entry);
+      if (suppressedTwilightEntry){
+        if (suppressedTwilightEntry.suppressedHasOwnStart){
+          const appended = { text, italic: true };
+          if (dittoEllipsis) appended.dittoEllipsis = true;
+          tags.push(appended);
+        } else {
+          suppressedTwilightEntry.text += ` – ${text}`;
+          if (dittoEllipsis) suppressedTwilightEntry.dittoEllipsis = true;
+        }
+      } else {
+        entry.beforeMain = false;
+        tags.push(entry);
+      }
     } else if (label){
       const text = `${label} ${fmtHM(tw.withinChange.at)}`;
-      tags.push({ text, italic: true });
+      const entry = { text, italic: true, beforeMain: false };
+      if (suppressedTwilightEntry){
+        if (suppressedTwilightEntry.suppressedHasOwnStart){
+          tags.push(entry);
+        } else {
+          suppressedTwilightEntry.text += ` – ${text}`;
+        }
+      } else {
+        tags.push(entry);
+      }
     }
     if (
       label &&
