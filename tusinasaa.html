@@ -1083,23 +1083,23 @@ function capitalizeDryDescriptor(text, opts = {}){
   if (typeof text !== 'string') return text;
   const trimmed = text.trim();
   if (!trimmed) return text;
-  const info = descriptorInfoFromOptions(opts);
-  let dry = false;
-  if (info){
-    if (!(info.precip || info.fog || info.thunder)) dry = true;
-  }
-  if (!dry){
-    const normalized = trimmed.toLocaleLowerCase('fi-FI');
-    dry = DRY_TEXTS.has(normalized);
-  }
-  if (!dry) return text;
+  if (/^\s*</.test(text)) return text;
   const leading = text.match(/^\s*/)?.[0] ?? '';
-  const rest = text.slice(leading.length);
-  if (!rest) return text;
-  const firstChar = rest.charAt(0);
-  const upper = firstChar.toLocaleUpperCase('fi-FI');
-  if (firstChar === upper) return text;
-  return leading + upper + rest.slice(1);
+  const trailing = text.match(/\s*$/)?.[0] ?? '';
+  const normalized = trimmed.toLocaleLowerCase('fi-FI');
+  const normalizedNoPeriod = normalized.replace(/\.+$/, '');
+  const specialKey = normalizedNoPeriod;
+  if (specialKey === 'pyryttää'){
+    return `${leading}Pyryttää.${trailing}`;
+  }
+  if (specialKey === 'näkyvyys: mahdollinen'){
+    return `${leading}Näkyvyys: mahdollinen.${trailing}`;
+  }
+  if (specialKey === 'näkyvyys: ei ole'){
+    return `${leading}Näkyvyys: ei ole.${trailing}`;
+  }
+  const lowered = normalizedNoPeriod;
+  return `${leading}${lowered}${trailing}`;
 }
 
 function analyzeFogDescriptor({ text, source }){
@@ -1108,8 +1108,8 @@ function analyzeFogDescriptor({ text, source }){
   const normalized = raw.toLocaleLowerCase('fi-FI');
   if (normalized === 'sumua' || normalized === 'sumu'){
     let displayText = 'sumua';
-    if (source === 'harmonie') displayText = 'näkyvyys: mahdollinen';
-    else if (source === 'nowcast') displayText = 'näkyvyys: ei ole';
+    if (source === 'harmonie') displayText = 'Näkyvyys: mahdollinen.';
+    else if (source === 'nowcast') displayText = 'Näkyvyys: ei ole.';
     return { isFog: true, baseText: 'sumua', displayText };
   }
   return { isFog: false, baseText: raw, displayText: raw };
