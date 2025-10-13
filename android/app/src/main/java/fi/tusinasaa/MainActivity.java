@@ -3,16 +3,10 @@ package fi.tusinasaa;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
-import android.net.http.SslError;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEFAULT_LAT = "60.2633";
     private static final String DEFAULT_LON = "25.3244";
     private static final String DEFAULT_TITLE = "TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI";
+    static final String FALLBACK_ASSET_URL = "file:///android_asset/tusinapaja.html";
 
     private WebView webView;
     @Nullable
@@ -46,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setAllowFileAccessFromFileURLs(true);
         settings.setAllowUniversalAccessFromFileURLs(false);
 
-        webView.setWebViewClient(new TusinaWebViewClient());
+        webView.setWebViewClient(new TusinaWebViewClient(this));
         loadFromIntent(getIntent());
     }
 
@@ -61,8 +56,34 @@ public class MainActivity extends AppCompatActivity {
         if (webView == null) {
             return;
         }
+        lastIntent = intent;
+        usingAssetFallback = false;
         webView.stopLoading();
         webView.loadUrl(buildStartUrl(intent, REMOTE_BASE_URL));
+    }
+
+    void switchToAssetFallback() {
+        if (webView == null) {
+            return;
+        }
+        if (usingAssetFallback && FALLBACK_ASSET_URL.equals(webView.getUrl())) {
+            return;
+        }
+        usingAssetFallback = true;
+        webView.stopLoading();
+        webView.loadUrl(FALLBACK_ASSET_URL);
+    }
+
+    void onFallbackContentLoaded() {
+        usingAssetFallback = true;
+    }
+
+    void onRemoteContentLoaded() {
+        usingAssetFallback = false;
+    }
+
+    String getFallbackAssetUrl() {
+        return FALLBACK_ASSET_URL;
     }
 
     private String buildStartUrl(@Nullable Intent intent, String baseUrl) {
