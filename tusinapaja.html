@@ -7,8 +7,9 @@
 <title>TUSINASÄÄ 12</title>
 <!-- ohjelman leima: TUSINASÄÄ 12 versio 1.1.1 -->
 <style>
+  /* Tumma tila toimii oletuksena; vaalea teema aktivoituu vain pyydettäessä. */
   :root {
-    color-scheme: dark;
+    color-scheme: dark light;
     --color-bg: #000;
     --color-text: #e8e8e8;
     --color-page-title: #9aa6b0;
@@ -31,7 +32,7 @@
   }
   @media (prefers-color-scheme: light){
     :root {
-      color-scheme: light;
+      color-scheme: light dark;
       --color-bg: #f7f8fa;
       --color-text: #1c1f22;
       --color-page-title: #5a6570;
