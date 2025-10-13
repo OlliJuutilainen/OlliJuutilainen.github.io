@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+
+  <!-- iOS: täysruutu + statuspalkki -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tusinasää" />
+  <link rel="apple-touch-icon" href="./icons/tusinasaa-180.png" />
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://tusinasaa.fi/api/weather" crossorigin />
+
+  <title>Tusinasää</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+      background: #000; color: #fff; display: grid; place-items: center;
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent; overscroll-behavior: contain;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    #wrap { text-align: center; }
+    #temp { font-size: clamp(64px, 16vw, 128px); line-height: 1; font-weight: 700; }
+    #meta { opacity: .8; font-size: clamp(14px, 3.8vw, 16px); margin-top: .5rem; }
+    #err  { color: #f66; font-size: 14px; margin-top: .75rem; display:none; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="temp">—</div>
+    <div id="meta">Tusinasää</div>
+    <div id="err"></div>
+  </div>
+  <script>
+    // *** AINOA MUKAUTUS: vaihda backend-osoite tähän pahviin korvaamalla __ENDPOINT_URL__ ***
+    const ENDPOINT = 'https://tusinasaa.fi/api/weather';
+
+    // Lue t & k URL:sta (query TAI hash), tallenna localStorageen, ja käytä aina tallennettua kun saatavilla.
+    function readParams() {
+      const src = location.search || location.hash;
+      const u = new URL('https://x.invalid/' + src.replace(/^\?/, '')); // helppo parseri
+      const t = u.searchParams.get('t');
+      const k = u.searchParams.get('k');
+      if (t && k) localStorage.setItem('ts_loc', JSON.stringify({t, k}));
+      try { return JSON.parse(localStorage.getItem('ts_loc')); } catch { return null; }
+    }
+
+    async function load() {
+      const loc = readParams();
+      if (!loc) { return showErr('Sijainti puuttuu. Avaa linkki, jossa on ?t=...&k=...'); }
+      try {
+        const q = new URL(ENDPOINT);
+        q.searchParams.set('t', loc.t);
+        q.searchParams.set('k', loc.k);
+        const res = await fetch(q, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const d = await res.json();
+        render(d);
+      } catch (e) {
+        showErr('Virhe: ' + (e && e.message ? e.message : e));
+      }
+    }
+
+    // Odotettu perusmuoto (esimerkki): { tempC: 12, location: "Kotkavuori", condition: "Selkeää" }
+    function render(d) {
+      const t = (d && d.tempC != null) ? Math.round(d.tempC) + '°' : '—';
+      document.getElementById('temp').textContent = t;
+      const meta = [(d && d.location) || '', (d && d.condition) ? d.condition : ''].filter(Boolean).join(' · ');
+      document.getElementById('meta').textContent = meta || 'Tusinasää';
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('err');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // SW rekisteröinti (sallittu, mutta ei vaadittu)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    }
+
+    load();
+  </script>
+</body>
+</html>
