@@ -20,12 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEFAULT_LAT = "60.2633";
     private static final String DEFAULT_LON = "25.3244";
     private static final String DEFAULT_TITLE = "TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI";
-    static final String FALLBACK_ASSET_URL = "file:///android_asset/tusinapaja.html";
-
     private WebView webView;
-    @Nullable
-    private Intent lastIntent;
-    private boolean usingAssetFallback = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -56,34 +51,8 @@ public class MainActivity extends AppCompatActivity {
         if (webView == null) {
             return;
         }
-        lastIntent = intent;
-        usingAssetFallback = false;
         webView.stopLoading();
         webView.loadUrl(buildStartUrl(intent, REMOTE_BASE_URL));
-    }
-
-    void switchToAssetFallback() {
-        if (webView == null) {
-            return;
-        }
-        if (usingAssetFallback && FALLBACK_ASSET_URL.equals(webView.getUrl())) {
-            return;
-        }
-        usingAssetFallback = true;
-        webView.stopLoading();
-        webView.loadUrl(FALLBACK_ASSET_URL);
-    }
-
-    void onFallbackContentLoaded() {
-        usingAssetFallback = true;
-    }
-
-    void onRemoteContentLoaded() {
-        usingAssetFallback = false;
-    }
-
-    String getFallbackAssetUrl() {
-        return FALLBACK_ASSET_URL;
     }
 
     private String buildStartUrl(@Nullable Intent intent, String baseUrl) {

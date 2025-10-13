@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tusinasää 12</string>
+    <string name="webview_error_generic">Sisällön lataus epäonnistui.</string>
+    <string name="webview_error_with_description">Sisällön lataus epäonnistui: %1$s</string>
 </resources>
