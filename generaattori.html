@@ -1,258 +1,110 @@
 <!doctype html>
-<html lang="fi">
-<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tusinasää – token+avain generaattori</title>
+<title>Tusinasää – KV-generaattori (MINI)</title>
 <style>
-  body{
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    margin:24px auto;
-    max-width:720px;
-    padding:0 16px 48px;
-    background:#f5f5f7;
-    color:#1c1c1f;
-  }
-  h1{ font-size:24px; margin-bottom:12px; }
-  label{ display:block; margin:12px 0 4px; font-weight:600; }
-  input[type="number"], input[type="text"]{
-    width:100%; max-width:360px; font-size:16px; padding:8px 10px;
-    border:1px solid #b6bcc8; border-radius:6px; box-sizing:border-box;
-  }
-  button{
-    margin-top:18px; padding:10px 20px; font-size:16px; font-weight:600;
-    border:none; border-radius:999px; background:#2f4ad0; color:white;
-    cursor:pointer;
-  }
-  button:disabled{ opacity:0.6; cursor:progress; }
-  pre{
-    background:#111; color:#e8e8e8; padding:18px; border-radius:10px;
-    overflow:auto; margin-top:24px; white-space:pre-wrap;
-  }
-  .note{ font-size:14px; color:#444; margin-top:6px; }
-  .err{ color:#b00020; font-weight:600; margin-top:12px; }
+  :root { --w: min(820px, 100%); }
+  html,body{margin:0;padding:0;font:16px/1.35 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;background:#0b0b0c;color:#e7e7ea;}
+  main{max-width:var(--w);margin:0 auto;padding:16px;display:grid;gap:10px;}
+  h1{font-size:18px;margin:4px 0 8px 0;color:#cfcfd4;}
+  label{display:flex;align-items:center;gap:8px;font-weight:600;margin-top:6px}
+  input,textarea,button{border-radius:10px;border:1px solid #2a2a2e;background:#141416;color:#e7e7ea;}
+  input{padding:10px 12px;width:100%;}
+  textarea{padding:10px 12px;width:100%;min-height:110px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace}
+  .row{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .btn{padding:10px 12px;font-weight:600;border:1px solid #3a3a40;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .ghost{background:#101012}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  #out{min-height:260px}
+  small{opacity:.7}
 </style>
-</head>
-<body>
-<h1>Tusinasää – token+avain generaattori</h1>
-<p class="note">Työkalu arpoo tokenin ja salausavaimen, salaa koordinaatit AES-GCM:llä ja tulostaa Cloudflare KV -talletteen sekä valmiit web- ja Android-linkit.</p>
+<main>
+  <h1>Tusinasää – KV-generaattori (MINI)</h1>
 
-<label for="lat">Leveysaste (lat)</label>
-<input id="lat" type="number" step="any" placeholder="60.1699" required>
+  <div class="row">
+    <label for="key">KEY</label>
+    <button class="btn ghost" id="randomKey" title="Generate KEY">Random KEY</button>
+  </div>
+  <input id="key" autocomplete="off" placeholder="32-merkkinen base64url (24B)">
 
-<label for="lon">Pituusaste (lon)</label>
-<input id="lon" type="number" step="any" placeholder="24.9384" required>
+  <label for="val">VALUE (JSON)</label>
+  <textarea id="val" placeholder='{"v":1,"iv":"...","ct":"..."}'></textarea>
 
-<label for="z">Zoom / karttatarkkuus (z)</label>
-<input id="z" type="number" value="13" min="1" max="18">
+  <div class="row">
+    <label for="k">K-param</label>
+    <button class="btn ghost" id="randomK" title="Generate K">Random K</button>
+  </div>
+  <input id="k" autocomplete="off" placeholder="43-merkkinen base64url (32B)">
 
-<label for="title">Erikoisotsikko (valinnainen)</label>
-<input id="title" type="text" placeholder="TUSINASÄÄ 12 · NIMI">
+  <div class="actions">
+    <button class="btn" id="gen">Generate</button>
+    <button class="btn ghost" id="copy">Copy</button>
+  </div>
 
-<label for="baseUrl">Base URL (lukittu)</label>
-<input id="baseUrl" type="text" value="https://ollijuutilainen.github.io/tusinapaja.html" readonly>
-<p class="note">Base URL on kiinteä, jotta generaattorin tuloste vastaa “pahvi”-spesia. Kenttä säilyy DOM:ssa yhteensopivuuden vuoksi.</p>
+  <textarea id="out" readonly spellcheck="false"></textarea>
+  <small>Ei tallenna mitään. Kaikki tapahtuu selaimessasi.</small>
+</main>
 
-<button id="generate">Generoi token &amp; linkit</button>
-<div id="error" class="err" role="alert" style="display:none"></div>
-<pre id="output" aria-live="polite">Anna sijainti ja paina "Generoi".</pre>
+<script>
+  // --- helpers ---
+  const $ = sel => document.querySelector(sel);
+  const b64url = bytes => btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const randB64 = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return b64url(a); };
+  const minifyJson = s => { try { return JSON.stringify(JSON.parse(s)); } catch { return s.trim().replace(/\s+/g,' '); } };
+  const prettyJson = s => { try { return JSON.stringify(JSON.parse(s), null, 2); } catch { return s; } };
 
-<script type="module">
-const latInput = document.getElementById('lat');
-const lonInput = document.getElementById('lon');
-const zInput = document.getElementById('z');
-const titleInput = document.getElementById('title');
-const baseInput = document.getElementById('baseUrl');
-const generateBtn = document.getElementById('generate');
-const output = document.getElementById('output');
-const errorBox = document.getElementById('error');
+  function buildOutput() {
+    let KEY = $('#key').value.trim();
+    if (!KEY) KEY = randB64(24); // 24B -> 32 chars base64url
+    $('#key').value = KEY;
 
-const encoder = new TextEncoder();
-const TOKEN_LENGTH = 32;
-const TOKEN_BYTES = 24; // 24 satunnaistavua -> 32 Base64URL-merkkiä ilman paddingia
+    let raw = $('#val').value.trim();
+    let VAL_ONE = minifyJson(raw);
+    if (!VAL_ONE || VAL_ONE === '') {
+      const iv = randB64(12);   // 12B -> 16 chars (matches prior examples)
+      const ct = randB64(64);   // demo ciphertext
+      VAL_ONE = JSON.stringify({ v:1, iv, ct });
+      $('#val').value = prettyJson(VAL_ONE);
+    } else {
+      $('#val').value = prettyJson(VAL_ONE);
+    }
 
-function clearError(){
-  errorBox.style.display = 'none';
-  errorBox.textContent = '';
-}
+    let K = $('#k').value.trim();
+    if (!K) K = randB64(32); // 32B -> 43 chars base64url
+    $('#k').value = K;
 
-function showError(msg){
-  errorBox.textContent = msg;
-  errorBox.style.display = '';
-}
+    const block = [
+      `KEY='${KEY}'`,
+      `VAL='${VAL_ONE}'`,
+      `K='${K}'`,
+      ``,
+      `# A (binding)`,
+      `npx -y wrangler@latest kv key put --remote --binding=LOCATIONS "$KEY" "$VAL"`,
+      `npx -y wrangler@latest kv key get --remote --binding=LOCATIONS "$KEY" --text`,
+      ``,
+      `# B (namespace)`,
+      `NS='{{NAMESPACE_ID}}'`,
+      `npx -y wrangler@latest kv key put --remote --namespace-id "$NS" "$KEY" "$VAL"`,
+      `npx -y wrangler@latest kv key get --remote --namespace-id "$NS" "$KEY" --text`,
+      ``,
+      `# Web: https://ollijuutilainen.github.io/tusinapaja.html#t=$KEY&k=$K`,
+      `# Android: tusinasaa://open/v1#t=$KEY&k=$K`
+    ].join("\n");
 
-function randomBytes(length){
-  const buf = new Uint8Array(length);
-  crypto.getRandomValues(buf);
-  return buf;
-}
-
-function toBase64Url(bytes){
-  let binary = '';
-  bytes.forEach(b => { binary += String.fromCharCode(b); });
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-
-function randomToken(){
-  const token = toBase64Url(randomBytes(TOKEN_BYTES));
-  if (token.length !== TOKEN_LENGTH){
-    throw new Error('Tokenin generointi epäonnistui. Yritä uudelleen.');
+    $('#out').value = block;
   }
-  return token;
-}
 
-async function encryptLocation(keyBytes, payload){
-  const iv = randomBytes(12);
-  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt']);
-  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, cryptoKey, encoder.encode(payload));
-  return { iv: toBase64Url(iv), ct: toBase64Url(new Uint8Array(ciphertext)) };
-}
+  // --- events ---
+  $('#randomKey').addEventListener('click', () => { $('#key').value = randB64(24); });
+  $('#randomK').addEventListener('click', () => { $('#k').value = randB64(32); });
+  $('#gen').addEventListener('click', buildOutput);
+  $('#copy').addEventListener('click', async () => {
+    const t = $('#out'); t.focus(); t.select(); t.setSelectionRange(0, t.value.length);
+    try { await navigator.clipboard.writeText(t.value); } catch {}
+  });
 
-generateBtn.addEventListener('click', async () => {
-  clearError();
-  generateBtn.disabled = true;
-  output.textContent = 'Generoidaan…';
-
-  try {
-    const lat = parseFloat(latInput.value);
-    const lon = parseFloat(lonInput.value);
-    const zoom = zInput.value === '' ? null : parseInt(zInput.value, 10);
-
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)){
-      throw new Error('Anna kelvolliset koordinaatit.');
-    }
-
-    const payloadObject = { lat, lon };
-    const titleRaw = titleInput.value.trim();
-    if (titleRaw){
-      payloadObject.title = titleRaw.slice(0, 160);
-    }
-    if (Number.isInteger(zoom)) payloadObject.z = zoom;
-
-    const payloadJson = JSON.stringify(payloadObject);
-    const token = randomToken();
-    const keyBytes = randomBytes(32); // 256-bit AES-avain
-    const keyB64u = toBase64Url(keyBytes);
-    const encrypted = await encryptLocation(keyBytes, payloadJson);
-
-    const kvPayload = { v: 1, iv: encrypted.iv, ct: encrypted.ct };
-    const kvValue = JSON.stringify(kvPayload, null, 2);
-    const kvValueMin = JSON.stringify(kvPayload);
-    const baseUrl = 'https://ollijuutilainen.github.io/tusinapaja.html';
-    if (baseInput.value !== baseUrl) {
-      baseInput.value = baseUrl;
-    }
-    const webUrl = `${baseUrl}#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
-    const androidUrl = `tusinasaa://open/v1#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
-
-    const cardLines = [
-      '# Tusinasää – KV-generaattorin **pahvi** (Wrangler v4, *remote*)',
-      '',
-      '**Tarkoitus:** Generaattori tulostaa tämän täyttömallin.',
-      '**Muutos:** käytä **Wrangler v4** -syntaksia ja **pakota `--remote`** (Big Sur).',
-      '',
-      '---',
-      '',
-      '## KV (Cloudflare)',
-      '',
-      'KEY:',
-      '```',
-      token,
-      '```',
-      '',
-      'VALUE (JSON):',
-      '```json',
-      kvValue,
-      '```',
-      '',
-      '## Web-linkki (QR)',
-      '```',
-      webUrl,
-      '```',
-      '',
-      '## Android-deeplink (QR)',
-      '```',
-      androidUrl,
-      '```',
-      '',
-      '## Komennot (KV) — Wrangler v4 (**REMOTE**)',
-      '',
-      '> Valitse **A** tai **B**. Älä tulosta `delete`ä tähän osioon.',
-      '',
-      '### A) Projektikansiossa (jos `wrangler.toml` bindaa `LOCATIONS`)',
-      '',
-      '```bash',
-      '# tallenna / päivitä',
-      `npx -y wrangler@latest kv key put --remote --binding=LOCATIONS '${token}' '${kvValueMin}'`,
-      '',
-      '# tarkista',
-      `npx -y wrangler@latest kv key get --remote --binding=LOCATIONS '${token}' --text`,
-      '```',
-      '',
-      '### B) Yleinen (namespace-ID:llä)',
-      '',
-      '```bash',
-      "NS='{{NAMESPACE_ID}}'   # esim. 033276b4df18419a8eb60a7d42a4efef",
-      '',
-      '# tallenna / päivitä',
-      `npx -y wrangler@latest kv key put --remote --namespace-id "$NS" '${token}' '${kvValueMin}'`,
-      '',
-      '# tarkista',
-      `npx -y wrangler@latest kv key get --remote --namespace-id "$NS" '${token}' --text`,
-      '```',
-      '',
-      '---',
-      '',
-      '## (Erillinen, vain pyydettäessä) Poista avain',
-      '',
-      '```bash',
-      '# binding',
-      `npx -y wrangler@latest kv key delete --remote --binding=LOCATIONS '${token}'`,
-      '',
-      '# tai namespace-id',
-      `npx -y wrangler@latest kv key delete --remote --namespace-id '{{NAMESPACE_ID}}' '${token}'`,
-      '```',
-      '',
-      '---',
-      '',
-      '## Täyttösäännöt generaattorille',
-      '',
-      '* `{{KEY}}` = generaattorin tuottama avain (merkkijono).',
-      '* `{{VALUE_JSON}}` = kauniisti muotoiltu monirivinen JSON.',
-      '* `{{VALUE_JSON_ONE_LINE}}` = sama JSON **yhdellä rivillä** (shell-ystävällinen).',
-      '* `{{K_PARAM}}` = URL-parametri `k` (salattu/allekirjoitettu arvo).',
-      '* `{{NAMESPACE_ID}}` = jätä kirjaimelliseksi placeholderiksi (käyttäjä hakee arvon komennolla `npx -y wrangler@latest kv namespace list`).',
-      '',
-      '**Muuta:**',
-      '',
-      '* Komentojen prefiksinä aina `npx -y wrangler@latest`.',
-      '* Komentojen järjestys ja otsikot: **KV (Cloudflare)** → **Web-linkki (QR)** → **Android-deeplink (QR)** → **Komennot (KV)** → *(valinnainen)* **Poista avain**.',
-      '* Jos projekti käyttää env-profiileja, käyttäjä voi lisätä `--env production` tms. itse.',
-      '',
-      '**Esimerkki yksirivistys:**',
-      'Monirivinen:',
-      '```json',
-      '{',
-      '  "v": 1,',
-      '  "iv": "GDBSvd8pA-JU1CKc",',
-      '  "ct": "-ylkF4fLvs5YXrtxVmHe2ws-S0dQlKM1JxdYXtysxx9UJi4QLjCxlmTeNSv8rHmniIa9r-UiJaMcHY4g1025Be-Vw2SgRbmwFy0PKEonGyjnZXLtBzg"',
-      '}',
-      '```',
-      '',
-      'Yksirivinen (`{{VALUE_JSON_ONE_LINE}}`):',
-      '```',
-      '{"v":1,"iv":"GDBSvd8pA-JU1CKc","ct":"-ylkF4fLvs5YXrtxVmHe2ws-S0dQlKM1JxdYXtysxx9UJi4QLjCxlmTeNSv8rHmniIa9r-UiJaMcHY4g1025Be-Vw2SgRbmwFy0PKEonGyjnZXLtBzg"}',
-      '```'
-    ];
-    output.textContent = cardLines.join('\n');
-  } catch (err) {
-    console.error(err);
-    showError(err?.message || 'Tuntematon virhe.');
-    output.textContent = 'Anna sijainti ja paina "Generoi".';
-  } finally {
-    generateBtn.disabled = false;
-  }
-});
+  // initial render
+  window.addEventListener('load', buildOutput);
 </script>
-</body>
-</html>
