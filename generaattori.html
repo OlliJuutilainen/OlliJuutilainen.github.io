@@ -47,7 +47,7 @@
 <input id="z" type="number" value="13" min="1" max="18">
 
 <label for="title">Erikoisotsikko (valinnainen)</label>
-<input id="title" type="text" placeholder="TUSINASÄÄ 12 · NIMI">
+<input id="title" type="text" placeholder="TUSINASÄÄ 12 · ">
 
 <label for="baseUrl">Base URL (lukittu)</label>
 <input id="baseUrl" type="text" value="https://ollijuutilainen.github.io/tusinapaja.html" readonly>
@@ -67,9 +67,41 @@ const generateBtn = document.getElementById('generate');
 const output = document.getElementById('output');
 const errorBox = document.getElementById('error');
 
+(() => {
+  const label = [...document.querySelectorAll('label')]
+    .find(l => /Erikoisotsikko/i.test(l.textContent));
+  if (!label) return;
+  const el = label.control || label.querySelector('input,textarea') ||
+             document.getElementById(label.getAttribute('for'));
+  if (!el) return;
+  el.placeholder = 'TUSINASÄÄ 12 · ';
+  if (!el.value) el.value = 'TUSINASÄÄ 12 · ';
+})();
+
 const encoder = new TextEncoder();
 const TOKEN_LENGTH = 32;
 const TOKEN_BYTES = 24; // 24 satunnaistavua -> 32 Base64URL-merkkiä ilman paddingia
+
+function _ts_minifyJson(src) { const o = JSON.parse(src); return JSON.stringify(o); }
+function _ts_buildKvBash(KEY, VAL_ONE, K) {
+  return [
+`KEY='${KEY}'`,
+`VAL='${VAL_ONE}'`,
+`K='${K||''}'`,
+``,
+`# A (binding)`,
+`npx -y wrangler@latest kv key put --remote --binding=LOCATIONS "${'$'}KEY" "${'$'}VAL"`,
+`npx -y wrangler@latest kv key get --remote --binding=LOCATIONS "${'$'}KEY" --text`,
+``,
+`# B (namespace)`,
+`NS='{{NAMESPACE_ID}}'`,
+`npx -y wrangler@latest kv key put --remote --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL"`,
+`npx -y wrangler@latest kv key get --remote --namespace-id "${'$'}NS" "${'$'}KEY" --text`,
+``,
+`# Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K`,
+`# Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K`
+  ].join('\n');
+}
 
 function clearError(){
   errorBox.style.display = 'none';
@@ -137,118 +169,31 @@ generateBtn.addEventListener('click', async () => {
 
     const kvPayload = { v: 1, iv: encrypted.iv, ct: encrypted.ct };
     const kvValue = JSON.stringify(kvPayload, null, 2);
-    const kvValueMin = JSON.stringify(kvPayload);
     const baseUrl = 'https://ollijuutilainen.github.io/tusinapaja.html';
     if (baseInput.value !== baseUrl) {
       baseInput.value = baseUrl;
     }
-    const webUrl = `${baseUrl}#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
-    const androidUrl = `tusinasaa://open/v1#t=${encodeURIComponent(token)}&k=${encodeURIComponent(keyB64u)}`;
+    const rawVal = kvValue;
+    const VAL_ONE = _ts_minifyJson(rawVal);
+    const bash = _ts_buildKvBash(token, VAL_ONE, keyB64u);
 
-    const cardLines = [
-      '# Tusinasää – KV-generaattorin **pahvi** (Wrangler v4, *remote*)',
-      '',
-      '**Tarkoitus:** Generaattori tulostaa tämän täyttömallin.',
-      '**Muutos:** käytä **Wrangler v4** -syntaksia ja **pakota `--remote`** (Big Sur).',
-      '',
-      '---',
-      '',
-      '## KV (Cloudflare)',
-      '',
-      'KEY:',
-      '```',
-      token,
-      '```',
-      '',
-      'VALUE (JSON):',
-      '```json',
-      kvValue,
-      '```',
-      '',
-      '## Web-linkki (QR)',
-      '```',
-      webUrl,
-      '```',
-      '',
-      '## Android-deeplink (QR)',
-      '```',
-      androidUrl,
-      '```',
-      '',
-      '## Komennot (KV) — Wrangler v4 (**REMOTE**)',
-      '',
-      '> Valitse **A** tai **B**. Älä tulosta `delete`ä tähän osioon.',
-      '',
-      '### A) Projektikansiossa (jos `wrangler.toml` bindaa `LOCATIONS`)',
-      '',
-      '```bash',
-      '# tallenna / päivitä',
-      `npx -y wrangler@latest kv key put --remote --binding=LOCATIONS '${token}' '${kvValueMin}'`,
-      '',
-      '# tarkista',
-      `npx -y wrangler@latest kv key get --remote --binding=LOCATIONS '${token}' --text`,
-      '```',
-      '',
-      '### B) Yleinen (namespace-ID:llä)',
-      '',
-      '```bash',
-      "NS='{{NAMESPACE_ID}}'   # esim. 033276b4df18419a8eb60a7d42a4efef",
-      '',
-      '# tallenna / päivitä',
-      `npx -y wrangler@latest kv key put --remote --namespace-id "$NS" '${token}' '${kvValueMin}'`,
-      '',
-      '# tarkista',
-      `npx -y wrangler@latest kv key get --remote --namespace-id "$NS" '${token}' --text`,
-      '```',
-      '',
-      '---',
-      '',
-      '## (Erillinen, vain pyydettäessä) Poista avain',
-      '',
-      '```bash',
-      '# binding',
-      `npx -y wrangler@latest kv key delete --remote --binding=LOCATIONS '${token}'`,
-      '',
-      '# tai namespace-id',
-      `npx -y wrangler@latest kv key delete --remote --namespace-id '{{NAMESPACE_ID}}' '${token}'`,
-      '```',
-      '',
-      '---',
-      '',
-      '## Täyttösäännöt generaattorille',
-      '',
-      '* `{{KEY}}` = generaattorin tuottama avain (merkkijono).',
-      '* `{{VALUE_JSON}}` = kauniisti muotoiltu monirivinen JSON.',
-      '* `{{VALUE_JSON_ONE_LINE}}` = sama JSON **yhdellä rivillä** (shell-ystävällinen).',
-      '* `{{K_PARAM}}` = URL-parametri `k` (salattu/allekirjoitettu arvo).',
-      '* `{{NAMESPACE_ID}}` = jätä kirjaimelliseksi placeholderiksi (käyttäjä hakee arvon komennolla `npx -y wrangler@latest kv namespace list`).',
-      '',
-      '**Muuta:**',
-      '',
-      '* Komentojen prefiksinä aina `npx -y wrangler@latest`.',
-      '* Komentojen järjestys ja otsikot: **KV (Cloudflare)** → **Web-linkki (QR)** → **Android-deeplink (QR)** → **Komennot (KV)** → *(valinnainen)* **Poista avain**.',
-      '* Jos projekti käyttää env-profiileja, käyttäjä voi lisätä `--env production` tms. itse.',
-      '',
-      '**Esimerkki yksirivistys:**',
-      'Monirivinen:',
-      '```json',
-      '{',
-      '  "v": 1,',
-      '  "iv": "GDBSvd8pA-JU1CKc",',
-      '  "ct": "-ylkF4fLvs5YXrtxVmHe2ws-S0dQlKM1JxdYXtysxx9UJi4QLjCxlmTeNSv8rHmniIa9r-UiJaMcHY4g1025Be-Vw2SgRbmwFy0PKEonGyjnZXLtBzg"',
-      '}',
-      '```',
-      '',
-      'Yksirivinen (`{{VALUE_JSON_ONE_LINE}}`):',
-      '```',
-      '{"v":1,"iv":"GDBSvd8pA-JU1CKc","ct":"-ylkF4fLvs5YXrtxVmHe2ws-S0dQlKM1JxdYXtysxx9UJi4QLjCxlmTeNSv8rHmniIa9r-UiJaMcHY4g1025Be-Vw2SgRbmwFy0PKEonGyjnZXLtBzg"}',
-      '```'
-    ];
-    output.textContent = cardLines.join('\n');
+    const bashBlock = '```bash\n' + bash + '\n```';
+
+    const out = document.querySelector('#tuloste, #output, .output, pre code, pre');
+    const box = out ? (out.tagName.toLowerCase()==='textarea' ? out : out.closest('pre')||out)
+                    : (document.getElementById('kvOut') || (()=>{const p=document.createElement('pre'); p.style.whiteSpace='pre-wrap'; document.body.appendChild(p); return p;})());
+
+    if (box.tagName.toLowerCase()==='textarea') { box.value = bashBlock; }
+    else { box.textContent = bashBlock; box.className=''; }
   } catch (err) {
     console.error(err);
-    showError(err?.message || 'Tuntematon virhe.');
-    output.textContent = 'Anna sijainti ja paina "Generoi".';
+    if (err instanceof SyntaxError) {
+      alert('VALUE (JSON) ei ole kelvollinen JSON. Korjaa ja yritä uudelleen.');
+      output.textContent = 'Anna sijainti ja paina "Generoi".';
+    } else {
+      showError(err?.message || 'Tuntematon virhe.');
+      output.textContent = 'Anna sijainti ja paina "Generoi".';
+    }
   } finally {
     generateBtn.disabled = false;
   }
