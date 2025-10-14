@@ -58,6 +58,9 @@
 <pre id="output" aria-live="polite">Anna sijainti ja paina "Generoi".</pre>
 
 <script type="module">
+// Cloudflare KV: LOCATIONS namespace (pysyvä ID)
+const NS = '033276b4df18419a8eb60a7d42a4efef';
+
 const latInput = document.getElementById('lat');
 const lonInput = document.getElementById('lon');
 const zInput = document.getElementById('z');
@@ -83,23 +86,28 @@ const TOKEN_LENGTH = 32;
 const TOKEN_BYTES = 24; // 24 satunnaistavua -> 32 Base64URL-merkkiä ilman paddingia
 
 function _ts_minifyJson(src) { const o = JSON.parse(src); return JSON.stringify(o); }
-function _ts_buildKvBash(KEY, VAL_ONE, K) {
+
+function escapeForSingleQuotes(value) {
+  return `'${String(value).replace(/'/g, "'\\''")}'`;
+}
+
+function sanitizeLabel(value) {
+  return (value || 'Tusinasää sijainti').replace(/[\r\n]+/g, ' ').trim();
+}
+
+function buildKvBash(label, key, val, k) {
+  const safeLabel = sanitizeLabel(label);
+  const safeKey = escapeForSingleQuotes(key);
+  const safeVal = escapeForSingleQuotes(val);
+  const safeK = escapeForSingleQuotes(k);
   return [
-`KEY='${KEY}'`,
-`VAL='${VAL_ONE}'`,
-`K='${K||''}'`,
+`# ${safeLabel} — one-paste, Big Sur OK (remote KV)`,
+`NS='${NS}'`,
+`KEY=${safeKey}`,
+`VAL=${safeVal}`,
+`K=${safeK}`,
 ``,
-`# A (binding)`,
-`npx -y wrangler@latest kv key put --remote --binding=LOCATIONS "${'$'}KEY" "${'$'}VAL"`,
-`npx -y wrangler@latest kv key get --remote --binding=LOCATIONS "${'$'}KEY" --text`,
-``,
-`# B (namespace)`,
-`NS='{{NAMESPACE_ID}}'`,
-`npx -y wrangler@latest kv key put --remote --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL"`,
-`npx -y wrangler@latest kv key get --remote --namespace-id "${'$'}NS" "${'$'}KEY" --text`,
-``,
-`# Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K`,
-`# Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K`
+`npx -y wrangler@latest kv key put --remote --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL" \\\n&& npx -y wrangler@latest kv key get --remote --namespace-id "${'$'}NS" "${'$'}KEY" --text \\\n&& printf '%s\n%s\n' \\\n"Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K" \\\n"Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K"`
   ].join('\n');
 }
 
@@ -174,24 +182,41 @@ generateBtn.addEventListener('click', async () => {
       baseInput.value = baseUrl;
     }
     const rawVal = kvValue;
-    const VAL_ONE = _ts_minifyJson(rawVal);
-    const bash = _ts_buildKvBash(token, VAL_ONE, keyB64u);
+    let VAL_ONE;
+    try {
+      VAL_ONE = _ts_minifyJson(rawVal);
+    } catch (jsonErr) {
+      showError('VAL must be one-line JSON.');
+      output.textContent = 'Anna sijainti ja paina "Generoi".';
+      throw jsonErr;
+    }
 
-    const bashBlock = '```bash\n' + bash + '\n```';
+    if (/\r|\n/.test(VAL_ONE)) {
+      showError('VAL must be one-line JSON.');
+      output.textContent = 'Anna sijainti ja paina "Generoi".';
+      return;
+    }
 
-    const out = document.querySelector('#tuloste, #output, .output, pre code, pre');
-    const box = out ? (out.tagName.toLowerCase()==='textarea' ? out : out.closest('pre')||out)
-                    : (document.getElementById('kvOut') || (()=>{const p=document.createElement('pre'); p.style.whiteSpace='pre-wrap'; document.body.appendChild(p); return p;})());
+    if (!token || !VAL_ONE || !keyB64u) {
+      showError('Täytearvot puuttuvat. Yritä uudelleen.');
+      output.textContent = 'Anna sijainti ja paina "Generoi".';
+      return;
+    }
 
-    if (box.tagName.toLowerCase()==='textarea') { box.value = bashBlock; }
-    else { box.textContent = bashBlock; box.className=''; }
+    const bash = buildKvBash(payloadObject.title || '', token, VAL_ONE, keyB64u);
+
+    clearError();
+    const code = document.createElement('code');
+    code.textContent = bash;
+    output.replaceChildren(code);
   } catch (err) {
     console.error(err);
     if (err instanceof SyntaxError) {
-      alert('VALUE (JSON) ei ole kelvollinen JSON. Korjaa ja yritä uudelleen.');
-      output.textContent = 'Anna sijainti ja paina "Generoi".';
+      showError('VAL must be one-line JSON.');
     } else {
       showError(err?.message || 'Tuntematon virhe.');
+    }
+    if (!output.querySelector('code')) {
       output.textContent = 'Anna sijainti ja paina "Generoi".';
     }
   } finally {
