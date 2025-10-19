@@ -1600,17 +1600,15 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     }
   }
 
-  const hasSunEvent = !!(tw && tw.sunEvent);
-
   if (tw.sunEvent){
     const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
   }
-  if (!hasSunEvent && startTag){
+  if (startTag){
     tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
   }
-  if (!hasSunEvent && tw.withinChange){
+  if (tw.withinChange){
     const preferNextLabel = !!suppressedTwilightEntry || !precipish;
     let label = preferNextLabel ? nextLabelFor(tw.withinChange.to) : null;
     if (!label){
