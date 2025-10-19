@@ -1551,7 +1551,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let startTag = null;
   let startKey = null;
   let suppressedTwilightEntry = null;
-  if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
+  if (twilightMainAllowed && tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
     const hhmm = fmtHM(phaseStart);
     const minutes = phaseStart.getMinutes();
@@ -1608,7 +1608,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
   }
-  if (tw.withinChange){
+  if (twilightMainAllowed && tw.withinChange){
     const preferNextLabel = !!suppressedTwilightEntry || !precipish;
     let label = preferNextLabel ? nextLabelFor(tw.withinChange.to) : null;
     if (!label){
@@ -1700,7 +1700,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const key = `${tw.withinChange.to}-${tw.withinChange.at.getTime()}`;
       twilightState.announced.add(key);
     }
-  } else if (phaseMain){
+  } else if (twilightMainAllowed && phaseMain){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
   }
 
