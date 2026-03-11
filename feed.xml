@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>deep divinations, Deepdivenation</title>
+    <link>https://www.dropbox.com</link>
+    <description>Deep divinations inside a deepdive Nation</description>
+    <language>en</language>
+
+    <item>
+      <title>deep divinations and deepdive nation</title>
+      <description>Let's dive deep deep deep</description>
+      <enclosure url="https://www.dropbox.com/scl/fi/6xljlkj5zsq8gmit1r6uk/Stoicism_Skepticism_and_the_Unhappy_Consciousness.m4a?rlkey=9yppeiacp6zskul47g5amnpxs&st=iqncwmtw&dl=0" length="0" type="audio/mp4"/>
+      <guid>ohjelma-001</guid>
+      <pubDate>Wed, 11 Mar 2026 12:00:00 +0000</pubDate>
+    </item>
+
+  </channel>
+</rss>
