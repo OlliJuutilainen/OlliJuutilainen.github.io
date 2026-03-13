@@ -3,7 +3,7 @@ name: Generate feed
 on:
   push:
     paths:
-      - jaksot.txt
+      - sukellushuone/jaksot.txt
 
 jobs:
   build:
