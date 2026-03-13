@@ -23,6 +23,7 @@ for i, (title, url) in enumerate(items, 1):
     ext = url.split("?")[0].split(".")[-1].lower()
     mime = "audio/mp4" if ext in ("m4a", "mp4") else "audio/mpeg"
     url = url.replace("dl=0", "dl=1")
+    url = url.replace("&", "&amp;")
     item = ET.SubElement(channel, "item")
     ET.SubElement(item, "title").text = title
     ET.SubElement(item, "description").text = title
