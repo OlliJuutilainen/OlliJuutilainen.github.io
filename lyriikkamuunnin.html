@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lyriikkamuunnin — iA Writer -sapluuna</title>
+<style>
+  :root {
+    --ink: #1c1a17;
+    --paper: #f4f0e6;
+    --paper-2: #ece6d6;
+    --line: #cfc6b0;
+    --accent: #8a4b1f;
+    --accent-soft: #b98a4f;
+    --muted: #6f685b;
+    --ok: #3d6b3d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(circle at 18% -10%, rgba(185,138,79,.18), transparent 55%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 2.2rem clamp(1rem, 4vw, 3rem) 4rem;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 1rem; margin-bottom: 1.6rem; }
+  h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    margin: 0 0 .25rem;
+    letter-spacing: -0.01em;
+  }
+  .sub {
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--muted);
+  }
+  .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  @media (max-width: 760px) { .panes { grid-template-columns: 1fr; } }
+  .pane label {
+    display: block;
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--accent);
+    margin-bottom: .45rem;
+  }
+  textarea {
+    width: 100%;
+    min-height: 360px;
+    resize: vertical;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: .9rem 1rem;
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .86rem;
+    line-height: 1.55;
+    color: var(--ink);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
+  }
+  textarea:focus { outline: 2px solid var(--accent-soft); outline-offset: 1px; }
+  #out { background: #fbf8f0; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.4rem;
+    margin: 1.4rem 0;
+    padding: .9rem 1.1rem;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+  }
+  .opt { display: inline-flex; align-items: center; gap: .5rem; font-size: .9rem; cursor: pointer; }
+  .opt input { width: 1.05rem; height: 1.05rem; accent-color: var(--accent); cursor: pointer; }
+  .spacer { flex: 1 1 auto; }
+  button {
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    padding: .55rem 1.1rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform .08s ease, background .15s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:active { transform: translateY(0); }
+  button.ghost { background: transparent; color: var(--ink); }
+  #copyBtn.copied { background: var(--ok); border-color: var(--ok); color: #fff; }
+  details {
+    margin-top: 1.8rem;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--paper-2);
+    padding: .4rem 1.1rem;
+  }
+  summary {
+    cursor: pointer;
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .76rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--accent);
+    padding: .55rem 0;
+  }
+  details .body { padding: .3rem 0 1rem; font-size: .92rem; }
+  details ul { margin: .4rem 0 .8rem; padding-left: 1.2rem; }
+  details li { margin: .3rem 0; }
+  code {
+    font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+    font-size: .85em;
+    background: rgba(138,75,31,.1);
+    padding: .05em .35em;
+    border-radius: 2px;
+  }
+  .note { font-size: .82rem; color: var(--muted); margin-top: 1.4rem; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lyriikkamuunnin</h1>
+    <div class="sub">iA Writer -sapluuna · v0.1 · paikallinen · ei verkkoa</div>
+  </header>
+
+  <div class="panes">
+    <div class="pane">
+      <label for="in">Liitä blokkaamasi lähde (osiotunnisteet hakasulkeissa)</label>
+      <textarea id="in" placeholder="[Verse 1]&#10;rivi yksi&#10;rivi kaksi&#10;&#10;[Chorus]&#10;kertorivi&#10;(taustalauluvastaus)"></textarea>
+    </div>
+    <div class="pane">
+      <label for="out">Tulos (iA Writer -markdown)</label>
+      <textarea id="out" readonly placeholder="muunnos ilmestyy tähän…"></textarea>
+    </div>
+  </div>
+
+  <div class="controls">
+    <label class="opt"><input type="checkbox" id="collapse" checked> Tiivistä toistuvat kertsit (1. rivi + …)</label>
+    <label class="opt"><input type="checkbox" id="backing" checked> Sulkurivit = taustalauluvastauksia (kursiivi)</label>
+    <label class="opt"><input type="checkbox" id="boldChorus" checked> Lihavoi kertsit</label>
+    <label class="opt"><input type="checkbox" id="genius" checked> Siivoa Genius-roska (&bdquo;You might also like&rdquo;)</label>
+    <span class="spacer"></span>
+    <button id="copyBtn" type="button">Kopioi tulos</button>
+    <button id="clearBtn" class="ghost" type="button">Tyhjennä</button>
+  </div>
+
+  <details>
+    <summary>Säännöt &amp; toimintalogiikka</summary>
+    <div class="body">
+      <p>Kone tunnistaa osiot hakasulkutunnisteista (esim. <code>[Verse 1]</code>, <code>[Chorus]</code>, <code>[Kertosäe]</code>). Tunnisteet poistetaan lopputuloksesta. Kertsiksi tulkitaan tunniste, jossa esiintyy <code>chorus</code>, <code>kerto</code> tai <code>refrain</code>. Jos tunnisteita ei ole, koko teksti käsitellään säkeistöinä, jotka erotellaan tyhjillä riveillä.</p>
+      <ul>
+        <li>Rivinvaihdot kenoviivalla (<code>\</code>) jokaisen rivin lopussa.</li>
+        <li>Säkeistöjen väliin aina tyhjä kenoviivarivi.</li>
+        <li>Kertsi lihavoidaan aina (<code>**…**</code>).</li>
+        <li>Vain ensimmäinen kertsi kokonaan; täsmälleen toistuvat tiivistetään muotoon <code>**1. rivi**</code> + <code>**…**</code>.</li>
+        <li>Jos myöhemmässä kertsissä on edes pieni ero sanoissa (tvisti), se tulostetaan kokonaan.</li>
+        <li>Sulkeissa oleva osa tulkitaan taustalauluvastaukseksi (kursiivi, ei lihavointia) — oli se sitten oma rivinsä (esim. <code>(Shoobie-doo)</code>) tai muun tekstin perässä samalla rivillä (esim. <code>…wet garden (Ah, ah-ah)</code>), myös kertsin sisällä.</li>
+        <li>Genius-siivous poistaa <code>You might also like</code> ‑lohkon siitä kohdasta seuraavaan hakasulkuun <code>[</code> asti; jos osiota ei seuraa, koko loppulitania poistetaan.</li>
+      </ul>
+      <p><strong>Reunatapaukset, jotka kannattaa tarkistaa käsin:</strong> outro tai muu osio, joka oikeasti on kertsin toisto mutta tunnisteena jotain muuta (silloin se ei lihavoidu automaattisesti); rivin sisäiset (ei koko rivin mittaiset) sulkeet jätetään ennalleen; mahdolliset omat markdown-merkit lähteessä.</p>
+    </div>
+  </details>
+
+  <p class="note">Mikään liittämäsi teksti ei lähde mihinkään — muunnos tapahtuu kokonaan tässä selaimessa. Voit tallentaa tämän tiedoston kirjanmerkkiin tai avata sen ilman nettiyhteyttä.</p>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const inEl = $('in'), outEl = $('out');
+  const collapseEl = $('collapse'), backingEl = $('backing'), boldEl = $('boldChorus');
+  const geniusEl = $('genius');
+
+  const CHORUS_RE = /chorus|kerto|refrain/i;
+
+  // Genius injects a "You might also like" recommendation block mid-lyric.
+  // Remove from that phrase up to (not including) the next '['. If no next
+  // section follows, drop the whole trailing block.
+  function stripGenius(text) {
+    const re = /you might also like/i;
+    let m;
+    while ((m = text.match(re))) {
+      const pos = m.index;
+      const nextBracket = text.indexOf('[', pos + m[0].length);
+      const head = text.slice(0, pos).replace(/[ \t]*\n?[ \t]*$/, '');
+      if (nextBracket === -1) {
+        text = head;
+      } else {
+        text = head + '\n' + text.slice(nextBracket);
+      }
+    }
+    return text.replace(/[ \t\n]+$/, '');
+  }
+
+  function isBacking(line) {
+    const t = line.trim();
+    return t.length >= 2 && t.startsWith('(') && t.endsWith(')');
+  }
+
+  function normalize(lines) {
+    return lines.map(l => l.trim().toLowerCase().replace(/\s+/g, ' ')).join('\n');
+  }
+
+  // Split raw text into blocks. A block = run of non-empty lines.
+  // Blocks are broken by blank lines and by [tag] headers.
+  // Each block inherits the type set by the most recent tag.
+  function parseBlocks(text) {
+    const lines = text.replace(/\r\n?/g, '\n').split('\n');
+    const blocks = [];
+    let curType = 'verse';
+    let buf = [];
+    const flush = () => {
+      if (buf.length) { blocks.push({ type: curType, lines: buf }); buf = []; }
+    };
+    for (const line of lines) {
+      const t = line.trim();
+      const m = t.match(/^\[(.+)\]$/);
+      if (m) {
+        flush();
+        curType = CHORUS_RE.test(m[1]) ? 'chorus' : 'verse';
+      } else if (t === '') {
+        flush();
+      } else {
+        buf.push(line);
+      }
+    }
+    flush();
+    return blocks;
+  }
+
+  function renderLine(line, opts) {
+    const t = line.trim();
+    if (!t) return '';
+    // Whole line in parentheses → backing vocal (italic, never bold).
+    if (opts.backing && isBacking(t)) return '*' + t + '*';
+    // No backing handling, or no parens on the line → format whole line.
+    if (!opts.backing || t.indexOf('(') === -1) {
+      return opts.bold ? '**' + t + '**' : t;
+    }
+    // Inline parens: split them out as backing vocals, keep the rest in its
+    // normal weight (bold for chorus, plain for verse). Spaces stay outside
+    // the emphasis markers to keep the markdown valid.
+    const parts = t.split(/(\([^)]*\))/);
+    const out = [];
+    for (const seg of parts) {
+      const s = seg.trim();
+      if (!s) continue;
+      if (/^\([^)]*\)$/.test(s)) out.push('*' + s + '*');
+      else out.push(opts.bold ? '**' + s + '**' : s);
+    }
+    return out.join(' ');
+  }
+
+  function convert(text) {
+    if (geniusEl.checked) text = stripGenius(text);
+    const opts = {
+      collapse: collapseEl.checked,
+      backing: backingEl.checked,
+      boldChorus: boldEl.checked
+    };
+    const blocks = parseBlocks(text);
+    const seen = new Set();
+    const rendered = [];
+
+    for (const b of blocks) {
+      if (b.type === 'chorus') {
+        const key = normalize(b.lines);
+        if (opts.collapse && seen.has(key)) {
+          const firstOpts = { backing: opts.backing, bold: opts.boldChorus };
+          const first = renderLine(b.lines[0], firstOpts);
+          rendered.push([first, opts.boldChorus ? '**...**' : '...']);
+        } else {
+          seen.add(key);
+          rendered.push(b.lines.map(l =>
+            renderLine(l, { backing: opts.backing, bold: opts.boldChorus })));
+        }
+      } else {
+        rendered.push(b.lines.map(l =>
+          renderLine(l, { backing: opts.backing, bold: false })));
+      }
+    }
+
+    const pieces = [];
+    rendered.forEach((blk, i) => {
+      blk.forEach(l => pieces.push(l + '\\'));
+      if (i < rendered.length - 1) pieces.push('\\'); // empty backslash separator
+    });
+    return pieces.join('\n');
+  }
+
+  function run() { outEl.value = convert(inEl.value); }
+
+  inEl.addEventListener('input', run);
+  [collapseEl, backingEl, boldEl, geniusEl].forEach(el => el.addEventListener('change', run));
+
+  $('copyBtn').addEventListener('click', async () => {
+    const btn = $('copyBtn');
+    try {
+      await navigator.clipboard.writeText(outEl.value);
+    } catch (e) {
+      outEl.select(); document.execCommand('copy');
+    }
+    btn.classList.add('copied');
+    const orig = btn.textContent;
+    btn.textContent = 'Kopioitu';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1300);
+  });
+
+  $('clearBtn').addEventListener('click', () => {
+    inEl.value = ''; outEl.value = ''; inEl.focus();
+  });
+})();
+</script>
+</body>
+</html>
