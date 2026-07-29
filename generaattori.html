@@ -49,6 +49,13 @@
 <label for="title">Erikoisotsikko (valinnainen)</label>
 <input id="title" type="text" placeholder="TUSINASÄÄ 12 · ">
 
+<label for="existingToken">Olemassa oleva TOKEN (valinnainen — ylikirjoita vanha sijainti)</label>
+<input id="existingToken" type="text" placeholder="jätä tyhjäksi luodaksesi uuden">
+
+<label for="existingKey">Olemassa oleva K (valinnainen — pakollinen jos TOKEN annettu)</label>
+<input id="existingKey" type="text" placeholder="jätä tyhjäksi luodaksesi uuden">
+<p class="note">Täytä molemmat, jos haluat päivittää jo jaetun linkin/QR-koodin osoittamaan uuteen sijaintiin ilman että TOKEN tai K vaihtuu. Jätä molemmat tyhjäksi luodaksesi kokonaan uuden sijainnin.</p>
+
 <label for="baseUrl">Base URL (lukittu)</label>
 <input id="baseUrl" type="text" value="https://ollijuutilainen.github.io/tusinapaja.html" readonly>
 <p class="note">Base URL on kiinteä, jotta generaattorin tuloste vastaa “pahvi”-spesia. Kenttä säilyy DOM:ssa yhteensopivuuden vuoksi.</p>
@@ -65,6 +72,8 @@ const latInput = document.getElementById('lat');
 const lonInput = document.getElementById('lon');
 const zInput = document.getElementById('z');
 const titleInput = document.getElementById('title');
+const existingTokenInput = document.getElementById('existingToken');
+const existingKeyInput = document.getElementById('existingKey');
 const baseInput = document.getElementById('baseUrl');
 const generateBtn = document.getElementById('generate');
 const output = document.getElementById('output');
@@ -101,13 +110,13 @@ function buildKvBash(label, key, val, k) {
   const safeVal = escapeForSingleQuotes(val);
   const safeK = escapeForSingleQuotes(k);
   return [
-`# ${safeLabel} — one-paste, Big Sur OK (remote KV)`,
+`# ${safeLabel} — one-paste (wrangler 3.114.17, remote KV)`,
 `NS='${NS}'`,
 `KEY=${safeKey}`,
 `VAL=${safeVal}`,
 `K=${safeK}`,
 ``,
-`npx -y wrangler@latest kv key put --remote --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL" \\\n&& npx -y wrangler@latest kv key get --remote --namespace-id "${'$'}NS" "${'$'}KEY" --text \\\n&& printf '%s\n%s\n' \\\n"Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K" \\\n"Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K"`
+`npx -y wrangler@3.114.17 kv:key put --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL" \\\n&& npx -y wrangler@3.114.17 kv:key get --namespace-id "${'$'}NS" "${'$'}KEY" --text \\\n&& printf '%s\n%s\n' \\\n"Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K" \\\n"Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K"`
   ].join('\n');
 }
 
@@ -131,6 +140,15 @@ function toBase64Url(bytes){
   let binary = '';
   bytes.forEach(b => { binary += String.fromCharCode(b); });
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function fromBase64Url(str){
+  const normalized = str.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 function randomToken(){
@@ -170,8 +188,29 @@ generateBtn.addEventListener('click', async () => {
     if (Number.isInteger(zoom)) payloadObject.z = zoom;
 
     const payloadJson = JSON.stringify(payloadObject);
-    const token = randomToken();
-    const keyBytes = randomBytes(32); // 256-bit AES-avain
+
+    const existingTokenRaw = existingTokenInput.value.trim();
+    const existingKeyRaw = existingKeyInput.value.trim();
+    if (!!existingTokenRaw !== !!existingKeyRaw) {
+      throw new Error('Täytä sekä olemassa oleva TOKEN että K, tai jätä molemmat tyhjäksi.');
+    }
+
+    let token, keyBytes;
+    if (existingTokenRaw && existingKeyRaw) {
+      token = existingTokenRaw;
+      try {
+        keyBytes = fromBase64Url(existingKeyRaw);
+      } catch (decodeErr) {
+        throw new Error('Olemassa oleva K ei ole kelvollinen Base64URL-arvo.');
+      }
+      if (keyBytes.length !== 32) {
+        throw new Error('Olemassa oleva K ei ole kelvollinen 256-bittinen avain.');
+      }
+    } else {
+      token = randomToken();
+      keyBytes = randomBytes(32); // 256-bit AES-avain
+    }
+
     const keyB64u = toBase64Url(keyBytes);
     const encrypted = await encryptLocation(keyBytes, payloadJson);
 
