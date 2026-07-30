@@ -103,7 +103,7 @@
   .hdr > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px }
   .hdr div:nth-child(-n+3){ justify-self:start; text-align:left }
   .hdr div:nth-child(4){ justify-self:center; text-align:center; transform:translateX(-1px) }
-  .hdr div:nth-child(5){ justify-self:start; text-align:left; font-size:11px }
+  .hdr div:nth-child(5){ justify-self:start; text-align:left }
   .row{
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px;
     gap:8px; padding:6px 0; border-bottom:1px solid var(--color-border-strong); align-items:center;
@@ -119,8 +119,6 @@
   .contradictionNote{ display:block; font-size:9px; font-style:italic; color:var(--color-error-note); letter-spacing:.2px; margin-top:2px }
   .row > div:nth-child(4){ text-align:center }
   .row > div:nth-child(5){ font-size:16px }
-  .desc .ditto{ display:inline } .ditto{ color:inherit }
-  .dash{ text-align:center }
   .windDir{ display:block; margin-top:2px; font-size:11px }
   .err{ color:var(--color-error); white-space:pre-wrap; font-size:14px; margin-top:8px }
 </style>
@@ -271,7 +269,6 @@ const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` 
 let LAT_STR = q.get('lat');
 let LON_STR = q.get('lon');
 let ZOOM_PARAM = q.get('z');
-let LOCATION_SOURCE = 'query';
 let specialTitle = null;
 
 const tzOverrideRaw = q.get('tz');
@@ -305,7 +302,6 @@ if (HASH_TOKEN || HASH_KEY){
         const trimmed = decrypted.title.trim();
         if (trimmed) specialTitle = trimmed.slice(0, 160);
       }
-      LOCATION_SOURCE = 'hash';
       if (DBG){
         console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
       }
@@ -359,9 +355,6 @@ if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   LON_STR = String(DEFAULT_COORDINATES.lon);
   if (!specialTitle){
     specialTitle = DEFAULT_COORDINATES.title;
-  }
-  if (LOCATION_SOURCE !== 'hash'){
-    LOCATION_SOURCE = 'default';
   }
   if (DBG){
     console.info('Käytetään oletussijaintia', { lat: LAT_STR, lon: LON_STR });
@@ -657,7 +650,7 @@ async function fetchForecast(lat, lon){
     windDirection: forecastSeries.winddirection?.get(key) ?? null,
     smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null
   }));
-  return { hours, series: forecastSeries };
+  return { hours };
 }
 
 /* --------- MET Nowcast – sade + puuska + symbol_code --------- */
@@ -1193,6 +1186,8 @@ function formatSmallTag(entry){
   const body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
   const attrs = [];
   if (entry && entry.dittoEllipsis) attrs.push('data-ditto-ellipsis="1"');
+  /* Paljas sulkeutettu alkuaika merkitään, jotta se voidaan karsia ditto-riviltä. */
+  if (entry && entry.inline) attrs.push('data-inline-start="1"');
   const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
   return `<span class="${cls}"${attrStr}>${body}</span>`;
 }
@@ -1231,18 +1226,22 @@ function buildDescriptionHtml({ main, tags, extra }){
   let extraHtml = extra || '';
   const formattedAfter = [];
   const formattedBefore = [];
+  const formattedInline = [];
   for (const entry of tagList){
     const html = formatSmallTag(entry);
     if (!html) continue;
-    const beforeMain = typeof entry === 'object' && entry && entry.beforeMain;
+    const isObj = typeof entry === 'object' && entry;
+    if (isObj && entry.inline){ formattedInline.push(html); continue; }
+    const beforeMain = isObj && entry.beforeMain;
     if (beforeMain) formattedBefore.push(html);
     else formattedAfter.push(html);
   }
   const beforeHtml = formattedBefore.join('<br>');
   const afterHtml = formattedAfter.join('<br>');
   const beforeSection = beforeHtml ? `${beforeHtml}<br>` : '';
+  const inlineSection = formattedInline.length ? ` ${formattedInline.join(' ')}` : '';
   const afterSection = afterHtml ? `<br>${afterHtml}` : '';
-  return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
+  return `${beforeSection}${safeMain}${inlineSection}${afterSection}${extraHtml}`;
 }
 
 function shouldTintForGold(tw, hourStart){
@@ -1570,7 +1569,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
         italic = false;
         preserveCase = true;
         if (beforeMain){
-          text = `${upper} – alkaa ${hhmm}`;
+          /* Sama sulkeutus kuin kuivalla tunnilla, vaikka tässä hämärä on pelkkä
+             merkintä eikä pääselite. Sulkeet pysyvät vaiheen nimen perässä samalla
+             rivillä; jos rivi ei riitä, ne siirtyvät kokonaisuudessaan seuraavalle. */
+          text = `${upper} (${hhmm})`;
           suppressedHasOwnStart = true;
         } else {
           text = upper;
@@ -1584,6 +1586,9 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       } else if (twilightMain && !precipish){
         const trimmed = text.trim().toLocaleLowerCase('fi-FI');
         entry.inlineCandidate = trimmed.startsWith('alkaa ');
+        /* Paljas alkuaika sulkeutetaan pääselitteen perään vasta lopuksi – vain jos
+           mitään ei ole ketjutettu siihen (ks. inlineCandidate-nollaus alempana). */
+        if (entry.inlineCandidate) entry.startHhmm = hhmm;
       }
       startKey = `${tw.phase}-${phaseStart.getTime()}`;
       if (tw.startedWithinHour){
@@ -1616,7 +1621,14 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     }
     const at = tw.withinChange.at;
     const hhmm = at instanceof Date ? fmtHM(at) : null;
-    if (label && hhmm){
+    /* Seuraavan vaiheen ilmoitus annetaan vain jos se on eri vaihe kuin tämän tunnin
+       oma ja alkaa tunnin jälkipuoliskolla. Ennen puoltatuntia alkava vaihe ehtii
+       hallitsemaan tunnin itse, jolloin se näkyy jo omana alkuaikanaan – ilmoitus
+       toistaisi saman kellonajan. */
+    const changeMinutes = at instanceof Date ? at.getMinutes() : null;
+    const nextPhaseDiffers = !!tw.withinChange.to && tw.withinChange.to !== tw.phase;
+    const announceNext = nextPhaseDiffers && Number.isInteger(changeMinutes) && changeMinutes >= 30;
+    if (announceNext && label && hhmm){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
@@ -1654,6 +1666,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
           const inlineLabel = inlineNextLabelFor(toPhase);
           if (inlineLabel){
             startTag.text += ` – ${inlineLabel} ${hhmm}`;
+            startTag.textExtended = true;
             appendedInline = true;
           }
         } else if (!phaseActuallyChanges || (currentPhase && toPhase === currentPhase)){
@@ -1678,7 +1691,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
           tags.push(entry);
         }
       }
-    } else if (label){
+    } else if (announceNext && label){
       const text = `${label} ${fmtHM(tw.withinChange.at)}`;
       const entry = { text, italic: true, beforeMain: false };
       if (suppressedTwilightEntry){
@@ -1692,6 +1705,7 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       }
     }
     if (
+      announceNext &&
       label &&
       tw.withinChange?.at instanceof Date &&
       typeof tw.withinChange?.to === 'string' &&
@@ -1702,6 +1716,18 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
     }
   } else if (twilightMainAllowed && phaseMain){
     if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
+  }
+
+  /* "porvarillinen hämärä" + rivinvaihto + "alkaa 07:29"  ->  "porvarillinen hämärä (07:29)".
+     Vain saman vaiheen paljas alkuaika sulkeutetaan: startHhmm asetetaan yksinomaan
+     "alkaa HH:MM" -muodolle, ja textExtended estää sulkeutuksen jos perään on ketjutettu
+     seuraava vaihe. Seuraavaa vaihetta tai aurinkotapahtumaa koskevat merkinnät eivät saa
+     startHhmm-arvoa lainkaan, joten ne jäävät omalle rivilleen. */
+  for (const entry of tags){
+    if (entry && entry.startHhmm && !entry.textExtended){
+      entry.text = `(${entry.startHhmm})`;
+      entry.inline = true;
+    }
   }
 
   twilightState.lastPhase = tw.phase || null;
@@ -1796,7 +1822,7 @@ function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, descThun
 function rainCell(val, { markGrey=false, source=null, forceZeroText=false } = {}){
   if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
-  if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
+  if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'', forceGrey:true, source };
   const text = (n === 0 && forceZeroText) ? '0.0 mm' : n.toFixed(1)+' mm';
   return { text, num:n, extraClass:'', forceGrey:markGrey, source };
 }
@@ -1893,6 +1919,12 @@ function renderRow(row, state){
       }
     }
     if (tailHtml){
+      /* Ditto-rivillä ei näytetä paljasta alkuaikaa: "»" ei kerro mikä alkoi.
+         Uuden vaiheen ilmoitus saa jäädä, koska se nimeää vaiheen itse. */
+      tailHtml = tailHtml.replace(
+        /\s*<span\b[^>]*data-inline-start="1"[^>]*>[\s\S]*?<\/span>/gi,
+        ''
+      );
       tailHtml = tailHtml.replace(
         /(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?:\.\.\.\s*)?([^<]*)/gi,
         (match, open, ws, text) => {
@@ -1933,7 +1965,7 @@ function renderRow(row, state){
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
   const timeClasses = ['cell'];
   if (!timeWhite) timeClasses.push('soft');
-  const tempClasses = ['cell','hh'];
+  const tempClasses = ['cell'];
   if (!tempWhite) tempClasses.push('soft');
   const rainClasses = ['cell'];
   if (!rainWhite || rain.forceGrey) rainClasses.push('soft');
@@ -2030,12 +2062,10 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   let descExtra = '';
   let twDbg = '';
   let insertedThunderTag = false;
-  let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
   let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
   try{
     const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
     const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-    twilightFlags.hadTwilightMain = !!decorated.twilightMain;
     descMain = decorated.main || baseDesc || '–';
     descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
     let thunderTag = null;
@@ -2056,7 +2086,6 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     });
     twilightOverride = override;
     if (override.applied){
-      twilightFlags.overrideApplied = true;
       descMain = override.main;
       descTags = Array.isArray(override.tags) ? override.tags : [];
       descDisplaySource = descSource;
