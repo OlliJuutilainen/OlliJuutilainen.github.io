@@ -1071,6 +1071,37 @@ function beginLabel(phase){
 
 const MIN = 60000;
 
+/* Kesäyön varamenetelmä.
+
+   Vaihe päätellään yleensä vertaamalla kellonaikaa rajapyykkeihin (milloin aurinko
+   ylitti −6, −12 ja −18 astetta). Korkeilla leveysasteilla kesällä aurinko ei laske
+   −12 tai −18 asteen alle lainkaan, jolloin SunCalc ei anna niille rajapyykeille
+   aikaa ja rajapyykkiketju jää vaille vastausta – vaikka aurinko olisi selvästi
+   nauttisen hämärän alueella. Silloin vaihe lasketaan suoraan auringon korkeudesta,
+   joka on aina saatavilla. Rajat ovat hämärävaiheiden vakiomääritelmät; −0,833° on
+   auringonnousun ja -laskun tavanomainen raja (taittuminen ja auringon säde).
+
+   Tätä käytetään vain kun rajapyykkiketju palauttaisi tyhjän, joten talvivuorokausiin
+   – joissa kaikki rajapyykit ovat olemassa – ei kosketa. */
+function phaseFromSunAltitude(t){
+  if (!(t instanceof Date) || Number.isNaN(t.getTime())) return null;
+  if (typeof SunCalc !== 'object' || !SunCalc || typeof SunCalc.getPosition !== 'function') return null;
+  if (!Number.isFinite(LAT) || !Number.isFinite(LON)) return null;
+  let degrees;
+  try {
+    degrees = SunCalc.getPosition(t, LAT, LON).altitude * 180 / Math.PI;
+  } catch (err) {
+    if (DBG) console.warn('phaseFromSunAltitude fail', err);
+    return null;
+  }
+  if (!Number.isFinite(degrees)) return null;
+  if (degrees >= -0.833) return 'day';
+  if (degrees >= -6) return 'civil';
+  if (degrees >= -12) return 'nautical';
+  if (degrees >= -18) return 'astronomical';
+  return 'night';
+}
+
 function analyzeTwilightForHour(dLocal, dayObj){
   if (!dayObj || dayObj.__error) return { phase: null, withinChange: null, sunEvent: null, dbg: dayObj?.__error||null };
   const rise = tp(dayObj.sunrise?.time);
@@ -1095,7 +1126,7 @@ function analyzeTwilightForHour(dLocal, dayObj){
     if (civEnd && nautEnd && t>=civEnd && t<nautEnd) return 'nautical';
     if (nautEnd && astroEnd && t>=nautEnd && t<astroEnd) return 'astronomical';
     if (astroEnd && t>=astroEnd) return 'night';
-    return null;
+    return phaseFromSunAltitude(t);
   }
   const p0 = where(t0);
   const p1 = where(t1);
@@ -1715,7 +1746,15 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       twilightState.announced.add(key);
     }
   } else if (twilightMainAllowed && phaseMain){
-    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true });
+    /* Vaiheen nimi lisätään tähän vain jos sitä ei ole jo merkinnöissä. Sateisella
+       tunnilla suppressedTwilightEntry nimeää vaiheen versaalilla, jolloin tämä
+       toistaisi saman nimen kursiivilla heti sen perässä. Tähän haaraan päädytään
+       muun muassa silloin kun tunnilla on aurinkotapahtuma, koska vaihdostietoa ei
+       silloin lasketa lainkaan. */
+    const phaseAlreadyNamed = !!(suppressedTwilightEntry && tags.includes(suppressedTwilightEntry));
+    if ((precipish || !twilightMain) && !phaseAlreadyNamed){
+      tags.push({ text: phaseMain, italic: true });
+    }
   }
 
   /* "porvarillinen hämärä" + rivinvaihto + "alkaa 07:29"  ->  "porvarillinen hämärä (07:29)".
