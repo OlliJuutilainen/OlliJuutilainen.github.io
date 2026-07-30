@@ -1596,8 +1596,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       if (!precipish && twilightMain){
         text = `alkaa ${hhmm}`;
       } else if (twilightSuppressed){
+        /* Versaali säilyy, mutta kursivointi tulee muiden hämärämerkintöjen tapaan
+           rivin 'let italic = true' -oletuksesta. Aiemmin tämä oli ainoa
+           hämärämerkintä, joka jäi pystyyn. */
         const upper = (phaseMain || label || '').toLocaleUpperCase('fi-FI');
-        italic = false;
         preserveCase = true;
         if (beforeMain){
           /* Sama sulkeutus kuin kuivalla tunnilla, vaikka tässä hämärä on pelkkä
@@ -1745,17 +1747,14 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const key = `${tw.withinChange.to}-${tw.withinChange.at.getTime()}`;
       twilightState.announced.add(key);
     }
-  } else if (twilightMainAllowed && phaseMain){
-    /* Vaiheen nimi lisätään tähän vain jos sitä ei ole jo merkinnöissä. Sateisella
-       tunnilla suppressedTwilightEntry nimeää vaiheen versaalilla, jolloin tämä
-       toistaisi saman nimen kursiivilla heti sen perässä. Tähän haaraan päädytään
-       muun muassa silloin kun tunnilla on aurinkotapahtuma, koska vaihdostietoa ei
-       silloin lasketa lainkaan. */
-    const phaseAlreadyNamed = !!(suppressedTwilightEntry && tags.includes(suppressedTwilightEntry));
-    if ((precipish || !twilightMain) && !phaseAlreadyNamed){
-      tags.push({ text: phaseMain, italic: true });
-    }
   }
+  /* Sateisella tunnilla ei toisteta vaiheen nimeä pelkkänä merkintänä. Tässä oli
+     aiemmin haara, joka lisäsi nimen kursiivilla ilman kellonaikaa – se ei kertonut
+     mitään uutta, vaan toisti vaiheen joka oli jo ilmoitettu aiemmalla tunnilla.
+     Ehdoiltaan se laukesi vain sateisilla tunneilla: haaraan päädyttiin vain kun
+     vaihe kelpasi pääsanaksi, ja silloin twilightMain oli epätosi täsmälleen silloin
+     kun satoi. Vaiheen alkamisilmoitus (versaali, kellonajan kanssa) tulee eri
+     kohdasta eikä siihen kosketa – se kertoo aidosti uutta. */
 
   /* "porvarillinen hämärä" + rivinvaihto + "alkaa 07:29"  ->  "porvarillinen hämärä (07:29)".
      Vain saman vaiheen paljas alkuaika sulkeutetaan: startHhmm asetetaan yksinomaan
