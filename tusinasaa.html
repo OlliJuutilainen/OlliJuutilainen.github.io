@@ -7,17 +7,63 @@
 <title>TUSINASÄÄ 12</title>
 <!-- ohjelman leima: TUSINASÄÄ 12 versio 1.1.1 -->
 <style>
-  :root { color-scheme: dark; }
+  /* Tumma tila toimii oletuksena; vaalea teema aktivoituu vain pyydettäessä. */
+  :root {
+    color-scheme: dark light;
+    --color-bg: #000;
+    --color-text: #e8e8e8;
+    --color-page-title: #9aa6b0;
+    --color-mini: #7f8a93;
+    --color-mini-strong: #e8e8e8;
+    --color-muted: #74808a;
+    --color-soft: #7f8a93;
+    --color-border: #2a2a2a;
+    --color-border-strong: #1c1c1c;
+    --color-badge-default: #7f8a93;
+    --color-badge-nc: #9fb6ff;
+    --color-badge-nc-border: #35415a;
+    --color-badge-hrm: #b7b7b7;
+    --color-badge-hrm-border: #3a3a3a;
+    --color-badge-fallback: #d9b27d;
+    --color-badge-fallback-border: #5a4528;
+    --color-error: #ff6b6b;
+    --color-error-note: #888;
+    --color-contradiction: #a65050;
+  }
+  @media (prefers-color-scheme: light){
+    :root {
+      color-scheme: light dark;
+      --color-bg: #f7f8fa;
+      --color-text: #1c1f22;
+      --color-page-title: #5a6570;
+      --color-mini: #646f78;
+      --color-mini-strong: #1c1f22;
+      --color-muted: #596470;
+      --color-soft: #68737e;
+      --color-border: #d5d9df;
+      --color-border-strong: #c5c9cf;
+      --color-badge-default: #68737e;
+      --color-badge-nc: #4a5dab;
+      --color-badge-nc-border: #a8b4cf;
+      --color-badge-hrm: #555b60;
+      --color-badge-hrm-border: #c3c6ca;
+      --color-badge-fallback: #8d6c3f;
+      --color-badge-fallback-border: #d8c2a3;
+      --color-error: #c34242;
+      --color-error-note: #666;
+      --color-contradiction: #c46464;
+    }
+  }
   html,body{height:100%}
   body{
-    margin:0; padding:22px 14px 24px; background:#000; color:#e8e8e8;
+    margin:0; padding:22px 14px 24px; background:var(--color-bg); color:var(--color-text);
     font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     font-synthesis:none;
   }
-  .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:#9aa6b0;
+  .pageTitle{ font-weight:700; font-size:15px; letter-spacing:.4px; color:var(--color-page-title);
     text-transform:uppercase; margin:0 0 4px 0 }
-  .mini{ color:#7f8a93; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .mini{ color:var(--color-mini); font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .miniTwilight{ font-style:italic; font-weight:300 }
   .twilightMainText{
     font-size:13px;
@@ -32,56 +78,49 @@
       font-weight:300;
     }
   }
-  .miniPrefixed::before{
-    content:'';
-    display:inline-block;
-    width:var(--mini-ellipsis-width, 10px);
-  }
-  .miniW{ color:#e8e8e8; font-size:12px; letter-spacing:.3px; line-height:1.2 }
+  .miniW{ color:var(--color-mini-strong); font-size:12px; letter-spacing:.3px; line-height:1.2 }
   .caps{ text-transform:uppercase; letter-spacing:.5px }
-  .list{ border-top:1px solid #2a2a2a; margin-top:6px; }
+  .list{ border-top:1px solid var(--color-border); margin-top:6px; }
   .sourceBadge{
     display:inline-block;
     margin-left:6px;
     padding:1px 5px 0;
-    border:1px solid #2a2a2a;
+    border:1px solid var(--color-border);
     border-radius:3px;
     font-size:11px;
     letter-spacing:.3px;
     text-transform:uppercase;
-    color:#7f8a93;
+    color:var(--color-badge-default);
   }
-  .sourceBadgeNc{ color:#9fb6ff; border-color:#35415a; }
-  .sourceBadgeHrm{ color:#b7b7b7; border-color:#3a3a3a; }
-  .sourceBadgeFallback{ color:#d9b27d; border-color:#5a4528; }
+  .sourceBadgeNc{ color:var(--color-badge-nc); border-color:var(--color-badge-nc-border); }
+  .sourceBadgeHrm{ color:var(--color-badge-hrm); border-color:var(--color-badge-hrm-border); }
+  .sourceBadgeFallback{ color:var(--color-badge-fallback); border-color:var(--color-badge-fallback-border); }
   .hdr{
-    color:#6b7580; font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
+    color:var(--color-muted); font-size:12px; letter-spacing:.3px; margin:6px 0 4px 0;
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px; align-items:end; justify-items:center;
     gap:8px;
   }
-  .hdr > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px }
+  .hdr > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px }
   .hdr div:nth-child(-n+3){ justify-self:start; text-align:left }
   .hdr div:nth-child(4){ justify-self:center; text-align:center; transform:translateX(-1px) }
-  .hdr div:nth-child(5){ justify-self:start; text-align:left; font-size:11px }
+  .hdr div:nth-child(5){ justify-self:start; text-align:left }
   .row{
     display:grid; grid-template-columns:54px 34px 1fr 70px 70px;
-    gap:8px; padding:6px 0; border-bottom:1px solid #1c1c1c; align-items:center;
+    gap:8px; padding:6px 0; border-bottom:1px solid var(--color-border-strong); align-items:center;
     min-height:54px;
   }
-  .row > div:first-child{ border-right:1px solid #2a2a2a; padding-right:10px; margin-right:4px; text-align:right }
-  .muted{ color:#74808a } .soft{ color:#7f8a93 }
-  .cell{ color:#e8e8e8 }
-  .cell.soft{ color:#7f8a93 }
-  .desc{ color:#7f8a93 }
-  .descWhite{ color:#e8e8e8 }
-  .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:#a65050; text-decoration-skip-ink:auto }
-  .contradictionNote{ display:block; font-size:9px; font-style:italic; color:#888; letter-spacing:.2px; margin-top:2px }
+  .row > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px; text-align:right }
+  .muted{ color:var(--color-muted) } .soft{ color:var(--color-soft) }
+  .cell{ color:var(--color-text) }
+  .cell.soft{ color:var(--color-soft) }
+  .desc{ color:var(--color-soft) }
+  .descWhite{ color:var(--color-mini-strong) }
+  .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:var(--color-contradiction); text-decoration-skip-ink:auto }
+  .contradictionNote{ display:block; font-size:9px; font-style:italic; color:var(--color-error-note); letter-spacing:.2px; margin-top:2px }
   .row > div:nth-child(4){ text-align:center }
   .row > div:nth-child(5){ font-size:16px }
-  .desc .ditto{ display:inline } .ditto{ color:inherit }
-  .dash{ text-align:center }
   .windDir{ display:block; margin-top:2px; font-size:11px }
-  .err{ color:#ff6b6b; white-space:pre-wrap; font-size:14px; margin-top:8px }
+  .err{ color:var(--color-error); white-space:pre-wrap; font-size:14px; margin-top:8px }
 </style>
 </head>
 <body>
@@ -95,68 +134,234 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/dist/tz.js"></script>
+<script src="https://unpkg.com/tz-lookup@6.1.25/dist/tz.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 
-<script>
+<script type="module">
 /* --------- perusinfra & virheet näkyviin --------- */
-/* --------- tonttien työlista (palaverin jatkotoimet) --------- */
-/*
-1. Yhtenäistä pääselitteen kirjainkoko niin, että `lowercaseMainDescription`
-   ajetaan kaikissa vaiheissa ilman päivä-vaiherajausta, ja varmista samalla,
-   ettei tyhjät tai HTML-elementillä alkavat selitteet muutu.
-2. Selvitä nousua edeltävien kuivien tuntien käsittely: kun hämärävaihe ei enää
-   päädy päätekstiksi, varmista että kuivan sään kuvaus nostaa ensimmäisen
-   kirjaimen isoksi ja ettei hämärän CSS-yläsuuraus laukea vahingossa.
-3. Päivitä testisuunnitelma kattamaan sumu-, sade- ja kuivatapaukset sekä
-   aurinkotapahtumien molemmat kieliasut, jotta kirjaimiston poikkeamat eivät
-   palaa jatkokehityksessä.
-*/
+/* backlog: docs/tusinapaja-backlog.md */
 const out = document.getElementById('out');
+
+function prependError(message){
+  out.innerHTML = `<div class="err">${message}</div>` + out.innerHTML;
+}
+
 window.addEventListener('error', e => {
+  if (e?.error && typeof e.error === 'object' && e.error.__tusinaHandled){
+    return;
+  }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  out.innerHTML = `<div class="err">Virhe: ${msg}${where}</div>` + out.innerHTML;
+  prependError(`Virhe: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
+  if (reason && typeof reason === 'object' && reason.__tusinaHandled){
+    return;
+  }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  out.innerHTML = `<div class="err">Virhe (lupaus): ${msg}</div>` + out.innerHTML;
+  prependError(`Virhe (lupaus): ${msg}`);
 });
 
-/* --------- mittaa ellipsin leveys pienitekstissä --------- */
-function initMiniEllipsisWidth(){
-  if (!document?.body) return;
-  const span = document.createElement('span');
-  span.className = 'mini';
-  span.textContent = '...';
-  span.style.visibility = 'hidden';
-  span.style.position = 'absolute';
-  span.style.whiteSpace = 'pre';
-  span.style.pointerEvents = 'none';
-  document.body.appendChild(span);
-  const rect = span.getBoundingClientRect();
-  span.remove();
-  const width = rect?.width;
-  if (Number.isFinite(width) && width > 0){
-    const px = width.toFixed(2)+'px';
-    document.documentElement.style.setProperty('--mini-ellipsis-width', px);
-    window.__miniEllipsisWidth = width;
+function base64urlToBytes(b64u){
+  if (typeof b64u !== 'string' || !b64u){
+    throw new Error('Virheellinen base64url-merkkijono.');
   }
-}
-if (document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', initMiniEllipsisWidth, { once: true });
-} else {
-  initMiniEllipsisWidth();
+  const normalized = b64u.replace(/-/g, '+').replace(/_/g, '/');
+  const padLength = (4 - normalized.length % 4) % 4;
+  const padded = normalized + '='.repeat(padLength);
+  const bin = atob(padded);
+  const outArr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) outArr[i] = bin.charCodeAt(i);
+  return outArr;
 }
 
-/* --------- URL-parametrit --------- */
+async function fetchAndDecryptLocation(token, keyB64u){
+  const host = (typeof location === 'object' && typeof location.hostname === 'string')
+    ? location.hostname.toLowerCase()
+    : '';
+  const configuredWorkerBase = (typeof window !== 'undefined' && (
+    window.TUSINASAA_API_BASE || window.TUSINA_WORKER_BASE || window.TUSINA_API_BASE
+  )) || 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
+  const workerBase = configuredWorkerBase.replace(/\/+$/, '');
+  const useWorkerEndpoint = /\.github\.io$/.test(host);
+  const endpointBase = useWorkerEndpoint ? workerBase : '';
+  const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
+  const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  if (!res.ok){
+    const sourceLabel = useWorkerEndpoint ? 'Cloudflare-työntekijästä' : 'palvelimelta';
+    const errMsg = res.status === 404
+      ? `Sijaintitokenia ei löytynyt (${sourceLabel}).`
+      : `Sijaintipalvelu (${sourceLabel}) vastasi virheellä (${res.status}).`;
+    throw new Error(errMsg);
+  }
+
+  let payload;
+  try {
+    payload = await res.json();
+  } catch (err) {
+    throw new Error('Sijaintipalvelu palautti virheellistä dataa.');
+  }
+
+  if (!payload || typeof payload !== 'object'){
+    throw new Error('Sijaintipaketti puuttuu.');
+  }
+
+  const { v, iv, ct } = payload;
+  const version = typeof v === 'string' ? parseInt(v, 10) : v;
+  if (!Number.isFinite(version) || version !== 1){
+    console.error('Tuntematon sijaintipaketin versio. Vastaanotettu paketti:', payload);
+    throw new Error('Tuntematon sijaintipaketin versio.');
+  }
+  if (typeof iv !== 'string' || typeof ct !== 'string'){
+    throw new Error('Sijaintipaketista puuttuu salausdata.');
+  }
+
+  let keyBytes, ivBytes, ctBytes;
+  try {
+    keyBytes = base64urlToBytes(keyB64u);
+    ivBytes = base64urlToBytes(iv);
+    ctBytes = base64urlToBytes(ct);
+  } catch (err) {
+    throw new Error('Sijaintipaketin base64url-muunnos epäonnistui.');
+  }
+
+  let cryptoKey;
+  try {
+    cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
+  } catch (err) {
+    throw new Error('Sijaintiavain ei kelpaa AES-GCM -purkuun.');
+  }
+
+  let plaintext;
+  try {
+    plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
+  } catch (err) {
+    throw new Error('Sijaintipaketin purku epäonnistui (AES-GCM).');
+  }
+
+  let parsed;
+  try {
+    const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
+    parsed = JSON.parse(decoded);
+  } catch (err) {
+    throw new Error('Sijaintipaketin sisältö on virheellinen.');
+  }
+
+  if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
+    throw new Error('Sijaintipaketista puuttuu kelvolliset lat/lon-arvot.');
+  }
+
+  return parsed;
+}
+
+/* --------- URL-parametrit & sijainti --------- */
+const DEFAULT_COORDINATES = Object.freeze({
+  lat: 60.2633,
+  lon: 25.3244,
+  title: 'TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI'
+});
 const q = new URLSearchParams(location.search);
-const LAT_STR = q.get('lat'); const LON_STR = q.get('lon');
-const LAT = parseFloat(LAT_STR); const LON = parseFloat(LON_STR);
 const DBG = q.has('dbg');
 const SHOW_SOURCE_BADGES = DBG || q.has('src');
 const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` : '';
+
+let LAT_STR = q.get('lat');
+let LON_STR = q.get('lon');
+let ZOOM_PARAM = q.get('z');
+let specialTitle = null;
+
+const tzOverrideRaw = q.get('tz');
+let tzOverride = null;
+if (typeof tzOverrideRaw === 'string'){
+  const trimmed = tzOverrideRaw.trim();
+  if (trimmed){
+    tzOverride = trimmed;
+  }
+}
+
+const hashRaw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+const hashParams = new URLSearchParams(hashRaw);
+const HASH_TOKEN = hashParams.get('t');
+const HASH_KEY = hashParams.get('k');
+
+let hashError = null;
+
+if (HASH_TOKEN || HASH_KEY){
+  if (!HASH_TOKEN || !HASH_KEY){
+    const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
+    hashError = `Sijaintilinkistä puuttuu ${which}.`;
+  } else {
+    try {
+      /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
+      const decrypted = await fetchAndDecryptLocation(HASH_TOKEN, HASH_KEY);
+      LAT_STR = String(decrypted.lat);
+      LON_STR = String(decrypted.lon);
+      if (decrypted?.z != null) ZOOM_PARAM = String(decrypted.z);
+      if (typeof decrypted?.title === 'string'){
+        const trimmed = decrypted.title.trim();
+        if (trimmed) specialTitle = trimmed.slice(0, 160);
+      }
+      if (DBG){
+        console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
+      }
+    } catch (err) {
+      const detail = err?.message ? `: ${err.message}` : '';
+      hashError = `Sijaintipaketin purku epäonnistui${detail}`;
+      console.error('Sijaintipaketin purku epäonnistui', err);
+      if (err && typeof err === 'object') err.__tusinaHandled = true;
+    }
+  }
+
+  if (hashError){
+    prependError(hashError);
+    const noFallbackCoords = (LAT_STR == null || LON_STR == null);
+    if (noFallbackCoords){
+      const fatal = new Error(hashError);
+      fatal.__tusinaHandled = true;
+      throw fatal;
+    }
+    if (DBG){
+      console.warn('Hash-fragmentti epäonnistui; käytetään query-parametreja.', {
+        lat: LAT_STR,
+        lon: LON_STR,
+        reason: hashError
+      });
+    }
+  }
+} else if (DBG && HASH_TOKEN == null && HASH_KEY == null){
+  console.info('Hash-fragmenttia ei annettu; käytetään kehityksen query-parametreja.', { lat: LAT_STR, lon: LON_STR });
+}
+
+let LAT = parseFloat(LAT_STR);
+let LON = parseFloat(LON_STR);
+
+function coordsNearlyEqual(a, b){
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  return Math.abs(a - b) < 1e-4;
+}
+
+let defaultCoordinateNoticeMessage = '';
+
+if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
+  const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
+  const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
+  defaultCoordinateNoticeMessage = `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
+    `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`;
+  prependError(defaultCoordinateNoticeMessage);
+  LAT = DEFAULT_COORDINATES.lat;
+  LON = DEFAULT_COORDINATES.lon;
+  LAT_STR = String(DEFAULT_COORDINATES.lat);
+  LON_STR = String(DEFAULT_COORDINATES.lon);
+  if (!specialTitle){
+    specialTitle = DEFAULT_COORDINATES.title;
+  }
+  if (DBG){
+    console.info('Käytetään oletussijaintia', { lat: LAT_STR, lon: LON_STR });
+  }
+} else if (!specialTitle && coordsNearlyEqual(LAT, DEFAULT_COORDINATES.lat) && coordsNearlyEqual(LON, DEFAULT_COORDINATES.lon)){
+  specialTitle = DEFAULT_COORDINATES.title;
+}
 
 const FALLBACK_TIME_ZONE = (() => {
   try {
@@ -166,6 +371,16 @@ const FALLBACK_TIME_ZONE = (() => {
     return 'UTC';
   }
 })();
+
+function isValidTimeZone(tz){
+  if (typeof tz !== 'string' || !tz.trim()) return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz }).format();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 function inferTimeZone(lat, lon){
   const fallback = FALLBACK_TIME_ZONE || 'UTC';
@@ -182,7 +397,24 @@ function inferTimeZone(lat, lon){
   return fallback;
 }
 
-let timeZone = inferTimeZone(LAT, LON);
+let timeZone = null;
+if (tzOverride){
+  if (isValidTimeZone(tzOverride)){
+    timeZone = tzOverride;
+    if (DBG){
+      console.info('Aikavyöhyke asetettu query-parametrista', { tz: tzOverride });
+    }
+  } else {
+    const msg = `Aikavyöhykeparametri (${tzOverride}) ei kelpaa; käytetään automaattista tunnistusta.`;
+    prependError(msg);
+    if (DBG){
+      console.warn('Aikavyöhykeparametri ei kelpaa', { tz: tzOverride });
+    }
+  }
+}
+if (!timeZone){
+  timeZone = inferTimeZone(LAT, LON);
+}
 if (typeof timeZone !== 'string' || !timeZone){
   timeZone = FALLBACK_TIME_ZONE || 'UTC';
 }
@@ -190,23 +422,11 @@ const TZ = timeZone;
 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
-const SPECIAL_TITLES = {
-  '60.3281,25.0551': 'TUSINASÄÄ 12 · ASOLA',
-  '60.1562,24.7767': 'TUSINASÄÄ 12 · RANTAKOTO',
-  '60.2038,24.8030': 'TUSINASÄÄ 12 · HEINJOKI',
-  '60.2040,25.0320': 'TUSINASÄÄ 12 · PORTIMO',
-  '60.1620,24.8791': 'TUSINASÄÄ 12 · KOTKAVUORI',
-};
-let specialTitle = null;
-if (LAT_STR && LON_STR){
-  specialTitle = SPECIAL_TITLES[`${LAT_STR},${LON_STR}`] || null;
-  if (!specialTitle){
-    const latNum = Number(LAT_STR);
-    const lonNum = Number(LON_STR);
-    if (Number.isFinite(latNum) && Number.isFinite(lonNum)){
-      const normalizedKey = `${latNum.toFixed(4)},${lonNum.toFixed(4)}`;
-      specialTitle = SPECIAL_TITLES[normalizedKey] || null;
-    }
+if (!specialTitle){
+  const queryTitleRaw = q.get('title');
+  if (typeof queryTitleRaw === 'string'){
+    const trimmed = queryTitleRaw.trim();
+    if (trimmed) specialTitle = trimmed.slice(0, 160);
   }
 }
 if (specialTitle){
@@ -430,7 +650,7 @@ async function fetchForecast(lat, lon){
     windDirection: forecastSeries.winddirection?.get(key) ?? null,
     smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null
   }));
-  return { hours, series: forecastSeries };
+  return { hours };
 }
 
 /* --------- MET Nowcast – sade + puuska + symbol_code --------- */
@@ -468,18 +688,34 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
     if (diff<0  && ad<pDiff){pDiff=ad; past=it;}
   }
   let best=null;
-  if (future && fDiff<=60*60000) best=future;
-  else if (past && pDiff<=60*60000) best=past;
+  const limit = 60 * 60000;
+  const futureOk = future && fDiff <= limit;
+  const pastOk = past && pDiff <= limit;
+  if (futureOk && pastOk){
+    best = (fDiff <= pDiff) ? future : past;
+  } else if (futureOk){
+    best = future;
+  } else if (pastOk){
+    best = past;
+  }
   if (!best) return { val:null, meta:'NC!miss' };
 
-  const acc  = best?.data?.next_1_hours?.details?.precipitation_amount;
+  const hasNextHour = !!best?.data?.next_1_hours;
+  const acc  = hasNextHour ? best?.data?.next_1_hours?.details?.precipitation_amount : undefined;
   const pr   = best?.data?.instant?.details?.precipitation_rate;
   const gust = best?.data?.instant?.details?.wind_speed_of_gust;
-  const sym  = best?.data?.next_1_hours?.summary?.symbol_code || null;
+  const sym  = hasNextHour ? (best?.data?.next_1_hours?.summary?.symbol_code || null) : null;
 
   let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
   const meta = metaBase || 'NC';
-  return { val:(typeof p==='number'?p:null), meta, gust:(typeof gust==='number'?gust:null), sym };
+  const metaStr = typeof meta === 'string' ? meta : 'NC';
+  const metaTag = (!hasNextHour && !metaStr.startsWith('NC!')) ? 'NC!sym' : metaStr;
+  return {
+    val:(typeof p==='number'?p:null),
+    meta: metaTag,
+    gust:(typeof gust==='number'?gust:null),
+    sym
+  };
 }
 
 async function ensureNowcastBundle(lat, lon){
@@ -828,6 +1064,37 @@ function beginLabel(phase){
 
 const MIN = 60000;
 
+/* Kesäyön varamenetelmä.
+
+   Vaihe päätellään yleensä vertaamalla kellonaikaa rajapyykkeihin (milloin aurinko
+   ylitti −6, −12 ja −18 astetta). Korkeilla leveysasteilla kesällä aurinko ei laske
+   −12 tai −18 asteen alle lainkaan, jolloin SunCalc ei anna niille rajapyykeille
+   aikaa ja rajapyykkiketju jää vaille vastausta – vaikka aurinko olisi selvästi
+   nauttisen hämärän alueella. Silloin vaihe lasketaan suoraan auringon korkeudesta,
+   joka on aina saatavilla. Rajat ovat hämärävaiheiden vakiomääritelmät; −0,833° on
+   auringonnousun ja -laskun tavanomainen raja (taittuminen ja auringon säde).
+
+   Tätä käytetään vain kun rajapyykkiketju palauttaisi tyhjän, joten talvivuorokausiin
+   – joissa kaikki rajapyykit ovat olemassa – ei kosketa. */
+function phaseFromSunAltitude(t){
+  if (!(t instanceof Date) || Number.isNaN(t.getTime())) return null;
+  if (typeof SunCalc !== 'object' || !SunCalc || typeof SunCalc.getPosition !== 'function') return null;
+  if (!Number.isFinite(LAT) || !Number.isFinite(LON)) return null;
+  let degrees;
+  try {
+    degrees = SunCalc.getPosition(t, LAT, LON).altitude * 180 / Math.PI;
+  } catch (err) {
+    if (DBG) console.warn('phaseFromSunAltitude fail', err);
+    return null;
+  }
+  if (!Number.isFinite(degrees)) return null;
+  if (degrees >= -0.833) return 'day';
+  if (degrees >= -6) return 'civil';
+  if (degrees >= -12) return 'nautical';
+  if (degrees >= -18) return 'astronomical';
+  return 'night';
+}
+
 function analyzeTwilightForHour(dLocal, dayObj){
   if (!dayObj || dayObj.__error) return { phase: null, withinChange: null, sunEvent: null, dbg: dayObj?.__error||null };
   const rise = tp(dayObj.sunrise?.time);
@@ -852,7 +1119,7 @@ function analyzeTwilightForHour(dLocal, dayObj){
     if (civEnd && nautEnd && t>=civEnd && t<nautEnd) return 'nautical';
     if (nautEnd && astroEnd && t>=nautEnd && t<astroEnd) return 'astronomical';
     if (astroEnd && t>=astroEnd) return 'night';
-    return null;
+    return phaseFromSunAltitude(t);
   }
   const p0 = where(t0);
   const p1 = where(t1);
@@ -883,15 +1150,20 @@ function analyzeTwilightForHour(dLocal, dayObj){
     }
   }
 
+  /* phaseStart jää tyhjäksi jos vaiheen todellista alkamishetkeä ei löydy tämän
+     vuorokauden rajapyykeistä. Näin käy esimerkiksi keskiyön jälkeisillä tunneilla,
+     joiden vaihe alkoi edellisen vuorokauden puolella, sekä silloin kun vaihe on
+     päätelty auringon korkeudesta eikä sille ole rajapyykkiä lainkaan. Tyhjä arvo
+     estää alkamisilmoituksen, mikä on oikein: emme tiedä hetkeä emmekä väitä
+     tietävämme. Aiemmin tähän sijoitettiin tunnin alku, jolloin rivi ilmoitti
+     alkamisajaksi esimerkiksi (00:00) vaikka vaihe oli alkanut jo edellisellä
+     tunnilla. */
   let phaseStart = null;
   if (dominantPhase && TWILIGHT_PHASES.has(dominantPhase)){
     for (const t of transitions){
       if (t > (dominantSegment?.end || t1)) break;
       const to = where(new Date(t.getTime()+1000));
       if (to === dominantPhase) phaseStart = t;
-    }
-    if (!phaseStart && dominantSegment){
-      phaseStart = dominantSegment.start;
     }
   }
 
@@ -927,26 +1199,24 @@ function formatSmallTag(entry){
   if (!entry) return '';
   let text = '';
   let italic = false;
-  let prefix = false;
   let preserveCase = false;
   let white = false;
   if (typeof entry === 'string'){ text = entry; }
   else if (typeof entry === 'object' && entry){
     text = entry.text || '';
     italic = !!entry.italic;
-    prefix = !!entry.prefix;
     preserveCase = !!entry.preserveCase;
     white = !!entry.white;
   }
   if (!text) return '';
-  if (prefix && text.startsWith('...')) prefix = false;
   const classes = [white ? 'miniW' : 'mini'];
   if (italic) classes.push('miniTwilight');
-  if (prefix) classes.push('miniPrefixed');
   const cls = classes.join(' ');
   const body = preserveCase ? text : text.toLocaleLowerCase('fi-FI');
   const attrs = [];
   if (entry && entry.dittoEllipsis) attrs.push('data-ditto-ellipsis="1"');
+  /* Paljas sulkeutettu alkuaika merkitään, jotta se voidaan karsia ditto-riviltä. */
+  if (entry && entry.inline) attrs.push('data-inline-start="1"');
   const attrStr = attrs.length ? ' ' + attrs.join(' ') : '';
   return `<span class="${cls}"${attrStr}>${body}</span>`;
 }
@@ -985,38 +1255,67 @@ function buildDescriptionHtml({ main, tags, extra }){
   let extraHtml = extra || '';
   const formattedAfter = [];
   const formattedBefore = [];
+  const formattedInline = [];
   for (const entry of tagList){
     const html = formatSmallTag(entry);
     if (!html) continue;
-    const beforeMain = typeof entry === 'object' && entry && entry.beforeMain;
+    const isObj = typeof entry === 'object' && entry;
+    if (isObj && entry.inline){ formattedInline.push(html); continue; }
+    const beforeMain = isObj && entry.beforeMain;
     if (beforeMain) formattedBefore.push(html);
     else formattedAfter.push(html);
   }
   const beforeHtml = formattedBefore.join('<br>');
   const afterHtml = formattedAfter.join('<br>');
   const beforeSection = beforeHtml ? `${beforeHtml}<br>` : '';
+  const inlineSection = formattedInline.length ? ` ${formattedInline.join(' ')}` : '';
   const afterSection = afterHtml ? `<br>${afterHtml}` : '';
-  return `${beforeSection}${safeMain}${afterSection}${extraHtml}`;
+  return `${beforeSection}${safeMain}${inlineSection}${afterSection}${extraHtml}`;
 }
 
 function shouldTintForGold(tw, hourStart){
-  if (!tw || !tw.sunEvent || !(tw.sunEvent.at instanceof Date)) return false;
-  const eventTime = tw.sunEvent.at;
-  const mins = eventTime.getMinutes();
-  if (!Number.isInteger(mins)) return false;
-  if (tw.sunEvent.type === 'rise'){
+  if (!tw) return false;
+  const sunEvent = (tw.sunEvent && tw.sunEvent.at instanceof Date) ? tw.sunEvent : null;
+
+  if (sunEvent && sunEvent.type === 'rise'){
+    const riseTime = sunEvent.at;
     const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
     if (startValid){
       const startMs = hourStart.getTime();
-      const eventMs = eventTime.getTime();
+      const eventMs = riseTime.getTime();
       if (!Number.isFinite(eventMs)) return false;
       if (eventMs >= startMs - 5*MIN && eventMs < startMs) return true;
       if (eventMs >= startMs && eventMs < startMs + 30*MIN) return true;
       return false;
     }
-    return mins < 30;
+    const mins = riseTime.getMinutes();
+    return Number.isInteger(mins) && mins < 30;
   }
-  if (tw.sunEvent.type === 'set'){ return mins <= 30; }
+
+  const setTime = (
+    sunEvent && sunEvent.type === 'set'
+      ? sunEvent.at
+      : (tw.set instanceof Date ? tw.set : null)
+  );
+  if (!(setTime instanceof Date)) return false;
+
+  const mins = setTime.getMinutes();
+  if (!Number.isInteger(mins)) return false;
+
+  const startValid = hourStart instanceof Date && !Number.isNaN(hourStart.getTime());
+  if (!startValid) return !!sunEvent && sunEvent.type === 'set' && mins >= 30;
+
+  const startMs = hourStart.getTime();
+  const eventMs = setTime.getTime();
+  if (!Number.isFinite(eventMs)) return false;
+
+  const endMs = startMs + 60*MIN;
+  if (eventMs >= startMs && eventMs < endMs){
+    return mins >= 30;
+  }
+  if (eventMs >= endMs && eventMs < endMs + 5*MIN){
+    return true;
+  }
   return false;
 }
 
@@ -1201,6 +1500,12 @@ function buildThunderTag({ baseText, source, descriptorOpts }){
   };
 }
 
+// "Ristiriitamenettely" = fallback, jossa sateeseen viittaava symboli tai mitta
+// ajaa varsinaisen selitteen ylle vastakommentin. Jos tunnilla on kuivaksi
+// merkattu teksti mutta mitta tai symboli lupaa sadetta, wrapContradiction
+// korostaa alkuperäisen rivin ja lisää perään "tai niin ne lupasivat" -notin.
+// applyContradiction hallinnoi sitä, koska sen pitää katsoa sekä mittaa että
+// symbolia (HEAVY_SSCODE) ja päättää aktivoidaanko ristiriitamoodi.
 function wrapContradiction(descHtml){
   if (!descHtml || descHtml.includes('contradictionMain')) return descHtml;
   const parts = descHtml.split('<br>');
@@ -1212,8 +1517,11 @@ function wrapContradiction(descHtml){
   return final;
 }
 
-function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay }){
+function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay, rowIndex }){
   if (!descHtml) return { html: descHtml, flagged: false };
+  if (typeof rowIndex === 'number' && rowIndex >= 3){
+    return { html: descHtml, flagged: false };
+  }
   const base = baseDesc ? baseDesc.trim() : '';
   const hasDesc = base && base !== '–';
   const rainNum = (typeof rainVal === 'number' && !Number.isNaN(rainVal)) ? rainVal : null;
@@ -1260,6 +1568,8 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   let main = tintedMain;
 
   const twilightMainAllowed = allowTwilightAsMain(tw);
+  const twilightCandidate = !!(phaseMain && twilightMainAllowed);
+  const twilightSuppressed = twilightCandidate && !!precipish;
 
   if (!precipish && phaseMain && twilightMainAllowed){
     main = `<span class="twilightMainText">${phaseMain}</span>`;
@@ -1268,18 +1578,56 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   let startTag = null;
   let startKey = null;
-  if (tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
+  let suppressedTwilightEntry = null;
+  if (twilightMainAllowed && tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
-    startKey = `${tw.phase}-${phaseStart.getTime()}`;
-    if (tw.startedWithinHour){
-      startTag = `ALKAA ${fmtHM(phaseStart)}`;
-    } else if (
-      tw.phase !== twilightState.lastPhase &&
-      !twilightState.announced.has(startKey)
-    ){
-      const prevHourStart = twilightState.lastHourStart;
-      if (prevHourStart && phaseStart >= prevHourStart){
-        startTag = `(alkoi ${fmtHM(phaseStart)})`;
+    const hhmm = fmtHM(phaseStart);
+    const minutes = phaseStart.getMinutes();
+    const beforeMain = Number.isInteger(minutes) && minutes < 30;
+    let label = beginLabel(tw.phase);
+    if (!label && phaseMain) label = `${phaseMain} alkaa`;
+    if (label && hhmm){
+      let text = `${label} ${hhmm}`;
+      let italic = true;
+      let preserveCase = false;
+      if (!precipish && twilightMain){
+        text = `alkaa ${hhmm}`;
+      } else if (twilightSuppressed){
+        /* Versaali säilyy, mutta kursivointi tulee muiden hämärämerkintöjen tapaan
+           rivin 'let italic = true' -oletuksesta. Aiemmin tämä oli ainoa
+           hämärämerkintä, joka jäi pystyyn. */
+        const upper = (phaseMain || label || '').toLocaleUpperCase('fi-FI');
+        preserveCase = true;
+        if (beforeMain){
+          /* Sama sulkeutus kuin kuivalla tunnilla, vaikka tässä hämärä on pelkkä
+             merkintä eikä pääselite. Sulkeet pysyvät vaiheen nimen perässä samalla
+             rivillä; jos rivi ei riitä, ne siirtyvät kokonaisuudessaan seuraavalle. */
+          text = `${upper} (${hhmm})`;
+        } else {
+          text = upper;
+        }
+      }
+      const entry = { text, italic, beforeMain: false };
+      if (preserveCase) entry.preserveCase = true;
+      if (twilightSuppressed){
+        suppressedTwilightEntry = entry;
+      } else if (twilightMain && !precipish){
+        const trimmed = text.trim().toLocaleLowerCase('fi-FI');
+        entry.inlineCandidate = trimmed.startsWith('alkaa ');
+        /* Paljas alkuaika sulkeutetaan pääselitteen perään vasta lopuksi. */
+        if (entry.inlineCandidate) entry.startHhmm = hhmm;
+      }
+      startKey = `${tw.phase}-${phaseStart.getTime()}`;
+      if (tw.startedWithinHour){
+        startTag = entry;
+      } else if (
+        tw.phase !== twilightState.lastPhase &&
+        !twilightState.announced.has(startKey)
+      ){
+        const prevHourStart = twilightState.lastHourStart;
+        if (prevHourStart && phaseStart >= prevHourStart){
+          startTag = entry;
+        }
       }
     }
   }
@@ -1287,22 +1635,41 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (tw.sunEvent){
     const entry = formatSunEventTag(tw.sunEvent);
     if (entry) tags.push(entry);
-  } else if (startTag){
-    tags.push({ text: startTag, italic: true, prefix: true });
+  }
+  if (startTag){
+    tags.push(startTag);
     if (startKey) twilightState.announced.add(startKey);
-  } else if (tw.withinChange){
-    const label = precipish ? beginLabel(tw.withinChange.to) : nextLabelFor(tw.withinChange.to);
+  }
+  if (twilightMainAllowed && tw.withinChange){
+    const preferNextLabel = !!suppressedTwilightEntry || !precipish;
+    let label = preferNextLabel ? nextLabelFor(tw.withinChange.to) : null;
+    if (!label){
+      label = beginLabel(tw.withinChange.to);
+    }
     const at = tw.withinChange.at;
     const hhmm = at instanceof Date ? fmtHM(at) : null;
-    if (label && hhmm){
+    /* Seuraavan vaiheen ilmoitus annetaan vain jos se on eri vaihe kuin tämän tunnin
+       oma ja alkaa tunnin jälkipuoliskolla. Ennen puoltatuntia alkava vaihe ehtii
+       hallitsemaan tunnin itse, jolloin se näkyy jo omana alkuaikanaan – ilmoitus
+       toistaisi saman kellonajan. */
+    const changeMinutes = at instanceof Date ? at.getMinutes() : null;
+    const nextPhaseDiffers = !!tw.withinChange.to && tw.withinChange.to !== tw.phase;
+    const announceNext = nextPhaseDiffers && Number.isInteger(changeMinutes) && changeMinutes >= 30;
+    if (announceNext && label && hhmm){
       const toPhase = tw.withinChange.to;
       const minutes = at.getMinutes();
       const fromPhase = tw.withinChange.from || tw.phase;
-      let text = `...${label} ${hhmm}`;
+      const startInlineCandidate = !!(startTag && startTag.inlineCandidate);
+      const phaseActuallyChanges = toPhase && fromPhase && toPhase !== fromPhase;
+      const currentPhase = tw.phase || null;
+      let text = `${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (toPhase === 'night'){
         text = `säkkipimeä ${hhmm}`;
-      } else if (!precipish){
+      } else {
+        /* Lyhyt muoto ei riipu siitä sataako tai onko rivillä versaali merkintä.
+           Ehto "onko hämärää jo mainittu" on alempana fromPhaseIsTwilight-tarkistuksena:
+           jos edellinen vaihe oli hämärä, sana "hämärä" on jo sanottu eikä sitä toisteta. */
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
@@ -1316,21 +1683,30 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
             };
             const shortLabel = twilightShortLabels[toPhase];
             if (shortLabel){
+              /* "nauttinen hämärä alkaa 02:26" -> "nauttinen 02:26". Kun edellinen vaihe
+                 oli hämärä, sekä "hämärä" että "alkaa" ovat pääteltävissä asiayhteydestä,
+                 ja pelkkä vaihe ja kellonaika riittävät. */
               text = `${shortLabel} ${hhmm}`;
               dittoEllipsis = true;
             }
           }
         }
       }
-      const entry = { text, italic: true };
-      if (dittoEllipsis) entry.dittoEllipsis = true;
-      tags.push(entry);
-    } else if (label){
-      const base = `...${label} ${fmtHM(tw.withinChange.at)}`;
-      const text = tw.withinChange?.to === 'night' ? base.replace(/^\.\.\./, '').trimStart() : base;
-      tags.push({ text, italic: true });
+      /* Seuraavan vaiheen ilmoitusta ei ketjuteta ajatusviivalla minkään perään.
+         Alkuilmoitus kertoo menneestä ("nauttinen hämärä (16:40)") ja tämä tulevasta
+         ("astronominen 17:32"); ne ovat kaksi eri asiaa ja saavat omat rivinsä.
+         Ainoa vaimennus on se, ettei tulevaksi ilmoiteta vaihetta joka tunnilla jo on. */
+      const nextIsCurrentPhase = !phaseActuallyChanges || (currentPhase && toPhase === currentPhase);
+      if (!(startInlineCandidate && nextIsCurrentPhase)){
+        const entry = { text, italic: true, beforeMain: false };
+        if (dittoEllipsis) entry.dittoEllipsis = true;
+        tags.push(entry);
+      }
+    } else if (announceNext && label){
+      tags.push({ text: `${label} ${fmtHM(tw.withinChange.at)}`, italic: true, beforeMain: false });
     }
     if (
+      announceNext &&
       label &&
       tw.withinChange?.at instanceof Date &&
       typeof tw.withinChange?.to === 'string' &&
@@ -1339,8 +1715,24 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const key = `${tw.withinChange.to}-${tw.withinChange.at.getTime()}`;
       twilightState.announced.add(key);
     }
-  } else if (phaseMain){
-    if (precipish || !twilightMain) tags.push({ text: phaseMain, italic: true, prefix: true });
+  }
+  /* Sateisella tunnilla ei toisteta vaiheen nimeä pelkkänä merkintänä. Tässä oli
+     aiemmin haara, joka lisäsi nimen kursiivilla ilman kellonaikaa – se ei kertonut
+     mitään uutta, vaan toisti vaiheen joka oli jo ilmoitettu aiemmalla tunnilla.
+     Ehdoiltaan se laukesi vain sateisilla tunneilla: haaraan päädyttiin vain kun
+     vaihe kelpasi pääsanaksi, ja silloin twilightMain oli epätosi täsmälleen silloin
+     kun satoi. Vaiheen alkamisilmoitus (versaali, kellonajan kanssa) tulee eri
+     kohdasta eikä siihen kosketa – se kertoo aidosti uutta. */
+
+  /* "porvarillinen hämärä" + rivinvaihto + "alkaa 07:29"  ->  "porvarillinen hämärä (07:29)".
+     Vain saman vaiheen paljas alkuaika sulkeutetaan: startHhmm asetetaan yksinomaan
+     "alkaa HH:MM" -muodolle. Seuraavaa vaihetta tai aurinkotapahtumaa koskevat
+     merkinnät eivät saa startHhmm-arvoa lainkaan, joten ne jäävät omalle rivilleen. */
+  for (const entry of tags){
+    if (entry && entry.startHhmm){
+      entry.text = `(${entry.startHhmm})`;
+      entry.inline = true;
+    }
   }
 
   twilightState.lastPhase = tw.phase || null;
@@ -1358,7 +1750,8 @@ function maybeApplyTwilightPrecipOverride({
   rowIndex,
   fallbackFromNowcast,
   descSource,
-  descriptorOpts
+  descriptorOpts,
+  hourStart
 }){
   const result = { applied: false, main: null, tags: null, forceDescWhite: false, forceRainWhite: false };
   if (!decorated || !decorated.twilightMain) return result;
@@ -1392,31 +1785,51 @@ function maybeApplyTwilightPrecipOverride({
   result.applied = true;
   result.main = mainHtml;
   result.tags = tags;
-  result.forceDescWhite = true;
-  result.forceRainWhite = true;
   return result;
 }
 
-function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak }){
-  const rainWhite = (rainVal!=null && rainVal>0 && !(rowIndex>=3 && descWeak && rainVal<0.3));
+function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, descThunder, descFog }){
+  const frontSection = rowIndex <= 2;
+  const hasWet = !!descWet;
+  const isWeakWet = !!descWeak;
+  const hasThunder = !!descThunder;
+  const hasFog = !!descFog;
+  const amount = Number.isFinite(rainVal) ? rainVal : null;
+  const amountPositive = amount != null && amount > 0;
+
+  let rainWhite = false;
   let descWhite = false;
-  if (rowIndex < 3){
-    if (rainWhite) descWhite = true;
-    else if (descWet && !descWeak) descWhite = true;
-  } else if (descWet){
-    if (!descWeak) descWhite = true;
-    else if (rainVal!=null && rainVal>=0.3) descWhite = true;
+
+  if (frontSection){
+    if (amountPositive){
+      rainWhite = true;
+      if (hasWet) descWhite = true;
+    }
+  } else {
+    const descriptorAllowsWhite = hasWet && (!isWeakWet || hasThunder);
+    const highlightByDescriptor = descriptorAllowsWhite && (!hasFog || hasThunder);
+    const highlightByAmount = amount != null && amount > 0.3;
+    if (highlightByDescriptor || highlightByAmount){
+      rainWhite = true;
+      descWhite = true;
+    }
   }
-  if (rainVal === 0) descWhite = false;
+
+  if (frontSection){
+    if (!hasWet) descWhite = false;
+    if (!amountPositive) rainWhite = false;
+  }
+
   return { rainWhite, descWhite };
 }
 
 /* --------- solut --------- */
-function rainCell(val, { markGrey=false, source=null } = {}){
+function rainCell(val, { markGrey=false, source=null, forceZeroText=false } = {}){
   if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
-  if (n === 0) return { text:'—', num:0, extraClass:'dash', forceGrey:true, source };
-  return { text:n.toFixed(1)+' mm', num:n, extraClass:'', forceGrey:markGrey, source };
+  if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'', forceGrey:true, source };
+  const text = (n === 0 && forceZeroText) ? '0.0 mm' : n.toFixed(1)+' mm';
+  return { text, num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
   if (!Number.isFinite(val)) return null;
@@ -1431,27 +1844,33 @@ function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null }
   const gustV = gOk ? Number(gust) : null;
 
   const meanTxt = formatWindSpeed(meanV);
+  const meanHighlight = (mOk && meanV >= 10);
   let txt = (mOk && meanTxt!=null ? meanTxt+' m/s' : '–');
 
   let gustTxt = '';
-  let highlight = false;
-  if (gOk && gustV >= 15){
+  if (gOk){
     const gustFmt = formatWindSpeed(gustV);
-    if (gustFmt != null){
-      gustTxt = ` (<em style="color:#e8e8e8">${gustFmt}</em>)`;
+    const gustDelta = (mOk && Number.isFinite(meanV) && Number.isFinite(gustV)) ? (gustV - meanV) : null;
+    const gustAbsStrong = (Number.isFinite(gustV) && gustV >= 15);
+    const gustNotable = (
+      gustFmt != null && (
+        (Number.isFinite(gustDelta) && gustDelta >= 5) ||
+        gustAbsStrong
+      )
+    );
+    if (gustNotable){
+      gustTxt = ` (<span class="miniW">${gustFmt}</span>)`;
     }
-    highlight = true;
   }
-  if (mOk && meanV >= 10) highlight = true;
 
   const dirTxt = dir8(dirDeg);
-  const dirHtml = dirTxt ? `<span class="${highlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
+  const dirHtml = dirTxt ? `<span class="${meanHighlight ? 'miniW' : 'mini'} windDir">${dirTxt}</span>` : '';
 
   const sources = new Set();
   if (meanSource) sources.add(meanSource);
   if (gOk && gustSource) sources.add(gustSource);
 
-  return { html: txt + gustTxt + dirHtml, white: highlight, sources: Array.from(sources) };
+  return { html: txt + gustTxt + dirHtml, white: meanHighlight, sources: Array.from(sources) };
 }
 
 /* Ditto */
@@ -1490,7 +1909,9 @@ function renderRow(row, state){
   const plain = mainHtml.replace(/<[^>]*>/g,'').trim();
   const normalized = plain ? normalizedDittoKey(plain) : '';
   let displayDesc = (typeof descHtml === 'string' && descHtml.length) ? descHtml : mainHtml;
-  if (!skipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
+  const skipCarryActive = !!(normalized && state.skipDittoKey && normalized === state.skipDittoKey);
+  const effectiveSkipDitto = skipDitto || skipCarryActive;
+  if (!effectiveSkipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1503,15 +1924,30 @@ function renderRow(row, state){
       }
     }
     if (tailHtml){
-      tailHtml = tailHtml.replace(/(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?!\.\.\.)([^<]*)/gi, (match, open, ws, text) => {
-        const trimmed = text || '';
-        if (trimmed.startsWith('...')) return open + ws + trimmed;
-        return open + ws + '...' + trimmed;
-      });
+      /* Ditto-rivillä ei näytetä paljasta alkuaikaa: "»" ei kerro mikä alkoi.
+         Uuden vaiheen ilmoitus saa jäädä, koska se nimeää vaiheen itse. */
+      tailHtml = tailHtml.replace(
+        /\s*<span\b[^>]*data-inline-start="1"[^>]*>[\s\S]*?<\/span>/gi,
+        ''
+      );
+      tailHtml = tailHtml.replace(
+        /(<span[^>]*data-ditto-ellipsis=\"1\"[^>]*>)(\s*)(?:\.\.\.\s*)?([^<]*)/gi,
+        (match, open, ws, text) => {
+          const trimmed = (text || '').replace(/^\.\.\.\s*/, '');
+          return open + ws + trimmed;
+        }
+      );
     }
     displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     state.prevDescKey = normalized || null;
+  }
+  if (skipDitto && normalized){
+    state.skipDittoKey = normalized;
+  } else if (skipCarryActive){
+    state.skipDittoKey = null;
+  } else if (!skipDitto){
+    state.skipDittoKey = null;
   }
   const descBadge = buildSourceBadge({
     source: descDisplaySource,
@@ -1534,7 +1970,7 @@ function renderRow(row, state){
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
   const timeClasses = ['cell'];
   if (!timeWhite) timeClasses.push('soft');
-  const tempClasses = ['cell','hh'];
+  const tempClasses = ['cell'];
   if (!tempWhite) tempClasses.push('soft');
   const rainClasses = ['cell'];
   if (!rainWhite || rain.forceGrey) rainClasses.push('soft');
@@ -1618,6 +2054,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
   const descWet = isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
+  const descThunder = isThunderOrHailDescriptor(baseDesc, descriptorOpts);
   let precipish;
   if (isNowcastHour){
     precipish = ((rainVal != null && rainVal >= 0.1) || (nowcastCode && ncIsPrecip(nowcastCode)) || descWet);
@@ -1630,12 +2067,10 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   let descExtra = '';
   let twDbg = '';
   let insertedThunderTag = false;
-  let twilightFlags = { hadTwilightMain: false, overrideApplied: false };
   let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
   try{
     const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
     const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
-    twilightFlags.hadTwilightMain = !!decorated.twilightMain;
     descMain = decorated.main || baseDesc || '–';
     descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
     let thunderTag = null;
@@ -1651,11 +2086,11 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
       rowIndex: index,
       fallbackFromNowcast,
       descSource,
-      descriptorOpts
+      descriptorOpts,
+      hourStart: dUtc
     });
     twilightOverride = override;
     if (override.applied){
-      twilightFlags.overrideApplied = true;
       descMain = override.main;
       descTags = Array.isArray(override.tags) ? override.tags : [];
       descDisplaySource = descSource;
@@ -1703,41 +2138,58 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
   const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
   const windFallbackFromNowcast = false;
+  const descFog = !!fogInfo.isFog;
   const highlight = computeHighlightStates({
     rowIndex: index,
     rainVal,
     descWet,
-    descWeak
+    descWeak,
+    descThunder,
+    descFog
   });
+  const hasRainOrThunderDescriptor = descThunder || (descWet && !descFog);
+  if (index >= 3 && rainVal === 0 && hasRainOrThunderDescriptor){
+    const markGrey = rainObj ? !!rainObj.forceGrey : false;
+    rainObj = rainCell(rainVal, { markGrey, source: rainSource, forceZeroText: true });
+  }
+
   let { rainWhite, descWhite } = highlight;
   if (twilightOverride.applied){
     if (twilightOverride.forceRainWhite) rainWhite = true;
     if (twilightOverride.forceDescWhite) descWhite = true;
     if (rainObj.forceGrey) rainObj.forceGrey = false;
   }
-  if (!twilightFlags.overrideApplied && twilightFlags.hadTwilightMain){
-    descWhite = false;
+  if (index <= 2){
+    const amountPositive = Number.isFinite(rainVal) && rainVal > 0;
+    if (!amountPositive){
+      rainWhite = false;
+      if (!descWet) descWhite = false;
+    }
   }
+  if (rainWhite && rainObj && rainObj.forceGrey) rainObj.forceGrey = false;
   if (insertedThunderTag) descWhite = false;
-  const timeWhite = (rainWhite || descWhite || windObj.white);
+  const cellsWhite = rainWhite && descWhite;
   const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
   const contradiction = applyContradiction({
     descHtml: initialDescHtml,
     baseDesc,
     ssCode: hour.smartSymbol,
     rainVal,
-    rainDisplay: rainObj.num
+    rainDisplay: rainObj.num,
+    rowIndex: index
   });
   const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
     ? contradiction.html
     : initialDescHtml;
+  const timeWhite = cellsWhite;
+  const tempWhite = cellsWhite;
   let timeHtml;
   if (index === 0){
     const launch = (launchTime instanceof Date && !Number.isNaN(launchTime.getTime())) ? launchTime : null;
     const displayTime = launch || dUtc;
     timeHtml = fmtHM(displayTime);
   } else {
-    const timeClass = timeWhite ? 'miniW' : 'mini';
+    const timeClass = cellsWhite ? 'miniW' : 'mini';
     timeHtml = `<span class="${timeClass}">klo&nbsp;</span>${fmtH(dUtc)}`;
   }
   return {
@@ -1746,7 +2198,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     timeHtml,
     timeWhite,
     temp: hour.temperature,
-    tempWhite: false,
+    tempWhite,
     descHtml: finalDescHtml,
     descMainHtml: descMain,
     descWhite,
@@ -1789,27 +2241,78 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
     const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime });
     if (row) rows.push(row);
   });
+  applyTemperatureMilestones(rows);
   return { rows };
 }
 
 function renderHourlyModel(model){
   const rows = model?.rows || [];
+  const htmlParts = [];
+  if (defaultCoordinateNoticeMessage){
+    htmlParts.push(`<div class="err">${defaultCoordinateNoticeMessage}</div>`);
+  }
   if (!rows.length){
-    out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+    htmlParts.push('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
+    out.innerHTML = htmlParts.join('');
     return;
   }
-  const state = { prevDescKey: null };
-  const html = rows.map(row => renderRow(row, state));
-  out.innerHTML = html.join('');
+  const state = { prevDescKey: null, skipDittoKey: null };
+  htmlParts.push(...rows.map(row => renderRow(row, state)));
+  out.innerHTML = htmlParts.join('');
+}
+
+function applyTemperatureMilestones(rows){
+  if (!Array.isArray(rows) || !rows.length) return;
+  let seenBelowZero = false;
+  let seenHeat = false;
+  const reachedFreezingMilestones = new Set();
+  const MIN_FREEZE_MILESTONE = -100;
+
+  rows.forEach(row => {
+    const temp = (row && Number.isFinite(row.temp)) ? row.temp : null;
+    if (temp == null) return;
+    let highlight = false;
+
+    if (!seenBelowZero && temp < 0){
+      seenBelowZero = true;
+      highlight = true;
+    }
+
+    for (let milestone = -10; milestone >= MIN_FREEZE_MILESTONE; milestone -= 10){
+      if (temp <= milestone && !reachedFreezingMilestones.has(milestone)){
+        reachedFreezingMilestones.add(milestone);
+        highlight = true;
+      }
+    }
+
+    if (!seenHeat && temp > 25){
+      seenHeat = true;
+      highlight = true;
+    }
+
+    if (!highlight) return;
+
+    if (row.timeWhite !== true) row.timeWhite = true;
+    if (row.tempWhite !== true) row.tempWhite = true;
+
+    if (typeof row.timeHtml === 'string' && row.timeHtml.includes('class="mini"')){
+      row.timeHtml = row.timeHtml.replace('class="mini"', 'class="miniW"');
+    }
+  });
 }
 
 /* --------- render --------- */
-(async function(){
-  scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
-  if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
-    out.innerHTML = `<div class="err">Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=60.1699&lon=24.9384</code></div>`;
-    return;
-  }
+  (async function(){
+    scrollTo(0,1); setTimeout(()=>scrollTo(0,1),150);
+    if (LAT_STR == null || LON_STR == null || !Number.isFinite(LAT) || !Number.isFinite(LON)){
+      const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
+      const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
+      const fallbackMessage = defaultCoordinateNoticeMessage || (
+        `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`
+      );
+      out.innerHTML = `<div class="err">${fallbackMessage}</div>`;
+      return;
+    }
 
   out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
 
