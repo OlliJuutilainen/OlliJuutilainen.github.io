@@ -71,6 +71,67 @@ Ditto-rivillä (`»`) ei näytetä paljasta alkuaikaa, koska `»` ei kerro mikä
 Karsinta tapahtuu `data-inline-start`-tunnisteen perusteella. Seuraavan vaiheen ilmoitus
 saa jäädä ditto-riville, koska se nimeää vaiheen itse.
 
+### Alkuaikaa ei koskaan keksitä
+
+`phaseStart` jää tyhjäksi, jos vaiheen todellista alkamishetkeä ei löydy tämän
+vuorokauden rajapyykeistä, ja tyhjä arvo estää alkamisilmoituksen kokonaan.
+Aiemmin tilalle sijoitettiin tunnin alku, jolloin keskiyön jälkeinen rivi ilmoitti
+alkamisajaksi `(00:00)` vaikka vaihe oli alkanut jo edellisenä iltana — sekä väärä
+aika että ilmoitus rivillä jolla mitään ei alkanut.
+
+Näin käy kahdessa tilanteessa: vaihe on alkanut edellisen vuorokauden puolella
+(jolloin hetki ei ole tämän päivän rajapyykeissä), tai vaihe on päätelty auringon
+korkeudesta eikä sille ole rajapyykkiä lainkaan.
+
+### Seuraavan vaiheen ilmoituksen lyhyt muoto
+
+Kun vaihe alkaa tunnin **jälkipuoliskolla** ja edellinen vaihe oli hämärä, ilmoituksesta
+jäävät pois sekä *hämärä* että *alkaa*: `nauttinen hämärä alkaa 06:37` → `nauttinen 06:37`.
+Molemmat ovat pääteltävissä asiayhteydestä, joten lyhyt muoto on aiemman päivitys eikä
+vajaa ilmaus. Ehto "onko hämärää jo mainittu" on koodissa `fromPhaseIsTwilight`.
+
+Lyhennys ei riipu siitä sataako tunnilla. Aiemmin se oli sidottu myös siihen, että
+rivillä on versaali hämärämerkintä, mikä kytki sen vahingossa keksittyyn alkuaikaan.
+
+Lyhennys koskee kaikkia kolmea hämärävaihetta: myös porvarillisesta jää pois sana
+*alkaa*, jonka sen täysi muoto `beginLabel`-taulukossa (`porvarillinen alkaa`) sisältää.
+
+Kun vaihe alkaa tunnin **alkupuoliskolla**, se ehtii hallitsemaan tunnin ja näkyy
+oman alkuaikansa kanssa muodossa `NAUTTINEN HÄMÄRÄ (23:02)`.
+
+### Ilmoituksia ei ketjuteta ajatusviivalla
+
+Jokainen hämärämerkintä on omalla rivillään. Aiemmin seuraavan vaiheen ilmoitus
+ketjutettiin ajatusviivalla joko alkuilmoituksen tai sateisen tunnin versaalin
+merkinnän perään, jolloin yhdellä rivillä oli kaksi kelloa eri suuntiin: mennyt
+alku ja tuleva alku. Esimerkiksi `nauttinen hämärä` + `alkaa 16:40 – astronominen
+hämärä 17:32`. Nyt sama on `nauttinen hämärä (16:40)` ja omalla rivillään
+`astronominen 17:32`.
+
+Ketjutus myös hukkasi ilmoituksia. Teksti liitettiin `suppressedTwilightEntry`-olioon,
+joka syntyi aina kun vaiheella oli nimi ja aika – myös silloin kun sitä ei koskaan
+lisätty näytettäviin merkintöihin. Silloin ketjutettu ilmoitus katosi näkymättömiin.
+Sateisen marraskuun aamun klo 06 sai tästä syystä ilmoituksen `nauttinen 06:37`
+vasta ketjutuksen purkamisen jälkeen.
+
+Purkamisen myötä kuolivat `inlineNextLabelFor`, `inlineCanDescribeNext`,
+`suppressedHasOwnStart` ja `textExtended`, jotka kaikki palvelivat vain ketjutusta.
+Ne on poistettu.
+
+### Sateisella tunnilla ei toisteta vaiheen nimeä
+
+Sateisella tunnilla näytetään hämärästä vain **ilmoitukset**, ei vaiheen nimeä
+sellaisenaan. Käytännössä sallittuja ovat vaiheen alkamisilmoitus (versaali, kellonajan
+kanssa, esim. `NAUTTINEN HÄMÄRÄ (23:02)`) ja seuraavan vaiheen ilmoitus
+(esim. `porvarillinen 03:53`). Pelkkä vaiheen nimi ilman kellonaikaa ei kerro mitään
+uutta, vaan toistaa sen mikä on jo ilmoitettu aiemmalla tunnilla — myös ditto-riveillä,
+jotka toistivat sen tunti toisensa jälkeen.
+
+Aiemmin tästä huolehti `decorateDescription`in viimeinen `else if` -haara, joka on nyt
+poistettu. Se laukesi ehtojensa puolesta **vain** sateisilla tunneilla: haaraan päädyttiin
+vain kun vaihe kelpasi pääsanaksi, ja siinä tilanteessa `twilightMain` oli epätosi
+täsmälleen silloin kun satoi. Kuivilla tunneilla vaihe on edelleen pääsana, kuten ennenkin.
+
 ---
 
 ## Generaattori (`generaattori.html`) – muistiinpano
