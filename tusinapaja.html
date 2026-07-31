@@ -1055,13 +1055,6 @@ function nextLabelFor(toPhase){
   if (toPhase==='civil') return 'porvarillinen alkaa';
   return null;
 }
-function inlineNextLabelFor(toPhase){
-  if (toPhase==='civil') return 'porvarillinen hämärä';
-  if (toPhase==='nautical') return 'nauttinen hämärä';
-  if (toPhase==='astronomical') return 'astronominen hämärä';
-  if (toPhase==='night') return 'säkkipimeä';
-  return null;
-}
 function beginLabel(phase){
   if (phase==='astronomical') return 'astronominen hämärä alkaa';
   if (phase==='civil') return 'porvarillinen alkaa';
@@ -1157,15 +1150,20 @@ function analyzeTwilightForHour(dLocal, dayObj){
     }
   }
 
+  /* phaseStart jää tyhjäksi jos vaiheen todellista alkamishetkeä ei löydy tämän
+     vuorokauden rajapyykeistä. Näin käy esimerkiksi keskiyön jälkeisillä tunneilla,
+     joiden vaihe alkoi edellisen vuorokauden puolella, sekä silloin kun vaihe on
+     päätelty auringon korkeudesta eikä sille ole rajapyykkiä lainkaan. Tyhjä arvo
+     estää alkamisilmoituksen, mikä on oikein: emme tiedä hetkeä emmekä väitä
+     tietävämme. Aiemmin tähän sijoitettiin tunnin alku, jolloin rivi ilmoitti
+     alkamisajaksi esimerkiksi (00:00) vaikka vaihe oli alkanut jo edellisellä
+     tunnilla. */
   let phaseStart = null;
   if (dominantPhase && TWILIGHT_PHASES.has(dominantPhase)){
     for (const t of transitions){
       if (t > (dominantSegment?.end || t1)) break;
       const to = where(new Date(t.getTime()+1000));
       if (to === dominantPhase) phaseStart = t;
-    }
-    if (!phaseStart && dominantSegment){
-      phaseStart = dominantSegment.start;
     }
   }
 
@@ -1592,7 +1590,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       let text = `${label} ${hhmm}`;
       let italic = true;
       let preserveCase = false;
-      let suppressedHasOwnStart = false;
       if (!precipish && twilightMain){
         text = `alkaa ${hhmm}`;
       } else if (twilightSuppressed){
@@ -1606,7 +1603,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
              merkintä eikä pääselite. Sulkeet pysyvät vaiheen nimen perässä samalla
              rivillä; jos rivi ei riitä, ne siirtyvät kokonaisuudessaan seuraavalle. */
           text = `${upper} (${hhmm})`;
-          suppressedHasOwnStart = true;
         } else {
           text = upper;
         }
@@ -1614,13 +1610,11 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const entry = { text, italic, beforeMain: false };
       if (preserveCase) entry.preserveCase = true;
       if (twilightSuppressed){
-        entry.suppressedHasOwnStart = suppressedHasOwnStart;
         suppressedTwilightEntry = entry;
       } else if (twilightMain && !precipish){
         const trimmed = text.trim().toLocaleLowerCase('fi-FI');
         entry.inlineCandidate = trimmed.startsWith('alkaa ');
-        /* Paljas alkuaika sulkeutetaan pääselitteen perään vasta lopuksi – vain jos
-           mitään ei ole ketjutettu siihen (ks. inlineCandidate-nollaus alempana). */
+        /* Paljas alkuaika sulkeutetaan pääselitteen perään vasta lopuksi. */
         if (entry.inlineCandidate) entry.startHhmm = hhmm;
       }
       startKey = `${tw.phase}-${phaseStart.getTime()}`;
@@ -1668,12 +1662,14 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
       const startInlineCandidate = !!(startTag && startTag.inlineCandidate);
       const phaseActuallyChanges = toPhase && fromPhase && toPhase !== fromPhase;
       const currentPhase = tw.phase || null;
-      const inlineCanDescribeNext = phaseActuallyChanges && (!currentPhase || toPhase !== currentPhase);
       let text = `${label} ${hhmm}`;
       let dittoEllipsis = false;
       if (toPhase === 'night'){
         text = `säkkipimeä ${hhmm}`;
-      } else if (!precipish || suppressedTwilightEntry){
+      } else {
+        /* Lyhyt muoto ei riipu siitä sataako tai onko rivillä versaali merkintä.
+           Ehto "onko hämärää jo mainittu" on alempana fromPhaseIsTwilight-tarkistuksena:
+           jos edellinen vaihe oli hämärä, sana "hämärä" on jo sanottu eikä sitä toisteta. */
         if (toPhase === 'astronomical' && fromPhase === 'night'){
           text = `astronominen hämärä ${hhmm}`;
         } else if (typeof minutes === 'number' && minutes >= 30){
@@ -1687,55 +1683,27 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
             };
             const shortLabel = twilightShortLabels[toPhase];
             if (shortLabel){
+              /* "nauttinen hämärä alkaa 02:26" -> "nauttinen 02:26". Kun edellinen vaihe
+                 oli hämärä, sekä "hämärä" että "alkaa" ovat pääteltävissä asiayhteydestä,
+                 ja pelkkä vaihe ja kellonaika riittävät. */
               text = `${shortLabel} ${hhmm}`;
               dittoEllipsis = true;
             }
           }
         }
       }
-      let appendedInline = false;
-      if (startInlineCandidate){
-        if (inlineCanDescribeNext){
-          const inlineLabel = inlineNextLabelFor(toPhase);
-          if (inlineLabel){
-            startTag.text += ` – ${inlineLabel} ${hhmm}`;
-            startTag.textExtended = true;
-            appendedInline = true;
-          }
-        } else if (!phaseActuallyChanges || (currentPhase && toPhase === currentPhase)){
-          appendedInline = true;
-        }
-        if (appendedInline) startTag.inlineCandidate = false;
-      }
-      if (!appendedInline){
-        const entry = { text, italic: true };
+      /* Seuraavan vaiheen ilmoitusta ei ketjuteta ajatusviivalla minkään perään.
+         Alkuilmoitus kertoo menneestä ("nauttinen hämärä (16:40)") ja tämä tulevasta
+         ("astronominen 17:32"); ne ovat kaksi eri asiaa ja saavat omat rivinsä.
+         Ainoa vaimennus on se, ettei tulevaksi ilmoiteta vaihetta joka tunnilla jo on. */
+      const nextIsCurrentPhase = !phaseActuallyChanges || (currentPhase && toPhase === currentPhase);
+      if (!(startInlineCandidate && nextIsCurrentPhase)){
+        const entry = { text, italic: true, beforeMain: false };
         if (dittoEllipsis) entry.dittoEllipsis = true;
-        if (suppressedTwilightEntry){
-          if (suppressedTwilightEntry.suppressedHasOwnStart){
-            const appended = { text, italic: true };
-            if (dittoEllipsis) appended.dittoEllipsis = true;
-            tags.push(appended);
-          } else {
-            suppressedTwilightEntry.text += ` – ${text}`;
-            if (dittoEllipsis) suppressedTwilightEntry.dittoEllipsis = true;
-          }
-        } else {
-          entry.beforeMain = false;
-          tags.push(entry);
-        }
-      }
-    } else if (announceNext && label){
-      const text = `${label} ${fmtHM(tw.withinChange.at)}`;
-      const entry = { text, italic: true, beforeMain: false };
-      if (suppressedTwilightEntry){
-        if (suppressedTwilightEntry.suppressedHasOwnStart){
-          tags.push(entry);
-        } else {
-          suppressedTwilightEntry.text += ` – ${text}`;
-        }
-      } else {
         tags.push(entry);
       }
+    } else if (announceNext && label){
+      tags.push({ text: `${label} ${fmtHM(tw.withinChange.at)}`, italic: true, beforeMain: false });
     }
     if (
       announceNext &&
@@ -1758,11 +1726,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
 
   /* "porvarillinen hämärä" + rivinvaihto + "alkaa 07:29"  ->  "porvarillinen hämärä (07:29)".
      Vain saman vaiheen paljas alkuaika sulkeutetaan: startHhmm asetetaan yksinomaan
-     "alkaa HH:MM" -muodolle, ja textExtended estää sulkeutuksen jos perään on ketjutettu
-     seuraava vaihe. Seuraavaa vaihetta tai aurinkotapahtumaa koskevat merkinnät eivät saa
-     startHhmm-arvoa lainkaan, joten ne jäävät omalle rivilleen. */
+     "alkaa HH:MM" -muodolle. Seuraavaa vaihetta tai aurinkotapahtumaa koskevat
+     merkinnät eivät saa startHhmm-arvoa lainkaan, joten ne jäävät omalle rivilleen. */
   for (const entry of tags){
-    if (entry && entry.startHhmm && !entry.textExtended){
+    if (entry && entry.startHhmm){
       entry.text = `(${entry.startHhmm})`;
       entry.inline = true;
     }
