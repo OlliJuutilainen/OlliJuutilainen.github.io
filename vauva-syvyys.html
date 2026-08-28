@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>vauva — sukellus yhteen sanaan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Work+Sans:wght@400;500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#EDEDED;
+    --accent:#FFFFFF;
+    --muted:#8A8A8A;
+    --faint:#4A4A4A;
+    --rule:rgba(255,255,255,.14);
+    --bg:#1C1C1C;
+    --pad: clamp(20px, 6vw, 56px);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Work Sans", system-ui, -apple-system, sans-serif;
+    font-size:clamp(16px,4.1vw,19px);
+    line-height:1.5;
+    transition:background-color 900ms ease;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  body[data-step="0"]{--bg:#1C1C1C;}
+  body[data-step="1"]{--bg:#191919;}
+  body[data-step="2"]{--bg:#151515;}
+  body[data-step="3"]{--bg:#111111;}
+  body[data-step="4"]{--bg:#0C0C0C;}
+  body[data-step="5"]{--bg:#080808;}
+  body[data-step="6"]{--bg:#040404;}
+  body[data-step="7"]{--bg:#000000;}
+
+  /* ---- syvyysmittari ---- */
+  .rail{position:fixed; left:0; top:0; bottom:0; width:34px; z-index:5; pointer-events:none;}
+  .rail::before{content:""; position:absolute; left:15px; top:0; bottom:0; width:1px; background:var(--rule);}
+  .rail-fill{
+    position:absolute; left:14px; top:0; width:3px;
+    background:linear-gradient(rgba(255,255,255,.35), var(--accent));
+    height:8%; transition:height 900ms ease; border-radius:2px;
+  }
+  .rail-dot{
+    position:absolute; left:9px; top:8%; width:13px; height:13px;
+    margin-top:-6px; border-radius:50%; background:var(--accent);
+    box-shadow:0 0 22px 5px rgba(255,255,255,.28);
+    transition:top 900ms ease;
+  }
+  .depth{
+    position:fixed; top:calc(env(safe-area-inset-top) + 14px); right:16px; z-index:5;
+    font-family:"Noto Sans", sans-serif; font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .depth b{color:var(--accent); font-weight:600;}
+
+  /* ---- diat ---- */
+  #deck{position:relative; height:100%;}
+  .slide{
+    position:absolute; inset:0;
+    padding:calc(env(safe-area-inset-top) + 56px) var(--pad) 132px calc(var(--pad) + 22px);
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity 500ms ease, transform 500ms ease, visibility 500ms;
+  }
+  .slide.is-active{opacity:1; visibility:visible; transform:none;}
+
+  .eyebrow{
+    font-family:"Noto Sans",sans-serif; font-size:11.5px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:22px;
+  }
+
+  h1{
+    font-family:"Fraunces",Georgia,serif; font-weight:900;
+    font-size:clamp(58px,19vw,120px); line-height:.9;
+    letter-spacing:-.02em; margin-bottom:6px;
+  }
+  h2{
+    font-family:"Fraunces",Georgia,serif; font-weight:600;
+    font-size:clamp(29px,8.5vw,46px); line-height:1.08;
+    letter-spacing:-.01em; margin-bottom:22px;
+  }
+  h2 .ghost{
+    display:block; margin-top:14px;
+    font-family:"Noto Sans",sans-serif; font-weight:400;
+    font-size:clamp(17px,5vw,23px); letter-spacing:.78em;
+    color:#6E6E6E; text-indent:.78em;
+  }
+
+  p{margin-bottom:15px; max-width:34em;}
+  p.dim{color:var(--muted);}
+  strong{font-weight:500; color:var(--accent);}
+
+  .ipa{font-family:"Noto Sans",sans-serif;}
+
+  .banner{
+    font-family:"Noto Sans",sans-serif; font-weight:600;
+    font-size:clamp(30px,10.5vw,62px);
+    color:var(--accent); letter-spacing:.01em;
+    margin:14px 0 26px; word-break:break-word;
+  }
+  .banner.huge{font-size:clamp(40px,15vw,92px); margin:0 0 30px;}
+
+  .rows{list-style:none; margin:6px 0 4px;}
+  .rows li{display:flex; gap:16px; align-items:baseline; padding:11px 0; border-top:1px solid var(--rule);}
+  .rows li:last-child{border-bottom:1px solid var(--rule);}
+  .sym{font-family:"Noto Sans",sans-serif; font-size:clamp(25px,7.5vw,34px); color:var(--accent); min-width:1.9em; flex:none; line-height:1.15;}
+  .rows .txt{font-size:clamp(14.5px,3.7vw,17px); line-height:1.42;}
+  .rows .txt em{font-style:normal; color:var(--muted); display:block; margin-top:2px; font-size:.92em;}
+
+  .nots{list-style:none;}
+  .nots li{padding:13px 0; border-top:1px solid var(--rule);}
+  .nots li:last-child{border-bottom:1px solid var(--rule);}
+  .nots .no{
+    font-family:"Noto Sans",sans-serif; color:var(--muted);
+    font-size:clamp(19px,5.4vw,24px); margin-right:10px;
+    text-decoration:line-through; text-decoration-thickness:1.5px;
+  }
+  .nots .why{display:block; margin-top:5px; color:var(--ink); font-size:clamp(14.5px,3.7vw,17px);}
+
+  .beat{
+    margin:20px 0 0 clamp(14px,5vw,34px); padding-left:16px;
+    border-left:2px solid #4A4A4A; color:#9C9C9C;
+  }
+
+  .signoff{
+    font-family:"Noto Sans",sans-serif; font-weight:600;
+    font-size:clamp(25px,7.6vw,42px); line-height:1.2;
+    color:var(--accent); text-align:right;
+    margin:34px 0 0 auto; max-width:none;
+  }
+
+  .words{font-family:"Noto Sans",sans-serif; font-size:clamp(17px,4.8vw,21px); line-height:1.75; margin:4px 0 18px;}
+  .words span{color:var(--accent);}
+
+  .navzone{position:fixed; inset:0; z-index:1; cursor:pointer;}
+  footer{
+    position:fixed; left:0; right:0; bottom:0; z-index:4;
+    padding:34px var(--pad) calc(env(safe-area-inset-bottom) + 20px) calc(var(--pad) + 22px);
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(transparent, var(--bg) 46%);
+    transition:background 900ms ease;
+  }
+  .next{
+    font-family:"Work Sans",sans-serif; font-size:16px; font-weight:500;
+    color:#000; background:var(--accent); border:0; border-radius:999px;
+    padding:14px 26px; cursor:pointer; flex:none;
+  }
+  .next:focus-visible, .back:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+  .back{background:none; border:0; color:var(--muted); font-family:"Work Sans",sans-serif; font-size:15px; padding:12px 6px; cursor:pointer;}
+  .back[hidden]{display:none;}
+  .hint{margin-left:auto; font-size:12.5px; color:var(--muted); font-family:"Noto Sans",sans-serif;}
+  @media (max-width:430px){ .hint{display:none;} }
+
+  @media (prefers-reduced-motion: reduce){ *{transition-duration:1ms !important;} }
+</style>
+</head>
+<body data-step="0">
+
+<div class="rail" aria-hidden="true">
+  <div class="rail-fill" id="railFill"></div>
+  <div class="rail-dot" id="railDot"></div>
+</div>
+<div class="depth" aria-hidden="true"><b id="depthNum">2</b> m</div>
+
+<div class="navzone" id="navzone"></div>
+
+<main id="deck">
+
+  <!-- 1 -->
+  <section class="slide is-active" data-depth="2">
+    <div class="eyebrow">Fonetiikan kurssi · ennakkolämmittely</div>
+    <h1>vauva</h1>
+    <div class="banner ipa">[ˈʋɑu̯β̞ɑ]</div>
+    <p>Kaksi v:tä. Eri äänteet. Kukaan ei ole koskaan huomannut.</p>
+    <p class="dim">Me huomasimme. Tässä on miksi.</p>
+  </section>
+
+  <!-- 2 · loma -->
+  <section class="slide" data-depth="5">
+    <div class="banner ipa huge">[ˈʋɑu̯β̞ɑ]</div>
+    <p class="dim">Vauva on yleensäkin eräänlainen ipana, mutta yllä on vauva peräti IPA:na.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" data-depth="9">
+    <h2>Kuusi merkkiä,<br>kuusi tehtävää
+      <span class="ghost ipa" aria-hidden="true">ˈ ʋ ɑ u̯ β̞ ɑ</span>
+    </h2>
+    <ul class="rows">
+      <li><span class="sym ipa">ˈ</span><span class="txt">Paino tulee tähän.<em>Suomessa aina ensimmäiselle tavulle, joten tämä on lähinnä kohteliaisuus.</em></span></li>
+      <li><span class="sym ipa">ʋ</span><span class="txt">Ensimmäinen v.<em>Alahuuli koskettaa yläetuhampaita. Ihan tavallinen v.</em></span></li>
+      <li><span class="sym ipa">ɑ</span><span class="txt">Suomen a.<em>Kieli takana, suu auki. Ei sama kuin englannin a.</em></span></li>
+      <li><span class="sym ipa">u̯</span><span class="txt">u, joka ei ole oma tavunsa.<em>Kaari alla tarkoittaa: tämä liukuu edelliseen kiinni. Siis au.</em></span></li>
+      <li><span class="sym ipa">β̞</span><span class="txt">Toinen v. Ja se ei ole sama v.<em>Tästä loput dioista.</em></span></li>
+      <li><span class="sym ipa">ɑ</span><span class="txt">Sama a kuin äsken.<em>Suomi on tässä kohtaa armollinen.</em></span></li>
+    </ul>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" data-depth="17">
+    <div class="eyebrow">Se outo merkki</div>
+    <div class="banner ipa" style="font-size:clamp(56px,20vw,110px);margin-top:0;">β̞</div>
+    <h2 style="margin-bottom:16px;">v ilman hampaita</h2>
+    <p>Sano <strong>vauva</strong> ihan normaalisti, hitaasti.</p>
+    <p>Sanan keskellä alahuulesi ei käy hampaissa lainkaan. Molemmat huulet lähestyvät toisiaan, jättävät kapean raon, ja ääni menee siitä läpi.</p>
+    <p>Merkin alla oleva pieni T-kirjaimen näköinen merkki tarkoittaa täsmälleen sitä: <strong>rako jää auki</strong>. Mikään ei purista kiinni eikä mikään rahise.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" data-depth="26">
+    <h2>Mitä se ei ole</h2>
+    <ul class="nots">
+      <li><span class="no ipa">b</span>
+        <span class="why">b katkaisee ilman kokonaan hetkeksi. Sano “vau-ba” — se pysähtyy. Vauva ei pysähdy missään kohtaa.</span></li>
+      <li><span class="no ipa">w</span>
+        <span class="why">Englannin <em>water</em>. Siinä myös kielen takaosa nousee ylös. Suomessa työ jää huulille, kieli ei osallistu.</span></li>
+      <li><span class="no ipa">f</span>
+        <span class="why">Puhallusta ei ole. Ääni soi koko ajan, kuten laulaessa — pidä sormet korvissa ja tunnet sen.</span></li>
+      <li><span class="no ipa">ʋ</span>
+        <span class="why">Tämä on se sanan alun v, hampaiden kanssa. Sanan keskellä hampaita ei ole missään.</span></li>
+    </ul>
+    <p class="beat">Neljä LÄHES oikeaa vastausta. Mutta vauva ansaitsee vain parasta. Siksi on kutsuttava apuun kreikkalainen B-kirjain, joka seisoo pikkuruisella mutta juhlallisella T-kirjaimen näköisellä jalustalla.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" data-depth="35">
+    <div class="eyebrow">Se varsinainen juttu</div>
+    <h2>Miksi ne kaksi v:tä eroavat</h2>
+    <p>Syy on <strong>u</strong>.</p>
+    <p>Kun sanot u:n, huulesi ovat pyöreällä pillillä. Se on niiden ainoa tapa tehdä u.</p>
+    <p>Heti perään tulee v. Huulilla ei ole aikaa lähteä hampaisiin ja palata takaisin — ne ovat jo valmiiksi lähekkäin, joten ne hoitavat homman itse.</p>
+    <p>Sanan alussa mitään pyöristystä ei ole edeltänyt. Siellä v tehdään normaalisti, hampaita vasten.</p>
+    <p class="beat">Kukaan ei ole opettanut tätä sinulle. Suu vain valitsee lyhimmän reitin.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" data-depth="44">
+    <h2>Testaa itse</h2>
+    <p>Sormi alahuulelle. Sano <strong>vauva</strong> hitaasti. Sanan alussa huuli nousee hampaisiin. Keskellä ei nouse.</p>
+    <p class="dim" style="margin-bottom:2px;">Sama tapahtuu näissä:</p>
+    <div class="words"><span>sauva · hauva</span></div>
+    <p class="dim" style="margin-bottom:2px;">Ei tapahdu näissä:</p>
+    <div class="words">kivi · hevonen</div>
+    <p>Ero on siinä, tuleeko v:n eteen pyöreä vokaali vai ei.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" data-depth="50">
+    <div class="eyebrow">50 m · pohja</div>
+    <div class="banner ipa">[ˈʋɑu̯β̞ɑ]</div>
+    <p>Viisi vuotta maan yllä kytenyttä magmaa, joka ruokalassa päätti viimeinkin paljastaa hahmonsa kiveksi kovettuneena.</p>
+    <p class="dim">Mitä tästä esityksestä sanoisi aiheen korkein asiantuntija eli oikea vauva? Häntä tuskin kiinnostaisi. Se on täysin ok.</p>
+    <p class="signoff ipa">[ˈnæhdæːn&nbsp;ˈkursːilːɑ] !</p>
+  </section>
+
+</main>
+
+<footer>
+  <button class="next" id="next">Seuraava</button>
+  <button class="back" id="back" hidden>Takaisin</button>
+  <span class="hint">Napauta mistä tahansa · nuolinäppäimet toimivat</span>
+</footer>
+
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0;
+  var nextBtn = document.getElementById('next');
+  var backBtn = document.getElementById('back');
+  var railFill = document.getElementById('railFill');
+  var railDot  = document.getElementById('railDot');
+  var depthNum = document.getElementById('depthNum');
+
+  function render(){
+    slides.forEach(function(s, n){ s.classList.toggle('is-active', n === i); });
+    document.body.setAttribute('data-step', i);
+    var pct = ((i + 1) / slides.length) * 100;
+    railFill.style.height = pct + '%';
+    railDot.style.top = pct + '%';
+    depthNum.textContent = slides[i].getAttribute('data-depth');
+    backBtn.hidden = (i === 0);
+    nextBtn.textContent = (i === 0) ? 'Aloita sukellus'
+                        : (i === slides.length - 1) ? 'Alusta' : 'Seuraava';
+    slides[i].scrollTop = 0;
+  }
+
+  function go(d){
+    if (d > 0 && i === slides.length - 1) { i = 0; }
+    else { i = Math.min(Math.max(i + d, 0), slides.length - 1); }
+    render();
+  }
+
+  document.getElementById('navzone').addEventListener('click', function(){ go(1); });
+  nextBtn.addEventListener('click', function(e){ e.stopPropagation(); go(1); });
+  backBtn.addEventListener('click', function(e){ e.stopPropagation(); go(-1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 55) go(dx < 0 ? 1 : -1);
+    x0 = null;
+  }, {passive:true});
+
+  render();
+</script>
+</body>
+</html>
