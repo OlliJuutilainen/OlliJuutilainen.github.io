@@ -9,21 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Work+Sans:wght@400;500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bone:#EAE4D6;
-    --glass:#79E0C0;
-    --muted:#7E999E;
-    --lamp:#E9C46A;
-    --bg:#10474B;
+    --ink:#EDEDED;
+    --accent:#FFFFFF;
+    --muted:#8A8A8A;
+    --faint:#4A4A4A;
+    --rule:rgba(255,255,255,.14);
+    --bg:#1C1C1C;
     --pad: clamp(20px, 6vw, 56px);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;}
-
   html,body{height:100%;}
 
   body{
     background:var(--bg);
-    color:var(--bone);
+    color:var(--ink);
     font-family:"Work Sans", system-ui, -apple-system, sans-serif;
     font-size:clamp(16px,4.1vw,19px);
     line-height:1.5;
@@ -33,33 +33,27 @@
     -webkit-tap-highlight-color:transparent;
   }
 
-  body[data-step="0"]{--bg:#10474B;}
-  body[data-step="1"]{--bg:#0D3B41;}
-  body[data-step="2"]{--bg:#0A3037;}
-  body[data-step="3"]{--bg:#08262D;}
-  body[data-step="4"]{--bg:#061C23;}
-  body[data-step="5"]{--bg:#04151A;}
-  body[data-step="6"]{--bg:#020C10;}
+  body[data-step="0"]{--bg:#1C1C1C;}
+  body[data-step="1"]{--bg:#191919;}
+  body[data-step="2"]{--bg:#151515;}
+  body[data-step="3"]{--bg:#111111;}
+  body[data-step="4"]{--bg:#0C0C0C;}
+  body[data-step="5"]{--bg:#080808;}
+  body[data-step="6"]{--bg:#040404;}
+  body[data-step="7"]{--bg:#000000;}
 
-  /* ---- syvyysmittari: vasen reunakisko ---- */
-  .rail{
-    position:fixed; left:0; top:0; bottom:0; width:34px;
-    z-index:5; pointer-events:none;
-  }
-  .rail::before{
-    content:""; position:absolute; left:15px; top:0; bottom:0;
-    width:1px; background:rgba(234,228,214,.18);
-  }
+  /* ---- syvyysmittari ---- */
+  .rail{position:fixed; left:0; top:0; bottom:0; width:34px; z-index:5; pointer-events:none;}
+  .rail::before{content:""; position:absolute; left:15px; top:0; bottom:0; width:1px; background:var(--rule);}
   .rail-fill{
     position:absolute; left:14px; top:0; width:3px;
-    background:linear-gradient(var(--glass), var(--lamp));
+    background:linear-gradient(rgba(255,255,255,.35), var(--accent));
     height:8%; transition:height 900ms ease; border-radius:2px;
   }
   .rail-dot{
     position:absolute; left:9px; top:8%; width:13px; height:13px;
-    margin-top:-6px; border-radius:50%;
-    background:var(--lamp);
-    box-shadow:0 0 20px 4px rgba(233,196,106,.45);
+    margin-top:-6px; border-radius:50%; background:var(--accent);
+    box-shadow:0 0 22px 5px rgba(255,255,255,.28);
     transition:top 900ms ease;
   }
   .depth{
@@ -67,13 +61,10 @@
     font-family:"Noto Sans", sans-serif; font-size:12px; letter-spacing:.16em;
     text-transform:uppercase; color:var(--muted);
   }
-  .depth b{color:var(--lamp); font-weight:600;}
+  .depth b{color:var(--accent); font-weight:600;}
 
   /* ---- diat ---- */
-  #deck{
-    position:relative; height:100%;
-    padding:calc(env(safe-area-inset-top) + 56px) var(--pad) 0 calc(var(--pad) + 14px);
-  }
+  #deck{position:relative; height:100%;}
   .slide{
     position:absolute; inset:0;
     padding:calc(env(safe-area-inset-top) + 56px) var(--pad) 132px calc(var(--pad) + 22px);
@@ -99,80 +90,79 @@
     font-size:clamp(29px,8.5vw,46px); line-height:1.08;
     letter-spacing:-.01em; margin-bottom:22px;
   }
+  h2 .ghost{
+    display:block; margin-top:14px;
+    font-family:"Noto Sans",sans-serif; font-weight:400;
+    font-size:clamp(17px,5vw,23px); letter-spacing:.78em;
+    color:#6E6E6E; text-indent:.78em;
+  }
 
   p{margin-bottom:15px; max-width:34em;}
-  p.lead{color:var(--bone);}
   p.dim{color:var(--muted);}
-  strong{font-weight:500; color:var(--glass);}
+  strong{font-weight:500; color:var(--accent);}
 
   .ipa{font-family:"Noto Sans",sans-serif;}
 
   .banner{
     font-family:"Noto Sans",sans-serif; font-weight:600;
     font-size:clamp(30px,10.5vw,62px);
-    color:var(--glass); letter-spacing:.01em;
+    color:var(--accent); letter-spacing:.01em;
     margin:14px 0 26px; word-break:break-word;
   }
+  .banner.huge{font-size:clamp(40px,15vw,92px); margin:0 0 30px;}
 
-  /* merkkilista */
   .rows{list-style:none; margin:6px 0 4px;}
-  .rows li{
-    display:flex; gap:16px; align-items:baseline;
-    padding:11px 0; border-top:1px solid rgba(234,228,214,.13);
-  }
-  .rows li:last-child{border-bottom:1px solid rgba(234,228,214,.13);}
-  .sym{
-    font-family:"Noto Sans",sans-serif; font-size:clamp(25px,7.5vw,34px);
-    color:var(--glass); min-width:1.9em; flex:none; line-height:1.15;
-  }
+  .rows li{display:flex; gap:16px; align-items:baseline; padding:11px 0; border-top:1px solid var(--rule);}
+  .rows li:last-child{border-bottom:1px solid var(--rule);}
+  .sym{font-family:"Noto Sans",sans-serif; font-size:clamp(25px,7.5vw,34px); color:var(--accent); min-width:1.9em; flex:none; line-height:1.15;}
   .rows .txt{font-size:clamp(14.5px,3.7vw,17px); line-height:1.42;}
   .rows .txt em{font-style:normal; color:var(--muted); display:block; margin-top:2px; font-size:.92em;}
 
-  /* ei-lista */
   .nots{list-style:none;}
-  .nots li{padding:13px 0; border-top:1px solid rgba(234,228,214,.13);}
-  .nots li:last-child{border-bottom:1px solid rgba(234,228,214,.13);}
+  .nots li{padding:13px 0; border-top:1px solid var(--rule);}
+  .nots li:last-child{border-bottom:1px solid var(--rule);}
   .nots .no{
     font-family:"Noto Sans",sans-serif; color:var(--muted);
     font-size:clamp(19px,5.4vw,24px); margin-right:10px;
     text-decoration:line-through; text-decoration-thickness:1.5px;
   }
-  .nots .why{display:block; margin-top:5px; color:var(--bone); font-size:clamp(14.5px,3.7vw,17px);}
+  .nots .why{display:block; margin-top:5px; color:var(--ink); font-size:clamp(14.5px,3.7vw,17px);}
 
-  .beat{margin:20px 0 0; padding-left:16px; border-left:2px solid var(--lamp); color:var(--lamp);}
-
-  .words{
-    font-family:"Noto Sans",sans-serif; font-size:clamp(17px,4.8vw,21px);
-    line-height:1.75; margin:4px 0 18px;
+  .beat{
+    margin:20px 0 0 clamp(14px,5vw,34px); padding-left:16px;
+    border-left:2px solid #4A4A4A; color:#9C9C9C;
   }
-  .words span{color:var(--glass);}
 
-  /* ---- navigointi ---- */
+  .signoff{
+    font-family:"Noto Sans",sans-serif; font-weight:600;
+    font-size:clamp(25px,7.6vw,42px); line-height:1.2;
+    color:var(--accent); text-align:right;
+    margin:34px 0 0 auto; max-width:none;
+  }
+
+  .words{font-family:"Noto Sans",sans-serif; font-size:clamp(17px,4.8vw,21px); line-height:1.75; margin:4px 0 18px;}
+  .words span{color:var(--accent);}
+
   .navzone{position:fixed; inset:0; z-index:1; cursor:pointer;}
   footer{
     position:fixed; left:0; right:0; bottom:0; z-index:4;
-    padding:0 var(--pad) calc(env(safe-area-inset-bottom) + 20px) calc(var(--pad) + 22px);
+    padding:34px var(--pad) calc(env(safe-area-inset-bottom) + 20px) calc(var(--pad) + 22px);
     display:flex; align-items:center; gap:14px;
     background:linear-gradient(transparent, var(--bg) 46%);
-    padding-top:34px; transition:background 900ms ease;
+    transition:background 900ms ease;
   }
   .next{
     font-family:"Work Sans",sans-serif; font-size:16px; font-weight:500;
-    color:#04151A; background:var(--glass); border:0; border-radius:999px;
+    color:#000; background:var(--accent); border:0; border-radius:999px;
     padding:14px 26px; cursor:pointer; flex:none;
   }
-  .next:focus-visible, .back:focus-visible{outline:2px solid var(--lamp); outline-offset:3px;}
-  .back{
-    background:none; border:0; color:var(--muted); font-family:"Work Sans",sans-serif;
-    font-size:15px; padding:12px 6px; cursor:pointer;
-  }
+  .next:focus-visible, .back:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+  .back{background:none; border:0; color:var(--muted); font-family:"Work Sans",sans-serif; font-size:15px; padding:12px 6px; cursor:pointer;}
   .back[hidden]{display:none;}
   .hint{margin-left:auto; font-size:12.5px; color:var(--muted); font-family:"Noto Sans",sans-serif;}
   @media (max-width:430px){ .hint{display:none;} }
 
-  @media (prefers-reduced-motion: reduce){
-    *{transition-duration:1ms !important;}
-  }
+  @media (prefers-reduced-motion: reduce){ *{transition-duration:1ms !important;} }
 </style>
 </head>
 <body data-step="0">
@@ -192,13 +182,21 @@
     <div class="eyebrow">Fonetiikan kurssi · ennakkolämmittely</div>
     <h1>vauva</h1>
     <div class="banner ipa">[ˈʋɑu̯β̞ɑ]</div>
-    <p class="lead">Kaksi v:tä. Eri äänteet. Kukaan ei ole koskaan huomannut.</p>
+    <p>Kaksi v:tä. Eri äänteet. Kukaan ei ole koskaan huomannut.</p>
     <p class="dim">Me huomasimme. Tässä on miksi.</p>
   </section>
 
-  <!-- 2 -->
+  <!-- 2 · loma -->
+  <section class="slide" data-depth="5">
+    <div class="banner ipa huge">[ˈʋɑu̯β̞ɑ]</div>
+    <p class="dim">Vauva on yleensäkin eräänlainen ipana, mutta yllä on vauva peräti IPA:na.</p>
+  </section>
+
+  <!-- 3 -->
   <section class="slide" data-depth="9">
-    <h2>Kuusi merkkiä,<br>kuusi tehtävää</h2>
+    <h2>Kuusi merkkiä,<br>kuusi tehtävää
+      <span class="ghost ipa" aria-hidden="true">ˈ ʋ ɑ u̯ β̞ ɑ</span>
+    </h2>
     <ul class="rows">
       <li><span class="sym ipa">ˈ</span><span class="txt">Paino tulee tähän.<em>Suomessa aina ensimmäiselle tavulle, joten tämä on lähinnä kohteliaisuus.</em></span></li>
       <li><span class="sym ipa">ʋ</span><span class="txt">Ensimmäinen v.<em>Alahuuli koskettaa yläetuhampaita. Ihan tavallinen v.</em></span></li>
@@ -209,7 +207,7 @@
     </ul>
   </section>
 
-  <!-- 3 -->
+  <!-- 4 -->
   <section class="slide" data-depth="17">
     <div class="eyebrow">Se outo merkki</div>
     <div class="banner ipa" style="font-size:clamp(56px,20vw,110px);margin-top:0;">β̞</div>
@@ -219,7 +217,7 @@
     <p>Merkin alla oleva pikkuviiva tarkoittaa täsmälleen sitä: <strong>rako jää auki</strong>. Mikään ei purista kiinni eikä mikään rahise.</p>
   </section>
 
-  <!-- 4 -->
+  <!-- 5 -->
   <section class="slide" data-depth="26">
     <h2>Mitä se ei ole</h2>
     <ul class="nots">
@@ -235,7 +233,7 @@
     <p class="beat">Neljä lähes oikeaa vastausta. Siksi tarvitaan se pikkuviiva.</p>
   </section>
 
-  <!-- 5 -->
+  <!-- 6 -->
   <section class="slide" data-depth="35">
     <div class="eyebrow">Se varsinainen juttu</div>
     <h2>Miksi ne kaksi v:tä eroavat</h2>
@@ -246,24 +244,24 @@
     <p class="beat">Kukaan ei ole opettanut tätä sinulle. Suu vain valitsee lyhimmän reitin.</p>
   </section>
 
-  <!-- 6 -->
+  <!-- 7 -->
   <section class="slide" data-depth="44">
     <h2>Testaa itse</h2>
     <p>Sormi alahuulelle. Sano <strong>vauva</strong> hitaasti. Sanan alussa huuli nousee hampaisiin. Keskellä ei nouse.</p>
     <p class="dim" style="margin-bottom:2px;">Sama tapahtuu näissä:</p>
-    <div class="words"><span>sauva · hauva · kauvan · lauantai</span></div>
+    <div class="words"><span>sauva · hauva · kauvan</span></div>
     <p class="dim" style="margin-bottom:2px;">Ei tapahdu näissä:</p>
     <div class="words">kivi · levy · hevonen</div>
     <p>Ero on siinä, tuleeko v:n eteen pyöreä vokaali vai ei.</p>
   </section>
 
-  <!-- 7 -->
+  <!-- 8 -->
   <section class="slide" data-depth="50">
     <div class="eyebrow">50 m · pohja</div>
     <div class="banner ipa">[ˈʋɑu̯β̞ɑ]</div>
-    <p>Yksi sana. Viisi äännettä. Yksi vuosia kytenyt mysteeri, joka ratkesi ruokalassa.</p>
-    <p class="dim">Lähipiiriin on tulossa oikea vauva. Hän ei tule välittämään tästä yhtään. Se on täysin ok.</p>
-    <p class="beat">Nähdään kurssilla.</p>
+    <p>Viisi vuotta maan yllä kytenyttä magmaa, joka ruokalassa päätti viimeinkin paljastaa hahmonsa kiveksi kovettuneena.</p>
+    <p class="dim">Mitä tästä esityksestä sanoisi aiheen korkein asiantuntija eli oikea vauva? Häntä tuskin kiinnostaisi. Se on täysin ok.</p>
+    <p class="signoff ipa">[ˈnæhdæːn&nbsp;ˈkursːilːɑ]</p>
   </section>
 
 </main>
