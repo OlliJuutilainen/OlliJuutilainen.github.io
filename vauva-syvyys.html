@@ -67,7 +67,7 @@
   #deck{position:relative; height:100%;}
   .slide{
     position:absolute; inset:0;
-    padding:calc(env(safe-area-inset-top) + 72px) var(--pad) 132px calc(var(--pad) + 22px);
+    padding:calc(env(safe-area-inset-top) + 58px) var(--pad) 132px calc(var(--pad) + 22px);
     overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
     cursor:pointer;
     display:flex; flex-direction:column; justify-content:flex-start;
@@ -87,16 +87,16 @@
 
   h1{
     font-family:"Fraunces",Georgia,serif; font-weight:900;
-    font-size:clamp(58px,19vw,120px); line-height:1;
-    letter-spacing:-.02em; margin-bottom:6px; padding-top:.08em;
+    font-size:clamp(58px,19vw,120px); line-height:.95;
+    letter-spacing:-.02em; margin-bottom:6px; padding-top:.04em;
   }
   h2{
     font-family:"Fraunces",Georgia,serif; font-weight:600;
-    font-size:clamp(29px,8.5vw,46px); line-height:1.16;
-    letter-spacing:-.01em; margin-bottom:22px; padding-top:.08em;
+    font-size:clamp(29px,8.5vw,46px); line-height:1.1;
+    letter-spacing:-.01em; margin-bottom:18px; padding-top:.04em;
   }
   h2 .ghost{
-    display:block; margin-top:14px;
+    display:block; margin-top:11px;
     font-family:"Noto Sans",sans-serif; font-weight:400;
     font-size:clamp(17px,5vw,23px); letter-spacing:.78em;
     color:#6E6E6E; text-indent:.78em;
