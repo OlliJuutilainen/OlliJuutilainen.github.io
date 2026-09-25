@@ -1253,14 +1253,13 @@ function formatSunEventTag(sunEvent){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const sentence = baseSunEventText(sunEvent.at, sunEvent.type);
   if (!sentence) return null;
-  const minutes = sunEvent.at.getMinutes();
-  const beforeMain = Number.isInteger(minutes) && minutes < 30;
+  /* Aina pääselitteen alle, myös kun tapahtuma osuu tunnin alkupuoliskolle. */
   return {
     text: sentence,
     italic: true,
     prefix: false,
     preserveCase: true,
-    beforeMain
+    beforeMain: false
   };
 }
 
