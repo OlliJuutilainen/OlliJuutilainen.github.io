@@ -538,11 +538,14 @@ const HEAVY_SSCODE = SMART_SYMBOL_HEAVY;
 /* --------- MET Nowcast symbolit (NC) --------- */
 const NC_SYMBOL = {
   'clearsky': "sinistä", 'fair': "sangen sinistä", 'partlycloudy': "siniharmaata", 'cloudy': "harmaata",
-  'lightrainshowers': "jokunen kuuro", 'heavyrainshowers': "äänekästä kuuroa",
+  'lightrainshowers': "kevyttä välisuihkua", 'rainshowers': "välisuihkuja", 'heavyrainshowers': "kunnon välisuihku",
+  'lightsleetshowers': "pientä räntäkuuroa", 'sleetshowers': "räntäkuuroa", 'heavysleetshowers': "kunnon räntäkuuro",
+  'lightsnowshowers': "pientä välihiutaletta", 'snowshowers': "lumikuuro", 'heavysnowshowers': "tehokas lumitoimitus",
   'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
-  'heavyrain': "saavista kaatuu", 'lightrain': "ripsii", 'sleet': "räntää",
+  'heavyrain': "saavista kaatuu", 'rain': "satelee", 'lightrain': "ripsii",
+  'lightsleet': "märkä hiutale", 'sleet': "räntää", 'heavysleet': "tiskirättiä",
   'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
-  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
+  'lightsnow': "kevyt hiutale", 'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
 const NOWCAST_INFO = {
   clearsky: { label: 'clear', dry: true },
@@ -550,14 +553,25 @@ const NOWCAST_INFO = {
   partlycloudy: { label: 'partly_cloudy', dry: true },
   cloudy: { label: 'overcast', dry: true },
   lightrainshowers: { label: 'shower_light', precip: true, weak: true },
+  rainshowers: { label: 'shower', precip: true },
   heavyrainshowers: { label: 'shower_heavy', precip: true },
+  lightsleetshowers: { label: 'sleet_shower_light', precip: true, weak: true },
+  sleetshowers: { label: 'sleet_shower', precip: true },
+  heavysleetshowers: { label: 'sleet_shower_heavy', precip: true },
+  lightsnowshowers: { label: 'snow_shower_light', precip: true, weak: true },
+  snowshowers: { label: 'snow_shower', precip: true },
+  heavysnowshowers: { label: 'snow_shower_heavy', precip: true },
   rainshowersandthunder: { label: 'thunder_shower', precip: true, thunder: true },
   thunderstorm: { label: 'thunder', precip: true, thunder: true },
   heavyrain: { label: 'rain_heavy', precip: true },
+  rain: { label: 'rain', precip: true },
   lightrain: { label: 'rain_light', precip: true, weak: true },
+  lightsleet: { label: 'sleet_light', precip: true, weak: true },
   sleet: { label: 'sleet', precip: true },
+  heavysleet: { label: 'sleet_heavy', precip: true },
   lightsleetshowers_and_thunder: { label: 'thunder_sleet', precip: true, thunder: true },
   snowshowers_and_thunder: { label: 'thunder_snow', precip: true, thunder: true },
+  lightsnow: { label: 'snow_light', precip: true, weak: true },
   snow: { label: 'snow', precip: true },
   heavysnow: { label: 'snow_heavy', precip: true },
   fog: { label: 'fog', fog: true }
@@ -702,11 +716,12 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
 
   const hasNextHour = !!best?.data?.next_1_hours;
   const acc  = hasNextHour ? best?.data?.next_1_hours?.details?.precipitation_amount : undefined;
-  const pr   = best?.data?.instant?.details?.precipitation_rate;
   const gust = best?.data?.instant?.details?.wind_speed_of_gust;
   const sym  = hasNextHour ? (best?.data?.next_1_hours?.summary?.symbol_code || null) : null;
 
-  let p = null; if (typeof acc === 'number') p = acc; else if (typeof pr === 'number') p = pr;
+  /* Vain tunnin kertymä kelpaa. Hetkellinen precipitation_rate (mm/h) ei ole tunnin
+     sademäärä; ilman kertymää rivi putoaa kokonaan Harmonielle. */
+  const p = (typeof acc === 'number') ? acc : null;
   const meta = metaBase || 'NC';
   const metaStr = typeof meta === 'string' ? meta : 'NC';
   const metaTag = (!hasNextHour && !metaStr.startsWith('NC!')) ? 'NC!sym' : metaStr;
@@ -1500,27 +1515,17 @@ function buildThunderTag({ baseText, source, descriptorOpts }){
   };
 }
 
-// "Ristiriitamenettely" = fallback, jossa sateeseen viittaava symboli tai mitta
-// ajaa varsinaisen selitteen ylle vastakommentin. Jos tunnilla on kuivaksi
-// merkattu teksti mutta mitta tai symboli lupaa sadetta, wrapContradiction
-// korostaa alkuperäisen rivin ja lisää perään "tai niin ne lupasivat" -notin.
-// applyContradiction hallinnoi sitä, koska sen pitää katsoa sekä mittaa että
-// symbolia (HEAVY_SSCODE) ja päättää aktivoidaanko ristiriitamoodi.
-function wrapContradiction(descHtml){
-  if (!descHtml || descHtml.includes('contradictionMain')) return descHtml;
-  const parts = descHtml.split('<br>');
-  const main = parts.shift() || '';
-  const rest = parts.length ? '<br>' + parts.join('<br>') : '';
-  let final = `<span class="contradictionMain">${main}</span>${rest}`;
-  if (!final.endsWith('<br>')) final += '<br>';
-  final += `<span class="contradictionNote">tai niin ne lupasivat...</span>`;
-  return final;
-}
+// "Ristiriitamenettely": Harmonien selite on lupaus, nowcastin sademäärä havainto.
+// Kun ne eivät täsmää, pääselite yliviivataan ja perään tulee "tai niin ne
+// lupasivat" -notti. Koskee vain rivejä, joilla selite on Harmoniesta ja sade
+// nowcastista: nowcastin oma teksti ei voi olla lupaus, ja kokonaan Harmonien
+// rivillä ei ole havaintoa johon verrata. Yliviivaus kohdistuu pääselitteeseen,
+// ei rivin ensimmäiseen merkintään (joka voi olla esim. auringonlasku).
+const CONTRADICTION_NOTE_HTML = '<br><span class="contradictionNote">tai niin ne lupasivat...</span>';
 
-function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay, rowIndex }){
-  if (!descHtml) return { html: descHtml, flagged: false };
-  if (typeof rowIndex === 'number' && rowIndex >= 3){
-    return { html: descHtml, flagged: false };
+function applyContradiction({ baseDesc, ssCode, rainVal, rainDisplay, descSource, rainSource }){
+  if (descSource !== 'harmonie' || rainSource !== 'nowcast'){
+    return { flagged: false };
   }
   const base = baseDesc ? baseDesc.trim() : '';
   const hasDesc = base && base !== '–';
@@ -1534,8 +1539,7 @@ function applyContradiction({ descHtml, baseDesc, ssCode, rainVal, rainDisplay, 
     const code = (ssCode != null) ? Number(ssCode) % 100 : null;
     if (code != null && HEAVY_SSCODE.has(code)) strike = true;
   }
-  if (!strike) return { html: descHtml, flagged: false };
-  return { html: wrapContradiction(descHtml), flagged: true };
+  return { flagged: strike };
 }
 
 const twilightState = { lastPhase: null, lastHourStart: null, announced: new Set() };
@@ -1582,8 +1586,6 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   if (twilightMainAllowed && tw.phase && TWILIGHT_PHASES.has(tw.phase) && tw.phaseStart instanceof Date){
     const phaseStart = tw.phaseStart;
     const hhmm = fmtHM(phaseStart);
-    const minutes = phaseStart.getMinutes();
-    const beforeMain = Number.isInteger(minutes) && minutes < 30;
     let label = beginLabel(tw.phase);
     if (!label && phaseMain) label = `${phaseMain} alkaa`;
     if (label && hhmm){
@@ -1598,14 +1600,10 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
            hämärämerkintä, joka jäi pystyyn. */
         const upper = (phaseMain || label || '').toLocaleUpperCase('fi-FI');
         preserveCase = true;
-        if (beforeMain){
-          /* Sama sulkeutus kuin kuivalla tunnilla, vaikka tässä hämärä on pelkkä
-             merkintä eikä pääselite. Sulkeet pysyvät vaiheen nimen perässä samalla
-             rivillä; jos rivi ei riitä, ne siirtyvät kokonaisuudessaan seuraavalle. */
-          text = `${upper} (${hhmm})`;
-        } else {
-          text = upper;
-        }
+        /* Sama sulkeutus kuin kuivalla tunnilla, vaikka tässä hämärä on pelkkä
+           merkintä eikä pääselite. Aika näytetään aina: pelkkä vaiheen nimi ilman
+           kellonaikaa ei sateisella tunnilla kerro mitään. */
+        text = `${upper} (${hhmm})`;
       }
       const entry = { text, italic, beforeMain: false };
       if (preserveCase) entry.preserveCase = true;
@@ -1788,8 +1786,8 @@ function maybeApplyTwilightPrecipOverride({
   return result;
 }
 
-function computeHighlightStates({ rowIndex, rainVal, descWet, descWeak, descThunder, descFog }){
-  const frontSection = rowIndex <= 2;
+function computeHighlightStates({ nowcastRow, rainVal, descWet, descWeak, descThunder, descFog }){
+  const frontSection = !!nowcastRow;
   const hasWet = !!descWet;
   const isWeakWet = !!descWeak;
   const hasThunder = !!descThunder;
@@ -1912,6 +1910,8 @@ function renderRow(row, state){
   const skipCarryActive = !!(normalized && state.skipDittoKey && normalized === state.skipDittoKey);
   const effectiveSkipDitto = skipDitto || skipCarryActive;
   if (!effectiveSkipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
+    /* Pääselitteen edellä olevat merkinnät (esim. auringonlasku) säilyvät "»":n yllä. */
+    let headHtml = '';
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1919,6 +1919,7 @@ function renderRow(row, state){
       } else {
         const idx = descHtml.indexOf(mainHtml);
         if (idx >= 0){
+          headHtml = descHtml.slice(0, idx);
           tailHtml = descHtml.slice(idx + mainHtml.length);
         }
       }
@@ -1938,7 +1939,7 @@ function renderRow(row, state){
         }
       );
     }
-    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
+    displayDesc = headHtml + '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     state.prevDescKey = normalized || null;
   }
@@ -2001,14 +2002,12 @@ function renderRow(row, state){
   );
 }
 
-function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTime }){
+function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTime, prevContradiction = false }){
   if (!hour || !(hour.time instanceof Date) || Number.isNaN(hour.time.getTime())) return null;
   const dUtc = new Date(hour.time);
   const isNowcastHour = index <= 2;
   const expectedNowcast = isNowcastHour;
   const smartSymbolCode = hour.smartSymbol;
-  const nowcastCode = isNowcastHour ? nowcast?.sym : null;
-  const descriptorOpts = { smartSymbolCode, nowcastCode };
   let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
   let rainVal = null;
   let rainObj = null;
@@ -2022,18 +2021,20 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     const hrmVal = (typeof hour.precipitation === 'number') ? hour.precipitation : null;
     rainVal = hrmVal;
     rainSource = 'harmonie';
-    if (isNowcastHour) rainFallbackFromNowcast = true;
-    if (!isNowcastHour){
-      const wet = (rainVal != null && rainVal > 0);
-      const smallWet = (wet && rainVal < 0.3);
-      const ssDay = (smartSymbolCode != null) ? (Number(smartSymbolCode) % 100) : null;
-      const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
-      rainObj = rainCell(rainVal, { markGrey: useGreyRain, source: rainSource });
-    } else {
-      rainObj = rainCell(rainVal, { markGrey: index >= 3, source: rainSource });
+    if (isNowcastHour){
+      rainFallbackFromNowcast = true;
       rainTag = 'HRM';
     }
+    const wet = (rainVal != null && rainVal > 0);
+    const smallWet = (wet && rainVal < 0.3);
+    const ssDay = (smartSymbolCode != null) ? (Number(smartSymbolCode) % 100) : null;
+    const useGreyRain = smallWet && (ssDay == null || !SMALL_RAIN_EXCEPT.has(ssDay));
+    rainObj = rainCell(rainVal, { markGrey: useGreyRain, source: rainSource });
   }
+  /* Nowcast-rivi = sademäärä tuli nowcastista. Jos nowcast ei yllä tunnille, koko rivi
+     on Harmonieta ja noudattaa Harmonie-rivien sääntöjä rivinumerosta riippumatta. */
+  const nowcastRow = rainSource === 'nowcast';
+  const nowcastCode = nowcastRow ? nowcast?.sym : null;
   if (!rainObj) rainObj = rainCell(rainVal, { source: rainSource });
   const gustAvailable = (index === 0 && nowcast && typeof nowcast.gust === 'number');
   const gust = gustAvailable ? nowcast.gust : null;
@@ -2041,7 +2042,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windObj = windCell(hour.windSpeed, gust, hour.windDirection, { meanSource: 'harmonie', gustSource });
   const rainExpectedNowcast = expectedNowcast;
   const descSelection = selectDescription({
-    nowcastText: isNowcastHour ? ncSymbolText(nowcast?.sym) : null,
+    nowcastText: nowcastRow ? ncSymbolText(nowcastCode) : null,
     harmonieText: ssText(hour.smartSymbol),
     expectedNowcast
   });
@@ -2051,12 +2052,14 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const fallbackFromNowcast = descSelection.fallbackFromNowcast;
   let descDisplaySource = descSource;
   let descDisplayFallbackFromNowcast = fallbackFromNowcast;
+  /* Märkä/kuiva päätellään sen lähteen koodista, jonka teksti näytetään. */
+  const descriptorOpts = (descSource === 'nowcast') ? { nowcastCode } : { smartSymbolCode };
   baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
   const descWet = isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
   const descThunder = isThunderOrHailDescriptor(baseDesc, descriptorOpts);
   let precipish;
-  if (isNowcastHour){
+  if (nowcastRow){
     precipish = ((rainVal != null && rainVal >= 0.1) || (nowcastCode && ncIsPrecip(nowcastCode)) || descWet);
   } else {
     const wet = (rainVal != null && rainVal > 0);
@@ -2140,7 +2143,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windFallbackFromNowcast = false;
   const descFog = !!fogInfo.isFog;
   const highlight = computeHighlightStates({
-    rowIndex: index,
+    nowcastRow,
     rainVal,
     descWet,
     descWeak,
@@ -2148,7 +2151,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     descFog
   });
   const hasRainOrThunderDescriptor = descThunder || (descWet && !descFog);
-  if (index >= 3 && rainVal === 0 && hasRainOrThunderDescriptor){
+  if (!nowcastRow && rainVal === 0 && hasRainOrThunderDescriptor){
     const markGrey = rainObj ? !!rainObj.forceGrey : false;
     rainObj = rainCell(rainVal, { markGrey, source: rainSource, forceZeroText: true });
   }
@@ -2159,7 +2162,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     if (twilightOverride.forceDescWhite) descWhite = true;
     if (rainObj.forceGrey) rainObj.forceGrey = false;
   }
-  if (index <= 2){
+  if (nowcastRow){
     const amountPositive = Number.isFinite(rainVal) && rainVal > 0;
     if (!amountPositive){
       rainWhite = false;
@@ -2169,18 +2172,26 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   if (rainWhite && rainObj && rainObj.forceGrey) rainObj.forceGrey = false;
   if (insertedThunderTag) descWhite = false;
   const cellsWhite = rainWhite && descWhite;
-  const initialDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
   const contradiction = applyContradiction({
-    descHtml: initialDescHtml,
     baseDesc,
     ssCode: hour.smartSymbol,
     rainVal,
     rainDisplay: rainObj.num,
-    rowIndex: index
+    descSource,
+    rainSource
   });
-  const finalDescHtml = (contradiction && typeof contradiction.html === 'string')
-    ? contradiction.html
-    : initialDescHtml;
+  let finalDescHtml;
+  if (contradiction.flagged){
+    finalDescHtml = buildDescriptionHtml({
+      main: `<span class="contradictionMain">${descMain}</span>`,
+      tags: descTags,
+      extra: descExtra
+    });
+    /* Peräkkäisistä ristiriitariveistä vain ensimmäinen saa notin. */
+    if (!prevContradiction) finalDescHtml += CONTRADICTION_NOTE_HTML;
+  } else {
+    finalDescHtml = buildDescriptionHtml({ main: descMain, tags: descTags, extra: descExtra });
+  }
   const timeWhite = cellsWhite;
   const tempWhite = cellsWhite;
   let timeHtml;
@@ -2217,7 +2228,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     windExpectedNowcast,
     windFallbackFromNowcast,
     twDbg,
-    skipDitto: !!(contradiction && contradiction.flagged)
+    skipDitto: contradiction.flagged
   };
 }
 
@@ -2238,7 +2249,8 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
   };
   hours.forEach((hour, index) => {
     const nowcast = nowcastMap.get(hour.key) || nowcastMap.get(hour.time?.toISOString()) || null;
-    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime });
+    const prevContradiction = !!(rows.length && rows[rows.length - 1].skipDitto);
+    const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime, prevContradiction });
     if (row) rows.push(row);
   });
   applyTemperatureMilestones(rows);
