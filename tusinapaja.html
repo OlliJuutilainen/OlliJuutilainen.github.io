@@ -602,11 +602,28 @@ function dir8(deg){
   return 'luoteesta';
 }
 
-/* --------- FMI WFS (HARMONIE) --------- */
-function buildWfsForecast(lat,lon){
+/* --------- FMI WFS (Smartmet, varalla Harmonie) --------- */
+/* Ensisijainen FMI-lähde on virallinen "edited" -ennuste. Sen ensimmäiset 9 tuntia tulevat
+   automaattisesti Smartmet nowcastista: tunneittain ajettu MNWC-malli, jonka lämpötila, tuuli
+   ja puuskat on harhakorjattu havainnoilla (Hieta & Partio 2025), sade tutkasta (pySTEPS).
+   Harmonie (MEPS, ajo 6 h välein) on varalla, jos haku epäonnistuu. Sisäisesti molempien
+   lähdetunnus on 'harmonie' (= FMI:n pohjaennuste); näkyvä merkintä tulee FMI_BASE_LABELista. */
+const FMI_SOURCES = {
+  edited: {
+    sq: 'fmi::forecast::edited::weather::scandinavia::point::timevaluepair',
+    params: 'Temperature,Precipitation1h,WindSpeedMS,WindDirection,SmartSymbol,HourlyMaximumGust',
+    label: 'FMI'
+  },
+  harmonie: {
+    sq: 'fmi::forecast::harmonie::surface::point::timevaluepair',
+    params: 'temperature,precipitation1h,windspeedms,winddirection,SmartSymbol',
+    label: 'HRM'
+  }
+};
+let FMI_BASE_LABEL = 'HRM';
+function buildWfsForecast(lat,lon,sourceKey='edited'){
   const base='https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature';
-  const sq='fmi::forecast::harmonie::surface::point::timevaluepair';
-  const params='temperature,precipitation1h,windspeedms,winddirection,SmartSymbol';
+  const { sq, params } = FMI_SOURCES[sourceKey];
   const now=new Date(), s=new Date(now), e=new Date(now);
   s.setHours(s.getHours()-2); e.setHours(e.getHours()+24);
   const iso=d=>d.toISOString().replace(/\.\d{3}Z$/,'Z');
@@ -632,6 +649,7 @@ const extractSeries = x => {
     else if (id.includes('windspeedms')) k='windspeedms';
     else if (id.includes('winddirection')) k='winddirection';
     else if (id.includes('smartsymbol')) k='SmartSymbol';
+    else if (id.includes('hourlymaximumgust')) k='hourlyMaximumGust';
     if (!k) continue;
     const map=new Map();
     const pts=s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP');
@@ -648,7 +666,22 @@ const extractSeries = x => {
 };
 
 async function fetchForecast(lat, lon){
-  const url = buildWfsForecast(lat, lon);
+  try {
+    const data = await fetchForecastFrom(lat, lon, 'edited');
+    if (data.hours.length && data.hours.some(h => Number.isFinite(h.temperature))) return data;
+    if (DBG) console.warn('FMI edited: ei rivejä, käytetään Harmonieta');
+  } catch (err) {
+    if (DBG) console.warn('FMI edited epäonnistui, käytetään Harmonieta', err);
+  }
+  return fetchForecastFrom(lat, lon, 'harmonie');
+}
+
+function roundTenth(v){
+  return Number.isFinite(v) ? Math.round(v * 10) / 10 : null;
+}
+
+async function fetchForecastFrom(lat, lon, sourceKey){
+  const url = buildWfsForecast(lat, lon, sourceKey);
   const res = await fetch(url, { cache: 'no-store' });
   const txt = await res.text();
   if (!res.ok){
@@ -660,12 +693,16 @@ async function fetchForecast(lat, lon){
     key,
     time: new Date(key),
     temperature: forecastSeries.temperature?.get(key) ?? null,
-    precipitation: forecastSeries.precipitation1h?.get(key) ?? null,
+    /* Harmonie antaa sademäärän 0,1 mm:n tarkkuudella, edited kolmella desimaalilla; ilman
+       pyöristystä 0,04 mm näkyisi "0.0 mm". Harmonien arvoihin pyöristys ei vaikuta. */
+    precipitation: roundTenth(forecastSeries.precipitation1h?.get(key)),
     windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
     windDirection: forecastSeries.winddirection?.get(key) ?? null,
-    smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null
+    smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null,
+    gust: forecastSeries.hourlyMaximumGust?.get(key) ?? null
   }));
-  return { hours };
+  FMI_BASE_LABEL = FMI_SOURCES[sourceKey].label;
+  return { hours, source: sourceKey };
 }
 
 /* --------- MET Nowcast – sade + puuska + lämpötila + symbol_code --------- */
@@ -1454,7 +1491,7 @@ function buildSourceBadge({ source, expectedNowcast=false, fallbackFromNowcast=f
   if (source === 'harmonie'){
     const classes = ['sourceBadge', 'sourceBadgeHrm'];
     if (fallbackFromNowcast && expectedNowcast) classes.push('sourceBadgeFallback');
-    return `<span class="${classes.join(' ')}">HRM</span>`;
+    return `<span class="${classes.join(' ')}">${FMI_BASE_LABEL}</span>`;
   }
   const label = (typeof source === 'string') ? source.trim().toUpperCase() : '';
   if (!label) return '';
@@ -2025,7 +2062,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const isNowcastHour = index <= 2;
   const expectedNowcast = isNowcastHour;
   const smartSymbolCode = hour.smartSymbol;
-  let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : 'HRM';
+  let rainTag = isNowcastHour ? nowcastMetaTag(nowcast?.meta) : FMI_BASE_LABEL;
   let rainVal = null;
   let rainObj = null;
   let rainSource = null;
@@ -2040,7 +2077,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     rainSource = 'harmonie';
     if (isNowcastHour){
       rainFallbackFromNowcast = true;
-      rainTag = 'HRM';
+      rainTag = FMI_BASE_LABEL;
     }
     const wet = (rainVal != null && rainVal > 0);
     const smallWet = (wet && rainVal < 0.3);
@@ -2053,6 +2090,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const nowcastRow = rainSource === 'nowcast';
   const nowcastCode = nowcastRow ? nowcast?.sym : null;
   if (!rainObj) rainObj = rainCell(rainVal, { source: rainSource });
+  /* hour.gust (FMI:n tunnin maksimipuuska) haetaan mutta ei ole käytössä: se on hetkellistä
+     puuskaa kovempi, ja windCellin ehto "≥ 5 m/s keskituulta kovempi" täyttyisi sillä usein.
+     Ks. backlog. */
   const gustAvailable = (index === 0 && nowcast && typeof nowcast.gust === 'number');
   const gust = gustAvailable ? nowcast.gust : null;
   const gustSource = gustAvailable ? 'nowcast' : null;
