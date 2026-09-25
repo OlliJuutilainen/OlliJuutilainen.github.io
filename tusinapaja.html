@@ -538,11 +538,14 @@ const HEAVY_SSCODE = SMART_SYMBOL_HEAVY;
 /* --------- MET Nowcast symbolit (NC) --------- */
 const NC_SYMBOL = {
   'clearsky': "sinistä", 'fair': "sangen sinistä", 'partlycloudy': "siniharmaata", 'cloudy': "harmaata",
-  'lightrainshowers': "jokunen kuuro", 'heavyrainshowers': "äänekästä kuuroa",
+  'lightrainshowers': "kevyttä välisuihkua", 'rainshowers': "välisuihkuja", 'heavyrainshowers': "kunnon välisuihku",
+  'lightsleetshowers': "pientä räntäkuuroa", 'sleetshowers': "räntäkuuroa", 'heavysleetshowers': "kunnon räntäkuuro",
+  'lightsnowshowers': "pientä välihiutaletta", 'snowshowers': "lumikuuro", 'heavysnowshowers': "tehokas lumitoimitus",
   'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
-  'heavyrain': "saavista kaatuu", 'rain': "satelee", 'lightrain': "ripsii", 'sleet': "räntää",
+  'heavyrain': "saavista kaatuu", 'rain': "satelee", 'lightrain': "ripsii",
+  'lightsleet': "märkä hiutale", 'sleet': "räntää", 'heavysleet': "tiskirättiä",
   'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
-  'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
+  'lightsnow': "kevyt hiutale", 'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
 const NOWCAST_INFO = {
   clearsky: { label: 'clear', dry: true },
@@ -550,15 +553,25 @@ const NOWCAST_INFO = {
   partlycloudy: { label: 'partly_cloudy', dry: true },
   cloudy: { label: 'overcast', dry: true },
   lightrainshowers: { label: 'shower_light', precip: true, weak: true },
+  rainshowers: { label: 'shower', precip: true },
   heavyrainshowers: { label: 'shower_heavy', precip: true },
+  lightsleetshowers: { label: 'sleet_shower_light', precip: true, weak: true },
+  sleetshowers: { label: 'sleet_shower', precip: true },
+  heavysleetshowers: { label: 'sleet_shower_heavy', precip: true },
+  lightsnowshowers: { label: 'snow_shower_light', precip: true, weak: true },
+  snowshowers: { label: 'snow_shower', precip: true },
+  heavysnowshowers: { label: 'snow_shower_heavy', precip: true },
   rainshowersandthunder: { label: 'thunder_shower', precip: true, thunder: true },
   thunderstorm: { label: 'thunder', precip: true, thunder: true },
   heavyrain: { label: 'rain_heavy', precip: true },
   rain: { label: 'rain', precip: true },
   lightrain: { label: 'rain_light', precip: true, weak: true },
+  lightsleet: { label: 'sleet_light', precip: true, weak: true },
   sleet: { label: 'sleet', precip: true },
+  heavysleet: { label: 'sleet_heavy', precip: true },
   lightsleetshowers_and_thunder: { label: 'thunder_sleet', precip: true, thunder: true },
   snowshowers_and_thunder: { label: 'thunder_snow', precip: true, thunder: true },
+  lightsnow: { label: 'snow_light', precip: true, weak: true },
   snow: { label: 'snow', precip: true },
   heavysnow: { label: 'snow_heavy', precip: true },
   fog: { label: 'fog', fog: true }
@@ -1173,7 +1186,7 @@ function analyzeTwilightForHour(dLocal, dayObj){
   if (rise && rise>=t0 && rise<t1) sunEvent = { type:'rise', at: rise };
   if (set  && set >=t0 && set <t1) sunEvent = { type:'set',  at: set  };
 
-  if (p0 && p1 && p0!==p1){
+  if (!sunEvent && p0 && p1 && p0!==p1){
     const candidates = [civStart,civEnd,nautStart,nautEnd,astroStart,astroEnd].filter(t=>t && t>=t0 && t<t1).sort((a,b)=>a-b);
     const at = candidates[0] || null;
     if (at){

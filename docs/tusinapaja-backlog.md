@@ -155,21 +155,43 @@ ole tunnille `next_1_hours`-kertymää, koko rivi on Harmonieta ja noudattaa Har
 sääntöjä (`nowcastRow`), rivinumerosta riippumatta. Nowcast ulottuu noin kaksi tuntia,
 joten näin käy todennäköisesti aina kolmannella rivillä (ei tarkistettu oikeasta datasta).
 
-### Vaiheenvaihto myös auringonnousun ja -laskun tunnilla
+### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
-`analyzeTwilightForHour` ei enää ohita `withinChange`-laskentaa, kun tunnilla on
-aurinkotapahtuma. Aiemmin laskutunnin jälkeinen "nauttinen 19:56" jäi ilmoittamatta ja
-valui seuraavalle riville; sateisella tunnilla siitä jäi paljas `NAUTTINEN HÄMÄRÄ`.
-Sateisen tunnin alkamisilmoitus saa nyt aina kellonajan: `NAUTTINEN HÄMÄRÄ (19:56)`.
+Auringonnousun tai -laskun tunnilla ei anneta seuraavan vaiheen ilmoitusta
+(`!sunEvent`-ehto `analyzeTwilightForHour`issa on tarkoituksellinen). Laskutunnin
+jälkeen alkava vaihe näkyy seuraavalla rivillä versaalina ja edellisen tunnin
+alkuajalla: klo 20 `NAUTTINEN HÄMÄRÄ (19:56)`, sekä kuivana että sateisena.
+Aiemmin sateiselta riviltä puuttui aika, jolloin jäi paljas `NAUTTINEN HÄMÄRÄ`.
+Sateisen tunnin alkamisilmoitus saa nyt aina kellonajan.
 
-### Nowcastin `rain` = "satelee"
+Kokeiltiin myös ilmoitusta laskutunnille (`nauttinen 19:56` klo 19) ja toiston
+estämistä seuraavalta riviltä; hylättiin käyttäjän päätöksellä.
 
-Sama sana kuin Harmonien koodilla 38. Muita puuttuvia met.no-koodeja (esim.
-`rainshowers`, `lightsnow`, `lightsleet`, `heavysleet`, `sleetshowers`, `snowshowers`,
-`*andthunder`) ei ole käännetty; sanasto on käyttäjän päätettävä. Ilman käännöstä selite
-putoaa Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_thunder` ja
-`snowshowers_and_thunder` eivät ole met.no:n koodeja (met.no kirjoittaa ilman alaviivoja),
-joten ne eivät luultavasti koskaan osu – tarkistamatta.
+### Nowcastin sanasto
+
+Käyttäjän päättämät sanat:
+
+| met.no | sana | peruste |
+|---|---|---|
+| lightrain / rain / heavyrain | ripsii / satelee / saavista kaatuu | "saavista kaatuu" vain tutkatiedolle; Harmonien 39 on "kaatosadetta" |
+| lightsleet / sleet / heavysleet | märkä hiutale / räntää / tiskirättiä | sama lähtösana kuin Harmonie 47–49 |
+| lightsnow / snow / heavysnow | kevyt hiutale / lunta / pyryttää | sama lähtösana kuin Harmonie 57–59 |
+| light/–/heavy rainshowers | kevyttä välisuihkua / välisuihkuja / kunnon välisuihku | met.no:n asteikko on voimakkuus, FMI:n 21/24/27 kattavuus; epäkoherentti muoto tarkoituksella |
+| light/–/heavy sleetshowers | pientä räntäkuuroa / räntäkuuroa / kunnon räntäkuuro | ei Harmonie-vastinetta |
+| light/–/heavy snowshowers | pientä välihiutaletta / lumikuuro / tehokas lumitoimitus | ei Harmonie-vastinetta |
+
+Jokaisella sanalla on myös `NOWCAST_INFO`-merkintä; nowcast-rivin korostus ja hämärälogiikka
+nojaavat siihen eikä tekstiin.
+
+Avoinna: ukkosyhdistelmät (noin 18 met.no-koodia, `*andthunder`) ovat kääntämättä ja
+putoavat Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_thunder` ja
+`snowshowers_and_thunder` eivät ole met.no:n koodeja (met.no kirjoittaa ilman alaviivoja ja
+`lightssleetshowersandthunder` kirjoitusvirheineen), joten "seppo riehuu", "sepon tiskivuoro"
+ja "lumiukkonen" eivät luultavasti koskaan näy – tarkistamatta. Koodilista ylipäätään on
+muistinvarainen; `?dbg=1` näyttää kääntämättömän sadekoodin hakasulkeissa.
+
+Avoinna myös: sateisella ditto-rivillä (`»`) auringonlaskumerkintä katoaa, koska ditto
+säilyttää vain pääselitteen jälkeiset merkinnät ja aurinkotapahtuma on sen edellä.
 
 ---
 
