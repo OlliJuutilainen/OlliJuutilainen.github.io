@@ -134,6 +134,50 @@ täsmälleen silloin kun satoi. Kuivilla tunneilla vaihe on edelleen pääsana, 
 
 ---
 
+## Selitteen lähde lähitunneilla (rivit 0–2) – harkinta 2026-09
+
+Linjaus: kolmella ensimmäisellä rivillä **nowcastin selite ensin**, Harmonie varalla.
+Tämä on kokeilu. Alla on se, mitä tarvitaan jos linja halutaan myöhemmin kääntää.
+
+### Lähtötilanne ennen muutoksia
+
+- Rivit 0–2: selite nowcastin `symbol_code` → `NC_SYMBOL`; jos käännös puuttuu tai
+  symbolia ei ole, Harmonien `SmartSymbol` → `SS_TEXT`. Sade nowcastin
+  `next_1_hours.precipitation_amount`, sen puuttuessa hetkellinen `precipitation_rate`.
+- Rivit 3–: selite ja sade Harmoniesta.
+- Märkä/kuiva-päättely (`descriptorInfoFromOptions`) katsoo **Harmonien koodia ensin**,
+  myös silloin kun näytetty teksti on nowcastin. Tästä syntyivät löydetyt viat:
+  - `applyContradiction` yliviivaa nowcastin oikean tekstin, kun Harmonie on eri mieltä
+    (sekä märkä teksti + Harmonie kuiva että kuiva teksti + Harmonie märkä).
+  - "saavista kaatuu" + Harmonie kuiva → koko rivi harmaa (sana puuttuu myös
+    `isWetDescriptor`in avainsanoista); "ripsii" samalla datalla korostuu.
+  - Kuiva nowcast-tunti hämärässä + Harmonie märkä → hämärä ei pääsanaksi, rivillä
+    "sinistä" pimeässä.
+- `NC_SYMBOL`ista puuttuu `rain` (nowcastin keskivahva sade näkyy Harmonien sanana).
+  Muistinvarainen, verkosta tarkistamaton: `thunderstorm`,
+  `lightsleetshowers_and_thunder`, `snowshowers_and_thunder` eivät ole met.no:n koodeja.
+
+### Vaihtoehto, jota ei valittu: selite aina Harmoniesta
+
+Idea: selite = ennusteen lupaus, lähituntien sade = nowcastin havainto, ja
+"tai niin ne lupasivat…" = lupaus ja havainto eivät täsmää. Hyvät puolet:
+
+- Ristiriitamerkinnällä olisi yksi johdonmukainen merkitys.
+- Koodi ja teksti samaa alkuperää → edellä luetellut viat katoavat itsestään.
+- `NC_SYMBOL`in aukot eivät vaikuta selitteeseen; `SS_TEXT` on rikkaampi.
+- Ei lähdesaumaa selitesarakkeessa; ditto ei yhdistä eri lähteiden sanoja.
+- Todennäköisesti vakaampi latauskertojen välillä (ei mitattu).
+
+Hinta: tutkan näkemä rankkasade voi jäädä sanaksi "ripsii" (nykyinen ristiriitasääntö ei
+huomaa voimakkuuseroa), nowcastin varma sumumuoto "Näkyvyys: ei ole." katoaa, ja
+ristiriitamerkintöjä tulee useammin (toiston karsinta tärkeämpi).
+
+Jos linja käännetään: selite aina `ssText(hour.smartSymbol)`, ristiriitasääntöön
+voimakkuusero, toiston karsinta. Hämärälle pitää päättää, ratkaiseeko märkä lupaus vai
+nollamittaus onko tunti sateinen.
+
+---
+
 ## Generaattori (`generaattori.html`) – muistiinpano
 
 Generaattorin tuottama KV-komento on pinnattu versioon `wrangler@3.114.17` **tarkoituksella**,
