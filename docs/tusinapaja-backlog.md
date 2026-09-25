@@ -132,6 +132,45 @@ poistettu. Se laukesi ehtojensa puolesta **vain** sateisilla tunneilla: haaraan 
 vain kun vaihe kelpasi pääsanaksi, ja siinä tilanteessa `twilightMain` oli epätosi
 täsmälleen silloin kun satoi. Kuivilla tunneilla vaihe on edelleen pääsana, kuten ennenkin.
 
+### Märkä/kuiva päätellään näytetyn tekstin lähteestä
+
+`descriptorOpts` sisältää vain sen lähteen koodin, jonka teksti näytetään: nowcastin
+tekstille nowcastin koodin, Harmonien tekstille `SmartSymbol`in. Aiemmin Harmonien koodi
+voitti aina, jolloin nowcastin "saavista kaatuu" luokiteltiin kuivaksi (rivi himmeni) ja
+kuiva nowcast-tunti märäksi (hämärä ei noussut pääsanaksi, rivillä "sinistä" pimeässä).
+
+### Ristiriita = Harmonien lupaus vastaan nowcastin havainto
+
+`applyContradiction` laukeaa vain rivillä, jolla selite on Harmoniesta ja sade
+nowcastista. Nowcastin omaa tekstiä ei yliviivata, eikä kokonaan Harmonien riviä verrata
+itseensä. Käytännössä tämä tapahtuu, kun nowcastin symbolille ei ole käännöstä.
+Yliviivaus kohdistuu pääselitteeseen; aiemmin se osui rivin ensimmäiseen merkintään,
+joka auringonlaskun tunnilla oli "auringonlasku HH:MM". Peräkkäisistä ristiriitariveistä
+vain ensimmäinen saa "tai niin ne lupasivat…" -notin.
+
+### Nowcastin hetkellinen intensiteetti ei ole tunnin sademäärä
+
+`precipitation_rate` (mm/h, yksi hetki) ei enää kelpaa sademääräksi. Jos nowcastilla ei
+ole tunnille `next_1_hours`-kertymää, koko rivi on Harmonieta ja noudattaa Harmonie-rivien
+sääntöjä (`nowcastRow`), rivinumerosta riippumatta. Nowcast ulottuu noin kaksi tuntia,
+joten näin käy todennäköisesti aina kolmannella rivillä (ei tarkistettu oikeasta datasta).
+
+### Vaiheenvaihto myös auringonnousun ja -laskun tunnilla
+
+`analyzeTwilightForHour` ei enää ohita `withinChange`-laskentaa, kun tunnilla on
+aurinkotapahtuma. Aiemmin laskutunnin jälkeinen "nauttinen 19:56" jäi ilmoittamatta ja
+valui seuraavalle riville; sateisella tunnilla siitä jäi paljas `NAUTTINEN HÄMÄRÄ`.
+Sateisen tunnin alkamisilmoitus saa nyt aina kellonajan: `NAUTTINEN HÄMÄRÄ (19:56)`.
+
+### Nowcastin `rain` = "satelee"
+
+Sama sana kuin Harmonien koodilla 38. Muita puuttuvia met.no-koodeja (esim.
+`rainshowers`, `lightsnow`, `lightsleet`, `heavysleet`, `sleetshowers`, `snowshowers`,
+`*andthunder`) ei ole käännetty; sanasto on käyttäjän päätettävä. Ilman käännöstä selite
+putoaa Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_thunder` ja
+`snowshowers_and_thunder` eivät ole met.no:n koodeja (met.no kirjoittaa ilman alaviivoja),
+joten ne eivät luultavasti koskaan osu – tarkistamatta.
+
 ---
 
 ## Selitteen lähde lähitunneilla (rivit 0–2) – harkinta 2026-09
@@ -139,7 +178,7 @@ täsmälleen silloin kun satoi. Kuivilla tunneilla vaihe on edelleen pääsana, 
 Linjaus: kolmella ensimmäisellä rivillä **nowcastin selite ensin**, Harmonie varalla.
 Tämä on kokeilu. Alla on se, mitä tarvitaan jos linja halutaan myöhemmin kääntää.
 
-### Lähtötilanne ennen muutoksia
+### Lähtötilanne ennen muutoksia (korjattu, ks. "Tehdyt päätökset")
 
 - Rivit 0–2: selite nowcastin `symbol_code` → `NC_SYMBOL`; jos käännös puuttuu tai
   symbolia ei ole, Harmonien `SmartSymbol` → `SS_TEXT`. Sade nowcastin
