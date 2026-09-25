@@ -134,8 +134,8 @@
 </div>
 <div class="list" id="out" aria-live="polite"></div>
 
-<script src="https://unpkg.com/tz-lookup@6.1.25/dist/tz.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+<script src="vendor/tz-lookup-6.1.25.js"></script>
+<script src="vendor/suncalc-1.9.0.js"></script>
 
 <script type="module">
 /* --------- perusinfra & virheet näkyviin --------- */
@@ -405,7 +405,8 @@ if (tzOverride){
       console.info('Aikavyöhyke asetettu query-parametrista', { tz: tzOverride });
     }
   } else {
-    const msg = `Aikavyöhykeparametri (${tzOverride}) ei kelpaa; käytetään automaattista tunnistusta.`;
+    const tzShown = tzOverride.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+    const msg = `Aikavyöhykeparametri (${tzShown}) ei kelpaa; käytetään automaattista tunnistusta.`;
     prependError(msg);
     if (DBG){
       console.warn('Aikavyöhykeparametri ei kelpaa', { tz: tzOverride });

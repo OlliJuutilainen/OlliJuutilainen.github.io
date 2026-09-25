@@ -104,19 +104,28 @@ function sanitizeLabel(value) {
   return (value || 'Tusinasää sijainti').replace(/[\r\n]+/g, ' ').trim();
 }
 
-function buildKvBash(label, key, val, k) {
+function buildKvBash(label, key, val) {
   const safeLabel = sanitizeLabel(label);
   const safeKey = escapeForSingleQuotes(key);
   const safeVal = escapeForSingleQuotes(val);
-  const safeK = escapeForSingleQuotes(k);
+  // Avain K ei kuulu komentoon: shellin historia (~/.zsh_history) tallentaa kaiken ajetun,
+  // ja historia + julkinen /api/loc riittäisivät sijainnin purkuun. Linkit näytetään erikseen.
   return [
 `# ${safeLabel} — one-paste (wrangler 3.114.17, remote KV)`,
 `NS='${NS}'`,
 `KEY=${safeKey}`,
 `VAL=${safeVal}`,
-`K=${safeK}`,
 ``,
-`npx -y wrangler@3.114.17 kv:key put --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL" \\\n&& npx -y wrangler@3.114.17 kv:key get --namespace-id "${'$'}NS" "${'$'}KEY" --text \\\n&& printf '%s\n%s\n' \\\n"Web: https://ollijuutilainen.github.io/tusinapaja.html#t=${'$'}KEY&k=${'$'}K" \\\n"Android: tusinasaa://open/v1#t=${'$'}KEY&k=${'$'}K"`
+`npx -y wrangler@3.114.17 kv:key put --namespace-id "${'$'}NS" "${'$'}KEY" "${'$'}VAL" \\\n&& npx -y wrangler@3.114.17 kv:key get --namespace-id "${'$'}NS" "${'$'}KEY" --text`
+  ].join('\n');
+}
+
+function buildLinks(token, k) {
+  const frag = `t=${token}&k=${k}`;
+  return [
+`# Linkit QR-koodeihin — ÄLÄ liitä näitä terminaaliin`,
+`Web: https://ollijuutilainen.github.io/tusinapaja.html#${frag}`,
+`Android: tusinasaa://open/v1#${frag}`
   ].join('\n');
 }
 
@@ -242,12 +251,15 @@ generateBtn.addEventListener('click', async () => {
       return;
     }
 
-    const bash = buildKvBash(payloadObject.title || '', token, VAL_ONE, keyB64u);
+    const bash = buildKvBash(payloadObject.title || '', token, VAL_ONE);
+    const links = buildLinks(token, keyB64u);
 
     clearError();
     const code = document.createElement('code');
     code.textContent = bash;
-    output.replaceChildren(code);
+    const linkCode = document.createElement('code');
+    linkCode.textContent = links;
+    output.replaceChildren(code, document.createTextNode('\n\n'), linkCode);
   } catch (err) {
     console.error(err);
     if (err instanceof SyntaxError) {

@@ -71,11 +71,8 @@ const tag = s => DBG ? ` <span class="soft" style="font-size:12px">${s}</span>` 
 /* --------- erikoisotsikot --------- */
 const pageTitle = document.getElementById('pageTitle');
 const SPECIAL_TITLES = {
-  '60.3281,25.0551': 'TUSINASÄÄ 12 · ASOLA',
-  '60.1562,24.7767': 'TUSINASÄÄ 12 · RANTAKOTO',
-  '60.2038,24.8030': 'TUSINASÄÄ 12 · HEINJOKI',
-  '60.2040,25.0320': 'TUSINASÄÄ 12 · PORTIMO',
-  '60.1620,24.8791': 'TUSINASÄÄ 12 · KOTKAVUORI',
+  /* Esimerkki. Yksityisiä sijainteja ei kirjata tähän: ne kulkevat salattuina (#t=…&k=…). */
+  '60.1699,24.9384': 'TUSINASÄÄ 12 · HELSINKI',
 };
 let specialTitle = null;
 if (LAT_STR && LON_STR){
