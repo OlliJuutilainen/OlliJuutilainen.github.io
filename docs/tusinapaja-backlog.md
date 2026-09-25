@@ -191,7 +191,16 @@ enintään 60 minuutin päästä. Ensimmäisellä rivillä se on käytännössä
 Nowcast-pyynnöstä poistettiin `altitude=0`. met.no käyttää parametria vain lämpötilan
 korkeuskorjaukseen, joten nolla laski lämpötilan merenpinnan tasolle (noin 0,65 °C / 100 m
 liian lämmin korkeammalla). Ilman parametria met.no käyttää omaa 1 km:n korkeusmalliaan.
-Tarkin olisi paikan oma korkeus salatussa paketissa; sitä ei vielä ole.
+Mitattu 2026-09-25 (nowcast, ensimmäinen aikapiste):
+
+| Paikka | `altitude=0` | oma korkeus | ei parametria |
+|---|---|---|---|
+| Sipoo, lähellä merenpintaa | 12,6 °C | – (`altitude=500`: 9,7 °C) | 12,6 °C |
+| Finse, n. 1222 m | 10,1 °C | 2,7 °C (`altitude=1222`) | 2,7 °C |
+
+Korjaus on siis käytössä nowcastissa, ja ilman parametria met.no:n korkeusmalli osuu tasaisella
+ylängöllä oikeaan. Paikan oma korkeus salatussa paketissa toisi hyötyä lähinnä jyrkässä
+maastossa, jossa 1 km:n ruudun keskikorkeus poikkeaa paikasta; sitä ei ole tehty.
 
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
