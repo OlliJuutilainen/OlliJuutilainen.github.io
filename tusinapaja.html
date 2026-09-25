@@ -682,7 +682,14 @@ function roundTenth(v){
 
 async function fetchForecastFrom(lat, lon, sourceKey){
   const url = buildWfsForecast(lat, lon, sourceKey);
-  const res = await fetch(url, { cache: 'no-store' });
+  let res;
+  try {
+    res = await fetch(url, { cache: 'no-store' });
+  } catch (err) {
+    /* Selaimen oma viesti ("Failed to fetch") ei kerro, mikä palvelu ei vastannut. Sama
+       viesti tulee myös, jos palvelin vastaa virheellä ilman CORS-otsaketta. */
+    throw new Error(`FMI ennuste: ${err?.message || err}`);
+  }
   const txt = await res.text();
   if (!res.ok){
     throw new Error(`FMI ennuste HTTP ${res.status}\n${txt.slice(0,400)}`);
