@@ -40,7 +40,7 @@ asennuksia, kohdenna komento vastaavaan moduuliin (esim. `./gradlew :ouroboros:i
 ## QR-intentin pohja
 
 Manifestissa on sekä `MAIN/LAUNCHER` -intentti että valmiit `VIEW`-intentit, jotka
-hyväksyvät `https://tusinasaa.fi/...`, `https://ollijuutilainen.github.io/...`,
+hyväksyvät `https://ollijuutilainen.github.io/...`,
 `https://localhost/...` sekä `tusinasaa://...` -linkit. Deeplink täyttää automaattisesti
 WebView:lle välitettävät parametrit (lat/lon, otsikko sekä mahdolliset hash-tunnisteet).
 
