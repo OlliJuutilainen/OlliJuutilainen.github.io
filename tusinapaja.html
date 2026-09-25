@@ -1897,7 +1897,7 @@ function windCell(mean, gust, dirDeg, { meanSource='harmonie', gustSource=null }
     const gustAbsStrong = (Number.isFinite(gustV) && gustV >= 15);
     const gustNotable = (
       gustFmt != null && (
-        (Number.isFinite(gustDelta) && gustDelta >= 5) ||
+        (Number.isFinite(gustDelta) && gustDelta >= 7) ||
         gustAbsStrong
       )
     );
@@ -2090,12 +2090,14 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const nowcastRow = rainSource === 'nowcast';
   const nowcastCode = nowcastRow ? nowcast?.sym : null;
   if (!rainObj) rainObj = rainCell(rainVal, { source: rainSource });
-  /* hour.gust (FMI:n tunnin maksimipuuska) haetaan mutta ei ole käytössä: se on hetkellistä
-     puuskaa kovempi, ja windCellin ehto "≥ 5 m/s keskituulta kovempi" täyttyisi sillä usein.
-     Ks. backlog. */
-  const gustAvailable = (index === 0 && nowcast && typeof nowcast.gust === 'number');
-  const gust = gustAvailable ? nowcast.gust : null;
-  const gustSource = gustAvailable ? 'nowcast' : null;
+  /* Puuska FMI:n harhakorjatusta tunnin maksimipuuskasta joka rivillä; ensimmäisellä rivillä
+     nowcastin puuska varalla. Näkyviin vain windCellin ehdoilla (≥ 15 m/s tai ≥ 7 m/s
+     keskituulta kovempi). */
+  const fmiGustOk = Number.isFinite(hour.gust);
+  const ncGustOk = (index === 0 && nowcast && typeof nowcast.gust === 'number');
+  const gustAvailable = fmiGustOk || ncGustOk;
+  const gust = fmiGustOk ? hour.gust : (ncGustOk ? nowcast.gust : null);
+  const gustSource = fmiGustOk ? 'harmonie' : (ncGustOk ? 'nowcast' : null);
   const windObj = windCell(hour.windSpeed, gust, hour.windDirection, { meanSource: 'harmonie', gustSource });
   /* Lämpötila kolmella ensimmäisellä rivillä nowcastista: MET Nordic korjaa sen asema- ja
      Netatmo-havainnoilla, Harmonie on raakaa MEPS-mallia. Tuuli jää Harmonielle, koska
