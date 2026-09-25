@@ -706,14 +706,8 @@ async function fetchForecastFrom(lat, lon, sourceKey){
 }
 
 /* --------- MET Nowcast – sade + puuska + lämpötila + symbol_code --------- */
-const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
-const NOWCAST_RETRY_COOLDOWN = 60 * 1000;
-const nowcastShared = new Map();
-
-function nowcastKey(lat, lon){
-  return `${Number(lat).toFixed(4)},${Number(lon).toFixed(4)}`;
-}
-
+/* Aikasarja haetaan kerran sivun latautuessa, ja kolmen ensimmäisen rivin arvot poimitaan
+   siitä. Välimuistia ei tarvita, koska sivu renderöidään vain kerran. */
 async function fetchNowcastTimeseries(lat, lon){
   try{
     /* Ei altitude-parametria: met.no käyttää sitä vain lämpötilan korkeuskorjaukseen, ja
@@ -731,7 +725,7 @@ async function fetchNowcastTimeseries(lat, lon){
   }
 }
 
-function pickNowcastFromSeries(ts, dUTC, metaBase){
+function pickNowcastFromSeries(ts, dUTC){
   if (!(dUTC instanceof Date) || Number.isNaN(dUTC.getTime())) return { val:null, meta:'NC!date' };
   if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
@@ -764,100 +758,33 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
   /* Vain tunnin kertymä kelpaa. Hetkellinen precipitation_rate (mm/h) ei ole tunnin
      sademäärä; ilman kertymää rivi putoaa kokonaan Harmonielle. */
   const p = (typeof acc === 'number') ? acc : null;
-  const meta = metaBase || 'NC';
-  const metaStr = typeof meta === 'string' ? meta : 'NC';
-  const metaTag = (!hasNextHour && !metaStr.startsWith('NC!')) ? 'NC!sym' : metaStr;
   return {
     val:(typeof p==='number'?p:null),
-    meta: metaTag,
+    meta: hasNextHour ? 'NC' : 'NC!sym',
     gust:(typeof gust==='number'?gust:null),
     temp:(typeof airTemp==='number'?airTemp:null),
     sym
   };
 }
 
-async function ensureNowcastBundle(lat, lon){
-  const key = nowcastKey(lat, lon);
-  const now = Date.now();
-  let entry = nowcastShared.get(key);
-  if (!entry){
-    entry = { timeseries:null, fetchedAt:0, stale:false, meta:'NC!init', promise:null, retryAt:0 };
-    nowcastShared.set(key, entry);
-  }
-
-  if (entry.promise){
-    return entry.promise;
-  }
-
-  if (entry.timeseries){
-    if (!entry.stale && (now - entry.fetchedAt) <= NOWCAST_CACHE_TTL){
-      return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
-    }
-    if (entry.stale && now < entry.retryAt){
-      return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
-    }
-  }
-
-  entry.promise = (async()=>{
-    try{
-      const res = await fetchNowcastTimeseries(lat, lon);
-      if (res.ok){
-        entry.timeseries = res.timeseries;
-        entry.fetchedAt = Date.now();
-        entry.stale = false;
-        entry.meta = 'NC';
-        entry.retryAt = 0;
-        return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
-      }
-      entry.meta = res.meta || 'NC!err';
-      entry.retryAt = Date.now() + NOWCAST_RETRY_COOLDOWN;
-      if (entry.timeseries){
-        entry.stale = true;
-        return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
-      }
-      entry.timeseries = null;
-      entry.stale = false;
-      return { ok:false, timeseries:null, meta:entry.meta, stale:false };
-    } finally {
-      entry.promise = null;
-    }
-  })();
-
-  return entry.promise;
-}
-
-async function fetchNowcastForHour(lat, lon, dUTC){
-  const bundle = await ensureNowcastBundle(lat, lon);
-  if (!bundle || !bundle.ok){
-    return { val:null, meta: bundle?.meta || 'NC!err' };
-  }
-  const metaBase = bundle.meta || (bundle.stale ? 'NC~stale' : 'NC');
-  const picked = pickNowcastFromSeries(bundle.timeseries, dUTC, metaBase);
-  if (bundle.stale && picked.meta === 'NC'){
-    return { ...picked, meta:'NC~stale' };
-  }
-  return picked;
-}
-
-async function fetchNowcasts(lat, lon, targetHours){
-  if (!Array.isArray(targetHours) || !targetHours.length){
-    return new Map();
-  }
-  const results = await Promise.all(targetHours.map(h => {
-    const date = h?.time instanceof Date ? h.time : new Date(h?.key || h);
-    return fetchNowcastForHour(lat, lon, date).catch(() => ({ val:null, meta:'NC!err' }));
-  }));
+/* res = fetchNowcastTimeseriesin tulos. Epäonnistunut haku näkyy jokaisella rivillä
+   sen omalla tunnisteella (esim. NC!500), kuten aiemmin. */
+function pickNowcasts(res, targetHours){
   const map = new Map();
-  targetHours.forEach((hour, idx) => {
-    const key = hour?.key || (hour?.time instanceof Date ? hour.time.toISOString() : null);
-    if (key) map.set(key, results[idx] || { val:null, meta:'NC!err' });
-  });
+  for (const hour of targetHours){
+    let picked;
+    try {
+      picked = res.ok ? pickNowcastFromSeries(res.timeseries, hour.time) : { val:null, meta: res.meta };
+    } catch {
+      picked = { val:null, meta:'NC!err' };
+    }
+    map.set(hour.key, picked);
+  }
   return map;
 }
 
 function nowcastMetaTag(meta){
   if (typeof meta !== 'string') return 'NC';
-  if (meta.startsWith('NC~')) return 'NC~';
   if (meta.startsWith('NC!')) return 'NC!';
   return 'NC';
 }
@@ -2398,6 +2325,13 @@ function applyTemperatureMilestones(rows){
 
   out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
 
+  /* Nowcast ja aurinkoajat eivät riipu FMI:n vastauksesta, joten ne haetaan samaan aikaan
+     sen kanssa eikä vasta perään. Aurinkoajat esihaetaan päiville, joihin 13 tunnin ikkuna
+     osuu; fetchSunPhases hakee FMI:n jälkeen välimuistista ja tarvittaessa puuttuvat päivät. */
+  const loadHour = new Date(new Date().setMinutes(0,0,0));
+  const nowcastPending = fetchNowcastTimeseries(LAT, LON);
+  const sunPrefetch = fetchSunPhases(LAT, LON, [loadHour, new Date(loadHour.getTime() + 12*3600000)]).catch(() => null);
+
   try{
     const forecastData = await fetchForecast(LAT, LON);
     const now = new Date();
@@ -2412,11 +2346,12 @@ function applyTemperatureMilestones(rows){
       return;
     }
 
-    const nowcastTargets = upcoming.slice(0, 3);
-    const [nowcasts, sunPhases] = await Promise.all([
-      fetchNowcasts(LAT, LON, nowcastTargets),
+    await sunPrefetch;
+    const [nowcastRes, sunPhases] = await Promise.all([
+      nowcastPending,
       fetchSunPhases(LAT, LON, upcoming)
     ]);
+    const nowcasts = pickNowcasts(nowcastRes, upcoming.slice(0, 3));
 
     const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now });
     renderHourlyModel(model);

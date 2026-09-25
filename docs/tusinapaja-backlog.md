@@ -231,6 +231,31 @@ suhteellinen kynnys nostettiin 5 → 7 m/s keskituulta kovemmaksi (käyttäjän 
 Kiinteä 15 m/s kynnys pysyy. Kynnyksellä 5 puuska näkyi kokeessa neljällä rivillä 13:sta
 tavallisena tuulisena yönä (6 m/s → (11), 7 → (13), 7 → (12), 6 → (12)).
 
+### Haut rinnakkain, nowcastin välimuisti poistettu (2026-09)
+
+Nowcast ja met.no:n aurinkoajat haetaan samaan aikaan FMI:n kanssa eikä vasta sen jälkeen;
+kumpikaan ei riipu FMI:n vastauksesta. Aurinkoajat esihaetaan päiville, joihin 13 tunnin
+ikkuna osuu (latauksen tunti ja +12 h), ja `fetchSunPhases` täydentää FMI:n jälkeen vain
+puuttuvat päivät. Mitattu siepatuilla vastauksilla ja viiveillä FMI 1500 ms, nowcast ja
+aurinko 500 ms: latausaika 2080 ms → 1570 ms. 17 skenaariossa 19:stä `#out`, pyyntöjoukko
+ja virheet olivat merkilleen samat. Ero: kun FMI on kokonaan alhaalla, nowcast- ja
+aurinkopyyntö lähtevät nyt turhaan (ennen niitä ei tehty), näkymä on sama.
+
+Samalla poistettiin nowcastin välimuisti (`ensureNowcastBundle`, `NOWCAST_CACHE_TTL`,
+`NOWCAST_RETRY_COOLDOWN`, `NC~stale`-tila, `fetchNowcastForHour`). Sivu renderöidään kerran
+eikä päivity itsestään, joten välimuistiin ei koskaan osuttu toista kertaa; kolme rinnakkaista
+kutsua jakoivat saman haun. Jos sivulle tehdään joskus automaattinen päivitys, välimuisti
+kannattaa palauttaa.
+
+**Hylätty: aurinkoajat SunCalcista met.no:n sijaan.** Poistaisi yhden verkkohaun, mutta
+näkyvä nousu- tai laskuaika muuttuisi. Mitattu 3 paikkaa (Helsinki, Oulu, Utsjoki) × 24
+päivää 2026: 19 kellonaikaa 128:sta täsmäsi minuutilleen; SunCalc oli 88 kertaa 1–8 min
+myöhemmin ja 21 kertaa 1–4 min aiemmin, suurin ero 8 min (Utsjoki, elokuun lasku).
+`vendor/suncalc-1.9.0.js` on tavutarkasti npm:n suncalc 1.9.0, joten ero on kirjaston eikä
+vendoroinnin. Hämärärajat tulevat siis eri laskimesta kuin nousu ja lasku; jos SunCalcin
+hämärärajat ovat pielessä samaan suuntaan, illan porvarillinen hämärä näkyy muutaman
+minuutin liian pitkänä (päätelty, ei mitattu).
+
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
 Auringonnousun tai -laskun tunnilla ei anneta seuraavan vaiheen ilmoitusta
