@@ -225,11 +225,11 @@ näytteessä. Rivien 0–2 lämpötila ja sade pysyvät met.no:n nowcastissa.
 Smartmetin sademäärä on kolmella desimaalilla; se pyöristetään 0,1 mm:iin kuten Harmonien,
 muuten 0,04 mm näkyisi "0.0 mm".
 
-**Avoin: puuska.** Smartmet antaa `HourlyMaximumGust`in, ja se haetaan (`hour.gust`), mutta sitä
-ei käytetä. Tunnin maksimipuuska on hetkellistä kovempi, joten `windCell`in ehto "≥ 5 m/s
-keskituulta kovempi" täyttyi kokeessa neljällä rivillä 13:sta tavallisena tuulisena yönä
-(6 m/s → (11), 7 → (13), 7 → (12), 6 → (12)), kun ennen yhdelläkään. Käyttöönotto vaatii
-päätöksen kynnyksistä.
+**Puuska.** Smartmetin `HourlyMaximumGust` on käytössä joka rivillä; ensimmäisellä rivillä
+nowcastin puuska on varalla. Tunnin maksimipuuska on hetkellistä kovempi, joten `windCell`in
+suhteellinen kynnys nostettiin 5 → 7 m/s keskituulta kovemmaksi (käyttäjän päätös 2026-09).
+Kiinteä 15 m/s kynnys pysyy. Kynnyksellä 5 puuska näkyi kokeessa neljällä rivillä 13:sta
+tavallisena tuulisena yönä (6 m/s → (11), 7 → (13), 7 → (12), 6 → (12)).
 
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
