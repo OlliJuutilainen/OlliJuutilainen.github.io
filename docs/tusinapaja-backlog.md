@@ -188,6 +188,11 @@ välinen hyppy rivien 2 ja 3 välillä hyväksytään.
 Ajallinen täsmäys käyttää samaa `pickNowcastFromSeries`-sääntöä kuin sade: lähin aikapiste
 enintään 60 minuutin päästä. Ensimmäisellä rivillä se on käytännössä nykyhetken arvo.
 
+Nowcast-pyynnöstä poistettiin `altitude=0`. met.no käyttää parametria vain lämpötilan
+korkeuskorjaukseen, joten nolla laski lämpötilan merenpinnan tasolle (noin 0,65 °C / 100 m
+liian lämmin korkeammalla). Ilman parametria met.no käyttää omaa 1 km:n korkeusmalliaan.
+Tarkin olisi paikan oma korkeus salatussa paketissa; sitä ei vielä ole.
+
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
 Auringonnousun tai -laskun tunnilla ei anneta seuraavan vaiheen ilmoitusta
