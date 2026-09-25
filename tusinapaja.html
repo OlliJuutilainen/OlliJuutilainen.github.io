@@ -1910,6 +1910,8 @@ function renderRow(row, state){
   const skipCarryActive = !!(normalized && state.skipDittoKey && normalized === state.skipDittoKey);
   const effectiveSkipDitto = skipDitto || skipCarryActive;
   if (!effectiveSkipDitto && normalized && state.prevDescKey && normalized === state.prevDescKey){
+    /* Pääselitteen edellä olevat merkinnät (esim. auringonlasku) säilyvät "»":n yllä. */
+    let headHtml = '';
     let tailHtml = '';
     if (typeof descHtml === 'string' && descHtml.length){
       if (descHtml.startsWith(mainHtml)){
@@ -1917,6 +1919,7 @@ function renderRow(row, state){
       } else {
         const idx = descHtml.indexOf(mainHtml);
         if (idx >= 0){
+          headHtml = descHtml.slice(0, idx);
           tailHtml = descHtml.slice(idx + mainHtml.length);
         }
       }
@@ -1936,7 +1939,7 @@ function renderRow(row, state){
         }
       );
     }
-    displayDesc = '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
+    displayDesc = headHtml + '<span class="ditto" title="sama kuin edellä">&raquo;</span>' + (tailHtml || '');
   } else {
     state.prevDescKey = normalized || null;
   }

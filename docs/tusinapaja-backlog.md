@@ -167,6 +167,12 @@ Sateisen tunnin alkamisilmoitus saa nyt aina kellonajan.
 Kokeiltiin myös ilmoitusta laskutunnille (`nauttinen 19:56` klo 19) ja toiston
 estämistä seuraavalta riviltä; hylättiin käyttäjän päätöksellä.
 
+### Ditto-rivi säilyttää myös pääselitteen edellä olevat merkinnät
+
+`»`-rivillä näytetään pääselitteen edellä oleva osa (aurinkotapahtuma, esim.
+`auringonlasku 19:14`) `»`:n yläpuolella. Aiemmin ditto säilytti vain pääselitteen
+jälkeiset merkinnät, jolloin sateisen tunnin nousu- tai laskuaika katosi.
+
 ### Nowcastin sanasto
 
 Käyttäjän päättämät sanat:
@@ -189,9 +195,6 @@ putoavat Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_t
 `lightssleetshowersandthunder` kirjoitusvirheineen), joten "seppo riehuu", "sepon tiskivuoro"
 ja "lumiukkonen" eivät luultavasti koskaan näy – tarkistamatta. Koodilista ylipäätään on
 muistinvarainen; `?dbg=1` näyttää kääntämättömän sadekoodin hakasulkeissa.
-
-Avoinna myös: sateisella ditto-rivillä (`»`) auringonlaskumerkintä katoaa, koska ditto
-säilyttää vain pääselitteen jälkeiset merkinnät ja aurinkotapahtuma on sen edellä.
 
 ---
 
