@@ -1,7 +1,6 @@
 const DEFAULT_ALLOWED = [
   "https://ollijuutilainen.github.io",
   "http://localhost:8080",
-  "https://tusinasaa.fi",
 ];
 
 const DEFAULT_ALLOWED_SET = new Set(DEFAULT_ALLOWED);

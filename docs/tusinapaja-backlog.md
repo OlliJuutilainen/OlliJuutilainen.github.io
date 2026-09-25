@@ -13,6 +13,22 @@
 Tähän on kirjattu ratkaisuja, jotka näyttävät myöhemmin virheiltä tai jäämiltä, mutta
 ovat harkittuja. Tarkoitus on, ettei seuraava siivouskierros pura niitä vahingossa.
 
+### Tietoturva: mitä ei pidä palauttaa (2026-09)
+
+- **Kirjastot tulevat `vendor/`-kansiosta, ei CDN:stä.** unpkg- ja jsdelivr-skriptit ajettiin
+  samassa originissa ennen purkua, ja testissä CDN-tiedostoon lisätty rivi luki
+  `#t=…&k=…`:n. Älä palauta CDN-osoitteita ilman `integrity`-tarkistetta.
+- **`?tz=` escapoidaan ennen `prependError`ia.** `prependError` kirjoittaa `innerHTML`iin,
+  ja escapoimaton parametri ajoi JavaScriptiä.
+- **Hash-fragmenttia ei poisteta osoiteriviltä** (`history.replaceState`), vaikka avain
+  jää selaimen historiaan. Poisto rikkoisi sivun uudelleenlatauksen ja kirjanmerkit:
+  sijainti vaihtuisi hiljaa oletukseen.
+- **Koordinaatteja ei pyöristetä**, koska jo jaetut QR-koodit sisältävät tarkat arvot.
+- **Selväkielisiä sijainteja ei kirjata koodiin.** Sisartiedostoista poistettiin viisi
+  yksityistä pistettä; esimerkkinä on Helsingin keskusta.
+- **`generaattori.html` ei laita avainta K shell-komentoon**, koska shellin historia
+  tallentuu levylle ja varmuuskopioihin. Linkit tulostetaan erillisenä lohkona.
+
 ### `class="ditto"` jätetään, vaikka sille ei ole CSS-sääntöä
 
 `»`-merkki tuotetaan muodossa `<span class="ditto" title="sama kuin edellä">&raquo;</span>`.
