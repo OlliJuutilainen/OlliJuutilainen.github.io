@@ -2,6 +2,24 @@ plugins {
     id 'com.android.application'
 }
 
+String quoted(Object value) {
+    String s = value == null ? '' : value.toString().trim()
+    return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+}
+
+// Sijaintiversio ilman tokenia tai avainta avaisi vain virheilmoituksen, joten estetään
+// sellaisen rakentaminen jo Gradlessa. Perusversioon tämä ei vaikuta.
+gradle.taskGraph.whenReady { graph ->
+    boolean haakisRequested = graph.allTasks.any { it.project == project && it.name.contains('Haakis') }
+    if (haakisRequested) {
+        ['tusinasaa.haakis.token', 'tusinasaa.haakis.key'].each { name ->
+            if (!findProperty(name)?.toString()?.trim()) {
+                throw new GradleException("Puuttuu Gradle-ominaisuus '${name}'. Lisää se tiedostoon ~/.gradle/gradle.properties.")
+            }
+        }
+    }
+}
+
 android {
     namespace 'fi.tusinasaa'
     compileSdk 34
@@ -12,6 +30,28 @@ android {
         targetSdk 34
         versionCode 1
         versionName '1.1.1'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    // Omat sijaintiversiot: kukin asentuu omalla paketti-id:llään perusversion rinnalle ja
+    // avaa sisäänrakennetun token+avain-parin. Token ja avain luetaan Gradle-ominaisuuksista
+    // (esim. ~/.gradle/gradle.properties), eivät ne koskaan päädy repoon.
+    flavorDimensions 'sijainti'
+    productFlavors {
+        perus {
+            dimension 'sijainti'
+            buildConfigField 'String', 'BUILTIN_TOKEN', '""'
+            buildConfigField 'String', 'BUILTIN_KEY', '""'
+        }
+        haakis {
+            dimension 'sijainti'
+            applicationIdSuffix '.haakis'
+            buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.haakis.token'))
+            buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.haakis.key'))
+        }
     }
 
     buildTypes {
