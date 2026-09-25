@@ -1249,12 +1249,10 @@ function baseSunEventText(at, type){
   return `${verb} ${hhmm}.`;
 }
 
-function formatSunEventTag(sunEvent){
+function formatSunEventTag(sunEvent, { beforeMain = false } = {}){
   if (!sunEvent || !(sunEvent.at instanceof Date)) return null;
   const sentence = baseSunEventText(sunEvent.at, sunEvent.type);
   if (!sentence) return null;
-  const minutes = sunEvent.at.getMinutes();
-  const beforeMain = Number.isInteger(minutes) && minutes < 30;
   return {
     text: sentence,
     italic: true,
@@ -1631,7 +1629,11 @@ function decorateDescription(baseText, tw, { precipish, hourStart }){
   }
 
   if (tw.sunEvent){
-    const entry = formatSunEventTag(tw.sunEvent);
+    /* Aikajärjestys: hämäräpääsanan kanssa auringonlasku ennen iltahämärää (yläpuolelle),
+       auringonnousu aamuhämärän jälkeen (alle). Sääpääsanan kanssa aina alle. */
+    const entry = formatSunEventTag(tw.sunEvent, {
+      beforeMain: twilightMain && tw.sunEvent.type === 'set'
+    });
     if (entry) tags.push(entry);
   }
   if (startTag){
