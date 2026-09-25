@@ -171,6 +171,23 @@ ole tunnille `next_1_hours`-kertymää, koko rivi on Harmonieta ja noudattaa Har
 sääntöjä (`nowcastRow`), rivinumerosta riippumatta. Nowcast ulottuu noin kaksi tuntia,
 joten näin käy todennäköisesti aina kolmannella rivillä (ei tarkistettu oikeasta datasta).
 
+### Lämpötila riveillä 0–2 nowcastista, tuuli Harmoniesta (2026-09)
+
+Riveillä 0–2 lämpötila on nowcastin `instant.details.air_temperature`. Jos arvoa ei ole
+(nowcast ei yllä tunnille, virhe tai sijainti on nowcastin alueen ulkopuolella), käytetään
+Harmonieta. Lämpötilan lähde on riippumaton sateen lähteestä: kolmannella rivillä lämpötila voi
+olla nowcastia, vaikka sade putoaisi Harmonielle, koska hetkellinen lämpötila ulottuu pidemmälle
+kuin tunnin kertymä. `?src=1` näyttää lämpötilankin lähteen.
+
+Perusteet: FMI:n `harmonie::surface::point` on MetCoOpin MEPS-mallia sellaisenaan. Nowcast
+pohjaa samaan malliin, mutta MET Nordic korjaa lämpötilan havainnoilla (Netatmo, MET:n ja FMI:n
+asemat). Tuulelle MET Nordic tekee vain korkeusskaalauksen ilman havaintokorjausta, joten
+tuulen vaihtaminen ei toisi juuri mitään; se jää Harmonielle. Lähitunnin mallin ja nowcastin
+välinen hyppy rivien 2 ja 3 välillä hyväksytään.
+
+Ajallinen täsmäys käyttää samaa `pickNowcastFromSeries`-sääntöä kuin sade: lähin aikapiste
+enintään 60 minuutin päästä. Ensimmäisellä rivillä se on käytännössä nykyhetken arvo.
+
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
 Auringonnousun tai -laskun tunnilla ei anneta seuraavan vaiheen ilmoitusta
