@@ -679,7 +679,10 @@ function nowcastKey(lat, lon){
 
 async function fetchNowcastTimeseries(lat, lon){
   try{
-    const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&altitude=0`;
+    /* Ei altitude-parametria: met.no käyttää sitä vain lämpötilan korkeuskorjaukseen, ja
+       altitude=0 laskisi lämpötilan merenpinnan tasolle. Ilman sitä käytetään met.no:n omaa
+       korkeusmallia (GMTED2010, 1 km). */
+    const url = `https://api.met.no/weatherapi/nowcast/2.0/complete?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
     const res = await fetch(url, { cache:'no-store', headers: { 'Accept': 'application/json' } });
     if (!res.ok) return { ok:false, meta:`NC!${res.status}` };
     const js = await res.json();
