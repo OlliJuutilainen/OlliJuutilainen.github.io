@@ -202,6 +202,35 @@ Korjaus on siis käytössä nowcastissa, ja ilman parametria met.no:n korkeusmal
 ylängöllä oikeaan. Paikan oma korkeus salatussa paketissa toisi hyötyä lähinnä jyrkässä
 maastossa, jossa 1 km:n ruudun keskikorkeus poikkeaa paikasta; sitä ei ole tehty.
 
+### FMI:n pohjaennuste Smartmetista, Harmonie varalla (2026-09)
+
+FMI-lähde on `fmi::forecast::edited::weather::scandinavia::point`. FMI:n muutoslokin mukaan
+sen ensimmäiset 9 tuntia tulevat automaattisesti Smartmet nowcastista: MNWC-malli ajetaan
+tunneittain, lämpötila, kosteus, tuuli ja puuska harhakorjataan havainnoilla XGBoost-mallilla
+(Hieta & Partio 2025, RMSE −24…29 % raakamalliin verrattuna), sade tulee tutkasta (pySTEPS).
+Harmonie (MEPS, ajo 6 h välein) jää varalle, jos haku epäonnistuu tai ei tuota rivejä.
+Sisäisesti lähdetunnus on edelleen `'harmonie'` (= FMI:n pohjaennuste), koska monet säännöt
+nojaavat siihen; `?src=1` näyttää `FMI` tai `HRM` sen mukaan, kumpi oikeasti haettiin.
+
+Yksi näyte 25.9. klo 23 UTC (ennuste +1…+3 h, havainto 23:00, tuuli tasainen):
+
+| Paikka | Harmonie | Smartmet | Havainto |
+|---|---|---|---|
+| Kaisaniemi | 7,9–8,2 m/s | 5,6–6,0 | 3,9 |
+| Harmaja | 10,1–10,2 | 7,7–8,0 | 7,9 |
+
+Resoluutio avoimessa datassa on 7,5 km (Harmonie 2,5 km), mutta meren ja maan ero säilyi
+näytteessä. Rivien 0–2 lämpötila ja sade pysyvät met.no:n nowcastissa.
+
+Smartmetin sademäärä on kolmella desimaalilla; se pyöristetään 0,1 mm:iin kuten Harmonien,
+muuten 0,04 mm näkyisi "0.0 mm".
+
+**Avoin: puuska.** Smartmet antaa `HourlyMaximumGust`in, ja se haetaan (`hour.gust`), mutta sitä
+ei käytetä. Tunnin maksimipuuska on hetkellistä kovempi, joten `windCell`in ehto "≥ 5 m/s
+keskituulta kovempi" täyttyi kokeessa neljällä rivillä 13:sta tavallisena tuulisena yönä
+(6 m/s → (11), 7 → (13), 7 → (12), 6 → (12)), kun ennen yhdelläkään. Käyttöönotto vaatii
+päätöksen kynnyksistä.
+
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 
 Auringonnousun tai -laskun tunnilla ei anneta seuraavan vaiheen ilmoitusta
