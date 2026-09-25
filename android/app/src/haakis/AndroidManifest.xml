@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Haakis-versio avautuu vain käynnistimestä sisäänrakennetulla sijainnilla. Aktiviteetti
+  korvataan kokonaan, jotta perusversion VIEW-suodattimet (tusinasaa://, https) eivät periydy:
+  muuten molemmat sovellukset ilmoittautuisivat samoille linkeille ja Android kysyisi joka kerta.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false"
+            tools:node="replace">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

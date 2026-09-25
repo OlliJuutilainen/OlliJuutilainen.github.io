@@ -124,19 +124,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (lat == null || lon == null) {
-            lat = DEFAULT_LAT;
-            lon = DEFAULT_LON;
-            if (title == null) {
+        // Sijaintiversio (esim. Haakis) avaa oman token+avain-parinsa. Oletuskoordinaatteja
+        // ei silloin lisätä: jos purku epäonnistuu, sivu näyttää virheen eikä hiljaa
+        // Lemminkäisen temppelin säätä väärällä nimellä.
+        boolean builtinLocation = false;
+        if (token == null && key == null && lat == null && lon == null
+                && !TextUtils.isEmpty(BuildConfig.BUILTIN_TOKEN)
+                && !TextUtils.isEmpty(BuildConfig.BUILTIN_KEY)) {
+            token = BuildConfig.BUILTIN_TOKEN;
+            key = BuildConfig.BUILTIN_KEY;
+            builtinLocation = true;
+        }
+
+        if (!builtinLocation) {
+            if (lat == null || lon == null) {
+                lat = DEFAULT_LAT;
+                lon = DEFAULT_LON;
+                if (title == null) {
+                    title = DEFAULT_TITLE;
+                }
+            } else if (title == null && coordinatesMatchDefault(lat, lon)) {
                 title = DEFAULT_TITLE;
             }
-        } else if (title == null && coordinatesMatchDefault(lat, lon)) {
-            title = DEFAULT_TITLE;
         }
 
         Uri.Builder builder = Uri.parse(baseUrl).buildUpon();
-        builder.appendQueryParameter("lat", lat);
-        builder.appendQueryParameter("lon", lon);
+        if (lat != null && lon != null) {
+            builder.appendQueryParameter("lat", lat);
+            builder.appendQueryParameter("lon", lon);
+        }
         if (!TextUtils.isEmpty(zoom)) {
             builder.appendQueryParameter("z", zoom);
         }

@@ -668,7 +668,7 @@ async function fetchForecast(lat, lon){
   return { hours };
 }
 
-/* --------- MET Nowcast – sade + puuska + symbol_code --------- */
+/* --------- MET Nowcast – sade + puuska + lämpötila + symbol_code --------- */
 const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
 const NOWCAST_RETRY_COOLDOWN = 60 * 1000;
 const nowcastShared = new Map();
@@ -718,6 +718,7 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
   const hasNextHour = !!best?.data?.next_1_hours;
   const acc  = hasNextHour ? best?.data?.next_1_hours?.details?.precipitation_amount : undefined;
   const gust = best?.data?.instant?.details?.wind_speed_of_gust;
+  const airTemp = best?.data?.instant?.details?.air_temperature;
   const sym  = hasNextHour ? (best?.data?.next_1_hours?.summary?.symbol_code || null) : null;
 
   /* Vain tunnin kertymä kelpaa. Hetkellinen precipitation_rate (mm/h) ei ole tunnin
@@ -730,6 +731,7 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
     val:(typeof p==='number'?p:null),
     meta: metaTag,
     gust:(typeof gust==='number'?gust:null),
+    temp:(typeof airTemp==='number'?airTemp:null),
     sym
   };
 }
@@ -1882,6 +1884,9 @@ function renderRow(row, state){
   const {
     timeHtml,
     temp,
+    tempSource = null,
+    tempExpectedNowcast = false,
+    tempFallbackFromNowcast = false,
     descHtml,
     descMainHtml,
     descWhite,
@@ -1994,10 +1999,16 @@ function renderRow(row, state){
     .filter(Boolean)
     .join(' ');
   const windBadgeHtml = windBadges ? ` ${windBadges}` : '';
+  const tempBadge = buildSourceBadge({
+    source: tempSource,
+    expectedNowcast: !!tempExpectedNowcast,
+    fallbackFromNowcast: !!tempFallbackFromNowcast
+  });
+  const tempBadgeHtml = tempBadge ? ` ${tempBadge}` : '';
   return (
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
-      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}</div>`+
+      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}${tempBadgeHtml}</div>`+
       `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
       `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}${rainBadgeHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${wind.html}${windBadgeHtml}</div>`+
@@ -2043,6 +2054,14 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const gust = gustAvailable ? nowcast.gust : null;
   const gustSource = gustAvailable ? 'nowcast' : null;
   const windObj = windCell(hour.windSpeed, gust, hour.windDirection, { meanSource: 'harmonie', gustSource });
+  /* Lämpötila kolmella ensimmäisellä rivillä nowcastista: MET Nordic korjaa sen asema- ja
+     Netatmo-havainnoilla, Harmonie on raakaa MEPS-mallia. Tuuli jää Harmonielle, koska
+     nowcastin tuuli on samaa mallia ilman havaintokorjausta. Harmonie on varalla, jos
+     nowcast ei yllä tunnille tai sijainti on sen alueen ulkopuolella. */
+  const tempFromNowcast = isNowcastHour && nowcast && typeof nowcast.temp === 'number';
+  const temp = tempFromNowcast ? nowcast.temp : hour.temperature;
+  const tempSource = tempFromNowcast ? 'nowcast' : 'harmonie';
+  const tempFallbackFromNowcast = isNowcastHour && !tempFromNowcast;
   const rainExpectedNowcast = expectedNowcast;
   const descSelection = selectDescription({
     nowcastText: nowcastRow ? ncSymbolText(nowcastCode) : null,
@@ -2211,8 +2230,11 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     time: dUtc,
     timeHtml,
     timeWhite,
-    temp: hour.temperature,
+    temp,
     tempWhite,
+    tempSource,
+    tempExpectedNowcast: isNowcastHour,
+    tempFallbackFromNowcast,
     descHtml: finalDescHtml,
     descMainHtml: descMain,
     descWhite,
