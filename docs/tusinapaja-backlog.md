@@ -173,16 +173,16 @@ estämistä seuraavalta riviltä; hylättiin käyttäjän päätöksellä.
 `auringonlasku 19:14`) `»`:n yläpuolella. Aiemmin ditto säilytti vain pääselitteen
 jälkeiset merkinnät, jolloin sateisen tunnin nousu- tai laskuaika katosi.
 
-### Aurinkotapahtuma aina pääselitteen alla
+### Aurinkotapahtuman paikka: aikajärjestys hämäräpääsanan kanssa, muuten alla
 
-`formatSunEventTag` antaa aina `beforeMain: false`. Aiemmin tunnin alkupuoliskolle osuva
-nousu tai lasku meni pääselitteen yläpuolelle, ilmeisesti koska pääselite oli usein
-hämärävaihe ja tapahtuma sitä ennen. Nyt sää tai hämärä on ensin, aurinkotapahtuma alla,
-sekä kuivalla että sateisella rivillä. Käyttäjän päätös, mahdollisesti palautettava:
-palautus = `beforeMain` takaisin ehdoksi `minutes < 30`.
+Kun pääselite on hämärävaihe, merkinnät ovat aikajärjestyksessä: illalla auringonlasku
+yläpuolella (`auringonlasku 19:14` → `PORVARILLINEN HÄMÄRÄ` → seuraava vaihe), aamulla
+auringonnousu alla (`PORVARILLINEN HÄMÄRÄ` → `Aurinko nousee 07:45.`). Kun pääselite on
+sää (sateinen tai kuiva), aurinkotapahtuma on aina alla: `ripsii` → `auringonlasku 19:14`.
+Ehto on `twilightMain && sunEvent.type === 'set'` (`decorateDescription`).
 
-`buildDescriptionHtml`in `beforeMain`-haara ja ditto-rivin `headHtml` jäävät paikalleen,
-vaikka mikään merkintä ei nyt käytä niitä; ne tekevät palautuksesta yhden rivin muutoksen.
+Aiemmin sijainti riippui minuuteista (`< 30` yläpuolelle) pääselitteestä riippumatta.
+Palautus = `formatSunEventTag`in `beforeMain` takaisin ehdoksi `minutes < 30`.
 
 ### Nowcastin sanasto
 
