@@ -39,7 +39,7 @@ mittausten mukaan täysin vaikutuksettomia.
 Luokka **jää** silti paikalleen. Se on nimilappu, joka kertoo mitä elementti on, eikä
 viittaa sääntöön muualla; lisäksi se on valmis tartuntapinta jos ditto-merkki halutaan
 joskus tyylitellä erikseen. Tämä eroaa poistetusta `hh`-luokasta, joka viittasi
-sisartiedostojen (`saa_yr.html`, `tusinapuuska.html`) sääntöön `.t.hh{text-align:right}`
+arkistoitujen sisartiedostojen (`saa_yr.html`, `tusinapuuska.html`) sääntöön `.t.hh{text-align:right}`
 jota tässä tiedostossa ei koskaan ollut — se oli harhaanjohtava, ei kuvaava.
 
 Sama koskee `title`-attribuuttia: se on aito toiminto (selittää `»`-merkin hiirellä ja
@@ -59,8 +59,8 @@ ne ovat keskeneräisiä aikomuksia eivätkä jäämiä:
 
 ### `lowercaseMainDescription` on yhä kutsumaton
 
-Funktio on määritelty sekä `tusinapaja.html`:ssä että `tusinasaa.html`:ssä eikä sitä
-kutsuta kummassakaan. Sitä **ei** poistettu, koska yllä oleva työlistan kohta 1 nojaa
+Funktio on määritelty sekä `tusinapaja.html`:ssä että (nyt arkistoidussa) `tusinasaa.html`:ssä
+eikä sitä kutsuta kummassakaan. Sitä **ei** poistettu, koska yllä oleva työlistan kohta 1 nojaa
 siihen. Jos kohta 1 hylätään, funktio voi lähteä samalla.
 
 ### Hämärävaiheen alkuaika sulkeissa

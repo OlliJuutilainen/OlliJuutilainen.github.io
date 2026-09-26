@@ -65,10 +65,10 @@ Cloudflaren REST-rajapinnalla `curl`-komennolla.
 ## Tusinapaja on ainoa aktiivinen versio
 
 **Kaikki työ tehdään tiedostoon `tusinapaja.html`.** Kun käyttäjä sanoo "tusinasää",
-hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Tiedosto `tusinasaa.html`
-ja muut vanhat versiot (`tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html`) ovat
-vanhentuneita: älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse niitä
-vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
+hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat versiot
+(`tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html` ym.) on siirretty
+kansioon `arkisto/`. Älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse
+niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
 
 ## Tusinapajan tyylisäännöt
 
@@ -104,7 +104,7 @@ nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 
 ## Repon rakenne
 
-Vanhentuneet sisartiedostot (ks. yllä) sisältävät samannäköistä logiikkaa kuin
+`arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
 `tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
 
 `generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
