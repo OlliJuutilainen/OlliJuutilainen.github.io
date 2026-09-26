@@ -152,7 +152,7 @@ window.addEventListener('error', e => {
   }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  prependError(`Virhe: ${msg}${where}`);
+  prependError(`Error inexspectatus: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
@@ -160,7 +160,7 @@ window.addEventListener('unhandledrejection', e => {
     return;
   }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  prependError(`Odottamaton virhe: ${msg}`);
+  prependError(`Error inexspectatus: ${msg}`);
 });
 
 function base64urlToBytes(b64u){
