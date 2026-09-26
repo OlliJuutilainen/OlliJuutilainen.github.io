@@ -157,7 +157,7 @@ function setOut(html){
 /* Suomenkielisen virheen alle sama latinaksi: suomi, "Sama latinaksi:", latina, tyhjä rivi
    kunkin välissä. lang="la" ohjaa ruudunlukijan ääntämistä ja tavutusta.
    .err-luokan white-space:pre-wrap näyttää rivinvaihdot. Selaimen omat englanninkieliset
-   virheet saavat vain latinankielisen otsikon (Error inexspectatus). */
+   virheet saavat vain latinankielisen otsikon (Error inexspectātus). */
 function withLatin(fi, la){
   return la ? `${fi}\n\nSama latinaksi:\n\n<span lang="la">${la}</span>` : fi;
 }
@@ -173,7 +173,7 @@ window.addEventListener('error', e => {
   }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  prependError(`Error inexspectatus: ${msg}${where}`);
+  prependError(`Error inexspectātus: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
@@ -181,7 +181,7 @@ window.addEventListener('unhandledrejection', e => {
     return;
   }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  prependError(`Error inexspectatus: ${msg}`);
+  prependError(`Error inexspectātus: ${msg}`);
 });
 
 function base64urlToBytes(b64u){
@@ -213,12 +213,12 @@ async function fetchAndDecryptLocation(token, keyB64u){
     res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
   } catch (err) {
     console.error('Sijaintipalvelun haku epäonnistui', err);
-    throw bilingualError('sijaintipalveluun ei saatu yhteyttä.', 'tabularium locorum adiri non potuit.');
+    throw bilingualError('sijaintipalveluun ei saatu yhteyttä.', 'tabulārium locōrum adīrī nōn potuit.');
   }
   if (!res.ok){
     const errMsg = res.status === 404
-      ? bilingualError('sijaintia ei löytynyt sijaintipalvelusta.', 'locus in tabulario locorum non inventus est.')
-      : bilingualError(`sijaintipalvelu vastasi virhekoodilla ${res.status}.`, `tabularium locorum codice erroris ${res.status} respondit.`);
+      ? bilingualError('sijaintia ei löytynyt sijaintipalvelusta.', 'locus in tabulāriō locōrum nōn inventus est.')
+      : bilingualError(`sijaintipalvelu vastasi virhekoodilla ${res.status}.`, `tabulārium locōrum cōdice errōris ${res.status} respondit.`);
     throw errMsg;
   }
 
@@ -226,21 +226,21 @@ async function fetchAndDecryptLocation(token, keyB64u){
   try {
     payload = await res.json();
   } catch (err) {
-    throw bilingualError('sijaintipalvelun vastaus oli virheellinen.', 'responsum tabularii locorum vitiosum erat.');
+    throw bilingualError('sijaintipalvelun vastaus oli virheellinen.', 'respōnsum tabulāriī locōrum vitiōsum erat.');
   }
 
   if (!payload || typeof payload !== 'object'){
-    throw bilingualError('sijaintipalvelun vastaus oli tyhjä.', 'responsum tabularii locorum vacuum erat.');
+    throw bilingualError('sijaintipalvelun vastaus oli tyhjä.', 'respōnsum tabulāriī locōrum vacuum erat.');
   }
 
   const { v, iv, ct } = payload;
   const version = typeof v === 'string' ? parseInt(v, 10) : v;
   if (!Number.isFinite(version) || version !== 1){
     console.error('Tuntematon sijaintipaketin versio. Vastaanotettu paketti:', payload);
-    throw bilingualError('sijaintitiedon versio on tuntematon.', 'versio notitiae loci ignota est.');
+    throw bilingualError('sijaintitiedon versio on tuntematon.', 'versiō nōtitiae locī ignōta est.');
   }
   if (typeof iv !== 'string' || typeof ct !== 'string'){
-    throw bilingualError('sijaintitieto on vajaa.', 'notitia loci manca est.');
+    throw bilingualError('sijaintitieto on vajaa.', 'nōtitia locī manca est.');
   }
 
   let keyBytes, ivBytes, ctBytes;
@@ -249,21 +249,21 @@ async function fetchAndDecryptLocation(token, keyB64u){
     ivBytes = base64urlToBytes(iv);
     ctBytes = base64urlToBytes(ct);
   } catch (err) {
-    throw bilingualError('sijaintilinkin merkit ovat vääränlaiset.', 'litterae nexus loci pravae sunt.');
+    throw bilingualError('sijaintilinkin merkit ovat vääränlaiset.', 'litterae nexūs locī prāvae sunt.');
   }
 
   let cryptoKey;
   try {
     cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
   } catch (err) {
-    throw bilingualError('sijaintilinkin avain on vääränlainen.', 'clavis nexus loci prava est.');
+    throw bilingualError('sijaintilinkin avain on vääränlainen.', 'clāvis nexūs locī prāva est.');
   }
 
   let plaintext;
   try {
     plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
   } catch (err) {
-    throw bilingualError('sijaintilinkin avain ei täsmää.', 'clavis nexus loci non convenit.');
+    throw bilingualError('sijaintilinkin avain ei täsmää.', 'clāvis nexūs locī nōn convenit.');
   }
 
   let parsed;
@@ -271,11 +271,11 @@ async function fetchAndDecryptLocation(token, keyB64u){
     const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
     parsed = JSON.parse(decoded);
   } catch (err) {
-    throw bilingualError('sijaintitiedon sisältö on virheellinen.', 'argumentum notitiae loci vitiosum est.');
+    throw bilingualError('sijaintitiedon sisältö on virheellinen.', 'argūmentum nōtitiae locī vitiōsum est.');
   }
 
   if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
-    throw bilingualError('sijaintitiedosta puuttuvat koordinaatit.', 'notitiae loci desunt coordinatae.');
+    throw bilingualError('sijaintitiedosta puuttuvat koordinaatit.', 'nōtitiae locī dēsunt coordinātae.');
   }
 
   return parsed;
@@ -316,8 +316,8 @@ let hashError = null;
 if (HASH_TOKEN || HASH_KEY){
   if (!HASH_TOKEN || !HASH_KEY){
     const which = !HASH_TOKEN ? 'tunniste (#t)' : 'avain (#k)';
-    const whichLa = !HASH_TOKEN ? 'signum (#t)' : 'clavis (#k)';
-    hashError = withLatin(`Sijaintilinkistä puuttuu ${which}.`, `Nexui loci deest ${whichLa}.`);
+    const whichLa = !HASH_TOKEN ? 'signum (#t)' : 'clāvis (#k)';
+    hashError = withLatin(`Sijaintilinkistä puuttuu ${which}.`, `Nexuī locī deest ${whichLa}.`);
   } else {
     try {
       /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
@@ -337,7 +337,7 @@ if (HASH_TOKEN || HASH_KEY){
       const cap = t => t.charAt(0).toLocaleUpperCase('fi-FI') + t.slice(1);
       hashError = withLatin(
         err?.message ? `Sijainnin avaaminen epäonnistui:\n${cap(err.message)}` : 'Sijainnin avaaminen epäonnistui.',
-        err?.la ? `Locus aperiri non potuit:\n${cap(err.la)}` : 'Locus aperiri non potuit.'
+        err?.la ? `Locus aperīrī nōn potuit:\n${cap(err.la)}` : 'Locus aperīrī nōn potuit.'
       );
       console.error('Sijaintipaketin purku epäonnistui', err);
       if (err && typeof err === 'object') err.__tusinaHandled = true;
@@ -380,7 +380,7 @@ if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   defaultCoordinateNoticeMessage = withLatin(
     `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
     `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
-    'Ut programma alio dirigas, inscriptioni coordinatas adde, ut supra scriptum est.'
+    'Ut programma aliō dīrigās, īnscrīptiōnī coordinātās adde, ut suprā scrīptum est.'
   );
   prependError(defaultCoordinateNoticeMessage);
   LAT = DEFAULT_COORDINATES.lat;
@@ -442,7 +442,7 @@ if (tzOverride){
     const tzShown = tzOverride.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
     const msg = withLatin(
       `Aikavyöhykeparametri (${tzShown}) ei kelpaa; käytetään automaattista tunnistusta.`,
-      `Parametrum zonae horariae (${tzShown}) non valet; zona horaria sponte agnoscitur.`
+      `Parametrum zōnae hōrāriae (${tzShown}) nōn valet; zōna hōrāria sponte agnōscitur.`
     );
     prependError(msg);
     if (DBG){
@@ -671,7 +671,7 @@ function buildWfsForecast(lat,lon,sourceKey='edited'){
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt,'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
-  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); console.error('Ilmatieteen laitoksen virheilmoitus:', t ? t.textContent : ex.textContent); throw bilingualError('Ilmatieteen laitoksen palvelu hylkäsi haun.', 'Institutum Meteorologicum Fennicum petitionem reiecit.'); }
+  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); console.error('Ilmatieteen laitoksen virheilmoitus:', t ? t.textContent : ex.textContent); throw bilingualError('Ilmatieteen laitoksen palvelu hylkäsi haun.', 'Īnstitūtum Meteōrologicum Fennicum petītiōnem reiēcit.'); }
   return x;
 };
 const extractSeries = x => {
@@ -729,7 +729,7 @@ async function fetchForecastFrom(lat, lon, sourceKey){
     console.error('Ilmatieteen laitoksen haku epäonnistui', err);
     throw bilingualError(
       'Ilmatieteen laitokselle tietoja hakemaan lähtenyt apuri ei ole vieläkään tullut takaisin. Kenties liian huono sää?\n\nJos vastaava alkaa ilmetä päivästä toiseen toistuvana tapahtumasarjana, TUSINASÄÄ:n kehittäjäkonttorin väki kuulisi varmasti kovin mielellään uutisia tällaisista mystisistä tapahtumista.',
-      'Adiutor, qui ad Institutum Meteorologicum Fennicum notitias petitum profectus est, nondum rediit. Fortasse tempestas nimis foeda?\n\nSi quid simile cotidie iterum atque iterum accidere coeperit, familia officinae fabrorum TUSINASÄÄ de tam arcanis eventis sine dubio libentissime certior fiet.'
+      'Adiūtor, quī ad Īnstitūtum Meteōrologicum Fennicum nōtitiās petītum profectus est, nōndum rediit. Fortasse tempestās nimis foeda?\n\nSī quid simile cotīdiē iterum atque iterum accidere coeperit, familia officīnae fabrōrum TUSINASÄÄ dē tam arcānīs ēventīs sine dubiō libentissimē certior fīet.'
     );
   }
   const txt = await res.text();
@@ -737,7 +737,7 @@ async function fetchForecastFrom(lat, lon, sourceKey){
     console.error(`Ilmatieteen laitos HTTP ${res.status}`, txt.slice(0,400));
     throw bilingualError(
       `Ilmatieteen laitoksen palvelu vastasi virhekoodilla ${res.status}.`,
-      `Institutum Meteorologicum Fennicum codice erroris ${res.status} respondit.`
+      `Īnstitūtum Meteōrologicum Fennicum cōdice errōris ${res.status} respondit.`
     );
   }
   const forecastSeries = extractSeries(parseXML(txt));
@@ -2369,7 +2369,7 @@ function applyTemperatureMilestones(rows){
       const fallbackMessage = defaultCoordinateNoticeMessage || (
         withLatin(
           `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
-          'Coordinatae desunt aut vitiosae sunt; utere forma supra scripta.'
+          'Coordinātae dēsunt aut vitiōsae sunt; ūtere fōrmā suprā scrīptā.'
         )
       );
       out.innerHTML = `<div class="err">${fallbackMessage}</div>`;
