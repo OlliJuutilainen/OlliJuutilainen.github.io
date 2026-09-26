@@ -122,6 +122,8 @@
   .windDir{ display:block; margin-top:2px; font-size:11px }
   .err{ color:var(--color-error); white-space:pre-wrap; font-size:14px; margin-top:8px }
   .err [lang="la"]{ font-style:italic }
+  /* Hajurako ilmoitusten ja taulukon väliin; peräkkäisten ilmoitusten väli ei muutu. */
+  .err + :not(.err){ margin-top:18px }
 </style>
 </head>
 <body>
