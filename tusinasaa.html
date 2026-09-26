@@ -1829,7 +1829,11 @@ function rainCell(val, { markGrey=false, source=null, forceZeroText=false } = {}
   if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
   if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'', forceGrey:true, source };
-  const text = (n === 0 && forceZeroText) ? '0.0 mm' : n.toFixed(1)+' mm';
+  /* Nollaa suurempi määrä, joka pyöristyy 0.0:ksi, saa tilden: sadetta on, mutta alle 0.05 mm. */
+  const fixed = n.toFixed(1);
+  const text = (n === 0 && forceZeroText) ? '0.0 mm'
+    : (n > 0 && fixed === '0.0') ? '~0.0 mm'
+    : fixed+' mm';
   return { text, num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
