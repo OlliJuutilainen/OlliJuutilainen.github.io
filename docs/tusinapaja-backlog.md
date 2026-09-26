@@ -39,7 +39,7 @@ mittausten mukaan täysin vaikutuksettomia.
 Luokka **jää** silti paikalleen. Se on nimilappu, joka kertoo mitä elementti on, eikä
 viittaa sääntöön muualla; lisäksi se on valmis tartuntapinta jos ditto-merkki halutaan
 joskus tyylitellä erikseen. Tämä eroaa poistetusta `hh`-luokasta, joka viittasi
-sisartiedostojen (`saa_yr.html`, `tusinapuuska.html`) sääntöön `.t.hh{text-align:right}`
+arkistoitujen sisartiedostojen (`saa_yr.html`, `tusinapuuska.html`) sääntöön `.t.hh{text-align:right}`
 jota tässä tiedostossa ei koskaan ollut — se oli harhaanjohtava, ei kuvaava.
 
 Sama koskee `title`-attribuuttia: se on aito toiminto (selittää `»`-merkin hiirellä ja
@@ -59,8 +59,8 @@ ne ovat keskeneräisiä aikomuksia eivätkä jäämiä:
 
 ### `lowercaseMainDescription` on yhä kutsumaton
 
-Funktio on määritelty sekä `tusinapaja.html`:ssä että `tusinasaa.html`:ssä eikä sitä
-kutsuta kummassakaan. Sitä **ei** poistettu, koska yllä oleva työlistan kohta 1 nojaa
+Funktio on määritelty sekä `tusinapaja.html`:ssä että (nyt arkistoidussa) `tusinasaa.html`:ssä
+eikä sitä kutsuta kummassakaan. Sitä **ei** poistettu, koska yllä oleva työlistan kohta 1 nojaa
 siihen. Jos kohta 1 hylätään, funktio voi lähteä samalla.
 
 ### Hämärävaiheen alkuaika sulkeissa
@@ -223,7 +223,8 @@ Resoluutio avoimessa datassa on 7,5 km (Harmonie 2,5 km), mutta meren ja maan er
 näytteessä. Rivien 0–2 lämpötila ja sade pysyvät met.no:n nowcastissa.
 
 Smartmetin sademäärä on kolmella desimaalilla; se pyöristetään 0,1 mm:iin kuten Harmonien,
-muuten 0,04 mm näkyisi "0.0 mm".
+muuten 0,04 mm näkyisi "0.0 mm". Pyöristämätön arvo säilyy kentässä `precipitationRaw`
+näyttöä varten (ks. "Pieni sade: `~0.0 mm`").
 
 **Puuska.** Smartmetin `HourlyMaximumGust` on käytössä joka rivillä; ensimmäisellä rivillä
 nowcastin puuska on varalla. Tunnin maksimipuuska on hetkellistä kovempi, joten `windCell`in
@@ -255,6 +256,16 @@ myöhemmin ja 21 kertaa 1–4 min aiemmin, suurin ero 8 min (Utsjoki, elokuun la
 vendoroinnin. Hämärärajat tulevat siis eri laskimesta kuin nousu ja lasku; jos SunCalcin
 hämärärajat ovat pielessä samaan suuntaan, illan porvarillinen hämärä näkyy muutaman
 minuutin liian pitkänä (päätelty, ei mitattu).
+
+### Pieni sade: `~0.0 mm` (2026-09, käyttäjän päätös)
+
+Kun sateisella tunnilla pyöristetty määrä on 0 ja rivi näyttäisi `0.0 mm`, mutta
+pyöristämätön ennustearvo (`precipitationRaw`) on nollaa suurempi, näytetään `~0.0 mm`.
+Tasan 0 sateisella selitteellä on edelleen `0.0 mm`, ja kuivalla selitteellä pieni määrä
+on `—`. Märkä/kuiva-päättely, korostukset ja harmaus käyttävät yhä pyöristettyä arvoa;
+tilde muuttaa vain tekstin. Nowcast-riveihin tämä ei vaikuta: met.no antaa määrän
+0,1 mm:n tarkkuudella, joten sen alle 0,1:n kynnys (`nowcast.val < 0.1 ? 0`) ei käytännössä
+muuta mitään (tarkistettu viidestä pisteestä 2026-09-26).
 
 ### Aurinkotapahtuman tunnin jälkeinen vaihe seuraavalla rivillä, kellonajan kanssa
 

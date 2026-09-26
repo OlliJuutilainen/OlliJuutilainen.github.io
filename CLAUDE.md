@@ -50,10 +50,9 @@ Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei al
 
 ## Ympäristön reunaehdot
 
-**Git push ei toimi tästä ympäristöstä** (403 välityspalvelimelta). Committaa normaalisti,
-mutta älä jää yrittämään pushia toistuvasti äläkä kirjoita historiaa uusiksi sen takia.
-Käyttäjä vie muutokset GitHubin selaineditorilla. Toimita valmis tiedosto liitteenä
-`.txt`-päätteellä — `.html` avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
+**Pushaa itse.** Sinulla on oikeus pushata annetulle kehityshaaralle; aiempi 403-este on
+poistunut. Jos toimitat tiedoston lisäksi liitteenä, käytä `.txt`-päätettä — `.html`
+avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
 
 **Kehityskone on macOS Big Sur.** Uusin `wrangler` kaatuu siinä hiljaa virheeseen
 `dyld: Symbol not found: _SecTrustCopyCertificateChain`, koska sen mukana tuleva esbuild
@@ -62,6 +61,14 @@ joka käyttää eri syntaksia: `kv:key` kaksoispisteellä eikä `--remote`-lippu
 **Älä päivitä sitä `@latest`- tai 4-versioon.** Androidilla (Termux) wrangler ei toimi
 millään versiolla, koska `workerd` ei käänny Bionicille; sieltä KV-kirjoitus tehdään
 Cloudflaren REST-rajapinnalla `curl`-komennolla.
+
+## Tusinapaja on ainoa aktiivinen versio
+
+**Kaikki työ tehdään tiedostoon `tusinapaja.html`.** Kun käyttäjä sanoo "tusinasää",
+hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat versiot
+(`tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html` ym.) on siirretty
+kansioon `arkisto/`. Älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse
+niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
 
 ## Tusinapajan tyylisäännöt
 
@@ -85,16 +92,20 @@ selite, sade, tuuli. Hämärävaiheiden esitystä koskevat säännöt:
 - Ditto-rivillä (`»`) ei näytetä paljasta kellonaikaa. Seuraavan vaiheen ilmoitus saa
   jäädä, koska se nimeää vaiheen itse.
 
+Sademäärä:
+
+- Nollasade on `—`. Jos pyöristetty määrä on 0 mutta selite on sateinen, näytetään `0.0 mm`.
+- Jos tällöin pyöristämätön ennustearvo on nollaa suurempi (alle 0,05 mm), näytetään
+  `~0.0 mm`. Kuivalla selitteellä pieni määrä näkyy edelleen `—`.
+
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
 -merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee. Se on
 nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 
 ## Repon rakenne
 
-Sisartiedostot `tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html` ja `saa_fmi.html`
-polveutuvat osin samasta suvusta ja sisältävät samannäköistä logiikkaa. **Ne ovat
-erillisiä tiedostoja**: korjaus yhteen ei siirry toisiin, eikä niihin pidä koskea ilman
-erillistä pyyntöä.
+`arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
+`tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
 
 `generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
