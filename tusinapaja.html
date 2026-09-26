@@ -142,15 +142,24 @@
 /* backlog: docs/tusinapaja-backlog.md */
 const out = document.getElementById('out');
 
+/* Ilmoitukset talletetaan, jotta ne säilyvät kun näkymä kirjoitetaan myöhemmin uudelleen.
+   Aiemmin "Ladataan…" pyyhki ennen latausta annetut ilmoitukset (esim. kelvoton ?tz=)
+   heti pois. */
+const notices = [];
 function prependError(message){
+  notices.unshift(message);
   out.innerHTML = `<div class="err">${message}</div>` + out.innerHTML;
 }
+function setOut(html){
+  out.innerHTML = notices.map(m => `<div class="err">${m}</div>`).join('') + html;
+}
 
-/* Suomenkielisen virheen alle sama latinaksi: suomi, viiva omalla rivillään, latina.
+/* Suomenkielisen virheen alle sama latinaksi: suomi, viiva, "Sama latinaksi:", latina,
+   tyhjä rivi kunkin välissä.
    .err-luokan white-space:pre-wrap näyttää rivinvaihdot. Selaimen omat englanninkieliset
    virheet saavat vain latinankielisen otsikon (Error inexspectatus). */
 function withLatin(fi, la){
-  return la ? `${fi}\n—\n${la}` : fi;
+  return la ? `${fi}\n\n—\n\nSama latinaksi:\n\n${la}` : fi;
 }
 function bilingualError(fi, la){
   const err = new Error(fi);
@@ -2297,17 +2306,14 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
 function renderHourlyModel(model){
   const rows = model?.rows || [];
   const htmlParts = [];
-  if (defaultCoordinateNoticeMessage){
-    htmlParts.push(`<div class="err">${defaultCoordinateNoticeMessage}</div>`);
-  }
   if (!rows.length){
     htmlParts.push('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
-    out.innerHTML = htmlParts.join('');
+    setOut(htmlParts.join(''));
     return;
   }
   const state = { prevDescKey: null, skipDittoKey: null };
   htmlParts.push(...rows.map(row => renderRow(row, state)));
-  out.innerHTML = htmlParts.join('');
+  setOut(htmlParts.join(''));
 }
 
 function applyTemperatureMilestones(rows){
@@ -2366,7 +2372,7 @@ function applyTemperatureMilestones(rows){
       return;
     }
 
-  out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
+  setOut('<div class="muted">Ladataan säätietoja…</div>');
 
   /* Nowcast ja aurinkoajat eivät riipu FMI:n vastauksesta, joten ne haetaan samaan aikaan
      sen kanssa eikä vasta perään. Aurinkoajat esihaetaan päiville, joihin 13 tunnin ikkuna
@@ -2385,7 +2391,7 @@ function applyTemperatureMilestones(rows){
     }).slice(0, 13);
 
     if (!upcoming.length){
-      out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+      setOut('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
       return;
     }
 
@@ -2400,7 +2406,7 @@ function applyTemperatureMilestones(rows){
     renderHourlyModel(model);
   }catch(e){
     const msg = (e && e.message) ? e.message : String(e);
-    out.innerHTML = `<div class="err">${withLatin(msg, e?.la)}</div>`;
+    setOut(`<div class="err">${withLatin(msg, e?.la)}</div>`);
   }
 })();
 </script>
