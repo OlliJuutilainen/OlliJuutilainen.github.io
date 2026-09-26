@@ -154,12 +154,12 @@ function setOut(html){
   out.innerHTML = notices.map(m => `<div class="err">${m}</div>`).join('') + html;
 }
 
-/* Suomenkielisen virheen alle sama latinaksi: suomi, viiva, "Sama latinaksi:", latina,
-   tyhjä rivi kunkin välissä.
+/* Suomenkielisen virheen alle sama latinaksi: suomi, "Sama latinaksi:", latina, tyhjä rivi
+   kunkin välissä. lang="la" ohjaa ruudunlukijan ääntämistä ja tavutusta.
    .err-luokan white-space:pre-wrap näyttää rivinvaihdot. Selaimen omat englanninkieliset
    virheet saavat vain latinankielisen otsikon (Error inexspectatus). */
 function withLatin(fi, la){
-  return la ? `${fi}\n\n—\n\nSama latinaksi:\n\n${la}` : fi;
+  return la ? `${fi}\n\nSama latinaksi:\n\n<span lang="la">${la}</span>` : fi;
 }
 function bilingualError(fi, la){
   const err = new Error(fi);
@@ -333,8 +333,12 @@ if (HASH_TOKEN || HASH_KEY){
         console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
       }
     } catch (err) {
-      const detail = err?.message ? `: ${err.message}` : '';
-      hashError = withLatin(`Sijainnin avaaminen epäonnistui${detail}`, `Locus aperiri non potuit${err?.la ? `: ${err.la}` : '.'}`);
+      /* Tarkennus omalle rivilleen omana virkkeenään. */
+      const cap = t => t.charAt(0).toLocaleUpperCase('fi-FI') + t.slice(1);
+      hashError = withLatin(
+        err?.message ? `Sijainnin avaaminen epäonnistui:\n${cap(err.message)}` : 'Sijainnin avaaminen epäonnistui.',
+        err?.la ? `Locus aperiri non potuit:\n${cap(err.la)}` : 'Locus aperiri non potuit.'
+      );
       console.error('Sijaintipaketin purku epäonnistui', err);
       if (err && typeof err === 'object') err.__tusinaHandled = true;
     }
@@ -724,7 +728,7 @@ async function fetchForecastFrom(lat, lon, sourceKey){
        Alkuperäinen virhe jää konsoliin. */
     console.error('Ilmatieteen laitoksen haku epäonnistui', err);
     throw bilingualError(
-      'Ilmatieteen laitokselle tietoja hakemaan lähtenyt apuri ei ole vieläkään tullut takaisin. Kenties liian huono sää?\n\nJos vastaava alkaa ilmenemään päivästä toiseen toistuvana tapahtumasarjana, TUSINASÄÄ:n kehittäjäkonttorin väki kuulisi varmasti kovin mielellään uutisia tällaisista mystisistä tapahtumista.',
+      'Ilmatieteen laitokselle tietoja hakemaan lähtenyt apuri ei ole vieläkään tullut takaisin. Kenties liian huono sää?\n\nJos vastaava alkaa ilmetä päivästä toiseen toistuvana tapahtumasarjana, TUSINASÄÄ:n kehittäjäkonttorin väki kuulisi varmasti kovin mielellään uutisia tällaisista mystisistä tapahtumista.',
       'Adiutor, qui ad Institutum Meteorologicum Fennicum notitias petitum profectus est, nondum rediit. Fortasse tempestas nimis foeda?\n\nSi quid simile cotidie iterum atque iterum accidere coeperit, familia officinae fabrorum TUSINASÄÄ de tam arcanis eventis sine dubio libentissime certior fiet.'
     );
   }
