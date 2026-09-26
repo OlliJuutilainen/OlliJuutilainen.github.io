@@ -778,6 +778,8 @@ async function fetchForecastFrom(lat, lon, sourceKey){
     /* Harmonie antaa sademäärän 0,1 mm:n tarkkuudella, edited kolmella desimaalilla; ilman
        pyöristystä 0,04 mm näkyisi "0.0 mm". Harmonien arvoihin pyöristys ei vaikuta. */
     precipitation: roundTenth(forecastSeries.precipitation1h?.get(key)),
+    /* Pyöristämätön arvo vain näyttöä varten: "~0.0 mm", kun sadetta on mutta alle 0,05 mm. */
+    precipitationRaw: forecastSeries.precipitation1h?.get(key) ?? null,
     windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
     windDirection: forecastSeries.winddirection?.get(key) ?? null,
     smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null,
@@ -1876,11 +1878,11 @@ function computeHighlightStates({ nowcastRow, rainVal, descWet, descWeak, descTh
 }
 
 /* --------- solut --------- */
-function rainCell(val, { markGrey=false, source=null, forceZeroText=false } = {}){
+function rainCell(val, { markGrey=false, source=null, forceZeroText=false, approxZero=false } = {}){
   if (val==null || isNaN(Number(val))) return { text:'–', num:null, extraClass:'', forceGrey:true, source };
   const n = Number(val);
   if (n === 0 && !forceZeroText) return { text:'—', num:0, extraClass:'', forceGrey:true, source };
-  const text = (n === 0 && forceZeroText) ? '0.0 mm' : n.toFixed(1)+' mm';
+  const text = (n === 0 && forceZeroText) ? (approxZero ? '~0.0 mm' : '0.0 mm') : n.toFixed(1)+' mm';
   return { text, num:n, extraClass:'', forceGrey:markGrey, source };
 }
 function formatWindSpeed(val){
@@ -2229,7 +2231,8 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const hasRainOrThunderDescriptor = descThunder || (descWet && !descFog);
   if (!nowcastRow && rainVal === 0 && hasRainOrThunderDescriptor){
     const markGrey = rainObj ? !!rainObj.forceGrey : false;
-    rainObj = rainCell(rainVal, { markGrey, source: rainSource, forceZeroText: true });
+    const approxZero = typeof hour.precipitationRaw === 'number' && hour.precipitationRaw > 0;
+    rainObj = rainCell(rainVal, { markGrey, source: rainSource, forceZeroText: true, approxZero });
   }
 
   let { rainWhite, descWhite } = highlight;
