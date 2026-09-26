@@ -121,6 +121,7 @@
   .row > div:nth-child(5){ font-size:16px }
   .windDir{ display:block; margin-top:2px; font-size:11px }
   .err{ color:var(--color-error); white-space:pre-wrap; font-size:14px; margin-top:8px }
+  .err [lang="la"]{ font-style:italic }
 </style>
 </head>
 <body>
@@ -154,12 +155,12 @@ function setOut(html){
   out.innerHTML = notices.map(m => `<div class="err">${m}</div>`).join('') + html;
 }
 
-/* Suomenkielisen virheen alle sama latinaksi: suomi, "Sama latinaksi:", latina, tyhjä rivi
-   kunkin välissä. lang="la" ohjaa ruudunlukijan ääntämistä ja tavutusta.
+/* Suomenkielisen virheen alle sama latinaksi: suomi, tyhjä rivi, "Sama latinaksi:" ja heti
+   sen alla latina (kursiivilla). lang="la" ohjaa ruudunlukijan ääntämistä ja tavutusta.
    .err-luokan white-space:pre-wrap näyttää rivinvaihdot. Selaimen omat englanninkieliset
    virheet saavat vain latinankielisen otsikon (Error inexspectātus). */
 function withLatin(fi, la){
-  return la ? `${fi}\n\nSama latinaksi:\n\n<span lang="la">${la}</span>` : fi;
+  return la ? `${fi}\n\nSama latinaksi:\n<span lang="la">${la}</span>` : fi;
 }
 /* Latinankielisessä tekstissä virhekoodi roomalaisin numeroin: 503 -> DIII. */
 function romanNumeral(n){
@@ -171,6 +172,18 @@ function romanNumeral(n){
     while (n >= value){ out += glyph; n -= value; }
   }
   return out;
+}
+/* Esimerkkikoordinaatti latinaksi: kokonais- ja desimaaliosa kumpikin roomalaisin
+   numeroin, nolla keskiajan tapaan N (nulla). Vain huumoria; ohje pyytää lukijaa
+   käyttämään arabialaisia numeroita. */
+function romanCoordinate(value){
+  const part = t => (Number(t) === 0 ? 'N' : romanNumeral(Number(t)));
+  const [whole, frac] = String(value).split('.');
+  return frac ? `${part(whole)}.${part(frac)}` : part(whole);
+}
+function latinCoordinateHint(lat, lon){
+  return `<code>?lat=${romanCoordinate(lat)}&lon=${romanCoordinate(lon)}</code>\n` +
+    '(Quaesumus, ut numerīs Arabicīs ūtāris; nōs eōs scrībere taedet.)';
 }
 function bilingualError(fi, la){
   const err = new Error(fi);
@@ -184,7 +197,7 @@ window.addEventListener('error', e => {
   }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  prependError(`Error inexspectātus: ${msg}${where}`);
+  prependError(`<span lang="la">Error inexspectātus:</span> ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
@@ -192,7 +205,7 @@ window.addEventListener('unhandledrejection', e => {
     return;
   }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  prependError(`Error inexspectātus: ${msg}`);
+  prependError(`<span lang="la">Error inexspectātus:</span> ${msg}`);
 });
 
 function base64urlToBytes(b64u){
@@ -391,7 +404,7 @@ if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   defaultCoordinateNoticeMessage = withLatin(
     `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
     `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
-    'Ut programma aliō dīrigās, īnscrīptiōnī coordinātās adde, ut suprā scrīptum est.'
+    `Ut programma aliō dīrigās, īnscrīptiōnī coordinātās hōc modō adde:\n${latinCoordinateHint(sampleLat, sampleLon)}`
   );
   prependError(defaultCoordinateNoticeMessage);
   LAT = DEFAULT_COORDINATES.lat;
@@ -2380,7 +2393,7 @@ function applyTemperatureMilestones(rows){
       const fallbackMessage = defaultCoordinateNoticeMessage || (
         withLatin(
           `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
-          'Coordinātae dēsunt aut vitiōsae sunt; ūtere fōrmā suprā scrīptā.'
+          `Coordinātae dēsunt aut vitiōsae sunt. Hōc modō ūtere:\n${latinCoordinateHint(sampleLat, sampleLon)}`
         )
       );
       out.innerHTML = `<div class="err">${fallbackMessage}</div>`;
@@ -2423,7 +2436,7 @@ function applyTemperatureMilestones(rows){
     const msg = (e && e.message) ? e.message : String(e);
     /* Omat virheet ovat kaksikielisiä; kaikki muu on selaimen englantia ja saa latinankielisen
        otsikon kuten ikkunatason virheet. */
-    setOut(`<div class="err">${e?.la ? withLatin(msg, e.la) : `Error inexspectātus: ${msg}`}</div>`);
+    setOut(`<div class="err">${e?.la ? withLatin(msg, e.la) : `<span lang="la">Error inexspectātus:</span> ${msg}`}</div>`);
   }
 })();
 </script>
