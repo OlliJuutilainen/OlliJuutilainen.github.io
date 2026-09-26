@@ -12,6 +12,7 @@ versio on juuren `tusinapaja.html` (sivun otsikko `TUSINASÄÄ 12`).
 Muut:
 
 - `vauva-syvyys.html` – `vauva.html`:n vanha versio
+- `hampaattomuus-vauvassa.html` – `vauva.html`:n rinnakkaisversio; oikea on `vauva.html`
 
 Tiedostot siirrettiin tänne 2026-09-26 sellaisinaan. Ne viittaavat `vendor/`-kansioon
 suhteellisella polulla, joten täältä avattuina ne eivät löydä SunCalcia ja tz-lookupia.
