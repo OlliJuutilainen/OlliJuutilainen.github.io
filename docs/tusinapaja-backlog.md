@@ -390,10 +390,18 @@ Todisteet:
 - Selaimessa oikealla datalla (Kuopio 2026-09-27 00:17): rivi 0 nowcast 0,8 mm (00:15–01:15),
   rivi "klo 01" 0,9 mm = FMI 22Z = 00–01. Rivit 0 ja 1 kattavat lähes saman tunnin.
 
-Seuraukset: rivin 0 FMI-arvo (jos nowcast puuttuu) on kokonaan mennyttä tuntia; nowcastin kanssa
-rivit 0 ja 1 laskevat saman sateen kahdesti; koko sadesarake on tunnin "myöhässä" hämärään
-nähden, ja "kuivan tunnin" hämäräsääntö vertaa eri tunteja. Korjaus avoinna (ks. keskustelu
-2026-09-26): rivin H sade, symboli ja puuska aikaleimalta H+1.
+Seuraukset ennen korjausta: rivin 0 FMI-arvo (jos nowcast puuttui) oli kokonaan mennyttä
+tuntia; nowcastin kanssa rivit 0 ja 1 laskivat saman sateen kahdesti; koko sadesarake oli tunnin
+"myöhässä" hämärään nähden, ja "kuivan tunnin" hämäräsääntö vertasi eri tunteja.
+
+**Korjattu 2026-09-26** (`fetchForecastFrom`): rivin H sade (`precipitation`, `precipitationRaw`),
+`SmartSymbol` ja puuska luetaan aikaleimalta H+1. Lämpötila, keskituuli ja suunta jäävät H:lle.
+Oikealla datalla (Kuopio, 13 riviä) sade, selite ja puuska siirtyivät riviä ylemmäs; lämpötilan
+ja keskituulen arvot eivät muuttuneet millään rivillä. Ajan ja lämpötilan *väri* voi muuttua,
+koska korostus seuraa rivin sateisuutta (mittauksessa yksi rivi harmaantui, kun sen tunti
+muuttui tihkuksi). Symbolin pilvisyysosa kuvaa nyt tunnin loppuhetkeä. Rivit 0 ja 1 menevät
+yhä päällekkäin sen verran kuin kello on yli tasan (nowcast nyt…+1 h, rivi 1 H+1…H+2).
+Palautus: `hourEnd` → `key` neljässä kentässä.
 
 ---
 
