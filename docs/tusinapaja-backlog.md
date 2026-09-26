@@ -312,12 +312,28 @@ Käyttäjän päättämät sanat:
 Jokaisella sanalla on myös `NOWCAST_INFO`-merkintä; nowcast-rivin korostus ja hämärälogiikka
 nojaavat siihen eikä tekstiin.
 
-Avoinna: ukkosyhdistelmät (noin 18 met.no-koodia, `*andthunder`) ovat kääntämättä ja
-putoavat Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_thunder` ja
-`snowshowers_and_thunder` eivät ole met.no:n koodeja (met.no kirjoittaa ilman alaviivoja ja
-`lightssleetshowersandthunder` kirjoitusvirheineen), joten "seppo riehuu", "sepon tiskivuoro"
-ja "lumiukkonen" eivät luultavasti koskaan näy – tarkistamatta. Koodilista ylipäätään on
-muistinvarainen; `?dbg=1` näyttää kääntämättömän sadekoodin hakasulkeissa.
+**Koodit tarkistettu 2026-09-26** met.no:n locationforecast-skeeman `WeatherSymbol`-enumista
+(83 koodia, 41 perusmuotoa) ja `metno/weathericons`-repon `legend.csv`:stä; lähteet
+täsmäävät keskenään. Korjattiin:
+
+- `lightsleetshowers_and_thunder` → `lightssleetshowersandthunder` ("sepon tiskivuoro").
+  Kaksi s:ää on met.no:n virallinen kirjoitusasu, ei virhe koodissa. Sama koskee
+  `lightssnowshowersandthunder`ia.
+- `snowshowers_and_thunder` → `snowshowersandthunder` ("lumiukkonen").
+- `ncBase` riisuu nyt myös päätteen `_polartwilight`; aiemmin esim. `fair_polartwilight`
+  jäi kääntämättä ja putosi Harmonielle. Etelä-Suomessa, Utsjoella ja Longyearbyenissä
+  päätettä ei esiintynyt 2026-09-26 haetussa ennusteessa.
+
+Avoinna:
+
+- `thunderstorm` ("seppo riehuu") ei ole met.no:n koodi eikä sillä ole suoraa vastinetta.
+  Jätetty paikalleen, kunnes käyttäjä päättää mihin koodiin sana kuuluu.
+- Kääntämättä 15 ukkoskoodia: `lightrainshowersandthunder`, `heavyrainshowersandthunder`,
+  `sleetshowersandthunder`, `heavysleetshowersandthunder`, `lightssnowshowersandthunder`,
+  `heavysnowshowersandthunder`, `lightrainandthunder`, `rainandthunder`,
+  `heavyrainandthunder`, `lightsleetandthunder`, `sleetandthunder`, `heavysleetandthunder`,
+  `lightsnowandthunder`, `snowandthunder`, `heavysnowandthunder`. Ne putoavat Harmonielle;
+  `?dbg=1` näyttää kääntämättömän koodin hakasulkeissa.
 
 ---
 
@@ -341,8 +357,9 @@ Tämä on kokeilu. Alla on se, mitä tarvitaan jos linja halutaan myöhemmin kä
   - Kuiva nowcast-tunti hämärässä + Harmonie märkä → hämärä ei pääsanaksi, rivillä
     "sinistä" pimeässä.
 - `NC_SYMBOL`ista puuttuu `rain` (nowcastin keskivahva sade näkyy Harmonien sanana).
-  Muistinvarainen, verkosta tarkistamaton: `thunderstorm`,
-  `lightsleetshowers_and_thunder`, `snowshowers_and_thunder` eivät ole met.no:n koodeja.
+  `thunderstorm`, `lightsleetshowers_and_thunder` ja `snowshowers_and_thunder` eivät ole
+  met.no:n koodeja (tarkistettu ja kaksi jälkimmäistä korjattu 2026-09-26, ks. "Nowcastin
+  sanasto").
 
 ### Vaihtoehto, jota ei valittu: selite aina Harmoniesta
 
