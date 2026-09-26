@@ -308,6 +308,9 @@ Käyttäjän päättämät sanat:
 | light/–/heavy rainshowers | kevyttä välisuihkua / välisuihkuja / kunnon välisuihku | met.no:n asteikko on voimakkuus, FMI:n 21/24/27 kattavuus; epäkoherentti muoto tarkoituksella |
 | light/–/heavy sleetshowers | pientä räntäkuuroa / räntäkuuroa / kunnon räntäkuuro | ei Harmonie-vastinetta |
 | light/–/heavy snowshowers | pientä välihiutaletta / lumikuuro / tehokas lumitoimitus | ei Harmonie-vastinetta |
+| light/–/heavy rainshowersandthunder | sepon kevyttä välisuihkua / sepon välisuihkut / sepon ämpärit | käyttäjän lista 2026-09-26 |
+| lights/–/heavy sleetshowersandthunder | sepon tiskirättyläinen / sepon tiskivuoro / sepon kaikki tiskirätit | "sepon tiskivuoro" siirtyi kevyestä keskivahvaan |
+| lights/–/heavy snowshowersandthunder | sepon kevyt tähtipöly / lumiukkonen / Seppo-Jeti mitä isoin lumiukkonen | näkyy pienaakkosin, ks. alla |
 
 Jokaisella sanalla on myös `NOWCAST_INFO`-merkintä; nowcast-rivin korostus ja hämärälogiikka
 nojaavat siihen eikä tekstiin.
@@ -316,7 +319,8 @@ nojaavat siihen eikä tekstiin.
 (83 koodia, 41 perusmuotoa) ja `metno/weathericons`-repon `legend.csv`:stä; lähteet
 täsmäävät keskenään. Korjattiin:
 
-- `lightsleetshowers_and_thunder` → `lightssleetshowersandthunder` ("sepon tiskivuoro").
+- `lightsleetshowers_and_thunder` → `lightssleetshowersandthunder` (tuolloin "sepon tiskivuoro";
+  käyttäjän listassa 2026-09-26 sana kuuluu `sleetshowersandthunder`ille).
   Kaksi s:ää on met.no:n virallinen kirjoitusasu, ei virhe koodissa. Sama koskee
   `lightssnowshowersandthunder`ia.
 - `snowshowers_and_thunder` → `snowshowersandthunder` ("lumiukkonen").
@@ -328,12 +332,17 @@ Avoinna:
 
 - `thunderstorm` ("seppo riehuu") ei ole met.no:n koodi eikä sillä ole suoraa vastinetta.
   Jätetty paikalleen, kunnes käyttäjä päättää mihin koodiin sana kuuluu.
-- Kääntämättä 15 ukkoskoodia: `lightrainshowersandthunder`, `heavyrainshowersandthunder`,
-  `sleetshowersandthunder`, `heavysleetshowersandthunder`, `lightssnowshowersandthunder`,
-  `heavysnowshowersandthunder`, `lightrainandthunder`, `rainandthunder`,
+- Kääntämättä 9 jatkuvan sateen ukkoskoodia: `lightrainandthunder`, `rainandthunder`,
   `heavyrainandthunder`, `lightsleetandthunder`, `sleetandthunder`, `heavysleetandthunder`,
   `lightsnowandthunder`, `snowandthunder`, `heavysnowandthunder`. Ne putoavat Harmonielle;
-  `?dbg=1` näyttää kääntämättömän koodin hakasulkeissa.
+  `?dbg=1` näyttää kääntämättömän koodin hakasulkeissa. Kuurollisten ukkoskoodien sanat
+  (9 kpl) lisättiin 2026-09-26.
+- "Seppo-Jeti mitä isoin lumiukkonen" näkyy muodossa "seppo-jeti …", koska
+  `capitalizeDryDescriptor` pienentää kaikki pääselitteet (poikkeuksina vain erikseen
+  luetellut, esim. "Pyryttää."). Iso alkukirjain vaatii samanlaisen erikoistapauksen.
+- Pisimmät ukkossanat rivittyvät 360 px:n leveydellä kolmelle riville (aiemmat
+  nowcast-sanat enintään kahdelle): "sepon kevyttä välisuihkua", "sepon kaikki tiskirätit"
+  ja "Seppo-Jeti mitä isoin lumiukkonen". 412 px:llä viimeinen on yhä kolmella rivillä.
 
 ---
 
