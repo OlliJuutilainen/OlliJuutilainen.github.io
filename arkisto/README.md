@@ -9,6 +9,10 @@ versio on juuren `tusinapaja.html` (sivun otsikko `TUSINASÄÄ 12`).
 - `saa_fmi.html`
 - `saa666`, `tamaolihyva` – varhaisia "SÄÄ SEURAAVAT 12 h (FMI)" -versioita ilman päätettä
 
+Muut:
+
+- `vauva-syvyys.html` – `vauva.html`:n vanha versio
+
 Tiedostot siirrettiin tänne 2026-09-26 sellaisinaan. Ne viittaavat `vendor/`-kansioon
 suhteellisella polulla, joten täältä avattuina ne eivät löydä SunCalcia ja tz-lookupia.
 Tätä ei korjattu tarkoituksella.
