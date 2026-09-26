@@ -169,7 +169,9 @@ vain ensimmäinen saa "tai niin ne lupasivat…" -notin.
 `precipitation_rate` (mm/h, yksi hetki) ei enää kelpaa sademääräksi. Jos nowcastilla ei
 ole tunnille `next_1_hours`-kertymää, koko rivi on Harmonieta ja noudattaa Harmonie-rivien
 sääntöjä (`nowcastRow`), rivinumerosta riippumatta. Nowcast ulottuu noin kaksi tuntia,
-joten näin käy todennäköisesti aina kolmannella rivillä (ei tarkistettu oikeasta datasta).
+ja `next_1_hours` on vain aikasarjan ensimmäisellä askeleella (tarkistettu 2026-09-26 yhdeksästä
+haetusta vastauksesta). Siksi rivien 1–2 sade ja selite ovat käytännössä aina FMI:ltä
+(`?dbg=1`: `[NC!sym]`); nowcastista tulee vain rivin 0 selite ja sade sekä rivien 0–2 lämpötila.
 
 ### Lämpötila riveillä 0–2 nowcastista, tuuli Harmoniesta (2026-09)
 
@@ -302,7 +304,7 @@ Käyttäjän päättämät sanat:
 
 | met.no | sana | peruste |
 |---|---|---|
-| lightrain / rain / heavyrain | ripsii / satelee / saavista kaatuu | "saavista kaatuu" vain tutkatiedolle; Harmonien 39 on "kaatosadetta" |
+| lightrain / rain / heavyrain | ripsii / satelee / reippahasti saattaapi | `heavyrain` alkaa jo 1,0 mm:stä, ks. "Nowcastin voimakkuusluokat"; aiemmin "saavista kaatuu" |
 | lightsleet / sleet / heavysleet | märkä hiutale / räntää / tiskirättiä | sama lähtösana kuin Harmonie 47–49 |
 | lightsnow / snow / heavysnow | kevyt hiutale / lunta / pyryttää | sama lähtösana kuin Harmonie 57–59 |
 | light/–/heavy rainshowers | kevyttä välisuihkua / välisuihkuja / kunnon välisuihku | met.no:n asteikko on voimakkuus, FMI:n 21/24/27 kattavuus; epäkoherentti muoto tarkoituksella |
@@ -343,6 +345,30 @@ Avoinna:
 - Pisimmät ukkossanat rivittyvät 360 px:n leveydellä kolmelle riville (aiemmat
   nowcast-sanat enintään kahdelle): "sepon kevyttä välisuihkua", "sepon kaikki tiskirätit"
   ja "Seppo-Jeti mitä isoin lumiukkonen". 412 px:llä viimeinen on yhä kolmella rivillä.
+
+### Nowcastin voimakkuusluokat (mitattu 2026-09-26)
+
+met.no ei dokumentoi symbolialgoritmia. Mitattu nowcastin pisteruudukosta (165 sadesymbolia):
+voimakkuus määräytyy tunnin kertymästä `precipitation_amount`, ei hetkellisestä
+intensiteetistä, eivätkä luokat mene päällekkäin. FMI:n luokat mitattu edited-ennusteesta
+(4000 pistetuntia Suomen yllä, sama ilta).
+
+| met.no | kertymä | FMI `SmartSymbol` | kertymä |
+|---|---|---|---|
+| `lightrain` "ripsii" | 0,1–0,2 mm | 37 "ripsii" | < 0,40 mm |
+| `rain` "satelee" | 0,3–0,9 mm | 38 "satelee" | 0,40–2,79 mm (suurin havaittu) |
+| `heavyrain` "reippahasti saattaapi" | ≥ 1,0 mm | 39 "kaatosadetta" | ei havaintoja, raja > 2,8 mm |
+
+Alemmat luokat ovat lähes linjassa, mutta met.no:n `heavyrain` osuu FMI:n "satelee"-alueelle.
+Siksi "saavista kaatuu" vaihdettiin: 1,3 mm:n tunnilla se näytti ristiriidalta sademäärän
+kanssa, vaikka symboli on laskettu samasta kertymästä. Uusi sana rivittyy kahdelle riville
+jo 412 px:n leveydellä (headless Chromium; vanha mahtui yhdelle).
+
+Avoin havainto: FMI:n `Precipitation1h` aikaleimalla T näyttää koskevan tuntia **T−1 h…T**
+eikä T…T+1 h. 18 sateista pistettä 2026-09-26: nowcastin 21–22 UTC kertymä korreloi
+FMI:n 22:00-arvon kanssa 0,75 (MAE 0,27 mm) ja 21:00-arvon kanssa 0,59 (MAE 0,41 mm).
+FMI:n metatieto kertoo vain "sum, PT1H". Jos pitää paikkansa, rivin 0 nowcast (nyt…+1 h) ja
+rivin "klo 20" FMI-sade (19–20) kattavat suurelta osin saman tunnin.
 
 ---
 
