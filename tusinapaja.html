@@ -616,7 +616,7 @@ const NC_SYMBOL = {
   'rainshowersandthunder': "sepon välisuihkut", 'thunderstorm': "seppo riehuu",
   'heavyrain': "saavista kaatuu", 'rain': "satelee", 'lightrain': "ripsii",
   'lightsleet': "märkä hiutale", 'sleet': "räntää", 'heavysleet': "tiskirättiä",
-  'lightsleetshowers_and_thunder': "sepon tiskivuoro", 'snowshowers_and_thunder': "lumiukkonen",
+  'lightssleetshowersandthunder': "sepon tiskivuoro", 'snowshowersandthunder': "lumiukkonen",
   'lightsnow': "kevyt hiutale", 'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
 const NOWCAST_INFO = {
@@ -641,14 +641,16 @@ const NOWCAST_INFO = {
   lightsleet: { label: 'sleet_light', precip: true, weak: true },
   sleet: { label: 'sleet', precip: true },
   heavysleet: { label: 'sleet_heavy', precip: true },
-  lightsleetshowers_and_thunder: { label: 'thunder_sleet', precip: true, thunder: true },
-  snowshowers_and_thunder: { label: 'thunder_snow', precip: true, thunder: true },
+  lightssleetshowersandthunder: { label: 'thunder_sleet', precip: true, thunder: true },
+  snowshowersandthunder: { label: 'thunder_snow', precip: true, thunder: true },
   lightsnow: { label: 'snow_light', precip: true, weak: true },
   snow: { label: 'snow', precip: true },
   heavysnow: { label: 'snow_heavy', precip: true },
   fog: { label: 'fog', fog: true }
 };
-const ncBase = code => code ? code.replace(/_(day|night)$/,'') : '';
+/* met.no kirjoittaa 'lightssleetshowersandthunder' kahdella s:llä; se on virallinen koodi.
+   Päätteet met.no:n skeeman mukaan: _day, _night ja _polartwilight. */
+const ncBase = code => code ? code.replace(/_(day|night|polartwilight)$/,'') : '';
 function ncSymbolInfo(code){
   const base = ncBase(code);
   return base ? (NOWCAST_INFO[base] || null) : null;
