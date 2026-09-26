@@ -142,8 +142,29 @@
 /* backlog: docs/tusinapaja-backlog.md */
 const out = document.getElementById('out');
 
+/* Ilmoitukset talletetaan, jotta ne säilyvät kun näkymä kirjoitetaan myöhemmin uudelleen.
+   Aiemmin "Ladataan…" pyyhki ennen latausta annetut ilmoitukset (esim. kelvoton ?tz=)
+   heti pois. */
+const notices = [];
 function prependError(message){
+  notices.unshift(message);
   out.innerHTML = `<div class="err">${message}</div>` + out.innerHTML;
+}
+function setOut(html){
+  out.innerHTML = notices.map(m => `<div class="err">${m}</div>`).join('') + html;
+}
+
+/* Suomenkielisen virheen alle sama latinaksi: suomi, "Sama latinaksi:", latina, tyhjä rivi
+   kunkin välissä. lang="la" ohjaa ruudunlukijan ääntämistä ja tavutusta.
+   .err-luokan white-space:pre-wrap näyttää rivinvaihdot. Selaimen omat englanninkieliset
+   virheet saavat vain latinankielisen otsikon (Error inexspectātus). */
+function withLatin(fi, la){
+  return la ? `${fi}\n\nSama latinaksi:\n\n<span lang="la">${la}</span>` : fi;
+}
+function bilingualError(fi, la){
+  const err = new Error(fi);
+  err.la = la;
+  return err;
 }
 
 window.addEventListener('error', e => {
@@ -152,7 +173,7 @@ window.addEventListener('error', e => {
   }
   const msg = (e && e.message) ? e.message : String(e);
   const where = (e && e.filename) ? `\n@ ${e.filename}:${e.lineno||''}:${e.colno||''}` : '';
-  prependError(`Virhe: ${msg}${where}`);
+  prependError(`Error inexspectātus: ${msg}${where}`);
 });
 window.addEventListener('unhandledrejection', e => {
   const reason = e?.reason;
@@ -160,7 +181,7 @@ window.addEventListener('unhandledrejection', e => {
     return;
   }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  prependError(`Virhe (lupaus): ${msg}`);
+  prependError(`Error inexspectātus: ${msg}`);
 });
 
 function base64urlToBytes(b64u){
@@ -187,34 +208,39 @@ async function fetchAndDecryptLocation(token, keyB64u){
   const useWorkerEndpoint = /\.github\.io$/.test(host);
   const endpointBase = useWorkerEndpoint ? workerBase : '';
   const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
-  const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  let res;
+  try {
+    res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  } catch (err) {
+    console.error('Sijaintipalvelun haku epäonnistui', err);
+    throw bilingualError('sijaintipalveluun ei saatu yhteyttä.', 'tabulārium locōrum adīrī nōn potuit.');
+  }
   if (!res.ok){
-    const sourceLabel = useWorkerEndpoint ? 'Cloudflare-työntekijästä' : 'palvelimelta';
     const errMsg = res.status === 404
-      ? `Sijaintitokenia ei löytynyt (${sourceLabel}).`
-      : `Sijaintipalvelu (${sourceLabel}) vastasi virheellä (${res.status}).`;
-    throw new Error(errMsg);
+      ? bilingualError('sijaintia ei löytynyt sijaintipalvelusta.', 'locus in tabulāriō locōrum nōn inventus est.')
+      : bilingualError(`sijaintipalvelu vastasi virhekoodilla ${res.status}.`, `tabulārium locōrum cōdice errōris ${res.status} respondit.`);
+    throw errMsg;
   }
 
   let payload;
   try {
     payload = await res.json();
   } catch (err) {
-    throw new Error('Sijaintipalvelu palautti virheellistä dataa.');
+    throw bilingualError('sijaintipalvelun vastaus oli virheellinen.', 'respōnsum tabulāriī locōrum vitiōsum erat.');
   }
 
   if (!payload || typeof payload !== 'object'){
-    throw new Error('Sijaintipaketti puuttuu.');
+    throw bilingualError('sijaintipalvelun vastaus oli tyhjä.', 'respōnsum tabulāriī locōrum vacuum erat.');
   }
 
   const { v, iv, ct } = payload;
   const version = typeof v === 'string' ? parseInt(v, 10) : v;
   if (!Number.isFinite(version) || version !== 1){
     console.error('Tuntematon sijaintipaketin versio. Vastaanotettu paketti:', payload);
-    throw new Error('Tuntematon sijaintipaketin versio.');
+    throw bilingualError('sijaintitiedon versio on tuntematon.', 'versiō nōtitiae locī ignōta est.');
   }
   if (typeof iv !== 'string' || typeof ct !== 'string'){
-    throw new Error('Sijaintipaketista puuttuu salausdata.');
+    throw bilingualError('sijaintitieto on vajaa.', 'nōtitia locī manca est.');
   }
 
   let keyBytes, ivBytes, ctBytes;
@@ -223,21 +249,21 @@ async function fetchAndDecryptLocation(token, keyB64u){
     ivBytes = base64urlToBytes(iv);
     ctBytes = base64urlToBytes(ct);
   } catch (err) {
-    throw new Error('Sijaintipaketin base64url-muunnos epäonnistui.');
+    throw bilingualError('sijaintilinkin merkit ovat vääränlaiset.', 'litterae nexūs locī prāvae sunt.');
   }
 
   let cryptoKey;
   try {
     cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
   } catch (err) {
-    throw new Error('Sijaintiavain ei kelpaa AES-GCM -purkuun.');
+    throw bilingualError('sijaintilinkin avain on vääränlainen.', 'clāvis nexūs locī prāva est.');
   }
 
   let plaintext;
   try {
     plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
   } catch (err) {
-    throw new Error('Sijaintipaketin purku epäonnistui (AES-GCM).');
+    throw bilingualError('sijaintilinkin avain ei täsmää.', 'clāvis nexūs locī nōn convenit.');
   }
 
   let parsed;
@@ -245,11 +271,11 @@ async function fetchAndDecryptLocation(token, keyB64u){
     const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
     parsed = JSON.parse(decoded);
   } catch (err) {
-    throw new Error('Sijaintipaketin sisältö on virheellinen.');
+    throw bilingualError('sijaintitiedon sisältö on virheellinen.', 'argūmentum nōtitiae locī vitiōsum est.');
   }
 
   if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
-    throw new Error('Sijaintipaketista puuttuu kelvolliset lat/lon-arvot.');
+    throw bilingualError('sijaintitiedosta puuttuvat koordinaatit.', 'nōtitiae locī dēsunt coordinātae.');
   }
 
   return parsed;
@@ -289,8 +315,9 @@ let hashError = null;
 
 if (HASH_TOKEN || HASH_KEY){
   if (!HASH_TOKEN || !HASH_KEY){
-    const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
-    hashError = `Sijaintilinkistä puuttuu ${which}.`;
+    const which = !HASH_TOKEN ? 'tunniste (#t)' : 'avain (#k)';
+    const whichLa = !HASH_TOKEN ? 'signum (#t)' : 'clāvis (#k)';
+    hashError = withLatin(`Sijaintilinkistä puuttuu ${which}.`, `Nexuī locī deest ${whichLa}.`);
   } else {
     try {
       /* Hash-fragmentti on ensisijainen sijaintilähde; query-parametrit jäävät varatueksi kehitystilanteisiin. */
@@ -306,8 +333,12 @@ if (HASH_TOKEN || HASH_KEY){
         console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
       }
     } catch (err) {
-      const detail = err?.message ? `: ${err.message}` : '';
-      hashError = `Sijaintipaketin purku epäonnistui${detail}`;
+      /* Tarkennus omalle rivilleen omana virkkeenään. */
+      const cap = t => t.charAt(0).toLocaleUpperCase('fi-FI') + t.slice(1);
+      hashError = withLatin(
+        err?.message ? `Sijainnin avaaminen epäonnistui:\n${cap(err.message)}` : 'Sijainnin avaaminen epäonnistui.',
+        err?.la ? `Locus aperīrī nōn potuit:\n${cap(err.la)}` : 'Locus aperīrī nōn potuit.'
+      );
       console.error('Sijaintipaketin purku epäonnistui', err);
       if (err && typeof err === 'object') err.__tusinaHandled = true;
     }
@@ -346,8 +377,11 @@ let defaultCoordinateNoticeMessage = '';
 if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
   const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
-  defaultCoordinateNoticeMessage = `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
-    `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`;
+  defaultCoordinateNoticeMessage = withLatin(
+    `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
+    `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
+    'Ut programma aliō dīrigās, īnscrīptiōnī coordinātās adde, ut suprā scrīptum est.'
+  );
   prependError(defaultCoordinateNoticeMessage);
   LAT = DEFAULT_COORDINATES.lat;
   LON = DEFAULT_COORDINATES.lon;
@@ -406,7 +440,10 @@ if (tzOverride){
     }
   } else {
     const tzShown = tzOverride.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
-    const msg = `Aikavyöhykeparametri (${tzShown}) ei kelpaa; käytetään automaattista tunnistusta.`;
+    const msg = withLatin(
+      `Aikavyöhykeparametri (${tzShown}) ei kelpaa; käytetään automaattista tunnistusta.`,
+      `Parametrum zōnae hōrāriae (${tzShown}) nōn valet; zōna hōrāria sponte agnōscitur.`
+    );
     prependError(msg);
     if (DBG){
       console.warn('Aikavyöhykeparametri ei kelpaa', { tz: tzOverride });
@@ -634,7 +671,7 @@ function buildWfsForecast(lat,lon,sourceKey='edited'){
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt,'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
-  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); throw new Error('FMI virhe: '+(t?t.textContent:'Tuntematon virhe')); }
+  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); console.error('Ilmatieteen laitoksen virheilmoitus:', t ? t.textContent : ex.textContent); throw bilingualError('Ilmatieteen laitoksen palvelu hylkäsi haun.', 'Īnstitūtum Meteōrologicum Fennicum petītiōnem reiēcit.'); }
   return x;
 };
 const extractSeries = x => {
@@ -682,10 +719,26 @@ function roundTenth(v){
 
 async function fetchForecastFrom(lat, lon, sourceKey){
   const url = buildWfsForecast(lat, lon, sourceKey);
-  const res = await fetch(url, { cache: 'no-store' });
+  let res;
+  try {
+    res = await fetch(url, { cache: 'no-store' });
+  } catch (err) {
+    /* Selaimen oma viesti ("Failed to fetch") on englanniksi eikä kerro, mikä palvelu ei
+       vastannut. Sama tulee myös, jos palvelin vastaa virheellä ilman CORS-otsaketta.
+       Alkuperäinen virhe jää konsoliin. */
+    console.error('Ilmatieteen laitoksen haku epäonnistui', err);
+    throw bilingualError(
+      'Ilmatieteen laitokselle tietoja hakemaan lähtenyt apuri ei ole vieläkään tullut takaisin. Kenties liian huono sää?\n\nJos vastaava alkaa ilmetä päivästä toiseen toistuvana tapahtumasarjana, TUSINASÄÄ:n kehittäjäkonttorin väki kuulisi varmasti kovin mielellään uutisia tällaisista mystisistä tapahtumista.',
+      'Adiūtor, quī ad Īnstitūtum Meteōrologicum Fennicum nōtitiās petītum profectus est, nōndum rediit. Fortasse tempestās nimis foeda?\n\nSī quid simile cotīdiē iterum atque iterum accidere coeperit, familia officīnae fabrōrum TUSINASÄÄ dē tam arcānīs ēventīs sine dubiō libentissimē certior fīet.'
+    );
+  }
   const txt = await res.text();
   if (!res.ok){
-    throw new Error(`FMI ennuste HTTP ${res.status}\n${txt.slice(0,400)}`);
+    console.error(`Ilmatieteen laitos HTTP ${res.status}`, txt.slice(0,400));
+    throw bilingualError(
+      `Ilmatieteen laitoksen palvelu vastasi virhekoodilla ${res.status}.`,
+      `Īnstitūtum Meteōrologicum Fennicum cōdice errōris ${res.status} respondit.`
+    );
   }
   const forecastSeries = extractSeries(parseXML(txt));
   const keys = Array.from(forecastSeries.temperature?.keys?.() || []).sort();
@@ -706,14 +759,8 @@ async function fetchForecastFrom(lat, lon, sourceKey){
 }
 
 /* --------- MET Nowcast – sade + puuska + lämpötila + symbol_code --------- */
-const NOWCAST_CACHE_TTL = 5 * 60 * 1000;
-const NOWCAST_RETRY_COOLDOWN = 60 * 1000;
-const nowcastShared = new Map();
-
-function nowcastKey(lat, lon){
-  return `${Number(lat).toFixed(4)},${Number(lon).toFixed(4)}`;
-}
-
+/* Aikasarja haetaan kerran sivun latautuessa, ja kolmen ensimmäisen rivin arvot poimitaan
+   siitä. Välimuistia ei tarvita, koska sivu renderöidään vain kerran. */
 async function fetchNowcastTimeseries(lat, lon){
   try{
     /* Ei altitude-parametria: met.no käyttää sitä vain lämpötilan korkeuskorjaukseen, ja
@@ -731,7 +778,7 @@ async function fetchNowcastTimeseries(lat, lon){
   }
 }
 
-function pickNowcastFromSeries(ts, dUTC, metaBase){
+function pickNowcastFromSeries(ts, dUTC){
   if (!(dUTC instanceof Date) || Number.isNaN(dUTC.getTime())) return { val:null, meta:'NC!date' };
   if (!Array.isArray(ts) || !ts.length) return { val:null, meta:'NC!empty' };
 
@@ -764,100 +811,33 @@ function pickNowcastFromSeries(ts, dUTC, metaBase){
   /* Vain tunnin kertymä kelpaa. Hetkellinen precipitation_rate (mm/h) ei ole tunnin
      sademäärä; ilman kertymää rivi putoaa kokonaan Harmonielle. */
   const p = (typeof acc === 'number') ? acc : null;
-  const meta = metaBase || 'NC';
-  const metaStr = typeof meta === 'string' ? meta : 'NC';
-  const metaTag = (!hasNextHour && !metaStr.startsWith('NC!')) ? 'NC!sym' : metaStr;
   return {
     val:(typeof p==='number'?p:null),
-    meta: metaTag,
+    meta: hasNextHour ? 'NC' : 'NC!sym',
     gust:(typeof gust==='number'?gust:null),
     temp:(typeof airTemp==='number'?airTemp:null),
     sym
   };
 }
 
-async function ensureNowcastBundle(lat, lon){
-  const key = nowcastKey(lat, lon);
-  const now = Date.now();
-  let entry = nowcastShared.get(key);
-  if (!entry){
-    entry = { timeseries:null, fetchedAt:0, stale:false, meta:'NC!init', promise:null, retryAt:0 };
-    nowcastShared.set(key, entry);
-  }
-
-  if (entry.promise){
-    return entry.promise;
-  }
-
-  if (entry.timeseries){
-    if (!entry.stale && (now - entry.fetchedAt) <= NOWCAST_CACHE_TTL){
-      return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
-    }
-    if (entry.stale && now < entry.retryAt){
-      return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
-    }
-  }
-
-  entry.promise = (async()=>{
-    try{
-      const res = await fetchNowcastTimeseries(lat, lon);
-      if (res.ok){
-        entry.timeseries = res.timeseries;
-        entry.fetchedAt = Date.now();
-        entry.stale = false;
-        entry.meta = 'NC';
-        entry.retryAt = 0;
-        return { ok:true, timeseries: entry.timeseries, meta:'NC', stale:false };
-      }
-      entry.meta = res.meta || 'NC!err';
-      entry.retryAt = Date.now() + NOWCAST_RETRY_COOLDOWN;
-      if (entry.timeseries){
-        entry.stale = true;
-        return { ok:true, timeseries: entry.timeseries, meta:'NC~stale', stale:true };
-      }
-      entry.timeseries = null;
-      entry.stale = false;
-      return { ok:false, timeseries:null, meta:entry.meta, stale:false };
-    } finally {
-      entry.promise = null;
-    }
-  })();
-
-  return entry.promise;
-}
-
-async function fetchNowcastForHour(lat, lon, dUTC){
-  const bundle = await ensureNowcastBundle(lat, lon);
-  if (!bundle || !bundle.ok){
-    return { val:null, meta: bundle?.meta || 'NC!err' };
-  }
-  const metaBase = bundle.meta || (bundle.stale ? 'NC~stale' : 'NC');
-  const picked = pickNowcastFromSeries(bundle.timeseries, dUTC, metaBase);
-  if (bundle.stale && picked.meta === 'NC'){
-    return { ...picked, meta:'NC~stale' };
-  }
-  return picked;
-}
-
-async function fetchNowcasts(lat, lon, targetHours){
-  if (!Array.isArray(targetHours) || !targetHours.length){
-    return new Map();
-  }
-  const results = await Promise.all(targetHours.map(h => {
-    const date = h?.time instanceof Date ? h.time : new Date(h?.key || h);
-    return fetchNowcastForHour(lat, lon, date).catch(() => ({ val:null, meta:'NC!err' }));
-  }));
+/* res = fetchNowcastTimeseriesin tulos. Epäonnistunut haku näkyy jokaisella rivillä
+   sen omalla tunnisteella (esim. NC!500), kuten aiemmin. */
+function pickNowcasts(res, targetHours){
   const map = new Map();
-  targetHours.forEach((hour, idx) => {
-    const key = hour?.key || (hour?.time instanceof Date ? hour.time.toISOString() : null);
-    if (key) map.set(key, results[idx] || { val:null, meta:'NC!err' });
-  });
+  for (const hour of targetHours){
+    let picked;
+    try {
+      picked = res.ok ? pickNowcastFromSeries(res.timeseries, hour.time) : { val:null, meta: res.meta };
+    } catch {
+      picked = { val:null, meta:'NC!err' };
+    }
+    map.set(hour.key, picked);
+  }
   return map;
 }
 
 function nowcastMetaTag(meta){
   if (typeof meta !== 'string') return 'NC';
-  if (meta.startsWith('NC~')) return 'NC~';
   if (meta.startsWith('NC!')) return 'NC!';
   return 'NC';
 }
@@ -2330,17 +2310,14 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
 function renderHourlyModel(model){
   const rows = model?.rows || [];
   const htmlParts = [];
-  if (defaultCoordinateNoticeMessage){
-    htmlParts.push(`<div class="err">${defaultCoordinateNoticeMessage}</div>`);
-  }
   if (!rows.length){
     htmlParts.push('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
-    out.innerHTML = htmlParts.join('');
+    setOut(htmlParts.join(''));
     return;
   }
   const state = { prevDescKey: null, skipDittoKey: null };
   htmlParts.push(...rows.map(row => renderRow(row, state)));
-  out.innerHTML = htmlParts.join('');
+  setOut(htmlParts.join(''));
 }
 
 function applyTemperatureMilestones(rows){
@@ -2390,13 +2367,23 @@ function applyTemperatureMilestones(rows){
       const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
       const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
       const fallbackMessage = defaultCoordinateNoticeMessage || (
-        `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`
+        withLatin(
+          `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
+          'Coordinātae dēsunt aut vitiōsae sunt; ūtere fōrmā suprā scrīptā.'
+        )
       );
       out.innerHTML = `<div class="err">${fallbackMessage}</div>`;
       return;
     }
 
-  out.innerHTML = '<div class="muted">Ladataan säätietoja…</div>';
+  setOut('<div class="muted">Ladataan säätietoja…</div>');
+
+  /* Nowcast ja aurinkoajat eivät riipu FMI:n vastauksesta, joten ne haetaan samaan aikaan
+     sen kanssa eikä vasta perään. Aurinkoajat esihaetaan päiville, joihin 13 tunnin ikkuna
+     osuu; fetchSunPhases hakee FMI:n jälkeen välimuistista ja tarvittaessa puuttuvat päivät. */
+  const loadHour = new Date(new Date().setMinutes(0,0,0));
+  const nowcastPending = fetchNowcastTimeseries(LAT, LON);
+  const sunPrefetch = fetchSunPhases(LAT, LON, [loadHour, new Date(loadHour.getTime() + 12*3600000)]).catch(() => null);
 
   try{
     const forecastData = await fetchForecast(LAT, LON);
@@ -2408,21 +2395,22 @@ function applyTemperatureMilestones(rows){
     }).slice(0, 13);
 
     if (!upcoming.length){
-      out.innerHTML = `<div class="muted">Ei rivejä tälle ikkunalle.</div>`;
+      setOut('<div class="muted">Ei rivejä tälle ikkunalle.</div>');
       return;
     }
 
-    const nowcastTargets = upcoming.slice(0, 3);
-    const [nowcasts, sunPhases] = await Promise.all([
-      fetchNowcasts(LAT, LON, nowcastTargets),
+    await sunPrefetch;
+    const [nowcastRes, sunPhases] = await Promise.all([
+      nowcastPending,
       fetchSunPhases(LAT, LON, upcoming)
     ]);
+    const nowcasts = pickNowcasts(nowcastRes, upcoming.slice(0, 3));
 
     const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now });
     renderHourlyModel(model);
   }catch(e){
     const msg = (e && e.message) ? e.message : String(e);
-    out.innerHTML = `<div class="err">${msg}</div>`;
+    setOut(`<div class="err">${withLatin(msg, e?.la)}</div>`);
   }
 })();
 </script>
