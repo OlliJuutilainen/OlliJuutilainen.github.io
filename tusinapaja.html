@@ -160,7 +160,7 @@ window.addEventListener('unhandledrejection', e => {
     return;
   }
   const msg = reason ? (reason.message || String(reason)) : 'tuntematon virhe';
-  prependError(`Virhe (lupaus): ${msg}`);
+  prependError(`Odottamaton virhe: ${msg}`);
 });
 
 function base64urlToBytes(b64u){
@@ -187,12 +187,17 @@ async function fetchAndDecryptLocation(token, keyB64u){
   const useWorkerEndpoint = /\.github\.io$/.test(host);
   const endpointBase = useWorkerEndpoint ? workerBase : '';
   const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
-  const res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  let res;
+  try {
+    res = await fetch(endpoint, { cache: 'no-store', credentials: 'omit' });
+  } catch (err) {
+    console.error('Sijaintipalvelun haku epäonnistui', err);
+    throw new Error('sijaintipalveluun ei saatu yhteyttä.');
+  }
   if (!res.ok){
-    const sourceLabel = useWorkerEndpoint ? 'Cloudflare-työntekijästä' : 'palvelimelta';
     const errMsg = res.status === 404
-      ? `Sijaintitokenia ei löytynyt (${sourceLabel}).`
-      : `Sijaintipalvelu (${sourceLabel}) vastasi virheellä (${res.status}).`;
+      ? 'sijaintia ei löytynyt sijaintipalvelusta.'
+      : `sijaintipalvelu vastasi virhekoodilla ${res.status}.`;
     throw new Error(errMsg);
   }
 
@@ -200,21 +205,21 @@ async function fetchAndDecryptLocation(token, keyB64u){
   try {
     payload = await res.json();
   } catch (err) {
-    throw new Error('Sijaintipalvelu palautti virheellistä dataa.');
+    throw new Error('sijaintipalvelun vastaus oli virheellinen.');
   }
 
   if (!payload || typeof payload !== 'object'){
-    throw new Error('Sijaintipaketti puuttuu.');
+    throw new Error('sijaintipalvelun vastaus oli tyhjä.');
   }
 
   const { v, iv, ct } = payload;
   const version = typeof v === 'string' ? parseInt(v, 10) : v;
   if (!Number.isFinite(version) || version !== 1){
     console.error('Tuntematon sijaintipaketin versio. Vastaanotettu paketti:', payload);
-    throw new Error('Tuntematon sijaintipaketin versio.');
+    throw new Error('sijaintitiedon versio on tuntematon.');
   }
   if (typeof iv !== 'string' || typeof ct !== 'string'){
-    throw new Error('Sijaintipaketista puuttuu salausdata.');
+    throw new Error('sijaintitieto on vajaa.');
   }
 
   let keyBytes, ivBytes, ctBytes;
@@ -223,21 +228,21 @@ async function fetchAndDecryptLocation(token, keyB64u){
     ivBytes = base64urlToBytes(iv);
     ctBytes = base64urlToBytes(ct);
   } catch (err) {
-    throw new Error('Sijaintipaketin base64url-muunnos epäonnistui.');
+    throw new Error('sijaintilinkin merkit ovat vääränlaiset.');
   }
 
   let cryptoKey;
   try {
     cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
   } catch (err) {
-    throw new Error('Sijaintiavain ei kelpaa AES-GCM -purkuun.');
+    throw new Error('sijaintilinkin avain on vääränlainen.');
   }
 
   let plaintext;
   try {
     plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBytes }, cryptoKey, ctBytes);
   } catch (err) {
-    throw new Error('Sijaintipaketin purku epäonnistui (AES-GCM).');
+    throw new Error('sijaintilinkin avain ei täsmää.');
   }
 
   let parsed;
@@ -245,11 +250,11 @@ async function fetchAndDecryptLocation(token, keyB64u){
     const decoded = new TextDecoder().decode(new Uint8Array(plaintext));
     parsed = JSON.parse(decoded);
   } catch (err) {
-    throw new Error('Sijaintipaketin sisältö on virheellinen.');
+    throw new Error('sijaintitiedon sisältö on virheellinen.');
   }
 
   if (!parsed || !Number.isFinite(parsed.lat) || !Number.isFinite(parsed.lon)){
-    throw new Error('Sijaintipaketista puuttuu kelvolliset lat/lon-arvot.');
+    throw new Error('sijaintitiedosta puuttuvat koordinaatit.');
   }
 
   return parsed;
@@ -289,7 +294,7 @@ let hashError = null;
 
 if (HASH_TOKEN || HASH_KEY){
   if (!HASH_TOKEN || !HASH_KEY){
-    const which = !HASH_TOKEN ? 'token (#t)' : 'avain (#k)';
+    const which = !HASH_TOKEN ? 'tunniste (#t)' : 'avain (#k)';
     hashError = `Sijaintilinkistä puuttuu ${which}.`;
   } else {
     try {
@@ -307,7 +312,7 @@ if (HASH_TOKEN || HASH_KEY){
       }
     } catch (err) {
       const detail = err?.message ? `: ${err.message}` : '';
-      hashError = `Sijaintipaketin purku epäonnistui${detail}`;
+      hashError = `Sijainnin avaaminen epäonnistui${detail}`;
       console.error('Sijaintipaketin purku epäonnistui', err);
       if (err && typeof err === 'object') err.__tusinaHandled = true;
     }
@@ -634,7 +639,7 @@ function buildWfsForecast(lat,lon,sourceKey='edited'){
 const parseXML = txt => {
   const x = new DOMParser().parseFromString(txt,'application/xml');
   const ex = x.querySelector('Exception, ows\\:Exception');
-  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); throw new Error('FMI virhe: '+(t?t.textContent:'Tuntematon virhe')); }
+  if (ex){ const t=x.querySelector('ExceptionText, ows\\:ExceptionText'); console.error('Ilmatieteen laitoksen virheilmoitus:', t ? t.textContent : ex.textContent); throw new Error('Ilmatieteen laitoksen palvelu hylkäsi haun.'); }
   return x;
 };
 const extractSeries = x => {
@@ -686,13 +691,16 @@ async function fetchForecastFrom(lat, lon, sourceKey){
   try {
     res = await fetch(url, { cache: 'no-store' });
   } catch (err) {
-    /* Selaimen oma viesti ("Failed to fetch") ei kerro, mikä palvelu ei vastannut. Sama
-       viesti tulee myös, jos palvelin vastaa virheellä ilman CORS-otsaketta. */
-    throw new Error(`FMI ennuste: ${err?.message || err}`);
+    /* Selaimen oma viesti ("Failed to fetch") on englanniksi eikä kerro, mikä palvelu ei
+       vastannut. Sama tulee myös, jos palvelin vastaa virheellä ilman CORS-otsaketta.
+       Alkuperäinen virhe jää konsoliin. */
+    console.error('Ilmatieteen laitoksen haku epäonnistui', err);
+    throw new Error('Ilmatieteen laitokselle tietoja hakemaan lähtenyt apuri ei ole vieläkään tullut takaisin. Kenties liian huono sää?\n\nJos vastaava alkaa ilmenemään päivästä toiseen toistuvana tapahtumasarjana, TUSINASÄÄ:n kehittäjäkonttorin väki kuulisi varmasti kovin mielellään uutisia tällaisista mystisistä tapahtumista.');
   }
   const txt = await res.text();
   if (!res.ok){
-    throw new Error(`FMI ennuste HTTP ${res.status}\n${txt.slice(0,400)}`);
+    console.error(`Ilmatieteen laitos HTTP ${res.status}`, txt.slice(0,400));
+    throw new Error(`Ilmatieteen laitoksen palvelu vastasi virhekoodilla ${res.status}.`);
   }
   const forecastSeries = extractSeries(parseXML(txt));
   const keys = Array.from(forecastSeries.temperature?.keys?.() || []).sort();
