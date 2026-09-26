@@ -173,9 +173,9 @@ function romanNumeral(n){
   }
   return out;
 }
-/* Esimerkkikoordinaatti latinaksi: kokonaisosa roomalaisena lukuna, interpunkti
-   desimaalipisteenä ja desimaalit numero kerrallaan pystyviivoin erotettuina kuin
-   helmitaulun urissa, jotta etunollat säilyvät (60.0500 -> LX·N|V|N|N).
+/* Esimerkkikoordinaatti latinaksi: kokonaisosa roomalaisena lukuna, tavallinen
+   desimaalipiste ja desimaalit numero kerrallaan pystyviivoin erotettuina kuin
+   helmitaulun urissa, jotta etunollat säilyvät (60.0500 -> LX.N|V|N|N).
    Nolla keskiajan tapaan N (nulla). Vain huumoria; ohje pyytää lukijaa käyttämään
    arabialaisia numeroita. */
 function romanCoordinate(value){
@@ -183,7 +183,7 @@ function romanCoordinate(value){
   const [whole, frac] = String(value).split('.');
   const wholeRoman = roman(Number(whole));
   if (!frac) return wholeRoman;
-  return `${wholeRoman}·${[...frac].map(d => roman(Number(d))).join('|')}`;
+  return `${wholeRoman}.${[...frac].map(d => roman(Number(d))).join('|')}`;
 }
 function latinCoordinateHint(lat, lon){
   /* <wbr>: kapealla näytöllä rivi saa katketa vain ennen &lon-osaa. */
