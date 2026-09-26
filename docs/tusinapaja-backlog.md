@@ -319,6 +319,15 @@ putoavat Harmonielle. Muistinvaraisesti `thunderstorm`, `lightsleetshowers_and_t
 ja "lumiukkonen" eivät luultavasti koskaan näy – tarkistamatta. Koodilista ylipäätään on
 muistinvarainen; `?dbg=1` näyttää kääntämättömän sadekoodin hakasulkeissa.
 
+### "kuuroja sakeana" = tiheänä, ei rankkana (2026-09, käyttäjän päätös)
+
+SmartSymbolin 21/24/27 on FMI:llä kattavuusasteikko: *yksittäisiä / paikoin /
+sadekuuroja*. Tusinasään vastineet ovat `kuuro jossain` / `kuuroja` / `kuuroja sakeana`.
+*Sakeana* tarkoittaa tässä tiheänä, taajaan, eli se jatkaa kattavuussarjaa eikä väitä
+kuuroja voimakkaiksi. Sanaa ei pidä vaihtaa "virheenä". Koodin sisäiset nimet
+`shower_light`/`shower_heavy` (`SMART_SYMBOL_INFO` 21/27) ovat FMI:n merkityksen
+vastaisia, mutta `label`-kenttää ei lueta missään.
+
 ---
 
 ## Selitteen lähde lähitunneilla (rivit 0–2) – harkinta 2026-09
