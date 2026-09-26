@@ -407,7 +407,7 @@ if (!Number.isFinite(LAT) || !Number.isFinite(LON)){
   const sampleLat = DEFAULT_COORDINATES.lat.toFixed(4);
   const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
   defaultCoordinateNoticeMessage = withLatin(
-    `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa:<br>` +
+    `Ohjataksesi ohjelman muualle lisää osoitteeseen koordinaatit muodossa<br>` +
     `<code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
     `Ut programma aliō dīrigās, īnscrīptiōnī coordinātās hōc modō adde:\n${latinCoordinateHint(sampleLat, sampleLon)}`
   );
@@ -2397,7 +2397,7 @@ function applyTemperatureMilestones(rows){
       const sampleLon = DEFAULT_COORDINATES.lon.toFixed(4);
       const fallbackMessage = defaultCoordinateNoticeMessage || (
         withLatin(
-          `Puuttuvat tai virheelliset koordinaatit. Käytä:<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
+          `Puuttuvat tai virheelliset koordinaatit. Käytä<br><code>?lat=${sampleLat}&lon=${sampleLon}</code>`,
           `Coordinātae dēsunt aut vitiōsae sunt. Hōc modō ūtere:\n${latinCoordinateHint(sampleLat, sampleLon)}`
         )
       );
