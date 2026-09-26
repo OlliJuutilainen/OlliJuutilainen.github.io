@@ -173,16 +173,21 @@ function romanNumeral(n){
   }
   return out;
 }
-/* Esimerkkikoordinaatti latinaksi: kokonais- ja desimaaliosa kumpikin roomalaisin
-   numeroin, nolla keskiajan tapaan N (nulla). Vain huumoria; ohje pyytää lukijaa
-   käyttämään arabialaisia numeroita. */
+/* Esimerkkikoordinaatti latinaksi: kokonaisosa roomalaisena lukuna, desimaalit numero
+   kerrallaan interpunktilla erotettuina, jotta etunollat säilyvät (60.0500 -> LX . N·V·N·N).
+   Nolla keskiajan tapaan N (nulla). Vain huumoria; ohje pyytää lukijaa käyttämään
+   arabialaisia numeroita. */
 function romanCoordinate(value){
-  const part = t => (Number(t) === 0 ? 'N' : romanNumeral(Number(t)));
+  const roman = n => (n === 0 ? 'N' : romanNumeral(n));
   const [whole, frac] = String(value).split('.');
-  return frac ? `${part(whole)}.${part(frac)}` : part(whole);
+  const wholeRoman = roman(Number(whole));
+  if (!frac) return wholeRoman;
+  /* Sitomattomat välilyönnit: koordinaatti ei katkea pisteen kohdalta kapealla näytöllä. */
+  return `${wholeRoman}\u00A0.\u00A0${[...frac].map(d => roman(Number(d))).join('·')}`;
 }
 function latinCoordinateHint(lat, lon){
-  return `<code>?lat=${romanCoordinate(lat)}&lon=${romanCoordinate(lon)}</code>\n` +
+  /* <wbr>: kapealla näytöllä rivi saa katketa vain ennen &lon-osaa. */
+  return `<code>?lat=${romanCoordinate(lat)}<wbr>&lon=${romanCoordinate(lon)}</code>\n` +
     '(Quaesumus, ut numerīs Arabicīs ūtāris; nōs eōs scrībere taedet.)';
 }
 function bilingualError(fi, la){
