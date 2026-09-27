@@ -620,7 +620,7 @@ const NC_SYMBOL = {
   'lightssnowshowersandthunder': "sepon kevyt tähtipöly", 'snowshowersandthunder': "lumiukkonen",
   'heavysnowshowersandthunder': "Seppo-Jeti mitä isoin lumiukkonen",
   'thunderstorm': "seppo riehuu",
-  'heavyrain': "saavista kaatuu", 'rain': "satelee", 'lightrain': "ripsii",
+  'heavyrain': "reippahasti saattaapi", 'rain': "satelee", 'lightrain': "ripsii",
   'lightsleet': "märkä hiutale", 'sleet': "räntää", 'heavysleet': "tiskirättiä",
   'lightsnow': "kevyt hiutale", 'snow': "lunta", 'heavysnow': "pyryttää", 'fog': "sumua"
 };
@@ -789,20 +789,28 @@ async function fetchForecastFrom(lat, lon, sourceKey){
   }
   const forecastSeries = extractSeries(parseXML(txt));
   const keys = Array.from(forecastSeries.temperature?.keys?.() || []).sort();
-  const hours = keys.map(key => ({
-    key,
-    time: new Date(key),
-    temperature: forecastSeries.temperature?.get(key) ?? null,
-    /* Harmonie antaa sademäärän 0,1 mm:n tarkkuudella, edited kolmella desimaalilla; ilman
-       pyöristystä 0,04 mm näkyisi "0.0 mm". Harmonien arvoihin pyöristys ei vaikuta. */
-    precipitation: roundTenth(forecastSeries.precipitation1h?.get(key)),
-    /* Pyöristämätön arvo vain näyttöä varten: "~0.0 mm", kun sadetta on mutta alle 0,05 mm. */
-    precipitationRaw: forecastSeries.precipitation1h?.get(key) ?? null,
-    windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
-    windDirection: forecastSeries.winddirection?.get(key) ?? null,
-    smartSymbol: forecastSeries.SmartSymbol?.get(key) ?? null,
-    gust: forecastSeries.hourlyMaximumGust?.get(key) ?? null
-  }));
+  /* FMI:n tunnin kertymät ja maksimit aikaleimalla T koskevat tuntia T−1 h…T ("kello 12 kohdalla
+     oleva arvo tarkoittaa [...] kello 11–12"). Rivi H kuvaa tuntia H…H+1 kuten hämärä ja
+     nowcastin next_1_hours, joten sade, SmartSymbol (sen sadeosa lasketaan samasta kertymästä)
+     ja puuska luetaan aikaleimalta H+1. Lämpötila ja tuuli ovat hetkellisiä ja jäävät H:lle. */
+  const nextKey = key => new Date(new Date(key).getTime() + 3600000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const hours = keys.map(key => {
+    const hourEnd = nextKey(key);
+    return {
+      key,
+      time: new Date(key),
+      temperature: forecastSeries.temperature?.get(key) ?? null,
+      /* Harmonie antaa sademäärän 0,1 mm:n tarkkuudella, edited kolmella desimaalilla; ilman
+         pyöristystä 0,04 mm näkyisi "0.0 mm". Harmonien arvoihin pyöristys ei vaikuta. */
+      precipitation: roundTenth(forecastSeries.precipitation1h?.get(hourEnd)),
+      /* Pyöristämätön arvo vain näyttöä varten: "~0.0 mm", kun sadetta on mutta alle 0,05 mm. */
+      precipitationRaw: forecastSeries.precipitation1h?.get(hourEnd) ?? null,
+      windSpeed: forecastSeries.windspeedms?.get(key) ?? null,
+      windDirection: forecastSeries.winddirection?.get(key) ?? null,
+      smartSymbol: forecastSeries.SmartSymbol?.get(hourEnd) ?? null,
+      gust: forecastSeries.hourlyMaximumGust?.get(hourEnd) ?? null
+    };
+  });
   FMI_BASE_LABEL = FMI_SOURCES[sourceKey].label;
   return { hours, source: sourceKey };
 }
