@@ -118,6 +118,12 @@
   .cell.soft{ color:var(--color-soft) }
   .desc{ color:var(--color-soft) }
   .descWhite{ color:var(--color-mini-strong) }
+  /* Auringonnousun tai -laskun tunti, pääsanana sää: pääsana nostetaan puoliväliin
+     matemaattisen keskityksen ja rivin muiden solujen linjan välille. Pääsanan yläpuolelle
+     jää tyhjää puolet alamerkintöjen korkeudesta (1fr : 2fr), joten solu on hieman
+     alapainoinen. Hämärä pääsanana ja yön merkinnät keskittyvät edelleen kokonaisina. */
+  .desc.sunAlign{ display:grid; grid-template-rows:1fr auto 2fr }
+  .desc.sunAlign::before{ content:'' }
   .contradictionMain{ text-decoration:line-through; text-decoration-thickness:1.1px; text-decoration-color:var(--color-contradiction); text-decoration-skip-ink:auto }
   .contradictionNote{ display:block; font-size:9px; font-style:italic; color:var(--color-error-note); letter-spacing:.2px; margin-top:2px }
   .row > div:nth-child(4){ text-align:center }
@@ -1984,7 +1990,8 @@ function renderRow(row, state){
     rainTag,
     timeWhite = false,
     tempWhite = false,
-    skipDitto = false
+    skipDitto = false,
+    sunAlign = false
   } = row || {};
   const rain = rainObj || { text: '–', num: null, extraClass: '', forceGrey: false, source: null };
   const wind = windObj || { html: '–', white: false, sources: [] };
@@ -2054,6 +2061,17 @@ function renderRow(row, state){
   const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
+  let descCellHtml = `${displayDesc}${twTag}`;
+  if (sunAlign){
+    /* Pääsana (tai ») ja sen perään sulkeutettu alkuaika ovat ennen ensimmäistä <br>:ää.
+       Jos solu alkaa pienellä merkinnällä, pääsana ei ole ylimpänä eikä jakoa tehdä. */
+    const brAt = displayDesc.indexOf('<br>');
+    if (brAt > 0 && !/^<span class="mini/.test(displayDesc)){
+      descCellHtml = `<span>${displayDesc.slice(0, brAt)}</span>` +
+        `<span>${displayDesc.slice(brAt + 4)}${twTag}</span>`;
+      descClasses.push('sunAlign');
+    }
+  }
   const timeClasses = ['cell'];
   if (!timeWhite) timeClasses.push('soft');
   const tempClasses = ['cell'];
@@ -2086,7 +2104,7 @@ function renderRow(row, state){
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
       `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+'°':'–'}${tempBadgeHtml}</div>`+
-      `<div class="${descClasses.join(' ')}">${displayDesc}${twTag}</div>`+
+      `<div class="${descClasses.join(' ')}">${descCellHtml}</div>`+
       `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}${rainBadgeHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${wind.html}${windBadgeHtml}</div>`+
     `</div>`
@@ -2175,8 +2193,10 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   let twDbg = '';
   let insertedThunderTag = false;
   let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
+  let sunEventHour = false;
   try{
     const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
+    sunEventHour = !!(tw && tw.sunEvent && tw.sunEvent.at instanceof Date);
     const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
     descMain = decorated.main || baseDesc || '–';
     descTags = Array.isArray(decorated.tags) ? [...decorated.tags] : [];
@@ -2336,7 +2356,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     windExpectedNowcast,
     windFallbackFromNowcast,
     twDbg,
-    skipDitto: contradiction.flagged
+    skipDitto: contradiction.flagged,
+    /* Aurinko nousee tai laskee ja pääsanana on sää eikä hämärävaihe. */
+    sunAlign: sunEventHour && !String(descMain).includes('twilightMainText')
   };
 }
 
