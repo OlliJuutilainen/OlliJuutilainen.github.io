@@ -54,6 +54,10 @@ Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei al
 poistunut. Jos toimitat tiedoston lisäksi liitteenä, käytä `.txt`-päätettä — `.html`
 avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
 
+**PR:n jälkeen kysy vain "yhdistetäänkö?"** Älä tarjoudu seuraamaan PR:ää: repossa ei ole
+CI-tarkistuksia eikä muita katselmoijia. Käyttäjän **"yhiistä!"** tarkoittaa aina: yhdistä
+(merge) kyseinen PR.
+
 **Kehityskone on macOS Big Sur.** Uusin `wrangler` kaatuu siinä hiljaa virheeseen
 `dyld: Symbol not found: _SecTrustCopyCertificateChain`, koska sen mukana tuleva esbuild
 vaatii macOS 12:n. Siksi `generaattori.html` on pinnattu versioon **`wrangler@3.114.17`**,
