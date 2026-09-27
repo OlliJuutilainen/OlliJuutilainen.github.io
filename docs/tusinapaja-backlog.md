@@ -29,6 +29,21 @@ ovat harkittuja. Tarkoitus on, ettei seuraava siivouskierros pura niitä vahingo
 - **`generaattori.html` ei laita avainta K shell-komentoon**, koska shellin historia
   tallentuu levylle ja varmuuskopioihin. Linkit tulostetaan erillisenä lohkona.
 
+### Aurinkotunnin pääsana nostetaan puoliväliin (2026-09)
+
+Kun aurinko nousee tai laskee ja pääsanana on sää (ei hämärävaihe), selitesolu saa
+luokan `sunAlign`: `display:grid; grid-template-rows:1fr auto 2fr` ja tyhjä `::before`.
+Rivit ovat tyhjä väli, pääsana ja alamerkinnät. Koska solun korkeus on määräämätön,
+fr-rivit mitoittuvat sisällön mukaan: alamerkinnät saavat oman korkeutensa t ja tyhjä
+väli t/2. Pääsanan poikkeama rivin keskilinjasta puolittuu, ja rivi kasvaa t/2.
+
+Valittu kompromissi, ei täysi linjaus (`1fr auto 1fr`): täysi linjaus jättäisi pääsanan
+yläpuolelle alamerkintöjen korkuisen tyhjän ja kasvattaisi riviä t:n verran. Mitattu
+360 px leveydellä (auringonnousu 07:16, kaksi alariviä): poikkeama 25,8 → 13,0 px,
+rivi 89,5 → 115 px. Hämärä pääsanana ja yön merkinnät keskittyvät kokonaisina kuten
+ennenkin; käyttäjä piti sitä niissä hyvänä. Jos solu alkaa pienellä merkinnällä
+(pääsana ei ylimpänä), jakoa ei tehdä.
+
 ### `class="ditto"` jätetään, vaikka sille ei ole CSS-sääntöä
 
 `»`-merkki tuotetaan muodossa `<span class="ditto" title="sama kuin edellä">&raquo;</span>`.
