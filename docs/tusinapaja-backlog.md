@@ -29,6 +29,21 @@ ovat harkittuja. Tarkoitus on, ettei seuraava siivouskierros pura niitä vahingo
 - **`generaattori.html` ei laita avainta K shell-komentoon**, koska shellin historia
   tallentuu levylle ja varmuuskopioihin. Linkit tulostetaan erillisenä lohkona.
 
+### Tunnin kahdesta hämärävaihdosta ilmoitetaan jälkimmäinen (2026-09)
+
+`withinChange` valitsee tunnin **viimeisen** rajapyykin, ei ensimmäistä. Syys–huhtikuussa
+vaihe kestää Etelä-Suomessa alle tunnin, joten samalle tunnille osuu kaksi vaihtoa
+(esim. 25.10. klo 05: astronominen 05:02, nauttinen 05:51). Ensimmäinen näkyy jo tunnin
+omana vaiheena alkuaikoineen; jälkimmäinen jäi ennen ilmoittamatta ja näkyi vasta seuraavalla
+rivillä sulkeissa (`NAUTTINEN HÄMÄRÄ (05:51)`), vastoin sääntöä ":30 jälkeen alkava eri vaihe
+ilmoitetaan". Nyt klo 05 `nauttinen 05:51`, klo 06 `NAUTTINEN HÄMÄRÄ` ilman aikaa, kuten
+yhden vaihdon tunneilla. SunCalcilla laskettuna 2026: Sipoo 91 päivää (116 tuntia), Oulu 14,
+Utsjoki 0. Sääpyyhkäisyssä (Sipoo ja Utsjoki, 164 latausta) muuttui vain nämä rivit ja
+kellonsiirtoyön tunti (alla).
+
+Jos tunnilla on kaksi vaihtoa alle 30 min välein (vain lähellä päiväntasaajaa), ensimmäinen
+jää näyttämättä. Suomessa näin ei käy.
+
 ### Tasatunti UTC:stä, ei selaimen kellosta (2026-09)
 
 Rivin tunti-ikkuna (`analyzeTwilightForHour`) ja näytettävän ikkunan alku pyöristetään

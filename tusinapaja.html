@@ -1279,7 +1279,11 @@ function analyzeTwilightForHour(dLocal, dayObj){
 
   if (!sunEvent && p0 && p1 && p0!==p1){
     const candidates = [civStart,civEnd,nautStart,nautEnd,astroStart,astroEnd].filter(t=>t && t>=t0 && t<t1).sort((a,b)=>a-b);
-    const at = candidates[0] || null;
+    /* Tunnilla voi olla kaksi vaihtoa (Sipoossa syys–huhtikuussa noin 90 päivänä vuodessa,
+       esim. 05:02 ja 05:51). Seuraavaksi ilmoitetaan viimeinen: ensimmäinen näkyy jo
+       tunnin omana vaiheena alkuaikoineen. Aiemmin valittiin ensimmäinen, jolloin
+       jälkimmäinen jäi ilmoittamatta ja näkyi vasta seuraavalla rivillä sulkeissa. */
+    const at = candidates[candidates.length-1] || null;
     if (at){
       const toPhase = where(new Date(at.getTime()+1));
       if (toPhase){
