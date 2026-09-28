@@ -1164,6 +1164,11 @@ function beginLabel(phase){
 }
 
 const MIN = 60000;
+/* Tasatunti UTC:n mukaan. Selaimen paikallinen setMinutes(0) osuu syksyn kellonsiirtoyönä
+   kaksoistunnilla 03–04 aiempaan (kesäajan) kolmeen, jolloin ikkuna alkoi tuntia liian
+   aikaisin. FMI:n rivit ovat tasatunneissa UTC:n mukaan, joten tämä täsmää niihin aina. */
+const HOUR = 3600000;
+function floorToHour(d){ return new Date(Math.floor(new Date(d).getTime() / HOUR) * HOUR); }
 
 /* Kesäyön varamenetelmä.
 
@@ -1207,8 +1212,8 @@ function analyzeTwilightForHour(dLocal, dayObj){
   const astroStart=tp(dayObj.astronomical_twilight_begin?.time);
   const astroEnd  =tp(dayObj.astronomical_twilight_end?.time);
 
-  const t0 = new Date(dLocal); t0.setMinutes(0,0,0);
-  const t1 = new Date(t0); t1.setHours(t1.getHours()+1);
+  const t0 = floorToHour(dLocal);
+  const t1 = new Date(t0.getTime() + HOUR);
 
   function where(t){
     if (astroStart && t<astroStart) return 'night';
@@ -2461,14 +2466,14 @@ function applyTemperatureMilestones(rows){
   /* Nowcast ja aurinkoajat eivät riipu FMI:n vastauksesta, joten ne haetaan samaan aikaan
      sen kanssa eikä vasta perään. Aurinkoajat esihaetaan päiville, joihin 13 tunnin ikkuna
      osuu; fetchSunPhases hakee FMI:n jälkeen välimuistista ja tarvittaessa puuttuvat päivät. */
-  const loadHour = new Date(new Date().setMinutes(0,0,0));
+  const loadHour = floorToHour(new Date());
   const nowcastPending = fetchNowcastTimeseries(LAT, LON);
   const sunPrefetch = fetchSunPhases(LAT, LON, [loadHour, new Date(loadHour.getTime() + 12*3600000)]).catch(() => null);
 
   try{
     const forecastData = await fetchForecast(LAT, LON);
     const now = new Date();
-    const thisHourLocal = new Date(new Date(now).setMinutes(0,0,0));
+    const thisHourLocal = floorToHour(now);
     const upcoming = forecastData.hours.filter(hour => {
       const time = hour?.time instanceof Date ? hour.time : new Date(hour?.key || hour);
       return time instanceof Date && !Number.isNaN(time.getTime()) && time >= thisHourLocal;
