@@ -29,6 +29,42 @@ ovat harkittuja. Tarkoitus on, ettei seuraava siivouskierros pura niitä vahingo
 - **`generaattori.html` ei laita avainta K shell-komentoon**, koska shellin historia
   tallentuu levylle ja varmuuskopioihin. Linkit tulostetaan erillisenä lohkona.
 
+### Tunnin toinen hämärävaihto näkyy seuraavan rivin pääselitteessä (käyttäjän päätös 2026-09)
+
+`withinChange` katsoo tunnin **ensimmäistä** rajapyykkiä, ja se on tarkoituksellista. Kun
+tunnilla on kaksi vaihtoa (esim. 25.10. klo 05: astronominen 05:02, nauttinen 05:51),
+näkymä on:
+
+    klo 05 | ASTRONOMINEN HÄMÄRÄ (05:02)
+    klo 06 | NAUTTINEN HÄMÄRÄ (05:51) ⏎ porvarillinen 06:40
+
+Näin kuuluukin: nauttinen on suomeksi sanottuna kuuden tunnin vaihe ja sen pääselite,
+ja tarkka alkuaika kerrotaan kerran sulkeissa. Sääntö "seuraavan vaiheen ilmoitus
+vain jos … :30 tai myöhemmin" rajaa, milloin ilmoitus **saa** tulla; se ei vaadi
+ilmoitusta. Kokeiltiin viimeisen rajapyykin valintaa (klo 05 `nauttinen 05:51`, klo 06
+ilman aikaa) ja hylättiin.
+
+### Tasatunti UTC:stä, ei selaimen kellosta (2026-09)
+
+Rivin tunti-ikkuna (`analyzeTwilightForHour`) ja näytettävän ikkunan alku pyöristetään
+`floorToHour`illa. Selaimen `setMinutes(0)` osui syksyn kellonsiirtoyönä kaksoistunnilla
+03–04 EET aiempaan, kesäajan kolmeen: ensimmäinen rivi oli jo mennyt tunti ja nowcast
+siirtyi riville 1. Koskee tuntia vuodessa, mutta korjaus on pieni.
+
+Avoinna: jos **selain** on puolen tunnin aikavyöhykkeellä (esim. Intia) ja sijainti Suomessa,
+minuuttiehdot (`getMinutes()` mm. `baseSunEventText`, `allowTwilightAsMain`, seuraavan vaiheen
+:30-raja, kultasävy) lasketaan selaimen minuuteista, jolloin muoto ja ilmoitukset menevät
+30 min pieleen. Tunti-ikkuna on nyt oikein. Ei korjattu: vaatii minuutit `TZ`:n mukaan
+viidessä kohdassa, ja tilanne on harvinainen.
+
+### Lämpötilan korostus pyöristämättömästä arvosta (käyttäjän päätös 2026-09)
+
+`applyTemperatureMilestones` vertaa **pyöristämättömään** lämpötilaan, vaikka solu näyttää
+pyöristetyn. Näyttää ristiriidalta (−0,3 korostuu mutta näkyy `0°`; −9,6 näkyy `-10°`
+korostamatta), mutta on tarkoituksellista: korostus kertoo onko pakkasta, eli erottaa
+kylmän nollan lämpimästä, eikä −9,6 riko kymmenen asteen pakkasrajaa. Pyöristettyyn
+vertaaminen kokeiltiin ja hylättiin.
+
 ### Aurinkotunnin pääsana nostetaan puoliväliin (2026-09)
 
 Kun aurinko nousee tai laskee ja pääsanana on sää (ei hämärävaihe), selitesolu saa
