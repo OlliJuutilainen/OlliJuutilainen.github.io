@@ -83,6 +83,8 @@ selite, sade, tuuli. Hämärävaiheiden esitystä koskevat säännöt:
   Sarakkeessa näkyvä `—` on nollasateen symboli, ei ajatusviiva.
 - **Kuivalla tunnilla hämärävaihe on pääsana**, myös kesäyön tunteina. Sateisella
   tunnilla sää on pääsana ja hämärä siirtyy pieneksi merkinnäksi.
+- **Sumu ei ole yöllä selite.** Hämärätunnilla sumu ohitetaan kuin kuiva sää, myös jos
+  tunnille on ennustettu pieni sademäärä.
 - **Sateisella tunnilla ei toisteta vaiheen nimeä** sellaisenaan. Vain ilmoitukset:
   vaiheen alkaminen ja seuraavan vaiheen alkaminen.
 - **Alkuaikaa ei koskaan keksitä.** Jos vaiheen todellista alkamishetkeä ei tiedetä,
