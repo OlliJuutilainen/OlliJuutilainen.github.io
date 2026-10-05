@@ -2182,7 +2182,18 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   /* Märkä/kuiva päätellään sen lähteen koodista, jonka teksti näytetään. */
   const descriptorOpts = (descSource === 'nowcast') ? { nowcastCode } : { smartSymbolCode };
   baseDesc = capitalizeDryDescriptor(baseDesc, descriptorOpts);
-  const descWet = isWetDescriptor(baseDesc, descriptorOpts);
+  let tw = null;
+  let twErr = false;
+  try{
+    tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
+  }catch{
+    twErr = true;
+  }
+  /* Yöllä sumu ei ole selite: tunnilla, jolla hämärävaihe kelpaa pääsanaksi, sumu
+     käsitellään kuivan selitteen tavoin ja jää hämärän alle näkymättä. Myös pieni
+     sademäärä sumutunnilla jättää hämärän pääsanaksi; määrä näkyy sadesarakkeessa. */
+  const fogIgnored = !!(fogInfo.isFog && tw && phaseLabel(tw.phase) && allowTwilightAsMain(tw));
+  const descWet = !fogIgnored && isWetDescriptor(baseDesc, descriptorOpts);
   const descWeak = isWeakWetDescriptor(baseDesc, descriptorOpts);
   const descThunder = isThunderOrHailDescriptor(baseDesc, descriptorOpts);
   let precipish;
@@ -2192,6 +2203,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     const wet = (rainVal != null && rainVal > 0);
     precipish = wet || descWet;
   }
+  if (fogIgnored) precipish = false;
   let descMain = baseDesc || '–';
   let descTags = [];
   let descExtra = '';
@@ -2200,7 +2212,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   let twilightOverride = { applied: false, forceDescWhite: false, forceRainWhite: false };
   let sunEventHour = false;
   try{
-    const tw = typeof twilightResolver === 'function' ? twilightResolver(new Date(dUtc)) : null;
+    if (twErr) throw new Error('twilight');
     sunEventHour = !!(tw && tw.sunEvent && tw.sunEvent.at instanceof Date);
     const decorated = decorateDescription(baseDesc, tw, { precipish, hourStart: dUtc });
     descMain = decorated.main || baseDesc || '–';
@@ -2209,7 +2221,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     if (decorated.twilightMain){
       thunderTag = buildThunderTag({ baseText: baseDesc, source: descSource, descriptorOpts });
     }
-    const override = maybeApplyTwilightPrecipOverride({
+    const override = fogIgnored ? twilightOverride : maybeApplyTwilightPrecipOverride({
       decorated,
       rainVal,
       baseDesc,
@@ -2250,7 +2262,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   }catch{
     if (DBG) twDbg = '[TW!err]';
   }
-  if (fogInfo.isFog){
+  if (fogInfo.isFog && !fogIgnored){
     descMain = fogInfo.displayText;
     descDisplaySource = descSource;
     descDisplayFallbackFromNowcast = fallbackFromNowcast;
@@ -2270,7 +2282,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   const windSources = Array.isArray(windObj?.sources) ? windObj.sources : [];
   const windExpectedNowcast = gustAvailable && windSources.includes('nowcast');
   const windFallbackFromNowcast = false;
-  const descFog = !!fogInfo.isFog;
+  const descFog = !!fogInfo.isFog && !fogIgnored;
   const highlight = computeHighlightStates({
     nowcastRow,
     rainVal,

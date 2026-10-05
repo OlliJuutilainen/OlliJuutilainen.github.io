@@ -44,6 +44,21 @@ vain jos … :30 tai myöhemmin" rajaa, milloin ilmoitus **saa** tulla; se ei va
 ilmoitusta. Kokeiltiin viimeisen rajapyykin valintaa (klo 05 `nauttinen 05:51`, klo 06
 ilman aikaa) ja hylättiin.
 
+### Yöllä sumu ei ohita hämärää (käyttäjän päätös 2026-10)
+
+Tunnilla, jolla hämärävaihe kelpaa pääsanaksi (`phaseLabel` + `allowTwilightAsMain`),
+sumu (`analyzeFogDescriptor` → `isFog`) käsitellään kuten kuiva selite: pääsanaksi tulee
+hämärä tai säkkipimeä, eikä "Näkyvyys: mahdollinen." / "Näkyvyys: ei ole." näy. Päivällä
+ja aurinkotunnilla, jolla hämärä ei kelpaa pääsanaksi, sumu näkyy kuten ennenkin.
+
+Ero kuivaan selitteeseen: sumutunnin pieni sademäärä (`> 0`) ei tee tunnista sateista,
+vaan hämärä jää pääsanaksi ja määrä näkyy vain sadesarakkeessa. Muuten sana "sumua"
+nousisi sateen takia pääsanaksi, mikä on juuri se mitä ei haluta. Korostus (> 0,3 mm)
+toimii ennallaan.
+
+Lippu on `fogIgnored` (`createHourlyRowModel`). Hämärävaihe lasketaan siksi ennen
+märkä/kuiva-päättelyä eikä vasta `decorateDescription`in kutsun yhteydessä.
+
 ### Tasatunti UTC:stä, ei selaimen kellosta (2026-09)
 
 Rivin tunti-ikkuna (`analyzeTwilightForHour`) ja näytettävän ikkunan alku pyöristetään
