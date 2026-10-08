@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maailmankuvien kääntäjä v2 – Olli Juutilainen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Alegreya+Sans:wght@400;500&family=Gentium+Book+Plus&display=swap">
+<style>
+:root{
+  --paper:#ECEEE8; --ink:#1E2433; --slate:#596173; --lapis:#2D46A6; --wash:#DDE2F1; --rule:#C8CCC3; --thread:#B3312F;
+  --serif:"Alegreya","Gentium Book Plus",Georgia,"Times New Roman",serif;
+  --sans:"Alegreya Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121731; --ink:#E5E7EE; --slate:#A2A8B8; --lapis:#97A9F3; --wash:#1F2748; --rule:#2E3657; --thread:#E2736C;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121731; --ink:#E5E7EE; --slate:#A2A8B8; --lapis:#97A9F3; --wash:#1F2748; --rule:#2E3657; --thread:#E2736C;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;background:var(--paper);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  height:100%;margin:0;overflow:hidden;
+  background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:clamp(16.5px,.42vw + 12.4px,19.5px);line-height:1.5;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+p{margin:0}
+h3{margin:0}
+
+/* ---------- deck ---------- */
+.deck{position:relative;height:100%}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:clamp(16px,3vw,40px) clamp(20px,6vw,88px) 88px;
+  opacity:0;visibility:hidden;
+  transition:opacity .4s ease,visibility 0s linear .4s;
+}
+.slide.is-active{opacity:1;visibility:visible;transition:opacity .4s ease,visibility 0s}
+.page{max-width:1100px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+
+.runhead{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-family:var(--sans);font-size:.82rem;color:var(--slate)}
+.folio{font-family:var(--serif);font-style:italic;font-size:1.4rem;color:var(--lapis);line-height:1}
+
+h2{font-weight:500;font-size:clamp(2rem,3.2vw + .7rem,3.35rem);line-height:1.05;letter-spacing:-.012em;margin:.45em 0 .4em;max-width:22ch;text-wrap:balance}
+.sub{font-style:italic;color:var(--slate);margin:-.15em 0 1em}
+.lede{font-size:1.17em;line-height:1.45;max-width:54ch;margin:0 0 1.5em;text-wrap:pretty}
+.close{margin-top:1.6em;max-width:60ch;font-style:italic;text-wrap:pretty}
+
+/* text blocks side by side */
+.trio,.duo{display:grid;gap:1.4rem clamp(1.4rem,3.5vw,3rem);align-items:start}
+.trio{grid-template-columns:repeat(3,minmax(0,1fr));max-width:1060px}
+.duo{grid-template-columns:repeat(2,minmax(0,1fr));max-width:960px}
+.bh{font-size:1.05em;font-weight:700;margin-bottom:.3em}
+.blk p{text-wrap:pretty}
+
+/* plain statements */
+.stmts{list-style:none;margin:0;padding:0;max-width:62ch}
+.stmts li{position:relative;padding:.5em 0 .5em 1.3em;font-size:1.12em;line-height:1.4;text-wrap:pretty}
+.stmts li::before{content:"–";position:absolute;left:0;color:var(--lapis)}
+.blk .stmts li{font-size:1em;padding:.15em 0 .45em 1.2em}
+
+/* sequences: before / then / now, or start / solution / result */
+.seq{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:max-content minmax(0,58ch);justify-content:start;gap:.9em 1.4rem;align-items:baseline}
+.seq dt{font-family:var(--sans);font-size:.88rem;color:var(--lapis);text-align:right}
+.seq dd{margin:0;text-wrap:pretty}
+
+blockquote{margin:1.1em 0 .9em;padding:0;font-style:italic;font-size:clamp(1.3rem,1.5vw + .7rem,1.85rem);line-height:1.28;max-width:38ch;text-wrap:balance}
+
+.example{margin-top:1.6em;padding-left:1.1em;border-left:2px solid var(--lapis);font-style:italic;max-width:62ch;text-wrap:pretty}
+
+/* ---------- cover ---------- */
+.cover .page{justify-content:space-between}
+.cover h1{font-weight:500;font-size:clamp(2.8rem,7vw,6.3rem);line-height:.95;letter-spacing:-.02em;margin:.25em 0 .5em;hyphens:manual}
+.cover-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(1.5rem,5vw,4.5rem);align-items:end}
+.who{margin-top:1.6em}
+.who .name{font-size:1.35em;font-weight:700}
+.who .meta{color:var(--slate);margin-top:.2em}
+.kosmos{margin:0}
+.kosmos .word{font-size:clamp(3.6rem,7.4vw,7.2rem);line-height:1;color:var(--ink)}
+.kosmos .translit{font-family:var(--sans);color:var(--slate);font-size:.9rem;margin:.35em 0 .55em .1em}
+.kosmos .glosses{font-style:italic;color:var(--lapis);font-size:clamp(1.3rem,1.9vw + .4rem,1.85rem);line-height:1.2}
+.kosmos .sep{color:var(--slate);font-style:normal;margin:0 .32em}
+.kosmos figcaption{color:var(--slate);max-width:38ch;margin-top:1em;font-size:.95em}
+.rv{display:inline-block;animation:reveal .9s ease both}
+.r1{animation-delay:.5s}.r2{animation-delay:1.15s}.r3{animation-delay:1.8s}
+@keyframes reveal{from{opacity:0;transform:translateY(.3em)}to{opacity:1;transform:none}}
+.colophon{font-family:var(--sans);font-size:.86rem;color:var(--slate);margin-top:1.6rem}
+
+/* ---------- threads: pick a spool, see where its thread runs ---------- */
+.threads .lede{margin-bottom:1.1em}
+.loom{display:grid;grid-template-columns:minmax(0,17rem) minmax(0,1fr);gap:clamp(1.4rem,4vw,3.2rem);align-items:start;max-width:1040px}
+.spools{display:flex;flex-direction:column;gap:.35rem}
+.spool{--bg:var(--paper);font:inherit;color:inherit;text-align:left;background:var(--bg);border:0;border-left:3px solid transparent;border-radius:0 6px 6px 0;padding:.5em .9em .6em;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.spool:hover{--bg:color-mix(in srgb,var(--wash) 55%,var(--paper))}
+.spool[aria-selected="true"]{--bg:var(--wash);border-left-color:var(--thread)}
+.spool:focus-visible{outline:2px solid var(--lapis);outline-offset:2px}
+.spool .sn{display:block;font-weight:700;line-height:1.25}
+.mini{position:relative;display:flex;justify-content:space-between;align-items:center;width:9rem;height:10px;margin-top:.45em}
+.mini::before{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;margin-top:-.75px;background:var(--thread);opacity:.5}
+.mini i{position:relative;width:6px;height:6px;border-radius:50%}
+.mini i.on{background:var(--thread);box-shadow:0 0 0 2px var(--bg)}
+.hint{font-family:var(--sans);font-size:.82rem;color:var(--slate);margin-top:.7rem}
+.h-touch{display:none}
+@media (hover:none){.h-hover{display:none}.h-touch{display:inline}}
+.panel .def{font-style:italic;font-size:1.08em;line-height:1.35;margin:0 0 .55em;max-width:52ch}
+.weave{position:relative;list-style:none;margin:0;padding:0}
+.weave::before{content:"";position:absolute;left:6px;top:.95em;bottom:.95em;width:2px;background:var(--thread)}
+.weave li{position:relative;display:grid;grid-template-columns:minmax(0,10.5rem) minmax(0,1fr);gap:.1rem 1.2rem;align-items:baseline;padding:.22em 0 .22em 2rem}
+.weave li.on::before{content:"";position:absolute;left:0;top:.52em;width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--thread)}
+.weave .dom{font-family:var(--sans);font-size:.88rem;color:var(--slate)}
+.weave li.on .dom{color:var(--ink);font-weight:500}
+.weave li.off .dom{opacity:.5}
+.panel.anim .def{animation:reveal .4s ease both}
+.panel.anim .weave li{animation:reveal .5s ease both;animation-delay:calc(var(--k) * 70ms + 80ms)}
+
+/* ---------- navigation ---------- */
+.deck-nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:10;
+  display:flex;align-items:center;gap:.9rem;
+  padding:.55rem clamp(16px,4vw,40px) calc(.55rem + env(safe-area-inset-bottom,0px));
+  background:var(--paper);font-family:var(--sans);
+}
+.track{flex:1;height:2px;background:var(--rule);position:relative;border-radius:1px}
+.track span{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--lapis);transition:width .3s ease}
+.deck-nav button{display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:50%;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;padding:0}
+.deck-nav button:hover:not(:disabled){border-color:var(--lapis)}
+.deck-nav button:focus-visible{outline:2px solid var(--lapis);outline-offset:2px}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+.deck-nav svg{width:16px;height:16px}
+.count{font-variant-numeric:lining-nums tabular-nums;color:var(--slate);font-size:.92rem;min-width:4.4em;text-align:center}
+
+/* ---------- small screens ---------- */
+@media (max-width:820px){
+  .trio,.duo{grid-template-columns:minmax(0,1fr)}
+  .cover-grid{grid-template-columns:minmax(0,1fr);align-items:start}
+  .kosmos{margin-top:.6em}
+  .loom{grid-template-columns:minmax(0,1fr);gap:1.1rem}
+  .spools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+  .spool{border-left:0;border-top:3px solid transparent;border-radius:0 0 6px 6px}
+  .spool[aria-selected="true"]{border-top-color:var(--thread)}
+  .mini{width:100%;max-width:9rem}
+  .weave li{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .seq{grid-template-columns:minmax(0,1fr);gap:.15em}
+  .seq dt{text-align:left}
+  .seq dd{margin-bottom:.8em}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide,.slide.is-active{transition:none}
+  .rv{animation:none}
+  .track span,.spool{transition:none}
+  .panel.anim .def,.panel.anim .weave li{animation:none}
+}
+
+/* ---------- print: one slide per page ---------- */
+@media print{
+  :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
+    --paper:#FFFFFF; --ink:#1E2433; --slate:#596173; --lapis:#2D46A6; --wash:#E8EBF5; --rule:#C8CCC3; --thread:#B3312F;
+    color-scheme:light;padding:0;
+  }
+  @page{size:A4 landscape;margin:12mm}
+  html,body{height:auto;overflow:visible}
+  body{font-size:12pt}
+  .deck{height:auto}
+  .deck-nav{display:none}
+  .slide{position:static;opacity:1;visibility:visible;overflow:visible;padding:0;break-after:page;page-break-after:always}
+  .slide:last-of-type{break-after:auto;page-break-after:auto}
+  .page{min-height:0}
+  .rv{animation:none}
+  .spools,.hint{display:none}
+  .loom{grid-template-columns:minmax(0,1fr)}
+  .panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1em 2em}
+  .panel[hidden]{display:block!important}
+  .panel .def::before{content:attr(data-name) ". ";font-weight:700;font-style:normal}
+  .weave li{padding-top:.15em;padding-bottom:.15em}
+}
+</style>
+</head>
+<body>
+<main class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide cover is-active" aria-label="Kansi">
+  <div class="page">
+    <div class="runhead"><span></span><span class="folio" aria-hidden="true">αʹ</span></div>
+    <div>
+      <h1>Maailman&shy;kuvien kääntäjä</h1>
+      <div class="cover-grid">
+        <div>
+          <p class="lede">Tutkin, miten ihmiset rakentavat kuvansa todellisuudesta. Osaan myös selittää sen jollekulle, joka näkee maailman toisin.</p>
+          <div class="who">
+            <p class="name">Olli Juutilainen</p>
+            <p class="meta">Teologian kandidaatti ja maisteriopiskelija, Helsingin yliopisto</p>
+          </div>
+        </div>
+        <figure class="kosmos">
+          <p class="word" lang="grc">κόσμος</p>
+          <p class="translit">kosmos</p>
+          <p class="glosses"><span class="rv r1">järjestys</span><span class="rv r2"><span class="sep">/</span>koriste</span><span class="rv r3"><span class="sep">/</span>maailma</span></p>
+          <figcaption>Kreikan kosmos tarkoittaa yhtä aikaa järjestystä, koristetta ja maailmaa. Kääntäjän on valittava, ja jokainen valinta on tulkinta.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <p class="colophon">Osaamisportfolio, luonnos, versio 2. Selaa nuolinäppäimillä tai pyyhkäisemällä.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide" aria-label="Maailmankuvien filosofia">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">βʹ</span></div>
+    <h2>Maailmankuvien filosofia</h2>
+    <p class="sub">saks. <span lang="de">Weltanschauung</span></p>
+    <p class="lede">Jokaisella ihmisellä ja yhteisöllä on kokonaiskuva siitä, mikä on totta ja mikä arvokasta. Yleensä kuva pysyy näkymättömänä, kunnes se törmää toiseen. Minua kiinnostaa, miten nämä kuvat rakentuvat ja mitä tapahtuu, kun ne kohtaavat.</p>
+    <div class="trio">
+      <div class="blk"><h3 class="bh">Ymmärrän sisältä</h3><p>Rakennan vieraan näkemyksen vahvimpaan muotoonsa ennen kuin arvioin sitä.</p></div>
+      <div class="blk"><h3 class="bh">Erittelen ulkoa</h3><p>Kuvaan katsomuksia tunnustuksesta riippumatta, niiden omassa historiallisessa ja yhteiskunnallisessa yhteydessä.</p></div>
+      <div class="blk"><h3 class="bh">Käännän välillä</h3><p>Teen näkemyksen ymmärrettäväksi sille, joka ei jaa sitä.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" aria-label="Kirja lensi seinään">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">γʹ</span></div>
+    <h2>Kirja lensi seinään</h2>
+    <dl class="seq">
+      <dt>Ennen</dt><dd>Pidin Kantia kuivana ja ihmiskeskeisenä pölkkypäänä, jolle kärsivä eläin oli pelkkä esine. Pääsykoekirja lensi seinään.</dd>
+      <dt>Nyt</dt><dd>Kant on ollut opinnäytetöideni keskiössä. Kandidaatintutkielmassa etsin hänen järjestelmästään juuri sitä, minkä luulin puuttuvan: eläinten moraalista arvoa. Gradussa vertaan hänen järjen universalismiaan stoalaiseen kosmopolitismiin.</dd>
+    </dl>
+    <blockquote>Vastenmielisin kanta on usein se, josta oppii eniten, kunhan sen suostuu rakentamaan vahvimpaan muotoonsa.</blockquote>
+    <p style="max-width:60ch">Samaa periaatetta sovellan katsomuksiin. Etsin maaperää, jolla ne voivat kohdata ilman 1800-luvun haavetta yhteisestä alkuuskonnosta: kristinuskon käsitteet punnitaan tosissaan sekulaarin humanismin rinnalla, ja toisinpäin.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide" aria-label="Mitä uskonnonfilosofi tekee palaverissa">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">δʹ</span></div>
+    <h2>Mitä uskonnonfilosofi tekee palaverissa</h2>
+    <p class="lede">Akateemiset menetelmät työpaikan kielellä.</p>
+    <ul class="stmts">
+      <li>Huomaan, kun kaksi ihmistä kiistelee eri asioista samalla sanalla.</li>
+      <li>Erotan väitteen, perusteen ja ääneen lausumattoman oletuksen.</li>
+      <li>Arvioin, millaiseen tietoon väite nojaa ja kuinka paljon sen varaan voi rakentaa.</li>
+      <li>Luen tekstin sen omassa yhteydessä, oli kyse antiikin kirjeestä tai viime vuoden strategiapaperista.</li>
+      <li>Ymmärrän humanistia, yhteiskuntatieteilijää ja luonnontieteilijää riittävästi välittääkseni heidän välillään.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide" aria-label="Kääntäjä kirjaimellisesti">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">εʹ</span></div>
+    <h2>Kääntäjä kirjaimellisesti</h2>
+    <p class="lede">Kielet ovat minulle sekä työväline että tutkimuskohde. Työskentelen suomeksi ja englanniksi ja auttavasti myös ruotsiksi. Kreikan opinnoista on apua, kun haluan nähdä, mitä käännöksen takana lukee.</p>
+    <p style="max-width:60ch;margin-bottom:1em"><b>Logos</b> on kreikkaa ja tarkoittaa muun muassa sanaa, puhetta, järkeä ja selitystä. Johanneksen evankeliumi alkaa sillä: ”Alussa oli Sana.” Siinä yhteen sanaan kohtaavat juutalainen ja kreikkalainen perinne.</p>
+    <p style="max-width:60ch">Sana kokoaa yhteen kiinnostuksen kohteeni. Kreikkalaisessa ajattelussa logos sai sekä uskonnollisemmin että tieteellisemmin virittyneitä merkityksiä, ja minua kiinnostaa, miten nämä antiikin näkökulmat ilmenevät toisissa vaatteissa uuden ajan ajattelussa.</p>
+    <p class="close">Alun perin logos on myös ääneen lausuttu sana. Kielen soiva puoli onkin minulle silta yliopiston ulkopuolisiin taipumuksiini: musiikkiin ja ääneen.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide" aria-label="Huoneen lukeminen">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ϛʹ</span></div>
+    <h2>Huoneen lukeminen</h2>
+    <p class="lede">Maailmankuvien filosofia on käytännössä sitä, että tietää, mistä toinen tulee, ennen kuin sanoo mitään. Sama taito toimii lavalla, puhelimessa ja luokassa.</p>
+    <div class="trio">
+      <div class="blk"><h3 class="bh">Lavalla</h3><p>Olen esiintynyt yleisöille oluesta kovettuneista aikuisista herkkiin lapsiin, kotimaisen pienen artistin kiertueilla ja yksin. Muistotilaisuudessa tila luetaan toisin kuin juhlaillassa.</p></div>
+      <div class="blk"><h3 class="bh">Puhelimessa</h3><p>Soitin kylmiä puheluita toimitusjohtajille ja ylilääkäreille. Opin kuulemaan äänensävystä, onko tilaa jatkaa.</p></div>
+      <div class="blk"><h3 class="bh">Luokassa</h3><p>Opettajasijaisena opin lukemaan sekä oppilasta oppitunnilla että vanhempaa vanhempainillassa.</p></div>
+    </div>
+    <p class="close">Tilanteen mukaan painotun yhtä luontevasti lankojen vetelyyn taustalla kuin mikrofonin varteen tarttumiseen.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" aria-label="Viesti, joka mahtuu">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ζʹ</span></div>
+    <h2>Viesti, joka mahtuu</h2>
+    <p class="lede">Hyvä viesti on tulkintatyön lopputulos: ensin ymmärretään, mitä halutaan sanoa, sitten se paketoidaan vastaanottajan kokoiseksi.</p>
+    <div class="duo">
+      <div class="blk"><h3 class="bh">Rivien välistä</h3><p>Nuorena tein äänisuunnittelua ja musiikkia pariin harrastelijatasolla palkittuun elokuvaan. Ohjaajan sanoista piti kuulla, mitä hän todella haki, ja kääntää se musiikiksi.</p></div>
+      <div class="blk"><h3 class="bh">Kiireiselle kuulijalle</h3><p>Ajanvaraajana opin pakkaamaan asian muutamaan lauseeseen ja etsimään avauksen, joka kiinnostaa kuulijaa eikä puhujaa.</p></div>
+      <div class="blk"><h3 class="bh">Sisältö</h3><p>Laajensin roolini omasta aloitteestani markkinointiviestintään. Harjoituksen kohteena oli teksti, joka tavoittaa puhuteltavan yleisön ytimekkäästi kuin popkappale.</p></div>
+      <div class="blk"><h3 class="bh">Rikkaruohot</h3><p>Kitken akateemisesta tekstistä turhia sivistyssanoja. Viesti saa olla vaativa, mutta sen pitää olla mahdollisimman ymmärrettävä. Myynti- ja esiintymistausta antaa siihen purevuutta latistamatta.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide" aria-label="Otan kopin">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ηʹ</span></div>
+    <h2>Otan kopin</h2>
+    <p class="lede">Monessa työyhteisössä kalleimmat ongelmat syntyvät välitiloissa, joita kenenkään toimenkuva ei kata. Niissä olen viihtynyt.</p>
+    <div class="trio">
+      <div class="blk"><h3 class="bh">Työmaalla</h3><p>Vuokratyöfirman kautta rakennustyömaan apuhenkilönä olin käytännössä työmaan talonmies. Kun nosturi ei mahtunut portista tai lukittu ovi pysäytti laskutettavan työn työnjohdon istuessa palaverissa, ratkaisin tilanteen. Siksi sain useamman kerran jatkaa samalla työmaalla sen valmistumiseen asti, vaikka kiinnitykset kestävät tyypillisesti vain muutaman päivän.</p></div>
+      <div class="blk"><h3 class="bh">Koulussa</h3><p>Minut hälytettiin hätätilanteeseen puolen vuoden opettajasijaisuuteen. Lukuvuosi vietiin maaliin. Ei aina kaunista, mutta tehtävä tuli tehdyksi.</p></div>
+      <div class="blk"><h3 class="bh">Lavalla</h3><p>Olen tuurannut juhlatilaisuuksien orkestereissa, joissa ohjelmisto pitää ottaa haltuun parissa päivässä. Pääsoittimeni on piano, mutta kerran asiakas tarvitsi kansainvälisen konferenssin avajaisiin juhlallisen fanfaarin. Valmistin ja esitin elämäni ensimmäisen julkisen trumpettifanfaarin. Asiakas oli tyytyväinen.</p></div>
+    </div>
+    <p class="close">Nopeasti haltuun ottava, monen kanssa toimeen tuleva, mutaa pelkäämätön.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide" aria-label="Esitys on järjestelmä">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">θʹ</span></div>
+    <h2>Esitys on järjestelmä</h2>
+    <p class="lede">Hyvä esitys näyttää yleisöstä yksinkertaiselta, koska sen takana on monikerroksinen järjestelmä.</p>
+    <ul class="stmts">
+      <li>Ajan ääntä ja kuvaa lavalta soittamisen lomassa QLab-esitysohjausohjelmistolla.</li>
+      <li>Projisoin lähes mihin tilaan tahansa ja vien kuvan tarvittaessa pitkänkin kaapelivedon päähän.</li>
+      <li>Striimaan videota livenä lähiverkossa tavallisesta puhelimesta.</li>
+      <li>Kerran yleisö äänesti toiveistaan QR-koodilla, ja Excel-skripti muutti tulokset settilistaksi, joka tulostui lavalle kesken esityksen.</li>
+    </ul>
+    <p class="close">Työelämässä tämä näkyy siinä hetkessä, kun projektori ei tunnista läppäriä viisi minuuttia ennen seminaarin alkua. Olennaista ei silti ole kaapeli vaan se, että viesti pääsee elävässä tilanteessa toteutumaan koko syvyydessään.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" aria-label="Tieto liikkeelle">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ιʹ</span></div>
+    <h2>Tieto liikkeelle, ajatus rauhaan</h2>
+    <p class="lede">Tieto kannattaa pitää muodossa, joka liikkuu välineestä toiseen ja ihmiseltä koneelle. Ajattelu taas tarvitsee ympäristön, joka ei keskeytä.</p>
+    <div class="duo">
+      <div class="blk"><h3 class="bh">Tieto liikkeelle</h3>
+        <ul class="stmts">
+          <li>Pidän muistiinpanoni kevyessä tekstimuodossa, josta syntyy tarvittaessa raportti, diaesitys tai verkkosivu.</li>
+          <li>Teen tekoälyn kanssa pieniä työkaluja arjen ja tutkimuksen tarpeisiin ja puran sen tuella teknisiä rajoitteita.</li>
+          <li>Tunnen tekoälyn virhealttiuden ja tiedän, missä sen tuotosta ei voi ottaa annettuna.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3 class="bh">Ajatus rauhaan</h3>
+        <p>Keskittyminen ei tule minulle ilmaiseksi, joten olen nähnyt vaivaa rakentaakseni häiriöttömän mutta tarkoituksenmukaisesti toimivan työympäristön: pelkistetty kirjoitusohjelma, e-paperilaite ja taskussa älypuhelimen sijaan minimalistinen puhelin.</p>
+      </div>
+    </div>
+    <p class="example">Esimerkiksi tämän portfolion yhtenä raaka-aineena on pätkä Python-koodia, jonka rakensin tekoälyn kanssa. Se hakee opintosuoritusotteeni perusteella yliopiston opinto-oppaasta suorittamieni kurssien osaamistavoitteet ja kääntää ne osaamisen kielelle.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide threads" aria-label="Neljä punaista lankaa">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ιαʹ</span></div>
+    <h2>Neljä punaista lankaa</h2>
+    <p class="lede">Osaamiseni ei ole erillisiä saarekkeita. Samat langat kulkevat filosofiasta työmaalle.</p>
+    <div class="loom">
+      <div>
+        <div class="spools" role="tablist" aria-label="Langat">
+        <button class="spool" type="button" role="tab" id="tab1" aria-controls="lanka1" aria-selected="true">
+          <span class="sn">Kääntäminen</span>
+          <span class="mini" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i></span>
+        </button>
+        <button class="spool" type="button" role="tab" id="tab2" aria-controls="lanka2" aria-selected="false" tabindex="-1">
+          <span class="sn">Huoneen lukeminen</span>
+          <span class="mini" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span>
+        </button>
+        <button class="spool" type="button" role="tab" id="tab3" aria-controls="lanka3" aria-selected="false" tabindex="-1">
+          <span class="sn">Kopin ottaminen</span>
+          <span class="mini" aria-hidden="true"><i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>
+        </button>
+        <button class="spool" type="button" role="tab" id="tab4" aria-controls="lanka4" aria-selected="false" tabindex="-1">
+          <span class="sn">Tiivistäminen</span>
+          <span class="mini" aria-hidden="true"><i class="on"></i><i></i><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i></span>
+        </button>
+        </div>
+        <p class="hint"><span class="h-hover">Osoita lankaa tai jatka nuolella.</span><span class="h-touch">Napauta lankaa tai pyyhkäise.</span></p>
+      </div>
+      <div class="panels">
+        <div class="panel" role="tabpanel" id="lanka1" aria-labelledby="tab1" data-name="Kääntäminen">
+          <p class="def" data-name="Kääntäminen">Merkitys siirtyy muodosta toiseen niin, ettei olennainen katoa.</p>
+          <ol class="weave">
+            <li class="on" style="--k:0"><span class="dom">Filosofia ja teologia</span><span class="ex">Vieras kanta ymmärrettäväksi sille, joka ei jaa sitä.</span></li>
+            <li class="on" style="--k:1"><span class="dom">Kielet</span><span class="ex">Alkutekstistä käännökseen: missä käännös tekee valinnan.</span></li>
+            <li class="on" style="--k:2"><span class="dom">Lava ja tekniikka</span><span class="ex">Ohjaajan sanoista elokuvamusiikiksi.</span></li>
+            <li class="on" style="--k:3"><span class="dom">Myynti ja viestintä</span><span class="ex">Monimutkainen asia muutamaan lauseeseen.</span></li>
+            <li class="off" style="--k:4"><span class="dom">Työmaa</span></li>
+            <li class="on" style="--k:5"><span class="dom">Opettajuus</span><span class="ex">Opetettava asia kolmasluokkalaisen kielelle.</span></li>
+            <li class="on" style="--k:6"><span class="dom">Tieto ja tekoäly</span><span class="ex">Teknisestä pulmasta toimivaksi ratkaisuksi.</span></li>
+          </ol>
+        </div>
+        <div class="panel" role="tabpanel" id="lanka2" aria-labelledby="tab2" data-name="Huoneen lukeminen" hidden>
+          <p class="def" data-name="Huoneen lukeminen">Tiedän, mistä toinen tulee, ennen kuin sanon mitään.</p>
+          <ol class="weave">
+            <li class="on" style="--k:0"><span class="dom">Filosofia ja teologia</span><span class="ex">Vieras katsomus sisältäpäin.</span></li>
+            <li class="on" style="--k:1"><span class="dom">Kielet</span><span class="ex">Puhuttelu ja kohteliaisuus kohdekulttuurin mukaan.</span></li>
+            <li class="on" style="--k:2"><span class="dom">Lava ja tekniikka</span><span class="ex">Yleisöt oluesta kovettuneista aikuisista herkkiin lapsiin.</span></li>
+            <li class="on" style="--k:3"><span class="dom">Myynti ja viestintä</span><span class="ex">Äänensävystä kuuluu, onko tilaa jatkaa.</span></li>
+            <li class="on" style="--k:4"><span class="dom">Työmaa</span><span class="ex">Monikulttuurinen työyhteisö.</span></li>
+            <li class="on" style="--k:5"><span class="dom">Opettajuus</span><span class="ex">Oppilas oppitunnilla, vanhempi vanhempainillassa.</span></li>
+            <li class="off" style="--k:6"><span class="dom">Tieto ja tekoäly</span></li>
+          </ol>
+        </div>
+        <div class="panel" role="tabpanel" id="lanka3" aria-labelledby="tab3" data-name="Kopin ottaminen" hidden>
+          <p class="def" data-name="Kopin ottaminen">Hoidan välitilojen ongelmat, joita kenenkään toimenkuva ei kata.</p>
+          <ol class="weave">
+            <li class="off" style="--k:0"><span class="dom">Filosofia ja teologia</span></li>
+            <li class="off" style="--k:1"><span class="dom">Kielet</span></li>
+            <li class="on" style="--k:2"><span class="dom">Lava ja tekniikka</span><span class="ex">Tekniikka pystyyn ennen ovien avautumista.</span></li>
+            <li class="on" style="--k:3"><span class="dom">Myynti ja viestintä</span><span class="ex">Roolin laajennus omasta aloitteesta.</span></li>
+            <li class="on" style="--k:4"><span class="dom">Työmaa</span><span class="ex">Ongelmat, joita kukaan ei ollut tilannut.</span></li>
+            <li class="on" style="--k:5"><span class="dom">Opettajuus</span><span class="ex">Hätäsijaisuus vietynä maaliin.</span></li>
+            <li class="on" style="--k:6"><span class="dom">Tieto ja tekoäly</span><span class="ex">Vanha kone riittämään uuden ostamisen sijaan.</span></li>
+          </ol>
+        </div>
+        <div class="panel" role="tabpanel" id="lanka4" aria-labelledby="tab4" data-name="Tiivistäminen" hidden>
+          <p class="def" data-name="Tiivistäminen">Löydän suuresta aineistosta olennaisen ja annan sille oikean koon.</p>
+          <ol class="weave">
+            <li class="on" style="--k:0"><span class="dom">Filosofia ja teologia</span><span class="ex">Argumentin rekonstruktio ongelmasta ratkaisuun.</span></li>
+            <li class="off" style="--k:1"><span class="dom">Kielet</span></li>
+            <li class="off" style="--k:2"><span class="dom">Lava ja tekniikka</span></li>
+            <li class="on" style="--k:3"><span class="dom">Myynti ja viestintä</span><span class="ex">Viesti, joka kulkee kuin popkappale.</span></li>
+            <li class="off" style="--k:4"><span class="dom">Työmaa</span></li>
+            <li class="on" style="--k:5"><span class="dom">Opettajuus</span><span class="ex">Laaja aihe oppitunnin mittaiseksi.</span></li>
+            <li class="on" style="--k:6"><span class="dom">Tieto ja tekoäly</span><span class="ex">Kurssien osaamistavoitteet portfolion raaka-aineeksi.</span></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <p class="close">Polkuni ei ole ollut suora. Nuoruuden harhailu ja myöhempi pysähtyminen pakottivat katsomaan maailmaa monesta kulmasta. Nyt polun varrella kohdatuista näkökulmista on tullut ponnahduslautoja ja osin jopa tutkimuskohteita.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" aria-label="Mihin minusta on">
+  <div class="page">
+    <div class="runhead"><span>Maailmankuvien kääntäjä</span><span class="folio" aria-hidden="true">ιβʹ</span></div>
+    <h2>Mihin minusta on</h2>
+    <p class="lede">En hae yhtä nimikettä. Haen tehtävää, jossa tietoa pitää ymmärtää, jäsentää ja välittää eteenpäin – yrityksessä, järjestössä tai julkisella sektorilla.</p>
+    <div class="duo">
+      <div class="blk"><h3 class="bh">Analyyttinen tietotyö</h3><p>Selvitykset, katsaukset, lähteiden ja argumenttien arviointi, laajojen aineistojen jäsentäminen.</p></div>
+      <div class="blk"><h3 class="bh">Kirjallinen viestintä</h3><p>Artikkelit, raportit ja verkkosisällöt. Asiantuntijatieto ymmärrettäväksi ilman turhia sivistyssanoja.</p></div>
+      <div class="blk"><h3 class="bh">Elävä tilanne</h3><p>Tieto tulee lihaksi vasta, kun se kohtaa ihmiset. Olen kotonani esitelmissä ja tilaisuuksissa, lavalla ja sen takana. Akateemisen tai muun työelämän tilaisuuden järjestämisessä on hyödyllistä, että joku työryhmästä osaa sekä sisällön että tekniikan.</p></div>
+      <div class="blk"><h3 class="bh">Keskusteleva rooli</h3><p>Fasilitointi, dialogityö, sidosryhmätyö ja katsomusten välinen vuoropuhelu.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="deck-nav" aria-label="Diaesityksen selaus">
+  <div class="track" aria-hidden="true"><span id="bar"></span></div>
+  <button id="prev" type="button" aria-label="Edellinen dia"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <span id="count" class="count" aria-live="polite">1 / 12</span>
+  <button id="next" type="button" aria-label="Seuraava dia"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</nav>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  var count = document.getElementById('count');
+  var bar = document.getElementById('bar');
+  var cur = -1;
+
+  /* the threads slide walks through its threads before the deck moves on */
+  var loom = document.querySelector('.loom');
+  var spools = loom ? Array.prototype.slice.call(loom.querySelectorAll('.spool')) : [];
+  var panels = loom ? Array.prototype.slice.call(loom.querySelectorAll('.panel')) : [];
+  var loomSlide = loom ? slides.indexOf(loom.closest('.slide')) : -1;
+  var ti = -1;
+
+  function pick(i){
+    if (!spools.length) return;
+    i = Math.max(0, Math.min(spools.length - 1, i));
+    var changed = i !== ti;
+    ti = i;
+    spools.forEach(function(sp, j){
+      sp.setAttribute('aria-selected', j === i ? 'true' : 'false');
+      sp.tabIndex = j === i ? 0 : -1;
+    });
+    panels.forEach(function(pn, j){ pn.hidden = j !== i; });
+    if (changed) {
+      var pn = panels[i];
+      pn.classList.remove('anim'); void pn.offsetWidth; pn.classList.add('anim');
+    }
+  }
+
+  function show(n, dir){
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === cur) return;
+    slides.forEach(function(x){ x.classList.remove('is-active'); });
+    cur = n;
+    var s = slides[cur];
+    s.classList.add('is-active');
+    s.scrollTop = 0;
+    if (cur === loomSlide) { ti = -1; pick(dir < 0 ? spools.length - 1 : 0); }
+    count.textContent = (cur + 1) + ' / ' + slides.length;
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    prev.disabled = cur === 0;
+    next.disabled = cur === slides.length - 1;
+    var h = '#' + (cur + 1);
+    if (location.hash !== h) {
+      try { history.replaceState(null, '', h); } catch (e) {}
+    }
+  }
+  function step(d){
+    if (cur === loomSlide) {
+      var t = ti + d;
+      if (t >= 0 && t < spools.length) { pick(t); return; }
+    }
+    show(cur + d, d);
+  }
+  function fromHash(){
+    var m = /^#(\d+)$/.exec(location.hash);
+    return m ? parseInt(m[1], 10) - 1 : 0;
+  }
+
+  prev.addEventListener('click', function(){ step(-1); });
+  next.addEventListener('click', function(){ step(1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': e.preventDefault(); step(1); break;
+      case 'ArrowLeft': case 'PageUp': e.preventDefault(); step(-1); break;
+      case 'Home': e.preventDefault(); show(0, -1); break;
+      case 'End': e.preventDefault(); show(slides.length - 1, 1); break;
+    }
+  });
+  window.addEventListener('hashchange', function(){ show(fromHash(), 1); });
+
+  var sx = 0, sy = 0, st = 0;
+  document.addEventListener('touchstart', function(e){
+    if (e.touches.length !== 1) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+  }, {passive: true});
+  document.addEventListener('touchend', function(e){
+    var t = e.changedTouches[0];
+    var dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Date.now() - st < 700 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+      step(dx < 0 ? 1 : -1);
+    }
+  }, {passive: true});
+
+  var hoverable = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  spools.forEach(function(sp, j){
+    sp.addEventListener('click', function(){ pick(j); });
+    if (hoverable) sp.addEventListener('mouseenter', function(){ pick(j); });
+  });
+
+  show(fromHash(), 1);
+})();
+</script>
+</body>
+</html>
