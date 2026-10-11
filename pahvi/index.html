@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>
+/* ==========================================================================
+   CONFIG — muokkaa vain tätä osiota.
+
+   title     Sivun ja selaimen välilehden otsikko.
+   audioUrl  Koko keikan mp3. Dropbox-linkissä pitää olla ?raw=1
+             (ei ?dl=0), muuten Dropbox palauttaa esikatselusivun eikä
+             äänitiedostoa.
+   tracks    Kappaleet aikajärjestyksessä.
+             t      Alkuaika muodossa m:ss tai h:mm:ss, esim. "3:42"
+                    tai "1:02:05". Ensimmäinen on yleensä "0:00".
+             title  Kappaleen nimi.
+             Kappale päättyy seuraavan kappaleen alkuun; viimeinen
+             äänitiedoston loppuun.
+
+   Linkki suoraan kappaleeseen: sivun osoite + #numero, esim. …/pahvi/#3
+   (numerointi alkaa ykkösestä). Linkki valitsee kappaleen muttei
+   aloita soittoa.
+   ========================================================================== */
+const CONFIG = {
+  title: "Keikan nimi – paikka, pvm",
+  audioUrl: "https://www.dropbox.com/...?raw=1",
+  tracks: [
+    { t: "0:00", title: "Intro" },
+    { t: "3:42", title: "Biisi 2" }
+  ]
+};
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Keikka</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --fg: #1b1b1a;
+    --muted: #6d6b66;
+    --line: #dcd9d2;
+    --soft: #efede8;
+    --accent: #a8431c;
+    --err-bg: #fbeae5;
+    --err-fg: #7a2511;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --fg: #ebe9e4;
+      --muted: #9b9890;
+      --line: #393834;
+      --soft: #22221f;
+      --accent: #e98a5f;
+      --err-bg: #3a1d14;
+      --err-fg: #f6c2ad;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+  h1 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 22px;
+    overflow-wrap: anywhere;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  button:focus-visible, .seek:focus-visible, .mode label:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  svg { display: block; fill: currentColor; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* --- Virheilmoitus --- */
+  .error {
+    background: var(--err-bg);
+    color: var(--err-fg);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 0 0 20px;
+  }
+  .error p { margin: 0; }
+  .error p + p { margin-top: 6px; font-size: 0.9rem; }
+
+  /* --- Soitin --- */
+  .now {
+    font-size: 1.05rem;
+    font-weight: 600;
+    min-height: 1.45em;
+    margin: 0 0 4px;
+    overflow-wrap: anywhere;
+  }
+  .now .idx { color: var(--muted); font-weight: 500; margin-right: 0.35em; }
+  .seek {
+    position: relative;
+    height: 44px;
+    touch-action: none;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+  }
+  .seek[aria-disabled="true"] { cursor: default; }
+  .bar {
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 4px;
+    margin-top: -2px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: var(--fg);
+  }
+  .tick {
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 10px;
+    margin: -5px 0 0 -1px;
+    background: var(--bg);
+    pointer-events: none;
+  }
+  .knob {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: var(--fg);
+    pointer-events: none;
+  }
+  .seek[aria-disabled="true"] .knob { display: none; }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .time {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .ctl {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+  }
+  .ctl:disabled { opacity: 0.35; cursor: default; }
+  .ctl svg { width: 22px; height: 22px; }
+  .ctl.play {
+    width: 56px;
+    height: 56px;
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .ctl.play svg { width: 26px; height: 26px; }
+
+  /* --- Tilavalinta --- */
+  .mode {
+    border: 0;
+    padding: 0;
+    margin: 18px 0 26px;
+    display: flex;
+    background: var(--soft);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .mode legend {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .mode label {
+    flex: 1 1 0;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .mode input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mode label:has(input:checked) {
+    background: var(--bg);
+    color: var(--fg);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  /* --- Kappalelista --- */
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  li {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--line);
+  }
+  .track {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 48px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 4px 12px 8px;
+    text-align: left;
+    border-left: 3px solid transparent;
+  }
+  .track .n {
+    flex: 0 0 auto;
+    min-width: 1.6em;
+    color: var(--muted);
+    text-align: right;
+  }
+  .track .tt {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .track .st {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  li[aria-current="true"] .track {
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  li[aria-current="true"] .track .n { color: var(--accent); }
+  .copy {
+    flex: 0 0 44px;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+  }
+  .copy svg { width: 18px; height: 18px; }
+  .copy.done { color: var(--accent); }
+  @media (hover: hover) {
+    .track:hover .tt { text-decoration: underline; text-underline-offset: 3px; }
+    .copy:hover { color: var(--fg); }
+  }
+  .sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title"></h1>
+
+  <div class="error" id="error" role="alert" hidden></div>
+
+  <section aria-label="Soitin">
+    <p class="now" id="now" aria-live="polite"></p>
+    <div class="seek" id="seek" role="slider" tabindex="0"
+         aria-label="Soittokohta" aria-valuemin="0" aria-valuemax="0"
+         aria-valuenow="0" aria-valuetext="0:00" aria-disabled="true">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div id="ticks"></div>
+      <div class="knob" id="knob"></div>
+    </div>
+    <div class="row">
+      <button class="ctl" id="prev" type="button" aria-label="Edellinen kappale">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+      </button>
+      <button class="ctl play" id="play" type="button" aria-label="Toista">
+        <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-play"><path d="M7 4.5v15L20 12z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-pause" hidden><path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z"/></svg>
+      </button>
+      <button class="ctl" id="next" type="button" aria-label="Seuraava kappale">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+      </button>
+      <span class="time num" id="time">0:00 / –:––</span>
+    </div>
+  </section>
+
+  <fieldset class="mode">
+    <legend>Toistotapa</legend>
+    <label><input type="radio" name="mode" value="all" checked> Soita eteenpäin</label>
+    <label><input type="radio" name="mode" value="one"> Vain tämä biisi</label>
+  </fieldset>
+
+  <ol id="list" aria-label="Kappaleet"></ol>
+  <p class="sr" id="status" aria-live="polite"></p>
+
+  <audio id="audio" preload="metadata"></audio>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Kuinka paljon ennen biisin rajaa "Vain tämä biisi" pysäyttää (s).
+  // Kattaa yhden ruudunpäivityksen viiveen, ettei seuraavan biisin
+  // alkua ehdi kuulua.
+  var STOP_LOOKAHEAD = 0.02;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var audio = $("audio");
+  var els = {
+    title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
+    fill: $("fill"), ticks: $("ticks"), knob: $("knob"), time: $("time"),
+    play: $("play"), prev: $("prev"), next: $("next"), list: $("list"),
+    status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
+  };
+
+  // ---- Aikojen jäsennys ja muotoilu --------------------------------------
+
+  function parseTime(s) {
+    var m = /^\s*(?:(\d+):)?(\d{1,2}):(\d{2})(?:\.(\d+))?\s*$/.exec(String(s));
+    if (!m) return NaN;
+    var h = m[1] ? +m[1] : 0, min = +m[2], sec = +m[3];
+    if (sec > 59 || (m[1] && min > 59)) return NaN;
+    return h * 3600 + min * 60 + sec + (m[4] ? +("0." + m[4]) : 0);
+  }
+
+  function fmt(t, long) {
+    if (!isFinite(t) || t < 0) t = 0;
+    t = Math.floor(t);
+    var h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, s = t % 60;
+    var ss = (s < 10 ? "0" : "") + s;
+    if (h || long) return h + ":" + (m < 10 ? "0" : "") + m + ":" + ss;
+    return m + ":" + ss;
+  }
+
+  // ---- Kappaleet --------------------------------------------------------
+
+  var tracks = [];
+  var configErrors = [];
+  (CONFIG.tracks || []).forEach(function (tr, i) {
+    var start = parseTime(tr.t);
+    if (isNaN(start)) {
+      configErrors.push("Kappaleen " + (i + 1) + " aika “" + tr.t + "” ei ole muotoa m:ss tai h:mm:ss.");
+      return;
+    }
+    if (tracks.length && start <= tracks[tracks.length - 1].start) {
+      configErrors.push("Kappaleen " + (i + 1) + " alkuaika ei ole edellistä myöhäisempi.");
+    }
+    tracks.push({ start: start, title: String(tr.title || "Kappale " + (i + 1)) });
+  });
+
+  function duration() {
+    return isFinite(audio.duration) ? audio.duration : NaN;
+  }
+  function trackEnd(i) {
+    return i + 1 < tracks.length ? tracks[i + 1].start : duration();
+  }
+  // Kappale, jonka alueella aika t on. Ennen ensimmäistä alkua → 0.
+  function trackAt(t) {
+    var idx = 0;
+    for (var i = 0; i < tracks.length; i++) {
+      if (tracks[i].start <= t + 0.005) idx = i; else break;
+    }
+    return idx;
+  }
+
+  // ---- Tila -------------------------------------------------------------
+
+  var current = -1;        // korostettu kappale
+  var stopAt = null;       // "Vain tämä biisi": pysäytyskohta (s)
+  var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
+  var dragging = false;
+  var dragTime = 0;
+  var rafId = 0;
+  var longTimes = false;   // näytetäänkö h:mm:ss
+
+  function mode() {
+    return document.querySelector('input[name="mode"]:checked').value;
+  }
+
+  function position() {
+    return pendingSeek !== null ? pendingSeek : audio.currentTime;
+  }
+
+  // Asettaa pysäytyskohdan sen kappaleen loppuun, jossa ollaan nyt.
+  function armStop() {
+    stopAt = mode() === "one" && tracks.length ? trackEnd(trackAt(position())) : null;
+    if (stopAt !== null && !isFinite(stopAt)) stopAt = null; // viimeinen: ended hoitaa
+  }
+
+  function seekTo(t) {
+    var d = duration();
+    if (isFinite(d)) t = Math.min(Math.max(0, t), d);
+    else t = Math.max(0, t);
+    if (audio.readyState >= 1) {
+      pendingSeek = null;
+      audio.currentTime = t;
+    } else {
+      pendingSeek = t;
+    }
+    armStop();
+    render();
+  }
+
+  function play() {
+    if (pendingSeek !== null && audio.readyState >= 1) seekTo(pendingSeek);
+    var p = audio.play();
+    if (p && p.catch) {
+      p.catch(function (e) {
+        if (e && e.name === "NotAllowedError") return; // selain esti, käyttäjä voi painaa uudelleen
+        if (!audio.error) showError("Toisto ei käynnistynyt.", e && e.message);
+      });
+    }
+  }
+  function toggle() {
+    if (audio.paused) play(); else audio.pause();
+  }
+
+  function jumpTo(i, autoplay) {
+    if (i < 0 || i >= tracks.length) return;
+    seekTo(tracks[i].start);
+    if (autoplay) play();
+  }
+
+  function prevTrack() {
+    var t = position(), i = trackAt(t);
+    // Yli 3 s biisin sisällä → saman biisin alkuun, muuten edelliseen.
+    if (t - tracks[i].start > 3 || i === 0) jumpTo(i, !audio.paused);
+    else jumpTo(i - 1, !audio.paused);
+  }
+  function nextTrack() {
+    var i = trackAt(position());
+    if (i + 1 < tracks.length) jumpTo(i + 1, !audio.paused);
+  }
+
+  // ---- Piirto -----------------------------------------------------------
+
+  function render() {
+    var d = duration();
+    var t = dragging ? dragTime : position();
+    var frac = isFinite(d) && d > 0 ? Math.min(1, t / d) : 0;
+    els.fill.style.width = frac * 100 + "%";
+    els.knob.style.left = frac * 100 + "%";
+    els.time.textContent = fmt(t, longTimes) + " / " + (isFinite(d) ? fmt(d, longTimes) : "–:––");
+    els.seek.setAttribute("aria-valuenow", Math.floor(t));
+    els.seek.setAttribute("aria-valuetext", fmt(t, longTimes) + " / " + (isFinite(d) ? fmt(d, longTimes) : "tuntematon"));
+
+    var i = tracks.length ? trackAt(t) : -1;
+    if (i !== current) {
+      if (current >= 0 && els.list.children[current]) els.list.children[current].removeAttribute("aria-current");
+      current = i;
+      if (i >= 0) {
+        els.list.children[i].setAttribute("aria-current", "true");
+        els.now.innerHTML = "";
+        var idx = document.createElement("span");
+        idx.className = "idx num";
+        idx.textContent = (i + 1) + ".";
+        els.now.appendChild(idx);
+        els.now.appendChild(document.createTextNode(tracks[i].title));
+        updateMediaSession();
+      }
+    }
+    els.prev.disabled = !tracks.length;
+    els.next.disabled = i < 0 || i + 1 >= tracks.length;
+  }
+
+  function renderPlayState() {
+    var playing = !audio.paused;
+    // SVG-elementillä ei ole .hidden-ominaisuutta, joten attribuutti suoraan.
+    els.iconPlay.toggleAttribute("hidden", playing);
+    els.iconPause.toggleAttribute("hidden", !playing);
+    els.play.setAttribute("aria-label", playing ? "Tauko" : "Toista");
+  }
+
+  function renderTicks() {
+    var d = duration();
+    els.ticks.innerHTML = "";
+    if (!isFinite(d) || d <= 0) return;
+    tracks.forEach(function (tr) {
+      if (tr.start <= 0 || tr.start >= d) return;
+      var k = document.createElement("div");
+      k.className = "tick";
+      k.style.left = (tr.start / d) * 100 + "%";
+      els.ticks.appendChild(k);
+    });
+  }
+
+  function renderList() {
+    els.list.innerHTML = "";
+    tracks.forEach(function (tr, i) {
+      var li = document.createElement("li");
+
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "track";
+      b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
+      b.children[0].textContent = (i + 1) + ".";
+      b.children[1].textContent = tr.title;
+      b.children[2].textContent = fmt(tr.start, longTimes);
+      b.addEventListener("click", function () { jumpTo(i, true); });
+
+      var c = document.createElement("button");
+      c.type = "button";
+      c.className = "copy";
+      c.setAttribute("aria-label", "Kopioi linkki kappaleeseen " + (i + 1));
+      c.title = "Kopioi linkki";
+      c.innerHTML = ICON_LINK;
+      c.addEventListener("click", function () { copyLink(i, c); });
+
+      li.appendChild(b);
+      li.appendChild(c);
+      els.list.appendChild(li);
+    });
+    current = -1;
+  }
+
+  // ---- Linkin kopiointi -------------------------------------------------
+
+  var ICON_LINK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zM8.5 19.8a4.3 4.3 0 0 1-3-7.3l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a2.3 2.3 0 0 0 3.2 3.2l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a4.3 4.3 0 0 1-3 1.3zM15.6 14.1a1 1 0 0 1-.7-1.7l2.2-2.2a2.3 2.3 0 0 0-3.2-3.2l-2.2 2.2a1 1 0 1 1-1.4-1.4l2.2-2.2a4.3 4.3 0 0 1 6 6l-2.2 2.2a1 1 0 0 1-.7.3z"/></svg>';
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.6 5.4 12.5a1 1 0 1 0-1.4 1.4l4.8 4.8a1 1 0 0 0 1.4 0L20 8.9a1 1 0 0 0-1.4-1.4z"/></svg>';
+
+  function linkFor(i) {
+    return location.href.replace(/#.*$/, "") + "#" + (i + 1);
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copyLink(i, btn) {
+    var url = linkFor(i);
+    var done = function (ok) {
+      if (ok) {
+        btn.classList.add("done");
+        btn.innerHTML = ICON_CHECK;
+        els.status.textContent = "Linkki kappaleeseen " + (i + 1) + " kopioitu.";
+        setTimeout(function () {
+          btn.classList.remove("done");
+          btn.innerHTML = ICON_LINK;
+        }, 1500);
+      } else {
+        window.prompt("Kopioi linkki:", url);
+      }
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () { done(true); },
+        function () { done(fallbackCopy(url)); });
+    } else {
+      done(fallbackCopy(url));
+    }
+  }
+
+  // ---- Virheet ----------------------------------------------------------
+
+  function showError(msg, detail) {
+    var p = document.createElement("p");
+    if (els.error.childNodes.length) p.style.marginTop = "12px";
+    p.textContent = msg;
+    els.error.appendChild(p);
+    if (detail) {
+      var q = document.createElement("p");
+      q.textContent = detail;
+      els.error.appendChild(q);
+    }
+    els.error.hidden = false;
+  }
+
+  audio.addEventListener("error", function () {
+    var e = audio.error;
+    var code = e ? e.code : 0;
+    var msg = "Äänitiedoston lataaminen epäonnistui.";
+    var detail;
+    if (code === 2) detail = "Verkkoyhteys katkesi tai palvelin ei vastannut. Tarkista yhteys ja lataa sivu uudelleen.";
+    else if (code === 3) detail = "Tiedosto latautui, mutta selain ei pystynyt purkamaan sitä. Tiedosto voi olla vioittunut.";
+    else if (code === 4) detail = "Tiedostoa ei löytynyt tai se ei ole äänitiedosto.";
+    if (/dropbox\.com/.test(CONFIG.audioUrl) && !/[?&]raw=1/.test(CONFIG.audioUrl)) {
+      detail = (detail ? detail + " " : "") + "Dropbox-linkin lopussa pitää olla ?raw=1.";
+    }
+    showError(msg, detail);
+    stopLoop();
+    renderPlayState();
+  });
+
+  // ---- Toistosilmukka ---------------------------------------------------
+  // requestAnimationFrame eikä timeupdate, koska timeupdate laukeaa vain
+  // n. 4 kertaa sekunnissa ja pysähdys myöhästyisi jopa 250 ms.
+
+  function loop() {
+    rafId = 0;
+    if (audio.paused) return;
+    if (stopAt !== null && audio.currentTime >= stopAt - STOP_LOOKAHEAD) {
+      var at = stopAt;
+      audio.pause();
+      audio.currentTime = at; // seuraavan biisin alkuun valmiiksi
+      armStop();
+      render();
+      return;
+    }
+    render();
+    rafId = requestAnimationFrame(loop);
+  }
+  function startLoop() {
+    if (!rafId) rafId = requestAnimationFrame(loop);
+  }
+  function stopLoop() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
+  audio.addEventListener("play", function () { armStop(); renderPlayState(); startLoop(); });
+  audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
+  audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
+  audio.addEventListener("seeked", function () { armStop(); render(); });
+  audio.addEventListener("timeupdate", function () { if (audio.paused) render(); });
+  audio.addEventListener("loadedmetadata", onMeta);
+  audio.addEventListener("durationchange", onMeta);
+
+  function onMeta() {
+    var d = duration();
+    if (!isFinite(d)) return;
+    var wasLong = longTimes;
+    longTimes = d >= 3600;
+    if (longTimes !== wasLong) renderList();
+    if (pendingSeek !== null) {
+      var t = pendingSeek;
+      pendingSeek = null;
+      audio.currentTime = Math.min(t, d);
+    }
+    els.seek.setAttribute("aria-valuemax", Math.floor(d));
+    els.seek.setAttribute("aria-disabled", "false");
+    renderTicks();
+    armStop();
+    render();
+  }
+
+  // ---- Edistymispalkki --------------------------------------------------
+  // Vedon aikana näytetään vain esikatselu; varsinainen haku tehdään kun
+  // sormi nousee, ettei pitkää tiedostoa haeta verkosta jokaisella liikkeellä.
+
+  function timeFromPointer(e) {
+    var r = els.seek.getBoundingClientRect();
+    var x = Math.min(Math.max(0, e.clientX - r.left), r.width);
+    return r.width ? (x / r.width) * duration() : 0;
+  }
+  els.seek.addEventListener("pointerdown", function (e) {
+    if (!isFinite(duration()) || e.button > 0) return;
+    dragging = true;
+    dragTime = timeFromPointer(e);
+    els.seek.setPointerCapture(e.pointerId);
+    render();
+    e.preventDefault();
+  });
+  els.seek.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    dragTime = timeFromPointer(e);
+    render();
+  });
+  function endDrag(e, commit) {
+    if (!dragging) return;
+    dragging = false;
+    if (commit) seekTo(timeFromPointer(e)); else render();
+  }
+  els.seek.addEventListener("pointerup", function (e) { endDrag(e, true); });
+  els.seek.addEventListener("pointercancel", function (e) { endDrag(e, false); });
+
+  els.seek.addEventListener("keydown", function (e) {
+    if (!isFinite(duration())) return;
+    var t = position(), handled = true;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") seekTo(t + 5);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowDown") seekTo(t - 5);
+    else if (e.key === "PageUp") seekTo(t + 30);
+    else if (e.key === "PageDown") seekTo(t - 30);
+    else if (e.key === "Home") seekTo(0);
+    else if (e.key === "End") seekTo(duration());
+    else handled = false;
+    if (handled) e.preventDefault();
+  });
+
+  // ---- Napit ja näppäimistö ---------------------------------------------
+
+  els.play.addEventListener("click", toggle);
+  els.prev.addEventListener("click", prevTrack);
+  els.next.addEventListener("click", nextTrack);
+  document.querySelectorAll('input[name="mode"]').forEach(function (r) {
+    r.addEventListener("change", armStop);
+  });
+
+  function isTextField(el) {
+    if (!el) return false;
+    if (el.isContentEditable) return true;
+    var tag = el.tagName;
+    if (tag === "TEXTAREA" || tag === "SELECT") return true;
+    if (tag !== "INPUT") return false;
+    return !/^(radio|checkbox|button|submit|reset|range|color|file|image)$/i.test(el.type);
+  }
+
+  // Välilyönti: estetään myös keyup, ettei fokusoitu nappi saa omaa
+  // klikkaustaan välilyönnistä (silloin toisto kytkeytyisi kahdesti).
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== " " || e.ctrlKey || e.metaKey || e.altKey || isTextField(e.target)) return;
+    e.preventDefault();
+    if (!e.repeat) toggle();
+  });
+  document.addEventListener("keyup", function (e) {
+    if (e.key === " " && !isTextField(e.target)) e.preventDefault();
+  });
+
+  // ---- URL-hash ---------------------------------------------------------
+
+  function applyHash() {
+    var m = /^#(\d+)$/.exec(location.hash);
+    if (!m) return;
+    var i = +m[1] - 1;
+    if (i >= 0 && i < tracks.length) {
+      jumpTo(i, false);
+      var li = els.list.children[i];
+      if (li && li.scrollIntoView) li.scrollIntoView({ block: "nearest" });
+    }
+  }
+  window.addEventListener("hashchange", applyHash);
+
+  // ---- Lukitusnäytön ohjaimet (Media Session) ----------------------------
+
+  function updateMediaSession() {
+    if (!("mediaSession" in navigator) || !window.MediaMetadata || current < 0) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: (current + 1) + ". " + tracks[current].title,
+        album: CONFIG.title
+      });
+    } catch (e) { /* ei tuettu */ }
+  }
+  if ("mediaSession" in navigator) {
+    var ms = navigator.mediaSession;
+    var set = function (a, fn) { try { ms.setActionHandler(a, fn); } catch (e) { /* ei tuettu */ } };
+    set("play", play);
+    set("pause", function () { audio.pause(); });
+    set("previoustrack", prevTrack);
+    set("nexttrack", nextTrack);
+    set("seekto", function (d) { if (d && isFinite(d.seekTime)) seekTo(d.seekTime); });
+  }
+
+  // ---- Käynnistys -------------------------------------------------------
+
+  document.title = CONFIG.title;
+  els.title.textContent = CONFIG.title;
+
+  if (configErrors.length) {
+    showError("Kappalelistassa on virhe (CONFIG).", configErrors.join(" "));
+  }
+  if (!tracks.length) {
+    tracks.push({ start: 0, title: CONFIG.title });
+  }
+
+  renderList();
+  render();
+  renderPlayState();
+  applyHash();
+  audio.src = CONFIG.audioUrl;
+})();
+</script>
+</body>
+</html>
