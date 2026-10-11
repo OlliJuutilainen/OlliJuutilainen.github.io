@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Soitin – uusi keikka</title>
+<!--
+  Apusivu keikkasoittimelle (soitin/index.html).
+  Tekee kaiken selaimessa: tarkistaa biisilistan ja tulostaa komennon,
+  jonka ajat itse Macin Terminalissa. Sivu ei kirjoita mitään verkkoon;
+  "Hae"-nappi vain lukee jo tallennetun keikan muokattavaksi.
+-->
+<style>
+  :root {
+    --bg: #faf9f6; --fg: #1b1b1a; --muted: #6d6b66; --line: #dcd9d2;
+    --soft: #efede8; --accent: #a8431c; --err-bg: #fbeae5; --err-fg: #7a2511;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --fg: #ebe9e4; --muted: #9b9890; --line: #393834;
+      --soft: #22221f; --accent: #e98a5f; --err-bg: #3a1d14; --err-fg: #f6c2ad;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 16px 48px; }
+  h1 { font-size: 1.45rem; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 1.05rem; margin: 28px 0 8px; }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  label { display: block; font-weight: 600; margin: 18px 0 6px; }
+  input[type=text], input[type=url], textarea {
+    width: 100%; font: inherit; color: inherit; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 44px;
+  }
+  textarea { min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92rem; }
+  input:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1 1 auto; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  button {
+    font: inherit; color: var(--fg); background: var(--soft); border: 0; border-radius: 8px;
+    min-height: 44px; padding: 0 14px; cursor: pointer; white-space: nowrap;
+  }
+  .error { background: var(--err-bg); color: var(--err-fg); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+  .error ul { margin: 0; padding-left: 1.2em; }
+  .ok { color: var(--muted); margin: 10px 0; }
+  pre {
+    background: var(--soft); border-radius: 8px; padding: 12px; margin: 0 0 8px;
+    white-space: pre-wrap; word-break: break-all; font-size: 0.85rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  td { border-bottom: 1px solid var(--line); padding: 6px 4px; vertical-align: baseline; }
+  td.n, td.t { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.n { text-align: right; width: 2.5em; }
+  td.t { width: 5.5em; }
+  td.tt { overflow-wrap: anywhere; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Uusi keikka soittimeen</h1>
+  <p class="muted">Täytä kentät. Sivu tarkistaa biisilistan ja tekee komennon, jonka ajat Macin
+    Terminalissa. Sen jälkeen lyhyt linkki toimii.</p>
+
+  <label for="key">Tunnus</label>
+  <div class="row">
+    <input id="key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="32">
+    <button id="newkey" type="button">Arvo uusi</button>
+    <button id="fetch" type="button">Hae</button>
+  </div>
+  <p class="muted" style="margin-top:6px">Uudelle keikalle arvottu tunnus. Korjataksesi vanhaa keikkaa
+    kirjoita sen tunnus ja paina <b>Hae</b>; linkki pysyy samana.</p>
+
+  <label for="title">Otsikko</label>
+  <input id="title" type="text" placeholder="Keikan nimi – paikka, pvm">
+
+  <label for="audio">Äänitiedoston linkki (Dropbox)</label>
+  <input id="audio" type="url" placeholder="https://www.dropbox.com/…" autocapitalize="off" spellcheck="false">
+  <p class="muted" id="audioNote" style="margin-top:6px"></p>
+
+  <label for="tracks">Biisilista</label>
+  <textarea id="tracks" spellcheck="false" placeholder="0:00 Intro
+3:42 Toinen biisi
+1:02:30 Encore"></textarea>
+  <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
+    <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Audacityn <i>Export Labels</i> -tiedoston
+    sisällön voi liittää sellaisenaan.</p>
+
+  <div id="problems" class="error" role="alert" hidden></div>
+
+  <div id="result" hidden>
+    <h2>Tarkista lista</h2>
+    <table><tbody id="preview"></tbody></table>
+
+    <h2>1. Aja tämä Macin Terminalissa</h2>
+    <pre id="cmd"></pre>
+    <button id="copyCmd" type="button">Kopioi komento</button>
+    <p class="muted" style="margin-top:8px">Komento tallentaa keikan ja tulostaa sen heti takaisin
+      tarkistukseksi. Saman tunnuksen uudelleen tallentaminen korvaa vanhan.</p>
+
+    <h2>2. Jaa tämä linkki</h2>
+    <pre id="link"></pre>
+    <button id="copyLink" type="button">Kopioi linkki</button>
+    <a id="open" href="#" target="_blank" rel="noopener" style="margin-left:12px">Avaa soitin</a>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Sama KV-nimiavaruus kuin generaattori.html:ssä (LOCATIONS). Keikat ovat
+  // siellä etuliitteellä "gig:".
+  var NS = "033276b4df18419a8eb60a7d42a4efef";
+  var API = "https://tusinasaa-worker.ollijuutilainen.workers.dev/api/gig";
+  var PLAYER = "https://ollijuutilainen.github.io/soitin/";
+  // Ei sekoittuvia merkkejä (0/o, 1/l), jos tunnus pitää joskus lukea ääneen.
+  var ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
+  var KEY_RE = /^[a-z0-9]{4,32}$/;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var f = { key: $("key"), title: $("title"), audio: $("audio"), tracks: $("tracks") };
+
+  function randomKey() {
+    var b = new Uint8Array(8), s = "";
+    crypto.getRandomValues(b);
+    for (var i = 0; i < b.length; i++) s += ALPHABET[b[i] % ALPHABET.length];
+    return s;
+  }
+
+  // ---- Ajat --------------------------------------------------------------
+
+  var TIME = "(\\d+:)?\\d{1,2}:\\d{2}(?:[.,]\\d+)?";
+
+  function parseTime(s) {
+    var m = /^(?:(\d+):)?(\d{1,2}):(\d{2})(?:[.,](\d+))?$/.exec(s);
+    if (!m) return NaN;
+    var h = m[1] ? +m[1] : 0, min = +m[2], sec = +m[3];
+    if (sec > 59 || (m[1] && min > 59)) return NaN;
+    return h * 3600 + min * 60 + sec + (m[4] ? +("0." + m[4]) : 0);
+  }
+
+  // Sekunnit → "m:ss" tai "h:mm:ss", kymmenykset vain jos niitä on.
+  function fmtTime(sec) {
+    var tenths = Math.round(sec * 10);
+    var whole = Math.floor(tenths / 10), frac = tenths % 10;
+    var h = Math.floor(whole / 3600), m = Math.floor(whole / 60) % 60, s = whole % 60;
+    var out = (h ? h + ":" + (m < 10 ? "0" : "") + m : String(m)) + ":" + (s < 10 ? "0" : "") + s;
+    return frac ? out + "." + frac : out;
+  }
+
+  // ---- Biisilistan jäsennys ---------------------------------------------
+
+  var RE_AUDACITY = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)\t(.*)$/;
+  var RE_TIME_FIRST = new RegExp("^(" + TIME + ")\\s*(?:[-–—|:)]\\s*)?(.+)$");
+  var RE_TIME_LAST = new RegExp("^(.+?)\\s*(?:[-–—|(]\\s*)?(" + TIME + ")\\)?$");
+
+  function parseList(text) {
+    var tracks = [], errors = [];
+    text.split(/\r?\n/).forEach(function (raw, i) {
+      var line = raw.trim(), n = i + 1, m, sec, title;
+      if (!line) return;
+      if ((m = RE_AUDACITY.exec(raw.replace(/\s+$/, "")))) {
+        sec = +m[1]; title = m[3].trim();
+      } else if ((m = RE_TIME_FIRST.exec(line)) ||
+                 (m = RE_TIME_FIRST.exec(line.replace(/^\d+[.)]\s+/, "")))) {
+        sec = parseTime(m[1].replace(",", ".")); title = m[3].trim();
+      } else if ((m = RE_TIME_LAST.exec(line))) {
+        sec = parseTime(m[2].replace(",", ".")); title = m[1].replace(/^\d+[.)]\s+/, "").trim();
+      } else {
+        errors.push("Rivi " + n + ": ei löydy alkuaikaa (muoto 3:42 tai 1:02:30).");
+        return;
+      }
+      if (isNaN(sec)) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
+      if (!title) { errors.push("Rivi " + n + ": biisin nimi puuttuu."); return; }
+      if (tracks.length && sec <= tracks[tracks.length - 1].sec) {
+        errors.push("Rivi " + n + ": alkuaika ei ole edellistä myöhäisempi.");
+      }
+      tracks.push({ sec: sec, t: fmtTime(sec), title: title });
+    });
+    if (!tracks.length && !errors.length) errors.push("Biisilista on tyhjä.");
+    return { tracks: tracks, errors: errors };
+  }
+
+  // ---- Äänilinkki --------------------------------------------------------
+
+  // Dropboxin jakolinkistä suora tiedostolinkki: dl=0 pois, raw=1 tilalle.
+  function normalizeAudio(s) {
+    s = s.trim();
+    if (!s) return { url: "", error: "Äänitiedoston linkki puuttuu." };
+    var u;
+    try { u = new URL(s); } catch (e) { return { url: "", error: "Äänitiedoston linkki ei ole kelvollinen osoite." }; }
+    if (u.protocol !== "https:") return { url: "", error: "Äänitiedoston linkin pitää alkaa https://" };
+    var changed = false;
+    if (/(^|\.)dropbox\.com$/.test(u.hostname) && u.searchParams.get("raw") !== "1") {
+      u.searchParams.delete("dl");
+      u.searchParams.set("raw", "1");
+      changed = true;
+    }
+    return { url: u.toString(), changed: changed };
+  }
+
+  // ---- Tuloste -----------------------------------------------------------
+
+  function sq(v) { return "'" + String(v).replace(/'/g, "'\\''") + "'"; }
+
+  function update() {
+    var problems = [];
+    var key = f.key.value.trim().toLowerCase();
+    if (!KEY_RE.test(key)) problems.push("Tunnuksessa saa olla vain pieniä kirjaimia a–z ja numeroita, 4–32 merkkiä.");
+    var title = f.title.value.replace(/[\r\n]+/g, " ").trim();
+    if (!title) problems.push("Otsikko puuttuu.");
+    var audio = normalizeAudio(f.audio.value);
+    if (audio.error) problems.push(audio.error);
+    $("audioNote").textContent = audio.changed ? "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1)." : "";
+    var list = parseList(f.tracks.value);
+    problems = problems.concat(list.errors);
+
+    var box = $("problems");
+    box.innerHTML = "";
+    var anyInput = f.title.value || f.audio.value || f.tracks.value;
+    if (problems.length && anyInput) {
+      var ul = document.createElement("ul");
+      problems.forEach(function (p) {
+        var li = document.createElement("li");
+        li.textContent = p;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+    box.hidden = !(problems.length && anyInput);
+
+    var prev = $("preview");
+    prev.innerHTML = "";
+    list.tracks.forEach(function (tr, i) {
+      var row = document.createElement("tr");
+      [["n", (i + 1) + "."], ["t", tr.t], ["tt", tr.title]].forEach(function (c) {
+        var td = document.createElement("td");
+        td.className = c[0];
+        td.textContent = c[1];
+        row.appendChild(td);
+      });
+      prev.appendChild(row);
+    });
+
+    if (problems.length) { $("result").hidden = true; return; }
+
+    var value = JSON.stringify({
+      v: 1, title: title, audio: audio.url,
+      tracks: list.tracks.map(function (tr) { return { t: tr.t, title: tr.title }; })
+    });
+    // Ei #-kommenttiriviä: macOS:n zsh ei tulkitse sitä kommentiksi oletuksena.
+    $("cmd").textContent = [
+      "NS='" + NS + "'",
+      "KEY=" + sq("gig:" + key),
+      "VAL=" + sq(value),
+      "",
+      'npx -y wrangler@3.114.17 kv:key put --namespace-id "$NS" "$KEY" "$VAL" \\',
+      '&& npx -y wrangler@3.114.17 kv:key get --namespace-id "$NS" "$KEY" --text'
+    ].join("\n");
+    var link = PLAYER + "#" + key;
+    $("link").textContent = link;
+    $("open").href = link;
+    $("result").hidden = false;
+  }
+
+  // ---- Olemassa olevan keikan haku ---------------------------------------
+
+  function fetchExisting() {
+    var key = f.key.value.trim().toLowerCase();
+    var box = $("problems");
+    var say = function (msg) { box.textContent = msg; box.hidden = false; };
+    if (!KEY_RE.test(key)) return say("Kirjoita ensin tunnus (4–32 merkkiä, a–z ja 0–9).");
+    fetch(API + "?k=" + encodeURIComponent(key), { cache: "no-store" })
+      .then(function (res) {
+        if (res.status === 404) throw new Error("Tunnuksella " + key + " ei ole tallennettua keikkaa.");
+        if (!res.ok) throw new Error("Palvelin vastasi virheellä " + res.status + ".");
+        return res.json();
+      })
+      .then(function (d) {
+        f.title.value = d.title || "";
+        f.audio.value = d.audio || "";
+        f.tracks.value = (d.tracks || []).map(function (tr) { return tr.t + " " + tr.title; }).join("\n");
+        update();
+      })
+      .catch(function (e) {
+        say(e && e.message && !/fetch/i.test(e.message) ? e.message : "Haku epäonnistui. Tarkista verkkoyhteys.");
+      });
+  }
+
+  function copy(text, btn) {
+    var label = btn.textContent;
+    var done = function () { btn.textContent = "Kopioitu"; setTimeout(function () { btn.textContent = label; }, 1500); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () { window.prompt("Kopioi:", text); });
+    } else {
+      window.prompt("Kopioi:", text);
+    }
+  }
+
+  f.key.value = randomKey();
+  ["key", "title", "audio", "tracks"].forEach(function (k) { f[k].addEventListener("input", update); });
+  $("newkey").addEventListener("click", function () { f.key.value = randomKey(); update(); });
+  $("fetch").addEventListener("click", fetchExisting);
+  $("copyCmd").addEventListener("click", function () { copy($("cmd").textContent, this); });
+  $("copyLink").addEventListener("click", function () { copy($("link").textContent, this); });
+  update();
+})();
+</script>
+</body>
+</html>

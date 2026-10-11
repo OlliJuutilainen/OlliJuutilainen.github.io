@@ -136,6 +136,75 @@ async function handleLoc(req, env) {
   );
 }
 
+// Keikkasoitin (soitin/): keikan tiedot ovat KV:ssä avaimella "gig:<tunnus>".
+// Etuliite pitää ne erillään sijaintitokeneista. Tunnus kulkee soittimen
+// osoitteen #-osassa, joten keikkatietoja ei ole repossa eikä GitHubin palvelimilla.
+const GIG_KEY_RE = /^[a-z0-9]{4,32}$/;
+const TIME_RE = /^(?:\d+:)?\d{1,2}:\d{2}(?:\.\d+)?$/;
+
+function isValidGig(data) {
+  if (!data || typeof data !== "object") return false;
+  if (typeof data.title !== "string") return false;
+  if (typeof data.audio !== "string" || !/^https:\/\//.test(data.audio)) return false;
+  if (!Array.isArray(data.tracks) || data.tracks.length === 0 || data.tracks.length > 500) return false;
+  return data.tracks.every(
+    (tr) => tr && typeof tr.t === "string" && TIME_RE.test(tr.t) && typeof tr.title === "string"
+  );
+}
+
+async function handleGig(req, env) {
+  const url = new URL(req.url);
+  const key = (url.searchParams.get("k") || "").trim().toLowerCase();
+
+  if (!GIG_KEY_RE.test(key)) {
+    logEvent("gig_bad_key");
+    return errorResponse("bad_key", 400);
+  }
+
+  if (!env.LOCATIONS || typeof env.LOCATIONS.get !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
+    return errorResponse("bad_payload", 500);
+  }
+
+  let raw;
+  try {
+    raw = await env.LOCATIONS.get(`gig:${key}`);
+  } catch (err) {
+    logEvent("kv_error", { reason: "fetch_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+
+  if (!raw) {
+    logEvent("gig_not_found");
+    return errorResponse("not_found", 404);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    logEvent("gig_bad_payload");
+    return errorResponse("bad_payload", 500);
+  }
+
+  if (!isValidGig(data)) {
+    logEvent("gig_invalid_fields");
+    return errorResponse("invalid_fields", 500);
+  }
+
+  logEvent("gig_200");
+
+  return jsonResponse(
+    {
+      v: 1,
+      title: data.title,
+      audio: data.audio,
+      tracks: data.tracks.map((tr) => ({ t: tr.t, title: tr.title })),
+    },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -152,8 +221,10 @@ export default {
     }
 
     try {
-      if (url.pathname === "/api/loc") {
-        const response = await handleLoc(req, env);
+      if (url.pathname === "/api/loc" || url.pathname === "/api/gig") {
+        const response = url.pathname === "/api/loc"
+          ? await handleLoc(req, env)
+          : await handleGig(req, env);
         return corsify(response, {
           origin,
           requestHeaders: acrHeaders,
