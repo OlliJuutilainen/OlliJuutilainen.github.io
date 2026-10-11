@@ -2,38 +2,10 @@
 <html lang="fi">
 <head>
 <meta charset="utf-8">
-<script>
-/* ==========================================================================
-   CONFIG — muokkaa vain tätä osiota.
-
-   title     Sivun ja selaimen välilehden otsikko.
-   audioUrl  Koko keikan mp3. Dropbox-linkissä pitää olla ?raw=1
-             (ei ?dl=0), muuten Dropbox palauttaa esikatselusivun eikä
-             äänitiedostoa.
-   tracks    Kappaleet aikajärjestyksessä.
-             t      Alkuaika muodossa m:ss tai h:mm:ss, esim. "3:42"
-                    tai "1:02:05". Ensimmäinen on yleensä "0:00".
-             title  Kappaleen nimi.
-             Kappale päättyy seuraavan kappaleen alkuun; viimeinen
-             äänitiedoston loppuun.
-
-   Linkki suoraan kappaleeseen: sivun osoite + #numero, esim. …/pahvi/#3
-   (numerointi alkaa ykkösestä). Linkki valitsee kappaleen muttei
-   aloita soittoa.
-   ========================================================================== */
-const CONFIG = {
-  title: "Keikan nimi – paikka, pvm",
-  audioUrl: "https://www.dropbox.com/...?raw=1",
-  tracks: [
-    { t: "0:00", title: "Intro" },
-    { t: "3:42", title: "Biisi 2" }
-  ]
-};
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
-<title>Keikka</title>
+<title>Soitin</title>
 <style>
   :root {
     --bg: #faf9f6;
@@ -286,6 +258,7 @@ const CONFIG = {
     .track:hover .tt { text-decoration: underline; text-underline-offset: 3px; }
     .copy:hover { color: var(--fg); }
   }
+  .loading { color: var(--muted); margin: 0; }
   .sr {
     position: absolute;
     width: 1px; height: 1px;
@@ -297,10 +270,12 @@ const CONFIG = {
 </head>
 <body>
 <main>
-  <h1 id="title"></h1>
+  <h1 id="title">Soitin</h1>
+  <p class="loading" id="loading">Ladataan keikan tietoja…</p>
 
   <div class="error" id="error" role="alert" hidden></div>
 
+  <div id="app" hidden>
   <section aria-label="Soitin">
     <p class="now" id="now" aria-live="polite"></p>
     <div class="seek" id="seek" role="slider" tabindex="0"
@@ -333,6 +308,7 @@ const CONFIG = {
 
   <ol id="list" aria-label="Kappaleet"></ol>
   <p class="sr" id="status" aria-live="polite"></p>
+  </div>
 
   <audio id="audio" preload="metadata"></audio>
 </main>
@@ -345,6 +321,13 @@ const CONFIG = {
   // Kattaa yhden ruudunpäivityksen viiveen, ettei seuraavan biisin
   // alkua ehdi kuulua.
   var STOP_LOOKAHEAD = 0.02;
+
+  // Keikan tiedot (otsikko, mp3-linkki, biisilista) haetaan workerista.
+  // Repossa ei ole yhtään keikkaa: tunnus kulkee osoitteen #-osassa,
+  // esim. …/soitin/#k7f3qa2m tai kappaleeseen 3: …/soitin/#k7f3qa2m/3.
+  // Tiedot tallennetaan apusivulla soitin/uusi.html.
+  var API = "https://tusinasaa-worker.ollijuutilainen.workers.dev/api/gig";
+  var HASH_RE = /^#([a-z0-9]{4,32})(?:\/(\d+))?$/i;
 
   var $ = function (id) { return document.getElementById(id); };
   var audio = $("audio");
@@ -376,19 +359,27 @@ const CONFIG = {
 
   // ---- Kappaleet --------------------------------------------------------
 
+  var gig = null;      // { title, audio, tracks: [{ t, title }] }
+  var gigKey = "";
   var tracks = [];
-  var configErrors = [];
-  (CONFIG.tracks || []).forEach(function (tr, i) {
-    var start = parseTime(tr.t);
-    if (isNaN(start)) {
-      configErrors.push("Kappaleen " + (i + 1) + " aika “" + tr.t + "” ei ole muotoa m:ss tai h:mm:ss.");
-      return;
-    }
-    if (tracks.length && start <= tracks[tracks.length - 1].start) {
-      configErrors.push("Kappaleen " + (i + 1) + " alkuaika ei ole edellistä myöhäisempi.");
-    }
-    tracks.push({ start: start, title: String(tr.title || "Kappale " + (i + 1)) });
-  });
+
+  // Palauttaa listan virheistä; tyhjä lista = kunnossa.
+  function loadTracks(list) {
+    var errors = [];
+    tracks = [];
+    (list || []).forEach(function (tr, i) {
+      var start = parseTime(tr.t);
+      if (isNaN(start)) {
+        errors.push("Kappaleen " + (i + 1) + " aika “" + tr.t + "” ei ole muotoa m:ss tai h:mm:ss.");
+        return;
+      }
+      if (tracks.length && start <= tracks[tracks.length - 1].start) {
+        errors.push("Kappaleen " + (i + 1) + " alkuaika ei ole edellistä myöhäisempi.");
+      }
+      tracks.push({ start: start, title: String(tr.title || "Kappale " + (i + 1)) });
+    });
+    return errors;
+  }
 
   function duration() {
     return isFinite(audio.duration) ? audio.duration : NaN;
@@ -454,6 +445,7 @@ const CONFIG = {
     }
   }
   function toggle() {
+    if (!gig) return;
     if (audio.paused) play(); else audio.pause();
   }
 
@@ -561,7 +553,7 @@ const CONFIG = {
   var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.6 5.4 12.5a1 1 0 1 0-1.4 1.4l4.8 4.8a1 1 0 0 0 1.4 0L20 8.9a1 1 0 0 0-1.4-1.4z"/></svg>';
 
   function linkFor(i) {
-    return location.href.replace(/#.*$/, "") + "#" + (i + 1);
+    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" + (i + 1);
   }
 
   function fallbackCopy(text) {
@@ -624,7 +616,7 @@ const CONFIG = {
     if (code === 2) detail = "Verkkoyhteys katkesi tai palvelin ei vastannut. Tarkista yhteys ja lataa sivu uudelleen.";
     else if (code === 3) detail = "Tiedosto latautui, mutta selain ei pystynyt purkamaan sitä. Tiedosto voi olla vioittunut.";
     else if (code === 4) detail = "Tiedostoa ei löytynyt tai se ei ole äänitiedosto.";
-    if (/dropbox\.com/.test(CONFIG.audioUrl) && !/[?&]raw=1/.test(CONFIG.audioUrl)) {
+    if (/dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
       detail = (detail ? detail + " " : "") + "Dropbox-linkin lopussa pitää olla ?raw=1.";
     }
     showError(msg, detail);
@@ -759,16 +751,21 @@ const CONFIG = {
   // ---- URL-hash ---------------------------------------------------------
 
   function applyHash() {
-    var m = /^#(\d+)$/.exec(location.hash);
-    if (!m) return;
-    var i = +m[1] - 1;
+    var m = HASH_RE.exec(location.hash);
+    if (!m || !m[2]) return;
+    var i = +m[2] - 1;
     if (i >= 0 && i < tracks.length) {
       jumpTo(i, false);
       var li = els.list.children[i];
       if (li && li.scrollIntoView) li.scrollIntoView({ block: "nearest" });
     }
   }
-  window.addEventListener("hashchange", applyHash);
+  window.addEventListener("hashchange", function () {
+    var m = HASH_RE.exec(location.hash);
+    // Eri keikan tunnus → ladataan sivu alusta; sama keikka → vain kappale.
+    if (!m || m[1].toLowerCase() !== gigKey) location.reload();
+    else if (gig) applyHash();
+  });
 
   // ---- Lukitusnäytön ohjaimet (Media Session) ----------------------------
 
@@ -777,7 +774,7 @@ const CONFIG = {
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: (current + 1) + ". " + tracks[current].title,
-        album: CONFIG.title
+        album: gig.title
       });
     } catch (e) { /* ei tuettu */ }
   }
@@ -793,21 +790,59 @@ const CONFIG = {
 
   // ---- Käynnistys -------------------------------------------------------
 
-  document.title = CONFIG.title;
-  els.title.textContent = CONFIG.title;
-
-  if (configErrors.length) {
-    showError("Kappalelistassa on virhe (CONFIG).", configErrors.join(" "));
-  }
-  if (!tracks.length) {
-    tracks.push({ start: 0, title: CONFIG.title });
+  function fail(msg, detail) {
+    $("loading").hidden = true;
+    showError(msg, detail);
   }
 
-  renderList();
-  render();
-  renderPlayState();
-  applyHash();
-  audio.src = CONFIG.audioUrl;
+  function start(data) {
+    gig = data;
+    document.title = gig.title;
+    els.title.textContent = gig.title;
+    $("loading").hidden = true;
+    $("app").hidden = false;
+
+    var errors = loadTracks(gig.tracks);
+    if (errors.length) showError("Kappalelistassa on virhe.", errors.join(" "));
+    if (!tracks.length) tracks.push({ start: 0, title: gig.title });
+
+    renderList();
+    render();
+    renderPlayState();
+    applyHash();
+    audio.src = gig.audio;
+  }
+
+  var hm = HASH_RE.exec(location.hash);
+  if (!hm) {
+    fail("Linkistä puuttuu keikan tunnus.",
+      "Tarkista, että linkki on kopioitu kokonaan, myös #-merkin jälkeinen osa.");
+  } else {
+    gigKey = hm[1].toLowerCase();
+    fetch(API + "?k=" + encodeURIComponent(gigKey), { cache: "no-store" })
+      .then(function (res) {
+        if (res.status === 404) {
+          throw { user: "Keikkaa ei löytynyt.",
+                  detail: "Linkki voi olla vanhentunut tai kopioitunut vajaana." };
+        }
+        if (!res.ok) {
+          throw { user: "Keikan tietoja ei saatu palvelimelta.",
+                  detail: "Palvelin vastasi virheellä " + res.status + ". Yritä hetken päästä uudelleen." };
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || typeof data.audio !== "string" || !Array.isArray(data.tracks)) {
+          throw { user: "Keikan tiedot ovat virheelliset." };
+        }
+        start({ title: String(data.title || "Keikka"), audio: data.audio, tracks: data.tracks });
+      })
+      .catch(function (e) {
+        if (e && e.user) fail(e.user, e.detail);
+        else fail("Keikan tietojen haku epäonnistui.",
+          "Tarkista verkkoyhteys ja lataa sivu uudelleen.");
+      });
+  }
 })();
 </script>
 </body>

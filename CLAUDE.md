@@ -117,3 +117,10 @@ nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
+
+`soitin/` on työryhmän keikkasoitin. **Keikkatietoja (otsikko, mp3-linkki, biisilista) ei
+saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä avaimella
+`gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
+tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`).
+`soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
+wrangler-versiolla kuin generaattori.
