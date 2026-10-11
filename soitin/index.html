@@ -321,6 +321,14 @@
   // Kattaa yhden ruudunpäivityksen viiveen, ettei seuraavan biisin
   // alkua ehdi kuulua.
   var STOP_LOOKAHEAD = 0.02;
+  // Lukitulla näytöllä requestAnimationFrame ei aja lainkaan, joten pysäytys
+  // tarkistetaan timeupdatessa. Se laukeaa n. 4 kertaa sekunnissa, joten
+  // katkaistaan välin verran etuajassa.
+  var STOP_LOOKAHEAD_HIDDEN = 0.3;
+  // Jos raja on ohitettu tätä enemmän, pysäytys on jäänyt taustalla
+  // tekemättä. Silloin ei kelata taaksepäin seuraavan biisin alkuun, vaan
+  // pysähdytään sen biisin loppuun, jota nyt soitetaan.
+  var STOP_OVERSHOOT = 1;
 
   // Keikan tiedot (otsikko, mp3-linkki, biisilista) haetaan workerista.
   // Repossa ei ole yhtään keikkaa: tunnus kulkee osoitteen #-osassa,
@@ -628,17 +636,27 @@
   // requestAnimationFrame eikä timeupdate, koska timeupdate laukeaa vain
   // n. 4 kertaa sekunnissa ja pysähdys myöhästyisi jopa 250 ms.
 
+  // Palauttaa true, jos toisto pysäytettiin.
+  function checkStop(lookahead) {
+    if (stopAt === null || audio.paused) return false;
+    var t = audio.currentTime;
+    if (t < stopAt - lookahead) return false;
+    if (t > stopAt + STOP_OVERSHOOT) {
+      armStop();
+      return false;
+    }
+    var at = stopAt;
+    audio.pause();
+    audio.currentTime = at; // seuraavan biisin alkuun valmiiksi
+    armStop();
+    render();
+    return true;
+  }
+
   function loop() {
     rafId = 0;
     if (audio.paused) return;
-    if (stopAt !== null && audio.currentTime >= stopAt - STOP_LOOKAHEAD) {
-      var at = stopAt;
-      audio.pause();
-      audio.currentTime = at; // seuraavan biisin alkuun valmiiksi
-      armStop();
-      render();
-      return;
-    }
+    if (checkStop(STOP_LOOKAHEAD)) return;
     render();
     rafId = requestAnimationFrame(loop);
   }
@@ -654,7 +672,11 @@
   audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("seeked", function () { armStop(); render(); });
-  audio.addEventListener("timeupdate", function () { if (audio.paused) render(); });
+  // Piilossa render pitää myös lukitusnäytön kappaleen nimen ajan tasalla.
+  audio.addEventListener("timeupdate", function () {
+    if (document.hidden && checkStop(STOP_LOOKAHEAD_HIDDEN)) return;
+    if (audio.paused || document.hidden) render();
+  });
   audio.addEventListener("loadedmetadata", onMeta);
   audio.addEventListener("durationchange", onMeta);
 
