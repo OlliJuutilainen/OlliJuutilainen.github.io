@@ -1,0 +1,60 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Keikan tunnus luetaan Gradle-ominaisuudesta eikä kirjoiteta repoon: tunnuksella saa
+// workerista keikan otsikon, äänilinkin ja biisilistan, ja repo on julkinen.
+// Lisää Macin tiedostoon ~/.gradle/gradle.properties rivi:  soitin.tunnus=<tunnus>
+def soitinTunnus = (findProperty('soitin.tunnus') ?: '').toString().trim().toLowerCase()
+boolean tunnusKelpaa = soitinTunnus ==~ /[a-z0-9]{4,32}/
+
+// Ilman tunnusta sovellus avaisi vain virheilmoituksen, joten estetään sellaisen APK:n
+// rakentaminen. Muihin moduuleihin tämä ei vaikuta.
+gradle.taskGraph.whenReady { graph ->
+    boolean apkRequested = graph.allTasks.any {
+        it.project == project && it.name ==~ /(assemble|install|package|bundle).*/
+    }
+    if (apkRequested && !tunnusKelpaa) {
+        throw new GradleException("Puuttuu tai virheellinen Gradle-ominaisuus 'soitin.tunnus' " +
+                "(4–32 merkkiä a–z ja 0–9). Lisää se tiedostoon ~/.gradle/gradle.properties.")
+    }
+}
+
+android {
+    namespace 'fi.tusinasaa.soitin'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'fi.tusinasaa.soitin'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1'
+        buildConfigField 'String', 'GIG_KEY', '"' + (tunnusKelpaa ? soitinTunnus : '') + '"'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}

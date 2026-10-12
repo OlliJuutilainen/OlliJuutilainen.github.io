@@ -18,3 +18,4 @@ rootProject.name = "tusinasaa"
 include(":app")
 include(":odotushuone")
 include(":ouroboros")
+include(":soitin")

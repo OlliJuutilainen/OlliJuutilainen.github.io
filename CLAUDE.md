@@ -124,3 +124,6 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`).
 `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
+
+`android/soitin/` on soittimen Android-kääre Light Phonelle. Myöskään keikan tunnusta ei
+kirjoiteta repoon: se tulee Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`).
