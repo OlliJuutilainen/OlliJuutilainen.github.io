@@ -18,8 +18,9 @@ oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikok
 
 Rakennettu APK löytyy `app/build/outputs/apk/debug/` -hakemistosta. Se voidaan asentaa
 esimerkiksi `adb install` -komennolla. Huomaa, että juuriprojektiin on liitetty myös
-kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`). Siksi komennossa on
-moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa kaikki moduulit.
+kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`) sekä keikkasoitin
+(`:soitin`). Siksi komennossa on moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa
+kaikki moduulit (ja kaatuu, jos soittimen tunnusta ei ole asetettu, ks. alla).
 
 Projektissa on mukana Gradlen 8.4 wrapperi ja Android Gradle Plugin 8.3.2.
 
@@ -69,6 +70,47 @@ vaihda oletussijaintiin.
 Uusi sijaintiversio tehdään samalla mallilla: uusi flavor `build.gradle`en, kansio
 `app/src/<nimi>/` (`AndroidManifest.xml` + `res/values/strings.xml`) ja ominaisuudet
 `tusinasaa.<nimi>.token` / `.key`.
+
+## Soitin (keikkasoitin Light Phonelle)
+
+Moduuli `:soitin` (`fi.tusinasaa.soitin`, nimi "Soitin") avaa keikkasoittimen
+(`https://ollijuutilainen.github.io/soitin/`) WebView-näkymässä samaan tapaan kuin Tusinasää
+avaa työpajasivun. Sivu ladataan verkosta, koska worker antaa keikkatiedot vain
+`ollijuutilainen.github.io`-alkuperälle. Sovellukseen paketoitu sivu ei saisi niitä.
+
+Ensiversiossa keikka on kiinteä eikä sovelluksessa ole valintaa. Tunnus luetaan
+rakennusvaiheessa Gradle-ominaisuudesta, eikä se ole repossa: tunnuksella saa workerista
+keikan otsikon, äänilinkin ja biisilistan, ja repo on julkinen. Lisää Macin tiedostoon
+`~/.gradle/gradle.properties`:
+
+```properties
+soitin.tunnus=<tunnus>
+```
+
+Rakennus ja asennus Light Phone 3:een:
+
+```bash
+./gradlew :soitin:installDebug -Pandroid.injected.device.serial=LP3LHMA541401108
+adb -s LP3LHMA541401108 shell am start -n fi.tusinasaa.soitin/.MainActivity
+```
+
+Ilman tunnusta Gradle keskeyttää rakennuksen virheeseen. Key Mapperissa sovellus löytyy
+nimellä "Soitin".
+
+Toiminta:
+
+- Soitto jatkuu, kun näyttö sammuu tai siirryt toiseen sovellukseen. Soiton ajaksi sovellus
+  nousee etualapalveluksi ja pitää prosessorin hereillä (herätyslukko, enintään 6 h).
+- Takaisin-painike soiton aikana vie sovelluksen taustalle. Tauolla se sulkee sovelluksen.
+- `src/main/assets/silta.js` syötetään sivulle, kun se on latautunut. Se kertoo sovellukselle,
+  soiko ääni ja mikä kappale on menossa. `soitin/index.html` ei itse tiedä sovelluksesta mitään.
+- Jos sivu ei lataudu (esim. ei verkkoa), näkyy virheilmoitus ja "Yritä uudelleen" -painike.
+- Android 13:ssa ja uudemmissa soittoilmoitus näkyy vain, jos ilmoituslupa on myönnetty.
+  Sovellus ei kysy sitä, mutta soitto toimii ilmankin. Halutessasi:
+  `adb -s LP3LHMA541401108 shell pm grant fi.tusinasaa.soitin android.permission.POST_NOTIFICATIONS`
+
+Myöhemmin tunnus voi tulla QR-koodista tai tunnussanasta. Silloin se luetaan metodissa
+`MainActivity.openPlayer()`, ja manifestiin lisätään VIEW-suodatin.
 
 ## QR-intentin pohja
 
