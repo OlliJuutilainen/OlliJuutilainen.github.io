@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Keikkasoitin – käyttöönotto</title>
+<!--
+  Kaveriversion käyttöönotto-ohje: keikkasoitin toisen käyttäjän omalla
+  Cloudflare-tilillä. Kentät täyttävät tunnukset komentoihin ja linkkeihin.
+  Sivu ei lähetä mitään verkkoon; tunnukset jäävät selaimen localStorageen.
+  Ainoa haku on workerin koodi samasta osoitteesta (Kopioi-nappia varten).
+  Käyttö (uusi keikka, soitin): ohje.html.
+-->
+<style>
+  :root {
+    --bg: #faf9f6; --fg: #1b1b1a; --muted: #6d6b66; --line: #dcd9d2;
+    --soft: #efede8; --accent: #157570; --err-bg: #fbeae5; --err-fg: #7a2511;
+    --ok: #157570;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --fg: #ebe9e4; --muted: #9b9890; --line: #393834;
+      --soft: #22221f; --accent: #20b2aa; --err-bg: #3a1d14; --err-fg: #f6c2ad;
+      --ok: #20b2aa;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: 16px; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
+  h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.25rem; line-height: 1.3; margin: 48px 0 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h2 .no { color: var(--accent); margin-right: 0.35em; font-variant-numeric: tabular-nums; }
+  h3 { font-size: 1.05rem; margin: 28px 0 8px; }
+  p { margin: 0 0 12px; }
+  ol, ul { margin: 0 0 14px; padding-left: 1.4em; }
+  li { margin: 0 0 6px; }
+  li > ul, li > ol { margin: 6px 0 0; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em; }
+  code { background: var(--soft); border-radius: 4px; padding: 1px 4px; overflow-wrap: anywhere; }
+  .lead { color: var(--muted); font-size: 1.02rem; margin-bottom: 20px; }
+  .muted { color: var(--muted); font-size: 0.93rem; }
+  .ui { font-weight: 600; }
+
+  /* Sisällys */
+  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px; margin: 22px 0 8px; }
+  nav.toc ol { margin: 0; padding-left: 1.5em; columns: 2; column-gap: 32px; }
+  nav.toc li { margin: 0 0 3px; break-inside: avoid; }
+  nav.toc p { margin: 10px 0 0; font-size: 0.93rem; }
+  @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+
+  /* Huomiolaatikot */
+  .box { border-radius: 10px; padding: 12px 16px; margin: 16px 0; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box.secret { background: var(--err-bg); color: var(--err-fg); }
+  .box.secret a { color: inherit; }
+  .box.check { border-left: 4px solid var(--accent); background: var(--soft); border-radius: 0 10px 10px 0; }
+  .box.note { background: var(--soft); }
+
+  /* Komennot ja kopiointi */
+  .cmd { position: relative; margin: 8px 0 14px; }
+  .cmd pre {
+    margin: 0; background: var(--soft); border-radius: 8px; padding: 12px 92px 12px 14px;
+    white-space: pre-wrap; word-break: break-all; line-height: 1.45;
+  }
+  button {
+    font: inherit; font-size: 0.88rem; color: var(--fg); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 7px; padding: 5px 11px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:focus-visible, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cmd button { position: absolute; top: 7px; right: 7px; }
+  button.done { color: var(--ok); border-color: var(--ok); }
+  .ph { color: var(--err-fg); background: var(--err-bg); border-radius: 3px; padding: 0 2px; }
+  a.tpl:not([href]), a.gen:not([href]) { color: var(--fg); text-decoration: none; cursor: default; }
+  kbd { font-family: inherit; font-size: 0.85em; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+  /* Omat tunnukset */
+  .field { background: var(--soft); border-radius: 10px; padding: 12px 14px; margin: 14px 0; }
+  .field label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .field input {
+    width: 100%; font: inherit; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92rem;
+    color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 7px;
+    padding: 8px 10px; min-height: 40px;
+  }
+  .field .st { font-size: 0.88rem; margin: 6px 0 0; min-height: 1.2em; color: var(--muted); }
+  .field .st.ok { color: var(--ok); }
+  .field .st.err { color: var(--err-fg); }
+
+  /* Taulukot */
+  table { width: 100%; border-collapse: collapse; font-size: 0.94rem; margin: 8px 0 16px; }
+  th, td { text-align: left; vertical-align: top; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+  th { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+  td:first-child { width: 42%; }
+  table.cmp td:first-child { width: 28%; }
+
+  /* Kaavio */
+  figure { margin: 18px 0 8px; }
+  figure svg { width: 100%; height: auto; display: block; }
+  .dg rect { fill: var(--bg); stroke: var(--fg); stroke-width: 1.2; }
+  .dg rect.olli { stroke: var(--muted); stroke-dasharray: 5 4; }
+  .dg rect.oma { stroke: var(--accent); stroke-width: 2; }
+  .dg text { fill: var(--fg); font: 15px system-ui, -apple-system, sans-serif; }
+  .dg text.s { fill: var(--muted); font-size: 12.5px; }
+  .dg text.l { fill: var(--muted); font-size: 12.5px; font-style: italic; }
+  .dg path { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+  .dg path.head { fill: var(--muted); stroke: none; }
+  figcaption { font-size: 0.9rem; color: var(--muted); }
+  .key-oma { color: var(--accent); font-weight: 600; }
+
+  @media print {
+    body { font-size: 11pt; background: #fff; color: #000; }
+    main { max-width: none; padding: 0; }
+    nav.toc, button { display: none; }
+    .cmd pre { padding-right: 14px; }
+    h2 { break-after: avoid; }
+    .cmd, .box, .field, table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Keikkasoitin omalle Cloudflare-tilille</h1>
+<p class="lead">Käyttöönotto. Tehdään kerran, aikaa kuluu noin puoli tuntia. Arkikäyttö
+  (uusi keikka, soittimen napit, iPhone) on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
+
+<p>Tällä ohjeella keikkasi ovat <b>sinun Cloudflare-tililläsi</b> ja äänitiedostot <b>sinun
+  Google Drivessasi tai Dropboxissasi</b>. Ollin sivu on vain näyttämö: se soittaa keikan,
+  jonka linkki osoittaa sinun tiliisi. Olli ei näe keikkojasi, ellet anna hänelle linkkiä,
+  eikä hänen tilinsä osallistu mihinkään.</p>
+
+<p>Käyttöönoton jälkeen uusi keikka on viiden minuutin homma: äänitiedosto Driveen tai
+  Dropboxiin, biisilista lomakkeeseen, yksi komento Terminaliin.</p>
+
+<p class="muted">Lopussa on liite lisäominaisuudesta, jossa keikka kootaan kansiosta ja jokainen
+  kappale on oma tiedostonsa. Tavallinen keikka ei tarvitse siitä mitään.</p>
+
+<nav class="toc" aria-label="Sisällys">
+  <ol>
+    <li><a href="#tili">Cloudflare-tili</a></li>
+    <li><a href="#worker">Worker</a></li>
+    <li><a href="#tunnus">Tilin tunnus</a></li>
+    <li><a href="#kv">KV-tietokanta</a></li>
+    <li><a href="#kytkenta">Kytke worker tietokantaan</a></li>
+    <li><a href="#avain">API-avain</a></li>
+    <li><a href="#avainnippu">Avain Macin avainnippuun</a></li>
+    <li><a href="#kirjanmerkki">Apusivun kirjanmerkki</a></li>
+    <li><a href="#testi">Testikeikka ja iPhone</a></li>
+  </ol>
+  <p><a href="#ongelmat">Kun jokin ei toimi</a> · <a href="#paivitys">Workerin päivitys</a> ·
+    <a href="#avustaja">Tekoälyavustajan kanssa</a> · <a href="#kansio">Liite: keikka kansiosta</a></p>
+</nav>
+
+<h2 id="tarvitset">Mitä tarvitset</h2>
+<ul>
+  <li><b>Macin.</b> Komennot käyttävät vain Terminalia ja ohjelmia <code>curl</code> ja
+    <code>security</code>, jotka ovat valmiina jokaisessa Macissa. Mitään ei asenneta.</li>
+  <li><b>Ilmaisen Cloudflare-tilin.</b> Ilmaistason rajat (100 000 hakua ja 1 000 tallennusta
+    päivässä) ovat moninkertaiset tähän tarpeeseen.</li>
+  <li><b>Google Driven tai Dropboxin</b> äänitiedostoille. Dropbox on kokeiltu soittimen kanssa,
+    Drive ei vielä; tee Drivella testikeikka ennen ensimmäistä oikeaa jakoa.</li>
+</ul>
+
+<h3>Miten osat liittyvät toisiinsa</h3>
+<figure>
+  <svg class="dg" viewBox="0 0 680 262" role="img" aria-labelledby="dg-t">
+    <title id="dg-t">Apusivu tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen suoraan Drivesta tai Dropboxista.</title>
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path class="head" d="M0 0L10 5L0 10z"/>
+      </marker>
+    </defs>
+    <rect class="olli" x="6" y="8" width="176" height="52" rx="8"/>
+    <text x="94" y="31" text-anchor="middle">Apusivu</text>
+    <text class="s" x="94" y="49" text-anchor="middle">uusi.html (kirjanmerkki)</text>
+    <rect class="oma" x="252" y="8" width="176" height="52" rx="8"/>
+    <text x="340" y="31" text-anchor="middle">Terminal</text>
+    <text class="s" x="340" y="49" text-anchor="middle">API-avain avainnipussa</text>
+    <rect class="oma" x="498" y="8" width="176" height="52" rx="8"/>
+    <text x="586" y="31" text-anchor="middle">KV-tietokanta</text>
+    <text class="s" x="586" y="49" text-anchor="middle">Cloudflare</text>
+    <rect class="olli" x="6" y="112" width="176" height="52" rx="8"/>
+    <text x="94" y="135" text-anchor="middle">Soitin</text>
+    <text class="s" x="94" y="153" text-anchor="middle">keikan linkki selaimessa</text>
+    <rect class="oma" x="498" y="112" width="176" height="52" rx="8"/>
+    <text x="586" y="135" text-anchor="middle">Worker</text>
+    <text class="s" x="586" y="153" text-anchor="middle">Cloudflare</text>
+    <rect class="oma" x="6" y="204" width="176" height="52" rx="8"/>
+    <text x="94" y="227" text-anchor="middle">Google Drive</text>
+    <text class="s" x="94" y="245" text-anchor="middle">tai Dropbox</text>
+    <path d="M184 34H250" marker-end="url(#ah)"/>
+    <text class="l" x="217" y="26" text-anchor="middle">komento</text>
+    <path d="M430 34H496" marker-end="url(#ah)"/>
+    <text class="l" x="463" y="26" text-anchor="middle">tallentaa</text>
+    <path d="M586 62V110" marker-end="url(#ah)"/>
+    <text class="l" x="594" y="91">lukee</text>
+    <path d="M496 138H184" marker-end="url(#ah)"/>
+    <text class="l" x="340" y="130" text-anchor="middle">otsikko ja biisilista</text>
+    <path d="M94 202V166" marker-end="url(#ah)"/>
+    <text class="l" x="104" y="189">ääni</text>
+  </svg>
+  <figcaption><span class="key-oma">Yhtenäinen reunus</span>: sinun tilisi ja Macisi.
+    Katkoviiva: Ollin sivut, jotka eivät tallenna mitään.</figcaption>
+</figure>
+
+<ul>
+  <li><b>Soitin</b> on osoitteessa <code>ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
+    Kaikki <code>#</code>-merkin jälkeinen jää selaimeen eikä kulje GitHubin palvelimille.</li>
+  <li><b>Apusivu</b> tarkistaa biisilistan ja tekee valmiin tallennuskomennon. Se ei lähetä mitään
+    verkkoon.</li>
+  <li><b>Worker</b> on pieni ohjelma Cloudflaressa. Se lukee keikan KV-tietokannasta ja antaa sen
+    soittimelle.</li>
+</ul>
+<p>Kuka tahansa, jolla on keikan linkki, näkee otsikon ja biisilistan ja voi kuunnella
+  äänitteen. Linkki on siis avain. Tunnus on arvottu, joten sitä ei voi arvata.</p>
+
+<div class="box secret">
+  <p><b>Salaiset avaimet.</b> Cloudflaren API-avain (kohta 6) ja kansiokeikan avaimet (liite) ovat
+    salaisia. Älä liitä niitä sähköpostiin, viestiin, muistiinpanoon tai tekoälykeskusteluun.
+    Tämä sivu ei kysy niitä. Tilin tunnus, KV-tunnus ja workerin osoite eivät ole salaisia.</p>
+</div>
+
+<p class="muted">Kirjoita tunnukset tämän sivun kenttiin sitä mukaa kuin saat ne. Sivu täyttää
+  ne komentoihin ja linkkeihin. Ne jäävät vain tämän selaimen muistiin, jotta voit jatkaa
+  myöhemmin; sivu ei lähetä niitä minnekään. <button type="button" id="reset">Tyhjennä kentät</button></p>
+
+<p class="muted">Cloudflaren näkymät muuttuvat välillä. Jos nappi on eri nimellä kuin tässä,
+  etsi lähin vastaava.</p>
+
+<!-- ================================================================ -->
+
+<h2 id="tili"><span class="no">1</span>Cloudflare-tili</h2>
+<p>Luo tili osoitteessa <a href="https://dash.cloudflare.com/sign-up">dash.cloudflare.com/sign-up</a>
+  ja vahvista sähköpostiosoite, jos Cloudflare sitä pyytää.</p>
+
+<h2 id="worker"><span class="no">2</span>Worker</h2>
+<ol>
+  <li>Avaa <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages">Workers &amp; Pages</a>
+    → <span class="ui">Create application</span>.</li>
+  <li><span class="ui">Start with Hello World!</span> → <span class="ui">Get started</span>.</li>
+  <li>Nimeksi <code>soitin</code> → <span class="ui">Deploy</span>.
+    Jos Cloudflare pyytää valitsemaan <i>workers.dev</i>-aliverkkotunnuksen, valitse lyhyt nimi:
+    se näkyy keikkalinkeissä.</li>
+  <li>Sivulle tulee workerin osoite muotoa <code>https://soitin.jotain.workers.dev</code>.
+    Kopioi se tähän:</li>
+</ol>
+<div class="field">
+  <label for="f-w">Workerin osoite</label>
+  <input id="f-w" data-f="w" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+    placeholder="https://soitin.jotain.workers.dev">
+  <p class="st" aria-live="polite"></p>
+</div>
+<ol start="5">
+  <li><span class="ui">Edit code</span>. Poista editorista kaikki (<kbd>⌘A</kbd>, <kbd>⌫</kbd>) ja
+    liitä tilalle workerin koodi:
+    <p style="margin:8px 0"><button type="button" id="copyCode" disabled>Kopioi workerin koodi</button>
+      <span class="muted" id="codeSt"></span></p>
+    <p class="muted">Jos nappi ei toimi, avaa
+      <a href="https://raw.githubusercontent.com/OlliJuutilainen/OlliJuutilainen.github.io/main/worker/src/index.js">koodi
+      tekstinä</a> ja kopioi koko sisältö.</p></li>
+  <li><span class="ui">Deploy</span>.</li>
+</ol>
+<p class="muted">Koodissa on myös reitti <code>/api/loc</code>, joka liittyy Ollin sääsivuun. Sinun
+  tililläsi se ei tee mitään.</p>
+
+<h2 id="tunnus"><span class="no">3</span>Tilin tunnus</h2>
+<p>Avaa <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages">Workers &amp; Pages</a>.
+  Sivun reunassa on kohta <span class="ui">Account details</span>, ja siinä <span class="ui">Account
+  ID</span> kopiointinapin kanssa. Toinen tapa: selaimen osoiterivillä näkyy
+  <code>dash.cloudflare.com/</code> ja sen perässä sama 32 merkin tunnus.</p>
+<div class="field">
+  <label for="f-a">Tilin tunnus (Account ID)</label>
+  <input id="f-a" data-f="a" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+    placeholder="32 merkkiä, 0–9 ja a–f">
+  <p class="st" aria-live="polite"></p>
+</div>
+
+<h2 id="kv"><span class="no">4</span>KV-tietokanta</h2>
+<ol>
+  <li>Avaa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers KV</a>
+    (valikossa <span class="ui">Storage &amp; databases</span>).</li>
+  <li><span class="ui">Create instance</span>, nimeksi <code>soitin</code>, <span class="ui">Create</span>.</li>
+  <li>Listassa näkyy uuden tietokannan <span class="ui">ID</span>, 32 merkkiä. Kopioi se tähän:</li>
+</ol>
+<div class="field">
+  <label for="f-n">KV-tunnus (namespace ID)</label>
+  <input id="f-n" data-f="n" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+    placeholder="32 merkkiä, 0–9 ja a–f">
+  <p class="st" aria-live="polite"></p>
+</div>
+
+<h2 id="kytkenta"><span class="no">5</span>Kytke worker tietokantaan</h2>
+<ol>
+  <li><a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages">Workers &amp; Pages</a>
+    → <code>soitin</code> → <span class="ui">Settings</span> → <span class="ui">Bindings</span>
+    → <span class="ui">Add</span>.</li>
+  <li><span class="ui">KV namespace</span>.</li>
+  <li><span class="ui">Variable name</span>: <code>LOCATIONS</code>, täsmälleen näin isoilla
+    kirjaimilla. Koodi etsii tietokantaa tällä nimellä.</li>
+  <li><span class="ui">KV namespace</span>: <code>soitin</code>.</li>
+  <li><span class="ui">Deploy</span> (tai <span class="ui">Add binding</span>).</li>
+</ol>
+<div class="box check">
+  <p><b>Tarkistus:</b> avaa <a class="tpl">https://{w}.workers.dev/api/gig?k=testi1</a></p>
+  <table>
+    <tr><th>Näet</th><th>Tarkoittaa</th></tr>
+    <tr><td><code>{"error":"not_found"}</code></td><td>Kaikki kunnossa. Testikeikkaa ei ole, kuuluukin olla näin.</td></tr>
+    <tr><td><code>{"error":"bad_payload"}</code></td><td>Kytkentä puuttuu tai nimi ei ole täsmälleen <code>LOCATIONS</code>. Tämä kohta uudelleen.</td></tr>
+    <tr><td><code>Hello World!</code></td><td>Koodi ei vaihtunut. Kohdan 2 vaiheet 5–6.</td></tr>
+  </table>
+</div>
+
+<h2 id="avain"><span class="no">6</span>API-avain</h2>
+<p>Avain antaa Terminalin komennolle luvan tallentaa keikkoja tietokantaan.</p>
+<ol>
+  <li>Avaa <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&amp;accountId=*&amp;zoneId=all&amp;name=soitin">valmiiksi
+    täytetty avainlomake</a>. Tarkista, että nimenä on <code>soitin</code> ja kohdassa
+    <span class="ui">Permissions</span> on <code>Account</code> · <code>Workers KV Storage</code> ·
+    <code>Edit</code>.
+    <p class="muted" style="margin-top:6px">Jos lomake aukeaa tyhjänä: oikean yläkulman profiili →
+      <span class="ui">My Profile</span> → <span class="ui">API Tokens</span> →
+      <span class="ui">Create Token</span> → <span class="ui">Create Custom Token</span> →
+      <span class="ui">Get started</span>, ja täytä nimi ja oikeus kuten yllä.
+      <span class="ui">Account Resources</span>: <code>Include</code> · oma tilisi.</p></li>
+  <li><span class="ui">Continue to summary</span> → <span class="ui">Create Token</span>.</li>
+  <li>Avain näytetään <b>vain kerran</b>. Jätä sivu auki seuraavaa kohtaa varten.</li>
+</ol>
+<p>Avaimella voi muuttaa kaikkia tilisi KV-tietokantoja, joten se on salainen.</p>
+
+<h2 id="avainnippu"><span class="no">7</span>Avain Macin avainnippuun</h2>
+<p>Avaa Terminal (<i>Ohjelmat → Lisäohjelmat → Pääte</i>) ja aja:</p>
+<div class="cmd"><pre id="c-add">security add-generic-password -a "$USER" -s soitin-cf -w</pre><button type="button" data-copy="c-add">Kopioi</button></div>
+<p>Terminal kysyy avainta kahdesti (<code>password data for new item</code> ja <code>retype</code>).
+  Liitä se molemmilla kerroilla ja paina Enter. Kirjoittaessa ei näy mitään; se on normaalia.</p>
+<p>Tarkista, että Cloudflare hyväksyy avaimen:</p>
+<div class="cmd"><pre id="c-verify">curl -sS https://api.cloudflare.com/client/v4/user/tokens/verify -H "Authorization: Bearer $(security find-generic-password -s soitin-cf -w)"</pre><button type="button" data-copy="c-verify">Kopioi</button></div>
+<p>Vastauksessa pitää olla <code>"status":"active"</code>. Nyt voit sulkea Cloudflaren avainsivun.
+  Tallennuskomento lukee avaimen avainnipusta itse, joten se ei näy ruudulla eikä päädy mihinkään
+  tiedostoon.</p>
+<p class="muted">Jos avain menee vaihtoon, poista vanha ensin komennolla
+  <code>security delete-generic-password -s soitin-cf</code> ja tee tämä kohta uudelleen.</p>
+
+<h2 id="kirjanmerkki"><span class="no">8</span>Apusivun kirjanmerkki</h2>
+<p>Tämä on apusivun osoite sinun tunnuksillasi:</p>
+<div class="cmd"><pre id="c-bm" class="tpl">https://ollijuutilainen.github.io/soitin/uusi.html#w={w}&amp;a={a}&amp;n={n}</pre><button type="button" data-copy="c-bm">Kopioi</button></div>
+<p><a class="gen" id="bm-open" target="_blank" rel="noopener">Avaa apusivu</a> ja tallenna se
+  kirjanmerkiksi (<kbd>⌘D</kbd>). Sivun yläreunassa pitää lukea
+  <b>Omat asetukset: <span class="tpl">{w}</span>.workers.dev</b>. Jos jokin tunnus on väärän
+  mittainen, sivu kertoo sen punaisella.</p>
+<p class="muted">Ilman kirjanmerkin <code>#</code>-osaa apusivu tekee Ollin oman komennon, joka ei
+  toimi sinun Macillasi. Käytä siksi aina kirjanmerkkiä.</p>
+
+<h2 id="testi"><span class="no">9</span>Testikeikka ja iPhone</h2>
+<p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Uusi keikka</a>. Lyhyt
+  äänitiedosto ja kahden biisin lista riittävät. Jos tiedosto on Drivessa, tarkista lisäksi, että
+  ääni soi, kesto näkyy ja kelaus keskelle toimii.</p>
+<p>Tarkista sitten iPhonella kerran nämä ja kerro Ollille tulos, koska niitä ei ole vielä kokeiltu:</p>
+<ol>
+  <li>Safarissa: paina toistoa ja lukitse näyttö. Jatkuuko ääni? Näkyvätkö lukitusnäytöllä
+    kappaleen nimi ja ohjaimet?</li>
+  <li>Lisää keikka kotinäyttöön (Jaa → <i>Lisää Koti-valikkoon</i>) ja avaa se kuvakkeesta. Aukeaako
+    keikka, vai tuleeko ilmoitus <i>Linkistä puuttuu keikan tunnus</i>?</li>
+  <li>Kotinäytön kuvakkeesta: jatkuuko ääni, kun näyttö lukittuu?</li>
+</ol>
+<p>Jos kohta 2 tai 3 epäonnistuu, käytä Safarin välilehteä tai kirjanmerkkiä, kunnes asia on
+  korjattu. Valmista.</p>
+
+<!-- ================================================================ -->
+
+<h2 id="ongelmat">Kun jokin ei toimi</h2>
+<table>
+  <tr><th>Oire</th><th>Syy ja korjaus</th></tr>
+  <tr><td>Terminal: <code>The specified item could not be found in the keychain.</code></td>
+    <td>Avain puuttuu avainnipusta. Kohta 7.</td></tr>
+  <tr><td>Terminal: <code>"success":false</code> ja <code>Authentication error</code></td>
+    <td>Avain on väärä tai siltä puuttuu oikeus <i>Workers KV Storage · Edit</i>. Kohdat 6–7.</td></tr>
+  <tr><td>Terminal: <code>"success":false</code> ja maininta tietokannasta (namespace) tai tilistä</td>
+    <td>Kirjanmerkin <code>a=</code> tai <code>n=</code> on väärin. Kohdat 3, 4 ja 8.</td></tr>
+  <tr><td>Apusivu: <i>Osoitteen #-osan asetus ei kelpaa</i></td>
+    <td>Kirjanmerkin osoite on vajaa tai väärin. Kohta 8.</td></tr>
+  <tr><td>Apusivulla ei lue <i>Omat asetukset</i></td>
+    <td>Apusivu on avattu ilman kirjanmerkkiä. Kohta 8.</td></tr>
+  <tr><td>Soitin: <i>Keikan tietoja ei saatu palvelimelta</i> (virhe 500)</td>
+    <td>Workerin kytkentä tietokantaan puuttuu. Kohta 5 ja sen tarkistus.</td></tr>
+  <tr><td>Soitin: <i>Keikan tietojen haku epäonnistui</i></td>
+    <td>Linkin <code>@</code>-osa on väärin tai verkko ei toimi. Vertaa kohdan 2 osoitteeseen.</td></tr>
+  <tr><td>Soitin: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
+    <td>Odota minuutti ja lataa uudelleen. Jos ei auta: tunnus on väärin tai komento jäi ajamatta.</td></tr>
+</table>
+<p>Tallennuskomentoa ei ole vielä ajettu oikealla Cloudflare-tilillä, joten testikeikkasi on
+  ensimmäinen. Jos tallennus antaa virheen, jota taulukossa ei ole, lähetä Ollille Terminalin
+  vastaus sellaisenaan. API-avain ei tulostu siihen.</p>
+<p>Soittimen omat ilmoitukset (äänitiedosto, biisilista) on selitetty
+  <a href="ohje.html#ongelmat">käyttöoppaassa</a>.</p>
+
+<h2 id="paivitys">Workerin päivitys</h2>
+<p>Kun Olli kertoo päivittäneensä workeria, toista kohdan 2 vaiheet 5–6: <span class="ui">Edit
+  code</span>, korvaa kaikki uudella koodilla, <span class="ui">Deploy</span>. Kytkentä, avain ja
+  keikat säilyvät.</p>
+<p class="muted">Jos otit soittimen käyttöön ennen 13.10.2026, päivitä worker kerran. Uudempi koodi
+  näyttää keikan lisätiedon (päivämäärä tms.) otsikon alla ja osaa kansiokeikat.</p>
+
+<h2 id="avustaja">Tekoälyavustajan kanssa (valinnainen)</h2>
+<p>Jos haluat tehdä käyttöönoton esimerkiksi Clauden kanssa, aloita uusi keskustelu ja liitä tämä
+  teksti. Täydennä viimeisen kappaleen kohdat.</p>
+<div class="cmd"><pre id="c-ai">Otan käyttöön ystäväni Ollin keikkasoittimen omalla Cloudflare-tililläni. Ohje on täällä:
+https://ollijuutilainen.github.io/soitin/kayttoonotto.html
+ja arkikäytön opas täällä:
+https://ollijuutilainen.github.io/soitin/ohje.html
+(Jos et pysty lukemaan niitä, sano, niin liitän tekstin.)
+
+Opasta minua vaihe kerrallaan: kerro mitä teen, odota että kerron mitä näin, ja jatka vasta
+sitten. Cloudflaren näkymät ovat voineet muuttua; jos kuvaukseni ei vastaa ohjetta, auta
+löytämään vastaava kohta.
+
+Rajat:
+- Älä pyydä minua liittämään keskusteluun Cloudflaren API-avainta tai muita salaisia
+  avaimia. Tilin tunnus, KV-tunnus ja workerin osoite eivät ole salaisia.
+- Soitinsivu, apusivu ja worker-koodi ovat Ollin. Jos jokin vaatisi niihin muutoksen,
+  kirjoita viesti Ollille välitettäväksi äläkä neuvo muokkaamaan niitä.
+- Jos jokin vaihe tuntuu turhan raskaalta, saat ehdottaa kevyempää tapaa, mutta kerro
+  ensin mitä se maksaa ja mitä siinä menetetään.
+
+Koneeni on Mac (macOS-versio: ____). Puhelimeni on iPhone. Äänitiedostot ovat
+(Google Drivessa / Dropboxissa): ____. Kun käyttöönotto on valmis, tehdään yhdessä
+testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" data-copy="c-ai">Kopioi</button></div>
+
+<!-- ================================================================ -->
+
+<h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2>
+<p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Lue se vain, jos haluat keikan, jossa
+  jokainen kappale on oma äänitiedostonsa.</p>
+<p>Kansiokeikassa annetaan yhden äänitiedoston ja biisilistan sijaan jaettu kansio Google Drivesta
+  tai Dropboxista. Soitin soittaa kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat
+  tiedostonimistä. Kansiokeikan teko ja tiedostojen nimeäminen:
+  <a href="ohje.html#kansio">käyttöoppaan liite</a>.</p>
+<p>Worker lukee kansion palvelun omasta rajapinnasta, ja siihen tarvitaan avain. Tee vain sen
+  palvelun käyttöönotto, jota käytät; molempia voi käyttää rinnakkain.</p>
+<table class="cmp">
+  <tr><th></th><th>Google Drive</th><th>Dropbox</th></tr>
+  <tr><td>Avain workeriin</td><td>Google Cloud -projektin API-avain, yksi salaisuus</td><td>Dropbox-sovellus, kolme salaisuutta</td></tr>
+  <tr><td>Kenen kansio</td><td>kenen tahansa, kunhan jaettu <i>Kaikki, joilla on linkki</i></td><td>vain avaimen tehneen tilin oma kansio</td></tr>
+  <tr><td>Soittimen äänilinkit</td><td>pysyviä</td><td>tilapäisiä (4 h), soitin uusii ne itse</td></tr>
+  <tr><td>Aikaa</td><td>noin 10 min</td><td>noin 15 min</td></tr>
+  <tr><td>Kokeiltu</td><td>ei vielä oikealla Drivella</td><td>ei vielä oikealla Dropboxilla</td></tr>
+</table>
+
+<h3>K1. Workerin koodi</h3>
+<p>Kansiotuki on 13.10.2026 tai myöhemmin päivitetyssä koodissa. Jos teit kohdan 2 ennen sitä,
+  päivitä worker (<a href="#paivitys">Workerin päivitys</a>). Sitten joko K2A tai K2B.</p>
+
+<h3 id="kansio-drive">K2A. Google Drive</h3>
+<p>Drivessa ei tarvita sovellusta eikä pysyvää avainta, vain API-avain. Sillä worker saa lukea
+  kansioita, jotka on jaettu kaikille linkin saaneille. Muuhun Driveesi se ei pääse. Drive API:n
+  käyttö on maksutonta.</p>
+<ol>
+  <li>Avaa <a href="https://console.cloud.google.com/">console.cloud.google.com</a> ja kirjaudu
+    Google-tililläsi. Hyväksy ehdot, jos niitä kysytään.</li>
+  <li>Yläpalkin projektivalitsin → <span class="ui">New project</span> → nimeksi <code>soitin</code>
+    → <span class="ui">Create</span>. Varmista, että uusi projekti on valittuna yläpalkissa.</li>
+  <li>Avaa <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com">Google Drive
+    API</a> → <span class="ui">Enable</span>.</li>
+  <li><a href="https://console.cloud.google.com/apis/credentials">Credentials</a> →
+    <span class="ui">Create credentials</span> → <span class="ui">API key</span>. Avautuvassa
+    ikkunassa:
+    <ul>
+      <li><span class="ui">API restrictions</span>: <span class="ui">Restrict key</span> →
+        <span class="ui">Google Drive API</span>.</li>
+      <li><span class="ui">Application restrictions</span>: <span class="ui">None</span>, koska
+        avainta käyttää worker eikä selain.</li>
+      <li>Kohtaa <span class="ui">Authenticate API calls through a service account</span> ei
+        valita.</li>
+    </ul>
+    <span class="ui">Create</span>. Kopioi avain.
+    <p class="muted" style="margin-top:6px">Jos ikkunassa ei ole rajauksia, luo avain ja rajaa se
+      jälkikäteen: avaimen kohdalla kynä (<span class="ui">Edit API key</span>) →
+      <span class="ui">API restrictions</span> → <span class="ui">Restrict key</span> →
+      <span class="ui">Google Drive API</span> → <span class="ui">Save</span>.</p></li>
+  <li><a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages">Workers &amp; Pages</a> →
+    <code>soitin</code> → <span class="ui">Settings</span> → <span class="ui">Variables and
+    Secrets</span> → <span class="ui">Add</span>. <span class="ui">Type</span>:
+    <span class="ui">Secret</span>, <span class="ui">Variable name</span>: <code>GOOGLE_API_KEY</code>
+    (täsmälleen näin), arvoksi API-avain. <span class="ui">Deploy</span>.</li>
+</ol>
+<p>Avain ei avaa mitään, mikä ei jo ole jaettu kaikille linkin saaneille, mutta pidä se silti
+  salaisena.</p>
+<div class="box check">
+  <p><b>Tarkistus:</b> avaa <a class="tpl">https://{w}.workers.dev/api/drive</a></p>
+  <table>
+    <tr><th>Näet</th><th>Tarkoittaa</th></tr>
+    <tr><td><code>{"ok":true}</code></td><td>Kaikki kunnossa.</td></tr>
+    <tr><td><code>{"error":"drive_not_configured"}</code></td><td>Salaisuus puuttuu tai sen nimi on väärin (vaihe 5).</td></tr>
+    <tr><td><code>{"error":"drive_key_invalid"}</code></td><td>Google ei tunne avainta. Kopioi se uudelleen (vaihe 4).</td></tr>
+    <tr><td><code>{"error":"drive_api_disabled"}</code></td><td>Drive API ei ole päällä avaimen projektissa (vaihe 3). Jos juuri laitoit sen päälle, odota muutama minuutti.</td></tr>
+    <tr><td><code>{"error":"not_found"}</code></td><td>Workerin koodi on vanha. K1.</td></tr>
+  </table>
+</div>
+
+<h3 id="kansio-dropbox">K2B. Dropbox</h3>
+<p><b>Dropbox-sovellus.</b> Sovellus on vain avain, jolla workerisi saa lukea Dropboxiasi.</p>
+<ol>
+  <li>Avaa <a href="https://www.dropbox.com/developers/apps">dropbox.com/developers/apps</a> ja
+    kirjaudu omalla Dropbox-tililläsi.</li>
+  <li><span class="ui">Create app</span> → <span class="ui">Scoped access</span> →
+    <span class="ui">Full Dropbox</span> → nimeksi esim. <code>soitin-</code> ja oma nimesi (nimen pitää
+    olla Dropboxissa ainutlaatuinen) → <span class="ui">Create app</span>.</li>
+  <li>Välilehti <span class="ui">Permissions</span>: ruksi <code>files.metadata.read</code>,
+    <code>files.content.read</code> ja <code>sharing.read</code>, ja paina alhaalta
+    <span class="ui">Submit</span>. Tee tämä <b>ennen</b> seuraavia vaiheita: avain saa vain ne
+    oikeudet, jotka ovat päällä sen tekohetkellä.</li>
+  <li>Välilehti <span class="ui">Settings</span>: kopioi <span class="ui">App key</span> tähän.
+    <span class="ui">App secret</span> (<span class="ui">Show</span>) tarvitaan pian, mutta sitä
+    ei kirjoiteta tälle sivulle.</li>
+</ol>
+<div class="field">
+  <label for="f-dk">App key</label>
+  <input id="f-dk" data-f="dk" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+    placeholder="esim. 15 merkkiä, kirjaimia ja numeroita">
+  <p class="st" aria-live="polite"></p>
+</div>
+<p>Kaikki oikeudet ovat lukuoikeuksia: avaimella ei voi muuttaa eikä poistaa mitään. App secret
+  on silti salainen.</p>
+
+<p><b>Pysyvä avain (refresh token).</b></p>
+<ol start="5">
+  <li><a class="tpl" target="_blank" rel="noopener">https://www.dropbox.com/oauth2/authorize?client_id={dk}&amp;response_type=code&amp;token_access_type=offline</a>
+    → <span class="ui">Continue</span> → <span class="ui">Allow</span>. Sivulle tulee koodi.
+    Kopioi se tähän:</li>
+</ol>
+<div class="field">
+  <label for="f-dc">Dropboxin antama koodi</label>
+  <input id="f-dc" data-f="dc" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+    placeholder="vanhenee muutamassa minuutissa">
+  <p class="st" aria-live="polite"></p>
+</div>
+<ol start="6">
+  <li>Aja Terminalissa heti:
+    <div class="cmd"><pre id="c-dbx" class="tpl">curl -sS https://api.dropboxapi.com/oauth2/token -d code={dc} -d grant_type=authorization_code -u {dk}</pre><button type="button" data-copy="c-dbx">Kopioi</button></div>
+    Terminal kysyy <code>Enter host password for user '…'</code>: liitä App secret ja paina Enter
+    (kirjoittaessa ei näy mitään).</li>
+  <li>Vastauksessa on <code>"refresh_token": "…"</code>. Kopioi lainausmerkkien välinen osa; se on
+    salainen kuten App secret. Jos vastaus on <code>invalid_grant</code>, koodi ehti vanhentua tai
+    sitä käytettiin jo. Avaa vaiheen 5 linkki uudelleen ja aja komento uudella koodilla.</li>
+</ol>
+<p><b>Salaisuudet workeriin.</b>
+  <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages">Workers &amp; Pages</a> →
+  <code>soitin</code> → <span class="ui">Settings</span> → <span class="ui">Variables and
+  Secrets</span> → <span class="ui">Add</span>. Lisää kolme muuttujaa, joiden
+  <span class="ui">Type</span> on <span class="ui">Secret</span>, ja paina
+  <span class="ui">Deploy</span>:</p>
+<table>
+  <tr><th>Variable name</th><th>Arvo</th></tr>
+  <tr><td><code>DROPBOX_APP_KEY</code></td><td>App key</td></tr>
+  <tr><td><code>DROPBOX_APP_SECRET</code></td><td>App secret</td></tr>
+  <tr><td><code>DROPBOX_REFRESH_TOKEN</code></td><td>refresh token</td></tr>
+</table>
+<div class="box check">
+  <p><b>Tarkistus:</b> avaa <a class="tpl">https://{w}.workers.dev/api/dropbox</a></p>
+  <table>
+    <tr><th>Näet</th><th>Tarkoittaa</th></tr>
+    <tr><td><code>{"ok":true}</code></td><td>Kaikki kunnossa.</td></tr>
+    <tr><td><code>{"error":"dropbox_not_configured"}</code></td><td>Jokin kolmesta salaisuudesta puuttuu tai sen nimi on väärin.</td></tr>
+    <tr><td><code>{"error":"dropbox_auth"}</code></td><td>Dropbox ei hyväksynyt avaimia: App key, App secret ja refresh token eivät kuulu yhteen.</td></tr>
+    <tr><td><code>{"error":"not_found"}</code></td><td>Workerin koodi on vanha. K1.</td></tr>
+  </table>
+</div>
+<p>Valmista. Tee kansiokeikka <a href="ohje.html#kansio">käyttöoppaan liitteen</a> ohjeella.</p>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Kentät: w = workerin nimi soittimen kannalta (soitin.jotain), a = tilin
+  // tunnus, n = KV-tunnus, dk = Dropboxin App key, dc = Dropboxin kertakoodi.
+  // Samat muodot kuin uusi.html:n #-asetuksissa.
+  var hex32 = /^[0-9a-f]{32}$/;
+  var lower = function (v) { return v.trim().toLowerCase(); };
+  var FIELDS = {
+    w: { re: /^[a-z0-9-]{1,63}\.[a-z0-9-]{1,63}$/, ph: "soitin.<jotain>",
+         norm: function (v) {
+           return v.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/[\/?#].*$/, "").replace(/\.workers\.dev$/, "");
+         },
+         bad: "Muoto: https://soitin.jotain.workers.dev tai soitin.jotain" },
+    a: { re: hex32, norm: lower, ph: "<tilin tunnus>", bad: "Tunnuksessa on 32 merkkiä, numeroita 0–9 ja kirjaimia a–f." },
+    n: { re: hex32, norm: lower, ph: "<KV-tunnus>", bad: "Tunnuksessa on 32 merkkiä, numeroita 0–9 ja kirjaimia a–f." },
+    dk: { re: /^[A-Za-z0-9]{8,40}$/, ph: "APP_KEY", bad: "App key on lyhyt merkkijono kirjaimia ja numeroita." },
+    dc: { re: /^[A-Za-z0-9_-]{10,}$/, ph: "KOODI", bad: "Koodissa on vain kirjaimia, numeroita, - ja _.", temp: true }
+  };
+  var STORE = "soitin.kayttoonotto";
+  var vals = {};
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; }
+  }
+  function save() {
+    var o = {};
+    Object.keys(FIELDS).forEach(function (k) { if (!FIELDS[k].temp && raw[k]) o[k] = raw[k]; });
+    try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) { /* ei muistia: kentät toimivat silti */ }
+  }
+
+  var inputs = {}, raw = load();
+  document.querySelectorAll("input[data-f]").forEach(function (el) {
+    var k = el.getAttribute("data-f");
+    inputs[k] = el;
+    if (!FIELDS[k].temp && raw[k]) el.value = raw[k];
+    el.addEventListener("input", function () { raw[k] = el.value; check(k); render(); save(); });
+  });
+
+  function check(k) {
+    var f = FIELDS[k], el = inputs[k], st = el.parentNode.querySelector(".st");
+    var v = (f.norm || function (s) { return s.trim(); })(el.value || "");
+    vals[k] = f.re.test(v) ? v : "";
+    st.className = "st";
+    if (!v) st.textContent = "";
+    else if (vals[k]) { st.textContent = k === "w" ? "✓ " + v + ".workers.dev" : "✓"; st.className = "st ok"; }
+    else { st.textContent = f.bad; st.className = "st err"; }
+  }
+
+  // Mallit: elementin teksti, jossa {w}, {a} … korvataan kenttien arvoilla.
+  // Puuttuva arvo näkyy korostettuna paikkamerkkinä, ja linkki on silloin
+  // ilman osoitetta.
+  var tpls = [];
+  document.querySelectorAll(".tpl").forEach(function (el) {
+    tpls.push({ el: el, t: el.textContent });
+  });
+  var bmOpen = document.getElementById("bm-open");
+
+  function fill(t) {
+    var frag = document.createDocumentFragment(), text = "", complete = true, last = 0;
+    t.replace(/\{(w|a|n|dk|dc)\}/g, function (m, k, i) {
+      frag.appendChild(document.createTextNode(t.slice(last, i)));
+      text += t.slice(last, i);
+      if (vals[k]) {
+        frag.appendChild(document.createTextNode(vals[k]));
+        text += vals[k];
+      } else {
+        var s = document.createElement("span");
+        s.className = "ph";
+        s.textContent = FIELDS[k].ph;
+        frag.appendChild(s);
+        complete = false;
+      }
+      last = i + m.length;
+      return m;
+    });
+    frag.appendChild(document.createTextNode(t.slice(last)));
+    text += t.slice(last);
+    return { frag: frag, text: text, complete: complete };
+  }
+
+  function render() {
+    tpls.forEach(function (o) {
+      var r = fill(o.t);
+      o.el.textContent = "";
+      o.el.appendChild(r.frag);
+      o.el.classList.toggle("incomplete", !r.complete);
+      if (o.el.tagName === "A") {
+        if (r.complete) o.el.href = r.text; else o.el.removeAttribute("href");
+      }
+      if (o.el.id === "c-bm") {
+        if (r.complete) bmOpen.href = r.text; else bmOpen.removeAttribute("href");
+      }
+    });
+    document.querySelectorAll("button[data-copy]").forEach(function (b) {
+      var target = document.getElementById(b.getAttribute("data-copy"));
+      b.disabled = target.classList.contains("incomplete");
+      b.title = b.disabled ? "Täytä ensin kentät" : "";
+    });
+  }
+
+  // ---- Kopiointi ----------------------------------------------------------
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function copy(text, btn, label) {
+    var done = function (ok) {
+      if (!ok) { window.prompt("Kopioi:", text); return; }
+      var was = label || btn.textContent;
+      btn.textContent = "Kopioitu";
+      btn.classList.add("done");
+      setTimeout(function () { btn.textContent = was; btn.classList.remove("done"); }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+    } else {
+      done(fallbackCopy(text));
+    }
+  }
+  document.querySelectorAll("button[data-copy]").forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener("click", function () {
+      copy(document.getElementById(b.getAttribute("data-copy")).textContent, b, label);
+    });
+  });
+
+  // Workerin koodi haetaan valmiiksi samasta osoitteesta, jotta kopiointi
+  // tapahtuu suoraan napin painalluksesta (Safari ei salli kopiointia haun jälkeen).
+  var code = "", codeBtn = document.getElementById("copyCode"), codeSt = document.getElementById("codeSt");
+  fetch("../worker/src/index.js", { cache: "no-store" })
+    .then(function (res) { if (!res.ok) throw new Error(res.status); return res.text(); })
+    .then(function (t) {
+      if (!/export default/.test(t)) throw new Error("sisältö");
+      code = t;
+      codeBtn.disabled = false;
+      codeSt.textContent = t.replace(/\n$/, "").split("\n").length + " riviä";
+    })
+    .catch(function () { codeSt.textContent = "Koodin haku epäonnistui; käytä alla olevaa linkkiä."; });
+  codeBtn.addEventListener("click", function () { if (code) copy(code, codeBtn, "Kopioi workerin koodi"); });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    try { localStorage.removeItem(STORE); } catch (e) { /* ei väliä */ }
+    raw = {};
+    Object.keys(inputs).forEach(function (k) { inputs[k].value = ""; check(k); });
+    render();
+  });
+
+  Object.keys(inputs).forEach(check);
+  render();
+})();
+</script>
+</body>
+</html>
