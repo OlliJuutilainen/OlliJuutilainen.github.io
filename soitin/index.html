@@ -137,11 +137,15 @@
     pointer-events: none;
   }
   .seek[aria-disabled="true"] .knob { display: none; }
-  /* Aika janan alla: vasemmalla kohta, oikealla janan pituus. Jana on 44 px
-     korkea ja viiva sen keskellä, joten rivi nostetaan lähemmäs viivaa. */
+  /* Aika janan alla: vasemmalla kohta, oikealla janan pituus, välissä
+     janakytkin. Jana on 44 px korkea ja viiva sen keskellä, joten rivi
+     nostetaan lähemmäs viivaa. Aika ja kytkimen teksti jakavat saman
+     sarakkeen, jotta kytkin pysyy keskellä, vaikka ajan pituus muuttuu. */
   .times {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 10px;
     margin-top: -10px;
     color: var(--muted);
     font-size: 0.9rem;
@@ -182,13 +186,22 @@
     align-items: center;
     gap: 10px;
     min-height: 28px;
-    margin: 0 0 22px;
     color: var(--muted);
     font-size: 0.8rem;
     font-style: italic;
   }
-  #scaleopt { margin-top: 14px; }
-  .sw:has(+ .sw:not([hidden])) { margin-bottom: 0; }
+  /* Janakytkin on aikarivillä alkukohdan ja keston välissä: se vaihtaa
+     juuri näiden lukujen mittakaavan. display: contents päästää sen osat
+     aikarivin sarakkeisiin. Setin kytkin on nappien alla. */
+  #scaleopt { display: contents; }
+  .times > *, #scaleopt > * { grid-row: 1; }
+  #cur, #scaleopt .side[data-on="0"] { grid-column: 1; }
+  #songscale { grid-column: 2; }
+  #dur, #scaleopt .side[data-on="1"] { grid-column: 3; }
+  #cur { justify-self: start; }
+  #dur { justify-self: end; }
+  #setopt { margin-top: 14px; }
+  #list { margin-top: 22px; }
   .sw .side {
     min-height: 28px;
     display: flex;
@@ -343,7 +356,16 @@
       <div id="ticks"></div>
       <div class="knob" id="knob"></div>
     </div>
-    <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
+    <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
+    <div class="times">
+      <span class="num" id="cur">0:00</span>
+      <div class="sw" id="scaleopt">
+        <span class="side" data-on="0">keikkajana</span>
+        <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
+        <span class="side" data-on="1">biisijana</span>
+      </div>
+      <span class="num" id="dur">–:––</span>
+    </div>
     <div class="ctls">
       <button class="ctl" id="prev" type="button" aria-label="Edellinen kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
@@ -364,15 +386,8 @@
     </div>
   </section>
 
-  <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
-  <div class="sw" id="scaleopt">
-    <span class="side" data-on="0">keikka-...</span>
-    <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
-    <span class="side" data-on="1">biisijana</span>
-  </div>
-
   <div class="sw" id="setopt" hidden>
-    <span class="side" data-on="0">keikan ...</span>
+    <span class="side" data-on="0">keikan loppuun</span>
     <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
     <span class="side" data-on="1">setin loppuun</span>
   </div>
