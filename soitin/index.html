@@ -365,7 +365,17 @@
   }
   li.set .name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
   li.set .len { flex: 0 0 auto; order: 2; opacity: 0.8; }
-  li.set .sig { flex: 0 0 auto; order: 1; margin-right: -5px; font-size: 0.8em; opacity: 0.8; }
+  li.set .sig {
+    flex: 0 0 auto;
+    order: 1;
+    margin-right: -5px;
+    font-size: 0.8em;
+    opacity: 0.8;
+    /* Pienempi merkki istuisi perusviivalla numeroita alempana; nostetaan
+       sen keskikohta numeroiden keskikohdan tasalle. */
+    position: relative;
+    top: -0.1em;
+  }
   li.set .len:empty + .sig { visibility: hidden; }
   li.set:first-child { padding-top: 0; }
   .copy {
