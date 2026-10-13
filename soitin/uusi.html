@@ -78,7 +78,7 @@
 <main>
   <h1>Uusi keikka soittimeen</h1>
   <p class="muted">Täytä kentät. Sivu tarkistaa biisilistan ja tekee komennon, jonka ajat Macin
-    Terminalissa. Sen jälkeen lyhyt linkki toimii.</p>
+    Terminalissa. Sen jälkeen lyhyt linkki toimii. <a href="ohje.html">Käyttöopas</a></p>
   <p id="profile" class="muted" hidden></p>
 
   <label for="key">Tunnus</label>
@@ -99,8 +99,8 @@
     mutta ei linkin esikatselussa. Tyhjänä riviä ei ole lainkaan.</p>
 
   <div id="singleBox">
-  <label for="audio">Äänitiedoston linkki (Dropbox)</label>
-  <input id="audio" type="url" placeholder="https://www.dropbox.com/…" autocapitalize="off" spellcheck="false">
+  <label for="audio">Äänitiedoston linkki (Google Drive tai Dropbox)</label>
+  <input id="audio" type="url" placeholder="https://drive.google.com/… tai https://www.dropbox.com/…" autocapitalize="off" spellcheck="false">
   <p class="muted" id="audioNote" style="margin-top:6px"></p>
   </div>
 
@@ -108,16 +108,16 @@
   <div id="folderBox" hidden>
   <p class="muted" style="margin:14px 0 0">Kansiokeikka (lisäominaisuus).<br>
     <button type="button" class="link" id="toSingle">Takaisin yhteen tiedostoon</button></p>
-  <label for="folder" style="margin-top:4px">Kansion linkki (Dropbox tai Google Drive)</label>
-  <input id="folder" type="url" placeholder="https://www.dropbox.com/scl/fo/… tai https://drive.google.com/drive/folders/…" autocapitalize="off" spellcheck="false">
+  <label for="folder" style="margin-top:4px">Kansion linkki (Google Drive tai Dropbox)</label>
+  <input id="folder" type="url" placeholder="https://drive.google.com/drive/folders/… tai https://www.dropbox.com/scl/fo/…" autocapitalize="off" spellcheck="false">
   <p class="muted" style="margin-top:6px">Kansion äänitiedostot ovat kappaleita nimen mukaisessa
     järjestyksessä, joten numeroi ne: <code>01 Intro.mp3</code>, <code>02 Toinen.mp3</code> …
     Alkunumero jää pois kappaleen nimestä, ja <code>00 [Intro].mp3</code> saa numeron 0.
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
     <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Soitin lukee kansion joka kerta
     avautuessaan, joten myöhemmin lisätty tiedosto tulee mukaan ilman uutta komentoa. Enintään
-    44 tiedostoa. Vaatii workeriin Dropbox- tai Google-avaimen (ohje: KAVERIVERSIO.md, liite
-    <i>Keikka kansiosta</i>).</p>
+    44 tiedostoa. Vaatii workeriin Google- tai Dropbox-avaimen (<a href="kayttoonotto.html#kansio">käyttöönotto-ohjeen
+    liite</a>).</p>
   </div>
 
   <div id="tracksBox">
@@ -128,7 +128,7 @@
   <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
     <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Jos ensimmäinen nimi on hakasulkeissa,
     esim. <code>[Intro]</code>, se saa numeron 0 ja numerointi alkaa vasta seuraavasta. Listan
-    ensimmäiseltä biisiltä ajan voi jättää pois tai kirjoittaa nollan (<code>0</code>, <code>0:00</code> …). Jos ensimmäinen
+    alussa hakasulkubiisin ajan voi jättää pois tai kirjoittaa nollan (<code>0</code>, <code>0:00</code> …). Jos ensimmäinen
     biisi alkaa myöhemmin kuin 0:00 eikä hakasulkubiisiä ole, alkuun tulee <i>0. [INTRO]</i>.
     Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä (tai 0:sta, jos setin
     ensimmäinen nimi on hakasulkeissa). Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
@@ -176,7 +176,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
 
-  // Kaveriversio (soitin/KAVERIVERSIO.md): oma Cloudflare-tili osoitteen #-osassa,
+  // Kaveriversio (soitin/kayttoonotto.html): oma Cloudflare-tili osoitteen #-osassa,
   // uusi.html#w=soitin.kaveri&a=<tilin tunnus>&n=<KV-tunnus>. Tunnukset eivät ole
   // salaisia; API-avain luetaan Macin avainnipusta vasta komentoa ajettaessa.
   // Ilman #-osaa sivu toimii kuten ennenkin.
@@ -337,20 +337,40 @@
 
   // ---- Äänilinkki --------------------------------------------------------
 
-  // Dropboxin jakolinkistä suora tiedostolinkki: dl=0 pois, raw=1 tilalle.
+  // Jakolinkistä suora tiedostolinkki. Dropbox: dl=0 pois, raw=1 tilalle.
+  // Drive: jakolinkki avaa esikatselusivun, joten tilalle suora latauslinkki
+  // samassa muodossa kuin workerin kansiokeikassa (driveFileUrl). confirm=t
+  // ohittaa varoitussivun, jonka Drive näyttää isoista tiedostoista.
   function normalizeAudio(s) {
     s = s.trim();
     if (!s) return { url: "", error: "Äänitiedoston linkki puuttuu." };
     var u;
     try { u = new URL(s); } catch (e) { return { url: "", error: "Äänitiedoston linkki ei ole kelvollinen osoite." }; }
     if (u.protocol !== "https:") return { url: "", error: "Äänitiedoston linkin pitää alkaa https://" };
-    var changed = false;
+    var note = "";
     if (/(^|\.)dropbox\.com$/.test(u.hostname) && u.searchParams.get("raw") !== "1") {
       u.searchParams.delete("dl");
       u.searchParams.set("raw", "1");
-      changed = true;
+      note = "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1).";
     }
-    return { url: u.toString(), changed: changed };
+    var id = driveFileId(u);
+    if (id) {
+      var rk = u.searchParams.get("resourcekey");
+      return { url: "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t" +
+        (rk && /^[A-Za-z0-9_-]+$/.test(rk) ? "&resourcekey=" + rk : ""),
+        note: "Drive-linkki muutettu suoraksi latauslinkiksi." };
+    }
+    return { url: u.toString(), note: note };
+  }
+
+  // Driven tiedostolinkin tunniste: …/file/d/<ID>/view, …/open?id=<ID> tai
+  // …/uc?id=<ID>. Kansiolinkkiä ei muuteta.
+  function driveFileId(u) {
+    if (u.hostname !== "drive.google.com") return "";
+    var m = /^\/file\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{10,})/.exec(u.pathname);
+    if (m) return m[1];
+    var id = u.searchParams.get("id") || "";
+    return /^\/(?:open|uc)$/.test(u.pathname) && /^[A-Za-z0-9_-]{10,}$/.test(id) ? id : "";
   }
 
   // Viimeisen setin kestoa varten tiedoston pituus. Selain lataa vain
@@ -435,7 +455,7 @@
       audio = normalizeAudio(f.audio.value);
       if (audio.error) problems.push(audio.error);
       probeAudio(audio.url);
-      $("audioNote").textContent = audio.changed ? "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1)." : "";
+      $("audioNote").textContent = audio.note || "";
       list = parseList(f.tracks.value);
       problems = problems.concat(list.errors);
     }
@@ -511,7 +531,7 @@
     }));
     // Ei #-kommenttiriviä: macOS:n zsh ei tulkitse sitä kommentiksi oletuksena.
     // Kaveriversiossa curl ja Cloudflaren REST-rajapinta, koska curl on valmiina
-    // jokaisessa Macissa eikä Node.js:ää tarvita. API-avain avainnippuun: KAVERIVERSIO.md.
+    // jokaisessa Macissa eikä Node.js:ää tarvita. API-avain avainnippuun: kayttoonotto.html.
     $("cmd").textContent = (profile ? [
       "ACC='" + profile.account + "'",
       "NS='" + profile.ns + "'",

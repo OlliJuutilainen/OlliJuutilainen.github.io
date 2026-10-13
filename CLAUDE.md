@@ -133,7 +133,7 @@ rajapinnasta joka haulla ja palauttaa `files`-listan. Tiedostot ovat kappaleita 
 järjestyksessä, ja alikansiot ovat settejä. Dropbox tarvitsee workerin salaisuudet
 `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET` ja `DROPBOX_REFRESH_TOKEN` (linkit tilapäisiä, 4 h), Drive
 salaisuuden `GOOGLE_API_KEY` (linkit pysyviä, kansio jaettu kaikille linkin saaneille).
-Tarkistusreitit `/api/dropbox` ja `/api/drive`. Ohje: KAVERIVERSIO.md, liite.
+Tarkistusreitit `/api/dropbox` ja `/api/drive`. Ohje: `kayttoonotto.html` ja `ohje.html`, liitteet.
 
 Käyttäjän vaatimus: **kansio-ominaisuus ei saa vaikuttaa tavalliseen keikkaan** (yksi pitkä
 tiedosto ja biisilista) eikä kaveriohjeen selkeyteen.
@@ -143,18 +143,33 @@ tiedosto ja biisilista) eikä kaveriohjeen selkeyteen.
   yhtään Dropbox- tai Google-pyyntöä.
 - Apusivulla kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
   kansiolinkkejä.
-- KAVERIVERSIO.md:ssä kansiokeikasta on vain maininta johdannossa ja liite ohjeen lopussa.
+- Kaveriohjeissa (`kayttoonotto.html`, `ohje.html`) kansiokeikasta on vain maininta johdannossa
+  ja liite sivun lopussa.
 - Soitin vaihtaa tiedoston vähän ennen edellisen loppua eikä vasta `ended`-tapahtumassa, koska
   lopun `pause`-tapahtuma saisi Android-kääreen (`silta.js`) laskemaan sovelluksen pois
   etualalta. Älä siirrä vaihtoa `ended`-tapahtumaan.
 
-Soittimen **kaveriversio** (`soitin/KAVERIVERSIO.md`): toinen käyttäjä pitää keikat omalla
+Soittimen **kaveriversio**: toinen käyttäjä pitää keikat omalla
 Cloudflare-tilillään. Linkki `soitin/#tunnus@soitin.kaveri` hakee keikan osoitteesta
 `https://soitin.kaveri.workers.dev` (rajattu `*.workers.dev`-osoitteisiin), ja
 `uusi.html#w=…&a=…&n=…` tulostaa wranglerin sijaan `curl`-komennon Cloudflaren
 REST-rajapintaan; API-avain luetaan Macin avainnipusta (`security … -s soitin-cf`).
 Ilman `@`-osaa ja #-asetuksia molemmat sivut toimivat kuten ennen. Kaverin
 workers.dev-osoitetta tai tunnuksia ei kirjoiteta repoon.
+
+Kaveriversion ohjeet ovat HTML-sivuja, koska niitä luetaan Macin selaimella ja niissä kopioidaan
+komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
+- `soitin/kayttoonotto.html`: kerran tehtävä käyttöönotto. Kentät täyttävät tilin tunnuksen,
+  KV-tunnuksen ja workerin osoitteen komentoihin ja linkkeihin (vain selaimen localStorageen).
+  Salaisia avaimia sivu ei kysy; Dropboxin App secret syötetään `curl -u`:n kehotteeseen.
+- `soitin/ohje.html`: käyttöopas (uusi keikka, biisilista, linkit, soittimen napit, iPhone).
+  Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
+  esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
+  olennaisesti, ota kuvat uudelleen samalla tavalla; oikeita keikkatietoja ei käytetä.
+- `soitin/KAVERIVERSIO.md` on vain osoitin näihin sivuihin vanhojen linkkien vuoksi.
+- Ohjeissa Google Drive mainitaan ennen Dropboxia. Dropbox on kokeiltu soittimen kanssa, Drive ei
+  vielä; ohjeet sanovat sen. Apusivu muuttaa Driven tiedostolinkin (`/file/d/<ID>/…`,
+  `open?id=`, `uc?id=`) suoraksi latauslinkiksi samassa muodossa kuin workerin `driveFileUrl`.
 
 `android/soitin/` on soittimen Android-kääre Light Phonelle. Myöskään keikan tunnusta ei
 kirjoiteta repoon: se tulee Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`).
