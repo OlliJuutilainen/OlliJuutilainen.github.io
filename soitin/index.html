@@ -297,9 +297,15 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
-  /* Esinumero 0: "(0. Intro)", koko rivi himmeä ja kursiivi. */
-  li.pre .track { font-style: italic; }
+  /* Esinumero 0: "(0. Intro 0:00)", koko rivi himmeä, kursiivi ja ajan
+     kokoinen. Numerosarake pidetään muiden rivien levyisenä (1.6 × 17 px),
+     ettei nimi siirry, ja loppusulku riippuu ajan oikealla puolella, ettei
+     aika siirry. */
+  li.pre .track { font-style: italic; font-size: 0.9rem; }
+  li.pre .track .n { min-width: 27.2px; }
   li.pre .track .tt { color: var(--muted); }
+  li.pre .track .st { position: relative; }
+  li.pre .track .st::after { content: ")"; position: absolute; left: 100%; }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
   li.set {
@@ -684,9 +690,10 @@
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      // Esinumerorivillä avaava sulku siirtyy numeron eteen: "(0. Intro)".
+      // Esinumerorivillä sulut kehystävät koko rivin: "(0. Intro 0:00)".
+      // Loppusulku tulee CSS:stä ajan perään.
       b.children[0].textContent = num(i) === 0 ? "(0." : num(i) + ".";
-      b.children[1].textContent = num(i) === 0 ? tr.title.trim().replace(/^\(/, "") : tr.title;
+      b.children[1].textContent = num(i) === 0 ? tr.title.trim().replace(/^\((.*)\)$/, "$1") : tr.title;
       b.children[2].textContent = fmt(tr.start, longTimes);
       b.addEventListener("click", function () { jumpTo(i, true); });
 
