@@ -178,17 +178,17 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 12px;
-    min-height: 40px;
+    gap: 10px;
+    min-height: 28px;
     margin: 0 0 22px;
     color: var(--muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-style: italic;
   }
   #scaleopt { margin-top: 14px; }
   .sw:has(+ .sw:not([hidden])) { margin-bottom: 0; }
   .sw .side {
-    min-height: 40px;
+    min-height: 28px;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -200,27 +200,34 @@
     appearance: none;
     -webkit-appearance: none;
     position: relative;
-    width: 40px;
-    height: 24px;
+    width: 24px;
+    height: 14px;
     margin: 0;
-    border-radius: 12px;
+    border-radius: 7px;
     background: var(--line);
     cursor: pointer;
     transition: background 0.15s;
   }
+  /* Kytkin on tekstiä matalampi; ::before laajentaa kosketusalueen
+     koko rivin korkuiseksi (28 px). */
+  .sw input::before {
+    content: "";
+    position: absolute;
+    inset: -7px -8px;
+  }
   .sw input::after {
     content: "";
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 18px;
-    height: 18px;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--bg);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     transition: transform 0.15s;
   }
-  .sw input:checked::after { transform: translateX(16px); }
+  .sw input:checked::after { transform: translateX(10px); }
   /* Janan mittakaavassa kumpikaan puoli ei ole "päällä", joten väri pysyy.
      Setin lopussa pysähtyminen on päällä, ja sen kohta näkyy janalla
      samalla värillä (.tick.stop). */
