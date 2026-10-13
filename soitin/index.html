@@ -297,6 +297,8 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
+  /* Esinumero 0: "(0. Intro)", koko rivi himmeä ja kursiivi. */
+  li.pre .track { font-style: italic; }
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
@@ -682,8 +684,9 @@
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      b.children[0].textContent = num(i) + ".";
-      b.children[1].textContent = tr.title;
+      // Esinumerorivillä avaava sulku siirtyy numeron eteen: "(0. Intro)".
+      b.children[0].textContent = num(i) === 0 ? "(0." : num(i) + ".";
+      b.children[1].textContent = num(i) === 0 ? tr.title.trim().replace(/^\(/, "") : tr.title;
       b.children[2].textContent = fmt(tr.start, longTimes);
       b.addEventListener("click", function () { jumpTo(i, true); });
 
