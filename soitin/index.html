@@ -440,7 +440,7 @@
 
   // ---- Kappaleet --------------------------------------------------------
 
-  var gig = null;      // { title, audio, tracks: [{ t, title }] }
+  var gig = null;      // { title, audio, tracks: [{ t, title }] } tai { title, files }
   var gigKey = "";
   var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
   var tracks = [];     // [{ start, title, set, n }]
@@ -451,6 +451,14 @@
   var setLens = [];    // setin otsikkorivin kestokentät
   var trackLens = [];  // kappalerivien kestokentät, tracks-järjestyksessä
   var heads = [];      // setin otsikkorivit: { li, first: ensimmäisen kappaleen indeksi }
+
+  // Kansiokeikka (Dropbox-kansio, ks. worker): jokainen kappale on oma
+  // tiedostonsa. Tiedostot ladataan peräkkäin samaan audio-elementtiin, ja
+  // kappaleiden alkuajat ovat tiedostojen kestojen summia, joten muu soitin
+  // (jana, setit, hypyt, linkit) näkee yhden yhtenäisen keikan.
+  // files = null tarkoittaa tavallista yhden tiedoston keikkaa.
+  var files = null;    // [{ url, title, len, set, name }]
+  var cur = 0;         // audio-elementissä oleva tiedosto
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
   // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
@@ -513,7 +521,29 @@
     return errors;
   }
 
+  // Kansiokeikan kappaleet: alkuaika = edellisten tiedostojen kestojen summa.
+  function loadFiles() {
+    var n = 1, t = 0;
+    tracks = [];
+    sets = 1;
+    setInfo = [null];
+    files.forEach(function (f, i) {
+      if (f.set && i) sets++;
+      if (!i || f.set) {
+        n = /^\[.*\]$/.test(f.title.trim()) ? 0 : 1;
+        setInfo[sets] = { name: f.name || "", first: i };
+      }
+      tracks.push({ start: t, title: f.title, set: sets, n: n++ });
+      t += f.len;
+    });
+    showSets = sets > 1 || setInfo.some(function (x) { return x && x.name; });
+  }
+
   function duration() {
+    if (files) {
+      var last = files.length - 1;
+      return tracks[last].start + files[last].len;
+    }
     return isFinite(audio.duration) ? audio.duration : NaN;
   }
   function trackEnd(i) {
@@ -555,15 +585,56 @@
   // Soitto ylitti setin rajan: pysäytetään ja jäädään seuraavan setin alkuun,
   // josta toisto jatkuu seuraavalla painalluksella.
   function checkStop() {
-    if (audio.paused || audio.currentTime < stopAt) return;
+    if (audio.paused || position() < stopAt) return;
     var t = stopAt;
     audio.pause();
+    if (files) { seekTo(t); return; }
     audio.currentTime = t;
     armStop();
   }
 
   function position() {
-    return pendingSeek !== null ? pendingSeek : audio.currentTime;
+    if (pendingSeek !== null) return pendingSeek;
+    return (files ? tracks[cur].start : 0) + audio.currentTime;
+  }
+
+  // Kansiokeikassa seuraava tiedosto vaihdetaan vähän ennen edellisen loppua,
+  // ei vasta ended-tapahtumassa. Lopussa selain asettaa paused-tilan ja
+  // lähettää pause-tapahtuman, jolloin Android-kääre (silta.js) luulisi soiton
+  // loppuneen ja päästäisi sovelluksen pois etualalta. Kun lähde vaihdetaan
+  // kesken soiton ja play() kutsutaan heti perään, pause-tapahtumaa ei tule.
+  var advTimer = 0;
+  function clearAdvance() {
+    if (advTimer) clearTimeout(advTimer);
+    advTimer = 0;
+  }
+  function maybeAdvance() {
+    if (!files || audio.paused || advTimer || cur + 1 >= files.length) return;
+    var d = audio.duration;
+    if (!isFinite(d)) return;
+    var rem = (d - audio.currentTime) / (audio.playbackRate || 1);
+    if (rem > 0.6) return;
+    advTimer = setTimeout(advance, Math.max(0, rem * 1000 - 40));
+  }
+  function advance() {
+    advTimer = 0;
+    if (!files || cur + 1 >= files.length || pendingSeek !== null) return;
+    if (!audio.ended && (audio.paused || audio.duration - audio.currentTime > 0.3)) return;
+    var t = tracks[cur + 1].start;
+    // Setin loppu: jäädään seuraavan setin alkuun kuten checkStop.
+    if (t >= stopAt - 0.01) {
+      audio.pause();
+      seekTo(t);
+      return;
+    }
+    loadFile(cur + 1, t, true);
+  }
+  function loadFile(j, t, autoplay) {
+    clearAdvance();
+    cur = j;
+    pendingSeek = t;
+    audio.src = files[j].url;
+    if (autoplay) play();
   }
 
   // Janan alku ja loppu (s). Biisijanalla ensimmäiseen biisiin kuuluu myös
@@ -580,6 +651,21 @@
     var d = duration();
     if (isFinite(d)) t = Math.min(Math.max(0, t), d);
     else t = Math.max(0, t);
+    if (files) {
+      clearAdvance();
+      var j = trackAt(t);
+      if (j !== cur) {
+        loadFile(j, t, !audio.paused);
+      } else if (audio.readyState >= 1) {
+        pendingSeek = null;
+        audio.currentTime = Math.min(t - tracks[j].start, files[j].len);
+      } else {
+        pendingSeek = t;
+      }
+      armStop();
+      render();
+      return;
+    }
     if (audio.readyState >= 1) {
       pendingSeek = null;
       audio.currentTime = t;
@@ -842,7 +928,8 @@
     if (code === 2) detail = "Verkkoyhteys katkesi tai palvelin ei vastannut. Tarkista yhteys ja lataa sivu uudelleen.";
     else if (code === 3) detail = "Tiedosto latautui, mutta selain ei pystynyt purkamaan sitä. Tiedosto voi olla vioittunut.";
     else if (code === 4) detail = "Tiedostoa ei löytynyt tai se ei ole äänitiedosto.";
-    if (/dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
+    if (files && (code === 2 || code === 4) && refreshLinks()) return;
+    if (!files && /dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
       detail = (detail ? detail + " " : "") + "Dropbox-linkin lopussa pitää olla ?raw=1.";
     }
     showError(msg, detail);
@@ -858,6 +945,7 @@
     rafId = 0;
     if (audio.paused) return;
     checkStop();
+    maybeAdvance();
     render();
     rafId = requestAnimationFrame(loop);
   }
@@ -870,24 +958,43 @@
   }
 
   audio.addEventListener("play", function () { armStop(); renderPlayState(); startLoop(); });
-  audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
-  audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
+  audio.addEventListener("pause", function () { clearAdvance(); stopLoop(); renderPlayState(); render(); });
+  audio.addEventListener("ended", function () {
+    // Varalla, jos vaihto ennen loppua ei ehtinyt (esim. ajastin myöhästyi).
+    if (files && cur + 1 < files.length) { advance(); return; }
+    stopLoop(); renderPlayState(); render();
+  });
   audio.addEventListener("seeked", render);
   // Piilossa render pitää myös lukitusnäytön kappaleen nimen ajan tasalla.
   // Piilossa animaatiosilmukka ei pyöri, joten setin raja tarkistetaan täällä.
   audio.addEventListener("timeupdate", function () {
     checkStop();
+    maybeAdvance();
     if (audio.paused || document.hidden) render();
   });
   audio.addEventListener("loadedmetadata", onMeta);
   audio.addEventListener("durationchange", onMeta);
 
   function onMeta() {
+    // Kansiokeikassa kesto mitattiin etukäteen. Jos tiedosto osoittautuu
+    // eripituiseksi (esim. mp3:n arvioitu kesto tarkentuu), alkuajat lasketaan
+    // uudelleen.
+    var relist = false;
+    if (files && isFinite(audio.duration) && Math.abs(audio.duration - files[cur].len) > 0.05) {
+      files[cur].len = audio.duration;
+      loadFiles();
+      relist = true;
+    }
     var d = duration();
     if (!isFinite(d)) return;
     longTimes = d >= 3600;
-    renderLens();
-    if (pendingSeek !== null) {
+    if (relist) renderList();
+    else renderLens();
+    if (pendingSeek !== null && files) {
+      var off = Math.min(pendingSeek - tracks[cur].start, files[cur].len);
+      pendingSeek = null;
+      if (off > 0.01 || audio.currentTime > 0.01) audio.currentTime = Math.max(0, off);
+    } else if (pendingSeek !== null) {
       var t = pendingSeek;
       pendingSeek = null;
       audio.currentTime = Math.min(t, d);
@@ -1053,8 +1160,13 @@
     $("loading").hidden = true;
     $("app").hidden = false;
 
-    var errors = loadTracks(withIntro(gig.tracks));
-    if (errors.length) showError("Kappalelistassa on virhe.", errors.join(" "));
+    if (files) {
+      loadFiles();
+      longTimes = duration() >= 3600;
+    } else {
+      var errors = loadTracks(withIntro(gig.tracks));
+      if (errors.length) showError("Kappalelistassa on virhe.", errors.join(" "));
+    }
     if (!tracks.length) {
       tracks.push({ start: 0, title: gig.title, set: 1, n: 1 });
       setInfo[1] = { name: "", first: 0 };
@@ -1064,9 +1176,131 @@
     render();
     renderPlayState();
     applyHash();
-    audio.src = gig.audio;
+    if (files) {
+      // Hash on voinut jo ladata oikean tiedoston.
+      if (!audio.getAttribute("src")) audio.src = files[cur].url;
+      els.seek.setAttribute("aria-disabled", "false");
+      renderTicks();
+      render();
+    } else {
+      audio.src = gig.audio;
+    }
   }
 
+  // ---- Kansiokeikka: kestot ja vanhentuneet linkit -----------------------
+
+  var DROPBOX_ERRORS = {
+    dropbox_not_configured: "Workerista puuttuvat Dropbox-avaimet (KAVERIVERSIO.md, Dropbox-kansio).",
+    dropbox_auth: "Dropbox ei hyväksynyt workerin avaimia. Ne on ehkä peruttu; tee avaimet uudelleen.",
+    folder_not_found: "Kansion jakolinkkiä ei löytynyt. Se on ehkä poistettu tai vaihdettu.",
+    folder_not_owned: "Kansio ei ole sen Dropbox-tilin omistama, jolle workerin avaimet on tehty.",
+    not_a_folder: "Tallennettu linkki ei osoita kansioon.",
+    folder_empty: "Kansiossa ei ole äänitiedostoja.",
+    too_many_files: "Kansiossa on liikaa tiedostoja (enintään 44)."
+  };
+
+  // Kesto luetaan tiedoston alusta (metadata), muutama kerrallaan.
+  function probe(url) {
+    return new Promise(function (resolve) {
+      var a = new Audio(), done = false;
+      var finish = function (len) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        a.removeAttribute("src");
+        try { a.load(); } catch (e) { /* ei väliä */ }
+        resolve(len);
+      };
+      var timer = setTimeout(function () { finish(NaN); }, 20000);
+      a.preload = "metadata";
+      a.addEventListener("loadedmetadata", function () { finish(isFinite(a.duration) ? a.duration : NaN); });
+      a.addEventListener("error", function () { finish(NaN); });
+      a.src = url;
+    });
+  }
+
+  function probeAll(list, onProgress) {
+    var next = 0, done = 0;
+    return new Promise(function (resolve) {
+      if (!list.length) { resolve(); return; }
+      function run() {
+        if (next >= list.length) return;
+        var f = list[next++];
+        probe(f.url).then(function (len) {
+          f.len = len;
+          onProgress(++done, list.length);
+          if (done === list.length) resolve(); else run();
+        });
+      }
+      for (var k = 0; k < 4; k++) run();
+    });
+  }
+
+  // Kansion tiedot workerin vastauksesta. Tiedosto, jonka kestoa ei saatu,
+  // jätetään pois; sen setinvaihto ja otsikko siirtyvät seuraavalle.
+  function prepareFiles(data) {
+    var list = data.files.filter(function (f) {
+      return f && typeof f.url === "string" && /^https:\/\//.test(f.url);
+    }).map(function (f, i) {
+      var o = { url: f.url, title: String(f.title || "Kappale " + (i + 1)), len: NaN };
+      if (f.set === true) o.set = true;
+      if (typeof f.name === "string" && f.name.trim()) o.name = f.name.trim();
+      return o;
+    });
+    var loading = $("loading");
+    return probeAll(list, function (k, n) {
+      loading.textContent = "Ladataan kappaleita… " + k + "/" + n;
+    }).then(function () {
+      var ok = [], lost = [], carry = null;
+      list.forEach(function (f) {
+        if (!(f.len > 0)) {
+          lost.push(f.title);
+          if (f.set || f.name) carry = { set: f.set, name: f.name };
+          return;
+        }
+        if (carry) {
+          if (carry.set) f.set = true;
+          if (carry.name && !f.name) f.name = carry.name;
+          carry = null;
+        }
+        ok.push(f);
+      });
+      return { files: ok, lost: lost };
+    });
+  }
+
+  // Dropboxin suorat linkit vanhenevat neljässä tunnissa. Kun lataus
+  // epäonnistuu, haetaan uudet linkit ja jatketaan samasta kohdasta.
+  var refreshedAt = 0;
+  function refreshLinks() {
+    if (Date.now() - refreshedAt < 60000) return false;
+    refreshedAt = Date.now();
+    var t = position(), resume = playIntent;
+    fetch(gigApi + "?k=" + encodeURIComponent(gigKey), { cache: "no-store" })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var fresh = data && Array.isArray(data.files) ? data.files : [];
+        var same = fresh.length === files.length && fresh.every(function (f, i) {
+          return String(f.title || "") === files[i].title && typeof f.url === "string";
+        });
+        if (!same) {
+          showError("Kansion sisältö on muuttunut.", "Lataa sivu uudelleen.");
+          return;
+        }
+        fresh.forEach(function (f, i) { files[i].url = f.url; });
+        loadFile(trackAt(t), t, resume);
+      })
+      .catch(function () {
+        showError("Äänitiedoston lataaminen epäonnistui.",
+          "Verkkoyhteys katkesi tai palvelin ei vastannut. Tarkista yhteys ja lataa sivu uudelleen.");
+      });
+    return true;
+  }
+  var playIntent = false;
+  audio.addEventListener("play", function () { playIntent = true; });
+  audio.addEventListener("pause", function () { playIntent = false; });
+
+  var gigApi = API;
   var hm = HASH_RE.exec(location.hash);
   if (!hm) {
     fail("Linkistä puuttuu keikan tunnus.",
@@ -1074,7 +1308,7 @@
   } else {
     gigKey = hm[1].toLowerCase();
     gigWorker = (hm[2] || "").toLowerCase();
-    var api = gigWorker ? "https://" + gigWorker + ".workers.dev/api/gig" : API;
+    var api = gigApi = gigWorker ? "https://" + gigWorker + ".workers.dev/api/gig" : API;
     fetch(api + "?k=" + encodeURIComponent(gigKey), { cache: "no-store" })
       .then(function (res) {
         if (res.status === 404) {
@@ -1082,16 +1316,30 @@
                   detail: "Linkki voi olla vanhentunut tai kopioitunut vajaana." };
         }
         if (!res.ok) {
-          throw { user: "Keikan tietoja ei saatu palvelimelta.",
-                  detail: "Palvelin vastasi virheellä " + res.status + ". Yritä hetken päästä uudelleen." };
+          return res.json().catch(function () { return {}; }).then(function (b) {
+            var dbx = b && DROPBOX_ERRORS[b.error];
+            throw { user: dbx ? "Keikan kansiota ei saatu Dropboxista." : "Keikan tietoja ei saatu palvelimelta.",
+                    detail: dbx || "Palvelin vastasi virheellä " + res.status + ". Yritä hetken päästä uudelleen." };
+          });
         }
         return res.json();
       })
       .then(function (data) {
+        var title = String((data && data.title) || "Keikka");
+        if (data && Array.isArray(data.files)) {
+          els.title.textContent = title;
+          return prepareFiles(data).then(function (r) {
+            if (!r.files.length) throw { user: "Kansion tiedostoja ei saatu ladattua.",
+              detail: "Tarkista verkkoyhteys ja lataa sivu uudelleen." };
+            files = r.files;
+            start({ title: title, files: files });
+            if (r.lost.length) showError("Kaikkia kappaleita ei saatu ladattua; ne ohitetaan.", r.lost.join(", "));
+          });
+        }
         if (!data || typeof data.audio !== "string" || !Array.isArray(data.tracks)) {
           throw { user: "Keikan tiedot ovat virheelliset." };
         }
-        start({ title: String(data.title || "Keikka"), audio: data.audio, tracks: data.tracks });
+        start({ title: title, audio: data.audio, tracks: data.tracks });
       })
       .catch(function (e) {
         if (e && e.user) fail(e.user, e.detail);
