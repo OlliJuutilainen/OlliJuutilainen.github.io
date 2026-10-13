@@ -737,7 +737,7 @@
     for (var k = 1; k <= sets; k++) {
       if (!setLens[k]) continue;
       var len = setEnd(k) - setStart(k);
-      setLens[k].textContent = isFinite(len) && len > 0 ? fmt(len, false) : "";
+      setLens[k].textContent = isFinite(len) && len > 0 ? fmt(len, longTimes) : "";
     }
   }
 
