@@ -351,7 +351,9 @@
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
   /* Setin kesto samaan sarakkeeseen kuin kappaleiden kestot: oikea
-     reuna 4 px (.track) + 44 px (.copy) rivin reunasta. */
+     reuna 4 px (.track) + 44 px (.copy) rivin reunasta. Summamerkki Σ:
+     on keston edessä mutta DOM:ssa sen jälkeen (order), jotta se voidaan
+     piilottaa, kun kestoa ei vielä tiedetä. */
   li.set {
     display: flex;
     align-items: baseline;
@@ -362,7 +364,9 @@
     font-style: italic;
   }
   li.set .name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
-  li.set .len { flex: 0 0 auto; opacity: 0.8; }
+  li.set .len { flex: 0 0 auto; order: 2; opacity: 0.8; }
+  li.set .sig { flex: 0 0 auto; order: 1; margin-right: -8px; opacity: 0.8; }
+  li.set .len:empty + .sig { visibility: hidden; }
   li.set:first-child { padding-top: 0; }
   .copy {
     flex: 0 0 44px;
@@ -869,7 +873,7 @@
       if (showSets && i === setInfo[tr.set].first) {
         var h = document.createElement("li");
         h.className = "set";
-        h.innerHTML = '<span class="name"></span><span class="len num"></span>';
+        h.innerHTML = '<span class="name"></span><span class="len num"></span><span class="sig" aria-hidden="true">Σ:</span>';
         h.children[0].textContent = setName(tr.set);
         setLens[tr.set] = h.children[1];
         heads.push({ li: h, first: i });
