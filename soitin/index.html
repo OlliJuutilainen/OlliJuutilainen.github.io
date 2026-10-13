@@ -86,7 +86,6 @@
     margin: 0 0 4px;
     overflow-wrap: anywhere;
   }
-  .now .idx { color: var(--muted); font-weight: 500; margin-right: 0.35em; }
   .seek {
     position: relative;
     height: 44px;
@@ -120,6 +119,8 @@
     background: var(--bg);
     pointer-events: none;
   }
+  /* Kohta, jossa "Pysähdy setin lopussa" pysäyttää. */
+  .tick.stop { height: 16px; margin-top: -8px; background: var(--accent); }
   .knob {
     position: absolute;
     top: 50%;
@@ -208,6 +209,50 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
   }
 
+  /* --- Pysähdy setin lopussa --- */
+  .mode:has(+ .opt:not([hidden])) { margin-bottom: 8px; }
+  .opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    margin: 0 0 22px;
+    padding: 0 3px 0 11px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .opt input {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: 0 0 auto;
+    position: relative;
+    width: 40px;
+    height: 24px;
+    margin: 0;
+    border-radius: 12px;
+    background: var(--line);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .opt input::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s;
+  }
+  .opt input:checked { background: var(--accent); }
+  .opt input:checked::after { transform: translateX(16px); }
+  .opt:has(input:checked) { color: var(--fg); }
+  .opt input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
   /* --- Kappalelista --- */
   ol {
     list-style: none;
@@ -261,6 +306,7 @@
     color: var(--muted);
     font-size: 0.9rem;
   }
+  li.set .len { margin-left: 0.8em; opacity: 0.8; }
   li.set:first-child { padding-top: 0; }
   .copy {
     flex: 0 0 44px;
@@ -329,6 +375,11 @@
     <label><input type="radio" name="scale" value="song"> Biisijana</label>
   </fieldset>
 
+  <label class="opt" id="setopt" hidden>
+    <span>Pysähdy setin lopussa</span>
+    <input type="checkbox" role="switch" id="setonly">
+  </label>
+
   <ol id="list" aria-label="Kappaleet"></ol>
   <p class="sr" id="status" aria-live="polite"></p>
   </div>
@@ -357,7 +408,7 @@
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
     fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
     play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
-    list: $("list"),
+    list: $("list"), setopt: $("setopt"), setonly: $("setonly"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
   };
 
@@ -386,14 +437,22 @@
   var gigKey = "";
   var tracks = [];     // [{ start, title, set, n }]
   var sets = 1;
+  var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
+  var showSets = false;
   var rows = [];       // kappaleiden li-elementit, tracks-järjestyksessä
+  var setLens = [];    // setin otsikkorivin kestokentät
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
-  // uuden setin ensimmäisessä kappaleessa. Numerointi alkaa joka setissä
-  // 1:stä. Jos setin ensimmäisen nimi on suluissa, se on esinumero 0.
+  // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
+  // Numerointi alkaa joka setissä 1:stä. Jos setin ensimmäisen nimi on
+  // suluissa, se on esinumero 0.
   function num(i) { return tracks[i].n; }
-  // Kappaleen tunniste teksteihin: "3" tai useammassa setissä "(ii) 3".
-  function ref(i) { return (sets > 1 ? "(" + roman(tracks[i].set) + ") " : "") + num(i); }
+  function setName(k) { return setInfo[k].name || "(" + roman(k) + ")"; }
+  // Kappaleen tunniste teksteihin: "3" tai setteihin jaetussa "(ii) 3".
+  function ref(i) { return (showSets ? setName(tracks[i].set) + " " : "") + num(i); }
+  // Setin alku ja loppu (s). Viimeinen setti päättyy äänitiedoston loppuun.
+  function setStart(k) { return tracks[setInfo[k].first].start; }
+  function setEnd(k) { return k < sets ? setStart(k + 1) : duration(); }
   function roman(n) {
     var r = "", v = [40, 10, 9, 5, 4, 1], d = ["xl", "x", "ix", "v", "iv", "i"];
     for (var k = 0; k < v.length; k++) while (n >= v[k]) { r += d[k]; n -= v[k]; }
@@ -403,13 +462,15 @@
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
   function loadTracks(list) {
     var errors = [];
-    var newSet = false, n = 1;
+    var newSet = false, name = "", n = 1;
     tracks = [];
     sets = 1;
+    setInfo = [null];
     (list || []).forEach(function (tr, i) {
       var start = parseTime(tr.t);
-      // Hylätyn kappaleen setinvaihto siirtyy seuraavalle kelvolliselle.
+      // Hylätyn kappaleen setinvaihto ja otsikko siirtyvät seuraavalle kelvolliselle.
       if (tr.set) newSet = true;
+      if ((tr.set || !i) && typeof tr.name === "string" && tr.name.trim()) name = tr.name.trim();
       if (isNaN(start)) {
         errors.push("Kappaleen " + (i + 1) + " aika “" + tr.t + "” ei ole muotoa m:ss tai h:mm:ss.");
         return;
@@ -419,10 +480,15 @@
       }
       var title = String(tr.title || "Kappale " + (i + 1));
       if (newSet && tracks.length) sets++;
-      if (!tracks.length || newSet) n = /^\(.*\)$/.test(title.trim()) ? 0 : 1;
+      if (!tracks.length || newSet) {
+        n = /^\(.*\)$/.test(title.trim()) ? 0 : 1;
+        setInfo[sets] = { name: name, first: tracks.length };
+        name = "";
+      }
       tracks.push({ start: start, title: title, set: sets, n: n++ });
       newSet = false;
     });
+    showSets = sets > 1 || setInfo.some(function (x) { return x && x.name; });
     return errors;
   }
 
@@ -451,6 +517,29 @@
   var rafId = 0;
   var longTimes = false;   // näytetäänkö h:mm:ss
   var scale = "gig";       // jana: "gig" = koko keikka, "song" = nykyinen biisi
+  var setOnly = false;     // "Pysähdy setin lopussa"
+  var stopAt = Infinity;   // kohta, johon toisto pysähtyy (seuraavan setin alku)
+
+  // Pysähdyskohta lasketaan aina soittokohdan setistä: kun käyttäjä hyppää
+  // toiseen settiin, pysähdytään sen lopussa.
+  function armStop() {
+    var was = stopAt;
+    stopAt = Infinity;
+    if (setOnly && tracks.length) {
+      var k = tracks[trackAt(position())].set;
+      if (k < sets) stopAt = setStart(k + 1);
+    }
+    if (stopAt !== was) renderTicks();
+  }
+  // Soitto ylitti setin rajan: pysäytetään ja jäädään seuraavan setin alkuun,
+  // josta toisto jatkuu seuraavalla painalluksella.
+  function checkStop() {
+    if (audio.paused || audio.currentTime < stopAt) return;
+    var t = stopAt;
+    audio.pause();
+    audio.currentTime = t;
+    armStop();
+  }
 
   function position() {
     return pendingSeek !== null ? pendingSeek : audio.currentTime;
@@ -476,6 +565,7 @@
     } else {
       pendingSeek = t;
     }
+    armStop();
     render();
   }
 
@@ -539,12 +629,7 @@
       current = i;
       if (i >= 0) {
         rows[i].setAttribute("aria-current", "true");
-        els.now.innerHTML = "";
-        var idx = document.createElement("span");
-        idx.className = "idx num";
-        idx.textContent = num(i) + ".";
-        els.now.appendChild(idx);
-        els.now.appendChild(document.createTextNode(tracks[i].title));
+        els.now.textContent = tracks[i].title;
         updateMediaSession();
       }
     }
@@ -569,7 +654,7 @@
     tracks.forEach(function (tr) {
       if (tr.start <= 0 || tr.start >= d) return;
       var k = document.createElement("div");
-      k.className = "tick";
+      k.className = tr.start === stopAt ? "tick stop" : "tick";
       k.style.left = (tr.start / d) * 100 + "%";
       els.ticks.appendChild(k);
     });
@@ -577,14 +662,17 @@
 
   function renderList() {
     els.list.innerHTML = "";
-    els.list.classList.toggle("sets", sets > 1);
+    els.list.classList.toggle("sets", showSets);
     rows = [];
+    setLens = [];
     tracks.forEach(function (tr, i) {
-      // Setin otsikko (i), (ii) … vain jos settejä on useampi.
-      if (sets > 1 && (i === 0 || tr.set !== tracks[i - 1].set)) {
+      // Setin otsikko vain, jos settejä on useampi tai setti on nimetty.
+      if (showSets && i === setInfo[tr.set].first) {
         var h = document.createElement("li");
         h.className = "set";
-        h.textContent = "(" + roman(tr.set) + ")";
+        h.innerHTML = '<span class="name"></span><span class="len num"></span>';
+        h.children[0].textContent = setName(tr.set);
+        setLens[tr.set] = h.children[1];
         els.list.appendChild(h);
       }
       var li = document.createElement("li");
@@ -613,6 +701,18 @@
       rows.push(li);
     });
     current = -1;
+    renderSetLens();
+    els.setopt.hidden = sets < 2;
+  }
+
+  // Setin kesto otsikkoriville. Viimeisen setin kesto selviää vasta, kun
+  // äänitiedoston pituus on tiedossa.
+  function renderSetLens() {
+    for (var k = 1; k <= sets; k++) {
+      if (!setLens[k]) continue;
+      var len = setEnd(k) - setStart(k);
+      setLens[k].textContent = isFinite(len) && len > 0 ? fmt(len, false) : "";
+    }
   }
 
   // ---- Linkin kopiointi -------------------------------------------------
@@ -700,6 +800,7 @@
   function loop() {
     rafId = 0;
     if (audio.paused) return;
+    checkStop();
     render();
     rafId = requestAnimationFrame(loop);
   }
@@ -711,12 +812,14 @@
     rafId = 0;
   }
 
-  audio.addEventListener("play", function () { renderPlayState(); startLoop(); });
+  audio.addEventListener("play", function () { armStop(); renderPlayState(); startLoop(); });
   audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("seeked", render);
   // Piilossa render pitää myös lukitusnäytön kappaleen nimen ajan tasalla.
+  // Piilossa animaatiosilmukka ei pyöri, joten setin raja tarkistetaan täällä.
   audio.addEventListener("timeupdate", function () {
+    checkStop();
     if (audio.paused || document.hidden) render();
   });
   audio.addEventListener("loadedmetadata", onMeta);
@@ -728,11 +831,13 @@
     var wasLong = longTimes;
     longTimes = d >= 3600;
     if (longTimes !== wasLong) renderList();
+    else renderSetLens();
     if (pendingSeek !== null) {
       var t = pendingSeek;
       pendingSeek = null;
       audio.currentTime = Math.min(t, d);
     }
+    armStop();
     els.seek.setAttribute("aria-disabled", "false");
     renderTicks();
     render();
@@ -791,6 +896,10 @@
   els.next.addEventListener("click", nextTrack);
   els.back.addEventListener("click", function () { skip(-SKIP); });
   els.fwd.addEventListener("click", function () { skip(SKIP); });
+  els.setonly.addEventListener("change", function () {
+    setOnly = els.setonly.checked;
+    armStop();
+  });
   document.querySelectorAll('input[name="scale"]').forEach(function (r) {
     r.addEventListener("change", function () {
       scale = r.value;
@@ -849,7 +958,7 @@
     if (!("mediaSession" in navigator) || !window.MediaMetadata || current < 0) return;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: num(current) + ". " + tracks[current].title,
+        title: tracks[current].title,
         album: gig.title
       });
     } catch (e) { /* ei tuettu */ }
@@ -882,7 +991,10 @@
 
     var errors = loadTracks(gig.tracks);
     if (errors.length) showError("Kappalelistassa on virhe.", errors.join(" "));
-    if (!tracks.length) tracks.push({ start: 0, title: gig.title });
+    if (!tracks.length) {
+      tracks.push({ start: 0, title: gig.title, set: 1, n: 1 });
+      setInfo[1] = { name: "", first: 0 };
+    }
 
     renderList();
     render();

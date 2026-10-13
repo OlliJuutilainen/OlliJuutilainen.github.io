@@ -15,7 +15,7 @@
 
   var last = null;
 
-  // "3." ja nimi ovat eri solmuissa ilman välilyöntiä (väli on CSS:n marginaali).
+  // #now on pelkkä kappaleen nimi; useampi solmu yhdistettäisiin välilyönnein.
   function trackText() {
     var now = document.getElementById("now");
     if (!now) return "";
