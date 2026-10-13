@@ -60,6 +60,7 @@
   td.n { text-align: right; width: 2.5em; }
   td.t { width: 5.5em; }
   td.tt { overflow-wrap: anywhere; }
+  tr.pre td.tt { color: var(--muted); }
   a { color: var(--accent); overflow-wrap: anywhere; }
 </style>
 </head>
@@ -90,7 +91,8 @@
 3:42 Toinen biisi
 1:02:30 Encore"></textarea>
   <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
-    <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Audacityn <i>Export Labels</i> -tiedoston
+    <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Jos ensimmäinen nimi on suluissa,
+    esim. <code>0:00 (Intro)</code>, se saa numeron 0 ja numerointi alkaa vasta seuraavasta. Audacityn <i>Export Labels</i> -tiedoston
     sisällön voi liittää sellaisenaan.</p>
 
   <div id="problems" class="error" role="alert" hidden></div>
@@ -237,11 +239,14 @@
     }
     box.hidden = !(problems.length && anyInput);
 
+    // Suluissa oleva ensimmäinen biisi on esinumero 0; soitin päättelee saman nimestä.
+    var base = list.tracks.length && /^\(.*\)$/.test(list.tracks[0].title) ? 0 : 1;
     var prev = $("preview");
     prev.innerHTML = "";
     list.tracks.forEach(function (tr, i) {
       var row = document.createElement("tr");
-      [["n", (i + 1) + "."], ["t", tr.t], ["tt", tr.title]].forEach(function (c) {
+      if (i + base === 0) row.className = "pre";
+      [["n", (i + base) + "."], ["t", tr.t], ["tt", tr.title]].forEach(function (c) {
         var td = document.createElement("td");
         td.className = c[0];
         td.textContent = c[1];

@@ -252,6 +252,7 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
+  li.pre .track .tt { color: var(--muted); }
   .copy {
     flex: 0 0 44px;
     min-height: 44px;
@@ -374,6 +375,10 @@
   var gig = null;      // { title, audio, tracks: [{ t, title }] }
   var gigKey = "";
   var tracks = [];
+  // Kappaleiden numerointi alkaa tästä. Jos ensimmäisen nimi on suluissa,
+  // se on esinumero 0 ja varsinaiset alkavat 1:stä. Sulut näkyvät nimessä.
+  var base = 1;
+  function num(i) { return i + base; }
 
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
   function loadTracks(list) {
@@ -390,6 +395,7 @@
       }
       tracks.push({ start: start, title: String(tr.title || "Kappale " + (i + 1)) });
     });
+    base = tracks.length && /^\(.*\)$/.test(tracks[0].title.trim()) ? 0 : 1;
     return errors;
   }
 
@@ -509,7 +515,7 @@
         els.now.innerHTML = "";
         var idx = document.createElement("span");
         idx.className = "idx num";
-        idx.textContent = (i + 1) + ".";
+        idx.textContent = num(i) + ".";
         els.now.appendChild(idx);
         els.now.appendChild(document.createTextNode(tracks[i].title));
         updateMediaSession();
@@ -546,12 +552,13 @@
     els.list.innerHTML = "";
     tracks.forEach(function (tr, i) {
       var li = document.createElement("li");
+      if (num(i) === 0) li.className = "pre";
 
       var b = document.createElement("button");
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      b.children[0].textContent = (i + 1) + ".";
+      b.children[0].textContent = num(i) + ".";
       b.children[1].textContent = tr.title;
       b.children[2].textContent = fmt(tr.start, longTimes);
       b.addEventListener("click", function () { jumpTo(i, true); });
@@ -559,7 +566,7 @@
       var c = document.createElement("button");
       c.type = "button";
       c.className = "copy";
-      c.setAttribute("aria-label", "Kopioi linkki kappaleeseen " + (i + 1));
+      c.setAttribute("aria-label", "Kopioi linkki kappaleeseen " + num(i));
       c.title = "Kopioi linkki";
       c.innerHTML = ICON_LINK;
       c.addEventListener("click", function () { copyLink(i, c); });
@@ -577,7 +584,7 @@
   var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.6 5.4 12.5a1 1 0 1 0-1.4 1.4l4.8 4.8a1 1 0 0 0 1.4 0L20 8.9a1 1 0 0 0-1.4-1.4z"/></svg>';
 
   function linkFor(i) {
-    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" + (i + 1);
+    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" + num(i);
   }
 
   function fallbackCopy(text) {
@@ -600,7 +607,7 @@
       if (ok) {
         btn.classList.add("done");
         btn.innerHTML = ICON_CHECK;
-        els.status.textContent = "Linkki kappaleeseen " + (i + 1) + " kopioitu.";
+        els.status.textContent = "Linkki kappaleeseen " + num(i) + " kopioitu.";
         setTimeout(function () {
           btn.classList.remove("done");
           btn.innerHTML = ICON_LINK;
@@ -779,7 +786,7 @@
   function applyHash() {
     var m = HASH_RE.exec(location.hash);
     if (!m || !m[2]) return;
-    var i = +m[2] - 1;
+    var i = +m[2] - base;
     if (i >= 0 && i < tracks.length) {
       jumpTo(i, false);
       var li = els.list.children[i];
@@ -799,7 +806,7 @@
     if (!("mediaSession" in navigator) || !window.MediaMetadata || current < 0) return;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: (current + 1) + ". " + tracks[current].title,
+        title: num(current) + ". " + tracks[current].title,
         album: gig.title
       });
     } catch (e) { /* ei tuettu */ }
