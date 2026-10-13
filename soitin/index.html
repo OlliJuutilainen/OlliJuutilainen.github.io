@@ -253,6 +253,15 @@
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
   li.pre .track .tt { color: var(--muted); }
+  /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
+  ol.sets { border-top: 0; }
+  li.set {
+    display: block;
+    padding: 30px 0 6px 11px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  li.set:first-child { padding-top: 0; }
   .copy {
     flex: 0 0 44px;
     min-height: 44px;
@@ -337,9 +346,10 @@
   // Keikan tiedot (otsikko, mp3-linkki, biisilista) haetaan workerista.
   // Repossa ei ole yhtään keikkaa: tunnus kulkee osoitteen #-osassa,
   // esim. …/soitin/#k7f3qa2m tai kappaleeseen 3: …/soitin/#k7f3qa2m/3.
+  // Jos keikassa on useampi setti, toisen setin kappale 3 on …/#k7f3qa2m/2/3.
   // Tiedot tallennetaan apusivulla soitin/uusi.html.
   var API = "https://tusinasaa-worker.ollijuutilainen.workers.dev/api/gig";
-  var HASH_RE = /^#([a-z0-9]{4,32})(?:\/(\d+))?$/i;
+  var HASH_RE = /^#([a-z0-9]{4,32})(?:\/(\d+)(?:\/(\d+))?)?$/i;
 
   var $ = function (id) { return document.getElementById(id); };
   var audio = $("audio");
@@ -374,18 +384,32 @@
 
   var gig = null;      // { title, audio, tracks: [{ t, title }] }
   var gigKey = "";
-  var tracks = [];
-  // Kappaleiden numerointi alkaa tästä. Jos ensimmäisen nimi on suluissa,
-  // se on esinumero 0 ja varsinaiset alkavat 1:stä. Sulut näkyvät nimessä.
-  var base = 1;
-  function num(i) { return i + base; }
+  var tracks = [];     // [{ start, title, set, n }]
+  var sets = 1;
+  var rows = [];       // kappaleiden li-elementit, tracks-järjestyksessä
+
+  // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
+  // uuden setin ensimmäisessä kappaleessa. Numerointi alkaa joka setissä
+  // 1:stä. Jos setin ensimmäisen nimi on suluissa, se on esinumero 0.
+  function num(i) { return tracks[i].n; }
+  // Kappaleen tunniste teksteihin: "3" tai useammassa setissä "(ii) 3".
+  function ref(i) { return (sets > 1 ? "(" + roman(tracks[i].set) + ") " : "") + num(i); }
+  function roman(n) {
+    var r = "", v = [40, 10, 9, 5, 4, 1], d = ["xl", "x", "ix", "v", "iv", "i"];
+    for (var k = 0; k < v.length; k++) while (n >= v[k]) { r += d[k]; n -= v[k]; }
+    return r;
+  }
 
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
   function loadTracks(list) {
     var errors = [];
+    var newSet = false, n = 1;
     tracks = [];
+    sets = 1;
     (list || []).forEach(function (tr, i) {
       var start = parseTime(tr.t);
+      // Hylätyn kappaleen setinvaihto siirtyy seuraavalle kelvolliselle.
+      if (tr.set) newSet = true;
       if (isNaN(start)) {
         errors.push("Kappaleen " + (i + 1) + " aika “" + tr.t + "” ei ole muotoa m:ss tai h:mm:ss.");
         return;
@@ -393,9 +417,12 @@
       if (tracks.length && start <= tracks[tracks.length - 1].start) {
         errors.push("Kappaleen " + (i + 1) + " alkuaika ei ole edellistä myöhäisempi.");
       }
-      tracks.push({ start: start, title: String(tr.title || "Kappale " + (i + 1)) });
+      var title = String(tr.title || "Kappale " + (i + 1));
+      if (newSet && tracks.length) sets++;
+      if (!tracks.length || newSet) n = /^\(.*\)$/.test(title.trim()) ? 0 : 1;
+      tracks.push({ start: start, title: title, set: sets, n: n++ });
+      newSet = false;
     });
-    base = tracks.length && /^\(.*\)$/.test(tracks[0].title.trim()) ? 0 : 1;
     return errors;
   }
 
@@ -508,10 +535,10 @@
     els.seek.setAttribute("aria-valuetext", cur + " / " + (known ? fmt(len, lt) : "tuntematon"));
 
     if (i !== current) {
-      if (current >= 0 && els.list.children[current]) els.list.children[current].removeAttribute("aria-current");
+      if (current >= 0 && rows[current]) rows[current].removeAttribute("aria-current");
       current = i;
       if (i >= 0) {
-        els.list.children[i].setAttribute("aria-current", "true");
+        rows[i].setAttribute("aria-current", "true");
         els.now.innerHTML = "";
         var idx = document.createElement("span");
         idx.className = "idx num";
@@ -550,7 +577,16 @@
 
   function renderList() {
     els.list.innerHTML = "";
+    els.list.classList.toggle("sets", sets > 1);
+    rows = [];
     tracks.forEach(function (tr, i) {
+      // Setin otsikko (i), (ii) … vain jos settejä on useampi.
+      if (sets > 1 && (i === 0 || tr.set !== tracks[i - 1].set)) {
+        var h = document.createElement("li");
+        h.className = "set";
+        h.textContent = "(" + roman(tr.set) + ")";
+        els.list.appendChild(h);
+      }
       var li = document.createElement("li");
       if (num(i) === 0) li.className = "pre";
 
@@ -566,7 +602,7 @@
       var c = document.createElement("button");
       c.type = "button";
       c.className = "copy";
-      c.setAttribute("aria-label", "Kopioi linkki kappaleeseen " + num(i));
+      c.setAttribute("aria-label", "Kopioi linkki kappaleeseen " + ref(i));
       c.title = "Kopioi linkki";
       c.innerHTML = ICON_LINK;
       c.addEventListener("click", function () { copyLink(i, c); });
@@ -574,6 +610,7 @@
       li.appendChild(b);
       li.appendChild(c);
       els.list.appendChild(li);
+      rows.push(li);
     });
     current = -1;
   }
@@ -584,7 +621,8 @@
   var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.6 5.4 12.5a1 1 0 1 0-1.4 1.4l4.8 4.8a1 1 0 0 0 1.4 0L20 8.9a1 1 0 0 0-1.4-1.4z"/></svg>';
 
   function linkFor(i) {
-    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" + num(i);
+    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" +
+      (sets > 1 ? tracks[i].set + "/" : "") + num(i);
   }
 
   function fallbackCopy(text) {
@@ -607,7 +645,7 @@
       if (ok) {
         btn.classList.add("done");
         btn.innerHTML = ICON_CHECK;
-        els.status.textContent = "Linkki kappaleeseen " + num(i) + " kopioitu.";
+        els.status.textContent = "Linkki kappaleeseen " + ref(i) + " kopioitu.";
         setTimeout(function () {
           btn.classList.remove("done");
           btn.innerHTML = ICON_LINK;
@@ -786,10 +824,15 @@
   function applyHash() {
     var m = HASH_RE.exec(location.hash);
     if (!m || !m[2]) return;
-    var i = +m[2] - base;
-    if (i >= 0 && i < tracks.length) {
+    // #tunnus/3 = 1. setin kappale 3, #tunnus/2/3 = 2. setin kappale 3.
+    var set = m[3] ? +m[2] : 1, n = m[3] ? +m[3] : +m[2];
+    var i = -1;
+    for (var k = 0; k < tracks.length; k++) {
+      if (tracks[k].set === set && tracks[k].n === n) { i = k; break; }
+    }
+    if (i >= 0) {
       jumpTo(i, false);
-      var li = els.list.children[i];
+      var li = rows[i];
       if (li && li.scrollIntoView) li.scrollIntoView({ block: "nearest" });
     }
   }

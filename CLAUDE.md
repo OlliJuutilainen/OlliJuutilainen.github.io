@@ -121,7 +121,8 @@ KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 `soitin/` on työryhmän keikkasoitin. **Keikkatietoja (otsikko, mp3-linkki, biisilista) ei
 saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä avaimella
 `gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
-tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`).
+tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
+useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
