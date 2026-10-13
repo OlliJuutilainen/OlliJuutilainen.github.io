@@ -60,8 +60,8 @@
   td.n { text-align: right; width: 2.5em; }
   td.t { width: 5.5em; }
   td.tt { overflow-wrap: anywhere; }
-  tr.pre td { font-style: italic; }
-  tr.pre td.tt { color: var(--muted); }
+  /* Esinumero 0: "0. 0:00 [Intro]", koko rivi himmeä ja kursiivi. */
+  tr.pre td { font-style: italic; color: var(--muted); }
   tr.set td { color: var(--muted); font-size: 0.85rem; padding: 26px 4px 4px; }
   tr.set:first-child td { padding-top: 6px; }
   tr.set .len { margin-left: 0.8em; opacity: 0.8; font-variant-numeric: tabular-nums; }
@@ -97,8 +97,8 @@
   <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
     <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Jos ensimmäinen nimi on hakasulkeissa,
     esim. <code>[Intro]</code>, se saa numeron 0 ja numerointi alkaa vasta seuraavasta. Listan
-    ensimmäiseltä biisiltä ajan voi jättää pois tai kirjoittaa <code>0</code>. Jos ensimmäinen
-    biisi alkaa myöhemmin kuin 0:00 eikä hakasulkubiisiä ole, alkuun tulee <i>[0. INTRO]</i>.
+    ensimmäiseltä biisiltä ajan voi jättää pois tai kirjoittaa nollan (<code>0</code>, <code>0:00</code> …). Jos ensimmäinen
+    biisi alkaa myöhemmin kuin 0:00 eikä hakasulkubiisiä ole, alkuun tulee <i>0. [INTRO]</i>.
     Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä (tai 0:sta, jos setin
     ensimmäinen nimi on hakasulkeissa). Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
     rivilleen heti <code>---</code>-rivin jälkeen, esim. <code>(+)</code>, tai ensimmäiselle setille
@@ -183,11 +183,12 @@
   var RE_NAME = /^\(.+\)$/;
 
   // Hakasulkubiisin aika ennen tai jälkeen nimen: null = ei aikaa,
-  // undefined = ei kelpaa. Pelkkä 0 tarkoittaa alkua.
+  // undefined = ei kelpaa. Nolla missä muodossa tahansa (0, 00, 0:00,
+  // 0.0, 0:00:00 …) tarkoittaa alkua.
   function bracketTime(s) {
     s = s.replace(/^[\s\-–—|:()]+|[\s\-–—|:()]+$/g, "");
     if (!s) return null;
-    if (s === "0") return 0;
+    if (/^0+(?:[:.,]0+)*$/.test(s)) return 0;
     var t = parseTime(s.replace(",", "."));
     return isNaN(t) ? undefined : t;
   }
@@ -359,10 +360,8 @@
         }
       }
       var row = document.createElement("tr");
-      // Esinumerorivillä avaava hakasulku siirtyy numeron eteen: "[0. 0:00 Intro]".
-      var pre = nr === 0;
-      if (pre) row.className = "pre";
-      [["n", pre ? "[0." : nr + "."], ["t", tr.t], ["tt", pre ? tr.title.replace(/^\[/, "") : tr.title]].forEach(function (c) {
+      if (nr === 0) row.className = "pre";
+      [["n", nr + "."], ["t", tr.t], ["tt", tr.title]].forEach(function (c) {
         var td = document.createElement("td");
         td.className = c[0];
         td.textContent = c[1];
