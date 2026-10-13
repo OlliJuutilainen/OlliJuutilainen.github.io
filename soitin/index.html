@@ -169,14 +169,16 @@
   .ctl.skip svg { width: 24px; height: 24px; }
 
   /* --- Janan mittakaava --- */
+  /* Pieni, keskitetty valitsin: ei kilpaile soittimen painikkeiden kanssa. */
   .mode {
     border: 0;
-    padding: 0;
-    margin: 18px 0 26px;
-    display: flex;
+    margin: 14px auto 22px;
+    width: fit-content;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     background: var(--soft);
-    border-radius: 10px;
-    padding: 3px;
+    border-radius: 8px;
+    padding: 2px;
   }
   .mode legend {
     position: absolute;
@@ -186,14 +188,13 @@
     white-space: nowrap;
   }
   .mode label {
-    flex: 1 1 0;
-    min-height: 44px;
+    min-height: 32px;
     display: grid;
     place-items: center;
     text-align: center;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 0.95rem;
+    padding: 2px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
     color: var(--muted);
     cursor: pointer;
   }
@@ -205,8 +206,7 @@
   .mode label:has(input:checked) {
     background: var(--bg);
     color: var(--fg);
-    font-weight: 600;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   /* --- Pysähdy setin lopussa --- */
