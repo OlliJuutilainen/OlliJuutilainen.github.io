@@ -146,15 +146,11 @@
     pointer-events: none;
   }
   .seek[aria-disabled="true"] .knob { display: none; }
-  /* Aika janan alla: vasemmalla kohta, oikealla janan pituus, välissä
-     janakytkin. Jana on 44 px korkea ja viiva sen keskellä, joten rivi
-     nostetaan lähemmäs viivaa. Aika ja kytkimen teksti jakavat saman
-     sarakkeen, jotta kytkin pysyy keskellä, vaikka ajan pituus muuttuu. */
+  /* Aika janan alla: vasemmalla kohta, oikealla janan pituus. Jana on 44 px
+     korkea ja viiva sen keskellä, joten rivi nostetaan lähemmäs viivaa. */
   .times {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    column-gap: 10px;
+    display: flex;
+    justify-content: space-between;
     margin-top: -10px;
     color: var(--muted);
     font-size: 0.9rem;
@@ -186,32 +182,31 @@
   .ctl.skip svg { width: 24px; height: 24px; }
 
   /* --- Kytkimet: janan mittakaava ja pysähdys setin lopussa --- */
+  /* Kytkimet ovat nappien alla rinnakkain: vasemmalla janakytkin, oikealla
+     setin kytkin. Yhden setin keikassa janakytkin on yksin keskellä. */
+  .opts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    margin-top: 14px;
+  }
+  .opts:has(#setopt[hidden]) #scaleopt { grid-column: 1 / -1; }
+  #list { margin-top: 22px; }
   /* Kytkin keskellä, vaihtoehdot sen molemmin puolin ilman kehystä.
      Sarakkeet 1fr auto 1fr pitävät kytkimen keskellä tekstien pituudesta
-     riippumatta. */
+     riippumatta. Toisella rivillä kytkimen alla on sen symboli. */
   .sw {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 10px;
+    column-gap: 10px;
     min-height: 28px;
     color: var(--muted);
     font-size: 0.64rem;
     font-style: italic;
   }
-  /* Janakytkin on aikarivillä alkukohdan ja keston välissä: se vaihtaa
-     juuri näiden lukujen mittakaavan. display: contents päästää sen osat
-     aikarivin sarakkeisiin. Setin kytkin on nappien alla. */
-  #scaleopt { display: contents; }
-  .times > *, #scaleopt > * { grid-row: 1; }
-  #cur, #scaleopt .side[data-on="0"] { grid-column: 1; }
-  #songscale { grid-column: 2; }
-  #dur, #scaleopt .side[data-on="1"] { grid-column: 3; }
-  #cur { justify-self: start; }
-  #dur { justify-self: end; }
-  #setopt { margin-top: 14px; }
-  #list { margin-top: 22px; }
   .sw .side {
+    position: relative;
     min-height: 28px;
     display: flex;
     align-items: center;
@@ -233,9 +228,9 @@
     height: 14px;
     margin: 0;
     border-radius: 7px;
-    background: var(--line);
+    background: none;
+    box-shadow: inset 0 0 0 1px var(--muted);
     cursor: pointer;
-    transition: background 0.15s;
   }
   /* Kytkin on tekstiä matalampi; ::before laajentaa kosketusalueen
      koko rivin korkuiseksi (28 px). */
@@ -252,20 +247,32 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--bg);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: var(--muted);
     transition: transform 0.15s;
   }
   .sw input:checked::after { transform: translateX(10px); }
-  /* Kytkimen pohja on samanvärinen kummassakin asennossa; valinnan kertovat
-     nupin paikka ja tekstien himmennys. */
+  /* Kytkin on ääriviiva ja tumma nuppi, samanlainen kummassakin
+     asennossa; valinnan kertovat nupin paikka ja tekstien himmennys. */
   .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* Setin kytkimen alla on stop-merkki, ja kummankin puolen tekstistä
-     kaartuu siihen nuoli: "soita keikka / setti loppuun". Nuoli on tekstin
-     sisällä, joten se himmenee tekstin mukana. */
-  #setopt { row-gap: 0; }
-  #setopt .side { position: relative; }
+  /* Janakytkimen alla on pienoisjana. */
+  .minijana {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 48px;
+    height: 6px;
+    margin-top: -1px;
+    fill: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .minijana .bg { stroke: var(--dim); }
+  .minijana .fg { stroke: currentColor; }
+
+  /* Setin kytkimen alla on stop-merkki, johon setti-tekstistä kaartuu
+     nuoli. Nuoli on tekstin sisällä, joten se himmenee tekstin mukana;
+     merkki himmenee samalla, kun soitetaan keikan loppuun. */
   .stopmark {
     grid-row: 2;
     grid-column: 2;
@@ -275,11 +282,13 @@
     margin-top: 1px;
     border-radius: 1px;
     background: currentColor;
+    transition: color 0.15s;
   }
+  #setopt:has(input:not(:checked)) .stopmark { color: var(--dim); }
   .arr {
     position: absolute;
     top: 20px;
-    right: -16px;
+    left: -16px;
     width: 23px;
     height: 16px;
     fill: none;
@@ -288,8 +297,8 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     pointer-events: none;
+    transform: scaleX(-1);
   }
-  .side[data-on="1"] .arr { right: auto; left: -16px; transform: scaleX(-1); }
 
   /* --- Kappalelista --- */
   ol {
@@ -396,16 +405,7 @@
       <div id="ticks"></div>
       <div class="knob" id="knob"></div>
     </div>
-    <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
-    <div class="times">
-      <span class="num" id="cur">0:00</span>
-      <div class="sw" id="scaleopt">
-        <span class="side" data-on="0">keikka</span>
-        <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
-        <span class="side" data-on="1">biisi</span>
-      </div>
-      <span class="num" id="dur">–:––</span>
-    </div>
+      <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
     <div class="ctls">
       <button class="ctl" id="prev" type="button" aria-label="Edellinen kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
@@ -426,11 +426,20 @@
     </div>
   </section>
 
-  <div class="sw" id="setopt" hidden>
-    <span class="side" data-on="0">keikka<svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg></span>
-    <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
-    <span class="side" data-on="1"><svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg>setti</span>
-    <span class="stopmark" aria-hidden="true"></span>
+  <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
+  <div class="opts">
+    <div class="sw" id="scaleopt">
+      <span class="side" data-on="0">keikka</span>
+      <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
+      <span class="side" data-on="1">biisi</span>
+      <svg class="minijana" viewBox="0 0 48 6" aria-hidden="true"><path class="bg" d="M1 3h46"/><path class="fg" d="M1 3h15"/><circle cx="16" cy="3" r="3"/></svg>
+    </div>
+    <div class="sw" id="setopt" hidden>
+      <span class="side" data-on="0">keikka</span>
+      <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
+      <span class="side" data-on="1"><svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg>setti</span>
+      <span class="stopmark" aria-hidden="true"></span>
+    </div>
   </div>
 
   <ol id="list" aria-label="Kappaleet"></ol>
