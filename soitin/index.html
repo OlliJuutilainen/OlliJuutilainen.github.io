@@ -277,14 +277,19 @@
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
+  /* Setin kesto samaan sarakkeeseen kuin kappaleiden alkuajat: oikea
+     reuna 4 px (.track) + 44 px (.copy) rivin reunasta. */
   li.set {
-    display: block;
-    padding: 30px 0 6px 11px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 30px 48px 6px 11px;
     color: var(--muted);
     font-size: 0.9rem;
     font-style: italic;
   }
-  li.set .len { margin-left: 0.8em; opacity: 0.8; }
+  li.set .name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  li.set .len { flex: 0 0 auto; opacity: 0.8; }
   li.set:first-child { padding-top: 0; }
   .copy {
     flex: 0 0 44px;
@@ -421,6 +426,7 @@
   var showSets = false;
   var rows = [];       // kappaleiden li-elementit, tracks-järjestyksessä
   var setLens = [];    // setin otsikkorivin kestokentät
+  var heads = [];      // setin otsikkorivit: { li, first: ensimmäisen kappaleen indeksi }
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
   // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
@@ -651,11 +657,25 @@
     });
   }
 
+  // Setin otsikko alkaa samasta kohdasta kuin setin ensimmäinen numero
+  // ("0." tai "1."). Numerot on tasattu oikealle, joten kohta riippuu
+  // fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen reuna.
+  function alignSetNames() {
+    heads.forEach(function (h) {
+      var r = document.createRange();
+      r.selectNodeContents(rows[h.first].querySelector(".n"));
+      var x = r.getBoundingClientRect().left - h.li.getBoundingClientRect().left;
+      if (x > 0) h.li.style.paddingLeft = x + "px";
+    });
+  }
+  if (document.fonts) document.fonts.ready.then(function () { if (heads.length) alignSetNames(); });
+
   function renderList() {
     els.list.innerHTML = "";
     els.list.classList.toggle("sets", showSets);
     rows = [];
     setLens = [];
+    heads = [];
     tracks.forEach(function (tr, i) {
       // Setin otsikko vain, jos settejä on useampi tai setti on nimetty.
       if (showSets && i === setInfo[tr.set].first) {
@@ -664,6 +684,7 @@
         h.innerHTML = '<span class="name"></span><span class="len num"></span>';
         h.children[0].textContent = setName(tr.set);
         setLens[tr.set] = h.children[1];
+        heads.push({ li: h, first: i });
         els.list.appendChild(h);
       }
       var li = document.createElement("li");
@@ -692,6 +713,7 @@
       rows.push(li);
     });
     current = -1;
+    alignSetNames();
     renderSetLens();
     els.setopt.hidden = sets < 2;
   }
