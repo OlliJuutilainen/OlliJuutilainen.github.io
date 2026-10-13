@@ -431,8 +431,7 @@
     return m + ":" + ss;
   }
 
-  // Listan kestosarake: "mm:ss", tai koko sarakkeessa "hh:mm:ss", jos
-  // jokin kesto on vähintään tunnin.
+  // Listan kestosarake: "mm:ss" tai "hh:mm:ss" (ryhmät: ks. renderLens).
   function fmtLen(t, long) {
     var h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, s = t % 60;
     var p = function (x) { return (x < 10 ? "0" : "") + x; };
@@ -752,17 +751,23 @@
     var len = Math.floor(b) - Math.floor(a);
     return isFinite(len) && len > 0 ? len : NaN;
   }
+  // Tunnit näytetään ryhmittäin: setin kaikissa biiseissä, jos jokin sen
+  // biiseistä on vähintään tunnin, ja kaikissa settien kestoissa, jos jokin
+  // seteistä on. Pitkä setti ei siis yksin tuo tunteja biisien kestoihin.
   function renderLens() {
-    var cells = [], long = false;
+    var groups = { sets: [] };
     tracks.forEach(function (tr, i) {
-      cells.push([trackLens[i], lenOf(tr.start, trackEnd(i))]);
+      (groups[tr.set] = groups[tr.set] || []).push([trackLens[i], lenOf(tr.start, trackEnd(i))]);
     });
     for (var k = 1; k <= sets; k++) {
-      if (setLens[k]) cells.push([setLens[k], lenOf(setStart(k), setEnd(k))]);
+      if (setLens[k]) groups.sets.push([setLens[k], lenOf(setStart(k), setEnd(k))]);
     }
-    cells.forEach(function (c) { if (c[1] >= 3600) long = true; });
-    cells.forEach(function (c) {
-      if (c[0]) c[0].textContent = isFinite(c[1]) ? fmtLen(c[1], long) : "";
+    Object.keys(groups).forEach(function (g) {
+      var cells = groups[g];
+      var long = cells.some(function (c) { return c[1] >= 3600; });
+      cells.forEach(function (c) {
+        if (c[0]) c[0].textContent = isFinite(c[1]) ? fmtLen(c[1], long) : "";
+      });
     });
   }
 
