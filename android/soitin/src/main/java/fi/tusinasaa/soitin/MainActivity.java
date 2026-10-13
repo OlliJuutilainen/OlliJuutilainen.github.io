@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ((PlaybackService.LocalBinder) binder).getService();
+            service.setControls(MainActivity.this::onMediaButton);
             service.update(playing, title, track);
         }
 
@@ -166,6 +167,14 @@ public class MainActivity extends AppCompatActivity {
         webView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
     }
 
+    /** Kuulokkeiden tai muun laitteen mediapainike. Toimii vain soittimen omalla sivulla. */
+    private void onMediaButton(String action) {
+        if (webView != null && isPlayerUrl(webView.getUrl())) {
+            webView.evaluateJavascript("window.__soitinNappi && window.__soitinNappi('"
+                    + action + "')", null);
+        }
+    }
+
     private void onPlayerState(boolean playing, @Nullable String title, @Nullable String track) {
         this.playing = playing;
         this.title = title != null ? title : "";
@@ -217,6 +226,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (service != null) {
+            service.setControls(null);
+        }
         if (bound) {
             unbindService(connection);
             bound = false;

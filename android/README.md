@@ -107,6 +107,11 @@ Toiminta:
   joten verkkoversiossa niitä ei ole.
 - `src/main/assets/silta.js` syötetään sivulle, kun se on latautunut. Se kertoo sovellukselle,
   soiko ääni ja mikä kappale on menossa. `soitin/index.html` ei itse tiedä sovelluksesta mitään.
+- Kuulokkeiden ja muiden laitteiden mediapainikkeet ohjaavat soitinta: play/pause, seuraava
+  (myös tuplapainallus), edellinen sekä pikakelaus eteen/taakse = ±15 s, jos laite lähettää
+  sellaisen. Painallus painaa sivun omaa nappia `silta.js`:n `__soitinNappi`-funktion kautta,
+  joten setin rajat pätevät kuten kosketuksella. Painikkeet toimivat ensimmäisestä soitosta
+  sovelluksen sulkemiseen asti, myös tauolla.
 - Jos sivu ei lataudu (esim. ei verkkoa), näkyy virheilmoitus ja "Yritä uudelleen" -painike.
 - Android 13:ssa ja uudemmissa soittoilmoitus näkyy vain, jos ilmoituslupa on myönnetty.
   Sovellus ei kysy sitä, mutta soitto toimii ilmankin. Halutessasi:

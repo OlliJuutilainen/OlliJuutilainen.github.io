@@ -80,6 +80,21 @@
   }
   addAppButtons();
 
+  // Kuulokkeiden ja muiden mediapainikkeiden komennot. Sovellus kutsuu tätä, ja komento
+  // painaa sivun omaa nappia, jolloin setin rajat ja muut säännöt pätevät kuten
+  // kosketuksella. Pois käytöstä oleva nappi ei reagoi click()-kutsuun.
+  var BUTTONS = { next: "next", previous: "prev", forward: "fwd", rewind: "back" };
+  window.__soitinNappi = function (action) {
+    var a = document.querySelector("audio");
+    if (action === "pause") {
+      if (a && !a.paused) a.pause();
+      return;
+    }
+    var id = action === "play" ? (a && a.paused ? "play" : null) : BUTTONS[action];
+    var b = id && document.getElementById(id);
+    if (b) b.click();
+  };
+
   // Mediatapahtumat eivät kupli, mutta kaappausvaihe documentissa näkee ne.
   ["play", "pause", "ended", "emptied", "error"].forEach(function (t) {
     document.addEventListener(t, function () { report(); }, true);
