@@ -1,12 +1,13 @@
 # Keikkasoitin omalla Cloudflare-tilillä
 
 Tällä ohjeella saat Ollin keikkasoittimen omaan käyttöösi niin, että **keikkasi ovat sinun
-Cloudflare-tililläsi ja äänitiedostot sinun Dropboxissasi**. Ollin sivu toimii vain
+Cloudflare-tililläsi ja äänitiedostot sinun Dropboxissasi tai Google Drivessasi**. Ollin sivu toimii vain
 näyttämönä: se soittaa keikan, jonka linkki osoittaa sinun tiliisi. Olli ei näe keikkojasi,
 ellet anna hänelle linkkiä, eikä hänen tilinsä osallistu mihinkään.
 
 Käyttöönotto vie noin puoli tuntia ja tehdään kerran. Sen jälkeen uusi keikka on viiden
-minuutin homma: mp3 Dropboxiin, biisilista lomakkeeseen, yksi komento Terminaliin.
+minuutin homma: äänitiedosto Dropboxiin tai Driveen, biisilista lomakkeeseen, yksi komento
+Terminaliin.
 
 ## Mitä tarvitset
 
@@ -15,12 +16,13 @@ minuutin homma: mp3 Dropboxiin, biisilista lomakkeeseen, yksi komento Terminalii
   muuta asennettavaa ei tarvita.
 - Ilmaisen Cloudflare-tilin. Ilmaistason rajat (100 000 hakua ja 1 000 tallennusta päivässä)
   ovat moninkertaiset tähän tarpeeseen.
-- Dropboxin äänitiedostoille.
+- Dropboxin tai Google Driven äänitiedostoille. Dropbox on kokeiltu soittimen kanssa; Drive
+  ei vielä (ks. *Äänitiedosto Drivessa* alla).
 
 ## Miten osat liittyvät toisiinsa
 
 ```
-Dropbox (mp3)  ←──────── soitin-sivu soittaa äänen suoraan Dropboxista
+Dropbox / Drive (ääni) ←── soitin-sivu soittaa äänen suoraan Dropboxista tai Drivesta
                               ↑
 Cloudflare-worker  ──→  soitin-sivu hakee otsikon ja biisilistan workeristasi
      ↑
@@ -145,17 +147,58 @@ Valmista. Tee seuraavaksi testikeikka alla olevalla ohjeella.
 
 ## Uusi keikka
 
-1. **Äänitiedosto Dropboxiin.** Jaa → *Kopioi linkki* (asetus: kuka tahansa linkin saanut
-   voi katsoa).
+1. **Äänitiedosto Dropboxiin tai Driveen.** Tiedostomuodoista ks. *Äänitiedoston muoto* alla.
+   - Dropbox: Jaa → *Kopioi linkki* (asetus: kuka tahansa linkin saanut voi katsoa).
+   - Drive: Jaa → *Yleinen käyttöoikeus: Kaikki, joilla on linkki* → *Kopioi linkki*.
+     Muuta linkki ennen seuraavaa vaihetta, ks. *Äänitiedosto Drivessa* alla.
 2. **Avaa kirjanmerkki** ja varmista, että yläreunassa lukee *Omat asetukset*. Ilman sitä
    sivu tekee Ollin komennon, joka ei toimi sinun Macillasi.
-3. **Täytä otsikko, Dropbox-linkki ja biisilista.** Sivun ohje kertoo biisilistan muodot,
-   setit ja intron. Sivu muuttaa Dropbox-linkin suoraksi tiedostolinkiksi itse. Tarkista
-   esikatselu.
+3. **Täytä otsikko, äänitiedoston linkki ja biisilista.** Kentän otsikossa lukee
+   *Dropbox*, mutta Driven muutettu linkki kelpaa samaan kenttään. Sivu muuttaa
+   Dropbox-linkin suoraksi tiedostolinkiksi itse; Driven linkkiä se ei muuta. Sivun ohje
+   kertoo biisilistan muodot, setit ja intron. Tarkista esikatselu.
 4. **Kopioi komento → liitä Terminaliin → Enter.** Ensimmäinen vastausrivi sisältää
    `"success":true`, ja sen alla tulostuvat tallennetut keikan tiedot.
 5. **Kopioi linkki ja avaa se itse ensin.** Linkki on muotoa
    `https://ollijuutilainen.github.io/soitin/#<tunnus>@soitin.<jotain>`.
+
+### Äänitiedoston muoto
+
+Soitin käyttää selaimen omaa äänitoistoa, joten muoto ratkaisee, soiko tiedosto kuulijan
+laitteessa.
+
+- **AAC** (`.m4a`) on toiminut Ollin rajallisissa kokeiluissa parhaiten. Suosi sitä.
+- **MP3** soi kaikissa yleisissä selaimissa, myös iPhonen Safarissa.
+- **WAV** soi yleensä, mutta keikan mittainen tiedosto on satoja megatavuja ja latautuu
+  hitaasti puhelimeen.
+- **FLAC, Ogg ja Opus**: tuki vaihtelee selaimen ja iPhonen version mukaan. Älä käytä niitä
+  jaettavassa keikassa.
+
+Keikka on aina yksi äänitiedosto; biisilista merkitsee siihen kappaleiden alkukohdat.
+
+### Äänitiedosto Drivessa
+
+Driven jakolinkki avaa esikatselusivun eikä itse tiedostoa, joten soitin ei voi soittaa sitä
+sellaisenaan. Linkki on muotoa
+
+```
+https://drive.google.com/file/d/<TIEDOSTON-ID>/view?usp=sharing
+```
+
+Kopioi siitä `/d/`:n ja seuraavan `/`:n välinen osa ja kirjoita apusivulle tällainen linkki:
+
+```
+https://drive.usercontent.google.com/download?id=<TIEDOSTON-ID>&export=download&confirm=t
+```
+
+`confirm=t` ohittaa varoitussivun, jonka Drive näyttää isoista tiedostoista (se ei pysty
+tarkistamaan niitä viruksilta).
+
+**Tätä ei ole kokeiltu soittimen kanssa.** Testaa ennen ensimmäistä oikeaa jakoa: soiko ääni,
+näkyykö kesto ja toimiiko kelaus keskelle. Kokeile myös iPhonen Safarissa. Jos jokin ei toimi,
+kerro Ollille, mikä kohta petti ja mitä soitin näytti.
+
+### Heti tallennuksen jälkeen
 
 Jos linkki näyttää heti tallennuksen jälkeen *Keikkaa ei löytynyt*, odota minuutti ja lataa
 uudelleen. Cloudflare jakaa tallennuksen maailmalle viiveellä.
@@ -164,7 +207,7 @@ uudelleen. Cloudflare jakaa tallennuksen maailmalle viiveellä.
 uusi komento ja aja se. Linkki pysyy samana.
 
 **Poisto:** Cloudflaressa **Workers KV → soitin**, avain `gig:<tunnus>` → poista. Jos haluat
-vain lopettaa kuuntelun, voit myös poistaa Dropboxin jakolinkin.
+vain lopettaa kuuntelun, voit myös poistaa jakolinkin Dropboxista tai Drivesta.
 
 **Kappaleen linkki:** soittimen biisilistan linkkinapit kopioivat linkin suoraan kappaleeseen
 (`…#<tunnus>@soitin.<jotain>/3`). Ne toimivat sellaisenaan.
@@ -181,7 +224,7 @@ vain lopettaa kuuntelun, voit myös poistaa Dropboxin jakolinkin.
 | Soitin: *Keikan tietoja ei saatu palvelimelta* (virhe 500) | Workerin kytkentä tietokantaan puuttuu. Kohta 4 ja sen tarkistus. |
 | Soitin: *Keikan tietojen haku epäonnistui* | Linkin `@`-osa on väärin tai verkko ei toimi. Vertaa kohdan 3 osoitteeseen. |
 | Soitin: *Keikkaa ei löytynyt* | Odota minuutti. Jos ei auta: tunnus väärin tai komento jäi ajamatta. |
-| Soitin: *Äänitiedoston lataaminen epäonnistui* | Dropbox-linkki on poistettu tai väärä. Tee jakolinkki uudelleen ja korjaa keikka. |
+| Soitin: *Äänitiedoston lataaminen epäonnistui* | Jakolinkki on poistettu tai väärä. Tee se uudelleen ja korjaa keikka. Drivessa tarkista myös, että linkki on muutettu (ks. *Äänitiedosto Drivessa*). |
 
 Tallennuskomentoa ei ole vielä ajettu oikealla Cloudflare-tilillä; sinun testikeikkasi on
 ensimmäinen. Jos tallennus antaa virheen, jota taulukossa ei ole, välitä Ollille Terminalin
@@ -228,5 +271,6 @@ Jos haluat tehdä käyttöönoton yhdessä Clauden kanssa, aloita uusi keskustel
 > - Jos jokin vaihe tuntuu turhan raskaalta, saat ehdottaa kevyempää tapaa, mutta kerro
 >   ensin mitä se maksaa ja mitä siinä menetetään.
 >
-> Koneeni on Mac (macOS-versio: ____). Puhelimeni on iPhone. Kun käyttöönotto on valmis,
+> Koneeni on Mac (macOS-versio: ____). Puhelimeni on iPhone. Äänitiedostot ovat
+> (Dropboxissa / Google Drivessa): ____. Kun käyttöönotto on valmis,
 > tehdään yhdessä testikeikka ja käydään läpi ohjeen iPhone-kohdan tarkistukset.
