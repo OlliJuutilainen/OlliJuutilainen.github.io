@@ -126,6 +126,15 @@ useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
+Keikka voi olla myös **Dropbox-kansio** (`{ title, folder }` KV:ssä audio-linkin ja biisilistan
+sijaan). Worker lukee kansion Dropboxin rajapinnasta joka haulla ja palauttaa `files`-listan
+tilapäisine linkkeineen (voimassa 4 h). Tiedostot ovat kappaleita nimen mukaisessa järjestyksessä,
+ja alikansiot ovat settejä. Workeri tarvitsee salaisuudet `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET`
+ja `DROPBOX_REFRESH_TOKEN` (ohje: KAVERIVERSIO.md, *Dropbox-kansio*). `/api/dropbox` kertoo,
+toimivatko ne. Soitin vaihtaa tiedoston vähän ennen edellisen loppua eikä vasta `ended`-tapahtumassa,
+koska lopun `pause`-tapahtuma saisi Android-kääreen (`silta.js`) laskemaan sovelluksen pois
+etualalta. Älä siirrä vaihtoa `ended`-tapahtumaan.
+
 Soittimen **kaveriversio** (`soitin/KAVERIVERSIO.md`): toinen käyttäjä pitää keikat omalla
 Cloudflare-tilillään. Linkki `soitin/#tunnus@soitin.kaveri` hakee keikan osoitteesta
 `https://soitin.kaveri.workers.dev` (rajattu `*.workers.dev`-osoitteisiin), ja
