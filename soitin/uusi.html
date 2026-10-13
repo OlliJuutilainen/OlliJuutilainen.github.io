@@ -93,6 +93,11 @@
   <label for="title">Otsikko</label>
   <input id="title" type="text" placeholder="Keikan nimi – paikka, pvm">
 
+  <label for="sub">Päivämäärä tai muuta lisätietoa</label>
+  <input id="sub" type="text" placeholder="esim. 13.10.2026">
+  <p class="muted" style="margin-top:6px">Vapaaehtoinen. Näkyy soittimessa otsikon alla harmaana kursiivina,
+    mutta ei linkin esikatselussa. Tyhjänä riviä ei ole lainkaan.</p>
+
   <div id="singleBox">
   <label for="audio">Äänitiedoston linkki (Dropbox)</label>
   <input id="audio" type="url" placeholder="https://www.dropbox.com/…" autocapitalize="off" spellcheck="false">
@@ -198,7 +203,7 @@
     $("profile").hidden = false;
   }
   window.addEventListener("hashchange", function () { location.reload(); });
-  var f = { key: $("key"), title: $("title"), audio: $("audio"), tracks: $("tracks"),
+  var f = { key: $("key"), title: $("title"), sub: $("sub"), audio: $("audio"), tracks: $("tracks"),
             folder: $("folder") };
   // Lisäominaisuus: kansiokeikka. Oletuksena pois; sivun lopun linkki avaa.
   // fetchedFolder: Hae-napilla luettu kansion sisältö { url, tracks } esikatselua varten.
@@ -415,6 +420,8 @@
     if (!KEY_RE.test(key)) problems.push("Tunnuksessa saa olla vain pieniä kirjaimia a–z ja numeroita, 4–32 merkkiä.");
     var title = f.title.value.replace(/[\r\n]+/g, " ").trim();
     if (!title) problems.push("Otsikko puuttuu.");
+    var sub = f.sub.value.replace(/[\r\n]+/g, " ").trim();
+    if (sub.length > 200) problems.push("Lisätieto on liian pitkä (enintään 200 merkkiä).");
     var isFolder = folderMode;
     $("singleBox").hidden = $("tracksBox").hidden = $("folderOffer").hidden = isFolder;
     $("folderBox").hidden = !isFolder;
@@ -491,15 +498,17 @@
 
     if (problems.length) { $("result").hidden = true; return; }
 
-    var value = JSON.stringify(isFolder ? { v: 1, title: title, folder: folder.url } : {
-      v: 1, title: title, audio: audio.url,
+    var head = { v: 1, title: title };
+    if (sub) head.sub = sub;
+    var value = JSON.stringify(Object.assign(head, isFolder ? { folder: folder.url } : {
+      audio: audio.url,
       tracks: list.tracks.map(function (tr) {
         var o = { t: tr.t, title: tr.title };
         if (tr.set) o.set = true;
         if (tr.name) o.name = tr.name;
         return o;
       })
-    });
+    }));
     // Ei #-kommenttiriviä: macOS:n zsh ei tulkitse sitä kommentiksi oletuksena.
     // Kaveriversiossa curl ja Cloudflaren REST-rajapinta, koska curl on valmiina
     // jokaisessa Macissa eikä Node.js:ää tarvita. API-avain avainnippuun: KAVERIVERSIO.md.
@@ -549,6 +558,7 @@
       })
       .then(function (d) {
         f.title.value = d.title || "";
+        f.sub.value = typeof d.sub === "string" ? d.sub : "";
         if (typeof d.folder === "string") {
           folderMode = true;
           f.folder.value = d.folder;
@@ -593,7 +603,7 @@
   }
 
   f.key.value = randomKey();
-  ["key", "title", "audio", "tracks", "folder"].forEach(function (k) { f[k].addEventListener("input", update); });
+  ["key", "title", "sub", "audio", "tracks", "folder"].forEach(function (k) { f[k].addEventListener("input", update); });
   $("toFolder").addEventListener("click", function () {
     folderMode = true;
     update();

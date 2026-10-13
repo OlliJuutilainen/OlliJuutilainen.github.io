@@ -123,7 +123,8 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 `gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
-`soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
+Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
+harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio

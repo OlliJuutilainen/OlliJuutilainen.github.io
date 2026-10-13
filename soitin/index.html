@@ -55,6 +55,15 @@
     text-align: left;
     overflow-wrap: anywhere;
   }
+  /* Valinnainen lisätieto otsikon alla (päivämäärä tms.). Ilman sitä riviä ei ole. */
+  h1:has(+ .sub:not([hidden])) { margin-bottom: 4px; }
+  .sub {
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-style: italic;
+    overflow-wrap: anywhere;
+  }
   button {
     font: inherit;
     color: inherit;
@@ -342,6 +351,7 @@
 <body>
 <main>
   <h1 id="title">Soitin</h1>
+  <p class="sub" id="sub" hidden></p>
   <p class="loading" id="loading">Ladataan keikan tietoja…</p>
 
   <div class="error" id="error" role="alert" hidden></div>
@@ -1178,6 +1188,9 @@
     gig = data;
     document.title = gig.title;
     els.title.textContent = gig.title;
+    // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun.
+    $("sub").textContent = gig.sub;
+    $("sub").hidden = !gig.sub;
     $("loading").hidden = true;
     $("app").hidden = false;
 
@@ -1357,20 +1370,21 @@
       })
       .then(function (data) {
         var title = String((data && data.title) || "Keikka");
+        var sub = data && typeof data.sub === "string" ? data.sub.trim() : "";
         if (data && Array.isArray(data.files)) {
           els.title.textContent = title;
           return prepareFiles(data).then(function (r) {
             if (!r.files.length) throw { user: "Kansion tiedostoja ei saatu ladattua.",
               detail: "Tarkista verkkoyhteys ja lataa sivu uudelleen." };
             files = r.files;
-            start({ title: title, files: files });
+            start({ title: title, sub: sub, files: files });
             if (r.lost.length) showError("Kaikkia kappaleita ei saatu ladattua; ne ohitetaan.", r.lost.join(", "));
           });
         }
         if (!data || typeof data.audio !== "string" || !Array.isArray(data.tracks)) {
           throw { user: "Keikan tiedot ovat virheelliset." };
         }
-        start({ title: title, audio: data.audio, tracks: data.tracks });
+        start({ title: title, sub: sub, audio: data.audio, tracks: data.tracks });
       })
       .catch(function (e) {
         if (e && e.user) fail(e.user, e.detail);
