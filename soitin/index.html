@@ -555,9 +555,9 @@
     var tr = tracks[i];
     return tr.untitled ? (showSets ? setName(tr.set) + " – " : "") + num(i) + "." : tr.title;
   }
-  // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
-  // "(ii) 3. Otsikko"). Setti ja numero himmeinä, setin nimi kursiivilla;
-  // otsikottomalla biisillä numero on itse otsikko eikä himmene. Sitovat
+  // Nyt soi -kenttä: numero ja otsikko ("3: Otsikko" tai setteihin jaetussa
+  // "(ii) 3: Otsikko"). Setti ja numero himmeinä, setin nimi kursiivilla;
+  // otsikottomalla biisillä numero ("3.") on itse otsikko eikä himmene. Sitovat
   // välilyönnit pitävät setin, numeron ja otsikon alun kiinni toisissaan.
   function renderNow(i) {
     var tr = tracks[i];
@@ -569,13 +569,12 @@
       nr.appendChild(em);
       nr.appendChild(document.createTextNode("\u00a0"));
     }
-    var n = document.createTextNode(num(i) + ".");
     els.now.textContent = "";
     els.now.appendChild(nr);
     if (tr.untitled) {
-      els.now.appendChild(n);
+      els.now.appendChild(document.createTextNode(num(i) + "."));
     } else {
-      nr.appendChild(n);
+      nr.appendChild(document.createTextNode(num(i) + ":"));
       els.now.appendChild(document.createTextNode("\u00a0" + tr.title));
     }
   }
