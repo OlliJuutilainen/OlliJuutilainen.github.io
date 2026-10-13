@@ -50,6 +50,7 @@
     font-weight: 650;
     letter-spacing: -0.01em;
     margin: 0 0 22px;
+    text-align: center;
     overflow-wrap: anywhere;
   }
   button {
@@ -60,7 +61,7 @@
     padding: 0;
     cursor: pointer;
   }
-  button:focus-visible, .seek:focus-visible, .mode label:focus-within {
+  button:focus-visible, .seek:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -84,6 +85,7 @@
     font-weight: 600;
     min-height: 1.45em;
     margin: 0 0 4px;
+    text-align: center;
     overflow-wrap: anywhere;
   }
   .seek {
@@ -168,65 +170,35 @@
   .ctl.play svg { width: 26px; height: 26px; }
   .ctl.skip svg { width: 24px; height: 24px; }
 
-  /* --- Janan mittakaava --- */
-  /* Pieni, keskitetty valitsin: ei kilpaile soittimen painikkeiden kanssa. */
-  .mode {
-    border: 0;
-    margin: 14px auto 22px;
-    width: fit-content;
+  /* --- Kytkimet: janan mittakaava ja pysähdys setin lopussa --- */
+  /* Kytkin keskellä, vaihtoehdot sen molemmin puolin ilman kehystä.
+     Sarakkeet 1fr auto 1fr pitävät kytkimen keskellä tekstien pituudesta
+     riippumatta. */
+  .sw {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: var(--soft);
-    border-radius: 8px;
-    padding: 2px;
-  }
-  .mode legend {
-    position: absolute;
-    width: 1px; height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  .mode label {
-    min-height: 32px;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    padding: 2px 14px;
-    border-radius: 6px;
-    font-size: 0.8rem;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    margin: 0 0 22px;
     color: var(--muted);
-    cursor: pointer;
+    font-size: 0.85rem;
+    font-style: italic;
   }
-  .mode input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .mode label:has(input:checked) {
-    background: var(--bg);
-    color: var(--fg);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  /* --- Pysähdy setin lopussa --- */
-  .mode:has(+ .opt:not([hidden])) { margin-bottom: 8px; }
-  .opt {
+  #scaleopt { margin-top: 14px; }
+  .sw:has(+ .sw:not([hidden])) { margin-bottom: 0; }
+  .sw .side {
+    min-height: 40px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-height: 44px;
-    margin: 0 0 22px;
-    padding: 0 3px 0 11px;
-    color: var(--muted);
-    font-size: 0.95rem;
     cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
   }
-  .opt input {
+  .sw .side:first-child { justify-content: flex-end; }
+  .sw input {
     appearance: none;
     -webkit-appearance: none;
-    flex: 0 0 auto;
     position: relative;
     width: 40px;
     height: 24px;
@@ -236,7 +208,7 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .opt input::after {
+  .sw input::after {
     content: "";
     position: absolute;
     top: 3px;
@@ -248,10 +220,12 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     transition: transform 0.15s;
   }
-  .opt input:checked { background: var(--accent); }
-  .opt input:checked::after { transform: translateX(16px); }
-  .opt:has(input:checked) { color: var(--fg); }
-  .opt input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sw input:checked::after { transform: translateX(16px); }
+  /* Janan mittakaavassa kumpikaan puoli ei ole "päällä", joten väri pysyy.
+     Setin lopussa pysähtyminen on päällä, ja sen kohta näkyy janalla
+     samalla värillä (.tick.stop). */
+  #setonly:checked { background: var(--accent); }
+  .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* --- Kappalelista --- */
   ol {
@@ -308,6 +282,7 @@
     padding: 30px 0 6px 11px;
     color: var(--muted);
     font-size: 0.9rem;
+    font-style: italic;
   }
   li.set .len { margin-left: 0.8em; opacity: 0.8; }
   li.set:first-child { padding-top: 0; }
@@ -372,16 +347,18 @@
     </div>
   </section>
 
-  <fieldset class="mode">
-    <legend>Janan mittakaava</legend>
-    <label><input type="radio" name="scale" value="gig" checked> Keikkajana</label>
-    <label><input type="radio" name="scale" value="song"> Biisijana</label>
-  </fieldset>
+  <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
+  <div class="sw" id="scaleopt">
+    <span class="side" data-on="0">keikkajana</span>
+    <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
+    <span class="side" data-on="1">biisijana</span>
+  </div>
 
-  <label class="opt" id="setopt" hidden>
-    <span>Pysähdy setin lopussa</span>
-    <input type="checkbox" role="switch" id="setonly">
-  </label>
+  <div class="sw" id="setopt" hidden>
+    <span class="side" data-on="0">koko lista</span>
+    <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
+    <span class="side" data-on="1">setin loppuun</span>
+  </div>
 
   <ol id="list" aria-label="Kappaleet"></ol>
   <p class="sr" id="status" aria-live="polite"></p>
@@ -411,7 +388,7 @@
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
     fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
     play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
-    list: $("list"), setopt: $("setopt"), setonly: $("setonly"),
+    list: $("list"), setopt: $("setopt"), setonly: $("setonly"), songscale: $("songscale"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
   };
 
@@ -914,11 +891,19 @@
     setOnly = els.setonly.checked;
     armStop();
   });
-  document.querySelectorAll('input[name="scale"]').forEach(function (r) {
-    r.addEventListener("change", function () {
-      scale = r.value;
-      renderTicks();
-      render();
+  els.songscale.addEventListener("change", function () {
+    scale = els.songscale.checked ? "song" : "gig";
+    renderTicks();
+    render();
+  });
+  // Kytkimen viereinen teksti valitsee oman puolensa (ei vaihda puolta).
+  document.querySelectorAll(".sw .side").forEach(function (s) {
+    s.addEventListener("click", function () {
+      var input = s.parentNode.querySelector("input");
+      var on = s.getAttribute("data-on") === "1";
+      if (input.checked === on) return;
+      input.checked = on;
+      input.dispatchEvent(new Event("change"));
     });
   });
 
