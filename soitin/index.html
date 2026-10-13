@@ -52,7 +52,7 @@
     font-weight: 650;
     letter-spacing: -0.01em;
     margin: 0 0 22px;
-    text-align: center;
+    text-align: left;
     overflow-wrap: anywhere;
   }
   button {
@@ -87,7 +87,7 @@
     font-weight: 600;
     min-height: 1.45em;
     margin: 0 0 4px;
-    text-align: center;
+    text-align: left;
     overflow-wrap: anywhere;
   }
   .seek {
@@ -467,6 +467,12 @@
   function num(i) { return tracks[i].n; }
   function setName(k) { return setInfo[k].name || "(" + roman(k) + ")"; }
   // Kappaleen tunniste teksteihin: "3" tai setteihin jaetussa "(ii) 3".
+  // Nyt soi -kentän teksti: otsikko, tai otsikottomalla biisillä numero
+  // ("3." tai setteihin jaetussa "(ii) – 3.").
+  function nowText(i) {
+    var tr = tracks[i];
+    return tr.untitled ? (showSets ? setName(tr.set) + " – " : "") + num(i) + "." : tr.title;
+  }
   function ref(i) { return (showSets ? setName(tracks[i].set) + " " : "") + num(i); }
   // Setin alku ja loppu (s). Viimeinen setti päättyy äänitiedoston loppuun.
   function setStart(k) { return tracks[setInfo[k].first].start; }
@@ -507,7 +513,9 @@
       if (tracks.length && start <= tracks[tracks.length - 1].start) {
         errors.push("Kappaleen " + (i + 1) + " alkuaika ei ole edellistä myöhäisempi.");
       }
-      var title = String(tr.title || "Kappale " + (i + 1));
+      // Otsikoton biisi: nyt soi -kentässä näytetään järjestysnumero.
+      var untitled = !String(tr.title || "").trim();
+      var title = untitled ? "" : String(tr.title);
       if (newSet && tracks.length) sets++;
       if (!tracks.length || newSet) {
         n = /^\[.*\]$/.test(title.trim()) ? 0 : 1;
@@ -515,6 +523,7 @@
         name = "";
       }
       tracks.push({ start: start, title: title, set: sets, n: n++ });
+      if (untitled) tracks[tracks.length - 1].untitled = true;
       newSet = false;
     });
     showSets = sets > 1 || setInfo.some(function (x) { return x && x.name; });
@@ -736,7 +745,7 @@
       current = i;
       if (i >= 0) {
         rows[i].setAttribute("aria-current", "true");
-        els.now.textContent = tracks[i].title;
+        els.now.textContent = nowText(i);
         updateMediaSession();
       }
     }
@@ -1129,7 +1138,7 @@
     if (!("mediaSession" in navigator) || !window.MediaMetadata || current < 0) return;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: tracks[current].title,
+        title: nowText(current),
         album: gig.title
       });
     } catch (e) { /* ei tuettu */ }
