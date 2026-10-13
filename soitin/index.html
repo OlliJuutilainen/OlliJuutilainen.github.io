@@ -290,7 +290,7 @@
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
-  /* Setin kesto samaan sarakkeeseen kuin kappaleiden alkuajat: oikea
+  /* Setin kesto samaan sarakkeeseen kuin kappaleiden kestot: oikea
      reuna 4 px (.track) + 44 px (.copy) rivin reunasta. */
   li.set {
     display: flex;
@@ -429,6 +429,14 @@
     return m + ":" + ss;
   }
 
+  // Listan kestosarake: "mm:ss", tai koko sarakkeessa "hh:mm:ss", jos
+  // jokin kesto on vähintään tunnin.
+  function fmtLen(t, long) {
+    var h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, s = t % 60;
+    var p = function (x) { return (x < 10 ? "0" : "") + x; };
+    return (long ? p(h) + ":" : "") + p(m) + ":" + p(s);
+  }
+
   // ---- Kappaleet --------------------------------------------------------
 
   var gig = null;      // { title, audio, tracks: [{ t, title }] }
@@ -439,6 +447,7 @@
   var showSets = false;
   var rows = [];       // kappaleiden li-elementit, tracks-järjestyksessä
   var setLens = [];    // setin otsikkorivin kestokentät
+  var trackLens = [];  // kappalerivien kestokentät, tracks-järjestyksessä
   var heads = [];      // setin otsikkorivit: { li, first: ensimmäisen kappaleen indeksi }
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
@@ -688,6 +697,7 @@
     els.list.classList.toggle("sets", showSets);
     rows = [];
     setLens = [];
+    trackLens = [];
     heads = [];
     tracks.forEach(function (tr, i) {
       // Setin otsikko vain, jos settejä on useampi tai setti on nimetty.
@@ -709,7 +719,7 @@
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
       b.children[0].textContent = num(i) + ".";
       b.children[1].textContent = tr.title;
-      b.children[2].textContent = fmt(tr.start, longTimes);
+      trackLens[i] = b.children[2];
       b.addEventListener("click", function () { jumpTo(i, true); });
 
       var c = document.createElement("button");
@@ -727,18 +737,30 @@
     });
     current = -1;
     alignSetNames();
-    renderSetLens();
+    renderLens();
     els.setopt.hidden = sets < 2;
   }
 
-  // Setin kesto otsikkoriville. Viimeisen setin kesto selviää vasta, kun
-  // äänitiedoston pituus on tiedossa.
-  function renderSetLens() {
+  // Kappaleiden ja settien kestot. Viimeisen kappaleen ja setin kesto
+  // selviää vasta, kun äänitiedoston pituus on tiedossa. Rajat pyöristetään
+  // alas ennen vähennystä, jolloin setin kappaleiden kestot summautuvat
+  // tasan setin kestoksi.
+  function lenOf(a, b) {
+    var len = Math.floor(b) - Math.floor(a);
+    return isFinite(len) && len > 0 ? len : NaN;
+  }
+  function renderLens() {
+    var cells = [], long = false;
+    tracks.forEach(function (tr, i) {
+      cells.push([trackLens[i], lenOf(tr.start, trackEnd(i))]);
+    });
     for (var k = 1; k <= sets; k++) {
-      if (!setLens[k]) continue;
-      var len = setEnd(k) - setStart(k);
-      setLens[k].textContent = isFinite(len) && len > 0 ? fmt(len, longTimes) : "";
+      if (setLens[k]) cells.push([setLens[k], lenOf(setStart(k), setEnd(k))]);
     }
+    cells.forEach(function (c) { if (c[1] >= 3600) long = true; });
+    cells.forEach(function (c) {
+      if (c[0]) c[0].textContent = isFinite(c[1]) ? fmtLen(c[1], long) : "";
+    });
   }
 
   // ---- Linkin kopiointi -------------------------------------------------
@@ -854,10 +876,8 @@
   function onMeta() {
     var d = duration();
     if (!isFinite(d)) return;
-    var wasLong = longTimes;
     longTimes = d >= 3600;
-    if (longTimes !== wasLong) renderList();
-    else renderSetLens();
+    renderLens();
     if (pendingSeek !== null) {
       var t = pendingSeek;
       pendingSeek = null;
