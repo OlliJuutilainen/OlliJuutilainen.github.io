@@ -56,7 +56,7 @@ avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
 
 **PR:n jälkeen kysy vain "yhdistetäänkö?"** Älä tarjoudu seuraamaan PR:ää: repossa ei ole
 CI-tarkistuksia eikä muita katselmoijia. Käyttäjän **"yhiistä!"** tarkoittaa aina: yhdistä
-(merge) kyseinen PR.
+(merge) kyseinen PR. **"pryhiistä!"** tarkoittaa: tee PR kehityshaarasta ja yhdistä se heti.
 
 **Kehityskone on macOS Big Sur.** Uusin `wrangler` kaatuu siinä hiljaa virheeseen
 `dyld: Symbol not found: _SecTrustCopyCertificateChain`, koska sen mukana tuleva esbuild

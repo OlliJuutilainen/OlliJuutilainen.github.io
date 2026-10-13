@@ -165,8 +165,7 @@
     color: var(--bg);
   }
   .ctl.play svg { width: 26px; height: 26px; }
-  .ctl.skip svg { width: 26px; height: 26px; }
-  .ctl.skip text { font: 700 9px system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .ctl.skip svg { width: 24px; height: 24px; }
 
   /* --- Janan mittakaava --- */
   .mode {
@@ -299,14 +298,14 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
       </button>
       <button class="ctl skip" id="back" type="button" aria-label="15 sekuntia taaksepäin">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 0 8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L7.5 5z"/><text x="12" y="16.2" text-anchor="middle">15</text></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 0 8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L7.5 5z"/></svg>
       </button>
       <button class="ctl play" id="play" type="button" aria-label="Toista">
         <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-play"><path d="M7 4.5v15L20 12z"/></svg>
         <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-pause" hidden><path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z"/></svg>
       </button>
       <button class="ctl skip" id="fwd" type="button" aria-label="15 sekuntia eteenpäin">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13a8 8 0 1 1-8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L16.5 5z"/><text x="12" y="16.2" text-anchor="middle">15</text></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13a8 8 0 1 1-8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L16.5 5z"/></svg>
       </button>
       <button class="ctl" id="next" type="button" aria-label="Seuraava kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
@@ -316,8 +315,8 @@
 
   <fieldset class="mode">
     <legend>Janan mittakaava</legend>
-    <label><input type="radio" name="scale" value="song" checked> Biisijana</label>
-    <label><input type="radio" name="scale" value="gig"> Keikkajana</label>
+    <label><input type="radio" name="scale" value="gig" checked> Keikkajana</label>
+    <label><input type="radio" name="scale" value="song"> Biisijana</label>
   </fieldset>
 
   <ol id="list" aria-label="Kappaleet"></ol>
@@ -418,7 +417,7 @@
   var dragSpan = null;     // vedon ajan jana, ettei se vaihdu biisin rajalla
   var rafId = 0;
   var longTimes = false;   // näytetäänkö h:mm:ss
-  var scale = "song";      // jana: "song" = nykyinen biisi, "gig" = koko keikka
+  var scale = "gig";       // jana: "gig" = koko keikka, "song" = nykyinen biisi
 
   function position() {
     return pendingSeek !== null ? pendingSeek : audio.currentTime;
