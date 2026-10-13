@@ -11,6 +11,9 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -21,6 +24,10 @@ import androidx.core.app.NotificationCompat;
  * sammuu tai käyttäjä siirtyy toiseen sovellukseen. Aktiviteetti sitoo palvelun koko
  * elinkaarensa ajaksi eikä koskaan käynnistä sitä erikseen, joten palvelu päättyy
  * aktiviteetin mukana. Etualalle se nousee vain soiton ajaksi.
+ *
+ * <p>Palvelulla on myös mediasessio, jotta kuulokkeiden ja muiden laitteiden mediapainikkeet
+ * ohjaavat soitinta eivätkä jotain toista sovellusta. Sessio aktivoituu ensimmäisestä
+ * soitosta ja pysyy aktiivisena tauon ajan, jotta toisto jatkuu kuulokkeista.
  */
 public class PlaybackService extends Service {
 
@@ -36,7 +43,23 @@ public class PlaybackService extends Service {
         }
     }
 
+    /** Mediapainikkeen komento sivulle: play, pause, next, previous, forward tai rewind. */
+    interface Controls {
+        void press(String action);
+    }
+
+    private static final long ACTIONS = PlaybackStateCompat.ACTION_PLAY
+            | PlaybackStateCompat.ACTION_PAUSE
+            | PlaybackStateCompat.ACTION_PLAY_PAUSE
+            | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+            | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+            | PlaybackStateCompat.ACTION_FAST_FORWARD
+            | PlaybackStateCompat.ACTION_REWIND;
+
     private final IBinder binder = new LocalBinder();
+    private MediaSessionCompat session;
+    @Nullable
+    private Controls controls;
     private PowerManager.WakeLock wakeLock;
     private boolean foreground;
     private String title = "";
@@ -54,6 +77,61 @@ public class PlaybackService extends Service {
             channel.setShowBadge(false);
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
         }
+
+        // Yksi painallus = play/pause ja tuplapainallus = seuraava hoituvat
+        // MediaSessionCompatin oletuskäsittelyssä; muut painikkeet tulevat suoraan.
+        session = new MediaSessionCompat(this, TAG);
+        session.setCallback(new MediaSessionCompat.Callback() {
+            @Override
+            public void onPlay() {
+                press("play");
+            }
+
+            @Override
+            public void onPause() {
+                press("pause");
+            }
+
+            @Override
+            public void onSkipToNext() {
+                press("next");
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                press("previous");
+            }
+
+            @Override
+            public void onFastForward() {
+                press("forward");
+            }
+
+            @Override
+            public void onRewind() {
+                press("rewind");
+            }
+        });
+        setSessionState(false);
+    }
+
+    void setControls(@Nullable Controls controls) {
+        this.controls = controls;
+    }
+
+    private void press(String action) {
+        if (controls != null) {
+            controls.press(action);
+        }
+    }
+
+    private void setSessionState(boolean playing) {
+        session.setPlaybackState(new PlaybackStateCompat.Builder()
+                .setActions(ACTIONS)
+                .setState(playing ? PlaybackStateCompat.STATE_PLAYING
+                                : PlaybackStateCompat.STATE_PAUSED,
+                        PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, playing ? 1f : 0f)
+                .build());
     }
 
     @Nullable
@@ -63,6 +141,7 @@ public class PlaybackService extends Service {
     }
 
     void update(boolean playing, String title, String track) {
+        setSessionState(playing);
         if (!playing) {
             stop();
             return;
@@ -70,6 +149,13 @@ public class PlaybackService extends Service {
         boolean changed = !title.equals(this.title) || !track.equals(this.track);
         this.title = title;
         this.track = track;
+        if (changed || !session.isActive()) {
+            session.setMetadata(new MediaMetadataCompat.Builder()
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, title)
+                    .build());
+        }
+        session.setActive(true);
         if (!foreground) {
             try {
                 Notification notification = buildNotification();
@@ -81,9 +167,9 @@ public class PlaybackService extends Service {
                 }
                 foreground = true;
             } catch (RuntimeException e) {
-                // Android 12+ ei salli etualalle nousua taustalta. Soitto alkaa aina
-                // napautuksesta, joten tänne ei pitäisi päätyä; soitto jatkuu silti
-                // niin kauan kuin järjestelmä antaa.
+                // Android 12+ ei salli etualalle nousua taustalta. Tänne voi päätyä, jos
+                // tauko jatkuu kuulokkeista sovelluksen ollessa taustalla; soitto jatkuu
+                // silti niin kauan kuin järjestelmä antaa.
                 Log.w(TAG, "startForeground epäonnistui", e);
             }
         } else if (changed) {
@@ -126,6 +212,9 @@ public class PlaybackService extends Service {
     @Override
     public void onDestroy() {
         stop();
+        controls = null;
+        session.setActive(false);
+        session.release();
         super.onDestroy();
     }
 }
