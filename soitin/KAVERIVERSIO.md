@@ -6,7 +6,7 @@ näyttämönä: se soittaa keikan, jonka linkki osoittaa sinun tiliisi. Olli ei 
 ellet anna hänelle linkkiä, eikä hänen tilinsä osallistu mihinkään.
 
 Käyttöönotto vie noin puoli tuntia ja tehdään kerran. Sen jälkeen uusi keikka on viiden
-minuutin homma: mp3 Dropboxiin tai Driveen, biisilista lomakkeeseen, yksi komento
+minuutin homma: äänitiedosto Dropboxiin tai Driveen, biisilista lomakkeeseen, yksi komento
 Terminaliin.
 
 ## Mitä tarvitset
@@ -22,7 +22,7 @@ Terminaliin.
 ## Miten osat liittyvät toisiinsa
 
 ```
-Dropbox / Drive (mp3)  ←── soitin-sivu soittaa äänen suoraan Dropboxista tai Drivesta
+Dropbox / Drive (ääni) ←── soitin-sivu soittaa äänen suoraan Dropboxista tai Drivesta
                               ↑
 Cloudflare-worker  ──→  soitin-sivu hakee otsikon ja biisilistan workeristasi
      ↑
@@ -147,7 +147,7 @@ Valmista. Tee seuraavaksi testikeikka alla olevalla ohjeella.
 
 ## Uusi keikka
 
-1. **Äänitiedosto Dropboxiin tai Driveen.**
+1. **Äänitiedosto Dropboxiin tai Driveen.** Tiedostomuodoista ks. *Äänitiedoston muoto* alla.
    - Dropbox: Jaa → *Kopioi linkki* (asetus: kuka tahansa linkin saanut voi katsoa).
    - Drive: Jaa → *Yleinen käyttöoikeus: Kaikki, joilla on linkki* → *Kopioi linkki*.
      Muuta linkki ennen seuraavaa vaihetta, ks. *Äänitiedosto Drivessa* alla.
@@ -161,6 +161,20 @@ Valmista. Tee seuraavaksi testikeikka alla olevalla ohjeella.
    `"success":true`, ja sen alla tulostuvat tallennetut keikan tiedot.
 5. **Kopioi linkki ja avaa se itse ensin.** Linkki on muotoa
    `https://ollijuutilainen.github.io/soitin/#<tunnus>@soitin.<jotain>`.
+
+### Äänitiedoston muoto
+
+Soitin käyttää selaimen omaa äänitoistoa, joten muoto ratkaisee, soiko tiedosto kuulijan
+laitteessa.
+
+- **AAC** (`.m4a`) on toiminut Ollin rajallisissa kokeiluissa parhaiten. Suosi sitä.
+- **MP3** soi kaikissa yleisissä selaimissa, myös iPhonen Safarissa.
+- **WAV** soi yleensä, mutta keikan mittainen tiedosto on satoja megatavuja ja latautuu
+  hitaasti puhelimeen.
+- **FLAC, Ogg ja Opus**: tuki vaihtelee selaimen ja iPhonen version mukaan. Älä käytä niitä
+  jaettavassa keikassa.
+
+Keikka on aina yksi äänitiedosto; biisilista merkitsee siihen kappaleiden alkukohdat.
 
 ### Äänitiedosto Drivessa
 
