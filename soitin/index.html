@@ -546,11 +546,25 @@
   function num(i) { return tracks[i].n; }
   function setName(k) { return setInfo[k].name || "(" + roman(k) + ")"; }
   // Kappaleen tunniste teksteihin: "3" tai setteihin jaetussa "(ii) 3".
-  // Nyt soi -kentän teksti: otsikko, tai otsikottomalla biisillä numero
+  // Lukitusnäytön otsikko: otsikko, tai otsikottomalla biisillä numero
   // ("3." tai setteihin jaetussa "(ii) – 3.").
   function nowText(i) {
     var tr = tracks[i];
     return tr.untitled ? (showSets ? setName(tr.set) + " – " : "") + num(i) + "." : tr.title;
+  }
+  // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
+  // "(ii) – 3. Otsikko", setin nimi kursiivilla). Sitovat välilyönnit pitävät
+  // viivan setin nimessä ja numeron otsikon alussa kiinni.
+  function renderNow(i) {
+    var tr = tracks[i];
+    els.now.textContent = "";
+    if (showSets) {
+      var em = document.createElement("em");
+      em.textContent = setName(tr.set);
+      els.now.appendChild(em);
+      els.now.appendChild(document.createTextNode(" – "));
+    }
+    els.now.appendChild(document.createTextNode(num(i) + "." + (tr.untitled ? "" : " " + tr.title)));
   }
   function ref(i) { return (showSets ? setName(tracks[i].set) + " " : "") + num(i); }
   // Setin alku ja loppu (s). Viimeinen setti päättyy äänitiedoston loppuun.
@@ -827,7 +841,7 @@
       current = i;
       if (i >= 0) {
         rows[i].setAttribute("aria-current", "true");
-        els.now.textContent = nowText(i);
+        renderNow(i);
         updateMediaSession();
       }
     }
