@@ -390,8 +390,11 @@
   // esim. …/soitin/#k7f3qa2m tai kappaleeseen 3: …/soitin/#k7f3qa2m/3.
   // Jos keikassa on useampi setti, toisen setin kappale 3 on …/#k7f3qa2m/2/3.
   // Tiedot tallennetaan apusivulla soitin/uusi.html.
+  // Kaveriversio (soitin/KAVERIVERSIO.md): …/#k7f3qa2m@soitin.kaveri hakee keikan
+  // toisen tilin workerista https://soitin.kaveri.workers.dev. Osoite rajataan
+  // workers.dev-aliverkkotunnukseen, ja tiedot näytetään vain tekstinä.
   var API = "https://tusinasaa-worker.ollijuutilainen.workers.dev/api/gig";
-  var HASH_RE = /^#([a-z0-9]{4,32})(?:\/(\d+)(?:\/(\d+))?)?$/i;
+  var HASH_RE = /^#([a-z0-9]{4,32})(?:@([a-z0-9-]{1,63}\.[a-z0-9-]{1,63}))?(?:\/(\d+)(?:\/(\d+))?)?$/i;
 
   var $ = function (id) { return document.getElementById(id); };
   var audio = $("audio");
@@ -426,6 +429,7 @@
 
   var gig = null;      // { title, audio, tracks: [{ t, title }] }
   var gigKey = "";
+  var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
   var tracks = [];     // [{ start, title, set, n }]
   var sets = 1;
   var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
@@ -740,7 +744,8 @@
   var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.6 5.4 12.5a1 1 0 1 0-1.4 1.4l4.8 4.8a1 1 0 0 0 1.4 0L20 8.9a1 1 0 0 0-1.4-1.4z"/></svg>';
 
   function linkFor(i) {
-    return location.href.replace(/#.*$/, "") + "#" + gigKey + "/" +
+    return location.href.replace(/#.*$/, "") + "#" + gigKey +
+      (gigWorker ? "@" + gigWorker : "") + "/" +
       (sets > 1 ? tracks[i].set + "/" : "") + num(i);
   }
 
@@ -959,9 +964,9 @@
 
   function applyHash() {
     var m = HASH_RE.exec(location.hash);
-    if (!m || !m[2]) return;
+    if (!m || !m[3]) return;
     // #tunnus/3 = 1. setin kappale 3, #tunnus/2/3 = 2. setin kappale 3.
-    var set = m[3] ? +m[2] : 1, n = m[3] ? +m[3] : +m[2];
+    var set = m[4] ? +m[3] : 1, n = m[4] ? +m[4] : +m[3];
     var i = -1;
     for (var k = 0; k < tracks.length; k++) {
       if (tracks[k].set === set && tracks[k].n === n) { i = k; break; }
@@ -975,7 +980,8 @@
   window.addEventListener("hashchange", function () {
     var m = HASH_RE.exec(location.hash);
     // Eri keikan tunnus → ladataan sivu alusta; sama keikka → vain kappale.
-    if (!m || m[1].toLowerCase() !== gigKey) location.reload();
+    if (!m || m[1].toLowerCase() !== gigKey ||
+        (m[2] || "").toLowerCase() !== gigWorker) location.reload();
     else if (gig) applyHash();
   });
 
@@ -1036,7 +1042,9 @@
       "Tarkista, että linkki on kopioitu kokonaan, myös #-merkin jälkeinen osa.");
   } else {
     gigKey = hm[1].toLowerCase();
-    fetch(API + "?k=" + encodeURIComponent(gigKey), { cache: "no-store" })
+    gigWorker = (hm[2] || "").toLowerCase();
+    var api = gigWorker ? "https://" + gigWorker + ".workers.dev/api/gig" : API;
+    fetch(api + "?k=" + encodeURIComponent(gigKey), { cache: "no-store" })
       .then(function (res) {
         if (res.status === 404) {
           throw { user: "Keikkaa ei löytynyt.",

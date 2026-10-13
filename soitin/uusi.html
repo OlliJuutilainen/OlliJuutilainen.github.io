@@ -73,6 +73,7 @@
   <h1>Uusi keikka soittimeen</h1>
   <p class="muted">Täytä kentät. Sivu tarkistaa biisilistan ja tekee komennon, jonka ajat Macin
     Terminalissa. Sen jälkeen lyhyt linkki toimii.</p>
+  <p id="profile" class="muted" hidden></p>
 
   <label for="key">Tunnus</label>
   <div class="row">
@@ -138,6 +139,34 @@
   var KEY_RE = /^[a-z0-9]{4,32}$/;
 
   var $ = function (id) { return document.getElementById(id); };
+
+  // Kaveriversio (soitin/KAVERIVERSIO.md): oma Cloudflare-tili osoitteen #-osassa,
+  // uusi.html#w=soitin.kaveri&a=<tilin tunnus>&n=<KV-tunnus>. Tunnukset eivät ole
+  // salaisia; API-avain luetaan Macin avainnipusta vasta komentoa ajettaessa.
+  // Ilman #-osaa sivu toimii kuten ennenkin.
+  var profile = null, profileError = "";
+  (function () {
+    var h = location.hash.replace(/^#/, "");
+    if (!h) return;
+    var p = {};
+    h.split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (i < 1) return;
+      var v = kv.slice(i + 1);
+      try { v = decodeURIComponent(v); } catch (e) { /* jätetään sellaisenaan */ }
+      p[kv.slice(0, i)] = v.trim().toLowerCase();
+    });
+    if (!/^[a-z0-9-]{1,63}\.[a-z0-9-]{1,63}$/.test(p.w || "")) profileError = "w (worker, esim. soitin.oma-aliverkkotunnus)";
+    else if (!/^[0-9a-f]{32}$/.test(p.a || "")) profileError = "a (tilin tunnus, 32 merkkiä)";
+    else if (!/^[0-9a-f]{32}$/.test(p.n || "")) profileError = "n (KV-nimiavaruuden tunnus, 32 merkkiä)";
+    else profile = { worker: p.w, account: p.a, ns: p.n };
+  })();
+  if (profile) {
+    API = "https://" + profile.worker + ".workers.dev/api/gig";
+    $("profile").textContent = "Omat asetukset: " + profile.worker + ".workers.dev";
+    $("profile").hidden = false;
+  }
+  window.addEventListener("hashchange", function () { location.reload(); });
   var f = { key: $("key"), title: $("title"), audio: $("audio"), tracks: $("tracks") };
 
   function randomKey() {
@@ -305,6 +334,7 @@
 
   function update() {
     var problems = [];
+    if (profileError) problems.push("Osoitteen #-osan asetus ei kelpaa: " + profileError + ".");
     var key = f.key.value.trim().toLowerCase();
     if (!KEY_RE.test(key)) problems.push("Tunnuksessa saa olla vain pieniä kirjaimia a–z ja numeroita, 4–32 merkkiä.");
     var title = f.title.value.replace(/[\r\n]+/g, " ").trim();
@@ -318,7 +348,7 @@
 
     var box = $("problems");
     box.innerHTML = "";
-    var anyInput = f.title.value || f.audio.value || f.tracks.value;
+    var anyInput = profileError || f.title.value || f.audio.value || f.tracks.value;
     if (problems.length && anyInput) {
       var ul = document.createElement("ul");
       problems.forEach(function (p) {
@@ -383,15 +413,27 @@
       })
     });
     // Ei #-kommenttiriviä: macOS:n zsh ei tulkitse sitä kommentiksi oletuksena.
-    $("cmd").textContent = [
+    // Kaveriversiossa curl ja Cloudflaren REST-rajapinta, koska curl on valmiina
+    // jokaisessa Macissa eikä Node.js:ää tarvita. API-avain avainnippuun: KAVERIVERSIO.md.
+    $("cmd").textContent = (profile ? [
+      "ACC='" + profile.account + "'",
+      "NS='" + profile.ns + "'",
+      "KEY=" + sq(encodeURIComponent("gig:" + key)),
+      "VAL=" + sq(value),
+      "T=$(security find-generic-password -s soitin-cf -w)",
+      'U="https://api.cloudflare.com/client/v4/accounts/$ACC/storage/kv/namespaces/$NS/values/$KEY"',
+      "",
+      'curl -sS -X PUT "$U" -H "Authorization: Bearer $T" --form-string \'metadata={}\' --form-string "value=$VAL" \\',
+      '&& echo && curl -sS "$U" -H "Authorization: Bearer $T" && echo'
+    ] : [
       "NS='" + NS + "'",
       "KEY=" + sq("gig:" + key),
       "VAL=" + sq(value),
       "",
       'npx -y wrangler@3.114.17 kv:key put --namespace-id "$NS" "$KEY" "$VAL" \\',
       '&& npx -y wrangler@3.114.17 kv:key get --namespace-id "$NS" "$KEY" --text'
-    ].join("\n");
-    var link = PLAYER + "#" + key;
+    ]).join("\n");
+    var link = PLAYER + "#" + key + (profile ? "@" + profile.worker : "");
     $("link").textContent = link;
     $("open").href = link;
     $("result").hidden = false;
@@ -403,6 +445,7 @@
     var key = f.key.value.trim().toLowerCase();
     var box = $("problems");
     var say = function (msg) { box.textContent = msg; box.hidden = false; };
+    if (profileError) return say("Osoitteen #-osan asetus ei kelpaa: " + profileError + ".");
     if (!KEY_RE.test(key)) return say("Kirjoita ensin tunnus (4–32 merkkiä, a–z ja 0–9).");
     fetch(API + "?k=" + encodeURIComponent(key), { cache: "no-store" })
       .then(function (res) {
