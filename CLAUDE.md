@@ -126,5 +126,13 @@ useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
+Soittimen **kaveriversio** (`soitin/KAVERIVERSIO.md`): toinen käyttäjä pitää keikat omalla
+Cloudflare-tilillään. Linkki `soitin/#tunnus@soitin.kaveri` hakee keikan osoitteesta
+`https://soitin.kaveri.workers.dev` (rajattu `*.workers.dev`-osoitteisiin), ja
+`uusi.html#w=…&a=…&n=…` tulostaa wranglerin sijaan `curl`-komennon Cloudflaren
+REST-rajapintaan; API-avain luetaan Macin avainnipusta (`security … -s soitin-cf`).
+Ilman `@`-osaa ja #-asetuksia molemmat sivut toimivat kuten ennen. Kaverin
+workers.dev-osoitetta tai tunnuksia ei kirjoiteta repoon.
+
 `android/soitin/` on soittimen Android-kääre Light Phonelle. Myöskään keikan tunnusta ei
 kirjoiteta repoon: se tulee Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`).
