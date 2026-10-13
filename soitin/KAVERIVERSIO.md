@@ -156,7 +156,10 @@ Valmista. Tee seuraavaksi testikeikka alla olevalla ohjeella.
 3. **Täytä otsikko, äänitiedoston linkki ja biisilista.** Kentän otsikossa lukee
    *Dropbox*, mutta Driven muutettu linkki kelpaa samaan kenttään. Sivu muuttaa
    Dropbox-linkin suoraksi tiedostolinkiksi itse; Driven linkkiä se ei muuta. Sivun ohje
-   kertoo biisilistan muodot, setit ja intron. Tarkista esikatselu.
+   kertoo biisilistan muodot, setit ja intron. Tarkista esikatselu. Kenttä *Päivämäärä tai
+   muuta lisätietoa* on vapaaehtoinen; se näkyy soittimessa otsikon alla, jos workerisi
+   koodi on päivitetty lokakuun 2026 jälkeen (kohdan 3 vaiheet 5–6). Vanha koodi jättää
+   sen huomiotta.
 4. **Kopioi komento → liitä Terminaliin → Enter.** Ensimmäinen vastausrivi sisältää
    `"success":true`, ja sen alla tulostuvat tallennetut keikan tiedot.
 5. **Kopioi linkki ja avaa se itse ensin.** Linkki on muotoa

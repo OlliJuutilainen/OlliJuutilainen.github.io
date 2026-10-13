@@ -137,10 +137,15 @@ async function handleLoc(req, env) {
 }
 
 // Keikkasoitin (soitin/): keikan tiedot ovat KV:ssä avaimella "gig:<tunnus>".
+// Valinnainen sub on otsikon alle tuleva lisätieto (päivämäärä tms.).
 // Etuliite pitää ne erillään sijaintitokeneista. Tunnus kulkee soittimen
 // osoitteen #-osassa, joten keikkatietoja ei ole repossa eikä GitHubin palvelimilla.
 const GIG_KEY_RE = /^[a-z0-9]{4,32}$/;
 const TIME_RE = /^(?:\d+:)?\d{1,2}:\d{2}(?:\.\d+)?$/;
+
+function gigSub(data) {
+  return typeof data.sub === "string" && data.sub.trim() ? data.sub.trim().slice(0, 200) : "";
+}
 
 function isValidGig(data) {
   if (!data || typeof data !== "object") return false;
@@ -367,18 +372,21 @@ async function handleGig(req, env) {
       return errorResponse(code, code === "dropbox_not_configured" ? 500 : 502);
     }
     logEvent("gig_200", { files: files.length });
+    const sub = gigSub(data);
     return jsonResponse(
-      { v: 1, title: data.title, folder: data.folder, files },
+      { v: 1, title: data.title, ...(sub && { sub }), folder: data.folder, files },
       { headers: { "Cache-Control": "no-store" } }
     );
   }
 
   logEvent("gig_200");
 
+  const sub = gigSub(data);
   return jsonResponse(
     {
       v: 1,
       title: data.title,
+      ...(sub && { sub }),
       audio: data.audio,
       // set: uuden setin ensimmäinen kappale, name: setin oma otsikko (esim. "(+)").
       tracks: data.tracks.map((tr) => {
