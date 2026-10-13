@@ -158,170 +158,6 @@ function isValidGig(data) {
   );
 }
 
-// ---- Dropbox-kansio soittolistana -------------------------------------
-// Keikan tilalle voi tallentaa audio-linkin ja biisilistan sijaan jaetun
-// Dropbox-kansion linkin ({ title, folder }). Kansion äänitiedostot ovat
-// kappaleita nimen mukaisessa (numero)järjestyksessä, ja jokainen alikansio on
-// oma settinsä. Sisältö luetaan Dropboxin rajapinnasta joka kerta, kun soitin
-// avataan, joten kansioon lisätty tiedosto näkyy ilman uutta tallennusta.
-//
-// Rajapinta tarvitsee workerin salaisuudet DROPBOX_APP_KEY, DROPBOX_APP_SECRET
-// ja DROPBOX_REFRESH_TOKEN (ohje: soitin/KAVERIVERSIO.md). Kansion pitää olla
-// saman Dropbox-tilin omistama, jolle avain on tehty. Soittimelle annetaan
-// Dropboxin tilapäiset suorat linkit, jotka ovat voimassa neljä tuntia.
-const FOLDER_RE = /^https:\/\/(?:www\.)?dropbox\.com\/(?:scl\/fo|sh)\/[^\s]+$/;
-const AUDIO_EXT_RE = /\.(mp3|m4a|mp4|aac|wav|flac|ogg|oga|opus|webm)$/i;
-// Ilmaistasolla workerilla on 50 ulkoista pyyntöä kutsua kohden: yksi kullekin
-// tiedostolle ja muutama avaimelle ja kansion listaukselle.
-const MAX_FOLDER_FILES = 44;
-
-let dropboxToken = null; // { token, exp } – säilyy saman isolaatin kutsujen yli
-
-function dropboxError(code, detail) {
-  const err = new Error(code);
-  err.code = code;
-  if (detail) err.detail = String(detail).slice(0, 300);
-  return err;
-}
-
-async function dropboxAccessToken(env) {
-  if (!env.DROPBOX_APP_KEY || !env.DROPBOX_APP_SECRET || !env.DROPBOX_REFRESH_TOKEN) {
-    throw dropboxError("dropbox_not_configured");
-  }
-  if (dropboxToken && dropboxToken.exp > Date.now()) return dropboxToken.token;
-  const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: env.DROPBOX_REFRESH_TOKEN,
-      client_id: env.DROPBOX_APP_KEY,
-      client_secret: env.DROPBOX_APP_SECRET,
-    }),
-  });
-  if (!res.ok) throw dropboxError("dropbox_auth", await res.text());
-  const data = await res.json();
-  if (!data || typeof data.access_token !== "string") throw dropboxError("dropbox_auth", "no access_token");
-  // Varmuusmarginaali, ettei vanhenevaa avainta käytetä kesken kutsun.
-  const ttl = Math.max(60, (Number(data.expires_in) || 14400) - 300);
-  dropboxToken = { token: data.access_token, exp: Date.now() + ttl * 1000 };
-  return dropboxToken.token;
-}
-
-async function dropboxRpc(token, endpoint, body) {
-  const res = await fetch(`https://api.dropboxapi.com/2/${endpoint}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const text = await res.text();
-  if (!res.ok) {
-    if (res.status === 401) dropboxToken = null;
-    const notFound = res.status === 409 && /not_found|shared_link_access_denied|shared_link_not_found/.test(text);
-    throw dropboxError(res.status === 401 ? "dropbox_auth" : notFound ? "folder_not_found" : "dropbox_error",
-      `${endpoint} ${res.status} ${text}`);
-  }
-  return JSON.parse(text);
-}
-
-// "01 - Nimi.mp3" → "Nimi". Pelkästä numerosta koostuva nimi jää ennalleen.
-function fileTitle(name) {
-  const base = name.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
-  const stripped = base.replace(/^\d+\s*[-.)–—:]?\s+|^\d+\s*[-.)–—:]\s*/, "").trim();
-  return stripped || base;
-}
-
-// Alikansion nimestä setin otsikko: "2 Encore" → "(Encore)", "(+)" pysyy.
-// Pelkkä numero → ei omaa otsikkoa, soitin numeroi (i), (ii) …
-function setTitle(name) {
-  const t = fileTitle(name + ".x");
-  if (/^\d*$/.test(t)) return "";
-  return /^\(.+\)$/.test(t) ? t : `(${t})`;
-}
-
-const byName = (a, b) => a.name.localeCompare(b.name, "fi", { numeric: true, sensitivity: "base" });
-
-async function folderFiles(folderUrl, env) {
-  const token = await dropboxAccessToken(env);
-  const meta = await dropboxRpc(token, "sharing/get_shared_link_metadata", { url: folderUrl });
-  if (!meta || meta[".tag"] !== "folder") throw dropboxError("not_a_folder");
-  // path_lower on mukana vain, jos kansio on avaimen omistajan Dropboxissa.
-  const root = meta.path_lower;
-  if (typeof root !== "string" || !root) throw dropboxError("folder_not_owned");
-
-  const entries = [];
-  let page = await dropboxRpc(token, "files/list_folder", { path: root, recursive: true, limit: 2000 });
-  entries.push(...page.entries);
-  for (let i = 0; page.has_more && i < 3; i++) {
-    page = await dropboxRpc(token, "files/list_folder/continue", { cursor: page.cursor });
-    entries.push(...page.entries);
-  }
-
-  // Juuren tiedostot ovat ensimmäinen setti, sitten alikansiot nimen mukaan.
-  // Syvemmät kansiot ja muut kuin äänitiedostot ohitetaan.
-  const rootFiles = [];
-  const subFolders = new Map(); // path_lower → { name, files }
-  for (const e of entries) {
-    if (typeof e.path_lower !== "string" || !e.path_lower.startsWith(root + "/")) continue;
-    const parts = e.path_lower.slice(root.length + 1).split("/");
-    if (e[".tag"] === "folder" && parts.length === 1) {
-      const f = subFolders.get(e.path_lower) || { files: [] };
-      f.name = e.name;
-      subFolders.set(e.path_lower, f);
-    } else if (e[".tag"] === "file" && AUDIO_EXT_RE.test(e.name) && !e.name.startsWith(".")) {
-      if (parts.length === 1) rootFiles.push(e);
-      else if (parts.length === 2) {
-        const key = `${root}/${parts[0]}`;
-        const f = subFolders.get(key) || { files: [] };
-        f.files.push(e);
-        subFolders.set(key, f);
-      }
-    }
-  }
-
-  const groups = [];
-  if (rootFiles.length) groups.push({ name: "", files: rootFiles.sort(byName) });
-  [...subFolders.values()]
-    .filter((f) => f.files.length && f.name)
-    .sort(byName)
-    .forEach((f) => groups.push({ name: setTitle(f.name), files: f.files.sort(byName) }));
-
-  const list = [];
-  groups.forEach((g, gi) => {
-    g.files.forEach((e, fi) => {
-      const o = { title: fileTitle(e.name).slice(0, 200), path: e.path_lower };
-      if (fi === 0 && gi > 0) o.set = true;
-      if (fi === 0 && g.name) o.name = g.name.slice(0, 80);
-      list.push(o);
-    });
-  });
-  if (!list.length) throw dropboxError("folder_empty");
-  if (list.length > MAX_FOLDER_FILES) throw dropboxError("too_many_files", list.length);
-
-  const links = await Promise.all(list.map((f) =>
-    dropboxRpc(token, "files/get_temporary_link", { path: f.path })));
-  return list.map((f, i) => {
-    const o = { title: f.title, url: links[i].link };
-    if (f.set) o.set = true;
-    if (f.name) o.name = f.name;
-    return o;
-  });
-}
-
-// Käyttöönoton tarkistus: /api/dropbox vastaa {"ok":true}, kun salaisuudet
-// ovat paikallaan ja Dropbox hyväksyy ne. Mitään tiedostoja ei lueta.
-async function handleDropboxCheck(env) {
-  try {
-    dropboxToken = null;
-    await dropboxAccessToken(env);
-    return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
-  } catch (err) {
-    const code = err && err.code ? err.code : "dropbox_error";
-    logEvent("dropbox_check", { code });
-    return errorResponse(code, code === "dropbox_not_configured" ? 500 : 502);
-  }
-}
-
 async function handleGig(req, env) {
   const url = new URL(req.url);
   const key = (url.searchParams.get("k") || "").trim().toLowerCase();
@@ -367,9 +203,9 @@ async function handleGig(req, env) {
     try {
       files = await folderFiles(data.folder, env);
     } catch (err) {
-      const code = err && err.code ? err.code : "dropbox_error";
+      const code = err && err.code ? err.code : "folder_error";
       logEvent("gig_folder_error", { code, detail: err && err.detail ? err.detail : String(err) });
-      return errorResponse(code, code === "dropbox_not_configured" ? 500 : 502);
+      return errorResponse(code, folderErrorStatus(code));
     }
     logEvent("gig_200", { files: files.length });
     const sub = gigSub(data);
@@ -400,6 +236,297 @@ async function handleGig(req, env) {
   );
 }
 
+// ---- Lisäominaisuus: kansio soittolistana -----------------------------
+// Tavallinen keikka (audio + tracks) ei käytä mitään tämän osion koodista.
+//
+// Keikaksi voi tallentaa audio-linkin ja biisilistan sijaan jaetun kansion
+// linkin ({ title, folder }), Dropboxista tai Google Drivesta. Kansion
+// äänitiedostot ovat kappaleita nimen mukaisessa (numero)järjestyksessä, ja
+// jokainen alikansio on oma settinsä. Sisältö luetaan joka kerta, kun soitin
+// avataan, joten kansioon lisätty tiedosto näkyy ilman uutta tallennusta.
+// Käyttöönotto: soitin/KAVERIVERSIO.md, liite.
+//
+// Dropbox: salaisuudet DROPBOX_APP_KEY, DROPBOX_APP_SECRET ja
+// DROPBOX_REFRESH_TOKEN. Kansion pitää olla saman Dropbox-tilin omistama,
+// jolle avain on tehty. Soittimelle annetaan Dropboxin tilapäiset suorat
+// linkit (voimassa neljä tuntia), joten jokainen tiedosto maksaa pyynnön.
+//
+// Drive: salaisuus GOOGLE_API_KEY (Google Cloud -projektin API-avain, jossa
+// Drive API on päällä). Kansion pitää olla jaettu "kaikki, joilla on linkki";
+// kenen Drivessa se on, ei ole väliä. Tiedostojen linkit muodostetaan
+// tunnisteista, joten ne eivät vanhene eikä avain päädy soittimelle.
+const DROPBOX_FOLDER_RE = /^https:\/\/(?:www\.)?dropbox\.com\/(?:scl\/fo|sh)\/[^\s]+$/;
+const DRIVE_FOLDER_RE = /^https:\/\/drive\.google\.com\/drive\/folders\/([A-Za-z0-9_-]{10,})(?:\?resourcekey=([A-Za-z0-9_-]+))?$/;
+const FOLDER_RE = { test: (s) => DROPBOX_FOLDER_RE.test(s) || DRIVE_FOLDER_RE.test(s) };
+const AUDIO_EXT_RE = /\.(mp3|m4a|mp4|aac|wav|flac|ogg|oga|opus|webm)$/i;
+// Ilmaistasolla workerilla on 50 ulkoista pyyntöä kutsua kohden. Dropboxissa
+// kuluu yksi kullekin tiedostolle ja muutama avaimelle ja listaukselle.
+// Sama raja Drivelle, jotta ohje on yksi; soitin myös mittaa jokaisen
+// tiedoston keston avautuessaan.
+const MAX_FOLDER_FILES = 44;
+const MAX_SUBFOLDERS = 20;
+
+function folderError(code, detail) {
+  const err = new Error(code);
+  err.code = code;
+  if (detail) err.detail = String(detail).slice(0, 300);
+  return err;
+}
+
+// "01 - Nimi.mp3" → "Nimi". Pelkästä numerosta koostuva nimi jää ennalleen.
+function fileTitle(name) {
+  const base = name.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
+  const stripped = base.replace(/^\d+\s*[-.)–—:]?\s+|^\d+\s*[-.)–—:]\s*/, "").trim();
+  return stripped || base;
+}
+
+// Alikansion nimestä setin otsikko: "2 Encore" → "(Encore)", "(+)" pysyy.
+// Pelkkä numero → ei omaa otsikkoa, soitin numeroi (i), (ii) …
+function setTitle(name) {
+  const t = fileTitle(name + ".x");
+  if (/^\d*$/.test(t)) return "";
+  return /^\(.+\)$/.test(t) ? t : `(${t})`;
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name, "fi", { numeric: true, sensitivity: "base" });
+const isAudioName = (name) => AUDIO_EXT_RE.test(name) && !name.startsWith(".");
+
+// Yhteinen järjestys molemmille: juuren tiedostot ovat ensimmäinen setti,
+// sitten alikansiot nimen mukaan. rootFiles: [{ name, ... }],
+// subFolders: [{ name, files: [{ name, ... }] }]. Palauttaa kappalelistan,
+// jossa tiedoston omat kentät ovat mukana (file).
+function folderTracks(rootFiles, subFolders) {
+  const groups = [];
+  if (rootFiles.length) groups.push({ name: "", files: rootFiles.slice().sort(byName) });
+  subFolders
+    .filter((f) => f.files.length && f.name)
+    .sort(byName)
+    .forEach((f) => groups.push({ name: setTitle(f.name), files: f.files.slice().sort(byName) }));
+
+  const list = [];
+  groups.forEach((g, gi) => {
+    g.files.forEach((file, fi) => {
+      const o = { title: fileTitle(file.name).slice(0, 200), file };
+      if (fi === 0 && gi > 0) o.set = true;
+      if (fi === 0 && g.name) o.name = g.name.slice(0, 80);
+      list.push(o);
+    });
+  });
+  if (!list.length) throw folderError("folder_empty");
+  if (list.length > MAX_FOLDER_FILES) throw folderError("too_many_files", list.length);
+  return list;
+}
+
+function toPlayerFiles(list, urls) {
+  return list.map((f, i) => {
+    const o = { title: f.title, url: urls[i] };
+    if (f.set) o.set = true;
+    if (f.name) o.name = f.name;
+    return o;
+  });
+}
+
+function folderFiles(folderUrl, env) {
+  return DRIVE_FOLDER_RE.test(folderUrl) ? driveFolderFiles(folderUrl, env) : dropboxFolderFiles(folderUrl, env);
+}
+
+// Virhekoodi, jolla avaimet puuttuvat, on palvelimen oma vika (500); muut
+// ovat ulkoisen palvelun vastauksia (502).
+function folderErrorStatus(code) {
+  return /_not_configured$/.test(code) ? 500 : 502;
+}
+
+// -- Dropbox --
+
+let dropboxToken = null; // { token, exp } – säilyy saman isolaatin kutsujen yli
+
+async function dropboxAccessToken(env) {
+  if (!env.DROPBOX_APP_KEY || !env.DROPBOX_APP_SECRET || !env.DROPBOX_REFRESH_TOKEN) {
+    throw folderError("dropbox_not_configured");
+  }
+  if (dropboxToken && dropboxToken.exp > Date.now()) return dropboxToken.token;
+  const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: env.DROPBOX_REFRESH_TOKEN,
+      client_id: env.DROPBOX_APP_KEY,
+      client_secret: env.DROPBOX_APP_SECRET,
+    }),
+  });
+  if (!res.ok) throw folderError("dropbox_auth", await res.text());
+  const data = await res.json();
+  if (!data || typeof data.access_token !== "string") throw folderError("dropbox_auth", "no access_token");
+  // Varmuusmarginaali, ettei vanhenevaa avainta käytetä kesken kutsun.
+  const ttl = Math.max(60, (Number(data.expires_in) || 14400) - 300);
+  dropboxToken = { token: data.access_token, exp: Date.now() + ttl * 1000 };
+  return dropboxToken.token;
+}
+
+async function dropboxRpc(token, endpoint, body) {
+  const res = await fetch(`https://api.dropboxapi.com/2/${endpoint}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    if (res.status === 401) dropboxToken = null;
+    const notFound = res.status === 409 && /not_found|shared_link_access_denied|shared_link_not_found/.test(text);
+    throw folderError(res.status === 401 ? "dropbox_auth" : notFound ? "folder_not_found" : "dropbox_error",
+      `${endpoint} ${res.status} ${text}`);
+  }
+  return JSON.parse(text);
+}
+
+async function dropboxFolderFiles(folderUrl, env) {
+  const token = await dropboxAccessToken(env);
+  const meta = await dropboxRpc(token, "sharing/get_shared_link_metadata", { url: folderUrl });
+  if (!meta || meta[".tag"] !== "folder") throw folderError("not_a_folder");
+  // path_lower on mukana vain, jos kansio on avaimen omistajan Dropboxissa.
+  const root = meta.path_lower;
+  if (typeof root !== "string" || !root) throw folderError("folder_not_owned");
+
+  const entries = [];
+  let page = await dropboxRpc(token, "files/list_folder", { path: root, recursive: true, limit: 2000 });
+  entries.push(...page.entries);
+  for (let i = 0; page.has_more && i < 3; i++) {
+    page = await dropboxRpc(token, "files/list_folder/continue", { cursor: page.cursor });
+    entries.push(...page.entries);
+  }
+
+  // Syvemmät kansiot ja muut kuin äänitiedostot ohitetaan.
+  const rootFiles = [];
+  const subFolders = new Map(); // path_lower → { name, files }
+  for (const e of entries) {
+    if (typeof e.path_lower !== "string" || !e.path_lower.startsWith(root + "/")) continue;
+    const parts = e.path_lower.slice(root.length + 1).split("/");
+    if (e[".tag"] === "folder" && parts.length === 1) {
+      const f = subFolders.get(e.path_lower) || { files: [] };
+      f.name = e.name;
+      subFolders.set(e.path_lower, f);
+    } else if (e[".tag"] === "file" && isAudioName(e.name)) {
+      if (parts.length === 1) rootFiles.push(e);
+      else if (parts.length === 2) {
+        const key = `${root}/${parts[0]}`;
+        const f = subFolders.get(key) || { files: [] };
+        f.files.push(e);
+        subFolders.set(key, f);
+      }
+    }
+  }
+
+  const list = folderTracks(rootFiles, [...subFolders.values()]);
+  const links = await Promise.all(list.map((f) =>
+    dropboxRpc(token, "files/get_temporary_link", { path: f.file.path_lower })));
+  return toPlayerFiles(list, links.map((l) => l.link));
+}
+
+// Käyttöönoton tarkistus: /api/dropbox vastaa {"ok":true}, kun salaisuudet
+// ovat paikallaan ja Dropbox hyväksyy ne. Mitään tiedostoja ei lueta.
+async function dropboxCheck(env) {
+  dropboxToken = null;
+  await dropboxAccessToken(env);
+}
+
+// -- Google Drive --
+
+const DRIVE_API = "https://www.googleapis.com/drive/v3/files";
+const DRIVE_FOLDER_MIME = "application/vnd.google-apps.folder";
+
+// Driven virhevastaus koodiksi. Väärä avain: 400 + API_KEY_INVALID (todettu).
+// Rajapinta pois päältä: 403 + SERVICE_DISABLED / accessNotConfigured.
+// Kansio, jota ei ole jaettu kaikille linkin saaneille, näkyy avaimelle 404:nä.
+async function driveGet(path, params, key, resourceKeys) {
+  const qs = new URLSearchParams({ ...params, key, supportsAllDrives: "true" });
+  const headers = resourceKeys.length ? { "X-Goog-Drive-Resource-Keys": resourceKeys.join(",") } : {};
+  const res = await fetch(`${DRIVE_API}${path}?${qs}`, { headers });
+  const text = await res.text();
+  if (!res.ok) {
+    const code = /API_KEY_INVALID|API key not valid/.test(text) ? "drive_key_invalid"
+      : /SERVICE_DISABLED|accessNotConfigured|has not been used/.test(text) ? "drive_api_disabled"
+      : res.status === 404 ? "folder_not_found"
+      : "drive_error";
+    throw folderError(code, `${path} ${res.status} ${text}`);
+  }
+  return JSON.parse(text);
+}
+
+async function driveChildren(folderId, key, resourceKeys) {
+  const files = [];
+  let pageToken = "";
+  for (let i = 0; i < 3; i++) {
+    const params = {
+      q: `'${folderId}' in parents and trashed = false`,
+      fields: "nextPageToken,files(id,name,mimeType,resourceKey)",
+      pageSize: "1000",
+      includeItemsFromAllDrives: "true",
+    };
+    if (pageToken) params.pageToken = pageToken;
+    const page = await driveGet("", params, key, resourceKeys);
+    files.push(...(page.files || []));
+    if (!page.nextPageToken) break;
+    pageToken = page.nextPageToken;
+  }
+  return files;
+}
+
+// Sama suora latauslinkki kuin yhden tiedoston keikassa (KAVERIVERSIO.md,
+// Äänitiedosto Drivessa).
+function driveFileUrl(file) {
+  return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(file.id)}&export=download&confirm=t` +
+    (file.resourceKey ? `&resourcekey=${encodeURIComponent(file.resourceKey)}` : "");
+}
+
+const isDriveAudio = (f) => f.mimeType !== DRIVE_FOLDER_MIME &&
+  (isAudioName(f.name) || (typeof f.mimeType === "string" && f.mimeType.startsWith("audio/")));
+
+async function driveFolderFiles(folderUrl, env) {
+  const key = env.GOOGLE_API_KEY;
+  if (!key) throw folderError("drive_not_configured");
+  const m = DRIVE_FOLDER_RE.exec(folderUrl);
+  const rootId = m[1];
+  const rk = m[2] ? [`${rootId}/${m[2]}`] : [];
+
+  const meta = await driveGet(`/${rootId}`, { fields: "id,name,mimeType" }, key, rk);
+  if (!meta || meta.mimeType !== DRIVE_FOLDER_MIME) throw folderError("not_a_folder");
+
+  const children = await driveChildren(rootId, key, rk);
+  const rootFiles = children.filter(isDriveAudio);
+  const folders = children.filter((f) => f.mimeType === DRIVE_FOLDER_MIME).sort(byName).slice(0, MAX_SUBFOLDERS);
+  const subFolders = await Promise.all(folders.map(async (f) => {
+    const keys = f.resourceKey ? rk.concat(`${f.id}/${f.resourceKey}`) : rk;
+    const files = (await driveChildren(f.id, key, keys)).filter(isDriveAudio);
+    return { name: f.name, files };
+  }));
+
+  const list = folderTracks(rootFiles, subFolders);
+  return toPlayerFiles(list, list.map((f) => driveFileUrl(f.file)));
+}
+
+// Käyttöönoton tarkistus: /api/drive. Kysytään olematonta tiedostoa: kelvollinen
+// avain saa vastaukseksi 404, väärä avain 400 ja pois päältä oleva Drive API 403.
+async function driveCheck(env) {
+  if (!env.GOOGLE_API_KEY) throw folderError("drive_not_configured");
+  try {
+    await driveGet("/soitin-tarkistus-0000000000", { fields: "id" }, env.GOOGLE_API_KEY, []);
+  } catch (err) {
+    if (err.code !== "folder_not_found") throw err;
+  }
+}
+
+async function handleFolderCheck(check, env) {
+  try {
+    await check(env);
+    return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+  } catch (err) {
+    const code = err && err.code ? err.code : "folder_error";
+    logEvent("folder_check", { code, detail: err && err.detail });
+    return errorResponse(code, folderErrorStatus(code));
+  }
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -416,8 +543,9 @@ export default {
     }
 
     try {
-      if (url.pathname === "/api/dropbox") {
-        return corsify(await handleDropboxCheck(env), {
+      if (url.pathname === "/api/dropbox" || url.pathname === "/api/drive") {
+        const check = url.pathname === "/api/drive" ? driveCheck : dropboxCheck;
+        return corsify(await handleFolderCheck(check, env), {
           origin,
           requestHeaders: acrHeaders,
           allowedOrigins,

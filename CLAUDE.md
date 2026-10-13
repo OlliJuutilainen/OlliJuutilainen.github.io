@@ -127,14 +127,26 @@ Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soi
 harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
-Keikka voi olla myös **Dropbox-kansio** (`{ title, folder }` KV:ssä audio-linkin ja biisilistan
-sijaan). Worker lukee kansion Dropboxin rajapinnasta joka haulla ja palauttaa `files`-listan
-tilapäisine linkkeineen (voimassa 4 h). Tiedostot ovat kappaleita nimen mukaisessa järjestyksessä,
-ja alikansiot ovat settejä. Workeri tarvitsee salaisuudet `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET`
-ja `DROPBOX_REFRESH_TOKEN` (ohje: KAVERIVERSIO.md, *Dropbox-kansio*). `/api/dropbox` kertoo,
-toimivatko ne. Soitin vaihtaa tiedoston vähän ennen edellisen loppua eikä vasta `ended`-tapahtumassa,
-koska lopun `pause`-tapahtuma saisi Android-kääreen (`silta.js`) laskemaan sovelluksen pois
-etualalta. Älä siirrä vaihtoa `ended`-tapahtumaan.
+**Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
+(`{ title, folder }` KV:ssä audio-linkin ja biisilistan sijaan). Worker lukee kansion palvelun
+rajapinnasta joka haulla ja palauttaa `files`-listan. Tiedostot ovat kappaleita nimen mukaisessa
+järjestyksessä, ja alikansiot ovat settejä. Dropbox tarvitsee workerin salaisuudet
+`DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET` ja `DROPBOX_REFRESH_TOKEN` (linkit tilapäisiä, 4 h), Drive
+salaisuuden `GOOGLE_API_KEY` (linkit pysyviä, kansio jaettu kaikille linkin saaneille).
+Tarkistusreitit `/api/dropbox` ja `/api/drive`. Ohje: KAVERIVERSIO.md, liite.
+
+Käyttäjän vaatimus: **kansio-ominaisuus ei saa vaikuttaa tavalliseen keikkaan** (yksi pitkä
+tiedosto ja biisilista) eikä kaveriohjeen selkeyteen.
+- Tavallisen keikan koodipolku pysyy ennallaan: kansiokoodi on omissa osioissaan
+  (`Lisäominaisuus`-otsikot), ja yhteisissä funktioissa se on vain `files`-haaroina. Kansion
+  tapahtumakäsittelijät kytketään vasta, kun kansiokeikka ladataan. Tavallinen keikka ei tee
+  yhtään Dropbox- tai Google-pyyntöä.
+- Apusivulla kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
+  kansiolinkkejä.
+- KAVERIVERSIO.md:ssä kansiokeikasta on vain maininta johdannossa ja liite ohjeen lopussa.
+- Soitin vaihtaa tiedoston vähän ennen edellisen loppua eikä vasta `ended`-tapahtumassa, koska
+  lopun `pause`-tapahtuma saisi Android-kääreen (`silta.js`) laskemaan sovelluksen pois
+  etualalta. Älä siirrä vaihtoa `ended`-tapahtumaan.
 
 Soittimen **kaveriversio** (`soitin/KAVERIVERSIO.md`): toinen käyttäjä pitää keikat omalla
 Cloudflare-tilillään. Linkki `soitin/#tunnus@soitin.kaveri` hakee keikan osoitteesta
