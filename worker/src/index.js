@@ -199,7 +199,13 @@ async function handleGig(req, env) {
       v: 1,
       title: data.title,
       audio: data.audio,
-      tracks: data.tracks.map((tr) => ({ t: tr.t, title: tr.title })),
+      // set: uuden setin ensimmäinen kappale, name: setin oma otsikko (esim. "(+)").
+      tracks: data.tracks.map((tr) => {
+        const o = { t: tr.t, title: tr.title };
+        if (tr.set === true) o.set = true;
+        if (typeof tr.name === "string" && tr.name.trim()) o.name = tr.name.trim().slice(0, 80);
+        return o;
+      }),
     },
     { headers: { "Cache-Control": "no-store" } }
   );
