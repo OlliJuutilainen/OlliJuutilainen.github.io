@@ -243,6 +243,7 @@
 
   var RE_AUDACITY = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)\t(.*)$/;
   var RE_TIME_FIRST = new RegExp("^(" + TIME + ")\\s*(?:[-–—|:)]\\s*)?(.+)$");
+  var RE_TIME_ONLY = new RegExp("^(?:\\d+[.)]\\s+)?(" + TIME + ")$");
   var RE_TIME_LAST = new RegExp("^(.+?)\\s*(?:[-–—|(]\\s*)?(" + TIME + ")\\)?$");
 
   // Setin vaihto: rivi, jossa on vain viivoja (---). Myös puhelimen
@@ -287,6 +288,9 @@
           return;
         }
         sec = zt === null ? 0 : zt;
+      } else if ((m = RE_TIME_ONLY.exec(line))) {
+        // Pelkkä aika: biisillä ei ole otsikkoa, soitin näyttää järjestysnumeron.
+        sec = parseTime(m[1].replace(",", ".")); title = "";
       } else if ((m = RE_TIME_FIRST.exec(line)) ||
                  (m = RE_TIME_FIRST.exec(line.replace(/^\d+[.)]\s+/, "")))) {
         sec = parseTime(m[1].replace(",", ".")); title = m[3].trim();
@@ -302,7 +306,6 @@
         return;
       }
       if (isNaN(sec)) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
-      if (!title) { errors.push("Rivi " + n + ": biisin nimi puuttuu."); return; }
       if (tracks.length && sec <= tracks[tracks.length - 1].sec) {
         errors.push("Rivi " + n + ": alkuaika ei ole edellistä myöhäisempi.");
       }
@@ -558,7 +561,7 @@
         f.mode.checked = false;
         f.audio.value = d.audio || "";
         f.tracks.value = (d.tracks || []).map(function (tr, i) {
-          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + tr.t + " " + tr.title;
+          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (tr.t + " " + tr.title).trim();
         }).join("\n");
         update();
       })
