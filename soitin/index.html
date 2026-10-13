@@ -11,7 +11,7 @@
     --bg: #faf9f6;
     --fg: #1b1b1a;
     --muted: #6d6b66;
-    --dim: #b3b2ae;
+    --dim: #c4c3bf;
     --line: #dcd9d2;
     --soft: #efede8;
     --accent: #157570;
@@ -23,7 +23,7 @@
       --bg: #151514;
       --fg: #ebe9e4;
       --muted: #9b9890;
-      --dim: #585652;
+      --dim: #484743;
       --line: #393834;
       --soft: #22221f;
       --accent: #20b2aa;
@@ -196,7 +196,7 @@
     gap: 10px;
     min-height: 28px;
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.64rem;
     font-style: italic;
   }
   /* Janakytkin on aikarivillä alkukohdan ja keston välissä: se vaihtaa
@@ -222,7 +222,7 @@
   }
   .sw .side:first-child { justify-content: flex-end; }
   /* Valittu puoli pysyy --muted-värisenä; valitsematon himmenee kohti
-     taustaa (--dim on --mutedin ja --bg:n puoliväli). */
+     taustaa (--dim on 62 % matkasta --mutedista --bg:hen). */
   .sw:has(input:checked) .side[data-on="0"],
   .sw:has(input:not(:checked)) .side[data-on="1"] { color: var(--dim); }
   .sw input {
@@ -260,6 +260,36 @@
   /* Kytkimen pohja on samanvärinen kummassakin asennossa; valinnan kertovat
      nupin paikka ja tekstien himmennys. */
   .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Setin kytkimen alla on stop-merkki, ja kummankin puolen tekstistä
+     kaartuu siihen nuoli: "soita keikka / setti loppuun". Nuoli on tekstin
+     sisällä, joten se himmenee tekstin mukana. */
+  #setopt { row-gap: 0; }
+  #setopt .side { position: relative; }
+  .stopmark {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: center;
+    width: 8px;
+    height: 8px;
+    margin-top: 1px;
+    border-radius: 1px;
+    background: currentColor;
+  }
+  .arr {
+    position: absolute;
+    top: 20px;
+    right: -16px;
+    width: 23px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .side[data-on="1"] .arr { right: auto; left: -16px; transform: scaleX(-1); }
 
   /* --- Kappalelista --- */
   ol {
@@ -370,9 +400,9 @@
     <div class="times">
       <span class="num" id="cur">0:00</span>
       <div class="sw" id="scaleopt">
-        <span class="side" data-on="0">keikkajana</span>
+        <span class="side" data-on="0">keikka</span>
         <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
-        <span class="side" data-on="1">biisijana</span>
+        <span class="side" data-on="1">biisi</span>
       </div>
       <span class="num" id="dur">–:––</span>
     </div>
@@ -397,9 +427,10 @@
   </section>
 
   <div class="sw" id="setopt" hidden>
-    <span class="side" data-on="0">keikan loppuun</span>
+    <span class="side" data-on="0">keikka<svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg></span>
     <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
-    <span class="side" data-on="1">setin loppuun</span>
+    <span class="side" data-on="1"><svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg>setti</span>
+    <span class="stopmark" aria-hidden="true"></span>
   </div>
 
   <ol id="list" aria-label="Kappaleet"></ol>
