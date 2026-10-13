@@ -132,16 +132,22 @@
     pointer-events: none;
   }
   .seek[aria-disabled="true"] .knob { display: none; }
-  .row {
+  /* Aika janan alla: vasemmalla kohta, oikealla janan pituus. Jana on 44 px
+     korkea ja viiva sen keskellä, joten rivi nostetaan lähemmäs viivaa. */
+  .times {
     display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .time {
-    margin-left: auto;
+    justify-content: space-between;
+    margin-top: -10px;
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     white-space: nowrap;
+  }
+  .ctls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
   }
   .ctl {
     width: 44px;
@@ -159,8 +165,10 @@
     color: var(--bg);
   }
   .ctl.play svg { width: 26px; height: 26px; }
+  .ctl.skip svg { width: 26px; height: 26px; }
+  .ctl.skip text { font: 700 9px system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-  /* --- Tilavalinta --- */
+  /* --- Janan mittakaava --- */
   .mode {
     border: 0;
     padding: 0;
@@ -285,25 +293,31 @@
       <div id="ticks"></div>
       <div class="knob" id="knob"></div>
     </div>
-    <div class="row">
+    <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
+    <div class="ctls">
       <button class="ctl" id="prev" type="button" aria-label="Edellinen kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+      </button>
+      <button class="ctl skip" id="back" type="button" aria-label="15 sekuntia taaksepäin">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 0 8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L7.5 5z"/><text x="12" y="16.2" text-anchor="middle">15</text></svg>
       </button>
       <button class="ctl play" id="play" type="button" aria-label="Toista">
         <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-play"><path d="M7 4.5v15L20 12z"/></svg>
         <svg viewBox="0 0 24 24" aria-hidden="true" id="icon-pause" hidden><path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z"/></svg>
       </button>
+      <button class="ctl skip" id="fwd" type="button" aria-label="15 sekuntia eteenpäin">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13a8 8 0 1 1-8-8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1.5v7L16.5 5z"/><text x="12" y="16.2" text-anchor="middle">15</text></svg>
+      </button>
       <button class="ctl" id="next" type="button" aria-label="Seuraava kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
       </button>
-      <span class="time num" id="time">0:00 / –:––</span>
     </div>
   </section>
 
   <fieldset class="mode">
-    <legend>Toistotapa</legend>
-    <label><input type="radio" name="mode" value="all" checked> Soita eteenpäin</label>
-    <label><input type="radio" name="mode" value="one"> Vain tämä biisi</label>
+    <legend>Janan mittakaava</legend>
+    <label><input type="radio" name="scale" value="song" checked> Biisijana</label>
+    <label><input type="radio" name="scale" value="gig"> Keikkajana</label>
   </fieldset>
 
   <ol id="list" aria-label="Kappaleet"></ol>
@@ -317,18 +331,8 @@
 (function () {
   "use strict";
 
-  // Kuinka paljon ennen biisin rajaa "Vain tämä biisi" pysäyttää (s).
-  // Kattaa yhden ruudunpäivityksen viiveen, ettei seuraavan biisin
-  // alkua ehdi kuulua.
-  var STOP_LOOKAHEAD = 0.02;
-  // Lukitulla näytöllä requestAnimationFrame ei aja lainkaan, joten pysäytys
-  // tarkistetaan timeupdatessa. Se laukeaa n. 4 kertaa sekunnissa, joten
-  // katkaistaan välin verran etuajassa.
-  var STOP_LOOKAHEAD_HIDDEN = 0.3;
-  // Jos raja on ohitettu tätä enemmän, pysäytys on jäänyt taustalla
-  // tekemättä. Silloin ei kelata taaksepäin seuraavan biisin alkuun, vaan
-  // pysähdytään sen biisin loppuun, jota nyt soitetaan.
-  var STOP_OVERSHOOT = 1;
+  // Hyppynappien askel (s). Hyppy saa ylittää biisin rajan.
+  var SKIP = 15;
 
   // Keikan tiedot (otsikko, mp3-linkki, biisilista) haetaan workerista.
   // Repossa ei ole yhtään keikkaa: tunnus kulkee osoitteen #-osassa,
@@ -341,8 +345,9 @@
   var audio = $("audio");
   var els = {
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
-    fill: $("fill"), ticks: $("ticks"), knob: $("knob"), time: $("time"),
-    play: $("play"), prev: $("prev"), next: $("next"), list: $("list"),
+    fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
+    play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
+    list: $("list"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
   };
 
@@ -407,25 +412,26 @@
   // ---- Tila -------------------------------------------------------------
 
   var current = -1;        // korostettu kappale
-  var stopAt = null;       // "Vain tämä biisi": pysäytyskohta (s)
   var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
   var dragging = false;
   var dragTime = 0;
+  var dragSpan = null;     // vedon ajan jana, ettei se vaihdu biisin rajalla
   var rafId = 0;
   var longTimes = false;   // näytetäänkö h:mm:ss
-
-  function mode() {
-    return document.querySelector('input[name="mode"]:checked').value;
-  }
+  var scale = "song";      // jana: "song" = nykyinen biisi, "gig" = koko keikka
 
   function position() {
     return pendingSeek !== null ? pendingSeek : audio.currentTime;
   }
 
-  // Asettaa pysäytyskohdan sen kappaleen loppuun, jossa ollaan nyt.
-  function armStop() {
-    stopAt = mode() === "one" && tracks.length ? trackEnd(trackAt(position())) : null;
-    if (stopAt !== null && !isFinite(stopAt)) stopAt = null; // viimeinen: ended hoitaa
+  // Janan alku ja loppu (s). Biisijanalla ensimmäiseen biisiin kuuluu myös
+  // mahdollinen alku ennen sen merkittyä alkuaikaa, kuten trackAt-funktiossa.
+  function span(i) {
+    var d = duration();
+    if (scale === "gig" || i < 0) return { a: 0, b: d };
+    var b = trackEnd(i);
+    if (isFinite(d)) b = Math.min(b, d);
+    return { a: i === 0 ? 0 : tracks[i].start, b: b };
   }
 
   function seekTo(t) {
@@ -438,7 +444,6 @@
     } else {
       pendingSeek = t;
     }
-    armStop();
     render();
   }
 
@@ -473,20 +478,30 @@
     var i = trackAt(position());
     if (i + 1 < tracks.length) jumpTo(i + 1, !audio.paused);
   }
+  function skip(delta) {
+    if (isFinite(duration())) seekTo(position() + delta);
+  }
 
   // ---- Piirto -----------------------------------------------------------
 
   function render() {
     var d = duration();
     var t = dragging ? dragTime : position();
-    var frac = isFinite(d) && d > 0 ? Math.min(1, t / d) : 0;
+    var i = tracks.length ? trackAt(t) : -1;
+    var s = dragging ? dragSpan : span(i);
+    var len = s.b - s.a;
+    var known = isFinite(len) && len > 0;
+    var frac = known ? Math.min(1, Math.max(0, (t - s.a) / len)) : 0;
+    var lt = scale === "gig" ? longTimes : known && len >= 3600;
+    var cur = fmt(t - s.a, lt);
     els.fill.style.width = frac * 100 + "%";
     els.knob.style.left = frac * 100 + "%";
-    els.time.textContent = fmt(t, longTimes) + " / " + (isFinite(d) ? fmt(d, longTimes) : "–:––");
-    els.seek.setAttribute("aria-valuenow", Math.floor(t));
-    els.seek.setAttribute("aria-valuetext", fmt(t, longTimes) + " / " + (isFinite(d) ? fmt(d, longTimes) : "tuntematon"));
+    els.cur.textContent = cur;
+    els.dur.textContent = known ? fmt(len, lt) : "–:––";
+    els.seek.setAttribute("aria-valuemax", known ? Math.floor(len) : 0);
+    els.seek.setAttribute("aria-valuenow", Math.floor(Math.max(0, t - s.a)));
+    els.seek.setAttribute("aria-valuetext", cur + " / " + (known ? fmt(len, lt) : "tuntematon"));
 
-    var i = tracks.length ? trackAt(t) : -1;
     if (i !== current) {
       if (current >= 0 && els.list.children[current]) els.list.children[current].removeAttribute("aria-current");
       current = i;
@@ -503,6 +518,7 @@
     }
     els.prev.disabled = !tracks.length;
     els.next.disabled = i < 0 || i + 1 >= tracks.length;
+    els.back.disabled = els.fwd.disabled = !isFinite(d);
   }
 
   function renderPlayState() {
@@ -513,10 +529,11 @@
     els.play.setAttribute("aria-label", playing ? "Tauko" : "Toista");
   }
 
+  // Biisirajat näkyvät vain keikkajanalla; biisijana on yksi biisi.
   function renderTicks() {
     var d = duration();
     els.ticks.innerHTML = "";
-    if (!isFinite(d) || d <= 0) return;
+    if (scale !== "gig" || !isFinite(d) || d <= 0) return;
     tracks.forEach(function (tr) {
       if (tr.start <= 0 || tr.start >= d) return;
       var k = document.createElement("div");
@@ -634,29 +651,11 @@
 
   // ---- Toistosilmukka ---------------------------------------------------
   // requestAnimationFrame eikä timeupdate, koska timeupdate laukeaa vain
-  // n. 4 kertaa sekunnissa ja pysähdys myöhästyisi jopa 250 ms.
-
-  // Palauttaa true, jos toisto pysäytettiin.
-  function checkStop(lookahead) {
-    if (stopAt === null || audio.paused) return false;
-    var t = audio.currentTime;
-    if (t < stopAt - lookahead) return false;
-    if (t > stopAt + STOP_OVERSHOOT) {
-      armStop();
-      return false;
-    }
-    var at = stopAt;
-    audio.pause();
-    audio.currentTime = at; // seuraavan biisin alkuun valmiiksi
-    armStop();
-    render();
-    return true;
-  }
+  // n. 4 kertaa sekunnissa ja nuppi liikkuisi nykien.
 
   function loop() {
     rafId = 0;
     if (audio.paused) return;
-    if (checkStop(STOP_LOOKAHEAD)) return;
     render();
     rafId = requestAnimationFrame(loop);
   }
@@ -668,13 +667,12 @@
     rafId = 0;
   }
 
-  audio.addEventListener("play", function () { armStop(); renderPlayState(); startLoop(); });
+  audio.addEventListener("play", function () { renderPlayState(); startLoop(); });
   audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
-  audio.addEventListener("seeked", function () { armStop(); render(); });
+  audio.addEventListener("seeked", render);
   // Piilossa render pitää myös lukitusnäytön kappaleen nimen ajan tasalla.
   audio.addEventListener("timeupdate", function () {
-    if (document.hidden && checkStop(STOP_LOOKAHEAD_HIDDEN)) return;
     if (audio.paused || document.hidden) render();
   });
   audio.addEventListener("loadedmetadata", onMeta);
@@ -691,24 +689,25 @@
       pendingSeek = null;
       audio.currentTime = Math.min(t, d);
     }
-    els.seek.setAttribute("aria-valuemax", Math.floor(d));
     els.seek.setAttribute("aria-disabled", "false");
     renderTicks();
-    armStop();
     render();
   }
 
   // ---- Edistymispalkki --------------------------------------------------
   // Vedon aikana näytetään vain esikatselu; varsinainen haku tehdään kun
   // sormi nousee, ettei pitkää tiedostoa haeta verkosta jokaisella liikkeellä.
+  // Jana lukitaan vedon alussa: biisijanalla oikeaan reunaan vedetty kohta on
+  // jo seuraavan biisin alku, eikä jana saa vaihtua kesken vedon.
 
   function timeFromPointer(e) {
     var r = els.seek.getBoundingClientRect();
     var x = Math.min(Math.max(0, e.clientX - r.left), r.width);
-    return r.width ? (x / r.width) * duration() : 0;
+    return dragSpan.a + (r.width ? (x / r.width) * (dragSpan.b - dragSpan.a) : 0);
   }
   els.seek.addEventListener("pointerdown", function (e) {
     if (!isFinite(duration()) || e.button > 0) return;
+    dragSpan = span(trackAt(position()));
     dragging = true;
     dragTime = timeFromPointer(e);
     els.seek.setPointerCapture(e.pointerId);
@@ -735,8 +734,8 @@
     else if (e.key === "ArrowLeft" || e.key === "ArrowDown") seekTo(t - 5);
     else if (e.key === "PageUp") seekTo(t + 30);
     else if (e.key === "PageDown") seekTo(t - 30);
-    else if (e.key === "Home") seekTo(0);
-    else if (e.key === "End") seekTo(duration());
+    else if (e.key === "Home") seekTo(span(trackAt(t)).a);
+    else if (e.key === "End") seekTo(span(trackAt(t)).b);
     else handled = false;
     if (handled) e.preventDefault();
   });
@@ -746,8 +745,14 @@
   els.play.addEventListener("click", toggle);
   els.prev.addEventListener("click", prevTrack);
   els.next.addEventListener("click", nextTrack);
-  document.querySelectorAll('input[name="mode"]').forEach(function (r) {
-    r.addEventListener("change", armStop);
+  els.back.addEventListener("click", function () { skip(-SKIP); });
+  els.fwd.addEventListener("click", function () { skip(SKIP); });
+  document.querySelectorAll('input[name="scale"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      scale = r.value;
+      renderTicks();
+      render();
+    });
   });
 
   function isTextField(el) {
@@ -807,6 +812,8 @@
     set("pause", function () { audio.pause(); });
     set("previoustrack", prevTrack);
     set("nexttrack", nextTrack);
+    set("seekbackward", function (d) { skip(-((d && d.seekOffset) || SKIP)); });
+    set("seekforward", function (d) { skip((d && d.seekOffset) || SKIP); });
     set("seekto", function (d) { if (d && isFinite(d.seekTime)) seekTo(d.seekTime); });
   }
 
