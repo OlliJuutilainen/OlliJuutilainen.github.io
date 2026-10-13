@@ -66,21 +66,12 @@
   tr.set:first-child td { padding-top: 6px; }
   tr.set .len { margin-left: 0.8em; opacity: 0.8; font-variant-numeric: tabular-nums; }
   a { color: var(--accent); overflow-wrap: anywhere; }
-  /* Kytkin kuten soittimessa: valinnat molemmin puolin, valitsematon himmeä. */
-  .sw { display: flex; align-items: center; gap: 10px; margin: 18px 0 0; min-height: 44px; }
-  .sw .side { cursor: pointer; user-select: none; -webkit-user-select: none; }
-  .sw:has(input:checked) .side[data-on="0"],
-  .sw:has(input:not(:checked)) .side[data-on="1"] { color: var(--muted); }
-  .sw input {
-    appearance: none; -webkit-appearance: none; position: relative; flex: 0 0 auto;
-    width: 36px; height: 20px; margin: 0; border-radius: 10px; background: var(--line); cursor: pointer;
+  /* Lisäominaisuuden (kansiokeikka) tekstilinkit: eivät näytä napeilta. */
+  button.link {
+    background: none; color: var(--accent); padding: 0; min-height: 44px; white-space: normal;
+    text-align: left; text-decoration: underline; text-underline-offset: 3px;
   }
-  .sw input::before { content: ""; position: absolute; inset: -12px -8px; }
-  .sw input::after {
-    content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%;
-    background: var(--bg); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); transition: transform 0.15s;
-  }
-  .sw input:checked::after { transform: translateX(16px); }
+  .extra { margin-top: 40px; }
 </style>
 </head>
 <body>
@@ -102,28 +93,26 @@
   <label for="title">Otsikko</label>
   <input id="title" type="text" placeholder="Keikan nimi – paikka, pvm">
 
-  <div class="sw">
-    <span class="side" data-on="0">yksi tiedosto</span>
-    <input type="checkbox" role="switch" id="mode" aria-label="Kansio">
-    <span class="side" data-on="1">kansio</span>
-  </div>
-
   <div id="singleBox">
   <label for="audio">Äänitiedoston linkki (Dropbox)</label>
   <input id="audio" type="url" placeholder="https://www.dropbox.com/…" autocapitalize="off" spellcheck="false">
   <p class="muted" id="audioNote" style="margin-top:6px"></p>
   </div>
 
+  <!-- Lisäominaisuus: kansiokeikka. Piilossa, kunnes sivun lopun linkki avaa sen. -->
   <div id="folderBox" hidden>
-  <label for="folder">Kansion linkki (Dropbox)</label>
-  <input id="folder" type="url" placeholder="https://www.dropbox.com/scl/fo/…" autocapitalize="off" spellcheck="false">
+  <p class="muted" style="margin:14px 0 0">Kansiokeikka (lisäominaisuus).<br>
+    <button type="button" class="link" id="toSingle">Takaisin yhteen tiedostoon</button></p>
+  <label for="folder" style="margin-top:4px">Kansion linkki (Dropbox tai Google Drive)</label>
+  <input id="folder" type="url" placeholder="https://www.dropbox.com/scl/fo/… tai https://drive.google.com/drive/folders/…" autocapitalize="off" spellcheck="false">
   <p class="muted" style="margin-top:6px">Kansion äänitiedostot ovat kappaleita nimen mukaisessa
     järjestyksessä, joten numeroi ne: <code>01 Intro.mp3</code>, <code>02 Toinen.mp3</code> …
     Alkunumero jää pois kappaleen nimestä, ja <code>00 [Intro].mp3</code> saa numeron 0.
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
     <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Soitin lukee kansion joka kerta
     avautuessaan, joten myöhemmin lisätty tiedosto tulee mukaan ilman uutta komentoa. Enintään
-    44 tiedostoa. Vaatii workeriin Dropbox-avaimet (ohje: KAVERIVERSIO.md, kohta <i>Dropbox-kansio</i>).</p>
+    44 tiedostoa. Vaatii workeriin Dropbox- tai Google-avaimen (ohje: KAVERIVERSIO.md, liite
+    <i>Keikka kansiosta</i>).</p>
   </div>
 
   <div id="tracksBox">
@@ -162,6 +151,9 @@
     <button id="copyLink" type="button">Kopioi linkki</button>
     <a id="open" href="#" target="_blank" rel="noopener" style="margin-left:12px">Avaa soitin</a>
   </div>
+
+  <p class="muted extra" id="folderOffer"><button type="button" class="link" id="toFolder">Lisäominaisuus:
+    keikka kansiosta yhden tiedoston sijaan</button></p>
 </main>
 
 <script>
@@ -207,9 +199,10 @@
   }
   window.addEventListener("hashchange", function () { location.reload(); });
   var f = { key: $("key"), title: $("title"), audio: $("audio"), tracks: $("tracks"),
-            folder: $("folder"), mode: $("mode") };
-  // Hae-napilla luettu kansion sisältö: { url, tracks } esikatselua varten.
-  var fetchedFolder = null;
+            folder: $("folder") };
+  // Lisäominaisuus: kansiokeikka. Oletuksena pois; sivun lopun linkki avaa.
+  // fetchedFolder: Hae-napilla luettu kansion sisältö { url, tracks } esikatselua varten.
+  var folderMode = false, fetchedFolder = null;
 
   function randomKey() {
     var b = new Uint8Array(8), s = "";
@@ -373,23 +366,31 @@
     a.src = url;
   }
 
-  var RE_FOLDER_PATH = /^\/(?:scl\/fo|sh)\//;
+  // ---- Lisäominaisuus: kansiokeikka --------------------------------------
 
-  // Kansion jakolinkki: dl-parametri pois, rlkey (avain) jää.
+  // Kansion jakolinkki. Dropbox: dl-parametri pois, rlkey (avain) jää.
+  // Drive: lyhennetään muotoon …/drive/folders/<ID>, resourcekey jää, jos on.
   function normalizeFolder(s) {
     s = s.trim();
     if (!s) return { url: "", error: "Kansion linkki puuttuu." };
     var u;
     try { u = new URL(s); } catch (e) { return { url: "", error: "Kansion linkki ei ole kelvollinen osoite." }; }
-    if (u.protocol !== "https:" || !/^(www\.)?dropbox\.com$/.test(u.hostname)) {
-      return { url: "", error: "Kansion linkin pitää olla Dropboxin jakolinkki (https://www.dropbox.com/…)." };
+    var file = "Tämä on yksittäisen tiedoston linkki. Kopioi kansion linkki.";
+    if (u.protocol === "https:" && u.hostname === "drive.google.com") {
+      if (/^\/file\/d\//.test(u.pathname)) return { url: "", error: file };
+      var m = /^\/drive\/(?:u\/\d+\/)?folders\/([A-Za-z0-9_-]{10,})\/?$/.exec(u.pathname);
+      if (!m) return { url: "", error: "Linkki ei näytä Drive-kansion jakolinkiltä (…/drive/folders/…)." };
+      var rk = u.searchParams.get("resourcekey");
+      return { url: "https://drive.google.com/drive/folders/" + m[1] +
+        (rk && /^[A-Za-z0-9_-]+$/.test(rk) ? "?resourcekey=" + rk : "") };
     }
-    if (/^\/scl\/fi\//.test(u.pathname)) {
-      return { url: "", error: "Tämä on yksittäisen tiedoston linkki. Kopioi Dropboxista kansion linkki." };
+    if (u.protocol === "https:" && /^(www\.)?dropbox\.com$/.test(u.hostname)) {
+      if (/^\/scl\/fi\//.test(u.pathname)) return { url: "", error: file };
+      if (!/^\/(?:scl\/fo|sh)\//.test(u.pathname)) return { url: "", error: "Linkki ei näytä Dropbox-kansion jakolinkiltä." };
+      u.searchParams.delete("dl");
+      return { url: u.toString() };
     }
-    if (!RE_FOLDER_PATH.test(u.pathname)) return { url: "", error: "Linkki ei näytä Dropbox-kansion jakolinkiltä." };
-    u.searchParams.delete("dl");
-    return { url: u.toString() };
+    return { url: "", error: "Kansion linkin pitää olla Dropboxin tai Google Driven jakolinkki." };
   }
 
   // Kansion sisältö biisilistan muodossa: alkuajat tiedostojen kestoista,
@@ -414,8 +415,8 @@
     if (!KEY_RE.test(key)) problems.push("Tunnuksessa saa olla vain pieniä kirjaimia a–z ja numeroita, 4–32 merkkiä.");
     var title = f.title.value.replace(/[\r\n]+/g, " ").trim();
     if (!title) problems.push("Otsikko puuttuu.");
-    var isFolder = f.mode.checked;
-    $("singleBox").hidden = $("tracksBox").hidden = isFolder;
+    var isFolder = folderMode;
+    $("singleBox").hidden = $("tracksBox").hidden = $("folderOffer").hidden = isFolder;
     $("folderBox").hidden = !isFolder;
     var audio, folder, list;
     if (isFolder) {
@@ -426,10 +427,7 @@
     } else {
       audio = normalizeAudio(f.audio.value);
       if (audio.error) problems.push(audio.error);
-      else if (/(^|\.)dropbox\.com$/.test(new URL(audio.url).hostname) && RE_FOLDER_PATH.test(new URL(audio.url).pathname)) {
-        problems.push("Tämä on kansion linkki. Valitse ylhäältä kansio.");
-      }
-      probeAudio(audio.error ? "" : audio.url);
+      probeAudio(audio.url);
       $("audioNote").textContent = audio.changed ? "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1)." : "";
       list = parseList(f.tracks.value);
       problems = problems.concat(list.errors);
@@ -552,13 +550,13 @@
       .then(function (d) {
         f.title.value = d.title || "";
         if (typeof d.folder === "string") {
-          f.mode.checked = true;
+          folderMode = true;
           f.folder.value = d.folder;
           fetchedFolder = { url: normalizeFolder(d.folder).url, tracks: folderTracks(d.files || []) };
           update();
           return;
         }
-        f.mode.checked = false;
+        folderMode = false;
         f.audio.value = d.audio || "";
         f.tracks.value = (d.tracks || []).map(function (tr, i) {
           return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (tr.t + " " + tr.title).trim();
@@ -574,8 +572,11 @@
   var FOLDER_ERRORS = {
     dropbox_not_configured: "workerista puuttuvat Dropbox-avaimet.",
     dropbox_auth: "Dropbox ei hyväksynyt workerin avaimia.",
-    folder_not_found: "kansion jakolinkkiä ei löytynyt.",
     folder_not_owned: "kansio ei ole sen Dropbox-tilin, jolle avaimet on tehty.",
+    drive_not_configured: "workerista puuttuu Googlen API-avain.",
+    drive_key_invalid: "Google ei hyväksynyt workerin API-avainta.",
+    drive_api_disabled: "Googlen projektissa ei ole Drive API:a päällä.",
+    folder_not_found: "kansiota ei löytynyt (poistettu, tai Drivessa ei jaettu kaikille linkin saaneille).",
     not_a_folder: "linkki ei osoita kansioon.",
     folder_empty: "kansiossa ei ole äänitiedostoja.",
     too_many_files: "kansiossa on yli 44 tiedostoa."
@@ -593,14 +594,15 @@
 
   f.key.value = randomKey();
   ["key", "title", "audio", "tracks", "folder"].forEach(function (k) { f[k].addEventListener("input", update); });
-  f.mode.addEventListener("change", update);
-  document.querySelectorAll(".sw .side").forEach(function (sd) {
-    sd.addEventListener("click", function () {
-      var on = sd.getAttribute("data-on") === "1";
-      if (f.mode.checked === on) return;
-      f.mode.checked = on;
-      update();
-    });
+  $("toFolder").addEventListener("click", function () {
+    folderMode = true;
+    update();
+    f.folder.focus();
+  });
+  $("toSingle").addEventListener("click", function () {
+    folderMode = false;
+    update();
+    f.audio.focus();
   });
   $("newkey").addEventListener("click", function () { f.key.value = randomKey(); update(); });
   $("fetch").addEventListener("click", fetchExisting);

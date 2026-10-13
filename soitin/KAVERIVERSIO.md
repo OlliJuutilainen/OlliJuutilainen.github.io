@@ -9,6 +9,9 @@ Käyttöönotto vie noin puoli tuntia ja tehdään kerran. Sen jälkeen uusi kei
 minuutin homma: äänitiedosto Dropboxiin tai Driveen, biisilista lomakkeeseen, yksi komento
 Terminaliin.
 
+Ohjeen lopussa on liite lisäominaisuudesta, jossa keikka kootaan kansiosta ja jokainen
+kappale on oma tiedostonsa. Tavallinen keikka ei tarvitse siitä mitään.
+
 ## Mitä tarvitset
 
 - Macin, jossa on Terminal. Käyttöjärjestelmän versiolla ei ole väliä: komento käyttää vain
@@ -214,105 +217,6 @@ vain lopettaa kuuntelun, voit myös poistaa jakolinkin Dropboxista tai Drivesta.
 
 ---
 
-## Dropbox-kansio soittolistana (valinnainen)
-
-Yhden äänitiedoston ja biisilistan sijaan keikaksi voi antaa jaetun Dropbox-kansion. Kansion
-äänitiedostot ovat kappaleita nimen mukaisessa järjestyksessä, ja soitin soittaa ne
-peräkkäin. Biisilistaa ei kirjoiteta: kappaleiden nimet tulevat tiedostonimistä.
-
-- **Numeroi tiedostot:** `01 Intro.mp3`, `02 Toinen biisi.mp3` … `10 …`. Järjestys menee
-  numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois kappaleen nimestä. Alaviivat
-  muuttuvat välilyönneiksi. `00 [Intro].mp3` saa numeron 0 kuten biisilistassakin.
-  Huom: ilman numeroa nimen alussa oleva luku katoaa myös (`99 Luftballons.mp3` →
-  *Luftballons*), joten numeroi aina.
-- **Setit ovat alikansioita.** Jokainen alikansio on oma settinsä nimen mukaisessa
-  järjestyksessä: `1`, `2` … Numeron jälkeinen nimi on setin otsikko (`3 (+)` → *(+)*,
-  `2 Encore` → *(Encore)*). Pääkansion omat tiedostot ovat ensimmäinen setti. Syvemmät kansiot
-  ja muut kuin äänitiedostot (kuvat, tekstit) ohitetaan.
-- **Kansio luetaan joka kerta, kun soitin avataan.** Kansioon lisätty tai uudelleennimetty
-  tiedosto näkyy seuraavalla avauksella ilman uutta komentoa.
-- Enintään 44 tiedostoa (Cloudflaren ilmaistason raja).
-- Kansion pitää olla **sinun omassa Dropboxissasi**, eli samalla tilillä, jolle alla tehdään
-  avain. Toisen jakama kansio ei toimi.
-
-### Käyttöönotto (kerran, noin 15 minuuttia)
-
-Tämä tarvitaan yhden tiedoston keikkojen lisäksi. Ne toimivat edelleen ilman tätä.
-
-**1. Päivitä workerin koodi.** Kansiotuki on uudessa koodissa. Toista kohdan 3 vaiheet 5–6
-(**Edit code**, korvaa kaikki, **Deploy**). Sama on tehtävä aina, kun Olli kertoo
-päivittäneensä workeria.
-
-**2. Dropbox-sovellus.** Sovellus on vain avain, jolla workerisi saa lukea Dropboxiasi.
-
-1. Avaa <https://www.dropbox.com/developers/apps> ja kirjaudu omalla Dropbox-tililläsi.
-2. **Create app** → **Scoped access** → **Full Dropbox** → nimeksi esim. `soitin-` ja oma
-   nimesi (nimen pitää olla Dropboxissa ainutlaatuinen) → **Create app**.
-3. Välilehti **Permissions**: ruksi `files.metadata.read`, `files.content.read` ja
-   `sharing.read`. Paina alhaalta **Submit**. Tee tämä **ennen** seuraavaa kohtaa, sillä
-   avain saa vain ne oikeudet, jotka ovat päällä sen tekohetkellä.
-4. Välilehti **Settings**: kopioi talteen **App key** ja **App secret** (*Show*).
-
-Kaikki oikeudet ovat lukuoikeuksia: avaimella ei voi muuttaa eikä poistaa mitään.
-App secret on kuitenkin salainen, eli **älä liitä sitä keskusteluun, äläkä myöskään Claudelle.**
-
-**3. Pysyvä avain (refresh token).** Avaa selaimessa tämä osoite niin, että `APP_KEY`:n
-tilalla on App key:
-
-```
-https://www.dropbox.com/oauth2/authorize?client_id=APP_KEY&response_type=code&token_access_type=offline
-```
-
-Hyväksy (**Continue → Allow**). Sivulle tulee koodi. Aja Terminalissa heti (koodi vanhenee
-muutamassa minuutissa) korvaten `KOODI`, `APP_KEY` ja `APP_SECRET`:
-
-```
-curl -sS https://api.dropboxapi.com/oauth2/token -d code=KOODI -d grant_type=authorization_code -u APP_KEY:APP_SECRET
-```
-
-Vastauksessa on `"refresh_token": "…"`. Kopioi lainausmerkkien välinen osa talteen.
-Se on salainen kuten App secret. Jos vastaus on `invalid_grant`, koodi ehti vanhentua tai sitä
-käytettiin jo kerran. Avaa osoite uudelleen ja aja komento uudella koodilla.
-
-**4. Salaisuudet workeriin.** Avaa worker (**Workers & Pages → soitin**) → **Settings →
-Variables and Secrets → Add**. Lisää kolme muuttujaa, joiden **Type** on **Secret**:
-
-| Variable name | Arvo |
-|---|---|
-| `DROPBOX_APP_KEY` | App key |
-| `DROPBOX_APP_SECRET` | App secret |
-| `DROPBOX_REFRESH_TOKEN` | refresh token |
-
-Nimet täsmälleen näin, isoilla kirjaimilla. Paina **Deploy** (tai *Save*).
-
-**Tarkistus:** avaa selaimessa `https://soitin.<jotain>.workers.dev/api/dropbox`.
-
-| Näet | Tarkoittaa |
-|---|---|
-| `{"ok":true}` | Kaikki kunnossa. |
-| `{"error":"dropbox_not_configured"}` | Jokin kolmesta salaisuudesta puuttuu tai sen nimi on väärin. Kohta 4. |
-| `{"error":"dropbox_auth"}` | Dropbox ei hyväksynyt avaimia: App key, App secret ja refresh token eivät kuulu yhteen. Kohdat 2–4. |
-| `{"error":"not_found"}` | Workerin koodi on vanha. Kohta 1. |
-
-### Uusi kansiokeikka
-
-1. **Kansio Dropboxiin** ja tiedostot numeroituina sinne. Kansion **Jaa → Kopioi linkki**
-   (kuka tahansa linkin saanut voi katsoa). Kopioi nimenomaan kansion linkki
-   (`dropbox.com/scl/fo/…`), ei yksittäisen tiedoston.
-2. **Avaa kirjanmerkki** (*Omat asetukset* näkyvissä), täytä otsikko ja käännä kytkin
-   asentoon **kansio**. Liitä kansion linkki.
-3. **Kopioi komento → Terminal → Enter**, kuten tavallisessa keikassa.
-4. **Tarkista kappaleet:** kirjoita tunnus apusivun Tunnus-kenttään ja paina **Hae**.
-   Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne kansiosta lukee. Jos
-   järjestys on väärä, nimeä tiedostot uudelleen Dropboxissa; uutta komentoa ei tarvita.
-5. **Avaa linkki itse ensin.** Soitin mittaa avautuessaan jokaisen tiedoston keston
-   (*Ladataan kappaleita… 3/12*), joten avaus kestää hetken pidempään kuin yhden tiedoston keikassa.
-
-Kappaleiden välissä voi olla lyhyt tauko, kun seuraava tiedosto latautuu. Jos esitys on yksi
-yhtenäinen äänite, yksi tiedosto ja biisilista toimivat saumattomasti.
-
----
-
 ## Kun jokin ei toimi
 
 | Oire | Syy ja korjaus |
@@ -324,10 +228,6 @@ yhtenäinen äänite, yksi tiedosto ja biisilista toimivat saumattomasti.
 | Soitin: *Keikan tietojen haku epäonnistui* | Linkin `@`-osa on väärin tai verkko ei toimi. Vertaa kohdan 3 osoitteeseen. |
 | Soitin: *Keikkaa ei löytynyt* | Odota minuutti. Jos ei auta: tunnus väärin tai komento jäi ajamatta. |
 | Soitin: *Äänitiedoston lataaminen epäonnistui* | Jakolinkki on poistettu tai väärä. Tee se uudelleen ja korjaa keikka. Drivessa tarkista myös, että linkki on muutettu (ks. *Äänitiedosto Drivessa*). |
-| Soitin: *Keikan kansiota ei saatu Dropboxista* | Alla oleva selitys kertoo syyn. Tarkista ensin `…/api/dropbox` (kohta *Dropbox-kansio → Tarkistus*). |
-| Soitin: *Kansio ei ole sen Dropbox-tilin omistama…* | Kansio on toisen jakama tai avain on tehty eri Dropbox-tilillä. Siirrä kansio omaan Dropboxiisi. |
-| Soitin: *Kansion jakolinkkiä ei löytynyt* | Kansion jakolinkki on poistettu tai luotu uudelleen. Kopioi uusi linkki ja tallenna keikka uudelleen samalla tunnuksella. |
-| Soitin: *Kaikkia kappaleita ei saatu ladattua* | Lueteltuja tiedostoja ei voinut soittaa (ehkä vioittunut tai muoto, jota selain ei tunne). Muut soivat. |
 
 Tallennuskomentoa ei ole vielä ajettu oikealla Cloudflare-tilillä; sinun testikeikkasi on
 ensimmäinen. Jos tallennus antaa virheen, jota taulukossa ei ole, välitä Ollille Terminalin
@@ -377,3 +277,176 @@ Jos haluat tehdä käyttöönoton yhdessä Clauden kanssa, aloita uusi keskustel
 > Koneeni on Mac (macOS-versio: ____). Puhelimeni on iPhone. Äänitiedostot ovat
 > (Dropboxissa / Google Drivessa): ____. Kun käyttöönotto on valmis,
 > tehdään yhdessä testikeikka ja käydään läpi ohjeen iPhone-kohdan tarkistukset.
+
+---
+
+## Liite: keikka kansiosta (lisäominaisuus)
+
+Tavallinen keikka ei tarvitse mitään tästä liitteestä. Lue se vain, jos haluat keikan, jossa
+jokainen kappale on oma äänitiedostonsa.
+
+Kansiokeikassa annetaan yhden äänitiedoston ja biisilistan sijaan jaettu kansio Dropboxista
+tai Google Drivesta. Soitin soittaa kansion äänitiedostot peräkkäin, ja kappaleiden nimet
+tulevat tiedostonimistä. Biisilistaa ei kirjoiteta.
+
+### Kansion sisältö
+
+- **Numeroi tiedostot:** `01 Intro.mp3`, `02 Toinen biisi.mp3` … `10 …`. Järjestys menee
+  numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois kappaleen nimestä. Alaviivat
+  muuttuvat välilyönneiksi. `00 [Intro].mp3` saa numeron 0 kuten biisilistassakin.
+  Huom: ilman numeroa nimen alussa oleva luku katoaa myös (`99 Luftballons.mp3` →
+  *Luftballons*), joten numeroi aina.
+- **Setit ovat alikansioita.** Jokainen alikansio on oma settinsä nimen mukaisessa
+  järjestyksessä: `1`, `2` … Numeron jälkeinen nimi on setin otsikko (`3 (+)` → *(+)*,
+  `2 Encore` → *(Encore)*). Pääkansion omat tiedostot ovat ensimmäinen setti. Syvemmät kansiot
+  ja muut kuin äänitiedostot (kuvat, tekstit) ohitetaan.
+- **Kansio luetaan joka kerta, kun soitin avataan.** Kansioon lisätty tai uudelleennimetty
+  tiedosto näkyy seuraavalla avauksella ilman uutta komentoa.
+- Enintään 44 tiedostoa.
+- Kappaleiden välissä voi olla lyhyt tauko, kun seuraava tiedosto latautuu. Jos esitys on
+  yksi yhtenäinen äänite, tavallinen keikka (yksi tiedosto ja biisilista) soi saumattomasti.
+
+### Dropbox vai Drive?
+
+Worker lukee kansion kummankin palvelun omasta rajapinnasta, ja siihen tarvitaan avain.
+Avaimet ja ehdot eroavat:
+
+| | Dropbox | Google Drive |
+|---|---|---|
+| Avain workeriin | Dropbox-sovellus, kolme salaisuutta | Google Cloud -projektin API-avain, yksi salaisuus |
+| Kenen kansio | vain avaimen tehneen tilin oma kansio | kenen tahansa, kunhan jaettu *Kaikki, joilla on linkki* |
+| Soittimen äänilinkit | tilapäisiä (4 h), soitin uusii ne itse | pysyviä |
+| Kokeiltu | ei vielä oikealla Dropboxilla | ei vielä oikealla Drivella |
+
+Tee vain sen palvelun käyttöönotto, jota käytät. Molempia voi käyttää rinnakkain.
+
+### Käyttöönotto (kerran)
+
+**1. Päivitä workerin koodi.** Kansiotuki on uudessa koodissa. Toista käyttöönoton kohdan 3
+vaiheet 5–6 (**Edit code**, korvaa kaikki, **Deploy**). Sama on tehtävä aina, kun Olli kertoo
+päivittäneensä workeria.
+
+Sitten joko **2A (Dropbox)** tai **2B (Drive)**.
+
+#### 2A. Dropbox (noin 15 minuuttia)
+
+**Dropbox-sovellus.** Sovellus on vain avain, jolla workerisi saa lukea Dropboxiasi.
+
+1. Avaa <https://www.dropbox.com/developers/apps> ja kirjaudu omalla Dropbox-tililläsi.
+2. **Create app** → **Scoped access** → **Full Dropbox** → nimeksi esim. `soitin-` ja oma
+   nimesi (nimen pitää olla Dropboxissa ainutlaatuinen) → **Create app**.
+3. Välilehti **Permissions**: ruksi `files.metadata.read`, `files.content.read` ja
+   `sharing.read`. Paina alhaalta **Submit**. Tee tämä **ennen** seuraavaa kohtaa, sillä
+   avain saa vain ne oikeudet, jotka ovat päällä sen tekohetkellä.
+4. Välilehti **Settings**: kopioi talteen **App key** ja **App secret** (*Show*).
+
+Kaikki oikeudet ovat lukuoikeuksia: avaimella ei voi muuttaa eikä poistaa mitään.
+App secret on kuitenkin salainen, eli **älä liitä sitä keskusteluun, äläkä myöskään Claudelle.**
+
+**Pysyvä avain (refresh token).** Avaa selaimessa tämä osoite niin, että `APP_KEY`:n
+tilalla on App key:
+
+```
+https://www.dropbox.com/oauth2/authorize?client_id=APP_KEY&response_type=code&token_access_type=offline
+```
+
+Hyväksy (**Continue → Allow**). Sivulle tulee koodi. Aja Terminalissa heti (koodi vanhenee
+muutamassa minuutissa) korvaten `KOODI`, `APP_KEY` ja `APP_SECRET`:
+
+```
+curl -sS https://api.dropboxapi.com/oauth2/token -d code=KOODI -d grant_type=authorization_code -u APP_KEY:APP_SECRET
+```
+
+Vastauksessa on `"refresh_token": "…"`. Kopioi lainausmerkkien välinen osa talteen.
+Se on salainen kuten App secret. Jos vastaus on `invalid_grant`, koodi ehti vanhentua tai sitä
+käytettiin jo kerran. Avaa osoite uudelleen ja aja komento uudella koodilla.
+
+**Salaisuudet workeriin.** Avaa worker (**Workers & Pages → soitin**) → **Settings →
+Variables and Secrets → Add**. Lisää kolme muuttujaa, joiden **Type** on **Secret**:
+
+| Variable name | Arvo |
+|---|---|
+| `DROPBOX_APP_KEY` | App key |
+| `DROPBOX_APP_SECRET` | App secret |
+| `DROPBOX_REFRESH_TOKEN` | refresh token |
+
+Nimet täsmälleen näin, isoilla kirjaimilla. Paina **Deploy** (tai *Save*).
+
+**Tarkistus:** avaa selaimessa `https://soitin.<jotain>.workers.dev/api/dropbox`.
+
+| Näet | Tarkoittaa |
+|---|---|
+| `{"ok":true}` | Kaikki kunnossa. |
+| `{"error":"dropbox_not_configured"}` | Jokin kolmesta salaisuudesta puuttuu tai sen nimi on väärin. |
+| `{"error":"dropbox_auth"}` | Dropbox ei hyväksynyt avaimia: App key, App secret ja refresh token eivät kuulu yhteen. |
+| `{"error":"not_found"}` | Workerin koodi on vanha. Kohta 1. |
+
+#### 2B. Google Drive (noin 10 minuuttia)
+
+Drivessa ei tarvita sovellusta eikä pysyvää avainta, vain API-avain. Sillä worker saa
+lukea kansioita, jotka on jaettu kaikille linkin saaneille. Muuhun Driveesi se ei pääse.
+Drive API:n käyttö on maksutonta.
+
+1. Avaa <https://console.cloud.google.com/> ja kirjaudu Google-tililläsi. Hyväksy ehdot, jos
+   niitä kysytään.
+2. Yläpalkin projektivalitsin → **New project** → nimeksi `soitin` → **Create**. Varmista,
+   että uusi projekti on valittuna yläpalkissa.
+3. Avaa <https://console.cloud.google.com/apis/library/drive.googleapis.com> → **Enable**.
+4. Vasemmasta valikosta **APIs & Services → Credentials → Create credentials → API key**.
+   Kopioi avain talteen.
+5. Rajaa avain: avaimen kohdalla **Edit API key** (kynä) → **API restrictions → Restrict key**
+   → valitse **Google Drive API** → **Save**. *Application restrictions* jää tilaan **None**,
+   koska avainta käyttää worker eikä selain.
+
+Avain ei avaa mitään, mikä ei jo ole julkisesti jaettu, mutta pidä se silti salaisena: älä
+liitä sitä keskusteluun, äläkä myöskään Claudelle.
+
+**Salaisuus workeriin.** Avaa worker (**Workers & Pages → soitin**) → **Settings →
+Variables and Secrets → Add**. **Type** on **Secret**, **Variable name** `GOOGLE_API_KEY`
+(täsmälleen näin) ja arvona API-avain. Paina **Deploy** (tai *Save*).
+
+**Tarkistus:** avaa selaimessa `https://soitin.<jotain>.workers.dev/api/drive`.
+
+| Näet | Tarkoittaa |
+|---|---|
+| `{"ok":true}` | Kaikki kunnossa. |
+| `{"error":"drive_not_configured"}` | Salaisuus puuttuu tai sen nimi on väärin. |
+| `{"error":"drive_key_invalid"}` | Google ei tunne avainta. Kopioi se uudelleen kohdasta 4. |
+| `{"error":"drive_api_disabled"}` | Drive API ei ole päällä avaimen projektissa (kohta 3). Jos juuri laitoit sen päälle, odota muutama minuutti. |
+| `{"error":"not_found"}` | Workerin koodi on vanha. Kohta 1. |
+
+### Uusi kansiokeikka
+
+1. **Kansio ja numeroidut tiedostot** Dropboxiin tai Driveen. Kopioi **kansion** linkki, ei
+   yksittäisen tiedoston:
+   - Dropbox: kansion **Jaa → Kopioi linkki** (kuka tahansa linkin saanut voi katsoa).
+     Linkki on muotoa `dropbox.com/scl/fo/…`.
+   - Drive: kansion **Jaa → Yleinen käyttöoikeus: Kaikki, joilla on linkki → Kopioi linkki**.
+     Linkki on muotoa `drive.google.com/drive/folders/…`. Kansion tiedostot perivät jaon;
+     niiden linkkejä ei tarvitse muuttaa.
+2. **Avaa kirjanmerkki** (*Omat asetukset* näkyvissä) ja paina sivun lopusta
+   **Lisäominaisuus: keikka kansiosta yhden tiedoston sijaan**. Täytä otsikko ja liitä kansion
+   linkki. Takaisin tavalliseen keikkaan pääsee kentän yläpuolelta.
+3. **Kopioi komento → Terminal → Enter**, kuten tavallisessa keikassa.
+4. **Tarkista kappaleet:** kirjoita tunnus apusivun Tunnus-kenttään ja paina **Hae**.
+   Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne kansiosta lukee. Jos
+   järjestys on väärä, nimeä tiedostot uudelleen; uutta komentoa ei tarvita.
+5. **Avaa linkki itse ensin.** Soitin mittaa avautuessaan jokaisen tiedoston keston
+   (*Ladataan kappaleita… 3/12*), joten avaus kestää hetken pidempään kuin tavallisessa
+   keikassa.
+
+**Drivessa testaa ensimmäinen kansiokeikka huolella.** Soitin soittaa Driven tiedostot samalla
+suoralla latauslinkillä kuin tavallisen keikan Drive-tiedoston (ks. *Äänitiedosto Drivessa*),
+eikä sitä ole vielä kokeiltu soittimen kanssa. Tarkista, että ääni soi, kappale vaihtuu
+seuraavaan itsestään ja kelaus toimii, myös iPhonen Safarissa.
+
+### Kun kansiokeikka ei toimi
+
+| Oire | Syy ja korjaus |
+|---|---|
+| Soitin: *Keikan kansiota ei saatu luettua* | Ilmoituksen alla oleva selitys kertoo syyn. Avaa ensin `…/api/dropbox` tai `…/api/drive` (kohdan 2A tai 2B tarkistus). |
+| Selitys: *Kansio ei ole sen Dropbox-tilin omistama…* | Kansio on toisen jakama, tai avain on tehty eri Dropbox-tilillä. Siirrä kansio omaan Dropboxiisi. |
+| Selitys: *Kansiota ei löytynyt* | Jakolinkki on poistettu tai luotu uudelleen, tai Drive-kansiota ei ole jaettu *Kaikki, joilla on linkki*. Korjaa jako tai tallenna keikka uudella linkillä samalla tunnuksella. |
+| Selitys: *Kansiossa ei ole äänitiedostoja* | Tiedostot ovat liian syvällä (alikansion alikansiossa) tai niillä ei ole äänitiedoston päätettä. |
+| Soitin: *Kaikkia kappaleita ei saatu ladattua* | Lueteltuja tiedostoja ei voinut soittaa (ehkä vioittunut tai muoto, jota selain ei tunne). Muut soivat. |
+| Apusivu: *Tämä on yksittäisen tiedoston linkki* | Kopioi kansion linkki, ei tiedoston. |

@@ -452,8 +452,8 @@
   var trackLens = [];  // kappalerivien kestokentät, tracks-järjestyksessä
   var heads = [];      // setin otsikkorivit: { li, first: ensimmäisen kappaleen indeksi }
 
-  // Kansiokeikka (Dropbox-kansio, ks. worker): jokainen kappale on oma
-  // tiedostonsa. Tiedostot ladataan peräkkäin samaan audio-elementtiin, ja
+  // Lisäominaisuus, kansiokeikka (Dropbox- tai Drive-kansio, ks. worker):
+  // jokainen kappale on oma tiedostonsa. Tiedostot ladataan peräkkäin samaan audio-elementtiin, ja
   // kappaleiden alkuajat ovat tiedostojen kestojen summia, joten muu soitin
   // (jana, setit, hypyt, linkit) näkee yhden yhtenäisen keikan.
   // files = null tarkoittaa tavallista yhden tiedoston keikkaa.
@@ -594,10 +594,11 @@
   // Soitto ylitti setin rajan: pysäytetään ja jäädään seuraavan setin alkuun,
   // josta toisto jatkuu seuraavalla painalluksella.
   function checkStop() {
-    if (audio.paused || position() < stopAt) return;
+    // Kansiokeikassa setin raja hoidetaan tiedoston vaihdossa (advance).
+    if (files) return;
+    if (audio.paused || audio.currentTime < stopAt) return;
     var t = stopAt;
     audio.pause();
-    if (files) { seekTo(t); return; }
     audio.currentTime = t;
     armStop();
   }
@@ -691,6 +692,8 @@
     if (p && p.catch) {
       p.catch(function (e) {
         if (e && e.name === "NotAllowedError") return; // selain esti, käyttäjä voi painaa uudelleen
+        // Kansiokeikassa tiedoston vaihto kesken latauksen keskeyttää edellisen play()-kutsun.
+        if (files && e && e.name === "AbortError") return;
         if (!audio.error) showError("Toisto ei käynnistynyt.", e && e.message);
       });
     }
@@ -938,7 +941,7 @@
     else if (code === 3) detail = "Tiedosto latautui, mutta selain ei pystynyt purkamaan sitä. Tiedosto voi olla vioittunut.";
     else if (code === 4) detail = "Tiedostoa ei löytynyt tai se ei ole äänitiedosto.";
     if (files && (code === 2 || code === 4) && refreshLinks()) return;
-    if (!files && /dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
+    if (/dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
       detail = (detail ? detail + " " : "") + "Dropbox-linkin lopussa pitää olla ?raw=1.";
     }
     showError(msg, detail);
@@ -954,7 +957,6 @@
     rafId = 0;
     if (audio.paused) return;
     checkStop();
-    maybeAdvance();
     render();
     rafId = requestAnimationFrame(loop);
   }
@@ -967,18 +969,13 @@
   }
 
   audio.addEventListener("play", function () { armStop(); renderPlayState(); startLoop(); });
-  audio.addEventListener("pause", function () { clearAdvance(); stopLoop(); renderPlayState(); render(); });
-  audio.addEventListener("ended", function () {
-    // Varalla, jos vaihto ennen loppua ei ehtinyt (esim. ajastin myöhästyi).
-    if (files && cur + 1 < files.length) { advance(); return; }
-    stopLoop(); renderPlayState(); render();
-  });
+  audio.addEventListener("pause", function () { stopLoop(); renderPlayState(); render(); });
+  audio.addEventListener("ended", function () { stopLoop(); renderPlayState(); render(); });
   audio.addEventListener("seeked", render);
   // Piilossa render pitää myös lukitusnäytön kappaleen nimen ajan tasalla.
   // Piilossa animaatiosilmukka ei pyöri, joten setin raja tarkistetaan täällä.
   audio.addEventListener("timeupdate", function () {
     checkStop();
-    maybeAdvance();
     if (audio.paused || document.hidden) render();
   });
   audio.addEventListener("loadedmetadata", onMeta);
@@ -1186,6 +1183,11 @@
     renderPlayState();
     applyHash();
     if (files) {
+      // Tiedostojen vaihto kytketään vain kansiokeikalle. ended on varalla,
+      // jos vaihto ennen loppua ei ehtinyt (esim. ajastin myöhästyi).
+      audio.addEventListener("timeupdate", maybeAdvance);
+      audio.addEventListener("pause", clearAdvance);
+      audio.addEventListener("ended", function () { if (cur + 1 < files.length) advance(); });
       // Hash on voinut jo ladata oikean tiedoston.
       if (!audio.getAttribute("src")) audio.src = files[cur].url;
       els.seek.setAttribute("aria-disabled", "false");
@@ -1196,13 +1198,18 @@
     }
   }
 
-  // ---- Kansiokeikka: kestot ja vanhentuneet linkit -----------------------
+  // ---- Lisäominaisuus: kansiokeikka --------------------------------------
+  // Kestot, vanhentuneet linkit ja workerin kansiovirheet. Tavallinen keikka
+  // ei käytä tätä osiota.
 
-  var DROPBOX_ERRORS = {
-    dropbox_not_configured: "Workerista puuttuvat Dropbox-avaimet (KAVERIVERSIO.md, Dropbox-kansio).",
+  var FOLDER_ERRORS = {
+    dropbox_not_configured: "Workerista puuttuvat Dropbox-avaimet (KAVERIVERSIO.md, liite).",
     dropbox_auth: "Dropbox ei hyväksynyt workerin avaimia. Ne on ehkä peruttu; tee avaimet uudelleen.",
-    folder_not_found: "Kansion jakolinkkiä ei löytynyt. Se on ehkä poistettu tai vaihdettu.",
     folder_not_owned: "Kansio ei ole sen Dropbox-tilin omistama, jolle workerin avaimet on tehty.",
+    drive_not_configured: "Workerista puuttuu Googlen API-avain (KAVERIVERSIO.md, liite).",
+    drive_key_invalid: "Google ei hyväksynyt workerin API-avainta.",
+    drive_api_disabled: "Googlen projektissa ei ole Drive API:a päällä.",
+    folder_not_found: "Kansiota ei löytynyt. Jakolinkki on ehkä poistettu, tai Drivessa kansiota ei ole jaettu kaikille linkin saaneille.",
     not_a_folder: "Tallennettu linkki ei osoita kansioon.",
     folder_empty: "Kansiossa ei ole äänitiedostoja.",
     too_many_files: "Kansiossa on liikaa tiedostoja (enintään 44)."
@@ -1326,9 +1333,9 @@
         }
         if (!res.ok) {
           return res.json().catch(function () { return {}; }).then(function (b) {
-            var dbx = b && DROPBOX_ERRORS[b.error];
-            throw { user: dbx ? "Keikan kansiota ei saatu Dropboxista." : "Keikan tietoja ei saatu palvelimelta.",
-                    detail: dbx || "Palvelin vastasi virheellä " + res.status + ". Yritä hetken päästä uudelleen." };
+            var fe = b && FOLDER_ERRORS[b.error];
+            throw { user: fe ? "Keikan kansiota ei saatu luettua." : "Keikan tietoja ei saatu palvelimelta.",
+                    detail: fe || "Palvelin vastasi virheellä " + res.status + ". Yritä hetken päästä uudelleen." };
           });
         }
         return res.json();
