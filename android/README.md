@@ -102,6 +102,9 @@ Toiminta:
 - Soitto jatkuu, kun näyttö sammuu tai siirryt toiseen sovellukseen. Soiton ajaksi sovellus
   nousee etualapalveluksi ja pitää prosessorin hereillä (herätyslukko, enintään 6 h).
 - Takaisin-painike soiton aikana vie sovelluksen taustalle. Tauolla se sulkee sovelluksen.
+- Oikeassa yläkulmassa on kaksi nappia: ⟳ lataa sivun uudelleen ja × sulkee sovelluksen
+  (myös kesken soiton). Seuraava käynnistys lataa sivun alusta. Napit lisää `silta.js`,
+  joten verkkoversiossa niitä ei ole.
 - `src/main/assets/silta.js` syötetään sivulle, kun se on latautunut. Se kertoo sovellukselle,
   soiko ääni ja mikä kappale on menossa. `soitin/index.html` ei itse tiedä sovelluksesta mitään.
 - Jos sivu ei lataudu (esim. ei verkkoa), näkyy virheilmoitus ja "Yritä uudelleen" -painike.

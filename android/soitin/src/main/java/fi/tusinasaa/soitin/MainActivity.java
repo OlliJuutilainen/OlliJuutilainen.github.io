@@ -175,14 +175,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** silta.js kutsuu tätä, kun soitto alkaa tai loppuu tai kappale vaihtuu. */
     private final class Bridge {
+        /** silta.js kutsuu tätä, kun soitto alkaa tai loppuu tai kappale vaihtuu. */
         @JavascriptInterface
         public void state(boolean playing, String title, String track) {
             runOnUiThread(() -> {
                 // Silta on näkyvissä vain soittimen omalle sivulle.
                 if (webView != null && isPlayerUrl(webView.getUrl())) {
                     onPlayerState(playing, title, track);
+                }
+            });
+        }
+
+        /**
+         * Sivun sulkemisnappi. Sulkee sovelluksen myös soiton aikana, jolloin palvelu
+         * päättyy aktiviteetin mukana. Seuraava käynnistys lataa sivun alusta.
+         */
+        @JavascriptInterface
+        public void close() {
+            runOnUiThread(() -> {
+                if (webView != null && isPlayerUrl(webView.getUrl())) {
+                    finishAndRemoveTask();
                 }
             });
         }
