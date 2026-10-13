@@ -97,7 +97,8 @@
   <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
     <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Jos ensimmäinen nimi on hakasulkeissa,
     esim. <code>[Intro]</code>, se saa numeron 0 ja numerointi alkaa vasta seuraavasta. Listan
-    ensimmäiseltä biisiltä ajan voi jättää pois tai kirjoittaa <code>0</code>.
+    ensimmäiseltä biisiltä ajan voi jättää pois tai kirjoittaa <code>0</code>. Jos ensimmäinen
+    biisi alkaa myöhemmin kuin 0:00 eikä hakasulkubiisiä ole, alkuun tulee <i>[0. INTRO]</i>.
     Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä (tai 0:sta, jos setin
     ensimmäinen nimi on hakasulkeissa). Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
     rivilleen heti <code>---</code>-rivin jälkeen, esim. <code>(+)</code>, tai ensimmäiselle setille
@@ -244,6 +245,17 @@
     return { tracks: tracks, errors: errors };
   }
 
+  // Jos ensimmäinen biisi alkaa myöhemmin kuin 0:00 eikä sitä edellä ole
+  // hakasulkubiisiä, alkuun tulee [INTRO]. Sama sääntö on soittimessa; se
+  // vain näytetään, ei tallenneta. Setin otsikko siirtyy introlle.
+  function withIntro(tracks) {
+    var f = tracks[0];
+    if (!f || !(f.sec > 0) || /^\[.*\]$/.test(f.title)) return tracks;
+    var intro = { sec: 0, t: fmtTime(0), title: "[INTRO]" }, rest = tracks.slice(1);
+    if (f.name) intro.name = f.name;
+    return [intro, { sec: f.sec, t: f.t, title: f.title }].concat(rest);
+  }
+
   function roman(n) {
     var r = "", v = [40, 10, 9, 5, 4, 1], d = ["xl", "x", "ix", "v", "iv", "i"];
     for (var k = 0; k < v.length; k++) while (n >= v[k]) { r += d[k]; n -= v[k]; }
@@ -317,22 +329,23 @@
     }
     box.hidden = !(problems.length && anyInput);
 
-    // Sama numerointi kuin soittimessa: joka setti alkaa 1:stä, ja suluissa
-    // oleva setin ensimmäinen biisi on esinumero 0.
+    // Sama numerointi kuin soittimessa: joka setti alkaa 1:stä, ja
+    // hakasulkeissa oleva setin ensimmäinen biisi on esinumero 0.
+    var shown = withIntro(list.tracks);
     var prev = $("preview");
     prev.innerHTML = "";
     // Otsikot näkyvät, jos settejä on useampi tai jokin on nimetty.
-    var heads = list.tracks.some(function (tr, i) { return (tr.set && i) || tr.name; });
+    var heads = shown.some(function (tr, i) { return (tr.set && i) || tr.name; });
     var setNo = 0, nr = 1;
-    list.tracks.forEach(function (tr, i) {
+    shown.forEach(function (tr, i) {
       if (i === 0 || tr.set) {
         setNo++;
         nr = /^\[.*\]$/.test(tr.title) ? 0 : 1;
         if (heads) {
           // Kesto seuraavan setin alkuun; viimeisen vain jos tiedoston pituus selvisi.
           var end = audioLen;
-          for (var k = i + 1; k < list.tracks.length; k++) {
-            if (list.tracks[k].set) { end = list.tracks[k].sec; break; }
+          for (var k = i + 1; k < shown.length; k++) {
+            if (shown[k].set) { end = shown[k].sec; break; }
           }
           var len = end - tr.sec;
           var h = document.createElement("tr"), hd = document.createElement("td");

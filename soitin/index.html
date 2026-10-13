@@ -468,6 +468,17 @@
     return r;
   }
 
+  // Jos ensimmäinen kappale alkaa myöhemmin kuin 0:00 eikä se ole
+  // hakasulkeissa, alkuun lisätään esinumero [INTRO]. Lisäys on vain
+  // näytössä, ei tallennetussa keikassa. Setin otsikko siirtyy introlle.
+  function withIntro(list) {
+    var f = (list || [])[0];
+    if (!f || !(parseTime(f.t) > 0) || /^\[.*\]$/.test(String(f.title || "").trim())) return list;
+    var intro = { t: "0:00", title: "[INTRO]" };
+    if (f.name) intro.name = f.name;
+    return [intro, { t: f.t, title: f.title }].concat(list.slice(1));
+  }
+
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
   function loadTracks(list) {
     var errors = [];
@@ -1000,7 +1011,7 @@
     $("loading").hidden = true;
     $("app").hidden = false;
 
-    var errors = loadTracks(gig.tracks);
+    var errors = loadTracks(withIntro(gig.tracks));
     if (errors.length) showError("Kappalelistassa on virhe.", errors.join(" "));
     if (!tracks.length) {
       tracks.push({ start: 0, title: gig.title, set: 1, n: 1 });
