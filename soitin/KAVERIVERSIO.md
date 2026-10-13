@@ -158,7 +158,7 @@ Valmista. Tee seuraavaksi testikeikka alla olevalla ohjeella.
    Dropbox-linkin suoraksi tiedostolinkiksi itse; Driven linkkiä se ei muuta. Sivun ohje
    kertoo biisilistan muodot, setit ja intron. Tarkista esikatselu. Kenttä *Päivämäärä tai
    muuta lisätietoa* on vapaaehtoinen; se näkyy soittimessa otsikon alla, jos workerisi
-   koodi on päivitetty lokakuun 2026 jälkeen (kohdan 3 vaiheet 5–6). Vanha koodi jättää
+   koodi on päivitetty 13.10.2026 tai myöhemmin (kohdan 3 vaiheet 5–6). Vanha koodi jättää
    sen huomiotta.
 4. **Kopioi komento → liitä Terminaliin → Enter.** Ensimmäinen vastausrivi sisältää
    `"success":true`, ja sen alla tulostuvat tallennetut keikan tiedot.
