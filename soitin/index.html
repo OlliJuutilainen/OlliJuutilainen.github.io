@@ -182,13 +182,15 @@
     align-items: center;
     gap: 10px;
     min-height: 28px;
-    margin: 0 0 22px;
     color: var(--muted);
     font-size: 0.8rem;
     font-style: italic;
   }
-  #scaleopt { margin-top: 14px; }
-  .sw:has(+ .sw:not([hidden])) { margin-bottom: 0; }
+  /* Janakytkin on aikarivin alla kiinni janassa, jonka mittakaavaa se
+     vaihtaa; setin kytkin on nappien alla. */
+  #scaleopt { margin-bottom: 8px; }
+  #setopt { margin-top: 14px; }
+  #list { margin-top: 22px; }
   .sw .side {
     min-height: 28px;
     display: flex;
@@ -344,6 +346,12 @@
       <div class="knob" id="knob"></div>
     </div>
     <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
+    <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
+    <div class="sw" id="scaleopt">
+      <span class="side" data-on="0">keikkajana</span>
+      <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
+      <span class="side" data-on="1">biisijana</span>
+    </div>
     <div class="ctls">
       <button class="ctl" id="prev" type="button" aria-label="Edellinen kappale">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
@@ -364,15 +372,8 @@
     </div>
   </section>
 
-  <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
-  <div class="sw" id="scaleopt">
-    <span class="side" data-on="0">keikka-...</span>
-    <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
-    <span class="side" data-on="1">biisijana</span>
-  </div>
-
   <div class="sw" id="setopt" hidden>
-    <span class="side" data-on="0">keikan ...</span>
+    <span class="side" data-on="0">keikan loppuun</span>
     <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
     <span class="side" data-on="1">setin loppuun</span>
   </div>
