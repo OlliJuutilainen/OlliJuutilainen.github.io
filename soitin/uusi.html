@@ -139,7 +139,9 @@
     raidalla pitää olla alkuaika. Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
     rivilleen heti <code>---</code>-rivin jälkeen, esim. <code>(+)</code>, tai ensimmäiselle setille
     listan alkuun. Audacityn <i>Export Labels</i> -tiedoston
-    sisällön voi liittää sellaisenaan.</p>
+    sisällön voi liittää sellaisenaan, samoin Logicin markerilistan (listan View-valikosta
+    <i>Show Event Position and Length as Time</i>, sitten Cmd-A ja Cmd-C) ja Reaperin SWS-markerilistan
+    (<i>Export format</i> <code>mt d</code>). Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
   </div>
 
   <div id="problems" class="error" role="alert" hidden></div>
@@ -268,13 +270,34 @@
     return isNaN(t) ? undefined : t;
   }
 
+  // Logicin markerilista (View > Show Event Position and Length as Time,
+  // Cmd-A, Cmd-C): "01:02:19:12.40⇥Nimi⇥ 00:00:00:00.02", lukitulla
+  // markerilla alussa "🔒⇥". Aika on SMPTE (tunnit:min:s:framet), ja Logicin
+  // tahti 1 on oletuksena 01:00:00:00, joten ensimmäisen rivin täydet tunnit
+  // vähennetään kaikista. Framet jäävät pois: alku on enintään sekunnin
+  // aikaisempi, ei koskaan myöhäisempi. Oletusnimi "Marker 3" = nimetön biisi.
+  var RE_SMPTE = /^(?:[^\d\t]*\t)?\s*(\d{1,2}):(\d{2}):(\d{2})[:;](\d{2})(?:\.\d+)?(?:\s+(.*?))?(?:\t\s*\d{1,2}:\d{2}:\d{2}[:;]\d{2}(?:\.\d+)?)?\s*$/;
+
+  // Setinvaihto DAW:n markerista: "44:50 ---" tai "44:50 --- (Encore)".
+  // Aika ei merkitse mitään; setti alkaa seuraavasta rivistä.
+  var RE_TIMED_SET = new RegExp("^" + TIME + "\\s+[-–—](?:\\s*[-–—])*\\s*(\\(.+\\))?$");
+
   function parseList(text) {
-    var tracks = [], errors = [], newSet = false, name = "";
+    var tracks = [], errors = [], newSet = false, name = "", smpteHours = null;
     text.split(/\r?\n/).forEach(function (raw, i) {
       var line = raw.trim(), n = i + 1, m, sec, title;
       if (!line) return;
+      if ((m = RE_SMPTE.exec(raw))) {
+        if (smpteHours === null) smpteHours = +m[1];
+        sec = (+m[1] - smpteHours) * 3600 + +m[2] * 60 + +m[3];
+        if (+m[2] > 59 || +m[3] > 59 || sec < 0) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
+        title = (m[5] || "").trim();
+        if (/^Marker \d+$/.test(title)) title = "";
+        line = fmtTime(sec) + (title ? " " + title : "");
+      }
       // Alussa, lopussa tai toistettuna setinvaihto ei tee mitään.
       if (RE_SET.test(line)) { newSet = tracks.length > 0; name = ""; return; }
+      if ((m = RE_TIMED_SET.exec(line))) { newSet = tracks.length > 0; name = newSet && m[2] || ""; return; }
       // Hakasulkubiisi: [Nimi], aika valinnainen ennen tai jälkeen.
       var z = /^(.*?)\[(.+)\](.*)$/.exec(line), zt;
       if (z) {
@@ -521,6 +544,12 @@
       $("audioNote").textContent = audio.note || "";
       list = parseList(f.tracks.value);
       problems = problems.concat(list.errors);
+      // Esim. Logicin bounce, joka ei alkanut tahdista 1: ajat ovat siirtyneet.
+      var lastTr = list.tracks[list.tracks.length - 1];
+      if (lastTr && lastTr.sec >= audioLen) {
+        problems.push("Viimeinen alkuaika " + lastTr.t + " on äänitiedoston lopun (" + fmtTime(Math.floor(audioLen)) +
+          ") jälkeen. Alkaako äänitiedosto samasta kohdasta kuin markerien ajat?");
+      }
     }
     $("folderNote").hidden = !isFolder || list.tracks.length > 0;
 
