@@ -142,9 +142,9 @@
     listan alkuun. Audacityn <i>Export Labels</i> -tiedoston
     sisällön voi liittää sellaisenaan, samoin Logicin markerilistan (listan View-valikosta
     <i>Show Event Position and Length as Time</i>, sitten Cmd-A ja Cmd-C) ja Reaperin SWS-markerilistan
-    (<i>Export format</i> <code>mt d</code>). Nimeämätön markeri (Logicin <i>Marker 3</i>) on biisi ilman
-    nimeä, samoin rivinumeron kanssa kirjoitettu aika (<code>3. 3:42</code>); soitin näyttää sen
-    numeron. Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
+    (<i>Export format</i> <code>mt d</code>). Logicin nimeämätön <i>Marker 3</i> on biisi nimeltä
+    <i>3</i>. Rivinumeron kanssa kirjoitettu aika (<code>3. 3:42</code>) on biisi ilman nimeä; soitin
+    näyttää sen numeron. Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
   </div>
 
   <div id="problems" class="error" role="alert" hidden></div>
@@ -278,7 +278,7 @@
   // markerilla alussa "🔒⇥". Aika on SMPTE (tunnit:min:s:framet), ja Logicin
   // tahti 1 on oletuksena 01:00:00:00, joten ensimmäisen rivin täydet tunnit
   // vähennetään kaikista. Framet jäävät pois: alku on enintään sekunnin
-  // aikaisempi, ei koskaan myöhäisempi. Oletusnimi "Marker 3" = nimetön biisi.
+  // aikaisempi, ei koskaan myöhäisempi. Oletusnimi "Marker 3" = biisi nimeltä "3".
   var RE_SMPTE = /^(?:[^\d\t]*\t)?\s*(\d{1,2}):(\d{2}):(\d{2})[:;](\d{2})(?:\.\d+)?(?:\s+(.*?))?(?:\t\s*\d{1,2}:\d{2}:\d{2}[:;]\d{2}(?:\.\d+)?)?\s*$/;
 
   // Setinvaihto DAW:n markerista: "44:50 ---" tai "44:50 --- (Encore)".
@@ -296,7 +296,8 @@
         if (+m[2] > 59 || +m[3] > 59 || sec < 0) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
         title = (m[5] || "").trim();
         // Tyhjällä nimellä kaappaukseen jää pituussarake.
-        if (/^Marker \d+$/.test(title) || /^\d{1,2}:\d{2}:\d{2}[:;]\d{2}(?:\.\d+)?$/.test(title)) title = "";
+        title = title.replace(/^Marker (\d+)$/, "$1");
+        if (/^\d{1,2}:\d{2}:\d{2}[:;]\d{2}(?:\.\d+)?$/.test(title)) title = "";
         // Nimeämätön markeri on biisi ilman nimeä, ei pelkkä aika.
         unnamed = !title;
         line = fmtTime(sec) + (title ? " " + title : "");

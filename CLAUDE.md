@@ -132,7 +132,7 @@ päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin 
 päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
-pudotetaan, oletusnimi `Marker N` = nimetön biisi) ja Reaperin SWS-markerilista muodossa `mt d`.
+pudotetaan, oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa `mt d`.
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
