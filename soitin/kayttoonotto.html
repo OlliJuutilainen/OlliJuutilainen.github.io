@@ -123,6 +123,11 @@
     h2 { break-after: avoid; }
     .cmd, .box, .field, table { break-inside: avoid; }
   }
+  /* Laajennettavat lisäohjeet: näyttävät linkiltä, auki laatikkona. */
+  details { margin: 10px 0 16px; }
+  details > summary { cursor: pointer; color: var(--accent); font-size: 0.95rem; }
+  details[open] { background: var(--soft); border-radius: 10px; padding: 10px 16px 4px; }
+  details[open] > summary { margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -345,27 +350,60 @@
   <span class="ui">Get started</span>, ja valitse kentät taulukon mukaisiksi.</p>
 <ol>
   <li><span class="ui">Continue to summary</span> → <span class="ui">Create Token</span>.</li>
-  <li>Cloudflare näyttää avaimen <b>vain kerran</b>. Jätä sivu auki: seuraavassa kohdassa avain
-    kopioidaan tältä sivulta suoraan Macin avainnippuun.</li>
 </ol>
-<p><b>Avainta ei kirjoiteta talteen minnekään muualle.</b> Avainnippu säilyttää sen, ja
-  tallennuskomento hakee sen sieltä. Avaimella voi muuttaa kaikkia tilisi KV-tietokantoja, joten
-  älä liitä sitä viestiin, muistiinpanoon tai tekoälykeskusteluun. Jos avain katoaa tai epäilet sen
-  joutuneen vääriin käsiin, poista se Cloudflaresta, tee uusi tämän kohdan ohjeella ja vaihda se
-  avainnippuun kohdan 7 lopun ohjeella.</p>
+<div class="box secret">
+  <p><b>Älä sulje Cloudflaren sivua, jolla avain näkyy.</b> Cloudflare näyttää avaimen vain tämän
+    kerran. Seuraavassa kohdassa se kopioidaan sivulta suoraan Macin avainnippuun, ja vasta sen
+    jälkeen sivun saa sulkea. Avainta ei kirjoiteta talteen minnekään muualle.</p>
+</div>
+<p class="muted">Avaimella voi muuttaa kaikkia tilisi KV-tietokantoja, joten älä liitä sitä viestiin,
+  muistiinpanoon tai tekoälykeskusteluun.</p>
+<details>
+  <summary>Suljin sivun ennen kuin ehdin kopioida avaimen</summary>
+  <p>Avainta ei saa enää näkyviin, mutta samalle avaimelle voi tehdä uuden arvon:</p>
+  <ol>
+    <li><a href="https://dash.cloudflare.com/profile/api-tokens">My Profile → API Tokens</a>.</li>
+    <li>Avaimen rivin valikko (<span class="ui">…</span>) → <span class="ui">Roll</span>. Cloudflare
+      tekee samoilla oikeuksilla uuden arvon ja näyttää sen kerran. Vanha arvo lakkaa toimimasta.</li>
+    <li>Jätä sivu auki ja jatka kohdasta 7.</li>
+  </ol>
+  <p>Jos valikossa ei ole <span class="ui">Roll</span>-vaihtoehtoa, poista avain
+    (<span class="ui">Delete</span>) ja tee uusi tämän kohdan ohjeella.</p>
+</details>
 
 <h2 id="avainnippu"><span class="no">7</span>Avain Macin avainnippuun</h2>
-<p>Avaa Terminal (<i>Ohjelmat → Lisäohjelmat → Pääte</i>) ja aja:</p>
-<div class="cmd"><pre id="c-add">security add-generic-password -a "$USER" -s soitin-cf -w</pre><button type="button" data-copy="c-add">Kopioi</button></div>
-<p>Terminal kysyy avainta kahdesti (<code>password data for new item</code> ja <code>retype</code>).
-  Liitä se molemmilla kerroilla ja paina Enter. Kirjoittaessa ei näy mitään; se on normaalia.</p>
-<p>Tarkista, että Cloudflare hyväksyy avaimen:</p>
-<div class="cmd"><pre id="c-verify">curl -sS https://api.cloudflare.com/client/v4/user/tokens/verify -H "Authorization: Bearer $(security find-generic-password -s soitin-cf -w)"</pre><button type="button" data-copy="c-verify">Kopioi</button></div>
-<p>Vastauksessa pitää olla <code>"status":"active"</code>. Nyt voit sulkea Cloudflaren avainsivun.
-  Tallennuskomento lukee avaimen avainnipusta itse, joten se ei näy ruudulla eikä päädy mihinkään
-  tiedostoon.</p>
-<p class="muted">Jos avain menee vaihtoon, poista vanha ensin komennolla
-  <code>security delete-generic-password -s soitin-cf</code> ja tee tämä kohta uudelleen.</p>
+<ol>
+  <li>Avaa Terminal (<i>Ohjelmat → Lisäohjelmat → Pääte</i>). Kopioi tämä komento ja liitä se
+    Terminaliin, <b>mutta älä vielä paina Enteriä</b>:
+    <div class="cmd"><pre id="c-add">security add-generic-password -U -a "$USER" -s soitin-cf -w "$(pbpaste)"</pre><button type="button" data-copy="c-add">Kopioi</button></div></li>
+  <li>Kopioi avain Cloudflaren sivulta.</li>
+  <li>Paina Terminalissa Enter. Älä paina sitä ennen kuin avain on kopioitu: komento lukee
+    leikepöydän vasta Enterin hetkellä. Onnistuessaan komento ei tulosta mitään.
+    <p style="margin:6px 0 0"><b>Terminal ei kysy mitään salasanaa</b>, ei Macin salasanaa eikä uutta
+      itse keksittävää salasanaa, eikä mitään tarvitse kirjoittaa. Jos Terminal silti kysyy jotain,
+      paina <kbd>ctrl</kbd>+<kbd>C</kbd> ja tarkista, että komento on liitetty kokonaan.</p></li>
+  <li>Tarkista, että avainnippuun tallentui avain. Komento ei näytä avainta, vain sen pituuden:
+    <div class="cmd"><pre id="c-len">security find-generic-password -s soitin-cf -w | awk '{ print "pituus", length($0), "välilyöntejä", gsub(/ /,"") }'</pre><button type="button" data-copy="c-len">Kopioi</button></div>
+    Pituuden pitää olla kymmeniä merkkejä (esimerkiksi <code>pituus 53 välilyöntejä 0</code>). Jos pituus on pieni, leikepöydällä oli
+    jotain muuta: toista vaiheet 1–3.</li>
+  <li>Tarkista, että Cloudflare hyväksyy avaimen:
+    <div class="cmd"><pre id="c-verify">curl -sS https://api.cloudflare.com/client/v4/user/tokens/verify -H "Authorization: Bearer $(security find-generic-password -s soitin-cf -w)"; echo</pre><button type="button" data-copy="c-verify">Kopioi</button></div>
+    Vastauksessa pitää olla <code>"status":"active"</code>.</li>
+  <li><b>Nyt voit sulkea Cloudflaren avainsivun.</b> Tallennuskomento lukee avaimen avainnipusta
+    itse, joten se ei näy ruudulla eikä päädy mihinkään tiedostoon.</li>
+</ol>
+<details>
+  <summary>Avainnippuun meni jotain muuta kuin avain</summary>
+  <p>Esimerkiksi pituustarkistus näyttää pienen luvun, tai tarkistus vastaa
+    <code>Invalid format for Authorization header</code>. Siivottavaa ei ole: toista vaiheet 1–5.
+    <code>-U</code> korvaa avainnipussa olevan arvon, oli siellä mitä tahansa. Terminalin
+    komentohistoriaan jää vain komennon teksti <code>"$(pbpaste)"</code>, ei avain eikä se, mitä
+    leikepöydällä oli.</p>
+  <p>Jos Cloudflaren avainsivu ehti sulkeutua, tee ensin uusi arvo (kohdan 6 lopun
+    <i>Suljin sivun ennen kuin ehdin kopioida avaimen</i>).</p>
+</details>
+<p class="muted">Jos avain vaihtuu myöhemmin (esim. <span class="ui">Roll</span>), toista vaiheet 1–5 uudella avaimella.
+  <code>-U</code> korvaa vanhan.</p>
 
 <h2 id="kirjanmerkki"><span class="no">8</span>Apusivun kirjanmerkki</h2>
 <p>Tämä on apusivun osoite sinun tunnuksillasi:</p>
@@ -399,6 +437,8 @@
   <tr><th>Oire</th><th>Syy ja korjaus</th></tr>
   <tr><td>Terminal: <code>The specified item could not be found in the keychain.</code></td>
     <td>Avain puuttuu avainnipusta. Kohta 7.</td></tr>
+  <tr><td>Terminal: <code>Invalid format for Authorization header</code></td>
+    <td>Avainnipussa on jotain muuta kuin avain (pituustarkistus näyttää pienen luvun). Kohta 7.</td></tr>
   <tr><td>Terminal: <code>"success":false</code> ja <code>Authentication error</code></td>
     <td>Avain on väärä tai siltä puuttuu oikeus <i>Workers KV Storage · Edit</i>. Kohdat 6–7.</td></tr>
   <tr><td>Terminal: <code>"success":false</code> ja maininta tietokannasta (namespace) tai tilistä</td>
@@ -752,6 +792,11 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
     raw = {};
     Object.keys(inputs).forEach(function (k) { inputs[k].value = ""; check(k); });
     render();
+  });
+
+  // Tulosteeseen myös laajennettavat lisäohjeet.
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details").forEach(function (d) { d.open = true; });
   });
 
   Object.keys(inputs).forEach(check);
