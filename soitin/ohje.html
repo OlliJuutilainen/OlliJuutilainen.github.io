@@ -40,6 +40,8 @@
   a { color: var(--accent); overflow-wrap: anywhere; }
   code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em; }
   code { background: var(--soft); border-radius: 4px; padding: 1px 4px; overflow-wrap: anywhere; }
+  /* Lyhyt merkintä, jota ei katkaista keskeltä (--- tai [x] Spiikki). */
+  code.nw { white-space: nowrap; }
   pre { background: var(--soft); border-radius: 8px; padding: 12px 14px; margin: 8px 0 14px; white-space: pre-wrap; line-height: 1.5; }
   kbd { font-family: inherit; font-size: 0.85em; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
   .lead { color: var(--muted); font-size: 1.02rem; margin-bottom: 20px; }
@@ -157,21 +159,61 @@
       ensimmäisen setin.</td></tr>
   <tr><td>Audacityn <i>Export Labels</i> -tiedosto</td>
     <td>Sisällön voi liittää sellaisenaan.</td></tr>
-  <tr><td>Logicin markerilista</td>
-    <td>Liitä sellaisenaan: avaa markerilista (List Editors → Marker), klikkaa jotain markeria,
-      valitse listan omasta View-valikosta <i>Show Event Position and Length as Time</i> ja paina
-      Cmd-A ja Cmd-C. Logicin tunnin siirtymä (01:00:00:00) poistetaan itsestään. Tee markerit
-      komennolla <i>Create Marker without rounding</i>: tavallinen <i>Create Marker</i> siirtää
-      markerin seuraavaan tahtiin. Nimeämätön <i>Marker 3</i> on biisi nimeltä <i>3</i>.</td></tr>
-  <tr><td>Reaperin markerit (SWS-laajennus)</td>
-    <td>Aseta Reaperin aikaviivain tilaan <i>Minutes:Seconds</i> (oikea klikkaus viivaimella). SWS:n Marker
-      listissä oikea klikkaus → <i>Export format…</i> → <code>mp d</code>, sitten
-      <i>Export formatted marker list to clipboard</i> ja liitä.</td></tr>
-  <tr><td>Markeri nimeltä <code>---</code> (tai <code>--- (Encore)</code>)</td>
-    <td>Uusi setti, kuten <code>---</code>-rivi. Markerin aika ei merkitse mitään.</td></tr>
+  <tr><td>Logicin tai Reaperin markerilista</td>
+    <td>Liitä sellaisenaan, ks. <a href="#markerit">alla</a>. Markerin nimessä käyvät samat
+      merkinnät kuin rivillä; markeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code> aloittaa
+      uuden setin, ja nimeämätön markeri on ei-biisi.</td></tr>
 </table>
 <p>Jos rivissä on virhe, apusivu kertoo rivin numeron punaisella eikä tee komentoa ennen kuin se
   on korjattu.</p>
+
+<h3 id="markerit">Markerilista Logicista tai Reaperista</h3>
+<p>Kappaleiden alut kannattaa merkitä markereilla siinä projektissa, josta keikan äänitiedosto on
+  tehty. Äänitiedoston pitää alkaa aikajanan alusta. Markerin nimi on kappaleen nimi, ja siinä käyvät
+  samat merkinnät kuin biisilistan rivillä: <code class="nw">[x] Spiikki</code> tai
+  <code class="nw">[Intro]</code> on ei-biisi, <code class="nw">---</code> tai
+  <code class="nw">--- (Encore)</code> aloittaa uuden setin. Nimeämätön markeri on
+  ei-biisi.</p>
+
+<p><b>Logic</b></p>
+<ol>
+  <li><b>Tee markerit ilman pyöristystä.</b> Komento <i>Create Marker without rounding</i> lisää
+    markerin tarkalleen soittopään kohtaan, myös toiston aikana. Sen oletusnäppäin on
+    Control-Option-' (US-näppäimistö); jos se ei toimi, anna komennolle oma näppäin
+    <i>Key Commands</i> -ikkunassa (Option-K). Älä käytä tavallista <i>Create Marker</i> -komentoa
+    (Option-'), joka siirtää markerin seuraavaan tahtiin, äläkä markeriraidan +-nappia tai
+    kynätyökalua, jotka pyöristävät lähimpään neljäsosaan.<br>
+    Jos taltiointi on jo pilkottu biiseittäin alueiksi, valitse alueet ja käytä komentoa
+    <i>Create Markers From Regions</i>: markerit saavat alueiden nimet.</li>
+  <li><b>Nimeä markerit</b> markerilistassa kaksoisklikkaamalla nimeä. Logicin oletusnimi
+    <i>Marker 3</i> on biisi nimeltä <i>3</i>.</li>
+  <li><b>Kopioi lista.</b> Avaa markerilista (<span class="ui">List Editors</span> →
+    <span class="ui">Marker</span>) ja klikkaa jotain markeria. Paina Control-Option-R
+    (<i>View → Show Event Position and Length as Time</i>), niin sijainnit näkyvät aikoina eivätkä
+    tahteina. Sitten Cmd-A ja Cmd-C.</li>
+  <li><b>Liitä apusivun biisilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
+    kuvanopeus</i>: valitse sama kuin Logicin <i>File → Project Settings → Synchronization →
+    Frame Rate</i>. Valinta muistetaan seuraavalla kerralla. Logicin tunnin siirtymä (01:00:00:00)
+    poistuu itsestään.</li>
+</ol>
+<p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos apusivu
+  valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
+  <i>Display → General</i>) <i>Display Time As: With Bits</i>.</p>
+
+<p><b>Reaper</b></p>
+<ol>
+  <li><b>Asenna SWS-laajennus</b> (<a href="https://www.sws-extension.org/">sws-extension.org</a>;
+    Intel-Mac: x64, Apple Silicon: ARM64). Kopioi levykkeeltä <code>reaper_sws-….dylib</code> Reaperin
+    UserPlugins-kansioon (<i>Options → Show REAPER resource path in explorer/finder</i>) ja käynnistä Reaper
+    uudelleen. Valikkoriville tulee <i>Extensions</i>.</li>
+  <li><b>Tee markerit:</b> M lisää markerin nykyiseen kohtaan, toiston aikana soittokohtaan;
+    Shift-M kysyy samalla nimen.</li>
+  <li><b>Aikaviivain minuutteihin ja sekunteihin:</b> oikea klikkaus aikaviivaimella →
+    <i>Minutes:Seconds</i>.</li>
+  <li><b>Kopioi lista:</b> <i>Extensions → Marker utilities → MarkerList</i>. Ensimmäisellä kerralla
+    oikea klikkaus listalla → <i>Export format…</i> → kirjoita <code>mp d</code>. Sitten oikea klikkaus
+    → <i>Export formatted marker list to clipboard</i> ja liitä apusivulle.</li>
+</ol>
 
 <h2 id="aani">Äänitiedosto</h2>
 <p>Keikka on yksi äänitiedosto; biisilista merkitsee siihen kappaleiden alkukohdat. Soitin käyttää
