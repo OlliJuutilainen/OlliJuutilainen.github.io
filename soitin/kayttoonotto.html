@@ -327,16 +327,28 @@
 
 <h2 id="avain"><span class="no">6</span>API-avain</h2>
 <p>Avain antaa Terminalin komennolle luvan tallentaa keikkoja tietokantaan.</p>
+<p>Avaa <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&amp;accountId=*&amp;zoneId=all&amp;name=soitin">valmiiksi
+  täytetty avainlomake</a> (<i>Create Token</i>). Lomakkeessa on viisi osaa; vain nimi pitää
+  kirjoittaa itse:</p>
+<table>
+  <tr><th>Lomakkeen osa</th><th>Mitä teet</th></tr>
+  <tr><td><span class="ui">Token name</span></td>
+    <td>Kirjoita <code>soitin</code>. Nimi on vain tunniste Cloudflaren listassa.</td></tr>
+  <tr><td><span class="ui">Permissions</span></td>
+    <td>Valmiina: <code>Account</code> · <code>Workers KV Storage</code> · <code>Edit</code>. Ei
+      muita rivejä.</td></tr>
+  <tr><td><span class="ui">Account Resources</span></td>
+    <td>Valmiina: <code>Include</code> · <code>All accounts</code>. Jätä näin.</td></tr>
+  <tr><td><span class="ui">Client IP Address Filtering</span></td>
+    <td>Jätä tyhjäksi. Rajaus estäisi tallennuksen, kun Macin IP-osoite vaihtuu.</td></tr>
+  <tr><td><span class="ui">TTL</span></td>
+    <td>Jätä tyhjäksi, jolloin avain ei vanhene.</td></tr>
+</table>
+<p class="muted">Jos lomake aukeaa tyhjänä: oikean yläkulman profiili →
+  <span class="ui">My Profile</span> → <span class="ui">API Tokens</span> →
+  <span class="ui">Create Token</span> → <span class="ui">Create Custom Token</span> →
+  <span class="ui">Get started</span>, ja täytä kentät taulukon mukaan.</p>
 <ol>
-  <li>Avaa <a href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&amp;accountId=*&amp;zoneId=all&amp;name=soitin">valmiiksi
-    täytetty avainlomake</a>. Tarkista, että nimenä on <code>soitin</code> ja kohdassa
-    <span class="ui">Permissions</span> on <code>Account</code> · <code>Workers KV Storage</code> ·
-    <code>Edit</code>.
-    <p class="muted" style="margin-top:6px">Jos lomake aukeaa tyhjänä: oikean yläkulman profiili →
-      <span class="ui">My Profile</span> → <span class="ui">API Tokens</span> →
-      <span class="ui">Create Token</span> → <span class="ui">Create Custom Token</span> →
-      <span class="ui">Get started</span>, ja täytä nimi ja oikeus kuten yllä.
-      <span class="ui">Account Resources</span>: <code>Include</code> · oma tilisi.</p></li>
   <li><span class="ui">Continue to summary</span> → <span class="ui">Create Token</span>.</li>
   <li>Avain näytetään <b>vain kerran</b>. Jätä sivu auki seuraavaa kohtaa varten.</li>
 </ol>
