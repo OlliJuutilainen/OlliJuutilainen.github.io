@@ -235,14 +235,14 @@
     return h * 3600 + min * 60 + sec + (m[4] ? +("0." + m[4]) : 0);
   }
 
-  // Sekunnit → "m:ss" tai "h:mm:ss", kymmenykset vain jos niitä on.
-  // Alkuajat (start) aina kymmenyksen kanssa: "0:00.0", "17:30.0".
+  // Sekunnit → "m:ss" tai "h:mm:ss", sadasosat vain jos niitä on.
+  // Alkuajat (start) aina sadasosien kanssa: "0:00.00", "17:30.02".
   function fmtTime(sec, start) {
-    var tenths = Math.round(sec * 10);
-    var whole = Math.floor(tenths / 10), frac = tenths % 10;
+    var cs = Math.round(sec * 100);
+    var whole = Math.floor(cs / 100), frac = cs % 100;
     var h = Math.floor(whole / 3600), m = Math.floor(whole / 60) % 60, s = whole % 60;
     var out = (h ? h + ":" + (m < 10 ? "0" : "") + m : String(m)) + ":" + (s < 10 ? "0" : "") + s;
-    return frac || start ? out + "." + frac : out;
+    return frac || start ? out + "." + (frac < 10 ? "0" : "") + frac : out;
   }
 
   // ---- Biisilistan jäsennys ---------------------------------------------

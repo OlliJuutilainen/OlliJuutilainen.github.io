@@ -134,7 +134,7 @@ wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerili
 pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d`
 antaa vain kokonaiset sekunnit).
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
-Apusivu tallentaa ja näyttää alkuajat aina kymmenyksen tarkkuudella (`0:00.0`, `17:30.0`),
+Apusivu tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
