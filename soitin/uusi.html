@@ -142,9 +142,10 @@
     listan alkuun. Audacityn <i>Export Labels</i> -tiedoston
     sisällön voi liittää sellaisenaan, samoin Logicin markerilistan (listan View-valikosta
     <i>Show Event Position and Length as Time</i>, sitten Cmd-A ja Cmd-C) ja Reaperin SWS-markerilistan
-    (<i>Export format</i> <code>mt d</code>). Logicin nimeämätön <i>Marker 3</i> on biisi nimeltä
-    <i>3</i>. Rivinumeron kanssa kirjoitettu aika (<code>3. 3:42</code>) on biisi ilman nimeä; soitin
-    näyttää sen numeron. Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
+    (<i>Export format</i> <code>mp d</code>, Reaperin aikaviivain tilassa <i>Minutes:Seconds</i>). Logicin
+    nimeämätön <i>Marker 3</i> on biisi nimeltä <i>3</i>. Rivinumeron kanssa kirjoitettu aika
+    (<code>3. 3:42</code>) on biisi ilman nimeä; soitin näyttää sen numeron. Markeri nimeltä
+    <code>---</code> aloittaa uuden setin.</p>
   </div>
 
   <div id="problems" class="error" role="alert" hidden></div>
@@ -238,13 +239,14 @@
     return h * 3600 + min * 60 + sec + (m[4] ? +("0." + m[4]) : 0);
   }
 
-  // Sekunnit → "m:ss" tai "h:mm:ss", kymmenykset vain jos niitä on.
-  function fmtTime(sec) {
-    var tenths = Math.round(sec * 10);
-    var whole = Math.floor(tenths / 10), frac = tenths % 10;
+  // Sekunnit → "m:ss" tai "h:mm:ss", sadasosat vain jos niitä on.
+  // Alkuajat (start) aina sadasosien kanssa: "0:00.00", "17:30.02".
+  function fmtTime(sec, start) {
+    var cs = Math.round(sec * 100);
+    var whole = Math.floor(cs / 100), frac = cs % 100;
     var h = Math.floor(whole / 3600), m = Math.floor(whole / 60) % 60, s = whole % 60;
     var out = (h ? h + ":" + (m < 10 ? "0" : "") + m : String(m)) + ":" + (s < 10 ? "0" : "") + s;
-    return frac ? out + "." + frac : out;
+    return frac || start ? out + "." + (frac < 10 ? "0" : "") + frac : out;
   }
 
   // ---- Biisilistan jäsennys ---------------------------------------------
@@ -359,7 +361,7 @@
       if (tracks.length && sec <= tracks[tracks.length - 1].sec) {
         errors.push("Rivi " + n + ": alkuaika ei ole edellistä myöhäisempi.");
       }
-      var tr = { sec: sec, t: fmtTime(sec), title: title };
+      var tr = { sec: sec, t: fmtTime(sec, true), title: title };
       if (newSet) tr.set = true;
       if (name) tr.name = name;
       newSet = false;
@@ -376,7 +378,7 @@
   function withIntro(tracks) {
     var f = tracks[0];
     if (!f || !(f.sec > 0)) return tracks;
-    var intro = { sec: 0, t: fmtTime(0), title: "[x]" }, rest = tracks.slice(1);
+    var intro = { sec: 0, t: fmtTime(0, true), title: "[x]" }, rest = tracks.slice(1);
     if (f.name) intro.name = f.name;
     return [intro, { sec: f.sec, t: f.t, title: f.title }].concat(rest);
   }
@@ -692,7 +694,10 @@
         folderMode = false;
         f.audio.value = d.audio || "";
         f.tracks.value = (d.tracks || []).map(function (tr, i) {
-          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (tr.t + " " + tr.title).trim();
+          // Vanhat keikat on tallennettu ilman ".0":aa; näytetään yhtenäisesti.
+          var t = parseTime(String(tr.t).replace(",", "."));
+          t = isNaN(t) ? tr.t : fmtTime(t, true);
+          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (t + " " + tr.title).trim();
         }).join("\n");
         update();
       })
