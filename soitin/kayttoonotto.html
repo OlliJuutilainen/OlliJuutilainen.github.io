@@ -128,6 +128,19 @@
   details > summary { cursor: pointer; color: var(--accent); font-size: 0.95rem; }
   details[open] { background: var(--soft); border-radius: 10px; padding: 10px 16px 4px; }
   details[open] > summary { margin-bottom: 8px; }
+  /* Kohdan 9 jälkeiset valinnaiset osiot: otsikko avaa ja sulkee, sisältö on
+     piilossa kunnes avataan. #-linkki osion sisään avaa osion (skripti). */
+  details.osio, details.osio[open] { margin: 0; padding: 0; background: none; border-radius: 0; }
+  details.osio > summary { list-style: none; color: inherit; font-size: inherit; margin: 0; }
+  details.osio > summary::-webkit-details-marker { display: none; }
+  details.osio > summary h2 { padding-left: 1em; text-indent: -1em; }
+  details.osio:not([open]) + details.osio > summary h2 { margin-top: 12px; }
+  details.osio > summary h2::before { content: "\25B8"; display: inline-block; width: 1em; text-indent: 0; color: var(--accent); }
+  details.osio[open] > summary h2::before { content: "\25BE"; }
+  @media print {
+    details.osio > summary h2, details.osio[open] > summary h2 { padding-left: 0; text-indent: 0; }
+    details.osio > summary h2::before, details.osio[open] > summary h2::before { content: none; }
+  }
 </style>
 </head>
 <body>
@@ -437,7 +450,8 @@
 
 <!-- ================================================================ -->
 
-<h2 id="ongelmat">Kun jokin ei toimi</h2>
+<details class="osio">
+<summary><h2 id="ongelmat">Kun jokin ei toimi</h2></summary>
 <table>
   <tr><th>Oire</th><th>Syy ja korjaus</th></tr>
   <tr><td>Terminal: <code>The specified item could not be found in the keychain.</code></td>
@@ -463,16 +477,20 @@
   sellaisenaan. API-avain ei tulostu siihen.</p>
 <p>Soittimen omat ilmoitukset (äänitiedosto, biisilista) on selitetty
   <a href="ohje.html#ongelmat">käyttöoppaassa</a>.</p>
+</details>
 
-<h2 id="paivitys">Workerin päivitys</h2>
+<details class="osio">
+<summary><h2 id="paivitys">Workerin päivitys</h2></summary>
 <p>Kun Olli kertoo päivittäneensä workeria, toista kohdan 2 vaiheet 5–6: <span class="ui">Edit
   code</span>, korvaa kaikki uudella koodilla, <span class="ui">Deploy</span>. Kytkentä, avain ja
   keikat säilyvät.</p>
 <p class="muted">Jos otit soittimen käyttöön ennen 14.10.2026, päivitä worker kerran. Uudempi koodi
   soittaa Drive-tiedostot (ilman sitä Drive-keikka ei soi), näyttää keikan lisätiedon (päivämäärä
   tms.) otsikon alla ja osaa kansiokeikat.</p>
+</details>
 
-<h2 id="avustaja">Tekoälyavustajan kanssa (valinnainen)</h2>
+<details class="osio">
+<summary><h2 id="avustaja">Tekoälyavustajan kanssa (valinnainen)</h2></summary>
 <p>Jos haluat tehdä käyttöönoton esimerkiksi Clauden kanssa, aloita uusi keskustelu ja liitä tämä
   teksti. Täydennä viimeisen kappaleen kohdat.</p>
 <div class="cmd"><pre id="c-ai">Otan käyttöön ystäväni Ollin keikkasoittimen omalla Cloudflare-tililläni. Ohje on täällä:
@@ -496,10 +514,12 @@ Rajat:
 Koneeni on Mac (macOS-versio: ____). Puhelimeni on iPhone. Äänitiedostot ovat
 (Google Drivessa / Dropboxissa): ____. Kun käyttöönotto on valmis, tehdään yhdessä
 testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" data-copy="c-ai">Kopioi</button></div>
+</details>
 
 <!-- ================================================================ -->
 
-<h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2>
+<details class="osio">
+<summary><h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2></summary>
 <p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Lue se vain, jos haluat keikan, jossa
   jokainen kappale on oma äänitiedostonsa.</p>
 <p>Kansiokeikassa annetaan yhden äänitiedoston ja biisilistan sijaan jaettu kansio Google Drivesta
@@ -637,6 +657,7 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
   </table>
 </div>
 <p>Valmista. Tee kansiokeikka <a href="ohje.html#kansio">käyttöoppaan liitteen</a> ohjeella.</p>
+</details>
 
 </main>
 
@@ -806,6 +827,25 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
 
   Object.keys(inputs).forEach(check);
   render();
+
+  // Valinnaiset osiot ovat kiinni. Sisällyksen tai toisen sivun #-linkki osion
+  // sisään avaa osion; selain vierittää kohteeseen vasta sen jälkeen.
+  function openFor(hash) {
+    var el = hash.length > 1 && document.getElementById(hash.slice(1));
+    var d = el && el.closest("details.osio");
+    if (d && !d.open) { d.open = true; return el; }
+    return null;
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (a) openFor(a.getAttribute("href"));
+  });
+  window.addEventListener("hashchange", function () {
+    var el = openFor(location.hash);
+    if (el) el.scrollIntoView();
+  });
+  var first = openFor(location.hash);
+  if (first) first.scrollIntoView();
 })();
 </script>
 </body>
