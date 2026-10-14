@@ -60,7 +60,7 @@
   td.n { text-align: right; width: 2.5em; }
   td.t { width: 5.5em; }
   td.tt { overflow-wrap: anywhere; }
-  /* Esinumero 0: "0. 0:00 [Intro]", koko rivi himmeä ja kursiivi. Samoin x-rivi "x. 3:42 [OUTRO]". */
+  /* Ei-biisi (x-rivi): "  3:42 [OUTRO]", ei numeroa, koko rivi himmeä ja kursiivi. */
   tr.pre td { font-style: italic; color: var(--muted); }
   tr.set td { color: var(--muted); font-size: 0.85rem; padding: 26px 4px 4px; }
   tr.set:first-child td { padding-top: 6px; }
@@ -113,8 +113,8 @@
   <input id="folder" type="url" placeholder="https://drive.google.com/drive/folders/… tai https://www.dropbox.com/scl/fo/…" autocapitalize="off" spellcheck="false">
   <p class="muted" style="margin-top:6px">Kansion äänitiedostot ovat kappaleita nimen mukaisessa
     järjestyksessä, joten numeroi ne: <code>01 Intro.mp3</code>, <code>02 Toinen.mp3</code> …
-    Alkunumero jää pois kappaleen nimestä, ja <code>00 [Intro].mp3</code> saa numeron 0.
-    <code>[x]</code> nimen alussa (<code>07 [x] Spiikki.mp3</code>) toimii kuten biisilistassa.
+    Alkunumero jää pois kappaleen nimestä. Hakasulkeissa oleva nimi (<code>00 [Intro].mp3</code>)
+    tai <code>[x]</code> nimen alussa (<code>07 [x] Spiikki.mp3</code>) on ei-biisi kuten biisilistassa.
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
     <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Soitin lukee kansion joka kerta
     avautuessaan, joten myöhemmin lisätty tiedosto tulee mukaan ilman uutta komentoa. Enintään
@@ -127,17 +127,16 @@
   <textarea id="tracks" spellcheck="false" placeholder="0:00 Intro
 3:42 Toinen biisi
 1:02:30 Encore"></textarea>
-  <p class="muted" style="margin-top:6px">Yksi biisi riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
-    <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Jos ensimmäinen nimi on hakasulkeissa,
-    esim. <code>[Intro]</code>, se saa numeron 0 ja numerointi alkaa vasta seuraavasta. Listan
-    alussa hakasulkubiisin ajan voi jättää pois tai kirjoittaa nollan (<code>0</code>, <code>0:00</code> …). Jos ensimmäinen
-    biisi alkaa myöhemmin kuin 0:00 eikä hakasulkubiisiä ole, alkuun tulee <i>0. [INTRO]</i>.
-    Raidan, joka ei ole biisi (esim. spiikki tai aplodit), voi merkitä missä kohtaa tahansa
-    alkuajan perään kirjoitetulla <code>[x]</code>: <code>3:42 [x]</code> tai <code>3:42 [x] Nimi</code>.
-    Se ei vie numeroa, ja ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa <i>[OUTRO]</i> ja
-    välissä <i>[välihässäkkä]</i>. Setin kestoon lasketaan vain biisit.
-    Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä (tai 0:sta, jos setin
-    ensimmäinen nimi on hakasulkeissa). Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
+  <p class="muted" style="margin-top:6px">Yksi raita riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
+    <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Raidan, joka ei ole biisi (esim. intro,
+    spiikki tai aplodit), voi merkitä missä kohtaa tahansa: nimi hakasulkeissa (<code>3:42 [Intro]</code>)
+    tai alkuun <code>[x]</code> tai <code>[0]</code> (<code>3:42 [x] Spiikki</code>, pelkkä <code>3:42 [x]</code>).
+    Se ei saa numeroa, ja ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa <i>[OUTRO]</i> ja
+    välissä <i>[välihässäkkä]</i>. Listan ensimmäiseltä riviltä sen ajan voi jättää pois (alkaa 0:00).
+    Jos ensimmäinen raita alkaa myöhemmin kuin 0:00, alkuun tulee <i>[INTRO]</i>. Setin kestoon
+    lasketaan vain biisit.
+    Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä, ja setin ensimmäisellä
+    raidalla pitää olla alkuaika. Setit otsikoidaan (i), (ii) …; oman otsikon saa suluissa omalle
     rivilleen heti <code>---</code>-rivin jälkeen, esim. <code>(+)</code>, tai ensimmäiselle setille
     listan alkuun. Audacityn <i>Export Labels</i> -tiedoston
     sisällön voi liittää sellaisenaan.</p>
@@ -288,7 +287,7 @@
       } else if (z && zt !== undefined) {
         title = "[" + z[2].trim() + "]";
         if (zt === null && tracks.length) {
-          errors.push("Rivi " + n + ": " + title + " tarvitsee alkuajan; vain listan ensimmäiseltä biisiltä sen voi jättää pois.");
+          errors.push("Rivi " + n + ": " + title + " tarvitsee alkuajan; vain listan ensimmäiseltä riviltä sen voi jättää pois.");
           return;
         }
         sec = zt === null ? 0 : zt;
@@ -300,6 +299,13 @@
         sec = parseTime(m[1].replace(",", ".")); title = m[3].trim();
       } else if ((m = RE_TIME_LAST.exec(line))) {
         sec = parseTime(m[2].replace(",", ".")); title = m[1].replace(/^\d+[.)]\s+/, "").trim();
+      } else if (X_RE.test(line)) {
+        // "[x] Nimi" ilman aikaa: vain listan ensimmäinen rivi, alkaa 0:00.
+        if (tracks.length) {
+          errors.push("Rivi " + n + ": " + line + " tarvitsee alkuajan; vain listan ensimmäiseltä riviltä sen voi jättää pois.");
+          return;
+        }
+        sec = 0; title = line;
       } else if (RE_NAME.test(line)) {
         if (tracks.length && !newSet) errors.push("Rivi " + n + ": setin otsikko " + line + " kuuluu heti ---‑rivin jälkeen tai listan alkuun.");
         else if (name) errors.push("Rivi " + n + ": setillä on jo otsikko " + name + ".");
@@ -310,8 +316,12 @@
         return;
       }
       if (isNaN(sec)) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
-      var xt = xTitle(title);
-      if (xt !== null) title = "[x]" + (xt ? " " + xt : "");
+      // [0] ja [x] ovat sama merkintä; tallennetaan muodossa "[x]" tai "[x] Nimi".
+      var xm = X_RE.exec(title);
+      if (xm) {
+        var rest = xm[1].replace(/^\[(.*)\]$/, "$1").trim();
+        title = "[x]" + (rest ? " " + rest : "");
+      }
       if (tracks.length && sec <= tracks[tracks.length - 1].sec) {
         errors.push("Rivi " + n + ": alkuaika ei ole edellistä myöhäisempi.");
       }
@@ -326,42 +336,42 @@
     return { tracks: tracks, errors: errors };
   }
 
-  // Jos ensimmäinen biisi alkaa myöhemmin kuin 0:00 eikä sitä edellä ole
-  // hakasulkubiisiä, alkuun tulee [INTRO]. Sama sääntö on soittimessa; se
-  // vain näytetään, ei tallenneta. Setin otsikko siirtyy introlle. x-rivi ei
-  // kata alkua, joten sen edelle tulee intro (auto: oletusotsikko).
+  // Jos ensimmäinen raita alkaa myöhemmin kuin 0:00, alkuun tulee ei-biisi,
+  // jonka oletusotsikko on [INTRO]. Sama sääntö on soittimessa; se vain
+  // näytetään, ei tallenneta. Setin otsikko siirtyy introlle.
   function withIntro(tracks) {
     var f = tracks[0];
-    if (!f || !(f.sec > 0) || (xTitle(f.title) === null && /^\[.*\]$/.test(f.title))) return tracks;
-    var intro = { sec: 0, t: fmtTime(0), title: "[INTRO]", auto: true }, rest = tracks.slice(1);
+    if (!f || !(f.sec > 0)) return tracks;
+    var intro = { sec: 0, t: fmtTime(0), title: "[x]" }, rest = tracks.slice(1);
     if (f.name) intro.name = f.name;
     return [intro, { sec: f.sec, t: f.t, title: f.title }].concat(rest);
   }
 
-  // x-rivi ("3:42 [x]" tai "3:42 [x] Nimi"): raita, joka ei ole biisi. Merkintä
-  // tallennetaan otsikkoon, koska worker päästää kappaleista läpi vain t, title,
-  // set ja name. Palauttaa otsikon ilman merkintää ja hakasulkeita ("" =
-  // oletusotsikko) tai null, jos ei x-rivi. Sama funktio on soittimessa.
-  var X_RE = /^\s*\[x\]\s*(.*?)\s*$/i;
+  // Ei-biisi eli x-rivi: nimi hakasulkeissa ("3:42 [Intro]") tai alussa [x] tai
+  // [0] ("3:42 [x]", "3:42 [x] Nimi"). Merkintä on otsikossa, koska worker
+  // päästää kappaleista läpi vain t, title, set ja name. Palauttaa nimen ilman
+  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
+  // Sama funktio on soittimessa.
+  var X_RE = /^\s*\[[x0]\]\s*(.*?)\s*$/i;
   function xTitle(s) {
-    var m = X_RE.exec(String(s || ""));
-    return m ? m[1].replace(/^\[(.*)\]$/, "$1").trim() : null;
+    s = String(s || "");
+    var m = X_RE.exec(s);
+    if (m) return m[1].replace(/^\[(.*)\]$/, "$1").trim();
+    m = /^\s*\[(.+)\]\s*$/.exec(s);
+    return m ? m[1].trim() : null;
   }
 
   // Sama numerointi ja samat oletusotsikot kuin soittimessa (loadTracks,
-  // nameExtras): joka setti alkaa 1:stä, hakasulkeissa oleva setin ensimmäinen
-  // on esinumero 0, ja x-rivi ei vie numeroa. Nolla- ja x-rivin oletusotsikko on
-  // setin alussa [INTRO], lopussa [OUTRO] ja välissä [välihässäkkä]; saman
-  // ryhmän useampi oletusotsikko numeroidaan.
+  // nameExtras): joka setti alkaa 1:stä, ja ei-biisi ei saa numeroa. Ei-biisin
+  // oletusotsikko on setin alussa [INTRO], lopussa [OUTRO] ja välissä
+  // [välihässäkkä]; saman ryhmän useampi oletusotsikko numeroidaan.
   function numbered(list) {
     var out = [], nr = 1;
     list.forEach(function (tr, i) {
       var xt = xTitle(tr.title), first = i === 0 || !!tr.set;
-      if (first) nr = xt === null && /^\[.*\]$/.test(tr.title) ? 0 : 1;
-      var r = { tr: tr, first: first, n: xt === null ? String(nr++) : "x", title: tr.title };
-      if (xt !== null) { r.title = xt ? "[" + xt + "]" : ""; r.dflt = !xt; }
-      if (tr.auto) r.dflt = true;
-      r.extra = r.n === "0" || r.n === "x";
+      if (first) nr = 1;
+      var r = { tr: tr, first: first, n: xt === null ? nr++ + "." : "", title: tr.title, extra: xt !== null };
+      if (r.extra) { r.title = xt ? "[" + xt + "]" : ""; r.dflt = !xt; }
       out.push(r);
     });
     for (var i = 0; i < out.length; i++) {
@@ -539,7 +549,7 @@
       if (r.first) {
         setNo++;
         if (heads) {
-          // Setin kesto on sen biisien kestojen summa (ei nolla- eikä x-rivejä),
+          // Setin kesto on sen biisien kestojen summa (ei ei-biisejä),
           // rajat alas pyöristettyinä kuten soittimessa. Biisi päättyy seuraavan
           // rivin alkuun; viimeinen vain, jos tiedoston pituus selvisi.
           var len = 0;
@@ -560,7 +570,7 @@
       }
       var row = document.createElement("tr");
       if (r.extra) row.className = "pre";
-      [["n", r.n + "."], ["t", tr.t], ["tt", r.title]].forEach(function (c) {
+      [["n", r.n], ["t", tr.t], ["tt", r.title]].forEach(function (c) {
         var td = document.createElement("td");
         td.className = c[0];
         td.textContent = c[1];

@@ -102,7 +102,7 @@
     overflow-wrap: anywhere;
   }
   .now .nr { color: var(--muted); }
-  /* Nollarivi (esim. [Intro]) tai x-rivi: myös otsikko himmeänä ja koko rivi kursiivina. */
+  /* Ei-biisi (esim. [Intro]): myös otsikko himmeänä ja koko rivi kursiivina. */
   .now.pre { color: var(--muted); font-style: italic; }
   .seek {
     position: relative;
@@ -356,9 +356,9 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
-  /* Esinumero 0: "0. [Intro] 0:00", koko rivi himmeä ja kursiivi, eikä
-     lihavoidu soidessaankaan. Koot ja asettelu kuten muilla riveillä.
-     Samoin x-rivi: "x. [OUTRO] 1:10". */
+  /* Ei-biisi (x-rivi): "[Intro] 0:00" ilman numeroa, koko rivi himmeä ja
+     kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu kuten muilla
+     riveillä; tyhjä numerosarake pitää otsikon muiden kohdalla. */
   li.pre .track { font-style: italic; font-weight: 400; }
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
@@ -492,7 +492,7 @@
   // toisen tilin workerista https://soitin.kaveri.workers.dev. Osoite rajataan
   // workers.dev-aliverkkotunnukseen, ja tiedot näytetään vain tekstinä.
   var API = "https://tusinasaa-worker.ollijuutilainen.workers.dev/api/gig";
-  // Kappale: /3 tai /2/3; x-rivi: /x1 tai /2/x1 (setin ensimmäinen x-rivi).
+  // Kappale: /3 tai /2/3; ei-biisi: /x1 tai /2/x1 (setin ensimmäinen ei-biisi).
   var HASH_RE = /^#([a-z0-9]{4,32})(?:@([a-z0-9-]{1,63}\.[a-z0-9-]{1,63}))?(?:\/(\d+|x\d+)(?:\/(\d+|x\d+))?)?$/i;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -536,7 +536,7 @@
   var gig = null;      // { title, audio, tracks: [{ t, title }] } tai { title, files }
   var gigKey = "";
   var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
-  var tracks = [];     // [{ start, title, set, n }]; x-rivillä n = -1 ja x = järjestys setissä
+  var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1 ja x = järjestys setissä
   var sets = 1;
   var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
   var showSets = false;
@@ -555,17 +555,15 @@
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
   // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
-  // Numerointi alkaa joka setissä 1:stä. Jos setin ensimmäisen nimi on
-  // hakasulkeissa, se on esinumero 0. x-rivi ei vie numeroa; sen kohdalla
-  // näkyy "x".
-  function num(i) { return tracks[i].x ? "x" : tracks[i].n; }
-  // Nollarivi tai x-rivi: ei varsinainen biisi.
-  function isExtra(i) { return tracks[i].n === 0 || !!tracks[i].x; }
-  // Kappaleen linkin ja hashin tunniste: "3" tai x-rivillä "x1".
+  // Numerointi alkaa joka setissä 1:stä. Ei-biisi (x-rivi, ks. xTitle) ei saa
+  // numeroa, eikä numeroa näytetä.
+  function num(i) { return tracks[i].n; }
+  function isExtra(i) { return !!tracks[i].x; }
+  // Kappaleen linkin ja hashin tunniste: "3" tai ei-biisillä "x1".
   function linkNum(i) { return tracks[i].x ? "x" + tracks[i].x : String(tracks[i].n); }
   function setName(k) { return setInfo[k].name || "(" + roman(k) + ")"; }
   // Kappaleen tunniste teksteihin (ref): "3" tai setteihin jaetussa "(ii) 3";
-  // x-rivillä numeron sijaan otsikko, esim. "(ii) [OUTRO]".
+  // ei-biisillä numeron sijaan otsikko, esim. "(ii) [OUTRO]".
   // Lukitusnäytön otsikko: otsikko, tai otsikottomalla biisillä numero
   // ("3." tai setteihin jaetussa "(ii) – 3.").
   function nowText(i) {
@@ -574,8 +572,8 @@
   }
   // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
   // "(ii) 3. Otsikko"). Setti ja numero himmeinä;
-  // otsikottomalla biisillä numero on itse otsikko eikä himmene. Nolla- ja
-  // x-rivillä himmenee myös otsikko, ja koko rivi on kursiivi. Sitovat
+  // otsikottomalla biisillä numero on itse otsikko eikä himmene.
+  // Ei-biisillä ei ole numeroa, otsikko himmenee ja koko rivi on kursiivi. Sitovat
   // välilyönnit pitävät setin, numeron ja otsikon alun kiinni toisissaan.
   function renderNow(i) {
     var tr = tracks[i];
@@ -588,6 +586,8 @@
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
+    } else if (isExtra(i)) {
+      els.now.appendChild(document.createTextNode(tr.title));
     } else {
       nr.appendChild(n);
       els.now.appendChild(document.createTextNode("\u00a0" + tr.title));
@@ -602,31 +602,33 @@
     return r;
   }
 
-  // Jos ensimmäinen kappale alkaa myöhemmin kuin 0:00 eikä se ole
-  // hakasulkeissa, alkuun lisätään esinumero [INTRO]. Lisäys on vain
-  // näytössä, ei tallennetussa keikassa. Setin otsikko siirtyy introlle.
-  // x-rivi ei kata alkua, joten sen edelle tulee intro (auto: oletusotsikko).
+  // Jos ensimmäinen kappale alkaa myöhemmin kuin 0:00, alkuun lisätään
+  // ei-biisi, jonka oletusotsikko on [INTRO]. Lisäys on vain näytössä, ei
+  // tallennetussa keikassa. Setin otsikko siirtyy introlle.
   function withIntro(list) {
     var f = (list || [])[0];
-    if (!f || !(parseTime(f.t) > 0) ||
-        (xTitle(f.title) === null && /^\[.*\]$/.test(String(f.title || "").trim()))) return list;
-    var intro = { t: "0:00", title: "[INTRO]", auto: true };
+    if (!f || !(parseTime(f.t) > 0)) return list;
+    var intro = { t: "0:00", title: "[x]" };
     if (f.name) intro.name = f.name;
     return [intro, { t: f.t, title: f.title }].concat(list.slice(1));
   }
 
-  // x-rivi (biisilistassa "3:42 [x]" tai "3:42 [x] Nimi"): raita, joka ei ole
-  // varsinainen biisi, missä kohtaa settiä tahansa. Merkintä on otsikossa eikä
-  // omana kenttänään, jotta workeria ei tarvitse päivittää (se päästää
-  // kappaleista läpi vain t, title, set ja name). Palauttaa otsikon ilman
-  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos ei x-rivi.
-  var X_RE = /^\s*\[x\]\s*(.*?)\s*$/i;
+  // Ei-biisi eli x-rivi: raita, joka ei ole varsinainen biisi, missä kohtaa
+  // settiä tahansa. Biisilistassa nimi hakasulkeissa ("3:42 [Intro]") tai
+  // alussa [x] tai [0] ("3:42 [x]", "3:42 [x] Nimi"). Merkintä on otsikossa
+  // eikä omana kenttänään, jotta workeria ei tarvitse päivittää (se päästää
+  // kappaleista läpi vain t, title, set ja name). Palauttaa nimen ilman
+  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
+  var X_RE = /^\s*\[[x0]\]\s*(.*?)\s*$/i;
   function xTitle(s) {
-    var m = X_RE.exec(String(s || ""));
-    return m ? m[1].replace(/^\[(.*)\]$/, "$1").trim() : null;
+    s = String(s || "");
+    var m = X_RE.exec(s);
+    if (m) return m[1].replace(/^\[(.*)\]$/, "$1").trim();
+    m = /^\s*\[(.+)\]\s*$/.exec(s);
+    return m ? m[1].trim() : null;
   }
 
-  // Nolla- ja x-rivin oletusotsikko riippuu paikasta setissä: alussa [INTRO],
+  // Ei-biisin oletusotsikko riippuu paikasta setissä: alussa [INTRO],
   // lopussa [OUTRO], välissä [välihässäkkä]. Ryhmä on peräkkäiset ei-biisit
   // samassa setissä; jos ryhmässä on useampi oletusotsikko, ne numeroidaan
   // ([INTRO 1], [INTRO 2] …). Oma otsikko pysyy.
@@ -670,7 +672,7 @@
       var title = untitled ? "" : String(tr.title);
       if (newSet && tracks.length) sets++;
       if (!tracks.length || newSet) {
-        n = xt === null && /^\[.*\]$/.test(title.trim()) ? 0 : 1;
+        n = 1;
         xn = 0;
         setInfo[sets] = { name: name, first: tracks.length };
         name = "";
@@ -681,7 +683,6 @@
         o.title = xt ? "[" + xt + "]" : "";
         if (!xt) o.dflt = true;
       }
-      if (tr.auto) o.dflt = true;
       if (untitled) o.untitled = true;
       tracks.push(o);
       newSet = false;
@@ -692,7 +693,7 @@
   }
 
   // Kansiokeikan kappaleet: alkuaika = edellisten tiedostojen kestojen summa.
-  // Tiedostonimen x-merkintä ("05 [x] Spiikki.mp3") toimii kuten biisilistassa.
+  // Ei-biisi ("00 [Intro].mp3", "05 [x] Spiikki.mp3") toimii kuten biisilistassa.
   function loadFiles() {
     var n = 1, xn = 0, t = 0;
     tracks = [];
@@ -702,7 +703,7 @@
       var xt = xTitle(f.title);
       if (f.set && i) sets++;
       if (!i || f.set) {
-        n = xt === null && /^\[.*\]$/.test(f.title.trim()) ? 0 : 1;
+        n = 1;
         xn = 0;
         setInfo[sets] = { name: f.name || "", first: i };
       }
@@ -951,12 +952,16 @@
   }
 
   // Setin otsikko alkaa samasta kohdasta kuin setin ensimmäinen numero
-  // ("0." tai "1."). Numerot on tasattu oikealle, joten kohta riippuu
-  // fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen reuna.
+  // ("1."; ei-biiseillä numeroa ei ole). Numerot on tasattu oikealle, joten
+  // kohta riippuu fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen
+  // reuna, ja se jää voimaan, jos setissä ei ole biisiä.
   function alignSetNames() {
     heads.forEach(function (h) {
+      var i = h.first;
+      while (i < tracks.length && isExtra(i) && tracks[i].set === tracks[h.first].set) i++;
+      if (i >= tracks.length || tracks[i].set !== tracks[h.first].set) return;
       var r = document.createRange();
-      r.selectNodeContents(rows[h.first].querySelector(".n"));
+      r.selectNodeContents(rows[i].querySelector(".n"));
       var x = r.getBoundingClientRect().left - h.li.getBoundingClientRect().left;
       if (x > 0) h.li.style.paddingLeft = x + "px";
     });
@@ -988,7 +993,7 @@
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      b.children[0].textContent = num(i) + ".";
+      b.children[0].textContent = isExtra(i) ? "" : num(i) + ".";
       b.children[1].textContent = tr.title;
       trackLens[i] = b.children[2];
       b.addEventListener("click", function () { jumpTo(i, true); });
@@ -1015,8 +1020,8 @@
   // Kappaleiden ja settien kestot. Viimeisen kappaleen ja setin kesto
   // selviää vasta, kun äänitiedoston pituus on tiedossa. Rajat pyöristetään
   // alas ennen vähennystä, jolloin setin biisien kestot summautuvat tasan
-  // setin kestoksi. Setin kestoon (Σ) lasketaan vain biisit, ei nolla- eikä
-  // x-rivejä.
+  // setin kestoksi. Setin kestoon (Σ) lasketaan vain biisit, ei
+  // ei-biisejä.
   function lenOf(a, b) {
     var len = Math.floor(b) - Math.floor(a);
     return isFinite(len) && len > 0 ? len : NaN;
@@ -1288,12 +1293,14 @@
     var m = HASH_RE.exec(location.hash);
     if (!m || !m[3]) return;
     // #tunnus/3 = 1. setin kappale 3, #tunnus/2/3 = 2. setin kappale 3,
-    // #tunnus/2/x1 = 2. setin ensimmäinen x-rivi.
+    // #tunnus/2/x1 = 2. setin ensimmäinen ei-biisi. Vanha /0 (setin alun
+    // nollarivi) osoittaa setin ensimmäiseen raitaan, jos se on ei-biisi.
     var set = m[4] ? +m[3] : 1, r = (m[4] || m[3]).toLowerCase();
-    var n = r[0] === "x" ? "x" + +r.slice(1) : String(+r);
+    var n = r[0] === "x" ? "x" + +r.slice(1) : +r === 0 ? "x1" : String(+r);
     var i = -1;
     for (var k = 0; k < tracks.length; k++) {
       if (tracks[k].set === set && linkNum(k) === n) { i = k; break; }
+      if (tracks[k].set === set && +r === 0 && r[0] !== "x") break;
     }
     if (i >= 0) {
       jumpTo(i, false);
