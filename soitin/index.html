@@ -1056,6 +1056,11 @@
     if (/dropbox\.com/.test(gig.audio) && !/[?&]raw=1/.test(gig.audio)) {
       detail = (detail ? detail + " " : "") + "Dropbox-linkin lopussa pitää olla ?raw=1.";
     }
+    // Drive-tiedosto soi workerin kautta (worker: Drive-tiedoston välitys).
+    if (/\/api\/drive-file\?/.test(gig.audio)) {
+      detail = (detail ? detail + " " : "") + "Tiedosto on Drivessa: tarkista, että se on jaettu kaikille " +
+        "linkin saaneille ja että workerin koodi on päivitetty (käyttöönotto-ohje, Workerin päivitys).";
+    }
     showError(msg, detail);
     stopLoop();
     renderPlayState();

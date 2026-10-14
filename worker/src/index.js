@@ -201,7 +201,7 @@ async function handleGig(req, env) {
   if (typeof data.folder === "string") {
     let files;
     try {
-      files = await folderFiles(data.folder, env);
+      files = await folderFiles(data.folder, env, url.origin);
     } catch (err) {
       const code = err && err.code ? err.code : "folder_error";
       logEvent("gig_folder_error", { code, detail: err && err.detail ? err.detail : String(err) });
@@ -326,8 +326,8 @@ function toPlayerFiles(list, urls) {
   });
 }
 
-function folderFiles(folderUrl, env) {
-  return DRIVE_FOLDER_RE.test(folderUrl) ? driveFolderFiles(folderUrl, env) : dropboxFolderFiles(folderUrl, env);
+function folderFiles(folderUrl, env, origin) {
+  return DRIVE_FOLDER_RE.test(folderUrl) ? driveFolderFiles(folderUrl, env, origin) : dropboxFolderFiles(folderUrl, env);
 }
 
 // Virhekoodi, jolla avaimet puuttuvat, on palvelimen oma vika (500); muut
@@ -472,17 +472,17 @@ async function driveChildren(folderId, key, resourceKeys) {
   return files;
 }
 
-// Sama suora latauslinkki kuin yhden tiedoston keikassa (KAVERIVERSIO.md,
-// Äänitiedosto Drivessa).
-function driveFileUrl(file) {
-  return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(file.id)}&export=download&confirm=t` +
-    (file.resourceKey ? `&resourcekey=${encodeURIComponent(file.resourceKey)}` : "");
+// Soitin hakee Drive-tiedostot tämän workerin kautta (ks. Drive-tiedoston
+// välitys), samoin kuin yhden tiedoston keikan Drive-linkin.
+function driveFileUrl(file, origin) {
+  return `${origin}/api/drive-file?id=${encodeURIComponent(file.id)}` +
+    (file.resourceKey ? `&rk=${encodeURIComponent(file.resourceKey)}` : "");
 }
 
 const isDriveAudio = (f) => f.mimeType !== DRIVE_FOLDER_MIME &&
   (isAudioName(f.name) || (typeof f.mimeType === "string" && f.mimeType.startsWith("audio/")));
 
-async function driveFolderFiles(folderUrl, env) {
+async function driveFolderFiles(folderUrl, env, origin) {
   const key = env.GOOGLE_API_KEY;
   if (!key) throw folderError("drive_not_configured");
   const m = DRIVE_FOLDER_RE.exec(folderUrl);
@@ -502,7 +502,7 @@ async function driveFolderFiles(folderUrl, env) {
   }));
 
   const list = folderTracks(rootFiles, subFolders);
-  return toPlayerFiles(list, list.map((f) => driveFileUrl(f.file)));
+  return toPlayerFiles(list, list.map((f) => driveFileUrl(f.file, origin)));
 }
 
 // Käyttöönoton tarkistus: /api/drive. Kysytään olematonta tiedostoa: kelvollinen
@@ -527,6 +527,44 @@ async function handleFolderCheck(check, env) {
   }
 }
 
+// ---- Drive-tiedoston välitys ------------------------------------------
+// Google palauttaa Driven latauslinkistä 403:n, kun selain hakee sen toiselta
+// sivustolta (otsake Sec-Fetch-Site: cross-site, mitattu 14.10.2026). Siksi
+// soitin hakee Drive-äänitiedoston tämän reitin kautta: worker hakee tiedoston
+// ilman selaimen otsakkeita ja välittää kelauksen (Range) sellaisenaan.
+// Vain äänitiedostot kelpaavat, jottei reitti ole yleinen välityspalvelu.
+// Dropbox-linkit ja tavallinen keikka eivät käytä tätä.
+const DRIVE_ID_RE = /^[A-Za-z0-9_-]{10,}$/;
+const PASS_HEADERS = ["content-type", "content-length", "content-range", "accept-ranges", "last-modified", "etag"];
+
+async function handleDriveFile(req) {
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id") || "";
+  const rk = url.searchParams.get("rk") || "";
+  if (!DRIVE_ID_RE.test(id) || (rk && !DRIVE_ID_RE.test(rk))) return errorResponse("bad_id", 400);
+
+  const upstream = "https://drive.usercontent.google.com/download?id=" + encodeURIComponent(id) +
+    "&export=download&confirm=t" + (rk ? "&resourcekey=" + encodeURIComponent(rk) : "");
+  const headers = {};
+  const range = req.headers.get("Range");
+  if (range) headers.Range = range;
+  const res = await fetch(upstream, { method: req.method === "HEAD" ? "HEAD" : "GET", headers });
+
+  const type = (res.headers.get("content-type") || "").toLowerCase();
+  if (!(res.status === 200 || res.status === 206 || res.status === 416)) {
+    logEvent("drive_file_error", { status: res.status });
+    return errorResponse(res.status === 404 ? "not_found" : "drive_file_error", res.status === 404 ? 404 : 502);
+  }
+  if (res.status !== 416 && !/^(audio\/|video\/mp4)/.test(type)) {
+    logEvent("drive_file_type", { type });
+    return errorResponse("not_audio", 415);
+  }
+  const out = new Headers();
+  PASS_HEADERS.forEach((h) => { const v = res.headers.get(h); if (v) out.set(h, v); });
+  out.set("Cache-Control", "private, max-age=3600");
+  return new Response(req.method === "HEAD" ? null : res.body, { status: res.status, headers: out });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -543,6 +581,13 @@ export default {
     }
 
     try {
+      if (url.pathname === "/api/drive-file") {
+        return corsify(await handleDriveFile(req), {
+          origin,
+          requestHeaders: acrHeaders,
+          allowedOrigins,
+        });
+      }
       if (url.pathname === "/api/dropbox" || url.pathname === "/api/drive") {
         const check = url.pathname === "/api/drive" ? driveCheck : dropboxCheck;
         return corsify(await handleFolderCheck(check, env), {

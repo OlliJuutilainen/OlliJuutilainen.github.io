@@ -170,14 +170,14 @@
     <code>security</code>, jotka ovat valmiina jokaisessa Macissa. Mitään ei asenneta.</li>
   <li><b>Ilmaisen Cloudflare-tilin.</b> Ilmaistason rajat (100 000 hakua ja 1 000 tallennusta
     päivässä) ovat moninkertaiset tähän tarpeeseen.</li>
-  <li><b>Google Driven tai Dropboxin</b> äänitiedostoille. Dropbox on kokeiltu soittimen kanssa,
-    Drive ei vielä; tee Drivella testikeikka ennen ensimmäistä oikeaa jakoa.</li>
+  <li><b>Google Driven tai Dropboxin</b> äänitiedostoille. Dropbox on kokeiltu soittimen kanssa.
+    Drive-tiedostot soivat workerin kautta; tarkista ne testikeikassa (kohta 9).</li>
 </ul>
 
 <h3>Miten osat liittyvät toisiinsa</h3>
 <figure>
   <svg class="dg" viewBox="0 0 680 262" role="img" aria-labelledby="dg-t">
-    <title id="dg-t">Apusivu tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen suoraan Drivesta tai Dropboxista.</title>
+    <title id="dg-t">Apusivu tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path class="head" d="M0 0L10 5L0 10z"/>
@@ -222,7 +222,8 @@
   <li><b>Apusivu</b> tarkistaa biisilistan ja tekee valmiin tallennuskomennon. Se ei lähetä mitään
     verkkoon.</li>
   <li><b>Worker</b> on pieni ohjelma Cloudflaressa. Se lukee keikan KV-tietokannasta ja antaa sen
-    soittimelle.</li>
+    soittimelle. Drive-tiedoston se myös välittää soittimelle, koska Google ei anna soittaa
+    Drive-tiedostoa suoraan toiselta sivustolta. Dropbox-tiedosto soi suoraan.</li>
 </ul>
 <p>Kuka tahansa, jolla on keikan linkki, näkee otsikon ja biisilistan ja voi kuunnella
   äänitteen. Linkki on siis avain. Tunnus on arvottu, joten sitä ei voi arvata.</p>
@@ -419,8 +420,8 @@
 
 <h2 id="testi"><span class="no">9</span>Testikeikka ja iPhone</h2>
 <p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Uusi keikka</a>. Lyhyt
-  äänitiedosto ja kahden biisin lista riittävät. Jos tiedosto on Drivessa, tarkista lisäksi, että
-  ääni soi, kesto näkyy ja kelaus keskelle toimii.</p>
+  äänitiedosto ja kahden biisin lista riittävät. Tarkista, että ääni soi, kesto näkyy ja kelaus
+  keskelle toimii.</p>
 <p>Tarkista sitten iPhonella kerran nämä ja kerro Ollille tulos, koska niitä ei ole vielä kokeiltu:</p>
 <ol>
   <li>Safarissa: paina toistoa ja lukitse näyttö. Jatkuuko ääni? Näkyvätkö lukitusnäytöllä
@@ -466,8 +467,9 @@
 <p>Kun Olli kertoo päivittäneensä workeria, toista kohdan 2 vaiheet 5–6: <span class="ui">Edit
   code</span>, korvaa kaikki uudella koodilla, <span class="ui">Deploy</span>. Kytkentä, avain ja
   keikat säilyvät.</p>
-<p class="muted">Jos otit soittimen käyttöön ennen 13.10.2026, päivitä worker kerran. Uudempi koodi
-  näyttää keikan lisätiedon (päivämäärä tms.) otsikon alla ja osaa kansiokeikat.</p>
+<p class="muted">Jos otit soittimen käyttöön ennen 14.10.2026, päivitä worker kerran. Uudempi koodi
+  soittaa Drive-tiedostot (ilman sitä Drive-keikka ei soi), näyttää keikan lisätiedon (päivämäärä
+  tms.) otsikon alla ja osaa kansiokeikat.</p>
 
 <h2 id="avustaja">Tekoälyavustajan kanssa (valinnainen)</h2>
 <p>Jos haluat tehdä käyttöönoton esimerkiksi Clauden kanssa, aloita uusi keskustelu ja liitä tämä

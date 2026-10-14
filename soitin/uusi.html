@@ -339,9 +339,9 @@
   // ---- Äänilinkki --------------------------------------------------------
 
   // Jakolinkistä suora tiedostolinkki. Dropbox: dl=0 pois, raw=1 tilalle.
-  // Drive: jakolinkki avaa esikatselusivun, joten tilalle suora latauslinkki
-  // samassa muodossa kuin workerin kansiokeikassa (driveFileUrl). confirm=t
-  // ohittaa varoitussivun, jonka Drive näyttää isoista tiedostoista.
+  // Drive: Google ei anna soittaa tiedostoa suoraan toiselta sivustolta (403),
+  // joten soitin hakee sen workerin reitin /api/drive-file kautta, kuten
+  // kansiokeikassakin (worker: Drive-tiedoston välitys).
   function normalizeAudio(s) {
     s = s.trim();
     if (!s) return { url: "", error: "Äänitiedoston linkki puuttuu." };
@@ -354,19 +354,25 @@
       u.searchParams.set("raw", "1");
       note = "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1).";
     }
-    var id = driveFileId(u);
+    // Vain kaveriversiossa (#-asetukset): Ollin omat keikat eivät käytä Drivea.
+    var id = profile ? driveFileId(u) : "";
     if (id) {
       var rk = u.searchParams.get("resourcekey");
-      return { url: "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t" +
-        (rk && /^[A-Za-z0-9_-]+$/.test(rk) ? "&resourcekey=" + rk : ""),
-        note: "Drive-linkki muutettu suoraksi latauslinkiksi." };
+      return { url: API.replace(/\/api\/gig$/, "/api/drive-file") + "?id=" + id +
+        (rk && /^[A-Za-z0-9_-]{10,}$/.test(rk) ? "&rk=" + rk : ""),
+        note: "Drive-linkki muutettu soitettavaksi workerin kautta." };
     }
     return { url: u.toString(), note: note };
   }
 
-  // Driven tiedostolinkin tunniste: …/file/d/<ID>/view, …/open?id=<ID> tai
-  // …/uc?id=<ID>. Kansiolinkkiä ei muuteta.
+  // Driven tiedostolinkin tunniste: …/file/d/<ID>/view, …/open?id=<ID>,
+  // …/uc?id=<ID> tai aiemmin tallennettu drive.usercontent.google.com/download?id=<ID>.
+  // Kansiolinkkiä ei muuteta.
   function driveFileId(u) {
+    if (u.hostname === "drive.usercontent.google.com" && u.pathname === "/download") {
+      var d = u.searchParams.get("id") || "";
+      return /^[A-Za-z0-9_-]{10,}$/.test(d) ? d : "";
+    }
     if (u.hostname !== "drive.google.com") return "";
     var m = /^\/file\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{10,})/.exec(u.pathname);
     if (m) return m[1];

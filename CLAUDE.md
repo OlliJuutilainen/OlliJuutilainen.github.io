@@ -167,9 +167,18 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
   olennaisesti, ota kuvat uudelleen samalla tavalla; oikeita keikkatietoja ei käytetä.
 - `soitin/KAVERIVERSIO.md` on vain osoitin näihin sivuihin vanhojen linkkien vuoksi.
-- Ohjeissa Google Drive mainitaan ennen Dropboxia. Dropbox on kokeiltu soittimen kanssa, Drive ei
-  vielä; ohjeet sanovat sen. Apusivu muuttaa Driven tiedostolinkin (`/file/d/<ID>/…`,
-  `open?id=`, `uc?id=`) suoraksi latauslinkiksi samassa muodossa kuin workerin `driveFileUrl`.
+- Ohjeissa Google Drive mainitaan ennen Dropboxia.
+- **Drive-tiedostot soivat workerin kautta** (`GET /api/drive-file?id=<ID>[&rk=<resourcekey>]`).
+  Google palauttaa Driven latauslinkistä 403:n, kun pyynnössä on selaimen otsake
+  `Sec-Fetch-Site: cross-site` (mitattu 14.10.2026; ilman otsaketta sama linkki antaa 200/206),
+  joten `<audio>` ei voi soittaa sitä suoraan github.io:sta. Worker hakee tiedoston ilman selaimen
+  otsakkeita, välittää vain Range-otsakkeen ja hyväksyy vain `audio/*`- ja `video/mp4`-tyypit.
+  Apusivu muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
+  `drive.usercontent.google.com/download?id=`) tämän reitin osoitteeksi kirjanmerkin workerissa;
+  kansiokeikan `driveFileUrl` käyttää samaa reittiä. Dropbox-linkit soivat suoraan.
+  Muunnos tehdään vain kaveriversiossa (#-asetukset). Käyttäjän omat keikat eivät käytä Drivea,
+  eikä `tusinasaa-worker`ia päivitetä tämän takia: ilman #-asetuksia apusivu jättää Drive-linkin
+  muuttamatta, kuten ennen kaveriversiota.
 
 `android/soitin/` on soittimen Android-kääre Light Phonelle. Myöskään keikan tunnusta ei
 kirjoiteta repoon: se tulee Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`).
