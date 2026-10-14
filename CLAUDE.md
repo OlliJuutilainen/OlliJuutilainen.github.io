@@ -124,7 +124,10 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
-harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
+harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
+Biisilistan x-rivi (`3:42 [x]` tai `3:42 [x] Nimi`, ei-biisi missä kohtaa settiä tahansa) tallennetaan
+otsikkoon eikä omaksi kentäkseen, koska worker päästää kappaleista läpi vain `t`, `title`, `set` ja
+`name`; näin kaverin workeria ei tarvitse päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
