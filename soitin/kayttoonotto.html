@@ -123,6 +123,11 @@
     h2 { break-after: avoid; }
     .cmd, .box, .field, table { break-inside: avoid; }
   }
+  /* Laajennettavat lisäohjeet: näyttävät linkiltä, auki laatikkona. */
+  details { margin: 10px 0 16px; }
+  details > summary { cursor: pointer; color: var(--accent); font-size: 0.95rem; }
+  details[open] { background: var(--soft); border-radius: 10px; padding: 10px 16px 4px; }
+  details[open] > summary { margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -352,10 +357,19 @@
     jälkeen sivun saa sulkea. Avainta ei kirjoiteta talteen minnekään muualle.</p>
 </div>
 <p class="muted">Avaimella voi muuttaa kaikkia tilisi KV-tietokantoja, joten älä liitä sitä viestiin,
-  muistiinpanoon tai tekoälykeskusteluun. Jos suljit sivun liian aikaisin tai avain katoaa: <span
-  class="ui">My Profile</span> → <span class="ui">API Tokens</span> → avaimen rivin valikko →
-  <span class="ui">Roll</span> tekee samoilla oikeuksilla uuden arvon ja näyttää sen kerran. Jos
-  Rollia ei ole, poista avain ja tee uusi tämän kohdan ohjeella. Jatka sitten kohdasta 7.</p>
+  muistiinpanoon tai tekoälykeskusteluun.</p>
+<details>
+  <summary>Suljin sivun ennen kuin ehdin kopioida avaimen</summary>
+  <p>Avainta ei saa enää näkyviin, mutta samalle avaimelle voi tehdä uuden arvon:</p>
+  <ol>
+    <li><a href="https://dash.cloudflare.com/profile/api-tokens">My Profile → API Tokens</a>.</li>
+    <li>Avaimen rivin valikko (<span class="ui">…</span>) → <span class="ui">Roll</span>. Cloudflare
+      tekee samoilla oikeuksilla uuden arvon ja näyttää sen kerran. Vanha arvo lakkaa toimimasta.</li>
+    <li>Jätä sivu auki ja jatka kohdasta 7.</li>
+  </ol>
+  <p>Jos valikossa ei ole <span class="ui">Roll</span>-vaihtoehtoa, poista avain
+    (<span class="ui">Delete</span>) ja tee uusi tämän kohdan ohjeella.</p>
+</details>
 
 <h2 id="avainnippu"><span class="no">7</span>Avain Macin avainnippuun</h2>
 <ol>
@@ -363,9 +377,11 @@
     Terminaliin, <b>mutta älä vielä paina Enteriä</b>:
     <div class="cmd"><pre id="c-add">security add-generic-password -U -a "$USER" -s soitin-cf -w "$(pbpaste)"</pre><button type="button" data-copy="c-add">Kopioi</button></div></li>
   <li>Kopioi avain Cloudflaren sivulta.</li>
-  <li>Paina Terminalissa Enter. Komento ottaa avaimen leikepöydältä sillä hetkellä; mitään ei
-    tarvitse kirjoittaa, eikä Macin salasanaa kysytä. Järjestys on tärkeä: jos kopioit komennon
-    avaimen jälkeen, leikepöydällä on komento eikä avain.</li>
+  <li>Paina Terminalissa Enter. Älä paina sitä ennen kuin avain on kopioitu: komento lukee
+    leikepöydän vasta Enterin hetkellä.
+    <p style="margin:6px 0 0"><b>Terminal ei kysy mitään salasanaa</b>, ei Macin salasanaa eikä uutta
+      itse keksittävää salasanaa, eikä mitään tarvitse kirjoittaa. Jos Terminal silti kysyy jotain,
+      paina <kbd>ctrl</kbd>+<kbd>C</kbd> ja tarkista, että komento on liitetty kokonaan.</p></li>
   <li>Tarkista, että avainnippuun tallentui avain. Komento ei näytä avainta, vain sen pituuden:
     <div class="cmd"><pre id="c-len">security find-generic-password -s soitin-cf -w | awk '{ print "pituus", length($0), "välilyöntejä", gsub(/ /,"") }'</pre><button type="button" data-copy="c-len">Kopioi</button></div>
     Pituuden pitää olla kymmeniä merkkejä ja välilyöntejä 0. Jos pituus on pieni, leikepöydällä oli
@@ -376,6 +392,16 @@
   <li><b>Nyt voit sulkea Cloudflaren avainsivun.</b> Tallennuskomento lukee avaimen avainnipusta
     itse, joten se ei näy ruudulla eikä päädy mihinkään tiedostoon.</li>
 </ol>
+<details>
+  <summary>Avainnippuun meni jotain muuta kuin avain</summary>
+  <p>Esimerkiksi pituustarkistus näyttää pienen luvun, tai tarkistus vastaa
+    <code>Invalid format for Authorization header</code>. Siivottavaa ei ole: toista vaiheet 1–5.
+    <code>-U</code> korvaa avainnipussa olevan arvon, oli siellä mitä tahansa. Terminalin
+    komentohistoriaan jää vain komennon teksti <code>"$(pbpaste)"</code>, ei avain eikä se, mitä
+    leikepöydällä oli.</p>
+  <p>Jos Cloudflaren avainsivu ehti sulkeutua, tee ensin uusi arvo (kohdan 6 lopun
+    <i>Suljin sivun ennen kuin ehdin kopioida avaimen</i>).</p>
+</details>
 <p class="muted">Jos avain vaihtuu myöhemmin (esim. <span class="ui">Roll</span>), toista vaiheet 1–5 uudella avaimella.
   <code>-U</code> korvaa vanhan.</p>
 
@@ -766,6 +792,11 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
     raw = {};
     Object.keys(inputs).forEach(function (k) { inputs[k].value = ""; check(k); });
     render();
+  });
+
+  // Tulosteeseen myös laajennettavat lisäohjeet.
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details").forEach(function (d) { d.open = true; });
   });
 
   Object.keys(inputs).forEach(check);
