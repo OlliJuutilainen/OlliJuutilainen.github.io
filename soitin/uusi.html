@@ -354,8 +354,7 @@
       u.searchParams.set("raw", "1");
       note = "Dropbox-linkki muutettu suoraksi tiedostolinkiksi (raw=1).";
     }
-    // Vain kaveriversiossa (#-asetukset): Ollin omat keikat eivät käytä Drivea.
-    var id = profile ? driveFileId(u) : "";
+    var id = driveFileId(u);
     if (id) {
       var rk = u.searchParams.get("resourcekey");
       return { url: API.replace(/\/api\/gig$/, "/api/drive-file") + "?id=" + id +

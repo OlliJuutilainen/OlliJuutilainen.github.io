@@ -176,9 +176,9 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Apusivu muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
   `drive.usercontent.google.com/download?id=`) tämän reitin osoitteeksi kirjanmerkin workerissa;
   kansiokeikan `driveFileUrl` käyttää samaa reittiä. Dropbox-linkit soivat suoraan.
-  Muunnos tehdään vain kaveriversiossa (#-asetukset). Käyttäjän omat keikat eivät käytä Drivea,
-  eikä `tusinasaa-worker`ia päivitetä tämän takia: ilman #-asetuksia apusivu jättää Drive-linkin
-  muuttamatta, kuten ennen kaveriversiota.
+  Muunnos tehdään myös ilman #-asetuksia (käyttäjä voi tallentaa Drive-keikan kaverin puolesta
+  omaan workeriinsa); silloin reitti on `tusinasaa-worker`issa, jonka koodin pitää olla päivitetty.
+  Dropbox-linkkeihin muunnos ei koske.
 
 `android/soitin/` on soittimen Android-kääre Light Phonelle. Myöskään keikan tunnusta ei
 kirjoiteta repoon: se tulee Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`).
