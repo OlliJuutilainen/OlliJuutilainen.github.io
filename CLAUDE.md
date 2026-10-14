@@ -125,14 +125,15 @@ tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
 harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
-Biisilistan ei-biisi eli x-rivi (`3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`; `[0]` = `[x]`, missä
-kohtaa settiä tahansa, ilman numeroa) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
+Biisilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`;
+`[0]` = `[x]`, missä kohtaa settiä tahansa, ilman numeroa; nimettömänä setin alussa `[INTRO]`,
+lopussa `[OUTRO]`, välissä `[VÄLI]`) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
-pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d`
-antaa vain kokonaiset sekunnit).
+pudotetaan, oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa `mp d`
+(aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
 Apusivu tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.

@@ -629,7 +629,7 @@
   }
 
   // Ei-biisin oletusotsikko riippuu paikasta setissä: alussa [INTRO],
-  // lopussa [OUTRO], välissä [välihässäkkä]. Ryhmä on peräkkäiset ei-biisit
+  // lopussa [OUTRO], välissä [VÄLI]. Ryhmä on peräkkäiset ei-biisit
   // samassa setissä; jos ryhmässä on useampi oletusotsikko, ne numeroidaan
   // ([INTRO 1], [INTRO 2] …). Oma otsikko pysyy.
   function nameExtras() {
@@ -638,7 +638,7 @@
       var k = tracks[i].set, j = i;
       while (j + 1 < tracks.length && tracks[j + 1].set === k && isExtra(j + 1)) j++;
       var word = i === setInfo[k].first ? "INTRO"
-        : j + 1 >= tracks.length || tracks[j + 1].set !== k ? "OUTRO" : "välihässäkkä";
+        : j + 1 >= tracks.length || tracks[j + 1].set !== k ? "OUTRO" : "VÄLI";
       var dflt = tracks.slice(i, j + 1).filter(function (tr) { return tr.dflt; });
       dflt.forEach(function (tr, c) {
         tr.title = "[" + word + (dflt.length > 1 ? " " + (c + 1) : "") + "]";
