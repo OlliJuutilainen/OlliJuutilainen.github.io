@@ -131,10 +131,19 @@ lopussa `[OUTRO]`, välissä `[VÄLI]`) tallennetaan otsikkoon eikä omaksi kent
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
-(SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
-pudotetaan, oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa `mp d`
-(aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
-Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
+(SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`, `.40` = bitit 0–79; ensimmäisen rivin täydet tunnit
+vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa
+`mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
+Logic-listalle apusivu näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
+avaimella `soitin-fps`): framet ja bitit muunnetaan sekunneiksi, 23.976/29.97/59.94 korjataan
+0,1 %:n jätätyksellä, ja drop frame (`d` tai puolipiste `01:00:04;16`) lasketaan ohitettuine
+framenumeroineen. Nimeämätön markeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
+Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto. Markerien vienti tiedoston
+mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedoston oletetaan alkavan
+aikajanan alusta.
+**Apusivulla ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
+kertoja, ja ohjeet ärsyttävät). Biisilistan alla on vain kehotus ja linkki; merkinnät ja
+vientiohjeet ovat `ohje.html`:n osioissa `#biisilista` ja `#markerit`.
 Apusivu tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
