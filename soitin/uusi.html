@@ -129,8 +129,9 @@
 1:02:30 Viimeinen biisi"></textarea>
   <p class="muted" style="margin-top:6px">Yksi raita riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
     <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Raidan, joka ei ole biisi (esim. intro,
-    spiikki tai aplodit), voi merkitä missä kohtaa tahansa: nimi hakasulkeissa (<code>3:42 [Intro]</code>)
-    tai alkuun <code>[x]</code> tai <code>[0]</code> (<code>3:42 [x] Spiikki</code>, pelkkä <code>3:42 [x]</code>).
+    spiikki tai aplodit), voi merkitä missä kohtaa tahansa: pelkkä aika (<code>3:42</code>), nimi
+    hakasulkeissa (<code>3:42 [Intro]</code>) tai alkuun <code>[x]</code> tai <code>[0]</code>
+    (<code>3:42 [x] Spiikki</code>).
     Se ei saa numeroa, ja ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa <i>[OUTRO]</i> ja
     välissä <i>[VÄLI]</i>. Listan ensimmäiseltä riviltä sen ajan voi jättää pois (alkaa 0:00).
     Jos ensimmäinen raita alkaa myöhemmin kuin 0:00, alkuun tulee <i>[INTRO]</i>. Setin kestoon
@@ -141,7 +142,9 @@
     listan alkuun. Audacityn <i>Export Labels</i> -tiedoston
     sisällön voi liittää sellaisenaan, samoin Logicin markerilistan (listan View-valikosta
     <i>Show Event Position and Length as Time</i>, sitten Cmd-A ja Cmd-C) ja Reaperin SWS-markerilistan
-    (<i>Export format</i> <code>mt d</code>). Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
+    (<i>Export format</i> <code>mt d</code>). Nimeämätön markeri (Logicin <i>Marker 3</i>) on biisi ilman
+    nimeä, samoin rivinumeron kanssa kirjoitettu aika (<code>3. 3:42</code>); soitin näyttää sen
+    numeron. Markeri nimeltä <code>---</code> aloittaa uuden setin.</p>
   </div>
 
   <div id="problems" class="error" role="alert" hidden></div>
@@ -246,7 +249,7 @@
 
   // ---- Biisilistan jäsennys ---------------------------------------------
 
-  var RE_AUDACITY = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)\t(.*)$/;
+  var RE_AUDACITY = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)(?:\t(.*))?$/;
   var RE_TIME_FIRST = new RegExp("^(" + TIME + ")\\s*(?:[-–—|:)]\\s*)?(.+)$");
   var RE_TIME_ONLY = new RegExp("^(?:\\d+[.)]\\s+)?(" + TIME + ")$");
   var RE_TIME_LAST = new RegExp("^(.+?)\\s*(?:[-–—|(]\\s*)?(" + TIME + ")\\)?$");
@@ -285,14 +288,17 @@
   function parseList(text) {
     var tracks = [], errors = [], newSet = false, name = "", smpteHours = null;
     text.split(/\r?\n/).forEach(function (raw, i) {
-      var line = raw.trim(), n = i + 1, m, sec, title;
+      var line = raw.trim(), n = i + 1, m, sec, title, unnamed = false;
       if (!line) return;
       if ((m = RE_SMPTE.exec(raw))) {
         if (smpteHours === null) smpteHours = +m[1];
         sec = (+m[1] - smpteHours) * 3600 + +m[2] * 60 + +m[3];
         if (+m[2] > 59 || +m[3] > 59 || sec < 0) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
         title = (m[5] || "").trim();
-        if (/^Marker \d+$/.test(title)) title = "";
+        // Tyhjällä nimellä kaappaukseen jää pituussarake.
+        if (/^Marker \d+$/.test(title) || /^\d{1,2}:\d{2}:\d{2}[:;]\d{2}(?:\.\d+)?$/.test(title)) title = "";
+        // Nimeämätön markeri on biisi ilman nimeä, ei pelkkä aika.
+        unnamed = !title;
         line = fmtTime(sec) + (title ? " " + title : "");
       }
       // Alussa, lopussa tai toistettuna setinvaihto ei tee mitään.
@@ -306,7 +312,8 @@
            : za !== null ? za : zb;
       }
       if ((m = RE_AUDACITY.exec(raw.replace(/\s+$/, "")))) {
-        sec = +m[1]; title = m[3].trim();
+        // Tyhjä label on biisi ilman nimeä, kuten nimeämätön markeri.
+        sec = +m[1]; title = (m[3] || "").trim();
       } else if (z && zt !== undefined) {
         title = "[" + z[2].trim() + "]";
         if (zt === null && tracks.length) {
@@ -315,8 +322,11 @@
         }
         sec = zt === null ? 0 : zt;
       } else if ((m = RE_TIME_ONLY.exec(line))) {
-        // Pelkkä aika: biisillä ei ole otsikkoa, soitin näyttää järjestysnumeron.
-        sec = parseTime(m[1].replace(",", ".")); title = "";
+        // Pelkkä aika on ei-biisi, kuten "3:42 [x]". Biisi ilman nimeä (soitin
+        // näyttää järjestysnumeron) on rivi, jossa on ajan lisäksi rivinumero
+        // ("3. 3:42"), tai DAW:n nimeämätön markeri.
+        sec = parseTime(m[1].replace(",", "."));
+        title = unnamed || /^\d+[.)]/.test(line) ? "" : "[x]";
       } else if ((m = RE_TIME_FIRST.exec(line)) ||
                  (m = RE_TIME_FIRST.exec(line.replace(/^\d+[.)]\s+/, "")))) {
         sec = parseTime(m[1].replace(",", ".")); title = m[3].trim();
