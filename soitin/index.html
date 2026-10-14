@@ -186,12 +186,17 @@
 
   /* --- Kytkimet: janan mittakaava ja pysähdys setin lopussa --- */
   /* Kytkimet ovat nappien alla rinnakkain: vasemmalla janakytkin, oikealla
-     setin kytkin. Yhden setin keikassa janakytkin on yksin keskellä. */
+     setin kytkin. Yhden setin keikassa janakytkin on yksin keskellä.
+     Leveys on rajattu niin, että setti-sanan oikea reuna osuu seuraava
+     kappale -napin oikean reunan kohdalle: nappirivin puolikas on 136 px ja
+     sanan reuna on leveys/4 + 22 px + sanan leveys (~20 px) keskeltä.
+     Kapeammalla näytöllä kytkimet ovat jo valmiiksi sisempänä. */
   .opts {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: start;
-    margin-top: 14px;
+    max-width: 375px;
+    margin: 14px auto 0;
   }
   .opts:has(#setopt[hidden]) #scaleopt { grid-column: 1 / -1; }
   #list { margin-top: 32px; }
