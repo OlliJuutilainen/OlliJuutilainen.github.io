@@ -166,8 +166,8 @@
 
 <h2 id="tarvitset">Mitä tarvitset</h2>
 <ul>
-  <li><b>Macin.</b> Komennot käyttävät vain Terminalia ja ohjelmia <code>curl</code> ja
-    <code>security</code>, jotka ovat valmiina jokaisessa Macissa. Mitään ei asenneta.</li>
+  <li><b>Macin.</b> Komennot käyttävät vain Terminalia ja ohjelmia, jotka ovat valmiina jokaisessa
+    Macissa (<code>curl</code>, <code>security</code>). Mitään ei asenneta.</li>
   <li><b>Ilmaisen Cloudflare-tilin.</b> Ilmaistason rajat (100 000 hakua ja 1 000 tallennusta
     päivässä) ovat moninkertaiset tähän tarpeeseen.</li>
   <li><b>Google Driven tai Dropboxin</b> äänitiedostoille. Molemmat on kokeiltu toimiviksi.
@@ -211,7 +211,7 @@
     <path d="M496 138H184" marker-end="url(#ah)"/>
     <text class="l" x="340" y="130" text-anchor="middle">otsikko ja biisilista</text>
     <path d="M94 202V166" marker-end="url(#ah)"/>
-    <text class="l" x="104" y="189">ääni</text>
+    <text class="l" x="104" y="189">ääni (Drivesta workerin kautta)</text>
   </svg>
   <figcaption><span class="key-oma">Yhtenäinen reunus</span>: sinun tilisi ja Macisi.
     Katkoviiva: Ollin sivut, jotka eivät tallenna mitään.</figcaption>
@@ -232,7 +232,8 @@
 <div class="box secret">
   <p><b>Salaiset avaimet.</b> Cloudflaren API-avain (kohta 6) ja kansiokeikan avaimet (liite) ovat
     salaisia. Älä liitä niitä sähköpostiin, viestiin, muistiinpanoon tai tekoälykeskusteluun.
-    Tämä sivu ei kysy niitä. Tilin tunnus, KV-tunnus ja workerin osoite eivät ole salaisia.</p>
+    Tämä sivu ei kysy niitä. Tilin tunnus, KV-tunnus, workerin osoite ja Dropboxin App key eivät ole
+    salaisia.</p>
 </div>
 
 <p class="muted">Kirjoita tunnukset tämän sivun kenttiin sitä mukaa kuin saat ne. Sivu täyttää
@@ -423,7 +424,8 @@
 <p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Uusi keikka</a>. Lyhyt
   äänitiedosto ja kahden biisin lista riittävät. Tarkista, että ääni soi, kesto näkyy ja kelaus
   keskelle toimii.</p>
-<p>Tarkista sitten iPhonella kerran nämä ja kerro Ollille tulos, koska niitä ei ole vielä kokeiltu:</p>
+<p>Soitin on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei vielä.
+  Kokeile iPhonella kerran nämä ja kerro tulos Ollille:</p>
 <ol>
   <li>Safarissa: paina toistoa ja lukitse näyttö. Jatkuuko ääni? Näkyvätkö lukitusnäytöllä
     kappaleen nimi ja ohjaimet?</li>
@@ -431,8 +433,7 @@
     keikka, vai tuleeko ilmoitus <i>Linkistä puuttuu keikan tunnus</i>?</li>
   <li>Kotinäytön kuvakkeesta: jatkuuko ääni, kun näyttö lukittuu?</li>
 </ol>
-<p>Jos kohta 2 tai 3 epäonnistuu, käytä Safarin välilehteä tai kirjanmerkkiä, kunnes asia on
-  korjattu. Valmista.</p>
+<p>Jos kotinäytön kuvake ei toimi, käytä Safarin välilehteä tai kirjanmerkkiä. Valmista.</p>
 
 <!-- ================================================================ -->
 
@@ -458,9 +459,8 @@
   <tr><td>Soitin: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
     <td>Odota minuutti ja lataa uudelleen. Jos ei auta: tunnus on väärin tai komento jäi ajamatta.</td></tr>
 </table>
-<p>Tallennuskomentoa ei ole vielä ajettu oikealla Cloudflare-tilillä, joten testikeikkasi on
-  ensimmäinen. Jos tallennus antaa virheen, jota taulukossa ei ole, lähetä Ollille Terminalin
-  vastaus sellaisenaan. API-avain ei tulostu siihen.</p>
+<p>Jos tallennus antaa virheen, jota taulukossa ei ole, lähetä Ollille Terminalin vastaus
+  sellaisenaan. API-avain ei tulostu siihen.</p>
 <p>Soittimen omat ilmoitukset (äänitiedosto, biisilista) on selitetty
   <a href="ohje.html#ongelmat">käyttöoppaassa</a>.</p>
 
@@ -518,7 +518,7 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
 </table>
 
 <h3>K1. Workerin koodi</h3>
-<p>Kansiotuki on 13.10.2026 tai myöhemmin päivitetyssä koodissa. Jos teit kohdan 2 ennen sitä,
+<p>Kansiokeikka tarvitsee 14.10.2026 tai myöhemmin päivitetyn koodin. Jos teit kohdan 2 ennen sitä,
   päivitä worker (<a href="#paivitys">Workerin päivitys</a>). Sitten joko K2A tai K2B.</p>
 
 <h3 id="kansio-drive">K2A. Google Drive</h3>

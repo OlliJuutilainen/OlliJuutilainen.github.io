@@ -109,7 +109,8 @@
     </ul></li>
   <li><b>Avaa apusivun kirjanmerkki.</b> Yläreunassa pitää lukea <i>Omat asetukset</i>.</li>
   <li><b>Täytä kentät:</b> otsikko, äänitiedoston linkki ja <a href="#biisilista">biisilista</a>.
-    Apusivu muuttaa Drive- ja Dropbox-linkin suoraksi tiedostolinkiksi itse. Kenttä
+    Apusivu muuttaa Drive- ja Dropbox-linkin soitettavaan muotoon itse
+    (<a href="#aani">Äänitiedosto</a>). Kenttä
     <i>Päivämäärä tai muuta lisätietoa</i> on vapaaehtoinen; se näkyy soittimessa otsikon alla.
     Tarkista kohdan <i>Tarkista lista</i> esikatselu.</li>
   <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
@@ -178,9 +179,7 @@
     (<a href="kayttoonotto.html#paivitys">Workerin päivitys</a>).</p>
   <p>Molemmat on kokeiltu toimiviksi. Dropbox-tiedosto soi suoraan Dropboxista, Drive-tiedosto yhden
     välivaiheen kautta, joten Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa
-    tai kelaus tuntuu Drivella hitaalta, Dropbox on vaihtoehto. Drivea ei ole vielä kokeiltu
-    iPhonella: tarkista ensimmäisellä keikalla, että ääni soi ja kelaus toimii myös iPhonen
-    Safarissa.</p>
+    tai kelaus tuntuu Drivella hitaalta, Dropbox on vaihtoehto.</p>
 </div>
 
 <h2 id="korjaus">Korjaus ja poisto</h2>
@@ -250,9 +249,8 @@
 <p>Soitin on verkkosivu, joten erillistä sovellusta ei tarvita. Avaa keikan linkki Safarissa ja
   lisää se halutessasi kotinäyttöön (Jaa → <i>Lisää Koti-valikkoon</i>). Soitin antaa
   lukitusnäytölle kappaleen nimen ja ohjaimet: tauko, edellinen ja seuraava kappale.</p>
-<p class="muted">Taustasoittoa, lukitusnäyttöä ja kotinäytön kuvaketta ei ole vielä kokeiltu
-  iPhonella; tarkistuslista on <a href="kayttoonotto.html#testi">käyttöönoton kohdassa 9</a>. Jos
-  kotinäytön kuvake ei toimi, käytä Safarin välilehteä tai kirjanmerkkiä.</p>
+<p class="muted">Soitin on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei
+  vielä (<a href="kayttoonotto.html#testi">käyttöönoton kohta 9</a>).</p>
 
 <h2 id="ongelmat">Ongelmatilanteet</h2>
 <table>
@@ -287,7 +285,7 @@
 
 <h3>Kansion sisältö</h3>
 <ul>
-  <li><b>Numeroi tiedostot:</b> <code>01 Intro.mp3</code>, <code>02 Toinen biisi.mp3</code> …
+  <li><b>Numeroi tiedostot:</b> <code>01 Ensimmäinen biisi.mp3</code>, <code>02 Toinen biisi.mp3</code> …
     <code>10 …</code>. Järjestys menee numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois
     kappaleen nimestä. Alaviivat muuttuvat välilyönneiksi. <code>00 [Intro].mp3</code> ja
     <code>07 [x] Spiikki.mp3</code> ovat ei-biisejä kuten biisilistassakin. Numeroi aina: ilman numeroa nimen alussa oleva luku katoaa
@@ -319,16 +317,17 @@
     kansiosta yhden tiedoston sijaan</span>. Täytä otsikko ja liitä kansion linkki. Takaisin
     tavalliseen keikkaan pääsee kentän yläpuolelta.</li>
   <li><b>Kopioi komento → Terminal → Enter</b>, kuten tavallisessa keikassa.</li>
-  <li><b>Tarkista kappaleet:</b> kirjoita tunnus apusivun Tunnus-kenttään ja paina
-    <span class="ui">Hae</span>. Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne
+  <li><b>Tarkista kappaleet:</b> paina apusivun yläosasta <span class="ui">Hae</span>; tunnus on
+    yhä Tunnus-kentässä. Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne
     kansiosta lukee. Jos järjestys on väärä, nimeä tiedostot uudelleen; uutta komentoa ei tarvita.</li>
   <li><b>Avaa linkki itse ensin.</b> Soitin mittaa avautuessaan jokaisen tiedoston keston
     (<i>Ladataan kappaleita… 3/12</i>), joten avaus kestää hetken pidempään kuin tavallisessa
     keikassa.</li>
 </ol>
 <div class="box">
-  <p><b>Drivessa testaa ensimmäinen kansiokeikka huolella:</b> ääni soi, kappale vaihtuu seuraavaan
-    itsestään ja kelaus toimii, myös iPhonen Safarissa.</p>
+  <p><b>Kansiokeikkaa ei ole vielä kokeiltu oikealla Drivella eikä Dropboxilla.</b> Testaa
+    ensimmäinen huolella: ääni soi, kappale vaihtuu seuraavaan itsestään ja kelaus toimii, myös
+    puhelimessa.</p>
 </div>
 
 <h3>Kun kansiokeikka ei toimi</h3>

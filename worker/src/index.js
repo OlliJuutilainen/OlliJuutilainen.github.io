@@ -244,7 +244,7 @@ async function handleGig(req, env) {
 // äänitiedostot ovat kappaleita nimen mukaisessa (numero)järjestyksessä, ja
 // jokainen alikansio on oma settinsä. Sisältö luetaan joka kerta, kun soitin
 // avataan, joten kansioon lisätty tiedosto näkyy ilman uutta tallennusta.
-// Käyttöönotto: soitin/KAVERIVERSIO.md, liite.
+// Käyttöönotto: soitin/kayttoonotto.html, liite.
 //
 // Dropbox: salaisuudet DROPBOX_APP_KEY, DROPBOX_APP_SECRET ja
 // DROPBOX_REFRESH_TOKEN. Kansion pitää olla saman Dropbox-tilin omistama,
