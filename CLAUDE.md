@@ -133,6 +133,8 @@ wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerili
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
 pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mt d`.
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
+Apusivu tallentaa ja näyttää alkuajat aina kymmenyksen tarkkuudella (`0:00.0`, `17:30.0`),
+myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
 (`{ title, folder }` KV:ssä audio-linkin ja biisilistan sijaan). Worker lukee kansion palvelun
