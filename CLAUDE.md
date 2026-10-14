@@ -129,7 +129,10 @@ Biisilistan ei-biisi eli x-rivi (`3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`; 
 kohtaa settiä tahansa, ilman numeroa) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
-wrangler-versiolla kuin generaattori.
+wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
+(SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
+pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mt d`.
+Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
 (`{ title, folder }` KV:ssä audio-linkin ja biisilistan sijaan). Worker lukee kansion palvelun
