@@ -352,6 +352,9 @@
         return;
       }
       if (isNaN(sec)) { errors.push("Rivi " + n + ": aika ei kelpaa."); return; }
+      // Tallennettava tarkkuus (sadasosat), jotta esikatselu laskee samoista
+      // ajoista kuin soitin.
+      sec = Math.round(sec * 100) / 100;
       // [0] ja [x] ovat sama merkintä; tallennetaan muodossa "[x]" tai "[x] Nimi".
       var xm = X_RE.exec(title);
       if (xm) {
@@ -591,21 +594,22 @@
       if (r.first) {
         setNo++;
         if (heads) {
-          // Setin kesto on sen biisien kestojen summa (ei ei-biisejä),
-          // rajat alas pyöristettyinä kuten soittimessa. Biisi päättyy seuraavan
-          // rivin alkuun; viimeinen vain, jos tiedoston pituus selvisi.
+          // Setin kesto on sen biisien kestojen summa (ei ei-biisejä)
+          // tallennettavista alkuajoista kuten soittimessa; vasta tulos
+          // pyöristetään sekunteihin. Biisi päättyy seuraavan rivin alkuun;
+          // viimeinen vain, jos tiedoston pituus selvisi.
           var len = 0;
           for (var k = i; k < shown.length && (k === i || !shown[k].first); k++) {
             if (shown[k].extra) continue;
             var end = k + 1 < shown.length ? shown[k + 1].tr.sec : audioLen;
-            len += Math.floor(end) - Math.floor(shown[k].tr.sec);
+            len += end - shown[k].tr.sec;
           }
           var h = document.createElement("tr"), hd = document.createElement("td");
           h.className = "set";
           hd.colSpan = 3;
           hd.innerHTML = '<span></span><span class="len"></span>';
           hd.children[0].textContent = tr.name || "(" + roman(setNo) + ")";
-          hd.children[1].textContent = isFinite(len) && len > 0 ? fmtTime(len) : "";
+          hd.children[1].textContent = isFinite(len) && len > 0 ? fmtTime(Math.round(len)) : "";
           h.appendChild(hd);
           prev.appendChild(h);
         }

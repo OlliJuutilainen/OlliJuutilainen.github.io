@@ -1018,12 +1018,13 @@
   }
 
   // Kappaleiden ja settien kestot. Viimeisen kappaleen ja setin kesto
-  // selviää vasta, kun äänitiedoston pituus on tiedossa. Rajat pyöristetään
-  // alas ennen vähennystä, jolloin setin biisien kestot summautuvat tasan
-  // setin kestoksi. Setin kestoon (Σ) lasketaan vain biisit, ei
-  // ei-biisejä.
+  // selviää vasta, kun äänitiedoston pituus on tiedossa. Kestot lasketaan
+  // pyöristämättömistä alkuajoista (sadasosat mukana), ja vasta näytettävä
+  // kesto pyöristetään lähimpään sekuntiin. Setin kesto (Σ) on sen biisien
+  // tarkkojen kestojen summa, joten näytetyt biisien kestot voivat erota
+  // sekunnilla setin kestosta. Ei-biisejä ei lasketa setin kestoon.
   function lenOf(a, b) {
-    var len = Math.floor(b) - Math.floor(a);
+    var len = b - a;
     return isFinite(len) && len > 0 ? len : NaN;
   }
   // Tunnit näytetään ryhmittäin: setin kaikissa biiseissä, jos jokin sen
@@ -1032,11 +1033,11 @@
   function renderLens() {
     var groups = { sets: [] }, sums = [];
     tracks.forEach(function (tr, i) {
-      (groups[tr.set] = groups[tr.set] || []).push([trackLens[i], lenOf(tr.start, trackEnd(i))]);
-      if (!isExtra(i)) sums[tr.set] = (sums[tr.set] || 0) + Math.floor(trackEnd(i)) - Math.floor(tr.start);
+      (groups[tr.set] = groups[tr.set] || []).push([trackLens[i], Math.round(lenOf(tr.start, trackEnd(i)))]);
+      if (!isExtra(i)) sums[tr.set] = (sums[tr.set] || 0) + trackEnd(i) - tr.start;
     });
     for (var k = 1; k <= sets; k++) {
-      if (setLens[k]) groups.sets.push([setLens[k], lenOf(0, sums[k])]);
+      if (setLens[k]) groups.sets.push([setLens[k], Math.round(lenOf(0, sums[k]))]);
     }
     Object.keys(groups).forEach(function (g) {
       var cells = groups[g];
