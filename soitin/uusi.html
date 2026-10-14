@@ -132,7 +132,7 @@
     spiikki tai aplodit), voi merkitä missä kohtaa tahansa: nimi hakasulkeissa (<code>3:42 [Intro]</code>)
     tai alkuun <code>[x]</code> tai <code>[0]</code> (<code>3:42 [x] Spiikki</code>, pelkkä <code>3:42 [x]</code>).
     Se ei saa numeroa, ja ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa <i>[OUTRO]</i> ja
-    välissä <i>[välihässäkkä]</i>. Listan ensimmäiseltä riviltä sen ajan voi jättää pois (alkaa 0:00).
+    välissä <i>[VÄLI]</i>. Listan ensimmäiseltä riviltä sen ajan voi jättää pois (alkaa 0:00).
     Jos ensimmäinen raita alkaa myöhemmin kuin 0:00, alkuun tulee <i>[INTRO]</i>. Setin kestoon
     lasketaan vain biisit.
     Rivi <code>---</code> aloittaa uuden setin: numerointi alkaa taas 1:stä, ja setin ensimmäisellä
@@ -387,7 +387,7 @@
   // Sama numerointi ja samat oletusotsikot kuin soittimessa (loadTracks,
   // nameExtras): joka setti alkaa 1:stä, ja ei-biisi ei saa numeroa. Ei-biisin
   // oletusotsikko on setin alussa [INTRO], lopussa [OUTRO] ja välissä
-  // [välihässäkkä]; saman ryhmän useampi oletusotsikko numeroidaan.
+  // [VÄLI]; saman ryhmän useampi oletusotsikko numeroidaan.
   function numbered(list) {
     var out = [], nr = 1;
     list.forEach(function (tr, i) {
@@ -401,7 +401,7 @@
       if (!out[i].extra) continue;
       var j = i;
       while (j + 1 < out.length && !out[j + 1].first && out[j + 1].extra) j++;
-      var word = out[i].first ? "INTRO" : j + 1 >= out.length || out[j + 1].first ? "OUTRO" : "välihässäkkä";
+      var word = out[i].first ? "INTRO" : j + 1 >= out.length || out[j + 1].first ? "OUTRO" : "VÄLI";
       var dflt = out.slice(i, j + 1).filter(function (r) { return r.dflt; });
       dflt.forEach(function (r, c) { r.title = "[" + word + (dflt.length > 1 ? " " + (c + 1) : "") + "]"; });
       i = j;
