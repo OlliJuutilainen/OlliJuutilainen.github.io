@@ -131,7 +131,8 @@ päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin 
 päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
 wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`; ensimmäisen rivin täydet tunnit vähennetään, framet
-pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mt d`.
+pudotetaan, oletusnimi `Marker N` = nimetön) ja Reaperin SWS-markerilista muodossa `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d`
+antaa vain kokonaiset sekunnit).
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto.
 Apusivu tallentaa ja näyttää alkuajat aina kymmenyksen tarkkuudella (`0:00.0`, `17:30.0`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
