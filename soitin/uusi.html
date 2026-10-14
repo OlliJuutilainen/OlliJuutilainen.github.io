@@ -83,12 +83,13 @@
 
   <label for="key">Tunnus</label>
   <div class="row">
-    <input id="key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="32">
+    <input id="key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button id="newkey" type="button">Arvo uusi</button>
     <button id="fetch" type="button">Hae</button>
   </div>
   <p class="muted" style="margin-top:6px">Uudelle keikalle arvottu tunnus. Korjataksesi vanhaa keikkaa
-    kirjoita sen tunnus ja paina <b>Hae</b>; linkki pysyy samana.</p>
+    kirjoita sen tunnus tai liitä keikan linkki ja paina <b>Hae</b>; linkki pysyy samana.</p>
+  <p class="error" id="keyNote" hidden></p>
 
   <label for="title">Otsikko</label>
   <input id="title" type="text" placeholder="Keikan nimi – paikka, pvm">
@@ -623,6 +624,24 @@
   }
 
   f.key.value = randomKey();
+  // Tunnus-kenttään saa liittää myös keikan linkin (…/soitin/#tunnus@soitin.jotain/3):
+  // tunnus poimitaan siitä. Ennen muita käsittelijöitä, jotta ne näkevät pelkän tunnuksen.
+  f.key.addEventListener("input", function () {
+    var v = f.key.value.trim();
+    var m = /#([a-z0-9]{4,32})(?:@([a-z0-9-]{1,63}\.[a-z0-9-]{1,63}))?(?:[\/?&\s]|$)/i.exec(v);
+    var note = $("keyNote");
+    note.hidden = true;
+    if (!m) return;
+    f.key.value = m[1].toLowerCase();
+    // Varoitus vain, kun linkistä näkee, minkä workerin keikka on (koko osoite tai @-osa).
+    var linkWorker = (m[2] || "").toLowerCase(), own = profile ? profile.worker : "";
+    if ((m[2] || /:\/\//.test(v)) && linkWorker !== own) {
+      note.textContent = "Linkin keikka on " + (linkWorker ? "workerissa " + linkWorker : "Ollin workerissa") +
+        ", mutta tämä sivu tallentaa " + (own ? "workeriin " + own : "Ollin workeriin") +
+        ". Hae ja tallennus eivät osu samaan keikkaan.";
+      note.hidden = false;
+    }
+  });
   ["key", "title", "sub", "audio", "tracks", "folder"].forEach(function (k) { f[k].addEventListener("input", update); });
   $("toFolder").addEventListener("click", function () {
     folderMode = true;
