@@ -102,6 +102,8 @@
     overflow-wrap: anywhere;
   }
   .now .nr { color: var(--muted); }
+  /* Nollarivin biisi (esim. [Intro]): myös otsikko himmeänä. */
+  .now.pre { color: var(--muted); }
   .seek {
     position: relative;
     height: 44px;
@@ -564,7 +566,8 @@
   }
   // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
   // "(ii) 3. Otsikko"). Setti ja numero himmeinä;
-  // otsikottomalla biisillä numero on itse otsikko eikä himmene. Sitovat
+  // otsikottomalla biisillä numero on itse otsikko eikä himmene. Nollarivin
+  // biisillä himmenee myös otsikko. Sitovat
   // välilyönnit pitävät setin, numeron ja otsikon alun kiinni toisissaan.
   function renderNow(i) {
     var tr = tracks[i];
@@ -573,6 +576,7 @@
     if (showSets) nr.textContent = setName(tr.set) + "\u00a0";
     var n = document.createTextNode(num(i) + ".");
     els.now.textContent = "";
+    els.now.classList.toggle("pre", num(i) === 0);
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
