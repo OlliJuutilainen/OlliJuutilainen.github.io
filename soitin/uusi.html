@@ -97,7 +97,7 @@
   <label for="sub">Päivämäärä tai muuta lisätietoa</label>
   <input id="sub" type="text" placeholder="esim. 13.10.2026">
   <p class="muted" style="margin-top:6px">Vapaaehtoinen. Näkyy soittimessa otsikon alla harmaana kursiivina,
-    mutta ei linkin esikatselussa. Tyhjänä riviä ei ole lainkaan.</p>
+    mutta ei selaimen välilehden otsikossa. Tyhjänä riviä ei ole lainkaan.</p>
 
   <div id="singleBox">
   <label for="audio">Äänitiedoston linkki (Google Drive tai Dropbox)</label>
@@ -112,7 +112,7 @@
   <label for="folder" style="margin-top:4px">Kansion linkki (Google Drive tai Dropbox)</label>
   <input id="folder" type="url" placeholder="https://drive.google.com/drive/folders/… tai https://www.dropbox.com/scl/fo/…" autocapitalize="off" spellcheck="false">
   <p class="muted" style="margin-top:6px">Kansion äänitiedostot ovat kappaleita nimen mukaisessa
-    järjestyksessä, joten numeroi ne: <code>01 Intro.mp3</code>, <code>02 Toinen.mp3</code> …
+    järjestyksessä, joten numeroi ne: <code>01 Ensimmäinen.mp3</code>, <code>02 Toinen.mp3</code> …
     Alkunumero jää pois kappaleen nimestä. Hakasulkeissa oleva nimi (<code>00 [Intro].mp3</code>)
     tai <code>[x]</code> nimen alussa (<code>07 [x] Spiikki.mp3</code>) on ei-biisi kuten biisilistassa.
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
@@ -124,9 +124,9 @@
 
   <div id="tracksBox">
   <label for="tracks">Biisilista</label>
-  <textarea id="tracks" spellcheck="false" placeholder="0:00 Intro
-3:42 Toinen biisi
-1:02:30 Encore"></textarea>
+  <textarea id="tracks" spellcheck="false" placeholder="[Intro]
+3:42 Ensimmäinen biisi
+1:02:30 Viimeinen biisi"></textarea>
   <p class="muted" style="margin-top:6px">Yksi raita riville: alkuaika ja nimi (<code>3:42 Nimi</code>,
     <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code>). Raidan, joka ei ole biisi (esim. intro,
     spiikki tai aplodit), voi merkitä missä kohtaa tahansa: nimi hakasulkeissa (<code>3:42 [Intro]</code>)
