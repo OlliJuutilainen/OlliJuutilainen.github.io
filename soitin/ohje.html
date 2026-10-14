@@ -139,15 +139,15 @@
     <td>Kappale alkaa kohdasta 3:42 tai 1:02:30. Rivin alun numero (<code>1.</code>) ja välimerkit
       (<code>Nimi – 3:42</code>, <code>Nimi (3:42)</code>) saavat olla mukana. Ajat kasvavat
       rivi riviltä.</td></tr>
-  <tr><td><code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai <code>3:42 [x]</code>
-      (<code>[0]</code> käy <code>[x]</code>:n sijaan)</td>
+  <tr><td>Pelkkä <code>3:42</code>, <code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai
+      <code>3:42 [x]</code> (<code>[0]</code> käy <code>[x]</code>:n sijaan)</td>
     <td>Raita, joka ei ole biisi (esim. intro, spiikki tai aplodit), missä kohtaa tahansa. Sillä ei
       ole numeroa, eikä numerointi etene. Ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa
-      <i>[OUTRO]</i> ja välissä <i>[välihässäkkä]</i>; peräkkäiset numeroidaan (<i>[OUTRO 1]</i>,
+      <i>[OUTRO]</i> ja välissä <i>[VÄLI]</i>; peräkkäiset numeroidaan (<i>[OUTRO 1]</i>,
       <i>[OUTRO 2]</i>). Listan ensimmäiseltä riviltä ajan saa jättää pois (alkaa 0:00).</td></tr>
   <tr><td>Ensimmäinen raita alkaa myöhemmin kuin 0:00</td>
     <td>Alkuun tulee itsestään <i>[INTRO]</i>.</td></tr>
-  <tr><td><code>3:42</code> ilman nimeä</td>
+  <tr><td><code>3. 3:42</code> (rivinumero ja aika)</td>
     <td>Kappale ilman nimeä; soitin näyttää sen numeron.</td></tr>
   <tr><td><code>---</code></td>
     <td>Uusi setti. Numerointi alkaa taas 1:stä. Setin ensimmäisellä raidalla pitää olla
@@ -162,7 +162,7 @@
       valitse listan omasta View-valikosta <i>Show Event Position and Length as Time</i> ja paina
       Cmd-A ja Cmd-C. Logicin tunnin siirtymä (01:00:00:00) poistetaan itsestään. Tee markerit
       komennolla <i>Create Marker without rounding</i>: tavallinen <i>Create Marker</i> siirtää
-      markerin seuraavaan tahtiin. Nimeämätön <i>Marker 3</i> on biisi ilman nimeä.</td></tr>
+      markerin seuraavaan tahtiin. Nimeämätön <i>Marker 3</i> on biisi nimeltä <i>3</i>.</td></tr>
   <tr><td>Reaperin markerit (SWS-laajennus)</td>
     <td>SWS:n Marker listissä oikea klikkaus → <i>Export format…</i> → <code>mt d</code>, sitten
       <i>Export formatted marker list to clipboard</i> ja liitä.</td></tr>
