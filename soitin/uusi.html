@@ -359,7 +359,8 @@
       var rk = u.searchParams.get("resourcekey");
       return { url: API.replace(/\/api\/gig$/, "/api/drive-file") + "?id=" + id +
         (rk && /^[A-Za-z0-9_-]{10,}$/.test(rk) ? "&rk=" + rk : ""),
-        note: "Drive-linkki muutettu soitettavaksi workerin kautta." };
+        note: "Drive-linkki muutettu soitettavaksi workerin kautta. Kenttään jää alkuperäinen linkki; " +
+          "muutettu osoite on alla olevassa komennossa." };
     }
     return { url: u.toString(), note: note };
   }
