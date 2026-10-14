@@ -378,13 +378,13 @@
     <div class="cmd"><pre id="c-add">security add-generic-password -U -a "$USER" -s soitin-cf -w "$(pbpaste)"</pre><button type="button" data-copy="c-add">Kopioi</button></div></li>
   <li>Kopioi avain Cloudflaren sivulta.</li>
   <li>Paina Terminalissa Enter. Älä paina sitä ennen kuin avain on kopioitu: komento lukee
-    leikepöydän vasta Enterin hetkellä.
+    leikepöydän vasta Enterin hetkellä. Onnistuessaan komento ei tulosta mitään.
     <p style="margin:6px 0 0"><b>Terminal ei kysy mitään salasanaa</b>, ei Macin salasanaa eikä uutta
       itse keksittävää salasanaa, eikä mitään tarvitse kirjoittaa. Jos Terminal silti kysyy jotain,
       paina <kbd>ctrl</kbd>+<kbd>C</kbd> ja tarkista, että komento on liitetty kokonaan.</p></li>
   <li>Tarkista, että avainnippuun tallentui avain. Komento ei näytä avainta, vain sen pituuden:
     <div class="cmd"><pre id="c-len">security find-generic-password -s soitin-cf -w | awk '{ print "pituus", length($0), "välilyöntejä", gsub(/ /,"") }'</pre><button type="button" data-copy="c-len">Kopioi</button></div>
-    Pituuden pitää olla kymmeniä merkkejä ja välilyöntejä 0. Jos pituus on pieni, leikepöydällä oli
+    Pituuden pitää olla kymmeniä merkkejä (esimerkiksi <code>pituus 53 välilyöntejä 0</code>). Jos pituus on pieni, leikepöydällä oli
     jotain muuta: toista vaiheet 1–3.</li>
   <li>Tarkista, että Cloudflare hyväksyy avaimen:
     <div class="cmd"><pre id="c-verify">curl -sS https://api.cloudflare.com/client/v4/user/tokens/verify -H "Authorization: Bearer $(security find-generic-password -s soitin-cf -w)"; echo</pre><button type="button" data-copy="c-verify">Kopioi</button></div>
