@@ -138,20 +138,19 @@
     <td>Kappale alkaa kohdasta 3:42 tai 1:02:30. Rivin alun numero (<code>1.</code>) ja välimerkit
       (<code>Nimi – 3:42</code>, <code>Nimi (3:42)</code>) saavat olla mukana. Ajat kasvavat
       rivi riviltä.</td></tr>
-  <tr><td><code>[Intro]</code> listan alussa</td>
-    <td>Numero 0, ja numerointi alkaa seuraavasta. Listan alussa sen ajan saa jättää pois.</td></tr>
-  <tr><td>Ensimmäinen kappale alkaa myöhemmin kuin 0:00</td>
-    <td>Alkuun tulee itsestään <i>0. [INTRO]</i>.</td></tr>
-  <tr><td><code>3:42 [x]</code> tai <code>3:42 [x] Nimi</code></td>
-    <td>Raita, joka ei ole biisi (esim. spiikki tai aplodit), missä kohtaa tahansa. Numeron paikalla
-      on <i>x.</i>, eikä numerointi etene. Ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa
+  <tr><td><code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai <code>3:42 [x]</code>
+      (<code>[0]</code> käy <code>[x]</code>:n sijaan)</td>
+    <td>Raita, joka ei ole biisi (esim. intro, spiikki tai aplodit), missä kohtaa tahansa. Sillä ei
+      ole numeroa, eikä numerointi etene. Ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa
       <i>[OUTRO]</i> ja välissä <i>[välihässäkkä]</i>; peräkkäiset numeroidaan (<i>[OUTRO 1]</i>,
-      <i>[OUTRO 2]</i>).</td></tr>
+      <i>[OUTRO 2]</i>). Listan ensimmäiseltä riviltä ajan saa jättää pois (alkaa 0:00).</td></tr>
+  <tr><td>Ensimmäinen raita alkaa myöhemmin kuin 0:00</td>
+    <td>Alkuun tulee itsestään <i>[INTRO]</i>.</td></tr>
   <tr><td><code>3:42</code> ilman nimeä</td>
     <td>Kappale ilman nimeä; soitin näyttää sen numeron.</td></tr>
   <tr><td><code>---</code></td>
-    <td>Uusi setti. Numerointi alkaa taas 1:stä (tai 0:sta, jos setin ensimmäinen nimi on
-      hakasulkeissa).</td></tr>
+    <td>Uusi setti. Numerointi alkaa taas 1:stä. Setin ensimmäisellä raidalla pitää olla
+      alkuaika.</td></tr>
   <tr><td><code>(Encore)</code> heti <code>---</code>-rivin jälkeen</td>
     <td>Setin oma otsikko. Ilman sitä setit ovat (i), (ii) … Listan alussa sulkurivi nimeää
       ensimmäisen setin.</td></tr>
@@ -241,7 +240,7 @@
       seuraavasta setistä. <i>keikka</i>: soi loppuun asti.</td></tr>
   <tr><td>Kappalelista</td>
     <td>Napauta kappaletta, niin soitto alkaa siitä. Oikealla kappaleen kesto, setin otsikkorivillä
-      setin biisien yhteiskesto (Σ, ilman 0- ja x-rivejä). Linkki-ikoni kopioi <a href="#linkit">kappaleen linkin</a>.</td></tr>
+      setin biisien yhteiskesto (Σ, ilman hakasulkeissa olevia ei-biisejä). Linkki-ikoni kopioi <a href="#linkit">kappaleen linkin</a>.</td></tr>
 </table>
 <p><b>Näppäimistöllä</b> (Mac): <kbd>välilyönti</kbd> toistaa ja tauottaa. Kun aikajana on valittuna
   (<kbd>Tab</kbd>), <kbd>←</kbd> <kbd>→</kbd> siirtävät 5 sekuntia, <kbd>PgUp</kbd> <kbd>PgDn</kbd>
@@ -290,8 +289,8 @@
 <ul>
   <li><b>Numeroi tiedostot:</b> <code>01 Intro.mp3</code>, <code>02 Toinen biisi.mp3</code> …
     <code>10 …</code>. Järjestys menee numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois
-    kappaleen nimestä. Alaviivat muuttuvat välilyönneiksi. <code>00 [Intro].mp3</code> saa numeron 0
-    ja <code>07 [x] Spiikki.mp3</code> on x-rivi kuten biisilistassakin. Numeroi aina: ilman numeroa nimen alussa oleva luku katoaa
+    kappaleen nimestä. Alaviivat muuttuvat välilyönneiksi. <code>00 [Intro].mp3</code> ja
+    <code>07 [x] Spiikki.mp3</code> ovat ei-biisejä kuten biisilistassakin. Numeroi aina: ilman numeroa nimen alussa oleva luku katoaa
     (<code>99 Luftballons.mp3</code> → <i>Luftballons</i>).</li>
   <li><b>Setit ovat alikansioita</b> nimen mukaisessa järjestyksessä: <code>1</code>, <code>2</code> …
     Numeron jälkeinen nimi on setin otsikko (<code>2 Encore</code> → <i>(Encore)</i>,
