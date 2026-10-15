@@ -78,8 +78,9 @@
 
   /* Keikan luomisen esikatselu: mitä Keikkageneraattorissa annetaan (vasen)
      ja saadaan (oikea). Palstojen välissä haalea pystyviiva. Kolme tasoa:
-     johdin lihavoituna, annat/saat ohuena kursiivina, listat kevyenä ja
-     pienempänä, jotta niiden lihavoinnit erottuvat. Täyte ja marginaali tulevat
+     johdin lihavoituna, annat/saat ohuena kursiivina (näytöllä …annat,
+     tulosteessa annat:), listat kevyenä ja pienempänä, jotta niiden
+     lihavoinnit erottuvat. Täyte ja marginaali tulevat
      .box-säännöstä (myöhempi, sama spesifisyys); vain alamarginaali on oma, jotta
      sisällyksen johdantovirke irtoaa laatikosta ja kuuluu sisällykseen. */
   .ydin { display: grid; grid-template-columns: 1fr 1fr; }
@@ -88,6 +89,7 @@
   .ydin > div { padding: 0 22px 0 0; }
   .ydin > div + div { padding: 0 0 0 22px; border-left: 1px solid var(--line); }
   .ydin .otsake { font-style: italic; font-weight: 400; margin: 0 0 6px; }
+  .ydin .otsake::before { content: "\2026"; }
   .ydin ul { margin-bottom: 12px; font-weight: 300; font-size: 0.94rem; }
   .ydin li { margin-bottom: 8px; }
   .ydin b { font-weight: 700; }
@@ -156,6 +158,8 @@
     details.osio > summary > h2::before, details.osio > summary > h3::before,
     details.osio > summary > h4::before, details.osio > summary > h5::before { content: none; }
     details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; }
+    .ydin .otsake::before { content: none; }
+    .ydin .otsake::after { content: ":"; }
   }
 </style>
 </head>
@@ -178,7 +182,7 @@
 <div class="box ydin">
   <p class="johdin">Keikkageneraattorissa…</p>
   <div>
-    <p class="otsake">…annat</p>
+    <p class="otsake">annat</p>
     <ul>
       <li>keikan nimen</li>
       <li><b>linkin äänitiedostoon</b> Google Drivessa tai Dropboxissa</li>
@@ -187,7 +191,7 @@
     </ul>
   </div>
   <div>
-    <p class="otsake">…saat</p>
+    <p class="otsake">saat</p>
     <ul>
       <li><b>keikan oman soittimen linkin</b>, jonka voit jakaa</li>
       <li><b>komennon</b>, jonka liität Macin Terminaliin. Komento tallentaa keikan, ja vasta sen
