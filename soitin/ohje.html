@@ -15,8 +15,8 @@
   Järjestys: johdannon virke linkittää osat (ei koko sivun sisällystä). Keikan
   luominen alkaa esikatselulla (mitä Keikkageneraattorissa annetaan ja saadaan),
   jonka jälkeen tulee vain tämän osan sisällys ja Keikkageneraattorin kentät
-  ylhäältä alas. Niiden perässä on osio Valinnaiset ominaisuudet, jonka alaosiot
-  ovat h4-tasoa. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
+  ylhäältä alas. Niiden perässä on suljettu osio Edistyneet käyttäjät, jonka
+  alaosiot ovat h4-tasoa. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
   #-linkki suljetun osion sisään avaa sen.
 
   Termit: Keikkageneraattoriin annettava lista on settilista, soittimen näyttämä
@@ -42,7 +42,7 @@
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
   /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio,
-     h5 = alaosion alaosio (vain Valinnaisissa ominaisuuksissa). */
+     h5 = alaosion alaosio (vain Edistyneissä käyttäjissä). */
   h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
   h3 { font-size: 1.15rem; line-height: 1.3; margin: 40px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
   h4, h5 { font-size: 1rem; margin: 22px 0 8px; }
@@ -58,24 +58,41 @@
   code.nw { white-space: nowrap; }
   pre { background: var(--soft); border-radius: 8px; padding: 12px 14px; margin: 8px 0 14px; white-space: pre-wrap; line-height: 1.5; }
   kbd { font-family: inherit; font-size: 0.85em; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
+  /* Näppäinyhdistelmä (Ctrl-Option-'): ei katkea rivin vaihteessa. Kapea
+     yksittäinen merkki saa leveämmän kehyksen, ettei heittomerkki huku. */
+  .yhd { white-space: nowrap; }
+  kbd.m { display: inline-block; min-width: 1.5em; text-align: center; line-height: 1.3; }
   .lead { color: var(--muted); font-size: 1.02rem; margin: 14px 0 14px; }
   .muted { color: var(--muted); font-size: 0.93rem; }
   .ui { font-weight: 600; }
   /* Johdannon ja ensimmäisen osan alun kappaleet väljemmin. */
   .intro { margin-bottom: 20px; }
-  /* Osion lopun sivuhuomautus suljettujen alaosioiden jälkeen: sisennetty ja
-     irti niistä, ettei se näytä kuuluvan viimeiseen alaosioon. */
-  .sivu { margin: 22px 0 18px 24px; }
+  /* Lisähuomio osion lopussa suljettujen alaosioiden jälkeen, oppikirjan
+     reunahuomautuksen tapaan: pieni, kapea ja sisennetty (ettei näytä kuuluvan
+     viimeiseen alaosioon), ohut viiva vasemmalla. Ei laatikkoa, ettei se
+     ponnahda esiin. */
+  .huom { font-size: 0.86rem; line-height: 1.5; color: var(--muted); max-width: 38em;
+    margin: 24px 0 20px 24px; padding-left: 12px; border-left: 2px solid var(--line); }
+  .huom .merkki { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent);
+    margin-right: 0.35em; }
 
   /* Keikan luomisen esikatselu: mitä Keikkageneraattorissa annetaan (vasen)
-     ja saadaan (oikea). Palstojen välissä haalea pystyviiva. */
-  .ydin { display: grid; grid-template-columns: 1fr 1fr; padding: 18px 22px 8px; margin: 24px 0 28px; }
+     ja saadaan (oikea). Palstojen välissä haalea pystyviiva. Kolme tasoa:
+     johdin lihavoituna, annat/saat ohuena kursiivina, listat kevyenä ja
+     pienempänä, jotta niiden lihavoinnit erottuvat. Täyte ja marginaali tulevat
+     .box-säännöstä (myöhempi, sama spesifisyys); vain alamarginaali on oma, jotta
+     sisällyksen johdantovirke irtoaa laatikosta ja kuuluu sisällykseen. */
+  .ydin { display: grid; grid-template-columns: 1fr 1fr; }
+  .box.ydin { margin-bottom: 44px; }
   .ydin .johdin { grid-column: 1 / -1; font-weight: 700; margin: 0 0 12px; }
   .ydin > div { padding: 0 22px 0 0; }
   .ydin > div + div { padding: 0 0 0 22px; border-left: 1px solid var(--line); }
-  .ydin .otsake { font-weight: 700; margin: 0 0 8px; }
-  .ydin ul { margin-bottom: 12px; }
+  .ydin .otsake { font-style: italic; font-weight: 400; margin: 0 0 6px; }
+  .ydin ul { margin-bottom: 12px; font-weight: 300; font-size: 0.94rem; }
   .ydin li { margin-bottom: 8px; }
+  .ydin b { font-weight: 700; }
+  .ydin .koko { font-weight: 300; }
+  .tocjohdin { margin-bottom: 6px; }
   .ydin .koko { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
   @media (max-width: 560px) {
     .ydin { grid-template-columns: 1fr; }
@@ -84,8 +101,8 @@
   }
 
   /* Keikan luomisen sisällys: vasemmalla Keikkageneraattorin kentät, oikealla
-     valinnaiset ominaisuudet alaosioineen. */
-  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 12px 0 8px;
+     Edistyneet käyttäjät alaosioineen. */
+  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 6px 0 8px;
     display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
   nav.toc ul { margin: 0 0 8px; padding-left: 1.2em; }
   nav.toc li { margin: 0 0 4px; }
@@ -181,18 +198,18 @@
     komennon Terminalissa.</p>
 </div>
 
-<p>Seuraavaksi Keikkageneraattori käydään läpi kohta kohdalta, ylhäältä alas.</p>
+<p class="tocjohdin">Seuraavaksi Keikkageneraattori käydään läpi kohta kohdalta, ylhäältä alas.</p>
 <nav class="toc" aria-label="Keikan luominen">
   <ul>
     <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
     <li><a href="#tiedosto">Äänitiedoston linkki</a></li>
     <li><a href="#settilista">Settilista</a></li>
-    <li><a href="#tallennus">Uuden keikan tallentaminen ja linkin saaminen</a></li>
+    <li><a href="#tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</a></li>
   </ul>
   <ul>
-    <li><a href="#valinnaiset">Valinnaiset ominaisuudet</a>
+    <li><a href="#valinnaiset">Edistyneet käyttäjät</a>
       <ul>
-        <li><a href="#merkinnat">Settilistan muut ominaisuudet</a></li>
+        <li><a href="#merkinnat">Settilistan lisäominaisuudet</a></li>
         <li><a href="#aani">Äänitiedoston muoto</a></li>
         <li><a href="#linkit">Linkin jakaminen</a></li>
         <li><a href="#korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</a></li>
@@ -230,7 +247,7 @@
   saanut voi katsoa). Dropbox-tiedosto soi suoraan Dropboxista.</p>
 </details>
 
-<p class="muted sivu">Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
+<p class="huom"><span class="merkki">HUOM</span> Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
   Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa tai kelaus tuntuu Drivella
   hitaalta, Dropbox on vaihtoehto. Tiedostomuodosta: <a href="#aani">Äänitiedoston muoto</a>.</p>
 
@@ -242,33 +259,32 @@
 6:45 Toinen biisi
 11:20 Kolmas biisi</pre>
 
-<p id="markerit">Helpommin lista syntyy DAW:sta. Merkitse Logicissa tai Reaperissa biisien saumat
-  markereilla siihen projektiin, josta keikan äänitiedosto on tehty, ja kopioi markerilista
-  Keikkageneraattoriin sellaisenaan; se tunnistaa muodon itse. Markerin nimi on kappaleen nimi, ja
-  nimeämätön markeri on ei-biisi (esim. intro tai spiikki). Äänitiedoston pitää alkaa aikajanan alusta. Myös Audacityn
-  <i>Export Labels</i> -tiedoston sisällön voi liittää sellaisenaan.</p>
+<p id="markerit">Listan saa myös Logicista tai Reaperista tuomalla niissä luodun äänitiedoston
+  aikajanaa koskevan markerien sarjan.</p>
 
 <details class="osio ala">
 <summary><h4 id="logic">Logic</h4></summary>
 <ol>
   <li><b>Tee markerit ilman pyöristystä.</b> Komento <i>Create Marker without rounding</i> lisää
     markerin tarkalleen soittopään kohtaan, myös toiston aikana. Sen oletusnäppäin on
-    Control-Option-' (US-näppäimistö); jos se ei toimi, anna komennolle oma näppäin
-    <i>Key Commands</i> -ikkunassa (Option-K). Älä käytä tavallista <i>Create Marker</i> -komentoa
-    (Option-'), joka siirtää markerin seuraavaan tahtiin, äläkä markeriraidan +-nappia tai
-    kynätyökalua, jotka pyöristävät lähimpään neljäsosaan.<br>
-    Jos taltiointi on jo pilkottu biiseittäin alueiksi, valitse alueet ja käytä komentoa
-    <i>Create Markers From Regions</i>: markerit saavat alueiden nimet.</li>
+    <span class="yhd"><kbd>Ctrl</kbd>-<kbd>Option</kbd>-<kbd class="m">'</kbd></span>; jos se ei toimi, anna komennolle oma näppäin
+    <i>Key Commands</i> -ikkunassa (<span class="yhd"><kbd>Option</kbd>-<kbd class="m">K</kbd></span>). Älä käytä tavallista <i>Create Marker</i> -komentoa
+    (<span class="yhd"><kbd>Option</kbd>-<kbd class="m">'</kbd></span>), joka siirtää markerin seuraavaan tahtiin, äläkä markeriraidan plusnappia tai
+    kynätyökalua, jotka pyöristävät lähimpään neljäsosaan. Jos taltiointi on jo pilkottu biiseittäin
+    alueiksi, valitse alueet ja käytä komentoa <i>Create Markers From Regions</i>: markerit saavat
+    alueiden nimet.</li>
   <li><b>Nimeä markerit</b> markerilistassa kaksoisklikkaamalla nimeä. Logicin oletusnimi
     <i>Marker 3</i> on biisi nimeltä <i>3</i>.</li>
   <li><b>Kopioi lista.</b> Avaa markerilista (<span class="ui">List Editors</span> →
-    <span class="ui">Marker</span>) ja klikkaa jotain markeria. Paina Control-Option-R
+    <span class="ui">Marker</span>) ja klikkaa jotain markeria. Paina <span class="yhd"><kbd>Ctrl</kbd>-<kbd>Option</kbd>-<kbd class="m">R</kbd></span>
     (<i>View → Show Event Position and Length as Time</i>), niin sijainnit näkyvät aikoina eivätkä
-    tahteina. Sitten Cmd-A ja Cmd-C.</li>
-  <li><b>Liitä Keikkageneraattorin settilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
-    kuvanopeus</i>: valitse sama kuin Logicin <i>File → Project Settings → Synchronization →
-    Frame Rate</i>. Valinta muistetaan seuraavalla kerralla. Logicin tunnin siirtymä (01:00:00:00)
-    poistuu itsestään.</li>
+    tahteina. Sitten <span class="yhd"><kbd>Cmd</kbd>-<kbd class="m">A</kbd></span> ja <span class="yhd"><kbd>Cmd</kbd>-<kbd class="m">C</kbd></span>.</li>
+  <li>Nyt olet saanut kopioitua Logicista markereita koskevat tiedot, ja ne ovat valmiita
+    <b>liitettäviksi Keikkageneraattorin settilistakenttään</b>. Kun liität tiedot,
+    Keikkageneraattori tunnistaa Logicin liittämisen lähteeksi. Tällöin ilmestyy mahdollisuus
+    täsmentää, onko omassa Logic-projektissa frame-rate-asetus (<i>File → Project Settings →
+    Synchronization → Frame Rate</i>) Keikkageneraattorin oletus eli 25 vai jokin muu arvo. Valinta
+    muistetaan ensi kerralla.</li>
 </ol>
 <p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos
   Keikkageneraattori valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
@@ -282,8 +298,8 @@
     Intel-Mac: x64, Apple Silicon: ARM64). Kopioi levykkeeltä <code>reaper_sws-….dylib</code> Reaperin
     UserPlugins-kansioon (<i>Options → Show REAPER resource path in explorer/finder</i>) ja käynnistä Reaper
     uudelleen. Valikkoriville tulee <i>Extensions</i>.</li>
-  <li><b>Tee markerit:</b> M lisää markerin nykyiseen kohtaan, toiston aikana soittokohtaan;
-    Shift-M kysyy samalla nimen.</li>
+  <li><b>Tee markerit:</b> <kbd class="m">M</kbd> lisää markerin nykyiseen kohtaan, toiston aikana soittokohtaan;
+    <span class="yhd"><kbd>Shift</kbd>-<kbd class="m">M</kbd></span> kysyy samalla nimen.</li>
   <li><b>Aikaviivain minuutteihin ja sekunteihin:</b> oikea klikkaus aikaviivaimella →
     <i>Minutes:Seconds</i>.</li>
   <li><b>Kopioi lista:</b> <i>Extensions → Marker utilities → MarkerList</i>. Ensimmäisellä kerralla
@@ -292,11 +308,11 @@
 </ol>
 </details>
 
-<p class="muted sivu">Settilistaan kirjatut alkuajat saavat olla kokonaisia sekunteja (<code>3:42</code>)
-  tai tarkempia (<code>3:42.5</code>). Keikkageneraattori tallentaa ne sadasosasekunnin tarkkuudella
-  (<code>3:42.50</code>), ja soitin hyppää kappaleen alkuun juuri tallennettuun kohtaan.</p>
+<p class="huom"><span class="merkki">HUOM</span> Keikkageneraattorin todellinen tarkkuus ajassa on
+  sekunnin sadasosan tarkkuus. Syötettävät ajat saavat olla karkeampia tai tarkempia, mutta edeltävän
+  voi ottaa huomioon Logicista tai Reaperista tuotujen markerien tarkkuuden merkitystä punnittaessa.</p>
 
-<h3 id="tallennus">Uuden keikan tallentaminen ja linkin saaminen</h3>
+<h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>
 <p>Kun kentät ovat kunnossa, Keikkageneraattorin alaosaan tulee kolme kohtaa. Jos jossain on virhe,
   se näkyy punaisella (settilistassa rivin numeron kera), eikä komentoa tule ennen kuin virhe on
   korjattu.</p>
@@ -310,9 +326,10 @@
     Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
 </ol>
 
-<h3 id="valinnaiset">Valinnaiset ominaisuudet</h3>
+<details class="osio">
+<summary><h3 id="valinnaiset">Edistyneet käyttäjät</h3></summary>
 
-<h4 id="merkinnat">Settilistan muut ominaisuudet</h4>
+<h4 id="merkinnat">Settilistan lisäominaisuudet</h4>
 <p>Pelkät ajat ja nimet riittävät yhden setin keikkaan, jossa jokainen raita on biisi. Merkinnöillä
   listaan saa setit sekä introt, spiikit ja muut raidat, jotka eivät ole biisejä. Esimerkki kahden
   setin keikasta:</p>
@@ -406,6 +423,7 @@
 <p><b>Poistaminen:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
   KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
   kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
+</details>
 </details>
 
 <!-- ================================================================ -->

@@ -195,15 +195,17 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkageneraattorissa… /
   …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
   Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
-  linkki → settilista ja DAW-markerit → *Uuden keikan tallentaminen ja linkin saaminen*). Niiden
-  jälkeen on käyttäjän pyytämä lisätaso, h3-osio *Valinnaiset ominaisuudet*, jonka alaosiot ovat
-  h4-tasoa: *Settilistan muut ominaisuudet* (avoin; sen sisällä suljettuina h5-tason setit,
+  linkki → settilista ja DAW-markerit → *Uuden keikan ja sitä merkkaavan linkin tallentaminen*). Niiden
+  jälkeen on käyttäjän pyytämä lisätaso, suljettu h3-osio *Edistyneet käyttäjät* (`details.osio`;
+  ankkuri yhä `#valinnaiset`), jonka alaosiot ovat h4-tasoa ja osion avattua auki:
+  *Settilistan lisäominaisuudet* (avoin; sen sisällä suljettuina h5-tason setit,
   ei-biisit ja rivin muut muodot), avoimina *Äänitiedoston muoto* ja *Linkin jakaminen*, ja
   viimeisenä suljettuna *Aiemmin luodun keikan muokkaaminen tai poistaminen* (ei *korjaus*: sana
-  viittaa virheeseen). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla valinnaiset
-  ominaisuudet alaosioineen. Osion lopun sivuhuomautus suljettujen alaosioiden jälkeen
-  (Drive/Dropbox, settilistan alkuajat) on `p.muted.sivu`: sisennetty ja irti edellisestä, ettei se
-  näytä kuuluvan viimeiseen alaosioon.
+  viittaa virheeseen). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla Edistyneet
+  käyttäjät alaosioineen. Osion lopun lisähuomio suljettujen alaosioiden jälkeen
+  (Drive/Dropbox, settilistan aikojen tarkkuus) on `p.huom` HUOM-merkinnällä: pieni, kapea ja
+  sisennetty, ohut viiva vasemmalla, ettei se näytä kuuluvan viimeiseen alaosioon eikä
+  raskauta pääraidetta.
   Muut harvemmin tarvittavat osiot ovat suljettuina `<details class="osio">`-lohkoina
   (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic, Setit; avattuna vasen viiva).
   Ilman `.ala`-luokkaa suljettu osio on samantasoisten osioiden vertainen (esim. iPhone,
