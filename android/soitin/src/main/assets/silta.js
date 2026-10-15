@@ -143,6 +143,12 @@
     document.addEventListener(t, function () { report(); }, true);
   });
 
+  // Soitto todella alkoi (playing, ei pelkkä play-pyyntö). Sovellus avaa
+  // käynnistyessään viimeisimmän keikan, jossa näin on käynyt.
+  document.addEventListener("playing", function () {
+    try { window.SoitinApp.played(); } catch (e) { /* silta poissa */ }
+  }, true);
+
   if (window.MutationObserver) {
     var opts = { childList: true, characterData: true, subtree: true };
     var mo = new MutationObserver(function () { report(); });

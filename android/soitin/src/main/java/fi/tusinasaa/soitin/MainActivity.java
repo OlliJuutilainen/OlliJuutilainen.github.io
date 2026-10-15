@@ -154,9 +154,13 @@ public class MainActivity extends AppCompatActivity {
         bound = bindService(new Intent(this, PlaybackService.class), connection,
                 Context.BIND_AUTO_CREATE);
 
-        // Käynnistyksessä viimeksi auki ollut keikka, muuten rakennusvaiheen oletuskeikka
-        // (soitin.tunnus), muuten lista, jossa tunnus kysytään.
-        String first = store.last();
+        // Käynnistyksessä viimeisin keikka, jossa soitto on alkanut, muuten viimeksi
+        // latautunut keikka, muuten rakennusvaiheen oletuskeikka (soitin.tunnus), muuten
+        // lista, jossa tunnus kysytään.
+        String first = store.lastPlayed();
+        if (first == null) {
+            first = store.last();
+        }
         if (first == null && !BuildConfig.GIG_KEY.isEmpty()) {
             first = BuildConfig.GIG_KEY;
         }
@@ -291,6 +295,20 @@ public class MainActivity extends AppCompatActivity {
                 if (id != null && !removed.contains(id)) {
                     store.put(id, title != null ? title : "", sub != null ? sub : "", len);
                     store.setLast(id);
+                }
+            });
+        }
+
+        /** silta.js kutsuu tätä, kun soitto todella alkaa (audio-elementin playing). */
+        @JavascriptInterface
+        public void played() {
+            runOnUiThread(() -> {
+                if (webView == null || !isPlayerUrl(webView.getUrl())) {
+                    return;
+                }
+                String id = gigId(Uri.parse(webView.getUrl()).getFragment());
+                if (id != null && !removed.contains(id)) {
+                    store.setLastPlayed(id);
                 }
             });
         }

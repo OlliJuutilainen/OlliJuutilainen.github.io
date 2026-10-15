@@ -81,7 +81,9 @@ avaa työpajasivun. Sivu ladataan verkosta, koska worker antaa keikkatiedot vain
 Keikka avataan tunnuksella. Ensimmäisellä käynnistyksellä sovellus näyttää **Omat keikkani**
 -näkymän, johon kirjoitetaan keikan tunnus (`k7f3qa2m`), kaverin keikan tunnus
 (`k7f3qa2m@soitin.kaveri`) tai liitetään koko soittimen linkki. Myöhemmin sovellus avaa
-käynnistyessään viimeksi auki olleen keikan.
+käynnistyessään suoraan soittimeen viimeisimmän keikan, jossa soitto on todella alkanut
+(audio-elementin `playing`; pelkkä play-painallus ei riitä, jos ääni ei lähde). Jos mitään
+ei ole vielä soitettu, aukeaa viimeksi latautunut keikka.
 
 ### Valmis APK
 
