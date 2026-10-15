@@ -4,4 +4,11 @@
     <string name="load_error">Soitinta ei saatu ladattua.</string>
     <string name="retry">Yritä uudelleen</string>
     <string name="my_gigs">Omat keikkani</string>
+    <!-- Ilmoituksen ja lukitusnäytön napit; samat nimet kuin soittimen omissa napeissa. -->
+    <string name="button_previous">Edellinen kappale</string>
+    <string name="button_rewind">15 sekuntia taaksepäin</string>
+    <string name="button_play">Toista</string>
+    <string name="button_pause">Tauko</string>
+    <string name="button_forward">15 sekuntia eteenpäin</string>
+    <string name="button_next">Seuraava kappale</string>
 </resources>
