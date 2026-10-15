@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Omat keikkani</title>
+<!--
+  Sovelluksen Omat keikkani -näkymä. Tiedot ovat sovelluksen asetuksissa (GigStore), ja sivu
+  käyttää niitä MainActivityn Keikat-sillan kautta. Värit ja mitat ovat samat kuin
+  soitin/index.html:ssä, jotta näkymä tuntuu osalta soitinta.
+-->
+<style>
+  :root {
+    --bg: #faf9f6;
+    --fg: #1b1b1a;
+    --muted: #6d6b66;
+    --line: #dcd9d2;
+    --soft: #efede8;
+    --accent: #157570;
+    --err-bg: #fbeae5;
+    --err-fg: #7a2511;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --fg: #ebe9e4;
+      --muted: #9b9890;
+      --line: #393834;
+      --soft: #22221f;
+      --accent: #20b2aa;
+      --err-bg: #3a1d14;
+      --err-fg: #f6c2ad;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  main {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+  h1 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 22px;
+    padding-right: 88px;
+  }
+  button, input {
+    font: inherit;
+    color: inherit;
+  }
+  button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  svg { display: block; fill: currentColor; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Oikean yläkulman napit kuten soittimessa (silta.js). */
+  .top {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    display: flex;
+    gap: 4px;
+  }
+  .top button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+  }
+  .top svg { width: 22px; height: 22px; }
+
+  /* --- Tunnus --- */
+  label { display: block; color: var(--muted); font-size: 0.9rem; margin: 0 0 6px; }
+  .open { display: flex; gap: 8px; }
+  .open input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+  }
+  .pill {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: var(--soft);
+  }
+  .error {
+    background: var(--err-bg);
+    color: var(--err-fg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0 0;
+    font-size: 0.9rem;
+  }
+
+  /* --- Järjestys --- */
+  .sort {
+    display: flex;
+    margin: 28px 0 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sort button {
+    flex: 1 1 0;
+    min-height: 44px;
+    padding: 4px 6px;
+    line-height: 1.2;
+    color: var(--muted);
+  }
+  .sort button + button { border-left: 1px solid var(--line); }
+  .sort button[aria-pressed="true"] { background: var(--soft); color: var(--fg); }
+  .sort small { display: block; font-size: 0.75rem; color: var(--muted); }
+
+  /* --- Lista --- */
+  ol { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+  }
+  .gig {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+    padding: 12px 0;
+  }
+  .gig .t { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  .gig .s {
+    display: block;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-style: italic;
+    overflow-wrap: anywhere;
+  }
+  .gig .m { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 2px; overflow-wrap: anywhere; }
+  li.cur .t { color: var(--accent); }
+  .del {
+    flex: 0 0 auto;
+    min-width: 44px;
+    height: 44px;
+    margin-top: 6px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+  }
+  .del svg { width: 20px; height: 20px; }
+  .del.ask { padding: 0 12px; background: var(--err-bg); color: var(--err-fg); font-size: 0.9rem; }
+  .empty { color: var(--muted); margin: 28px 0 0; }
+
+  /* --- Nollaus --- */
+  .reset { margin: 40px 0 0; }
+  .reset > button { color: var(--muted); font-size: 0.9rem; min-height: 44px; text-decoration: underline; }
+  .confirm {
+    background: var(--err-bg);
+    color: var(--err-fg);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .confirm p { margin: 0 0 10px; }
+  .confirm .pill { margin-right: 8px; }
+  .confirm .go { background: var(--err-fg); color: var(--err-bg); }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <button type="button" id="back" aria-label="Takaisin soittimeen" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" id="close" aria-label="Sulje soitin">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <h1>Omat keikkani</h1>
+
+  <form class="open-form" id="form" autocomplete="off">
+    <label for="key">Keikan tunnus</label>
+    <div class="open">
+      <input id="key" type="text" autocapitalize="none" autocorrect="off" spellcheck="false"
+             enterkeyhint="go" inputmode="url">
+      <button type="submit" class="pill">Avaa</button>
+    </div>
+    <p class="error" id="keyerr" hidden>Tunnus ei kelpaa. Kirjoita keikan tunnus tai liitä soittimen linkki.</p>
+  </form>
+
+  <div class="sort" id="sort" role="group" aria-label="Järjestys" hidden>
+    <button type="button" data-sort="added">Lisätty<small></small></button>
+    <button type="button" data-sort="title">Nimi<small></small></button>
+    <button type="button" data-sort="len">Kesto<small></small></button>
+  </div>
+  <ol id="list"></ol>
+  <p class="empty" id="empty" hidden>Tähän tulevat keikat, jotka olet avannut tunnuksella.</p>
+
+  <div class="reset">
+    <button type="button" id="reset">Nollaa tallennetut tiedot</button>
+    <div class="confirm" id="confirm" hidden>
+      <p>Poistetaanko kaikki keikat listalta? Myös soittimen omat asetukset ja välimuisti tyhjennetään.</p>
+      <button type="button" class="pill go" id="reset-go">Nollaa</button>
+      <button type="button" class="pill" id="reset-no">Peru</button>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var app = window.Keikat;
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Sama muoto kuin soittimen HASH_RE (soitin/index.html) ilman #-merkkiä.
+  var HASH_RE = /^[a-z0-9]{4,32}(?:@[a-z0-9-]{1,63}\.[a-z0-9-]{1,63})?(?:\/(?:\d+|x\d+)(?:\/(?:\d+|x\d+))?)?$/;
+
+  // Järjestys: oletussuunta ensin, uusi napautus kääntää ("-" edessä).
+  var SORTS = {
+    added: ["uusin ensin", "vanhin ensin"],
+    title: ["A–Ö", "Ö–A"],
+    len: ["pisin ensin", "lyhin ensin"]
+  };
+
+  var gigs = [], sort = "added", current = "";
+
+  function load() {
+    var d = {};
+    try { d = JSON.parse(app.data()) || {}; } catch (e) { /* silta poissa */ }
+    gigs = Array.isArray(d.gigs) ? d.gigs : [];
+    sort = typeof d.sort === "string" && SORTS[d.sort.replace(/^-/, "")] ? d.sort : "added";
+    current = typeof d.current === "string" ? d.current : "";
+  }
+
+  // Tunnus sellaisenaan tai koko soittimen linkki (…/soitin/#tunnus@worker/2/3).
+  function parseKey(s) {
+    s = String(s).trim();
+    var i = s.indexOf("#");
+    if (i >= 0) s = s.slice(i + 1);
+    s = s.replace(/\/+$/, "").toLowerCase();
+    return HASH_RE.test(s) ? s : null;
+  }
+
+  function fmtLen(t) {
+    t = Math.round(t);
+    var h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, s = t % 60;
+    var ss = (s < 10 ? "0" : "") + s;
+    return h ? h + ":" + (m < 10 ? "0" : "") + m + ":" + ss : m + ":" + ss;
+  }
+
+  function fmtDate(ms) {
+    var d = new Date(ms);
+    return d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear();
+  }
+
+  var collator = window.Intl && Intl.Collator ? new Intl.Collator("fi", { sensitivity: "base", numeric: true }) : null;
+  function cmpTitle(a, b) {
+    var x = String(a.title || a.id), y = String(b.title || b.id);
+    return collator ? collator.compare(x, y) : x.localeCompare(y);
+  }
+  function hasLen(g) { return typeof g.len === "number" && g.len >= 0; }
+
+  // Keikka, jonka kestoa ei tiedetä, on kestojärjestyksessä aina viimeisenä.
+  // Tasatilanteessa uusin ensin.
+  function sorted() {
+    var key = sort.replace(/^-/, ""), dir = sort[0] === "-" ? -1 : 1;
+    return gigs.slice().sort(function (a, b) {
+      var r = 0;
+      if (key === "added") r = dir * ((b.added || 0) - (a.added || 0));
+      else if (key === "title") r = dir * cmpTitle(a, b);
+      else {
+        if (hasLen(a) !== hasLen(b)) return hasLen(a) ? -1 : 1;
+        if (hasLen(a)) r = dir * (b.len - a.len);
+      }
+      return r || (b.added || 0) - (a.added || 0);
+    });
+  }
+
+  var ICON_DEL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+  function render() {
+    $("back").hidden = !current;
+    $("sort").hidden = gigs.length < 2;
+    $("empty").hidden = gigs.length > 0;
+
+    var key = sort.replace(/^-/, ""), rev = sort[0] === "-" ? 1 : 0;
+    Array.prototype.forEach.call($("sort").children, function (b) {
+      var on = b.getAttribute("data-sort") === key;
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.querySelector("small").textContent = on ? SORTS[key][rev] : "";
+    });
+
+    var list = $("list");
+    list.innerHTML = "";
+    sorted().forEach(function (g) {
+      var li = document.createElement("li");
+      if (g.id === current) li.className = "cur";
+
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "gig";
+      var t = document.createElement("span");
+      t.className = "t";
+      t.textContent = g.title || g.id;
+      b.appendChild(t);
+      if (g.sub) {
+        var s = document.createElement("span");
+        s.className = "s";
+        s.textContent = g.sub;
+        b.appendChild(s);
+      }
+      var m = document.createElement("span");
+      m.className = "m num";
+      m.textContent = [g.id, g.added ? fmtDate(g.added) : "", hasLen(g) ? fmtLen(g.len) : ""]
+        .filter(Boolean).join(" · ");
+      b.appendChild(m);
+      b.addEventListener("click", function () { app.open(g.id); });
+
+      var d = document.createElement("button");
+      d.type = "button";
+      d.className = "del";
+      d.setAttribute("aria-label", "Poista " + (g.title || g.id));
+      d.innerHTML = ICON_DEL;
+      d.addEventListener("click", function () { askDelete(d, g); });
+
+      li.appendChild(b);
+      li.appendChild(d);
+      list.appendChild(li);
+    });
+  }
+
+  // Poisto vaatii toisen napautuksen. Vahvistus peruuntuu itsestään.
+  var asking = null;
+  function resetAsk() {
+    if (!asking) return;
+    clearTimeout(asking.timer);
+    asking.btn.classList.remove("ask");
+    asking.btn.innerHTML = ICON_DEL;
+    asking = null;
+  }
+  function askDelete(btn, g) {
+    if (asking && asking.btn === btn) {
+      resetAsk();
+      app.remove(g.id);
+      refresh();
+      return;
+    }
+    resetAsk();
+    btn.classList.add("ask");
+    btn.textContent = "Poista";
+    asking = { btn: btn, timer: setTimeout(resetAsk, 4000) };
+  }
+
+  function refresh() {
+    resetAsk();
+    load();
+    render();
+  }
+  window.__paivita = function () {
+    $("confirm").hidden = true;
+    $("reset").hidden = false;
+    refresh();
+  };
+
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = $("key");
+    var h = parseKey(input.value);
+    var ok = h !== null && app.open(h);
+    $("keyerr").hidden = ok;
+    if (ok) {
+      input.value = "";
+      input.blur();
+    }
+  });
+  $("key").addEventListener("input", function () { $("keyerr").hidden = true; });
+
+  Array.prototype.forEach.call($("sort").children, function (b) {
+    b.addEventListener("click", function () {
+      var key = b.getAttribute("data-sort");
+      sort = sort === key ? "-" + key : key;
+      app.sort(sort);
+      resetAsk();
+      render();
+    });
+  });
+
+  $("back").addEventListener("click", function () { app.back(); });
+  $("close").addEventListener("click", function () { app.close(); });
+
+  $("reset").addEventListener("click", function () {
+    $("reset").hidden = true;
+    $("confirm").hidden = false;
+  });
+  $("reset-no").addEventListener("click", function () {
+    $("confirm").hidden = true;
+    $("reset").hidden = false;
+  });
+  $("reset-go").addEventListener("click", function () {
+    $("confirm").hidden = true;
+    $("reset").hidden = false;
+    app.clear();
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

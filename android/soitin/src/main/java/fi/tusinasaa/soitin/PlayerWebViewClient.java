@@ -34,6 +34,11 @@ final class PlayerWebViewClient extends WebViewClient {
         if (MainActivity.isPlayerUrl(uri.toString())) {
             return false;
         }
+        // Virhesivun Omat keikkani -linkki.
+        if (MainActivity.LIST_LINK.equals(uri.toString())) {
+            activity.showList();
+            return true;
+        }
         // Muut linkit järjestelmälle. Light Phonessa niille ei ehkä ole avaajaa, jolloin
         // napautus ei tee mitään.
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
