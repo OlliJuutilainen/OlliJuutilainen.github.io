@@ -195,7 +195,7 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkageneraattorissa… /
   …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
   Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
-  linkki → settilista ja DAW-markerit → *Uuden keikan tallentaminen ja linkin saaminen*). Niiden
+  linkki → settilista ja DAW-markerit → *Uuden keikan ja sitä merkkaavan linkin tallentaminen*). Niiden
   jälkeen on käyttäjän pyytämä lisätaso, h3-osio *Valinnaiset ominaisuudet*, jonka alaosiot ovat
   h4-tasoa: *Settilistan muut ominaisuudet* (avoin; sen sisällä suljettuina h5-tason setit,
   ei-biisit ja rivin muut muodot), avoimina *Äänitiedoston muoto* ja *Linkin jakaminen*, ja
