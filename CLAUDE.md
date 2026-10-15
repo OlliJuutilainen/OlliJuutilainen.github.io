@@ -186,7 +186,12 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   ovat suljettuja `<details class="osio">`-lohkoja, jotta alkuun pääsee ilman ähkyä. #-linkki
   osion sisään (myös `ohje.html`:stä ja `uusi.html`:stä) avaa osion; tulostus avaa kaikki.
 - `soitin/ohje.html`: käyttöopas (uusi keikka, biisilista, linkit, soittimen napit, iPhone).
-  Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
+  Järjestys on käyttäjän luonnoksesta: ensin esikatselu (mitä apusivulle annetaan, mitä saadaan),
+  sitten apusivun kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston linkki →
+  biisilista ja DAW-markerit → tallennus), sitten setit ja ei-biisit, ja harvemmin tarvittavat
+  osiot suljettuina `<details class="osio">`-lohkoina (`details.osio.ala` = h4-tason alaosio,
+  esim. Drive, Logic). Uudet osiot sijoitetaan loppupäähän, tarvittaessa suljettuina. #-linkki
+  suljetun osion sisään avaa sen ja sen ympäröivät osiot; tulostus avaa kaikki. Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
   esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
   olennaisesti, ota kuvat uudelleen samalla tavalla; oikeita keikkatietoja ei käytetä.
 - `soitin/KAVERIVERSIO.md` on vain osoitin näihin sivuihin vanhojen linkkien vuoksi.

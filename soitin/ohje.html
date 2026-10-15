@@ -11,6 +11,10 @@
   soittimen käyttö (index.html). Kertaluonteinen käyttöönotto omalle
   Cloudflare-tilille: kayttoonotto.html. Kuvakaappaukset ovat keksityllä
   esimerkkikeikalla; oikeita keikkatietoja ei tallenneta repoon.
+
+  Järjestys: ensin lyhyt esikatselu (mitä annetaan, mitä saadaan), sitten
+  apusivun kentät ylhäältä alas, sitten tarvittaessa luettavat osiot
+  suljettuina (details.osio). #-linkki suljetun osion sisään avaa sen.
 -->
 <style>
   :root {
@@ -31,8 +35,10 @@
   }
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
-  h2 { font-size: 1.25rem; line-height: 1.3; margin: 48px 0 10px; padding-top: 18px; border-top: 1px solid var(--line); }
-  h3 { font-size: 1.05rem; margin: 28px 0 8px; }
+  /* h2 = osa (Uusi keikka, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio. */
+  h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
+  h3 { font-size: 1.15rem; line-height: 1.3; margin: 40px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+  h4 { font-size: 1rem; margin: 22px 0 8px; }
   p { margin: 0 0 12px; }
   ol, ul { margin: 0 0 14px; padding-left: 1.4em; }
   li { margin: 0 0 6px; }
@@ -48,10 +54,19 @@
   .muted { color: var(--muted); font-size: 0.93rem; }
   .ui { font-weight: 600; }
 
-  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px; margin: 22px 0 8px; }
-  nav.toc ol { margin: 0; padding-left: 1.5em; columns: 2; column-gap: 32px; }
-  nav.toc li { margin: 0 0 3px; break-inside: avoid; }
-  @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+  /* Esikatselu sivun alussa: mitä apusivulle annetaan ja mitä siltä saadaan. */
+  .ydin { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px; padding: 16px 20px 6px; }
+  .ydin .otsake { font-weight: 700; margin: 0 0 6px; }
+  .ydin ul { margin-bottom: 10px; }
+  .ydin .koko { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
+  @media (max-width: 560px) { .ydin { grid-template-columns: 1fr; } }
+
+  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 16px 0 8px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
+  nav.toc p { margin: 0 0 4px; font-weight: 600; }
+  nav.toc ul { margin: 0 0 10px; padding-left: 1.2em; }
+  nav.toc li { margin: 0 0 3px; }
+  @media (max-width: 560px) { nav.toc { grid-template-columns: 1fr; } }
 
   .box { border-radius: 10px; padding: 12px 16px; margin: 16px 0; background: var(--soft); }
   .box p:last-child { margin-bottom: 0; }
@@ -68,12 +83,32 @@
     border: 1px solid var(--line); border-radius: 10px; }
   figcaption { font-size: 0.9rem; color: var(--muted); text-align: center; margin-top: 6px; }
 
+  /* Suljetut osiot: otsikko avaa ja sulkee. Kolmio roikkuu otsikon vasemmalla
+     puolella, joten otsikon teksti pysyy muiden otsikoiden linjassa. */
+  details.osio > summary { list-style: none; cursor: pointer; }
+  details.osio > summary::-webkit-details-marker { display: none; }
+  details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4 { padding-left: 1em; text-indent: -1em; }
+  details.osio > summary > h2::before, details.osio > summary > h3::before, details.osio > summary > h4::before {
+    content: "\25B8"; display: inline-block; width: 1em; text-indent: 0; color: var(--accent); }
+  details.osio[open] > summary > h2::before, details.osio[open] > summary > h3::before,
+  details.osio[open] > summary > h4::before { content: "\25BE"; }
+  /* Peräkkäiset suljetut osiot tiiviisti allekkain. */
+  details.osio:not(.ala):not([open]) + details.osio:not(.ala) > summary > h3 { margin-top: 0; }
+  details.ala:not([open]) + details.ala > summary > h4 { margin-top: 6px; }
+  /* Avattu alaosio (h4): viiva vasemmassa reunuksessa näyttää, mihin se loppuu. */
+  details.ala[open] { border-left: 2px solid var(--line); margin-left: -14px; padding: 0 0 2px 12px; }
+  details.ala > summary > h4 { margin: 14px 0 8px; }
+
   @media print {
     body { font-size: 11pt; background: #fff; color: #000; }
     main { max-width: none; padding: 0; }
     nav.toc { display: none; }
-    h2 { break-after: avoid; }
+    h2, h3, h4 { break-after: avoid; }
     pre, .box, table, figure { break-inside: avoid; }
+    details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4 { padding-left: 0; text-indent: 0; }
+    details.osio > summary > h2::before, details.osio > summary > h3::before,
+    details.osio > summary > h4::before { content: none; }
+    details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; }
   }
 </style>
 </head>
@@ -81,101 +116,110 @@
 <main>
 
 <h1>Keikkasoitin – käyttöopas</h1>
-<p class="lead">Uuden keikan teko, linkit ja soittimen käyttö. Kerran tehtävä asennus omalle
-  Cloudflare-tilille on omalla sivullaan: <a href="kayttoonotto.html">käyttöönotto</a>.</p>
+<p class="lead">Uuden keikan teko apusivulla, linkit ja soittimen käyttö. Kerran tehtävä asennus
+  omalle Cloudflare-tilille on omalla sivullaan: <a href="kayttoonotto.html">käyttöönotto</a>.</p>
+
+<div class="box ydin">
+  <div>
+    <p class="otsake">Annat apusivulle</p>
+    <ul>
+      <li>keikan nimen</li>
+      <li><b>linkin äänitiedostoon</b> Google Drivessa tai Dropboxissa</li>
+      <li><b>biisilistan</b>: kappaleiden alkuajat ja nimet, käsin kirjoitettuna tai Logicin tai
+        Reaperin markereista kopioituna</li>
+    </ul>
+  </div>
+  <div>
+    <p class="otsake">Saat</p>
+    <ul>
+      <li><b>keikan oman soittimen linkin</b>, jonka voit jakaa</li>
+      <li><b>komennon</b>, jonka liität Macin Terminaliin. Komento tallentaa keikan, ja vasta sen
+        jälkeen linkki toimii.</li>
+    </ul>
+  </div>
+  <p class="muted koko">Apusivu ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat komennon
+    Terminalissa.</p>
+</div>
 
 <nav class="toc" aria-label="Sisällys">
-  <ol>
-    <li><a href="#uusi">Uusi keikka</a></li>
-    <li><a href="#biisilista">Biisilista</a></li>
-    <li><a href="#aani">Äänitiedosto</a></li>
-    <li><a href="#korjaus">Korjaus ja poisto</a></li>
-    <li><a href="#linkit">Linkit</a></li>
-    <li><a href="#soitin">Soittimen käyttö</a></li>
-    <li><a href="#iphone">iPhone</a></li>
-    <li><a href="#ongelmat">Ongelmatilanteet</a></li>
-    <li><a href="#kansio">Liite: keikka kansiosta</a></li>
-  </ol>
+  <div>
+    <p><a href="#uusi">Uusi keikka</a></p>
+    <ul>
+      <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
+      <li><a href="#tiedosto">Äänitiedoston linkki</a></li>
+      <li><a href="#biisilista">Biisilista</a></li>
+      <li><a href="#tallennus">Tallennus ja linkki</a></li>
+      <li><a href="#merkinnat">Setit, intro ja muut merkinnät</a></li>
+      <li><a href="#aani">Äänitiedoston muoto</a></li>
+      <li><a href="#korjaus">Korjaus ja poisto</a></li>
+      <li><a href="#linkit">Linkin jakaminen</a></li>
+    </ul>
+  </div>
+  <div>
+    <p><a href="#soitin">Soittimen käyttö</a></p>
+    <ul>
+      <li><a href="#iphone">iPhone</a></li>
+      <li><a href="#ongelmat">Ongelmatilanteet</a></li>
+    </ul>
+    <p><a href="#kansio">Liite: keikka kansiosta</a></p>
+  </div>
 </nav>
 
 <!-- ================================================================ -->
 
 <h2 id="uusi">Uusi keikka</h2>
-<ol>
-  <li><b>Äänitiedosto Google Driveen tai Dropboxiin</b> ja jakolinkki:
-    <ul>
-      <li>Drive: tiedoston kohdalla <span class="ui">Jaa</span> → <i>Yleinen käyttöoikeus: Kaikki,
-        joilla on linkki</i> → <span class="ui">Kopioi linkki</span>.</li>
-      <li>Dropbox: <span class="ui">Jaa</span> → <span class="ui">Kopioi linkki</span>
-        (asetus: kuka tahansa linkin saanut voi katsoa).</li>
-    </ul></li>
-  <li><b>Avaa apusivun kirjanmerkki.</b> Yläreunassa pitää lukea <i>Omat asetukset</i>.</li>
-  <li><b>Täytä kentät:</b> otsikko, äänitiedoston linkki ja <a href="#biisilista">biisilista</a>.
-    Apusivu muuttaa Drive- ja Dropbox-linkin soitettavaan muotoon itse
-    (<a href="#aani">Äänitiedosto</a>). Kenttä
-    <i>Päivämäärä tai muuta lisätietoa</i> on vapaaehtoinen; se näkyy soittimessa otsikon alla.
-    Tarkista kohdan <i>Tarkista lista</i> esikatselu.</li>
-  <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
-    <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.</li>
-  <li><b>Kopioi linkki ja avaa se itse ensin</b> (<span class="ui">Avaa soitin</span>). Jos soitin
-    sanoo heti tallennuksen jälkeen <i>Keikkaa ei löytynyt</i>, odota minuutti ja lataa uudelleen:
-    Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
-</ol>
-<p class="muted">Apusivu ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat komennon
-  Terminalissa.</p>
+<p>Apusivun kentät ylhäältä alas.</p>
 
-<h2 id="biisilista">Biisilista</h2>
-<p>Yksi kappale riville: alkuaika äänitiedostossa ja nimi. Esimerkki kahden setin keikasta:</p>
-<pre>[Intro]
-2:10 Ensimmäinen biisi
+<h3 id="alku">Tunnus, otsikko ja lisätieto</h3>
+<p>Avaa apusivu kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
+  <b>tunnus</b>, joka on arvottu valmiiksi. Siihen ei tarvitse koskea. Sitä tarvitaan vasta, kun vanhaa
+  keikkaa korjataan (<a href="#korjaus">Korjaus ja poisto</a>).</p>
+<p><b>Otsikko</b> on keikan nimi. Se näkyy soittimessa ylimpänä ja selaimen välilehdellä, ja soitin
+  antaa sen puhelimen lukitusnäytölle ikään kuin soivan kappaleen albumiksi.</p>
+<p><b>Päivämäärä tai muuta lisätietoa</b> on vapaaehtoinen: päivämäärä, paikka tai mitä haluat. Se
+  näkyy soittimessa himmeänä otsikon alla.</p>
+
+<h3 id="tiedosto">Äänitiedoston linkki</h3>
+<p>Keikka on yksi äänitiedosto Google Drivessa tai Dropboxissa, jaettuna niin, että kuka tahansa
+  linkin saanut voi kuunnella sen. Liitä jakolinkki kenttään sellaisenaan: apusivu muuttaa sen
+  soitettavaan muotoon itse ja kertoo kentän alla, mitä teki.</p>
+
+<details class="osio ala">
+<summary><h4 id="drive">Google Drive</h4></summary>
+<p>Tiedoston kohdalla <span class="ui">Jaa</span> → <i>Yleinen käyttöoikeus: Kaikki, joilla on
+  linkki</i> → <span class="ui">Kopioi linkki</span>.</p>
+<p>Google ei anna soittaa Drive-tiedostoa suoraan toiselta sivustolta, joten soitin hakee sen
+  workerisi kautta. Apusivu tekee tämän itse, kun liität Drive-linkin. Workerin koodin pitää olla
+  päivitetty 14.10.2026 tai myöhemmin (<a href="kayttoonotto.html#paivitys">Workerin
+  päivitys</a>).</p>
+</details>
+
+<details class="osio ala">
+<summary><h4 id="dropbox">Dropbox</h4></summary>
+<p><span class="ui">Jaa</span> → <span class="ui">Kopioi linkki</span> (asetus: kuka tahansa linkin
+  saanut voi katsoa). Dropbox-tiedosto soi suoraan Dropboxista.</p>
+</details>
+
+<p class="muted">Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
+  Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa tai kelaus tuntuu Drivella
+  hitaalta, Dropbox on vaihtoehto. Tiedostomuodosta: <a href="#aani">Äänitiedoston muoto</a>.</p>
+
+<h3 id="biisilista">Biisilista</h3>
+<p>Biisilista kertoo, mistä kohtaa äänitiedostoa kukin kappale alkaa. Sen voi kirjoittaa käsin, yksi
+  kappale riville: alkuaika ja nimi. Ajat kasvavat rivi riviltä, ja yli tunnin kohdalla aika on
+  muotoa <code>1:02:30</code>.</p>
+<pre>2:10 Ensimmäinen biisi
 6:45 Toinen biisi
-11:20 Kolmas biisi
----
-(Encore)
-15:05 Neljäs biisi
-19:30 Viides biisi</pre>
-<p>Soittimessa tämä näyttää <a href="#soitin">tältä</a>.</p>
-<table>
-  <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
-  <tr><td><code>3:42 Nimi</code>, <code>Nimi 3:42</code> tai <code>1:02:30 Nimi</code></td>
-    <td>Kappale alkaa kohdasta 3:42 tai 1:02:30. Rivin alun numero (<code>1.</code>) ja välimerkit
-      (<code>Nimi – 3:42</code>, <code>Nimi (3:42)</code>) saavat olla mukana. Ajat kasvavat
-      rivi riviltä.</td></tr>
-  <tr><td>Pelkkä <code>3:42</code>, <code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai
-      <code>3:42 [x]</code> (<code>[0]</code> käy <code>[x]</code>:n sijaan)</td>
-    <td>Raita, joka ei ole biisi (esim. intro, spiikki tai aplodit), missä kohtaa tahansa. Sillä ei
-      ole numeroa, eikä numerointi etene. Ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa
-      <i>[OUTRO]</i> ja välissä <i>[VÄLI]</i>; peräkkäiset numeroidaan (<i>[OUTRO 1]</i>,
-      <i>[OUTRO 2]</i>). Listan ensimmäiseltä riviltä ajan saa jättää pois (alkaa 0:00).</td></tr>
-  <tr><td>Ensimmäinen raita alkaa myöhemmin kuin 0:00</td>
-    <td>Alkuun tulee itsestään <i>[INTRO]</i>.</td></tr>
-  <tr><td><code>3. 3:42</code> (rivinumero ja aika)</td>
-    <td>Kappale ilman nimeä; soitin näyttää sen numeron.</td></tr>
-  <tr><td><code>---</code></td>
-    <td>Uusi setti. Numerointi alkaa taas 1:stä. Setin ensimmäisellä raidalla pitää olla
-      alkuaika.</td></tr>
-  <tr><td><code>(Encore)</code> heti <code>---</code>-rivin jälkeen</td>
-    <td>Setin oma otsikko. Ilman sitä setit ovat (i), (ii) … Listan alussa sulkurivi nimeää
-      ensimmäisen setin.</td></tr>
-  <tr><td>Audacityn <i>Export Labels</i> -tiedosto</td>
-    <td>Sisällön voi liittää sellaisenaan.</td></tr>
-  <tr><td>Logicin tai Reaperin markerilista</td>
-    <td>Liitä sellaisenaan, ks. <a href="#markerit">alla</a>. Markerin nimessä käyvät samat
-      merkinnät kuin rivillä; markeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code> aloittaa
-      uuden setin, ja nimeämätön markeri on ei-biisi.</td></tr>
-</table>
-<p>Jos rivissä on virhe, apusivu kertoo rivin numeron punaisella eikä tee komentoa ennen kuin se
-  on korjattu.</p>
+11:20 Kolmas biisi</pre>
 
-<h3 id="markerit">Markerilista Logicista tai Reaperista</h3>
-<p>Kappaleiden alut kannattaa merkitä markereilla siinä projektissa, josta keikan äänitiedosto on
-  tehty. Äänitiedoston pitää alkaa aikajanan alusta. Markerin nimi on kappaleen nimi, ja siinä käyvät
-  samat merkinnät kuin biisilistan rivillä: <code class="nw">[x] Spiikki</code> tai
-  <code class="nw">[Intro]</code> on ei-biisi, <code class="nw">---</code> tai
-  <code class="nw">--- (Encore)</code> aloittaa uuden setin. Nimeämätön markeri on
-  ei-biisi.</p>
+<p id="markerit">Helpommin lista syntyy DAW:sta. Merkitse Logicissa tai Reaperissa biisien saumat
+  markereilla siihen projektiin, josta keikan äänitiedosto on tehty, ja kopioi markerilista apusivulle
+  sellaisenaan; apusivu tunnistaa muodon itse. Markerin nimi on kappaleen nimi, ja nimeämätön markeri
+  on ei-biisi (esim. intro tai spiikki). Äänitiedoston pitää alkaa aikajanan alusta. Myös Audacityn
+  <i>Export Labels</i> -tiedoston sisällön voi liittää sellaisenaan.</p>
 
-<p><b>Logic</b></p>
+<details class="osio ala">
+<summary><h4 id="logic">Logic</h4></summary>
 <ol>
   <li><b>Tee markerit ilman pyöristystä.</b> Komento <i>Create Marker without rounding</i> lisää
     markerin tarkalleen soittopään kohtaan, myös toiston aikana. Sen oletusnäppäin on
@@ -199,8 +243,10 @@
 <p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos apusivu
   valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
   <i>Display → General</i>) <i>Display Time As: With Bits</i>.</p>
+</details>
 
-<p><b>Reaper</b></p>
+<details class="osio ala">
+<summary><h4 id="reaper">Reaper</h4></summary>
 <ol>
   <li><b>Asenna SWS-laajennus</b> (<a href="https://www.sws-extension.org/">sws-extension.org</a>;
     Intel-Mac: x64, Apple Silicon: ARM64). Kopioi levykkeeltä <code>reaper_sws-….dylib</code> Reaperin
@@ -214,10 +260,93 @@
     oikea klikkaus listalla → <i>Export format…</i> → kirjoita <code>mp d</code>. Sitten oikea klikkaus
     → <i>Export formatted marker list to clipboard</i> ja liitä apusivulle.</li>
 </ol>
+</details>
 
-<h2 id="aani">Äänitiedosto</h2>
-<p>Keikka on yksi äänitiedosto; biisilista merkitsee siihen kappaleiden alkukohdat. Soitin käyttää
-  selaimen omaa äänitoistoa, joten tiedostomuoto ratkaisee, soiko keikka kuulijan laitteessa.</p>
+<p class="muted">Ajat saavat olla kokonaisia sekunteja tai tarkempia (<code>3:42.5</code>). Apusivu
+  tallentaa alkuajat sadasosasekunnin tarkkuudella (<code>3:42.50</code>), ja soitin hyppää
+  tallennettuun kohtaan sellaisenaan.</p>
+
+<h3 id="tallennus">Tallennus ja linkki</h3>
+<p>Kun kentät ovat kunnossa, apusivun alaosaan tulee kolme kohtaa. Jos jossain on virhe, apusivu
+  kertoo sen punaisella (biisilistassa rivin numeron kera) eikä tee komentoa ennen kuin se on
+  korjattu.</p>
+<ol>
+  <li><b>Tarkista lista:</b> näin apusivu luki biisilistan. Katso, että kappaleet ja setit ovat
+    oikein.</li>
+  <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
+    <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.</li>
+  <li><b>Kopioi linkki ja avaa se itse ensin</b> (<span class="ui">Avaa soitin</span>). Jos soitin
+    sanoo heti tallennuksen jälkeen <i>Keikkaa ei löytynyt</i>, odota minuutti ja lataa uudelleen:
+    Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
+</ol>
+
+<h3 id="merkinnat">Setit, intro ja muut merkinnät</h3>
+<p>Pelkät ajat ja nimet riittävät yhden setin keikkaan, jossa jokainen raita on biisi. Merkinnöillä
+  listaan saa setit sekä introt, spiikit ja muut raidat, jotka eivät ole biisejä. Esimerkki kahden
+  setin keikasta:</p>
+<pre>[Intro]
+2:10 Ensimmäinen biisi
+6:45 Toinen biisi
+11:20 Kolmas biisi
+---
+(Encore)
+15:05 Neljäs biisi
+19:30 Viides biisi</pre>
+<p>Soittimessa tämä näyttää <a href="#soitin">tältä</a>. Kaikki merkinnät käyvät sellaisinaan myös
+  Logicin ja Reaperin markerin nimessä.</p>
+
+<details class="osio ala">
+<summary><h4 id="setit">Setit</h4></summary>
+<table>
+  <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
+  <tr><td><code>---</code></td>
+    <td>Uusi setti. Numerointi alkaa taas 1:stä. Setin ensimmäisellä raidalla pitää olla
+      alkuaika.</td></tr>
+  <tr><td><code>(Encore)</code> heti <code>---</code>-rivin jälkeen</td>
+    <td>Setin oma otsikko. Ilman sitä setit ovat (i), (ii) … Listan alussa sulkurivi nimeää
+      ensimmäisen setin.</td></tr>
+  <tr><td>Markeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code></td>
+    <td>Uusi setti markerin kohdasta.</td></tr>
+</table>
+</details>
+
+<details class="osio ala">
+<summary><h4 id="eibiisit">Intro, outro ja muut ei-biisit</h4></summary>
+<table>
+  <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
+  <tr><td>Pelkkä <code>3:42</code>, <code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai
+      <code>3:42 [x]</code> (<code>[0]</code> käy <code>[x]</code>:n sijaan)</td>
+    <td>Raita, joka ei ole biisi (esim. intro, spiikki tai aplodit), missä kohtaa tahansa. Sillä ei
+      ole numeroa, eikä numerointi etene. Ilman nimeä se on setin alussa <i>[INTRO]</i>, lopussa
+      <i>[OUTRO]</i> ja välissä <i>[VÄLI]</i>; peräkkäiset numeroidaan (<i>[OUTRO 1]</i>,
+      <i>[OUTRO 2]</i>). Listan ensimmäiseltä riviltä ajan saa jättää pois (alkaa 0:00).</td></tr>
+  <tr><td>Ensimmäinen raita alkaa myöhemmin kuin 0:00</td>
+    <td>Alkuun tulee itsestään <i>[INTRO]</i>.</td></tr>
+  <tr><td>Nimeämätön markeri, tai markerin nimenä <code class="nw">[Intro]</code> tai
+      <code class="nw">[x] Spiikki</code></td>
+    <td>Ei-biisi kuten vastaava rivi.</td></tr>
+</table>
+</details>
+
+<details class="osio ala">
+<summary><h4 id="muut">Rivin muut muodot</h4></summary>
+<table>
+  <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
+  <tr><td><code>Nimi 3:42</code></td>
+    <td>Sama kuin <code>3:42 Nimi</code>: aika saa olla myös nimen perässä.</td></tr>
+  <tr><td><code>1. 3:42 Nimi</code>, <code>Nimi – 3:42</code>, <code>Nimi (3:42)</code></td>
+    <td>Rivin alun numero ja välimerkit saavat olla mukana; nimeen niitä ei tule.</td></tr>
+  <tr><td><code>3. 3:42</code> (rivinumero ja aika)</td>
+    <td>Kappale ilman nimeä; soitin näyttää sen numeron.</td></tr>
+</table>
+</details>
+
+<!-- Osiot, joita tarvitaan vain joskus: suljettuina. -->
+
+<details class="osio">
+<summary><h3 id="aani">Äänitiedoston muoto</h3></summary>
+<p>Soitin käyttää selaimen omaa äänitoistoa, joten tiedostomuoto ratkaisee, soiko keikka kuulijan
+  laitteessa.</p>
 <ul>
   <li><b>AAC</b> (<code>.m4a</code>) on toiminut kokeiluissa parhaiten. Suosi sitä.</li>
   <li><b>MP3</b> soi kaikissa yleisissä selaimissa, myös iPhonen Safarissa.</li>
@@ -226,17 +355,10 @@
   <li><b>FLAC, Ogg ja Opus</b>: tuki vaihtelee selaimen ja iPhonen version mukaan. Älä käytä niitä
     jaettavassa keikassa.</li>
 </ul>
-<div class="box">
-  <p><b>Drive:</b> Google ei anna soittaa Drive-tiedostoa suoraan toiselta sivustolta, joten
-    soitin hakee sen workerisi kautta. Apusivu tekee tämän itse, kun liität Drive-linkin. Workerin
-    koodin pitää olla päivitetty 14.10.2026 tai myöhemmin
-    (<a href="kayttoonotto.html#paivitys">Workerin päivitys</a>).</p>
-  <p>Molemmat on kokeiltu toimiviksi. Dropbox-tiedosto soi suoraan Dropboxista, Drive-tiedosto yhden
-    välivaiheen kautta, joten Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa
-    tai kelaus tuntuu Drivella hitaalta, Dropbox on vaihtoehto.</p>
-</div>
+</details>
 
-<h2 id="korjaus">Korjaus ja poisto</h2>
+<details class="osio">
+<summary><h3 id="korjaus">Korjaus ja poisto</h3></summary>
 <p><b>Korjaus:</b> liitä keikan linkki apusivun Tunnus-kenttään ja paina <span class="ui">Hae</span>.
   Apusivu poimii linkistä keikan tunnuksen (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>);
   pelkän tunnuksen voi myös kirjoittaa.
@@ -245,8 +367,10 @@
 <p><b>Poisto:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
   KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
   kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
+</details>
 
-<h2 id="linkit">Linkit</h2>
+<details class="osio">
+<summary><h3 id="linkit">Linkin jakaminen</h3></summary>
 <ul>
   <li><b>Keikan linkki</b>: <code>https://ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kuka tahansa, jolla on linkki, voi kuunnella keikan. Linkki on siis avain; jaa se vain niille,
@@ -256,6 +380,9 @@
     kopioivat linkin suoraan kappaleeseen (<code>…@soitin.jotain/3</code>; useamman setin keikassa
     toisen setin kolmas kappale on <code>…/2/3</code>). Linkki avaa soittimen kappaleen alkuun.</li>
 </ul>
+</details>
+
+<!-- ================================================================ -->
 
 <h2 id="soitin">Soittimen käyttö</h2>
 <figure>
@@ -264,7 +391,7 @@
     <img src="ohje-soitin.png" width="1120" height="1482"
       alt="Soitin: otsikko ja lisätieto, nyt soi -rivi, aikajana, viisi nappia, kaksi kytkintä ja kappalelista seteittäin.">
   </picture>
-  <figcaption><a href="#biisilista">Biisilistan</a> esimerkki soittimessa. Ensimmäinen biisi soi.</figcaption>
+  <figcaption><a href="#merkinnat">Kahden setin esimerkki</a> soittimessa. Ensimmäinen biisi soi.</figcaption>
 </figure>
 <table>
   <tr><th>Kohta</th><th>Toiminto</th></tr>
@@ -299,14 +426,17 @@
   (<kbd>Tab</kbd>), <kbd>←</kbd> <kbd>→</kbd> siirtävät 5 sekuntia, <kbd>PgUp</kbd> <kbd>PgDn</kbd>
   30 sekuntia ja <kbd>Home</kbd> <kbd>End</kbd> janan alkuun ja loppuun.</p>
 
-<h2 id="iphone">iPhone</h2>
+<details class="osio">
+<summary><h3 id="iphone">iPhone</h3></summary>
 <p>Soitin on verkkosivu, joten erillistä sovellusta ei tarvita. Avaa keikan linkki Safarissa ja
   lisää se halutessasi kotinäyttöön (Jaa → <i>Lisää Koti-valikkoon</i>). Soitin antaa
   lukitusnäytölle kappaleen nimen ja ohjaimet: tauko, edellinen ja seuraava kappale.</p>
 <p class="muted">Soitin on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei
   vielä (<a href="kayttoonotto.html#testi">käyttöönoton kohta 9</a>).</p>
+</details>
 
-<h2 id="ongelmat">Ongelmatilanteet</h2>
+<details class="osio">
+<summary><h3 id="ongelmat">Ongelmatilanteet</h3></summary>
 <table>
   <tr><th>Soitin näyttää</th><th>Syy ja korjaus</th></tr>
   <tr><td><i>Linkistä puuttuu keikan tunnus</i></td>
@@ -325,19 +455,21 @@
       Tee jako uudelleen ja <a href="#korjaus">korjaa keikka</a>. Ilmoituksen alla oleva selitys
       tarkentaa syytä.</td></tr>
   <tr><td>Soi Macilla mutta ei iPhonella</td>
-    <td>Tiedostomuoto. Käytä AAC:ta tai MP3:a (<a href="#aani">Äänitiedosto</a>).</td></tr>
+    <td>Tiedostomuoto. Käytä AAC:ta tai MP3:a (<a href="#aani">Äänitiedoston muoto</a>).</td></tr>
 </table>
+</details>
 
 <!-- ================================================================ -->
 
-<h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2>
+<details class="osio">
+<summary><h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2></summary>
 <p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Kansiokeikassa jokainen kappale on oma
   äänitiedostonsa, ja keikaksi annetaan jaettu kansio Google Drivesta tai Dropboxista. Soitin soittaa
   kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat tiedostonimistä. Biisilistaa ei
   kirjoiteta. Ensin workeriin tarvitaan Googlen tai Dropboxin avain:
   <a href="kayttoonotto.html#kansio">käyttöönotto-ohjeen liite</a>.</p>
 
-<h3>Kansion sisältö</h3>
+<h4>Kansion sisältö</h4>
 <ul>
   <li><b>Numeroi tiedostot:</b> <code>01 Ensimmäinen biisi.mp3</code>, <code>02 Toinen biisi.mp3</code> …
     <code>10 …</code>. Järjestys menee numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois
@@ -355,7 +487,7 @@
     yhtenäinen äänite, tavallinen keikka soi saumattomasti.</li>
 </ul>
 
-<h3>Uusi kansiokeikka</h3>
+<h4>Uusi kansiokeikka</h4>
 <ol>
   <li><b>Kansio ja numeroidut tiedostot</b> Driveen tai Dropboxiin. Kopioi <b>kansion</b> linkki, ei
     yksittäisen tiedoston:
@@ -384,7 +516,8 @@
     puhelimessa.</p>
 </div>
 
-<h3>Kun kansiokeikka ei toimi</h3>
+<details class="osio ala">
+<summary><h4 id="kansio-ongelmat">Kun kansiokeikka ei toimi</h4></summary>
 <table>
   <tr><th>Oire</th><th>Syy ja korjaus</th></tr>
   <tr><td>Soitin: <i>Keikan kansiota ei saatu luettua</i></td>
@@ -406,7 +539,41 @@
   <tr><td>Apusivu: <i>Tämä on yksittäisen tiedoston linkki</i></td>
     <td>Kopioi kansion linkki, ei tiedoston.</td></tr>
 </table>
+</details>
+</details>
 
 </main>
+<script>
+(function () {
+  "use strict";
+  // Suljetut osiot (details.osio). Sisällyksen tai toisen sivun #-linkki
+  // osion sisään avaa osion ja sen ympäröivät osiot; selain vierittää
+  // kohteeseen vasta sen jälkeen.
+  function openFor(hash) {
+    var el = hash.length > 1 && document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!el) return null;
+    var opened = false;
+    for (var d = el.closest("details"); d; d = d.parentElement.closest("details")) {
+      if (!d.open) { d.open = true; opened = true; }
+    }
+    return opened ? el : null;
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (a) openFor(a.getAttribute("href"));
+  });
+  window.addEventListener("hashchange", function () {
+    var el = openFor(location.hash);
+    if (el) el.scrollIntoView();
+  });
+  var first = openFor(location.hash);
+  if (first) first.scrollIntoView();
+
+  // Tulosteeseen kaikki osiot auki.
+  window.addEventListener("beforeprint", function () {
+    document.querySelectorAll("details").forEach(function (d) { d.open = true; });
+  });
+})();
+</script>
 </body>
 </html>
