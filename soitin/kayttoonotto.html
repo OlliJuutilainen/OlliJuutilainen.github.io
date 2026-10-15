@@ -148,7 +148,7 @@
 
 <h1>Keikkasoitin omalle Cloudflare-tilille</h1>
 <p class="lead">Käyttöönotto. Tehdään kerran, aikaa kuluu noin puoli tuntia. Arkikäyttö
-  (uusi keikka, soittimen napit, iPhone) on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
+  (keikan luominen, soittimen napit, iPhone) on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
 
 <p>Tällä ohjeella keikkasi ovat <b>sinun Cloudflare-tililläsi</b> ja äänitiedostot <b>sinun
   Google Drivessasi tai Dropboxissasi</b>. Ollin sivu on vain näyttämö: se soittaa keikan,
@@ -170,7 +170,7 @@
     <li><a href="#kytkenta">Kytke worker tietokantaan</a></li>
     <li><a href="#avain">API-avain</a></li>
     <li><a href="#avainnippu">Avain Macin avainnippuun</a></li>
-    <li><a href="#kirjanmerkki">Apusivun kirjanmerkki</a></li>
+    <li><a href="#kirjanmerkki">Keikkageneraattorin kirjanmerkki</a></li>
     <li><a href="#testi">Testikeikka ja iPhone</a></li>
   </ol>
   <p><a href="#ongelmat">Kun jokin ei toimi</a> · <a href="#paivitys">Workerin päivitys</a> ·
@@ -191,14 +191,14 @@
 <h3>Miten osat liittyvät toisiinsa</h3>
 <figure>
   <svg class="dg" viewBox="0 0 680 262" role="img" aria-labelledby="dg-t">
-    <title id="dg-t">Apusivu tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
+    <title id="dg-t">Keikkageneraattori tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path class="head" d="M0 0L10 5L0 10z"/>
       </marker>
     </defs>
     <rect class="olli" x="6" y="8" width="176" height="52" rx="8"/>
-    <text x="94" y="31" text-anchor="middle">Apusivu</text>
+    <text x="94" y="31" text-anchor="middle">Keikkageneraattori</text>
     <text class="s" x="94" y="49" text-anchor="middle">uusi.html (kirjanmerkki)</text>
     <rect class="oma" x="252" y="8" width="176" height="52" rx="8"/>
     <text x="340" y="31" text-anchor="middle">Terminal</text>
@@ -233,8 +233,8 @@
 <ul>
   <li><b>Soitin</b> on osoitteessa <code>ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kaikki <code>#</code>-merkin jälkeinen jää selaimeen eikä kulje GitHubin palvelimille.</li>
-  <li><b>Apusivu</b> tarkistaa biisilistan ja tekee valmiin tallennuskomennon. Se ei lähetä mitään
-    verkkoon.</li>
+  <li><b>Keikkageneraattori</b> tarkistaa biisilistan ja tekee valmiin tallennuskomennon. Se ei lähetä
+    mitään verkkoon.</li>
   <li><b>Worker</b> on pieni ohjelma Cloudflaressa. Se lukee keikan KV-tietokannasta ja antaa sen
     soittimelle. Drive-tiedoston se myös välittää soittimelle, koska Google ei anna soittaa
     Drive-tiedostoa suoraan toiselta sivustolta. Dropbox-tiedosto soi suoraan.</li>
@@ -421,20 +421,20 @@
 <p class="muted">Jos avain vaihtuu myöhemmin (esim. <span class="ui">Roll</span>), toista vaiheet 1–5 uudella avaimella.
   <code>-U</code> korvaa vanhan.</p>
 
-<h2 id="kirjanmerkki"><span class="no">8</span>Apusivun kirjanmerkki</h2>
-<p>Tämä on apusivun osoite sinun tunnuksillasi:</p>
+<h2 id="kirjanmerkki"><span class="no">8</span>Keikkageneraattorin kirjanmerkki</h2>
+<p>Tämä on Keikkageneraattorin osoite sinun tunnuksillasi:</p>
 <div class="cmd"><pre id="c-bm" class="tpl">https://ollijuutilainen.github.io/soitin/uusi.html#w={w}&amp;a={a}&amp;n={n}</pre><button type="button" data-copy="c-bm">Kopioi</button></div>
-<p><a class="gen" id="bm-open" target="_blank" rel="noopener">Avaa apusivu</a> ja tallenna se
-  kirjanmerkiksi (<kbd>⌘D</kbd>). Sivun yläreunassa pitää lukea
+<p><a class="gen" id="bm-open" target="_blank" rel="noopener">Avaa Keikkageneraattori</a> ja tallenna
+  se kirjanmerkiksi (<kbd>⌘D</kbd>). Sivun yläreunassa pitää lukea
   <b>Omat asetukset: <span class="tpl">{w}</span>.workers.dev</b>. Jos jokin tunnus on väärän
   mittainen, sivu kertoo sen punaisella.</p>
-<p class="muted">Avaa apusivu aina tästä kirjanmerkistä. Osoitteen loppu (<code>#w=…&amp;a=…&amp;n=…</code>)
-  kertoo apusivulle sinun tunnuksesi. Jos apusivun osoitteesta puuttuu tämä loppu,
-  yläreunassa ei lue <i>Omat asetukset</i>, ja sivu tekee komennon Ollin tilille. Se ei
+<p class="muted">Avaa Keikkageneraattori aina tästä kirjanmerkistä. Osoitteen loppu
+  (<code>#w=…&amp;a=…&amp;n=…</code>) kertoo Keikkageneraattorille sinun tunnuksesi. Jos osoitteesta
+  puuttuu tämä loppu, yläreunassa ei lue <i>Omat asetukset</i>, ja sivu tekee komennon Ollin tilille. Se ei
   toimi sinun Macillasi.</p>
 
 <h2 id="testi"><span class="no">9</span>Testikeikka ja iPhone</h2>
-<p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Uusi keikka</a>. Lyhyt
+<p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Keikan luominen</a>. Lyhyt
   äänitiedosto ja kahden biisin lista riittävät. Tarkista, että ääni soi, kesto näkyy ja kelaus
   keskelle toimii.</p>
 <p>Soitin on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei vielä.
@@ -462,10 +462,10 @@
     <td>Avain on väärä tai siltä puuttuu oikeus <i>Workers KV Storage · Edit</i>. Kohdat 6–7.</td></tr>
   <tr><td>Terminal: <code>"success":false</code> ja maininta tietokannasta (namespace) tai tilistä</td>
     <td>Kirjanmerkin <code>a=</code> tai <code>n=</code> on väärin. Kohdat 3, 4 ja 8.</td></tr>
-  <tr><td>Apusivu: <i>Osoitteen #-osan asetus ei kelpaa</i></td>
+  <tr><td>Keikkageneraattori: <i>Osoitteen #-osan asetus ei kelpaa</i></td>
     <td>Kirjanmerkin osoite on vajaa tai väärin. Kohta 8.</td></tr>
-  <tr><td>Apusivulla ei lue <i>Omat asetukset</i></td>
-    <td>Apusivu on avattu ilman kirjanmerkkiä. Kohta 8.</td></tr>
+  <tr><td>Keikkageneraattorissa ei lue <i>Omat asetukset</i></td>
+    <td>Keikkageneraattori on avattu ilman kirjanmerkkiä. Kohta 8.</td></tr>
   <tr><td>Soitin: <i>Keikan tietoja ei saatu palvelimelta</i> (virhe 500)</td>
     <td>Workerin kytkentä tietokantaan puuttuu. Kohta 5 ja sen tarkistus.</td></tr>
   <tr><td>Soitin: <i>Keikan tietojen haku epäonnistui</i></td>
@@ -506,7 +506,7 @@ löytämään vastaava kohta.
 Rajat:
 - Älä pyydä minua liittämään keskusteluun Cloudflaren API-avainta tai muita salaisia
   avaimia. Tilin tunnus, KV-tunnus ja workerin osoite eivät ole salaisia.
-- Soitinsivu, apusivu ja worker-koodi ovat Ollin. Jos jokin vaatisi niihin muutoksen,
+- Soitinsivu, Keikkageneraattori ja worker-koodi ovat Ollin. Jos jokin vaatisi niihin muutoksen,
   kirjoita viesti Ollille välitettäväksi äläkä neuvo muokkaamaan niitä.
 - Jos jokin vaihe tuntuu turhan raskaalta, saat ehdottaa kevyempää tapaa, mutta kerro
   ensin mitä se maksaa ja mitä siinä menetetään.

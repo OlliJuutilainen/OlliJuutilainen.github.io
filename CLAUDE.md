@@ -129,22 +129,24 @@ Biisilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` 
 `[0]` = `[x]`, missä kohtaa settiä tahansa, ilman numeroa; nimettömänä setin alussa `[INTRO]`,
 lopussa `[OUTRO]`, välissä `[VÄLI]`) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
-päivittää. `soitin/uusi.html` tarkistaa biisilistan ja tulostaa `kv:key put` -komennon samalla
-wrangler-versiolla kuin generaattori. Biisilistaksi käy myös Logicin markerilistan kopio
+päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa biisilistan ja tulostaa
+`kv:key put` -komennon samalla wrangler-versiolla kuin `generaattori.html`. Käyttäjän päätös:
+sivun nimi on kaikissa teksteissä (ohjeet, otsikot, kommentit) *Keikkageneraattori*, ei
+*apusivu*. Biisilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`, `.40` = bitit 0–79; ensimmäisen rivin täydet tunnit
 vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa
 `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
-Logic-listalle apusivu näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
+Logic-listalle Keikkageneraattori näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
 avaimella `soitin-fps`): framet ja bitit muunnetaan sekunneiksi, 23.976/29.97/59.94 korjataan
 0,1 %:n jätätyksellä, ja drop frame (`d` tai puolipiste `01:00:04;16`) lasketaan ohitettuine
 framenumeroineen. Nimeämätön markeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
 Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto. Markerien vienti tiedoston
 mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedoston oletetaan alkavan
 aikajanan alusta.
-**Apusivulla ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
+**Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
 kertoja, ja ohjeet ärsyttävät). Biisilistan alla on vain kehotus ja linkki; merkinnät ja
 vientiohjeet ovat `ohje.html`:n osioissa `#biisilista` ja `#markerit`.
-Apusivu tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
+Keikkageneraattori tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
@@ -161,7 +163,7 @@ tiedosto ja biisilista) eikä kaveriohjeen selkeyteen.
   (`Lisäominaisuus`-otsikot), ja yhteisissä funktioissa se on vain `files`-haaroina. Kansion
   tapahtumakäsittelijät kytketään vasta, kun kansiokeikka ladataan. Tavallinen keikka ei tee
   yhtään Dropbox- tai Google-pyyntöä.
-- Apusivulla kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
+- Keikkageneraattorissa kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
   kansiolinkkejä.
 - Kaveriohjeissa (`kayttoonotto.html`, `ohje.html`) kansiokeikasta on vain maininta johdannossa
   ja liite sivun lopussa.
@@ -185,12 +187,18 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Kohdan 9 jälkeiset numeroimattomat osiot (ongelmat, päivitys, tekoälyavustaja, kansioliite)
   ovat suljettuja `<details class="osio">`-lohkoja, jotta alkuun pääsee ilman ähkyä. #-linkki
   osion sisään (myös `ohje.html`:stä ja `uusi.html`:stä) avaa osion; tulostus avaa kaikki.
-- `soitin/ohje.html`: käyttöopas (uusi keikka, biisilista, linkit, soittimen napit, iPhone).
-  Järjestys on käyttäjän luonnoksesta: ensin esikatselu (mitä apusivulle annetaan, mitä saadaan),
-  sitten apusivun kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston linkki →
-  biisilista ja DAW-markerit → tallennus), sitten setit ja ei-biisit, ja harvemmin tarvittavat
-  osiot suljettuina `<details class="osio">`-lohkoina (`details.osio.ala` = h4-tason alaosio,
-  esim. Drive, Logic). Uudet osiot sijoitetaan loppupäähän, tarvittaessa suljettuina. #-linkki
+- `soitin/ohje.html`: käyttöopas (keikan luominen, biisilista, linkit, soittimen napit, iPhone).
+  Järjestys on käyttäjän luonnoksesta. Johdannossa ei ole koko sivun sisällystä, vain virke, joka
+  linkittää osat (keikan luominen, soittimen käyttö) ja mainitsee käyttöönoton ja kansioliitteen.
+  Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkageneraattorissa… /
+  …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
+  Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
+  linkki → biisilista ja DAW-markerit → tallennus), sitten *Biisilistan muut ominaisuudet*
+  (avoin osio, jonka sisällä suljettuina setit, ei-biisit ja rivin muut muodot), avoimina
+  *Äänitiedoston muoto* ja *Linkin jakaminen*, ja viimeisenä suljettuna *Korjaus ja poisto*.
+  Muut harvemmin tarvittavat osiot ovat suljettuina `<details class="osio">`-lohkoina
+  (`details.osio.ala` = h4-tason alaosio, esim. Drive, Logic). Uudet osiot sijoitetaan
+  loppupäähän, tarvittaessa suljettuina. #-linkki
   suljetun osion sisään avaa sen ja sen ympäröivät osiot; tulostus avaa kaikki. Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
   esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
   olennaisesti, ota kuvat uudelleen samalla tavalla; oikeita keikkatietoja ei käytetä.
@@ -201,7 +209,7 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   `Sec-Fetch-Site: cross-site` (mitattu 14.10.2026; ilman otsaketta sama linkki antaa 200/206),
   joten `<audio>` ei voi soittaa sitä suoraan github.io:sta. Worker hakee tiedoston ilman selaimen
   otsakkeita, välittää vain Range-otsakkeen ja hyväksyy vain `audio/*`- ja `video/mp4`-tyypit.
-  Apusivu muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
+  Keikkageneraattori muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
   `drive.usercontent.google.com/download?id=`) tämän reitin osoitteeksi kirjanmerkin workerissa;
   kansiokeikan `driveFileUrl` käyttää samaa reittiä. Dropbox-linkit soivat suoraan.
   Muunnos tehdään myös ilman #-asetuksia (käyttäjä voi tallentaa Drive-keikan kaverin puolesta
