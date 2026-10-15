@@ -134,8 +134,7 @@ päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa settilista
 sivun nimi on kaikissa teksteissä (ohjeet, otsikot, kommentit) *Keikkageneraattori*, ei
 *apusivu*. Samoin käyttäjän päätös: Keikkageneraattoriin annettava lista on käyttäjälle
 näkyvissä teksteissä *settilista*, ei *biisilista*, ja soittimen näyttämä lista on *kappalelista*.
-Koodin kommenteissa vanha *biisilista* tarkoittaa samaa, ja ankkuri `ohje.html#biisilista` on
-säilytetty vanhojen linkkien vuoksi. Settilistaksi käy myös Logicin markerilistan kopio
+Koodin kommenteissa vanha *biisilista* tarkoittaa samaa. Settilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`, `.40` = bitit 0–79; ensimmäisen rivin täydet tunnit
 vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa
 `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
@@ -148,7 +147,7 @@ mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedosto
 aikajanan alusta.
 **Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
 kertoja, ja ohjeet ärsyttävät). Settilistan alla on vain kehotus ja linkki; merkinnät ja
-vientiohjeet ovat `ohje.html`:n osioissa `#biisilista` ja `#markerit`.
+vientiohjeet ovat `ohje.html`:n osioissa `#settilista` ja `#markerit`.
 Keikkageneraattori tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
