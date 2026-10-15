@@ -4,7 +4,7 @@ Ohje on siirtynyt kahdeksi verkkosivuksi:
 
 - **Käyttöönotto** (kerran, noin puoli tuntia):
   <https://ollijuutilainen.github.io/soitin/kayttoonotto.html>
-- **Käyttöopas** (uusi keikka, biisilista, linkit, soittimen käyttö, iPhone):
+- **Käyttöopas** (uusi keikka, settilista, linkit, soittimen käyttö, iPhone):
   <https://ollijuutilainen.github.io/soitin/ohje.html>
 
 Sivut täyttävät omat tunnuksesi komentoihin ja linkkeihin, ja komennoissa on kopiointinapit.

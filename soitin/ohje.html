@@ -15,8 +15,12 @@
   Järjestys: johdannon virke linkittää osat (ei koko sivun sisällystä). Keikan
   luominen alkaa esikatselulla (mitä Keikkageneraattorissa annetaan ja saadaan),
   jonka jälkeen tulee vain tämän osan sisällys ja Keikkageneraattorin kentät
-  ylhäältä alas. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
+  ylhäältä alas. Niiden perässä on osio Valinnaiset ominaisuudet, jonka alaosiot
+  ovat h4-tasoa. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
   #-linkki suljetun osion sisään avaa sen.
+
+  Termit: Keikkageneraattoriin annettava lista on settilista, soittimen näyttämä
+  lista kappalelista. Ankkuri #biisilista on säilytetty vanhojen linkkien vuoksi.
 -->
 <style>
   :root {
@@ -37,10 +41,12 @@
   }
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
-  /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio. */
+  /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio,
+     h5 = alaosion alaosio (vain Valinnaisissa ominaisuuksissa). */
   h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
   h3 { font-size: 1.15rem; line-height: 1.3; margin: 40px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
-  h4 { font-size: 1rem; margin: 22px 0 8px; }
+  h4, h5 { font-size: 1rem; margin: 22px 0 8px; }
+  h5 { font-size: 0.94rem; font-weight: 600; }
   p { margin: 0 0 12px; }
   ol, ul { margin: 0 0 14px; padding-left: 1.4em; }
   li { margin: 0 0 6px; }
@@ -57,6 +63,9 @@
   .ui { font-weight: 600; }
   /* Johdannon ja ensimmäisen osan alun kappaleet väljemmin. */
   .intro { margin-bottom: 20px; }
+  /* Osion lopun sivuhuomautus suljettujen alaosioiden jälkeen: sisennetty ja
+     irti niistä, ettei se näytä kuuluvan viimeiseen alaosioon. */
+  .sivu { margin: 22px 0 18px 24px; }
 
   /* Keikan luomisen esikatselu: mitä Keikkageneraattorissa annetaan (vasen)
      ja saadaan (oikea). Palstojen välissä haalea pystyviiva. */
@@ -74,11 +83,14 @@
     .ydin > div + div { border-top: 1px solid var(--line); padding-top: 12px; }
   }
 
-  /* Keikan luomisen osioiden sisällys. */
-  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 12px 0 8px; }
-  nav.toc ul { margin: 0 0 8px; padding-left: 1.2em; columns: 2; column-gap: 32px; }
-  nav.toc li { margin: 0 0 4px; break-inside: avoid; }
-  @media (max-width: 560px) { nav.toc ul { columns: 1; } }
+  /* Keikan luomisen sisällys: vasemmalla Keikkageneraattorin kentät, oikealla
+     valinnaiset ominaisuudet alaosioineen. */
+  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 12px 0 8px;
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  nav.toc ul { margin: 0 0 8px; padding-left: 1.2em; }
+  nav.toc li { margin: 0 0 4px; }
+  nav.toc li > ul { margin: 4px 0 0; }
+  @media (max-width: 560px) { nav.toc { grid-template-columns: 1fr; } }
 
   .box { border-radius: 10px; padding: 12px 16px; margin: 16px 0; background: var(--soft); }
   .box p:last-child { margin-bottom: 0; }
@@ -99,27 +111,33 @@
      puolella, joten otsikon teksti pysyy muiden otsikoiden linjassa. */
   details.osio > summary { list-style: none; cursor: pointer; }
   details.osio > summary::-webkit-details-marker { display: none; }
-  details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4 { padding-left: 1em; text-indent: -1em; }
-  details.osio > summary > h2::before, details.osio > summary > h3::before, details.osio > summary > h4::before {
+  details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4,
+  details.osio > summary > h5 { padding-left: 1em; text-indent: -1em; }
+  details.osio > summary > h2::before, details.osio > summary > h3::before, details.osio > summary > h4::before,
+  details.osio > summary > h5::before {
     content: "\25B8"; display: inline-block; width: 1em; text-indent: 0; color: var(--accent); }
   details.osio[open] > summary > h2::before, details.osio[open] > summary > h3::before,
-  details.osio[open] > summary > h4::before { content: "\25BE"; }
+  details.osio[open] > summary > h4::before, details.osio[open] > summary > h5::before { content: "\25BE"; }
   /* Peräkkäiset suljetut osiot tiiviisti allekkain. */
   details.osio:not(.ala):not([open]) + details.osio:not(.ala) > summary > h3 { margin-top: 0; }
-  details.ala:not([open]) + details.ala > summary > h4 { margin-top: 6px; }
-  /* Avattu alaosio (h4): viiva vasemmassa reunuksessa näyttää, mihin se loppuu. */
+  details.ala:not([open]) + details.ala > summary > h4,
+  details.ala:not([open]) + details.ala > summary > h5 { margin-top: 6px; }
+  /* Avattu alaosio (.ala, h4 tai h5): viiva vasemmassa reunuksessa näyttää,
+     mihin se loppuu. Ilman .ala-luokkaa suljettu osio on muiden samantasoisten
+     osioiden vertainen eikä edellisen osion alaosio. */
   details.ala[open] { border-left: 2px solid var(--line); margin-left: -14px; padding: 0 0 2px 12px; }
-  details.ala > summary > h4 { margin: 14px 0 8px; }
+  details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
 
   @media print {
     body { font-size: 11pt; background: #fff; color: #000; }
     main { max-width: none; padding: 0; }
     nav.toc { display: none; }
-    h2, h3, h4 { break-after: avoid; }
+    h2, h3, h4, h5 { break-after: avoid; }
     pre, .box, table, figure { break-inside: avoid; }
-    details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4 { padding-left: 0; text-indent: 0; }
+    details.osio > summary > h2, details.osio > summary > h3, details.osio > summary > h4,
+    details.osio > summary > h5 { padding-left: 0; text-indent: 0; }
     details.osio > summary > h2::before, details.osio > summary > h3::before,
-    details.osio > summary > h4::before { content: none; }
+    details.osio > summary > h4::before, details.osio > summary > h5::before { content: none; }
     details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; }
   }
 </style>
@@ -147,7 +165,7 @@
     <ul>
       <li>keikan nimen</li>
       <li><b>linkin äänitiedostoon</b> Google Drivessa tai Dropboxissa</li>
-      <li><b>biisilistan</b>: kappaleiden alkuajat ja nimet, käsin kirjoitettuna tai Logicin tai
+      <li><b>settilistan</b>: kappaleiden alkuajat ja nimet, käsin kirjoitettuna tai Logicin tai
         Reaperin markereista kopioituna</li>
     </ul>
   </div>
@@ -168,19 +186,24 @@
   <ul>
     <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
     <li><a href="#tiedosto">Äänitiedoston linkki</a></li>
-    <li><a href="#biisilista">Biisilista</a></li>
-    <li><a href="#tallennus">Tallennus ja linkki</a></li>
-    <li><a href="#merkinnat">Biisilistan muut ominaisuudet</a></li>
-    <li><a href="#aani">Äänitiedoston muoto</a></li>
-    <li><a href="#linkit">Linkin jakaminen</a></li>
-    <li><a href="#korjaus">Korjaus ja poisto</a></li>
+    <li><a href="#biisilista">Settilista</a></li>
+    <li><a href="#tallennus">Uuden keikan tallentaminen ja linkin saaminen</a></li>
+  </ul>
+  <ul>
+    <li><a href="#valinnaiset">Valinnaiset ominaisuudet</a>
+      <ul>
+        <li><a href="#merkinnat">Settilistan muut ominaisuudet</a></li>
+        <li><a href="#aani">Äänitiedoston muoto</a></li>
+        <li><a href="#linkit">Linkin jakaminen</a></li>
+        <li><a href="#korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</a></li>
+      </ul></li>
   </ul>
 </nav>
 
 <h3 id="alku">Tunnus, otsikko ja lisätieto</h3>
 <p>Avaa Keikkageneraattori kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
-  <b>tunnus</b>, joka on arvottu valmiiksi. Siihen ei tarvitse koskea. Sitä tarvitaan vasta, kun vanhaa
-  keikkaa korjataan (<a href="#korjaus">Korjaus ja poisto</a>).</p>
+  <b>tunnus</b>, joka on arvottu valmiiksi. Siihen ei tarvitse koskea. Sitä tarvitaan vasta, kun
+  <a href="#korjaus">aiemmin luotua keikkaa muokataan</a>.</p>
 <p><b>Otsikko</b> on keikan nimi. Se näkyy soittimessa ylimpänä ja selaimen välilehdellä, ja soitin
   antaa sen puhelimen lukitusnäytölle ikään kuin soivan kappaleen albumiksi.</p>
 <p><b>Päivämäärä tai muuta lisätietoa</b> on vapaaehtoinen: päivämäärä, paikka tai mitä haluat. Se
@@ -207,12 +230,12 @@
   saanut voi katsoa). Dropbox-tiedosto soi suoraan Dropboxista.</p>
 </details>
 
-<p class="muted">Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
+<p class="muted sivu">Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
   Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa tai kelaus tuntuu Drivella
   hitaalta, Dropbox on vaihtoehto. Tiedostomuodosta: <a href="#aani">Äänitiedoston muoto</a>.</p>
 
-<h3 id="biisilista">Biisilista</h3>
-<p>Biisilista kertoo, mistä kohtaa äänitiedostoa kukin kappale alkaa. Sen voi kirjoittaa käsin, yksi
+<h3 id="biisilista">Settilista</h3>
+<p>Settilista kertoo, mistä kohtaa äänitiedostoa kukin kappale alkaa. Sen voi kirjoittaa käsin, yksi
   kappale riville: alkuaika ja nimi. Ajat kasvavat rivi riviltä, ja yli tunnin kohdalla aika on
   muotoa <code>1:02:30</code>.</p>
 <pre>2:10 Ensimmäinen biisi
@@ -242,7 +265,7 @@
     <span class="ui">Marker</span>) ja klikkaa jotain markeria. Paina Control-Option-R
     (<i>View → Show Event Position and Length as Time</i>), niin sijainnit näkyvät aikoina eivätkä
     tahteina. Sitten Cmd-A ja Cmd-C.</li>
-  <li><b>Liitä Keikkageneraattorin biisilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
+  <li><b>Liitä Keikkageneraattorin settilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
     kuvanopeus</i>: valitse sama kuin Logicin <i>File → Project Settings → Synchronization →
     Frame Rate</i>. Valinta muistetaan seuraavalla kerralla. Logicin tunnin siirtymä (01:00:00:00)
     poistuu itsestään.</li>
@@ -269,16 +292,16 @@
 </ol>
 </details>
 
-<p class="muted">Ajat saavat olla kokonaisia sekunteja tai tarkempia (<code>3:42.5</code>).
-  Keikkageneraattori tallentaa alkuajat sadasosasekunnin tarkkuudella (<code>3:42.50</code>), ja soitin hyppää
-  tallennettuun kohtaan sellaisenaan.</p>
+<p class="muted sivu">Settilistaan kirjatut alkuajat saavat olla kokonaisia sekunteja (<code>3:42</code>)
+  tai tarkempia (<code>3:42.5</code>). Keikkageneraattori tallentaa ne sadasosasekunnin tarkkuudella
+  (<code>3:42.50</code>), ja soitin hyppää kappaleen alkuun juuri tallennettuun kohtaan.</p>
 
-<h3 id="tallennus">Tallennus ja linkki</h3>
+<h3 id="tallennus">Uuden keikan tallentaminen ja linkin saaminen</h3>
 <p>Kun kentät ovat kunnossa, Keikkageneraattorin alaosaan tulee kolme kohtaa. Jos jossain on virhe,
-  se näkyy punaisella (biisilistassa rivin numeron kera), eikä komentoa tule ennen kuin virhe on
+  se näkyy punaisella (settilistassa rivin numeron kera), eikä komentoa tule ennen kuin virhe on
   korjattu.</p>
 <ol>
-  <li><b>Tarkista lista:</b> näin Keikkageneraattori luki biisilistan. Katso, että kappaleet ja setit
+  <li><b>Tarkista lista:</b> näin Keikkageneraattori luki settilistan. Katso, että kappaleet ja setit
     ovat oikein.</li>
   <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
     <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.</li>
@@ -287,7 +310,9 @@
     Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
 </ol>
 
-<h3 id="merkinnat">Biisilistan muut ominaisuudet</h3>
+<h3 id="valinnaiset">Valinnaiset ominaisuudet</h3>
+
+<h4 id="merkinnat">Settilistan muut ominaisuudet</h4>
 <p>Pelkät ajat ja nimet riittävät yhden setin keikkaan, jossa jokainen raita on biisi. Merkinnöillä
   listaan saa setit sekä introt, spiikit ja muut raidat, jotka eivät ole biisejä. Esimerkki kahden
   setin keikasta:</p>
@@ -299,11 +324,11 @@
 (Encore)
 15:05 Neljäs biisi
 19:30 Viides biisi</pre>
-<p>Soittimessa tämä näyttää <a href="#soitin">tältä</a>. Kaikki merkinnät käyvät sellaisinaan myös
+<p>Soittimessa edellinen näyttää <a href="#soitin">tältä</a>. Kaikki merkinnät käyvät sellaisinaan myös
   Logicin ja Reaperin markerin nimessä.</p>
 
 <details class="osio ala">
-<summary><h4 id="setit">Setit</h4></summary>
+<summary><h5 id="setit">Setit</h5></summary>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td><code>---</code></td>
@@ -318,7 +343,7 @@
 </details>
 
 <details class="osio ala">
-<summary><h4 id="eibiisit">Intro, outro ja muut ei-biisit</h4></summary>
+<summary><h5 id="eibiisit">Intro, outro ja muut ei-biisit</h5></summary>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td>Pelkkä <code>3:42</code>, <code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai
@@ -336,7 +361,7 @@
 </details>
 
 <details class="osio ala">
-<summary><h4 id="muut">Rivin muut muodot</h4></summary>
+<summary><h5 id="muut">Rivin muut muodot</h5></summary>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td><code>Nimi 3:42</code></td>
@@ -348,7 +373,7 @@
 </table>
 </details>
 
-<h3 id="aani">Äänitiedoston muoto</h3>
+<h4 id="aani">Äänitiedoston muoto</h4>
 <p>Soitin käyttää selaimen omaa äänitoistoa, joten tiedostomuoto ratkaisee, soiko keikka kuulijan
   laitteessa.</p>
 <ul>
@@ -360,25 +385,25 @@
     jaettavassa keikassa.</li>
 </ul>
 
-<h3 id="linkit">Linkin jakaminen</h3>
+<h4 id="linkit">Linkin jakaminen</h4>
 <ul>
   <li><b>Keikan linkki</b>: <code>https://ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kuka tahansa, jolla on linkki, voi kuunnella keikan. Linkki on siis avain; jaa se vain niille,
     joille keikka on tarkoitettu.</li>
-  <li><b>Kappaleen linkki</b>: soittimen biisilistan
+  <li><b>Kappaleen linkki</b>: soittimen kappalelistan
     <svg class="ic" viewBox="0 0 24 24" aria-label="linkki-ikoni" style="width:16px;height:16px;vertical-align:-3px;fill:currentColor"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zM8.5 19.8a4.3 4.3 0 0 1-3-7.3l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a2.3 2.3 0 0 0 3.2 3.2l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a4.3 4.3 0 0 1-3 1.3zM15.6 14.1a1 1 0 0 1-.7-1.7l2.2-2.2a2.3 2.3 0 0 0-3.2-3.2l-2.2 2.2a1 1 0 1 1-1.4-1.4l2.2-2.2a4.3 4.3 0 0 1 6 6l-2.2 2.2a1 1 0 0 1-.7.3z"/></svg>-napit
     kopioivat linkin suoraan kappaleeseen (<code>…@soitin.jotain/3</code>; useamman setin keikassa
     toisen setin kolmas kappale on <code>…/2/3</code>). Linkki avaa soittimen kappaleen alkuun.</li>
 </ul>
 
 <details class="osio">
-<summary><h3 id="korjaus">Korjaus ja poisto</h3></summary>
-<p><b>Korjaus:</b> liitä keikan linkki Keikkageneraattorin Tunnus-kenttään ja paina
+<summary><h4 id="korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</h4></summary>
+<p><b>Muokkaaminen:</b> liitä keikan linkki Keikkageneraattorin Tunnus-kenttään ja paina
   <span class="ui">Hae</span>. Linkistä poimitaan keikan tunnus
   (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>); pelkän tunnuksen voi myös kirjoittaa.
-  Keikan tiedot tulevat kenttiin. Korjaa, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
-<p><b>Äänitiedoston vaihto:</b> korjaa keikka uudella jakolinkillä.</p>
-<p><b>Poisto:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
+  Keikan tiedot tulevat kenttiin. Tee muutokset, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
+<p><b>Äänitiedoston vaihtaminen:</b> muokkaa keikkaa ja liitä uusi jakolinkki.</p>
+<p><b>Poistaminen:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
   KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
   kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
 </details>
@@ -450,7 +475,7 @@
   <tr><td><i>Keikan tietoja ei saatu palvelimelta</i></td>
     <td>Workerin asetuksissa on vika. <a href="kayttoonotto.html#ongelmat">Käyttöönotto-ohje</a>.</td></tr>
   <tr><td><i>Kappalelistassa on virhe</i></td>
-    <td>Tallennetussa listassa on virheellinen aika. Hae keikka Keikkageneraattoriin, korjaa ja tallenna.</td></tr>
+    <td>Tallennetussa settilistassa on virheellinen aika. Hae keikka Keikkageneraattoriin, korjaa ja tallenna.</td></tr>
   <tr><td><i>Äänitiedoston lataaminen epäonnistui</i></td>
     <td>Jakolinkki on poistettu tai väärä, tai tiedostoa ei ole jaettu kaikille linkin saaneille.
       Tee jako uudelleen ja <a href="#korjaus">korjaa keikka</a>. Ilmoituksen alla oleva selitys
@@ -466,7 +491,7 @@
 <summary><h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2></summary>
 <p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Kansiokeikassa jokainen kappale on oma
   äänitiedostonsa, ja keikaksi annetaan jaettu kansio Google Drivesta tai Dropboxista. Soitin soittaa
-  kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat tiedostonimistä. Biisilistaa ei
+  kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat tiedostonimistä. Settilistaa ei
   kirjoiteta. Ensin workeriin tarvitaan Googlen tai Dropboxin avain:
   <a href="kayttoonotto.html#kansio">käyttöönotto-ohjeen liite</a>.</p>
 
@@ -475,7 +500,7 @@
   <li><b>Numeroi tiedostot:</b> <code>01 Ensimmäinen biisi.mp3</code>, <code>02 Toinen biisi.mp3</code> …
     <code>10 …</code>. Järjestys menee numeron mukaan (2 ennen 10:tä), ja alkunumero jää pois
     kappaleen nimestä. Alaviivat muuttuvat välilyönneiksi. <code>00 [Intro].mp3</code> ja
-    <code>07 [x] Spiikki.mp3</code> ovat ei-biisejä kuten biisilistassakin. Numeroi aina: ilman numeroa nimen alussa oleva luku katoaa
+    <code>07 [x] Spiikki.mp3</code> ovat ei-biisejä kuten settilistassakin. Numeroi aina: ilman numeroa nimen alussa oleva luku katoaa
     (<code>99 Luftballons.mp3</code> → <i>Luftballons</i>).</li>
   <li><b>Setit ovat alikansioita</b> nimen mukaisessa järjestyksessä: <code>1</code>, <code>2</code> …
     Numeron jälkeinen nimi on setin otsikko (<code>2 Encore</code> → <i>(Encore)</i>,
