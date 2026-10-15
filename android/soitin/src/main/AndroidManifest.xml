@@ -7,8 +7,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--
-      Ilmoituslupaa ei kysytä: Android 13+ piilottaa silloin soittoilmoituksen, mutta
-      etualapalvelu toimii silti. Ilmoituksen saa näkyviin myöntämällä luvan adb:llä.
+      Ilmoituslupaa ei kysytä. Androidin ohjeiden mukaan mediasessioon kytketty
+      mediailmoitus on vapautettu luvasta, joten lukitusnäytön napit näkyvät ilmankin
+      (ei kokeiltu). Jos eivät näy, luvan saa myönnettyä adb:llä.
     -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
