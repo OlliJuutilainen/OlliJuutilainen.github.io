@@ -122,7 +122,7 @@
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
     <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Soitin lukee kansion joka kerta
     avautuessaan, joten myöhemmin lisätty tiedosto tulee mukaan ilman uutta komentoa. Enintään
-    44 tiedostoa. Vaatii workeriin Google- tai Dropbox-avaimen (<a href="kayttoonotto.html#kansio">käyttöönotto-ohjeen
+    44 tiedostoa. Vaatii workeriin Google- tai Dropbox-avaimen (<a id="folderKeyLink" href="kayttoonotto.html#kansio">käyttöönotto-ohjeen
     liite</a>).</p>
   </div>
 
@@ -200,6 +200,8 @@
   // Kaveriversio (soitin/kayttoonotto.html): oma Cloudflare-tili osoitteen #-osassa,
   // uusi.html#w=soitin.kaveri&a=<tilin tunnus>&n=<KV-tunnus>. Tunnukset eivät ole
   // salaisia; API-avain luetaan Macin avainnipusta vasta komentoa ajettaessa.
+  // Pikakäyttöönotto (soitin/pikakayttoonotto.html): uusi.html#w=soitin.kaveri&tapa=pika.
+  // Tili ja tietokanta ovat koneen ~/.soitin-kansiossa, joten #-osaan riittää worker.
   // Ilman #-osaa sivu toimii kuten ennenkin.
   var profile = null, profileError = "";
   (function () {
@@ -214,14 +216,18 @@
       p[kv.slice(0, i)] = v.trim().toLowerCase();
     });
     if (!/^[a-z0-9-]{1,63}\.[a-z0-9-]{1,63}$/.test(p.w || "")) profileError = "w (worker, esim. soitin.oma-aliverkkotunnus)";
+    else if (p.tapa === "pika") profile = { worker: p.w, quick: true };
+    else if (p.tapa) profileError = "tapa (ainoa vaihtoehto on pika)";
     else if (!/^[0-9a-f]{32}$/.test(p.a || "")) profileError = "a (tilin tunnus, 32 merkkiä)";
     else if (!/^[0-9a-f]{32}$/.test(p.n || "")) profileError = "n (KV-nimiavaruuden tunnus, 32 merkkiä)";
     else profile = { worker: p.w, account: p.a, ns: p.n };
   })();
   if (profile) {
     API = "https://" + profile.worker + ".workers.dev/api/gig";
-    $("profile").textContent = "Omat asetukset: " + profile.worker + ".workers.dev";
+    $("profile").textContent = "Omat asetukset: " + profile.worker + ".workers.dev" +
+      (profile.quick ? " (pikakäyttöönotto)" : "");
     $("profile").hidden = false;
+    if (profile.quick) $("folderKeyLink").href = "pikakayttoonotto.html#kansio";
   }
   window.addEventListener("hashchange", function () { location.reload(); });
   var f = { key: $("key"), title: $("title"), sub: $("sub"), audio: $("audio"), tracks: $("tracks"), fps: $("fps"),
@@ -693,7 +699,11 @@
     // Ei #-kommenttiriviä: macOS:n zsh ei tulkitse sitä kommentiksi oletuksena.
     // Kaveriversiossa curl ja Cloudflaren REST-rajapinta, koska curl on valmiina
     // jokaisessa Macissa eikä Node.js:ää tarvita. API-avain avainnippuun: kayttoonotto.html.
-    $("cmd").textContent = (profile ? [
+    // Pikakäyttöönotossa asennuksen tekemä komento, joka tallentaa Wranglerilla ja tulostaa
+    // tallennetun arvon (soitin/asennus/soitin.sh).
+    $("cmd").textContent = (profile && profile.quick ? [
+      "~/.soitin/soitin tallenna " + key + " " + sq(value)
+    ] : profile ? [
       "ACC='" + profile.account + "'",
       "NS='" + profile.ns + "'",
       "KEY=" + sq(encodeURIComponent("gig:" + key)),

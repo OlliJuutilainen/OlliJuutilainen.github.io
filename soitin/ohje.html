@@ -170,7 +170,8 @@
 <p class="lead">Tässä ohjeessa käydään läpi ensin <a href="#uusi">keikan luominen</a> ja sitten
   <a href="#soitin">soittimen käyttö</a>.</p>
 <p class="muted intro">Kerran tehtävä asennus omalle Cloudflare-tilille on omalla sivullaan:
-  <a href="kayttoonotto.html">käyttöönotto</a>. Lopussa on <a href="#kansio">liite</a>
+  <a href="kayttoonotto.html">käyttöönotto</a> (uudella Macilla
+  <a href="pikakayttoonotto.html">pikakäyttöönotto</a>). Lopussa on <a href="#kansio">liite</a>
   lisäominaisuudesta, jossa keikka kootaan kansiosta.</p>
 
 <!-- ================================================================ -->
@@ -324,7 +325,9 @@
   <li><b>Tarkista lista:</b> näin Keikkageneraattori luki settilistan. Katso, että kappaleet ja setit
     ovat oikein.</li>
   <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
-    <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.</li>
+    <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.
+    Pikakäyttöönotossa tulostuvat ensin keikan tiedot ja viimeisenä rivi
+    <code>Tallennettu: gig:tunnus</code>.</li>
   <li><b>Kopioi linkki ja avaa se itse ensin</b> (<span class="ui">Avaa soitin</span>). Jos soitin
     sanoo heti tallennuksen jälkeen <i>Keikkaa ei löytynyt</i>, odota minuutti ja lataa uudelleen:
     Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
@@ -425,7 +428,8 @@
   Keikan tiedot tulevat kenttiin. Tee muutokset, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
 <p><b>Äänitiedoston vaihtaminen:</b> muokkaa keikkaa ja liitä uusi jakolinkki.</p>
 <p><b>Poistaminen:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
-  KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
+  KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Pikakäyttöönotossa
+  riittää Terminalissa <code>~/.soitin/soitin poista tunnus</code>. Jos haluat vain lopettaa
   kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
 </details>
 </details>
