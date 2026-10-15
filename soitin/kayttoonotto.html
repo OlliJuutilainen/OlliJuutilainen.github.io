@@ -156,7 +156,7 @@
   eikä hänen tilinsä osallistu mihinkään.</p>
 
 <p>Käyttöönoton jälkeen uusi keikka on viiden minuutin homma: äänitiedosto Driveen tai
-  Dropboxiin, biisilista lomakkeeseen, yksi komento Terminaliin.</p>
+  Dropboxiin, settilista lomakkeeseen, yksi komento Terminaliin.</p>
 
 <p class="muted">Lopussa on liite lisäominaisuudesta, jossa keikka kootaan kansiosta ja jokainen
   kappale on oma tiedostonsa. Tavallinen keikka ei tarvitse siitä mitään.</p>
@@ -191,7 +191,7 @@
 <h3>Miten osat liittyvät toisiinsa</h3>
 <figure>
   <svg class="dg" viewBox="0 0 680 262" role="img" aria-labelledby="dg-t">
-    <title id="dg-t">Keikkageneraattori tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja biisilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
+    <title id="dg-t">Keikkageneraattori tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja settilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path class="head" d="M0 0L10 5L0 10z"/>
@@ -222,7 +222,7 @@
     <path d="M586 62V110" marker-end="url(#ah)"/>
     <text class="l" x="594" y="91">lukee</text>
     <path d="M496 138H184" marker-end="url(#ah)"/>
-    <text class="l" x="340" y="130" text-anchor="middle">otsikko ja biisilista</text>
+    <text class="l" x="340" y="130" text-anchor="middle">otsikko ja settilista</text>
     <path d="M94 202V166" marker-end="url(#ah)"/>
     <text class="l" x="104" y="189">ääni (Drivesta workerin kautta)</text>
   </svg>
@@ -233,13 +233,13 @@
 <ul>
   <li><b>Soitin</b> on osoitteessa <code>ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kaikki <code>#</code>-merkin jälkeinen jää selaimeen eikä kulje GitHubin palvelimille.</li>
-  <li><b>Keikkageneraattori</b> tarkistaa biisilistan ja tekee valmiin tallennuskomennon. Se ei lähetä
+  <li><b>Keikkageneraattori</b> tarkistaa settilistan ja tekee valmiin tallennuskomennon. Se ei lähetä
     mitään verkkoon.</li>
   <li><b>Worker</b> on pieni ohjelma Cloudflaressa. Se lukee keikan KV-tietokannasta ja antaa sen
     soittimelle. Drive-tiedoston se myös välittää soittimelle, koska Google ei anna soittaa
     Drive-tiedostoa suoraan toiselta sivustolta. Dropbox-tiedosto soi suoraan.</li>
 </ul>
-<p>Kuka tahansa, jolla on keikan linkki, näkee otsikon ja biisilistan ja voi kuunnella
+<p>Kuka tahansa, jolla on keikan linkki, näkee otsikon ja settilistan ja voi kuunnella
   äänitteen. Linkki on siis avain. Tunnus on arvottu, joten sitä ei voi arvata.</p>
 
 <div class="box secret">
@@ -475,7 +475,7 @@
 </table>
 <p>Jos tallennus antaa virheen, jota taulukossa ei ole, lähetä Ollille Terminalin vastaus
   sellaisenaan. API-avain ei tulostu siihen.</p>
-<p>Soittimen omat ilmoitukset (äänitiedosto, biisilista) on selitetty
+<p>Soittimen omat ilmoitukset (äänitiedosto, settilista) on selitetty
   <a href="ohje.html#ongelmat">käyttöoppaassa</a>.</p>
 </details>
 
@@ -522,7 +522,7 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
 <summary><h2 id="kansio">Liite: keikka kansiosta (lisäominaisuus)</h2></summary>
 <p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Lue se vain, jos haluat keikan, jossa
   jokainen kappale on oma äänitiedostonsa.</p>
-<p>Kansiokeikassa annetaan yhden äänitiedoston ja biisilistan sijaan jaettu kansio Google Drivesta
+<p>Kansiokeikassa annetaan yhden äänitiedoston ja settilistan sijaan jaettu kansio Google Drivesta
   tai Dropboxista. Soitin soittaa kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat
   tiedostonimistä. Kansiokeikan teko ja tiedostojen nimeäminen:
   <a href="ohje.html#kansio">käyttöoppaan liite</a>.</p>

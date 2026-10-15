@@ -118,21 +118,24 @@ täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin ko
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
-`soitin/` on työryhmän keikkasoitin. **Keikkatietoja (otsikko, mp3-linkki, biisilista) ei
+`soitin/` on työryhmän keikkasoitin. **Keikkatietoja (otsikko, mp3-linkki, settilista) ei
 saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä avaimella
 `gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
 harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
-Biisilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`;
+Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`;
 `[0]` = `[x]`, missä kohtaa settiä tahansa, ilman numeroa; nimettömänä setin alussa `[INTRO]`,
 lopussa `[OUTRO]`, välissä `[VÄLI]`) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
-päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa biisilistan ja tulostaa
+päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa settilistan ja tulostaa
 `kv:key put` -komennon samalla wrangler-versiolla kuin `generaattori.html`. Käyttäjän päätös:
 sivun nimi on kaikissa teksteissä (ohjeet, otsikot, kommentit) *Keikkageneraattori*, ei
-*apusivu*. Biisilistaksi käy myös Logicin markerilistan kopio
+*apusivu*. Samoin käyttäjän päätös: Keikkageneraattoriin annettava lista on käyttäjälle
+näkyvissä teksteissä *settilista*, ei *biisilista*, ja soittimen näyttämä lista on *kappalelista*.
+Koodin kommenteissa vanha *biisilista* tarkoittaa samaa, ja ankkuri `ohje.html#biisilista` on
+säilytetty vanhojen linkkien vuoksi. Settilistaksi käy myös Logicin markerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`, `.40` = bitit 0–79; ensimmäisen rivin täydet tunnit
 vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markerilista muodossa
 `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
@@ -144,13 +147,13 @@ Aikaleimallinen `---`-rivi (markeri nimeltä `---`) on setinvaihto. Markerien vi
 mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedoston oletetaan alkavan
 aikajanan alusta.
 **Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
-kertoja, ja ohjeet ärsyttävät). Biisilistan alla on vain kehotus ja linkki; merkinnät ja
+kertoja, ja ohjeet ärsyttävät). Settilistan alla on vain kehotus ja linkki; merkinnät ja
 vientiohjeet ovat `ohje.html`:n osioissa `#biisilista` ja `#markerit`.
 Keikkageneraattori tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
-(`{ title, folder }` KV:ssä audio-linkin ja biisilistan sijaan). Worker lukee kansion palvelun
+(`{ title, folder }` KV:ssä audio-linkin ja settilistan sijaan). Worker lukee kansion palvelun
 rajapinnasta joka haulla ja palauttaa `files`-listan. Tiedostot ovat kappaleita nimen mukaisessa
 järjestyksessä, ja alikansiot ovat settejä. Dropbox tarvitsee workerin salaisuudet
 `DROPBOX_APP_KEY`, `DROPBOX_APP_SECRET` ja `DROPBOX_REFRESH_TOKEN` (linkit tilapäisiä, 4 h), Drive
@@ -158,7 +161,7 @@ salaisuuden `GOOGLE_API_KEY` (linkit pysyviä, kansio jaettu kaikille linkin saa
 Tarkistusreitit `/api/dropbox` ja `/api/drive`. Ohje: `kayttoonotto.html` ja `ohje.html`, liitteet.
 
 Käyttäjän vaatimus: **kansio-ominaisuus ei saa vaikuttaa tavalliseen keikkaan** (yksi pitkä
-tiedosto ja biisilista) eikä kaveriohjeen selkeyteen.
+tiedosto ja settilista) eikä kaveriohjeen selkeyteen.
 - Tavallisen keikan koodipolku pysyy ennallaan: kansiokoodi on omissa osioissaan
   (`Lisäominaisuus`-otsikot), ja yhteisissä funktioissa se on vain `files`-haaroina. Kansion
   tapahtumakäsittelijät kytketään vasta, kun kansiokeikka ladataan. Tavallinen keikka ei tee
@@ -187,17 +190,25 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Kohdan 9 jälkeiset numeroimattomat osiot (ongelmat, päivitys, tekoälyavustaja, kansioliite)
   ovat suljettuja `<details class="osio">`-lohkoja, jotta alkuun pääsee ilman ähkyä. #-linkki
   osion sisään (myös `ohje.html`:stä ja `uusi.html`:stä) avaa osion; tulostus avaa kaikki.
-- `soitin/ohje.html`: käyttöopas (keikan luominen, biisilista, linkit, soittimen napit, iPhone).
+- `soitin/ohje.html`: käyttöopas (keikan luominen, settilista, linkit, soittimen napit, iPhone).
   Järjestys on käyttäjän luonnoksesta. Johdannossa ei ole koko sivun sisällystä, vain virke, joka
   linkittää osat (keikan luominen, soittimen käyttö) ja mainitsee käyttöönoton ja kansioliitteen.
   Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkageneraattorissa… /
   …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
   Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
-  linkki → biisilista ja DAW-markerit → tallennus), sitten *Biisilistan muut ominaisuudet*
-  (avoin osio, jonka sisällä suljettuina setit, ei-biisit ja rivin muut muodot), avoimina
-  *Äänitiedoston muoto* ja *Linkin jakaminen*, ja viimeisenä suljettuna *Korjaus ja poisto*.
+  linkki → settilista ja DAW-markerit → *Uuden keikan tallentaminen ja linkin saaminen*). Niiden
+  jälkeen on käyttäjän pyytämä lisätaso, h3-osio *Valinnaiset ominaisuudet*, jonka alaosiot ovat
+  h4-tasoa: *Settilistan muut ominaisuudet* (avoin; sen sisällä suljettuina h5-tason setit,
+  ei-biisit ja rivin muut muodot), avoimina *Äänitiedoston muoto* ja *Linkin jakaminen*, ja
+  viimeisenä suljettuna *Aiemmin luodun keikan muokkaaminen tai poistaminen* (ei *korjaus*: sana
+  viittaa virheeseen). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla valinnaiset
+  ominaisuudet alaosioineen. Osion lopun sivuhuomautus suljettujen alaosioiden jälkeen
+  (Drive/Dropbox, settilistan alkuajat) on `p.muted.sivu`: sisennetty ja irti edellisestä, ettei se
+  näytä kuuluvan viimeiseen alaosioon.
   Muut harvemmin tarvittavat osiot ovat suljettuina `<details class="osio">`-lohkoina
-  (`details.osio.ala` = h4-tason alaosio, esim. Drive, Logic). Uudet osiot sijoitetaan
+  (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic, Setit; avattuna vasen viiva).
+  Ilman `.ala`-luokkaa suljettu osio on samantasoisten osioiden vertainen (esim. iPhone,
+  muokkaaminen ja poistaminen). Uudet osiot sijoitetaan
   loppupäähän, tarvittaessa suljettuina. #-linkki
   suljetun osion sisään avaa sen ja sen ympäröivät osiot; tulostus avaa kaikki. Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
   esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
