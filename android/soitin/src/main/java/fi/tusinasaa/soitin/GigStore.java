@@ -25,6 +25,7 @@ final class GigStore {
     private static final String PREFS = "keikat";
     private static final String KEY_GIGS = "gigs";
     private static final String KEY_LAST = "last";
+    private static final String KEY_PLAYED = "played";
     private static final String KEY_SORT = "sort";
 
     private final SharedPreferences prefs;
@@ -90,10 +91,13 @@ final class GigStore {
         if (id.equals(last())) {
             edit.remove(KEY_LAST);
         }
+        if (id.equals(lastPlayed())) {
+            edit.remove(KEY_PLAYED);
+        }
         edit.apply();
     }
 
-    /** Viimeksi auki ollut keikka. Sovellus avaa sen käynnistyessään. */
+    /** Viimeksi latautunut keikka. Käynnistyksen varakeino, jos mitään ei ole soitettu. */
     @Nullable
     synchronized String last() {
         return prefs.getString(KEY_LAST, null);
@@ -101,6 +105,24 @@ final class GigStore {
 
     synchronized void setLast(@NonNull String id) {
         prefs.edit().putString(KEY_LAST, id).apply();
+    }
+
+    /** Viimeisin keikka, jossa soitto on alkanut. Sovellus avaa sen käynnistyessään. */
+    @Nullable
+    synchronized String lastPlayed() {
+        return prefs.getString(KEY_PLAYED, null);
+    }
+
+    /** Vain listalla oleva keikka kelpaa, ettei poistettu keikka palaa käynnistykseen. */
+    synchronized void setLastPlayed(@NonNull String id) {
+        JSONArray list = gigs();
+        for (int i = 0; i < list.length(); i++) {
+            JSONObject o = list.optJSONObject(i);
+            if (o != null && id.equals(o.optString("id"))) {
+                prefs.edit().putString(KEY_PLAYED, id).apply();
+                return;
+            }
+        }
     }
 
     @NonNull
@@ -112,7 +134,7 @@ final class GigStore {
         prefs.edit().putString(KEY_SORT, sort).apply();
     }
 
-    /** Pöydät puhtaiksi: kaikki keikat, viimeksi avattu ja järjestys. */
+    /** Pöydät puhtaiksi: kaikki keikat, viimeksi avattu ja soitettu sekä järjestys. */
     synchronized void clear() {
         prefs.edit().clear().apply();
     }
