@@ -4,14 +4,17 @@
 // Sivuun itseensä ei tarvita muutoksia: kuunnellaan audio-elementin tapahtumia
 // ja #now-rivin vaihtumista.
 //
-// Lisäksi sivun oikeaan yläkulmaan tulevat päivitys- ja sulkemisnappi, koska
-// sovelluksessa ei ole selaimen omia. Verkkoversiossa niitä ei ole, koska tämä
-// tiedosto kulkee vain sovelluksen mukana.
+// Lisäksi sivun oikeaan yläkulmaan tulevat Omat keikkani-, päivitys- ja
+// sulkemisnappi, koska sovelluksessa ei ole selaimen omia. Verkkoversiossa niitä
+// ei ole, koska tämä tiedosto kulkee vain sovelluksen mukana.
+//
+// Kun keikka on latautunut, sen otsikko, lisätieto ja biisien yhteiskesto
+// ilmoitetaan sovellukselle Omia keikkojani varten.
 (function () {
   "use strict";
   if (!window.SoitinApp) return;
   // Uudelleensyöttö (esim. onPageFinished toistamiseen) vain lähettää tilan uudestaan.
-  if (window.__soitinSilta) { window.__soitinSilta(true); return; }
+  if (window.__soitinSilta) { window.__soitinSilta(true); window.__soitinKeikka(true); return; }
 
   var last = null;
 
@@ -39,6 +42,43 @@
   }
   window.__soitinSilta = report;
 
+  // Biisien yhteiskesto luetaan kappalelistan kestosarakkeesta (mm:ss tai
+  // hh:mm:ss). Ei-biisirivit (li.pre) ja setin otsikot (li.set) eivät ole biisejä.
+  // Viimeisen biisin kesto selviää vasta, kun äänitiedoston pituus on tiedossa;
+  // siihen asti kesto on -1 (ei tiedossa).
+  function songsLength() {
+    var cells = document.querySelectorAll("#list > li:not(.pre):not(.set) .st");
+    if (!cells.length) return -1;
+    var sum = 0;
+    for (var i = 0; i < cells.length; i++) {
+      var p = cells[i].textContent.trim().split(":");
+      if (p.length < 2 || p.some(function (x) { return !/^\d+$/.test(x); })) return -1;
+      var t = 0;
+      for (var j = 0; j < p.length; j++) t = t * 60 + +p[j];
+      sum += t;
+    }
+    return sum;
+  }
+
+  // Keikka on latautunut, kun #app on näkyvissä. Virheellinen tunnus jättää sen
+  // piiloon, jolloin keikkaa ei ilmoiteta eikä se päädy listaan.
+  var lastGig = null;
+  function reportGig(force) {
+    var app = document.getElementById("app");
+    if (!app || app.hidden) return;
+    var h1 = document.getElementById("title");
+    var sub = document.getElementById("sub");
+    var title = h1 ? h1.textContent.trim() : "";
+    var subText = sub && !sub.hidden ? sub.textContent.trim() : "";
+    var len = songsLength();
+    var key = title + "\n" + subText + "\n" + len;
+    if (key === lastGig && force !== true) return;
+    lastGig = key;
+    try { window.SoitinApp.gig(title, subText, len); } catch (e) { /* silta poissa */ }
+  }
+  window.__soitinKeikka = reportGig;
+
+  var ICON_LIST = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   var ICON_RELOAD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 3.5V10h-6.5z"/></svg>';
   var ICON_CLOSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
@@ -59,7 +99,7 @@
     var css = document.createElement("style");
     css.textContent =
       "main{position:relative}" +
-      "main>h1{padding-right:88px}" +
+      "main>h1{padding-right:136px}" +
       "#soitin-app{position:absolute;top:20px;right:5px;display:flex;gap:4px}" +
       "#soitin-app button{width:44px;height:44px;border-radius:50%;" +
       "display:grid;place-items:center;color:var(--muted)}" +
@@ -68,6 +108,9 @@
 
     var bar = document.createElement("div");
     bar.id = "soitin-app";
+    bar.appendChild(appButton("Omat keikkani", ICON_LIST, function () {
+      try { window.SoitinApp.list(); } catch (e) { /* silta poissa */ }
+    }));
     bar.appendChild(appButton("Lataa uudelleen", ICON_RELOAD, function () {
       location.reload();
     }));
@@ -107,7 +150,15 @@
     var title = document.querySelector("title");
     if (now) mo.observe(now, opts);
     if (title) mo.observe(title, opts);
+
+    // Keikan tiedot: #app tulee näkyviin, lista täyttyy ja kestot päivittyvät.
+    var go = new MutationObserver(function () { reportGig(); });
+    var app = document.getElementById("app");
+    var list = document.getElementById("list");
+    if (app) go.observe(app, { attributes: true, attributeFilter: ["hidden"] });
+    if (list) go.observe(list, opts);
   }
 
   report(true);
+  reportGig(true);
 })();

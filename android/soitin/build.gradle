@@ -2,21 +2,23 @@ plugins {
     id 'com.android.application'
 }
 
-// Keikan tunnus luetaan Gradle-ominaisuudesta eikä kirjoiteta repoon: tunnuksella saa
-// workerista keikan otsikon, äänilinkin ja biisilistan, ja repo on julkinen.
-// Lisää Macin tiedostoon ~/.gradle/gradle.properties rivi:  soitin.tunnus=<tunnus>
+// Valinnainen oletuskeikka. Sovellus kysyy tunnuksen itse (Omat keikkani), mutta jos
+// rakennusvaiheessa on annettu tunnus, ensimmäinen käynnistys avaa suoraan sen keikan.
+// Tunnusta ei kirjoiteta repoon: tunnuksella saa workerista keikan otsikon, äänilinkin ja
+// biisilistan, ja repo on julkinen. Lisää halutessasi Macin tiedostoon
+// ~/.gradle/gradle.properties rivi:  soitin.tunnus=<tunnus>
+// Tunnus menee vain debug-rakennukseen. Release on julkisesti jaettava APK
+// (soitin/soitin.apk), eikä siihen tule tunnusta, vaikka ominaisuus olisi asetettu.
 def soitinTunnus = (findProperty('soitin.tunnus') ?: '').toString().trim().toLowerCase()
 boolean tunnusKelpaa = soitinTunnus ==~ /[a-z0-9]{4,32}/
 
-// Ilman tunnusta sovellus avaisi vain virheilmoituksen, joten estetään sellaisen APK:n
-// rakentaminen. Muihin moduuleihin tämä ei vaikuta.
 gradle.taskGraph.whenReady { graph ->
     boolean apkRequested = graph.allTasks.any {
         it.project == project && it.name ==~ /(assemble|install|package|bundle).*/
     }
-    if (apkRequested && !tunnusKelpaa) {
-        throw new GradleException("Puuttuu tai virheellinen Gradle-ominaisuus 'soitin.tunnus' " +
-                "(4–32 merkkiä a–z ja 0–9). Lisää se tiedostoon ~/.gradle/gradle.properties.")
+    if (apkRequested && soitinTunnus && !tunnusKelpaa) {
+        throw new GradleException("Virheellinen Gradle-ominaisuus 'soitin.tunnus' " +
+                "(4–32 merkkiä a–z ja 0–9). Korjaa tai poista se tiedostosta ~/.gradle/gradle.properties.")
     }
 }
 
@@ -28,9 +30,21 @@ android {
         applicationId 'fi.tusinasaa.soitin'
         minSdk 24
         targetSdk 34
-        versionCode 2
-        versionName '0.2'
-        buildConfigField 'String', 'GIG_KEY', '"' + (tunnusKelpaa ? soitinTunnus : '') + '"'
+        versionCode 3
+        versionName '0.3'
+    }
+
+    // Kaikki versiot (Macin debug-rakennus, julkinen APK) allekirjoitetaan samalla
+    // avaimella, jotta ne asentuvat toistensa päälle ja Omat keikkani säilyy päivityksessä.
+    // Avain on tarkoituksella repossa: se ei suojaa mitään salaista, vaan vain yhdistää
+    // versiot. Älä vaihda sitä, tai päivitys vaatii sovelluksen poistamisen ensin.
+    signingConfigs {
+        julkinen {
+            storeFile file('julkinen.jks')
+            storePassword 'soitin'
+            keyAlias 'soitin'
+            keyPassword 'soitin'
+        }
     }
 
     buildFeatures {
@@ -38,8 +52,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.julkinen
+            buildConfigField 'String', 'GIG_KEY', '"' + (tunnusKelpaa ? soitinTunnus : '') + '"'
+        }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.julkinen
+            buildConfigField 'String', 'GIG_KEY', '""'
         }
     }
 
