@@ -7,14 +7,16 @@
 <meta name="color-scheme" content="light dark">
 <title>Keikkasoitin – käyttöopas</title>
 <!--
-  Keikkasoittimen käyttöopas: uusi keikka apusivulla (uusi.html), linkit ja
-  soittimen käyttö (index.html). Kertaluonteinen käyttöönotto omalle
+  Keikkasoittimen käyttöopas: keikan luominen Keikkageneraattorilla (uusi.html),
+  linkit ja soittimen käyttö (index.html). Kertaluonteinen käyttöönotto omalle
   Cloudflare-tilille: kayttoonotto.html. Kuvakaappaukset ovat keksityllä
   esimerkkikeikalla; oikeita keikkatietoja ei tallenneta repoon.
 
-  Järjestys: ensin lyhyt esikatselu (mitä annetaan, mitä saadaan), sitten
-  apusivun kentät ylhäältä alas, sitten tarvittaessa luettavat osiot
-  suljettuina (details.osio). #-linkki suljetun osion sisään avaa sen.
+  Järjestys: johdannon virke linkittää osat (ei koko sivun sisällystä). Keikan
+  luominen alkaa esikatselulla (mitä Keikkageneraattorissa annetaan ja saadaan),
+  jonka jälkeen tulee vain tämän osan sisällys ja Keikkageneraattorin kentät
+  ylhäältä alas. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
+  #-linkki suljetun osion sisään avaa sen.
 -->
 <style>
   :root {
@@ -35,7 +37,7 @@
   }
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
-  /* h2 = osa (Uusi keikka, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio. */
+  /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio. */
   h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
   h3 { font-size: 1.15rem; line-height: 1.3; margin: 40px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
   h4 { font-size: 1rem; margin: 22px 0 8px; }
@@ -50,23 +52,33 @@
   code.nw { white-space: nowrap; }
   pre { background: var(--soft); border-radius: 8px; padding: 12px 14px; margin: 8px 0 14px; white-space: pre-wrap; line-height: 1.5; }
   kbd { font-family: inherit; font-size: 0.85em; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
-  .lead { color: var(--muted); font-size: 1.02rem; margin-bottom: 20px; }
+  .lead { color: var(--muted); font-size: 1.02rem; margin: 14px 0 14px; }
   .muted { color: var(--muted); font-size: 0.93rem; }
   .ui { font-weight: 600; }
+  /* Johdannon ja ensimmäisen osan alun kappaleet väljemmin. */
+  .intro { margin-bottom: 20px; }
 
-  /* Esikatselu sivun alussa: mitä apusivulle annetaan ja mitä siltä saadaan. */
-  .ydin { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px; padding: 16px 20px 6px; }
-  .ydin .otsake { font-weight: 700; margin: 0 0 6px; }
-  .ydin ul { margin-bottom: 10px; }
-  .ydin .koko { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
-  @media (max-width: 560px) { .ydin { grid-template-columns: 1fr; } }
+  /* Keikan luomisen esikatselu: mitä Keikkageneraattorissa annetaan (vasen)
+     ja saadaan (oikea). Palstojen välissä haalea pystyviiva. */
+  .ydin { display: grid; grid-template-columns: 1fr 1fr; padding: 18px 22px 8px; margin: 24px 0 28px; }
+  .ydin .johdin { grid-column: 1 / -1; font-weight: 700; margin: 0 0 12px; }
+  .ydin > div { padding: 0 22px 0 0; }
+  .ydin > div + div { padding: 0 0 0 22px; border-left: 1px solid var(--line); }
+  .ydin .otsake { font-weight: 700; margin: 0 0 8px; }
+  .ydin ul { margin-bottom: 12px; }
+  .ydin li { margin-bottom: 8px; }
+  .ydin .koko { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
+  @media (max-width: 560px) {
+    .ydin { grid-template-columns: 1fr; }
+    .ydin > div, .ydin > div + div { padding: 0; border-left: 0; }
+    .ydin > div + div { border-top: 1px solid var(--line); padding-top: 12px; }
+  }
 
-  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 16px 0 8px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
-  nav.toc p { margin: 0 0 4px; font-weight: 600; }
-  nav.toc ul { margin: 0 0 10px; padding-left: 1.2em; }
-  nav.toc li { margin: 0 0 3px; }
-  @media (max-width: 560px) { nav.toc { grid-template-columns: 1fr; } }
+  /* Keikan luomisen osioiden sisällys. */
+  nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 12px 0 8px; }
+  nav.toc ul { margin: 0 0 8px; padding-left: 1.2em; columns: 2; column-gap: 32px; }
+  nav.toc li { margin: 0 0 4px; break-inside: avoid; }
+  @media (max-width: 560px) { nav.toc ul { columns: 1; } }
 
   .box { border-radius: 10px; padding: 12px 16px; margin: 16px 0; background: var(--soft); }
   .box p:last-child { margin-bottom: 0; }
@@ -116,12 +128,22 @@
 <main>
 
 <h1>Keikkasoitin – käyttöopas</h1>
-<p class="lead">Uuden keikan teko apusivulla, linkit ja soittimen käyttö. Kerran tehtävä asennus
-  omalle Cloudflare-tilille on omalla sivullaan: <a href="kayttoonotto.html">käyttöönotto</a>.</p>
+<p class="lead">Tässä ohjeessa käydään läpi ensin <a href="#uusi">keikan luominen</a> ja sitten
+  <a href="#soitin">soittimen käyttö</a>.</p>
+<p class="muted intro">Kerran tehtävä asennus omalle Cloudflare-tilille on omalla sivullaan:
+  <a href="kayttoonotto.html">käyttöönotto</a>. Lopussa on <a href="#kansio">liite</a>
+  lisäominaisuudesta, jossa keikka kootaan kansiosta.</p>
+
+<!-- ================================================================ -->
+
+<h2 id="uusi">Keikan luominen</h2>
+<p>Ennen kuin soitinta voi käyttää, pitää luoda keikka. Se tehdään omalla nettisivullaan, jonka
+  nimi on <b>Keikkageneraattori</b>.</p>
 
 <div class="box ydin">
+  <p class="johdin">Keikkageneraattorissa…</p>
   <div>
-    <p class="otsake">Annat apusivulle</p>
+    <p class="otsake">…annat</p>
     <ul>
       <li>keikan nimen</li>
       <li><b>linkin äänitiedostoon</b> Google Drivessa tai Dropboxissa</li>
@@ -130,48 +152,33 @@
     </ul>
   </div>
   <div>
-    <p class="otsake">Saat</p>
+    <p class="otsake">…saat</p>
     <ul>
       <li><b>keikan oman soittimen linkin</b>, jonka voit jakaa</li>
       <li><b>komennon</b>, jonka liität Macin Terminaliin. Komento tallentaa keikan, ja vasta sen
         jälkeen linkki toimii.</li>
     </ul>
   </div>
-  <p class="muted koko">Apusivu ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat komennon
-    Terminalissa.</p>
+  <p class="muted koko">Keikkageneraattori ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat
+    komennon Terminalissa.</p>
 </div>
 
-<nav class="toc" aria-label="Sisällys">
-  <div>
-    <p><a href="#uusi">Uusi keikka</a></p>
-    <ul>
-      <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
-      <li><a href="#tiedosto">Äänitiedoston linkki</a></li>
-      <li><a href="#biisilista">Biisilista</a></li>
-      <li><a href="#tallennus">Tallennus ja linkki</a></li>
-      <li><a href="#merkinnat">Setit, intro ja muut merkinnät</a></li>
-      <li><a href="#aani">Äänitiedoston muoto</a></li>
-      <li><a href="#korjaus">Korjaus ja poisto</a></li>
-      <li><a href="#linkit">Linkin jakaminen</a></li>
-    </ul>
-  </div>
-  <div>
-    <p><a href="#soitin">Soittimen käyttö</a></p>
-    <ul>
-      <li><a href="#iphone">iPhone</a></li>
-      <li><a href="#ongelmat">Ongelmatilanteet</a></li>
-    </ul>
-    <p><a href="#kansio">Liite: keikka kansiosta</a></p>
-  </div>
+<p>Seuraavaksi Keikkageneraattori käydään läpi kohta kohdalta, ylhäältä alas.</p>
+<nav class="toc" aria-label="Keikan luominen">
+  <ul>
+    <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
+    <li><a href="#tiedosto">Äänitiedoston linkki</a></li>
+    <li><a href="#biisilista">Biisilista</a></li>
+    <li><a href="#tallennus">Tallennus ja linkki</a></li>
+    <li><a href="#merkinnat">Biisilistan muut ominaisuudet</a></li>
+    <li><a href="#aani">Äänitiedoston muoto</a></li>
+    <li><a href="#linkit">Linkin jakaminen</a></li>
+    <li><a href="#korjaus">Korjaus ja poisto</a></li>
+  </ul>
 </nav>
 
-<!-- ================================================================ -->
-
-<h2 id="uusi">Uusi keikka</h2>
-<p>Apusivun kentät ylhäältä alas.</p>
-
 <h3 id="alku">Tunnus, otsikko ja lisätieto</h3>
-<p>Avaa apusivu kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
+<p>Avaa Keikkageneraattori kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
   <b>tunnus</b>, joka on arvottu valmiiksi. Siihen ei tarvitse koskea. Sitä tarvitaan vasta, kun vanhaa
   keikkaa korjataan (<a href="#korjaus">Korjaus ja poisto</a>).</p>
 <p><b>Otsikko</b> on keikan nimi. Se näkyy soittimessa ylimpänä ja selaimen välilehdellä, ja soitin
@@ -181,16 +188,16 @@
 
 <h3 id="tiedosto">Äänitiedoston linkki</h3>
 <p>Keikka on yksi äänitiedosto Google Drivessa tai Dropboxissa, jaettuna niin, että kuka tahansa
-  linkin saanut voi kuunnella sen. Liitä jakolinkki kenttään sellaisenaan: apusivu muuttaa sen
-  soitettavaan muotoon itse ja kertoo kentän alla, mitä teki.</p>
+  linkin saanut voi kuunnella sen. Liitä jakolinkki kenttään sellaisenaan: Keikkageneraattori
+  muuttaa sen soitettavaan muotoon itse ja kertoo kentän alla, mitä teki.</p>
 
 <details class="osio ala">
 <summary><h4 id="drive">Google Drive</h4></summary>
 <p>Tiedoston kohdalla <span class="ui">Jaa</span> → <i>Yleinen käyttöoikeus: Kaikki, joilla on
   linkki</i> → <span class="ui">Kopioi linkki</span>.</p>
 <p>Google ei anna soittaa Drive-tiedostoa suoraan toiselta sivustolta, joten soitin hakee sen
-  workerisi kautta. Apusivu tekee tämän itse, kun liität Drive-linkin. Workerin koodin pitää olla
-  päivitetty 14.10.2026 tai myöhemmin (<a href="kayttoonotto.html#paivitys">Workerin
+  workerisi kautta. Keikkageneraattori tekee tämän itse, kun liität Drive-linkin. Workerin koodin
+  pitää olla päivitetty 14.10.2026 tai myöhemmin (<a href="kayttoonotto.html#paivitys">Workerin
   päivitys</a>).</p>
 </details>
 
@@ -213,9 +220,9 @@
 11:20 Kolmas biisi</pre>
 
 <p id="markerit">Helpommin lista syntyy DAW:sta. Merkitse Logicissa tai Reaperissa biisien saumat
-  markereilla siihen projektiin, josta keikan äänitiedosto on tehty, ja kopioi markerilista apusivulle
-  sellaisenaan; apusivu tunnistaa muodon itse. Markerin nimi on kappaleen nimi, ja nimeämätön markeri
-  on ei-biisi (esim. intro tai spiikki). Äänitiedoston pitää alkaa aikajanan alusta. Myös Audacityn
+  markereilla siihen projektiin, josta keikan äänitiedosto on tehty, ja kopioi markerilista
+  Keikkageneraattoriin sellaisenaan; se tunnistaa muodon itse. Markerin nimi on kappaleen nimi, ja
+  nimeämätön markeri on ei-biisi (esim. intro tai spiikki). Äänitiedoston pitää alkaa aikajanan alusta. Myös Audacityn
   <i>Export Labels</i> -tiedoston sisällön voi liittää sellaisenaan.</p>
 
 <details class="osio ala">
@@ -235,13 +242,13 @@
     <span class="ui">Marker</span>) ja klikkaa jotain markeria. Paina Control-Option-R
     (<i>View → Show Event Position and Length as Time</i>), niin sijainnit näkyvät aikoina eivätkä
     tahteina. Sitten Cmd-A ja Cmd-C.</li>
-  <li><b>Liitä apusivun biisilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
+  <li><b>Liitä Keikkageneraattorin biisilistaan.</b> Kentän alle tulee valinta <i>Logic-projektin
     kuvanopeus</i>: valitse sama kuin Logicin <i>File → Project Settings → Synchronization →
     Frame Rate</i>. Valinta muistetaan seuraavalla kerralla. Logicin tunnin siirtymä (01:00:00:00)
     poistuu itsestään.</li>
 </ol>
-<p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos apusivu
-  valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
+<p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos
+  Keikkageneraattori valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
   <i>Display → General</i>) <i>Display Time As: With Bits</i>.</p>
 </details>
 
@@ -258,21 +265,21 @@
     <i>Minutes:Seconds</i>.</li>
   <li><b>Kopioi lista:</b> <i>Extensions → Marker utilities → MarkerList</i>. Ensimmäisellä kerralla
     oikea klikkaus listalla → <i>Export format…</i> → kirjoita <code>mp d</code>. Sitten oikea klikkaus
-    → <i>Export formatted marker list to clipboard</i> ja liitä apusivulle.</li>
+    → <i>Export formatted marker list to clipboard</i> ja liitä Keikkageneraattoriin.</li>
 </ol>
 </details>
 
-<p class="muted">Ajat saavat olla kokonaisia sekunteja tai tarkempia (<code>3:42.5</code>). Apusivu
-  tallentaa alkuajat sadasosasekunnin tarkkuudella (<code>3:42.50</code>), ja soitin hyppää
+<p class="muted">Ajat saavat olla kokonaisia sekunteja tai tarkempia (<code>3:42.5</code>).
+  Keikkageneraattori tallentaa alkuajat sadasosasekunnin tarkkuudella (<code>3:42.50</code>), ja soitin hyppää
   tallennettuun kohtaan sellaisenaan.</p>
 
 <h3 id="tallennus">Tallennus ja linkki</h3>
-<p>Kun kentät ovat kunnossa, apusivun alaosaan tulee kolme kohtaa. Jos jossain on virhe, apusivu
-  kertoo sen punaisella (biisilistassa rivin numeron kera) eikä tee komentoa ennen kuin se on
+<p>Kun kentät ovat kunnossa, Keikkageneraattorin alaosaan tulee kolme kohtaa. Jos jossain on virhe,
+  se näkyy punaisella (biisilistassa rivin numeron kera), eikä komentoa tule ennen kuin virhe on
   korjattu.</p>
 <ol>
-  <li><b>Tarkista lista:</b> näin apusivu luki biisilistan. Katso, että kappaleet ja setit ovat
-    oikein.</li>
+  <li><b>Tarkista lista:</b> näin Keikkageneraattori luki biisilistan. Katso, että kappaleet ja setit
+    ovat oikein.</li>
   <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
     <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.</li>
   <li><b>Kopioi linkki ja avaa se itse ensin</b> (<span class="ui">Avaa soitin</span>). Jos soitin
@@ -280,7 +287,7 @@
     Cloudflare jakaa tallennuksen maailmalle viiveellä.</li>
 </ol>
 
-<h3 id="merkinnat">Setit, intro ja muut merkinnät</h3>
+<h3 id="merkinnat">Biisilistan muut ominaisuudet</h3>
 <p>Pelkät ajat ja nimet riittävät yhden setin keikkaan, jossa jokainen raita on biisi. Merkinnöillä
   listaan saa setit sekä introt, spiikit ja muut raidat, jotka eivät ole biisejä. Esimerkki kahden
   setin keikasta:</p>
@@ -341,10 +348,7 @@
 </table>
 </details>
 
-<!-- Osiot, joita tarvitaan vain joskus: suljettuina. -->
-
-<details class="osio">
-<summary><h3 id="aani">Äänitiedoston muoto</h3></summary>
+<h3 id="aani">Äänitiedoston muoto</h3>
 <p>Soitin käyttää selaimen omaa äänitoistoa, joten tiedostomuoto ratkaisee, soiko keikka kuulijan
   laitteessa.</p>
 <ul>
@@ -355,22 +359,8 @@
   <li><b>FLAC, Ogg ja Opus</b>: tuki vaihtelee selaimen ja iPhonen version mukaan. Älä käytä niitä
     jaettavassa keikassa.</li>
 </ul>
-</details>
 
-<details class="osio">
-<summary><h3 id="korjaus">Korjaus ja poisto</h3></summary>
-<p><b>Korjaus:</b> liitä keikan linkki apusivun Tunnus-kenttään ja paina <span class="ui">Hae</span>.
-  Apusivu poimii linkistä keikan tunnuksen (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>);
-  pelkän tunnuksen voi myös kirjoittaa.
-  Keikan tiedot tulevat kenttiin. Korjaa, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
-<p><b>Äänitiedoston vaihto:</b> korjaa keikka uudella jakolinkillä.</p>
-<p><b>Poisto:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
-  KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
-  kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
-</details>
-
-<details class="osio">
-<summary><h3 id="linkit">Linkin jakaminen</h3></summary>
+<h3 id="linkit">Linkin jakaminen</h3>
 <ul>
   <li><b>Keikan linkki</b>: <code>https://ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kuka tahansa, jolla on linkki, voi kuunnella keikan. Linkki on siis avain; jaa se vain niille,
@@ -380,6 +370,17 @@
     kopioivat linkin suoraan kappaleeseen (<code>…@soitin.jotain/3</code>; useamman setin keikassa
     toisen setin kolmas kappale on <code>…/2/3</code>). Linkki avaa soittimen kappaleen alkuun.</li>
 </ul>
+
+<details class="osio">
+<summary><h3 id="korjaus">Korjaus ja poisto</h3></summary>
+<p><b>Korjaus:</b> liitä keikan linkki Keikkageneraattorin Tunnus-kenttään ja paina
+  <span class="ui">Hae</span>. Linkistä poimitaan keikan tunnus
+  (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>); pelkän tunnuksen voi myös kirjoittaa.
+  Keikan tiedot tulevat kenttiin. Korjaa, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
+<p><b>Äänitiedoston vaihto:</b> korjaa keikka uudella jakolinkillä.</p>
+<p><b>Poisto:</b> Cloudflaressa <a href="https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces">Workers
+  KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Jos haluat vain lopettaa
+  kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
 </details>
 
 <!-- ================================================================ -->
@@ -449,7 +450,7 @@
   <tr><td><i>Keikan tietoja ei saatu palvelimelta</i></td>
     <td>Workerin asetuksissa on vika. <a href="kayttoonotto.html#ongelmat">Käyttöönotto-ohje</a>.</td></tr>
   <tr><td><i>Kappalelistassa on virhe</i></td>
-    <td>Tallennetussa listassa on virheellinen aika. Hae keikka apusivulle, korjaa ja tallenna.</td></tr>
+    <td>Tallennetussa listassa on virheellinen aika. Hae keikka Keikkageneraattoriin, korjaa ja tallenna.</td></tr>
   <tr><td><i>Äänitiedoston lataaminen epäonnistui</i></td>
     <td>Jakolinkki on poistettu tai väärä, tai tiedostoa ei ole jaettu kaikille linkin saaneille.
       Tee jako uudelleen ja <a href="#korjaus">korjaa keikka</a>. Ilmoituksen alla oleva selitys
@@ -499,12 +500,12 @@
         Linkki on muotoa <code>dropbox.com/scl/fo/…</code>. Kansion pitää olla sen Dropbox-tilin
         oma, jolla avain tehtiin.</li>
     </ul></li>
-  <li><b>Avaa apusivun kirjanmerkki</b> ja paina sivun lopusta <span class="ui">Lisäominaisuus: keikka
-    kansiosta yhden tiedoston sijaan</span>. Täytä otsikko ja liitä kansion linkki. Takaisin
+  <li><b>Avaa Keikkageneraattorin kirjanmerkki</b> ja paina sivun lopusta
+    <span class="ui">Lisäominaisuus: keikka kansiosta yhden tiedoston sijaan</span>. Täytä otsikko ja liitä kansion linkki. Takaisin
     tavalliseen keikkaan pääsee kentän yläpuolelta.</li>
   <li><b>Kopioi komento → Terminal → Enter</b>, kuten tavallisessa keikassa.</li>
-  <li><b>Tarkista kappaleet:</b> paina apusivun yläosasta <span class="ui">Hae</span>; tunnus on
-    yhä Tunnus-kentässä. Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne
+  <li><b>Tarkista kappaleet:</b> paina Keikkageneraattorin yläosasta <span class="ui">Hae</span>;
+    tunnus on yhä Tunnus-kentässä. Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne
     kansiosta lukee. Jos järjestys on väärä, nimeä tiedostot uudelleen; uutta komentoa ei tarvita.</li>
   <li><b>Avaa linkki itse ensin.</b> Soitin mittaa avautuessaan jokaisen tiedoston keston
     (<i>Ladataan kappaleita… 3/12</i>), joten avaus kestää hetken pidempään kuin tavallisessa
@@ -536,7 +537,7 @@
   <tr><td>Soitin: <i>Kaikkia kappaleita ei saatu ladattua</i></td>
     <td>Lueteltuja tiedostoja ei voinut soittaa (ehkä vioittunut tai muoto, jota selain ei tunne).
       Muut soivat.</td></tr>
-  <tr><td>Apusivu: <i>Tämä on yksittäisen tiedoston linkki</i></td>
+  <tr><td>Keikkageneraattori: <i>Tämä on yksittäisen tiedoston linkki</i></td>
     <td>Kopioi kansion linkki, ei tiedoston.</td></tr>
 </table>
 </details>
