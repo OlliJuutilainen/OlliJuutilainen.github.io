@@ -162,11 +162,11 @@
   details.ala[open] > summary > h4, details.ala[open] > summary > h5 { margin: 0; }
   /* Viiva loppuu sisällön alareunaan, mutta osioiden väli säilyy: viivan
      piirtää taustagradientti, joka jättää viimeisen elementin alamarginaalin
-     ja paddingin (--ve) ulkopuolelleen. Reunus ei kutistu eikä marginaali
+     ja paddingin ulkopuolelleen, paitsi 4 px (--ve): viiva ylittää sisällön alareunan aavistuksen. Reunus ei kutistu eikä marginaali
      sulaudu seuraavan osion marginaaliin. */
-  details.ala[open] { --ve: 14px; border-left: 2px solid transparent; background:
+  details.ala[open] { --ve: 10px; border-left: 2px solid transparent; background:
     linear-gradient(var(--line), var(--line)) border-box 0 0 / 2px calc(100% - var(--ve)) no-repeat; }
-  details.ala[open]:has(> p.huom:last-child) { --ve: 22px; }
+  details.ala[open]:has(> p.huom:last-child) { --ve: 18px; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, ei lihavoituna,
      tekstin päävärillä (tummassa teemassa valkoinen), versaalina, ilman kursivointia ja
