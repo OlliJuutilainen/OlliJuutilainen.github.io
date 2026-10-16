@@ -281,5 +281,7 @@ soitto ei katkea. Sovelluksessa silta on `window.Keikat` (MainActivity), verkoss
 Linkki avaa keikan suoraan soittimeen, ja latautunut keikka tulee listaan itsestään. Pelkkä
 `soitin/` ilman tunnusta avaa listan. Sovelluksessa (`window.SoitinApp` olemassa) verkon nappia
 ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria ei tarvita:
-tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Jos muutat `keikat.html`:ää,
+tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
+avaa otsikon alle hennon tietoiskun (soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
+ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.

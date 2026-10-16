@@ -191,6 +191,35 @@
   .confirm p { margin: 0 0 10px; }
   .confirm .pill { margin-right: 8px; }
   .confirm .go { background: var(--err-fg); color: var(--err-bg); }
+
+  /* --- Tietoa (vain verkossa; sovelluksen lista ei avaa linkkejä) --- */
+  .info {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin: -8px 0 -8px -2px;
+    vertical-align: middle;
+    position: relative;
+    top: -3px;   /* isojen kirjainten keskelle */
+    border-radius: 50%;
+    color: var(--muted);
+  }
+  .info svg { width: 18px; height: 18px; }
+  .info[aria-expanded="true"] { color: var(--accent); }
+  .about {
+    margin: -8px 0 22px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--soft);
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .about p { margin: 0; }
+  .about p + p { margin-top: 6px; }
+  .about b { font-weight: 600; color: var(--fg); }
+  .about a { color: inherit; }
 </style>
 </head>
 <body>
@@ -203,7 +232,13 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <h1>Omat keikkani</h1>
+  <h1 id="otsikko">Omat keikkani</h1>
+  <div class="about" id="about" hidden>
+    <p><b>Soitin</b> soittaa äänitiedostoja suoraan Google Drivesta tai Dropboxista.
+      <a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.</p>
+    <p>Omia keikkoja voi luoda Macilla. Ensin tehdään kerran
+      <a href="../kayttoonotto.html" target="_blank" rel="noopener">käyttöönotto</a> (noin puoli tuntia).</p>
+  </div>
 
   <form class="open-form" id="form" autocomplete="off">
     <label for="key">Keikan tunnus</label>
@@ -250,6 +285,20 @@
   // Selaimessa ei ole sovelluksen sulkemista, ja lista on vain tämän selaimen.
   if (web) {
     $("close").hidden = true;
+    // Tietoa-nappi otsikon perään. Linkit avautuvat uuteen välilehteen, ettei soitto katkea.
+    var info = document.createElement("button");
+    info.type = "button";
+    info.className = "info";
+    info.setAttribute("aria-label", "Tietoa soittimesta");
+    info.setAttribute("aria-controls", "about");
+    info.setAttribute("aria-expanded", "false");
+    info.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 10.75v6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1"/></svg>';
+    info.addEventListener("click", function () {
+      var open = $("about").hidden;
+      $("about").hidden = !open;
+      info.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    $("otsikko").appendChild(info);
     $("empty").textContent = "Tähän tulevat keikat, jotka olet avannut tässä selaimessa.";
     $("confirm-text").textContent = "Poistetaanko kaikki keikat listalta?";
   }
