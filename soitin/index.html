@@ -267,7 +267,9 @@
      asennossa; valinnan kertovat nupin paikka ja tekstien himmennys. */
   .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* Janakytkimen alla on pienoisjana. */
+  /* Janakytkimen alla on pienoisjana, hieman alempana kuin rivin väli
+     antaisi (kohti setin kytkimen stop-merkin keskikohtaa). Siirto on
+     top-arvona, ettei rivi kasva. */
   .minijana {
     grid-row: 2;
     grid-column: 1 / -1;
@@ -275,12 +277,49 @@
     width: 27px;
     height: 6px;
     margin-top: 1px;
+    position: relative;
+    top: 1.5px;
     fill: currentColor;
     stroke-width: 2;
     stroke-linecap: round;
   }
   .minijana .bg { stroke: var(--dim); }
   .minijana .fg { stroke: currentColor; }
+
+  /* Natsa janakytkimen keikka-sanan vasemmalla puolella piilottaa kytkimet.
+     Rako sanaan (18 px) on selvästi kytkimen ja tekstin väliä (10 px)
+     suurempi. Natsa on keikka-puolen sisällä, jotta se pysyy sanan
+     vieressä tekstin leveydestä riippumatta. Negatiivinen vasen marginaali
+     (leveys + rako) pitää sen osuuden puolen leveydestä nollana, ettei
+     kytkin siirry. Suljettuna vain natsa näkyy samalla paikalla, ja se
+     kääntyy osoittamaan oikealle (▸). */
+  .fold {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin: 0 18px 0 -31px;
+    color: var(--muted);
+  }
+  .fold::before {
+    content: "";
+    position: absolute;
+    inset: -8px -8px;
+  }
+  .fold svg {
+    width: 13px;
+    height: 6px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.15s;
+  }
+  .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .opts.kiinni .fold svg { transform: rotate(-90deg); }
+  .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
+  .opts.kiinni .fold { visibility: visible; }
+  .opts.kiinni .minijana, .opts.kiinni .stopmark { display: none; }
 
   /* Setin kytkimen alla on stop-merkki, johon setti-tekstistä kaartuu
      nuoli. Nuoli on tekstin sisällä, joten se himmenee tekstin mukana;
@@ -454,9 +493,9 @@
   </section>
 
   <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
-  <div class="opts">
+  <div class="opts" id="opts">
     <div class="sw" id="scaleopt">
-      <span class="side" data-on="0">keikka</span>
+      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 13 6" aria-hidden="true"><path d="M1 1l5.5 4 5.5-4"/></svg></button>keikka</span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
       <svg class="minijana" viewBox="0 0 27 6" aria-hidden="true"><path class="bg" d="M1 3h25"/><path class="fg" d="M1 3h8"/><circle cx="9" cy="3" r="3"/></svg>
@@ -501,7 +540,7 @@
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
     fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
     play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
-    list: $("list"), setopt: $("setopt"), setonly: $("setonly"), songscale: $("songscale"),
+    list: $("list"), setopt: $("setopt"), opts: $("opts"), fold: $("fold"), setonly: $("setonly"), songscale: $("songscale"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
   };
 
@@ -1275,6 +1314,23 @@
     renderTicks();
     render();
   });
+  // Natsa piilottaa kytkimet; valinta muistetaan laitteella.
+  function setFold(shut) {
+    els.opts.classList.toggle("kiinni", shut);
+    els.fold.setAttribute("aria-expanded", String(!shut));
+    els.fold.setAttribute("aria-label", shut ? "Näytä kytkimet" : "Piilota kytkimet");
+  }
+  try { setFold(localStorage.getItem("soitin-kytkimet") === "kiinni"); } catch (e) {}
+  els.fold.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var shut = !els.opts.classList.contains("kiinni");
+    setFold(shut);
+    try {
+      if (shut) localStorage.setItem("soitin-kytkimet", "kiinni");
+      else localStorage.removeItem("soitin-kytkimet");
+    } catch (e2) {}
+  });
+
   // Kytkimen viereinen teksti valitsee oman puolensa (ei vaihda puolta).
   document.querySelectorAll(".sw .side").forEach(function (s) {
     s.addEventListener("click", function () {
