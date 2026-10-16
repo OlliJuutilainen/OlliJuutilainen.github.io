@@ -320,6 +320,9 @@
   .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
   .opts.kiinni .fold { visibility: visible; }
   .opts.kiinni .minijana, .opts.kiinni .stopmark { display: none; }
+  /* Suljettuna lista nousee lähemmäs natsan riviä; natsa itse pysyy
+     paikallaan, jotta sen voi avata samasta kohdasta. */
+  .opts.kiinni + #list { margin-top: 12px; }
 
   /* Setin kytkimen alla on stop-merkki, johon setti-tekstistä kaartuu
      nuoli. Nuoli on tekstin sisällä, joten se himmenee tekstin mukana;
