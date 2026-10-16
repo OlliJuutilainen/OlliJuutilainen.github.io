@@ -153,8 +153,10 @@
   details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, lihavoituna ja
-     tekstin päävärillä (tummassa teemassa valkoinen), ei versaalina. */
-  details.huom > summary > h4 { font-size: 0.76rem; font-weight: 700; color: var(--fg); line-height: inherit; margin: 0; }
+     tekstin päävärillä (tummassa teemassa valkoinen), versaalina ja
+     harvennettuna kuten merkki. */
+  details.huom > summary > h4 { font-size: 0.76rem; font-weight: 700; color: var(--fg); line-height: inherit; margin: 0;
+    text-transform: uppercase; letter-spacing: 0.08em; }
   details.huom[open] > summary > h4 { margin-bottom: 6px; }
   details.huom p { margin-bottom: 8px; }
   details.huom p:last-child { margin-bottom: 0; }
