@@ -323,10 +323,10 @@
   }
   .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   /* Kahden kytkimen rivillä natsa on kytkinten välissä. Sen vasen reuna
-     (pyöreä viivanpää) on pause-symbolin vasemman seinämän kohdalla:
-     seinämä on 6.5 px akselin vasemmalla ja natsan reuna 3.1 px natsan
-     keskeltä vasemmalla, joten natsan keskikohta on 3.4 px akselin
-     vasemmalla. Pystysuunnassa 14 px on kytkinten keskilinja, +1 px ks. yllä.
+     (pyöreä viivanpää) on play-kolmion vasemman seinämän kohdalla:
+     seinämä on 5.42 px akselin vasemmalla (7/24 · 26 px − 13 px) ja
+     natsan reuna 3.1 px natsan keskeltä vasemmalla, joten natsan
+     keskikohta on 2.32 px akselin vasemmalla. Pystysuunnassa 14 px on kytkinten keskilinja, +1 px ks. yllä.
      Se on silti DOMissa keikka-puolen sisällä; puoli on staattinen, jotta
      sijainti lasketaan .optsista. z-index pitää kosketusalueen setin
      kytkimen keikka-puolen päällä. Yhden kytkimen keikassa natsa jää sanan
@@ -335,7 +335,7 @@
   .opts:has(#setopt:not([hidden])) #scaleopt .side[data-on="0"] { position: static; }
   .opts:has(#setopt:not([hidden])) .fold {
     position: absolute;
-    left: calc(50% - 3.4px);
+    left: calc(50% - 2.32px);
     top: 15px;
     margin: 0;
     transform: translate(-50%, -50%);
