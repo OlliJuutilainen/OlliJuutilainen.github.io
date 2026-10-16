@@ -210,7 +210,8 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   yläotsikko *Edistyneet käyttäjät* poistettiin, *Linkin jakaminen* siirtyi soittimen käyttöön
   (suljettuna iPhonen ja ongelmatilanteiden väliin), ja erillinen *Äänitiedoston muoto* korvattiin
   äänitiedoston linkin suljetulla alaosiolla *Toiston soljuvuuden optimointi* (ankkuri `#aani`;
-  tiedostomuodot ja Drive/Dropbox). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla
+  tiedostomuodot ja Drive/Dropbox). Se on muotoiltu kuten settilistan HUOM (`details.osio.huom`:
+HUOM-merkki otsikon edessä, pieni, sisennetty, ohut viiva vasemmalla), mutta suljettuna. Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla
   nämä kaksi suljettua osiota. Settilistan lopun lisähuomio (aikojen tarkkuus) on `p.huom`
   HUOM-merkinnällä: pieni, kapea ja sisennetty, ohut viiva vasemmalla, ettei se näytä kuuluvan
   viimeiseen alaosioon eikä raskauta pääraidetta.
