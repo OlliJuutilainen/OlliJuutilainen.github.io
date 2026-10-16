@@ -151,6 +151,9 @@
     font-size: 0.88em; }
   details.ala[open] > summary { margin-left: -16px; background: var(--bg); }
   details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
+  /* Avattuna otsikon ja sisällön väliin väljempi rako, jotta ohjeluettelo ei
+     liimaudu otsikkoon. */
+  details.ala[open] > summary > h4, details.ala[open] > summary > h5 { margin-bottom: 14px; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, lihavoituna ja
      tekstin päävärillä (tummassa teemassa valkoinen), versaalina ja
