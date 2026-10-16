@@ -141,10 +141,15 @@
   details.osio:not(.ala):not([open]) + details.osio:not(.ala) > summary > h3 { margin-top: 0; }
   details.ala:not([open]) + details.ala > summary > h4,
   details.ala:not([open]) + details.ala > summary > h5 { margin-top: 6px; }
-  /* Avattu alaosio (.ala, h4 tai h5): viiva vasemmassa reunuksessa näyttää,
-     mihin se loppuu. Ilman .ala-luokkaa suljettu osio on muiden samantasoisten
-     osioiden vertainen eikä edellisen osion alaosio. */
-  details.ala[open] { border-left: 2px solid var(--line); margin-left: -14px; padding: 0 0 2px 12px; }
+  /* Avattu alaosio (.ala, h4 tai h5): sisältö pienemmällä ja sisennettynä
+     otsikon tekstin linjaan, viiva laskeutuu kolmion alta ja näyttää, mihin
+     osio loppuu. Otsikko pysyy paikallaan (negatiivinen marginaali), ja sen
+     tausta peittää viivan otsikkorivin kohdalta. Ilman .ala-luokkaa suljettu
+     osio on muiden samantasoisten osioiden vertainen eikä edellisen osion
+     alaosio. */
+  details.ala[open] { border-left: 2px solid var(--line); margin-left: 4px; padding: 0 0 2px 10px;
+    font-size: 0.88em; }
+  details.ala[open] > summary { margin-left: -16px; background: var(--bg); }
   details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, lihavoituna ja
@@ -165,6 +170,7 @@
     details.osio > summary > h2::before, details.osio > summary > h3::before,
     details.osio > summary > h4::before, details.osio > summary > h5::before { content: none; }
     details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; }
+    details.ala[open] > summary { margin-left: 0; background: none; }
     .ydin .otsake::before { content: none; }
     .ydin .otsake::after { content: ":"; }
   }
@@ -299,7 +305,7 @@
     Synchronization → Frame Rate</i>) Keikkageneraattorin oletus eli 25 vai jokin muu arvo. Valinta
     muistetaan ensi kerralla.</li>
 </ol>
-<p class="muted">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos
+<p class="huom">Logic 10.8.0:ssa markerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos
   Keikkageneraattori valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
   <i>Display → General</i>) <i>Display Time As: With Bits</i>.</p>
 </details>
