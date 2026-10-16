@@ -6,9 +6,12 @@
 <meta name="color-scheme" content="light dark">
 <title>Omat keikkani</title>
 <!--
-  Sovelluksen Omat keikkani -näkymä. Tiedot ovat sovelluksen asetuksissa (GigStore), ja sivu
-  käyttää niitä MainActivityn Keikat-sillan kautta. Värit ja mitat ovat samat kuin
-  soitin/index.html:ssä, jotta näkymä tuntuu osalta soitinta.
+  Omat keikkani -näkymä, yhteinen Android-sovellukselle ja verkkosoittimelle. Sovellus
+  paketoi tämän tiedoston sellaisenaan (android/soitin/build.gradle, assets), ja tiedot ovat
+  sen asetuksissa (GigStore) MainActivityn Keikat-sillan takana. Verkossa soitin/index.html
+  näyttää sivun iframessa soittimen päällä, ja silta on sen __soitinLista selaimen
+  localStorageen. Värit ja mitat ovat samat kuin soitin/index.html:ssä, jotta näkymä tuntuu
+  osalta soitinta.
 -->
 <style>
   :root {
@@ -223,7 +226,7 @@
   <div class="reset">
     <button type="button" id="reset">Nollaa tallennetut tiedot</button>
     <div class="confirm" id="confirm" hidden>
-      <p>Poistetaanko kaikki keikat listalta? Myös soittimen omat asetukset ja välimuisti tyhjennetään.</p>
+      <p id="confirm-text">Poistetaanko kaikki keikat listalta? Myös soittimen omat asetukset ja välimuisti tyhjennetään.</p>
       <button type="button" class="pill go" id="reset-go">Nollaa</button>
       <button type="button" class="pill" id="reset-no">Peru</button>
     </div>
@@ -234,8 +237,22 @@
 (function () {
   "use strict";
 
+  // Sovelluksessa Keikat-silta, verkossa soittimen sivun silta. Suoraan avattuna
+  // (ei kumpaakaan) siirrytään soittimeen, joka näyttää listan.
+  var web = !window.Keikat;
   var app = window.Keikat;
+  if (web) {
+    try { app = window.parent !== window && window.parent.__soitinLista; } catch (e) { app = null; }
+    if (!app) { location.replace("../"); return; }
+  }
   var $ = function (id) { return document.getElementById(id); };
+
+  // Selaimessa ei ole sovelluksen sulkemista, ja lista on vain tämän selaimen.
+  if (web) {
+    $("close").hidden = true;
+    $("empty").textContent = "Tähän tulevat keikat, jotka olet avannut tässä selaimessa.";
+    $("confirm-text").textContent = "Poistetaanko kaikki keikat listalta?";
+  }
 
   // Sama muoto kuin soittimen HASH_RE (soitin/index.html) ilman #-merkkiä.
   var HASH_RE = /^[a-z0-9]{4,32}(?:@[a-z0-9-]{1,63}\.[a-z0-9-]{1,63})?(?:\/(?:\d+|x\d+)(?:\/(?:\d+|x\d+))?)?$/;

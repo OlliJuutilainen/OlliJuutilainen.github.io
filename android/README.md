@@ -137,12 +137,12 @@ Toiminta:
   nousee etualapalveluksi ja pitää prosessorin hereillä (herätyslukko, enintään 6 h).
 - Takaisin-painike soiton aikana vie sovelluksen taustalle. Tauolla se sulkee sovelluksen.
 - Oikeassa yläkulmassa on kolme nappia: ☰ avaa Omat keikkani, ⟳ lataa sivun uudelleen ja
-  × sulkee sovelluksen (myös kesken soiton). Napit lisää `silta.js`, joten verkkoversiossa
-  niitä ei ole.
+  × sulkee sovelluksen (myös kesken soiton). Napit lisää `silta.js`. Verkkoversiossa on vain
+  oma ☰-nappi (`soitin/index.html`), ja sen lista on selainkohtainen.
 - `src/main/assets/silta.js` syötetään sivulle, kun se on latautunut. Se kertoo sovellukselle,
   soiko ääni ja mikä kappale on menossa, sekä latautuneen keikan otsikon, lisätiedon ja
   biisien yhteiskeston. `soitin/index.html` ei itse tiedä sovelluksesta mitään.
-- Omat keikkani (`src/main/assets/keikat.html`, tiedot `GigStore`) on soittimen päällä omana
+- Omat keikkani (`soitin/lista/keikat.html`, tiedot `GigStore`) on soittimen päällä omana
   näkymänään, joten listan avaaminen ei katkaise soittoa. Takaisin-painike palaa soittimeen.
   Keikka tulee listaan vasta, kun se on latautunut; virheellinen tunnus ei tule. Lista
   järjestyy lisäyspäivän (uusin ensin), nimen (A–Ö) tai biisien yhteiskeston (pisin ensin)

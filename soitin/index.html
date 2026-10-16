@@ -405,6 +405,32 @@
     .copy:hover { color: var(--fg); }
   }
   .loading { color: var(--muted); margin: 0; }
+
+  /* Omat keikkani verkossa (sovelluksessa napit tuo silta.js). */
+  main.omat { position: relative; }
+  main.omat > h1 { padding-right: 48px; }
+  #omat {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+  }
+  #omat svg { width: 22px; height: 22px; }
+  #lista {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  html.lista, html.lista body { overflow: hidden; }
   .sr {
     position: absolute;
     width: 1px; height: 1px;
@@ -1046,6 +1072,7 @@
         if (c[0]) c[0].textContent = isFinite(c[1]) ? fmtLen(c[1], long) : "";
       });
     });
+    rememberGig();
   }
 
   // ---- Linkin kopiointi -------------------------------------------------
@@ -1341,6 +1368,141 @@
     set("seekto", function (d) { if (d && isFinite(d.seekTime)) seekTo(d.seekTime); });
   }
 
+  // ---- Omat keikkani (verkko) --------------------------------------------
+  // Sovelluksessa listan hoitaa Android-kääre (silta.js). Verkossa keikka, joka on
+  // latautunut, muistetaan vain tämän selaimen localStorageen; mitään ei lähetetä
+  // minnekään. Lista on sovelluksen kanssa yhteinen lista/keikat.html iframessa
+  // soittimen päällä, joten sen avaaminen ei katkaise soittoa.
+
+  var web = !window.SoitinApp;
+  var LIST_KEY = "soitin-keikat";
+  var listFrame = null;
+  var removedGigs = {};  // poistettu mutta yhä auki: ei palaa listalle ennen avaamista
+
+  function gigId() { return gigKey ? gigKey + (gigWorker ? "@" + gigWorker : "") : ""; }
+
+  function readGigs() {
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(LIST_KEY)); } catch (e) { /* ei tallennustilaa */ }
+    if (!d || typeof d !== "object") d = {};
+    if (!Array.isArray(d.gigs)) d.gigs = [];
+    return d;
+  }
+  function writeGigs(d) {
+    try { localStorage.setItem(LIST_KEY, JSON.stringify(d)); } catch (e) { /* ei tallennustilaa */ }
+  }
+
+  // Biisien (ei ei-biisien) yhteiskesto sekunteina; -1, jos se ei ole vielä tiedossa.
+  function songsLength() {
+    var sum = 0, any = false;
+    for (var i = 0; i < tracks.length; i++) {
+      if (isExtra(i)) continue;
+      var len = trackEnd(i) - tracks[i].start;
+      if (!isFinite(len)) return -1;
+      sum += len;
+      any = true;
+    }
+    return any ? Math.round(sum) : -1;
+  }
+
+  // Lisäyspäivä on ensimmäisen latautumisen hetki. Otsikko, lisätieto ja kesto
+  // päivittyvät sellaisiksi kuin soitin ne viimeksi näytti.
+  function rememberGig() {
+    var id = gigId();
+    if (!web || !gig || !id || removedGigs[id]) return;
+    var d = readGigs(), g = null;
+    for (var k = 0; k < d.gigs.length; k++) {
+      if (d.gigs[k] && d.gigs[k].id === id) { g = d.gigs[k]; break; }
+    }
+    if (!g) {
+      g = { id: id, added: Date.now(), len: -1 };
+      d.gigs.push(g);
+    }
+    g.title = gig.title;
+    g.sub = gig.sub || "";
+    var len = songsLength();
+    if (len >= 0) g.len = len;
+    writeGigs(d);
+  }
+
+  function showList() {
+    if (!listFrame) {
+      listFrame = document.createElement("iframe");
+      listFrame.id = "lista";
+      listFrame.title = "Omat keikkani";
+      listFrame.src = "lista/keikat.html";
+      document.body.appendChild(listFrame);
+    } else {
+      try { listFrame.contentWindow.__paivita(); } catch (e) { /* lataa vielä */ }
+    }
+    listFrame.hidden = false;
+    document.documentElement.classList.add("lista");
+    document.querySelector("main").inert = true;
+    listFrame.focus();
+  }
+  function hideList() {
+    if (!listFrame) return;
+    listFrame.hidden = true;
+    document.documentElement.classList.remove("lista");
+    document.querySelector("main").inert = false;
+    var b = $("omat");
+    if (b) b.focus();
+  }
+
+  if (web) {
+    // Sama silta kuin sovelluksen Keikat (MainActivity.ListBridge).
+    window.__soitinLista = {
+      data: function () {
+        var d = readGigs();
+        return JSON.stringify({ gigs: d.gigs, sort: d.sort || "added", current: gig ? gigId() : "" });
+      },
+      open: function (h) {
+        var m = HASH_RE.exec("#" + h);
+        if (!m) return false;
+        var id = m[1].toLowerCase() + (m[2] ? "@" + m[2].toLowerCase() : "");
+        if (removedGigs[id]) {
+          delete removedGigs[id];
+          if (id === gigId()) rememberGig();
+        }
+        hideList();
+        // Eri keikka ladataan alusta ja kappale vaihdetaan hashchangessa.
+        if (location.hash.toLowerCase() !== "#" + h.toLowerCase()) location.hash = h;
+        return true;
+      },
+      remove: function (id) {
+        var d = readGigs();
+        d.gigs = d.gigs.filter(function (g) { return g && g.id !== id; });
+        writeGigs(d);
+        removedGigs[id] = true;
+      },
+      sort: function (s) {
+        if (!/^-?(added|title|len)$/.test(s)) return;
+        var d = readGigs();
+        d.sort = s;
+        writeGigs(d);
+      },
+      clear: function () {
+        try { localStorage.removeItem(LIST_KEY); } catch (e) { /* ei tallennustilaa */ }
+        removedGigs = {};
+        if (gig) removedGigs[gigId()] = true;
+        showList();
+      },
+      back: function () { if (gig) hideList(); },
+      close: function () {}
+    };
+
+    var omat = document.createElement("button");
+    omat.type = "button";
+    omat.id = "omat";
+    omat.setAttribute("aria-label", "Omat keikkani");
+    omat.title = "Omat keikkani";
+    omat.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    omat.addEventListener("click", showList);
+    var mainEl = document.querySelector("main");
+    mainEl.classList.add("omat");
+    mainEl.insertBefore(omat, mainEl.firstChild);
+  }
+
   // ---- Käynnistys -------------------------------------------------------
 
   function fail(msg, detail) {
@@ -1511,7 +1673,11 @@
 
   var gigApi = API;
   var hm = HASH_RE.exec(location.hash);
-  if (!hm) {
+  if (!hm && web) {
+    // Pelkkä soitin/ ilman tunnusta: Omat keikkani, jossa tunnuksen voi kirjoittaa.
+    $("loading").hidden = true;
+    showList();
+  } else if (!hm) {
     fail("Linkistä puuttuu keikan tunnus.",
       "Tarkista, että linkki on kopioitu kokonaan, myös #-merkin jälkeinen osa.");
   } else {
