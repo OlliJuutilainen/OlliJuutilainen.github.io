@@ -146,6 +146,12 @@
      osioiden vertainen eikä edellisen osion alaosio. */
   details.ala[open] { border-left: 2px solid var(--line); margin-left: -14px; padding: 0 0 2px 12px; }
   details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
+  /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, otsikko
+     HUOM-merkin perässä tekstin kokoisena. */
+  details.huom > summary > h4 { font-size: inherit; font-weight: 400; line-height: inherit; margin: 0; }
+  details.huom[open] > summary > h4 { margin-bottom: 6px; }
+  details.huom p { margin-bottom: 8px; }
+  details.huom p:last-child { margin-bottom: 0; }
 
   @media print {
     body { font-size: 11pt; background: #fff; color: #000; }
@@ -247,8 +253,8 @@
   saanut voi katsoa). Dropbox-tiedosto soi suoraan Dropboxista.</p>
 </details>
 
-<details class="osio ala">
-<summary><h4 id="aani">Toiston soljuvuuden optimointi</h4></summary>
+<details class="osio huom">
+<summary><h4 id="aani"><span class="merkki">HUOM</span> Toiston soljuvuuden optimointi</h4></summary>
 <p>Tiedostomuodoista kokeiluissa parhaiten selviytyi AAC (<code>.m4a</code>). MP3-muoto teki
   tuntemattomasta syystä rajatussa yhteydessä yskähdyksen Firefox-selaimella. WAVia ei suositella sen
   hitaan latautuvuuden takia. FLAC, Ogg ja Opus -muotojen tuet vaihtelevat selaimen ja laitteen
