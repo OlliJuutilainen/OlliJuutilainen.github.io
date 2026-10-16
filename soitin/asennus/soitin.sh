@@ -15,6 +15,9 @@ OSOITE=$(cat "$DIR/osoite" 2>/dev/null || true)
 # kansioon, jossa komento sattuu olemaan ajettu.
 w() { (cd "$DIR" && node "$DIR/node_modules/wrangler/bin/wrangler.js" --config "$DIR/wrangler.json" "$@"); }
 
+# Wrangler kehottaa virheen jälkeen päivittämään itsensä. Versio on lukittu tarkoituksella.
+trap 'echo "Huom: jos Wrangler kehottaa yllä päivittämään itsensä, se on väärä hälytys; älä päivitä." >&2' ERR
+
 tunnus() {
   case "$1" in
     "" | *[!a-z0-9]*) echo "Keikan tunnus puuttuu tai on väärän muotoinen: '$1'" >&2; exit 2 ;;

@@ -200,7 +200,8 @@ fs.writeFileSync(path.join(DIR, "osoite"), host + "\n");
 vaihe("4/5 Workerin vienti Cloudflareen");
 lopetaKysely();
 if (wrangler(["deploy"]).status !== 0) {
-  virhe("Workerin vienti epäonnistui. Virhe on yllä. Aja asennuskomento uudelleen.");
+  virhe("Workerin vienti epäonnistui. Virhe on yllä. Jos Wrangler kehottaa päivittämään itsensä, se on\n" +
+    "väärä hälytys; älä päivitä. Aja asennuskomento uudelleen.");
 }
 
 // ---- 5. Tarkistus --------------------------------------------------------
