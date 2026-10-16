@@ -217,7 +217,10 @@ kokoisena, lihavoituna ja päävärillä, ei versaalina (käyttäjän päätös 
   HUOM-merkinnällä: pieni, kapea ja sisennetty, ohut viiva vasemmalla, ettei se näytä kuuluvan
   viimeiseen alaosioon eikä raskauta pääraidetta.
   Muut harvemmin tarvittavat osiot ovat suljettuina `<details class="osio">`-lohkoina
-  (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic; avattuna vasen viiva).
+  (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic; avattuna sisältö pienempänä
+  ja sisennettynä otsikon tekstin linjaan, viiva kolmion alta; otsikko ei liiku. Logic-osion
+  versiohuomautus on `p.huom` ilman merkkiä, jotta se sisentyy listan tekstiä pidemmälle; käyttäjän
+  päätös 16.10.2026).
   Ilman `.ala`-luokkaa suljettu osio on samantasoisten osioiden vertainen (esim. iPhone, linkin
   jakaminen, muokkaaminen ja poistaminen). Uudet osiot sijoitetaan
   loppupäähän, tarvittaessa suljettuina. #-linkki
