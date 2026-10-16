@@ -316,6 +316,22 @@
     transition: transform 0.15s;
   }
   .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Kahden kytkimen rivillä natsa on keskellä kytkinten välissä, soittimen
+     akselilla (toista-napin keskikohta), pystysuunnassa kytkinten tasolla.
+     Se on silti DOMissa keikka-puolen sisällä; puoli on staattinen, jotta
+     sijainti lasketaan .optsista. z-index pitää kosketusalueen setin
+     kytkimen keikka-puolen päällä. Yhden kytkimen keikassa natsa jää sanan
+     vasemmalle puolelle, koska keskellä on kytkin. */
+  .opts { position: relative; }
+  .opts:has(#setopt:not([hidden])) #scaleopt .side[data-on="0"] { position: static; }
+  .opts:has(#setopt:not([hidden])) .fold {
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
   .opts.kiinni .fold svg { transform: rotate(-90deg); }
   .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
   .opts.kiinni .fold { visibility: visible; }
