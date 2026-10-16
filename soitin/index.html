@@ -297,20 +297,20 @@
     position: relative;
     display: grid;
     place-items: center;
-    margin: 0 18px 0 -31px;
+    margin: 0 18px 0 -25px;
     color: var(--muted);
   }
   .fold::before {
     content: "";
     position: absolute;
-    inset: -8px -8px;
+    inset: -12px -10px;
   }
   .fold svg {
-    width: 13px;
-    height: 6px;
+    width: 7px;
+    height: 3.5px;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.1;
+    stroke-width: 1;
     stroke-linecap: round;
     stroke-linejoin: round;
     transition: transform 0.15s;
@@ -498,7 +498,7 @@
   <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
   <div class="opts" id="opts">
     <div class="sw" id="scaleopt">
-      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 13 6" aria-hidden="true"><path d="M1 1l5.5 4 5.5-4"/></svg></button>keikka</span>
+      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button>keikka</span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
       <svg class="minijana" viewBox="0 0 27 6" aria-hidden="true"><path class="bg" d="M1 3h25"/><path class="fg" d="M1 3h8"/><circle cx="9" cy="3" r="3"/></svg>
