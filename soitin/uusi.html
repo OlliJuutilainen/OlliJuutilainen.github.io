@@ -64,7 +64,7 @@
   td.n { text-align: right; width: 2.5em; }
   td.t { width: 5.5em; }
   td.tt { overflow-wrap: anywhere; }
-  /* Ei-biisi (x-rivi): "  3:42 [OUTRO]", ei numeroa, koko rivi himmeä ja kursiivi. */
+  /* Ei-biisi (x-rivi): "x. 3:42 [OUTRO]", numerona 0, x tai -, koko rivi himmeä ja kursiivi. */
   tr.pre td { font-style: italic; color: var(--muted); }
   tr.set td { color: var(--muted); font-size: 0.85rem; padding: 26px 4px 4px; }
   tr.set:first-child td { padding-top: 6px; }
@@ -373,7 +373,7 @@
       }
       if ((m = RE_AUDACITY.exec(raw.replace(/\s+$/, "")))) {
         // Tyhjä label on pelkkä aika eli ei-biisi, kuten nimeämätön markeri.
-        sec = +m[1]; title = (m[3] || "").trim() || "[x]";
+        sec = +m[1]; title = (m[3] || "").trim() || "[]";
       } else if (z && zt !== undefined) {
         title = "[" + z[2].trim() + "]";
         if (zt === null && tracks.length) {
@@ -382,18 +382,18 @@
         }
         sec = zt === null ? 0 : zt;
       } else if ((m = RE_TIME_ONLY.exec(line))) {
-        // Pelkkä aika on ei-biisi, kuten "3:42 [x]", myös DAW:n nimeämätön
-        // markeri. Biisi ilman nimeä (soitin näyttää järjestysnumeron) on rivi,
-        // jossa on ajan lisäksi rivinumero ("3. 3:42").
+        // Pelkkä aika on ei-biisi ilman omaa merkkiä (tallennetaan "[]"), myös
+        // DAW:n nimeämätön markeri. Biisi ilman nimeä (soitin näyttää
+        // järjestysnumeron) on rivi, jossa on ajan lisäksi rivinumero ("3. 3:42").
         sec = parseTime(m[1].replace(",", "."));
-        title = /^\d+[.)]/.test(line) ? "" : "[x]";
+        title = /^\d+[.)]/.test(line) ? "" : "[]";
       } else if ((m = RE_TIME_FIRST.exec(line)) ||
                  (m = RE_TIME_FIRST.exec(line.replace(/^\d+[.)]\s+/, "")))) {
         sec = parseTime(m[1].replace(",", ".")); title = m[3].trim();
       } else if ((m = RE_TIME_LAST.exec(line))) {
         sec = parseTime(m[2].replace(",", ".")); title = m[1].replace(/^\d+[.)]\s+/, "").trim();
       } else if (X_RE.test(line)) {
-        // "[x] Nimi" ilman aikaa: vain listan ensimmäinen rivi, alkaa 0:00.
+        // "[x] Nimi" (tai [0], [-]) ilman aikaa: vain listan ensimmäinen rivi, alkaa 0:00.
         if (tracks.length) {
           errors.push("Rivi " + n + ": " + line + " tarvitsee alkuajan; vain listan ensimmäiseltä riviltä sen voi jättää pois.");
           return;
@@ -412,11 +412,12 @@
       // Tallennettava tarkkuus (sadasosat), jotta esikatselu laskee samoista
       // ajoista kuin soitin.
       sec = Math.round(sec * 100) / 100;
-      // [0] ja [x] ovat sama merkintä; tallennetaan muodossa "[x]" tai "[x] Nimi".
+      // Ei-biisin oma merkki tallennetaan muodossa "[x]", "[0]" tai "[-]",
+      // nimen kanssa "[0] Nimi".
       var xm = X_RE.exec(title);
       if (xm) {
-        var rest = xm[1].replace(/^\[(.*)\]$/, "$1").trim();
-        title = "[x]" + (rest ? " " + rest : "");
+        var rest = xm[2].replace(/^\[(.*)\]$/, "$1").trim();
+        title = "[" + xSym(title) + "]" + (rest ? " " + rest : "");
       }
       if (tracks.length && sec <= tracks[tracks.length - 1].sec) {
         errors.push("Rivi " + n + ": alkuaika ei ole edellistä myöhäisempi.");
@@ -438,27 +439,34 @@
   function withIntro(tracks) {
     var f = tracks[0];
     if (!f || !(f.sec > 0)) return tracks;
-    var intro = { sec: 0, t: fmtTime(0, true), title: "[x]" }, rest = tracks.slice(1);
+    var intro = { sec: 0, t: fmtTime(0, true), title: "[]" }, rest = tracks.slice(1);
     if (f.name) intro.name = f.name;
     return [intro, { sec: f.sec, t: f.t, title: f.title }].concat(rest);
   }
 
-  // Ei-biisi eli x-rivi: nimi hakasulkeissa ("3:42 [Intro]") tai alussa [x] tai
-  // [0] ("3:42 [x]", "3:42 [x] Nimi"). Merkintä on otsikossa, koska worker
-  // päästää kappaleista läpi vain t, title, set ja name. Palauttaa nimen ilman
-  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
-  // Sama funktio on soittimessa.
-  var X_RE = /^\s*\[[x0]\]\s*(.*?)\s*$/i;
+  // Ei-biisi eli x-rivi: nimi hakasulkeissa ("3:42 [Intro]") tai alussa [x],
+  // [0] tai [-] ("3:42 [x]", "3:42 [0] Nimi"); pelkkä aika tallennetaan "[]".
+  // Merkintä on otsikossa, koska worker päästää kappaleista läpi vain t, title,
+  // set ja name. Palauttaa nimen ilman merkintää ja hakasulkeita ("" =
+  // oletusotsikko) tai null, jos raita on biisi. Samat funktiot ovat soittimessa.
+  var X_RE = /^\s*\[([x0\-–—])\]\s*(.*?)\s*$/i;
   function xTitle(s) {
     s = String(s || "");
     var m = X_RE.exec(s);
-    if (m) return m[1].replace(/^\[(.*)\]$/, "$1").trim();
-    m = /^\s*\[(.+)\]\s*$/.exec(s);
+    if (m) return m[2].replace(/^\[(.*)\]$/, "$1").trim();
+    m = /^\s*\[(.*)\]\s*$/.exec(s);
     return m ? m[1].trim() : null;
+  }
+  // Ei-biisin oma numeromerkki (x, 0 tai -) tai "", jos sitä ei ole annettu.
+  function xSym(s) {
+    var m = X_RE.exec(String(s || ""));
+    return m ? m[1].toLowerCase().replace(/[–—]/, "-") : "";
   }
 
   // Sama numerointi ja samat oletusotsikot kuin soittimessa (loadTracks,
-  // nameExtras): joka setti alkaa 1:stä, ja ei-biisi ei saa numeroa. Ei-biisin
+  // nameExtras, markExtras): joka setti alkaa 1:stä, ja ei-biisin numerona on
+  // sen oma merkki tai x; jos missään setissä ei ole kahta ei-biisiä
+  // peräkkäin, merkitön on setin alussa 0, lopussa x ja välissä -. Ei-biisin
   // oletusotsikko on setin alussa [INTRO], lopussa [OUTRO] ja välissä
   // [VÄLI]; saman ryhmän useampi oletusotsikko numeroidaan.
   function numbered(list) {
@@ -467,8 +475,13 @@
       var xt = xTitle(tr.title), first = i === 0 || !!tr.set;
       if (first) nr = 1;
       var r = { tr: tr, first: first, n: xt === null ? nr++ + "." : "", title: tr.title, extra: xt !== null };
-      if (r.extra) { r.title = xt ? "[" + xt + "]" : ""; r.dflt = !xt; }
+      if (r.extra) { r.title = xt ? "[" + xt + "]" : ""; r.dflt = !xt; r.sym = xSym(tr.title); }
       out.push(r);
+    });
+    var pairs = out.some(function (r, i) { return i && r.extra && !r.first && out[i - 1].extra; });
+    out.forEach(function (r, i) {
+      if (!r.extra) return;
+      r.n = (r.sym || (pairs ? "x" : r.first ? "0" : i + 1 >= out.length || out[i + 1].first ? "x" : "-")) + ".";
     });
     for (var i = 0; i < out.length; i++) {
       if (!out[i].extra) continue;
@@ -763,7 +776,8 @@
           // Vanhat keikat on tallennettu ilman ".0":aa; näytetään yhtenäisesti.
           var t = parseTime(String(tr.t).replace(",", "."));
           t = isNaN(t) ? tr.t : fmtTime(t, true);
-          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (t + " " + tr.title).trim();
+          var title = /^\s*\[\s*\]\s*$/.test(tr.title) ? "" : tr.title;
+          return (tr.set && i ? "---\n" : "") + (tr.name ? tr.name + "\n" : "") + (t + " " + title).trim();
         }).join("\n");
         update();
       })

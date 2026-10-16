@@ -125,9 +125,16 @@ tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
 harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
-Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`;
-`[0]` = `[x]`, missä kohtaa settiä tahansa, ilman numeroa; nimettömänä setin alussa `[INTRO]`,
-lopussa `[OUTRO]`, välissä `[VÄLI]`) tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
+Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`,
+missä kohtaa settiä tahansa; nimettömänä setin alussa `[INTRO]`, lopussa `[OUTRO]`, välissä `[VÄLI]`)
+ei kasvata numerointia, vaan numeron paikalla on harmaa `0.`, `x.` tai `-.` (soittimen lista ja nyt soi
+-kenttä, Keikkageneraattorin esikatselu). Merkin voi antaa itse: `[x]`, `[0]` tai `[-]` (myös `[–]`,
+`[—]`). Merkitön on `x.`, paitsi jos missään setissä ei ole kahta ei-biisiä peräkkäin: silloin setin
+alussa `0.`, lopussa `x.` ja välissä `-.` (käyttäjän sääntö 16.10.2026; automaattinen intro lasketaan
+mukaan). Keikkageneraattori tallentaa merkittömän nimettömän ei-biisin muodossa `[]` ja merkin muodossa
+`[0]` / `[0] Nimi`. Ennen tätä tallennetut keikat ovat `[x]`-muodossa, joten niiden ei-biisit näkyvät
+`x.`-merkkisinä. Merkkisääntöjä ei selitetä Keikkageneraattorissa, vain `ohje.html#eibiisit`-osiossa.
+Ei-biisi tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa settilistan ja tulostaa
 `kv:key put` -komennon samalla wrangler-versiolla kuin `generaattori.html`. Käyttäjän päätös:
@@ -196,20 +203,21 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
   Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
   linkki → settilista ja DAW-markerit → *Uuden keikan ja sitä merkkaavan linkin tallentaminen*). Niiden
-  jälkeen on käyttäjän pyytämä lisätaso, suljettu h3-osio *Edistyneet käyttäjät* (`details.osio`;
-  ankkuri yhä `#valinnaiset`), jonka alaosiot ovat h4-tasoa ja osion avattua auki:
-  *Settilistan lisäominaisuudet* (avoin; sen sisällä suljettuina h5-tason setit,
-  ei-biisit ja rivin muut muodot), avoimina *Äänitiedoston muoto* ja *Linkin jakaminen*, ja
-  viimeisenä suljettuna *Aiemmin luodun keikan muokkaaminen tai poistaminen* (ei *korjaus*: sana
-  viittaa virheeseen). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla Edistyneet
-  käyttäjät alaosioineen. Osion lopun lisähuomio suljettujen alaosioiden jälkeen
-  (Drive/Dropbox, settilistan aikojen tarkkuus) on `p.huom` HUOM-merkinnällä: pieni, kapea ja
-  sisennetty, ohut viiva vasemmalla, ettei se näytä kuuluvan viimeiseen alaosioon eikä
-  raskauta pääraidetta.
+  jälkeen ovat suljettuina h3-osioina *Settilistan lisäominaisuudet* (ankkurit `#merkinnat` ja vanha
+  `#valinnaiset`; sisällä avoimina h4-alaosioina *Setit* ja *Intro, outro ja muut ei-biisit* sekä
+  suljettuna *Vaihtoehtoiset sallitut kielenkäytöt*) ja viimeisenä *Aiemmin luodun keikan
+  muokkaaminen tai poistaminen* (ei *korjaus*: sana viittaa virheeseen). Käyttäjän päätös 16.10.2026:
+  yläotsikko *Edistyneet käyttäjät* poistettiin, *Linkin jakaminen* siirtyi soittimen käyttöön
+  (suljettuna iPhonen ja ongelmatilanteiden väliin), ja erillinen *Äänitiedoston muoto* korvattiin
+  äänitiedoston linkin suljetulla alaosiolla *Toiston soljuvuuden optimointi* (ankkuri `#aani`;
+  tiedostomuodot ja Drive/Dropbox). Sisällys on kahdessa palstassa: vasemmalla kentät, oikealla
+  nämä kaksi suljettua osiota. Settilistan lopun lisähuomio (aikojen tarkkuus) on `p.huom`
+  HUOM-merkinnällä: pieni, kapea ja sisennetty, ohut viiva vasemmalla, ettei se näytä kuuluvan
+  viimeiseen alaosioon eikä raskauta pääraidetta.
   Muut harvemmin tarvittavat osiot ovat suljettuina `<details class="osio">`-lohkoina
-  (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic, Setit; avattuna vasen viiva).
-  Ilman `.ala`-luokkaa suljettu osio on samantasoisten osioiden vertainen (esim. iPhone,
-  muokkaaminen ja poistaminen). Uudet osiot sijoitetaan
+  (`details.osio.ala` = h4- tai h5-tason alaosio, esim. Drive, Logic; avattuna vasen viiva).
+  Ilman `.ala`-luokkaa suljettu osio on samantasoisten osioiden vertainen (esim. iPhone, linkin
+  jakaminen, muokkaaminen ja poistaminen). Uudet osiot sijoitetaan
   loppupäähän, tarvittaessa suljettuina. #-linkki
   suljetun osion sisään avaa sen ja sen ympäröivät osiot; tulostus avaa kaikki. Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
   esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu

@@ -267,7 +267,9 @@
      asennossa; valinnan kertovat nupin paikka ja tekstien himmennys. */
   .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* Janakytkimen alla on pienoisjana. */
+  /* Janakytkimen alla on pienoisjana, hieman alempana kuin rivin väli
+     antaisi (kohti setin kytkimen stop-merkin keskikohtaa). Siirto on
+     top-arvona, ettei rivi kasva. */
   .minijana {
     grid-row: 2;
     grid-column: 1 / -1;
@@ -275,12 +277,52 @@
     width: 27px;
     height: 6px;
     margin-top: 1px;
+    position: relative;
+    top: 1.5px;
     fill: currentColor;
     stroke-width: 2;
     stroke-linecap: round;
   }
   .minijana .bg { stroke: var(--dim); }
   .minijana .fg { stroke: currentColor; }
+
+  /* Natsa janakytkimen keikka-sanan vasemmalla puolella piilottaa kytkimet.
+     Rako sanaan (18 px) on selvästi kytkimen ja tekstin väliä (10 px)
+     suurempi. Natsa on keikka-puolen sisällä, jotta se pysyy sanan
+     vieressä tekstin leveydestä riippumatta. Negatiivinen vasen marginaali
+     (leveys + rako) pitää sen osuuden puolen leveydestä nollana, ettei
+     kytkin siirry. Suljettuna vain natsa näkyy samalla paikalla, ja se
+     kääntyy osoittamaan oikealle (▸). */
+  .fold {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin: 0 18px 0 -25px;
+    color: var(--muted);
+  }
+  .fold::before {
+    content: "";
+    position: absolute;
+    inset: -12px -10px;
+  }
+  .fold svg {
+    width: 7px;
+    height: 3.5px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.15s;
+  }
+  .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .opts.kiinni .fold svg { transform: rotate(-90deg); }
+  .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
+  .opts.kiinni .fold { visibility: visible; }
+  .opts.kiinni .minijana, .opts.kiinni .stopmark { display: none; }
+  /* Suljettuna lista nousee lähemmäs natsan riviä; natsa itse pysyy
+     paikallaan, jotta sen voi avata samasta kohdasta. */
+  .opts.kiinni + #list { margin-top: 12px; }
 
   /* Setin kytkimen alla on stop-merkki, johon setti-tekstistä kaartuu
      nuoli. Nuoli on tekstin sisällä, joten se himmenee tekstin mukana;
@@ -356,9 +398,9 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
-  /* Ei-biisi (x-rivi): "[Intro] 0:00" ilman numeroa, koko rivi himmeä ja
-     kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu kuten muilla
-     riveillä; tyhjä numerosarake pitää otsikon muiden kohdalla. */
+  /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
+     himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
+     kuten muilla riveillä. */
   li.pre .track { font-style: italic; font-weight: 400; }
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
@@ -480,9 +522,9 @@
   </section>
 
   <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
-  <div class="opts">
+  <div class="opts" id="opts">
     <div class="sw" id="scaleopt">
-      <span class="side" data-on="0">keikka</span>
+      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button>keikka</span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
       <svg class="minijana" viewBox="0 0 27 6" aria-hidden="true"><path class="bg" d="M1 3h25"/><path class="fg" d="M1 3h8"/><circle cx="9" cy="3" r="3"/></svg>
@@ -527,7 +569,7 @@
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
     fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
     play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
-    list: $("list"), setopt: $("setopt"), setonly: $("setonly"), songscale: $("songscale"),
+    list: $("list"), setopt: $("setopt"), opts: $("opts"), fold: $("fold"), setonly: $("setonly"), songscale: $("songscale"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
   };
 
@@ -562,7 +604,7 @@
   var gig = null;      // { title, audio, tracks: [{ t, title }] } tai { title, files }
   var gigKey = "";
   var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
-  var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1 ja x = järjestys setissä
+  var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1, x = järjestys setissä ja sym = 0, x tai -
   var sets = 1;
   var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
   var showSets = false;
@@ -581,9 +623,9 @@
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
   // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
-  // Numerointi alkaa joka setissä 1:stä. Ei-biisi (x-rivi, ks. xTitle) ei saa
-  // numeroa, eikä numeroa näytetä.
-  function num(i) { return tracks[i].n; }
+  // Numerointi alkaa joka setissä 1:stä. Ei-biisi (x-rivi, ks. xTitle) ei vie
+  // numeroa; sen numeron paikalla on 0, x tai - (ks. markExtras).
+  function num(i) { return tracks[i].x ? tracks[i].sym : tracks[i].n; }
   function isExtra(i) { return !!tracks[i].x; }
   // Kappaleen linkin ja hashin tunniste: "3" tai ei-biisillä "x1".
   function linkNum(i) { return tracks[i].x ? "x" + tracks[i].x : String(tracks[i].n); }
@@ -599,7 +641,7 @@
   // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
   // "(ii) 3. Otsikko"). Setti ja numero himmeinä;
   // otsikottomalla biisillä numero on itse otsikko eikä himmene.
-  // Ei-biisillä ei ole numeroa, otsikko himmenee ja koko rivi on kursiivi. Sitovat
+  // Ei-biisillä ("0. [INTRO]") otsikko himmenee ja koko rivi on kursiivi. Sitovat
   // välilyönnit pitävät setin, numeron ja otsikon alun kiinni toisissaan.
   function renderNow(i) {
     var tr = tracks[i];
@@ -612,8 +654,6 @@
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
-    } else if (isExtra(i)) {
-      els.now.appendChild(document.createTextNode(tr.title));
     } else {
       nr.appendChild(n);
       els.now.appendChild(document.createTextNode("\u00a0" + tr.title));
@@ -634,24 +674,30 @@
   function withIntro(list) {
     var f = (list || [])[0];
     if (!f || !(parseTime(f.t) > 0)) return list;
-    var intro = { t: "0:00", title: "[x]" };
+    var intro = { t: "0:00", title: "[]" };
     if (f.name) intro.name = f.name;
     return [intro, { t: f.t, title: f.title }].concat(list.slice(1));
   }
 
   // Ei-biisi eli x-rivi: raita, joka ei ole varsinainen biisi, missä kohtaa
   // settiä tahansa. Biisilistassa nimi hakasulkeissa ("3:42 [Intro]") tai
-  // alussa [x] tai [0] ("3:42 [x]", "3:42 [x] Nimi"). Merkintä on otsikossa
-  // eikä omana kenttänään, jotta workeria ei tarvitse päivittää (se päästää
-  // kappaleista läpi vain t, title, set ja name). Palauttaa nimen ilman
-  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
-  var X_RE = /^\s*\[[x0]\]\s*(.*?)\s*$/i;
+  // alussa [x], [0] tai [-] ("3:42 [x]", "3:42 [0] Nimi"); Keikkageneraattori
+  // tallentaa pelkän ajan muodossa "[]". Merkintä on otsikossa eikä omana
+  // kenttänään, jotta workeria ei tarvitse päivittää (se päästää kappaleista
+  // läpi vain t, title, set ja name). Palauttaa nimen ilman merkintää ja
+  // hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
+  var X_RE = /^\s*\[([x0\-–—])\]\s*(.*?)\s*$/i;
   function xTitle(s) {
     s = String(s || "");
     var m = X_RE.exec(s);
-    if (m) return m[1].replace(/^\[(.*)\]$/, "$1").trim();
-    m = /^\s*\[(.+)\]\s*$/.exec(s);
+    if (m) return m[2].replace(/^\[(.*)\]$/, "$1").trim();
+    m = /^\s*\[(.*)\]\s*$/.exec(s);
     return m ? m[1].trim() : null;
+  }
+  // Ei-biisin oma numeromerkki (x, 0 tai -) tai "", jos sitä ei ole annettu.
+  function xSym(s) {
+    var m = X_RE.exec(String(s || ""));
+    return m ? m[1].toLowerCase().replace(/[–—]/, "-") : "";
   }
 
   // Ei-biisin oletusotsikko riippuu paikasta setissä: alussa [INTRO],
@@ -671,6 +717,21 @@
       });
       i = j;
     }
+    markExtras();
+  }
+
+  // Ei-biisin numeron paikalla on sen oma merkki, tai ilman sitä x. Jos
+  // missään setissä ei ole kahta ei-biisiä peräkkäin, merkitön ei-biisi on
+  // setin alussa 0, lopussa x ja välissä -.
+  function markExtras() {
+    var pairs = tracks.some(function (tr, i) {
+      return i && tr.x && tracks[i - 1].x && tracks[i - 1].set === tr.set;
+    });
+    tracks.forEach(function (tr, i) {
+      if (!tr.x || tr.sym) return;
+      tr.sym = pairs ? "x" : i === setInfo[tr.set].first ? "0"
+        : i + 1 >= tracks.length || tracks[i + 1].set !== tr.set ? "x" : "-";
+    });
   }
 
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
@@ -706,6 +767,7 @@
       var o = { start: start, title: title, set: sets, n: xt === null ? n++ : -1 };
       if (xt !== null) {
         o.x = ++xn;
+        o.sym = xSym(tr.title);
         o.title = xt ? "[" + xt + "]" : "";
         if (!xt) o.dflt = true;
       }
@@ -736,6 +798,7 @@
       var o = { start: t, title: f.title, set: sets, n: xt === null ? n++ : -1 };
       if (xt !== null) {
         o.x = ++xn;
+        o.sym = xSym(f.title);
         o.title = xt ? "[" + xt + "]" : "";
         if (!xt) o.dflt = true;
       }
@@ -978,16 +1041,12 @@
   }
 
   // Setin otsikko alkaa samasta kohdasta kuin setin ensimmäinen numero
-  // ("1."; ei-biiseillä numeroa ei ole). Numerot on tasattu oikealle, joten
-  // kohta riippuu fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen
-  // reuna, ja se jää voimaan, jos setissä ei ole biisiä.
+  // ("1." tai ei-biisin "0."). Numerot on tasattu oikealle, joten kohta
+  // riippuu fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen reuna.
   function alignSetNames() {
     heads.forEach(function (h) {
-      var i = h.first;
-      while (i < tracks.length && isExtra(i) && tracks[i].set === tracks[h.first].set) i++;
-      if (i >= tracks.length || tracks[i].set !== tracks[h.first].set) return;
       var r = document.createRange();
-      r.selectNodeContents(rows[i].querySelector(".n"));
+      r.selectNodeContents(rows[h.first].querySelector(".n"));
       var x = r.getBoundingClientRect().left - h.li.getBoundingClientRect().left;
       if (x > 0) h.li.style.paddingLeft = x + "px";
     });
@@ -1019,7 +1078,7 @@
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      b.children[0].textContent = isExtra(i) ? "" : num(i) + ".";
+      b.children[0].textContent = num(i) + ".";
       b.children[1].textContent = tr.title;
       trackLens[i] = b.children[2];
       b.addEventListener("click", function () { jumpTo(i, true); });
@@ -1285,6 +1344,23 @@
     renderTicks();
     render();
   });
+  // Natsa piilottaa kytkimet; valinta muistetaan laitteella.
+  function setFold(shut) {
+    els.opts.classList.toggle("kiinni", shut);
+    els.fold.setAttribute("aria-expanded", String(!shut));
+    els.fold.setAttribute("aria-label", shut ? "Näytä kytkimet" : "Piilota kytkimet");
+  }
+  try { setFold(localStorage.getItem("soitin-kytkimet") === "kiinni"); } catch (e) {}
+  els.fold.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var shut = !els.opts.classList.contains("kiinni");
+    setFold(shut);
+    try {
+      if (shut) localStorage.setItem("soitin-kytkimet", "kiinni");
+      else localStorage.removeItem("soitin-kytkimet");
+    } catch (e2) {}
+  });
+
   // Kytkimen viereinen teksti valitsee oman puolensa (ei vaihda puolta).
   document.querySelectorAll(".sw .side").forEach(function (s) {
     s.addEventListener("click", function () {
