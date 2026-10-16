@@ -191,6 +191,14 @@
   .confirm p { margin: 0 0 10px; }
   .confirm .pill { margin-right: 8px; }
   .confirm .go { background: var(--err-fg); color: var(--err-bg); }
+
+  /* --- Alatunniste (vain verkossa; sovelluksen lista ei avaa linkkejä) --- */
+  main.web { display: flex; flex-direction: column; min-height: 100vh; }
+  .foot { margin: auto 0 0; padding-top: 48px; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+  .foot p { margin: 0; }
+  .foot p + p { margin-top: 6px; }
+  .foot b { font-weight: 600; }
+  .foot a { color: inherit; }
 </style>
 </head>
 <body>
@@ -231,6 +239,13 @@
       <button type="button" class="pill" id="reset-no">Peru</button>
     </div>
   </div>
+
+  <footer class="foot" id="foot" hidden>
+    <p><b>Soitin</b> soittaa äänitiedostoja suoraan Google Drivesta tai Dropboxista.
+      <a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.</p>
+    <p>Omia keikkoja voi luoda Macilla. Ensin tehdään kerran
+      <a href="../kayttoonotto.html" target="_blank" rel="noopener">käyttöönotto</a> (noin puoli tuntia).</p>
+  </footer>
 </main>
 
 <script>
@@ -250,6 +265,8 @@
   // Selaimessa ei ole sovelluksen sulkemista, ja lista on vain tämän selaimen.
   if (web) {
     $("close").hidden = true;
+    $("foot").hidden = false;
+    document.querySelector("main").classList.add("web");
     $("empty").textContent = "Tähän tulevat keikat, jotka olet avannut tässä selaimessa.";
     $("confirm-text").textContent = "Poistetaanko kaikki keikat listalta?";
   }
