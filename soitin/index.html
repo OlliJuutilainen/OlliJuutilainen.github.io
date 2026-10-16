@@ -356,9 +356,9 @@
     font-weight: 600;
   }
   li[aria-current="true"] .track .n { color: var(--accent); }
-  /* Ei-biisi (x-rivi): "[Intro] 0:00" ilman numeroa, koko rivi himmeä ja
-     kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu kuten muilla
-     riveillä; tyhjä numerosarake pitää otsikon muiden kohdalla. */
+  /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
+     himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
+     kuten muilla riveillä. */
   li.pre .track { font-style: italic; font-weight: 400; }
   li.pre .track .tt { color: var(--muted); }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
@@ -536,7 +536,7 @@
   var gig = null;      // { title, audio, tracks: [{ t, title }] } tai { title, files }
   var gigKey = "";
   var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
-  var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1 ja x = järjestys setissä
+  var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1, x = järjestys setissä ja sym = 0, x tai -
   var sets = 1;
   var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
   var showSets = false;
@@ -555,9 +555,9 @@
 
   // Keikka voi jakautua setteihin (biisilistan ---); kenttä set: true on
   // uuden setin ensimmäisessä kappaleessa ja name sen oma otsikko, esim. "(+)".
-  // Numerointi alkaa joka setissä 1:stä. Ei-biisi (x-rivi, ks. xTitle) ei saa
-  // numeroa, eikä numeroa näytetä.
-  function num(i) { return tracks[i].n; }
+  // Numerointi alkaa joka setissä 1:stä. Ei-biisi (x-rivi, ks. xTitle) ei vie
+  // numeroa; sen numeron paikalla on 0, x tai - (ks. markExtras).
+  function num(i) { return tracks[i].x ? tracks[i].sym : tracks[i].n; }
   function isExtra(i) { return !!tracks[i].x; }
   // Kappaleen linkin ja hashin tunniste: "3" tai ei-biisillä "x1".
   function linkNum(i) { return tracks[i].x ? "x" + tracks[i].x : String(tracks[i].n); }
@@ -573,7 +573,7 @@
   // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
   // "(ii) 3. Otsikko"). Setti ja numero himmeinä;
   // otsikottomalla biisillä numero on itse otsikko eikä himmene.
-  // Ei-biisillä ei ole numeroa, otsikko himmenee ja koko rivi on kursiivi. Sitovat
+  // Ei-biisillä ("0. [INTRO]") otsikko himmenee ja koko rivi on kursiivi. Sitovat
   // välilyönnit pitävät setin, numeron ja otsikon alun kiinni toisissaan.
   function renderNow(i) {
     var tr = tracks[i];
@@ -586,8 +586,6 @@
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
-    } else if (isExtra(i)) {
-      els.now.appendChild(document.createTextNode(tr.title));
     } else {
       nr.appendChild(n);
       els.now.appendChild(document.createTextNode("\u00a0" + tr.title));
@@ -608,24 +606,30 @@
   function withIntro(list) {
     var f = (list || [])[0];
     if (!f || !(parseTime(f.t) > 0)) return list;
-    var intro = { t: "0:00", title: "[x]" };
+    var intro = { t: "0:00", title: "[]" };
     if (f.name) intro.name = f.name;
     return [intro, { t: f.t, title: f.title }].concat(list.slice(1));
   }
 
   // Ei-biisi eli x-rivi: raita, joka ei ole varsinainen biisi, missä kohtaa
   // settiä tahansa. Biisilistassa nimi hakasulkeissa ("3:42 [Intro]") tai
-  // alussa [x] tai [0] ("3:42 [x]", "3:42 [x] Nimi"). Merkintä on otsikossa
-  // eikä omana kenttänään, jotta workeria ei tarvitse päivittää (se päästää
-  // kappaleista läpi vain t, title, set ja name). Palauttaa nimen ilman
-  // merkintää ja hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
-  var X_RE = /^\s*\[[x0]\]\s*(.*?)\s*$/i;
+  // alussa [x], [0] tai [-] ("3:42 [x]", "3:42 [0] Nimi"); Keikkageneraattori
+  // tallentaa pelkän ajan muodossa "[]". Merkintä on otsikossa eikä omana
+  // kenttänään, jotta workeria ei tarvitse päivittää (se päästää kappaleista
+  // läpi vain t, title, set ja name). Palauttaa nimen ilman merkintää ja
+  // hakasulkeita ("" = oletusotsikko) tai null, jos raita on biisi.
+  var X_RE = /^\s*\[([x0\-–—])\]\s*(.*?)\s*$/i;
   function xTitle(s) {
     s = String(s || "");
     var m = X_RE.exec(s);
-    if (m) return m[1].replace(/^\[(.*)\]$/, "$1").trim();
-    m = /^\s*\[(.+)\]\s*$/.exec(s);
+    if (m) return m[2].replace(/^\[(.*)\]$/, "$1").trim();
+    m = /^\s*\[(.*)\]\s*$/.exec(s);
     return m ? m[1].trim() : null;
+  }
+  // Ei-biisin oma numeromerkki (x, 0 tai -) tai "", jos sitä ei ole annettu.
+  function xSym(s) {
+    var m = X_RE.exec(String(s || ""));
+    return m ? m[1].toLowerCase().replace(/[–—]/, "-") : "";
   }
 
   // Ei-biisin oletusotsikko riippuu paikasta setissä: alussa [INTRO],
@@ -645,6 +649,21 @@
       });
       i = j;
     }
+    markExtras();
+  }
+
+  // Ei-biisin numeron paikalla on sen oma merkki, tai ilman sitä x. Jos
+  // missään setissä ei ole kahta ei-biisiä peräkkäin, merkitön ei-biisi on
+  // setin alussa 0, lopussa x ja välissä -.
+  function markExtras() {
+    var pairs = tracks.some(function (tr, i) {
+      return i && tr.x && tracks[i - 1].x && tracks[i - 1].set === tr.set;
+    });
+    tracks.forEach(function (tr, i) {
+      if (!tr.x || tr.sym) return;
+      tr.sym = pairs ? "x" : i === setInfo[tr.set].first ? "0"
+        : i + 1 >= tracks.length || tracks[i + 1].set !== tr.set ? "x" : "-";
+    });
   }
 
   // Palauttaa listan virheistä; tyhjä lista = kunnossa.
@@ -680,6 +699,7 @@
       var o = { start: start, title: title, set: sets, n: xt === null ? n++ : -1 };
       if (xt !== null) {
         o.x = ++xn;
+        o.sym = xSym(tr.title);
         o.title = xt ? "[" + xt + "]" : "";
         if (!xt) o.dflt = true;
       }
@@ -710,6 +730,7 @@
       var o = { start: t, title: f.title, set: sets, n: xt === null ? n++ : -1 };
       if (xt !== null) {
         o.x = ++xn;
+        o.sym = xSym(f.title);
         o.title = xt ? "[" + xt + "]" : "";
         if (!xt) o.dflt = true;
       }
@@ -952,16 +973,12 @@
   }
 
   // Setin otsikko alkaa samasta kohdasta kuin setin ensimmäinen numero
-  // ("1."; ei-biiseillä numeroa ei ole). Numerot on tasattu oikealle, joten
-  // kohta riippuu fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen
-  // reuna, ja se jää voimaan, jos setissä ei ole biisiä.
+  // ("1." tai ei-biisin "0."). Numerot on tasattu oikealle, joten kohta
+  // riippuu fontista ja mitataan; CSS:n 11 px on numerosarakkeen vasen reuna.
   function alignSetNames() {
     heads.forEach(function (h) {
-      var i = h.first;
-      while (i < tracks.length && isExtra(i) && tracks[i].set === tracks[h.first].set) i++;
-      if (i >= tracks.length || tracks[i].set !== tracks[h.first].set) return;
       var r = document.createRange();
-      r.selectNodeContents(rows[i].querySelector(".n"));
+      r.selectNodeContents(rows[h.first].querySelector(".n"));
       var x = r.getBoundingClientRect().left - h.li.getBoundingClientRect().left;
       if (x > 0) h.li.style.paddingLeft = x + "px";
     });
@@ -993,7 +1010,7 @@
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
-      b.children[0].textContent = isExtra(i) ? "" : num(i) + ".";
+      b.children[0].textContent = num(i) + ".";
       b.children[1].textContent = tr.title;
       trackLens[i] = b.children[2];
       b.addEventListener("click", function () { jumpTo(i, true); });
