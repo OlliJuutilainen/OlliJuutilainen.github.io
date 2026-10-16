@@ -15,8 +15,8 @@
   Järjestys: johdannon virke linkittää osat (ei koko sivun sisällystä). Keikan
   luominen alkaa esikatselulla (mitä Keikkageneraattorissa annetaan ja saadaan),
   jonka jälkeen tulee vain tämän osan sisällys ja Keikkageneraattorin kentät
-  ylhäältä alas. Niiden perässä on suljettu osio Edistyneet käyttäjät, jonka
-  alaosiot ovat h4-tasoa. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
+  ylhäältä alas. Niiden perässä ovat suljettuina h3-osiot Settilistan
+  lisäominaisuudet ja Aiemmin luodun keikan muokkaaminen tai poistaminen. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
   #-linkki suljetun osion sisään avaa sen.
 
   Termit: Keikkageneraattoriin annettava lista on settilista, soittimen näyttämä
@@ -42,7 +42,7 @@
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
   h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
   /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio,
-     h5 = alaosion alaosio (vain Edistyneissä käyttäjissä). */
+     h5 = alaosion alaosio (ei tällä hetkellä käytössä). */
   h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
   h3 { font-size: 1.15rem; line-height: 1.3; margin: 40px 0 10px; padding-top: 14px; border-top: 1px solid var(--line); }
   h4, h5 { font-size: 1rem; margin: 22px 0 8px; }
@@ -103,7 +103,7 @@
   }
 
   /* Keikan luomisen sisällys: vasemmalla Keikkageneraattorin kentät, oikealla
-     Edistyneet käyttäjät alaosioineen. */
+     suljetut lisäosiot. */
   nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 6px 0 8px;
     display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
   nav.toc ul { margin: 0 0 8px; padding-left: 1.2em; }
@@ -212,13 +212,8 @@
     <li><a href="#tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</a></li>
   </ul>
   <ul>
-    <li><a href="#valinnaiset">Edistyneet käyttäjät</a>
-      <ul>
-        <li><a href="#merkinnat">Settilistan lisäominaisuudet</a></li>
-        <li><a href="#aani">Äänitiedoston muoto</a></li>
-        <li><a href="#linkit">Linkin jakaminen</a></li>
-        <li><a href="#korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</a></li>
-      </ul></li>
+    <li><a href="#merkinnat">Settilistan lisäominaisuudet</a></li>
+    <li><a href="#korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</a></li>
   </ul>
 </nav>
 
@@ -252,9 +247,15 @@
   saanut voi katsoa). Dropbox-tiedosto soi suoraan Dropboxista.</p>
 </details>
 
-<p class="huom"><span class="merkki">HUOM</span> Molemmat on kokeiltu toimiviksi. Drive-tiedosto soi yhden välivaiheen kautta, joten
-  Dropbox voi periaatteessa toimia hieman jouheammin. Jos toisto alkaa tai kelaus tuntuu Drivella
-  hitaalta, Dropbox on vaihtoehto. Tiedostomuodosta: <a href="#aani">Äänitiedoston muoto</a>.</p>
+<details class="osio ala">
+<summary><h4 id="aani">Toiston soljuvuuden optimointi</h4></summary>
+<p>Tiedostomuodoista kokeiluissa parhaiten selviytyi AAC (<code>.m4a</code>). MP3-muoto teki
+  tuntemattomasta syystä rajatussa yhteydessä yskähdyksen Firefox-selaimella. WAVia ei suositella sen
+  hitaan latautuvuuden takia. FLAC, Ogg ja Opus -muotojen tuet vaihtelevat selaimen ja laitteen
+  versioiden mukaan, minkä takia myöskään niitä ei ole suositeltavaa käyttää jaettavassa keikassa.</p>
+<p>Pilvipalveluista sekä Drive että Dropbox on todettu toimiviksi. Teoriassa Dropbox voi kuitenkin
+  toimia Driveä vielä hivenen jouhevammin, koska siitä puuttuu yksi Driven välivaihe.</p>
+</details>
 
 <h3 id="settilista">Settilista</h3>
 <p>Settilista kertoo, mistä kohtaa äänitiedostoa kukin kappale alkaa. Sen voi kirjoittaa käsin, yksi
@@ -334,9 +335,7 @@
 </ol>
 
 <details class="osio">
-<summary><h3 id="valinnaiset">Edistyneet käyttäjät</h3></summary>
-
-<h4 id="merkinnat">Settilistan lisäominaisuudet</h4>
+<summary><h3 id="merkinnat"><span id="valinnaiset"></span>Settilistan lisäominaisuudet</h3></summary>
 <p>Pelkät ajat ja nimet riittävät yhden setin keikkaan, jossa jokainen raita on biisi. Merkinnöillä
   listaan saa setit sekä introt, spiikit ja muut raidat, jotka eivät ole biisejä. Esimerkki kahden
   setin keikasta:</p>
@@ -351,8 +350,7 @@
 <p>Soittimessa edellinen näyttää <a href="#soitin">tältä</a>. Kaikki merkinnät käyvät sellaisinaan myös
   Logicin ja Reaperin markerin nimessä.</p>
 
-<details class="osio ala">
-<summary><h5 id="setit">Setit</h5></summary>
+<h4 id="setit">Setit</h4>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td><code>---</code></td>
@@ -364,10 +362,8 @@
   <tr><td>Markeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code></td>
     <td>Uusi setti markerin kohdasta.</td></tr>
 </table>
-</details>
 
-<details class="osio ala">
-<summary><h5 id="eibiisit">Intro, outro ja muut ei-biisit</h5></summary>
+<h4 id="eibiisit">Intro, outro ja muut ei-biisit</h4>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td>Pelkkä <code>3:42</code>, <code>3:42 [Nimi]</code>, <code>3:42 [x] Nimi</code> tai
@@ -388,10 +384,9 @@
       <code class="nw">[x] Spiikki</code></td>
     <td>Ei-biisi kuten vastaava rivi.</td></tr>
 </table>
-</details>
 
 <details class="osio ala">
-<summary><h5 id="muut">Rivin muut muodot</h5></summary>
+<summary><h4 id="muut">Vaihtoehtoiset sallitut kielenkäytöt</h4></summary>
 <table>
   <tr><th>Kirjoitat</th><th>Soittimessa</th></tr>
   <tr><td><code>Nimi 3:42</code></td>
@@ -402,32 +397,10 @@
     <td>Kappale ilman nimeä; soitin näyttää sen numeron.</td></tr>
 </table>
 </details>
-
-<h4 id="aani">Äänitiedoston muoto</h4>
-<p>Soitin käyttää selaimen omaa äänitoistoa, joten tiedostomuoto ratkaisee, soiko keikka kuulijan
-  laitteessa.</p>
-<ul>
-  <li><b>AAC</b> (<code>.m4a</code>) on toiminut kokeiluissa parhaiten. Suosi sitä.</li>
-  <li><b>MP3</b> soi kaikissa yleisissä selaimissa, myös iPhonen Safarissa.</li>
-  <li><b>WAV</b> soi yleensä, mutta keikan mittainen tiedosto on satoja megatavuja ja latautuu
-    hitaasti puhelimeen.</li>
-  <li><b>FLAC, Ogg ja Opus</b>: tuki vaihtelee selaimen ja iPhonen version mukaan. Älä käytä niitä
-    jaettavassa keikassa.</li>
-</ul>
-
-<h4 id="linkit">Linkin jakaminen</h4>
-<ul>
-  <li><b>Keikan linkki</b>: <code>https://ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
-    Kuka tahansa, jolla on linkki, voi kuunnella keikan. Linkki on siis avain; jaa se vain niille,
-    joille keikka on tarkoitettu.</li>
-  <li><b>Kappaleen linkki</b>: soittimen kappalelistan
-    <svg class="ic" viewBox="0 0 24 24" aria-label="linkki-ikoni" style="width:16px;height:16px;vertical-align:-3px;fill:currentColor"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zM8.5 19.8a4.3 4.3 0 0 1-3-7.3l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a2.3 2.3 0 0 0 3.2 3.2l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a4.3 4.3 0 0 1-3 1.3zM15.6 14.1a1 1 0 0 1-.7-1.7l2.2-2.2a2.3 2.3 0 0 0-3.2-3.2l-2.2 2.2a1 1 0 1 1-1.4-1.4l2.2-2.2a4.3 4.3 0 0 1 6 6l-2.2 2.2a1 1 0 0 1-.7.3z"/></svg>-napit
-    kopioivat linkin suoraan kappaleeseen (<code>…@soitin.jotain/3</code>; useamman setin keikassa
-    toisen setin kolmas kappale on <code>…/2/3</code>). Linkki avaa soittimen kappaleen alkuun.</li>
-</ul>
+</details>
 
 <details class="osio">
-<summary><h4 id="korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</h4></summary>
+<summary><h3 id="korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</h3></summary>
 <p><b>Muokkaaminen:</b> liitä keikan linkki Keikkageneraattorin Tunnus-kenttään ja paina
   <span class="ui">Hae</span>. Linkistä poimitaan keikan tunnus
   (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>); pelkän tunnuksen voi myös kirjoittaa.
@@ -437,7 +410,6 @@
   KV</a> → <code>soitin</code> → avain <code>gig:tunnus</code> → poista. Pikakäyttöönotossa
   riittää Terminalissa <code>~/.soitin/soitin poista tunnus</code>. Jos haluat vain lopettaa
   kuuntelun, voit myös poistaa jakolinkin Drivesta tai Dropboxista.</p>
-</details>
 </details>
 
 <!-- ================================================================ -->
@@ -497,6 +469,19 @@
 </details>
 
 <details class="osio">
+<summary><h3 id="linkit">Linkin jakaminen</h3></summary>
+<ul>
+  <li><b>Keikan linkki</b>: <code>https://ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
+    Kuka tahansa, jolla on linkki, voi kuunnella keikan. Linkki on siis avain; jaa se vain niille,
+    joille keikka on tarkoitettu.</li>
+  <li><b>Kappaleen linkki</b>: soittimen kappalelistan
+    <svg class="ic" viewBox="0 0 24 24" aria-label="linkki-ikoni" style="width:16px;height:16px;vertical-align:-3px;fill:currentColor"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zM8.5 19.8a4.3 4.3 0 0 1-3-7.3l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a2.3 2.3 0 0 0 3.2 3.2l2.2-2.2a1 1 0 1 1 1.4 1.4l-2.2 2.2a4.3 4.3 0 0 1-3 1.3zM15.6 14.1a1 1 0 0 1-.7-1.7l2.2-2.2a2.3 2.3 0 0 0-3.2-3.2l-2.2 2.2a1 1 0 1 1-1.4-1.4l2.2-2.2a4.3 4.3 0 0 1 6 6l-2.2 2.2a1 1 0 0 1-.7.3z"/></svg>-napit
+    kopioivat linkin suoraan kappaleeseen (<code>…@soitin.jotain/3</code>; useamman setin keikassa
+    toisen setin kolmas kappale on <code>…/2/3</code>). Linkki avaa soittimen kappaleen alkuun.</li>
+</ul>
+</details>
+
+<details class="osio">
 <summary><h3 id="ongelmat">Ongelmatilanteet</h3></summary>
 <table>
   <tr><th>Soitin näyttää</th><th>Syy ja korjaus</th></tr>
@@ -516,7 +501,7 @@
       Tee jako uudelleen ja <a href="#korjaus">korjaa keikka</a>. Ilmoituksen alla oleva selitys
       tarkentaa syytä.</td></tr>
   <tr><td>Soi Macilla mutta ei iPhonella</td>
-    <td>Tiedostomuoto. Käytä AAC:ta tai MP3:a (<a href="#aani">Äänitiedoston muoto</a>).</td></tr>
+    <td>Tiedostomuoto. Käytä AAC:ta tai MP3:a (<a href="#aani">Toiston soljuvuuden optimointi</a>).</td></tr>
 </table>
 </details>
 
