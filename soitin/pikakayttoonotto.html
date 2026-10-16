@@ -163,6 +163,13 @@
 <p class="muted">Jos Cloudflare-käyttäjälläsi on useampi tili, Terminal kysyy myös, mille niistä
   soitin tehdään. Kirjautuminen jää Wranglerin muistiin tällä Macilla, joten tallennus ei myöhemmin
   kysy mitään.</p>
+<div class="box note">
+  <p><b>Wranglerin päivityskehotus on väärä hälytys.</b> Wrangler kertoo välillä uudemmasta
+    versiostaan (<code>update available</code> tai <code>Note that there is a newer version of
+    Wrangler available … Consider checking whether upgrading resolves this error</code>). Älä
+    päivitä sitä: asennus käyttää tarkoituksella tiettyä versiota, jotta Keikkageneraattorin
+    komennot toimivat aina samoin. Jos jokin ei toimi, syy on muualla.</p>
+</div>
 
 <h2 id="kirjanmerkki"><span class="no">3</span>Keikkageneraattorin kirjanmerkki</h2>
 <p>Asennuksen avaamassa Keikkageneraattorissa pitää yläreunassa lukea <i>Omat asetukset:
@@ -207,6 +214,11 @@
   <tr><td>Tallennus: Wranglerin virhe, jossa mainitaan kirjautuminen (<i>login</i>, <i>Authentication</i>)</td>
     <td>Kirjautuminen on vanhentunut. Aja <code>~/.soitin/soitin paivita</code>; se kirjautuu
       uudelleen selaimessa.</td></tr>
+  <tr><td>Wrangler kehottaa päivittämään itsensä (<i>newer version</i>, <i>update available</i>)</td>
+    <td>Väärä hälytys; älä päivitä. Lue virhe kehotuksen yläpuolelta.</td></tr>
+  <tr><td>Soitin: Drive-tiedosto ei soi, ja viesti neuvoo päivittämään workerin</td>
+    <td>Tarkista ensin, että tiedosto on jaettu kaikille linkin saaneille. Workerin päivitys:
+      <code>~/.soitin/soitin paivita</code>.</td></tr>
   <tr><td>Keikkageneraattorissa ei lue <i>Omat asetukset … (pikakäyttöönotto)</i></td>
     <td>Keikkageneraattori on avattu ilman kirjanmerkkiä. Kohta 3.</td></tr>
   <tr><td>Soitin: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
