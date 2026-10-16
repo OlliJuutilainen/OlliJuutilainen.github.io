@@ -154,6 +154,12 @@
   /* Avattuna otsikon ja sisällön väliin väljempi rako, jotta ohjeluettelo ei
      liimaudu otsikkoon. */
   details.ala[open] > summary > h4, details.ala[open] > summary > h5 { margin-bottom: 14px; }
+  /* Avattuna otsikon välit ovat summaryn paddingia, jotta summaryn tausta
+     peittää viivan koko otsikon alueelta ja viiva alkaa vasta sisällön
+     yläreunasta. */
+  details.ala[open] > summary { padding: 14px 0; }
+  details.ala:not([open]) + details.ala[open] > summary { padding-top: 6px; }
+  details.ala[open] > summary > h4, details.ala[open] > summary > h5 { margin: 0; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, ei lihavoituna,
      tekstin päävärillä (tummassa teemassa valkoinen), versaalina, ilman kursivointia ja
