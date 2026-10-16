@@ -316,8 +316,10 @@
     transition: transform 0.15s;
   }
   .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* Kahden kytkimen rivillä natsa on keskellä kytkinten välissä, soittimen
-     akselilla (toista-napin keskikohta), pystysuunnassa kytkinten tasolla.
+  /* Kahden kytkimen rivillä natsa on keskellä kytkinten välissä,
+     pystysuunnassa kytkinten tasolla. Suljetun natsan (▸) kärki on
+     toista-napin keskikohdan kohdalla: kääntyneenä kärki on 1 px
+     natsan keskeltä oikealle, joten natsa on 1 px akselin vasemmalla.
      Se on silti DOMissa keikka-puolen sisällä; puoli on staattinen, jotta
      sijainti lasketaan .optsista. z-index pitää kosketusalueen setin
      kytkimen keikka-puolen päällä. Yhden kytkimen keikassa natsa jää sanan
@@ -326,7 +328,7 @@
   .opts:has(#setopt:not([hidden])) #scaleopt .side[data-on="0"] { position: static; }
   .opts:has(#setopt:not([hidden])) .fold {
     position: absolute;
-    left: 50%;
+    left: calc(50% - 1px);
     top: 14px;
     margin: 0;
     transform: translate(-50%, -50%);
