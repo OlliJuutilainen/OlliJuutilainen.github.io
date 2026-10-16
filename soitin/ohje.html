@@ -147,7 +147,7 @@
      tausta peittää viivan otsikkorivin kohdalta. Ilman .ala-luokkaa suljettu
      osio on muiden samantasoisten osioiden vertainen eikä edellisen osion
      alaosio. */
-  details.ala[open] { border-left: 2px solid var(--line); margin-left: 4px; padding: 0 0 2px 10px;
+  details.ala[open] { margin-left: 4px; padding: 0 0 2px 10px;
     font-size: 0.88em; }
   details.ala[open] > summary { margin-left: -16px; background: var(--bg); }
   details.ala > summary > h4, details.ala > summary > h5 { margin: 14px 0 8px; }
@@ -160,10 +160,13 @@
   details.ala[open] > summary { padding: 14px 0; }
   details.ala:not([open]) + details.ala[open] > summary { padding-top: 6px; }
   details.ala[open] > summary > h4, details.ala[open] > summary > h5 { margin: 0; }
-  /* Viiva loppuu sisällön alareunaan: viimeisen elementin alamarginaali ja
-     padding siirretään details-elementin ulkopuolelle. */
-  details.ala[open] { padding-bottom: 0; margin-bottom: 14px; }
-  details.ala[open] > :last-child { margin-bottom: 0; }
+  /* Viiva loppuu sisällön alareunaan, mutta osioiden väli säilyy: viivan
+     piirtää taustagradientti, joka jättää viimeisen elementin alamarginaalin
+     ja paddingin ulkopuolelleen, paitsi 4 px (--ve): viiva ylittää sisällön alareunan aavistuksen. Reunus ei kutistu eikä marginaali
+     sulaudu seuraavan osion marginaaliin. */
+  details.ala[open] { --ve: 10px; border-left: 2px solid transparent; background:
+    linear-gradient(var(--line), var(--line)) border-box 0 0 / 2px calc(100% - var(--ve)) no-repeat; }
+  details.ala[open]:has(> p.huom:last-child) { --ve: 18px; }
   /* Suljettu lisähuomio (details.osio.huom): ulkoasu kuten p.huom, mutta
      HUOM-merkin paikalla otsikko merkin kokoisena, ei lihavoituna,
      tekstin päävärillä (tummassa teemassa valkoinen), versaalina, ilman kursivointia ja
@@ -185,7 +188,7 @@
     details.osio > summary > h5 { padding-left: 0; text-indent: 0; }
     details.osio > summary > h2::before, details.osio > summary > h3::before,
     details.osio > summary > h4::before, details.osio > summary > h5::before { content: none; }
-    details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; }
+    details.ala[open] { border-left: 0; margin-left: 0; padding-left: 0; background: none; }
     details.ala[open] > summary { margin-left: 0; background: none; }
     .ydin .otsake::before { content: none; }
     .ydin .otsake::after { content: ":"; }
