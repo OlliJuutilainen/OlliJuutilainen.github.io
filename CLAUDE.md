@@ -260,3 +260,15 @@ keikan tunnuksen Omat keikkani -näkymässä ja muistaa avatut keikat laitteella
 keikan tunnusta ei kirjoiteta repoon: valinnainen oletuskeikka tulee debug-rakennukseen
 Gradle-ominaisuudesta `soitin.tunnus` (ks. `android/README.md`). Allekirjoitusavain
 `android/soitin/julkinen.jks` on repossa tarkoituksella; älä vaihda sitä.
+
+**Omat keikkani on myös verkkosoittimessa** (käyttäjän päätös: selainkohtainen lista, ei
+käyttäjätunnuksia). Lista `soitin/lista/keikat.html` on yhteinen: Android-sovellus ottaa sen
+assetteihin suoraan tästä kansiosta (`android/soitin/build.gradle`, `sourceSets`), ja verkossa
+`soitin/index.html` näyttää sen iframessa soittimen päällä (☰ oikeassa yläkulmassa), joten
+soitto ei katkea. Sovelluksessa silta on `window.Keikat` (MainActivity), verkossa soittimen
+`window.__soitinLista`, joka tallentaa selaimen localStorageen avaimella `soitin-keikat`.
+Linkki avaa keikan suoraan soittimeen, ja latautunut keikka tulee listaan itsestään. Pelkkä
+`soitin/` ilman tunnusta avaa listan. Sovelluksessa (`window.SoitinApp` olemassa) verkon nappia
+ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria ei tarvita:
+tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Jos muutat `keikat.html`:ää,
+testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
