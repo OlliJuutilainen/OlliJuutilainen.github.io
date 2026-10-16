@@ -292,9 +292,14 @@
      vieressä tekstin leveydestä riippumatta. Negatiivinen vasen marginaali
      (leveys + rako) pitää sen osuuden puolen leveydestä nollana, ettei
      kytkin siirry. Suljettuna vain natsa näkyy samalla paikalla, ja se
-     kääntyy osoittamaan oikealle (▸). */
+     peilautuu ylösalaisin (˄): päät pysyvät paikallaan ja vain kärki
+     heilahtaa ylös (transform-origin päiden korkeudella, 0.75 / 3.5).
+     Suljettu natsa on siksi 2 px avointa ylempänä; koko natsa on 1 px
+     kytkinten keskilinjan alapuolella, jolloin avoin on 1 px sen alla ja
+     suljettu 1 px sen yllä. */
   .fold {
     position: relative;
+    top: 1px;
     display: grid;
     place-items: center;
     margin: 0 18px 0 -25px;
@@ -313,11 +318,15 @@
     stroke-width: 0.7;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transform-origin: 50% 21.4286%;
     transition: transform 0.15s;
   }
   .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* Kahden kytkimen rivillä natsa on keskellä kytkinten välissä, soittimen
-     akselilla (toista-napin keskikohta), pystysuunnassa kytkinten tasolla.
+  /* Kahden kytkimen rivillä natsa on kytkinten välissä. Sen vasen reuna
+     (pyöreä viivanpää) on play-kolmion vasemman seinämän kohdalla:
+     seinämä on 5.42 px akselin vasemmalla (7/24 · 26 px − 13 px) ja
+     natsan reuna 3.1 px natsan keskeltä vasemmalla, joten natsan
+     keskikohta on 2.32 px akselin vasemmalla. Pystysuunnassa 14 px on kytkinten keskilinja, +1 px ks. yllä.
      Se on silti DOMissa keikka-puolen sisällä; puoli on staattinen, jotta
      sijainti lasketaan .optsista. z-index pitää kosketusalueen setin
      kytkimen keikka-puolen päällä. Yhden kytkimen keikassa natsa jää sanan
@@ -326,13 +335,13 @@
   .opts:has(#setopt:not([hidden])) #scaleopt .side[data-on="0"] { position: static; }
   .opts:has(#setopt:not([hidden])) .fold {
     position: absolute;
-    left: 50%;
-    top: 14px;
+    left: calc(50% - 2.32px);
+    top: 15px;
     margin: 0;
     transform: translate(-50%, -50%);
     z-index: 1;
   }
-  .opts.kiinni .fold svg { transform: rotate(-90deg); }
+  .opts.kiinni .fold svg { transform: scaleY(-1); }
   .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
   .opts.kiinni .fold { visibility: visible; }
   .opts.kiinni .minijana, .opts.kiinni .stopmark { display: none; }
