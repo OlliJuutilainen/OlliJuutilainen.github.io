@@ -45,8 +45,9 @@ import java.util.regex.Pattern;
  * kuin Tusinasää avaa tusinapaja.html:n. Sivu ladataan verkosta eikä paketoida sovellukseen,
  * koska worker antaa keikkatiedot vain ollijuutilainen.github.io-alkuperälle.
  *
- * <p>Keikka avataan tunnuksella Omat keikkani -näkymästä (assets/keikat.html), joka on
- * soittimen päällä omana WebView-näkymänään. Siksi listan avaaminen ei katkaise soittoa.
+ * <p>Keikka avataan tunnuksella Omat keikkani -näkymästä (keikat.html, joka on yhteinen
+ * verkkosoittimen kanssa ja tulee assetteihin kansiosta soitin/lista). Näkymä on soittimen
+ * päällä omana WebView-näkymänään. Siksi listan avaaminen ei katkaise soittoa.
  */
 public class MainActivity extends AppCompatActivity {
 

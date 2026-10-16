@@ -51,6 +51,14 @@ android {
         buildConfig true
     }
 
+    // Omat keikkani -näkymä (keikat.html) on yhteinen verkkosoittimen kanssa, joten se
+    // otetaan sovellukseen suoraan sivuston kansiosta soitin/lista eikä kopiona.
+    sourceSets {
+        main {
+            assets.srcDirs += '../../soitin/lista'
+        }
+    }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.julkinen

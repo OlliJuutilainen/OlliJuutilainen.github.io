@@ -419,13 +419,19 @@
   <picture>
     <source srcset="ohje-soitin-tumma.png" media="(prefers-color-scheme: dark)">
     <img src="ohje-soitin.png" width="1120" height="1482"
-      alt="Soitin: otsikko ja lisätieto, nyt soi -rivi, aikajana, viisi nappia, kaksi kytkintä ja kappalelista seteittäin.">
+      alt="Soitin: otsikko ja lisätieto, oikeassa yläkulmassa Omat keikkani -nappi, nyt soi -rivi, aikajana, viisi nappia, kaksi kytkintä ja kappalelista seteittäin.">
   </picture>
   <figcaption><a href="#merkinnat">Kahden setin esimerkki</a> soittimessa. Ensimmäinen biisi soi.</figcaption>
 </figure>
 <table>
   <tr><th>Kohta</th><th>Toiminto</th></tr>
   <tr><td>Otsikko ja lisätieto</td><td>Keikan nimi ja sen alla harmaana vapaaehtoinen lisätieto.</td></tr>
+  <tr><td>
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Omat keikkani</td>
+    <td>Lista keikoista, jotka on avattu tässä selaimessa; avattu keikka tulee listaan itsestään.
+      Napauta keikkaa tai kirjoita tunnus. Soitto jatkuu, kun lista on auki. Lista on vain tämän
+      selaimen muistissa, eikä sitä lähetetä minnekään.</td></tr>
   <tr><td>Nyt soi -rivi</td><td>Soivan kappaleen numero ja nimi. Useamman setin keikassa edessä on
     setti, esim. <i>(ii) 3.</i></td></tr>
   <tr><td>Aikajana</td><td>Napauta tai vedä kohtaan. Pienet pystyviivat ovat kappaleiden rajoja (keikka-janalla).
@@ -485,8 +491,9 @@
 <summary><h3 id="ongelmat">Ongelmatilanteet</h3></summary>
 <table>
   <tr><th>Soitin näyttää</th><th>Syy ja korjaus</th></tr>
-  <tr><td><i>Linkistä puuttuu keikan tunnus</i></td>
-    <td>Linkki on kopioitunut vajaana. Kopioi se kokonaan, myös <code>#</code>-merkin jälkeinen osa.</td></tr>
+  <tr><td><i>Omat keikkani</i> keikan sijaan</td>
+    <td>Linkistä puuttuu keikan tunnus: se on kopioitunut vajaana. Kopioi se kokonaan, myös
+      <code>#</code>-merkin jälkeinen osa, tai kirjoita tunnus listan kenttään.</td></tr>
   <tr><td><i>Keikkaa ei löytynyt</i></td>
     <td>Heti tallennuksen jälkeen: odota minuutti. Muuten tunnus on väärin, komento jäi ajamatta tai
       keikka on poistettu.</td></tr>
