@@ -205,7 +205,7 @@
   .opts:has(#setopt[hidden]) #scaleopt { grid-column: 1 / -1; }
   #list { margin-top: 36px; }
   /* Setin kytkin on 7.29 px oikealla, jotta natsan välit biisi- ja
-     keikka-sanoihin olisivat lähes yhtä suuret (26.8 / 24.1 px). Siirto
+     keikka-sanoihin olisivat lähes yhtä suuret (27.3 / 23.6 px). Siirto
      on left-arvona, ettei sarakejako muutu. */
   #setopt { position: relative; left: 7.29px; }
   /* Kytkin keskellä, vaihtoehdot sen molemmin puolin ilman kehystä.
@@ -326,7 +326,7 @@
     transition: transform 0.15s;
   }
   .fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  /* Kahden kytkimen rivillä natsa on kytkinten välissä, keskikohta 1 px
+  /* Kahden kytkimen rivillä natsa on kytkinten välissä, keskikohta 0.5 px
      soittimen akselin (toista-napin keskikohdan) vasemmalla: käyttäjän
      valinta, lähes muttei aivan keskellä. Pystysuunnassa 14 px on
      kytkinten keskilinja; natsa on 4 px sen yläpuolella (+1 px ks. yllä,
@@ -339,7 +339,7 @@
   .opts:has(#setopt:not([hidden])) #scaleopt .side[data-on="0"] { position: static; }
   .opts:has(#setopt:not([hidden])) .fold {
     position: absolute;
-    left: calc(50% - 1px);
+    left: calc(50% - 0.5px);
     top: 11px;
     margin: 0;
     transform: translate(-50%, -50%);
