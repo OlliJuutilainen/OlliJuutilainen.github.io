@@ -154,7 +154,8 @@ mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedosto
 aikajanan alusta.
 Käyttäjän päätös 16.10.2026: suomenkielisessä tekstissä sana on foneettisesti *markkeri* (*markkerin*,
 *markkerit*, *markkerilista*); englanninkielinen *Marker* vain DAW:n valikon tai komennon nimessä
-(*Create Marker*, *List Editors → Marker*, oletusnimi *Marker 3*). Ankkuri `#markerit` pysyy ennallaan.
+(*Create Marker*, *List Editors → Marker*, oletusnimi *Marker 3*). Poikkeus: `#markerit`-osion avausvirke käyttää muotoa *marker-merkintöjen*, koska se
+esittelee sanan; puhekielinen *markkeri* vasta sen jälkeen. Ankkuri `#markerit` pysyy ennallaan.
 **Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
 kertoja, ja ohjeet ärsyttävät). Settilistan alla on vain kehotus ja linkki; merkinnät ja
 vientiohjeet ovat `ohje.html`:n osioissa `#settilista` ja `#markerit`.
