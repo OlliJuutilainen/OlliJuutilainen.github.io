@@ -133,10 +133,10 @@
 6:45 Toinen biisi
 ---
 15:05 Toisen setin biisi"></textarea>
-  <p class="muted" style="margin-top:6px">Liitä tähän markerilista Logicista tai Reaperista, tai
+  <p class="muted" style="margin-top:6px">Liitä tähän markkerilista Logicista tai Reaperista, tai
     kirjoita kappaleet allekkain: alkuaika ja nimi. Merkinnät ja vientiohjeet ovat
     <a href="ohje.html#settilista">käyttöoppaassa</a>.</p>
-  <!-- Näkyy vain, kun lista on Logicin markerilista (SMPTE-ajat). -->
+  <!-- Näkyy vain, kun lista on Logicin markkerilista (SMPTE-ajat). -->
   <div id="fpsBox" hidden>
   <label for="fps">Logic-projektin kuvanopeus</label>
   <select id="fps">
@@ -291,9 +291,9 @@
     return isNaN(t) ? undefined : t;
   }
 
-  // Logicin markerilista (View > Show Event Position and Length as Time,
+  // Logicin markkerilista (View > Show Event Position and Length as Time,
   // Cmd-A, Cmd-C): "01:02:19:12.40⇥Nimi⇥ 00:00:00:00.02", lukitulla
-  // markerilla alussa "🔒⇥". Aika on SMPTE: tunnit:min:s:framet.bitit, bitit
+  // markkerilla alussa "🔒⇥". Aika on SMPTE: tunnit:min:s:framet.bitit, bitit
   // 0–79 (Logicin oletusnäyttö "With Bits"). Logicin tahti 1 on oletuksena
   // 01:00:00:00, joten ensimmäisen rivin täydet tunnit vähennetään kaikista.
   // Oletusnimi "Marker 3" = biisi nimeltä "3"; tyhjä nimi = pelkkä aika.
@@ -320,7 +320,7 @@
     return drop ? n - base / 15 * (min - Math.floor(min / 10)) : n;
   }
 
-  // Setinvaihto DAW:n markerista: "44:50 ---" tai "44:50 --- (Encore)".
+  // Setinvaihto DAW:n markkerista: "44:50 ---" tai "44:50 --- (Encore)".
   // Aika ei merkitse mitään; setti alkaa seuraavasta rivistä.
   var RE_TIMED_SET = new RegExp("^" + TIME + "\\s+[-–—](?:\\s*[-–—])*\\s*(\\(.+\\))?$");
 
@@ -372,7 +372,7 @@
            : za !== null ? za : zb;
       }
       if ((m = RE_AUDACITY.exec(raw.replace(/\s+$/, "")))) {
-        // Tyhjä label on pelkkä aika eli ei-biisi, kuten nimeämätön markeri.
+        // Tyhjä label on pelkkä aika eli ei-biisi, kuten nimeämätön markkeri.
         sec = +m[1]; title = (m[3] || "").trim() || "[]";
       } else if (z && zt !== undefined) {
         title = "[" + z[2].trim() + "]";
@@ -383,7 +383,7 @@
         sec = zt === null ? 0 : zt;
       } else if ((m = RE_TIME_ONLY.exec(line))) {
         // Pelkkä aika on ei-biisi ilman omaa merkkiä (tallennetaan "[]"), myös
-        // DAW:n nimeämätön markeri. Biisi ilman nimeä (soitin näyttää
+        // DAW:n nimeämätön markkeri. Biisi ilman nimeä (soitin näyttää
         // järjestysnumeron) on rivi, jossa on ajan lisäksi rivinumero ("3. 3:42").
         sec = parseTime(m[1].replace(",", "."));
         title = /^\d+[.)]/.test(line) ? "" : "[]";
@@ -635,7 +635,7 @@
       var lastTr = list.tracks[list.tracks.length - 1];
       if (lastTr && lastTr.sec >= audioLen) {
         problems.push("Viimeinen alkuaika " + lastTr.t + " on äänitiedoston lopun (" + fmtTime(Math.floor(audioLen)) +
-          ") jälkeen. Alkaako äänitiedosto samasta kohdasta kuin markerien ajat?");
+          ") jälkeen. Alkaako äänitiedosto samasta kohdasta kuin markkerien ajat?");
       }
     }
     $("folderNote").hidden = !isFolder || list.tracks.length > 0;
