@@ -204,6 +204,10 @@
   }
   .opts:has(#setopt[hidden]) #scaleopt { grid-column: 1 / -1; }
   #list { margin-top: 36px; }
+  /* Setin kytkin on 7.29 px oikealla, jotta natsan välit biisi- ja
+     keikka-sanoihin ovat yhtä suuret (25.4 px). Siirto on left-arvona,
+     ettei sarakejako muutu. */
+  #setopt { position: relative; left: 7.29px; }
   /* Kytkin keskellä, vaihtoehdot sen molemmin puolin ilman kehystä.
      Sarakkeet 1fr auto 1fr pitävät kytkimen keskellä tekstien pituudesta
      riippumatta. Toisella rivillä kytkimen alla on sen symboli. */
@@ -326,7 +330,9 @@
      (pyöreä viivanpää) on play-kolmion vasemman seinämän kohdalla:
      seinämä on 5.42 px akselin vasemmalla (7/24 · 26 px − 13 px) ja
      natsan reuna 3.1 px natsan keskeltä vasemmalla, joten natsan
-     keskikohta on 2.32 px akselin vasemmalla. Pystysuunnassa 14 px on kytkinten keskilinja, +1 px ks. yllä.
+     keskikohta on 2.32 px akselin vasemmalla. Pystysuunnassa 14 px on
+     kytkinten keskilinja; natsa on 4 px sen yläpuolella (+1 px ks. yllä,
+     eli top 11 px), avoimena päät 4 px ja suljettuna kärki 6 px linjan yllä.
      Se on silti DOMissa keikka-puolen sisällä; puoli on staattinen, jotta
      sijainti lasketaan .optsista. z-index pitää kosketusalueen setin
      kytkimen keikka-puolen päällä. Yhden kytkimen keikassa natsa jää sanan
@@ -336,7 +342,7 @@
   .opts:has(#setopt:not([hidden])) .fold {
     position: absolute;
     left: calc(50% - 2.32px);
-    top: 15px;
+    top: 11px;
     margin: 0;
     transform: translate(-50%, -50%);
     z-index: 1;
