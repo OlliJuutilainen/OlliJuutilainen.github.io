@@ -285,3 +285,7 @@ tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Ve
 avaa otsikon alle hennon tietoiskun (soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
 ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
+Listan otsikko on sanamerkki *keik·walk.* kuulokeikonilla (oranssit tyynyt) ja alalaidassa haalea
+*© TUSINA·SOFT* (käyttäjän päätös 18.10.2026), myös sovelluksessa. Sanamerkki on SVG-polkuja eikä
+fonttia, koska sovellus näyttää listan assetista ilman verkkoa. Napin, iframen ja `<title>`-elementin
+nimi on edelleen *Omat keikkani*.

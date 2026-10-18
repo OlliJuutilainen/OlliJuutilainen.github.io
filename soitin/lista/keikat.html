@@ -23,6 +23,7 @@
     --accent: #157570;
     --err-bg: #fbeae5;
     --err-fg: #7a2511;
+    --pad: #e2661d;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -34,6 +35,7 @@
       --accent: #20b2aa;
       --err-bg: #3a1d14;
       --err-fg: #f6c2ad;
+      --pad: #ee7a33;
     }
   }
   * { box-sizing: border-box; }
@@ -49,17 +51,25 @@
   main {
     position: relative;
     max-width: 640px;
+    min-height: 100vh;   /* alatunniste alalaitaan */
     margin: 0 auto;
-    padding: 28px 16px 48px;
+    padding: 28px 16px 64px;
   }
+  /* Otsikko on sanamerkki keik·walk. ja kuulokkeet SVG-polkuina: sovellus näyttää sivun
+     assetista ilman verkkoa, joten verkkofonttia ei voi käyttää. Korkeus on sama kuin
+     entisellä tekstiotsikolla (1.45rem × 1.25), jotta otsikko pysyy yläkulman nappien
+     linjassa eikä muu sivu liiku. */
   h1 {
-    font-size: 1.45rem;
-    line-height: 1.25;
-    font-weight: 650;
-    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    min-height: 29px;
     margin: 0 0 22px;
     padding-right: 88px;
   }
+  h1 svg { flex: none; height: 20px; }
+  h1 .phones { width: 25px; margin-right: 9px; }
+  h1 .phones circle { fill: var(--pad); }
+  h1 .word { width: 103.8px; }
   button, input {
     font: inherit;
     color: inherit;
@@ -192,6 +202,21 @@
   .confirm .pill { margin-right: 8px; }
   .confirm .go { background: var(--err-fg); color: var(--err-bg); }
 
+  /* --- Alatunniste --- */
+  .foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    margin: 0;
+    text-align: center;
+    color: var(--muted);
+    opacity: 0.6;
+    font-size: 0.68rem;
+    font-weight: 300;
+    letter-spacing: 0.14em;
+  }
+
   /* --- Tietoa (vain verkossa; sovelluksen lista ei avaa linkkejä) --- */
   .info {
     display: inline-grid;
@@ -199,9 +224,6 @@
     width: 36px;
     height: 36px;
     margin: -8px 0 -8px -2px;
-    vertical-align: middle;
-    position: relative;
-    top: -3px;   /* isojen kirjainten keskelle */
     border-radius: 50%;
     color: var(--muted);
   }
@@ -232,7 +254,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <h1 id="otsikko">Omat keikkani</h1>
+  <h1 id="otsikko">
+    <svg class="phones" viewBox="0 0 25 20" aria-hidden="true"><path d="M4.7 15.3V8.6a7.8 7.8 0 0 1 15.6 0v6.7" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="4.7" cy="15.3" r="4.7"/><circle cx="20.3" cy="15.3" r="4.7"/></svg>
+    <svg class="word" viewBox="0 0 103.8 20" role="img" aria-label="keik·walk."><path d="M0 0H3.2V20H0ZM2.8 10.27L6.94 6H11L5.93 12.49L11 20H7.14L2.8 14.75ZM26.2 0H29.4V3.2H26.2ZM26.2 6H29.4V20H26.2ZM31 0H34.2V20H31ZM33.8 10.27L37.94 6H42L36.93 12.49L42 20H38.14L33.8 14.75ZM44.4 11.4h3.2v3.2H44.4ZM78.4 7.6H81.6V20H78.4ZM83.2 0H86.4V20H83.2ZM88 0H91.2V20H88ZM90.8 10.27L94.94 6H99L93.93 12.49L99 20H95.14L90.8 14.75ZM100.6 16.8h3.2v3.2H100.6Z"/><path d="M14.2 13H23V10.8A3.2 3.2 0 0 0 19.8 7.6H17.4A3.2 3.2 0 0 0 14.2 10.8V15.2A3.2 3.2 0 0 0 17.4 18.4H22.2M51.6 6V15.2A3.2 3.2 0 0 0 54.8 18.4H63.2A3.2 3.2 0 0 0 66.4 15.2V6M59 9.2V18.4M72 7.6H76.8A3.2 3.2 0 0 1 80 10.8V18.4M80 13H73.9A2.7 2.7 0 0 0 71.2 15.7A2.7 2.7 0 0 0 73.9 18.4H80" fill="none" stroke="currentColor" stroke-width="3.2"/></svg>
+  </h1>
   <div class="about" id="about" hidden>
     <p><b>Soitin</b> soittaa äänitiedostoja suoraan Google Drivesta tai Dropboxista.
       <a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.</p>
@@ -266,6 +291,8 @@
       <button type="button" class="pill" id="reset-no">Peru</button>
     </div>
   </div>
+
+  <p class="foot">© TUSINA·SOFT</p>
 </main>
 
 <script>
