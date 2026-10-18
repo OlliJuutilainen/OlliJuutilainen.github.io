@@ -40,6 +40,8 @@
     border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 44px;
   }
   textarea { min-height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92rem; }
+  /* Abletonin projektitiedostoa vedetään settilistakenttään. */
+  textarea.drop { outline: 2px dashed var(--accent); outline-offset: 1px; }
   select {
     font: inherit; color: inherit; background: var(--bg);
     border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; min-height: 44px;
@@ -133,9 +135,10 @@
 6:45 Toinen biisi
 ---
 15:05 Toisen setin biisi"></textarea>
-  <p class="muted" style="margin-top:6px">Liitä tähän markkerilista Logicista tai Reaperista, tai
-    kirjoita kappaleet allekkain: alkuaika ja nimi. Merkinnät ja vientiohjeet ovat
-    <a href="ohje.html#settilista">käyttöoppaassa</a>.</p>
+  <p class="muted" style="margin-top:6px">Liitä tähän markkerilista Logicista tai Reaperista, vedä
+    tähän Abletonin projektitiedosto tai kirjoita kappaleet allekkain: alkuaika ja nimi. Merkinnät ja
+    vientiohjeet ovat <a href="ohje.html#settilista">käyttöoppaassa</a>.</p>
+  <p class="muted" id="alsNote" hidden></p>
   <!-- Näkyy vain, kun lista on Logicin markkerilista (SMPTE-ajat). -->
   <div id="fpsBox" hidden>
   <label for="fps">Logic-projektin kuvanopeus</label>
@@ -501,6 +504,112 @@
     return r;
   }
 
+  // ---- Abletonin markkerit -----------------------------------------------
+
+  // Abletonista markkerilistaa ei saa leikepöydälle, joten projektitiedosto
+  // (.als, gzip-pakattu XML) vedetään settilistakenttään, ja sen markkerit
+  // (Locators) kirjoitetaan kenttään tavallisena settilistana. Markkerin aika
+  // on iskuina eli neljäsosina aikajanan alusta; sekunneiksi se muunnetaan
+  // Main-raidan (Live 8–11: Master) tempolla. Tempoautomaatio on murtoviiva,
+  // jonka Live lukee kuudestoistaosan välein ja pitää välin ajan vakiona.
+  // Malli ja Live 8–12 -testitiedostot ovat dawtool-projektista
+  // (github.com/offlinemark/dawtool), jonka tuloksia vastaan tämä on
+  // tarkistettu. Oikealla Abletonilla ei ole testattu.
+  var STEP = 0.25;
+
+  function kids(el, tag) {
+    return el ? Array.prototype.filter.call(el.children, function (c) { return c.tagName === tag; }) : [];
+  }
+  function kid(el, tag) { return kids(el, tag)[0] || null; }
+  function val(el, tag) { var c = kid(el, tag); return c ? c.getAttribute("Value") : null; }
+  // Virhe, jonka viestin voi näyttää käyttäjälle sellaisenaan.
+  function alsError(msg) { var e = new Error(msg); e.own = true; return e; }
+
+  function alsList(xml) {
+    var doc = new DOMParser().parseFromString(xml, "application/xml");
+    var set = doc.documentElement.tagName === "Ableton" ? kid(doc.documentElement, "LiveSet") : null;
+    if (!set) throw alsError("se ei ole Abletonin projektitiedosto.");
+    // Chromium palauttaa katkenneesta tiedostosta alun ja virhe-elementin; vajaa lista ei kelpaa.
+    if (doc.getElementsByTagName("parsererror").length) throw alsError("tiedosto on vajaa tai rikki.");
+    var main = kid(set, "MainTrack") || kid(set, "MasterTrack");
+    var tempo = kid(kid(kid(main, "DeviceChain") || kid(main, "MasterChain"), "Mixer"), "Tempo");
+    // Tempoautomaatio on Live 10:stä alkaen Main-raidan automaatioissa, Live 8–9:ssä Tempon sisällä.
+    var target = kid(tempo, "AutomationTarget"), events = kid(kid(tempo, "ArrangerAutomation"), "Events");
+    kids(kid(kid(main, "AutomationEnvelopes"), "Envelopes"), "AutomationEnvelope").forEach(function (env) {
+      if (target && val(kid(env, "EnvelopeTarget"), "PointeeId") === target.getAttribute("Id")) {
+        events = kid(kid(env, "Automation"), "Events");
+      }
+    });
+    var curved = false;
+    var pts = kids(events, "FloatEvent").map(function (e) {
+      if (e.hasAttribute("CurveControl1X")) curved = true;
+      return { t: parseFloat(e.getAttribute("Time")), v: parseFloat(e.getAttribute("Value")) };
+    }).sort(function (a, b) { return a.t - b.t; });
+    // Ilman automaatiota on vain yksi piste kaukana alun edellä; silloin pätee käsin asetettu tempo.
+    var manual = parseFloat(val(tempo, "Manual"));
+    if (pts.length < 2 && manual > 0) pts = [{ t: 0, v: manual }];
+    if (!pts.length || pts.some(function (p) { return isNaN(p.t) || !(p.v > 0); })) {
+      throw alsError("projektin tempoa ei löytynyt.");
+    }
+    var locs = kids(kid(kid(set, "Locators"), "Locators"), "Locator").map(function (l) {
+      return { b: parseFloat(val(l, "Time")), name: (val(l, "Name") || "").replace(/\s+/g, " ").trim() };
+    });
+    if (!locs.length) throw alsError("siinä ei ole markkereita (Locators).");
+    if (locs.some(function (l) { return !(l.b >= 0); })) throw alsError("markkerin aika ei kelpaa.");
+    locs.sort(function (a, b) { return a.b - b.b; });
+
+    // Aikajanaa käydään eteenpäin kuudestoistaosa kerrallaan: g on välin alku
+    // iskuina, sec sen aika sekunteina ja i viimeinen automaatiopiste ennen g:tä.
+    // Tempo välin alussa on murtoviivan arvo; pystysuorassa hypyssä jälkimmäinen.
+    var i = 0, g = 0, sec = 0, last = pts.length - 1;
+    function bpm() {
+      while (i < last && pts[i + 1].t <= g) i++;
+      var p = pts[i], q = pts[i + 1];
+      return i === last || p.t > g ? p.v : p.v + (q.v - p.v) * (g - p.t) / (q.t - p.t);
+    }
+    function secAt(b) {
+      for (;;) {
+        var v = bpm();
+        // Viimeisen pisteen jälkeen tempo ei enää muutu.
+        if (g + STEP > b || (i === last && pts[i].t <= g)) return sec + (b - g) * 60 / v;
+        sec += STEP * 60 / v;
+        g += STEP;
+      }
+    }
+    return {
+      lines: locs.map(function (l) { return fmtTime(secAt(l.b), true) + (l.name ? " " + l.name : ""); }),
+      tempo: pts.length > 1 ? "tempoautomaatio huomioitu" + (curved ? " (kaaret suorina)" : "")
+                            : "tempo " + +pts[0].v.toFixed(2) + " bpm"
+    };
+  }
+
+  // Tiedoston lukuvirhe ja onnistuneen luvun ilmoitus näkyvät vain niin kauan
+  // kuin settilistakenttä on ennallaan.
+  var alsText = null, alsNote = "", dropText = null, dropError = "";
+
+  function readAls(file) {
+    alsNote = dropError = "";
+    var fail = function (msg) { dropText = f.tracks.value; dropError = msg; update(); };
+    if (!/\.als$/i.test(file.name)) {
+      return fail("Settilistakenttään voi vetää vain Abletonin projektitiedoston (.als). Logicin ja " +
+        "Reaperin markkerilistat liitetään tekstinä.");
+    }
+    file.arrayBuffer().then(function (buf) {
+      var b = new Uint8Array(buf);
+      if (b[0] !== 0x1f || b[1] !== 0x8b) return new TextDecoder().decode(b);
+      if (typeof DecompressionStream !== "function") throw alsError("selain ei osaa purkaa sitä. Kokeile toista selainta.");
+      return new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    }).then(function (xml) {
+      var r = alsList(xml);
+      f.tracks.value = alsText = r.lines.join("\n");
+      alsNote = "Luettu Abletonin projektista " + file.name + ": " + r.lines.length + " markkeri" +
+        (r.lines.length > 1 ? "a" : "") + ", " + r.tempo + ".";
+      update();
+    }).catch(function (e) {
+      fail("Tiedostoa " + file.name + " ei voitu lukea" + (e && e.own ? ": " + e.message : "."));
+    });
+  }
+
   // ---- Äänilinkki --------------------------------------------------------
 
   // Jakolinkistä suora tiedostolinkki. Dropbox: dl=0 pois, raw=1 tilalle.
@@ -614,7 +723,7 @@
     if (!title) problems.push("Otsikko puuttuu.");
     var sub = f.sub.value.replace(/[\r\n]+/g, " ").trim();
     if (sub.length > 200) problems.push("Lisätieto on liian pitkä (enintään 200 merkkiä).");
-    var isFolder = folderMode;
+    var isFolder = folderMode, dropped = false;
     $("singleBox").hidden = $("tracksBox").hidden = $("folderOffer").hidden = isFolder;
     $("folderBox").hidden = !isFolder;
     var audio, folder, list;
@@ -630,6 +739,10 @@
       $("audioNote").textContent = audio.note || "";
       list = parseList(f.tracks.value, f.fps.value);
       $("fpsBox").hidden = !list.smpte;
+      $("alsNote").textContent = f.tracks.value === alsText ? alsNote : "";
+      $("alsNote").hidden = !$("alsNote").textContent;
+      dropped = !!dropError && f.tracks.value === dropText;
+      if (dropped) problems.push(dropError);
       problems = problems.concat(list.errors);
       // Esim. Logicin bounce, joka ei alkanut tahdista 1: ajat ovat siirtyneet.
       var lastTr = list.tracks[list.tracks.length - 1];
@@ -642,7 +755,8 @@
 
     var box = $("problems");
     box.innerHTML = "";
-    var anyInput = profileError || f.title.value || (isFolder ? f.folder.value : f.audio.value || f.tracks.value);
+    var anyInput = profileError || f.title.value ||
+      (isFolder ? f.folder.value : f.audio.value || f.tracks.value || dropped);
     if (problems.length && anyInput) {
       var ul = document.createElement("ul");
       problems.forEach(function (p) {
@@ -829,7 +943,24 @@
       note.hidden = false;
     }
   });
+  f.tracks.addEventListener("input", function () { dropError = ""; });
   ["key", "title", "sub", "audio", "tracks", "folder"].forEach(function (k) { f[k].addEventListener("input", update); });
+  // Abletonin projektitiedosto vedetään settilistakenttään. Muualle pudotettu
+  // tiedosto ei saa avautua selaimessa ja hukata täytettyjä kenttiä.
+  var hasFiles = function (e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, "Files") >= 0; };
+  window.addEventListener("dragover", function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = e.target === f.tracks ? "copy" : "none";
+    f.tracks.classList.toggle("drop", e.target === f.tracks);
+  });
+  f.tracks.addEventListener("dragleave", function () { f.tracks.classList.remove("drop"); });
+  window.addEventListener("drop", function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    f.tracks.classList.remove("drop");
+    if (e.target === f.tracks && e.dataTransfer.files.length) readAls(e.dataTransfer.files[0]);
+  });
   // Kuvanopeus muistetaan tässä selaimessa: sama käyttäjä tekee keikat yleensä samalla asetuksella.
   try { if (FPS[localStorage.getItem("soitin-fps")]) f.fps.value = localStorage.getItem("soitin-fps"); } catch (e) {}
   f.fps.addEventListener("change", function () {
