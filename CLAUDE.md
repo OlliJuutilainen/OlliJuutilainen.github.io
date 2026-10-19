@@ -318,7 +318,9 @@ loppurenkaan kehän keskelle. Kuulokkeiden sanka 1,2.
 Listalla logo on 1,25-kertaisena (WALK 20 px); negatiiviset marginaalit pitävät otsikon korkeuden
 ja WALKin paikan samoina kuin edellisellä logolla. Listan ja
 tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaidassa haalea
-*© TUSINA·SOFT*. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
+*© TUSINA·SOFT*. Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkageneraattorissa,
+`ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, mutta ei soitinsivulla
+(`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
 Soitinsivulla sama logo on pienenä (20/28,82 px yksikköä kohden, 20,62 px korkea) ☰-napin vasemmalla puolella; sovelluksessa
