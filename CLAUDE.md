@@ -299,19 +299,28 @@ perusmuodossa, tai käytetään yhdyssanaa (*keick·walk.-sivulla*, *keick·walk
 workerin ja KV:n nimet sekä koodin tunnisteet (`soitin/`, `~/.soitin/soitin`, `soitin.jotain`,
 `soitin-keikat`) pysyvät ennallaan, samoin koodin kommenttien *soitin*.
 Listan otsikko on keick·walk.-logo (SVG-polkuja, koska sovellus näyttää listan assetista ilman
-verkkoa; generaattori kierroksineen ei ole repossa). Käyttäjän kanssa iteroidut mitat, yksikkönä
-perusviiva 20: WALK on Walkman-logon mittasuhteilla (korkeus 16, viiva 3,2, W:n "pakarat" eli kaksi
-puoliympyräpohjaa, A kaarena ja pallo sen sisällä, K:n vinot kaarina, L:n ulkokulma pyöreä). keick on
-pienillä kirjaimilla x-korkeudella 12, viiva 2,0, k ilman nousua; e on W kyljellään (selkänä kaksi
-puoliympyrää) ja yhtä leveä kuin c, c on A kyljellään ilman palloa; alkusanaa on nostettu niin, että e:n
-ja c:n alaviivojen keskilinja on L:n alaviivan keskilinjalla. Isot pallot (halkaisija 36/22 × 3,2) ovat
-tyynyt (turkoosi), A:n pallo (tekstin väri) ja janan loppupiste (turkoosi); pienet pisteet (4,0) ovat
-i:n piste (turkoosi, kokonaan x-korkeuden yläpuolella), interpunkti (tekstin väri, alkusanan
-keskilinjalla kuten A:n pallo) ja harmaat aikajanan pisteet turkoosien ja tekstinväristen pallojen
-kohdalla. Aikajana (1,4) alkaa vasemmasta tyynystä ja päättyy loppupisteeseen. Kuulokkeiden sanka 1,2.
-Logo on sivulla 1,25-kertaisena (WALK 20 px). Listan ja tunnuskentän yläpuolella on vakiofonttinen
-otsikko *Valkkaa keikka*; alalaidassa haalea *© TUSINA·SOFT*. Korostusväri on kaikilla soittimen
-sivuilla Okinawa-turkoosi `#0a7f76` / tummassa `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja
-listan `<title>`-elementin nimi on edelleen *Omat keikkani*.
-Soittimen aikajanalla biisirajat ovat pieniä harmaita pisteitä (6 px, `--line`) eivätkä katkoksia;
+verkkoa; generaattori kierroksineen ei ole repossa, logon merkintä on kopioitu sellaisenaan
+`keikat.html`:ään ja `index.html`:ään). Käyttäjän kanssa iteroidut mitat, yksikkönä perusviiva 20:
+WALK on Walkman-logon mittasuhteilla (korkeus 16, viiva 3,2, W:n "pakarat" eli kaksi puoliympyräpohjaa,
+A kaarena ja pallo sen sisällä, K:n vinot kaarina, L:n ulkokulma pyöreä) ja turkoosi. keick on
+pienillä kirjaimilla ilman nousuja, viiva 2,6, ja yhtä korkea kuin kuulokkeiden sangan lakipiste
+(yläreuna 4); e:n ja c:n alaviivojen keskilinja on L:n alaviivan keskilinjalla (18,4). e on W kyljellään
+(selkänä kaksi puoliympyrää) ja yhtä leveä kuin c, c on A kyljellään ilman palloa; leveydet on
+skaalattu x-korkeuden 12 mitoista. Isot pallot (halkaisija 36/22 × 3,2) ovat tyynyt (turkoosi),
+A:n pallo (tekstin väri) ja janan loppupiste (turkoosi); pienet (4,0) i:n piste (turkoosi, 2,0
+alkusanan yläpuolella) ja interpunkti (tekstin väri). Interpunkti ja A:n pallo ovat alkusanan
+keskilinjalla (11,85). Aikajana (1,4, `--line`) alkaa vasemmasta tyynystä ja päättyy loppupisteeseen;
+sen pisteet (2,6) ovat omaa harmaan sävyään `--dot` (#a5a29b / tummassa #6a6863) muiden pallojen
+kohdalla. Kuulokkeiden sanka 1,2. Listalla logo on 1,25-kertaisena (WALK 20 px). Listan ja
+tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaidassa haalea
+*© TUSINA·SOFT*. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
+`#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
+*Omat keikkani*.
+Soitinsivulla sama logo on pienenä (20 px korkea) ☰-napin vasemmalla puolella; sovelluksessa
+(`main.app`) silta.js:n kolmen napin rivin vasemmalla puolella. Otsikon tila varataan kelluvalla
+`.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean reunuksen (myös
+silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
+`break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
+leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
+Soittimen aikajanalla biisirajat ovat 4 px:n pisteitä sävyllä `--dot` eivätkä katkoksia;
 *Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
