@@ -148,7 +148,14 @@ vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-mark
 Logic-listalle Keikkageneraattori näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
 avaimella `soitin-fps`): framet ja bitit muunnetaan sekunneiksi, 23.976/29.97/59.94 korjataan
 0,1 %:n jätätyksellä, ja drop frame (`d` tai puolipiste `01:00:04;16`) lasketaan ohitettuine
-framenumeroineen. Nimeämätön markkeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
+framenumeroineen. Abletonista (Live 8–12) markkerilistaa ei saa leikepöydälle, joten projektitiedosto
+`.als` vedetään settilistakenttään: Keikkageneraattori purkaa sen selaimessa (`DecompressionStream`),
+lukee markkerit (Locators) ja kirjoittaa ne kenttään tavallisena settilistana. Iskut muunnetaan
+sekunneiksi Main/Master-raidan tempolla ja tempoautomaatiolla Liven tapaan (tempo luetaan
+kuudestoistaosan välein; malli dawtool-projektista, jonka Live 8–12 -testitiedostoja vastaan ajat
+tarkistettiin 18.10.2026). Oikealla Abletonilla ja oikealla hiiren vedolla testaamatta; käyttäjän
+päätöksellä `ohje.html`:n Ableton-osio on viimeisenä Logicin ja Reaperin jälkeen ja kertoo, ettei
+toimintoa ole testattu. Nimeämätön markkeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
 Aikaleimallinen `---`-rivi (markkeri nimeltä `---`) on setinvaihto. Markkerien vienti tiedoston
 mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedoston oletetaan alkavan
 aikajanan alusta.
