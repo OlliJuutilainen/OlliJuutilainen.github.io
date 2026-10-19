@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
-<title>Keikkasoitin – käyttöönotto</title>
+<title>keick·walk. – käyttöönotto</title>
 <!--
   Kaveriversion käyttöönotto-ohje: keikkasoitin toisen käyttäjän omalla
   Cloudflare-tilillä. Kentät täyttävät tunnukset komentoihin ja linkkeihin.
@@ -16,14 +16,14 @@
 <style>
   :root {
     --bg: #faf9f6; --fg: #1b1b1a; --muted: #6d6b66; --line: #dcd9d2;
-    --soft: #efede8; --accent: #157570; --err-bg: #fbeae5; --err-fg: #7a2511;
-    --ok: #157570;
+    --soft: #efede8; --accent: #0a7f76; --err-bg: #fbeae5; --err-fg: #7a2511;
+    --ok: #0a7f76;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #151514; --fg: #ebe9e4; --muted: #9b9890; --line: #393834;
-      --soft: #22221f; --accent: #20b2aa; --err-bg: #3a1d14; --err-fg: #f6c2ad;
-      --ok: #20b2aa;
+      --soft: #22221f; --accent: #1fb5a8; --err-bg: #3a1d14; --err-fg: #f6c2ad;
+      --ok: #1fb5a8;
     }
   }
   * { box-sizing: border-box; }
@@ -146,9 +146,9 @@
 <body>
 <main>
 
-<h1>Keikkasoitin omalle Cloudflare-tilille</h1>
+<h1>keick·walk. omalle Cloudflare-tilille</h1>
 <p class="lead">Käyttöönotto. Tehdään kerran, aikaa kuluu noin puoli tuntia. Arkikäyttö
-  (keikan luominen, soittimen napit, iPhone) on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
+  (keikan luominen, keick·walk.-sivun napit, iPhone) on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
 
 <p class="muted">Uudella Macilla on lyhyempi tapa: <a href="pikakayttoonotto.html">pikakäyttöönotto</a>
   (noin kymmenen minuuttia, yksi Terminal-komento, ei API-avainta eikä Cloudflaren asetussivuja).</p>
@@ -194,7 +194,7 @@
 <h3>Miten osat liittyvät toisiinsa</h3>
 <figure>
   <svg class="dg" viewBox="0 0 680 262" role="img" aria-labelledby="dg-t">
-    <title id="dg-t">Keikkageneraattori tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa soittimelle otsikon ja settilistan. Soitin hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
+    <title id="dg-t">Keikkageneraattori tekee komennon, Terminal tallentaa keikan KV-tietokantaan, worker lukee sen ja antaa keick·walk.-sivulle otsikon ja settilistan. Keick·walk. hakee äänen Dropboxista suoraan ja Drivesta workerin kautta.</title>
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path class="head" d="M0 0L10 5L0 10z"/>
@@ -210,7 +210,7 @@
     <text x="586" y="31" text-anchor="middle">KV-tietokanta</text>
     <text class="s" x="586" y="49" text-anchor="middle">Cloudflare</text>
     <rect class="olli" x="6" y="112" width="176" height="52" rx="8"/>
-    <text x="94" y="135" text-anchor="middle">Soitin</text>
+    <text x="94" y="135" text-anchor="middle">keick·walk.</text>
     <text class="s" x="94" y="153" text-anchor="middle">keikan linkki selaimessa</text>
     <rect class="oma" x="498" y="112" width="176" height="52" rx="8"/>
     <text x="586" y="135" text-anchor="middle">Worker</text>
@@ -234,12 +234,12 @@
 </figure>
 
 <ul>
-  <li><b>Soitin</b> on osoitteessa <code>ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
+  <li><b>keick·walk.</b> on osoitteessa <code>ollijuutilainen.github.io/soitin/#tunnus@soitin.jotain</code>.
     Kaikki <code>#</code>-merkin jälkeinen jää selaimeen eikä kulje GitHubin palvelimille.</li>
   <li><b>Keikkageneraattori</b> tarkistaa settilistan ja tekee valmiin tallennuskomennon. Se ei lähetä
     mitään verkkoon.</li>
   <li><b>Worker</b> on pieni ohjelma Cloudflaressa. Se lukee keikan KV-tietokannasta ja antaa sen
-    soittimelle. Drive-tiedoston se myös välittää soittimelle, koska Google ei anna soittaa
+    keick·walk.-sivulle. Drive-tiedoston se myös välittää keick·walk.-sivulle, koska Google ei anna soittaa
     Drive-tiedostoa suoraan toiselta sivustolta. Dropbox-tiedosto soi suoraan.</li>
 </ul>
 <p>Kuka tahansa, jolla on keikan linkki, näkee otsikon ja settilistan ja voi kuunnella
@@ -440,7 +440,7 @@
 <p>Tee ensimmäinen keikka käyttöoppaan ohjeella <a href="ohje.html#uusi">Keikan luominen</a>. Lyhyt
   äänitiedosto ja kahden biisin lista riittävät. Tarkista, että ääni soi, kesto näkyy ja kelaus
   keskelle toimii.</p>
-<p>Soitin on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei vielä.
+<p>Keick·walk. on kokeiltu Macin Safarissa ja Androidilla usealla selaimella, iPhonella ei vielä.
   Kokeile iPhonella kerran nämä ja kerro tulos Ollille:</p>
 <ol>
   <li>Safarissa: paina toistoa ja lukitse näyttö. Jatkuuko ääni? Näkyvätkö lukitusnäytöllä
@@ -469,16 +469,16 @@
     <td>Kirjanmerkin osoite on vajaa tai väärin. Kohta 8.</td></tr>
   <tr><td>Keikkageneraattorissa ei lue <i>Omat asetukset</i></td>
     <td>Keikkageneraattori on avattu ilman kirjanmerkkiä. Kohta 8.</td></tr>
-  <tr><td>Soitin: <i>Keikan tietoja ei saatu palvelimelta</i> (virhe 500)</td>
+  <tr><td>keick·walk.: <i>Keikan tietoja ei saatu palvelimelta</i> (virhe 500)</td>
     <td>Workerin kytkentä tietokantaan puuttuu. Kohta 5 ja sen tarkistus.</td></tr>
-  <tr><td>Soitin: <i>Keikan tietojen haku epäonnistui</i></td>
+  <tr><td>keick·walk.: <i>Keikan tietojen haku epäonnistui</i></td>
     <td>Linkin <code>@</code>-osa on väärin tai verkko ei toimi. Vertaa kohdan 2 osoitteeseen.</td></tr>
-  <tr><td>Soitin: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
+  <tr><td>keick·walk.: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
     <td>Odota minuutti ja lataa uudelleen. Jos ei auta: tunnus on väärin tai komento jäi ajamatta.</td></tr>
 </table>
 <p>Jos tallennus antaa virheen, jota taulukossa ei ole, lähetä Ollille Terminalin vastaus
   sellaisenaan. API-avain ei tulostu siihen.</p>
-<p>Soittimen omat ilmoitukset (äänitiedosto, settilista) on selitetty
+<p>keick·walk.-sivun omat ilmoitukset (äänitiedosto, settilista) on selitetty
   <a href="ohje.html#ongelmat">käyttöoppaassa</a>.</p>
 </details>
 
@@ -487,7 +487,7 @@
 <p>Kun Olli kertoo päivittäneensä workeria, toista kohdan 2 vaiheet 5–6: <span class="ui">Edit
   code</span>, korvaa kaikki uudella koodilla, <span class="ui">Deploy</span>. Kytkentä, avain ja
   keikat säilyvät.</p>
-<p class="muted">Jos otit soittimen käyttöön ennen 14.10.2026, päivitä worker kerran. Uudempi koodi
+<p class="muted">Jos teit käyttöönoton ennen 14.10.2026, päivitä worker kerran. Uudempi koodi
   soittaa Drive-tiedostot (ilman sitä Drive-keikka ei soi), näyttää keikan lisätiedon (päivämäärä
   tms.) otsikon alla ja osaa kansiokeikat.</p>
 </details>
@@ -496,7 +496,7 @@
 <summary><h2 id="avustaja">Tekoälyavustajan kanssa (valinnainen)</h2></summary>
 <p>Jos haluat tehdä käyttöönoton esimerkiksi Clauden kanssa, aloita uusi keskustelu ja liitä tämä
   teksti. Täydennä viimeisen kappaleen kohdat.</p>
-<div class="cmd"><pre id="c-ai">Otan käyttöön ystäväni Ollin keikkasoittimen omalla Cloudflare-tililläni. Ohje on täällä:
+<div class="cmd"><pre id="c-ai">Otan käyttöön ystäväni Ollin keick·walk.-sivun omalla Cloudflare-tililläni. Ohje on täällä:
 https://ollijuutilainen.github.io/soitin/kayttoonotto.html
 ja arkikäytön opas täällä:
 https://ollijuutilainen.github.io/soitin/ohje.html
@@ -509,7 +509,7 @@ löytämään vastaava kohta.
 Rajat:
 - Älä pyydä minua liittämään keskusteluun Cloudflaren API-avainta tai muita salaisia
   avaimia. Tilin tunnus, KV-tunnus ja workerin osoite eivät ole salaisia.
-- Soitinsivu, Keikkageneraattori ja worker-koodi ovat Ollin. Jos jokin vaatisi niihin muutoksen,
+- keick·walk.-sivu, Keikkageneraattori ja worker-koodi ovat Ollin. Jos jokin vaatisi niihin muutoksen,
   kirjoita viesti Ollille välitettäväksi äläkä neuvo muokkaamaan niitä.
 - Jos jokin vaihe tuntuu turhan raskaalta, saat ehdottaa kevyempää tapaa, mutta kerro
   ensin mitä se maksaa ja mitä siinä menetetään.
@@ -526,7 +526,7 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
 <p>Tavallinen keikka ei tarvitse mitään tästä liitteestä. Lue se vain, jos haluat keikan, jossa
   jokainen kappale on oma äänitiedostonsa.</p>
 <p>Kansiokeikassa annetaan yhden äänitiedoston ja settilistan sijaan jaettu kansio Google Drivesta
-  tai Dropboxista. Soitin soittaa kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat
+  tai Dropboxista. Keick·walk. soittaa kansion äänitiedostot peräkkäin, ja kappaleiden nimet tulevat
   tiedostonimistä. Kansiokeikan teko ja tiedostojen nimeäminen:
   <a href="ohje.html#kansio">käyttöoppaan liite</a>.</p>
 <p>Worker lukee kansion palvelun omasta rajapinnasta, ja siihen tarvitaan avain. Tee vain sen
@@ -535,7 +535,7 @@ testikeikka ja ohjeen kohdan 9 iPhone-tarkistukset.</pre><button type="button" d
   <tr><th></th><th>Google Drive</th><th>Dropbox</th></tr>
   <tr><td>Avain workeriin</td><td>Google Cloud -projektin API-avain, yksi salaisuus</td><td>Dropbox-sovellus, kolme salaisuutta</td></tr>
   <tr><td>Kenen kansio</td><td>kenen tahansa, kunhan jaettu <i>Kaikki, joilla on linkki</i></td><td>vain avaimen tehneen tilin oma kansio</td></tr>
-  <tr><td>Soittimen äänilinkit</td><td>pysyviä</td><td>tilapäisiä (4 h), soitin uusii ne itse</td></tr>
+  <tr><td>Äänilinkit keick·walk.-sivulla</td><td>pysyviä</td><td>tilapäisiä (4 h), keick·walk. uusii ne itse</td></tr>
   <tr><td>Aikaa</td><td>noin 10 min</td><td>noin 15 min</td></tr>
   <tr><td>Kokeiltu</td><td>ei vielä oikealla Drivella</td><td>ei vielä oikealla Dropboxilla</td></tr>
 </table>

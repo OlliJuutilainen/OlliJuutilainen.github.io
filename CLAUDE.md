@@ -118,7 +118,7 @@ täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin ko
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
-`soitin/` on työryhmän keikkasoitin. **Keikkatietoja (otsikko, mp3-linkki, settilista) ei
+`soitin/` on työryhmän keikkasoitin *keick·walk.* (nimeämissääntö alempana). **Keikkatietoja (otsikko, mp3-linkki, settilista) ei
 saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä avaimella
 `gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
@@ -292,3 +292,26 @@ tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Ve
 avaa otsikon alle hennon tietoiskun (soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
 ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
+**Nimi keick·walk.** (käyttäjän päätös 19.10.2026): soittimen nimi on kaikissa käyttäjälle näkyvissä
+teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit) *keick·walk.* sanan *soitin*
+sijaan; virkkeen alussa *Keick·walk.* Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
+perusmuodossa, tai käytetään yhdyssanaa (*keick·walk.-sivulla*, *keick·walk.-linkin*). Polut, komennot,
+workerin ja KV:n nimet sekä koodin tunnisteet (`soitin/`, `~/.soitin/soitin`, `soitin.jotain`,
+`soitin-keikat`) pysyvät ennallaan, samoin koodin kommenttien *soitin*.
+Listan otsikko on keick·walk.-logo (SVG-polkuja, koska sovellus näyttää listan assetista ilman
+verkkoa; generaattori kierroksineen ei ole repossa). Käyttäjän kanssa iteroidut mitat, yksikkönä
+perusviiva 20: WALK on Walkman-logon mittasuhteilla (korkeus 16, viiva 3,2, W:n "pakarat" eli kaksi
+puoliympyräpohjaa, A kaarena ja pallo sen sisällä, K:n vinot kaarina, L:n ulkokulma pyöreä). keick on
+pienillä kirjaimilla x-korkeudella 12, viiva 2,0, k ilman nousua; e on W kyljellään (selkänä kaksi
+puoliympyrää) ja yhtä leveä kuin c, c on A kyljellään ilman palloa; alkusanaa on nostettu niin, että e:n
+ja c:n alaviivojen keskilinja on L:n alaviivan keskilinjalla. Isot pallot (halkaisija 36/22 × 3,2) ovat
+tyynyt (turkoosi), A:n pallo (tekstin väri) ja janan loppupiste (turkoosi); pienet pisteet (4,0) ovat
+i:n piste (turkoosi, kokonaan x-korkeuden yläpuolella), interpunkti (tekstin väri, alkusanan
+keskilinjalla kuten A:n pallo) ja harmaat aikajanan pisteet turkoosien ja tekstinväristen pallojen
+kohdalla. Aikajana (1,4) alkaa vasemmasta tyynystä ja päättyy loppupisteeseen. Kuulokkeiden sanka 1,2.
+Logo on sivulla 1,25-kertaisena (WALK 20 px). Listan ja tunnuskentän yläpuolella on vakiofonttinen
+otsikko *Valkkaa keikka*; alalaidassa haalea *© TUSINA·SOFT*. Korostusväri on kaikilla soittimen
+sivuilla Okinawa-turkoosi `#0a7f76` / tummassa `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja
+listan `<title>`-elementin nimi on edelleen *Omat keikkani*.
+Soittimen aikajanalla biisirajat ovat pieniä harmaita pisteitä (6 px, `--line`) eivätkä katkoksia;
+*Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
