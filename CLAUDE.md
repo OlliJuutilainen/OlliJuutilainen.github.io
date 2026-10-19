@@ -324,3 +324,5 @@ silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska
 leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
 Soittimen aikajanalla biisirajat ovat 4 px:n pisteitä sävyllä `--dot` eivätkä katkoksia;
 *Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
+Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan päättävä pallo (käyttäjän
+vaatimus: soitin harmoniassa logon kanssa).
