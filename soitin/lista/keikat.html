@@ -20,10 +20,9 @@
     --muted: #6d6b66;
     --line: #dcd9d2;
     --soft: #efede8;
-    --accent: #157570;
+    --accent: #0a7f76;
     --err-bg: #fbeae5;
     --err-fg: #7a2511;
-    --pad: #e2661d;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -32,10 +31,9 @@
       --muted: #9b9890;
       --line: #393834;
       --soft: #22221f;
-      --accent: #20b2aa;
+      --accent: #1fb5a8;
       --err-bg: #3a1d14;
       --err-fg: #f6c2ad;
-      --pad: #ee7a33;
     }
   }
   * { box-sizing: border-box; }
@@ -55,10 +53,10 @@
     margin: 0 auto;
     padding: 28px 16px 64px;
   }
-  /* Otsikko on sanamerkki keik·walk. ja kuulokkeet SVG-polkuina: sovellus näyttää sivun
-     assetista ilman verkkoa, joten verkkofonttia ei voi käyttää. Korkeus on sama kuin
-     entisellä tekstiotsikolla (1.45rem × 1.25), jotta otsikko pysyy yläkulman nappien
-     linjassa eikä muu sivu liiku. */
+  /* Otsikko on keick·walk.-logo SVG-polkuina: sovellus näyttää sivun assetista ilman
+     verkkoa, joten verkkofonttia ei voi käyttää. Logon mitat ja kytkökset: CLAUDE.md.
+     Otsikon korkeus on sama kuin entisellä tekstiotsikolla (1.45rem × 1.25), jotta otsikko
+     pysyy yläkulman nappien linjassa. */
   h1 {
     display: flex;
     align-items: center;
@@ -66,10 +64,10 @@
     margin: 0 0 22px;
     padding-right: 88px;
   }
-  h1 svg { flex: none; height: 20px; }
-  h1 .phones { width: 25px; margin-right: 9px; }
-  h1 .phones circle { fill: var(--pad); }
-  h1 .word { width: 103.8px; }
+  .logo { flex: none; width: 177.56px; height: 31.78px; fill: currentColor; }   /* 1,25 × viewBox: WALK 20 px */
+  .logo .t { fill: var(--accent); }
+  .logo .g { fill: var(--line); stroke: var(--line); }
+  .pick { font-size: 1.05rem; font-weight: 600; margin: 0 0 12px; }
   button, input {
     font: inherit;
     color: inherit;
@@ -247,24 +245,25 @@
 <body>
 <main>
   <div class="top">
-    <button type="button" id="back" aria-label="Takaisin soittimeen" hidden>
+    <button type="button" id="back" aria-label="Takaisin keikkaan" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <button type="button" id="close" aria-label="Sulje soitin">
+    <button type="button" id="close" aria-label="Sulje keick·walk.">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
   </div>
   <h1 id="otsikko">
-    <svg class="phones" viewBox="0 0 25 20" aria-hidden="true"><path d="M4.7 15.3V8.6a7.8 7.8 0 0 1 15.6 0v6.7" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="4.7" cy="15.3" r="4.7"/><circle cx="20.3" cy="15.3" r="4.7"/></svg>
-    <svg class="word" viewBox="0 0 103.8 20" role="img" aria-label="keik·walk."><path d="M0 0H3.2V20H0ZM2.8 10.27L6.94 6H11L5.93 12.49L11 20H7.14L2.8 14.75ZM26.2 0H29.4V3.2H26.2ZM26.2 6H29.4V20H26.2ZM31 0H34.2V20H31ZM33.8 10.27L37.94 6H42L36.93 12.49L42 20H38.14L33.8 14.75ZM44.4 11.4h3.2v3.2H44.4ZM78.4 7.6H81.6V20H78.4ZM83.2 0H86.4V20H83.2ZM88 0H91.2V20H88ZM90.8 10.27L94.94 6H99L93.93 12.49L99 20H95.14L90.8 14.75ZM100.6 16.8h3.2v3.2H100.6Z"/><path d="M14.2 13H23V10.8A3.2 3.2 0 0 0 19.8 7.6H17.4A3.2 3.2 0 0 0 14.2 10.8V15.2A3.2 3.2 0 0 0 17.4 18.4H22.2M51.6 6V15.2A3.2 3.2 0 0 0 54.8 18.4H63.2A3.2 3.2 0 0 0 66.4 15.2V6M59 9.2V18.4M72 7.6H76.8A3.2 3.2 0 0 1 80 10.8V18.4M80 13H73.9A2.7 2.7 0 0 0 71.2 15.7A2.7 2.7 0 0 0 73.9 18.4H80" fill="none" stroke="currentColor" stroke-width="3.2"/></svg>
+    <svg class="logo" viewBox="0 1.4 142.05 25.42" role="img" aria-label="keick·walk."><path class="g" d="M2.62 24.2H139.44" stroke-width="1.4"/><circle class="g" cx="2.62" cy="24.2" r="2"/><circle class="g" cx="16.26" cy="24.2" r="2"/><circle class="g" cx="49.48" cy="24.2" r="2"/><circle class="g" cx="77.7" cy="24.2" r="2"/><circle class="g" cx="105.52" cy="24.2" r="2"/><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M25.88 7.4H27.88V19.4H25.88ZM48.48 7.4H50.48V19.4H48.48ZM63.48 7.4H65.48V19.4H63.48ZM124.02 4H127.22V20H124.02Z"/><path d="M34.48 7.4V9.8A3.6 3.6 0 0 1 30.88 13.4H26.88M26.88 13.4H30.88A3.6 3.6 0 0 1 34.48 17V19.4M46.98 8.4H40.48A2.5 2.5 0 0 0 40.48 13.4A2.5 2.5 0 0 0 40.48 18.4H46.98M40.48 13.4H46.98M61.98 8.4H57.98A5 5 0 0 0 57.98 18.4H61.98M72.08 7.4V9.8A3.6 3.6 0 0 1 68.48 13.4H64.48M64.48 13.4H68.48A3.6 3.6 0 0 1 72.08 17V19.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M83.92 4V15.35A3.05 3.05 0 0 0 90.02 15.35A3.05 3.05 0 0 0 96.12 15.35V4M90.02 4V15.35M100.82 20V10.3A4.7 4.7 0 0 1 110.22 10.3V20M114.92 4V16.8A1.6 1.6 0 0 0 116.52 18.4H122.52M133.22 4V7.9A4.1 4.1 0 0 1 129.12 12H125.62M125.62 12H129.12A4.1 4.1 0 0 1 133.22 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/><circle class="t" cx="49.48" cy="3.4" r="2"/><circle class="f" cx="77.7" cy="13.4" r="2"/><circle class="f" cx="105.52" cy="13.4" r="2.62"/><circle class="t" cx="139.44" cy="24.2" r="2.62"/></svg>
   </h1>
   <div class="about" id="about" hidden>
-    <p><b>Soitin</b> soittaa äänitiedostoja suoraan Google Drivesta tai Dropboxista.
+    <p><b>Keick·walk.</b> tarjoaa tavan soittaa keikkatallenne suoraan Drivestä tai Dropboxista
+      <b>kävellen</b> pitkä aikajana sitä jäsentävien merkkipisteiden avulla.
       <a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.</p>
     <p>Omia keikkoja voi luoda Macilla. Ensin tehdään kerran
       <a href="../kayttoonotto.html" target="_blank" rel="noopener">käyttöönotto</a> (noin puoli tuntia).</p>
   </div>
 
+  <h2 class="pick">Valkkaa keikka</h2>
   <form class="open-form" id="form" autocomplete="off">
     <label for="key">Keikan tunnus</label>
     <div class="open">
@@ -272,7 +271,7 @@
              enterkeyhint="go" inputmode="url">
       <button type="submit" class="pill">Avaa</button>
     </div>
-    <p class="error" id="keyerr" hidden>Tunnus ei kelpaa. Kirjoita keikan tunnus tai liitä soittimen linkki.</p>
+    <p class="error" id="keyerr" hidden>Tunnus ei kelpaa. Kirjoita keikan tunnus tai liitä keikan linkki.</p>
   </form>
 
   <div class="sort" id="sort" role="group" aria-label="Järjestys" hidden>
@@ -286,7 +285,7 @@
   <div class="reset">
     <button type="button" id="reset">Nollaa tallennetut tiedot</button>
     <div class="confirm" id="confirm" hidden>
-      <p id="confirm-text">Poistetaanko kaikki keikat listalta? Myös soittimen omat asetukset ja välimuisti tyhjennetään.</p>
+      <p id="confirm-text">Poistetaanko kaikki keikat listalta? Myös sovelluksen omat asetukset ja välimuisti tyhjennetään.</p>
       <button type="button" class="pill go" id="reset-go">Nollaa</button>
       <button type="button" class="pill" id="reset-no">Peru</button>
     </div>
@@ -316,7 +315,7 @@
     var info = document.createElement("button");
     info.type = "button";
     info.className = "info";
-    info.setAttribute("aria-label", "Tietoa soittimesta");
+    info.setAttribute("aria-label", "Tietoa: keick·walk.");
     info.setAttribute("aria-controls", "about");
     info.setAttribute("aria-expanded", "false");
     info.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 10.75v6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1"/></svg>';

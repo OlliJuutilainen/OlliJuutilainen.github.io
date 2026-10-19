@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Soitin</string>
+    <string name="app_name">keick·walk.</string>
     <string name="channel_name">Soitto</string>
-    <string name="load_error">Soitinta ei saatu ladattua.</string>
+    <string name="load_error">keick·walk. ei latautunut.</string>
     <string name="retry">Yritä uudelleen</string>
     <string name="my_gigs">Omat keikkani</string>
     <!-- Ilmoituksen ja lukitusnäytön napit; samat nimet kuin soittimen omissa napeissa. -->

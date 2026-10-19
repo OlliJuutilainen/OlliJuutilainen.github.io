@@ -114,7 +114,7 @@
     bar.appendChild(appButton("Lataa uudelleen", ICON_RELOAD, function () {
       location.reload();
     }));
-    bar.appendChild(appButton("Sulje soitin", ICON_CLOSE, function () {
+    bar.appendChild(appButton("Sulje keick·walk.", ICON_CLOSE, function () {
       var a = document.querySelector("audio");
       if (a) a.pause();
       try { window.SoitinApp.close(); } catch (e) { /* silta poissa */ }

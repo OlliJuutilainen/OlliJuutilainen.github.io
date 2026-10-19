@@ -15,12 +15,12 @@
 <style>
   :root {
     --bg: #faf9f6; --fg: #1b1b1a; --muted: #6d6b66; --line: #dcd9d2;
-    --soft: #efede8; --accent: #157570; --err-bg: #fbeae5; --err-fg: #7a2511;
+    --soft: #efede8; --accent: #0a7f76; --err-bg: #fbeae5; --err-fg: #7a2511;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #151514; --fg: #ebe9e4; --muted: #9b9890; --line: #393834;
-      --soft: #22221f; --accent: #20b2aa; --err-bg: #3a1d14; --err-fg: #f6c2ad;
+      --soft: #22221f; --accent: #1fb5a8; --err-bg: #3a1d14; --err-fg: #f6c2ad;
     }
   }
   * { box-sizing: border-box; }
@@ -122,7 +122,7 @@
     Alkunumero jää pois kappaleen nimestä. Hakasulkeissa oleva nimi (<code>00 [Intro].mp3</code>)
     tai <code>[x]</code> nimen alussa (<code>07 [x] Spiikki.mp3</code>) on ei-biisi kuten settilistassa.
     Jokainen alikansio on oma settinsä (<code>1</code>, <code>2</code> … tai esim.
-    <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Soitin lukee kansion joka kerta
+    <code>3 (+)</code>; numeron jälkeinen nimi on setin otsikko). Keick·walk. lukee kansion joka kerta
     avautuessaan, joten myöhemmin lisätty tiedosto tulee mukaan ilman uutta komentoa. Enintään
     44 tiedostoa. Vaatii workeriin Google- tai Dropbox-avaimen (<a id="folderKeyLink" href="kayttoonotto.html#kansio">käyttöönotto-ohjeen
     liite</a>).</p>
@@ -165,7 +165,7 @@
 
   <div id="result" hidden>
     <h2>Tarkista lista</h2>
-    <p class="muted" id="folderNote" hidden>Kappaleet luetaan kansiosta vasta, kun soitin avataan.
+    <p class="muted" id="folderNote" hidden>Kappaleet luetaan kansiosta vasta, kun keick·walk. avataan.
       Kun olet ajanut komennon, paina ylhäällä <b>Hae</b>, niin näet tässä kansion kappaleet.</p>
     <table><tbody id="preview"></tbody></table>
 
@@ -178,7 +178,7 @@
     <h2>2. Jaa tämä linkki</h2>
     <pre id="link"></pre>
     <button id="copyLink" type="button">Kopioi linkki</button>
-    <a id="open" href="#" target="_blank" rel="noopener" style="margin-left:12px">Avaa soitin</a>
+    <a id="open" href="#" target="_blank" rel="noopener" style="margin-left:12px">Avaa keick·walk.</a>
   </div>
 
   <p class="muted extra" id="folderOffer"><button type="button" class="link" id="toFolder">Lisäominaisuus:
