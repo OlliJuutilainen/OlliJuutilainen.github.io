@@ -70,13 +70,16 @@
      (käyttäjän päätös 20.10.2026): mittakaava 1,0295 rem / 13,38 per viewBox-yksikkö, vasen reuna
      (x 0,99) mainin reunuksessa ja sangan yläreuna (y 4) 5 px h1:n yläreunan alapuolella kuten
      soittimen versaalin yläreuna. viewBoxin yläreuna on 6,6 yksikköä sangan yläpuolella, alareuna
-     23,12 yksikköä sen alapuolella; marginaalit pitävät otsikon korkeuden 29 px:nä. */
+     29,65 yksikköä sen alapuolella; marginaalit pitävät otsikon korkeuden 29 px:nä.
+     Testiversio (20.10.2026): teksti on 2,29 yksikköä oikealla, jotta k:n vasen reuna on soittimen
+     otsikon K:n kohdalla, ja jana (keskilinja 31,03) niin alhaalla, että viivan alareuna on lisätiedon
+     x-korkeudella (mitattu Robotolla). Muiden sivujen logo on ennallaan. */
   .logo {
     flex: none;
     align-self: flex-start;
-    width: calc(1.0295rem / 13.38 * 153.43);
-    height: calc(1.0295rem / 13.38 * 29.72);
-    margin: calc(5px - 1.0295rem / 13.38 * 6.6) 0 calc(24px - 1.0295rem / 13.38 * 23.12);
+    width: calc(1.0295rem / 13.38 * 155.72);
+    height: calc(1.0295rem / 13.38 * 36.25);
+    margin: calc(5px - 1.0295rem / 13.38 * 6.6) 0 calc(24px - 1.0295rem / 13.38 * 29.65);
     fill: currentColor;
   }
   .logo .t { fill: var(--accent); }
@@ -274,7 +277,7 @@
     </button>
   </div>
   <h1 id="otsikko">
-    <svg class="logo" viewBox="0.99 -2.6 153.43 29.72" role="img" aria-label="KEICK•WALK"><path class="g" d="M118.2 24.5H150.32" stroke-width="1.5"/><path d="M3.61 24.5H118.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.61" cy="24.5" r="1.3"/><circle cx="16.26" cy="24.5" r="1.3"/><circle cx="55.82" cy="24.5" r="1.3"/><circle cx="90.38" cy="24.5" r="1.3"/><circle class="r" cx="152.12" cy="24.5" r="1.8" stroke-width="1"/><circle class="t" cx="118.2" cy="24.5" r="2.62"/><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M25.88 4H28.48V19.7H25.88ZM54.52 4H57.12V19.7H54.52ZM73.2 4H75.8V19.7H73.2Z"/><path d="M37.14 4V7.14A4.71 4.71 0 0 1 32.43 11.85H27.18M27.18 11.85H32.43A4.71 4.71 0 0 1 37.14 16.56V19.7M53.02 5.3H44.52A3.27 3.27 0 0 0 44.52 11.85A3.27 3.27 0 0 0 44.52 18.4H53.02M44.52 11.85H53.02M71.7 5.3H66.47A6.55 6.55 0 0 0 66.47 18.4H71.7M84.46 4V7.14A4.71 4.71 0 0 1 79.75 11.85H74.5M74.5 11.85H79.75A4.71 4.71 0 0 1 84.46 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M136.7 4H139.9V20H136.7Z"/><path d="M96.6 4V15.35A3.05 3.05 0 0 0 102.7 15.35A3.05 3.05 0 0 0 108.8 15.35V4M102.7 4V15.35M113.5 20V10.3A4.7 4.7 0 0 1 122.9 10.3V20M127.6 4V16.8A1.6 1.6 0 0 0 129.2 18.4H135.2M145.9 4V7.9A4.1 4.1 0 0 1 141.8 12H138.3M138.3 12H141.8A4.1 4.1 0 0 1 145.9 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/><circle cx="55.82" cy="0.7" r="1.3"/><circle cx="90.38" cy="11.85" r="1.3"/><circle class="t" cx="118.2" cy="11.85" r="2.62"/></svg>
+    <svg class="logo" viewBox="0.99 -2.6 155.72 36.25" role="img" aria-label="KEICK•WALK"><path class="g" d="M120.49 31.03H152.61" stroke-width="1.5"/><path d="M3.61 31.03H120.49" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.61" cy="31.03" r="1.3"/><circle cx="16.26" cy="31.03" r="1.3"/><circle cx="58.11" cy="31.03" r="1.3"/><circle cx="92.67" cy="31.03" r="1.3"/><circle class="r" cx="154.41" cy="31.03" r="1.8" stroke-width="1"/><circle class="t" cx="120.49" cy="31.03" r="2.62"/><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M28.17 4H30.77V19.7H28.17ZM56.81 4H59.41V19.7H56.81ZM75.49 4H78.09V19.7H75.49Z"/><path d="M39.43 4V7.14A4.71 4.71 0 0 1 34.72 11.85H29.47M29.47 11.85H34.72A4.71 4.71 0 0 1 39.43 16.56V19.7M55.31 5.3H46.81A3.27 3.27 0 0 0 46.81 11.85A3.27 3.27 0 0 0 46.81 18.4H55.31M46.81 11.85H55.31M73.99 5.3H68.76A6.55 6.55 0 0 0 68.76 18.4H73.99M86.75 4V7.14A4.71 4.71 0 0 1 82.04 11.85H76.79M76.79 11.85H82.04A4.71 4.71 0 0 1 86.75 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M138.99 4H142.19V20H138.99Z"/><path d="M98.89 4V15.35A3.05 3.05 0 0 0 104.99 15.35A3.05 3.05 0 0 0 111.09 15.35V4M104.99 4V15.35M115.79 20V10.3A4.7 4.7 0 0 1 125.19 10.3V20M129.89 4V16.8A1.6 1.6 0 0 0 131.49 18.4H137.49M148.19 4V7.9A4.1 4.1 0 0 1 144.09 12H140.59M140.59 12H144.09A4.1 4.1 0 0 1 148.19 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/><circle cx="58.11" cy="0.7" r="1.3"/><circle cx="92.67" cy="11.85" r="1.3"/><circle class="t" cx="120.49" cy="11.85" r="2.62"/></svg>
   </h1>
   <div class="about" id="about" hidden>
     <p><i>”Valg dø KEICK • WALK ðö geig!”</i></p>
