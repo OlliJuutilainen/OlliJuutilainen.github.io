@@ -439,15 +439,17 @@
     color: var(--muted);
     font-size: 0.9rem;
   }
+  /* Soiva kappale on lihavoitu ja turkoosi (käyttäjän päätös 20.10.2026). */
   li[aria-current="true"] .track { font-weight: 600; }
+  li[aria-current="true"] .track .tt { color: var(--accent); }
   /* Soivan kappaleen numeron paikalla ovat logon kuulokkeet (käyttäjän päätös 20.10.2026), oikeaan
-     reunaan tasattuina kuten numerot. Kuten soitinsivun otsikossa: sangan yläreuna versaalin
-     yläreunassa (versaali 0,71 em = 13,38 viewBox-yksikköä) ja tyynyjen keskipisteet perusviivalla;
-     paikan laskee markCurrent. viewBoxissa on 0,5 yksikön vara joka reunalla, koska Safari leikkasi
-     oikean tyynyn reunan viewBoxin rajalla. */
+     reunaan tasattuina kuten numerot ja koko tekstin korkuisina: sangan yläreuna tekstin
+     sisältöalueen yläreunassa ja tyynyjen alareuna sen alareunassa. Koon ja paikan laskee
+     markCurrent. viewBoxissa on 0,5 yksikön vara joka reunalla, koska Safari leikkasi oikean
+     tyynyn reunan viewBoxin rajalla. */
   .track { position: relative; }
   li[aria-current="true"] .track .n { visibility: hidden; }
-  .kuul { position: absolute; width: calc(0.71em / 13.38 * 18.89); height: calc(0.71em / 13.38 * 17); overflow: visible; fill: currentColor; }
+  .kuul { position: absolute; overflow: visible; fill: currentColor; }
   .kuul .t { fill: var(--accent); }
   /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
      himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
@@ -494,7 +496,9 @@
   .copy svg { width: 18px; height: 18px; }
   .copy.done { color: var(--accent); }
   @media (hover: hover) {
-    .track:hover .tt { text-decoration: underline; text-underline-offset: 3px; }
+    /* Hiiren alla kappaleen nimi turkoosiksi, ei alleviivausta (käyttäjän päätös 20.10.2026);
+       li mukana, jotta sääntö voittaa myös ei-biisin harmaan. */
+    li .track:hover .tt { color: var(--accent); }
     .copy:hover { color: var(--fg); }
   }
   .loading { color: var(--muted); margin: 0; }
@@ -915,18 +919,21 @@
   }
   var kuul = kuulokkeet("kuul");
   // Kuulokkeet soivan rivin piilotetun numeron paikalle: oikean tyynyn reuna (x 18,88) numeron
-  // oikeassa reunassa ja tyynyjen keskipisteet (y 17,38) numeron perusviivalla.
+  // oikeassa reunassa, sangan yläreuna (y 4) tekstin sisältöalueen yläreunassa ja tyynyjen
+  // alareuna (y 20) sen alareunassa.
   function markCurrent(tr) {
     var n = tr.querySelector(".n");
     tr.insertBefore(kuul, tr.firstChild);
-    var u = kuul.getBoundingClientRect().width / 18.89;
     var z = document.createElement("span");
-    z.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+    z.textContent = "\u200b";
     n.appendChild(z);
-    var base = z.offsetTop;
+    var r = z.getBoundingClientRect(), t = tr.getBoundingClientRect();
     n.removeChild(z);
+    var u = r.height / 16;
+    kuul.style.width = 18.89 * u + "px";
+    kuul.style.height = 17 * u + "px";
     kuul.style.left = n.offsetLeft + n.offsetWidth - (18.88 - 0.49) * u + "px";
-    kuul.style.top = base - (17.38 - 3.5) * u + "px";
+    kuul.style.top = r.top - t.top - tr.clientTop - (4 - 3.5) * u + "px";
   }
   var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
   var dragging = false;
