@@ -394,7 +394,7 @@ sen x-korkeuden yläreuna on listan logon janan alareunassa (h1:n alamarginaali 
 lisätietoa h1:n alamarginaali on 27,4 px. Otsikon nostossa alamarginaaleja kasvatettiin nostetun määrän (6,6 px), joten
 lisätieto ja kaikki sen alla pysyivät pikseleissä paikallaan. Testiselaimen Interillä K on 0,3 px oikealla ja perusviiva
 noin 1 px ylempänä.
-**Kokeilu 20.10.2026 (käyttäjän pyyntö, toistaiseksi vain soitinsivu ja lista):** korvalappujen väli 14,65 (oikea lappu
+**Nykyinen kuulokedesign ja otsikko (käyttäjän päätökset 20.10.2026; ensin kokeiluna soitinsivulla ja listassa, sitten yhtenäistetty kaikkialle):** korvalappujen väli 14,65 (oikea lappu
 x 18,26, vasen paikallaan, sangan säde 7,325, lakipiste ennallaan y 2,8; `.brand`-viewBox `0.99 2.8 19.89 17.2`), ja soittimen
 otsikon versaali on yhtä korkea kuin logon kirjaimet (16 yksikköä = 19,70 px; `font-size: calc(1.0295rem / 13.38 * 22.505)`,
 Robotolla versaali 0,71094 em): yläreuna sangan viivan alareunassa (32,99 px) ja perusviiva tyynyjen alareunassa (52,69 px),
@@ -406,9 +406,12 @@ siirtyi 1,0 yksikköä oikealle (puolet levennyksestä; rako oikeasta lapusta k:
 siirtyivät samoin (padding-left 25,89 yksikköä; K:n mustereuna 47,86 px Androidin Roboton sivuvälillä). Lisätiedolla on
 oma sivuväli 0,0805 em (käyttäjän päätös 20.10.2026; ennen vanhan otsikon K:n 0,0875 rem, jolloin lisätieto alkoi 0,3–0,4 px
 k:n vasemmalla puolella): kursiivinen l ja P alkavat k:n kohdalta (mitattu Robotolla 47,81 ja 47,89 px, tavoite 47,87;
-T alkaa poikkiviivansa takia noin 1,3 px oikeammalta, numero 2 noin 0,3 px vasemmalta). Yllä olevat
-1,15 rem:n, 12,65:n ja x 25,88:n arvot koskevat edelleen muita sivuja (ohjeiden logo, `.kuul`, `.minikuul`,
-oppaan kuvat, APK), joita ei vielä päivitetty.
+T alkaa poikkiviivansa takia noin 1,3 px oikeammalta, numero 2 noin 0,3 px vasemmalta). Yhtenäistetty samana päivänä
+kaikkialle, joten yllä olevat 1,15 rem:n, 12,65:n, x 25,88:n ja viewBox-leveyksien 153,43 / 17,89 / 18,89 arvot ovat
+historiaa: ohjesivujen logo on listan merkintä 1,25-kertaisena (193,04 × 45,31 px), `.minikuul` viewBox
+`0.99 2.8 19.89 17.2` (10 × 11,564 px, keskikohta ennallaan) ja `.kuul` viewBox `0.49 2.3 20.89 18.2` (oikean tyynyn
+reuna x 20,88 numeron oikeassa reunassa; yläreuna, tyynyjen alareuna ja oikea reuna pikseleissä ennallaan, leveys kasvoi
+vasemmalle). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.15.
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
