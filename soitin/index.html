@@ -450,8 +450,9 @@
   li[aria-current="true"] .track { font-weight: 600; }
   li[aria-current="true"] .track .tt { color: var(--accent); }
   /* Soivan kappaleen numeron paikalla ovat logon kuulokkeet (käyttäjän päätös 20.10.2026), oikeaan
-     reunaan tasattuina kuten numerot: sangan yläreuna tekstin sisältöalueen yläreunassa ja
-     tyynyjen alareuna perusviivalla. Koon ja paikan laskee
+     reunaan tasattuina kuten numerot: tyynyjen alareuna perusviivalla ja sangan yläreuna puolivälissä
+     versaalin ja tekstin sisältöalueen yläreunan välissä (käyttäjän päätös 20.10.2026; ennen
+     sisältöalueen yläreunassa), mittasuhteet ennallaan. Koon ja paikan laskee
      markCurrent. viewBoxissa on 0,5 yksikön vara joka reunalla, koska Safari leikkasi oikean
      tyynyn reunan viewBoxin rajalla. */
   .track { position: relative; }
@@ -930,8 +931,19 @@
   }
   var kuul = kuulokkeet("kuul");
   // Kuulokkeet soivan rivin piilotetun numeron paikalle: oikean tyynyn reuna (x 20,88) numeron
-  // oikeassa reunassa, tyynyjen alareuna (y 20) perusviivalla ja sangan yläreuna (y 2,8) tekstin
-  // sisältöalueen yläreunassa.
+  // oikeassa reunassa, tyynyjen alareuna (y 20) perusviivalla ja sangan yläreuna (y 2,8)
+  // puolivälissä versaalin (H) ja tekstin sisältöalueen yläreunan välissä.
+  var capCtx = null;
+  function capHeight(el) {
+    var cs = getComputedStyle(el), px = parseFloat(cs.fontSize);
+    try {
+      capCtx = capCtx || document.createElement("canvas").getContext("2d");
+      capCtx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+      var h = capCtx.measureText("H").actualBoundingBoxAscent;
+      if (h > 0) return h;
+    } catch (e) {}
+    return 0.72 * px;
+  }
   function markCurrent(tr) {
     var n = tr.querySelector(".n");
     tr.insertBefore(kuul, tr.firstChild);
@@ -943,6 +955,8 @@
     var base = z.offsetTop, top = base - (z.getBoundingClientRect().top - a.getBoundingClientRect().top);
     n.removeChild(z);
     n.removeChild(a);
+    var cap = Math.min(base - top, capHeight(n));
+    top = base - (base - top + cap) / 2;
     var u = (base - top) / 17.2;
     kuul.style.width = 20.89 * u + "px";
     kuul.style.height = 18.2 * u + "px";
