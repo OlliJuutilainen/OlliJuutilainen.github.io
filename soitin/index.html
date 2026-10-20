@@ -1749,6 +1749,27 @@
     showError(msg, detail);
   }
 
+  // Otsikon ensimmäisen rivin perusviiva kuulokkeiden tyynyjen alareunaan (viewBoxin alareuna y 20),
+  // jolloin versaalin yläreuna on sangan viivan alareunassa kuten logon kirjaimilla. CSS asettaa paikan
+  // Robotolla, mutta perusviivan kohta riippuu fontin mitoista ja tekstin koon skaalauksesta (rem kasvaa,
+  // px-arvot eivät), joten ero mitataan ja korjataan marginaaleilla. Alamarginaali muuttuu vastakkaiseen
+  // suuntaan, jotta otsikon alla oleva ei liiku. Kuten markCurrent.
+  function alignTitle() {
+    var h = els.title, b = document.querySelector(".brand");
+    if (!b || !h.getClientRects().length) return;
+    h.style.marginTop = h.style.marginBottom = "";
+    var cs = getComputedStyle(h), z = document.createElement("span");
+    z.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+    h.insertBefore(z, h.firstChild);
+    var d = b.getBoundingClientRect().bottom - z.getBoundingClientRect().top;
+    h.removeChild(z);
+    if (Math.abs(d) < 0.05) return;
+    h.style.marginTop = parseFloat(cs.marginTop) + d + "px";
+    h.style.marginBottom = parseFloat(cs.marginBottom) - d + "px";
+  }
+  window.addEventListener("resize", alignTitle);
+  if (document.fonts) document.fonts.ready.then(alignTitle);
+
   function start(data) {
     gig = data;
     document.title = gig.title;
@@ -1761,6 +1782,7 @@
     $("sub").hidden = !sub.replace(/\u200b/g, "");
     $("loading").hidden = true;
     $("app").hidden = false;
+    alignTitle();
 
     if (files) {
       loadFiles();
