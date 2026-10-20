@@ -88,7 +88,11 @@
   .logo .t { fill: var(--accent); }
   .logo .r { fill: none; stroke: currentColor; }
   .logo .g { stroke: var(--line); }
-  .pick { font-size: 1.05rem; font-weight: 600; font-style: italic; margin: 0 0 12px; }
+  /* Valkkaa keikka! ja kaikki sen alla 36 px alempana kuin ennen (käyttäjän päätös 20.10.2026).
+     Täytteenä eikä marginaalina, koska marginaali sulautuisi h1:n alamarginaaliin. Tietoiskun
+     ollessa auki väli on ennallaan. */
+  .pick { font-size: 1.05rem; font-weight: 600; font-style: italic; margin: 0 0 12px; padding-top: 36px; }
+  .about:not([hidden]) + .pick { padding-top: 0; }
   button, input {
     font: inherit;
     color: inherit;
