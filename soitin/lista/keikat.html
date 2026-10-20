@@ -245,6 +245,8 @@
   }
   .about p { margin: 0; }
   .about p + p { margin-top: 6px; }
+  /* Tyhjä rivi (1,5em = rivinkorkeus) käyttöoppaan ylä- ja alapuolella, yhtä suuri. */
+  .about p.opas { margin: 1.5em 0; }
   .about b { font-weight: 600; color: var(--fg); }
   .about a { color: inherit; }
 </style>
@@ -265,8 +267,8 @@
   <div class="about" id="about" hidden>
     <p><i>”Valg dø KEICK • WALK ðö geig!”</i></p>
     <p><b>KEICK•WALK</b> tarjoaa tavan soittaa keikkatallenne suoraan Drivestä tai Dropboxista
-      <b>kävellen</b> pitkä aikajana sitä jäsentävien merkkipisteiden avulla.<br><br>
-      <a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.<br><br></p>
+      <b>kävellen</b> pitkä aikajana sitä jäsentävien merkkipisteiden avulla.</p>
+    <p class="opas"><a href="../ohje.html" target="_blank" rel="noopener">Käyttöopas</a>.</p>
     <p>Omien keikkojen luominen vaatii Mac-tietokoneen sekä
       <a href="../kayttoonotto.html" target="_blank" rel="noopener">käyttöönoton</a> (n. 30 min).</p>
   </div>
