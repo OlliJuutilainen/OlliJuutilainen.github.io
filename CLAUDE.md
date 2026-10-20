@@ -124,7 +124,10 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
-harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
+harmaana kursiivina, mutta ei välilehden otsikossa. Puuttuvana tai tyhjänä rivillä lukee *Milloin soi?*
+(käyttäjän päätös 20.10.2026). Pelkkä välilyönti ei ole tyhjä: Keikkageneraattori tallentaa sen
+nollaleveänä välilyöntinä `\u200b` (säilyy `trim()`:ssä, myös workerissa, joten workeria ei tarvinnut
+muuttaa), ja soitin jättää silloin rivin pois. Omat keikkani -listaan oletusteksti ei mene.
 Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`,
 missä kohtaa settiä tahansa; nimettömänä setin alussa `[INTRO]`, lopussa `[OUTRO]`, välissä `[VÄLI]`)
 ei kasvata numerointia, vaan numeron paikalla on harmaa `0.`, `x.` tai `-.` (soittimen lista ja nyt soi
@@ -291,13 +294,14 @@ ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria 
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
 avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”Valg dø KEICK • WALK ðö geig!”*,
 jossa pisteen ympärillä on toisin kuin nimessä välilyönnit; sitten soittimen esittely, käyttöoppaan linkki
-tyhjän rivin jälkeen ja käyttöönotto; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
+tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen ja käyttöönoton (n. 30 min).*,
+jossa *käyttöönoton* on linkki; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
 **Nimi KEICK•WALK** (käyttäjän päätös 19.10.2026, kirjoitusasu 20.10.2026): soittimen nimi on kaikissa
 käyttäjälle näkyvissä teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit)
 *KEICK•WALK* sanan *soitin* sijaan: versaalit, välissä luettelomerkki `•` (U+2022) ilman välilyöntejä,
 ei loppupistettä; myös virkkeen alussa sama. Aiempi asu *keick·walk.* on poistettu teksteistä (Android
-0.11:ssä myös sovelluksen nimestä). Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
+0.12:ssa myös sovelluksen nimestä). Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
 perusmuodossa, tai käytetään yhdyssanaa (*KEICK•WALK-sivulla*, *KEICK•WALK-linkin*). Logo (alla) on
 grafiikka ja pysyy muodossa keick·WALK. Polut, komennot,
 workerin ja KV:n nimet sekä koodin tunnisteet (`soitin/`, `~/.soitin/soitin`, `soitin.jotain`,
@@ -312,9 +316,10 @@ pienillä kirjaimilla ilman nousuja, viiva 2,6, ja yhtä korkea kuin kuulokkeide
 (yläreuna 4); e:n ja c:n alaviivojen keskilinja on L:n alaviivan keskilinjalla (18,4). e on W kyljellään
 (selkänä kaksi puoliympyrää) ja yhtä leveä kuin c, c on A kyljellään ilman palloa; leveydet on
 skaalattu x-korkeuden 12 mitoista. Turkoosit täytetyt pallot (halkaisija 36/22 × 3,2 = 5,24) ovat
-tyynyt, A:n pallo ja janan nuppi A:n kohdalla. i:n piste (2,0 alkusanan yläpuolella), interpunkti ja
-janan loppupiste ovat tekstin värisiä renkaita (ulkohalkaisija 4,6, kehä 1,0; kehä 0,6 haalistui
-soitinsivun koossa harmaaksi). Interpunkti ja A:n pallo ovat alkusanan keskilinjalla (11,85).
+tyynyt, A:n pallo ja janan nuppi A:n kohdalla. i:n piste (2,0 alkusanan yläpuolella) ja interpunkti
+ovat pieniä tekstin värisiä palloja (2,6 kuten janan pisteet; käyttäjän päätös 20.10.2026), janan
+loppupiste tekstin värinen rengas (ulkohalkaisija 4,6, kehä 1,0; kehä 0,6 haalistui pienessä koossa
+harmaaksi). viewBox pidettiin ennallaan (yläreuna −2,6), jotta otsikon mitat eivät muuttuneet. Interpunkti ja A:n pallo ovat alkusanan keskilinjalla (11,85).
 Aikajana (keskilinja 24,5) on soittimen janan tyylinen (käyttäjän päätös 19.10.2026): paksuus
 nuppi × 4/14 = 1,5 kuten soittimessa 4 px / 14 px; vasemmasta tyynystä nuppiin tekstin värinen ja
 sillä tekstin väriset pisteet (2,6) tyynyjen, i:n ja interpunktin kohdalla; nupin jälkeen `--line`
@@ -327,13 +332,24 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla sama logo on pienenä (20/28,82 px yksikköä kohden, 20,62 px korkea) ☰-napin vasemmalla puolella; sovelluksessa
-(`main.app`) silta.js:n kolmen napin rivin vasemmalla puolella. Otsikon tila varataan kelluvalla
-`.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean reunuksen (myös
-silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
+Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ja lisätiedon
+yhteiskorkuisina (40 px: yläreuna otsikon versaalin yläreunassa, tyynyt yksirivisen otsikon lisätiedon
+perusviivalla; mitattu Chromiumissa), ja otsikon ja lisätiedon kaikki rivit sisennetään 57,2 px
+(käyttäjän päätös 20.10.2026, versio 2b). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
+(etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
+kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
+141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean
+reunuksen (myös silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
 `break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
 leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
-Soittimen aikajanalla biisirajat ovat 4 px:n pisteitä sävyllä `--dot` eivätkä katkoksia;
-*Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
+Soittimen aikajana (käyttäjän päätös 20.10.2026): jana 2 px, soitettu osa tekstin värinen, loppu
+`--line`; biisirajat ovat 4 px:n tekstin värisiä palloja janan keskellä (ero janaan parillinen, jotta
+pallo ylittää janan yhtä paljon ylä- ja alapuolella pikseleiksi pyöristettynä); janan lopussa tekstin
+värinen 12 px:n rengas (kehä 2 px, `.loppu`) kuten logossa. *Pysähdy setin lopussa* -kohta on yhä
+turkoosi pystyviiva.
+Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
+kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (14 px, `.kuul`) numeroiden
+tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
+leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026).
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
 vaatimus: soitin harmoniassa logon kanssa).

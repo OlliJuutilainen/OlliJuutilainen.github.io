@@ -259,7 +259,8 @@
 <p><b>Otsikko</b> on keikan nimi. Se näkyy KEICK•WALK-sivulla ylimpänä ja selaimen välilehdellä, ja
   KEICK•WALK antaa sen puhelimen lukitusnäytölle ikään kuin soivan kappaleen albumiksi.</p>
 <p><b>Päivämäärä tai muuta lisätietoa</b> on vapaaehtoinen: päivämäärä, paikka tai mitä haluat. Se
-  näkyy KEICK•WALK-sivulla himmeänä otsikon alla.</p>
+  näkyy KEICK•WALK-sivulla himmeänä otsikon alla. Jos kenttä jää tyhjäksi, siinä lukee <i>Milloin soi?</i>
+  Pelkkä välilyönti jättää rivin kokonaan pois.</p>
 
 <h3 id="tiedosto">Äänitiedoston linkki</h3>
 <p>Keikka on yksi äänitiedosto Google Drivessa tai Dropboxissa, jaettuna niin, että kuka tahansa
@@ -470,13 +471,13 @@
   <picture>
     <source srcset="ohje-soitin-tumma.png" media="(prefers-color-scheme: dark)">
     <img src="ohje-soitin.png" width="1120" height="1482"
-      alt="KEICK•WALK: otsikko ja lisätieto, oikeassa yläkulmassa logo ja Omat keikkani -nappi, nyt soi -rivi, aikajana, viisi nappia, kaksi kytkintä ja kappalelista seteittäin.">
+      alt="KEICK•WALK: vasemmassa yläkulmassa kuulokkeet, niiden vieressä otsikko ja lisätieto, oikeassa yläkulmassa Omat keikkani -nappi, nyt soi -rivi, aikajana, viisi nappia, kaksi kytkintä ja kappalelista seteittäin.">
   </picture>
   <figcaption><a href="#merkinnat">Kahden setin esimerkki</a> KEICK•WALK-sivulla. Ensimmäinen biisi soi.</figcaption>
 </figure>
 <table>
   <tr><th>Kohta</th><th>Toiminto</th></tr>
-  <tr><td>Otsikko ja lisätieto</td><td>Keikan nimi ja sen alla harmaana vapaaehtoinen lisätieto.</td></tr>
+  <tr><td>Otsikko ja lisätieto</td><td>Keikan nimi ja sen alla harmaana vapaaehtoinen lisätieto (oletuksena <i>Milloin soi?</i>).</td></tr>
   <tr><td>
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       Omat keikkani</td>
@@ -485,7 +486,7 @@
       selaimen muistissa, eikä sitä lähetetä minnekään.</td></tr>
   <tr><td>Nyt soi -rivi</td><td>Soivan kappaleen numero ja nimi. Useamman setin keikassa edessä on
     setti, esim. <i>(ii) 3.</i></td></tr>
-  <tr><td>Aikajana</td><td>Napauta tai vedä kohtaan. Pienet pystyviivat ovat kappaleiden rajoja (keikka-janalla).
+  <tr><td>Aikajana</td><td>Napauta tai vedä kohtaan. Pienet pisteet ovat kappaleiden rajoja (keikka-janalla).
     Alla vasemmalla soittokohta, oikealla janan pituus.</td></tr>
   <tr><td>
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
@@ -509,7 +510,7 @@
     <td>Piilottaa kytkimet. Kääntynyt natsa tuo ne takaisin. Valinta muistetaan laitteella; piilotetut
       kytkimet pysyvät siinä asennossa, johon ne jäivät.</td></tr>
   <tr><td>Kappalelista</td>
-    <td>Napauta kappaletta, niin soitto alkaa siitä. Oikealla kappaleen kesto, setin otsikkorivillä
+    <td>Soivan kappaleen numeron paikalla ovat kuulokkeet. Napauta kappaletta, niin soitto alkaa siitä. Oikealla kappaleen kesto, setin otsikkorivillä
       setin biisien yhteiskesto (Σ, ilman hakasulkeissa olevia ei-biisejä). Linkki-ikoni kopioi <a href="#linkit">kappaleen linkin</a>.</td></tr>
 </table>
 <p><b>Näppäimistöllä</b> (Mac): <kbd>välilyönti</kbd> toistaa ja tauottaa. Kun aikajana on valittuna
