@@ -374,7 +374,8 @@ ennallaan 17 px, `overflow: visible` kuten listassa). Se on otsakkeena Keikkaloi
 otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Logo on otsikon yläpuolella eikä
 oikeassa yläkulmassa, koska puhelimen leveydellä (375 px) otsikolle jäisi logon vieressä 135 px eikä
 *Keikkaloihdin* mahdu (mitattu Chromiumissa). Listan ja
-tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaidassa haalea
+tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!* (käyttäjän päätös 20.10.2026: se ja kaikki sen alla 36 px
+alempana kuin ennen, `.pick`-täytteenä; tietoiskun ollessa auki väli ennallaan); alalaidassa haalea
 *© TUSINASOFT* (aina yhteen, ilman interpunktia; käyttäjän päätös 20.10.2026). Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, mutta ei soitinsivulla
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
