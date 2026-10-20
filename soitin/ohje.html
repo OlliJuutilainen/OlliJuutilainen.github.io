@@ -77,6 +77,10 @@
   .merkki { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent);
     margin-right: 0.35em; }
   .merkki.harmaa { color: var(--muted); }
+  /* Kielimalliosion otsikon teksti merkin kirjasimella, mutta päävärillä ja
+     pienaakkosin, jotta se ei ole merkkiä suurempi. Vain teksti pienenee, ei
+     otsikko, joten kolmio ja linja pysyvät muiden alaosioiden kanssa samoina. */
+  .merkki.teksti { color: var(--fg); margin-right: 0; }
   /* Kielimallien taulukossa ensimmäinen sarake on lyhyt. */
   table.mallit td:first-child { width: auto; }
 
@@ -402,7 +406,7 @@
   voi ottaa huomioon ääniohjelmista tuotujen markkerien tarkkuuden merkitystä punnittaessa.</p>
 
 <details class="osio ala">
-<summary><h4 id="kielimalli"><span class="merkki harmaa">OMALLA VASTUULLA</span> aikakoodit kielimallilta</h4></summary>
+<summary><h4 id="kielimalli"><span class="merkki harmaa">OMALLA VASTUULLA</span> <span class="merkki teksti">aikakoodit kielimallilta</span></h4></summary>
 <p>Vielä matalampaa aitaa uhkapelin hinnalla etsiville: tekoälyavustaja voi yrittää löytää
   kappaleiden alkukohdat suoraan keikkatallenteesta. Tulos voi osua, olla sekunteja pielessä tai olla
   kokonaan keksitty, joten tarkista se aina.</p>
