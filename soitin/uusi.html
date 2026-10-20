@@ -145,9 +145,19 @@
 6:45 Toinen biisi
 ---
 15:05 Toisen setin biisi"></textarea>
-  <p class="muted" style="margin-top:6px">Liitä tähän markkerilista Logicista tai Reaperista, vedä
+  <p class="muted" style="margin-top:6px">Liitä tähän markkerilista Logicista, Reaperista tai Audacitystä, vedä
     tähän Abletonin projektitiedosto tai kirjoita kappaleet allekkain: alkuaika ja nimi. Merkinnät ja
     vientiohjeet ovat <a href="ohje.html#settilista">käyttöoppaassa</a>.</p>
+  <!-- Saate tekoälyavustajalle, joka yrittää löytää kappaleiden alut äänitiedostosta. -->
+  <p class="muted" style="margin:0"><button type="button" class="link" id="llmToggle" aria-expanded="false"
+    aria-controls="llmBox"><i>OMALLA VASTUULLA:</i> aikakoodit kielimallilta</button></p>
+  <div id="llmBox" hidden>
+  <p class="muted">Kopioi saate ja liitä se tekoälyavustajalle (esim. Claude, ChatGPT tai Gemini). Se kysyy pari
+    asiaa ja pyytää sitten äänitiedoston. Liitä vastauksen aikalista yllä olevaan kenttään, lisää
+    halutessasi nimet ja tarkista ajat: kielimalli erehtyy helposti. Vinkit ovat
+    <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
+  <button id="copyPrompt" type="button">Kopioi saate</button>
+  </div>
   <p class="muted" id="alsNote" hidden></p>
   <!-- Näkyy vain, kun lista on Logicin markkerilista (SMPTE-ajat). -->
   <div id="fpsBox" hidden>
@@ -337,6 +347,9 @@
   // Setinvaihto DAW:n markkerista: "44:50 ---" tai "44:50 --- (Encore)".
   // Aika ei merkitse mitään; setti alkaa seuraavasta rivistä.
   var RE_TIMED_SET = new RegExp("^" + TIME + "\\s+[-–—](?:\\s*[-–—])*\\s*(\\(.+\\))?$");
+  // Sama ilman aikaa: "--- (+)". Kielimalli kirjoittaa setin otsikon helposti
+  // samalle riville, vaikka saate pyytää sen omalleen.
+  var RE_NAMED_SET = /^[-–—](?:\s*[-–—])*\s*(\(.+\))$/;
 
   function parseList(text, fps) {
     var tracks = [], errors = [], newSet = false, name = "", smpteBase = null, smpte = false;
@@ -350,6 +363,8 @@
     text.split(/\r?\n/).forEach(function (raw, i) {
       var line = raw.trim(), n = i + 1, m, sec, title;
       if (!line) return;
+      // Kielimallin vastauksesta liitetyn koodilohkon aidat (```, ```text).
+      if (/^```/.test(line)) return;
       if ((m = RE_SMPTE.exec(raw))) {
         smpte = true;
         var h = +m[1], mi = +m[2], s = +m[3], fr = +m[5], bits = m[6] ? +m[6] : 0;
@@ -378,6 +393,7 @@
       // Alussa, lopussa tai toistettuna setinvaihto ei tee mitään.
       if (RE_SET.test(line)) { newSet = tracks.length > 0; name = ""; return; }
       if ((m = RE_TIMED_SET.exec(line))) { newSet = tracks.length > 0; name = newSet && m[2] || ""; return; }
+      if ((m = RE_NAMED_SET.exec(line))) { newSet = tracks.length > 0; name = newSet && m[1] || ""; return; }
       // Hakasulkubiisi: [Nimi], aika valinnainen ennen tai jälkeen.
       var z = /^(.*?)\[(.+)\](.*)$/.exec(line), zt;
       if (z) {
@@ -721,6 +737,81 @@
     });
   }
 
+  // ---- Saate kielimallille ----------------------------------------------
+
+  // Tekoälyavustaja kysyy ensin kappaleiden, settien ja encorejen määrän ja
+  // läpivalaisee tiedoston vasta sitten. Vastausmuoto on settilistan muoto:
+  // "3. 12:05" on nimetön biisi, pelkkä aika ei-biisi, --- setinvaihto.
+  // Kesto lisätään tarkistukseksi, jos äänilinkistä saatiin selville.
+  function llmPrompt() {
+    return [
+      "# Keikkatallenteen kappaleiden alkuajat",
+      "",
+      "Tehtäväsi on löytää konsertin äänitallenteesta kohdat, joissa kappaleet alkavat, sekä mahdolliset setinvaihdot ja encoret. Etene kahdessa vaiheessa.",
+      "",
+      "## Vaihe 1: kysy ensin",
+      "",
+      "Älä vielä käsittele äänitiedostoa, vaikka se olisi jo liitetty. Kysy yhdessä viestissä nämä ja kerro, että mihin tahansa saa jättää vastaamatta:",
+      "",
+      "1. Montako kappaletta keikalla soitettiin, encoret mukaan lukien?",
+      "2. Montako settiä, ilman encoreja?",
+      "3. Montako encorea?",
+      "4. Onko tallenteen alussa tai lopussa jotain muuta kuin keikkaa, esim. virittelyä tai taustamusiikkia?",
+      "",
+      "Päätä viesti suunnilleen näin: ”Kun olet vastannut niihin, joihin haluat, liitä keikan äänitiedosto ja kirjoita **läpivalaise**. Mp3 käy hyvin. Jos tiedosto on liian suuri, pienempi laatu (esim. 96 kbps mono) riittää tähän.”",
+      "",
+      "## Vaihe 2: läpivalaisu",
+      "",
+      "Aloita, kun sinulla on äänitiedosto ja käyttäjä on joko kirjoittanut ”läpivalaise” tai vastannut kysymyksiin. Jos tiedosto puuttuu, pyydä se yhdellä lyhyellä viestillä ja kerro, että ”läpivalaise” käynnistää työn.",
+      "",
+      "## Tärkeintä: mittaa, älä arvaa",
+      "",
+      "Tämä on mittaustehtävä. Jos et pysty käsittelemään äänitiedostoa, sano se äläkä anna aikoja.",
+      "- Jos pystyt ajamaan koodia, mittaa äänitaso, hiljaiset kohdat, aplodit ja puhe.",
+      "- Jos kuuntelet äänen itse, kuuntele jokainen löytämäsi kohta vielä uudelleen.",
+      "- Jos et pääse tiedoston loppuun asti, kerro, mihin kohtaan pääsit."
+    ].concat(isFinite(audioLen) ? [
+      "- Tiedoston kesto on " + fmtTime(Math.round(audioLen)) + ". Jos mittaamasi kesto on eri, kerro se."
+    ] : [], [
+      "",
+      "## Säännöt",
+      "",
+      "- Kappale alkaa, kun soitto alkaa, sisäänlasku mukaan lukien. Merkitse alku noin sekunti ennen ensimmäistä ääntä.",
+      "- Aplodit ja välispiikit kuuluvat edelliseen kappaleeseen. Yli minuutin puhe, tauko tai muu soittamaton jakso on oma rivinsä.",
+      "- Setinvaihto vain, jos se on ilmeinen: yli kolmen minuutin tauko, katko tallenteessa tai kuulutettu väliaika. Muuten koko tallenne on yhtä settiä.",
+      "- Kaikki encoret ovat yhdessä omassa setissään. Encore alkaa, kun bändi poistuu ja aplodit jatkuvat, kunnes soitto alkaa uudelleen.",
+      "",
+      "## Vastauksen muoto",
+      "",
+      "Vastaa ensin yhdellä koodilohkolla, jossa on vain näitä rivejä:",
+      "- kappale: juokseva numero, piste ja alkuaika (yli tunnin kohdalla h:mm:ss)",
+      "- soittamaton jakso: pelkkä alkuaika",
+      "- setinvaihto: --- omalla rivillään ennen uuden setin ensimmäistä riviä",
+      "- encoret: --- ja sen alle omalle rivilleen (+). Jokaisen encoren alkuun, aplodien alkukohtaan, rivi alkuaika ja [Encore], tai jos encoreja on useampi, [Encore 1], [Encore 2] jne.",
+      "",
+      "Ajat kokonaisina sekunteina ja kasvavassa järjestyksessä. Ei kappaleiden nimiä eikä kommentteja. Esimerkki muodosta (ajat keksittyjä):",
+      "",
+      "```",
+      "1. 0:41",
+      "2. 5:12",
+      "9:03",
+      "3. 10:15",
+      "---",
+      "4. 52:30",
+      "---",
+      "(+)",
+      "1:29:40 [Encore]",
+      "5. 1:31:02",
+      "```",
+      "",
+      "Kerro lohkon jälkeen lyhyesti, mitkä kohdat ovat epävarmoja ja miksi. Kerro myös, jos kappaleita, settejä tai encoreja on eri määrä kuin käyttäjä kertoi.",
+      "",
+      "## Taustaa",
+      "",
+      "KEICK•WALK on yksityishenkilön ystävilleen tekemä verkkosoitin. Se soittaa keikkatallennetta Google Drivesta tai Dropboxista ja näyttää sen kappalelistana, josta voi hypätä suoraan kappaleen alkuun. Lista tehdään näistä alkuajoista, joten ne ratkaisevat, mistä kohtaa kukin kappale soi."
+    ]).join("\n");
+  }
+
   // ---- Tuloste -----------------------------------------------------------
 
   function sq(v) { return "'" + String(v).replace(/'/g, "'\\''") + "'"; }
@@ -994,6 +1085,13 @@
   $("fetch").addEventListener("click", fetchExisting);
   $("copyCmd").addEventListener("click", function () { copy($("cmd").textContent, this); });
   $("copyLink").addEventListener("click", function () { copy($("link").textContent, this); });
+  $("llmToggle").addEventListener("click", function () {
+    var box = $("llmBox");
+    box.hidden = !box.hidden;
+    this.setAttribute("aria-expanded", String(!box.hidden));
+  });
+  // Saatetta ei näytetä, vain kopioidaan; kesto on kopiointihetken tieto.
+  $("copyPrompt").addEventListener("click", function () { copy(llmPrompt(), this); });
   update();
 })();
 </script>

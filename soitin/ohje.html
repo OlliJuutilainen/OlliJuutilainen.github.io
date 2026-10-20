@@ -73,8 +73,12 @@
      ponnahda esiin. */
   .huom { font-size: 0.86rem; line-height: 1.5; color: var(--muted); max-width: 38em;
     margin: 24px 0 20px 24px; padding-left: 12px; border-left: 2px solid var(--line); }
-  .huom .merkki { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent);
+  /* HUOM- ja SUOSITUS-merkki; harmaa OMALLA VASTUULLA erottuu suosituksesta. */
+  .merkki { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent);
     margin-right: 0.35em; }
+  .merkki.harmaa { color: var(--muted); }
+  /* Kielimallien taulukossa ensimmäinen sarake on lyhyt. */
+  table.mallit td:first-child { width: auto; }
 
   /* Keikan luomisen esikatselu: mitä Keikkaloihtimessa annetaan (vasen)
      ja saadaan (oikea). Palstojen välissä haalea pystyviiva. Kolme tasoa:
@@ -229,8 +233,8 @@
     <ul>
       <li>keikan nimen</li>
       <li><b>linkin äänitiedostoon</b> Google Drivessa tai Dropboxissa</li>
-      <li><b>settilistan</b>: kappaleiden alkuajat ja nimet, käsin kirjoitettuna tai Logicin, Reaperin
-        tai Abletonin markkereista tuotuna</li>
+      <li><b>settilistan</b>: kappaleiden alkuajat ja nimet, käsin kirjoitettuna tai Logicin, Reaperin,
+        Abletonin tai Audacityn markkereista tuotuna</li>
     </ul>
   </div>
   <div>
@@ -308,8 +312,8 @@
 6:45 Toinen biisi
 11:20 Kolmas biisi</pre>
 
-<p id="markerit">Listan saa myös Logicista, Reaperista tai Abletonista niiden aikajanoille tehtävien
-  marker-merkintöjen avulla.</p>
+<p id="markerit"><span class="merkki">SUOSITUS</span> Lista saadaan Logicista, Reaperista, Abletonista tai
+  Audacitystä niiden aikajanoille <b>manuaalisesti</b> istutettavien marker-merkintöjen avulla.</p>
 
 <details class="osio ala">
 <summary><h4 id="logic">Logic</h4></summary>
@@ -372,10 +376,69 @@
 <p class="huom">Tätä toimintoa ei ole testattu. Tarkista ajat KEICK•WALK-sivulla ennen kuin jaat linkin.</p>
 </details>
 
+<details class="osio ala">
+<summary><h4 id="audacity">Audacity</h4></summary>
+<p>Ilmainen <a href="https://www.audacityteam.org/">Audacity</a> avaa valmiin keikkatallenteen
+  sellaisenaan, joten erillistä DAW-projektia ei tarvita. Audacityssä markkeri on <i>Label</i>.</p>
+<ol>
+  <li><b>Avaa äänitiedosto:</b> <i>File → Open</i>.</li>
+  <li><b>Tee markkerit.</b> <i>Edit → Labels → Add Label at Playback Position</i> lisää markkerin
+    soittokohtaan toiston aikana; pikanäppäin näkyy valikossa komennon vieressä. Kirjoita nimi heti
+    ja paina <kbd>Return</kbd>. Nimeämätön markkeri on ei-biisi, joten anna biisille ainakin
+    numero.</li>
+  <li><b>Vie lista:</b> <i>File → Export Other → Export Labels…</i> (vanhemmissa versioissa
+    <i>File → Export → Export Labels…</i>). Avaa tallennettu tekstitiedosto TextEditissä, kopioi
+    kaikki ja liitä Keikkaloihtimen settilistakenttään.</li>
+</ol>
+<p>Valikon <i>Analyze → Label Sounds</i> komento tekee markkerit itse hiljaisten kohtien perusteella.
+  Se auttaa harjoitus- ja studiotallenteissa, mutta live-keikalla biisien välissä on yleensä aplodeja
+  eikä hiljaisuutta.</p>
+<p class="huom">Keikkaloihdin lukee Audacityn markkeritiedoston, mutta tätä reittiä ei ole
+  testattu Audacityllä, ja valikkojen nimet vaihtelevat versioittain. Tarkista ajat KEICK•WALK-sivulla
+  ennen kuin jaat linkin.</p>
+</details>
+
 <p class="huom"><span class="merkki">HUOM</span> KEICK•WALK käsittelee aikoja
   sekunnin sadasosan tarkkuudella. Syötettävät ajat saavat olla karkeampia tai tarkempia, mutta edeltävän
-  voi ottaa huomioon Logicista, Reaperista tai Abletonista tuotujen markkerien tarkkuuden merkitystä
-  punnittaessa.</p>
+  voi ottaa huomioon ääniohjelmista tuotujen markkerien tarkkuuden merkitystä punnittaessa.</p>
+
+<details class="osio ala">
+<summary><h4 id="kielimalli"><span class="merkki harmaa">OMALLA VASTUULLA</span> aikakoodit kielimallilta</h4></summary>
+<p>Vielä matalampaa aitaa uhkapelin hinnalla etsiville: tekoälyavustaja voi yrittää löytää
+  kappaleiden alkukohdat suoraan keikkatallenteesta. Tulos voi osua, olla sekunteja pielessä tai olla
+  kokonaan keksitty, joten tarkista se aina.</p>
+<ol>
+  <li><b>Kopioi saate.</b> Keikkaloihtimessa settilistakentän alla on linkki <i>OMALLA VASTUULLA:
+    aikakoodit kielimallilta</i>. Se avaa lyhyen ohjeen ja napin <span class="ui">Kopioi saate</span>.</li>
+  <li><b>Liitä saate</b> uuteen keskusteluun. Tekoälyavustaja kysyy ensin kappaleiden, settien ja
+    encorejen määrää. Mihin tahansa saa jättää vastaamatta.</li>
+  <li><b>Liitä äänitiedosto</b> keskusteluun ja kirjoita <i>läpivalaise</i>. Tiedosto pitää liittää
+    itse, koska Drive- tai Dropbox-linkkiä tekoälyavustaja ei yleensä pysty avaamaan. Jos palvelu sanoo
+    tiedostoa liian suureksi, pienempi laatu (esim. 96 kbps mono) riittää tähän.</li>
+  <li><b>Liitä vastauksen aikalista</b> settilistakenttään. Numeroidut rivit ovat kappaleita, pelkät
+    ajat <a href="#eibiisit">ei-biisejä</a> ja <code>---</code> setinvaihto; encoret ovat setissä
+    <code>(+)</code>. Nimen voi lisätä rivin loppuun: <code class="nw">3. 12:05 Nimi</code>.</li>
+  <li><b>Tarkista ajat</b> tallennuksen jälkeen KEICK•WALK-sivulla: napauta jokaista kappaletta ja
+    kuuntele, alkaako se oikeasta kohdasta. Jos tulos on huono, kokeile toista palvelua tai tee
+    markkerit itse.</li>
+</ol>
+<p><b>Palvelu ja malli.</b> Suositus on keskiraskas tai raskas malli korkealla ajattelutasolla, ei
+  pikamalli eikä raskain erikoistila. Palvelun pitää pystyä joko kuuntelemaan ääntä tai ajamaan
+  koodia liitetylle tiedostolle.</p>
+<table class="mallit">
+  <tr><th>Palvelu</th><th>Malli</th><th>Ajattelu</th><th>Äänen käsittely</th></tr>
+  <tr><td>Claude</td><td>Opus (Sonnet käy)</td>
+    <td><i>Extended thinking</i> päälle; asetuksista koodin suoritus (<i>Code execution</i>) päälle</td>
+    <td>mittaa koodilla</td></tr>
+  <tr><td>ChatGPT</td><td><i>Thinking</i> (ei <i>Instant</i>)</td>
+    <td><i>Extended</i>, jos valittavissa</td><td>mittaa koodilla</td></tr>
+  <tr><td>Gemini</td><td><i>Pro</i> (ei <i>Flash</i> eikä <i>Fast</i>)</td>
+    <td>korkea (AI Studiossa <i>Thinking level: High</i>)</td><td>kuuntelee itse</td></tr>
+</table>
+<p class="huom">Mallien ja asetusten nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
+  olla suomeksi. Äänitallenne lähtee palvelun palvelimelle, joten älä anna sinne sellaista, mitä et
+  halua jakaa.</p>
+</details>
 
 <h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>
 <p>Kun kentät ovat kunnossa, Keikkaloihtimen alaosaan tulee kolme kohtaa. Jos jossain on virhe,
@@ -407,7 +470,7 @@
 15:05 Neljäs biisi
 19:30 Viides biisi</pre>
 <p>KEICK•WALK näyttää edellisen <a href="#soitin">tältä</a>. Kaikki merkinnät käyvät sellaisinaan myös
-  Logicin, Reaperin ja Abletonin markkerin nimessä.</p>
+  Logicin, Reaperin, Abletonin ja Audacityn markkerin nimessä.</p>
 
 <h4 id="setit">Setit</h4>
 <table>
@@ -415,7 +478,8 @@
   <tr><td><code>---</code></td>
     <td>Uusi setti. Numerointi alkaa taas 1:stä. Setin ensimmäisellä raidalla pitää olla
       alkuaika.</td></tr>
-  <tr><td><code>(Encore)</code> heti <code>---</code>-rivin jälkeen</td>
+  <tr><td><code>(Encore)</code> heti <code>---</code>-rivin jälkeen tai samalla rivillä
+      (<code class="nw">--- (Encore)</code>)</td>
     <td>Setin oma otsikko. Ilman sitä setit ovat (i), (ii) … Listan alussa sulkurivi nimeää
       ensimmäisen setin.</td></tr>
   <tr><td>Markkeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code></td>
