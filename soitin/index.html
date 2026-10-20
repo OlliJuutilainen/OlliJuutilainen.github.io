@@ -443,8 +443,8 @@
   li[aria-current="true"] .track { font-weight: 600; }
   li[aria-current="true"] .track .tt { color: var(--accent); }
   /* Soivan kappaleen numeron paikalla ovat logon kuulokkeet (käyttäjän päätös 20.10.2026), oikeaan
-     reunaan tasattuina kuten numerot ja koko tekstin korkuisina: sangan yläreuna tekstin
-     sisältöalueen yläreunassa ja tyynyjen alareuna sen alareunassa. Koon ja paikan laskee
+     reunaan tasattuina kuten numerot: sangan yläreuna tekstin sisältöalueen yläreunassa ja
+     tyynyjen alareuna perusviivalla. Koon ja paikan laskee
      markCurrent. viewBoxissa on 0,5 yksikön vara joka reunalla, koska Safari leikkasi oikean
      tyynyn reunan viewBoxin rajalla. */
   .track { position: relative; }
@@ -919,22 +919,27 @@
   }
   var kuul = kuulokkeet("kuul");
   // Kuulokkeet soivan rivin piilotetun numeron paikalle: oikean tyynyn reuna (x 18,88) numeron
-  // oikeassa reunassa, sangan yläreuna (y 4) tekstin sisältöalueen yläreunassa ja tyynyjen
-  // alareuna (y 20) sen alareunassa.
+  // oikeassa reunassa, tyynyjen alareuna (y 20) perusviivalla ja sangan yläreuna (y 4) tekstin
+  // sisältöalueen yläreunassa.
   function markCurrent(tr) {
     var n = tr.querySelector(".n");
     tr.insertBefore(kuul, tr.firstChild);
-    var z = document.createElement("span");
-    z.textContent = "\u200b";
+    var z = document.createElement("span"), a = document.createElement("span");
+    z.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+    a.textContent = "\u200b";
     n.appendChild(z);
-    var r = z.getBoundingClientRect(), t = tr.getBoundingClientRect();
+    n.appendChild(a);
+    var base = z.offsetTop, top = base - (z.getBoundingClientRect().top - a.getBoundingClientRect().top);
     n.removeChild(z);
-    var u = r.height / 16;
+    n.removeChild(a);
+    var u = (base - top) / 16;
     kuul.style.width = 18.89 * u + "px";
     kuul.style.height = 17 * u + "px";
     kuul.style.left = n.offsetLeft + n.offsetWidth - (18.88 - 0.49) * u + "px";
-    kuul.style.top = r.top - t.top - tr.clientTop - (4 - 3.5) * u + "px";
+    kuul.style.top = top - (4 - 3.5) * u + "px";
   }
+
+
   var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
   var dragging = false;
   var dragTime = 0;
