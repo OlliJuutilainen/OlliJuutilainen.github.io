@@ -340,9 +340,11 @@ ovat pieniä tekstin värisiä palloja (2,6 kuten janan pisteet; käyttäjän p�
 loppupiste tekstin värinen rengas (ulkohalkaisija 4,6, kehä 1,0; kehä 0,6 haalistui pienessä koossa
 harmaaksi). viewBox pidettiin ennallaan (yläreuna −2,6), jotta otsikon mitat eivät muuttuneet. Interpunkti ja A:n pallo ovat alkusanan keskilinjalla (11,85).
 Aikajana (keskilinja 24,5) on soittimen janan tyylinen (käyttäjän päätös 19.10.2026): paksuus
-nuppi × 4/14 = 1,5 kuten soittimessa 4 px / 14 px; vasemmasta tyynystä nuppiin tekstin värinen ja
-sillä tekstin väriset pisteet (2,6) tyynyjen, i:n ja interpunktin kohdalla; nupin jälkeen `--line`
-loppurenkaan kehän keskelle. Kuulokkeiden sanka 1,2. Korvalappujen keskipisteiden väli on sama kuin A:n
+nuppi × 4/14 = 1,5 kuten soittimessa 4 px / 14 px; ensimmäisen k:n vasemmasta reunasta nuppiin tekstin
+värinen ja sillä tekstin väriset pisteet (2,6) i:n ja interpunktin kohdalla; nupin jälkeen `--line`
+loppurenkaan kehän keskelle. Käyttäjän päätös 20.10.2026: jana alkaa k:n varren vasemmasta reunasta
+(x 25,88; polku alkaa 26,63:sta, koska pyöreä pää ulottuu 0,75 yli; mitattu Chromiumissa) eikä enää
+vasemman tyynyn kohdalta, ja tyynyjen kohdan pisteet poistettiin. Kuulokkeiden sanka 1,2. Korvalappujen keskipisteiden väli on sama kuin A:n
 pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64): oikea lappu on paikallaan (x 16,26,
 rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
 (yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
