@@ -398,7 +398,13 @@ noin 1 px ylempänä.
 x 18,26, vasen paikallaan, sangan säde 7,325, lakipiste ennallaan y 2,8; `.brand`-viewBox `0.99 2.8 19.89 17.2`), ja soittimen
 otsikon versaali on yhtä korkea kuin logon kirjaimet (16 yksikköä = 19,70 px; `font-size: calc(1.0295rem / 13.38 * 22.505)`,
 Robotolla versaali 0,71094 em): yläreuna sangan viivan alareunassa (32,99 px) ja perusviiva tyynyjen alareunassa (52,69 px),
-negatiivisella ylämarginaalilla (−1,32 px), koska rivinkorkeus 1,25 vaatisi muuten negatiivisen yläreunuksen. Alamarginaalit
+negatiivisella ylämarginaalilla (−1,32 px), koska rivinkorkeus 1,25 vaatisi muuten negatiivisen yläreunuksen. CSS:n arvot
+pätevät vain Robotolla oletuskoossa: käyttäjän puhelimessa (tumma tila, todennäköisesti suurennettu tekstikoko) K oli noin
+1,9 px liian alhaalla, ja mitattuna perusviiva poikkesi 134 %:n tekstikoolla 2,31 px ja Interillä 1,00 px. Siksi
+`alignTitle()` mittaa ensimmäisen rivin perusviivan DOMista (kuten `markCurrent()`) ja siirtää sen tyynyjen alareunaan
+ylämarginaalilla; alamarginaali muuttuu vastakkaiseen suuntaan, joten otsikon alla oleva ei liiku. Kutsutaan `start()`issa,
+`document.fonts.ready`ssa ja `resize`ssa. Mitattu: ero 0,000 px Robotolla (100, 120 ja 134 %), Interillä ja DejaVulla;
+Robotolla oletuskoossa sivu on pikselilleen ennallaan. Alamarginaalit
 (−0,33 / 17,17 px) pitävät lisätiedon ja kaiken sen alla pikseleissä paikallaan; h1:n padding-left käyttää K:n sivuväliä
 0,0761 em. Käyttäjän päätös 20.10.2026: väli 14,65 jää, mutta muu logo (kirjaimet, jana, pisteet, nuppi, rengas)
 siirtyi 1,0 yksikköä oikealle (puolet levennyksestä; rako oikeasta lapusta k:hon 6,0, oli 7,0 ja levennyksen jälkeen
