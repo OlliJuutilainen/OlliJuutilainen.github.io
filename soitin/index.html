@@ -137,21 +137,23 @@
     width: 0;
     background: var(--fg);
   }
-  /* Biisiraja: pieni tekstin värinen pallo janan keskellä (keick·walk.-logon aikajanan tapaan).
-     Pallon ja janan paksuuden ero on parillinen (4 − 2 px), jotta pallo ylittää janan yhtä paljon
-     ylä- ja alapuolella myös pikseleiksi pyöristettynä (mitattu). */
+  /* Biisin alku: tekstin värinen pallo janan keskellä (keick·walk.-logon aikajanan tapaan), ei-biisin
+     alkua ei merkitä (käyttäjän päätös 20.10.2026). Soittokohdan jälkeen pallo on janan paksuinen,
+     ohitettuna (.ohi) 4 px. Pallon ja janan paksuuden ero on parillinen (4 − 2 px), jotta pallo ylittää
+     janan yhtä paljon ylä- ja alapuolella myös pikseleiksi pyöristettynä (mitattu). Kun soitto
+     pysähtyy setin lopussa, sen jälkeiset pallot ovat harmaampia (.yli). */
   .tick {
     position: absolute;
     top: 50%;
-    width: 4px;
-    height: 4px;
-    margin: -2px 0 0 -2px;
+    width: 2px;
+    height: 2px;
+    margin: -1px 0 0 -1px;
     border-radius: 50%;
     background: var(--fg);
     pointer-events: none;
   }
-  /* Kohta, jossa "Pysähdy setin lopussa" pysäyttää. */
-  .tick.stop { width: 2px; height: 16px; margin: -8px 0 0 -1px; border-radius: 0; background: var(--accent); }
+  .tick.yli { background: var(--dot); }
+  .tick.ohi { width: 4px; height: 4px; margin: -2px 0 0 -2px; background: var(--fg); }
   .knob {
     position: absolute;
     top: 50%;
@@ -163,7 +165,8 @@
     background: var(--accent);   /* kuten keick·walk.-logon janan nuppi */
     pointer-events: none;
   }
-  /* Janan loppu: tekstin värinen rengas kuten logossa. */
+  /* Janan loppu: tekstin värinen rengas kuten logossa. Kun soitto pysähtyy setin lopussa, rengas on
+     keikkajanalla pysähdyskohdassa eli seuraavan setin alussa (renderTicks). */
   .loppu {
     position: absolute;
     top: 50%;
@@ -175,6 +178,7 @@
     border-radius: 50%;
     background: var(--bg);
     pointer-events: none;
+    transition: left 0.15s;
   }
   .seek[aria-disabled="true"] .knob, .seek[aria-disabled="true"] .loppu { display: none; }
   /* Aika janan alla: vasemmalla kohta, oikealla janan pituus. Jana on 44 px
@@ -294,8 +298,9 @@
   .sw input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* Janakytkimen alla on pienoisjana, hieman alempana kuin rivin väli
-     antaisi (kohti setin kytkimen stop-merkin keskikohtaa). Siirto on
-     top-arvona, ettei rivi kasva. */
+     antaisi (kohti setin kytkimen kuulokkeiden keskikohtaa). Siirto on
+     top-arvona, ettei rivi kasva. Lopussa on hyvin ohut rengas kuten
+     aikajanassa; sen tausta peittää janan renkaan sisältä. */
   .minijana {
     grid-row: 2;
     grid-column: 1 / -1;
@@ -311,6 +316,7 @@
   }
   .minijana .bg { stroke: var(--dim); }
   .minijana .fg { stroke: currentColor; }
+  .minijana .rengas { fill: var(--bg); stroke: currentColor; stroke-width: 0.6; }
 
   /* Natsa janakytkimen keikka-sanan vasemmalla puolella piilottaa kytkimet.
      Rako sanaan (18 px) on selvästi kytkimen ja tekstin väliä (10 px)
@@ -345,40 +351,26 @@
   .opts.kiinni .fold svg { transform: rotate(-90deg); }
   .opts.kiinni .sw > *, .opts.kiinni #setopt { visibility: hidden; }
   .opts.kiinni .fold { visibility: visible; }
-  .opts.kiinni .minijana, .opts.kiinni .stopmark { display: none; }
+  .opts.kiinni .minijana, .opts.kiinni .minikuul { display: none; }
   /* Suljettuna lista nousee lähemmäs natsan riviä; natsa itse pysyy
      paikallaan, jotta sen voi avata samasta kohdasta. */
   .opts.kiinni + #list { margin-top: 12px; }
 
-  /* Setin kytkimen alla on stop-merkki, johon setti-tekstistä kaartuu
-     nuoli. Nuoli on tekstin sisällä, joten se himmenee tekstin mukana;
-     merkki himmenee samalla, kun soitetaan keikan loppuun. */
-  .stopmark {
+  /* Setin kytkimen alla ovat pienet harmaat keick·walk.-logon kuulokkeet
+     (käyttäjän päätös 20.10.2026; aiemmin stop-merkki ja nuoli) entisen
+     stop-merkin paikalla ja korkuisina. Ne himmenevät, kun soitetaan
+     keikan loppuun. */
+  .minikuul {
     grid-row: 2;
     grid-column: 2;
     justify-self: center;
-    width: 8px;
+    width: 9.44px;
     height: 8px;
     margin-top: 3px;
-    border-radius: 1px;
-    background: currentColor;
+    overflow: visible;
     transition: color 0.15s;
   }
-  #setopt:has(input:not(:checked)) .stopmark { color: var(--off); }
-  .arr {
-    position: absolute;
-    top: 22px;
-    left: -16px;
-    width: 23px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.1;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    pointer-events: none;
-    transform: scaleX(-1);
-  }
+  #setopt:has(input:not(:checked)) .minikuul { color: var(--off); }
 
   /* --- Kappalelista --- */
   ol {
@@ -540,7 +532,7 @@
          aria-valuenow="0" aria-valuetext="0:00" aria-disabled="true">
       <div class="bar"><div class="fill" id="fill"></div></div>
       <div id="ticks"></div>
-      <div class="loppu"></div>
+      <div class="loppu" id="loppu"></div>
       <div class="knob" id="knob"></div>
     </div>
       <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
@@ -570,13 +562,13 @@
       <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button>keikka</span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
-      <svg class="minijana" viewBox="0 0 27 6" aria-hidden="true"><path class="bg" d="M1 3h25"/><path class="fg" d="M1 3h8"/><circle cx="9" cy="3" r="3"/></svg>
+      <svg class="minijana" viewBox="0 0 27 6" aria-hidden="true"><path class="bg" d="M1 3h23.4"/><path class="fg" d="M1 3h8"/><circle cx="9" cy="3" r="3"/><circle class="rengas" cx="24.4" cy="3" r="2.3"/></svg>
     </div>
     <div class="sw" id="setopt" hidden>
       <span class="side" data-on="0">keikka</span>
       <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
-      <span class="side" data-on="1"><svg class="arr" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 1c.5 7 6 12.8 18.5 12.9M18.2 10.9l3.6 3.5-3.7 3.2"/></svg>setti</span>
-      <span class="stopmark" aria-hidden="true"></span>
+      <span class="side" data-on="1">setti</span>
+      <svg class="minikuul" viewBox="0 4 18.88 16" aria-hidden="true"><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="2.62" cy="17.38" r="2.62"/><circle cx="16.26" cy="17.38" r="2.62"/></svg>
     </div>
   </div>
 
@@ -610,7 +602,7 @@
   var audio = $("audio");
   var els = {
     title: $("title"), error: $("error"), now: $("now"), seek: $("seek"),
-    fill: $("fill"), ticks: $("ticks"), knob: $("knob"), cur: $("cur"), dur: $("dur"),
+    fill: $("fill"), ticks: $("ticks"), knob: $("knob"), loppu: $("loppu"), cur: $("cur"), dur: $("dur"),
     play: $("play"), prev: $("prev"), next: $("next"), back: $("back"), fwd: $("fwd"),
     list: $("list"), setopt: $("setopt"), opts: $("opts"), fold: $("fold"), setonly: $("setonly"), songscale: $("songscale"),
     status: $("status"), iconPlay: $("icon-play"), iconPause: $("icon-pause")
@@ -1056,6 +1048,7 @@
     var cur = fmt(t - s.a, lt);
     els.fill.style.width = frac * 100 + "%";
     els.knob.style.left = frac * 100 + "%";
+    markTicks(t);
     els.cur.textContent = cur;
     els.dur.textContent = known ? fmt(len, lt) : "–:––";
     els.seek.setAttribute("aria-valuemax", known ? Math.floor(len) : 0);
@@ -1085,18 +1078,36 @@
     els.play.setAttribute("aria-label", playing ? "Tauko" : "Toista");
   }
 
-  // Biisirajat näkyvät vain keikkajanalla; biisijana on yksi biisi.
+  // Biisien alut näkyvät vain keikkajanalla; biisijana on yksi biisi. Ei-biisien
+  // alkuja ei näytetä. Kun soitto pysähtyy setin lopussa, janan loppurengas on
+  // pysähdyskohdassa, ja sen jälkeiset pallot ovat harmaampia (.yli).
+  var tickEls = [];        // [{ el, t }] alkuajan mukaan
+  var ticksPassed = -1;    // montako palloa soittokohta on ohittanut
   function renderTicks() {
     var d = duration();
+    var ring = scale === "gig" && isFinite(d) && stopAt < d ? stopAt : NaN;
     els.ticks.innerHTML = "";
+    els.loppu.style.left = isFinite(ring) ? (ring / d) * 100 + "%" : "";
+    tickEls = [];
+    ticksPassed = -1;
     if (scale !== "gig" || !isFinite(d) || d <= 0) return;
-    tracks.forEach(function (tr) {
-      if (tr.start <= 0 || tr.start >= d) return;
+    tracks.forEach(function (tr, i) {
+      if (isExtra(i) || tr.start <= 0 || tr.start >= d || tr.start === ring) return;
       var k = document.createElement("div");
-      k.className = tr.start === stopAt ? "tick stop" : "tick";
+      k.className = tr.start > ring ? "tick yli" : "tick";
       k.style.left = (tr.start / d) * 100 + "%";
       els.ticks.appendChild(k);
+      tickEls.push({ el: k, t: tr.start });
     });
+    markTicks(dragging ? dragTime : position());
+  }
+  // Soittokohdan ohittamat pallot ovat isompia (.ohi). Raja kuten trackAt-funktiossa.
+  function markTicks(t) {
+    var n = 0;
+    while (n < tickEls.length && tickEls[n].t <= t + 0.005) n++;
+    if (n === ticksPassed) return;
+    ticksPassed = n;
+    tickEls.forEach(function (k, j) { k.el.classList.toggle("ohi", j < n); });
   }
 
   // Setin otsikko alkaa samasta kohdasta kuin setin ensimmäinen numero
