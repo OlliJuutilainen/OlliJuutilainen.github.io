@@ -124,7 +124,10 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
-harmaana kursiivina, mutta ei välilehden otsikossa; tyhjänä riviä ei ole.
+harmaana kursiivina, mutta ei välilehden otsikossa. Puuttuvana tai tyhjänä rivillä lukee *Milloin soi?*
+(käyttäjän päätös 20.10.2026). Pelkkä välilyönti ei ole tyhjä: Keikkageneraattori tallentaa sen
+nollaleveänä välilyöntinä `\u200b` (säilyy `trim()`:ssä, myös workerissa, joten workeria ei tarvinnut
+muuttaa), ja soitin jättää silloin rivin pois. Omat keikkani -listaan oletusteksti ei mene.
 Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`,
 missä kohtaa settiä tahansa; nimettömänä setin alussa `[INTRO]`, lopussa `[OUTRO]`, välissä `[VÄLI]`)
 ei kasvata numerointia, vaan numeron paikalla on harmaa `0.`, `x.` tai `-.` (soittimen lista ja nyt soi

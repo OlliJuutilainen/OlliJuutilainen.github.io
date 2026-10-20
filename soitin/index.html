@@ -1556,7 +1556,7 @@
       d.gigs.push(g);
     }
     g.title = gig.title;
-    g.sub = gig.sub || "";
+    g.sub = (gig.sub || "").replace(/\u200b/g, "");
     var len = songsLength();
     if (len >= 0) g.len = len;
     writeGigs(d);
@@ -1667,9 +1667,12 @@
     document.title = gig.title;
     els.title.textContent = gig.title;
     fitTitle();
-    // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun.
-    $("sub").textContent = gig.sub;
-    $("sub").hidden = !gig.sub;
+    // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun. Puuttuva lisätieto
+    // näyttää oletustekstin. Pelkkä välilyönti tallentuu nollaleveänä välilyöntinä (U+200B), joka
+    // säilyy trimmauksessa (myös workerissa), ja piilottaa rivin.
+    var sub = gig.sub || "Milloin soi?";
+    $("sub").textContent = sub;
+    $("sub").hidden = !sub.replace(/\u200b/g, "");
     $("loading").hidden = true;
     $("app").hidden = false;
 

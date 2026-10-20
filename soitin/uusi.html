@@ -725,7 +725,9 @@
     if (!KEY_RE.test(key)) problems.push("Tunnuksessa saa olla vain pieniä kirjaimia a–z ja numeroita, 4–32 merkkiä.");
     var title = f.title.value.replace(/[\r\n]+/g, " ").trim();
     if (!title) problems.push("Otsikko puuttuu.");
-    var sub = f.sub.value.replace(/[\r\n]+/g, " ").trim();
+    // Tyhjä lisätieto = soittimen oletusteksti; pelkkä välilyönti = ei lisätietoriviä (U+200B, ks. soitin).
+    var subRaw = f.sub.value.replace(/[\r\n]+/g, " ");
+    var sub = subRaw.trim() || (subRaw ? "\u200b" : "");
     if (sub.length > 200) problems.push("Lisätieto on liian pitkä (enintään 200 merkkiä).");
     var isFolder = folderMode, dropped = false;
     $("singleBox").hidden = $("tracksBox").hidden = $("folderOffer").hidden = isFolder;
@@ -880,7 +882,7 @@
       })
       .then(function (d) {
         f.title.value = d.title || "";
-        f.sub.value = typeof d.sub === "string" ? d.sub : "";
+        f.sub.value = typeof d.sub === "string" ? d.sub.replace(/^\u200b+$/, " ") : "";
         if (typeof d.folder === "string") {
           folderMode = true;
           f.folder.value = d.folder;
