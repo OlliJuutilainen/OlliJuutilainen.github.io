@@ -109,9 +109,6 @@
     overflow-wrap: anywhere;
   }
   .now .nr { color: var(--muted); }
-  /* Kuulokelogo nyt soi -rivin alussa (käyttäjän päätös 20.10.2026); tyynyt perusviivalla. */
-  .now .kuul-nyt { display: inline-block; width: 14px; height: 11.86px; margin-right: 0.4em; overflow: visible; fill: currentColor; }
-  .now .kuul-nyt .t { fill: var(--accent); }
   /* Ei-biisi (esim. [Intro]): myös otsikko himmeänä ja koko rivi kursiivina. */
   .now.pre { color: var(--muted); font-style: italic; }
   .seek {
@@ -483,8 +480,15 @@
   /* Otsikolle varataan yläkulman nappien tila (verkossa ☰, sovelluksessa silta.js:n kolme nappia)
      vain ensimmäisellä rivillä kelluvalla .brand-space-laatikolla, joten pitkä nimi jatkuu nappien
      alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
-     Kuulokelogo oli tässä 20.10.2026 asti; nyt se on nyt soi -rivin alussa (.kuul-nyt). */
+     Kuulokelogo oli tässä 20.10.2026 asti; nyt se on vasemmassa yläkulmassa (.brand). */
   .brand-space { float: right; width: 45px; height: 29px; }
+  /* keick·walk.-logon kuulokkeet vasemmassa yläkulmassa otsikon ja lisätiedon yhteiskorkuisina
+     (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
+     tyynyt lisätiedon perusviivalla, kun otsikko on yksirivinen (40 px; mitattu Chromiumissa).
+     Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
+  .brand { position: absolute; left: 16px; top: 33px; width: 47.2px; height: 40px; overflow: visible; }
+  .brand .t { fill: var(--accent); }
+  main > h1, main > .sub { padding-left: 57.2px; }
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
@@ -520,6 +524,7 @@
 </head>
 <body>
 <main>
+  <svg class="brand" viewBox="0 4 18.88 16" role="img" aria-label="keick·walk."><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
   <h1 id="title">keick·walk.</h1>
   <p class="sub" id="sub" hidden></p>
@@ -689,7 +694,6 @@
     var n = document.createTextNode(num(i) + ".");
     els.now.textContent = "";
     els.now.classList.toggle("pre", isExtra(i));
-    els.now.appendChild(kuulNyt);
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
@@ -870,7 +874,7 @@
   // ---- Tila -------------------------------------------------------------
 
   var current = -1;        // korostettu kappale
-  // keick·walk.-logon kuulokkeet: soivan kappaleen merkki listassa ja nyt soi -rivillä.
+  // keick·walk.-logon kuulokkeet: soivan kappaleen merkki listassa.
   function kuulokkeet(cls) {
     var w = document.createElement("span");
     w.innerHTML = '<svg class="' + cls + '" viewBox="0 4 18.88 16" aria-hidden="true">'
@@ -878,7 +882,7 @@
       + '<circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>';
     return w.firstChild;
   }
-  var kuul = kuulokkeet("kuul"), kuulNyt = kuulokkeet("kuul-nyt");
+  var kuul = kuulokkeet("kuul");
   // Kuulokkeet soivan rivin piilotetun numeron paikalle, oikeaan reunaan kuten numerot.
   function markCurrent(tr) {
     var n = tr.querySelector(".n");
@@ -1647,6 +1651,14 @@
   function fitTitle() {
     els.title.classList.remove("pitka");
     if (els.title.scrollWidth > els.title.clientWidth + 1) els.title.classList.add("pitka");
+    // Jos ensimmäinen sana ei mahdu kuulokkeiden ja yläkulman nappien väliin, otsikko alkaa vasta
+    // toiselta riviltä; kuulokkeet siirtyvät silloin otsikon ensimmäisen tekstirivin kohdalle.
+    var r = document.createRange();
+    r.selectNodeContents(els.title);
+    var first = r.getClientRects()[0];
+    var dy = first ? first.top - els.title.getBoundingClientRect().top : 0;
+    // (h1.pitka ja clear siirtävät koko otsikon alemmas; offsetTop on mainin sisällä, 5 px = versaalin yläreuna)
+    document.querySelector(".brand").style.top = els.title.offsetTop + 5 + dy + "px";
   }
   window.addEventListener("resize", fitTitle);
 

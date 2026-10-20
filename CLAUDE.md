@@ -324,8 +324,12 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla logosta on vain kuulokkeet (14 px, `.kuul-nyt`) nyt soi -rivin alussa (käyttäjän päätös
-20.10.2026; ennen ☰-napin vieressä). Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
+Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ja lisätiedon
+yhteiskorkuisina (40 px: yläreuna otsikon versaalin yläreunassa, tyynyt yksirivisen otsikon lisätiedon
+perusviivalla; mitattu Chromiumissa), ja otsikon ja lisätiedon kaikki rivit sisennetään 57,2 px
+(käyttäjän päätös 20.10.2026, versio 2b). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
+(etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
+kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
 141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean
 reunuksen (myös silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
 `break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
