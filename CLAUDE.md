@@ -157,8 +157,10 @@ lukee markkerit (Locators) ja kirjoittaa ne kenttään tavallisena settilistana.
 sekunneiksi Main/Master-raidan tempolla ja tempoautomaatiolla Liven tapaan (tempo luetaan
 kuudestoistaosan välein; malli dawtool-projektista, jonka Live 8–12 -testitiedostoja vastaan ajat
 tarkistettiin 18.10.2026). Oikealla Abletonilla ja oikealla hiiren vedolla testaamatta; käyttäjän
-päätöksellä `ohje.html`:n Ableton-osio on viimeisenä Logicin ja Reaperin jälkeen ja kertoo, ettei
-toimintoa ole testattu. Nimeämätön markkeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
+päätöksellä `ohje.html`:n Ableton-osio on viimeisenä DAW:ista Logicin ja Reaperin jälkeen ja kertoo, ettei
+toimintoa ole testattu. Sen jälkeen on Audacity (20.10.2026; labelien vienti, jonka Keikkageneraattori
+lukee `RE_AUDACITY`-muotona; oikealla Audacityllä testaamatta, valikkojen nimet muistinvaraisia).
+Nimeämätön markkeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
 Aikaleimallinen `---`-rivi (markkeri nimeltä `---`) on setinvaihto. Markkerien vienti tiedoston
 mukana (WAVin cue-osio) on käyttäjän päätöksellä hylätty; äänitiedoston oletetaan alkavan
 aikajanan alusta.
@@ -169,6 +171,20 @@ esittelee sanan; puhekielinen *markkeri* vasta sen jälkeen. Ankkuri `#markerit`
 **Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
 kertoja, ja ohjeet ärsyttävät). Settilistan alla on vain kehotus ja linkki; merkinnät ja
 vientiohjeet ovat `ohje.html`:n osioissa `#settilista` ja `#markerit`.
+`#markerit`-virke alkaa turkoosilla `SUOSITUS`-merkillä (sama `.merkki` kuin HUOM, ilman kaksoispistettä)
+ja korostaa, että markkerit istutetaan **manuaalisesti** (käyttäjän päätös 20.10.2026).
+**Aikakoodit kielimallilta** (käyttäjän päätös 20.10.2026): settilistan alla on tekstilinkki
+*OMALLA VASTUULLA: aikakoodit kielimallilta*, joka avaa lyhyen ohjeen ja napin *Kopioi saate*.
+Saatetta ei näytetä sivulla (käyttäjän vaatimus: pelkkä nappi, ei tekstikenttää); se on vain
+`llmPrompt()`-funktiossa, ei oppaassa, ettei siitä ole kahta versiota. Saate on suomeksi ja
+Markdown-otsikoin: tekoälyavustaja kysyy ensin yhdessä viestissä kappaleiden, settien ja encorejen
+määrän ja pyytää sitten tiedoston ja käskyn *läpivalaise* (tiedosto ja vastaukset riittävät ilman
+käskyä). Vastausmuoto on settilistan muoto: `3. 12:05` nimetön biisi, pelkkä aika ei-biisi, `---`
+setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alkavat ei-biiseillä
+`[Encore]` tai `[Encore 1]`, `[Encore 2]`. Kesto lisätään saatteeseen, jos äänilinkistä saatiin.
+Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
+`#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA*; mallitaulukon nimet
+ovat muistinvaraisia, ja käyttäjä tarkistaa ne.
 Keikkageneraattori tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
