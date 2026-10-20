@@ -129,7 +129,7 @@ Rakennus ja asennus Light Phone 3:een:
 adb -s LP3LHMA541401108 shell am start -n fi.tusinasaa.soitin/.MainActivity
 ```
 
-Key Mapperissa sovellus löytyy nimellä "keick·walk." (ennen versiota 0.7 "Soitin").
+Key Mapperissa sovellus löytyy nimellä "KEICK•WALK" (versiot 0.7–0.10 "keick·walk.", sitä ennen "Soitin").
 
 Toiminta:
 

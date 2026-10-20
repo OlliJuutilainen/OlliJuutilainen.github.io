@@ -1,10 +1,10 @@
-# keick·walk. omalle Cloudflare-tilille
+# KEICK•WALK omalle Cloudflare-tilille
 
 Ohje on siirtynyt kahdeksi verkkosivuksi:
 
 - **Käyttöönotto** (kerran, noin puoli tuntia):
   <https://ollijuutilainen.github.io/soitin/kayttoonotto.html>
-- **Käyttöopas** (uusi keikka, settilista, linkit, keick·walk.-sivun käyttö, iPhone):
+- **Käyttöopas** (uusi keikka, settilista, linkit, KEICK•WALK-sivun käyttö, iPhone):
   <https://ollijuutilainen.github.io/soitin/ohje.html>
 
 Sivut täyttävät omat tunnuksesi komentoihin ja linkkeihin, ja komennoissa on kopiointinapit.
