@@ -52,12 +52,13 @@
     padding: 28px 16px 48px;
   }
   h1 {
-    font-size: 1.15rem;
+    /* Versaali on yhtä korkea kuin logon kirjaimet (16 viewBox-yksikköä; Robotolla versaali 0,71094 em),
+       yläreuna sangan viivan alareunassa ja perusviiva tyynyjen alareunassa, ks. .brand. */
+    font-size: calc(1.0295rem / 13.38 * 22.505);
     line-height: 1.25;
     font-weight: 400;
     letter-spacing: -0.01em;
-    margin: 0 0 27.4px;   /* otsikon alla oleva pysyy kohdallaan (oli 22 px 1,3 rem:n otsikolla, 20,8 px ennen nostoa) */
-    padding-top: 0.1px;   /* versaalin yläreuna kuulokkeiden sangan alareunassa, ks. .brand */
+    margin: -1.32px 0 17.17px;   /* otsikon alla oleva pysyy kohdallaan */
     text-align: left;
     /* Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana
        ei mahdu kuulokkeiden ja yläkulman nappien (.brand-space) väliin, se katkeaa väkisin kahdelle
@@ -66,7 +67,7 @@
     overflow-wrap: anywhere;
   }
   /* Valinnainen lisätieto otsikon alla (päivämäärä tms.). Ilman sitä riviä ei ole. */
-  h1:has(+ .sub:not([hidden])) { margin-bottom: 9.9px; }
+  h1:has(+ .sub:not([hidden])) { margin-bottom: -0.33px; }
   .sub {
     margin: 0 0 22px;
     color: var(--muted);
@@ -528,9 +529,10 @@
      vasemmalla reunalla (x 25,88; Roboton K:n vasen sivuväli 0,0875 rem), ja lisätiedon x-korkeuden
      yläreuna on logon janan alareunassa (h1:n alamarginaali 9,9 px). Mitattu Robotolla.
      Otsikko alkaa aina ensimmäiseltä riviltä (ks. h1 overflow-wrap), joten paikka on kiinteä. */
-  .brand { position: absolute; left: 16px; top: calc(33px - 1.0295rem / 13.38 * 1.2); width: calc(1.0295rem / 13.38 * 17.89); height: calc(1.0295rem / 13.38 * 17.2); overflow: visible; }
+  .brand { position: absolute; left: 16px; top: calc(33px - 1.0295rem / 13.38 * 1.2); width: calc(1.0295rem / 13.38 * 19.89); height: calc(1.0295rem / 13.38 * 17.2); overflow: visible; }
   .brand .t { fill: var(--accent); }
   main > h1, main > .sub { padding-left: calc(1.0295rem / 13.38 * 24.89 - 0.0875rem); }
+  main > h1 { padding-left: calc(1.0295rem / 13.38 * 24.89 - 0.0761em); }   /* Roboton K:n sivuväli 0,0761 em */
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
@@ -566,7 +568,7 @@
 </head>
 <body>
 <main>
-  <svg class="brand" viewBox="0.99 2.8 17.89 17.2" role="img" aria-label="KEICK•WALK"><path d="M3.61 17.38V9.725A6.325 6.325 0 0 1 16.26 9.725V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
+  <svg class="brand" viewBox="0.99 2.8 19.89 17.2" role="img" aria-label="KEICK•WALK"><path d="M3.61 17.38V10.725A7.325 7.325 0 0 1 18.26 10.725V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="18.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
   <h1 id="title">KEICK•WALK</h1>
   <p class="sub" id="sub" hidden></p>

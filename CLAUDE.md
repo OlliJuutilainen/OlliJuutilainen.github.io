@@ -394,6 +394,14 @@ sen x-korkeuden yläreuna on listan logon janan alareunassa (h1:n alamarginaali 
 lisätietoa h1:n alamarginaali on 27,4 px. Otsikon nostossa alamarginaaleja kasvatettiin nostetun määrän (6,6 px), joten
 lisätieto ja kaikki sen alla pysyivät pikseleissä paikallaan. Testiselaimen Interillä K on 0,3 px oikealla ja perusviiva
 noin 1 px ylempänä.
+**Kokeilu 20.10.2026 (käyttäjän pyyntö, toistaiseksi vain soitinsivu ja lista):** korvalappujen väli 14,65 (oikea lappu
+x 18,26, vasen paikallaan, sangan säde 7,325, lakipiste ennallaan y 2,8; `.brand`-viewBox `0.99 2.8 19.89 17.2`), ja soittimen
+otsikon versaali on yhtä korkea kuin logon kirjaimet (16 yksikköä = 19,70 px; `font-size: calc(1.0295rem / 13.38 * 22.505)`,
+Robotolla versaali 0,71094 em): yläreuna sangan viivan alareunassa (32,99 px) ja perusviiva tyynyjen alareunassa (52,69 px),
+negatiivisella ylämarginaalilla (−1,32 px), koska rivinkorkeus 1,25 vaatisi muuten negatiivisen yläreunuksen. Alamarginaalit
+(−0,33 / 17,17 px) pitävät lisätiedon ja kaiken sen alla pikseleissä paikallaan; h1:n padding-left käyttää K:n sivuväliä
+0,0761 em. Yllä olevat 1,15 rem:n ja 12,65:n arvot koskevat edelleen muita sivuja (ohjeiden logo, `.kuul`, `.minikuul`,
+oppaan kuvat, APK), joita ei vielä päivitetty.
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
