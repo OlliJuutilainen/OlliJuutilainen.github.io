@@ -1,6 +1,6 @@
 #!/bin/bash
 # Keikkasoittimen komennot pikakäyttöönoton jälkeen (soitin/pikakayttoonotto.html).
-# asenna.sh tallentaa tämän tiedostoksi ~/.soitin/soitin. Keikkageneraattori tekee
+# asenna.sh tallentaa tämän tiedostoksi ~/.soitin/soitin. Keikkaloihdin tekee
 # tallennuskomennon valmiiksi; muut komennot ajetaan käsin.
 set -eu
 
@@ -26,7 +26,7 @@ tunnus() {
 
 case "${1:-}" in
   tallenna)
-    [ $# -eq 3 ] || { echo "Käyttö: ~/.soitin/soitin tallenna <tunnus> '<keikka>' (Keikkageneraattori tekee tämän)" >&2; exit 2; }
+    [ $# -eq 3 ] || { echo "Käyttö: ~/.soitin/soitin tallenna <tunnus> '<keikka>' (Keikkaloihdin tekee tämän)" >&2; exit 2; }
     tunnus "$2"
     w kv key put "gig:$2" "$3" --binding LOCATIONS "$KV" >/dev/null
     TALLESSA=$(w kv key get "gig:$2" --binding LOCATIONS "$KV" --text)
@@ -74,13 +74,13 @@ case "${1:-}" in
     ;;
   *)
     if [ -n "$OSOITE" ]; then
-      echo "Keikkageneraattori (kirjanmerkki):"
+      echo "Keikkaloihdin (kirjanmerkki):"
       echo "  https://ollijuutilainen.github.io/soitin/uusi.html#w=$OSOITE&tapa=pika"
       echo
     fi
     cat <<'OHJE'
 Komennot:
-  ~/.soitin/soitin tallenna <tunnus> '<keikka>'   Keikkageneraattorin tekemä tallennus
+  ~/.soitin/soitin tallenna <tunnus> '<keikka>'   Keikkaloihtimen tekemä tallennus
   ~/.soitin/soitin hae <tunnus>                    näyttää tallennetun keikan
   ~/.soitin/soitin poista <tunnus>                 poistaa keikan
   ~/.soitin/soitin paivita                         päivittää workerin koodin
