@@ -403,7 +403,10 @@ negatiivisella ylämarginaalilla (−1,32 px), koska rivinkorkeus 1,25 vaatisi m
 0,0761 em. Käyttäjän päätös 20.10.2026: väli 14,65 jää, mutta muu logo (kirjaimet, jana, pisteet, nuppi, rengas)
 siirtyi 1,0 yksikköä oikealle (puolet levennyksestä; rako oikeasta lapusta k:hon 6,0, oli 7,0 ja levennyksen jälkeen
 5,0): listan logon viewBox `0.99 -2.6 154.43 36.25`, k:n vasen reuna x 26,88 (47,87 px). Soittimen otsikko ja lisätieto
-siirtyivät samoin (padding-left 25,89 yksikköä; K:n mustereuna 47,86 px Androidin Roboton sivuvälillä). Yllä olevat
+siirtyivät samoin (padding-left 25,89 yksikköä; K:n mustereuna 47,86 px Androidin Roboton sivuvälillä). Lisätiedolla on
+oma sivuväli 0,0805 em (käyttäjän päätös 20.10.2026; ennen vanhan otsikon K:n 0,0875 rem, jolloin lisätieto alkoi 0,3–0,4 px
+k:n vasemmalla puolella): kursiivinen l ja P alkavat k:n kohdalta (mitattu Robotolla 47,81 ja 47,89 px, tavoite 47,87;
+T alkaa poikkiviivansa takia noin 1,3 px oikeammalta, numero 2 noin 0,3 px vasemmalta). Yllä olevat
 1,15 rem:n, 12,65:n ja x 25,88:n arvot koskevat edelleen muita sivuja (ohjeiden logo, `.kuul`, `.minikuul`,
 oppaan kuvat, APK), joita ei vielä päivitetty.
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
