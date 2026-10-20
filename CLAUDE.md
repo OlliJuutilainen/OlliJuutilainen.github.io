@@ -294,7 +294,7 @@ ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria 
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
 avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”Valg dø KEICK • WALK ðö geig!”*,
 jossa pisteen ympärillä on toisin kuin nimessä välilyönnit; sitten soittimen esittely, käyttöoppaan linkki
-tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen ja käyttöönoton (n. 30 min).*,
+tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen sekä käyttöönoton (n. 30 min).*,
 jossa *käyttöönoton* on linkki; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
 **Nimi KEICK•WALK** (käyttäjän päätös 19.10.2026, kirjoitusasu 20.10.2026): soittimen nimi on kaikissa
