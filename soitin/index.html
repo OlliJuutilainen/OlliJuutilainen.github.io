@@ -58,12 +58,12 @@
     letter-spacing: -0.01em;
     margin: 0 0 22px;
     text-align: left;
-    /* Tavallinen rivitys: nappien vieressä (.brand-space) liian pitkä sana siirtyy kokonaisena
-       niiden alle. anywhere ja break-word katkaisisivat sen kesken (mitattu Chromiumissa). Koko leveyttä
-       pidempi sana saa .pitka-luokan (fitTitle), jolloin se katkeaa kuten ennen. */
-    overflow-wrap: normal;
+    /* Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana
+       ei mahdu kuulokkeiden ja yläkulman nappien (.brand-space) väliin, se katkeaa väkisin kahdelle
+       riville eikä siirry nappien alle. Muut sanat rivittyvät tavallisesti, koska anywhere katkaisee
+       sanan vain, jos rivillä ei ole muuta katkaisukohtaa (mitattu Chromiumissa). */
+    overflow-wrap: anywhere;
   }
-  h1.pitka { overflow-wrap: anywhere; clear: right; }
   /* Valinnainen lisätieto otsikon alla (päivämäärä tms.). Ilman sitä riviä ei ole. */
   h1:has(+ .sub:not([hidden])) { margin-bottom: 4px; }
   .sub {
@@ -502,13 +502,16 @@
      alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
      Kuulokelogo oli tässä 20.10.2026 asti; nyt se on vasemmassa yläkulmassa (.brand). */
   .brand-space { float: right; width: 45px; height: 29px; }
-  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa otsikon ensimmäisen rivin korkuisina
-     (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
-     tyynyt ensimmäisen rivin perusviivalla; versaalin korkeus on noin 0,71 em eli 0,71 × 1,45 rem.
+  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa (käyttäjän päätös 20.10.2026): sangan
+     yläreuna (viewBox y 4) otsikon versaalin yläreunassa (h1:n yläreuna + 5 px) ja tyynyjen keskipisteet
+     (y 17,38) ensimmäisen rivin perusviivalla. Versaalin korkeus on noin 0,71 em eli 0,71 × 1,45 rem
+     = 1,0295 rem = 13,38 viewBox-yksikköä. Omat keikkani -sivun logo (lista/keikat.html) on samassa
+     mittakaavassa ja kohdassa, joten sen kuulokkeet ovat tasan näiden päällä.
+     Otsikko alkaa aina ensimmäiseltä riviltä (ks. h1 overflow-wrap), joten paikka on kiinteä.
      Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
-  .brand { position: absolute; left: 16px; top: 33px; width: calc(1.0295rem * 17.89 / 16); height: 1.0295rem; overflow: visible; }
+  .brand { position: absolute; left: 16px; top: 33px; width: calc(1.0295rem / 13.38 * 17.89); height: calc(1.0295rem / 13.38 * 16); overflow: visible; }
   .brand .t { fill: var(--accent); }
-  main > h1, main > .sub { padding-left: calc(1.0295rem * 17.89 / 16 + 10px); }
+  main > h1, main > .sub { padding-left: calc(1.0295rem / 13.38 * 17.89 + 10px); }
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
@@ -1709,26 +1712,10 @@
     showError(msg, detail);
   }
 
-  // Otsikon ylipitkä sana katkaistaan vasta, kun se ei mahdu koko leveydellekään (ks. h1.pitka).
-  function fitTitle() {
-    els.title.classList.remove("pitka");
-    if (els.title.scrollWidth > els.title.clientWidth + 1) els.title.classList.add("pitka");
-    // Jos ensimmäinen sana ei mahdu kuulokkeiden ja yläkulman nappien väliin, otsikko alkaa vasta
-    // toiselta riviltä; kuulokkeet siirtyvät silloin otsikon ensimmäisen tekstirivin kohdalle.
-    var r = document.createRange();
-    r.selectNodeContents(els.title);
-    var first = r.getClientRects()[0];
-    var dy = first ? first.top - els.title.getBoundingClientRect().top : 0;
-    // (h1.pitka ja clear siirtävät koko otsikon alemmas; offsetTop on mainin sisällä, 5 px = versaalin yläreuna)
-    document.querySelector(".brand").style.top = els.title.offsetTop + 5 + dy + "px";
-  }
-  window.addEventListener("resize", fitTitle);
-
   function start(data) {
     gig = data;
     document.title = gig.title;
     els.title.textContent = gig.title;
-    fitTitle();
     // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun. Puuttuva lisätieto
     // piilottaa rivin. Vanhoissa keikoissa tyhjä rivi on voitu tallentaa nollaleveänä välilyöntinä
     // (U+200B); se ohitetaan.
