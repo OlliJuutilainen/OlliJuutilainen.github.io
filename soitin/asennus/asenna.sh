@@ -6,7 +6,7 @@
 # Varsinainen työ (kirjautuminen, tietokanta, worker, kirjanmerkki) on asenna.mjs:ssä.
 # Uudelleen ajettuna päivittää workerin koodin; tietokanta ja keikat säilyvät.
 #
-# Versiot on kiinnitetty, jotta Keikkageneraattorin komennot pysyvät samoina. Macin
+# Versiot on kiinnitetty, jotta Keikkaloihtimen komennot pysyvät samoina. Macin
 # /bin/bash on versio 3.2, joten tässä ei käytetä bash 4:n ominaisuuksia.
 set -euo pipefail
 

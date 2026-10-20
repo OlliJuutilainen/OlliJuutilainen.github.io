@@ -392,7 +392,7 @@
     grid-row: 2;
     grid-column: 2;
     justify-self: center;
-    width: 9.44px;
+    width: 8.945px;
     height: 8px;
     margin-top: 3px;
     overflow: visible;
@@ -444,7 +444,7 @@
      (1.45em = rivikorkeus), joten kuvake keskittyy riville; 1 px ylemmäs optisesti. */
   .track { position: relative; }
   li[aria-current="true"] .track .n { visibility: hidden; }
-  .kuul { position: absolute; top: 12px; width: 14px; height: 1.45em; margin-top: -1px; fill: currentColor; }
+  .kuul { position: absolute; top: 12px; width: 13.27px; height: 1.45em; margin-top: -1px; fill: currentColor; }
   .kuul .t { fill: var(--accent); }
   /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
      himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
@@ -506,9 +506,9 @@
      (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
      tyynyt lisätiedon perusviivalla, kun otsikko on yksirivinen (40 px; mitattu Chromiumissa).
      Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
-  .brand { position: absolute; left: 16px; top: 33px; width: 47.2px; height: 40px; overflow: visible; }
+  .brand { position: absolute; left: 16px; top: 33px; width: 44.73px; height: 40px; overflow: visible; }
   .brand .t { fill: var(--accent); }
-  main > h1, main > .sub { padding-left: 57.2px; }
+  main > h1, main > .sub { padding-left: 54.73px; }
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
@@ -544,7 +544,7 @@
 </head>
 <body>
 <main>
-  <svg class="brand" viewBox="0 4 18.88 16" role="img" aria-label="KEICK•WALK"><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
+  <svg class="brand" viewBox="0.99 4 17.89 16" role="img" aria-label="KEICK•WALK"><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
   <h1 id="title">KEICK•WALK</h1>
   <p class="sub" id="sub" hidden></p>
@@ -597,7 +597,7 @@
       <span class="side" data-on="0">keikka</span>
       <input type="checkbox" role="switch" id="setonly" aria-label="Pysähdy setin lopussa">
       <span class="side" data-on="1">setti</span>
-      <svg class="minikuul" viewBox="0 4 18.88 16" aria-hidden="true"><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="2.62" cy="17.38" r="2.62"/><circle cx="16.26" cy="17.38" r="2.62"/></svg>
+      <svg class="minikuul" viewBox="0.99 4 17.89 16" aria-hidden="true"><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="3.61" cy="17.38" r="2.62"/><circle cx="16.26" cy="17.38" r="2.62"/></svg>
     </div>
   </div>
 
@@ -619,7 +619,7 @@
   // Repossa ei ole yhtään keikkaa: tunnus kulkee osoitteen #-osassa,
   // esim. …/soitin/#k7f3qa2m tai kappaleeseen 3: …/soitin/#k7f3qa2m/3.
   // Jos keikassa on useampi setti, toisen setin kappale 3 on …/#k7f3qa2m/2/3.
-  // Tiedot tallennetaan Keikkageneraattorilla (soitin/uusi.html).
+  // Tiedot tallennetaan Keikkaloihtimella (soitin/uusi.html).
   // Kaveriversio (soitin/kayttoonotto.html): …/#k7f3qa2m@soitin.kaveri hakee keikan
   // toisen tilin workerista https://soitin.kaveri.workers.dev. Osoite rajataan
   // workers.dev-aliverkkotunnukseen, ja tiedot näytetään vain tekstinä.
@@ -746,7 +746,7 @@
 
   // Ei-biisi eli x-rivi: raita, joka ei ole varsinainen biisi, missä kohtaa
   // settiä tahansa. Biisilistassa nimi hakasulkeissa ("3:42 [Intro]") tai
-  // alussa [x], [0] tai [-] ("3:42 [x]", "3:42 [0] Nimi"); Keikkageneraattori
+  // alussa [x], [0] tai [-] ("3:42 [x]", "3:42 [0] Nimi"); Keikkaloihdin
   // tallentaa pelkän ajan muodossa "[]". Merkintä on otsikossa eikä omana
   // kenttänään, jotta workeria ei tarvitse päivittää (se päästää kappaleista
   // läpi vain t, title, set ja name). Palauttaa nimen ilman merkintää ja
@@ -899,9 +899,9 @@
   // KEICK•WALK-logon kuulokkeet: soivan kappaleen merkki listassa.
   function kuulokkeet(cls) {
     var w = document.createElement("span");
-    w.innerHTML = '<svg class="' + cls + '" viewBox="0 4 18.88 16" aria-hidden="true">'
-      + '<path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/>'
-      + '<circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>';
+    w.innerHTML = '<svg class="' + cls + '" viewBox="0.99 4 17.89 16" aria-hidden="true">'
+      + '<path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/>'
+      + '<circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>';
     return w.firstChild;
   }
   var kuul = kuulokkeet("kuul");
@@ -909,7 +909,7 @@
   function markCurrent(tr) {
     var n = tr.querySelector(".n");
     tr.insertBefore(kuul, tr.firstChild);
-    kuul.style.left = n.offsetLeft + n.offsetWidth - 14 + "px";
+    kuul.style.left = n.offsetLeft + n.offsetWidth - 13.27 + "px";
   }
   var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
   var dragging = false;

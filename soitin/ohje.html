@@ -7,19 +7,19 @@
 <meta name="color-scheme" content="light dark">
 <title>KEICK•WALK – käyttöopas</title>
 <!--
-  Keikkasoittimen käyttöopas: keikan luominen Keikkageneraattorilla (uusi.html),
+  Keikkasoittimen käyttöopas: keikan luominen Keikkaloihtimella (uusi.html),
   linkit ja soittimen käyttö (index.html). Kertaluonteinen käyttöönotto omalle
   Cloudflare-tilille: kayttoonotto.html. Kuvakaappaukset ovat keksityllä
   esimerkkikeikalla; oikeita keikkatietoja ei tallenneta repoon.
 
   Järjestys: johdannon virke linkittää osat (ei koko sivun sisällystä). Keikan
-  luominen alkaa esikatselulla (mitä Keikkageneraattorissa annetaan ja saadaan),
-  jonka jälkeen tulee vain tämän osan sisällys ja Keikkageneraattorin kentät
+  luominen alkaa esikatselulla (mitä Keikkaloihtimessa annetaan ja saadaan),
+  jonka jälkeen tulee vain tämän osan sisällys ja Keikkaloihtimen kentät
   ylhäältä alas. Niiden perässä ovat suljettuina h3-osiot Settilistan
   lisäominaisuudet ja Aiemmin luodun keikan muokkaaminen tai poistaminen. Harvemmin tarvittavat osiot ovat suljettuina (details.osio).
   #-linkki suljetun osion sisään avaa sen.
 
-  Termit: Keikkageneraattoriin annettava lista on settilista, soittimen näyttämä
+  Termit: Keikkaloihtimeen annettava lista on settilista, soittimen näyttämä
   lista kappalelista.
 -->
 <style>
@@ -76,7 +76,7 @@
   .huom .merkki { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; color: var(--accent);
     margin-right: 0.35em; }
 
-  /* Keikan luomisen esikatselu: mitä Keikkageneraattorissa annetaan (vasen)
+  /* Keikan luomisen esikatselu: mitä Keikkaloihtimessa annetaan (vasen)
      ja saadaan (oikea). Palstojen välissä haalea pystyviiva. Kolme tasoa:
      johdin lihavoituna, annat/saat ohuena kursiivina (näytöllä …annat,
      tulosteessa annat:), listat kevyenä ja pienempänä, jotta niiden
@@ -102,7 +102,7 @@
     .ydin > div + div { border-top: 1px solid var(--line); padding-top: 12px; }
   }
 
-  /* Keikan luomisen sisällys: vasemmalla Keikkageneraattorin kentät, oikealla
+  /* Keikan luomisen sisällys: vasemmalla Keikkaloihtimen kentät, oikealla
      suljetut lisäosiot. */
   nav.toc { background: var(--soft); border-radius: 10px; padding: 14px 18px 6px; margin: 6px 0 8px;
     display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
@@ -193,6 +193,12 @@
     .ydin .otsake::before { content: none; }
     .ydin .otsake::after { content: ":"; }
   }
+  /* KEICK•WALK-logo otsikon yläpuolella: sama merkintä kuin Omat keikkani -listassa
+     (lista/keikat.html) ja samassa koossa (1,25 × viewBox, WALK 20 px). */
+  .logo { display: block; width: 191.79px; height: 37.15px; margin: 0 0 16px; fill: currentColor; }
+  .logo .t { fill: var(--accent); }
+  .logo .r { fill: none; stroke: currentColor; }
+  .logo .g { stroke: var(--line); }
   /* Alatunniste samaan tapaan kuin Omat keikkani -listassa (lista/keikat.html). */
   .foot { margin: 0; padding: 0 16px 20px; text-align: center; color: var(--muted); opacity: 0.6;
     font-size: 0.68rem; line-height: 1.45; font-weight: 300; letter-spacing: 0.14em; }
@@ -201,7 +207,8 @@
 <body>
 <main>
 
-<h1>KEICK•WALK – käyttöopas</h1>
+<svg class="logo" viewBox="0.99 -2.6 153.43 29.72" role="img" aria-label="KEICK•WALK"><path class="g" d="M118.2 24.5H150.32" stroke-width="1.5"/><path d="M3.61 24.5H118.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.61" cy="24.5" r="1.3"/><circle cx="16.26" cy="24.5" r="1.3"/><circle cx="55.82" cy="24.5" r="1.3"/><circle cx="90.38" cy="24.5" r="1.3"/><circle class="r" cx="152.12" cy="24.5" r="1.8" stroke-width="1"/><circle class="t" cx="118.2" cy="24.5" r="2.62"/><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M25.88 4H28.48V19.7H25.88ZM54.52 4H57.12V19.7H54.52ZM73.2 4H75.8V19.7H73.2Z"/><path d="M37.14 4V7.14A4.71 4.71 0 0 1 32.43 11.85H27.18M27.18 11.85H32.43A4.71 4.71 0 0 1 37.14 16.56V19.7M53.02 5.3H44.52A3.27 3.27 0 0 0 44.52 11.85A3.27 3.27 0 0 0 44.52 18.4H53.02M44.52 11.85H53.02M71.7 5.3H66.47A6.55 6.55 0 0 0 66.47 18.4H71.7M84.46 4V7.14A4.71 4.71 0 0 1 79.75 11.85H74.5M74.5 11.85H79.75A4.71 4.71 0 0 1 84.46 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M136.7 4H139.9V20H136.7Z"/><path d="M96.6 4V15.35A3.05 3.05 0 0 0 102.7 15.35A3.05 3.05 0 0 0 108.8 15.35V4M102.7 4V15.35M113.5 20V10.3A4.7 4.7 0 0 1 122.9 10.3V20M127.6 4V16.8A1.6 1.6 0 0 0 129.2 18.4H135.2M145.9 4V7.9A4.1 4.1 0 0 1 141.8 12H138.3M138.3 12H141.8A4.1 4.1 0 0 1 145.9 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/><circle cx="55.82" cy="0.7" r="1.3"/><circle cx="90.38" cy="11.85" r="1.3"/><circle class="t" cx="118.2" cy="11.85" r="2.62"/></svg>
+<h1>Käyttöopas</h1>
 <p class="lead">Tässä ohjeessa käydään läpi ensin <a href="#uusi">keikan luominen</a> ja sitten se,
   <a href="#soitin">miten KEICK•WALK toimii</a>.</p>
 <p class="muted intro">Lopussa on <a href="#kansio">liite</a> lisäominaisuudesta, jossa keikka
@@ -210,13 +217,13 @@
 <!-- ================================================================ -->
 
 <h2 id="uusi">Keikan luominen</h2>
-<p>Ennen kuin KEICK•WALK voi soittaa mitään, pitää luoda keikka <b>Keikkageneraattorissa</b>, jonne pääset
+<p>Ennen kuin KEICK•WALK voi soittaa mitään, pitää luoda keikka <b>Keikkaloihtimessa</b>, jonne pääset
   vain ainutlaatuisen linkkisi kautta. Mikäli et sellaista ole vielä saanut, siirry kohtaan
   <a href="kayttoonotto.html">käyttöönotto</a>
   (tai <a href="pikakayttoonotto.html">pikakäyttöönotto</a> uudempien Macien käyttäjien kohdalla).</p>
 
 <div class="box ydin">
-  <p class="johdin">Keikkageneraattorissa…</p>
+  <p class="johdin">Keikkaloihtimessa…</p>
   <div>
     <p class="otsake">annat</p>
     <ul>
@@ -234,11 +241,11 @@
         jälkeen linkki toimii.</li>
     </ul>
   </div>
-  <p class="muted koko">Keikkageneraattori ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat
+  <p class="muted koko">Keikkaloihdin ei lähetä mitään verkkoon. Keikka tallentuu vasta, kun ajat
     komennon Terminalissa.</p>
 </div>
 
-<p class="tocjohdin">Seuraavaksi Keikkageneraattori käydään läpi kohta kohdalta, ylhäältä alas.</p>
+<p class="tocjohdin">Seuraavaksi Keikkaloihdin käydään läpi kohta kohdalta, ylhäältä alas.</p>
 <nav class="toc" aria-label="Keikan luominen">
   <ul>
     <li><a href="#alku">Tunnus, otsikko ja lisätieto</a></li>
@@ -253,7 +260,7 @@
 </nav>
 
 <h3 id="alku">Tunnus, otsikko ja lisätieto</h3>
-<p>Avaa Keikkageneraattori kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
+<p>Avaa Keikkaloihdin kirjanmerkistä; yläreunassa pitää lukea <i>Omat asetukset</i>. Ylimpänä on
   <b>tunnus</b>, joka on arvottu valmiiksi. Siihen ei tarvitse koskea. Sitä tarvitaan vasta, kun
   <a href="#korjaus">aiemmin luotua keikkaa muokataan</a>.</p>
 <p><b>Otsikko</b> on keikan nimi. Se näkyy KEICK•WALK-sivulla ylimpänä ja selaimen välilehdellä, ja
@@ -264,7 +271,7 @@
 
 <h3 id="tiedosto">Äänitiedoston linkki</h3>
 <p>Keikka on yksi äänitiedosto Google Drivessa tai Dropboxissa, jaettuna niin, että kuka tahansa
-  linkin saanut voi kuunnella sen. Liitä jakolinkki kenttään sellaisenaan: Keikkageneraattori
+  linkin saanut voi kuunnella sen. Liitä jakolinkki kenttään sellaisenaan: Keikkaloihdin
   muuttaa sen soitettavaan muotoon itse ja kertoo kentän alla, mitä teki.</p>
 
 <details class="osio ala">
@@ -272,7 +279,7 @@
 <p>Tiedoston kohdalla <span class="ui">Jaa</span> → <i>Yleinen käyttöoikeus: Kaikki, joilla on
   linkki</i> → <span class="ui">Kopioi linkki</span>.</p>
 <p>Google ei anna soittaa Drive-tiedostoa suoraan toiselta sivustolta, joten KEICK•WALK hakee sen
-  workerisi kautta. Keikkageneraattori tekee tämän itse, kun liität Drive-linkin. Workerin koodin
+  workerisi kautta. Keikkaloihdin tekee tämän itse, kun liität Drive-linkin. Workerin koodin
   pitää olla päivitetty 14.10.2026 tai myöhemmin (<a href="kayttoonotto.html#paivitys">Workerin
   päivitys</a>).</p>
 </details>
@@ -322,14 +329,14 @@
     (<i>View → Show Event Position and Length as Time</i>), niin sijainnit näkyvät aikoina eivätkä
     tahteina. Sitten <span class="yhd"><kbd>Cmd</kbd>-<kbd class="m">A</kbd></span> ja <span class="yhd"><kbd>Cmd</kbd>-<kbd class="m">C</kbd></span>.</li>
   <li>Nyt olet saanut kopioitua Logicista markkereita koskevat tiedot, ja ne ovat valmiita
-    <b>liitettäviksi Keikkageneraattorin settilistakenttään</b>. Kun liität tiedot,
-    Keikkageneraattori tunnistaa Logicin liittämisen lähteeksi. Tällöin ilmestyy mahdollisuus
+    <b>liitettäviksi Keikkaloihtimen settilistakenttään</b>. Kun liität tiedot,
+    Keikkaloihdin tunnistaa Logicin liittämisen lähteeksi. Tällöin ilmestyy mahdollisuus
     täsmentää, onko omassa Logic-projektissa frame-rate-asetus (<i>File → Project Settings →
-    Synchronization → Frame Rate</i>) Keikkageneraattorin oletus eli 25 vai jokin muu arvo. Valinta
+    Synchronization → Frame Rate</i>) Keikkaloihtimen oletus eli 25 vai jokin muu arvo. Valinta
     muistetaan ensi kerralla.</li>
 </ol>
 <p class="huom">Logic 10.8.0:ssa markkerilistan kopiointi ei toiminut; 10.8.1 korjasi sen. Jos
-  Keikkageneraattori valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
+  Keikkaloihdin valittaa framen osasta, valitse Logicin asetuksista (<i>View → General</i>, vanhemmissa versioissa
   <i>Display → General</i>) <i>Display Time As: With Bits</i>.</p>
 </details>
 
@@ -346,7 +353,7 @@
     <i>Minutes:Seconds</i>.</li>
   <li><b>Kopioi lista:</b> <i>Extensions → Marker utilities → MarkerList</i>. Ensimmäisellä kerralla
     oikea klikkaus listalla → <i>Export format…</i> → kirjoita <code>mp d</code>. Sitten oikea klikkaus
-    → <i>Export formatted marker list to clipboard</i> ja liitä Keikkageneraattoriin.</li>
+    → <i>Export formatted marker list to clipboard</i> ja liitä Keikkaloihtimeen.</li>
 </ol>
 </details>
 
@@ -359,7 +366,7 @@
     markkerin soittopään kohtaan, myös toiston aikana; saman tekee <i>Create → Add Locator</i>.</li>
   <li><b>Nimeä markkerit:</b> valitse markkeri ja paina <span class="yhd"><kbd>Cmd</kbd>-<kbd class="m">R</kbd></span>.</li>
   <li><b>Tallenna projekti</b> ja <b>vedä sen <code>.als</code>-tiedosto</b> Finderista
-    Keikkageneraattorin settilistakenttään. Keikkageneraattori laskee markkerien ajat projektin tempon
+    Keikkaloihtimen settilistakenttään. Keikkaloihdin laskee markkerien ajat projektin tempon
     ja tempoautomaation mukaan ja kirjoittaa ne kenttään tavallisena settilistana.</li>
 </ol>
 <p class="huom">Tätä toimintoa ei ole testattu. Tarkista ajat KEICK•WALK-sivulla ennen kuin jaat linkin.</p>
@@ -371,11 +378,11 @@
   punnittaessa.</p>
 
 <h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>
-<p>Kun kentät ovat kunnossa, Keikkageneraattorin alaosaan tulee kolme kohtaa. Jos jossain on virhe,
+<p>Kun kentät ovat kunnossa, Keikkaloihtimen alaosaan tulee kolme kohtaa. Jos jossain on virhe,
   se näkyy punaisella (settilistassa rivin numeron kera), eikä komentoa tule ennen kuin virhe on
   korjattu.</p>
 <ol>
-  <li><b>Tarkista lista:</b> näin Keikkageneraattori luki settilistan. Katso, että kappaleet ja setit
+  <li><b>Tarkista lista:</b> näin Keikkaloihdin luki settilistan. Katso, että kappaleet ja setit
     ovat oikein.</li>
   <li><b>Kopioi komento → liitä Terminaliin → Enter.</b> Ensimmäinen vastausrivi sisältää
     <code>"success":true</code>, ja sen alla tulostuvat tallennetut keikan tiedot.
@@ -453,7 +460,7 @@
 
 <details class="osio">
 <summary><h3 id="korjaus">Aiemmin luodun keikan muokkaaminen tai poistaminen</h3></summary>
-<p><b>Muokkaaminen:</b> liitä keikan linkki Keikkageneraattorin Tunnus-kenttään ja paina
+<p><b>Muokkaaminen:</b> liitä keikan linkki Keikkaloihtimen Tunnus-kenttään ja paina
   <span class="ui">Hae</span>. Linkistä poimitaan keikan tunnus
   (<code>…/soitin/#<b>k7f3qa2m</b>@soitin.jotain</code>); pelkän tunnuksen voi myös kirjoittaa.
   Keikan tiedot tulevat kenttiin. Tee muutokset, kopioi uusi komento ja aja se. Linkki pysyy samana.</p>
@@ -555,7 +562,7 @@
   <tr><td><i>Keikan tietoja ei saatu palvelimelta</i></td>
     <td>Workerin asetuksissa on vika. <a href="kayttoonotto.html#ongelmat">Käyttöönotto-ohje</a>.</td></tr>
   <tr><td><i>Kappalelistassa on virhe</i></td>
-    <td>Tallennetussa settilistassa on virheellinen aika. Hae keikka Keikkageneraattoriin, korjaa ja tallenna.</td></tr>
+    <td>Tallennetussa settilistassa on virheellinen aika. Hae keikka Keikkaloihtimeen, korjaa ja tallenna.</td></tr>
   <tr><td><i>Äänitiedoston lataaminen epäonnistui</i></td>
     <td>Jakolinkki on poistettu tai väärä, tai tiedostoa ei ole jaettu kaikille linkin saaneille.
       Tee jako uudelleen ja <a href="#korjaus">korjaa keikka</a>. Ilmoituksen alla oleva selitys
@@ -605,11 +612,11 @@
         Linkki on muotoa <code>dropbox.com/scl/fo/…</code>. Kansion pitää olla sen Dropbox-tilin
         oma, jolla avain tehtiin.</li>
     </ul></li>
-  <li><b>Avaa Keikkageneraattorin kirjanmerkki</b> ja paina sivun lopusta
+  <li><b>Avaa Keikkaloihtimen kirjanmerkki</b> ja paina sivun lopusta
     <span class="ui">Lisäominaisuus: keikka kansiosta yhden tiedoston sijaan</span>. Täytä otsikko ja liitä kansion linkki. Takaisin
     tavalliseen keikkaan pääsee kentän yläpuolelta.</li>
   <li><b>Kopioi komento → Terminal → Enter</b>, kuten tavallisessa keikassa.</li>
-  <li><b>Tarkista kappaleet:</b> paina Keikkageneraattorin yläosasta <span class="ui">Hae</span>;
+  <li><b>Tarkista kappaleet:</b> paina Keikkaloihtimen yläosasta <span class="ui">Hae</span>;
     tunnus on yhä Tunnus-kentässä. Esikatselu näyttää kappaleet ja setit sellaisina kuin worker ne
     kansiosta lukee. Jos järjestys on väärä, nimeä tiedostot uudelleen; uutta komentoa ei tarvita.</li>
   <li><b>Avaa linkki itse ensin.</b> KEICK•WALK mittaa avautuessaan jokaisen tiedoston keston
@@ -642,7 +649,7 @@
   <tr><td>KEICK•WALK: <i>Kaikkia kappaleita ei saatu ladattua</i></td>
     <td>Lueteltuja tiedostoja ei voinut soittaa (ehkä vioittunut tai muoto, jota selain ei tunne).
       Muut soivat.</td></tr>
-  <tr><td>Keikkageneraattori: <i>Tämä on yksittäisen tiedoston linkki</i></td>
+  <tr><td>Keikkaloihdin: <i>Tämä on yksittäisen tiedoston linkki</i></td>
     <td>Kopioi kansion linkki, ei tiedoston.</td></tr>
 </table>
 </details>

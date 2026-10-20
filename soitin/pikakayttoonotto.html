@@ -10,7 +10,7 @@
   Kaveriversion pikakäyttöönotto uudelle Macille: yksi Terminal-komento
   (asennus/asenna.sh) lataa Node.js:n ja Wranglerin kansioon ~/.soitin, kirjautuu
   Cloudflareen selaimessa ja tekee workerin ja tietokannan. API-avainta ei tehdä.
-  Keikkageneraattorin kirjanmerkki: uusi.html#w=soitin.<nimi>&tapa=pika.
+  Keikkaloihtimen kirjanmerkki: uusi.html#w=soitin.<nimi>&tapa=pika.
   Pidempi, asentamaton reitti: kayttoonotto.html. Käyttö: ohje.html.
 -->
 <style>
@@ -97,6 +97,12 @@
     details.osio > summary h2 { padding-left: 0; text-indent: 0; }
     details.osio > summary h2::before { content: none; }
   }
+  /* KEICK•WALK-logo otsikon yläpuolella: sama merkintä kuin Omat keikkani -listassa
+     (lista/keikat.html) ja samassa koossa (1,25 × viewBox, WALK 20 px). */
+  .logo { display: block; width: 191.79px; height: 37.15px; margin: 0 0 16px; fill: currentColor; }
+  .logo .t { fill: var(--accent); }
+  .logo .r { fill: none; stroke: currentColor; }
+  .logo .g { stroke: var(--line); }
   /* Alatunniste samaan tapaan kuin Omat keikkani -listassa (lista/keikat.html). */
   .foot { margin: 0; padding: 0 16px 20px; text-align: center; color: var(--muted); opacity: 0.6;
     font-size: 0.68rem; line-height: 1.45; font-weight: 300; letter-spacing: 0.14em; }
@@ -105,8 +111,9 @@
 <body>
 <main>
 
-<h1>KEICK•WALK omalle Cloudflare-tilille: pikakäyttöönotto</h1>
-<p class="lead">Uudelle Macille. Tehdään kerran, aikaa kuluu noin kymmenen minuuttia. Cloudflaren
+<svg class="logo" viewBox="0.99 -2.6 153.43 29.72" role="img" aria-label="KEICK•WALK"><path class="g" d="M118.2 24.5H150.32" stroke-width="1.5"/><path d="M3.61 24.5H118.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="3.61" cy="24.5" r="1.3"/><circle cx="16.26" cy="24.5" r="1.3"/><circle cx="55.82" cy="24.5" r="1.3"/><circle cx="90.38" cy="24.5" r="1.3"/><circle class="r" cx="152.12" cy="24.5" r="1.8" stroke-width="1"/><circle class="t" cx="118.2" cy="24.5" r="2.62"/><path d="M3.61 17.38V10.925A6.325 6.325 0 0 1 16.26 10.925V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M25.88 4H28.48V19.7H25.88ZM54.52 4H57.12V19.7H54.52ZM73.2 4H75.8V19.7H73.2Z"/><path d="M37.14 4V7.14A4.71 4.71 0 0 1 32.43 11.85H27.18M27.18 11.85H32.43A4.71 4.71 0 0 1 37.14 16.56V19.7M53.02 5.3H44.52A3.27 3.27 0 0 0 44.52 11.85A3.27 3.27 0 0 0 44.52 18.4H53.02M44.52 11.85H53.02M71.7 5.3H66.47A6.55 6.55 0 0 0 66.47 18.4H71.7M84.46 4V7.14A4.71 4.71 0 0 1 79.75 11.85H74.5M74.5 11.85H79.75A4.71 4.71 0 0 1 84.46 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M136.7 4H139.9V20H136.7Z"/><path d="M96.6 4V15.35A3.05 3.05 0 0 0 102.7 15.35A3.05 3.05 0 0 0 108.8 15.35V4M102.7 4V15.35M113.5 20V10.3A4.7 4.7 0 0 1 122.9 10.3V20M127.6 4V16.8A1.6 1.6 0 0 0 129.2 18.4H135.2M145.9 4V7.9A4.1 4.1 0 0 1 141.8 12H138.3M138.3 12H141.8A4.1 4.1 0 0 1 145.9 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/><circle cx="55.82" cy="0.7" r="1.3"/><circle cx="90.38" cy="11.85" r="1.3"/><circle class="t" cx="118.2" cy="11.85" r="2.62"/></svg>
+<h1>Pikakäyttöönotto</h1>
+<p class="lead">Uudelle Macille ja omalle Cloudflare-tilille. Tehdään kerran, aikaa kuluu noin kymmenen minuuttia. Cloudflaren
   sivuilla käydään vain luomassa tili ja hyväksymässä kirjautuminen; muun tekee yksi
   Terminal-komento. Arkikäyttö on omalla sivullaan: <a href="ohje.html">käyttöopas</a>.</p>
 
@@ -126,7 +133,7 @@
   <ol>
     <li><a href="#tili">Cloudflare-tili</a></li>
     <li><a href="#asennus">Asennuskomento</a></li>
-    <li><a href="#kirjanmerkki">Keikkageneraattorin kirjanmerkki</a></li>
+    <li><a href="#kirjanmerkki">Keikkaloihtimen kirjanmerkki</a></li>
     <li><a href="#testi">Testikeikka ja iPhone</a></li>
   </ol>
   <p><a href="#ongelmat">Kun jokin ei toimi</a> · <a href="#yllapito">Päivitys, poistaminen ja
@@ -158,7 +165,7 @@
 <p>Muuten Terminal tekee kaiken itse: tietokannan, workerin (Wranglerin englanninkielinen tuloste,
   ei vaadi mitään) ja lopuksi tarkistuksen, että worker vastaa.</p>
 <div class="box check">
-  <p>Onnistuessaan lopussa lukee <code>Valmis.</code>, ja selaimeen aukeaa Keikkageneraattori.</p>
+  <p>Onnistuessaan lopussa lukee <code>Valmis.</code>, ja selaimeen aukeaa Keikkaloihdin.</p>
   <p>Jos tarkistus sanoo <code>ei vielä vastaa</code>, uusi osoite ei ole vielä ehtinyt näkyä.
     Odota muutama minuutti ja avaa Terminalin näyttämä osoite selaimessa. Vastauksen pitää olla
     <code>{"error":"not_found"}</code>.</p>
@@ -170,23 +177,23 @@
   <p><b>Wranglerin päivityskehotus on väärä hälytys.</b> Wrangler kertoo välillä uudemmasta
     versiostaan (<code>update available</code> tai <code>Note that there is a newer version of
     Wrangler available … Consider checking whether upgrading resolves this error</code>). Älä
-    päivitä sitä: asennus käyttää tarkoituksella tiettyä versiota, jotta Keikkageneraattorin
+    päivitä sitä: asennus käyttää tarkoituksella tiettyä versiota, jotta Keikkaloihtimen
     komennot toimivat aina samoin. Jos jokin ei toimi, syy on muualla.</p>
 </div>
 
-<h2 id="kirjanmerkki"><span class="no">3</span>Keikkageneraattorin kirjanmerkki</h2>
-<p>Asennuksen avaamassa Keikkageneraattorissa pitää yläreunassa lukea <i>Omat asetukset:
+<h2 id="kirjanmerkki"><span class="no">3</span>Keikkaloihtimen kirjanmerkki</h2>
+<p>Asennuksen avaamassa Keikkaloihtimessa pitää yläreunassa lukea <i>Omat asetukset:
   soitin.nimi.workers.dev (pikakäyttöönotto)</i>. Tallenna sivu kirjanmerkiksi
-  (<kbd>⌘D</kbd>) ja avaa Keikkageneraattori aina siitä.</p>
+  (<kbd>⌘D</kbd>) ja avaa Keikkaloihdin aina siitä.</p>
 <p class="muted">Kirjanmerkin osoitteen loppu (<code>#w=soitin.nimi&amp;tapa=pika</code>) kertoo
-  Keikkageneraattorille, että komennot tehdään sinun asennuksellesi. Jos kirjanmerkki katoaa,
+  Keikkaloihtimelle, että komennot tehdään sinun asennuksellesi. Jos kirjanmerkki katoaa,
   komento <code>~/.soitin/soitin</code> näyttää sen osoitteen.</p>
 
 <h2 id="testi"><span class="no">4</span>Testikeikka ja iPhone</h2>
 <ol>
   <li>Laita Driveen lyhyt äänitiedosto. Tiedoston kohdalla <span class="ui">Jaa</span> →
     <i>Yleinen käyttöoikeus: Kaikki, joilla on linkki</i> → <span class="ui">Kopioi linkki</span>.</li>
-  <li>Täytä Keikkageneraattori käyttöoppaan ohjeella <a href="ohje.html#uusi">Keikan luominen</a>.
+  <li>Täytä Keikkaloihdin käyttöoppaan ohjeella <a href="ohje.html#uusi">Keikan luominen</a>.
     Kahden biisin lista riittää.</li>
   <li>Kopioi komento, liitä se Terminaliin ja paina Enter. Terminal tulostaa tallennetun keikan, ja
     viimeisellä rivillä lukee <code>Tallennettu: gig:tunnus</code>.</li>
@@ -222,8 +229,8 @@
   <tr><td>KEICK•WALK: Drive-tiedosto ei soi, ja viesti neuvoo päivittämään workerin</td>
     <td>Tarkista ensin, että tiedosto on jaettu kaikille linkin saaneille. Workerin päivitys:
       <code>~/.soitin/soitin paivita</code>.</td></tr>
-  <tr><td>Keikkageneraattorissa ei lue <i>Omat asetukset … (pikakäyttöönotto)</i></td>
-    <td>Keikkageneraattori on avattu ilman kirjanmerkkiä. Kohta 3.</td></tr>
+  <tr><td>Keikkaloihtimessa ei lue <i>Omat asetukset … (pikakäyttöönotto)</i></td>
+    <td>Keikkaloihdin on avattu ilman kirjanmerkkiä. Kohta 3.</td></tr>
   <tr><td>KEICK•WALK: <i>Keikkaa ei löytynyt</i> heti tallennuksen jälkeen</td>
     <td>Odota minuutti ja lataa uudelleen. Jos ei auta: tunnus on väärin tai komento jäi ajamatta.</td></tr>
 </table>
@@ -261,7 +268,7 @@ https://ollijuutilainen.github.io/soitin/asennus/asenna.mjs
 Asennus pysähtyi. Terminalin teksti on alla. Kerro mitä teen, yksi vaihe kerrallaan.
 
 Rajat:
-- KEICK•WALK-sivu, Keikkageneraattori, asennusskripti ja worker-koodi ovat Ollin. Jos jokin vaatisi
+- KEICK•WALK-sivu, Keikkaloihdin, asennusskripti ja worker-koodi ovat Ollin. Jos jokin vaatisi
   niihin muutoksen, kirjoita viesti Ollille välitettäväksi äläkä neuvo muokkaamaan niitä.
 - Käyttöönotto-ohje ilman asennuksia (kayttoonotto.html) on varalla, jos tämä ei toimi.
 
