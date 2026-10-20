@@ -324,18 +324,20 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla logosta on vain kuulokkeet (käyttäjän päätös 20.10.2026; samassa mittakaavassa 20/28,82 px
-yksikköä kohden, 13,1 × 11,1 px) ☰-napin vasemmalla puolella; sovelluksessa
-(`main.app`) silta.js:n kolmen napin rivin vasemmalla puolella. Otsikon tila varataan kelluvalla
-`.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean reunuksen (myös
-silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
+Soitinsivulla logosta on vain kuulokkeet (14 px, `.kuul-nyt`) nyt soi -rivin alussa (käyttäjän päätös
+20.10.2026; ennen ☰-napin vieressä). Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
+141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean
+reunuksen (myös silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
 `break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
 leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
-Soittimen aikajanalla biisirajat ovat 4 px:n pisteitä sävyllä `--dot` eivätkä katkoksia;
-*Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
-Kappalelistassa soivan kappaleen merkki on logon kuulokkeet (14 px leveät, `.kuul`) entisen turkoosin
-pystyviivan paikalla rivin vasemmassa reunassa (käyttäjän päätös 20.10.2026). Kaksinumeroinen numero
-osuisi kuulokkeisiin, joten `markCurrent()` siirtää silloin vain soivan rivin tekstiä niin, että väliin
-jää 6 px; setin ensimmäinen numero on aina yksinumeroinen, joten `alignSetNames()` ei kärsi siirrosta.
+Soittimen aikajana (käyttäjän päätös 20.10.2026): jana 2 px, soitettu osa tekstin värinen, loppu
+`--line`; biisirajat ovat 4 px:n tekstin värisiä palloja janan keskellä (ero janaan parillinen, jotta
+pallo ylittää janan yhtä paljon ylä- ja alapuolella pikseleiksi pyöristettynä); janan lopussa tekstin
+värinen 12 px:n rengas (kehä 2 px, `.loppu`) kuten logossa. *Pysähdy setin lopussa* -kohta on yhä
+turkoosi pystyviiva.
+Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
+kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (14 px, `.kuul`) numeroiden
+tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
+leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026).
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
 vaatimus: soitin harmoniassa logon kanssa).

@@ -46,7 +46,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   main {
-    position: relative;   /* logo (.brand) ja yläkulman napit */
+    position: relative;   /* yläkulman napit */
     max-width: 640px;
     margin: 0 auto;
     padding: 28px 16px 48px;
@@ -58,8 +58,8 @@
     letter-spacing: -0.01em;
     margin: 0 0 22px;
     text-align: left;
-    /* Tavallinen rivitys: logon vieressä (.brand-space) liian pitkä sana siirtyy kokonaisena logon
-       alle. anywhere ja break-word katkaisisivat sen kesken (mitattu Chromiumissa). Koko leveyttä
+    /* Tavallinen rivitys: nappien vieressä (.brand-space) liian pitkä sana siirtyy kokonaisena
+       niiden alle. anywhere ja break-word katkaisisivat sen kesken (mitattu Chromiumissa). Koko leveyttä
        pidempi sana saa .pitka-luokan (fitTitle), jolloin se katkeaa kuten ennen. */
     overflow-wrap: normal;
   }
@@ -109,6 +109,9 @@
     overflow-wrap: anywhere;
   }
   .now .nr { color: var(--muted); }
+  /* Kuulokelogo nyt soi -rivin alussa (käyttäjän päätös 20.10.2026); tyynyt perusviivalla. */
+  .now .kuul-nyt { display: inline-block; width: 14px; height: 11.86px; margin-right: 0.4em; overflow: visible; fill: currentColor; }
+  .now .kuul-nyt .t { fill: var(--accent); }
   /* Ei-biisi (esim. [Intro]): myös otsikko himmeänä ja koko rivi kursiivina. */
   .now.pre { color: var(--muted); font-style: italic; }
   .seek {
@@ -120,13 +123,15 @@
     border-radius: 4px;
   }
   .seek[aria-disabled="true"] { cursor: default; }
+  /* Jana 2 px; soitettu osa tekstin värinen pisteineen, joten tumma ja vaalea eivät vaihda
+     rooleja soittokohdassa (käyttäjän päätös 20.10.2026). */
   .bar {
     position: absolute;
     left: 0; right: 0; top: 50%;
-    height: 4px;
-    margin-top: -2px;
+    height: 2px;
+    margin-top: -1px;
     background: var(--line);
-    border-radius: 2px;
+    border-radius: 1px;
     overflow: hidden;
   }
   .fill {
@@ -135,8 +140,9 @@
     width: 0;
     background: var(--fg);
   }
-  /* Biisiraja: pieni piste janalla (keick·walk.-logon aikajanan tapaan), ei katkos. Oma harmaan
-     sävy erottaa sen janasta, joten se saa olla janan paksuinen. */
+  /* Biisiraja: pieni tekstin värinen pallo janan keskellä (keick·walk.-logon aikajanan tapaan).
+     Pallon ja janan paksuuden ero on parillinen (4 − 2 px), jotta pallo ylittää janan yhtä paljon
+     ylä- ja alapuolella myös pikseleiksi pyöristettynä (mitattu). */
   .tick {
     position: absolute;
     top: 50%;
@@ -144,7 +150,7 @@
     height: 4px;
     margin: -2px 0 0 -2px;
     border-radius: 50%;
-    background: var(--dot);
+    background: var(--fg);
     pointer-events: none;
   }
   /* Kohta, jossa "Pysähdy setin lopussa" pysäyttää. */
@@ -160,7 +166,20 @@
     background: var(--accent);   /* kuten keick·walk.-logon janan nuppi */
     pointer-events: none;
   }
-  .seek[aria-disabled="true"] .knob { display: none; }
+  /* Janan loppu: tekstin värinen rengas kuten logossa. */
+  .loppu {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border: 2px solid var(--fg);
+    border-radius: 50%;
+    background: var(--bg);
+    pointer-events: none;
+  }
+  .seek[aria-disabled="true"] .knob, .seek[aria-disabled="true"] .loppu { display: none; }
   /* Aika janan alla: vasemmalla kohta, oikealla janan pituus. Jana on 44 px
      korkea ja viiva sen keskellä, joten rivi nostetaan lähemmäs viivaa. */
   .times {
@@ -383,9 +402,8 @@
     display: flex;
     align-items: baseline;
     gap: 12px;
-    padding: 12px 4px 12px 8px;
+    padding: 12px 4px;
     text-align: left;
-    border-left: 3px solid transparent;
   }
   .track .n {
     flex: 0 0 auto;
@@ -404,13 +422,13 @@
     font-size: 0.9rem;
   }
   li[aria-current="true"] .track { font-weight: 600; }
-  /* Soivan kappaleen merkki: logon kuulokkeet entisen turkoosin pystyviivan paikalla rivin
-     vasemmassa reunassa (käyttäjän päätös 20.10.2026). Laatikko on ensimmäisen rivin korkuinen
-     (1.45em = rivikorkeus), joten kuvake keskittyy numeroon; 1 px ylemmäs optisesti. */
+  /* Soivan kappaleen numeron paikalla ovat logon kuulokkeet (käyttäjän päätös 20.10.2026), oikeaan
+     reunaan tasattuina kuten numerot (left: markCurrent). Laatikko on ensimmäisen rivin korkuinen
+     (1.45em = rivikorkeus), joten kuvake keskittyy riville; 1 px ylemmäs optisesti. */
   .track { position: relative; }
-  .kuul { position: absolute; left: -3px; top: 12px; width: 14px; height: 1.45em; margin-top: -1px; fill: currentColor; }
+  li[aria-current="true"] .track .n { visibility: hidden; }
+  .kuul { position: absolute; top: 12px; width: 14px; height: 1.45em; margin-top: -1px; fill: currentColor; }
   .kuul .t { fill: var(--accent); }
-  li[aria-current="true"] .track .n { color: var(--accent); }
   /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
      himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
      kuten muilla riveillä. */
@@ -426,7 +444,7 @@
     display: flex;
     align-items: baseline;
     gap: 12px;
-    padding: 30px 48px 6px 11px;
+    padding: 30px 48px 6px 4px;
     color: var(--muted);
     font-size: 0.9rem;
     font-style: italic;
@@ -462,19 +480,12 @@
   .loading { color: var(--muted); margin: 0; }
 
   /* Omat keikkani verkossa (sovelluksessa napit tuo silta.js). */
-  /* keick·walk.-logo pienenä ☰-napin vasemmalla puolella (verkossa ☰ yksin, sovelluksessa
-     silta.js:n kolmen napin rivin vasemmassa päässä). Otsikolle varataan tilaa vain ensimmäisellä
-     rivillä kelluvalla .brand-space-laatikolla, joten pitkä nimi jatkuu logon alla täysleveänä;
-     tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px). */
-  .logo { fill: currentColor; }
-  .logo .t { fill: var(--accent); }
-  /* Soitinsivulla logosta vain kuulokkeet (käyttäjän päätös 20.10.2026), 20/28,82 px yksikköä
-     kohden kuten koko logo aiemmin: tyynyjen alareuna WALKin entisellä perusviivalla, oikea reuna
-     4,22 px ☰-napista. .brand-space = leveys + 45 px (sovelluksessa + 141 px). */
-  .brand { position: absolute; top: 36.16px; right: 53.22px; width: 13.1px; height: 11.1px; }
-  .brand-space { float: right; width: 58.1px; height: 29px; }
-  main.app .brand { right: 149.22px; }
-  main.app .brand-space { width: 154.1px; }
+  /* Otsikolle varataan yläkulman nappien tila (verkossa ☰, sovelluksessa silta.js:n kolme nappia)
+     vain ensimmäisellä rivillä kelluvalla .brand-space-laatikolla, joten pitkä nimi jatkuu nappien
+     alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
+     Kuulokelogo oli tässä 20.10.2026 asti; nyt se on nyt soi -rivin alussa (.kuul-nyt). */
+  .brand-space { float: right; width: 45px; height: 29px; }
+  main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
     position: absolute;
@@ -509,7 +520,6 @@
 </head>
 <body>
 <main>
-  <svg class="logo brand" viewBox="0 4 18.88 16" role="img" aria-label="keick·walk."><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
   <h1 id="title">keick·walk.</h1>
   <p class="sub" id="sub" hidden></p>
@@ -525,6 +535,7 @@
          aria-valuenow="0" aria-valuetext="0:00" aria-disabled="true">
       <div class="bar"><div class="fill" id="fill"></div></div>
       <div id="ticks"></div>
+      <div class="loppu"></div>
       <div class="knob" id="knob"></div>
     </div>
       <div class="times num"><span id="cur">0:00</span><span id="dur">–:––</span></div>
@@ -678,6 +689,7 @@
     var n = document.createTextNode(num(i) + ".");
     els.now.textContent = "";
     els.now.classList.toggle("pre", isExtra(i));
+    els.now.appendChild(kuulNyt);
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
@@ -858,22 +870,20 @@
   // ---- Tila -------------------------------------------------------------
 
   var current = -1;        // korostettu kappale
-  // Soivan kappaleen kuulokkeet; siirretään soivan rivin alkuun.
-  var kuul = (function () {
+  // keick·walk.-logon kuulokkeet: soivan kappaleen merkki listassa ja nyt soi -rivillä.
+  function kuulokkeet(cls) {
     var w = document.createElement("span");
-    w.innerHTML = '<svg class="kuul" viewBox="0 4 18.88 16" aria-hidden="true">'
+    w.innerHTML = '<svg class="' + cls + '" viewBox="0 4 18.88 16" aria-hidden="true">'
       + '<path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/>'
       + '<circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>';
     return w.firstChild;
-  })();
-  // Kaksinumeroinen numero alkaa niin vasemmalta, että se osuisi kuulokkeisiin; silloin soivan
-  // rivin tekstiä siirretään sen verran, että numeron ja kuulokkeiden väliin jää 6 px.
+  }
+  var kuul = kuulokkeet("kuul"), kuulNyt = kuulokkeet("kuul-nyt");
+  // Kuulokkeet soivan rivin piilotetun numeron paikalle, oikeaan reunaan kuten numerot.
   function markCurrent(tr) {
+    var n = tr.querySelector(".n");
     tr.insertBefore(kuul, tr.firstChild);
-    var r = document.createRange();
-    r.selectNodeContents(tr.querySelector(".n"));
-    var need = kuul.getBoundingClientRect().right + 6 - r.getBoundingClientRect().left;
-    if (need > 0) tr.style.paddingLeft = 8 + need + "px";   // 8 px = .trackin vasen reunus
+    kuul.style.left = n.offsetLeft + n.offsetWidth - 14 + "px";
   }
   var pendingSeek = null;  // hyppy ennen kuin metadata on ladattu
   var dragging = false;
@@ -1049,10 +1059,7 @@
     els.seek.setAttribute("aria-valuetext", cur + " / " + (known ? fmt(len, lt) : "tuntematon"));
 
     if (i !== current) {
-      if (current >= 0 && rows[current]) {
-        rows[current].removeAttribute("aria-current");
-        rows[current].firstChild.style.paddingLeft = "";
-      }
+      if (current >= 0 && rows[current]) rows[current].removeAttribute("aria-current");
       current = i;
       if (i >= 0) {
         rows[i].setAttribute("aria-current", "true");
@@ -1499,7 +1506,7 @@
   // soittimen päällä, joten sen avaaminen ei katkaise soittoa.
 
   var web = !window.SoitinApp;
-  // Sovelluksessa logo siirtyy silta.js:n nappirivin vasemmalle puolelle.
+  // Sovelluksessa otsikon ensimmäiseltä riviltä varataan tila silta.js:n kolmelle napille.
   if (!web) document.querySelector("main").classList.add("app");
   var LIST_KEY = "soitin-keikat";
   var listFrame = null;
