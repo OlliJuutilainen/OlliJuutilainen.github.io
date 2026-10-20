@@ -289,7 +289,7 @@ Linkki avaa keikan suoraan soittimeen, ja latautunut keikka tulee listaan itsest
 `soitin/` ilman tunnusta avaa listan. Sovelluksessa (`window.SoitinApp` olemassa) verkon nappia
 ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria ei tarvita:
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
-avaa otsikon alle hennon tietoiskun (soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
+avaa otsikon alle hennon tietoiskun (ensin omalla rivillään kursiivinen iskulause *Valg a KEICK • WALK the geig!*, sitten soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
 ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
 **Nimi keick·walk.** (käyttäjän päätös 19.10.2026): soittimen nimi on kaikissa käyttäjälle näkyvissä
