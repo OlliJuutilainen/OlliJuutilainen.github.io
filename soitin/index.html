@@ -502,13 +502,13 @@
      alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
      Kuulokelogo oli tässä 20.10.2026 asti; nyt se on vasemmassa yläkulmassa (.brand). */
   .brand-space { float: right; width: 45px; height: 29px; }
-  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa otsikon ja lisätiedon yhteiskorkuisina
+  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa otsikon ensimmäisen rivin korkuisina
      (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
-     tyynyt lisätiedon perusviivalla, kun otsikko on yksirivinen (40 px; mitattu Chromiumissa).
+     tyynyt ensimmäisen rivin perusviivalla; versaalin korkeus on noin 0,71 em eli 0,71 × 1,45 rem.
      Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
-  .brand { position: absolute; left: 16px; top: 33px; width: 44.73px; height: 40px; overflow: visible; }
+  .brand { position: absolute; left: 16px; top: 33px; width: calc(1.0295rem * 17.89 / 16); height: 1.0295rem; overflow: visible; }
   .brand .t { fill: var(--accent); }
-  main > h1, main > .sub { padding-left: 54.73px; }
+  main > h1, main > .sub { padding-left: calc(1.0295rem * 17.89 / 16 + 10px); }
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {
@@ -1730,9 +1730,9 @@
     els.title.textContent = gig.title;
     fitTitle();
     // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun. Puuttuva lisätieto
-    // näyttää oletustekstin. Pelkkä välilyönti tallentuu nollaleveänä välilyöntinä (U+200B), joka
-    // säilyy trimmauksessa (myös workerissa), ja piilottaa rivin.
-    var sub = gig.sub || "Milloin soi?";
+    // piilottaa rivin. Vanhoissa keikoissa tyhjä rivi on voitu tallentaa nollaleveänä välilyöntinä
+    // (U+200B); se ohitetaan.
+    var sub = gig.sub || "";
     $("sub").textContent = sub;
     $("sub").hidden = !sub.replace(/\u200b/g, "");
     $("loading").hidden = true;

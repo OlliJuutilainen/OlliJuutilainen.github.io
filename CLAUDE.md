@@ -124,10 +124,9 @@ saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä av
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
-harmaana kursiivina, mutta ei välilehden otsikossa. Puuttuvana tai tyhjänä rivillä lukee *Milloin soi?*
-(käyttäjän päätös 20.10.2026). Pelkkä välilyönti ei ole tyhjä: Keikkaloihdin tallentaa sen
-nollaleveänä välilyöntinä `\u200b` (säilyy `trim()`:ssä, myös workerissa, joten workeria ei tarvinnut
-muuttaa), ja soitin jättää silloin rivin pois. Omat keikkani -listaan oletusteksti ei mene.
+harmaana kursiivina, mutta ei välilehden otsikossa. Puuttuvana tai tyhjänä riviä ei ole; oletustekstiä *Milloin soi?*
+ei enää ole (käyttäjän päätös 20.10.2026, poistettu muotoilusyistä). Vanhoissa keikoissa tyhjä rivi on voitu
+tallentaa nollaleveänä välilyöntinä `\u200b`; soitin ohittaa sen, ja Keikkaloihdin poistaa sen haettaessa.
 Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`,
 missä kohtaa settiä tahansa; nimettömänä setin alussa `[INTRO]`, lopussa `[OUTRO]`, välissä `[VÄLI]`)
 ei kasvata numerointia, vaan numeron paikalla on harmaa `0.`, `x.` tai `-.` (soittimen lista ja nyt soi
@@ -357,10 +356,10 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ja lisätiedon
-yhteiskorkuisina (40 px: yläreuna otsikon versaalin yläreunassa, tyynyt yksirivisen otsikon lisätiedon
-perusviivalla; mitattu Chromiumissa), ja otsikon ja lisätiedon kaikki rivit sisennetään 54,73 px (kuulokkeet 44,73 px + 10 px)
-(käyttäjän päätös 20.10.2026, versio 2b). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
+Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ensimmäisen rivin
+korkuisina (1,0295 rem ≈ 16,5 px: yläreuna otsikon versaalin yläreunassa, tyynyt ensimmäisen rivin perusviivalla;
+ei kahden rivin eikä otsikon ja lisätiedon korkuisina), ja otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden
+ja 10 px:n verran (käyttäjän päätös 20.10.2026, versio 2b, korkeus muutettu samana päivänä). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
 (etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
 kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
 141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean
