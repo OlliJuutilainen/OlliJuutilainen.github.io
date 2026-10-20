@@ -411,7 +411,7 @@ janan pituuden tilalla on pysähdyskohdan aika keikan alusta (`.setend`), ei set
 keskellä (käyttäjän valinta viidestä vaihtoehdosta; aika ei mene soittokohdan ajan päälle).
 Kytkinten symbolit ovat himmeän harmaita: janakytkimen alla pienoisjana, jonka alussa täytetty pallo ja
 lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä alueella (pallon vasen
-ja renkaan oikea reuna 1 px kytkimen reunojen sisäpuolella, koska tasan reunoilla jana näytti optisesti kytkintä leveämmältä; käyttäjän valinta kolmesta leveydestä; jana 1 px, pallo 4 px ja rengas
+ja renkaan oikea reuna kytkimen nupin ulkoreunojen kohdalla eli 2 px kytkimen reunojen sisäpuolella, koska tasan reunoilla jana näytti optisesti kytkintä leveämmältä; käyttäjän valinta kolmesta 20.10.2026; jana 1 px, pallo 4 px ja rengas
 3,47 px eli kaksi kolmasosaa entisestä, käyttäjän päätös 20.10.2026); setin kytkimen alla entisen stop-merkin ja nuolen tilalla
 pienet logon kuulokkeet stop-merkin paikalla, 10 px korkeina (aiemmin stop-merkin korkuiset 8 px; kasvatettu keskipisteestään
 listan siirtymättä, käyttäjän päätös 20.10.2026), *keikka*-asennossa himmennettyinä.
