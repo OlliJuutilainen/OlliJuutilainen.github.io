@@ -460,10 +460,21 @@
   .kuul { position: absolute; overflow: visible; fill: currentColor; }
   .kuul .t { fill: var(--accent); }
   /* Ei-biisi (x-rivi): "0. [Intro] 0:00", numerona 0, x tai -, koko rivi
-     himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Koot ja asettelu
-     kuten muilla riveillä. */
+     himmeä ja kursiivi, eikä lihavoidu soidessaankaan. Rivin teksti on pienempää:
+     hakasulku on yhtä korkea kuin tavallisen rivin versaali, ja sen alareuna on
+     tavallisen rivin perusviivalla eli soivan rivin kuulokkeiden tyynyjen alareunassa
+     (käyttäjän päätös 20.10.2026). Kerroin --xk ja nosto --xr (tavallisen tekstin em)
+     riippuvat fontista, joten fitExtras mittaa ne; oletukset ovat Roboton. Nollalevyinen
+     .tuki on tavallisen kokoinen, ja sen perusviiva on nostettu marginaaleilla, joten
+     pieni teksti istuu nostetulla perusviivalla ja rivin korkeus pysyy. Numerosarake
+     pysyy tavallisen levyisenä, jotta otsikot alkavat samasta kohdasta. */
+  #list { --xk: 0.7396; --xr: 0.1109; }
   li.pre .track { font-style: italic; font-weight: 400; }
   li.pre .track .tt { color: var(--muted); }
+  li.pre .track .n, li.pre .track .tt { font-size: calc(var(--xk) * 1em); }
+  li.pre .track .n { min-width: calc(1.6em / var(--xk)); }
+  li.pre .track .st { font-size: calc(var(--xk) * 0.9rem); }
+  .tuki { flex: 0 0 0; margin: calc(-1em * var(--xr)) 0 calc(1em * var(--xr)) -12px; }
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
   /* Setin kesto samaan sarakkeeseen kuin kappaleiden kestot: oikea
@@ -944,18 +955,54 @@
     } catch (e) {}
     return 0.72 * px;
   }
+  // Ei-biisirivin pienennys --xk ja nosto --xr (ks. CSS li.pre): hakasulun korkeus tavallisen
+  // versaalin korkeudeksi ja sen alareuna tavallisen rivin perusviivalle. system-ui on eri laitteilla
+  // eri fontti, joten merkit piirretään canvasille ja niiden musteen rajat luetaan pikseleistä:
+  // measureText pyöristää rajat 1/32 em:n portaisiin (mitattu Chromiumissa), mikä on tähän liian karkea.
+  function ink(font, ch) {
+    var s = 200, c = document.createElement("canvas");
+    c.width = 2 * s;
+    c.height = 2 * s;
+    var x = c.getContext("2d");
+    x.font = font.replace("@", s + "px");
+    x.fillText(ch, s / 2, 1.5 * s);
+    var d = x.getImageData(0, 0, c.width, c.height).data, w = c.width * 4, top = -1, bot = -1;
+    for (var y = 0; y < c.height; y++) {
+      for (var i = y * w + 3; i < (y + 1) * w && d[i] < 128; i += 4);
+      if (i < (y + 1) * w) { if (top < 0) top = y; bot = y + 1; }
+    }
+    return top < 0 ? null : { up: (1.5 * s - top) / s, down: (bot - 1.5 * s) / s };
+  }
+  function fitExtras() {
+    try {
+      var f = getComputedStyle(els.list).fontFamily, H = ink("400 @ " + f, "H"), b = ink("italic 400 @ " + f, "[");
+      var k = H && b && H.up / (b.up + b.down);
+      // Yksityisyyssuojaus voi sotkea canvasin pikselit; silloin jäävät CSS:n oletukset.
+      if (!(k > 0.5 && k < 1 && b.down >= 0 && b.down < 0.4)) return;
+      els.list.style.setProperty("--xk", k.toFixed(4));
+      els.list.style.setProperty("--xr", (k * b.down).toFixed(4));
+    } catch (e) {}
+  }
+  fitExtras();
+  if (document.fonts) document.fonts.ready.then(function () {
+    fitExtras();
+    if (current >= 0 && rows[current]) markCurrent(rows[current].firstChild);
+  });
+  // Ei-biisirivillä mitat luetaan tavallisen kokoisesta tuesta, jonka perusviivaa on nostettu
+  // marginaalin verran; tavallisen rivin perusviiva on nostetun alapuolella.
   function markCurrent(tr) {
-    var n = tr.querySelector(".n");
+    var n = tr.querySelector(".n"), m = tr.querySelector(".tuki") || n;
     tr.insertBefore(kuul, tr.firstChild);
     var z = document.createElement("span"), a = document.createElement("span");
     z.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
     a.textContent = "\u200b";
-    n.appendChild(z);
-    n.appendChild(a);
-    var base = z.offsetTop, top = base - (z.getBoundingClientRect().top - a.getBoundingClientRect().top);
-    n.removeChild(z);
-    n.removeChild(a);
-    var cap = Math.min(base - top, capHeight(n));
+    m.appendChild(z);
+    m.appendChild(a);
+    var lift = m === n ? 0 : parseFloat(getComputedStyle(m).marginBottom) || 0;
+    var base = z.offsetTop + lift, top = base - (z.getBoundingClientRect().top - a.getBoundingClientRect().top);
+    m.removeChild(z);
+    m.removeChild(a);
+    var cap = Math.min(base - top, capHeight(m));
     top = base - (base - top + cap) / 2;
     var u = (base - top) / 17.2;
     kuul.style.width = 20.89 * u + "px";
@@ -1250,7 +1297,8 @@
       var b = document.createElement("button");
       b.type = "button";
       b.className = "track";
-      b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>';
+      b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>'
+        + (isExtra(i) ? '<span class="tuki" aria-hidden="true">\u200b</span>' : "");
       b.children[0].textContent = num(i) + ".";
       b.children[1].textContent = tr.title;
       trackLens[i] = b.children[2];
