@@ -404,11 +404,11 @@ stop-merkin paikalla ja korkuisina (8 px), *keikka*-asennossa himmennettyinä.
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
 kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (`.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
-leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026). Kuulokkeet ovat kirjainten korkuiset
-(käyttäjän päätös 20.10.2026): tyynyjen alareuna perusviivalla (ei g:n tai p:n alareunassa) ja sangan yläreuna
-korkeimpien kirjainten (H, l) yläreunassa; `markCurrent()` mittaa kirjainten korkeuden canvasilla, koska
-`system-ui` on eri laitteilla eri fontti (Chromiumin Interillä 13 px, pikseleistä mitattu ero tekstiin 0,25 px).
-Välillä kokeiltu tekstin sisältöalueen korkuinen versio (20 px) ulottui kirjainten ylä- ja alapuolelle. Soivan kappaleen nimi on lihavoitu ja turkoosi
+leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026). Kuulokkeiden tyynyjen alareuna on perusviivalla
+(ei g:n tai p:n alareunassa) ja sangan yläreuna tekstin sisältöalueen yläreunassa, vähän korkeimpien kirjainten
+yläpuolella (käyttäjän päätökset 20.10.2026; Chromiumin Interillä 17 px:n tekstillä 15 px korkeat). `markCurrent()`
+mittaa perusviivan ja sisältöalueen DOMista, koska `system-ui` on eri laitteilla eri fontti. Välillä kokeiltiin
+sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien kirjainten korkuisia (13 px). Soivan kappaleen nimi on lihavoitu ja turkoosi
 (`--accent`; ei-biisi pysyy harmaana), ja hiiren alla kappaleen nimi muuttuu turkoosiksi alleviivauksen sijaan. viewBoxissa on 0,5 yksikön vara reunoilla, koska Safari leikkasi
 oikean tyynyn reunan viewBoxin rajalla; samasta syystä listan logolla on `overflow: visible`.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
