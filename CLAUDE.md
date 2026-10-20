@@ -348,7 +348,11 @@ rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, 
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
 1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
-marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Muilla sivuilla logo on 1,25-kertaisena
+marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Listan logo on testiversio (käyttäjän kokeilu 20.10.2026, vain `keikat.html`):
+kuulokkeet ja janan alku ennallaan, muu teksti pallot mukaan lukien 2,29 yksikköä oikealla (k:n vasen reuna
+x 28,17 = soittimen otsikon K:n mustereuna 49,47 px Robotolla) ja jana keskilinjalla 31,03 (viivan alareuna
+lisätietorivin x-korkeuden yläreunassa 67,2 px); viewBox `0.99 -2.6 155.72 36.25`. Muiden sivujen logo on
+vanha. Testiversiossa A:n pallon ja janan nupin väli ei enää ole lappujen väli 12,65. Muilla sivuilla logo on 1,25-kertaisena
 (WALK 20 px; ei käyttäjän päätöstä muuttaa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
