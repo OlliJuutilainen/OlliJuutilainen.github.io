@@ -502,13 +502,14 @@
      alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
      Kuulokelogo oli tässä 20.10.2026 asti; nyt se on vasemmassa yläkulmassa (.brand). */
   .brand-space { float: right; width: 45px; height: 29px; }
-  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa otsikon ensimmäisen rivin korkuisina
-     (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
-     tyynyt ensimmäisen rivin perusviivalla; versaalin korkeus on noin 0,71 em eli 0,71 × 1,45 rem.
+  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa (käyttäjän päätös 20.10.2026): keskipiste
+     otsikon ensimmäisen rivin perusviivalla ja yläreuna versaalin yläreunassa (h1:n yläreuna + 5 px),
+     joten korkeus on kaksi versaalin korkeutta. Versaalin korkeus on noin 0,71 em eli 0,71 × 1,45 rem,
+     korkeus siis 2,059 rem. Sama koko on Omat keikkani -sivun logon kuulokkeilla (lista/keikat.html).
      Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
-  .brand { position: absolute; left: 16px; top: 33px; width: calc(1.0295rem * 17.89 / 16); height: 1.0295rem; overflow: visible; }
+  .brand { position: absolute; left: 16px; top: 33px; width: calc(2.059rem * 17.89 / 16); height: 2.059rem; overflow: visible; }
   .brand .t { fill: var(--accent); }
-  main > h1, main > .sub { padding-left: calc(1.0295rem * 17.89 / 16 + 10px); }
+  main > h1, main > .sub { padding-left: calc(2.059rem * 17.89 / 16 + 10px); }
   main.app .brand-space { width: 141px; }
   main.omat > h1, main.app > h1 { padding-right: 0; }
   #omat {

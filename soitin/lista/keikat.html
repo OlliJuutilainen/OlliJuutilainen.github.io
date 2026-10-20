@@ -57,20 +57,18 @@
   }
   /* Otsikko on KEICK•WALK-logo SVG-polkuina: sovellus näyttää sivun assetista ilman
      verkkoa, joten verkkofonttia ei voi käyttää. Logon mitat ja kytkökset: CLAUDE.md.
-     Otsikon korkeus on sama kuin entisellä tekstiotsikolla (1.45rem × 1.25), jotta otsikko
-     pysyy yläkulman nappien linjassa. */
+     Logo on niin leveä (19,75 rem), ettei se mahdu yläkulman nappien viereen, joten otsikko alkaa
+     nappien alta (käyttäjän päätös 20.10.2026). */
   h1 {
     display: flex;
     align-items: center;
-    min-height: 29px;
-    margin: 0 0 22px;
-    padding-right: 88px;
+    margin: 36px 0 22px;
   }
-  /* 1,25 × viewBox: WALK 20 px. Renkaat ja nuppi ulottuvat 0,75 px ylemmäs ja 0,38 px alemmas
-     kuin edellisessä logossa; negatiiviset marginaalit pitävät otsikon korkeuden ja WALKin paikan.
+  /* Mittakaava 2,059 rem / 16 per viewBox-yksikkö: kuulokkeet (16 yksikköä) ovat täsmälleen yhtä
+     isot kuin soitinsivun kuulokkeet (.brand, 2,059 rem), ja muu logo mitoitetaan niiden mukaan.
      Korvalappujen väli on sama kuin A:n pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026),
      joten logo alkaa vasemmasta lapusta x = 0,99. */
-  .logo { flex: none; width: 191.79px; height: 37.15px; margin: -0.75px 0 -0.38px; fill: currentColor; }
+  .logo { flex: none; width: 19.7451rem; height: 3.8247rem; fill: currentColor; }
   .logo .t { fill: var(--accent); }
   .logo .r { fill: none; stroke: currentColor; }
   .logo .g { stroke: var(--line); }

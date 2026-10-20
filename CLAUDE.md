@@ -343,8 +343,11 @@ pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64):
 rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
 (yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
 `0.99 -2.6 153.43 29.72`). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
-Listalla logo on 1,25-kertaisena (WALK 20 px); negatiiviset marginaalit pitävät otsikon korkeuden
-samana kuin edellisellä logolla. Sama koko logo samassa koossa on otsakkeena Keikkaloihtimessa,
+Listalla logon kuulokkeet ovat täsmälleen yhtä isot kuin soitinsivun kuulokkeet (2,059 rem, 16 viewBox-yksikköä;
+käyttäjän päätös 20.10.2026; mitattu Chromiumissa: lappujen halkaisija 10,787 / 10,788 px, väli 26,04 px), ja muu logo
+mitoittuu niiden mukaan (19,745 rem × 3,825 rem, WALK ≈ 33 px). Logo on liian leveä yläkulman nappien viereen, joten
+listan otsikko alkaa nappien alta (`h1` margin-top 36 px, ei oikeaa reunusta). Muilla sivuilla logo on 1,25-kertaisena
+(WALK 20 px; ei käyttäjän päätöstä muuttaa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
 otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Logo on otsikon yläpuolella eikä
@@ -357,8 +360,8 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
 Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ensimmäisen rivin
-korkuisina (1,0295 rem ≈ 16,5 px: yläreuna otsikon versaalin yläreunassa, tyynyt ensimmäisen rivin perusviivalla;
-ei kahden rivin eikä otsikon ja lisätiedon korkuisina), ja otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden
+perusviivaan keskitettyinä (keskipiste ensimmäisen rivin perusviivalla, yläreuna versaalin yläreunassa, joten korkeus on
+kaksi versaalin korkeutta eli 2,059 rem ≈ 33 px; ei otsikon ja lisätiedon korkuisina), ja otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden
 ja 10 px:n verran (käyttäjän päätös 20.10.2026, versio 2b, korkeus muutettu samana päivänä). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
 (etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
 kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
