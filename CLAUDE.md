@@ -449,7 +449,19 @@ mittasuhteet ovat logon (leveys pienenee samassa suhteessa, ei lytistystä; käy
 Interillä 17 px:n tekstillä 14 px korkeat ja 16,2 px leveät, ennen 15 × 17,3 px sisältöalueen yläreunaan asti).
 `markCurrent()` mittaa perusviivan ja sisältöalueen DOMista ja versaalin canvasin `measureText("H")`:lla, koska
 `system-ui` on eri laitteilla eri fontti. Välillä kokeiltiin sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien
-kirjainten korkuisia (13 px). Soivan kappaleen nimi on lihavoitu ja turkoosi
+kirjainten korkuisia (13 px).
+Ei-biisirivin teksti (numero, nimi ja kesto) on pienempää (käyttäjän päätös 20.10.2026): hakasulku on yhtä
+korkea kuin tavallisen rivin versaali, ja sen alareuna on tavallisen rivin perusviivalla eli soivan rivin
+kuulokkeiden tyynyjen alareunassa. Kerroin `--xk` ja nosto `--xr` riippuvat fontista, joten `fitExtras()`
+mittaa ne piirtämällä H:n ja kursiivisen [:n canvasille ja lukemalla musteen rajat pikseleistä (measureText
+pyöristää rajat 1/32 em:n portaisiin); CSS:n oletukset ovat Roboton (0,7396 ja 0,1109). Nollalevyinen,
+tavallisen kokoinen `.tuki` pitää rivin korkeuden ennallaan ja nostaa perusviivaa marginaaleillaan, ja
+`markCurrent()` mittaa kuulokkeet siitä, joten ne ovat samankokoiset ja samassa kohdassa kuin tavallisella
+rivillä. Numerosarake pysyy tavallisen levyisenä, joten otsikot alkavat samasta kohdasta. Mitattu Chromiumissa
+(DPR 4, pikseleistä): hakasulun korkeus ja alareuna poikkeavat versaalista ja perusviivasta Robotolla
+0,25 px (myös 134 %:n tekstikoolla), DejaVulla 0,25 px ja Interillä enintään 0,5 px. Setin otsikko seuraa
+setin alun pientä `0.`-merkkiä (alignSetNames), joten ei-biisillä alkavan setin otsikko on noin 3,5 px
+oikeammalla kuin ennen. Soivan kappaleen nimi on lihavoitu ja turkoosi
 (`--accent`; ei-biisi pysyy harmaana), ja hiiren alla kappaleen nimi muuttuu turkoosiksi alleviivauksen sijaan. viewBoxissa on 0,5 yksikön vara reunoilla, koska Safari leikkasi
 oikean tyynyn reunan viewBoxin rajalla; samasta syystä listan logolla on `overflow: visible`.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
