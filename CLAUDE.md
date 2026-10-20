@@ -343,10 +343,10 @@ pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64):
 rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
 (yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
 `0.99 -2.6 153.43 29.72`). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
-Listalla logon kuulokkeet ovat täsmälleen yhtä isot kuin soitinsivun kuulokkeet (2,059 rem, 16 viewBox-yksikköä;
-käyttäjän päätös 20.10.2026; mitattu Chromiumissa: lappujen halkaisija 10,787 / 10,788 px, väli 26,04 px), ja muu logo
-mitoittuu niiden mukaan (19,745 rem × 3,825 rem, WALK ≈ 33 px). Logo on liian leveä yläkulman nappien viereen, joten
-listan otsikko alkaa nappien alta (`h1` margin-top 36 px, ei oikeaa reunusta). Muilla sivuilla logo on 1,25-kertaisena
+Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
+ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
+1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
+marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Muilla sivuilla logo on 1,25-kertaisena
 (WALK 20 px; ei käyttäjän päätöstä muuttaa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
@@ -359,16 +359,18 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ensimmäisen rivin
-perusviivaan keskitettyinä (keskipiste ensimmäisen rivin perusviivalla, yläreuna versaalin yläreunassa, joten korkeus on
-kaksi versaalin korkeutta eli 2,059 rem ≈ 33 px; ei otsikon ja lisätiedon korkuisina), ja otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden
-ja 10 px:n verran (käyttäjän päätös 20.10.2026, versio 2b, korkeus muutettu samana päivänä). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
-(etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
-kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
-141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean
-reunuksen (myös silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
-`break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
-leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
+Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa (käyttäjän päätös 20.10.2026,
+vaihtoehto A; vaihtoehto B eli koko logo otsikon yläpuolella hylättiin): sangan yläreuna otsikon versaalin
+yläreunassa (h1:n yläreuna + 5 px, kiinteä `top: 33px`) ja tyynyjen keskipisteet ensimmäisen rivin perusviivalla.
+Versaalin korkeus on vakio 0,71 × 1,45 rem = 1,0295 rem (Roboto 0,711; testiselaimen Inter 0,727, jolloin tyynyt
+ovat 0,5 px perusviivan yläpuolella), mittakaava siis 1,0295 rem / 13,38 per viewBox-yksikkö (kuulokkeet noin
+22 × 19,7 px). Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran.
+Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
+ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
+Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
+(mitattu Chromiumissa). Entinen `fitTitle()` ja `.pitka` poistettiin. Otsikolta varataan yläkulman nappien tila
+(45 px, sovelluksessa 141 px) kelluvalla `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon
+oikean reunuksen (myös silta.js:n `main>h1{padding-right:136px}`).
 Soittimen aikajana (käyttäjän päätökset 20.10.2026): jana 2 px, soitettu osa tekstin värinen, loppu
 `--line`; biisien alut ovat tekstin värisiä palloja janan keskellä, soittokohdan ohittamat 4 px (`.ohi`)
 ja tulevat janan paksuisia 2 px (ero janaan parillinen, jotta pallo ylittää janan yhtä paljon ylä- ja
