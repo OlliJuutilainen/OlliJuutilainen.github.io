@@ -456,4 +456,8 @@ Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehity
 - Tavutus luokittelee rajat; varovainen tila jättää pois vokaalin ja yksinäisen konsonantin välisen
   rajan, koska yhdyssanavirheet (*kansalai-soikeus*) ovat aina sitä tyyppiä. ie/uo/yö ovat diftongeja
   myös ensitavun jälkeen paitsi monikon genetiivissä (*talvi-en*). Kursiivia ei tavuteta.
-Kandidaatintutkielmaa ei ole repossa (repo on julkinen); se testataan syöttämällä md Latomoon.
+Kandidaatintutkielma on **väliaikaisesti** repossa (käyttäjän lupa 20.10.2026: "voit laittaa väliaikaisesti
+tutkielman nettiin"): `luin/tekstit/kant-ja-elainetiikka.md` (etukenttä + alkuperäinen md muuttamattomana),
+lukulistan linkki *Kokeilu: Kant ja eläinetiikka* ja `robots.txt` (`Disallow: /luin/tekstit/`). Kun käyttäjä
+sanoo kokeilun päättyneen, poista kansio, linkki ja robots.txt:n rivi. Muita käyttäjän tekstejä ei viedä repoon
+ilman erillistä lupaa.

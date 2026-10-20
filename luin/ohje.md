@@ -21,7 +21,9 @@ Tämä opas on kirjoitettu kehittäjälle, joka tutustuu koodiin. Se on samalla 
 2. Valitse tai pudota tutkielman `.md`-tiedosto tekstikenttään. Latomo näyttää rakenteen ja huomautukset.
 3. Korjaa lähdeviite tarvittaessa ja paina **Avaa Luinissa**.
 
-Teksti tallentuu tämän selaimen lukulistaan. Toisella laitteella sama tehdään uudelleen kyseisen laitteen selaimessa, esimerkiksi Note Air3:lla Dropsyncin kansiosta valittuna. Tutkielmaa ei ole tallennettu repoon, koska repo on julkinen.
+Teksti tallentuu tämän selaimen lukulistaan. Toisella laitteella sama tehdään uudelleen kyseisen laitteen selaimessa, esimerkiksi Note Air3:lla Dropsyncin kansiosta valittuna.
+
+Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.md`), ja lukulistan linkki *Kokeilu: Kant ja eläinetiikka* avaa sen millä tahansa laitteella (`luin.html#u=luin/tekstit/kant-ja-elainetiikka.md`). Hakukoneita pyydetään ohittamaan kansio (`robots.txt`). Kun kokeilu on ohi, kansio ja linkki poistetaan; repon historiaan tiedosto jää.^[Julkisen repon historiasta tiedoston saa pois vain historiaa uudelleenkirjoittamalla (esimerkiksi `git filter-repo`) ja pakotetulla pushilla.]
 
 ### 1.2 Mitä tässä versiossa ei ole
 
