@@ -291,7 +291,7 @@ ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria 
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
 avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”Valg dø KEICK • WALK ðö geig!”*,
 jossa pisteen ympärillä on toisin kuin nimessä välilyönnit; sitten soittimen esittely, käyttöoppaan linkki
-omalla rivillään ja käyttöönotto; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
+tyhjän rivin jälkeen ja käyttöönotto; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
 **Nimi KEICK•WALK** (käyttäjän päätös 19.10.2026, kirjoitusasu 20.10.2026): soittimen nimi on kaikissa
 käyttäjälle näkyvissä teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit)
