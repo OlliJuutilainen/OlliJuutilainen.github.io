@@ -588,7 +588,7 @@
   <!-- Kytkin keskellä, vaihtoehdot sen molemmin puolin. Vasen = pois. -->
   <div class="opts" id="opts">
     <div class="sw" id="scaleopt">
-      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button>keikka</span>
+      <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button><span id="gigword">keikka</span></span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
       <svg class="minijana" viewBox="0 0 24.4 6" aria-hidden="true"><path class="bg" d="M3 3h18.4"/><circle cx="3" cy="3" r="3"/><circle class="rengas" cx="21.4" cy="3" r="2.3"/></svg>
@@ -1456,6 +1456,8 @@
   els.fwd.addEventListener("click", function () { skip(SKIP); });
   els.setonly.addEventListener("change", function () {
     setOnly = els.setonly.checked;
+    // Setti-asennossa janakytkimen vasen puoli on setti, ei koko keikka.
+    $("gigword").textContent = setOnly ? "setti" : "keikka";
     armStop();
   });
   els.songscale.addEventListener("change", function () {
