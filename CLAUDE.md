@@ -355,7 +355,7 @@ ovat viewBoxissa `0.99 2.8 17.89 17.2` ja 1,2 yksikköä ylempänä, joten tyyny
 ja setin kytkimen pienet kuulokkeet (`.kuul`, `.minikuul`) saivat saman sangan (käyttäjän päätös 20.10.2026: kaikki
 kuulokkeet logon mukaisiksi). Ne on mitoitettu tekstiin, joten niiden yläreuna (y 2,8) ja tyynyjen alareuna pysyivät
 pikseleissä paikallaan ja kuulokkeet pienenivät suhteessa 16/17,2 (`.minikuul` 10 px korkea, 10,401 px leveä;
-`.kuul` `markCurrent()`:ssa yksikkönä (perusviiva − sisältöalueen yläreuna) / 17,2). Mitattu Chromiumissa.
+`.kuul` `markCurrent()`:ssa; sen korkeus muuttui myöhemmin, ks. kappalelista alla). Mitattu Chromiumissa.
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
 1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
@@ -437,10 +437,12 @@ Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track`
 kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (`.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
 leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026). Kuulokkeiden tyynyjen alareuna on perusviivalla
-(ei g:n tai p:n alareunassa) ja sangan yläreuna tekstin sisältöalueen yläreunassa, vähän korkeimpien kirjainten
-yläpuolella (käyttäjän päätökset 20.10.2026; Chromiumin Interillä 17 px:n tekstillä 15 px korkeat). `markCurrent()`
-mittaa perusviivan ja sisältöalueen DOMista, koska `system-ui` on eri laitteilla eri fontti. Välillä kokeiltiin
-sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien kirjainten korkuisia (13 px). Soivan kappaleen nimi on lihavoitu ja turkoosi
+(ei g:n tai p:n alareunassa) ja sangan yläreuna puolivälissä versaalin (H) ja tekstin sisältöalueen yläreunan välissä;
+mittasuhteet ovat logon (leveys pienenee samassa suhteessa, ei lytistystä; käyttäjän päätökset 20.10.2026; Chromiumin
+Interillä 17 px:n tekstillä 14 px korkeat ja 16,2 px leveät, ennen 15 × 17,3 px sisältöalueen yläreunaan asti).
+`markCurrent()` mittaa perusviivan ja sisältöalueen DOMista ja versaalin canvasin `measureText("H")`:lla, koska
+`system-ui` on eri laitteilla eri fontti. Välillä kokeiltiin sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien
+kirjainten korkuisia (13 px). Soivan kappaleen nimi on lihavoitu ja turkoosi
 (`--accent`; ei-biisi pysyy harmaana), ja hiiren alla kappaleen nimi muuttuu turkoosiksi alleviivauksen sijaan. viewBoxissa on 0,5 yksikön vara reunoilla, koska Safari leikkasi
 oikean tyynyn reunan viewBoxin rajalla; samasta syystä listan logolla on `overflow: visible`.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
