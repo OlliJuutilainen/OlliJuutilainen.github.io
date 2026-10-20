@@ -258,7 +258,9 @@ kokoisena, lihavoimattomana, päävärillä (tummassa valkoinen), versaalina, il
   jakaminen, muokkaaminen ja poistaminen). Uudet osiot sijoitetaan
   loppupäähän, tarvittaessa suljettuina. #-linkki
   suljetun osion sisään avaa sen ja sen ympäröivät osiot; tulostus avaa kaikki. Kuvat `ohje-soitin.png` ja `-tumma.png` on otettu oikeasta soittimesta keksityllä
-  esimerkkikeikalla (sama lista kuin oppaan esimerkissä). Jos soittimen ulkoasu muuttuu
+  esimerkkikeikalla (sama lista kuin oppaan esimerkissä; intro `[Intro]`, toinen setti nimellä `(Encore)`;
+  Playwright, näkymä 560 × 741 px, DPR 2, soitto kohdassa 4:52, keikka ja hiljainen 23:40 mp3
+  `page.route`-siepattuina). Jos soittimen ulkoasu muuttuu
   olennaisesti, ota kuvat uudelleen samalla tavalla; oikeita keikkatietoja ei käytetä.
 - `soitin/KAVERIVERSIO.md` on vain osoitin näihin sivuihin vanhojen linkkien vuoksi.
 - `soitin/pikakayttoonotto.html` on lyhyempi reitti uudelle Macille (käyttäjän pyyntö: mahdollisimman
@@ -344,18 +346,20 @@ loppurenkaan kehän keskelle. Kuulokkeiden sanka 1,2. Korvalappujen keskipisteid
 pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64): oikea lappu on paikallaan (x 16,26,
 rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
 (yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
-`0.99 -2.6 153.43 29.72`). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
+`0.99 -2.6 153.43 29.72`, kun jana oli 24,5:ssä; nyt alla). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
 1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
-marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Listan logossa (käyttäjän kokeilu 20.10.2026, vain `keikat.html`; muiden sivujen logo on ennallaan)
+marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Listan logossa (käyttäjän kokeilu 20.10.2026; samana päivänä yhtenäistetty kaikkiin ohjeisiin, ks. alla)
 jana on keskilinjalla 31,03 eikä 24,5: viivan alareuna on soittimen lisätietorivin x-korkeuden yläreunassa
 (67,2 px Robotolla), ja soittimen otsikon K alkaa logon k:n vasemmasta reunasta (x 25,88 = 46,64 px). Tällöin
 A:n pallon ja janan nupin väli ei ole lappujen väli 12,65. viewBox `0.99 -2.6 153.43 36.25`; jana ulottuu
 12,5 px otsikkorivin alle, joten listan h1:n alamarginaali on 34 px (oli 22). Ensimmäinen kokeilu, jossa
 teksti siirtyi 2,29 yksikköä oikealle soittimen otsikon K:n kohdalle, hylättiin: käyttäjä halusi tekstin
 lähemmäs kuulokkeita. Muilla sivuilla logo on 1,25-kertaisena
-(WALK 20 px; ei käyttäjän päätöstä muuttaa). Se on otsakkeena Keikkaloihtimessa,
+(WALK 20 px; ei käyttäjän päätöstä muuttaa) mutta merkinnältään sama kuin listassa, jana 31,03:ssa
+(käyttäjän päätös 20.10.2026: ohjeisiin nykyistä tilaa vastaava logo; korkeus 45,31 px, janan ja h1:n väli
+ennallaan 17 px, `overflow: visible` kuten listassa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
 otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Logo on otsikon yläpuolella eikä
