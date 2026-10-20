@@ -377,9 +377,9 @@ Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa (kä
 vaihtoehto A; vaihtoehto B eli koko logo otsikon yläpuolella hylättiin): sangan yläreuna h1:n yläreuna + 5 px
 (kiinteä `top: 33px`) ja tyynyjen alareuna ensimmäisen rivin perusviivalla. Mittakaava 1,0295 rem / 13,38 per
 viewBox-yksikkö (kuulokkeet noin 22 × 19,7 px) on peräisin 1,45 rem:n otsikon versaalista. Käyttäjän päätös
-20.10.2026: otsikko on pienempi ja ohuempi (1,15 rem, paino 500; ensin 650 ja 1,45 rem, sitten 1,3 rem), ja sen
+20.10.2026: otsikko on pienempi ja ohuempi (1,15 rem, paino 400; ensin 650 ja 1,45 rem, sitten 500 ja 1,3 rem), ja sen
 perusviiva on tyynyjen alareunassa (`padding-top: 6.7px`; Robotolla 52,69 px, tyynyjen alareuna 52,69 px; aiemmin
-tyynyjen keskellä), ja otsikon K:n mustereuna on listan logon k:n kohdalla (padding-left `24,89 yksikköä − 0,07 rem`,
+tyynyjen keskellä), ja otsikon K:n mustereuna on listan logon k:n kohdalla (padding-left `24,89 yksikköä − 0,0875 rem`,
 Roboton K:n sivuväli; mitattu 46,67 px). Lisätieto sisennetään samoin, ja sen x-korkeuden yläreuna on listan logon
 janan alareunassa (h1:n alamarginaali 3,3 px; mitattu 67,18 px). Ilman lisätietoa h1:n alamarginaali on 20,8 px,
 jotta otsikon alla oleva pysyi kohdallaan pienennyksessä. Testiselaimen Interillä K on 0,3 px oikealla ja
