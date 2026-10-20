@@ -349,12 +349,11 @@ alapuolella pikseleiksi pyöristettynä). Ei-biisien alkuja ei merkitä janalle 
 Janan lopussa tekstin värinen 12 px:n rengas (kehä 2 px, `.loppu`) kuten logossa. *setti*-asennossa
 rengas siirtyy keikkajanalla pysähdyskohtaan eli seuraavan setin alkuun (turkoosia pystyviivaa ei enää
 ole), janan jatko palloineen häipyy kokonaan (taustan värinen `.jatko`; jatkoa voi silti napauttaa), ja
-janan pituuden tilalla on pysähdyskohdan aika keikan alusta (`.setend`), ei setin pituus. Ajan paikka on
-käyttäjän valittavana (20.10.2026): väliaikainen `?aika=a…e`, oletus b (renkaan alla, oikea reuna
-renkaan keskellä); valinnan jälkeen muut vaihtoehdot poistetaan koodista.
+janan pituuden tilalla on pysähdyskohdan aika keikan alusta (`.setend`), ei setin pituus, renkaan alla
+keskellä (käyttäjän valinta viidestä vaihtoehdosta; aika ei mene soittokohdan ajan päälle).
 Kytkinten symbolit ovat himmeän harmaita: janakytkimen alla pienoisjana, jonka alussa täytetty pallo ja
-lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, pallojen keskikohdat 1,5 px kytkimen reunojen
-sisäpuolella; setin kytkimen alla entisen stop-merkin ja nuolen tilalla pienet logon kuulokkeet
+lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä alueella (pallon vasen
+ja renkaan oikea reuna kytkimen reunoilla; käyttäjän valinta kolmesta leveydestä); setin kytkimen alla entisen stop-merkin ja nuolen tilalla pienet logon kuulokkeet
 stop-merkin paikalla ja korkuisina (8 px), *keikka*-asennossa himmennettyinä.
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
 kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (14 px, `.kuul`) numeroiden
