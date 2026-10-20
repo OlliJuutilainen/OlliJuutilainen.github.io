@@ -348,7 +348,12 @@ vasemman tyynyn kohdalta, ja tyynyjen kohdan pisteet poistettiin. Kuulokkeiden s
 pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64): oikea lappu on paikallaan (x 16,26,
 rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
 (yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
-`0.99 -2.6 153.43 29.72`, kun jana oli 24,5:ssä; nyt alla). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
+`0.99 -2.6 153.43 29.72`, kun jana oli 24,5:ssä; nyt alla). Käyttäjän päätös 20.10.2026 (myöhemmin): sanka nousee 1,2 yksikköä, niin että lakipisteen
+viivan alareuna on kirjainten yläreunassa (y 4) ja yläreuna y 2,8; jalat 17,38 → 9,725, kaari ennallaan.
+i:n pisteen alareunaan (yläreuna y 2,0) asti nouseva oli hiukan liian korkea. Soitinsivun kuulokkeet (`.brand`)
+ovat viewBoxissa `0.99 2.8 17.89 17.2` ja 1,2 yksikköä ylempänä, joten tyynyt eivät liikkuneet. Kappalelistan
+ja setin kytkimen pienet kuulokkeet (`.kuul`, `.minikuul`) ovat vanhalla sangalla viewBoxissa `0.99 4 17.89 16`,
+koska ne on mitoitettu tekstiin.
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
 1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
