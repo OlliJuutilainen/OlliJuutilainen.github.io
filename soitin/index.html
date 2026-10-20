@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
-<title>keick·walk.</title>
+<title>KEICK•WALK</title>
 <style>
   :root {
     --bg: #faf9f6;
@@ -137,7 +137,7 @@
     width: 0;
     background: var(--fg);
   }
-  /* Biisin alku: tekstin värinen pallo janan keskellä (keick·walk.-logon aikajanan tapaan), ei-biisin
+  /* Biisin alku: tekstin värinen pallo janan keskellä (KEICK•WALK-logon aikajanan tapaan), ei-biisin
      alkua ei merkitä (käyttäjän päätös 20.10.2026). Soittokohdan jälkeen pallo on janan paksuinen,
      ohitettuna (.ohi) 4 px. Pallon ja janan paksuuden ero on parillinen (4 − 2 px), jotta pallo ylittää
      janan yhtä paljon ylä- ja alapuolella myös pikseleiksi pyöristettynä (mitattu). Kun soitto
@@ -162,7 +162,7 @@
     height: 14px;
     margin: -7px 0 0 -7px;
     border-radius: 50%;
-    background: var(--accent);   /* kuten keick·walk.-logon janan nuppi */
+    background: var(--accent);   /* kuten KEICK•WALK-logon janan nuppi */
     pointer-events: none;
   }
   /* Janan loppu: tekstin värinen rengas kuten logossa. Kun soitto pysähtyy setin lopussa, rengas on
@@ -356,7 +356,7 @@
      paikallaan, jotta sen voi avata samasta kohdasta. */
   .opts.kiinni + #list { margin-top: 12px; }
 
-  /* Setin kytkimen alla ovat pienet harmaat keick·walk.-logon kuulokkeet
+  /* Setin kytkimen alla ovat pienet harmaat KEICK•WALK-logon kuulokkeet
      (käyttäjän päätös 20.10.2026; aiemmin stop-merkki ja nuoli) entisen
      stop-merkin paikalla ja korkuisina. Ne himmenevät, kun soitetaan
      keikan loppuun. */
@@ -474,7 +474,7 @@
      alla täysleveänä; tämä korvaa otsikon oikean reunuksen (myös silta.js:n main>h1 136px).
      Kuulokelogo oli tässä 20.10.2026 asti; nyt se on vasemmassa yläkulmassa (.brand). */
   .brand-space { float: right; width: 45px; height: 29px; }
-  /* keick·walk.-logon kuulokkeet vasemmassa yläkulmassa otsikon ja lisätiedon yhteiskorkuisina
+  /* KEICK•WALK-logon kuulokkeet vasemmassa yläkulmassa otsikon ja lisätiedon yhteiskorkuisina
      (käyttäjän päätös 20.10.2026): yläreuna otsikon versaalin yläreunassa (h1:n yläreuna + 5 px),
      tyynyt lisätiedon perusviivalla, kun otsikko on yksirivinen (40 px; mitattu Chromiumissa).
      Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran. */
@@ -516,16 +516,16 @@
 </head>
 <body>
 <main>
-  <svg class="brand" viewBox="0 4 18.88 16" role="img" aria-label="keick·walk."><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
+  <svg class="brand" viewBox="0 4 18.88 16" role="img" aria-label="KEICK•WALK"><path d="M2.62 17.38V11.42A6.82 6.82 0 0 1 16.26 11.42V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="2.62" cy="17.38" r="2.62"/><circle class="t" cx="16.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
-  <h1 id="title">keick·walk.</h1>
+  <h1 id="title">KEICK•WALK</h1>
   <p class="sub" id="sub" hidden></p>
   <p class="loading" id="loading">Ladataan keikan tietoja…</p>
 
   <div class="error" id="error" role="alert" hidden></div>
 
   <div id="app" hidden>
-  <section aria-label="keick·walk.">
+  <section aria-label="KEICK•WALK">
     <p class="now" id="now" aria-live="polite"></p>
     <div class="seek" id="seek" role="slider" tabindex="0"
          aria-label="Soittokohta" aria-valuemin="0" aria-valuemax="0"
@@ -866,7 +866,7 @@
   // ---- Tila -------------------------------------------------------------
 
   var current = -1;        // korostettu kappale
-  // keick·walk.-logon kuulokkeet: soivan kappaleen merkki listassa.
+  // KEICK•WALK-logon kuulokkeet: soivan kappaleen merkki listassa.
   function kuulokkeet(cls) {
     var w = document.createElement("span");
     w.innerHTML = '<svg class="' + cls + '" viewBox="0 4 18.88 16" aria-hidden="true">'

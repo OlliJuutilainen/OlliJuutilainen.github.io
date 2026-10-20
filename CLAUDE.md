@@ -118,7 +118,7 @@ täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin ko
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
-`soitin/` on työryhmän keikkasoitin *keick·walk.* (nimeämissääntö alempana). **Keikkatietoja (otsikko, mp3-linkki, settilista) ei
+`soitin/` on työryhmän keikkasoitin *KEICK•WALK* (nimeämissääntö alempana). **Keikkatietoja (otsikko, mp3-linkki, settilista) ei
 saa koskaan tallentaa repoon**, ei edes esimerkkinä. Ne ovat samassa KV:ssä avaimella
 `gig:<tunnus>`, ja worker palvelee ne reitillä `GET /api/gig?k=<tunnus>`. Soitin lukee
 tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/3`;
@@ -292,16 +292,21 @@ Linkki avaa keikan suoraan soittimeen, ja latautunut keikka tulee listaan itsest
 `soitin/` ilman tunnusta avaa listan. Sovelluksessa (`window.SoitinApp` olemassa) verkon nappia
 ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria ei tarvita:
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
-avaa otsikon alle hennon tietoiskun (soitin, linkit käyttöoppaaseen ja käyttöönottoon uuteen välilehteen,
-ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
+avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”Valg dø KEICK • WALK ðö geig!”*,
+jossa pisteen ympärillä on toisin kuin nimessä välilyönnit; sitten soittimen esittely, käyttöoppaan linkki
+tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen sekä käyttöönoton (n. 30 min).*,
+jossa *käyttöönoton* on linkki; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
-**Nimi keick·walk.** (käyttäjän päätös 19.10.2026): soittimen nimi on kaikissa käyttäjälle näkyvissä
-teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit) *keick·walk.* sanan *soitin*
-sijaan; virkkeen alussa *Keick·walk.* Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
-perusmuodossa, tai käytetään yhdyssanaa (*keick·walk.-sivulla*, *keick·walk.-linkin*). Polut, komennot,
+**Nimi KEICK•WALK** (käyttäjän päätös 19.10.2026, kirjoitusasu 20.10.2026): soittimen nimi on kaikissa
+käyttäjälle näkyvissä teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit)
+*KEICK•WALK* sanan *soitin* sijaan: versaalit, välissä luettelomerkki `•` (U+2022) ilman välilyöntejä,
+ei loppupistettä; myös virkkeen alussa sama. Aiempi asu *keick·walk.* on poistettu teksteistä (Android
+0.12:ssa myös sovelluksen nimestä). Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
+perusmuodossa, tai käytetään yhdyssanaa (*KEICK•WALK-sivulla*, *KEICK•WALK-linkin*). Logo (alla) on
+grafiikka ja pysyy muodossa keick·WALK. Polut, komennot,
 workerin ja KV:n nimet sekä koodin tunnisteet (`soitin/`, `~/.soitin/soitin`, `soitin.jotain`,
 `soitin-keikat`) pysyvät ennallaan, samoin koodin kommenttien *soitin*.
-Listan otsikko on keick·walk.-logo (SVG-polkuja, koska sovellus näyttää listan assetista ilman
+Listan otsikko on KEICK•WALK-logo (SVG-polkuja, koska sovellus näyttää listan assetista ilman
 verkkoa; generaattori kierroksineen ei ole repossa, logon merkintä on kopioitu sellaisenaan
 `keikat.html`:ään ja `index.html`:ään). Käyttäjän kanssa iteroidut mitat, yksikkönä perusviiva 20:
 WALK on Walkman-logon mittasuhteilla (korkeus 16, viiva 3,2, W:n "pakarat" eli kaksi puoliympyräpohjaa,
