@@ -125,40 +125,40 @@ tunnuksen osoitteen #-osasta (`soitin/#tunnus` tai kappaleeseen `soitin/#tunnus/
 useampisettisessä keikassa toisen setin kappale 3 on `soitin/#tunnus/2/3`).
 Keikan valinnainen `sub`-kenttä (päivämäärä tai muu lisätieto) näkyy soittimessa otsikon alla
 harmaana kursiivina, mutta ei välilehden otsikossa. Puuttuvana tai tyhjänä rivillä lukee *Milloin soi?*
-(käyttäjän päätös 20.10.2026). Pelkkä välilyönti ei ole tyhjä: Keikkageneraattori tallentaa sen
+(käyttäjän päätös 20.10.2026). Pelkkä välilyönti ei ole tyhjä: Keikkaloihdin tallentaa sen
 nollaleveänä välilyöntinä `\u200b` (säilyy `trim()`:ssä, myös workerissa, joten workeria ei tarvinnut
 muuttaa), ja soitin jättää silloin rivin pois. Omat keikkani -listaan oletusteksti ei mene.
 Settilistan ei-biisi eli x-rivi (pelkkä `3:42`, `3:42 [Nimi]`, `3:42 [x] Nimi` tai `3:42 [x]`,
 missä kohtaa settiä tahansa; nimettömänä setin alussa `[INTRO]`, lopussa `[OUTRO]`, välissä `[VÄLI]`)
 ei kasvata numerointia, vaan numeron paikalla on harmaa `0.`, `x.` tai `-.` (soittimen lista ja nyt soi
--kenttä, Keikkageneraattorin esikatselu). Merkin voi antaa itse: `[x]`, `[0]` tai `[-]` (myös `[–]`,
+-kenttä, Keikkaloihtimen esikatselu). Merkin voi antaa itse: `[x]`, `[0]` tai `[-]` (myös `[–]`,
 `[—]`). Merkitön on `x.`, paitsi jos missään setissä ei ole kahta ei-biisiä peräkkäin: silloin setin
 alussa `0.`, lopussa `x.` ja välissä `-.` (käyttäjän sääntö 16.10.2026; automaattinen intro lasketaan
-mukaan). Keikkageneraattori tallentaa merkittömän nimettömän ei-biisin muodossa `[]` ja merkin muodossa
+mukaan). Keikkaloihdin tallentaa merkittömän nimettömän ei-biisin muodossa `[]` ja merkin muodossa
 `[0]` / `[0] Nimi`. Ennen tätä tallennetut keikat ovat `[x]`-muodossa, joten niiden ei-biisit näkyvät
-`x.`-merkkisinä. Merkkisääntöjä ei selitetä Keikkageneraattorissa, vain `ohje.html#eibiisit`-osiossa.
+`x.`-merkkisinä. Merkkisääntöjä ei selitetä Keikkaloihtimessa, vain `ohje.html#eibiisit`-osiossa.
 Ei-biisi tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
-päivittää. `soitin/uusi.html` eli **Keikkageneraattori** tarkistaa settilistan ja tulostaa
+päivittää. `soitin/uusi.html` eli **Keikkaloihdin** tarkistaa settilistan ja tulostaa
 `kv:key put` -komennon samalla wrangler-versiolla kuin `generaattori.html`. Käyttäjän päätös:
-sivun nimi on kaikissa teksteissä (ohjeet, otsikot, kommentit) *Keikkageneraattori*, ei
-*apusivu*. Samoin käyttäjän päätös: Keikkageneraattoriin annettava lista on käyttäjälle
+sivun nimi on kaikissa teksteissä (ohjeet, otsikot, kommentit) *Keikkaloihdin* (taivutus *Keikkaloihtimen*,
+*-loihtimessa*, *-loihtimeen*), ei *apusivu*; 20.10.2026 asti nimi oli *Keikkageneraattori*. Samoin käyttäjän päätös: Keikkaloihtimeen annettava lista on käyttäjälle
 näkyvissä teksteissä *settilista*, ei *biisilista*, ja soittimen näyttämä lista on *kappalelista*.
 Koodin kommenteissa vanha *biisilista* tarkoittaa samaa. Settilistaksi käy myös Logicin markkerilistan kopio
 (SMPTE-aika `01:02:19:12.40⇥Nimi⇥pituus`, `.40` = bitit 0–79; ensimmäisen rivin täydet tunnit
 vähennetään; oletusnimi `Marker N` = biisi nimeltä `N`) ja Reaperin SWS-markkerilista muodossa
 `mp d` (aikaviivain Minutes:Seconds → millisekunnit; `mt d` antaa vain kokonaiset sekunnit).
-Logic-listalle Keikkageneraattori näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
+Logic-listalle Keikkaloihdin näyttää kuvanopeuden valinnan (oletus 25, muistetaan localStorageen
 avaimella `soitin-fps`): framet ja bitit muunnetaan sekunneiksi, 23.976/29.97/59.94 korjataan
 0,1 %:n jätätyksellä, ja drop frame (`d` tai puolipiste `01:00:04;16`) lasketaan ohitettuine
 framenumeroineen. Abletonista (Live 8–12) markkerilistaa ei saa leikepöydälle, joten projektitiedosto
-`.als` vedetään settilistakenttään: Keikkageneraattori purkaa sen selaimessa (`DecompressionStream`),
+`.als` vedetään settilistakenttään: Keikkaloihdin purkaa sen selaimessa (`DecompressionStream`),
 lukee markkerit (Locators) ja kirjoittaa ne kenttään tavallisena settilistana. Iskut muunnetaan
 sekunneiksi Main/Master-raidan tempolla ja tempoautomaatiolla Liven tapaan (tempo luetaan
 kuudestoistaosan välein; malli dawtool-projektista, jonka Live 8–12 -testitiedostoja vastaan ajat
 tarkistettiin 18.10.2026). Oikealla Abletonilla ja oikealla hiiren vedolla testaamatta; käyttäjän
 päätöksellä `ohje.html`:n Ableton-osio on viimeisenä DAW:ista Logicin ja Reaperin jälkeen ja kertoo, ettei
-toimintoa ole testattu. Sen jälkeen on Audacity (20.10.2026; labelien vienti, jonka Keikkageneraattori
+toimintoa ole testattu. Sen jälkeen on Audacity (20.10.2026; labelien vienti, jonka Keikkaloihdin
 lukee `RE_AUDACITY`-muotona; oikealla Audacityllä testaamatta, valikkojen nimet muistinvaraisia).
 Nimeämätön markkeri on missä tahansa DAW:ssa pelkkä aika eli ei-biisi.
 Aikaleimallinen `---`-rivi (markkeri nimeltä `---`) on setinvaihto. Markkerien vienti tiedoston
@@ -168,7 +168,7 @@ Käyttäjän päätös 16.10.2026: suomenkielisessä tekstissä sana on foneetti
 *markkerit*, *markkerilista*); englanninkielinen *Marker* vain DAW:n valikon tai komennon nimessä
 (*Create Marker*, *List Editors → Marker*, oletusnimi *Marker 3*). Poikkeus: `#markerit`-osion avausvirke käyttää muotoa *marker-merkintöjen*, koska se
 esittelee sanan; puhekielinen *markkeri* vasta sen jälkeen. Ankkuri `#markerit` pysyy ennallaan.
-**Keikkageneraattorissa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
+**Keikkaloihtimessa ei ole syntaksiohjeita kenttien alla** (käyttäjän vaatimus: sivua käytetään kymmeniä
 kertoja, ja ohjeet ärsyttävät). Settilistan alla on vain kehotus ja linkki; merkinnät ja
 vientiohjeet ovat `ohje.html`:n osioissa `#settilista` ja `#markerit`.
 `#markerit`-virke alkaa turkoosilla `SUOSITUS`-merkillä (sama `.merkki` kuin HUOM, ilman kaksoispistettä)
@@ -185,7 +185,7 @@ setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alka
 Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
 `#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA*; mallitaulukon nimet
 ovat muistinvaraisia, ja käyttäjä tarkistaa ne.
-Keikkageneraattori tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
+Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
 **Lisäominaisuus: kansiokeikka.** Keikka voi olla myös Dropbox- tai Google Drive -kansio
@@ -202,7 +202,7 @@ tiedosto ja settilista) eikä kaveriohjeen selkeyteen.
   (`Lisäominaisuus`-otsikot), ja yhteisissä funktioissa se on vain `files`-haaroina. Kansion
   tapahtumakäsittelijät kytketään vasta, kun kansiokeikka ladataan. Tavallinen keikka ei tee
   yhtään Dropbox- tai Google-pyyntöä.
-- Keikkageneraattorissa kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
+- Keikkaloihtimessa kansiotila avataan sivun lopun tekstilinkistä; yhden tiedoston kenttä ei tarkista
   kansiolinkkejä.
 - Kaveriohjeissa (`kayttoonotto.html`, `ohje.html`) kansiokeikasta on vain maininta johdannossa
   ja liite sivun lopussa.
@@ -230,10 +230,10 @@ komentoja ja tunnuksia (PDF rikkoo kopioinnin, Markdown näkyy raakatekstinä):
   Järjestys on käyttäjän luonnoksesta. Johdannossa ei ole koko sivun sisällystä, vain virke, joka
   linkittää osat (keikan luominen, soittimen käyttö), ja toinen virke mainitsee kansioliitteen.
   Käyttöönotto ja pikakäyttöönotto linkitetään *Keikan luominen* -osan avausvirkkeessä
-  (Keikkageneraattoriin pääsee vain omalla linkillä; käyttäjän päätös 16.10.2026).
-  Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkageneraattorissa… /
+  (Keikkaloihtimeen pääsee vain omalla linkillä; käyttäjän päätös 16.10.2026).
+  Osa *Keikan luominen* alkaa esikatselulla kahdessa palstassa (*Keikkaloihtimessa… /
   …annat / …saat*, välissä haalea pystyviiva), jonka jälkeen tulee vain tämän osan sisällys.
-  Sitten Keikkageneraattorin kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
+  Sitten Keikkaloihtimen kentät ylhäältä alas (tunnus, otsikko ja lisätieto → äänitiedoston
   linkki → settilista ja DAW-markkerit → *Uuden keikan ja sitä merkkaavan linkin tallentaminen*). Niiden
   jälkeen ovat suljettuina h3-osioina *Settilistan lisäominaisuudet* (ankkurit `#merkinnat` ja vanha
   `#valinnaiset`; sisällä avoimina h4-alaosioina *Setit* ja *Intro, outro ja muut ei-biisit* sekä
@@ -267,7 +267,7 @@ kokoisena, lihavoimattomana, päävärillä (tummassa valkoinen), versaalina, il
   reitin tietokanta kelpaa), workers.dev-nimen kysely suomeksi Cloudflaren rajapinnasta wranglerin
   kirjautumistunnisteella ja `wrangler deploy` (worker `soitin`, kytkentä `LOCATIONS`). Uudelleenajo
   päivittää workerin. Arkikomento on `~/.soitin/soitin` (`soitin.sh`: tallenna, hae, poista, paivita,
-  drive-avain, poista-asennus). Keikkageneraattorin kirjanmerkki `uusi.html#w=soitin.nimi&tapa=pika`
+  drive-avain, poista-asennus). Keikkaloihtimen kirjanmerkki `uusi.html#w=soitin.nimi&tapa=pika`
   tulostaa `~/.soitin/soitin tallenna <tunnus> '<json>'`. `asenna.sh` on Macin bash 3.2:lle.
   Wrangler 4 ei toimi Big Surissa, mutta tämä reitti on vain kaverin uudelle Macille; Ollin omat
   komennot pysyvät wrangler 3.114.17:ssä. Testaus ilman tiliä: `CLOUDFLARE_API_BASE_URL` ja
@@ -284,7 +284,7 @@ kokoisena, lihavoimattomana, päävärillä (tummassa valkoinen), versaalina, il
   `Sec-Fetch-Site: cross-site` (mitattu 14.10.2026; ilman otsaketta sama linkki antaa 200/206),
   joten `<audio>` ei voi soittaa sitä suoraan github.io:sta. Worker hakee tiedoston ilman selaimen
   otsakkeita, välittää vain Range-otsakkeen ja hyväksyy vain `audio/*`- ja `video/mp4`-tyypit.
-  Keikkageneraattori muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
+  Keikkaloihdin muuttaa Drive-linkin (`/file/d/<ID>/…`, `open?id=`, `uc?id=` ja vanha
   `drive.usercontent.google.com/download?id=`) tämän reitin osoitteeksi kirjanmerkin workerissa;
   kansiokeikan `driveFileUrl` käyttää samaa reittiä. Dropbox-linkit soivat suoraan.
   Muunnos tehdään myös ilman #-asetuksia (käyttäjä voi tallentaa Drive-keikan kaverin puolesta
@@ -314,7 +314,7 @@ tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen
 jossa *käyttöönoton* on linkki; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
 **Nimi KEICK•WALK** (käyttäjän päätös 19.10.2026, kirjoitusasu 20.10.2026): soittimen nimi on kaikissa
-käyttäjälle näkyvissä teksteissä (sivut, ohjeet, Keikkageneraattori, sovelluksen nimi ja napit)
+käyttäjälle näkyvissä teksteissä (sivut, ohjeet, Keikkaloihdin, sovelluksen nimi ja napit)
 *KEICK•WALK* sanan *soitin* sijaan: versaalit, välissä luettelomerkki `•` (U+2022) ilman välilyöntejä,
 ei loppupistettä; myös virkkeen alussa sama. Aiempi asu *keick·walk.* on poistettu teksteistä (Android
 0.12:ssa myös sovelluksen nimestä). Nimeä ei taivuteta: virke kirjoitetaan niin, että nimi on
@@ -339,18 +339,27 @@ harmaaksi). viewBox pidettiin ennallaan (yläreuna −2,6), jotta otsikon mitat 
 Aikajana (keskilinja 24,5) on soittimen janan tyylinen (käyttäjän päätös 19.10.2026): paksuus
 nuppi × 4/14 = 1,5 kuten soittimessa 4 px / 14 px; vasemmasta tyynystä nuppiin tekstin värinen ja
 sillä tekstin väriset pisteet (2,6) tyynyjen, i:n ja interpunktin kohdalla; nupin jälkeen `--line`
-loppurenkaan kehän keskelle. Kuulokkeiden sanka 1,2.
+loppurenkaan kehän keskelle. Kuulokkeiden sanka 1,2. Korvalappujen keskipisteiden väli on sama kuin A:n
+pallon ja janan nupin (12,65; käyttäjän päätös 20.10.2026, aiemmin 13,64): oikea lappu on paikallaan (x 16,26,
+rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, ja sangan lakipiste pysyi
+(yläreuna 4): kaari kapeni (säde 6,325) ja jalat pitenivät. Logo alkaa siksi kohdasta x = 0,99 (viewBox
+`0.99 -2.6 153.43 29.72`). Pelkät kuulokkeet ovat viewBoxissa `0.99 4 17.89 16`.
 Listalla logo on 1,25-kertaisena (WALK 20 px); negatiiviset marginaalit pitävät otsikon korkeuden
-ja WALKin paikan samoina kuin edellisellä logolla. Listan ja
+samana kuin edellisellä logolla. Sama koko logo samassa koossa on otsakkeena Keikkaloihtimessa,
+`ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
+*Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
+otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Logo on otsikon yläpuolella eikä
+oikeassa yläkulmassa, koska puhelimen leveydellä (375 px) otsikolle jäisi logon vieressä 135 px eikä
+*Keikkaloihdin* mahdu (mitattu Chromiumissa). Listan ja
 tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaidassa haalea
-*© TUSINASOFT* (aina yhteen, ilman interpunktia; käyttäjän päätös 20.10.2026). Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkageneraattorissa,
+*© TUSINASOFT* (aina yhteen, ilman interpunktia; käyttäjän päätös 20.10.2026). Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, mutta ei soitinsivulla
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
 Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa otsikon ja lisätiedon
 yhteiskorkuisina (40 px: yläreuna otsikon versaalin yläreunassa, tyynyt yksirivisen otsikon lisätiedon
-perusviivalla; mitattu Chromiumissa), ja otsikon ja lisätiedon kaikki rivit sisennetään 57,2 px
+perusviivalla; mitattu Chromiumissa), ja otsikon ja lisätiedon kaikki rivit sisennetään 54,73 px (kuulokkeet 44,73 px + 10 px)
 (käyttäjän päätös 20.10.2026, versio 2b). Jos ensimmäinen sana ei mahdu kuulokkeiden ja nappien väliin
 (etenkin sovelluksessa) tai otsikko on `.pitka`, otsikko alkaa toiselta riviltä, ja `fitTitle()` siirtää
 kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman nappien tila (45 px, sovelluksessa
@@ -358,13 +367,21 @@ kuulokkeet sen ensimmäisen tekstirivin kohdalle. Otsikolta varataan yläkulman 
 reunuksen (myös silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
 `break-word` katkaisevat sanan kesken kelluvan laatikon vieressä (mitattu Chromiumissa); koko
 leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
-Soittimen aikajana (käyttäjän päätös 20.10.2026): jana 2 px, soitettu osa tekstin värinen, loppu
-`--line`; biisirajat ovat 4 px:n tekstin värisiä palloja janan keskellä (ero janaan parillinen, jotta
-pallo ylittää janan yhtä paljon ylä- ja alapuolella pikseleiksi pyöristettynä); janan lopussa tekstin
-värinen 12 px:n rengas (kehä 2 px, `.loppu`) kuten logossa. *Pysähdy setin lopussa* -kohta on yhä
-turkoosi pystyviiva.
+Soittimen aikajana (käyttäjän päätökset 20.10.2026): jana 2 px, soitettu osa tekstin värinen, loppu
+`--line`; biisien alut ovat tekstin värisiä palloja janan keskellä, soittokohdan ohittamat 4 px (`.ohi`)
+ja tulevat janan paksuisia 2 px (ero janaan parillinen, jotta pallo ylittää janan yhtä paljon ylä- ja
+alapuolella pikseleiksi pyöristettynä). Ei-biisien alkuja ei merkitä janalle (sääntö toistaiseksi).
+Janan lopussa tekstin värinen 12 px:n rengas (kehä 2 px, `.loppu`) kuten logossa. *setti*-asennossa
+rengas siirtyy keikkajanalla pysähdyskohtaan eli seuraavan setin alkuun (turkoosia pystyviivaa ei enää
+ole), janan jatko palloineen häipyy kokonaan (taustan värinen `.jatko`; jatkoa voi silti napauttaa), ja
+janan pituuden tilalla on pysähdyskohdan aika keikan alusta (`.setend`), ei setin pituus, renkaan alla
+keskellä (käyttäjän valinta viidestä vaihtoehdosta; aika ei mene soittokohdan ajan päälle).
+Kytkinten symbolit ovat himmeän harmaita: janakytkimen alla pienoisjana, jonka alussa täytetty pallo ja
+lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä alueella (pallon vasen
+ja renkaan oikea reuna kytkimen reunoilla; käyttäjän valinta kolmesta leveydestä); setin kytkimen alla entisen stop-merkin ja nuolen tilalla pienet logon kuulokkeet
+stop-merkin paikalla ja korkuisina (8 px), *keikka*-asennossa himmennettyinä.
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
-kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (14 px, `.kuul`) numeroiden
+kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (13,27 px, `.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
 leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026).
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän

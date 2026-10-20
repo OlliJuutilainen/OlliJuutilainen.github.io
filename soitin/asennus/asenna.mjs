@@ -228,7 +228,7 @@ if (!vastaa) {
 }
 
 const kirjanmerkki = `${GENERATOR}#w=${host}&tapa=pika`;
-console.log(`\n\x1b[1mValmis.\x1b[0m Keikkageneraattori omilla asetuksillasi (tallenna kirjanmerkiksi):`);
+console.log(`\n\x1b[1mValmis.\x1b[0m Keikkaloihdin omilla asetuksillasi (tallenna kirjanmerkiksi):`);
 console.log(`  ${kirjanmerkki}`);
 console.log("Kirjanmerkin ja muut komennot näet myöhemmin komennolla ~/.soitin/soitin");
 if (!fs.existsSync(VALMIS)) {
