@@ -328,20 +328,22 @@
   /* Janakytkimen alla on pienoisjana: täytetty pallo alussa ja lopussa
      hyvin ohut rengas kuten aikajanassa (sen tausta peittää janan renkaan
      sisältä). Pallot ovat kytkimen levyisellä alueella: pallon vasen ja renkaan
-     oikea reuna kytkimen reunojen kohdalla (käyttäjän valinta 20.10.2026). Jana on hieman
+     oikea reuna tasan kytkimen reunojen kohdalla (käyttäjän valinta 20.10.2026).
+     Jana 1 px, pallon halkaisija 4 px ja renkaan ulkohalkaisija 3,47 px (kaksi
+     kolmasosaa entisestä; käyttäjän päätös 20.10.2026). Jana on hieman
      alempana kuin rivin väli antaisi (kohti setin kytkimen kuulokkeiden
      keskikohtaa). Siirto on top-arvona, ettei rivi kasva. */
   .minijana {
     grid-row: 2;
     grid-column: 1 / -1;
     justify-self: center;
-    width: 24.4px;
+    width: 24px;
     height: 6px;
     margin-top: 1px;
     position: relative;
     top: 1.5px;
     fill: currentColor;
-    stroke-width: 2;
+    stroke-width: 1;
     stroke-linecap: round;
   }
   .minijana .bg { stroke: var(--dim); }
@@ -387,15 +389,17 @@
 
   /* Setin kytkimen alla ovat pienet harmaat KEICK•WALK-logon kuulokkeet
      (käyttäjän päätös 20.10.2026; aiemmin stop-merkki ja nuoli) entisen
-     stop-merkin paikalla ja korkuisina. Ne himmenevät, kun soitetaan
-     keikan loppuun. */
+     stop-merkin paikalla. Ne ovat 10 px korkeat (aiemmin stop-merkin 8 px;
+     käyttäjän päätös 20.10.2026) ja kasvavat keskipisteestään: negatiivinen
+     alamarginaali pitää rivin korkeuden ennallaan, ettei lista siirry. Ne
+     himmenevät, kun soitetaan keikan loppuun. */
   .minikuul {
     grid-row: 2;
     grid-column: 2;
     justify-self: center;
-    width: 8.321px;
-    height: 8px;
-    margin-top: 3px;
+    width: 10.401px;
+    height: 10px;
+    margin: 2px 0 -1px;
     overflow: visible;
     transition: color 0.15s;
   }
@@ -605,7 +609,7 @@
       <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button><span id="gigword">keikka</span></span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
-      <svg class="minijana" viewBox="0 0 24.4 6" aria-hidden="true"><path class="bg" d="M3 3h18.4"/><circle cx="3" cy="3" r="3"/><circle class="rengas" cx="21.4" cy="3" r="2.3"/></svg>
+      <svg class="minijana" viewBox="0 0 24 6" aria-hidden="true"><path class="bg" d="M2 3H22.267"/><circle cx="2" cy="3" r="2"/><circle class="rengas" cx="22.267" cy="3" r="1.433"/></svg>
     </div>
     <div class="sw" id="setopt" hidden>
       <span class="side" data-on="0">keikka</span>

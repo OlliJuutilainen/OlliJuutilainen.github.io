@@ -354,7 +354,7 @@ i:n pisteen alareunaan (yläreuna y 2,0) asti nouseva oli hiukan liian korkea. S
 ovat viewBoxissa `0.99 2.8 17.89 17.2` ja 1,2 yksikköä ylempänä, joten tyynyt eivät liikkuneet. Kappalelistan
 ja setin kytkimen pienet kuulokkeet (`.kuul`, `.minikuul`) saivat saman sangan (käyttäjän päätös 20.10.2026: kaikki
 kuulokkeet logon mukaisiksi). Ne on mitoitettu tekstiin, joten niiden yläreuna (y 2,8) ja tyynyjen alareuna pysyivät
-pikseleissä paikallaan ja kuulokkeet pienenivät suhteessa 16/17,2 (`.minikuul` 8 px korkea, 8,321 px leveä;
+pikseleissä paikallaan ja kuulokkeet pienenivät suhteessa 16/17,2 (`.minikuul` 10 px korkea, 10,401 px leveä;
 `.kuul` `markCurrent()`:ssa yksikkönä (perusviiva − sisältöalueen yläreuna) / 17,2). Mitattu Chromiumissa.
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
@@ -408,8 +408,10 @@ janan pituuden tilalla on pysähdyskohdan aika keikan alusta (`.setend`), ei set
 keskellä (käyttäjän valinta viidestä vaihtoehdosta; aika ei mene soittokohdan ajan päälle).
 Kytkinten symbolit ovat himmeän harmaita: janakytkimen alla pienoisjana, jonka alussa täytetty pallo ja
 lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä alueella (pallon vasen
-ja renkaan oikea reuna kytkimen reunoilla; käyttäjän valinta kolmesta leveydestä); setin kytkimen alla entisen stop-merkin ja nuolen tilalla pienet logon kuulokkeet
-stop-merkin paikalla ja korkuisina (8 px), *keikka*-asennossa himmennettyinä.
+ja renkaan oikea reuna tasan kytkimen reunoilla; käyttäjän valinta kolmesta leveydestä; jana 1 px, pallo 4 px ja rengas
+3,47 px eli kaksi kolmasosaa entisestä, käyttäjän päätös 20.10.2026); setin kytkimen alla entisen stop-merkin ja nuolen tilalla
+pienet logon kuulokkeet stop-merkin paikalla, 10 px korkeina (aiemmin stop-merkin korkuiset 8 px; kasvatettu keskipisteestään
+listan siirtymättä, käyttäjän päätös 20.10.2026), *keikka*-asennossa himmennettyinä.
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
 kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (`.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
