@@ -327,8 +327,10 @@
 
   /* Janakytkimen alla on pienoisjana: täytetty pallo alussa ja lopussa
      hyvin ohut rengas kuten aikajanassa (sen tausta peittää janan renkaan
-     sisältä). Pallot ovat kytkimen levyisellä alueella: pallon vasen ja renkaan
-     oikea reuna tasan kytkimen reunojen kohdalla (käyttäjän valinta 20.10.2026).
+     sisältä). Pallon vasen ja renkaan oikea reuna ovat kytkimen nupin
+     ulkoreunojen kohdalla (2 px kytkimen reunojen sisäpuolella): tasan
+     kytkimen reunoilla jana näytti kytkintä leveämmältä (optinen harha;
+     käyttäjän valinta kolmesta 20.10.2026).
      Jana 1 px, pallon halkaisija 4 px ja renkaan ulkohalkaisija 3,47 px (kaksi
      kolmasosaa entisestä; käyttäjän päätös 20.10.2026). Jana on hieman
      alempana kuin rivin väli antaisi (kohti setin kytkimen kuulokkeiden
@@ -611,7 +613,7 @@
       <span class="side" data-on="0"><button class="fold" id="fold" type="button" aria-expanded="true" aria-label="Piilota kytkimet"><svg viewBox="0 0 7 3.5" aria-hidden="true"><path d="M.75.75l2.75 2 2.75-2"/></svg></button><span id="gigword">keikka</span></span>
       <input type="checkbox" role="switch" id="songscale" aria-label="Biisijana">
       <span class="side" data-on="1">biisi</span>
-      <svg class="minijana" viewBox="0 0 24 6" aria-hidden="true"><path class="bg" d="M2 3H22.267"/><circle cx="2" cy="3" r="2"/><circle class="rengas" cx="22.267" cy="3" r="1.433"/></svg>
+      <svg class="minijana" viewBox="0 0 24 6" aria-hidden="true"><path class="bg" d="M4 3H20.267"/><circle cx="4" cy="3" r="2"/><circle class="rengas" cx="20.267" cy="3" r="1.433"/></svg>
     </div>
     <div class="sw" id="setopt" hidden>
       <span class="side" data-on="0">keikka</span>
