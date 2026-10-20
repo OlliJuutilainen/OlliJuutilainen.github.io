@@ -348,11 +348,13 @@ rako k:hon ennallaan), vasen siirtyi kohtaan 3,61 janan alun ja pisteen kanssa, 
 Listan logo on samassa mittakaavassa ja kohdassa kuin soitinsivun kuulokkeet (alla), joten sen kuulokkeet
 ovat tasan soittimen kuulokkeiden päällä (käyttäjän päätös 20.10.2026; mitattu Chromiumissa, ero 0,02 px):
 1,0295 rem / 13,38 per viewBox-yksikkö (logo 188,9 × 36,6 px), sangan yläreuna 5 px h1:n yläreunan alapuolella;
-marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Listan logo on testiversio (käyttäjän kokeilu 20.10.2026, vain `keikat.html`):
-kuulokkeet ja janan alku ennallaan, muu teksti pallot mukaan lukien 2,29 yksikköä oikealla (k:n vasen reuna
-x 28,17 = soittimen otsikon K:n mustereuna 49,47 px Robotolla) ja jana keskilinjalla 31,03 (viivan alareuna
-lisätietorivin x-korkeuden yläreunassa 67,2 px); viewBox `0.99 -2.6 155.72 36.25`. Muiden sivujen logo on
-vanha. Testiversiossa A:n pallon ja janan nupin väli ei enää ole lappujen väli 12,65. Muilla sivuilla logo on 1,25-kertaisena
+marginaalit pitävät otsikkorivin 29 px:nä nappien vieressä. Listan logossa (käyttäjän kokeilu 20.10.2026, vain `keikat.html`; muiden sivujen logo on ennallaan)
+jana on keskilinjalla 31,03 eikä 24,5: viivan alareuna on soittimen lisätietorivin x-korkeuden yläreunassa
+(67,2 px Robotolla), ja soittimen otsikon K alkaa logon k:n vasemmasta reunasta (x 25,88 = 46,64 px). Tällöin
+A:n pallon ja janan nupin väli ei ole lappujen väli 12,65. viewBox `0.99 -2.6 153.43 36.25`; jana ulottuu
+12,5 px otsikkorivin alle, joten listan h1:n alamarginaali on 34 px (oli 22). Ensimmäinen kokeilu, jossa
+teksti siirtyi 2,29 yksikköä oikealle soittimen otsikon K:n kohdalle, hylättiin: käyttäjä halusi tekstin
+lähemmäs kuulokkeita. Muilla sivuilla logo on 1,25-kertaisena
 (WALK 20 px; ei käyttäjän päätöstä muuttaa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
@@ -366,11 +368,14 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
 Soitinsivulla logosta on vain kuulokkeet (`.brand`) vasemmassa yläkulmassa (käyttäjän päätös 20.10.2026,
-vaihtoehto A; vaihtoehto B eli koko logo otsikon yläpuolella hylättiin): sangan yläreuna otsikon versaalin
-yläreunassa (h1:n yläreuna + 5 px, kiinteä `top: 33px`) ja tyynyjen keskipisteet ensimmäisen rivin perusviivalla.
-Versaalin korkeus on vakio 0,71 × 1,45 rem = 1,0295 rem (Roboto 0,711; testiselaimen Inter 0,727, jolloin tyynyt
-ovat 0,5 px perusviivan yläpuolella), mittakaava siis 1,0295 rem / 13,38 per viewBox-yksikkö (kuulokkeet noin
-22 × 19,7 px). Otsikon ja lisätiedon kaikki rivit sisennetään kuulokkeiden leveyden ja 10 px:n verran.
+vaihtoehto A; vaihtoehto B eli koko logo otsikon yläpuolella hylättiin): sangan yläreuna h1:n yläreuna + 5 px
+(kiinteä `top: 33px`) ja tyynyjen keskipisteet ensimmäisen rivin perusviivalla. Mittakaava 1,0295 rem / 13,38 per
+viewBox-yksikkö (kuulokkeet noin 22 × 19,7 px) on peräisin 1,45 rem:n otsikon versaalista. Käyttäjän päätös
+20.10.2026: otsikko on pienempi ja reilusti ohuempi (1,3 rem, paino 500, oli 650), perusviiva pysyy tyynyjen
+keskellä (`padding-top: 2.5px`; Robotolla 49,5 px, tyynyjen keskipiste 49,47 px), ja otsikon K:n mustereuna on
+listan logon k:n kohdalla (padding-left `24,89 yksikköä − 0,08 rem`, Roboton K:n sivuväli; mitattu 46,66 px).
+Lisätieto sisennetään samoin, ja sen x-korkeuden yläreuna on listan logon janan alareunassa (h1:n alamarginaali
+4,5 px; mitattu 67,18 px). Testiselaimen Interillä K on 0,3 px oikealla ja x-korkeus 1,2 px ylempänä.
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
@@ -391,8 +396,11 @@ lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä
 ja renkaan oikea reuna kytkimen reunoilla; käyttäjän valinta kolmesta leveydestä); setin kytkimen alla entisen stop-merkin ja nuolen tilalla pienet logon kuulokkeet
 stop-merkin paikalla ja korkuisina (8 px), *keikka*-asennossa himmennettyinä.
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
-kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (13,27 px, `.kuul`) numeroiden
+kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (`.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
-leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026).
+leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026). Kuten otsikossa, tyynyjen keskipisteet ovat
+perusviivalla ja sangan yläreuna versaalin yläreunassa (0,71 em = 13,38 yksikköä, noin 16 px leveät;
+`markCurrent()` laskee paikan perusviivasta). viewBoxissa on 0,5 yksikön vara reunoilla, koska Safari leikkasi
+oikean tyynyn reunan viewBoxin rajalla; samasta syystä listan logolla on `overflow: visible`.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
 vaatimus: soitin harmoniassa logon kanssa).
