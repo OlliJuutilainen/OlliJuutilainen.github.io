@@ -253,10 +253,12 @@
   }
   .about p { margin: 0; }
   .about p + p { margin-top: 6px; }
-  /* Tyhjä rivi (1,5em = rivinkorkeus) käyttöoppaan ylä- ja alapuolella, yhtä suuri. */
-  .about p.opas { margin: 1.5em 0; }
-  /* Käyttöopas ja käyttöönotto hiukan sisennettyinä esittelyn alla. */
-  .about p.opas, .about p.opas + p { padding-left: 1em; }
+  /* Tyhjä rivi (1,5em = rivinkorkeus) käyttöoppaan yläpuolella; käyttöoppaan ja
+     käyttöönoton välissä vähemmän, koska pallot erottavat ne jo. */
+  .about p.opas { margin: 1.5em 0 1em; }
+  /* Käyttöopas ja käyttöönotto sisennettyinä, pallo sisennyksessä. */
+  .about p.opas, .about p.opas + p { position: relative; padding-left: 1em; }
+  .about p.opas::before, .about p.opas + p::before { content: "•"; position: absolute; left: 0.15em; }
   .about b { font-weight: 600; color: var(--fg); }
   .about a { color: inherit; }
 </style>
