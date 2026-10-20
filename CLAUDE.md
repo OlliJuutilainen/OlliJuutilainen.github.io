@@ -182,7 +182,9 @@ käskyä). Vastausmuoto on settilistan muoto: `3. 12:05` nimetön biisi, pelkkä
 setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alkavat ei-biiseillä
 `[Encore]` tai `[Encore 1]`, `[Encore 2]`. Kesto lisätään saatteeseen, jos äänilinkistä saatiin.
 Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
-`#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA*; mallitaulukon nimet
+`#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA:*, jonka perässä
+otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
+päätös 20.10.2026; otsikko itse pysyy h4-kokoisena, jotta kolmio on muiden alaosioiden linjassa); mallitaulukon nimet
 ovat muistinvaraisia, ja käyttäjä tarkistaa ne.
 Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
