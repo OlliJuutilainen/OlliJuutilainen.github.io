@@ -308,9 +308,10 @@ pienillä kirjaimilla ilman nousuja, viiva 2,6, ja yhtä korkea kuin kuulokkeide
 (yläreuna 4); e:n ja c:n alaviivojen keskilinja on L:n alaviivan keskilinjalla (18,4). e on W kyljellään
 (selkänä kaksi puoliympyrää) ja yhtä leveä kuin c, c on A kyljellään ilman palloa; leveydet on
 skaalattu x-korkeuden 12 mitoista. Turkoosit täytetyt pallot (halkaisija 36/22 × 3,2 = 5,24) ovat
-tyynyt, A:n pallo ja janan nuppi A:n kohdalla. i:n piste (2,0 alkusanan yläpuolella), interpunkti ja
-janan loppupiste ovat tekstin värisiä renkaita (ulkohalkaisija 4,6, kehä 1,0; kehä 0,6 haalistui
-soitinsivun koossa harmaaksi). Interpunkti ja A:n pallo ovat alkusanan keskilinjalla (11,85).
+tyynyt, A:n pallo ja janan nuppi A:n kohdalla. i:n piste (2,0 alkusanan yläpuolella) ja interpunkti
+ovat pieniä tekstin värisiä palloja (2,6 kuten janan pisteet; käyttäjän päätös 20.10.2026), janan
+loppupiste tekstin värinen rengas (ulkohalkaisija 4,6, kehä 1,0; kehä 0,6 haalistui pienessä koossa
+harmaaksi). viewBox pidettiin ennallaan (yläreuna −2,6), jotta otsikon mitat eivät muuttuneet. Interpunkti ja A:n pallo ovat alkusanan keskilinjalla (11,85).
 Aikajana (keskilinja 24,5) on soittimen janan tyylinen (käyttäjän päätös 19.10.2026): paksuus
 nuppi × 4/14 = 1,5 kuten soittimessa 4 px / 14 px; vasemmasta tyynystä nuppiin tekstin värinen ja
 sillä tekstin väriset pisteet (2,6) tyynyjen, i:n ja interpunktin kohdalla; nupin jälkeen `--line`
@@ -323,7 +324,8 @@ tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!*; alalaid
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
 *Omat keikkani*.
-Soitinsivulla sama logo on pienenä (20/28,82 px yksikköä kohden, 20,62 px korkea) ☰-napin vasemmalla puolella; sovelluksessa
+Soitinsivulla logosta on vain kuulokkeet (käyttäjän päätös 20.10.2026; samassa mittakaavassa 20/28,82 px
+yksikköä kohden, 13,1 × 11,1 px) ☰-napin vasemmalla puolella; sovelluksessa
 (`main.app`) silta.js:n kolmen napin rivin vasemmalla puolella. Otsikon tila varataan kelluvalla
 `.brand-space`-laatikolla vain ensimmäiseltä riviltä, ja se korvaa otsikon oikean reunuksen (myös
 silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska `anywhere` ja
@@ -331,5 +333,9 @@ silta.js:n `main>h1{padding-right:136px}`). Otsikon rivitys on tavallinen, koska
 leveyttä pidempi sana saa `fitTitle()`:ssä luokan `.pitka` (katkeaa mistä tahansa, alkaa logon alta).
 Soittimen aikajanalla biisirajat ovat 4 px:n pisteitä sävyllä `--dot` eivätkä katkoksia;
 *Pysähdy setin lopussa* -kohta on yhä turkoosi pystyviiva.
+Kappalelistassa soivan kappaleen merkki on logon kuulokkeet (14 px leveät, `.kuul`) entisen turkoosin
+pystyviivan paikalla rivin vasemmassa reunassa (käyttäjän päätös 20.10.2026). Kaksinumeroinen numero
+osuisi kuulokkeisiin, joten `markCurrent()` siirtää silloin vain soivan rivin tekstiä niin, että väliin
+jää 6 px; setin ensimmäinen numero on aina yksinumeroinen, joten `alignSetNames()` ei kärsi siirrosta.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
 vaatimus: soitin harmoniassa logon kanssa).
