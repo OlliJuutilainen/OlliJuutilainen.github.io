@@ -186,6 +186,20 @@ Tuontia varten vientiin tuli 21.10.2026 kaksi lisää, muuten muoto on ennallaan
 
 Ennen 21.10.2026 viedyssä tiedostossa ei ole `[n/m]`-merkintöjä eikä kirjanmerkkien kommentteja. Toistuvasta lainauksesta valitaan silloin esiintymä, jota sama tuonti ei ole jo käyttänyt ja joka ei ole toisen alleviivauksen sisällä. Kirjanmerkki ilman lainattua virkettä sijoitetaan likimäärin edellisen merkinnän loppuun tai osion alkuun (mieluummin liian aikaisin kuin liian myöhään); jos edellisen ja seuraavan merkinnän välissä on jo kirjanmerkki, se katsotaan samaksi. Tilarivi kertoo likimääräiset ja tuomatta jääneet.
 
+### 4.7 Haku
+
+Aikajanan alla laatikon *Merkinnät* oikealla puolella on laatikko *Etsi* (suurennuslasi, jonka linssi on salmiakki). Se avaa ponnahduslaatikon, jossa on hakukenttä, osumien määrä ja osumalista. Säännöt (käyttäjän päätökset 21.10.2026):
+
+- Haku etsii sanojen alkuja: *kantil* löytää sanat *kantilainen* ja *kantilaisuus*, mutta ei sanan keskeltä (*etiikka* ei löydä sanaa *eläinetiikka*).
+- Usean sanan haku on aina fraasi, kuin lainausmerkit olisi kirjoitettu: *kantilainen eläinetiikka* löytää vain nämä sanat peräkkäin tässä järjestyksessä, ei kumpaakin erikseen (JA) eikä jompaakumpaa (TAI). Fraasin jokainen sana on sekin alku.
+- Lainausmerkeissä sana on kokonainen: *"kant"* löytää sanan *Kant* (myös *Kant-tulkinnan* alusta), mutta ei sanoja *Kantin* tai *kantilainen*. Lainausmerkeiksi käyvät `"`, `”`, `“`, `„`, `«` ja `»`, ja pariton lainausmerkki koskee hakusanan loppua. Lainausmerkeissä voi olla useampi sana, ja lainattuja ja lainaamattomia voi sekoittaa (*"Kant" eläin*).
+- Sana on kirjainten ja numeroiden jono. Sanojen välissä saa olla mitä tahansa muuta (välilyönti, välimerkki, yhdysmerkki), ja hakusanan omat välimerkit ohitetaan: *eläin-etiikka* on kaksi sanaa. Kirjainkoolla ei ole väliä.
+- Haku kattaa saman tekstin kuin kohdat (luku 4.2): ei sivuhuomioita, viitenumeroita eikä sisällysluetteloa. Fraasi ei jatku kappaleesta toiseen.
+
+Osumista näytetään 200 ensimmäistä; määrä lasketaan kaikista. Osumassa on osion nimi, sivutettuna sivunumero, ja ote, jossa osuma on haalealla taustalla. Napautus (tai Enter, joka vie lukukohdasta seuraavaan osumaan) sulkee laatikon, vie osumaan ja korostaa sen tekstissä samalla taustalla. Korostus tehdään CSS Custom Highlight -rajapinnalla (`::highlight(haku)`), joka ei muuta DOMia, koska kohdat ja alleviivaukset nojaavat tekstisolmuihin; selaimessa, jossa rajapintaa ei ole, korostusta ei ole. Korostus pysyy, kunnes hakua muutetaan tai teksti suljetaan.
+
+Avoimen tekstin viimeisin haku muistetaan (ei tallenneta). Kun laatikko avataan uudelleen, kenttä on täytetty, valittu osuma on merkitty ruosteisella viivalla ja vieritetty näkyviin, eikä kenttää kohdisteta, jotta näppäimistö ei peitä listaa; Enter vie valittua seuraavaan. Ensimmäisellä kerralla kenttä kohdistetaan, ja tyhjän kentän alla on lyhyt ohje. Kirjoittamisen aikana laatikko pysyy näkyvällä alueella näppäimistön yläpuolella (kuten kirjauksen muokkain), osumalista vierii, eikä sivunäkymää aseteta uudelleen.
+
 
 ## 5. Tavutus
 
@@ -233,7 +247,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, merkintöjen tuonnin (vienti edistymisen kanssa, tyhjennys, tuonti tiedostonvalinnasta: samat kohdat ja *Siirry sijaintiin*), aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, merkintöjen tuonnin (vienti edistymisen kanssa, tyhjennys, tuonti tiedostonvalinnasta: samat kohdat ja *Siirry sijaintiin*), aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin), haun (osumien määrä on sama kuin riippumattomalla säännöllisellä lausekkeella neljällä hakutavalla; valittu osuma on sivulla ja korostettu; Enter vie seuraavaan) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`, `etsi()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 
@@ -246,7 +260,9 @@ Kirjanmerkin paikka mitattu 21.10.2026 (412 × 824 px, molemmat tekstit, kirjanm
 
 Mitattu 21.10.2026 (375 × 760 px): valintavalikko mahtuu yhdelle riville (293 px), kirjanmerkkinauha on 12 × 20 px ja sen ylä- ja alapuolella on 10 px. Viennin kaikki valintayhdistelmät tuottavat yllä kuvatun muodon. Virkkeen poiminta: 149 kirjanmerkkiä 23 merkin välein kuuteen kappaleeseen, jokainen lainaus on kappaleen virke, joka sisältää kirjanmerkin kohdan. Kun ikkunan korkeus pienenee kesken kirjauksen (näppäimistö), muokkain pysyy auki ja näkyvissä, ja sivunäkymä palaa samalle sivulle.
 
-Testaamatta: oikeat Boox-laitteet, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus), oikea virtuaalinäppäimistö ja tiedoston lataus Boox-laitteiden selaimissa.
+Haku mitattu 21.10.2026 tutkielmalla: *kant* 118 osumaa, *"kant"* ja *”Kant”* 39, *kantil* 24. Ponnahduslaatikko mahtuu 412 × 824 ja 375 × 760 px:n ikkunaan Etsi-laatikon yläpuolelle; kun ikkunan korkeus pienenee 420 px:iin kesken haun, laatikko pysyy auki ja näkyvissä ja sivu ennallaan.
+
+Testaamatta: oikeat Boox-laitteet, haun korostus Boox-laitteiden WebView-versioissa, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus), oikea virtuaalinäppäimistö ja tiedoston lataus Boox-laitteiden selaimissa.
 
 ## 9. Avoimet kysymykset
 

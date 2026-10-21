@@ -575,6 +575,10 @@ Käyttäjän vaatimukset 20.10.2026:
   missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
   `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
   ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
+- Haku (käyttäjän säännöt 21.10.2026; opas, luku 4.7): aikajanan alla *Merkinnät*-laatikon oikealla puolella laatikko
+  *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,
+  kuin lainausmerkeissä; ei JA eikä TAI); lainausmerkeissä sana on kokonainen (*"kant"* ei löydä sanaa *kantilainen*).
+  Valittu osuma korostetaan `::highlight(haku)`-rajapinnalla, joka ei muuta DOMia.
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
