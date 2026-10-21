@@ -580,10 +580,16 @@ Käyttäjän vaatimukset 20.10.2026:
     Kopioinnin kuittaus on rasti; poiston vahvistus *Poista myös kirjaus* on edelleen tekstiä (ruoste).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
-  - *Vie merkinnät tekstitiedostoon* on asetusten alimpana supistettuna; oletuksena alleviivaukset ja kirjaukset,
-    ei kirjanmerkkejä. Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan vain osioille, joissa on
-    vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke vain jos
-    alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.
+  - *Vie tai tuo merkinnät tekstitiedostona* on asetusten alimpana supistettuna; oletuksena viedään alleviivaukset,
+    kirjaukset ja kirjanmerkit, ja viimeisenä on *Edistymisen tilanne* (oletuksena pois: otsikon alle `Viety:` ja
+    `Sijainti:` otsikon tarkkuudella, ei tarkemmin). Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan
+    vain osioille, joissa on vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke
+    vain jos alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.
+  - **Tuonti** (`tuoMerkinnat()`, käyttäjän pyyntö 21.10.2026: ei virallista tiedostomuodon tunnistetta, vientiä muutetaan
+    vain sen verran kuin tuonti ehdottomasti vaatii). Vientiin tuli kaksi lisää: osiossaan toistuvan lainauksen ensimmäisen
+    rivin perään `[n/m]` ja kirjanmerkin perään esikatselussa näkymätön `<!-- kohta: katkelma -->`. Tiedosto tunnistetaan
+    `#`-otsikosta ja rivistä *Luetun merkinnät*, osiot tekstin otsikoista. Vanhasta viennistä (ilman näitä) tuodaan
+    kirjanmerkit likimäärin. Säännöt: `luin/ohje.md`, luku 4.6.
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
   laatikko on Chromiumissa edellisen rivin lopun tavuviiva (6,7 px, edellisellä sivulla).
