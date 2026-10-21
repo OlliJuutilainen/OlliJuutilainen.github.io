@@ -1074,7 +1074,7 @@
     var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
     if (!h) return;
     naytaPop(rect, (h.n ? '<div class="esi kir">' + esc(lyhenna(h.n, 300)) + '</div>' : '') +
-      '<button type="button" data-k="kir">Kirjaus</button><button type="button" data-k="kopioi">Kopioi</button><button type="button" data-k="poista" class="vaara">Poista</button>', 'rivi', function (k, b) {
+      '<button type="button" data-k="kir">Kirjaa</button><button type="button" data-k="kopioi">Kopioi</button><button type="button" data-k="poista" class="vaara">Poista</button>', 'rivi', function (k, b) {
       if (k === 'kir') { avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { b.textContent = 'Kopioitu'; }); return true; }
       if (k === 'poista') {
@@ -1166,7 +1166,7 @@
       naytaAlPop(h.id, rect);
       return;
     }
-    naytaPop(rect, '<button type="button" data-k="ali">Alleviivaa</button><button type="button" data-k="kir">Kirjaus</button><button type="button" data-k="kopioi">Kopioi</button>' +
+    naytaPop(rect, '<button type="button" data-k="ali">Alleviivaa</button><button type="button" data-k="kir">Kirjaa</button><button type="button" data-k="kopioi">Kopioi</button>' +
       '<button type="button" data-k="km" class="km-ikoni" aria-label="Kirjanmerkki" title="Kirjanmerkki">' + NAUHA + '</button>', 'rivi', function (k, b) {
       if (k === 'ali') { luoAlleviivaus(segs); getSelection().removeAllRanges(); }
       if (k === 'kir') {
@@ -1404,7 +1404,7 @@
       return p;
     }
     var ORPOT = { lvl: 1, text: 'Merkinnät, joiden kohtaa ei enää löydy tekstistä' };
-    var out = '# ' + e.title + (e.sub ? '\n\n*' + e.sub + '*' : '') + '\n\n' + viite(e, 'md');
+    var out = '# ' + e.title + '\n\n*Luetun merkinnät*\n\n' + viite(e, 'md') + '\n\n---';
     var ed = [], ryhma = [];
     function tyhjenna() {
       var oli = ryhma.length > 0;

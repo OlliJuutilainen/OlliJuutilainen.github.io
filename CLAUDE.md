@@ -547,7 +547,7 @@ Käyttäjän vaatimukset 20.10.2026:
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
   - *Edistyminen alapalkissa*: Näkyy (oletus) / Piilossa. Sivunäkymässä se on edelleen sivunumero.
-  - Valinnan valikko: *Alleviivaa | Kirjaus | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
+  - Valinnan valikko: *Alleviivaa | Kirjaa | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
   - *Vie merkinnät tekstitiedostoon* on asetusten alimpana supistettuna; oletuksena alleviivaukset ja kirjaukset,
