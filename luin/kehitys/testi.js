@@ -2,7 +2,8 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/testi.js polku/teksti.md [kuvakansio]
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
-// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn ja haun.
+// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn, haun
+// ja paluumajakan.
 // Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
@@ -326,6 +327,22 @@ palvelin.listen(0, async () => {
   const vv = await veto(0.2, 0.3, 40);
   tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
     'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
+
+  // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
+  const mj = await p.evaluate(async () => {
+    const L = window.__luin, n = L.nyt().blocks.length, nakyy = () => !document.getElementById('majakka').hidden;
+    const odota = () => new Promise(r => setTimeout(r, 300));
+    // Edellisen hypyn hiljainen jakso (250 ms) ohittaisi vierityksen, jolloin ankkuri jäisi vanhaksi.
+    await odota(); window.scrollTo(0, 1000); await odota();
+    const a = Object.assign({}, L.tila.ankkuri), y = scrollY;
+    L.hyppaa({ b: n - 1, o: 0 }); await odota();
+    const iso = nakyy() && !!document.querySelector('#jana-svg .j-majakka');
+    document.getElementById('majakka-palaa').click(); await odota();
+    const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
+    L.hyppaa({ b: a.b + 1, o: 0 }); await odota();
+    return { iso, takaisin, pieni: !nakyy() };
+  });
+  tulos('paluumajakka', mj.iso && mj.takaisin && mj.pieni, JSON.stringify(mj));
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();
