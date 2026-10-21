@@ -48,8 +48,9 @@ palvelin.listen(0, async () => {
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
   await kuva('1-alku');
 
-  // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle.
-  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
+  // varten automaattinen alleviivaus pois (oletus on päällä).
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 2; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(500);
   const n = (await tila()).n;
   let leikattu = 0;
@@ -98,6 +99,26 @@ palvelin.listen(0, async () => {
   await p.click('#pop button[data-k="ali"]');
   await p.reload(); await p.waitForTimeout(500);
   tulos('alleviivaus säilyy', await p.evaluate(() => document.querySelectorAll('mark.ali').length > 0));
+
+  // Automaattinen alleviivaus: valinta muuttuu heti alleviivaukseksi, mutta ei silloin, kun
+  // alleviivaukset on piilotettu tekstistä. Piilotettuina niillä ei ole näkyvää viivaa.
+  const autoAli = await p.evaluate(() => {
+    const L = window.__luin, a = L.aset, valitse = () => {
+      const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 120 && x.getBoundingClientRect().width && !x.querySelector('mark'));
+      const t = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode();
+      const q = document.createRange(); q.setStart(t, 2); q.setEnd(t, Math.min(t.length, 40));
+      getSelection().removeAllRanges(); getSelection().addRange(q); L.valinta();
+    };
+    const n0 = L.nyt().merk.al.length;
+    a.auto = 1; valitse(); const n1 = L.nyt().merk.al.length;
+    document.querySelector('#pop').hidden = true;
+    a.alTekstissa = 0; document.documentElement.classList.add('ali-piilo'); valitse(); const n2 = L.nyt().merk.al.length;
+    const viiva = getComputedStyle(document.querySelector('mark.ali')).textDecorationLine;
+    getSelection().removeAllRanges(); document.querySelector('#pop').hidden = true;
+    L.nyt().merk.al.pop(); a.auto = 0; a.alTekstissa = 1; document.documentElement.classList.remove('ali-piilo');
+    return { n0, n1, n2, viiva };
+  });
+  tulos('automaattinen alleviivaus', autoAli.n1 === autoAli.n0 + 1 && autoAli.n2 === autoAli.n1 && autoAli.viiva === 'none', JSON.stringify(autoAli));
 
   // Kirjaus valinnasta, säilyminen ja vienti oletusvalinnoilla (alleviivaukset ja kirjaukset).
   await p.evaluate(() => {

@@ -170,6 +170,7 @@
   /* alleviivaus ja kirjanmerkki */
   mark.ali { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--ruoste);
     text-decoration-thickness: .13em; text-underline-offset: .2em; text-decoration-skip-ink: none; cursor: pointer; }
+  .ali-piilo mark.ali { text-decoration: none; cursor: inherit; }
   .km { position: absolute; width: 9px; height: 15px; color: var(--ruoste); cursor: pointer; z-index: 2; }
   .km svg { display: block; width: 9px; height: 15px; fill: currentColor; }
 
@@ -266,7 +267,11 @@
   details.vienti summary svg { width: 9px; height: 11px; flex: 0 0 auto; }
   details.vienti[open] summary .sal { fill: currentColor; }
   .vienti-sis { padding: 0 0 16px; }
-  #vie-valinnat { flex-direction: column; align-items: flex-start; }
+  #vie-valinnat, .valinnat.pino { flex-direction: column; align-items: flex-start; }
+  .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
+  .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
+  .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  .valinnat button:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   #vie { margin-top: 14px; }
 </style>
@@ -301,7 +306,7 @@
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
     <div id="jana" hidden>
-      <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
+      <div class="jana-yla"><span id="jana-kohta"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
         <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
@@ -329,14 +334,16 @@
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <div class="asetus" data-a="sivutus"><span class="nimi">Näkymä</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div></div>
+  <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
+       Automaattinen alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
-  <div class="asetus" data-a="sisallys"><span class="nimi">Sisällysluettelo tekstin alussa</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
-  <div class="asetus" data-a="kmTekstissa"><span class="nimi">Kirjanmerkit tekstissä</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
-  <div class="asetus" data-a="auto"><span class="nimi">Automaattinen alleviivaus</span><div class="valinnat" data-v="1:Päällä|0:Pois"></div></div>
+  <div class="asetus"><span class="nimi">Näytä tekstissä</span>
+    <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
+    <div class="valinnat nipukka" data-k="auto:Automaattinen alleviivaus"></div></div>
   <h3>Aikajana</h3>
-  <div class="asetus" data-a="edistys"><span class="nimi">Edistyminen alapalkissa</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
-  <div class="asetus" data-a="janaTaso"><span class="nimi">Merkinnät tasolle</span><div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div></div>
-  <div class="asetus" data-a="kmJanalla"><span class="nimi">Kirjanmerkit aikajanalla</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
+  <div class="asetus" data-a="janaTaso"><span class="nimi">Näytä aikajanalla</span>
+    <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
+    <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
   <p class="huomio">Viitenumerot näkyvät aina. Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. -->
   <details class="vienti" id="vienti">
@@ -403,14 +410,20 @@
   /* ---------- asetukset ---------- */
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki).
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
-    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, auto: 0, edistys: 1, janaTaso: 2, kmJanalla: 1, vieAl: 1, vieKm: 1, vieKi: 1 };
+    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 3, kmJanalla: 1,
+    vieAl: 1, vieKm: 1, vieKi: 1, av: 2 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
   // salmiakkien ja logon kanssa. Vanha tallennettu arvo ohitetaan.
   delete aset.kirjasin;
+  // av 2 (21.10.2026): automaattinen alleviivaus ja aikajanan kaikki tasot tulivat oletuksiksi.
+  // Aiemmin tallennetut asetukset sisälsivät vanhat oletukset, joten ne vaihdetaan kerran.
+  if (tallennetut && !(tallennetut.av >= 2)) { aset.auto = 1; aset.janaTaso = 3; aset.av = 2; }
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   function tallennaAset() { LS.set('luin-asetukset', aset); }
+  // Piilotetuksi alleviivausta ei tehdä automaattisesti.
+  function autoAli() { return !!(aset.auto && aset.alTekstissa); }
 
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
@@ -631,6 +644,12 @@
         return '<button type="button" data-arvo="' + kv[0] + '" aria-pressed="' + (aset[a] === arvo) + '">' + SAL_IKONI + kv[1] + '</button>';
       }).join('');
     });
+    $$('#asetukset .valinnat[data-k]').forEach(function (v) {
+      v.innerHTML = v.dataset.k.split('|').map(function (o) {
+        var kv = o.split(':'), pois = kv[0] === 'auto' && !aset.alTekstissa;
+        return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + !!aset[kv[0]] + '"' + (pois ? ' disabled' : '') + '>' + SAL_IKONI + kv[1] + '</button>';
+      }).join('');
+    });
     $('#koko-arvo').textContent = aset.koko + ' px';
     piirraVienti();
   }
@@ -638,10 +657,11 @@
     var v = e.target.closest('button[data-vie]');
     if (v) { aset[v.dataset.vie] = aset[v.dataset.vie] ? 0 : 1; tallennaAset(); piirraVienti(); return; }
     if (e.target.closest('#vie')) { vieMerkinnat(); return; }
-    var b = e.target.closest('button[data-arvo], button[data-askel]');
+    var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
     if (!b) return;
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
-    if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
+    if (b.dataset.kytkin) aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+    else if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
     else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
     tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
   });
@@ -649,6 +669,7 @@
   function sovellaTeema() {
     document.documentElement.dataset.teema = aset.teema;
     document.documentElement.style.setProperty('--koko', aset.koko + 'px');
+    document.documentElement.classList.toggle('ali-piilo', !aset.alTekstissa);
   }
   function sovellaAsetukset(ennen) {
     sovellaTeema();
@@ -899,7 +920,6 @@
     $('#ala-pros').textContent = pros;
     $('#ala-pros').hidden = !aset.edistys;
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
-    $('#jana-pros').textContent = pros;
     piirraKirjanmerkit();
     var lit = nakyvatKirjanmerkit().length > 0;
     $('#km-nappi').setAttribute('aria-pressed', String(lit));
@@ -999,7 +1019,7 @@
     var km = t.closest('.km');
     if (km) { naytaKmPop(km.dataset.k, km.getBoundingClientRect()); return; }
     var m = t.closest('mark.ali');
-    if (m && valintaTyhja()) { naytaAlPop(m.dataset.h, m.getBoundingClientRect()); return; }
+    if (m && aset.alTekstissa && valintaTyhja()) { naytaAlPop(m.dataset.h, m.getBoundingClientRect()); return; }
     if (aset.sivutus !== 'sivut' || !valintaTyhja()) return;
     if (!pop.hidden) { suljePop(); return; }
     if (tila.pyyhkaisty && Date.now() - tila.pyyhkaisty < 400) return;
@@ -1157,7 +1177,7 @@
     if (!segs.length) return;
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
     var alku = { b: segs[0].b, o: segs[0].s };
-    if (aset.auto) {
+    if (autoAli()) {
       var h = luoAlleviivaus(segs);
       s.removeAllRanges();
       naytaAlPop(h.id, rect);
@@ -1318,10 +1338,10 @@
     $('#al-lista').innerHTML = al.length ? al.map(function (h) {
       var o = osioKohdassa({ b: h.segs[0].b }), t = alTeksti(h);
       return '<div class="merkki"><button type="button" class="m-teksti" data-mene="al:' + h.id + '"><span class="m-kohta">' +
-        esc((o ? o.text + ' · ' : '') + pvm(h.t)) + '</span><span class="ali-teksti">' + esc(lyhenna(t, 220)) + '</span>' +
+        esc((o ? o.text + ' · ' : '') + pvm(h.t)) + '</span>' + esc(lyhenna(t, 220)) +
         (h.n ? '<span class="m-kirjaus">' + esc(lyhenna(h.n, 400)) + '</span>' : '') + '</button>' +
         '<div class="m-napit"><button type="button" data-kopioi="' + h.id + '">Kopioi</button><button type="button" data-poista="al:' + h.id + '">Poista</button></div></div>';
-    }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (aset.auto ? '.' : ' ja paina Alleviivaa.') + '</p>';
+    }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (autoAli() ? '.' : ' ja paina Alleviivaa.') + '</p>';
   }
   $('#merkinnat').addEventListener('click', function (e) {
     var b = e.target.closest('button');

@@ -550,7 +550,12 @@ Käyttäjän vaatimukset 20.10.2026:
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
-  - *Edistyminen alapalkissa*: Näkyy (oletus) / Piilossa. Sivunäkymässä se on edelleen sivunumero.
+  - *Teksti* ja *Aikajana* ovat sateenvarjolistoja: *Näytä tekstissä* sisällysluettelo / kirjanmerkit / alleviivaukset
+    (alleviivausten alla pieni lisäkytkin *Automaattinen alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
+    *Näytä aikajanalla* Pääluvut / Alaluvut / Kaikki (oletus) sekä kirjanmerkit ja edistyminen. Vanhat tallennetut
+    asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2`).
+  - Edistyminen on vain alapalkissa, ei avatun aikajanan ylärivillä. Sivunäkymässä se on sivunumero.
+  - *Merkinnät*-listassa alleviivauksia ei koskaan alleviivata; alleviivaus näkyy vain tekstissä itsessään.
   - Valinnan valikko: *Alleviivaa | Kirjaa | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
