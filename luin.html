@@ -185,7 +185,11 @@
   /* alapalkki ja aikajana */
   #ala { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paperi); border-top: 1px solid var(--viiva);
     z-index: 20; user-select: none; -webkit-user-select: none; }
-  #ala-nappi { display: flex; align-items: center; gap: 12px; width: 100%; height: var(--ala); padding: 0 14px;
+  #ala-rivi { display: flex; height: var(--ala); }
+  #km-nappi { flex: 0 0 auto; width: 38px; height: 100%; padding-left: 14px; display: inline-flex; align-items: center; }
+  #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--viiva); stroke-width: 1; }
+  #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
+  #ala-nappi { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; height: 100%; padding: 0 14px 0 10px;
     font-size: .8rem; color: var(--harmaa); }
   #ala-kohta { flex: 1 1 auto; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ala-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
@@ -194,16 +198,24 @@
   .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
   #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
-  .j-viiva { stroke: var(--harmaa); stroke-width: 1; fill: none; }
+  /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit aina kuparisina. */
+  .j-viiva { stroke: var(--muste); stroke-width: 1; fill: none; }
   .j1 { fill: var(--muste); }
   .j2 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; }
-  .j3 { fill: var(--harmaa); }
+  .j3 { fill: var(--muste); }
+  .tuleva .j-viiva { stroke: var(--viiva); }
+  .tuleva .j1, .tuleva .j3 { fill: var(--viiva); }
+  .tuleva .j2 { stroke: var(--viiva); }
   .j-km { fill: var(--ruoste); }
   .j-nyt { fill: var(--muste); }
   .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
-  .jana-napit { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 2px 0 4px; }
-  .jana-napit button { min-height: 40px; display: inline-flex; align-items: center; gap: 8px; font-size: .86rem; }
-  .jana-napit svg { width: 8px; height: 13px; fill: var(--ruoste); }
+  .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
+  .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
+    border: 1px solid var(--harmaa); }
+  #km-lisaa[aria-pressed="true"] { color: var(--ruoste); border-color: var(--ruoste); }
+  .laatikko svg { width: 14px; height: 11px; flex: 0 0 auto; }
+  .laatikko .l-pis { fill: currentColor; }
+  .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
   /* paneelit: asetukset ja merkinnät */
   .paneeli { position: fixed; top: 0; right: 0; bottom: 0; width: min(25rem, 100%); background: var(--paperi);
@@ -269,14 +281,18 @@
       <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
-        <button type="button" id="km-lisaa"><svg viewBox="0 0 8 13"><path d="M0 0H8V13L4 9.6L0 13Z"/></svg>Kirjanmerkki tähän</button>
-        <button type="button" id="merk-avaa">Kirjanmerkit ja alleviivaukset</button>
+        <button type="button" class="laatikko" id="km-lisaa" aria-pressed="false">Aseta kirjanmerkki</button>
+        <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
       </div>
     </div>
-    <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana">
-      <span id="ala-kohta"></span><span id="ala-pros"></span>
-      <svg viewBox="0 0 9 11"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg>
-    </button>
+    <div id="ala-rivi">
+      <!-- Aina näkyvä kirjanmerkkinappi: ääriviiva, kuparinen kun kirjanmerkki on näkyvissä. -->
+      <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
+      <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana">
+        <span id="ala-kohta"></span><span id="ala-pros"></span>
+        <svg viewBox="0 0 9 11"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg>
+      </button>
+    </div>
   </footer>
 </section>
 
@@ -823,6 +839,11 @@
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
     $('#jana-pros').textContent = pros;
     piirraKirjanmerkit();
+    var lit = nakyvatKirjanmerkit().length > 0;
+    $('#km-nappi').setAttribute('aria-pressed', String(lit));
+    $('#km-nappi').setAttribute('aria-label', lit ? 'Poista kirjanmerkki' : 'Aseta kirjanmerkki');
+    $('#km-lisaa').setAttribute('aria-pressed', String(lit));
+    $('#km-lisaa').textContent = lit ? 'Poista kirjanmerkki' : 'Aseta kirjanmerkki';
     piirraJana();
     tallennaKohta();
   }
@@ -1044,6 +1065,28 @@
     nyt.merk.km = nyt.merk.km.filter(function (k) { return k.id !== id; });
     tallennaMerkit(); paivita(); paivitaMerkinnat();
   }
+  // Kirjanmerkit, jotka ovat nyt näkyvissä: sivutettuna tällä sivulla, vierityksessä ylä- ja
+  // alapalkin välissä. Niiden perusteella kirjanmerkkinappi on kuparinen ja poistaa ne.
+  function nakyvatKirjanmerkit() {
+    if (!nyt) return [];
+    var sivut = aset.sivutus === 'sivut', al = art.getBoundingClientRect().left;
+    var yla = $('.ylapalkki').getBoundingClientRect().bottom, ala = $('#ala').getBoundingClientRect().top;
+    return nyt.merk.km.filter(function (k) {
+      if (k.orpo || !nyt.blocks[k.b]) return false;
+      var r = kohdanLaatikko(k);
+      if (!r) return false;
+      if (sivut) return Math.floor((r.left - al + 2) / tila.stride) === tila.sivu;
+      return r.bottom > yla && r.top < ala;
+    });
+  }
+  function vaihdaKirjanmerkki() {
+    if (!nyt) return;
+    var n = nakyvatKirjanmerkit();
+    if (!n.length) { lisaaKirjanmerkki(); return; }
+    var pois = n.map(function (k) { return k.id; });
+    nyt.merk.km = nyt.merk.km.filter(function (k) { return pois.indexOf(k.id) < 0; });
+    tallennaMerkit(); paivita(); paivitaMerkinnat();
+  }
   function naytaKmPop(id, rect) {
     var k = nyt.merk.km.filter(function (x) { return x.id === id; })[0];
     if (!k) return;
@@ -1079,7 +1122,8 @@
     if (auki) piirraJana();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
-  $('#km-lisaa').addEventListener('click', function () { lisaaKirjanmerkki(); });
+  $('#km-lisaa').addEventListener('click', vaihdaKirjanmerkki);
+  $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
 
   var JANA = { pad: 13, y: 21 };
@@ -1094,16 +1138,20 @@
     if (!nyt || $('#jana').hidden) return;
     var w = svg.clientWidth || 300, h = 46, x0 = JANA.pad, x1 = w - JANA.pad, y = JANA.y;
     var X = function (f) { return x0 + f * (x1 - x0); };
-    var s = '<path class="j-viiva" d="M' + x0 + ' ' + y + 'H' + x1 + 'M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/>';
+    // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit aina kuparisina.
+    var nf = osuus(tila.ankkuri), cx = X(nf), luettu = '', tuleva = '';
+    var s = '<path class="j-viiva" d="M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + cx + '"/>' +
+      '<g' + (nf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="M' + cx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/></g>';
     janaKohteet().forEach(function (m) {
-      var x = X(osuus(m.k)), d;
+      var f = osuus(m.k), x = X(f), d;
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
       else if (m.lvl === 1) d = '<path class="j1" d="' + sal(x, y, 5.6, 7.4) + '"/>';
       else if (m.lvl === 2) d = '<path class="j2" d="' + sal(x, y, 4.2, 5.6) + '"/>';
       else d = '<path class="j3" d="' + sal(x, y, 2.5, 3.4) + '"/>';
-      s += '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
+      d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
+      if (m.km || f <= nf) luettu += d; else tuleva += d;
     });
-    var cx = X(osuus(tila.ankkuri));
+    s += '<g class="tuleva">' + tuleva + '</g>' + luettu;
     s += '<path class="j-nyt-v" d="M' + cx + ' 9V' + (y + 13) + '"/><path class="j-nyt" d="M' + (cx - 4.5) + ' 1.5H' + (cx + 4.5) + 'L' + cx + ' 9Z"/>';
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
