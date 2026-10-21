@@ -40,7 +40,9 @@
     font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   main { max-width: 760px; margin: 0 auto; padding: 36px 20px 80px; }
-  h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+  /* Otsikko alkaa logon k:n vasemmasta reunasta: (26,88 − 0,99) × 1,25 px − kirjaimen sivuväli;
+     tarkka sivuväli mitataan sivun lopun skriptissä. Kaikilla KEICK•WALK-ohjesivuilla sama koko. */
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 28px; padding-left: calc(32.36px - 0.067em); letter-spacing: -0.01em; }
   /* h2 = osa (Keikan luominen, Soittimen käyttö, Liite), h3 = osio, h4 = alaosio,
      h5 = alaosion alaosio (ei tällä hetkellä käytössä). */
   h2 { font-size: 1.45rem; line-height: 1.25; margin: 56px 0 12px; padding-top: 20px; border-top: 2px solid var(--fg); }
@@ -756,6 +758,35 @@
   window.addEventListener("beforeprint", function () {
     document.querySelectorAll("details").forEach(function (d) { d.open = true; });
   });
+})();
+</script>
+<script>
+// Otsikon ensimmäisen kirjaimen muste alkaa logon k:n vasemmasta reunasta (x 26,88).
+// Kirjaimen sivuväli riippuu fontista (system-ui), joten se mitataan piirtämällä kirjain
+// canvasille ja lukemalla musteen vasen reuna pikseleistä; CSS:n oletus on arvio.
+(function () {
+  const h = document.querySelector('main > h1'), svg = document.querySelector('svg.logo');
+  if (!h || !svg) return;
+  const S = 8, muisti = {};
+  function sivuvali(font, ch) {
+    const k = font + ch;
+    if (k in muisti) return muisti[k];
+    const c = document.createElement('canvas'); c.width = c.height = 600;
+    const x = c.getContext('2d'); x.scale(S, S); x.font = font; x.fillText(ch, 10, 50);
+    const d = x.getImageData(0, 0, 600, 600).data; let min = Infinity;
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 127) min = Math.min(min, (i >> 2) % 600);
+    return (muisti[k] = isFinite(min) ? min / S - 10 : null);
+  }
+  function tasaa() {
+    const m = svg.getScreenCTM(), ch = h.textContent.trim()[0];
+    if (!m || !ch) return;
+    const lsb = sivuvali(getComputedStyle(h).font, ch);
+    if (lsb == null) return;
+    h.style.paddingLeft = (m.a * 26.88 + m.e - h.getBoundingClientRect().left - lsb).toFixed(2) + 'px';
+  }
+  tasaa();
+  if (document.fonts) document.fonts.ready.then(tasaa);
+  addEventListener('resize', tasaa);
 })();
 </script>
 </body>
