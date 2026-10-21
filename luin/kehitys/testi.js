@@ -46,6 +46,10 @@ palvelin.listen(0, async () => {
       lahteet: document.querySelectorAll('p.bib').length, varoitukset: d.warnings.length };
   });
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
+  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan.
+  const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
+    return { n: a.length, rikki: a.filter(x => { const k = document.getElementById(x.getAttribute('href').slice(1)); return !k || !k.classList.contains('bib'); }).length }; });
+  tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 
   // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
