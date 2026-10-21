@@ -31,6 +31,9 @@
   }
   .note{ font-size:14px; color:#444; margin-top:6px; }
   .err{ color:#b00020; font-weight:600; margin-top:12px; }
+  /* Alatunniste samaan tapaan kuin soittimen ja Luinin sivuilla. */
+  .foot{ margin:40px 0 0; text-align:center; color:#6d6b66; opacity:0.6;
+    font-size:0.68rem; font-weight:300; letter-spacing:0.14em; }
 </style>
 </head>
 <body>
@@ -63,6 +66,7 @@
 <button id="generate">Generoi token &amp; linkit</button>
 <div id="error" class="err" role="alert" style="display:none"></div>
 <pre id="output" aria-live="polite">Anna sijainti ja paina "Generoi".</pre>
+<p class="foot">© TUSINASOFT 2026</p>
 
 <script type="module">
 // Cloudflare KV: LOCATIONS namespace (pysyvä ID)

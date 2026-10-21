@@ -133,6 +133,9 @@
   .err [lang="la"]{ font-style:italic }
   /* Hajurako ilmoitusten ja taulukon väliin; peräkkäisten ilmoitusten väli ei muutu. */
   .err + :not(.err){ margin-top:18px }
+  /* Alatunniste samaan tapaan kuin soittimen ja Luinin sivuilla. */
+  .foot{ margin:28px 0 0; text-align:center; color:var(--color-muted); opacity:.6;
+    font-size:11px; font-weight:300; letter-spacing:.14em }
 </style>
 </head>
 <body>
@@ -145,6 +148,7 @@
   <div class="caps">TUULEE</div>
 </div>
 <div class="list" id="out" aria-live="polite"></div>
+<p class="foot">© TUSINASOFT 2026</p>
 
 <script src="vendor/tz-lookup-6.1.25.js"></script>
 <script src="vendor/suncalc-1.9.0.js"></script>

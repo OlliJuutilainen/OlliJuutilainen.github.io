@@ -108,6 +108,17 @@ Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää 
 -merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee. Se on
 nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 
+## Alatunniste
+
+Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekkäästi sopii, on alalaidassa
+hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
+sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
+myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Keikkaloihtimessa, Omat keikkani -listassa ja
+soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
+esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
+kokoruudun kelloissa (Odotushuone, Ouroboros).
+
 ## Repon rakenne
 
 `arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
@@ -376,7 +387,7 @@ oikeassa yläkulmassa, koska puhelimen leveydellä (375 px) otsikolle jäisi log
 *Keikkaloihdin* mahdu (mitattu Chromiumissa). Listan ja
 tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!* (käyttäjän päätös 20.10.2026: se ja kaikki sen alla 36 px
 alempana kuin ennen, `.pick`-täytteenä; tietoiskun ollessa auki väli ennallaan); alalaidassa haalea
-*© TUSINASOFT* (aina yhteen, ilman interpunktia; käyttäjän päätös 20.10.2026). Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkaloihtimessa,
+*© TUSINASOFT 2026* (aina yhteen, ilman interpunktia; käyttäjän päätös 20.10.2026; vuosiluku ks. *Alatunniste*). Sama alatunniste samalla tyylillä on `</main>`-tagin jälkeen Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, mutta ei soitinsivulla
 (`index.html`); käyttäjän päätös 19.10.2026. Korostusväri on kaikilla soittimen sivuilla Okinawa-turkoosi `#0a7f76` / tummassa
 `#1fb5a8` (Sports Walkmanin runko). Napin, iframen ja listan `<title>`-elementin nimi on edelleen
