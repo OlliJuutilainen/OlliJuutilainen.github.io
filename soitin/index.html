@@ -334,8 +334,9 @@
      käyttäjän valinta kolmesta 20.10.2026).
      Jana 1 px, pallon halkaisija 4 px ja renkaan ulkohalkaisija 3,47 px (kaksi
      kolmasosaa entisestä; käyttäjän päätös 20.10.2026). Jana on hieman
-     alempana kuin rivin väli antaisi (kohti setin kytkimen kuulokkeiden
-     keskikohtaa). Siirto on top-arvona, ettei rivi kasva. */
+     alempana kuin rivin väli antaisi: 0,75 px setin kytkimen kuulokkeiden
+     keskikohdan alapuolella, kohti tyynyjä (käyttäjän valinta neljästä
+     21.10.2026). Siirto on top-arvona, ettei rivi kasva. */
   .minijana {
     grid-row: 2;
     grid-column: 1 / -1;
@@ -344,7 +345,7 @@
     height: 6px;
     margin-top: 1px;
     position: relative;
-    top: 1.5px;
+    top: 2.75px;
     fill: currentColor;
     stroke-width: 1;
     stroke-linecap: round;
@@ -392,17 +393,18 @@
 
   /* Setin kytkimen alla ovat pienet harmaat KEICK•WALK-logon kuulokkeet
      (käyttäjän päätös 20.10.2026; aiemmin stop-merkki ja nuoli) entisen
-     stop-merkin paikalla. Ne ovat 10 px korkeat (aiemmin stop-merkin 8 px;
-     käyttäjän päätös 20.10.2026) ja kasvavat keskipisteestään: negatiivinen
-     alamarginaali pitää rivin korkeuden ennallaan, ettei lista siirry. Ne
-     himmenevät, kun soitetaan keikan loppuun. */
+     stop-merkin paikalla. Ne ovat 9 px korkeat (aiemmin stop-merkin 8 px,
+     sitten 10 px; käyttäjän päätökset 20. ja 21.10.2026) ja keskikohta on
+     1 px ylempänä kuin 10 px:n kuulokkeilla. Marginaalit pitävät rivin
+     korkeuden ennallaan, ettei lista siirry. Ne himmenevät, kun soitetaan
+     keikan loppuun. */
   .minikuul {
     grid-row: 2;
     grid-column: 2;
     justify-self: center;
-    width: 11.564px;
-    height: 10px;
-    margin: 2px 0 -1px;
+    width: 10.408px;
+    height: 9px;
+    margin: 1.5px 0 0.5px;
     overflow: visible;
     transition: color 0.15s;
   }
