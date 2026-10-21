@@ -191,7 +191,7 @@ Ennen 21.10.2026 viedyssä tiedostossa ei ole `[n/m]`-merkintöjä eikä kirjanm
 
 ### 4.7 Haku
 
-Aikajanan alla laatikon *Merkinnät* oikealla puolella on laatikko *Etsi* (suurennuslasi, jonka linssi on salmiakki). Se avaa ponnahduslaatikon, jossa on hakukenttä, osumien määrä ja osumalista. Säännöt (käyttäjän päätökset 21.10.2026):
+Aikajanan alla laatikon *Merkinnät* oikealla puolella on laatikko *Etsi* (suurennuslasi, jonka linssi on kaksi sisäkkäistä onttoa salmiakkia). Se avaa ponnahduslaatikon, jossa on hakukenttä, osumien määrä ja osumalista. Säännöt (käyttäjän päätökset 21.10.2026):
 
 - Haku etsii sanojen alkuja: *kantil* löytää sanat *kantilainen* ja *kantilaisuus*, mutta ei sanan keskeltä (*etiikka* ei löydä sanaa *eläinetiikka*).
 - Usean sanan haku on aina fraasi, kuin lainausmerkit olisi kirjoitettu: *kantilainen eläinetiikka* löytää vain nämä sanat peräkkäin tässä järjestyksessä, ei kumpaakin erikseen (JA) eikä jompaakumpaa (TAI). Fraasin jokainen sana on sekin alku.
