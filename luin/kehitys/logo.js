@@ -4,7 +4,8 @@
 // i:n piste ja loppupiste ovat salmiakkeja (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
 // pisteestä päätepisteeseen ja leikkaa N:n vinoviivan noin 61 %:n korkeudella; tiiviillä N:llä
 // vinoviiva on niin jyrkkä, ettei sama suora voi kulkea sitä pitkin (piste nousisi y ≈ −140:een).
-// Alarivi HTML on ohut (2,1) ja levitetty ylärivin levyiseksi.
+// i:n piste on ruosteinen, loppupiste tekstin värinen. Alarivi HTML on ohut (2,5) ja levitetty
+// L:n vasemmasta reunasta N:n oikeaan reunaan.
 const t = 3.4, T = 15;
 const f = n => +n.toFixed(2);
 function rect(x0, y0, x1, y1) { return `M${f(x0)} ${f(y0)}H${f(x1)}V${f(y1)}H${f(x0)}Z`; }
@@ -34,13 +35,17 @@ function logo(o = {}) {
   P.push(rect(145, 0, 160, t), rect(180, 0, 196.6, t), rect(145.5, 100 - t, 162, 100));
   const dot = [125.5, yd];
   const W = per[0] + 6.5;
-  // HTML
-  const y0 = o.hy ?? 117, y1 = y0 + (o.hh ?? 18), sw = o.sw ?? 2.1, ser = 2.6;
-  const widths = [13, 13, 17, 11], tot = widths.reduce((a, b) => a + b, 0), gap = (W - tot) / 3;
-  let x = 0; const xs = widths.map(w => { const r = x; x += w + gap; return r; });
+  // HTML: musteen vasen reuna on L:n vasemmassa reunassa (x 0) ja oikea N:n oikean päätteen
+  // reunassa (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
+  // pystypääte (kuten ylärivin L:ssä).
+  const y0 = o.hy ?? 112, y1 = y0 + (o.hh ?? 18), sw = o.sw ?? 2.5, ser = 2.6, sp = 1.5;
+  const sw2 = sw / 2, X0 = 0, X1 = 196.6;
+  const widths = [13, 13, 17, 11];
+  const a0 = X0 + ser - sw2, aL = X1 - widths[3];
+  const gap = (aL - a0 - widths[0] - widths[1] - widths[2]) / 3;
+  const xs = [a0, a0 + widths[0] + gap, a0 + widths[0] + widths[1] + 2 * gap, aL];
   const st = [];
   const ln = (x0, y0_, x1, y1_) => st.push(`M${f(x0)} ${f(y0_)}L${f(x1)} ${f(y1_)}`);
-  const sw2 = sw / 2;
   // H
   let a = xs[0]; ln(a + sw2, y0, a + sw2, y1); ln(a + 13 - sw2, y0, a + 13 - sw2, y1); ln(a + sw2, (y0 + y1) / 2, a + 13 - sw2, (y0 + y1) / 2);
   // T
@@ -48,20 +53,23 @@ function logo(o = {}) {
   // M
   a = xs[2]; ln(a + sw2, y1, a + sw2, y0); ln(a + sw2, y0, a + 8.5, y1); ln(a + 8.5, y1, a + 17 - sw2, y0); ln(a + 17 - sw2, y0, a + 17 - sw2, y1);
   // L
-  a = xs[3]; ln(a + sw2, y0, a + sw2, y1 - sw2); ln(a + sw2, y1 - sw2, a + 11, y1 - sw2);
+  a = xs[3]; ln(a + sw2, y0, a + sw2, y1); ln(a, y1 - sw2, X1, y1 - sw2);
   const serifs = [];
-  const hs = (cx, y, w) => serifs.push(rect(cx - w, y - 0.75, cx + w, y + 0.75));
+  const hs = (cx, y, w) => serifs.push(rect(cx - w, y - sp / 2, cx + w, y + sp / 2));
   // pikkupäätteet
-  a = xs[0]; [a + sw2, a + 13 - sw2].forEach(cx => { hs(cx, y0 + 0.75, ser); hs(cx, y1 - 0.75, ser); });
-  a = xs[1]; hs(a + 6.5, y1 - 0.75, ser);
-  a = xs[2]; [a + sw2, a + 17 - sw2].forEach(cx => hs(cx, y1 - 0.75, ser));
-  a = xs[3]; hs(a + sw2, y0 + 0.75, ser);
+  a = xs[0]; [a + sw2, a + 13 - sw2].forEach(cx => { hs(cx, y0 + sp / 2, ser); hs(cx, y1 - sp / 2, ser); });
+  a = xs[1]; hs(a + 6.5, y1 - sp / 2, ser);
+  a = xs[2]; [a + sw2, a + 17 - sw2].forEach(cx => hs(cx, y1 - sp / 2, ser));
+  a = xs[3]; hs(a + sw2, y0 + sp / 2, ser);
+  // L:n alaviivan pystypääte kuten ylärivin L:ssä; 24 % korkeudesta jäi alaviivan paksuuden
+  // vuoksi lähes näkymättömäksi, joten pääte on 36 %
+  serifs.push(rect(X1 - sp, y1 - 0.36 * (y1 - y0), X1, y1));
   const lineCol = o.lineCol || 'currentColor';
-  const H = y1;
+  const H = o.vb ?? 135; // viewBoxin alareuna pidetty ennallaan, jotta LUiN ei muuta kokoaan
   return `<svg class="logo" viewBox="-2 ${f(Math.min(yd - 10, -2))} ${f(W + 4)} ${f(H - Math.min(yd - 10, -2) + 1)}" role="img" aria-label="LUiN.html">` +
-    `<path d="${P.join('')}"/>` +
+    `<path d="${P.join('')}${dia(per[0], per[1], 6.5, 7.5, c)}"/>` +
     `<path d="M${f(dot[0])} ${f(dot[1])}L${f(per[0])} ${f(per[1])}" stroke="${lineCol}" stroke-width="${o.lw ?? 1.8}" fill="none"/>` +
-    `<path fill="var(--ruoste)" d="${dia(dot[0], dot[1], 7.5, 8.5, c)}${dia(per[0], per[1], 6.5, 7.5, c)}"/>` +
+    `<path fill="var(--ruoste)" d="${dia(dot[0], dot[1], 7.5, 8.5, c)}"/>` +
     `<path d="${st.join('')}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="butt"/>` +
     `<path d="${serifs.join('')}"/>` +
     `</svg>`;

@@ -495,8 +495,12 @@ Käyttäjän vaatimukset 20.10.2026:
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
   Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, hiusviiva pisteestä
   päätepisteeseen N:n vinoviivan kautta (leikkaa sen n. 61 %:n korkeudella, koska tiiviin N:n jyrkkää
-  vinoviivaa pitkin suora ei voi kulkea), alarivi HTML ohuena väljänä ylärivin levyisenä. Luonnos;
-  käyttäjä ei ole vielä nähnyt sitä.
+  vinoviivaa pitkin suora ei voi kulkea), alarivi HTML ohuena väljänä. Käyttäjän päätökset 21.10.2026:
+  HTML mahtuu kokonaan LUiN-kirjainten alle (muste x 0–196,6 eli L:n vasemmasta reunasta N:n oikean
+  päätteen reunaan, ei loppupisteen alle; mitattu Chromiumissa), alku ja loppu veitsenterävät (H:n
+  vasemmat päätteet x 0:ssa, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
+  ylempänä ja viiva 2,1 → 2,5. i:n piste on ruosteinen, loppupiste tekstin värinen; HTML:lle voi
+  korkeintaan kokeilla eri väriä. viewBox ennallaan, joten LUiN ei muuttanut kokoaan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
