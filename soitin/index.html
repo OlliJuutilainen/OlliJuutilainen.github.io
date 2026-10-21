@@ -522,7 +522,10 @@
     li .track:hover .tt { color: var(--accent); }
     .copy:hover { color: var(--fg); }
   }
-  .loading { color: var(--muted); margin: 0; }
+  /* Latausilmoitus näkyy vasta, jos lataus kestää yli sekunnin; tavallisesti keikka on valmis
+     ennen sitä, eikä teksti saa välähtää. */
+  .loading { color: var(--muted); margin: 0; visibility: hidden; animation: nayta 0s 1s forwards; }
+  @keyframes nayta { to { visibility: visible; } }
   /* Keikan otsikko ei ole vielä tiedossa: oletusteksti ei saa välähtää (paikka säilyy). */
   #title.odota { visibility: hidden; }
 
