@@ -563,7 +563,10 @@ Käyttäjän vaatimukset 20.10.2026:
   kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
-  Alapalkin keskellä (käyttäjän päätös 21.10.2026; ensin oikeassa reunassa) on natsa (11 × 6,5 px, viiva 1 px kuten kirjanmerkissä; käyttäjän päätös 21.10.2026):
+  Alapalkissa (käyttäjän heuristiikka 21.10.2026; ensin oikeassa reunassa, sitten keskellä) on natsa vasemman sisällön jälkeisen ja
+  oikean sisällön edeltävän tyhjän tilan likimääräisessä keskikohdassa: vasemmalla oletettu 9,5 em:n otsikko, oikean laidan leveys
+  mitattuna (`natsanPaikka()`, `--oikea`; suurimmalla samanpituisella edistymisellä, ettei natsa liiku lukiessa). Mitattu 412 px:llä:
+  vierityksessä 64,5 %, sivutettuna 52,6 % (sivunapit vievät oikean tilan); vähintään 12 px oikeasta sisällöstä. Natsa on 11 × 6,5 px, viiva 1 px kuten kirjanmerkissä (käyttäjän päätös 21.10.2026):
   kiinni ylös osoittava ja hyvin haalea (`--viiva`), auki alas osoittava ja tekstien värinen (`--harmaa`), kehotuksena
   sulkea aikajana. Se korvasi salmiakin (ääriviiva kiinni, täytetty auki). Tila tulee CSS:ssä `aria-expanded`ista.
   Koko palkki on edelleen aikajanan nappi (`#ala-nappi` absoluuttisena alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä,
