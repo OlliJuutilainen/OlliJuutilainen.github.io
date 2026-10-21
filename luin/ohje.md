@@ -144,8 +144,8 @@ Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös ai
 
 Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella. *Ulkoasu*: teema, koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu), tavutus ja näkymä. Osiot *Teksti* ja *Aikajana* ovat sateenvarjolistoja (käyttäjän päätös 21.10.2026), joissa kukin kohta kytketään päälle tai pois:
 
-- *Teksti → näytä…*: sisällysluettelo, kirjanmerkit, alleviivaukset. Alleviivausten alla on pienempi lisäkytkin *Automaattinen alleviivaus*. Se on himmeä ja pois käytöstä, kun alleviivaukset on piilotettu, koska näkymätöntä alleviivausta ei tehdä automaattisesti; valikon *Alleviivaa* toimii silti. Piilotetut alleviivaukset eivät myöskään avaa valikkoa napautettaessa.
-- *Aikajana → näytä…*: pääluvut, alaluvut tai kaikki tasot (yksi kolmesta), kirjanmerkit ja edistyminen. Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
+- *Teksti → näytä:*: sisällysluettelo, kirjanmerkit, alleviivaukset. Alleviivausten alla on pienempi lisäkytkin *Automaattinen alleviivaus*. Se on himmeä ja pois käytöstä, kun alleviivaukset on piilotettu, koska näkymätöntä alleviivausta ei tehdä automaattisesti; valikon *Alleviivaa* toimii silti. Piilotetut alleviivaukset eivät myöskään avaa valikkoa napautettaessa.
+- *Aikajana → näytä:*: pääluvut, alaluvut tai kaikki tasot (yksi kolmesta), kirjanmerkit ja edistyminen. Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
 
 Oletuksena kaikki näkyy ja automaattinen alleviivaus on päällä; muut oletukset: vaalea (tai laitteen tumma), 19 px, väli, liehu, varovainen tavutus, vieritys. Aiemmin tallennetuissa asetuksissa olivat vanhat oletukset (automaattinen alleviivaus pois, aikajanalla alaluvut), joten ne vaihdetaan kerran uusiin (`av: 2`).
 
