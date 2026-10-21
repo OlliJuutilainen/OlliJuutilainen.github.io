@@ -511,8 +511,9 @@ Käyttäjän vaatimukset 20.10.2026:
   teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla nuottien tapaan (suurempi aika-arvo ontompi;
   käyttäjän päätös 21.10.2026): pääluku iso ontto salmiakki, alaluku pienempi täytetty, alaluvun alaluku
   lähes pistemäinen täytetty. Käyttäjän päätös 21.10.2026 (myöhemmin): etappimerkit pienemmiksi, pääluku 0,8- ja alaluvut
-  0,7-kertaisiksi, ja nykyisen kohdan oikealla puolella olevat vielä 0,75-kertaisiksi luettuihin verrattuna (`JANA.koko`,
-  `JANA.tuleva`; kirjanmerkin nauha ennallaan). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
+  0,7-kertaisiksi (`JANA.koko`; kirjanmerkin nauha ennallaan); sitten alaluvut hiukan suuremmiksi (1,15- ja 1,35-kertaisiksi:
+  alaluvun alaluvut sulautuivat viivaan), ja nykyisen kohdan oikealla puolella olevien pienempi kokoluokka (0,75) poistettiin
+  turhana kokojen kirjona: tulevat ovat samankokoisia, vain harmaita. Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on

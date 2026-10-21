@@ -1597,10 +1597,11 @@
   // Tekstin napautus poistaa majakan ennen kuin napautus käsitellään; jos se vie linkistä kauas, tilalle tulee uusi.
   document.addEventListener('click', function (e) { if (nyt && nyt.majakka && sivuEl.contains(e.target)) poistaMajakka(); }, true);
 
-  // Etappimerkkien puolileveys ja -korkeus. Käyttäjän päätös 21.10.2026: kaikki pienemmiksi (pääluku
-  // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), ja nykyisen kohdan
-  // jälkeiset vielä 0,75-kertaisiksi luettuihin verrattuna. Kirjanmerkit eivät ole etappeja.
-  var JANA = { pad: 13, y: 21, tuleva: .75, koko: { 1: [4.48, 5.92], 2: [2.94, 3.92], 3: [1.19, 1.61] } };
+  // Etappimerkkien puolileveys ja -korkeus. Käyttäjän päätökset 21.10.2026: kaikki pienemmiksi (pääluku
+  // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), sitten alaluvut hiukan
+  // suuremmiksi (1,15- ja 1,35-kertaisiksi). Tulevat ovat samankokoisia kuin luetut, vain harmaita.
+  // Kirjanmerkit eivät ole etappeja.
+  var JANA = { pad: 13, y: 21, koko: { 1: [4.48, 5.92], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
   // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
   function janaKohteet() {
     var a = [];
@@ -1625,8 +1626,8 @@
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
       else {
-        var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl], kerroin = on ? 1 : JANA.tuleva;
-        d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0] * kerroin, r[1] * kerroin) + '"/>';
+        var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
+        d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
       }
       d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
       if (on) luettu += d; else tuleva += d;
