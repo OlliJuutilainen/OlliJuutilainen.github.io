@@ -327,38 +327,117 @@ palvelin.listen(0, async () => {
   });
   tulos('vierityksen kohta', ajautuma.length === 0, ajautuma.slice(0, 4).join(', '));
 
-  // Aikajanan veto vierityksessä: sivu ei vierity vedon aikana, osoitin liikkuu vapaasti.
+  // Aikajanan veto vierityksessä: sivu ei vierity vedon aikana, osoitin liikkuu vapaasti. Ensimmäiset
+  // 6 px ovat napautusta, jolloin osoitin näyttää lähimmän merkin; sen jälkeen paikat kasvavat.
   await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
   await p.click('#ala-nappi');
   const vv = await veto(0.2, 0.3, 40);
-  tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
+  tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.slice(8).every((x, i, a) => !i || x > a[i - 1]),
     'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
 
-  // Vierityksessä ei ole magneettia: napautus 5 px pääluvun merkin oikealla puolella vie
-  // suhteelliseen kohtaan eikä otsikkoon.
-  const mg = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), t = n.doc.toc.filter(x => x.lvl === 1)[3];
-    const b = document.querySelector('#jana-svg').getBoundingClientRect(), w = b.width - 26;
-    return { x: b.left + 13 + (n.cum[t.b] / n.total) * w + 5, y: b.top + 21, b: t.b, w }; });
-  await p.mouse.click(mg.x, mg.y); await p.waitForTimeout(150);
-  const mgA = await p.evaluate(m => { const L = window.__luin, n = L.nyt(), a = L.tila.ankkuri, r = document.querySelector('#jana-svg').getBoundingClientRect();
-    return { k: a.b + ':' + a.o, ero: r.left + 13 + (n.cum[a.b] + a.o) / n.total * m.w - m.x }; }, mg);
-  tulos('ei magneettia vierityksessä', mgA.k !== mg.b + ':0' && Math.abs(mgA.ero) < 1.5, 'otsikko ' + mg.b + ':0, perillä ' + mgA.k + ', ero napautukseen ' + mgA.ero.toFixed(2) + ' px');
+  // Napautus ja veto vierityksessä (käyttäjän päätökset 21.10.2026): napautus 5 px pääluvun merkin
+  // vieressä vie otsikkoon, napautus ison tyhjän välin keskellä ja veto merkin viereen suhteelliseen kohtaan.
+  const janaGeom = () => p.evaluate(() => { const L = window.__luin, n = L.nyt(), b = document.querySelector('#jana-svg').getBoundingClientRect(), w = b.width - 26;
+    const ks = n.doc.toc.filter(t => t.lvl <= L.aset.janaTaso).map(t => ({ b: t.b, o: 0 })).concat(L.aset.kmJanalla ? n.merk.km.filter(k => !k.orpo) : []);
+    const xs = [...new Set(ks.map(k => b.left + 13 + (n.cum[k.b] + k.o) / n.total * w))].sort((a, c) => a - c);
+    return { l: b.left, y: b.top + 21, w, xs }; });
+  const ero = g => p.evaluate(g => { const L = window.__luin, n = L.nyt(), a = L.tila.ankkuri;
+    return { k: a.b + ':' + a.o, ero: g.l + 13 + (n.cum[a.b] + a.o) / n.total * g.w - g.x, kohta: document.querySelector('#ala-kohta').textContent }; }, g);
+  // Vain pääluvut näkyvissä, jotta merkkien väliin jää tilaa (oppaassa alaluku seuraa päälukua heti).
+  // Aiempien hyppyjen majakka poistetaan, ettei se voita napautusta painoarvollaan.
+  await p.evaluate(() => { window.__luin.aset.janaTaso = 1; window.__luin.nyt().majakka = null; });
+  let g = await janaGeom();
+  // Pääluku, jonka lähin näkyvä naapurimerkki on yli 15 px päässä ja johon veto alusta on selvästi veto.
+  const t3 = await p.evaluate(g => { const L = window.__luin, n = L.nyt(), X = t => g.l + 13 + n.cum[t.b] / n.total * g.w;
+    const t = n.doc.toc.filter(x => x.lvl === 1).find(t => X(t) > g.l + 60 && g.xs.every(x => Math.abs(x - X(t)) < 0.01 || Math.abs(x - X(t)) > 15));
+    return { b: t.b, text: t.text, x: X(t) }; }, g);
+  const xt3 = t3.x;
+  await p.mouse.click(xt3 + 5, g.y); await p.waitForTimeout(150);
+  const napOtsikko = await ero({ ...g, x: xt3 });
+  // Suurin väli näkyvien merkkien välillä (janan päät mukaan lukien); napautus sen keskelle.
+  const rajat = [g.l + 13, ...g.xs, g.l + 13 + g.w]; let iso = 0;
+  for (let i = 1; i < rajat.length - 1; i++) if (rajat[i + 1] - rajat[i] > rajat[iso + 1] - rajat[iso]) iso = i;
+  const keski = (rajat[iso] + rajat[iso + 1]) / 2;
+  await p.evaluate(() => { window.__luin.nyt().majakka = null; });
+  await p.mouse.click(keski, g.y); await p.waitForTimeout(150);
+  const napVali = await ero({ ...g, x: keski });
+  // Edellinen napautus jätti majakan otsikkoon; se tarttuisi vetoon magneettina.
+  await p.evaluate(() => { window.__luin.nyt().majakka = null; });
+  await p.mouse.move(g.l + 20, g.y); await p.mouse.down();
+  for (let i = 1; i <= 20; i++) { await p.mouse.move(g.l + 20 + (xt3 + 5 - g.l - 20) * i / 20, g.y); await p.waitForTimeout(15); }
+  await p.mouse.up(); await p.waitForTimeout(150);
+  const vetoVieri = await ero({ ...g, x: xt3 + 5 });
+  await p.evaluate(() => { window.__luin.aset.janaTaso = 2; });
+  tulos('aikajanan napautus ja veto vierityksessä', Math.abs(napOtsikko.ero) < 1 && Math.abs(napVali.ero) < 1.5 && Math.abs(vetoVieri.ero) < 1.5,
+    'napautus 5 px merkin vieressä → ' + napOtsikko.kohta + ' (' + napOtsikko.k + ', ero merkkiin ' + napOtsikko.ero.toFixed(2) + ' px); välin (' + (rajat[iso + 1] - rajat[iso]).toFixed(0) + ' px) keskelle → ero ' + napVali.ero.toFixed(2) +
+    ' px; veto merkin viereen → ero ' + vetoVieri.ero.toFixed(2) + ' px');
 
-  // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
-  const mj = await p.evaluate(async () => {
-    const L = window.__luin, n = L.nyt().blocks.length, nakyy = () => !document.getElementById('majakka').hidden;
-    const odota = () => new Promise(r => setTimeout(r, 300));
-    // Edellisen hypyn hiljainen jakso (250 ms) ohittaisi vierityksen, jolloin ankkuri jäisi vanhaksi.
-    await odota(); window.scrollTo(0, 1000); await odota();
-    const a = Object.assign({}, L.tila.ankkuri), y = scrollY;
-    L.hyppaa({ b: n - 1, o: 0 }); await odota();
-    const iso = nakyy() && !!document.querySelector('#jana-svg .j-majakka');
-    document.getElementById('majakka-palaa').click(); await odota();
-    const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
-    L.hyppaa({ b: a.b + 1, o: 0 }); await odota();
-    return { iso, takaisin, pieni: !nakyy() };
-  });
-  tulos('paluumajakka', mj.iso && mj.takaisin && mj.pieni, JSON.stringify(mj));
+  // Paluumajakka (käyttäjän päätökset 21.10.2026). Tavallinen iso hyppy jättää majakan ilman laatikkoa,
+  // eikä myöhempi iso hyppy tai paperin napautus siirrä tai sammuta sitä. Lähdeviittaus jättää laatikon,
+  // joka pysyy vierityksessä ja hypyssä ja poistuu raksista (majakka jää) tai paperin napautuksesta.
+  // Napautus kummitusmerkin lähellä ja veto sen viereen palaavat.
+  const odota = t => p.waitForTimeout(t || 300);
+  const mt = () => p.evaluate(() => { const m = window.__luin.majakka(); return { m: m && m.k.b + ':' + m.k.o, laatikko: !document.getElementById('majakka').hidden,
+    kummitus: !!document.querySelector('#jana-svg .j-majakka'), y: scrollY, a: window.__luin.tila.ankkuri.b + ':' + window.__luin.tila.ankkuri.o }; });
+  const paperi = async () => { const r = await p.evaluate(() => { for (let y = 150; y < innerHeight - 150; y += 20) for (const x of [60, 120, 200]) {
+      const e = document.elementFromPoint(x, y); if (e && e.closest('#teksti') && !e.closest('a, .fnref, .km, mark, .sidenote')) return { x, y }; } });
+    await p.mouse.click(r.x, r.y); await odota(); };
+  const nB = await p.evaluate(() => { window.__luin.nyt().majakka = null; return window.__luin.nyt().blocks.length; });
+  await odota(); await p.evaluate(() => window.scrollTo(0, 1234)); await odota();
+  const lahto = await mt();
+  await p.evaluate(n => window.__luin.hyppaa({ b: n - 1, o: 0 }), nB); await odota();
+  const m1 = await mt();
+  await p.evaluate(n => window.__luin.hyppaa({ b: Math.floor(n / 2), o: 0 }), nB); await odota();
+  const m2 = await mt();
+  await paperi();
+  const m3 = await mt();
+  // Napautus 6 px kummitusmerkin vieressä (lähimmästä näkyvästä merkistä poispäin) palaa.
+  g = await janaGeom();
+  const xm = g.l + 13 + await p.evaluate(() => { const L = window.__luin, n = L.nyt(), k = L.majakka().k; return (n.cum[k.b] + k.o) / n.total; }) * g.w;
+  const naapuri = g.xs.reduce((a, x) => Math.abs(x - xm) > 0.01 && Math.abs(x - xm) < Math.abs(a - xm) ? x : a, Infinity);
+  await p.mouse.click(xm + (naapuri > xm ? -6 : 6), g.y); await odota();
+  const m4 = await mt();
+  tulos('paluumajakka ilman laatikkoa', m1.m === lahto.a && !m1.laatikko && m1.kummitus && m2.m === lahto.a && m3.m === lahto.a && !m4.m && m4.a === lahto.a && Math.abs(m4.y - lahto.y) < 2,
+    JSON.stringify({ lahto: lahto.a, m1, m2, m3, m4 }));
+  // Lähdeviittaus (hyppaa(k, true) kuten kirjallisuusluetteloon vievä linkki), myös lyhyt hyppy.
+  await p.evaluate(() => window.scrollTo(0, 3000)); await odota();
+  const lahto2 = await mt();
+  await p.evaluate(() => window.__luin.hyppaa({ b: window.__luin.tila.ankkuri.b + 3, o: 0 }, true)); await odota();
+  const k1 = await mt();
+  await p.evaluate(() => window.scrollBy(0, 2 * innerHeight)); await odota();
+  await p.evaluate(n => window.__luin.hyppaa({ b: n - 1, o: 0 }), nB); await odota();
+  const k2 = await mt();
+  await p.click('#majakka-sulje'); await odota();
+  const k3 = await mt();
+  // Veto kummitusmerkin viereen (8 px) tarttuu siihen ja palaa.
+  g = await janaGeom();
+  const xm2 = g.l + 13 + await p.evaluate(() => { const L = window.__luin, n = L.nyt(), k = L.majakka().k; return (n.cum[k.b] + k.o) / n.total; }) * g.w;
+  await p.mouse.move(g.l + g.w, g.y); await p.mouse.down();
+  for (let i = 1; i <= 20; i++) { await p.mouse.move(g.l + g.w + (xm2 + 8 - g.l - g.w) * i / 20, g.y); await p.waitForTimeout(15); }
+  await p.mouse.up(); await odota();
+  const k4 = await mt();
+  await p.evaluate(n => window.__luin.hyppaa({ b: n - 1, o: 0 }, true), nB); await odota();
+  await paperi();
+  const k5 = await mt();
+  tulos('paluumajakka lähdeviittauksesta', k1.laatikko && k1.m === lahto2.a && k2.laatikko && k2.m === lahto2.a && !k3.laatikko && k3.m === lahto2.a && k3.kummitus &&
+    !k4.m && k4.a === lahto2.a && !k5.laatikko && !!k5.m, JSON.stringify({ k1, k2, k3, k4, k5 }));
+  const lahdeLinkki = await p.evaluate(() => !!document.querySelector('#teksti a.lahde'));
+  if (lahdeLinkki) {
+    await p.evaluate(() => { window.__luin.nyt().majakka = null; document.querySelector('#teksti a.lahde').scrollIntoView({ block: 'center' }); }); await odota();
+    await p.evaluate(() => document.querySelector('#teksti a.lahde').click()); await odota();
+    const k6 = await mt();
+    tulos('lähdeviittauslinkki näyttää laatikon', k6.laatikko && !!k6.m, JSON.stringify(k6));
+  }
+  // Sivutettuna reunan napautus kääntää sivua eikä sulje laatikkoa; keskikolmanneksen napautus sulkee.
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.reload(); await odota(400);
+  await p.evaluate(() => { window.__luin.mene(window.__luin.sivunAlku(4)); window.__luin.hyppaa(window.__luin.sivunAlku(8), true); }); await odota();
+  const s1 = await mt(), sv = await p.evaluate(() => window.__luin.tila.sivu);
+  await p.mouse.click(390, 400); await odota();
+  const s2 = await mt(), sv2 = await p.evaluate(() => window.__luin.tila.sivu);
+  await p.mouse.click(206, 400); await odota();
+  const s3 = await mt();
+  tulos('laatikko sivutettuna', s1.laatikko && s2.laatikko && sv2 === sv + 1 && !s3.laatikko && !!s3.m, 'sivu ' + (sv + 1) + ' → ' + (sv2 + 1) + ', ' + JSON.stringify({ s1, s2, s3 }));
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();

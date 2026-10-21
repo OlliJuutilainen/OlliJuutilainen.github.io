@@ -577,8 +577,11 @@ Käyttäjän vaatimukset 20.10.2026:
   on lisätty siltä varalta, että selain välittää äänenvoimakkuusnäppäimet. Oikealla Palmalla testaamatta.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
   eikä teksti liiku ennen irrotusta. Liikkeessä vain `#j-veto`:n transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
-  Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan,
-  myös merkin vieressä ja kummitusmerkin kohdalla). Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain pysäkeille
+  Käyttäjän päätökset 21.10.2026: **napautus** vie lähimpään aikajanalla näkyvään merkkiin (salmiakki, kirjanmerkki,
+  majakka), ellei se osu selvästi ison tyhjän välin keskelle (tarttuu, jos merkki on enintään 24 px tai 0,3 välin leveydestä
+  päässä; välin rajoina viereiset merkit tai janan päät). Yli 6 px:n liike painalluskohdasta on **veto**: vierityksessä
+  osoitin liikkuu vapaasti (ei magneettia), paitsi että majakka on magneetti (12 px). Majakan etäisyys lasketaan
+  kaksinkertaisesti lyhyemmäksi (`MAJ_PAINO`), sekä napautuksessa että sivutetussa vedossa. Sivutettuna välimuotoja ei ole: osoitin pysähtyy vedossa vain pysäkeille
   (`janaPysakit()`: tekstin alku, kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
   pysäkit ovat samat riippumatta aikajanalle valituista merkeistä. Perustelu: ilman e-inkiä luetaan mieluummin vierittäen,
   e-inkissä veto ei tee ilotulitusta. Sivun alkuun pyöristävä `sivunAlku()` jäi vain testien käyttöön.
@@ -590,11 +593,16 @@ Käyttäjän vaatimukset 20.10.2026:
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
-- **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
-  *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
-  laatikko *Palaa takaisin* raksin kera ja aikajanalle kummitusmerkki (ontto kolmio, katkoviiva). Katoaa vain raksista,
-  paluusta, tekstin napautuksesta tai uudesta isosta hypystä (joka jättää uuden). Peräkkäiset hakuosumat säilyttävät
-  ensimmäisen lähtökohdan. Ei tallenneta.
+- **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, aikajana, *Merkinnät*, haku;
+  sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää aikajanalle kummitusmerkki (ontto kolmio,
+  katkoviiva). Käyttäjän päätökset 21.10.2026 (myöhemmin): majakka pitää paikkansa kärsivällisesti: myöhempi iso hyppy ei
+  siirrä sitä, eikä napautus, vieritys, sivunkääntö tai aikajana sammuta sitä; se sammuu vain paluusta (laatikosta tai
+  aikajanalta napauttamalla tai vetämällä majakkaan ja irrottamalla siinä, ei ohi liukumalla). Laatikko *Palaa takaisin*
+  tulee vain kirjallisuusluetteloon vievästä linkistä (`kirjallisuuteen()`: `p.bib` tai sen otsikko; myös lyhyt hyppy, ja
+  se jättää aina uuden majakan). Laatikko poistuu vain paluusta, raksista tai paperin napautuksesta muualta; sivutettuna
+  reunakolmanneksen napautus (sivunkääntö) ei sulje sitä. Raksi ja paperin napautus eivät sammuta majakkaa. Laatikon kolmio
+  osoittaa ylös (paluu kirjallisuusluettelosta ylöspäin), aikajanan kummitusmerkki alas kuten osoitin. Ei tallenneta.
+  Avoin kysymys: milloin majakka sammuu, kun lukija on asettunut uuteen kohtaan (*uusi koti*); ehdotettu, ei toteutettu.
 - **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
   *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
   vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
