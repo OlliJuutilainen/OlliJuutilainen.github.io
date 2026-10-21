@@ -247,21 +247,29 @@
   #ala { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paperi); border-top: 1px solid var(--viiva);
     z-index: 20; user-select: none; -webkit-user-select: none; }
   /* Koko rivi on aikajanan nappi (absoluuttinen, alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä.
-     Natsa on rivin keskellä (käyttäjän päätös 21.10.2026). Oikean laidan kokonaisuus ei ota napautuksia,
-     joten edistymisen ja välien napautus menee alla olevalle napille; sivunapit ottavat omansa. */
+     Oikean laidan kokonaisuus ei ota napautuksia, joten edistymisen ja välien napautus menee alla olevalle
+     napille; sivunapit ottavat omansa.
+     Natsa (käyttäjän heuristiikka 21.10.2026) on vasemman sisällön jälkeisen ja oikean sisällön edeltävän
+     tyhjän tilan likimääräisessä keskikohdassa: vasemmalla oletetaan 9,5 em:n otsikko (testitekstien
+     otsikoiden mediaanit 92 ja 154 px), oikean laidan leveys --oikea mitataan (natsanPaikka()). Natsa
+     ei mene lähemmäs kuin 12 px oikeaa sisältöä; otsikko katkeaa 12 px ennen natsaa. */
   #ala-rivi { position: relative; height: var(--ala); }
   #km-nappi { position: relative; z-index: 1; width: 38px; height: 100%; padding-left: 14px; display: inline-flex; align-items: center; }
   #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--harmaa); stroke-width: 1; }
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
-  #ala-nappi { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+  #ala-rivi { --oikea: 14px; --natsa: min(calc(50% + (48px + 9.5em - var(--oikea)) / 2), calc(100% - var(--oikea) - 17.5px)); }
+  #ala-nappi { position: absolute; inset: 0; display: flex; align-items: center;
     padding: 0 48px; font-size: .8rem; color: var(--harmaa); }
-  #ala-kohta { min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Natsan left on koko rivin prosentteina, otsikon max-width sisällön (rivi − 96 px) prosentteina; sama kohta
+     miinus 48 + 5,5 + 12 px. */
+  #ala-kohta { max-width: min(calc(50% + (48px + 9.5em - var(--oikea)) / 2 - 17.5px), calc(100% + 13px - var(--oikea)));
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding-right: 14px;
     font-size: .8rem; color: var(--harmaa); pointer-events: none; }
   #ala-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
   /* Natsa (käyttäjän päätös 21.10.2026): kiinni ylös osoittava ja hyvin haalea (--viiva), auki alas osoittava ja
      tekstien värinen; kehottaa sulkemaan. Sama ohut viiva kuin kirjanmerkin ääriviivassa. */
-  #ala-nappi svg { width: 11px; height: 6.5px; fill: none; stroke: var(--viiva); stroke-width: 1; }
+  #ala-nappi svg { position: absolute; left: calc(var(--natsa) - 5.5px); width: 11px; height: 6.5px; fill: none; stroke: var(--viiva); stroke-width: 1; }
   #ala-nappi[aria-expanded="true"] svg { stroke: currentColor; transform: rotate(180deg); }
   /* Sivunäkymän sivunappipari (käyttäjän päätös 21.10.2026): hyvin haalea, mutta rajattu, jotta näkyy, ettei
      siitä aukea aikajana. Yhtenäinen laatikko väliviivalla, ettei parin keskelle jää rakoa. Natsat kuten
@@ -1055,6 +1063,22 @@
     if (heti) f(); else tallennusAjastin = setTimeout(f, 500);
   }
 
+  // Oikean laidan leveys natsan paikkaa varten (CSS: #ala-rivi). Mitataan suurimmalla samanpituisella
+  // edistymisellä (100 %, sivuja / sivuja), jottei natsa liiku numeroiden kasvaessa; vain kun asetelma muuttuu.
+  var natsaAvain = '';
+  function natsanPaikka() {
+    var pr = $('#ala-pros'), v = $('#ala-oikea'), t = pr.textContent;
+    var vara = aset.sivutus === 'sivut' ? tila.sivuja + ' / ' + tila.sivuja : '100 %';
+    var avain = vara + '|' + (document.fonts ? document.fonts.status : '') + '|' + pr.hidden + '|' + $('#sivunapit').hidden + '|' + window.innerWidth;
+    if (avain === natsaAvain) return;
+    pr.textContent = vara;
+    var l = v.offsetWidth;
+    pr.textContent = t;
+    if (!l) return;
+    natsaAvain = avain;
+    $('#ala-rivi').style.setProperty('--oikea', l + 'px');
+  }
+
   function paivita() {
     if (!nyt) return;
     var k = tila.ankkuri, o = osioKohdassa(k);
@@ -1063,6 +1087,7 @@
     $('#ala-pros').textContent = pros;
     $('#ala-pros').hidden = !aset.edistys;
     $('#sivunapit').hidden = aset.sivutus !== 'sivut';
+    natsanPaikka();
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
     piirraKirjanmerkit();
     var lit = nakyvatKirjanmerkit().length > 0;
