@@ -465,6 +465,15 @@ vastaisi painoa 700. Fonttikoko `calc(1.0295rem / 13.38 * 22.857)` (= 16 yksikk�
 52,69), lisätiedon x-korkeuden yläreuna 66,98 px (perusviiva 73,41) ja nyt soi -rivi 101,53 px kuten ennen (oli 101,52), eli
 kaikki otsikon alla on pikselilleen paikallaan. `alignTitle()` korjaa tarvittaessa (testattu 134 %:n tekstikoolla: perusviiva = sangan
 alareuna). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.16 (versionCode 16).
+**Otsikon perusviiva keick-kirjainten alareunaan (käyttäjän päätös 21.10.2026, myöhemmin; käyttäjä: "keikkaotsikon alareuna
+on hiukan logon alareunaan nähden alempana").** keick-kirjaimet ovat y 4–19,7 (WALK ja tyynyt 20), joten otsikon versaali on nyt
+15,7 yksikköä (`calc(1.0295rem / 13.38 * 22.429)`) ja `alignTitle()` vie perusviivan y 19,7:ään (tyynyjen alareuna − 0,3 × yksikkö).
+Marginaalit −1,69 / 17,67 px (lisätiedon kanssa −0,41 px): mitattu, lisätiedon perusviiva 73,41 px ja nyt soi -rivi 101,53 px kuten
+ennen, ilman lisätietoa nyt soi 78,47 px (ennen 78,48). Kaksirivisellä otsikolla kaikki alla oleva nousee 0,67 px, koska rivikorkeus
+pieneni. **Chromium pyöristää tekstin perusviivan kokonaiseen CSS-pikseliin** (mitattu DPR 1, 2, 3 ja 4: x,375 → alas, x,5 → ylös),
+SVG ei pyöristy. Siksi piirretty otsikko voi olla jopa 0,5 px laskettua ylempänä tai alempana: ennen laskettu 52,70 px piirtyi 53,0:aan
+(0,68 px keick-kirjainten alareunan 52,32 alapuolella; käyttäjän havainto), nyt laskettu 52,31 piirtyy 52,0:aan (0,32 px yläpuolella),
+mikä on lähin mahdollinen. Lisätieto 73,41 piirtyy 73,0:aan (pyöreiden kirjainten alareuna 73,0–73,25).
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
