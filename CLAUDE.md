@@ -382,7 +382,11 @@ lähemmäs kuulokkeita. Muilla sivuilla logo on 1,25-kertaisena
 ennallaan 17 px, `overflow: visible` kuten listassa). Se on otsakkeena Keikkaloihtimessa,
 `ohje.html`:ssä, `kayttoonotto.html`:ssä ja `pikakayttoonotto.html`:ssä, ja sen alla h1 on pelkkä sivun nimi:
 *Keikkaloihdin*, *Käyttöopas*, *Käyttöönotto*, *Pikakäyttöönotto* (käyttäjän päätös 20.10.2026; entinen
-otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Logo on otsikon yläpuolella eikä
+otsikko *KEICK•WALK omalle Cloudflare-tilille* on nyt johdannon alussa). Käyttäjän päätös 21.10.2026: h1 on näillä
+neljällä sivulla sama (2 rem, alamarginaali 28 px), ja sen ensimmäisen kirjaimen muste alkaa logon k:n vasemmasta
+reunasta (x 26,88 = 32,36 px logon reunasta). Sivun lopun skripti mittaa kirjaimen sivuvälin canvasin pikseleistä,
+koska `system-ui` on eri laitteilla eri fontti; CSS:n `calc(32.36px - 0.067em)` on oletus ilman skriptiä. Mitattu
+Chromiumissa kuvakaappauksen pikseleistä: ero enintään 0,25 px oletusfontilla, Robotolla ja Interillä. Logo on otsikon yläpuolella eikä
 oikeassa yläkulmassa, koska puhelimen leveydellä (375 px) otsikolle jäisi logon vieressä 135 px eikä
 *Keikkaloihdin* mahdu (mitattu Chromiumissa). Listan ja
 tunnuskentän yläpuolella on vakiofonttinen kursiivi *Valkkaa keikka!* (käyttäjän päätös 20.10.2026: se ja kaikki sen alla 36 px
