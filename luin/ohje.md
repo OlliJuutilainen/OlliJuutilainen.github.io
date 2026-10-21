@@ -164,7 +164,7 @@ Kuusi väriä kummassakin teemassa: paperi, muste, harmaa, viiva, ruoste ja okra
 
 ### 6.2 Logo
 
-Ylärivi *LUiN.* on korkeaa, tiivistä antiikvaversaalia (versaalikorkeus 100, paksu runko 15, hiusviiva 3,4). i:n piste ja loppupiste ovat salmiakkeja, joiden kyljet ovat hieman koverat. Hiusviiva kulkee pisteestä päätepisteeseen ja leikkaa N:n vinoviivan.^[Tiiviillä N:llä vinoviiva on niin jyrkkä, ettei sama suora voi kulkea vinoviivaa pitkin: piste nousisi kauas versaalien yläpuolelle. Siksi viiva leikkaa vinoviivan noin 61 %:n korkeudella. Generaattorin parametrit (`yd`, `per`, `c`) ovat tiedostossa `luin/kehitys/logo.js`.] Alarivi *HTML* on ohutta matalaa versaalia, levitettynä ylärivin levyiseksi.
+Ylärivi *LUiN.* on korkeaa, tiivistä antiikvaversaalia (versaalikorkeus 100, paksu runko 15, hiusviiva 3,4). i:n piste ja loppupiste ovat salmiakkeja, joiden kyljet ovat hieman koverat. Hiusviiva kulkee pisteestä päätepisteeseen ja leikkaa N:n vinoviivan.^[Tiiviillä N:llä vinoviiva on niin jyrkkä, ettei sama suora voi kulkea vinoviivaa pitkin: piste nousisi kauas versaalien yläpuolelle. Siksi viiva leikkaa vinoviivan noin 61 %:n korkeudella. Generaattorin parametrit (`yd`, `per`, `c`) ovat tiedostossa `luin/kehitys/logo.js`.] i:n piste on ruosteinen, loppupiste tekstin värinen. Alarivi *HTML* on ohutta matalaa versaalia, levitettynä L:n vasemmasta reunasta N:n oikeaan reunaan; loppupisteen alle se ei ulotu. Ääripäät ovat teräviä: H:n vasemmat päätteet alkavat L:n kohdalta, ja pienen L:n alaviivan päässä on samanlainen pystypääte kuin ylärivin L:ssä.
 
 ### 6.3 Kirjasimet
 
