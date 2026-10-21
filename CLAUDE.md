@@ -438,8 +438,8 @@ Kytkinten symbolit ovat himmeän harmaita: janakytkimen alla pienoisjana, jonka 
 lopussa hyvin ohut rengas (kehä 0,6 px) kuten aikajanassa, kytkimen levyisellä alueella (pallon vasen
 ja renkaan oikea reuna kytkimen nupin ulkoreunojen kohdalla eli 2 px kytkimen reunojen sisäpuolella, koska tasan reunoilla jana näytti optisesti kytkintä leveämmältä; käyttäjän valinta kolmesta 20.10.2026; jana 1 px, pallo 4 px ja rengas
 3,47 px eli kaksi kolmasosaa entisestä, käyttäjän päätös 20.10.2026); setin kytkimen alla entisen stop-merkin ja nuolen tilalla
-pienet logon kuulokkeet stop-merkin paikalla, 9 px korkeina (9 × 10,408 px; aiemmin stop-merkin korkuiset 8 px, sitten
-10 px), *keikka*-asennossa himmennettyinä. Käyttäjän valinta neljästä 21.10.2026 (B): kuulokkeiden keskikohta on 1 px
+pienet logon kuulokkeet stop-merkin paikalla, 9,5 px korkeina (9,5 × 10,986 px; aiemmin stop-merkin korkuiset 8 px, sitten
+10 ja 9 px; 9,5 käyttäjän päätös 21.10.2026, keskikohta ja janan etäisyys siitä ennallaan), *keikka*-asennossa himmennettyinä. Käyttäjän valinta neljästä 21.10.2026 (B): kuulokkeiden keskikohta on 1 px
 ylempänä kuin 10 px:n kuulokkeilla, ja pienoisjana on 0,75 px kuulokkeiden keskikohdan alapuolella (`top: 2.75px`; rivien
 pystyakselilla kuulokkeiden keskikohta 287,75 px ja jana 288,5 px). Lista ei siirtynyt (mitattu Chromiumissa).
 Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track` padding 4 px). Soivan
