@@ -606,6 +606,9 @@ Käyttäjän vaatimukset 20.10.2026:
   *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,
   kuin lainausmerkeissä; ei JA eikä TAI); lainausmerkeissä sana on kokonainen (*"kant"* ei löydä sanaa *kantilainen*).
   Valittu osuma korostetaan `::highlight(haku)`-rajapinnalla, joka ei muuta DOMia.
+  Osumamäärän oikealla puolella on hyvin matalan profiilin kytkin *alaviitteet* (sisäkkäiset salmiakit kuten
+  asetuksissa; oletuksena päällä, `aset.hakuViit`; käyttäjän pyyntö 21.10.2026). Alaviiteosuma vie viitenumeron
+  riville ja näyttää alaviitteen (sivutettuna ponnahduslaatikossa, vierityksessä avattuna tai reunuksessa).
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.

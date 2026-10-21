@@ -136,7 +136,18 @@
   .valikko button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
     display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
   .valikko button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
-  .h-tieto { padding: 7px 14px 9px; font-size: .74rem; color: var(--harmaa); line-height: 1.45; font-variant-numeric: lining-nums; }
+  .h-ala { display: flex; align-items: flex-start; }
+  .h-tieto { flex: 1 1 auto; padding: 7px 14px 9px; font-size: .74rem; color: var(--harmaa); line-height: 1.45; font-variant-numeric: lining-nums; }
+  /* Alaviitteet mukaan -kytkin: hyvin matalalla profiililla osumatiedon oikealla puolella, asetusten
+     sisäkkäisillä salmiakeilla (sisin täyttyy valittuna). */
+  .valikko button.h-viit { flex: 0 0 auto; width: auto; min-height: 0; display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px 9px 0; font-size: .74rem; line-height: 1.45; color: var(--harmaa); white-space: nowrap; }
+  .valikko button.h-viit:hover { text-decoration: none; }
+  .valikko button.h-viit[aria-pressed="false"] { opacity: .6; }
+  .h-viit svg { width: 6.5px; height: 9px; flex: 0 0 auto; }
+  .h-viit .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
+  .h-viit .sal-sisa { fill: none; }
+  .h-viit[aria-pressed="true"] .sal-sisa { fill: currentColor; }
   .h-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--viiva); }
   .valikko button.osuma { padding: 9px 14px 10px; font-size: .86rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
   .valikko button.osuma:last-child { border-bottom: 0; }
@@ -544,10 +555,10 @@
   /* ---------- asetukset ---------- */
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki). vieEd: edistymisen
   // tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
-  // kmKiinni, alKiinni: merkintälistan supistetut osiot.
+  // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
-    vieAl: 1, vieKm: 1, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, av: 3 };
+    vieAl: 1, vieKm: 1, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 3 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -757,6 +768,16 @@
     muokkaus = null;
     pop.hidden = true; popToiminto = null;
   }
+  // Sivutetun näkymän alaviite ponnahduslaatikossa (viitenumeron napautus ja haun alaviiteosuma).
+  function naytaViite(fn) {
+    var huom = fn.parentNode.querySelector('.sidenote[data-n="' + fn.textContent + '"]');
+    if (!huom) return false;
+    var sis = huom.cloneNode(true), nro = sis.querySelector('.fnnum');
+    if (nro) nro.remove();
+    naytaPop(fn.getBoundingClientRect(), '<span class="nro">' + esc(fn.textContent) + '</span>' + sis.innerHTML, 'viite', null);
+    pop.dataset.n = fn.textContent;
+    return true;
+  }
   pop.addEventListener('mousedown', function (e) { if (!e.target.closest('textarea, input')) e.preventDefault(); });
   pop.addEventListener('click', function (e) {
     // Sivutetun näkymän alaviite: lähdeviittaus vie kirjallisuusluetteloon, muut linkit uuteen välilehteen.
@@ -862,8 +883,9 @@
   function pituus(s) { return s.replace(/­/g, '').length; }
   function raaka(v, k) { var c = 0; for (var i = 0; i < v.length; i++) { if (v.charCodeAt(i) === 0xAD) continue; if (c === k) return i; c++; } return v.length; }
   function lohkoteksti(el) { return solmut(el).map(function (n) { return n.nodeValue; }).join('').replace(/­/g, ''); }
-  function solmuun(el, o) {
-    var ns = solmut(el), c = 0;
+  function solmuun(el, o, ns) {
+    ns = ns || solmut(el);
+    var c = 0;
     for (var k = 0; k < ns.length; k++) {
       var len = pituus(ns[k].nodeValue);
       if (o < c + len) return { n: ns[k], i: raaka(ns[k].nodeValue, o - c) };
@@ -963,7 +985,7 @@
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
-    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = [];
+    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = [];
     $$('[data-b]', art).forEach(function (el) {
       var b = +el.dataset.b, t = lohkoteksti(el);
       nyt.blocks[b] = el; nyt.txt[b] = t; nyt.cum[b] = nyt.total; nyt.total += t.length + 1;
@@ -1199,12 +1221,7 @@
     var fn = t.closest('.fnref');
     if (fn && aset.sivutus === 'sivut') {
       e.preventDefault();
-      var huom = fn.parentNode.querySelector('.sidenote[data-n="' + fn.textContent + '"]');
-      if (huom) {
-        var sis = huom.cloneNode(true), nro = sis.querySelector('.fnnum');
-        if (nro) nro.remove();
-        naytaPop(fn.getBoundingClientRect(), '<span class="nro">' + esc(fn.textContent) + '</span>' + sis.innerHTML, 'viite', null);
-      }
+      naytaViite(fn);
       return;
     }
     if (fn) return;
@@ -1730,7 +1747,10 @@
      Sana on kirjainten ja numeroiden jono; sanojen välissä saa olla mitä tahansa muuta
      (välilyönti, välimerkki, yhdysmerkki), ja hakusanan välimerkit ohitetaan. Kirjainkoolla ei ole
      väliä. Haku kattaa saman tekstin kuin kohdat (ei sivuhuomioita eikä viitenumeroita), eikä
-     fraasi jatku lohkosta toiseen. Pariton lainausmerkki koskee hakusanan loppua. */
+     fraasi jatku lohkosta toiseen. Pariton lainausmerkki koskee hakusanan loppua.
+     Käyttäjän päätös 21.10.2026: haun alla on matalan profiilin kytkin alaviitteet (oletuksena
+     päällä, aset.hakuViit). Alaviite haetaan omana tekstinään (ilman numeroa), fraasi ei jatku
+     siitä ympäröivään tekstiin, ja osuma järjestetään viitenumeron kohdalle. */
   var SANA = /[\p{L}\p{N}\p{M}]+/gu, LAINAUS = /(["“”„«»])/, HAKU_MAX = 200;
   function hakuehdot(q) {
     var ehdot = [], koko = false;
@@ -1740,38 +1760,71 @@
     });
     return ehdot;
   }
-  // Lohkon sanat: alku- ja loppukohta (kuten kohdissa) ja vertailumuoto.
+  // Tekstin sanat: alku- ja loppukohta (kuten kohdissa) ja vertailumuoto.
+  function sanalista(t) {
+    var a = [], m;
+    SANA.lastIndex = 0;
+    while ((m = SANA.exec(t))) a.push({ s: m.index, e: m.index + m[0].length, w: m[0].normalize('NFC').toLowerCase() });
+    return a;
+  }
   function sanat(b) {
-    if (!nyt.sanat[b]) {
-      var t = nyt.txt[b] || '', a = [], m;
-      SANA.lastIndex = 0;
-      while ((m = SANA.exec(t))) a.push({ s: m.index, e: m.index + m[0].length, w: m[0].normalize('NFC').toLowerCase() });
-      nyt.sanat[b] = a;
-    }
+    if (!nyt.sanat[b]) nyt.sanat[b] = sanalista(nyt.txt[b] || '');
     return nyt.sanat[b];
   }
-  // Osuma { b, s, e } alkaa ensimmäisen sanan alusta ja päättyy viimeisen hakusanan loppuun
-  // (alkuhaussa sanan alkuosaan, kokonaisessa sanan loppuun).
-  function etsi(ehdot) {
+  // Alaviitteen (tai sen ponnahduslaatikon) tekstisolmut ilman numeroa.
+  function viitteenSolmut(el) {
+    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), a = [], n;
+    while ((n = tw.nextNode())) { if (!n.parentElement.closest('.fnnum, .nro')) a.push(n); }
+    return a;
+  }
+  // Lohkon alaviitteet: { n: numero, t: teksti ilman numeroa ja tavuviivoja, o: viitenumeron kohta lohkossa }.
+  function viitteet(b) {
+    if (!nyt.viit[b]) {
+      var el = nyt.blocks[b];
+      nyt.viit[b] = el ? $$('.sidenote', el).map(function (s) {
+        var t = viitteenSolmut(s).map(function (n) { return n.nodeValue; }).join('').replace(/\u00ad/g, '');
+        return { n: s.dataset.n, t: t, o: lohkoon(el, s, 0), sanat: sanalista(t) };
+      }) : [];
+    }
+    return nyt.viit[b];
+  }
+  // Osuma { b, s, e, a } alkaa ensimmäisen sanan alusta ja päättyy viimeisen hakusanan loppuun
+  // (alkuhaussa sanan alkuosaan, kokonaisessa sanan loppuun). a on osuman kohta lohkossa;
+  // alaviitteen osumassa (n = viitteen numero) s ja e ovat viitteen tekstissä ja a viitenumeron
+  // edellinen merkki: viitenumeron jälkeinen merkki voi olla vasta alaviitteen alla, kun alaviite
+  // on avattu tekstin sisään, jolloin vieritys veisi alaviitteen ruudun yläpuolelle.
+  function etsi(ehdot, viit) {
     var osumat = [], n = 0, E = ehdot.length;
     if (!E) return { osumat: osumat, n: 0 };
-    nyt.txt.forEach(function (t, b) {
-      if (t == null) return;
-      var S = sanat(b);
+    function sanoissa(S, f) {
       for (var i = 0; i + E <= S.length; i++) {
         var ok = true;
         for (var j = 0; j < E && ok; j++) ok = ehdot[j].koko ? S[i + j].w === ehdot[j].w : S[i + j].w.lastIndexOf(ehdot[j].w, 0) === 0;
         if (!ok) continue;
-        if (++n > HAKU_MAX) continue;
         var v = S[i + E - 1], h = ehdot[E - 1];
-        osumat.push({ b: b, s: S[i].s, e: h.koko || v.e - v.s !== v.w.length ? v.e : v.s + h.w.length });
+        f(S[i].s, h.koko || v.e - v.s !== v.w.length ? v.e : v.s + h.w.length);
       }
+    }
+    nyt.txt.forEach(function (t, b) {
+      if (t == null) return;
+      var L = [];
+      sanoissa(sanat(b), function (s, e) { L.push({ b: b, s: s, e: e, a: s }); });
+      if (viit) {
+        viitteet(b).forEach(function (v) { sanoissa(v.sanat, function (s, e) { L.push({ b: b, n: v.n, s: s, e: e, a: Math.max(0, v.o - 1) }); }); });
+        L.sort(function (x, y) { return x.a - y.a; });
+      }
+      L.forEach(function (o) { if (++n <= HAKU_MAX) osumat.push(o); });
     });
     return { osumat: osumat, n: n };
   }
+  function osumanTeksti(o) {
+    if (!o.n) return nyt.txt[o.b];
+    var v = viitteet(o.b).filter(function (x) { return x.n === o.n; })[0];
+    return v ? v.t : '';
+  }
   // Ote osuman ympäriltä sanan rajoilla.
   function ote(o) {
-    var t = nyt.txt[o.b], a = Math.max(0, o.s - 45), z = Math.min(t.length, o.e + 90);
+    var t = osumanTeksti(o), a = Math.max(0, o.s - 45), z = Math.min(t.length, o.e + 90);
     if (a > 0) { var v = t.indexOf(' ', a); if (v >= 0 && v < o.s) a = v + 1; }
     if (z < t.length) { var u = t.lastIndexOf(' ', z); if (u > o.e) z = u; }
     return (a > 0 ? '…' : '') + esc(t.slice(a, o.s)) + '<mark>' + esc(t.slice(o.s, o.e)) + '</mark>' + esc(t.slice(o.e, z)) + (z < t.length ? '…' : '');
@@ -1787,8 +1840,15 @@
     naytaPop($('#etsi-avaa').getBoundingClientRect(),
       '<div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
       '<button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>' +
-      '<div class="h-tieto" aria-live="polite"></div><div class="h-lista"></div>', 'haku', function (k, b) {
-        if (k === 'osuma') valitseOsuma(+b.dataset.i);
+      '<div class="h-ala"><div class="h-tieto" aria-live="polite"></div><button type="button" class="h-viit" data-k="viit" aria-pressed="' + !!aset.hakuViit + '">' +
+      SAL_IKONI + 'alaviitteet</button></div><div class="h-lista"></div>', 'haku', function (k, b) {
+        if (k === 'osuma') return valitseOsuma(+b.dataset.i);
+        if (k === 'viit') {
+          aset.hakuViit = aset.hakuViit ? 0 : 1; tallennaAset();
+          b.setAttribute('aria-pressed', !!aset.hakuViit);
+          h.valittu = -1; korosta(null); paivitaHaku();
+          return true;
+        }
         if (k === 'tyhjenna') { var i = $('input', pop); i.value = ''; paivitaHaku(); i.focus({ preventScroll: true }); return true; }
       });
     var inp = $('input', pop);
@@ -1803,13 +1863,13 @@
     if (!h || !inp) return;
     if (inp.value !== h.q) { h.q = inp.value; h.valittu = -1; korosta(null); }
     $('.h-tyhj', pop).hidden = !h.q;
-    var ehdot = hakuehdot(h.q), r = etsi(ehdot), sivut = aset.sivutus === 'sivut';
+    var ehdot = hakuehdot(h.q), r = etsi(ehdot, aset.hakuViit), sivut = aset.sivutus === 'sivut';
     h.osumat = r.osumat;
     $('.h-tieto', pop).textContent = !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”.' :
       !r.n ? 'Ei osumia.' : lkm(r.n, 'osuma', 'osumaa') + (r.n > r.osumat.length ? ', näytetään ' + r.osumat.length + ' ensimmäistä' : '');
     var lista = $('.h-lista', pop);
     lista.innerHTML = r.osumat.map(function (o, i) {
-      var os = osioKohdassa(o), kohta = [os ? os.text : '', sivut ? 's. ' + (sivuKohdassa({ b: o.b, o: o.s }) + 1) : ''].filter(Boolean).join(' · ');
+      var os = osioKohdassa(o), kohta = [os ? os.text : '', o.n ? 'alaviite ' + o.n : '', sivut ? 's. ' + (sivuKohdassa({ b: o.b, o: o.a }) + 1) : ''].filter(Boolean).join(' · ');
       return '<button type="button" class="osuma" data-k="osuma" data-i="' + i + '"' + (i === h.valittu ? ' aria-current="true"' : '') + '>' +
         (kohta ? '<span class="o-kohta">' + esc(kohta) + '</span>' : '') + ote(o) + '</button>';
     }).join('');
@@ -1832,30 +1892,51 @@
     var h = nyt.haku, o = h.osumat[i];
     if (!o) return;
     h.valittu = i;
-    hyppaa({ b: o.b, o: o.s }, true);
-    korosta(o);
+    // Vierityksessä kapealla ruudulla alaviite avataan tekstin sisään ennen hyppyä; leveällä se on
+    // reunuksessa valmiiksi näkyvissä.
+    var tg = o.n && nyt.blocks[o.b] && $('#fn' + o.n, nyt.blocks[o.b]);
+    if (tg && aset.sivutus !== 'sivut') tg.checked = true;
+    hyppaa({ b: o.b, o: o.a }, true);
+    // Sivutettuna alaviite näytetään ponnahduslaatikossa kuten viitenumeroa napautettaessa.
+    // Palauttaa true, jotta hakulaatikon sulkeminen ei sulje sitä.
+    var viite = false;
+    if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); viite = !!fn && naytaViite(fn); }
+    var r = korosta(o);
+    // Vierityksessä pitkän alaviitteen osuma voi jäädä alapalkin tai Palaa takaisin -laatikon alle;
+    // vieritetään sen verran, ettei osuma nouse yläpalkin alle.
+    if (r && o.n && aset.sivutus !== 'sivut') {
+      var mj = $('#majakka'), hr = r.getBoundingClientRect(), raja = (mj.hidden ? $('#ala') : mj).getBoundingClientRect().top - 12;
+      if (hr.bottom > raja) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, Math.max(0, Math.min(hr.bottom - raja, hr.top - YLA))); }
+    }
+    return viite;
   }
   // Enter: valitun jälkeinen osuma, tai jos mitään ei ole valittu, ensimmäinen lukukohdasta eteenpäin.
   function seuraavaOsuma() {
     var h = nyt.haku, O = h.osumat, k = tila.ankkuri || { b: 0, o: 0 }, i;
     if (!O.length) return;
     if (h.valittu >= 0) i = (h.valittu + 1) % O.length;
-    else { for (i = 0; i < O.length && (O[i].b < k.b || O[i].b === k.b && O[i].s < k.o); i++); if (i === O.length) i = 0; }
+    else { for (i = 0; i < O.length && (O[i].b < k.b || O[i].b === k.b && O[i].a < k.o); i++); if (i === O.length) i = 0; }
     suljePop(); valitseOsuma(i);
   }
   // Valittu osuma korostetaan tekstissä CSS Custom Highlight -rajapinnalla, joka ei muuta DOMia
   // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
   // Korostus pysyy, kunnes hakua muutetaan tai teksti suljetaan.
+  // Alaviitteen osuma korostetaan auki olevassa ponnahduslaatikossa tai tekstin alaviitteessä.
   function korosta(o) {
     if (!window.CSS || !CSS.highlights || typeof Highlight !== 'function') return;
     CSS.highlights.delete('haku');
-    var el = o && nyt && nyt.blocks[o.b];
+    var el = o && nyt && nyt.blocks[o.b], ns;
+    if (el && o.n) {
+      el = !pop.hidden && pop.classList.contains('viite') && pop.dataset.n === o.n ? pop : $('.sidenote[data-n="' + o.n + '"]', el);
+      ns = el && viitteenSolmut(el);
+    }
     if (!el) return;
-    var a = solmuun(el, o.s), z = solmuun(el, o.e);
+    var a = solmuun(el, o.s, ns), z = solmuun(el, o.e, ns);
     if (!a || !z) return;
     var r = document.createRange();
     r.setStart(a.n, a.i); r.setEnd(z.n, z.i);
     CSS.highlights.set('haku', new Highlight(r));
+    return r;
   }
   function paivitaKorostus() { var h = nyt && nyt.haku; korosta(h && h.valittu >= 0 ? h.osumat[h.valittu] : null); }
 
@@ -2270,7 +2351,7 @@
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
   window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku) { hyppaa(k, haku); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
-    etsi: function (q) { return nyt && etsi(hakuehdot(q)); } };
+    etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
 </script>
 </body>
