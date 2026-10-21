@@ -124,15 +124,15 @@ Lukukohta on ensimmäinen näkyvä merkki: `{ b: lohko, o: merkki, s: katkelma }
 
 Tekstin valinta avaa valikon (Alleviivaa, Kopioi, Kirjanmerkki). Automaattisessa tilassa valinta muuttuu heti alleviivaukseksi: hiirellä painikkeen noustessa, kosketuksella kun valinta on pysynyt 1,2 sekuntia samana. Kesken sanan alkava valinta laajenee koko sanaan. Alleviivauksen napautus antaa kopioida katkelman tai poistaa sen.
 
-Kirjanmerkki lisätään aikajanan alta nykyiseen kohtaan tai valinnan alkuun. Tekstissä se on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit ja alleviivaukset ovat listana alapalkin kohdassa *Kirjanmerkit ja alleviivaukset*.
+Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva, myös aikajanan ollessa kiinni) tai aikajanan alta laatikosta *Aseta kirjanmerkki* nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja laatikossa lukee *Poista kirjanmerkki*; kumpikin poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit ja alleviivaukset ovat listana aikajanan alla laatikossa *Merkinnät*.
 
 ### 4.4 Aikajana
 
-Alapalkin napautus avaa aikajanan. Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Muodot:^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
+Alapalkin napautus avaa aikajanan. Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Luettu osa (nykyiseen kohtaan asti) on piirretty tekstin värillä, tuleva viiva ja salmiakit haalealla harmaalla; kirjanmerkit ovat kuparisia kummallakin puolella. Muodot:^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
 
 - pääluku: iso täytetty salmiakki,
 - alaluku: pienempi ontto salmiakki,
-- alaluvun alaluku: pieni täytetty salmiakki harmaana,
+- alaluvun alaluku: pieni täytetty salmiakki,
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
 - nykyinen kohta: musta kolmio ja hiusviiva.
 
