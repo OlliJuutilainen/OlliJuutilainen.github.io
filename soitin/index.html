@@ -58,13 +58,14 @@
     padding: 28px 16px 48px;
   }
   h1 {
-    /* Versaali on yhtä korkea kuin logon kirjaimet (16 viewBox-yksikköä; Figtreen versaali 0,7 em),
-       yläreuna sangan viivan alareunassa ja perusviiva tyynyjen alareunassa, ks. .brand. */
-    font-size: calc(1.0295rem / 13.38 * 22.857);
+    /* Versaali on yhtä korkea kuin logon keick-kirjaimet (y 4–19,7 eli 15,7 viewBox-yksikköä; Figtreen
+       versaali 0,7 em): yläreuna sangan viivan alareunassa ja perusviiva keick-kirjainten alareunassa,
+       0,3 yksikköä tyynyjen alareunan yläpuolella (käyttäjän päätös 21.10.2026), ks. .brand ja alignTitle. */
+    font-size: calc(1.0295rem / 13.38 * 22.429);
     line-height: 1.25;
     font-weight: 600;
     letter-spacing: -0.01em;
-    margin: -2.31px 0 17.62px;   /* otsikon alla oleva pysyy kohdallaan */
+    margin: -1.69px 0 17.67px;   /* otsikon alla oleva pysyy kohdallaan */
     text-align: left;
     /* Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana
        ei mahdu kuulokkeiden ja yläkulman nappien (.brand-space) väliin, se katkeaa väkisin kahdelle
@@ -73,7 +74,7 @@
     overflow-wrap: anywhere;
   }
   /* Valinnainen lisätieto otsikon alla (päivämäärä tms.). Ilman sitä riviä ei ole. */
-  h1:has(+ .sub:not([hidden])) { margin-bottom: -0.48px; }
+  h1:has(+ .sub:not([hidden])) { margin-bottom: -0.41px; }
   .sub {
     margin: 0 0 22.58px;
     color: var(--muted);
@@ -1849,7 +1850,8 @@
     var cs = getComputedStyle(h), z = document.createElement("span");
     z.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
     h.insertBefore(z, h.firstChild);
-    var d = b.getBoundingClientRect().bottom - z.getBoundingClientRect().top;
+    // Tavoite on logon keick-kirjainten alareuna y 19,7: 0,3 yksikköä tyynyjen alareunan (y 20) yläpuolella.
+    var br = b.getBoundingClientRect(), d = br.bottom - 0.3 * br.height / 17.2 - z.getBoundingClientRect().top;
     h.removeChild(z);
     if (Math.abs(d) < 0.05) return;
     h.style.marginTop = parseFloat(cs.marginTop) + d + "px";

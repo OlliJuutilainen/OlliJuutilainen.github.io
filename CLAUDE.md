@@ -464,7 +464,25 @@ vastaisi painoa 700. Fonttikoko `calc(1.0295rem / 13.38 * 22.857)` (= 16 yksikk�
 (lisätiedon kanssa alamarginaali −0,48 px) ja `.sub` 22,58 px: mitattu niin, että perusviiva on 52,70 px (tyynyjen alareuna
 52,69), lisätiedon x-korkeuden yläreuna 66,98 px (perusviiva 73,41) ja nyt soi -rivi 101,53 px kuten ennen (oli 101,52), eli
 kaikki otsikon alla on pikselilleen paikallaan. `alignTitle()` korjaa tarvittaessa (testattu 134 %:n tekstikoolla: perusviiva = sangan
-alareuna). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.16 (versionCode 16).
+alareuna). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.16 (versionCode 16), logon janamuutoksessa 0.17.
+**Otsikon perusviiva keick-kirjainten alareunaan (käyttäjän päätös 21.10.2026, myöhemmin; käyttäjä: "keikkaotsikon alareuna
+on hiukan logon alareunaan nähden alempana").** keick-kirjaimet ovat y 4–19,7 (WALK ja tyynyt 20), joten otsikon versaali on nyt
+15,7 yksikköä (`calc(1.0295rem / 13.38 * 22.429)`) ja `alignTitle()` vie perusviivan y 19,7:ään (tyynyjen alareuna − 0,3 × yksikkö).
+Marginaalit −1,69 / 17,67 px (lisätiedon kanssa −0,41 px): mitattu, lisätiedon perusviiva 73,41 px ja nyt soi -rivi 101,53 px kuten
+ennen, ilman lisätietoa nyt soi 78,47 px (ennen 78,48). Kaksirivisellä otsikolla kaikki alla oleva nousee 0,67 px, koska rivikorkeus
+pieneni. **Chromium pyöristää tekstin perusviivan kokonaiseen CSS-pikseliin** (mitattu DPR 1, 2, 3 ja 4: x,375 → alas, x,5 → ylös),
+SVG ei pyöristy. Siksi piirretty otsikko voi olla jopa 0,5 px laskettua ylempänä tai alempana: ennen laskettu 52,70 px piirtyi 53,0:aan
+(0,68 px keick-kirjainten alareunan 52,32 alapuolella; käyttäjän havainto), nyt laskettu 52,31 piirtyy 52,0:aan (0,32 px yläpuolella),
+mikä on lähin mahdollinen. Lisätieto 73,41 piirtyy 73,0:aan (pyöreiden kirjainten alareuna 73,0–73,25).
+**Jana lisätiedon perusviivalle (käyttäjän päätös 21.10.2026, vaihtoehto D ja nupin kokoinen rengas).** Logon jana on keskilinjalla 35,83
+(oli 31,03): janan viivan alareuna (jana 1,5) on lisätiedon pyöreiden kirjainten (a, o, e) alareunassa, 73,25 px listan logossa.
+Nuppi (r 2,62) ja loppurengas (nyt ulkosäde 2,62 = r 2,12 + kehä 1,0, oli 1,8 + 0,5) ovat saman kokoisia, ja niiden alareuna on 75,5 px
+eli viivan alapuolella. viewBox `0.99 -2.6 157.43 41.05` (korkeus +4,8, pohja tasan renkaan alareunassa), listan CSS-korkeus
+`calc(… * 41.05)` ja ohjesivuilla 51,31 px; marginaalit ennallaan, joten kaikki logon alla siirtyi 5,9 px alemmas (viivan ja sen
+alapuolisen sisällön väli pysyi). Mitattu Chromiumissa päällekkäin esimerkkikeikan soitinsivun kanssa: jana 71,25–73,25, nuppi ja
+rengas 69,0–75,5, lisätiedon muste 64,0–73,0/73,25. **Linjaus pätee vain yksiriviseen otsikkoon:** kaksirivisellä toisen rivin
+nousujen yläreuna on 67,0 px ja x-korkeuden yläreuna 72,75 px, joten jana osuu x-korkeuden yläreunaan (0,5 px päällekkäin).
+Hylätyt (kuvina käyttäjälle): A (kaksi pientä palloa alas), B (jana alas 2,93, nupin alareuna 73,25) ja C (B + nupin kokoinen rengas).
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa
