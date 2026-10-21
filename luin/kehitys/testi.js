@@ -197,6 +197,10 @@ palvelin.listen(0, async () => {
       [w[3] + ' ' + w[4].slice(0, 3), new RegExp('(?<!' + K + ')' + w[3] + K + '*[^\\p{L}\\p{N}\\p{M}]+' + w[4].slice(0, 3), 'giu')],
       ['”' + w[3] + '” ' + w[4], new RegExp('(?<!' + K + ')' + w[3] + '[^\\p{L}\\p{N}\\p{M}]+' + w[4], 'giu')]];
     kokeet.forEach(([q, re]) => { const a = L.etsi(q).n, c = laske(re); if (a !== c || !a) v.push(q + ': ' + a + ' ≠ ' + c); });
+    // Alaviitteet mukaan: osumia on lisäksi alaviitteiden teksteissä (ilman numeroa ja tavuviivoja).
+    const viit = [...document.querySelectorAll('#teksti .sidenote')].map(s => { const c = s.cloneNode(true); c.querySelector('.fnnum')?.remove(); return c.textContent.replace(/\u00ad/g, ''); });
+    const laskeV = re => viit.reduce((a, t) => a + (t.match(re) || []).length, 0);
+    kokeet.forEach(([q, re]) => { const a = L.etsi(q, 1).n, c = laske(re) + laskeV(re); if (a !== c) v.push(q + ' (alaviitteet): ' + a + ' ≠ ' + c); });
     return { v, q: w[3].slice(0, 4) };
   });
   await p.click('#etsi-avaa'); await p.keyboard.type(haku.q); await p.waitForTimeout(300);
@@ -205,15 +209,45 @@ palvelin.listen(0, async () => {
   const hv = await p.evaluate(i => {
     const L = window.__luin, h = L.nyt().haku, o = h.osumat[i], hl = CSS.highlights.get('haku'), r = hl && [...hl][0];
     const rr = r && r.getBoundingClientRect(), sv = document.querySelector('#sivu').getBoundingClientRect();
-    return { kiinni: document.querySelector('#pop').hidden, teksti: r && r.toString().replace(/\u00ad/g, ''), odotus: L.nyt().txt[o.b].slice(o.s, o.e),
-      nakyy: !!rr && rr.left >= sv.left && rr.right <= sv.right && rr.top >= sv.top && rr.bottom <= sv.bottom, kohta: L.tila.ankkuri.b === o.b && L.tila.ankkuri.o === o.s };
+    return { kiinni: document.querySelector('#pop').hidden, teksti: r && r.toString().replace(/\u00ad/g, ''), odotus: o.n ? null : L.nyt().txt[o.b].slice(o.s, o.e),
+      nakyy: !!rr && rr.left >= sv.left && rr.right <= sv.right && rr.top >= sv.top && rr.bottom <= sv.bottom, kohta: L.tila.ankkuri.b === o.b && L.tila.ankkuri.o === o.a, viite: !!o.n };
   }, valittava);
   await p.click('#etsi-avaa'); await p.waitForTimeout(100);
   const merkitty = await p.evaluate(() => document.querySelector('#pop .osuma[aria-current]')?.dataset.i);
   await p.click('#pop input'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   const seur = await p.evaluate(() => window.__luin.nyt().haku.valittu);
-  tulos('haku', !haku.v.length && hv.kiinni && hv.teksti === hv.odotus && hv.nakyy && hv.kohta && merkitty === String(valittava) && seur === (valittava + 1) % osumia,
+  tulos('haku', !haku.v.length && !hv.viite && hv.kiinni && hv.teksti === hv.odotus && hv.nakyy && hv.kohta && merkitty === String(valittava) && seur === (valittava + 1) % osumia,
     haku.v.join(', ') || haku.q + ': ' + osumia + ' osumaa, valittu ' + (valittava + 1) + '. näkyy ja on korostettu, Enter → ' + (seur + 1) + '.');
+
+  // Alaviitteen osuma sivutettuna: sanalle, jota on vain alaviitteissä, valinta avaa alaviitteen
+  // ponnahduslaatikkoon viitenumeron sivulla ja korostaa osuman siinä. Kytkin alaviitteet pois
+  // poistaa osumat ja tallentuu; takaisin päälle palauttaa ne.
+  await p.evaluate(() => document.body.click()); await p.waitForTimeout(100);
+  const vq = await p.evaluate(() => {
+    const L = window.__luin, n = L.nyt();
+    for (const s of document.querySelectorAll('#teksti .sidenote')) {
+      const c = s.cloneNode(true); c.querySelector('.fnnum')?.remove();
+      for (const w of c.textContent.replace(/\u00ad/g, '').match(/[\p{L}]{8,}/gu) || []) if (!L.etsi(w).n && L.etsi(w, 1).n) return w;
+    }
+  });
+  await p.click('#etsi-avaa'); await p.fill('#pop input', vq); await p.waitForTimeout(300);
+  await p.click('#pop .osuma[data-i="0"]'); await p.waitForTimeout(200);
+  const va = await p.evaluate(() => {
+    const L = window.__luin, h = L.nyt().haku, o = h.osumat[0], pop = document.querySelector('#pop'), hl = CSS.highlights.get('haku'), r = hl && [...hl][0];
+    const rr = r && r.getBoundingClientRect(), pr = pop.getBoundingClientRect(), fn = document.querySelector('#teksti label.fnref[for="fn' + o.n + '"]').getBoundingClientRect();
+    const sv = document.querySelector('#sivu').getBoundingClientRect();
+    return { n: o.n, viite: !pop.hidden && pop.classList.contains('viite'), teksti: r && r.toString().replace(/\u00ad/g, ''),
+      sisalla: !!rr && pop.contains(r.startContainer) && rr.top >= pr.top && rr.bottom <= pr.bottom, fnSivulla: fn.left >= sv.left && fn.right <= sv.right };
+  });
+  await p.evaluate(() => document.body.click()); await p.waitForTimeout(100);
+  await p.click('#etsi-avaa'); await p.click('#pop .h-viit'); await p.waitForTimeout(200);
+  const vk = await p.evaluate(() => ({ osumia: document.querySelectorAll('#pop .osuma').length, painettu: document.querySelector('#pop .h-viit').getAttribute('aria-pressed'),
+    tallessa: JSON.parse(localStorage.getItem('luin-asetukset')).hakuViit, auki: !document.querySelector('#pop').hidden }));
+  await p.click('#pop .h-viit'); await p.waitForTimeout(200);
+  const vk2 = await p.locator('#pop .osuma').count();
+  await p.evaluate(() => document.body.click());
+  tulos('alaviitehaku', va.viite && va.teksti && va.teksti.toLowerCase() === vq.toLowerCase() && va.sisalla && va.fnSivulla && vk.osumia === 0 && vk.painettu === 'false' && vk.tallessa === 0 && vk.auki && vk2 > 0,
+    vq + ': alaviite ' + va.n + ' ponnahduslaatikossa, korostus ' + JSON.stringify(va.teksti) + (va.sisalla ? ' laatikossa' : ' EI laatikossa') + '; kytkin pois → ' + vk.osumia + ' osumaa, päälle → ' + vk2 + '.');
 
   // Aikajanan veto sivutettuna: voimassa oleva kohta ja sivu pysyvät vedon ajan, vedettävä
   // osoitin hyppää sivun alusta toiseen, ja irrotus vie sille sivulle. Jokaisen sivun alku vie
@@ -326,6 +360,21 @@ palvelin.listen(0, async () => {
     return v;
   });
   tulos('vierityksen kohta', ajautuma.length === 0, ajautuma.slice(0, 4).join(', '));
+
+  // Alaviitteen osuma vierityksessä: kapealla ruudulla alaviite avautuu tekstin sisään, ja sekä
+  // viitenumero että korostettu osuma ovat yläpalkin ja alapalkin välissä.
+  await p.click('#ala-nappi'); await p.waitForTimeout(150);
+  await p.click('#etsi-avaa'); await p.fill('#pop input', vq); await p.waitForTimeout(300);
+  await p.click('#pop .osuma[data-i="0"]'); await p.waitForTimeout(200);
+  const vav = await p.evaluate(() => {
+    const L = window.__luin, o = L.nyt().haku.osumat[0], hl = CSS.highlights.get('haku'), r = hl && [...hl][0], rr = r && r.getBoundingClientRect();
+    const yla = document.querySelector('.ylapalkki').getBoundingClientRect().bottom, ala = document.querySelector('#ala').getBoundingClientRect().top;
+    const fn = document.querySelector('#teksti label.fnref[for="fn' + o.n + '"]').getBoundingClientRect(), huom = document.querySelector('#teksti .sidenote[data-n="' + o.n + '"]');
+    return { auki: document.querySelector('#fn' + o.n).checked && getComputedStyle(huom).display === 'block', korostus: !!r && huom.contains(r.startContainer),
+      nakyy: !!rr && rr.top >= yla && rr.bottom <= ala, fn: fn.top >= yla && fn.bottom <= ala, y: rr && [Math.round(fn.top), Math.round(rr.top), Math.round(ala)] };
+  });
+  tulos('alaviitehaku vierityksessä', vav.auki && vav.korostus && vav.nakyy && vav.fn, JSON.stringify(vav));
+  await p.reload(); await p.waitForTimeout(400);
 
   // Aikajanan veto vierityksessä: sivu ei vierity vedon aikana, osoitin liikkuu vapaasti.
   await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
