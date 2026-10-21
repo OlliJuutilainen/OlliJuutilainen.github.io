@@ -457,12 +457,18 @@ Kappalelistassa ei ole pystyviivaa eikä sen vaatimaa vasenta reunusta (`.track`
 kappaleen numero on piilotettu, ja sen paikalla ovat logon kuulokkeet (`.kuul`) numeroiden
 tapaan oikeaan reunaan tasattuina (`markCurrent()`); numerolaatikko (min. 1.6em) on kuulokkeita
 leveämpi, joten otsikko ei siirry (käyttäjän päätös 20.10.2026). Kuulokkeiden tyynyjen alareuna on perusviivalla
-(ei g:n tai p:n alareunassa) ja sangan yläreuna puolivälissä versaalin (H) ja tekstin sisältöalueen yläreunan välissä;
-mittasuhteet ovat logon (leveys pienenee samassa suhteessa, ei lytistystä; käyttäjän päätökset 20.10.2026; Chromiumin
-Interillä 17 px:n tekstillä 14 px korkeat ja 16,2 px leveät, ennen 15 × 17,3 px sisältöalueen yläreunaan asti).
-`markCurrent()` mittaa perusviivan ja sisältöalueen DOMista ja versaalin canvasin `measureText("H")`:lla, koska
-`system-ui` on eri laitteilla eri fontti. Välillä kokeiltiin sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien
-kirjainten korkuisia (13 px).
+(ei g:n tai p:n alareunassa) ja sangan viivan alareuna versaalin (H) yläreunassa kuten logossa ja soittimen
+otsikossa, eli versaali on 16 yksikköä (käyttäjän päätös 21.10.2026; ennen sangan yläreuna puolivälissä versaalin
+ja sisältöalueen yläreunan välissä, jolloin sanka oli Robotolla 1,6 px K:n yläpuolella). Mittasuhteet ovat logon
+(leveys pienenee samassa suhteessa, ei lytistystä). Chromiumissa 17 px:n tekstillä 15,75 × 13,72 px Robotolla,
+16,1 × 14,0 px Interillä (ennen 17,6 × 15,3 ja 17,0 × 14,8). `markCurrent()` mittaa perusviivan DOMista
+`getBoundingClientRect`illa (aiempi `offsetTop` pyöristi kokonaisiin pikseleihin, mikä saattoi laskea tyynyt
+puolisen pikseliä perusviivan alle) ja versaalin piirtämällä H:n canvasille ja lukemalla musteen pikseleistä
+(`ink()`, kuten `fitExtras`; `measureText` pyöristää 1/32 em:n portaisiin), koska `system-ui` on eri laitteilla
+eri fontti. Mitta muistetaan vasta, kun fontit ovat latautuneet. Mitattu Chromiumissa Robotolla ja DejaVulla: sangan
+alareuna ja tyynyjen alareuna ovat 0,02 px:n päässä fontin mitoista; piirretty K on molemmilla noin 0,26 px
+(yksi laitepikseli, DPR 4) mitoista alempana, joten sekä sanka että tyynyt ovat musteeseen nähden saman verran
+ylempänä. Välillä kokeiltiin sisältöalueen alareunaan ulottuvia (20 px) ja korkeimpien kirjainten korkuisia (13 px).
 Ei-biisirivin teksti (numero, nimi ja kesto) on pienempää (käyttäjän päätös 20.10.2026): hakasulku on yhtä
 korkea kuin tavallisen rivin versaali, ja sen alareuna on tavallisen rivin perusviivalla eli soivan rivin
 kuulokkeiden tyynyjen alareunassa. Kerroin `--xk` ja nosto `--xr` riippuvat fontista, joten `fitExtras()`
