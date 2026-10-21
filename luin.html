@@ -108,6 +108,30 @@
   .k-ala { display: flex; align-items: center; padding-left: 14px; }
   .k-ala .jaljella { flex: 1 1 auto; font-size: .72rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
   .valikko .k-ala button { width: auto; padding: 9px 13px; }
+  /* haku: kenttä, osumien määrä ja osumalista, joka vierii; korkeus sovitetaan näkyvään alueeseen (sovitaHaku) */
+  .valikko.haku { width: min(24rem, calc(100vw - 24px)); padding: 0; }
+  /* Kenttä 16 px, jotta iOS ei suurenna sivua kohdistettaessa. Selaimen oma (sininen) tyhjennysmerkki
+     korvataan ohuella raksilla. */
+  .h-kentta { position: relative; margin: 12px 14px 0; }
+  .valikko.haku input { display: block; width: 100%; padding: 7px 36px 7px 9px; font: inherit; font-size: 1rem;
+    color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  .valikko.haku input:focus { outline: none; border-color: var(--harmaa); }
+  .valikko.haku input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  .valikko button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  .valikko button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
+  .h-tieto { padding: 7px 14px 9px; font-size: .74rem; color: var(--harmaa); line-height: 1.45; font-variant-numeric: lining-nums; }
+  .h-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--viiva); }
+  .valikko button.osuma { padding: 9px 14px 10px; font-size: .86rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
+  .valikko button.osuma:last-child { border-bottom: 0; }
+  .valikko button.osuma:hover { text-decoration: none; }
+  .valikko button.osuma[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
+  .o-kohta { display: block; font-size: .72rem; color: var(--harmaa); letter-spacing: .03em; margin-bottom: 2px; font-variant-numeric: lining-nums; }
+  /* Osuma listassa ja valittu osuma tekstissä: umpinainen haalea tausta (ei läpikuultavuutta, e-ink),
+     eri merkki kuin alleviivauksen ruosteinen viiva. Omina sääntöinään, koska ::highlightia
+     tuntematon selain hylkäisi koko säännön. */
+  .osuma mark { background: var(--viiva); color: var(--muste); }
+  ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
 
   /* ---------- lukija ---------- */
   .ylapalkki { position: fixed; top: 0; left: 0; right: 0; height: var(--yla); display: flex; align-items: center;
@@ -340,6 +364,8 @@
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
         <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
+        <!-- Suurennuslasin linssi on salmiakki kuten muissakin merkeissä. -->
+        <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-viiva" d="M6 .7L10.2 5L6 9.3L1.8 5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M8.1 7.15L11.3 10.35"/></svg>Etsi</button>
       </div>
     </div>
     <div id="ala-rivi">
@@ -641,12 +667,17 @@
     popPaikka = { rect: rect, tasaus: tasaus };
     sijoitaPop();
   }
-  // Kirjausta muokatessa rajana on näkyvä alue (visualViewport), jotta näppäimistö ei peitä
-  // muokkainta; muut valikot sijoitetaan kuten ennenkin.
+  // Kirjausta muokatessa ja haettaessa rajana on näkyvä alue (visualViewport), jotta näppäimistö
+  // ei peitä muokkainta tai hakukenttää; muut valikot sijoitetaan kuten ennenkin.
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
-    var rect = popPaikka.rect, pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height, vw = innerWidth;
-    var vv = muokkaus && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
+    var haku = hakuAuki(), vw = innerWidth;
+    // Hakunapin paikka luetaan joka kerta: ikkunan korkeuden muutos (näppäimistö) siirtää sitä.
+    if (haku) popPaikka.rect = $('#etsi-avaa').getBoundingClientRect();
+    var rect = popPaikka.rect;
+    var vv = (muokkaus || haku) && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
+    if (haku) sovitaHaku(rect, yla, ala);
+    var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
     if (y + h > ala - 8) y = rect.top - h - 8;
@@ -659,7 +690,7 @@
     muokkaus = null;
     pop.hidden = true; popToiminto = null;
   }
-  pop.addEventListener('mousedown', function (e) { if (!e.target.closest('textarea')) e.preventDefault(); });
+  pop.addEventListener('mousedown', function (e) { if (!e.target.closest('textarea, input')) e.preventDefault(); });
   pop.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-k]');
     if (!b || !popToiminto) return;
@@ -840,7 +871,7 @@
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
-    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0;
+    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = [];
     $$('[data-b]', art).forEach(function (el) {
       var b = +el.dataset.b, t = lohkoteksti(el);
       nyt.blocks[b] = el; nyt.txt[b] = t; nyt.cum[b] = nyt.total; nyt.total += t.length + 1;
@@ -857,6 +888,7 @@
       piirraAlleviivaus(h);
     });
     if (muuttui) tallennaMerkit();
+    paivitaKorostus();
   }
 
   function asettele(k) {
@@ -995,8 +1027,8 @@
   window.addEventListener('resize', function () {
     clearTimeout(kokoAjastin);
     kokoAjastin = setTimeout(function () {
-      // Näppäimistö muuttaa korkeutta kirjausta kirjoitettaessa; asettelu sulkisi muokkaimen.
-      if (muokkaus) return;
+      // Näppäimistö muuttaa korkeutta kirjausta tai hakua kirjoitettaessa; asettelu sulkisi valikon.
+      if (muokkaus || hakuAuki()) return;
       var koko = innerWidth + 'x' + innerHeight, leveysSama = koko.split('x')[0] === edKoko.split('x')[0];
       edKoko = koko;
       if (!nyt || (leveysSama && aset.sivutus !== 'sivut')) return;
@@ -1113,6 +1145,7 @@
         mid.parentNode.insertBefore(m, mid); m.appendChild(mid);
       });
     });
+    paivitaKorostus();
   }
   function poistaAlleviivaus(id) {
     nyt.merk.al = nyt.merk.al.filter(function (h) { return h.id !== id; });
@@ -1122,6 +1155,7 @@
       while (m.firstChild) p.insertBefore(m.firstChild, m);
       p.removeChild(m); p.normalize();
     });
+    paivitaKorostus();
   }
   function alTeksti(h) { return h.segs.map(function (s) { return s.x; }).join('\n\n'); }
   function luoAlleviivaus(segs) {
@@ -1205,7 +1239,7 @@
     if (ta && ta.value.trim()) { muokkaus.h.n = ta.value.trim(); tallennaMerkit(); }
   }
   if (window.visualViewport) ['resize', 'scroll'].forEach(function (t) {
-    visualViewport.addEventListener(t, function () { if (muokkaus) sijoitaPop(); });
+    visualViewport.addEventListener(t, function () { if (muokkaus || hakuAuki()) sijoitaPop(); });
   });
 
   var valAjastin = null, osoitin = 'mouse';
@@ -1401,6 +1435,7 @@
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
+  $('#etsi-avaa').addEventListener('click', avaaHaku);
   $$('#merkinnat details.m-osio').forEach(function (d) {
     d.open = !aset[d.dataset.kiinni];
     d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
@@ -1504,6 +1539,142 @@
     svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); mene(m.k); });
     svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
+
+  /* ---------- haku ----------
+     Käyttäjän säännöt 21.10.2026: haku etsii sanojen alkuja, eikä sanan tarvitse olla kokonainen.
+     Usean sanan haku on aina fraasi: sanat peräkkäin tässä järjestyksessä, kuin lainausmerkeissä
+     (ei JA eikä TAI). Lainausmerkeissä sana on kokonainen: "kant" ei löydä sanaa kantilainen.
+     Sana on kirjainten ja numeroiden jono; sanojen välissä saa olla mitä tahansa muuta
+     (välilyönti, välimerkki, yhdysmerkki), ja hakusanan välimerkit ohitetaan. Kirjainkoolla ei ole
+     väliä. Haku kattaa saman tekstin kuin kohdat (ei sivuhuomioita eikä viitenumeroita), eikä
+     fraasi jatku lohkosta toiseen. Pariton lainausmerkki koskee hakusanan loppua. */
+  var SANA = /[\p{L}\p{N}\p{M}]+/gu, LAINAUS = /(["“”„«»])/, HAKU_MAX = 200;
+  function hakuehdot(q) {
+    var ehdot = [], koko = false;
+    q.normalize('NFC').split(LAINAUS).forEach(function (osa, i) {
+      if (i % 2) { koko = !koko; return; }
+      (osa.toLowerCase().match(SANA) || []).forEach(function (w) { ehdot.push({ w: w, koko: koko }); });
+    });
+    return ehdot;
+  }
+  // Lohkon sanat: alku- ja loppukohta (kuten kohdissa) ja vertailumuoto.
+  function sanat(b) {
+    if (!nyt.sanat[b]) {
+      var t = nyt.txt[b] || '', a = [], m;
+      SANA.lastIndex = 0;
+      while ((m = SANA.exec(t))) a.push({ s: m.index, e: m.index + m[0].length, w: m[0].normalize('NFC').toLowerCase() });
+      nyt.sanat[b] = a;
+    }
+    return nyt.sanat[b];
+  }
+  // Osuma { b, s, e } alkaa ensimmäisen sanan alusta ja päättyy viimeisen hakusanan loppuun
+  // (alkuhaussa sanan alkuosaan, kokonaisessa sanan loppuun).
+  function etsi(ehdot) {
+    var osumat = [], n = 0, E = ehdot.length;
+    if (!E) return { osumat: osumat, n: 0 };
+    nyt.txt.forEach(function (t, b) {
+      if (t == null) return;
+      var S = sanat(b);
+      for (var i = 0; i + E <= S.length; i++) {
+        var ok = true;
+        for (var j = 0; j < E && ok; j++) ok = ehdot[j].koko ? S[i + j].w === ehdot[j].w : S[i + j].w.lastIndexOf(ehdot[j].w, 0) === 0;
+        if (!ok) continue;
+        if (++n > HAKU_MAX) continue;
+        var v = S[i + E - 1], h = ehdot[E - 1];
+        osumat.push({ b: b, s: S[i].s, e: h.koko || v.e - v.s !== v.w.length ? v.e : v.s + h.w.length });
+      }
+    });
+    return { osumat: osumat, n: n };
+  }
+  // Ote osuman ympäriltä sanan rajoilla.
+  function ote(o) {
+    var t = nyt.txt[o.b], a = Math.max(0, o.s - 45), z = Math.min(t.length, o.e + 90);
+    if (a > 0) { var v = t.indexOf(' ', a); if (v >= 0 && v < o.s) a = v + 1; }
+    if (z < t.length) { var u = t.lastIndexOf(' ', z); if (u > o.e) z = u; }
+    return (a > 0 ? '…' : '') + esc(t.slice(a, o.s)) + '<mark>' + esc(t.slice(o.s, o.e)) + '</mark>' + esc(t.slice(o.e, z)) + (z < t.length ? '…' : '');
+  }
+  function hakuAuki() { return !pop.hidden && pop.classList.contains('haku'); }
+  // Avoimen tekstin viimeisin haku muistetaan (nyt.haku), ja valittu osuma on listassa merkitty.
+  // Ensimmäisellä kerralla kenttä saa kohdistuksen; jos haku on jo tehty, lista on tärkeämpi
+  // kuin näppäimistö, joka peittäisi puolet ruudusta.
+  var hakuAjastin = null;
+  function avaaHaku() {
+    if (!nyt) return;
+    var h = nyt.haku || (nyt.haku = { q: '', valittu: -1, osumat: [] });
+    naytaPop($('#etsi-avaa').getBoundingClientRect(),
+      '<div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+      '<button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>' +
+      '<div class="h-tieto" aria-live="polite"></div><div class="h-lista"></div>', 'haku', function (k, b) {
+        if (k === 'osuma') valitseOsuma(+b.dataset.i);
+        if (k === 'tyhjenna') { var i = $('input', pop); i.value = ''; paivitaHaku(); i.focus({ preventScroll: true }); return true; }
+      });
+    var inp = $('input', pop);
+    inp.value = h.q;
+    inp.addEventListener('input', function () { clearTimeout(hakuAjastin); hakuAjastin = setTimeout(paivitaHaku, 120); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(hakuAjastin); paivitaHaku(); seuraavaOsuma(); } });
+    paivitaHaku();
+    if (!h.q) inp.focus({ preventScroll: true });
+  }
+  function paivitaHaku() {
+    var h = nyt && nyt.haku, inp = hakuAuki() && $('input', pop);
+    if (!h || !inp) return;
+    if (inp.value !== h.q) { h.q = inp.value; h.valittu = -1; korosta(null); }
+    $('.h-tyhj', pop).hidden = !h.q;
+    var ehdot = hakuehdot(h.q), r = etsi(ehdot), sivut = aset.sivutus === 'sivut';
+    h.osumat = r.osumat;
+    $('.h-tieto', pop).textContent = !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”.' :
+      !r.n ? 'Ei osumia.' : lkm(r.n, 'osuma', 'osumaa') + (r.n > r.osumat.length ? ', näytetään ' + r.osumat.length + ' ensimmäistä' : '');
+    var lista = $('.h-lista', pop);
+    lista.innerHTML = r.osumat.map(function (o, i) {
+      var os = osioKohdassa(o), kohta = [os ? os.text : '', sivut ? 's. ' + (sivuKohdassa({ b: o.b, o: o.s }) + 1) : ''].filter(Boolean).join(' · ');
+      return '<button type="button" class="osuma" data-k="osuma" data-i="' + i + '"' + (i === h.valittu ? ' aria-current="true"' : '') + '>' +
+        (kohta ? '<span class="o-kohta">' + esc(kohta) + '</span>' : '') + ote(o) + '</button>';
+    }).join('');
+    lista.hidden = !r.osumat.length;
+    sijoitaPop();
+    var c = $('.osuma[aria-current]', lista);
+    if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
+  }
+  // Osumalista vie tilan, joka napin yläpuolella (tai näppäimistön peittäessä napin näkyvällä
+  // alueella) on jäljellä; enintään 60 % ikkunan korkeudesta, vähintään kaksi osumaa.
+  function sovitaHaku(rect, yla, ala) {
+    var lista = $('.h-lista', pop);
+    if (!lista) return;
+    lista.style.maxHeight = '';
+    var muu = pop.offsetHeight - lista.offsetHeight;
+    var vara = (rect.top < ala ? rect.top : ala) - yla - 16;
+    lista.style.maxHeight = Math.max(90, Math.min(vara, Math.max(300, innerHeight * 0.6)) - muu) + 'px';
+  }
+  function valitseOsuma(i) {
+    var h = nyt.haku, o = h.osumat[i];
+    if (!o) return;
+    h.valittu = i;
+    mene({ b: o.b, o: o.s });
+    korosta(o);
+  }
+  // Enter: valitun jälkeinen osuma, tai jos mitään ei ole valittu, ensimmäinen lukukohdasta eteenpäin.
+  function seuraavaOsuma() {
+    var h = nyt.haku, O = h.osumat, k = tila.ankkuri || { b: 0, o: 0 }, i;
+    if (!O.length) return;
+    if (h.valittu >= 0) i = (h.valittu + 1) % O.length;
+    else { for (i = 0; i < O.length && (O[i].b < k.b || O[i].b === k.b && O[i].s < k.o); i++); if (i === O.length) i = 0; }
+    suljePop(); valitseOsuma(i);
+  }
+  // Valittu osuma korostetaan tekstissä CSS Custom Highlight -rajapinnalla, joka ei muuta DOMia
+  // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
+  // Korostus pysyy, kunnes hakua muutetaan tai teksti suljetaan.
+  function korosta(o) {
+    if (!window.CSS || !CSS.highlights || typeof Highlight !== 'function') return;
+    CSS.highlights.delete('haku');
+    var el = o && nyt && nyt.blocks[o.b];
+    if (!el) return;
+    var a = solmuun(el, o.s), z = solmuun(el, o.e);
+    if (!a || !z) return;
+    var r = document.createRange();
+    r.setStart(a.n, a.i); r.setEnd(z.n, z.i);
+    CSS.highlights.set('haku', new Highlight(r));
+  }
+  function paivitaKorostus() { var h = nyt && nyt.haku; korosta(h && h.valittu >= 0 ? h.osumat[h.valittu] : null); }
 
   /* ---------- merkintälista ---------- */
   function paivitaMerkinnat() {
@@ -1649,7 +1820,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); } };
+  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, etsi: function (q) { return nyt && etsi(hakuehdot(q)); } };
 })();
 </script>
 </body>

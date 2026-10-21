@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/testi.js polku/teksti.md [kuvakansio]
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
-// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin ja aikajanan hypyn.
+// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn ja haun.
 // Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
@@ -147,6 +147,41 @@ palvelin.listen(0, async () => {
   await p.mouse.click(kohde.x, kohde.y); await p.waitForTimeout(150);
   tulos('aikajanan hyppy', (await p.textContent('#ala-kohta')) === kohde.nimi, kohde.nimi);
   await kuva('3-aikajana');
+
+  // Haku: osumien määrä sama kuin riippumattomalla säännöllisellä lausekkeella (sanan alku,
+  // fraasi peräkkäin, lainausmerkeissä kokonainen sana), ja osuman valinta vie sen sivulle ja
+  // korostaa juuri sen; Enter vie seuraavaan.
+  const haku = await p.evaluate(() => {
+    const L = window.__luin, n = L.nyt(), K = '[\\p{L}\\p{N}\\p{M}]', v = [];
+    const sanat = n.txt.map(t => t.match(/[\p{L}\p{N}\p{M}]+/gu) || []);
+    // Fraasin sanat kolmanneksen jälkeisestä lohkosta, jonka neljännen sanan alku esiintyy ainakin kolmesti.
+    const laske = re => n.txt.reduce((a, t) => a + (t.match(re) || []).length, 0);
+    const b = sanat.findIndex((s, i) => i > n.txt.length / 3 && s.length > 8 && s[3].length >= 6 && s[4].length >= 4 &&
+      laske(new RegExp('(?<!' + K + ')' + s[3].slice(0, 4), 'giu')) >= 3);
+    const w = sanat[b];
+    const kokeet = [
+      [w[3].slice(0, 4), new RegExp('(?<!' + K + ')' + w[3].slice(0, 4), 'giu')],
+      ['"' + w[3] + '"', new RegExp('(?<!' + K + ')' + w[3] + '(?!' + K + ')', 'giu')],
+      [w[3] + ' ' + w[4].slice(0, 3), new RegExp('(?<!' + K + ')' + w[3] + K + '*[^\\p{L}\\p{N}\\p{M}]+' + w[4].slice(0, 3), 'giu')],
+      ['”' + w[3] + '” ' + w[4], new RegExp('(?<!' + K + ')' + w[3] + '[^\\p{L}\\p{N}\\p{M}]+' + w[4], 'giu')]];
+    kokeet.forEach(([q, re]) => { const a = L.etsi(q).n, c = laske(re); if (a !== c || !a) v.push(q + ': ' + a + ' ≠ ' + c); });
+    return { v, q: w[3].slice(0, 4) };
+  });
+  await p.click('#etsi-avaa'); await p.keyboard.type(haku.q); await p.waitForTimeout(300);
+  const osumia = await p.locator('#pop .osuma').count(), valittava = Math.min(2, osumia - 1);
+  await p.click('#pop .osuma[data-i="' + valittava + '"]'); await p.waitForTimeout(150);
+  const hv = await p.evaluate(i => {
+    const L = window.__luin, h = L.nyt().haku, o = h.osumat[i], hl = CSS.highlights.get('haku'), r = hl && [...hl][0];
+    const rr = r && r.getBoundingClientRect(), sv = document.querySelector('#sivu').getBoundingClientRect();
+    return { kiinni: document.querySelector('#pop').hidden, teksti: r && r.toString().replace(/\u00ad/g, ''), odotus: L.nyt().txt[o.b].slice(o.s, o.e),
+      nakyy: !!rr && rr.left >= sv.left && rr.right <= sv.right && rr.top >= sv.top && rr.bottom <= sv.bottom, kohta: L.tila.ankkuri.b === o.b && L.tila.ankkuri.o === o.s };
+  }, valittava);
+  await p.click('#etsi-avaa'); await p.waitForTimeout(100);
+  const merkitty = await p.evaluate(() => document.querySelector('#pop .osuma[aria-current]')?.dataset.i);
+  await p.click('#pop input'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  const seur = await p.evaluate(() => window.__luin.nyt().haku.valittu);
+  tulos('haku', !haku.v.length && hv.kiinni && hv.teksti === hv.odotus && hv.nakyy && hv.kohta && merkitty === String(valittava) && seur === (valittava + 1) % osumia,
+    haku.v.join(', ') || haku.q + ': ' + osumia + ' osumaa, valittu ' + (valittava + 1) + '. näkyy ja on korostettu, Enter → ' + (seur + 1) + '.');
 
   // Aikajanan veto sivutettuna: voimassa oleva kohta ja sivu pysyvät vedon ajan, vedettävä
   // osoitin hyppää sivun alusta toiseen, ja irrotus vie sille sivulle. Jokaisen sivun alku vie

@@ -569,6 +569,10 @@ Käyttäjän vaatimukset 20.10.2026:
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- Haku (käyttäjän säännöt 21.10.2026; opas, luku 4.7): aikajanan alla *Merkinnät*-laatikon oikealla puolella laatikko
+  *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,
+  kuin lainausmerkeissä; ei JA eikä TAI); lainausmerkeissä sana on kokonainen (*"kant"* ei löydä sanaa *kantilainen*).
+  Valittu osuma korostetaan `::highlight(haku)`-rajapinnalla, joka ei muuta DOMia.
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
