@@ -679,7 +679,7 @@ Käyttäjän vaatimukset 20.10.2026:
     edistyminen. Tasot ovat kumulatiivisia: *Alaluvut* sytyttää myös *Pääluvut*, *Kaikki* molemmat. Valitun tason napautus sammuttaa sen ja jättää ylemmät (*Pääluvut* sammuttaa kaikki etapit, `janaTaso: 0`); muu napautus asettaa tason (käyttäjän kokeilu 21.10.2026). Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` automaattinen alleviivaus,
     `av: 3` Kaikki → Alaluvut; itse valittu Pääluvut säilyy).
   - *Ulkoasu*-osiossa heti teeman jälkeen on *Liikkuminen* (Vieritys / Sivut; ennen nimellä *Näkymä* viimeisenä).
-    Huomio *Viitenumerot näkyvät aina* poistettiin asetuksista (vaatimus itse pysyy). Vientiosion napit: *Vie tiedot*, *Tuo tiedot*.
+    Huomio *Viitenumerot näkyvät aina* poistettiin asetuksista (vaatimus itse pysyy). Vienti- ja tuontiosion napit: *Vie*, *Tuo* (ei sanaa *tiedot*; käyttäjän päätös 21.10.2026).
   - Edistyminen on vain alapalkissa, ei avatun aikajanan ylärivillä. Sivunäkymässä se on sivunumero.
   - *Merkinnät*-listassa alleviivauksia ei koskaan alleviivata; alleviivaus näkyy vain tekstissä itsessään.
     Listan molemmat osiot (*Kirjanmerkit*, *Alleviivaukset ja kirjaukset*) supistuvat otsikon perässä olevasta pienestä
@@ -692,8 +692,12 @@ Käyttäjän vaatimukset 20.10.2026:
     Kopioinnin kuittaus on rasti; poiston vahvistus *Poista myös kirjaus* on edelleen tekstiä (ruoste).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
-  - *Vie tai tuo merkinnät tekstitiedostona* on asetusten alimpana supistettuna; oletuksena viedään alleviivaukset,
-    kirjaukset ja kirjanmerkit, ja viimeisenä on *Edistymisen tilanne* (oletuksena pois: otsikon alle `Viety:` ja
+  - Asetusten alimpana ovat erilliset supistetut osiot *Vie merkinnät tekstitiedostoon* ja *Tuo merkinnät tekstitiedostosta*
+    (käyttäjän päätös 21.10.2026), joita edeltää johdanto *Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa…* (asetusten huomiota *Asetukset koskevat kaikkia tekstejä* ei ole). Reunojen oletus on *Tasattu* (käyttäjän päätös 21.10.2026; jo tallennetut asetukset säilyvät, koska valintaa ei voi erottaa oletuksesta).
+    Napit ovat pelkät *Vie* ja *Tuo*, ja ilman valintoja niitä ei voi painaa. Vienti vahvistetaan aina ponnahduslaatikossa;
+    tuonti vain, jos kaikkea ei ole valittu (silloin kerrotaan, mitä tiedostosta ei tuoda). Viennin oletus on
+    alleviivaukset ja kirjaukset (`av: 4` vaihtaa vanhan oletuksen kerran); tuonnissa kaikki valittuna aina asetuksia avattaessa,
+    ei muisteta. Viennin valinnoista viimeisenä on *Edistymisen tilanne* (oletuksena pois: otsikon alle `Viety:` ja
     `Sijainti:` otsikon tarkkuudella, ei tarkemmin). Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan
     vain osioille, joissa on vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke
     vain jos alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.

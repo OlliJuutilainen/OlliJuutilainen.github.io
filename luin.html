@@ -381,19 +381,23 @@
   details.m-osio[open] summary .sal { fill: currentColor; }
   .tyhja-m { color: var(--harmaa); font-style: italic; font-size: .88rem; margin: 10px 0; }
   /* merkintöjen vienti asetusten alimpana, normaalisti supistettuna */
-  details.vienti { margin: 34px 0 0; border-top: 1px solid var(--viiva); border-bottom: 1px solid var(--viiva); }
+  details.vienti { margin: 18px 0 0; border-top: 1px solid var(--viiva); border-bottom: 1px solid var(--viiva); }
   details.vienti summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
     min-height: 46px; cursor: pointer; font-size: .88rem; }
   details.vienti summary::-webkit-details-marker { display: none; }
   details.vienti summary svg { width: 9px; height: 11px; flex: 0 0 auto; }
   details.vienti[open] summary .sal { fill: currentColor; }
   .vienti-sis { padding: 0 0 16px; }
-  #vie-valinnat, .valinnat.pino { flex-direction: column; align-items: flex-start; }
+  details.vienti + details.vienti { margin-top: 0; border-top: 0; }
+  .huomio.jatko { margin-top: 6px; }
+  #vie-valinnat, #tuo-valinnat, .valinnat.pino { flex-direction: column; align-items: flex-start; }
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
   .valinnat button:disabled { opacity: .3; cursor: default; }
+  .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
+  .vienti-sis .huomio:empty { display: none; }
   .vienti-napit { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   /* Tuonnin jälkeinen siirtymä tekstinä: ruoste = napautettava. */
   button.linkki { color: var(--ruoste); font: inherit; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; }
@@ -483,17 +487,28 @@
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
     <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
-  <p class="huomio">Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
-  <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. -->
-  <details class="vienti" id="vienti">
-    <summary>Vie tai tuo merkinnät tekstitiedostona<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
-    <div class="vienti-sis">
-      <div class="valinnat" id="vie-valinnat"></div>
-      <p class="huomio" id="vie-tieto"></p>
-      <div class="vienti-napit"><button type="button" class="laatikko" id="vie">Vie tiedot</button><button type="button" class="laatikko" id="tuo">Tuo tiedot</button></div>
-      <input type="file" id="tuo-tiedosto" accept=".md,.txt,.markdown,text/markdown,text/plain" hidden>
-    </div>
-  </details>
+  <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. Vienti ja tuonti ovat erillisiä
+       supistettuja osioita omine valintoineen (käyttäjän päätös 21.10.2026). -->
+  <div id="vienti">
+    <p class="huomio jatko">Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa.<br>Muistiinpanot, alleviivaukset ja muut merkinnät on mahdollista ottaa talteen viemällä tekstitiedostoon. Lukemisen jatkaminen toisessa laitteessa omilla merkinnöillä onnistuu tekstitiedoston tuonnilla.</p>
+    <details class="vienti" id="vie-osio">
+      <summary>Vie merkinnät tekstitiedostoon<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div class="vienti-sis">
+        <div class="valinnat" id="vie-valinnat"></div>
+        <p class="huomio" id="vie-tieto"></p>
+        <div class="vienti-napit"><button type="button" class="laatikko" id="vie">Vie</button></div>
+      </div>
+    </details>
+    <details class="vienti" id="tuo-osio">
+      <summary>Tuo merkinnät tekstitiedostosta<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div class="vienti-sis">
+        <div class="valinnat" id="tuo-valinnat"></div>
+        <p class="huomio" id="tuo-tieto"></p>
+        <div class="vienti-napit"><button type="button" class="laatikko" id="tuo">Tuo</button></div>
+        <input type="file" id="tuo-tiedosto" accept=".md,.txt,.markdown,text/markdown,text/plain" hidden>
+      </div>
+    </details>
+  </div>
 </div>
 
 <!-- ===== Kirjanmerkit, alleviivaukset ja kirjaukset ===== -->
@@ -560,12 +575,12 @@
     sal(3.2, 7.5, 2.6, 3.1) + sal(11.8, 3, 2.6, 3.1) + sal(11.8, 12, 2.6, 3.1) + '"/></svg>';
 
   /* ---------- asetukset ---------- */
-  // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki). vieEd: edistymisen
-  // tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
+  // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena alleviivaukset ja kirjaukset). vieEd:
+  // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
-  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
-    vieAl: 1, vieKm: 1, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 3 };
+    vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 4 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -578,6 +593,8 @@
   // oletus on pääluvut ja alaluvut; Kaikki ottaa mukaan alalukujen alaluvut. Vanha oletus Kaikki
   // vaihdetaan kerran uuteen; itse valittu Pääluvut säilyy.
   if (tallennetut && !(tallennetut.av >= 3)) { if (aset.janaTaso === 3) aset.janaTaso = 2; aset.av = 3; }
+  // av 4 (21.10.2026): viennin oletus on alleviivaukset ja kirjaukset ilman kirjanmerkkejä.
+  if (tallennetut && !(tallennetut.av >= 4)) { aset.vieKm = 0; aset.av = 4; }
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
@@ -818,8 +835,9 @@
     this.setAttribute('aria-expanded', auki ? 'true' : 'false');
   });
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () {
+    tuoVal = { al: 1, ki: 1, km: 1, ed: 1 }; $('#tuo-tieto').textContent = '';
     suljePop(); piirraAsetukset();
-    $('#vienti').hidden = !nyt; $('#vienti').open = false;
+    $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#asetukset').hidden = false;
   }); });
 
@@ -847,8 +865,10 @@
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
     if (v) { aset[v.dataset.vie] = aset[v.dataset.vie] ? 0 : 1; tallennaAset(); piirraVienti(); return; }
-    if (e.target.closest('#vie')) { vieMerkinnat(); return; }
-    if (e.target.closest('#tuo')) { $('#tuo-tiedosto').value = ''; $('#tuo-tiedosto').click(); return; }
+    var tv = e.target.closest('button[data-tuo]');
+    if (tv) { tuoVal[tv.dataset.tuo] = tuoVal[tv.dataset.tuo] ? 0 : 1; piirraVienti(); return; }
+    var vt = e.target.closest('#vie, #tuo');
+    if (vt) { vahvistaSiirto(vt); return; }
     var si = e.target.closest('button[data-siirry]');
     if (si) { suljePaneelit(); hyppaa({ b: +si.dataset.siirry, o: 0 }); return; }
     var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
@@ -2003,21 +2023,55 @@
      useammin kuin kerran, ensimmäisen rivin perässä on [n/m] (n:s m:stä), ja kirjanmerkin
      perässä on HTML-kommenttina sen kohdan katkelma, joka ei näy esikatselussa. */
   var VIE = [['vieAl', 'Alleviivaukset'], ['vieKi', 'Kirjaukset'], ['vieKm', 'Kirjanmerkit'], ['vieEd', 'Edistymisen tilanne']];
+  // Tuonnin valinnat ovat samat, mutta niitä ei muisteta: asetusten avaus valitsee aina kaikki.
+  var TUO = [['al', 'Alleviivaukset'], ['ki', 'Kirjaukset'], ['km', 'Kirjanmerkit'], ['ed', 'Edistymisen tilanne']];
+  var tuoVal = { al: 1, ki: 1, km: 1, ed: 1 };
+  // Vahvistusten sanat: [monikon akkusatiivi, partitiivi, monikko?].
+  var SANAT = { al: ['alleviivaukset', 'alleviivauksia', 1], ki: ['kirjaukset', 'kirjauksia', 1],
+    km: ['kirjanmerkit', 'kirjanmerkkejä', 1], ed: ['edistymisen tilanteen', 'edistymisen tilannetta', 0] };
   var ORPOT = 'Merkinnät, joiden kohtaa ei enää löydy tekstistä';
+  function luettelo(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' ja ' + a[a.length - 1] : a[0]; }
+  function vieValitut() { return { al: aset.vieAl, ki: aset.vieKi, km: aset.vieKm, ed: aset.vieEd }; }
   function piirraVienti() {
     $('#vie-valinnat').innerHTML = VIE.map(function (v) {
       return '<button type="button" data-vie="' + v[0] + '" aria-pressed="' + !!aset[v[0]] + '">' + SAL_IKONI + v[1] + '</button>';
     }).join('');
+    $('#tuo-valinnat').innerHTML = TUO.map(function (v) {
+      return '<button type="button" data-tuo="' + v[0] + '" aria-pressed="' + !!tuoVal[v[0]] + '">' + SAL_IKONI + v[1] + '</button>';
+    }).join('');
+    // Pelkkä edistymisen tilanne ei ole vietävä tiedosto, mutta tuotuna se antaa sijainnin.
+    $('#vie').disabled = !(aset.vieAl || aset.vieKi || aset.vieKm);
+    $('#tuo').disabled = !(tuoVal.al || tuoVal.ki || tuoVal.km || tuoVal.ed);
     if (!nyt) return;
     var al = nyt.merk.al;
     $('#vie-tieto').textContent = 'Tekstissä on ' + lkm(al.length, 'alleviivaus', 'alleviivausta') + ', ' +
       lkm(al.filter(function (h) { return h.n; }).length, 'kirjaus', 'kirjausta') + ' ja ' + lkm(nyt.merk.km.length, 'kirjanmerkki', 'kirjanmerkkiä') + '.';
   }
+  // Vahvistus ennen vientiä ja ennen tuontia (käyttäjän päätös 21.10.2026). Tuonnissa vahvistusta
+  // ei kysytä, kun kaikki on valittu; muuten kerrotaan, mitä tiedostosta jätetään huomiotta.
+  function vahvistaSiirto(nappi) {
+    if (!nyt || nappi.disabled) return;
+    var vie = nappi.id === 'vie', val = vie ? vieValitut() : tuoVal;
+    var mukana = TUO.filter(function (v) { return val[v[0]]; }).map(function (v) { return v[0]; });
+    var pois = TUO.filter(function (v) { return !val[v[0]]; }).map(function (v) { return v[0]; });
+    if (!vie && !pois.length) { valitseTuotava(); return; }
+    var teksti = vie
+      ? 'Olet viemässä tekstistä ”' + nyt.e.title + '” ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '.'
+      : 'Olet tuomassa tiedostosta ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '. ' +
+        'Tiedoston ' + (SANAT[pois[0]][2] ? 'mahdollisia ' : 'mahdollista ') +
+        luettelo(pois.map(function (k) { return SANAT[k][1]; })) + ' ei tuoda.';
+    naytaPop(nappi.getBoundingClientRect(), '<div class="esi">' + esc(teksti) + '</div>' +
+      '<button type="button" data-k="ok">' + (vie ? 'Vie' : 'Valitse tiedosto') + '</button>' +
+      '<button type="button" data-k="peru">Peruuta</button>', '', function (k) {
+      if (k === 'ok') { if (vie) vieMerkinnat(); else valitseTuotava(); }
+    });
+  }
+  function valitseTuotava() { $('#tuo-tiedosto').value = ''; $('#tuo-tiedosto').click(); }
   function vieMerkinnat() {
     if (!nyt) return;
     var tieto = $('#vie-tieto');
-    if (!aset.vieAl && !aset.vieKm && !aset.vieKi) { tieto.textContent = 'Valitse ainakin yksi merkintälaji.'; return; }
-    var md = merkinnatMd({ al: aset.vieAl, km: aset.vieKm, ki: aset.vieKi, ed: aset.vieEd });
+    if (!aset.vieAl && !aset.vieKm && !aset.vieKi) return;
+    var md = merkinnatMd(vieValitut());
     if (!md) { tieto.textContent = 'Valituissa merkinnöissä ei ole vietävää.'; return; }
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }));
@@ -2141,7 +2195,10 @@
      - Jo olemassa olevaa ei tuoda kahdesti; kirjaus liitetään olemassa olevaan alleviivaukseen.
      - Kirjausta ilman lainausta (vienti ilman alleviivauksia) ei voi kiinnittää tekstiin. */
   function sama(s) { return s.replace(/\s+/g, ' ').trim().toLowerCase(); }
-  function tuoMerkinnat(md) {
+  // v: tuotavat lajit { al, ki, km, ed } (oletuksena kaikki). Ilman alleviivauksia kirjaus liitetään
+  // vain jo olemassa olevaan samaan alleviivaukseen.
+  function tuoMerkinnat(md, v) {
+    v = v || { al: 1, ki: 1, km: 1, ed: 1 };
     var toc = nyt.doc.toc, KAIKKI = { a: 0, z: nyt.txt.length };
     var r = md.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n'), i = 0;
     while (i < r.length && !r[i].trim()) i++;
@@ -2263,11 +2320,12 @@
     if (sama(nimi[1]) !== sama(nyt.e.title) && loytyi * 2 < lainauksia || !lainauksia && sama(nimi[1]) !== sama(nyt.e.title))
       return { virhe: 'Tiedosto on tekstin ”' + nimi[1] + '” merkinnät, eikä niitä löydy tästä tekstistä.' };
     // Tuonti.
-    var t = { al: 0, ki: 0, km: 0, likim: 0, sama: 0, orpo: 0, ohi: 0, ohiKm: 0 }, M = nyt.merk, vanhatKm = M.km.slice();
+    var t = { al: 0, ki: 0, km: 0, likim: 0, sama: 0, orpo: 0, ohi: 0, ohiKm: 0, ohiAl: 0 }, M = nyt.merk, vanhatKm = M.km.slice();
     function ennen(a, b) { return a.b < b.b || a.b === b.b && a.o <= b.o; }
     tehtavat.forEach(function (te) {
-      if (te.ohi) { t.ohi += te.ohi; return; }
-      if (te.ohiKm) { t.ohiKm++; return; }
+      if (te.ohi) { if (v.ki) t.ohi += te.ohi; return; }
+      if (te.ohiKm) { if (v.km) t.ohiKm++; return; }
+      if (te.km && !v.km) return;
       if (te.km) {
         if (te.k && M.km.some(function (k) { return !k.orpo && k.b === te.k.b && k.o === te.k.o; }) ||
           te.vali && vanhatKm.some(function (k) { return !k.orpo && ennen(te.vali[0], k) && ennen(k, te.vali[1]); })) { t.sama++; return; }
@@ -2278,7 +2336,8 @@
         t.km++; if (te.likim) t.likim++; if (!te.k) t.orpo++;
         return;
       }
-      var n = te.n.slice(0, 5000), segs = te.segs;
+      var n = v.ki ? te.n.slice(0, 5000) : '', segs = te.segs;
+      if (!v.al && !n) return;
       // Sama alleviivaus on jo, jos kohdat ovat samat. Laajemman alleviivauksen sisään tuodaan vain
       // alleviivaus, jolla on kirjaus.
       function samaKohta(h, tasan) {
@@ -2287,6 +2346,7 @@
       }
       var vanha = M.al.filter(function (h) { return samaKohta(h, true); })[0];
       if (!vanha && !n && M.al.some(function (h) { return samaKohta(h); })) { t.sama++; return; }
+      if (!vanha && !v.al) { t.ohiAl++; return; }
       if (vanha) {
         t.sama++;
         if (n && (!vanha.n || sama(vanha.n).indexOf(sama(n)) < 0)) { vanha.n = ((vanha.n ? vanha.n.trim() + '\n\n' : '') + n).slice(0, 5000); t.ki++; }
@@ -2300,7 +2360,7 @@
     M.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; });
     M.km.sort(function (a, b) { return a.b - b.b || a.o - b.o; });
     // Sijainti otsikon tarkkuudella.
-    if (sijainti) {
+    if (sijainti && v.ed) {
       if (sama(sijainti) === 'tekstin alku') t.sijainti = { b: 0, nimi: 'tekstin alku' };
       else {
         var ix = -1;
@@ -2313,11 +2373,11 @@
     return t;
   }
   $('#tuo-tiedosto').addEventListener('change', function () {
-    var f = this.files && this.files[0], tieto = $('#vie-tieto');
+    var f = this.files && this.files[0], tieto = $('#tuo-tieto');
     if (!f || !nyt) return;
     var lukija = new FileReader();
     lukija.onload = function () {
-      var t = tuoMerkinnat(String(lukija.result));
+      var t = tuoMerkinnat(String(lukija.result), tuoVal);
       if (t.virhe) { tieto.textContent = t.virhe; return; }
       if (t.al || t.km || t.ki) {
         if (!tallennaMerkit()) { tieto.textContent = 'Tallennus epäonnistui (tallennustila täynnä?).'; return; }
@@ -2333,7 +2393,8 @@
         (t.orpo ? ' ' + lkm(t.orpo, 'merkinnän', 'merkinnän') + ' kohtaa ei löytynyt tekstistä; ' + (t.orpo === 1 ? 'se on' : 'ne ovat') + ' silti Merkinnät-laatikossa.' : '') +
         (t.likim ? ' ' + lkm(t.likim, 'kirjanmerkin', 'kirjanmerkin') + ' kohta on likimääräinen (tiedostossa ei ollut tarkkaa kohtaa).' : '') +
         (t.ohi ? ' ' + lkm(t.ohi, 'kirjaus jäi', 'kirjausta jäi') + ' tuomatta, koska tiedostossa ei ole alleviivausta.' : '') +
-        (t.ohiKm ? ' ' + lkm(t.ohiKm, 'kirjanmerkki jäi', 'kirjanmerkkiä jäi') + ' tuomatta, koska kohtaa ei tiedetä.' : '');
+        (t.ohiKm ? ' ' + lkm(t.ohiKm, 'kirjanmerkki jäi', 'kirjanmerkkiä jäi') + ' tuomatta, koska kohtaa ei tiedetä.' : '') +
+        (t.ohiAl ? ' ' + lkm(t.ohiAl, 'kirjaus jäi', 'kirjausta jäi') + ' tuomatta, koska sen alleviivausta ei ole tässä tekstissä.' : '');
       tieto.innerHTML = esc(v) + (t.sijainti ? ' <button type="button" class="linkki" data-siirry="' + t.sijainti.b + '">Siirry sijaintiin: ' + esc(t.sijainti.nimi) + '</button>' : '');
     };
     lukija.readAsText(f);
