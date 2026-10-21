@@ -240,6 +240,7 @@
   .valinnat { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; }
   .valinnat button { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; color: var(--harmaa); font-size: .9rem; }
   .valinnat button[aria-pressed="true"] { color: var(--muste); }
+  .valinnat button[aria-pressed="false"] { opacity: .6; }
   .valinnat svg { width: 9px; height: 12.4px; flex: 0 0 auto; }
   .valinnat .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
   .valinnat .sal-sisa { fill: none; }
@@ -400,9 +401,9 @@
     sal(3.2, 7.5, 2.6, 3.1) + sal(11.8, 3, 2.6, 3.1) + sal(11.8, 12, 2.6, 3.1) + '"/></svg>';
 
   /* ---------- asetukset ---------- */
-  // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena kirjanmerkkejä ei viedä).
+  // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki).
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
-    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, auto: 0, edistys: 1, janaTaso: 2, kmJanalla: 1, vieAl: 1, vieKm: 0, vieKi: 1 };
+    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, auto: 0, edistys: 1, janaTaso: 2, kmJanalla: 1, vieAl: 1, vieKm: 1, vieKi: 1 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -1347,7 +1348,7 @@
      välissä ---. Kirjanmerkki on "KIRJANMERKKI n"; jos alleviivauksia ei viedä, sen perään
      lainataan virke, jonka kohdalla se on. Kirjaus tulee alleviivauksen lainauksen jälkeen.
      Pelkät kirjaukset (myös kun kirjanmerkit on valittu mutta niitä ei ole) ovat luettelona. */
-  var VIE = [['vieAl', 'Alleviivaukset'], ['vieKm', 'Kirjanmerkit'], ['vieKi', 'Kirjaukset']];
+  var VIE = [['vieAl', 'Alleviivaukset'], ['vieKi', 'Kirjaukset'], ['vieKm', 'Kirjanmerkit']];
   function piirraVienti() {
     $('#vie-valinnat').innerHTML = VIE.map(function (v) {
       return '<button type="button" data-vie="' + v[0] + '" aria-pressed="' + !!aset[v[0]] + '">' + SAL_IKONI + v[1] + '</button>';
