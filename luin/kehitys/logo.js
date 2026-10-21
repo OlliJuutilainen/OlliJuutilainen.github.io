@@ -25,14 +25,17 @@ function leik(p, d, q, e) {
 // Glissando: viiva lähtee i:n pisteen oikeasta kulmasta ja päättyy loppupisteen vasempaan kulmaan.
 // i:n pisteen oikea yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja viivan kaltevia, joten
 // viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
-// joko i:n pisteen yläkärki (yla, oletus 0) tai keskikohta (yd) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
+// joko i:n pisteen keskikohta (yd, oletus 12) tai yläkärki (yla) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
 function glis(o) {
   const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 212, w = o.lw ?? 1.8;
   const E = cy => [cx + rx, cy];
-  // py: loppupisteen keskikohdan (ja sivukärkien) korkeus; oletuksena alareuna pb:ssä
-  const Wp = s => [px - prx, o.py ?? pb - s * prx];
-  // yla: i:n pisteen yläkärjen korkeus (oletus 0 = versaalien lakipiste); silloin keskikohta = yla + s·rx
-  const yla = o.yd != null ? null : (o.yla ?? 0);
+  // py: loppupisteen keskikohdan eli sivukärkien korkeus, oletus 100 = perusviiva (käyttäjän valinta
+  // 21.10.2026); py: false = alareuna pb:ssä
+  const PY = o.py === false ? null : (o.py ?? 100);
+  const Wp = s => [px - prx, PY ?? pb - s * prx];
+  // i:n pisteen keskikohta yd (oletus 12, käyttäjän valinta 21.10.2026) tai yläkärjen korkeus yla
+  // (0 = versaalien lakipiste); jälkimmäisessä keskikohta = yla + s·rx
+  const yla = o.yla ?? null;
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
@@ -42,7 +45,7 @@ function glis(o) {
     s = (a + b) / 2;
     if (yla != null) cy = yla + s * rx;
   }
-  const ry = s * rx, pry = s * prx, py = o.py ?? pb - pry, c = o.c ?? 0.38;
+  const ry = s * rx, pry = s * prx, py = PY ?? pb - pry, c = o.c ?? 0.38;
   const e = E(cy), W = Wp(s), d = [1, s], nn = Math.hypot(1, s), n = [-s / nn * w, 1 / nn * w];
   // viivan alku: alareuna leikkaa i:n pisteen ES-särmän tangentin kulmassa E
   const qES = [cx + rx * c, cy + ry * c];
