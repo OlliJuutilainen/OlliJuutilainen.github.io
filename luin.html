@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Luin</title>
+<!--
+  Luin: lukulista ja lukulaite. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
+  tämän selaimen localStorageen: lukulista, tekstit, lukukohta, kirjanmerkit ja alleviivaukset.
+  Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti.
+  Reitit: #           lukulista
+          #id=<id>    lukulistan teksti
+          #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
+          #tuo        Latomosta (luin/latomo.html) siirretty teksti
+  Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md).
+-->
+<style>
+  @font-face { font-family: Literata; src: url(luin/fontit/literata.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(luin/fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; }
+  /* Kuusi väriä kummassakin teemassa, ei läpikuultavuutta eikä varjoja: e-ink näyttää ne
+     harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha). */
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #a4471a; --okra: #b07a16;
+    --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+    --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    --kirjasin: var(--antiikva);
+    --koko: 19px;
+    --yla: 44px; --ala: 40px;
+  }
+  :root[data-teema="tumma"] {
+    --paperi: #18130e; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+    --ruoste: #e08a4f; --okra: #d4a443;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
+  svg.logo { display: block; width: auto; fill: currentColor; overflow: visible; }
+  .sal { fill: none; stroke: currentColor; stroke-width: 1.3; }
+  [aria-pressed="true"] .sal, .sal.tay { fill: currentColor; }
+
+  /* ---------- lukulista ---------- */
+  #lista { max-width: 40rem; margin: 0 auto; padding: 18px 16px 22px; min-height: 100vh;
+    display: flex; flex-direction: column; }
+  .lhead { display: flex; align-items: flex-start; justify-content: space-between; margin: 6px 0 34px; }
+  .lhead svg.logo { height: 64px; margin: 6px 0 0 2px; }
+  .ikoni { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
+  h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
+    margin: 0; padding-bottom: 7px; border-bottom: 1px solid var(--viiva); }
+  ul.nimikkeet { list-style: none; margin: 0; padding: 0; }
+  li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
+  li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
+  .n-ots { display: block; font-size: 1.1rem; letter-spacing: .05em; line-height: 1.3; overflow-wrap: anywhere; }
+  .n-ala { display: block; font-style: italic; color: var(--harmaa); font-size: .95rem; margin-top: 2px; }
+  .n-tieto { display: block; font-size: .76rem; color: var(--harmaa); margin-top: 7px; letter-spacing: .02em;
+    font-variant-numeric: lining-nums; }
+  button.jako { flex: 0 0 auto; width: 40px; height: 44px; margin: 10px -10px 0 0; color: var(--harmaa);
+    display: inline-flex; align-items: center; justify-content: center; }
+  button.jako svg { width: 15px; height: 15px; }
+  .tyhja { color: var(--harmaa); font-style: italic; margin: 18px 0; line-height: 1.55; }
+  .lisaa { margin: 22px 0 0; font-size: .88rem; line-height: 1.8; color: var(--harmaa); }
+  .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
+  .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45; }
+  .foot { margin: auto 0 0; padding-top: 44px; text-align: center; color: var(--harmaa); font-size: .64rem;
+    letter-spacing: .16em; }
+
+  /* ---------- ponnahdukset ---------- */
+  .valikko { position: fixed; z-index: 50; background: var(--paperi); color: var(--muste); border: 1px solid var(--muste);
+    min-width: 12rem; max-width: min(22rem, calc(100vw - 24px)); padding: 4px 0; font-family: var(--antiikva);
+    font-size: .92rem; line-height: 1.35; }
+  .valikko button { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 40px; }
+  .valikko button:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .valikko .vaara { color: var(--ruoste); }
+  .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
+    border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
+  .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
+  .valikko.rivi button { width: auto; padding: 9px 13px; }
+  .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
+  .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px)); }
+  .valikko.viite .nro { color: var(--ruoste); font-family: var(--groteski); font-size: .75em; margin-right: .4em; }
+
+  /* ---------- lukija ---------- */
+  .ylapalkki { position: fixed; top: 0; left: 0; right: 0; height: var(--yla); display: flex; align-items: center;
+    padding: 0 2px 0 4px; background: var(--paperi); border-bottom: 1px solid var(--viiva); z-index: 20;
+    user-select: none; -webkit-user-select: none; }
+  .takaisin { font-size: .86rem; padding: 0 10px; height: 44px; display: inline-flex; align-items: center;
+    text-decoration: none; color: var(--harmaa); white-space: nowrap; }
+  .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
+    text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
+  #sivu { position: relative; padding: calc(var(--yla) + 30px) 16px calc(var(--ala) + 56px); }
+  .wrap { position: relative; font-size: var(--koko); max-width: 33em; margin: 0 auto; }
+  body.reunat .wrap { max-width: calc(33em + 2.2em + 13em); }
+
+  #teksti { --hl: calc(var(--koko) * 13); --hv: calc(var(--koko) * 2.2);
+    font-family: var(--kirjasin); font-size: var(--koko); line-height: 1.62; max-width: 33em;
+    font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility;
+    hyphens: manual; -webkit-hyphens: manual; }
+  #teksti.tavu-ei { hyphens: none; -webkit-hyphens: none; }
+  #teksti.tavu-selain { hyphens: auto; -webkit-hyphens: auto; }
+  #teksti.groteski { line-height: 1.56; }
+  header.tt { margin: 0 0 2.6em; }
+  header.tt h1 { font-size: 1.55em; line-height: 1.2; margin: 0 0 .5em; font-weight: 400; letter-spacing: .05em; }
+  header.tt .sub { font-size: .95em; color: var(--harmaa); margin: 0; text-transform: uppercase; letter-spacing: .075em; }
+  header.tt .meta { font-size: .82em; color: var(--harmaa); line-height: 1.5; margin: 1em 0 0; }
+  #teksti h2, #teksti h3, #teksti h4 { font-weight: 400; break-after: avoid; break-inside: avoid; }
+  #teksti h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .005em; }
+  #teksti h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
+  #teksti h4 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
+  #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
+  #teksti p { margin: 0 0 1.1em; }
+  #teksti.tasattu p:not(.bib):not(.meta):not(.sub) { text-align: justify; }
+  #teksti.sisennys p { margin: 0; text-indent: 1.4em; }
+  #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
+  #teksti.sisennys header p, #teksti.sisennys h2 + p, #teksti.sisennys h3 + p, #teksti.sisennys h4 + p,
+  #teksti.sisennys hr + p, #teksti.sisennys blockquote + p, #teksti.sisennys ol + p, #teksti.sisennys ul + p,
+  #teksti.sisennys pre + p, #teksti.sisennys blockquote p, #teksti.sisennys nav p { text-indent: 0; }
+  #teksti.sisennys header .meta { margin-top: 1em; }
+  #teksti.sisennys blockquote p + p { text-indent: 1.4em; }
+  #teksti.sisennys p + blockquote, #teksti.sisennys p + ol, #teksti.sisennys p + ul, #teksti.sisennys p + hr { margin-top: 1.4em; }
+  #teksti blockquote { margin: 1.7em 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .94em; line-height: 1.55; }
+  #teksti blockquote p { margin: 0; }
+  #teksti blockquote p + p { margin-top: .8em; }
+  #teksti ol.enum, #teksti ul.luettelo { margin: 1.3em 0; padding-left: 1.7em; }
+  #teksti ul.luettelo { list-style: none; }
+  #teksti ul.luettelo li::before { content: "–"; float: left; margin-left: -1.25em; }
+  #teksti li { margin-bottom: .55em; padding-left: .2em; }
+  #teksti hr { border: 0; height: 1px; background: var(--viiva); margin: 2.7em 0; width: 6em; }
+  #teksti p.bib { padding-left: 1.7em; text-indent: -1.7em; margin-bottom: .75em; font-size: .9em; line-height: 1.45;
+    overflow-wrap: anywhere; }
+  #teksti code, #teksti pre { font-family: ui-monospace, Menlo, monospace; font-size: .86em; }
+  #teksti pre { white-space: pre-wrap; margin: 0 0 1.1em; }
+  #teksti a { color: var(--ruoste); text-underline-offset: .15em; }
+
+  /* alaviitteet: käyttäjän md → html -konventio (fnref + fntoggle + sidenote) */
+  .fntoggle { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; padding: 0; border: 0;
+    clip: rect(0 0 0 0); overflow: hidden; }
+  .fnref { cursor: pointer; font-family: var(--groteski); font-size: .62em; vertical-align: super; line-height: 0;
+    color: var(--ruoste); padding: 0 .16em .35em .12em; margin-left: .03em; font-variant-numeric: lining-nums;
+    user-select: none; -webkit-user-select: none; }
+  .sidenote { display: none; font-size: .8em; line-height: 1.46; color: var(--harmaa); text-indent: 0; text-align: left; }
+  .fnnum { font-family: var(--groteski); font-size: .62em; vertical-align: super; line-height: 0; color: var(--ruoste);
+    margin-right: .3em; font-variant-numeric: lining-nums; }
+  .fntoggle:checked + .sidenote { display: block; margin: .75em 0; padding: .1em 0 .1em .9em; border-left: 2px solid var(--ruoste); }
+  body.reunat .sidenote, body.reunat .fntoggle:checked + .sidenote {
+    display: block; float: right; clear: right; width: var(--hl);
+    margin: .25em calc((var(--hl) + var(--hv)) * -1) 1.1em 0;
+    padding: 0 0 0 .85em; border: 0; text-indent: -.85em; }
+  body.reunat .fnref { cursor: default; }
+
+  /* alleviivaus ja kirjanmerkki */
+  mark.ali { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--okra);
+    text-decoration-thickness: .13em; text-underline-offset: .2em; text-decoration-skip-ink: none; cursor: pointer; }
+  .km { position: absolute; width: 9px; height: 15px; color: var(--ruoste); cursor: pointer; z-index: 2; }
+  .km svg { display: block; width: 9px; height: 15px; fill: currentColor; }
+
+  /* sisällysluettelo tekstin alussa */
+  nav.sisallys { margin: 0 0 3.2em; font-size: .92em; line-height: 1.4; }
+  nav.sisallys .sis-ots { text-transform: uppercase; letter-spacing: .16em; font-size: .78em; color: var(--harmaa); margin: 0 0 1em; }
+  nav.sisallys ol { list-style: none; margin: 0; padding: 0; }
+  #teksti nav.sisallys li { margin: 0 0 .45em; padding: 0; }
+  #teksti nav.sisallys li.t2 { padding-left: 1.5em; font-size: .94em; }
+  #teksti nav.sisallys a { color: inherit; text-decoration: none; }
+  nav.sisallys a:hover { text-decoration: underline; text-underline-offset: .2em; }
+
+  /* sivutettu näkymä: CSS-palstat, yksi palsta kerrallaan näkyvissä */
+  body.sivutus { overflow: hidden; }
+  body.sivutus #sivu { position: fixed; top: calc(var(--yla) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
+    padding: 0; overflow: hidden; }
+  body.sivutus .wrap { max-width: none; height: 100%; margin: 0; position: static; }
+  body.sivutus #teksti { height: 100%; max-width: none; column-fill: auto; orphans: 2; widows: 2; }
+  body.sivutus .sidenote, body.sivutus .fntoggle:checked + .sidenote { display: none; }
+  body.sivutus #teksti h2, body.sivutus nav.sisallys { break-before: column; -webkit-column-break-before: always; }
+  body.sivutus header.tt { padding-top: 14%; }
+  body.sivutus #teksti hr.ennen-lukua { display: none; }
+
+  /* alapalkki ja aikajana */
+  #ala { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paperi); border-top: 1px solid var(--viiva);
+    z-index: 20; user-select: none; -webkit-user-select: none; }
+  #ala-nappi { display: flex; align-items: center; gap: 12px; width: 100%; height: var(--ala); padding: 0 14px;
+    font-size: .8rem; color: var(--harmaa); }
+  #ala-kohta { flex: 1 1 auto; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ala-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+  #ala-nappi svg { width: 9px; height: 11px; flex: 0 0 auto; }
+  #jana { padding: 10px 14px 2px; border-bottom: 1px solid var(--viiva); }
+  .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
+  #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
+  .j-viiva { stroke: var(--harmaa); stroke-width: 1; fill: none; }
+  .j1 { fill: var(--muste); }
+  .j2 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; }
+  .j3 { fill: var(--harmaa); }
+  .j-km { fill: var(--ruoste); }
+  .j-nyt { fill: var(--muste); }
+  .j-nyt-v { stroke: var(--muste); stroke-width: 1; }
+  .jana-napit { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 2px 0 4px; }
+  .jana-napit button { min-height: 40px; display: inline-flex; align-items: center; gap: 8px; font-size: .86rem; }
+  .jana-napit svg { width: 8px; height: 13px; fill: var(--ruoste); }
+
+  /* paneelit: asetukset ja merkinnät */
+  .paneeli { position: fixed; top: 0; right: 0; bottom: 0; width: min(25rem, 100%); background: var(--paperi);
+    border-left: 1px solid var(--muste); z-index: 40; overflow-y: auto; padding: 0 18px 34px; -webkit-overflow-scrolling: touch; }
+  .paneeli header { position: sticky; top: 0; z-index: 1; background: var(--paperi); display: flex; align-items: center;
+    justify-content: space-between; height: 50px; border-bottom: 1px solid var(--viiva); margin: 0 -18px 4px; padding: 0 2px 0 18px; }
+  .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
+  .paneeli h3 { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 400; color: var(--harmaa); margin: 24px 0 2px; }
+  .sulje svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.4; fill: none; }
+  .asetus { padding: 9px 0 5px; border-bottom: 1px solid var(--viiva); }
+  .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
+  .valinnat { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; }
+  .valinnat button { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; color: var(--harmaa); font-size: .9rem; }
+  .valinnat button[aria-pressed="true"] { color: var(--muste); }
+  .valinnat svg { width: 8px; height: 11px; flex: 0 0 auto; }
+  .valinnat .arvo { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums lining-nums; }
+  .valinnat button.askel { width: 40px; justify-content: center; font-size: 1.05rem; color: var(--muste); }
+  .huomio { font-size: .78rem; color: var(--harmaa); line-height: 1.5; margin: 14px 0 0; font-style: italic; }
+  .merkki { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--viiva); align-items: flex-start; }
+  .merkki > svg { width: 8px; height: 13px; fill: var(--ruoste); flex: 0 0 auto; margin-top: 4px; }
+  .merkki .m-teksti { flex: 1 1 auto; min-width: 0; text-align: left; font-size: .9rem; line-height: 1.45; }
+  .merkki .m-kohta { display: block; font-size: .72rem; color: var(--harmaa); letter-spacing: .03em; margin-bottom: 3px; }
+  .merkki .m-napit { display: flex; flex-direction: column; align-items: flex-end; }
+  .merkki .m-napit button { color: var(--harmaa); font-size: .8rem; padding: 4px 2px 4px 8px; min-height: 30px; }
+  .merkki .ali-teksti { text-decoration: underline; text-decoration-color: var(--okra); text-decoration-thickness: .1em;
+    text-underline-offset: .2em; }
+  .tyhja-m { color: var(--harmaa); font-style: italic; font-size: .88rem; margin: 10px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== Lukulista ===== -->
+<section id="lista" hidden>
+  <div class="lhead">
+    <svg class="logo" viewBox="-2 -2 215.5 138" role="img" aria-label="LUiN.html"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M125.5 12L205 93" stroke="currentColor" stroke-width="1.8" fill="none"/><path fill="var(--ruoste)" d="M125.5 3.5Q128.35 8.77 133 12Q128.35 15.23 125.5 20.5Q122.65 15.23 118 12Q122.65 8.77 125.5 3.5ZM205 85.5Q207.47 90.15 211.5 93Q207.47 95.85 205 100.5Q202.53 95.85 198.5 93Q202.53 90.15 205 85.5Z"/><path d="M1.05 117L1.05 135M11.95 117L11.95 135M1.05 126L11.95 126M65.5 118.05L78.5 118.05M72 117L72 135M132.05 135L132.05 117M132.05 117L139.5 135M139.5 135L146.95 117M146.95 117L146.95 135M201.55 117L201.55 133.95M201.55 133.95L211.5 133.95" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="butt"/><path d="M-1.55 117H3.65V118.5H-1.55ZM-1.55 133.5H3.65V135H-1.55ZM9.35 117H14.55V118.5H9.35ZM9.35 133.5H14.55V135H9.35ZM69.4 133.5H74.6V135H69.4ZM129.45 133.5H134.65V135H129.45ZM144.35 133.5H149.55V135H144.35ZM198.95 117H204.15V118.5H198.95Z"/></svg>
+    <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><path d="M19.74 9.61L22.39 9.89L22.39 14.11L19.74 14.39A8.1 8.1 0 0 1 19.16 15.78L20.84 17.86L17.86 20.84L15.78 19.16A8.1 8.1 0 0 1 14.39 19.74L14.11 22.39L9.89 22.39L9.61 19.74A8.1 8.1 0 0 1 8.22 19.16L6.14 20.84L3.16 17.86L4.84 15.78A8.1 8.1 0 0 1 4.26 14.39L1.61 14.11L1.61 9.89L4.26 9.61A8.1 8.1 0 0 1 4.84 8.22L3.16 6.14L6.14 3.16L8.22 4.84A8.1 8.1 0 0 1 9.61 4.26L9.89 1.61L14.11 1.61L14.39 4.26A8.1 8.1 0 0 1 15.78 4.84L17.86 3.16L20.84 6.14L19.16 8.22A8.1 8.1 0 0 1 19.74 9.61ZM15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/></svg></button>
+  </div>
+  <h2 class="ots">Lukulista</h2>
+  <ul class="nimikkeet" id="nimikkeet"></ul>
+  <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
+    linkistä, joka avaa tekstin Luinissa.</p>
+  <p class="viesti" id="viesti" hidden></p>
+  <p class="lisaa"><a href="luin/latomo.html">Uusi teksti Latomossa</a><br>
+    <a href="#u=luin/ohje.md">Kehittäjän opas</a><br>
+    <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
+    <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeilu: Kant ja eläinetiikka</a></p>
+  <p class="foot">© TUSINASOFT</p>
+</section>
+
+<!-- ===== Lukija ===== -->
+<section id="lukija" hidden>
+  <div class="ylapalkki">
+    <a class="takaisin" href="#">‹ Lukulista</a>
+    <span class="y-nimi" id="y-nimi"></span>
+    <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
+  </div>
+  <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
+  <footer id="ala">
+    <div id="jana" hidden>
+      <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
+      <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
+      <div class="jana-napit">
+        <button type="button" id="km-lisaa"><svg viewBox="0 0 8 13"><path d="M0 0H8V13L4 9.6L0 13Z"/></svg>Kirjanmerkki tähän</button>
+        <button type="button" id="merk-avaa">Kirjanmerkit ja alleviivaukset</button>
+      </div>
+    </div>
+    <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana">
+      <span id="ala-kohta"></span><span id="ala-pros"></span>
+      <svg viewBox="0 0 9 11"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg>
+    </button>
+  </footer>
+</section>
+
+<!-- ===== Asetukset ===== -->
+<div class="paneeli" id="asetukset" hidden role="dialog" aria-label="Asetukset">
+  <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
+  <h3>Ulkoasu</h3>
+  <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div></div>
+  <div class="asetus" data-a="kirjasin"><span class="nimi">Kirjasin</span><div class="valinnat" data-v="antiikva:Antiikva|groteski:Groteski"></div></div>
+  <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
+    <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
+  <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
+  <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
+  <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
+  <div class="asetus" data-a="sivutus"><span class="nimi">Näkymä</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div></div>
+  <h3>Teksti</h3>
+  <div class="asetus" data-a="sisallys"><span class="nimi">Sisällysluettelo tekstin alussa</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
+  <div class="asetus" data-a="kmTekstissa"><span class="nimi">Kirjanmerkit tekstissä</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
+  <div class="asetus" data-a="auto"><span class="nimi">Automaattinen alleviivaus</span><div class="valinnat" data-v="1:Päällä|0:Pois"></div></div>
+  <h3>Aikajana</h3>
+  <div class="asetus" data-a="janaTaso"><span class="nimi">Merkinnät tasolle</span><div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div></div>
+  <div class="asetus" data-a="kmJanalla"><span class="nimi">Kirjanmerkit aikajanalla</span><div class="valinnat" data-v="1:Näkyy|0:Piilossa"></div></div>
+  <p class="huomio">Viitenumerot näkyvät aina. Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
+</div>
+
+<!-- ===== Kirjanmerkit ja alleviivaukset ===== -->
+<div class="paneeli" id="merkinnat" hidden role="dialog" aria-label="Kirjanmerkit ja alleviivaukset">
+  <header><h2>Merkinnät</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
+  <h3>Kirjanmerkit</h3>
+  <div id="km-lista"></div>
+  <h3>Alleviivaukset</h3>
+  <div id="al-lista"></div>
+</div>
+
+<div class="valikko" id="pop" hidden></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <path id="ratas-polku" d="M19.74 9.61L22.39 9.89L22.39 14.11L19.74 14.39A8.1 8.1 0 0 1 19.16 15.78L20.84 17.86L17.86 20.84L15.78 19.16A8.1 8.1 0 0 1 14.39 19.74L14.11 22.39L9.89 22.39L9.61 19.74A8.1 8.1 0 0 1 8.22 19.16L6.14 20.84L3.16 17.86L4.84 15.78A8.1 8.1 0 0 1 4.26 14.39L1.61 14.11L1.61 9.89L4.26 9.61A8.1 8.1 0 0 1 4.84 8.22L3.16 6.14L6.14 3.16L8.22 4.84A8.1 8.1 0 0 1 9.61 4.26L9.89 1.61L14.11 1.61L14.39 4.26A8.1 8.1 0 0 1 15.78 4.84L17.86 3.16L20.84 6.14L19.16 8.22A8.1 8.1 0 0 1 19.74 9.61ZM15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/>
+</defs></svg>
+
+<script src="luin/md.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- apuvälineet ---------- */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  var esc = LuinMD.esc;
+  var LS = {
+    get: function (k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  function pvm(t) { var d = new Date(t || Date.now()); return d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear(); }
+  function fnv(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+  function uusiId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  // Salmiakki, kyljet hieman koverat (c < .5) kuten logon pisteissä.
+  function sal(cx, cy, rx, ry, c) {
+    c = c == null ? 0.38 : c;
+    function f(n) { return Math.round(n * 100) / 100; }
+    var P = [[cx, cy - ry], [cx + rx, cy], [cx, cy + ry], [cx - rx, cy]], d = 'M' + f(P[0][0]) + ' ' + f(P[0][1]);
+    for (var i = 0; i < 4; i++) {
+      var a = P[i], b = P[(i + 1) % 4];
+      d += 'Q' + f(cx + (a[0] + b[0] - 2 * cx) * c) + ' ' + f(cy + (a[1] + b[1] - 2 * cy) * c) + ' ' + f(b[0]) + ' ' + f(b[1]);
+    }
+    return d + 'Z';
+  }
+  function nauha(x, y, w, h) { return 'M' + (x - w / 2) + ' ' + y + 'H' + (x + w / 2) + 'V' + (y + h) + 'L' + x + ' ' + (y + h * .74) + 'L' + (x - w / 2) + ' ' + (y + h) + 'Z'; }
+  var NAUHA = '<svg viewBox="0 0 9 15"><path d="M0 0H9V15L4.5 11L0 15Z"/></svg>';
+  var JAKO = '<svg viewBox="0 0 15 15"><path d="M3.2 7.5L11.8 3M3.2 7.5L11.8 12" stroke="currentColor" stroke-width="1.1" fill="none"/><path fill="currentColor" d="' +
+    sal(3.2, 7.5, 2.6, 3.1) + sal(11.8, 3, 2.6, 3.1) + sal(11.8, 12, 2.6, 3.1) + '"/></svg>';
+
+  /* ---------- asetukset ---------- */
+  var OLETUS = { teema: 'vaalea', kirjasin: 'antiikva', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
+    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, auto: 0, janaTaso: 2, kmJanalla: 1 };
+  var tallennetut = LS.get('luin-asetukset', null);
+  var aset = Object.assign({}, OLETUS, tallennetut || {});
+  if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
+  function tallennaAset() { LS.set('luin-asetukset', aset); }
+
+  /* ---------- tila ---------- */
+  var lista = LS.get('luin-lista', []);
+  var nyt = null;      // { e, doc, blocks, txt, cum, total, merk }
+  var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0 };
+  var art = $('#teksti'), sivuEl = $('#sivu'), pop = $('#pop');
+
+  function tallennaLista() {
+    if (!LS.set('luin-lista', lista)) viesti('Tallennustila on täynnä: lukulistaa ei voitu tallentaa.');
+  }
+  function merkit(id) { var m = LS.get('luin-merkit:' + id, null) || {}; m.km = m.km || []; m.al = m.al || []; return m; }
+  function tallennaMerkit() { if (nyt) LS.set('luin-merkit:' + nyt.e.id, nyt.merk); }
+  function viesti(t) { var v = $('#viesti'); v.textContent = t; v.hidden = !t; }
+
+  /* ---------- reititys ---------- */
+  function reitti() {
+    suljePop(); suljePaneelit();
+    var h = location.hash.replace(/^#/, ''), p = new URLSearchParams(h);
+    if (h === 'tuo') return tuo();
+    if (p.get('id')) return avaaId(p.get('id'));
+    if (p.get('u')) return avaaOsoite(p.get('u'));
+    naytaLista();
+  }
+  window.addEventListener('hashchange', reitti);
+
+  function tuo() {
+    var t = LS.get('luin-tuonti', null);
+    LS.del('luin-tuonti');
+    if (!t || !t.md) { viesti('Siirrettävää tekstiä ei löytynyt. Avaa teksti uudelleen Latomosta.'); return naytaLista(); }
+    var doc = LuinMD.parse(t.md);
+    var id = 'p-' + LuinMD.slug(doc.title || t.nimi || 'teksti').slice(0, 60);
+    var e = lisaaListaan(id, doc, { src: 'paikallinen' });
+    if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
+    tallennaLista();
+    location.replace('#id=' + encodeURIComponent(e.id));
+  }
+
+  function lisaaListaan(id, doc, extra) {
+    var e = lista.filter(function (x) { return x.id === id; })[0];
+    if (!e) { e = { id: id, added: Date.now() }; lista.unshift(e); }
+    e.title = doc.title || e.title || 'Nimetön'; e.sub = doc.sub; e.author = doc.author; e.year = doc.year;
+    e.viite = doc.meta.viite || ''; e.osoite = doc.meta.osoite || '';
+    Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
+    return e;
+  }
+
+  function avaaId(id) {
+    var e = lista.filter(function (x) { return x.id === id; })[0];
+    var md = e && LS.get('luin-teksti:' + id, null);
+    if (!e || md == null) { viesti('Tekstiä ei ole tämän laitteen lukulistassa.'); return naytaLista(); }
+    avaa(e, md);
+  }
+
+  function dropbox(u) {
+    try {
+      var x = new URL(u, location.href);
+      if (/(^|\.)dropbox\.com$/.test(x.hostname)) { x.hostname = 'dl.dropboxusercontent.com'; x.searchParams.delete('dl'); }
+      return x.href;
+    } catch (e) { return u; }
+  }
+  function avaaOsoite(u) {
+    var abs = dropbox(u), id = 'u-' + fnv(abs);
+    var vanha = LS.get('luin-teksti:' + id, null);
+    fetch(abs, { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (md) {
+      var doc = LuinMD.parse(md);
+      var e = lisaaListaan(id, doc, { src: 'osoite', url: u });
+      LS.set('luin-teksti:' + id, md);
+      tallennaLista();
+      avaa(e, md, doc);
+    }).catch(function (err) {
+      var e = lista.filter(function (x) { return x.id === id; })[0];
+      if (e && vanha != null) return avaa(e, vanha);
+      viesti('Tekstiä ei saatu haettua (' + err.message + '): ' + abs);
+      naytaLista();
+    });
+  }
+
+  // Luin-linkki: osoitteesta haettu teksti tai etukentän osoite: (julkinen .md-tiedosto).
+  function linkki(e) {
+    var u = e.url || e.osoite;
+    return u ? location.href.split('#')[0] + '#u=' + encodeURIComponent(u) : '';
+  }
+
+  /* ---------- lähdeviite (jakonappi) ----------
+     Muoto käyttäjän tutkielman Kirjallisuus-osion mukaan (HY:n teologisen tiedekunnan
+     APA-sovellus): "… https://… (luettu 1.12.2023)." Etukentän viite: ohittaa arvauksen
+     (LuinMD.arvaaViite). Päivämäärä on viimeisin avauskerta tällä laitteella. */
+  function viite(e, html) {
+    var v = (e.viite || LuinMD.arvaaViite(e)).trim();
+    if (!/[.!?]$/.test(v)) v += '.';
+    var url = linkki(e);
+    var koko = v + ' HTML-versio' + (url ? ': ' + url : '') + ' (luettu ' + pvm(e.opened) + ').';
+    if (!html) return koko.replace(/\*([^*]+)\*/g, '$1');
+    return esc(koko).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  }
+
+  function kopioi(teksti, html) {
+    function vara() {
+      var ta = document.createElement('textarea');
+      ta.value = teksti; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      return Promise.resolve();
+    }
+    if (navigator.clipboard && window.ClipboardItem && html) {
+      return navigator.clipboard.write([new ClipboardItem({
+        'text/plain': new Blob([teksti], { type: 'text/plain' }),
+        'text/html': new Blob([html], { type: 'text/html' })
+      })]).catch(function () { return navigator.clipboard.writeText(teksti).catch(vara); });
+    }
+    if (navigator.clipboard) return navigator.clipboard.writeText(teksti).catch(vara);
+    return vara();
+  }
+
+  /* ---------- lukulistanäkymä ---------- */
+  function naytaLista() {
+    tallennaKohta(true);
+    nyt = null; tila.nakyma = 'lista';
+    document.body.classList.remove('sivutus', 'reunat');
+    $('#lukija').hidden = true; $('#lista').hidden = false;
+    document.title = 'Luin';
+    var ul = $('#nimikkeet');
+    ul.innerHTML = lista.map(function (e) {
+      var tieto = [e.author, e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
+      return '<li class="nimike"><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
+        '<span class="n-ots">' + esc(e.title) + '</span>' + (e.sub ? '<span class="n-ala">' + esc(e.sub) + '</span>' : '') +
+        '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
+        '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Jaa tai poista">' + JAKO + '</button></li>';
+    }).join('');
+    $('#tyhja').hidden = lista.length > 0;
+    window.scrollTo(0, 0);
+  }
+
+  $('#nimikkeet').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button.jako');
+    if (!b) return;
+    var e = lista.filter(function (x) { return x.id === b.dataset.id; })[0];
+    if (!e) return;
+    var url = linkki(e);
+    naytaPop(b.getBoundingClientRect(), '<div class="esi">' + viite(e, true) + '</div>' +
+      '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
+      (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
+      '<button type="button" data-k="poista" class="vaara">Poista listasta</button>', '', function (k, nappi) {
+      if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu'; }); return true; }
+      if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu'; }); return true; }
+      if (k === 'poista') {
+        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät'; return true; }
+        lista = lista.filter(function (x) { return x.id !== e.id; });
+        LS.del('luin-teksti:' + e.id); LS.del('luin-merkit:' + e.id);
+        tallennaLista(); naytaLista();
+      }
+    }, 'oikea');
+  });
+
+  /* ---------- ponnahdusvalikko ---------- */
+  var popToiminto = null;
+  function naytaPop(rect, html, luokka, toiminto, tasaus) {
+    pop.className = 'valikko' + (luokka ? ' ' + luokka : '');
+    pop.innerHTML = html; pop.hidden = false; popToiminto = toiminto;
+    var w = pop.offsetWidth, h = pop.offsetHeight, vw = innerWidth, vh = innerHeight;
+    var x = tasaus === 'oikea' ? rect.right - w : rect.left + rect.width / 2 - w / 2;
+    var y = rect.bottom + 8;
+    if (y + h > vh - 8) y = rect.top - h - 8;
+    pop.style.left = clamp(x, 8, vw - w - 8) + 'px';
+    pop.style.top = clamp(y, 8, vh - h - 8) + 'px';
+  }
+  function suljePop() { pop.hidden = true; popToiminto = null; }
+  pop.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  pop.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-k]');
+    if (!b || !popToiminto) return;
+    if (popToiminto(b.dataset.k, b) !== true) suljePop();
+  });
+  document.addEventListener('click', function (e) {
+    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref')) return;
+    suljePop();
+    // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
+    if (sivuEl.contains(e.target)) e.stopPropagation();
+  }, true);
+
+  /* ---------- paneelit ---------- */
+  function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); }
+  $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', suljePaneelit); });
+  $$('.ratas').forEach(function (b) { b.addEventListener('click', function () { suljePop(); piirraAsetukset(); $('#asetukset').hidden = false; }); });
+
+  var SAL_IKONI = '<svg viewBox="0 0 8 11"><path class="sal" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>';
+  function piirraAsetukset() {
+    $$('#asetukset .valinnat[data-v]').forEach(function (v) {
+      var a = v.parentNode.dataset.a;
+      v.innerHTML = v.dataset.v.split('|').map(function (o) {
+        var kv = o.split(':'), arvo = isNaN(+kv[0]) ? kv[0] : +kv[0];
+        return '<button type="button" data-arvo="' + kv[0] + '" aria-pressed="' + (aset[a] === arvo) + '">' + SAL_IKONI + kv[1] + '</button>';
+      }).join('');
+    });
+    $('#koko-arvo').textContent = aset.koko + ' px';
+  }
+  $('#asetukset').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-arvo], button[data-askel]');
+    if (!b) return;
+    var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
+    if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
+    else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
+    tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
+  });
+
+  function sovellaTeema() {
+    document.documentElement.dataset.teema = aset.teema;
+    document.documentElement.style.setProperty('--koko', aset.koko + 'px');
+    document.documentElement.style.setProperty('--kirjasin', aset.kirjasin === 'groteski' ? 'var(--groteski)' : 'var(--antiikva)');
+  }
+  function sovellaAsetukset(ennen) {
+    sovellaTeema();
+    if (!nyt) return;
+    var a = tila.ankkuri;
+    if (ennen.tavutus !== aset.tavutus || ennen.sisallys !== aset.sisallys) { piirraTeksti(); }
+    asettele(a);
+    if (ennen.sivutus !== aset.sivutus) suljePaneelit();
+  }
+
+  /* ---------- tekstin solmut ja kohdat ----------
+     Kohta = { b: lohkon numero (data-b), o: merkkien määrä lohkon alusta }. Laskussa ohitetaan
+     sivuhuomiot, viitenumerot ja käyttöliittymä (.luin-ui) sekä tavutuksen pehmeät tavuviivat,
+     jotta kohta ei muutu tavutuksen tai asetusten mukana. */
+  var POIS = '.sidenote,.fnref,.luin-ui,input';
+  function solmut(el) {
+    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), a = [], n;
+    while ((n = tw.nextNode())) { if (!n.parentElement.closest(POIS)) a.push(n); }
+    return a;
+  }
+  function pituus(s) { return s.replace(/­/g, '').length; }
+  function raaka(v, k) { var c = 0; for (var i = 0; i < v.length; i++) { if (v.charCodeAt(i) === 0xAD) continue; if (c === k) return i; c++; } return v.length; }
+  function lohkoteksti(el) { return solmut(el).map(function (n) { return n.nodeValue; }).join('').replace(/­/g, ''); }
+  function solmuun(el, o) {
+    var ns = solmut(el), c = 0;
+    for (var k = 0; k < ns.length; k++) {
+      var len = pituus(ns[k].nodeValue);
+      if (o < c + len) return { n: ns[k], i: raaka(ns[k].nodeValue, o - c) };
+      c += len;
+    }
+    var l = ns[ns.length - 1];
+    return l ? { n: l, i: l.nodeValue.length } : null;
+  }
+  function lohkoon(el, node, off) {
+    var r = document.createRange(); r.setStart(node, off); r.collapse(true);
+    var ns = solmut(el), c = 0;
+    for (var k = 0; k < ns.length; k++) {
+      var t = ns[k];
+      if (t === node) return c + pituus(t.nodeValue.slice(0, off));
+      if (r.comparePoint(t, t.nodeValue.length) <= 0) { c += pituus(t.nodeValue); continue; }
+      return c;
+    }
+    return c;
+  }
+  function lohkoOf(node) { var el = node.nodeType === 1 ? node : node.parentElement; el = el && el.closest('[data-b]'); return el && art.contains(el) ? el : null; }
+  function kohtaPisteessa(x, y) {
+    var node, off;
+    if (document.caretRangeFromPoint) { var r = document.caretRangeFromPoint(x, y); if (!r) return null; node = r.startContainer; off = r.startOffset; }
+    else if (document.caretPositionFromPoint) { var q = document.caretPositionFromPoint(x, y); if (!q) return null; node = q.offsetNode; off = q.offset; }
+    else return null;
+    var el = lohkoOf(node), pe = node.nodeType === 1 ? node : node.parentElement;
+    if (!el || pe.closest(POIS)) return null;
+    return { b: +el.dataset.b, o: lohkoon(el, node, off) };
+  }
+  function kohdanLaatikko(k) {
+    var el = nyt.blocks[k.b];
+    if (!el) return null;
+    var p = solmuun(el, k.o);
+    if (p && p.i < p.n.nodeValue.length) {
+      var r = document.createRange(); r.setStart(p.n, p.i); r.setEnd(p.n, p.i + 1);
+      var rs = r.getClientRects();
+      // Tavutusrajan jälkeisen merkin laatikoista ensimmäinen on Chromiumissa edellisen rivin
+      // lopussa näkyvä tavuviiva (mitattu: 6,7 px leveä, edellisellä sivulla). Merkin oma
+      // laatikko on viimeinen.
+      if (rs.length) return rs[rs.length - 1];
+    }
+    var er = el.getClientRects();
+    return er.length ? er[0] : el.getBoundingClientRect();
+  }
+  function osuus(k) { return nyt.total ? clamp((nyt.cum[k.b] + k.o) / nyt.total, 0, 1) : 0; }
+  function katkelma(k, n) { return (nyt.txt[k.b] || '').slice(k.o, k.o + (n || 40)); }
+  // Kohta, jonka teksti on muuttunut (uusi versio), haetaan katkelman perusteella läheltä.
+  function paikanna(k) {
+    if (!k || !k.s || !nyt.txt.length) return k;
+    var b0 = clamp(k.b, 0, nyt.txt.length - 1);
+    if ((nyt.txt[b0] || '').slice(k.o, k.o + k.s.length) === k.s) return k;
+    for (var d = 0; d < nyt.txt.length; d++) {
+      var c = d ? [b0 - d, b0 + d] : [b0];
+      for (var j = 0; j < c.length; j++) {
+        var t = nyt.txt[c[j]];
+        if (t == null) continue;
+        var i = t.indexOf(k.s);
+        if (i >= 0) return Object.assign({}, k, { b: c[j], o: i });
+      }
+    }
+    return null;
+  }
+  function osioKohdassa(k) {
+    var o = null;
+    nyt.doc.toc.forEach(function (t) { if (t.b <= k.b) o = t; });
+    return o;
+  }
+
+  /* ---------- avaaminen ja piirtäminen ---------- */
+  function avaa(e, md, doc) {
+    doc = doc || LuinMD.parse(md);
+    lisaaListaan(e.id, doc);
+    e.opened = Date.now();
+    lista = [e].concat(lista.filter(function (x) { return x !== e; }));
+    tallennaLista();
+    nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };
+    tila.nakyma = 'lukija';
+    $('#lista').hidden = true; $('#lukija').hidden = false;
+    document.title = e.title + ' – Luin';
+    $('#y-nimi').textContent = e.title;
+    $('#jana').hidden = true; $('#ala-nappi').setAttribute('aria-expanded', 'false');
+    piirraTeksti();
+    var k = paikanna(e.pos) || { b: 0, o: 0 };
+    asettele(k);
+  }
+
+  function piirraTeksti() {
+    var d = nyt.doc, html = d.html;
+    if (aset.sisallys && d.toc.length) {
+      var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisällys</p><ol>' + d.toc.filter(function (t) { return t.lvl <= 2; }).map(function (t) {
+        return '<li class="t' + t.lvl + '"><a href="#" data-go="' + t.b + '">' + esc(t.text) + '</a></li>';
+      }).join('') + '</ol></nav>';
+      html = html.indexOf('</header>') >= 0 ? html.replace('</header>', '</header>' + sis) : sis + html;
+    }
+    art.innerHTML = html;
+    // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
+    $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
+    if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
+    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0;
+    $$('[data-b]', art).forEach(function (el) {
+      var b = +el.dataset.b, t = lohkoteksti(el);
+      nyt.blocks[b] = el; nyt.txt[b] = t; nyt.cum[b] = nyt.total; nyt.total += t.length + 1;
+    });
+    // Merkintöjen kohdat tarkistetaan (tekstistä on voinut tulla uusi versio).
+    var muuttui = false;
+    nyt.merk.km.forEach(function (k) { var p = paikanna(k); if (p && (p.b !== k.b || p.o !== k.o)) { k.b = p.b; k.o = p.o; muuttui = true; } k.orpo = !p; });
+    nyt.merk.al.forEach(function (h) {
+      h.segs.forEach(function (s) {
+        var p = paikanna({ b: s.b, o: s.s, s: s.x });
+        if (p && p.b !== s.b || p && p.o !== s.s) { s.b = p.b; s.e = p.o + (s.e - s.s); s.s = p.o; muuttui = true; }
+        s.orpo = !p;
+      });
+      piirraAlleviivaus(h);
+    });
+    if (muuttui) tallennaMerkit();
+  }
+
+  function asettele(k) {
+    sovellaTeema();
+    var sivut = aset.sivutus === 'sivut';
+    art.className = [aset.kirjasin === 'groteski' ? 'groteski' : '', aset.kappale === 'sisennys' ? 'sisennys' : '',
+      aset.tasaus === 'tasattu' ? 'tasattu' : '', 'tavu-' + (aset.tavutus === 'selain' ? 'selain' : aset.tavutus === 'ei' ? 'ei' : 'js')].join(' ');
+    document.body.classList.toggle('sivutus', sivut);
+    var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
+    document.body.classList.toggle('reunat', reunat);
+    if (sivut) {
+      art.style.transform = 'none';
+      var vw = sivuEl.clientWidth, W = Math.min(vw - 40, Math.round(33 * koko));
+      if (vw < 480) W = vw - 32;
+      var G = vw - W;
+      tila.W = W; tila.stride = W + G;
+      art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
+      art.style.columnWidth = W + 'px'; art.style.columnGap = G + 'px';
+      art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
+      var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
+      var rs = viim ? viim.getClientRects() : [];
+      var r = rs.length ? rs[rs.length - 1] : null;
+      tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
+    } else {
+      art.style.cssText = '';
+    }
+    mene(k || { b: 0, o: 0 });
+  }
+
+  function mene(k) {
+    k = k && nyt.blocks[k.b] ? k : { b: 0, o: 0 };
+    tila.ankkuri = { b: k.b, o: k.o, s: katkelma(k, 32) };
+    if (k.ed && aset.sivutus === 'sivut') tila.ankkuri.ed = k.ed;
+    if (aset.sivutus === 'sivut') {
+      var al = art.getBoundingClientRect().left, r = kohdanLaatikko(k);
+      var p = r ? Math.floor((r.left - al + 2) / tila.stride) : 0;
+      if (k.ed) p = Math.max(0, p - k.ed);
+      if (k.b === 0 && k.o === 0) p = 0;
+      sivulle(p, true);
+    } else {
+      var rr = kohdanLaatikko(k), y = 0;
+      if (rr && !(k.b === 0 && k.o === 0)) y = window.scrollY + rr.top + rr.height / 2 - YLA;
+      tila.hiljaa = Date.now() + 250;
+      window.scrollTo(0, Math.max(0, y));
+      paivita();
+    }
+  }
+
+  function sivulle(p, pidaAnkkuri) {
+    tila.sivu = clamp(p, 0, tila.sivuja - 1);
+    art.style.transform = 'translateX(' + (-tila.sivu * tila.stride) + 'px)';
+    if (!pidaAnkkuri) tila.ankkuri = nykyinenKohta();
+    suljePop();
+    paivita();
+  }
+
+  // Ensimmäinen näkyvä tekstikohta: sivun tai ruudun vasen yläkulma. Vierityksessä kohta on
+  // se rivi, jonka keskikohta on y = YLA (yläpalkki 44 px + puoli riviä + väli). mene() vierittää
+  // merkin keskikohdan samaan kohtaan, jotta sama kohta luetaan takaisin samana: rivin yläreunaa
+  // käytettäessä otsikon riviltä luettiin edellinen rivi, koska otsikon rivien laatikot menevät
+  // päällekkäin (line-height 1,25).
+  var YLA = 70;
+  function nykyinenKohta() {
+    var B = nyt.blocks, n = B.length, lo = 0, hi = n, k;
+    if (!n) return { b: 0, o: 0 };
+    if (aset.sivutus === 'sivut') {
+      var al = art.getBoundingClientRect().left, s = tila.stride, p = tila.sivu;
+      var alkuSivu = function (b) { var rs = B[b].getClientRects(); return rs.length ? Math.floor((rs[0].left - al + 2) / s) : 0; };
+      while (lo < hi) { var m = (lo + hi) >> 1; if (alkuSivu(m) >= p) hi = m; else lo = m + 1; }
+      var ed = lo - 1;
+      if (ed >= 0) {
+        var rs = B[ed].getClientRects(), vika = rs[rs.length - 1];
+        if (vika && Math.floor((vika.left - al + 2) / s) >= p) {
+          var x0 = al + p * s, kk = null;
+          for (var j = 0; j < rs.length; j++) if (Math.floor((rs[j].left - al + 2) / s) === p) { kk = kohtaPisteessa(x0 + 3, rs[j].top + 6); break; }
+          return kk && kk.b === ed ? kk : { b: ed, o: 0 };
+        }
+      }
+      // Sivulla ei ala eikä jatku yksikään lohko (sisällysluettelo, joka voi olla monisivuinen):
+      // kohta on seuraavan lohkon alku, ja ed kertoo montako sivua ennen sitä ollaan.
+      var jj = Math.min(lo, n - 1), ero = alkuSivu(jj) - p;
+      return ero > 0 ? { b: jj, o: 0, ed: ero } : { b: jj, o: 0 };
+    }
+    while (lo < hi) { var mm = (lo + hi) >> 1; if (B[mm].getBoundingClientRect().bottom > YLA) hi = mm; else lo = mm + 1; }
+    if (lo >= n) return { b: n - 1, o: 0 };
+    var r = B[lo].getBoundingClientRect();
+    if (r.top >= YLA) return { b: lo, o: 0 };
+    k = kohtaPisteessa(r.left + 3, YLA);
+    return k && k.b === lo ? k : { b: lo, o: 0 };
+  }
+
+  var tallennusAjastin = null;
+  function tallennaKohta(heti) {
+    if (!nyt || !tila.ankkuri) return;
+    clearTimeout(tallennusAjastin);
+    var f = function () {
+      nyt.e.pos = tila.ankkuri; nyt.e.pct = Math.round(osuus(tila.ankkuri) * 100); nyt.e.opened = Date.now();
+      tallennaLista();
+    };
+    if (heti) f(); else tallennusAjastin = setTimeout(f, 500);
+  }
+
+  function paivita() {
+    if (!nyt) return;
+    var k = tila.ankkuri, o = osioKohdassa(k);
+    $('#ala-kohta').textContent = o ? o.text : nyt.e.title;
+    var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
+    $('#ala-pros').textContent = pros;
+    $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
+    $('#jana-pros').textContent = pros;
+    piirraKirjanmerkit();
+    piirraJana();
+    tallennaKohta();
+  }
+
+  /* ---------- vieritys, sivunvaihto, näppäimet ---------- */
+  var vierAjastin = 0;
+  window.addEventListener('scroll', function () {
+    if (!nyt || aset.sivutus === 'sivut' || vierAjastin) return;
+    vierAjastin = requestAnimationFrame(function () {
+      vierAjastin = 0;
+      if (Date.now() < tila.hiljaa) return;
+      tila.ankkuri = nykyinenKohta(); tila.ankkuri.s = katkelma(tila.ankkuri, 32);
+      paivita();
+    });
+  }, { passive: true });
+  sivuEl.addEventListener('scroll', function () { if (aset.sivutus === 'sivut' && sivuEl.scrollLeft) sivuEl.scrollLeft = 0; });
+
+  // Mobiiliselaimen osoiterivi muuttaa ikkunan korkeutta vieritettäessä. Vierityksessä vain
+  // leveyden muutos vaatii uuden asettelun; muuten kohta hyppäisi kesken vierityksen.
+  var kokoAjastin = null, edKoko = innerWidth + 'x' + innerHeight;
+  window.addEventListener('resize', function () {
+    clearTimeout(kokoAjastin);
+    kokoAjastin = setTimeout(function () {
+      var koko = innerWidth + 'x' + innerHeight, leveysSama = koko.split('x')[0] === edKoko.split('x')[0];
+      edKoko = koko;
+      if (!nyt || (leveysSama && aset.sivutus !== 'sivut')) return;
+      asettele(tila.ankkuri);
+    }, 150);
+  });
+  if (document.fonts && document.fonts.addEventListener) {
+    document.fonts.addEventListener('loadingdone', function () { if (nyt) asettele(tila.ankkuri); });
+  }
+
+  function seuraava(d) { if (aset.sivutus === 'sivut') sivulle(tila.sivu + d); }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { suljePop(); suljePaneelit(); return; }
+    if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
+    if (!$('#asetukset').hidden || !$('#merkinnat').hidden) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); seuraava(-1); }
+    else if (k === 'Home') { e.preventDefault(); sivulle(0); }
+    else if (k === 'End') { e.preventDefault(); sivulle(tila.sivuja - 1); }
+  });
+  var rullaAika = 0;
+  sivuEl.addEventListener('wheel', function (e) {
+    if (aset.sivutus !== 'sivut') return;
+    e.preventDefault();
+    var nytAika = Date.now();
+    if (nytAika - rullaAika < 380 || Math.abs(e.deltaY) + Math.abs(e.deltaX) < 4) return;
+    rullaAika = nytAika;
+    seuraava((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1);
+  }, { passive: false });
+  var kosketus = null;
+  sivuEl.addEventListener('touchstart', function (e) { if (e.touches.length === 1) kosketus = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; }, { passive: true });
+  sivuEl.addEventListener('touchend', function (e) {
+    if (!kosketus || aset.sivutus !== 'sivut') return;
+    var t = e.changedTouches[0], dx = t.clientX - kosketus.x, dy = t.clientY - kosketus.y;
+    var lyhyt = Date.now() - kosketus.t < 600;
+    kosketus = null;
+    if (lyhyt && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5 && valintaTyhja()) { tila.pyyhkaisty = Date.now(); seuraava(dx < 0 ? 1 : -1); }
+  }, { passive: true });
+
+  function valintaTyhja() { var s = getSelection(); return !s || s.isCollapsed; }
+
+  /* ---------- napautukset tekstissä ---------- */
+  sivuEl.addEventListener('click', function (e) {
+    if (!nyt) return;
+    var t = e.target;
+    var go = t.closest('a[data-go]');
+    if (go) { e.preventDefault(); mene({ b: +go.dataset.go, o: 0 }); return; }
+    var a = t.closest('#teksti a[href]');
+    if (a) {
+      var href = a.getAttribute('href');
+      if (href.charAt(0) === '#') { e.preventDefault(); var kohde = document.getElementById(href.slice(1)); if (kohde && kohde.dataset.b) mene({ b: +kohde.dataset.b, o: 0 }); }
+      else { a.target = '_blank'; a.rel = 'noopener'; }
+      return;
+    }
+    var fn = t.closest('.fnref');
+    if (fn && aset.sivutus === 'sivut') {
+      e.preventDefault();
+      var huom = fn.parentNode.querySelector('.sidenote[data-n="' + fn.textContent + '"]');
+      if (huom) {
+        var sis = huom.cloneNode(true), nro = sis.querySelector('.fnnum');
+        if (nro) nro.remove();
+        naytaPop(fn.getBoundingClientRect(), '<span class="nro">' + esc(fn.textContent) + '</span>' + sis.innerHTML, 'viite', null);
+      }
+      return;
+    }
+    if (fn) return;
+    var km = t.closest('.km');
+    if (km) { naytaKmPop(km.dataset.k, km.getBoundingClientRect()); return; }
+    var m = t.closest('mark.ali');
+    if (m && valintaTyhja()) { naytaAlPop(m.dataset.h, m.getBoundingClientRect()); return; }
+    if (aset.sivutus !== 'sivut' || !valintaTyhja()) return;
+    if (!pop.hidden) { suljePop(); return; }
+    if (tila.pyyhkaisty && Date.now() - tila.pyyhkaisty < 400) return;
+    var x = e.clientX / innerWidth;
+    if (x < 0.3) seuraava(-1);
+    else if (x > 0.7) seuraava(1);
+    else avaaJana(!$('#jana').hidden ? false : true);
+  });
+
+  /* ---------- alleviivaukset ---------- */
+  var KIRJAIN = /[0-9A-Za-zÀ-ÖØ-öø-ÿ]/;
+  function valintaPaloiksi(r) {
+    var segs = [];
+    nyt.blocks.forEach(function (el, b) {
+      if (!el || !r.intersectsNode(el)) return;
+      var t = nyt.txt[b], s = el.contains(r.startContainer) ? lohkoon(el, r.startContainer, r.startOffset) : 0;
+      var e = el.contains(r.endContainer) ? lohkoon(el, r.endContainer, r.endOffset) : t.length;
+      while (s < e && /\s/.test(t[s])) s++;
+      while (e > s && /\s/.test(t[e - 1])) e--;
+      // Kesken sanan alkava tai loppuva valinta laajenee koko sanaan.
+      while (s > 0 && s < e && KIRJAIN.test(t[s - 1]) && KIRJAIN.test(t[s])) s--;
+      while (e < t.length && e > s && KIRJAIN.test(t[e]) && KIRJAIN.test(t[e - 1])) e++;
+      if (e > s) segs.push({ b: b, s: s, e: e, x: t.slice(s, e) });
+    });
+    return segs;
+  }
+  function piirraAlleviivaus(h) {
+    h.segs.forEach(function (sg) {
+      if (sg.orpo) return;
+      var el = nyt.blocks[sg.b];
+      if (!el) return;
+      var ns = solmut(el), c = 0;
+      ns.forEach(function (t) {
+        var v = t.nodeValue, len = pituus(v), a = c, z = c + len;
+        c = z;
+        if (z <= sg.s || a >= sg.e) return;
+        var rs = raaka(v, Math.max(0, sg.s - a)), re = raaka(v, Math.min(len, sg.e - a));
+        if (re <= rs) return;
+        var mid = rs > 0 ? t.splitText(rs) : t;
+        if (re - rs < mid.nodeValue.length) mid.splitText(re - rs);
+        var m = document.createElement('mark');
+        m.className = 'ali'; m.dataset.h = h.id;
+        mid.parentNode.insertBefore(m, mid); m.appendChild(mid);
+      });
+    });
+  }
+  function poistaAlleviivaus(id) {
+    nyt.merk.al = nyt.merk.al.filter(function (h) { return h.id !== id; });
+    tallennaMerkit();
+    $$('mark.ali[data-h="' + id + '"]', art).forEach(function (m) {
+      var p = m.parentNode;
+      while (m.firstChild) p.insertBefore(m.firstChild, m);
+      p.removeChild(m); p.normalize();
+    });
+  }
+  function alTeksti(h) { return h.segs.map(function (s) { return s.x; }).join('\n\n'); }
+  function luoAlleviivaus(segs) {
+    var sama = nyt.merk.al.filter(function (h) {
+      return segs.every(function (s) { return h.segs.some(function (q) { return q.b === s.b && q.s <= s.s && q.e >= s.e; }); });
+    })[0];
+    if (sama) return sama;
+    var h = { id: uusiId(), segs: segs, t: Date.now() };
+    nyt.merk.al.push(h);
+    nyt.merk.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; });
+    tallennaMerkit(); piirraAlleviivaus(h);
+    return h;
+  }
+  function naytaAlPop(id, rect) {
+    var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
+    if (!h) return;
+    naytaPop(rect, '<button type="button" data-k="kopioi">Kopioi katkelma</button><button type="button" data-k="poista" class="vaara">Poista alleviivaus</button>', 'rivi', function (k, b) {
+      if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { b.textContent = 'Kopioitu'; }); return true; }
+      if (k === 'poista') { poistaAlleviivaus(id); paivitaMerkinnat(); }
+    });
+  }
+
+  var valAjastin = null, osoitin = 'mouse';
+  document.addEventListener('pointerdown', function (e) { osoitin = e.pointerType || 'mouse'; }, true);
+  document.addEventListener('pointerup', function (e) {
+    if (osoitin === 'mouse' && !pop.contains(e.target)) setTimeout(kasitteleValinta, 0);
+  }, true);
+  document.addEventListener('selectionchange', function () {
+    clearTimeout(valAjastin);
+    if (osoitin !== 'mouse') valAjastin = setTimeout(kasitteleValinta, 1200);
+  });
+  function kasitteleValinta() {
+    if (!nyt || tila.nakyma !== 'lukija') return;
+    var s = getSelection();
+    if (!s || !s.rangeCount || s.isCollapsed) return;
+    var r = s.getRangeAt(0);
+    if (!art.contains(r.commonAncestorContainer) && r.commonAncestorContainer !== art) return;
+    var segs = valintaPaloiksi(r);
+    if (!segs.length) return;
+    var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
+    var alku = { b: segs[0].b, o: segs[0].s };
+    if (aset.auto) {
+      var h = luoAlleviivaus(segs);
+      s.removeAllRanges();
+      naytaAlPop(h.id, rect);
+      return;
+    }
+    naytaPop(rect, '<button type="button" data-k="ali">Alleviivaa</button><button type="button" data-k="kopioi">Kopioi</button><button type="button" data-k="km">Kirjanmerkki</button>', 'rivi', function (k, b) {
+      if (k === 'ali') { luoAlleviivaus(segs); getSelection().removeAllRanges(); }
+      if (k === 'kopioi') { kopioi(segs.map(function (x) { return x.x; }).join('\n\n')).then(function () { b.textContent = 'Kopioitu'; }); return true; }
+      if (k === 'km') { lisaaKirjanmerkki(alku); getSelection().removeAllRanges(); }
+    });
+  }
+  // Kopioitaessa pehmeät tavuviivat pois.
+  document.addEventListener('copy', function (e) {
+    var s = getSelection();
+    if (!nyt || !s || s.isCollapsed || !art.contains(s.anchorNode)) return;
+    e.clipboardData.setData('text/plain', s.toString().replace(/­/g, ''));
+    e.preventDefault();
+  });
+
+  /* ---------- kirjanmerkit ---------- */
+  function lisaaKirjanmerkki(k) {
+    k = k || tila.ankkuri;
+    var o = osioKohdassa(k);
+    nyt.merk.km.push({ id: uusiId(), b: k.b, o: k.o, s: katkelma(k, 40), t: Date.now(), osio: o ? o.text : '' });
+    nyt.merk.km.sort(function (a, b) { return a.b - b.b || a.o - b.o; });
+    tallennaMerkit(); paivita(); paivitaMerkinnat();
+  }
+  function poistaKirjanmerkki(id) {
+    nyt.merk.km = nyt.merk.km.filter(function (k) { return k.id !== id; });
+    tallennaMerkit(); paivita(); paivitaMerkinnat();
+  }
+  function naytaKmPop(id, rect) {
+    var k = nyt.merk.km.filter(function (x) { return x.id === id; })[0];
+    if (!k) return;
+    naytaPop(rect, '<div class="esi">Kirjanmerkki ' + esc(pvm(k.t)) + (k.osio ? ' · ' + esc(k.osio) : '') + '</div><button type="button" data-k="poista" class="vaara">Poista kirjanmerkki</button>', '', function (kk) {
+      if (kk === 'poista') poistaKirjanmerkki(id);
+    });
+  }
+  // Nauha vasempaan reunukseen sen rivin kohdalle, jolla kirjanmerkin kohta on.
+  function piirraKirjanmerkit() {
+    $$('.km', sivuEl).forEach(function (n) { n.remove(); });
+    if (!nyt || !aset.kmTekstissa) return;
+    var sr = sivuEl.getBoundingClientRect(), al = art.getBoundingClientRect().left, sivut = aset.sivutus === 'sivut';
+    var vasen = sivut ? parseFloat(art.style.marginLeft) || 0 : al - sr.left;
+    nyt.merk.km.forEach(function (k) {
+      if (k.orpo || !nyt.blocks[k.b]) return;
+      var r = kohdanLaatikko(k);
+      if (!r) return;
+      if (sivut && Math.floor((r.left - al + 2) / tila.stride) !== tila.sivu) return;
+      var n = document.createElement('span');
+      n.className = 'km luin-ui'; n.dataset.k = k.id; n.innerHTML = NAUHA;
+      n.setAttribute('role', 'button'); n.setAttribute('aria-label', 'Kirjanmerkki');
+      n.style.left = Math.max(2, vasen - 14) + 'px';
+      n.style.top = (r.top - sr.top + (r.height - 15) / 2) + 'px';
+      sivuEl.appendChild(n);
+    });
+  }
+
+  /* ---------- aikajana ---------- */
+  function avaaJana(auki) {
+    $('#jana').hidden = !auki;
+    $('#ala-nappi').setAttribute('aria-expanded', String(auki));
+    $('#ala-nappi .sal').classList.toggle('tay', auki);
+    if (auki) piirraJana();
+  }
+  $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
+  $('#km-lisaa').addEventListener('click', function () { lisaaKirjanmerkki(); });
+  $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
+
+  var JANA = { pad: 13, y: 21 };
+  function janaKohteet() {
+    var a = [];
+    nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
+    if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
+    return a;
+  }
+  function piirraJana() {
+    var svg = $('#jana-svg');
+    if (!nyt || $('#jana').hidden) return;
+    var w = svg.clientWidth || 300, h = 46, x0 = JANA.pad, x1 = w - JANA.pad, y = JANA.y;
+    var X = function (f) { return x0 + f * (x1 - x0); };
+    var s = '<path class="j-viiva" d="M' + x0 + ' ' + y + 'H' + x1 + 'M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/>';
+    janaKohteet().forEach(function (m) {
+      var x = X(osuus(m.k)), d;
+      if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
+      else if (m.lvl === 1) d = '<path class="j1" d="' + sal(x, y, 5.6, 7.4) + '"/>';
+      else if (m.lvl === 2) d = '<path class="j2" d="' + sal(x, y, 4.2, 5.6) + '"/>';
+      else d = '<path class="j3" d="' + sal(x, y, 2.5, 3.4) + '"/>';
+      s += '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
+    });
+    var cx = X(osuus(tila.ankkuri));
+    s += '<path class="j-nyt-v" d="M' + cx + ' 9V' + (y + 13) + '"/><path class="j-nyt" d="M' + (cx - 4.5) + ' 1.5H' + (cx + 4.5) + 'L' + cx + ' 9Z"/>';
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.innerHTML = s;
+  }
+  function janaKohde(clientX) {
+    var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), x0 = JANA.pad, x1 = r.width - JANA.pad;
+    var x = clientX - r.left, f = clamp((x - x0) / (x1 - x0), 0, 1), paras = null, ero = 14;
+    janaKohteet().forEach(function (m) { var d = Math.abs(x0 + osuus(m.k) * (x1 - x0) - x); if (d < ero) { ero = d; paras = m; } });
+    if (paras) return paras;
+    var pos = f * nyt.total, b = 0;
+    for (var i = 0; i < nyt.cum.length; i++) if (nyt.cum[i] != null && nyt.cum[i] <= pos) b = i;
+    var o = clamp(Math.round(pos - nyt.cum[b]), 0, Math.max(0, nyt.txt[b].length - 1));
+    var kk = { b: b, o: o }, osio = osioKohdassa(kk);
+    return { k: kk, nimi: osio ? osio.text : nyt.e.title };
+  }
+  (function () {
+    var svg = $('#jana-svg'), veto = false;
+    svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} $('#jana-kohta').textContent = janaKohde(e.clientX).nimi; });
+    svg.addEventListener('pointermove', function (e) { if (veto || e.pointerType === 'mouse') $('#jana-kohta').textContent = janaKohde(e.clientX).nimi; });
+    svg.addEventListener('pointerleave', function () { if (!veto) paivita(); });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; veto = false; var m = janaKohde(e.clientX); mene(m.k); });
+    svg.addEventListener('pointercancel', function () { veto = false; paivita(); });
+  })();
+
+  /* ---------- merkintälista ---------- */
+  function paivitaMerkinnat() {
+    if (!nyt) return;
+    var km = nyt.merk.km, al = nyt.merk.al;
+    $('#km-lista').innerHTML = km.length ? km.map(function (k) {
+      return '<div class="merkki">' + NAUHA.replace('<svg', '<svg aria-hidden="true"') + '<button type="button" class="m-teksti" data-mene="km:' + k.id + '"><span class="m-kohta">' +
+        esc((k.osio ? k.osio + ' · ' : '') + pvm(k.t)) + '</span>' + esc(k.s) + '…' + (k.orpo ? ' (kohtaa ei löydy)' : '') + '</button>' +
+        '<div class="m-napit"><button type="button" data-poista="km:' + k.id + '">Poista</button></div></div>';
+    }).join('') : '<p class="tyhja-m">Ei kirjanmerkkejä. Lisää aikajanan alta tai valitsemalla tekstiä.</p>';
+    $('#al-lista').innerHTML = al.length ? al.map(function (h) {
+      var o = osioKohdassa({ b: h.segs[0].b }), t = alTeksti(h);
+      return '<div class="merkki"><button type="button" class="m-teksti" data-mene="al:' + h.id + '"><span class="m-kohta">' +
+        esc((o ? o.text + ' · ' : '') + pvm(h.t)) + '</span><span class="ali-teksti">' + esc(t.length > 220 ? t.slice(0, 220) + '…' : t) + '</span></button>' +
+        '<div class="m-napit"><button type="button" data-kopioi="' + h.id + '">Kopioi</button><button type="button" data-poista="al:' + h.id + '">Poista</button></div></div>';
+    }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (aset.auto ? '.' : ' ja paina Alleviivaa.') + '</p>';
+  }
+  $('#merkinnat').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || !nyt) return;
+    if (b.dataset.mene) {
+      var p = b.dataset.mene.split(':'), k;
+      if (p[0] === 'km') k = nyt.merk.km.filter(function (x) { return x.id === p[1]; })[0];
+      else { var h = nyt.merk.al.filter(function (x) { return x.id === p[1]; })[0]; k = h && { b: h.segs[0].b, o: h.segs[0].s }; }
+      if (k) { suljePaneelit(); mene(k); }
+    } else if (b.dataset.poista) {
+      var q = b.dataset.poista.split(':');
+      if (q[0] === 'km') poistaKirjanmerkki(q[1]); else { poistaAlleviivaus(q[1]); paivitaMerkinnat(); }
+    } else if (b.dataset.kopioi) {
+      var hh = nyt.merk.al.filter(function (x) { return x.id === b.dataset.kopioi; })[0];
+      if (hh) kopioi(alTeksti(hh)).then(function () { b.textContent = 'Kopioitu'; });
+    }
+  });
+
+  window.addEventListener('pagehide', function () { tallennaKohta(true); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) tallennaKohta(true); });
+
+  sovellaTeema();
+  reitti();
+
+  // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
+  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, valinta: function () { kasitteleValinta(); } };
+})();
+</script>
+</body>
+</html>

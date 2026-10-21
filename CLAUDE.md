@@ -466,3 +466,54 @@ oikeammalla kuin ennen. Soivan kappaleen nimi on lihavoitu ja turkoosi
 oikean tyynyn reunan viewBoxin rajalla; samasta syystä listan logolla on `overflow: visible`.
 Soittimen osoitinpallo (`.knob`) on turkoosi (`--accent`) kuten logon janan nuppi (käyttäjän
 vaatimus: soitin harmoniassa logon kanssa).
+
+## Luin (lukulaite)
+
+`luin.html` (juuressa, koska ohjelman nimi on luin.html) on lukulista ja lukija samalla sivulla.
+`luin/md.js` on yhteinen Markdown-jäsennin ja suomen tavutus, `luin/latomo.html` generaattori
+(*Latomo*: tarkistaa md:n, lisää etukentän `viite:`/`osoite:`, avaa Luinissa tällä laitteella
+avaimen `luin-tuonti` kautta tai antaa .md:n ladattavaksi). Kehittäjän opas on `luin/ohje.md`, ja se
+on samalla toinen kokeiluteksti (`luin.html#u=luin/ohje.md`). Kaikki on selaimen localStoragessa
+(`luin-asetukset`, `luin-lista`, `luin-teksti:<id>`, `luin-merkit:<id>`); palvelinta ei ole.
+Käyttäjän vaatimukset 20.10.2026:
+- **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (KV/worker, repo, Dropbox) on myöhempi kysymys.
+- **Jakaminen on ERITTÄIN sivuosassa**: vain lukulistan nimikkeen oikean laidan pieni jakonappi, jonka
+  ponnahdusvalikosta kopioidaan lähdeviite (ja verkkotekstin linkki) ja poistetaan nimike listasta.
+  Viitteen muoto on päätelty tutkielman kirjallisuusluettelosta (`… HTML-versio: <Luin-linkki> (luettu
+  D.M.VVVV).`); Clauden projektikansioiden sitaattisääntöjä ei voitu lukea.
+- **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
+- **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti, ei
+  varjoja eikä läpikuultavuutta (e-ink). Aikajanan merkinnät erotetaan muodolla: pääluku iso täytetty
+  salmiakki, alaluku pienempi ontto, kolmas taso pieni harmaa; kirjanmerkki ruosteinen nauha viivan
+  alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
+  (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on
+  kompromissi kaartuvan ja terävän välillä.
+- **md-konventiot ovat käyttäjän omat** (aiemmat md → html -muunnokset, malli tutkielman html-versio)
+  ja menevät yleisen Markdownin edelle: otsikkolohko (#, kursiivi alaotsikko, tietorivit `<br>`:llä),
+  `luku-2-1`-tunnisteet, numeroimaton ### versaalikursiivina (`.caps`), `^[…]` sivuhuomioiksi
+  (fnref + fntoggle + sidenote), `## Kirjallisuus` → `p.bib`. Lainausmerkkejä ei muuteta.
+- Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
+  Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, hiusviiva pisteestä
+  päätepisteeseen N:n vinoviivan kautta (leikkaa sen n. 61 %:n korkeudella, koska tiiviin N:n jyrkkää
+  vinoviivaa pitkin suora ei voi kulkea), alarivi HTML ohuena väljänä ylärivin levyisenä. Luonnos;
+  käyttäjä ei ole vielä nähnyt sitä.
+- Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
+- `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
+  laatikko on Chromiumissa edellisen rivin lopun tavuviiva (6,7 px, edellisellä sivulla).
+- Vierityksen kohta on rivi, jonka **keskikohta** on y = 70 (`YLA`), ja `mene()` vierittää merkin
+  keskikohdan samaan: yläreunaa käytettäessä otsikon riviltä luettiin edellinen rivi (laatikot
+  päällekkäin, line-height 1,25), ja kohta ajautui joka kokomuutoksella rivin ylöspäin.
+- Sivutettuna kohdassa voi olla `ed`: sivu ilman tekstilohkoja (sisällysluettelo, voi olla
+  monisivuinen) ankkuroidaan seuraavan lohkon alkuun `ed` sivua ennen sitä.
+- Sivutettuna `hr.ennen-lukua` (--- juuri ennen ##-otsikkoa) piilotetaan: pääluku alkaa uudelta
+  sivulta, ja viiva jäi muuten yksin omalle sivulleen.
+- Vierityksessä pelkkä ikkunan korkeuden muutos ei aseta tekstiä uudelleen (mobiilin osoiterivi).
+- Tavutus luokittelee rajat; varovainen tila jättää pois vokaalin ja yksinäisen konsonantin välisen
+  rajan, koska yhdyssanavirheet (*kansalai-soikeus*) ovat aina sitä tyyppiä. ie/uo/yö ovat diftongeja
+  myös ensitavun jälkeen paitsi monikon genetiivissä (*talvi-en*). Kursiivia ei tavuteta.
+Kandidaatintutkielma on **väliaikaisesti** repossa (käyttäjän lupa 20.10.2026: "voit laittaa väliaikaisesti
+tutkielman nettiin"): `luin/tekstit/kant-ja-elainetiikka.md` (etukenttä + alkuperäinen md muuttamattomana),
+lukulistan linkki *Kokeilu: Kant ja eläinetiikka* ja `robots.txt` (`Disallow: /luin/tekstit/`). Kun käyttäjä
+sanoo kokeilun päättyneen, poista kansio, linkki ja robots.txt:n rivi. Muita käyttäjän tekstejä ei viedä repoon
+ilman erillistä lupaa.
