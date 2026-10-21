@@ -138,7 +138,9 @@ Alapalkin napautus avaa aikajanan. Sijainnit lasketaan merkkimäärästä, joten
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
 - nykyinen kohta: musta kolmio ja hiusviiva.
 
-Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään.
+Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään. Vedettäessä (hiirellä tai sormella; käyttäjän pyyntö 21.10.2026) osoitin seuraa vetoa, ja voimassa oleva kohta jää haalean harmaaksi haamuosoittimeksi. Teksti ei liiku eikä luettu osa muutu ennen irrotusta. Liikkeessä siirretään vain osoittimen `transform`ia kerran ruudunpäivitystä kohden, jotta e-ink päivittää vain pienen alueen.
+
+Sivutettuna vapaa kohta pyöristetään sen sivun alkuun (`sivunAlku()`), joten osoitin hyppää vedettäessä sivu kerrallaan ja näyttää tarkalleen, mihin irrotus vie; irrotuksen jälkeen kohta on sama kuin sivua käännettäessä. Sivujakoa ei lasketa uudelleen hyppykohdasta alkaen, koska silloin sivunumerot ja sivujen rajat muuttuisivat joka hypyllä. Merkin lähellä osoitin tarttuu merkkiin kuten ennenkin. Ruudun ulkopuolisille sivuille ei voi käyttää `caretRangeFromPoint`ia, joten sivun ensimmäinen merkki haetaan puolitushaulla merkkien laatikoista.
 
 ### 4.5 Asetukset
 
@@ -209,7 +211,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, aikajanan hypyn ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `valinta()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 
