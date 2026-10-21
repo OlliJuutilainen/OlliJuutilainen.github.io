@@ -828,6 +828,9 @@
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
     if (b.dataset.kytkin) aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
     else if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
+    // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Pääluvut sammuttaa
+    // kaikki etapit); muu napautus asettaa tason (käyttäjän päätös 21.10.2026).
+    else if (a === 'janaTaso') aset.janaTaso = aset.janaTaso === +b.dataset.arvo ? +b.dataset.arvo - 1 : +b.dataset.arvo;
     else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
     tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
   });
