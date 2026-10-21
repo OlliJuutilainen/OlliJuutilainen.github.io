@@ -46,6 +46,10 @@ palvelin.listen(0, async () => {
       lahteet: document.querySelectorAll('p.bib').length, varoitukset: d.warnings.length };
   });
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
+  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan.
+  const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
+    return { n: a.length, rikki: a.filter(x => { const k = document.getElementById(x.getAttribute('href').slice(1)); return !k || !k.classList.contains('bib'); }).length }; });
+  tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 
   // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
@@ -136,6 +140,33 @@ palvelin.listen(0, async () => {
   const vienti = fs.readFileSync(await lataus.path(), 'utf8');
   await p.click('#asetukset .sulje');
   tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti), lataus.suggestedFilename() + ', ' + vienti.split('\n').length + ' riviä');
+
+  // Tuonti: kirjanmerkki ja lukukohta keskimmäiseen lukuun, vienti edistymisen kanssa, merkinnät
+  // tyhjiksi, tuonti tiedostonvalinnasta. Merkintöjen pitää palata samoihin kohtiin.
+  const osio = await p.evaluate(() => {
+    const L = window.__luin, n = L.nyt(), toc = n.doc.toc, i = Math.floor(toc.length / 2), h = toc[i];
+    n.merk.km.push({ id: 'testikm', b: h.b + 1, o: 5, s: n.txt[h.b + 1].slice(5, 45), t: 1, osio: h.text });
+    L.mene({ b: h.b + 1, o: 0 });
+    return { a: h.b, z: toc[i + 1] ? toc[i + 1].b : 1e9, nimi: h.text, merk: JSON.stringify(n.merk) };
+  });
+  await p.waitForTimeout(300);
+  await p.click('#lukija .ratas'); await p.click('#vienti summary'); await p.click('#vie-valinnat button[data-vie="vieEd"]');
+  const [lataus2] = await Promise.all([p.waitForEvent('download'), p.click('#vie')]);
+  const vienti2 = fs.readFileSync(await lataus2.path(), 'utf8');
+  await p.evaluate(() => { const n = window.__luin.nyt(); localStorage.setItem('luin-merkit:' + n.e.id, '{}'); });
+  await p.reload(); await p.waitForTimeout(500);
+  await p.click('#lukija .ratas'); await p.click('#vienti summary');
+  await p.setInputFiles('#tuo-tiedosto', { name: 'merkinnat.md', mimeType: 'text/markdown', buffer: Buffer.from(vienti2) });
+  await p.waitForSelector('#vie-tieto button[data-siirry]');
+  await p.evaluate(m => { window.__alkup = m; }, osio.merk);
+  const vrt = await p.evaluate(() => {
+    const m = window.__luin.nyt().merk, k = x => JSON.stringify({ al: x.al.map(h => [h.segs.map(s => [s.b, s.s, s.e]), h.n]), km: x.km.map(q => [q.b, q.o]) });
+    return { tieto: document.querySelector('#vie-tieto').textContent, merkit: document.querySelectorAll('mark.ali').length, sama: k(m) === k(JSON.parse(window.__alkup)) };
+  });
+  await p.click('#vie-tieto button[data-siirry]'); await p.waitForTimeout(400);
+  const perilla = (await tila()).a;
+  tulos('merkintöjen tuonti', vrt.sama && vrt.merkit > 0 && vienti2.includes('Sijainti: ') && vienti2.includes(osio.nimi) && /<!-- kohta/.test(vienti2) &&
+    perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
 
   // Aikajana: viimeisen pääluvun merkki vie sen otsikkoon.
   await p.click('#ala-nappi');

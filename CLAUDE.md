@@ -569,6 +569,12 @@ Käyttäjän vaatimukset 20.10.2026:
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
+  *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
+  vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
+  missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
+  `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
+  ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
 - Haku (käyttäjän säännöt 21.10.2026; opas, luku 4.7): aikajanan alla *Merkinnät*-laatikon oikealla puolella laatikko
   *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,
   kuin lainausmerkeissä; ei JA eikä TAI); lainausmerkeissä sana on kokonainen (*"kant"* ei löydä sanaa *kantilainen*).
@@ -577,7 +583,7 @@ Käyttäjän vaatimukset 20.10.2026:
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
   - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *Näytä:* isolla alkukirjaimella ja kursiivilla (käyttäjän päätökset
-    21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja huomiolla *Viitenumerot näkyvät aina*; hajurakoa 8 px ylä- ja 12 px alapuolella (h3:n ja otsikon väli 19 px, otsikon ja listan 12 px); versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
+    21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja huomiolla *Viitenumerot näkyvät aina*; hajurakoa 8 px yläpuolella, alapuolella tavallinen 1 px kuten muilla nimillä (käyttäjän päätös 21.10.2026; hetken 12 px); sama 8 px:n lisäväli on kaikkien asetusten väliotsikoiden alla, myös *Ulkoasu*-otsikon, eli h3:n ja ensimmäisen nimen väli on 19 px; versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
     (alleviivausten alla pieni lisäkytkin *Automaattinen alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
     *Aikajana* Pääluvut / Alaluvut (oletus 21.10.2026 alkaen; ennen sitä hetken Kaikki) / Kaikki sekä kirjanmerkit ja
     edistyminen. Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` automaattinen alleviivaus,
@@ -594,10 +600,16 @@ Käyttäjän vaatimukset 20.10.2026:
     Kopioinnin kuittaus on rasti; poiston vahvistus *Poista myös kirjaus* on edelleen tekstiä (ruoste).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
-  - *Vie merkinnät tekstitiedostoon* on asetusten alimpana supistettuna; oletuksena alleviivaukset ja kirjaukset,
-    ei kirjanmerkkejä. Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan vain osioille, joissa on
-    vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke vain jos
-    alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.
+  - *Vie tai tuo merkinnät tekstitiedostona* on asetusten alimpana supistettuna; oletuksena viedään alleviivaukset,
+    kirjaukset ja kirjanmerkit, ja viimeisenä on *Edistymisen tilanne* (oletuksena pois: otsikon alle `Viety:` ja
+    `Sijainti:` otsikon tarkkuudella, ei tarkemmin). Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan
+    vain osioille, joissa on vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke
+    vain jos alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.
+  - **Tuonti** (`tuoMerkinnat()`, käyttäjän pyyntö 21.10.2026: ei virallista tiedostomuodon tunnistetta, vientiä muutetaan
+    vain sen verran kuin tuonti ehdottomasti vaatii). Vientiin tuli kaksi lisää: osiossaan toistuvan lainauksen ensimmäisen
+    rivin perään `[n/m]` ja kirjanmerkin perään esikatselussa näkymätön `<!-- kohta: katkelma -->`. Tiedosto tunnistetaan
+    `#`-otsikosta ja rivistä *Luetun merkinnät*, osiot tekstin otsikoista. Vanhasta viennistä (ilman näitä) tuodaan
+    kirjanmerkit likimäärin. Säännöt: `luin/ohje.md`, luku 4.6.
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
   laatikko on Chromiumissa edellisen rivin lopun tavuviiva (6,7 px, edellisellä sivulla).

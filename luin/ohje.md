@@ -93,6 +93,8 @@ Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta) saa
 
 `## Kirjallisuus` (tai Lähteet, Lähdeluettelo, Bibliografia, References) tekee seuraavista kappaleista riippuvasisennettyjä seuraavaan `##`-otsikkoon asti.
 
+Alaviitteen lähdeviittaus muuttuu linkiksi luettelon kohtaan, kun yhteys on varma. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti ja vuosi ensimmäinen sulkeissa oleva vuosi (`Kant, Immanuel (2017a).`, `Syrjintä (s.a.).`). Sukunimi ja vuosi (*Singer 2023*) linkittyy, jos luettelossa on tasan yksi tämän tekijän tämän vuoden kohta. Sukunimi ja muu paikannin (*Korsgaard 8.1.2*) linkittyy, jos tekijältä on luettelossa vain yksi kohta tai vain yksi, johon tekstissä ei missään viitata vuosiluvulla. Muuten linkkiä ei tule, eikä lyhenteitä (*GMS*, *KrV*) linkitetä. Latomo luettelee tarkistuksessa, mitkä viittaukset linkittyvät mihin ja miksi jokin jää ilman. Linkki on alaotsikon harmaa eikä ruoste, haalealla alleviivauksella.
+
 ### 3.5 Etukenttä
 
 Tiedoston alussa voi olla etukenttä:
@@ -157,16 +159,32 @@ Oletuksena kaikki muu näkyy, aikajanalla pääluvut ja alaluvut, ja automaattin
 
 Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi valikkojen, salmiakkien ja logon kanssa; se otetaan takaisin vain, jos koko ohjelman ulkoasu sovitetaan siihen. Vanha tallennettu valinta ohitetaan.
 
-### 4.6 Merkintöjen vienti
+### 4.6 Merkintöjen vienti ja tuonti
 
-Asetusten alimpana, muista erotettuna, on supistettu osio *Vie merkinnät tekstitiedostoon*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
+Asetusten alimpana, muista erotettuna, on supistettu osio *Vie tai tuo merkinnät tekstitiedostona*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. Viimeisenä on *Edistymisen tilanne* (oletuksena pois). *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
 
-Tiedosto alkaa tekstin nimellä (`#`), alaotsikolla *Luetun merkinnät*, lähdeviitteellä ja `---`-viivalla. Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
+Tiedosto alkaa tekstin nimellä (`#`), alaotsikolla *Luetun merkinnät*, lähdeviitteellä ja `---`-viivalla. Jos edistymisen tilanne viedään, alaotsikon ja lähdeviitteen välissä on tietorivit `Viety: 21.10.2026<br>` ja `Sijainti: 3. Kant ja eläimet › 3.1 Kantin vaikea eläinsuhde`: lukukohta otsikon tarkkuudella, ei tarkemmin (käyttäjän päätös 21.10.2026; ennen ensimmäistä otsikkoa *tekstin alku*). Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
 
 - Alleviivaus on lainaus (`> …`). Jos kirjaukset viedään, alleviivauksen kirjaus tulee lainauksen jälkeen omana kappaleenaan.
 - Kirjanmerkki on `KIRJANMERKKI n`, numeroituna tekstin järjestyksessä. Jos alleviivauksia ei viedä, sen perään lainataan virke, jonka kohdalla kirjanmerkki on. Virke päättyy välimerkkiin, jota seuraa iso kirjain; tavalliset lyhenteet (*esim.*, *mm.*, *ks.* …) ja nimikirjaimet eivät katkaise sitä. Otsikon kohdalla olevasta kirjanmerkistä lainataan seuraavan lohkon ensimmäinen virke.
 - Pelkät kirjaukset (tai kirjaukset ja kirjanmerkit, kun kirjanmerkkejä ei ole) ovat luettelona (`- …`) osioidensa otsikoiden alla. Kirjanmerkkien kanssa kirjaus on kappale merkintöjen välissä.
 - Merkinnät, joiden kohtaa ei uudesta tekstiversiosta löydy, ovat lopussa omana osionaan.
+
+Tuontia varten vientiin tuli 21.10.2026 kaksi lisää, muuten muoto on ennallaan:
+
+- Jos alleviivattu katkelma esiintyy osiossaan (syvin otsikko, jonka alla se on) useammin kuin kerran, lainauksen ensimmäisen rivin perässä on `[n/m]`: n:s esiintymä m:stä. Esiintymiksi lasketaan vain kohdat, joista alleviivaus voi alkaa ja loppua (sanarajat), joten esimerkiksi *ja* ei osu sanan *Kantin ja* sisään eikä *Kant* sanaan *Kantin*.
+- Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma kohdasta, tarvittaessa `kohta n/m:`). Esikatselussa sitä ei näy. Ilman sitä kirjanmerkin kohta katoaisi, kun alleviivaukset viedään (silloin virkettä ei lainata).
+
+*Tuo tiedostosta* lukee viedyn tiedoston ja lisää sen merkinnät avoimeen tekstiin. Tiedostomuotoa ei ole merkitty tunnisteilla, vaan tuonti nojaa siihen, mitä vienti joka tapauksessa kirjoittaa:
+
+- Tiedosto tunnistetaan `#`-otsikosta ja rivistä *Luetun merkinnät*. Jos otsikko on eri kuin avoimen tekstin, merkinnät tuodaan vain, jos ainakin puolet lainauksista löytyy tekstistä.
+- Otsikkorivi rajaa haun osioon, kun tekstissä on samantasoinen samanniminen otsikko (samannimisistä edellisen jälkeinen). Lainaus haetaan osiosta `[n/m]`:n mukaisesta esiintymästä; jos tekstiä on muutettu, koko tekstistä lähimpänä osion alkua. Merkintä, jota ei löydy, tuodaan kohdattomana (Merkinnät-laatikossa *kohtaa ei löydy*).
+- Merkintöjen välinen `---` on erotin vain tyhjien rivien välissä. Alleviivauksen jälkeinen osa, joka ei ala lainauksella eikä kirjanmerkillä, on saman kirjauksen jatkoa.
+- Kirjausta ilman lainausta (vienti ilman alleviivauksia) ei voi kiinnittää tekstiin, joten se jää tuomatta.
+- Jo olemassa olevaa ei tuoda toiseen kertaan: sama alleviivaus ja kirjanmerkki samassa kohdassa ohitetaan, ja uusi kirjaus liitetään olemassa olevaan alleviivaukseen. Tiedoston voi siis tuoda laitteeseen, jossa merkinnät jo osittain ovat.
+- *Sijainti* ei siirrä lukukohtaa itsestään; tilarivillä on linkki *Siirry sijaintiin*.
+
+Ennen 21.10.2026 viedyssä tiedostossa ei ole `[n/m]`-merkintöjä eikä kirjanmerkkien kommentteja. Toistuvasta lainauksesta valitaan silloin esiintymä, jota sama tuonti ei ole jo käyttänyt ja joka ei ole toisen alleviivauksen sisällä. Kirjanmerkki ilman lainattua virkettä sijoitetaan likimäärin edellisen merkinnän loppuun tai osion alkuun (mieluummin liian aikaisin kuin liian myöhään); jos edellisen ja seuraavan merkinnän välissä on jo kirjanmerkki, se katsotaan samaksi. Tilarivi kertoo likimääräiset ja tuomatta jääneet.
 
 ### 4.7 Haku
 
@@ -229,7 +247,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin), haun (osumien määrä on sama kuin riippumattomalla säännöllisellä lausekkeella neljällä hakutavalla; valittu osuma on sivulla ja korostettu; Enter vie seuraavaan) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`, `etsi()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, merkintöjen tuonnin (vienti edistymisen kanssa, tyhjennys, tuonti tiedostonvalinnasta: samat kohdat ja *Siirry sijaintiin*), aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin), haun (osumien määrä on sama kuin riippumattomalla säännöllisellä lausekkeella neljällä hakutavalla; valittu osuma on sivulla ja korostettu; Enter vie seuraavaan) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`, `etsi()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 
