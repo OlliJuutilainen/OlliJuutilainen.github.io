@@ -224,6 +224,9 @@
   .j-km { fill: var(--ruoste); }
   .j-nyt { fill: var(--muste); }
   .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
+  /* Vedettäessä osoitin seuraa sormea, ja voimassa oleva kohta jää haalean harmaaksi haamuksi. */
+  .haamu .j-nyt { fill: var(--viiva); }
+  .haamu .j-nyt-v { stroke: var(--viiva); }
   .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
@@ -265,6 +268,16 @@
   .ali-teksti { text-decoration: underline; text-decoration-color: var(--ruoste); text-decoration-thickness: .1em;
     text-underline-offset: .2em; }
   .merkki .m-kirjaus { display: block; margin-top: 5px; font-style: italic; white-space: pre-wrap; }
+  /* Merkintälistan supistuvat osiot: otsikko pysyy h3:n kohdalla (24 px yllä, 2 px alla), mutta
+     napautusalue on 8 px korkeampi kummaltakin puolelta. Salmiakki täynnä auki, ontto kiinni;
+     top 1 px asettaa sen versaalin keskelle (mitattu Literatalla, ero 0,25 px). */
+  details.m-osio summary { list-style: none; display: flex; align-items: center; gap: 7px; cursor: pointer;
+    padding: 8px 0; margin: 16px 0 -6px; color: var(--harmaa); }
+  details.m-osio summary::-webkit-details-marker { display: none; }
+  details.m-osio summary h3 { margin: 0; }
+  details.m-osio summary svg { width: 6px; height: 7.4px; flex: 0 0 auto; position: relative; top: 1px; }
+  details.m-osio summary .sal { stroke-width: 1.1; }
+  details.m-osio[open] summary .sal { fill: currentColor; }
   .tyhja-m { color: var(--harmaa); font-style: italic; font-size: .88rem; margin: 10px 0; }
   /* merkintöjen vienti asetusten alimpana, normaalisti supistettuna */
   details.vienti { margin: 34px 0 0; border-top: 1px solid var(--viiva); border-bottom: 1px solid var(--viiva); }
@@ -366,10 +379,11 @@
 <!-- ===== Kirjanmerkit, alleviivaukset ja kirjaukset ===== -->
 <div class="paneeli" id="merkinnat" hidden role="dialog" aria-label="Kirjanmerkit, alleviivaukset ja kirjaukset">
   <header><h2>Merkinnät</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
-  <h3>Kirjanmerkit</h3>
-  <div id="km-lista"></div>
-  <h3>Alleviivaukset ja kirjaukset</h3>
-  <div id="al-lista"></div>
+  <!-- Osiot supistuvat otsikon vieressä olevasta salmiakista (käyttäjän pyyntö 21.10.2026); tila muistetaan. -->
+  <details class="m-osio" data-kiinni="kmKiinni" open><summary><h3>Kirjanmerkit</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+    <div id="km-lista"></div></details>
+  <details class="m-osio" data-kiinni="alKiinni" open><summary><h3>Alleviivaukset ja kirjaukset</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+    <div id="al-lista"></div></details>
 </div>
 
 <div class="valikko" id="pop" hidden></div>
@@ -416,9 +430,10 @@
 
   /* ---------- asetukset ---------- */
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki).
+  // kmKiinni, alKiinni: merkintälistan supistetut osiot.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 3, kmJanalla: 1,
-    vieAl: 1, vieKm: 1, vieKi: 1, av: 2 };
+    vieAl: 1, vieKm: 1, vieKi: 1, kmKiinni: 0, alKiinni: 0, av: 2 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -821,6 +836,7 @@
 
   function asettele(k) {
     sovellaTeema();
+    sivuAlut = {};
     var sivut = aset.sivutus === 'sivut';
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
       aset.tasaus === 'tasattu' ? 'tasattu' : '', 'tavu-' + (aset.tavutus === 'selain' ? 'selain' : aset.tavutus === 'ei' ? 'ei' : 'js')].join(' ');
@@ -1281,6 +1297,10 @@
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
+  $$('#merkinnat details.m-osio').forEach(function (d) {
+    d.open = !aset[d.dataset.kiinni];
+    d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
+  });
 
   var JANA = { pad: 13, y: 21 };
   function janaKohteet() {
@@ -1308,9 +1328,36 @@
       if (m.km || f <= nf) luettu += d; else tuleva += d;
     });
     s += '<g class="tuleva">' + tuleva + '</g>' + luettu;
-    s += '<path class="j-nyt-v" d="M' + cx + ' 9V' + (y + 13) + '"/><path class="j-nyt" d="M' + (cx - 4.5) + ' 1.5H' + (cx + 4.5) + 'L' + cx + ' 9Z"/>';
+    var osoitin = '<path class="j-nyt-v" d="M0 9V' + (y + 13) + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
+    s += '<g' + (janaVeto ? ' class="haamu"' : '') + ' transform="translate(' + cx + ' 0)">' + osoitin + '</g>';
+    if (janaVeto) s += '<g id="j-veto" transform="translate(' + X(janaVeto.f) + ' 0)">' + osoitin + '</g>';
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
+  }
+  // Sivutettuna aikajanalta pääsee vain sivun alkuun (sivujako on kiinteä), joten vapaa kohta
+  // pyöristetään sen sivun ensimmäiseen merkkiin, ja osoitin hyppää vedettäessä sivu kerrallaan.
+  // Ruudun ulkopuolisille sivuille ei voi käyttää caretRangeFromPointia kuten nykyinenKohta(),
+  // joten merkki haetaan puolitushaulla merkkien laatikoista (kohdanLaatikko).
+  var sivuAlut = {};
+  function sivuKohdassa(k) {
+    var r = kohdanLaatikko(k);
+    return r ? Math.floor((r.left - art.getBoundingClientRect().left + 2) / tila.stride) : 0;
+  }
+  function sivunAlku(p) {
+    if (sivuAlut[p]) return sivuAlut[p];
+    var B = nyt.blocks, n = B.length, lo = 0, hi = n, al = art.getBoundingClientRect().left, s = tila.stride, k;
+    var alkuSivu = function (b) { var rs = B[b].getClientRects(); return rs.length ? Math.floor((rs[0].left - al + 2) / s) : 0; };
+    while (lo < hi) { var m = (lo + hi) >> 1; if (alkuSivu(m) >= p) hi = m; else lo = m + 1; }
+    var ed = lo - 1, rs = ed >= 0 ? B[ed].getClientRects() : [], vika = rs[rs.length - 1];
+    if (vika && Math.floor((vika.left - al + 2) / s) >= p) {
+      var a = 0, y = Math.max(0, nyt.txt[ed].length - 1);
+      while (a < y) { var mm = (a + y) >> 1; if (sivuKohdassa({ b: ed, o: mm }) >= p) y = mm; else a = mm + 1; }
+      k = { b: ed, o: a };
+    } else {
+      var jj = Math.min(lo, n - 1), ero = alkuSivu(jj) - p;
+      k = ero > 0 ? { b: jj, o: 0, ed: ero } : { b: jj, o: 0 };
+    }
+    return (sivuAlut[p] = k);
   }
   function janaKohde(clientX) {
     var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), x0 = JANA.pad, x1 = r.width - JANA.pad;
@@ -1320,16 +1367,38 @@
     var pos = f * nyt.total, b = 0;
     for (var i = 0; i < nyt.cum.length; i++) if (nyt.cum[i] != null && nyt.cum[i] <= pos) b = i;
     var o = clamp(Math.round(pos - nyt.cum[b]), 0, Math.max(0, nyt.txt[b].length - 1));
-    var kk = { b: b, o: o }, osio = osioKohdassa(kk);
+    var kk = { b: b, o: o };
+    if (aset.sivutus === 'sivut') kk = f === 0 ? { b: 0, o: 0 } : sivunAlku(sivuKohdassa(kk));
+    var osio = osioKohdassa(kk);
     return { k: kk, nimi: osio ? osio.text : nyt.e.title };
   }
+  // Vedon aikana voimassa oleva kohta pysyy (teksti ei liiku, luettu osa ei muutu), ja vain
+  // vedettävä osoitin siirtyy. Liikkeessä siirretään vain sen transformia, ei piirretä janaa
+  // uudelleen, ja kerran ruudunpäivitystä kohden: e-ink päivittää näin vain pienen alueen.
+  var janaVeto = null;
   (function () {
-    var svg = $('#jana-svg'), veto = false;
-    svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} $('#jana-kohta').textContent = janaKohde(e.clientX).nimi; });
-    svg.addEventListener('pointermove', function (e) { if (veto || e.pointerType === 'mouse') $('#jana-kohta').textContent = janaKohde(e.clientX).nimi; });
-    svg.addEventListener('pointerleave', function () { if (!veto) paivita(); });
-    svg.addEventListener('pointerup', function (e) { if (!veto) return; veto = false; var m = janaKohde(e.clientX); mene(m.k); });
-    svg.addEventListener('pointercancel', function () { veto = false; paivita(); });
+    var svg = $('#jana-svg'), veto = false, odottaa = null;
+    var nayta = function (clientX) {
+      var m = janaKohde(clientX), f = osuus(m.k), g = $('#j-veto');
+      $('#jana-kohta').textContent = m.nimi;
+      if (!veto) return;
+      var uusi = !janaVeto;
+      janaVeto = { f: f };
+      if (uusi || !g) { piirraJana(); return; }
+      var r = svg.getBoundingClientRect();
+      g.setAttribute('transform', 'translate(' + (JANA.pad + f * (r.width - 2 * JANA.pad)) + ' 0)');
+    };
+    var loppu = function () { veto = false; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
+    svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX); });
+    svg.addEventListener('pointermove', function (e) {
+      if (!veto && e.pointerType !== 'mouse') return;
+      var x = e.clientX;
+      if (odottaa) cancelAnimationFrame(odottaa);
+      odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x); });
+    });
+    svg.addEventListener('pointerleave', function () { if (!veto) { if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } paivita(); } });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); mene(m.k); });
+    svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
 
   /* ---------- merkintälista ---------- */
@@ -1476,7 +1545,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, valinta: function () { kasitteleValinta(); } };
+  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); } };
 })();
 </script>
 </body>

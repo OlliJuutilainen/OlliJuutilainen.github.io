@@ -148,6 +148,44 @@ palvelin.listen(0, async () => {
   tulos('aikajanan hyppy', (await p.textContent('#ala-kohta')) === kohde.nimi, kohde.nimi);
   await kuva('3-aikajana');
 
+  // Aikajanan veto sivutettuna: voimassa oleva kohta ja sivu pysyvät vedon ajan, vedettävä
+  // osoitin hyppää sivun alusta toiseen, ja irrotus vie sille sivulle. Jokaisen sivun alku vie
+  // takaisin samalle sivulle.
+  const alut = await p.evaluate(() => {
+    const L = window.__luin, v = [];
+    for (let i = 0; i < L.tila.sivuja; i++) { L.mene(L.sivunAlku(i)); if (L.tila.sivu !== i) v.push(i + '→' + L.tila.sivu); }
+    return v;
+  });
+  tulos('sivujen alut', alut.length === 0, alut.slice(0, 6).join(', '));
+  const veto = async (x0, x1, askelia) => {
+    const r = await p.evaluate(() => { const b = document.querySelector('#jana-svg').getBoundingClientRect(); return { l: b.left, w: b.width, y: b.top + 21 }; });
+    const ennen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY }));
+    await p.mouse.move(r.l + x0 * r.w, r.y); await p.mouse.down();
+    const xt = new Set(); let pysyi = true, haamu = true;
+    for (let i = 1; i <= askelia; i++) {
+      await p.mouse.move(r.l + (x0 + (x1 - x0) * i / askelia) * r.w, r.y); await p.waitForTimeout(20);
+      const t = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY,
+        g: document.querySelector('#j-veto')?.getAttribute('transform'), h: !!document.querySelector('#jana-svg .haamu') }));
+      if (t.s !== ennen.s || t.a !== ennen.a || t.y !== ennen.y) pysyi = false;
+      if (!t.g || !t.h) haamu = false; else xt.add(parseFloat(t.g.slice(10)));
+    }
+    await p.mouse.up(); await p.waitForTimeout(150);
+    const jalkeen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: window.__luin.tila.ankkuri, y: scrollY,
+      g: !!document.querySelector('#j-veto'), h: !!document.querySelector('#jana-svg .haamu') }));
+    return { ennen, xt: [...xt], pysyi, haamu, jalkeen, r };
+  };
+  await p.evaluate(() => window.__luin.mene({ b: 0, o: 0 }));
+  const vs = await veto(0.2, 0.3, 40);
+  const sivuX = await p.evaluate(w => { const L = window.__luin, o = k => (L.nyt().cum[k.b] + k.o) / L.nyt().total, a = [];
+    for (let i = 0; i < L.tila.sivuja; i++) a.push(13 + o(L.sivunAlku(i)) * (w - 26));
+    // Merkin lähellä (14 px) osoitin tarttuu merkkiin kuten ennenkin; muualla sivun alkuun.
+    L.nyt().doc.toc.forEach(t => a.push(13 + o({ b: t.b, o: 0 }) * (w - 26)));
+    L.nyt().merk.km.forEach(k => a.push(13 + o(k) * (w - 26)));
+    return a; }, vs.r.w);
+  const kvantti = vs.xt.every(x => sivuX.some(s => Math.abs(s - x) < 0.01));
+  tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && kvantti && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
+    'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' + (kvantti ? ', kaikki sivujen alkuja tai merkkejä' : ', EI sivujen alkuja'));
+
   // Vieritys: luettu kohta → mene() → sama kohta (ei ajaudu riviä ylöspäin).
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(400);
@@ -160,6 +198,13 @@ palvelin.listen(0, async () => {
     return v;
   });
   tulos('vierityksen kohta', ajautuma.length === 0, ajautuma.slice(0, 4).join(', '));
+
+  // Aikajanan veto vierityksessä: sivu ei vierity vedon aikana, osoitin liikkuu vapaasti.
+  await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
+  await p.click('#ala-nappi');
+  const vv = await veto(0.2, 0.3, 40);
+  tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
+    'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();

@@ -126,7 +126,7 @@ Tekstin valinta avaa valikon: *Alleviivaa*, *Kirjaa*, *Kopioi* ja kuparinen kirj
 
 Kirjaus on alleviivaukseen liitetty muistiinpano. *Kirjaa* alleviivaa valinnan ja avaa tekstilaatikon, joka kasvaa tekstin mukana enintään 30 % ruudun korkeudesta ja vierii sen jälkeen. Kirjauksen pituus on enintään 5 000 merkkiä, ja jäljellä oleva määrä näkyy laatikon alla. Raja suojaa vain tallennustilaa: localStorage on yhteinen koko sivustolle (noin 5 Mt). *Tallenna*, Ctrl+Enter tai napautus muokkaimen ulkopuolelle tallentaa; *Peruuta* ja Esc peruvat muutoksen, ja juuri tehty alleviivaus poistuu. Kirjoittamisen aikana muokkain pysyy näkyvällä alueella näppäimistön yläpuolella, eikä sivunäkymää aseteta uudelleen. Jos sovellus siirtyy taustalle kesken kirjoittamisen, luonnos tallennetaan.
 
-Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva alapalkin tekstien värillä, myös aikajanan ollessa kiinni) nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja sen napautus poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit, alleviivaukset ja kirjaukset ovat listana aikajanan alla laatikossa *Merkinnät*. Listassa alleviivattua katkelmaa ei alleviivata (käyttäjän päätös 21.10.2026): alleviivaus näkyy vain tekstissä itsessään.
+Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva alapalkin tekstien värillä, myös aikajanan ollessa kiinni) nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja sen napautus poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit, alleviivaukset ja kirjaukset ovat listana aikajanan alla laatikossa *Merkinnät*. Listan osiot *Kirjanmerkit* sekä *Alleviivaukset ja kirjaukset* supistuvat otsikon vieressä olevasta pienestä salmiakista (täynnä auki, ontto kiinni), ja tila muistetaan asetuksissa (käyttäjän pyyntö 21.10.2026). Listassa alleviivattua katkelmaa ei alleviivata (käyttäjän päätös 21.10.2026): alleviivaus näkyy vain tekstissä itsessään.
 
 ### 4.4 Aikajana
 
@@ -138,7 +138,9 @@ Alapalkin napautus avaa aikajanan, ja uusi napautus sulkee sen. Oikeassa reunass
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
 - nykyinen kohta: musta kolmio ja hiusviiva.
 
-Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään.
+Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään. Vedettäessä (hiirellä tai sormella; käyttäjän pyyntö 21.10.2026) osoitin seuraa vetoa, ja voimassa oleva kohta jää haalean harmaaksi haamuosoittimeksi. Teksti ei liiku eikä luettu osa muutu ennen irrotusta. Liikkeessä siirretään vain osoittimen `transform`ia kerran ruudunpäivitystä kohden, jotta e-ink päivittää vain pienen alueen.
+
+Sivutettuna vapaa kohta pyöristetään sen sivun alkuun (`sivunAlku()`), joten osoitin hyppää vedettäessä sivu kerrallaan ja näyttää tarkalleen, mihin irrotus vie; irrotuksen jälkeen kohta on sama kuin sivua käännettäessä. Sivujakoa ei lasketa uudelleen hyppykohdasta alkaen, koska silloin sivunumerot ja sivujen rajat muuttuisivat joka hypyllä. Merkin lähellä osoitin tarttuu merkkiin kuten ennenkin. Ruudun ulkopuolisille sivuille ei voi käyttää `caretRangeFromPoint`ia, joten sivun ensimmäinen merkki haetaan puolitushaulla merkkien laatikoista.
 
 ### 4.5 Asetukset
 
@@ -209,7 +211,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, aikajanan hypyn ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `valinta()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 

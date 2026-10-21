@@ -555,6 +555,10 @@ Käyttäjän vaatimukset 20.10.2026:
   Alapalkin oikeassa reunassa on natsa (11 × 6,5 px, viiva 1 px kuten kirjanmerkissä; käyttäjän päätös 21.10.2026):
   kiinni ylös osoittava ja hyvin haalea (`--viiva`), auki alas osoittava ja tekstien värinen (`--harmaa`), kehotuksena
   sulkea aikajana. Se korvasi salmiakin (ääriviiva kiinni, täytetty auki). Tila tulee CSS:ssä `aria-expanded`ista.
+- Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
+  eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
+  sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
+  transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
@@ -566,6 +570,8 @@ Käyttäjän vaatimukset 20.10.2026:
     asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2`).
   - Edistyminen on vain alapalkissa, ei avatun aikajanan ylärivillä. Sivunäkymässä se on sivunumero.
   - *Merkinnät*-listassa alleviivauksia ei koskaan alleviivata; alleviivaus näkyy vain tekstissä itsessään.
+    Listan molemmat osiot (*Kirjanmerkit*, *Alleviivaukset ja kirjaukset*) supistuvat otsikon perässä olevasta pienestä
+    salmiakista (täynnä auki, ontto kiinni); tila muistetaan (`kmKiinni`, `alKiinni`). Avattuna asettelu pikselilleen ennallaan.
   - Valinnan valikko: *Alleviivaa | Kirjaa | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
