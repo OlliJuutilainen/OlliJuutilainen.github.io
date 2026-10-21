@@ -152,10 +152,10 @@ Sivutettuna vapaa kohta pyöristetään sen sivun alkuun (`sivunAlku()`), joten 
 
 ### 4.5 Asetukset
 
-Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella. *Ulkoasu*: teema, koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu), tavutus ja näkymä. Osiot *Teksti* ja *Aikajana* ovat sateenvarjolistoja (käyttäjän päätös 21.10.2026), joissa kukin kohta kytketään päälle tai pois:
+Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella. *Ulkoasu*: teema, liikkuminen (vieritys tai sivut; käyttäjän päätös 21.10.2026: nimi oli *Näkymä* ja paikka viimeisenä), koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu) ja tavutus. Osiot *Teksti* ja *Aikajana* ovat sateenvarjolistoja (käyttäjän päätös 21.10.2026), joissa kukin kohta kytketään päälle tai pois:
 
 - *Teksti → Näytä:*: sisällysluettelo, kirjanmerkit, alleviivaukset. Alleviivausten alla on pienempi lisäkytkin *Automaattinen alleviivaus*. Se on himmeä ja pois käytöstä, kun alleviivaukset on piilotettu, koska näkymätöntä alleviivausta ei tehdä automaattisesti; valikon alleviivausikoni toimii silti. Piilotetut alleviivaukset eivät myöskään avaa valikkoa napautettaessa.
-- *Aikajana → Näytä:*: *Pääluvut*, *Alaluvut* (pääluvut ja alaluvut, oletus) tai *Kaikki* (myös alalukujen alaluvut) yhtenä valintana, kirjanmerkit ja edistyminen. Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
+- *Aikajana → Näytä:*: *Pääluvut*, *Alaluvut* (pääluvut ja alaluvut, oletus) tai *Kaikki* (myös alalukujen alaluvut) yhtenä valintana, kirjanmerkit ja edistyminen. Tasot ovat kumulatiivisia, joten valittu taso sytyttää myös sitä ylemmät (*Alaluvut* myös *Pääluvut*, *Kaikki* molemmat; käyttäjän päätös 21.10.2026). Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
 
 Oletuksena kaikki muu näkyy, aikajanalla pääluvut ja alaluvut, ja automaattinen alleviivaus on päällä; muut oletukset: vaalea (tai laitteen tumma), 19 px, väli, liehu, varovainen tavutus, vieritys. Aiemmin tallennetuissa asetuksissa olivat vanhat oletukset, joten ne vaihdetaan kerran: automaattinen alleviivaus päälle (`av: 2`) ja aikajanan *Kaikki*, joka oli oletus 21.10.2026 hetken, takaisin *Alaluvut*-tasoon (`av: 3`; itse valittu *Pääluvut* säilyy).
 
@@ -163,7 +163,7 @@ Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi
 
 ### 4.6 Merkintöjen vienti ja tuonti
 
-Asetusten alimpana, muista erotettuna, on supistettu osio *Vie tai tuo merkinnät tekstitiedostona*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. Viimeisenä on *Edistymisen tilanne* (oletuksena pois). *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
+Asetusten alimpana, muista erotettuna, on supistettu osio *Vie tai tuo merkinnät tekstitiedostona*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. Viimeisenä on *Edistymisen tilanne* (oletuksena pois). *Vie tiedot* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
 
 Tiedosto alkaa tekstin nimellä (`#`), alaotsikolla *Luetun merkinnät*, lähdeviitteellä ja `---`-viivalla. Jos edistymisen tilanne viedään, alaotsikon ja lähdeviitteen välissä on tietorivit `Viety: 21.10.2026<br>` ja `Sijainti: 3. Kant ja eläimet › 3.1 Kantin vaikea eläinsuhde`: lukukohta otsikon tarkkuudella, ei tarkemmin (käyttäjän päätös 21.10.2026; ennen ensimmäistä otsikkoa *tekstin alku*). Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
 
@@ -177,7 +177,7 @@ Tuontia varten vientiin tuli 21.10.2026 kaksi lisää, muuten muoto on ennallaan
 - Jos alleviivattu katkelma esiintyy osiossaan (syvin otsikko, jonka alla se on) useammin kuin kerran, lainauksen ensimmäisen rivin perässä on `[n/m]`: n:s esiintymä m:stä. Esiintymiksi lasketaan vain kohdat, joista alleviivaus voi alkaa ja loppua (sanarajat), joten esimerkiksi *ja* ei osu sanan *Kantin ja* sisään eikä *Kant* sanaan *Kantin*.
 - Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma kohdasta, tarvittaessa `kohta n/m:`). Esikatselussa sitä ei näy. Ilman sitä kirjanmerkin kohta katoaisi, kun alleviivaukset viedään (silloin virkettä ei lainata).
 
-*Tuo tiedostosta* lukee viedyn tiedoston ja lisää sen merkinnät avoimeen tekstiin. Tiedostomuotoa ei ole merkitty tunnisteilla, vaan tuonti nojaa siihen, mitä vienti joka tapauksessa kirjoittaa:
+*Tuo tiedot* lukee viedyn tiedoston ja lisää sen merkinnät avoimeen tekstiin. Tiedostomuotoa ei ole merkitty tunnisteilla, vaan tuonti nojaa siihen, mitä vienti joka tapauksessa kirjoittaa:
 
 - Tiedosto tunnistetaan `#`-otsikosta ja rivistä *Luetun merkinnät*. Jos otsikko on eri kuin avoimen tekstin, merkinnät tuodaan vain, jos ainakin puolet lainauksista löytyy tekstistä.
 - Otsikkorivi rajaa haun osioon, kun tekstissä on samantasoinen samanniminen otsikko (samannimisistä edellisen jälkeinen). Lainaus haetaan osiosta `[n/m]`:n mukaisesta esiintymästä; jos tekstiä on muutettu, koko tekstistä lähimpänä osion alkua. Merkintä, jota ei löydy, tuodaan kohdattomana (Merkinnät-laatikossa *kohtaa ei löydy*).
