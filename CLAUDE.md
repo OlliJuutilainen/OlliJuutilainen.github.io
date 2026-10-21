@@ -434,6 +434,37 @@ historiaa: ohjesivujen logo on listan merkintä 1,25-kertaisena (193,04 × 45,31
 `0.99 2.8 19.89 17.2` (10 × 11,564 px, keskikohta ennallaan) ja `.kuul` viewBox `0.49 2.3 20.89 18.2` (oikean tyynyn
 reuna x 20,88 numeron oikeassa reunassa; yläreuna, tyynyjen alareuna ja oikea reuna pikseleissä ennallaan, leveys kasvoi
 vasemmalle). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.15.
+**Rako kuulokkeiden ja k:n välillä 9,0 (käyttäjän päätös 21.10.2026, vaihtoehto B kolmesta; oli 6,0).** Keick•WALK-osa
+(kirjaimet, jana, pisteet, nuppi, rengas) siirtyi 3 yksikköä oikealle, kuulokkeet pysyivät. Logon viewBox on `0.99 -2.6 157.43 36.25`,
+k:n vasen reuna x 29,88 ja listan logon CSS-leveys `calc(1.0295rem / 13.38 * 157.43)`; ohjesivuilla leveys 196,79 px ja otsikon
+oletus `calc(36.11px - 0.075em)`, skriptin ankkuri x 29,88. Soitinsivun `main > h1`- ja `.sub`-sisennys käyttää lukua 28,89
+(= 29,88 − 0,99). Rako on nyt lähes sangan jalkojen sisäväli (9,48). SVG:ssä siirto on `<g transform="translate(3 0)">`, jonka
+ulkopuolella ovat kolme kuulokkeiden osaa (sanka ja kaksi tyynyä). Aiemmat tämän kappaleen luvut x 26,88 / 25,89 / 153,43–154,43 ja
+47,87 px ovat historiaa (kaikki +3 yksikköä = +3,69 px). Mitattu Chromiumissa: rako 9,00 yks. kaikilla neljällä ohjesivulla,
+otsikon muste 0,25–0,4 px k:n reunasta, soitinsivulla otsikko ja lisätieto 0,07 px. Kaikki aiemmat logon sivutason vertailut
+(janan alku jne.) siirtyivät mukana.
+**Fontti Figtree (käyttäjän päätös 21.10.2026; oli system-ui eli käytännössä Roboto, joka "kirkui" logon vieressä).** Valittu
+Figtreen ja Jostin väliltä silmämääräisesti logoon sopivuudella (Nunito: pyöreät päät, paino 600 vain 18 % paksumpi; DM Sans:
+ei tasalevyisiä numeroita, nolla ≈ O; Rubik: interpunkti 2 × koko ja liian raskas; Jost: x-korkeus 0,66 versaalista, pienet tekstit
+liian pieniä). Tiedostot `soitin/fontit/` (SIL OFL, lisenssi mukana): `figtree.woff2` ja `figtree-kursiivi.woff2` (latin) sekä
+`-ext`-versiot (latin-ext), muuttuva paino 300–900, kopioitu Google Fontsista sellaisenaan. Sivuilla `@font-face` on sivun
+omassa tyylissä (`font-display: block`, `fontit/…`-polut, `<link rel="preload">` normaalille ja soitinsivulla kursiiville), ja
+fonttipino on `"Figtree", system-ui, …`. **`lista/keikat.html`:ssä fontti on data-URI:na** (vain latin), koska sovellus näyttää
+sivun assetista ilman verkkoa ja assettien juuri on `soitin/lista`; tarkistettu `file://`-osoitteesta offline-tilassa (0 verkkopyyntöä,
+molemmat leikkeet `loaded`). Merkit Σ, →, ←, ▸, ☰, ⌘, ⌫, ✓, ⇥ ja 🔒 puuttuvat Figtreestä ja tulevat varafontista.
+Mittaukset (`fitExtras`, `capHeight`, `alignSetNames`, `placeSetEnd`, `alignTitle`) odottavat soitinsivulla lupausta `fontsReady`
+(tavallinen ja kursiivinen leike ladattu), koska `document.fonts.ready` ei odota vielä piirtämätöntä kursiivia; ohjesivujen
+otsikkolinjaus odottaa otsikon leikettä (`700 1em "Figtree"`). **Älä palauta `document.fonts.ready`-varianttia.** Figtreen mitat
+(canvasin musteesta, ±1/400 em): versaali 0,7 em (OS/2 `sCapHeight` 700), `[` ylös 0,8 ja alas 0,1 em (`--xk` 0,7778, `--xr` 0,0778),
+K:n sivuväli 0,0925 / 0,0875 / 0,0825 / 0,075 em painoilla 400 / 500 / 600 / 700, kursiivisen l:n 0,0275 em (paino 400),
+x-korkeus 0,5 em, hhea 0,95 / −0,25. Roboton arvot (0,71094, 0,0761, 0,0805, 0,7396, 0,1109) ovat historiaa.
+**Soitinsivun otsikko paksummaksi (käyttäjän päätös 21.10.2026):** paino 400 → 600 (ennen Robotolla 650 → 500 → 400). Perustelu: Figtreen
+viivan paksuus / versaalin korkeus on painolla 600 0,164, eli sama kuin logon keick-kirjainten (2,6 / 16 = 0,1625); WALK (3,2 / 16 = 0,2)
+vastaisi painoa 700. Fonttikoko `calc(1.0295rem / 13.38 * 22.857)` (= 16 yksikköä / 0,7 em), marginaalit −2,31 / 17,62 px
+(lisätiedon kanssa alamarginaali −0,48 px) ja `.sub` 22,58 px: mitattu niin, että perusviiva on 52,70 px (tyynyjen alareuna
+52,69), lisätiedon x-korkeuden yläreuna 66,98 px (perusviiva 73,41) ja nyt soi -rivi 101,53 px kuten ennen (oli 101,52), eli
+kaikki otsikon alla on pikselilleen paikallaan. `alignTitle()` korjaa tarvittaessa (testattu 134 %:n tekstikoolla: perusviiva = sangan
+alareuna). Oppaan kuvat otettu uudelleen ja Android-sovellus 0.16 (versionCode 16).
 Otsikko alkaa aina kuulokkeiden vierestä (käyttäjän sääntö 20.10.2026): jos ensimmäinen sana ei mahdu kuulokkeiden
 ja nappien väliin, se katkeaa väkisin kahdelle riville (`h1 { overflow-wrap: anywhere }`) eikä siirry nappien alle.
 Muut sanat rivittyvät tavallisesti, koska `anywhere` katkaisee vain, jos rivillä ei ole muuta katkaisukohtaa

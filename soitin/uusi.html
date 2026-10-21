@@ -13,6 +13,12 @@
   "Hae"-nappi vain lukee jo tallennetun keikan muokattavaksi.
 -->
 <style>
+  /* Figtree (SIL OFL, soitin/fontit/): muuttuva paino 300–900, latin ja latin-ext. font-display: block, jotta otsikko
+     ei hyppää fontin latautuessa; linjaukset mitataan uudelleen, kun fontit ovat valmiit. */
+  @font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: block; src: url(fontit/figtree.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Figtree"; font-style: normal; font-weight: 300 900; font-display: block; src: url(fontit/figtree-ext.woff2) format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: "Figtree"; font-style: italic; font-weight: 300 900; font-display: block; src: url(fontit/figtree-kursiivi.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Figtree"; font-style: italic; font-weight: 300 900; font-display: block; src: url(fontit/figtree-kursiivi-ext.woff2) format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
   :root {
     --bg: #faf9f6; --fg: #1b1b1a; --muted: #6d6b66; --line: #dcd9d2;
     --soft: #efede8; --accent: #0a7f76; --err-bg: #fbeae5; --err-fg: #7a2511;
@@ -27,12 +33,12 @@
   [hidden] { display: none !important; }
   body {
     margin: 0; background: var(--bg); color: var(--fg);
-    font: 17px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font: 17px/1.45 "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   main { max-width: 640px; margin: 0 auto; padding: 28px 16px 48px; }
-  /* Otsikko alkaa logon k:n vasemmasta reunasta: (26,88 − 0,99) × 1,25 px − kirjaimen sivuväli;
+  /* Otsikko alkaa logon k:n vasemmasta reunasta: (29,88 − 0,99) × 1,25 px − kirjaimen sivuväli;
      tarkka sivuväli mitataan sivun lopun skriptissä. Kaikilla KEICK•WALK-ohjesivuilla sama koko. */
-  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 28px; padding-left: calc(32.36px - 0.067em); letter-spacing: -0.01em; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 28px; padding-left: calc(36.11px - 0.075em); letter-spacing: -0.01em; }
   h2 { font-size: 1.05rem; margin: 28px 0 8px; }
   p { margin: 0 0 10px; }
   .muted { color: var(--muted); font-size: 0.92rem; }
@@ -83,7 +89,7 @@
   /* KEICK•WALK-logo otsikon yläpuolella: sama merkintä kuin Omat keikkani -listassa
      (lista/keikat.html) ja samassa koossa (1,25 × viewBox, WALK 20 px), jana keskilinjalla 31,03.
      overflow: visible, ettei Safari leikkaa loppurenkaan reunaa viewBoxin rajalla. */
-  .logo { display: block; width: 193.04px; height: 45.31px; margin: 0 0 16px; fill: currentColor; overflow: visible; }
+  .logo { display: block; width: 196.79px; height: 45.31px; margin: 0 0 16px; fill: currentColor; overflow: visible; }
   .logo .t { fill: var(--accent); }
   .logo .r { fill: none; stroke: currentColor; }
   .logo .g { stroke: var(--line); }
@@ -91,10 +97,11 @@
   .foot { margin: 0; padding: 0 16px 20px; text-align: center; color: var(--muted); opacity: 0.6;
     font-size: 0.68rem; line-height: 1.45; font-weight: 300; letter-spacing: 0.14em; }
 </style>
+<link rel="preload" href="fontit/figtree.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 <main>
-  <svg class="logo" viewBox="0.99 -2.6 154.43 36.25" role="img" aria-label="KEICK•WALK"><path class="g" d="M119.2 31.03H151.32" stroke-width="1.5"/><path d="M27.63 31.03H119.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="56.82" cy="31.03" r="1.3"/><circle cx="91.38" cy="31.03" r="1.3"/><circle class="r" cx="153.12" cy="31.03" r="1.8" stroke-width="1"/><circle class="t" cx="119.2" cy="31.03" r="2.62"/><path d="M3.61 17.38V10.725A7.325 7.325 0 0 1 18.26 10.725V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M26.88 4H29.48V19.7H26.88ZM55.52 4H58.12V19.7H55.52ZM74.2 4H76.8V19.7H74.2Z"/><path d="M38.14 4V7.14A4.71 4.71 0 0 1 33.43 11.85H28.18M28.18 11.85H33.43A4.71 4.71 0 0 1 38.14 16.56V19.7M54.02 5.3H45.52A3.27 3.27 0 0 0 45.52 11.85A3.27 3.27 0 0 0 45.52 18.4H54.02M45.52 11.85H54.02M72.7 5.3H67.47A6.55 6.55 0 0 0 67.47 18.4H72.7M85.46 4V7.14A4.71 4.71 0 0 1 80.75 11.85H75.5M75.5 11.85H80.75A4.71 4.71 0 0 1 85.46 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M137.7 4H140.9V20H137.7Z"/><path d="M97.6 4V15.35A3.05 3.05 0 0 0 103.7 15.35A3.05 3.05 0 0 0 109.8 15.35V4M103.7 4V15.35M114.5 20V10.3A4.7 4.7 0 0 1 123.9 10.3V20M128.6 4V16.8A1.6 1.6 0 0 0 130.2 18.4H136.2M146.9 4V7.9A4.1 4.1 0 0 1 142.8 12H139.3M139.3 12H142.8A4.1 4.1 0 0 1 146.9 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="18.26" cy="17.38" r="2.62"/><circle cx="56.82" cy="0.7" r="1.3"/><circle cx="91.38" cy="11.85" r="1.3"/><circle class="t" cx="119.2" cy="11.85" r="2.62"/></svg>
+  <svg class="logo" viewBox="0.99 -2.6 157.43 36.25" role="img" aria-label="KEICK•WALK"><path d="M3.61 17.38V10.725A7.325 7.325 0 0 1 18.26 10.725V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="18.26" cy="17.38" r="2.62"/><g transform="translate(3 0)"><path class="g" d="M119.2 31.03H151.32" stroke-width="1.5"/><path d="M27.63 31.03H119.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="56.82" cy="31.03" r="1.3"/><circle cx="91.38" cy="31.03" r="1.3"/><circle class="r" cx="153.12" cy="31.03" r="1.8" stroke-width="1"/><circle class="t" cx="119.2" cy="31.03" r="2.62"/><path d="M26.88 4H29.48V19.7H26.88ZM55.52 4H58.12V19.7H55.52ZM74.2 4H76.8V19.7H74.2Z"/><path d="M38.14 4V7.14A4.71 4.71 0 0 1 33.43 11.85H28.18M28.18 11.85H33.43A4.71 4.71 0 0 1 38.14 16.56V19.7M54.02 5.3H45.52A3.27 3.27 0 0 0 45.52 11.85A3.27 3.27 0 0 0 45.52 18.4H54.02M45.52 11.85H54.02M72.7 5.3H67.47A6.55 6.55 0 0 0 67.47 18.4H72.7M85.46 4V7.14A4.71 4.71 0 0 1 80.75 11.85H75.5M75.5 11.85H80.75A4.71 4.71 0 0 1 85.46 16.56V19.7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M137.7 4H140.9V20H137.7Z"/><path d="M97.6 4V15.35A3.05 3.05 0 0 0 103.7 15.35A3.05 3.05 0 0 0 109.8 15.35V4M103.7 4V15.35M114.5 20V10.3A4.7 4.7 0 0 1 123.9 10.3V20M128.6 4V16.8A1.6 1.6 0 0 0 130.2 18.4H136.2M146.9 4V7.9A4.1 4.1 0 0 1 142.8 12H139.3M139.3 12H142.8A4.1 4.1 0 0 1 146.9 16.1V20" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="56.82" cy="0.7" r="1.3"/><circle cx="91.38" cy="11.85" r="1.3"/><circle class="t" cx="119.2" cy="11.85" r="2.62"/></g></svg>
   <h1>Keikkaloihdin</h1>
   <p class="muted">Täytä kentät. Sivu tarkistaa settilistan ja tekee komennon, jonka ajat Macin
     Terminalissa. Sen jälkeen lyhyt linkki toimii. <a href="ohje.html">Käyttöopas</a></p>
@@ -1097,7 +1104,7 @@
 })();
 </script>
 <script>
-// Otsikon ensimmäisen kirjaimen muste alkaa logon k:n vasemmasta reunasta (x 26,88).
+// Otsikon ensimmäisen kirjaimen muste alkaa logon k:n vasemmasta reunasta (x 29,88).
 // Kirjaimen sivuväli riippuu fontista (system-ui), joten se mitataan piirtämällä kirjain
 // canvasille ja lukemalla musteen vasen reuna pikseleistä; CSS:n oletus on arvio.
 (function () {
@@ -1118,10 +1125,11 @@
     if (!m || !ch) return;
     const lsb = sivuvali(getComputedStyle(h).font, ch);
     if (lsb == null) return;
-    h.style.paddingLeft = (m.a * 26.88 + m.e - h.getBoundingClientRect().left - lsb).toFixed(2) + 'px';
+    h.style.paddingLeft = (m.a * 29.88 + m.e - h.getBoundingClientRect().left - lsb).toFixed(2) + 'px';
   }
   tasaa();
-  if (document.fonts) document.fonts.ready.then(tasaa);
+  // Figtree on verkkofontti: mitataan vasta, kun sen otsikon leike on ladattu.
+  if (document.fonts) Promise.all([document.fonts.load('700 1em "Figtree"'), document.fonts.ready]).then(tasaa, tasaa);
   addEventListener('resize', tasaa);
 })();
 </script>
