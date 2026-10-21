@@ -520,6 +520,7 @@ Käyttäjän vaatimukset 20.10.2026:
   vasemmat päätteet x 0:ssa, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
   ylempänä ja viiva 2,1 → 2,5. i:n piste on ruosteinen, loppupiste tekstin värinen; HTML:lle voi
   korkeintaan kokeilla eri väriä. viewBox ennallaan, joten LUiN ei muuttanut kokoaan.
+- Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
