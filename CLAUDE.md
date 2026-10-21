@@ -556,8 +556,8 @@ Käyttäjän vaatimukset 20.10.2026:
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
-  - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *näytä…* pienellä ja kursiivilla (käyttäjän päätökset
-    21.10.2026; vasen reuna vaihtoehtojen tekstin kohdalla, ei muiden nimien reunassa, koska lause jatkuu listaan; versaali sekoittuisi h3:een, harmaa valitsemattomiin vaihtoehtoihin ja ruoste napautettavaan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
+  - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *näytä:* pienellä ja kursiivilla (käyttäjän päätökset
+    21.10.2026; vasen reuna vaihtoehtojen tekstin kohdalla, ei muiden nimien reunassa, koska lause jatkuu listaan; väri sama `--harmaa` kuin h3:lla ja huomiolla *Viitenumerot näkyvät aina*, 6 px hajurako listan alkuun; versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
     (alleviivausten alla pieni lisäkytkin *Automaattinen alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
     *Aikajana* Pääluvut / Alaluvut / Kaikki (oletus) sekä kirjanmerkit ja edistyminen. Vanhat tallennetut
     asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2`).

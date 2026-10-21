@@ -238,10 +238,10 @@
   .sulje svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.4; fill: none; }
   .asetus { padding: 9px 0 5px; border-bottom: 1px solid var(--viiva); }
   .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
-  /* Sateenvarjolistan näytä… on verbi, ei asetuksen nimi: kursiivi erottaa sen alla olevista pystyistä
-     vaihtoehdoista ja h3:n versaalista, eikä se lainaa vaihtoehtojen harmaata eikä napautettavan ruostetta. Vasen reuna on vaihtoehtojen tekstin
+  /* Sateenvarjolistan näytä: on verbi, ei asetuksen nimi: kursiivi erottaa sen alla olevista pystyistä
+     vaihtoehdoista ja h3:n versaalista, väri on h3:n ja huomion `--harmaa` (ei valitsemattomien himmennys, ei ruoste); alla pieni hajurako. Vasen reuna on vaihtoehtojen tekstin
      kohdalla (salmiakki 9 px + väli 7 px), poiketen muiden nimien reunasta: lause jatkuu alla olevaan listaan. */
-  .asetus .nimi.kehote { font-style: italic; padding-left: 16px; }
+  .asetus .nimi.kehote { font-style: italic; padding-left: 16px; color: var(--harmaa); margin-bottom: 6px; }
   .valinnat { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; }
   .valinnat button { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; color: var(--harmaa); font-size: .9rem; }
   .valinnat button[aria-pressed="true"] { color: var(--muste); }
@@ -338,14 +338,14 @@
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <div class="asetus" data-a="sivutus"><span class="nimi">Näkymä</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div></div>
-  <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen näytä…, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
+  <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Automaattinen alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
-  <div class="asetus"><span class="nimi kehote">näytä…</span>
+  <div class="asetus"><span class="nimi kehote">näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
     <div class="valinnat nipukka" data-k="auto:Automaattinen alleviivaus"></div></div>
   <h3>Aikajana</h3>
-  <div class="asetus" data-a="janaTaso"><span class="nimi kehote">näytä…</span>
+  <div class="asetus" data-a="janaTaso"><span class="nimi kehote">näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
     <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
   <p class="huomio">Viitenumerot näkyvät aina. Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
