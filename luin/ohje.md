@@ -144,6 +144,8 @@ Alapalkin napautus (muualta kuin kirjanmerkistä ja sivunapeista) avaa aikajanan
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
 - nykyinen kohta: musta kolmio ja hiusviiva.
 
+Etappimerkit (pääluku, alaluku, alaluvun alaluku) pienennettiin 21.10.2026 (käyttäjän päätös): pääluku 0,8- ja alaluvut 0,7-kertaisiksi, ja nykyisen kohdan jälkeiset ovat vielä 0,75-kertaisia luettuihin verrattuna, joten tuleva osa jää taka-alalle. Mitat ovat `JANA.koko`-taulukossa; kirjanmerkin nauha ei muuttunut.
+
 Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään. Vedettäessä (hiirellä tai sormella; käyttäjän pyyntö 21.10.2026) osoitin seuraa vetoa, ja voimassa oleva kohta jää haalean harmaaksi haamuosoittimeksi. Teksti ei liiku eikä luettu osa muutu ennen irrotusta. Liikkeessä siirretään vain osoittimen `transform`ia kerran ruudunpäivitystä kohden, jotta e-ink päivittää vain pienen alueen.
 
 Sivutettuna vapaa kohta pyöristetään sen sivun alkuun (`sivunAlku()`), joten osoitin hyppää vedettäessä sivu kerrallaan ja näyttää tarkalleen, mihin irrotus vie; irrotuksen jälkeen kohta on sama kuin sivua käännettäessä. Sivujakoa ei lasketa uudelleen hyppykohdasta alkaen, koska silloin sivunumerot ja sivujen rajat muuttuisivat joka hypyllä. Merkin lähellä osoitin tarttuu merkkiin kuten ennenkin. Ruudun ulkopuolisille sivuille ei voi käyttää `caretRangeFromPoint`ia, joten sivun ensimmäinen merkki haetaan puolitushaulla merkkien laatikoista.
