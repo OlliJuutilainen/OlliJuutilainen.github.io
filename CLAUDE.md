@@ -510,7 +510,9 @@ Käyttäjän vaatimukset 20.10.2026:
   (vaalea `#a4541a` → `#8c5426`, tumma `#e0954f` → `#b8794a`; LCh-sävy 58° → 62°, kroma 54 → 41) ja tumman
   teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla nuottien tapaan (suurempi aika-arvo ontompi;
   käyttäjän päätös 21.10.2026): pääluku iso ontto salmiakki, alaluku pienempi täytetty, alaluvun alaluku
-  lähes pistemäinen täytetty. Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
+  lähes pistemäinen täytetty. Käyttäjän päätös 21.10.2026 (myöhemmin): etappimerkit pienemmiksi, pääluku 0,8- ja alaluvut
+  0,7-kertaisiksi, ja nykyisen kohdan oikealla puolella olevat vielä 0,75-kertaisiksi luettuihin verrattuna (`JANA.koko`,
+  `JANA.tuleva`; kirjanmerkin nauha ennallaan). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on
@@ -550,8 +552,10 @@ Käyttäjän vaatimukset 20.10.2026:
 - Lukulistan logon oikealla puolella on KEICK•WALKin ⓘ-napin tapaan tietoa-nappi (käyttäjän pyyntö 21.10.2026), mutta
   ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Merkin keskikohta
   on LUiN-versaalien keskilinjalla (mitattu 54,00 / 54,12 px). Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
-  jossa on vain *LUiN.html on lukulaite Markdown-teksteille. Kaikki tallentuu vain tähän selaimeen.* (käyttäjä: erittäin
+  jossa on vain *LUiN.HTML on lukulaite Markdown-teksteille. Kaikki tallentuu vain tähän selaimeen.* (käyttäjä: erittäin
   lyhyesti). Kiinni ollessa sivu on pikselilleen ennallaan.
+- Nimen tekstimuoto (ei-graafinen, esim. infolaatikko ja logon `aria-label`) on *LUiN.HTML* (käyttäjän päätös 21.10.2026);
+  tiedostonimi ja polut pysyvät `luin.html`.
 - Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
 - Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä
   kirjanmerkin ääriviiva (`#km-nappi`; ohut viiva alapalkin tekstien värillä `--harmaa`, aiemmin hyvin haalea `--viiva`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi

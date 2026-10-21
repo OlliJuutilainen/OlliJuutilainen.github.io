@@ -1,4 +1,4 @@
-// LUiN.html-logon generaattori. Ajo: node luin/kehitys/logo.js → tulostaa SVG:n, joka on
+// LUiN.HTML-logon generaattori. Ajo: node luin/kehitys/logo.js → tulostaa SVG:n, joka on
 // kopioitu sellaisenaan luin.html:ään ja luin/latomo.html:ään.
 // Yksikkö: ylärivin versaalikorkeus 100 (perusviiva y = 100). Paksu runko T = 15, hiusviiva t = 3,4.
 // i:n piste ja loppupiste ovat salmiakkeja (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
@@ -131,11 +131,11 @@ function logo(o = {}) {
     // vari: 'piste' = i:n piste ruosteinen, muu musta; 'musta' = kaikki musta; 'ruoste' = piste, viiva ja loppupiste ruosteiset
     const v = o.vari ?? 'piste', R = ' fill="var(--ruoste)"';
     const vr = v === 'ruoste' ? R : '', pr = v === 'musta' ? '' : R;
-    return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
+    return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.HTML">` +
       `<path d="${P.join('')}"/>` +
       `<path${vr} d="${G.viiva}"/><path${vr} d="${G.loppu}"/><path${pr} d="${G.piste}"/>` + html + `</svg>`;
   }
-  return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
+  return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.HTML">` +
     `<path d="${P.join('')}${dia(per[0], per[1], 6.5, 7.5, c)}"/>` +
     `<path d="M${f(dot[0])} ${f(dot[1])}L${f(per[0])} ${f(per[1])}" stroke="${lineCol}" stroke-width="${o.lw ?? 1.8}" fill="none"/>` +
     `<path fill="var(--ruoste)" d="${dia(dot[0], dot[1], 7.5, 8.5, c)}"/>` +
