@@ -1601,9 +1601,9 @@
   // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), ja nykyisen kohdan
   // jälkeiset vielä 0,75-kertaisiksi luettuihin verrattuna. Kirjanmerkit eivät ole etappeja.
   var JANA = { pad: 13, y: 21, tuleva: .75, koko: { 1: [4.48, 5.92], 2: [2.94, 3.92], 3: [1.19, 1.61] } };
+  // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
   function janaKohteet() {
     var a = [];
-    // Majakka ensin, jotta se voittaa samassa kohdassa olevan merkin (janaKohde ottaa ensimmäisen lähimmän).
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
     nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
@@ -1638,10 +1638,10 @@
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
   }
-  // Sivutettuna aikajanalta pääsee vain sivun alkuun (sivujako on kiinteä), joten vapaa kohta
-  // pyöristetään sen sivun ensimmäiseen merkkiin, ja osoitin hyppää vedettäessä sivu kerrallaan.
-  // Ruudun ulkopuolisille sivuille ei voi käyttää caretRangeFromPointia kuten nykyinenKohta(),
-  // joten merkki haetaan puolitushaulla merkkien laatikoista (kohdanLaatikko).
+  // Sivun ensimmäinen merkki. Aikajana ei enää käytä tätä (sivutettuna se pysähtyy vain merkkeihin,
+  // ks. janaKohde), mutta testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
+  // ulkopuolisille sivuille ei voi käyttää caretRangeFromPointia kuten nykyinenKohta(), joten
+  // merkki haetaan puolitushaulla merkkien laatikoista (kohdanLaatikko).
   var sivuAlut = {};
   function sivuKohdassa(k) {
     var r = kohdanLaatikko(k);
@@ -1663,17 +1663,34 @@
     }
     return (sivuAlut[p] = k);
   }
+  // Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia, vaan napautus ja veto
+  // vievät suhteelliseen kohtaan. Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain merkkeihin,
+  // eli tekstin alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
+  // paluumajakkaan ja voimassa olevaan kohtaan (haamuun), ja lähin voittaa. Pysäkit ovat samat
+  // riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. E-ink-näyttö päivittyy näin
+  // vedettäessä vain pysäkiltä toiselle siirryttäessä.
+  function janaPysakit() {
+    var a = [], nimi = function (k) { var o = osioKohdassa(k); return o ? o.text : nyt.e.title; };
+    // Majakka ja nykyinen kohta ensin, jotta ne voittavat samassa kohdassa olevan merkin.
+    if (nyt.majakka) a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
+    if (tila.ankkuri) a.push({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
+    a.push({ k: { b: 0, o: 0 }, nimi: nyt.e.title });
+    nyt.doc.toc.forEach(function (t) { a.push({ k: { b: t.b, o: 0 }, nimi: t.text }); });
+    nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
+    return a;
+  }
   function janaKohde(clientX) {
     var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), x0 = JANA.pad, x1 = r.width - JANA.pad;
-    var x = clientX - r.left, f = clamp((x - x0) / (x1 - x0), 0, 1), paras = null, ero = 14;
-    janaKohteet().forEach(function (m) { var d = Math.abs(x0 + osuus(m.k) * (x1 - x0) - x); if (d < ero) { ero = d; paras = m; } });
-    if (paras) return paras;
+    var x = clientX - r.left, f = clamp((x - x0) / (x1 - x0), 0, 1);
+    if (aset.sivutus === 'sivut') {
+      var paras = null, ero = Infinity;
+      janaPysakit().forEach(function (m) { var d = Math.abs(osuus(m.k) - f); if (d < ero) { ero = d; paras = m; } });
+      return paras;
+    }
     var pos = f * nyt.total, b = 0;
     for (var i = 0; i < nyt.cum.length; i++) if (nyt.cum[i] != null && nyt.cum[i] <= pos) b = i;
     var o = clamp(Math.round(pos - nyt.cum[b]), 0, Math.max(0, nyt.txt[b].length - 1));
-    var kk = { b: b, o: o };
-    if (aset.sivutus === 'sivut') kk = f === 0 ? { b: 0, o: 0 } : sivunAlku(sivuKohdassa(kk));
-    var osio = osioKohdassa(kk);
+    var kk = { b: b, o: o }, osio = osioKohdassa(kk);
     return { k: kk, nimi: osio ? osio.text : nyt.e.title };
   }
   // Vedon aikana voimassa oleva kohta pysyy (teksti ei liiku, luettu osa ei muutu), ja vain
