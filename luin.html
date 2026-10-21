@@ -90,6 +90,15 @@
   .valikko .esi.kir { white-space: pre-wrap; font-style: italic; }
   .valikko button.km-ikoni { display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; color: var(--ruoste); }
   .valikko button.km-ikoni svg { width: 12px; height: 20px; fill: currentColor; }
+  /* valikon ikonit: alleviivausmerkki on Abc (tai poistossa raksi) liioitellun paksun viivan päällä */
+  .valikko button.ik { display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; min-width: 50px; }
+  .valikko button.ik:hover { text-decoration: none; }
+  .valikko button.ik svg { display: block; width: 20px; height: 20px; }
+  .valikko button.ik svg.kyna { width: 24px; height: 24px; }
+  .ik-ali { display: inline-flex; align-items: flex-end; justify-content: center; width: 1.85em; height: 1.2em;
+    font-size: 1.08rem; line-height: 1; border-bottom: 3px solid var(--ruoste); color: var(--muste); }
+  .ik-ali svg { width: .62em !important; height: .62em !important; margin-bottom: .14em; }
+  .valikko button.ik.varmista { padding: 9px 13px; }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
   .valikko.kirjaus textarea { display: block; width: calc(100% - 28px); max-height: 30vh; margin: 12px 14px 0; padding: 7px 9px;
@@ -422,6 +431,17 @@
   }
   function nauha(x, y, w, h) { return 'M' + (x - w / 2) + ' ' + y + 'H' + (x + w / 2) + 'V' + (y + h) + 'L' + x + ' ' + (y + h * .74) + 'L' + (x - w / 2) + ' ' + (y + h) + 'Z'; }
   var NAUHA = '<svg viewBox="0 0 9 15"><path d="M0 0H9V15L4.5 11L0 15Z"/></svg>';
+  // Valikon ikonit. Kynä: 45° oikealta ylhäältä, yläpää suora, alapää kärki.
+  var IK_ALI = '<span class="ik-ali">Abc</span>';
+  var IK_POISTA = '<span class="ik-ali"><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></span>';
+  var IK_KIRJAA = '<svg class="kyna" viewBox="0 0 20 20"><path fill="currentColor" d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/></svg>';
+  var IK_KOPIOI = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.7" y="1.7" width="9.6" height="12.6"/>' +
+    '<rect x="7.7" y="5.7" width="9.6" height="12.6" fill="var(--paperi)" stroke-dasharray="2.1 1.6"/></svg>';
+  var IK_KOPIOITU = '<svg viewBox="0 0 20 20"><path d="M4.5 10.5L8.5 14.5L15.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+  function ikNappi(k, ikoni, nimi, luokka) {
+    return '<button type="button" data-k="' + k + '" class="ik' + (luokka ? ' ' + luokka : '') + '" aria-label="' + nimi + '" title="' + nimi + '">' + ikoni + '</button>';
+  }
+  function kopioitu(b) { b.innerHTML = IK_KOPIOITU; b.setAttribute('aria-label', 'Kopioitu'); b.title = 'Kopioitu'; }
   var JAKO = '<svg viewBox="0 0 15 15"><path d="M3.2 7.5L11.8 3M3.2 7.5L11.8 12" stroke="currentColor" stroke-width="1.1" fill="none"/><path fill="currentColor" d="' +
     sal(3.2, 7.5, 2.6, 3.1) + sal(11.8, 3, 2.6, 3.1) + sal(11.8, 12, 2.6, 3.1) + '"/></svg>';
 
@@ -1111,11 +1131,13 @@
     var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
     if (!h) return;
     naytaPop(rect, (h.n ? '<div class="esi kir">' + esc(lyhenna(h.n, 300)) + '</div>' : '') +
-      '<button type="button" data-k="kir">Kirjaa</button><button type="button" data-k="kopioi">Kopioi</button><button type="button" data-k="poista" class="vaara">Poista</button>', 'rivi', function (k, b) {
+      ikNappi('kir', IK_KIRJAA, 'Kirjaa') + ikNappi('kopioi', IK_KOPIOI, 'Kopioi') + ikNappi('poista', IK_POISTA, 'Poista alleviivaus'), 'rivi', function (k, b) {
       if (k === 'kir') { avaaKirjaus(h, rect, false); return true; }
-      if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { b.textContent = 'Kopioitu'; }); return true; }
+      if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { kopioitu(b); }); return true; }
       if (k === 'poista') {
-        if (h.n && !b.dataset.varmista) { b.dataset.varmista = 1; b.textContent = 'Poista myös kirjaus'; return true; }
+        if (h.n && !b.dataset.varmista) {
+          b.dataset.varmista = 1; b.classList.add('vaara', 'varmista'); b.textContent = 'Poista myös kirjaus'; sijoitaPop(); return true;
+        }
         poistaAlleviivaus(id); paivitaMerkinnat();
       }
     });
@@ -1203,7 +1225,7 @@
       naytaAlPop(h.id, rect);
       return;
     }
-    naytaPop(rect, '<button type="button" data-k="ali">Alleviivaa</button><button type="button" data-k="kir">Kirjaa</button><button type="button" data-k="kopioi">Kopioi</button>' +
+    naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + ikNappi('kopioi', IK_KOPIOI, 'Kopioi') +
       '<button type="button" data-k="km" class="km-ikoni" aria-label="Kirjanmerkki" title="Kirjanmerkki">' + NAUHA + '</button>', 'rivi', function (k, b) {
       if (k === 'ali') { luoAlleviivaus(segs); getSelection().removeAllRanges(); }
       if (k === 'kir') {
@@ -1212,7 +1234,7 @@
         avaaKirjaus(h, rect, nyt.merk.al.length > ennen);
         return true;
       }
-      if (k === 'kopioi') { kopioi(segs.map(function (x) { return x.x; }).join('\n\n')).then(function () { b.textContent = 'Kopioitu'; }); return true; }
+      if (k === 'kopioi') { kopioi(segs.map(function (x) { return x.x; }).join('\n\n')).then(function () { kopioitu(b); }); return true; }
       if (k === 'km') { lisaaKirjanmerkki(alku); getSelection().removeAllRanges(); }
     });
   }
@@ -1414,7 +1436,7 @@
         esc((o ? o.text + ' · ' : '') + pvm(h.t)) + '</span>' + esc(lyhenna(t, 220)) +
         (h.n ? '<span class="m-kirjaus">' + esc(lyhenna(h.n, 400)) + '</span>' : '') + '</button>' +
         '<div class="m-napit"><button type="button" data-kopioi="' + h.id + '">Kopioi</button><button type="button" data-poista="al:' + h.id + '">Poista</button></div></div>';
-    }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (autoAli() ? '.' : ' ja paina Alleviivaa.') + '</p>';
+    }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (autoAli() ? '.' : ' ja napauta valikon alleviivausmerkkiä.') + '</p>';
   }
   $('#merkinnat').addEventListener('click', function (e) {
     var b = e.target.closest('button');
