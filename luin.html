@@ -441,12 +441,12 @@
   <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <h3>Ulkoasu</h3>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div></div>
+  <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
-  <div class="asetus" data-a="sivutus"><span class="nimi">Näkymä</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Automaattinen alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
@@ -457,14 +457,14 @@
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
     <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
-  <p class="huomio">Viitenumerot näkyvät aina. Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
+  <p class="huomio">Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. -->
   <details class="vienti" id="vienti">
     <summary>Vie tai tuo merkinnät tekstitiedostona<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
     <div class="vienti-sis">
       <div class="valinnat" id="vie-valinnat"></div>
       <p class="huomio" id="vie-tieto"></p>
-      <div class="vienti-napit"><button type="button" class="laatikko" id="vie">Lataa tiedosto</button><button type="button" class="laatikko" id="tuo">Tuo tiedostosta</button></div>
+      <div class="vienti-napit"><button type="button" class="laatikko" id="vie">Vie tiedot</button><button type="button" class="laatikko" id="tuo">Tuo tiedot</button></div>
       <input type="file" id="tuo-tiedosto" accept=".md,.txt,.markdown,text/markdown,text/plain" hidden>
     </div>
   </details>
@@ -794,7 +794,9 @@
       var a = v.parentNode.dataset.a;
       v.innerHTML = v.dataset.v.split('|').map(function (o) {
         var kv = o.split(':'), arvo = isNaN(+kv[0]) ? kv[0] : +kv[0];
-        return '<button type="button" data-arvo="' + kv[0] + '" aria-pressed="' + (aset[a] === arvo) + '">' + SAL_IKONI + kv[1] + '</button>';
+        // Aikajanan tasot ovat kumulatiivisia: Alaluvut sytyttää myös Pääluvut, Kaikki molemmat.
+        var lit = a === 'janaTaso' ? arvo <= aset[a] : aset[a] === arvo;
+        return '<button type="button" data-arvo="' + kv[0] + '" aria-pressed="' + lit + '">' + SAL_IKONI + kv[1] + '</button>';
       }).join('');
     });
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
