@@ -487,11 +487,10 @@
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
     <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
-  <p class="huomio">Asetukset koskevat kaikkia tekstejä tällä laitteella.</p>
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. Vienti ja tuonti ovat erillisiä
        supistettuja osioita omine valintoineen (käyttäjän päätös 21.10.2026). -->
   <div id="vienti">
-    <p class="huomio jatko">Myös merkinnät ovat tallessa vain tämän selaimen muistissa.<br>Jos haluat jatkaa lukemista merkintöinesi toisella laitteella tai säilyttää esimerkiksi alleviivaukset ja kirjaukset muualla, voit viedä ne alta tekstitiedostoon ja tuoda sieltä takaisin.</p>
+    <p class="huomio jatko">Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa.<br>Muistiinpanot, alleviivaukset ja muut merkinnät on mahdollista ottaa talteen viemällä tekstitiedostoon. Lukemisen jatkaminen toisessa laitteessa omilla merkinnöillä onnistuu tekstitiedoston tuonnilla.</p>
     <details class="vienti" id="vie-osio">
       <summary>Vie merkinnät tekstitiedostoon<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
       <div class="vienti-sis">
@@ -579,7 +578,7 @@
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena alleviivaukset ja kirjaukset). vieEd:
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
-  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 4 };
   var tallennetut = LS.get('luin-asetukset', null);
@@ -2060,7 +2059,7 @@
       ? 'Olet viemässä tekstistä ”' + nyt.e.title + '” ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '.'
       : 'Olet tuomassa tiedostosta ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '. ' +
         'Tiedoston ' + (SANAT[pois[0]][2] ? 'mahdollisia ' : 'mahdollista ') +
-        luettelo(pois.map(function (k) { return SANAT[k][1]; })) + ' ei oteta huomioon.';
+        luettelo(pois.map(function (k) { return SANAT[k][1]; })) + ' ei tuoda.';
     naytaPop(nappi.getBoundingClientRect(), '<div class="esi">' + esc(teksti) + '</div>' +
       '<button type="button" data-k="ok">' + (vie ? 'Vie' : 'Valitse tiedosto') + '</button>' +
       '<button type="button" data-k="peru">Peruuta</button>', '', function (k) {

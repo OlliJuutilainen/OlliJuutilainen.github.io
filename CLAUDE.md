@@ -693,9 +693,9 @@ Käyttäjän vaatimukset 20.10.2026:
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
   - Asetusten alimpana ovat erilliset supistetut osiot *Vie merkinnät tekstitiedostoon* ja *Tuo merkinnät tekstitiedostosta*
-    (käyttäjän päätös 21.10.2026), joita edeltää johdanto *Myös merkinnät ovat tallessa vain tämän selaimen muistissa…*.
+    (käyttäjän päätös 21.10.2026), joita edeltää johdanto *Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa…* (asetusten huomiota *Asetukset koskevat kaikkia tekstejä* ei ole). Reunojen oletus on *Tasattu* (käyttäjän päätös 21.10.2026; jo tallennetut asetukset säilyvät, koska valintaa ei voi erottaa oletuksesta).
     Napit ovat pelkät *Vie* ja *Tuo*, ja ilman valintoja niitä ei voi painaa. Vienti vahvistetaan aina ponnahduslaatikossa;
-    tuonti vain, jos kaikkea ei ole valittu (silloin kerrotaan, mitä tiedostosta ei oteta huomioon). Viennin oletus on
+    tuonti vain, jos kaikkea ei ole valittu (silloin kerrotaan, mitä tiedostosta ei tuoda). Viennin oletus on
     alleviivaukset ja kirjaukset (`av: 4` vaihtaa vanhan oletuksen kerran); tuonnissa kaikki valittuna aina asetuksia avattaessa,
     ei muisteta. Viennin valinnoista viimeisenä on *Edistymisen tilanne* (oletuksena pois: otsikon alle `Viety:` ja
     `Sijainti:` otsikon tarkkuudella, ei tarkemmin). Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan

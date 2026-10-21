@@ -174,7 +174,7 @@ palvelin.listen(0, async () => {
   const osit = await p.evaluate(() => { const m = window.__luin.nyt().merk;
     return { al: m.al.length, km: m.km.length, siirry: !!document.querySelector('#tuo-tieto button[data-siirry]'), tieto: document.querySelector('#tuo-tieto').textContent }; });
   tulos('osittainen tuonti', osit.al > 0 && osit.km === 0 && !osit.siirry &&
-    vahv2 === 'Olet tuomassa tiedostosta alleviivaukset ja kirjaukset. Tiedoston mahdollisia kirjanmerkkejä ja edistymisen tilannetta ei oteta huomioon.',
+    vahv2 === 'Olet tuomassa tiedostosta alleviivaukset ja kirjaukset. Tiedoston mahdollisia kirjanmerkkejä ja edistymisen tilannetta ei tuoda.',
     JSON.stringify(osit) + ' | ' + vahv2);
   // Ilman valintoja nappia ei voi painaa.
   const pois = await p.evaluate(() => {
