@@ -11,10 +11,47 @@ const f = n => +n.toFixed(2);
 function rect(x0, y0, x1, y1) { return `M${f(x0)} ${f(y0)}H${f(x1)}V${f(y1)}H${f(x0)}Z`; }
 function poly(pts) { return 'M' + pts.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + 'Z'; }
 function dia(cx, cy, rx, ry, c = 0.5) {
-  // c = 0.5 suora salmiakki; < 0.5 koverat kyljet
-  const q = (ax, ay, bx, by) => `Q${f(cx + (ax + bx - 2*cx) * c)} ${f(cy + (ay + by - 2*cy) * c)} ${f(bx)} ${f(by)}`;
+  // c = 0.5 suora salmiakki; < 0.5 koverat kyljet. Taulukkona särmittäin: [NE, ES, SW, WN].
+  const cs = Array.isArray(c) ? c : [c, c, c, c];
+  const q = (k, ax, ay, bx, by) => `Q${f(cx + (ax + bx - 2*cx) * cs[k])} ${f(cy + (ay + by - 2*cy) * cs[k])} ${f(bx)} ${f(by)}`;
   const N = [cx, cy - ry], E = [cx + rx, cy], S_ = [cx, cy + ry], W = [cx - rx, cy];
-  return `M${f(N[0])} ${f(N[1])}` + q(...N, ...E) + q(...E, ...S_) + q(...S_, ...W) + q(...W, ...N) + 'Z';
+  return `M${f(N[0])} ${f(N[1])}` + q(0, ...N, ...E) + q(1, ...E, ...S_) + q(2, ...S_, ...W) + q(3, ...W, ...N) + 'Z';
+}
+// Kahden suoran leikkaus: p + t·d ja q + u·e
+function leik(p, d, q, e) {
+  const t = ((q[0] - p[0]) * e[1] - (q[1] - p[1]) * e[0]) / (d[0] * e[1] - d[1] * e[0]);
+  return [p[0] + t * d[0], p[1] + t * d[1]];
+}
+// Glissando: viiva lähtee i:n pisteen oikeasta kulmasta ja päättyy loppupisteen vasempaan kulmaan.
+// i:n pisteen oikea yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja viivan kaltevia, joten
+// viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
+// joko i:n pisteen korkeus annetaan (cy) ja s haetaan, tai s annetaan ja korkeus lasketaan.
+function glis(o) {
+  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 214, w = o.lw ?? 1.8;
+  const E = cy => [cx + rx, cy];
+  const Wp = s => [px - prx, pb - s * prx];
+  let s = o.s, cy = o.yd ?? 12;
+  if (s != null) {
+    const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
+  } else {
+    const g = s_ => { const W = Wp(s_); return ((W[0] - cx - rx) * -s_ + (W[1] - cy)) / Math.hypot(1, s_) - w; };
+    let a = 0.3, b = 3; for (let i = 0; i < 80; i++) { const m = (a + b) / 2; (g(a) * g(m) <= 0) ? b = m : a = m; }
+    s = (a + b) / 2;
+  }
+  const ry = s * rx, pry = s * prx, py = pb - pry, c = o.c ?? 0.38;
+  const e = E(cy), W = Wp(s), d = [1, s], nn = Math.hypot(1, s), n = [-s / nn * w, 1 / nn * w];
+  // viivan alku: alareuna leikkaa i:n pisteen ES-särmän tangentin kulmassa E
+  const qES = [cx + rx * c, cy + ry * c];
+  const cLo = leik([e[0] + n[0], e[1] + n[1]], d, e, [qES[0] - e[0], qES[1] - e[1]]);
+  // viivan loppu: yläreuna leikkaa loppupisteen WN-särmän tangentin kulmassa W
+  const qWN = [px - prx * c, py - pry * c];
+  const pUp = leik(e, d, W, [qWN[0] - W[0], qWN[1] - W[1]]);
+  return {
+    s, cy, ry, py, W: px + prx,
+    piste: dia(cx, cy, rx, ry, [0.5, c, c, c]),
+    loppu: dia(px, py, prx, pry, [c, c, 0.5, c]),
+    viiva: poly([e, pUp, [px, py], W, cLo, [cx, cy]]),
+  };
 }
 function logo(o = {}) {
   const xh = o.xh ?? 30;           // i:n x-korkeuden yläreuna
@@ -34,7 +71,8 @@ function logo(o = {}) {
   P.push(rect(152, 0, 155.4, 100), rect(186.6, 0, 190, 100));
   P.push(rect(145, 0, 160, t), rect(180, 0, 196.6, t), rect(145.5, 100 - t, 162, 100));
   const dot = [125.5, yd];
-  const W = per[0] + 6.5;
+  const G = (o.glis ?? true) ? glis(o) : null; // glis: false = vanha keskeltä keskelle -viiva
+  const W = G ? G.W : per[0] + 6.5;
   // HTML: musteen vasen reuna on L:n vasemmassa reunassa (x 0) ja oikea N:n oikean päätteen
   // reunassa (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
   // pystypääte (kuten ylärivin L:ssä).
@@ -66,14 +104,27 @@ function logo(o = {}) {
   serifs.push(rect(X1 - sp, y1 - 0.36 * (y1 - y0), X1, y1));
   const lineCol = o.lineCol || 'currentColor';
   const H = o.vb ?? 135; // viewBoxin alareuna pidetty ennallaan, jotta LUiN ei muuta kokoaan
-  return `<svg class="logo" viewBox="-2 ${f(Math.min(yd - 10, -2))} ${f(W + 4)} ${f(H - Math.min(yd - 10, -2) + 1)}" role="img" aria-label="LUiN.html">` +
+  const top = Math.min((G ? G.cy - G.ry : yd) - 2, -2);
+  const vb = `-2 ${f(top)} ${f(W + 4)} ${f(H - top + 1)}`;
+  // HTML:n väri: oletuksena ruoste (käyttäjän valinta 21.10.2026), o.htmlCol = 'currentColor' tekstin väriseksi
+  const hc = o.htmlCol ?? (G ? 'var(--ruoste)' : 'currentColor');
+  const html = `<path d="${st.join('')}" fill="none" stroke="${hc}" stroke-width="${sw}" stroke-linecap="butt"/>` +
+    `<path${hc === 'currentColor' ? '' : ` fill="${hc}"`} d="${serifs.join('')}"/>`;
+  if (G) {
+    // vari: 'piste' = i:n piste ruosteinen, muu musta; 'musta' = kaikki musta; 'ruoste' = piste, viiva ja loppupiste ruosteiset
+    const v = o.vari ?? 'ruoste', R = ' fill="var(--ruoste)"';
+    const vr = v === 'ruoste' ? R : '', pr = v === 'musta' ? '' : R;
+    return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
+      `<path d="${P.join('')}"/>` +
+      `<path${vr} d="${G.viiva}"/><path${vr} d="${G.loppu}"/><path${pr} d="${G.piste}"/>` + html + `</svg>`;
+  }
+  return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
     `<path d="${P.join('')}${dia(per[0], per[1], 6.5, 7.5, c)}"/>` +
     `<path d="M${f(dot[0])} ${f(dot[1])}L${f(per[0])} ${f(per[1])}" stroke="${lineCol}" stroke-width="${o.lw ?? 1.8}" fill="none"/>` +
     `<path fill="var(--ruoste)" d="${dia(dot[0], dot[1], 7.5, 8.5, c)}"/>` +
-    `<path d="${st.join('')}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="butt"/>` +
-    `<path d="${serifs.join('')}"/>` +
-    `</svg>`;
+    html + `</svg>`;
 };
 
 module.exports = logo;
+logo.glis = glis;
 if (require.main === module) console.log(logo());
