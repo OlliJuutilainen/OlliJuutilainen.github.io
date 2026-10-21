@@ -166,7 +166,13 @@ Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi
 
 ### 4.6 Merkintöjen vienti ja tuonti
 
-Asetusten alimpana, muista erotettuna, on supistettu osio *Vie tai tuo merkinnät tekstitiedostona*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. Viimeisenä on *Edistymisen tilanne* (oletuksena pois). *Vie tiedot* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
+Asetusten alimpana ovat kaksi supistettua osiota, *Vie merkinnät tekstitiedostoon* ja *Tuo merkinnät tekstitiedostosta* (käyttäjän päätös 21.10.2026; ennen yksi yhteinen osio). Ne näkyvät vain tekstiä luettaessa ja koskevat avointa tekstiä. Niitä edeltää huomion *Asetukset koskevat kaikkia tekstejä tällä laitteella* jatkona johdanto: merkinnät ovat vain tämän selaimen muistissa, ja ne voi viedä tekstitiedostoon ja tuoda takaisin.
+
+Kummassakin osiossa valitaan alleviivaukset, kirjaukset, kirjanmerkit ja edistymisen tilanne, ja kummassakin on vain nappi (*Vie*, *Tuo*). Viennin oletus on alleviivaukset ja kirjaukset, ja valinnat muistetaan. Tuonnissa kaikki on valittuna aina, kun asetukset avataan; valintoja ei muisteta. Nappia ei voi painaa ilman valintoja (vienti vaatii jonkin merkintälajin, koska pelkkä edistymisen tilanne ei ole merkintätiedosto; tuonnissa pelkkä edistymisen tilanne antaa sijainnin).
+
+Ennen vientiä ponnahduslaatikko vahvistaa, mitä viedään (*Olet viemässä tekstistä ”…” alleviivaukset ja kirjaukset.*). Tuonti kysyy vahvistuksen vain, jos kaikkea ei ole valittu, ja kertoo, mitä jätetään huomiotta (*Tiedoston mahdollisia kirjanmerkkejä ei oteta huomioon.*); vahvistuksen jälkeen avautuu tiedostonvalinta. Ilman alleviivauksia tuotu kirjaus liitetään vain jo olemassa olevaan samaan alleviivaukseen; muut jäävät tuomatta, ja tilarivi kertoo niiden määrän.
+
+*Vie* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
 
 Tiedosto alkaa tekstin nimellä (`#`), alaotsikolla *Luetun merkinnät*, lähdeviitteellä ja `---`-viivalla. Jos edistymisen tilanne viedään, alaotsikon ja lähdeviitteen välissä on tietorivit `Viety: 21.10.2026<br>` ja `Sijainti: 3. Kant ja eläimet › 3.1 Kantin vaikea eläinsuhde`: lukukohta otsikon tarkkuudella, ei tarkemmin (käyttäjän päätös 21.10.2026; ennen ensimmäistä otsikkoa *tekstin alku*). Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
 
@@ -180,7 +186,7 @@ Tuontia varten vientiin tuli 21.10.2026 kaksi lisää, muuten muoto on ennallaan
 - Jos alleviivattu katkelma esiintyy osiossaan (syvin otsikko, jonka alla se on) useammin kuin kerran, lainauksen ensimmäisen rivin perässä on `[n/m]`: n:s esiintymä m:stä. Esiintymiksi lasketaan vain kohdat, joista alleviivaus voi alkaa ja loppua (sanarajat), joten esimerkiksi *ja* ei osu sanan *Kantin ja* sisään eikä *Kant* sanaan *Kantin*.
 - Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma kohdasta, tarvittaessa `kohta n/m:`). Esikatselussa sitä ei näy. Ilman sitä kirjanmerkin kohta katoaisi, kun alleviivaukset viedään (silloin virkettä ei lainata).
 
-*Tuo tiedot* lukee viedyn tiedoston ja lisää sen merkinnät avoimeen tekstiin. Tiedostomuotoa ei ole merkitty tunnisteilla, vaan tuonti nojaa siihen, mitä vienti joka tapauksessa kirjoittaa:
+*Tuo* lukee viedyn tiedoston ja lisää sen merkinnät avoimeen tekstiin. Tiedostomuotoa ei ole merkitty tunnisteilla, vaan tuonti nojaa siihen, mitä vienti joka tapauksessa kirjoittaa:
 
 - Tiedosto tunnistetaan `#`-otsikosta ja rivistä *Luetun merkinnät*. Jos otsikko on eri kuin avoimen tekstin, merkinnät tuodaan vain, jos ainakin puolet lainauksista löytyy tekstistä.
 - Otsikkorivi rajaa haun osioon, kun tekstissä on samantasoinen samanniminen otsikko (samannimisistä edellisen jälkeinen). Lainaus haetaan osiosta `[n/m]`:n mukaisesta esiintymästä; jos tekstiä on muutettu, koko tekstistä lähimpänä osion alkua. Merkintä, jota ei löydy, tuodaan kohdattomana (Merkinnät-laatikossa *kohtaa ei löydy*).

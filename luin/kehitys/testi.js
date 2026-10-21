@@ -137,11 +137,14 @@ palvelin.listen(0, async () => {
   await p.keyboard.type('Testikirjaus');
   await p.click('#pop button[data-k="tallenna"]');
   await p.reload(); await p.waitForTimeout(500);
-  await p.click('#lukija .ratas'); await p.click('#vienti summary');
-  const [lataus] = await Promise.all([p.waitForEvent('download'), p.click('#vie')]);
+  await p.click('#lukija .ratas'); await p.click('#vie-osio summary');
+  await p.click('#vie');
+  const vahv = await p.textContent('#pop .esi');
+  const [lataus] = await Promise.all([p.waitForEvent('download'), p.click('#pop button[data-k="ok"]')]);
   const vienti = fs.readFileSync(await lataus.path(), 'utf8');
   await p.click('#asetukset .sulje');
-  tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti), lataus.suggestedFilename() + ', ' + vienti.split('\n').length + ' riviä');
+  tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti) && / alleviivaukset ja kirjaukset\.$/.test(vahv),
+    lataus.suggestedFilename() + ', ' + vienti.split('\n').length + ' riviä | ' + vahv);
 
   // Tuonti: kirjanmerkki ja lukukohta keskimmäiseen lukuun, vienti edistymisen kanssa, merkinnät
   // tyhjiksi, tuonti tiedostonvalinnasta. Merkintöjen pitää palata samoihin kohtiin.
@@ -152,20 +155,52 @@ palvelin.listen(0, async () => {
     return { a: h.b, z: toc[i + 1] ? toc[i + 1].b : 1e9, nimi: h.text, merk: JSON.stringify(n.merk) };
   });
   await p.waitForTimeout(300);
-  await p.click('#lukija .ratas'); await p.click('#vienti summary'); await p.click('#vie-valinnat button[data-vie="vieEd"]');
-  const [lataus2] = await Promise.all([p.waitForEvent('download'), p.click('#vie')]);
+  await p.click('#lukija .ratas'); await p.click('#vie-osio summary');
+  await p.click('#vie-valinnat button[data-vie="vieKm"]'); await p.click('#vie-valinnat button[data-vie="vieEd"]');
+  await p.click('#vie');
+  const [lataus2] = await Promise.all([p.waitForEvent('download'), p.click('#pop button[data-k="ok"]')]);
   const vienti2 = fs.readFileSync(await lataus2.path(), 'utf8');
   await p.evaluate(() => { const n = window.__luin.nyt(); localStorage.setItem('luin-merkit:' + n.e.id, '{}'); });
   await p.reload(); await p.waitForTimeout(500);
-  await p.click('#lukija .ratas'); await p.click('#vienti summary');
-  await p.setInputFiles('#tuo-tiedosto', { name: 'merkinnat.md', mimeType: 'text/markdown', buffer: Buffer.from(vienti2) });
-  await p.waitForSelector('#vie-tieto button[data-siirry]');
+  // Osittainen tuonti: kirjanmerkit ja edistymisen tilanne pois. Vahvistus kertoo, mitä jätetään
+  // huomiotta, ja tiedostosta tulevat vain alleviivaukset ja kirjaukset.
+  await p.click('#lukija .ratas'); await p.click('#tuo-osio summary');
+  await p.click('#tuo-valinnat button[data-tuo="km"]'); await p.click('#tuo-valinnat button[data-tuo="ed"]');
+  await p.click('#tuo');
+  const vahv2 = await p.textContent('#pop .esi');
+  const [valitsin] = await Promise.all([p.waitForEvent('filechooser'), p.click('#pop button[data-k="ok"]')]);
+  await valitsin.setFiles({ name: 'merkinnat.md', mimeType: 'text/markdown', buffer: Buffer.from(vienti2) });
+  await p.waitForFunction(() => document.querySelector('#tuo-tieto').textContent);
+  const osit = await p.evaluate(() => { const m = window.__luin.nyt().merk;
+    return { al: m.al.length, km: m.km.length, siirry: !!document.querySelector('#tuo-tieto button[data-siirry]'), tieto: document.querySelector('#tuo-tieto').textContent }; });
+  tulos('osittainen tuonti', osit.al > 0 && osit.km === 0 && !osit.siirry &&
+    vahv2 === 'Olet tuomassa tiedostosta alleviivaukset ja kirjaukset. Tiedoston mahdollisia kirjanmerkkejä ja edistymisen tilannetta ei oteta huomioon.',
+    JSON.stringify(osit) + ' | ' + vahv2);
+  // Ilman valintoja nappia ei voi painaa.
+  const pois = await p.evaluate(() => {
+    const paina = (s, pois) => { let b; while ((b = [...document.querySelectorAll(s + ' button[aria-pressed="true"]')].find(x => !pois.includes(x.dataset.vie)))) b.click(); };
+    paina('#tuo-valinnat', []); paina('#vie-valinnat', ['vieEd']);
+    const r = { tuo: document.querySelector('#tuo').disabled, vie: document.querySelector('#vie').disabled,
+      vieEd: document.querySelector('#vie-valinnat button[data-vie="vieEd"]').getAttribute('aria-pressed') };
+    document.querySelector('#vie-valinnat button[data-vie="vieAl"]').click(); document.querySelector('#vie-valinnat button[data-vie="vieKi"]').click();
+    r.palautettu = !document.querySelector('#vie').disabled;
+    return r; });
+  tulos('napit pois ilman valintoja', pois.tuo && pois.vie && pois.vieEd === 'true' && pois.palautettu, JSON.stringify(pois));
+  await p.evaluate(() => { const n = window.__luin.nyt(); localStorage.setItem('luin-merkit:' + n.e.id, '{}'); });
+  await p.reload(); await p.waitForTimeout(500);
+  // Kaikki valittuna (oletus avattaessa) tuonti ei kysy vahvistusta vaan avaa tiedostonvalinnan.
+  await p.click('#lukija .ratas'); await p.click('#tuo-osio summary');
+  const [valitsin2] = await Promise.all([p.waitForEvent('filechooser'), p.click('#tuo')]);
+  const popAuki = await p.isVisible('#pop');
+  await valitsin2.setFiles({ name: 'merkinnat.md', mimeType: 'text/markdown', buffer: Buffer.from(vienti2) });
+  await p.waitForSelector('#tuo-tieto button[data-siirry]');
+  tulos('tuonti ilman vahvistusta', !popAuki);
   await p.evaluate(m => { window.__alkup = m; }, osio.merk);
   const vrt = await p.evaluate(() => {
     const m = window.__luin.nyt().merk, k = x => JSON.stringify({ al: x.al.map(h => [h.segs.map(s => [s.b, s.s, s.e]), h.n]), km: x.km.map(q => [q.b, q.o]) });
-    return { tieto: document.querySelector('#vie-tieto').textContent, merkit: document.querySelectorAll('mark.ali').length, sama: k(m) === k(JSON.parse(window.__alkup)) };
+    return { tieto: document.querySelector('#tuo-tieto').textContent, merkit: document.querySelectorAll('mark.ali').length, sama: k(m) === k(JSON.parse(window.__alkup)) };
   });
-  await p.click('#vie-tieto button[data-siirry]'); await p.waitForTimeout(400);
+  await p.click('#tuo-tieto button[data-siirry]'); await p.waitForTimeout(400);
   const perilla = (await tila()).a;
   tulos('merkintöjen tuonti', vrt.sama && vrt.merkit > 0 && vienti2.includes('Sijainti: ') && vienti2.includes(osio.nimi) && /<!-- kohta/.test(vienti2) &&
     perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
