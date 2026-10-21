@@ -543,8 +543,7 @@ Käyttäjän vaatimukset 20.10.2026:
 - Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä, hyvin haalea
   kirjanmerkin ääriviiva (`#km-nappi`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi
   (`--ruoste`), kun ruudulla (sivutettuna tällä sivulla) on kirjanmerkki; silloin napautus poistaa näkyvät
-  kirjanmerkit. Avatun palkin alla vasemmalla sen yläpuolella laatikko *Aseta kirjanmerkki* (kuparisena *Poista
-  kirjanmerkki*), joka tekee saman, ja heti oikealla laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
+  kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).

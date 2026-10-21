@@ -212,7 +212,6 @@
   .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
-  #km-lisaa[aria-pressed="true"] { color: var(--ruoste); border-color: var(--ruoste); }
   .laatikko svg { width: 14px; height: 11px; flex: 0 0 auto; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
@@ -281,7 +280,6 @@
       <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
-        <button type="button" class="laatikko" id="km-lisaa" aria-pressed="false">Aseta kirjanmerkki</button>
         <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
       </div>
     </div>
@@ -842,8 +840,6 @@
     var lit = nakyvatKirjanmerkit().length > 0;
     $('#km-nappi').setAttribute('aria-pressed', String(lit));
     $('#km-nappi').setAttribute('aria-label', lit ? 'Poista kirjanmerkki' : 'Aseta kirjanmerkki');
-    $('#km-lisaa').setAttribute('aria-pressed', String(lit));
-    $('#km-lisaa').textContent = lit ? 'Poista kirjanmerkki' : 'Aseta kirjanmerkki';
     piirraJana();
     tallennaKohta();
   }
@@ -1122,7 +1118,6 @@
     if (auki) piirraJana();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
-  $('#km-lisaa').addEventListener('click', vaihdaKirjanmerkki);
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
 
