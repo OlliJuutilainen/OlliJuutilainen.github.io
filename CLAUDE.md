@@ -576,9 +576,12 @@ Käyttäjän vaatimukset 20.10.2026:
   puolella, ilman edistymistä oikeassa reunassa. Booxin sivunkääntönäppäimet antavat PageDown/PageUpin; `AudioVolumeDown`/`Up`
   on lisätty siltä varalta, että selain välittää äänenvoimakkuusnäppäimet. Oikealla Palmalla testaamatta.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
-  eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
-  sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
-  transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
+  eikä teksti liiku ennen irrotusta. Liikkeessä vain `#j-veto`:n transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
+  Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan,
+  myös merkin vieressä ja kummitusmerkin kohdalla). Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain pysäkeille
+  (`janaPysakit()`: tekstin alku, kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
+  pysäkit ovat samat riippumatta aikajanalle valituista merkeistä. Perustelu: ilman e-inkiä luetaan mieluummin vierittäen,
+  e-inkissä veto ei tee ilotulitusta. Sivun alkuun pyöristävä `sivunAlku()` jäi vain testien käyttöön.
 - Kirjanmerkin paikka (käyttäjän päätös 21.10.2026; opas, luku 4.3): kirjanmerkki menee aina luettavan kappaleen alkuun
   (`o: 0`), ja kohta tuodaan näkyviin. Sivutettuna luettava kappale on sivun ensimmäisen rivin kappale; jos se alkoi
   edellisellä sivulla, siirrytään sille sivulle (käyttäjä salli jättää tämän pois, jos se sotii jotain vastaan; ei

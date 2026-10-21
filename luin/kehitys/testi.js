@@ -241,17 +241,23 @@ palvelin.listen(0, async () => {
       g: !!document.querySelector('#j-veto'), h: !!document.querySelector('#jana-svg .haamu') }));
     return { ennen, xt: [...xt], pysyi, haamu, jalkeen, r };
   };
-  await p.evaluate(() => window.__luin.mene({ b: 0, o: 0 }));
+  // Sivutettuna välimuotoja ei ole (käyttäjän päätös 21.10.2026): osoitin pysähtyy vain tekstin
+  // alkuun, otsikoihin, kirjanmerkkeihin, majakkaan ja voimassa olevaan kohtaan, myös kun
+  // aikajanalla näkyvät vain pääluvut eikä kirjanmerkkejä.
+  await p.evaluate(() => { const L = window.__luin; L.aset.janaTaso = 1; L.aset.kmJanalla = 0; L.mene({ b: 0, o: 0 }); });
   const vs = await veto(0.2, 0.3, 40);
-  const sivuX = await p.evaluate(w => { const L = window.__luin, o = k => (L.nyt().cum[k.b] + k.o) / L.nyt().total, a = [];
-    for (let i = 0; i < L.tila.sivuja; i++) a.push(13 + o(L.sivunAlku(i)) * (w - 26));
-    // Merkin lähellä (14 px) osoitin tarttuu merkkiin kuten ennenkin; muualla sivun alkuun.
-    L.nyt().doc.toc.forEach(t => a.push(13 + o({ b: t.b, o: 0 }) * (w - 26)));
-    L.nyt().merk.km.forEach(k => a.push(13 + o(k) * (w - 26)));
+  const pys = await p.evaluate(w => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total, a = [];
+    a.push({ x: 13 + o({ b: 0, o: 0 }) * (w - 26), k: '0:0' });
+    n.doc.toc.forEach(t => a.push({ x: 13 + o({ b: t.b, o: 0 }) * (w - 26), k: t.b + ':0', lvl: t.lvl }));
+    n.merk.km.forEach(k => a.push({ x: 13 + o(k) * (w - 26), k: k.b + ':' + k.o }));
+    L.aset.janaTaso = 2; L.aset.kmJanalla = 1;
     return a; }, vs.r.w);
-  const kvantti = vs.xt.every(x => sivuX.some(s => Math.abs(s - x) < 0.01));
-  tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && kvantti && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
-    'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' + (kvantti ? ', kaikki sivujen alkuja tai merkkejä' : ', EI sivujen alkuja'));
+  const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
+  const kvantti = vs.xt.every(pysakki), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
+  const perille = pys.some(s => s.k === vs.jalkeen.a.b + ':' + vs.jalkeen.a.o);
+  tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && kvantti && piilotettu && perille && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
+    'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' +
+    (kvantti ? ', kaikki pysäkkejä' : ', EI pysäkkejä') + (piilotettu ? ', myös piilotettuja alalukuja' : ', ei piilotettuja alalukuja') + (perille ? ', irrotus pysäkille' : ', irrotus EI pysäkille'));
 
   // Kirjanmerkin nauha kappaleen alussa: ensimmäisen rivin yläpuolella tai sisennyksessä, ei
   // reunuksessa eikä tekstin päällä. Oletuskoossa tilaa on joka lohkon yläpuolella, paitsi
@@ -327,6 +333,16 @@ palvelin.listen(0, async () => {
   const vv = await veto(0.2, 0.3, 40);
   tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
     'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
+
+  // Vierityksessä ei ole magneettia: napautus 5 px pääluvun merkin oikealla puolella vie
+  // suhteelliseen kohtaan eikä otsikkoon.
+  const mg = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), t = n.doc.toc.filter(x => x.lvl === 1)[3];
+    const b = document.querySelector('#jana-svg').getBoundingClientRect(), w = b.width - 26;
+    return { x: b.left + 13 + (n.cum[t.b] / n.total) * w + 5, y: b.top + 21, b: t.b, w }; });
+  await p.mouse.click(mg.x, mg.y); await p.waitForTimeout(150);
+  const mgA = await p.evaluate(m => { const L = window.__luin, n = L.nyt(), a = L.tila.ankkuri, r = document.querySelector('#jana-svg').getBoundingClientRect();
+    return { k: a.b + ':' + a.o, ero: r.left + 13 + (n.cum[a.b] + a.o) / n.total * m.w - m.x }; }, mg);
+  tulos('ei magneettia vierityksessä', mgA.k !== mg.b + ':0' && Math.abs(mgA.ero) < 1.5, 'otsikko ' + mg.b + ':0, perillä ' + mgA.k + ', ero napautukseen ' + mgA.ero.toFixed(2) + ' px');
 
   // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
   const mj = await p.evaluate(async () => {
