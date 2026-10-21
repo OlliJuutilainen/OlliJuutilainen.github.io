@@ -517,12 +517,15 @@ Käyttäjän vaatimukset 20.10.2026:
   se lähtee i:n pisteen oikeasta kulmasta ja päättyy loppupisteen vasempaan kulmaan. i:n pisteen oikea
   yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja samassa kulmassa kuin viiva, joten viivan yläreuna
   jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta (muut särmät koverat). Viiva on suunnikas eikä
-  stroke, ja `glis()` ratkaisee kaltevuuden (47°), kun i:n pisteen kohta (keskikohta 125,5; 12, oikea kulma
-  x 133) ja loppupisteen paikka (keskikohta x 214, alareuna 100,5) on annettu; salmiakkien korkeus seuraa
-  kaltevuudesta. Loppupiste siirtyi 205 → 214, joten viewBox levisi 9 yksikköä (luin.html:ssä logo
-  99,94 → 104,11 px; korkeus ja otsikon paikka ennallaan, mitattu). Piste, viiva, loppupiste ja HTML ovat
-  ruosteisia, LUiN tekstin värinen. Hylätyt: viiva keskeltä keskelle (aiempi), i:n piste yksin ruosteisena
-  (värinvaihto katkaisi särmän ja viivan), kaikki musta (kirvesmäinen), loppupiste N:n alla (x 205, ahdas).
+  stroke, ja `glis()` ratkaisee kaltevuuden, kun i:n pisteen oikea kulma (x 133), sen yläkärjen korkeus ja
+  loppupisteen paikka on annettu; salmiakkien korkeus seuraa kaltevuudesta. Käyttäjän päätös 21.10.2026
+  (myöhemmin): i:n pisteen yläkärki on versaalien lakipisteessä (y 0, kuten L, U ja N) ja loppupiste
+  kohdassa x 212 (alareuna 100,5). Kaltevuudeksi tulee 1,130 (48,5°), joten salmiakit ovat lähes entisissä
+  mittasuhteissa (i:n piste 7,5 × 8,48, loppupiste 6,5 × 7,35). viewBox `-2 -2 222.5 138`; luin.html:ssä logo
+  99,94 (keskeltä keskelle -viiva) → 103,19 px leveä, korkeus ja otsikon paikka ennallaan (mitattu). i:n piste
+  on ruosteinen, viiva, loppupiste, LUiN ja HTML tekstin värisiä. Hylätyt: viiva keskeltä keskelle (aiempi),
+  loppupiste x 214 ja i:n piste keskikohdaltaan y 12 (piste liian kaukana), piste–viiva–piste ja HTML
+  ruosteisina (oli käytössä hetken 21.10.2026), kaikki musta (kirvesmäinen), loppupiste N:n alla (x 205, ahdas).
   Vanha geometria: `logo({ glis: false })`. Käyttäjän päätökset 21.10.2026:
   HTML mahtuu kokonaan LUiN-kirjainten alle (muste x 0–196,6 eli L:n vasemmasta reunasta N:n oikean
   päätteen reunaan, ei loppupisteen alle; mitattu Chromiumissa), alku ja loppu veitsenterävät (H:n

@@ -25,18 +25,21 @@ function leik(p, d, q, e) {
 // Glissando: viiva lähtee i:n pisteen oikeasta kulmasta ja päättyy loppupisteen vasempaan kulmaan.
 // i:n pisteen oikea yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja viivan kaltevia, joten
 // viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
-// joko i:n pisteen korkeus annetaan (cy) ja s haetaan, tai s annetaan ja korkeus lasketaan.
+// joko i:n pisteen yläkärki (yla, oletus 0) tai keskikohta (yd) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
 function glis(o) {
-  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 214, w = o.lw ?? 1.8;
+  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 212, w = o.lw ?? 1.8;
   const E = cy => [cx + rx, cy];
   const Wp = s => [px - prx, pb - s * prx];
+  // yla: i:n pisteen yläkärjen korkeus (oletus 0 = versaalien lakipiste); silloin keskikohta = yla + s·rx
+  const yla = o.yd != null ? null : (o.yla ?? 0);
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
   } else {
-    const g = s_ => { const W = Wp(s_); return ((W[0] - cx - rx) * -s_ + (W[1] - cy)) / Math.hypot(1, s_) - w; };
+    const g = s_ => { const W = Wp(s_), cy_ = yla == null ? cy : yla + s_ * rx; return ((W[0] - cx - rx) * -s_ + (W[1] - cy_)) / Math.hypot(1, s_) - w; };
     let a = 0.3, b = 3; for (let i = 0; i < 80; i++) { const m = (a + b) / 2; (g(a) * g(m) <= 0) ? b = m : a = m; }
     s = (a + b) / 2;
+    if (yla != null) cy = yla + s * rx;
   }
   const ry = s * rx, pry = s * prx, py = pb - pry, c = o.c ?? 0.38;
   const e = E(cy), W = Wp(s), d = [1, s], nn = Math.hypot(1, s), n = [-s / nn * w, 1 / nn * w];
@@ -106,13 +109,13 @@ function logo(o = {}) {
   const H = o.vb ?? 135; // viewBoxin alareuna pidetty ennallaan, jotta LUiN ei muuta kokoaan
   const top = Math.min((G ? G.cy - G.ry : yd) - 2, -2);
   const vb = `-2 ${f(top)} ${f(W + 4)} ${f(H - top + 1)}`;
-  // HTML:n väri: oletuksena ruoste (käyttäjän valinta 21.10.2026), o.htmlCol = 'currentColor' tekstin väriseksi
-  const hc = o.htmlCol ?? (G ? 'var(--ruoste)' : 'currentColor');
+  // HTML:n väri: oletuksena tekstin väri (käyttäjän valinta 21.10.2026), esim. o.htmlCol = 'var(--ruoste)'
+  const hc = o.htmlCol ?? 'currentColor';
   const html = `<path d="${st.join('')}" fill="none" stroke="${hc}" stroke-width="${sw}" stroke-linecap="butt"/>` +
     `<path${hc === 'currentColor' ? '' : ` fill="${hc}"`} d="${serifs.join('')}"/>`;
   if (G) {
     // vari: 'piste' = i:n piste ruosteinen, muu musta; 'musta' = kaikki musta; 'ruoste' = piste, viiva ja loppupiste ruosteiset
-    const v = o.vari ?? 'ruoste', R = ' fill="var(--ruoste)"';
+    const v = o.vari ?? 'piste', R = ' fill="var(--ruoste)"';
     const vr = v === 'ruoste' ? R : '', pr = v === 'musta' ? '' : R;
     return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
       `<path d="${P.join('')}"/>` +
