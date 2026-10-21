@@ -50,7 +50,7 @@ palvelin.listen(0, async () => {
 
   // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
   // varten automaattinen alleviivaus pois (oletus on päällä).
-  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 2; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 3; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(500);
   const n = (await tila()).n;
   let leikattu = 0;
