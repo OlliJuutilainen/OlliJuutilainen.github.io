@@ -559,6 +559,13 @@ Käyttäjän vaatimukset 20.10.2026:
   eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
   sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
   transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
+- Kirjanmerkin paikka (käyttäjän päätös 21.10.2026; opas, luku 4.3): kirjanmerkki menee aina luettavan kappaleen alkuun
+  (`o: 0`), ja kohta tuodaan näkyviin. Sivutettuna luettava kappale on sivun ensimmäisen rivin kappale; jos se alkoi
+  edellisellä sivulla, siirrytään sille sivulle (käyttäjä salli jättää tämän pois, jos se sotii jotain vastaan; ei
+  sotinut). Nauha on sisennetyssä kappaleessa sisennyksessä, muuten tekstin vasemmassa laidassa ensimmäisen rivin
+  yläpuolella, jos tilaa on (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), ei reunuksessa. Reunus on vain
+  varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
+  Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
