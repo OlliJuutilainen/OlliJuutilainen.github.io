@@ -599,6 +599,11 @@ Käyttäjän vaatimukset 20.10.2026:
   vasemmat päätteet x 0:ssa, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
   ylempänä ja viiva 2,1 → 2,5 (viewBox:n korkeus ennallaan, joten LUiN ei muuttanut kokoaan). Pienen L:n
   alaviivan pää N:n alaosan reunaan (x 190) kokeiltiin ja hylättiin.
+- Asetusten ratas (käyttäjän päätös 21.10.2026) on vesiratas eikä hammasratas: kehä, ristipuolat ja kahdeksan leveää lapaa
+  (alalyöntiratas), napana koverakylkinen salmiakki kuten suurennuslasin linssissä. Valittu kuudesta luonnoksesta (kruunupyörä,
+  Katariinan pyörä, kannuksen ratas, volvelle, Fortunan pyörä ja vesiratasvaihtoehdot); hylättyjä: kauharatas (L-koukut näyttivät
+  hakaristiltä), Ramellin kirjat ja vedessä-versio (pienenä sotkuisia tai ratas liian pieni). SVG on samana kahdessa paikassa
+  (`.ratas`-nappi listassa ja `#ratas-polku`-`<g>` lukijassa), pidä ne yhtenevinä.
 - Lukulistan logon oikealla puolella on KEICK•WALKin ⓘ-napin tapaan tietoa-nappi (käyttäjän pyyntö 21.10.2026), mutta
   ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Merkin keskikohta
   on LUiN-versaalien keskilinjalla (mitattu 54,00 / 54,12 px). Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
