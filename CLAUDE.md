@@ -519,15 +519,20 @@ Käyttäjän vaatimukset 20.10.2026:
   jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta (muut särmät koverat). Viiva on suunnikas eikä
   stroke, ja `glis()` ratkaisee kaltevuuden, kun i:n pisteen oikea kulma (x 133), sen yläkärjen korkeus ja
   loppupisteen paikka on annettu; salmiakkien korkeus seuraa kaltevuudesta. Käyttäjän päätös 21.10.2026
-  (viimeisin): i:n pisteen keskikohta y 12 (yläkärki 3,18) ja loppupisteen keskikohta x 212, y 100, eli sen
-  sivukärjet ja viivan laskeutuminen ovat perusviivalla ja alakärki roikkuu sen alla (107,6; HTML alkaa
-  112). Kaltevuudeksi tulee 1,175 (49,6°): i:n piste 7,5 × 8,82, loppupiste 6,5 × 7,64. viewBox
-  `-2 -2 222.5 138`; luin.html:ssä logo 103,19 px leveä, korkeus ja otsikon paikka ennallaan (mitattu). i:n piste
+  (viimeisin): i:n pisteen keskikohta y 12 ja loppupisteen keskikohta y 100, eli sen sivukärjet ja viivan
+  laskeutuminen ovat perusviivalla. Viivan alareuna kulkee N:n oikean kuopan pohjan kautta (vinoviivan oikea
+  reuna kohtaa oikean pystyviivan vasemman reunan, x 186,6, y 84,89), joten viivan alle ei jää kuopasta rakoa
+  (`sulje`, oletus; mitattu pikseleistä: ennen 469 paperin väristä pikseliä, nyt 0). Tämä ratkaisee
+  kaltevuuden 1,305 (52,5°) ja loppupisteen paikan x 204,68: i:n piste 7,5 × 9,78, loppupiste 6,5 × 8,48,
+  alakärki 108,5 (HTML alkaa 112). viewBox `-2 -2 215.18 138`; luin.html:ssä logo 99,78 px leveä, Latomossa
+  87,31 px, korkeus ja otsikon paikka ennallaan (mitattu). i:n piste
   on ruosteinen, viiva, loppupiste, LUiN ja HTML tekstin värisiä. Hylätyt: viiva keskeltä keskelle (aiempi),
   loppupiste x 214 ja i:n piste keskikohdaltaan y 12 (piste liian kaukana), piste–viiva–piste ja HTML
   ruosteisina (oli käytössä hetken 21.10.2026), kaikki musta (kirvesmäinen), loppupiste N:n alla (x 205, ahdas),
   i:n pisteen yläkärki versaalien lakipisteessä ja loppupisteen alareuna perusviivalla (oli käytössä hetken;
-  sivukärkiä perusviivalle kokeiltiin myös yläkärjen ollessa lakipisteessä, jolloin piste venyi 9,11:een).
+  sivukärkiä perusviivalle kokeiltiin myös yläkärjen ollessa lakipisteessä, jolloin piste venyi 9,11:een),
+  loppupiste x 212, y 100 (oli käytössä hetken; viivan alle jäi kuopasta noin 10 yksikön rako), rako suljettuna
+  laskemalla loppupistettä (keskikohta 109,6, roikkui HTML-rivin tasolle) tai muuttamalla N:ää.
   Vanha geometria: `logo({ glis: false })`. Käyttäjän päätökset 21.10.2026:
   HTML mahtuu kokonaan LUiN-kirjainten alle (muste x 0–196,6 eli L:n vasemmasta reunasta N:n oikean
   päätteen reunaan, ei loppupisteen alle; mitattu Chromiumissa), alku ja loppu veitsenterävät (H:n

@@ -40,7 +40,7 @@ function glis(o) {
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
-  } else if (o.sulje) {
+  } else if (o.sulje ?? true) { // käyttäjän valinta 21.10.2026; sulje: false = loppupiste px:n mukaan
     // Viivan alareuna kulkee N:n oikean kuopan pohjan kautta (vinoviivan oikea reuna kohtaa oikean
     // pystyviivan vasemman reunan), joten kuoppa sulkeutuu juuri ja juuri; loppupisteen x seuraa.
     const T = [186.6, 100 * (186.6 - 167.5) / (190 - 167.5)];
