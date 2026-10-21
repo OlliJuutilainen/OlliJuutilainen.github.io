@@ -25,7 +25,7 @@
      harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha). */
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
-    --ruoste: #a4471a; --okra: #b07a16;
+    --ruoste: #a4471a; --okra: #b07a16; --huomio: #74624a;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --kirjasin: var(--antiikva);
@@ -34,7 +34,7 @@
   }
   :root[data-teema="tumma"] {
     --paperi: #18130e; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
-    --ruoste: #e08a4f; --okra: #d4a443;
+    --ruoste: #e08a4f; --okra: #d4a443; --huomio: #a69272;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -110,7 +110,7 @@
   header.tt { margin: 0 0 2.6em; }
   header.tt h1 { font-size: 1.55em; line-height: 1.2; margin: 0 0 .5em; font-weight: 400; letter-spacing: .05em; }
   header.tt .sub { font-size: .95em; color: var(--harmaa); margin: 0; text-transform: uppercase; letter-spacing: .075em; }
-  header.tt .meta { font-size: .82em; color: var(--harmaa); line-height: 1.5; margin: 1em 0 0; }
+  header.tt .meta { font-size: .82em; font-style: italic; color: var(--harmaa); line-height: 1.5; margin: 1em 0 0; }
   #teksti h2, #teksti h3, #teksti h4 { font-weight: 400; break-after: avoid; break-inside: avoid; }
   #teksti h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .005em; }
   #teksti h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
@@ -146,7 +146,7 @@
   .fnref { cursor: pointer; font-family: var(--groteski); font-size: .62em; vertical-align: super; line-height: 0;
     color: var(--ruoste); padding: 0 .16em .35em .12em; margin-left: .03em; font-variant-numeric: lining-nums;
     user-select: none; -webkit-user-select: none; }
-  .sidenote { display: none; font-size: .8em; line-height: 1.46; color: var(--harmaa); text-indent: 0; text-align: left; }
+  .sidenote { display: none; font-size: .8em; line-height: 1.46; color: var(--huomio); text-indent: 0; text-align: left; }
   .fnnum { font-family: var(--groteski); font-size: .62em; vertical-align: super; line-height: 0; color: var(--ruoste);
     margin-right: .3em; font-variant-numeric: lining-nums; }
   .fntoggle:checked + .sidenote { display: block; margin: .75em 0; padding: .1em 0 .1em .9em; border-left: 2px solid var(--ruoste); }
@@ -168,7 +168,7 @@
   nav.sisallys ol { list-style: none; margin: 0; padding: 0; }
   #teksti nav.sisallys li { margin: 0 0 .45em; padding: 0; }
   #teksti nav.sisallys li.t2 { padding-left: 1.5em; font-size: .94em; }
-  #teksti nav.sisallys a { color: inherit; text-decoration: none; }
+  #teksti nav.sisallys a { color: var(--ruoste); text-decoration: none; }
   nav.sisallys a:hover { text-decoration: underline; text-underline-offset: .2em; }
 
   /* sivutettu näkymä: CSS-palstat, yksi palsta kerrallaan näkyvissä */
