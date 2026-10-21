@@ -586,7 +586,7 @@
   // muokkainta; muut valikot sijoitetaan kuten ennenkin.
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
-    var rect = popPaikka.rect, w = pop.offsetWidth, h = pop.offsetHeight, vw = innerWidth;
+    var rect = popPaikka.rect, pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height, vw = innerWidth;
     var vv = muokkaus && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
