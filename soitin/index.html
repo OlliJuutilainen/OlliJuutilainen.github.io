@@ -523,6 +523,8 @@
     .copy:hover { color: var(--fg); }
   }
   .loading { color: var(--muted); margin: 0; }
+  /* Keikan otsikko ei ole vielä tiedossa: oletusteksti ei saa välähtää (paikka säilyy). */
+  #title.odota { visibility: hidden; }
 
   /* Omat keikkani verkossa (sovelluksessa napit tuo silta.js). */
   /* Otsikolle varataan yläkulman nappien tila (verkossa ☰, sovelluksessa silta.js:n kolme nappia)
@@ -584,7 +586,7 @@
 <main>
   <svg class="brand" viewBox="0.99 2.8 19.89 17.2" role="img" aria-label="KEICK•WALK"><path d="M3.61 17.38V10.725A7.325 7.325 0 0 1 18.26 10.725V17.38" fill="none" stroke="currentColor" stroke-width="1.2"/><circle class="t" cx="3.61" cy="17.38" r="2.62"/><circle class="t" cx="18.26" cy="17.38" r="2.62"/></svg>
   <div class="brand-space" aria-hidden="true"></div>
-  <h1 id="title">KEICK•WALK</h1>
+  <h1 id="title" class="odota">KEICK•WALK</h1>
   <p class="sub" id="sub" hidden></p>
   <p class="loading" id="loading">Ladataan keikan tietoja…</p>
 
@@ -1814,6 +1816,7 @@
 
   function fail(msg, detail) {
     $("loading").hidden = true;
+    els.title.classList.remove("odota");
     showError(msg, detail);
   }
 
@@ -1842,6 +1845,7 @@
     gig = data;
     document.title = gig.title;
     els.title.textContent = gig.title;
+    els.title.classList.remove("odota");
     // Lisätieto vain sivulle, ei välilehden otsikkoon eikä linkin esikatseluun. Puuttuva lisätieto
     // piilottaa rivin. Vanhoissa keikoissa tyhjä rivi on voitu tallentaa nollaleveänä välilyöntinä
     // (U+200B); se ohitetaan.
@@ -2036,6 +2040,7 @@
         var sub = data && typeof data.sub === "string" ? data.sub.trim() : "";
         if (data && Array.isArray(data.files)) {
           els.title.textContent = title;
+          els.title.classList.remove("odota");
           return prepareFiles(data).then(function (r) {
             if (!r.files.length) throw { user: "Kansion tiedostoja ei saatu ladattua.",
               detail: "Tarkista verkkoyhteys ja lataa sivu uudelleen." };
