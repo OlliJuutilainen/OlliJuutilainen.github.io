@@ -532,6 +532,7 @@ Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehity
   monisivuinen) ankkuroidaan seuraavan lohkon alkuun `ed` sivua ennen sitä.
 - Sivutettuna `hr.ennen-lukua` (--- juuri ennen ##-otsikkoa) piilotetaan: pääluku alkaa uudelta
   sivulta, ja viiva jäi muuten yksin omalle sivulleen.
+- Väriperiaate (käyttäjän päätös 21.10.2026): ruoste = napautettava. Sisällysluettelon linkit ovat kokonaan ruosteella (numero ja teksti; kokeilu, vain numerot ruosteella oli vaihtoehto), otsikkolohkon tietorivit (`.meta`) kursiivia ja alaviitteet (`--huomio`, vaalea #74624a, tumma #a69272) hiukan harmaampia kuin `--harmaa`, mutta kontrasti ≥ 4,9.
 - Vierityksessä pelkkä ikkunan korkeuden muutos ei aseta tekstiä uudelleen (mobiilin osoiterivi).
 - Tavutus luokittelee rajat; varovainen tila jättää pois vokaalin ja yksinäisen konsonantin välisen
   rajan, koska yhdyssanavirheet (*kansalai-soikeus*) ovat aina sitä tyyppiä. ie/uo/yö ovat diftongeja
