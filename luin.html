@@ -51,6 +51,18 @@
     display: flex; flex-direction: column; }
   .lhead { display: flex; align-items: flex-start; justify-content: space-between; margin: 6px 0 34px; }
   .lhead svg.logo { height: 64px; margin: 6px 0 0 2px; }
+  /* Tietoa-nappi logon oikealla puolella KEICK•WALKin ⓘ:n tapaan, mutta ympyrän sijaan salmiakki
+     (käyttäjän pyyntö 21.10.2026). Merkin keskikohta on LUiN-versaalien keskilinjalla. */
+  .lmerkki { display: flex; align-items: flex-start; }
+  button.info { width: 40px; height: 40px; margin: 10px 0 0 4px; color: var(--harmaa); display: inline-flex;
+    align-items: center; justify-content: center; }
+  button.info svg { width: 20px; height: 20px; }
+  button.info .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  button.info[aria-expanded="true"] { color: var(--ruoste); }
+  .tietoa { margin: -16px 0 30px; padding: 9px 13px 10px; border: 1px solid var(--viiva); color: var(--harmaa);
+    font-size: .88rem; line-height: 1.5; }
+  .tietoa p { margin: 0; }
+  .tietoa b { font-weight: 600; color: var(--muste); }
   .ikoni { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
   h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
@@ -343,9 +355,12 @@
 <!-- ===== Lukulista ===== -->
 <section id="lista" hidden>
   <div class="lhead">
+    <div class="lmerkki">
     <svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.html"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M2.6 112L2.6 130M13.1 112L13.1 130M2.6 121L13.1 121M61.43 113.25L74.43 113.25M67.93 112L67.93 130M122.77 130L122.77 112M122.77 112L130.02 130M130.02 130L137.27 112M137.27 112L137.27 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M0 112H5.2V113.5H0ZM0 128.5H5.2V130H0ZM10.5 112H15.7V113.5H10.5ZM10.5 128.5H15.7V130H10.5ZM65.33 128.5H70.53V130H65.33ZM120.17 128.5H125.37V130H120.17ZM134.67 128.5H139.87V130H134.67ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg>
+    <button class="info" type="button" aria-label="Tietoa: LUiN.html" aria-controls="tietoa" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><path d="M19.74 9.61L22.39 9.89L22.39 14.11L19.74 14.39A8.1 8.1 0 0 1 19.16 15.78L20.84 17.86L17.86 20.84L15.78 19.16A8.1 8.1 0 0 1 14.39 19.74L14.11 22.39L9.89 22.39L9.61 19.74A8.1 8.1 0 0 1 8.22 19.16L6.14 20.84L3.16 17.86L4.84 15.78A8.1 8.1 0 0 1 4.26 14.39L1.61 14.11L1.61 9.89L4.26 9.61A8.1 8.1 0 0 1 4.84 8.22L3.16 6.14L6.14 3.16L8.22 4.84A8.1 8.1 0 0 1 9.61 4.26L9.89 1.61L14.11 1.61L14.39 4.26A8.1 8.1 0 0 1 15.78 4.84L17.86 3.16L20.84 6.14L19.16 8.22A8.1 8.1 0 0 1 19.74 9.61ZM15.4 12A3.4 3.4 0 1 0 8.6 12A3.4 3.4 0 1 0 15.4 12Z"/></svg></button>
   </div>
+  <div class="tietoa" id="tietoa" hidden><p><b>LUiN.html</b> on lukulaite Markdown-teksteille. Kaikki tallentuu vain tähän selaimeen.</p></div>
   <h2 class="ots">Lukulista</h2>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
@@ -727,6 +742,11 @@
   /* ---------- paneelit ---------- */
   function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); }
   $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', suljePaneelit); });
+  $('#lista .info').addEventListener('click', function () {
+    var auki = $('#tietoa').hidden;
+    $('#tietoa').hidden = !auki;
+    this.setAttribute('aria-expanded', auki ? 'true' : 'false');
+  });
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () {
     suljePop(); piirraAsetukset();
     $('#vienti').hidden = !nyt; $('#vienti').open = false;

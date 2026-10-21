@@ -547,6 +547,11 @@ Käyttäjän vaatimukset 20.10.2026:
   vasemmat päätteet x 0:ssa, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
   ylempänä ja viiva 2,1 → 2,5 (viewBox:n korkeus ennallaan, joten LUiN ei muuttanut kokoaan). Pienen L:n
   alaviivan pää N:n alaosan reunaan (x 190) kokeiltiin ja hylättiin.
+- Lukulistan logon oikealla puolella on KEICK•WALKin ⓘ-napin tapaan tietoa-nappi (käyttäjän pyyntö 21.10.2026), mutta
+  ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Merkin keskikohta
+  on LUiN-versaalien keskilinjalla (mitattu 54,00 / 54,12 px). Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
+  jossa on vain *LUiN.html on lukulaite Markdown-teksteille. Kaikki tallentuu vain tähän selaimeen.* (käyttäjä: erittäin
+  lyhyesti). Kiinni ollessa sivu on pikselilleen ennallaan.
 - Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
 - Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä
   kirjanmerkin ääriviiva (`#km-nappi`; ohut viiva alapalkin tekstien värillä `--harmaa`, aiemmin hyvin haalea `--viiva`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi

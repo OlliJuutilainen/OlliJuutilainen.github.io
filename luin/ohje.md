@@ -231,7 +231,7 @@ Teksti on Literataa, joka on suunniteltu e-lukulaitteille. Viitenumerot ovat lai
 
 ## 7. Lähdeviite ja jakaminen
 
-Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä.
+Lukulistan logon oikealla puolella on salmiakkikehyksinen i-nappi, joka avaa yhden virkkeen esittelyn. Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä.
 
 Muoto on johdettu tutkielman kirjallisuusluettelosta (Helsingin yliopiston teologisen tiedekunnan APA-sovellus):
 
