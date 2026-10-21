@@ -234,18 +234,30 @@
   /* alapalkki ja aikajana */
   #ala { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paperi); border-top: 1px solid var(--viiva);
     z-index: 20; user-select: none; -webkit-user-select: none; }
-  #ala-rivi { display: flex; height: var(--ala); }
-  #km-nappi { flex: 0 0 auto; width: 38px; height: 100%; padding-left: 14px; display: inline-flex; align-items: center; }
+  /* Koko rivi on aikajanan nappi (absoluuttinen, alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä.
+     Natsa on rivin keskellä (käyttäjän päätös 21.10.2026). Oikean laidan kokonaisuus ei ota napautuksia,
+     joten edistymisen ja välien napautus menee alla olevalle napille; sivunapit ottavat omansa. */
+  #ala-rivi { position: relative; height: var(--ala); }
+  #km-nappi { position: relative; z-index: 1; width: 38px; height: 100%; padding-left: 14px; display: inline-flex; align-items: center; }
   #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--harmaa); stroke-width: 1; }
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
-  #ala-nappi { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; height: 100%; padding: 0 14px 0 10px;
-    font-size: .8rem; color: var(--harmaa); }
-  #ala-kohta { flex: 1 1 auto; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ala-nappi { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+    padding: 0 48px; font-size: .8rem; color: var(--harmaa); }
+  #ala-kohta { min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding-right: 14px;
+    font-size: .8rem; color: var(--harmaa); pointer-events: none; }
   #ala-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
   /* Natsa (käyttäjän päätös 21.10.2026): kiinni ylös osoittava ja hyvin haalea (--viiva), auki alas osoittava ja
      tekstien värinen; kehottaa sulkemaan. Sama ohut viiva kuin kirjanmerkin ääriviivassa. */
-  #ala-nappi svg { width: 11px; height: 6.5px; flex: 0 0 auto; fill: none; stroke: var(--viiva); stroke-width: 1; }
+  #ala-nappi svg { width: 11px; height: 6.5px; fill: none; stroke: var(--viiva); stroke-width: 1; }
   #ala-nappi[aria-expanded="true"] svg { stroke: currentColor; transform: rotate(180deg); }
+  /* Sivunäkymän sivunappipari (käyttäjän päätös 21.10.2026): hyvin haalea, mutta rajattu, jotta näkyy, ettei
+     siitä aukea aikajana. Yhtenäinen laatikko väliviivalla, ettei parin keskelle jää rakoa. Natsat kuten
+     aikajanan natsa kyljellään. Edistymisen vasemmalla puolella, ilman edistymistä oikeassa reunassa. */
+  #sivunapit { display: flex; height: 28px; border: 1px solid var(--viiva); pointer-events: auto; }
+  #sivunapit button { width: 40px; height: 100%; display: flex; align-items: center; justify-content: center; }
+  #sivunapit button + button { border-left: 1px solid var(--viiva); }
+  #sivunapit svg { width: 6.5px; height: 11px; fill: none; stroke: var(--viiva); stroke-width: 1; }
   #jana { padding: 10px 14px 2px; border-bottom: 1px solid var(--viiva); }
   .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
   #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -380,9 +392,16 @@
       <!-- Aina näkyvä kirjanmerkkinappi: ääriviiva, kuparinen kun kirjanmerkki on näkyvissä. -->
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana">
-        <span id="ala-kohta"></span><span id="ala-pros"></span>
+        <span id="ala-kohta"></span>
         <svg viewBox="0 0 11 6.5" aria-hidden="true"><path d="M.5 5.85L5.5 .85L10.5 5.85"/></svg>
       </button>
+      <div id="ala-oikea">
+        <div id="sivunapit" hidden>
+          <button type="button" id="sivu-ed" aria-label="Edellinen sivu"><svg viewBox="0 0 6.5 11" aria-hidden="true"><path d="M5.85 .5L.85 5.5L5.85 10.5"/></svg></button>
+          <button type="button" id="sivu-se" aria-label="Seuraava sivu"><svg viewBox="0 0 6.5 11" aria-hidden="true"><path d="M.65 .5L5.65 5.5L.65 10.5"/></svg></button>
+        </div>
+        <span id="ala-pros"></span>
+      </div>
     </div>
   </footer>
 </section>
@@ -1023,6 +1042,7 @@
     var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
     $('#ala-pros').textContent = pros;
     $('#ala-pros').hidden = !aset.edistys;
+    $('#sivunapit').hidden = aset.sivutus !== 'sivut';
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
     piirraKirjanmerkit();
     var lit = nakyvatKirjanmerkit().length > 0;
@@ -1069,8 +1089,10 @@
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
     if (!$('#asetukset').hidden || !$('#merkinnat').hidden) return;
     var k = e.key;
-    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
-    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); seuraava(-1); }
+    // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
+    // yleensä välitä näppäimiä sivulle; jos välittää, ne kääntävät sivua (alas = seuraava).
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'AudioVolumeUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); seuraava(-1); }
     else if (k === 'Home') { e.preventDefault(); sivulle(0); }
     else if (k === 'End') { e.preventDefault(); sivulle(tila.sivuja - 1); }
   });
@@ -1458,6 +1480,8 @@
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
+  $('#sivu-ed').addEventListener('click', function () { seuraava(-1); });
+  $('#sivu-se').addEventListener('click', function () { seuraava(1); });
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
   $('#etsi-avaa').addEventListener('click', avaaHaku);
   $$('#merkinnat details.m-osio').forEach(function (d) {

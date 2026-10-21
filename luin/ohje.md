@@ -118,7 +118,7 @@ Kuvat, taulukot ja raaka HTML. Raaka HTML näkyy tekstinä, koska kaikki escapoi
 
 Vierityksessä teksti on yksi pitkä palsta. Sivutettu näkymä tehdään CSS-palstoilla: artikkelin korkeus on ruudun korkeus, palstan leveys enintään 33 em, ja palstaväli on niin suuri, että vain yksi palsta näkyy kerrallaan. Sivu vaihdetaan siirtämällä artikkelia palstan ja välin verran (`translateX`). Pääluku alkaa aina uudelta sivulta.
 
-Sivua käännetään napauttamalla ruudun reunakolmanneksia, pyyhkäisemällä, nuolinäppäimillä, PageUp/PageDownilla tai välilyönnillä. Keskikolmannes avaa aikajanan. Animaatioita ei ole, koska e-ink piirtää ne huonosti.
+Sivua käännetään napauttamalla ruudun reunakolmanneksia, pyyhkäisemällä, alapalkin sivunapeista, nuolinäppäimillä, PageUp/PageDownilla tai välilyönnillä. Keskikolmannes avaa aikajanan. Sivunappipari (käyttäjän päätös 21.10.2026) on hyvin haalea mutta rajattu laatikko, jossa natsat osoittavat taakse ja eteen, edistymisen vasemmalla puolella tai ilman edistymistä alapalkin oikeassa reunassa. Rajaus kertoo, ettei siitä aukea aikajana; laatikon puolikkaat ovat kiinni toisissaan, ettei parin keskelle jää rakoa, jonka napautus avaisi aikajanan. Booxin sivunkääntönäppäimet (esim. Palma) kääntävät sivua, kun ne on laitteen sovelluskohtaisissa asetuksissa valittu sivunkääntönäppäimiksi: ne antavat PageDown/PageUpin. Äänenvoimakkuusnäppäiminä ne kääntävät sivua vain, jos selain välittää ne sivulle (`AudioVolumeDown` = seuraava); yleensä ei välitä. Animaatioita ei ole, koska e-ink piirtää ne huonosti.
 
 ### 4.2 Kohta
 
@@ -136,7 +136,7 @@ Tekstissä nauha on sisennetyn kappaleen sisennyksessä ensimmäisen rivin kohda
 
 ### 4.4 Aikajana
 
-Alapalkin napautus avaa aikajanan, ja uusi napautus sulkee sen. Oikeassa reunassa on ohut natsa: kiinni ylös osoittava ja hyvin haalea, auki alas osoittava ja alapalkin tekstien värinen, jotta sulkemisen mahdollisuus huomataan (käyttäjän päätös 21.10.2026; aiemmin salmiakki, ääriviiva kiinni ja täytetty auki). Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Luettu osa (nykyiseen kohtaan asti) on piirretty tekstin värillä, tuleva viiva ja salmiakit haalealla harmaalla; kirjanmerkit ovat kuparisia kummallakin puolella. Muodot ovat nuottien tapaan (käyttäjän päätös 21.10.2026): suurempi aika-arvo on ontompi.^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
+Alapalkin napautus (muualta kuin kirjanmerkistä ja sivunapeista) avaa aikajanan, ja uusi napautus sulkee sen. Palkin keskellä (käyttäjän päätös 21.10.2026; aiemmin oikeassa reunassa) on ohut natsa: kiinni ylös osoittava ja hyvin haalea, auki alas osoittava ja alapalkin tekstien värinen, jotta sulkemisen mahdollisuus huomataan (käyttäjän päätös 21.10.2026; aiemmin salmiakki, ääriviiva kiinni ja täytetty auki). Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Luettu osa (nykyiseen kohtaan asti) on piirretty tekstin värillä, tuleva viiva ja salmiakit haalealla harmaalla; kirjanmerkit ovat kuparisia kummallakin puolella. Muodot ovat nuottien tapaan (käyttäjän päätös 21.10.2026): suurempi aika-arvo on ontompi.^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
 
 - pääluku: iso ontto salmiakki (vaaleassa teemassa valkoinen; paperin värinen täyte peittää viivan),
 - alaluku: pienempi täytetty salmiakki,
@@ -262,7 +262,7 @@ Mitattu 21.10.2026 (375 × 760 px): valintavalikko mahtuu yhdelle riville (293 p
 
 Haku mitattu 21.10.2026 tutkielmalla: *kant* 118 osumaa, *"kant"* ja *”Kant”* 39, *kantil* 24. Ponnahduslaatikko mahtuu 412 × 824 ja 375 × 760 px:n ikkunaan Etsi-laatikon yläpuolelle; kun ikkunan korkeus pienenee 420 px:iin kesken haun, laatikko pysyy auki ja näkyvissä ja sivu ennallaan.
 
-Testaamatta: oikeat Boox-laitteet, haun korostus Boox-laitteiden WebView-versioissa, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus), oikea virtuaalinäppäimistö ja tiedoston lataus Boox-laitteiden selaimissa.
+Testaamatta: oikeat Boox-laitteet (myös sivunkääntönäppäimet; testattu vain selaimen näppäintapahtumilla), haun korostus Boox-laitteiden WebView-versioissa, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus), oikea virtuaalinäppäimistö ja tiedoston lataus Boox-laitteiden selaimissa.
 
 ## 9. Avoimet kysymykset
 

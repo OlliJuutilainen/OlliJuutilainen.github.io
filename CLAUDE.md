@@ -554,9 +554,15 @@ Käyttäjän vaatimukset 20.10.2026:
   kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
-  Alapalkin oikeassa reunassa on natsa (11 × 6,5 px, viiva 1 px kuten kirjanmerkissä; käyttäjän päätös 21.10.2026):
+  Alapalkin keskellä (käyttäjän päätös 21.10.2026; ensin oikeassa reunassa) on natsa (11 × 6,5 px, viiva 1 px kuten kirjanmerkissä; käyttäjän päätös 21.10.2026):
   kiinni ylös osoittava ja hyvin haalea (`--viiva`), auki alas osoittava ja tekstien värinen (`--harmaa`), kehotuksena
   sulkea aikajana. Se korvasi salmiakin (ääriviiva kiinni, täytetty auki). Tila tulee CSS:ssä `aria-expanded`ista.
+  Koko palkki on edelleen aikajanan nappi (`#ala-nappi` absoluuttisena alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä,
+  ja oikean laidan `#ala-oikea` ei ota napautuksia (`pointer-events: none`), joten edistymisen napautus avaa aikajanan.
+  Sivunäkymässä on sivunappipari (`#sivunapit`, käyttäjän päätös 21.10.2026): hyvin haalea (`--viiva`) mutta rajattu, jotta
+  näkyy, ettei siitä aukea aikajana; puolikkaat kiinni toisissaan väliviivalla, natsat kyljellään. Edistymisen vasemmalla
+  puolella, ilman edistymistä oikeassa reunassa. Booxin sivunkääntönäppäimet antavat PageDown/PageUpin; `AudioVolumeDown`/`Up`
+  on lisätty siltä varalta, että selain välittää äänenvoimakkuusnäppäimet. Oikealla Palmalla testaamatta.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
   eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
   sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
