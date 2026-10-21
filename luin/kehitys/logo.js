@@ -71,7 +71,7 @@ function logo(o = {}) {
   P.push(rect(152, 0, 155.4, 100), rect(186.6, 0, 190, 100));
   P.push(rect(145, 0, 160, t), rect(180, 0, 196.6, t), rect(145.5, 100 - t, 162, 100));
   const dot = [125.5, yd];
-  const G = o.glis ? glis(o) : null;
+  const G = (o.glis ?? true) ? glis(o) : null; // glis: false = vanha keskeltä keskelle -viiva
   const W = G ? G.W : per[0] + 6.5;
   // HTML: musteen vasen reuna on L:n vasemmassa reunassa (x 0) ja oikea N:n oikean päätteen
   // reunassa (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
@@ -106,11 +106,13 @@ function logo(o = {}) {
   const H = o.vb ?? 135; // viewBoxin alareuna pidetty ennallaan, jotta LUiN ei muuta kokoaan
   const top = Math.min((G ? G.cy - G.ry : yd) - 2, -2);
   const vb = `-2 ${f(top)} ${f(W + 4)} ${f(H - top + 1)}`;
-  const html = `<path d="${st.join('')}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="butt"/>` +
-    `<path d="${serifs.join('')}"/>`;
+  // HTML:n väri: oletuksena ruoste (käyttäjän valinta 21.10.2026), o.htmlCol = 'currentColor' tekstin väriseksi
+  const hc = o.htmlCol ?? (G ? 'var(--ruoste)' : 'currentColor');
+  const html = `<path d="${st.join('')}" fill="none" stroke="${hc}" stroke-width="${sw}" stroke-linecap="butt"/>` +
+    `<path${hc === 'currentColor' ? '' : ` fill="${hc}"`} d="${serifs.join('')}"/>`;
   if (G) {
     // vari: 'piste' = i:n piste ruosteinen, muu musta; 'musta' = kaikki musta; 'ruoste' = piste, viiva ja loppupiste ruosteiset
-    const v = o.vari ?? 'piste', R = ' fill="var(--ruoste)"';
+    const v = o.vari ?? 'ruoste', R = ' fill="var(--ruoste)"';
     const vr = v === 'ruoste' ? R : '', pr = v === 'musta' ? '' : R;
     return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.html">` +
       `<path d="${P.join('')}"/>` +

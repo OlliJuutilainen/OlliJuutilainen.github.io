@@ -512,14 +512,23 @@ Käyttäjän vaatimukset 20.10.2026:
   `luku-2-1`-tunnisteet, numeroimaton ### versaalikursiivina (`.caps`), `^[…]` sivuhuomioiksi
   (fnref + fntoggle + sidenote), `## Kirjallisuus` → `p.bib`. Lainausmerkkejä ei muuteta.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
-  Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, hiusviiva pisteestä
-  päätepisteeseen N:n vinoviivan kautta (leikkaa sen n. 61 %:n korkeudella, koska tiiviin N:n jyrkkää
-  vinoviivaa pitkin suora ei voi kulkea), alarivi HTML ohuena väljänä. Käyttäjän päätökset 21.10.2026:
+  Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, alarivi HTML ohuena
+  väljänä. Viiva pisteiden välillä on *glissando* (käyttäjän päätös 21.10.2026; esikuva flageolettiglissando):
+  se lähtee i:n pisteen oikeasta kulmasta ja päättyy loppupisteen vasempaan kulmaan. i:n pisteen oikea
+  yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja samassa kulmassa kuin viiva, joten viivan yläreuna
+  jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta (muut särmät koverat). Viiva on suunnikas eikä
+  stroke, ja `glis()` ratkaisee kaltevuuden (47°), kun i:n pisteen kohta (keskikohta 125,5; 12, oikea kulma
+  x 133) ja loppupisteen paikka (keskikohta x 214, alareuna 100,5) on annettu; salmiakkien korkeus seuraa
+  kaltevuudesta. Loppupiste siirtyi 205 → 214, joten viewBox levisi 9 yksikköä (luin.html:ssä logo
+  99,94 → 104,11 px; korkeus ja otsikon paikka ennallaan, mitattu). Piste, viiva, loppupiste ja HTML ovat
+  ruosteisia, LUiN tekstin värinen. Hylätyt: viiva keskeltä keskelle (aiempi), i:n piste yksin ruosteisena
+  (värinvaihto katkaisi särmän ja viivan), kaikki musta (kirvesmäinen), loppupiste N:n alla (x 205, ahdas).
+  Vanha geometria: `logo({ glis: false })`. Käyttäjän päätökset 21.10.2026:
   HTML mahtuu kokonaan LUiN-kirjainten alle (muste x 0–196,6 eli L:n vasemmasta reunasta N:n oikean
   päätteen reunaan, ei loppupisteen alle; mitattu Chromiumissa), alku ja loppu veitsenterävät (H:n
   vasemmat päätteet x 0:ssa, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
-  ylempänä ja viiva 2,1 → 2,5. i:n piste on ruosteinen, loppupiste tekstin värinen; HTML:lle voi
-  korkeintaan kokeilla eri väriä. viewBox ennallaan, joten LUiN ei muuttanut kokoaan.
+  ylempänä ja viiva 2,1 → 2,5 (viewBox:n korkeus ennallaan, joten LUiN ei muuttanut kokoaan). Pienen L:n
+  alaviivan pää N:n alaosan reunaan (x 190) kokeiltiin ja hylättiin.
 - Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
