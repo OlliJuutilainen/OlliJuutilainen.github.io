@@ -289,6 +289,17 @@
   /* Vedettäessä osoitin seuraa sormea, ja voimassa oleva kohta jää haalean harmaaksi haamuksi. */
   .haamu .j-nyt { fill: var(--viiva); }
   .haamu .j-nyt-v { stroke: var(--viiva); }
+  /* Paluumajakka (käyttäjän pyyntö 21.10.2026): ison hypyn jälkeen alapalkin (ja avoimen aikajanan) yläpuolella
+     pieni laatikko, josta pääsee takaisin. Merkki on sama ontto kolmio kuin aikajanan kummitusmerkissä. */
+  #majakka { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%); display: flex;
+    height: 34px; border: 1px solid var(--harmaa); background: var(--paperi); font-size: .84rem; color: var(--muste); white-space: nowrap; }
+  #majakka[hidden] { display: none; }
+  #majakka button { display: flex; align-items: center; gap: 8px; height: 100%; padding: 0 11px; }
+  #majakka button + button { border-left: 1px solid var(--viiva); padding: 0 11px; }
+  #majakka .m-kolmio { width: 9px; height: 8px; fill: var(--paperi); stroke: var(--harmaa); stroke-width: 1; }
+  #majakka .m-sulje { width: 9px; height: 9px; stroke: var(--harmaa); stroke-width: 1.2; fill: none; }
+  .j-maj { fill: var(--paperi); stroke: var(--harmaa); stroke-width: .9; }
+  .j-maj-v { stroke: var(--harmaa); stroke-width: .9; stroke-dasharray: 1.5 2; }
   .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
@@ -394,6 +405,10 @@
   </div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
+    <div id="majakka" hidden>
+      <button type="button" id="majakka-palaa"><svg class="m-kolmio" viewBox="0 0 10 9" aria-hidden="true"><path d="M.75 .75H9.25L5 8.1Z"/></svg>Palaa takaisin</button>
+      <button type="button" id="majakka-sulje" aria-label="Sulje" title="Sulje"><svg class="m-sulje" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1L9 9M9 1L1 9"/></svg></button>
+    </div>
     <div id="jana" hidden>
       <div class="jana-yla"><span id="jana-kohta"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
@@ -744,7 +759,7 @@
       e.preventDefault();
       var kohde = document.getElementById(href.slice(1));
       suljePop();
-      if (kohde && kohde.dataset.b) mene({ b: +kohde.dataset.b, o: 0 });
+      if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 });
       return;
     }
     var b = e.target.closest('button[data-k]');
@@ -797,7 +812,7 @@
     if (e.target.closest('#vie')) { vieMerkinnat(); return; }
     if (e.target.closest('#tuo')) { $('#tuo-tiedosto').value = ''; $('#tuo-tiedosto').click(); return; }
     var si = e.target.closest('button[data-siirry]');
-    if (si) { suljePaneelit(); mene({ b: +si.dataset.siirry, o: 0 }); return; }
+    if (si) { suljePaneelit(); hyppaa({ b: +si.dataset.siirry, o: 0 }); return; }
     var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
     if (!b) return;
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
@@ -917,6 +932,7 @@
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
     $('#jana').hidden = true; $('#ala-nappi').setAttribute('aria-expanded', 'false');
+    $('#majakka').hidden = true;
     piirraTeksti();
     var k = paikanna(e.pos) || { b: 0, o: 0 };
     asettele(k);
@@ -1142,11 +1158,11 @@
     if (!nyt) return;
     var t = e.target;
     var go = t.closest('a[data-go]');
-    if (go) { e.preventDefault(); mene({ b: +go.dataset.go, o: 0 }); return; }
+    if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }); return; }
     var a = t.closest('#teksti a[href]');
     if (a) {
       var href = a.getAttribute('href');
-      if (href.charAt(0) === '#') { e.preventDefault(); var kohde = document.getElementById(href.slice(1)); if (kohde && kohde.dataset.b) mene({ b: +kohde.dataset.b, o: 0 }); }
+      if (href.charAt(0) === '#') { e.preventDefault(); var kohde = document.getElementById(href.slice(1)); if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 }); }
       else { a.target = '_blank'; a.rel = 'noopener'; }
       return;
     }
@@ -1509,9 +1525,53 @@
     d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
   });
 
+  /* ---------- paluumajakka ----------
+     Käyttäjän pyyntö 21.10.2026: kun linkki (lähdeviittaus, sisällysluettelo), aikajana, merkintälista tai
+     haku vie kauas, lähtökohtaan jää majakka: alapalkin yläpuolelle laatikko Palaa takaisin ja aikajanalle
+     kummitusmerkki. Kauas = sivutettuna vähintään kaksi sivua, vierityksessä vähintään kaksi ruudullista;
+     lähemmäs pääsee yhdellä sivunkäännöllä. Majakka katoaa vain raksista, paluusta, tekstin napautuksesta
+     (myös sivunkääntönapautuksesta) tai uudesta isosta hypystä, jonka lähtökohdasta tulee uusi majakka.
+     Pyyhkäisy, näppäimet, sivunapit ja vieritys eivät poista sitä. Peräkkäiset hakuosumat säilyttävät
+     haun ensimmäisen lähtökohdan. Majakkaa ei tallenneta: se koskee vain tätä lukukertaa. */
+  function hyppaa(k, haku) {
+    var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
+    mene(k);
+    if (!ed) return;
+    var iso = sivut ? Math.abs(tila.sivu - p0) >= 2 : Math.abs(scrollY - y0) >= 2 * innerHeight;
+    if (!iso || haku && nyt.majakka && nyt.majakka.haku) return;
+    // Vierityksessä myös tarkka kohta: ankkuri on rivi y = YLA:ssa, ja ylimmän rivin ollessa
+    // lohkojen välissä (esim. sisällysluettelo) mene() vierittäisi seuraavan lohkon ylös.
+    nyt.majakka = { k: ed, haku: !!haku, y: sivut ? null : y0, h: document.documentElement.scrollHeight, w: innerWidth };
+    piirraMajakka();
+  }
+  function piirraMajakka() {
+    var m = nyt && nyt.majakka, o = m && osioKohdassa(m.k);
+    $('#majakka').hidden = !m;
+    if (m) $('#majakka-palaa').title = 'Palaa: ' + (o ? o.text : nyt.e.title);
+    piirraJana();
+  }
+  function poistaMajakka() { if (nyt && nyt.majakka) { nyt.majakka = null; piirraMajakka(); } }
+  function palaa() {
+    var m = nyt && nyt.majakka;
+    if (!m) return;
+    nyt.majakka = null; piirraMajakka();
+    // Asettelu ennallaan (sama korkeus ja leveys): vieritetään täsmälleen samaan kohtaan.
+    if (m.y != null && aset.sivutus !== 'sivut' && m.h === document.documentElement.scrollHeight && m.w === innerWidth) {
+      tila.ankkuri = m.k; tila.hiljaa = Date.now() + 250;
+      window.scrollTo(0, m.y);
+      paivita();
+    } else mene(m.k);
+  }
+  $('#majakka-palaa').addEventListener('click', palaa);
+  $('#majakka-sulje').addEventListener('click', poistaMajakka);
+  // Tekstin napautus poistaa majakan ennen kuin napautus käsitellään; jos se vie linkistä kauas, tilalle tulee uusi.
+  document.addEventListener('click', function (e) { if (nyt && nyt.majakka && sivuEl.contains(e.target)) poistaMajakka(); }, true);
+
   var JANA = { pad: 13, y: 21 };
   function janaKohteet() {
     var a = [];
+    // Majakka ensin, jotta se voittaa samassa kohdassa olevan merkin (janaKohde ottaa ensimmäisen lähimmän).
+    if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
     nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
@@ -1525,8 +1585,11 @@
     var nf = osuus(tila.ankkuri), cx = X(nf), luettu = '', tuleva = '';
     var s = '<path class="j-viiva" d="M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + cx + '"/>' +
       '<g' + (nf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="M' + cx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/></g>';
+    var maj = '';
     janaKohteet().forEach(function (m) {
       var f = osuus(m.k), x = X(f), d;
+      // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
+      if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
       else if (m.lvl === 1) d = '<path class="j1" d="' + sal(x, y, 5.6, 7.4) + '"/>';
       else if (m.lvl === 2) d = '<path class="j2" d="' + sal(x, y, 4.2, 5.6) + '"/>';
@@ -1534,7 +1597,7 @@
       d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
       if (m.km || f <= nf) luettu += d; else tuleva += d;
     });
-    s += '<g class="tuleva">' + tuleva + '</g>' + luettu;
+    s += '<g class="tuleva">' + tuleva + '</g>' + luettu + maj;
     var osoitin = '<path class="j-nyt-v" d="M0 9V' + (y + 13) + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
     s += '<g' + (janaVeto ? ' class="haamu"' : '') + ' transform="translate(' + cx + ' 0)">' + osoitin + '</g>';
     if (janaVeto) s += '<g id="j-veto" transform="translate(' + X(janaVeto.f) + ' 0)">' + osoitin + '</g>';
@@ -1604,7 +1667,7 @@
       odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x); });
     });
     svg.addEventListener('pointerleave', function () { if (!veto) { if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } paivita(); } });
-    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); mene(m.k); });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); if (m.majakka) palaa(); else hyppaa(m.k); });
     svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
 
@@ -1717,7 +1780,7 @@
     var h = nyt.haku, o = h.osumat[i];
     if (!o) return;
     h.valittu = i;
-    mene({ b: o.b, o: o.s });
+    hyppaa({ b: o.b, o: o.s }, true);
     korosta(o);
   }
   // Enter: valitun jälkeinen osuma, tai jos mitään ei ole valittu, ensimmäinen lukukohdasta eteenpäin.
@@ -1768,7 +1831,7 @@
       var p = b.dataset.mene.split(':'), k;
       if (p[0] === 'km') k = nyt.merk.km.filter(function (x) { return x.id === p[1]; })[0];
       else { var h = nyt.merk.al.filter(function (x) { return x.id === p[1]; })[0]; k = h && { b: h.segs[0].b, o: h.segs[0].s }; }
-      if (k) { suljePaneelit(); mene(k); }
+      if (k) { suljePaneelit(); hyppaa(k); }
     } else if (b.dataset.poista) {
       var q = b.dataset.poista.split(':');
       var hp = q[0] === 'al' && nyt.merk.al.filter(function (x) { return x.id === q[1]; })[0];
@@ -2153,7 +2216,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
+  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku) { hyppaa(k, haku); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q) { return nyt && etsi(hakuehdot(q)); } };
 })();

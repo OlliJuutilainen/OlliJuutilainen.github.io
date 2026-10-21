@@ -142,7 +142,8 @@ Alapalkin napautus (muualta kuin kirjanmerkistä ja sivunapeista) avaa aikajanan
 - alaluku: pienempi täytetty salmiakki,
 - alaluvun alaluku: lähes pistemäinen täytetty salmiakki,
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
-- nykyinen kohta: musta kolmio ja hiusviiva.
+- nykyinen kohta: musta kolmio ja hiusviiva,
+- paluumajakka (luku 4.8): ontto kolmio ja katkoviiva.
 
 Edistyminen (prosentit tai sivunumero) on vain alapalkissa, joka näkyy myös aikajanan ollessa auki; aikajanan yläriville sitä ei toisteta. Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Vedettäessä yläpuolella näkyy, mihin osioon päädytään. Vedettäessä (hiirellä tai sormella; käyttäjän pyyntö 21.10.2026) osoitin seuraa vetoa, ja voimassa oleva kohta jää haalean harmaaksi haamuosoittimeksi. Teksti ei liiku eikä luettu osa muutu ennen irrotusta. Liikkeessä siirretään vain osoittimen `transform`ia kerran ruudunpäivitystä kohden, jotta e-ink päivittää vain pienen alueen.
 
@@ -200,6 +201,16 @@ Osumista näytetään 200 ensimmäistä; määrä lasketaan kaikista. Osumassa o
 
 Avoimen tekstin viimeisin haku muistetaan (ei tallenneta). Kun laatikko avataan uudelleen, kenttä on täytetty, valittu osuma on merkitty ruosteisella viivalla ja vieritetty näkyviin, eikä kenttää kohdisteta, jotta näppäimistö ei peitä listaa; Enter vie valittua seuraavaan. Ensimmäisellä kerralla kenttä kohdistetaan, ja tyhjän kentän alla on lyhyt ohje. Kirjoittamisen aikana laatikko pysyy näkyvällä alueella näppäimistön yläpuolella (kuten kirjauksen muokkain), osumalista vierii, eikä sivunäkymää aseteta uudelleen.
 
+### 4.8 Paluumajakka
+
+Kun lähdeviittaus vie kirjallisuusluetteloon tai muu hyppy vie kauas, paluureitti katoaa helposti. Siksi ison hypyn lähtökohtaan jää majakka (käyttäjän pyyntö 21.10.2026): alapalkin yläpuolelle, avoimen aikajanan yläpuolelle, ilmestyy pieni laatikko *Palaa takaisin* raksin kera, ja aikajanalla lähtökohdassa on kummitusmerkki, ontto kolmio ja katkoviiva nykyisen kohdan osoittimen tapaan. Laatikon merkki on sama ontto kolmio. *Palaa takaisin* vie lähtökohtaan ja poistaa majakan; samoin kummitusmerkin napautus aikajanalla (merkki voittaa samassa kohdassa olevan otsikon salmiakin).
+
+- Majakan jättävät hypyt: tekstin linkit (lähdeviittaus, sisällysluettelo, muut sisäiset linkit), sivutetun alaviitteen ponnahduslaatikon lähdeviittaus, aikajana, *Merkinnät*-lista, haku ja tuonnin *Siirry sijaintiin*. Sivunkääntö, pyyhkäisy, näppäimet ja vieritys eivät ole hyppyjä.
+- Iso hyppy on sivutettuna vähintään kaksi sivua ja vierityksessä vähintään kaksi ruudullista. Lähemmäs pääsee takaisin yhdellä sivunkäännöllä.
+- Majakka katoaa vain raksista, paluusta, tekstin napautuksesta tai uudesta isosta hypystä, jonka lähtökohdasta tulee uusi majakka. Tekstin napautus poistaa sen ennen kuin napautus käsitellään, joten sivutettuna myös reunan napautus sivunkääntönä poistaa sen; pyyhkäisy, sivunapit ja näppäimet eivät.
+- Peräkkäiset hakuosumat säilyttävät haun ensimmäisen lähtökohdan, jotta haun jälkeen pääsee takaisin sinne, mistä haku alkoi.
+- Vierityksessä majakka muistaa tarkan vierityskohdan, ja paluu vierittää siihen, jos asettelu on ennallaan (sama korkeus ja leveys). Muuten paluu menee kohdan rivin mukaan kuten tallennettu lukukohta. Ankkuri ei riitä yksin: jos ruudun ylimmän rivin kohdalla on lohkojen väli (esimerkiksi sisällysluettelo), ankkuri on seuraava lohko, ja `mene()` vierittäisi sen ylös (mitattu 375 px).
+- Majakkaa ei tallenneta; se koskee vain avointa tekstiä tällä lukukerralla.
 
 ## 5. Tavutus
 
@@ -247,7 +258,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, merkintöjen tuonnin (vienti edistymisen kanssa, tyhjennys, tuonti tiedostonvalinnasta: samat kohdat ja *Siirry sijaintiin*), aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin), haun (osumien määrä on sama kuin riippumattomalla säännöllisellä lausekkeella neljällä hakutavalla; valittu osuma on sivulla ja korostettu; Enter vie seuraavaan) ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `sivunAlku()`, `valinta()`, `etsi()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, automaattisen alleviivauksen (myös piilotettuna), kirjauksen tallennuksen ja viennin, merkintöjen tuonnin (vienti edistymisen kanssa, tyhjennys, tuonti tiedostonvalinnasta: samat kohdat ja *Siirry sijaintiin*), aikajanan hypyn, jokaisen sivun alun (`sivunAlku()` vie samalle sivulle), aikajanan vedon (kohta ja sivu pysyvät vedon ajan, sivutettuna osoitin vain sivujen alkuihin tai merkkeihin), haun (osumien määrä on sama kuin riippumattomalla säännöllisellä lausekkeella neljällä hakutavalla; valittu osuma on sivulla ja korostettu; Enter vie seuraavaan) vierityksen kohdan pysyvyyden ja paluumajakan (iso hyppy jättää majakan ja kummitusmerkin, paluu vie samaan kohtaan, pieni hyppy ei jätä majakkaa). Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `hyppaa()`, `majakka()`, `sivunAlku()`, `valinta()`, `etsi()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 
