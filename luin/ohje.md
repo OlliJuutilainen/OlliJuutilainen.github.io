@@ -148,7 +148,7 @@ Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi
 
 ### 4.6 Merkintöjen vienti
 
-Asetusten alimpana, muista erotettuna, on supistettu osio *Vie merkinnät tekstitiedostoon*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjanmerkit ja kirjaukset; oletuksena viedään alleviivaukset ja kirjaukset mutta ei kirjanmerkkejä, ja valinnat muistetaan. *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
+Asetusten alimpana, muista erotettuna, on supistettu osio *Vie merkinnät tekstitiedostoon*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjaukset ja kirjanmerkit; oletuksena viedään kaikki kolme (käyttäjän päätös 21.10.2026: harva haluaa vähemmän), ja valinnat muistetaan. *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
 
 Tiedosto alkaa tekstin nimellä (`#`), alaotsikolla *Luetun merkinnät*, lähdeviitteellä ja `---`-viivalla. Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
 
