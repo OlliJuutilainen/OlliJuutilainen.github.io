@@ -46,11 +46,15 @@ palvelin.listen(0, async () => {
       lahteet: document.querySelectorAll('p.bib').length, varoitukset: d.warnings.length };
   });
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
+  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan.
+  const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
+    return { n: a.length, rikki: a.filter(x => { const k = document.getElementById(x.getAttribute('href').slice(1)); return !k || !k.classList.contains('bib'); }).length }; });
+  tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 
   // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
   // varten automaattinen alleviivaus pois (oletus on päällä).
-  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 2; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 3; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(500);
   const n = (await tila()).n;
   let leikattu = 0;
@@ -212,6 +216,61 @@ palvelin.listen(0, async () => {
   const kvantti = vs.xt.every(x => sivuX.some(s => Math.abs(s - x) < 0.01));
   tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && kvantti && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
     'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' + (kvantti ? ', kaikki sivujen alkuja tai merkkejä' : ', EI sivujen alkuja'));
+
+  // Kirjanmerkin nauha kappaleen alussa: ensimmäisen rivin yläpuolella tai sisennyksessä, ei
+  // reunuksessa eikä tekstin päällä. Oletuskoossa tilaa on joka lohkon yläpuolella, paitsi
+  // sisennystilassa kappaleeseen kiinni olevalla koodilohkolla (pre), joka saa olla reunuksessa.
+  // Molemmat kappalejaot, jokainen sivu, kirjanmerkki joka lohkon alussa.
+  const kappalejako = async kpl => {
+    await p.click('#lukija .ratas'); await p.click('#asetukset [data-a="kappale"] button[data-arvo="' + kpl + '"]');
+    await p.click('#asetukset .sulje'); await p.waitForTimeout(100);
+  };
+  const nauhat = { yla: 0, sis: 0, reunus: [], paalla: [] };
+  for (const kpl of ['vali', 'sisennys']) {
+    await kappalejako(kpl);
+    const v = await p.evaluate(kpl => {
+      const L = window.__luin, n = L.nyt(), alkup = n.merk.km, v = { yla: 0, sis: 0, reunus: [], paalla: [] };
+      n.merk.km = n.blocks.map((el, b) => ({ id: 'k' + b, b, o: 0, s: n.txt[b].slice(0, 40), t: 0, osio: '' }));
+      for (let s = 0; s < L.tila.sivuja; s++) {
+        L.mene(L.sivunAlku(s));
+        const rivit = [];
+        const tw = document.createTreeWalker(document.querySelector('#teksti'), NodeFilter.SHOW_TEXT); let t;
+        while ((t = tw.nextNode())) {
+          if (t.parentElement.closest('.sidenote,.luin-ui,input') || !t.nodeValue.trim()) continue;
+          const fs = parseFloat(getComputedStyle(t.parentElement).fontSize), q = document.createRange(); q.selectNodeContents(t);
+          for (const x of q.getClientRects()) rivit.push({ l: x.left, r: x.right, t: x.top + 0.41 * fs, b: x.bottom - 0.09 * fs });
+        }
+        document.querySelectorAll('.km').forEach(m => {
+          const b = +m.dataset.k.slice(1), el = n.blocks[b], mr = m.getBoundingClientRect();
+          const tt = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let e;
+          while ((e = tt.nextNode()) && e.parentElement.closest('.sidenote,.fnref,.luin-ui,input'));
+          const q = document.createRange(); q.setStart(e, 0); q.setEnd(e, 1); const rs = q.getClientRects(), fr = rs[rs.length - 1];
+          const fs = parseFloat(getComputedStyle(e.parentElement).fontSize);
+          if (mr.bottom <= fr.top + 0.41 * fs + 0.5 && Math.abs(mr.left - fr.left) < 0.5) v.yla++;
+          else if (mr.right <= fr.left && mr.left >= el.getBoundingClientRect().left) v.sis++;
+          else if (el.tagName !== 'PRE') v.reunus.push(kpl + ' ' + b);
+          if (rivit.some(x => x.r > mr.left + 0.5 && x.l < mr.right - 0.5 && x.b > mr.top + 0.5 && x.t < mr.bottom - 0.5)) v.paalla.push(kpl + ' ' + b);
+        });
+      }
+      n.merk.km = alkup; L.mene(L.tila.ankkuri);
+      return v;
+    }, kpl);
+    nauhat.yla += v.yla; nauhat.sis += v.sis; nauhat.reunus.push(...v.reunus); nauhat.paalla.push(...v.paalla);
+  }
+  await kappalejako('vali');
+  tulos('kirjanmerkin nauha kappaleen alussa', !nauhat.reunus.length && !nauhat.paalla.length,
+    'yläpuolella ' + nauhat.yla + ', sisennyksessä ' + nauhat.sis + (nauhat.reunus.length ? ', reunuksessa ' + nauhat.reunus.slice(0, 4) : '') + (nauhat.paalla.length ? ', tekstin päällä ' + nauhat.paalla.slice(0, 4) : ''));
+
+  // Kirjanmerkkinappi sivulla, joka alkaa kesken kappaleen: merkki kappaleen alkuun, ja
+  // siirrytään sille sivulle; toinen painallus poistaa sen.
+  const kesken = await p.evaluate(() => { const L = window.__luin; for (let s = 3; s < L.tila.sivuja; s++) { L.mene(L.sivunAlku(s)); if (L.tila.ankkuri.o > 0) return { s, b: L.tila.ankkuri.b }; } });
+  const kmEnnen = await p.evaluate(() => window.__luin.nyt().merk.km.length);
+  await p.click('#km-nappi'); await p.waitForTimeout(100);
+  const kmNyt = await p.evaluate(() => ({ s: window.__luin.tila.sivu, km: window.__luin.nyt().merk.km.map(k => k.b + ':' + k.o), lit: document.querySelector('#km-nappi').getAttribute('aria-pressed'), nauhoja: document.querySelectorAll('.km').length }));
+  await p.click('#km-nappi'); await p.waitForTimeout(100);
+  const kmPois = await p.evaluate(() => window.__luin.nyt().merk.km.length);
+  tulos('kirjanmerkki kesken alkavalla sivulla', kmNyt.s < kesken.s && kmNyt.km.indexOf(kesken.b + ':0') >= 0 && kmNyt.lit === 'true' && kmNyt.nauhoja >= 1 && kmPois === kmEnnen,
+    'sivu ' + (kesken.s + 1) + ' → ' + (kmNyt.s + 1) + ', kirjanmerkki ' + kesken.b + ':0, toinen painallus poisti');
 
   // Vieritys: luettu kohta → mene() → sama kohta (ei ajaudu riviä ylöspäin).
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });

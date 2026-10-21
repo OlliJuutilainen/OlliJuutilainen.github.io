@@ -79,6 +79,8 @@ Tietoriveiltä arvataan tekijä (2–4 isolla alkavaa sanaa omalla rivillään) 
 
 ### 3.2 Luvut ja tunnisteet
 
+Otsikkotasoja on neljä (käyttäjän päätös 21.10.2026): `#` on koko nimikkeen otsikko, `##` pääluku, `###` alaluku ja `####` alaluvun alaluku. Kolme alempaa voivat näkyä aikajanalla (luku 4.4). Syvempi otsikko (`#####`) näkyy `####`-tasona, ja Latomo huomauttaa siitä.
+
 Numeroitu otsikko saa tunnisteen numerostaan: `## 2. Ihmisyys` on `luku-2`, `### 2.1 Valistus` on `luku-2-1`. Numeroimaton `###`-otsikko on versaali kursiivi, kuten tutkielman *Viittauksista ja niiden lyhenteistä*. Latomo huomauttaa, jos numerointi hyppää.
 
 Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta) saa järjestysnumeron `data-b`. Kirjanmerkit, alleviivaukset ja lukukohta ankkuroidaan siihen ja merkkien määrään lohkon alusta.
@@ -90,6 +92,8 @@ Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta) saa
 ### 3.4 Kirjallisuus
 
 `## Kirjallisuus` (tai Lähteet, Lähdeluettelo, Bibliografia, References) tekee seuraavista kappaleista riippuvasisennettyjä seuraavaan `##`-otsikkoon asti.
+
+Alaviitteen lähdeviittaus muuttuu linkiksi luettelon kohtaan, kun yhteys on varma. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti ja vuosi ensimmäinen sulkeissa oleva vuosi (`Kant, Immanuel (2017a).`, `Syrjintä (s.a.).`). Sukunimi ja vuosi (*Singer 2023*) linkittyy, jos luettelossa on tasan yksi tämän tekijän tämän vuoden kohta. Sukunimi ja muu paikannin (*Korsgaard 8.1.2*) linkittyy, jos tekijältä on luettelossa vain yksi kohta tai vain yksi, johon tekstissä ei missään viitata vuosiluvulla. Muuten linkkiä ei tule, eikä lyhenteitä (*GMS*, *KrV*) linkitetä. Latomo luettelee tarkistuksessa, mitkä viittaukset linkittyvät mihin ja miksi jokin jää ilman. Linkki on alaotsikon harmaa eikä ruoste, haalealla alleviivauksella.
 
 ### 3.5 Etukenttä
 
@@ -126,15 +130,17 @@ Tekstin valinta avaa valikon, jonka painikkeet ovat ikoneita (nimi näkyy vihjee
 
 Kirjaus on alleviivaukseen liitetty muistiinpano. *Kirjaa* alleviivaa valinnan ja avaa tekstilaatikon, joka kasvaa tekstin mukana enintään 30 % ruudun korkeudesta ja vierii sen jälkeen. Kirjauksen pituus on enintään 5 000 merkkiä, ja jäljellä oleva määrä näkyy laatikon alla. Raja suojaa vain tallennustilaa: localStorage on yhteinen koko sivustolle (noin 5 Mt). *Tallenna*, Ctrl+Enter tai napautus muokkaimen ulkopuolelle tallentaa; *Peruuta* ja Esc peruvat muutoksen, ja juuri tehty alleviivaus poistuu. Kirjoittamisen aikana muokkain pysyy näkyvällä alueella näppäimistön yläpuolella, eikä sivunäkymää aseteta uudelleen. Jos sovellus siirtyy taustalle kesken kirjoittamisen, luonnos tallennetaan.
 
-Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva alapalkin tekstien värillä, myös aikajanan ollessa kiinni) nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja sen napautus poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit, alleviivaukset ja kirjaukset ovat listana aikajanan alla laatikossa *Merkinnät*. Listan osiot *Kirjanmerkit* sekä *Alleviivaukset ja kirjaukset* supistuvat otsikon vieressä olevasta pienestä salmiakista (täynnä auki, ontto kiinni), ja tila muistetaan asetuksissa (käyttäjän pyyntö 21.10.2026). Listassa alleviivattua katkelmaa ei alleviivata (käyttäjän päätös 21.10.2026): alleviivaus näkyy vain tekstissä itsessään.
+Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva alapalkin tekstien värillä, myös aikajanan ollessa kiinni) tai valinnan valikosta, ja se menee aina luettavan kappaleen alkuun (käyttäjän päätös 21.10.2026): nauhasta ruudun ylimmän rivin kappaleen, valikosta valinnan kappaleen. Kohta tuodaan näkyviin, jotta merkin ilmestyminen näkyy. Sivutettuna kappale on sivun ensimmäisen rivin kappale; jos se alkoi edellisellä sivulla, siirrytään sille sivulle. Vierityksessä ruutua vieritetään sen verran, että nauha näkyy. Samaan kappaleeseen ei tehdä toista kirjanmerkkiä. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja sen napautus poistaa näkyvät kirjanmerkit.
+
+Tekstissä nauha on sisennetyn kappaleen sisennyksessä ensimmäisen rivin kohdalla (nousijoiden yläreunasta perusviivaan). Muuten, jos kappaleen yläpuolella on tilaa (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), nauha on tekstin vasemmassa laidassa ensimmäisen rivin yläpuolella, 4 px nousijoiden yläpuolella, jotta se kuuluu alla olevaan kappaleeseen. Tilaa on, jos nousijoiden ja edellisen rivin laskijoiden väli on vähintään nauhan korkeus 15 px + 4 px; mitat luetaan kirjasimesta canvasilla. Sivutettuna nauha on `position: fixed`, jotta se mahtuu sivun yläreunan ja yläpalkin väliseen kaistaan, jonka `#sivu` muuten leikkaisi. Vasta jos kumpaakaan tilaa ei ole, nauha on vasemmassa reunuksessa kuten ennen; samoin vanhat kesken kappaletta olevat kirjanmerkit. Kirjanmerkit, alleviivaukset ja kirjaukset ovat listana aikajanan alla laatikossa *Merkinnät*. Listan osiot *Kirjanmerkit* sekä *Alleviivaukset ja kirjaukset* supistuvat otsikon vieressä olevasta pienestä salmiakista (täynnä auki, ontto kiinni), ja tila muistetaan asetuksissa (käyttäjän pyyntö 21.10.2026). Listassa alleviivattua katkelmaa ei alleviivata (käyttäjän päätös 21.10.2026): alleviivaus näkyy vain tekstissä itsessään.
 
 ### 4.4 Aikajana
 
-Alapalkin napautus avaa aikajanan, ja uusi napautus sulkee sen. Oikeassa reunassa on ohut natsa: kiinni ylös osoittava ja hyvin haalea, auki alas osoittava ja alapalkin tekstien värinen, jotta sulkemisen mahdollisuus huomataan (käyttäjän päätös 21.10.2026; aiemmin salmiakki, ääriviiva kiinni ja täytetty auki). Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Luettu osa (nykyiseen kohtaan asti) on piirretty tekstin värillä, tuleva viiva ja salmiakit haalealla harmaalla; kirjanmerkit ovat kuparisia kummallakin puolella. Muodot:^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
+Alapalkin napautus avaa aikajanan, ja uusi napautus sulkee sen. Oikeassa reunassa on ohut natsa: kiinni ylös osoittava ja hyvin haalea, auki alas osoittava ja alapalkin tekstien värinen, jotta sulkemisen mahdollisuus huomataan (käyttäjän päätös 21.10.2026; aiemmin salmiakki, ääriviiva kiinni ja täytetty auki). Sijainnit lasketaan merkkimäärästä, joten aikajana ei muutu kirjasinkoon mukana. Luettu osa (nykyiseen kohtaan asti) on piirretty tekstin värillä, tuleva viiva ja salmiakit haalealla harmaalla; kirjanmerkit ovat kuparisia kummallakin puolella. Muodot ovat nuottien tapaan (käyttäjän päätös 21.10.2026): suurempi aika-arvo on ontompi.^[Muodot erottuvat ilman värejäkin, joten aikajana toimii harmaasävyisessä e-ink-näytössä.]
 
-- pääluku: iso täytetty salmiakki,
-- alaluku: pienempi ontto salmiakki,
-- alaluvun alaluku: pieni täytetty salmiakki,
+- pääluku: iso ontto salmiakki (vaaleassa teemassa valkoinen; paperin värinen täyte peittää viivan),
+- alaluku: pienempi täytetty salmiakki,
+- alaluvun alaluku: lähes pistemäinen täytetty salmiakki,
 - kirjanmerkki: ruosteenvärinen nauha viivan alla,
 - nykyinen kohta: musta kolmio ja hiusviiva.
 
@@ -147,9 +153,9 @@ Sivutettuna vapaa kohta pyöristetään sen sivun alkuun (`sivunAlku()`), joten 
 Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella. *Ulkoasu*: teema, koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu), tavutus ja näkymä. Osiot *Teksti* ja *Aikajana* ovat sateenvarjolistoja (käyttäjän päätös 21.10.2026), joissa kukin kohta kytketään päälle tai pois:
 
 - *Teksti → Näytä:*: sisällysluettelo, kirjanmerkit, alleviivaukset. Alleviivausten alla on pienempi lisäkytkin *Automaattinen alleviivaus*. Se on himmeä ja pois käytöstä, kun alleviivaukset on piilotettu, koska näkymätöntä alleviivausta ei tehdä automaattisesti; valikon alleviivausikoni toimii silti. Piilotetut alleviivaukset eivät myöskään avaa valikkoa napautettaessa.
-- *Aikajana → Näytä:*: pääluvut, alaluvut tai kaikki tasot (yksi kolmesta), kirjanmerkit ja edistyminen. Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
+- *Aikajana → Näytä:*: *Pääluvut*, *Alaluvut* (pääluvut ja alaluvut, oletus) tai *Kaikki* (myös alalukujen alaluvut) yhtenä valintana, kirjanmerkit ja edistyminen. Edistyminen näkyy alapalkissa: vierityksessä prosentteina, sivuina sivunumerona.
 
-Oletuksena kaikki näkyy ja automaattinen alleviivaus on päällä; muut oletukset: vaalea (tai laitteen tumma), 19 px, väli, liehu, varovainen tavutus, vieritys. Aiemmin tallennetuissa asetuksissa olivat vanhat oletukset (automaattinen alleviivaus pois, aikajanalla alaluvut), joten ne vaihdetaan kerran uusiin (`av: 2`).
+Oletuksena kaikki muu näkyy, aikajanalla pääluvut ja alaluvut, ja automaattinen alleviivaus on päällä; muut oletukset: vaalea (tai laitteen tumma), 19 px, väli, liehu, varovainen tavutus, vieritys. Aiemmin tallennetuissa asetuksissa olivat vanhat oletukset, joten ne vaihdetaan kerran: automaattinen alleviivaus päälle (`av: 2`) ja aikajanan *Kaikki*, joka oli oletus 21.10.2026 hetken, takaisin *Alaluvut*-tasoon (`av: 3`; itse valittu *Pääluvut* säilyy).
 
 Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi valikkojen, salmiakkien ja logon kanssa; se otetaan takaisin vain, jos koko ohjelman ulkoasu sovitetaan siihen. Vanha tallennettu valinta ohitetaan.
 
@@ -235,6 +241,8 @@ Mitattu 20.10.2026 kandidaatintutkielmalla:
 - Sivutettuna 412 × 824 px: 55 sivua, ei yhtään sivun alareunan yli menevää riviä. Jokaisen sivun kohta vie takaisin samalle sivulle (myös 21 px tiheällä tavutuksella, 66 sivua, ja 1280 × 800 px, 37 sivua). Koon muutos 19 → 22 → 19 px palauttaa saman sivun.
 - Vierityksessä luettu kohta pysyy samana, kun siihen palataan (kolme kokoonpanoa).
 - Alleviivaus säilyy uudelleenlatauksessa; jakovalikon viite päätyy leikepöydälle.
+
+Kirjanmerkin paikka mitattu 21.10.2026 (412 × 824 px, molemmat tekstit, kirjanmerkki joka lohkon alussa, sivutettuna ja vierityksessä): oletuskoossa 19 px jokainen nauha on yläpuolella tai sisennyksessä eikä yksikään osu tekstiin; ainoa poikkeus on sisennystilassa kappaleeseen kiinni oleva koodilohko, jonka nauha on reunuksessa. Myös 26 px:n koossa (375 × 700) ja 1280 × 900 -ikkunassa kaikki ovat yläpuolella tai sisennyksessä. Alle 18 px:n koossa tiheät välit eivät riitä: 17 px:ssä kirjallisuusluettelon merkinnät ja 15 px:ssä lisäksi väliotsikon jälkeiset kappaleet ja luettelon kohdat saavat nauhan reunukseen. Piirto 11 kirjanmerkillä vierityksessä 1,2 → 3,1 ms päivitystä kohden.
 
 Mitattu 21.10.2026 (375 × 760 px): valintavalikko mahtuu yhdelle riville (293 px), kirjanmerkkinauha on 12 × 20 px ja sen ylä- ja alapuolella on 10 px. Viennin kaikki valintayhdistelmät tuottavat yllä kuvatun muodon. Virkkeen poiminta: 149 kirjanmerkkiä 23 merkin välein kuuteen kappaleeseen, jokainen lainaus on kappaleen virke, joka sisältää kirjanmerkin kohdan. Kun ikkunan korkeus pienenee kesken kirjauksen (näppäimistö), muokkain pysyy auki ja näkyvissä, ja sivunäkymä palaa samalle sivulle.
 

@@ -62,7 +62,7 @@
   // Rivinsisäinen merkintä. ctx: { note(body) → html | null, br: rivinvaihto <br>:ksi, warn(msg) }
   function inline(s, ctx) {
     var out = '', buf = '', i = 0;
-    function flush() { out += esc(buf); buf = ''; }
+    function flush() { out += ctx.cite ? ctx.cite(buf) : esc(buf); buf = ''; }
     while (i < s.length) {
       var c = s[i];
       if (c === '\\' && i + 1 < s.length) {
@@ -230,16 +230,103 @@
     return (tekija ? tekija + ' ' : '') + (d.year ? '(' + d.year + '). ' : '') + '*' + t + s + '*.';
   }
 
+  /* ---------- Lähdeviittaukset ----------
+     Alaviitteen viittaus linkitetään kirjallisuusluettelon kohtaan vain, kun yhteys on varma
+     (käyttäjän heuristiikka 21.10.2026; ei BibTeX:ää eikä muuta viitetietokantaa):
+     - Sukunimi ja vuosi (Singer 2023, Kant 2017a, Syrjintä s.a.): luettelossa tasan yksi
+       tämän tekijän tämän vuoden kohta.
+     - Sukunimi ja muu paikannin (Korsgaard 8.1.2, sisältönumerointi tms.): luettelossa tasan
+       yksi tämän tekijän kohta, tai tasan yksi sellainen, johon tekstissä ei viitata missään
+       vuosiluvulla. Vuodella viitatut teokset erottuvat siis karsimalla.
+     Muuten linkkiä ei tule. Lyhenteet (GMS, KrV) eivät ole luettelon tekijöitä, joten niitä ei
+     linkitetä. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti, vuosi
+     ensimmäinen sulkeissa oleva vuosi tai s.a. */
+  var VUOSI = /^(?:1[5-9]\d\d|20\d\d)[a-z]?$|^s\.\s?a\.$/;
+  function vuosiAvain(v) { return v.replace(/\s/g, ''); }
+  function reEsc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // tokens: blocksOf()-lista. Merkitsee luettelon kappaleisiin t.kirja = { nimi, vuosi, id, ots }.
+  function viittaukset(tokens, uniq) {
+    var kohdat = [], inBib = false;
+    tokens.forEach(function (t) {
+      if (t.t === 'h') {
+        var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
+        if (lvl === 2) inBib = BIB.test(plain(t.text).trim());
+        return;
+      }
+      if (!inBib || t.t !== 'p') return;
+      var tx = plain(t.text).trim();
+      var nm = /^([^,(]+?)\s*[,(]/.exec(tx), vm = /\((1[5-9]\d\d[a-z]?|20\d\d[a-z]?|s\.\s?a\.)\)/.exec(tx);
+      if (!nm || !vm || !/^\p{Lu}/u.test(nm[1])) return;
+      var k = { nimi: nm[1], vuosi: vuosiAvain(vm[1]), ots: nm[1] + ' ' + vm[1] };
+      k.id = uniq('kirj-' + slug(k.nimi) + '-' + slug(k.vuosi));
+      t.kirja = k;
+      kohdat.push(k);
+    });
+    if (!kohdat.length) return null;
+    var nimet = {};
+    kohdat.forEach(function (k) { (nimet[k.nimi] = nimet[k.nimi] || []).push(k); });
+    var re = new RegExp('(^|[^\\p{L}\\p{N}])(' + Object.keys(nimet).sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
+      ')\\s+((?:1[5-9]\\d\\d|20\\d\\d)[a-z]?(?![\\p{L}\\p{N}]|[.:]\\d)|s\\.\\s?a\\.|\\d+(?:[.:]\\d+)*(?![\\p{L}\\p{N}]))', 'gu');
+
+    // Vuodella viitatut kohdat koko tekstistä (luettelo itse pois).
+    var vuodella = {};
+    (function kay(list) {
+      list.forEach(function (t) {
+        if (t.kirja) return;
+        if (t.kids) return kay(t.kids);
+        var txt = t.items ? t.items.map(function (it) { return it.text; }).join('\n') : t.text || '';
+        var m; re.lastIndex = 0;
+        while ((m = re.exec(txt))) if (VUOSI.test(m[3])) vuodella[m[2] + ' ' + vuosiAvain(m[3])] = 1;
+      });
+    })(tokens);
+
+    // → { k: kohta | null, syy }
+    function ratkaise(nimi, tunnus) {
+      var ehdokkaat = nimet[nimi];
+      if (VUOSI.test(tunnus)) {
+        var v = vuosiAvain(tunnus), sama = ehdokkaat.filter(function (k) { return k.vuosi === v; });
+        if (sama.length === 1) return { k: sama[0], syy: 'vuosi' };
+        if (sama.length) return { k: null, syy: 'Luettelossa on useampi ' + nimi + ' ' + tunnus + '.' };
+        var lahella = ehdokkaat.filter(function (k) { return k.vuosi.indexOf(v) === 0; });
+        return { k: null, syy: lahella.length ? 'Vuosi on luettelossa vain kirjaimin: ' + lahella.map(function (k) { return k.ots; }).join(', ') + '.'
+          : 'Luettelossa ei ole tekijän ' + nimi + ' vuotta ' + tunnus + '.' };
+      }
+      if (ehdokkaat.length === 1) return { k: ehdokkaat[0], syy: 'ainoa' };
+      var jaljella = ehdokkaat.filter(function (k) { return !vuodella[k.nimi + ' ' + k.vuosi]; });
+      if (jaljella.length === 1) return { k: jaljella[0], syy: 'karsinta' };
+      return { k: null, syy: jaljella.length
+        ? 'Vaihtoehtoja on useita, joihin ei viitata vuodella: ' + jaljella.map(function (k) { return k.ots; }).join(', ') + '.'
+        : 'Kaikkiin luettelon kohtiin (' + ehdokkaat.map(function (k) { return k.ots; }).join(', ') + ') viitataan vuodella.' };
+    }
+
+    // Alaviitteen tekstin linkitys. Kirjaa tuloksen Latomon raporttiin.
+    function linkita(teksti, kirjaa) {
+      var out = '', last = 0, m;
+      re.lastIndex = 0;
+      while ((m = re.exec(teksti))) {
+        var alku = m.index + m[1].length, loppu = m.index + m[0].length, r = ratkaise(m[2], m[3]);
+        kirjaa(teksti.slice(alku, loppu), r);
+        if (!r.k) continue;
+        out += esc(teksti.slice(last, alku)) + '<a class="lahde" href="#' + r.k.id + '">' + esc(teksti.slice(alku, loppu)) + '</a>';
+        last = loppu;
+      }
+      return out + esc(teksti.slice(last));
+    }
+    return { kohdat: kohdat, linkita: linkita };
+  }
+
   /*
     parse(md) → {
       meta: etukentän avaimet (viite, osoite, otsikko, tekijä, vuosi …),
       title, sub, lines (tietorivit), author, year,
-      toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg }]
+      toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg }],
+      viittaukset: alaviitteiden lähdeviittaukset [{ ln, teksti, kohde: luettelon kohta tai '', syy }]
     }
   */
   function parse(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
-    var res = { meta: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [] };
+    var res = { meta: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [], viittaukset: [] };
     var ek = etukentta(src), lines = ek.body.split('\n'), base = ek.ln;
     res.meta = ek.meta;
 
@@ -251,19 +338,23 @@
       ids[id]++;
       return id + '-' + ids[id];
     }
+    var vt = null;
+    function kirjaa(teksti, r) { res.viittaukset.push({ ln: curLn, teksti: teksti, kohde: r.k ? r.k.ots : '', syy: r.syy }); }
+    function cite(teksti) { return vt.linkita(teksti, kirjaa); }
     function note(body) {
       var n = ++res.notes;
-      var inner = inline(body, { note: null, br: false, warn: warn });
+      var inner = inline(body, { note: null, br: false, warn: warn, cite: vt ? cite : null });
       return '<label class="fnref" for="fn' + n + '">' + n + '</label>' +
         '<input type="checkbox" class="fntoggle" id="fn' + n + '">' +
         '<span class="sidenote" data-n="' + n + '"><span class="fnnum">' + n + '</span>' + inner + '</span>';
     }
     var ctx = { note: note, br: false, warn: warn };
-    function blk(tag, cls, md, c) {
-      return '<' + tag + (cls ? ' class="' + cls + '"' : '') + ' data-b="' + (b++) + '">' + inline(md, c || ctx) + '</' + tag + '>';
+    function blk(tag, cls, md, c, id) {
+      return '<' + tag + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + ' data-b="' + (b++) + '">' + inline(md, c || ctx) + '</' + tag + '>';
     }
 
     var tokens = blocksOf(lines, base), html = '', t0 = 0;
+    vt = viittaukset(tokens, uniq);
 
     // Otsikkolohko
     if (tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
@@ -295,6 +386,8 @@
       list.forEach(function (t) {
         curLn = t.ln;
         if (t.t === 'h') {
+          // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
+          if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
           var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
           var txt = plain(t.text).trim();
           var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt);
@@ -317,7 +410,7 @@
         } else if (t.t === 'p') {
           if (/^!\[/.test(t.text)) warn('Kuvia ei tueta: “' + t.text.slice(0, 40) + '”');
           if (/^\|.*\|\s*$/m.test(t.text)) warn('Taulukoita ei tueta; rivit näkyvät tekstinä.');
-          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text);
+          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : '');
         } else if (t.t === 'hr') {
           h += '<hr>';
         } else if (t.t === 'bq') {

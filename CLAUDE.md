@@ -508,8 +508,10 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti, ei
   varjoja eikä läpikuultavuutta (e-ink). Käyttäjän päätös 21.10.2026 (kokeilu): ruoste siirrettiin oranssista ruskeampaan
   (vaalea `#a4541a` → `#8c5426`, tumma `#e0954f` → `#b8794a`; LCh-sävy 58° → 62°, kroma 54 → 41) ja tumman
-  teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla: pääluku iso täytetty
-  salmiakki, alaluku pienempi ontto, kolmas taso pieni harmaa; kirjanmerkki ruosteinen nauha viivan
+  teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla nuottien tapaan (suurempi aika-arvo ontompi;
+  käyttäjän päätös 21.10.2026): pääluku iso ontto salmiakki, alaluku pienempi täytetty, alaluvun alaluku
+  lähes pistemäinen täytetty. Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
+  alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on
   kompromissi kaartuvan ja terävän välillä.
@@ -559,15 +561,29 @@ Käyttäjän vaatimukset 20.10.2026:
   eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
   sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
   transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
+- Kirjanmerkin paikka (käyttäjän päätös 21.10.2026; opas, luku 4.3): kirjanmerkki menee aina luettavan kappaleen alkuun
+  (`o: 0`), ja kohta tuodaan näkyviin. Sivutettuna luettava kappale on sivun ensimmäisen rivin kappale; jos se alkoi
+  edellisellä sivulla, siirrytään sille sivulle (käyttäjä salli jättää tämän pois, jos se sotii jotain vastaan; ei
+  sotinut). Nauha on sisennetyssä kappaleessa sisennyksessä, muuten tekstin vasemmassa laidassa ensimmäisen rivin
+  yläpuolella, jos tilaa on (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), ei reunuksessa. Reunus on vain
+  varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
+  Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
+  *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
+  vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
+  missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
+  `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
+  ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
   - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *Näytä:* isolla alkukirjaimella ja kursiivilla (käyttäjän päätökset
-    21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja huomiolla *Viitenumerot näkyvät aina*; hajurakoa 8 px ylä- ja 12 px alapuolella (h3:n ja otsikon väli 19 px, otsikon ja listan 12 px); versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
+    21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja huomiolla *Viitenumerot näkyvät aina*; hajurakoa 8 px yläpuolella, alapuolella tavallinen 1 px kuten muilla nimillä (käyttäjän päätös 21.10.2026; hetken 12 px); sama 8 px:n lisäväli on kaikkien asetusten väliotsikoiden alla, myös *Ulkoasu*-otsikon, eli h3:n ja ensimmäisen nimen väli on 19 px; versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
     (alleviivausten alla pieni lisäkytkin *Automaattinen alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
-    *Aikajana* Pääluvut / Alaluvut / Kaikki (oletus) sekä kirjanmerkit ja edistyminen. Vanhat tallennetut
-    asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2`).
+    *Aikajana* Pääluvut / Alaluvut (oletus 21.10.2026 alkaen; ennen sitä hetken Kaikki) / Kaikki sekä kirjanmerkit ja
+    edistyminen. Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` automaattinen alleviivaus,
+    `av: 3` Kaikki → Alaluvut; itse valittu Pääluvut säilyy).
   - Edistyminen on vain alapalkissa, ei avatun aikajanan ylärivillä. Sivunäkymässä se on sivunumero.
   - *Merkinnät*-listassa alleviivauksia ei koskaan alleviivata; alleviivaus näkyy vain tekstissä itsessään.
     Listan molemmat osiot (*Kirjanmerkit*, *Alleviivaukset ja kirjaukset*) supistuvat otsikon perässä olevasta pienestä
