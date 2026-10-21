@@ -502,7 +502,9 @@ Käyttäjän vaatimukset 20.10.2026:
   D.M.VVVV).`); Clauden projektikansioiden sitaattisääntöjä ei voitu lukea.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti, ei
-  varjoja eikä läpikuultavuutta (e-ink). Aikajanan merkinnät erotetaan muodolla: pääluku iso täytetty
+  varjoja eikä läpikuultavuutta (e-ink). Käyttäjän päätös 21.10.2026 (kokeilu): ruoste siirrettiin oranssista ruskeampaan
+  (vaalea `#a4541a` → `#8c5426`, tumma `#e0954f` → `#b8794a`; LCh-sävy 58° → 62°, kroma 54 → 41) ja tumman
+  teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla: pääluku iso täytetty
   salmiakki, alaluku pienempi ontto, kolmas taso pieni harmaa; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on

@@ -176,7 +176,7 @@ Tasattu palsta kapealla ruudulla tarvitsee tiheän tavutuksen; varovaisella sana
 
 ### 6.1 Värit
 
-Kuusi väriä kummassakin teemassa: paperi, muste, harmaa, viiva, ruoste ja okra. Ei läpikuultavuutta eikä varjoja, koska e-ink näyttää ne rasteroituina. Ruoste on viitenumeroiden, kirjanmerkkien ja sisällysluettelon väri (ruoste = napautettava), okra alleviivausten. Alaviitteiden teksti on hiukan harmaata vaaleampaa (`--huomio`, kontrasti paperiin silti yli 4,9), jotta aina näkyvät sivuhuomiot väistyvät leipätekstin tieltä muttei häviä e-inkillä taustaan. Otsikkolohkon tietorivit (`.meta`) ovat kursiivia.
+Kuusi väriä kummassakin teemassa: paperi, muste, harmaa, viiva, ruoste ja okra. Ei läpikuultavuutta eikä varjoja, koska e-ink näyttää ne rasteroituina. Ruoste on viitenumeroiden, kirjanmerkkien ja sisällysluettelon väri (ruoste = napautettava), okra alleviivausten. Ruoste on ruskehtavaa eikä punertavaa; tummassa teemassa paperi on lähes mustaa, jotta himmeähkö ruoste erottuu siitä. Alaviitteiden teksti on hiukan harmaata vaaleampaa (`--huomio`, kontrasti paperiin silti yli 4,9), jotta aina näkyvät sivuhuomiot väistyvät leipätekstin tieltä muttei häviä e-inkillä taustaan. Otsikkolohkon tietorivit (`.meta`) ovat kursiivia.
 
 ### 6.2 Logo
 
