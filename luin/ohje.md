@@ -60,7 +60,7 @@ Kaikki on selaimen localStoragessa, joka on yhteinen muiden ollijuutilainen.gith
 - `luin-asetukset` – asetukset (luku 4.5).
 - `luin-lista` – lukulista: tunnus, nimi, alaotsikko, tekijä, vuosi, viite, osoite, lukukohta, prosentti, lisätty ja avattu.
 - `luin-teksti:<tunnus>` – tekstin Markdown sellaisenaan.
-- `luin-merkit:<tunnus>` – kirjanmerkit (`km`) ja alleviivaukset (`al`).
+- `luin-merkit:<tunnus>` – kirjanmerkit (`km`) ja alleviivaukset (`al`). Alleviivauksen kirjaus on sen kentässä `n`.
 
 Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-` + osoitteen tiiviste. Saman otsikon uusi versio Latomosta korvaa vanhan ja säilyttää merkinnät.
 
@@ -120,11 +120,13 @@ Sivua käännetään napauttamalla ruudun reunakolmanneksia, pyyhkäisemällä, 
 
 Lukukohta on ensimmäinen näkyvä merkki: `{ b: lohko, o: merkki, s: katkelma }`. Kun kirjasinta, kokoa tai näkymää vaihdetaan, Luin palaa sivulle, jolla sama merkki on. Katkelman avulla kohta löytyy myös, kun teksti on päivittynyt ja lohkojen numerot ovat siirtyneet. Merkkilaskussa ohitetaan sivuhuomiot, viitenumerot ja tavutuksen pehmeät tavuviivat.
 
-### 4.3 Alleviivaukset ja kirjanmerkit
+### 4.3 Alleviivaukset, kirjaukset ja kirjanmerkit
 
-Tekstin valinta avaa valikon (Alleviivaa, Kopioi, Kirjanmerkki). Automaattisessa tilassa valinta muuttuu heti alleviivaukseksi: hiirellä painikkeen noustessa, kosketuksella kun valinta on pysynyt 1,2 sekuntia samana. Kesken sanan alkava valinta laajenee koko sanaan. Alleviivauksen napautus antaa kopioida katkelman tai poistaa sen.
+Tekstin valinta avaa valikon: *Alleviivaa*, *Kirjaus*, *Kopioi* ja kuparinen kirjanmerkkinauha. Automaattisessa tilassa valinta muuttuu heti alleviivaukseksi: hiirellä painikkeen noustessa, kosketuksella kun valinta on pysynyt 1,2 sekuntia samana. Kesken sanan alkava valinta laajenee koko sanaan. Alleviivauksen napautus näyttää sen kirjauksen ja antaa kirjoittaa tai muokata kirjausta, kopioida katkelman tai poistaa alleviivauksen; jos kirjaus on, poisto kysyy vahvistuksen.
 
-Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva, myös aikajanan ollessa kiinni) tai aikajanan alta laatikosta *Aseta kirjanmerkki* nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja laatikossa lukee *Poista kirjanmerkki*; kumpikin poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit ja alleviivaukset ovat listana aikajanan alla laatikossa *Merkinnät*.
+Kirjaus on alleviivaukseen liitetty muistiinpano. *Kirjaus* alleviivaa valinnan ja avaa tekstilaatikon, joka kasvaa tekstin mukana enintään 30 % ruudun korkeudesta ja vierii sen jälkeen. Kirjauksen pituus on enintään 5 000 merkkiä, ja jäljellä oleva määrä näkyy laatikon alla. Raja suojaa vain tallennustilaa: localStorage on yhteinen koko sivustolle (noin 5 Mt). *Tallenna*, Ctrl+Enter tai napautus muokkaimen ulkopuolelle tallentaa; *Peruuta* ja Esc peruvat muutoksen, ja juuri tehty alleviivaus poistuu. Kirjoittamisen aikana muokkain pysyy näkyvällä alueella näppäimistön yläpuolella, eikä sivunäkymää aseteta uudelleen. Jos sovellus siirtyy taustalle kesken kirjoittamisen, luonnos tallennetaan.
+
+Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva, myös aikajanan ollessa kiinni) tai aikajanan alta laatikosta *Aseta kirjanmerkki* nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja laatikossa lukee *Poista kirjanmerkki*; kumpikin poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit, alleviivaukset ja kirjaukset ovat listana aikajanan alla laatikossa *Merkinnät*.
 
 ### 4.4 Aikajana
 
@@ -140,7 +142,21 @@ Napautus merkin lähellä vie merkin kohtaan, muualla suhteelliseen kohtaan. Ved
 
 ### 4.5 Asetukset
 
-Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella: teema, kirjasin (antiikva tai groteski), koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu), tavutus, näkymä, sisällysluettelo, kirjanmerkit tekstissä, automaattinen alleviivaus sekä aikajanan taso ja kirjanmerkit. Oletukset: vaalea (tai laitteen tumma), antiikva, 19 px, väli, liehu, varovainen tavutus, vieritys, automaattinen alleviivaus pois.
+Hammasratas avaa asetukset. Ne koskevat kaikkia tekstejä tällä laitteella: teema, koko, kappalejako (väli tai sisennys), reunat (liehu tai tasattu), tavutus, näkymä, sisällysluettelo, kirjanmerkit tekstissä, automaattinen alleviivaus, edistyminen alapalkissa sekä aikajanan taso ja kirjanmerkit. Oletukset: vaalea (tai laitteen tumma), 19 px, väli, liehu, varovainen tavutus, vieritys, automaattinen alleviivaus pois, edistyminen näkyy (vierityksessä prosentteina, sivuina sivunumeroina).
+
+Kirjasinvalinta (antiikva tai groteski) poistettiin 21.10.2026. Groteski ei sovi valikkojen, salmiakkien ja logon kanssa; se otetaan takaisin vain, jos koko ohjelman ulkoasu sovitetaan siihen. Vanha tallennettu valinta ohitetaan.
+
+### 4.6 Merkintöjen vienti
+
+Asetusten alimpana, muista erotettuna, on supistettu osio *Vie merkinnät tekstitiedostoon*. Se näkyy vain tekstiä luettaessa ja koskee avointa tekstiä. Siitä valitaan alleviivaukset, kirjanmerkit ja kirjaukset; oletuksena viedään alleviivaukset ja kirjaukset mutta ei kirjanmerkkejä, ja valinnat muistetaan. *Lataa tiedosto* antaa Markdown-tiedoston `<otsikko>-merkinnat.md`.
+
+Tiedosto alkaa tekstin nimellä, alaotsikolla ja lähdeviitteellä. Sen jälkeen otsikot noudattavat tekstin hierarkiaa (`##`, `###` …), mutta mukana ovat vain osiot, joissa on vietäviä merkintöjä, ja niiden yläotsikot. Saman osion merkintöjen välissä on `---`, ja osion viimeisen merkinnän ja seuraavan otsikon välissä kaksi tyhjää riviä.
+
+- Alleviivaus on lainaus (`> …`). Jos kirjaukset viedään, alleviivauksen kirjaus tulee lainauksen jälkeen omana kappaleenaan.
+- Kirjanmerkki on `KIRJANMERKKI n`, numeroituna tekstin järjestyksessä. Jos alleviivauksia ei viedä, sen perään lainataan virke, jonka kohdalla kirjanmerkki on. Virke päättyy välimerkkiin, jota seuraa iso kirjain; tavalliset lyhenteet (*esim.*, *mm.*, *ks.* …) ja nimikirjaimet eivät katkaise sitä. Otsikon kohdalla olevasta kirjanmerkistä lainataan seuraavan lohkon ensimmäinen virke.
+- Pelkät kirjaukset (tai kirjaukset ja kirjanmerkit, kun kirjanmerkkejä ei ole) ovat luettelona (`- …`) osioidensa otsikoiden alla. Kirjanmerkkien kanssa kirjaus on kappale merkintöjen välissä.
+- Merkinnät, joiden kohtaa ei uudesta tekstiversiosta löydy, ovat lopussa omana osionaan.
+
 
 ## 5. Tavutus
 
@@ -168,7 +184,7 @@ Ylärivi *LUiN.* on korkeaa, tiivistä antiikvaversaalia (versaalikorkeus 100, p
 
 ### 6.3 Kirjasimet
 
-Antiikva on Literata, joka on suunniteltu e-lukulaitteille. Groteski on laitteen oma (Roboto, San Francisco). Viitenumerot ovat groteskia kuten aiemmissa html-versioissa.
+Teksti on Literataa, joka on suunniteltu e-lukulaitteille. Viitenumerot ovat laitteen omaa groteskia (Roboto, San Francisco) kuten aiemmissa html-versioissa. Groteskia ei voi enää valita tekstin kirjasimeksi (luku 4.5).
 
 ## 7. Lähdeviite ja jakaminen
 
@@ -188,7 +204,7 @@ Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]
 ```
 
-Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, aikajanan hypyn ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `valinta()`).
+Skripti käynnistää oman tiedostopalvelimen, syöttää tekstin avaimeen `luin-tuonti`, avaa `luin.html#tuo` ja mittaa rakenteen, leikkautuvat rivit jokaisella sivulla, jokaisen sivun kohdan paluun samalle sivulle, kirjasinkoon muutoksen ja paluun, alleviivauksen säilymisen, kirjauksen tallennuksen ja viennin, aikajanan hypyn ja vierityksen kohdan pysyvyyden. Sivu antaa testeille koukun `window.__luin` (asetukset, tila, nykyinen kohta, `mene()`, `valinta()`).
 
 Mitattu 20.10.2026 kandidaatintutkielmalla:
 
@@ -197,7 +213,9 @@ Mitattu 20.10.2026 kandidaatintutkielmalla:
 - Vierityksessä luettu kohta pysyy samana, kun siihen palataan (kolme kokoonpanoa).
 - Alleviivaus säilyy uudelleenlatauksessa; jakovalikon viite päätyy leikepöydälle.
 
-Testaamatta: oikeat Boox-laitteet, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus).
+Mitattu 21.10.2026 (375 × 760 px): valintavalikko mahtuu yhdelle riville (293 px), kirjanmerkkinauha on 12 × 20 px ja sen ylä- ja alapuolella on 10 px. Viennin kaikki valintayhdistelmät tuottavat yllä kuvatun muodon. Virkkeen poiminta: 149 kirjanmerkkiä 23 merkin välein kuuteen kappaleeseen, jokainen lainaus on kappaleen virke, joka sisältää kirjanmerkin kohdan. Kun ikkunan korkeus pienenee kesken kirjauksen (näppäimistö), muokkain pysyy auki ja näkyvissä, ja sivunäkymä palaa samalle sivulle.
+
+Testaamatta: oikeat Boox-laitteet, Safari, oikea Dropbox-linkki, kosketusvalinta oikealla Androidilla (automaattinen alleviivaus), oikea virtuaalinäppäimistö ja tiedoston lataus Boox-laitteiden selaimissa.
 
 ## 9. Avoimet kysymykset
 
@@ -212,6 +230,7 @@ Pitkän painalluksen suomi–suomi-sanakirja vaatii kaksi asiaa: perusmuodon (ta
 ### 9.3 Muuta myöhemmäksi
 
 - Kahden sivun aukeama leveällä näytöllä.
-- Alleviivaukset aikajanalla ja muistiinpanot alleviivauksiin.
-- Merkintöjen vienti ja synkronointi laitteiden välillä.
+- Alleviivaukset aikajanalla.
+- Merkintöjen synkronointi laitteiden välillä.
+- Groteski kirjasin, jos koko ohjelman ulkoasu sovitetaan siihen.
 - Lukulistan tuonti ja vienti tiedostona.

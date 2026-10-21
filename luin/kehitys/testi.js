@@ -2,7 +2,8 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/testi.js polku/teksti.md [kuvakansio]
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
-// kohtaan, alleviivauksen säilymisen ja aikajanan hypyn. Kuvat kuvakansioon, jos annettu.
+// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin ja aikajanan hypyn.
+// Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -26,7 +27,7 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
 palvelin.listen(0, async () => {
   const BASE = 'http://localhost:' + palvelin.address().port + '/';
   const b = await chromium.launch();
-  const p = await (await b.newContext({ viewport: { width: 412, height: 824 } })).newPage();
+  const p = await (await b.newContext({ viewport: { width: 412, height: 824 }, acceptDownloads: true })).newPage();
   const sivuvirheet = [];
   p.on('pageerror', e => sivuvirheet.push(e.message));
   const kuva = async n => { if (KUVAT) await p.screenshot({ path: path.join(KUVAT, n + '.png') }); };
@@ -97,6 +98,23 @@ palvelin.listen(0, async () => {
   await p.click('#pop button[data-k="ali"]');
   await p.reload(); await p.waitForTimeout(500);
   tulos('alleviivaus säilyy', await p.evaluate(() => document.querySelectorAll('mark.ali').length > 0));
+
+  // Kirjaus valinnasta, säilyminen ja vienti oletusvalinnoilla (alleviivaukset ja kirjaukset).
+  await p.evaluate(() => {
+    const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 120 && x.getBoundingClientRect().width && !x.querySelector('mark'));
+    const t = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode();
+    const q = document.createRange(); q.setStart(t, 2); q.setEnd(t, Math.min(t.length, 40));
+    getSelection().removeAllRanges(); getSelection().addRange(q); window.__luin.valinta();
+  });
+  await p.click('#pop button[data-k="kir"]');
+  await p.keyboard.type('Testikirjaus');
+  await p.click('#pop button[data-k="tallenna"]');
+  await p.reload(); await p.waitForTimeout(500);
+  await p.click('#lukija .ratas'); await p.click('#vienti summary');
+  const [lataus] = await Promise.all([p.waitForEvent('download'), p.click('#vie')]);
+  const vienti = fs.readFileSync(await lataus.path(), 'utf8');
+  await p.click('#asetukset .sulje');
+  tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti), lataus.suggestedFilename() + ', ' + vienti.split('\n').length + ' riviä');
 
   // Aikajana: viimeisen pääluvun merkki vie sen otsikkoon.
   await p.click('#ala-nappi');
