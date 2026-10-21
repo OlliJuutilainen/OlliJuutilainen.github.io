@@ -222,14 +222,15 @@
   .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
   #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
-  /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit aina kuparisina. */
+  /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit aina kuparisina.
+     Käyttäjän päätös 21.10.2026 nuottien mukaan (suurempi aika-arvo ontompi): pääluku iso ja ontto
+     (paperin värinen täyte peittää viivan), alaluku pienempi ja täytetty, alaluvun alaluku lähes piste. */
   .j-viiva { stroke: var(--muste); stroke-width: 1; fill: none; }
-  .j1 { fill: var(--muste); }
-  .j2 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; }
-  .j3 { fill: var(--muste); }
+  .j1 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; }
+  .j2, .j3 { fill: var(--muste); }
   .tuleva .j-viiva { stroke: var(--viiva); }
-  .tuleva .j1, .tuleva .j3 { fill: var(--viiva); }
-  .tuleva .j2 { stroke: var(--viiva); }
+  .tuleva .j2, .tuleva .j3 { fill: var(--viiva); }
+  .tuleva .j1 { stroke: var(--viiva); }
   .j-km { fill: var(--ruoste); }
   .j-nyt { fill: var(--muste); }
   .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
@@ -452,8 +453,8 @@
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki).
   // kmKiinni, alKiinni: merkintälistan supistetut osiot.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
-    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 3, kmJanalla: 1,
-    vieAl: 1, vieKm: 1, vieKi: 1, kmKiinni: 0, alKiinni: 0, av: 2 };
+    sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
+    vieAl: 1, vieKm: 1, vieKi: 1, kmKiinni: 0, alKiinni: 0, av: 3 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -461,7 +462,11 @@
   delete aset.kirjasin;
   // av 2 (21.10.2026): automaattinen alleviivaus ja aikajanan kaikki tasot tulivat oletuksiksi.
   // Aiemmin tallennetut asetukset sisälsivät vanhat oletukset, joten ne vaihdetaan kerran.
-  if (tallennetut && !(tallennetut.av >= 2)) { aset.auto = 1; aset.janaTaso = 3; aset.av = 2; }
+  if (tallennetut && !(tallennetut.av >= 2)) aset.auto = 1;
+  // av 3 (21.10.2026): neljä otsikkotasoa (nimi, pääluku, alaluku, alaluvun alaluku), ja aikajanan
+  // oletus on pääluvut ja alaluvut; Kaikki ottaa mukaan alalukujen alaluvut. Vanha oletus Kaikki
+  // vaihdetaan kerran uuteen; itse valittu Pääluvut säilyy.
+  if (tallennetut && !(tallennetut.av >= 3)) { if (aset.janaTaso === 3) aset.janaTaso = 2; aset.av = 3; }
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
@@ -1345,7 +1350,7 @@
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
       else if (m.lvl === 1) d = '<path class="j1" d="' + sal(x, y, 5.6, 7.4) + '"/>';
       else if (m.lvl === 2) d = '<path class="j2" d="' + sal(x, y, 4.2, 5.6) + '"/>';
-      else d = '<path class="j3" d="' + sal(x, y, 2.5, 3.4) + '"/>';
+      else d = '<path class="j3" d="' + sal(x, y, 1.7, 2.3) + '"/>';
       d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
       if (m.km || f <= nf) luettu += d; else tuleva += d;
     });

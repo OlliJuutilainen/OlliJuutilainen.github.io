@@ -295,6 +295,8 @@
       list.forEach(function (t) {
         curLn = t.ln;
         if (t.t === 'h') {
+          // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
+          if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
           var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
           var txt = plain(t.text).trim();
           var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt);

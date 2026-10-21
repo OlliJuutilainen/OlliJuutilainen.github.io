@@ -64,7 +64,7 @@
   ol.rakenne li.t2 { padding-left: 1.4em; }
   ol.rakenne li.t3 { padding-left: 2.8em; font-size: .94em; }
   ol.rakenne svg { flex: 0 0 auto; width: 10px; height: 12px; position: relative; top: 1px; }
-  .j1 { fill: var(--muste); } .j2 { fill: none; stroke: var(--muste); stroke-width: 1.3; } .j3 { fill: var(--harmaa); }
+  .j1 { fill: none; stroke: var(--muste); stroke-width: 1.3; } .j2, .j3 { fill: var(--muste); }
   .esikatselu { margin: 10px 0 0; padding: 10px 12px; border-left: 2px solid var(--viiva); font-size: .9rem; overflow-wrap: anywhere; }
   code { font-family: ui-monospace, Menlo, monospace; font-size: .86em; overflow-wrap: anywhere; }
   .foot { margin: 0; padding: 0 16px 22px; text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; }
@@ -132,7 +132,8 @@
     for (var i = 0; i < 4; i++) { var p = P[i], q = P[(i + 1) % 4]; d += 'Q' + (cx + (p[0] + q[0] - 2 * cx) * c).toFixed(2) + ' ' + (cy + (p[1] + q[1] - 2 * cy) * c).toFixed(2) + ' ' + q[0] + ' ' + q[1]; }
     return d + 'Z';
   }
-  var MERKKI = { 1: sal(5, 6, 4.4, 5.6), 2: sal(5, 6, 3.6, 4.6), 3: sal(5, 6, 2.2, 3) };
+  // Kuten Luinin aikajanalla: pääluku ontto, alaluku täytetty, alaluvun alaluku lähes piste.
+  var MERKKI = { 1: sal(5, 6, 4.2, 5.4), 2: sal(5, 6, 3.6, 4.6), 3: sal(5, 6, 1.6, 2.2) };
 
   function dropbox(u) {
     try {
