@@ -29,7 +29,8 @@ function leik(p, d, q, e) {
 function glis(o) {
   const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 212, w = o.lw ?? 1.8;
   const E = cy => [cx + rx, cy];
-  const Wp = s => [px - prx, pb - s * prx];
+  // py: loppupisteen keskikohdan (ja sivukärkien) korkeus; oletuksena alareuna pb:ssä
+  const Wp = s => [px - prx, o.py ?? pb - s * prx];
   // yla: i:n pisteen yläkärjen korkeus (oletus 0 = versaalien lakipiste); silloin keskikohta = yla + s·rx
   const yla = o.yd != null ? null : (o.yla ?? 0);
   let s = o.s, cy = o.yd ?? 12;
@@ -41,7 +42,7 @@ function glis(o) {
     s = (a + b) / 2;
     if (yla != null) cy = yla + s * rx;
   }
-  const ry = s * rx, pry = s * prx, py = pb - pry, c = o.c ?? 0.38;
+  const ry = s * rx, pry = s * prx, py = o.py ?? pb - pry, c = o.c ?? 0.38;
   const e = E(cy), W = Wp(s), d = [1, s], nn = Math.hypot(1, s), n = [-s / nn * w, 1 / nn * w];
   // viivan alku: alareuna leikkaa i:n pisteen ES-särmän tangentin kulmassa E
   const qES = [cx + rx * c, cy + ry * c];
