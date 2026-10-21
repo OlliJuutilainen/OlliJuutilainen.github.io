@@ -573,6 +573,11 @@ Käyttäjän vaatimukset 20.10.2026:
     Listan molemmat osiot (*Kirjanmerkit*, *Alleviivaukset ja kirjaukset*) supistuvat otsikon perässä olevasta pienestä
     salmiakista (täynnä auki, ontto kiinni); tila muistetaan (`kmKiinni`, `alKiinni`). Avattuna asettelu pikselilleen ennallaan.
   - Valinnan valikko: *Alleviivaa | Kirjaa | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
+    Käyttäjän päätös 21.10.2026: valikoissa ikonit tekstien sijaan (`ikNappi`, nimi `aria-label`/`title`):
+    alleviivaa = *Abc* 3 px:n ruosteisen viivan päällä (liioiteltu tarkoituksella), kirjaa = täytetty lyhyt
+    paksu kynä 45°, oikea yläpää suora ja vasen alapää kärki, kopioi = kaksi lomittaista suorakaidetta ilman
+    tekstiviivoja, edessä oleva katkoviivainen, poista alleviivaus = sama viiva ja *Abc*:n paikalla raksi.
+    Kopioinnin kuittaus on rasti; poiston vahvistus *Poista myös kirjaus* on edelleen tekstiä (ruoste).
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
   - *Vie merkinnät tekstitiedostoon* on asetusten alimpana supistettuna; oletuksena alleviivaukset ja kirjaukset,
