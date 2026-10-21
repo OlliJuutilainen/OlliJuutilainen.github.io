@@ -552,7 +552,7 @@ Käyttäjän vaatimukset 20.10.2026:
 - Lukulistan logon oikealla puolella on KEICK•WALKin ⓘ-napin tapaan tietoa-nappi (käyttäjän pyyntö 21.10.2026), mutta
   ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Merkin keskikohta
   on LUiN-versaalien keskilinjalla (mitattu 54,00 / 54,12 px). Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
-  jossa on vain *LUiN.HTML on lukulaite Markdown-teksteille. Kaikki tallentuu vain tähän selaimeen.* (käyttäjä: erittäin
+  jossa on vain *LUiN.HTML on lukulaite Markdown-teksteille. Tiedot tallentuvat vain tähän selaimeen.* (käyttäjä: erittäin
   lyhyesti). Kiinni ollessa sivu on pikselilleen ennallaan.
 - Nimen tekstimuoto (ei-graafinen, esim. infolaatikko ja logon `aria-label`) on *LUiN.HTML* (käyttäjän päätös 21.10.2026);
   tiedostonimi ja polut pysyvät `luin.html`.
