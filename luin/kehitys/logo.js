@@ -27,7 +27,8 @@ function leik(p, d, q, e) {
 // viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
 // joko i:n pisteen keskikohta (yd, oletus 12) tai yläkärki (yla) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
 function glis(o) {
-  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, px = o.px ?? 212, w = o.lw ?? 1.8;
+  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, w = o.lw ?? 1.8;
+  let px = o.px ?? 212;
   const E = cy => [cx + rx, cy];
   // py: loppupisteen keskikohdan eli sivukärkien korkeus, oletus 100 = perusviiva (käyttäjän valinta
   // 21.10.2026); py: false = alareuna pb:ssä
@@ -39,6 +40,15 @@ function glis(o) {
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
+  } else if (o.sulje ?? true) { // käyttäjän valinta 21.10.2026; sulje: false = loppupiste px:n mukaan
+    // Viivan alareuna kulkee N:n oikean kuopan pohjan kautta (vinoviivan oikea reuna kohtaa oikean
+    // pystyviivan vasemman reunan), joten kuoppa sulkeutuu juuri ja juuri; loppupisteen x seuraa.
+    const T = [186.6, 100 * (186.6 - 167.5) / (190 - 167.5)];
+    const g = s_ => { const cy_ = yla == null ? cy : yla + s_ * rx; return ((T[0] - cx - rx) * -s_ + (T[1] - cy_)) / Math.hypot(1, s_) - w; };
+    let a = 0.3, b = 3; for (let i = 0; i < 80; i++) { const m = (a + b) / 2; (g(a) * g(m) <= 0) ? b = m : a = m; }
+    s = (a + b) / 2;
+    if (yla != null) cy = yla + s * rx;
+    px = T[0] + (PY - T[1]) / s + prx;
   } else {
     const g = s_ => { const W = Wp(s_), cy_ = yla == null ? cy : yla + s_ * rx; return ((W[0] - cx - rx) * -s_ + (W[1] - cy_)) / Math.hypot(1, s_) - w; };
     let a = 0.3, b = 3; for (let i = 0; i < 80; i++) { const m = (a + b) / 2; (g(a) * g(m) <= 0) ? b = m : a = m; }
@@ -54,7 +64,7 @@ function glis(o) {
   const qWN = [px - prx * c, py - pry * c];
   const pUp = leik(e, d, W, [qWN[0] - W[0], qWN[1] - W[1]]);
   return {
-    s, cy, ry, py, W: px + prx,
+    s, cy, ry, py, px, W: px + prx,
     piste: dia(cx, cy, rx, ry, [0.5, c, c, c]),
     loppu: dia(px, py, prx, pry, [c, c, 0.5, c]),
     viiva: poly([e, pUp, [px, py], W, cLo, [cx, cy]]),
