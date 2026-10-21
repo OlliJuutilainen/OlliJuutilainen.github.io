@@ -262,6 +262,16 @@
   .ali-teksti { text-decoration: underline; text-decoration-color: var(--ruoste); text-decoration-thickness: .1em;
     text-underline-offset: .2em; }
   .merkki .m-kirjaus { display: block; margin-top: 5px; font-style: italic; white-space: pre-wrap; }
+  /* Merkintälistan supistuvat osiot: otsikko pysyy h3:n kohdalla (24 px yllä, 2 px alla), mutta
+     napautusalue on 8 px korkeampi kummaltakin puolelta. Salmiakki täynnä auki, ontto kiinni;
+     top 1 px asettaa sen versaalin keskelle (mitattu Literatalla, ero 0,25 px). */
+  details.m-osio summary { list-style: none; display: flex; align-items: center; gap: 7px; cursor: pointer;
+    padding: 8px 0; margin: 16px 0 -6px; color: var(--harmaa); }
+  details.m-osio summary::-webkit-details-marker { display: none; }
+  details.m-osio summary h3 { margin: 0; }
+  details.m-osio summary svg { width: 6px; height: 7.4px; flex: 0 0 auto; position: relative; top: 1px; }
+  details.m-osio summary .sal { stroke-width: 1.1; }
+  details.m-osio[open] summary .sal { fill: currentColor; }
   .tyhja-m { color: var(--harmaa); font-style: italic; font-size: .88rem; margin: 10px 0; }
   /* merkintöjen vienti asetusten alimpana, normaalisti supistettuna */
   details.vienti { margin: 34px 0 0; border-top: 1px solid var(--viiva); border-bottom: 1px solid var(--viiva); }
@@ -363,10 +373,11 @@
 <!-- ===== Kirjanmerkit, alleviivaukset ja kirjaukset ===== -->
 <div class="paneeli" id="merkinnat" hidden role="dialog" aria-label="Kirjanmerkit, alleviivaukset ja kirjaukset">
   <header><h2>Merkinnät</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
-  <h3>Kirjanmerkit</h3>
-  <div id="km-lista"></div>
-  <h3>Alleviivaukset ja kirjaukset</h3>
-  <div id="al-lista"></div>
+  <!-- Osiot supistuvat otsikon vieressä olevasta salmiakista (käyttäjän pyyntö 21.10.2026); tila muistetaan. -->
+  <details class="m-osio" data-kiinni="kmKiinni" open><summary><h3>Kirjanmerkit</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+    <div id="km-lista"></div></details>
+  <details class="m-osio" data-kiinni="alKiinni" open><summary><h3>Alleviivaukset ja kirjaukset</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+    <div id="al-lista"></div></details>
 </div>
 
 <div class="valikko" id="pop" hidden></div>
@@ -413,9 +424,10 @@
 
   /* ---------- asetukset ---------- */
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena viedään kaikki).
+  // kmKiinni, alKiinni: merkintälistan supistetut osiot.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'liehu', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 3, kmJanalla: 1,
-    vieAl: 1, vieKm: 1, vieKi: 1, av: 2 };
+    vieAl: 1, vieKm: 1, vieKi: 1, kmKiinni: 0, alKiinni: 0, av: 2 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -1279,6 +1291,10 @@
   $('#ala-nappi').addEventListener('click', function () { avaaJana($('#jana').hidden); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
+  $$('#merkinnat details.m-osio').forEach(function (d) {
+    d.open = !aset[d.dataset.kiinni];
+    d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
+  });
 
   var JANA = { pad: 13, y: 21 };
   function janaKohteet() {
