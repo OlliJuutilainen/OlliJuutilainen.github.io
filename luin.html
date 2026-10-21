@@ -276,7 +276,7 @@
   #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
   /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit aina kuparisina.
      Käyttäjän päätös 21.10.2026 nuottien mukaan (suurempi aika-arvo ontompi): pääluku iso ja ontto
-     (paperin värinen täyte peittää viivan), alaluku pienempi ja täytetty, alaluvun alaluku lähes piste. */
+     (paperin värinen täyte peittää viivan), alaluku pienempi ja täytetty, alaluvun alaluku lähes piste. Koot: JANA.koko. */
   .j-viiva { stroke: var(--muste); stroke-width: 1; fill: none; }
   .j1 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; }
   .j2, .j3 { fill: var(--muste); }
@@ -1509,7 +1509,10 @@
     d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
   });
 
-  var JANA = { pad: 13, y: 21 };
+  // Etappimerkkien puolileveys ja -korkeus. Käyttäjän päätös 21.10.2026: kaikki pienemmiksi (pääluku
+  // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), ja nykyisen kohdan
+  // jälkeiset vielä 0,75-kertaisiksi luettuihin verrattuna. Kirjanmerkit eivät ole etappeja.
+  var JANA = { pad: 13, y: 21, tuleva: .75, koko: { 1: [4.48, 5.92], 2: [2.94, 3.92], 3: [1.19, 1.61] } };
   function janaKohteet() {
     var a = [];
     nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
@@ -1526,13 +1529,14 @@
     var s = '<path class="j-viiva" d="M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + cx + '"/>' +
       '<g' + (nf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="M' + cx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/></g>';
     janaKohteet().forEach(function (m) {
-      var f = osuus(m.k), x = X(f), d;
+      var f = osuus(m.k), x = X(f), on = m.km || f <= nf, d;
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
-      else if (m.lvl === 1) d = '<path class="j1" d="' + sal(x, y, 5.6, 7.4) + '"/>';
-      else if (m.lvl === 2) d = '<path class="j2" d="' + sal(x, y, 4.2, 5.6) + '"/>';
-      else d = '<path class="j3" d="' + sal(x, y, 1.7, 2.3) + '"/>';
+      else {
+        var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl], kerroin = on ? 1 : JANA.tuleva;
+        d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0] * kerroin, r[1] * kerroin) + '"/>';
+      }
       d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
-      if (m.km || f <= nf) luettu += d; else tuleva += d;
+      if (on) luettu += d; else tuleva += d;
     });
     s += '<g class="tuleva">' + tuleva + '</g>' + luettu;
     var osoitin = '<path class="j-nyt-v" d="M0 9V' + (y + 13) + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
