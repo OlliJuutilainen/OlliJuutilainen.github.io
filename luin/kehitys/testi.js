@@ -47,9 +47,10 @@ palvelin.listen(0, async () => {
       lahteet: document.querySelectorAll('p.bib').length, varoitukset: d.warnings.length };
   });
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
-  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan.
+  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan tai lyhenteen selitykseen.
   const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
-    return { n: a.length, rikki: a.filter(x => { const k = document.getElementById(x.getAttribute('href').slice(1)); return !k || !k.classList.contains('bib'); }).length }; });
+    const ok = k => k && (k.classList.contains('bib') || /^lyh-/.test(k.id) && k.closest('#teksti'));
+    return { n: a.length, lyh: a.filter(x => /^#lyh-/.test(x.getAttribute('href'))).length, rikki: a.filter(x => !ok(document.getElementById(x.getAttribute('href').slice(1)))).length }; });
   tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 
@@ -402,12 +403,31 @@ palvelin.listen(0, async () => {
     const a = Object.assign({}, L.tila.ankkuri), y = scrollY;
     L.hyppaa({ b: n - 1, o: 0 }); await odota();
     const iso = nakyy() && !!document.querySelector('#jana-svg .j-majakka');
+    // Lähtökohta jäi taakse: nuoli ylös.
+    const ylos = document.getElementById('majakka').classList.contains('ylos');
     document.getElementById('majakka-palaa').click(); await odota();
     const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
     L.hyppaa({ b: a.b + 1, o: 0 }); await odota();
-    return { iso, takaisin, pieni: !nakyy() };
+    return { iso, ylos, takaisin, pieni: !nakyy() };
   });
-  tulos('paluumajakka', mj.iso && mj.takaisin && mj.pieni, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni, JSON.stringify(mj));
+
+  // Alaviitteen lyhennelinkki (md.js, viittaukset()) vie lyhenteen selitykseen; lähtökohta on edempänä,
+  // joten nuoli osoittaa alas, ja paluu vie takaisin.
+  const ly = await p.evaluate(async () => {
+    const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300));
+    const linkit = [...document.querySelectorAll('#teksti a.lahde[href^="#lyh-"]')];
+    if (!linkit.length) return { ohitettu: true };
+    const a = linkit[linkit.length - 1], kohde = document.getElementById(a.getAttribute('href').slice(1));
+    const b0 = +a.closest('[data-b]').dataset.b;
+    L.hyppaa({ b: b0, o: 0 }); await odota();
+    a.click(); await odota();
+    const mj = document.getElementById('majakka'), perilla = L.tila.ankkuri.b === +kohde.dataset.b;
+    const alas = !mj.hidden && !mj.classList.contains('ylos');
+    document.getElementById('majakka-palaa').click(); await odota();
+    return { linkkeja: linkit.length, perilla, alas, takaisin: L.tila.ankkuri.b === b0 };
+  });
+  tulos('lyhennelinkki', ly.ohitettu || ly.perilla && ly.alas && ly.takaisin, JSON.stringify(ly));
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();

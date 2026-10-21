@@ -177,7 +177,8 @@
     esikatsele();
   }
 
-  // Alaviitteiden lähdeviittaukset, joista Luin tekee linkin kirjallisuusluetteloon (md.js, viittaukset()).
+  // Alaviitteiden lähdeviittaukset ja lyhenteet, joista Luin tekee linkin kirjallisuusluetteloon tai lyhenteiden
+  // selitykseen (md.js, viittaukset()).
   // Linkitetyt ryhmitellään luettelon kohdan mukaan; linkittä jääneistä kerrotaan rivi ja syy.
   var PERUSTE = { ainoa: 'ainoa tämän tekijän kohta luettelossa', karsinta: 'muihin tämän tekijän kohtiin viitataan vuodella' };
   function lahteet(vv) {
@@ -190,9 +191,9 @@
       if (!r.maara[v.teksti]) { r.maara[v.teksti] = 0; r.tekstit.push(v.teksti); }
       r.maara[v.teksti]++;
     });
-    var linkit = vv.length - ilman.length;
+    var linkit = vv.length - ilman.length, lyh = vv.filter(function (v) { return v.syy === 'lyhenne'; }).length;
     return '<div class="otsake">Lähdeviittaukset alaviitteissä</div>' +
-      '<p class="pieni" style="margin:0 0 10px">' + linkit + ' linkitetään kirjallisuusluetteloon' + (ilman.length ? ', ' + ilman.length + ' jää ilman linkkiä' : '') + '.</p>' +
+      '<p class="pieni" style="margin:0 0 10px">' + (linkit - lyh) + ' linkitetään kirjallisuusluetteloon' + (lyh ? ', ' + lyh + ' lyhenteiden selitykseen' : '') + (ilman.length ? ', ' + ilman.length + ' jää ilman linkkiä' : '') + '.</p>' +
       '<ul class="lahteet">' + ryhmat.map(function (r) {
         return '<li><b>' + esc(r.kohde) + '</b> ← ' + r.tekstit.map(function (t) {
           return esc(t) + (r.maara[t] > 1 ? ' ×' + r.maara[t] : '');
