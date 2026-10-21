@@ -547,6 +547,17 @@ Käyttäjän vaatimukset 20.10.2026:
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
+  - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
+    vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
+  - *Edistyminen alapalkissa*: Näkyy (oletus) / Piilossa. Sivunäkymässä se on edelleen sivunumero.
+  - Valinnan valikko: *Alleviivaa | Kirjaa | Kopioi |* kuparinen nauha (12 × 20 px, ei sanaa *Kirjanmerkki*).
+    **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
+    merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
+  - *Vie merkinnät tekstitiedostoon* on asetusten alimpana supistettuna; oletuksena alleviivaukset ja kirjaukset,
+    ei kirjanmerkkejä. Muotosäännöt (`merkinnatMd()`): otsikot tekstin hierarkian mukaan vain osioille, joissa on
+    vietävää, saman osion merkinnät `---`:llä erotettuina; `KIRJANMERKKI n`, jonka perään virke vain jos
+    alleviivauksia ei viedä; kirjaus lainauksen jälkeen; pelkät kirjaukset luettelona.
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
   laatikko on Chromiumissa edellisen rivin lopun tavuviiva (6,7 px, edellisellä sivulla).
