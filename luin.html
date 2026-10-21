@@ -323,7 +323,10 @@
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
   .laatikko svg { width: 14px; height: 11px; flex: 0 0 auto; }
-  #etsi-avaa svg { width: 15px; height: 15px; }
+  /* Lasin painopiste on linssissä, joten keskitettynä se jäi 1,7 px Etsi-sanan musteen painopisteen
+     yläpuolelle (mitattu pikseleistä). Chromium piirtää kuvakkeen kokonaiseen pikseliin (722,5 → 723), joten
+     2 px:n siirto (→ 725) jättää painopisteen 0,2–0,6 px tekstin alle (DPR 1–4). Laatikon koko ennallaan. */
+  #etsi-avaa svg { width: 15px; height: 15px; position: relative; top: 2px; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
