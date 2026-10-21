@@ -624,7 +624,8 @@ Käyttäjän vaatimukset 20.10.2026:
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
-  laatikko *Palaa takaisin* raksin kera ja aikajanalle kummitusmerkki (ontto kolmio, katkoviiva). Katoaa vain raksista,
+  laatikko *Palaa takaisin* raksin kera ja aikajanalle kummitusmerkki (ontto kolmio, katkoviiva). Laatikon kolmio osoittaa
+  paluun suuntaan (käyttäjän sääntö 21.10.2026): lähtökohta taaempana ylös, edempänä alas; päivittyy myös vieritettäessä. Katoaa vain raksista,
   paluusta, tekstin napautuksesta tai uudesta isosta hypystä (joka jättää uuden). Peräkkäiset hakuosumat säilyttävät
   ensimmäisen lähtökohdan. Ei tallenneta.
 - **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
@@ -633,6 +634,11 @@ Käyttäjän vaatimukset 20.10.2026:
   missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
   `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
   ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
+  **Lyhenteet** (käyttäjän päätös 21.10.2026; opas, luku 3.4): ei merkintöjä tiedostoon. Osio, jonka otsikossa on
+  *lyhent* (tai *abbreviation*), määrittelee lyhenteiksi kursivoidut yksittäiset 2–5 kirjaimen sanat, joissa on vähintään
+  kaksi versaalia (*GMS*, *MS*, *KpV*, *KrV*; ei *A*). Alaviitteen lyhenne ja paikannin (`GMS 4:429`, `KrV A1/B1`, `KrV BXXX`)
+  linkittyy kappaleeseen tai luettelon kohtaan, jossa lyhenne ensin määritellään (id `lyh-<lyhenne>`). Selitysosiosta ei
+  linkitetä edelleen kirjallisuusluetteloon eikä leipätekstiin tule linkkejä (käyttäjän päätös: minimalismi).
 - Haku (käyttäjän säännöt 21.10.2026; opas, luku 4.7): aikajanan alla *Merkinnät*-laatikon oikealla puolella laatikko
   *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,
   kuin lainausmerkeissä; ei JA eikä TAI); lainausmerkeissä sana on kokonainen (*"kant"* ei löydä sanaa *kantilainen*).

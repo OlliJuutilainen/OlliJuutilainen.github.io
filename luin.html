@@ -316,6 +316,9 @@
   #majakka button { display: flex; align-items: center; gap: 8px; height: 100%; padding: 0 11px; }
   #majakka button + button { border-left: 1px solid var(--viiva); padding: 0 11px; }
   #majakka .m-kolmio { width: 9px; height: 8px; fill: var(--paperi); stroke: var(--harmaa); stroke-width: 1; }
+  /* Kolmio osoittaa paluun suuntaan (käyttäjän sääntö 21.10.2026): lähtökohta tekstissä edempänä alas,
+     taaempana ylös. */
+  #majakka.ylos .m-kolmio { transform: rotate(180deg); }
   #majakka .m-sulje { width: 9px; height: 9px; stroke: var(--harmaa); stroke-width: 1.2; fill: none; }
   .j-maj { fill: var(--paperi); stroke: var(--harmaa); stroke-width: .9; }
   .j-maj-v { stroke: var(--harmaa); stroke-width: .9; stroke-dasharray: 1.5 2; }
@@ -1136,6 +1139,7 @@
     $('#sivunapit').hidden = aset.sivutus !== 'sivut';
     natsanPaikka();
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
+    majakanSuunta();
     piirraKirjanmerkit();
     var lit = nakyvatKirjanmerkit().length > 0;
     $('#km-nappi').setAttribute('aria-pressed', String(lit));
@@ -1599,7 +1603,16 @@
     var m = nyt && nyt.majakka, o = m && osioKohdassa(m.k);
     $('#majakka').hidden = !m;
     if (m) $('#majakka-palaa').title = 'Palaa: ' + (o ? o.text : nyt.e.title);
+    majakanSuunta();
     piirraJana();
+  }
+  // Lähtökohta ennen nykyistä kohtaa → nuoli ylös. Päivitetään myös vierittäessä ja sivua käännettäessä,
+  // koska ne eivät poista majakkaa ja voivat viedä lähtökohdan ohi.
+  function majakanSuunta() {
+    var m = nyt && nyt.majakka, k = tila.ankkuri;
+    if (!m || !k) return;
+    var a = m.k, ed = (a.ed || 0) - (k.ed || 0);
+    $('#majakka').classList.toggle('ylos', a.b !== k.b ? a.b < k.b : ed ? ed > 0 : a.o < k.o);
   }
   function poistaMajakka() { if (nyt && nyt.majakka) { nyt.majakka = null; piirraMajakka(); } }
   function palaa() {

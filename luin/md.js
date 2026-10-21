@@ -238,21 +238,44 @@
      - Sukunimi ja muu paikannin (Korsgaard 8.1.2, sisältönumerointi tms.): luettelossa tasan
        yksi tämän tekijän kohta, tai tasan yksi sellainen, johon tekstissä ei viitata missään
        vuosiluvulla. Vuodella viitatut teokset erottuvat siis karsimalla.
-     Muuten linkkiä ei tule. Lyhenteet (GMS, KrV) eivät ole luettelon tekijöitä, joten niitä ei
-     linkitetä. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti, vuosi
-     ensimmäinen sulkeissa oleva vuosi tai s.a. */
+     Muuten linkkiä ei tule. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti,
+     vuosi ensimmäinen sulkeissa oleva vuosi tai s.a.
+     Lyhenteet (käyttäjän päätös 21.10.2026; ei merkintöjä tiedostoon): osio, jonka otsikossa on
+     "lyhent" (Lyhenteet, Viittauksista ja niiden lyhenteistä), määrittelee lyhenteiksi kursivoidut
+     yksittäiset 2–5 kirjaimen sanat, joissa on vähintään kaksi versaalia (*GMS*, *KpV*, *KrV*; ei
+     *A*, ei teosten nimiä). Alaviitteen lyhenne ja sen perässä mahdollinen paikannin (GMS 4:429,
+     KrV A1/B1, KrV BXXX) linkittyy kappaleeseen tai luettelon kohtaan, jossa lyhenne ensimmäisen
+     kerran määritellään. */
   var VUOSI = /^(?:1[5-9]\d\d|20\d\d)[a-z]?$|^s\.\s?a\.$/;
   function vuosiAvain(v) { return v.replace(/\s/g, ''); }
   function reEsc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  var LYH = /lyhent|abbreviation/i;
+  var LYH_EM = /(^|[^*_\p{L}\p{N}])([*_])(\p{L}{2,5})\2(?![*_\p{L}\p{N}])/gu;
 
-  // tokens: blocksOf()-lista. Merkitsee luettelon kappaleisiin t.kirja = { nimi, vuosi, id, ots }.
+  // tokens: blocksOf()-lista. Merkitsee luettelon kappaleisiin t.kirja = { nimi, vuosi, id, ots }
+  // ja lyhenteen määrittelevään kappaleeseen tai luettelon kohtaan t.lyhId.
   function viittaukset(tokens, uniq) {
-    var kohdat = [], inBib = false;
+    var kohdat = [], inBib = false, lyhTaso = 0, lyhOts = '', lyh = {};
+    function maarittele(x, teksti) {
+      var m; LYH_EM.lastIndex = 0;
+      while ((m = LYH_EM.exec(teksti))) {
+        var a = m[3];
+        if ((a.match(/\p{Lu}/gu) || []).length < 2 || lyh[a]) continue;
+        if (!x.lyhId) x.lyhId = uniq('lyh-' + slug(a));
+        lyh[a] = { id: x.lyhId, ots: a + ' (' + lyhOts + ')' };
+      }
+    }
     tokens.forEach(function (t) {
       if (t.t === 'h') {
-        var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
-        if (lvl === 2) inBib = BIB.test(plain(t.text).trim());
+        var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), tx = plain(t.text).trim();
+        if (lvl === 2) inBib = BIB.test(tx);
+        if (lyhTaso && lvl <= lyhTaso) lyhTaso = 0;
+        if (!lyhTaso && LYH.test(tx)) { lyhTaso = lvl; lyhOts = tx; }
         return;
+      }
+      if (lyhTaso) {
+        if (t.t === 'p') maarittele(t, t.text);
+        else if (t.items) t.items.forEach(function (it) { maarittele(it, it.text); });
       }
       if (!inBib || t.t !== 'p') return;
       var tx = plain(t.text).trim();
@@ -263,15 +286,20 @@
       t.kirja = k;
       kohdat.push(k);
     });
-    if (!kohdat.length) return null;
+    var lyhenteet = Object.keys(lyh);
+    if (!kohdat.length && !lyhenteet.length) return null;
     var nimet = {};
     kohdat.forEach(function (k) { (nimet[k.nimi] = nimet[k.nimi] || []).push(k); });
-    var re = new RegExp('(^|[^\\p{L}\\p{N}])(' + Object.keys(nimet).sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
+    // Lyhenne ja paikannin: numeroita (4:429, 6:442–44), painoksen kirjain ja numero (A1/B1) tai
+    // roomalainen numero (BXXX).
+    var lyhRe = lyhenteet.length ? new RegExp('(^|[^\\p{L}\\p{N}])(' + lyhenteet.sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
+      ')(?![\\p{L}\\p{N}])(?:\\s+\\p{Lu}{0,2}(?:\\d(?:[\\d.:–\\-\\/\\p{Lu}]*\\d)?|[IVXLC]+)(?![\\p{L}\\p{N}]))?', 'gu') : null;
+    var re = !kohdat.length ? null : new RegExp('(^|[^\\p{L}\\p{N}])(' + Object.keys(nimet).sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
       ')\\s+((?:1[5-9]\\d\\d|20\\d\\d)[a-z]?(?![\\p{L}\\p{N}]|[.:]\\d)|s\\.\\s?a\\.|\\d+(?:[.:]\\d+)*(?![\\p{L}\\p{N}]))', 'gu');
 
     // Vuodella viitatut kohdat koko tekstistä (luettelo itse pois).
     var vuodella = {};
-    (function kay(list) {
+    if (re) (function kay(list) {
       list.forEach(function (t) {
         if (t.kirja) return;
         if (t.kids) return kay(t.kids);
@@ -302,15 +330,22 @@
 
     // Alaviitteen tekstin linkitys. Kirjaa tuloksen Latomon raporttiin.
     function linkita(teksti, kirjaa) {
-      var out = '', last = 0, m;
-      re.lastIndex = 0;
-      while ((m = re.exec(teksti))) {
-        var alku = m.index + m[1].length, loppu = m.index + m[0].length, r = ratkaise(m[2], m[3]);
-        kirjaa(teksti.slice(alku, loppu), r);
-        if (!r.k) continue;
-        out += esc(teksti.slice(last, alku)) + '<a class="lahde" href="#' + r.k.id + '">' + esc(teksti.slice(alku, loppu)) + '</a>';
-        last = loppu;
+      var osumat = [], out = '', last = 0, m;
+      if (re) {
+        re.lastIndex = 0;
+        while ((m = re.exec(teksti))) osumat.push({ alku: m.index + m[1].length, loppu: m.index + m[0].length, r: ratkaise(m[2], m[3]) });
       }
+      if (lyhRe) {
+        lyhRe.lastIndex = 0;
+        while ((m = lyhRe.exec(teksti))) osumat.push({ alku: m.index + m[1].length, loppu: m.index + m[0].length, r: { k: lyh[m[2]], syy: 'lyhenne' } });
+      }
+      osumat.sort(function (a, b) { return a.alku - b.alku; }).forEach(function (o) {
+        if (o.alku < last) return;
+        kirjaa(teksti.slice(o.alku, o.loppu), o.r);
+        if (!o.r.k) return;
+        out += esc(teksti.slice(last, o.alku)) + '<a class="lahde" href="#' + o.r.k.id + '">' + esc(teksti.slice(o.alku, o.loppu)) + '</a>';
+        last = o.loppu;
+      });
       return out + esc(teksti.slice(last));
     }
     return { kohdat: kohdat, linkita: linkita };
@@ -321,7 +356,7 @@
       meta: etukentän avaimet (viite, osoite, otsikko, tekijä, vuosi …),
       title, sub, lines (tietorivit), author, year,
       toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg }],
-      viittaukset: alaviitteiden lähdeviittaukset [{ ln, teksti, kohde: luettelon kohta tai '', syy }]
+      viittaukset: alaviitteiden lähdeviittaukset ja lyhenteet [{ ln, teksti, kohde: luettelon kohta, lyhenne tai '', syy }]
     }
   */
   function parse(src) {
@@ -410,14 +445,14 @@
         } else if (t.t === 'p') {
           if (/^!\[/.test(t.text)) warn('Kuvia ei tueta: “' + t.text.slice(0, 40) + '”');
           if (/^\|.*\|\s*$/m.test(t.text)) warn('Taulukoita ei tueta; rivit näkyvät tekstinä.');
-          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : '');
+          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : t.lyhId || '');
         } else if (t.t === 'hr') {
           h += '<hr>';
         } else if (t.t === 'bq') {
           h += '<blockquote>' + render(t.kids, true) + '</blockquote>';
         } else if (t.t === 'ol' || t.t === 'ul') {
           h += t.t === 'ol' ? '<ol class="enum"' + (t.start !== 1 ? ' start="' + t.start + '"' : '') + '>' : '<ul class="luettelo">';
-          t.items.forEach(function (it) { curLn = it.ln; h += blk('li', '', it.text); });
+          t.items.forEach(function (it) { curLn = it.ln; h += blk('li', '', it.text, null, it.lyhId || ''); });
           h += t.t === 'ol' ? '</ol>' : '</ul>';
         } else if (t.t === 'pre') {
           h += '<pre data-b="' + (b++) + '"><code>' + esc(t.text) + '</code></pre>';
