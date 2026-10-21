@@ -93,6 +93,8 @@ Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta) saa
 
 `## Kirjallisuus` (tai Lähteet, Lähdeluettelo, Bibliografia, References) tekee seuraavista kappaleista riippuvasisennettyjä seuraavaan `##`-otsikkoon asti.
 
+Alaviitteen lähdeviittaus muuttuu linkiksi luettelon kohtaan, kun yhteys on varma. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti ja vuosi ensimmäinen sulkeissa oleva vuosi (`Kant, Immanuel (2017a).`, `Syrjintä (s.a.).`). Sukunimi ja vuosi (*Singer 2023*) linkittyy, jos luettelossa on tasan yksi tämän tekijän tämän vuoden kohta. Sukunimi ja muu paikannin (*Korsgaard 8.1.2*) linkittyy, jos tekijältä on luettelossa vain yksi kohta tai vain yksi, johon tekstissä ei missään viitata vuosiluvulla. Muuten linkkiä ei tule, eikä lyhenteitä (*GMS*, *KrV*) linkitetä. Latomo luettelee tarkistuksessa, mitkä viittaukset linkittyvät mihin ja miksi jokin jää ilman. Linkki on alaotsikon harmaa eikä ruoste, haalealla alleviivauksella.
+
 ### 3.5 Etukenttä
 
 Tiedoston alussa voi olla etukenttä:

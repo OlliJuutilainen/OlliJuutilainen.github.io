@@ -86,6 +86,10 @@
   .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
   .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px)); }
   .valikko.viite .nro { color: var(--ruoste); font-family: var(--groteski); font-size: .75em; margin-right: .4em; }
+  /* Alaviitteen lähdeviittaus kirjallisuusluetteloon (md.js, viittaukset()): käyttäjän päätös 21.10.2026,
+     ei ruostetta vaan alaotsikon harmaa; haalea alleviivaus kertoo, että sitä voi napauttaa. */
+  #teksti a.lahde, .valikko.viite a.lahde { color: var(--harmaa); text-decoration: underline; text-decoration-color: var(--viiva);
+    text-decoration-thickness: 1px; text-underline-offset: .18em; }
   .valikko.rivi .esi { flex: 1 0 100%; }
   .valikko .esi.kir { white-space: pre-wrap; font-style: italic; }
   .valikko button.km-ikoni { display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; color: var(--ruoste); }
@@ -661,6 +665,17 @@
   }
   pop.addEventListener('mousedown', function (e) { if (!e.target.closest('textarea')) e.preventDefault(); });
   pop.addEventListener('click', function (e) {
+    // Sivutetun näkymän alaviite: lähdeviittaus vie kirjallisuusluetteloon, muut linkit uuteen välilehteen.
+    var a = e.target.closest('a[href]');
+    if (a) {
+      var href = a.getAttribute('href');
+      if (href.charAt(0) !== '#') { a.target = '_blank'; a.rel = 'noopener'; return; }
+      e.preventDefault();
+      var kohde = document.getElementById(href.slice(1));
+      suljePop();
+      if (kohde && kohde.dataset.b) mene({ b: +kohde.dataset.b, o: 0 });
+      return;
+    }
     var b = e.target.closest('button[data-k]');
     if (!b || !popToiminto) return;
     if (popToiminto(b.dataset.k, b) !== true) suljePop();

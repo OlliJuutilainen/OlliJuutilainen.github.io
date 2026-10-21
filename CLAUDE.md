@@ -562,6 +562,12 @@ Käyttäjän vaatimukset 20.10.2026:
   sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
   transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
+  *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
+  vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
+  missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
+  `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
+  ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
 - Asetukset ja merkinnät (käyttäjän päätökset 21.10.2026; opas, luvut 4.3–4.6):
   - **Kirjasinvalinta poistettu.** Groteski näytti valikkojen, salmiakkien ja logon kanssa hirveältä; se palaa
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
