@@ -546,12 +546,15 @@ Käyttäjän vaatimukset 20.10.2026:
   ylempänä ja viiva 2,1 → 2,5 (viewBox:n korkeus ennallaan, joten LUiN ei muuttanut kokoaan). Pienen L:n
   alaviivan pää N:n alaosan reunaan (x 190) kokeiltiin ja hylättiin.
 - Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
-- Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä, hyvin haalea
-  kirjanmerkin ääriviiva (`#km-nappi`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi
+- Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä
+  kirjanmerkin ääriviiva (`#km-nappi`; ohut viiva alapalkin tekstien värillä `--harmaa`, aiemmin hyvin haalea `--viiva`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi
   (`--ruoste`), kun ruudulla (sivutettuna tällä sivulla) on kirjanmerkki; silloin napautus poistaa näkyvät
   kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
+  Alapalkin oikeassa reunassa on natsa (11 × 6,5 px, viiva 1 px kuten kirjanmerkissä; käyttäjän päätös 21.10.2026):
+  kiinni ylös osoittava ja hyvin haalea (`--viiva`), auki alas osoittava ja tekstien värinen (`--harmaa`), kehotuksena
+  sulkea aikajana. Se korvasi salmiakin (ääriviiva kiinni, täytetty auki). Tila tulee CSS:ssä `aria-expanded`ista.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
   eikä teksti liiku ennen irrotusta. Sivutettuna vapaa kohta pyöristetään sivun alkuun (`sivunAlku()`), joten osoitin hyppää
   sivu kerrallaan; sivujakoa ei lasketa uudelleen hyppykohdasta (sivunumerot muuttuisivat). Liikkeessä vain `#j-veto`:n
