@@ -200,7 +200,7 @@
   .j3 { fill: var(--harmaa); }
   .j-km { fill: var(--ruoste); }
   .j-nyt { fill: var(--muste); }
-  .j-nyt-v { stroke: var(--muste); stroke-width: 1; }
+  .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
   .jana-napit { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 2px 0 4px; }
   .jana-napit button { min-height: 40px; display: inline-flex; align-items: center; gap: 8px; font-size: .86rem; }
   .jana-napit svg { width: 8px; height: 13px; fill: var(--ruoste); }
@@ -218,7 +218,10 @@
   .valinnat { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; }
   .valinnat button { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; color: var(--harmaa); font-size: .9rem; }
   .valinnat button[aria-pressed="true"] { color: var(--muste); }
-  .valinnat svg { width: 8px; height: 11px; flex: 0 0 auto; }
+  .valinnat svg { width: 9px; height: 12.4px; flex: 0 0 auto; }
+  .valinnat .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
+  .valinnat .sal-sisa { fill: none; }
+  .valinnat button[aria-pressed="true"] .sal-sisa { fill: currentColor; }
   .valinnat .arvo { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums lining-nums; }
   .valinnat button.askel { width: 40px; justify-content: center; font-size: 1.05rem; color: var(--muste); }
   .huomio { font-size: .78rem; color: var(--harmaa); line-height: 1.5; margin: 14px 0 0; font-style: italic; }
@@ -544,7 +547,8 @@
   $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', suljePaneelit); });
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () { suljePop(); piirraAsetukset(); $('#asetukset').hidden = false; }); });
 
-  var SAL_IKONI = '<svg viewBox="0 0 8 11"><path class="sal" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>';
+  // Kaksi sisäkkäistä salmiakkia: ulompi aina ääriviivana, vain sisin täyttyy valittaessa.
+  var SAL_IKONI = '<svg viewBox="0 0 8 11"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
   function piirraAsetukset() {
     $$('#asetukset .valinnat[data-v]').forEach(function (v) {
       var a = v.parentNode.dataset.a;
