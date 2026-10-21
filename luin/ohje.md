@@ -124,7 +124,7 @@ Lukukohta on ensimmäinen näkyvä merkki: `{ b: lohko, o: merkki, s: katkelma }
 
 Tekstin valinta avaa valikon (Alleviivaa, Kopioi, Kirjanmerkki). Automaattisessa tilassa valinta muuttuu heti alleviivaukseksi: hiirellä painikkeen noustessa, kosketuksella kun valinta on pysynyt 1,2 sekuntia samana. Kesken sanan alkava valinta laajenee koko sanaan. Alleviivauksen napautus antaa kopioida katkelman tai poistaa sen.
 
-Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva, myös aikajanan ollessa kiinni) tai aikajanan alta laatikosta *Aseta kirjanmerkki* nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja laatikossa lukee *Poista kirjanmerkki*; kumpikin poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit ja alleviivaukset ovat listana aikajanan alla laatikossa *Merkinnät*.
+Kirjanmerkki lisätään alapalkin vasemman reunan nauhasta (ääriviiva, myös aikajanan ollessa kiinni) nykyiseen kohtaan, tai valinnan alkuun. Kun ruudulla (sivutettuna sivulla) on kirjanmerkki, nauha on kuparinen ja sen napautus poistaa näkyvät kirjanmerkit. Tekstissä kirjanmerkki on nauha vasemmassa reunuksessa sen rivin kohdalla. Kirjanmerkit ja alleviivaukset ovat listana aikajanan alla laatikossa *Merkinnät*.
 
 ### 4.4 Aikajana
 
