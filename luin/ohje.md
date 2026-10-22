@@ -310,6 +310,8 @@ Kentät esitäytetään etukentästä ja tekstistä (`doc.tiedot`), kunnes käyt
 
 Julkaisuajan tarkkuus valitaan kentän vieressä: blogissa vuodesta minuuttiin, muilla päivään asti. Itse kirjoitettu aika ja tekstissä ilmoitettu aika säilyttävät tarkkuutensa; koneen aikaleima (T-muoto) ilmoitetaan tyypin oletuksella, joka on kuukausi (kaunokirjallisella vuosi).
 
+*Tyhjennä kentät* (käyttäjän pyyntö 22.10.2026) näkyy tekstikentän alla, kun siinä on tekstiä. Se tyhjentää tekstin, kentät, oman viitteen, julkisen osoitteen ja tiedoston nimen (`alusta()`); MarkDownload-kytkin on asetus ja säilyy. Vahvistus on tekstikentän alla omalla rivillään: *”Oletko aivan varma?” sanoi Lasse Lehtinen.*, napit *Olen, tyhjennä* ja *älä!* (kuten Luinin poiston vahvistuksessa). Esc peruu.
+
 Ehdotukset (napit) muuttavat tekstikenttää vain painettaessa: MarkDownload-tilan käyttöönotto, sivuston nimen erotus otsikon lopusta, `^[…]` → `[^…]`, rivit kappaleiksi tai runon rivinvaihdot kenoviivoin, proosalta näyttävien sisennettyjen kohtien palautus koodista tekstiksi ja otsikko ensimmäisestä rivistä tai tiedoston nimestä.
 
 ### 7.2 Lähdeviite

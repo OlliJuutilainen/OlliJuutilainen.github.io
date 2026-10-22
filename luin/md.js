@@ -550,7 +550,7 @@
   /* ---------- Päivämäärät ----------
      pvm(teksti) → { y, m, d, h, mi, t } tai null; t on tarkkuus: 1 vuosi, 2 kuukausi, 3 päivä, 4 minuutti.
      Kelpaavat ISO (2026-10-08T14:05), 8.10.2026 (klo 14.05), 8. lokakuuta 2026, lokakuussa 2026,
-     lokakuu/2026, 10/2026, englanninkieliset kuukaudet ja pelkkä vuosi. Etukenttään tallennetaan ISO
+     lokakuu/2026, 10/2026 (myös 10/26 = lokakuu 2026, vain koko kentän arvona), englanninkieliset kuukaudet ja pelkkä vuosi. Etukenttään tallennetaan ISO
      siihen tarkkuuteen, joka halutaan ilmoittaa (2026-10 = kuukausi). */
   var KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
   var KK_EN = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -564,7 +564,8 @@
     var t = h != null ? 4 : d ? 3 : m ? 2 : 1;
     return { y: y, m: m || null, d: t >= 3 ? d : null, h: t === 4 ? h : null, mi: t === 4 ? mi : null, t: t };
   }
-  function pvm(s) {
+  // tiukka: ei kaksinumeroista vuotta (tekstiriveiltä päätellessä 3/14 ei saa tulla maaliskuuksi 2014).
+  function pvm(s, tiukka) {
     s = String(s || '').trim();
     if (!s) return null;
     var m, kk;
@@ -576,6 +577,7 @@
     if ((m = RE_KK.exec(s)) && (kk = /\b(1[5-9]\d\d|2\d\d\d)\b/.exec(s.slice(m.index)))) return pvmOlio(+kk[1], KK.indexOf(m[1].toLowerCase()) + 1);
     if ((m = new RegExp('\\b' + RE_EN + '\\s+(\\d{4})\\b', 'i').exec(s))) return pvmOlio(+m[2], KK_EN.indexOf(m[1].slice(0, 3).toLowerCase()) + 1);
     if ((m = /\b(\d{1,2})\s*[\/.]\s*(\d{4})\b/.exec(s))) return pvmOlio(+m[2], +m[1]);
+    if (!tiukka && (m = /^(\d{1,2})\s*\/\s*(\d{2})$/.exec(s)) && m[1] >= 1 && m[1] <= 12) return pvmOlio(2000 + +m[2], +m[1]);
     if ((m = /\b(1[5-9]\d\d|2\d\d\d)\b/.exec(s))) return pvmOlio(+m[1]);
     return null;
   }
@@ -977,7 +979,7 @@
     // tietoriveiltä löytyvä päiväys (lokakuussa 2026, 8.10.2026).
     res.lines.forEach(function (l) {
       if (/^\p{Lu}[\p{L}'’.-]+(\s+\p{Lu}[\p{L}'’.-]*){1,3}$/u.test(l)) auth = l;
-      var p = pvm(l);
+      var p = pvm(l, true);
       if (p && (!jp || p.t > jp.t)) jp = p;
     });
     res.paatelty = { otsikko: res.title, alaotsikko: res.sub, 'tekijä': auth, julkaistu: jp ? pvmIso(jp) : '' };

@@ -198,6 +198,18 @@ palvelin.listen(0, async () => {
   tulos('tieteellisessä teos tietorivillä', await p.textContent('.kentta[data-k="teos"] label') === 'Osana teosta tai lehteä' && !(await p.$('#tiedot .ala')) &&
     /Sammakon seikkailut/.test(await p.textContent('#tiedot .meta')), await p.textContent('#tiedot'));
 
+  // Blogin etusivu: monta linkitettyä väliotsikkoa ja juuriosoite lähteenä → varoitus, Ohita piilottaa sen; yksittäisen kirjoituksen osoite ei laukaise.
+  const ETUSIVU = (lahde) => `---\nlähde: ${lahde}\nhaettu: 2026-10-22\n---\n\n# Blogi\n\n### [Yksi][1]\n\nTeksti yksi.\n\n### [Kaksi][2]\n\nTeksti kaksi.\n\n### [Kolme][3]\n\nTeksti kolme.\n\n[1]: https://blogi.example/2026/10/yksi.html\n[2]: https://blogi.example/2026/09/kaksi.html\n[3]: https://blogi.example/2026/07/kolme.html\n`;
+  const varoitus = () => p.locator('.ehdotus', { hasText: 'blogin etusivulta' }).count();
+  await p.goto(BASE + 'luin/latomo.html');
+  await syota(ETUSIVU('https://blogi.example/'));
+  tulos('etusivuvaroitus', (await varoitus()) === 1);
+  await p.click('.ehdotus:has-text("blogin etusivulta") button:has-text("Ohita")');
+  await p.waitForTimeout(300);
+  tulos('etusivuvaroitus ohitettu', (await varoitus()) === 0);
+  await syota(ETUSIVU('https://blogi.example/2026/10/yksi.html'));
+  tulos('yksittäisessä kirjoituksessa ei varoitusta', (await varoitus()) === 0);
+
   // 8. Puhelimen leveys: ei vaakavieritystä.
   await p.setViewportSize({ width: 360, height: 760 });
   await p.goto(BASE + 'luin/latomo.html');
@@ -207,6 +219,35 @@ palvelin.listen(0, async () => {
   const leveys = await p.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
   tulos('360 px ilman vaakavieritystä', leveys[0] <= leveys[1], leveys.join(' / '));
   await kuva('4-kapea');
+
+  // 9. Tyhjennys: nappi vain tekstin kanssa, vahvistus (älä! peruu), sitten kaikki tyhjäksi; MarkDownload-kytkin säilyy.
+  await p.fill('#osoite', 'https://example.com/teksti.md');
+  await p.fill('#k-laji', 'Muutettu laji');
+  await p.waitForTimeout(300);
+  const nakyvat = () => p.evaluate(() => ['#tyhjenna', '#varmistus', '#tiedot-osio'].map(s => !document.querySelector(s).hidden));
+  const n0 = await nakyvat();
+  await p.click('#tyhjenna');
+  const n1 = await nakyvat(), kysymys = await p.textContent('#varmistus-kysymys');
+  await kuva('5-varmistus');
+  await p.click('#tyhjenna-ei');
+  const n2 = await nakyvat(), md2 = await p.inputValue('#md');
+  tulos('älä! peruu', n0.join() === 'true,false,true' && n1.join() === 'false,true,true' && n2.join() === 'true,false,true' && md2 === KANT, [n0, n1, n2].join(' | ') + ' – ' + kysymys);
+  const leveys2 = await p.evaluate(() => { document.querySelector('#varmistus').hidden = false; const l = [document.documentElement.scrollWidth, document.documentElement.clientWidth]; document.querySelector('#varmistus').hidden = true; return l; });
+  tulos('vahvistus 360 px:n leveydellä', leveys2[0] <= leveys2[1], leveys2.join(' / '));
+  const mdl0 = await p.getAttribute('#mdl', 'aria-pressed');
+  await p.click('#tyhjenna');
+  await p.click('#tyhjenna-kylla');
+  await p.waitForTimeout(300);
+  const jalki = await p.evaluate(() => ({ md: document.querySelector('#md').value, osoite: document.querySelector('#osoite').value,
+    nimi: document.querySelector('#tiedostonimi').textContent, tila: window.__latomo.tila(), tulos: window.__latomo.tulos() }));
+  const n3 = await nakyvat();
+  tulos('kaikki tyhjäksi', !jalki.md && !jalki.osoite && /pudota/.test(jalki.nimi) && !Object.keys(jalki.tila.arvot).length && jalki.tulos === null &&
+    n3.join() === 'false,false,false' && (await p.getAttribute('#mdl', 'aria-pressed')) === mdl0, JSON.stringify(n3) + ' ' + JSON.stringify(jalki.tila.arvot));
+  // Uusi teksti tyhjennyksen jälkeen: kentät tulevat uudesta tekstistä, eivät vanhoista.
+  await tiedostona('kant-ja-elainetiikka.md', KANT);
+  t = await T();
+  // MarkDownload-tila on yhä päällä (kohta 4), joten tyyppi on blogi; vanhaa lajia ja osoitetta ei saa olla.
+  tulos('uusi teksti tyhjennyksen jälkeen', !/Muutettu laji|example\.com\/teksti/.test(t.md) && (await kentat()).laji !== 'Muutettu laji', JSON.stringify(etu(t)));
 
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
