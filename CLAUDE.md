@@ -622,20 +622,24 @@ Käyttäjän vaatimukset 20.10.2026:
   Natsaa ei ole (käyttäjän päätös 22.10.2026; 21.10.2026 alapalkissa oli `natsanPaikka()`-mitattu natsa).
   Koko palkki on edelleen aikajanan nappi (`#ala-nappi` absoluuttisena alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä,
   ja oikean laidan `#ala-oikea` ei ota napautuksia (`pointer-events: none`), joten edistymisen napautus avaa aikajanan.
-  Sivunäkymässä on sivunappipari (`#sivunapit`, käyttäjän päätös 21.10.2026): hyvin haalea (`--viiva`) mutta rajattu, jotta
-  näkyy, ettei siitä aukea aikajana; puolikkaat kiinni toisissaan väliviivalla, natsat kyljellään. Edistymisen vasemmalla
+  Sivunäkymässä on sivunappipari (`#sivunapit`, käyttäjän päätös 21.10.2026): rajattu, jotta
+  näkyy, ettei siitä aukea aikajana; puolikkaat kiinni toisissaan väliviivalla (22.10.2026 alkaen kirkas ja nuolisalmiakein, ks. alla). Edistymisen vasemmalla
   puolella, ilman edistymistä oikeassa reunassa. Booxin sivunkääntönäppäimet antavat PageDown/PageUpin; `AudioVolumeDown`/`Up`
   on lisätty siltä varalta, että selain välittää äänenvoimakkuusnäppäimet. Oikealla Palmalla testaamatta.
-- **Palkkien remontti (käyttäjän päätökset 22.10.2026; opas, luku 4.4).** Mobiili = `(max-width: 700px), (pointer: coarse)`
-  (sama kuin aikajanan oletuksessa; `body.mobiili`, `asettele()`). Työpöydällä ylä- ja alapalkki pysyvät; alapalkissa ei ole
+- **Palkkien remontti (käyttäjän päätökset 22.10.2026; opas, luku 4.4).** Mobiili = `(pointer: coarse)` eli kosketusnäyttö
+  (`body.mobiili`, `asettele()`); hiiri on työpöytä myös kapeassa ikkunassa (käyttäjän päätös 22.10.2026: leveysehdolla palkit
+  piiloutuivat työpöydällä). Aikajanan oletustason ehto `(max-width: 700px), (pointer: coarse)` on erillinen ja ennallaan. Työpöydällä ylä- ja alapalkki pysyvät; alapalkissa ei ole
   natsaa eikä nykyisen osion nimeä (`#ala-kohta` poistettu), vain kirjanmerkki vasemmalla ja sivunapit ja edistyminen oikealla.
   Osion nimi näkyy avatun aikajanan ylärivillä. Mobiilissa palkit ovat piilossa: alareunassa on reunukseton kaista (`--ala` 44 px),
   jossa kirjanmerkkinauha kelluu vasemmassa ja sivunapit oikeassa alanurkassa tekstipalstan reunojen linjassa (`--palsta-v`,
-  `--palsta-o`). Tekstin napautus (vierityksessä mikä tahansa kohta, sivutettuna keskikolmannes; reunat kääntävät sivua edelleen,
-  Clauden harkinta) avaa yläpalkin ja aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää. Kerroksen ylärivillä
+  `--palsta-o`). Tekstin napautus (vain mobiilissa: vierityksessä mikä tahansa kohta, sivutettuna keskikolmannes; reunat kääntävät sivua
+  edelleen, Clauden harkinta) avaa yläpalkin ja aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää. Kerroksen ylärivillä
   osion nimi ja oikealla edistyminen (`#jana-pros`); *Merkinnät* ja *Etsi* kaistalla kelluvien välissä (`sijoitaJanaNapit()`, omalle
-  rivilleen, jos väli < 12 px). Vierityksen yli 48 px sulkee, sivunkääntö reunasta, pyyhkäisyllä tai näppäimellä sulkee, sivunapit
-  eivät. Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
+  rivilleen, jos väli < 12 px). Vain napautus avaa ja sulkee palkit (käyttäjän päätös 22.10.2026):
+  vieritys ja sivunkääntö eivät vaikuta (ensimmäisessä versiossa sulkivat). Työpöydällä keskiklikkaus ei avaa aikajanaa ("hiirellä
+  kauhea tapa"), vain alapalkin klikkaus. Sivunapit 44 × 34 px eli Merkinnät- ja Etsi-laatikoiden korkuiset, reunus `--harmaa`,
+  nuolina täytetyt lovetut koverakylkiset salmiakit (`--muste`; valittu neljästä muodosta, leijat näyttivät pienenä möhkäleiltä).
+  `#lukija`ssa ei ole napautuskorostusta (näkymättömän kaistan napautus väläytti kaistan). Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
   *Liikkuminen*-rivin *Sivut*-sanan alla lisäkytkin *Sivunvaihtopainikkeet* (`aset.sivunapit`, oletus päällä), 16 px sisennettynä
   (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
   muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
