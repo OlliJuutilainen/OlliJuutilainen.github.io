@@ -1326,7 +1326,7 @@
     if (!nyt) return;
     var t = e.target;
     var go = t.closest('a[data-go]');
-    if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }); return; }
+    if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }, false, true); return; }
     var a = t.closest('#teksti a[href]');
     if (a) {
       var href = a.getAttribute('href');
@@ -1735,11 +1735,13 @@
      (myös sivunkääntönapautuksesta) tai uudesta isosta hypystä, jonka lähtökohdasta tulee uusi majakka.
      Pyyhkäisy, näppäimet, sivunapit ja vieritys eivät poista sitä. Peräkkäiset hakuosumat säilyttävät
      haun ensimmäisen lähtökohdan. Majakkaa ei tallenneta: se koskee vain tätä lukukertaa. */
-  function hyppaa(k, haku) {
+  function hyppaa(k, haku, eiMajakkaa) {
     var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
     mene(k, ylaPeitto() && YLA + ylaPeitto());
     if (!ed) return;
     var iso = sivut ? Math.abs(tila.sivu - p0) >= 2 : Math.abs(scrollY - y0) >= 2 * innerHeight;
+    // Alle puolen kirjan mittainen hyppy ei jätä majakkaa (käyttäjän päätös 22.10.2026), eikä sisällysluettelon linkki.
+    if (eiMajakkaa || Math.abs(osuus(ed) - osuus(k)) < 0.5) iso = false;
     if (!iso || haku && nyt.majakka && nyt.majakka.haku) return;
     // Vierityksessä myös tarkka kohta: ankkuri on rivi y = YLA:ssa, ja ylimmän rivin ollessa
     // lohkojen välissä (esim. sisällysluettelo) mene() vierittäisi seuraavan lohkon ylös.

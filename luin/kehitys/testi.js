@@ -450,15 +450,31 @@ palvelin.listen(0, async () => {
     await odota(); window.scrollTo(0, 1000); await odota();
     const a = Object.assign({}, L.tila.ankkuri), y = scrollY;
     L.hyppaa({ b: n - 1, o: 0 }); await odota();
-    const iso = nakyy() && !!document.querySelector('#jana-svg .j-majakka');
+    const iso = nakyy();
     // Lähtökohta jäi taakse: nuoli ylös.
     const ylos = document.getElementById('majakka').classList.contains('ylos');
     document.getElementById('majakka-palaa').click(); await odota();
     const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
     L.hyppaa({ b: a.b + 1, o: 0 }); await odota();
-    return { iso, ylos, takaisin, pieni: !nakyy() };
+    const pieni = !nakyy();
+    // Alle puolen kirjan mittainen hyppy ei jätä majakkaa (22.10.2026), vaikka olisi monta ruudullista.
+    const N = L.nyt(), puoli = N.cum.findIndex(c => c / N.total >= 0.3);
+    window.scrollTo(0, 0); await odota(); await odota();
+    L.hyppaa({ b: puoli, o: 0 }); await odota();
+    const alle50 = !nakyy();
+    return { iso, ylos, takaisin, pieni, alle50 };
   });
-  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50, JSON.stringify(mj));
+
+  // Sisällysluettelon linkki ei jätä majakkaa, vaikka vie kirjan loppuun (22.10.2026).
+  const sl = await p.evaluate(async () => {
+    const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300)), nav = [...document.querySelectorAll('nav.sisallys a[data-go]')];
+    if (!nav.length) return { ohitettu: true };
+    window.scrollTo(0, 0); await odota(); await odota();
+    nav[nav.length - 1].click(); await odota();
+    return { linkkeja: nav.length, siirtyi: scrollY > 2 * innerHeight, majakka: !document.getElementById('majakka').hidden };
+  });
+  tulos('sisällysluettelo ei jätä majakkaa', sl.ohitettu || sl.siirtyi && !sl.majakka, JSON.stringify(sl));
 
   // Alaviitteen lyhennelinkki (md.js, viittaukset()) vie lyhenteen selitykseen; lähtökohta on edempänä,
   // joten nuoli osoittaa alas, ja paluu vie takaisin.
