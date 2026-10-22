@@ -675,9 +675,9 @@ Käyttäjän vaatimukset 20.10.2026:
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
   - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *Näytä:* isolla alkukirjaimella ja kursiivilla (käyttäjän päätökset
     21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja asetusten huomiolla; hajurakoa 8 px yläpuolella, alapuolella tavallinen 1 px kuten muilla nimillä (käyttäjän päätös 21.10.2026; hetken 12 px); sama 8 px:n lisäväli on kaikkien asetusten väliotsikoiden alla, myös *Ulkoasu*-otsikon, eli h3:n ja ensimmäisen nimen väli on 19 px; versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
-    (alleviivausten alla pieni lisäkytkin *Automaattinen alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
+    (alleviivausten alla pieni lisäkytkin *Sukkela alleviivaus*, oletus päällä, pois käytöstä piilotettuna) ja
     *Aikajana* Pääluvut / Alaluvut (oletus 21.10.2026 alkaen; ennen sitä hetken Kaikki) / Kaikki sekä kirjanmerkit ja
-    edistyminen. Tasot ovat kumulatiivisia: *Alaluvut* sytyttää myös *Pääluvut*, *Kaikki* molemmat. Valitun tason napautus sammuttaa sen ja jättää ylemmät (*Pääluvut* sammuttaa kaikki etapit, `janaTaso: 0`); muu napautus asettaa tason (käyttäjän kokeilu 21.10.2026). Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` automaattinen alleviivaus,
+    edistyminen. Tasot ovat kumulatiivisia: *Alaluvut* sytyttää myös *Pääluvut*, *Kaikki* molemmat. Valitun tason napautus sammuttaa sen ja jättää ylemmät (*Pääluvut* sammuttaa kaikki etapit, `janaTaso: 0`); muu napautus asettaa tason (käyttäjän kokeilu 21.10.2026). Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` sukkela alleviivaus,
     `av: 3` Kaikki → Alaluvut; itse valittu Pääluvut säilyy).
   - *Ulkoasu*-osiossa heti teeman jälkeen on *Liikkuminen* (Vieritys / Sivut; ennen nimellä *Näkymä* viimeisenä).
     Huomio *Viitenumerot näkyvät aina* poistettiin asetuksista (vaatimus itse pysyy). Vienti- ja tuontiosion napit: *Vie*, *Tuo* (ei sanaa *tiedot*; käyttäjän päätös 21.10.2026).

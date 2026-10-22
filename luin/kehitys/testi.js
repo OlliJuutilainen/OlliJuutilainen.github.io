@@ -55,7 +55,7 @@ palvelin.listen(0, async () => {
   await kuva('1-alku');
 
   // Sivutus: yksikään näkyvän sivun rivi ei saa ulottua sivualueen alle. Valikon alleviivausta
-  // varten automaattinen alleviivaus pois (oletus on päällä).
+  // varten sukkela alleviivaus pois (oletus on päällä).
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.sivutus = 'sivut'; a.auto = 0; a.av = 3; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(500);
   const n = (await tila()).n;
@@ -106,7 +106,7 @@ palvelin.listen(0, async () => {
   await p.reload(); await p.waitForTimeout(500);
   tulos('alleviivaus säilyy', await p.evaluate(() => document.querySelectorAll('mark.ali').length > 0));
 
-  // Automaattinen alleviivaus: valinta muuttuu heti alleviivaukseksi, mutta ei silloin, kun
+  // Sukkela alleviivaus: valinta muuttuu heti alleviivaukseksi, mutta ei silloin, kun
   // alleviivaukset on piilotettu tekstistä. Piilotettuina niillä ei ole näkyvää viivaa.
   const autoAli = await p.evaluate(() => {
     const L = window.__luin, a = L.aset, valitse = () => {
@@ -125,7 +125,7 @@ palvelin.listen(0, async () => {
     L.nyt().merk.al.pop(); a.auto = 0; a.alTekstissa = 1; document.documentElement.classList.remove('ali-piilo');
     return { n0, n1, n2, viiva, popAuto };
   });
-  tulos('automaattinen alleviivaus', autoAli.n1 === autoAli.n0 + 1 && autoAli.n2 === autoAli.n1 && autoAli.viiva === 'none' && !autoAli.popAuto, JSON.stringify(autoAli));
+  tulos('sukkela alleviivaus', autoAli.n1 === autoAli.n0 + 1 && autoAli.n2 === autoAli.n1 && autoAli.viiva === 'none' && !autoAli.popAuto, JSON.stringify(autoAli));
 
   // Kirjaus valinnasta, säilyminen ja vienti oletusvalinnoilla (alleviivaukset ja kirjaukset).
   await p.evaluate(() => {
