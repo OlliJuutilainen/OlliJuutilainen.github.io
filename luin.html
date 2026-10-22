@@ -2051,6 +2051,7 @@
   var SANAT = { al: ['alleviivaukset', 'alleviivauksia', 1], ki: ['kirjaukset', 'kirjauksia', 1],
     km: ['kirjanmerkit', 'kirjanmerkkejä', 1], ed: ['edistymisen tilanteen', 'edistymisen tilannetta', 0] };
   var ORPOT = 'Merkinnät, joiden kohtaa ei enää löydy tekstistä';
+  function eka(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function luettelo(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' ja ' + a[a.length - 1] : a[0]; }
   function vieValitut() { return { al: aset.vieAl, ki: aset.vieKi, km: aset.vieKm, ed: aset.vieEd }; }
   function piirraVienti() {
@@ -2077,7 +2078,8 @@
     var pois = TUO.filter(function (v) { return !val[v[0]]; }).map(function (v) { return v[0]; });
     if (!vie && !pois.length) { valitseTuotava(); return; }
     var teksti = vie
-      ? 'Olet viemässä tekstistä ”' + nyt.e.title + '” ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '.'
+      ? 'Olet viemässä tekstistä ”' + nyt.e.title + '” ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '.' +
+        (pois.length ? ' ' + eka(luettelo(pois.map(function (k) { return SANAT[k][1]; }))) + ' ei viedä.' : '')
       : 'Olet tuomassa tiedostosta ' + luettelo(mukana.map(function (k) { return SANAT[k][0]; })) + '. ' +
         'Tiedoston ' + (SANAT[pois[0]][2] ? 'mahdollisia ' : 'mahdollista ') +
         luettelo(pois.map(function (k) { return SANAT[k][1]; })) + ' ei tuoda.';
