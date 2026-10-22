@@ -280,12 +280,14 @@
   body.sivutus #teksti hr.ennen-lukua { display: none; }
 
   /* alapalkki ja aikajana (palkkien remontti, käyttäjän päätökset 22.10.2026)
-     Työpöydällä alapalkki on pysyvä: kirjanmerkki vasemmalla, sivunapit ja edistyminen oikealla. Natsaa ja
+     Työpöydällä alapalkki on pysyvä: kirjanmerkki vasemmalla, sivunapit ja palkkinuoli oikealla. Natsaa ja
      nykyisen osion nimeä ei ole; osion nimi näkyy aikajanan yläpuolella. Koko rivi on aikajanan nappi
      (absoluuttinen, alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä, ja oikean laidan kokonaisuus ei
      ota napautuksia, joten edistymisen napautus menee alla olevalle napille.
+     Kirjanmerkki ja palkkinuoli on vedetty 10 px reunasta sisäänpäin (käyttäjän päätös 22.10.2026: nurkassa
+     ne näyttivät hukassa). Edistyminen näkyy vain aikajanakerroksen ylärivillä.
      Mobiilissa rivi on reunukseton kaista, jossa kirjanmerkki kelluu vasemmassa ja palkkinuoli oikeassa
-     alanurkassa tekstipalstan reunojen linjassa (--palsta-v, --palsta-o; asettele()); sivunapit, jos ne on
+     alanurkassa tekstipalstan reunojen 10 px sisäpuolella (--palsta-v, --palsta-o; asettele()); sivunapit, jos ne on
      valittu, ovat nuolen vasemmalla puolella. Kaistan napautus avaa yläpalkin ja aikajanakerroksen, jonka
      ylärivillä on osion nimi ja edistyminen, ja uusi napautus sulkee ne. Merkinnät ja Etsi ovat kaistalla
      kelluvien välissä, joten kelluvat eivät liiku kerroksen avautuessa. */
@@ -294,16 +296,15 @@
   body.mobiili #ala { border-top: 0; }
   body.mobiili.palkit-auki #ala { border-top: 1px solid var(--viiva); }
   #ala-rivi { position: relative; height: var(--ala); }
-  #km-nappi { position: relative; z-index: 1; width: 38px; height: 100%; padding-left: 14px; display: inline-flex; align-items: center; }
+  #km-nappi { position: relative; z-index: 1; width: 48px; height: 100%; padding-left: 24px; display: inline-flex; align-items: center; }
   #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--harmaa); stroke-width: 1; }
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
-  body.mobiili #km-nappi { width: 44px; margin-left: calc(var(--palsta-v, 16px) - 14px); }
+  body.mobiili #km-nappi { width: 54px; margin-left: calc(var(--palsta-v, 16px) - 14px); }
   #ala-nappi { position: absolute; inset: 0; }
-  #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding-right: 14px;
+  #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding-right: 24px;
     font-size: .8rem; color: var(--harmaa); pointer-events: none; }
-  body.mobiili #ala-oikea { padding-right: var(--palsta-o, 16px); }
-  #ala-pros, #jana-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
-  body.mobiili #ala-pros, body:not(.mobiili) #jana-pros { display: none; }
+  body.mobiili #ala-oikea { padding-right: calc(var(--palsta-o, 16px) + 10px); }
+  #jana-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
   /* Palkkinuoli (käyttäjän päätös 22.10.2026): mobiilin kaistan oikeassa alanurkassa merkki siitä, että palkit
      aukeavat alakaistasta. Itse nuoli ei ota napautuksia, vaan koko kaista (#ala-nappi) on nappi. Lovettu
      koverakylkinen salmiakki kuten sivunapeissa, ylös osoittava. Kiinni hienovarainen ääriviiva kirjanmerkin
@@ -316,8 +317,7 @@
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat
      kyljet kuten logon ja aikajanan salmiakeissa; aiemmin ohuet natsat). Yhtenäinen laatikko väliviivalla, ettei
-     parin keskelle jää rakoa. Edistymisen vasemmalla puolella, ilman edistymistä oikeassa reunassa, mobiilissa
-     palkkinuolen vasemmalla puolella. Oletuksena pois (käyttäjän päätös 22.10.2026: sivua käännetään reunojen
+     parin keskelle jää rakoa. Palkkinuolen vasemmalla puolella. Oletuksena pois (käyttäjän päätös 22.10.2026: sivua käännetään reunojen
      napautuksella), asetuksista kytkettävissä. */
   #sivunapit { display: flex; height: 34px; border: 1px solid var(--harmaa); background: var(--paperi); pointer-events: auto; }
   #sivunapit button { width: 44px; height: 100%; display: flex; align-items: center; justify-content: center; }
@@ -518,7 +518,6 @@
           <button type="button" id="sivu-ed" aria-label="Edellinen sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7Q7.18 5.18 12.4 2.2Q10.22 5.18 9 7Q10.22 8.82 12.4 11.8Q7.18 8.82 1 7Z"/></svg></button>
           <button type="button" id="sivu-se" aria-label="Seuraava sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M13 7Q6.82 5.18 1.6 2.2Q3.78 5.18 5 7Q3.78 8.82 1.6 11.8Q6.82 8.82 13 7Z"/></svg></button>
         </div>
-        <span id="ala-pros"></span>
         <svg id="palkki-nuoli" viewBox="1.7 .5 10.6 12.4" aria-hidden="true"><path d="M7 1Q5.18 7.18 2.2 12.4Q5.18 10.22 7 9Q8.82 10.22 11.8 12.4Q8.82 7.18 7 1Z"/></svg>
       </div>
     </div>
@@ -552,7 +551,7 @@
   <h3>Aikajana</h3>
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
-    <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit|edistys:Edistyminen"></div></div>
+    <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit"></div></div>
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. Vienti ja tuonti ovat erillisiä
        supistettuja osioita omine valintoineen (käyttäjän päätös 21.10.2026). -->
   <div id="vienti">
@@ -648,7 +647,7 @@
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'keski', tavutus: 'varovainen',
-    sivutus: 'vieritys', sivunapit: 0, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
+    sivutus: 'vieritys', sivunapit: 0, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 5 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
@@ -1251,10 +1250,9 @@
   function paivita() {
     if (!nyt) return;
     var k = tila.ankkuri, o = osioKohdassa(k);
-    // Edistyminen: työpöydällä alapalkissa, mobiilissa aikajanakerroksen ylärivillä (CSS valitsee).
+    // Edistyminen näkyy aina, mutta vain aikajanakerroksen ylärivillä (käyttäjän päätös 22.10.2026).
     var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
-    $('#ala-pros').textContent = $('#jana-pros').textContent = pros;
-    $('#ala-pros').hidden = $('#jana-pros').hidden = !aset.edistys;
+    $('#jana-pros').textContent = pros;
     $('#sivunapit').hidden = aset.sivutus !== 'sivut' || !aset.sivunapit;
     sijoitaJanaNapit();
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
