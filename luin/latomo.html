@@ -85,6 +85,15 @@
   .varoitukset { margin: 14px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--ruoste); font-size: .88rem; }
   .varoitukset p { margin: 0 0 6px; }
   .ln { color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; margin-right: .5em; }
+  /* Tyhjennys: nappi rivin oikeassa reunassa, vahvistus omalla rivillään (käyttäjän toive 22.10.2026: Lasse Lehtinen). */
+  #tyhjenna { margin-left: auto; }
+  .varmistus { margin: 10px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--ruoste); }
+  .varmistus p { margin: 0; font-size: .92rem; }
+  .varmistus .kuka { color: var(--harmaa); }
+  .varmistus p.pieni { font-size: .82rem; margin-top: 2px; }
+  .varmistus .rivi { margin-top: 6px; gap: 8px 14px; }
+  button.vaara { border-color: var(--ruoste); color: var(--ruoste); }
+  button.ala { border: 0; padding: 0 4px; font-style: italic; color: var(--harmaa); }
   .ok { color: var(--harmaa); font-style: italic; font-size: .88rem; margin: 12px 0 0; }
   /* Ehdotus: teksti ja nappi; tekstikenttä muuttuu vain napista. */
   .ehdotus { margin: 12px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--viiva); font-size: .88rem; }
@@ -109,7 +118,7 @@
   .lisaa-valikko { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .esikatselu { margin: 10px 0 0; padding: 10px 12px; border-left: 2px solid var(--viiva); font-size: .92rem; overflow-wrap: anywhere; }
   .esikatselu.oma { border-left-color: var(--ruoste); }
-  .ehdotusviite { font-style: italic; }
+  .ehdotusviite { font-style: italic; overflow-wrap: anywhere; }
   details.rakenne-osio { margin-top: 30px; border-top: 1px solid var(--viiva); }
   details.rakenne-osio > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 46px;
     font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); }
@@ -142,6 +151,15 @@
   <div class="rivi">
     <label class="nappi">Valitse tiedosto<input id="tiedosto" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden></label>
     <span class="pieni" id="tiedostonimi" style="margin:0">tai pudota .md- tai .txt-tiedosto kenttään</span>
+    <button type="button" class="pieni-nappi" id="tyhjenna" hidden>Tyhjennä kentät</button>
+  </div>
+  <div class="varmistus" id="varmistus" role="alertdialog" aria-labelledby="varmistus-kysymys" hidden>
+    <p id="varmistus-kysymys">”Oletko aivan varma?” <span class="kuka">sanoi Lasse Lehtinen.</span></p>
+    <p class="pieni">Teksti ja kaikki tiedot tyhjennetään. Tätä ei voi perua.</p>
+    <div class="rivi">
+      <button type="button" class="pieni-nappi vaara" id="tyhjenna-kylla">Olen, tyhjennä</button>
+      <button type="button" class="ala" id="tyhjenna-ei">älä!</button>
+    </div>
   </div>
   <div class="rivi">
     <button type="button" class="kytkin" id="mdl" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>MarkDownload-leike</button>
@@ -478,6 +496,7 @@
   var tulos = null, d = null, ehdotukset = [];
   function paivita() {
     var src = lahde();
+    naytaTyhjennys();
     if (!md.value.trim()) {
       $('#tarkistus').hidden = $('#tiedot-osio').hidden = $('#rakenne-osio').hidden = true;
       $('#mdl-tila').hidden = true; d = tulos = null; return;
@@ -699,6 +718,35 @@
     paivita();
   }
   $('#mdl').addEventListener('click', function () { asetaMdl(!mdl); });
+
+  /* ---------- tyhjennys ----------
+     Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi; MarkDownload-kytkin on asetus ja säilyy.
+     Vahvistus kysytään aina, koska tyhjennystä ei voi perua. */
+  // Ilman tekstiä tiedot ja osoite ovat piilossa, joten nappi näkyy vain, kun tekstikentässä on jotain.
+  function tyhjaa() { return !md.value.trim(); }
+  function naytaTyhjennys() {
+    var v = $('#varmistus');
+    if (tyhjaa()) v.hidden = true;
+    $('#tyhjenna').hidden = tyhjaa() || !v.hidden;
+  }
+  function varmista(auki) {
+    $('#varmistus').hidden = !auki;
+    naytaTyhjennys();
+    (auki ? $('#tyhjenna-ei') : $('#tyhjenna')).focus();
+  }
+  $('#tyhjenna').addEventListener('click', function () { varmista(true); });
+  $('#tyhjenna-ei').addEventListener('click', function () { varmista(false); });
+  $('#varmistus').addEventListener('keydown', function (e) { if (e.key === 'Escape') varmista(false); });
+  $('#tyhjenna-kylla').addEventListener('click', function () {
+    clearTimeout(ajastin);
+    alusta(); nimi = '';
+    md.value = ''; osoite.value = ''; $('#viite').value = ''; $('#tiedosto').value = '';
+    $('#tiedostonimi').textContent = 'tai pudota .md- tai .txt-tiedosto kenttään';
+    $('#lisaa-valikko').hidden = true; $('#lisaa').setAttribute('aria-expanded', 'false');
+    $('#varmistus').hidden = true;
+    paivita();
+    md.focus();
+  });
 
   function lueTiedosto(f) {
     if (!f) return;
