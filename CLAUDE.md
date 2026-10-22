@@ -195,7 +195,9 @@ setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alka
 **Gemini on poistettu ohjeista** (käyttäjän päätös 22.10.2026, kokeiltu): se ei mittaa ääntä koodilla, vaan
 kuuntelee, ja pitkässä tallenteessa aikaleimat kelluvat ja päätyvät arvauksiksi. Siksi `ohje.html`:n mallitaulukossa
 on vain Claude ja ChatGPT (sarake *Äänen käsittely* poistui, koska se oli molemmilla *mittaa koodilla*) ja teksti
-vaatii palvelulta koodin ajamisen; `uusi.html`:n lyhyessä ohjeessa mainitaan vain Claude ja ChatGPT. Älä lisää Geminiä takaisin
+vaatii palvelulta koodin ajamisen; `uusi.html`:n lyhyessä ohjeessa mainitaan vain Claude ja ChatGPT. Saate vaatii
+samasta syystä koodimittauksen: ilman koodia malli sanoo, ettei pysty, eikä anna aikoja (kuuntelemalla annettuja aikoja
+saate ei enää salli). Älä lisää Geminiä takaisin
 ilman uutta koetta. Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
 `#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA:*, jonka perässä
 otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
