@@ -618,7 +618,7 @@ Käyttäjän vaatimukset 20.10.2026:
   (`--ruoste`), kun ruudulla (sivutettuna tällä sivulla) on kirjanmerkki; silloin napautus poistaa näkyvät
   kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
-  salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
+  salmiakit ja kirjanmerkit ovat `--viiva`-harmaita (kirjanmerkit käyttäjän päätöksellä 22.10.2026; ennen ne näkyivät tulevassa osassa kuparisina), ja vedettäessä nekin vaihtuvat vedenjakajan mukana.
   Natsaa ei ole (käyttäjän päätös 22.10.2026; 21.10.2026 alapalkissa oli `natsanPaikka()`-mitattu natsa).
   Koko palkki on edelleen aikajanan nappi (`#ala-nappi` absoluuttisena alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä,
   ja oikean laidan `#ala-oikea` ei ota napautuksia (`pointer-events: none`), joten edistymisen napautus avaa aikajanan.

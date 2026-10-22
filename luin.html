@@ -328,7 +328,8 @@
   .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
   #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
-  /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit aina kuparisina.
+  /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit luetussa kuparisina,
+     tulevassa harmaina kuten etapit (käyttäjän päätös 22.10.2026).
      Käyttäjän päätös 21.10.2026 nuottien mukaan (suurempi aika-arvo ontompi): pääluku iso ja ontto
      (paperin värinen täyte peittää viivan), alaluku pienempi ja täytetty, alaluvun alaluku lähes piste. Koot: JANA.koko. */
   .j-viiva { stroke: var(--muste); stroke-width: 1; fill: none; }
@@ -338,6 +339,7 @@
   .tuleva .j2, .tuleva .j3 { fill: var(--viiva); }
   .tuleva .j1 { stroke: var(--viiva); }
   .j-km { fill: var(--ruoste); }
+  .tuleva .j-km { fill: var(--viiva); }
   .j-nyt { fill: var(--muste); }
   .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
   /* Vedettäessä osoitin seuraa sormea luetun osan raja mukanaan, ja voimassa oleva kohta jää haalean harmaaksi haamuksi. */
@@ -1806,14 +1808,14 @@
     if (!nyt || $('#jana').hidden) return;
     var w = svg.clientWidth || 300, h = 46, x0 = JANA.pad, x1 = w - JANA.pad, y = JANA.y;
     var X = function (f) { return x0 + f * (x1 - x0); };
-    // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit aina kuparisina.
+    // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit luetussa kuparisina, tulevassa harmaina.
     // Vedettäessä raja (vedenjakaja) seuraa vedettävää osoitinta, ks. vedenjakaja().
     var nf = osuus(tila.ankkuri), cx = X(nf), wf = janaVeto ? janaVeto.f : nf, wx = X(wf), luettu = '', tuleva = '';
     var s = '<path id="j-luettu" class="j-viiva" d="' + janaLuettu(x0, wx, y) + '"/>' +
       '<g id="j-loppu"' + (wf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="' + janaTuleva(wx, x1, y) + '"/></g>';
     var maj = '';
     janaKohteet().forEach(function (m) {
-      var f = osuus(m.k), x = X(f), on = m.km || f <= wf, d;
+      var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
@@ -1821,8 +1823,8 @@
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
       }
-      // Etappi saa osuutensa, jotta vedenjakaja() voi vaihtaa sen luetuksi tai tulevaksi piirtämättä janaa.
-      d = '<g' + (m.km ? '' : ' data-f="' + f + '"' + (on ? '' : ' class="tuleva"')) + '><title>' + esc(m.nimi) + '</title>' + d + '</g>';
+      // Etappi ja kirjanmerkki saavat osuutensa, jotta vedenjakaja() voi vaihtaa ne luetuiksi tai tuleviksi piirtämättä janaa.
+      d = '<g data-f="' + f + '"' + (on ? '' : ' class="tuleva"') + '><title>' + esc(m.nimi) + '</title>' + d + '</g>';
       if (on) luettu += d; else tuleva += d;
     });
     s += tuleva + luettu + maj;
