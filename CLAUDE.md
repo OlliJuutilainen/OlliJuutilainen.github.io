@@ -694,7 +694,10 @@ Käyttäjän vaatimukset 20.10.2026:
     Kopioinnin kuittaus on rasti. Kirjauksellisen alleviivauksen poiston vahvistus (käyttäjän päätös 22.10.2026,
     `varmistaAlPoisto()`): napparivin tilalle iso nappi, jossa poiston ikoni ja yliviivattu kynä (`IK_POISTA_KIR`) sekä
     ruosteinen *Poista myös kirjaus?*, ja oikealla *älä!* (pienellä, huutomerkillä; käyttäjän valinta, ei *Ei*), joka
-    palauttaa valikon. Kirjauksen esikatselu yliviivataan ruosteella; ison napin napautus ohitetaan 400 ms (tuplanapautus).
+    palauttaa valikon. *älä!* on kursiivilla ja `--harmaa`, koska peruutus on hiljaisempi kuin poisto (22.10.2026).
+    Rivivalikon leveys tulee napeista eikä kirjauksen esikatselusta (`contain: inline-size`; käyttäjän päätös 22.10.2026,
+    ennen esikatselu levitti alleviivausvalikon 352 px:iin ja jätti aukon nappien oikealle puolelle); alleviivausvalikossa
+    esikatselu katkeaa neljännelle riville, poiston vahvistuksessa ei. Kirjauksen esikatselu yliviivataan ruosteella; ison napin napautus ohitetaan 400 ms (tuplanapautus).
     *Merkinnät*-listan poisto kysyy edelleen *Vahvista*.
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
