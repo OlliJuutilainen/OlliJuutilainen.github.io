@@ -656,10 +656,13 @@ Käyttäjän vaatimukset 20.10.2026:
   (`janaPysakit()`: tekstin alku, kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
   pysäkit ovat samat riippumatta aikajanalle valituista merkeistä. Perustelu: ilman e-inkiä luetaan mieluummin vierittäen,
   e-inkissä veto ei tee ilotulitusta. Sivun alkuun pyöristävä `sivunAlku()` jäi vain testien käyttöön.
-- Kirjanmerkin paikka (käyttäjän päätös 21.10.2026; opas, luku 4.3): kirjanmerkki menee aina luettavan kappaleen alkuun
-  (`o: 0`), ja kohta tuodaan näkyviin. Sivutettuna luettava kappale on sivun ensimmäisen rivin kappale; jos se alkoi
-  edellisellä sivulla, siirrytään sille sivulle (käyttäjä salli jättää tämän pois, jos se sotii jotain vastaan; ei
-  sotinut). Nauha on sisennetyssä kappaleessa sisennyksessä, muuten tekstin vasemmassa laidassa ensimmäisen rivin
+- Kirjanmerkin paikka (käyttäjän päätökset 21.10.2026 ja 22.10.2026; opas, luku 4.3): kirjanmerkki menee aina kappaleen alkuun
+  (`o: 0`). Nauhasta se on näkymän ylimmän kappalejaon eli ylimmän näkymässä alkavan kappaleen alku (`ylinKappaleenAlku()`).
+  Jos näkymässä ei ole yhtään kappaleen alkua, se tulee edelliseen kappalejakoon, ja näkymä siirtyy vain sen verran taakse,
+  että merkki näkyy (sivunkäännöin tai ylös vierittäen). Valinnan valikosta se menee valinnan kappaleen alkuun. Aiempi
+  sääntö (luettava kappale, sivutettuna sivun ensimmäisen rivin kappale) suosi kesken alkanutta kappaletta; testi
+  `luin/kehitys/testi.js` tarkistaa molemmat uudet tapaukset sivutettuna, vierityksen tarkistin käsin Playwrightilla. Sivu ilman tekstilohkoa
+  (sisällysluettelo) ei kuulu tähän: merkki tulee silloin sivun jälkeiseen kappaleeseen. Nauha on sisennetyssä kappaleessa sisennyksessä, muuten tekstin vasemmassa laidassa ensimmäisen rivin
   yläpuolella, jos tilaa on (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), ei reunuksessa. Reunus on vain
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.

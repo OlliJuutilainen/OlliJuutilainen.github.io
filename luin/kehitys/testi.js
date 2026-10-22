@@ -393,16 +393,30 @@ palvelin.listen(0, async () => {
   tulos('kirjanmerkin nauha kappaleen alussa', !nauhat.reunus.length && !nauhat.paalla.length,
     'yläpuolella ' + nauhat.yla + ', sisennyksessä ' + nauhat.sis + (nauhat.reunus.length ? ', reunuksessa ' + nauhat.reunus.slice(0, 4) : '') + (nauhat.paalla.length ? ', tekstin päällä ' + nauhat.paalla.slice(0, 4) : ''));
 
-  // Kirjanmerkkinappi sivulla, joka alkaa kesken kappaleen: merkki kappaleen alkuun, ja
-  // siirrytään sille sivulle; toinen painallus poistaa sen.
+  // Kirjanmerkkinappi (käyttäjän päätös 22.10.2026): merkki näkymän ylimmän kappalejaon alkuun. Jos sivulla ei
+  // ole yhtään kappaleen alkua, merkki tulee edelliseen kappalejakoon ja näkymä siirtyy taaksepäin sivunkäännöin.
+  const alkuSivulla = () => p.evaluate(() => { const L = window.__luin, n = L.nyt(), al = document.querySelector('#teksti, article, main') && 0, a = L.tila;
+    const art = n.blocks[0].parentElement, l = art.getBoundingClientRect().left;
+    for (let b = 0; b < n.blocks.length; b++) { const r = n.blocks[b].getClientRects()[0]; if (r && Math.floor((r.left - l + 2) / a.stride) === a.sivu) return b; } return -1; });
   const kesken = await p.evaluate(() => { const L = window.__luin; for (let s = 3; s < L.tila.sivuja; s++) { L.mene(L.sivunAlku(s)); if (L.tila.ankkuri.o > 0) return { s, b: L.tila.ankkuri.b }; } });
+  const odotettu = await alkuSivulla();
   const kmEnnen = await p.evaluate(() => window.__luin.nyt().merk.km.length);
   await p.click('#km-nappi'); await p.waitForTimeout(100);
   const kmNyt = await p.evaluate(() => ({ s: window.__luin.tila.sivu, km: window.__luin.nyt().merk.km.map(k => k.b + ':' + k.o), lit: document.querySelector('#km-nappi').getAttribute('aria-pressed'), nauhoja: document.querySelectorAll('.km').length }));
   await p.click('#km-nappi'); await p.waitForTimeout(100);
   const kmPois = await p.evaluate(() => window.__luin.nyt().merk.km.length);
-  tulos('kirjanmerkki kesken alkavalla sivulla', kmNyt.s < kesken.s && kmNyt.km.indexOf(kesken.b + ':0') >= 0 && kmNyt.lit === 'true' && kmNyt.nauhoja >= 1 && kmPois === kmEnnen,
-    'sivu ' + (kesken.s + 1) + ' → ' + (kmNyt.s + 1) + ', kirjanmerkki ' + kesken.b + ':0, toinen painallus poisti');
+  tulos('kirjanmerkki ylimpään sivulla alkavaan kappaleeseen', odotettu > kesken.b && kmNyt.s === kesken.s && kmNyt.km.indexOf(odotettu + ':0') >= 0 && kmNyt.lit === 'true' && kmNyt.nauhoja >= 1 && kmPois === kmEnnen,
+    'sivu ' + (kesken.s + 1) + ', kirjanmerkki ' + odotettu + ':0 (kesken ollut ' + kesken.b + '), toinen painallus poisti');
+  // Sivu ilman kappaleen alkua: etsitään sivu, jolla alkuSivulla() on -1, ja tarkistetaan paluu edelliseen kappalejakoon.
+  const tyhja = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), l = n.blocks[0].parentElement.getBoundingClientRect().left;
+    const alut = new Set(n.blocks.map(el => { const r = el.getClientRects()[0]; return r ? Math.floor((r.left - l + 2) / L.tila.stride) : -1; }));
+    for (let s = 1; s < L.tila.sivuja; s++) if (!alut.has(s)) { L.mene(L.sivunAlku(s)); if (!L.tila.ankkuri.ed && L.tila.sivu === s) return { s, b: L.tila.ankkuri.b }; } return null; });
+  if (tyhja) {
+    await p.click('#km-nappi'); await p.waitForTimeout(100);
+    const t2 = await p.evaluate(() => ({ s: window.__luin.tila.sivu, km: window.__luin.nyt().merk.km.map(k => k.b + ':' + k.o) }));
+    tulos('kirjanmerkki edelliseen kappalejakoon, kun sivulla ei ole alkua', t2.s < tyhja.s && t2.km.indexOf(tyhja.b + ':0') >= 0, 'sivu ' + (tyhja.s + 1) + ' → ' + (t2.s + 1) + ', kirjanmerkki ' + tyhja.b + ':0');
+    await p.click('#km-nappi'); await p.waitForTimeout(100);
+  } else console.log('HUOM  ei sivua ilman kappaleen alkua tässä tekstissä');
 
   // Vieritys: luettu kohta → mene() → sama kohta (ei ajaudu riviä ylöspäin).
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
