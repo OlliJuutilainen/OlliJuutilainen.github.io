@@ -1439,9 +1439,10 @@
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
     var alku = { b: segs[0].b, o: segs[0].s };
     if (autoAli()) {
-      var h = luoAlleviivaus(segs);
+      // Ei valikkoa maalauksen jälkeen (käyttäjän päätös 22.10.2026): lukeminen jatkuu häiriöittä,
+      // ja valikon saa napauttamalla alleviivausta.
+      luoAlleviivaus(segs);
       s.removeAllRanges();
-      naytaAlPop(h.id, rect);
       return;
     }
     naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + ikNappi('kopioi', IK_KOPIOI, 'Kopioi') +

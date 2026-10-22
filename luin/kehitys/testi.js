@@ -116,15 +116,16 @@ palvelin.listen(0, async () => {
       getSelection().removeAllRanges(); getSelection().addRange(q); L.valinta();
     };
     const n0 = L.nyt().merk.al.length;
-    a.auto = 1; valitse(); const n1 = L.nyt().merk.al.length;
+    a.auto = 1; document.querySelector('#pop').hidden = true; valitse(); const n1 = L.nyt().merk.al.length;
+    const popAuto = !document.querySelector('#pop').hidden;
     document.querySelector('#pop').hidden = true;
     a.alTekstissa = 0; document.documentElement.classList.add('ali-piilo'); valitse(); const n2 = L.nyt().merk.al.length;
     const viiva = getComputedStyle(document.querySelector('mark.ali')).textDecorationLine;
     getSelection().removeAllRanges(); document.querySelector('#pop').hidden = true;
     L.nyt().merk.al.pop(); a.auto = 0; a.alTekstissa = 1; document.documentElement.classList.remove('ali-piilo');
-    return { n0, n1, n2, viiva };
+    return { n0, n1, n2, viiva, popAuto };
   });
-  tulos('automaattinen alleviivaus', autoAli.n1 === autoAli.n0 + 1 && autoAli.n2 === autoAli.n1 && autoAli.viiva === 'none', JSON.stringify(autoAli));
+  tulos('automaattinen alleviivaus', autoAli.n1 === autoAli.n0 + 1 && autoAli.n2 === autoAli.n1 && autoAli.viiva === 'none' && !autoAli.popAuto, JSON.stringify(autoAli));
 
   // Kirjaus valinnasta, säilyminen ja vienti oletusvalinnoilla (alleviivaukset ja kirjaukset).
   await p.evaluate(() => {
