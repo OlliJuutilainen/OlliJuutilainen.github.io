@@ -584,7 +584,7 @@ palvelin.listen(0, async () => {
     [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
   // Ilman sivunappeja Merkinnät ja Etsi ovat kirjanmerkin ja nuolen välin keskellä, sivunappien kanssa vasemmalla.
-  tulos('kelluvat palstan linjassa (412 px)', Math.abs(lvv.km) < 0.6 && Math.abs(lvv.nuoli) < 0.6 && Math.abs(ls.km) < 0.6 && Math.abs(ls.nuoli) < 0.6 &&
+  tulos('kelluvat 10 px palstan reunoista sisäänpäin (412 px)', Math.abs(lvv.km - 10) < 0.6 && Math.abs(lvv.nuoli + 10) < 0.6 && Math.abs(ls.km - 10) < 0.6 && Math.abs(ls.nuoli + 10) < 0.6 &&
     Math.abs(ls.snNuoli - 12) < 0.6 && Math.abs(lvv.napitV - lvv.napitO) <= 1 && lvv.napitV >= 12 && Math.abs(ls.napitV - 12) <= 1 && ls.napitO >= 12 && !lvv.ahdas && !ls.ahdas,
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
   // Sivunvaihtopainikkeet asetuksista: kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
@@ -624,7 +624,7 @@ palvelin.listen(0, async () => {
   await tp.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4 })); }, MD);
   await tp.goto(BASE + 'luin.html#tuo'); await tp.waitForTimeout(600);
   const tila2 = () => tp.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none', jana: !document.querySelector('#jana').hidden,
-    mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#ala-pros')).display !== 'none',
+    mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#jana-pros')).display !== 'none' && /^\d+ %$/.test(document.querySelector('#jana-pros').textContent), ala: !document.querySelector('#ala-pros'),
     nuoli: (n => n.display === 'none' ? 'ei' : (n.transform !== 'none' ? 'alas' : 'ylös') + (n.fill === 'none' ? '' : '+täyte'))(getComputedStyle(document.querySelector('#palkki-nuoli'))) }));
   const t0 = await tila2();
   await tp.mouse.click(640, 400); await tp.waitForTimeout(100);
@@ -633,7 +633,7 @@ palvelin.listen(0, async () => {
   const t2 = await tila2();
   await tp.mouse.click(640, 785); await tp.waitForTimeout(100);
   const t3 = await tila2();
-  tulos('työpöydän palkit', !t0.mob && t0.yla && !t0.jana && /^\d+ %$/.test(t0.teksti) && t0.pros && !t1.jana && t2.jana && t2.yla && !t3.jana,
+  tulos('työpöydän palkit', !t0.mob && t0.yla && !t0.jana && t0.teksti === '' && t0.ala && !t1.jana && t2.jana && t2.pros && t2.yla && !t3.jana,
     JSON.stringify([t0, t1, t2, t3].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + ' "' + x.teksti + '"')));
   // Palkkinuoli myös työpöydällä (käyttäjän vaatimus 22.10.2026): kiinni ylös ja ontto, auki alas ja täytetty.
   tulos('työpöydän palkkinuoli', t0.nuoli === 'ylös' && t2.nuoli === 'alas+täyte' && t3.nuoli === 'ylös', [t0, t2, t3].map(x => x.nuoli).join(' → '));
