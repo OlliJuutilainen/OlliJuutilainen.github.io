@@ -494,56 +494,74 @@ palvelin.listen(0, async () => {
   tulos('lyhennelinkki', ly.ohitettu || ly.perilla && ly.alas && ly.takaisin, JSON.stringify(ly));
 
   // Palkit (käyttäjän päätökset 22.10.2026). Mobiilissa (kosketusnäyttö, 412 px) yläpalkki ja aikajanakerros ovat
-  // piilossa, ja tekstin napautus avaa ja sulkee ne yhdessä; vieritys ja sivunkääntö eivät vaikuta niihin.
-  // Kirjanmerkki ja sivunapit kelluvat kaistalla tekstipalstan reunojen linjassa. Sivutettuna keskikolmannes avaa,
-  // reunat kääntävät sivua. Palkkien avaus ei poista paluumajakkaa.
+  // piilossa, ja alakaistan napautus avaa ja sulkee ne yhdessä; tekstin napautus, vieritys ja sivunkääntö eivät
+  // vaikuta niihin. Kirjanmerkki ja palkkinuoli kelluvat kaistalla tekstipalstan reunojen linjassa, sivunapit (jos
+  // valittu) nuolen vasemmalla puolella. Sivutettuna reunat kääntävät sivua. Palkkien avaus ei poista paluumajakkaa.
   const m = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
   m.on('pageerror', e => sivuvirheet.push(e.message));
   await m.goto(BASE + 'luin.html');
-  await m.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4 })); }, MD);
+  // av 4 ja sivunapit päällä: vanha tallennus, jossa sivunapit olivat oletuksena päällä (av 5 kytkee ne pois).
+  await m.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4, sivunapit: 1 })); }, MD);
   await m.goto(BASE + 'luin.html#tuo'); await m.waitForTimeout(600);
-  const avaaPalkitM = async () => { if (await m.evaluate(() => document.querySelector('#jana').hidden)) await m.click('#ala-nappi'); };
+  await m.reload(); await m.waitForTimeout(400);
+  const siirto = await m.evaluate(() => ({ sivunapit: window.__luin.aset.sivunapit, av: window.__luin.aset.av }));
+  tulos('sivunapit pois oletuksista (av 5)', siirto.sivunapit === 0 && siirto.av === 5, JSON.stringify(siirto));
+  // Kaistan napautus nuolen kohdalta (koko kaista on nappi; nuoli ei ota napautuksia).
+  const nuoliKohta = () => m.evaluate(() => { const r = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  const kaista = async () => { const k = await nuoliKohta(); await m.mouse.click(k.x, k.y); await m.waitForTimeout(100); };
+  const avaaPalkitM = async () => { if (await m.evaluate(() => document.querySelector('#jana').hidden)) await kaista(); };
   const asetuksetM = async () => { await avaaPalkitM(); await m.click('#lukija .ratas'); };
-  const palkit = () => m.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none',
-    jana: !document.querySelector('#jana').hidden, s: window.__luin.tila.sivu }));
+  const palkit = () => m.evaluate(() => { const n = getComputedStyle(document.querySelector('#palkki-nuoli'));
+    return { yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none',
+      jana: !document.querySelector('#jana').hidden, s: window.__luin.tila.sivu, alas: n.transform !== 'none', tayte: n.fill }; });
   await m.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await m.reload(); await m.waitForTimeout(400);
   await m.evaluate(() => { window.__luin.mene({ b: 30, o: 0 }); }); await m.waitForTimeout(300);
   const pv0 = await palkit();
   const keski = { x: 206, y: 300 };
   await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  const pvT = await palkit();
+  await kaista();
   const pv1 = await palkit();
   await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  const pv1b = await palkit();
+  await kaista();
   const pv2 = await palkit();
-  await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  await kaista();
   await m.mouse.wheel(0, 400); await m.waitForTimeout(200);
   const pv3 = await palkit();
-  await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  await kaista();
   await m.mouse.wheel(0, 400); await m.waitForTimeout(200);
   const pv4 = await palkit();
-  tulos('mobiilin palkit vierityksessä', !pv0.yla && !pv0.jana && pv1.yla && pv1.jana && !pv2.yla && !pv2.jana && pv3.jana && !pv4.jana && !pv4.yla,
-    [pv0, pv1, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
-  // Kelluvat palstan linjassa ja Merkinnät/Etsi niiden välissä.
+  tulos('mobiilin palkit vierityksessä', !pv0.yla && !pv0.jana && !pvT.jana && pv1.yla && pv1.jana && pv1b.jana && !pv2.yla && !pv2.jana && pv3.jana && !pv4.jana && !pv4.yla,
+    [pv0, pvT, pv1, pv1b, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
+  tulos('palkkinuoli kääntyy ja täyttyy', !pv0.alas && pv0.tayte === 'none' && pv1.alas && pv1.tayte !== 'none' && !pv2.alas && pv2.tayte === 'none',
+    JSON.stringify([pv0, pv1, pv2].map(x => [x.alas, x.tayte])));
+  // Kelluvat palstan linjassa (musteen reunat) ja Merkinnät/Etsi niiden välissä.
   const linja = async () => { await avaaPalkitM(); await m.waitForTimeout(100); return m.evaluate(() => {
     const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
     // Sivutettuna #teksti on palstojen levyinen ja siirretty; näkyvä palsta on #sivu + marginLeft, leveys style.width.
     const t = document.body.classList.contains('sivutus') ? { left: sv.left + parseFloat(art.style.marginLeft), right: sv.left + parseFloat(art.style.marginLeft) + parseFloat(art.style.width) } : q('#teksti'), km = q('#km-nappi svg'), n = q('.jana-napit'), sn = document.querySelector('#sivunapit');
-    const snr = sn.hidden ? null : sn.getBoundingClientRect(), ala = q('#ala');
-    return { km: +(km.left - t.left).toFixed(2), sn: snr && +(snr.right - t.right).toFixed(2), napitV: +(n.left - km.right).toFixed(1), napitO: snr ? +(snr.left - n.right).toFixed(1) : null,
-      ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), kerros: Math.round(innerHeight - ala.top) }; }); };
+    // Nuolen viewBox on musteen rajat viivan ulkoreunoineen, kuten kirjanmerkin: laatikon reuna = musteen reuna.
+    const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : sn.getBoundingClientRect(), ala = q('#ala');
+    const oik = snr ? snr.left : nu.left, vapaa = { v: n.left - km.right, o: oik - n.right };
+    return { km: +(km.left - t.left).toFixed(2), nuoli: +(nu.right - t.right).toFixed(2), snNuoli: snr && +(nu.left - snr.right).toFixed(2),
+      napitV: +vapaa.v.toFixed(1), napitO: +vapaa.o.toFixed(1), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), kerros: Math.round(innerHeight - ala.top) }; }); };
   const lvv = await linja();
-  // Paluumajakka säilyy, kun palkit avataan napauttamalla.
-  await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  // Paluumajakka säilyy, kun palkit avataan kaistasta.
+  await kaista();
   const mjp = await m.evaluate(async () => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); await new Promise(r => setTimeout(r, 300)); return !!L.majakka(); });
-  await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
+  await kaista();
   const mjp2 = await m.evaluate(() => !!window.__luin.majakka() && !document.querySelector('#jana').hidden);
   tulos('palkkien avaus ei poista majakkaa', mjp && mjp2);
-  // Sivutettuna.
-  await m.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  // Sivutettuna, sivunapit valittuina.
+  await m.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; a.sivunapit = 1; a.av = 5; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await m.reload(); await m.waitForTimeout(400);
   await m.evaluate(() => { window.__luin.mene({ b: 30, o: 0 }); }); await m.waitForTimeout(200);
   const ps0 = await palkit();
   await m.mouse.click(206, 300); await m.waitForTimeout(100);
+  const psT = await palkit();
+  await kaista();
   const ps1 = await palkit();
   await m.click('#sivu-se'); await m.waitForTimeout(100);
   const ps2 = await palkit();
@@ -551,38 +569,42 @@ palvelin.listen(0, async () => {
   const ps3 = await palkit();
   await m.mouse.click(20, 300); await m.waitForTimeout(100);
   const ps4 = await palkit();
-  await m.mouse.click(206, 300); await m.waitForTimeout(100);
+  // Kaistan keskeltä (Merkinnät ja Etsi ovat vasemmalla) palkit sulkeutuvat.
+  const kx = await m.evaluate(() => { const n = document.querySelector('.jana-napit').getBoundingClientRect(), s = document.querySelector('#sivunapit').getBoundingClientRect(); return (n.right + s.left) / 2; });
+  await m.mouse.click(kx, 824 - 22); await m.waitForTimeout(100);
   const ps5 = await palkit();
-  tulos('mobiilin palkit sivutettuna', !ps0.jana && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && ps3.jana && ps3.s === ps2.s + 1 && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
-    [ps0, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
+  tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && ps3.jana && ps3.s === ps2.s + 1 && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
+    [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
-  tulos('kelluvat palstan linjassa (412 px)', Math.abs(lvv.km) < 0.6 && Math.abs(ls.km) < 0.6 && Math.abs(ls.sn) < 0.6 && lvv.napitV >= 12 && ls.napitV >= 12 && ls.napitO >= 12 && !lvv.ahdas && !ls.ahdas,
+  // Ilman sivunappeja Merkinnät ja Etsi ovat kirjanmerkin ja nuolen välin keskellä, sivunappien kanssa vasemmalla.
+  tulos('kelluvat palstan linjassa (412 px)', Math.abs(lvv.km) < 0.6 && Math.abs(lvv.nuoli) < 0.6 && Math.abs(ls.km) < 0.6 && Math.abs(ls.nuoli) < 0.6 &&
+    Math.abs(ls.snNuoli - 12) < 0.6 && Math.abs(lvv.napitV - lvv.napitO) <= 1 && lvv.napitV >= 12 && Math.abs(ls.napitV - 12) <= 1 && ls.napitO >= 12 && !lvv.ahdas && !ls.ahdas,
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
-  // Sivunvaihtopainikkeet pois asetuksista: ei sivunappeja; kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
+  // Sivunvaihtopainikkeet asetuksista: kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
   await asetuksetM();
   const kyt = await m.evaluate(() => { const s = document.querySelector('#asetukset button[data-arvo="sivut"]').getBoundingClientRect(), k = document.querySelector('#sivunapit-kytkin button');
     return { ero: +(k.getBoundingClientRect().left - s.left).toFixed(1), pois: k.disabled }; });
   await m.click('#sivunapit-kytkin button'); await m.click('#asetukset .sulje'); await m.waitForTimeout(100);
   const ilman = await m.evaluate(() => ({ piilo: document.querySelector('#sivunapit').hidden, tallessa: JSON.parse(localStorage.getItem('luin-asetukset')).sivunapit }));
   await asetuksetM(); await m.click('#sivunapit-kytkin button'); await m.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await m.waitForTimeout(100);
-  await asetuksetM();
+  // Asetukset pysyvät auki Liikkumisen vaihtuessa.
   const kytV = await m.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button').disabled, nakyy: !document.querySelector('#sivunapit').hidden }));
   await m.click('#asetukset .sulje');
   tulos('sivunvaihtopainikkeiden kytkin', Math.abs(kyt.ero - 16) < 0.6 && !kyt.pois && ilman.piilo && ilman.tallessa === 0 && kytV.pois && !kytV.nakyy, JSON.stringify({ kyt, ilman, kytV }));
   await m.context().close();
 
-  // 360 px leveällä marginaalilla: Merkinnät ja Etsi eivät mene kelluvien päälle.
+  // 360 px leveällä marginaalilla ja sivunapeilla: Merkinnät ja Etsi eivät mene kelluvien päälle.
   const mob360 = await (await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true })).newPage();
   mob360.on('pageerror', e => sivuvirheet.push(e.message));
   await mob360.goto(BASE + 'luin.html');
-  await mob360.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ sivutus: 'sivut', marginaali: 'levea', av: 4 })); }, MD);
+  await mob360.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ sivutus: 'sivut', marginaali: 'levea', sivunapit: 1, av: 5 })); }, MD);
   // #tuo on samassa dokumentissa, joten asetukset luetaan vasta uudelleenlatauksessa.
   await mob360.goto(BASE + 'luin.html#tuo'); await mob360.waitForTimeout(600); await mob360.reload(); await mob360.waitForTimeout(600);
   await mob360.click('#ala-nappi'); await mob360.waitForTimeout(100);
-  const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit');
+  const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit'), nu = q('#palkki-nuoli');
     const pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
     const merk = q('#merk-avaa');
-    return { paalla: pa(n, km) || pa(n, sn), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), korkeus: [sn.height, merk.height], linja: +(sn.top - merk.top).toFixed(2) }; });
+    return { paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(sn, nu), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), korkeus: [sn.height, merk.height], linja: +(sn.top - merk.top).toFixed(2) }; });
   tulos('Merkinnät ja Etsi kapealla ruudulla', !m3.paalla, JSON.stringify(m3));
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1] && (m3.ahdas || m3.linja === 0), JSON.stringify(m3));
   await mob360.context().close();
