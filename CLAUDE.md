@@ -192,7 +192,11 @@ määrän ja pyytää sitten tiedoston ja käskyn *läpivalaise* (tiedosto ja va
 käskyä). Vastausmuoto on settilistan muoto: `3. 12:05` nimetön biisi, pelkkä aika ei-biisi, `---`
 setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alkavat ei-biiseillä
 `[Encore]` tai `[Encore 1]`, `[Encore 2]`. Kesto lisätään saatteeseen, jos äänilinkistä saatiin.
-Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
+**Gemini on poistettu ohjeista** (käyttäjän päätös 22.10.2026, kokeiltu): se ei mittaa ääntä koodilla, vaan
+kuuntelee, ja pitkässä tallenteessa aikaleimat kelluvat ja päätyvät arvauksiksi. Siksi `ohje.html`:n mallitaulukossa
+on vain Claude ja ChatGPT (sarake *Äänen käsittely* poistui, koska se oli molemmilla *mittaa koodilla*) ja teksti
+vaatii palvelulta koodin ajamisen; `uusi.html`:n lyhyessä ohjeessa mainitaan vain Claude ja ChatGPT. Älä lisää Geminiä takaisin
+ilman uutta koetta. Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
 `#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA:*, jonka perässä
 otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
 päätös 20.10.2026; otsikko itse pysyy h4-kokoisena, jotta kolmio on muiden alaosioiden linjassa); mallitaulukon nimet
