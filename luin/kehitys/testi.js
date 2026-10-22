@@ -311,18 +311,25 @@ palvelin.listen(0, async () => {
     const r = await p.evaluate(() => { const b = document.querySelector('#jana-svg').getBoundingClientRect(); return { l: b.left, w: b.width, y: b.top + 21 }; });
     const ennen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY }));
     await p.mouse.move(r.l + x0 * r.w, r.y); await p.mouse.down();
-    const xt = new Set(); let pysyi = true, haamu = true;
+    const xt = new Set(); let pysyi = true, haamu = true, raja = true;
     for (let i = 1; i <= askelia; i++) {
       await p.mouse.move(r.l + (x0 + (x1 - x0) * i / askelia) * r.w, r.y); await p.waitForTimeout(20);
       const t = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY,
-        g: document.querySelector('#j-veto')?.getAttribute('transform'), h: !!document.querySelector('#jana-svg .haamu') }));
+        g: document.querySelector('#j-veto')?.getAttribute('transform'), h: !!document.querySelector('#jana-svg .haamu'),
+        l: document.querySelector('#j-luettu')?.getAttribute('d'),
+        e: [...document.querySelectorAll('#jana-svg g[data-f]')].map(g => [+g.dataset.f, g.classList.contains('tuleva')]) }));
       if (t.s !== ennen.s || t.a !== ennen.a || t.y !== ennen.y) pysyi = false;
       if (!t.g || !t.h) haamu = false; else xt.add(parseFloat(t.g.slice(10)));
+      // Luetun osan raja seuraa vedettävää osoitinta (käyttäjän pyyntö 22.10.2026).
+      if (t.g) {
+        const gx = parseFloat(t.g.slice(10)), lx = parseFloat(t.l.split('H').pop()), f = (gx - 13) / (r.w - 26);
+        if (Math.abs(gx - lx) > 0.01 || t.e.some(([ef, tul]) => tul !== ef > f + 1e-9)) raja = false;
+      }
     }
     await p.mouse.up(); await p.waitForTimeout(150);
     const jalkeen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: window.__luin.tila.ankkuri, y: scrollY,
       g: !!document.querySelector('#j-veto'), h: !!document.querySelector('#jana-svg .haamu') }));
-    return { ennen, xt: [...xt], pysyi, haamu, jalkeen, r };
+    return { ennen, xt: [...xt], pysyi, haamu, raja, jalkeen, r };
   };
   // Sivutettuna välimuotoja ei ole (käyttäjän päätös 21.10.2026): osoitin pysähtyy vain tekstin
   // alkuun, otsikoihin, kirjanmerkkeihin, majakkaan ja voimassa olevaan kohtaan, myös kun
@@ -338,7 +345,7 @@ palvelin.listen(0, async () => {
   const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
   const kvantti = vs.xt.every(pysakki), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
   const perille = pys.some(s => s.k === vs.jalkeen.a.b + ':' + vs.jalkeen.a.o);
-  tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && kvantti && piilotettu && perille && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
+  tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && vs.raja && kvantti && piilotettu && perille && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
     'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' +
     (kvantti ? ', kaikki pysäkkejä' : ', EI pysäkkejä') + (piilotettu ? ', myös piilotettuja alalukuja' : ', ei piilotettuja alalukuja') + (perille ? ', irrotus pysäkille' : ', irrotus EI pysäkille'));
 
@@ -429,7 +436,7 @@ palvelin.listen(0, async () => {
   await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
   await avaaPalkit();
   const vv = await veto(0.2, 0.3, 40);
-  tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
+  tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && vv.raja && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
     'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
 
   // Vierityksessä ei ole magneettia: napautus 5 px pääluvun merkin oikealla puolella vie

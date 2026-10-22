@@ -649,7 +649,9 @@ Käyttäjän vaatimukset 20.10.2026:
   (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
   muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
-  eikä teksti liiku ennen irrotusta. Liikkeessä vain `#j-veto`:n transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
+  eikä teksti liiku ennen irrotusta. Käyttäjän pyyntö 22.10.2026: luetun ja tulevan raja (musta viiva ja etapit) seuraa
+  vedettävää osoitinta, ei haamua. Liikkeessä muuttuvat vain `#j-veto`:n transform, viivojen päät ja rajan ylittäneiden
+  etappien `tuleva`-luokka (`vedenjakaja()`; etapeilla `data-f`), kerran ruudunpäivitystä kohden (e-ink).
   Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan,
   myös merkin vieressä ja kummitusmerkin kohdalla). Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain pysäkeille
   (`janaPysakit()`: tekstin alku, kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
