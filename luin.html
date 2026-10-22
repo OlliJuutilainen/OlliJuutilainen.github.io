@@ -1816,7 +1816,7 @@
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
-      if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 7.4, 6.2, 10.6) + '"/>';
+      if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 4.4, 6.2, 10.6) + '"/>';
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
