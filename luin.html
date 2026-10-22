@@ -1350,13 +1350,13 @@
     });
   }
   // Kirjauksellisen alleviivauksen poisto: valikon tilalle iso nappi, jonka ikonit kertovat, että
-  // lähtevät molemmat, ja kirjaus yliviivataan. Ei palauttaa valikon. Iso nappi voi osua poistonapin
+  // lähtevät molemmat, ja kirjaus yliviivataan. älä! palauttaa valikon. Iso nappi voi osua poistonapin
   // kohdalle, joten sen napautus ohitetaan hetken ajan, ettei tuplanapautus poista vahingossa.
   function varmistaAlPoisto(h, rect) {
     var alku = Date.now();
     naytaPop(rect, '<div class="esi kir poistuu">' + esc(lyhenna(h.n, 300)) + '</div>' +
       '<button type="button" data-k="poista" class="varmista vaara"><span class="v-ik">' + IK_POISTA + IK_POISTA_KIR + '</span>' +
-      '<span>Poista myös kirjaus?</span></button><button type="button" data-k="ei" class="ei">Ei</button>', 'rivi', function (k) {
+      '<span>Poista myös kirjaus?</span></button><button type="button" data-k="ei" class="ei">älä!</button>', 'rivi', function (k) {
       if (k === 'ei') { naytaAlPop(h.id, rect); return true; }
       if (k === 'poista') { if (Date.now() - alku < 400) return true; poistaAlleviivaus(h.id); paivitaMerkinnat(); }
     });

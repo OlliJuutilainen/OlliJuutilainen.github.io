@@ -690,7 +690,11 @@ Käyttäjän vaatimukset 20.10.2026:
     alleviivaa = *Abc* 3 px:n ruosteisen viivan päällä (liioiteltu tarkoituksella), kirjaa = täytetty lyhyt
     paksu kynä 45°, oikea yläpää suora ja vasen alapää kärki, kopioi = kaksi lomittaista suorakaidetta ilman
     tekstiviivoja, edessä oleva katkoviivainen, poista alleviivaus = sama viiva ja *Abc*:n paikalla raksi.
-    Kopioinnin kuittaus on rasti; poiston vahvistus *Poista myös kirjaus* on edelleen tekstiä (ruoste).
+    Kopioinnin kuittaus on rasti. Kirjauksellisen alleviivauksen poiston vahvistus (käyttäjän päätös 22.10.2026,
+    `varmistaAlPoisto()`): napparivin tilalle iso nappi, jossa poiston ikoni ja yliviivattu kynä (`IK_POISTA_KIR`) sekä
+    ruosteinen *Poista myös kirjaus?*, ja oikealla *älä!* (pienellä, huutomerkillä; käyttäjän valinta, ei *Ei*), joka
+    palauttaa valikon. Kirjauksen esikatselu yliviivataan ruosteella; ison napin napautus ohitetaan 400 ms (tuplanapautus).
+    *Merkinnät*-listan poisto kysyy edelleen *Vahvista*.
     **Kirjaus** on alleviivaukseen liitetty muistiinpano (`h.n`); laatikko kasvaa tarpeen mukaan, raja 5 000
     merkkiä ja jäljellä oleva määrä näkyy. Käyttöliittymässä sana on aina *kirjaus* (käyttäjä puhui myös muistiinpanoista).
   - Asetusten alimpana ovat erilliset supistetut osiot *Vie merkinnät tekstitiedostoon* ja *Tuo merkinnät tekstitiedostosta*
