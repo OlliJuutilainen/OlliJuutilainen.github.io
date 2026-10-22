@@ -689,7 +689,7 @@ Käyttäjän vaatimukset 20.10.2026:
   **Lyhenteet** (käyttäjän päätös 21.10.2026; opas, luku 3.4): ei merkintöjä tiedostoon. Osio, jonka otsikossa on
   *lyhent* (tai *abbreviation*), määrittelee lyhenteiksi kursivoidut yksittäiset 2–5 kirjaimen sanat, joissa on vähintään
   kaksi versaalia (*GMS*, *MS*, *KpV*, *KrV*; ei *A*). Alaviitteen lyhenne ja paikannin (`GMS 4:429`, `KrV A1/B1`, `KrV BXXX`)
-  linkittyy kappaleeseen tai luettelon kohtaan, jossa lyhenne ensin määritellään (id `lyh-<lyhenne>`). Selitysosiosta ei
+  linkittyy kappaleeseen tai luettelon kohtaan, jossa lyhenne ensin määritellään (id `lyh-<lyhenne>`); linkki vie aina kappaleen alkuun, ei tarkkaan esiintymään, ja jos kappaletta edeltää suoraan otsikko, otsikkoon (käyttäjän päätös 22.10.2026; id on silloin otsikon). Selitysosiosta ei
   linkitetä edelleen kirjallisuusluetteloon eikä leipätekstiin tule linkkejä (käyttäjän päätös: minimalismi).
 - Haku (käyttäjän säännöt 21.10.2026; opas, luku 4.7): aikajanan alla *Merkinnät*-laatikon oikealla puolella laatikko
   *Etsi*, joka avaa ponnahduslaatikon. Haku etsii sanojen alkuja; usean sanan haku on aina fraasi (sanat peräkkäin,

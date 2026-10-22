@@ -52,8 +52,8 @@ palvelin.listen(0, async () => {
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
   // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan tai lyhenteen selitykseen.
   const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
-    const ok = k => k && (k.classList.contains('bib') || /^lyh-/.test(k.id) && k.closest('#teksti'));
-    return { n: a.length, lyh: a.filter(x => /^#lyh-/.test(x.getAttribute('href'))).length, rikki: a.filter(x => !ok(document.getElementById(x.getAttribute('href').slice(1)))).length }; });
+    const ok = k => k && (k.classList.contains('bib') || (/^lyh-/.test(k.id) || /^H[2-4]$/.test(k.tagName)) && k.closest('#teksti'));
+    return { n: a.length, lyh: a.filter(x => !document.getElementById(x.getAttribute('href').slice(1)).classList.contains('bib')).length, rikki: a.filter(x => !ok(document.getElementById(x.getAttribute('href').slice(1)))).length }; });
   tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 
@@ -525,7 +525,7 @@ palvelin.listen(0, async () => {
   // joten nuoli osoittaa alas, ja paluu vie takaisin.
   const ly = await p.evaluate(async () => {
     const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300));
-    const linkit = [...document.querySelectorAll('#teksti a.lahde[href^="#lyh-"]')];
+    const linkit = [...document.querySelectorAll('#teksti a.lahde')].filter(x => !document.getElementById(x.getAttribute('href').slice(1)).classList.contains('bib'));
     if (!linkit.length) return { ohitettu: true };
     const a = linkit[linkit.length - 1], kohde = document.getElementById(a.getAttribute('href').slice(1));
     const b0 = +a.closest('[data-b]').dataset.b;
