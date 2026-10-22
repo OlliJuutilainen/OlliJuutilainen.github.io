@@ -104,6 +104,11 @@
     text-decoration-thickness: 1px; text-underline-offset: .18em; }
   .valikko.rivi .esi { flex: 1 0 100%; }
   .valikko .esi.kir { white-space: pre-wrap; font-style: italic; }
+  /* Rivivalikon leveys tulee napeista: flex-wrapin luontainen leveys laskisi esikatselun mukaan (aukko nappien
+     oikealle puolelle). Kapeassa alleviivausvalikossa esikatselu katkeaa neljälle riville. */
+  .valikko.rivi .esi { contain: inline-size; padding: 0; }
+  .valikko.rivi .esi > div { margin: 8px 14px 10px; }
+  .valikko.rivi .esi.kir:not(.poistuu) > div { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
   .valikko button.km-ikoni { display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; color: var(--ruoste); }
   .valikko button.km-ikoni svg { width: 12px; height: 20px; fill: currentColor; }
   /* valikon ikonit: alleviivausmerkki on Abc (tai poistossa raksi) liioitellun paksun viivan päällä */
@@ -120,7 +125,9 @@
   .valikko button.varmista:hover > span:last-child { text-decoration: underline; text-underline-offset: 3px; }
   .v-ik { display: inline-flex; align-items: center; gap: 6px; color: var(--muste); }
   .v-ik svg.kyna { display: block; width: 24px; height: 24px; }
-  .valikko.rivi button.ei { padding: 9px 18px; }
+  /* Peruutus on hiljaisempi kuin poisto (vakiintunut käytäntö: toissijainen toiminto ei huuda), kursiivi ja
+     harmaa kuten asetusten Näytä:-otsikko. */
+  .valikko.rivi button.ei { padding: 9px 18px; font-style: italic; color: var(--harmaa); }
   .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
@@ -1374,7 +1381,7 @@
   function naytaAlPop(id, rect) {
     var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
     if (!h) return;
-    naytaPop(rect, (h.n ? '<div class="esi kir">' + esc(lyhenna(h.n, 300)) + '</div>' : '') +
+    naytaPop(rect, (h.n ? '<div class="esi kir"><div>' + esc(lyhenna(h.n, 300)) + '</div></div>' : '') +
       ikNappi('kir', IK_KIRJAA, 'Kirjaa') + ikNappi('kopioi', IK_KOPIOI, 'Kopioi') + ikNappi('poista', IK_POISTA, 'Poista alleviivaus'), 'rivi', function (k, b) {
       if (k === 'kir') { avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { kopioitu(b); }); return true; }
@@ -1389,7 +1396,7 @@
   // kohdalle, joten sen napautus ohitetaan hetken ajan, ettei tuplanapautus poista vahingossa.
   function varmistaAlPoisto(h, rect) {
     var alku = Date.now();
-    naytaPop(rect, '<div class="esi kir poistuu">' + esc(lyhenna(h.n, 300)) + '</div>' +
+    naytaPop(rect, '<div class="esi kir poistuu"><div>' + esc(lyhenna(h.n, 300)) + '</div></div>' +
       '<button type="button" data-k="poista" class="varmista vaara"><span class="v-ik">' + IK_POISTA + IK_POISTA_KIR + '</span>' +
       '<span>Poista myös kirjaus?</span></button><button type="button" data-k="ei" class="ei">älä!</button>', 'rivi', function (k) {
       if (k === 'ei') { naytaAlPop(h.id, rect); return true; }
