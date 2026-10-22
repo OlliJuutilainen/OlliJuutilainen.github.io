@@ -646,8 +646,9 @@ Käyttäjän vaatimukset 20.10.2026:
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
 - **Marginaali** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 4.5): *Ulkoasu*-osiossa Reunojen
-  ja Tavutuksen välissä *Marginaali: Kapea | Keski | Leveä* = 16 / 24 / 36 px molemmille sivuille (`MARG`), oletus Keski.
-  Kapea on asetusta edeltävä leveys pikselilleen (mitattu: sama asettelu 360, 412, 702, 760 ja 1200 px:llä). Rivi näkyy vain,
+  ja Tavutuksen välissä *Marginaali: Ohut | Keski | Reilu* = 16 / 24 / 36 px molemmille sivuille (`MARG`), oletus Keski.
+  Arvojen avaimet (`kapea`, `keski`, `levea`) ovat ennallaan, jotta tallennetut asetukset säilyvät; nimet vaihdettiin 22.10.2026.
+  Ohut on asetusta edeltävä leveys pikselilleen (mitattu: sama asettelu 360, 412, 702, 760 ja 1200 px:llä). Rivi näkyy vain,
   kun marginaali vaikuttaa (`innerWidth < 33 × koko + 72`). Yläraja on harkittu: 40 px:llä tasattuun tekstiin tuli 412 px:llä
   silmin nähtäviä aukkoja.
 - Aikajanan oletus (käyttäjän päätös 22.10.2026): työpöydällä pääluvut ja alaluvut (`janaTaso: 2`), mobiilissa (`(max-width: 700px), (pointer: coarse)`) vain pääluvut (`janaTaso: 1`). Koskee vain ensikäyttöä; tallennettuja asetuksia ei muuteta. Mitattu Chromiumissa: työpöytä Pääluvut+Alaluvut, mobiili vain Pääluvut, tallennettu 2 säilyy mobiilissakin.
