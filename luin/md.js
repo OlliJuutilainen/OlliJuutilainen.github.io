@@ -245,7 +245,7 @@
      yksittäiset 2–5 kirjaimen sanat, joissa on vähintään kaksi versaalia (*GMS*, *KpV*, *KrV*; ei
      *A*, ei teosten nimiä). Alaviitteen lyhenne ja sen perässä mahdollinen paikannin (GMS 4:429,
      KrV A1/B1, KrV BXXX) linkittyy kappaleeseen tai luettelon kohtaan, jossa lyhenne ensimmäisen
-     kerran määritellään. */
+     kerran määritellään; jos sitä kappaletta edeltää suoraan otsikko, linkki vie otsikkoon. */
   var VUOSI = /^(?:1[5-9]\d\d|20\d\d)[a-z]?$|^s\.\s?a\.$/;
   function vuosiAvain(v) { return v.replace(/\s/g, ''); }
   function reEsc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -256,16 +256,22 @@
   // ja lyhenteen määrittelevään kappaleeseen tai luettelon kohtaan t.lyhId.
   function viittaukset(tokens, uniq) {
     var kohdat = [], inBib = false, lyhTaso = 0, lyhOts = '', lyh = {};
-    function maarittele(x, teksti) {
+    function maarittele(x, teksti, otsikko) {
       var m; LYH_EM.lastIndex = 0;
       while ((m = LYH_EM.exec(teksti))) {
         var a = m[3];
         if ((a.match(/\p{Lu}/gu) || []).length < 2 || lyh[a]) continue;
-        if (!x.lyhId) x.lyhId = uniq('lyh-' + slug(a));
+        if (!x.lyhId) {
+          x.lyhId = uniq('lyh-' + slug(a));
+          // Kappaletta edeltävä otsikko on kohde; id on tilapäinen ja vaihdetaan otsikon id:ksi renderöinnin lopussa.
+          if (otsikko) { x.lyhOts = true; (otsikko.lyhIds = otsikko.lyhIds || []).push(x.lyhId); }
+        }
         lyh[a] = { id: x.lyhId, ots: a + ' (' + lyhOts + ')' };
       }
     }
+    var edel = null;
     tokens.forEach(function (t) {
+      var ed = edel; edel = t;
       if (t.t === 'h') {
         var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), tx = plain(t.text).trim();
         if (lvl === 2) inBib = BIB.test(tx);
@@ -274,8 +280,9 @@
         return;
       }
       if (lyhTaso) {
-        if (t.t === 'p') maarittele(t, t.text);
-        else if (t.items) t.items.forEach(function (it) { maarittele(it, it.text); });
+        var otsikko = ed && ed.t === 'h' ? ed : null;
+        if (t.t === 'p') maarittele(t, t.text, otsikko);
+        else if (t.items) t.items.forEach(function (it, j) { maarittele(it, it.text, j === 0 ? otsikko : null); });
       }
       if (!inBib || t.t !== 'p') return;
       var tx = plain(t.text).trim();
@@ -415,7 +422,7 @@
       res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
     }
 
-    var inBib = false, nums = [];
+    var inBib = false, nums = [], lyhOhjaus = {};
     function render(list, inQuote) {
       var h = '';
       list.forEach(function (t) {
@@ -440,19 +447,20 @@
           }
           id = uniq(id);
           if (lvl === 2) inBib = BIB.test(txt);
+          (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           res.toc.push({ lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b });
           h += '<h' + lvl + ' id="' + id + '" class="' + cls + '" data-b="' + (b++) + '">' + inline(t.text, ctx) + '</h' + lvl + '>';
         } else if (t.t === 'p') {
           if (/^!\[/.test(t.text)) warn('Kuvia ei tueta: “' + t.text.slice(0, 40) + '”');
           if (/^\|.*\|\s*$/m.test(t.text)) warn('Taulukoita ei tueta; rivit näkyvät tekstinä.');
-          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : t.lyhId || '');
+          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
         } else if (t.t === 'hr') {
           h += '<hr>';
         } else if (t.t === 'bq') {
           h += '<blockquote>' + render(t.kids, true) + '</blockquote>';
         } else if (t.t === 'ol' || t.t === 'ul') {
           h += t.t === 'ol' ? '<ol class="enum"' + (t.start !== 1 ? ' start="' + t.start + '"' : '') + '>' : '<ul class="luettelo">';
-          t.items.forEach(function (it) { curLn = it.ln; h += blk('li', '', it.text, null, it.lyhId || ''); });
+          t.items.forEach(function (it) { curLn = it.ln; h += blk('li', '', it.text, null, it.lyhOts ? '' : it.lyhId || ''); });
           h += t.t === 'ol' ? '</ol>' : '</ul>';
         } else if (t.t === 'pre') {
           h += '<pre data-b="' + (b++) + '"><code>' + esc(t.text) + '</code></pre>';
@@ -462,7 +470,7 @@
     }
     html += render(tokens.slice(t0), false);
 
-    res.html = html;
+    res.html = html.replace(/href="#(lyh-[^"]*)"/g, function (m, i) { return lyhOhjaus[i] ? 'href="#' + lyhOhjaus[i] + '"' : m; });
     res.blocks = b;
     var m = res.meta;
     if (m.otsikko) res.title = m.otsikko;
