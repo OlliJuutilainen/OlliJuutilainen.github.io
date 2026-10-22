@@ -175,7 +175,8 @@
     text-decoration: none; color: var(--harmaa); white-space: nowrap; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
-  #sivu { position: relative; padding: calc(var(--yla) + 30px) 16px calc(var(--ala) + 56px); }
+  /* --reuna: marginaali (asetus), asettele() asettaa; reunushuomioiden kanssa aina 16 px. */
+  #sivu { position: relative; padding: calc(var(--yla) + 30px) var(--reuna, 16px) calc(var(--ala) + 56px); }
   .wrap { position: relative; font-size: var(--koko); max-width: 33em; margin: 0 auto; }
   body.reunat .wrap { max-width: calc(33em + 2.2em + 13em); }
 
@@ -483,6 +484,9 @@
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
+  <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
+       niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Kapea|keski:Keski|levea:Leveä"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -588,7 +592,7 @@
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena alleviivaukset ja kirjaukset). vieEd:
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
-  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'keski', tavutus: 'varovainen',
     sivutus: 'vieritys', sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, edistys: 1, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 4 };
   var tallennetut = LS.get('luin-asetukset', null);
@@ -610,6 +614,10 @@
   // sormiosoitin) vain pääluvut. Koskee vain ensikäyttöä; tallennettua valintaa ei kosketa.
   if (!tallennetut && window.matchMedia && matchMedia('(max-width: 700px), (pointer: coarse)').matches) aset.janaTaso = 1;
   function tallennaAset() { LS.set('luin-asetukset', aset); }
+  // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
+  // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.
+  var MARG = { kapea: 0, keski: 24, levea: 36 };
+  function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
 
@@ -873,6 +881,8 @@
       }).join('');
     });
     $('#koko-arvo').textContent = aset.koko + ' px';
+    // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
+    $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG.levea;
     piirraVienti();
   }
   $('#asetukset').addEventListener('click', function (e) {
@@ -1054,10 +1064,11 @@
     document.body.classList.toggle('sivutus', sivut);
     var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
     document.body.classList.toggle('reunat', reunat);
+    document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
     if (sivut) {
       art.style.transform = 'none';
-      var vw = sivuEl.clientWidth, W = Math.min(vw - 40, Math.round(33 * koko));
-      if (vw < 480) W = vw - 32;
+      var vw = sivuEl.clientWidth, mr = Math.max(vw < 480 ? 16 : 20, marginaali());
+      var W = vw < 480 ? vw - 2 * mr : Math.min(vw - 2 * mr, Math.round(33 * koko));
       var G = vw - W;
       tila.W = W; tila.stride = W + G;
       art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
