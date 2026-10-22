@@ -481,11 +481,15 @@ palvelin.listen(0, async () => {
     // Alle puolen kirjan mittainen hyppy ei jätä majakkaa (22.10.2026), vaikka olisi monta ruudullista.
     const N = L.nyt(), puoli = N.cum.findIndex(c => c / N.total >= 0.3);
     window.scrollTo(0, 0); await odota(); await odota();
-    L.hyppaa({ b: puoli, o: 0 }); await odota();
+    L.hyppaa({ b: puoli, o: 0 }, false, false, 'jana'); await odota();
     const alle50 = !nakyy();
-    return { iso, ylos, takaisin, pieni, alle50 };
+    // Muu kuin aikajanan hyppy (esim. haku, Merkinnät) ei kuulu puolen kirjan sääntöön.
+    window.scrollTo(0, 0); await odota(); await odota();
+    L.hyppaa({ b: puoli, o: 0 }); await odota();
+    const muuIso = nakyy();
+    return { iso, ylos, takaisin, pieni, alle50, muuIso };
   });
-  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.muuIso, JSON.stringify(mj));
 
   // Sisällysluettelon linkki ei jätä majakkaa, vaikka vie kirjan loppuun (22.10.2026).
   const sl = await p.evaluate(async () => {
@@ -496,6 +500,22 @@ palvelin.listen(0, async () => {
     return { linkkeja: nav.length, siirtyi: scrollY > 2 * innerHeight, majakka: !document.getElementById('majakka').hidden };
   });
   tulos('sisällysluettelo ei jätä majakkaa', sl.ohitettu || sl.siirtyi && !sl.majakka, JSON.stringify(sl));
+
+  // Lähdeviittaus (alaviite → kirjallisuus) jättää majakan aina, myös alle puolen kirjan matkalla.
+  const lahdeV = await p.evaluate(async () => {
+    const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300)), N = L.nyt();
+    const linkit = [...document.querySelectorAll('#teksti a.lahde[href^="#kirj-"]')].filter(a => { const t = document.getElementById(a.getAttribute('href').slice(1)); return t && t.dataset.b; });
+    if (!linkit.length) return { ohitettu: true };
+    window.scrollTo(0, 0); await odota(); await odota();
+    // Lyhin matka: sääntö ei saa riippua etäisyydestä.
+    const d = a => Math.abs(N.cum[+a.closest('[data-b]').dataset.b] - N.cum[+document.getElementById(a.getAttribute('href').slice(1)).dataset.b]);
+    linkit.sort((x, y) => d(x) - d(y));
+    const a = linkit[0], b0 = +a.closest('[data-b]').dataset.b, bt = +document.getElementById(a.getAttribute('href').slice(1)).dataset.b;
+    L.hyppaa({ b: b0, o: 0 }); await odota();
+    a.click(); await odota();
+    return { matka: +Math.abs((N.cum[b0] - N.cum[bt]) / N.total).toFixed(2), majakka: !document.getElementById('majakka').hidden };
+  });
+  tulos('lähdeviittaus jättää majakan', lahdeV.ohitettu || lahdeV.majakka, JSON.stringify(lahdeV));
 
   // Alaviitteen lyhennelinkki (md.js, viittaukset()) vie lyhenteen selitykseen; lähtökohta on edempänä,
   // joten nuoli osoittaa alas, ja paluu vie takaisin.

@@ -896,7 +896,7 @@
       e.preventDefault();
       var kohde = document.getElementById(href.slice(1));
       suljePop();
-      if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 });
+      if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 }, false, false, a.classList.contains('lahde') ? 'lahde' : '');
       return;
     }
     var b = e.target.closest('button[data-k]');
@@ -1346,7 +1346,7 @@
     var a = t.closest('#teksti a[href]');
     if (a) {
       var href = a.getAttribute('href');
-      if (href.charAt(0) === '#') { e.preventDefault(); var kohde = document.getElementById(href.slice(1)); if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 }); }
+      if (href.charAt(0) === '#') { e.preventDefault(); var kohde = document.getElementById(href.slice(1)); if (kohde && kohde.dataset.b) hyppaa({ b: +kohde.dataset.b, o: 0 }, false, false, a.classList.contains('lahde') ? 'lahde' : ''); }
       else { a.target = '_blank'; a.rel = 'noopener'; }
       return;
     }
@@ -1764,13 +1764,18 @@
      (myös sivunkääntönapautuksesta) tai uudesta isosta hypystä, jonka lähtökohdasta tulee uusi majakka.
      Pyyhkäisy, näppäimet, sivunapit ja vieritys eivät poista sitä. Peräkkäiset hakuosumat säilyttävät
      haun ensimmäisen lähtökohdan. Majakkaa ei tallenneta: se koskee vain tätä lukukertaa. */
-  function hyppaa(k, haku, eiMajakkaa) {
+  function hyppaa(k, haku, eiMajakkaa, tapa) {
     var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
     mene(k, ylaPeitto() && YLA + ylaPeitto());
     if (!ed) return;
     var iso = sivut ? Math.abs(tila.sivu - p0) >= 2 : Math.abs(scrollY - y0) >= 2 * innerHeight;
-    // Alle puolen kirjan mittainen hyppy ei jätä majakkaa (käyttäjän päätös 22.10.2026), eikä sisällysluettelon linkki.
-    if (eiMajakkaa || Math.abs(osuus(ed) - osuus(k)) < 0.5) iso = false;
+    // Lähdeviittauksen (alaviite → kirjallisuusluettelo tai selitysosio) majakka on aina ensisijainen: jokainen
+    // hyppy, joka siirtää näkymää, jättää sen, matkan pituudesta riippumatta (käyttäjän päätös 22.10.2026).
+    if (tapa === 'lahde') iso = sivut ? tila.sivu !== p0 : Math.abs(scrollY - y0) >= 1;
+    // Aikajanalta tehty alle puolen kirjan mittainen hyppy ei jätä majakkaa (käyttäjän päätös 22.10.2026;
+    // koskee vain aikajanaa), eikä sisällysluettelon linkki.
+    if (tapa === 'jana' && Math.abs(osuus(ed) - osuus(k)) < 0.5) iso = false;
+    if (eiMajakkaa) iso = false;
     if (!iso || haku && nyt.majakka && nyt.majakka.haku) return;
     // Vierityksessä myös tarkka kohta: ankkuri on rivi y = YLA:ssa, ja ylimmän rivin ollessa
     // lohkojen välissä (esim. sisällysluettelo) mene() vierittäisi seuraavan lohkon ylös.
@@ -1951,7 +1956,7 @@
       odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x); });
     });
     svg.addEventListener('pointerleave', function () { if (!veto) { if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } paivita(); } });
-    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); if (m.majakka) palaa(); else hyppaa(m.k); });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); if (m.majakka) palaa(); else hyppaa(m.k, false, false, 'jana'); });
     svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
 
@@ -2632,7 +2637,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku) { hyppaa(k, haku); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
+  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
