@@ -712,6 +712,10 @@ Käyttäjän vaatimukset 20.10.2026:
     rivin perään `[n/m]` ja kirjanmerkin perään esikatselussa näkymätön `<!-- kohta: katkelma -->`. Tiedosto tunnistetaan
     `#`-otsikosta ja rivistä *Luetun merkinnät*, osiot tekstin otsikoista. Vanhasta viennistä (ilman näitä) tuodaan
     kirjanmerkit likimäärin. Säännöt: `luin/ohje.md`, luku 4.6.
+    Onnistunut tuonti (käyttäjän pyyntö 22.10.2026, `naytaTuotu()`) avaa Tuo-napin päälle kuittauksen (ruosteinen rasti,
+    *Merkinnät tuotu*, *Palaa tekstiin*, *Katso merkinnät listasta*), jotta nappia ei paineta uudestaan. Tuotu sijainti on
+    kyltti: ruosteinen kehys, *Jatka siitä, mihin jäit* ja osion nimi, täytetty ruosteinen pää, jonka kolmio osoittaa suuntaan
+    kuten paluumajakassa. Tilarivin kursiivin seassa ollut ruosteinen linkki ei erottunut; tilarivi jää kuittauksen alle.
 Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehitys/testi.js` tarkistaa ne):
 - `kohdanLaatikko` ottaa merkin laatikoista **viimeisen**: tavutusrajan jälkeisen merkin ensimmäinen
   laatikko on Chromiumissa edellisen rivin lopun tavuviiva (6,7 px, edellisellä sivulla).

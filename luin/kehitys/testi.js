@@ -201,7 +201,16 @@ palvelin.listen(0, async () => {
     const m = window.__luin.nyt().merk, k = x => JSON.stringify({ al: x.al.map(h => [h.segs.map(s => [s.b, s.s, s.e]), h.n]), km: x.km.map(q => [q.b, q.o]) });
     return { tieto: document.querySelector('#tuo-tieto').textContent, merkit: document.querySelectorAll('mark.ali').length, sama: k(m) === k(JSON.parse(window.__alkup)) };
   });
-  await p.click('#tuo-tieto button[data-siirry]'); await p.waitForTimeout(400);
+  // Kuittaus peittää Tuo-napin, ja sen kyltti vie tuotuun sijaintiin.
+  const kuittaus = await p.evaluate(() => {
+    const pop = document.querySelector('#pop'), r = pop.getBoundingClientRect(), t = document.querySelector('#tuo').getBoundingClientRect();
+    const keski = document.elementFromPoint(t.left + t.width / 2, t.top + t.height / 2);
+    return { auki: !pop.hidden && pop.classList.contains('tuotu'), peittaa: pop.contains(keski), ots: pop.querySelector('.t-ots').textContent,
+      kyltti: !!pop.querySelector('button.kyltti'), r: [r.left, r.top, r.width, r.height].map(Math.round) };
+  });
+  tulos('tuonnin kuittaus', kuittaus.auki && kuittaus.peittaa && kuittaus.ots === 'Merkinnät tuotu' && kuittaus.kyltti, JSON.stringify(kuittaus));
+  await kuva('tuonnin-kuittaus');
+  await p.click('#pop button.kyltti'); await p.waitForTimeout(400);
   const perilla = (await tila()).a;
   tulos('merkintöjen tuonti', vrt.sama && vrt.merkit > 0 && vienti2.includes('Sijainti: ') && vienti2.includes(osio.nimi) && /<!-- kohta/.test(vienti2) &&
     perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
