@@ -712,10 +712,12 @@
   }
 
   // Otsikkolohkon tietorivit etukentästä, kun tekstissä itsessään ei ole tietorivejä (verkkoleike, Latomon kentät).
-  function tietorivit(m) {
+  // Alaotsikon paikalla näkyvä kehys (blogin nimi, kokoelma) ei toistu tietorivillä.
+  function tietorivit(m, kehys) {
     var r = [], p = pvm(m.julkaistu);
     if (m['tekijä']) r.push(m['tekijä']);
-    var rivi = [[m.laji, m['yhteisö']].filter(Boolean).join(', ') || m.teos || m.sivusto || '', p ? pvmMuoto(p, 'meta') : ''].filter(Boolean).join(', ');
+    var paikka = [m.teos, m.sivusto].filter(function (x) { return x && String(x).trim() !== kehys; })[0];
+    var rivi = [[m.laji, m['yhteisö']].filter(Boolean).join(', ') || paikka || '', p ? pvmMuoto(p, 'meta') : ''].filter(Boolean).join(', ');
     if (rivi) r.push(rivi);
     return r;
   }
@@ -882,7 +884,7 @@
   /*
     parse(md) → {
       meta: etukentän avaimet yhtenäistettyinä (viite, osoite, otsikko, tekijä, julkaistu, sivusto …), raaka,
-      title, sub, lines (tietorivit), author, year,
+      title, sub, lines (tietorivit), author, year, kehys: alaotsikon paikalla näkyvä blogin nimi tai kokoelma,
       tiedot: lähdetiedot (KENTAT; etukenttä ohittaa tekstistä päätellyn), paatelty: tekstistä päätelty
         (otsikko, alaotsikko, tekijä, julkaistu), viite: etukentän viite tai tiedoista koottu,
       toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg }],
@@ -893,7 +895,7 @@
   function parse(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
     var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [],
-      viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [] };
+      viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [], kehys: '' };
     var ek = etukentta(src);
     res.meta = ek.meta; res.raaka = ek.raaka;
     var V = valmistele(ek.body, ek.ln);
@@ -930,6 +932,25 @@
     [V.fn, V.cite].forEach(function (o) { Object.keys(o).forEach(function (k) { maaritelmat.push(o[k].text); }); });
     vt = viittaukset(tokens, uniq, maaritelmat);
 
+    // Kehys: blogin nimi tai kaunokirjallisen tekstin kokoelma näkyy alaotsikon paikalla, jos alaotsikkoa ei ole
+    // (käyttäjän päätös 22.10.2026). Tieteellisen tekstin lehti tai kokoomateos jää tietoriville.
+    function alaotsikkoon(tx) { return /^\*(?!\*)([\s\S]+?)\*$/.exec(tx) || /^_(?!_)([\s\S]+?)_$/.exec(tx); }
+    var ty0 = tyyppiAvain(m.tyyppi), kehys = '';
+    if (!m.alaotsikko) kehys = String((ty0 === 'kaunokirjallinen' ? m.teos || m.sivusto : ty0 === 'tieteellinen' ? '' : m.sivusto) || '').trim();
+    if (kehys && tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
+      for (var j0 = 1; j0 < tokens.length && tokens[j0].t === 'p'; j0++) {
+        var tx0 = tokens[j0].text.trim(), em0 = alaotsikkoon(tx0);
+        if (em0 && em0[1].indexOf('*') < 0) { kehys = ''; break; }
+        if (!tietorivi(tx0)) break;
+      }
+    }
+    var kehysTehty = false;
+    function lisaaKehys() {
+      if (!kehys || kehysTehty) return;
+      head += blk('p', 'sub', kehys);
+      kehysTehty = true;
+    }
+
     // Otsikkolohko
     var auth = '', jp = null;
     if (tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
@@ -940,11 +961,12 @@
       while (t0 < tokens.length && tokens[t0].t === 'p') {
         var tx = tokens[t0].text.trim();
         curLn = tokens[t0].ln;
-        var em = /^\*(?!\*)([\s\S]+?)\*$/.exec(tx) || /^_(?!_)([\s\S]+?)_$/.exec(tx);
+        var em = alaotsikkoon(tx);
         if (em && !res.sub && em[1].indexOf('*') < 0) {
           res.sub = plain(em[1]);
           head += blk('p', 'sub', em[1]);
         } else if (tietorivi(tx)) {
+          lisaaKehys();
           tx.split('\n').forEach(function (l) { l = plain(l.replace(/\\[ \t]*$/, '')).trim(); if (l) res.lines.push(l); });
           head += blk('p', 'meta', tx, metaCtx);
         } else break;
@@ -962,9 +984,12 @@
     // Otsikko ja tietorivit etukentästä, jos tekstissä ei ole niitä (verkkoleike, Latomon kentät, pelkkä teksti).
     if (!head && m.otsikko) {
       head = '<header class="tt">' + blk('h1', '', m.otsikko) + (m.alaotsikko ? blk('p', 'sub', m.alaotsikko) : '');
+      lisaaKehys();
     } else if (head && !res.sub && m.alaotsikko && !res.lines.length) head += blk('p', 'sub', m.alaotsikko);
+    else if (head && !res.sub) lisaaKehys();
+    if (!kehysTehty) kehys = '';
     if (head && !res.lines.length) {
-      var tr = tietorivit(m);
+      var tr = tietorivit(m, kehys);
       if (tr.length) { head += blk('p', 'meta', tr.join('\n'), metaCtx); res.lines = tr; }
     }
     if (head) html += head + '</header>';
@@ -1094,6 +1119,7 @@
     tied.tyyppi = tyyppiAvain(tied.tyyppi);
     res.title = tied.otsikko || res.title;
     res.sub = tied.alaotsikko;
+    res.kehys = kehys;
     res.author = tied['tekijä'];
     var vp = pvm(tied.julkaistu), ym = /\b(1[5-9]\d\d|20\d\d)\b/.exec(res.lines.join(' '));
     res.year = vp ? String(vp.y) : m.vuosi || (ym ? ym[1] : '');

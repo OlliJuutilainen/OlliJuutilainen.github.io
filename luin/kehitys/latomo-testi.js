@@ -3,7 +3,8 @@
 // Tarkistaa: tutkielma läpäisee Latomon muuttumattomana, tyypin ja kenttien vaikutuksen etukenttään ja
 // viitteeseen, lisäkentät (osana teosta avaa toimittajat, vuosikerran ja sivut), MarkDownload-leikkeen
 // (oletuspohja ja latomo-ohje.html:n suositeltu pohja), pelkän tekstin ehdotukset, julkaisuajan
-// tarkkuuden, siirron Luiniin (lukulista ja jakovalikon lukutiedot ehdotuksena) ja puhelimen leveyden.
+// tarkkuuden, blogin nimen ja kaunokirjallisen kokoelman alaotsikon paikalla, siirron Luiniin (lukulista ja
+// jakovalikon lukutiedot ehdotuksena) ja puhelimen leveyden.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -142,6 +143,7 @@ palvelin.listen(0, async () => {
   await p.fill('#k-sivusto', 'Risto Uron blogi');
   await p.waitForTimeout(300);
   t = await T();
+  tulos('blogin nimi alaotsikon paikalla', await p.textContent('#tiedot .ala') === 'Risto Uron blogi' && !/Risto Uron blogi/.test(await p.textContent('#tiedot .meta')), await p.textContent('#tiedot'));
   tulos('blogin viite Teologian tyylin mukaan', t.koottu === 'Uro, Risto (2017). Auttaako evoluutio ymmärtämään uskontoa? *Risto Uron blogi* huhtikuu/2017. http://blogs.helsinki.fi/uro/2017/04/ (luettu 23.10.2017).', t.koottu);
   tulos('yläindeksit ja tyhjä linkki', /^Kappale\.\^1\^ Toinen\^\[2\]\(https:\/\/example\.org\/x\)\^ ja H~2~O\.\n\n\n\n\[4\]:/m.test(t.md) &&
     /1 tyhjä linkki\. 3 HTML-indeksiä Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
@@ -163,19 +165,38 @@ palvelin.listen(0, async () => {
   await p.waitForTimeout(300);
   tulos('rivit kappaleiksi', (await p.inputValue('#md')).startsWith('Ensimmäinen rivi on tässä.\n\nToinen rivi jatkuu.\n\nKolmas'));
 
-  // 7. Luiniin: lukulista näyttää sivuston, jakovalikon viitteessä ei ole lukutietoja ennen kuin ne valitaan.
+  // 7. Luiniin: lukulista näyttää sivuston alaotsikon paikalla (ei toistoa tietorivillä), jakovalikon viitteessä
+  // ei ole lukutietoja ennen kuin ne valitaan.
   await p.click('#avaa');
   await p.waitForTimeout(800);
+  const ylla = await p.evaluate(() => [document.querySelector('#teksti header.tt .sub'), document.querySelector('#teksti header.tt .meta')].map(x => x && x.textContent));
+  tulos('ladotussa blogin nimi alaotsikkona', ylla[0] === 'Tusinablogi' && !/Tusinablogi/.test(ylla[1] || ''), JSON.stringify(ylla));
   await p.goto(BASE + 'luin.html');
   await p.waitForTimeout(400);
-  const lista = await p.$eval('.nimike .n-tieto', x => x.textContent);
-  tulos('lukulistassa sivusto', lista.startsWith('Tusinablogi'), lista);
+  const lista = await p.$eval('.nimike', x => [x.querySelector('.n-ala') && x.querySelector('.n-ala').textContent, x.querySelector('.n-tieto').textContent]);
+  tulos('lukulistassa sivusto alaotsikkona', lista[0] === 'Tusinablogi' && !/Tusinablogi/.test(lista[1]), JSON.stringify(lista));
   await p.click('.nimike button.jako');
   const v0 = await p.textContent('#pop .v-teksti');
   await p.click('#pop button[data-k="lisa"]');
   const v1 = await p.textContent('#pop .v-teksti');
   tulos('lukutiedot vain valittaessa', v0 === 'Kokeilu (2026). Tusinablogi 8.10.2026 klo 14.05.' && /Luettu HTML-versiona \d+\.\d+\.\d{4}\.$/.test(v1), v0 + ' → ' + v1);
   await kuva('3-jako');
+
+  // 7b. Kaunokirjallinen: kenttä Kokoelma näkyy oletuksena, ja kokoelma on alaotsikon paikalla.
+  await p.goto(BASE + 'luin/latomo.html');
+  await syota('# Sammakko ja kaivo\n\nSammakko asui kaivossa, ja kaivon suulta näkyi pyöreä pala taivasta, jota se piti koko maailmana pitkään.');
+  await p.selectOption('#tyyppi', 'kaunokirjallinen');
+  await p.fill('#k-tekijä', 'Olli Juutilainen');
+  await p.fill('#k-teos', 'Sammakon seikkailut');
+  await p.waitForTimeout(300);
+  t = await T();
+  const nimio = await p.textContent('.kentta[data-k="teos"] label');
+  tulos('kaunokirjallisen kokoelma', nimio === 'Kokoelma' && await p.textContent('#tiedot .ala') === 'Sammakon seikkailut' &&
+    t.koottu === 'Juutilainen, Olli (s.a.). Sammakko ja kaivo. *Sammakon seikkailut*.', nimio + ' | ' + t.koottu);
+  await p.selectOption('#tyyppi', 'tieteellinen');
+  await p.waitForTimeout(300);
+  tulos('tieteellisessä teos tietorivillä', await p.textContent('.kentta[data-k="teos"] label') === 'Osana teosta tai lehteä' && !(await p.$('#tiedot .ala')) &&
+    /Sammakon seikkailut/.test(await p.textContent('#tiedot .meta')), await p.textContent('#tiedot'));
 
   // 8. Puhelimen leveys: ei vaakavieritystä.
   await p.setViewportSize({ width: 360, height: 760 });

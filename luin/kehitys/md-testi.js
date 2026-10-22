@@ -84,5 +84,22 @@ sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant
 const o = M.parse(lue('../ohje.md'));
 tulos('opas: HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
 
+// Kehys: blogin nimi tai kaunokirjallisen kokoelma alaotsikon paikalla, ei toistoa tietorivillä.
+const PITKA = '\n\nLeipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.';
+const otsake = d => (/<header class="tt">([\s\S]*?)<\/header>/.exec(d.html) || [, ''])[1].replace(/ data-b="\d+"/g, '');
+const kb = M.parse('---\ntyyppi: blogi\ntekijä: Maija Meikäläinen\nsivusto: Tusinablogi\njulkaistu: 2026-10\n---\n\n# Kirjoitus' + PITKA);
+sama('kehys: blogin nimi alaotsikkona', otsake(kb), '<h1>Kirjoitus</h1><p class="sub">Tusinablogi</p><p class="meta">Maija Meikäläinen<br>lokakuu 2026</p>');
+sama('kehys: kenttä', kb.kehys + ' / ' + kb.sub, 'Tusinablogi / ');
+const kk = M.parse('---\ntyyppi: kaunokirjallinen\nteos: Sammakon seikkailut\n---\n\n# Sammakko ja kaivo' + PITKA);
+sama('kehys: kaunokirjallisen kokoelma', otsake(kk), '<h1>Sammakko ja kaivo</h1><p class="sub">Sammakon seikkailut</p>');
+const kt = M.parse('---\ntyyppi: tieteellinen\nteos: Ajatus\n---\n\n# Artikkeli' + PITKA);
+sama('kehys: tieteellisen lehti tietorivillä', otsake(kt), '<h1>Artikkeli</h1><p class="meta">Ajatus</p>');
+const ko = M.parse('---\ntyyppi: blogi\nsivusto: Tusinablogi\n---\n\n# Kirjoitus\n\n*Oma alaotsikko*\n\nMaija Meikäläinen' + PITKA);
+sama('kehys: oma alaotsikko voittaa', otsake(ko) + ' / ' + ko.kehys, '<h1>Kirjoitus</h1><p class="sub">Oma alaotsikko</p><p class="meta">Maija Meikäläinen</p> / ');
+const kr = M.parse('---\ntyyppi: blogi\nsivusto: Tusinablogi\n---\n\n# Kirjoitus\n\nMaija Meikäläinen\\\n8.10.2026' + PITKA);
+sama('kehys: tekstin tietorivien edellä', otsake(kr), '<h1>Kirjoitus</h1><p class="sub">Tusinablogi</p><p class="meta">Maija Meikäläinen<br>8.10.2026</p>');
+const ke = M.parse('---\notsikko: Kirjoitus\nsivusto: Tusinablogi\n---' + PITKA);
+sama('kehys: etukentän otsikko, tyyppi määrittelemättä', otsake(ke), '<h1>Kirjoitus</h1><p class="sub">Tusinablogi</p>');
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

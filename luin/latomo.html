@@ -15,7 +15,8 @@
   - Merkinnät noudattavat iA Writeria (md.js): [^…]-alaviitteet, kenoviivarivinvaihto jne.
   - Tekstityyppi (ei määritelty, tieteellinen, blogi tai verkkosivu, kaunokirjallinen) valitsee
     oletuskentät Teologian tyylin hierarkiassa; +-napista lisäkentät, osana teosta avaa
-    toimittajat, vuosikerran ja sivut. Kaikki on vapaaehtoista, otsikko riittää.
+    toimittajat, vuosikerran ja sivut. Kaikki on vapaaehtoista, otsikko riittää. Kaunokirjallisella teos on
+    Kokoelma; se ja blogin nimi näkyvät Luinissa alaotsikon paikalla (md.js, kehys).
   - Kentät esitäytetään tekstistä ja etukentästä. Etukenttään kirjoitetaan vain se, mikä poikkeaa
     tekstistä päätellystä, joten MarkDownload-leikkeen voi tallentaa sellaisenaan.
   - Lähdeviite kootaan kentistä (LuinMD.kokoaViite); oma viite ohittaa sen. HTML-version
@@ -227,14 +228,16 @@
      Järjestys on Teologian tyylin viitteen järjestys: tekijä, aika, nimi, käännös, osana teosta (vuosikerta,
      toimittajat), painos, sarja, laji, yhteisö, paikka: kustantaja, sivut, sivusto, DOI, verkko-osoite (luettu).
      nak: tyypit, joilla kenttä näkyy aina (e ei määritelty, t tieteellinen, b blogi, k kaunokirjallinen);
-     saa: tyypit, joilla sen saa +-napista; ehto: näkyy vasta, kun teos on annettu. */
+     saa: tyypit, joilla sen saa +-napista; ehto: näkyy vasta, kun teos on annettu; tyypille: tyypin oma nimi ja vihje. */
   var KENTAT = [
     { k: 'tekijä', nimi: 'Kirjoittaja(t)', nak: 'etbk', vihje: 'Etunimi Sukunimi; useampi &-merkillä', nimet: true },
     { k: 'julkaistu', nimi: 'Julkaistu', nak: 'etbk', pvm: true, vihje: 'esim. 10/2026 tai 8.10.2026' },
     { k: 'otsikko', nimi: 'Otsikko', nak: 'etbk' },
     { k: 'alaotsikko', nimi: 'Alaotsikko', nak: 'etk', saa: 'b' },
     { k: 'suomentaja', nimi: 'Suomentaja', saa: 'etk' },
-    { k: 'teos', nimi: 'Osana teosta tai lehteä', saa: 'etk', vihje: 'kokoomateos, lehti tai kokoelma' },
+    { k: 'teos', nimi: 'Osana teosta tai lehteä', nak: 'k', saa: 'et', vihje: 'kokoomateos, lehti tai kokoelma',
+      // Kaunokirjallisella kokoelma: novelli-, runo- tai esseekokoelma, antologia tai lehti. Näkyy Luinissa alaotsikon paikalla.
+      tyypille: { k: { nimi: 'Kokoelma', vihje: 'esim. novelli- tai runokokoelma, antologia, lehti' } } },
     { k: 'numero', nimi: 'Vuosikerta ja numero', saa: 'etk', ehto: 'teos', vihje: 'esim. 68 tai 8:1' },
     { k: 'toimittaja', nimi: 'Toimittaja(t)', saa: 'etk', ehto: 'teos', nimet: true },
     { k: 'painos', nimi: 'Painos', saa: 'etk', vihje: 'esim. 2. tarkistettu painos' },
@@ -267,6 +270,7 @@
   try { mdl = localStorage.getItem('latomo-markdownload') === '1'; } catch (e) {}
 
   function koodi() { return KOODI[tila.tyyppi] || 'e'; }
+  function tyypin(f) { return (f.tyypille && f.tyypille[koodi()]) || f; }
   function nakyy(f) {
     if (f.ehto && !nakyy(KENTTA[f.ehto])) return !!tila.arvot[f.k];
     return (f.nak || '').indexOf(koodi()) >= 0 || !!tila.arvot[f.k] || !!tila.lisatyt[f.k];
@@ -424,6 +428,12 @@
     KENTAT.forEach(function (f) {
       var r = $('.kentta[data-k="' + f.k + '"]'), inp = $('input', r), n = nakyy(f);
       r.hidden = !n;
+      var o = tyypin(f), lb = $('label', r);
+      if (lb.textContent !== o.nimi) {
+        lb.textContent = o.nimi;
+        inp.placeholder = o.vihje || f.vihje || '';
+        $('.pois', r).setAttribute('aria-label', 'Poista: ' + o.nimi);
+      }
       if (document.activeElement !== inp && inp.value !== (tila.arvot[f.k] || '')) inp.value = tila.arvot[f.k] || '';
       $('.pois', r).hidden = (f.nak || '').indexOf(c) >= 0;
       var tk = $('.tulkinta', r), v = yksi(tila.arvot[f.k]), tx = '';
@@ -448,7 +458,7 @@
     var tarj = KENTAT.filter(saatavilla);
     $('#lisaa-osio').hidden = !tarj.length;
     var lv = $('#lisaa-valikko');
-    if (!lv.hidden) lv.innerHTML = tarj.map(function (f) { return '<button type="button" class="pieni-nappi" data-k="' + f.k + '">' + f.nimi + '</button>'; }).join('');
+    if (!lv.hidden) lv.innerHTML = tarj.map(function (f) { return '<button type="button" class="pieni-nappi" data-k="' + f.k + '">' + tyypin(f).nimi + '</button>'; }).join('');
     if (!tarj.length) { lv.hidden = true; $('#lisaa').setAttribute('aria-expanded', 'false'); }
     $('#suositus').hidden = !(c === 'b' && !yksi(tila.arvot['tekijä']) && !yksi(tila.arvot.sivusto));
   }
@@ -489,7 +499,7 @@
     var dv = tulos.doc;
     $('#tarkistus').hidden = $('#tiedot-osio').hidden = $('#rakenne-osio').hidden = false;
     $('#tiedot').innerHTML = '<div class="nimi">' + esc(dv.title || nimi || 'Nimetön') + '</div>' +
-      (dv.sub ? '<div class="ala">' + esc(dv.sub) + '</div>' : '') +
+      (dv.sub || dv.kehys ? '<div class="ala">' + esc(dv.sub || dv.kehys) + '</div>' : '') +
       (dv.lines.length ? '<div class="meta">' + dv.lines.map(esc).join('<br>') + '</div>' : '');
     var l = [0, 0, 0, 0], bib = (d.html.match(/class="bib"/g) || []).length, tau = (d.html.match(/<table /g) || []).length;
     d.toc.forEach(function (t) { l[t.lvl]++; });
