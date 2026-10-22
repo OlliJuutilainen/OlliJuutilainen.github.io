@@ -10,8 +10,9 @@
   Latomon (latomo.html) ohje kirjoittajalle ja leikkeiden tallentajalle (käyttäjän pyyntö 22.10.2026:
   "latomon ohjeisiin tärkeä: järkevä yhteispeli firefoxin markdownload-lisäosan kanssa"). Lukijan ohje on
   kayttoohje.html, kehittäjän opas ohje.md. Rakenne ja tyylit kuten kayttoohje.html:ssä.
-  MarkDownloadin asetusten nimet ja muuttujat on tarkistettu lisäosan käyttöoppaasta (deathau/markdownload,
-  user-guide.md) 22.10.2026; oikealla Firefoxilla testaamatta.
+  MarkDownloadin asetusten nimet ja muuttujat on tarkistettu lisäosan lähdekoodista (deathau/markdownload 3.4.0:
+  default-options.js, options.html, background.js) 22.10.2026, ja suositukset on mitattu ajamalla sen muunnosketjua
+  (Readability + Turndown) Chromiumissa; oikealla Firefoxilla testaamatta.
 -->
 <script>
   try {
@@ -58,6 +59,7 @@
   th, td { text-align: left; vertical-align: top; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--viiva); }
   th { font-weight: 400; font-style: italic; color: var(--harmaa); }
   td:first-child { white-space: nowrap; padding-right: 14px; }
+  td.ryhma { white-space: normal; padding-top: 14px; }
   button { font: inherit; color: inherit; background: none; border: 1px solid var(--muste); padding: 0 12px; min-height: 36px;
     cursor: pointer; font-size: .86rem; }
   .huom { font-size: .88rem; color: var(--harmaa); padding-left: 12px; border-left: 1px solid var(--viiva); }
@@ -151,39 +153,72 @@
   <h2 id="markdownload">MarkDownload ja verkkoleikkeet</h2>
   <p><a href="https://addons.mozilla.org/firefox/addon/markdownload/">MarkDownload</a> on Firefoxin lisäosa, joka tallentaa
     verkkosivun artikkelin Markdown-tiedostoksi. Leikkeen voi pudottaa Latomoon sellaisenaan, ilman täyttöhommia.</p>
-  <p>Kytke Latomossa <span class="ui">MarkDownload-leike</span> päälle (valinta muistetaan). Silloin Latomo</p>
+  <p>Kytke Latomossa <span class="ui">MarkDownload-leike</span> päälle (valinta muistetaan; Latomo ehdottaa sitä, kun
+    teksti näyttää leikkeeltä). Silloin Latomo</p>
   <ul>
-    <li>jättää tuloksesta pois leikkeen jäänteet: tyhjät <code>**</code>-rivit, upotukset (<code>&lt;iframe&gt;</code>) ja
-      oletuspohjan <span class="ui">Excerpt</span>-lainauksen,</li>
-    <li>lukee etukentästä tekijän, lähteen ja tallennusajan, myös MarkDownloadin oletuspohjan englanninkielisillä
+    <li>jättää tuloksesta pois leikkeen jäänteet: tyhjät <code>**</code>-rivit, upotukset (<code>&lt;iframe&gt;</code>),
+      oletuspohjan <span class="ui">Excerpt</span>-lainauksen ja kuvattomiksi jääneet tyhjät linkit,</li>
+    <li>muuttaa sivun omat HTML-yläindeksit (alaviitemerkit kuten <code>&lt;sup&gt;1&lt;/sup&gt;</code>) iA Writerin
+      muotoon <code>^1^</code>; linkki leikkeen omalle sivulle jää pelkäksi numeroksi,</li>
+    <li>lukee etukentästä tekijän, sivuston, julkaisuajan, lähteen ja tallennusajan, myös englanninkielisillä
       avaimilla (<code>author</code>, <code>source</code>, <code>created</code>),</li>
     <li>lukee leikkeen lopusta rivit kuten <code>Tallennettu: 2026-10-08</code> ja <code>Lähde: https://…</code>,</li>
-    <li>valitsee tyypiksi blogin tai verkkosivun ja poistaa tekijän edestä sanan <span class="ui">By</span>.</li>
+    <li>valitsee tyypiksi blogin ja poistaa tekijän edestä sanan <span class="ui">By</span>.</li>
   </ul>
   <p>Tekstikenttä pysyy ennallaan; siivous koskee vain tulosta.</p>
 
-  <h3>Asetukset Luinia varten</h3>
-  <p>MarkDownloadin asetuksista (lisäosan valikko → <span class="ui">Options</span>):</p>
+  <h3>Suositellut asetukset</h3>
+  <p>Asetukset tuottavat tiedoston, joka toimii sellaisenaan sekä Luinissa että iA Writerissä: etukenttä on iA Writerin
+    oma metatietolohko, ja leipätekstiin ei jää pitkiä osoitteita. MarkDownloadin asetukset avautuvat lisäosan
+    valikosta (<span class="ui">Options</span>). Järjestys on asetussivun.</p>
   <table>
     <tr><th>Asetus</th><th>Arvo ja syy</th></tr>
-    <tr><td>Title Template</td><td><code>{title}</code> (oletus): artikkelin otsikko ilman sivuston nimeä.</td></tr>
-    <tr><td>Front-matter template</td><td>alla oleva pohja; täyttää Latomon kentät valmiiksi.</td></tr>
-    <tr><td>Back-matter template</td><td>tyhjä, tai oma; Latomo lukee lopusta <code>Tallennettu:</code>- ja <code>Lähde:</code>-rivit.</td></tr>
-    <tr><td>Heading Style</td><td>Atx (<code>#</code>), kuten iA Writerissä.</td></tr>
-    <tr><td>Bullet List Marker</td><td><code>-</code></td></tr>
-    <tr><td>Code Block Style</td><td>Fenced, aitana <code>```</code></td></tr>
-    <tr><td>Emphasis / Strong</td><td><code>*</code> ja <code>**</code></td></tr>
-    <tr><td>Link Style</td><td>Inlined</td></tr>
-    <tr><td>Image Style</td><td>Strip Images: Luin ei näytä kuvia. (Original Source jättää ne linkeiksi.)</td></tr>
-    <tr><td>Download Images</td><td>pois</td></tr>
-    <tr><td>Escape Markdown Characters</td><td>päällä (oletus); Latomo ymmärtää kenoviivasuojaukset.</td></tr>
+    <tr><td class="ryhma" colspan="2"><b>Title template</b></td></tr>
+    <tr><td>Template for<br>title/filename</td><td><code>{title}</code>: artikkelin otsikko ilman sivuston nimeä.
+      (<code>{pageTitle}</code> on selaimen välilehden otsikko, jonka perässä on usein <span class="ui">| Sivusto</span>.)</td></tr>
+    <tr><td>Folder inside<br>Downloads/</td><td>vapaa, esimerkiksi <code>nettiartikkelit</code>.</td></tr>
+    <tr><td>Disallowed<br>Characters</td><td><code>[]#^</code>; muita ei tarvita.</td></tr>
+    <tr><td class="ryhma" colspan="2"><b>Front-matter template, Back-matter template</b></td></tr>
+    <tr><td>Front-matter</td><td>alla oleva pohja. Etukenttä täyttää Latomon kentät, ja iA Writer näyttää sen
+      metatietoina.</td></tr>
+    <tr><td>Back-matter</td><td>tyhjä: tiedot ovat jo etukentässä. Lopun rivit näkyisivät Luinissa tekstin
+      viimeisenä kappaleena.</td></tr>
+    <tr><td>Append front/back<br>template</td><td>päällä. Ilman tätä pohjaa ei lisätä lainkaan.</td></tr>
+    <tr><td class="ryhma" colspan="2"><b>Other options, Download Mode</b></td></tr>
+    <tr><td>Context Menus</td><td>päällä: hiiren oikean napin valikosta saa tallennettua myös pelkän valitun kohdan
+      (<span class="ui">Download Selection as Markdown</span>), kun koko sivu ei leikkaudu oikein.</td></tr>
+    <tr><td>Obsidian Integration</td><td>pois.</td></tr>
+    <tr><td>Download Mode</td><td>Downloads API; vain se sallii alikansion.</td></tr>
+    <tr><td>Save As dialog</td><td>päällä, jos haluat tallentaa leikkeet suoraan iA Writerin kirjastokansioon;
+      muuten pois.</td></tr>
+    <tr><td>Download images</td><td>pois: Luin ei näytä kuvia.</td></tr>
+    <tr><td class="ryhma" colspan="2"><b>Markdown conversion options</b></td></tr>
+    <tr><td>Heading Style</td><td>Atx (<code>#</code>), kuten iA Writerissä ja Luinissa.</td></tr>
+    <tr><td>Horizontal Rule</td><td><code>___</code>: ei sekoitu etukentän <code>---</code>-rajoihin eikä muutu
+      iA Writerissä otsikoksi, jos viivan yläpuolinen tyhjä rivi joskus katoaa.</td></tr>
+    <tr><td>Bullet List Marker</td><td><code>-</code>: ei sekoitu kursiivin tähtiin.</td></tr>
+    <tr><td>Code Block Style</td><td>Fenced, aitana <code>```</code>. Sisennetty koodi on vaarallinen, koska vahingossa
+      sisennetty kappale näyttää samalta.</td></tr>
+    <tr><td>Emphasis</td><td><code>*italics*</code>: vain tähti toimii sanan sisällä, mitä suomen taivutus vaatii
+      (<code>*Kritiikki*n</code>; alaviivalla <code>_Kritiikki_n</code> jää tekstiksi).</td></tr>
+    <tr><td>Strong</td><td><code>**bold**</code>, samasta syystä.</td></tr>
+    <tr><td>Link Style</td><td>Referenced: leipäteksti pysyy iA Writerissä luettavana (<code>[tästä][1]</code>), ja
+      osoitteet ovat tiedoston lopussa. Linkit säilyvät, toisin kuin <span class="ui">Strip Links</span> -valinnalla.
+      (Inlined on myös kelpo, jos osoitteet saavat näkyä tekstissä.)</td></tr>
+    <tr><td>Link Reference<br>Style</td><td>Full (<code>[1]</code>). Collapsed ja Shortcut nimeävät viitteen linkin
+      tekstillä, jolloin kaksi samannimistä linkkiä (<em>tästä</em>, <em>tästä</em>) vievät samaan osoitteeseen.</td></tr>
+    <tr><td>Image Style</td><td>Strip Images: Luin ei näytä kuvia, eikä iA Writerin tekstiin jää kuvaosoitteita.
+      Kuvateksti säilyy. (Jos kuvat ovat sisällön kannalta tärkeitä, Original Source jättää ne linkeiksi.)</td></tr>
+    <tr><td>Escape Markdown<br>Characters</td><td>päällä. Ilman suojausta tekstin <code>[1]</code> muuttuisi linkiksi
+      lopun viitteeseen <code>[1]:</code>, ja vuosiluvulla alkava kappale (<code>1984. vuonna …</code>)
+      numeroiduksi luetteloksi. Latomo ja
+      iA Writer ymmärtävät kenoviivat.</td></tr>
   </table>
   <p>Front-matter template:</p>
   <pre id="pohja">---
-tyyppi: blogi
 tekijä: {byline}
-sivusto: {og:site_name}
-julkaistu: {article:published_time}
+sivusto: {siteName}
+julkaistu: {publishedTime}
 lähde: {baseURI}
 haettu: {date:YYYY-MM-DD}
 ---
@@ -191,9 +226,14 @@ haettu: {date:YYYY-MM-DD}
 # {title}
 </pre>
   <p><button type="button" id="kopioi">Kopioi pohja</button></p>
-  <p class="huom"><code>{og:site_name}</code> ja <code>{article:published_time}</code> ovat sivun omia metatietoja, joita
-    MarkDownload käyttää, jos sivu kertoo ne. Täyttämättä jäänyt muuttuja ohitetaan, ja kentän voi täyttää Latomossa
-    käsin. Asetusten nimet ovat MarkDownloadin käyttöoppaasta; oikealla Firefoxilla pohjaa ei ole vielä kokeiltu.</p>
+  <p class="huom">Pohjan viimeinen rivi on tyhjä, eikä rivien alussa ole välilyöntejä. MarkDownload lisää pohjan perään
+    vain yhden rivinvaihdon, joten ilman tyhjää riviä pohjan viimeinen rivi liittyy artikkelin ensimmäiseen
+    kappaleeseen. Tekijää ei kirjoiteta otsikon alle kursiivilla (<code>*{byline}*</code>), koska Luin lukisi sen
+    alaotsikoksi; tekijä näkyy Luinissa otsikon alla etukentän perusteella. <code>{siteName}</code> ja
+    <code>{publishedTime}</code> tulevat sivun metatiedoista (Open Graph tai JSON-LD), jos sivu kertoo ne; täyttämättä
+    jäänyt muuttuja jää tyhjäksi, ja kentän voi täyttää Latomossa käsin. Tyyppiä ei kirjoiteta pohjaan, koska Latomo
+    valitsee blogin ja verkkosivun välillä vasta, kun näet leikkeen. Pohja ja asetukset on kokeiltu ajamalla
+    MarkDownloadin (3.4.0) omaa muunnoskoodia selaimessa; oikealla Firefoxilla testaamatta.</p>
 
   <h2>Julkinen osoite</h2>
   <p>Jos <code>.md</code>-tiedosto on verkossa, kirjoita sen osoite <span class="ui">Julkinen osoite</span> -kenttään. Silloin
