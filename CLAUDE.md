@@ -595,7 +595,7 @@ Käyttäjän vaatimukset 20.10.2026:
   vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa; `latomo-markdownload`) siivoaa jäänteet vain
   tuloksesta ja lukee tiedot etukentästä ja leikkeen lopusta; suositellut asetukset ja etukenttäpohja ovat
   Latomon ohjeessa (`latomo-ohje.html#markdownload`; käyttäjän pyyntö 22.10.2026: kaikki asetukset, ei oletusarvoja vaan
-  suositus; tulos on iA Writer -yhteensopiva, mutta ohje ei mainosta iA Writeria eikä neuvo sen käyttöä, koska moni ei käytä sitä (käyttäjän päätös 22.10.2026); nimet ja suositukset tarkistettu MarkDownload 3.4.0:n lähdekoodista ja
+  suositus; tulos on iA Writer -yhteensopiva, mutta ohje ei mainosta iA Writeria eikä neuvo sen käyttöä, koska moni ei käytä sitä (käyttäjän päätös 22.10.2026). iA Writer mainitaan vain, kun se vastaa kysymykseen *miksi juuri näin* (merkintöjen alkuperä Merkinnät-osion johdannossa, `^…^`, `^[…]`-muunnos); nimet ja suositukset tarkistettu MarkDownload 3.4.0:n lähdekoodista ja
   sen muunnosketjua Chromiumissa ajamalla, oikealla Firefoxilla testaamatta). Kytkin poistaa myös tyhjät linkit ja muuttaa
   `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
