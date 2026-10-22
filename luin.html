@@ -340,7 +340,7 @@
   .j-km { fill: var(--ruoste); }
   .j-nyt { fill: var(--muste); }
   .j-nyt-v { stroke: var(--muste); stroke-width: .9; }
-  /* Vedettäessä osoitin seuraa sormea, ja voimassa oleva kohta jää haalean harmaaksi haamuksi. */
+  /* Vedettäessä osoitin seuraa sormea luetun osan raja mukanaan, ja voimassa oleva kohta jää haalean harmaaksi haamuksi. */
   .haamu .j-nyt { fill: var(--viiva); }
   .haamu .j-nyt-v { stroke: var(--viiva); }
   /* Paluumajakka (käyttäjän pyyntö 21.10.2026): ison hypyn jälkeen alapalkin (ja avoimen aikajanan) yläpuolella
@@ -1807,12 +1807,13 @@
     var w = svg.clientWidth || 300, h = 46, x0 = JANA.pad, x1 = w - JANA.pad, y = JANA.y;
     var X = function (f) { return x0 + f * (x1 - x0); };
     // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit aina kuparisina.
-    var nf = osuus(tila.ankkuri), cx = X(nf), luettu = '', tuleva = '';
-    var s = '<path class="j-viiva" d="M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + cx + '"/>' +
-      '<g' + (nf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="M' + cx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4) + '"/></g>';
+    // Vedettäessä raja (vedenjakaja) seuraa vedettävää osoitinta, ks. vedenjakaja().
+    var nf = osuus(tila.ankkuri), cx = X(nf), wf = janaVeto ? janaVeto.f : nf, wx = X(wf), luettu = '', tuleva = '';
+    var s = '<path id="j-luettu" class="j-viiva" d="' + janaLuettu(x0, wx, y) + '"/>' +
+      '<g id="j-loppu"' + (wf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="' + janaTuleva(wx, x1, y) + '"/></g>';
     var maj = '';
     janaKohteet().forEach(function (m) {
-      var f = osuus(m.k), x = X(f), on = m.km || f <= nf, d;
+      var f = osuus(m.k), x = X(f), on = m.km || f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
       if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 3, 7, 12) + '"/>';
@@ -1820,15 +1821,33 @@
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
       }
-      d = '<g><title>' + esc(m.nimi) + '</title>' + d + '</g>';
+      // Etappi saa osuutensa, jotta vedenjakaja() voi vaihtaa sen luetuksi tai tulevaksi piirtämättä janaa.
+      d = '<g' + (m.km ? '' : ' data-f="' + f + '"' + (on ? '' : ' class="tuleva"')) + '><title>' + esc(m.nimi) + '</title>' + d + '</g>';
       if (on) luettu += d; else tuleva += d;
     });
-    s += '<g class="tuleva">' + tuleva + '</g>' + luettu + maj;
+    s += tuleva + luettu + maj;
     var osoitin = '<path class="j-nyt-v" d="M0 9V' + (y + 13) + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
     s += '<g' + (janaVeto ? ' class="haamu"' : '') + ' transform="translate(' + cx + ' 0)">' + osoitin + '</g>';
     if (janaVeto) s += '<g id="j-veto" transform="translate(' + X(janaVeto.f) + ' 0)">' + osoitin + '</g>';
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
+  }
+  function janaLuettu(x0, wx, y) { return 'M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + wx; }
+  function janaTuleva(wx, x1, y) { return 'M' + wx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4); }
+  // Käyttäjän pyyntö 22.10.2026: vedettäessä luetun ja tulevan raja seuraa vedettävää osoitinta, vaikka
+  // voimassa oleva kohta (haamu) ei muutu. Janaa ei piirretä uudelleen: viivojen päät siirtyvät, ja vain
+  // rajan yli menneiden etappien luokka vaihtuu, joten e-ink päivittää vain muuttuneen alueen.
+  function vedenjakaja(f) {
+    var svg = $('#jana-svg'), w = svg.getBoundingClientRect().width, x0 = JANA.pad, x1 = w - JANA.pad, wx = x0 + f * (x1 - x0);
+    var l = $('#j-luettu'), t = $('#j-loppu');
+    if (!l || !t) return;
+    l.setAttribute('d', janaLuettu(x0, wx, JANA.y));
+    t.firstChild.setAttribute('d', janaTuleva(wx, x1, JANA.y));
+    if (t.classList.contains('tuleva') !== f < 1) t.classList.toggle('tuleva');
+    svg.querySelectorAll('g[data-f]').forEach(function (g) {
+      var tul = +g.dataset.f > f;
+      if (g.classList.contains('tuleva') !== tul) g.classList.toggle('tuleva');
+    });
   }
   // Sivun ensimmäinen merkki. Aikajana ei enää käytä tätä (sivutettuna se pysähtyy vain merkkeihin,
   // ks. janaKohde), mutta testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
@@ -1885,9 +1904,9 @@
     var kk = { b: b, o: o }, osio = osioKohdassa(kk);
     return { k: kk, nimi: osio ? osio.text : nyt.e.title };
   }
-  // Vedon aikana voimassa oleva kohta pysyy (teksti ei liiku, luettu osa ei muutu), ja vain
-  // vedettävä osoitin siirtyy. Liikkeessä siirretään vain sen transformia, ei piirretä janaa
-  // uudelleen, ja kerran ruudunpäivitystä kohden: e-ink päivittää näin vain pienen alueen.
+  // Vedon aikana voimassa oleva kohta pysyy (teksti ei liiku, haamu jää paikalleen), ja vedettävä
+  // osoitin siirtyy luetun osan raja mukanaan. Liikkeessä siirretään vain sen transformia ja rajaa
+  // (vedenjakaja), ei piirretä janaa uudelleen, ja kerran ruudunpäivitystä kohden.
   var janaVeto = null;
   (function () {
     var svg = $('#jana-svg'), veto = false, odottaa = null;
@@ -1900,6 +1919,7 @@
       if (uusi || !g) { piirraJana(); return; }
       var r = svg.getBoundingClientRect();
       g.setAttribute('transform', 'translate(' + (JANA.pad + f * (r.width - 2 * JANA.pad)) + ' 0)');
+      vedenjakaja(f);
     };
     var loppu = function () { veto = false; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
     svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX); });
