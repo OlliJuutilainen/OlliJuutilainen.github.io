@@ -485,11 +485,11 @@
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
-       Automaattinen alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
+       Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
-    <div class="valinnat nipukka" data-k="auto:Automaattinen alleviivaus"></div></div>
+    <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div></div>
   <h3>Aikajana</h3>
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
@@ -596,7 +596,7 @@
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
   // salmiakkien ja logon kanssa. Vanha tallennettu arvo ohitetaan.
   delete aset.kirjasin;
-  // av 2 (21.10.2026): automaattinen alleviivaus ja aikajanan kaikki tasot tulivat oletuksiksi.
+  // av 2 (21.10.2026): sukkela alleviivaus ja aikajanan kaikki tasot tulivat oletuksiksi.
   // Aiemmin tallennetut asetukset sisälsivät vanhat oletukset, joten ne vaihdetaan kerran.
   if (tallennetut && !(tallennetut.av >= 2)) aset.auto = 1;
   // av 3 (21.10.2026): neljä otsikkotasoa (nimi, pääluku, alaluku, alaluvun alaluku), ja aikajanan
