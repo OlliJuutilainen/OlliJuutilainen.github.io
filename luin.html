@@ -610,6 +610,9 @@
   // av 4 (21.10.2026): viennin oletus on alleviivaukset ja kirjaukset ilman kirjanmerkkejä.
   if (tallennetut && !(tallennetut.av >= 4)) { aset.vieKm = 0; aset.av = 4; }
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
+  // Aikajanan oletus (22.10.2026): työpöydällä pääluvut ja alaluvut, mobiilissa (kapea ruutu tai
+  // sormiosoitin) vain pääluvut. Koskee vain ensikäyttöä; tallennettua valintaa ei kosketa.
+  if (!tallennetut && window.matchMedia && matchMedia('(max-width: 700px), (pointer: coarse)').matches) aset.janaTaso = 1;
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
   // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.

@@ -650,6 +650,7 @@ Käyttäjän vaatimukset 20.10.2026:
   Kapea on asetusta edeltävä leveys pikselilleen (mitattu: sama asettelu 360, 412, 702, 760 ja 1200 px:llä). Rivi näkyy vain,
   kun marginaali vaikuttaa (`innerWidth < 33 × koko + 72`). Yläraja on harkittu: 40 px:llä tasattuun tekstiin tuli 412 px:llä
   silmin nähtäviä aukkoja.
+- Aikajanan oletus (käyttäjän päätös 22.10.2026): työpöydällä pääluvut ja alaluvut (`janaTaso: 2`), mobiilissa (`(max-width: 700px), (pointer: coarse)`) vain pääluvut (`janaTaso: 1`). Koskee vain ensikäyttöä; tallennettuja asetuksia ei muuteta. Mitattu Chromiumissa: työpöytä Pääluvut+Alaluvut, mobiili vain Pääluvut, tallennettu 2 säilyy mobiilissakin.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
