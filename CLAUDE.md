@@ -619,18 +619,26 @@ Käyttäjän vaatimukset 20.10.2026:
   kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ovat `--viiva`-harmaita, ja vain kirjanmerkit näkyvät tulevassa osassa kirkkaina.
-  Alapalkissa (käyttäjän heuristiikka 21.10.2026; ensin oikeassa reunassa, sitten keskellä) on natsa vasemman sisällön jälkeisen ja
-  oikean sisällön edeltävän tyhjän tilan likimääräisessä keskikohdassa: vasemmalla oletettu 9,5 em:n otsikko, oikean laidan leveys
-  mitattuna (`natsanPaikka()`, `--oikea`; suurimmalla samanpituisella edistymisellä, ettei natsa liiku lukiessa). Mitattu 412 px:llä:
-  vierityksessä 64,5 %, sivutettuna 52,6 % (sivunapit vievät oikean tilan); vähintään 12 px oikeasta sisällöstä. Natsa on 11 × 6,5 px, viiva 1 px kuten kirjanmerkissä (käyttäjän päätös 21.10.2026):
-  kiinni ylös osoittava ja hyvin haalea (`--viiva`), auki alas osoittava ja tekstien värinen (`--harmaa`), kehotuksena
-  sulkea aikajana. Se korvasi salmiakin (ääriviiva kiinni, täytetty auki). Tila tulee CSS:ssä `aria-expanded`ista.
+  Natsaa ei ole (käyttäjän päätös 22.10.2026; 21.10.2026 alapalkissa oli `natsanPaikka()`-mitattu natsa).
   Koko palkki on edelleen aikajanan nappi (`#ala-nappi` absoluuttisena alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä,
   ja oikean laidan `#ala-oikea` ei ota napautuksia (`pointer-events: none`), joten edistymisen napautus avaa aikajanan.
   Sivunäkymässä on sivunappipari (`#sivunapit`, käyttäjän päätös 21.10.2026): hyvin haalea (`--viiva`) mutta rajattu, jotta
   näkyy, ettei siitä aukea aikajana; puolikkaat kiinni toisissaan väliviivalla, natsat kyljellään. Edistymisen vasemmalla
   puolella, ilman edistymistä oikeassa reunassa. Booxin sivunkääntönäppäimet antavat PageDown/PageUpin; `AudioVolumeDown`/`Up`
   on lisätty siltä varalta, että selain välittää äänenvoimakkuusnäppäimet. Oikealla Palmalla testaamatta.
+- **Palkkien remontti (käyttäjän päätökset 22.10.2026; opas, luku 4.4).** Mobiili = `(max-width: 700px), (pointer: coarse)`
+  (sama kuin aikajanan oletuksessa; `body.mobiili`, `asettele()`). Työpöydällä ylä- ja alapalkki pysyvät; alapalkissa ei ole
+  natsaa eikä nykyisen osion nimeä (`#ala-kohta` poistettu), vain kirjanmerkki vasemmalla ja sivunapit ja edistyminen oikealla.
+  Osion nimi näkyy avatun aikajanan ylärivillä. Mobiilissa palkit ovat piilossa: alareunassa on reunukseton kaista (`--ala` 44 px),
+  jossa kirjanmerkkinauha kelluu vasemmassa ja sivunapit oikeassa alanurkassa tekstipalstan reunojen linjassa (`--palsta-v`,
+  `--palsta-o`). Tekstin napautus (vierityksessä mikä tahansa kohta, sivutettuna keskikolmannes; reunat kääntävät sivua edelleen,
+  Clauden harkinta) avaa yläpalkin ja aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää. Kerroksen ylärivillä
+  osion nimi ja oikealla edistyminen (`#jana-pros`); *Merkinnät* ja *Etsi* kaistalla kelluvien välissä (`sijoitaJanaNapit()`, omalle
+  rivilleen, jos väli < 12 px). Vierityksen yli 48 px sulkee, sivunkääntö reunasta, pyyhkäisyllä tai näppäimellä sulkee, sivunapit
+  eivät. Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
+  *Liikkuminen*-rivin *Sivut*-sanan alla lisäkytkin *Sivunvaihtopainikkeet* (`aset.sivunapit`, oletus päällä), 16 px sisennettynä
+  (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
+  muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
   eikä teksti liiku ennen irrotusta. Liikkeessä vain `#j-veto`:n transform muuttuu, kerran ruudunpäivitystä kohden (e-ink).
   Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan,
