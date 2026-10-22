@@ -48,10 +48,11 @@ Ensimmäinen kappale on leipätekstiä, ja se on pitkä, jotta se ei näytä ots
 Toinen kappale.[^Alaviite iA Writerin tapaan.]
 `;
 // Ohjeen suositeltu pohja: sivuston nimi puuttuu sivulta, joten muuttuja jää täyttämättä.
+// Rungossa MarkDownloadin (3.4.0, ajettu Chromiumissa 22.10.2026) tuottamat jäänteet: Strip Images jättää linkitetystä
+// kuvasta tyhjän viitelinkin, ja <sup> säilyy HTML:nä.
 const SUOSITUSLEIKE = `---
-tyyppi: blogi
 tekijä: Risto Uro
-sivusto: {og:site_name}
+sivusto: {siteName}
 julkaistu: 2017-04-03T08:00:00+03:00
 lähde: http://blogs.helsinki.fi/uro/2017/04/
 haettu: 2017-10-23
@@ -59,7 +60,11 @@ haettu: 2017-10-23
 
 # Auttaako evoluutio ymmärtämään uskontoa?
 
-Kappale.
+Kappale.<sup><a href="http://blogs.helsinki.fi/uro/2017/04/#fn1">1</a></sup> Toinen<sup><a href="https://example.org/x">2</a></sup> ja H<sub>2</sub>O.
+
+[][4]
+
+[4]: https://example.org/kuva
 `;
 
 palvelin.listen(0, async () => {
@@ -138,6 +143,8 @@ palvelin.listen(0, async () => {
   await p.waitForTimeout(300);
   t = await T();
   tulos('blogin viite Teologian tyylin mukaan', t.koottu === 'Uro, Risto (2017). Auttaako evoluutio ymmärtämään uskontoa? *Risto Uron blogi* huhtikuu/2017. http://blogs.helsinki.fi/uro/2017/04/ (luettu 23.10.2017).', t.koottu);
+  tulos('yläindeksit ja tyhjä linkki', /^Kappale\.\^1\^ Toinen\^\[2\]\(https:\/\/example\.org\/x\)\^ ja H~2~O\.\n\n\n\n\[4\]:/m.test(t.md) &&
+    /1 tyhjä linkki\. 3 HTML-indeksiä Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
   tulos('kuukausi etukenttään', /^julkaistu: 2017-04$/m.test(t.md), etu(t).replace(/\n/g, ' | '));
 
   // 6. Pelkkä teksti: ehdotukset, otsikko kentästä tekstin alkuun, itse kirjoitettu aika omalla tarkkuudellaan.

@@ -594,8 +594,10 @@ Käyttäjän vaatimukset 20.10.2026:
   aika säilyttävät tarkkuutensa, koneen T-aikaleima saa tyypin oletuksen. Ehdotukset muuttavat tekstikenttää
   vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa; `latomo-markdownload`) siivoaa jäänteet vain
   tuloksesta ja lukee tiedot etukentästä ja leikkeen lopusta; suositellut asetukset ja etukenttäpohja ovat
-  Latomon ohjeessa (`latomo-ohje.html#markdownload`; nimet MarkDownloadin käyttöoppaasta, oikealla Firefoxilla
-  testaamatta). Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
+  Latomon ohjeessa (`latomo-ohje.html#markdownload`; käyttäjän pyyntö 22.10.2026: kaikki asetukset, ei oletusarvoja vaan
+  suositus, iA Writer -yhteensopivuus etusijalla; nimet ja suositukset tarkistettu MarkDownload 3.4.0:n lähdekoodista ja
+  sen muunnosketjua Chromiumissa ajamalla, oikealla Firefoxilla testaamatta). Kytkin poistaa myös tyhjät linkit ja muuttaa
+  `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
   Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, alarivi HTML ohuena
