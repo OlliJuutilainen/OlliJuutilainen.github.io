@@ -244,7 +244,7 @@ Yhdyssanojen saumaa säännöt eivät tunne. Virheet ovat aina samaa tyyppiä: y
 - vokaalien välissä (*ra-di-o*),
 - vokaalin ja yksinäisen konsonantin välissä (*ka-la*).
 
-Varovainen tila käyttää vain kahta ensimmäistä ja vaatii 8 kirjaimen sanan ja 3 kirjainta kummallekin puolelle. Tiheä käyttää kaikkia (sana 5, puolet 2). Kursiivia, otsikoita ja sanoja, joissa on c, q, w, x, z tai muu kuin suomen kirjain, ei tavuteta, jottei vieraskielisiä nimiä tavuteta suomen säännöin. Kirjoittaja voi lisätä tekstiin oman pehmeän tavuviivan (U+00AD).
+Varovainen tila käyttää vain kahta ensimmäistä ja vaatii 8 kirjaimen sanan ja 3 kirjainta kummallekin puolelle. Tiheä käyttää kaikkia (sana 5, puolet 2). Kursiivia, lihavointeja, linkkejä, koodia ja sanoja, joissa on c, q, w, x, z tai muu kuin suomen kirjain, ei tavuteta, jottei vieraskielisiä nimiä tavuteta suomen säännöin. Otsikoita (kaikki tasot), alaotsikkoa, tietorivejä (käyttäjän päätös 22.10.2026: esim. *uskonnonfilosofian tutkielma …*) ja sisällysluetteloa ei tavuteta, ellei yksittäinen sana ole palstaa leveämpi: silloin vain se sana saa tavuviivat (`tavutaPitkat()` mittaa sanan leveyden asettelun jälkeen ja poistaa viivat, kun palsta levenee), ja tavuttumattomaksi jäävä sana katkeaa `overflow-wrap: break-word` -säännöllä. Kirjoittaja voi lisätä tekstiin oman pehmeän tavuviivan (U+00AD).
 
 Tasattu palsta kapealla ruudulla tarvitsee tiheän tavutuksen; varovaisella sanavälit venyvät.
 
