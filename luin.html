@@ -114,7 +114,14 @@
   .ik-ali { display: inline-flex; align-items: flex-end; justify-content: center; width: 1.85em; height: 1.2em;
     font-size: 1.08rem; line-height: 1; border-bottom: 3px solid var(--ruoste); color: var(--muste); }
   .ik-ali svg { width: .62em !important; height: .62em !important; margin-bottom: .14em; }
-  .valikko button.ik.varmista { padding: 9px 13px; }
+  /* kirjauksellisen alleviivauksen poiston vahvistus (varmistaAlPoisto) */
+  .valikko.rivi button.varmista { flex: 1 1 auto; display: inline-flex; align-items: center; gap: 12px; padding: 9px 14px; }
+  .valikko button.varmista:hover { text-decoration: none; }
+  .valikko button.varmista:hover > span:last-child { text-decoration: underline; text-underline-offset: 3px; }
+  .v-ik { display: inline-flex; align-items: center; gap: 6px; color: var(--muste); }
+  .v-ik svg.kyna { display: block; width: 24px; height: 24px; }
+  .valikko.rivi button.ei { padding: 9px 18px; }
+  .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
   .valikko.kirjaus textarea { display: block; width: calc(100% - 28px); max-height: 30vh; margin: 12px 14px 0; padding: 7px 9px;
@@ -564,6 +571,9 @@
   var IK_ALI = '<span class="ik-ali">Abc</span>';
   var IK_POISTA = '<span class="ik-ali"><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></span>';
   var IK_KIRJAA = '<svg class="kyna" viewBox="0 0 20 20"><path fill="currentColor" d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/></svg>';
+  // Kirjauksen poisto: sama kynä, jonka yli kulkee vastakkainen viiva; paperin värinen reunus erottaa sen kynästä.
+  var IK_POISTA_KIR = '<svg class="kyna" viewBox="0 0 20 20"><path fill="currentColor" d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/>' +
+    '<path d="M3.5 3.5L16.5 16.5" stroke="var(--paperi)" stroke-width="4.2" fill="none"/><path d="M3.5 3.5L16.5 16.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
   var IK_KOPIOI = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.7" y="1.7" width="9.6" height="12.6"/>' +
     '<rect x="7.7" y="5.7" width="9.6" height="12.6" fill="var(--paperi)" stroke-dasharray="2.1 1.6"/></svg>';
   var IK_KOPIOITU = '<svg viewBox="0 0 20 20"><path d="M4.5 10.5L8.5 14.5L15.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -1334,11 +1344,21 @@
       if (k === 'kir') { avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioi(alTeksti(h)).then(function () { kopioitu(b); }); return true; }
       if (k === 'poista') {
-        if (h.n && !b.dataset.varmista) {
-          b.dataset.varmista = 1; b.classList.add('vaara', 'varmista'); b.textContent = 'Poista myös kirjaus'; sijoitaPop(); return true;
-        }
+        if (h.n) { varmistaAlPoisto(h, rect); return true; }
         poistaAlleviivaus(id); paivitaMerkinnat();
       }
+    });
+  }
+  // Kirjauksellisen alleviivauksen poisto: valikon tilalle iso nappi, jonka ikonit kertovat, että
+  // lähtevät molemmat, ja kirjaus yliviivataan. Ei palauttaa valikon. Iso nappi voi osua poistonapin
+  // kohdalle, joten sen napautus ohitetaan hetken ajan, ettei tuplanapautus poista vahingossa.
+  function varmistaAlPoisto(h, rect) {
+    var alku = Date.now();
+    naytaPop(rect, '<div class="esi kir poistuu">' + esc(lyhenna(h.n, 300)) + '</div>' +
+      '<button type="button" data-k="poista" class="varmista vaara"><span class="v-ik">' + IK_POISTA + IK_POISTA_KIR + '</span>' +
+      '<span>Poista myös kirjaus?</span></button><button type="button" data-k="ei" class="ei">Ei</button>', 'rivi', function (k) {
+      if (k === 'ei') { naytaAlPop(h.id, rect); return true; }
+      if (k === 'poista') { if (Date.now() - alku < 400) return true; poistaAlleviivaus(h.id); paivitaMerkinnat(); }
     });
   }
 
