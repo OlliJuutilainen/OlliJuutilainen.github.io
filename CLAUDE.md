@@ -114,7 +114,7 @@ Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekk�
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
 myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
-`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Keikkaloihtimessa, Omat keikkani -listassa ja
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Luinin käyttöohjeessa, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
@@ -543,8 +543,13 @@ vaatimus: soitin harmoniassa logon kanssa).
 `luin.html` (juuressa, koska ohjelman nimi on luin.html) on lukulista ja lukija samalla sivulla.
 `luin/md.js` on yhteinen Markdown-jäsennin ja suomen tavutus, `luin/latomo.html` generaattori
 (*Latomo*: tarkistaa md:n, lisää etukentän `viite:`/`osoite:`, avaa Luinissa tällä laitteella
-avaimen `luin-tuonti` kautta tai antaa .md:n ladattavaksi). Kehittäjän opas on `luin/ohje.md`, ja se
-on samalla toinen kokeiluteksti (`luin.html#u=luin/ohje.md`). Kaikki on selaimen localStoragessa
+avaimen `luin-tuonti` kautta tai antaa .md:n ladattavaksi). Kehittäjän opas on `luin/ohje.md`; se avautuu
+Luinissa osoitteesta `luin.html#u=luin/ohje.md`, mutta lukulistassa siihen ei ole linkkiä (käyttäjän päätös
+22.10.2026: pois julkisivusta, ei piiloteta repossa). Lukijan käyttöohje on `luin/kayttoohje.html` (käyttäjän pyyntö
+22.10.2026: yksinkertainen, olennaisin ensin; vienti ja muu harvemmin tarvittava lopussa supistettuina osioina).
+Se on lukulaitteen ohje, **ei Latomon** (Latomo on raakile, eikä sille tehdä ohjetta). Lukulistan alla ovat järjestyksessä
+*Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* ja pienen välin (12 px) jälkeen *Uusi teksti* **Latomossa**. Kun lukijan
+käyttäjälle näkyvä toiminta muuttuu, tarkista käyttöohje. Kaikki on selaimen localStoragessa
 (`luin-asetukset`, `luin-lista`, `luin-teksti:<id>`, `luin-merkit:<id>`); palvelinta ei ole.
 Käyttäjän vaatimukset 20.10.2026:
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (KV/worker, repo, Dropbox) on myöhempi kysymys.
@@ -764,6 +769,6 @@ Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehity
   myös ensitavun jälkeen paitsi monikon genetiivissä (*talvi-en*). Kursiivia ei tavuteta.
 Kandidaatintutkielma on **väliaikaisesti** repossa (käyttäjän lupa 20.10.2026: "voit laittaa väliaikaisesti
 tutkielman nettiin"): `luin/tekstit/kant-ja-elainetiikka.md` (etukenttä + alkuperäinen md muuttamattomana),
-lukulistan linkki *Kokeilu: Kant ja eläinetiikka* ja `robots.txt` (`Disallow: /luin/tekstit/`). Kun käyttäjä
+lukulistan linkki *Kokeiluteksti: Kant ja eläinetiikka* ja `robots.txt` (`Disallow: /luin/tekstit/`). Kun käyttäjä
 sanoo kokeilun päättyneen, poista kansio, linkki ja robots.txt:n rivi. Muita käyttäjän tekstejä ei viedä repoon
 ilman erillistä lupaa.

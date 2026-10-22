@@ -14,7 +14,8 @@
           #id=<id>    lukulistan teksti
           #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
           #tuo        Latomosta (luin/latomo.html) siirretty teksti
-  Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md).
+  Käyttöohje: luin/kayttoohje.html (lukulistan linkki).
+  Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md; ei linkkiä lukulistassa).
 -->
 <style>
   @font-face { font-family: Literata; src: url(luin/fontit/literata.woff2) format("woff2");
@@ -80,6 +81,8 @@
   .tyhja { color: var(--harmaa); font-style: italic; margin: 18px 0; line-height: 1.55; }
   .lisaa { margin: 22px 0 0; font-size: .88rem; line-height: 1.8; color: var(--harmaa); }
   .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
+  .lisaa.uusi { margin-top: 12px; }
+  .lisaa b { font-weight: 600; }
   .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45; }
   .foot { margin: auto 0 0; padding-top: 44px; text-align: center; color: var(--harmaa); font-size: .64rem;
     letter-spacing: .16em; }
@@ -482,10 +485,12 @@
   <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
     linkistä, joka avaa tekstin Luinissa.</p>
   <p class="viesti" id="viesti" hidden></p>
-  <p class="lisaa"><a href="luin/latomo.html">Uusi teksti Latomossa</a><br>
-    <a href="#u=luin/ohje.md">Kehittäjän opas</a><br>
+  <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
+       oppaaseen (luin/ohje.md) ei ole linkkiä lukulistassa; se avautuu osoitteesta #u=luin/ohje.md. -->
+  <p class="lisaa"><a href="luin/kayttoohje.html">Käyttöohje</a><br>
     <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
-    <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeilu: Kant ja eläinetiikka</a></p>
+    <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeiluteksti: Kant ja eläinetiikka</a></p>
+  <p class="lisaa uusi"><a href="luin/latomo.html">Uusi teksti <b>Latomossa</b></a></p>
   <p class="foot">© TUSINASOFT 2026</p>
 </section>
 
