@@ -13,7 +13,7 @@ Tusinasoft
 
 Luin on selaimessa toimiva lukulaite Markdown-teksteille. Se on tehty ensisijaisesti omien tekstien jakamiseen: kirjoittaja latoo tekstin Latomossa, ja lukija lukee sen Luinissa puhelimella, e-ink-laitteella tai tietokoneella. Kaikki tapahtuu lukijan selaimessa. Palvelinta ei ole, eikä mitään lähetetä minnekään.^[Ainoa verkkopyyntö on #u=-linkin tekstin haku. Sekin on tavallinen tiedostohaku, joka ei lähetä lukijasta mitään.]
 
-Tämä opas on kirjoitettu kehittäjälle, joka tutustuu koodiin. Se on samalla Luinin toinen kokeiluteksti: siinä on lukuja, alalukuja ja alaviitteitä, joten aikajanaa, sisällysluetteloa ja sivuhuomioita voi kokeilla tälläkin.
+Tämä opas on kirjoitettu kehittäjälle, joka tutustuu koodiin. Siinä on lukuja, alalukuja ja alaviitteitä, joten aikajanaa, sisällysluetteloa ja sivuhuomioita voi kokeilla tälläkin, mutta lukulistassa siihen ei ole linkkiä (käyttäjän päätös 22.10.2026: kehittäjän opas pois julkisivusta). Se avautuu osoitteesta `luin.html#u=luin/ohje.md`. Lukijan käyttöohje on erikseen (luku 2.4).
 
 ### 1.1 Kokeilu kandidaatintutkielmalla
 
@@ -23,7 +23,7 @@ Tämä opas on kirjoitettu kehittäjälle, joka tutustuu koodiin. Se on samalla 
 
 Teksti tallentuu tämän selaimen lukulistaan. Toisella laitteella sama tehdään uudelleen kyseisen laitteen selaimessa, esimerkiksi Note Air3:lla Dropsyncin kansiosta valittuna.
 
-Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.md`), ja lukulistan linkki *Kokeilu: Kant ja eläinetiikka* avaa sen millä tahansa laitteella (`luin.html#u=luin/tekstit/kant-ja-elainetiikka.md`). Hakukoneita pyydetään ohittamaan kansio (`robots.txt`). Kun kokeilu on ohi, kansio ja linkki poistetaan; repon historiaan tiedosto jää.^[Julkisen repon historiasta tiedoston saa pois vain historiaa uudelleenkirjoittamalla (esimerkiksi `git filter-repo`) ja pakotetulla pushilla.]
+Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.md`), ja lukulistan linkki *Kokeiluteksti: Kant ja eläinetiikka* avaa sen millä tahansa laitteella (`luin.html#u=luin/tekstit/kant-ja-elainetiikka.md`). Hakukoneita pyydetään ohittamaan kansio (`robots.txt`). Kun kokeilu on ohi, kansio ja linkki poistetaan; repon historiaan tiedosto jää.^[Julkisen repon historiasta tiedoston saa pois vain historiaa uudelleenkirjoittamalla (esimerkiksi `git filter-repo`) ja pakotetulla pushilla.]
 
 ### 1.2 Mitä tässä versiossa ei ole
 
@@ -41,6 +41,7 @@ Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.
 - `luin/fontit/` – Literata (OFL), kevennetty: paino 380–700 ja optinen koko 10–36. Noin 83 kt leikkausta kohti.
 - `luin/kehitys/logo.js` – logon generaattori. `node luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja Latomoon.
 - `luin/ohje.md` – tämä opas.
+- `luin/kayttoohje.html` – lukijan käyttöohje (luku 2.4).
 
 ### 2.2 Reitit
 
@@ -63,6 +64,10 @@ Kaikki on selaimen localStoragessa, joka on yhteinen muiden ollijuutilainen.gith
 - `luin-merkit:<tunnus>` – kirjanmerkit (`km`) ja alleviivaukset (`al`). Alleviivauksen kirjaus on sen kentässä `n`.
 
 Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-` + osoitteen tiiviste. Saman otsikon uusi versio Latomosta korvaa vanhan ja säilyttää merkinnät.
+
+### 2.4 Käyttöohje ja lukulistan linkit
+
+Lukulistan alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje: Latomo on vielä raakile. Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
 
 ## 3. Merkintäkieli
 

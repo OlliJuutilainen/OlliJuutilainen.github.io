@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Käyttöohje – LUiN.HTML</title>
+<!--
+  Lukulaitteen (../luin.html) käyttöohje lukijalle (käyttäjän pyyntö 22.10.2026): olennaisin ensin,
+  merkintöjen vienti ja muu harvemmin tarvittava lopussa supistettuina osioina. Ei Latomon ohje.
+  Kehittäjän opas on erikseen (ohje.md), eikä lukulistassa ole siihen linkkiä.
+  Ikonit on kopioitu luin.html:stä; jos ne muuttuvat siellä, päivitä ne tähänkin.
+-->
+<script>
+  // Teema kuten Latomossa: tallennettu valinta, muuten laitteen asetus.
+  try {
+    var a = JSON.parse(localStorage.getItem('luin-asetukset') || 'null');
+    var tumma = a ? a.teema === 'tumma' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.teema = tumma ? 'tumma' : 'vaalea';
+  } catch (e) {}
+</script>
+<style>
+  @font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; }
+  /* Värit kuten luin.html:ssä. */
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #8c5426; --okra: #b07a16;
+    --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+  }
+  :root[data-teema="tumma"] {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+    --ruoste: #b8794a; --okra: #d4a443;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font: 17px/1.55 var(--antiikva); overflow-wrap: break-word; }
+  main { max-width: 40rem; margin: 0 auto; padding: 24px 16px 40px; }
+  a { color: var(--ruoste); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
+  a.koti { color: inherit; display: inline-block; }
+  svg.logo { display: block; height: 56px; width: auto; fill: currentColor; overflow: visible; margin: 4px 0 18px 2px; }
+  h1 { font-weight: 400; font-size: 1.5rem; letter-spacing: .04em; margin: 0 0 6px; }
+  .johdanto { color: var(--harmaa); margin: 0 0 8px; font-size: .95rem; }
+  .johdanto b { font-weight: 600; color: var(--muste); }
+  h2 { font-weight: 400; font-size: 1.16rem; letter-spacing: .04em; margin: 34px 0 8px; }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 1.3em; }
+  li { margin: 0 0 5px; }
+  /* Valikon ikonit luettelon alussa kuten lukijan valikossa. */
+  ul.ikonit { list-style: none; padding-left: 0; }
+  ul.ikonit li { display: flex; gap: 12px; align-items: flex-start; }
+  ul.ikonit li > .ik-laatikko { flex: 0 0 2.3em; height: 1.55em; display: inline-flex; align-items: center; justify-content: center; }
+  ul.ikonit .ik, ul.ikonit .ik-ali { vertical-align: 0; }
+  /* Ikonit tekstin seassa, kuten ne näkyvät lukijassa. */
+  .ik { display: inline-block; height: 1em; width: auto; vertical-align: -.14em; }
+  .ik.ratas { height: 1.2em; vertical-align: -.26em; fill: currentColor; fill-rule: evenodd; }
+  .ik.nauha { fill: none; stroke: var(--harmaa); stroke-width: 1; }
+  .ik.nauha.on { fill: var(--ruoste); stroke: var(--ruoste); }
+  .ik.nuoli { fill: none; stroke: var(--harmaa); stroke-width: 1; height: .9em; vertical-align: -.06em; }
+  .ik.j1 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; height: .9em; vertical-align: -.1em; }
+  .ik.j2 { fill: var(--muste); height: .8em; vertical-align: -.06em; }
+  .ik.j-nyt { fill: var(--muste); height: .7em; vertical-align: .02em; }
+  .ik.jako { fill: currentColor; color: var(--harmaa); height: .95em; }
+  .ik.kyna { height: 1.3em; vertical-align: -.3em; fill: currentColor; }
+  .ik.kopioi { height: 1.15em; vertical-align: -.22em; }
+  .ik-ali { display: inline-flex; align-items: flex-end; justify-content: center; width: 1.85em; height: 1.2em;
+    line-height: 1; border-bottom: 3px solid var(--ruoste); vertical-align: baseline; }
+  .ik-ali svg { width: .62em; height: .62em; margin-bottom: .14em; }
+  .ui { font-style: italic; }
+  /* Harvemmin tarvittavat osiot supistettuina kuten asetusten vienti ja tuonti. */
+  .lisaosat { margin-top: 40px; }
+  details.osio { border-top: 1px solid var(--viiva); }
+  details.osio:last-child { border-bottom: 1px solid var(--viiva); }
+  details.osio summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    min-height: 48px; cursor: pointer; font-size: 1.02rem; letter-spacing: .02em; }
+  details.osio summary::-webkit-details-marker { display: none; }
+  details.osio summary svg { width: 9px; height: 11px; flex: 0 0 auto; }
+  details.osio summary .sal { fill: none; stroke: currentColor; stroke-width: 1.3; }
+  details.osio[open] summary .sal { fill: currentColor; }
+  details.osio > div { padding: 2px 0 10px; font-size: .95rem; }
+  .foot { margin: 0; padding: 0 16px 22px; text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; }
+</style>
+</head>
+<body>
+<main>
+  <a class="koti" href="../luin.html" aria-label="Lukulistaan"><svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M2.6 112L2.6 130M13.1 112L13.1 130M2.6 121L13.1 121M61.43 113.25L74.43 113.25M67.93 112L67.93 130M122.77 130L122.77 112M122.77 112L130.02 130M130.02 130L137.27 112M137.27 112L137.27 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M0 112H5.2V113.5H0ZM0 128.5H5.2V130H0ZM10.5 112H15.7V113.5H10.5ZM10.5 128.5H15.7V130H10.5ZM65.33 128.5H70.53V130H65.33ZM120.17 128.5H125.37V130H120.17ZM134.67 128.5H139.87V130H134.67ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg></a>
+  <h1>Käyttöohje</h1>
+  <p class="johdanto"><b>LUiN.HTML</b> on lukulaite Markdown-teksteille. Se on tehty luettavaksi selaimessa
+    puhelimella, e-ink-lukulaitteella tai tietokoneella. Lukulista, lukukohdat ja merkinnät tallentuvat vain
+    tähän selaimeen: tunnuksia ei tarvita, eikä lukemisestasi lähetetä mitään minnekään.</p>
+
+  <h2>Tekstin avaaminen</h2>
+  <p>Teksti avataan linkistä, ja avattu teksti tallentuu lukulistaan. Lukulista on lukulaitteen etusivu.
+    Nimikkeen alla näkyvät tekijä, luettu osuus ja viimeisin lukupäivä. Nimikkeen napautus jatkaa lukemista
+    siitä, mihin jäit.</p>
+  <p>Tekstistä pääset takaisin lukulistaan yläpalkin linkistä <span class="ui">‹ Lukulista</span>.</p>
+
+  <h2>Lukeminen</h2>
+  <p>Tekstiä vieritetään kuten verkkosivua. Jos haluat lukea sivu kerrallaan, valitse asetuksista
+    <span class="ui">Liikkuminen: Sivut</span>; se sopii erityisesti e-ink-näytölle. Sivua käännetään
+    napauttamalla ruudun oikeaa tai vasenta reunaa tai pyyhkäisemällä, tietokoneella myös nuolinäppäimillä.
+    E-ink-lukulaitteen sivunkääntönäppäimet kääntävät sivua, jos laite välittää ne selaimelle
+    sivunvaihtonäppäiminä.</p>
+  <p>Alaviitteen numero avaa alaviitteen. Leveällä näytöllä vieritettäessä alaviitteet ovat valmiiksi
+    tekstin oikealla puolella. Alaviitteessä alleviivattu lähdeviittaus vie lähdeluetteloon.</p>
+
+  <h2>Palkit ja aikajana</h2>
+  <p>Kosketusnäytöllä palkit ovat piilossa, jotta ruutu jää tekstille. Napauta ruudun alareunaa: yläpalkki ja
+    aikajana avautuvat tekstin päälle, ja oikean alanurkan nuoli
+    <svg class="ik nuoli" viewBox="1.7 .5 10.6 12.4" aria-hidden="true"><path d="M7 1Q5.18 7.18 2.2 12.4Q5.18 10.22 7 9Q8.82 10.22 11.8 12.4Q8.82 7.18 7 1Z"/></svg>
+    kääntyy alaspäin. Samasta kohdasta ne sulkeutuvat. Hiirellä palkit ovat aina näkyvissä, ja aikajana
+    avautuu alapalkista.</p>
+  <p>Yläpalkissa ovat paluu lukulistaan ja asetusten kiekko <svg class="ik ratas" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg>.</p>
+  <p>Aikajana näyttää koko tekstin vaakaviivana. Luvut ovat sillä salmiakkeina: pääluku ontto
+    <svg class="ik j1" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0.6Q6.6 3.95 9.2 6Q6.6 8.05 5 11.4Q3.4 8.05 0.8 6Q3.4 3.95 5 0.6Z"/></svg>,
+    alaluku pienempi ja täytetty
+    <svg class="ik j2" viewBox="1 1 8 10" aria-hidden="true"><path d="M5 1.4Q6.37 4.25 8.6 6Q6.37 7.75 5 10.6Q3.63 7.75 1.4 6Q3.63 4.25 5 1.4Z"/></svg>.
+    Kohta, jossa olet, on kolmio
+    <svg class="ik j-nyt" viewBox="-5 1 10 8.5" aria-hidden="true"><path d="M-4.5 1.5H4.5L0 9Z"/></svg>,
+    ja luettu osa on piirretty tekstin värillä, tuleva haaleammin. Napauta tai vedä aikajanaa, niin pääset
+    muualle tekstiin. Aikajanan yläpuolella näkyvät osion nimi ja se, kuinka pitkällä olet.</p>
+  <p>Kun hyppäät toiseen kohtaan haulla, merkintälistasta tai alaviitteen lähdeviittauksesta tai aikajanalla
+    kauas, alhaalle ilmestyy laatikko <span class="ui">Palaa takaisin</span>. Se vie takaisin kohtaan, josta
+    lähdit. Raksi sulkee sen.</p>
+
+  <h2>Kirjanmerkit</h2>
+  <p>Vasemman alanurkan nauha
+    <svg class="ik nauha" viewBox="0 0 10 16" aria-hidden="true"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg>
+    lisää kirjanmerkin ylimmän ruudulla alkavan kappaleen alkuun. Kun ruudulla on kirjanmerkki, nauha on
+    kuparinen
+    <svg class="ik nauha on" viewBox="0 0 10 16" aria-hidden="true"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg>,
+    ja sen napautus poistaa kirjanmerkin. Kirjanmerkit näkyvät myös aikajanalla.</p>
+
+  <h2>Alleviivaukset ja kirjaukset</h2>
+  <p>Valitse tekstiä, niin valinta alleviivataan heti: hiirellä, kun päästät painikkeen irti, ja
+    kosketusnäytöllä, kun valinta on pysynyt hetken samana. Kesken sanan alkava tai loppuva valinta laajenee
+    koko sanaan. Napauta alleviivausta, niin saat valikon:</p>
+  <ul class="ikonit">
+    <li><span class="ik-laatikko"><svg class="ik kyna" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/></svg></span>
+      <span><span class="ui">Kirjaa</span>: kirjoita alleviivaukseen muistiinpano eli kirjaus.
+      <span class="ui">Tallenna</span> tallentaa, <span class="ui">Peruuta</span> peruu.</span></li>
+    <li><span class="ik-laatikko"><svg class="ik kopioi" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2.7" y="1.7" width="9.6" height="12.6"/><rect x="7.7" y="5.7" width="9.6" height="12.6" fill="var(--paperi)"/></svg></span>
+      <span><span class="ui">Kopioi</span> alleviivatun tekstin.</span></li>
+    <li><span class="ik-laatikko"><span class="ik-ali" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></span></span>
+      <span><span class="ui">Poista alleviivaus</span>.</span></li>
+  </ul>
+  <p>Jos et halua valinnan alleviivautuvan heti, kytke asetuksista <span class="ui">Sukkela alleviivaus</span>
+    pois. Silloin valinta avaa valikon, jossa ovat myös alleviivaus <span class="ik-ali" aria-hidden="true">Abc</span>
+    ja kirjanmerkki.</p>
+  <p>Kaikki kirjanmerkit, alleviivaukset ja kirjaukset ovat aikajanan alla laatikossa
+    <span class="ui">Merkinnät</span>. Merkinnän napautus vie sen kohtaan.</p>
+
+  <h2>Haku</h2>
+  <p>Aikajanan alla on myös laatikko <span class="ui">Etsi</span>. Haku löytää sanat, jotka alkavat
+    hakusanalla: <span class="ui">kant</span> löytää myös sanat <span class="ui">Kantin</span> ja
+    <span class="ui">kantilainen</span>. Usean sanan haku löytää sanat vain peräkkäin. Lainausmerkeissä sana on
+    kokonainen: <span class="ui">"kant"</span> ei löydä sanaa <span class="ui">Kantin</span>. Alaviitteet ovat
+    mukana, kun kytkin <span class="ui">alaviitteet</span> on päällä. Osuman napautus vie tekstiin.</p>
+
+  <h2>Asetukset</h2>
+  <p>Asetukset avautuvat kiekosta <svg class="ik ratas" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg> lukulistan oikeasta yläkulmasta tai lukiessa yläpalkista.
+    Ne koskevat kaikkia tekstejä tässä selaimessa.</p>
+  <ul>
+    <li><span class="ui">Teema</span>: vaalea tai tumma.</li>
+    <li><span class="ui">Liikkuminen</span>: vieritys tai sivut. Sivuihin saa lisäkytkimestä
+      <span class="ui">Sivunvaihtopainikkeet</span> alalaitaan nuolinapit.</li>
+    <li><span class="ui">Kirjasinkoko</span>, <span class="ui">Kappalejako</span> (väli tai sisennys),
+      <span class="ui">Reunat</span> (liehu tai tasattu), <span class="ui">Marginaali</span> (vain kapealla
+      ruudulla) ja <span class="ui">Tavutus</span>.</li>
+    <li><span class="ui">Teksti</span>: näkyvätkö tekstissä sisällysluettelo, kirjanmerkit ja alleviivaukset, ja
+      alleviivataanko valinta heti (<span class="ui">Sukkela alleviivaus</span>).</li>
+    <li><span class="ui">Aikajana</span>: mitkä luvut (pääluvut, alaluvut tai kaikki) ja näkyvätkö
+      kirjanmerkit aikajanalla.</li>
+  </ul>
+
+  <div class="lisaosat">
+    <details class="osio">
+      <summary>Merkintöjen vienti ja tuonti<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div>
+        <p>Merkinnät ovat vain tämän selaimen muistissa. Ne voi viedä tekstitiedostoon talteen tai toiseen
+          laitteeseen.</p>
+        <ol>
+          <li>Avaa teksti ja sitten asetukset. Alimpana ovat osiot <span class="ui">Vie merkinnät
+            tekstitiedostoon</span> ja <span class="ui">Tuo merkinnät tekstitiedostosta</span>.</li>
+          <li>Valitse viennissä, mitä viedään (alleviivaukset, kirjaukset, kirjanmerkit, edistymisen tilanne), ja
+            paina <span class="ui">Vie</span> ja vahvista. Saat Markdown-tiedoston, jonka voi lukea sellaisenaankin.</li>
+          <li>Avaa toisessa laitteessa sama teksti, sitten asetuksista <span class="ui">Tuo</span>, ja valitse
+            tiedosto. Jo olemassa olevia merkintöjä ei tuoda kahteen kertaan.</li>
+        </ol>
+      </div>
+    </details>
+    <details class="osio">
+      <summary>Lähdeviite, linkki ja poistaminen<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div>
+        <p>Lukulistan nimikkeen oikealla puolella on jakonappi
+          <svg class="ik jako" viewBox="0 -.2 15 15.4" aria-hidden="true"><path d="M3.2 7.5L11.8 3M3.2 7.5L11.8 12" stroke="currentColor" stroke-width="1.1" fill="none"/><path d="M3.2 4.4Q4.19 6.32 5.8 7.5Q4.19 8.68 3.2 10.6Q2.21 8.68 0.6 7.5Q2.21 6.32 3.2 4.4ZM11.8 -0.1Q12.79 1.82 14.4 3Q12.79 4.18 11.8 6.1Q10.81 4.18 9.2 3Q10.81 1.82 11.8 -0.1ZM11.8 8.9Q12.79 10.82 14.4 12Q12.79 13.18 11.8 15.1Q10.81 13.18 9.2 12Q10.81 10.82 11.8 8.9Z"/></svg>.
+          Siitä voi kopioida tekstin lähdeviitteen lukupäivineen, kopioida linkin (verkosta avatulle tekstille)
+          ja poistaa tekstin lukulistasta. Poisto vie myös tekstin merkinnät, joten se kysyy vahvistuksen.</p>
+      </div>
+    </details>
+    <details class="osio">
+      <summary>Missä tiedot ovat<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div>
+        <p>Lukulista, tekstit, lukukohdat, merkinnät ja asetukset tallentuvat tämän selaimen muistiin tällä
+          laitteella. Toisessa selaimessa tai laitteessa lukulista on oma. Jos selaimen tiedot tältä sivustolta
+          tyhjennetään, myös lukulista ja merkinnät katoavat, joten tärkeät merkinnät kannattaa viedä
+          tiedostoon.</p>
+      </div>
+    </details>
+  </div>
+</main>
+<p class="foot">© TUSINASOFT 2026</p>
+</body>
+</html>
