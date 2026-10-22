@@ -158,8 +158,8 @@
   <ul>
     <li>jättää tuloksesta pois leikkeen jäänteet: tyhjät <code>**</code>-rivit, upotukset (<code>&lt;iframe&gt;</code>),
       oletuspohjan <span class="ui">Excerpt</span>-lainauksen ja kuvattomiksi jääneet tyhjät linkit,</li>
-    <li>muuttaa sivun omat HTML-yläindeksit (alaviitemerkit kuten <code>&lt;sup&gt;1&lt;/sup&gt;</code>) iA Writerin
-      muotoon <code>^1^</code>; linkki leikkeen omalle sivulle jää pelkäksi numeroksi,</li>
+    <li>muuttaa sivun omat HTML-yläindeksit (alaviitemerkit kuten <code>&lt;sup&gt;1&lt;/sup&gt;</code>) Markdowniksi
+      (<code>^1^</code>); linkki leikkeen omalle sivulle jää pelkäksi numeroksi,</li>
     <li>lukee etukentästä tekijän, sivuston, julkaisuajan, lähteen ja tallennusajan, myös englanninkielisillä
       avaimilla (<code>author</code>, <code>source</code>, <code>created</code>),</li>
     <li>lukee leikkeen lopusta rivit kuten <code>Tallennettu: 2026-10-08</code> ja <code>Lähde: https://…</code>,</li>
@@ -168,9 +168,8 @@
   <p>Tekstikenttä pysyy ennallaan; siivous koskee vain tulosta.</p>
 
   <h3>Suositellut asetukset</h3>
-  <p>Asetukset tuottavat tiedoston, joka toimii sellaisenaan sekä Luinissa että iA Writerissä: etukenttä on iA Writerin
-    oma metatietolohko, ja leipätekstiin ei jää pitkiä osoitteita. MarkDownloadin asetukset avautuvat lisäosan
-    valikosta (<span class="ui">Options</span>). Järjestys on asetussivun.</p>
+  <p>Näillä asetuksilla leike toimii Luinissa sellaisenaan ja on tavallista Markdownia myös muille ohjelmille.
+    MarkDownloadin asetukset avautuvat lisäosan valikosta (<span class="ui">Options</span>). Järjestys on asetussivun.</p>
   <table>
     <tr><th>Asetus</th><th>Arvo ja syy</th></tr>
     <tr><td class="ryhma" colspan="2"><b>Title template</b></td></tr>
@@ -179,8 +178,7 @@
     <tr><td>Folder inside<br>Downloads/</td><td>vapaa, esimerkiksi <code>nettiartikkelit</code>.</td></tr>
     <tr><td>Disallowed<br>Characters</td><td><code>[]#^</code>; muita ei tarvita.</td></tr>
     <tr><td class="ryhma" colspan="2"><b>Front-matter template, Back-matter template</b></td></tr>
-    <tr><td>Front-matter</td><td>alla oleva pohja. Etukenttä täyttää Latomon kentät, ja iA Writer näyttää sen
-      metatietoina.</td></tr>
+    <tr><td>Front-matter</td><td>alla oleva pohja; täyttää Latomon kentät.</td></tr>
     <tr><td>Back-matter</td><td>tyhjä: tiedot ovat jo etukentässä. Lopun rivit näkyisivät Luinissa tekstin
       viimeisenä kappaleena.</td></tr>
     <tr><td>Append front/back<br>template</td><td>päällä. Ilman tätä pohjaa ei lisätä lainkaan.</td></tr>
@@ -189,30 +187,28 @@
       (<span class="ui">Download Selection as Markdown</span>), kun koko sivu ei leikkaudu oikein.</td></tr>
     <tr><td>Obsidian Integration</td><td>pois.</td></tr>
     <tr><td>Download Mode</td><td>Downloads API; vain se sallii alikansion.</td></tr>
-    <tr><td>Save As dialog</td><td>päällä, jos haluat tallentaa leikkeet suoraan iA Writerin kirjastokansioon;
-      muuten pois.</td></tr>
+    <tr><td>Save As dialog</td><td>vapaa.</td></tr>
     <tr><td>Download images</td><td>pois: Luin ei näytä kuvia.</td></tr>
     <tr><td class="ryhma" colspan="2"><b>Markdown conversion options</b></td></tr>
-    <tr><td>Heading Style</td><td>Atx (<code>#</code>), kuten iA Writerissä ja Luinissa.</td></tr>
+    <tr><td>Heading Style</td><td>Atx (<code>#</code>).</td></tr>
     <tr><td>Horizontal Rule</td><td><code>___</code>: ei sekoitu etukentän <code>---</code>-rajoihin eikä muutu
-      iA Writerissä otsikoksi, jos viivan yläpuolinen tyhjä rivi joskus katoaa.</td></tr>
+      otsikoksi, jos viivan yläpuolinen tyhjä rivi joskus katoaa.</td></tr>
     <tr><td>Bullet List Marker</td><td><code>-</code>: ei sekoitu kursiivin tähtiin.</td></tr>
     <tr><td>Code Block Style</td><td>Fenced, aitana <code>```</code>. Sisennetty koodi on vaarallinen, koska vahingossa
       sisennetty kappale näyttää samalta.</td></tr>
     <tr><td>Emphasis</td><td><code>*italics*</code>: vain tähti toimii sanan sisällä, mitä suomen taivutus vaatii
       (<code>*Kritiikki*n</code>; alaviivalla <code>_Kritiikki_n</code> jää tekstiksi).</td></tr>
     <tr><td>Strong</td><td><code>**bold**</code>, samasta syystä.</td></tr>
-    <tr><td>Link Style</td><td>Referenced: leipäteksti pysyy iA Writerissä luettavana (<code>[tästä][1]</code>), ja
-      osoitteet ovat tiedoston lopussa. Linkit säilyvät, toisin kuin <span class="ui">Strip Links</span> -valinnalla.
+    <tr><td>Link Style</td><td>Referenced: osoitteet ovat tiedoston lopussa, ja leipäteksti pysyy luettavana
+      myös tekstieditorissa (<code>[tästä][1]</code>). Linkit säilyvät, toisin kuin <span class="ui">Strip Links</span> -valinnalla.
       (Inlined on myös kelpo, jos osoitteet saavat näkyä tekstissä.)</td></tr>
     <tr><td>Link Reference<br>Style</td><td>Full (<code>[1]</code>). Collapsed ja Shortcut nimeävät viitteen linkin
       tekstillä, jolloin kaksi samannimistä linkkiä (<em>tästä</em>, <em>tästä</em>) vievät samaan osoitteeseen.</td></tr>
-    <tr><td>Image Style</td><td>Strip Images: Luin ei näytä kuvia, eikä iA Writerin tekstiin jää kuvaosoitteita.
-      Kuvateksti säilyy. (Jos kuvat ovat sisällön kannalta tärkeitä, Original Source jättää ne linkeiksi.)</td></tr>
+    <tr><td>Image Style</td><td>Strip Images: Luin ei näytä kuvia. Kuvateksti säilyy. (Jos kuvat ovat sisällön kannalta tärkeitä, Original Source jättää ne linkeiksi.)</td></tr>
     <tr><td>Escape Markdown<br>Characters</td><td>päällä. Ilman suojausta tekstin <code>[1]</code> muuttuisi linkiksi
       lopun viitteeseen <code>[1]:</code>, ja vuosiluvulla alkava kappale (<code>1984. vuonna …</code>)
-      numeroiduksi luetteloksi. Latomo ja
-      iA Writer ymmärtävät kenoviivat.</td></tr>
+      numeroiduksi luetteloksi. Latomo ymmärtää
+      kenoviivat.</td></tr>
   </table>
   <p>Front-matter template:</p>
   <pre id="pohja">---
