@@ -974,7 +974,8 @@
     var a = tila.ankkuri;
     if (ennen.tavutus !== aset.tavutus || ennen.sisallys !== aset.sisallys) { piirraTeksti(); }
     asettele(a);
-    if (ennen.sivutus !== aset.sivutus) suljePaneelit();
+    // Asetukset pysyvät auki, kun niissä vaihdetaan Vieritys/Sivut; muut paneelit suljetaan.
+    if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); sijoitaNipukka(); }
   }
 
   /* ---------- tekstin solmut ja kohdat ----------
