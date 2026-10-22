@@ -322,8 +322,7 @@ Linkki avaa keikan suoraan soittimeen, ja latautunut keikka tulee listaan itsest
 `soitin/` ilman tunnusta avaa listan. Sovelluksessa (`window.SoitinApp` olemassa) verkon nappia
 ja tallennusta ei ole, ja sivu on pikselilleen sama kuin ennen. Evästebanneria ei tarvita:
 tallennus on käyttäjän itse pyytämää toimintoa eikä lähde laitteelta. Verkossa otsikon perässä on ⓘ-nappi, joka
-avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”Valg dø KEICK • WALK ðö geig!”*,
-jossa pisteen ympärillä on toisin kuin nimessä välilyönnit; sitten soittimen esittely, käyttöoppaan linkki
+avaa otsikon alle hennon tietoiskun (ensin omalla rivillään lainausmerkeissä kursiivinen iskulause *”(1) Valg ðø KEICK → (2) WALK the Geigh!”* (käyttäjän päätös 22.10.2026; ennen *Valg dø KEICK • WALK ðö geig!*), sitten soittimen esittely, käyttöoppaan linkki
 tyhjän rivin jälkeen ja virke *Omien keikkojen luominen vaatii Mac-tietokoneen sekä käyttöönoton (n. 30 min).*,
 jossa *käyttöönoton* on linkki; linkit avautuvat uuteen välilehteen, ettei soitto katkea); sovelluksessa nappia ei ole, koska listan WebView ei avaa linkkejä. Jos muutat `keikat.html`:ää,
 testaa molemmat sillat; sovellus saa muutoksen vasta uudessa APK:ssa.
