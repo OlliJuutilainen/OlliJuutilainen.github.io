@@ -587,7 +587,11 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Latomon remontti** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 7):
   *Tekstityyppi* on oletuksena *ei määritelty*; valittavana tieteellinen, blogi tai verkkosivu, kaunokirjallinen.
   Kentät Teologian tyylin viitteen järjestyksessä, tyypin oletuskentät näkyvissä ja loput *+ Lisää tieto*
-  -napista (*Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut). Kaikki vapaaehtoista, otsikko
+  -napista (*Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut). **Kehys** (käyttäjän päätös 22.10.2026):
+  blogin nimi ja kaunokirjallisen tekstin kokoelma näkyvät alaotsikon paikalla lukulistassa ja ladotussa tekstissä, jos
+  alaotsikkoa ei ole (md.js `kehys`; määrittelemättömällä tyypillä sivusto, tieteellisellä ei kehystä), eivätkä toistu
+  tietorivillä. Kaunokirjallisella `teos`-kentän nimi on *Kokoelma* (oletuksena näkyvissä; käyttäjä halusi
+  sateenvarjosanan, ei *novellikokoelma*). Kaikki vapaaehtoista, otsikko
   riittää; pelkälle tekstille kentän otsikko lisätään tekstin alkuun. **Etukenttään vain se, mikä poikkeaa
   tekstistä päätellystä** (tutkielma läpäisee Latomon tavulleen samana). Julkaisuajan tarkkuus valitaan:
   blogissa vuodesta minuuttiin (oletus kuukausi), tieteellisessä enintään päivä; itse kirjoitettu ja tekstin

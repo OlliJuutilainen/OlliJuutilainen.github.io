@@ -86,6 +86,8 @@ Tietoriveiltä päätellään tekijä (2–4 isolla alkavaa sanaa omalla rivill�
 
 Jos tekstissä ei ole `#`-otsikkoa mutta etukentässä on `otsikko`, otsikkolohko tehdään etukentästä. Jos otsikkolohkossa ei ole tietorivejä, ne tehdään etukentän tekijästä, julkaisun lajista, teoksesta tai sivustosta ja julkaisuajasta (verkkoleike, Latomon kentät).
 
+Jos alaotsikkoa ei ole tekstissä eikä etukentässä, alaotsikon paikalla näkyy *kehys* (käyttäjän päätös 22.10.2026): blogilla ja määrittelemättömällä tyypillä sivuston nimi, kaunokirjallisella kokoelma (`teos`, sen puuttuessa sivusto). Tieteellisellä ei ole kehystä, vaan lehti tai kokoomateos on tietorivillä. Kehys näkyy myös lukulistassa nimikkeen alaotsikkona (`doc.kehys`, listassa `e.kehys`), eikä se toistu tietorivillä eikä lukulistan tekijän paikalla. Kehys on oma lohkonsa, joten vanhojen tekstien lohkonumerot muuttuvat; kirjanmerkit ja alleviivaukset löytävät paikkansa katkelmasta (`paikanna`).
+
 ### 3.2 Luvut ja tunnisteet
 
 Otsikkotasoja on neljä (käyttäjän päätös 21.10.2026): `#` on koko nimikkeen otsikko, `##` pääluku, `###` alaluku ja `####` alaluvun alaluku. Kolme alempaa voivat näkyä aikajanalla (luku 4.4). Syvempi otsikko (`#####`) näkyy `####`-tasona, ja Latomo huomauttaa siitä. Setext-otsikot (rivi ja sen alla `===` tai `---`) ovat `#`- ja `##`-otsikoita.
@@ -302,7 +304,7 @@ Teksti on Literataa, joka on suunniteltu e-lukulaitteille. Viitenumerot ovat lai
 
 Latomo (`luin/latomo.html`) rakennettiin uudelleen 22.10.2026 (käyttäjän pyyntö, toteutus Clauden harkinnalla). Tekstikentän alla on tarkistus (otsikkolohko sellaisena kuin Luin sen näyttää, luvut, ehdotukset, huomautukset), sitten tiedot ja lähdeviite, julkinen osoite ja napit, ja viimeisenä rakenne ja lähdeviittaukset.
 
-*Tekstityyppi* on oletuksena *ei määritelty* (käyttäjän korjaus: ei pakollista kategoriaa). Vaihtoehdot ovat tieteellinen, blogi tai verkkosivu ja kaunokirjallinen. Tyyppi valitsee oletuskentät, jotka ovat Teologian tyylin viitteen järjestyksessä: kirjoittaja, julkaisuaika, otsikko ja alaotsikko kaikilla; tieteellisellä julkaisun laji, yliopisto tai yhteisö ja kaupunki; blogilla sivusto, alkuperäinen osoite ja hakupäivä. *+ Lisää tieto* tarjoaa loput, ja *Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut. Kenttä, jolla on arvo, näkyy aina, joten tyypin vaihto ei piilota tietoa. Kaikki on vapaaehtoista; otsikko riittää.
+*Tekstityyppi* on oletuksena *ei määritelty* (käyttäjän korjaus: ei pakollista kategoriaa). Vaihtoehdot ovat tieteellinen, blogi tai verkkosivu ja kaunokirjallinen. Tyyppi valitsee oletuskentät, jotka ovat Teologian tyylin viitteen järjestyksessä: kirjoittaja, julkaisuaika, otsikko ja alaotsikko kaikilla; tieteellisellä julkaisun laji, yliopisto tai yhteisö ja kaupunki; blogilla sivusto, alkuperäinen osoite ja hakupäivä; kaunokirjallisella *Kokoelma* (avain `teos`, muilla tyypeillä nimellä *Osana teosta tai lehteä*; käyttäjän pyyntö 22.10.2026: sateenvarjosana novelli- ja runokokoelmalle, antologialle ja lehdelle). *+ Lisää tieto* tarjoaa loput, ja *Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut. Kenttä, jolla on arvo, näkyy aina, joten tyypin vaihto ei piilota tietoa. Kaikki on vapaaehtoista; otsikko riittää.
 
 Kentät esitäytetään etukentästä ja tekstistä (`doc.tiedot`), kunnes käyttäjä koskee niihin. Tulokseen etukenttään kirjoitetaan vain arvot, jotka eroavat tekstistä päätellystä (`doc.paatelty`), joten tutkielma läpäisee Latomon tavulleen samana. Jos tekstissä ei ole `#`-otsikkoa, kentän otsikko lisätään tekstin alkuun, jotta tiedosto on itsenäinen myös iA Writerissä. Pelkkäkin teksti saa näin selkärangan lukulistaan.
 
@@ -320,7 +322,7 @@ Viite kootaan tiedoista Teologian tyylin (HY:n teologinen tiedekunta, 2021) muka
 
 ### 7.3 Jakaminen
 
-Lukulistan logon oikealla puolella on salmiakkikehyksinen i-nappi, joka avaa yhden virkkeen esittelyn. Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä. Nimikkeen alla näkyy tekijä tai, jos sitä ei ole, sivusto.
+Lukulistan logon oikealla puolella on salmiakkikehyksinen i-nappi, joka avaa yhden virkkeen esittelyn. Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä. Nimikkeen alla näkyy alaotsikko tai kehys (luku 3.1) ja tekijä tai, jos sitä ei ole eikä sivusto ole jo kehyksenä, sivusto.
 
 Viite on tekstin oma (etukentän `viite` tai koottu; vanhoille nimikkeille `LuinMD.arvaaViite`). Lukutietoja ei lisätä pakolla (käyttäjän päätös 22.10.2026). Viitteen alla on matala kytkin *lisää: luettu HTML-versiona*, joka lisää perään esimerkiksi:
 

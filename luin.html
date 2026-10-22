@@ -764,6 +764,8 @@
     e.title = doc.title || e.title || 'Nimetön'; e.sub = doc.sub; e.author = doc.author; e.year = doc.year;
     // viite: etukentän oma viite tai tiedoista koottu (md.js, kokoaViite); sivusto näkyy listassa, jos tekijää ei ole.
     e.viite = doc.viite || ''; e.sivusto = doc.tiedot.sivusto || ''; e.osoite = doc.meta.osoite || '';
+    // kehys: blogin nimi tai kokoelma alaotsikon paikalla, kun alaotsikkoa ei ole (md.js).
+    e.kehys = doc.kehys || '';
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
   }
@@ -854,9 +856,10 @@
     document.title = 'Luin';
     var ul = $('#nimikkeet');
     ul.innerHTML = lista.map(function (e) {
-      var tieto = [e.author || e.sivusto, e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
+      var ala = e.sub || e.kehys;
+      var tieto = [e.author || (e.sivusto !== ala ? e.sivusto : ''), e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
       return '<li class="nimike"><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
-        '<span class="n-ots">' + esc(e.title) + '</span>' + (e.sub ? '<span class="n-ala">' + esc(e.sub) + '</span>' : '') +
+        '<span class="n-ots">' + esc(e.title) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
         '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
         '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Jaa tai poista">' + JAKO + '</button></li>';
     }).join('');
