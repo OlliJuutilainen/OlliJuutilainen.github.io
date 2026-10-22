@@ -595,7 +595,8 @@ Käyttäjän vaatimukset 20.10.2026:
   vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa; `latomo-markdownload`) siivoaa jäänteet vain
   tuloksesta ja lukee tiedot etukentästä ja leikkeen lopusta; suositellut asetukset ja etukenttäpohja ovat
   Latomon ohjeessa (`latomo-ohje.html#markdownload`; nimet MarkDownloadin käyttöoppaasta, oikealla Firefoxilla
-  testaamatta). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
+  testaamatta). Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
+  `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
   Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, alarivi HTML ohuena
   väljänä. Viiva pisteiden välillä on *glissando* (käyttäjän päätös 21.10.2026; esikuva flageolettiglissando):

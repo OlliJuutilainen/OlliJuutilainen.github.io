@@ -72,6 +72,10 @@
   .kytkin .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
   .kytkin .sal-sisa { fill: none; }
   .kytkin[aria-pressed="true"] .sal-sisa { fill: currentColor; }
+  /* Pois päältä teksti himmeämpi salmiakin tyhjyyden lisäksi, samoin viereinen ohjelinkki;
+     päällä teksti musteella ja linkki ruosteella kuten muut linkit. */
+  .kytkin[aria-pressed="false"] { color: var(--harmaa); }
+  .kytkin[aria-pressed="true"] + a.pieni { color: var(--ruoste); }
   .tarkistus { margin-top: 24px; border-top: 1px solid var(--viiva); }
   .tiedot { margin: 14px 0 0; }
   .tiedot .nimi { font-size: 1.15rem; letter-spacing: .04em; }
@@ -669,6 +673,7 @@
   function asetaMdl(on) {
     mdl = on;
     try { localStorage.setItem('latomo-markdownload', on ? '1' : '0'); } catch (e) {}
+    $('#mdl').setAttribute('aria-pressed', String(on));  // paivita() ei ehdi tähän tyhjällä tekstillä
     paivita();
   }
   $('#mdl').addEventListener('click', function () { asetaMdl(!mdl); });
