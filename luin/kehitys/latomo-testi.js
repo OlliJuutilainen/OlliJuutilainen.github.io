@@ -177,6 +177,18 @@ palvelin.listen(0, async () => {
   tulos('lukutiedot vain valittaessa', v0 === 'Kokeilu (2026). Tusinablogi 8.10.2026 klo 14.05.' && /Luettu HTML-versiona \d+\.\d+\.\d{4}\.$/.test(v1), v0 + ' → ' + v1);
   await kuva('3-jako');
 
+  // Blogin etusivu: monta linkitettyä väliotsikkoa ja juuriosoite lähteenä → varoitus, Ohita piilottaa sen; yksittäisen kirjoituksen osoite ei laukaise.
+  const ETUSIVU = (lahde) => `---\nlähde: ${lahde}\nhaettu: 2026-10-22\n---\n\n# Blogi\n\n### [Yksi][1]\n\nTeksti yksi.\n\n### [Kaksi][2]\n\nTeksti kaksi.\n\n### [Kolme][3]\n\nTeksti kolme.\n\n[1]: https://blogi.example/2026/10/yksi.html\n[2]: https://blogi.example/2026/09/kaksi.html\n[3]: https://blogi.example/2026/07/kolme.html\n`;
+  const varoitus = () => p.locator('.ehdotus', { hasText: 'blogin etusivulta' }).count();
+  await p.goto(BASE + 'luin/latomo.html');
+  await syota(ETUSIVU('https://blogi.example/'));
+  tulos('etusivuvaroitus', (await varoitus()) === 1);
+  await p.click('.ehdotus:has-text("blogin etusivulta") button:has-text("Ohita")');
+  await p.waitForTimeout(300);
+  tulos('etusivuvaroitus ohitettu', (await varoitus()) === 0);
+  await syota(ETUSIVU('https://blogi.example/2026/10/yksi.html'));
+  tulos('yksittäisessä kirjoituksessa ei varoitusta', (await varoitus()) === 0);
+
   // 8. Puhelimen leveys: ei vaakavieritystä.
   await p.setViewportSize({ width: 360, height: 760 });
   await p.goto(BASE + 'luin/latomo.html');

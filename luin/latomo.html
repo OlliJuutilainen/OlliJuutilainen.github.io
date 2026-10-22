@@ -260,7 +260,7 @@
   var tila;
   function alusta() {
     tila = { arvot: {}, koskettu: {}, lisatyt: {}, tyyppi: '', tyyppiKoskettu: false, tarkkuus: 2, tarkkuusKoskettu: false,
-      oma: null, omaKoskettu: false, muokkaa: false };
+      oma: null, omaKoskettu: false, muokkaa: false, ohitettu: {} };
   }
   alusta();
   var nimi = '', mdl = false;
@@ -351,6 +351,21 @@
   function naytteeltaMdl(src) {
     var ek = L.etukentta(src).raaka;
     return !!(ek.source && (ek.created || ek.author)) || !!(ek['lähde'] && ek.haettu && /^\d{4}-\d\d-\d\d$/.test(ek.haettu)) || /^\s*>\s*#{1,6}\s*Excerpt\s*$/im.test(src) || !!takaosa(src)['lähde'];
+  }
+  // Blogin etusivu tai listaus: lähde on pelkkä sivuston osoite ja tekstissä on vähintään kolme samalle sivustolle
+  // linkitettyä väliotsikkoa (### [Otsikko][1]), eli kokonaisia kirjoituksia ei ole leikattu erikseen.
+  function naytteeltaEtusivulta(src) {
+    var ek = L.etukentta(src), u = ek.raaka['lähde'] || ek.raaka.source || takaosa(src)['lähde'] || '', host;
+    try { var a = new URL(String(u).trim()); if (a.pathname.replace(/\/+$/, '')) return false; host = a.host; } catch (e) { return false; }
+    var def = {};
+    ek.body.split('\n').forEach(function (l) { var m = /^\[([^\]]+)\]:\s*(\S+)/.exec(l); if (m) def[m[1]] = m[2]; });
+    var n = 0;
+    ek.body.split('\n').forEach(function (l) {
+      var m = /^#{2,4}\s*\[[^\]]*\](?:\[([^\]]+)\]|\((\S+?)\))\s*$/.exec(l.trim());
+      if (!m) return;
+      try { if (new URL(m[2] || def[m[1]]).host === host) n++; } catch (e) {}
+    });
+    return n >= 3;
   }
   // Tulokseen menevä teksti: tekstikenttä, MarkDownload-tilassa siivottuna.
   var siivous = null;
@@ -596,6 +611,8 @@
     ehdotukset = [];
     var raw = md.value;
     if (!mdl && naytteeltaMdl(raw)) ehdotukset.push({ t: 'Teksti näyttää MarkDownload-leikkeeltä.', napit: [['Käytä MarkDownload-tilaa', function () { asetaMdl(true); }]] });
+    if (!tila.ohitettu.etusivu && naytteeltaEtusivulta(raw)) ehdotukset.push({ t: 'Teksti näyttää blogin etusivulta tai listaukselta: siinä on monta kirjoitusta, ja otsikko on blogin nimi. Avaa yksittäinen kirjoitus omalle sivulleen ja leikkaa se erikseen.',
+      napit: [['Ohita', function () { tila.ohitettu.etusivu = true; }]] });
     var ots = yksi(tila.arvot.otsikko), sm = /^(.{8,}?)\s+[-–—|·•]\s+([^-–—|·•]{2,40})$/.exec(ots);
     if (sm && !yksi(tila.arvot.sivusto)) {
       ehdotukset.push({ t: 'Otsikon lopussa näyttää olevan sivuston nimi ”' + sm[2] + '”.', napit: [['Erota sivuston nimeksi', function () {
