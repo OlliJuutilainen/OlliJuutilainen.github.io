@@ -207,6 +207,9 @@
   header.tt h1 { font-size: 1.55em; line-height: 1.2; margin: 0 0 .5em; font-weight: 400; letter-spacing: .05em; }
   header.tt .sub { font-size: .95em; color: var(--harmaa); margin: 0; text-transform: uppercase; letter-spacing: .075em; }
   header.tt .meta { font-size: .82em; font-style: italic; color: var(--harmaa); line-height: 1.5; margin: 1em 0 0; }
+  /* Ei tavuviivoja otsikoissa, alaotsikossa, tietoriveillä eikä sisällysluettelossa; sana katkeaa vain, jos se ei
+     mahdu edes yksin riville (break-word; tavutaPitkat() lisää silloin tavuviivan, jos sana on tavutettavissa). */
+  #teksti h1, #teksti h2, #teksti h3, #teksti h4, #teksti .sub, #teksti .meta, #teksti nav.sisallys { overflow-wrap: break-word; }
   #teksti h2, #teksti h3, #teksti h4 { font-weight: 400; break-after: avoid; break-inside: avoid; }
   #teksti h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .005em; }
   #teksti h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
@@ -1129,6 +1132,45 @@
     paivitaKorostus();
   }
 
+  // Otsikoiden, alaotsikon, tietorivien ja sisällysluettelon sanoja ei tavuteta, ellei yksittäinen sana ole
+  // palstaa leveämpi. Silloin sanaan lisätään kaikki tavutuskohdat (rivinvaihto käyttää vain tarvittavan).
+  // Lisätyt viivat muistetaan, jotta ne voi poistaa, kun palsta levenee (koko, marginaali, ikkuna).
+  var LISATYT = new WeakMap();
+  var SUOJATUT = 'h1,h2,h3,h4,.sub,.meta,nav.sisallys li';
+  // Kuten solmut(), mutta sisällysluettelo (.luin-ui) mukana.
+  function suojatutSolmut(el) {
+    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), a = [], n;
+    while ((n = tw.nextNode())) { if (!n.parentElement.closest('.sidenote,.fnref')) a.push(n); }
+    return a;
+  }
+  function tavutaPitkat() {
+    $$(SUOJATUT, art).forEach(function (el) {
+      suojatutSolmut(el).forEach(function (n) {
+        var vanhat = LISATYT.get(n);
+        if (vanhat) { vanhat.slice().reverse().forEach(function (i) { n.deleteData(i, 1); }); LISATYT.delete(n); }
+      });
+    });
+    $$(SUOJATUT, art).forEach(function (el) {
+      var cs = getComputedStyle(el), tila_ = cs.display === 'none' ? 0 : el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (tila_ <= 0) return;
+      // Mitataan sanan oma leveys ilman break-wordin katkomista.
+      el.style.overflowWrap = 'normal';
+      suojatutSolmut(el).forEach(function (n) {
+        var v = n.nodeValue, re = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g, m, orig = [];
+        while ((m = re.exec(v))) {
+          var r = document.createRange(); r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length);
+          if (r.getBoundingClientRect().width <= tila_ + 0.5) continue;
+          var h = LuinMD.tavuta(m[0], 'tihea');
+          for (var i = 0, j = 0; i < h.length; i++) { if (h.charCodeAt(i) === 0xAD) orig.push(m.index + j); else j++; }
+        }
+        if (!orig.length) return;
+        for (var q = orig.length - 1; q >= 0; q--) n.insertData(orig[q], '\u00ad');
+        LISATYT.set(n, orig.map(function (p, k) { return p + k; }));
+      });
+      el.style.overflowWrap = '';
+    });
+  }
+
   function asettele(k) {
     sovellaTeema();
     sivuAlut = {};
@@ -1150,12 +1192,14 @@
       art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
       art.style.columnWidth = W + 'px'; art.style.columnGap = G + 'px';
       art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
+      tavutaPitkat();
       var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
       var rs = viim ? viim.getClientRects() : [];
       var r = rs.length ? rs[rs.length - 1] : null;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
     } else {
       art.style.cssText = '';
+      tavutaPitkat();
     }
     // Mobiilin kelluvat (kirjanmerkki, palkkinuoli) tekstipalstan reunojen linjaan.
     var pv = sivut ? Math.floor(G / 2) : art.getBoundingClientRect().left, pl = sivut ? W : art.getBoundingClientRect().width;
