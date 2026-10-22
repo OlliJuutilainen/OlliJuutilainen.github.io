@@ -37,11 +37,13 @@ Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.
 
 - `luin.html` – lukulista ja lukija samalla sivulla. Juuressa, koska ohjelman nimi on luin.html.
 - `luin/md.js` – Markdown-jäsennin ja suomen tavutus. Yhteinen lukijalle ja Latomolle.
-- `luin/latomo.html` – generaattori: tarkistaa tekstin, lisää etukentän ja siirtää tekstin Luiniin tai antaa sen ladattavaksi.
+- `luin/latomo.html` – generaattori: tarkistaa tekstin, täydentää lähdetiedot etukenttään ja siirtää tekstin Luiniin tai antaa sen ladattavaksi (luku 7).
+- `luin/latomo-ohje.html` – Latomon ohje kirjoittajalle, myös MarkDownload-asetukset (luku 7.4).
 - `luin/fontit/` – Literata (OFL), kevennetty: paino 380–700 ja optinen koko 10–36. Noin 83 kt leikkausta kohti.
 - `luin/kehitys/logo.js` – logon generaattori. `node luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja Latomoon.
 - `luin/ohje.md` – tämä opas.
 - `luin/kayttoohje.html` – lukijan käyttöohje (luku 2.4).
+- `luin/kehitys/testi.js`, `md-testi.js`, `latomo-testi.js` ja `ia-merkinnat.md` – testit (luku 8).
 
 ### 2.2 Reitit
 
@@ -67,57 +69,84 @@ Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-`
 
 ### 2.4 Käyttöohje ja lukulistan linkit
 
-Lukulistan alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje: Latomo on vielä raakile. Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
+Lukulistan alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje; Latomolla on oma ohjeensa (`luin/latomo-ohje.html`, luku 7.4). Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
 
 ## 3. Merkintäkieli
 
-Jäsennin noudattaa aiempien md → html -muunnosten konventioita, joiden mallina oli kandidaatintutkielman html-versio. Tuottajan konventiot menevät yleisen Markdownin edelle.
+Jäsennin noudattaa aiempien md → html -muunnosten konventioita, joiden mallina oli kandidaatintutkielman html-versio, ja muuten iA Writerin Markdown-opasta (käyttäjän päätös 22.10.2026: iA Writerin konventio on ensisijainen). Tuottajan konventiot menevät yleisen Markdownin edelle.
 
 ### 3.1 Otsikkolohko
 
 Ensimmäinen `#`-otsikko on teoksen nimi. Sen ja ensimmäisen `##`-otsikon välissä:
 
 - pelkästä kursiivista koostuva kappale on alaotsikko (versaalina, harvennettuna),
-- muut kappaleet ovat tietorivejä, joissa rivinvaihdot säilyvät.
+- muut kappaleet ovat tietorivejä, joissa rivinvaihdot säilyvät, jos jokainen rivi on enintään 100 merkkiä. Pidempi kappale on jo leipätekstiä: verkkoleikkeen johdanto ei muutu harmaaksi kursiiviksi.
 
-Tietoriveiltä arvataan tekijä (2–4 isolla alkavaa sanaa omalla rivillään) ja vuosi.
+Tietoriveiltä päätellään tekijä (2–4 isolla alkavaa sanaa omalla rivillään) ja julkaisuaika (tarkin päiväys: *heinäkuussa 2026* on kuukausi, *8.10.2026* päivä). Rivin lopun kenoviiva ei kuulu tietoon.
+
+Jos tekstissä ei ole `#`-otsikkoa mutta etukentässä on `otsikko`, otsikkolohko tehdään etukentästä. Jos otsikkolohkossa ei ole tietorivejä, ne tehdään etukentän tekijästä, julkaisun lajista, teoksesta tai sivustosta ja julkaisuajasta (verkkoleike, Latomon kentät).
 
 ### 3.2 Luvut ja tunnisteet
 
-Otsikkotasoja on neljä (käyttäjän päätös 21.10.2026): `#` on koko nimikkeen otsikko, `##` pääluku, `###` alaluku ja `####` alaluvun alaluku. Kolme alempaa voivat näkyä aikajanalla (luku 4.4). Syvempi otsikko (`#####`) näkyy `####`-tasona, ja Latomo huomauttaa siitä.
+Otsikkotasoja on neljä (käyttäjän päätös 21.10.2026): `#` on koko nimikkeen otsikko, `##` pääluku, `###` alaluku ja `####` alaluvun alaluku. Kolme alempaa voivat näkyä aikajanalla (luku 4.4). Syvempi otsikko (`#####`) näkyy `####`-tasona, ja Latomo huomauttaa siitä. Setext-otsikot (rivi ja sen alla `===` tai `---`) ovat `#`- ja `##`-otsikoita.
 
 Numeroitu otsikko saa tunnisteen numerostaan: `## 2. Ihmisyys` on `luku-2`, `### 2.1 Valistus` on `luku-2-1`. Numeroimaton `###`-otsikko on versaali kursiivi, kuten tutkielman *Viittauksista ja niiden lyhenteistä*. Latomo huomauttaa, jos numerointi hyppää.
 
-Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta) saa järjestysnumeron `data-b`. Kirjanmerkit, alleviivaukset ja lukukohta ankkuroidaan siihen ja merkkien määrään lohkon alusta.
+Jokainen tekstilohko (otsikko, kappale, lainauksen kappale, luettelon kohta, taulukon rivi) saa järjestysnumeron `data-b`. Kirjanmerkit, alleviivaukset ja lukukohta ankkuroidaan siihen ja merkkien määrään lohkon alusta. Lohkot eivät ole sisäkkäin: sisäkkäinen luettelo on numerottomassa kääreessä `li.sisus`, ja numeroidun luettelon seuraava kohta saa numeronsa `value`-määritteestä.
 
 ### 3.3 Alaviitteet
 
-`^[…]` on alaviite. Se näkyy numerona, ja numero näkyy aina.^[Viitenumeroita ei saa tässä versiossa piiloon, kuten toivottiin.] Leveällä näytöllä viite on sivuhuomiona oikeassa reunuksessa, kapealla numeron napautus avaa sen tekstin lomaan ja sivutetussa näkymässä ponnahdukseen. Viitteen sisällä saa olla kursiivia ja hakasulkeita.
+Alaviite kirjoitetaan iA Writerin tapaan tekstin sekaan `[^Näin sanoo Koistinen 2013, 42]` tai tunnuksella `[^1]` ja omalla rivillään `[^1]: Alaviitteen teksti.` Määritelmää jatkavat sitä suoraan seuraavat rivit ja tyhjän rivin jälkeen sisennetyt kappaleet. Pandocin muoto `^[…]` toimii edelleen (kandidaatintutkielma on kirjoitettu sillä), ja Latomo tarjoutuu muuntamaan sen iA Writerin muotoon (`LuinMD.iaAlaviitteet`). Jos `[^1]`:lle ei ole määritelmää, Latomo huomauttaa, ja alaviitteen tekstiksi tulee tunnus; käyttämättömästä määritelmästä samoin.
+
+Alaviite näkyy numerona, ja numero näkyy aina.^[Viitenumeroita ei saa tässä versiossa piiloon, kuten toivottiin.] Leveällä näytöllä viite on sivuhuomiona oikeassa reunuksessa, kapealla numeron napautus avaa sen tekstin lomaan ja sivutetussa näkymässä ponnahdukseen. Viitteen sisällä saa olla kursiivia ja hakasulkeita.
+
+iA Writerin sitaatit (`[s. 23][#Doe:2006]` ja määritelmä `[#Doe:2006]: John Doe. *Kirja*. 2006.`) näkyvät alaviitteinä: määritelmä ja perässä paikannin.
 
 ### 3.4 Kirjallisuus
 
 `## Kirjallisuus` (tai Lähteet, Lähdeluettelo, Bibliografia, References) tekee seuraavista kappaleista riippuvasisennettyjä seuraavaan `##`-otsikkoon asti.
 
-Alaviitteen lähdeviittaus muuttuu linkiksi luettelon kohtaan, kun yhteys on varma. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti ja vuosi ensimmäinen sulkeissa oleva vuosi (`Kant, Immanuel (2017a).`, `Syrjintä (s.a.).`). Sukunimi ja vuosi (*Singer 2023*) linkittyy, jos luettelossa on tasan yksi tämän tekijän tämän vuoden kohta. Sukunimi ja muu paikannin (*Korsgaard 8.1.2*) linkittyy, jos tekijältä on luettelossa vain yksi kohta tai vain yksi, johon tekstissä ei missään viitata vuosiluvulla. Muuten linkkiä ei tule. Latomo luettelee tarkistuksessa, mitkä viittaukset linkittyvät mihin ja miksi jokin jää ilman. Linkki on alaotsikon harmaa eikä ruoste, haalealla alleviivauksella.
+Alaviitteen lähdeviittaus muuttuu linkiksi luettelon kohtaan, kun yhteys on varma. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti ja vuosi ensimmäinen sulkeissa oleva vuosi (`Kant, Immanuel (2017a).`, `Syrjintä (s.a.).`). Sukunimi ja vuosi (*Singer 2023*) linkittyy, jos luettelossa on tasan yksi tämän tekijän tämän vuoden kohta. Sukunimi ja muu paikannin (*Korsgaard 8.1.2*) linkittyy, jos tekijältä on luettelossa vain yksi kohta tai vain yksi, johon tekstissä ei missään viitata vuosiluvulla. Muuten linkkiä ei tule. Latomo luettelee tarkistuksessa, mitkä viittaukset linkittyvät mihin ja miksi jokin jää ilman. Linkki on alaotsikon harmaa eikä ruoste, haalealla alleviivauksella. Säännöt koskevat kumpaakin alaviitemuotoa; määritelmien tekstit ovat mukana, kun etsitään vuodella viitattuja kohtia.
 
 Lyhenteet (*GMS*, *KrV*) linkittyvät lyhenteiden selitykseen ilman erillisiä merkintöjä (käyttäjän päätös 21.10.2026). Selitysosio tunnistetaan otsikosta, jossa on *lyhent* (*Lyhenteet*, *Viittauksista ja niiden lyhenteistä*; englanniksi *abbreviation*), millä tasolla tahansa; osio jatkuu seuraavaan samantasoiseen tai ylempään otsikkoon. Osion kappaleissa ja luettelon kohdissa lyhenteeksi lasketaan kursivoitu yksittäinen 2–5 kirjaimen sana, jossa on vähintään kaksi versaalia: tutkielmasta *GMS*, *MS*, *KpV* ja *KrV*, mutta ei *A*, *1:234* eikä teosten nimiä. Alaviitteessä lyhenne ja sen perässä mahdollinen paikannin (*GMS 4:429*, *MS 6:442–44*, *KrV A1/B1*, *KrV BXXX*) linkittyy siihen kappaleeseen tai luettelon kohtaan, jossa lyhenne määritellään ensimmäisen kerran (tunniste `lyh-gms`). Lyhenneluettelo (`- *KrV* – Puhtaan järjen kritiikki`) vie siis suoraan oikealle riville. Kuten lähdeviittauksetkin, lyhenteet linkittyvät vain alaviitteissä, ei leipätekstissä, eikä selitysosiosta linkitetä edelleen kirjallisuusluetteloon (käyttäjän päätös: minimalismi).
 
 ### 3.5 Etukenttä
 
-Tiedoston alussa voi olla etukenttä:
+Tiedoston alussa voi olla etukenttä (iA Writerin metadata):
 
 ```
 ---
-viite: Sukunimi, Etunimi (2026). *Nimi: alaotsikko*. Opinnäyte. Yliopisto.
+tyyppi: tieteellinen
+laji: Uskonnonfilosofian kandidaatintutkielma
+yhteisö: Helsingin yliopisto
 osoite: https://…/teksti.md
 ---
 ```
 
-`viite` korvaa arvatun lähdeviitteen ja `osoite` kertoo, mistä .md-tiedoston saa verkosta. Latomo kirjoittaa nämä itse. Myös `otsikko`, `tekijä` ja `vuosi` ohittavat arvaukset.
+Lähdetiedot ovat avaimet `tyyppi` (tieteellinen, blogi, kaunokirjallinen; puuttuessa ei määritelty), `tekijä`, `julkaistu`, `otsikko`, `alaotsikko`, `suomentaja`, `teos`, `numero`, `toimittaja`, `painos`, `sarja`, `laji`, `yhteisö`, `paikka`, `kustantaja`, `sivut`, `sivusto`, `doi`, `lähde` (alkuperäinen verkko-osoite) ja `haettu` (`LuinMD.KENTAT`). Etukenttä ohittaa tekstistä päätellyn (`doc.tiedot`, `doc.paatelty`). `viite` on oma lähdeviite, joka ohittaa kootun; `osoite` kertoo, mistä .md-tiedoston saa verkosta. Vanha `vuosi` käy julkaisuajaksi.
 
-### 3.6 Mitä ei tueta
+Englanninkieliset ja MarkDownloadin avaimet yhtenäistetään (`LuinMD.avain`): `author` on tekijä, `source` lähde, `created` haettu, `title` otsikko, `published` ja `date` julkaistu, `site` sivusto. Täyttämättä jäänyt pohjan muuttuja (`{byline}`) ohitetaan, ja sisennetyt jatkorivit (YAML-luettelo) liitetään edelliseen arvoon.
 
-Kuvat, taulukot ja raaka HTML. Raaka HTML näkyy tekstinä, koska kaikki escapoidaan. Latomo huomauttaa näistä. Lainausmerkit jätetään sellaisiksi kuin ne on kirjoitettu, kuten aiemmissakin muunnoksissa.
+Päiväys tallennetaan ISO-muodossa siihen tarkkuuteen, joka halutaan ilmoittaa: `2026` vuosi, `2026-10` kuukausi, `2026-10-08` päivä, `2026-10-08 14.05` minuutti. T-muotoinen aikaleima (`2026-10-08T07:30:00`) on koneen, ja Latomo ilmoittaa sen oletuksena tyypin tarkkuudella (blogissa kuukausi).
+
+Etukentän arvot saa tekstiin iA Writerin tapaan: `[%avain]`.
+
+### 3.6 Muut iA Writerin merkinnät
+
+- Rivinvaihto: kenoviiva rivin lopussa (myös välilyöntien kanssa), kaksi välilyöntiä rivin lopussa tai `<br>`. Kappaleen lopun kenoviiva jätetään pois. Kenoviiva suojaa kaikki ASCII-välimerkit.
+- `~~yliviivaus~~`, `==korostus==` (tussin tapaan rivin alaosassa, jotta se erottuu haun osumasta), `100m^2` ja `y^(a+b)^`, `x~z` ja `H~2~O`.
+- Luettelot sisäkkäin neljällä välilyönnillä tai sarkaimella, tehtävät `- [ ]` ja `- [x]`. Luettelo voi alkaa suoraan kappaleen perästä.
+- Taulukot pystyviivoin, tasaus erotinrivistä, `||` yhdistää solun seuraavaan. Jokainen rivi on tekstilohko.
+- Viitelinkit `[teksti][tunnus]` ja `[tunnus]: osoite`, ristiviittaus otsikkoon `[Otsikko][]` (numeroidun otsikon nimi käy ilman numeroa) tai nimiöön `# Otsikko [Nimiö]`. Ratkaisematon viittaus jää tekstiksi, ja Latomo huomauttaa.
+- Paljas `https://…` on linkki, joka saa katketa mistä tahansa (tasatun rivin aukko).
+- `{{TOC}}` määrää, mihin lukijan sisällysluettelo tulee; `+++` aloittaa sivutettuna uuden sivun.
+- `//`-rivit ja `<!-- … -->` ovat kommentteja (koodissa eivät). Neljällä välilyönnillä tai sarkaimella sisennetty rivi aloittaa koodilohkon, paitsi luettelossa ja jos se alkaa otsikko- tai lainausmerkillä. Aidan merkkejä voi olla enemmän kuin kolme.
+
+### 3.7 Mitä ei tueta
+
+Kuvia ei näytetä: ne näkyvät linkkeinä `[kuva: nimi]`, koska lukija ei hae mitään kolmannelta osapuolelta (luku 1). Matematiikkaa (`$…$`) ei ladota, eikä raakaa HTML:ää päästetä läpi, koska kaikki escapoidaan. Latomo huomauttaa näistä. Lainausmerkit jätetään sellaisiksi kuin ne on kirjoitettu, kuten aiemmissakin muunnoksissa.
+
+Teksti on Literataa, joka on suunniteltu e-lukulaitteille. Viitenumerot ovat laitteen omaa groteskia (Roboto, San Francisco) kuten aiemmissa html-versioissa. Groteskia ei voi enää valita tekstin kirjasimeksi (luku 4.5).
 
 ## 4. Lukija
 
@@ -267,19 +296,47 @@ Ylärivi *LUiN.* on korkeaa, tiivistä antiikvaversaalia (versaalikorkeus 100, p
 
 Teksti on Literataa, joka on suunniteltu e-lukulaitteille. Viitenumerot ovat laitteen omaa groteskia (Roboto, San Francisco) kuten aiemmissa html-versioissa. Groteskia ei voi enää valita tekstin kirjasimeksi (luku 4.5).
 
-## 7. Lähdeviite ja jakaminen
+## 7. Latomo, lähdeviite ja jakaminen
 
-Lukulistan logon oikealla puolella on salmiakkikehyksinen i-nappi, joka avaa yhden virkkeen esittelyn. Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä.
+### 7.1 Latomo
 
-Muoto on johdettu tutkielman kirjallisuusluettelosta (Helsingin yliopiston teologisen tiedekunnan APA-sovellus):
+Latomo (`luin/latomo.html`) rakennettiin uudelleen 22.10.2026 (käyttäjän pyyntö, toteutus Clauden harkinnalla). Tekstikentän alla on tarkistus (otsikkolohko sellaisena kuin Luin sen näyttää, luvut, ehdotukset, huomautukset), sitten tiedot ja lähdeviite, julkinen osoite ja napit, ja viimeisenä rakenne ja lähdeviittaukset.
 
-> Juutilainen, Olli (2026). *Kant ja eläinetiikka: muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto. HTML-versio: https://… (luettu 20.10.2026).
+*Tekstityyppi* on oletuksena *ei määritelty* (käyttäjän korjaus: ei pakollista kategoriaa). Vaihtoehdot ovat tieteellinen, blogi tai verkkosivu ja kaunokirjallinen. Tyyppi valitsee oletuskentät, jotka ovat Teologian tyylin viitteen järjestyksessä: kirjoittaja, julkaisuaika, otsikko ja alaotsikko kaikilla; tieteellisellä julkaisun laji, yliopisto tai yhteisö ja kaupunki; blogilla sivusto, alkuperäinen osoite ja hakupäivä. *+ Lisää tieto* tarjoaa loput, ja *Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut. Kenttä, jolla on arvo, näkyy aina, joten tyypin vaihto ei piilota tietoa. Kaikki on vapaaehtoista; otsikko riittää.
 
-Päivämäärä on tekstin viimeisin avaus tällä laitteella. Osoite on Luin-linkki, jos teksti on verkossa; paikallisella tekstillä osoitetta ei ole.^[Sitaattisääntöjä Clauden projektikansioista ei voitu lukea tästä istunnosta. Muoto on päätelty tutkielman omasta lähdeluettelosta, ja se on yhdessä funktiossa (`viite` luin.html:ssä), joten sen voi vaihtaa helposti.]
+Kentät esitäytetään etukentästä ja tekstistä (`doc.tiedot`), kunnes käyttäjä koskee niihin. Tulokseen etukenttään kirjoitetaan vain arvot, jotka eroavat tekstistä päätellystä (`doc.paatelty`), joten tutkielma läpäisee Latomon tavulleen samana. Jos tekstissä ei ole `#`-otsikkoa, kentän otsikko lisätään tekstin alkuun, jotta tiedosto on itsenäinen myös iA Writerissä. Pelkkäkin teksti saa näin selkärangan lukulistaan.
+
+Julkaisuajan tarkkuus valitaan kentän vieressä: blogissa vuodesta minuuttiin, muilla päivään asti. Itse kirjoitettu aika ja tekstissä ilmoitettu aika säilyttävät tarkkuutensa; koneen aikaleima (T-muoto) ilmoitetaan tyypin oletuksella, joka on kuukausi (kaunokirjallisella vuosi).
+
+Ehdotukset (napit) muuttavat tekstikenttää vain painettaessa: MarkDownload-tilan käyttöönotto, sivuston nimen erotus otsikon lopusta, `^[…]` → `[^…]`, rivit kappaleiksi tai runon rivinvaihdot kenoviivoin, proosalta näyttävien sisennettyjen kohtien palautus koodista tekstiksi ja otsikko ensimmäisestä rivistä tai tiedoston nimestä.
+
+### 7.2 Lähdeviite
+
+Viite kootaan tiedoista Teologian tyylin (HY:n teologinen tiedekunta, 2021) mukaan (`LuinMD.kokoaViite`): itsenäinen teos kursiivilla, osa (artikkeli, blogikirjoitus) ilman; ensimmäinen tekijä käänteisenä, muut luonnollisessa järjestyksessä, viimeisen edellä `&`; tyyppi valittuna puuttuva vuosi on `s.a.`; blogin aika sivuston perässä (`*Risto Uron blogi* huhtikuu/2017`), ilman sivustoa nimen perässä sulkeissa; verkko-osoitteen perässä `(luettu 23.10.2017)`. Versaalein kirjoitettu nimi muutetaan virkekirjoitukseksi, ja suomalaisen alaotsikon alkukirjain pienennetään kaksoispisteen jälkeen (englannin otsikkokirjoitus ja kysymysmerkin jälkeinen virke säilyvät). `md-testi.js` vertaa tulosta tyylin esimerkkeihin ja tutkielman kirjallisuusluetteloon.
+
+*Muokkaa itse* antaa kirjoittaa viitteen kokonaan; se tallentuu etukentän avaimeen `viite` vain, jos se eroaa kootusta. *Kokoa kentistä* palauttaa kootun.
+
+### 7.3 Jakaminen
+
+Lukulistan logon oikealla puolella on salmiakkikehyksinen i-nappi, joka avaa yhden virkkeen esittelyn. Lukulistan nimikkeen oikeassa reunassa on pieni jakonappi. Sen valikosta voi kopioida lähdeviitteen, kopioida linkin (verkkotekstille) tai poistaa nimikkeen listasta. Viite kopioidaan sekä tekstinä että HTML:nä, jolloin kursiivi säilyy esimerkiksi Wordiin liitettäessä. Nimikkeen alla näkyy tekijä tai, jos sitä ei ole, sivusto.
+
+Viite on tekstin oma (etukentän `viite` tai koottu; vanhoille nimikkeille `LuinMD.arvaaViite`). Lukutietoja ei lisätä pakolla (käyttäjän päätös 22.10.2026). Viitteen alla on matala kytkin *lisää: luettu HTML-versiona*, joka lisää perään esimerkiksi:
+
+> Luettu HTML-versiona osoitteessa https://… (22.10.2026).
+
+Päivämäärä on tekstin viimeisin avaus tällä laitteella. Osoite on Luin-linkki, jos teksti on verkossa; paikalliselle tekstille jää vain päivä. Valinta muistetaan (`aset.viiteLisa`, oletuksena pois), ja se koskee myös merkintöjen viennin otsikkoa.
+
+### 7.4 Latomon ohje ja MarkDownload
+
+`luin/latomo-ohje.html` on Latomon ohje kirjoittajalle (käyttäjän pyyntö 22.10.2026). Sen tärkein osa on yhteispeli Firefoxin MarkDownload-lisäosan kanssa (ankkuri `#markdownload`): suositellut asetukset ja etukenttäpohja, joka täyttää Latomon kentät (`{byline}`, `{og:site_name}`, `{article:published_time}`, `{baseURI}`, `{date:YYYY-MM-DD}`, otsikkona `{title}`). Asetusten nimet on tarkistettu MarkDownloadin käyttöoppaasta; oikealla Firefoxilla testaamatta.
+
+Latomon *MarkDownload-leike*-kytkin (muistetaan avaimella `latomo-markdownload`) siivoaa tuloksesta leikkeen jäänteet (pelkät `**`-rivit, pelkkää HTML:ää olevat rivit, oletuspohjan Excerpt-lainaus erottimineen; rivimäärä säilyy, joten huomautusten rivinumerot pätevät), lukee leikkeen lopusta rivit `Tallennettu:`/`Haettu:` ja `Lähde:`, valitsee tyypiksi blogin ja poistaa tekijän edestä sanan *By*. Tekstikenttä pysyy ennallaan. Kytkimen ollessa pois Latomo ehdottaa sitä, jos teksti näyttää leikkeeltä.
 
 ## 8. Testaus
 
-Luin on testattu Playwrightilla Chromiumissa. Toistettava testi:
+Jäsennin testataan ilman selainta (`node luin/kehitys/md-testi.js`): iA Writerin merkinnät tiedostosta `luin/kehitys/ia-merkinnat.md`, päiväykset, tekijät, Teologian tyylin viitteet ja tutkielman rakenne (6 `##`, 8 `###`, 8 lainausta, 21 lähdettä, 52 alaviitettä, 105 lohkoa, ei huomautuksia). Latomo testataan selaimessa (`NODE_PATH=$(npm root -g) node luin/kehitys/latomo-testi.js [kuvakansio]`): tutkielma läpäisee muuttumattomana, tyypin ja kenttien vaikutus etukenttään ja viitteeseen, lisäkentät, MarkDownload-leike (oletuspohja ja suositeltu pohja), pelkän tekstin ehdotukset, julkaisuajan tarkkuus, siirto Luiniin ja 360 px:n leveys.
+
+Lukija on testattu Playwrightilla Chromiumissa. Toistettava testi:
 
 ```
 NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]

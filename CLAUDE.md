@@ -114,7 +114,7 @@ Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekk�
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
 myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
-`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Luinin käyttöohjeessa, Keikkaloihtimessa, Omat keikkani -listassa ja
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, Luinin käyttöohjeessa, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
@@ -542,12 +542,12 @@ vaatimus: soitin harmoniassa logon kanssa).
 
 `luin.html` (juuressa, koska ohjelman nimi on luin.html) on lukulista ja lukija samalla sivulla.
 `luin/md.js` on yhteinen Markdown-jäsennin ja suomen tavutus, `luin/latomo.html` generaattori
-(*Latomo*: tarkistaa md:n, lisää etukentän `viite:`/`osoite:`, avaa Luinissa tällä laitteella
-avaimen `luin-tuonti` kautta tai antaa .md:n ladattavaksi). Kehittäjän opas on `luin/ohje.md`; se avautuu
+(*Latomo*: tarkistaa md:n, täydentää lähdetiedot etukenttään, avaa Luinissa tällä laitteella
+avaimen `luin-tuonti` kautta tai antaa .md:n ladattavaksi; Latomon ohje `luin/latomo-ohje.html`, ks. alla). Kehittäjän opas on `luin/ohje.md`; se avautuu
 Luinissa osoitteesta `luin.html#u=luin/ohje.md`, mutta lukulistassa siihen ei ole linkkiä (käyttäjän päätös
 22.10.2026: pois julkisivusta, ei piiloteta repossa). Lukijan käyttöohje on `luin/kayttoohje.html` (käyttäjän pyyntö
 22.10.2026: yksinkertainen, olennaisin ensin; vienti ja muu harvemmin tarvittava lopussa supistettuina osioina).
-Se on lukulaitteen ohje, **ei Latomon** (Latomo on raakile, eikä sille tehdä ohjetta). Lukulistan alla ovat järjestyksessä
+Se on lukulaitteen ohje, **ei Latomon**; Latomolla on oma ohjeensa (käyttäjän pyyntö 22.10.2026). Lukulistan alla ovat järjestyksessä
 *Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* ja pienen välin (12 px) jälkeen *Uusi teksti* **Latomossa**. Kun lukijan
 käyttäjälle näkyvä toiminta muuttuu, tarkista käyttöohje. Kaikki on selaimen localStoragessa
 (`luin-asetukset`, `luin-lista`, `luin-teksti:<id>`, `luin-merkit:<id>`); palvelinta ei ole.
@@ -555,8 +555,10 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (KV/worker, repo, Dropbox) on myöhempi kysymys.
 - **Jakaminen on ERITTÄIN sivuosassa**: vain lukulistan nimikkeen oikean laidan pieni jakonappi, jonka
   ponnahdusvalikosta kopioidaan lähdeviite (ja verkkotekstin linkki) ja poistetaan nimike listasta.
-  Viitteen muoto on päätelty tutkielman kirjallisuusluettelosta (`… HTML-versio: <Luin-linkki> (luettu
-  D.M.VVVV).`); Clauden projektikansioiden sitaattisääntöjä ei voitu lukea.
+  Viite on tekstin oma (etukentän `viite` tai Latomon kentistä Teologian tyylin 2021 mukaan koottu, md.js
+  `kokoaViite`). **Lukutietoja ei lisätä pakolla** (käyttäjän päätös 22.10.2026): viitteen alla on matala kytkin
+  *lisää: luettu HTML-versiona*, joka lisää perään `Luettu HTML-versiona osoitteessa <Luin-linkki> (D.M.VVVV).`
+  (`aset.viiteLisa`, oletus pois). Ennen lisäys `HTML-versio: … (luettu …)` oli aina mukana.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti, ei
   varjoja eikä läpikuultavuutta (e-ink). Käyttäjän päätös 21.10.2026 (kokeilu): ruoste siirrettiin oranssista ruskeampaan
@@ -573,8 +575,27 @@ Käyttäjän vaatimukset 20.10.2026:
   kompromissi kaartuvan ja terävän välillä.
 - **md-konventiot ovat käyttäjän omat** (aiemmat md → html -muunnokset, malli tutkielman html-versio)
   ja menevät yleisen Markdownin edelle: otsikkolohko (#, kursiivi alaotsikko, tietorivit `<br>`:llä),
-  `luku-2-1`-tunnisteet, numeroimaton ### versaalikursiivina (`.caps`), `^[…]` sivuhuomioiksi
+  `luku-2-1`-tunnisteet, numeroimaton ### versaalikursiivina (`.caps`), alaviitteet sivuhuomioiksi
   (fnref + fntoggle + sidenote), `## Kirjallisuus` → `p.bib`. Lainausmerkkejä ei muuteta.
+  Muuten noudatetaan **iA Writerin protokollaa** (käyttäjän päätös 22.10.2026; opas, luku 3): alaviite on
+  `[^teksti]` tai `[^1]` + `[^1]: …`; Pandocin `^[…]` (tutkielmaan lipsahtanut) toimii yhä, ja Latomo tarjoaa
+  muunnoksen. Rivinvaihto: kenoviiva rivin lopussa, kaksi välilyöntiä tai `<br>`. Lisäksi ~~ == ^ ~, sisäkkäiset
+  luettelot (kääre `li.sisus` ilman `data-b`, lohkot eivät ole sisäkkäin), tehtävät, taulukot (rivi = lohko),
+  viitelinkit, ristiviittaukset, sitaatit `[s. 23][#avain]`, `[%avain]`, `{{TOC}}`, `+++`, kommentit, setext,
+  sisennetty koodi. Kuvat näkyvät linkkeinä eivätkä kuvina (lukija ei hae mitään kolmannelta osapuolelta).
+  Otsikkolohkon tietorivi on enintään 100 merkkiä riviltään; pidempi kappale on leipätekstiä (verkkoleike).
+- **Latomon remontti** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 7):
+  *Tekstityyppi* on oletuksena *ei määritelty*; valittavana tieteellinen, blogi tai verkkosivu, kaunokirjallinen.
+  Kentät Teologian tyylin viitteen järjestyksessä, tyypin oletuskentät näkyvissä ja loput *+ Lisää tieto*
+  -napista (*Osana teosta tai lehteä* avaa toimittajat, vuosikerran ja sivut). Kaikki vapaaehtoista, otsikko
+  riittää; pelkälle tekstille kentän otsikko lisätään tekstin alkuun. **Etukenttään vain se, mikä poikkeaa
+  tekstistä päätellystä** (tutkielma läpäisee Latomon tavulleen samana). Julkaisuajan tarkkuus valitaan:
+  blogissa vuodesta minuuttiin (oletus kuukausi), tieteellisessä enintään päivä; itse kirjoitettu ja tekstin
+  aika säilyttävät tarkkuutensa, koneen T-aikaleima saa tyypin oletuksen. Ehdotukset muuttavat tekstikenttää
+  vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa; `latomo-markdownload`) siivoaa jäänteet vain
+  tuloksesta ja lukee tiedot etukentästä ja leikkeen lopusta; suositellut asetukset ja etukenttäpohja ovat
+  Latomon ohjeessa (`latomo-ohje.html#markdownload`; nimet MarkDownloadin käyttöoppaasta, oikealla Firefoxilla
+  testaamatta). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
   Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, alarivi HTML ohuena
   väljänä. Viiva pisteiden välillä on *glissando* (käyttäjän päätös 21.10.2026; esikuva flageolettiglissando):
