@@ -165,6 +165,9 @@
   .h-viit .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
   .h-viit .sal-sisa { fill: none; }
   .h-viit[aria-pressed="true"] .sal-sisa { fill: currentColor; }
+  /* Jakovalikon lukutietojen ehdotus (käyttäjän päätös 22.10.2026: ei pakotettu): sama matala kytkin viitteen alla. */
+  .valikko .esi .v-teksti { display: block; }
+  .valikko .esi button.h-viit.v-lisa { display: flex; padding: 8px 0 0; }
   .h-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--viiva); }
   .valikko button.osuma { padding: 9px 14px 10px; font-size: .86rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
   .valikko button.osuma:last-child { border-bottom: 0; }
@@ -233,7 +236,7 @@
   #teksti blockquote p + p { margin-top: .8em; }
   #teksti ol.enum, #teksti ul.luettelo { margin: 1.3em 0; padding-left: 1.7em; }
   #teksti ul.luettelo { list-style: none; }
-  #teksti ul.luettelo li::before { content: "–"; float: left; margin-left: -1.25em; }
+  #teksti ul.luettelo > li::before { content: "–"; float: left; margin-left: -1.25em; }
   #teksti li { margin-bottom: .55em; padding-left: .2em; }
   #teksti hr { border: 0; height: 1px; background: var(--viiva); margin: 2.7em 0; width: 6em; }
   #teksti p.bib { padding-left: 1.7em; text-indent: -1.7em; margin-bottom: .75em; font-size: .9em; line-height: 1.45;
@@ -241,6 +244,34 @@
   #teksti code, #teksti pre { font-family: ui-monospace, Menlo, monospace; font-size: .86em; }
   #teksti pre { white-space: pre-wrap; margin: 0 0 1.1em; }
   #teksti a { color: var(--ruoste); text-underline-offset: .15em; }
+  /* iA Writerin merkinnät (md.js, 22.10.2026). Korostus ja tehtävät ilman läpikuultavuutta (e-ink). */
+  /* ==korostus== tussin tapaan rivin alaosassa; haun osuma (::highlight) täyttää koko rivin, joten ne erottuvat. */
+  #teksti .korostus { background: linear-gradient(transparent 58%, var(--viiva) 58%); padding: 0 .06em;
+    box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  #teksti del { text-decoration-thickness: .07em; }
+  #teksti sup, #teksti sub { font-size: .72em; line-height: 0; }
+  #teksti .kuva { color: var(--harmaa); font-style: italic; font-size: .92em; }
+  #teksti a.kuva { color: var(--ruoste); }
+  /* Sisäkkäisen luettelon kääre (md.js): ei viivaa eikä numeroa; seuraava kohta saa numeronsa value-määritteestä. */
+  #teksti li.sisus { margin: 0; padding: 0; list-style: none; }
+  #teksti ul.luettelo > li.sisus::before { content: none; }
+  #teksti li.sisus > ol.enum, #teksti li.sisus > ul.luettelo { margin: .55em 0; padding-left: 1.5em; }
+  #teksti ul.luettelo > li.tehtava::before { content: none; }
+  /* Paljas verkko-osoite saa katketa mistä tahansa, ettei tasattuun riviin jää aukkoa. */
+  #teksti a.url { word-break: break-all; }
+  #teksti li .ruutu { box-sizing: border-box; display: inline-block; width: .72em; height: .72em; border: 1px solid currentColor;
+    margin: 0 .5em 0 -1.25em; float: left; position: relative; top: .42em; padding: .13em; }
+  #teksti li .ruutu.tehty { background: var(--muste); background-clip: content-box; }
+  #teksti ol.enum li .ruutu { float: none; margin-left: 0; top: 0; }
+  #teksti table.taulukko { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: .86em; line-height: 1.4; }
+  #teksti table.taulukko th, #teksti table.taulukko td { padding: .35em .5em; border-bottom: 1px solid var(--viiva); text-align: left;
+    vertical-align: top; overflow-wrap: anywhere; }
+  #teksti table.taulukko th { font-weight: 400; font-style: italic; color: var(--harmaa); border-bottom-color: var(--harmaa); }
+  #teksti table.taulukko .t-center { text-align: center; } #teksti table.taulukko .t-right { text-align: right; }
+  #teksti table.taulukko tr { break-inside: avoid; }
+  /* +++ (iA Writer): sivutettuna uusi sivu, vierityksessä ei mitään. */
+  #teksti .sivunvaihto { height: 0; }
+  body.sivutus #teksti .sivunvaihto { break-before: column; -webkit-column-break-before: always; }
 
   /* alaviitteet: käyttäjän md → html -konventio (fnref + fntoggle + sidenote) */
   .fntoggle { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; padding: 0; border: 0;
@@ -654,9 +685,10 @@
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena alleviivaukset ja kirjaukset). vieEd:
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
+  // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'keski', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
-    vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, av: 5 };
+    vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0, av: 5 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -730,7 +762,8 @@
     var e = lista.filter(function (x) { return x.id === id; })[0];
     if (!e) { e = { id: id, added: Date.now() }; lista.unshift(e); }
     e.title = doc.title || e.title || 'Nimetön'; e.sub = doc.sub; e.author = doc.author; e.year = doc.year;
-    e.viite = doc.meta.viite || ''; e.osoite = doc.meta.osoite || '';
+    // viite: etukentän oma viite tai tiedoista koottu (md.js, kokoaViite); sivusto näkyy listassa, jos tekijää ei ole.
+    e.viite = doc.viite || ''; e.sivusto = doc.tiedot.sivusto || ''; e.osoite = doc.meta.osoite || '';
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
   }
@@ -776,14 +809,18 @@
   }
 
   /* ---------- lähdeviite (jakonappi) ----------
-     Muoto käyttäjän tutkielman Kirjallisuus-osion mukaan (HY:n teologisen tiedekunnan
-     APA-sovellus): "… https://… (luettu 1.12.2023)." Etukentän viite: ohittaa arvauksen
-     (LuinMD.arvaaViite). Päivämäärä on viimeisin avauskerta tällä laitteella. */
+     Viite on tekstin oma (etukentän viite tai Latomon kentistä Teologian tyylin mukaan koottu, md.js
+     kokoaViite; vanhoille nimikkeille LuinMD.arvaaViite). Lukutiedot (luettu HTML-versiona, Luin-linkki ja
+     päivä) lisätään vain, jos lukija valitsee ne jakovalikosta: käyttäjän päätös 22.10.2026, ehdotus eikä
+     pakotettu lisäys (aset.viiteLisa). Päivämäärä on viimeisin avauskerta tällä laitteella. */
+  function lukutiedot(e) {
+    var url = linkki(e);
+    return 'Luettu HTML-versiona' + (url ? ' osoitteessa ' + url + ' (' + pvm(e.opened) + ').' : ' ' + pvm(e.opened) + '.');
+  }
   function viite(e, html) {
     var v = (e.viite || LuinMD.arvaaViite(e)).trim();
-    if (!/[.!?]$/.test(v)) v += '.';
-    var url = linkki(e);
-    var koko = v + ' HTML-versio' + (url ? ': ' + url : '') + ' (luettu ' + pvm(e.opened) + ').';
+    if (v && !/[.!?]\*?$/.test(v)) v += '.';
+    var koko = (v + (aset.viiteLisa ? ' ' + lukutiedot(e) : '')).trim();
     if (html === 'md') return koko;
     if (!html) return koko.replace(/\*([^*]+)\*/g, '$1');
     return esc(koko).replace(/\*([^*]+)\*/g, '<em>$1</em>');
@@ -817,7 +854,7 @@
     document.title = 'Luin';
     var ul = $('#nimikkeet');
     ul.innerHTML = lista.map(function (e) {
-      var tieto = [e.author, e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
+      var tieto = [e.author || e.sivusto, e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
       return '<li class="nimike"><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
         '<span class="n-ots">' + esc(e.title) + '</span>' + (e.sub ? '<span class="n-ala">' + esc(e.sub) + '</span>' : '') +
         '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
@@ -833,10 +870,17 @@
     var e = lista.filter(function (x) { return x.id === b.dataset.id; })[0];
     if (!e) return;
     var url = linkki(e);
-    naytaPop(b.getBoundingClientRect(), '<div class="esi">' + viite(e, true) + '</div>' +
+    naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
+      '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
       (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
       '<button type="button" data-k="poista" class="vaara">Poista listasta</button>', '', function (k, nappi) {
+      if (k === 'lisa') {
+        aset.viiteLisa = aset.viiteLisa ? 0 : 1; tallennaAset();
+        nappi.setAttribute('aria-pressed', !!aset.viiteLisa);
+        $('.v-teksti', pop).innerHTML = viite(e, true);
+        return true;
+      }
       if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu'; }); return true; }
       if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu'; }); return true; }
       if (k === 'poista') {
@@ -1111,7 +1155,9 @@
       var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisällys</p><ol>' + d.toc.filter(function (t) { return t.lvl <= 2; }).map(function (t) {
         return '<li class="t' + t.lvl + '"><a href="#" data-go="' + t.b + '">' + esc(t.text) + '</a></li>';
       }).join('') + '</ol></nav>';
-      html = html.indexOf('</header>') >= 0 ? html.replace('</header>', '</header>' + sis) : sis + html;
+      // {{TOC}} (iA Writer) määrää paikan; muuten otsikkolohkon jälkeen.
+      html = html.indexOf('<div class="toc-paikka"></div>') >= 0 ? html.replace('<div class="toc-paikka"></div>', sis)
+        : html.indexOf('</header>') >= 0 ? html.replace('</header>', '</header>' + sis) : sis + html;
     }
     art.innerHTML = html;
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
