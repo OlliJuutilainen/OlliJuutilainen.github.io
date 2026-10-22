@@ -2,8 +2,8 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/testi.js polku/teksti.md [kuvakansio]
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
-// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn, haun
-// ja paluumajakan.
+// kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn, haun,
+// paluumajakan ja palkit (mobiili 412 ja 360 px, työpöytä 1280 px).
 // Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
@@ -33,6 +33,9 @@ palvelin.listen(0, async () => {
   p.on('pageerror', e => sivuvirheet.push(e.message));
   const kuva = async n => { if (KUVAT) await p.screenshot({ path: path.join(KUVAT, n + '.png') }); };
   const tila = () => p.evaluate(() => ({ s: window.__luin.tila.sivu, n: window.__luin.tila.sivuja, a: window.__luin.tila.ankkuri }));
+  // Mobiilissa (412 px) palkit ovat piilossa, kunnes ne avataan; avaus vain, jos ne ovat kiinni.
+  const avaaPalkit = async () => { if (await p.evaluate(() => document.querySelector('#jana').hidden)) await p.click('#ala-nappi'); };
+  const asetukset = async () => { await avaaPalkit(); await p.click('#lukija .ratas'); };
 
   await p.goto(BASE + 'luin.html');
   await p.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); }, MD);
@@ -87,7 +90,7 @@ palvelin.listen(0, async () => {
   await p.keyboard.press('Home');
   for (let i = 0; i < Math.floor(n / 3); i++) await p.keyboard.press('ArrowRight');
   const ennen = await tila();
-  await p.click('#lukija .ratas');
+  await asetukset();
   for (let i = 0; i < 3; i++) await p.click('#asetukset button[data-askel="1"]');
   for (let i = 0; i < 3; i++) await p.click('#asetukset button[data-askel="-1"]');
   await p.click('#asetukset .sulje'); await p.waitForTimeout(200);
@@ -138,7 +141,7 @@ palvelin.listen(0, async () => {
   await p.keyboard.type('Testikirjaus');
   await p.click('#pop button[data-k="tallenna"]');
   await p.reload(); await p.waitForTimeout(500);
-  await p.click('#lukija .ratas'); await p.click('#vie-osio summary');
+  await asetukset(); await p.click('#vie-osio summary');
   await p.click('#vie');
   const vahv = await p.textContent('#pop .esi');
   const [lataus] = await Promise.all([p.waitForEvent('download'), p.click('#pop button[data-k="ok"]')]);
@@ -156,7 +159,7 @@ palvelin.listen(0, async () => {
     return { a: h.b, z: toc[i + 1] ? toc[i + 1].b : 1e9, nimi: h.text, merk: JSON.stringify(n.merk) };
   });
   await p.waitForTimeout(300);
-  await p.click('#lukija .ratas'); await p.click('#vie-osio summary');
+  await asetukset(); await p.click('#vie-osio summary');
   await p.click('#vie-valinnat button[data-vie="vieKm"]'); await p.click('#vie-valinnat button[data-vie="vieEd"]');
   await p.click('#vie');
   const [lataus2] = await Promise.all([p.waitForEvent('download'), p.click('#pop button[data-k="ok"]')]);
@@ -165,7 +168,7 @@ palvelin.listen(0, async () => {
   await p.reload(); await p.waitForTimeout(500);
   // Osittainen tuonti: kirjanmerkit ja edistymisen tilanne pois. Vahvistus kertoo, mitä jätetään
   // huomiotta, ja tiedostosta tulevat vain alleviivaukset ja kirjaukset.
-  await p.click('#lukija .ratas'); await p.click('#tuo-osio summary');
+  await asetukset(); await p.click('#tuo-osio summary');
   await p.click('#tuo-valinnat button[data-tuo="km"]'); await p.click('#tuo-valinnat button[data-tuo="ed"]');
   await p.click('#tuo');
   const vahv2 = await p.textContent('#pop .esi');
@@ -190,7 +193,7 @@ palvelin.listen(0, async () => {
   await p.evaluate(() => { const n = window.__luin.nyt(); localStorage.setItem('luin-merkit:' + n.e.id, '{}'); });
   await p.reload(); await p.waitForTimeout(500);
   // Kaikki valittuna (oletus avattaessa) tuonti ei kysy vahvistusta vaan avaa tiedostonvalinnan.
-  await p.click('#lukija .ratas'); await p.click('#tuo-osio summary');
+  await asetukset(); await p.click('#tuo-osio summary');
   const [valitsin2] = await Promise.all([p.waitForEvent('filechooser'), p.click('#tuo')]);
   const popAuki = await p.isVisible('#pop');
   await valitsin2.setFiles({ name: 'merkinnat.md', mimeType: 'text/markdown', buffer: Buffer.from(vienti2) });
@@ -216,14 +219,14 @@ palvelin.listen(0, async () => {
     perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
 
   // Aikajana: viimeisen pääluvun merkki vie sen otsikkoon.
-  await p.click('#ala-nappi');
+  await avaaPalkit();
   const kohde = await p.evaluate(() => {
     const t = window.__luin.nyt().doc.toc.filter(x => x.lvl === 1).pop();
     const g = [...document.querySelectorAll('#jana-svg g')].find(x => x.textContent === t.text);
     const bb = g.getBoundingClientRect(); return { x: bb.left + bb.width / 2, y: bb.top + bb.height / 2, nimi: t.text };
   });
   await p.mouse.click(kohde.x, kohde.y); await p.waitForTimeout(150);
-  tulos('aikajanan hyppy', (await p.textContent('#ala-kohta')) === kohde.nimi, kohde.nimi);
+  tulos('aikajanan hyppy', (await p.textContent('#jana-kohta')) === kohde.nimi, kohde.nimi);
   await kuva('3-aikajana');
 
   // Haku: osumien määrä sama kuin riippumattomalla säännöllisellä lausekkeella (sanan alku,
@@ -344,7 +347,7 @@ palvelin.listen(0, async () => {
   // sisennystilassa kappaleeseen kiinni olevalla koodilohkolla (pre), joka saa olla reunuksessa.
   // Molemmat kappalejaot, jokainen sivu, kirjanmerkki joka lohkon alussa.
   const kappalejako = async kpl => {
-    await p.click('#lukija .ratas'); await p.click('#asetukset [data-a="kappale"] button[data-arvo="' + kpl + '"]');
+    await asetukset(); await p.click('#asetukset [data-a="kappale"] button[data-arvo="' + kpl + '"]');
     await p.click('#asetukset .sulje'); await p.waitForTimeout(100);
   };
   const nauhat = { yla: 0, sis: 0, reunus: [], paalla: [] };
@@ -409,7 +412,7 @@ palvelin.listen(0, async () => {
 
   // Alaviitteen osuma vierityksessä: kapealla ruudulla alaviite avautuu tekstin sisään, ja sekä
   // viitenumero että korostettu osuma ovat yläpalkin ja alapalkin välissä.
-  await p.click('#ala-nappi'); await p.waitForTimeout(150);
+  await avaaPalkit(); await p.waitForTimeout(150);
   await p.click('#etsi-avaa'); await p.fill('#pop input', vq); await p.waitForTimeout(300);
   await p.click('#pop .osuma[data-i="0"]'); await p.waitForTimeout(200);
   const vav = await p.evaluate(() => {
@@ -424,7 +427,7 @@ palvelin.listen(0, async () => {
 
   // Aikajanan veto vierityksessä: sivu ei vierity vedon aikana, osoitin liikkuu vapaasti.
   await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
-  await p.click('#ala-nappi');
+  await avaaPalkit();
   const vv = await veto(0.2, 0.3, 40);
   tulos('aikajanan veto vierityksessä', vv.pysyi && vv.haamu && !vv.jalkeen.g && !vv.jalkeen.h && vv.jalkeen.y > vv.ennen.y && vv.xt.length > 2 && vv.xt.every((x, i) => !i || x > vv.xt[i - 1]),
     'scrollY ' + vv.ennen.y + ' → ' + Math.round(vv.jalkeen.y) + ', osoittimen paikkoja ' + vv.xt.length + ' / 40 askelta');
@@ -473,6 +476,106 @@ palvelin.listen(0, async () => {
     return { linkkeja: linkit.length, perilla, alas, takaisin: L.tila.ankkuri.b === b0 };
   });
   tulos('lyhennelinkki', ly.ohitettu || ly.perilla && ly.alas && ly.takaisin, JSON.stringify(ly));
+
+  // Palkit (käyttäjän päätökset 22.10.2026). Mobiilissa (412 px) yläpalkki ja aikajanakerros ovat piilossa,
+  // ja tekstin napautus avaa ne yhdessä; kirjanmerkki ja sivunapit kelluvat kaistalla tekstipalstan reunojen
+  // linjassa. Vierityksessä oma vieritys sulkee ne; sivutettuna keskikolmannes avaa, reunat kääntävät sivua ja
+  // sulkevat, sivunapit eivät sulje. Palkkien avaus ei poista paluumajakkaa.
+  const palkit = () => p.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none',
+    jana: !document.querySelector('#jana').hidden, s: window.__luin.tila.sivu }));
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.reload(); await p.waitForTimeout(400);
+  await p.evaluate(() => { window.__luin.mene({ b: 30, o: 0 }); }); await p.waitForTimeout(300);
+  const pv0 = await palkit();
+  const keski = { x: 206, y: 300 };
+  await p.mouse.click(keski.x, keski.y); await p.waitForTimeout(100);
+  const pv1 = await palkit();
+  await p.mouse.click(keski.x, keski.y); await p.waitForTimeout(100);
+  const pv2 = await palkit();
+  await p.mouse.click(keski.x, keski.y); await p.waitForTimeout(100);
+  await p.mouse.wheel(0, 30); await p.waitForTimeout(150);
+  const pv3 = await palkit();
+  await p.mouse.wheel(0, 120); await p.waitForTimeout(150);
+  const pv4 = await palkit();
+  tulos('mobiilin palkit vierityksessä', !pv0.yla && !pv0.jana && pv1.yla && pv1.jana && !pv2.yla && !pv2.jana && pv3.jana && !pv4.jana,
+    [pv0, pv1, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
+  // Kelluvat palstan linjassa ja Merkinnät/Etsi niiden välissä.
+  const linja = async () => { await avaaPalkit(); await p.waitForTimeout(100); return p.evaluate(() => {
+    const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
+    // Sivutettuna #teksti on palstojen levyinen ja siirretty; näkyvä palsta on #sivu + marginLeft, leveys style.width.
+    const t = document.body.classList.contains('sivutus') ? { left: sv.left + parseFloat(art.style.marginLeft), right: sv.left + parseFloat(art.style.marginLeft) + parseFloat(art.style.width) } : q('#teksti'), km = q('#km-nappi svg'), n = q('.jana-napit'), sn = document.querySelector('#sivunapit');
+    const snr = sn.hidden ? null : sn.getBoundingClientRect(), ala = q('#ala');
+    return { km: +(km.left - t.left).toFixed(2), sn: snr && +(snr.right - t.right).toFixed(2), napitV: +(n.left - km.right).toFixed(1), napitO: snr ? +(snr.left - n.right).toFixed(1) : null,
+      ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), kerros: Math.round(innerHeight - ala.top) }; }); };
+  const lvv = await linja();
+  // Paluumajakka säilyy, kun palkit avataan napauttamalla.
+  await p.mouse.click(keski.x, keski.y); await p.waitForTimeout(100);
+  const mjp = await p.evaluate(async () => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); await new Promise(r => setTimeout(r, 300)); return !!L.majakka(); });
+  await p.mouse.click(keski.x, keski.y); await p.waitForTimeout(100);
+  const mjp2 = await p.evaluate(() => !!window.__luin.majakka() && !document.querySelector('#jana').hidden);
+  tulos('palkkien avaus ei poista majakkaa', mjp && mjp2);
+  // Sivutettuna.
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.reload(); await p.waitForTimeout(400);
+  await p.evaluate(() => { window.__luin.mene({ b: 30, o: 0 }); }); await p.waitForTimeout(200);
+  const ps0 = await palkit();
+  await p.mouse.click(206, 300); await p.waitForTimeout(100);
+  const ps1 = await palkit();
+  await p.click('#sivu-se'); await p.waitForTimeout(100);
+  const ps2 = await palkit();
+  await p.mouse.click(390, 300); await p.waitForTimeout(100);
+  const ps3 = await palkit();
+  await p.mouse.click(20, 300); await p.waitForTimeout(100);
+  const ps4 = await palkit();
+  tulos('mobiilin palkit sivutettuna', !ps0.jana && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s + 1 && !ps4.jana && ps4.s === ps3.s - 1,
+    [ps0, ps1, ps2, ps3, ps4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
+  const ls = await linja();
+  tulos('kelluvat palstan linjassa (412 px)', Math.abs(lvv.km) < 0.6 && Math.abs(ls.km) < 0.6 && Math.abs(ls.sn) < 0.6 && lvv.napitV >= 12 && ls.napitV >= 12 && ls.napitO >= 12 && !lvv.ahdas && !ls.ahdas,
+    'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
+  // Sivunvaihtopainikkeet pois asetuksista: ei sivunappeja; kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
+  await asetukset();
+  const kyt = await p.evaluate(() => { const s = document.querySelector('#asetukset button[data-arvo="sivut"]').getBoundingClientRect(), k = document.querySelector('#sivunapit-kytkin button');
+    return { ero: +(k.getBoundingClientRect().left - s.left).toFixed(1), pois: k.disabled }; });
+  await p.click('#sivunapit-kytkin button'); await p.click('#asetukset .sulje'); await p.waitForTimeout(100);
+  const ilman = await p.evaluate(() => ({ piilo: document.querySelector('#sivunapit').hidden, tallessa: JSON.parse(localStorage.getItem('luin-asetukset')).sivunapit }));
+  await asetukset(); await p.click('#sivunapit-kytkin button'); await p.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await p.waitForTimeout(100);
+  await asetukset();
+  const kytV = await p.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button').disabled, nakyy: !document.querySelector('#sivunapit').hidden }));
+  await p.click('#asetukset .sulje');
+  tulos('sivunvaihtopainikkeiden kytkin', Math.abs(kyt.ero - 16) < 0.6 && !kyt.pois && ilman.piilo && ilman.tallessa === 0 && kytV.pois && !kytV.nakyy, JSON.stringify({ kyt, ilman, kytV }));
+
+  // 360 px leveällä marginaalilla: Merkinnät ja Etsi eivät mene kelluvien päälle.
+  const mob360 = await (await b.newContext({ viewport: { width: 360, height: 740 } })).newPage();
+  mob360.on('pageerror', e => sivuvirheet.push(e.message));
+  await mob360.goto(BASE + 'luin.html');
+  await mob360.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ sivutus: 'sivut', marginaali: 'levea', av: 4 })); }, MD);
+  await mob360.goto(BASE + 'luin.html#tuo'); await mob360.waitForTimeout(600);
+  await mob360.click('#ala-nappi'); await mob360.waitForTimeout(100);
+  const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit');
+    const pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
+    return { paalla: pa(n, km) || pa(n, sn), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas') }; });
+  tulos('Merkinnät ja Etsi kapealla ruudulla', !m3.paalla, JSON.stringify(m3));
+  await mob360.context().close();
+
+  // Työpöytä: palkit pysyviä, alapalkissa ei osion nimeä eikä natsaa, palkin napautus avaa ja sulkee aikajanan,
+  // tekstin napautus vierityksessä ei tee mitään.
+  const tp = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
+  tp.on('pageerror', e => sivuvirheet.push(e.message));
+  await tp.goto(BASE + 'luin.html');
+  await tp.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4 })); }, MD);
+  await tp.goto(BASE + 'luin.html#tuo'); await tp.waitForTimeout(600);
+  const tila2 = () => tp.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none', jana: !document.querySelector('#jana').hidden,
+    mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#ala-pros')).display !== 'none' }));
+  const t0 = await tila2();
+  await tp.mouse.click(640, 400); await tp.waitForTimeout(100);
+  const t1 = await tila2();
+  await tp.mouse.click(640, 785); await tp.waitForTimeout(100);
+  const t2 = await tila2();
+  await tp.mouse.click(640, 785); await tp.waitForTimeout(100);
+  const t3 = await tila2();
+  tulos('työpöydän palkit', !t0.mob && t0.yla && !t0.jana && /^\d+ %$/.test(t0.teksti) && t0.pros && !t1.jana && t2.jana && t2.yla && !t3.jana,
+    JSON.stringify([t0, t1, t2, t3].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + ' "' + x.teksti + '"')));
+  await tp.context().close();
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();
