@@ -617,14 +617,15 @@ palvelin.listen(0, async () => {
   await mob360.context().close();
 
   // Työpöytä: palkit pysyviä, alapalkissa ei osion nimeä eikä natsaa, palkin napautus avaa ja sulkee aikajanan,
-  // tekstin napautus vierityksessä ei tee mitään.
+  // palkkinuoli kääntyy, tekstin napautus vierityksessä ei tee mitään.
   const tp = await (await b.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   tp.on('pageerror', e => sivuvirheet.push(e.message));
   await tp.goto(BASE + 'luin.html');
   await tp.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4 })); }, MD);
   await tp.goto(BASE + 'luin.html#tuo'); await tp.waitForTimeout(600);
   const tila2 = () => tp.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none', jana: !document.querySelector('#jana').hidden,
-    mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#ala-pros')).display !== 'none' }));
+    mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#ala-pros')).display !== 'none',
+    nuoli: (n => n.display === 'none' ? 'ei' : (n.transform !== 'none' ? 'alas' : 'ylös') + (n.fill === 'none' ? '' : '+täyte'))(getComputedStyle(document.querySelector('#palkki-nuoli'))) }));
   const t0 = await tila2();
   await tp.mouse.click(640, 400); await tp.waitForTimeout(100);
   const t1 = await tila2();
@@ -634,6 +635,8 @@ palvelin.listen(0, async () => {
   const t3 = await tila2();
   tulos('työpöydän palkit', !t0.mob && t0.yla && !t0.jana && /^\d+ %$/.test(t0.teksti) && t0.pros && !t1.jana && t2.jana && t2.yla && !t3.jana,
     JSON.stringify([t0, t1, t2, t3].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + ' "' + x.teksti + '"')));
+  // Palkkinuoli myös työpöydällä (käyttäjän vaatimus 22.10.2026): kiinni ylös ja ontto, auki alas ja täytetty.
+  tulos('työpöydän palkkinuoli', t0.nuoli === 'ylös' && t2.nuoli === 'alas+täyte' && t3.nuoli === 'ylös', [t0, t2, t3].map(x => x.nuoli).join(' → '));
   // Sivutettuna työpöydällä keskiklikkaus ei avaa aikajanaa (hiirellä kauhea tapa), reunat kääntävät sivua.
   // Kapea hiiri-ikkuna (690 px) on työpöytä: palkit pysyvät.
   await tp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });

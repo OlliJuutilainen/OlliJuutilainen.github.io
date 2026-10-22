@@ -636,7 +636,7 @@ Käyttäjän vaatimukset 20.10.2026:
   aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää, ja sulkee ne. **Tekstin napautus ei avaa palkkeja**
   (käyttäjän päätös 22.10.2026, myöhemmin: avautui liian helposti vahingossa; aiemmin vierityksessä mikä tahansa kohta ja sivutettuna
   keskikolmannes). Palkkinuoli on ylös osoittava lovettu koverakylkinen salmiakki (sivunappien nuolen muoto): kiinni `--harmaa`-ääriviiva
-  kuten kirjanmerkki, auki täytetty `--muste` ja alas osoittava. Työpöydällä nuolta ei ole. Kerroksen ylärivillä
+  kuten kirjanmerkki, auki täytetty `--muste` ja alas osoittava. Nuoli on myös työpöydällä alapalkin oikeassa reunassa (käyttäjän vaatimus 22.10.2026: alapalkissa ei ollut mitään avaamisen ja sulkemisen merkkiä), jossa se kääntyy aikajanan mukana. Kerroksen ylärivillä
   osion nimi ja oikealla edistyminen (`#jana-pros`); *Merkinnät* ja *Etsi* kaistalla kelluvien välissä (`sijoitaJanaNapit()`, omalle
   rivilleen, jos väli < 12 px): ilman sivunappeja välin keskellä, sivunappien kanssa vasemmalla 12 px kirjanmerkistä, jotta keskelle
   jää mahdollisimman paljon kaistaa avaamiseen ja sulkemiseen. Vain kaistan napautus avaa ja sulkee palkit (käyttäjän päätös 22.10.2026):

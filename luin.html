@@ -307,12 +307,12 @@
   /* Palkkinuoli (käyttäjän päätös 22.10.2026): mobiilin kaistan oikeassa alanurkassa merkki siitä, että palkit
      aukeavat alakaistasta. Itse nuoli ei ota napautuksia, vaan koko kaista (#ala-nappi) on nappi. Lovettu
      koverakylkinen salmiakki kuten sivunapeissa, ylös osoittava. Kiinni hienovarainen ääriviiva kirjanmerkin
-     ääriviivan tapaan, auki täytetty tekstin värillä ja alas osoittava. Työpöydällä alapalkki näkyy aina, joten
-     nuolta ei ole. */
-  #palkki-nuoli { display: none; width: 10.6px; height: 12.4px; fill: none; stroke: var(--harmaa); stroke-width: 1;
+     ääriviivan tapaan, auki täytetty tekstin värillä ja alas osoittava. Myös työpöydällä (käyttäjän vaatimus
+     22.10.2026: alapalkissa ei ollut mitään merkkiä avaamisesta ja sulkemisesta), jossa alapalkin klikkaus avaa
+     ja sulkee aikajanan; sama palkit-auki-luokka kääntää nuolen. */
+  #palkki-nuoli { display: block; width: 10.6px; height: 12.4px; fill: none; stroke: var(--harmaa); stroke-width: 1;
     stroke-linejoin: round; flex: 0 0 auto; }
-  body.mobiili #palkki-nuoli { display: block; }
-  body.mobiili.palkit-auki #palkki-nuoli { fill: var(--muste); stroke: var(--muste); transform: rotate(180deg); }
+  body.palkit-auki #palkki-nuoli { fill: var(--muste); stroke: var(--muste); transform: rotate(180deg); }
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat
      kyljet kuten logon ja aikajanan salmiakeissa; aiemmin ohuet natsat). Yhtenäinen laatikko väliviivalla, ettei
