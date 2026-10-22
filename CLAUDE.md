@@ -695,7 +695,7 @@ Käyttäjän vaatimukset 20.10.2026:
     Käyttäjän päätös 21.10.2026: valikoissa ikonit tekstien sijaan (`ikNappi`, nimi `aria-label`/`title`):
     alleviivaa = *Abc* 3 px:n ruosteisen viivan päällä (liioiteltu tarkoituksella), kirjaa = täytetty lyhyt
     paksu kynä 45°, oikea yläpää suora ja vasen alapää kärki, kopioi = kaksi lomittaista suorakaidetta ilman
-    tekstiviivoja, edessä oleva katkoviivainen, poista alleviivaus = sama viiva ja *Abc*:n paikalla raksi.
+    tekstiviivoja, molemmat yhtenäisviivaisia (ei haamutusta; käyttäjän päätös 22.10.2026), poista alleviivaus = sama viiva ja *Abc*:n paikalla raksi.
     Kopioinnin kuittaus on rasti. Kirjauksellisen alleviivauksen poiston vahvistus (käyttäjän päätös 22.10.2026,
     `varmistaAlPoisto()`): napparivin tilalle iso nappi, jossa poiston ikoni ja yliviivattu kynä (`IK_POISTA_KIR`) sekä
     ruosteinen *Poista myös kirjaus?*, ja oikealla *älä!* (pienellä, huutomerkillä; käyttäjän valinta, ei *Ei*), joka
