@@ -370,7 +370,7 @@
   /* Lasin painopiste on linssissä, joten keskitettynä se jäi 1,7 px Etsi-sanan musteen painopisteen
      yläpuolelle (mitattu pikseleistä). Chromium piirtää kuvakkeen kokonaiseen pikseliin (722,5 → 723), joten
      2 px:n siirto (→ 725) jättää painopisteen 0,2–0,6 px tekstin alle (DPR 1–4). Laatikon koko ennallaan. */
-  #etsi-avaa svg { width: 20.6px; height: 20.6px; position: relative; top: .96px; }
+  #etsi-avaa svg { width: 19.4px; height: 19.4px; position: relative; top: 1.15px; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
@@ -504,8 +504,8 @@
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
         <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
-        <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala on kolminkertainen entiseen (käyttäjän päätös 22.10.2026; kehän paksuus ja varren pituus ennallaan). -->
-        <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 20.6 20.6" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M9.74 0.65L18.84 9.74L9.74 18.84L0.65 9.74ZM9.74 2.91L16.58 9.74L9.74 16.58L2.91 9.74Z"/><path class="l-viiva" style="stroke-width:1.6" d="M14.29 14.29L19.66 19.66"/></svg>Etsi</button>
+        <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala on 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso; kehän paksuus ja varren pituus ennallaan). -->
+        <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 19.4 19.4" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.95 0.65L17.25 8.95L8.95 17.25L0.65 8.95ZM8.95 2.91L14.99 8.95L8.95 14.99L2.91 8.95Z"/><path class="l-viiva" style="stroke-width:1.6" d="M13.1 13.1L18.47 18.47"/></svg>Etsi</button>
       </div>
     </div>
     <div id="ala-rivi">
