@@ -407,6 +407,25 @@
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
   .vienti-napit { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  /* Tuonnin kuittaus (käyttäjän pyyntö 22.10.2026): ponnahduslaatikko Tuo-napin päällä, ruosteinen rasti ja
+     kehotus tekstiin. Tuotu sijainti on kyltti: ruosteinen kehys ja täytetty ruosteinen pää, jonka kolmio
+     osoittaa kohdan suuntaan kuten paluumajakassa (alas = edempänä tekstissä). */
+  .valikko.tuotu { width: min(21rem, calc(100vw - 24px)); padding: 0; }
+  .valikko .t-ots { display: flex; align-items: center; gap: 8px; padding: 13px 14px 3px; font-size: 1rem; }
+  .valikko .t-ots svg { width: 20px; height: 20px; flex: 0 0 auto; color: var(--ruoste); margin-left: -3px; }
+  .valikko.tuotu .esi { padding: 0 14px 13px 39px; font-size: .8rem; border-bottom: 0; }
+  .valikko button.kyltti { display: flex; align-items: stretch; width: calc(100% - 28px); margin: 14px 14px 15px; padding: 0;
+    border: 1px solid var(--ruoste); text-align: left; }
+  .valikko button.kyltti:hover { text-decoration: none; }
+  .kyltti .k-teksti { flex: 1 1 auto; min-width: 0; padding: 9px 12px 10px; }
+  .kyltti .k-lappu { display: block; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ruoste); }
+  .kyltti .k-nimi { display: block; margin-top: 3px; font-size: 1.06rem; font-style: italic; line-height: 1.3; color: var(--muste);
+    overflow-wrap: anywhere; }
+  .valikko button.kyltti:hover .k-nimi { text-decoration: underline; text-decoration-color: var(--ruoste); text-underline-offset: 3px; }
+  .kyltti .k-paa { flex: 0 0 36px; display: flex; align-items: center; justify-content: center; background: var(--ruoste); }
+  .kyltti .k-paa svg { width: 12px; height: 10.5px; fill: var(--paperi); }
+  .kyltti.ylos .k-paa svg { transform: rotate(180deg); }
+  .valikko.tuotu > button:not(.kyltti) { border-top: 1px solid var(--viiva); }
   /* Tuonnin jälkeinen siirtymä tekstinä: ruoste = napautettava. */
   button.linkki { color: var(--ruoste); font: inherit; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; }
 </style>
@@ -801,9 +820,11 @@
     var vv = (muokkaus || haku) && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
     if (haku) sovitaHaku(rect, yla, ala);
     var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
-    var x = popPaikka.tasaus === 'oikea' ? rect.right - w : rect.left + rect.width / 2 - w / 2;
+    var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
-    if (y + h > ala - 8) y = rect.top - h - 8;
+    // peita: laatikko napin päälle (tuonnin kuittaus peittää Tuo-napin, ettei sitä paineta uudestaan).
+    if (popPaikka.tasaus === 'peita') y = rect.top - 10;
+    else if (y + h > ala - 8) y = rect.top - h - 8;
     pop.style.left = clamp(x, 8, vw - w - 8) + 'px';
     pop.style.top = clamp(y, yla + 8, ala - h - 8) + 'px';
   }
@@ -2425,17 +2446,42 @@
       if (t.al) osat.push(lkm(t.al, 'alleviivaus', 'alleviivausta'));
       if (t.ki) osat.push(lkm(t.ki, 'kirjaus', 'kirjausta'));
       if (t.km) osat.push(lkm(t.km, 'kirjanmerkki', 'kirjanmerkkiä'));
-      var v = (osat.length ? 'Tuotu ' + osat.join(', ').replace(/, ([^,]*)$/, ' ja $1') + '.' : 'Uutta tuotavaa ei ollut.') +
-        (t.sama ? ' Jo ennestään: ' + t.sama + '.' : '') +
+      var maara = osat.length ? osat.join(', ').replace(/, ([^,]*)$/, ' ja $1') + '.' : '';
+      var lisa = (t.sama ? ' Jo ennestään: ' + t.sama + '.' : '') +
         (t.orpo ? ' ' + lkm(t.orpo, 'merkinnän', 'merkinnän') + ' kohtaa ei löytynyt tekstistä; ' + (t.orpo === 1 ? 'se on' : 'ne ovat') + ' silti Merkinnät-laatikossa.' : '') +
         (t.likim ? ' ' + lkm(t.likim, 'kirjanmerkin', 'kirjanmerkin') + ' kohta on likimääräinen (tiedostossa ei ollut tarkkaa kohtaa).' : '') +
         (t.ohi ? ' ' + lkm(t.ohi, 'kirjaus jäi', 'kirjausta jäi') + ' tuomatta, koska tiedostossa ei ole alleviivausta.' : '') +
         (t.ohiKm ? ' ' + lkm(t.ohiKm, 'kirjanmerkki jäi', 'kirjanmerkkiä jäi') + ' tuomatta, koska kohtaa ei tiedetä.' : '') +
         (t.ohiAl ? ' ' + lkm(t.ohiAl, 'kirjaus jäi', 'kirjausta jäi') + ' tuomatta, koska sen alleviivausta ei ole tässä tekstissä.' : '');
+      var v = (maara ? 'Tuotu ' + maara : 'Uutta tuotavaa ei ollut.') + lisa;
       tieto.innerHTML = esc(v) + (t.sijainti ? ' <button type="button" class="linkki" data-siirry="' + t.sijainti.b + '">Siirry sijaintiin: ' + esc(t.sijainti.nimi) + '</button>' : '');
+      naytaTuotu(t, maara, lisa.trim());
     };
     lukija.readAsText(f);
   });
+  // Kuittaus Tuo-napin päällä (käyttäjän pyyntö 22.10.2026): onnistumisen tunne ja kehotus tekstiin.
+  // Tilarivi jää laatikon alle pysyväksi muistiinpanoksi.
+  function naytaTuotu(t, maara, lisa) {
+    var s = t.sijainti, ok = !!(maara || t.sama || s);
+    var ots = maara ? 'Merkinnät tuotu' : t.sama ? 'Merkinnät olivat jo tallessa' : s ? 'Lukukohta tuotu' : 'Ei uutta tuotavaa';
+    var esi = (maara ? eka(maara) : '') + (lisa ? (maara ? ' ' : '') + lisa : '');
+    var html = '<div class="t-ots">' + (ok ? IK_KOPIOITU : '') + '<span>' + ots + '</span></div>' +
+      (esi ? '<div class="esi">' + esc(esi) + '</div>' : '');
+    if (s) {
+      // Kolmio osoittaa kohdan suuntaan; jos lukukohta on jo samassa osiossa, kyltti sanoo sen.
+      var k = tila.ankkuri, o = k && osioKohdassa(k), siella = k && (o ? o.b : 0) === s.b, ylos = k && s.b < k.b;
+      html += '<button type="button" data-k="sijainti" class="kyltti' + (ylos ? ' ylos' : '') + '"><span class="k-teksti">' +
+        '<span class="k-lappu">' + (siella ? 'Olet jo siellä, mihin jäit' : 'Jatka siitä, mihin jäit') + '</span><span class="k-nimi">' + esc(eka(s.nimi)) + '</span></span>' +
+        '<span class="k-paa"><svg viewBox="0 0 12 10.5" aria-hidden="true"><path d="M0 0H12L6 10.5Z"/></svg></span></button>';
+    }
+    html += '<button type="button" data-k="teksti">Palaa tekstiin</button>' +
+      (maara || t.sama ? '<button type="button" data-k="merk">Katso merkinnät listasta</button>' : '');
+    naytaPop($('#tuo').getBoundingClientRect(), html, 'tuotu', function (k) {
+      suljePaneelit();
+      if (k === 'sijainti') hyppaa({ b: s.b, o: 0 });
+      else if (k === 'merk') { paivitaMerkinnat(); $('#merkinnat').hidden = false; }
+    }, 'peita');
+  }
   // Virke, jonka kohdalla kirjanmerkki on. Otsikon kohdalta lainataan seuraavan lohkon alku.
   // Virke päättyy välimerkkiin, jota seuraa iso kirjain; tavalliset lyhenteet ja nimikirjaimet
   // (esim. Kant, I. Kant) eivät katkaise.
