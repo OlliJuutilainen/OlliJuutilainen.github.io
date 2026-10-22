@@ -1562,13 +1562,34 @@
   });
 
   /* ---------- kirjanmerkit ---------- */
-  // Kirjanmerkki menee aina luettavan kappaleen (lohkon) alkuun, ja kohta tuodaan näkyviin
-  // (käyttäjän päätös 21.10.2026). Sivutettuna luettava kappale on sivun ensimmäisen rivin
-  // kappale: jos se alkoi edellisellä sivulla, siirrytään sille sivulle, jotta merkin
-  // ilmestyminen näkyy. Samaan kohtaan ei tehdä toista kirjanmerkkiä.
+  // Kirjanmerkki menee aina kappaleen (lohkon) alkuun (käyttäjän päätös 22.10.2026, tarkentaa 21.10.2026):
+  // ilman valintaa se on näkymän ylimmän kappalejaon eli ylimmän kokonaan alkavan kappaleen alku. Jos
+  // näkymässä ei ole yhtään kappaleen alkua, se tulee edelliseen kappalejakoon (kappaleeseen, jonka
+  // keskeltä näkymä alkaa), ja näkymä siirtyy vain sen verran taaksepäin, että merkki näkyy: sivutettuna
+  // sivunkäännöin, vierityksessä ylös vierittäen. Valinnasta tehty kirjanmerkki (k annettu) menee valinnan
+  // kappaleen alkuun. Samaan kohtaan ei tehdä toista kirjanmerkkiä.
+  function ylinKappaleenAlku() {
+    var B = nyt.blocks, b0 = nykyinenKohta().b, sivut = aset.sivutus === 'sivut';
+    var al = art.getBoundingClientRect().left, yla = Math.max(ylaRaja(), ylaPeitto()), ala = alaRaja();
+    for (var b = b0; b < B.length; b++) {
+      if (!B[b]) continue;
+      var rs = B[b].getClientRects();
+      if (!rs.length) continue;
+      if (sivut) {
+        var p = Math.floor((rs[0].left - al + 2) / tila.stride);
+        if (p === tila.sivu) return { k: { b: b, o: 0 }, nakyy: true };
+        if (p > tila.sivu) break;
+      } else {
+        if (rs[0].top >= yla - 1 && rs[0].top < ala) return { k: { b: b, o: 0 }, nakyy: true };
+        if (rs[0].top >= ala) break;
+      }
+    }
+    return { k: { b: b0, o: 0 }, nakyy: false };
+  }
   function lisaaKirjanmerkki(k) {
-    k = k || tila.ankkuri;
-    k = { b: k.b, o: 0 };
+    var nakyy = false;
+    if (k) k = { b: k.b, o: 0 };
+    else { var y = ylinKappaleenAlku(); k = y.k; nakyy = y.nakyy; }
     var km = nyt.merk.km.filter(function (x) { return x.b === k.b && x.o === 0 && !x.orpo; })[0];
     if (!km) {
       var o = osioKohdassa(k);
@@ -1578,7 +1599,7 @@
       tallennaMerkit();
     }
     paivita(); paivitaMerkinnat();
-    naytaKirjanmerkki(km);
+    if (!nakyy) naytaKirjanmerkki(km);
   }
   function naytaKirjanmerkki(k) {
     if (aset.sivutus === 'sivut') { if (nakyvatKirjanmerkit().indexOf(k) < 0) mene({ b: k.b, o: 0 }); return; }
