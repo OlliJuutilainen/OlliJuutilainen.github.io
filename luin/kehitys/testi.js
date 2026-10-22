@@ -476,20 +476,24 @@ palvelin.listen(0, async () => {
     const ylos = document.getElementById('majakka').classList.contains('ylos');
     document.getElementById('majakka-palaa').click(); await odota();
     const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
-    L.hyppaa({ b: a.b + 1, o: 0 }); await odota();
-    const pieni = !nakyy();
-    // Alle puolen kirjan mittainen hyppy ei jätä majakkaa (22.10.2026), vaikka olisi monta ruudullista.
-    const N = L.nyt(), puoli = N.cum.findIndex(c => c / N.total >= 0.3);
+    // Aikajanalta tehty hyppy: alle 10 % ei jätä mitään, 10–50 % vain kummitusmerkin, yli 50 % myös laatikon (22.10.2026).
+    const N = L.nyt(), kummi = () => !!L.majakka() && !!document.querySelector('#jana-svg .j-majakka');
+    const kohdassa = osuus => { const i = N.cum.findIndex(c => c / N.total >= osuus); return Math.max(i, 1); };
+    const hyppyJanalta = async (lahto, osuus) => {
+      window.scrollTo(0, 0); await odota(); await odota();
+      L.hyppaa({ b: lahto, o: 0 }); await odota(); await odota();
+      L.hyppaa({ b: kohdassa(osuus), o: 0 }, false, false, 'jana'); await odota();
+      return { maj: !!L.majakka(), laatikko: nakyy() };
+    };
+    const j5 = await hyppyJanalta(0, 0.05), j30 = await hyppyJanalta(0, 0.3), j90 = await hyppyJanalta(0, 0.9);
+    const pieni = !j5.maj, alle50 = j30.maj && !j30.laatikko, yli50 = j90.maj && j90.laatikko;
+    // Muu kuin aikajanan hyppy ei kuulu kynnyksiin: pieni siirtymäkin jättää kummituksen ja laatikon.
     window.scrollTo(0, 0); await odota(); await odota();
-    L.hyppaa({ b: puoli, o: 0 }, false, false, 'jana'); await odota();
-    const alle50 = !nakyy();
-    // Muu kuin aikajanan hyppy (esim. haku, Merkinnät) ei kuulu puolen kirjan sääntöön.
-    window.scrollTo(0, 0); await odota(); await odota();
-    L.hyppaa({ b: puoli, o: 0 }); await odota();
-    const muuIso = nakyy();
-    return { iso, ylos, takaisin, pieni, alle50, muuIso };
+    L.hyppaa({ b: kohdassa(0.05), o: 0 }); await odota();
+    const muu = !!L.majakka() && nakyy();
+    return { iso, ylos, takaisin, pieni, alle50, yli50, muu, j5, j30, j90 };
   });
-  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.muuIso, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.yli50 && mj.muu, JSON.stringify(mj));
 
   // Sisällysluettelon linkki ei jätä majakkaa, vaikka vie kirjan loppuun (22.10.2026).
   const sl = await p.evaluate(async () => {

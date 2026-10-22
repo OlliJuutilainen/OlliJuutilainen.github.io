@@ -1767,24 +1767,22 @@
   function hyppaa(k, haku, eiMajakkaa, tapa) {
     var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
     mene(k, ylaPeitto() && YLA + ylaPeitto());
-    if (!ed) return;
-    var iso = sivut ? Math.abs(tila.sivu - p0) >= 2 : Math.abs(scrollY - y0) >= 2 * innerHeight;
-    // Lähdeviittauksen (alaviite → kirjallisuusluettelo tai selitysosio) majakka on aina ensisijainen: jokainen
-    // hyppy, joka siirtää näkymää, jättää sen, matkan pituudesta riippumatta (käyttäjän päätös 22.10.2026).
-    if (tapa === 'lahde') iso = sivut ? tila.sivu !== p0 : Math.abs(scrollY - y0) >= 1;
-    // Aikajanalta tehty alle puolen kirjan mittainen hyppy ei jätä majakkaa (käyttäjän päätös 22.10.2026;
-    // koskee vain aikajanaa), eikä sisällysluettelon linkki.
-    if (tapa === 'jana' && Math.abs(osuus(ed) - osuus(k)) < 0.5) iso = false;
-    if (eiMajakkaa) iso = false;
-    if (!iso || haku && nyt.majakka && nyt.majakka.haku) return;
+    if (!ed || eiMajakkaa) return;
+    // Kynnykset ovat aikajanan omia (käyttäjän päätös 22.10.2026): aikajanalta tehty hyppy jättää kummitusmerkin
+    // vähintään 10 %:n ja laatikon vähintään 50 %:n matkalla (osuus kirjan pituudesta). Muulla hypyllä
+    // (lähdeviittaus, haku, Merkinnät) ei ole kynnystä: kummitus ja laatikko tulevat aina, kun näkymä siirtyy.
+    var siirtyi = sivut ? tila.sivu !== p0 : Math.abs(scrollY - y0) >= 1, matka = Math.abs(osuus(ed) - osuus(k)), maj, laatikko;
+    if (tapa === 'jana') { maj = matka >= 0.1; laatikko = matka >= 0.5; }
+    else maj = laatikko = siirtyi;
+    if (!maj || haku && nyt.majakka && nyt.majakka.haku) return;
     // Vierityksessä myös tarkka kohta: ankkuri on rivi y = YLA:ssa, ja ylimmän rivin ollessa
     // lohkojen välissä (esim. sisällysluettelo) mene() vierittäisi seuraavan lohkon ylös.
-    nyt.majakka = { k: ed, haku: !!haku, y: sivut ? null : y0, h: document.documentElement.scrollHeight, w: innerWidth };
+    nyt.majakka = { k: ed, haku: !!haku, laatikko: laatikko, y: sivut ? null : y0, h: document.documentElement.scrollHeight, w: innerWidth };
     piirraMajakka();
   }
   function piirraMajakka() {
     var m = nyt && nyt.majakka, o = m && osioKohdassa(m.k);
-    $('#majakka').hidden = !m;
+    $('#majakka').hidden = !(m && m.laatikko);
     if (m) $('#majakka-palaa').title = 'Palaa: ' + (o ? o.text : nyt.e.title);
     majakanSuunta();
     piirraJana();
