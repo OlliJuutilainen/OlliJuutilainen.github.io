@@ -144,7 +144,7 @@ palvelin.listen(0, async () => {
   const [lataus] = await Promise.all([p.waitForEvent('download'), p.click('#pop button[data-k="ok"]')]);
   const vienti = fs.readFileSync(await lataus.path(), 'utf8');
   await p.click('#asetukset .sulje');
-  tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti) && / alleviivaukset ja kirjaukset\.$/.test(vahv),
+  tulos('kirjaus ja vienti', /\n> .+\n\nTestikirjaus\n/.test(vienti) && !/KIRJANMERKKI/.test(vienti) && / alleviivaukset ja kirjaukset\. Kirjanmerkkejä ja edistymisen tilannetta ei viedä\.$/.test(vahv),
     lataus.suggestedFilename() + ', ' + vienti.split('\n').length + ' riviä | ' + vahv);
 
   // Tuonti: kirjanmerkki ja lukukohta keskimmäiseen lukuun, vienti edistymisen kanssa, merkinnät
