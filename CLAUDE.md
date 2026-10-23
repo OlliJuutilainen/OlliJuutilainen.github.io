@@ -219,7 +219,9 @@ alla). Oppaassa osio
 otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
 päätös 20.10.2026; otsikko itse pysyy h4-kokoisena, jotta kolmio on muiden alaosioiden linjassa); mallitaulukon nimet
 ovat muistinvaraisia, ja käyttäjä tarkistaa ne. **Geminiä ei käytetä eikä sitä saa kehottaa missään** (käyttäjän päätös
-23.10.2026; rivi poistettu oppaasta ja Keikkaloihtimen ohjetekstistä). Painotus on, että saate on todettu toimivaksi
+23.10.2026; rivi poistettu oppaasta ja Keikkaloihtimen ohjetekstistä). Taulukon alla on kuitenkin käyttäjän pyynnöstä
+`p.huom` *Geminiä ei toistaiseksi suositella* perusteluineen (kuuntelee eikä mittaa koodilla; saate kokeiltu vain
+Claudella), ettei lukija päättele toimivuutta Claudesta. Painotus on, että saate on todettu toimivaksi
 nimenomaan Claudella (Opus); taulukossa on Claude (*toimii*) ja ChatGPT (*ei kokeiltu*), sarake *Kokeiltu*.
 **Taitopaketti `soitin/keikka-analyysi/`** (pilotin raportin *pahvi B*, 23.10.2026): Clauden taito (`SKILL.md` ja
 `scripts/`), ladattavana `soitin/keikka-analyysi.zip` (kansio zipin juuressa, kuten Claude.ai vaatii; kuvaus alle
