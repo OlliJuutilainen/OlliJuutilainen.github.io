@@ -167,8 +167,8 @@
   <div id="llmBox" hidden>
   <p class="muted"><b>Claudelle (Opus):</b> <a href="keikka-analyysi.zip" download>lataa keikka-analyysi.zip</a>
     ja lisää se kerran Clauden asetuksista (<i>Customize → Skills → + → Upload a skill</i>, koodin suoritus
-    päälle). Aloita uusi keskustelu aloituslauseella, vastaa kysymyksiin, liitä äänitiedosto ja kirjoita
-    <i>läpivalaise</i>.</p>
+    päälle). Aloita uusi keskustelu: kirjoita <code>/keik</code>, valitse valikosta <i style="white-space:nowrap">keikka-analyysi</i> ja liitä
+    perään aloituslause. Vastaa sitten kysymyksiin, liitä äänitiedosto ja kirjoita <i>läpivalaise</i>.</p>
   <button id="copyStarter" type="button">Kopioi aloituslause</button>
   <p class="muted" style="margin-top:14px">Ilman taitopakettia kopioi saate ja liitä se uuteen keskusteluun;
     sen jälkeen samoin.</p>
@@ -1146,7 +1146,7 @@
   // Saatetta ei näytetä, vain kopioidaan; kesto on kopiointihetken tieto.
   $("copyPrompt").addEventListener("click", function () { copy(llmPrompt(), this); });
   $("copyStarter").addEventListener("click", function () {
-    copy("/keikka-analyysi Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.", this);
+    copy("Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.", this);
   });
   update();
 })();
