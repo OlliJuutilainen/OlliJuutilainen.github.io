@@ -661,6 +661,12 @@ Käyttäjän vaatimukset 20.10.2026:
   sen muunnosketjua Chromiumissa ajamalla, oikealla Firefoxilla testaamatta). Kytkin poistaa myös tyhjät linkit ja muuttaa
   `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
+- **Pdf:stä muunnettu teksti** (käyttäjän pyyntö 23.10.2026; opas, luku 7.1; Latomon ohje `#pdf`): hegel-repon
+  (`OlliJuutilainen/hegel`) `pdf_to_markdown.py` kirjoittaa etukenttään Crossrefin tiedot (DOI alkusivuilta,
+  `--no-lookup` pois) ja JSTOR-kansilehden lähteen eriteltynä (`journal`, `volume`, `issue`, `pages`; ei enää `source`,
+  jonka Latomo lukee verkko-osoitteeksi). Latomo lukee avaimet (ALIAS, `volume`+`issue` → `72:288`) ja ilman etukenttää
+  tietoriveiltä DOI:n, `Paikka: Kustantaja vuosi` ja `Tekijä, *Teos*.`; ISBN ei ole päiväys. Rivitysehdotus ohittaa
+  tietorivit ja alaviitteiden määrittelyt.
 - Latomon *Tyhjennä kentät* (käyttäjän pyyntö 22.10.2026) tyhjentää tekstin, kentät, oman viitteen ja osoitteen; vahvistus
   *”Oletko aivan varma?” sanoi Lasse Lehtinen.* napein *Olen, tyhjennä* / *älä!*. MarkDownload-kytkin säilyy.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja

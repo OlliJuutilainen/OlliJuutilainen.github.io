@@ -623,11 +623,19 @@
      Jokainen muuttaa tekstikenttää tai kenttiä vain napista. */
   // Lohkot, joissa on vähintään kolme riviä ja kaksi niistä päättyy virkkeeseen (pelkkä teksti, runo): rivit
   // kappaleiksi tai, runolle, rivinvaihdot säilyviksi kenoviivalla (iA Writer, CommonMark).
+  // Ohitetaan alaviitteiden ja viitelinkkien määrittelyt ([^1]: …), jotka ovat joka tapauksessa erillisiä, ja
+  // otsikkolohkon tietorivit, joiden rivinvaihdot md.js säilyttää (#-otsikon jälkeiset lyhytriviset kappaleet).
   function rivitKappaleiksi(src, runo) {
-    var osat = src.split(/(\n[ \t]*\n)/), n = 0;
+    var osat = src.split(/(\n[ \t]*\n)/), n = 0, paa = 0;
     var uusi = osat.map(function (o) {
+      if (!o.trim()) return o;
       var r = o.split('\n');
-      if (r.length < 3 || /^\s*([#>|*+-]|\d+[.)]\s|```|~~~|---)/.test(o)) return o;
+      if (paa === 0) paa = /^ {0,3}#\s/.test(o) && r.length === 1 ? 1 : 2;
+      else if (paa === 1) {
+        if (/^\*(?!\*)[\s\S]+\*$/.test(o.trim()) || r.every(function (x) { return x.replace(/\\\s*$|\s+$/, '').length <= 100; })) return o;
+        paa = 2;
+      }
+      if (r.length < 3 || /^\s*([#>|*+-]|\d+[.)]\s|```|~~~|---|\[\^?[^\]]+\]:)/.test(o)) return o;
       // Rivitetty Markdown (rivit katkeavat kesken virkkeen) jätetään rauhaan: puolet riveistä päättyy välimerkkiin.
       if (r.filter(function (x) { return /[.!?:;,”"»–—]\s*$/.test(x); }).length < Math.max(2, r.length / 2)) return o;
       n++;

@@ -101,5 +101,19 @@ sama('kehys: tekstin tietorivien edellä', otsake(kr), '<h1>Kirjoitus</h1><p cla
 const ke = M.parse('---\notsikko: Kirjoitus\nsivusto: Tusinablogi\n---' + PITKA);
 sama('kehys: etukentän otsikko, tyyppi määrittelemättä', otsake(ke), '<h1>Kirjoitus</h1><p class="sub">Tusinablogi</p>');
 
+// Pdf:stä muunnetun kirjan tietorivit (muller_md.py) ja hegelin pdf_to_markdown.py:n etukenttä (Crossref).
+const pk = M.parse('# Müller, *Kantianism for Animals*\n\nNico Dario Müller, *Kantianism for Animals: A Radical Kantian Animal Ethic*.\n' +
+  'Cham: Palgrave Macmillan 2022. ISBN 978-3-031-01929-6.\nDOI 10.1007/978-3-031-01930-2. Lisenssi CC BY 4.0.' + PITKA);
+sama('pdf-kirja: ISBN ei ole päiväys', pk.tiedot.julkaistu, '2022');
+sama('pdf-kirja: tietorivien tiedot', JSON.stringify([pk.tiedot['tekijä'], pk.tiedot.otsikko, pk.tiedot.alaotsikko, pk.tiedot.paikka, pk.tiedot.kustantaja, pk.tiedot.doi]),
+  JSON.stringify(['Nico Dario Müller', 'Kantianism for Animals', 'A Radical Kantian Animal Ethic', 'Cham', 'Palgrave Macmillan', '10.1007/978-3-031-01930-2']));
+const pl = M.parse('# Müller, *Muu teos*\n\nNico Dario Müller, *Kantianism for Animals: A Radical Kantian Animal Ethic*.' + PITKA);
+sama('pdf-kirja: eri teoksen lyhyt nimi ei ole otsikko', pl.tiedot.otsikko, 'Müller, Muu teos');
+const ph = M.parse('---\ntype: academic\ntitle: The Meaning of Proper Names\nauthor: Sidney Zink\ndate: 1963\njournal: Mind\nvolume: LXXII\nissue: 288\n' +
+  'pages: 481–499\ndoi: 10.1093/mind/LXXII.288.481\n---' + PITKA);
+sama('hegel: artikkelin viite', ph.viite, 'Zink, Sidney (1963). The Meaning of Proper Names. *Mind* LXXII:288, 481–499. DOI: 10.1093/mind/LXXII.288.481.');
+const pc = M.parse('---\ntype: academic\ntitle: Luku\nauthor: A B\ndate: 2022\nbooktitle: Kirja\npages: 59–86\nplace: Cham\npublisher: Palgrave Macmillan\n---' + PITKA);
+sama('hegel: luvun teos ja paikka', JSON.stringify([pc.tiedot.tyyppi, pc.tiedot.teos, pc.tiedot.paikka]), JSON.stringify(['tieteellinen', 'Kirja', 'Cham']));
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

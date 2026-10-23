@@ -236,6 +236,17 @@ haettu: {date:YYYY-MM-DD}
     valitsee blogin ja verkkosivun välillä vasta, kun näet leikkeen. Pohja ja asetukset on kokeiltu ajamalla
     MarkDownloadin (3.4.0) omaa muunnoskoodia selaimessa; oikealla Firefoxilla testaamatta.</p>
 
+  <h2 id="pdf">Pdf:stä muunnettu teksti</h2>
+  <p>Latomo lukee lähdetiedot myös englanninkielisestä etukentästä: <code>title</code>, <code>subtitle</code>,
+    <code>author</code>, <code>editor</code>, <code>date</code>, <code>journal</code> tai <code>booktitle</code>,
+    <code>volume</code> ja <code>issue</code> (yhdessä <code>72:288</code>), <code>pages</code>, <code>edition</code>,
+    <code>series</code>, <code>place</code>, <code>publisher</code>, <code>doi</code> ja <code>url</code>.
+    <code>type: academic</code> valitsee tyypiksi tieteellisen. Ilman etukenttää tiedot luetaan otsikon alla olevilta
+    riveiltä: <code>Tekijä, *Teos: alaotsikko*.</code>, <code>Paikka: Kustantaja vuosi.</code> ja <code>DOI 10.…</code>.</p>
+  <p><a href="https://github.com/OlliJuutilainen/hegel">hegel</a>-työkalun <code>pdf_to_markdown.py</code> kirjoittaa
+    etukentän valmiiksi: se etsii pdf:n alkusivuilta DOI-tunnuksen ja hakee teoksen tiedot Crossrefista
+    (<code>--no-lookup</code> jättää haun pois). JSTOR-artikkelin tiedot luetaan kansilehdeltä.</p>
+
   <h2>Julkinen osoite</h2>
   <p>Jos <code>.md</code>-tiedosto on verkossa, kirjoita sen osoite <span class="ui">Julkinen osoite</span> -kenttään. Silloin
     Luin-linkki avaa tekstin kenen tahansa selaimessa, ja lukijan jakovalikko antaa linkin. Dropboxin jakolinkki
