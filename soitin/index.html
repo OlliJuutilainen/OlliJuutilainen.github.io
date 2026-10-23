@@ -458,6 +458,8 @@
   /* Soiva kappale on lihavoitu ja turkoosi (käyttäjän päätös 20.10.2026). */
   li[aria-current="true"] .track { font-weight: 600; }
   li[aria-current="true"] .track .tt { color: var(--accent); }
+  li.valiaika .track, li[aria-current="true"].valiaika .track { font-weight: 400; }
+  li.valiaika .track .tt { color: var(--muted); }
   /* Soivan kappaleen numeron paikalla ovat logon kuulokkeet (käyttäjän päätös 20.10.2026), oikeaan
      reunaan tasattuina kuten numerot: tyynyjen alareuna perusviivalla ja sangan viivan alareuna
      versaalin yläreunassa kuten logossa (käyttäjän päätös 21.10.2026; ennen sangan yläreuna
@@ -514,6 +516,16 @@
   }
   li.set .len:empty + .sig { visibility: hidden; }
   li.set:first-child { padding-top: 0; }
+  /* Väliaika (finishSets) on setin otsikkorivi (käyttäjän päätös 23.10.2026): sama koko, kursiivi,
+     väri ja välit kuin li.set:llä, mutta numerosarake on tyhjä ja [Väliaika] alkaa kappaleiden nimien
+     kohdalta (numerosarake 1,6 × 17 px kuten tavallisella rivillä). Oikealla väliajan kesto setin
+     keston paikalla ilman Σ:tä. Rivi on nappi, josta soitto hyppää väliajan alkuun; linkkinappia ei
+     ole, mutta sen paikka pitää keston samassa sarakkeessa. */
+  li.valiaika .track { min-height: 0; padding: 30px 4px 6px; font-size: 0.9rem; font-style: italic; color: var(--muted); }
+  li.valiaika .track .n { min-width: 27.2px; }
+  li.valiaika .track .st { font-size: 1em; opacity: 0.8; }
+  li.valiaika:first-child .track { padding-top: 0; }
+  li.valiaika .copy { min-height: 0; }
   .copy {
     flex: 0 0 44px;
     min-height: 44px;
@@ -723,7 +735,8 @@
   var gigWorker = "";  // kaveriversion worker ("soitin.kaveri"), tyhjä = oletus
   var tracks = [];     // [{ start, title, set, n }]; ei-biisillä n = -1, x = järjestys setissä ja sym = 0, x tai -
   var sets = 1;
-  var setInfo = [];    // [{ name, first }] setin numerolla 1… (indeksi 0 tyhjä)
+  var setInfo = [];    // [{ name, first, no, brk }] setin numerolla 1… (indeksi 0 tyhjä); no = näkyvä numero, brk = väliaika
+  var visSets = 1;     // näkyvät setit eli setit ilman väliaikaa
   var showSets = false;
   var rows = [];       // kappaleiden li-elementit, tracks-järjestyksessä
   var setLens = [];    // setin otsikkorivin kestokentät
@@ -746,13 +759,14 @@
   function isExtra(i) { return !!tracks[i].x; }
   // Kappaleen linkin ja hashin tunniste: "3" tai ei-biisillä "x1".
   function linkNum(i) { return tracks[i].x ? "x" + tracks[i].x : String(tracks[i].n); }
-  function setName(k) { return setInfo[k].name || "(" + roman(k) + ")"; }
+  function setName(k) { return setInfo[k].name || "(" + roman(setInfo[k].no) + ")"; }
   // Kappaleen tunniste teksteihin (ref): "3" tai setteihin jaetussa "(ii) 3";
   // ei-biisillä numeron sijaan otsikko, esim. "(ii) [OUTRO]".
   // Lukitusnäytön otsikko: otsikko, tai otsikottomalla biisillä numero
   // ("3." tai setteihin jaetussa "(ii) – 3.").
   function nowText(i) {
     var tr = tracks[i];
+    if (tr.brk) return tr.title;
     return tr.untitled ? (showSets ? setName(tr.set) + " – " : "") + num(i) + "." : tr.title;
   }
   // Nyt soi -kenttä: numero ja otsikko ("3. Otsikko" tai setteihin jaetussa
@@ -768,6 +782,8 @@
     var n = document.createTextNode(num(i) + ".");
     els.now.textContent = "";
     els.now.classList.toggle("pre", isExtra(i));
+    // Väliaika ei kuulu mihinkään settiin eikä sillä ole numeroa.
+    if (tr.brk) { els.now.textContent = tr.title; return; }
     els.now.appendChild(nr);
     if (tr.untitled) {
       els.now.appendChild(n);
@@ -776,7 +792,10 @@
       els.now.appendChild(document.createTextNode("\u00a0" + tr.title));
     }
   }
-  function ref(i) { return (showSets ? setName(tracks[i].set) + " " : "") + (tracks[i].x ? tracks[i].title : num(i)); }
+  function ref(i) {
+    if (tracks[i].brk) return tracks[i].title;
+    return (showSets ? setName(tracks[i].set) + " " : "") + (tracks[i].x ? tracks[i].title : num(i));
+  }
   // Setin alku (s).
   function setStart(k) { return tracks[setInfo[k].first].start; }
   function roman(n) {
@@ -892,9 +911,31 @@
       tracks.push(o);
       newSet = false;
     });
-    showSets = sets > 1 || setInfo.some(function (x) { return x && x.name; });
-    nameExtras();
+    finishSets();
     return errors;
+  }
+
+  // Väliaika: setti, jonka ainoa raita on ei-biisi [Väliaika] (kirjainkoko vapaa; kielimallin saate
+  // kirjoittaa sen muotoon "---", "47:20 [VÄLIAIKA]", "---"). Listassa se on yksi rivi setin otsikon
+  // paikalla: numerosarake tyhjä ja nimenä [Väliaika] (käyttäjän päätös 23.10.2026). Väliaika ei vie
+  // setin numeroa, joten sen jälkeinen setti on (ii) ja sen linkit /2/…. Setin lopussa pysähtyessä
+  // väliaika on silti oma osuutensa: ensimmäisen setin soitto pysähtyy väliajan alkuun.
+  function finishSets() {
+    nameExtras();
+    visSets = 0;
+    for (var k = 1; k <= sets; k++) {
+      var s = setInfo[k], tr = tracks[s.first];
+      var only = k < sets ? setInfo[k + 1].first === s.first + 1 : s.first === tracks.length - 1;
+      s.brk = sets > 1 && only && !!tr.x && /^\[\s*väliaika\s*\]$/i.test(tr.title);
+      if (s.brk) {
+        tr.brk = true;
+        tr.title = "[Väliaika]";
+        s.no = 0;
+      } else {
+        s.no = ++visSets;
+      }
+    }
+    showSets = visSets > 1 || setInfo.some(function (x) { return x && x.name && !x.brk; });
   }
 
   // Kansiokeikan kappaleet: alkuaika = edellisten tiedostojen kestojen summa.
@@ -922,8 +963,7 @@
       tracks.push(o);
       t += f.len;
     });
-    showSets = sets > 1 || setInfo.some(function (x) { return x && x.name; });
-    nameExtras();
+    finishSets();
   }
 
   function duration() {
@@ -1307,8 +1347,9 @@
     trackLens = [];
     heads = [];
     tracks.forEach(function (tr, i) {
-      // Setin otsikko vain, jos settejä on useampi tai setti on nimetty.
-      if (showSets && i === setInfo[tr.set].first) {
+      // Setin otsikko vain, jos settejä on useampi tai setti on nimetty. Väliajalla ei ole otsikkoa:
+      // sen rivi on otsikon paikalla.
+      if (showSets && i === setInfo[tr.set].first && !tr.brk) {
         var h = document.createElement("li");
         h.className = "set";
         h.innerHTML = '<span class="name"></span><span class="len num"></span><span class="sig" aria-hidden="true">Σ:</span>';
@@ -1318,18 +1359,28 @@
         els.list.appendChild(h);
       }
       var li = document.createElement("li");
-      if (isExtra(i)) li.className = "pre";
+      if (isExtra(i)) li.className = tr.brk ? "valiaika" : "pre";
 
       var b = document.createElement("button");
       b.type = "button";
       b.className = "track";
       b.innerHTML = '<span class="n num"></span><span class="tt"></span><span class="st num"></span>'
-        + (isExtra(i) ? '<span class="tuki" aria-hidden="true">\u200b</span>' : "");
-      b.children[0].textContent = num(i) + ".";
+        + (isExtra(i) && !tr.brk ? '<span class="tuki" aria-hidden="true">\u200b</span>' : "");
+      b.children[0].textContent = tr.brk ? "" : num(i) + ".";
       b.children[1].textContent = tr.title;
       trackLens[i] = b.children[2];
       b.addEventListener("click", function () { jumpTo(i, true); });
+      li.appendChild(b);
 
+      // Väliajalla ei ole linkkiä; tyhjä paikka pitää keston samassa sarakkeessa.
+      if (tr.brk) {
+        var e = document.createElement("span");
+        e.className = "copy";
+        li.appendChild(e);
+        els.list.appendChild(li);
+        rows.push(li);
+        return;
+      }
       var c = document.createElement("button");
       c.type = "button";
       c.className = "copy";
@@ -1338,7 +1389,6 @@
       c.innerHTML = ICON_LINK;
       c.addEventListener("click", function () { copyLink(i, c); });
 
-      li.appendChild(b);
       li.appendChild(c);
       els.list.appendChild(li);
       rows.push(li);
@@ -1352,9 +1402,11 @@
   // Kappaleiden ja settien kestot. Viimeisen kappaleen ja setin kesto
   // selviää vasta, kun äänitiedoston pituus on tiedossa. Kestot lasketaan
   // pyöristämättömistä alkuajoista (sadasosat mukana), ja vasta näytettävä
-  // kesto pyöristetään lähimpään sekuntiin. Setin kesto (Σ) on sen biisien
-  // tarkkojen kestojen summa, joten näytetyt biisien kestot voivat erota
-  // sekunnilla setin kestosta. Ei-biisejä ei lasketa setin kestoon.
+  // kesto pyöristetään lähimpään sekuntiin. Setin kesto (Σ) on sen raitojen
+  // tarkkojen kestojen summa setin ensimmäisestä biisistä viimeiseen, joten
+  // näytetyt kestot voivat erota sekunnilla setin kestosta. Biisien väliset
+  // ei-biisit (spiikit) lasketaan mukaan; setin alun ja lopun ei-biisit (intro,
+  // outro, aplodit) eivät (käyttäjän päätös 23.10.2026; ennen kaikki ei-biisit pois).
   function lenOf(a, b) {
     var len = b - a;
     return isFinite(len) && len > 0 ? len : NaN;
@@ -1363,10 +1415,16 @@
   // biiseistä on vähintään tunnin, ja kaikissa settien kestoissa, jos jokin
   // seteistä on. Pitkä setti ei siis yksin tuo tunteja biisien kestoihin.
   function renderLens() {
-    var groups = { sets: [] }, sums = [];
+    var groups = { sets: [] }, sums = [], songs = [];
     tracks.forEach(function (tr, i) {
-      (groups[tr.set] = groups[tr.set] || []).push([trackLens[i], Math.round(lenOf(tr.start, trackEnd(i)))]);
-      if (!isExtra(i)) sums[tr.set] = (sums[tr.set] || 0) + trackEnd(i) - tr.start;
+      if (!isExtra(i)) songs[tr.set] = [songs[tr.set] ? songs[tr.set][0] : i, i];
+    });
+    tracks.forEach(function (tr, i) {
+      var len = [trackLens[i], Math.round(lenOf(tr.start, trackEnd(i)))];
+      // Väliajan kesto on otsikkorivillä, joten se muotoillaan settien kestojen kanssa.
+      (tr.brk ? groups.sets : groups[tr.set] = groups[tr.set] || []).push(len);
+      var r = songs[tr.set];
+      if (r && i >= r[0] && i <= r[1]) sums[tr.set] = (sums[tr.set] || 0) + trackEnd(i) - tr.start;
     });
     for (var k = 1; k <= sets; k++) {
       if (setLens[k]) groups.sets.push([setLens[k], Math.round(lenOf(0, sums[k]))]);
@@ -1389,7 +1447,7 @@
   function linkFor(i) {
     return location.href.replace(/#.*$/, "") + "#" + gigKey +
       (gigWorker ? "@" + gigWorker : "") + "/" +
-      (sets > 1 ? tracks[i].set + "/" : "") + linkNum(i);
+      (visSets > 1 ? setInfo[tracks[i].set].no + "/" : "") + linkNum(i);
   }
 
   function fallbackCopy(text) {
@@ -1649,7 +1707,9 @@
     // #tunnus/3 = 1. setin kappale 3, #tunnus/2/3 = 2. setin kappale 3,
     // #tunnus/2/x1 = 2. setin ensimmäinen ei-biisi. Vanha /0 (setin alun
     // nollarivi) osoittaa setin ensimmäiseen raitaan, jos se on ei-biisi.
-    var set = m[4] ? +m[3] : 1, r = (m[4] || m[3]).toLowerCase();
+    // Setin numero on näkyvä numero: väliaika ei vie numeroa (finishSets).
+    var no = m[4] ? +m[3] : 1, r = (m[4] || m[3]).toLowerCase(), set = 0;
+    for (var s = 1; s <= sets; s++) if (setInfo[s].no === no) set = s;
     var n = r[0] === "x" ? "x" + +r.slice(1) : +r === 0 ? "x1" : String(+r);
     var i = -1;
     for (var k = 0; k < tracks.length; k++) {
@@ -1884,7 +1944,7 @@
     }
     if (!tracks.length) {
       tracks.push({ start: 0, title: gig.title, set: 1, n: 1 });
-      setInfo[1] = { name: "", first: 0 };
+      setInfo[1] = { name: "", first: 0, no: 1 };
     }
 
     renderList();

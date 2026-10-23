@@ -424,21 +424,26 @@
 <ol>
   <li><b>Kopioi saate.</b> Keikkaloihtimessa settilistakentän alla on teksti <i>OMALLA VASTUULLA:</i>
     ja sen perässä linkki <i>aikakoodit kielimallilta</i>. Se avaa lyhyen ohjeen ja napin <span class="ui">Kopioi saate</span>.</li>
-  <li><b>Liitä saate</b> uuteen keskusteluun. Tekoälyavustaja kysyy ensin kappaleiden, settien ja
-    encorejen määrää. Mihin tahansa saa jättää vastaamatta.</li>
+  <li><b>Liitä saate</b> uuteen keskusteluun. Tekoälyavustaja kysyy ensin keikan rakenteesta (biisimäärät
+    seteittäin, encoret, väliaika, intro- ja outronauhat) ja siitä, merkitäänkö pitkät välispiikit omille
+    riveilleen. Mihin tahansa saa jättää vastaamatta. Kappalemäärät setti kerrallaan auttavat eniten.</li>
   <li><b>Liitä äänitiedosto</b> keskusteluun ja kirjoita <i>läpivalaise</i>. Tiedosto pitää liittää
     itse, koska Drive- tai Dropbox-linkkiä tekoälyavustaja ei yleensä pysty avaamaan. Jos palvelu sanoo
     tiedostoa liian suureksi, pienempi laatu (esim. 96 kbps mono) riittää tähän.</li>
   <li><b>Liitä vastauksen aikalista</b> settilistakenttään. Numeroidut rivit ovat kappaleita, pelkät
-    ajat <a href="#eibiisit">ei-biisejä</a> ja <code>---</code> setinvaihto; encoret ovat setissä
-    <code>(+)</code>. Nimen voi lisätä rivin loppuun: <code class="nw">3. 12:05 Nimi</code>.</li>
+    ajat <a href="#eibiisit">ei-biisejä</a> ja <code class="nw">---</code> setinvaihto. Väliaika on oma
+    <a href="#setit">rivinsä</a> <code class="nw">[VÄLIAIKA]</code>, ja encoret ovat setissä <code>(+)</code>,
+    jossa jokainen encore alkaa rivillä <code class="nw">[Vielä!]</code>. Nimen voi lisätä rivin loppuun:
+    <code class="nw">3. 12:05 Nimi</code>.</li>
   <li><b>Tarkista ajat</b> tallennuksen jälkeen KEICK•WALK-sivulla: napauta jokaista kappaletta ja
     kuuntele, alkaako se oikeasta kohdasta. Jos tulos on huono, kokeile toista palvelua tai tee
     markkerit itse.</li>
 </ol>
 <p><b>Palvelu ja malli.</b> Suositus on keskiraskas tai raskas malli korkealla ajattelutasolla, ei
-  pikamalli eikä raskain erikoistila. Palvelun pitää pystyä joko kuuntelemaan ääntä tai ajamaan
-  koodia liitetylle tiedostolle.</p>
+  pikamalli eikä raskain erikoistila. Palvelun pitää pystyä ajamaan koodia liitetylle tiedostolle:
+  saate kieltää antamasta aikoja pelkän kuuntelun perusteella. Kokeilussa (Claude Opus, 89 minuutin
+  tallenne) työ kesti noin 43 minuuttia, ja alkuajat poikkesivat käsin tehdyistä mediaanina 4,7
+  sekuntia, eniten puhuen tai hiljaa alkavissa kappaleissa.</p>
 <table class="mallit">
   <tr><th>Palvelu</th><th>Malli</th><th>Ajattelu</th><th>Äänen käsittely</th></tr>
   <tr><td>Claude</td><td>Opus (Sonnet käy)</td>
@@ -452,6 +457,14 @@
 <p class="huom">Mallien ja asetusten nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
   olla suomeksi. Äänitallenne lähtee palvelun palvelimelle, joten älä anna sinne sellaista, mitä et
   halua jakaa.</p>
+<p><b>Claude-taitopaketti.</b> Clauden käyttäjä voi saatteen sijaan ladata taitopaketin
+  <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a> ja lisätä sen Clauden asetuksista
+  (<i>Customize → Skills → + → Upload a skill</i>; koodin suoritus pitää olla päällä). Paketissa on samat
+  ohjeet kuin saatteessa sekä valmis mittausskripti, jonka ansiosta tekoälyavustaja selviää vähemmällä
+  työllä. Aloita uusi keskustelu esimerkiksi sanoilla <i>Etsi keikkatallenteen kappaleiden alkuajat
+  KEICK•WALK-settilistaksi</i>; avustaja kysyy samat asiat kuin saatteella.</p>
+<p class="huom">Taitopakettia ei ole vielä kokeiltu oikealla keikalla eikä Clauden asetuksiin
+  ladattuna; valikkojen nimet ovat tukisivulta.</p>
 </details>
 
 <h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>
@@ -498,6 +511,10 @@
       ensimmäisen setin.</td></tr>
   <tr><td>Markkeri nimeltä <code class="nw">---</code> tai <code class="nw">--- (Encore)</code></td>
     <td>Uusi setti markkerin kohdasta.</td></tr>
+  <tr><td><code>---</code>, <code class="nw">47:20 [Väliaika]</code>, <code>---</code></td>
+    <td>Väliaika: setti, jossa on vain <a href="#eibiisit">ei-biisi</a> <i>[Väliaika]</i>, näkyy setin otsikon
+      paikalla yhtenä rivinä ilman numeroa. Se ei vie setin numeroa, joten sen jälkeinen setti on
+      (ii).</td></tr>
 </table>
 
 <h4 id="eibiisit">Intro, outro ja muut ei-biisit</h4>
@@ -597,7 +614,8 @@
       kytkimet pysyvät siinä asennossa, johon ne jäivät.</td></tr>
   <tr><td>Kappalelista</td>
     <td>Soivan kappaleen numeron paikalla ovat kuulokkeet. Napauta kappaletta, niin soitto alkaa siitä. Oikealla kappaleen kesto, setin otsikkorivillä
-      setin biisien yhteiskesto (Σ, ilman hakasulkeissa olevia ei-biisejä). Linkki-ikoni kopioi <a href="#linkit">kappaleen linkin</a>.</td></tr>
+      setin kesto (Σ) ensimmäisen biisin alusta viimeisen loppuun: biisien väliset ei-biisit lasketaan
+      mukaan, setin alun ja lopun ei-biisit eivät. Väliajan rivillä on väliajan kesto. Linkki-ikoni kopioi <a href="#linkit">kappaleen linkin</a>.</td></tr>
 </table>
 <p><b>Näppäimistöllä</b> (Mac): <kbd>välilyönti</kbd> toistaa ja tauottaa. Kun aikajana on valittuna
   (<kbd>Tab</kbd>), <kbd>←</kbd> <kbd>→</kbd> siirtävät 5 sekuntia, <kbd>PgUp</kbd> <kbd>PgDn</kbd>

@@ -147,6 +147,18 @@ alussa `0.`, lopussa `x.` ja välissä `-.` (käyttäjän sääntö 16.10.2026; 
 mukaan). Keikkaloihdin tallentaa merkittömän nimettömän ei-biisin muodossa `[]` ja merkin muodossa
 `[0]` / `[0] Nimi`. Ennen tätä tallennetut keikat ovat `[x]`-muodossa, joten niiden ei-biisit näkyvät
 `x.`-merkkisinä. Merkkisääntöjä ei selitetä Keikkaloihtimessa, vain `ohje.html#eibiisit`-osiossa.
+**Väliaika** (käyttäjän päätös 23.10.2026): setti, jonka ainoa raita on ei-biisi `[Väliaika]` (kirjainkoko vapaa,
+kielimallin saatteessa `---` / `47:20 [VÄLIAIKA]` / `---`), näkyy soittimessa setin otsikkorivinä: sama koko, väli
+ja kursiivi kuin `li.set`:llä (mitattu: korkeus ja tekstin paikka samat), numerosarake tyhjä, *[Väliaika]* kappaleiden
+nimien kohdalla ja väliajan kesto Σ-sarakkeessa ilman Σ:tä. Rivi on nappi (hyppy väliajan alkuun), linkkinappia ei ole,
+ja soidessa kuulokkeet ovat numerosarakkeessa. Väliaika ei vie setin numeroa: seuraava setti on (ii), ja linkit
+(`#tunnus/2/3`) käyttävät näkyvää numeroa (`setInfo[k].no`, `finishSets()`); sisäisesti väliaika on oma settinsä,
+joten *setti*-asennossa soitto pysähtyy väliajan alkuun. Keikkaloihtimen esikatselu (`numbered()`) näyttää saman.
+Väliaika, joka ei ole yksin setissään, on tavallinen ei-biisi.
+**Setin kesto Σ** (käyttäjän päätös 23.10.2026): setin ensimmäisen biisin alusta viimeisen biisin loppuun, eli biisien
+väliset ei-biisit (spiikit) lasketaan mukaan ja vain setin alun ja lopun ei-biisit (intro, outro, aplodit, `[Vielä!]`
+encoresetin alussa) jäävät pois. Ennen kaikki ei-biisit jäivät pois. Sama soittimessa (`renderLens`) ja
+Keikkaloihtimen esikatselussa.
 Ei-biisi tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` eli **Keikkaloihdin** tarkistaa settilistan ja tulostaa
@@ -186,17 +198,43 @@ ja korostaa, että markkerit istutetaan **manuaalisesti** (käyttäjän päätö
 **Aikakoodit kielimallilta** (käyttäjän päätös 20.10.2026): settilistan alla on tekstilinkki
 *OMALLA VASTUULLA: aikakoodit kielimallilta*, joka avaa lyhyen ohjeen ja napin *Kopioi saate*.
 Saatetta ei näytetä sivulla (käyttäjän vaatimus: pelkkä nappi, ei tekstikenttää); se on vain
-`llmPrompt()`-funktiossa, ei oppaassa, ettei siitä ole kahta versiota. Saate on suomeksi ja
-Markdown-otsikoin: tekoälyavustaja kysyy ensin yhdessä viestissä kappaleiden, settien ja encorejen
-määrän ja pyytää sitten tiedoston ja käskyn *läpivalaise* (tiedosto ja vastaukset riittävät ilman
-käskyä). Vastausmuoto on settilistan muoto: `3. 12:05` nimetön biisi, pelkkä aika ei-biisi, `---`
-setinvaihto; kaikki encoret yhdessä setissä `(+)`, jonka encorekierrokset alkavat ei-biiseillä
-`[Encore]` tai `[Encore 1]`, `[Encore 2]`. Kesto lisätään saatteeseen, jos äänilinkistä saatiin.
-Jäsennin ohittaa koodilohkon ```-rivit ja hyväksyy `--- (Nimi)` ilman aikaa. Oppaassa osio
+`llmPrompt()`-funktiossa, ei oppaassa, ettei siitä ole kahta versiota. 23.10.2026 alkaen saate on käyttäjän
+pilotin raportin *pahvi A* sanasta sanaan (pilotti: 89 min tallenne, Claude Opus, rakenne 24/24 oikein, alkuaikojen
+mediaanipoikkeama käsimerkintään 4,7 s, työ 43 min). Saate on suomeksi ja Markdown-otsikoin: tekoälyavustaja kysyy
+ensin yhdessä viestissä keikan rakenteen (biisimäärät seteittäin, encorebiisit, väliaika, intro- ja outronauhat) ja
+toiveen yli minuutin välispiikeistä, aloittaa asennukset ja pyytää sitten tiedoston ja käskyn *läpivalaise*. Mittaus
+tehdään koodilla; ilman koodin ajoa aikoja ei anneta. Ajat ovat navigointimerkkejä, eivät levyn raitarajoja.
+Vastausmuoto on settilistan muoto: `3. 12:05` nimetön biisi, pelkkä aika ei-biisi, `---` setinvaihto, `aika [VÄLIAIKA]`
+oma settinsä (ks. väliaika yllä), encoret yhdessä setissä `(+)`, jonka jokainen encore alkaa rivillä `aika [Vielä!]`.
+Lohkon jälkeen epävarmimmat rajat, pelkkään kappalemäärään nojaavat rajat, poikkeavat määrät ja mittauskeinot.
+Kesto lisätään saatteeseen *Tärkeintä*-luettelon viimeiseksi, jos äänilinkistä saatiin. Vanhat `[Encore]`-rivit
+ovat tavallisia ei-biisejä. Jäsennin ohittaa koodilohkon ```- ja ~~~-rivit (~~~ raportin varalta, jos kopioitu saate
+katkeaa esimerkkilohkon kohdalla; esimerkki on yhä ```-aidoin, kopiointia Claudeen ei ole testattu) ja hyväksyy
+`--- (Nimi)` ilman aikaa. Saatteen muutoksen jälkeen aja `node soitin/keikka-analyysi/rakenna.mjs` (ks. taitopaketti
+alla). Oppaassa osio
 `#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA:*, jonka perässä
 otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
 päätös 20.10.2026; otsikko itse pysyy h4-kokoisena, jotta kolmio on muiden alaosioiden linjassa); mallitaulukon nimet
-ovat muistinvaraisia, ja käyttäjä tarkistaa ne.
+ovat muistinvaraisia, ja käyttäjä tarkistaa ne. Gemini-rivillä lukee yhä *kuuntelee itse*, vaikka uusi saate kieltää
+antamasta aikoja pelkän kuuntelun perusteella; käyttäjä päättää, jääkö rivi.
+**Taitopaketti `soitin/keikka-analyysi/`** (pilotin raportin *pahvi B*, 23.10.2026): Clauden taito (`SKILL.md` ja
+`scripts/`), ladattavana `soitin/keikka-analyysi.zip` (kansio zipin juuressa, kuten Claude.ai vaatii; kuvaus alle
+200 merkkiä). `SKILL.md` tehdään `llmPrompt()`-tekstistä komennolla `node soitin/keikka-analyysi/rakenna.mjs`, joka
+lisää kaksi taidon omaa kappaletta (skriptien ajo) ankkuririvien perään ja kirjoittaa toistettavan zipin; `--tarkista`
+kertoo, ovatko ne ajan tasalla. Älä muokkaa `SKILL.md`:tä käsin. `rakenna.mjs` ei ole zipissä.
+`scripts/analyysi.py` (ffmpeg tai imageio-ffmpeg, numpy, scipy; valinnainen inaSpeechSegmenter) purkaa tiedoston
+16 kHz:n s16-memmapiksi ja käsittelee sen 10 min:n paloissa: taso, kaistat, litteys ja kroma 0,5 s:n kehyksin,
+iskukäyrä 16 ms:n välein. Ehdokkaat: tauot (yli 9 dB alle minuutin liukuvan mediaanin, mediaani peilaten reunoilla,
+koska `nearest` nielaisi alun hiljaisuuden), uutuushuiput (kroma, kaistaprofiili ja taso 20 s:n ikkunoin, reunoilla
+kutistuvin ikkunoin), puheen alut ja loput sekä yli minuutin soittamattomat jaksot, joiden sisäiset ehdokkaat
+tiivistetään. Yksi rivi ehdokasta kohden, enintään 140. Ilman inaa puhe arvioidaan karkeasti (pulssi, 2–8 Hz:n
+vaihtelu, kroman huippu, litteys) ja tuloste kertoo sen. `scripts/zoom.py` piirtää mel-spektrogrammin ja kolmen
+kaistan tasokäyrän PNG:ksi ilman kuvakirjastoja. `scripts/testi.py` tekee 6 min:n synteettisen tallenteen (kolme
+kappaletta, tauko, aplodit, 70 s puhetta, kappale suoraan puheen perään) ja vaatii jokaiselle tunnetulle rajalle
+ehdokkaan ±1,5 s:n päästä: OK 23.10.2026. Mitattu: 90 min:n mp3 kahdella ytimellä 14,6 s ja enintään 424 Mt muistia.
+ina-haara ajettu vain tynkämoduulilla (paloittelu ja lajien nimet; ajat ovat inan lähdekoodin mukaan absoluuttisia).
+Ajamatta: oikea keikka, oikea inaSpeechSegmenter, lataus Clauden asetuksiin. Oppaan `#kielimalli`-osion lopussa on
+lyhyt maininta paketista ja HUOM, ettei sitä ole kokeiltu.
 Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 

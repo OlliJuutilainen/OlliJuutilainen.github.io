@@ -78,6 +78,9 @@
   tr.pre td { font-style: italic; color: var(--muted); }
   tr.set td { color: var(--muted); font-size: 0.85rem; padding: 26px 4px 4px; }
   tr.set:first-child td { padding-top: 6px; }
+  /* Väliaika (numbered): rivi setin otsikon paikalla, numerosarake tyhjä. */
+  tr.valiaika td { padding-top: 26px; }
+  tr.valiaika:first-child td { padding-top: 6px; }
   tr.set .len { margin-left: 0.8em; opacity: 0.8; font-variant-numeric: tabular-nums; }
   a { color: var(--accent); overflow-wrap: anywhere; }
   /* Lisäominaisuuden (kansiokeikka) tekstilinkit: eivät näytä napeilta. */
@@ -373,8 +376,8 @@
     text.split(/\r?\n/).forEach(function (raw, i) {
       var line = raw.trim(), n = i + 1, m, sec, title;
       if (!line) return;
-      // Kielimallin vastauksesta liitetyn koodilohkon aidat (```, ```text).
-      if (/^```/.test(line)) return;
+      // Kielimallin vastauksesta liitetyn koodilohkon aidat (```, ```text, ~~~).
+      if (/^(?:```|~~~)/.test(line)) return;
       if ((m = RE_SMPTE.exec(raw))) {
         smpte = true;
         var h = +m[1], mi = +m[2], s = +m[3], fr = +m[5], bits = m[6] ? +m[6] : 0;
@@ -532,6 +535,17 @@
       dflt.forEach(function (r, c) { r.title = "[" + word + (dflt.length > 1 ? " " + (c + 1) : "") + "]"; });
       i = j;
     }
+    // Väliaika: setti, jonka ainoa raita on ei-biisi [Väliaika] (kirjainkoko vapaa). Soitin näyttää
+    // sen setin otsikon paikalla ilman numeroa, eikä se vie setin numeroa (soittimen finishSets).
+    var firsts = out.filter(function (r) { return r.first; }).length;
+    out.forEach(function (r, i) {
+      var only = r.first && (i + 1 >= out.length || out[i + 1].first);
+      if (firsts > 1 && only && r.extra && /^\[\s*väliaika\s*\]$/i.test(r.title)) {
+        r.brk = true;
+        r.n = "";
+        r.title = "[Väliaika]";
+      }
+    });
     return out;
   }
 
@@ -749,26 +763,32 @@
 
   // ---- Saate kielimallille ----------------------------------------------
 
-  // Tekoälyavustaja kysyy ensin kappaleiden, settien ja encorejen määrän ja
-  // läpivalaisee tiedoston vasta sitten. Vastausmuoto on settilistan muoto:
-  // "3. 12:05" on nimetön biisi, pelkkä aika ei-biisi, --- setinvaihto.
-  // Kesto lisätään tarkistukseksi, jos äänilinkistä saatiin selville.
+  // Tekoälyavustaja kysyy ensin keikan rakenteen (biisimäärät seteittäin, encoret, väliaika,
+  // intro- ja outronauhat) ja toiveen välispiikeistä ja läpivalaisee tiedoston vasta sitten.
+  // Vastausmuoto on settilistan muoto: "3. 12:05" on nimetön biisi, pelkkä aika ei-biisi,
+  // --- setinvaihto, "aika [VÄLIAIKA]" oma setti (soitin näyttää sen setin otsikon paikalla),
+  // "(+)" encoresetti ja "aika [Vielä!]" encoren alku. Kesto lisätään tarkistukseksi, jos
+  // äänilinkistä saatiin selville. Teksti on pilotin raportin "pahvi A" sanasta sanaan (23.10.2026).
+  // Muistutus: taitopaketin soitin/keikka-analyysi/SKILL.md säännöt ja vastausmuoto tehdään tästä
+  // tekstistä; aja muutoksen jälkeen node soitin/keikka-analyysi/rakenna.mjs (päivittää SKILL.md:n ja zipin).
   function llmPrompt() {
     return [
       "# Keikkatallenteen kappaleiden alkuajat",
       "",
-      "Tehtäväsi on löytää konsertin äänitallenteesta kohdat, joissa kappaleet alkavat, sekä mahdolliset setinvaihdot ja encoret. Etene kahdessa vaiheessa.",
+      "Tehtäväsi on löytää konsertin äänitallenteesta kohdat, joissa kappaleet alkavat, sekä setinvaihdot, väliaika ja encoret. Etene kahdessa vaiheessa.",
       "",
       "## Vaihe 1: kysy ensin",
       "",
       "Älä vielä käsittele äänitiedostoa, vaikka se olisi jo liitetty. Kysy yhdessä viestissä nämä ja kerro, että mihin tahansa saa jättää vastaamatta:",
       "",
-      "1. Montako kappaletta keikalla soitettiin, encoret mukaan lukien?",
-      "2. Montako settiä, ilman encoreja?",
-      "3. Montako encorea?",
-      "4. Onko tallenteen alussa tai lopussa jotain muuta kuin keikkaa, esim. virittelyä tai taustamusiikkia?",
+      "1. Kerro keikan rakenteesta se, minkä tiedät ja jaksat. Esimerkiksi: biisimäärät setti kerrallaan, encorebiisien määrä yhteensä, onko nauhalla väliaika, onko intro- tai outronauhoja ja onko tallenteen alussa tai lopussa muutenkin tiedettävästi jotain varsinaisen keikan ulkopuolista?",
+      "2. Haluatko, että yli minuutin välispiikit merkitään omille riveilleen? Silloin näet samalla, miten keikan aika jakautuu soiton ja puheen kesken.",
+      "",
+      "Voit mainita yhdellä lauseella, että hankalista kohdista saa vinkata (esim. ”ekan setin biisi 7 alkaa pitkällä puhelaululla”), mutta se ei ole tarpeen.",
       "",
       "Päätä viesti suunnilleen näin: ”Kun olet vastannut niihin, joihin haluat, liitä keikan äänitiedosto ja kirjoita **läpivalaise**. Mp3 käy hyvin. Jos tiedosto on liian suuri, pienempi laatu (esim. 96 kbps mono) riittää tähän.”",
+      "",
+      "Jos pystyt ajamaan koodia, tarkista jo nyt, mitkä työkalut ovat käytettävissä, ja aloita tarvittavat asennukset sillä aikaa, kun käyttäjä vastaa. Asentaminen ei ole tiedoston käsittelyä.",
       "",
       "## Vaihe 2: läpivalaisu",
       "",
@@ -776,9 +796,11 @@
       "",
       "## Tärkeintä: mittaa, älä arvaa",
       "",
-      "Tämä on mittaustehtävä. Jos et pysty käsittelemään äänitiedostoa, sano se äläkä anna aikoja.",
-      "- Jos pystyt ajamaan koodia, mittaa äänitaso, hiljaiset kohdat, aplodit ja puhe.",
-      "- Jos kuuntelet äänen itse, kuuntele jokainen löytämäsi kohta vielä uudelleen.",
+      "Tämä on mittaustehtävä, ja se tehdään koodilla. Pelkkä kuuntelu ei riitä: pitkässä tallenteessa ajantaju kelluu ja ajat päätyvät arvauksiksi.",
+      "- Jos et pysty ajamaan koodia tai käsittelemään tiedostoa, sano se äläkä anna aikoja.",
+      "- Perustaso riittää: äänitaso, hiljaiset kohdat, spektri sekä tempo ja sävellaji osioittain (esim. ffmpeg ja numpy/scipy). Jos saat käyttöön puheen ja musiikin erottelijan tai litteroinnin, käytä niitä lisänä.",
+      "- Käsittele pitkä tiedosto noin kymmenen minuutin paloissa, ettei muisti lopu.",
+      "- Käytä kerrottua kappalemäärää tarkistuksena, älä rajan perusteena: etsi jokaiselle rajalle oma todiste, kuten tauko, aplodit, puhe tai tempon tai sävellajin vaihdos.",
       "- Jos et pääse tiedoston loppuun asti, kerro, mihin kohtaan pääsit."
     ].concat(isFinite(audioLen) ? [
       "- Tiedoston kesto on " + fmtTime(Math.round(audioLen)) + ". Jos mittaamasi kesto on eri, kerro se."
@@ -786,18 +808,25 @@
       "",
       "## Säännöt",
       "",
+      "Ajat ovat keikan navigointimerkkejä: kun kuulija painaa listalta biisiä, biisin pitää alkaa. Ne eivät ole levyn raitarajoja.",
+      "",
       "- Kappale alkaa, kun soitto alkaa, sisäänlasku mukaan lukien. Merkitse alku noin sekunti ennen ensimmäistä ääntä.",
-      "- Aplodit ja välispiikit kuuluvat edelliseen kappaleeseen. Yli minuutin puhe, tauko tai muu soittamaton jakso on oma rivinsä.",
-      "- Setinvaihto vain, jos se on ilmeinen: yli kolmen minuutin tauko, katko tallenteessa tai kuulutettu väliaika. Muuten koko tallenne on yhtä settiä.",
-      "- Kaikki encoret ovat yhdessä omassa setissään. Encore alkaa, kun bändi poistuu ja aplodit jatkuvat, kunnes soitto alkaa uudelleen.",
+      "- Puhe voi sekoittua kappaleen alkuun. Jos puolen minuutin tai pidemmän rämpyttelyn jälkeen vaihde selvästi vaihtuu, kappale alkaa vaihdosta. Jos alku liukuu tasaisesti eikä selvää alkukohtaa ole, ja varsinkin jos puheessa on rytmiä, puhe voi olla osa kappaletta: silloin kappale alkaa kaaren aiemmasta selvästä alkukohdasta. Rajan saa vetää suurpiirteisesti.",
+      "- Aplodit ja välispiikit kuuluvat edelliseen kappaleeseen. Yli minuutin puhe, tauko tai muu soittamaton jakso on oma rivinsä, ellei käyttäjä toivonut muuta.",
+      "- Jos käyttäjä mainitsi intro- tai outronauhan tai tunnistat sellaisen melko varmasti, merkitse sen alku omaksi rivikseen. Outronauhan alku löytyy setin lopusta taaksepäin edeten; se voi alkaa lähes suoraan viimeisen kappaleen perään.",
+      "- Setinvaihto vain, jos se on ilmeinen: katko tallenteessa, kuulutettu väliaika tai yli kolmen minuutin tauko. Muuten koko tallenne on yhtä settiä.",
+      "- Väliaika on oma settinsä, jos käyttäjä kertoi väliajasta tai jos setin viimeisen spiikin ja seuraavan setin ensimmäisen intron tai spiikin väliin jää yli viisi minuuttia. Väliaika alkaa siitä, mihin setin viimeisen kappaleen aplodit ja spiikit päättyvät, tai väliaikamusiikin alusta, jos se alkaa jo niiden aikana.",
+      "- Ilman väliaikaa setin raja vedetään setin viimeisen ja seuraavan setin ensimmäisen kappaleen väliin. Seuraavan setin intronauha ja sisääntuloaplodit kuuluvat seuraavaan settiin, muu häntä edellisen setin loppuun.",
+      "- Kaikki encoret ovat yhdessä omassa setissään. Encore alkaa, kun bändi poistuu ja aplodit jatkuvat, kunnes soitto alkaa uudelleen. Jos encorebiisien välissä on yli minuutin aplodit, siitä alkaa uusi encore.",
       "",
       "## Vastauksen muoto",
       "",
       "Vastaa ensin yhdellä koodilohkolla, jossa on vain näitä rivejä:",
       "- kappale: juokseva numero, piste ja alkuaika (yli tunnin kohdalla h:mm:ss)",
-      "- soittamaton jakso: pelkkä alkuaika",
+      "- soittamaton jakso: pelkkä alkuaika. Jos käyttäjä on antanut jaksolle nimen, alkuaika ja nimi hakasulkeissa.",
       "- setinvaihto: --- omalla rivillään ennen uuden setin ensimmäistä riviä",
-      "- encoret: --- ja sen alle omalle rivilleen (+). Jokaisen encoren alkuun, aplodien alkukohtaan, rivi alkuaika ja [Encore], tai jos encoreja on useampi, [Encore 1], [Encore 2] jne.",
+      "- väliaika: ---, rivi alkuaika ja [VÄLIAIKA], sitten --- ennen seuraavaa settiä",
+      "- encoret: --- ja sen alle omalle rivilleen (+). Jokaisen encoren alkuun, aplodien alkukohtaan, rivi alkuaika ja [Vielä!].",
       "",
       "Ajat kokonaisina sekunteina ja kasvavassa järjestyksessä. Ei kappaleiden nimiä eikä kommentteja. Esimerkki muodosta (ajat keksittyjä):",
       "",
@@ -807,14 +836,20 @@
       "9:03",
       "3. 10:15",
       "---",
-      "4. 52:30",
+      "47:20 [VÄLIAIKA]",
+      "---",
+      "4. 1:02:30",
       "---",
       "(+)",
-      "1:29:40 [Encore]",
+      "1:29:40 [Vielä!]",
       "5. 1:31:02",
       "```",
       "",
-      "Kerro lohkon jälkeen lyhyesti, mitkä kohdat ovat epävarmoja ja miksi. Kerro myös, jos kappaleita, settejä tai encoreja on eri määrä kuin käyttäjä kertoi.",
+      "Kerro lohkon jälkeen lyhyesti:",
+      "- epävarmimmat rajat: kappale, aika, vaihtoehtoinen aika ja miksi",
+      "- rajat, jotka perustuvat pelkkään käyttäjän kertomaan kappalemäärään",
+      "- jos kappaleita, settejä tai encoreja on eri määrä kuin käyttäjä kertoi",
+      "- yhdellä rivillä, millä keinoin mittasit",
       "",
       "## Taustaa",
       "",
@@ -883,21 +918,26 @@
     var shown = numbered(isFolder ? list.tracks : withIntro(list.tracks));
     var prev = $("preview");
     prev.innerHTML = "";
-    // Otsikot näkyvät, jos settejä on useampi tai jokin on nimetty.
-    var heads = shown.some(function (r, i) { return (r.tr.set && i) || r.tr.name; });
+    // Otsikot näkyvät, jos settejä (ilman väliaikaa) on useampi tai jokin on nimetty.
+    var heads = shown.filter(function (r) { return r.first && !r.brk; }).length > 1 ||
+      shown.some(function (r) { return r.first && !r.brk && r.tr.name; });
     var setNo = 0;
     shown.forEach(function (r, i) {
       var tr = r.tr;
-      if (r.first) {
+      if (r.first && !r.brk) {
         setNo++;
         if (heads) {
-          // Setin kesto on sen biisien kestojen summa (ei ei-biisejä)
-          // tallennettavista alkuajoista kuten soittimessa; vasta tulos
-          // pyöristetään sekunteihin. Biisi päättyy seuraavan rivin alkuun;
-          // viimeinen vain, jos tiedoston pituus selvisi.
-          var len = 0;
+          // Setin kesto kuten soittimessa (renderLens): raitojen kestojen summa
+          // setin ensimmäisestä biisistä viimeiseen, eli välissä olevat ei-biisit
+          // (spiikit) mukaan, setin alun ja lopun ei-biisit pois. Lasketaan
+          // tallennettavista alkuajoista; vasta tulos pyöristetään sekunteihin.
+          // Raita päättyy seuraavan rivin alkuun; viimeinen vain, jos tiedoston
+          // pituus selvisi.
+          var len = 0, a = -1, z = -1;
           for (var k = i; k < shown.length && (k === i || !shown[k].first); k++) {
-            if (shown[k].extra) continue;
+            if (!shown[k].extra) { if (a < 0) a = k; z = k; }
+          }
+          for (k = a; a >= 0 && k <= z; k++) {
             var end = k + 1 < shown.length ? shown[k + 1].tr.sec : audioLen;
             len += end - shown[k].tr.sec;
           }
@@ -912,7 +952,7 @@
         }
       }
       var row = document.createElement("tr");
-      if (r.extra) row.className = "pre";
+      if (r.extra) row.className = r.brk ? "pre valiaika" : "pre";
       [["n", r.n], ["t", tr.t], ["tt", r.title]].forEach(function (c) {
         var td = document.createElement("td");
         td.className = c[0];
