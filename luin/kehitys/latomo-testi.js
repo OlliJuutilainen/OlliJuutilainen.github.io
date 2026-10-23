@@ -249,6 +249,14 @@ palvelin.listen(0, async () => {
   // MarkDownload-tila on yhä päällä (kohta 4), joten tyyppi on blogi; vanhaa lajia ja osoitetta ei saa olla.
   tulos('uusi teksti tyhjennyksen jälkeen', !/Muutettu laji|example\.com\/teksti/.test(t.md) && (await kentat()).laji !== 'Muutettu laji', JSON.stringify(etu(t)));
 
+  // 10. Otsikkolohkon tietorivit ja peräkkäiset alaviitteiden määrittelyt ovat jo erillään (pdf:stä muunnettu kirja).
+  await p.goto(BASE + 'luin/latomo.html');
+  await syota('# Kirja\n\nEtu Suku, *Kirja: alaotsikko*.\nCham: Palgrave Macmillan 2022.\nDOI 10.1007/x.\n\n' +
+    'Leipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.[^1][^2][^3]\n\n' +
+    '[^1]: Eka.\n[^2]: Toka.\n[^3]: Kolmas.\n');
+  const e2 = await ehdotukset();
+  tulos('tietorivit ja alaviitteet eivät ole rivitettyä tekstiä', !e2.some(x => /tyhjiä rivejä/.test(x)), e2.join(' / '));
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');

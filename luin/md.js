@@ -512,7 +512,8 @@
     publisher: 'kustantaja', city: 'paikka', place: 'paikka', kaupunki: 'paikka', kustannuspaikka: 'paikka',
     editor: 'toimittaja', editors: 'toimittaja', toimittajat: 'toimittaja',
     translator: 'suomentaja', 'kääntäjä': 'suomentaja', kaantaja: 'suomentaja',
-    pages: 'sivut', series: 'sarja', edition: 'painos', journal: 'teos', container: 'teos', lehti: 'teos', volume: 'numero', issue: 'numero'
+    pages: 'sivut', series: 'sarja', edition: 'painos', journal: 'teos', container: 'teos', lehti: 'teos', volume: 'numero', issue: 'numero',
+    booktitle: 'teos', 'container-title': 'teos', 'publisher-location': 'paikka'
   };
   function avain(a) { a = String(a || '').trim().toLowerCase(); return ALIAS[a] || a; }
   function etukentta(src) {
@@ -541,6 +542,8 @@
           if (v && (meta[y] == null || meta[y] === '' || !ALIAS[a])) meta[y] = v;
           else if (meta[y] == null) meta[y] = v;
         });
+        // Erilliset vuosikerta ja numero (hegelin pdf_to_markdown.py, Crossref) yhdeksi: 72:288.
+        if (raaka.volume && raaka.issue && !raaka.numero && meta.numero === raaka.volume) meta.numero = raaka.volume + ':' + raaka.issue;
         return { meta: meta, raaka: raaka, body: lines.slice(end + 1).join('\n'), ln: end + 2 };
       }
     }
@@ -954,7 +957,7 @@
     }
 
     // Otsikkolohko
-    var auth = '', jp = null;
+    var auth = '', jp = null, tietoRaaka = [], kirja = {};
     if (tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
       curLn = tokens[0].ln;
       res.title = plain(tokens[0].text);
@@ -969,20 +972,44 @@
           head += blk('p', 'sub', em[1]);
         } else if (tietorivi(tx)) {
           lisaaKehys();
-          tx.split('\n').forEach(function (l) { l = plain(l.replace(/\\[ \t]*$/, '')).trim(); if (l) res.lines.push(l); });
+          tx.split('\n').forEach(function (l) {
+            l = l.replace(/\\[ \t]*$/, '').trim();
+            if (plain(l).trim()) { res.lines.push(plain(l).trim()); tietoRaaka.push(l); }
+          });
           head += blk('p', 'meta', tx, metaCtx);
         } else break;
         t0++;
       }
     }
     // Tekstistä päätellyt tiedot: tekijä on tietorivi, jossa on 2–4 isolla alkavaa sanaa; julkaisuaika tarkin
-    // tietoriveiltä löytyvä päiväys (lokakuussa 2026, 8.10.2026).
+    // tietoriveiltä löytyvä päiväys (lokakuussa 2026, 8.10.2026). ISBN-, ISSN- ja DOI-numerot ja osoitteet eivät
+    // ole päiväyksiä (ISBN 978-3-031-01929-6 luettiin kesäkuuksi 1929).
+    // Painetun teoksen tietorivit (pdf:n muunnos): DOI 10.… ja Paikka: Kustantaja vuosi.
     res.lines.forEach(function (l) {
       if (/^\p{Lu}[\p{L}'’.-]+(\s+\p{Lu}[\p{L}'’.-]*){1,3}$/u.test(l)) auth = l;
-      var p = pvm(l, true);
+      var p = pvm(l.replace(/\b(?:ISBN|ISSN|e-?ISSN|DOI)(?:-1[03])?:?\s*\S+/gi, '').replace(/\b(?:https?:\/\/|doi:|10\.\d{4,9}\/)\S+/gi, ''), true);
       if (p && (!jp || p.t > jp.t)) jp = p;
+      var doi = /(?:\bdoi:?\s*|doi\.org\/)(10\.\d{4,9}\/[^\s"<>]+)/i.exec(l);
+      if (doi && !kirja.doi) kirja.doi = doi[1].replace(/[.,;)\]]+$/, '');
+      var pk = /^(\p{Lu}[\p{L}.'’-]*(?:\s\p{Lu}[\p{L}.'’-]*){0,2}):\s+(\p{Lu}[^:;]{1,80}?),?\s+(1[5-9]\d\d|20\d\d)\b/u.exec(l);
+      if (pk && !kirja.paikka) { kirja.paikka = pk[1]; kirja.kustantaja = pk[2]; }
     });
-    res.paatelty = { otsikko: res.title, alaotsikko: res.sub, 'tekijä': auth, julkaistu: jp ? pvmIso(jp) : '' };
+    // Tekijä, *Teos: alaotsikko*. -rivi: tekijä, ja jos #-otsikko on teoksen lyhyt nimi (Müller, *Kantianism for
+    // Animals*), otsikko ja alaotsikko koko nimestä.
+    tietoRaaka.forEach(function (l) {
+      var n = /^(\p{Lu}[\p{L}'’.-]*(?:\s+[\p{L}'’.-]+){1,4}),\s+\*([^*]+)\*\.?$/u.exec(l);
+      if (!n || kirja.koko) return;
+      if (!auth) auth = n[1];
+      kirja.koko = plain(n[2]).trim();
+      var ly = /^([^,]+),\s+(.+)$/.exec(res.title);
+      if (ly && ly[1] === n[1].split(/\s+/).pop() && kirja.koko.indexOf(ly[2]) === 0) {
+        var oa = /^(.+?):\s+(.+)$/.exec(kirja.koko);
+        kirja.otsikko = oa ? oa[1] : kirja.koko;
+        if (oa && !res.sub) kirja.alaotsikko = oa[2];
+      }
+    });
+    res.paatelty = { otsikko: kirja.otsikko || res.title, alaotsikko: kirja.alaotsikko || res.sub, 'tekijä': auth,
+      julkaistu: jp ? pvmIso(jp) : '', paikka: kirja.paikka || '', kustantaja: kirja.kustantaja || '', doi: kirja.doi || '' };
     // Otsikko ja tietorivit etukentästä, jos tekstissä ei ole niitä (verkkoleike, Latomon kentät, pelkkä teksti).
     if (!head && m.otsikko) {
       head = '<header class="tt">' + blk('h1', '', m.otsikko) + (m.alaotsikko ? blk('p', 'sub', m.alaotsikko) : '');
