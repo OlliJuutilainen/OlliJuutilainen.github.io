@@ -170,6 +170,13 @@
     halutessasi nimet ja tarkista ajat: kielimalli erehtyy helposti. Vinkit ovat
     <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
   <button id="copyPrompt" type="button">Kopioi saate</button>
+  <p class="muted" style="margin-top:14px"><b>Kevyemmälle mallille (esim. Sonnet)</b> saatteen sijaan sopii
+    Clauden taitopaketti: <a href="keikka-analyysi.zip" download>lataa keikka-analyysi.zip</a>, lisää se
+    Clauden asetuksista (<i>Customize → Skills → + → Upload a skill</i>, koodin suoritus päälle) ja aloita uusi
+    keskustelu lauseella alta. Sen jälkeen kuten saatteella: vastaa kysymyksiin, liitä äänitiedosto,
+    kirjoita <i>läpivalaise</i>. Paketti on kokeilematta oikealla keikalla; lisää
+    <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
+  <button id="copyStarter" type="button">Kopioi aloituslause</button>
   </div>
   <p class="muted" id="alsNote" hidden></p>
   <!-- Näkyy vain, kun lista on Logicin markkerilista (SMPTE-ajat). -->
@@ -1140,6 +1147,9 @@
   });
   // Saatetta ei näytetä, vain kopioidaan; kesto on kopiointihetken tieto.
   $("copyPrompt").addEventListener("click", function () { copy(llmPrompt(), this); });
+  $("copyStarter").addEventListener("click", function () {
+    copy("Etsi keikkatallenteen kappaleiden alkuajat KEICK•WALK-settilistaksi.", this);
+  });
   update();
 })();
 </script>
