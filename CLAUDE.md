@@ -150,15 +150,18 @@ mukaan). Keikkaloihdin tallentaa merkittömän nimettömän ei-biisin muodossa `
 **Väliaika** (käyttäjän päätös 23.10.2026): setti, jonka ainoa raita on ei-biisi `[Väliaika]` (kirjainkoko vapaa,
 kielimallin saatteessa `---` / `47:20 [VÄLIAIKA]` / `---`), näkyy soittimessa setin otsikkorivinä: sama koko, väli
 ja kursiivi kuin `li.set`:llä (mitattu: korkeus ja tekstin paikka samat), numerosarake tyhjä, *[Väliaika]* kappaleiden
-nimien kohdalla ja väliajan kesto Σ-sarakkeessa ilman Σ:tä. Rivi on nappi (hyppy väliajan alkuun), linkkinappia ei ole,
+nimien kohdalla ja väliajan kesto setin keston sarakkeessa. Rivi on nappi (hyppy väliajan alkuun), linkkinappia ei ole,
 ja soidessa kuulokkeet ovat numerosarakkeessa. Väliaika ei vie setin numeroa: seuraava setti on (ii), ja linkit
 (`#tunnus/2/3`) käyttävät näkyvää numeroa (`setInfo[k].no`, `finishSets()`); sisäisesti väliaika on oma settinsä,
 joten *setti*-asennossa soitto pysähtyy väliajan alkuun. Keikkaloihtimen esikatselu (`numbered()`) näyttää saman.
 Väliaika, joka ei ole yksin setissään, on tavallinen ei-biisi.
-**Setin kesto Σ** (käyttäjän päätös 23.10.2026): setin ensimmäisen biisin alusta viimeisen biisin loppuun, eli biisien
+**Setin kesto** (käyttäjän päätös 23.10.2026): setin ensimmäisen biisin alusta viimeisen biisin loppuun, eli biisien
 väliset ei-biisit (spiikit) lasketaan mukaan ja vain setin alun ja lopun ei-biisit (intro, outro, aplodit, `[Vielä!]`
 encoresetin alussa) jäävät pois. Ennen kaikki ei-biisit jäivät pois. Sama soittimessa (`renderLens`) ja
-Keikkaloihtimen esikatselussa.
+Keikkaloihtimen esikatselussa. **Summamerkkiä Σ ei ole missään** (käyttäjän päätös 23.10.2026: "tuntuu roskalta"):
+kesto on setin otsikkorivin oikeassa laidassa ilman merkkiä (`.sig` poistettu, keston paikka mitattu ennallaan). Oppaan
+kuvat `ohje-soitin.png` ja `-tumma.png` otettiin samalla uudelleen; repossa olleista puuttuivat jo ennestään otsikon
+perusviivan (21.10.) ja ei-biisin keston koon (22.10.) muutokset. Uudet eroavat vanhan koodin renderöinnistä vain Σ:n kohdalta.
 Ei-biisi tallennetaan otsikkoon eikä omaksi kentäkseen, koska worker
 päästää kappaleista läpi vain `t`, `title`, `set` ja `name`; näin kaverin workeria ei tarvitse
 päivittää. `soitin/uusi.html` eli **Keikkaloihdin** tarkistaa settilistan ja tulostaa
@@ -215,13 +218,26 @@ alla). Oppaassa osio
 `#kielimalli` on HUOM-huomion jälkeen harmaalla merkillä *OMALLA VASTUULLA:*, jonka perässä
 otsikon teksti on samalla kirjasimella ja harmaalla, mutta kursiivina ja pienaakkosin (käyttäjän
 päätös 20.10.2026; otsikko itse pysyy h4-kokoisena, jotta kolmio on muiden alaosioiden linjassa); mallitaulukon nimet
-ovat muistinvaraisia, ja käyttäjä tarkistaa ne. Gemini-rivillä lukee yhä *kuuntelee itse*, vaikka uusi saate kieltää
-antamasta aikoja pelkän kuuntelun perusteella; käyttäjä päättää, jääkö rivi.
+ovat muistinvaraisia, ja käyttäjä tarkistaa ne. **Geminiä ei käytetä eikä sitä saa kehottaa missään** (käyttäjän päätös
+23.10.2026; rivi poistettu oppaasta ja Keikkaloihtimen ohjetekstistä). Painotus on, että saate on todettu toimivaksi
+nimenomaan Claudella (Opus); taulukossa on Claude (*toimii*) ja ChatGPT (*ei kokeiltu*), sarake *Kokeiltu*.
 **Taitopaketti `soitin/keikka-analyysi/`** (pilotin raportin *pahvi B*, 23.10.2026): Clauden taito (`SKILL.md` ja
 `scripts/`), ladattavana `soitin/keikka-analyysi.zip` (kansio zipin juuressa, kuten Claude.ai vaatii; kuvaus alle
 200 merkkiä). `SKILL.md` tehdään `llmPrompt()`-tekstistä komennolla `node soitin/keikka-analyysi/rakenna.mjs`, joka
-lisää kaksi taidon omaa kappaletta (skriptien ajo) ankkuririvien perään ja kirjoittaa toistettavan zipin; `--tarkista`
-kertoo, ovatko ne ajan tasalla. Älä muokkaa `SKILL.md`:tä käsin. `rakenna.mjs` ei ole zipissä.
+lisää taidon omat kappaleet (`LISAYKSET`: asennus vaiheeseen 1 ja työjärjestys vaiheeseen 2) ankkuririvien perään ja
+kirjoittaa toistettavan zipin; `--tarkista` kertoo, ovatko ne ajan tasalla. Älä muokkaa `SKILL.md`:tä käsin.
+`rakenna.mjs` ei ole zipissä. **Pahvi C** (23.10.2026): paketti on kevyemmälle mallille (esim. Sonnet), saate Opukselle.
+Vaiheen 2 työjärjestys on pahvista: aja analyysi.py, hyväksy RAJA ja SAUMA, hylkää BREAK ellei määrä vaadi, zoom.py
+enintään kymmenestä kohdasta vain jos määrä poikkeaa, taulukko kappale–aika–luokka–todiste, `--tarkista`, lopeta.
+Jokaisella ehdokkaalla on luokka: RAJA (tauko tai puhe/aplodit ennen, tempo tai sävelluokat vaihtuvat), SAUMA (musiikkia
+molemmin puolin ilman taukoa, vaihtuvat), BREAK (tauko, samat), SPIIKKI (yli 60 s soittamaton alkaa) sekä pahvin
+ulkopuolelta HÄNTÄ (rajan jälkeen ei musiikkia; ilman sitä jokainen aplodien alku luokittuisi kappaleen aluksi) ja HEIKKO
+(ei taukoa eikä vaihtoa). Tempo sama = ero alle 6 % tai puolikas/tupla; sävelluokat samat = neljästä vahvimmasta ≥ 3.
+`--tarkista lista.txt [--setit] [--encoret]` tarkistaa vastauksen muodon (saatteen vastausmuoto, juokseva numerointi,
+kokonaiset sekunnit, kasvavat ajat, väliaika omana settinään, encoresetti alkaa `[Vielä!]`); tarkistimen hyväksymät
+listat menevät Keikkaloihtimesta läpi 0 virheellä (ristiintarkistettu Chromiumissa). Pahvista poiketen kerrotusta
+poikkeava määrä ei estä OK:ta: se tulostetaan rivinä *MÄÄRÄ POIKKEAA*, koska pilotin mukaan suurin hallusinaatioriski on
+kappalemäärän pakottaminen täyteen. Riippuvuuksien tarkistus on `--riippuvuudet`.
 `scripts/analyysi.py` (ffmpeg tai imageio-ffmpeg, numpy, scipy; valinnainen inaSpeechSegmenter) purkaa tiedoston
 16 kHz:n s16-memmapiksi ja käsittelee sen 10 min:n paloissa: taso, kaistat, litteys ja kroma 0,5 s:n kehyksin,
 iskukäyrä 16 ms:n välein. Ehdokkaat: tauot (yli 9 dB alle minuutin liukuvan mediaanin, mediaani peilaten reunoilla,
@@ -230,8 +246,10 @@ kutistuvin ikkunoin), puheen alut ja loput sekä yli minuutin soittamattomat jak
 tiivistetään. Yksi rivi ehdokasta kohden, enintään 140. Ilman inaa puhe arvioidaan karkeasti (pulssi, 2–8 Hz:n
 vaihtelu, kroman huippu, litteys) ja tuloste kertoo sen. `scripts/zoom.py` piirtää mel-spektrogrammin ja kolmen
 kaistan tasokäyrän PNG:ksi ilman kuvakirjastoja. `scripts/testi.py` tekee 6 min:n synteettisen tallenteen (kolme
-kappaletta, tauko, aplodit, 70 s puhetta, kappale suoraan puheen perään) ja vaatii jokaiselle tunnetulle rajalle
-ehdokkaan ±1,5 s:n päästä: OK 23.10.2026. Mitattu: 90 min:n mp3 kahdella ytimellä 14,6 s ja enintään 424 Mt muistia.
+kappaletta, tauko, aplodit, 70 s puhetta, kappale suoraan puheen perään; pahvi C:ssä lisäksi tauko kappaleen sisällä ja
+saumaton kappaleenvaihto, 6:50) ja vaatii jokaiselle seitsemälle tunnetulle rajalle ehdokkaan ±1,5 s:n päästä oikealla
+luokalla, ei ylimääräisiä RAJA/SAUMA-ehdokkaita, sekä seitsemän valmiin settilistan tarkistuksen: OK 23.10.2026.
+Mitattu: 90 min:n mp3 kahdella ytimellä 13,4 s ja enintään 420 Mt muistia.
 ina-haara ajettu vain tynkämoduulilla (paloittelu ja lajien nimet; ajat ovat inan lähdekoodin mukaan absoluuttisia).
 Ajamatta: oikea keikka, oikea inaSpeechSegmenter, lataus Clauden asetuksiin. Oppaan `#kielimalli`-osion lopussa on
 lyhyt maininta paketista ja HUOM, ettei sitä ole kokeiltu.
@@ -488,7 +506,7 @@ liian pieniä). Tiedostot `soitin/fontit/` (SIL OFL, lisenssi mukana): `figtree.
 omassa tyylissä (`font-display: block`, `fontit/…`-polut, `<link rel="preload">` normaalille ja soitinsivulla kursiiville), ja
 fonttipino on `"Figtree", system-ui, …`. **`lista/keikat.html`:ssä fontti on data-URI:na** (vain latin), koska sovellus näyttää
 sivun assetista ilman verkkoa ja assettien juuri on `soitin/lista`; tarkistettu `file://`-osoitteesta offline-tilassa (0 verkkopyyntöä,
-molemmat leikkeet `loaded`). Merkit Σ, →, ←, ▸, ☰, ⌘, ⌫, ✓, ⇥ ja 🔒 puuttuvat Figtreestä ja tulevat varafontista.
+molemmat leikkeet `loaded`). Merkit →, ←, ▸, ☰, ⌘, ⌫, ✓, ⇥ ja 🔒 puuttuvat Figtreestä ja tulevat varafontista.
 Mittaukset (`fitExtras`, `capHeight`, `alignSetNames`, `placeSetEnd`, `alignTitle`) odottavat soitinsivulla lupausta `fontsReady`
 (tavallinen ja kursiivinen leike ladattu), koska `document.fonts.ready` ei odota vielä piirtämätöntä kursiivia; ohjesivujen
 otsikkolinjaus odottaa otsikon leikettä (`700 1em "Figtree"`). **Älä palauta `document.fonts.ready`-varianttia.** Figtreen mitat

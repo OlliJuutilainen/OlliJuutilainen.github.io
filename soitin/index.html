@@ -489,9 +489,8 @@
   /* Setin otsikko (i), (ii) …: jokainen setti alkaa kuin oma listansa. */
   ol.sets { border-top: 0; }
   /* Setin kesto samaan sarakkeeseen kuin kappaleiden kestot: oikea
-     reuna 4 px (.track) + 44 px (.copy) rivin reunasta. Summamerkki Σ:
-     on keston edessä mutta DOM:ssa sen jälkeen (order), jotta se voidaan
-     piilottaa, kun kestoa ei vielä tiedetä. */
+     reuna 4 px (.track) + 44 px (.copy) rivin reunasta. Summamerkkiä ei ole
+     (käyttäjän päätös 23.10.2026: summamerkki poistettu kaikkialta). */
   li.set {
     display: flex;
     align-items: baseline;
@@ -502,24 +501,12 @@
     font-style: italic;
   }
   li.set .name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
-  li.set .len { flex: 0 0 auto; order: 2; opacity: 0.8; }
-  li.set .sig {
-    flex: 0 0 auto;
-    order: 1;
-    margin-right: -5px;
-    font-size: 0.8em;
-    opacity: 0.8;
-    /* Pienempi merkki istuisi perusviivalla numeroita alempana; nostetaan
-       sen keskikohta numeroiden keskikohdan tasalle. */
-    position: relative;
-    top: -0.1em;
-  }
-  li.set .len:empty + .sig { visibility: hidden; }
+  li.set .len { flex: 0 0 auto; opacity: 0.8; }
   li.set:first-child { padding-top: 0; }
   /* Väliaika (finishSets) on setin otsikkorivi (käyttäjän päätös 23.10.2026): sama koko, kursiivi,
      väri ja välit kuin li.set:llä, mutta numerosarake on tyhjä ja [Väliaika] alkaa kappaleiden nimien
      kohdalta (numerosarake 1,6 × 17 px kuten tavallisella rivillä). Oikealla väliajan kesto setin
-     keston paikalla ilman Σ:tä. Rivi on nappi, josta soitto hyppää väliajan alkuun; linkkinappia ei
+     keston paikalla. Rivi on nappi, josta soitto hyppää väliajan alkuun; linkkinappia ei
      ole, mutta sen paikka pitää keston samassa sarakkeessa. */
   li.valiaika .track { min-height: 0; padding: 30px 4px 6px; font-size: 0.9rem; font-style: italic; color: var(--muted); }
   li.valiaika .track .n { min-width: 27.2px; }
@@ -1352,7 +1339,7 @@
       if (showSets && i === setInfo[tr.set].first && !tr.brk) {
         var h = document.createElement("li");
         h.className = "set";
-        h.innerHTML = '<span class="name"></span><span class="len num"></span><span class="sig" aria-hidden="true">Σ:</span>';
+        h.innerHTML = '<span class="name"></span><span class="len num"></span>';
         h.children[0].textContent = setName(tr.set);
         setLens[tr.set] = h.children[1];
         heads.push({ li: h, first: i });
@@ -1402,7 +1389,7 @@
   // Kappaleiden ja settien kestot. Viimeisen kappaleen ja setin kesto
   // selviää vasta, kun äänitiedoston pituus on tiedossa. Kestot lasketaan
   // pyöristämättömistä alkuajoista (sadasosat mukana), ja vasta näytettävä
-  // kesto pyöristetään lähimpään sekuntiin. Setin kesto (Σ) on sen raitojen
+  // kesto pyöristetään lähimpään sekuntiin. Setin kesto on sen raitojen
   // tarkkojen kestojen summa setin ensimmäisestä biisistä viimeiseen, joten
   // näytetyt kestot voivat erota sekunnilla setin kestosta. Biisien väliset
   // ei-biisit (spiikit) lasketaan mukaan; setin alun ja lopun ei-biisit (intro,

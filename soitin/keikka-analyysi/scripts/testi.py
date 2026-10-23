@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 """analyysi.py:n testi ilman oikeaa keikkaa.
 
-Tekee kuuden minuutin synteettisen tallenteen, jonka rajat tunnetaan: kolme
-"kappaletta" (eri tempo, sävellaji ja sointi, rumpupulssi), niiden välissä
+Tekee lähes seitsemän minuutin synteettisen tallenteen, jonka rajat tunnetaan:
+neljä "kappaletta" (eri tempo, sävellaji ja sointi, rumpupulssi), niiden välissä
 hiljaisuus ja kohinajakso ("aplodit") sekä 70 s:n puhetta jäljittelevä jakso
-ilman pulssia. Kolmas kappale alkaa suoraan puheen perään ilman taukoa.
+ilman pulssia. Toisen kappaleen keskellä on tauko (BREAK), kolmas kappale alkaa
+suoraan puheen perään ja neljäs suoraan kolmannen perään ilman taukoa (SAUMA).
 Ajaa analyysi.py:n ja tarkistaa, että jokaiselle tunnetulle rajalle löytyy
-ehdokas ±1,5 s:n päästä. Tulostaa OK tai poikkeamat.
+ehdokas ±1,5 s:n päästä ja että sen luokka on oikea. Tarkistaa lisäksi
+--tarkista-valinnan muutamalla valmiilla settilistalla. Tulostaa OK tai poikkeamat.
 
 Käyttö: python3 testi.py [--pida kansio]   (--pida jättää tallenteen ja tulosteen talteen)
 """
@@ -32,15 +34,28 @@ OHJELMA = [
     (95, 97, "hiljaa", None),
     (97, 105, "aplodit", None),
     (105, 190, "biisi", dict(bpm=92, juuri=146.83, soinnut=[0, 3, 7], kirkas=True, siemen=2)),
+    (145, 147.5, "hiljaa", None),          # tauko kappaleen B sisällä
     (190, 260, "puhe", None),
-    (260, 350, "biisi", dict(bpm=140, juuri=92.5, soinnut=[0, 4, 7, 11], kirkas=False, siemen=3)),
-    (350, 360, "aplodit", None),
+    (260, 330, "biisi", dict(bpm=140, juuri=92.5, soinnut=[0, 4, 7, 11], kirkas=False, siemen=3)),
+    (330, 400, "biisi", dict(bpm=108, juuri=82.41, soinnut=[0, 3, 7], kirkas=True, siemen=4)),
+    (400, 410, "aplodit", None),
 ]
-# Tunnetut rajat: kappaleiden alut, puheen alku ja aplodien alku suoraan kappaleen perään (kuten
-# outronauha, joka alkaa heti viimeisen kappaleen jälkeen). Lisäksi tauko 95–97 s kappaleen A jälkeen.
-RAJAT = [5, 105, 190, 260, 350]
+# Tunnetut rajat ja niiden luokat: kappaleiden alut, puheen alku, saumaton vaihto, aplodien alku
+# kappaleen perään sekä tauot kappaleiden välissä (95–97 s) ja kappaleen B sisällä (145–147,5 s).
+RAJAT = {5: "RAJA", 105: "RAJA", 147.5: "BREAK", 190: "SPIIKKI", 260: "RAJA", 330: "SAUMA", 400: "HÄNTÄ"}
 TAUKO = (95, 97)
-TEMPOT = {5: 120, 105: 92, 260: 140}
+TEMPOT = {5: 120, 105: 92, 260: 140, 330: 108}
+# Settilistan tarkistus: (lista, lisävalinnat, odotettu alku tulosteessa).
+LISTAT = [
+    ("```\n1. 0:41\n2. 5:12\n9:03\n3. 10:15\n---\n47:20 [VÄLIAIKA]\n---\n4. 1:02:30\n---\n(+)\n"
+     "1:29:40 [Vielä!]\n5. 1:31:02\n```\n", ["--setit", "3,1", "--encoret", "1"], "OK"),
+    ("1. 0:41\n2. 5:12\n---\n3. 9:00\n", ["--setit", "2,2"], "OK"),            # määrä poikkeaa: silti OK
+    ("1. 0:41\n3. 5:12\n", [], "VIRHEET"),                                         # numerointi
+    ("1. 0:41\n2. 0:30\n", [], "VIRHEET"),                                         # ajat eivät kasva
+    ("1. 0:41.5\n", [], "VIRHEET"),                                                 # ei kokonaisia sekunteja
+    ("1. 0:41\n47:20 [VÄLIAIKA]\n---\n2. 50:00\n", [], "VIRHEET"),                # väliaika ei omana settinään
+    ("1. 0:41\n---\n(+)\n2. 5:00\n", [], "VIRHEET"),                             # encore ilman [Vielä!]
+]
 
 
 def rms_db(y):
@@ -137,7 +152,9 @@ def tee_tallenne(polku):
     y = rng.standard_normal(kok) * 10 ** (-62 / 20)   # huoneen kohina
     for a, b, laji, asetus in OHJELMA:
         i0, i1 = int(a * SR), int(b * SR)
-        if laji == "biisi":
+        if laji == "hiljaa" and a > 0:
+            y[i0:i1] = rng.standard_normal(i1 - i0) * 10 ** (-62 / 20)
+        elif laji == "biisi":
             y[i0:i1] += biisi(i1 - i0, **asetus)
         elif laji == "aplodit":
             y[i0:i1] += aplodit(i1 - i0, a)
@@ -172,27 +189,42 @@ def main():
     d = json.load(open(js, encoding="utf-8"))
     ajat = [c["t"] for c in d["ehdokkaat"]]
     poikk = []
-    for r in RAJAT:
-        lahin = min(ajat, key=lambda t: abs(t - r)) if ajat else None
-        if lahin is None or abs(lahin - r) > TOLERANSSI:
-            poikk.append("raja %d s: lähin ehdokas %s" % (r, "puuttuu" if lahin is None else "%.1f s" % lahin))
+    for r, luokka in RAJAT.items():
+        c = min(d["ehdokkaat"], key=lambda c: abs(c["t"] - r)) if ajat else None
+        if c is None or abs(c["t"] - r) > TOLERANSSI:
+            poikk.append("raja %g s: lähin ehdokas %s" % (r, "puuttuu" if c is None else "%.1f s" % c["t"]))
+        elif c["luokka"] != luokka:
+            poikk.append("raja %g s: luokka %s, odotettiin %s" % (r, c["luokka"], luokka))
     tauot = [tuple(v) for c in d["ehdokkaat"] for v in c["tauot"]]
     if not any(abs(a - TAUKO[0]) <= TOLERANSSI and abs(b - TAUKO[1]) <= TOLERANSSI for a, b in tauot):
         poikk.append("tauko %d–%d s puuttuu (tauot: %s)" % (TAUKO + (", ".join("%.1f–%.1f" % v for v in tauot),)))
-    ylim = [t for t in ajat if min(abs(t - r) for r in RAJAT + [TAUKO[1]]) > 3]
-    print("Tunnetut rajat: " + ", ".join("%d s" % r for r in RAJAT))
-    print("Ehdokkaat:      " + ", ".join("%.1f s" % t for t in ajat))
+    ylim = [c for c in d["ehdokkaat"] if min(abs(c["t"] - r) for r in list(RAJAT) + [TAUKO[1]]) > 3]
+    print("Tunnetut rajat: " + ", ".join("%g s %s" % kv for kv in RAJAT.items()))
+    print("Ehdokkaat:      " + ", ".join("%.1f s %s" % (c["t"], c["luokka"]) for c in d["ehdokkaat"]))
     for r, bpm in TEMPOT.items():
         c = min(d["ehdokkaat"], key=lambda c: abs(c["t"] - r))
         print("Tempo rajan %d s jälkeen: %s (tehty %d bpm)" % (r, c["jalkeen"].split(", ")[1], bpm))
     if ylim:
-        print("Ylimääräisiä ehdokkaita (ei virhe, lukija karsii): " + ", ".join("%.1f s" % t for t in ylim))
+        print("Ylimääräisiä ehdokkaita: " + ", ".join("%.1f s %s" % (c["t"], c["luokka"]) for c in ylim))
+        for c in ylim:
+            if c["luokka"] in ("RAJA", "SAUMA"):
+                poikk.append("ylimääräinen kappaleen alku %.1f s (%s)" % (c["t"], c["luokka"]))
+    # Settilistan tarkistus.
+    for i, (lista, valinnat, odotus) in enumerate(LISTAT, 1):
+        lp = os.path.join(kansio, "lista%d.txt" % i)
+        with open(lp, "w", encoding="utf-8") as fh:
+            fh.write(lista)
+        t = subprocess.run([sys.executable, skripti, "--tarkista", lp] + valinnat, capture_output=True, text=True)
+        if not t.stdout.startswith(odotus):
+            poikk.append("--tarkista lista %d: odotettiin %s, tuli: %s" % (i, odotus, t.stdout.strip()[:200]))
+    print("Settilistan tarkistus: %d listaa ajettu." % len(LISTAT))
     if pida:
         print("Tallenne ja tuloste: " + kansio)
     if poikk:
         print("POIKKEAMAT:\n  " + "\n  ".join(poikk))
         sys.exit(1)
-    print("OK: kaikki %d tunnettua rajaa ja tauko löytyivät ±%.1f s:n tarkkuudella." % (len(RAJAT), TOLERANSSI))
+    print("OK: kaikki %d tunnettua rajaa ja tauko löytyivät ±%.1f s:n tarkkuudella oikein luokiteltuina, "
+          "eikä ylimääräisiä kappaleen alkuja ollut; settilistan tarkistus toimi." % (len(RAJAT), TOLERANSSI))
 
 
 if __name__ == "__main__":

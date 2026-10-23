@@ -20,13 +20,20 @@ Päätä viesti suunnilleen näin: ”Kun olet vastannut niihin, joihin haluat, 
 
 Jos pystyt ajamaan koodia, tarkista jo nyt, mitkä työkalut ovat käytettävissä, ja aloita tarvittavat asennukset sillä aikaa, kun käyttäjä vastaa. Asentaminen ei ole tiedoston käsittelyä.
 
-Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --tarkista`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Valinnainen inaSpeechSegmenter (`pip install inaSpeechSegmenter`) erottelee puheen ja musiikin tarkemmin, mutta se vaatii TensorFlow’n ja lataa mallinsa verkosta; jos asennus ei onnistu muutamassa minuutissa, jatka ilman.
+Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --riippuvuudet`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Valinnainen inaSpeechSegmenter (`pip install inaSpeechSegmenter`) erottelee puheen ja musiikin tarkemmin, mutta se vaatii TensorFlow’n ja lataa mallinsa verkosta; jos asennus ei onnistu muutamassa minuutissa, jatka ilman.
 
 ## Vaihe 2: läpivalaisu
 
 Aloita, kun sinulla on äänitiedosto ja käyttäjä on joko kirjoittanut ”läpivalaise” tai vastannut kysymyksiin. Jos tiedosto puuttuu, pyydä se yhdellä lyhyellä viestillä ja kerro, että ”läpivalaise” käynnistää työn.
 
-Aja ensin `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Skripti käsittelee tiedoston kymmenen minuutin paloissa ja tulostaa tiiviin ehdokaslistan: jokainen mahdollinen raja todisteineen (tauko, uutuus eli sointivärin, kroman ja tason muutos, puhe, yli minuutin soittamaton jakso) sekä kesto, tempo, sävelluokat, taso ja laji rajan molemmin puolin. Tee päätökset tulosteesta. Aja `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` (valinnaisesti `--merkit 12:41,13:05`) vain kohdista, jotka jäävät epäselviksi, ja katso kuva: siinä on mel-spektrogrammi ja kolmen kaistan tasokäyrä, ja aika-akselilla on merkki sekunnin tai kahden välein. Jos skripti ei toimi, mittaa samat asiat itse.
+Tee läpivalaisu tässä järjestyksessä:
+
+1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Älä tee omaa analyysikoodia, ellei skripti kaadu.
+2. Hyväksy RAJA- ja SAUMA-ehdokkaat kappaleiden aluiksi. Hylkää BREAK, ellei kappalemäärä vaadi muuta; silloin merkitse raja epävarmaksi. SPIIKKI on oma rivinsä (pelkkä alkuaika). HÄNTÄ ja HEIKKO eivät ole kappaleiden alkuja; HÄNTÄ voi kuitenkin olla encore-aplodien alku ([Vielä!]). Tulosteen alussa on luokkien selitykset.
+3. Jos hyväksyttyjä on eri määrä kuin käyttäjä kertoi, aja `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` enintään kymmenestä epäselvimmästä kohdasta ja katso kuvat (mel-spektrogrammi ja kolmen kaistan tasokäyrä). Muita kuvia ei tehdä.
+4. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.
+5. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3`. Vastaa vasta, kun tulos on OK. Jos se sanoo määrän poikkeavan, älä lisää tai poista rajoja pelkän määrän takia, vaan kerro poikkeama vastauksessa.
+6. Lopeta tähän. Älä aja uusia analyysikierroksia saman kohdan tarkentamiseksi.
 
 ## Tärkeintä: mittaa, älä arvaa
 

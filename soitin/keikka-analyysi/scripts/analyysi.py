@@ -3,13 +3,19 @@
 """Keikkatallenteen rajaehdokkaat KEICK•WALK-settilistaa varten.
 
 Käyttö:
-  python3 analyysi.py --tarkista
+  python3 analyysi.py --riippuvuudet
   python3 analyysi.py keikka.mp3 [--setit 11,10] [--encoret 3] [--json ehdokkaat.json] [--kaikki]
+  python3 analyysi.py --tarkista lista.txt [--setit 11,10] [--encoret 3]
 
 Tulostaa tiiviin ehdokaslistan eikä raakadataa: yksi rivi jokaista mahdollista
 kappaleen tai jakson rajaa kohti todisteineen (tauko, sointivärin ja sävellajin
-muutos, puhe) sekä tempo ja sävelluokat rajan molemmin puolin. Päätökset tekee
-lukija; kappalemäärä on tarkistus, ei rajan peruste.
+muutos, puhe), tempo ja sävelluokat rajan molemmin puolin sekä luokka (RAJA,
+SAUMA, BREAK, SPIIKKI, HÄNTÄ tai HEIKKO), jotta kevyempikin malli voi tehdä
+päätökset suoraan tulosteesta. Kappalemäärä on tarkistus, ei rajan peruste.
+
+--tarkista lukee vastauksen koodilohkon (settilistan) tiedostosta ja tarkistaa
+sen muodon (Keikkaloihtimen parseList-muoto, saatteen vastausmuoto), ajojärjestyksen
+ja kappalemäärät. Muotovirheet pitää korjata; määräpoikkeama kerrotaan vastauksessa.
 
 Pakolliset: ffmpeg (tai pip-paketti imageio-ffmpeg), numpy ja scipy.
 Valinnainen: inaSpeechSegmenter (puheen ja musiikin erottelu). Ilman sitä
@@ -67,7 +73,7 @@ def ina_saatavilla():
         return False
 
 
-def tarkista():
+def riippuvuudet():
     rivit, puuttuu = [], []
     ff = ffmpeg_polku()
     rivit.append("ffmpeg: " + (ff or "PUUTTUU (asenna ffmpeg tai: pip install imageio-ffmpeg)"))
@@ -388,7 +394,7 @@ def uutuuskayra(p, w):
     return out
 
 
-def ehdokkaat(p, lajit):
+def ehdokkaat(p, lajit, karkea):
     import numpy as np
     from scipy.ndimage import median_filter
     from scipy.signal import find_peaks
@@ -407,7 +413,17 @@ def ehdokkaat(p, lajit):
         a, b = max(0, k - 8), min(len(hie), k + 9)
         kk = a + int(np.argmax(hie[a:b]))
         raaka.append(dict(t=kk * KEHYS, tyyppi="uutuus", z=float(nov[k])))
-    # Puheen alut ja loput sekä pitkät soittamattomat jaksot.
+    # Puheen alut ja loput sekä pitkät soittamattomat jaksot. Karkea arvio on 5 s:n lohkoina, joten
+    # sen rajat siirretään lähimpään enintään 5 s:n päässä olevaan tauon loppuun tai uutuushuippuun.
+    tarkat = sorted(r["t"] for r in raaka)
+
+    def napsauta(t):
+        if not karkea or not tarkat:
+            return t
+        u = min(tarkat, key=lambda v: abs(v - t))
+        return u if abs(u - t) <= 5.0 else t
+
+    lajit = [(napsauta(s), napsauta(e), l) for s, e, l in lajit]
     pitkat = []
     for s, e, l in lajit:
         if l == "musiikki":
@@ -469,13 +485,16 @@ def osion_kuvaus(p, lajit, a, b, kesto_s, puoli):
     else:
         a2, b2 = a + 1, min(b, a + 60)
     osa = ["%s" % kesto(pituus)]
+    tieto = dict(pulssi=None, bpm=None, pcs=None, laji=None)
     tp = tempo(p["isku"], a2, b2) if b2 - a2 >= 4 else None
     if tp is None:
         osa.append("tempo –")
     elif tp[1] < 0.2:
         osa.append("ei pulssia")
+        tieto["pulssi"] = False
     else:
         osa.append("%d bpm (%.2f)" % (round(tp[0]), tp[1]))
+        tieto["pulssi"], tieto["bpm"] = True, tp[0]
     k0, k1 = int(a2 / KEHYS), max(int(a2 / KEHYS) + 1, int(b2 / KEHYS))
     taso = p["taso"][k0:k1]
     kr = p["kroma"][k0:k1]
@@ -485,6 +504,7 @@ def osion_kuvaus(p, lajit, a, b, kesto_s, puoli):
         if v.sum() > 0:
             j = np.argsort(-v)[:4]
             osa.append(" ".join(NIMET[i] for i in j))
+            tieto["pcs"] = [int(i) for i in j]
         else:
             osa.append("hiljaa")
         osa.append("%.0f dB" % float(np.median(taso)))
@@ -498,7 +518,60 @@ def osion_kuvaus(p, lajit, a, b, kesto_s, puoli):
         tot = sum(os_.values())
         l, d = max(os_.items(), key=lambda kv: kv[1])
         osa.append(l if d / tot > 0.9 else "%s %d %%" % (l, round(100 * d / tot)))
-    return ", ".join(osa)
+        tieto["laji"] = l
+    return ", ".join(osa), tieto
+
+
+# ---- Luokat ---------------------------------------------------------------
+
+LUOKAT = [
+    ("RAJA", "tauko tai puhe/aplodit ennen, ja tempo tai sävelluokat vaihtuvat: kappale alkaa"),
+    ("SAUMA", "ei taukoa, musiikkia molemmin puolin, tempo tai sävelluokat vaihtuvat: kappale vaihtuu ilman taukoa"),
+    ("BREAK", "tauko, mutta tempo ja sävelluokat samat: todennäköisesti saman kappaleen sisällä"),
+    ("SPIIKKI", "yli 60 s:n soittamaton jakso alkaa (puhe, hiljaisuus tai kohina): oma rivinsä"),
+    ("HÄNTÄ", "rajan jälkeen ei musiikkia (aplodit, puhe tai hiljaisuus alle 60 s): kuuluu edelliseen kappaleeseen, "
+              "paitsi encore-aplodien alku ([Vielä!])"),
+    ("HEIKKO", "ei taukoa eikä tempon tai sävelluokkien vaihtoa: todennäköisesti saman kappaleen sisällä"),
+]
+
+
+def sama_tempo(a, b):
+    """Ero alle 6 % tai puolikas- tai tuplatempo."""
+    r = a / b
+    return any(abs(r / k - 1) < 0.06 for k in (1.0, 0.5, 2.0))
+
+
+def samat_savelluokat(p, q):
+    """Neljästä vahvimmasta vähintään kolme yhteisiä."""
+    return len(set(p) & set(q)) >= 3
+
+
+def luokittele(c, ennen, jalk):
+    tyypit = [r["tyyppi"] for r in c["osat"]]
+    if "soittamaton alkaa" in tyypit:
+        return "SPIIKKI"
+    if jalk["laji"] not in (None, "musiikki"):
+        return "HÄNTÄ"
+    if ennen["pulssi"] is not None and jalk["pulssi"] is not None and ennen["pulssi"] != jalk["pulssi"]:
+        tempo_v = True
+    elif ennen["pulssi"] and jalk["pulssi"]:
+        tempo_v = not sama_tempo(ennen["bpm"], jalk["bpm"])
+    else:
+        tempo_v = False
+    if ennen["pcs"] and jalk["pcs"]:
+        savel_v = not samat_savelluokat(ennen["pcs"], jalk["pcs"])
+    else:
+        savel_v = bool(ennen["pcs"]) != bool(jalk["pcs"])
+    vaihtuu = tempo_v or savel_v
+    tauko = c["syvyys"] > 0
+    puhe = any("puhe" in t or "soittamaton" in t for t in tyypit) or ennen["laji"] not in (None, "musiikki")
+    if vaihtuu and (tauko or puhe):
+        return "RAJA"
+    if vaihtuu:
+        return "SAUMA"
+    if tauko:
+        return "BREAK"
+    return "HEIKKO"
 
 
 def kuvaa(c):
@@ -525,22 +598,137 @@ def kuvaa(c):
     return "; ".join(out)
 
 
+# ---- Vastauksen tarkistus ------------------------------------------------
+
+def tarkista_lista(polku, setit, encoret):
+    """Vastauksen settilista: muoto (Keikkaloihtimen parseList ja saatteen vastausmuoto),
+    kasvavat ajat, juokseva numerointi, väliaika ja encoret sekä määrät. Muotovirhe on VIRHE;
+    kerrotusta poikkeava määrä ei ole, koska kappalemäärää ei saa pakottaa täyteen."""
+    import re
+    AIKA = r"(\d+:)?(\d{1,2}):(\d{2})"
+    re_kpl = re.compile(r"^(\d+)\.\s+" + AIKA + r"(?:\s+(\S.*))?$")
+    re_ei = re.compile(r"^" + AIKA + r"(?:\s+\[([^\[\]]+)\])?$")
+    re_set = re.compile(r"^[-–—](?:\s*[-–—])*(?:\s*(\(.+\)))?$")
+    re_nimi = re.compile(r"^\(.+\)$")
+    try:
+        rivit = open(polku, encoding="utf-8").read().splitlines()
+    except OSError as e:
+        print("VIRHE: tiedostoa ei voi lukea (%s)." % e)
+        return 1
+    virheet, setti_t, edellinen, nro = [], [dict(nimi=None, rivit=[])], -1.0, 0
+
+    def sek(m, n, o):
+        """Aika ryhmistä o+1 … o+3 (kappalerivillä ensimmäinen ryhmä on numero)."""
+        g1, mi, se = m.group(o + 1), int(m.group(o + 2)), int(m.group(o + 3))
+        h = int(g1[:-1]) if g1 else 0
+        if se > 59 or (g1 and mi > 59):
+            virheet.append("Rivi %d: aika ei kelpaa." % n)
+        return h * 3600 + mi * 60 + se
+
+    uusi = True
+    for n, raaka in enumerate(rivit, 1):
+        r = raaka.strip()
+        if not r or r.startswith("```") or r.startswith("~~~"):
+            continue
+        m = re_set.match(r)
+        if m:
+            if setti_t[-1]["rivit"] or setti_t[-1]["nimi"]:
+                setti_t.append(dict(nimi=None, rivit=[]))
+            setti_t[-1]["nimi"] = m.group(1)
+            uusi = True
+            continue
+        if re_nimi.match(r):
+            if not uusi or setti_t[-1]["nimi"]:
+                virheet.append("Rivi %d: setin nimi %s kuuluu heti ---‑rivin jälkeen." % (n, r))
+            setti_t[-1]["nimi"] = r
+            continue
+        m = re_kpl.match(r)
+        if m:
+            t = sek(m, n, 1)
+            nro += 1
+            if int(m.group(1)) != nro:
+                virheet.append("Rivi %d: numero %s, odotettiin %d (juokseva numerointi)." % (n, m.group(1), nro))
+            setti_t[-1]["rivit"].append(("kpl", t, n, ""))
+        else:
+            m = re_ei.match(r)
+            if not m:
+                virheet.append("Rivi %d: \"%s\" ei ole vastausmuodon mukainen (esim. \"3. 12:05\", \"12:05\", "
+                               "\"12:05 [VÄLIAIKA]\", \"---\", \"(+)\"; ajat kokonaisina sekunteina)." % (n, r))
+                continue
+            t = sek(m, n, 0)
+            setti_t[-1]["rivit"].append(("ei", t, n, (m.group(4) or "").strip()))
+        if t <= edellinen:
+            virheet.append("Rivi %d: alkuaika ei ole edellistä myöhäisempi." % n)
+        edellinen = t
+        uusi = False
+    setti_t = [s for s in setti_t if s["rivit"]]
+    if not setti_t and not virheet:
+        virheet.append("Listassa ei ole yhtään riviä.")
+
+    valiaika = lambda nimi: nimi.lower() == "väliaika"  # noqa: E731
+    tavalliset, encoreja, tiedot = [], None, []
+    for i, s in enumerate(setti_t):
+        nimet = [x[3] for x in s["rivit"] if x[0] == "ei"]
+        if len(s["rivit"]) == 1 and s["rivit"][0][0] == "ei" and valiaika(s["rivit"][0][3]):
+            if i == 0 or i == len(setti_t) - 1:
+                virheet.append("Rivi %d: väliaika on settien välissä, ei listan alussa tai lopussa." % s["rivit"][0][2])
+            tiedot.append("väliaika")
+            continue
+        if any(valiaika(x) for x in nimet):
+            virheet.append("Rivi %d: [VÄLIAIKA] on oma settinsä: --- ennen ja jälkeen." %
+                           [x[2] for x in s["rivit"] if x[0] == "ei" and valiaika(x[3])][0])
+        kpl = sum(1 for x in s["rivit"] if x[0] == "kpl")
+        if s["nimi"] == "(+)":
+            if encoreja is not None:
+                virheet.append("Encoreja on kahdessa setissä; kaikki encoret kuuluvat yhteen (+)-settiin.")
+            encoreja = (encoreja or 0) + kpl
+            eka = s["rivit"][0]
+            if not (eka[0] == "ei" and eka[3] == "Vielä!"):
+                virheet.append("Rivi %d: encoresetin ensimmäinen rivi on aplodien alku: aika ja [Vielä!]." % eka[2])
+            tiedot.append("encoret %d" % kpl)
+        else:
+            tavalliset.append(kpl)
+            tiedot.append("%d kpl" % kpl)
+    if virheet:
+        print("VIRHEET (korjaa ja tarkista uudelleen):")
+        for v in virheet:
+            print("- " + v)
+        return 1
+    poikk = []
+    if setit is not None and tavalliset != setit:
+        poikk.append("kappaleet seteittäin %s, kerrottu %s" % (" + ".join(map(str, tavalliset)) or "0",
+                                                              " + ".join(map(str, setit))))
+    if encoret is not None and (encoreja or 0) != encoret:
+        poikk.append("encorebiisejä %d, kerrottu %d" % (encoreja or 0, encoret))
+    print("OK: muoto kunnossa (%s)." % ", ".join(tiedot))
+    if poikk:
+        print("MÄÄRÄ POIKKEAA: " + "; ".join(poikk) + ". Älä lisää tai poista rajoja pelkän määrän takia; "
+              "jos jokaisella rajalla on todiste, vastaa näin ja kerro poikkeama lohkon jälkeen.")
+    elif setit is not None or encoret is not None:
+        print("Määrät täsmäävät kerrottuihin.")
+    return 0
+
+
 # ---- Pääohjelma -----------------------------------------------------------
 
 def main():
     ap = argparse.ArgumentParser(description="Keikkatallenteen rajaehdokkaat KEICK•WALK-settilistaa varten.")
     ap.add_argument("tiedosto", nargs="?")
-    ap.add_argument("--tarkista", action="store_true", help="tarkista riippuvuudet ja lopeta")
+    ap.add_argument("--riippuvuudet", action="store_true", help="tarkista riippuvuudet ja lopeta")
+    ap.add_argument("--tarkista", metavar="SETTILISTA", help="tarkista vastauksen settilista tiedostosta ja lopeta")
     ap.add_argument("--setit", help="kappalemäärät seteittäin ilman encoreja, esim. 11,10")
     ap.add_argument("--encoret", type=int, help="encorebiisien määrä yhteensä")
     ap.add_argument("--json", help="kirjoita ehdokkaat myös tähän JSON-tiedostoon")
     ap.add_argument("--kaikki", action="store_true", help="älä karsi heikoimpia ehdokkaita")
     ap.add_argument("--ilman-ina", action="store_true", help="älä käytä inaSpeechSegmenteriä")
     args = ap.parse_args()
+    setit = [int(v) for v in (args.setit or "").replace(" ", "").split(",") if v] if args.setit else None
+    if args.riippuvuudet:
+        sys.exit(riippuvuudet())
     if args.tarkista:
-        sys.exit(tarkista())
+        sys.exit(tarkista_lista(args.tarkista, setit, args.encoret))
     if not args.tiedosto:
-        ap.error("anna äänitiedosto tai --tarkista")
+        ap.error("anna äänitiedosto, --riippuvuudet tai --tarkista")
     ff = ffmpeg_polku()
     if not ff:
         sys.exit("ffmpeg puuttuu. Asenna se tai: pip install imageio-ffmpeg")
@@ -571,16 +759,19 @@ def main():
         try:
             lajit = lajit_ina(args.tiedosto, kesto_s, ff, ilmoita)
             keinot.append("puhe ja musiikki: inaSpeechSegmenter")
+            karkea = False
         except Exception as e:
             sys.stderr.write("inaSpeechSegmenter epäonnistui (%s); käytetään arviota.\n" % e)
             lajit = lajit_arvio(p)
             keinot.append("puhe ja musiikki: karkea arvio (inaSpeechSegmenter epäonnistui)")
+            karkea = True
     else:
         lajit = lajit_arvio(p)
         keinot.append("puhe ja musiikki: karkea arvio (inaSpeechSegmenter ei käytössä)")
+        karkea = True
     lajit = yhdista_lajit(lajit)
 
-    ehd, med = ehdokkaat(p, lajit)
+    ehd, med = ehdokkaat(p, lajit, karkea)
     karsittu = 0
     if not args.kaikki and len(ehd) > MAX_RIVIT:
         pidetaan = sorted(sorted(ehd, key=lambda c: -c["voima"])[:MAX_RIVIT], key=lambda c: c["t"])
@@ -590,15 +781,20 @@ def main():
     rajat = [0.0] + [c["t"] for c in ehd] + [kesto_s]
     rivit = []
     for i, c in enumerate(ehd):
-        ennen = osion_kuvaus(p, lajit, rajat[i], c["t"], kesto_s, "ennen")
-        jalk = osion_kuvaus(p, lajit, c["t"], rajat[i + 2], kesto_s, "jälkeen")
-        c["ennen"], c["jalkeen"] = ennen, jalk
-        rivit.append("%s  %s | ennen: %s | jälkeen: %s" % (aika(c["t"]), kuvaa(c), ennen, jalk))
+        ennen, ei = osion_kuvaus(p, lajit, rajat[i], c["t"], kesto_s, "ennen")
+        jalk, ji = osion_kuvaus(p, lajit, c["t"], rajat[i + 2], kesto_s, "jälkeen")
+        c["ennen"], c["jalkeen"], c["luokka"] = ennen, jalk, luokittele(c, ei, ji)
+        rivit.append("%s  %-7s %s | ennen: %s | jälkeen: %s" % (aika(c["t"]), c["luokka"], kuvaa(c), ennen, jalk))
 
     print("# keikka-analyysi: %s, kesto %s" % (os.path.basename(args.tiedosto), kesto(kesto_s)))
     print("# Rivi = mahdollinen raja (tauon loppu tai muutoksen kohta). Kappale alkaa noin sekunti ennen")
     print("# ensimmäistä ääntä. Tempo: bpm (pulssin selkeys 0–1). Sävelluokat vahvimmasta alkaen.")
     print("# Ennen/jälkeen mitataan enintään minuutin pätkästä rajan vierestä; kesto on koko väli.")
+    print("# Luokat:")
+    for nimi, selitys in LUOKAT:
+        print("#   %-7s %s" % (nimi, selitys))
+    print("# Tempo sama = ero alle 6 % tai puolikas/tuplatempo. Sävelluokat samat = neljästä vahvimmasta")
+    print("# vähintään kolme yhteisiä.")
     print()
     print("\n".join(rivit) if rivit else "(ei ehdokkaita)")
     print()
@@ -611,12 +807,15 @@ def main():
     vahvat = sum(1 for c in ehd if c["syvyys"] >= 12 or c["z"] >= 4)
     print("Ehdokkaita %d (taukoja %d, uutuushuippuja %d); vahvoja (tauko ≥ 12 dB tai uutuus ≥ 4) %d.%s" % (
         len(ehd), tauot, uud, vahvat, " Heikoimmat %d karsittu (--kaikki näyttää ne)." % karsittu if karsittu else ""))
+    maarat = dict((nimi, sum(1 for c in ehd if c["luokka"] == nimi)) for nimi, _ in LUOKAT)
+    print("Luokittain: " + ", ".join("%s %d" % (k, v) for k, v in maarat.items()) +
+          ". Kappaleiden alkuja (RAJA + SAUMA) %d." % (maarat["RAJA"] + maarat["SAUMA"]))
     soit = [(s, e, l) for s, e, l in lajit if l != "musiikki" and e - s >= SOITTAMATON_S]
     if soit:
         print("Yli minuutin soittamattomat jaksot: " + ", ".join(
             "%s–%s %s" % (aika(s), aika(e), l) for s, e, l in soit) + ".")
-    if args.setit or args.encoret is not None:
-        setit = [int(v) for v in (args.setit or "").replace(" ", "").split(",") if v]
+    if setit or args.encoret is not None:
+        setit = setit or []
         yht = sum(setit) + (args.encoret or 0)
         print("Kerrottu: %s%s → %d kappaleen alkua. Kappalemäärä on tarkistus, ei rajan peruste: jokaiselle "
               "rajalle pitää löytyä oma todiste." % (
@@ -626,7 +825,7 @@ def main():
     if args.json:
         with open(args.json, "w", encoding="utf-8") as fh:
             json.dump(dict(kesto=kesto_s, lajit=lajit, ehdokkaat=[
-                dict(t=c["t"], syvyys=c["syvyys"], z=c["z"], tyypit=[r["tyyppi"] for r in c["osat"]],
+                dict(t=c["t"], luokka=c["luokka"], syvyys=c["syvyys"], z=c["z"], tyypit=[r["tyyppi"] for r in c["osat"]],
                      tauot=[r["tauko"] for r in c["osat"] if r["tyyppi"] == "tauko"],
                      ennen=c["ennen"], jalkeen=c["jalkeen"]) for c in ehd]), fh, ensure_ascii=False, indent=1)
 
