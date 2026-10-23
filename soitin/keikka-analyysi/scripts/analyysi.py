@@ -651,8 +651,9 @@ def vaimenee(p, t):
 
 
 def nauhan_merkit(tieto, musa_db):
-    """Osion taso vähintään NAUHA_DB alle musiikin mediaanin ja pulssi hyvin säännöllinen."""
-    return (tieto["laji"] == "musiikki" and tieto["db"] is not None and tieto["db"] <= musa_db - NAUHA_DB and
+    """Osion taso vähintään NAUHA_DB alle musiikin mediaanin ja pulssi hyvin säännöllinen. Lajia ei katsota:
+    ina voi luokitella hiljaisen nauhan kohinaksi."""
+    return (bool(tieto["pulssi"]) and tieto["db"] is not None and tieto["db"] <= musa_db - NAUHA_DB and
             tieto["selk"] >= NAUHA_SELKEYS)
 
 

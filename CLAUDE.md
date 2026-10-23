@@ -312,9 +312,17 @@ samassa tempossa 12 dB hiljaisempi tasapulssinen nauha (SAUMA ja *nauhan tunnusm
 skripti luokitteli modulaation ja nauhan SAUMAksi (tarkistettu). OK 23.10.2026, 10 rajaa.
 Mitattu: 90 min:n mp3 kahdella ytimellä 13,4 s ja enintään 420 Mt muistia; ajon C muutosten jälkeen (synteettinen
 toistettuna 89 min:n 96 kbps mp3:ksi, `--yleiskuva`, neljä ydintä) 17,5 s, josta purku 12 s, ja enintään 426 Mt.
-ina-haara ajettu vain tynkämoduulilla (paloittelu ja lajien nimet; ajat ovat inan lähdekoodin mukaan absoluuttisia).
-Ajettu Clauden asetuksiin ladattuna kerran oikealla keikalla Sonnetilla (ks. yllä); ajamatta Opuksella ja oikealla
-inaSpeechSegmenterilla. Oppaan `#kielimalli`-osion lopussa on maininta paketista ja HUOM, millä se on kokeiltu.
+ina-haara ajettu 23.10.2026 oikealla inaSpeechSegmenter 0.8.0:lla kevyellä asennuksella `pip install --no-deps
+inaSpeechSegmenter && pip install tensorflow-cpu pandas scikit-image soundfile pytextgrid` (inan riippuvuudet
+`tensorflow[and-cuda]` ja `onnxruntime-gpu` ovat turhia: `smn`-moottori tarvitsee vain kerasin, onnx on vain
+VFS-mallille). Asennus täällä hitaalla latauksella 756 s, ympäristö 1,8 Gt; malli haetaan GitHubista ensimmäisellä
+ajolla. Synteettisellä tallenteella ina pilkkoi puheen kuten ajossa C (puhe/hiljaa/kohina vuorotellen): vanha skripti
+antoi SPIIKKI 0 ja yhdeksän HÄNTÄ-riviä puheen sisällä, uusi SPIIKIn kohtaan 3:10 (tarkistettu). ina luokittelee
+synteettisen nauhan kohinaksi (rivi HÄNTÄ), siksi tunnusmerkit eivät katso lajia ja testi hyväksyy kohdassa 500 SAUMA
+tai HÄNTÄ; testi OK sekä inalla että ilman. 89 min:n synteettinen mp3 inalla: 191 s ja enintään 2,15 Gt muistia
+(TensorFlow), kaikki 10 spiikkiä SPIIKKInä.
+Ajettu Clauden asetuksiin ladattuna oikealla keikalla Sonnetilla ja Opuksella (ks. yllä); ajon C jälkeistä versiota ei
+ole ajettu oikealla keikalla. Oppaan `#kielimalli`-osion lopussa on maininta paketista ja HUOM, millä se on kokeiltu.
 Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 

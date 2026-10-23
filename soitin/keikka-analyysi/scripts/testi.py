@@ -54,7 +54,9 @@ OHJELMA = [
 # Tunnetut rajat ja niiden luokat: kappaleiden alut, puheen alku, saumaton vaihto, aplodien alku
 # kappaleen perään sekä tauot kappaleiden välissä (95–97 s) ja kappaleen B sisällä (145–147,5 s).
 RAJAT = {5: "RAJA", 105: "RAJA", 147.5: "BREAK", 190: "SPIIKKI", 260: "RAJA", 330: "SAUMA", 400: "HÄNTÄ",
-         412: "RAJA", 457: "MODULAATIO?", 500: "SAUMA"}
+         412: "RAJA", 457: "MODULAATIO?", 500: ("SAUMA", "HÄNTÄ")}
+# inaSpeechSegmenter luokittelee synteettisen nauhan kohinaksi (mitattu 23.10.2026), jolloin rivi on HÄNTÄ;
+# karkealla arviolla se on musiikkia ja rivi SAUMA. Tunnusmerkit pitää olla kummassakin.
 NAUHA = 500   # tällä rivillä pitää olla huomautus nauhan tunnusmerkeistä, muilla ei
 TAUKO = (95, 97)
 TEMPOT = {5: 120, 105: 92, 260: 140, 330: 108, 412: 100}
@@ -220,7 +222,7 @@ def main():
         c = min(d["ehdokkaat"], key=lambda c: abs(c["t"] - r)) if ajat else None
         if c is None or abs(c["t"] - r) > TOLERANSSI:
             poikk.append("raja %g s: lähin ehdokas %s" % (r, "puuttuu" if c is None else "%.1f s" % c["t"]))
-        elif c["luokka"] != luokka:
+        elif c["luokka"] not in (luokka if isinstance(luokka, tuple) else (luokka,)):
             poikk.append("raja %g s: luokka %s, odotettiin %s" % (r, c["luokka"], luokka))
     for c in d["ehdokkaat"]:
         merkit = any("nauhan tunnusmerkit" in h for h in c["huom"])
@@ -230,7 +232,8 @@ def main():
     if not any(abs(a - TAUKO[0]) <= TOLERANSSI and abs(b - TAUKO[1]) <= TOLERANSSI for a, b in tauot):
         poikk.append("tauko %d–%d s puuttuu (tauot: %s)" % (TAUKO + (", ".join("%.1f–%.1f" % v for v in tauot),)))
     ylim = [c for c in d["ehdokkaat"] if min(abs(c["t"] - r) for r in list(RAJAT) + [TAUKO[1]]) > 3]
-    print("Tunnetut rajat: " + ", ".join("%g s %s" % kv for kv in RAJAT.items()))
+    print("Tunnetut rajat: " + ", ".join("%g s %s" % (r, "/".join(l) if isinstance(l, tuple) else l)
+                                         for r, l in RAJAT.items()))
     print("Ehdokkaat:      " + ", ".join("%.1f s %s" % (c["t"], c["luokka"]) for c in d["ehdokkaat"]))
     for r, bpm in TEMPOT.items():
         c = min(d["ehdokkaat"], key=lambda c: abs(c["t"] - r))
