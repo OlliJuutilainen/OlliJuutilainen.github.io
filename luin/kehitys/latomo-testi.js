@@ -257,6 +257,24 @@ palvelin.listen(0, async () => {
   const e2 = await ehdotukset();
   tulos('tietorivit ja alaviitteet eivät ole rivitettyä tekstiä', !e2.some(x => /tyhjiä rivejä/.test(x)), e2.join(' / '));
 
+  // 11. Otsikkolohko kentistä: lyhyt #-otsikko ja tietorivit, joissa ISBN ja lisenssi (pdf:stä muunnettu kirja).
+  const KIRJA = '# Müller, *Kantianism for Animals*\n\nNico Dario Müller, *Kantianism for Animals: A Radical Kantian Animal Ethic*.\n' +
+    'Cham: Palgrave Macmillan 2022. ISBN 978-3-031-01929-6.\nDOI 10.1007/978-3-031-01930-2. Lisenssi CC BY 4.0.\n\n' +
+    'Leipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.\n';
+  await syota(KIRJA);
+  tulos('otsikkolohkon ehdotus', (await ehdotukset()).some(x => /Tekstin alku ei vastaa kenttiä/.test(x)));
+  await p.click('.ehdotus button:has-text("…ja säilytä tekstin lisätiedot")');
+  await p.waitForTimeout(400);
+  tulos('alku kentistä lisätiedoin', (await p.inputValue('#md')).startsWith('# Kantianism for Animals\n\n*A Radical Kantian Animal Ethic*\n\nNico Dario Müller\\\n' +
+    'Cham: Palgrave Macmillan 2022\\\nDOI 10.1007/978-3-031-01930-2\\\nISBN 978-3-031-01929-6. Lisenssi CC BY 4.0.\n\nLeipätekstiä'), (await p.inputValue('#md')).slice(0, 200));
+  tulos('ehdotus poistuu, etukenttä tyhjä', !(await ehdotukset()).some(x => /Tekstin alku/.test(x)) && !/^---/.test((await T()).md), (await T()).md.slice(0, 120));
+  await syota(KIRJA);
+  await p.click('.ehdotus button:has-text("Kirjoita alku kentistä")');
+  await p.waitForTimeout(400);
+  tulos('alku pelkistä kentistä', /^# Kantianism for Animals\n\n\*A Radical Kantian Animal Ethic\*\n\nNico Dario Müller\\\nCham: Palgrave Macmillan 2022\\\nDOI 10\.1007\/978-3-031-01930-2\n\nLeipä/.test(await p.inputValue('#md')));
+  await syota(KANT);
+  tulos('tutkielmalle ei otsikkolohkon ehdotusta', !(await ehdotukset()).some(x => /Tekstin alku/.test(x)));
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
