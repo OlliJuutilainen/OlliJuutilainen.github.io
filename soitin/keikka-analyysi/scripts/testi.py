@@ -2,14 +2,19 @@
 # -*- coding: utf-8 -*-
 """analyysi.py:n testi ilman oikeaa keikkaa.
 
-Tekee lähes seitsemän minuutin synteettisen tallenteen, jonka rajat tunnetaan:
-neljä "kappaletta" (eri tempo, sävellaji ja sointi, rumpupulssi), niiden välissä
+Tekee lähes yhdeksän minuutin synteettisen tallenteen, jonka rajat tunnetaan:
+viisi "kappaletta" (eri tempo, sävellaji ja sointi, rumpupulssi), niiden välissä
 hiljaisuus ja kohinajakso ("aplodit") sekä 70 s:n puhetta jäljittelevä jakso
 ilman pulssia. Toisen kappaleen keskellä on tauko (BREAK), kolmas kappale alkaa
 suoraan puheen perään ja neljäs suoraan kolmannen perään ilman taukoa (SAUMA).
+Viides kappale modulee kesken kaiken kokonaisaskeleen ylöspäin samassa tempossa
+ja iskun vaiheessa (MODULAATIO?, ei kappaleen alku), ja sen perään alkaa samassa
+tempossa 12 dB hiljaisempi tasapulssinen nauha (SAUMA, jonka rivillä on nauhan
+tunnusmerkit; nauhalle ei ole omaa luokkaa).
 Ajaa analyysi.py:n ja tarkistaa, että jokaiselle tunnetulle rajalle löytyy
 ehdokas ±1,5 s:n päästä ja että sen luokka on oikea. Tarkistaa lisäksi
---tarkista-valinnan muutamalla valmiilla settilistalla. Tulostaa OK tai poikkeamat.
+--tarkista-valinnan muutamalla valmiilla settilistalla, myös --ehdokkaat-vertailun.
+Tulostaa OK tai poikkeamat.
 
 Käyttö: python3 testi.py [--pida kansio]   (--pida jättää tallenteen ja tulosteen talteen)
 """
@@ -39,12 +44,20 @@ OHJELMA = [
     (260, 330, "biisi", dict(bpm=140, juuri=92.5, soinnut=[0, 4, 7, 11], kirkas=False, siemen=3)),
     (330, 400, "biisi", dict(bpm=108, juuri=82.41, soinnut=[0, 3, 7], kirkas=True, siemen=4)),
     (400, 410, "aplodit", None),
+    (412, 457, "biisi", dict(bpm=100, juuri=130.81, soinnut=[0, 4, 7], kirkas=False, siemen=5)),
+    # Modulaatio: sama tempo, isku jatkuu (45 s = 75 iskua), sävellaji C → D.
+    (457, 500, "biisi", dict(bpm=100, juuri=146.83, soinnut=[0, 4, 7], kirkas=False, siemen=6)),
+    # Nauha samassa tempossa, 12 dB hiljaisempi, feidataan pois 525–530 s.
+    (500, 530, "nauha", dict(bpm=100, juuri=110.0, soinnut=[0, 3, 7], kirkas=True, siemen=7)),
+    (530, 535, "hiljaa", None),
 ]
 # Tunnetut rajat ja niiden luokat: kappaleiden alut, puheen alku, saumaton vaihto, aplodien alku
 # kappaleen perään sekä tauot kappaleiden välissä (95–97 s) ja kappaleen B sisällä (145–147,5 s).
-RAJAT = {5: "RAJA", 105: "RAJA", 147.5: "BREAK", 190: "SPIIKKI", 260: "RAJA", 330: "SAUMA", 400: "HÄNTÄ"}
+RAJAT = {5: "RAJA", 105: "RAJA", 147.5: "BREAK", 190: "SPIIKKI", 260: "RAJA", 330: "SAUMA", 400: "HÄNTÄ",
+         412: "RAJA", 457: "MODULAATIO?", 500: "SAUMA"}
+NAUHA = 500   # tällä rivillä pitää olla huomautus nauhan tunnusmerkeistä, muilla ei
 TAUKO = (95, 97)
-TEMPOT = {5: 120, 105: 92, 260: 140, 330: 108}
+TEMPOT = {5: 120, 105: 92, 260: 140, 330: 108, 412: 100}
 # Settilistan tarkistus: (lista, lisävalinnat, odotettu alku tulosteessa).
 LISTAT = [
     ("```\n1. 0:41\n2. 5:12\n9:03\n3. 10:15\n---\n47:20 [VÄLIAIKA]\n---\n4. 1:02:30\n---\n(+)\n"
@@ -55,6 +68,16 @@ LISTAT = [
     ("1. 0:41.5\n", [], "VIRHEET"),                                                 # ei kokonaisia sekunteja
     ("1. 0:41\n47:20 [VÄLIAIKA]\n---\n2. 50:00\n", [], "VIRHEET"),                # väliaika ei omana settinään
     ("1. 0:41\n---\n(+)\n2. 5:00\n", [], "VIRHEET"),                             # encore ilman [Vielä!]
+]
+# Vertailu synteettisen tallenteen ehdokkaisiin: (lista, tulosteessa oltava, tulosteessa ei saa olla).
+OIKEA = "1. 0:04\n2. 1:44\n3:10\n3. 4:19\n4. 5:29\n5. 6:51\n8:20 [nauha]\n"
+VERTAILUT = [
+    (OIKEA, ["Jokaisen kappalerivin"], ["TARKISTA"]),
+    # Modulaatio kappaleeksi ja nauha kappaleeksi (ajon C virhe 1 ja sen peilikuva).
+    (OIKEA.replace("8:20 [nauha]", "6. 7:36\n7. 8:20"), ["Rivi 7 (kappale 7:36)", "Rivi 8 (kappale 8:20)"], []),
+    # Kappale ei-biisiksi (ajon C virhe 2: setin 2 avausbiisi DJ:ksi).
+    (OIKEA.replace("3. 4:19\n4. 5:29\n5. 6:51", "4:19 [DJ]\n3. 5:29\n4. 6:51"),
+     ["Rivi 4 (ei-biisi 4:19 [DJ])"], []),
 ]
 
 
@@ -160,6 +183,10 @@ def tee_tallenne(polku):
             y[i0:i1] += aplodit(i1 - i0, a)
         elif laji == "puhe":
             y[i0:i1] += puhe(i1 - i0, a)
+        elif laji == "nauha":
+            n = i1 - i0
+            feidi = np.minimum(1, (n - np.arange(n)) / (5.0 * SR))
+            y[i0:i1] += biisi(n, **asetus) * 10 ** (-12 / 20) * feidi
     y = np.clip(y, -1, 1)
     with wave.open(polku, "wb") as w:
         w.setnchannels(1)
@@ -178,7 +205,7 @@ def main():
     js = os.path.join(kansio, "ehdokkaat.json")
     tee_tallenne(wav)
     skripti = os.path.join(os.path.dirname(os.path.abspath(__file__)), "analyysi.py")
-    tulos = subprocess.run([sys.executable, skripti, wav, "--setit", "3", "--json", js],
+    tulos = subprocess.run([sys.executable, skripti, wav, "--setit", "5", "--json", js, "--yleiskuva"],
                            capture_output=True, text=True)
     if tulos.returncode != 0:
         print(tulos.stdout + tulos.stderr)
@@ -195,6 +222,10 @@ def main():
             poikk.append("raja %g s: lähin ehdokas %s" % (r, "puuttuu" if c is None else "%.1f s" % c["t"]))
         elif c["luokka"] != luokka:
             poikk.append("raja %g s: luokka %s, odotettiin %s" % (r, c["luokka"], luokka))
+    for c in d["ehdokkaat"]:
+        merkit = any("nauhan tunnusmerkit" in h for h in c["huom"])
+        if merkit != (abs(c["t"] - NAUHA) <= TOLERANSSI):
+            poikk.append("%.1f s: nauhan tunnusmerkit %s" % (c["t"], "ylimääräinen" if merkit else "puuttuu"))
     tauot = [tuple(v) for c in d["ehdokkaat"] for v in c["tauot"]]
     if not any(abs(a - TAUKO[0]) <= TOLERANSSI and abs(b - TAUKO[1]) <= TOLERANSSI for a, b in tauot):
         poikk.append("tauko %d–%d s puuttuu (tauot: %s)" % (TAUKO + (", ".join("%.1f–%.1f" % v for v in tauot),)))
@@ -217,7 +248,16 @@ def main():
         t = subprocess.run([sys.executable, skripti, "--tarkista", lp] + valinnat, capture_output=True, text=True)
         if not t.stdout.startswith(odotus):
             poikk.append("--tarkista lista %d: odotettiin %s, tuli: %s" % (i, odotus, t.stdout.strip()[:200]))
-    print("Settilistan tarkistus: %d listaa ajettu." % len(LISTAT))
+    for i, (lista, pitaa, eisaa) in enumerate(VERTAILUT, 1):
+        lp = os.path.join(kansio, "vertailu%d.txt" % i)
+        with open(lp, "w", encoding="utf-8") as fh:
+            fh.write(lista)
+        t = subprocess.run([sys.executable, skripti, "--tarkista", lp, "--ehdokkaat", js], capture_output=True, text=True)
+        puuttuu = [m for m in pitaa if m not in t.stdout] + [m for m in eisaa if m in t.stdout]
+        if not t.stdout.startswith("OK") or puuttuu:
+            poikk.append("--tarkista --ehdokkaat vertailu %d: %s; tuloste: %s" % (
+                i, ", ".join(puuttuu) or "ei OK", t.stdout.strip()[:400]))
+    print("Settilistan tarkistus: %d listaa ja %d vertailua ehdokkaisiin ajettu." % (len(LISTAT), len(VERTAILUT)))
     if pida:
         print("Tallenne ja tuloste: " + kansio)
     if poikk:

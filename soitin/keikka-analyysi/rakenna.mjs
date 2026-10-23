@@ -20,21 +20,21 @@ const KUVAUS = "Etsii keikkatallenteesta kappaleiden alkuajat, setinvaihdot, vä
 const TIEDOSTOT = ["SKILL.md", "scripts/analyysi.py", "scripts/zoom.py", "scripts/testi.py"];
 
 // Taidon omat lisäykset: [rivi, jonka perään lisätään, lisättävät rivit]. Vaiheen 2 järjestys oli
-// pilotin pahvista C (kevyempi malli, esim. Sonnet). Sonnetin ajon (23.10.2026) jälkeen paketti on Opukselle:
-// skriptin tulos on lähtökohta, ei määrän mukaan valittuja rajoja, spiikkirajat tarkistetaan kapein kuvin.
+// pilotin pahvista C (kevyempi malli, esim. Sonnet). Sonnetin ajon (23.10.2026) jälkeen paketti on Opukselle.
+// Opuksen ajon (sama päivä) jälkeen järjestys on ylhäältä alas: rakenne yleiskuvasta ensin, sitten rajat,
+// ja tarkistus vertaa listaa ehdokkaisiin. Säännöt ovat saatteessa; tänne vain skriptien käyttö.
 const LISAYKSET = [
   ["Jos pystyt ajamaan koodia, tarkista jo nyt, mitkä työkalut ovat käytettävissä, ja aloita tarvittavat asennukset sillä aikaa, kun käyttäjä vastaa. Asentaminen ei ole tiedoston käsittelyä.",
-   ["Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --riippuvuudet`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Valinnainen inaSpeechSegmenter (`pip install inaSpeechSegmenter`) erottelee puheen ja musiikin tarkemmin, mutta se vaatii TensorFlow’n ja lataa mallinsa verkosta; jos asennus ei onnistu muutamassa minuutissa, jatka ilman."]],
+   ["Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --riippuvuudet`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Asenna myös inaSpeechSegmenter, joka erottelee puheen ja musiikin tarkemmin, taustalle ja ilman GPU-paketteja: `pip install --no-deps inaSpeechSegmenter && pip install tensorflow-cpu pandas scikit-image soundfile pytextgrid`. Se lataa mallinsa verkosta ensimmäisellä ajolla. Jos asennus ei onnistu muutamassa minuutissa, jatka ilman."]],
   ["Aloita, kun sinulla on äänitiedosto ja käyttäjä on joko kirjoittanut ”läpivalaise” tai vastannut kysymyksiin. Jos tiedosto puuttuu, pyydä se yhdellä lyhyellä viestillä ja kerro, että ”läpivalaise” käynnistää työn.",
    ["Tee läpivalaisu tässä järjestyksessä:",
     "",
-    "1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Sen ehdokkaat ja luokat ovat lähtökohta, eivät päätös: aja omaa lisäkoodia, kun jokin kohta vaatii tarkempaa mittausta.",
-    "2. RAJA ja SAUMA ovat todennäköisiä kappaleiden alkuja, BREAK todennäköisesti saman kappaleen sisäinen tauko. SPIIKKI on oma rivinsä (pelkkä alkuaika). HÄNTÄ ja HEIKKO eivät ole kappaleiden alkuja; HÄNTÄ voi kuitenkin olla encore-aplodien alku ([Vielä!]), joka merkitään aplodien alkuun eikä viimeisen iskun kohdalle. Tulosteen alussa on luokkien selitykset.",
-    "3. Älä ota rajaa mukaan tai jätä pois kappalemäärän takia. Määrän täsmäys ei ole todiste: ylimääräinen ja puuttuva raja kumoavat toisensa. Jos jokin raja on mukana vain määrän vuoksi, sano se vastauksessa.",
-    "4. Ilman inaSpeechSegmenteria skriptin puhearvio on karkea: laulu, kappaleen vaimeneva loppu ja aplodit voivat näkyä puheena. Tarkista siksi jokaisen SPIIKKI-jakson alku ja loppu sekä epäselvät rajat: `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` noin 30–60 sekunnin ikkunalla rajan ympäriltä (usean minuutin kuvasta ei näe yksittäistä rajaa), ja katso kuva (mel-spektrogrammi ja kolmen kaistan tasokäyrä). Katso, jatkuuko edellinen kappale spiikin alussa tai alkaako seuraava jo sen sisällä.",
-    "5. Jos käyttäjä mainitsi nauhan (intro, outro, DJ, väliaikamusiikki), etsi sen alku erikseen: tasainen pulssi, live-soitosta poikkeava taso tai feidi. Nauhan alku on oma rivinsä.",
-    "6. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.",
-    "7. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3`. Vastaa vasta, kun tulos on OK. OK koskee muotoa ja määriä, ei rajojen paikkoja. Jos se sanoo määrän poikkeavan, kerro poikkeama vastauksessa."]],
+    "1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3 --yleiskuva --json ehdokkaat.json --piirteet piirteet.npz` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Uusi ajo lukee mittaukset `piirteet.npz`:stä. Omassa lisäkoodissa saat ne `from analyysi import lataa_piirteet, osio` (ks. skriptin alku).",
+    "2. Hahmottele ensin keikan rakenne yleiskuvasta ja ehdokkaista: setit, nauhat, yli minuutin spiikit ja encore-tauko. Rakennevirhe on kalliimpi kuin yksittäinen rajavirhe, koska se vääristää määrätarkistuksen.",
+    "3. Käy sitten rajat läpi. Luokat ovat todisteita, eivät päätöksiä: RAJA ja SAUMA ovat todennäköisiä kappaleiden alkuja, MODULAATIO?, BREAK, HÄNTÄ ja HEIKKO todennäköisesti eivät, ja SPIIKKI on oma rivinsä. Rivin huomautus *nauhan tunnusmerkit* (taso selvästi alle musiikin mediaanin ja tasainen pulssi) viittaa nauhaan. Encore-aplodien alku ([Vielä!]) näkyy HÄNTÄnä tai SPIIKKInä. Tulosteen alussa on luokkien selitykset. Aja omaa lisäkoodia, kun jokin kohta vaatii tarkempaa mittausta.",
+    "4. Katso lähikuvat jokaisen SPIIKKI-jakson alusta ja lopusta sekä epäselvistä rajoista: `python3 scripts/zoom.py <äänitiedosto> --ruudukko 12:41,13:05,20:10 kuva.png` (enintään kuusi kohtaa, 30 s:n ikkunat; mel-spektrogrammi ja kolmen kaistan tasokäyrä). Ilman inaSpeechSegmenteria puhearvio on karkea: laulu, vaimeneva loppu ja aplodit voivat näkyä puheena.",
+    "5. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.",
+    "6. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3 --ehdokkaat ehdokkaat.json`. Korjaa muotovirheet. Käy TARKISTA-rivit läpi lähikuvista, ja korjaa ne tai kerro vastauksessa, miksi rivi on oikein. OK koskee muotoa ja määriä, ei rajojen paikkoja."]],
 ];
 
 function saate() {

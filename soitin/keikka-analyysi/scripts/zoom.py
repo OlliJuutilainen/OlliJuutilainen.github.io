@@ -4,12 +4,16 @@
 
 Käyttö:
   python3 zoom.py keikka.mp3 12:00 13:30 kuva.png [--merkit 12:41,13:05]
+  python3 zoom.py keikka.mp3 --ruudukko 37:05,1:03:08,1:08:24 kuva.png [--leveys 30] [--merkit …]
 
 Alku ja loppu muodossa m:ss, h:mm:ss tai sekunteina. Kuvan leveys on 1300 px;
 aika-akselilla on merkki 1–2 s:n välein (pitkällä välillä harvemmin) ja aika
 tekstinä muutaman merkin välein. --merkit piirtää pystyviivan annettuihin
-kohtiin (esim. analyysi.py:n ehdokkaat). Riippuvuudet: ffmpeg ja numpy; PNG
-kirjoitetaan ilman kuvakirjastoja.
+kohtiin (esim. analyysi.py:n ehdokkaat). --ruudukko piirtää enintään kuusi
+kohtaa päällekkäin yhteen kuvaan, kunkin --leveys s:n (oletus 30) ikkunalla
+kohdan ympäriltä ja kohta merkittynä, jotta useaa rajaa voi verrata yhdellä
+katsomisella. Riippuvuudet: ffmpeg ja numpy; PNG kirjoitetaan ilman
+kuvakirjastoja.
 """
 
 import os
@@ -99,21 +103,51 @@ def mel_suotimet(n_mel, f_min, f_max):
     return w, f
 
 
+def valinta(args, nimi):
+    if nimi not in args:
+        return None
+    i = args.index(nimi)
+    if i + 1 >= len(args):
+        sys.exit(__doc__)
+    v = args[i + 1]
+    del args[i:i + 2]
+    return v
+
+
 def main():
     args = sys.argv[1:]
-    merkit = []
-    if "--merkit" in args:
-        i = args.index("--merkit")
-        merkit = [jasenna_aika(v) for v in args[i + 1].split(",") if v.strip()]
-        del args[i:i + 2]
+    merkit = [jasenna_aika(v) for v in (valinta(args, "--merkit") or "").split(",") if v.strip()]
+    ruudukko = valinta(args, "--ruudukko")
+    leveys = float(valinta(args, "--leveys") or 30)
+    ff = ffmpeg_polku()
+    if not ff:
+        sys.exit("ffmpeg puuttuu. Asenna se tai: pip install imageio-ffmpeg")
+    if ruudukko:
+        if len(args) != 2:
+            sys.exit(__doc__)
+        kohdat = [jasenna_aika(v) for v in ruudukko.split(",") if v.strip()]
+        if not 1 <= len(kohdat) <= 6:
+            sys.exit("--ruudukko: anna 1–6 kohtaa pilkuin erotettuina.")
+        osat = []
+        for t in kohdat:
+            a = max(0.0, t - leveys / 2)
+            osat.append(piirra(ff, args[0], a, a + leveys, merkit + [t]))
+            osat.append(np.full((10, LEVEYS, 3), 255, np.uint8))
+        kuva = np.vstack(osat[:-1])
+        kirjoita_png(args[1], kuva)
+        print("Kirjoitettu %s (%d × %d px, %d kohtaa, %g s:n ikkunat)." % (args[1], LEVEYS, len(kuva), len(kohdat), leveys))
+        return
     if len(args) != 4:
         sys.exit(__doc__)
     polku, alku, loppu, ulos = args[0], jasenna_aika(args[1]), jasenna_aika(args[2]), args[3]
     if loppu <= alku:
         sys.exit("Lopun pitää olla alun jälkeen.")
-    ff = ffmpeg_polku()
-    if not ff:
-        sys.exit("ffmpeg puuttuu. Asenna se tai: pip install imageio-ffmpeg")
+    kuva = piirra(ff, polku, alku, loppu, merkit)
+    kirjoita_png(ulos, kuva)
+    print("Kirjoitettu %s (%d × %d px, %s–%s)." % (ulos, LEVEYS, len(kuva), aika_teksti(alku), aika_teksti(loppu)))
+
+
+def piirra(ff, polku, alku, loppu, merkit):
     raw = subprocess.run([ff, "-nostdin", "-v", "error", "-ss", "%.3f" % alku, "-t", "%.3f" % (loppu - alku),
                           "-i", polku, "-vn", "-ac", "1", "-ar", str(SR), "-f", "s16le", "-"],
                          capture_output=True, check=True).stdout
@@ -204,8 +238,7 @@ def main():
             for yy in range(YLA, ya, 6):
                 kuva[yy:yy + 3, max(0, px - 1):px + 1] = (0, 200, 255)
     teksti(kuva, 6, 5, "%s-%s" % (aika_teksti(alku), aika_teksti(loppu)), (40, 40, 40))
-    kirjoita_png(ulos, kuva)
-    print("Kirjoitettu %s (%d × %d px, %s–%s)." % (ulos, LEVEYS, K, aika_teksti(alku), aika_teksti(loppu)))
+    return kuva
 
 
 if __name__ == "__main__":
