@@ -449,6 +449,7 @@
   <tr><td>Claude</td><td>Opus</td>
     <td><i>Extended thinking</i> päälle; asetuksista koodin suoritus (<i>Code execution</i>) päälle</td>
     <td>toimii</td></tr>
+  <tr><td>Claude</td><td>Sonnet</td><td>–</td><td>heikompi, ei suositella</td></tr>
   <tr><td>ChatGPT</td><td><i>Thinking</i> (ei <i>Instant</i>)</td>
     <td><i>Extended</i>, jos valittavissa</td><td>ei kokeiltu</td></tr>
 </table>
@@ -459,18 +460,20 @@
 <p class="huom">Mallien ja asetusten nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
   olla suomeksi. Äänitallenne lähtee palvelun palvelimelle, joten älä anna sinne sellaista, mitä et
   halua jakaa.</p>
-<p><b>Claude-taitopaketti.</b> Clauden käyttäjä voi saatteen sijaan ladata taitopaketin
+<p><b>Claude-taitopaketti (kokeiluasteella).</b> Saatteen sijaan voi ladata taitopaketin
   <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a> ja lisätä sen Clauden asetuksista
-  (<i>Customize → Skills → + → Upload a skill</i>; koodin suoritus pitää olla päällä). Paketti on tehty
-  kevyemmälle mallille (esim. Sonnet): sen mittausskripti luokittelee rajat valmiiksi ja tarkistaa
-  vastauksen muodon, joten mallille jää vähemmän harkittavaa. Säännöt ovat samat kuin saatteessa.
+  (<i>Customize → Skills → + → Upload a skill</i>; koodin suoritus pitää olla päällä). Sen mittausskripti
+  tekee perusmittaukset koko tallenteesta alle puolessa minuutissa ja tarkistaa vastauksen muodon; säännöt
+  ovat samat kuin saatteessa. Käytä Opusta kuten saatteella. Sonnetilla kokeiltuna kappalemäärä täsmäsi,
+  mutta väärin perustein: yksi kappale oli jaettu kahdeksi ja toisaalta rajoja puuttui, spiikkirivit alkoivat
+  kesken kappaleiden, ja ajat olivat epätarkempia kuin Opuksella saatteen kanssa.
   Aloita uusi keskustelu esimerkiksi sanoilla <i>Etsi keikkatallenteen kappaleiden alkuajat
   KEICK•WALK-settilistaksi</i>; avustaja kysyy samat asiat kuin saatteella.</p>
 <ol>
   <li><b>Lataa</b> <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a>. Älä pura sitä: Claude
     haluaa zipin, jonka juuressa on kansio <code>keikka-analyysi</code>.</li>
   <li><b>Lisää taito Claudeen:</b> asetukset → <i>Customize → Skills → + → Upload a skill</i>. Varmista, että
-    koodin suoritus (<i>Code execution</i>) on päällä, ja valitse sopivaksi malliksi esimerkiksi Sonnet.</li>
+    koodin suoritus (<i>Code execution</i>) on päällä, ja valitse malliksi Opus.</li>
   <li><b>Aloita uusi keskustelu</b> ja kirjoita aloituslause (Keikkaloihtimen kohdassa
     <i>aikakoodit kielimallilta</i> on sille kopiointinappi). Taidon pitäisi käynnistyä itsestään; jos ei,
     mainitse sen nimi <i>keikka-analyysi</i>.</li>
@@ -479,8 +482,8 @@
     settilistakenttään. Jos kappalemäärä poikkeaa kertomastasi, se sanoo sen suoraan eikä pakota
     määrää täyteen.</li>
 </ol>
-<p class="huom">Taitopakettia ei ole vielä kokeiltu oikealla keikalla eikä Clauden asetuksiin
-  ladattuna; valikkojen nimet ovat tukisivulta.</p>
+<p class="huom">Taitopaketti on kokeiltu Clauden asetuksiin ladattuna yhdellä oikealla keikalla Sonnetilla
+  (tulos yllä), Opuksella ei vielä. Valikkojen nimet ovat tukisivulta.</p>
 </details>
 
 <h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>

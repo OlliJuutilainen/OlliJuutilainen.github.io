@@ -705,7 +705,8 @@ def tarkista_lista(polku, setit, encoret):
         print("MÄÄRÄ POIKKEAA: " + "; ".join(poikk) + ". Älä lisää tai poista rajoja pelkän määrän takia; "
               "jos jokaisella rajalla on todiste, vastaa näin ja kerro poikkeama lohkon jälkeen.")
     elif setit is not None or encoret is not None:
-        print("Määrät täsmäävät kerrottuihin.")
+        print("Määrät täsmäävät kerrottuihin. Se ei todista rajojen paikkoja: ylimääräinen ja puuttuva raja "
+              "kumoavat toisensa.")
     return 0
 
 
