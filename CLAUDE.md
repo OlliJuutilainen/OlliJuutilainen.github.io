@@ -242,11 +242,12 @@ BREAK ellei määrä vaadi* poistettu), jokaisen SPIIKKI-jakson alku ja loppu ta
 mittauskoodin itse ja työ kesti 43 min, paketin skripti vie alle puoli minuuttia). Oppaan `#kielimalli`: *Suositus:
 Claude ja taitopaketti* (numeroitu lista lataamisesta tarkistukseen), sitten *Ilman taitopakettia: saate*, sitten
 malli ja taulukko. Keikkaloihtimen laatikossa ensin *Claudelle (Opus)* ja *Kopioi aloituslause*, sitten *Kopioi saate*.
-Aloituslause on `/keikka-analyysi Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.`:
+Aloituslause on `Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.`, ja ohjeet
+käskevät ensin kirjoittamaan `/keik` ja valitsemaan taidon ponnahdusvalikosta (käyttäjän kokeilu 23.10.2026: liitetty
+`/keikka-analyysi`-alku ei muuttunut taidoksi, mutta kursorin siirto sanan perään avasi valikon). Alun perin:
 käyttäjä näki claude.ai:ssa englanninkielisen aloituksen *extract the song start times and set changes from my
 concert recording* ilman taidon mainintaa. Se ei ole repossa (tarkistettu grepillä) vaan Clauden itse tuottama, joten
-sitä ei voi muuttaa; opas neuvoo käyttämään aloituslausetta sen sijaan. Kopioidun `/keikka-analyysi`-alun tunnistusta
-claude.ai:n syöttökentässä ei ole testattu; tunnistamattominakin se nimeää taidon.
+sitä ei voi muuttaa; opas neuvoo korvaamaan sen aloituslauseella.
 **Ei omaa luokkaa DJ-nauhalle eikä aplodeille** (käyttäjän päätös 23.10.2026). Sekunnin osia ei tarkenneta: vastausmuoto
 on kokonaiset sekunnit ja alku merkitään noin sekunti ennen ensimmäistä ääntä, skripti antaa ehdokkaat jo puolen sekunnin
 tarkkuudella, ja muutos vaatisi saatteen (pahvi A) ja tarkistimen muuttamista; käyttäjä salli tarkennuksen vain ilman
