@@ -424,7 +424,8 @@
 <p><b>Suositus: Claude ja taitopaketti.</b> Taitopaketti <a href="keikka-analyysi.zip"
   download>keikka-analyysi.zip</a> lisätään Claudeen kerran. Sen mittausskripti tekee perusmittaukset koko
   tallenteesta alle puolessa minuutissa ja tarkistaa vastauksen muodon. Ilman pakettia Claude kirjoittaa
-  mittauskoodin joka kerta itse; kokeilussa koko työ kesti noin 43 minuuttia. Säännöt ovat samat kuin saatteessa.</p>
+  mittauskoodin joka kerta itse. Kokeilussa koko työ kesti saatteella noin 43 minuuttia ja taitopaketilla noin
+  15. Säännöt ovat samat kuin saatteessa.</p>
 <ol>
   <li><b>Lataa</b> <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a>. Älä pura sitä: Claude
     haluaa zipin, jonka juuressa on kansio <code>keikka-analyysi</code>.</li>
@@ -467,7 +468,7 @@
   <tr><th>Palvelu</th><th>Malli</th><th>Asetukset</th><th>Kokeiltu</th></tr>
   <tr><td>Claude</td><td>Opus</td>
     <td><i>Extended thinking</i> päälle; asetuksista koodin suoritus (<i>Code execution</i>) päälle</td>
-    <td>saatteella toimii</td></tr>
+    <td>toimii saatteella ja taitopaketilla</td></tr>
   <tr><td>Claude</td><td>Sonnet</td><td>–</td><td>heikompi, ei suositella</td></tr>
   <tr><td>ChatGPT</td><td><i>Thinking</i> (ei <i>Instant</i>)</td>
     <td><i>Extended</i>, jos valittavissa; vain saate</td><td>ei kokeiltu</td></tr>
@@ -476,10 +477,11 @@
   eikä mittaamalla koodilla, ja saate kieltää antamasta aikoja pelkän kuuntelun perusteella: pitkässä tallenteessa
   ajantaju kelluu ja ajat päätyvät arvauksiksi. Lisäksi saate on kokeiltu vain Claudella, eikä se, että se toimii
   yhdellä kielimallilla, kerro, toimiiko se toisella.</p>
-<p class="huom">Taitopaketti on kokeiltu Clauden asetuksiin ladattuna yhdellä oikealla keikalla Sonnetilla,
-  Opuksella ei vielä. Sonnetilla kappalemäärä täsmäsi, mutta väärin perustein: yksi kappale oli jaettu kahdeksi ja
-  toisaalta rajoja puuttui, spiikkirivit alkoivat kesken kappaleiden, ja ajat olivat epätarkempia kuin Opuksella
-  saatteen kanssa. Paketin ohjeita on sen jälkeen korjattu näiden virheiden varalta.</p>
+<p class="huom">Taitopaketti on kokeiltu Clauden asetuksiin ladattuna samalla 89 minuutin keikalla Opuksella ja
+  Sonnetilla. Opuksella ajat olivat kauttaaltaan hiukan tarkemmat kuin saatteella, mutta kaksi kappaletta meni
+  väärin: modulaatio luettiin kappaleen vaihdoksi ja toisen setin ensimmäinen kappale nauhaksi. Virheet kumosivat
+  toisensa, joten kappalemäärä täsmäsi silti. Sonnetilla virheitä oli enemmän. Paketin mittausskriptiä ja ohjeita
+  on sen jälkeen korjattu näiden virheiden varalta, mutta korjattua versiota ei ole kokeiltu oikealla keikalla.</p>
 <p class="huom">Mallien, asetusten ja valikkojen nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
   olla suomeksi; taitopaketin valikot ovat Clauden tukisivulta. Äänitallenne lähtee palvelun palvelimelle, joten
   älä anna sinne sellaista, mitä et halua jakaa.</p>

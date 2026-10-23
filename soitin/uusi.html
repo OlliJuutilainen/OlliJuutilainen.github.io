@@ -773,7 +773,9 @@
   // Vastausmuoto on settilistan muoto: "3. 12:05" on nimetön biisi, pelkkä aika ei-biisi,
   // --- setinvaihto, "aika [VÄLIAIKA]" oma setti (soitin näyttää sen setin otsikon paikalla),
   // "(+)" encoresetti ja "aika [Vielä!]" encoren alku. Kesto lisätään tarkistukseksi, jos
-  // äänilinkistä saatiin selville. Teksti on pilotin raportin "pahvi A" sanasta sanaan (23.10.2026).
+  // äänilinkistä saatiin selville. Teksti on pilotin raportin "pahvi A" (23.10.2026), johon lisättiin Opus +
+  // taitopaketti -ajon opit (sama päivä): kappaleen loppu painaa enemmän kuin sävellaji, soitto alkaa usein
+  // puheen alla, nauha tunnistetaan tasosta ja pulssista, määrävaje on ensin rakennevihje, ei soitinnimiä.
   // Muistutus: taitopaketin soitin/keikka-analyysi/SKILL.md säännöt ja vastausmuoto tehdään tästä
   // tekstistä; aja muutoksen jälkeen node soitin/keikka-analyysi/rakenna.mjs (päivittää SKILL.md:n ja zipin).
   function llmPrompt() {
@@ -805,7 +807,7 @@
       "- Jos et pysty ajamaan koodia tai käsittelemään tiedostoa, sano se äläkä anna aikoja.",
       "- Perustaso riittää: äänitaso, hiljaiset kohdat, spektri sekä tempo ja sävellaji osioittain (esim. ffmpeg ja numpy/scipy). Jos saat käyttöön puheen ja musiikin erottelijan tai litteroinnin, käytä niitä lisänä.",
       "- Käsittele pitkä tiedosto noin kymmenen minuutin paloissa, ettei muisti lopu.",
-      "- Käytä kerrottua kappalemäärää tarkistuksena, älä rajan perusteena: etsi jokaiselle rajalle oma todiste, kuten tauko, aplodit, puhe tai tempon tai sävellajin vaihdos.",
+      "- Käytä kerrottua kappalemäärää tarkistuksena, älä rajan perusteena: etsi jokaiselle rajalle oma todiste, kuten tauko, aplodit, puhe, edellisen kappaleen loppu tai tempon vaihdos. Jos alkuja on liian vähän tai liikaa, tarkista ensin keikan rakenne (nauhat, setin raja, encore) ja vasta sitten yksittäiset rajat.",
       "- Jos et pääse tiedoston loppuun asti, kerro, mihin kohtaan pääsit."
     ].concat(isFinite(audioLen) ? [
       "- Tiedoston kesto on " + fmtTime(Math.round(audioLen)) + ". Jos mittaamasi kesto on eri, kerro se."
@@ -816,9 +818,10 @@
       "Ajat ovat keikan navigointimerkkejä: kun kuulija painaa listalta biisiä, biisin pitää alkaa. Ne eivät ole levyn raitarajoja.",
       "",
       "- Kappale alkaa, kun soitto alkaa, sisäänlasku mukaan lukien. Merkitse alku noin sekunti ennen ensimmäistä ääntä.",
-      "- Puhe voi sekoittua kappaleen alkuun. Jos puolen minuutin tai pidemmän rämpyttelyn jälkeen vaihde selvästi vaihtuu, kappale alkaa vaihdosta. Jos alku liukuu tasaisesti eikä selvää alkukohtaa ole, ja varsinkin jos puheessa on rytmiä, puhe voi olla osa kappaletta: silloin kappale alkaa kaaren aiemmasta selvästä alkukohdasta. Rajan saa vetää suurpiirteisesti.",
+      "- Puhe sekoittuu paljon useammin kappaleen alkuun kuin loppuun: soitto alkaa usein jo puheen alla, ja kappale alkaa silloin soiton alusta eikä puheen lopusta. Jos puolen minuutin tai pidemmän rämpyttelyn jälkeen vaihde selvästi vaihtuu, kappale alkaa vaihdosta. Jos alku liukuu tasaisesti eikä selvää alkukohtaa ole, ja varsinkin jos puheessa on rytmiä, puhe voi olla osa kappaletta: silloin kappale alkaa kaaren aiemmasta selvästä alkukohdasta. Rajan saa vetää suurpiirteisesti.",
+      "- Kappale vaihtuu vasta, kun edellinen loppuu. Raja ilman taukoa vaatii lopun merkin (soiva loppusointu tai vaimeneminen, aplodit, puhe) tai tempon katkoksen; ne painavat enemmän kuin sävellaji. Pelkkä sävellajin tai soittotavan vaihto samassa tempossa on saman kappaleen modulaatio tai osanvaihto. Ratkaise samanlaiset kohdat samoin.",
       "- Aplodit ja välispiikit kuuluvat edelliseen kappaleeseen. Yli minuutin puhe, tauko tai muu soittamaton jakso on oma rivinsä, ellei käyttäjä toivonut muuta.",
-      "- Jos käyttäjä mainitsi intro- tai outronauhan tai tunnistat sellaisen melko varmasti, merkitse sen alku omaksi rivikseen. Outronauhan alku löytyy setin lopusta taaksepäin edeten; se voi alkaa lähes suoraan viimeisen kappaleen perään.",
+      "- Jos käyttäjä mainitsi intro- tai outronauhan tai tunnistat sellaisen melko varmasti, merkitse sen alku omaksi rivikseen. Outronauhan alku löytyy setin lopusta taaksepäin edeten; se voi alkaa lähes suoraan viimeisen kappaleen perään. Tunnista nauha mittaamalla eikä sointivärin vaikutelmasta: nauha soi yleensä eri tasolla kuin bändi ja tasaisemmalla pulssilla.",
       "- Setinvaihto vain, jos se on ilmeinen: katko tallenteessa, kuulutettu väliaika tai yli kolmen minuutin tauko. Muuten koko tallenne on yhtä settiä.",
       "- Väliaika on oma settinsä, jos käyttäjä kertoi väliajasta tai jos setin viimeisen spiikin ja seuraavan setin ensimmäisen intron tai spiikin väliin jää yli viisi minuuttia. Väliaika alkaa siitä, mihin setin viimeisen kappaleen aplodit ja spiikit päättyvät, tai väliaikamusiikin alusta, jos se alkaa jo niiden aikana.",
       "- Ilman väliaikaa setin raja vedetään setin viimeisen ja seuraavan setin ensimmäisen kappaleen väliin. Seuraavan setin intronauha ja sisääntuloaplodit kuuluvat seuraavaan settiin, muu häntä edellisen setin loppuun.",
@@ -855,6 +858,8 @@
       "- rajat, jotka perustuvat pelkkään käyttäjän kertomaan kappalemäärään",
       "- jos kappaleita, settejä tai encoreja on eri määrä kuin käyttäjä kertoi",
       "- yhdellä rivillä, millä keinoin mittasit",
+      "",
+      "Kuvaa perusteluissa ääntä (sävyllinen soitto, rytminen pulssi, laulu, puhe, aplodit) äläkä nimeä soittimia: mittauksista ei voi luotettavasti erottaa soittimia toisistaan.",
       "",
       "## Taustaa",
       "",

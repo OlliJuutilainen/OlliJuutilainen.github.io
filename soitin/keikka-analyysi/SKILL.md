@@ -20,7 +20,7 @@ Päätä viesti suunnilleen näin: ”Kun olet vastannut niihin, joihin haluat, 
 
 Jos pystyt ajamaan koodia, tarkista jo nyt, mitkä työkalut ovat käytettävissä, ja aloita tarvittavat asennukset sillä aikaa, kun käyttäjä vastaa. Asentaminen ei ole tiedoston käsittelyä.
 
-Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --riippuvuudet`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Valinnainen inaSpeechSegmenter (`pip install inaSpeechSegmenter`) erottelee puheen ja musiikin tarkemmin, mutta se vaatii TensorFlow’n ja lataa mallinsa verkosta; jos asennus ei onnistu muutamassa minuutissa, jatka ilman.
+Tämän taidon kansiossa on valmiit skriptit (`scripts/`). Aja heti `python3 scripts/analyysi.py --riippuvuudet`: se kertoo, puuttuuko jokin pakollisista (ffmpeg, numpy, scipy). Asenna puuttuvat, esim. `pip install numpy scipy imageio-ffmpeg` (imageio-ffmpeg tuo ffmpegin, jos järjestelmässä ei ole sitä). Asenna myös inaSpeechSegmenter, joka erottelee puheen ja musiikin tarkemmin, taustalle ja ilman GPU-paketteja: `pip install --no-deps inaSpeechSegmenter && pip install tensorflow-cpu pandas scikit-image soundfile pytextgrid`. Se lataa mallinsa verkosta ensimmäisellä ajolla. Jos asennus ei onnistu muutamassa minuutissa, jatka ilman.
 
 ## Vaihe 2: läpivalaisu
 
@@ -28,13 +28,12 @@ Aloita, kun sinulla on äänitiedosto ja käyttäjä on joko kirjoittanut ”lä
 
 Tee läpivalaisu tässä järjestyksessä:
 
-1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Sen ehdokkaat ja luokat ovat lähtökohta, eivät päätös: aja omaa lisäkoodia, kun jokin kohta vaatii tarkempaa mittausta.
-2. RAJA ja SAUMA ovat todennäköisiä kappaleiden alkuja, BREAK todennäköisesti saman kappaleen sisäinen tauko. SPIIKKI on oma rivinsä (pelkkä alkuaika). HÄNTÄ ja HEIKKO eivät ole kappaleiden alkuja; HÄNTÄ voi kuitenkin olla encore-aplodien alku ([Vielä!]), joka merkitään aplodien alkuun eikä viimeisen iskun kohdalle. Tulosteen alussa on luokkien selitykset.
-3. Älä ota rajaa mukaan tai jätä pois kappalemäärän takia. Määrän täsmäys ei ole todiste: ylimääräinen ja puuttuva raja kumoavat toisensa. Jos jokin raja on mukana vain määrän vuoksi, sano se vastauksessa.
-4. Ilman inaSpeechSegmenteria skriptin puhearvio on karkea: laulu, kappaleen vaimeneva loppu ja aplodit voivat näkyä puheena. Tarkista siksi jokaisen SPIIKKI-jakson alku ja loppu sekä epäselvät rajat: `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` noin 30–60 sekunnin ikkunalla rajan ympäriltä (usean minuutin kuvasta ei näe yksittäistä rajaa), ja katso kuva (mel-spektrogrammi ja kolmen kaistan tasokäyrä). Katso, jatkuuko edellinen kappale spiikin alussa tai alkaako seuraava jo sen sisällä.
-5. Jos käyttäjä mainitsi nauhan (intro, outro, DJ, väliaikamusiikki), etsi sen alku erikseen: tasainen pulssi, live-soitosta poikkeava taso tai feidi. Nauhan alku on oma rivinsä.
-6. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.
-7. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3`. Vastaa vasta, kun tulos on OK. OK koskee muotoa ja määriä, ei rajojen paikkoja. Jos se sanoo määrän poikkeavan, kerro poikkeama vastauksessa.
+1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3 --yleiskuva --json ehdokkaat.json --piirteet piirteet.npz` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Uusi ajo lukee mittaukset `piirteet.npz`:stä. Omassa lisäkoodissa saat ne `from analyysi import lataa_piirteet, osio` (ks. skriptin alku).
+2. Hahmottele ensin keikan rakenne yleiskuvasta ja ehdokkaista: setit, nauhat, yli minuutin spiikit ja encore-tauko. Rakennevirhe on kalliimpi kuin yksittäinen rajavirhe, koska se vääristää määrätarkistuksen.
+3. Käy sitten rajat läpi. Luokat ovat todisteita, eivät päätöksiä: RAJA ja SAUMA ovat todennäköisiä kappaleiden alkuja, MODULAATIO?, BREAK, HÄNTÄ ja HEIKKO todennäköisesti eivät, ja SPIIKKI on oma rivinsä. Rivin huomautus *nauhan tunnusmerkit* (taso selvästi alle musiikin mediaanin ja tasainen pulssi) viittaa nauhaan. Encore-aplodien alku ([Vielä!]) näkyy HÄNTÄnä tai SPIIKKInä. Tulosteen alussa on luokkien selitykset. Aja omaa lisäkoodia, kun jokin kohta vaatii tarkempaa mittausta.
+4. Katso lähikuvat jokaisen SPIIKKI-jakson alusta ja lopusta sekä epäselvistä rajoista: `python3 scripts/zoom.py <äänitiedosto> --ruudukko 12:41,13:05,20:10 kuva.png` (enintään kuusi kohtaa, 30 s:n ikkunat; mel-spektrogrammi ja kolmen kaistan tasokäyrä). Ilman inaSpeechSegmenteria puhearvio on karkea: laulu, vaimeneva loppu ja aplodit voivat näkyä puheena.
+5. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.
+6. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3 --ehdokkaat ehdokkaat.json`. Korjaa muotovirheet. Käy TARKISTA-rivit läpi lähikuvista, ja korjaa ne tai kerro vastauksessa, miksi rivi on oikein. OK koskee muotoa ja määriä, ei rajojen paikkoja.
 
 ## Tärkeintä: mittaa, älä arvaa
 
@@ -42,7 +41,7 @@ Tämä on mittaustehtävä, ja se tehdään koodilla. Pelkkä kuuntelu ei riitä
 - Jos et pysty ajamaan koodia tai käsittelemään tiedostoa, sano se äläkä anna aikoja.
 - Perustaso riittää: äänitaso, hiljaiset kohdat, spektri sekä tempo ja sävellaji osioittain (esim. ffmpeg ja numpy/scipy). Jos saat käyttöön puheen ja musiikin erottelijan tai litteroinnin, käytä niitä lisänä.
 - Käsittele pitkä tiedosto noin kymmenen minuutin paloissa, ettei muisti lopu.
-- Käytä kerrottua kappalemäärää tarkistuksena, älä rajan perusteena: etsi jokaiselle rajalle oma todiste, kuten tauko, aplodit, puhe tai tempon tai sävellajin vaihdos.
+- Käytä kerrottua kappalemäärää tarkistuksena, älä rajan perusteena: etsi jokaiselle rajalle oma todiste, kuten tauko, aplodit, puhe, edellisen kappaleen loppu tai tempon vaihdos. Jos alkuja on liian vähän tai liikaa, tarkista ensin keikan rakenne (nauhat, setin raja, encore) ja vasta sitten yksittäiset rajat.
 - Jos et pääse tiedoston loppuun asti, kerro, mihin kohtaan pääsit.
 
 ## Säännöt
@@ -50,9 +49,10 @@ Tämä on mittaustehtävä, ja se tehdään koodilla. Pelkkä kuuntelu ei riitä
 Ajat ovat keikan navigointimerkkejä: kun kuulija painaa listalta biisiä, biisin pitää alkaa. Ne eivät ole levyn raitarajoja.
 
 - Kappale alkaa, kun soitto alkaa, sisäänlasku mukaan lukien. Merkitse alku noin sekunti ennen ensimmäistä ääntä.
-- Puhe voi sekoittua kappaleen alkuun. Jos puolen minuutin tai pidemmän rämpyttelyn jälkeen vaihde selvästi vaihtuu, kappale alkaa vaihdosta. Jos alku liukuu tasaisesti eikä selvää alkukohtaa ole, ja varsinkin jos puheessa on rytmiä, puhe voi olla osa kappaletta: silloin kappale alkaa kaaren aiemmasta selvästä alkukohdasta. Rajan saa vetää suurpiirteisesti.
+- Puhe sekoittuu paljon useammin kappaleen alkuun kuin loppuun: soitto alkaa usein jo puheen alla, ja kappale alkaa silloin soiton alusta eikä puheen lopusta. Jos puolen minuutin tai pidemmän rämpyttelyn jälkeen vaihde selvästi vaihtuu, kappale alkaa vaihdosta. Jos alku liukuu tasaisesti eikä selvää alkukohtaa ole, ja varsinkin jos puheessa on rytmiä, puhe voi olla osa kappaletta: silloin kappale alkaa kaaren aiemmasta selvästä alkukohdasta. Rajan saa vetää suurpiirteisesti.
+- Kappale vaihtuu vasta, kun edellinen loppuu. Raja ilman taukoa vaatii lopun merkin (soiva loppusointu tai vaimeneminen, aplodit, puhe) tai tempon katkoksen; ne painavat enemmän kuin sävellaji. Pelkkä sävellajin tai soittotavan vaihto samassa tempossa on saman kappaleen modulaatio tai osanvaihto. Ratkaise samanlaiset kohdat samoin.
 - Aplodit ja välispiikit kuuluvat edelliseen kappaleeseen. Yli minuutin puhe, tauko tai muu soittamaton jakso on oma rivinsä, ellei käyttäjä toivonut muuta.
-- Jos käyttäjä mainitsi intro- tai outronauhan tai tunnistat sellaisen melko varmasti, merkitse sen alku omaksi rivikseen. Outronauhan alku löytyy setin lopusta taaksepäin edeten; se voi alkaa lähes suoraan viimeisen kappaleen perään.
+- Jos käyttäjä mainitsi intro- tai outronauhan tai tunnistat sellaisen melko varmasti, merkitse sen alku omaksi rivikseen. Outronauhan alku löytyy setin lopusta taaksepäin edeten; se voi alkaa lähes suoraan viimeisen kappaleen perään. Tunnista nauha mittaamalla eikä sointivärin vaikutelmasta: nauha soi yleensä eri tasolla kuin bändi ja tasaisemmalla pulssilla.
 - Setinvaihto vain, jos se on ilmeinen: katko tallenteessa, kuulutettu väliaika tai yli kolmen minuutin tauko. Muuten koko tallenne on yhtä settiä.
 - Väliaika on oma settinsä, jos käyttäjä kertoi väliajasta tai jos setin viimeisen spiikin ja seuraavan setin ensimmäisen intron tai spiikin väliin jää yli viisi minuuttia. Väliaika alkaa siitä, mihin setin viimeisen kappaleen aplodit ja spiikit päättyvät, tai väliaikamusiikin alusta, jos se alkaa jo niiden aikana.
 - Ilman väliaikaa setin raja vedetään setin viimeisen ja seuraavan setin ensimmäisen kappaleen väliin. Seuraavan setin intronauha ja sisääntuloaplodit kuuluvat seuraavaan settiin, muu häntä edellisen setin loppuun.
@@ -89,6 +89,8 @@ Kerro lohkon jälkeen lyhyesti:
 - rajat, jotka perustuvat pelkkään käyttäjän kertomaan kappalemäärään
 - jos kappaleita, settejä tai encoreja on eri määrä kuin käyttäjä kertoi
 - yhdellä rivillä, millä keinoin mittasit
+
+Kuvaa perusteluissa ääntä (sävyllinen soitto, rytminen pulssi, laulu, puhe, aplodit) äläkä nimeä soittimia: mittauksista ei voi luotettavasti erottaa soittimia toisistaan.
 
 ## Taustaa
 

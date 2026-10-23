@@ -203,7 +203,14 @@ ja korostaa, että markkerit istutetaan **manuaalisesti** (käyttäjän päätö
 Saatetta ei näytetä sivulla (käyttäjän vaatimus: pelkkä nappi, ei tekstikenttää); se on vain
 `llmPrompt()`-funktiossa, ei oppaassa, ettei siitä ole kahta versiota. 23.10.2026 alkaen saate on käyttäjän
 pilotin raportin *pahvi A* sanasta sanaan (pilotti: 89 min tallenne, Claude Opus, rakenne 24/24 oikein, alkuaikojen
-mediaanipoikkeama käsimerkintään 4,7 s, työ 43 min). Saate on suomeksi ja Markdown-otsikoin: tekoälyavustaja kysyy
+mediaanipoikkeama käsimerkintään 4,7 s, työ 43 min). Samana päivänä siihen lisättiin Opus + taitopaketti -ajon (ajo C)
+yleispätevät opit (käyttäjän linja: ei tämän keikan erikoisuuksia, esim. ei kysymystä DJ-feidin kestosta, koska se
+olisi valmistautumista yhden keikan olympialaisiin; sen sijaan yleisiä, kuten *puhe sekoittuu kappaleen alkuun paljon
+useammin kuin loppuun*): kappale vaihtuu vasta, kun edellinen loppuu, ja lopun merkki (loppusointu, vaimeneminen,
+aplodit, puhe) tai tempon katkos painaa enemmän kuin sävellaji, joten pelkkä sävellajin vaihto samassa tempossa on
+modulaatio ja samanlaiset kohdat ratkaistaan samoin; soitto alkaa usein puheen alla; nauha tunnistetaan tasosta ja
+pulssista eikä sointivärin vaikutelmasta; liian vähän tai liikaa alkuja → ensin rakenne, sitten rajat; perusteluissa
+ei soitinnimiä. Saate on suomeksi ja Markdown-otsikoin: tekoälyavustaja kysyy
 ensin yhdessä viestissä keikan rakenteen (biisimäärät seteittäin, encorebiisit, väliaika, intro- ja outronauhat) ja
 toiveen yli minuutin välispiikeistä, aloittaa asennukset ja pyytää sitten tiedoston ja käskyn *läpivalaise*. Mittaus
 tehdään koodilla; ilman koodin ajoa aikoja ei anneta. Ajat ovat navigointimerkkejä, eivät levyn raitarajoja.
@@ -237,7 +244,16 @@ taulukossa rivi Claude Sonnet *heikompi, ei suositella*. Vaiheen 2 työjärjesty
 ehdokkaat ovat lähtökohta ja omaa lisäkoodia saa ajaa, rajaa ei oteta mukaan tai jätetä pois määrän takia (pahvin *hylkää
 BREAK ellei määrä vaadi* poistettu), jokaisen SPIIKKI-jakson alku ja loppu tarkistetaan zoom.py:llä 30–60 s:n ikkunalla
 (ei enää kymmenen kuvan rajaa eikä *lopeta*-kohtaa), mainitun nauhan (intro, outro, DJ) alku etsitään erikseen, taulukko,
-`--tarkista`. Tarkistimen *Määrät täsmäävät* -rivi sanoo, ettei se todista rajojen paikkoja. Opuksella pakettia ei ole ajettu.
+`--tarkista`. Tarkistimen *Määrät täsmäävät* -rivi sanoo, ettei se todista rajojen paikkoja.
+**Ajo C: Opus + paketti** (käyttäjän raportti 23.10.2026, sama 89 min:n keikka, ina asennettu): noin 14 min, ajat
+kauttaaltaan hiukan saatteen ajoa tarkemmat, mutta kaksi rakennevirhettä, jotka kumosivat toisensa (`--tarkista` OK):
+setin 2 avausbiisi luettiin DJ:ksi (oikea, hiljaisempi ja tasapulssinen DJ liitettiin edelliseen kappaleeseen, koska
+tempo oli sama; nauhaohjeen *feidi* johti etsimään väärää feidiä), ja määrävaje sai hyväksymään modulaation (C → D samassa
+tempossa) kappaleen rajaksi, vaikka paketti kielsi määrän perusteella valitsemisen. Lisäksi soitinnimiä (koskettimet)
+väärin. Päätelmä (Clauden, käyttäjälle perusteltu): ohjeiden lisääminen ei olisi estänyt tätä, koska kielto oli jo
+olemassa; työjärjestys muutettiin ylhäältä alas (yleiskuva → rakenne → rajat → lähikuvat → taulukko → tarkistus
+ehdokkaita vasten), puuttuva mittaus siirrettiin skriptiin ja nauhaohjeen etsintämalli (*tasainen pulssi, poikkeava
+taso tai feidi*) poistettiin. Vaiheen 2 vanha kohta 3 (määrä) ja 5 (nauha) ovat nyt saatteen säännöissä.
 **Taitopaketti on pääreitti, saate B-polku** (käyttäjän päätös 23.10.2026, myöhemmin: Opus kirjoitti saatteella
 mittauskoodin itse ja työ kesti 43 min, paketin skripti vie alle puoli minuuttia). Oppaan `#kielimalli`: *Suositus:
 Claude ja taitopaketti* (numeroitu lista lataamisesta tarkistukseen), sitten *Ilman taitopakettia: saate*, sitten
@@ -248,19 +264,36 @@ käskevät ensin kirjoittamaan `/keik` ja valitsemaan taidon ponnahdusvalikosta 
 käyttäjä näki claude.ai:ssa englanninkielisen aloituksen *extract the song start times and set changes from my
 concert recording* ilman taidon mainintaa. Se ei ole repossa (tarkistettu grepillä) vaan Clauden itse tuottama, joten
 sitä ei voi muuttaa; opas neuvoo korvaamaan sen aloituslauseella.
-**Ei omaa luokkaa DJ-nauhalle eikä aplodeille** (käyttäjän päätös 23.10.2026). Sekunnin osia ei tarkenneta: vastausmuoto
+**Ei omaa luokkaa DJ-nauhalle eikä aplodeille** (käyttäjän päätös 23.10.2026). Ajon C raportti ehdotti NAUHA?-luokkaa;
+sitä ei tehty, vaan tunnusmerkit (taso vähintään 8 dB alle musiikin mediaanin ja pulssin selkeys ≥ 0,6, kun edellinen
+osio ei täytä niitä) tulevat rivin huomautukseksi *nauhan tunnusmerkit*, ja tarkistin nostaa kappalerivin sen kohdalla
+TARKISTA-listalle. Sekunnin osia ei tarkenneta: vastausmuoto
 on kokonaiset sekunnit ja alku merkitään noin sekunti ennen ensimmäistä ääntä, skripti antaa ehdokkaat jo puolen sekunnin
 tarkkuudella, ja muutos vaatisi saatteen (pahvi A) ja tarkistimen muuttamista; käyttäjä salli tarkennuksen vain ilman
 merkittävää hintaa.
 Jokaisella ehdokkaalla on luokka: RAJA (tauko tai puhe/aplodit ennen, tempo tai sävelluokat vaihtuvat), SAUMA (musiikkia
-molemmin puolin ilman taukoa, vaihtuvat), BREAK (tauko, samat), SPIIKKI (yli 60 s soittamaton alkaa) sekä pahvin
-ulkopuolelta HÄNTÄ (rajan jälkeen ei musiikkia; ilman sitä jokainen aplodien alku luokittuisi kappaleen aluksi) ja HEIKKO
-(ei taukoa eikä vaihtoa). Tempo sama = ero alle 6 % tai puolikas/tupla; sävelluokat samat = neljästä vahvimmasta ≥ 3.
+molemmin puolin ilman taukoa; tempo vaihtuu, taso muuttuu ≥ 8 dB, edellinen soitto vaimenee ≥ 6 dB 0,5–3 s ennen rajaa
+verrattuna 4–12 s:iin, tai sävelluokat vaihtuvat ja tempoero ≥ 3 %), MODULAATIO? (ajo C: sävelluokat vaihtuvat ilman
+taukoa, mutta tempoero alle 3 %, taso pysyy eikä soitto vaimene), BREAK (tauko, samat), SPIIKKI (yli 60 s soittamaton
+alkaa) sekä pahvin ulkopuolelta HÄNTÄ (rajan jälkeen ei musiikkia; ilman sitä jokainen aplodien alku luokittuisi
+kappaleen aluksi) ja HEIKKO (ei taukoa eikä vaihtoa). Tempo sama = ero alle 6 % tai puolikas/tupla, 3:2 ja 2:3 alle 3 %
+(ajo C: 82 ja 124 bpm samassa kappaleessa); sävelluokat samat = neljästä vahvimmasta ≥ 3. Rivillä myös sävellaji
+(Krumhansl–Kessler, `~D`) ja huomautukset: *soitto vaimenee ennen*, *taso ±N dB* (musiikista musiikkiin), *nauhan
+tunnusmerkit* ja puheen lopussa *soitto voi alkaa jo puheen alla*. Soittamaton jakso lasketaan puheen, hiljaisuuden ja
+kohinan yhdisteenä, ja enintään 2,5 s:n välit nielaistaan (ajo C: ina pilkkoi puheen alle sekunnin hiljaa-lohkoilla ja
+SPIIKKIt katosivat, 5 → 0); siksi encore-aplodit ja niitä seuraava puhe voivat yhdessä olla SPIIKKI. Tallenteen
+viimeisten 2 s:n ehdokkaat jätetään pois.
 `--tarkista lista.txt [--setit] [--encoret]` tarkistaa vastauksen muodon (saatteen vastausmuoto, juokseva numerointi,
 kokonaiset sekunnit, kasvavat ajat, väliaika omana settinään, encoresetti alkaa `[Vielä!]`); tarkistimen hyväksymät
 listat menevät Keikkaloihtimesta läpi 0 virheellä (ristiintarkistettu Chromiumissa). Pahvista poiketen kerrotusta
 poikkeava määrä ei estä OK:ta: se tulostetaan rivinä *MÄÄRÄ POIKKEAA*, koska pilotin mukaan suurin hallusinaatioriski on
-kappalemäärän pakottaminen täyteen. Riippuvuuksien tarkistus on `--riippuvuudet`.
+kappalemäärän pakottaminen täyteen. Riippuvuuksien tarkistus on `--riippuvuudet`. `--ehdokkaat ehdokkaat.json` (analyysin
+`--json`) lisää OK:n perään TARKISTA-rivit: kappalerivi ilman ehdokasta ±4 s:n päässä tai ilman RAJA/SAUMA-ehdokasta tai
+nauhan tunnusmerkkien kohdalla, ei-biisirivi, jonka lähin ehdokas on RAJA tai SAUMA (ajon C virhe 2), ja RAJA/SAUMA-ehdokas,
+jota ei ole listassa. Analyysin `--yleiskuva [S]` tulostaa koko tallenteen 20 s:n ikkunoin (taso ja ero musiikin
+mediaaniin, tempo, sävellaji, laji; ajon C mukaan hyödyllisin näkymä rakenteeseen), ja `--piirteet piirteet.npz`
+tallentaa mittaukset ja lajit tai lukee ne, jos tiedosto on jo olemassa; omassa koodissa `from analyysi import
+lataa_piirteet, osio`.
 `scripts/analyysi.py` (ffmpeg tai imageio-ffmpeg, numpy, scipy; valinnainen inaSpeechSegmenter) purkaa tiedoston
 16 kHz:n s16-memmapiksi ja käsittelee sen 10 min:n paloissa: taso, kaistat, litteys ja kroma 0,5 s:n kehyksin,
 iskukäyrä 16 ms:n välein. Ehdokkaat: tauot (yli 9 dB alle minuutin liukuvan mediaanin, mediaani peilaten reunoilla,
@@ -268,14 +301,28 @@ koska `nearest` nielaisi alun hiljaisuuden), uutuushuiput (kroma, kaistaprofiili
 kutistuvin ikkunoin), puheen alut ja loput sekä yli minuutin soittamattomat jaksot, joiden sisäiset ehdokkaat
 tiivistetään. Yksi rivi ehdokasta kohden, enintään 140. Ilman inaa puhe arvioidaan karkeasti (pulssi, 2–8 Hz:n
 vaihtelu, kroman huippu, litteys) ja tuloste kertoo sen. `scripts/zoom.py` piirtää mel-spektrogrammin ja kolmen
-kaistan tasokäyrän PNG:ksi ilman kuvakirjastoja. `scripts/testi.py` tekee 6 min:n synteettisen tallenteen (kolme
+kaistan tasokäyrän PNG:ksi ilman kuvakirjastoja; `--ruudukko t1,t2,…` (enintään 6, `--leveys` oletus 30 s) piirtää
+kohdat päällekkäin yhteen kuvaan, kohta merkittynä (ajossa C 19 kuvaa luettiin yksitellen). `scripts/testi.py` tekee 6 min:n synteettisen tallenteen (kolme
 kappaletta, tauko, aplodit, 70 s puhetta, kappale suoraan puheen perään; pahvi C:ssä lisäksi tauko kappaleen sisällä ja
 saumaton kappaleenvaihto, 6:50) ja vaatii jokaiselle seitsemälle tunnetulle rajalle ehdokkaan ±1,5 s:n päästä oikealla
 luokalla, ei ylimääräisiä RAJA/SAUMA-ehdokkaita, sekä seitsemän valmiin settilistan tarkistuksen: OK 23.10.2026.
-Mitattu: 90 min:n mp3 kahdella ytimellä 13,4 s ja enintään 420 Mt muistia.
-ina-haara ajettu vain tynkämoduulilla (paloittelu ja lajien nimet; ajat ovat inan lähdekoodin mukaan absoluuttisia).
-Ajettu Clauden asetuksiin ladattuna kerran oikealla keikalla Sonnetilla (ks. yllä); ajamatta Opuksella ja oikealla
-inaSpeechSegmenterilla. Oppaan `#kielimalli`-osion lopussa on maininta paketista ja HUOM, millä se on kokeiltu.
+Ajon C jälkeen tallenne on 8:55: viides kappale modulee samassa tempossa ja iskun vaiheessa (MODULAATIO?), ja perään tulee
+samassa tempossa 12 dB hiljaisempi tasapulssinen nauha (SAUMA ja *nauhan tunnusmerkit* vain sillä rivillä); lisäksi kolme
+`--ehdokkaat`-vertailua (oikea lista ilman TARKISTA-rivejä, modulaatio ja nauha kappaleiksi, kappale ei-biisiksi). Vanha
+skripti luokitteli modulaation ja nauhan SAUMAksi (tarkistettu). OK 23.10.2026, 10 rajaa.
+Mitattu: 90 min:n mp3 kahdella ytimellä 13,4 s ja enintään 420 Mt muistia; ajon C muutosten jälkeen (synteettinen
+toistettuna 89 min:n 96 kbps mp3:ksi, `--yleiskuva`, neljä ydintä) 17,5 s, josta purku 12 s, ja enintään 426 Mt.
+ina-haara ajettu 23.10.2026 oikealla inaSpeechSegmenter 0.8.0:lla kevyellä asennuksella `pip install --no-deps
+inaSpeechSegmenter && pip install tensorflow-cpu pandas scikit-image soundfile pytextgrid` (inan riippuvuudet
+`tensorflow[and-cuda]` ja `onnxruntime-gpu` ovat turhia: `smn`-moottori tarvitsee vain kerasin, onnx on vain
+VFS-mallille). Asennus täällä hitaalla latauksella 756 s, ympäristö 1,8 Gt; malli haetaan GitHubista ensimmäisellä
+ajolla. Synteettisellä tallenteella ina pilkkoi puheen kuten ajossa C (puhe/hiljaa/kohina vuorotellen): vanha skripti
+antoi SPIIKKI 0 ja yhdeksän HÄNTÄ-riviä puheen sisällä, uusi SPIIKIn kohtaan 3:10 (tarkistettu). ina luokittelee
+synteettisen nauhan kohinaksi (rivi HÄNTÄ), siksi tunnusmerkit eivät katso lajia ja testi hyväksyy kohdassa 500 SAUMA
+tai HÄNTÄ; testi OK sekä inalla että ilman. 89 min:n synteettinen mp3 inalla: 191 s ja enintään 2,15 Gt muistia
+(TensorFlow), kaikki 10 spiikkiä SPIIKKInä.
+Ajettu Clauden asetuksiin ladattuna oikealla keikalla Sonnetilla ja Opuksella (ks. yllä); ajon C jälkeistä versiota ei
+ole ajettu oikealla keikalla. Oppaan `#kielimalli`-osion lopussa on maininta paketista ja HUOM, millä se on kokeiltu.
 Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 
