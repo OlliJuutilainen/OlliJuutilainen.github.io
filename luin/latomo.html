@@ -77,6 +77,15 @@
      päällä teksti musteella ja linkki ruosteella kuten muut linkit. */
   .kytkin[aria-pressed="false"] { color: var(--harmaa); }
   .kytkin[aria-pressed="true"] + a.pieni { color: var(--ruoste); }
+  /* MarkDownload on ehdollinen lisä (käyttäjän päätös 23.10.2026): sisennetty ja himmeä, ehtolause edessä, ja kytkin
+     kehystettynä ja isommalla salmiakilla, jotta sen tunnistaa napiksi eikä luettelomerkiksi. Aina pois sivua avattaessa. */
+  .ehdollinen { margin: 10px 0 0 14px; padding-left: 12px; border-left: 1px solid var(--viiva); gap: 4px 10px; }
+  .ehdollinen .jos { font-size: .8rem; font-style: italic; color: var(--harmaa); }
+  .ehdollinen button.kytkin { border: 1px solid var(--viiva); padding: 0 10px 0 8px; min-height: 30px; font-size: .8rem; }
+  .ehdollinen .kytkin[aria-pressed="true"] { border-color: var(--muste); }
+  .ehdollinen .kytkin svg { width: 11px; height: 15px; }
+  .ehdollinen .kytkin .sal-ulko { stroke-width: 1.1; }
+  .ehdollinen a.pieni { font-size: .78rem; }
   .tarkistus { margin-top: 24px; border-top: 1px solid var(--viiva); }
   .tiedot { margin: 14px 0 0; }
   .tiedot .nimi { font-size: 1.15rem; letter-spacing: .04em; }
@@ -162,9 +171,10 @@
       <button type="button" class="ala" id="tyhjenna-ei">älä!</button>
     </div>
   </div>
-  <div class="rivi">
+  <div class="rivi ehdollinen">
+    <span class="jos">Jos teksti on verkkosivulta tallennettu</span>
     <button type="button" class="kytkin" id="mdl" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>MarkDownload-leike</button>
-    <a class="pieni" style="margin:0" href="latomo-ohje.html#markdownload">MarkDownloadin asetukset Luinia varten</a>
+    <a class="pieni" style="margin:0" href="latomo-ohje.html#markdownload">asetukset Luinia varten</a>
   </div>
   <p class="pieni" id="mdl-tila" hidden></p>
 
@@ -285,7 +295,7 @@
   }
   alusta();
   var nimi = '', mdl = false;
-  try { mdl = localStorage.getItem('latomo-markdownload') === '1'; } catch (e) {}
+  // MarkDownload-tila on aina pois sivua avattaessa (käyttäjän päätös 23.10.2026); valintaa ei muisteta.
 
   function koodi() { return KOODI[tila.tyyppi] || 'e'; }
   function tyypin(f) { return (f.tyypille && f.tyypille[koodi()]) || f; }
@@ -748,7 +758,6 @@
 
   function asetaMdl(on) {
     mdl = on;
-    try { localStorage.setItem('latomo-markdownload', on ? '1' : '0'); } catch (e) {}
     $('#mdl').setAttribute('aria-pressed', String(on));  // paivita() ei ehdi tähän tyhjällä tekstillä
     paivita();
   }

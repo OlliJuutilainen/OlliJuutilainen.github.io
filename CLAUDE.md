@@ -654,13 +654,17 @@ Käyttäjän vaatimukset 20.10.2026:
   tekstistä päätellystä** (tutkielma läpäisee Latomon tavulleen samana). Julkaisuajan tarkkuus valitaan:
   blogissa vuodesta minuuttiin (oletus kuukausi), tieteellisessä enintään päivä; itse kirjoitettu ja tekstin
   aika säilyttävät tarkkuutensa, koneen T-aikaleima saa tyypin oletuksen. Ehdotukset muuttavat tekstikenttää
-  vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa; `latomo-markdownload`) siivoaa jäänteet vain
+  vain napista. *MarkDownload-leike*-kytkin (Firefoxin lisäosa) siivoaa jäänteet vain
   tuloksesta ja lukee tiedot etukentästä ja leikkeen lopusta; suositellut asetukset ja etukenttäpohja ovat
   Latomon ohjeessa (`latomo-ohje.html#markdownload`; käyttäjän pyyntö 22.10.2026: kaikki asetukset, ei oletusarvoja vaan
   suositus; tulos on iA Writer -yhteensopiva, mutta ohje ei mainosta iA Writeria eikä neuvo sen käyttöä, koska moni ei käytä sitä (käyttäjän päätös 22.10.2026). iA Writer mainitaan vain, kun se vastaa kysymykseen *miksi juuri näin* (merkintöjen alkuperä Merkinnät-osion johdannossa, `^…^`, `^[…]`-muunnos); nimet ja suositukset tarkistettu MarkDownload 3.4.0:n lähdekoodista ja
   sen muunnosketjua Chromiumissa ajamalla, oikealla Firefoxilla testaamatta). Kytkin poistaa myös tyhjät linkit ja muuttaa
   `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
-  `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
+  `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Käyttäjän päätös 23.10.2026:
+  kytkin on **aina pois sivua avattaessa** (valintaa ei muisteta; `latomo-markdownload`-avainta ei enää lueta eikä kirjoiteta)
+  ja ehdollisessa asemassa (`.ehdollinen`): sisennetty ohuen `--viiva`-viivan taakse, pienempi, edessä harmaa kursiivi
+  *Jos teksti on verkkosivulta tallennettu*, ja kytkin on kehystetty isommalla salmiakilla (11 × 15 px), koska pelkkä
+  pieni salmiakki näytti luettelomerkiltä. Linkin teksti on *asetukset Luinia varten*. Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
 - **Pdf:stä muunnettu teksti** (käyttäjän pyyntö 23.10.2026; opas, luku 7.1; Latomon ohje `#pdf`): hegel-repon
   (`OlliJuutilainen/hegel`) `pdf_to_markdown.py` kirjoittaa etukenttään Crossrefin tiedot (DOI alkusivuilta,
   `--no-lookup` pois) ja JSTOR-kansilehden lähteen eriteltynä (`journal`, `volume`, `issue`, `pages`; ei enää `source`,
