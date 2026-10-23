@@ -690,7 +690,10 @@ Käyttäjän vaatimukset 20.10.2026:
   `--no-lookup` pois) ja JSTOR-kansilehden lähteen eriteltynä (`journal`, `volume`, `issue`, `pages`; ei enää `source`,
   jonka Latomo lukee verkko-osoitteeksi). Latomo lukee avaimet (ALIAS, `volume`+`issue` → `72:288`) ja ilman etukenttää
   tietoriveiltä DOI:n, `Paikka: Kustantaja vuosi` ja `Tekijä, *Teos*.`; ISBN ei ole päiväys. Rivitysehdotus ohittaa
-  tietorivit ja alaviitteiden määrittelyt.
+  tietorivit ja alaviitteiden määrittelyt. **Otsikkolohko kentistä** (käyttäjän pyyntö 23.10.2026, Clauden harkinnalla;
+  opas 7.1): kun kenttä ei näy tekstin alussa, ehdotus kirjoittaa alun kentistä tekstiin, toinen nappi säilyttää vanhan
+  alun lauseet, joita kentistä ei löydy (ISBN, lisenssi). Uusi alku valitaan tekstikentässä muokattavaksi. Hylätty:
+  etukentän tilamerkintä, jolla kentät yliajaisivat näytön (tiedosto näyttäisi iA Writerissä eri alun).
 - Latomon *Tyhjennä kentät* (käyttäjän pyyntö 22.10.2026) tyhjentää tekstin, kentät, oman viitteen ja osoitteen; vahvistus
   *”Oletko aivan varma?” sanoi Lasse Lehtinen.* napein *Olen, tyhjennä* / *älä!*. MarkDownload-kytkin säilyy.
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja

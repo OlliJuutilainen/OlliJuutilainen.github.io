@@ -109,6 +109,12 @@
   .ehdotus { margin: 12px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--viiva); font-size: .88rem; }
   .ehdotus p { margin: 0 0 6px; }
   .ehdotus .rivi { margin-top: 6px; gap: 8px; }
+  /* Otsikkolohkon esikatselu kuten tiedot ylempänä; tekstistä säilytettävät rivit katkoviivalla. */
+  .ehdotus .lohko { margin: 8px 0 4px; overflow-wrap: anywhere; }
+  .ehdotus .lohko .nimi { font-size: 1rem; letter-spacing: .04em; }
+  .ehdotus .lohko .ala { font-style: italic; color: var(--harmaa); }
+  .ehdotus .lohko .meta { font-size: .82rem; color: var(--harmaa); margin-top: 4px; font-style: italic; }
+  .ehdotus .lohko .lisa { display: block; border-left: 1px dashed var(--harmaa); padding-left: 8px; margin-top: 2px; }
   section.tiedot-osio { margin-top: 30px; border-top: 1px solid var(--viiva); }
   .tyyppi-rivi { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 18px 0 0; }
   .tyyppi-rivi .otsake { margin: 0; }
@@ -654,6 +660,104 @@
     }).join('');
     return { src: uusi, n: n };
   }
+  /* ---------- otsikkolohko kentistä ----------
+     Luin näyttää tekstin alun (#-otsikko, kursiivi alaotsikko, tietorivit) sellaisenaan, joten kenttiin kirjoitettu ei
+     näy siinä (käyttäjän pyyntö 23.10.2026). Ehdotus kirjoittaa alun kentistä tekstiin, jossa sitä voi muokata vapaasti:
+     tiedosto pysyy yhtenäisenä myös iA Writerissä, eikä erillistä tilaa tarvita. Toinen nappi säilyttää tekstin vanhan
+     alun lauseet, joista kenttiin ei luettu mitään (ISBN, lisenssi). Verkko-osoite ja hakupäivä jäävät etukenttään. */
+  // Tekstin alku kuten md.js sen lukee: ensimmäinen lohko #-otsikkona, sitten kursiivi alaotsikko ja lyhytriviset kappaleet.
+  function alkulohko(body) {
+    var osat = body.split(/(\n[ \t]*\n)/), pos = 0, alku = -1, loppu = -1, h1 = '', kpl = [];
+    for (var i = 0; i < osat.length; pos += osat[i].length, i++) {
+      var o = osat[i];
+      if (!o.trim() || i % 2) continue;
+      var r = o.trim().split('\n');
+      if (alku < 0) {
+        if (r.length !== 1 || !/^ {0,3}#\s/.test(o.trim())) return null;
+        alku = pos + o.indexOf(o.trim()); loppu = alku + o.trim().length; h1 = o.trim().replace(/^#\s+/, '').replace(/\s+#*\s*$/, '');
+        continue;
+      }
+      var ala = /^\*(?!\*)[^*]+\*$/.test(o.trim());
+      if (!ala && (/^\s*([#>|*+-]|\d+[.)]\s|```|~~~|---|\[|<|\{\{)/.test(o) || !r.every(function (x) { return x.replace(/\\\s*$|\s+$/, '').length <= 100; }))) break;
+      kpl.push({ teksti: o.trim(), ala: ala });
+      loppu = pos + o.indexOf(o.trim()) + o.trim().length;
+    }
+    return alku < 0 ? null : { alku: alku, loppu: loppu, h1: h1, kpl: kpl };
+  }
+  function vertailu(s) { return L.plain(String(s || '')).replace(/\\/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase(); }
+  // Kentät tietoriveinä. Kehyksenä alaotsikon paikalla näkyvää (md.js) ei toisteta; yli 100 merkin rivi jää pois, koska
+  // pidempi kappale ei olisi enää otsikkolohkoa (se pysyy etukentässä).
+  function kenttaRivit() {
+    var a = function (k) { return yksi(tila.arvot[k]); }, ty = tila.tyyppi, r = [];
+    var kehysKentta = a('alaotsikko') ? '' : ty === 'kaunokirjallinen' ? (a('teos') ? 'teos' : 'sivusto') : ty === 'tieteellinen' ? '' : 'sivusto';
+    if (a('tekijä')) r.push(a('tekijä'));
+    if (a('suomentaja')) r.push(/^(suomen|kään|toim|transl|sov)/i.test(a('suomentaja')) ? a('suomentaja') : 'Suomentanut ' + a('suomentaja'));
+    if (a('teos') && kehysKentta !== 'teos') {
+      r.push('*' + a('teos') + '*' + (a('numero') ? ' ' + a('numero') : '') + (a('toimittaja') ? ', toim. ' + a('toimittaja') : '') + (a('sivut') ? ', ' + a('sivut') : ''));
+    }
+    var sp = [a('painos'), a('sarja')].filter(Boolean).join(', '); if (sp) r.push(sp);
+    var ly = [a('laji'), a('yhteisö')].filter(Boolean).join(', '); if (ly) r.push(ly);
+    var p = L.pvm(a('julkaistu')), aika = p ? L.pvmMuoto(p, 'meta', Math.min(tila.tarkkuus, MAKS[koodi()])) : '';
+    var pk = [a('paikka'), a('kustantaja')].filter(Boolean).join(': ');
+    if (pk || aika) r.push(pk && aika ? pk + ' ' + aika : pk || aika);
+    if (a('sivusto') && kehysKentta !== 'sivusto') r.push(a('sivusto'));
+    if (a('doi')) r.push('DOI ' + a('doi').replace(/^https?:\/\/(dx\.)?doi\.org\//i, ''));
+    return { rivit: r.filter(function (x) { return x.length <= 100; }), kehys: kehysKentta };
+  }
+  // Vanhan alun lauseet, joista ei jää jäljelle muuta kuin kenttien arvoja ja välimerkkejä, on luettu kenttiin.
+  function lisatiedot(lohko) {
+    var arvot = KENTAT.map(function (f) { return yksi(tila.arvot[f.k]); }).filter(Boolean);
+    var p = L.pvm(yksi(tila.arvot.julkaistu)); if (p) arvot.push(String(p.y));
+    arvot.sort(function (x, y) { return y.length - x.length; });
+    var out = [];
+    lohko.kpl.forEach(function (k) {
+      if (k.ala) return;
+      k.teksti.split('\n').forEach(function (l) {
+        l.replace(/\\\s*$/, '').trim().split(/(?<=[.;])\s+/).forEach(function (s) {
+          var j = L.plain(s);
+          arvot.forEach(function (v) { j = j.split(v).join(' ').replace(new RegExp(v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), ' '); });
+          j = j.replace(/\b(doi|https?:\/\/(dx\.)?doi\.org\/)/gi, ' ');
+          if (/[\p{L}\p{N}]/u.test(j)) out.push(s.trim());
+        });
+      });
+    });
+    var rivit = [];
+    out.forEach(function (s) { var v = rivit.length - 1; if (v >= 0 && (rivit[v] + ' ' + s).length <= 100) rivit[v] += ' ' + s; else if (s.length <= 100) rivit.push(s); });
+    return rivit;
+  }
+  function kirjoitaLohko(rivit, ots, ala) {
+    return ['# ' + ots].concat(ala ? ['*' + ala + '*'] : [], rivit.length ? [rivit.join('\\\n')] : []).join('\n\n');
+  }
+  // Ehdotus, jos jokin kenttä ei näy tekstin alussa (otsikko vertaillaan kokonaan, julkaisuaika vuodella).
+  function lohkoEhdotus() {
+    var ek = L.etukentta(md.value), lohko = alkulohko(ek.body);
+    if (!lohko) return null;
+    var ots = yksi(tila.arvot.otsikko) || L.plain(lohko.h1), ala = yksi(tila.arvot.alaotsikko);
+    var nyt = vertailu([lohko.h1].concat(lohko.kpl.map(function (k) { return k.teksti; })).join(' '));
+    var kr = kenttaRivit(), puuttuu = vertailu(ots) !== vertailu(lohko.h1);
+    ['tekijä', 'alaotsikko', 'suomentaja', 'teos', 'numero', 'toimittaja', 'sivut', 'painos', 'sarja', 'laji', 'yhteisö', 'paikka', 'kustantaja', 'sivusto', 'doi'].forEach(function (k) {
+      var v = vertailu(tila.arvot[k]);
+      if (v && k !== kr.kehys && nyt.indexOf(v) < 0) puuttuu = true;
+    });
+    var p = L.pvm(yksi(tila.arvot.julkaistu));
+    if (p && nyt.indexOf(String(p.y)) < 0) puuttuu = true;
+    if (!puuttuu) return null;
+    var lisa = lisatiedot(lohko);
+    function kirjoita(lisaa) {
+      var e = L.etukentta(md.value), l = alkulohko(e.body);
+      if (!l) return;
+      var uusi = kirjoitaLohko(kr.rivit.concat(lisaa ? lisa : []), ots, ala), alku = md.value.length - e.body.length + l.alku;
+      md.value = md.value.slice(0, alku) + uusi + e.body.slice(l.loppu);
+      md.focus(); md.setSelectionRange(alku, alku + uusi.length);
+    }
+    var napit = [['Kirjoita alku kentistä', function () { kirjoita(false); }]];
+    if (lisa.length) napit.push(['…ja säilytä tekstin lisätiedot', function () { kirjoita(true); }]);
+    var html = '<div class="lohko"><div class="nimi">' + kursiivi(ots) + '</div>' + (ala ? '<div class="ala">' + kursiivi(ala) + '</div>' : '') +
+      '<div class="meta">' + kr.rivit.map(kursiivi).join('<br>') +
+      (lisa.length ? '<span class="lisa">' + lisa.map(kursiivi).join('<br>') + '</span>' : '') + '</div></div>';
+    return { t: 'Tekstin alku ei vastaa kenttiä, ja Luin näyttää tekstin oman alun. Sen voi kirjoittaa kentistä tekstiin' +
+      (lisa.length ? ' (katkoviivalla merkityt rivit vain toisella napilla)' : '') + ' ja muokata sitten tekstikentässä.', html: html, napit: napit };
+  }
   function naytaEhdotukset(src) {
     ehdotukset = [];
     var raw = md.value;
@@ -684,6 +788,7 @@
         sk.forEach(function (x) { for (var i = x.ln - 1; i < x.ln - 1 + x.rivit && i < r.length; i++) r[i] = r[i].replace(/^[ \t]+/, ''); });
         md.value = r.join('\n');
       }]] });
+    var le = lohkoEhdotus(); if (le) ehdotukset.push(le);
     if (!d.paatelty.otsikko && !yksi(tila.arvot.otsikko) && !L.etukentta(src).meta.otsikko) {
       var eka = (L.etukentta(raw).body.split('\n').filter(function (x) { return x.trim(); })[0] || '').trim();
       var napit = [];
@@ -695,7 +800,7 @@
       ehdotukset.push({ t: 'Tekstissä ei ole #-otsikkoa. Kirjoita otsikko alle kenttään, niin se lisätään tekstin alkuun.', napit: napit });
     }
     $('#ehdotukset').innerHTML = ehdotukset.map(function (e, i) {
-      return '<div class="ehdotus"><p>' + esc(e.t) + '</p>' + (e.napit.length ? '<div class="rivi">' + e.napit.map(function (n, j) {
+      return '<div class="ehdotus"><p>' + esc(e.t) + '</p>' + (e.html || '') + (e.napit.length ? '<div class="rivi">' + e.napit.map(function (n, j) {
         return '<button type="button" class="pieni-nappi" data-e="' + i + '" data-n="' + j + '">' + esc(n[0]) + '</button>';
       }).join('') + '</div>' : '') + '</div>';
     }).join('');
