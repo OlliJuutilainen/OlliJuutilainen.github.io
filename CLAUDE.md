@@ -228,9 +228,29 @@ nimenomaan Claudella (Opus); taulukossa on Claude (*toimii*) ja ChatGPT (*ei kok
 200 merkkiä). `SKILL.md` tehdään `llmPrompt()`-tekstistä komennolla `node soitin/keikka-analyysi/rakenna.mjs`, joka
 lisää taidon omat kappaleet (`LISAYKSET`: asennus vaiheeseen 1 ja työjärjestys vaiheeseen 2) ankkuririvien perään ja
 kirjoittaa toistettavan zipin; `--tarkista` kertoo, ovatko ne ajan tasalla. Älä muokkaa `SKILL.md`:tä käsin.
-`rakenna.mjs` ei ole zipissä. **Pahvi C** (23.10.2026): paketti on kevyemmälle mallille (esim. Sonnet), saate Opukselle.
-Vaiheen 2 työjärjestys on pahvista: aja analyysi.py, hyväksy RAJA ja SAUMA, hylkää BREAK ellei määrä vaadi, zoom.py
-enintään kymmenestä kohdasta vain jos määrä poikkeaa, taulukko kappale–aika–luokka–todiste, `--tarkista`, lopeta.
+`rakenna.mjs` ei ole zipissä. **Pahvi C** (23.10.2026): paketti tehtiin kevyemmälle mallille (esim. Sonnet), saate Opukselle.
+**Sonnetia ei suositella** (käyttäjän päätös 23.10.2026): käyttäjän Sonnet-ajo paketilla (89 min:n keikka, 2 settiä + 3
+encorea) antoi oikean määrän väärin perustein (kappale jaettu kahdeksi BREAKista, joka hyväksyttiin määrän takia; setin 1
+lopun kappaleet ja nauha puuttuivat; ilman inaa spiikkirivit alkoivat kesken kappaleiden; `[Vielä!]` viimeisen iskun päällä;
+ajat epätarkempia kuin Opuksella). Oppaassa ja Keikkaloihtimessa saate on ensisijainen ja paketti *kokeiluasteella* Opukselle,
+taulukossa rivi Claude Sonnet *heikompi, ei suositella*. Vaiheen 2 työjärjestys muutettiin samalla Opukselle: skriptin
+ehdokkaat ovat lähtökohta ja omaa lisäkoodia saa ajaa, rajaa ei oteta mukaan tai jätetä pois määrän takia (pahvin *hylkää
+BREAK ellei määrä vaadi* poistettu), jokaisen SPIIKKI-jakson alku ja loppu tarkistetaan zoom.py:llä 30–60 s:n ikkunalla
+(ei enää kymmenen kuvan rajaa eikä *lopeta*-kohtaa), mainitun nauhan (intro, outro, DJ) alku etsitään erikseen, taulukko,
+`--tarkista`. Tarkistimen *Määrät täsmäävät* -rivi sanoo, ettei se todista rajojen paikkoja. Opuksella pakettia ei ole ajettu.
+**Taitopaketti on pääreitti, saate B-polku** (käyttäjän päätös 23.10.2026, myöhemmin: Opus kirjoitti saatteella
+mittauskoodin itse ja työ kesti 43 min, paketin skripti vie alle puoli minuuttia). Oppaan `#kielimalli`: *Suositus:
+Claude ja taitopaketti* (numeroitu lista lataamisesta tarkistukseen), sitten *Ilman taitopakettia: saate*, sitten
+malli ja taulukko. Keikkaloihtimen laatikossa ensin *Claudelle (Opus)* ja *Kopioi aloituslause*, sitten *Kopioi saate*.
+Aloituslause on `/keikka-analyysi Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.`:
+käyttäjä näki claude.ai:ssa englanninkielisen aloituksen *extract the song start times and set changes from my
+concert recording* ilman taidon mainintaa. Se ei ole repossa (tarkistettu grepillä) vaan Clauden itse tuottama, joten
+sitä ei voi muuttaa; opas neuvoo käyttämään aloituslausetta sen sijaan. Kopioidun `/keikka-analyysi`-alun tunnistusta
+claude.ai:n syöttökentässä ei ole testattu; tunnistamattominakin se nimeää taidon.
+**Ei omaa luokkaa DJ-nauhalle eikä aplodeille** (käyttäjän päätös 23.10.2026). Sekunnin osia ei tarkenneta: vastausmuoto
+on kokonaiset sekunnit ja alku merkitään noin sekunti ennen ensimmäistä ääntä, skripti antaa ehdokkaat jo puolen sekunnin
+tarkkuudella, ja muutos vaatisi saatteen (pahvi A) ja tarkistimen muuttamista; käyttäjä salli tarkennuksen vain ilman
+merkittävää hintaa.
 Jokaisella ehdokkaalla on luokka: RAJA (tauko tai puhe/aplodit ennen, tempo tai sävelluokat vaihtuvat), SAUMA (musiikkia
 molemmin puolin ilman taukoa, vaihtuvat), BREAK (tauko, samat), SPIIKKI (yli 60 s soittamaton alkaa) sekä pahvin
 ulkopuolelta HÄNTÄ (rajan jälkeen ei musiikkia; ilman sitä jokainen aplodien alku luokittuisi kappaleen aluksi) ja HEIKKO
@@ -253,8 +273,8 @@ saumaton kappaleenvaihto, 6:50) ja vaatii jokaiselle seitsemälle tunnetulle raj
 luokalla, ei ylimääräisiä RAJA/SAUMA-ehdokkaita, sekä seitsemän valmiin settilistan tarkistuksen: OK 23.10.2026.
 Mitattu: 90 min:n mp3 kahdella ytimellä 13,4 s ja enintään 420 Mt muistia.
 ina-haara ajettu vain tynkämoduulilla (paloittelu ja lajien nimet; ajat ovat inan lähdekoodin mukaan absoluuttisia).
-Ajamatta: oikea keikka, oikea inaSpeechSegmenter, lataus Clauden asetuksiin. Oppaan `#kielimalli`-osion lopussa on
-lyhyt maininta paketista ja HUOM, ettei sitä ole kokeiltu.
+Ajettu Clauden asetuksiin ladattuna kerran oikealla keikalla Sonnetilla (ks. yllä); ajamatta Opuksella ja oikealla
+inaSpeechSegmenterilla. Oppaan `#kielimalli`-osion lopussa on maininta paketista ja HUOM, millä se on kokeiltu.
 Keikkaloihdin tallentaa ja näyttää alkuajat aina sadasosan tarkkuudella (`0:00.00`, `17:30.02`),
 myös haetun vanhan keikan listassa; soitin hyppää tallennettuun aikaan sellaisenaan.
 

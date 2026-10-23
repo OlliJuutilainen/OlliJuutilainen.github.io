@@ -165,18 +165,16 @@
   <p class="muted" style="margin:0"><i>OMALLA VASTUULLA:</i> <button type="button" class="link" id="llmToggle" aria-expanded="false"
     aria-controls="llmBox">aikakoodit kielimallilta</button></p>
   <div id="llmBox" hidden>
-  <p class="muted">Kopioi saate ja liitä se tekoälyavustajalle; toimivaksi se on todettu Claudella (Opus). Se kysyy pari
-    asiaa ja pyytää sitten äänitiedoston. Liitä vastauksen aikalista yllä olevaan kenttään, lisää
-    halutessasi nimet ja tarkista ajat: kielimalli erehtyy helposti. Vinkit ovat
-    <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
-  <button id="copyPrompt" type="button">Kopioi saate</button>
-  <p class="muted" style="margin-top:14px"><b>Kevyemmälle mallille (esim. Sonnet)</b> saatteen sijaan sopii
-    Clauden taitopaketti: <a href="keikka-analyysi.zip" download>lataa keikka-analyysi.zip</a>, lisää se
-    Clauden asetuksista (<i>Customize → Skills → + → Upload a skill</i>, koodin suoritus päälle) ja aloita uusi
-    keskustelu lauseella alta. Sen jälkeen kuten saatteella: vastaa kysymyksiin, liitä äänitiedosto,
-    kirjoita <i>läpivalaise</i>. Paketti on kokeilematta oikealla keikalla; lisää
-    <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
+  <p class="muted"><b>Claudelle (Opus):</b> <a href="keikka-analyysi.zip" download>lataa keikka-analyysi.zip</a>
+    ja lisää se kerran Clauden asetuksista (<i>Customize → Skills → + → Upload a skill</i>, koodin suoritus
+    päälle). Aloita uusi keskustelu aloituslauseella, vastaa kysymyksiin, liitä äänitiedosto ja kirjoita
+    <i>läpivalaise</i>.</p>
   <button id="copyStarter" type="button">Kopioi aloituslause</button>
+  <p class="muted" style="margin-top:14px">Ilman taitopakettia kopioi saate ja liitä se uuteen keskusteluun;
+    sen jälkeen samoin.</p>
+  <button id="copyPrompt" type="button">Kopioi saate</button>
+  <p class="muted" style="margin-top:14px">Liitä vastauksen aikalista yllä olevaan kenttään, lisää halutessasi
+    nimet ja tarkista ajat: kielimalli erehtyy helposti. Lisää <a href="ohje.html#kielimalli">käyttöoppaassa</a>.</p>
   </div>
   <p class="muted" id="alsNote" hidden></p>
   <!-- Näkyy vain, kun lista on Logicin markkerilista (SMPTE-ajat). -->
@@ -1148,7 +1146,7 @@
   // Saatetta ei näytetä, vain kopioidaan; kesto on kopiointihetken tieto.
   $("copyPrompt").addEventListener("click", function () { copy(llmPrompt(), this); });
   $("copyStarter").addEventListener("click", function () {
-    copy("Etsi keikkatallenteen kappaleiden alkuajat KEICK•WALK-settilistaksi.", this);
+    copy("/keikka-analyysi Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.", this);
   });
   update();
 })();

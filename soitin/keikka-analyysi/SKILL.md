@@ -28,12 +28,13 @@ Aloita, kun sinulla on äänitiedosto ja käyttäjä on joko kirjoittanut ”lä
 
 Tee läpivalaisu tässä järjestyksessä:
 
-1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Älä tee omaa analyysikoodia, ellei skripti kaadu.
-2. Hyväksy RAJA- ja SAUMA-ehdokkaat kappaleiden aluiksi. Hylkää BREAK, ellei kappalemäärä vaadi muuta; silloin merkitse raja epävarmaksi. SPIIKKI on oma rivinsä (pelkkä alkuaika). HÄNTÄ ja HEIKKO eivät ole kappaleiden alkuja; HÄNTÄ voi kuitenkin olla encore-aplodien alku ([Vielä!]). Tulosteen alussa on luokkien selitykset.
-3. Jos hyväksyttyjä on eri määrä kuin käyttäjä kertoi, aja `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` enintään kymmenestä epäselvimmästä kohdasta ja katso kuvat (mel-spektrogrammi ja kolmen kaistan tasokäyrä). Muita kuvia ei tehdä.
-4. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.
-5. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3`. Vastaa vasta, kun tulos on OK. Jos se sanoo määrän poikkeavan, älä lisää tai poista rajoja pelkän määrän takia, vaan kerro poikkeama vastauksessa.
-6. Lopeta tähän. Älä aja uusia analyysikierroksia saman kohdan tarkentamiseksi.
+1. Aja `python3 scripts/analyysi.py <äänitiedosto> --setit 11,10 --encoret 3` (määrät käyttäjän vastauksista; jätä pois, mitä ei kerrottu). Sen ehdokkaat ja luokat ovat lähtökohta, eivät päätös: aja omaa lisäkoodia, kun jokin kohta vaatii tarkempaa mittausta.
+2. RAJA ja SAUMA ovat todennäköisiä kappaleiden alkuja, BREAK todennäköisesti saman kappaleen sisäinen tauko. SPIIKKI on oma rivinsä (pelkkä alkuaika). HÄNTÄ ja HEIKKO eivät ole kappaleiden alkuja; HÄNTÄ voi kuitenkin olla encore-aplodien alku ([Vielä!]), joka merkitään aplodien alkuun eikä viimeisen iskun kohdalle. Tulosteen alussa on luokkien selitykset.
+3. Älä ota rajaa mukaan tai jätä pois kappalemäärän takia. Määrän täsmäys ei ole todiste: ylimääräinen ja puuttuva raja kumoavat toisensa. Jos jokin raja on mukana vain määrän vuoksi, sano se vastauksessa.
+4. Ilman inaSpeechSegmenteria skriptin puhearvio on karkea: laulu, kappaleen vaimeneva loppu ja aplodit voivat näkyä puheena. Tarkista siksi jokaisen SPIIKKI-jakson alku ja loppu sekä epäselvät rajat: `python3 scripts/zoom.py <äänitiedosto> <alku> <loppu> kuva.png` noin 30–60 sekunnin ikkunalla rajan ympäriltä (usean minuutin kuvasta ei näe yksittäistä rajaa), ja katso kuva (mel-spektrogrammi ja kolmen kaistan tasokäyrä). Katso, jatkuuko edellinen kappale spiikin alussa tai alkaako seuraava jo sen sisällä.
+5. Jos käyttäjä mainitsi nauhan (intro, outro, DJ, väliaikamusiikki), etsi sen alku erikseen: tasainen pulssi, live-soitosta poikkeava taso tai feidi. Nauhan alku on oma rivinsä.
+6. Kirjoita ennen vastausta itsellesi taulukko: kappale, aika, luokka, todiste. Rivi ilman todistetta ei kelpaa.
+7. Kirjoita vastauksen koodilohkon rivit tiedostoon ja aja `python3 scripts/analyysi.py --tarkista lista.txt --setit 11,10 --encoret 3`. Vastaa vasta, kun tulos on OK. OK koskee muotoa ja määriä, ei rajojen paikkoja. Jos se sanoo määrän poikkeavan, kerro poikkeama vastauksessa.
 
 ## Tärkeintä: mittaa, älä arvaa
 
