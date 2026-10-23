@@ -238,6 +238,19 @@ ehdokkaat ovat lähtökohta ja omaa lisäkoodia saa ajaa, rajaa ei oteta mukaan 
 BREAK ellei määrä vaadi* poistettu), jokaisen SPIIKKI-jakson alku ja loppu tarkistetaan zoom.py:llä 30–60 s:n ikkunalla
 (ei enää kymmenen kuvan rajaa eikä *lopeta*-kohtaa), mainitun nauhan (intro, outro, DJ) alku etsitään erikseen, taulukko,
 `--tarkista`. Tarkistimen *Määrät täsmäävät* -rivi sanoo, ettei se todista rajojen paikkoja. Opuksella pakettia ei ole ajettu.
+**Taitopaketti on pääreitti, saate B-polku** (käyttäjän päätös 23.10.2026, myöhemmin: Opus kirjoitti saatteella
+mittauskoodin itse ja työ kesti 43 min, paketin skripti vie alle puoli minuuttia). Oppaan `#kielimalli`: *Suositus:
+Claude ja taitopaketti* (numeroitu lista lataamisesta tarkistukseen), sitten *Ilman taitopakettia: saate*, sitten
+malli ja taulukko. Keikkaloihtimen laatikossa ensin *Claudelle (Opus)* ja *Kopioi aloituslause*, sitten *Kopioi saate*.
+Aloituslause on `/keikka-analyysi Etsi keikkatallenteesta kappaleiden alkuajat ja setinvaihdot KEICK•WALK-settilistaksi.`:
+käyttäjä näki claude.ai:ssa englanninkielisen aloituksen *extract the song start times and set changes from my
+concert recording* ilman taidon mainintaa. Se ei ole repossa (tarkistettu grepillä) vaan Clauden itse tuottama, joten
+sitä ei voi muuttaa; opas neuvoo käyttämään aloituslausetta sen sijaan. Kopioidun `/keikka-analyysi`-alun tunnistusta
+claude.ai:n syöttökentässä ei ole testattu; tunnistamattominakin se nimeää taidon.
+**Ei omaa luokkaa DJ-nauhalle eikä aplodeille** (käyttäjän päätös 23.10.2026). Sekunnin osia ei tarkenneta: vastausmuoto
+on kokonaiset sekunnit ja alku merkitään noin sekunti ennen ensimmäistä ääntä, skripti antaa ehdokkaat jo puolen sekunnin
+tarkkuudella, ja muutos vaatisi saatteen (pahvi A) ja tarkistimen muuttamista; käyttäjä salli tarkennuksen vain ilman
+merkittävää hintaa.
 Jokaisella ehdokkaalla on luokka: RAJA (tauko tai puhe/aplodit ennen, tempo tai sävelluokat vaihtuvat), SAUMA (musiikkia
 molemmin puolin ilman taukoa, vaihtuvat), BREAK (tauko, samat), SPIIKKI (yli 60 s soittamaton alkaa) sekä pahvin
 ulkopuolelta HÄNTÄ (rajan jälkeen ei musiikkia; ilman sitä jokainen aplodien alku luokittuisi kappaleen aluksi) ja HEIKKO

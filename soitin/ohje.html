@@ -421,10 +421,22 @@
 <p>Vielä matalampaa aitaa uhkapelin hinnalla etsiville: tekoälyavustaja voi yrittää löytää
   kappaleiden alkukohdat suoraan keikkatallenteesta. Tulos voi osua, olla sekunteja pielessä tai olla
   kokonaan keksitty, joten tarkista se aina.</p>
+<p><b>Suositus: Claude ja taitopaketti.</b> Taitopaketti <a href="keikka-analyysi.zip"
+  download>keikka-analyysi.zip</a> lisätään Claudeen kerran. Sen mittausskripti tekee perusmittaukset koko
+  tallenteesta alle puolessa minuutissa ja tarkistaa vastauksen muodon. Ilman pakettia Claude kirjoittaa
+  mittauskoodin joka kerta itse; kokeilussa koko työ kesti noin 43 minuuttia. Säännöt ovat samat kuin saatteessa.</p>
 <ol>
-  <li><b>Kopioi saate.</b> Keikkaloihtimessa settilistakentän alla on teksti <i>OMALLA VASTUULLA:</i>
-    ja sen perässä linkki <i>aikakoodit kielimallilta</i>. Se avaa lyhyen ohjeen ja napin <span class="ui">Kopioi saate</span>.</li>
-  <li><b>Liitä saate</b> uuteen keskusteluun. Tekoälyavustaja kysyy ensin keikan rakenteesta (biisimäärät
+  <li><b>Lataa</b> <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a>. Älä pura sitä: Claude
+    haluaa zipin, jonka juuressa on kansio <code>keikka-analyysi</code>.</li>
+  <li><b>Lisää taito Claudeen</b> (vain ensimmäisellä kerralla): asetukset → <i>Customize → Skills → + →
+    Upload a skill</i>. Varmista, että koodin suoritus (<i>Code execution</i>) on päällä.</li>
+  <li><b>Aloita uusi keskustelu</b> Opuksella ja liitä siihen aloituslause. Keikkaloihtimessa
+    settilistakentän alla on teksti <i>OMALLA VASTUULLA:</i> ja sen perässä linkki <i>aikakoodit
+    kielimallilta</i>, josta aukeaa nappi <span class="ui">Kopioi aloituslause</span>. Lauseen alussa oleva
+    <code class="nw">/keikka-analyysi</code> käynnistää taidon. Jos Claude tarjoaa itse valmiin aloituksen
+    (esim. englanniksi <i>extract the song start times…</i>), se on Clauden keksimä: käytä mieluummin
+    aloituslausetta.</li>
+  <li><b>Vastaa kysymyksiin.</b> Tekoälyavustaja kysyy ensin keikan rakenteesta (biisimäärät
     seteittäin, encoret, väliaika, intro- ja outronauhat) ja siitä, merkitäänkö pitkät välispiikit omille
     riveilleen. Mihin tahansa saa jättää vastaamatta. Kappalemäärät setti kerrallaan auttavat eniten.</li>
   <li><b>Liitä äänitiedosto</b> keskusteluun ja kirjoita <i>läpivalaise</i>. Tiedosto pitää liittää
@@ -434,56 +446,39 @@
     ajat <a href="#eibiisit">ei-biisejä</a> ja <code class="nw">---</code> setinvaihto. Väliaika on oma
     <a href="#setit">rivinsä</a> <code class="nw">[VÄLIAIKA]</code>, ja encoret ovat setissä <code>(+)</code>,
     jossa jokainen encore alkaa rivillä <code class="nw">[Vielä!]</code>. Nimen voi lisätä rivin loppuun:
-    <code class="nw">3. 12:05 Nimi</code>.</li>
+    <code class="nw">3. 12:05 Nimi</code>. Jos kappalemäärä poikkeaa kertomastasi, avustaja sanoo sen
+    eikä pakota määrää täyteen.</li>
   <li><b>Tarkista ajat</b> tallennuksen jälkeen KEICK•WALK-sivulla: napauta jokaista kappaletta ja
     kuuntele, alkaako se oikeasta kohdasta. Jos tulos on huono, tee markkerit itse.</li>
 </ol>
+<p><b>Ilman taitopakettia: saate.</b> Jos et halua lisätä taitoa Claudeen tai käytät muuta palvelua,
+  paina samasta kohdasta <span class="ui">Kopioi saate</span> ja liitä saate uuteen keskusteluun
+  aloituslauseen sijaan. Sen jälkeen kaikki etenee kuten yllä kohdasta 4 alkaen.</p>
 <p><b>Palvelu ja malli.</b> Saate on todettu toimivaksi <b>Claudella</b> (Opus, korkea ajattelutaso,
   koodin suoritus päällä). Kokeilussa 89 minuutin tallenteesta löytyivät kaikki 24 kappaletta oikeassa
   järjestyksessä sekä setinvaihto ja encore, ja alkuajat poikkesivat käsin tehdyistä mediaanina
-  4,7 sekuntia, eniten puhuen tai hiljaa alkavissa kappaleissa. Työ kesti noin 43 minuuttia. Palvelun
-  pitää pystyä ajamaan koodia liitetylle tiedostolle: saate kieltää antamasta aikoja pelkän kuuntelun
-  perusteella.</p>
+  4,7 sekuntia, eniten puhuen tai hiljaa alkavissa kappaleissa. Palvelun pitää pystyä ajamaan koodia
+  liitetylle tiedostolle: ohjeet kieltävät antamasta aikoja pelkän kuuntelun perusteella.</p>
 <table class="mallit">
   <tr><th>Palvelu</th><th>Malli</th><th>Asetukset</th><th>Kokeiltu</th></tr>
   <tr><td>Claude</td><td>Opus</td>
     <td><i>Extended thinking</i> päälle; asetuksista koodin suoritus (<i>Code execution</i>) päälle</td>
-    <td>toimii</td></tr>
+    <td>saatteella toimii</td></tr>
   <tr><td>Claude</td><td>Sonnet</td><td>–</td><td>heikompi, ei suositella</td></tr>
   <tr><td>ChatGPT</td><td><i>Thinking</i> (ei <i>Instant</i>)</td>
-    <td><i>Extended</i>, jos valittavissa</td><td>ei kokeiltu</td></tr>
+    <td><i>Extended</i>, jos valittavissa; vain saate</td><td>ei kokeiltu</td></tr>
 </table>
 <p class="huom"><b>Geminiä ei toistaiseksi suositella.</b> Gemini käsittelee äänitiedoston kuuntelemalla sen itse
   eikä mittaamalla koodilla, ja saate kieltää antamasta aikoja pelkän kuuntelun perusteella: pitkässä tallenteessa
   ajantaju kelluu ja ajat päätyvät arvauksiksi. Lisäksi saate on kokeiltu vain Claudella, eikä se, että se toimii
   yhdellä kielimallilla, kerro, toimiiko se toisella.</p>
-<p class="huom">Mallien ja asetusten nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
-  olla suomeksi. Äänitallenne lähtee palvelun palvelimelle, joten älä anna sinne sellaista, mitä et
-  halua jakaa.</p>
-<p><b>Claude-taitopaketti (kokeiluasteella).</b> Saatteen sijaan voi ladata taitopaketin
-  <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a> ja lisätä sen Clauden asetuksista
-  (<i>Customize → Skills → + → Upload a skill</i>; koodin suoritus pitää olla päällä). Sen mittausskripti
-  tekee perusmittaukset koko tallenteesta alle puolessa minuutissa ja tarkistaa vastauksen muodon; säännöt
-  ovat samat kuin saatteessa. Käytä Opusta kuten saatteella. Sonnetilla kokeiltuna kappalemäärä täsmäsi,
-  mutta väärin perustein: yksi kappale oli jaettu kahdeksi ja toisaalta rajoja puuttui, spiikkirivit alkoivat
-  kesken kappaleiden, ja ajat olivat epätarkempia kuin Opuksella saatteen kanssa.
-  Aloita uusi keskustelu esimerkiksi sanoilla <i>Etsi keikkatallenteen kappaleiden alkuajat
-  KEICK•WALK-settilistaksi</i>; avustaja kysyy samat asiat kuin saatteella.</p>
-<ol>
-  <li><b>Lataa</b> <a href="keikka-analyysi.zip" download>keikka-analyysi.zip</a>. Älä pura sitä: Claude
-    haluaa zipin, jonka juuressa on kansio <code>keikka-analyysi</code>.</li>
-  <li><b>Lisää taito Claudeen:</b> asetukset → <i>Customize → Skills → + → Upload a skill</i>. Varmista, että
-    koodin suoritus (<i>Code execution</i>) on päällä, ja valitse malliksi Opus.</li>
-  <li><b>Aloita uusi keskustelu</b> ja kirjoita aloituslause (Keikkaloihtimen kohdassa
-    <i>aikakoodit kielimallilta</i> on sille kopiointinappi). Taidon pitäisi käynnistyä itsestään; jos ei,
-    mainitse sen nimi <i>keikka-analyysi</i>.</li>
-  <li><b>Jatka kuten saatteella:</b> vastaa kysymyksiin, liitä äänitiedosto ja kirjoita <i>läpivalaise</i>.
-    Avustaja ajaa mittausskriptin, tarkistaa vastauksen muodon ja antaa listan, jonka liität
-    settilistakenttään. Jos kappalemäärä poikkeaa kertomastasi, se sanoo sen suoraan eikä pakota
-    määrää täyteen.</li>
-</ol>
-<p class="huom">Taitopaketti on kokeiltu Clauden asetuksiin ladattuna yhdellä oikealla keikalla Sonnetilla
-  (tulos yllä), Opuksella ei vielä. Valikkojen nimet ovat tukisivulta.</p>
+<p class="huom">Taitopaketti on kokeiltu Clauden asetuksiin ladattuna yhdellä oikealla keikalla Sonnetilla,
+  Opuksella ei vielä. Sonnetilla kappalemäärä täsmäsi, mutta väärin perustein: yksi kappale oli jaettu kahdeksi ja
+  toisaalta rajoja puuttui, spiikkirivit alkoivat kesken kappaleiden, ja ajat olivat epätarkempia kuin Opuksella
+  saatteen kanssa. Paketin ohjeita on sen jälkeen korjattu näiden virheiden varalta.</p>
+<p class="huom">Mallien, asetusten ja valikkojen nimet muuttuvat usein, ja suomenkielisessä näkymässä ne voivat
+  olla suomeksi; taitopaketin valikot ovat Clauden tukisivulta. Äänitallenne lähtee palvelun palvelimelle, joten
+  älä anna sinne sellaista, mitä et halua jakaa.</p>
 </details>
 
 <h3 id="tallennus">Uuden keikan ja sitä merkkaavan linkin tallentaminen</h3>
