@@ -54,6 +54,10 @@ Luin lukee kaiken osoitteen #-osasta, joten mitään ei lähde palvelimelle:
 - `luin.html#u=<osoite>` – teksti verkosta. Teksti lisätään lukulistaan, ja jos haku epäonnistuu, käytetään edellistä tallennettua versiota. Suhteellinen osoite toimii: `luin.html#u=luin/ohje.md` avaa tämän oppaan.
 - `luin.html#tuo` – Latomon siirto. Latomo kirjoittaa tekstin avaimeen `luin-tuonti`, ja Luin lukee ja poistaa sen.
 
+- `luin.html#l=<koodi>` – postilaatikon koodi talteen ja haku heti; osoite siistitään. Lukulistan Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä) kelpuuttaa koodin, Luin-linkin (`#u=`, `#l=`, `#id=`) tai muun verkko-osoitteen (`#u=`).
+
+**Postilaatikko** (25.10.2026) on ainoa poikkeus #-osaan: kun asetuksissa on laatikon koodi (`luin-laatikko`), lukulista hakee workerin reitiltä `/api/luin?l=<koodi>` laatikon sisällyksen (tunnus ja lähetysaika) ja siitä uudet tai uudelleen lähetetyt tekstit (`&id=<tunnus>`), enintään minuutin välein ja aina kun lukulista tulee näkyviin. Nähdyt lähetysajat ovat avaimessa `luin-laatikko-nahdyt`, joten listasta poistettu teksti palaa vain uudelleen lähetettynä. Teksti saa tunnuksen `p-<slug>` kuten Latomon siirrossa. Latomon *Lähetä postilaatikkoon* tulostaa wrangler 3.114.17 -komennon, joka kirjoittaa tekstin heredocina tilapäistiedostoon (etukentän `---` näyttäisi wranglerille valitsimelta) ja tallentaa sen KV:hen avaimella `luin:<koodi>:<slug>`, metatietona `{t: lähetysaika}` ja vanhenemisaikana 30 päivää.
+
 Dropbox-jakolinkki muutetaan muotoon `dl.dropboxusercontent.com`, jotta sen voi hakea selaimesta.^[Testaamatta oikealla Dropbox-linkillä. Google Driven linkit eivät toimi suoraan, koska Drive ei salli selaimen hakua toiselta sivustolta (sama syy kuin KEICK•WALKin Drive-reitissä).]
 
 ### 2.3 Tallennus
@@ -373,7 +377,7 @@ Testaamatta: oikeat Boox-laitteet (myös sivunkääntönäppäimet; testattu vai
 
 ### 9.1 Käyttöönotto
 
-Tekstit voisi säilyttää samaan tapaan kuin keikat: KV-avain `teksti:<tunnus>` ja workerin reitti, jolloin linkki olisi lyhyt `luin.html#<tunnus>`. Toinen tapa on repo (`luin/tekstit/`), mutta se on julkinen. Kolmas on Dropbox-linkki (`#u=`).
+Toisen laitteen tekstit tulevat postilaatikosta (luku 2.2). Avoinna: kaveriversio (oma worker) ja laatikon tyhjennys muuten kuin vanhenemalla (`wrangler kv:key delete`). Muut tavat ovat repo (`luin/tekstit/`, julkinen) ja Dropbox-linkki (`#u=`).
 
 ### 9.2 Sanakirja
 

@@ -236,6 +236,52 @@ async function handleGig(req, env) {
   );
 }
 
+// ---- Luinin postilaatikko ---------------------------------------------
+// Latomo (luin/latomo.html) tulostaa komennon, joka tallentaa Markdown-tekstin
+// avaimella "luin:<laatikko>:<tekstin tunnus>" ja metatietona lähetysajan {t}.
+// Luin hakee laatikon sisällysluettelon (?l=) ja siitä vain uudet tai muuttuneet
+// tekstit (?l=&id=). Laatikon koodi on salasana: se kulkee vain Luinin
+// asetuksissa ja Latomon kentässä, ei repossa. Tekstit vanhenevat KV:stä
+// (komennon --ttl); lukulaitteella ne säilyvät.
+const LUIN_BOX_RE = /^[a-z0-9-]{8,40}$/;
+const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
+
+async function handleLuin(req, env) {
+  const url = new URL(req.url);
+  const box = (url.searchParams.get("l") || "").trim().toLowerCase();
+  const id = (url.searchParams.get("id") || "").trim().toLowerCase();
+
+  if (!LUIN_BOX_RE.test(box) || (id && !LUIN_ID_RE.test(id))) {
+    logEvent("luin_bad_key");
+    return errorResponse("bad_key", 400);
+  }
+  if (!env.LOCATIONS || typeof env.LOCATIONS.list !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
+    return errorResponse("bad_payload", 500);
+  }
+
+  const prefix = `luin:${box}:`;
+  if (id) {
+    const md = await env.LOCATIONS.get(prefix + id);
+    if (md == null) {
+      logEvent("luin_not_found");
+      return errorResponse("not_found", 404);
+    }
+    logEvent("luin_200", { bytes: md.length });
+    return new Response(md, {
+      headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "no-store" },
+    });
+  }
+
+  const listed = await env.LOCATIONS.list({ prefix, limit: 200 });
+  const texts = listed.keys.map((k) => ({
+    id: k.name.slice(prefix.length),
+    t: k.metadata && Number.isFinite(Number(k.metadata.t)) ? Number(k.metadata.t) : 0,
+  }));
+  logEvent("luin_list", { n: texts.length });
+  return jsonResponse({ v: 1, texts }, { headers: { "Cache-Control": "no-store" } });
+}
+
 // ---- Lisäominaisuus: kansio soittolistana -----------------------------
 // Tavallinen keikka (audio + tracks) ei käytä mitään tämän osion koodista.
 //
@@ -591,6 +637,13 @@ export default {
       if (url.pathname === "/api/dropbox" || url.pathname === "/api/drive") {
         const check = url.pathname === "/api/drive" ? driveCheck : dropboxCheck;
         return corsify(await handleFolderCheck(check, env), {
+          origin,
+          requestHeaders: acrHeaders,
+          allowedOrigins,
+        });
+      }
+      if (url.pathname === "/api/luin") {
+        return corsify(await handleLuin(req, env), {
           origin,
           requestHeaders: acrHeaders,
           allowedOrigins,
