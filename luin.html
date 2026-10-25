@@ -9,10 +9,13 @@
 <!--
   Luin: lukulista ja lukulaite. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
   tämän selaimen localStorageen: lukulista, tekstit, lukukohta, kirjanmerkit, alleviivaukset ja kirjaukset.
-  Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti.
+  Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti ja asetuksissa annetun
+  postilaatikon tekstit (workerin /api/luin; Latomon Lähetä-komento).
   Reitit: #           lukulista
           #id=<id>    lukulistan teksti
           #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
+          #l=<koodi>  postilaatikon koodi talteen ja laatikon haku (lukulistan Lisää-kenttä kelpuuttaa
+                      koodin tai linkin)
           #tuo        Latomosta (luin/latomo.html) siirretty teksti
   Käyttöohje: luin/kayttoohje.html (lukulistan linkki).
   Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md; ei linkkiä lukulistassa).
@@ -83,6 +86,11 @@
   .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
   .lisaa.uusi { margin-top: 12px; }
   .lisaa b { font-weight: 600; }
+  .lisaa-kentta { display: flex; gap: 8px; margin: 22px 0 0; }
+  .lisaa-kentta input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  .lisaa-kentta input:focus { outline: none; border-color: var(--harmaa); }
+  .lisaa-kentta button { flex: 0 0 auto; padding: 0 14px; min-height: 38px; border: 1px solid var(--harmaa); font-size: .9rem; }
   .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45; }
   .foot { margin: auto 0 0; padding-top: 44px; text-align: center; color: var(--harmaa); font-size: .64rem;
     letter-spacing: .16em; }
@@ -477,6 +485,9 @@
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
   .vienti-napit { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  #laatikko-koodi { display: block; width: 100%; margin-top: 12px; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  #laatikko-koodi:focus { outline: none; border-color: var(--harmaa); }
   /* Tuonnin kuittaus (käyttäjän pyyntö 22.10.2026): ponnahduslaatikko Tuo-napin päällä, ruosteinen rasti ja
      kehotus tekstiin. Tuotu sijainti on kyltti: ruosteinen kehys ja täytetty ruosteinen pää, jonka kolmio
      osoittaa kohdan suuntaan kuten paluumajakassa (alas = edempänä tekstissä). */
@@ -516,6 +527,10 @@
   <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
     linkistä, joka avaa tekstin Luinissa.</p>
   <p class="viesti" id="viesti" hidden></p>
+  <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): postilaatikon koodi tai linkki
+       (tekstin osoite tai Luin-linkki). -->
+  <form class="lisaa-kentta" id="lisaa-kentta"><input id="lisaa-syote" type="text" aria-label="Laatikon koodi tai linkki"
+    placeholder="Laatikon koodi tai linkki" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="submit">Lisää</button></form>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
        oppaaseen (luin/ohje.md) ei ole linkkiä lukulistassa; se avautuu osoitteesta #u=luin/ohje.md. -->
   <p class="lisaa"><a href="luin/kayttoohje.html">Käyttöohje</a><br>
@@ -610,6 +625,19 @@
         <p class="huomio" id="tuo-tieto"></p>
         <div class="vienti-napit"><button type="button" class="laatikko" id="tuo">Tuo</button></div>
         <input type="file" id="tuo-tiedosto" accept=".md,.txt,.markdown,text/markdown,text/plain" hidden>
+      </div>
+    </details>
+  </div>
+  <!-- Postilaatikko (käyttäjän pyyntö 25.10.2026): Latomon Lähetä-komennolla lähetetyt tekstit tulevat
+       lukulistaan itsestään, kun laatikon koodi on annettu kerran. Vain lukulistassa (vienti vain lukijassa). -->
+  <div id="postilaatikko">
+    <details class="vienti" id="laatikko-osio">
+      <summary>Postilaatikko<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+      <div class="vienti-sis">
+        <p class="huomio jatko">Latomossa lähetetyt tekstit tulevat lukulistaan itsestään, kun tähän on annettu sama laatikon koodi kuin Latomossa.</p>
+        <input type="text" id="laatikko-koodi" aria-label="Laatikon koodi" placeholder="laatikon koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <p class="huomio" id="laatikko-tieto"></p>
+        <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Tallenna ja hae</button></div>
       </div>
     </details>
   </div>
@@ -742,6 +770,7 @@
     if (h === 'tuo') return tuo();
     if (p.get('id')) return avaaId(p.get('id'));
     if (p.get('u')) return avaaOsoite(p.get('u'));
+    if (p.get('l')) return avaaLaatikko(p.get('l'));
     naytaLista();
   }
   window.addEventListener('hashchange', reitti);
@@ -865,7 +894,89 @@
     }).join('');
     $('#tyhja').hidden = lista.length > 0;
     window.scrollTo(0, 0);
+    haeLaatikko();
   }
+
+  /* ---------- postilaatikko ----------
+     Latomon Lähetä-komento tallentaa tekstin workerin KV:hen (luin:<koodi>:<tunnus>, metatietona lähetysaika t;
+     worker/src/index.js, handleLuin). Kun laatikon koodi on annettu, lukulista hakee laatikon sisällyksen ja
+     siitä vain uudet tai uudelleen lähetetyt tekstit (nähdyt lähetysajat: luin-laatikko-nahdyt). Listasta
+     poistettu teksti ei siis palaa, ellei sitä lähetetä uudelleen. Tunnus on sama kuin Latomon Avaa Luinissa
+     -tuonnissa (p-<slug>), joten uusi versio korvaa vanhan ja merkinnät säilyvät. Haku enintään minuutin
+     välein; verkkovirhe ohitetaan hiljaa paitsi asetuksista käynnistettäessä. */
+  var LAATIKKO_API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/api/luin';
+  var LAATIKKO_RE = /^[a-z0-9-]{8,40}$/, laatikkoHaettu = 0;
+  function haeLaatikko(pakko) {
+    var k = LS.get('luin-laatikko', '');
+    if (!LAATIKKO_RE.test(k) || !window.fetch || !pakko && Date.now() - laatikkoHaettu < 60000) return Promise.resolve(null);
+    laatikkoHaettu = Date.now();
+    var osoite = LAATIKKO_API + '?l=' + encodeURIComponent(k);
+    function hae(u, json) {
+      return fetch(u, { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return json ? r.json() : r.text();
+      });
+    }
+    return hae(osoite, true).then(function (d) {
+      var nahdyt = LS.get('luin-laatikko-nahdyt', {});
+      var uudet = (d.texts || []).filter(function (x) { return nahdyt[k + ':' + x.id] !== x.t; });
+      return Promise.all(uudet.map(function (x) {
+        return hae(osoite + '&id=' + encodeURIComponent(x.id)).then(function (md) {
+          var id = 'p-' + x.id;
+          if (!LS.set('luin-teksti:' + id, md)) return null;
+          nahdyt[k + ':' + x.id] = x.t;
+          return lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
+        }).catch(function () { return null; });
+      })).then(function (es) {
+        var n = es.filter(Boolean).length;
+        LS.set('luin-laatikko-nahdyt', nahdyt);
+        if (n) {
+          tallennaLista();
+          if (tila.nakyma === 'lista') { naytaLista(); viesti(n === 1 ? 'Postilaatikosta tuli teksti.' : 'Postilaatikosta tuli ' + n + ' tekstiä.'); }
+        }
+        return { n: n, kaikki: (d.texts || []).length };
+      });
+    }).catch(function (err) { if (pakko) throw err; return null; });
+  }
+  // #l=<koodi>: laatikko linkistä tai Lisää-kentästä. Koodi talteen, osoite siistiksi ja haku heti.
+  function avaaLaatikko(k) {
+    k = k.trim().toLowerCase();
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!LAATIKKO_RE.test(k)) { naytaLista(); return viesti('Laatikon koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.'); }
+    LS.set('luin-laatikko', k);
+    laatikkoHaettu = Date.now(); naytaLista();
+    viesti('Postilaatikko ' + k + ': haetaan…');
+    haeLaatikko(true).then(function (r) {
+      if (!r.n) viesti('Postilaatikko ' + k + ' on käytössä. ' + (r.kaikki ? 'Uusia tekstejä ei ollut.' : 'Laatikko on tyhjä.'));
+    }, function (err) {
+      viesti('Postilaatikko ' + k + ' on käytössä, mutta sitä ei tavoitettu (' + err.message + '). Haku yritetään uudelleen.');
+    });
+  }
+  // Lisää-kenttä: Luin-linkki seuraa omaa #-osaansa, muu verkko-osoite avataan tekstinä (#u=), muuten laatikon koodi.
+  $('#lisaa-kentta').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var v = $('#lisaa-syote').value.trim(), x = null;
+    if (!v) return;
+    $('#lisaa-syote').value = ''; $('#lisaa-syote').blur();
+    try { x = /^https?:\/\//i.test(v) ? new URL(v) : null; } catch (e) {}
+    if (x && /luin\.html$/.test(x.pathname) && /^#(u|l|id)=/.test(x.hash)) location.hash = x.hash;
+    else if (x) location.hash = 'u=' + encodeURIComponent(v);
+    else location.hash = 'l=' + encodeURIComponent(v);
+  });
+  $('#laatikko-tallenna').addEventListener('click', function () {
+    var k = $('#laatikko-koodi').value.trim().toLowerCase(), tieto = $('#laatikko-tieto');
+    if (!k) { LS.del('luin-laatikko'); tieto.textContent = 'Koodi poistettu. Lukulista ei hae postilaatikosta.'; return; }
+    if (!LAATIKKO_RE.test(k)) { tieto.textContent = 'Koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.'; return; }
+    LS.set('luin-laatikko', k); $('#laatikko-koodi').value = k;
+    tieto.textContent = 'Haetaan…';
+    haeLaatikko(true).then(function (r) {
+      tieto.textContent = !r.kaikki ? 'Koodi tallennettu. Laatikko on tyhjä.' :
+        'Koodi tallennettu. Laatikossa ' + lkm(r.kaikki, 'teksti', 'tekstiä') + ', joista uusia ' + r.n + '.';
+    }, function (err) {
+      tieto.textContent = 'Koodi tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen lukulistassa.';
+    });
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && tila.nakyma === 'lista') haeLaatikko(); });
 
   $('#nimikkeet').addEventListener('click', function (ev) {
     var b = ev.target.closest('button.jako');
@@ -977,6 +1088,8 @@
     tuoVal = { al: 1, ki: 1, km: 1, ed: 1 }; $('#tuo-tieto').textContent = '';
     suljePop(); piirraAsetukset();
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
+    $('#postilaatikko').hidden = !!nyt; $('#laatikko-osio').open = false;
+    $('#laatikko-koodi').value = LS.get('luin-laatikko', ''); $('#laatikko-tieto').textContent = '';
     $('#asetukset').hidden = false;
     sijoitaNipukka();
   }); });

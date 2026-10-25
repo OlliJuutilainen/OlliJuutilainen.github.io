@@ -134,6 +134,10 @@
   .lisaa-valikko { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .esikatselu { margin: 10px 0 0; padding: 10px 12px; border-left: 2px solid var(--viiva); font-size: .92rem; overflow-wrap: anywhere; }
   .esikatselu.oma { border-left-color: var(--ruoste); }
+  .laatikko { margin: 14px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--viiva); }
+  .laatikko .kentta { margin-top: 0; }
+  pre.komento { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--viiva); font: .76rem/1.45 ui-monospace, Menlo, monospace;
+    max-height: 14rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
   .ehdotusviite { font-style: italic; overflow-wrap: anywhere; }
   details.rakenne-osio { margin-top: 30px; border-top: 1px solid var(--viiva); }
   details.rakenne-osio > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 46px;
@@ -230,10 +234,33 @@
     <div class="rivi" style="margin-top:22px">
       <button type="button" class="paa" id="avaa">Avaa Luinissa</button>
       <button type="button" id="lataa">Lataa .md</button>
+      <button type="button" id="laheta" aria-expanded="false">Lähetä postilaatikkoon</button>
     </div>
     <p class="pieni"><b>Avaa Luinissa</b> tallentaa tekstin tämän selaimen lukulistaan. Saman nimisen
       tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
-      <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.</p>
+      <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
+      <b>Lähetä postilaatikkoon</b> vie tekstin toisen laitteen Luiniin.</p>
+    <!-- Postilaatikko (käyttäjän pyyntö 25.10.2026): komento tallentaa tekstin workerin KV:hen samalla
+         wrangler-versiolla kuin Keikkaloihdin (macOS Big Sur, ks. CLAUDE.md). Luin hakee laatikon lukulistaan,
+         kun sen asetuksissa on sama koodi. Koodi on salasana, joten se on vain tämän selaimen muistissa
+         (luin-laatikko, yhteinen Luinin kanssa). -->
+    <div class="laatikko" id="laatikko" hidden>
+      <div class="kentta"><label for="laatikko-koodi">Laatikon koodi</label>
+        <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="8–40 merkkiä: a–z, 0–9, -">
+          <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
+      <p class="pieni">Anna sama koodi kerran kunkin lukulaitteen Luinissa lukulistan Lisää-kenttään.
+        Koodi on salasana: kuka tahansa sen tietävä voi lukea laatikon tekstit.</p>
+      <p class="pieni" id="laatikko-virhe" hidden></p>
+      <div id="laatikko-tulos" hidden>
+        <pre class="komento" id="laatikko-komento"></pre>
+        <div class="rivi"><button type="button" class="paa" id="laatikko-kopioi">Kopioi komento</button></div>
+        <p class="pieni">Laatikon linkki (avaa kerran lukulaitteessa, tai anna koodi Luinin lukulistan Lisää-kenttään):
+          <code id="laatikko-linkki"></code></p>
+        <p class="pieni">Liitä komento Macin Päätteeseen. Teksti tulee lukulistaan, kun Luin seuraavan kerran näyttää
+          lukulistan. Laatikko säilyttää tekstin 30 päivää; lukulaitteessa se säilyy, kunnes poistat sen.
+          Saman otsikon uusi lähetys korvaa vanhan version.</p>
+      </div>
+    </div>
   </section>
 
   <details class="rakenne-osio" id="rakenne-osio" open hidden>
@@ -934,6 +961,58 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
   });
   $('#mdl').setAttribute('aria-pressed', String(mdl));
+  // ---- Postilaatikko ----
+  var LAATIKKO_RE = /^[a-z0-9-]{8,40}$/, NS = '033276b4df18419a8eb60a7d42a4efef';
+  var lkKentta = $('#laatikko-koodi');
+  try { lkKentta.value = JSON.parse(localStorage.getItem('luin-laatikko')) || ''; } catch (e) {}
+  function sq(v) { return "'" + String(v).replace(/'/g, "'\\''") + "'"; }
+  // Teksti heredocina tilapäistiedostoon, koska --- alkava arvo (etukenttä) näyttäisi wranglerille valitsimelta.
+  function lahetysKomento(md, k, id, otsikko) {
+    var loppu = 'LUIN_LOPPU';
+    while (md.split('\n').indexOf(loppu) >= 0) loppu += '_';
+    return [
+      'F="${TMPDIR:-/tmp}/luin-laatikko.md"',
+      "cat > \"$F\" <<'" + loppu + "'",
+      md.replace(/\n?$/, ''),
+      loppu,
+      'npx -y wrangler@3.114.17 kv:key put --namespace-id ' + NS + ' ' + sq('luin:' + k + ':' + id) + ' --path "$F" \\',
+      '  --metadata ' + sq(JSON.stringify({ t: Date.now() })) + ' --ttl 2592000 && rm "$F" && echo ' + sq('Lähetetty: ' + otsikko)
+    ].join('\n');
+  }
+  function paivitaLahetys() {
+    var k = lkKentta.value.trim().toLowerCase(), virhe = $('#laatikko-virhe'), t = nykyinen();
+    var ok = LAATIKKO_RE.test(k) && !!t;
+    virhe.hidden = ok || (!k && !!t);
+    virhe.textContent = !t ? 'Tekstikenttä on tyhjä.' : 'Koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.';
+    $('#laatikko-tulos').hidden = !ok;
+    if (!ok) return;
+    try { localStorage.setItem('luin-laatikko', JSON.stringify(k)); } catch (e) {}
+    var otsikko = t.doc.title || nimi || 'teksti';
+    $('#laatikko-linkki').textContent = new URL('../luin.html#l=' + k, location.href).href;
+    $('#laatikko-komento').textContent = lahetysKomento(t.md, k, L.slug(otsikko).slice(0, 60), otsikko);
+  }
+  $('#laheta').addEventListener('click', function () {
+    var auki = $('#laatikko').hidden;
+    $('#laatikko').hidden = !auki; this.setAttribute('aria-expanded', String(auki));
+    if (auki) { paivitaLahetys(); if (!lkKentta.value) lkKentta.focus(); }
+  });
+  lkKentta.addEventListener('input', paivitaLahetys);
+  $('#laatikko-arvo').addEventListener('click', function () {
+    // Sekaantumattomat merkit (ei 0/o, 1/l/i), jotta koodin voi näppäillä puhelimeen.
+    var m = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(6), out = 'luukku-';
+    crypto.getRandomValues(r);
+    for (var i = 0; i < 6; i++) out += m[r[i] % m.length];
+    lkKentta.value = out; paivitaLahetys();
+  });
+  // Komento tehdään uudelleen kopioitaessa, jotta tekstikentän myöhemmät muutokset tulevat mukaan.
+  $('#laatikko-kopioi').addEventListener('click', function () {
+    paivitaLahetys();
+    var b = this, teksti = $('#laatikko-komento').textContent;
+    function valmis() { b.textContent = 'Kopioitu'; setTimeout(function () { b.textContent = 'Kopioi komento'; }, 1500); }
+    if (navigator.clipboard) navigator.clipboard.writeText(teksti).then(valmis, function () { window.prompt('Kopioi:', teksti); });
+    else window.prompt('Kopioi:', teksti);
+  });
+
   // Testien koukku: tila ja tulos.
   window.__latomo = { tila: function () { return tila; }, tulos: function () { return nykyinen(); }, paivita: paivita };
   if (md.value.trim()) paivita();

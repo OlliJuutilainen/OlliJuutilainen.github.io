@@ -847,6 +847,14 @@ Käyttäjän vaatimukset 20.10.2026:
   kun marginaali vaikuttaa (`innerWidth < 33 × koko + 72`). Yläraja on harkittu: 40 px:llä tasattuun tekstiin tuli 412 px:llä
   silmin nähtäviä aukkoja.
 - Aikajanan oletus (käyttäjän päätös 22.10.2026): työpöydällä pääluvut ja alaluvut (`janaTaso: 2`), mobiilissa (`(max-width: 700px), (pointer: coarse)`) vain pääluvut (`janaTaso: 1`). Koskee vain ensikäyttöä; tallennettuja asetuksia ei muuteta. Mitattu Chromiumissa: työpöytä Pääluvut+Alaluvut, mobiili vain Pääluvut, tallennettu 2 säilyy mobiilissakin.
+- **Postilaatikko** (käyttäjän pyyntö 25.10.2026: Light Phoneen ei voi näppäillä linkkejä; opas, luku 2.2): Latomon
+  *Lähetä postilaatikkoon* tulostaa wrangler 3.114.17 -komennon, joka tallentaa tekstin KV:hen avaimella
+  `luin:<koodi>:<slug>` (30 päivää). Luin hakee sen workerin reitiltä `/api/luin` lukulistaan, kun laatikon koodi on annettu.
+  Laatikko otetaan käyttöön kuten KEICK•WALKin keikka, joko koodilla tai linkillä (käyttäjän pyyntö 25.10.2026): lukulistan
+  alla on kenttä *Laatikon koodi tai linkki* (koodi → `#l=`, Luin-linkki sellaisenaan, muu osoite → `#u=`), linkki on
+  `luin.html#l=<koodi>`, ja koodin voi vaihtaa tai poistaa lukulistan asetusten osiossa *Postilaatikko*. Koodi on salasana; sitä ei kirjoiteta repoon. Reitti vaatii,
+  että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
+  Testattu `wrangler dev --local`:lla ja Chromiumilla 25.10.2026; oikeaa Cloudflarea ja Light Phonea vasten ajamatta.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
