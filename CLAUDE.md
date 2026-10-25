@@ -941,3 +941,6 @@ tutkielman nettiin"): `luin/tekstit/kant-ja-elainetiikka.md` (etukenttä + alkup
 lukulistan linkki *Kokeiluteksti: Kant ja eläinetiikka* ja `robots.txt` (`Disallow: /luin/tekstit/`). Kun käyttäjä
 sanoo kokeilun päättyneen, poista kansio, linkki ja robots.txt:n rivi. Muita käyttäjän tekstejä ei viedä repoon
 ilman erillistä lupaa.
+Käyttäjän lupa 25.10.2026 (kiire, ei aikaa siirtotavan rakentamiseen): `luin/tekstit/dialectic-of-enlightenment.md`
+(verkosta kopioitu katkelma sellaisenaan, ilman etukenttää ja lukulistan linkkiä; avataan osoitteesta
+`luin.html#u=luin/tekstit/dialectic-of-enlightenment.md`). Väliaikainen kuten tutkielma; pysyvä siirtotapa on avoin (opas, luku 9).
