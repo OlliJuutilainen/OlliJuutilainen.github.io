@@ -275,6 +275,28 @@ palvelin.listen(0, async () => {
   await syota(KANT);
   tulos('tutkielmalle ei otsikkolohkon ehdotusta', !(await ehdotukset()).some(x => /Tekstin alku/.test(x)));
 
+  // 12. iA Writerin annotaatiot: kytkin ilmestyy vain annotaatiorivin kanssa, piilottaa rivin tuloksesta mutta ei
+  // tekstikentästä, eikä muuta muuta; uusi teksti alkaa ilman piilotusta.
+  const ANN = 'Annotations: 0,16552 SHA-256 822928331463b395b118&Claude: 6886,34 9650,106 10028,332 11312,41@Olaus: 44,99 13884,1554';
+  const POHJA = '# Kirjoitus\n\nLeipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.\n';
+  await syota(POHJA);
+  tulos('annotaatiokytkin piilossa ilman annotaatioita', await p.isHidden('#ann'));
+  await syota(POHJA + '\n' + ANN + '\n');
+  tulos('annotaatiokytkin ilmestyy', await p.isVisible('#ann') && (await p.getAttribute('#ann', 'aria-pressed')) === 'false');
+  const annEnnen = (await T()).md, rivitEnnen = annEnnen.split('\n').length;
+  tulos('annotaatiot mukana oletuksena', /Annotations:/.test(annEnnen));
+  await p.click('#ann');
+  await p.waitForTimeout(400);
+  const annJalkeen = (await T()).md;
+  tulos('annotaatiot piilossa tuloksesta', !/Annotations|SHA-256/.test(annJalkeen) && annJalkeen.replace(/\s+$/, '') === annEnnen.replace(ANN, '').replace(/\s+$/, '') && (await p.getAttribute('#ann', 'aria-pressed')) === 'true', JSON.stringify(annJalkeen.slice(-80)));
+  tulos('tekstikenttä ennallaan', (await p.inputValue('#md')).includes(ANN));
+  await p.click('#ann');
+  await p.waitForTimeout(300);
+  tulos('kytkin palauttaa annotaatiot', (await T()).md === annEnnen, String(rivitEnnen));
+  await p.click('#ann');
+  await tiedostona('ann.md', POHJA + '\n' + ANN + '\n');
+  tulos('tiedostosta ladattu teksti alkaa ilman piilotusta', (await p.getAttribute('#ann', 'aria-pressed')) === 'false' && /Annotations:/.test((await T()).md));
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');

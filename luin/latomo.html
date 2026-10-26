@@ -186,6 +186,10 @@
     <button type="button" class="kytkin" id="mdl" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>MarkDownload-leike</button>
     <a class="pieni" style="margin:0" href="latomo-ohje.html#markdownload">asetukset Luinia varten</a>
   </div>
+  <div class="rivi ehdollinen" id="ann-rivi" hidden>
+    <span class="jos">Teksti sisältää iA Writerin annotaatiot (tekijyysmerkinnät)</span>
+    <button type="button" class="kytkin" id="ann" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>Piilota annotaatiot</button>
+  </div>
   <p class="pieni" id="mdl-tila" hidden></p>
 
   <section class="tarkistus" id="tarkistus" hidden>
@@ -327,7 +331,7 @@
       oma: null, omaKoskettu: false, muokkaa: false, ohitettu: {} };
   }
   alusta();
-  var nimi = '', mdl = false;
+  var nimi = '', mdl = false, ann = false;
   // MarkDownload-tila on aina pois sivua avattaessa (käyttäjän päätös 23.10.2026); valintaa ei muisteta.
 
   function koodi() { return KOODI[tila.tyyppi] || 'e'; }
@@ -432,11 +436,26 @@
     });
     return n >= 3;
   }
+  /* ---------- iA Writerin annotaatiot ----------
+     iA Writerin tekijyysmerkinnät tallentuvat tiedoston loppuun riville
+     `Annotations: 0,16552 SHA-256 <tiiviste>&Claude: 6886,34 …@Olaus: 44,99 …`. Rivi poistetaan tuloksesta vain,
+     jos kytkin on päällä; rivimäärä säilyy (rivi tyhjenee), joten huomautusten rivinumerot pätevät tekstikenttään. */
+  var RE_ANN = /^\s*(?:<!--\s*)?Annotations:\s*\d+,\d+\s+SHA-256\s+\S+/;
+  function poistaAnnotaatiot(src) {
+    var r = src.split('\n'), n = 0, aita = false;
+    for (var i = 0; i < r.length; i++) {
+      if (/^ {0,3}(```|~~~)/.test(r[i])) { aita = !aita; continue; }
+      if (!aita && RE_ANN.test(r[i])) { r[i] = ''; n++; }
+    }
+    return { src: n ? r.join('\n') : src, n: n };
+  }
   // Tulokseen menevä teksti: tekstikenttä, MarkDownload-tilassa siivottuna.
   var siivous = null;
   function lahde() {
-    if (!mdl) { siivous = null; return md.value; }
-    siivous = siivoa(md.value);
+    var src = md.value;
+    if (ann) src = poistaAnnotaatiot(src).src;
+    if (!mdl) { siivous = null; return src; }
+    siivous = siivoa(src);
     return siivous.src;
   }
 
@@ -567,7 +586,7 @@
     naytaTyhjennys();
     if (!md.value.trim()) {
       $('#tarkistus').hidden = $('#tiedot-osio').hidden = $('#rakenne-osio').hidden = true;
-      $('#mdl-tila').hidden = true; d = tulos = null; return;
+      $('#mdl-tila').hidden = $('#ann-rivi').hidden = true; d = tulos = null; return;
     }
     d = L.parse(src);
     esitayta(d, src);
@@ -597,7 +616,16 @@
     }).join('') || '<li class="pieni">Ei lukuja.</li>';
     $('#lahteet').innerHTML = lahteet(d.viittaukset);
     naytaMdl(src);
+    naytaAnn();
     naytaViite();
+  }
+
+  // Kytkin näkyy vain, kun tekstikentässä on annotaatiorivi; ilman sitä tila ei vaikuta tulokseen.
+  function naytaAnn() {
+    var on = poistaAnnotaatiot(md.value).n > 0;
+    if (!on) ann = false;  // uusi teksti alkaa aina ilman piilotusta
+    $('#ann-rivi').hidden = !on;
+    $('#ann').setAttribute('aria-pressed', String(on && ann));
   }
 
   function naytaMdl(src) {
@@ -894,6 +922,7 @@
     paivita();
   }
   $('#mdl').addEventListener('click', function () { asetaMdl(!mdl); });
+  $('#ann').addEventListener('click', function () { ann = !ann; paivita(); });
 
   /* ---------- tyhjennys ----------
      Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi; MarkDownload-kytkin on asetus ja säilyy.
@@ -916,6 +945,7 @@
   $('#tyhjenna-kylla').addEventListener('click', function () {
     clearTimeout(ajastin);
     alusta(); nimi = '';
+    ann = false;
     md.value = ''; osoite.value = ''; $('#viite').value = ''; $('#tiedosto').value = '';
     $('#tiedostonimi').textContent = 'tai pudota .md- tai .txt-tiedosto kenttään';
     $('#lisaa-valikko').hidden = true; $('#lisaa').setAttribute('aria-expanded', 'false');
@@ -929,7 +959,7 @@
     var r = new FileReader();
     r.onload = function () {
       alusta();
-      md.value = String(r.result); nimi = f.name.replace(/\.[^.]+$/, '');
+      ann = false; md.value = String(r.result); nimi = f.name.replace(/\.[^.]+$/, '');
       $('#tiedostonimi').textContent = f.name; osoite.value = '';
       paivita();
     };
