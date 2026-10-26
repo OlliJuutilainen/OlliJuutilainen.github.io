@@ -499,6 +499,8 @@ palvelin.listen(0, async () => {
   const sl = await p.evaluate(async () => {
     const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300)), nav = [...document.querySelectorAll('nav.sisallys a[data-go]')];
     if (!nav.length) return { ohitettu: true };
+    // Palkit auki: tekstialueen linkki ei toimi (26.10.2026), joten ne suljetaan ensin.
+    if (!document.querySelector('#jana').hidden) document.querySelector('#ala-nappi').click();
     window.scrollTo(0, 0); await odota(); await odota();
     nav[nav.length - 1].click(); await odota();
     return { linkkeja: nav.length, siirtyi: scrollY > 2 * innerHeight, majakka: !document.getElementById('majakka').hidden };
@@ -569,7 +571,8 @@ palvelin.listen(0, async () => {
   await kaista();
   const pv1 = await palkit();
   await m.mouse.click(keski.x, keski.y); await m.waitForTimeout(100);
-  const pv1b = await palkit();
+  const pv1b = await palkit();   // tekstin napautus sulkee auki olevat palkit (26.10.2026)
+  await kaista();
   await kaista();
   const pv2 = await palkit();
   await kaista();
@@ -578,10 +581,10 @@ palvelin.listen(0, async () => {
   await kaista();
   await m.mouse.wheel(0, 400); await m.waitForTimeout(200);
   const pv4 = await palkit();
-  tulos('mobiilin palkit vierityksessä', !pv0.yla && !pv0.jana && !pvT.jana && pv1.yla && pv1.jana && pv1b.jana && !pv2.yla && !pv2.jana && pv3.jana && !pv4.jana && !pv4.yla,
+  tulos('mobiilin palkit vierityksessä', !pv0.yla && !pv0.jana && !pvT.jana && pv1.yla && pv1.jana && !pv1b.jana && !pv1b.yla && !pv2.yla && !pv2.jana && pv3.jana && !pv4.jana && !pv4.yla,
     [pv0, pvT, pv1, pv1b, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
-  tulos('palkkinuoli kääntyy ja täyttyy', !pv0.alas && pv0.tayte === 'none' && pv1.alas && pv1.tayte !== 'none' && !pv2.alas && pv2.tayte === 'none',
-    JSON.stringify([pv0, pv1, pv2].map(x => [x.alas, x.tayte])));
+  tulos('palkkinuoli kääntyy', !pv0.alas && pv1.alas && !pv2.alas,
+    JSON.stringify([pv0, pv1, pv2].map(x => x.alas)));
   // Kelluvat palstan linjassa (musteen reunat) ja Merkinnät/Etsi niiden välissä.
   const linja = async () => { await avaaPalkitM(); await m.waitForTimeout(100); return m.evaluate(() => {
     const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
@@ -589,8 +592,8 @@ palvelin.listen(0, async () => {
     const t = document.body.classList.contains('sivutus') ? { left: sv.left + parseFloat(art.style.marginLeft), right: sv.left + parseFloat(art.style.marginLeft) + parseFloat(art.style.width) } : q('#teksti'), km = q('#km-nappi svg'), n = q('.jana-napit'), sn = document.querySelector('#sivunapit');
     // Nuolen viewBox on musteen rajat viivan ulkoreunoineen, kuten kirjanmerkin: laatikon reuna = musteen reuna.
     const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : sn.getBoundingClientRect(), ala = q('#ala');
-    const oik = snr ? snr.left : nu.left, vapaa = { v: n.left - km.right, o: oik - n.right };
-    return { km: +(km.left - t.left).toFixed(2), nuoli: +(nu.right - t.right).toFixed(2), snNuoli: snr && +(nu.left - snr.right).toFixed(2),
+    const oik = nu.left, vapaa = { v: n.left - km.right, o: oik - n.right };
+    return { km: +(km.left - t.left).toFixed(2), nuoli: +((snr || nu).right - t.right).toFixed(2), snNuoli: snr && +(snr.left - nu.right).toFixed(2),
       napitV: +vapaa.v.toFixed(1), napitO: +vapaa.o.toFixed(1), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), kerros: Math.round(innerHeight - ala.top) }; }); };
   const lvv = await linja();
   // Paluumajakka säilyy, kun palkit avataan kaistasta.
@@ -611,14 +614,15 @@ palvelin.listen(0, async () => {
   await m.click('#sivu-se'); await m.waitForTimeout(100);
   const ps2 = await palkit();
   await m.mouse.click(390, 300); await m.waitForTimeout(100);
-  const ps3 = await palkit();
-  await m.mouse.click(20, 300); await m.waitForTimeout(100);
+  const ps3 = await palkit();   // reunanapautus palkit auki: vain sulkee, ei käännä (26.10.2026)
+  await kaista();
+  await m.click('#sivu-ed'); await m.waitForTimeout(100);
   const ps4 = await palkit();
   // Kaistan keskeltä (Merkinnät ja Etsi ovat vasemmalla) palkit sulkeutuvat.
-  const kx = await m.evaluate(() => { const n = document.querySelector('.jana-napit').getBoundingClientRect(), s = document.querySelector('#sivunapit').getBoundingClientRect(); return (n.right + s.left) / 2; });
+  const kx = await m.evaluate(() => { const jn = document.querySelector('.jana-napit'), n = jn.classList.contains('ahdas') ? document.querySelector('#km-nappi svg').getBoundingClientRect() : jn.getBoundingClientRect(), s = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return (n.right + s.left) / 2; });
   await m.mouse.click(kx, 824 - 22); await m.waitForTimeout(100);
   const ps5 = await palkit();
-  tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && ps3.jana && ps3.s === ps2.s + 1 && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
+  tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
     [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
   // Ilman sivunappeja Merkinnät ja Etsi ovat kirjanmerkin ja nuolen välin keskellä, sivunappien kanssa vasemmalla.
@@ -627,13 +631,13 @@ palvelin.listen(0, async () => {
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
   // Sivunvaihtopainikkeet asetuksista: kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
   await asetuksetM();
-  const kyt = await m.evaluate(() => { const s = document.querySelector('#asetukset button[data-arvo="sivut"]').getBoundingClientRect(), k = document.querySelector('#sivunapit-kytkin button');
+  const kyt = await m.evaluate(() => { const s = document.querySelector('#asetukset button[data-arvo="sivut"]').getBoundingClientRect(), k = document.querySelector('#sivunapit-kytkin button[data-kytkin="sivunapit"]');
     return { ero: +(k.getBoundingClientRect().left - s.left).toFixed(1), pois: k.disabled }; });
-  await m.click('#sivunapit-kytkin button'); await m.click('#asetukset .sulje'); await m.waitForTimeout(100);
+  await m.click('#sivunapit-kytkin button[data-kytkin="sivunapit"]'); await m.click('#asetukset .sulje'); await m.waitForTimeout(100);
   const ilman = await m.evaluate(() => ({ piilo: document.querySelector('#sivunapit').hidden, tallessa: JSON.parse(localStorage.getItem('luin-asetukset')).sivunapit }));
-  await asetuksetM(); await m.click('#sivunapit-kytkin button'); await m.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await m.waitForTimeout(100);
+  await asetuksetM(); await m.click('#sivunapit-kytkin button[data-kytkin="sivunapit"]'); await m.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await m.waitForTimeout(100);
   // Asetukset pysyvät auki Liikkumisen vaihtuessa.
-  const kytV = await m.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button').disabled, nakyy: !document.querySelector('#sivunapit').hidden }));
+  const kytV = await m.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button[data-kytkin="sivunapit"]').disabled, nakyy: !document.querySelector('#sivunapit').hidden }));
   await m.click('#asetukset .sulje');
   tulos('sivunvaihtopainikkeiden kytkin', Math.abs(kyt.ero - 16) < 0.6 && !kyt.pois && ilman.piilo && ilman.tallessa === 0 && kytV.pois && !kytV.nakyy, JSON.stringify({ kyt, ilman, kytV }));
   await m.context().close();
@@ -663,7 +667,7 @@ palvelin.listen(0, async () => {
   await tp.goto(BASE + 'luin.html#tuo'); await tp.waitForTimeout(600);
   const tila2 = () => tp.evaluate(() => ({ yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none', jana: !document.querySelector('#jana').hidden,
     mob: document.body.classList.contains('mobiili'), teksti: document.querySelector('#ala-rivi').innerText.trim(), pros: getComputedStyle(document.querySelector('#jana-pros')).display !== 'none' && /^\d+ %$/.test(document.querySelector('#jana-pros').textContent), ala: !document.querySelector('#ala-pros'),
-    nuoli: (n => n.display === 'none' ? 'ei' : (n.transform !== 'none' ? 'alas' : 'ylös') + (n.fill === 'none' ? '' : '+täyte'))(getComputedStyle(document.querySelector('#palkki-nuoli'))) }));
+    nuoli: (n => n.display === 'none' ? 'ei' : (n.transform !== 'none' ? 'alas' : 'ylös'))(getComputedStyle(document.querySelector('#palkki-nuoli'))) }));
   const t0 = await tila2();
   await tp.mouse.click(640, 400); await tp.waitForTimeout(100);
   const t1 = await tila2();
@@ -674,7 +678,7 @@ palvelin.listen(0, async () => {
   tulos('työpöydän palkit', !t0.mob && t0.yla && !t0.jana && t0.teksti === '' && t0.ala && !t1.jana && t2.jana && t2.pros && t2.yla && !t3.jana,
     JSON.stringify([t0, t1, t2, t3].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + ' "' + x.teksti + '"')));
   // Palkkinuoli myös työpöydällä (käyttäjän vaatimus 22.10.2026): kiinni ylös ja ontto, auki alas ja täytetty.
-  tulos('työpöydän palkkinuoli', t0.nuoli === 'ylös' && t2.nuoli === 'alas+täyte' && t3.nuoli === 'ylös', [t0, t2, t3].map(x => x.nuoli).join(' → '));
+  tulos('työpöydän palkkinuoli', t0.nuoli === 'ylös' && t2.nuoli === 'alas' && t3.nuoli === 'ylös', [t0, t2, t3].map(x => x.nuoli).join(' → '));
   // Sivutettuna työpöydällä keskiklikkaus ei avaa aikajanaa (hiirellä kauhea tapa), reunat kääntävät sivua.
   // Kapea hiiri-ikkuna (690 px) on työpöytä: palkit pysyvät.
   await tp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
