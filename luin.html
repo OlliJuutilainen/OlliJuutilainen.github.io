@@ -355,10 +355,12 @@
      koverakylkinen salmiakki kuten sivunapeissa, ylös osoittava. Kiinni hienovarainen ääriviiva kirjanmerkin
      ääriviivan tapaan, auki täytetty tekstin värillä ja alas osoittava. Myös työpöydällä (käyttäjän vaatimus
      22.10.2026: alapalkissa ei ollut mitään merkkiä avaamisesta ja sulkemisesta), jossa alapalkin klikkaus avaa
-     ja sulkee aikajanan; sama palkit-auki-luokka kääntää nuolen. */
-  #palkki-nuoli { display: block; width: 10.6px; height: 12.4px; fill: none; stroke: var(--harmaa); stroke-width: 1;
-    stroke-linejoin: round; flex: 0 0 auto; }
-  body.palkit-auki #palkki-nuoli { fill: var(--muste); stroke: var(--muste); transform: rotate(180deg); }
+     ja sulkee aikajanan; sama palkit-auki-luokka kääntää nuolen. Käyttäjän pyyntö 26.10.2026: edellinen yksittäinen
+     salmiakkinuoli ei ollut intuitiivinen, joten merkki on tavanomainen kaksoischevron eli kaksi samansuuntaista
+     ohutta natsaviivaa päällekkäin (kalanruoto): kiinni ylös, auki alas. Nuoli on sivunappien vasemmalla puolella. */
+  #palkki-nuoli { display: block; width: 15px; height: 13.75px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
+    stroke-linejoin: round; stroke-linecap: round; flex: 0 0 auto; }
+  body.palkit-auki #palkki-nuoli { stroke: var(--muste); transform: rotate(180deg); }
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat
      kyljet kuten logon ja aikajanan salmiakeissa; aiemmin ohuet natsat). Yhtenäinen laatikko väliviivalla, ettei
@@ -568,11 +570,11 @@
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana" aria-label="Aikajana"></button>
       <div id="ala-oikea">
+        <svg id="palkki-nuoli" viewBox="0 0 12 11" aria-hidden="true"><path d="M1 5L6 1L11 5M1 10L6 6L11 10"/></svg>
         <div id="sivunapit" hidden>
           <button type="button" id="sivu-ed" aria-label="Edellinen sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7Q7.18 5.18 12.4 2.2Q10.22 5.18 9 7Q10.22 8.82 12.4 11.8Q7.18 8.82 1 7Z"/></svg></button>
           <button type="button" id="sivu-se" aria-label="Seuraava sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M13 7Q6.82 5.18 1.6 2.2Q3.78 5.18 5 7Q3.78 8.82 1.6 11.8Q6.82 8.82 13 7Z"/></svg></button>
         </div>
-        <svg id="palkki-nuoli" viewBox="1.7 .5 10.6 12.4" aria-hidden="true"><path d="M7 1Q5.18 7.18 2.2 12.4Q5.18 10.22 7 9Q8.82 10.22 11.8 12.4Q8.82 7.18 7 1Z"/></svg>
       </div>
     </div>
   </footer>
@@ -583,18 +585,19 @@
   <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <h3>Ulkoasu</h3>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div></div>
-  <!-- Sivunvaihtopainikkeet (käyttäjän pyyntö 22.10.2026) ovat Sukkelan alleviivauksen tapaan pieni lisäkytkin,
-       joka kuuluu Sivut-vaihtoehtoon: se on sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä
-       vierityksessä. -->
+  <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
+       ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
+       sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
+       yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivut"></div>
-    <div class="valinnat nipukka" id="sivunapit-kytkin" data-k="sivunapit:Sivunvaihtopainikkeet"></div></div>
+    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunan napautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
-  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|keski:Keski|levea:Reilu"></div></div>
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|keski:Keski|levea:Reilu|syva:Syvä|syvin:Syvin"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -715,7 +718,7 @@
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'keski', tavutus: 'varovainen',
-    sivutus: 'vieritys', sivunapit: 0, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
+    sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0, av: 5 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
@@ -745,7 +748,11 @@
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
   // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.
-  var MARG = { kapea: 0, keski: 24, levea: 36 };
+  // Syvä ja Syvin lisättiin 26.10.2026 (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
+  // leveällä ruudulla, ja kapealla puhelimella tasattu teksti harvenee, mikä on valitsijan oma päätös.
+  var MARG = { kapea: 0, keski: 24, levea: 36, syva: 60, syvin: 90 };
+  var MARG_SYVIN = 90;
+  var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
   function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
@@ -1108,13 +1115,16 @@
     });
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
-        var kv = o.split(':'), pois = kv[0] === 'auto' && !aset.alTekstissa || kv[0] === 'sivunapit' && aset.sivutus !== 'sivut';
-        return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + !!aset[kv[0]] + '"' + (pois ? ' disabled' : '') + '>' + SAL_IKONI + kv[1] + '</button>';
+        var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
+        var pois = kv[0] === 'auto' && !aset.alTekstissa || tapa && aset.sivutus !== 'sivut';
+        var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
+        return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + !!aset[kv[0]] + '"' + (pois ? ' disabled' : '') +
+          (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI + kv[1] + '</button>';
       }).join('');
     });
     $('#koko-arvo').textContent = aset.koko + ' px';
     // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
-    $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG.levea;
+    $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
     piirraVienti();
     sijoitaNipukka();
   }
@@ -1138,7 +1148,10 @@
     var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
     if (!b) return;
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
-    if (b.dataset.kytkin) aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+    if (b.dataset.kytkin) {
+      if (b.getAttribute('aria-disabled') === 'true') return;
+      aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+    }
     else if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
     // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Pääluvut sammuttaa
     // kaikki etapit); muu napautus asettaa tason (käyttäjän päätös 21.10.2026).
@@ -1531,6 +1544,7 @@
   sivuEl.addEventListener('wheel', function (e) {
     if (aset.sivutus !== 'sivut') return;
     e.preventDefault();
+    if (palkitAuki()) return;
     var nytAika = Date.now();
     if (nytAika - rullaAika < 380 || Math.abs(e.deltaY) + Math.abs(e.deltaX) < 4) return;
     rullaAika = nytAika;
@@ -1539,19 +1553,32 @@
   var kosketus = null;
   sivuEl.addEventListener('touchstart', function (e) { if (e.touches.length === 1) kosketus = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; }, { passive: true });
   sivuEl.addEventListener('touchend', function (e) {
-    if (!kosketus || aset.sivutus !== 'sivut') return;
+    if (!kosketus || aset.sivutus !== 'sivut' || !aset.sivuPyyhka || palkitAuki()) return;
     var t = e.changedTouches[0], dx = t.clientX - kosketus.x, dy = t.clientY - kosketus.y;
     var lyhyt = Date.now() - kosketus.t < 600;
     kosketus = null;
     if (lyhyt && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5 && valintaTyhja()) { tila.pyyhkaisty = Date.now(); seuraava(dx < 0 ? 1 : -1); }
   }, { passive: true });
 
+  // Alapalkin kosketus muistetaan: sen perässä tuleva haamunapautus ei saa kääntää sivua reunanapautuksena
+  // (käyttäjän vaatimus 26.10.2026: kirjanmerkkinapin painallus ei käännä sivua).
+  var alaKosk = 0;
+  ['pointerdown', 'touchstart', 'click'].forEach(function (t) { $('#ala').addEventListener(t, function () { alaKosk = Date.now(); }, true); });
   function valintaTyhja() { var s = getSelection(); return !s || s.isCollapsed; }
 
   /* ---------- napautukset tekstissä ---------- */
   sivuEl.addEventListener('click', function (e) {
     if (!nyt) return;
     var t = e.target;
+    // Kun palkit ovat auki, tekstialueen napautus vain sulkee ne (rauhallinen lukunäkymä): mikään muu tekstialueen
+    // toiminto, ei linkki, kirjanmerkki, alleviivaus eikä reunanapautus, toimi (käyttäjän vaatimus 26.10.2026).
+    // Auki oleva ponnahdus suljetaan ensin. Valinta pitää tekstin ennallaan.
+    if (palkitAuki()) {
+      if (!valintaTyhja()) return;
+      e.preventDefault();
+      if (!pop.hidden) suljePop(); else avaaJana(false);
+      return;
+    }
     var go = t.closest('a[data-go]');
     if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }, false, true); return; }
     var a = t.closest('#teksti a[href]');
@@ -1575,7 +1602,8 @@
     if (!valintaTyhja()) return;
     if (!pop.hidden) { suljePop(); return; }
     if (tila.pyyhkaisty && Date.now() - tila.pyyhkaisty < 400) return;
-    if (aset.sivutus !== 'sivut') return;
+    if (aset.sivutus !== 'sivut' || !aset.sivuReuna) return;
+    if (Date.now() - alaKosk < 800 || t.closest('#ala') || e.clientY >= alaRaja()) return;
     var x = e.clientX / innerWidth;
     if (x < 0.3) seuraava(-1); else if (x > 0.7) seuraava(1);
   });
@@ -1952,7 +1980,7 @@
     napitAvain = avain;
     n.classList.remove('ahdas');
     var km = $('#km-nappi svg').getBoundingClientRect(), sn = $('#sivunapit');
-    var v = km.right + 12, o = (sn.hidden ? $('#palkki-nuoli') : sn).getBoundingClientRect().left - 12, w = n.offsetWidth;
+    var v = km.right + 12, o = $('#palkki-nuoli').getBoundingClientRect().left - 12, w = n.offsetWidth;
     if (o - v < w) { n.classList.add('ahdas'); return; }
     n.style.setProperty('--napit-x', Math.round(sn.hidden ? v + (o - v - w) / 2 : v) + 'px');
   }
@@ -2149,6 +2177,8 @@
       var m = janaKohde(clientX), f = osuus(m.k), g = $('#j-veto');
       $('#jana-kohta').textContent = m.nimi;
       if (!veto) return;
+      // Edistyminen (sivunumero tai prosentti) seuraa vetoa heti eikä vaihdu vasta irrotettaessa (käyttäjän pyyntö 26.10.2026).
+      $('#jana-pros').textContent = aset.sivutus === 'sivut' ? (clamp(sivuKohdassa(m.k), 0, tila.sivuja - 1) + 1) + ' / ' + tila.sivuja : Math.round(osuus(m.k) * 100) + ' %';
       var uusi = !janaVeto;
       janaVeto = { f: f };
       if (uusi || !g) { piirraJana(); return; }
