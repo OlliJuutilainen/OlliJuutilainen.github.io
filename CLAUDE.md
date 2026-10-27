@@ -808,22 +808,27 @@ Käyttäjän vaatimukset 20.10.2026:
   (`body.mobiili`, `asettele()`); hiiri on työpöytä myös kapeassa ikkunassa (käyttäjän päätös 22.10.2026: leveysehdolla palkit
   piiloutuivat työpöydällä). Aikajanan oletustason ehto `(max-width: 700px), (pointer: coarse)` on erillinen ja ennallaan. Työpöydällä ylä- ja alapalkki pysyvät; alapalkissa ei ole
   natsaa eikä nykyisen osion nimeä (`#ala-kohta` poistettu), vain kirjanmerkki vasemmalla ja sivunapit ja edistyminen oikealla.
-  Osion nimi näkyy avatun aikajanan ylärivillä. Mobiilissa palkit ovat piilossa: alareunassa on reunukseton kaista (`--ala` 44 px),
-  jossa kirjanmerkkinauha kelluu vasemmassa ja palkkinuoli (`#palkki-nuoli`) oikeassa alanurkassa tekstipalstan reunojen linjassa
-  (`--palsta-v`, `--palsta-o`). Kaistan napautus (`#ala-nappi` koko kaistan alla; nuoli ei ota napautuksia) avaa yläpalkin ja
+  Osion nimi näkyy avatun aikajanan ylärivillä. Mobiilissa palkit ovat piilossa: alareunassa on kaista (`--ala` 44 px), jonka
+  yläreunassa on haalean haalea viiva `--hius` (viivan ja paperin puoliväli; käyttäjän pyyntö 27.10.2026, ennen reunukseton).
+  Kirjanmerkki on kaistan vasemmassa reunassa oma 43 × 43 px:n neliönsä, nauha keskellä, ja sen erottaa muusta kaistasta
+  `--hius`-pystyviiva, jonka päät ovat 7 px irti kaistan reunoista (27.10.2026; ennen nauha kellui palstan linjassa ja sen vasen
+  puoli avasi palkit). Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa tekstipalstan oikean reunan linjassa (`--palsta-o`).
+  Työpöydän kirjanmerkki on ennallaan. Kaistan napautus (`#ala-nappi` koko kaistan alla; nuoli ei ota napautuksia) avaa yläpalkin ja
   aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää, ja sulkee ne. **Tekstin napautus ei avaa palkkeja**
   (käyttäjän päätös 22.10.2026, myöhemmin: avautui liian helposti vahingossa; aiemmin vierityksessä mikä tahansa kohta ja sivutettuna
   keskikolmannes). Palkkinuoli on ylös osoittava lovettu koverakylkinen salmiakki (sivunappien nuolen muoto): kiinni `--harmaa`-ääriviiva
   kuten kirjanmerkki, auki täytetty `--muste` ja alas osoittava. Nuoli on myös työpöydällä alapalkin oikeassa reunassa (käyttäjän vaatimus 22.10.2026: alapalkissa ei ollut mitään avaamisen ja sulkemisen merkkiä), jossa se kääntyy aikajanan mukana. Kerroksen ylärivillä
-  osion nimi ja oikealla edistyminen (`#jana-pros`); *Merkinnät* ja *Etsi* kaistalla kelluvien välissä (`sijoitaJanaNapit()`, omalle
-  rivilleen, jos väli < 12 px): ilman sivunappeja välin keskellä, sivunappien kanssa vasemmalla 12 px kirjanmerkistä, jotta keskelle
-  jää mahdollisimman paljon kaistaa avaamiseen ja sulkemiseen. Vain kaistan napautus avaa ja sulkee palkit (käyttäjän päätös 22.10.2026):
+  osion nimi ja oikealla edistyminen (`#jana-pros`); *Merkinnät* ja *Etsi* ovat aikajanan alla omalla rivillään vasemmassa reunassa
+  kaistan yläpuolella kuten työpöydällä (käyttäjän pyyntö 27.10.2026; ennen kaistalla kelluvien välissä, `sijoitaJanaNapit()` poistettu). Vain kaistan napautus avaa ja sulkee palkit (käyttäjän päätös 22.10.2026):
   vieritys ja sivunkääntö eivät vaikuta (ensimmäisessä versiossa sulkivat). Työpöydällä keskiklikkaus ei avaa aikajanaa ("hiirellä
-  kauhea tapa"), vain alapalkin klikkaus. Sivunapit 44 × 34 px eli Merkinnät- ja Etsi-laatikoiden korkuiset, reunus `--harmaa`,
+  kauhea tapa"), vain alapalkin klikkaus. Sivunapit 52 × 34 px (27.10.2026; ennen 44) eli Merkinnät- ja Etsi-laatikoiden korkuiset, reunus `--harmaa` kaikilta sivuilta
+  ennallaan. Niiden napautusalue (`#sivunapit`) on koko palkin korkuinen ja ulottuu ruudun oikeaan reunaan (`--o-reuna`), joten nappien
+  ylä-, ala- ja oikealta puolelta ei avaudu aikajana (käyttäjän pyyntö 27.10.2026; myös työpöydällä); tyhjä osa kääntää sen napin
+  suuntaan, jonka kohdalla napautus on,
   nuolina täytetyt lovetut koverakylkiset salmiakit (`--muste`; valittu neljästä muodosta, leijat näyttivät pienenä möhkäleiltä).
   `#lukija`ssa ei ole napautuskorostusta (näkymättömän kaistan napautus väläytti kaistan). Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
   *Liikkuminen*-rivin *Sivut*-sanan alla lisäkytkin *Sivunvaihtopainikkeet* (`aset.sivunapit`, oletus pois 22.10.2026 alkaen; sivua
-  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; mobiilissa sivunapit ovat palkkinuolen vasemmalla puolella), 16 px sisennettynä
+  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; sivunapit ovat palkkinuolen oikealla puolella), 16 px sisennettynä
   (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
   muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,

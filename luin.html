@@ -27,10 +27,12 @@
     font-weight: 380 700; font-style: italic; font-display: swap; }
   /* Kuusi väriä kummassakin teemassa, ei läpikuultavuutta eikä varjoja: e-ink näyttää ne
      harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha).
-     --sitaatti on musteen ja harmaan välissä (Lab 70 %), jotta lainaus erottuu nopeasti vieritettäessä. */
+     --sitaatti on musteen ja harmaan välissä (Lab 70 %), jotta lainaus erottuu nopeasti vieritettäessä.
+     --hius on viivan ja paperin puoliväli: mobiilin alakaistan yläreuna ja kirjanmerkkilohkon erotin (käyttäjän
+     pyyntö 27.10.2026: haalean haalea viiva). */
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
-    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a; --sitaatti: #514331;
+    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a; --sitaatti: #514331; --hius: #e3d7c3;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --koko: 19px;
@@ -38,7 +40,7 @@
   }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
-    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94;
+    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -333,24 +335,30 @@
      ota napautuksia, joten edistymisen napautus menee alla olevalle napille.
      Kirjanmerkki ja palkkinuoli on vedetty 10 px reunasta sisäänpäin (käyttäjän päätös 22.10.2026: nurkassa
      ne näyttivät hukassa). Edistyminen näkyy vain aikajanakerroksen ylärivillä.
-     Mobiilissa rivi on reunukseton kaista, jossa kirjanmerkki kelluu vasemmassa ja palkkinuoli oikeassa
-     alanurkassa tekstipalstan reunojen 10 px sisäpuolella (--palsta-v, --palsta-o; asettele()); sivunapit, jos ne on
-     valittu, ovat nuolen vasemmalla puolella. Kaistan napautus avaa yläpalkin ja aikajanakerroksen, jonka
-     ylärivillä on osion nimi ja edistyminen, ja uusi napautus sulkee ne. Merkinnät ja Etsi ovat kaistalla
-     kelluvien välissä, joten kelluvat eivät liiku kerroksen avautuessa. */
+     Mobiilissa rivi on kaista, jonka yläreunassa on haalea viiva (--hius; käyttäjän pyyntö 27.10.2026). Kirjanmerkki
+     on vasemmassa reunassa oma kaistan korkuinen neliönsä, jonka erottaa muusta kaistasta pystyviiva; viivan päät
+     ovat irti kaistan reunoista. Lohkon vasemmalla puolella ei ole avausnappia (ennen kirjanmerkki kellui tekstipalstan
+     linjassa, ja sen vasen puoli avasi palkit). Palkkinuoli on oikeassa alanurkassa tekstipalstan oikean reunan 10 px
+     sisäpuolella (--palsta-o; asettele()). Kaistan napautus avaa yläpalkin ja aikajanakerroksen, jonka ylärivillä on
+     osion nimi ja edistyminen, ja uusi napautus sulkee ne. Merkinnät ja Etsi ovat aikajanan alla omalla rivillään
+     vasemmassa reunassa, kaistan yläpuolella kuten työpöydällä (käyttäjän pyyntö 27.10.2026; ennen kaistalla
+     kelluvien välissä). */
   #ala { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paperi); border-top: 1px solid var(--viiva);
     z-index: 20; user-select: none; -webkit-user-select: none; }
   body.mobiili #ala { border-top: 0; }
   body.mobiili.palkit-auki #ala { border-top: 1px solid var(--viiva); }
   #ala-rivi { position: relative; height: var(--ala); }
+  body.mobiili #ala-rivi { border-top: 1px solid var(--hius); }
   #km-nappi { position: relative; z-index: 1; width: 48px; height: 100%; padding-left: 24px; display: inline-flex; align-items: center; }
   #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--harmaa); stroke-width: 1; }
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
-  body.mobiili #km-nappi { width: 54px; margin-left: calc(var(--palsta-v, 16px) - 14px); }
+  body.mobiili #km-nappi { width: calc(var(--ala) - 1px); padding: 0; justify-content: center; }
+  body.mobiili #km-nappi::after { content: ""; position: absolute; right: 0; top: 7px; bottom: 7px; border-right: 1px solid var(--hius); }
   #ala-nappi { position: absolute; inset: 0; }
-  #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding-right: 24px;
-    font-size: .8rem; color: var(--harmaa); pointer-events: none; }
-  body.mobiili #ala-oikea { padding-right: calc(var(--palsta-o, 16px) + 10px); }
+  /* --o-reuna: oikean laidan sisennys; sivunappien napautusalue ulottuu sen yli ruudun reunaan asti. */
+  #ala-oikea { --o-reuna: 24px; position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+    padding-right: var(--o-reuna); font-size: .8rem; color: var(--harmaa); pointer-events: none; }
+  body.mobiili #ala-oikea { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
   #jana-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
   /* Palkkinuoli (käyttäjän päätös 22.10.2026): mobiilin kaistan oikeassa alanurkassa merkki siitä, että palkit
      aukeavat alakaistasta. Itse nuoli ei ota napautuksia, vaan koko kaista (#ala-nappi) on nappi. Lovettu
@@ -366,11 +374,16 @@
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat
      kyljet kuten logon ja aikajanan salmiakeissa; aiemmin ohuet natsat). Yhtenäinen laatikko väliviivalla, ettei
-     parin keskelle jää rakoa. Palkkinuolen vasemmalla puolella. Oletuksena pois (käyttäjän päätös 22.10.2026: sivua käännetään reunojen
-     napautuksella), asetuksista kytkettävissä. */
-  #sivunapit { display: flex; height: 34px; border: 1px solid var(--harmaa); background: var(--paperi); pointer-events: auto; }
-  #sivunapit button { width: 44px; height: 100%; display: flex; align-items: center; justify-content: center; }
-  #sivunapit button + button { border-left: 1px solid var(--harmaa); }
+     parin keskelle jää rakoa. Palkkinuolen oikealla puolella. Oletuksena pois (käyttäjän päätös 22.10.2026: sivua käännetään reunojen
+     napautuksella), asetuksista kytkettävissä.
+     Käyttäjän pyyntö 27.10.2026: napit 44 → 52 px leveiksi, reunat ennallaan, ja napautusalue on koko palkin korkuinen
+     ja ulottuu ruudun oikeaan reunaan asti, ettei nappien ylä-, ala- tai oikealta puolelta avaudu aikajana. Näkyvä
+     laatikko on nappien reunoissa; #sivunapit on läpinäkyvä alue, jonka tyhjä osa kääntää lähemmän napin suuntaan. */
+  #sivunapit { display: flex; align-items: center; align-self: stretch; margin-right: calc(-1 * var(--o-reuna));
+    padding-right: var(--o-reuna); pointer-events: auto; }
+  #sivunapit button { width: 54px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--paperi);
+    border: 1px solid var(--harmaa); }
+  #sivunapit button + button { width: 53px; border-left: 0; }
   #sivunapit svg { width: 14px; height: 14px; fill: var(--muste); }
   #jana { padding: 10px 14px 2px; border-bottom: 1px solid var(--viiva); }
   body.mobiili #jana { border-bottom: 0; padding-bottom: 0; }
@@ -409,10 +422,6 @@
   .j-maj { fill: var(--paperi); stroke: var(--harmaa); stroke-width: .9; }
   .j-maj-v { stroke: var(--harmaa); stroke-width: .9; stroke-dasharray: 1.5 2; }
   .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
-  /* Mobiilissa kaistalla kelluvien välissä (sijoitaJanaNapit); jos tila ei riitä, omalla rivillään. */
-  body.mobiili .jana-napit { position: absolute; z-index: 2; left: var(--napit-x, 50%); bottom: calc((var(--ala) - 34px) / 2); margin: 0;
-    flex-wrap: nowrap; }
-  body.mobiili .jana-napit.ahdas { position: static; margin: 4px 0 4px; flex-wrap: wrap; justify-content: center; }
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
   .laatikko svg { width: 14px; height: 11px; flex: 0 0 auto; }
@@ -1480,7 +1489,6 @@
     var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
     $('#jana-pros').textContent = pros;
     $('#sivunapit').hidden = aset.sivutus !== 'sivut' || !aset.sivunapit;
-    sijoitaJanaNapit();
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
     majakanSuunta();
     piirraKirjanmerkit();
@@ -1967,29 +1975,18 @@
     $('#jana').hidden = !auki;
     document.body.classList.toggle('palkit-auki', auki);
     $('#ala-nappi').setAttribute('aria-expanded', String(auki));
-    if (auki) { sijoitaJanaNapit(); piirraJana(); }
-  }
-  // Mobiilissa Merkinnät ja Etsi kaistalle kirjanmerkin ja oikean alanurkan (palkkinuoli, sivunapit) väliseen
-  // tilaan, vähintään 12 px kummastakin; jos ne eivät mahdu (kapea ruutu, leveä marginaali), omalle rivilleen
-  // aikajanan alle. Ilman sivunappeja tilan keskelle; sivunappien kanssa vasemmalle kirjanmerkin viereen, jotta
-  // keskelle jää mahdollisimman paljon kaistaa palkkien avaamiseen ja sulkemiseen (käyttäjän päätös 22.10.2026).
-  var napitAvain = '';
-  function sijoitaJanaNapit() {
-    var n = $('.jana-napit');
-    if (!mobiili() || !palkitAuki()) { napitAvain = ''; return; }
-    var avain = innerWidth + '|' + $('#sivunapit').hidden + '|' + $('#ala-rivi').style.cssText + '|' + (document.fonts ? document.fonts.status : '');
-    if (avain === napitAvain) return;
-    napitAvain = avain;
-    n.classList.remove('ahdas');
-    var km = $('#km-nappi svg').getBoundingClientRect(), sn = $('#sivunapit');
-    var v = km.right + 12, o = $('#palkki-nuoli').getBoundingClientRect().left - 12, w = n.offsetWidth;
-    if (o - v < w) { n.classList.add('ahdas'); return; }
-    n.style.setProperty('--napit-x', Math.round(sn.hidden ? v + (o - v - w) / 2 : v) + 'px');
+    if (auki) piirraJana();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#sivu-ed').addEventListener('click', function () { seuraava(-1); });
   $('#sivu-se').addEventListener('click', function () { seuraava(1); });
+  // Nappien ympärillä oleva tyhjä alue (ylä- ja alapuoli, oikea reuna) kääntää sen napin suuntaan, jonka kohdalla
+  // napautus on; oikean napin oikealla puolella seuraavalle sivulle.
+  $('#sivunapit').addEventListener('click', function (e) {
+    if (e.target !== this) return;
+    seuraava(e.clientX >= $('#sivu-se').getBoundingClientRect().left ? 1 : -1);
+  });
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
   $('#etsi-avaa').addEventListener('click', avaaHaku);
   $$('#merkinnat details.m-osio').forEach(function (d) {
