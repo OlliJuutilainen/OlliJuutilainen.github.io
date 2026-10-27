@@ -542,8 +542,9 @@ palvelin.listen(0, async () => {
 
   // Palkit (käyttäjän päätökset 22.10.2026). Mobiilissa (kosketusnäyttö, 412 px) yläpalkki ja aikajanakerros ovat
   // piilossa, ja alakaistan napautus avaa ja sulkee ne yhdessä; tekstin napautus, vieritys ja sivunkääntö eivät
-  // vaikuta niihin. Kirjanmerkki ja palkkinuoli kelluvat kaistalla tekstipalstan reunojen linjassa, sivunapit (jos
-  // valittu) nuolen vasemmalla puolella. Sivutettuna reunat kääntävät sivua. Palkkien avaus ei poista paluumajakkaa.
+  // vaikuta niihin. Kirjanmerkki on kaistan vasemmassa reunassa oma neliönsä (27.10.2026), palkkinuoli tekstipalstan
+  // oikean reunan linjassa, sivunapit (jos valittu) nuolen oikealla puolella. Sivutettuna reunat kääntävät sivua.
+  // Palkkien avaus ei poista paluumajakkaa.
   const m = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
   m.on('pageerror', e => sivuvirheet.push(e.message));
   await m.goto(BASE + 'luin.html');
@@ -585,16 +586,18 @@ palvelin.listen(0, async () => {
     [pv0, pvT, pv1, pv1b, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
   tulos('palkkinuoli kääntyy', !pv0.alas && pv1.alas && !pv2.alas,
     JSON.stringify([pv0, pv1, pv2].map(x => x.alas)));
-  // Kelluvat palstan linjassa (musteen reunat) ja Merkinnät/Etsi niiden välissä.
+  // Kirjanmerkkilohko vasemmassa reunassa, nuoli tai sivunappien laatikko palstan oikean reunan linjassa, Merkinnät/Etsi
+  // omalla rivillään aikajanan alla vasemmassa reunassa (27.10.2026).
   const linja = async () => { await avaaPalkitM(); await m.waitForTimeout(100); return m.evaluate(() => {
     const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
     // Sivutettuna #teksti on palstojen levyinen ja siirretty; näkyvä palsta on #sivu + marginLeft, leveys style.width.
-    const t = document.body.classList.contains('sivutus') ? { left: sv.left + parseFloat(art.style.marginLeft), right: sv.left + parseFloat(art.style.marginLeft) + parseFloat(art.style.width) } : q('#teksti'), km = q('#km-nappi svg'), n = q('.jana-napit'), sn = document.querySelector('#sivunapit');
-    // Nuolen viewBox on musteen rajat viivan ulkoreunoineen, kuten kirjanmerkin: laatikon reuna = musteen reuna.
-    const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : sn.getBoundingClientRect(), ala = q('#ala');
-    const oik = nu.left, vapaa = { v: n.left - km.right, o: oik - n.right };
-    return { km: +(km.left - t.left).toFixed(2), nuoli: +((snr || nu).right - t.right).toFixed(2), snNuoli: snr && +(snr.left - nu.right).toFixed(2),
-      napitV: +vapaa.v.toFixed(1), napitO: +vapaa.o.toFixed(1), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), kerros: Math.round(innerHeight - ala.top) }; }); };
+    const t = document.body.classList.contains('sivutus') ? { left: sv.left + parseFloat(art.style.marginLeft), right: sv.left + parseFloat(art.style.marginLeft) + parseFloat(art.style.width) } : q('#teksti'), kmb = q('#km-nappi'), km = q('#km-nappi svg'), n = q('.jana-napit'), sn = document.querySelector('#sivunapit');
+    // Nuolen viewBox on musteen rajat viivan ulkoreunoineen: laatikon reuna = musteen reuna. Sivunappien näkyvä
+    // laatikko on nappien reunoissa (#sivunapit on napautusalue ruudun reunaan asti).
+    const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : q('#sivu-se'), ala = q('#ala'), rivi = q('#ala-rivi'), js = q('#jana-svg');
+    return { kmLohko: [kmb.left, +kmb.width.toFixed(2), +kmb.height.toFixed(2)], kmKeski: +((km.left + km.right) / 2 - (kmb.left + kmb.right) / 2).toFixed(2),
+      nuoli: +((snr || nu).right - t.right).toFixed(2), snNuoli: snr && +(q('#sivu-ed').left - nu.right).toFixed(2),
+      napit: [+(n.left - js.left).toFixed(2), +(rivi.top - n.bottom).toFixed(2), +(n.top - js.bottom).toFixed(2)], kerros: Math.round(innerHeight - ala.top) }; }); };
   const lvv = await linja();
   // Paluumajakka säilyy, kun palkit avataan kaistasta.
   await kaista();
@@ -618,17 +621,33 @@ palvelin.listen(0, async () => {
   await kaista();
   await m.click('#sivu-ed'); await m.waitForTimeout(100);
   const ps4 = await palkit();
-  // Kaistan keskeltä (Merkinnät ja Etsi ovat vasemmalla) palkit sulkeutuvat.
-  const kx = await m.evaluate(() => { const jn = document.querySelector('.jana-napit'), n = jn.classList.contains('ahdas') ? document.querySelector('#km-nappi svg').getBoundingClientRect() : jn.getBoundingClientRect(), s = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return (n.right + s.left) / 2; });
+  // Kaistan keskeltä palkit sulkeutuvat.
+  const kx = await m.evaluate(() => { const n = document.querySelector('#km-nappi').getBoundingClientRect(), s = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return (n.right + s.left) / 2; });
   await m.mouse.click(kx, 824 - 22); await m.waitForTimeout(100);
   const ps5 = await palkit();
   tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
     [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
-  // Ilman sivunappeja Merkinnät ja Etsi ovat kirjanmerkin ja nuolen välin keskellä, sivunappien kanssa vasemmalla.
-  tulos('kelluvat 10 px palstan reunoista sisäänpäin (412 px)', Math.abs(lvv.km - 10) < 0.6 && Math.abs(lvv.nuoli + 10) < 0.6 && Math.abs(ls.km - 10) < 0.6 && Math.abs(ls.nuoli + 10) < 0.6 &&
-    Math.abs(ls.snNuoli - 12) < 0.6 && Math.abs(lvv.napitV - lvv.napitO) <= 1 && lvv.napitV >= 12 && Math.abs(ls.napitV - 12) <= 1 && ls.napitO >= 12 && !lvv.ahdas && !ls.ahdas,
+  const lohkoOk = l => l.kmLohko[0] === 0 && l.kmLohko[1] === l.kmLohko[2] && Math.abs(l.kmKeski) < 0.6 && Math.abs(l.nuoli + 10) < 0.6 &&
+    l.napit[0] === 0 && l.napit[1] >= 8 && l.napit[2] >= 0;
+  tulos('kirjanmerkkilohko, nuoli ja Merkinnät/Etsi-rivi (412 px)', lohkoOk(lvv) && lohkoOk(ls) && lvv.snNuoli === null && Math.abs(ls.snNuoli - 12) < 0.6,
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
+  // Sivunappien ja kirjanmerkin ympäriltä ei avaudu aikajana (27.10.2026): napin ylä- ja alapuoli sekä oikean napin
+  // oikea puoli ruudun reunaan asti kääntävät sivua, kirjanmerkkilohkon vasen reuna kuuluu kirjanmerkille.
+  const osumat = await m.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), ed = q('#sivu-ed'), se = q('#sivu-se'), r = q('#ala-rivi');
+    const id = (x, y) => { const e = document.elementFromPoint(x, y); return e && (e.closest('button, #sivunapit') || e).id; };
+    return { reuna: id(innerWidth - 1, r.top + r.height / 2), yliSe: id(se.left + 5, r.top + 2), alleEd: id(ed.left + 5, r.bottom - 1), vasen: id(1, r.top + r.height / 2),
+      raot: [+(ed.top - r.top).toFixed(1), +(r.bottom - ed.bottom).toFixed(1)] }; });
+  if (await m.evaluate(() => !document.querySelector('#jana').hidden)) await kaista();
+  const na0 = await palkit();
+  const rr = await m.evaluate(() => document.querySelector('#ala-rivi').getBoundingClientRect().bottom);
+  await m.mouse.click(411, rr - 3); await m.waitForTimeout(100);
+  const na1 = await palkit();
+  const edx = await m.evaluate(() => document.querySelector('#sivu-ed').getBoundingClientRect().left + 5);
+  await m.mouse.click(edx, rr - 1); await m.waitForTimeout(100);
+  const na2 = await palkit();
+  tulos('sivunappien ja kirjanmerkin napautusalueet', osumat.reuna === 'sivunapit' && osumat.yliSe === 'sivunapit' && osumat.alleEd === 'sivunapit' && osumat.vasen === 'km-nappi' &&
+    !na1.jana && na1.s === na0.s + 1 && !na2.jana && na2.s === na0.s, JSON.stringify({ osumat, s: [na0.s, na1.s, na2.s], jana: [na1.jana, na2.jana] }));
   // Sivunvaihtopainikkeet asetuksista: kytkin on Sivut-sanan alla, ja vierityksessä se on pois käytöstä.
   await asetuksetM();
   const kyt = await m.evaluate(() => { const s = document.querySelector('#asetukset button[data-arvo="sivut"]').getBoundingClientRect(), k = document.querySelector('#sivunapit-kytkin button[data-kytkin="sivunapit"]');
@@ -652,10 +671,10 @@ palvelin.listen(0, async () => {
   await mob360.click('#ala-nappi'); await mob360.waitForTimeout(100);
   const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit'), nu = q('#palkki-nuoli');
     const pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
-    const merk = q('#merk-avaa');
-    return { paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(sn, nu), ahdas: document.querySelector('.jana-napit').classList.contains('ahdas'), korkeus: [sn.height, merk.height], linja: +(sn.top - merk.top).toFixed(2) }; });
+    const merk = q('#merk-avaa'), se = q('#sivu-se');
+    return { paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(sn, nu) || pa(km, nu) || pa(km, sn), korkeus: [se.height, merk.height] }; });
   tulos('Merkinnät ja Etsi kapealla ruudulla', !m3.paalla, JSON.stringify(m3));
-  tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1] && (m3.ahdas || m3.linja === 0), JSON.stringify(m3));
+  tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
   await mob360.context().close();
 
   // Työpöytä: palkit pysyviä, alapalkissa ei osion nimeä eikä natsaa, palkin napautus avaa ja sulkee aikajanan,
