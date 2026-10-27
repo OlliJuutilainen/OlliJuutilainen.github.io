@@ -26,10 +26,11 @@
   @font-face { font-family: Literata; src: url(luin/fontit/literata-kursiivi.woff2) format("woff2");
     font-weight: 380 700; font-style: italic; font-display: swap; }
   /* Kuusi väriä kummassakin teemassa, ei läpikuultavuutta eikä varjoja: e-ink näyttää ne
-     harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha). */
+     harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha).
+     --sitaatti on musteen ja harmaan välissä (Lab 70 %), jotta lainaus erottuu nopeasti vieritettäessä. */
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
-    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a;
+    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a; --sitaatti: #514331;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --koko: 19px;
@@ -37,7 +38,7 @@
   }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
-    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272;
+    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -239,7 +240,8 @@
   #teksti.sisennys header .meta { margin-top: 1em; }
   #teksti.sisennys blockquote p + p { text-indent: 1.4em; }
   #teksti.sisennys p + blockquote, #teksti.sisennys p + ol, #teksti.sisennys p + ul, #teksti.sisennys p + hr { margin-top: 1.4em; }
-  #teksti blockquote { margin: 1.7em 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .94em; line-height: 1.55; }
+  #teksti blockquote { margin: 1.7em 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .94em; line-height: 1.55;
+    color: var(--sitaatti); }
   #teksti blockquote p { margin: 0; }
   #teksti blockquote p + p { margin-top: .8em; }
   #teksti ol.enum, #teksti ul.luettelo { margin: 1.3em 0; padding-left: 1.7em; }
