@@ -872,6 +872,9 @@ Käyttäjän vaatimukset 20.10.2026:
   `luin.html#l=<koodi>`, ja koodin voi vaihtaa tai poistaa lukulistan asetusten osiossa *Postilaatikko*. Koodi on salasana; sitä ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
   Testattu `wrangler dev --local`:lla ja Chromiumilla 25.10.2026; oikeaa Cloudflarea ja Light Phonea vasten ajamatta.
+- **Lainauksen lähde ja motto** (käyttäjän päätös 27.10.2026, muoto C; opas, luku 3.6): `> Lainaus.\` + `> – Lähde` (myös
+  lainauksen sisäinen tyhjä rivi välissä) → `figure.lainaus` ja lähde `figcaption` oikeaan reunaan; otsikon jälkeen ennen
+  leipätekstiä `figure.motto` (sisennetty, ei pystyviivaa). Latomo ehdottaa erilleen kirjoitetun lähteen siirtoa lainaukseen.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle

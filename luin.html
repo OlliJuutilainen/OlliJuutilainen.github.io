@@ -237,15 +237,24 @@
   #teksti.sisennys p { margin: 0; text-indent: 1.4em; }
   #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
   #teksti.sisennys header p, #teksti.sisennys h2 + p, #teksti.sisennys h3 + p, #teksti.sisennys h4 + p,
-  #teksti.sisennys hr + p, #teksti.sisennys blockquote + p, #teksti.sisennys ol + p, #teksti.sisennys ul + p,
+  #teksti.sisennys hr + p, #teksti.sisennys blockquote + p, #teksti.sisennys figure + p, #teksti.sisennys ol + p, #teksti.sisennys ul + p,
   #teksti.sisennys pre + p, #teksti.sisennys blockquote p, #teksti.sisennys nav p { text-indent: 0; }
   #teksti.sisennys header .meta { margin-top: 1em; }
   #teksti.sisennys blockquote p + p { text-indent: 1.4em; }
-  #teksti.sisennys p + blockquote, #teksti.sisennys p + ol, #teksti.sisennys p + ul, #teksti.sisennys p + hr { margin-top: 1.4em; }
+  #teksti.sisennys p + blockquote, #teksti.sisennys p + figure, #teksti.sisennys p + ol, #teksti.sisennys p + ul, #teksti.sisennys p + hr { margin-top: 1.4em; }
   #teksti blockquote { margin: 1.7em 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .94em; line-height: 1.55;
     color: var(--sitaatti); }
   #teksti blockquote p { margin: 0; }
   #teksti blockquote p + p { margin-top: .8em; }
+  /* Lainauksen lähde (md: lainauksen viimeinen rivi – Nimi kenoviivan jälkeen) oikeaan reunaan lainauksen alle, ja otsikon
+     jälkeen ennen leipätekstiä lainaus on motto: sisennetty, ilman pystyviivaa, tasaamaton, iso väli perässä (painetun
+     kirjan käytäntö; käyttäjän päätös 27.10.2026). */
+  #teksti figure.lainaus { margin: 1.7em 0; }
+  #teksti figure.lainaus blockquote { margin: 0; }
+  #teksti figcaption { margin: .45em 0 0; text-align: right; font-size: .94em; line-height: 1.55; color: var(--sitaatti); break-before: avoid; }
+  #teksti figure.motto { margin: 1.6em 0 2.8em min(25%, 8em); break-inside: avoid; }
+  #teksti figure.motto blockquote { padding: 0; border-left: 0; }
+  #teksti.tasattu figure.motto p:not(.bib):not(.meta):not(.sub) { text-align: left; }
   #teksti ol.enum, #teksti ul.luettelo { margin: 1.3em 0; padding-left: 1.7em; }
   #teksti ul.luettelo { list-style: none; }
   #teksti ul.luettelo > li::before { content: "–"; float: left; margin-left: -1.25em; }

@@ -115,5 +115,16 @@ sama('hegel: artikkelin viite', ph.viite, 'Zink, Sidney (1963). The Meaning of P
 const pc = M.parse('---\ntype: academic\ntitle: Luku\nauthor: A B\ndate: 2022\nbooktitle: Kirja\npages: 59–86\nplace: Cham\npublisher: Palgrave Macmillan\n---' + PITKA);
 sama('hegel: luvun teos ja paikka', JSON.stringify([pc.tiedot.tyyppi, pc.tiedot.teos, pc.tiedot.paikka]), JSON.stringify(['tieteellinen', 'Kirja', 'Cham']));
 
+// Lainauksen lähde ja motto (muoto C ja lainauksen sisäinen tyhjä rivi)
+const lv = s => M.parse('# T\n\n' + s).html.replace(/^.*?<\/header>/, '');
+sama('motto kenoviivalla', lv('> Sä loit.\\\n> – *Ihmebantu* (n. 2008)\n\nLeipä.\n'),
+  '<figure class="lainaus motto"><blockquote><p data-b="1">Sä loit.</p></blockquote><figcaption data-b="2">– <em>Ihmebantu</em> (n. 2008)</figcaption></figure><p data-b="3">Leipä.</p>');
+tulos('lähde tyhjän >-rivin jälkeen', lv('> Sä loit.\n>\n> — X\n').includes('<figcaption data-b="2">— X</figcaption>'));
+tulos('ei lähdettä ilman pakotettua rivinvaihtoa', lv('> Sä loit.\n> – X\n').includes('<blockquote><p data-b="1">Sä loit. – X</p></blockquote>'));
+tulos('vuorosanat eivät ole lähde', !lv('> – Mennään.\n>\n> – Mennään vaan.\n').includes('figcaption'));
+tulos('leipätekstin lainaus ei ole motto', lv(PITKA.trim() + '\n\n> L.\\\n> – X\n').includes('<figure class="lainaus"><blockquote>'));
+sama('Latomo: erillinen lähde lainaukseen', M.lahteetLainaukseen('# T\n\n> Sä loit.\n\n– *I* (n. 2008) \\\n\\\n\\\n\nLeipä.\n'), '# T\n\n> Sä loit.\\\n> – *I* (n. 2008)\n\nLeipä.\n');
+sama('Latomo: lähde omana lainauksenaan', M.lahteetLainaukseen('# T\n\n> Sä loit.\n\n> – X\n'), '# T\n\n> Sä loit.\\\n> – X\n');
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

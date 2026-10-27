@@ -847,6 +847,8 @@
     }
     if (L.iaAlaviitteet(raw) !== raw) ehdotukset.push({ t: 'Alaviitteet ovat muodossa ^[…]. Luin lukee ne, mutta iA Writer kirjoittaa saman muodossa [^…], eikä sen esikatselu tunne vanhaa muotoa.',
       napit: [['Muunna iA Writerin muotoon', function () { md.value = L.iaAlaviitteet(md.value); }]] });
+    if (L.lahteetLainaukseen(raw) !== raw) ehdotukset.push({ t: 'Lainauksen lähde on kirjoitettu lainauksen perään erilleen, joten se näkyy tavallisena kappaleena. Lainauksen viimeisenä rivinä (rivinvaihto kenoviivalla) se näkyy lainauksen lähteenä, myös iA Writerissä.',
+      napit: [['Siirrä lähde lainaukseen', function () { md.value = L.lahteetLainaukseen(md.value); }]] });
     var rk = rivitKappaleiksi(L.etukentta(raw).body);
     function rivit(runo) { var ek = L.etukentta(md.value); md.value = md.value.slice(0, md.value.length - ek.body.length) + rivitKappaleiksi(ek.body, runo).src; }
     if (rk.n) ehdotukset.push({ t: 'Kappaleiden välissä ei ole tyhjiä rivejä, joten rivit liittyvät yhdeksi kappaleeksi (' + rk.n + (rk.n > 1 ? ' kohtaa' : ' kohta') + ').',
