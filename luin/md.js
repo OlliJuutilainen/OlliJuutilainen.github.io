@@ -23,6 +23,8 @@
   [paikannin][#avain], etukentän muuttujat [%avain], {{TOC}}, sivunvaihto +++, kommentit (// ja
   <!-- -->), sisennetty koodi ja setext-otsikot. Kuvat näkyvät linkkeinä, eivät kuvina: lukija ei
   hae mitään kolmannelta osapuolelta.
+  Lainauksen lähde (käyttäjän päätös 27.10.2026): lainauksen viimeinen rivi – Nimi kenoviivan jälkeen → figure.lainaus
+  (blockquote + figcaption); otsikon jälkeen ennen leipätekstiä figure.motto.
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
 */
 (function (root) {
@@ -286,6 +288,25 @@
   function slug(s) {
     return s.toLowerCase().replace(/[äå]/g, 'a').replace(/ö/g, 'o').replace(/[éè]/g, 'e').replace(/ü/g, 'u')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'osio';
+  }
+
+  // Lainauksen lähde (käyttäjän päätös 27.10.2026): lainauksen viimeinen rivi, joka alkaa ajatus- tai em-viivalla ja
+  // välilyönnillä ja jota edeltää pakotettu rivinvaihto (\, kaksi välilyöntiä tai <br>) tai lainauksen sisäinen tyhjä
+  // rivi. Muoto on yleistä Markdownia, joten lähde pysyy lainauksen alla muissakin ohjelmissa. Vuorosanat eivät ole
+  // lähteitä: jos lainauksen muukin rivi alkaa viivalla, viimeinenkään ei ole lähde.
+  var RE_LAHDE = /^[–—][ \u00a0]+\S/, RE_PAKKO = /(\\| {2,}|<br\s*\/?>\s*)$/i, RE_TYHJA_BR = /^\s*(\\|<br\s*\/?>)?\s*$/i;
+  function lahdeRivi(x) { x = x.replace(/\s*(\\|<br\s*\/?>)?\s*$/i, ''); return RE_LAHDE.test(x) && x.length <= 160; }
+  function lainauksenLahde(kids) {
+    var vika = kids[kids.length - 1];
+    if (!vika || vika.t !== 'p') return null;
+    var r = vika.text.split('\n'), x = r[r.length - 1].replace(/\s*(\\|<br\s*\/?>)?\s*$/i, '').trim();
+    if (!lahdeRivi(x)) return null;
+    var muut = kids.slice(0, -1).filter(function (t) { return t.t === 'p'; }).map(function (t) { return t.text; }).concat(r.slice(0, -1));
+    if (muut.some(function (m) { return m.split('\n').some(function (y) { return RE_LAHDE.test(y.trim()); }); })) return null;
+    if (r.length === 1) return kids.length > 1 ? { kids: kids.slice(0, -1), text: x, ln: vika.ln } : null;
+    if (!RE_PAKKO.test(r[r.length - 2])) return null;
+    var alku = r.slice(0, -1); alku[alku.length - 1] = alku[alku.length - 1].replace(RE_PAKKO, '').replace(/\s+$/, '');
+    return { kids: kids.slice(0, -1).concat([{ t: 'p', ln: vika.ln, text: alku.join('\n') }]), text: x, ln: vika.ln + r.length - 1 };
   }
 
   var BIB = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited)$/i;
@@ -861,6 +882,23 @@
   function tietorivi(t) { return t.split('\n').every(function (l) { return l.replace(/\\\s*$|\s+$/, '').length <= 100; }); }
 
   // Pandocin ^[…]-alaviitteet iA Writerin muotoon [^…] (Latomon ehdotus). Koodi ohitetaan.
+  // Lainauksen perään omaksi kappaleekseen tai omaksi lainauksekseen kirjoitettu lähde lainauksen viimeiseksi riviksi
+  // pakotetulla rivinvaihdolla (muoto C). Lähteen perässä olevat pelkät kenoviivarivit poistetaan. Latomon ehdotus.
+  function lahteetLainaukseen(src) {
+    var r = String(src).replace(/\r\n?/g, '\n').split('\n');
+    parse(src).lahteet.slice().sort(function (a, b) { return b.ln - a.ln; }).forEach(function (x) {
+      var i = x.ln - 1, j = i - 1;
+      while (j >= 0 && !r[j].trim()) j--;
+      if (j < 0 || !RE_BQ_ALKU.test(r[j])) return;
+      var rivi = r[i].replace(RE_BQ_ALKU, '').replace(/\s*(\\|<br\s*\/?>)?\s*$/i, '').trim();
+      r[j] = r[j].replace(/\s+$/, '');
+      if (!RE_PAKKO.test(r[j])) r[j] += '\\';
+      r.splice(j + 1, i + x.rivit - j - 1, '> ' + rivi);
+    });
+    return r.join('\n');
+  }
+  var RE_BQ_ALKU = /^ {0,3}> ?/;
+
   function iaAlaviitteet(src) {
     var out = '', i = 0, aita = null, rivinAlku = true;
     while (i < src.length) {
@@ -900,7 +938,7 @@
   */
   function parse(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
-    var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [],
+    var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [], lahteet: [],
       viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [], kehys: '' };
     var ek = etukentta(src);
     res.meta = ek.meta; res.raaka = ek.raaka;
@@ -1052,7 +1090,7 @@
     }
     function render(list, inQuote) {
       var h = '';
-      list.forEach(function (t) {
+      list.forEach(function (t, k) {
         curLn = t.ln;
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
@@ -1087,10 +1125,24 @@
             res.matikka = true; warn('Matematiikkaa ($…$) ei ladota: lausekkeet näkyvät sellaisinaan.');
           }
           h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
+          // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
+          var tr = t.text.split('\n');
+          if (!inQuote && list[k - 1] && list[k - 1].t === 'bq' && lahdeRivi(tr[0]) && tr.slice(1).every(function (x) { return RE_TYHJA_BR.test(x); }))
+            res.lahteet.push({ ln: t.ln, rivit: tr.length });
         } else if (t.t === 'hr') {
           h += '<hr>';
         } else if (t.t === 'bq') {
-          h += '<blockquote>' + render(t.kids, true) + '</blockquote>';
+          var lh = !inQuote && lainauksenLahde(t.kids);
+          if (lh) {
+            // Lähteellinen lainaus; otsikon jälkeen ennen leipätekstiä se on motto (käyttäjän päätös 27.10.2026).
+            var ed = list[k - 1], motto = !ed || ed.t === 'h' || ed.motto;
+            t.motto = motto;
+            h += '<figure class="lainaus' + (motto ? ' motto' : '') + '"><blockquote>' + render(lh.kids, true) + '</blockquote>';
+            curLn = lh.ln;
+            h += blk('figcaption', '', lh.text) + '</figure>';
+          } else h += '<blockquote>' + render(t.kids, true) + '</blockquote>';
+          if (!inQuote && list[k - 1] && list[k - 1].t === 'bq' && !lh && t.kids.length === 1 && t.kids[0].t === 'p' && lahdeRivi(t.kids[0].text))
+            res.lahteet.push({ ln: t.kids[0].ln, rivit: 1 });
         } else if (t.t === 'list') {
           h += renderList(t.items, inQuote);
         } else if (t.t === 'table') {
@@ -1238,5 +1290,5 @@
 
   root.LuinMD = { parse: parse, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
-    iaAlaviitteet: iaAlaviitteet, plain: plain, slug: slug, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
+    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);
