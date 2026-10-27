@@ -674,7 +674,7 @@ Luinissa osoitteesta `luin.html#u=luin/ohje.md`, mutta lukulistassa siihen ei ol
 22.10.2026: pois julkisivusta, ei piiloteta repossa). Lukijan käyttöohje on `luin/kayttoohje.html` (käyttäjän pyyntö
 22.10.2026: yksinkertainen, olennaisin ensin; vienti ja muu harvemmin tarvittava lopussa supistettuina osioina).
 Se on lukulaitteen ohje, **ei Latomon**; Latomolla on oma ohjeensa (käyttäjän pyyntö 22.10.2026). Lukulistan alla ovat järjestyksessä
-*Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* ja pienen välin (12 px) jälkeen *Uusi teksti* **Latomossa**. Kun lukijan
+*Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* ja pienen välin (12 px) jälkeen *Uusi teksti* **LATOMOSSA** (versaalilla, käyttäjän päätös 27.10.2026). Kun lukijan
 käyttäjälle näkyvä toiminta muuttuu, tarkista käyttöohje. Kaikki on selaimen localStoragessa
 (`luin-asetukset`, `luin-lista`, `luin-teksti:<id>`, `luin-merkit:<id>`); palvelinta ei ole.
 Käyttäjän vaatimukset 20.10.2026:
