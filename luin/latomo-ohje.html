@@ -82,7 +82,7 @@
       <span class="ui">Lähetä postilaatikkoon</span> vie tekstin toisen laitteen Luiniin (alla).</li>
   </ol>
   <p><span class="ui">Tyhjennä kentät</span> tekstikentän alla tyhjentää tekstin, tiedot, oman viitteen ja julkisen osoitteen
-    uutta tekstiä varten. Se kysyy ensin, oletko aivan varma, koska tyhjennystä ei voi perua. MarkDownload-kytkin säilyy.</p>
+    uutta tekstiä varten. Se kysyy ensin, oletko aivan varma, koska tyhjennystä ei voi perua. Päälle valittu MarkDownload-tila säilyy.</p>
 
   <h2>Merkinnät: iA Writerin tapaan</h2>
   <p>Latomo ja Luin noudattavat iA Writer -editorin Markdown-merkintöjä. Ne on valittu iA Writeria ajatellen, mutta
@@ -171,8 +171,10 @@
   <h2 id="markdownload">MarkDownload ja verkkoleikkeet</h2>
   <p><a href="https://addons.mozilla.org/firefox/addon/markdownload/">MarkDownload</a> on Firefoxin lisäosa, joka tallentaa
     verkkosivun artikkelin Markdown-tiedostoksi. Leikkeen voi pudottaa Latomoon sellaisenaan, ilman täyttöhommia.</p>
-  <p>Kytke Latomossa <span class="ui">MarkDownload-leike</span> päälle (se on aina pois, kun Latomo avataan; Latomo ehdottaa sitä, kun
-    teksti näyttää leikkeeltä). Silloin Latomo</p>
+  <p>Alla olevan pohjan rivi <code>leikattu:</code> on Latomon korvamerkki. Kun leikkeen etukentässä on se, Latomo näyttää
+    tekstikentän alla kytkimen <span class="ui">MarkDownload-leike</span> ja kytkee sen päälle; kytkimestä tilan saa
+    tältä tekstiltä pois. Ilman korvamerkkiä kytkintä ei näy, mutta Latomo ehdottaa tilaa, jos teksti näyttää leikkeeltä
+    (esimerkiksi MarkDownloadin oletuspohja). Tilassa Latomo</p>
   <ul>
     <li>jättää tuloksesta pois leikkeen jäänteet: tyhjät <code>**</code>-rivit, upotukset (<code>&lt;iframe&gt;</code>),
       oletuspohjan <span class="ui">Excerpt</span>-lainauksen ja kuvattomiksi jääneet tyhjät linkit,</li>
@@ -196,7 +198,7 @@
     <tr><td>Folder inside<br>Downloads/</td><td>vapaa, esimerkiksi <code>nettiartikkelit</code>.</td></tr>
     <tr><td>Disallowed<br>Characters</td><td><code>[]#^</code>; muita ei tarvita.</td></tr>
     <tr><td class="ryhma" colspan="2"><b>Front-matter template, Back-matter template</b></td></tr>
-    <tr><td>Front-matter</td><td>alla oleva pohja; täyttää Latomon kentät.</td></tr>
+    <tr><td>Front-matter</td><td>alla oleva pohja; täyttää Latomon kentät ja merkitsee leikkeen.</td></tr>
     <tr><td>Back-matter</td><td>tyhjä: tiedot ovat jo etukentässä. Lopun rivit näkyisivät Luinissa tekstin
       viimeisenä kappaleena.</td></tr>
     <tr><td>Append front/back<br>template</td><td>päällä. Ilman tätä pohjaa ei lisätä lainkaan.</td></tr>
@@ -234,7 +236,7 @@ tekijä: {byline}
 sivusto: {siteName}
 julkaistu: {publishedTime}
 lähde: {baseURI}
-haettu: {date:YYYY-MM-DD}
+leikattu: {date:YYYY-MM-DD}
 ---
 
 # {title}
@@ -246,7 +248,9 @@ haettu: {date:YYYY-MM-DD}
     alaotsikoksi; tekijä näkyy Luinissa otsikon alla etukentän perusteella. <code>{siteName}</code> ja
     <code>{publishedTime}</code> tulevat sivun metatiedoista (Open Graph tai JSON-LD), jos sivu kertoo ne; täyttämättä
     jäänyt muuttuja jää tyhjäksi, ja kentän voi täyttää Latomossa käsin. Tyyppiä ei kirjoiteta pohjaan, koska Latomo
-    valitsee blogin ja verkkosivun välillä vasta, kun näet leikkeen. Pohja ja asetukset on kokeiltu ajamalla
+    valitsee blogin ja verkkosivun välillä vasta, kun näet leikkeen. <code>leikattu</code> on tallennuspäivä, joka näkyy
+    viitteessä luettu-päivänä; Latomo kirjoittaa sen tulokseen avaimella <code>haettu</code>, joten valmiissa tekstissä
+    korvamerkkiä ei enää ole, eikä sitä siivota toiseen kertaan. Pohja ja asetukset on kokeiltu ajamalla
     MarkDownloadin (3.4.0) omaa muunnoskoodia selaimessa; oikealla Firefoxilla testaamatta.</p>
 
   <h2 id="pdf">Pdf:stä muunnettu teksti</h2>
