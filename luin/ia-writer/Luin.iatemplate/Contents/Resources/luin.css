@@ -1,0 +1,65 @@
+/* iA Writerin esikatselupohja Luinin ulkoasulla (luin.html, #teksti). Värit ja mitat ovat Luinin; kun ne muuttuvat
+   siellä, päivitä tänne. Lainauksen lähde ja motto: luin.js. */
+@font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2"); font-weight: 380 700; font-style: normal; }
+@font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2"); font-weight: 380 700; font-style: italic; }
+:root {
+  --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+  --ruoste: #8c5426; --huomio: #74624a; --sitaatti: #514331;
+}
+html.night-mode {
+  --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+  --ruoste: #b8794a; --huomio: #a69272; --sitaatti: #c2af94;
+}
+html { background: var(--paperi); color: var(--muste); -webkit-text-size-adjust: 100%; }
+body { margin: 0 auto; max-width: 33em; padding: 0 24px; font-family: Literata, Georgia, serif; font-size: 19px;
+  line-height: 1.62; font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility; }
+@media print { body { padding: 0; max-width: none; font-size: 11.5pt; } }
+a { color: var(--ruoste); text-decoration-color: var(--viiva); }
+
+h1 { font-size: 1.55em; line-height: 1.2; margin: 0 0 1.4em; font-weight: 400; letter-spacing: .05em; }
+h2, h3, h4, h5, h6 { font-weight: 400; break-after: avoid; }
+h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .005em; }
+h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
+h4, h5, h6 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
+p { margin: 0 0 1.1em; }
+hr { border: 0; border-top: 1px solid var(--viiva); margin: 2.2em 0; }
+del { text-decoration-color: var(--harmaa); }
+mark { background: none; box-shadow: inset 0 -.45em var(--viiva); color: inherit; }
+
+blockquote { margin: 1.7em 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .94em; line-height: 1.55;
+  color: var(--sitaatti); }
+blockquote p { margin: 0; }
+blockquote p + p { margin-top: .8em; }
+/* Lainauksen lähde ja motto kuten Luinissa (käyttäjän päätös 27.10.2026). */
+figure.lainaus { margin: 1.7em 0; }
+figure.lainaus blockquote { margin: 0; }
+figure.lainaus figcaption { margin: .45em 0 0; text-align: right; font-size: .94em; line-height: 1.55; color: var(--sitaatti); break-before: avoid; }
+figure.motto { margin: 1.6em 0 2.8em min(25%, 8em); break-inside: avoid; }
+figure.motto blockquote { padding: 0; border-left: 0; }
+
+ul, ol { margin: 1.3em 0; padding-left: 1.7em; }
+ul { list-style: none; }
+ul > li::before { content: "–"; float: left; margin-left: -1.25em; }
+ul > li.task-list-item::before { content: none; }
+li { margin-bottom: .55em; padding-left: .2em; }
+li > p { margin: 0; }
+li > ul, li > ol { margin: .55em 0 0; }
+input.task-list-item-checkbox { margin: 0 .5em 0 -1.4em; accent-color: var(--ruoste); }
+
+code { font-size: .86em; }
+pre { font-size: .82em; line-height: 1.5; overflow-x: auto; padding: .8em 1em; border-left: 1px solid var(--viiva); }
+table { border-collapse: collapse; margin: 1.5em 0; font-size: .9em; line-height: 1.45; }
+th, td { padding: .35em .8em .35em 0; border-bottom: 1px solid var(--viiva); text-align: left; vertical-align: top; }
+th { font-weight: 600; }
+caption { caption-side: bottom; font-size: .9em; font-style: italic; color: var(--harmaa); padding-top: .5em; text-align: left; }
+figure { margin: 1.7em 0; }
+figure img { max-width: 100%; }
+figure:not(.lainaus) figcaption { font-size: .86em; font-style: italic; color: var(--harmaa); margin-top: .4em; }
+
+/* Alaviitteet: Luinin viitenumerot ovat groteskia, tekstit --huomio-värisiä. */
+sup a.footnote, a.citation { font-family: system-ui, -apple-system, sans-serif; font-size: .78em; text-decoration: none; color: var(--ruoste); }
+sup { line-height: 0; }
+.footnotes { margin-top: 3em; font-size: .86em; line-height: 1.5; color: var(--huomio); }
+.footnotes hr { margin: 0 0 1.4em; width: 6em; }
+.footnotes li { margin-bottom: .6em; }
+a.reversefootnote { text-decoration: none; }
