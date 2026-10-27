@@ -730,9 +730,14 @@ Käyttäjän vaatimukset 20.10.2026:
   `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Käyttäjän päätös 23.10.2026:
   kytkin on **aina pois sivua avattaessa** (valintaa ei muisteta; `latomo-markdownload`-avainta ei enää lueta eikä kirjoiteta)
-  ja ehdollisessa asemassa (`.ehdollinen`): sisennetty ohuen `--viiva`-viivan taakse, pienempi, edessä harmaa kursiivi
-  *Jos teksti on verkkosivulta tallennettu*, ja kytkin on kehystetty isommalla salmiakilla (11 × 15 px), koska pelkkä
-  pieni salmiakki näytti luettelomerkiltä. Linkin teksti on *asetukset Luinia varten*. Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
+  ja ehdollisessa asemassa (`.ehdollinen`): sisennetty ohuen `--viiva`-viivan taakse, pienempi, ja kytkin on kehystetty
+  isommalla salmiakilla (11 × 15 px), koska pelkkä pieni salmiakki näytti luettelomerkiltä. **Korvamerkki** (käyttäjän pyyntö
+  27.10.2026, toteutus Clauden harkinnalla; Latomo minimalisoituu, etusijalla tietävät käyttäjät): rivi on piilossa, ja
+  se ilmestyy, kun etukentässä on ohjeen pohjan avain `leikattu: {date:YYYY-MM-DD}` (tallennuspäivä, ei *downloaded with
+  MarkDownload* -kuonaa), tai kun tila on päällä (ehdotuksesta). Korvamerkki kytkee tilan päälle; kytkimestä sen saa pois vain
+  tältä tekstiltä. Tulokseen avain menee nimellä `haettu`, joten valmis teksti ei ole merkitty. Rivillä on vain kytkin ja
+  pieni i-salmiakki (Luinin tietoa-napin merkki, 12 px) ohjeeseen; ehtolause *Jos teksti on verkkosivulta tallennettu* ja
+  linkkiteksti *asetukset Luinia varten* poistettiin. Ilman korvamerkkiä ehdotus tulee vain oletuspohjasta tai jäänteistä. Testit: `luin/kehitys/md-testi.js` (ilman selainta) ja `latomo-testi.js`.
 - **Pdf:stä muunnettu teksti** (käyttäjän pyyntö 23.10.2026; opas, luku 7.1; Latomon ohje `#pdf`): hegel-repon
   (`OlliJuutilainen/hegel`) `pdf_to_markdown.py` kirjoittaa etukenttään Crossrefin tiedot (DOI alkusivuilta,
   `--no-lookup` pois) ja JSTOR-kansilehden lähteen eriteltynä (`journal`, `volume`, `issue`, `pages`; ei enää `source`,

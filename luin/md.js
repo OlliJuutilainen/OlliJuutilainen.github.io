@@ -497,14 +497,15 @@
   /* ---------- Etukenttä ----------
      --- avain: arvo --- tiedoston alussa (iA Writerin metadata, YAML-etukenttä). Avaimet pienaakkosin
      ja yhtenäistettyinä (ALIAS): MarkDownloadin oletuspohjan source, author ja created ovat lähde, tekijä
-     ja haettu. Sisennetyt jatkorivit (YAML-luettelo) liitetään edelliseen arvoon. Täyttämättä jääneet
-     pohjan muuttujat ({byline}) ohitetaan.
+     ja haettu, samoin Latomon ohjeen pohjan leikattu (Latomon MarkDownload-korvamerkki). Sisennetyt
+     jatkorivit (YAML-luettelo) liitetään edelliseen arvoon. Täyttämättä jääneet pohjan muuttujat
+     ({byline}) ohitetaan.
      → { meta: yhtenäistetyt avaimet, raaka: alkuperäiset avaimet pienaakkosin, body, ln: rungon ensimmäisen rivin numero } */
   var ALIAS = {
     title: 'otsikko', subtitle: 'alaotsikko', author: 'tekijä', authors: 'tekijä', byline: 'tekijä', tekija: 'tekijä',
     'tekijät': 'tekijä', tekijat: 'tekijä', kirjoittaja: 'tekijä', kirjoittajat: 'tekijä',
     source: 'lähde', url: 'lähde', lahde: 'lähde', link: 'lähde', 'verkko-osoite': 'lähde',
-    created: 'haettu', clipped: 'haettu', saved: 'haettu', tallennettu: 'haettu', luettu: 'haettu', retrieved: 'haettu', accessed: 'haettu',
+    created: 'haettu', leikattu: 'haettu', clipped: 'haettu', saved: 'haettu', tallennettu: 'haettu', luettu: 'haettu', retrieved: 'haettu', accessed: 'haettu',
     date: 'julkaistu', published: 'julkaistu', 'published_time': 'julkaistu', julkaisupvm: 'julkaistu', 'julkaisupäivä': 'julkaistu',
     site: 'sivusto', sitename: 'sivusto', 'site_name': 'sivusto', 'site-name': 'sivusto', blog: 'sivusto', blogi: 'sivusto',
     type: 'tyyppi', tekstityyppi: 'tyyppi', genre: 'laji', artikkelityyppi: 'laji',

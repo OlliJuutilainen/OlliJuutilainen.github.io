@@ -48,7 +48,7 @@ Ensimmäinen kappale on leipätekstiä, ja se on pitkä, jotta se ei näytä ots
 
 Toinen kappale.[^Alaviite iA Writerin tapaan.]
 `;
-// Ohjeen suositeltu pohja: sivuston nimi puuttuu sivulta, joten muuttuja jää täyttämättä.
+// Ohjeen suositeltu pohja (leikattu: on korvamerkki): sivuston nimi puuttuu sivulta, joten muuttuja jää täyttämättä.
 // Rungossa MarkDownloadin (3.4.0, ajettu Chromiumissa 22.10.2026) tuottamat jäänteet: Strip Images jättää linkitetystä
 // kuvasta tyhjän viitelinkin, ja <sup> säilyy HTML:nä.
 const SUOSITUSLEIKE = `---
@@ -56,7 +56,7 @@ tekijä: Risto Uro
 sivusto: {siteName}
 julkaistu: 2017-04-03T08:00:00+03:00
 lähde: http://blogs.helsinki.fi/uro/2017/04/
-haettu: 2017-10-23
+leikattu: 2017-10-23
 ---
 
 # Auttaako evoluutio ymmärtämään uskontoa?
@@ -91,6 +91,8 @@ palvelin.listen(0, async () => {
   await tiedostona('kant-ja-elainetiikka.md', KANT);
   let t = await T(), k = await kentat();
   tulos('tutkielma läpäisee muuttumattomana', t.md === KANT, t.md.length + ' / ' + KANT.length);
+  const mdlRivi = () => p.evaluate(() => !document.querySelector('#mdl-rivi').hidden);
+  tulos('MarkDownload-rivi piilossa tavallisella tekstillä', !(await mdlRivi()));
   tulos('kentät tekstistä', k['tekijä'] === 'Olli Juutilainen' && k.julkaistu === '7/2026' && k.otsikko === 'KANT JA ELÄINETIIKKA', JSON.stringify(k));
   tulos('^[…]-alaviitteiden muunnosehdotus', (await ehdotukset()).some(x => /\^\[…\]/.test(x)));
   await kuva('1-tutkielma');
@@ -120,9 +122,10 @@ palvelin.listen(0, async () => {
 
   // 4. MarkDownloadin oletuspohja: ehdotus, siivous, tiedot, sivuston erotus.
   await tiedostona('leike.md', OLETUSLEIKE);
-  tulos('MarkDownload tunnistetaan', (await ehdotukset()).some(x => /MarkDownload/.test(x)));
+  tulos('MarkDownload tunnistetaan', (await ehdotukset()).some(x => /MarkDownload/.test(x)) && !(await mdlRivi()));
   await p.click('.ehdotus button:has-text("Käytä MarkDownload-tilaa")');
   await p.waitForTimeout(300);
+  tulos('ehdotuksesta päälle kytketty rivi näkyy', (await mdlRivi()) && (await p.getAttribute('#mdl', 'aria-pressed')) === 'true');
   k = await kentat();
   tulos('leikkeen tiedot', await p.inputValue('#tyyppi') === 'blogi' && k['tekijä'] === 'Maija Meikäläinen' && k['lähde'] === 'https://example.com/blogi/kirjoitus' && k.haettu === '8.10.2026', JSON.stringify(k));
   tulos('siivous', /1 tyhjä korostus, 1 HTML-rivi, Excerpt-lainaus/.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
@@ -148,6 +151,31 @@ palvelin.listen(0, async () => {
   tulos('yläindeksit ja tyhjä linkki', /^Kappale\.\^1\^ Toinen\^\[2\]\(https:\/\/example\.org\/x\)\^ ja H~2~O\.\n\n\n\n\[4\]:/m.test(t.md) &&
     /1 tyhjä linkki\. 3 HTML-indeksiä Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
   tulos('kuukausi etukenttään', /^julkaistu: 2017-04$/m.test(t.md), etu(t).replace(/\n/g, ' | '));
+
+  // 5b. Korvamerkki uudella sivulla (tila pois): leikattu: näyttää rivin ja kytkee tilan päälle ilman ehdotusta;
+  // tulokseen avain haettu, joten valmis teksti ei ole enää merkitty. Pois kytkeminen koskee vain tätä tekstiä.
+  const p2 = await ctx.newPage();
+  p2.on('pageerror', e => virheet.push(e.message));
+  await p2.goto(BASE + 'luin/latomo.html');
+  await p2.setInputFiles('#tiedosto', { name: 'suositus.md', mimeType: 'text/markdown', buffer: Buffer.from(SUOSITUSLEIKE) });
+  await p2.waitForTimeout(450);
+  const tila2 = () => p2.evaluate(() => [!document.querySelector('#mdl-rivi').hidden, document.querySelector('#mdl').getAttribute('aria-pressed'),
+    !document.querySelector('#mdl-tila').hidden, [...document.querySelectorAll('.ehdotus p')].some(x => /MarkDownload/.test(x.textContent))]);
+  let t2 = await p2.evaluate(() => window.__latomo.tulos()), s2 = await tila2();
+  tulos('korvamerkki kytkee tilan', s2.join() === 'true,true,true,false' && /^haettu: 2017-10-23$/m.test(t2.md) && !/leikattu/.test(t2.md), s2.join() + ' | ' + etu(t2).replace(/\n/g, ' | '));
+  await kuva('2b-korvamerkki');
+  await p2.click('#mdl');
+  await p2.waitForTimeout(300);
+  s2 = await tila2(); t2 = await p2.evaluate(() => window.__latomo.tulos());
+  tulos('korvamerkityn saa pois', s2.join() === 'true,false,false,false' && /<sup>/.test(t2.md), s2.join());
+  await p2.setInputFiles('#tiedosto', { name: 'valmis.md', mimeType: 'text/markdown', buffer: Buffer.from(SUOSITUSLEIKE) });
+  await p2.waitForTimeout(450);
+  tulos('pois-valinta ei siirry seuraavaan tekstiin', (await tila2()).join() === 'true,true,true,false', (await tila2()).join());
+  t2 = await p2.evaluate(() => window.__latomo.tulos());
+  await p2.setInputFiles('#tiedosto', { name: 'valmis.md', mimeType: 'text/markdown', buffer: Buffer.from(t2.md) });
+  await p2.waitForTimeout(450);
+  tulos('valmis teksti ei ole merkitty', (await tila2()).join() === 'false,false,false,false', (await tila2()).join());
+  await p2.close();
 
   // 6. Pelkkä teksti: ehdotukset, otsikko kentästä tekstin alkuun, itse kirjoitettu aika omalla tarkkuudellaan.
   await syota('Ensimmäinen rivi on tässä.\nToinen rivi jatkuu.\nKolmas rivi loppuu.\n\nUusi kappale.');
