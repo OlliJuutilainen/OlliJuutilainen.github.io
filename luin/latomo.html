@@ -30,14 +30,17 @@
     font-weight: 380 700; font-style: normal; font-display: swap; }
   @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2");
     font-weight: 380 700; font-style: italic; font-display: swap; }
-  /* Värit kuten luin.html:ssä. */
+  /* Värit kuten luin.html:ssä, paitsi --harmaa (käyttäjän päätös 27.10.2026, koeversio V3): Latomon tekstistä
+     noin 40 % on pientä --harmaa-tekstiä, joka luin.html:n arvoilla näytti ruskealta ruskealla, etenkin tummassa
+     teemassa (APCA Lc 49,5, vaikka WCAG antaa 7,17). Sama sävy ja kroma, vaaleus muutettu: vaalea Lc 79 → 88,
+     tumma Lc 50 → 65. */
   :root {
-    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #4f3e28; --viiva: #cbb99c;
     --ruoste: #8c5426; --okra: #b07a16;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
   }
   :root[data-teema="tumma"] {
-    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #cdb79a; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443;
   }
   * { box-sizing: border-box; }
