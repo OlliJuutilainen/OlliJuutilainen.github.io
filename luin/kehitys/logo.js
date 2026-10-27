@@ -5,7 +5,7 @@
 // pisteestä päätepisteeseen ja leikkaa N:n vinoviivan noin 61 %:n korkeudella; tiiviillä N:llä
 // vinoviiva on niin jyrkkä, ettei sama suora voi kulkea sitä pitkin (piste nousisi y ≈ −140:een).
 // i:n piste on ruosteinen, loppupiste tekstin värinen. Alarivi HTML on ohut (2,5) ja levitetty
-// L:n vasemmasta reunasta N:n oikeaan reunaan.
+// L:n pystyviivan vasemmasta reunasta N:n oikeaan reunaan.
 const t = 3.4, T = 15;
 const f = n => +n.toFixed(2);
 function rect(x0, y0, x1, y1) { return `M${f(x0)} ${f(y0)}H${f(x1)}V${f(y1)}H${f(x0)}Z`; }
@@ -90,11 +90,12 @@ function logo(o = {}) {
   const dot = [125.5, yd];
   const G = (o.glis ?? true) ? glis(o) : null; // glis: false = vanha keskeltä keskelle -viiva
   const W = G ? G.W : per[0] + 6.5;
-  // HTML: musteen vasen reuna on L:n vasemmassa reunassa (x 0) ja oikea N:n oikean päätteen
-  // reunassa (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
-  // pystypääte (kuten ylärivin L:ssä).
+  // HTML: musteen vasen reuna on L:n pystyviivan vasemmassa reunassa (x 7; käyttäjän päätös
+  // 27.10.2026, ennen L:n alapäätteen reunassa x 0, hx0: 0) ja oikea N:n oikean päätteen reunassa
+  // (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan pystypääte
+  // (kuten ylärivin L:ssä).
   const y0 = o.hy ?? 112, y1 = y0 + (o.hh ?? 18), sw = o.sw ?? 2.5, ser = 2.6, sp = 1.5;
-  const sw2 = sw / 2, X0 = 0, X1 = 196.6;
+  const sw2 = sw / 2, X0 = o.hx0 ?? 7, X1 = 196.6;
   const widths = [13, 13, 17, 11];
   const a0 = X0 + ser - sw2, aL = X1 - widths[3];
   const gap = (aL - a0 - widths[0] - widths[1] - widths[2]) / 3;
