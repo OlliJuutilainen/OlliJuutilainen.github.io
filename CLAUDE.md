@@ -815,9 +815,10 @@ Käyttäjän vaatimukset 20.10.2026:
   natsaa eikä nykyisen osion nimeä (`#ala-kohta` poistettu), vain kirjanmerkki vasemmalla ja sivunapit ja edistyminen oikealla.
   Osion nimi näkyy avatun aikajanan ylärivillä. Mobiilissa palkit ovat piilossa: alareunassa on kaista (`--ala` 44 px), jonka
   yläreunassa on haalean haalea viiva `--hius` (viivan ja paperin puoliväli; käyttäjän pyyntö 27.10.2026, ennen reunukseton).
-  Kirjanmerkki on kaistan vasemmassa reunassa oma 43 × 43 px:n neliönsä, nauha keskellä, ja sen erottaa muusta kaistasta
+  Kirjanmerkki on kaistan vasemmassa reunassa oma 45 × 43 px:n lohkonsa, nauha keskellä, ja sen erottaa muusta kaistasta
   `--hius`-pystyviiva, jonka päät ovat 7 px irti kaistan reunoista (27.10.2026; ennen nauha kellui palstan linjassa ja sen vasen
-  puoli avasi palkit). Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa tekstipalstan oikean reunan linjassa (`--palsta-o`).
+  puoli avasi palkit). Erotin on napin viimeinen pikseli, ja nauhan musteen väli siihen on sama kuin kaistan vasempaan reunaan,
+  17 px (käyttäjän pyyntö 27.10.2026; mitattu pikseleistä DPR 1–4; ennen erotin oli 2 px lähempänä). Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa tekstipalstan oikean reunan linjassa (`--palsta-o`).
   Työpöydän kirjanmerkki on ennallaan. Kaistan napautus (`#ala-nappi` koko kaistan alla; nuoli ei ota napautuksia) avaa yläpalkin ja
   aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää, ja sulkee ne. **Tekstin napautus ei avaa palkkeja**
   (käyttäjän päätös 22.10.2026, myöhemmin: avautui liian helposti vahingossa; aiemmin vierityksessä mikä tahansa kohta ja sivutettuna
