@@ -689,7 +689,12 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti, ei
   varjoja eikä läpikuultavuutta (e-ink). Käyttäjän päätös 21.10.2026 (kokeilu): ruoste siirrettiin oranssista ruskeampaan
   (vaalea `#a4541a` → `#8c5426`, tumma `#e0954f` → `#b8794a`; LCh-sävy 58° → 62°, kroma 54 → 41) ja tumman
-  teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37). Aikajanan merkinnät erotetaan muodolla nuottien tapaan (suurempi aika-arvo ontompi;
+  teeman paperi tummennettiin (`#18130e` → `#120e0b`), jotta himmeämpi ruoste erottuu (kontrasti 5,66 / 5,37).
+  **Latomon `--harmaa` poikkeaa muista Luinin sivuista** (käyttäjän päätös 27.10.2026, koeversio V3 kolmesta: V1 eli
+  pienet tekstit musteella oli paikoin selkeämpi mutta kokonaisuutena huonompi): vaalea `#67553f` → `#4f3e28`, tumma
+  `#b09b7e` → `#cdb79a`, sama sävy ja kroma (OKLCH), APCA Lc 79 → 88 ja 50 → 65. Syy: Latomon tekstipinnasta noin 40 %
+  on pientä (11,5–15 px) `--harmaa`-tekstiä, joka näytti "ruskealta ruskealla", pahiten tummassa teemassa (WCAG 7,17
+  antoi väärän kuvan). luin.html, käyttöohje ja Latomon ohje pitävät vanhat arvot; älä yhtenäistä niitä ilman käyttäjää. Aikajanan merkinnät erotetaan muodolla nuottien tapaan (suurempi aika-arvo ontompi;
   käyttäjän päätös 21.10.2026): pääluku iso ontto salmiakki, alaluku pienempi täytetty, alaluvun alaluku
   lähes pistemäinen täytetty. Käyttäjän päätös 21.10.2026 (myöhemmin): etappimerkit pienemmiksi, pääluku 0,8- ja alaluvut
   0,7-kertaisiksi (`JANA.koko`; kirjanmerkin nauha ennallaan); sitten alaluvut hiukan suuremmiksi (1,15- ja 1,35-kertaisiksi:
