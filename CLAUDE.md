@@ -778,7 +778,7 @@ Käyttäjän vaatimukset 20.10.2026:
   laskemalla loppupistettä (keskikohta 109,6, roikkui HTML-rivin tasolle) tai muuttamalla N:ää.
   Vanha geometria: `logo({ glis: false })`. Käyttäjän päätökset 21.10.2026:
   HTML mahtuu kokonaan LUiN-kirjainten alle (muste x 7–196,6 eli L:n pystyviivan vasemmasta reunasta N:n
-  oikean päätteen reunaan, ei loppupisteen alle; käyttäjän kokeilu 27.10.2026, ennen x 0 eli L:n alapäätteen
+  oikean päätteen reunaan, ei loppupisteen alle; käyttäjän päätös 27.10.2026, ennen x 0 eli L:n alapäätteen
   reunasta, `logo({ hx0: 0 })`; mitattu Chromiumissa pikseleistä), alku ja loppu veitsenterävät (H:n
   vasemmat päätteet x 7:ssä, L:n alaviivan päässä ylärivin L:n kaltainen pystypääte), rivi 5 yksikköä
   ylempänä ja viiva 2,1 → 2,5 (viewBox:n korkeus ennallaan, joten LUiN ei muuttanut kokoaan). Pienen L:n

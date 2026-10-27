@@ -90,7 +90,7 @@ function logo(o = {}) {
   const dot = [125.5, yd];
   const G = (o.glis ?? true) ? glis(o) : null; // glis: false = vanha keskeltä keskelle -viiva
   const W = G ? G.W : per[0] + 6.5;
-  // HTML: musteen vasen reuna on L:n pystyviivan vasemmassa reunassa (x 7; käyttäjän kokeilu
+  // HTML: musteen vasen reuna on L:n pystyviivan vasemmassa reunassa (x 7; käyttäjän päätös
   // 27.10.2026, ennen L:n alapäätteen reunassa x 0, hx0: 0) ja oikea N:n oikean päätteen reunassa
   // (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan pystypääte
   // (kuten ylärivin L:ssä).
