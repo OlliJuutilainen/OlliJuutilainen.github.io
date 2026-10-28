@@ -879,6 +879,15 @@ Käyttäjän vaatimukset 20.10.2026:
   leipätekstiä `figure.motto` (sisennetty, ei pystyviivaa). Latomo ehdottaa erilleen kirjoitetun lähteen siirtoa lainaukseen.
   Sama iA Writerin esikatselussa pohjalla `luin/ia-writer/Luin.iatemplate` (+ zip; käyttäjän pyyntö 27.10.2026; opas 3.6).
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
+  (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,
+  tarkistetut kohdat [✓] lähteineen), sinetöity lisälehti antiikin, kirkkoisien, klassikoiden ja arkistojen merkitsemiseen
+  (`lisalehti-antiikki-ja-arkistot.md`; osastokohtaisia ohjeita ei löytynyt, käyttäjän pyyntö: avataan vain todelliseen tarpeeseen)
+  ja `vertaa-luin.js`, joka ajaa tyylin esimerkit `kokoaViite`n läpi (28.10.2026: 13 samaa, 5 eroa, erot kirjattu).
+  **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026, `nimiOsa`; ennen
+  suomenkielinen pienennettiin). Pelkän viittauksen alaviite on pisteetön (`Derrida 2019, 143`; käyttäjän päätös 28.10.2026, tukena APA:n sisennetyn lainauksen
+  pisteetön viittaus). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
+  tyylin merkintätavalla. Kun muutat viitteiden kokoamista tai lähdeviittausten linkitystä, tarkista varanto ja aja vertailu.
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
   laatikko *Palaa takaisin* raksin kera ja aikajanalle kummitusmerkki (ontto kolmio, katkoviiva). Laatikon kolmio osoittaa
@@ -888,7 +897,9 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
   *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
   vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
-  missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
+  missään vuodella. Muuten ei linkkiä. Teologian tyylin muodot (28.10.2026): `A & B vuosi` (myös *ja*), `A et al. vuosi` (myös *ym.*)
+  ja saman tekijän seuraava vuosi puolipisteen jälkeen ilman nimeä (`Allison 1993, 45–46; 2010, 31`), kukin omaan kohtaansa;
+  paikantimessa ennen puolipistettä ei saa olla versaalia, jottei seuraavan tekijän viittausta lueta jatkoksi. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
   `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
   ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
   **Lyhenteet** (käyttäjän päätös 21.10.2026; opas, luku 3.4): ei merkintöjä tiedostoon. Osio, jonka otsikossa on
@@ -964,7 +975,7 @@ Tehdyt ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja (`luin/kehity
 - Väriperiaate (käyttäjän päätös 21.10.2026): ruoste = napautettava. Sisällysluettelon linkit ovat kokonaan ruosteella (numero ja teksti; kokeilu, vain numerot ruosteella oli vaihtoehto), otsikkolohkon tietorivit (`.meta`) kursiivia ja alaviitteet (`--huomio`, vaalea #74624a, tumma #a69272) hiukan harmaampia kuin `--harmaa`, mutta kontrasti ≥ 4,9.
 - **Lainausten väri** (käyttäjän päätös 27.10.2026: lainaus ei erottunut nopeasti vieritettäessä): `blockquote` on värillä `--sitaatti`, 70 % musteesta harmaaseen Lab-avaruudessa (vaalea `#514331`, kontrasti 8,8; tumma `#c2af94`, 9,0). Käyttäjä valitsi kolmesta näytteestä (0, 50, 70 %) haaleimman.
 - Vierityksessä pelkkä ikkunan korkeuden muutos ei aseta tekstiä uudelleen (mobiilin osoiterivi).
-- **Tavutuskiellot** (käyttäjän päätös 22.10.2026): otsikoissa (h1–h6), alaotsikossa (`.sub`), tietoriveillä (`.meta`), sisällysluettelossa, lihavoinneissa, taulukon otsikoissa ja kuvateksteissä ei ole pehmeitä tavuviivoja (`OHITA` md.js:ssä), ellei yksittäinen sana ole palstaa leveämpi. **Kirjallisuusluettelo (`p.bib`) ei tavuta lainkaan** (käyttäjän päätös 28.10.2026, peruste APA 7: ei tavuviivoja rivin loppuun, DOI ja osoite katkeavat vain ilman viivaa; Teologian tyylistä ei löytynyt sääntöä): `.bib` on `OHITA`ssa, se ei ole `tavutaPitkat()`in kohteissa (ylipitkä sana katkeaa viivatta, `overflow-wrap: anywhere`), ja selaimen tavutustilassa sillä on `hyphens: manual`. Mitattu tutkielmalla: luettelon pehmeät viivat 81 → 0 (tiheä 337 → 0), vierityksessä 0–5 riviä lisää, muu teksti merkilleen sama. Silloin `tavutaPitkat()` (luin.html, kutsutaan `asettele()`ssa) lisää viivat vain siihen sanaan ja poistaa ne, kun palsta levenee; `overflow-wrap: break-word` kattaa sanat, joita ei voi tavuttaa. Mittaus tehdään tilapäisesti `overflow-wrap: normal`illa, koska `break-word` katkoisi sanan jo mittaushetkellä (mittari oli ensin viallinen juuri siksi). Mitattu Chromiumissa 320 px: viivoja vain pitkissä sanoissa, 1280 px: ei yhtään; `testi.js` ennallaan (40 OK, samat kaksi ennestään olevaa VIKAa).
+- **Tavutuskiellot** (käyttäjän päätös 22.10.2026): otsikoissa (h1–h6), alaotsikossa (`.sub`), tietoriveillä (`.meta`), sisällysluettelossa, lihavoinneissa, taulukon otsikoissa ja kuvateksteissä ei ole pehmeitä tavuviivoja (`OHITA` md.js:ssä), ellei yksittäinen sana ole palstaa leveämpi. **Kirjallisuusluettelo (`p.bib`) ei tavuta lainkaan** (käyttäjän päätös 28.10.2026; Teologian tyyli ja APA 7: ei tavutusta, DOI ja osoite katkeavat vain ilman lisättyä viivaa): `.bib` on `OHITA`ssa, se ei ole `tavutaPitkat()`in kohteissa (ylipitkä sana katkeaa viivatta, `overflow-wrap: anywhere`), ja selaimen tavutustilassa sillä on `hyphens: manual`. Mitattu tutkielmalla: luettelon pehmeät viivat 81 → 0 (tiheä 337 → 0), vierityksessä 0–5 riviä lisää, muu teksti merkilleen sama. Silloin `tavutaPitkat()` (luin.html, kutsutaan `asettele()`ssa) lisää viivat vain siihen sanaan ja poistaa ne, kun palsta levenee; `overflow-wrap: break-word` kattaa sanat, joita ei voi tavuttaa. Mittaus tehdään tilapäisesti `overflow-wrap: normal`illa, koska `break-word` katkoisi sanan jo mittaushetkellä (mittari oli ensin viallinen juuri siksi). Mitattu Chromiumissa 320 px: viivoja vain pitkissä sanoissa, 1280 px: ei yhtään; `testi.js` ennallaan (40 OK, samat kaksi ennestään olevaa VIKAa).
 - Tavutus luokittelee rajat; varovainen tila jättää pois vokaalin ja yksinäisen konsonantin välisen
   rajan, koska yhdyssanavirheet (*kansalai-soikeus*) ovat aina sitä tyyppiä. ie/uo/yö ovat diftongeja
   myös ensitavun jälkeen paitsi monikon genetiivissä (*talvi-en*). Kursiivia ei tavuteta.

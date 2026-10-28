@@ -1,5 +1,5 @@
 ---
-viite: Juutilainen, Olli (2026). *Kant ja eläinetiikka: muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.
+viite: Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.
 ---
 
 # KANT JA ELÄINETIIKKA
