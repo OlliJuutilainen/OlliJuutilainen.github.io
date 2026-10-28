@@ -586,7 +586,7 @@ palvelin.listen(0, async () => {
     [pv0, pvT, pv1, pv1b, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
   tulos('palkkinuoli kääntyy', !pv0.alas && pv1.alas && !pv2.alas,
     JSON.stringify([pv0, pv1, pv2].map(x => x.alas)));
-  // Kirjanmerkkilohko vasemmassa reunassa, nuoli tai sivunappien laatikko palstan oikean reunan linjassa, Merkinnät/Etsi
+  // Kirjanmerkkilohko vasemmassa reunassa (symbolista yhtä kauas palkin reunaan ja erottimeen, 17 px; 28.10.2026), nuoli tai sivunappien laatikko palstan oikean reunan linjassa, Merkinnät/Etsi
   // omalla rivillään aikajanan alla vasemmassa reunassa (27.10.2026).
   const linja = async () => { await avaaPalkitM(); await m.waitForTimeout(100); return m.evaluate(() => {
     const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
@@ -595,7 +595,7 @@ palvelin.listen(0, async () => {
     // Nuolen viewBox on musteen rajat viivan ulkoreunoineen: laatikon reuna = musteen reuna. Sivunappien näkyvä
     // laatikko on nappien reunoissa (#sivunapit on napautusalue ruudun reunaan asti).
     const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : q('#sivu-se'), ala = q('#ala'), rivi = q('#ala-rivi'), js = q('#jana-svg');
-    return { kmLohko: [kmb.left, +kmb.width.toFixed(2), +kmb.height.toFixed(2)], kmKeski: +((km.left + km.right) / 2 - (kmb.left + kmb.right) / 2).toFixed(2),
+    return { kmLohko: [kmb.left, +kmb.width.toFixed(2), +kmb.height.toFixed(2)], kmValit: [+(km.left - kmb.left).toFixed(2), +(kmb.right - 1 - km.right).toFixed(2)],
       nuoli: +((snr || nu).right - t.right).toFixed(2), snNuoli: snr && +(q('#sivu-ed').left - nu.right).toFixed(2),
       napit: [+(n.left - js.left).toFixed(2), +(rivi.top - n.bottom).toFixed(2), +(n.top - js.bottom).toFixed(2)], kerros: Math.round(innerHeight - ala.top) }; }); };
   const lvv = await linja();
@@ -628,7 +628,7 @@ palvelin.listen(0, async () => {
   tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
     [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
-  const lohkoOk = l => l.kmLohko[0] === 0 && l.kmLohko[1] === l.kmLohko[2] && Math.abs(l.kmKeski) < 0.6 && Math.abs(l.nuoli + 10) < 0.6 &&
+  const lohkoOk = l => l.kmLohko[0] === 0 && l.kmLohko[2] === 43 && l.kmValit[0] === 17 && l.kmValit[1] === 17 && Math.abs(l.nuoli + 10) < 0.6 &&
     l.napit[0] === 0 && l.napit[1] >= 8 && l.napit[2] >= 0;
   tulos('kirjanmerkkilohko, nuoli ja Merkinnät/Etsi-rivi (412 px)', lohkoOk(lvv) && lohkoOk(ls) && lvv.snNuoli === null && Math.abs(ls.snNuoli - 12) < 0.6,
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
