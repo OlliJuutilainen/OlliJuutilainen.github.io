@@ -371,7 +371,7 @@
   body.mobiili #km-nappi { width: calc(var(--ala) + 1px); padding: 0 1px 0 0; justify-content: center; }
   #ala-nappi { position: absolute; inset: 0; }
   /* --o-reuna: oikean laidan sisennys; sivunappien napautusalue ulottuu sen yli ruudun reunaan asti. */
-  #ala-oikea { --o-reuna: 24px; position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px;
+  #ala-oikea { --o-reuna: 24px; position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 20px;
     padding-right: var(--o-reuna); font-size: .8rem; color: var(--harmaa); pointer-events: none; }
   body.mobiili #ala-oikea { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
   #jana-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
@@ -382,9 +382,11 @@
      22.10.2026: alapalkissa ei ollut mitään merkkiä avaamisesta ja sulkemisesta), jossa alapalkin klikkaus avaa
      ja sulkee aikajanan; sama palkit-auki-luokka kääntää nuolen. Käyttäjän pyyntö 26.10.2026: edellinen yksittäinen
      salmiakkinuoli ei ollut intuitiivinen, joten merkki on tavanomainen kaksoischevron eli kaksi samansuuntaista
-     ohutta natsaviivaa päällekkäin (kalanruoto): kiinni ylös, auki alas. Nuoli on sivunappien vasemmalla puolella. */
+     ohutta natsaviivaa päällekkäin (kalanruoto): kiinni ylös, auki alas. Nuoli on sivunappien vasemmalla puolella.
+     Käyttäjän pyyntö 28.10.2026: nuolen ja sivunappien väli 12 → 24 px, ja ilman sivunappeja nuoli on 4 px
+     vasemmempana. Oikea marginaali hoitaa molemmat: piilotettujen nappien kanssa flexin gap ei vaikuta. */
   #palkki-nuoli { display: block; width: 15px; height: 13.75px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
-    stroke-linejoin: round; stroke-linecap: round; flex: 0 0 auto; }
+    stroke-linejoin: round; stroke-linecap: round; flex: 0 0 auto; margin-right: 4px; }
   body.palkit-auki #palkki-nuoli { stroke: var(--muste); transform: rotate(180deg); }
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat

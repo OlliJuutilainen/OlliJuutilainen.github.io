@@ -837,7 +837,7 @@ Käyttäjän vaatimukset 20.10.2026:
   nuolina täytetyt lovetut koverakylkiset salmiakit (`--muste`; valittu neljästä muodosta, leijat näyttivät pienenä möhkäleiltä).
   `#lukija`ssa ei ole napautuskorostusta (näkymättömän kaistan napautus väläytti kaistan). Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
   *Liikkuminen*-rivin *Sivut*-sanan alla lisäkytkin *Sivunvaihtopainikkeet* (`aset.sivunapit`, oletus pois 22.10.2026 alkaen; sivua
-  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; sivunapit ovat palkkinuolen oikealla puolella), 16 px sisennettynä
+  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; sivunapit ovat palkkinuolen oikealla puolella 24 px:n päässä, ja ilman niitä nuoli on 4 px vasemmempana kuin nappien oikea reuna; käyttäjän pyyntö 28.10.2026, ennen väli 12 px), 16 px sisennettynä
   (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
   muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
