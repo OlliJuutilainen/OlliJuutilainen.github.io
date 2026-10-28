@@ -877,6 +877,11 @@ Käyttäjän vaatimukset 20.10.2026:
   leipätekstiä `figure.motto` (sisennetty, ei pystyviivaa). Latomo ehdottaa erilleen kirjoitetun lähteen siirtoa lainaukseen.
   Sama iA Writerin esikatselussa pohjalla `luin/ia-writer/Luin.iatemplate` (+ zip; käyttäjän pyyntö 27.10.2026; opas 3.6).
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
+- **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
+  (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,
+  tarkistetut kohdat [✓] lähteineen) ja `vertaa-luin.js`, joka ajaa tyylin esimerkit `kokoaViite`n läpi (28.10.2026:
+  12 samaa, 6 eroa, erot kirjattu). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
+  tyylin merkintätavalla. Kun muutat viitteiden kokoamista tai lähdeviittausten linkitystä, tarkista varanto ja aja vertailu.
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
   laatikko *Palaa takaisin* raksin kera ja aikajanalle kummitusmerkki (ontto kolmio, katkoviiva). Laatikon kolmio osoittaa
