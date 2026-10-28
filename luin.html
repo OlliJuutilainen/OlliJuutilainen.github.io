@@ -341,7 +341,7 @@
   body.sivutus .wrap { max-width: none; height: 100%; margin: 0; position: static; }
   body.sivutus #teksti { height: 100%; max-width: none; column-fill: auto; orphans: 2; widows: 2; }
   body.sivutus .sidenote, body.sivutus .fntoggle:checked + .sidenote { display: none; }
-  body.sivutus #teksti h2, body.sivutus nav.sisallys { break-before: column; -webkit-column-break-before: always; }
+  body.sivutus #teksti h2 { break-before: column; -webkit-column-break-before: always; }
   body.sivutus header.tt { padding-top: 14%; }
   body.sivutus #teksti hr.ennen-lukua { display: none; }
   /* Alaluku, jolle sivun pohjalla jäisi vain otsikko tai otsikko ja yksi rivi, alkaa uudelta sivulta (alalukujenAlut()). */
@@ -1415,7 +1415,7 @@
       h.style.paddingTop = (parseFloat(cs.paddingTop) + (h.tagName === 'H2' ? parseFloat(cs.marginTop) : 0)) + 'px';
       h.style.marginTop = Math.ceil(ar.bottom - r.top + 1) + 'px';
     };
-    $$('h2, h3, nav.sisallys', art).forEach(function (h) {
+    $$('h2, h3', art).forEach(function (h) {
       var r0 = h.getClientRects()[0];
       if (!r0 || r0.top - ar.top < 2 && h.tagName !== 'H2') return;
       if (h.tagName !== 'H3') { if (!ensin(h)) siirra(h); return; }
