@@ -1,45 +1,32 @@
-# Teologian tyyli 2021 – säännöt ja esimerkit
+# Teologian tyyli 2021 – manuaali
 
-Lähde: *TEOLOGIAN TYYLI 1.1.2021 (korjattu versio 22.11.2017 käyttöön otetuista ohjeista). Teologisen
-tiedekunnan viittaustekniset ohjeet kirjallisuuden ilmoittamiseen.* Helsingin yliopisto, teologinen tiedekunta.
-3 sivua, Word-tiedostosta tulostettu PDF (tekijä-metatieto *kvalkama*, luotu 15.2.2021). Käyttäjä toimitti PDF:n
-28.10.2026. PDF:ää ei ole viety repoon, vaan tähän on kirjattu sen säännöt ja esimerkit.
+Tämän repon tulkinta HY:n teologisen tiedekunnan ohjeesta *Teologian tyyli 1.1.2021* (3 s., PDF ei repossa).
+Säännöt ovat voimassa sellaisinaan. Kursiivi merkitään tähdillä (`*Teos*`) kuten Luinin viitteissä.
 
-Kursiivit on luettu sivujen kuvista, koska PDF:n tekstikerroksessa niitä ei ole. Kursiivi merkitään
-tähdillä (`*Teos*`), kuten Luinin viitteissä.
-
-Merkinnät:
-- **[E]**: ohjeessa sanottu suoraan.
-- **[J]**: johdettu esimerkeistä; ohjeessa sitä ei sanota sääntönä.
-- **[T]**: käyttäjän kandidaatintutkielman (`luin/tekstit/kant-ja-elainetiikka.md`) käytäntö, kun ohje ei kata
-  tapausta.
-
-Tutkielma kertoo itse noudattavansa *Helsingin yliopiston teologisen tiedekunnan tavan mukaista soveltavaa
-APA-tyyliä*. APA on siksi luonteva varaverkko (`apa7-turvaverkko.md`).
+Merkintä **[T]** = käyttäjän kandidaatintutkielman (`luin/tekstit/kant-ja-elainetiikka.md`) käytäntö kohdissa,
+joita ohje ei kata. Tutkielma noudattaa *Helsingin yliopiston teologisen tiedekunnan tavan mukaista
+soveltavaa APA-tyyliä*; muissa aukoissa ks. `apa7-turvaverkko.md`.
 
 ---
 
 ## 1. Viiteohjelmat
 
-**[E]** Tyyli on RefWorksissa nimellä *Helsinki 3*. Kirjallisuusluettelon osalta se on myös nimellä *Helsingin
-yliopisto – Teologinen tiedekunta (Finnish)* Zoterossa, Mendeleyssa ja RefWorksissa.
+Tyyli on RefWorksissa nimellä *Helsinki 3* ja kirjallisuusluettelon osalta nimellä *Helsingin yliopisto –
+Teologinen tiedekunta (Finnish)* Zoterossa, Mendeleyssa ja RefWorksissa.
 
-Zoteron CSL-tiedosto on `university-of-helsinki-faculty-of-theology.csl` citation-style-language/styles-
-repossa (päivitetty 2019-09-17, dokumentaatiolinkkinä vuoden 2019 PDF). **Se poikkeaa vuoden 2021 PDF:stä**,
-joten PDF on ensisijainen. Erot on tarkistettu CSL-koodista 28.10.2026:
+Zoteron CSL-tiedosto `university-of-helsinki-faculty-of-theology.csl` (citation-style-language/styles,
+2019-09-17) on vanhempaa versiota. Tämä manuaali voittaa:
 
-| Kohta | PDF 2021 | CSL 2019 |
+| Kohta | Manuaali | CSL 2019 |
 |---|---|---|
 | Lehden numero | `8:1` | `8(1)` |
 | Toimittajat pääteoksena | `Sukunimi, Etunimi …, toim. (vuosi)` | `(toim.)` sulkeissa |
 | *et al.* alaviitteessä | yli kaksi tekijää | vasta neljästä tekijästä |
-| Primäärilähteet | Raamattu ym. esimerkit | ei mukana (CSL:n oma huomautus) |
+| Primäärilähteet | luku 4.3 | ei mukana |
 
 ---
 
 ## 2. Perusmuodot
-
-**[E]** Ohjeen kehystetyt perusmuodot:
 
 > Sukunimi, Etunimi (julkaisuvuosi). *Teoksen nimi: Alaotsikko*. Kustannuspaikka: Kustantaja.
 >
@@ -48,73 +35,49 @@ joten PDF on ensisijainen. Erot on tarkistettu CSL-koodista 28.10.2026:
 >
 > Sukunimi, Etunimi (julkaisuvuosi). Sivun nimi. *Sivuston nimi*. internet-osoite (luettu päivämäärä).
 
-Näistä ja esimerkeistä johdetut säännöt:
-
 ### 2.1 Tekijät
-- **[E]** Ensimmäinen tekijä käänteisenä (`Sukunimi, Etunimi`), muut luonnollisessa järjestyksessä (`Etunimi
-  Sukunimi`).
-- **[J]** Kahden tekijän välissä on `&`. Useamman tekijän välissä on pilkku ja viimeisen edellä `&`, eikä `&`:n
-  edellä ole pilkkua (`Punkkinen, Henna, Elina Merta, Nea Teerioja, Katja Moliis & Eveliina Kuvaja`).
-- **[J]** Luettelossa näkyvät kaikki tekijät. Esimerkeissä on enintään viisi; ohje ei sano, mitä tehdään
-  kymmenien tekijöiden kanssa (ks. APA).
-- **[J]** Nimet kirjoitetaan kokonaan, eikä niitä lyhennetä alkukirjaimiksi: `Clayton, Philip & Paul C. W. Davies`.
-  Toimittajat nimiketietojen jälkeen saavat olla alkukirjaimin, kuten julkaisussa: `Toim. K. Elliger & W. Rudolph`.
-- **[E]** Jos tekijää ei löydy, tekijän paikalla on artikkelin tai sivun otsikko (ks. 4.2).
-- **[J]** Toimitetussa teoksessa toimittajat ovat tekijän paikalla, ja nimien perässä on `, toim.` ennen
-  vuotta: `Antila, Jaakko Olavi, Esko M. Laine & Juha Meriläinen, toim. (2013).`
+- Ensimmäinen tekijä käänteisenä (`Sukunimi, Etunimi`), muut luonnollisessa järjestyksessä (`Etunimi Sukunimi`).
+- Kaksi tekijää `&`-merkillä. Useampi pilkuin ja viimeisen edellä `&`, ei pilkkua `&`:n edellä:
+  `Punkkinen, Henna, Elina Merta, Nea Teerioja, Katja Moliis & Eveliina Kuvaja`.
+- Kaikki tekijät luetteloon. Hyvin monen tekijän teos: APA 7 (`apa7-turvaverkko.md` 2.3).
+- Nimet kokonaan, ei alkukirjaimia: `Clayton, Philip & Paul C. W. Davies`. Nimiketietojen jälkeiset toimittajat
+  kuten julkaisussa: `Toim. K. Elliger & W. Rudolph`.
+- Ilman tekijää otsikko aloittaa (4.2).
+- Toimitetussa teoksessa toimittajat tekijän paikalla, perässä `, toim.`:
+  `Antila, Jaakko Olavi, Esko M. Laine & Juha Meriläinen, toim. (2013).`
 
 ### 2.2 Vuosi
-- **[E]** Vuosi on sulkeissa heti tekijöiden perässä, ja sulkeiden jälkeen tulee piste: `Arffman, Kaarlo (2004).`
-- **[E]** Jos kirjoitus- tai päivitysaikaa ei löydy, vuoden paikalla on `s.a.` (*sine anno*): `(s.a.)`.
-- **[J]** Saman tekijän saman vuoden teokset erotetaan pienin kirjaimin: `(2013a)`, `(2013b)`.
-- **[J]** Kahden laitoksen vuosi kauttaviivalla: `Raamattu (1933/1938)`.
+- Sulkeissa tekijöiden perässä, sulkeiden jälkeen piste: `Arffman, Kaarlo (2004).`
+- Ilman vuotta `(s.a.)` (*sine anno*).
+- Saman tekijän saman vuoden teokset kirjaimin: `(2013a)`, `(2013b)`.
+- Kaksi laitosta kauttaviivalla: `Raamattu (1933/1938)`.
 
 ### 2.3 Nimet ja kursiivi
-- **[E]** Itsenäinen julkaisu (monografia, toimitettu teos, opinnäyte, e-kirja) on kursiivilla.
-- **[E]** Osa (artikkeli, luku, blogikirjoitus, verkkosivu, sanomalehtijuttu, esitelmä) on ilman kursiivia, ja
-  sen julkaisualusta (lehti, kokoomateos, sivusto, blogi, konferenssi, sanomalehti) on kursiivilla.
-- **[J]** Alaotsikko erotetaan kaksoispisteellä: `*Teoksen nimi: Alaotsikko*`.
-- **[J]** Englanninkieliset nimet ovat esimerkeissä otsikkokirjoituksella (`The Called Out of the Called Out`).
-  Suomenkieliset ovat virkekirjoituksella, mutta alaotsikko alkaa isolla kirjaimella myös suomeksi:
-  `*Hallen pietismin vaikutus varhaisempaan herännäisyyteen: Teologianhistoriallinen tutkielma*`. **Noudatetaan**
-  (käyttäjän päätös 28.10.2026; Luin `nimiOsa`). Suomen yleiskielen tapa olisi jatkaa pienellä, ks. 7.4.
-- **[J]** Jos nimi päättyy kysymysmerkkiin, sen jälkeen ei tule pistettä: `Auttaako evoluutio ymmärtämään uskontoa?
-  *Risto Uron blogi*`.
-- **[J]** Kursiivin perässä oleva piste on PDF:ssä vaihtelevasti kursiivin sisällä tai ulkopuolella. Se on
-  tekstinkäsittelyn epätarkkuutta eikä sääntö.
+- Itsenäinen julkaisu (monografia, toimitettu teos, opinnäyte, e-kirja) kursiivilla.
+- Osa (artikkeli, luku, blogikirjoitus, verkkosivu, sanomalehtijuttu, esitelmä) ilman kursiivia; sen
+  julkaisualusta (lehti, kokoomateos, sivusto, blogi, konferenssi, sanomalehti) kursiivilla.
+- Alaotsikko kaksoispisteen jälkeen, **isolla alkukirjaimella** myös suomeksi:
+  `*Hallen pietismin vaikutus varhaisempaan herännäisyyteen: Teologianhistoriallinen tutkielma*`.
+- Englanninkieliset nimet otsikkokirjoituksella (`The Called Out of the Called Out`), suomenkieliset
+  virkekirjoituksella.
+- Kysymysmerkin jälkeen ei pistettä: `Auttaako evoluutio ymmärtämään uskontoa? *Risto Uron blogi*`.
+- Kursiivin perään tuleva piste on kursiivin ulkopuolella.
 
 ### 2.4 Välimerkit ja järjestys
-- **[J]** Osat erotetaan pisteellä. Kustannuspaikan ja kustantajan välissä on kaksoispiste, ja sivut tulevat
-  pilkun jälkeen viimeisen osan perään: `Santa Barbara, CA: Praeger, 63–86.`
-- **[J]** Sivuväli ja vuosiväli ajatusviivalla (–, U+2013), ei yhdysmerkillä: `43–55`, `2006–2015`.
-- **[J]** Yhdysvaltain kustannuspaikkaan liitetään osavaltion lyhenne: `Santa Barbara, CA`, `Princeton, NJ`,
-  `San Diego, CA`.
-- **[J]** Merkintä päättyy pisteeseen, myös URL:n jälkeen silloin, kun DOI seuraa (`http://religion.oxfordre.com.
-  DOI: …`). Jos merkintä päättyy sulkeisiin `(luettu …)`, piste tulee sulkeiden jälkeen.
-- **[J]** Järjestys on käytännössä: tekijä (vuosi). Nimi. Suomentaja. Osana: *Julkaisu* numero. Toimittajat.
-  Painos. Sarja numero. Opinnäytteen laji. Yliopisto. Paikka: Kustantaja, sivut. URL. DOI. (luettu …).
-  Luettelo on johdettu esimerkeistä; mikään esimerkki ei sisällä kaikkia osia, joten järjestys on epävarma
-  kohdissa, joita yksikään esimerkki ei yhdistä.
+- Osat erotetaan pisteellä. Kustannuspaikan ja kustantajan välissä kaksoispiste, sivut pilkun jälkeen viimeisen
+  osan perään: `Santa Barbara, CA: Praeger, 63–86.`
+- Sivuvälit ja vuosivälit ajatusviivalla (–): `43–55`, `2006–2015`.
+- Yhdysvaltain kustannuspaikkaan osavaltion lyhenne: `Santa Barbara, CA`, `Princeton, NJ`.
+- Merkintä päättyy pisteeseen, myös URL:n jälkeen, kun DOI seuraa (`http://religion.oxfordre.com. DOI: …`).
+  Sulkeisiin `(luettu …)` päättyvässä piste sulkeiden jälkeen.
+- Järjestys: tekijä (vuosi). Nimi. Suomentaja. *Julkaisu* numero. Toimittajat. Painos. Sarja numero.
+  Opinnäytteen laji. Yliopisto. Paikka: Kustantaja, sivut. URL. DOI. (luettu …).
 
-### 2.5 Kirjallisuusluettelon asettelu ja tavutus
-- **[J]** Merkinnät ovat riippuvalla sisennyksellä, ja niiden välissä on tyhjä rivi.
-- **[J]** Oikea reuna on liehuva (ei tasattu).
-- **[J] Kirjallisuusluettelossa ei ole yhtään tavutettua sanaa.** Kaikki rivinloput on tarkistettu (PDF:n
-  tekstikerroksesta ja sivujen kuvista 28.10.2026). Kolme riviä päättyy viivaan:
-  - kaksi verkko-osoitetta katkeaa osoitteessa jo olevan yhdysmerkin jälkeen (`…-ari-` | `tuhkanen/`,
-    `beliefs-and-` | `teachings/`), eli viiva on osoitteen oma, ei tavuviiva;
-  - yksi on ohjeen selittävässä leipätekstissä, ei luettelossa (`päivitysajan-` | `kohtaa`).
-
-  Muut osoitteet katkeavat kauttaviivan jälkeen (`…/tarkastelutapoja/` | `sosiaalitieteet4.html`).
-- **[J] Mutta ohje ei sano tavutuksesta mitään**, joten tavuttomuus on havainto, ei sääntö. Sen voi selittää
-  kahdella tavalla, eikä PDF:stä näe kumpi pitää:
-  - tavutus on ollut Wordissa pois koko asiakirjasta (Wordin oletus), ja leipätekstin `päivitysajan-kohtaa` on
-    kirjoitettu käsin;
-  - tavutus on ollut päällä, ja luettelo on tavuton tarkoituksella.
-
-  Luin ei tavuta luetteloa (päätös 28.10.2026). Peruste on APA:n nimenomainen sääntö (`apa7-turvaverkko.md` 1.1),
-  ja tämä havainto on sen kanssa yhtäpitävä.
-- **[J]** URL:t ovat PDF:ssä alleviivattuja Wordin linkkimuotoilun takia. Kyse ei ole tyylisäännöstä.
+### 2.5 Kirjallisuusluettelon asettelu
+- Riippuva sisennys, merkintöjen välissä tyhjä rivi.
+- Oikea reuna liehuva.
+- **Ei tavutusta.**
+- Verkko-osoite katkeaa vain kauttaviivan tai osoitteen oman yhdysmerkin kohdalta; viivaa ei lisätä.
 
 ---
 
@@ -237,18 +200,18 @@ States Conference of Catholic Bishops*. http://www.usccb.org/beliefs-and-teachin
 ## 4. Erityistapaukset
 
 ### 4.1 Ei vuotta
-**[E]** Jos kirjallisuudesta tai verkkolähteestä ei löydy kirjoitus- tai päivitysaikaa, vuoden tilalla on `s.a.`
+Jos kirjallisuudesta tai verkkolähteestä ei löydy kirjoitus- tai päivitysaikaa, vuoden tilalla on `s.a.`
 (latinan *sine anno*, ilman vuotta). Sama koskee alaviitettä: `The Church of Koinonia as Salvation s.a.`
 
 ### 4.2 Ei tekijää
-**[E]** Jos tekijän nimeä ei löydy, nimen paikalla on artikkelin tai verkkosivun otsikko sekä luettelossa että
+Jos tekijän nimeä ei löydy, nimen paikalla on artikkelin tai verkkosivun otsikko sekä luettelossa että
 alaviitteessä.
-**[E]** Pitkän nimen saa lyhentää alaviitteessä (esimerkki: alaviite 2).
-**[E]** Jos nimi lyhennetään pelkiksi kirjaimiksi (*The Church as Koinonia of Salvation: Its Structures and
+Pitkän nimen saa lyhentää alaviitteessä (esimerkki: alaviite 2).
+Jos nimi lyhennetään pelkiksi kirjaimiksi (*The Church as Koinonia of Salvation: Its Structures and
 Ministries* → *CKSISM*), kirjallisuusluettelon edelle tehdään luettelo työssä käytetyistä lyhenteistä.
 
 ### 4.3 Primäärilähteet
-**[E]** Antiikin lähteiden, arkistolähteiden ym. merkitsemisestä katsotaan osastokohtaiset ohjeet. Ohjeessa on
+Antiikin lähteiden, arkistolähteiden ym. merkitsemisestä katsotaan osastokohtaiset ohjeet. Ohjeessa on
 esimerkkeinä vain Raamatun uusimmat suomennokset ja yleisimmät tekstilaitokset. Tekijää ei ole, joten nimi
 aloittaa, on kursiivilla, ja vuosi tulee sen perään.
 
@@ -267,18 +230,17 @@ Stuttgart: Deutsche Bibelgesellschaft.
 *Septuaginta I–II: Id est Vetus Testamentum Graece iuxta LXX interpretes* (1935). Toim. Alfred Rahlfs.
 Stuttgart: Privilegierte Württembergische Bibelanstalt.
 
-Johdettua [J]: painos `5. painos.` toimittajien jälkeen; laatijat `Laatineet …`; usea toimittaja ilman kaikkia
+Lisäksi: painos `5. painos.` toimittajien jälkeen; laatijat `Laatineet …`; usea toimittaja ilman kaikkia
 nimiä `ym.`; samaa sukua olevat nimet yhdistettyinä (`Eberhard & Erwin Nestle`, `Barbara & Kurt Aland`); niteet
 roomalaisin numeroin ja ajatusviivalla (`I–II`).
 
-Osastokohtaisia ohjeita (antiikki, arkistot) ei ole tässä varannossa. Puutteen varalla ks. APA 7 klassiset ja
-uskonnolliset teokset (`apa7-turvaverkko.md` 3.6).
+Antiikki, arkistot ja muut primäärilähteet: sinetöity `lisalehti-antiikki-ja-arkistot.md`.
 
 ---
 
 ## 5. Viittaukset alaviitteissä
 
-**[E]** Ohjeen esimerkkialaviitteet:
+Esimerkkialaviitteet:
 
 | Tilanne | Alaviite |
 |---|---|
@@ -290,7 +252,7 @@ uskonnolliset teokset (`apa7-turvaverkko.md` 3.6).
 | Kaksi kirjoittajaa | `McLoughlin & Lertola 2014, 70–71.` |
 | Enemmän kuin kaksi kirjoittajaa | `Punkkinen et al. 2012, 1776–1777.` |
 
-Johdetut säännöt [J]:
+Säännöt:
 - Muoto on `Sukunimi vuosi, sivut`: ilman sulkeita, ilman *s.*- tai *p.*-lyhennettä, vuoden ja sivujen välissä
   pilkku.
 - Usea viite erotetaan puolipisteellä. Saman tekijän seuraavasta teoksesta sukunimi jätetään pois.

@@ -5,17 +5,18 @@ pyynnöstä. Käyttäjä: Luin (`luin.html`, `luin/md.js` `kokoaViite`, Latomon 
 
 | Tiedosto | Sisältö |
 |---|---|
-| `teologian-tyyli-2021.md` | HY:n teologisen tiedekunnan ohje (PDF, 3 s.) säännöiksi purettuna: perusmuodot, kaikki esimerkit, alaviitteet, tutkielman lisäkäytännöt, ohjeen epäjohdonmukaisuudet ja Luinin vertailu. |
+| `teologian-tyyli-2021.md` | Manuaali: repon tulkinta HY:n teologisen tiedekunnan ohjeesta (2021): perusmuodot, kaikki esimerkit, alaviitteet, tutkielman lisäkäytännöt, ohjeen epäjohdonmukaisuudet ja Luinin vertailu. |
 | `apa7-turvaverkko.md` | APA 7 niihin kohtiin, joita Teologian tyyli ei kata, käännettynä Teologian tyylin asuun. |
 | `lisalehti-antiikki-ja-arkistot.md` | Sinetöity lisälehti: antiikin, kirkkoisien, reformaation, filosofian klassikoiden ja arkistojen merkitseminen, kun osastokohtaista ohjetta ei ole käsillä. |
 | `vertaa-luin.js` | Ajaa Teologian tyylin esimerkit `LuinMD.kokoaViite`-funktion läpi: `node docs/viitteet/vertaa-luin.js`. |
 
 ## Etusijajärjestys
 
-1. **Teologian tyylin suora sääntö tai esimerkki** (`teologian-tyyli-2021.md`, merkintä [E]).
-2. **Teologian tyylin esimerkeistä johdettu** ([J]). Ohjeen virheiksi todettuja kohtia (luku 7) ei matkita.
-3. **Käyttäjän tutkielman käytäntö** ([T]), kun ohje vaikenee. Tutkielma on Luinin ja Latomon malli
+1. **Teologian tyyli** (`teologian-tyyli-2021.md`). Manuaalin luvussa 7 luetellut ohjeen kömmähdykset eivät ole
+   malli.
+2. **Käyttäjän tutkielman käytäntö** ([T]), kun tyyli vaikenee. Tutkielma on Luinin ja Latomon malli
    (`md-testi.js` vertaa siihen).
+3. **Sinetöity lisälehti** primäärilähteille (antiikki, arkistot), vain todelliseen tarpeeseen.
 4. **APA 7** (`apa7-turvaverkko.md`), Teologian tyylin merkintätavalla: `s.a.`, `(luettu …)`, `DOI: …`,
    `toim.`, koko etunimet, alaviite `Sukunimi vuosi, sivu`.
 
@@ -40,6 +41,9 @@ Avoimet:
   - *Numeron perässä oleva piste on suomessa järjestysluvun merkki.* `143.` voi lukea *143:s*, `3.4.2.` lisää
     paikantimeen tason, ja `s.a..` tai `GMS 4:429.` ovat kömpelöitä.
 
+  - *APA:n sisennetyn lainauksen sääntö.* Lainauksen jälkeen erillään seisova viittaus `(Derrida, 2019, p. 143)`
+    on pisteetön, koska virke päättyi jo ennen sitä (`apa7-turvaverkko.md` 5). Alaviiteviite on samassa asemassa.
+
   Vastaan:
   - Teologian tyylin kaikki seitsemän esimerkkialaviitettä päättyvät pisteeseen.
   - HY:n historian ohje (Katajisto ym. 2025, kohta 2.2) sanoo *Lähdeviitteen perään tulee aina piste.*
@@ -63,7 +67,7 @@ Avoimet:
 
 ## Jo toteutettu Luinissa
 
-- Kirjallisuusluetteloa ei tavuteta (APA 7, päätös 28.10.2026; `md.js` `OHITA`, `luin.html` `p.bib`).
+- Kirjallisuusluetteloa ei tavuteta (Teologian tyyli ja APA 7, päätös 28.10.2026; `md.js` `OHITA`, `luin.html` `p.bib`).
 - Viite kootaan Teologian tyylin mukaan (`kokoaViite`). Erot tyyliin: `teologian-tyyli-2021.md` luku 8.
 - Lähdeviittausten linkitys alaviitteestä luetteloon (`viittaukset()`): `Sukunimi vuosi` ja `Sukunimi paikannin`.
   Teologian tyylin alaviitemuodot linkittyvät 28.10.2026 alkaen (`md-testi.js`: *tyylin alaviitteet linkittyvät*):

@@ -1303,7 +1303,7 @@
   var SANA = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
   // Otsikot, alaotsikko, tietorivit, sisällysluettelo (.luin-ui) ja lihavoinnit eivät saa pehmeitä tavuviivoja.
   // Jos yksittäinen sana ei mahdu edes yksin riville, lukija tavuttaa sen erikseen (luin.html, tavutaPitkat()).
-  // Lähdeluettelo (.bib) ei tavuta lainkaan (APA 7: ei tavutusta rivin lopussa, ei tavuviivaa DOI:hin eikä
+  // Lähdeluettelo (.bib) ei tavuta lainkaan (Teologian tyyli ja APA 7: ei tavutusta, ei tavuviivaa DOI:hin eikä
   // osoitteisiin); ylipitkä sana katkeaa ilman viivaa (overflow-wrap: anywhere).
   var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
   function tavutaDOM(rootEl, tila) {

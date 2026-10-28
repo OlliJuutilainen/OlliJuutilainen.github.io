@@ -212,6 +212,17 @@ perässä (Tuhkanen-malli).
 
 ## 5. Kirjoitusasu
 
+- [✓] **Piste viittauksen perässä.** APA ei käytä viitealaviitteitä; viittaus on tekstissä sulkeissa. Lyhyen
+  lainauksen tai virkkeen viittaus on virkkeen sisällä, ja piste tulee sulkeiden jälkeen: `… (Derrida, 2019,
+  p. 143).` **Sisennetyn lainauksen** (40 sanaa tai enemmän) viittaus tulee lainauksen viimeisen välimerkin
+  jälkeen, eikä sulkeiden perään tule pistettä: `… viimeinen virke. (Derrida, 2019, p. 143)`. Lähteet:
+  [APA Style, Quotations](https://apastyle.apa.org/style-grammar-guidelines/citations/quotations/index),
+  [Lumen Learning](https://courses.lumenlearning.com/suny-styleguide/?p=976).
+  Virkkeen jälkeen erillään seisova viittaus on siis APA:ssa pisteetön. Alaviiteviite on samassa asemassa:
+  viitenumero tulee virkkeen pisteen jälkeen.
+- [M] APA:n omat alaviitteet (sisältö- ja tekijänoikeusalaviitteet) ovat virkkeitä ja päättyvät pisteeseen.
+- [✓] Kirjallisuusluettelon merkintä päättyy pisteeseen, paitsi DOI:n tai URL:n jälkeen (luku 4).
+
 - [M] Sivuvälit ja vuosivälit ajatusviivalla (–). Sama kuin Teologian tyylissä.
 - [M] APA lyhentää sivuvälejä vain, jos alkuperäinen teos tekee niin. Teologian tyylin esimerkit eivät lyhennä
   (`1776–1777`).
