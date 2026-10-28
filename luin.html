@@ -203,11 +203,12 @@
   .ylapalkki { --o-reuna: 24px; }
   body.mobiili .ylapalkki { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
   .ylapalkki .ratas { margin-right: calc(var(--o-reuna) - 8.86px); }
-  /* Lukijasta avattuna asetusten sulkuraksin keskikohta on kiekon keskikohdan kohdalla (käyttäjän pyyntö 28.10.2026):
-     sama marginaali kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. */
-  #asetukset.lukijassa { --o-reuna: 24px; }
-  body.mobiili #asetukset.lukijassa { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
-  #asetukset.lukijassa .sulje { margin-right: calc(var(--o-reuna) - 8.86px); }
+  /* Asetusten sulkuraksin keskikohta on lukijan kiekon keskikohdan kohdalla (käyttäjän pyynnöt 28.10.2026): sama
+     marginaali kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa kohdassa,
+     vaikka kiekko ei ole; ilman lukijassa mitattua --palsta-o:ta (tuore lataus) kosketusnäytön oletus on Keski-marginaali 24 px (body.mobiili ei ole listassa asetettu). */
+  #asetukset { --o-reuna: 24px; }
+  @media (pointer: coarse) { #asetukset { --o-reuna: calc(var(--palsta-o, 24px) + 10px); } }
+  #asetukset .sulje { margin-right: calc(var(--o-reuna) - 8.86px); }
   .takaisin { font-size: .86rem; padding: 0 10px; height: 44px; display: inline-flex; align-items: center;
     text-decoration: none; color: var(--harmaa); white-space: nowrap; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
@@ -1140,7 +1141,7 @@
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#postilaatikko').hidden = !!nyt; $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = LS.get('luin-laatikko', ''); $('#laatikko-tieto').textContent = '';
-    $('#asetukset').classList.toggle('lukijassa', !!nyt); $('#asetukset').hidden = false;
+    $('#asetukset').hidden = false;
     sijoitaNipukka();
   }); });
 
