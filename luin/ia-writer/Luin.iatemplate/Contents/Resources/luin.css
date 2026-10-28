@@ -1,5 +1,5 @@
 /* iA Writerin esikatselupohja Luinin ulkoasulla (luin.html, #teksti). Värit ja mitat ovat Luinin; kun ne muuttuvat
-   siellä, päivitä tänne. Lainauksen lähde ja motto: luin.js. */
+   siellä, päivitä tänne. Lainauksen lähde ja motto: skripti document.html:ssä. */
 @font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2"); font-weight: 380 700; font-style: normal; }
 @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2"); font-weight: 380 700; font-style: italic; }
 :root {
