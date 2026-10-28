@@ -125,13 +125,15 @@
   .valikko.rivi .esi.kir:not(.poistuu) > div { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
   .valikko button.km-ikoni { display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; color: var(--ruoste); }
   .valikko button.km-ikoni svg { width: 12px; height: 20px; fill: currentColor; }
-  /* valikon ikonit: alleviivausmerkki on Abc (tai poistossa raksi) liioitellun paksun viivan päällä */
+  /* valikon ikonit: alleviivausmerkki on asdf (tai poistossa raksi) liioitellun paksun viivan päällä */
   .valikko button.ik { display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; min-width: 50px; }
   .valikko button.ik:hover { text-decoration: none; }
   .valikko button.ik svg { display: block; width: 20px; height: 20px; }
   .valikko button.ik svg.kyna { width: 24px; height: 24px; }
   .ik-ali { display: inline-flex; align-items: flex-end; justify-content: center; width: 1.85em; height: 1.2em;
     font-size: 1.08rem; line-height: 1; border-bottom: 3px solid var(--ruoste); color: var(--muste); }
+  /* "asdf" on Abc:tä pidempi: pienempi kirjasin, painikkeen leveys ennallaan (1.85 × 1.08rem) */
+  .ik-ali.teksti { font-size: .95rem; width: 31.95px; }
   .ik-ali svg { width: .62em !important; height: .62em !important; margin-bottom: .14em; }
   /* kirjauksellisen alleviivauksen poiston vahvistus (varmistaAlPoisto) */
   .valikko.rivi button.varmista { flex: 1 1 auto; display: inline-flex; align-items: center; gap: 12px; padding: 9px 14px; }
@@ -737,7 +739,7 @@
   function nauha(x, y, w, h) { return 'M' + (x - w / 2) + ' ' + y + 'H' + (x + w / 2) + 'V' + (y + h) + 'L' + x + ' ' + (y + h * .74) + 'L' + (x - w / 2) + ' ' + (y + h) + 'Z'; }
   var NAUHA = '<svg viewBox="0 0 9 15"><path d="M0 0H9V15L4.5 11L0 15Z"/></svg>';
   // Valikon ikonit. Kynä: 45° oikealta ylhäältä, yläpää suora, alapää kärki.
-  var IK_ALI = '<span class="ik-ali">Abc</span>';
+  var IK_ALI = '<span class="ik-ali teksti">asdf</span>';
   var IK_POISTA = '<span class="ik-ali"><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></span>';
   var IK_KIRJAA = '<svg class="kyna" viewBox="0 0 20 20"><path fill="currentColor" d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/></svg>';
   // Kirjauksen poisto: sama kynä, jonka yli kulkee vastakkainen viiva; paperin värinen reunus erottaa sen kynästä.
