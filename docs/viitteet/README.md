@@ -7,6 +7,7 @@ pyynnöstä. Käyttäjä: Luin (`luin.html`, `luin/md.js` `kokoaViite`, Latomon 
 |---|---|
 | `teologian-tyyli-2021.md` | HY:n teologisen tiedekunnan ohje (PDF, 3 s.) säännöiksi purettuna: perusmuodot, kaikki esimerkit, alaviitteet, tutkielman lisäkäytännöt, ohjeen epäjohdonmukaisuudet ja Luinin vertailu. |
 | `apa7-turvaverkko.md` | APA 7 niihin kohtiin, joita Teologian tyyli ei kata, käännettynä Teologian tyylin asuun. |
+| `lisalehti-antiikki-ja-arkistot.md` | Sinetöity lisälehti: antiikin, kirkkoisien, reformaation, filosofian klassikoiden ja arkistojen merkitseminen, kun osastokohtaista ohjetta ei ole käsillä. |
 | `vertaa-luin.js` | Ajaa Teologian tyylin esimerkit `LuinMD.kokoaViite`-funktion läpi: `node docs/viitteet/vertaa-luin.js`. |
 
 ## Etusijajärjestys
@@ -18,10 +19,33 @@ pyynnöstä. Käyttäjä: Luin (`luin.html`, `luin/md.js` `kokoaViite`, Latomon 
 4. **APA 7** (`apa7-turvaverkko.md`), Teologian tyylin merkintätavalla: `s.a.`, `(luettu …)`, `DOI: …`,
    `toim.`, koko etunimet, alaviite `Sukunimi vuosi, sivu`.
 
-Ristiriidat, jotka käyttäjän on ratkaistava (ei ratkaistu tässä):
-- Suomenkielisen alaotsikon alkukirjain kaksoispisteen jälkeen (ohje iso, tutkielma ja Luin pieni).
+## Ratkaistut ja avoimet
+
+Ratkaistu:
+- **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026; Luin
+  `nimiOsa`). Ennen suomenkielinen alaotsikko pienennettiin.
+
+Avoimet:
 - Pisteen paikka tekijättömän merkinnän vuoden edellä (ohje vaihtelee; Luin ilman).
-- Pelkän viittauksen sisältävän alaviitteen loppupiste (ohje kyllä, tutkielma ei).
+- **Pelkän viittauksen sisältävän alaviitteen loppupiste** (ohje kyllä, tutkielma ei). Käyttäjän linja: ei
+  muuteta hevin. Perusteet pisteettömyyden puolesta:
+  - *Viite ei ole virke vaan osoite.* Piste päättää virkkeen. `Derrida 2019, 143` on verbitön nimiö, kuten
+    luettelon kohta, kuvateksti tai taulukon solu, jotka jätetään ilman pistettä.
+  - *Tekstinsisäisen viittauksen siirto.* Alaviite on sulkuviittauksen `(Derrida 2019, 143)` korvike, eikä
+    sulkujen sisään tule pistettä. Virke, jonka viite on, päättyi jo leipätekstissä viitenumeron eteen.
+  - *Lajin näkyminen.* Kun selittävä alaviite päättyy pisteeseen ja pelkkä viite ei, lukija näkee
+    yhdellä silmäyksellä, kumpaa lajia alaviite on. Tutkielma noudattaa tätä johdonmukaisesti: selittävät
+    alaviitteet päättyvät pisteeseen, pelkät viitteet eivät, ja virkkeen jälkeinen viite on ilman pistettä
+    (`… saavutukseksi. Korsgaard 3.4.2`).
+  - *Numeron perässä oleva piste on suomessa järjestysluvun merkki.* `143.` voi lukea *143:s*, `3.4.2.` lisää
+    paikantimeen tason, ja `s.a..` tai `GMS 4:429.` ovat kömpelöitä.
+
+  Vastaan:
+  - Teologian tyylin kaikki seitsemän esimerkkialaviitettä päättyvät pisteeseen.
+  - HY:n historian ohje (Katajisto ym. 2025, kohta 2.2) sanoo *Lähdeviitteen perään tulee aina piste.*
+  - Suomen Muinaismuistoyhdistyksen sivuilla oleva kirjoitusohje (Olsson 2025) sanoo *Alaviite on kuin virke:
+    se alkaa isolla alkukirjaimella ja päättyy pisteeseen.*
+  - Kielitoimiston ohjepankin kantaa ei löytynyt haulla 28.10.2026.
 
 ## Mitä tässä ei ole
 
@@ -29,7 +53,8 @@ Ristiriidat, jotka käyttäjän on ratkaistava (ei ratkaistu tässä):
   esimerkit ovat `teologian-tyyli-2021.md`:ssä. Vanhempi versio (2019) on ollut julkisesti osoitteessa
   `https://blogs.helsinki.fi/tutkivakirjoittaminen/files/2019/03/Teologian_tyyli_19.pdf` (Zoteron tyylitiedoston
   dokumentaatiolinkki; avautumista ei tarkistettu).
-- **Teologisen tiedekunnan osastokohtaiset ohjeet** (antiikin lähteet, arkistot), joihin Teologian tyyli viittaa.
+- **Teologisen tiedekunnan osastokohtaiset ohjeet** (antiikin lähteet, arkistot), joihin Teologian tyyli viittaa. Niitä ei löytynyt
+  verkosta; niiden paikkaa pitää lisälehti, joka nojaa alan yleisiin käsikirjoihin.
 - **APA-käsikirja.** Tekijänoikeuden takia turvaverkko on omin sanoin kirjoitettu tiivistelmä. Tarkistetut kohdat on
   merkitty [✓] lähteineen; muut [M] ovat muistinvaraisia.
 - **Muiden Claude-keskustelujen sisältö.** Ne eivät näy tähän ympäristöön. Täydentävä tieto on koottu repon omasta
@@ -41,13 +66,15 @@ Ristiriidat, jotka käyttäjän on ratkaistava (ei ratkaistu tässä):
 - Kirjallisuusluetteloa ei tavuteta (APA 7, päätös 28.10.2026; `md.js` `OHITA`, `luin.html` `p.bib`).
 - Viite kootaan Teologian tyylin mukaan (`kokoaViite`). Erot tyyliin: `teologian-tyyli-2021.md` luku 8.
 - Lähdeviittausten linkitys alaviitteestä luetteloon (`viittaukset()`): `Sukunimi vuosi` ja `Sukunimi paikannin`.
-  Mitattu 28.10.2026 Teologian tyylin alaviite-esimerkeillä (`LuinMD.parse`, luettelossa vastaavat merkinnät):
+  Teologian tyylin alaviitemuodot linkittyvät 28.10.2026 alkaen (`md-testi.js`: *tyylin alaviitteet linkittyvät*):
 
-  | Alaviite | Linkittyy |
-  |---|---|
-  | `Allison 1993, 45–46; 2010, 31.` | vain `Allison 1993`, ei sukunimetöntä `2010` |
-  | `Tuhkanen 2013a; 2013b.` | vain `Tuhkanen 2013a`, ei `2013b` |
-  | `McLoughlin & Lertola 2014, 70–71.` | ei |
-  | `Punkkinen et al. 2012, 1776–1777.` | ei |
+  | Alaviite | Ennen | Nyt |
+  |---|---|---|
+  | `Allison 1993, 45–46; 2010, 31.` | vain `Allison 1993` | `Allison 1993` ja `2010` omiin kohtiinsa |
+  | `Tuhkanen 2013a; 2013b.` | vain `Tuhkanen 2013a` | molemmat |
+  | `McLoughlin & Lertola 2014, 70–71.` | ei | kyllä (myös `ja`) |
+  | `Punkkinen et al. 2012, 1776–1777.` | ei | kyllä (myös `ym.`) |
 
-  Parannuskohde, jos ohjeen alaviitemuotoja halutaan tukea; ei korjattu tässä.
+  Syy aiempaan: heuristiikka (21.10.2026) tehtiin tutkielman mukaan, jossa kaikki viitteet ovat yhden tekijän
+  `Sukunimi vuosi` -muotoa. Se tunsi kohdasta vain ensimmäisen sukunimen ja vaati sen heti vuoden eteen.
+  Tutkielman 47 linkkiä ja HTML ovat muutoksen jälkeen merkilleen samat.

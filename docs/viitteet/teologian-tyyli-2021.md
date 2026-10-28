@@ -76,8 +76,8 @@ Näistä ja esimerkeistä johdetut säännöt:
 - **[J]** Alaotsikko erotetaan kaksoispisteellä: `*Teoksen nimi: Alaotsikko*`.
 - **[J]** Englanninkieliset nimet ovat esimerkeissä otsikkokirjoituksella (`The Called Out of the Called Out`).
   Suomenkieliset ovat virkekirjoituksella, mutta alaotsikko alkaa isolla kirjaimella myös suomeksi:
-  `*Hallen pietismin vaikutus varhaisempaan herännäisyyteen: Teologianhistoriallinen tutkielma*`. Ks. eroja
-  kohdassa 7.
+  `*Hallen pietismin vaikutus varhaisempaan herännäisyyteen: Teologianhistoriallinen tutkielma*`. **Noudatetaan**
+  (käyttäjän päätös 28.10.2026; Luin `nimiOsa`). Suomen yleiskielen tapa olisi jatkaa pienellä, ks. 7.4.
 - **[J]** Jos nimi päättyy kysymysmerkkiin, sen jälkeen ei tule pistettä: `Auttaako evoluutio ymmärtämään uskontoa?
   *Risto Uron blogi*`.
 - **[J]** Kursiivin perässä oleva piste on PDF:ssä vaihtelevasti kursiivin sisällä tai ulkopuolella. Se on
@@ -99,12 +99,21 @@ Näistä ja esimerkeistä johdetut säännöt:
 ### 2.5 Kirjallisuusluettelon asettelu ja tavutus
 - **[J]** Merkinnät ovat riippuvalla sisennyksellä, ja niiden välissä on tyhjä rivi.
 - **[J]** Oikea reuna on liehuva (ei tasattu).
-- **[J]** Merkintöjen sanoja ei ole tavutettu rivin lopussa. Verkko-osoitteet katkeavat valmiin kauttaviivan
-  (`…/tarkastelutapoja/` | `sosiaalitieteet4.html`) tai osoitteessa jo olevan yhdysmerkin jälkeen
-  (`…-ari-` | `tuhkanen/`, `beliefs-and-` | `teachings/`), eikä katkoon ole lisätty viivaa.
-  Ohjeen proosassa yksi sana on tavutettu (`päivitysajan-` | `kohtaa`), joten näyttö on heikko: se voi olla
-  Wordin oletus eikä tietoinen sääntö. Luin noudattaa APA:n nimenomaista sääntöä (`apa7-turvaverkko.md` 1.1):
-  luetteloa ei tavuteta (päätös 28.10.2026).
+- **[J] Kirjallisuusluettelossa ei ole yhtään tavutettua sanaa.** Kaikki rivinloput on tarkistettu (PDF:n
+  tekstikerroksesta ja sivujen kuvista 28.10.2026). Kolme riviä päättyy viivaan:
+  - kaksi verkko-osoitetta katkeaa osoitteessa jo olevan yhdysmerkin jälkeen (`…-ari-` | `tuhkanen/`,
+    `beliefs-and-` | `teachings/`), eli viiva on osoitteen oma, ei tavuviiva;
+  - yksi on ohjeen selittävässä leipätekstissä, ei luettelossa (`päivitysajan-` | `kohtaa`).
+
+  Muut osoitteet katkeavat kauttaviivan jälkeen (`…/tarkastelutapoja/` | `sosiaalitieteet4.html`).
+- **[J] Mutta ohje ei sano tavutuksesta mitään**, joten tavuttomuus on havainto, ei sääntö. Sen voi selittää
+  kahdella tavalla, eikä PDF:stä näe kumpi pitää:
+  - tavutus on ollut Wordissa pois koko asiakirjasta (Wordin oletus), ja leipätekstin `päivitysajan-kohtaa` on
+    kirjoitettu käsin;
+  - tavutus on ollut päällä, ja luettelo on tavuton tarkoituksella.
+
+  Luin ei tavuta luetteloa (päätös 28.10.2026). Peruste on APA:n nimenomainen sääntö (`apa7-turvaverkko.md` 1.1),
+  ja tämä havainto on sen kanssa yhtäpitävä.
 - **[J]** URL:t ovat PDF:ssä alleviivattuja Wordin linkkimuotoilun takia. Kyse ei ole tyylisäännöstä.
 
 ---
@@ -290,6 +299,9 @@ Johdetut säännöt [J]:
 - Alaviite päättyy pisteeseen.
 - Alaviitenumero on tekstissä välimerkin jälkeen (`Esimerkkiviite.¹`).
 
+Luin linkittää kaikki taulukon muodot kirjallisuusluettelon kohtaan (28.10.2026; ennen vain yksittäisen tekijän
+ensimmäisen vuoden, ks. README).
+
 [T] Tutkielman lisäkäytännöt:
 - Kun sivunumerot eivät ole tarkoituksenmukaisia, paikantimena käytetään teoksen omaa numerointia
   (`Korsgaard 3.4.2`).
@@ -297,7 +309,8 @@ Johdetut säännöt [J]:
   ennen lukuja omassa osiossaan *Viittauksista ja niiden lyhenteistä*; ohje edellyttää lyhenneluetteloa
   kirjallisuusluettelon edelle (4.2).
 - Pelkkä viite ilman muuta tekstiä on kirjoitettu ilman loppupistettä (`Derrida 2019, 143`). **Tämä poikkeaa
-  ohjeesta**, jonka esimerkit päättyvät pisteeseen.
+  ohjeesta**, jonka esimerkit päättyvät pisteeseen. Käyttäjän linja 28.10.2026: ei muuteta hevin. Pisteettömyyttä
+  tukevat ja vastustavat perusteet: README, *Avoimet*.
 
 ---
 
@@ -326,10 +339,10 @@ tähänastinen tapa:
   https://syrjinta.fi/syrjinta (luettu 1.12.2023).` Alaviitteessä `Syrjintä s.a.`
 - **Johdanto omana merkintänään,** kun sitä lainataan: `Koistinen, Olli (2013). Johdatus Puhtaan järjen
   kritiikkiin. *Puhtaan järjen kritiikki*. Helsinki: Gaudeamus, 13–76.`
-- **Alaotsikko suomeksi pienellä alkukirjaimella** kaksoispisteen jälkeen (`*Kant ja eläinetiikka: muulajisten
-  arvokkuutta etsimässä*`, `*Oikeutta eläimille: eläinten vapautuksen filosofiaa*`). Kysymysmerkin jälkeen
-  alaotsikko alkaa isolla (`Miksi … välittää? Kantilainen näkökulma …`). **Poikkeaa ohjeen Kansanaho-esimerkistä**
-  (ks. 7).
+- **Alaotsikko suomeksi pienellä alkukirjaimella** kaksoispisteen jälkeen (`*Oikeutta eläimille: eläinten
+  vapautuksen filosofiaa*`). **Hylätty 28.10.2026:** jatkossa alaotsikko alkaa isolla kuten ohjeen
+  Kansanaho-esimerkissä (2.3). Tutkielman leipäteksti ja kirjallisuusluettelo jäävät ennalleen (alkuperäinen md),
+  mutta sen etukentän `viite` muutettiin muotoon `*Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*`.
 - **Epäjohdonmukaisuus tutkielmassa:** osan kääntäjä on milloin ennen kokoomateosta (`Kant 2017a: … Mitä on
   valistus? Kääntänyt Tapani Kaakkuriniemi. *Mitä on valistus?*`), milloin sen jälkeen (`Kant 2006: …
   *Kirjoituksia biologiasta ja lääketieteestä*. Suomentanut Panu Turunen.`). Kumpi on oikein, riippuu siitä,
@@ -350,8 +363,8 @@ pidä matkia sokeasti.**
 3. **Tuhkanen 2013b:** `Matt. 22:15–22. (3.11.2013).` pisteen kanssa, 2013a `Joh. 16:23–33 (5.5.2013).` ilman.
    Jälkimmäinen on johdonmukainen.
 4. **Alaotsikon alkukirjain:** ohjeen ainoa suomenkielinen alaotsikko alkaa isolla (*: Teologianhistoriallinen
-   tutkielma*). Suomen oikeinkirjoituksen mukaan kaksoispisteen jälkeen jatketaan pienellä, ellei alkaa uusi
-   virke tai erisnimi. Tutkielma ja Luin käyttävät pientä kirjainta. **Käyttäjän ratkaistava**, kumpaa noudatetaan.
+   tutkielma*). Suomen yleiskielessä kaksoispisteen jälkeen jatketaan pienellä, ellei ala uusi virke tai
+   erisnimi. **Ratkaistu 28.10.2026:** noudatetaan ohjetta, eli alaotsikko alkaa isolla (myös Luin).
 5. **Verkkosivun päiväyksen paikka:** verkkosivulla (Tuhkanen) päiväys on otsikon perässä sulkeissa, blogissa
    (Uro) sivuston perässä muodossa `huhtikuu/2017`. Ohje ei kerro, miten blogin ja verkkosivun raja vedetään.
 6. **e-hakuteos:** sekä URL (sivuston etusivu) että DOI. APA käyttäisi vain DOI:ta. Ohjetta noudatetaan, mutta
@@ -370,17 +383,16 @@ pidä matkia sokeasti.**
 `docs/viitteet/vertaa-luin.js` syöttää ohjeen esimerkit kenttinä `LuinMD.kokoaViite`-funktiolle ja vertaa
 tulosta tähän tiedostoon kirjattuun muotoon. Ajo: `node docs/viitteet/vertaa-luin.js`.
 
-Tulos 28.10.2026: **12 samaa, 6 eroa** (18 esimerkkiä). Tulos riippuu siitä, miten kentät täytetään; vertailu
+Tulos 28.10.2026: **13 samaa, 5 eroa** (18 esimerkkiä; ennen alaotsikkopäätöstä 12 ja 6). Tulos riippuu siitä, miten kentät täytetään; vertailu
 kertoo, mitä Latomon kentistä nyt syntyy.
 
-Samat: Arffman, Clayton, Friesen, McLoughlin, Sabom, Sirviö, Toivonen (sanomalehti, kun tyyppi ei ole *blogi*
+Samat: Arffman, Clayton, Friesen, McLoughlin, Sabom, Kansanaho, Sirviö, Toivonen (sanomalehti, kun tyyppi ei ole *blogi*
 ja päiväys on `numero`-kentässä), Tov, Nortomaa, Luomanen, Henrich (`(Kindle edition)` kustantajan perässä) ja
 Raamattu 1992 (suomennoksen kuvaus `laji`-kentässä).
 
 | Esimerkki | Ero |
 |---|---|
 | Antila (toimitettu kirja) | `, toim.` puuttuu: Latomossa ei voi merkitä toimittajia pääteoksen tekijöiksi (`toimittaja` toimii vain *Osana teosta* -kentän kanssa). |
-| Kansanaho | Alaotsikko alkaa pienellä (`: teologianhistoriallinen`) tarkoituksella, ks. 7.4. |
 | Post (e-hakuteos) | Luin kirjoittaa DOI:n ennen URL:ia, ohje päinvastoin. |
 | Tuhkanen (verkkosivu) | Luin laittaa päiväyksen sivuston perään (blogin muoto), ohje otsikon perään sulkeisiin, ks. 7.5. |
 | Ortodoksisen kirkon (ei tekijää) | Luin ilman pistettä ennen vuotta; ohjeen oma epäjohdonmukaisuus, ks. 7.2. Luinin muoto on johdonmukainen. |

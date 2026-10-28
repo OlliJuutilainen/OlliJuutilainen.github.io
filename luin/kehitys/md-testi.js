@@ -67,7 +67,7 @@ sama('viite: blogi', V({ tyyppi: 'blogi', 'tekijä': 'Risto Uro', julkaistu: '20
 sama('viite: verkkosivu ilman tekijää', V({ tyyppi: 'blogi', otsikko: 'Mitä usko on?', sivusto: 'Suomen evankelis-luterilainen kirkko', 'lähde': 'https://evl.fi/tutki-uskoa/mita-usko-on', haettu: '25.10.2017' }),
   'Mitä usko on? (s.a.). *Suomen evankelis-luterilainen kirkko*. https://evl.fi/tutki-uskoa/mita-usko-on (luettu 25.10.2017).');
 sama('viite: opinnäyte', V({ tyyppi: 'tieteellinen', 'tekijä': 'Olli Juutilainen', julkaistu: '2026-07', otsikko: 'KANT JA ELÄINETIIKKA', alaotsikko: 'Muulajisten arvokkuutta etsimässä', laji: 'Uskonnonfilosofian kandidaatintutkielma', 'yhteisö': 'Helsingin yliopisto' }),
-  'Juutilainen, Olli (2026). *Kant ja eläinetiikka: muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
+  'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
 sama('viite: lehtiartikkeli', V({ tyyppi: 'tieteellinen', 'tekijä': 'Kreeta Ranki', julkaistu: '2011', otsikko: 'Miksi eläinten hyvinvoinnista tulisi välittää?', alaotsikko: 'Kantilainen näkökulma hyvinvointitutkimukseen', teos: 'Ajatus', numero: '68', sivut: '35–49' }),
   'Ranki, Kreeta (2011). Miksi eläinten hyvinvoinnista tulisi välittää? Kantilainen näkökulma hyvinvointitutkimukseen. *Ajatus* 68, 35–49.');
 sama('viite: artikkeli toimitetussa teoksessa', V({ tyyppi: 'tieteellinen', 'tekijä': 'Nancy Evans Bush', julkaistu: '2009', otsikko: 'Distressing Western Near-Death Experiences', alaotsikko: 'Finding a Way through Abyss', teos: 'The Handbook of Near-Death Experiences: Thirty Years of Investigation', toimittaja: 'Janet M. Holden, Bruce Greyson & Debbie James', paikka: 'Santa Barbara, CA', kustantaja: 'Praeger', sivut: '63–86' }),
@@ -76,11 +76,22 @@ sama('viite: suomennos ja painos', V({ tyyppi: 'tieteellinen', 'tekijä': 'Arist
   'Aristoteles (2005). *Nikomakhoksen etiikka*. Suomentanut Simo Knuuttila. 2. tarkistettu painos. Helsinki: Gaudeamus.');
 sama('viite: pelkkä otsikko', V({ otsikko: 'Muistiinpanoja' }), '*Muistiinpanoja*.');
 
+// Teologian tyylin alaviitemuodot linkittyvät luetteloon (28.10.2026): A & B, A et al., saman tekijän seuraava vuosi.
+const tl = M.parse('# T\n\nA.[^1] B.[^2] C.[^3] D.[^4] E.[^5]\n\n[^1]: Punkkinen et al. 2012, 1776–1777.\n[^2]: Allison 1993, 45–46; 2010, 31.\n' +
+  '[^3]: Tuhkanen 2013a; 2013b.\n[^4]: McLoughlin & Lertola 2014, 70–71.\n[^5]: Arffman 2004, 125; Tov 2015, 6.\n\n## Kirjallisuus\n\n' +
+  'Allison, Dale (1993). *Eka*.\n\nAllison, Dale (2010). *Toka*.\n\nArffman, Kaarlo (2004). *Kristinuskon historia*. Helsinki: Edita.\n\n' +
+  'McLoughlin, Laura Incalcaterra & Jennifer Lertola (2014). Nimi. *Lehti* 8:1, 70–83.\n\n' +
+  'Punkkinen, Henna, Elina Merta, Nea Teerioja, Katja Moliis & Eveliina Kuvaja (2012). Nimi. *Lehti* 32:10, 1775–1781.\n\n' +
+  'Tov, Emanuel (2015). Nimi. *Open Theology* 1:1.\n\nTuhkanen, Ari (2013a). Eka.\n\nTuhkanen, Ari (2013b). Toka.\n');
+sama('tyylin alaviitteet linkittyvät', (tl.html.match(/<a class="lahde" href="#([^"]+)">([^<]*)<\/a>/g) || []).map(x => /#([^"]+)">([^<]*)/.exec(x).slice(1).join('=')).join(' | '),
+  'kirj-punkkinen-2012=Punkkinen et al. 2012 | kirj-allison-1993=Allison 1993 | kirj-allison-2010=2010 | kirj-tuhkanen-2013a=Tuhkanen 2013a | ' +
+  'kirj-tuhkanen-2013b=2013b | kirj-mcloughlin-2014=McLoughlin &amp; Lertola 2014 | kirj-arffman-2004=Arffman 2004 | kirj-tov-2015=Tov 2015');
+
 // Kandidaatintutkielma ja kehittäjän opas: rakenne ennallaan (luvut 20.10.2026 ja 22.10.2026)
 const k = M.parse(lue('../tekstit/kant-ja-elainetiikka.md'));
 sama('tutkielma: rakenne', [lkm(k.html, /<h2 /g), lkm(k.html, /<h3 /g), lkm(k.html, /<blockquote>/g), lkm(k.html, /class="bib"/g), k.notes, k.blocks, k.warnings.length].join(' '), '6 8 8 21 52 105 0');
 sama('tutkielma: tiedot', [k.title, k.sub, k.author, k.year].join(' | '), 'KANT JA ELÄINETIIKKA | Muulajisten arvokkuutta etsimässä | Olli Juutilainen | 2026');
-sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
+sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
 const o = M.parse(lue('../ohje.md'));
 tulos('opas: HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
 

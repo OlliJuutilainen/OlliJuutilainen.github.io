@@ -682,15 +682,12 @@
   function piste(s) { s = s.trim(); return !s || /[.!?]\*?$/.test(s) ? s : s + '.'; }
   // Versaalein kirjoitettu nimi virkekirjoitukseksi (hävittää erisnimien isot kirjaimet, siksi viite on muokattava).
   function virkkeeksi(t) { return t && t === t.toUpperCase() && /\p{Lu}/u.test(t) ? t.charAt(0) + t.slice(1).toLowerCase() : t; }
-  // Alaotsikko kaksoispisteen jälkeen pienellä, jos se on kirjoitettu virkekirjoituksella (suomen tapa,
-  // muulajisten arvokkuutta etsimässä); englannin otsikkokirjoitus (Our Obligations to …) säilyy.
+  // Alaotsikko kaksoispisteen jälkeen isolla alkukirjaimella kuten Teologian tyylin esimerkeissä (Hallen pietismin
+  // vaikutus …: Teologianhistoriallinen tutkielma). Käyttäjän päätös 28.10.2026; ennen suomenkielinen alaotsikko pienennettiin.
   function nimiOsa(ots, ala) {
     ots = virkkeeksi(String(ots || '').trim()); ala = virkkeeksi(String(ala || '').trim());
     if (!ala) return ots;
-    var w = ala.split(/\s+/), muut = w.slice(1).filter(function (x) { return /^\p{L}/u.test(x) && x.length > 3; });
-    var virke = muut.length ? muut.every(function (x) { return /^\p{Ll}/u.test(x); }) : /[äöåÄÖÅ]/.test(ots + ala);
-    // Kysymys- tai huutomerkin jälkeen alaotsikko on uusi virke (Miksi …? Kantilainen näkökulma …).
-    if (virke && !/[?!.]$/.test(ots)) ala = ala.charAt(0).toLowerCase() + ala.slice(1);
+    ala = ala.charAt(0).toUpperCase() + ala.slice(1);
     return ots ? ots + (/[?!:.]$/.test(ots) ? ' ' : ': ') + ala : ala;
   }
   function kaantajat(s) {
@@ -759,6 +756,9 @@
        vuosiluvulla. Vuodella viitatut teokset erottuvat siis karsimalla.
      Muuten linkkiä ei tule. Luettelon kohdan tekijä on alun teksti pilkkuun tai sulkuun asti,
      vuosi ensimmäinen sulkeissa oleva vuosi tai s.a.
+     Teologian tyylin alaviitemuodot (28.10.2026): kahden tekijän kohtaan viitataan A & B (tai A ja B),
+     useamman A et al. (tai A ym.); saman tekijän seuraavat vuodet puolipisteen jälkeen ilman nimeä
+     (Allison 1993, 45–46; 2010, 31 / Tuhkanen 2013a; 2013b) linkittyvät kukin omaan kohtaansa.
      Lyhenteet (käyttäjän päätös 21.10.2026; ei merkintöjä tiedostoon): osio, jonka otsikossa on
      "lyhent" (Lyhenteet, Viittauksista ja niiden lyhenteistä), määrittelee lyhenteiksi kursivoidut
      yksittäiset 2–5 kirjaimen sanat, joissa on vähintään kaksi versaalia (*GMS*, *KpV*, *KrV*; ei
@@ -810,19 +810,51 @@
       if (!nm || !vm || !/^\p{Lu}/u.test(nm[1])) return;
       var k = { nimi: nm[1], vuosi: vuosiAvain(vm[1]), ots: nm[1] + ' ' + vm[1] };
       k.id = uniq('kirj-' + slug(k.nimi) + '-' + slug(k.vuosi));
+      // Kaikkien tekijöiden sukunimet: kaksi tekijää viitataan muodossa A & B, useampi A et al. (Teologian tyyli).
+      k.suvut = nimet(tx.slice(0, vm.index).replace(/,?\s*(\(?toim\.\)?|\(eds?\.\))\s*$/i, '')).map(function (n) { return n.suku || n.koko; });
       t.kirja = k;
       kohdat.push(k);
     });
     var lyhenteet = Object.keys(lyh);
     if (!kohdat.length && !lyhenteet.length) return null;
-    var nimet = {};
-    kohdat.forEach(function (k) { (nimet[k.nimi] = nimet[k.nimi] || []).push(k); });
+    var avaimet = {};
+    function lisaa(avain, k) { if (avaimet[avain] && avaimet[avain].indexOf(k) >= 0) return; (avaimet[avain] = avaimet[avain] || []).push(k); }
+    kohdat.forEach(function (k) {
+      lisaa(k.nimi, k);
+      var s = k.suvut;
+      if (s.length === 2) { lisaa(s[0] + ' & ' + s[1], k); lisaa(s[0] + ' ja ' + s[1], k); }
+      if (s.length > 2) { lisaa(s[0] + ' et al.', k); lisaa(s[0] + ' ym.', k); lisaa(s.slice(0, -1).join(', ') + ' & ' + s[s.length - 1], k); }
+    });
     // Lyhenne ja paikannin: numeroita (4:429, 6:442–44), painoksen kirjain ja numero (A1/B1) tai
     // roomalainen numero (BXXX).
     var lyhRe = lyhenteet.length ? new RegExp('(^|[^\\p{L}\\p{N}])(' + lyhenteet.sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
       ')(?![\\p{L}\\p{N}])(?:\\s+\\p{Lu}{0,2}(?:\\d(?:[\\d.:–\\-\\/\\p{Lu}]*\\d)?|[IVXLC]+)(?![\\p{L}\\p{N}]))?', 'gu') : null;
-    var re = !kohdat.length ? null : new RegExp('(^|[^\\p{L}\\p{N}])(' + Object.keys(nimet).sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
+    var re = !kohdat.length ? null : new RegExp('(^|[^\\p{L}\\p{N}])(' + Object.keys(avaimet).sort(function (a, b) { return b.length - a.length; }).map(reEsc).join('|') +
       ')\\s+((?:1[5-9]\\d\\d|20\\d\\d)[a-z]?(?![\\p{L}\\p{N}]|[.:]\\d)|s\\.\\s?a\\.|\\d+(?:[.:]\\d+)*(?![\\p{L}\\p{N}]))', 'gu');
+
+    // Viittaukset tekstistä: { alku, loppu, nimi, tunnus }. Saman tekijän seuraavat vuodet puolipisteen jälkeen
+    // ilman nimeä (Allison 1993, 45–46; 2010, 31 / Tuhkanen 2013a; 2013b) ovat omia viittauksiaan samalla nimellä.
+    // Paikantimessa ei saa olla versaalia, jottei seuraavan tekijän viittausta lueta jatkoksi.
+    var JATKO = /(?:,[^;\p{Lu}]{0,40}?)?;\s*((?:1[5-9]\d\d|20\d\d)[a-z]?|s\.\s?a\.)(?![\p{L}\p{N}])/uy;
+    function loyda(teksti) {
+      var out = [], m;
+      if (!re) return out;
+      re.lastIndex = 0;
+      while ((m = re.exec(teksti))) {
+        var loppu = m.index + m[0].length;
+        out.push({ alku: m.index + m[1].length, loppu: loppu, nimi: m[2], tunnus: m[3] });
+        if (!VUOSI.test(m[3])) continue;
+        var j;
+        JATKO.lastIndex = loppu;
+        while ((j = JATKO.exec(teksti))) {
+          var jl = JATKO.lastIndex;
+          out.push({ alku: jl - j[1].length, loppu: jl, nimi: m[2], tunnus: j[1] });
+          loppu = jl; JATKO.lastIndex = jl;
+        }
+        re.lastIndex = Math.max(re.lastIndex, loppu);
+      }
+      return out;
+    }
 
     // Vuodella viitatut kohdat koko tekstistä (luettelo itse pois).
     var vuodella = {};
@@ -831,14 +863,17 @@
         if (t.kirja) return;
         if (t.kids) return kay(t.kids);
         var txt = t.items ? t.items.map(function (it) { return it.text; }).join('\n') : t.text || '';
-        var m; re.lastIndex = 0;
-        while ((m = re.exec(txt))) if (VUOSI.test(m[3])) vuodella[m[2] + ' ' + vuosiAvain(m[3])] = 1;
+        loyda(txt).forEach(function (o) {
+          if (!VUOSI.test(o.tunnus)) return;
+          var v = vuosiAvain(o.tunnus);
+          avaimet[o.nimi].forEach(function (k) { if (k.vuosi === v) vuodella[k.id] = 1; });
+        });
       });
     })(tokens.concat((lisa || []).map(function (x) { return { t: 'p', text: x }; })));
 
     // → { k: kohta | null, syy }
     function ratkaise(nimi, tunnus) {
-      var ehdokkaat = nimet[nimi];
+      var ehdokkaat = avaimet[nimi];
       if (VUOSI.test(tunnus)) {
         var v = vuosiAvain(tunnus), sama = ehdokkaat.filter(function (k) { return k.vuosi === v; });
         if (sama.length === 1) return { k: sama[0], syy: 'vuosi' };
@@ -848,7 +883,7 @@
           : 'Luettelossa ei ole tekijän ' + nimi + ' vuotta ' + tunnus + '.' };
       }
       if (ehdokkaat.length === 1) return { k: ehdokkaat[0], syy: 'ainoa' };
-      var jaljella = ehdokkaat.filter(function (k) { return !vuodella[k.nimi + ' ' + k.vuosi]; });
+      var jaljella = ehdokkaat.filter(function (k) { return !vuodella[k.id]; });
       if (jaljella.length === 1) return { k: jaljella[0], syy: 'karsinta' };
       return { k: null, syy: jaljella.length
         ? 'Vaihtoehtoja on useita, joihin ei viitata vuodella: ' + jaljella.map(function (k) { return k.ots; }).join(', ') + '.'
@@ -858,10 +893,7 @@
     // Alaviitteen tekstin linkitys. Kirjaa tuloksen Latomon raporttiin.
     function linkita(teksti, kirjaa) {
       var osumat = [], out = '', last = 0, m;
-      if (re) {
-        re.lastIndex = 0;
-        while ((m = re.exec(teksti))) osumat.push({ alku: m.index + m[1].length, loppu: m.index + m[0].length, r: ratkaise(m[2], m[3]) });
-      }
+      loyda(teksti).forEach(function (o) { osumat.push({ alku: o.alku, loppu: o.loppu, r: ratkaise(o.nimi, o.tunnus) }); });
       if (lyhRe) {
         lyhRe.lastIndex = 0;
         while ((m = lyhRe.exec(teksti))) osumat.push({ alku: m.index + m[1].length, loppu: m.index + m[0].length, r: { k: lyh[m[2]], syy: 'lyhenne' } });

@@ -879,8 +879,11 @@ Käyttäjän vaatimukset 20.10.2026:
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
   (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,
-  tarkistetut kohdat [✓] lähteineen) ja `vertaa-luin.js`, joka ajaa tyylin esimerkit `kokoaViite`n läpi (28.10.2026:
-  12 samaa, 6 eroa, erot kirjattu). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
+  tarkistetut kohdat [✓] lähteineen), sinetöity lisälehti antiikin, kirkkoisien, klassikoiden ja arkistojen merkitsemiseen
+  (`lisalehti-antiikki-ja-arkistot.md`; osastokohtaisia ohjeita ei löytynyt, käyttäjän pyyntö: avataan vain todelliseen tarpeeseen)
+  ja `vertaa-luin.js`, joka ajaa tyylin esimerkit `kokoaViite`n läpi (28.10.2026: 13 samaa, 5 eroa, erot kirjattu).
+  **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026, `nimiOsa`; ennen
+  suomenkielinen pienennettiin). Tutkielman pisteettömiä pelkkiä alaviiteviitteitä ei muuteta hevin (käyttäjän linja). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
   tyylin merkintätavalla. Kun muutat viitteiden kokoamista tai lähdeviittausten linkitystä, tarkista varanto ja aja vertailu.
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
@@ -891,7 +894,9 @@ Käyttäjän vaatimukset 20.10.2026:
 - **Lähdeviittauslinkit** (käyttäjän heuristiikka 21.10.2026; opas, luku 3.4): alaviitteen *Sukunimi vuosi* tai
   *Sukunimi paikannin* (`Korsgaard 8.1.2`) linkittyy kirjallisuusluettelon kohtaan (`p.bib`, id `kirj-<nimi>-<vuosi>`)
   vain varmalla yhteydellä: vuodella tasan yksi osuma; paikantimella tekijän ainoa kohta tai ainoa, johon ei viitata
-  missään vuodella. Muuten ei linkkiä. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
+  missään vuodella. Muuten ei linkkiä. Teologian tyylin muodot (28.10.2026): `A & B vuosi` (myös *ja*), `A et al. vuosi` (myös *ym.*)
+  ja saman tekijän seuraava vuosi puolipisteen jälkeen ilman nimeä (`Allison 1993, 45–46; 2010, 31`), kukin omaan kohtaansa;
+  paikantimessa ennen puolipistettä ei saa olla versaalia, jottei seuraavan tekijän viittausta lueta jatkoksi. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus); päättely on md.js:n
   `viittaukset()`, ja Latomo näyttää tuloksen tarkistuksessa. Linkki `a.lahde` on `--harmaa` (alaotsikon väri), ei
   ruoste, ja sillä on `--viiva`-värinen alleviivaus. Vain alaviitteissä, ei leipätekstissä.
   **Lyhenteet** (käyttäjän päätös 21.10.2026; opas, luku 3.4): ei merkintöjä tiedostoon. Osio, jonka otsikossa on
