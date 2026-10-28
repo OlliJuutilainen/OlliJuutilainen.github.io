@@ -23,13 +23,8 @@ pyynnöstä. Käyttäjä: Luin (`luin.html`, `luin/md.js` `kokoaViite`, Latomon 
 ## Ratkaistut ja avoimet
 
 Ratkaistu:
-- **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026; Luin
-  `nimiOsa`). Ennen suomenkielinen alaotsikko pienennettiin.
-
-Avoimet:
-- Pisteen paikka tekijättömän merkinnän vuoden edellä (ohje vaihtelee; Luin ilman).
-- **Pelkän viittauksen sisältävän alaviitteen loppupiste** (ohje kyllä, tutkielma ei). Käyttäjän linja: ei
-  muuteta hevin. Perusteet pisteettömyyden puolesta:
+- **Pelkän viittauksen sisältävä alaviite on pisteetön** (`Derrida 2019, 143`), toisin kuin Teologian tyylin
+  esimerkeissä. Käyttäjän päätös 28.10.2026. Perusteet pisteettömyyden puolesta:
   - *Viite ei ole virke vaan osoite.* Piste päättää virkkeen. `Derrida 2019, 143` on verbitön nimiö, kuten
     luettelon kohta, kuvateksti tai taulukon solu, jotka jätetään ilman pistettä.
   - *Tekstinsisäisen viittauksen siirto.* Alaviite on sulkuviittauksen `(Derrida 2019, 143)` korvike, eikä
@@ -40,7 +35,6 @@ Avoimet:
     (`… saavutukseksi. Korsgaard 3.4.2`).
   - *Numeron perässä oleva piste on suomessa järjestysluvun merkki.* `143.` voi lukea *143:s*, `3.4.2.` lisää
     paikantimeen tason, ja `s.a..` tai `GMS 4:429.` ovat kömpelöitä.
-
   - *APA:n sisennetyn lainauksen sääntö.* Lainauksen jälkeen erillään seisova viittaus `(Derrida, 2019, p. 143)`
     on pisteetön, koska virke päättyi jo ennen sitä (`apa7-turvaverkko.md` 5). Alaviiteviite on samassa asemassa.
 
@@ -50,6 +44,11 @@ Avoimet:
   - Suomen Muinaismuistoyhdistyksen sivuilla oleva kirjoitusohje (Olsson 2025) sanoo *Alaviite on kuin virke:
     se alkaa isolla alkukirjaimella ja päättyy pisteeseen.*
   - Kielitoimiston ohjepankin kantaa ei löytynyt haulla 28.10.2026.
+- **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026; Luin
+  `nimiOsa`). Ennen suomenkielinen alaotsikko pienennettiin.
+
+Avoimet:
+- Pisteen paikka tekijättömän merkinnän vuoden edellä (ohje vaihtelee; Luin ilman).
 
 ## Mitä tässä ei ole
 

@@ -195,8 +195,8 @@ Ohjeen esimerkkejä:
 **Muut säännöt:**
 - Arkistojen vakiintuneet lyhenteet (KA = Kansallisarkisto, SLS = Svenska litteratursällskapet i Finland)
   merkitään lähdeluetteloon arkiston kohdalle tai lyhenneluetteloon.
-- **Lähdeviitteen perään tulee aina piste** (ohjeen sanamuoto). Ks. tutkielman pisteettömät viitteet,
-  README, *Avoimet*.
+- Historian ohjeen mukaan lähdeviitteen perään tulee aina piste. **Tässä repossa ei:** pelkän viittauksen
+  alaviite on pisteetön (README, *Ratkaistu*).
 - **Digitoitu arkistoaineisto:** viitteeseen alkuperäisen asiakirjan tiedot, koska osoitteet ja sivunumerot
   muuttuvat. Pysyvä tunniste tai URL annetaan yleensä lähdeluettelossa.
 - **Lähdeluettelossa** säilyttävä yksikkö ensin alkukielellä, sitten kokonaisuus ja käytetyt vuodet, väljemmin

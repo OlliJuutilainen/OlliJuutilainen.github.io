@@ -271,8 +271,8 @@ ensimmäisen vuoden, ks. README).
   ennen lukuja omassa osiossaan *Viittauksista ja niiden lyhenteistä*; ohje edellyttää lyhenneluetteloa
   kirjallisuusluettelon edelle (4.2).
 - Pelkkä viite ilman muuta tekstiä on kirjoitettu ilman loppupistettä (`Derrida 2019, 143`). **Tämä poikkeaa
-  ohjeesta**, jonka esimerkit päättyvät pisteeseen. Käyttäjän linja 28.10.2026: ei muuteta hevin. Pisteettömyyttä
-  tukevat ja vastustavat perusteet: README, *Avoimet*.
+  ohjeesta**, jonka esimerkit päättyvät pisteeseen. **Pisteetön pysyy** (käyttäjän päätös 28.10.2026). Perusteet:
+  README, *Ratkaistu*.
 
 ---
 

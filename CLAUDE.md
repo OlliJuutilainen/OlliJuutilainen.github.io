@@ -883,7 +883,8 @@ Käyttäjän vaatimukset 20.10.2026:
   (`lisalehti-antiikki-ja-arkistot.md`; osastokohtaisia ohjeita ei löytynyt, käyttäjän pyyntö: avataan vain todelliseen tarpeeseen)
   ja `vertaa-luin.js`, joka ajaa tyylin esimerkit `kokoaViite`n läpi (28.10.2026: 13 samaa, 5 eroa, erot kirjattu).
   **Alaotsikko alkaa kaksoispisteen jälkeen isolla** kuten tyylin esimerkissä (käyttäjän päätös 28.10.2026, `nimiOsa`; ennen
-  suomenkielinen pienennettiin). Tutkielman pisteettömiä pelkkiä alaviiteviitteitä ei muuteta hevin (käyttäjän linja). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
+  suomenkielinen pienennettiin). Pelkän viittauksen alaviite on pisteetön (`Derrida 2019, 143`; käyttäjän päätös 28.10.2026, tukena APA:n sisennetyn lainauksen
+  pisteetön viittaus). Etusija: tyylin sääntö > tyylin esimerkeistä johdettu > tutkielman käytäntö > APA 7
   tyylin merkintätavalla. Kun muutat viitteiden kokoamista tai lähdeviittausten linkitystä, tarkista varanto ja aja vertailu.
 - **Paluumajakka** (käyttäjän pyyntö 21.10.2026; opas, luku 4.8): ison hypyn (linkki, myös lähdeviittaus; aikajana,
   *Merkinnät*, haku; sivutettuna ≥ 2 sivua, vierityksessä ≥ 2 ruudullista) lähtökohtaan jää alapalkin yläpuolelle
