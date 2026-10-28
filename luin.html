@@ -1381,30 +1381,55 @@
     });
   }
 
-  // Sivutettuna alaluvun otsikko ei jää sivun pohjalle yksin eikä yhden tekstirivin kanssa: sellainen otsikko saa
-  // `sivulle`-luokan (break-before: column) ja alkaa seuraavalta sivulta. Otsikot käydään järjestyksessä, koska
-  // jokainen siirto muuttaa myöhempien paikkoja. Sivun ensimmäistä otsikkoa ei siirretä (ei hyötyä).
+  // Sivutettuna: pääluku (h2) alkaa aina uudelta sivulta, ja alaluku (h3) siirretään uudelle sivulle, jos sille jäisi sivun
+  // pohjalle (a) vain otsikko tai otsikko ja yksi tekstirivi tai (b) lainaus, joka ei mahdu samalle sivulle kokonaan.
+  // Siirrettävä saa luokan `sivulle` (break-before: column). Koska kaikki selaimet eivät noudata palstanvaihtoa
+  // (työpöydällä ei näkynyt), tarkistetaan asettelun jälkeen, onko otsikko oikeasti palstan ensimmäinen; jos ei, se
+  // työnnetään ylämarginaalilla seuraavalle palstalle (`pakotettu`, alkuperäinen marginaali siirtyy täytteeksi, joten
+  // paikka palstassa on sama kuin CSS:n vaihdolla). Otsikot käydään järjestyksessä, koska jokainen siirto muuttaa
+  // myöhempien paikkoja. Sivun ensimmäistä otsikkoa ei siirretä.
   function alalukujenAlut() {
-    $$('h3.sivulle', art).forEach(function (h) { h.classList.remove('sivulle'); });
+    $$('.sivulle, .pakotettu', art).forEach(function (h) {
+      h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = '';
+    });
     var ar = art.getBoundingClientRect(), s = tila.stride;
     var sarake = function (r) { return Math.floor((r.left - ar.left + 2) / s); };
-    $$('h3', art).forEach(function (h) {
+    var ensin = function (h) {
+      for (var e = h.previousElementSibling; e; e = e.previousElementSibling) {
+        var rs = e.getClientRects();
+        if (rs.length) return sarake(rs[rs.length - 1]) < sarake(h.getClientRects()[0]);
+      }
+      return true;
+    };
+    var siirra = function (h) {
+      h.classList.add('sivulle');
+      if (ensin(h)) return;
+      var cs = getComputedStyle(h), r = h.getClientRects()[0];
+      h.classList.add('pakotettu');
+      h.style.paddingTop = (parseFloat(cs.paddingTop) + (h.tagName === 'H2' ? parseFloat(cs.marginTop) : 0)) + 'px';
+      h.style.marginTop = Math.ceil(ar.bottom - r.top + 1) + 'px';
+    };
+    $$('h2, h3, nav.sisallys', art).forEach(function (h) {
       var r0 = h.getClientRects()[0];
-      if (!r0 || r0.top - ar.top < 2) return;
-      var p = sarake(r0), rivit = 0, loppu = false;
+      if (!r0 || r0.top - ar.top < 2 && h.tagName !== 'H2') return;
+      if (h.tagName !== 'H3') { if (!ensin(h)) siirra(h); return; }
+      var p = sarake(r0), rivit = 0, loppu = false, ensimmainen = true;
       for (var el = h.nextElementSibling; el && !loppu && rivit < 1.9; el = el.nextElementSibling) {
         var t = el.tagName;
         if (t === 'H2' || t === 'H3' || t === 'NAV' || el.classList.contains('sivunvaihto')) break;
         if (t === 'H4' || t === 'HR') continue;
         var rs = el.getClientRects(), lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+        var lainaus = ensimmainen && (t === 'BLOCKQUOTE' || el.classList.contains('lainaus'));
+        ensimmainen = false;
         for (var i = 0; i < rs.length; i++) {
           var c = sarake(rs[i]);
           if (c < p) continue;
-          if (c > p) { loppu = true; break; }
+          if (c > p) { loppu = true; if (lainaus) rivit = 0; break; }
           rivit += rs[i].height / lh;
         }
+        if (lainaus && loppu) break;
       }
-      if (rivit < 1.9) h.classList.add('sivulle');
+      if (rivit < 1.9) siirra(h);
     });
   }
 
@@ -1437,7 +1462,7 @@
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
     } else {
       art.style.cssText = '';
-      $$('h3.sivulle', art).forEach(function (h) { h.classList.remove('sivulle'); });
+      $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       tavutaPitkat();
     }
     // Mobiilin kelluvat (kirjanmerkki, palkkinuoli) tekstipalstan reunojen linjaan.
