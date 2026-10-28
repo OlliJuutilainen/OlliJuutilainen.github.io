@@ -338,6 +338,8 @@
   body.sivutus #teksti h2, body.sivutus nav.sisallys { break-before: column; -webkit-column-break-before: always; }
   body.sivutus header.tt { padding-top: 14%; }
   body.sivutus #teksti hr.ennen-lukua { display: none; }
+  /* Alaluku, jolle sivun pohjalla jäisi vain otsikko tai otsikko ja yksi rivi, alkaa uudelta sivulta (alalukujenAlut()). */
+  body.sivutus #teksti h3.sivulle { break-before: column; -webkit-column-break-before: always; margin-top: 0; }
 
   /* alapalkki ja aikajana (palkkien remontti, käyttäjän päätökset 22.10.2026)
      Työpöydällä alapalkki on pysyvä: kirjanmerkki vasemmalla, sivunapit ja palkkinuoli oikealla. Natsaa ja
@@ -1379,6 +1381,33 @@
     });
   }
 
+  // Sivutettuna alaluvun otsikko ei jää sivun pohjalle yksin eikä yhden tekstirivin kanssa: sellainen otsikko saa
+  // `sivulle`-luokan (break-before: column) ja alkaa seuraavalta sivulta. Otsikot käydään järjestyksessä, koska
+  // jokainen siirto muuttaa myöhempien paikkoja. Sivun ensimmäistä otsikkoa ei siirretä (ei hyötyä).
+  function alalukujenAlut() {
+    $$('h3.sivulle', art).forEach(function (h) { h.classList.remove('sivulle'); });
+    var ar = art.getBoundingClientRect(), s = tila.stride;
+    var sarake = function (r) { return Math.floor((r.left - ar.left + 2) / s); };
+    $$('h3', art).forEach(function (h) {
+      var r0 = h.getClientRects()[0];
+      if (!r0 || r0.top - ar.top < 2) return;
+      var p = sarake(r0), rivit = 0, loppu = false;
+      for (var el = h.nextElementSibling; el && !loppu && rivit < 1.9; el = el.nextElementSibling) {
+        var t = el.tagName;
+        if (t === 'H2' || t === 'H3' || t === 'NAV' || el.classList.contains('sivunvaihto')) break;
+        if (t === 'H4' || t === 'HR') continue;
+        var rs = el.getClientRects(), lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+        for (var i = 0; i < rs.length; i++) {
+          var c = sarake(rs[i]);
+          if (c < p) continue;
+          if (c > p) { loppu = true; break; }
+          rivit += rs[i].height / lh;
+        }
+      }
+      if (rivit < 1.9) h.classList.add('sivulle');
+    });
+  }
+
   function asettele(k) {
     sovellaTeema();
     sivuAlut = {};
@@ -1401,12 +1430,14 @@
       art.style.columnWidth = W + 'px'; art.style.columnGap = G + 'px';
       art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
       tavutaPitkat();
+      alalukujenAlut();
       var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
       var rs = viim ? viim.getClientRects() : [];
       var r = rs.length ? rs[rs.length - 1] : null;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
     } else {
       art.style.cssText = '';
+      $$('h3.sivulle', art).forEach(function (h) { h.classList.remove('sivulle'); });
       tavutaPitkat();
     }
     // Mobiilin kelluvat (kirjanmerkki, palkkinuoli) tekstipalstan reunojen linjaan.
