@@ -878,6 +878,7 @@ Käyttäjän vaatimukset 20.10.2026:
   lainauksen sisäinen tyhjä rivi välissä) → `figure.lainaus` ja lähde `figcaption` oikeaan reunaan; otsikon jälkeen ennen
   leipätekstiä `figure.motto` (sisennetty, ei pystyviivaa). Latomo ehdottaa erilleen kirjoitetun lähteen siirtoa lainaukseen.
   Sama iA Writerin esikatselussa pohjalla `luin/ia-writer/Luin.iatemplate` (+ zip; käyttäjän pyyntö 27.10.2026; opas 3.6).
+- **Otsikot sivutettuna** (käyttäjän päätös 28.10.2026): pääluku alkaa aina uudelta sivulta (CSS `break-before: column`). Alaluku (`###`), jolle sivun pohjalla mahtuisi vain otsikko tai otsikko ja yksi tekstirivi, siirretään seuraavalle sivulle (`alalukujenAlut()`, luokka `sivulle`). Mitattu synteettisellä tekstillä ikkunakorkeuksilla 560–900 px: huonoja alaluvun alkuja 321 → 0, sivuja 1757 → 1790; kantin tutkielman asettelu ei muuttunut. `testi.js` tarkistaa molemmat.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
   (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,

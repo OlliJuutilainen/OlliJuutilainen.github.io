@@ -73,6 +73,24 @@ palvelin.listen(0, async () => {
     await p.keyboard.press('ArrowRight');
   }
   tulos('sivutus', leikattu === 0, n + ' sivua, leikkautuvia rivejä ' + leikattu);
+  // Pääluku alkaa aina uudelta sivulta, ja alaluvun otsikon jälkeen samalla sivulla on vähintään kaksi tekstiriviä
+  // (paitsi jos otsikko on sivun ensimmäinen). Rivit lasketaan tekstisolmujen laatikoista, ei koodin omasta mittarista.
+  const otsikot = await p.evaluate(() => {
+    const art = document.querySelector('#teksti'), ar = art.getBoundingClientRect(), st = window.__luin.tila.stride;
+    const sar = r => Math.floor((r.left - ar.left + 2) / st); let h2huono = 0, h3huono = 0;
+    for (const h of art.querySelectorAll('h2')) { const pv = h.previousElementSibling; if (pv && pv.tagName !== 'HR') { const rr = pv.getClientRects(); if (sar(rr[rr.length - 1]) >= sar(h.getClientRects()[0])) h2huono++; } }
+    for (const h of art.querySelectorAll('h3')) {
+      const r0 = h.getClientRects()[0], pp = sar(r0), rivit = new Set(); if (r0.top - ar.top < 2) continue;
+      const tw = document.createTreeWalker(art, NodeFilter.SHOW_TEXT); let t;
+      while ((t = tw.nextNode())) {
+        if (!(h.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING) || h.contains(t) || !t.textContent.trim() || t.parentElement.closest('h2,h3,h4,nav,.fntoggle,.sidenote')) continue;
+        const q = document.createRange(); q.selectNodeContents(t); for (const k of q.getClientRects()) if (sar(k) === pp && k.height > 4) rivit.add(Math.round((k.top + k.bottom) / 16));
+      }
+      if (rivit.size < 2) h3huono++;
+    }
+    return { h2huono, h3huono, siirretty: document.querySelectorAll('h3.sivulle').length };
+  });
+  tulos('pääluku uudelle sivulle, alaluku ei yksin sivun pohjalle', otsikot.h2huono === 0 && otsikot.h3huono === 0, JSON.stringify(otsikot));
 
   // Jokaisen sivun kohta vie takaisin samalle sivulle (löysi tavutusrajan ja sisällyssivun viat).
   const harha = await p.evaluate(() => {
