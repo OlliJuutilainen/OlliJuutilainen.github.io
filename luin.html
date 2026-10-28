@@ -201,6 +201,11 @@
   .ylapalkki { --o-reuna: 24px; }
   body.mobiili .ylapalkki { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
   .ylapalkki .ratas { margin-right: calc(var(--o-reuna) - 8.86px); }
+  /* Lukijasta avattuna asetusten sulkuraksin keskikohta on kiekon keskikohdan kohdalla (käyttäjän pyyntö 28.10.2026):
+     sama marginaali kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. */
+  #asetukset.lukijassa { --o-reuna: 24px; }
+  body.mobiili #asetukset.lukijassa { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
+  #asetukset.lukijassa .sulje { margin-right: calc(var(--o-reuna) - 8.86px); }
   .takaisin { font-size: .86rem; padding: 0 10px; height: 44px; display: inline-flex; align-items: center;
     text-decoration: none; color: var(--harmaa); white-space: nowrap; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
@@ -1133,7 +1138,7 @@
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#postilaatikko').hidden = !!nyt; $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = LS.get('luin-laatikko', ''); $('#laatikko-tieto').textContent = '';
-    $('#asetukset').hidden = false;
+    $('#asetukset').classList.toggle('lukijassa', !!nyt); $('#asetukset').hidden = false;
     sijoitaNipukka();
   }); });
 
@@ -1448,8 +1453,8 @@
     }
     // Mobiilin kelluvat (kirjanmerkki, palkkinuoli) tekstipalstan reunojen linjaan.
     var pv = sivut ? Math.floor(G / 2) : art.getBoundingClientRect().left, pl = sivut ? W : art.getBoundingClientRect().width;
-    $('#lukija').style.setProperty('--palsta-v', Math.round(pv) + 'px');
-    $('#lukija').style.setProperty('--palsta-o', Math.round(document.documentElement.clientWidth - pv - pl) + 'px');
+    document.documentElement.style.setProperty('--palsta-v', Math.round(pv) + 'px');
+    document.documentElement.style.setProperty('--palsta-o', Math.round(document.documentElement.clientWidth - pv - pl) + 'px');
     mene(k || { b: 0, o: 0 });
   }
 
