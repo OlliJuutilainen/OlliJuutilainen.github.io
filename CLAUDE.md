@@ -118,6 +118,10 @@ myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
+Luinin sivuilla (`luin.html`, Latomo, Latomon ohje, käyttöohje) ©-merkki on SVG: ontto koverakylkinen salmiakki
+(lukulistan tietoa-napin kehys) ja sen sisällä antiikvan C, jonka vasen kylki on paksu (käyttäjän pyyntö 29.10.2026,
+muoto Clauden valinta). Salmiakin keskikohta on versaalin keskilinjalla (mitattu pikseleistä, ero 0 px), rivin korkeus
+ennallaan; `aria-label="©"`. Muiden ohjelmien alatunnisteissa on tavallinen ©.
 
 ## Repon rakenne
 
