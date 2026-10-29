@@ -2196,10 +2196,10 @@
   JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
   JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
-  // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita): alku- ja lopputikin (1 px) muste.
+  // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita). Alku- ja lopputikkuja ei ole (käyttäjän pyyntö 29.10.2026).
   function janaRajat(w) {
     var cs = getComputedStyle($('#jana-svg'));
-    return [parseFloat(cs.getPropertyValue('--v-laita')) + .5, w - parseFloat(cs.getPropertyValue('--o-laita')) - .5];
+    return [parseFloat(cs.getPropertyValue('--v-laita')), w - parseFloat(cs.getPropertyValue('--o-laita'))];
   }
   // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
   // Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (käyttäjän pyyntö 29.10.2026:
@@ -2263,8 +2263,8 @@
       if (m.km || m.majakka || m.lvl === 1) return true;
       var puoli = JANA.koko[1][0] + .65 + JANA.koko[Math.min(m.lvl, 3)][0], x = X(osuus(m.k));
       // Poikkeus kirjan alussa (käyttäjä 29.10.2026): ensimmäisen pääluvun alaluku (1.1, 1.1.1) saa näkyä, jos sen vasen reuna
-      // ei osu aloittavaan tikkuun (muste x0 ± 0,5).
-      var vasen = x - JANA.koko[Math.min(m.lvl, 3)][0], alku = vasen > janaRajat(w)[0] + .5;
+      // ei osu janan alkuun (x0).
+      var vasen = x - JANA.koko[Math.min(m.lvl, 3)][0], alku = vasen > janaRajat(w)[0];
       return !paat.some(function (px) { return Math.abs(x - px) < puoli && !(alku && px === paat[0]); });
     });
     // Käyttäjän pyyntö 29.10.2026: sama sääntö kuin pääluvuilla myös alaluvuille (alaluku ja alaluvun alaluku keskenään).
@@ -2294,8 +2294,8 @@
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
   }
-  function janaLuettu(x0, wx, y) { return 'M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + wx; }
-  function janaTuleva(wx, x1, y) { return 'M' + wx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4); }
+  function janaLuettu(x0, wx, y) { return 'M' + x0 + ' ' + y + 'H' + wx; }
+  function janaTuleva(wx, x1, y) { return 'M' + wx + ' ' + y + 'H' + x1; }
   // Käyttäjän pyyntö 22.10.2026: vedettäessä luetun ja tulevan raja seuraa vedettävää osoitinta, vaikka
   // voimassa oleva kohta (haamu) ei muutu. Janaa ei piirretä uudelleen: viivojen päät siirtyvät, ja vain
   // rajan yli menneiden etappien luokka vaihtuu, joten e-ink päivittää vain muuttuneen alueen.
