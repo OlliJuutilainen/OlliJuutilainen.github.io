@@ -843,7 +843,7 @@ Käyttäjän vaatimukset 20.10.2026:
   puoli avasi palkit). Erotin on napin viimeinen pikseli, ja nauhan musteen väli siihen on sama kuin kaistan vasempaan reunaan,
   17 px (käyttäjän pyyntö 27.10.2026; mitattu pikseleistä DPR 1–4; ennen erotin oli 2 px lähempänä). 28.10.2026: käyttäjä ei
   nähnyt erotinta, kun se oli `--hius`-värinen ja vain mobiilissa, joten se on nyt `--viiva` ja myös työpöydän alapalkissa
-  (nappi 59 px, väli 24 px kummallakin puolella; napin oikea osa avasi ennen aikajanan). `testi.js` tarkistaa mobiilin välit. Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa palkkien oikeassa laidassa (29.10.2026;
+  (nappi 59 px, väli 24 px kummallakin puolella; napin oikea osa avasi ennen aikajanan). 29.10.2026: käyttäjän pyynnöstä hiukan lisää sivutilaa: symbolin ja erottimen väli +6 px (nappi 65 px työpöydällä, 51 px mobiilissa; symboli ei liikkunut, väli vasempaan reunaan 24 / 17 px ennallaan, väli erottimeen 30 / 23 px). `testi.js` tarkistaa mobiilin välit. Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa palkkien oikeassa laidassa (29.10.2026;
   ennen tekstipalstan oikean reunan linjassa, `--palsta-o`, joka poistettiin).
   Työpöydän kirjanmerkki on ennallaan. Kaistan napautus (`#ala-nappi` koko kaistan alla; nuoli ei ota napautuksia) avaa yläpalkin ja
   aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää, ja sulkee ne. **Tekstin napautus ei avaa palkkeja**
