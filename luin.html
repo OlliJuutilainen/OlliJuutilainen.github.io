@@ -530,11 +530,16 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  /* Sukkela alleviivaus näyttää itse, mitä tekee (käyttäjän valinta G 29.10.2026): ohut ruosteinen viiva, kursiivi,
+     Literatan ohuin paino. Viiva himmenee pois päältä muun tekstin mukana ja on pois käytöstä harmaa kuten muukin. */
+  .valinnat .sukkela { font-style: italic; font-weight: 380; text-decoration: underline; text-decoration-color: var(--ruoste);
+    text-decoration-thickness: 1px; text-underline-offset: .22em; text-decoration-skip-ink: none; }
   /* Pois käytöstä olevat lisäkytkimet (sivunkäännön tavat vierityksessä, Sukkela alleviivaus piilotetuilla
      alleviivauksilla) ovat kaikki samaa superhimmeää harmaata ilman valintaa (käyttäjän päätös 29.10.2026):
      tallennetut valinnat säilyvät, mutta eivät erotu, kun ylempi vaihtoehto ei ole valittuna. */
   .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
   .valinnat button:disabled .sal-sisa { fill: none; }
+  .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
@@ -1171,7 +1176,8 @@
         var pois = kv[0] === 'auto' && !aset.alTekstissa || tapa && aset.sivutus !== 'sivut';
         var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
         return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + !!aset[kv[0]] + '"' + (pois ? ' disabled' : '') +
-          (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI + kv[1] + '</button>';
+          (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
+          (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[1]) + '</button>';
       }).join('');
     });
     $('#koko-arvo').textContent = aset.koko + ' px';
