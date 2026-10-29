@@ -862,6 +862,9 @@ Käyttäjän vaatimukset 20.10.2026:
   yläpuolella, jos tilaa on (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), ei reunuksessa. Reunus on vain
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
+  Otsikossa nauhan ja nousijoiden väli on 0,45 em (leipätekstissä 4 px), ja nauhan yläpuolelle jää yläreunassa 14 px
+  (`NAUHA_KATTO`; vierityksessä `mene()` ja nauhanapin lisäys vierittävät sen verran; käyttäjän pyyntö 29.10.2026: pääluvussa
+  nauha oli kiinni otsikossa ja vierityksessä yläpalkkia vasten tai ruudun yli). Mitattu: pääluvussa väli musteeseen 5 → 12 px.
 - **Marginaali** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 4.5): *Ulkoasu*-osiossa Reunojen
   ja Tavutuksen välissä *Marginaali: Ohut | Keski | Reilu* = 16 / 24 / 36 px molemmille sivuille (`MARG`), oletus Keski.
   Arvojen avaimet (`kapea`, `keski`, `levea`) ovat ennallaan, jotta tallennetut asetukset säilyvät; nimet vaihdettiin 22.10.2026.
