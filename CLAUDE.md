@@ -709,20 +709,24 @@ Käyttäjän vaatimukset 20.10.2026:
   yläkärki hipoi nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455), mutta "aivan överin iso", joten samana päivänä väliltä: 8,4
   (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
   kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
-  Alalukujen ja alalukujen alalukujen merkkiä ei piirretä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (muste kehineen;
-  käyttäjän pyyntö 29.10.2026, "tuttifrutti"); poikkeus: ensimmäisen pääluvun alaluku (1.1, 1.1.1) näkyy, jos sen vasen reuna ei osu aloittavaan tikkuun; mitattu kantin tutkielmalla 412 px: 4 alaluvun merkkiä 8:sta päällekkäin → 0, 1280 px ennallaan.
-  Kahdesta sivusuunnassa päällekkäisestä pääluvun merkistä näytetään vain ensimmäinen, paitsi jos jälkimmäinen on selvästi
-  korkeammalla hierarkiassa (käyttäjän pyyntö 29.10.2026; `luvunPaino()`: varsinainen luku ennen oheisaineistoa, numeroitu ennen
-  numeroimatonta, alaluvullinen ennen alaluvutonta). Mitattu 412 px: synteettinen teksti 8 → 4 merkkiä oikein valittuina, Luinin
-  oppaassa 5. Tavutus väistyy 6. Ulkoasun tieltä ja 7. jää pois; kantin tutkielma ja 1280 px ennallaan.
-  Sama sääntö koskee alalukuja ja alalukujen alalukuja keskenään (käyttäjän pyyntö 29.10.2026; `karsiPaallekkaiset()`, ajetaan
-  pääluvun alan karsinnan jälkeen). Hierarkiassa ensin otsikkotaso (alaluku ennen alaluvun alalukua), sitten samat kolme kuin
-  pääluvuilla; myöhempi voittaa vain, jos se on painavampi kuin kaikki, joiden päälle se menisi. Alaluvun merkillä ei ole kehää,
-  joten täytetyn alan reunimmainen osa on kuvitteellinen kehä: musteen puolileveys = polun puolileveys (3,38 / 1,61) ilman
-  pääluvun +0,65:tä, eli kärjet saavat koskettaa. Mitattu (Chromium, päällekkäisiä alalukupareja getBBoxista): Luinin opas 412 px
-  8 → 0 (6 merkkiä pois), 1280 px 2 → 0; synteettinen teksti (`####`-tasoineen) 21 → 0 ja 26 → 0; kantin tutkielmassa ei muutosta,
-  pääluvut kaikissa ennallaan. Hierarkiatapaukset (kolmonen ennen kakkosta, numeroimaton ennen numeroitua, kaksi samanarvoista)
-  tarkistettu erikseen.
+  Merkkien peitto (käyttäjän pyynnöt 29.10.2026 aikajärjestyksessä 08.43, 08.46, 08.47, 08.55; "tuttifrutti"): **pääluvuista**
+  näytetään kahdesta törmäävästä vain ensimmäinen, paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa
+  (`luvunPaino()`: otsikkotaso, varsinainen luku ennen oheisaineistoa, numeroitu ennen numeroimatonta, alaluvullinen ennen
+  alaluvutonta; myöhempi voittaa vain, jos se on painavampi kuin kaikki, joiden kanssa se törmää; `karsiPaallekkaiset()`).
+  **Törmäys ei ole pelkkä lomittuminen** (tarkennus 08.47): kärkien pitää mennä toistensa kehän sisäalaan, pääluvuilla väli
+  < 2 × 6,36 eli polkujen kärjet ristissä (#451:ssä ensin musteet koskettivat, < 2 × 7,01). **Alaluvut näkyvän pääluvun
+  kohdalla**: jälkeinen alaluku (2.1 luvun 2 kohdalla) jää pois, jos se tunkee pääluvun musteen päälle; edeltävä (1.3 luvun 2
+  edellä) saa näkyä, jos sen oikea kärki ei ulotu pääluvun kehän sisäalaan (kehän alle saa, pääluku on päällä) eikä se ulotu
+  janan alun ohi pääluvun päällä. Tämä korvasi #450:n poikkeuksen *ensimmäisen pääluvun alaluku* (vertailu `paat[0]`), joka
+  kantin tutkielmassa koski lukua 2 (Johdanto on piilossa) ja päästi myös luvun 2.1 läpi. Piilotettu pääluku ei estä
+  alalukuja. **Alaluvut keskenään** (08.55): sama sääntö kuin pääluvuilla. Alaluvulla ei ole kehää, joten täytetyn alan
+  reunimmainen osa on kuvitteellinen kehä kokonaan polun sisällä, paksuus pääluvun suhteessa 1,3 × rx / 6,36 (kiinteällä 1,3:lla
+  alaluvun alaluvulla, rx 1,61, ei olisi sisäalaa). #453 laski törmäyksen kärkien kosketuksesta tietämättä 08.47:n tarkennuksesta;
+  käyttäjän ajattelujärjestyksessä pääluvun sääntö sisälsi jo sen. Kärjet ja sisäalan kärjet: `janaKarjet()`; jiiri
+  (k / 2) / sin α, α = sivukärjen puolikulma 39,0–39,6° (pääluvulla 1,033). Kynnykset mitattu pikseleistä (DPR 16 ja 32):
+  0,1 px ennen rajaa 0 laitepikseliä sisäalassa tai musteen päällä, 0,1 px yli 2–12. Mitattu mainin (#454) versiota vastaan:
+  kantin tutkielma 360 px *Viittauksista…* ja 2.1 pois, 412 px 2.1 pois, 1280 px ennallaan; Luinin opas 412 px 1.1 ja 2.2 pois,
+  3.6 näkyviin, päälukujen määrä ennallaan.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan

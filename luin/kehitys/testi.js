@@ -28,6 +28,7 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
 // laatikoista ja tunnetuista sivuväleistä (‹ 0,05 em, osion nimi 0,04 em, edistyminen 0,058 em, kiekon kehä 0,84 px svg:n reunan
 // sisällä, aikajanan päät ilman tikkuja; sivuvälit ja kehä mitattu pikseleistä 29.10.2026).
 // Samalla raksin ja kiekon keskikohdat, navinäkymän värit ja ensimmäisen pääluvun merkki.
+// (Päälukujen määrää ei verrata: lomittuvista pääluvuista voi näkyä vain yksi, karsiPaallekkaiset().)
 const laidat = pg => pg.evaluate(() => {
   const q = s => document.querySelector(s), R = s => q(s).getBoundingClientRect(), cs = s => getComputedStyle(q(s)), em = s => parseFloat(cs(s).fontSize);
   const vw = document.documentElement.clientWidth, svg = R('#jana-svg'), xr = window.__luin.janaRajat(svg.width), r2 = x => +x.toFixed(2);
@@ -39,11 +40,12 @@ const laidat = pg => pg.evaluate(() => {
   for (const k in v) v[k] = r2(v[k]); for (const k in o) o[k] = r2(o[k]);
   const N = window.__luin.nyt(), eka = N.doc.toc.filter(t => t.lvl === 1)[0], ekaOsuus = (N.cum[eka.b]) / N.total;
   return { v, o, kiekkoKeski: kiekko.left + kiekko.width / 2, harmaa: cs('.takaisin').color, kiekkoVari: cs('#lukija .ratas').color, nappiVari: cs('#sivu-ed svg').fill,
-    j1: q('#jana-svg').querySelectorAll('.j1').length, paaluvut: N.doc.toc.filter(t => t.lvl === 1).length, ekaOsuus: r2(ekaOsuus) };
+    j1: q('#jana-svg').querySelectorAll('.j1').length, ekaPiirretty: [...q('#jana-svg').querySelectorAll('.j1')].some(x => x.parentNode.querySelector('title').textContent === eka.text),
+    ekaOsuus: r2(ekaOsuus) };
 });
 const raksiKeski = pg => pg.evaluate(() => { const r = document.querySelector('#asetukset .sulje svg').getBoundingClientRect(); return r.left + r.width / 2; });
 const laidatOk = (l, vo, oo) => Object.values(l.v).every(x => Math.abs(x - vo) <= .35) && Object.values(l.o).every(x => Math.abs(x - oo) <= .35) &&
-  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 === l.paaluvut - (l.ekaOsuus < .1 ? 1 : 0) && Math.abs(l.raksi - l.kiekkoKeski) < .01;
+  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 > 0 && !(l.ekaOsuus < .1 && l.ekaPiirretty) && Math.abs(l.raksi - l.kiekkoKeski) < .01;
 
 palvelin.listen(0, async () => {
   const BASE = 'http://localhost:' + palvelin.address().port + '/';
