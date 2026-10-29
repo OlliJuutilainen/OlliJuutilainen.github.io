@@ -726,6 +726,10 @@ Käyttäjän vaatimukset 20.10.2026:
   viitelinkit, ristiviittaukset, sitaatit `[s. 23][#avain]`, `[%avain]`, `{{TOC}}`, `+++`, kommentit, setext,
   sisennetty koodi. Kuvat näkyvät linkkeinä eivätkä kuvina (lukija ei hae mitään kolmannelta osapuolelta).
   Otsikkolohkon tietorivi on enintään 100 merkkiä riviltään; pidempi kappale on leipätekstiä (verkkoleike).
+  Kursivoitu julkaisutieto otsikon alla (*First published …; substantive revision …*, myös *julkaistu*, *päivitetty*,
+  *updated*) on tietorivi eikä alaotsikko (29.10.2026, SEP: rivi päätyi viitteeseen otsikon perään); julkaisuajaksi
+  päätellään rivin myöhäisin päiväys eli luettu versio (Teologian tyyli 4.1: kirjoitus- tai päivitysaika), ja jos
+  tekstissä ei ole muita tietorivejä, etukentän tekijä tulee sen edelle.
 - **Latomon remontti** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 7):
   *Tekstityyppi* on oletuksena *ei määritelty*; valittavana tieteellinen, blogi tai verkkosivu, kaunokirjallinen.
   Kentät Teologian tyylin viitteen järjestyksessä, tyypin oletuskentät näkyvissä ja loput *+ Lisää tieto*

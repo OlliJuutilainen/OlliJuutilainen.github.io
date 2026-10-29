@@ -90,6 +90,8 @@ Tietoriveiltä päätellään tekijä (2–4 isolla alkavaa sanaa omalla rivill�
 
 Jos tekstissä ei ole `#`-otsikkoa mutta etukentässä on `otsikko`, otsikkolohko tehdään etukentästä. Jos otsikkolohkossa ei ole tietorivejä, ne tehdään etukentän tekijästä, julkaisun lajista, teoksesta tai sivustosta ja julkaisuajasta (verkkoleike, Latomon kentät).
 
+Kursivoitu julkaisutieto otsikon alla (SEP: *First published Thu Nov 1, 2018; substantive revision Sun Mar 31, 2024*; tunnistus `RE_JULK`: *published*, *updated*, *revision*, *julkaistu*, *päivitetty* … ja päiväys) on tietorivi eikä alaotsikko (29.10.2026: se päätyi lähdeviitteeseen otsikon perään). Julkaisuajaksi päätellään rivin myöhäisin päiväys eli luettu versio (Teologian tyyli 4.1: kirjoitus- tai päivitysaika). Jos tekstissä ei ole muita tietorivejä, etukentän tekijä tulee sen edelle, kuten tekstissä ilman tietorivejä.
+
 Jos alaotsikkoa ei ole tekstissä eikä etukentässä, alaotsikon paikalla näkyy *kehys* (käyttäjän päätös 22.10.2026): blogilla ja määrittelemättömällä tyypillä sivuston nimi, kaunokirjallisella kokoelma (`teos`, sen puuttuessa sivusto). Tieteellisellä ei ole kehystä, vaan lehti tai kokoomateos on tietorivillä. Kehys näkyy myös lukulistassa nimikkeen alaotsikkona (`doc.kehys`, listassa `e.kehys`), eikä se toistu tietorivillä eikä lukulistan tekijän paikalla. Kehys on oma lohkonsa, joten vanhojen tekstien lohkonumerot muuttuvat; kirjanmerkit ja alleviivaukset löytävät paikkansa katkelmasta (`paikanna`).
 
 ### 3.2 Luvut ja tunnisteet
