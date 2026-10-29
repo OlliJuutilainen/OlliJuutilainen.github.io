@@ -390,12 +390,13 @@
   /* Erotin on napin oikea reuna, ja symbolin musteen etäisyys siitä on sama kuin palkin vasemmasta reunasta
      (käyttäjän pyynnöt 27.10. ja 28.10.2026; mitattu pikseleistä): työpöydällä 24 px (nappi 59 px), mobiilissa
      17 px (nappi 45 px, symboli keskellä erottimen vasemmalla puolella; kokonaisluvuissa SVG ei siirry puolta
-     pikseliä). Erotin on --viiva-värinen: --hius ei näkynyt käyttäjälle (28.10.2026). */
-  #km-nappi { position: relative; z-index: 1; width: 59px; height: 100%; padding: 0 1px 0 24px; display: inline-flex; align-items: center; }
+     pikseliä). Erotin on --viiva-värinen: --hius ei näkynyt käyttäjälle (28.10.2026). Käyttäjän pyyntö 29.10.2026:
+     hiukan lisää sivutilaa napille, joten symbolin ja erottimen väli kasvoi 6 px (symboli ei liikkunut; nappi 65 / 51 px). */
+  #km-nappi { position: relative; z-index: 1; width: 65px; height: 100%; padding: 0 1px 0 24px; display: inline-flex; align-items: center; }
   #km-nappi::after { content: ""; position: absolute; right: 0; top: 7px; bottom: 7px; border-right: 1px solid var(--viiva); }
   #km-nappi svg { width: 10px; height: 16px; fill: none; stroke: var(--harmaa); stroke-width: 1; }
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
-  body.mobiili #km-nappi { width: calc(var(--ala) + 1px); padding: 0 1px 0 0; justify-content: center; }
+  body.mobiili #km-nappi { width: calc(var(--ala) + 7px); padding: 0 1px 0 17px; justify-content: flex-start; }
   #ala-nappi { position: absolute; inset: 0; }
   /* Oikean laidan kokonaisuus: kalanruodon muste tai näkyvien sivunappien reunus palkkien oikeassa laidassa; sivunappien
      napautusalue ulottuu sen yli ruudun reunaan asti. */
