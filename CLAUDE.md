@@ -705,7 +705,11 @@ Käyttäjän vaatimukset 20.10.2026:
   lähes pistemäinen täytetty. Käyttäjän päätös 21.10.2026 (myöhemmin): etappimerkit pienemmiksi, pääluku 0,8- ja alaluvut
   0,7-kertaisiksi (`JANA.koko`; kirjanmerkin nauha ennallaan); sitten alaluvut hiukan suuremmiksi (1,15- ja 1,35-kertaisiksi:
   alaluvun alaluvut sulautuivat viivaan), ja nykyisen kohdan oikealla puolella olevien pienempi kokoluokka (0,75) poistettiin
-  turhana kokojen kirjona: tulevat ovat samankokoisia, vain harmaita. Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
+  turhana kokojen kirjona: tulevat ovat samankokoisia, vain harmaita. Käyttäjän pyyntö 29.10.2026: pääluku taas isoksi, niin että
+  sen yläkärjen muste hipoo nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455, kehän jiiri kärjessä 1,545; mitattu 9,125 vs. 8,875 px),
+  ja kirjanmerkkien rivi alemmas samalla säännöllä kuin ennen: nauhan yläreuna pääluvun sisäalan alimmassa kohdassa (`JANA.km`).
+  Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
+  vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on
@@ -830,7 +834,8 @@ Käyttäjän vaatimukset 20.10.2026:
   puoli avasi palkit). Erotin on napin viimeinen pikseli, ja nauhan musteen väli siihen on sama kuin kaistan vasempaan reunaan,
   17 px (käyttäjän pyyntö 27.10.2026; mitattu pikseleistä DPR 1–4; ennen erotin oli 2 px lähempänä). 28.10.2026: käyttäjä ei
   nähnyt erotinta, kun se oli `--hius`-värinen ja vain mobiilissa, joten se on nyt `--viiva` ja myös työpöydän alapalkissa
-  (nappi 59 px, väli 24 px kummallakin puolella; napin oikea osa avasi ennen aikajanan). `testi.js` tarkistaa mobiilin välit. Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa tekstipalstan oikean reunan linjassa (`--palsta-o`).
+  (nappi 59 px, väli 24 px kummallakin puolella; napin oikea osa avasi ennen aikajanan). `testi.js` tarkistaa mobiilin välit. Palkkinuoli (`#palkki-nuoli`) on oikeassa alanurkassa palkkien oikeassa laidassa (29.10.2026;
+  ennen tekstipalstan oikean reunan linjassa, `--palsta-o`, joka poistettiin).
   Työpöydän kirjanmerkki on ennallaan. Kaistan napautus (`#ala-nappi` koko kaistan alla; nuoli ei ota napautuksia) avaa yläpalkin ja
   aikajanakerroksen yhdessä (`palkit-auki`), tekstin päälle ilman siirtymää, ja sulkee ne. **Tekstin napautus ei avaa palkkeja**
   (käyttäjän päätös 22.10.2026, myöhemmin: avautui liian helposti vahingossa; aiemmin vierityksessä mikä tahansa kohta ja sivutettuna
@@ -840,15 +845,28 @@ Käyttäjän vaatimukset 20.10.2026:
   kaistan yläpuolella kuten työpöydällä (käyttäjän pyyntö 27.10.2026; ennen kaistalla kelluvien välissä, `sijoitaJanaNapit()` poistettu). Vain kaistan napautus avaa ja sulkee palkit (käyttäjän päätös 22.10.2026):
   vieritys ja sivunkääntö eivät vaikuta (ensimmäisessä versiossa sulkivat). Työpöydällä keskiklikkaus ei avaa aikajanaa ("hiirellä
   kauhea tapa"), vain alapalkin klikkaus. Sivunapit 52 × 34 px (27.10.2026; ennen 44) eli Merkinnät- ja Etsi-laatikoiden korkuiset, reunus `--harmaa` kaikilta sivuilta
-  ennallaan. Niiden napautusalue (`#sivunapit`) on koko palkin korkuinen ja ulottuu ruudun oikeaan reunaan (`--o-reuna`), joten nappien
+  ennallaan. Niiden napautusalue (`#sivunapit`) on koko palkin korkuinen ja ulottuu ruudun oikeaan reunaan (`--o-laita`), joten nappien
   ylä-, ala- ja oikealta puolelta ei avaudu aikajana (käyttäjän pyyntö 27.10.2026; myös työpöydällä); tyhjä osa kääntää sen napin
   suuntaan, jonka kohdalla napautus on,
-  nuolina täytetyt lovetut koverakylkiset salmiakit (`--muste`; valittu neljästä muodosta, leijat näyttivät pienenä möhkäleiltä).
+  nuolina täytetyt lovetut koverakylkiset salmiakit (valittu neljästä muodosta, leijat näyttivät pienenä möhkäleiltä; 29.10.2026 alkaen
+  `--harmaa` kuten yläpalkin asetuskiekkokin, käyttäjän pyyntö: navinäkymän muiden kanssa samaan himmeämpään väriin, ennen `--muste`).
   `#lukija`ssa ei ole napautuskorostusta (näkymättömän kaistan napautus väläytti kaistan). Palkkien avaus ei poista paluumajakkaa. Kirjanmerkkinauhaa ei voi kytkeä pois (käyttäjän päätös toistaiseksi). Asetuksissa
   *Liikkuminen*-rivin *Sivut*-sanan alla lisäkytkin *Sivunvaihtopainikkeet* (`aset.sivunapit`, oletus pois 22.10.2026 alkaen; sivua
-  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; sivunapit ovat palkkinuolen oikealla puolella 24 px:n päässä, ja ilman niitä nuoli on 4 px vasemmempana kuin nappien oikea reuna; käyttäjän pyyntö 28.10.2026, ennen väli 12 px), 16 px sisennettynä
+  käännetään reunojen napautuksella; `av: 5` kytkee kerran pois myös tallennetuista; sivunapit ovat palkkinuolen oikealla puolella 24 px:n päässä, käyttäjän pyyntö 28.10.2026, ennen väli 12 px; ilman niitä nuoli ja niiden kanssa nappien oikea reuna on palkkien oikeassa laidassa, 29.10.2026), 16 px sisennettynä
   (`sijoitaNipukka()` mittaa) ja vierityksessä pois käytöstä kuten Sukkela alleviivaus. Mitattu: työpöydän kuvakaappauksessa
   muuttui vain alapalkin osion nimen ja natsan alue; mobiilin sivutettu tutkielma 57 → 53 sivua.
+- **Palkkien laidat ja hajurako (käyttäjän pyyntö 29.10.2026, "megapaukku navinäkymään"; opas, luku 4.4).** Navinäkymän merkit ovat
+  kahdessa linjassa musteesta mitattuna: vasemmalla kirjanmerkkinapin symboli (kulmakivi), Lukulista-natsa ‹, aikajanan alkutikki,
+  osion nimi ja *Merkinnät*; oikealla asetuskiekko ja kalanruoto (kulmakivet), edistyminen, aikajanan lopputikki ja näkyvät sivunapit.
+  CSS-muuttujat `--v-laita` / `--o-laita`: työpöydällä 24 / 29 px, kosketusnäytöllä (`pointer: coarse`) 17 / 17 px marginaalista
+  riippumatta (ennen mobiilin oikea laita oli tekstipalstan reuna + 10 px eli Keski-marginaalilla 38,5 px: "omituinen pieni oikean laidan
+  aukko"). Laidat ovat kokonaislukuja, koska Chromium pyöristää SVG:n ja reunuksen paikan kokonaiseen CSS-pikseliin (mitattu: 28,5:llä
+  sivunapit tai ruoto jäi aina 0,5 px sivuun). Sivuvälien korjaukset on mitattu pikseleistä (‹ 0,05 em, osion nimi 0,04 em, edistyminen
+  0,058 em, kiekon kehä 0,84 px; ruodon viewBox = musteen rajat). Mitattu DPR 2–4: linjat 0,25 px:n sisällä, edistyminen viimeisen
+  numeron mukaan enintään 0,35 px. Aikajana on kerroksen levyinen ja sen päät lasketaan laidoista (`janaRajat()`). Asetusten sulkuraksi
+  seuraa kiekkoa (sama marginaali). Yläpalkki 44 → 56 px (työpöydän vierityksen `YLA` 70 → 82; sivutettu tutkielma 1280 × 800:lla
+  37 → 38 sivua, mobiilissa ennallaan), ja aikajanakerroksen kaikkia pystyvälejä kasvatettiin noin 1,5–1,7-kertaisiksi (kerros 129 → 168 px).
+  Ennen ja jälkeen -kuvissa lukulista oli pikselilleen sama ja mobiilin suljetuissa palkeissa muuttui vain ruodon paikka.
 - Aikajanan veto (käyttäjän pyyntö 21.10.2026): osoitin seuraa vetoa, voimassa oleva kohta jää `--viiva`-harmaaksi haamuksi,
   eikä teksti liiku ennen irrotusta. Käyttäjän pyyntö 22.10.2026: luetun ja tulevan raja (musta viiva ja etapit) seuraa
   vedettävää osoitinta, ei haamua. Liikkeessä muuttuvat vain `#j-veto`:n transform, viivojen päät ja rajan ylittäneiden
