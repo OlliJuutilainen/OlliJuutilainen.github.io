@@ -2196,10 +2196,10 @@
   JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
   JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
-  // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita): alku- ja lopputikin (1 px) muste.
+  // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita). Alku- ja lopputikkuja ei ole (käyttäjän pyyntö 29.10.2026).
   function janaRajat(w) {
     var cs = getComputedStyle($('#jana-svg'));
-    return [parseFloat(cs.getPropertyValue('--v-laita')) + .5, w - parseFloat(cs.getPropertyValue('--o-laita')) - .5];
+    return [parseFloat(cs.getPropertyValue('--v-laita')), w - parseFloat(cs.getPropertyValue('--o-laita'))];
   }
   // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
   // Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (käyttäjän pyyntö 29.10.2026:
@@ -2212,50 +2212,43 @@
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
-  // Pääluvun paino päällekkäisten merkkien valintaan, vertailu järjestyksessä: 1) varsinainen luku ennen oheisaineistoa
-  // (kirjallisuus, lyhenteet, sisällys, liitteet, kiitokset, huomautukset, SEP:n lopun osiot), 2) numeroitu ennen
-  // numeroimatonta, 3) luku, jolla on alalukuja, ennen lukua ilman niitä.
+  // Luvun paino päällekkäisten merkkien valintaan, vertailu järjestyksessä: 0) ylempi otsikkotaso ennen alempaa (vain
+  // alaluvuilla: alaluku ennen alaluvun alalukua), 1) varsinainen luku ennen oheisaineistoa (kirjallisuus, lyhenteet,
+  // sisällys, liitteet, kiitokset, huomautukset, SEP:n lopun osiot), 2) numeroitu ennen numeroimatonta, 3) luku, jolla on
+  // alalukuja, ennen lukua ilman niitä.
   var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments|huomautukset|viitteet|notes|endnotes|related entries|other internet resources|academic tools)\b|lyhent|abbreviation/i;
-  function paaluvunPaino(m) {
-    var toc = nyt.doc.toc, i = toc.findIndex(function (t) { return t.lvl === 1 && t.b === m.k.b; }), t = toc[i];
-    if (!t) return [0, 0, 0];
-    var nimi = t.text.replace(/^\s*(\d+(\.\d+)*|[IVXLC]+)[.)]?\s+/, '').trim(), ala = toc[i + 1] && toc[i + 1].lvl > 1 ? 1 : 0;
-    return [OHEIS.test(nimi) ? 0 : 1, t.num ? 1 : 0, ala];
+  function luvunPaino(m) {
+    var toc = nyt.doc.toc, i = toc.findIndex(function (t) { return t.lvl === m.lvl && t.b === m.k.b; }), t = toc[i];
+    if (!t) return [-m.lvl, 0, 0, 0];
+    var nimi = t.text.replace(/^\s*(\d+(\.\d+)*|[IVXLC]+)[.)]?\s+/, '').trim(), ala = toc[i + 1] && toc[i + 1].lvl > t.lvl ? 1 : 0;
+    return [-t.lvl, OHEIS.test(nimi) ? 0 : 1, t.num ? 1 : 0, ala];
   }
   function vertaaPaino(a, b) { for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; }
-  // Kärjen jiiri: kehä (1,3) ulottuu salmiakin sivukärjessä 0,65 / sin α polun yli ja sen sisäreuna yhtä paljon polun sisään;
-  // α on sivukärjen puolikulma (kovera kylki, c = 0,38: tangentti kärjessä (rx(1 − c), ry c), pääluvulla 39,0° → 1,033).
-  function janaJiiri(r) { return .65 / Math.sin(Math.atan2(r[1] * .38, r[0] * .62)); }
-  // Mitkä merkit piirretään (käyttäjän säännöt 29.10.2026). Pääluvut piirretään ylimmäisinä, joten muut jäävät niiden taakse.
-  // 1. Peräkkäiset pääluvut: pelkkä lomittuminen ei piilota kumpaakaan. Vasta kun kärjet menevät toistensa kehän sisäiseen
-  //    alaan (kärkien polut ristissä, väli < 2 rx; kärjen muste ja sisäala ovat kumpikin jiirin verran polusta), toinen
-  //    piilotetaan aiemman säännön mukaan: näytetään ensimmäinen, paitsi jos jälkimmäinen on selvästi korkeammalla
-  //    hierarkiassa (paaluvunPaino()).
-  // 2. Pääluvun jälkeinen alaluku (1.1 luvun 1 kohdalla), joka tunkee näkyvän pääluvun merkin päälle (muste kehineen),
-  //    piilotetaan; muuten sen täyte ja pääluvun ontto täyte menevät sekaisin (tuttifrutti).
-  // 3. Pääluvun edeltävä alaluku (1.3 luvun 2 edellä) saa näkyä, jos sen oikea kärki ei ulottuisi pääluvun kehän sisäiseen
-  //    alaan; kehän alle se saa mennä, koska se on pääluvun takana. Lisäksi sen vasen reuna ei saa osua aloittavaan tikkuun
-  //    (muste x0 ± 0,5), kuten edellisen kierroksen poikkeuksessa (ensimmäisen pääluvun alaluku luvun 2 edellä).
-  function janaPeitot(kohteet, X, x0) {
-    var R = JANA.koko[1], jR = janaJiiri(R), paat = [];
-    kohteet.forEach(function (m) { if (!m.km && !m.majakka && m.lvl === 1) { m.x = X(osuus(m.k)); paat.push(m); } });
-    paat.sort(function (a, b) { return a.x - b.x; });
-    var ed = null;
-    paat.forEach(function (p) {
-      if (ed && p.x - ed.x < 2 * R[0]) {
-        if (vertaaPaino(paaluvunPaino(p), paaluvunPaino(ed)) > 0) { ed.piilo = true; ed = p; } else p.piilo = true;
-      } else ed = p;
+  // Kärjen jiiri: kehä ulottuu salmiakin sivukärjessä (k / 2) / sin α polun yli ja sen sisäreuna yhtä paljon polun sisään;
+  // α on sivukärjen puolikulma (kovera kylki, c = 0,38: tangentti kärjessä (rx(1 − c), ry c); pääluvulla 39,0°, kehä 1,3 → 1,033).
+  function janaJiiri(r, k) { return k / 2 / Math.sin(Math.atan2(r[1] * .38, r[0] * .62)); }
+  // Merkin kärki (musteen reuna) ja kehän sisäalan kärki keskikohdasta sivusuunnassa. Pääluvun kehä (1,3) on polun
+  // molemmin puolin. Alaluvuilla ei ole kehää (käyttäjä 29.10.2026): täytetyn alan reunimmainen osa on kuvitteellinen kehä
+  // kokonaan polun sisällä, paksuus pääluvun suhteessa (1,3 × rx / 6,36), jotta pienimmälläkin merkillä on sisäala.
+  function janaKarjet(lvl) {
+    var R = JANA.koko[1], r = JANA.koko[Math.min(lvl, 3)];
+    if (lvl === 1) { var j = janaJiiri(R, 1.3); return { karki: R[0] + j, sisa: R[0] - j }; }
+    return { karki: r[0], sisa: r[0] - 2 * janaJiiri(r, 1.3 * r[0] / R[0]) };
+  }
+  // Sivusuunnassa päällekkäisistä merkeistä (m.x, karki, sisa: janaKarjet()) jää näkyviin ensin tullut, paitsi jos myöhempi
+  // on selvästi korkeammalla hierarkiassa (luvunPaino()) kuin kaikki ne, joiden kanssa se törmää; silloin ne jäävät pois.
+  // Pelkkä lomittuminen ei ole törmäys (käyttäjän tarkennus 29.10.2026): kärkien pitää mennä toistensa kehän sisäalaan.
+  // Pääluvuilla tämä on väli < 2 rx eli polkujen kärjet ristissä. Palauttaa pois jätettävät kohteet.
+  function karsiPaallekkaiset(a) {
+    var pidetyt = [], pois = [];
+    a.sort(function (p, q) { return p.x - q.x; }).forEach(function (p) {
+      var osuu = pidetyt.filter(function (q) { return Math.abs(p.x - q.x) < Math.min(p.karki + q.sisa, q.karki + p.sisa); });
+      if (osuu.every(function (q) { return vertaaPaino(luvunPaino(p.m), luvunPaino(q.m)) > 0; })) {
+        osuu.forEach(function (q) { pidetyt.splice(pidetyt.indexOf(q), 1); pois.push(q.m); });
+        pidetyt.push(p);
+      } else pois.push(p.m);
     });
-    var nak = paat.filter(function (m) { return !m.piilo; });
-    return kohteet.filter(function (m) {
-      if (m.km || m.majakka) return true;
-      if (m.lvl === 1) return !m.piilo;
-      var r = JANA.koko[Math.min(m.lvl, 3)], x = X(osuus(m.k));
-      return !nak.some(function (p) {
-        if (x >= p.x) return x - r[0] < p.x + R[0] + jR;
-        return x + r[0] > p.x - R[0] + jR || x - r[0] <= x0 + .5 && x + r[0] > p.x - R[0] - jR;
-      });
-    }).sort(function (a, b) { return (a.lvl === 1 ? 1 : 0) - (b.lvl === 1 ? 1 : 0); });
+    return pois;
   }
   function piirraJana() {
     var svg = $('#jana-svg');
@@ -2268,7 +2261,33 @@
     var s = '<path id="j-luettu" class="j-viiva" d="' + janaLuettu(x0, wx, y) + '"/>' +
       '<g id="j-loppu"' + (wf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="' + janaTuleva(wx, x1, y) + '"/></g>';
     var maj = '';
-    var kohteet = janaPeitot(janaKohteet(), X, x0);
+    var kohteet = janaKohteet(), P = janaKarjet(1);
+    var merkki = function (m) { var k = janaKarjet(m.lvl); return { m: m, x: X(osuus(m.k)), karki: k.karki, sisa: k.sisa }; };
+    // Käyttäjän pyyntö 29.10.2026: kahdesta toistensa sisäalaan menevästä pääluvun merkistä näytetään vain ensimmäinen,
+    // paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa (luvunPaino()); silloin jälkimmäinen.
+    var paaN = kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl === 1; }).map(merkki);
+    var pois = karsiPaallekkaiset(paaN), paat = [];
+    kohteet = kohteet.filter(function (m) { return pois.indexOf(m) < 0; });
+    paaN.forEach(function (p) { if (pois.indexOf(p.m) < 0) paat.push(p.x); });
+    // Alaluvut näkyvien päälukujen kohdalla (käyttäjän säännöt 29.10.2026; pääluvut piirretään ylimmäisinä):
+    // pääluvun jälkeinen alaluku (luvun 2 kohdalla 2.1), joka tunkee pääluvun merkin musteen päälle, jää pois, muuten täyte
+    // ja ontto täyte menevät sekaisin (tuttifrutti). Edeltävä alaluku (1.3 luvun 2 edellä) saa näkyä, jos sen oikea kärki ei
+    // ulottuisi pääluvun kehän sisäalaan; kehän alle saa, koska se on pääluvun takana. Edeltävä ei kuitenkaan saa ulottua
+    // janan alun ohi pääluvun päällä (aiempi poikkeus ensimmäisen pääluvun alaluvulle, ennen tikkujen poistoa alkutikku).
+    // Piilotettu pääluku ei estä alalukuja.
+    kohteet = kohteet.filter(function (m) {
+      if (m.km || m.majakka || m.lvl === 1) return true;
+      var a = merkki(m), x = a.x;
+      return !paat.some(function (px) {
+        if (x >= px) return x - a.karki < px + P.karki;
+        return x + a.karki > px - P.sisa || x - a.karki <= x0 && x + a.karki > px - P.karki;
+      });
+    });
+    // Käyttäjän pyyntö 29.10.2026: sama sääntö kuin pääluvuilla myös alaluvuille (alaluku ja alaluvun alaluku keskenään),
+    // kuvitteellisin kehin (janaKarjet()).
+    pois = karsiPaallekkaiset(kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl > 1; }).map(merkki));
+    kohteet = kohteet.filter(function (m) { return pois.indexOf(m) < 0; })
+      .sort(function (a, b) { return (a.lvl === 1 ? 1 : 0) - (b.lvl === 1 ? 1 : 0); });
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
@@ -2289,8 +2308,8 @@
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML = s;
   }
-  function janaLuettu(x0, wx, y) { return 'M' + x0 + ' ' + (y - 4) + 'V' + (y + 4) + 'M' + x0 + ' ' + y + 'H' + wx; }
-  function janaTuleva(wx, x1, y) { return 'M' + wx + ' ' + y + 'H' + x1 + 'M' + x1 + ' ' + (y - 4) + 'V' + (y + 4); }
+  function janaLuettu(x0, wx, y) { return 'M' + x0 + ' ' + y + 'H' + wx; }
+  function janaTuleva(wx, x1, y) { return 'M' + wx + ' ' + y + 'H' + x1; }
   // Käyttäjän pyyntö 22.10.2026: vedettäessä luetun ja tulevan raja seuraa vedettävää osoitinta, vaikka
   // voimassa oleva kohta (haamu) ei muutu. Janaa ei piirretä uudelleen: viivojen päät siirtyvät, ja vain
   // rajan yli menneiden etappien luokka vaihtuu, joten e-ink päivittää vain muuttuneen alueen.
