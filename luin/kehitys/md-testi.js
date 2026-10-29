@@ -145,5 +145,12 @@ tulos('linkitetty yläindeksi', yl.html.includes('A.<sup>[<a href="https://e.org
 const hv = M.parse('# T\n\nA<sup>[<a href="u">1</a>]</sup> ja <b>x</b>.\n\nB <i>y</i>.\n').warnings.map(w => w.ln + ' ' + w.msg);
 sama('HTML-huomautus riviä kohden', JSON.stringify(hv), JSON.stringify(['3 6 HTML-merkintää näkyy tekstinä: <sup>, <a>, <b>.', '5 2 HTML-merkintää näkyy tekstinä: <i>.']));
 
+// Kursivoitu julkaisutieto otsikon alla on tietorivi, ei alaotsikko (SEP); julkaistu on luettu versio, tekijä etukentästä.
+const sep4 = M.parse('---\ntekijä: Hildebrand, David\n---\n\n# John Dewey\n\n*First published Thu Nov 1, 2018; substantive revision Sun Mar 31, 2024*\n\n' + PITKA);
+sama('julkaisutieto: ei alaotsikkoa', sep4.sub, '');
+sama('julkaisutieto: tietorivit', JSON.stringify(sep4.lines), JSON.stringify(['Hildebrand, David', 'First published Thu Nov 1, 2018; substantive revision Sun Mar 31, 2024']));
+sama('julkaisutieto: luettu versio', sep4.paatelty.julkaistu, '2024-03-31');
+sama('kursivoitu alaotsikko ennallaan', M.parse('# T\n\n*Kirjoitus vuodelta 2018*\n\n' + PITKA).sub, 'Kirjoitus vuodelta 2018');
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

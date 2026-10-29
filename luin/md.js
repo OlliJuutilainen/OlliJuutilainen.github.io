@@ -584,6 +584,7 @@
   var KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
   var KK_EN = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   var RE_KK = new RegExp('(' + KK.join('|') + ')kuu(?:ssa|ta|n|lla|lle)?', 'i');
+  var RE_JULK = /\b(?:first published|published|publication date|last updated|updated|revised|revision|posted|julkaistu|päivitetty|muokattu)\b/i;
   var RE_EN = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\.?';
   function pvmOlio(y, m, d, h, mi) {
     if (!(y >= 1000 && y <= 2999)) return null;
@@ -1015,6 +1016,9 @@
     // Kehys: blogin nimi tai kaunokirjallisen tekstin kokoelma näkyy alaotsikon paikalla, jos alaotsikkoa ei ole
     // (käyttäjän päätös 22.10.2026). Tieteellisen tekstin lehti tai kokoomateos jää tietoriville.
     function alaotsikkoon(tx) { return /^\*(?!\*)([\s\S]+?)\*$/.exec(tx) || /^_(?!_)([\s\S]+?)_$/.exec(tx); }
+    // Kursivoitu julkaisutieto otsikon alla (SEP: *First published Thu Nov 1, 2018; substantive revision Sun Mar 31,
+    // 2024*) on tietorivi eikä alaotsikko.
+    function julkRivi(t) { return RE_JULK.test(t) && !!pvm(t, true); }
     var ty0 = tyyppiAvain(m.tyyppi), kehys = '';
     if (!m.alaotsikko) kehys = String((ty0 === 'kaunokirjallinen' ? m.teos || m.sivusto : ty0 === 'tieteellinen' ? '' : m.sivusto) || '').trim();
     if (kehys && tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
@@ -1032,7 +1036,7 @@
     }
 
     // Otsikkolohko
-    var auth = '', jp = null, tietoRaaka = [], kirja = {};
+    var auth = '', jp = null, tietoRaaka = [], kirja = {}, metaKohta = -1, julkJp = null;
     if (tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1) {
       curLn = tokens[0].ln;
       res.title = plain(tokens[0].text);
@@ -1042,11 +1046,12 @@
         var tx = tokens[t0].text.trim();
         curLn = tokens[t0].ln;
         var em = alaotsikkoon(tx);
-        if (em && !res.sub && em[1].indexOf('*') < 0) {
+        if (em && !res.sub && em[1].indexOf('*') < 0 && !julkRivi(plain(em[1]))) {
           res.sub = plain(em[1]);
           head += blk('p', 'sub', em[1]);
         } else if (tietorivi(tx)) {
           lisaaKehys();
+          if (metaKohta < 0) metaKohta = head.length;
           tx.split('\n').forEach(function (l) {
             l = l.replace(/\\[ \t]*$/, '').trim();
             if (plain(l).trim()) { res.lines.push(plain(l).trim()); tietoRaaka.push(l); }
@@ -1064,6 +1069,11 @@
       if (/^\p{Lu}[\p{L}'’.-]+(\s+\p{Lu}[\p{L}'’.-]*){1,3}$/u.test(l)) auth = l;
       var p = pvm(l.replace(/\b(?:ISBN|ISSN|e-?ISSN|DOI)(?:-1[03])?:?\s*\S+/gi, '').replace(/\b(?:https?:\/\/|doi:|10\.\d{4,9}\/)\S+/gi, ''), true);
       if (p && (!jp || p.t > jp.t)) jp = p;
+      // Julkaisutiedon rivillä luettu versio on myöhäisin päiväys (Teologian tyyli: kirjoitus- tai päivitysaika).
+      if (julkRivi(l)) l.split(/;|\s+(?:and|ja)\s+/).forEach(function (o) {
+        var q = pvm(o, true);
+        if (q && (!julkJp || q.y * 1e4 + (q.m || 0) * 100 + (q.d || 0) > julkJp.y * 1e4 + (julkJp.m || 0) * 100 + (julkJp.d || 0))) julkJp = q;
+      });
       var doi = /(?:\bdoi:?\s*|doi\.org\/)(10\.\d{4,9}\/[^\s"<>]+)/i.exec(l);
       if (doi && !kirja.doi) kirja.doi = doi[1].replace(/[.,;)\]]+$/, '');
       var pk = /^(\p{Lu}[\p{L}.'’-]*(?:\s\p{Lu}[\p{L}.'’-]*){0,2}):\s+(\p{Lu}[^:;]{1,80}?),?\s+(1[5-9]\d\d|20\d\d)\b/u.exec(l);
@@ -1084,7 +1094,7 @@
       }
     });
     res.paatelty = { otsikko: kirja.otsikko || res.title, alaotsikko: kirja.alaotsikko || res.sub, 'tekijä': auth,
-      julkaistu: jp ? pvmIso(jp) : '', paikka: kirja.paikka || '', kustantaja: kirja.kustantaja || '', doi: kirja.doi || '' };
+      julkaistu: julkJp ? pvmIso(julkJp) : jp ? pvmIso(jp) : '', paikka: kirja.paikka || '', kustantaja: kirja.kustantaja || '', doi: kirja.doi || '' };
     // Otsikko ja tietorivit etukentästä, jos tekstissä ei ole niitä (verkkoleike, Latomon kentät, pelkkä teksti).
     if (!head && m.otsikko) {
       head = '<header class="tt">' + blk('h1', '', m.otsikko) + (m.alaotsikko ? blk('p', 'sub', m.alaotsikko) : '');
@@ -1092,6 +1102,12 @@
     } else if (head && !res.sub && m.alaotsikko && !res.lines.length) head += blk('p', 'sub', m.alaotsikko);
     else if (head && !res.sub) lisaaKehys();
     if (!kehysTehty) kehys = '';
+    // Pelkkä julkaisutieto tekstissä: etukentän tekijä sen edelle, kuten ilman tietorivejä.
+    if (head && res.lines.length && m['tekijä'] && res.lines.every(julkRivi)) {
+      var tk = String(m['tekijä']).trim();
+      head = head.slice(0, metaKohta) + blk('p', 'meta', tk, metaCtx) + head.slice(metaKohta);
+      res.lines.unshift(tk);
+    }
     if (head && !res.lines.length) {
       var tr = tietorivit(m, kehys);
       if (tr.length) { head += blk('p', 'meta', tr.join('\n'), metaCtx); res.lines = tr; }
