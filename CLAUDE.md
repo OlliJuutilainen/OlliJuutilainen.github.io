@@ -709,8 +709,15 @@ Käyttäjän vaatimukset 20.10.2026:
   yläkärki hipoi nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455), mutta "aivan överin iso", joten samana päivänä väliltä: 8,4
   (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
   kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
-  Alalukujen ja alalukujen alalukujen merkkiä ei piirretä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (muste kehineen;
-  käyttäjän pyyntö 29.10.2026, "tuttifrutti"); poikkeus: ensimmäisen pääluvun alaluku (1.1, 1.1.1) näkyy, jos sen vasen reuna ei osu aloittavaan tikkuun; mitattu kantin tutkielmalla 412 px: 4 alaluvun merkkiä 8:sta päällekkäin → 0, 1280 px ennallaan.
+  Merkkien peitto (käyttäjän säännöt 29.10.2026, "tuttifrutti"; `janaPeitot()`): pääluvun **jälkeinen** alaluku (myös alaluvun
+  alaluku) piilotetaan, jos se tunkee näkyvän pääluvun merkin musteen päälle; **edeltävä** alaluku saa näkyä, jos sen oikea kärki
+  ei ulotu pääluvun kehän sisäiseen alaan (kehän alle saa, koska pääluku on päällä) eikä sen vasen reuna osu alkutikkuun.
+  **Peräkkäiset pääluvut**: pelkkä lomittuminen ei piilota; vasta kun kärjet menevät toistensa sisäalaan (väli < 2 × 6,36),
+  piilotetaan ensisijaisesti ensimmäinen, jälkimmäinen vain, jos se on ketjun keskellä ja sen piilotus ratkaisee molemmat
+  törmäykset. Piilotettu pääluku ei estä alalukuja. Kärjen jiiri 0,65 / sin 39° = 1,033 (`janaJiiri()`). Kynnykset mitattu
+  pikseleistä (DPR 16): 0,1 px:n päässä rajasta 0 / 2–3 laitepikseliä. Edellisen kierroksen poikkeus (*ensimmäisen pääluvun
+  alaluku*, vertailu `paat[0]`) koski kantin tutkielmassa lukua 2, koska Johdanto on piilossa, ja päästi myös luvun 2.1 läpi;
+  sääntö korvasi sen. Kantin tutkielma: 360 px *Viittauksista…* ja 2.1 pois, 412 px 2.1 pois, 1280 px ennallaan.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
