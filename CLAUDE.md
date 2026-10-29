@@ -710,7 +710,7 @@ Käyttäjän vaatimukset 20.10.2026:
   (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
   kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
   Alalukujen ja alalukujen alalukujen merkkiä ei piirretä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (muste kehineen;
-  käyttäjän pyyntö 29.10.2026, "tuttifrutti"); mitattu kantin tutkielmalla 412 px: 4 alaluvun merkkiä 8:sta päällekkäin → 0, 1280 px ennallaan.
+  käyttäjän pyyntö 29.10.2026, "tuttifrutti"); poikkeus: ensimmäisen pääluvun alaluku (1.1, 1.1.1) näkyy, jos sen vasen reuna ei osu aloittavaan tikkuun; mitattu kantin tutkielmalla 412 px: 4 alaluvun merkkiä 8:sta päällekkäin → 0, 1280 px ennallaan.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
