@@ -1503,6 +1503,14 @@
       tila.hiljaa = Date.now() + 250;
       window.scrollTo(0, Math.max(0, y));
       paivita();
+      // Kohdan kirjanmerkin nauha on rivin yläpuolella; otsikossa se jäi yläpalkkia vasten tai ruudun yli
+      // (käyttäjän pyyntö 29.10.2026). Vieritetään sen verran alas, että nauhan yläpuolelle jää NAUHA_KATTO.
+      var km = k.o === 0 && nyt.merk.km.filter(function (x) { return x.b === k.b && x.o === 0 && !x.orpo; })[0];
+      var nr = km && $('.km[data-k="' + km.id + '"]', sivuEl), katto = Math.max(ylaRaja(), ylaPeitto()) + NAUHA_KATTO;
+      if (nr && nr.getBoundingClientRect().top < katto && scrollY > 0) {
+        window.scrollTo(0, Math.max(0, scrollY + nr.getBoundingClientRect().top - katto));
+        paivita();
+      }
     }
   }
 
@@ -1935,7 +1943,8 @@
       tallennaMerkit();
     }
     paivita(); paivitaMerkinnat();
-    if (!nakyy) naytaKirjanmerkki(km);
+    // Vierityksessä kappaleen alku voi näkyä, vaikka sen yläpuolinen nauha jää palkin alle tai ruudun yli (otsikko ylimpänä).
+    if (!nakyy || aset.sivutus !== 'sivut') naytaKirjanmerkki(km);
   }
   function naytaKirjanmerkki(k) {
     if (aset.sivutus === 'sivut') { if (nakyvatKirjanmerkit().indexOf(k) < 0) mene({ b: k.b, o: 0 }); return; }
@@ -1985,7 +1994,7 @@
   // tiheä väli, sisennystilan koodilohko) tai kirjanmerkki on kesken kappaletta (vanhat),
   // vasemmassa reunuksessa.
   // Tila lasketaan musteesta: nousijoiden yläreunasta edellisen rivin laskijoiden alareunaan.
-  var NAUHA_K = 15, NAUHA_L = 9, kirjMitat = {};
+  var NAUHA_K = 15, NAUHA_L = 9, NAUHA_KATTO = 14, kirjMitat = {};
   function kirjasin(el) {
     var cs = getComputedStyle(el), f = cs.fontStyle + ' ' + cs.fontWeight + ' 100px ' + cs.fontFamily;
     if (!kirjMitat[f]) {
@@ -2032,9 +2041,14 @@
     var raja = edellinenAlareuna(el, palsta);
     if (sivut) raja = Math.max(raja == null ? yla : raja, yla);
     else if (raja == null) raja = -Infinity;
-    var vali = nousu - raja;
-    if (vali < NAUHA_K + 4) return reunus;
-    return { left: r.left, top: nousu - NAUHA_K - Math.min(4, (vali - NAUHA_K) / 2) };
+    // Väli nauhan ja tekstin välillä: leipätekstissä 4 px, otsikossa 0,45 em (käyttäjän pyyntö 29.10.2026:
+    // pääluvun otsikkoon nauha oli liian kiinni). Sivun yläreunassa (ei edellistä riviä) nauhan yläpuolelle
+    // jätetään mieluiten NAUHA_KATTO, ettei nauha nuole kattoa; ahtaassa välissä väli jaetaan tasan.
+    var vali = nousu - raja, tilaa = vali - NAUHA_K;
+    if (tilaa < 4) return reunus;
+    var g = /^H[1-6]$/.test(el.tagName) ? Math.max(4, 0.45 * m.fs) : 4, ala = Math.min(g, tilaa / 2);
+    if (sivut && raja === yla) ala = Math.max(Math.min(ala, tilaa - NAUHA_KATTO), Math.min(2, tilaa / 2));
+    return { left: r.left, top: nousu - NAUHA_K - ala };
   }
   function piirraKirjanmerkit() {
     $$('.km', sivuEl).forEach(function (n) { n.remove(); });
