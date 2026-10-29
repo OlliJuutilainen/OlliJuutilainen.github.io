@@ -818,6 +818,10 @@ Käyttäjän vaatimukset 20.10.2026:
   lyhyesti). Kiinni ollessa sivu on pikselilleen ennallaan.
 - Nimen tekstimuoto (ei-graafinen, esim. infolaatikko ja logon `aria-label`) on *LUiN.HTML* (käyttäjän päätös 21.10.2026);
   tiedostonimi ja polut pysyvät `luin.html`.
+- **`md.js?v=<SHA-1:n alku>`** (29.10.2026: käyttäjän selain piti vanhan md.js:n, vaikka korjaus oli julkaistu; Pages antaa
+  `max-age=600`): luin.html ja Latomo lataavat md.js:n versiotunnisteella. Kun muutat md.js:ää, päivitä tunniste:
+  `V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html`;
+  `md-testi.js` huomauttaa, jos se on unohtunut.
 - Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
 - Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä
   kirjanmerkin ääriviiva (`#km-nappi`; ohut viiva alapalkin tekstien värillä `--harmaa`, aiemmin hyvin haalea `--viiva`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi
