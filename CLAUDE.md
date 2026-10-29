@@ -732,7 +732,10 @@ Käyttäjän vaatimukset 20.10.2026:
   Latomon ohjeessa (`latomo-ohje.html#markdownload`; käyttäjän pyyntö 22.10.2026: kaikki asetukset, ei oletusarvoja vaan
   suositus; tulos on iA Writer -yhteensopiva, mutta ohje ei mainosta iA Writeria eikä neuvo sen käyttöä, koska moni ei käytä sitä (käyttäjän päätös 22.10.2026). iA Writer mainitaan vain, kun se vastaa kysymykseen *miksi juuri näin* (merkintöjen alkuperä Merkinnät-osion johdannossa, `^…^`, `^[…]`-muunnos); nimet ja suositukset tarkistettu MarkDownload 3.4.0:n lähdekoodista ja
   sen muunnosketjua Chromiumissa ajamalla, oikealla Firefoxilla testaamatta). Kytkin poistaa myös tyhjät linkit ja muuttaa
-  `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~`. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
+  `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~` (hakasulut suojattuina, `^\[[7](…)\]^`, koska `^[` on alaviite; md.js lukee
+  myös `^[…](…)^`:n ja `^[…]^`:n yläindeksiksi; 29.10.2026 SEP-leikkeen 58 merkkiä olivat muuttuneet alaviitteiksi) ja
+  otsikkorivittömän HTML-taulukon Markdown-taulukoksi (huomautusten rivinumerot muunnetaan tekstikentän riveiksi); md.js
+  antaa HTML-merkinnöistä yhden huomautuksen riviä kohden. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Käyttäjän päätös 23.10.2026:
   kytkin on **aina pois sivua avattaessa** (valintaa ei muisteta; `latomo-markdownload`-avainta ei enää lueta eikä kirjoiteta)
   ja ehdollisessa asemassa (`.ehdollinen`): sisennetty ohuen `--viiva`-viivan taakse, pienempi, ja kytkin on kehystetty

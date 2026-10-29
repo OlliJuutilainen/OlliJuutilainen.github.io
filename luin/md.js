@@ -132,6 +132,10 @@
       }
       if (c === '^' && s[i + 1] === '[') {
         var e = closeBracket(s, i + 1);
+        // ^[2](osoite)^ ja ^[[7](osoite)]^ ovat yläindeksiin linkitettyjä merkkejä (Latomon <sup>-muunnos), eivät
+        // alaviitteitä: hakasulun perässä on linkin ( tai heti yläindeksin sulkeva ^.
+        var ylk = e > 0 && (s[e + 1] === '(' || s[e + 1] === '^') && ylaAla(s, i, '^');
+        if (ylk && ylk.loppu > e + 1) { flush(); out += '<sup>' + inline(ylk.t, ctx) + '</sup>'; i = ylk.loppu; continue; }
         if (e < 0) {
           if (ctx.warn) ctx.warn('Alaviitteen ^[ sulkeva ] puuttuu: “' + s.slice(i, i + 40) + '…”');
         } else if (ctx.note) {
@@ -1223,6 +1227,20 @@
         var d = x[0][k];
         if (!d.kaytetty) res.warnings.push({ ln: d.ln, msg: x[1] + d.nimi + x[2] + ' määritelmään ei viitata tekstissä.' });
       });
+    });
+    // HTML-merkinnöistä yksi huomautus riviä kohden: taulukko antaisi muuten huomautuksen jokaisesta tagista.
+    var HTMLV = 'HTML-merkintä näkyy tekstinä: “', html = {};
+    res.warnings = res.warnings.filter(function (w) {
+      if (w.msg.indexOf(HTMLV) !== 0) return true;
+      var r = html[w.ln];
+      if (!r) { html[w.ln] = { w: w, n: 1, tagit: [] }; r = html[w.ln]; } else r.n++;
+      var t = /^<\/?([a-zA-Z][\w-]*)/.exec(w.msg.slice(HTMLV.length));
+      if (t && r.tagit.indexOf(t[1].toLowerCase()) < 0) r.tagit.push(t[1].toLowerCase());
+      return r.w === w;
+    });
+    Object.keys(html).forEach(function (k) {
+      var r = html[k];
+      if (r.n > 1) r.w.msg = r.n + ' HTML-merkintää näkyy tekstinä: ' + r.tagit.slice(0, 6).map(function (t) { return '<' + t + '>'; }).join(', ') + (r.tagit.length > 6 ? ' …' : '') + '.';
     });
     res.warnings.sort(function (a, z) { return a.ln - z.ln; });
 
