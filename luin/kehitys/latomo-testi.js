@@ -327,15 +327,29 @@ palvelin.listen(0, async () => {
   // 13. MarkDownload-leike SEP:stä (29.10.2026): [n]-alaviitemerkit (välilyönti ennen </sup>) yläindeksiksi ilman ^[-alaviitettä,
   // otsikkorivitön HTML-taulukko Markdown-taulukoksi ja taulukon jälkeisten huomautusten rivinumerot tekstikentän riveinä.
   await tiedostona('sep.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# John Dewey\n\n' +
-    '## 1. Psychology\n\nHabit.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-7" id="ref-7">7</a>] </sup> Habits.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-8">8</a>] </sup>Kiinni.\n\n' +
+    '## 1. Bio\n\n## 2. Psychology\n\nHabit.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-7" id="ref-7">7</a>] </sup> Habits.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-8">8</a>] </sup>Kiinni.\n\n' +
     '<table><tbody><tr><td><strong>Mind is</strong></td><td><strong>Consciousness is</strong></td></tr><tr><td>Meanings <em>in</em> life</td><td>A | B</td></tr><tr><td>Yksi</td></tr></tbody></table>\n\n' +
     '### 3.1 Experience\n\nLeipä.\n');
   const sep = await T(), sepV = await p.$$eval('#varoitukset p', x => x.map(e => e.textContent));
   tulos('SEP: alaviitemerkit yläindeksiksi', sep.md.includes('Habit.^\\[[7](https://plato.stanford.edu/entries/dewey/notes.html#note-7)\\]^ Habits.^\\[[8](https://plato.stanford.edu/entries/dewey/notes.html#note-8)\\]^ Kiinni.'), sep.md);
   tulos('SEP: taulukko Markdowniksi', sep.md.includes('\n\n| Mind is | Consciousness is |\n| --- | --- |\n| Meanings *in* life | A \\| B |\n| Yksi |  |\n\n'), sep.md);
   tulos('SEP: ei alaviitteitä eikä HTML-huomautuksia, rivinumero tekstikentän', /0 alaviitettä · 1 taulukko/.test(await p.textContent('#luvut')) &&
-    JSON.stringify(sepV) === JSON.stringify(['rivi 14Otsikon numero 3.1 ei jatka edellistä numerointia.']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
+    JSON.stringify(sepV) === JSON.stringify(['rivi 16Pääluvun 3 otsikko puuttuu: 3.1 alkaa ilman sitä. Lisää se ##-rivinä ennen riviä 16. MarkDownload jättää joskus luvun otsikon pois. Miksi?']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
+  tulos('SEP: Miksi?-linkki ohjeeseen', (await p.getAttribute('#varoitukset a', 'href')) === 'latomo-ohje.html#otsikko-puuttuu');
+  await p.click('#mdl'); await p.waitForTimeout(300);
+  tulos('ilman MarkDownload-tilaa vain neuvo', (await p.$$eval('#varoitukset p', x => x.map(e => e.textContent))).some(x => /^rivi 16Pääluvun 3 otsikko puuttuu: 3\.1 alkaa ilman sitä\. Lisää se ##-rivinä ennen riviä 16\.$/.test(x)));
+  await p.click('#mdl'); await p.waitForTimeout(300);
   tulos('SEP: tila kertoo taulukosta', /2 HTML-indeksiä ja 1 HTML-taulukko Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+
+  // 14. Valinnan leike (Download Selection As Markdown): pohjan # {pageTitle} ja valinnan oma pääotsikko peräkkäin, ja
+  // lainauksen sisällä kuvakkeiden ja linkkien taulukko (SEP:n Academic Tools).
+  await tiedostona('valinta.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# John Dewey\n\n# John Dewey\n\n' +
+    '## 1. Bio\n\nLeipä.\n\n## Academic Tools\n\n> <table class="vert-top"><tbody><tr><td><img src="../../symbols/a.jpg" alt="a"></td><td><a href="https://e.org/c?x=1&amp;y=2" target="other">How to cite</a>.</td></tr>' +
+    '<tr><td><img src="../../symbols/b.png" alt="b"></td><td><a href="https://e.org/p">PDF</a> at <a href="https://e.org/">X</a>.</td></tr></tbody></table>\n\n## Other\n\nLoppu.\n');
+  const val = await T(), valV = await p.$$eval('#varoitukset p', x => x.map(e => e.textContent));
+  tulos('valinta: toistunut pääotsikko pois', (val.md.match(/^# John Dewey$/gm) || []).length === 1 && /toistunut pääotsikko/.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+  tulos('valinta: kuvakkeiden taulukko kappaleiksi', val.md.includes('## Academic Tools\n\n> [How to cite](https://e.org/c?x=1&y=2).\n>\n> [PDF](https://e.org/p) at [X](https://e.org/).\n\n## Other'), val.md);
+  tulos('valinta: ei huomautuksia', JSON.stringify(valV) === JSON.stringify(['Ei huomautettavaa.']), valV.join(' | '));
 
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();

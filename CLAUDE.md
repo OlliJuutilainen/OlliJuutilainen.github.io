@@ -739,7 +739,10 @@ Käyttäjän vaatimukset 20.10.2026:
   `<sup>`/`<sub>`-merkinnät muotoon `^…^`/`~…~` (hakasulut suojattuina, `^\[[7](…)\]^`, koska `^[` on alaviite; md.js lukee
   myös `^[…](…)^`:n ja `^[…]^`:n yläindeksiksi; 29.10.2026 SEP-leikkeen 58 merkkiä olivat muuttuneet alaviitteiksi) ja
   otsikkorivittömän HTML-taulukon Markdown-taulukoksi (huomautusten rivinumerot muunnetaan tekstikentän riveiksi); md.js
-  antaa HTML-merkinnöistä yhden huomautuksen riviä kohden. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
+  antaa HTML-merkinnöistä yhden huomautuksen riviä kohden. **Puuttuva luvun otsikko** (käyttäjän pyyntö 29.10.2026): MarkDownloadin
+  Readability poistaa h2:n, jonka tunnisteessa on esim. *meta* (SEP `id="ExpeMeta"`); asetuksista sitä ei saa pois. md.js sanoo
+  *Pääluvun 3 otsikko puuttuu*, Latomo kertoo rivin ja MarkDownload-tilassa linkittää ohjeen `#otsikko-puuttuu`, jossa kiertotie
+  on valinnan leike; sen toistuva `#`-otsikko jätetään pois, ja kuvakkeiden taulukko (lainauksessa, `<img>`) muuttuu kappaleiksi. Kytkin on oletuksena pois; silloin salmiakin tyhjyyden lisäksi sen teksti ja viereinen ohjelinkki ovat
   `--harmaa`-värisiä, päällä teksti musteella ja linkki ruosteella (käyttäjän päätös 22.10.2026). Käyttäjän päätös 23.10.2026:
   kytkin on **aina pois sivua avattaessa** (valintaa ei muisteta; `latomo-markdownload`-avainta ei enää lueta eikä kirjoiteta)
   ja ehdollisessa asemassa (`.ehdollinen`): sisennetty ohuen `--viiva`-viivan taakse, pienempi, ja kytkin on kehystetty

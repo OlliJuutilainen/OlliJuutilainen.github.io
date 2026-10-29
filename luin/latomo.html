@@ -410,19 +410,22 @@
       return (ennen && !/\s/.test(koko[kohta - 1] || ' ') ? ' ' : '') + m + s + m + (jalkeen && !/\s/.test(seur || ' ') ? ' ' : '');
     });
   }
-  // MarkDownload jättää otsikkorivittömän taulukon yhdeksi HTML-riviksi. Yksinkertainen taulukko (ei yhdistettyjä
-  // soluja eikä muuta HTML:ää kuin lihavointi, kursiivi, linkki ja rivinvaihto) muutetaan Markdown-taulukoksi, jonka
-  // ensimmäinen rivi on otsikkorivi. Muuten rivi jää ennalleen, ja Luin varoittaa siitä.
+  // MarkDownload jättää otsikkorivittömän taulukon yhdeksi HTML-riviksi (lainauksessa > <table>). Yksinkertainen
+  // taulukko (ei yhdistettyjä soluja eikä muuta HTML:ää kuin lihavointi, kursiivi, linkki, kuva ja rivinvaihto)
+  // muutetaan Markdown-taulukoksi, jonka ensimmäinen rivi on otsikkorivi. Kuvat jätetään pois (Luin ei näytä kuvia), ja
+  // pelkkien kuvien sarake putoaa; yhden sarakkeen taulukosta tulee kappaleita (SEP:n Academic Tools: kuvake ja linkki).
+  // Muuten rivi jää ennalleen, ja Luin varoittaa siitä.
   function taulukko(l, oma) {
-    var m = /^\s*<table\b[^>]*>(.*)<\/table>\s*$/i.exec(l);
-    if (!m || /<table\b|\b(colspan|rowspan)=/i.test(m[1])) return null;
-    var rivit = [], ok = true;
-    m[1].replace(/<tr\b[^>]*>(.*?)<\/tr>/gi, function (k, tr) {
+    var m = /^(\s*(?:>\s?)*)<table\b[^>]*>(.*)<\/table>\s*$/i.exec(l);
+    if (!m || /<table\b|\b(colspan|rowspan)=/i.test(m[2])) return null;
+    var alku = m[1], rivit = [], ok = true;
+    m[2].replace(/<tr\b[^>]*>(.*?)<\/tr>/gi, function (k, tr) {
       var solut = [];
       tr.replace(/<t([dh])\b[^>]*>(.*?)<\/t\1>/gi, function (k2, x, c) {
-        c = c.replace(/<br\s*\/?>/gi, ' ')
+        c = c.replace(/<br\s*\/?>/gi, ' ').replace(/<img\b[^>]*>/gi, '')
           .replace(/<(strong|b)\b[^>]*>(.*?)<\/\1>/gi, '**$2**').replace(/<(em|i)\b[^>]*>(.*?)<\/\1>/gi, '*$2*')
           .replace(/<a\s+href="([^"]*)"[^>]*>([^<]*)<\/a>/gi, function (k3, u, t) {
+            u = u.replace(/&amp;/g, '&');
             return oma && u.split('#')[0].replace(/\/$/, '') === oma ? t : '[' + t + '](' + u + ')';
           });
         if (/<\/?[a-z][^>]*>/i.test(c)) ok = false;
@@ -432,18 +435,28 @@
     });
     if (!ok || !rivit.length) return null;
     var sar = Math.max.apply(null, rivit.map(function (x) { return x.length; }));
+    rivit.forEach(function (x) { while (x.length < sar) x.push(''); });
+    var kaytossa = [];
+    for (var j = 0; j < sar; j++) if (rivit.some(function (x) { return x[j]; })) kaytossa.push(j);
+    if (!kaytossa.length) return null;
+    rivit = rivit.map(function (x) { return kaytossa.map(function (j) { return x[j]; }); });
+    var tyhja = alku.replace(/\s+$/, '');
+    if (kaytossa.length === 1) {
+      var kpl = [];
+      rivit.forEach(function (x) { if (!x[0]) return; if (kpl.length) kpl.push(tyhja); kpl.push(alku + x[0]); });
+      return kpl;
+    }
     var md = rivit.map(function (x, j) {
-      while (x.length < sar) x.push('');
       // Otsikkorivi on lihavoitu muutenkin.
       if (!j) x = x.map(function (c) { return c.replace(/^\*\*(.*)\*\*$/, '$1'); });
-      return '| ' + x.join(' | ') + ' |';
+      return alku + '| ' + x.join(' | ') + ' |';
     });
-    md.splice(1, 0, '|' + new Array(sar + 1).join(' --- |'));
+    md.splice(1, 0, alku + '|' + new Array(kaytossa.length + 1).join(' --- |'));
     return md;
   }
   function siivoa(src) {
-    var r = src.split('\n'), tehty = { korostus: 0, html: 0, ote: 0, tyhja: 0, indeksi: 0, taulukko: 0 }, aita = false, ote = false;
-    var tau = {};
+    var r = src.split('\n'), tehty = { korostus: 0, html: 0, ote: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0 }, aita = false, ote = false;
+    var tau = {}, ed1 = null;
     var oma = (L.etukentta(src).meta['lähde'] || takaosa(src)['lähde'] || '').split('#')[0].replace(/\/$/, '');
     for (var i = 0; i < r.length; i++) {
       var l = r[i];
@@ -462,6 +475,13 @@
       }
       if (/^\s*>\s*#{1,6}\s*Excerpt\s*$/i.test(l)) { r[i] = ''; ote = true; tehty.ote++; continue; }
       if (/^\s*(\*\*|__)\s*$/.test(l)) { r[i] = ''; tehty.korostus++; continue; }
+      // Valinnan leike: pohjan # {pageTitle} ja valinnan oma pääotsikko peräkkäin.
+      var h1 = /^#\s+(.+?)\s*#*\s*$/.exec(l);
+      if (h1) {
+        if (ed1 != null && yksi(h1[1]) === ed1) { r[i] = ''; tehty.otsikko++; continue; }
+        ed1 = yksi(h1[1]); continue;
+      }
+      if (l.trim()) ed1 = null;
       var tb = taulukko(l, oma);
       if (tb) { tau[i] = tb; tehty.taulukko++; continue; }
       if (l.trim() && /^\s*(<[^>]+>\s*)+$/.test(l) && !/^\s*<(https?:|br\b)/i.test(l)) { r[i] = ''; tehty.html++; }
@@ -675,7 +695,11 @@
     $('#luvut').textContent = osat.join(' · ') + (tulos.lisatty ? ' · otsikko lisätään tekstin alkuun' : '');
     naytaEhdotukset(src);
     $('#varoitukset').innerHTML = d.warnings.length ? '<div class="varoitukset">' + d.warnings.map(function (w) {
-      return '<p>' + (w.ln ? '<span class="ln">rivi ' + rivi(w.ln) + '</span>' : '') + esc(w.msg) + '</p>';
+      // Puuttuva luvun otsikko: neuvo, mihin se lisätään; MarkDownload-leikkeessä myös syy (Readability poistaa otsikon).
+      var neuvo = w.puuttuu ? ' Lisää se ' + '#'.repeat(w.taso) + '-rivinä ennen riviä ' + rivi(w.ln) + '.' : '';
+      if (w.puuttuu && mdlNyt) neuvo += ' MarkDownload jättää joskus luvun otsikon pois.';
+      return '<p>' + (w.ln ? '<span class="ln">rivi ' + rivi(w.ln) + '</span>' : '') + esc(w.msg + neuvo) +
+        (w.puuttuu && mdlNyt ? ' <a href="latomo-ohje.html#otsikko-puuttuu" target="_blank" rel="noopener">Miksi?</a>' : '') + '</p>';
     }).join('') + '</div>' : '<p class="ok">Ei huomautettavaa.</p>';
     $('#rakenne').innerHTML = d.toc.map(function (t) {
       return '<li class="t' + t.lvl + '"><svg viewBox="0 0 10 12"><path class="j' + t.lvl + '" d="' + MERKKI[t.lvl] + '"/></svg>' + esc(t.text) + '</li>';
@@ -704,6 +728,7 @@
     if (s.korostus) o.push(s.korostus + (s.korostus > 1 ? ' tyhjää korostusta' : ' tyhjä korostus'));
     if (s.html) o.push(s.html + ' HTML-' + (s.html > 1 ? 'riviä' : 'rivi'));
     if (s.ote) o.push('Excerpt-lainaus');
+    if (s.otsikko) o.push('toistunut pääotsikko');
     if (s.tyhja) o.push(s.tyhja + (s.tyhja > 1 ? ' tyhjää linkkiä' : ' tyhjä linkki'));
     var ta = takaosa(src), lu = [];
     if (ta.haettu) lu.push('haettu ' + L.pvmMuoto(L.pvm(ta.haettu), 'meta', 3));
