@@ -24,6 +24,26 @@ const palvelin = http.createServer((q, r) => {
 
 let virheita = 0;
 function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   ' : 'VIKA ') + nimi + (tieto ? ' – ' + tieto : '')); }
+// Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026), palkit ja asetukset auki: musteen etäisyys ruudun reunasta laskettuna
+// laatikoista ja tunnetuista sivuväleistä (‹ 0,05 em, osion nimi 0,04 em, edistyminen 0,058 em, kiekon kehä 0,84 px svg:n reunan
+// sisällä, aikajanan tikki 0,5 px; sivuvälit ja kehä mitattu pikseleistä 29.10.2026).
+// Samalla raksin ja kiekon keskikohdat, navinäkymän värit ja ensimmäisen pääluvun merkki.
+const laidat = pg => pg.evaluate(() => {
+  const q = s => document.querySelector(s), R = s => q(s).getBoundingClientRect(), cs = s => getComputedStyle(q(s)), em = s => parseFloat(cs(s).fontSize);
+  const vw = document.documentElement.clientWidth, svg = R('#jana-svg'), xr = window.__luin.janaRajat(svg.width), r2 = x => +x.toFixed(2);
+  const sn = !q('#sivunapit').hidden, kiekko = R('#lukija .ratas svg');
+  const v = { km: R('#km-nappi svg').left, takaisin: R('.takaisin').left + parseFloat(cs('.takaisin').paddingLeft) + .05 * em('.takaisin'),
+    kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), merk: R('#merk-avaa').left, jana: svg.left + xr[0] - .5 };
+  const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1] + .5),
+    [sn ? 'sivunapit' : 'nuoli']: vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right };
+  for (const k in v) v[k] = r2(v[k]); for (const k in o) o[k] = r2(o[k]);
+  const N = window.__luin.nyt(), eka = N.doc.toc.filter(t => t.lvl === 1)[0], ekaOsuus = (N.cum[eka.b]) / N.total;
+  return { v, o, kiekkoKeski: kiekko.left + kiekko.width / 2, harmaa: cs('.takaisin').color, kiekkoVari: cs('#lukija .ratas').color, nappiVari: cs('#sivu-ed svg').fill,
+    j1: q('#jana-svg').querySelectorAll('.j1').length, paaluvut: N.doc.toc.filter(t => t.lvl === 1).length, ekaOsuus: r2(ekaOsuus) };
+});
+const raksiKeski = pg => pg.evaluate(() => { const r = document.querySelector('#asetukset .sulje svg').getBoundingClientRect(); return r.left + r.width / 2; });
+const laidatOk = (l, vo, oo) => Object.values(l.v).every(x => Math.abs(x - vo) <= .35) && Object.values(l.o).every(x => Math.abs(x - oo) <= .35) &&
+  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 === l.paaluvut - (l.ekaOsuus < .1 ? 1 : 0) && Math.abs(l.raksi - l.kiekkoKeski) < .01;
 
 palvelin.listen(0, async () => {
   const BASE = 'http://localhost:' + palvelin.address().port + '/';
@@ -326,7 +346,9 @@ palvelin.listen(0, async () => {
   });
   tulos('sivujen alut', alut.length === 0, alut.slice(0, 6).join(', '));
   const veto = async (x0, x1, askelia) => {
-    const r = await p.evaluate(() => { const b = document.querySelector('#jana-svg').getBoundingClientRect(); return { l: b.left, w: b.width, y: b.top + 21 }; });
+    // Aikajanan päät palkkien laidoissa ja janan korkeus (luin.html: janaRajat, JANA.y; 29.10.2026).
+    const r = await p.evaluate(() => { const b = document.querySelector('#jana-svg').getBoundingClientRect(), L = window.__luin, xr = L.janaRajat(b.width);
+      return { l: b.left, w: b.width, y: b.top + L.JANA.y, x0: xr[0], x1: xr[1] }; });
     const ennen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY }));
     await p.mouse.move(r.l + x0 * r.w, r.y); await p.mouse.down();
     const xt = new Set(); let pysyi = true, haamu = true, raja = true;
@@ -340,7 +362,7 @@ palvelin.listen(0, async () => {
       if (!t.g || !t.h) haamu = false; else xt.add(parseFloat(t.g.slice(10)));
       // Luetun osan raja seuraa vedettävää osoitinta (käyttäjän pyyntö 22.10.2026).
       if (t.g) {
-        const gx = parseFloat(t.g.slice(10)), lx = parseFloat(t.l.split('H').pop()), f = (gx - 13) / (r.w - 26);
+        const gx = parseFloat(t.g.slice(10)), lx = parseFloat(t.l.split('H').pop()), f = (gx - r.x0) / (r.x1 - r.x0);
         if (Math.abs(gx - lx) > 0.01 || t.e.some(([ef, tul]) => tul !== ef > f + 1e-9)) raja = false;
       }
     }
@@ -354,12 +376,12 @@ palvelin.listen(0, async () => {
   // aikajanalla näkyvät vain pääluvut eikä kirjanmerkkejä.
   await p.evaluate(() => { const L = window.__luin; L.aset.janaTaso = 1; L.aset.kmJanalla = 0; L.mene({ b: 0, o: 0 }); });
   const vs = await veto(0.2, 0.3, 40);
-  const pys = await p.evaluate(w => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total, a = [];
-    a.push({ x: 13 + o({ b: 0, o: 0 }) * (w - 26), k: '0:0' });
-    n.doc.toc.forEach(t => a.push({ x: 13 + o({ b: t.b, o: 0 }) * (w - 26), k: t.b + ':0', lvl: t.lvl }));
-    n.merk.km.forEach(k => a.push({ x: 13 + o(k) * (w - 26), k: k.b + ':' + k.o }));
+  const pys = await p.evaluate(([x0, x1]) => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total, a = [];
+    a.push({ x: x0 + o({ b: 0, o: 0 }) * (x1 - x0), k: '0:0' });
+    n.doc.toc.forEach(t => a.push({ x: x0 + o({ b: t.b, o: 0 }) * (x1 - x0), k: t.b + ':0', lvl: t.lvl }));
+    n.merk.km.forEach(k => a.push({ x: x0 + o(k) * (x1 - x0), k: k.b + ':' + k.o }));
     L.aset.janaTaso = 2; L.aset.kmJanalla = 1;
-    return a; }, vs.r.w);
+    return a; }, [vs.r.x0, vs.r.x1]);
   const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
   const kvantti = vs.xt.every(pysakki), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
   const perille = pys.some(s => s.k === vs.jalkeen.a.b + ':' + vs.jalkeen.a.o);
@@ -474,11 +496,11 @@ palvelin.listen(0, async () => {
   // Vierityksessä ei ole magneettia: napautus 5 px pääluvun merkin oikealla puolella vie
   // suhteelliseen kohtaan eikä otsikkoon.
   const mg = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), t = n.doc.toc.filter(x => x.lvl === 1)[3];
-    const b = document.querySelector('#jana-svg').getBoundingClientRect(), w = b.width - 26;
-    return { x: b.left + 13 + (n.cum[t.b] / n.total) * w + 5, y: b.top + 21, b: t.b, w }; });
+    const b = document.querySelector('#jana-svg').getBoundingClientRect(), xr = L.janaRajat(b.width), w = xr[1] - xr[0];
+    return { x: b.left + xr[0] + (n.cum[t.b] / n.total) * w + 5, y: b.top + L.JANA.y, b: t.b, w, x0: xr[0] }; });
   await p.mouse.click(mg.x, mg.y); await p.waitForTimeout(150);
   const mgA = await p.evaluate(m => { const L = window.__luin, n = L.nyt(), a = L.tila.ankkuri, r = document.querySelector('#jana-svg').getBoundingClientRect();
-    return { k: a.b + ':' + a.o, ero: r.left + 13 + (n.cum[a.b] + a.o) / n.total * m.w - m.x }; }, mg);
+    return { k: a.b + ':' + a.o, ero: r.left + m.x0 + (n.cum[a.b] + a.o) / n.total * m.w - m.x }; }, mg);
   tulos('ei magneettia vierityksessä', mgA.k !== mg.b + ':0' && Math.abs(mgA.ero) < 1.5, 'otsikko ' + mg.b + ':0, perillä ' + mgA.k + ', ero napautukseen ' + mgA.ero.toFixed(2) + ' px');
 
   // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
@@ -560,8 +582,8 @@ palvelin.listen(0, async () => {
 
   // Palkit (käyttäjän päätökset 22.10.2026). Mobiilissa (kosketusnäyttö, 412 px) yläpalkki ja aikajanakerros ovat
   // piilossa, ja alakaistan napautus avaa ja sulkee ne yhdessä; tekstin napautus, vieritys ja sivunkääntö eivät
-  // vaikuta niihin. Kirjanmerkki on kaistan vasemmassa reunassa oma neliönsä (27.10.2026), palkkinuoli tekstipalstan
-  // oikean reunan linjassa, sivunapit (jos valittu) nuolen oikealla puolella. Sivutettuna reunat kääntävät sivua.
+  // vaikuta niihin. Kirjanmerkki on kaistan vasemmassa reunassa oma neliönsä (27.10.2026), palkkinuoli palkkien oikeassa
+  // laidassa (29.10.2026), sivunapit (jos valittu) nuolen oikealla puolella. Sivutettuna reunat kääntävät sivua.
   // Palkkien avaus ei poista paluumajakkaa.
   const m = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
   m.on('pageerror', e => sivuvirheet.push(e.message));
@@ -604,8 +626,9 @@ palvelin.listen(0, async () => {
     [pv0, pvT, pv1, pv1b, pv2, pv3, pv4].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-')).join(' → '));
   tulos('palkkinuoli kääntyy', !pv0.alas && pv1.alas && !pv2.alas,
     JSON.stringify([pv0, pv1, pv2].map(x => x.alas)));
-  // Kirjanmerkkilohko vasemmassa reunassa (symbolista yhtä kauas palkin reunaan ja erottimeen, 17 px; 28.10.2026), nuoli tai sivunappien laatikko palstan oikean reunan linjassa, Merkinnät/Etsi
-  // omalla rivillään aikajanan alla vasemmassa reunassa (27.10.2026).
+  // Kirjanmerkkilohko vasemmassa reunassa (symbolista yhtä kauas palkin reunaan ja erottimeen, 17 px; 28.10.2026), nuoli tai sivunappien laatikko
+  // palkkien oikeassa laidassa 17 px ruudun reunasta ja Merkinnät/Etsi omalla rivillään aikajanan alla palkkien vasemmassa laidassa 17 px
+  // ruudun reunasta (29.10.2026; ennen nuoli tekstipalstan linjassa ja laatikot ruudun reunassa).
   const linja = async () => { await avaaPalkitM(); await m.waitForTimeout(100); return m.evaluate(() => {
     const q = s => document.querySelector(s).getBoundingClientRect(), art = document.querySelector('#teksti'), sv = q('#sivu');
     // Sivutettuna #teksti on palstojen levyinen ja siirretty; näkyvä palsta on #sivu + marginLeft, leveys style.width.
@@ -614,7 +637,7 @@ palvelin.listen(0, async () => {
     // laatikko on nappien reunoissa (#sivunapit on napautusalue ruudun reunaan asti).
     const nu = q('#palkki-nuoli'), snr = sn.hidden ? null : q('#sivu-se'), ala = q('#ala'), rivi = q('#ala-rivi'), js = q('#jana-svg');
     return { kmLohko: [kmb.left, +kmb.width.toFixed(2), +kmb.height.toFixed(2)], kmValit: [+(km.left - kmb.left).toFixed(2), +(kmb.right - 1 - km.right).toFixed(2)],
-      nuoli: +((snr || nu).right - t.right).toFixed(2), snNuoli: snr && +(q('#sivu-ed').left - nu.right).toFixed(2),
+      nuoli: +(innerWidth - (snr || nu).right).toFixed(2), snNuoli: snr && +(q('#sivu-ed').left - nu.right).toFixed(2),
       napit: [+(n.left - js.left).toFixed(2), +(rivi.top - n.bottom).toFixed(2), +(n.top - js.bottom).toFixed(2)], kerros: Math.round(innerHeight - ala.top) }; }); };
   const lvv = await linja();
   // Paluumajakka säilyy, kun palkit avataan kaistasta.
@@ -646,8 +669,8 @@ palvelin.listen(0, async () => {
   tulos('mobiilin palkit sivutettuna', !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
     [ps0, psT, ps1, ps2, ps3, ps4, ps5].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + x.s).join(' → '));
   const ls = await linja();
-  const lohkoOk = l => l.kmLohko[0] === 0 && l.kmLohko[2] === 43 && l.kmValit[0] === 17 && l.kmValit[1] === 17 && Math.abs(l.nuoli + (l.snNuoli === null ? 14 : 10)) < 0.6 &&
-    l.napit[0] === 0 && l.napit[1] >= 8 && l.napit[2] >= 0;
+  const lohkoOk = l => l.kmLohko[0] === 0 && l.kmLohko[2] === 43 && l.kmValit[0] === 17 && l.kmValit[1] === 17 && Math.abs(l.nuoli - 17) < 0.6 &&
+    l.napit[0] === 17 && l.napit[1] >= 8 && l.napit[2] >= 0;
   tulos('kirjanmerkkilohko, nuoli ja Merkinnät/Etsi-rivi (412 px)', lohkoOk(lvv) && lohkoOk(ls) && lvv.snNuoli === null && Math.abs(ls.snNuoli - 24) < 0.6,
     'vieritys ' + JSON.stringify(lvv) + ', sivut ' + JSON.stringify(ls));
   // Sivunappien ja kirjanmerkin ympäriltä ei avaudu aikajana (27.10.2026): napin ylä- ja alapuoli sekä oikean napin
@@ -692,6 +715,9 @@ palvelin.listen(0, async () => {
     const merk = q('#merk-avaa'), se = q('#sivu-se');
     return { paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(sn, nu) || pa(km, nu) || pa(km, sn), korkeus: [se.height, merk.height] }; });
   tulos('Merkinnät ja Etsi kapealla ruudulla', !m3.paalla, JSON.stringify(m3));
+  // Mobiilissa laidat 17 px kummallakin puolella marginaalista riippumatta (tässä Reilu).
+  const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
+  tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
   await mob360.context().close();
 
@@ -716,6 +742,11 @@ palvelin.listen(0, async () => {
     JSON.stringify([t0, t1, t2, t3].map(x => (x.yla ? 'Y' : '-') + (x.jana ? 'J' : '-') + ' "' + x.teksti + '"')));
   // Palkkinuoli myös työpöydällä (käyttäjän vaatimus 22.10.2026): kiinni ylös ja ontto, auki alas ja täytetty.
   tulos('työpöydän palkkinuoli', t0.nuoli === 'ylös' && t2.nuoli === 'alas' && t3.nuoli === 'ylös', [t0, t2, t3].map(x => x.nuoli).join(' → '));
+  // Työpöydällä vasen laita 24 px (kirjanmerkkinapin symboli) ja oikea 29 px (kiekko ja ruoto).
+  await tp.mouse.click(640, 785); await tp.waitForTimeout(100);
+  const lt = await laidat(tp); await tp.click('#lukija .ratas'); lt.raksi = await raksiKeski(tp); await tp.click('#asetukset .sulje');
+  await tp.mouse.click(640, 785); await tp.waitForTimeout(100);
+  tulos('palkkien laidat työpöydällä', laidatOk(lt, 24, 29), JSON.stringify(lt));
   // Sivutettuna työpöydällä keskiklikkaus ei avaa aikajanaa (hiirellä kauhea tapa), reunat kääntävät sivua.
   // Kapea hiiri-ikkuna (690 px) on työpöytä: palkit pysyvät.
   await tp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });

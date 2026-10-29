@@ -36,8 +36,17 @@
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --koko: 19px;
-    --yla: 44px; --ala: 40px;
+    --yla: 56px; --ala: 40px;
   }
+  /* Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026): musteen etäisyys ruudun reunasta. Vasemmalla kirjanmerkkinapin
+     symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), Lukulista-natsa, aikajanan alku, osion nimi ja
+     Merkinnät; oikealla asetuskiekko ja kalanruoto (kulmakivet; työpöydällä ennen 29,0 ja 28,5 px), edistyminen, aikajanan
+     loppu ja sivunapit. Mobiilissa oikea laita on vasemman peilikuva (ennen tekstipalstan reuna + 10 px eli Keski-marginaalilla
+     38,5 px, mikä jätti oikeaan laitaan oudon aukon). Laidat ovat kokonaislukuja, koska Chromium pyöristää SVG:n ja
+     reunuksen paikan kokonaiseen pikseliin (mitattu): puolikkaalla laidalla sivunapit tai ruoto jäi aina 0,5 px sivuun.
+     Kosketusnäyttö = body.mobiili (asettele()); asetuspaneeli tarvitsee arvon myös lukulistassa, joten ehto on mediakysely. */
+  :root { --v-laita: 24px; --o-laita: 29px; }
+  @media (pointer: coarse) { :root { --v-laita: 17px; --o-laita: 17px; } }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d;
@@ -194,22 +203,19 @@
   ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
 
   /* ---------- lukija ---------- */
+  /* Yläpalkki 44 → 56 px (käyttäjän pyyntö 29.10.2026: hajurakoa kuten aikajanakerrokseen). */
   .ylapalkki { position: fixed; top: 0; left: 0; right: 0; height: var(--yla); display: flex; align-items: center;
-    padding: 0 2px 0 4px; background: var(--paperi); border-bottom: 1px solid var(--viiva); z-index: 20;
+    padding: 0 2px 0 0; background: var(--paperi); border-bottom: 1px solid var(--viiva); z-index: 20;
     user-select: none; -webkit-user-select: none; }
-  /* Asetuskiekon oikea reuna alapalkin kalanruodon oikean reunan linjaan (käyttäjän pyyntö 28.10.2026; sivunapit pois).
-     Ruoto: oikea reuna o-reuna + 4 px, muste 0,65 px sisällä; kiekko: ulkokehän muste 0,825 px svg:n reunan sisällä,
-     svg 11 px napin reunasta, palkin padding 2 px; pikselimitattu, vakio 8,86 px (laskettu 9,175, ero 0,31 px). */
-  .ylapalkki { --o-reuna: 24px; }
-  body.mobiili .ylapalkki { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
-  .ylapalkki .ratas { margin-right: calc(var(--o-reuna) - 8.86px); }
+  /* Asetuskiekon ulkokehän muste palkkien oikeaan laitaan: muste 0,84 px svg:n reunan sisällä (pikselimitattu), svg 11 px
+     napin reunasta, palkin padding 2 px. Kiekko on navinäkymän muiden tapaan harmaa (käyttäjän pyyntö 29.10.2026). */
+  .ylapalkki .ratas { margin-right: calc(var(--o-laita) - 13.84px); color: var(--harmaa); }
   /* Asetusten sulkuraksin keskikohta on lukijan kiekon keskikohdan kohdalla (käyttäjän pyynnöt 28.10.2026): sama
-     marginaali kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa kohdassa,
-     vaikka kiekko ei ole; ilman lukijassa mitattua --palsta-o:ta (tuore lataus) kosketusnäytön oletus on Keski-marginaali 24 px (body.mobiili ei ole listassa asetettu). */
-  #asetukset { --o-reuna: 24px; }
-  @media (pointer: coarse) { #asetukset { --o-reuna: calc(var(--palsta-o, 24px) + 10px); } }
-  #asetukset .sulje { margin-right: calc(var(--o-reuna) - 8.86px); }
-  .takaisin { font-size: .86rem; padding: 0 10px; height: 44px; display: inline-flex; align-items: center;
+     marginaali ja reunus kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa
+     kohdassa, vaikka kiekko ei ole. */
+  #asetukset .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
+  /* Natsan (‹) muste palkkien vasempaan laitaan: Literatan ‹:n vasen sivuväli on 0,05 em (mitattu). */
+  .takaisin { font-size: .86rem; padding: 0 10px 0 calc(var(--v-laita) - .05em); height: 44px; display: inline-flex; align-items: center;
     text-decoration: none; color: var(--harmaa); white-space: nowrap; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
@@ -360,13 +366,14 @@
      nykyisen osion nimeä ei ole; osion nimi näkyy aikajanan yläpuolella. Koko rivi on aikajanan nappi
      (absoluuttinen, alimmaisena); kirjanmerkki ja sivunapit ovat sen päällä, ja oikean laidan kokonaisuus ei
      ota napautuksia, joten edistymisen napautus menee alla olevalle napille.
-     Kirjanmerkki ja palkkinuoli on vedetty 10 px reunasta sisäänpäin (käyttäjän päätös 22.10.2026: nurkassa
-     ne näyttivät hukassa). Edistyminen näkyy vain aikajanakerroksen ylärivillä.
+     Kirjanmerkki ja palkkinuoli on vedetty reunasta sisäänpäin (käyttäjän päätös 22.10.2026: nurkassa ne näyttivät
+     hukassa); 29.10.2026 alkaen kaikki palkkien laidoissa (--v-laita, --o-laita). Edistyminen näkyy vain
+     aikajanakerroksen ylärivillä.
      Mobiilissa rivi on kaista, jonka yläreunassa on haalea viiva (--hius; käyttäjän pyyntö 27.10.2026). Kirjanmerkki
      on vasemmassa reunassa oma kaistan korkuinen neliönsä, jonka erottaa muusta kaistasta pystyviiva; viivan päät
      ovat irti kaistan reunoista. Lohkon vasemmalla puolella ei ole avausnappia (ennen kirjanmerkki kellui tekstipalstan
-     linjassa, ja sen vasen puoli avasi palkit). Palkkinuoli on oikeassa alanurkassa tekstipalstan oikean reunan 10 px
-     sisäpuolella (--palsta-o; asettele()). Kaistan napautus avaa yläpalkin ja aikajanakerroksen, jonka ylärivillä on
+     linjassa, ja sen vasen puoli avasi palkit). Palkkinuoli on oikeassa alanurkassa palkkien oikeassa laidassa
+     (ennen tekstipalstan reunan linjassa, --palsta-o). Kaistan napautus avaa yläpalkin ja aikajanakerroksen, jonka ylärivillä on
      osion nimi ja edistyminen, ja uusi napautus sulkee ne. Merkinnät ja Etsi ovat aikajanan alla omalla rivillään
      vasemmassa reunassa, kaistan yläpuolella kuten työpöydällä (käyttäjän pyyntö 27.10.2026; ennen kaistalla
      kelluvien välissä). */
@@ -386,10 +393,10 @@
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
   body.mobiili #km-nappi { width: calc(var(--ala) + 1px); padding: 0 1px 0 0; justify-content: center; }
   #ala-nappi { position: absolute; inset: 0; }
-  /* --o-reuna: oikean laidan sisennys; sivunappien napautusalue ulottuu sen yli ruudun reunaan asti. */
-  #ala-oikea { --o-reuna: 24px; position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 20px;
-    padding-right: var(--o-reuna); font-size: .8rem; color: var(--harmaa); pointer-events: none; }
-  body.mobiili #ala-oikea { --o-reuna: calc(var(--palsta-o, 16px) + 10px); }
+  /* Oikean laidan kokonaisuus: kalanruodon muste tai näkyvien sivunappien reunus palkkien oikeassa laidassa; sivunappien
+     napautusalue ulottuu sen yli ruudun reunaan asti. */
+  #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 24px;
+    padding-right: var(--o-laita); color: var(--harmaa); pointer-events: none; }
   #jana-pros { font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
   /* Palkkinuoli (käyttäjän päätös 22.10.2026): mobiilin kaistan oikeassa alanurkassa merkki siitä, että palkit
      aukeavat alakaistasta. Itse nuoli ei ota napautuksia, vaan koko kaista (#ala-nappi) on nappi. Lovettu
@@ -398,11 +405,12 @@
      22.10.2026: alapalkissa ei ollut mitään merkkiä avaamisesta ja sulkemisesta), jossa alapalkin klikkaus avaa
      ja sulkee aikajanan; sama palkit-auki-luokka kääntää nuolen. Käyttäjän pyyntö 26.10.2026: edellinen yksittäinen
      salmiakkinuoli ei ollut intuitiivinen, joten merkki on tavanomainen kaksoischevron eli kaksi samansuuntaista
-     ohutta natsaviivaa päällekkäin (kalanruoto): kiinni ylös, auki alas. Nuoli on sivunappien vasemmalla puolella.
-     Käyttäjän pyyntö 28.10.2026: nuolen ja sivunappien väli 12 → 24 px, ja ilman sivunappeja nuoli on 4 px
-     vasemmempana. Oikea marginaali hoitaa molemmat: piilotettujen nappien kanssa flexin gap ei vaikuta. */
-  #palkki-nuoli { display: block; width: 15px; height: 13.75px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
-    stroke-linejoin: round; stroke-linecap: round; flex: 0 0 auto; margin-right: 4px; }
+     ohutta natsaviivaa päällekkäin (kalanruoto): kiinni ylös, auki alas. Nuoli on sivunappien vasemmalla puolella
+     24 px:n päässä (käyttäjän pyyntö 28.10.2026). Ilman sivunappeja nuoli on palkkien oikeassa laidassa, niiden kanssa
+     sivunapit (käyttäjän pyyntö 29.10.2026; ennen nuoli oli 4 px nappien reunasta vasemmalla). viewBox on musteen rajat
+     pyöreine päineen (29.10.2026; ennen 0,5 px:n vara joka sivulla), joten laatikon reuna on musteen reuna. */
+  #palkki-nuoli { display: block; width: 14px; height: 12.75px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
+    stroke-linejoin: round; stroke-linecap: round; flex: 0 0 auto; }
   body.palkit-auki #palkki-nuoli { stroke: var(--muste); transform: rotate(180deg); }
   /* Sivunappipari (käyttäjän päätökset 22.10.2026): yhtä korkea ja yhtä kirkas kuin Merkinnät- ja Etsi-laatikot
      (aiemmin 28 px ja hyvin haalea), nuolina täytetyt lovetut salmiakit, jotka osoittavat yhteen suuntaan (koverat
@@ -411,18 +419,28 @@
      napautuksella), asetuksista kytkettävissä.
      Käyttäjän pyyntö 27.10.2026: napit 44 → 52 px leveiksi, reunat ennallaan, ja napautusalue on koko palkin korkuinen
      ja ulottuu ruudun oikeaan reunaan asti, ettei nappien ylä-, ala- tai oikealta puolelta avaudu aikajana. Näkyvä
-     laatikko on nappien reunoissa; #sivunapit on läpinäkyvä alue, jonka tyhjä osa kääntää lähemmän napin suuntaan. */
-  #sivunapit { display: flex; align-items: center; align-self: stretch; margin-right: calc(-1 * var(--o-reuna));
-    padding-right: var(--o-reuna); pointer-events: auto; }
+     laatikko on nappien reunoissa; #sivunapit on läpinäkyvä alue, jonka tyhjä osa kääntää lähemmän napin suuntaan.
+     Käyttäjän pyyntö 29.10.2026: nuolet harmaiksi kuten navinäkymän muut (ennen tekstin värisiä), ja oikea reunus palkkien
+     oikeassa laidassa. */
+  #sivunapit { display: flex; align-items: center; align-self: stretch; margin-right: calc(-1 * var(--o-laita));
+    padding-right: var(--o-laita); pointer-events: auto; }
   #sivunapit button { width: 54px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--paperi);
     border: 1px solid var(--harmaa); }
   #sivunapit button + button { width: 53px; border-left: 0; }
-  #sivunapit svg { width: 14px; height: 14px; fill: var(--muste); }
-  #jana { padding: 10px 14px 2px; border-bottom: 1px solid var(--viiva); }
+  #sivunapit svg { width: 14px; height: 14px; fill: var(--harmaa); }
+  /* Aikajanakerroksen välit (käyttäjän pyyntö 29.10.2026: pystysuunnassa hajurakoa kaikkiin väleihin, ja koska pääluvun
+     merkki kasvoi, palkki suurenee melko paljon; mitattu musteesta): reunasta osion nimeen 15 → 22 px, nimestä osoittimen
+     kolmioon 7,25 → 12,5 px, kirjanmerkin nauhasta laatikoihin 14 → 23,5 px ja laatikoista alareunaan 13 → 21 px
+     (mobiilissa kaistan viivaan 10 → 18 px); kerros 129 → 168 px (mobiili 126 → 165 px). Aikajana on koko
+     kerroksen levyinen, jotta päiden merkit eivät leikkaudu; sen päät ovat palkkien laidoissa (janaRajat()). Osion
+     nimen ensimmäisen kirjaimen vasen sivuväli on Literatan kursiivissa 0,0125–0,055 em, korjauksena keskiarvo 0,04 em;
+     edistymisen tasalevyisten numeroiden ja %:n oikea sivuväli keskimäärin 0,058 em (mitattu; poikkeama enintään 0,35 px). */
+  #jana { padding: 17px 0 2px; border-bottom: 1px solid var(--viiva); }
   body.mobiili #jana { border-bottom: 0; padding-bottom: 0; }
-  .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em; }
+  .jana-yla { display: flex; justify-content: space-between; gap: 12px; font-size: .82rem; color: var(--harmaa); min-height: 1.35em;
+    padding: 0 calc(var(--o-laita) - .058em) 0 calc(var(--v-laita) - .04em); }
   #jana-kohta { color: var(--muste); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #jana-svg { display: block; width: 100%; height: 46px; margin-top: 2px; touch-action: none; cursor: pointer; }
+  #jana-svg { display: block; width: 100%; height: 44px; margin-top: 10px; touch-action: none; cursor: pointer; }
   /* Luettu osa (nykyiseen kohtaan asti) mustalla, tuleva harmaalla; kirjanmerkit luetussa kuparisina,
      tulevassa harmaina kuten etapit (käyttäjän päätös 22.10.2026).
      Käyttäjän päätös 21.10.2026 nuottien mukaan (suurempi aika-arvo ontompi): pääluku iso ja ontto
@@ -454,7 +472,7 @@
   #majakka .m-sulje { width: 9px; height: 9px; stroke: var(--harmaa); stroke-width: 1.2; fill: none; }
   .j-maj { fill: var(--paperi); stroke: var(--harmaa); stroke-width: .9; }
   .j-maj-v { stroke: var(--harmaa); stroke-width: .9; stroke-dasharray: 1.5 2; }
-  .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 4px 0 10px; }
+  .jana-napit { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 22px var(--o-laita) 18px var(--v-laita); }
   .laatikko { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 11px; font-size: .84rem;
     border: 1px solid var(--harmaa); }
   .laatikko svg { width: 14px; height: 11px; flex: 0 0 auto; }
@@ -614,7 +632,7 @@
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana" aria-label="Aikajana"></button>
       <div id="ala-oikea">
-        <svg id="palkki-nuoli" viewBox="0 0 12 11" aria-hidden="true"><path d="M1 5L6 1L11 5M1 10L6 6L11 10"/></svg>
+        <svg id="palkki-nuoli" viewBox="0.4 0.4 11.2 10.2" aria-hidden="true"><path d="M1 5L6 1L11 5M1 10L6 6L11 10"/></svg>
         <div id="sivunapit" hidden>
           <button type="button" id="sivu-ed" aria-label="Edellinen sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7Q7.18 5.18 12.4 2.2Q10.22 5.18 9 7Q10.22 8.82 12.4 11.8Q7.18 8.82 1 7Z"/></svg></button>
           <button type="button" id="sivu-se" aria-label="Seuraava sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M13 7Q6.82 5.18 1.6 2.2Q3.78 5.18 5 7Q3.78 8.82 1.6 11.8Q6.82 8.82 13 7Z"/></svg></button>
@@ -1452,7 +1470,7 @@
     sivuAlut = {};
     var sivut = aset.sivutus === 'sivut', mob = !!(MOBIILI && MOBIILI.matches);
     document.body.classList.toggle('mobiili', mob);
-    YLA = mob ? 26 : 70;
+    YLA = mob ? 26 : 26 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--yla')) || 56);
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
       aset.tasaus === 'tasattu' ? 'tasattu' : '', 'tavu-' + (aset.tavutus === 'selain' ? 'selain' : aset.tavutus === 'ei' ? 'ei' : 'js')].join(' ');
     document.body.classList.toggle('sivutus', sivut);
@@ -1479,10 +1497,6 @@
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       tavutaPitkat();
     }
-    // Mobiilin kelluvat (kirjanmerkki, palkkinuoli) tekstipalstan reunojen linjaan.
-    var pv = sivut ? Math.floor(G / 2) : art.getBoundingClientRect().left, pl = sivut ? W : art.getBoundingClientRect().width;
-    document.documentElement.style.setProperty('--palsta-v', Math.round(pv) + 'px');
-    document.documentElement.style.setProperty('--palsta-o', Math.round(document.documentElement.clientWidth - pv - pl) + 'px');
     mene(k || { b: 0, o: 0 });
   }
 
@@ -1515,12 +1529,12 @@
   }
 
   // Ensimmäinen näkyvä tekstikohta: sivun tai ruudun vasen yläkulma. Vierityksessä kohta on
-  // se rivi, jonka keskikohta on y = YLA (yläpalkki 44 px + puoli riviä + väli). mene() vierittää
+  // se rivi, jonka keskikohta on y = YLA (yläpalkki 56 px + puoli riviä + väli). mene() vierittää
   // merkin keskikohdan samaan kohtaan, jotta sama kohta luetaan takaisin samana: rivin yläreunaa
   // käytettäessä otsikon riviltä luettiin edellinen rivi, koska otsikon rivien laatikot menevät
   // päällekkäin (line-height 1,25). Mobiilissa yläpalkki on piilossa, joten rivi on 26 px ruudun yläreunasta
   // (asettele()).
-  var YLA = 70;
+  var YLA = 82;
   function mobiili() { return document.body.classList.contains('mobiili'); }
   // Lukualueen rajat ikkunassa. Mobiilissa avautuva yläpalkki ja aikajanakerros ovat tekstin päällä eivätkä
   // muuta rajoja, jotta kirjanmerkkinapin tila ei vaihdu palkkien avautuessa.
@@ -2141,19 +2155,35 @@
   // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), sitten alaluvut hiukan
   // suuremmiksi (1,15- ja 1,35-kertaisiksi). Tulevat ovat samankokoisia kuin luetut, vain harmaita.
   // Kirjanmerkit eivät ole etappeja.
-  var JANA = { pad: 13, y: 21, koko: { 1: [4.48, 5.92], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
+  // Käyttäjän pyyntö 29.10.2026: pääluku niin isoksi, että sen yläkärjen muste hipoo nykyisen kohdan kolmion kärkeä
+  // (y = 9); mittasuhde ennallaan (4,48 : 5,92). Koverakylkisen salmiakin kärjen kulma on mittasuhteesta
+  // riippumaton, joten kehän (1,3) jiiri ulottuu kärjessä 0,65 / sin θ = 1,545 yli polun: korkeus y − 9 − 1,545.
+  // Kirjanmerkin nauhan yläreuna on pääluvun sisäalan alimmassa kohdassa (sama jiiri sisäänpäin alakärjessä), joten
+  // nauha peittää kehän mutta ei yhtään sisäalaa (sama sääntö kuin ennen: 5,92 − 1,545 ≈ 4,4).
+  var JANA = { y: 22, koko: { 1: [8.67, 11.455], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
+  JANA.km = Math.round((JANA.y + JANA.koko[1][1] - 1.545) * 100) / 100;
+  // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
+  JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
+  // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita): alku- ja lopputikin (1 px) muste.
+  function janaRajat(w) {
+    var cs = getComputedStyle($('#jana-svg'));
+    return [parseFloat(cs.getPropertyValue('--v-laita')) + .5, w - parseFloat(cs.getPropertyValue('--o-laita')) - .5];
+  }
   // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
+  // Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (käyttäjän pyyntö 29.10.2026:
+  // yleensä tekstin alussa päällekkäin alkutikin kanssa). Se on silti pysäkki, ja vedettäessä sen nimi näkyy.
   function janaKohteet() {
-    var a = [];
+    var a = [], eka = nyt.doc.toc.filter(function (t) { return t.lvl === 1; })[0];
+    if (eka && osuus({ b: eka.b, o: 0 }) >= 0.1) eka = null;
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
-    nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
+    nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso && t !== eka) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
   function piirraJana() {
     var svg = $('#jana-svg');
     if (!nyt || $('#jana').hidden) return;
-    var w = svg.clientWidth || 300, h = 46, x0 = JANA.pad, x1 = w - JANA.pad, y = JANA.y;
+    var w = svg.clientWidth || 300, h = 44, xr = janaRajat(w), x0 = xr[0], x1 = xr[1], y = JANA.y;
     var X = function (f) { return x0 + f * (x1 - x0); };
     // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit luetussa kuparisina, tulevassa harmaina.
     // Vedettäessä raja (vedenjakaja) seuraa vedettävää osoitinta, ks. vedenjakaja().
@@ -2164,8 +2194,8 @@
     janaKohteet().forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
-      if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + (y + 13) + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
-      if (m.km) d = '<path class="j-km" d="' + nauha(x, y + 4.4, 6.2, 10.6) + '"/>';
+      if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + JANA.viiva + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
+      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, 6.2, 10.6) + '"/>';
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
@@ -2175,7 +2205,7 @@
       if (on) luettu += d; else tuleva += d;
     });
     s += tuleva + luettu + maj;
-    var osoitin = '<path class="j-nyt-v" d="M0 9V' + (y + 13) + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
+    var osoitin = '<path class="j-nyt-v" d="M0 9V' + JANA.viiva + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
     s += '<g' + (janaVeto ? ' class="haamu"' : '') + ' transform="translate(' + cx + ' 0)">' + osoitin + '</g>';
     if (janaVeto) s += '<g id="j-veto" transform="translate(' + X(janaVeto.f) + ' 0)">' + osoitin + '</g>';
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
@@ -2187,7 +2217,7 @@
   // voimassa oleva kohta (haamu) ei muutu. Janaa ei piirretä uudelleen: viivojen päät siirtyvät, ja vain
   // rajan yli menneiden etappien luokka vaihtuu, joten e-ink päivittää vain muuttuneen alueen.
   function vedenjakaja(f) {
-    var svg = $('#jana-svg'), w = svg.getBoundingClientRect().width, x0 = JANA.pad, x1 = w - JANA.pad, wx = x0 + f * (x1 - x0);
+    var svg = $('#jana-svg'), xr = janaRajat(svg.getBoundingClientRect().width), x0 = xr[0], x1 = xr[1], wx = x0 + f * (x1 - x0);
     var l = $('#j-luettu'), t = $('#j-loppu');
     if (!l || !t) return;
     l.setAttribute('d', janaLuettu(x0, wx, JANA.y));
@@ -2240,7 +2270,7 @@
     return a;
   }
   function janaKohde(clientX) {
-    var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), x0 = JANA.pad, x1 = r.width - JANA.pad;
+    var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), xr = janaRajat(r.width), x0 = xr[0], x1 = xr[1];
     var x = clientX - r.left, f = clamp((x - x0) / (x1 - x0), 0, 1);
     if (aset.sivutus === 'sivut') {
       var paras = null, ero = Infinity;
@@ -2268,8 +2298,8 @@
       var uusi = !janaVeto;
       janaVeto = { f: f };
       if (uusi || !g) { piirraJana(); return; }
-      var r = svg.getBoundingClientRect();
-      g.setAttribute('transform', 'translate(' + (JANA.pad + f * (r.width - 2 * JANA.pad)) + ' 0)');
+      var xr = janaRajat(svg.getBoundingClientRect().width);
+      g.setAttribute('transform', 'translate(' + (xr[0] + f * (xr[1] - xr[0])) + ' 0)');
       vedenjakaja(f);
     };
     var loppu = function () { veto = false; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
@@ -2962,7 +2992,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
