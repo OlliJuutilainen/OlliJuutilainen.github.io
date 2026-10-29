@@ -712,12 +712,15 @@ Käyttäjän vaatimukset 20.10.2026:
   Merkkien peitto (käyttäjän säännöt 29.10.2026, "tuttifrutti"; `janaPeitot()`): pääluvun **jälkeinen** alaluku (myös alaluvun
   alaluku) piilotetaan, jos se tunkee näkyvän pääluvun merkin musteen päälle; **edeltävä** alaluku saa näkyä, jos sen oikea kärki
   ei ulotu pääluvun kehän sisäiseen alaan (kehän alle saa, koska pääluku on päällä) eikä sen vasen reuna osu alkutikkuun.
-  **Peräkkäiset pääluvut**: pelkkä lomittuminen ei piilota; vasta kun kärjet menevät toistensa sisäalaan (väli < 2 × 6,36),
-  piilotetaan ensisijaisesti ensimmäinen, jälkimmäinen vain, jos se on ketjun keskellä ja sen piilotus ratkaisee molemmat
-  törmäykset. Piilotettu pääluku ei estä alalukuja. Kärjen jiiri 0,65 / sin 39° = 1,033 (`janaJiiri()`). Kynnykset mitattu
+  **Peräkkäiset pääluvut**: pelkkä lomittuminen ei piilota (käyttäjän tarkennus 29.10.2026); vasta kun kärjet menevät toistensa
+  sisäalaan (väli < 2 × 6,36; ennen < 2 × (6,36 + 0,65) eli kehät koskettivat), toisesta näytetään vain ensimmäinen, paitsi jos
+  jälkimmäinen on selvästi korkeammalla hierarkiassa (`paaluvunPaino()`: varsinainen luku ennen oheisaineistoa, numeroitu ennen
+  numeroimatonta, alaluvullinen ennen alaluvutonta). Rykelmässä verrataan viimeksi näytettyyn. Piilotettu pääluku ei estä
+  alalukuja, joten sen alaluku voi näkyä sen kohdalla. Kärjen jiiri 0,65 / sin 39° = 1,033 (`janaJiiri()`). Kynnykset mitattu
   pikseleistä (DPR 16): 0,1 px:n päässä rajasta 0 / 2–3 laitepikseliä. Edellisen kierroksen poikkeus (*ensimmäisen pääluvun
   alaluku*, vertailu `paat[0]`) koski kantin tutkielmassa lukua 2, koska Johdanto on piilossa, ja päästi myös luvun 2.1 läpi;
-  sääntö korvasi sen. Kantin tutkielma: 360 px *Viittauksista…* ja 2.1 pois, 412 px 2.1 pois, 1280 px ennallaan.
+  sääntö korvasi sen. Mitattu: kantin tutkielma 360 px *Viittauksista…* ja 2.1 pois, 412 px 2.1 pois, 1280 px ennallaan; Luinin
+  opas 412 px 1.2, 2.1, 2.2 ja 3.2 pois, päälukujen määrä kaikilla leveyksillä ennallaan.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
