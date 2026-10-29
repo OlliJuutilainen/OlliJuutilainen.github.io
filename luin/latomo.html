@@ -944,8 +944,8 @@
   $('#ann').addEventListener('click', function () { ann = !ann; paivita(); });
 
   /* ---------- tyhjennys ----------
-     Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi; MarkDownload-kytkimen valinta säilyy, korvamerkin
-     kumoava pois-valinta ei (se kuuluu tekstille, alusta()).
+     Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi; myös MarkDownload-tila palaa alkutilaan (rivi piiloon),
+     samoin korvamerkin kumoava pois-valinta (se kuuluu tekstille, alusta()).
      Vahvistus kysytään aina, koska tyhjennystä ei voi perua. */
   // Ilman tekstiä tiedot ja osoite ovat piilossa, joten nappi näkyy vain, kun tekstikentässä on jotain.
   function tyhjaa() { return !md.value.trim(); }
@@ -964,7 +964,7 @@
   $('#varmistus').addEventListener('keydown', function (e) { if (e.key === 'Escape') varmista(false); });
   $('#tyhjenna-kylla').addEventListener('click', function () {
     clearTimeout(ajastin);
-    alusta(); nimi = '';
+    alusta(); nimi = ''; mdl = false;
     ann = false;
     md.value = ''; osoite.value = ''; $('#viite').value = ''; $('#tiedosto').value = '';
     $('#tiedostonimi').textContent = 'tai pudota .md- tai .txt-tiedosto kenttään';

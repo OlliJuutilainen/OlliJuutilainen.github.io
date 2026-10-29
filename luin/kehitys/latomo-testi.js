@@ -262,7 +262,6 @@ palvelin.listen(0, async () => {
   tulos('älä! peruu', n0.join() === 'true,false,true' && n1.join() === 'false,true,true' && n2.join() === 'true,false,true' && md2 === KANT, [n0, n1, n2].join(' | ') + ' – ' + kysymys);
   const leveys2 = await p.evaluate(() => { document.querySelector('#varmistus').hidden = false; const l = [document.documentElement.scrollWidth, document.documentElement.clientWidth]; document.querySelector('#varmistus').hidden = true; return l; });
   tulos('vahvistus 360 px:n leveydellä', leveys2[0] <= leveys2[1], leveys2.join(' / '));
-  const mdl0 = await p.getAttribute('#mdl', 'aria-pressed');
   await p.click('#tyhjenna');
   await p.click('#tyhjenna-kylla');
   await p.waitForTimeout(300);
@@ -270,11 +269,11 @@ palvelin.listen(0, async () => {
     nimi: document.querySelector('#tiedostonimi').textContent, tila: window.__latomo.tila(), tulos: window.__latomo.tulos() }));
   const n3 = await nakyvat();
   tulos('kaikki tyhjäksi', !jalki.md && !jalki.osoite && /pudota/.test(jalki.nimi) && !Object.keys(jalki.tila.arvot).length && jalki.tulos === null &&
-    n3.join() === 'false,false,false' && (await p.getAttribute('#mdl', 'aria-pressed')) === mdl0, JSON.stringify(n3) + ' ' + JSON.stringify(jalki.tila.arvot));
+    n3.join() === 'false,false,false' && (await p.getAttribute('#mdl', 'aria-pressed')) === 'false' && await p.evaluate(() => document.querySelector('#mdl-rivi').hidden), JSON.stringify(n3) + ' ' + JSON.stringify(jalki.tila.arvot));
   // Uusi teksti tyhjennyksen jälkeen: kentät tulevat uudesta tekstistä, eivät vanhoista.
   await tiedostona('kant-ja-elainetiikka.md', KANT);
   t = await T();
-  // MarkDownload-tila on yhä päällä (kohta 4), joten tyyppi on blogi; vanhaa lajia ja osoitetta ei saa olla.
+  // Vanhaa lajia ja osoitetta ei saa olla.
   tulos('uusi teksti tyhjennyksen jälkeen', !/Muutettu laji|example\.com\/teksti/.test(t.md) && (await kentat()).laji !== 'Muutettu laji', JSON.stringify(etu(t)));
 
   // 10. Otsikkolohkon tietorivit ja peräkkäiset alaviitteiden määrittelyt ovat jo erillään (pdf:stä muunnettu kirja).
