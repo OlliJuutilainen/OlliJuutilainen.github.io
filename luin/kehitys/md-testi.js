@@ -182,6 +182,19 @@ sama('julkaisutieto: tietorivit', JSON.stringify(sep4.lines), JSON.stringify(['H
 sama('julkaisutieto: luettu versio', sep4.paatelty.julkaistu, '2024-03-31');
 sama('kursivoitu alaotsikko ennallaan', M.parse('# T\n\n*Kirjoitus vuodelta 2018*\n\n' + PITKA).sub, 'Kirjoitus vuodelta 2018');
 
+// Verkkolinkit (käyttäjän pyyntö 29.10.2026): kirjallisuusluettelon (myös luettelon kohdat) ja DOI:n linkit ovat kirj, verkkoartikkelin
+// oma luettelo ei; osoitteen näköinen linkkiteksti on url (katkeaa mistä tahansa); doi:10.… linkittyy doi.org:iin.
+const vl = M.parse('# T\n\nKatso [luku 3](https://e.org/a#c), <https://e.org/b> ja doi:10.1000/xyz\\_1.\n\n## Bibliography\n\n' +
+  '- Aho, A., 2001, *Kirja*. URL = <[https://e.org/arkisto/kirja/][1]\\>\n- Bee, B., 2002, “Artikkeli”, *Lehti*, 3(2): 1–9. doi:10.2307/2176692\n\n' +
+  'Cee, C. 2003. *Toinen*. [Linkki](https://e.org/c). https://e.org/d\n\n## Other Internet Resources\n\n- [Sivusto](https://e.org/e), https://doi.org/10.5555/f\n\n[1]: https://e.org/arkisto/kirja/\n').html;
+sama('verkkolinkkien luokat', (vl.match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n'), [
+  '<a href="https://e.org/a#c">luku 3</a>', '<a class="url" href="https://e.org/b">https://e.org/b</a>',
+  '<a class="url kirj" href="https://doi.org/10.1000/xyz_1">doi:10.1000/xyz_1</a>',
+  '<a class="url kirj" href="https://e.org/arkisto/kirja/">https://e.org/arkisto/kirja/</a>',
+  '<a class="url kirj" href="https://doi.org/10.2307/2176692">doi:10.2307/2176692</a>',
+  '<a class="kirj" href="https://e.org/c">Linkki</a>', '<a class="url kirj" href="https://e.org/d">https://e.org/d</a>',
+  '<a href="https://e.org/e">Sivusto</a>', '<a class="url kirj" href="https://doi.org/10.5555/f">https://doi.org/10.5555/f</a>'].join('\n'));
+
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
 const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../md.js'))).digest('hex').slice(0, 8);

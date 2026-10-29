@@ -238,10 +238,12 @@
   .wrap { position: relative; font-size: var(--koko); max-width: 33em; margin: 0 auto; }
   body.reunat .wrap { max-width: calc(33em + 2.2em + 13em); }
 
+  /* overflow-wrap: sana, joka ei mahdu edes yksin riville (verkko-osoite, DOI, pitkä tunnus), katkeaa eikä levitä sivua
+     sivusuunnassa (29.10.2026: SEP:n Dewey-leike oli vierityksessä 360 px:n puhelimella 690 px leveä). */
   #teksti { --hl: calc(var(--koko) * 13); --hv: calc(var(--koko) * 2.2);
     font-family: var(--antiikva); font-size: var(--koko); line-height: 1.62; max-width: 33em;
     font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility;
-    hyphens: manual; -webkit-hyphens: manual; }
+    hyphens: manual; -webkit-hyphens: manual; overflow-wrap: break-word; }
   #teksti.tavu-ei { hyphens: none; -webkit-hyphens: none; }
   #teksti.tavu-selain { hyphens: auto; -webkit-hyphens: auto; }
   header.tt { margin: 0 0 2.6em; }
@@ -251,6 +253,9 @@
   /* Ei tavuviivoja otsikoissa, alaotsikossa, tietoriveillä eikä sisällysluettelossa; sana katkeaa vain, jos se ei
      mahdu edes yksin riville (break-word; tavutaPitkat() lisää silloin tavuviivan, jos sana on tavutettavissa). */
   #teksti h1, #teksti h2, #teksti h3, #teksti h4, #teksti .sub, #teksti .meta, #teksti nav.sisallys { overflow-wrap: break-word; }
+  /* tavutaPitkat() mittaa sanat ilman katkomista. */
+  #teksti.mittaus h1, #teksti.mittaus h2, #teksti.mittaus h3, #teksti.mittaus h4, #teksti.mittaus .sub, #teksti.mittaus .meta,
+  #teksti.mittaus nav.sisallys { overflow-wrap: normal; }
   #teksti h2, #teksti h3, #teksti h4 { font-weight: 400; break-after: avoid; break-inside: avoid; }
   #teksti h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .005em; }
   #teksti h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
@@ -291,6 +296,8 @@
   #teksti code, #teksti pre { font-family: ui-monospace, Menlo, monospace; font-size: .86em; }
   #teksti pre { white-space: pre-wrap; margin: 0 0 1.1em; }
   #teksti a { color: var(--ruoste); text-underline-offset: .15em; }
+  /* Pois kytketty verkkolinkki (paivitaLinkit()) on tavallista tekstiä. */
+  #teksti a:not([href]) { color: inherit; text-decoration: none; }
   /* iA Writerin merkinnät (md.js, 22.10.2026). Korostus ja tehtävät ilman läpikuultavuutta (e-ink). */
   /* ==korostus== tussin tapaan rivin alaosassa; haun osuma (::highlight) täyttää koko rivin, joten ne erottuvat. */
   #teksti .korostus { background: linear-gradient(transparent 58%, var(--viiva) 58%); padding: 0 .06em;
@@ -299,6 +306,7 @@
   #teksti sup, #teksti sub { font-size: .72em; line-height: 0; }
   #teksti .kuva { color: var(--harmaa); font-style: italic; font-size: .92em; }
   #teksti a.kuva { color: var(--ruoste); }
+  #teksti a.kuva:not([href]) { color: var(--harmaa); }
   /* Sisäkkäisen luettelon kääre (md.js): ei viivaa eikä numeroa; seuraava kohta saa numeronsa value-määritteestä. */
   #teksti li.sisus { margin: 0; padding: 0; list-style: none; }
   #teksti ul.luettelo > li.sisus::before { content: none; }
@@ -680,7 +688,8 @@
   <h3>Teksti</h3>
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
-    <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div></div>
+    <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div>
+    <div class="valinnat pino" data-k="verkkolinkit:Verkkolinkit"></div></div>
   <h3>Aikajana</h3>
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
@@ -738,7 +747,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=cae570ee"></script>
+<script src="luin/md.js?v=3270e905"></script>
 <script>
 (function () {
   'use strict';
@@ -793,8 +802,9 @@
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
+  // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei; kirjallisuusluettelon ja DOI:n linkit toimivat aina).
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
-    sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
+    sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0, av: 5 };
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
@@ -839,7 +849,7 @@
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
   var nyt = null;      // { e, doc, blocks, txt, cum, total, merk }
-  var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0 };
+  var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0, asetteluja: 0 };
   var art = $('#teksti'), sivuEl = $('#sivu'), pop = $('#pop');
 
   function tallennaLista() {
@@ -1245,12 +1255,17 @@
     document.documentElement.style.setProperty('--koko', aset.koko + 'px');
     document.documentElement.classList.toggle('ali-piilo', !aset.alTekstissa);
   }
+  // Asetukset, jotka muuttavat tekstin asettelua. Muiden vaihto (teema, kirjanmerkit, alleviivaukset, verkkolinkit,
+  // aikajana, sivunkäännön tavat) piirtää vain palkit ja merkit: koko asettelu on pitkässä tekstissä raskas, ja e-ink-
+  // laitteella jokainen napautus odotti sitä (käyttäjän havainto 29.10.2026).
+  var ASETTELU = ['koko', 'kappale', 'tasaus', 'marginaali', 'tavutus', 'sivutus', 'sisallys'];
   function sovellaAsetukset(ennen) {
     sovellaTeema();
     if (!nyt) return;
     var a = tila.ankkuri;
     if (ennen.tavutus !== aset.tavutus || ennen.sisallys !== aset.sisallys) { piirraTeksti(); }
-    asettele(a);
+    if (ennen.verkkolinkit !== aset.verkkolinkit) paivitaLinkit();
+    if (ASETTELU.some(function (x) { return ennen[x] !== aset[x]; })) asettele(a); else paivita();
     // Asetukset pysyvät auki, kun niissä vaihdetaan Vieritys/Sivut; muut paneelit suljetaan.
     if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); sijoitaNipukka(); }
   }
@@ -1372,6 +1387,7 @@
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
+    paivitaLinkit();
     nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = [];
     $$('[data-b]', art).forEach(function (el) {
       var b = +el.dataset.b, t = lohkoteksti(el);
@@ -1392,6 +1408,20 @@
     paivitaKorostus();
   }
 
+  // Verkkolinkit (käyttäjän pyyntö 29.10.2026): tekstin linkit muualle ovat oletuksena tavallista tekstiä, koska ne
+  // aukesivat liian helposti (SEP:n Dewey-leikkeessä 180 linkkiä: sisällys, ristiviittaukset ja alaviitemerkit vievät SEP:n
+  // sivulle; kosketusnäyttö osuu myös viereiseen linkkiin, ja pitkä painallus avaa linkin valikon eikä valitse tekstiä).
+  // Kirjallisuusluettelon ja DOI:n linkit (md.js: class kirj) toimivat aina, verkkoartikkelin omat luettelot (SEP:n Other
+  // Internet Resources) eivät. Tekstin sisäiset linkit (#…) eivät ole verkkolinkkejä. Osoite säilyy data-href:ssä.
+  function paivitaLinkit() {
+    $$('a[href], a[data-href]', art).forEach(function (a) {
+      var h = a.getAttribute('href') || a.dataset.href;
+      if (h.charAt(0) === '#' || a.classList.contains('kirj')) return;
+      if (aset.verkkolinkit) { if (!a.hasAttribute('href')) { a.setAttribute('href', h); delete a.dataset.href; } }
+      else if (a.hasAttribute('href')) { a.dataset.href = h; a.removeAttribute('href'); }
+    });
+  }
+
   // Otsikoiden, alaotsikon, tietorivien ja sisällysluettelon sanoja ei tavuteta, ellei yksittäinen sana ole
   // palstaa leveämpi. Silloin sanaan lisätään kaikki tavutuskohdat (rivinvaihto käyttää vain tarvittavan).
   // Lisätyt viivat muistetaan, jotta ne voi poistaa, kun palsta levenee (koko, marginaali, ikkuna).
@@ -1403,18 +1433,22 @@
     while ((n = tw.nextNode())) { if (!n.parentElement.closest('.sidenote,.fnref')) a.push(n); }
     return a;
   }
+  // Ensin mitataan kaikki ja vasta sitten lisätään viivat: mittausten väliin osunut kirjoitus (tyyli tai viiva) pakotti
+  // joka otsikolla koko tekstin uuden asettelun, ja sivutettuna (palstat) se vei pitkässä tekstissä sekunteja
+  // (29.10.2026: SEP:n Dewey 3,3 s jokaisella asetuksen napautuksella). Mittaus tehdään luokalla mittaus
+  // (overflow-wrap: normal), jotta break-word ei katko sanaa jo mittaushetkellä.
   function tavutaPitkat() {
-    $$(SUOJATUT, art).forEach(function (el) {
+    var els = $$(SUOJATUT, art), lisaa = [];
+    els.forEach(function (el) {
       suojatutSolmut(el).forEach(function (n) {
         var vanhat = LISATYT.get(n);
         if (vanhat) { vanhat.slice().reverse().forEach(function (i) { n.deleteData(i, 1); }); LISATYT.delete(n); }
       });
     });
-    $$(SUOJATUT, art).forEach(function (el) {
+    art.classList.add('mittaus');
+    els.forEach(function (el) {
       var cs = getComputedStyle(el), tila_ = cs.display === 'none' ? 0 : el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       if (tila_ <= 0) return;
-      // Mitataan sanan oma leveys ilman break-wordin katkomista.
-      el.style.overflowWrap = 'normal';
       suojatutSolmut(el).forEach(function (n) {
         var v = n.nodeValue, re = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g, m, orig = [];
         while ((m = re.exec(v))) {
@@ -1423,11 +1457,13 @@
           var h = LuinMD.tavuta(m[0], 'tihea');
           for (var i = 0, j = 0; i < h.length; i++) { if (h.charCodeAt(i) === 0xAD) orig.push(m.index + j); else j++; }
         }
-        if (!orig.length) return;
-        for (var q = orig.length - 1; q >= 0; q--) n.insertData(orig[q], '\u00ad');
-        LISATYT.set(n, orig.map(function (p, k) { return p + k; }));
+        if (orig.length) lisaa.push({ n: n, orig: orig });
       });
-      el.style.overflowWrap = '';
+    });
+    art.classList.remove('mittaus');
+    lisaa.forEach(function (x) {
+      for (var q = x.orig.length - 1; q >= 0; q--) x.n.insertData(x.orig[q], '\u00ad');
+      LISATYT.set(x.n, x.orig.map(function (p, k) { return p + k; }));
     });
   }
 
@@ -1484,6 +1520,7 @@
   }
 
   function asettele(k) {
+    tila.asetteluja++;
     sovellaTeema();
     sivuAlut = {};
     var sivut = aset.sivutus === 'sivut', mob = !!(MOBIILI && MOBIILI.matches);
