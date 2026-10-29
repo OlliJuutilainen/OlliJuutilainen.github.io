@@ -672,7 +672,7 @@
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
-  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|keski:Keski|levea:Reilu|syvin:Syvin"></div></div>
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|meso:Meso|reilu:Reilu"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -792,7 +792,7 @@
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
-  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'keski', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0, av: 5 };
   var tallennetut = LS.get('luin-asetukset', null);
@@ -812,7 +812,8 @@
   // av 5 (22.10.2026): sivunapit eivät ole enää oletuksena; mobiilin oikea alanurkka on palkkinuolen. Ne olivat
   // oletuksena päällä vain saman päivän, joten tallennettu päällä-arvo on oletus eikä valinta.
   if (tallennetut && !(tallennetut.av >= 5)) { aset.sivunapit = 0; aset.av = 5; }
-  if (aset.marginaali === 'syva') aset.marginaali = 'syvin';
+  // Marginaalin avaimet vaihtuivat 29.10.2026 (kolme arvoa): keski ja vanha levea (36) → meso, syva ja syvin → reilu.
+  aset.marginaali = { keski: 'meso', levea: 'meso', syva: 'reilu', syvin: 'reilu' }[aset.marginaali] || aset.marginaali;
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   // Aikajanan oletus (22.10.2026): työpöydällä pääluvut ja alaluvut, mobiilissa (kapea ruutu tai
   // sormiosoitin) vain pääluvut. Koskee vain ensikäyttöä; tallennettua valintaa ei kosketa.
@@ -824,12 +825,13 @@
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
   // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.
-  // Syvä (60) ja Syvin (90) lisättiin 26.10.2026; 29.10.2026 jäi neljä arvoa ja Syvin on 75 (entinen Syvä lasketaan Syvimmäksi) (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
+  // 26.10.2026 lisättiin syvemmät arvot (60 ja 90); 29.10.2026 jäi kolme: Ohut 0, Meso 32 (lähes entinen Reilu 36) ja Reilu 60
+  // (noin 60 % entisen Reilun 36 ja Syvimmän 90 välillä) (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
   // leveällä ruudulla, ja kapealla puhelimella tasattu teksti harvenee, mikä on valitsijan oma päätös.
-  var MARG = { kapea: 0, keski: 24, levea: 36, syvin: 75 };
-  var MARG_SYVIN = 75;
+  var MARG = { kapea: 0, meso: 32, reilu: 60 };
+  var MARG_SYVIN = 60;
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
-  function marginaali() { return MARG[aset.marginaali === 'syva' ? 'syvin' : aset.marginaali] || 0; }
+  function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
 
