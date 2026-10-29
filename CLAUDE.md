@@ -774,6 +774,9 @@ Käyttäjän vaatimukset 20.10.2026:
   opas 7.1): kun kenttä ei näy tekstin alussa, ehdotus kirjoittaa alun kentistä tekstiin, toinen nappi säilyttää vanhan
   alun lauseet, joita kentistä ei löydy (ISBN, lisenssi). Uusi alku valitaan tekstikentässä muokattavaksi. Hylätty:
   etukentän tilamerkintä, jolla kentät yliajaisivat näytön (tiedosto näyttäisi iA Writerissä eri alun).
+- **Tunnetut sivustot** (käyttäjän pyyntö 29.10.2026, "lellikki"): Latomon `SIVUSTOT`-taulukko antaa *Blogin tai sivuston nimi* -kentän
+  esitäytön lähdeosoitteen isännästä, kun tekstissä ei ole omaa nimeä; nyt vain `plato.stanford.edu` → *Stanford Encyclopedia of
+  Philosophy*. Etukentän oma `sivusto` ja käyttäjän muokkaus voittavat. `latomo-testi.js` tarkistaa SEP:n, oman nimen ja vieraan sivuston.
 - Latomon *Tyhjennä kentät* (käyttäjän pyyntö 22.10.2026) tyhjentää tekstin, kentät, oman viitteen ja osoitteen; vahvistus
   *”Oletko aivan varma?” sanoi Lasse Lehtinen.* napein *Olen, tyhjennä* / *älä!*. MarkDownload-tila palaa alkutilaan (rivi piiloon; käyttäjän päätös 29.10.2026, ennen kytkin säilyi).
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja

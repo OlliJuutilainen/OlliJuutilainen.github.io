@@ -340,6 +340,12 @@ palvelin.listen(0, async () => {
   tulos('ilman MarkDownload-tilaa vain neuvo', (await p.$$eval('#varoitukset p', x => x.map(e => e.textContent))).some(x => /^rivi 16Pääluvun 3 otsikko puuttuu: 3\.1 alkaa ilman sitä\. Lisää se ##-rivinä ennen riviä 16\.$/.test(x)));
   await p.click('#mdl'); await p.waitForTimeout(300);
   tulos('SEP: tila kertoo taulukosta', /2 HTML-indeksiä ja 1 HTML-taulukko Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+  // Tunnettu sivusto (29.10.2026): plato.stanford.edu antaa sivuston nimen, etukentän oma nimi voittaa, muut sivustot eivät saa nimeä.
+  tulos('SEP: sivuston nimi kenttään ja etukenttään', (await p.inputValue('#k-sivusto')) === 'Stanford Encyclopedia of Philosophy' && /\nsivusto: Stanford Encyclopedia of Philosophy\n/.test(sep.md), await p.inputValue('#k-sivusto'));
+  await tiedostona('sep-oma.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\nsivusto: Oma nimi\n---\n\n# John Dewey\n\nTeksti.\n');
+  tulos('SEP: etukentän oma sivuston nimi voittaa', (await p.inputValue('#k-sivusto')) === 'Oma nimi', await p.inputValue('#k-sivusto'));
+  await tiedostona('muu.md', '---\nlähde: https://example.com/blogi/kirjoitus\nleikattu: 2026-10-29\n---\n\n# Kirjoitus\n\nTeksti.\n');
+  tulos('muu sivusto: nimeä ei keksitä', (await p.inputValue('#k-sivusto')) === '', await p.inputValue('#k-sivusto'));
 
   // 14. Valinnan leike (Download Selection As Markdown): pohjan # {pageTitle} ja valinnan oma pääotsikko peräkkäin, ja
   // lainauksen sisällä kuvakkeiden ja linkkien taulukko (SEP:n Academic Tools).
