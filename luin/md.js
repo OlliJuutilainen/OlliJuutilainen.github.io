@@ -110,13 +110,29 @@
 
   var XREF = '\u0001';   // ristiviittauksen paikka, ratkaistaan renderöinnin lopussa
 
+  // Verkkolinkin luokat. kirj: kirjallisuusluettelon (BIB-otsikon alla, refs.kirj) ja DOI:n linkki, jonka lukija pitää
+  // aina toiminnassa, vaikka muut verkkolinkit ovat pois (käyttäjän pyyntö 29.10.2026; luin.html, paivitaLinkit()).
+  // url: linkin teksti on osoite tai DOI, joten se saa katketa mistä tahansa kuten paljas osoite.
+  var RE_DOI_URL = /^https?:\/\/(dx\.)?doi\.org\//i, RE_OSOITE = /^(https?:\/\/|www\.|doi:\s?10\.)\S+$/i;
+  function linkinLuokka(href, teksti, refs) {
+    var c = [];
+    if (RE_OSOITE.test(teksti)) c.push('url');
+    if (refs.kirj || RE_DOI_URL.test(href)) c.push('kirj');
+    return c.length ? ' class="' + c.join(' ') + '"' : '';
+  }
+  // Paljaan osoitteen tai DOI:n loppuvälimerkit eivät kuulu siihen, sulku kuuluu, jos sille on pari.
+  function karsiLoppu(u) {
+    while (/[.,;:!?'"”’»…\]*_]$/.test(u) || (/\)$/.test(u) && (u.match(/\(/g) || []).length < (u.match(/\)/g) || []).length)) u = u.slice(0, -1);
+    return u;
+  }
+
   // Rivinsisäinen merkintä. ctx: { note(body) → html | null, br: rivinvaihto <br>:ksi, warn(msg), cite(teksti),
   // refs: { fn, link, cite, meta } (parse() täyttää), linkissa: linkin tekstissä ei linkkejä eikä alaviitteitä }
   function inline(s, ctx) {
     var out = '', buf = '', i = 0, refs = ctx.refs || {};
     function flush() { out += ctx.cite ? ctx.cite(buf) : esc(buf); buf = ''; }
     function linkinTeksti(t) { return inline(t, { note: null, br: false, warn: ctx.warn, refs: refs, linkissa: true }); }
-    function linkki(href, teksti) { flush(); out += '<a href="' + esc(href) + '">' + linkinTeksti(teksti) + '</a>'; }
+    function linkki(href, teksti) { flush(); out += '<a' + linkinLuokka(href, plain(teksti).trim(), refs) + ' href="' + esc(href) + '">' + linkinTeksti(teksti) + '</a>'; }
     while (i < s.length) {
       var c = s[i];
       if (c === '\\') {
@@ -231,15 +247,20 @@
         var brm = /^<br\s*\/?>/i.exec(s.slice(i, i + 8));
         if (brm) { buf = buf.replace(/ +$/, ''); flush(); out += '<br>'; i += brm[0].length; continue; }
         var am = /^<(https?:\/\/[^\s>]+)>/.exec(s.slice(i));
-        if (am) { flush(); out += '<a href="' + esc(am[1]) + '">' + esc(am[1]) + '</a>'; i += am[0].length; continue; }
+        if (am) { flush(); out += '<a' + linkinLuokka(am[1], am[1], refs) + ' href="' + esc(am[1]) + '">' + esc(am[1]) + '</a>'; i += am[0].length; continue; }
         if (/^<\/?[a-zA-Z][^>]*>/.test(s.slice(i)) && ctx.warn) ctx.warn('HTML-merkintä näkyy tekstinä: “' + s.slice(i, i + 30) + '”');
       }
-      // Paljas verkko-osoite linkiksi. Loppuvälimerkit eivät kuulu osoitteeseen, sulku kuuluu, jos sille on pari.
+      // Paljas verkko-osoite linkiksi.
       if ((c === 'h' || c === 'H') && !ctx.linkissa && /^https?:\/\/[\p{L}\p{N}-]+\./iu.test(s.slice(i, i + 80)) && !/[\p{L}\p{N}\/]/u.test(s[i - 1] || ' ')) {
-        var u = /^https?:\/\/[^\s<>"]+/i.exec(s.slice(i))[0];
-        while (/[.,;:!?'"”’»…\]*_]$/.test(u) || (/\)$/.test(u) && (u.match(/\(/g) || []).length < (u.match(/\)/g) || []).length)) u = u.slice(0, -1);
+        var u = karsiLoppu(/^https?:\/\/[^\s<>"]+/i.exec(s.slice(i))[0]);
         var uu = u.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
-        flush(); out += '<a class="url" href="' + esc(uu) + '">' + esc(uu) + '</a>'; i += u.length; continue;
+        flush(); out += '<a' + linkinLuokka(uu, uu, refs) + ' href="' + esc(uu) + '">' + esc(uu) + '</a>'; i += u.length; continue;
+      }
+      // DOI ilman osoitetta (doi:10.1093/…, SEP:n kirjallisuusluettelo) linkiksi doi.org:iin.
+      if ((c === 'd' || c === 'D') && !ctx.linkissa && /^doi:\s?10\.\d{4,9}\//i.test(s.slice(i, i + 24)) && !/[\p{L}\p{N}]/u.test(s[i - 1] || ' ')) {
+        var dm = karsiLoppu(/^doi:\s?10\.\d{4,9}\/[^\s<>"]+/i.exec(s.slice(i))[0]);
+        var dd = dm.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
+        flush(); out += '<a class="url kirj" href="https://doi.org/' + esc(dd.replace(/^doi:\s?/i, '')) + '">' + esc(dd) + '</a>'; i += dm.length; continue;
       }
       // ~~yliviivaus~~ ja ==korostus== (myös kolmella merkillä).
       if ((c === '~' || c === '=') && s[i + 1] === c) {
@@ -1204,6 +1225,7 @@
       var h = '';
       list.forEach(function (t, k) {
         curLn = t.ln;
+        refs.kirj = inBib && !inQuote;
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
