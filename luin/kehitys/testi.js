@@ -26,15 +26,15 @@ let virheita = 0;
 function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   ' : 'VIKA ') + nimi + (tieto ? ' – ' + tieto : '')); }
 // Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026), palkit ja asetukset auki: musteen etäisyys ruudun reunasta laskettuna
 // laatikoista ja tunnetuista sivuväleistä (‹ 0,05 em, osion nimi 0,04 em, edistyminen 0,058 em, kiekon kehä 0,84 px svg:n reunan
-// sisällä, aikajanan tikki 0,5 px; sivuvälit ja kehä mitattu pikseleistä 29.10.2026).
+// sisällä, aikajanan päät ilman tikkuja; sivuvälit ja kehä mitattu pikseleistä 29.10.2026).
 // Samalla raksin ja kiekon keskikohdat, navinäkymän värit ja ensimmäisen pääluvun merkki.
 const laidat = pg => pg.evaluate(() => {
   const q = s => document.querySelector(s), R = s => q(s).getBoundingClientRect(), cs = s => getComputedStyle(q(s)), em = s => parseFloat(cs(s).fontSize);
   const vw = document.documentElement.clientWidth, svg = R('#jana-svg'), xr = window.__luin.janaRajat(svg.width), r2 = x => +x.toFixed(2);
   const sn = !q('#sivunapit').hidden, kiekko = R('#lukija .ratas svg');
   const v = { km: R('#km-nappi svg').left, takaisin: R('.takaisin').left + parseFloat(cs('.takaisin').paddingLeft) + .05 * em('.takaisin'),
-    kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), merk: R('#merk-avaa').left, jana: svg.left + xr[0] - .5 };
-  const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1] + .5),
+    kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), merk: R('#merk-avaa').left, jana: svg.left + xr[0] };
+  const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1]),
     [sn ? 'sivunapit' : 'nuoli']: vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right };
   for (const k in v) v[k] = r2(v[k]); for (const k in o) o[k] = r2(o[k]);
   const N = window.__luin.nyt(), eka = N.doc.toc.filter(t => t.lvl === 1)[0], ekaOsuus = (N.cum[eka.b]) / N.total;

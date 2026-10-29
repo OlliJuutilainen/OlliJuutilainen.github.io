@@ -712,9 +712,17 @@ Käyttäjän vaatimukset 20.10.2026:
   Alalukujen ja alalukujen alalukujen merkkiä ei piirretä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (muste kehineen;
   käyttäjän pyyntö 29.10.2026, "tuttifrutti"); poikkeus: ensimmäisen pääluvun alaluku (1.1, 1.1.1) näkyy, jos sen vasen reuna ei osu aloittavaan tikkuun; mitattu kantin tutkielmalla 412 px: 4 alaluvun merkkiä 8:sta päällekkäin → 0, 1280 px ennallaan.
   Kahdesta sivusuunnassa päällekkäisestä pääluvun merkistä näytetään vain ensimmäinen, paitsi jos jälkimmäinen on selvästi
-  korkeammalla hierarkiassa (käyttäjän pyyntö 29.10.2026; `paaluvunPaino()`: varsinainen luku ennen oheisaineistoa, numeroitu ennen
+  korkeammalla hierarkiassa (käyttäjän pyyntö 29.10.2026; `luvunPaino()`: varsinainen luku ennen oheisaineistoa, numeroitu ennen
   numeroimatonta, alaluvullinen ennen alaluvutonta). Mitattu 412 px: synteettinen teksti 8 → 4 merkkiä oikein valittuina, Luinin
   oppaassa 5. Tavutus väistyy 6. Ulkoasun tieltä ja 7. jää pois; kantin tutkielma ja 1280 px ennallaan.
+  Sama sääntö koskee alalukuja ja alalukujen alalukuja keskenään (käyttäjän pyyntö 29.10.2026; `karsiPaallekkaiset()`, ajetaan
+  pääluvun alan karsinnan jälkeen). Hierarkiassa ensin otsikkotaso (alaluku ennen alaluvun alalukua), sitten samat kolme kuin
+  pääluvuilla; myöhempi voittaa vain, jos se on painavampi kuin kaikki, joiden päälle se menisi. Alaluvun merkillä ei ole kehää,
+  joten täytetyn alan reunimmainen osa on kuvitteellinen kehä: musteen puolileveys = polun puolileveys (3,38 / 1,61) ilman
+  pääluvun +0,65:tä, eli kärjet saavat koskettaa. Mitattu (Chromium, päällekkäisiä alalukupareja getBBoxista): Luinin opas 412 px
+  8 → 0 (6 merkkiä pois), 1280 px 2 → 0; synteettinen teksti (`####`-tasoineen) 21 → 0 ja 26 → 0; kantin tutkielmassa ei muutosta,
+  pääluvut kaikissa ennallaan. Hierarkiatapaukset (kolmonen ennen kakkosta, numeroimaton ennen numeroitua, kaksi samanarvoista)
+  tarkistettu erikseen.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
