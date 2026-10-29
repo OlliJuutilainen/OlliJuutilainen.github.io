@@ -152,5 +152,13 @@ sama('julkaisutieto: tietorivit', JSON.stringify(sep4.lines), JSON.stringify(['H
 sama('julkaisutieto: luettu versio', sep4.paatelty.julkaistu, '2024-03-31');
 sama('kursivoitu alaotsikko ennallaan', M.parse('# T\n\n*Kirjoitus vuodelta 2018*\n\n' + PITKA).sub, 'Kirjoitus vuodelta 2018');
 
+// Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
+//   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
+const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../md.js'))).digest('hex').slice(0, 8);
+['../../luin.html', '../latomo.html'].forEach(f => {
+  const v = (/md\.js\?v=([0-9a-f]+)/.exec(lue(f)) || [])[1];
+  tulos('md.js?v= ajan tasalla: ' + f.split('/').pop(), v === mdV, v + ' ≠ ' + mdV + ' (aja kommentin sed-komento)');
+});
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);
