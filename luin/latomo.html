@@ -599,12 +599,19 @@
 
   /* ---------- esitäyttö ----------
      Kentät, joihin käyttäjä ei ole koskenut, seuraavat tekstiä (etukenttä ja tekstistä päätelty). */
+  // Tunnetut sivustot (käyttäjän pyyntö 29.10.2026, lellikki): lähdeosoitteen isäntä antaa sivuston nimen, jos tekstissä
+  // ei ole omaa. Etukentän tai käyttäjän oma arvo voittaa aina.
+  var SIVUSTOT = { 'plato.stanford.edu': 'Stanford Encyclopedia of Philosophy' };
+  function tunnettuSivusto(u) {
+    try { return SIVUSTOT[new URL(String(u).trim()).hostname.replace(/^www\./, '')] || ''; } catch (e) { return ''; }
+  }
   function esitayta(d, src) {
     var t = d.tiedot, ta = mdlNyt ? takaosa(src) : {};
     if (!tila.tyyppiKoskettu) tila.tyyppi = t.tyyppi || (mdlNyt ? 'blogi' : '');
     KENTAT.forEach(function (f) {
       if (tila.koskettu[f.k]) return;
       var v = t[f.k] || ta[f.k] || '';
+      if (f.k === 'sivusto' && !v) v = tunnettuSivusto(t['lähde'] || ta['lähde']);
       if (f.k === 'tekijä' && mdlNyt) v = v.replace(/^(by|kirjoittanut|teksti:)\s+/i, '');
       if (f.pvm && v) { var p = L.pvm(v); if (p) v = L.pvmMuoto(p, 'kentta', f.k === 'haettu' ? 3 : 4); }
       tila.arvot[f.k] = v;
