@@ -2212,6 +2212,17 @@
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
+  // Pääluvun paino päällekkäisten merkkien valintaan, vertailu järjestyksessä: 1) varsinainen luku ennen oheisaineistoa
+  // (kirjallisuus, lyhenteet, sisällys, liitteet, kiitokset, huomautukset, SEP:n lopun osiot), 2) numeroitu ennen
+  // numeroimatonta, 3) luku, jolla on alalukuja, ennen lukua ilman niitä.
+  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments|huomautukset|viitteet|notes|endnotes|related entries|other internet resources|academic tools)\b|lyhent|abbreviation/i;
+  function paaluvunPaino(m) {
+    var toc = nyt.doc.toc, i = toc.findIndex(function (t) { return t.lvl === 1 && t.b === m.k.b; }), t = toc[i];
+    if (!t) return [0, 0, 0];
+    var nimi = t.text.replace(/^\s*(\d+(\.\d+)*|[IVXLC]+)[.)]?\s+/, '').trim(), ala = toc[i + 1] && toc[i + 1].lvl > 1 ? 1 : 0;
+    return [OHEIS.test(nimi) ? 0 : 1, t.num ? 1 : 0, ala];
+  }
+  function vertaaPaino(a, b) { for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; }
   function piirraJana() {
     var svg = $('#jana-svg');
     if (!nyt || $('#jana').hidden) return;
@@ -2224,8 +2235,18 @@
       '<g id="j-loppu"' + (wf < 1 ? ' class="tuleva"' : '') + '><path class="j-viiva" d="' + janaTuleva(wx, x1, y) + '"/></g>';
     var maj = '';
     var kohteet = janaKohteet(), paat = [];
-    kohteet.forEach(function (m) { if (!m.km && !m.majakka && m.lvl === 1) paat.push(X(osuus(m.k))); });
-    paat.sort(function (a, b) { return a - b; });
+    // Käyttäjän pyyntö 29.10.2026: jos kaksi pääluvun merkkiä menisi sivusuunnassa päällekkäin (muste kehineen), näytetään
+    // vain ensimmäinen, paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa (paaluvunPaino()); silloin jälkimmäinen.
+    var paaN = kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl === 1; })
+      .map(function (m) { return { m: m, x: X(osuus(m.k)) }; }).sort(function (a, b) { return a.x - b.x; });
+    var pVali = 2 * (JANA.koko[1][0] + .65), pois = [], ed = null;
+    paaN.forEach(function (p) {
+      if (ed && p.x - ed.x < pVali) {
+        if (vertaaPaino(paaluvunPaino(p.m), paaluvunPaino(ed.m)) > 0) { pois.push(ed.m); ed = p; } else pois.push(p.m);
+      } else ed = p;
+    });
+    kohteet = kohteet.filter(function (m) { return pois.indexOf(m) < 0; });
+    paaN.forEach(function (p) { if (pois.indexOf(p.m) < 0) paat.push(p.x); });
     // Käyttäjän pyyntö 29.10.2026: alalukua ei näytetä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (merkin muste
     // kehineen); muuten sen täyte ja pääluvun ontto täyte menivät sekaisin (tuttifrutti). Pääluvut piirretään ylimmäisinä.
     kohteet = kohteet.filter(function (m) {
