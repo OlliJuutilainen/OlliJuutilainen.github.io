@@ -2183,13 +2183,13 @@
   // 0,8-, alaluvut 0,7-kertaisiksi entisestä 5,6 × 7,4 / 4,2 × 5,6 / 1,7 × 2,3), sitten alaluvut hiukan
   // suuremmiksi (1,15- ja 1,35-kertaisiksi). Tulevat ovat samankokoisia kuin luetut, vain harmaita.
   // Kirjanmerkit eivät ole etappeja.
-  // Käyttäjän pyyntö 29.10.2026: pääluku niin isoksi, että sen yläkärjen muste hipoo nykyisen kohdan kolmion kärkeä
-  // (y = 9); mittasuhde ennallaan (4,48 : 5,92). Koverakylkisen salmiakin kärjen kulma on mittasuhteesta
-  // riippumaton, joten kehän (1,3) jiiri ulottuu kärjessä 0,65 / sin θ = 1,545 yli polun: korkeus y − 9 − 1,545.
-  // Kirjanmerkin nauhan yläreuna on pääluvun sisäalan alimmassa kohdassa (sama jiiri sisäänpäin alakärjessä), joten
-  // nauha peittää kehän mutta ei yhtään sisäalaa (sama sääntö kuin ennen: 5,92 − 1,545 ≈ 4,4).
-  var JANA = { y: 22, koko: { 1: [8.67, 11.455], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
-  JANA.km = Math.round((JANA.y + JANA.koko[1][1] - 1.545) * 100) / 100;
+  // Käyttäjän pyynnöt 29.10.2026: pääluku ensin niin isoksi, että yläkärjen muste hipoi nykyisen kohdan kolmion kärkeä
+  // (puolikorkeus 11,455), mutta se oli "överin iso"; nyt entisen 5,92:n ja sen väliltä 8,4, mittasuhde ennallaan
+  // (4,48 : 5,92). Koverakylkisen salmiakin kärjen kulma on mittasuhteesta riippumaton, joten kehän (1,3) jiiri ulottuu
+  // kärjessä 0,65 / sin θ = 1,545 yli polun. Kirjanmerkin nauha ei peitä kehää lainkaan: sen yläreuna hipoo pääluvun
+  // alakärjen musteen huippua (y + 8,4 + 1,545; ennen nauha peitti kehän ja ulottui sisäalan alimpaan kohtaan).
+  var JANA = { y: 22, koko: { 1: [6.36, 8.4], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
+  JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
   JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
   // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita): alku- ja lopputikin (1 px) muste.
