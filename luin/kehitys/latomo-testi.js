@@ -324,6 +324,19 @@ palvelin.listen(0, async () => {
   await tiedostona('ann.md', POHJA + '\n' + ANN + '\n');
   tulos('tiedostosta ladattu teksti alkaa ilman piilotusta', (await p.getAttribute('#ann', 'aria-pressed')) === 'false' && /Annotations:/.test((await T()).md));
 
+  // 13. MarkDownload-leike SEP:stä (29.10.2026): [n]-alaviitemerkit (välilyönti ennen </sup>) yläindeksiksi ilman ^[-alaviitettä,
+  // otsikkorivitön HTML-taulukko Markdown-taulukoksi ja taulukon jälkeisten huomautusten rivinumerot tekstikentän riveinä.
+  await tiedostona('sep.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# John Dewey\n\n' +
+    '## 1. Psychology\n\nHabit.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-7" id="ref-7">7</a>] </sup> Habits.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-8">8</a>] </sup>Kiinni.\n\n' +
+    '<table><tbody><tr><td><strong>Mind is</strong></td><td><strong>Consciousness is</strong></td></tr><tr><td>Meanings <em>in</em> life</td><td>A | B</td></tr><tr><td>Yksi</td></tr></tbody></table>\n\n' +
+    '### 3.1 Experience\n\nLeipä.\n');
+  const sep = await T(), sepV = await p.$$eval('#varoitukset p', x => x.map(e => e.textContent));
+  tulos('SEP: alaviitemerkit yläindeksiksi', sep.md.includes('Habit.^\\[[7](https://plato.stanford.edu/entries/dewey/notes.html#note-7)\\]^ Habits.^\\[[8](https://plato.stanford.edu/entries/dewey/notes.html#note-8)\\]^ Kiinni.'), sep.md);
+  tulos('SEP: taulukko Markdowniksi', sep.md.includes('\n\n| Mind is | Consciousness is |\n| --- | --- |\n| Meanings *in* life | A \\| B |\n| Yksi |  |\n\n'), sep.md);
+  tulos('SEP: ei alaviitteitä eikä HTML-huomautuksia, rivinumero tekstikentän', /0 alaviitettä · 1 taulukko/.test(await p.textContent('#luvut')) &&
+    JSON.stringify(sepV) === JSON.stringify(['rivi 14Otsikon numero 3.1 ei jatka edellistä numerointia.']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
+  tulos('SEP: tila kertoo taulukosta', /2 HTML-indeksiä ja 1 HTML-taulukko Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');

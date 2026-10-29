@@ -137,5 +137,13 @@ tulos('leipätekstin lainaus ei ole motto', lv(PITKA.trim() + '\n\n> L.\\\n> –
 sama('Latomo: erillinen lähde lainaukseen', M.lahteetLainaukseen('# T\n\n> Sä loit.\n\n– *I* (n. 2008) \\\n\\\n\\\n\nLeipä.\n'), '# T\n\n> Sä loit.\\\n> – *I* (n. 2008)\n\nLeipä.\n');
 sama('Latomo: lähde omana lainauksenaan', M.lahteetLainaukseen('# T\n\n> Sä loit.\n\n> – X\n'), '# T\n\n> Sä loit.\\\n> – X\n');
 
+
+// Yläindeksiin linkitetty merkki (Latomon <sup>-muunnos) ei ole ^[…]-alaviite; HTML-huomautukset riveittäin.
+const yl = M.parse('# T\n\nA.^\\[[7](https://e.org/n.html#note-7)\\]^ B^[2](https://e.org/x)^ C^[[3](u)]^ D^[oikea alaviite] E.\n');
+sama('linkitetty yläindeksi ei ole alaviite', yl.notes, 1);
+tulos('linkitetty yläindeksi', yl.html.includes('A.<sup>[<a href="https://e.org/n.html#note-7">7</a>]</sup> B<sup><a href="https://e.org/x">2</a></sup> C<sup>[<a href="u">3</a>]</sup> D<label'), yl.html);
+const hv = M.parse('# T\n\nA<sup>[<a href="u">1</a>]</sup> ja <b>x</b>.\n\nB <i>y</i>.\n').warnings.map(w => w.ln + ' ' + w.msg);
+sama('HTML-huomautus riviä kohden', JSON.stringify(hv), JSON.stringify(['3 6 HTML-merkintää näkyy tekstinä: <sup>, <a>, <b>.', '5 2 HTML-merkintää näkyy tekstinä: <i>.']));
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);
