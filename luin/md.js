@@ -315,6 +315,60 @@
 
   var BIB = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited)$/i;
 
+  /* ---------- Sivuseikkojen pääluvut ----------
+     Käyttäjän pyyntö 29.10.2026: kun tekstin päälukurunko on tukeva, lopun (ja alun) vain muodollisesti pääluvuiksi
+     merkityt osiot ladotaan alalukuina (otsikkotaso yhtä alempana koko osiossa). Kirjallisuus, liitteet, lyhenteet,
+     kiitokset, huomautukset ja SEP:n lopun osiot tunnistetaan nimestä; lopussa myös lyhyt osio ilman pitkää proosaa,
+     jos varsinaiset luvut ovat numeroituja eikä se ole (tai luvuissa ei ole numeroita lainkaan). Runko on tukeva, kun
+     jäljelle jää vähintään kolme päälukua ja niissä on vähintään kaksi kolmasosaa tekstistä (kirjallisuusluetteloita
+     lukuun ottamatta). Muuten mitään ei muuteta. Keskeltä tekstiä ei alenneta mitään. */
+  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  // Alussa vain nimen perusteella (Johdanto ilman numeroa ennen 1. lukua on varsinainen luku).
+  var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  function lukuNimi(text) { return plain(text).trim().replace(/^((\d+(\.\d+)*|[IVXLC]+)[.):]?|[A-Z][.):])\s+/, '').trim(); }
+  function sivuLuvut(tokens, t0) {
+    var osat = [], nyky = null;
+    function pit(x) { return plain(String(x || '')).replace(/\s+/g, ' ').trim().length; }
+    function mittaa(t) {
+      if (t.t === 'p') return [pit(t.text), pit(t.text)];
+      if (t.t === 'list') return t.items.reduce(function (a, it) { var n = pit(it.text); return [a[0] + n, Math.max(a[1], n)]; }, [0, 0]);
+      if (t.t === 'bq') return t.kids.reduce(function (a, k) { var m = mittaa(k); return [a[0] + m[0], Math.max(a[1], m[1])]; }, [0, 0]);
+      if (t.t === 'table') return [t.rivit.reduce(function (a, r) { return a + r.solut.reduce(function (b, c) { return b + pit(c.text); }, 0); }, 0), 0];
+      if (t.t === 'pre') return [t.text.length, 0];
+      return [0, 0];
+    }
+    for (var i = t0; i < tokens.length; i++) {
+      var t = tokens[i];
+      if (t.t === 'h' && t.lvl <= 2) {
+        var nimi = lukuNimi(t.text.replace(/\s+\[[^\]]+\]$/, ''));
+        nyky = { i: i, nimi: nimi, num: /^\s*\d+(\.\d+)*\.?\s/.test(plain(t.text)), bib: BIB.test(plain(t.text).trim()), massa: 0, pisin: 0 };
+        osat.push(nyky);
+      } else if (nyky) {
+        var m = mittaa(t);
+        nyky.massa += m[0]; nyky.pisin = Math.max(nyky.pisin, m[1]);
+      }
+    }
+    if (osat.length < 4) return [];
+    var ydin = osat.filter(function (o) { return !OHEIS.test(o.nimi) && !ALKU_OHEIS.test(o.nimi); });
+    if (ydin.length < 3) return [];
+    var numeroitu = ydin.filter(function (o) { return o.num; }).length * 3 >= ydin.length * 2;
+    var massat = ydin.map(function (o) { return o.massa; }).sort(function (a, b) { return a - b; }), med = massat[massat.length >> 1];
+    function loppuun(o) {
+      if (OHEIS.test(o.nimi)) return true;
+      // Lyhyt osio ilman pitkää proosaa (linkkilista, lyhyet rivit), jonka numeroimattomuus erottaa sen luvuista.
+      return o.pisin < 250 && o.massa < med / 4 && (!numeroitu || !o.num);
+    }
+    var z = osat.length - 1, a = 0;
+    while (z >= 0 && loppuun(osat[z])) z--;
+    while (a <= z && ALKU_OHEIS.test(osat[a].nimi)) a++;
+    if (a === 0 && z === osat.length - 1) return [];
+    var runko = osat.slice(a, z + 1), kaikki = 0, oma = 0;
+    osat.forEach(function (o) { if (!o.bib) kaikki += o.massa; });
+    runko.forEach(function (o) { if (!o.bib) oma += o.massa; });
+    if (runko.length < 3 || oma * 3 < kaikki * 2) return [];
+    return osat.slice(0, a).concat(osat.slice(z + 1)).map(function (o) { return o.i; });
+  }
+
   /* ---------- Esikäsittely ----------
      Ennen lohkojäsennystä: kommentit pois (<!-- … --> myös monirivisenä ja iA Writerin //-rivit),
      alaviitteiden ([^tunnus]: …), sitaattien ([#avain]: …) ja viitelinkkien ([tunnus]: osoite)
@@ -968,7 +1022,7 @@
       title, sub, lines (tietorivit), author, year, kehys: alaotsikon paikalla näkyvä blogin nimi tai kokoelma,
       tiedot: lähdetiedot (KENTAT; etukenttä ohittaa tekstistä päätellyn), paatelty: tekstistä päätelty
         (otsikko, alaotsikko, tekijä, julkaistu), viite: etukentän viite tai tiedoista koottu,
-      toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg, puuttuu?, taso? }],
+      toc: [{ lvl 1–3, id, num, text, b, alas: pääluku ladottu alalukuna }], notes, blocks, html, warnings: [{ ln, msg, puuttuu?, taso? }],
       viittaukset: alaviitteiden lähdeviittaukset ja lyhenteet [{ ln, teksti, kohde: luettelon kohta, lyhenne tai '', syy }],
       kuvia, sisennettyKoodi: sisennyksestä syntyneet koodilohkot [{ ln, rivit }]
     }
@@ -1116,6 +1170,12 @@
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
     var inBib = false, nums = [], lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
+    // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
+    var alas = sivuLuvut(tokens, t0);
+    alas.forEach(function (i) {
+      tokens[i].alas = true;
+      for (var j = i + 1; j < tokens.length && !(tokens[j].t === 'h' && tokens[j].lvl <= 2); j++) if (tokens[j].t === 'h') tokens[j].alas = true;
+    });
     function renderList(items, inQuote) {
       var i = 0;
       function ryhma(lvl) {
@@ -1147,7 +1207,7 @@
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
-          var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
+          var lvl0 = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), lvl = t.alas && !inQuote ? Math.min(lvl0 + 1, 4) : lvl0;
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
@@ -1173,11 +1233,11 @@
             if (lvl >= 3) cls += ' caps';
           }
           id = uniq(id);
-          if (lvl === 2) inBib = BIB.test(txt);
+          if (lvl0 === 2) inBib = BIB.test(txt);
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
-          res.toc.push({ lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b });
+          res.toc.push({ lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: lvl !== lvl0 || undefined });
           h += '<h' + lvl + ' id="' + id + '" class="' + cls + '" data-b="' + (b++) + '">' + inline(htext, ctx) + '</h' + lvl + '>';
         } else if (t.t === 'p') {
           if (/(^|\s)\$\$|(^|\s)\$[^\s$][^$\n]*[^\s$\\]\$(?=$|[\s.,;:!?)])/.test(t.text) && !res.matikka) {
@@ -1365,5 +1425,5 @@
 
   root.LuinMD = { parse: parse, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
-    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
+    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

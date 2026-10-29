@@ -38,7 +38,8 @@ tulos('etukentän muuttuja', h.includes('Muuttuja: Tusinasoft.'));
 tulos('kuvat linkkeinä', d.kuvia === 2 && h.includes('<a class="kuva" href="https://example.com/logo.png">[kuva: Logo]</a>') && h.includes('<span class="kuva">[kuva]</span>'));
 tulos('kommentit pois', !/kommentti|Tämäkään/.test(h));
 tulos('{{TOC}} ja +++', h.includes('<div class="toc-paikka"></div>') && h.includes('<div class="sivunvaihto"'));
-tulos('setext-otsikko', h.includes('<h2 id="setext-otsikko"'));
+// Lyhyt numeroimaton loppuosio numeroitujen lukujen perässä on sivuseikka (alalukuna, ks. alempana).
+tulos('setext-otsikko', h.includes('<h3 id="setext-otsikko" class="sec caps"'));
 tulos('sisennetty koodi ja nelinkertainen aita', h.includes('<code>Sarkaimella sisennetty koodi.</code>') && h.includes('<code>```\naita aidan sisällä\n```</code>'));
 tulos('matematiikan huomautus', d.warnings.some(w => /Matematiikkaa/.test(w.msg)));
 sama('julkaisuaika tietoriviltä', d.paatelty.julkaistu, '2026-10');
@@ -87,9 +88,38 @@ sama('tyylin alaviitteet linkittyvät', (tl.html.match(/<a class="lahde" href="#
   'kirj-punkkinen-2012=Punkkinen et al. 2012 | kirj-allison-1993=Allison 1993 | kirj-allison-2010=2010 | kirj-tuhkanen-2013a=Tuhkanen 2013a | ' +
   'kirj-tuhkanen-2013b=2013b | kirj-mcloughlin-2014=McLoughlin &amp; Lertola 2014 | kirj-arffman-2004=Arffman 2004 | kirj-tov-2015=Tov 2015');
 
-// Kandidaatintutkielma ja kehittäjän opas: rakenne ennallaan (luvut 20.10.2026 ja 22.10.2026)
+// Kandidaatintutkielma ja kehittäjän opas: rakenne ennallaan (luvut 20.10.2026 ja 22.10.2026; 29.10.2026 Kirjallisuus
+// alalukuna, h2 6 → 5 ja h3 8 → 9)
 const k = M.parse(lue('../tekstit/kant-ja-elainetiikka.md'));
-sama('tutkielma: rakenne', [lkm(k.html, /<h2 /g), lkm(k.html, /<h3 /g), lkm(k.html, /<blockquote>/g), lkm(k.html, /class="bib"/g), k.notes, k.blocks, k.warnings.length].join(' '), '6 8 8 21 52 105 0');
+sama('tutkielma: rakenne', [lkm(k.html, /<h2 /g), lkm(k.html, /<h3 /g), lkm(k.html, /<blockquote>/g), lkm(k.html, /class="bib"/g), k.notes, k.blocks, k.warnings.length].join(' '), '5 9 8 21 52 105 0');
+sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.lvl + ' ' + t.text).join(), '2 Kirjallisuus');
+
+// Sivuseikkojen pääluvut (käyttäjän pyyntö 29.10.2026): vain tukevalla päälukurungolla.
+{
+  const proosa = n => Array.from({ length: n }, (_, i) => 'Leipätekstiä, jossa on asiaa ' + i + ' ja jatkoa niin, että kappale on proosaa eikä lyhyt rivi. '.repeat(4)).join('\n\n');
+  const luku = (ots, n) => '## ' + ots + '\n\n' + proosa(n) + '\n\n';
+  const tasot = md => M.parse(md).toc.map(t => t.lvl + (t.alas ? '*' : '') + ' ' + t.text).join(' | ');
+  const sep = '# T\n\n' + luku('1. Johdanto', 4) + luku('2. Teoria', 6) + '### 2.1 Osa\n\n' + proosa(2) + '\n\n' + luku('3. Kritiikki', 5) +
+    '## Bibliography\n\n### Primary\n\nKant, I. (1785). *Grundlegung*.\n\n## Academic Tools\n\n> [How to cite](https://e.org/c).\n\n' +
+    '## Other Internet Resources\n\n- [A](https://a.org)\n- [B](https://b.org)\n\n## Related Entries\n\n[Kant](https://e.org/kant) | [ethics](https://e.org/e)\n';
+  sama('sivuseikat: SEP:n loppu alalukuina', tasot(sep), '1 1. Johdanto | 1 2. Teoria | 2 2.1 Osa | 1 3. Kritiikki | 2* Bibliography | 3* Primary | 2* Academic Tools | 2* Other Internet Resources | 2* Related Entries');
+  const sd = M.parse(sep);
+  tulos('sivuseikat: kirjallisuusluettelo säilyy', lkm(sd.html, /class="bib"/g) === 1 && sd.html.includes('<h3 id="bibliography" class="sec caps"') && sd.html.includes('<h4 id="primary" class="sec caps"'));
+  sama('sivuseikat: lyhyt numeroimaton linkkiosio', tasot('# T\n\n' + luku('1. A', 3) + luku('2. B', 3) + luku('3. C', 3) + '## Linkit\n\n- [x](https://x.fi)\n'),
+    '1 1. A | 1 2. B | 1 3. C | 2* Linkit');
+  sama('sivuseikat: alun tiivistelmä ja lyhenteet', tasot('# T\n\n' + luku('Tiivistelmä', 1) + luku('Lyhenteet', 1) + luku('Johdanto', 3) + luku('1. A', 3) + luku('2. B', 3)),
+    '2* Tiivistelmä | 2* Lyhenteet | 1 Johdanto | 1 1. A | 1 2. B');
+  sama('sivuseikat: proosallinen numeroimaton yhteenveto on luku', tasot('# T\n\n' + luku('1. A', 3) + luku('2. B', 3) + luku('3. C', 3) + luku('Yhteenveto', 1) + luku('Lähteet', 1)),
+    '1 1. A | 1 2. B | 1 3. C | 1 Yhteenveto | 2* Lähteet');
+  sama('sivuseikat: alle kolme lukua, ei muutosta', tasot('# T\n\n' + luku('1. A', 5) + luku('2. B', 5) + luku('Kirjallisuus', 1) + luku('Liitteet', 1)),
+    '1 1. A | 1 2. B | 1 Kirjallisuus | 1 Liitteet');
+  sama('sivuseikat: liitteissä yli kolmannes, ei muutosta', tasot('# T\n\n' + luku('1. A', 2) + luku('2. B', 2) + luku('3. C', 2) + luku('Liitteet', 4) + luku('Kirjallisuus', 1)),
+    '1 1. A | 1 2. B | 1 3. C | 1 Liitteet | 1 Kirjallisuus');
+  sama('sivuseikat: keskellä ei alenneta', tasot('# T\n\n' + luku('1. A', 3) + luku('Kiitokset', 1) + luku('2. B', 3) + luku('3. C', 3)),
+    '1 1. A | 1 Kiitokset | 1 2. B | 1 3. C');
+  sama('sivuseikat: numeroimattomat lyhyet luvut (runot) pysyvät', tasot('# T\n\n' + ['Syksy', 'Talvi', 'Kevät', 'Kesä'].map(x => '## ' + x + '\n\nLyhyt rivi\\\ntoinen rivi\n\n').join('')),
+    '1 Syksy | 1 Talvi | 1 Kevät | 1 Kesä');
+}
 sama('tutkielma: tiedot', [k.title, k.sub, k.author, k.year].join(' | '), 'KANT JA ELÄINETIIKKA | Muulajisten arvokkuutta etsimässä | Olli Juutilainen | 2026');
 sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
 const o = M.parse(lue('../ohje.md'));
