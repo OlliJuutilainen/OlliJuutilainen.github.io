@@ -967,7 +967,7 @@
       title, sub, lines (tietorivit), author, year, kehys: alaotsikon paikalla näkyvä blogin nimi tai kokoelma,
       tiedot: lähdetiedot (KENTAT; etukenttä ohittaa tekstistä päätellyn), paatelty: tekstistä päätelty
         (otsikko, alaotsikko, tekijä, julkaistu), viite: etukentän viite tai tiedoista koottu,
-      toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg }],
+      toc: [{ lvl 1–3, id, num, text, b }], notes, blocks, html, warnings: [{ ln, msg, puuttuu?, taso? }],
       viittaukset: alaviitteiden lähdeviittaukset ja lyhenteet [{ ln, teksti, kohde: luettelon kohta, lyhenne tai '', syy }],
       kuvia, sisennettyKoodi: sisennyksestä syntyneet koodilohkot [{ ln, rivit }]
     }
@@ -984,7 +984,7 @@
     // xref(): ristiviittauksen rivinumero varoitusta varten (viittaus ratkaistaan vasta lopuksi).
     var refs = { fn: V.fn, link: V.link, cite: V.cite, meta: Object.assign({}, ek.raaka, ek.meta), xref: function () { return curLn; } };
 
-    function warn(msg) { res.warnings.push({ ln: curLn, msg: msg }); }
+    function warn(msg, lisa) { var w = { ln: curLn, msg: msg }; for (var k in lisa) w[k] = lisa[k]; res.warnings.push(w); }
     var b = 0, ids = {};
     function uniq(id) {
       if (!ids[id]) { ids[id] = 1; return id; }
@@ -1141,7 +1141,14 @@
           if (nm) {
             id = 'luku-' + nm[1].split('.').join('-');
             var parts = nm[1].split('.').map(Number), d = parts.length - 1, prevN = nums[d] || 0;
-            if (parts[d] !== prevN + 1 || (d > 0 && parts[d - 1] !== nums[d - 1])) {
+            // Ylemmän tason otsikko puuttuu, jos alaluku aloittaa seuraavan luvun (2.7 → 3.1 ilman 3:a; MarkDownload-leike).
+            var yla = d > 0 && parts[d] === 1 && parts[d - 1] === (nums[d - 1] || 0) + 1 &&
+              parts.slice(0, d - 1).join('.') === nums.slice(0, d - 1).join('.');
+            if (yla) {
+              var pn = parts.slice(0, d).join('.');
+              warn((d === 1 ? 'Pääluvun ' : 'Alaluvun ') + pn + ' otsikko puuttuu: ' + nm[1] + ' alkaa ilman sitä.',
+                { puuttuu: pn, taso: t.lvl - 1 });
+            } else if (parts[d] !== prevN + 1 || (d > 0 && parts[d - 1] !== nums[d - 1])) {
               warn('Otsikon numero ' + nm[1] + ' ei jatka edellistä numerointia.');
             }
             nums = parts.slice();

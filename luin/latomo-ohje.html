@@ -188,7 +188,9 @@
     <li>muuttaa sivun omat HTML-yläindeksit (alaviitemerkit kuten <code>&lt;sup&gt;1&lt;/sup&gt;</code>) Markdowniksi
       (<code>^1^</code>, iA Writerin yläindeksimerkintä); linkki leikkeen omalle sivulle jää pelkäksi numeroksi,</li>
     <li>muuttaa yksinkertaisen HTML-taulukon, jonka MarkDownload jättää HTML:ksi, Markdown-taulukoksi; ensimmäisestä
-      rivistä tulee otsikkorivi,</li>
+      rivistä tulee otsikkorivi, kuvat jäävät pois, ja yhden sarakkeen taulukosta tulee kappaleita,</li>
+    <li>korjaa sivun omat linkit, jotka MarkDownload kirjoittaa väärin (esimerkiksi <code>dewey//../sellars/</code>),</li>
+    <li>jättää pois peräkkäin toistuvan pääotsikon (valinnan leike, ks. <a href="#otsikko-puuttuu">puuttuva luvun otsikko</a>),</li>
     <li>lukee etukentästä tekijän, sivuston, julkaisuajan, lähteen ja tallennusajan, myös englanninkielisillä
       avaimilla (<code>author</code>, <code>source</code>, <code>created</code>),</li>
     <li>lukee leikkeen lopusta rivit kuten <code>Tallennettu: 2026-10-08</code> ja <code>Lähde: https://…</code>,</li>
@@ -261,6 +263,20 @@ leikattu: {date:YYYY-MM-DD}
     viitteessä luettu-päivänä; Latomo kirjoittaa sen tulokseen avaimella <code>haettu</code>, joten valmiissa tekstissä
     korvamerkkiä ei enää ole, eikä sitä siivota toiseen kertaan. Pohja ja asetukset on kokeiltu ajamalla
     MarkDownloadin (3.4.0) omaa muunnoskoodia selaimessa; oikealla Firefoxilla testaamatta.</p>
+
+  <h3 id="otsikko-puuttuu">Puuttuva luvun otsikko</h3>
+  <p>MarkDownload karsii sivulta valikot, mainokset ja muun sivuston sisällön ennen muuntamista. Karsinta päättelee
+    sisältöä sivun koodissa olevista nimistä, ja jos luvun otsikon nimessä on sana kuten <i>meta</i>, <i>comment</i>,
+    <i>share</i> tai <i>footer</i>, otsikko katoaa leikkeestä. Esimerkiksi Stanford Encyclopedia of Philosophyn
+    John Dewey -artikkelista puuttuu näin pääluku <i>3. Experience and Metaphysics</i>, koska sen nimi sivun koodissa
+    on <code>ExpeMeta</code>. Asetuksista tätä ei saa pois. Latomo huomauttaa, kun luku 3.1 alkaa ilman päälukua 3,
+    ja kertoo rivin, jonka eteen otsikon voi kirjoittaa sivulta katsottuna (<code>## 3. Experience and Metaphysics</code>).</p>
+  <p>Toinen keino on leikata valinta: maalaa artikkeli otsikosta kirjallisuusluettelon loppuun ja valitse hiiren
+    oikealla <span class="ui">Download Selection As Markdown</span>, tai avaa MarkDownloadin ikkuna, valitse
+    <span class="ui">Selected Text</span> ja paina <span class="ui">Download</span>. Silloin karsintaa ei tehdä, ja otsikot säilyvät; lähdetiedot tulevat
+    etukenttään kuten ennenkin. Valinnassa mukana oleva otsikko toistuisi pohjan otsikon perässä, joten Latomo jättää
+    toisen pois. Sivuston omat osiot (SEP:ssä <i>Academic Tools</i>, <i>Other Internet Resources</i> ja <i>Related
+    Entries</i>) tulevat mukaan, jos maalaat ne; kuvakkeet jäävät pois. Kokeiltu Firefoxissa: otsikot säilyivät.</p>
 
   <h2 id="pdf">Pdf:stä muunnettu teksti</h2>
   <p>Latomo lukee lähdetiedot myös englanninkielisestä etukentästä: <code>title</code>, <code>subtitle</code>,
