@@ -930,6 +930,15 @@ Käyttäjän vaatimukset 20.10.2026:
   lainauksen sisäinen tyhjä rivi välissä) → `figure.lainaus` ja lähde `figcaption` oikeaan reunaan; otsikon jälkeen ennen
   leipätekstiä `figure.motto` (sisennetty, ei pystyviivaa). Latomo ehdottaa erilleen kirjoitetun lähteen siirtoa lainaukseen.
   Sama iA Writerin esikatselussa pohjalla `luin/ia-writer/Luin.iatemplate` (+ zip; käyttäjän pyyntö 27.10.2026; opas 3.6).
+- **Sivuseikkojen pääluvut alalukuina** (käyttäjän pyyntö 29.10.2026; opas, luku 3.2): md.js `sivuLuvut()` alentaa lopun (ja
+  alun) muodollisia päälukuja yhden tason (osion alaotsikot mukana), mutta vain tukevalla rungolla: vähintään neljä päälukua,
+  jäljelle vähintään kolme, ja niissä ≥ 2/3 tekstistä (kirjallisuusluettelot pois laskuista). Lopussa nimi `OHEIS` (myös
+  luin.html:n `paaluvunPaino` käyttää samaa, `LuinMD.OHEIS`) tai lyhyt proosaton numeroimaton osio numeroitujen perässä; alussa
+  vain nimi (`ALKU_OHEIS`); keskeltä ei mitään. `toc`-rivillä `alas: true`, Latomon rakenteessa *ladotaan alalukuna*. `inBib` nojaa
+  alkuperäiseen tasoon. Tutkielmassa *Kirjallisuus* on nyt alaluku: h2 6 → 5, h3 8 → 9, sivutettuna 412 px:llä 61 → 60 sivua,
+  aikajanalla päälukuja 6 → 5; muu `testi.js`-tuloste ennallaan (vierityksen veto 11450 → 11448 px). `ia-merkinnat.md`:n lyhyt
+  *Setext-otsikko* aleni samalla säännöllä (testi päivitetty). Vanhan viennin `## Kirjallisuus` tuodaan samaan osioon (tarkistettu
+  Chromiumissa). Regexien `\b` ei toimi ä:n perässä, siksi `(?![\p{L}\p{N}])`.
 - **Otsikot sivutettuna** (käyttäjän päätös 28.10.2026): pääluku alkaa aina uudelta sivulta (CSS `break-before: column`). Alaluku (`###`), jolle sivun pohjalla mahtuisi vain otsikko tai otsikko ja yksi tekstirivi, siirretään seuraavalle sivulle (`alalukujenAlut()`, luokka `sivulle`). Mitattu synteettisellä tekstillä ikkunakorkeuksilla 560–900 px: huonoja alaluvun alkuja 321 → 0, sivuja 1757 → 1790; kantin tutkielman asettelu ei muuttunut. Lisäys samana päivänä: alaluku siirretään myös, jos sen aloittava lainaus ei mahdu otsikon sivulle kokonaan (synteettinen teksti: 330 → 0 tapausta), ja siirto varmistetaan JS:llä (`pakotettu`), koska käyttäjän työpöytäselain ei pakottanut pääluvun sivunvaihtoa (Chromiumissa toimi; selainta ei tiedetä). `testi.js` tarkistaa pääluvun ja alalukujen rivisäännön.
 **Sisällysluetteloa ei pakoteta omalle sivulleen** (käyttäjän päätös 28.10.2026): se kulkee otsikkolohkon perässä samalla sivulla (kantin tutkielma 412 ja 1280 px: otsikko ja sisällys sivulla 1). Aiempi `nav.sisallys { break-before: column }` poistettiin eikä sitä ole JS-varmistuksessakaan; vain pääluku (`h2`) pakotetaan.
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).

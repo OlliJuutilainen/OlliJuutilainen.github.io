@@ -159,6 +159,7 @@
   ol.rakenne li.t2 { padding-left: 1.4em; }
   ol.rakenne li.t3 { padding-left: 2.8em; font-size: .94em; }
   ol.rakenne svg { flex: 0 0 auto; width: 10px; height: 12px; position: relative; top: 1px; }
+  ol.rakenne .alas { color: var(--harmaa); font-style: italic; font-size: .9em; }
   .j1 { fill: none; stroke: var(--muste); stroke-width: 1.3; } .j2, .j3 { fill: var(--muste); }
   ul.lahteet { list-style: none; margin: 0; padding: 0; font-size: .88rem; }
   ul.lahteet li { margin: 0 0 6px; padding-left: 1.2em; text-indent: -1.2em; }
@@ -286,7 +287,7 @@
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
-<script src="md.js?v=6a14c835"></script>
+<script src="md.js?v=cae570ee"></script>
 <script>
 (function () {
   'use strict';
@@ -726,7 +727,9 @@
         (w.puuttuu && mdlNyt ? ' <a href="latomo-ohje.html#otsikko-puuttuu" target="_blank" rel="noopener">Miksi?</a>' : '') + '</p>';
     }).join('') + '</div>' : '<p class="ok">Ei huomautettavaa.</p>';
     $('#rakenne').innerHTML = d.toc.map(function (t) {
-      return '<li class="t' + t.lvl + '"><svg viewBox="0 0 10 12"><path class="j' + t.lvl + '" d="' + MERKKI[t.lvl] + '"/></svg>' + esc(t.text) + '</li>';
+      return '<li class="t' + t.lvl + '"><svg viewBox="0 0 10 12"><path class="j' + t.lvl + '" d="' + MERKKI[t.lvl] + '"/></svg>' + esc(t.text) +
+        // Sivuseikan pääluku ladotaan alalukuna (md.js sivuLuvut()).
+        (t.alas ? ' <span class="alas" title="Merkitty päälukutasolle, mutta tekstin runko on muissa luvuissa">ladotaan alalukuna</span>' : '') + '</li>';
     }).join('') || '<li class="pieni">Ei lukuja.</li>';
     $('#lahteet').innerHTML = lahteet(d.viittaukset);
     naytaMdl(src);
