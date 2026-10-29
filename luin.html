@@ -2224,12 +2224,16 @@
     var maj = '';
     var kohteet = janaKohteet(), paat = [];
     kohteet.forEach(function (m) { if (!m.km && !m.majakka && m.lvl === 1) paat.push(X(osuus(m.k))); });
+    paat.sort(function (a, b) { return a - b; });
     // Käyttäjän pyyntö 29.10.2026: alalukua ei näytetä, jos se osuu pääluvun merkin sivusuuntaiseen alaan (merkin muste
     // kehineen); muuten sen täyte ja pääluvun ontto täyte menivät sekaisin (tuttifrutti). Pääluvut piirretään ylimmäisinä.
     kohteet = kohteet.filter(function (m) {
       if (m.km || m.majakka || m.lvl === 1) return true;
       var puoli = JANA.koko[1][0] + .65 + JANA.koko[Math.min(m.lvl, 3)][0], x = X(osuus(m.k));
-      return !paat.some(function (px) { return Math.abs(x - px) < puoli; });
+      // Poikkeus kirjan alussa (käyttäjä 29.10.2026): ensimmäisen pääluvun alaluku (1.1, 1.1.1) saa näkyä, jos sen vasen reuna
+      // ei osu aloittavaan tikkuun (muste x0 ± 0,5).
+      var vasen = x - JANA.koko[Math.min(m.lvl, 3)][0], alku = vasen > janaRajat(w)[0] + .5;
+      return !paat.some(function (px) { return Math.abs(x - px) < puoli && !(alku && px === paat[0]); });
     }).sort(function (a, b) { return (a.lvl === 1 ? 1 : 0) - (b.lvl === 1 ? 1 : 0); });
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
