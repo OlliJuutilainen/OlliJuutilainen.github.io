@@ -705,9 +705,10 @@ Käyttäjän vaatimukset 20.10.2026:
   lähes pistemäinen täytetty. Käyttäjän päätös 21.10.2026 (myöhemmin): etappimerkit pienemmiksi, pääluku 0,8- ja alaluvut
   0,7-kertaisiksi (`JANA.koko`; kirjanmerkin nauha ennallaan); sitten alaluvut hiukan suuremmiksi (1,15- ja 1,35-kertaisiksi:
   alaluvun alaluvut sulautuivat viivaan), ja nykyisen kohdan oikealla puolella olevien pienempi kokoluokka (0,75) poistettiin
-  turhana kokojen kirjona: tulevat ovat samankokoisia, vain harmaita. Käyttäjän pyyntö 29.10.2026: pääluku taas isoksi, niin että
-  sen yläkärjen muste hipoo nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455, kehän jiiri kärjessä 1,545; mitattu 9,125 vs. 8,875 px),
-  ja kirjanmerkkien rivi alemmas samalla säännöllä kuin ennen: nauhan yläreuna pääluvun sisäalan alimmassa kohdassa (`JANA.km`).
+  turhana kokojen kirjona: tulevat ovat samankokoisia, vain harmaita. Käyttäjän pyyntö 29.10.2026: pääluku ensin niin isoksi, että
+  yläkärki hipoi nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455), mutta "aivan överin iso", joten samana päivänä väliltä: 8,4
+  (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
+  kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
   Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
   vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
