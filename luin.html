@@ -672,7 +672,7 @@
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
   <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
-  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|keski:Keski|levea:Reilu|syva:Syvä|syvin:Syvin"></div></div>
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|keski:Keski|levea:Reilu|syvin:Syvin"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -812,6 +812,7 @@
   // av 5 (22.10.2026): sivunapit eivät ole enää oletuksena; mobiilin oikea alanurkka on palkkinuolen. Ne olivat
   // oletuksena päällä vain saman päivän, joten tallennettu päällä-arvo on oletus eikä valinta.
   if (tallennetut && !(tallennetut.av >= 5)) { aset.sivunapit = 0; aset.av = 5; }
+  if (aset.marginaali === 'syva') aset.marginaali = 'syvin';
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   // Aikajanan oletus (22.10.2026): työpöydällä pääluvut ja alaluvut, mobiilissa (kapea ruutu tai
   // sormiosoitin) vain pääluvut. Koskee vain ensikäyttöä; tallennettua valintaa ei kosketa.
@@ -823,12 +824,12 @@
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
   // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.
-  // Syvä ja Syvin lisättiin 26.10.2026 (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
+  // Syvä (60) ja Syvin (90) lisättiin 26.10.2026; 29.10.2026 jäi neljä arvoa ja Syvin on 75 (entinen Syvä lasketaan Syvimmäksi) (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
   // leveällä ruudulla, ja kapealla puhelimella tasattu teksti harvenee, mikä on valitsijan oma päätös.
-  var MARG = { kapea: 0, keski: 24, levea: 36, syva: 60, syvin: 90 };
-  var MARG_SYVIN = 90;
+  var MARG = { kapea: 0, keski: 24, levea: 36, syvin: 75 };
+  var MARG_SYVIN = 75;
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
-  function marginaali() { return MARG[aset.marginaali] || 0; }
+  function marginaali() { return MARG[aset.marginaali === 'syva' ? 'syvin' : aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
 
