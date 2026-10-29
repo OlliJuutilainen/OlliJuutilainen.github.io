@@ -97,6 +97,10 @@
   .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45; }
   .foot { margin: auto 0 0; padding-top: 44px; text-align: center; color: var(--harmaa); font-size: .64rem;
     letter-spacing: .16em; }
+  /* ©: suora salmiakki, jonka sisällä Literatan oman ©-merkin C fonttiyksikköinä (käyttäjän pyyntö 29.10.2026);
+     keskikohta versaalin keskilinjalla. */
+  .foot svg { width: 1.1em; height: 1.1em; vertical-align: -.2em; overflow: visible; fill: currentColor; }
+  .foot .k { fill: none; stroke: currentColor; stroke-width: 58; }
 
   /* ---------- ponnahdukset ---------- */
   .valikko { position: fixed; z-index: 50; background: var(--paperi); color: var(--muste); border: 1px solid var(--muste);
@@ -527,10 +531,15 @@
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
   /* Sukkela alleviivaus näyttää itse, mitä tekee (käyttäjän valinta G 29.10.2026): ohut ruosteinen viiva, kursiivi,
-     Literatan ohuin paino. Viiva himmenee pois päältä muun tekstin mukana. */
+     Literatan ohuin paino. Viiva himmenee pois päältä muun tekstin mukana ja on pois käytöstä harmaa kuten muukin. */
   .valinnat .sukkela { font-style: italic; font-weight: 380; text-decoration: underline; text-decoration-color: var(--ruoste);
     text-decoration-thickness: 1px; text-underline-offset: .22em; text-decoration-skip-ink: none; }
-  .valinnat button:disabled { opacity: .3; cursor: default; }
+  /* Pois käytöstä olevat lisäkytkimet (sivunkäännön tavat vierityksessä, Sukkela alleviivaus piilotetuilla
+     alleviivauksilla) ovat kaikki samaa superhimmeää harmaata ilman valintaa (käyttäjän päätös 29.10.2026):
+     tallennetut valinnat säilyvät, mutta eivät erotu, kun ylempi vaihtoehto ei ole valittuna. */
+  .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
+  .valinnat button:disabled .sal-sisa { fill: none; }
+  .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
@@ -587,7 +596,7 @@
     <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
     <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeiluteksti: Kant ja eläinetiikka</a></p>
   <p class="lisaa uusi"><a href="luin/latomo.html">Uusi teksti <b>Latomossa</b></a></p>
-  <p class="foot">© TUSINASOFT 2026</p>
+  <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
 <!-- ===== Lukija ===== -->
@@ -638,7 +647,7 @@
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
        yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
-    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunan napautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div></div>
+    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -1508,6 +1517,14 @@
       tila.hiljaa = Date.now() + 250;
       window.scrollTo(0, Math.max(0, y));
       paivita();
+      // Kohdan kirjanmerkin nauha on rivin yläpuolella; otsikossa se jäi yläpalkkia vasten tai ruudun yli
+      // (käyttäjän pyyntö 29.10.2026). Vieritetään sen verran alas, että nauhan yläpuolelle jää NAUHA_KATTO.
+      var km = k.o === 0 && nyt.merk.km.filter(function (x) { return x.b === k.b && x.o === 0 && !x.orpo; })[0];
+      var nr = km && $('.km[data-k="' + km.id + '"]', sivuEl), katto = Math.max(ylaRaja(), ylaPeitto()) + NAUHA_KATTO;
+      if (nr && nr.getBoundingClientRect().top < katto && scrollY > 0) {
+        window.scrollTo(0, Math.max(0, scrollY + nr.getBoundingClientRect().top - katto));
+        paivita();
+      }
     }
   }
 
@@ -1940,7 +1957,8 @@
       tallennaMerkit();
     }
     paivita(); paivitaMerkinnat();
-    if (!nakyy) naytaKirjanmerkki(km);
+    // Vierityksessä kappaleen alku voi näkyä, vaikka sen yläpuolinen nauha jää palkin alle tai ruudun yli (otsikko ylimpänä).
+    if (!nakyy || aset.sivutus !== 'sivut') naytaKirjanmerkki(km);
   }
   function naytaKirjanmerkki(k) {
     if (aset.sivutus === 'sivut') { if (nakyvatKirjanmerkit().indexOf(k) < 0) mene({ b: k.b, o: 0 }); return; }
@@ -1990,7 +2008,7 @@
   // tiheä väli, sisennystilan koodilohko) tai kirjanmerkki on kesken kappaletta (vanhat),
   // vasemmassa reunuksessa.
   // Tila lasketaan musteesta: nousijoiden yläreunasta edellisen rivin laskijoiden alareunaan.
-  var NAUHA_K = 15, NAUHA_L = 9, kirjMitat = {};
+  var NAUHA_K = 15, NAUHA_L = 9, NAUHA_KATTO = 14, kirjMitat = {};
   function kirjasin(el) {
     var cs = getComputedStyle(el), f = cs.fontStyle + ' ' + cs.fontWeight + ' 100px ' + cs.fontFamily;
     if (!kirjMitat[f]) {
@@ -2037,9 +2055,14 @@
     var raja = edellinenAlareuna(el, palsta);
     if (sivut) raja = Math.max(raja == null ? yla : raja, yla);
     else if (raja == null) raja = -Infinity;
-    var vali = nousu - raja;
-    if (vali < NAUHA_K + 4) return reunus;
-    return { left: r.left, top: nousu - NAUHA_K - Math.min(4, (vali - NAUHA_K) / 2) };
+    // Väli nauhan ja tekstin välillä: leipätekstissä 4 px, otsikossa 0,45 em (käyttäjän pyyntö 29.10.2026:
+    // pääluvun otsikkoon nauha oli liian kiinni). Sivun yläreunassa (ei edellistä riviä) nauhan yläpuolelle
+    // jätetään mieluiten NAUHA_KATTO, ettei nauha nuole kattoa; ahtaassa välissä väli jaetaan tasan.
+    var vali = nousu - raja, tilaa = vali - NAUHA_K;
+    if (tilaa < 4) return reunus;
+    var g = /^H[1-6]$/.test(el.tagName) ? Math.max(4, 0.45 * m.fs) : 4, ala = Math.min(g, tilaa / 2);
+    if (sivut && raja === yla) ala = Math.max(Math.min(ala, tilaa - NAUHA_KATTO), Math.min(2, tilaa / 2));
+    return { left: r.left, top: nousu - NAUHA_K - ala };
   }
   function piirraKirjanmerkit() {
     $$('.km', sivuEl).forEach(function (n) { n.remove(); });

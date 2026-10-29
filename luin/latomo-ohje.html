@@ -64,6 +64,10 @@
     cursor: pointer; font-size: .86rem; }
   .huom { font-size: .88rem; color: var(--harmaa); padding-left: 12px; border-left: 1px solid var(--viiva); }
   .foot { margin: 0; padding: 0 16px 22px; text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; }
+  /* ©: suora salmiakki, jonka sisällä Literatan oman ©-merkin C fonttiyksikköinä (käyttäjän pyyntö 29.10.2026);
+     keskikohta versaalin keskilinjalla. */
+  .foot svg { width: 1.1em; height: 1.1em; vertical-align: -.2em; overflow: visible; fill: currentColor; }
+  .foot .k { fill: none; stroke: currentColor; stroke-width: 58; }
 </style>
 </head>
 <body>
@@ -289,7 +293,7 @@ leikattu: {date:YYYY-MM-DD}
     lähetys korvaa vanhan version, ja merkinnät säilyvät. Lukulistasta poistettu teksti ei palaa, ellei sitä lähetetä
     uudelleen.</p>
 </main>
-<p class="foot">© TUSINASOFT 2026</p>
+<p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 <script>
   document.getElementById('kopioi').addEventListener('click', function () {
     var b = this, t = document.getElementById('pohja').textContent;

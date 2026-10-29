@@ -118,6 +118,12 @@ myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
+Luinin sivuilla (`luin.html`, Latomo, Latomon ohje, käyttöohje) ©-merkki on SVG (käyttäjän pyyntö 29.10.2026):
+suora salmiakki (920 × 920 fonttiyksikköä, viiva 58) ja sen sisällä Literatan oman ©-merkin (`copyright`) sisempi C
+sellaisenaan, fontin koossa. Ensimmäinen versio (koverakylkinen salmiakki ja itse piirretty C, jonka terävät
+häntäpäät) hylättiin: C:tä ei tunnistanut, se oli liian iso salmiakkiin nähden, ja koverat kyljet ahdistivat sitä.
+Keskikohta on versaalin keskilinjalla (mitattu pikseleistä, ero 0,25 px eli yksi laitepikseli DPR 4:llä), ja
+rivin korkeus pysyi ennallaan; `aria-label="©"`. Muiden ohjelmien alatunnisteissa on tavallinen ©.
 
 ## Repon rakenne
 
@@ -862,6 +868,9 @@ Käyttäjän vaatimukset 20.10.2026:
   yläpuolella, jos tilaa on (kappaleväli, otsikon tai luvun vaihto, sivun yläreuna), ei reunuksessa. Reunus on vain
   varasääntö, kun tilaa ei ole (alle 18 px:n koko, sisennystilan koodilohko) ja vanhoille kesken kappaletta oleville.
   Sivutettuna nauha on `position: fixed`, koska `#sivu` leikkaisi sivun yläreunan kaistan.
+  Otsikossa nauhan ja nousijoiden väli on 0,45 em (leipätekstissä 4 px), ja nauhan yläpuolelle jää yläreunassa 14 px
+  (`NAUHA_KATTO`; vierityksessä `mene()` ja nauhanapin lisäys vierittävät sen verran; käyttäjän pyyntö 29.10.2026: pääluvussa
+  nauha oli kiinni otsikossa ja vierityksessä yläpalkkia vasten tai ruudun yli). Mitattu: pääluvussa väli musteeseen 5 → 12 px.
 - **Marginaali** (käyttäjän pyyntö 22.10.2026, toteutus Clauden harkinnalla; opas, luku 4.5): *Ulkoasu*-osiossa Reunojen
   ja Tavutuksen välissä *Marginaali: Ohut | Keski | Reilu* = 16 / 24 / 36 px molemmille sivuille (`MARG`), oletus Keski.
   Arvojen avaimet (`kapea`, `keski`, `levea`) ovat ennallaan, jotta tallennetut asetukset säilyvät; nimet vaihdettiin 22.10.2026.
@@ -924,7 +933,7 @@ Käyttäjän vaatimukset 20.10.2026:
     vain, jos koko ohjelman ulkoasu sovitetaan siihen. Viitenumerot ovat edelleen groteskia.
   - *Teksti* ja *Aikajana* ovat sateenvarjolistoja, joiden otsikko on pelkkä *Näytä:* isolla alkukirjaimella ja kursiivilla (käyttäjän päätökset
     21.10.2026; vasen reuna kuten muilla nimillä (vaihtoehtojen tekstin kohdalle sisennys ja pieni alkukirjain kokeiltiin ja hylättiin); väri sama `--harmaa` kuin h3:lla ja asetusten huomiolla; hajurakoa 8 px yläpuolella, alapuolella tavallinen 1 px kuten muilla nimillä (käyttäjän päätös 21.10.2026; hetken 12 px); sama 8 px:n lisäväli on kaikkien asetusten väliotsikoiden alla, myös *Ulkoasu*-otsikon, eli h3:n ja ensimmäisen nimen väli on 19 px; versaali sekoittuisi h3:een, valitsemattomien himmennys ei käy ja ruoste on napautettavan): *Teksti* sisällysluettelo / kirjanmerkit / alleviivaukset
-    (alleviivausten alla pieni lisäkytkin *Sukkela alleviivaus*, oletus päällä, pois käytöstä piilotettuna; teksti `.sukkela` kursiivilla, painolla 380 ja 1 px:n ruosteisella alleviivauksella, käyttäjän valinta G kahdeksasta 29.10.2026) ja
+    (alleviivausten alla pieni lisäkytkin *Sukkela alleviivaus*, oletus päällä, pois käytöstä piilotettuna; teksti `.sukkela` kursiivilla, painolla 380 ja 1 px:n ruosteisella alleviivauksella, käyttäjän valinta G kahdeksasta 29.10.2026; pois käytöstä viiva on harmaa kuten muukin) ja
     *Aikajana* Pääluvut / Alaluvut (oletus 21.10.2026 alkaen; ennen sitä hetken Kaikki) / Kaikki sekä kirjanmerkit ja
     edistyminen. Tasot ovat kumulatiivisia: *Alaluvut* sytyttää myös *Pääluvut*, *Kaikki* molemmat. Valitun tason napautus sammuttaa sen ja jättää ylemmät (*Pääluvut* sammuttaa kaikki etapit, `janaTaso: 0`); muu napautus asettaa tason (käyttäjän kokeilu 21.10.2026). Vanhat tallennetut asetukset vaihdetaan kerran uusiin oletuksiin (`av: 2` sukkela alleviivaus,
     `av: 3` Kaikki → Alaluvut; itse valittu Pääluvut säilyy).
