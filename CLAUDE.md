@@ -753,7 +753,7 @@ Käyttäjän vaatimukset 20.10.2026:
   alun lauseet, joita kentistä ei löydy (ISBN, lisenssi). Uusi alku valitaan tekstikentässä muokattavaksi. Hylätty:
   etukentän tilamerkintä, jolla kentät yliajaisivat näytön (tiedosto näyttäisi iA Writerissä eri alun).
 - Latomon *Tyhjennä kentät* (käyttäjän pyyntö 22.10.2026) tyhjentää tekstin, kentät, oman viitteen ja osoitteen; vahvistus
-  *”Oletko aivan varma?” sanoi Lasse Lehtinen.* napein *Olen, tyhjennä* / *älä!*. MarkDownload-kytkin säilyy.
+  *”Oletko aivan varma?” sanoi Lasse Lehtinen.* napein *Olen, tyhjennä* / *älä!*. MarkDownload-tila palaa alkutilaan (rivi piiloon; käyttäjän päätös 29.10.2026, ennen kytkin säilyi).
 - Logo *LUiN.* / *HTML* (`luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja
   Latomoon): korkea tiivis antiikvaversaali, i:n piste ja loppupiste salmiakkeja, alarivi HTML ohuena
   väljänä. Viiva pisteiden välillä on *glissando* (käyttäjän päätös 21.10.2026; esikuva flageolettiglissando):
