@@ -351,6 +351,17 @@ palvelin.listen(0, async () => {
   tulos('valinta: kuvakkeiden taulukko kappaleiksi', val.md.includes('## Academic Tools\n\n> [How to cite](https://e.org/c?x=1&y=2).\n>\n> [PDF](https://e.org/p) at [X](https://e.org/).\n\n## Other'), val.md);
   tulos('valinta: ei huomautuksia', JSON.stringify(valV) === JSON.stringify(['Ei huomautettavaa.']), valV.join(' | '));
 
+  // 15. MarkDownloadin validateUri: suhteellinen osoite lähteen perään kahdella kauttaviivalla tai ilman erotinta.
+  await tiedostona('osoitteet.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# T\n\nKatso [Sellars][1], [luku][2], [ohje](https://plato.stanford.edu/entries/dewey//../../info.html#c) ja [sama](https://plato.stanford.edu/entries/dewey/).\n\n[1]: https://plato.stanford.edu/entries/dewey//../sellars/\n[2]: https://plato.stanford.edu/entries/dewey//#Psyc\n');
+  const os1 = (await T()).md;
+  tulos('osoitteet: kaksoiskauttaviiva ratkaistu', os1.includes('[ohje](https://plato.stanford.edu/info.html#c) ja [sama](https://plato.stanford.edu/entries/dewey/).') &&
+    os1.includes('[1]: https://plato.stanford.edu/entries/sellars/\n[2]: https://plato.stanford.edu/entries/dewey/#Psyc') && /Korjattu 3 sivun omaa linkkiä\./.test(await p.textContent('#mdl-tila')), os1 + ' | ' + await p.textContent('#mdl-tila'));
+  await tiedostona('osoitteet2.md', '---\nlähde: https://e.org/blogi/kirjoitus.html\nleikattu: 2026-10-29\n---\n\n# T\n\n[Kuva](https://e.org/blogi/kirjoitus.html../kuvat/a.html), [ankkuri](https://e.org/blogi/kirjoitus.html#x) ja [toinen](https://e.org/blogi/kirjoitus.htmlnotes.html).\n');
+  tulos('osoitteet: liimattu suhteellinen ratkaistu, ankkuri ennallaan', (await T()).md.includes('[Kuva](https://e.org/kuvat/a.html), [ankkuri](https://e.org/blogi/kirjoitus.html#x) ja [toinen](https://e.org/blogi/notes.html).'), (await T()).md);
+
+  await tiedostona('osoitteet3.md', '---\nlähde: https://e.org/blog\nleikattu: 2026-10-29\n---\n\n# T\n\n[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).\n');
+  tulos('osoitteet: kansioton lähde ei korjaa', (await T()).md.includes('[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).'), (await T()).md);
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');

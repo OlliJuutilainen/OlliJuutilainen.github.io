@@ -454,14 +454,31 @@
     md.splice(1, 0, alku + '|' + new Array(kaytossa.length + 1).join(' --- |'));
     return md;
   }
+  // MarkDownload (3.4.0, validateUri) liittää suhteellisen osoitteen sivun osoitteen perään: kauttaviivaan päättyvän
+  // perään tulee toinen kauttaviiva (dewey//notes.html, dewey//../addams-jane/), muuten osoite liimautuu suoraan
+  // (kirjoitus.htmlnotes.html), eikä ../-osia ratkaista. Lähteen alkuiset osoitteet ratkaistaan uudelleen lähteestä.
+  function korjaaOsoitteet(l, lahdeU, tehty) {
+    if (l.indexOf(lahdeU) < 0) return l;
+    // Ilman kauttaviivaa vain tiedostonimeen päättyvä lähde (kirjoitus.html): blog + -archive on oikea osoite.
+    var kansio = /\/$/.test(lahdeU);
+    if (!kansio && (/\?/.test(lahdeU) || !/\/[^\/]*\.[a-z0-9]+$/i.test(lahdeU))) return l;
+    var re = new RegExp(lahdeU.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^\\s)"<>\\]]*)', 'g');
+    return l.replace(re, function (k, r) {
+      var rel = kansio ? (r[0] === '/' ? r.slice(1) : null) : (r && !/^[#?\/]/.test(r) ? r : null);
+      if (rel == null) return k;
+      try { tehty.osoite++; return new URL(rel, lahdeU).href; } catch (e) { tehty.osoite--; return k; }
+    });
+  }
   function siivoa(src) {
-    var r = src.split('\n'), tehty = { korostus: 0, html: 0, ote: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0 }, aita = false, ote = false;
-    var tau = {}, ed1 = null;
+    var r = src.split('\n'), tehty = { korostus: 0, html: 0, ote: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0, osoite: 0 }, aita = false, ote = false;
+    var tau = {}, ed1 = null, lahdeU = String(L.etukentta(src).meta['lähde'] || '').trim().split('#')[0];
+    if (!/^https?:\/\/[^\/]+\//.test(lahdeU)) lahdeU = '';
     var oma = (L.etukentta(src).meta['lähde'] || takaosa(src)['lähde'] || '').split('#')[0].replace(/\/$/, '');
     for (var i = 0; i < r.length; i++) {
       var l = r[i];
       if (/^ {0,3}(```|~~~)/.test(l)) { aita = !aita; continue; }
       if (aita) continue;
+      if (lahdeU) l = r[i] = korjaaOsoitteet(l, lahdeU, tehty);
       if (!ote && /[\[<]/.test(l)) {
         var ennen = l;
         l = r[i] = siivoaRivi(l, oma, tehty);
@@ -736,8 +753,9 @@
     var mu = [];
     if (s.indeksi) mu.push(s.indeksi + ' HTML-' + (s.indeksi > 1 ? 'indeksiä' : 'indeksi'));
     if (s.taulukko) mu.push(s.taulukko + ' HTML-' + (s.taulukko > 1 ? 'taulukkoa' : 'taulukko'));
-    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length ? '' : 'Ei siivottavaa. ') +
-      (mu.length ? mu.join(' ja ') + ' Markdowniksi. ' : '') + (lu.length ? 'Leikkeen lopusta: ' + lu.join(', ') + '.' : '');
+    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length || s.osoite ? '' : 'Ei siivottavaa. ') +
+      (mu.length ? mu.join(' ja ') + ' Markdowniksi. ' : '') +
+      (s.osoite ? 'Korjattu ' + s.osoite + (s.osoite > 1 ? ' sivun omaa linkkiä' : ' sivun oma linkki') + '. ' : '') + (lu.length ? 'Leikkeen lopusta: ' + lu.join(', ') + '.' : '');
     t.hidden = false;
   }
 
