@@ -530,11 +530,11 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  .valinnat button:disabled { opacity: .3; cursor: default; }
-  /* Vierityksessä sivunkäännön tavat ovat kaikki samaa superhimmeää harmaata ilman valintaa (käyttäjän päätös
-     29.10.2026): tallennetut valinnat säilyvät, mutta eivät erotu, kun Sivunkääntö ei ole valittuna. */
-  #sivunapit-kytkin button:disabled { color: var(--harmaa); opacity: .25; }
-  #sivunapit-kytkin button:disabled .sal-sisa { fill: none; }
+  /* Pois käytöstä olevat lisäkytkimet (sivunkäännön tavat vierityksessä, Sukkela alleviivaus piilotetuilla
+     alleviivauksilla) ovat kaikki samaa superhimmeää harmaata ilman valintaa (käyttäjän päätös 29.10.2026):
+     tallennetut valinnat säilyvät, mutta eivät erotu, kun ylempi vaihtoehto ei ole valittuna. */
+  .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
+  .valinnat button:disabled .sal-sisa { fill: none; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
