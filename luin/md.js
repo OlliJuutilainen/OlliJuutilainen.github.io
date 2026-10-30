@@ -110,16 +110,14 @@
 
   var XREF = '\u0001';   // ristiviittauksen paikka, ratkaistaan renderöinnin lopussa
 
-  // Verkkolinkin luokat. kirj: kirjallisuusluettelon (BIB-otsikon alla, refs.kirj) ja DOI:n linkki, jonka lukija pitää
-  // aina toiminnassa, vaikka muut verkkolinkit ovat pois (käyttäjän pyyntö 29.10.2026; luin.html, paivitaLinkit()).
-  // url: linkin teksti on osoite tai DOI, joten se saa katketa mistä tahansa kuten paljas osoite.
-  var RE_DOI_URL = /^https?:\/\/(dx\.)?doi\.org\//i, RE_OSOITE = /^(https?:\/\/|www\.|doi:\s?10\.)\S+$/i;
-  function linkinLuokka(href, teksti, refs) {
-    var c = [];
-    if (RE_OSOITE.test(teksti)) c.push('url');
-    if (refs.kirj || RE_DOI_URL.test(href)) c.push('kirj');
-    return c.length ? ' class="' + c.join(' ') + '"' : '';
+  // Linkki, jonka teksti on osoite tai DOI, saa paljaan osoitteen tavoin luokan url (katkeaa mistä tahansa).
+  var RE_OSOITE = /^(https?:\/\/|www\.|doi:\s?10\.)\S+$/i;
+  function linkinLuokka(href, teksti) { return RE_OSOITE.test(teksti) ? ' class="url"' : ''; }
+  // Tekstin oma sivu (etukentän lähde) vertailumuotoon: ilman protokollaa, www:tä, index.html:ää ja loppukauttaviivaa.
+  function sivunAvain(u) {
+    return String(u || '').trim().split('#')[0].replace(/^https?:\/\/(www\.)?/i, '').replace(/\/index\.html?$/i, '').replace(/\/+$/, '').toLowerCase();
   }
+  var SISA = '\u0002';   // tekstin omaan sivuun osoittavan linkin paikka, ratkaistaan renderöinnin lopussa (sisaisetLinkit)
   // Paljaan osoitteen tai DOI:n loppuvälimerkit eivät kuulu siihen, sulku kuuluu, jos sille on pari.
   function karsiLoppu(u) {
     while (/[.,;:!?'"”’»…\]*_]$/.test(u) || (/\)$/.test(u) && (u.match(/\(/g) || []).length < (u.match(/\)/g) || []).length)) u = u.slice(0, -1);
@@ -132,7 +130,12 @@
     var out = '', buf = '', i = 0, refs = ctx.refs || {};
     function flush() { out += ctx.cite ? ctx.cite(buf) : esc(buf); buf = ''; }
     function linkinTeksti(t) { return inline(t, { note: null, br: false, warn: ctx.warn, refs: refs, linkissa: true }); }
-    function linkki(href, teksti) { flush(); out += '<a' + linkinLuokka(href, plain(teksti).trim(), refs) + ' href="' + esc(href) + '">' + linkinTeksti(teksti) + '</a>'; }
+    function linkki(href, teksti) {
+      flush();
+      // Linkki tekstin omaan sivuun ankkurin kera (SEP: …/dewey/#Meta) tai pelkkä #ankkuri: Luinin sisäinen, jos kohde löytyy.
+      var h = String(href), r = h.indexOf('#'), sisa = refs.lahde && r >= 0 && (r === 0 || sivunAvain(h) === refs.lahde) && h.length > r + 1;
+      out += '<a' + linkinLuokka(h, plain(teksti).trim()) + ' href="' + (sisa ? SISA + esc(h.slice(r + 1)) + SISA + esc(h) + SISA : esc(h)) + '">' + linkinTeksti(teksti) + '</a>';
+    }
     while (i < s.length) {
       var c = s[i];
       if (c === '\\') {
@@ -247,20 +250,20 @@
         var brm = /^<br\s*\/?>/i.exec(s.slice(i, i + 8));
         if (brm) { buf = buf.replace(/ +$/, ''); flush(); out += '<br>'; i += brm[0].length; continue; }
         var am = /^<(https?:\/\/[^\s>]+)>/.exec(s.slice(i));
-        if (am) { flush(); out += '<a' + linkinLuokka(am[1], am[1], refs) + ' href="' + esc(am[1]) + '">' + esc(am[1]) + '</a>'; i += am[0].length; continue; }
+        if (am) { flush(); out += '<a' + linkinLuokka(am[1], am[1]) + ' href="' + esc(am[1]) + '">' + esc(am[1]) + '</a>'; i += am[0].length; continue; }
         if (/^<\/?[a-zA-Z][^>]*>/.test(s.slice(i)) && ctx.warn) ctx.warn('HTML-merkintä näkyy tekstinä: “' + s.slice(i, i + 30) + '”');
       }
       // Paljas verkko-osoite linkiksi.
       if ((c === 'h' || c === 'H') && !ctx.linkissa && /^https?:\/\/[\p{L}\p{N}-]+\./iu.test(s.slice(i, i + 80)) && !/[\p{L}\p{N}\/]/u.test(s[i - 1] || ' ')) {
         var u = karsiLoppu(/^https?:\/\/[^\s<>"]+/i.exec(s.slice(i))[0]);
         var uu = u.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
-        flush(); out += '<a' + linkinLuokka(uu, uu, refs) + ' href="' + esc(uu) + '">' + esc(uu) + '</a>'; i += u.length; continue;
+        flush(); out += '<a' + linkinLuokka(uu, uu) + ' href="' + esc(uu) + '">' + esc(uu) + '</a>'; i += u.length; continue;
       }
       // DOI ilman osoitetta (doi:10.1093/…, SEP:n kirjallisuusluettelo) linkiksi doi.org:iin.
       if ((c === 'd' || c === 'D') && !ctx.linkissa && /^doi:\s?10\.\d{4,9}\//i.test(s.slice(i, i + 24)) && !/[\p{L}\p{N}]/u.test(s[i - 1] || ' ')) {
         var dm = karsiLoppu(/^doi:\s?10\.\d{4,9}\/[^\s<>"]+/i.exec(s.slice(i))[0]);
         var dd = dm.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
-        flush(); out += '<a class="url kirj" href="https://doi.org/' + esc(dd.replace(/^doi:\s?/i, '')) + '">' + esc(dd) + '</a>'; i += dm.length; continue;
+        flush(); out += '<a class="url" href="https://doi.org/' + esc(dd.replace(/^doi:\s?/i, '')) + '">' + esc(dd) + '</a>'; i += dm.length; continue;
       }
       // ~~yliviivaus~~ ja ==korostus== (myös kolmella merkillä).
       if ((c === '~' || c === '=') && s[i + 1] === c) {
@@ -1037,6 +1040,115 @@
     return out;
   }
 
+  /* ---------- Verkkosivun omat alaviitteet ----------
+     Käyttäjän pyyntö 30.10.2026: ilmeiset viitenumerot Luinin alaviitteiksi, ainakin SEP:n. Tehdään ennen lohkojäsennystä
+     riveittäin, ja rivimäärä säilyy (Latomon huomautusten rivinumerot). Viitemerkki on yläindeksi, jossa on vain numero,
+     joko linkkinä tai ilman: ^\[[7](…/notes.html#note-7)\]^ (SEP, Latomon <sup>-muunnos), ^[7](…#fn7)^, ^[7][3]^, ^7^.
+     Määritelmä on
+     - alaviiteosiossa (otsikossa notes, footnotes, endnotes, alaviitteet, viitteet tai huomautukset, esim. SEP:n Notes-sivun
+       leike tekstin perässä) kappale, joka alkaa numerolla: [7.][3] tai [7.](…) (SEP), \[7\], ^7^ tai 7.;
+     - tai missä tahansa numeroitu kohta, jossa on paluulinkki (↩ …#fnref7; WordPressin ja Pandocin sivun lopun viitteet).
+     Merkki muuttuu muotoon [^viite-7] ja määritelmä muotoon [^viite-7]: …, paluulinkki pois ja jatkokappaleet (myös
+     lainaukset) sisennettyinä. Määritelmä muutetaan vain, jos tekstissä on sen merkki. Kokonaan muuttuneen osion otsikko ja
+     sitä edeltävä etukenttä (liitetty leike) jäävät pois. Ilman määritelmää linkitetty merkki, jonka osoite on alaviitteen
+     (note-7, fn7, footnote-7, endnote-7, cite_note-7, _ftn7), muuttuu alaviitteeksi, joka kertoo tekstin olevan lähteen
+     omalla sivulla (SEP:n alaviitteet ovat erillisellä sivulla). Pelkkä ^7^ ilman määritelmää tai numeron perässä (10^2^) jää yläindeksiksi. */
+  var RE_VIITEOSIO = /(^|[\s>(])(notes|footnotes|endnotes|alaviitteet|viitteet|loppuviitteet|huomautukset)(?![\p{L}\p{N}])/iu;
+  var RE_VIITEOSOITE = /#(?:_?ftn|fn|note|footnote|endnote|cite_note)[-_:]?(\d+)$/i;
+  var RE_PALUUOSOITE = /#(?:_?ftnref|fnref|ref|cite_ref|footnote-ref)[-_:]?\d+/i;
+  var RE_MERKKI = /\^(\\?\[)?(?:\[(\d{1,3})\](?:\(([^)\s]+)\)|\[([^\]]+)\])|(\d{1,3}))(\\?\])?\^/g;
+  var RE_PALUU = /\s*\[(?:↩|↑|\\\^|\^|⏎)︎?\](?:\(([^)\s]*)\)|\[([^\]]+)\])/g;
+  function sivunViitteet(body, lahde) {
+    var r = body.split('\n'), ref = {}, aita = false, koodi = [];
+    r.forEach(function (l, i) {
+      if (/^ {0,3}(```|~~~)/.test(l)) { aita = !aita; koodi[i] = 1; return; }
+      if (aita) { koodi[i] = 1; return; }
+      var m = /^ {0,3}\[([^\]^#%][^\]]*)\]:\s*<?(\S+?)>?(?:\s+.*)?$/.exec(l);
+      if (m && !ref[norm(m[1])]) ref[norm(m[1])] = m[2];
+    });
+    var osoite = function (u, k) { return u || ref[norm(k || '')] || ''; };
+    var otsikko = function (l) { return /^ {0,3}(#{1,6})\s+(.*?)\s*#*\s*$/.exec(l); };
+    var maar = {}, osiot = [];
+    function aloitus(l) {
+      var m = /^ {0,3}\[(\d{1,3})\.?\](?:\(([^)\s]*)\)|\[([^\]]*)\])\s*(.*)$/.exec(l);
+      if (m) return { n: +m[1], loput: m[4] };
+      m = /^ {0,3}(?:\\?\[(\d{1,3})\\?\]|\^(\d{1,3})\^|(\d{1,3})\\?[.)])\s+(.*)$/.exec(l);
+      return m ? { n: +(m[1] || m[2] || m[3]), loput: m[4] } : null;
+    }
+    // Alaviiteosiot: otsikosta seuraavaan saman tai ylemmän tason otsikkoon.
+    for (var i = 0; i < r.length; i++) {
+      var h = !koodi[i] && otsikko(r[i]);
+      if (!h || !RE_VIITEOSIO.test(plain(h[2]))) continue;
+      var taso = h[1].length, osio = { ots: i, defs: [] }, nyky = null;
+      for (var j = i + 1; j < r.length; j++) {
+        var hh = !koodi[j] && otsikko(r[j]);
+        if (hh && hh[1].length <= taso) break;
+        if (koodi[j]) continue;
+        var a = (j === i + 1 || !r[j - 1].trim()) && aloitus(r[j]);
+        if (a && !maar[a.n]) { nyky = { n: a.n, rivi: j, loput: a.loput, jatko: [], osio: osio }; maar[a.n] = nyky; osio.defs.push(nyky); continue; }
+        if (nyky && !/^ {0,3}\[[^\]]+\]:\s*\S/.test(r[j])) nyky.jatko.push(j);
+      }
+      osio.loppu = j; i = j - 1;
+      osiot.push(osio);
+    }
+    // Numeroitu kohta, jossa on paluulinkki alaviitteen merkkiin.
+    r.forEach(function (l, i) {
+      if (koodi[i]) return;
+      var m = /^ {0,3}(\d{1,3})[.)]\s+(.*)$/.exec(l);
+      if (!m || maar[+m[1]]) return;
+      var on = false;
+      l.replace(RE_PALUU, function (k, u, kk) { if (RE_PALUUOSOITE.test(osoite(u, kk))) on = true; return k; });
+      if (on) maar[+m[1]] = { n: +m[1], rivi: i, loput: m[2], jatko: [] };
+    });
+    // Merkit.
+    var kaytetty = {}, muutoksia = 0;
+    r.forEach(function (l, i) {
+      if (koodi[i] || /^ {0,3}\[[^\]]+\]:/.test(l)) return;
+      // Koodin (`…`) sisällä ei muuteta.
+      r[i] = l.split(/(`[^`]*`)/).map(function (o) { return o.charAt(0) === '`' ? o : merkit(o, i); }).join('');
+    });
+    function merkit(l, i) {
+      return l.replace(RE_MERKKI, function (k, ava, n, u, kk, paljas, sulk, kohta) {
+        // Numeron perässä paljas ^2^ on potenssi (10^2^), ei viitenumero.
+        if (!!ava !== !!sulk || paljas && /\d/.test(l[kohta - 1] || '')) return k;
+        n = +(n || paljas);
+        var d = maar[n], url = (n && !paljas) ? osoite(u, kk) : '';
+        if (d && d.rivi !== i) { kaytetty[n] = 1; muutoksia++; return '[^viite-' + n + ']'; }
+        var vm = url && RE_VIITEOSOITE.exec(url.replace(/\\(.)/g, '$1'));
+        if (!vm) return k;
+        try { url = new URL(url.replace(/\\(.)/g, '$1'), lahde || undefined).href; } catch (e) {}
+        muutoksia++;
+        return '[^Alaviitteen ' + n + ' teksti on lähteen omalla sivulla, jota ei ole tässä tekstissä: ' + url + ']';
+      });
+    }
+    if (!muutoksia) return body;
+    // Määritelmät, joiden merkki on tekstissä.
+    Object.keys(maar).forEach(function (n) {
+      var d = maar[n];
+      if (!kaytetty[n]) return;
+      r[d.rivi] = '[^viite-' + n + ']: ' + d.loput.replace(RE_PALUU, '');
+      d.jatko.forEach(function (j) { if (r[j].trim()) r[j] = '    ' + r[j].replace(/^ {0,3}(?:>\s?)+/, '').replace(RE_PALUU, ''); });
+      d.valmis = true;
+    });
+    // Kokonaan muuttunut osio: otsikko ja sitä edeltävä liitetyn leikkeen etukenttä pois.
+    osiot.forEach(function (o) {
+      if (!o.defs.length || !o.defs.every(function (d) { return d.valmis; })) return;
+      for (var j = o.ots + 1; j < o.loppu; j++) {
+        if (!r[j].trim() || /^ {0,3}\[[^\]]+\]:/.test(r[j]) || /^ {4}/.test(r[j])) continue;
+        return;
+      }
+      r[o.ots] = '';
+      var k = o.ots - 1;
+      while (k > 0 && !r[k].trim()) k--;
+      if (k > 0 && /^---\s*$/.test(r[k])) {
+        var a = k - 1;
+        while (a >= 0 && /^[\p{L}\p{N}_-]+\s*:/u.test(r[a])) a--;
+        if (a >= 0 && a < k - 1 && /^---\s*$/.test(r[a])) for (var x = a; x <= k; x++) r[x] = '';
+      }
+    });
+    return r.join('\n');
+  }
+
   /*
     parse(md) → {
       meta: etukentän avaimet yhtenäistettyinä (viite, osoite, otsikko, tekijä, julkaistu, sivusto …), raaka,
@@ -1054,11 +1166,13 @@
       viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [], kehys: '' };
     var ek = etukentta(src);
     res.meta = ek.meta; res.raaka = ek.raaka;
-    var V = valmistele(ek.body, ek.ln);
+    var lahdeU = String(ek.meta['lähde'] || '').trim();
+    var V = valmistele(sivunViitteet(ek.body, /^https?:\/\//i.test(lahdeU) ? lahdeU : ''), ek.ln);
     V.W.forEach(function (w) { res.warnings.push(w); });
     var curLn = 0;
     // xref(): ristiviittauksen rivinumero varoitusta varten (viittaus ratkaistaan vasta lopuksi).
-    var refs = { fn: V.fn, link: V.link, cite: V.cite, meta: Object.assign({}, ek.raaka, ek.meta), xref: function () { return curLn; } };
+    var refs = { fn: V.fn, link: V.link, cite: V.cite, meta: Object.assign({}, ek.raaka, ek.meta), xref: function () { return curLn; },
+      lahde: /^https?:\/\//i.test(lahdeU) ? sivunAvain(lahdeU) : '' };
 
     function warn(msg, lisa) { var w = { ln: curLn, msg: msg }; for (var k in lisa) w[k] = lisa[k]; res.warnings.push(w); }
     var b = 0, ids = {};
@@ -1225,7 +1339,6 @@
       var h = '';
       list.forEach(function (t, k) {
         curLn = t.ln;
-        refs.kirj = inBib && !inQuote;
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
@@ -1323,6 +1436,19 @@
       if (id) return '<a href="#' + id + '">' + sis + '</a>';
       res.warnings.push({ ln: +ln, msg: 'Viittauksen ”' + unesc(sis.replace(/<[^>]+>/g, '')) + '” kohdetta ”' + unesc(k) + '” ei löydy (ei viitelinkkiä eikä otsikkoa).' });
       return sis;
+    });
+    // Tekstin omaan sivuun osoittavat linkit (SEP: oma sisällys, ristiviittaukset …/dewey/#Meta): ankkuri otsikoksi, jos jokin
+    // linkki ankkuriin on otsikon nimi (sisällysluettelo antaa kaikille), tai linkin tekstissä on luvun numero (section 3.4).
+    // Muuten linkki jää verkkolinkiksi (käyttäjän pyyntö 30.10.2026: sisäisistä linkeistä Luinin sisäisiä).
+    var RE_SISA = new RegExp('<a((?: class="[^"]*")?) href="' + SISA + '([^"' + SISA + ']*)' + SISA + '([^"' + SISA + ']*)' + SISA + '">([\\s\\S]*?)</a>', 'g');
+    var ankkuri = {}, idt = {};
+    res.toc.forEach(function (t) { idt[t.id] = 1; });
+    var nimi = function (sis) { return norm(unesc(sis.replace(/<[^>]+>/g, ''))); };
+    html.replace(RE_SISA, function (x, c, a, h, sis) { var id = xrefKohde[nimi(sis)]; if (id && !ankkuri[a]) ankkuri[a] = id; return x; });
+    html = html.replace(RE_SISA, function (x, c, a, h, sis) {
+      var id = idt[unesc(a)] ? unesc(a) : ankkuri[a], nm = !id && /(?:^|[^\d.])(\d+(?:\.\d+)*)(?![\d.]*\d)/.exec(nimi(sis));
+      if (!id && nm && idt['luku-' + nm[1].split('.').join('-')]) id = 'luku-' + nm[1].split('.').join('-');
+      return '<a' + (id ? '' : c) + ' href="' + (id ? '#' + id : h) + '">' + sis + '</a>';
     });
     res.html = html;
     res.blocks = b;

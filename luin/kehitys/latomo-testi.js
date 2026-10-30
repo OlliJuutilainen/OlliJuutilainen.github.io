@@ -333,7 +333,8 @@ palvelin.listen(0, async () => {
   const sep = await T(), sepV = await p.$$eval('#varoitukset p', x => x.map(e => e.textContent));
   tulos('SEP: alaviitemerkit yläindeksiksi', sep.md.includes('Habit.^\\[[7](https://plato.stanford.edu/entries/dewey/notes.html#note-7)\\]^ Habits.^\\[[8](https://plato.stanford.edu/entries/dewey/notes.html#note-8)\\]^ Kiinni.'), sep.md);
   tulos('SEP: taulukko Markdowniksi', sep.md.includes('\n\n| Mind is | Consciousness is |\n| --- | --- |\n| Meanings *in* life | A \\| B |\n| Yksi |  |\n\n'), sep.md);
-  tulos('SEP: ei alaviitteitä eikä HTML-huomautuksia, rivinumero tekstikentän', /0 alaviitettä · 1 taulukko/.test(await p.textContent('#luvut')) &&
+  // Viitenumerot ovat 30.10.2026 alkaen Luinin alaviitteitä (md.js, sivunViitteet()).
+  tulos('SEP: viitenumerot alaviitteiksi, ei HTML-huomautuksia, rivinumero tekstikentän', /2 alaviitettä · 1 taulukko/.test(await p.textContent('#luvut')) &&
     JSON.stringify(sepV) === JSON.stringify(['rivi 16Pääluvun 3 otsikko puuttuu: 3.1 alkaa ilman sitä. Lisää se ##-rivinä ennen riviä 16. MarkDownload jättää joskus luvun otsikon pois. Miksi?']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
   tulos('SEP: Miksi?-linkki ohjeeseen', (await p.getAttribute('#varoitukset a', 'href')) === 'latomo-ohje.html#otsikko-puuttuu');
   await p.click('#mdl'); await p.waitForTimeout(300);
@@ -367,6 +368,19 @@ palvelin.listen(0, async () => {
 
   await tiedostona('osoitteet3.md', '---\nlähde: https://e.org/blog\nleikattu: 2026-10-29\n---\n\n# T\n\n[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).\n');
   tulos('osoitteet: kansioton lähde ei korjaa', (await T()).md.includes('[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).'), (await T()).md);
+
+  // 16. SEP:n Notes-sivu (30.10.2026): kun tekstikentässä on artikkelin leike, saman kansion notes.html-leike liitetään perään
+  // (etukenttä ja paluulinkkien määrittelyt pois), ja viitenumeroista tulee Luinin alaviitteitä Notes-sivun tekstein.
+  await tiedostona('art.md', '---\nlähde: https://plato.stanford.edu/entries/x/\nleikattu: 2026-10-30\n---\n\n# X\n\n' +
+    'Yksi.<sup>[<a href="https://plato.stanford.edu/entries/x/notes.html#note-1">1</a>] </sup> Loppu.\n');
+  await tiedostona('notes.md', '---\nlähde: https://plato.stanford.edu/entries/x/notes.html\nleikattu: 2026-10-30\n---\n\n# X > Notes (Stanford Encyclopedia of Philosophy)\n\n' +
+    '[1.][1] Viitteen teksti.\n\n[1]: https://plato.stanford.edu/entries/x/notes.htmlindex.html#ref-1\n');
+  const nt = await T(), ntKentta = await p.inputValue('#md'), ntHtml = await p.evaluate(m => LuinMD.parse(m).html, nt.md);
+  tulos('Notes-sivu liitetään perään ja alaviitteet saavat tekstinsä', /^---\nlähde: https:\/\/plato\.stanford\.edu\/entries\/x\/\n/.test(ntKentta) && ntKentta.includes('[1.][1] Viitteen teksti.') &&
+    !/ref-1|entries\/x\/notes\.html\n/.test(ntKentta) && (await p.textContent('#tiedostonimi')) === 'Alaviitteet liitetty: notes.md' && /1 alaviitettä/.test(await p.textContent('#luvut')) &&
+    ntHtml.includes('<span class="fnnum">1</span>Viitteen teksti.</span>') && !/Notes/.test(ntHtml), ntKentta + ' | ' + ntHtml);
+  await tiedostona('muu2.md', '---\nlähde: https://e.org/toinen/notes.html\n---\n\n# Muu\n\nTeksti.\n');
+  tulos('eri sivuston notes.html korvaa tekstin', (await p.inputValue('#md')).startsWith('---\nlähde: https://e.org/toinen/notes.html'));
 
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
