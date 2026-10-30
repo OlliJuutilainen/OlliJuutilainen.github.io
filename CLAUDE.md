@@ -727,8 +727,15 @@ Käyttäjän vaatimukset 20.10.2026:
   0,1 px ennen rajaa 0 laitepikseliä sisäalassa tai musteen päällä, 0,1 px yli 2–12. Mitattu mainin (#454) versiota vastaan:
   kantin tutkielma 360 px *Viittauksista…* ja 2.1 pois, 412 px 2.1 pois, 1280 px ennallaan; Luinin opas 412 px 1.1 ja 2.2 pois,
   3.6 näkyviin, päälukujen määrä ennallaan.
-  Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (yleensä on); se on silti pysäkki ja
-  vedettäessä sen nimi näkyy (`janaKohteet()`). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
+  **Mahtuminen** (käyttäjän pyyntö 30.10.2026): etappimerkin (pääluku, alaluku, alaluvun alaluku) musteen pitää mahtua
+  sivusuunnassa janalle (x0…x1, pääluvulla kehän jiiri mukaan), ja ensimmäisen näkyvän pääluvun vasemmalle puolelle pitää
+  mahtua vähintään yksi kuvitteellinen päälukumerkki (musteen vasen reuna ≥ x0 + 2 × 7,39). Tämä korvasi säännön, jonka mukaan
+  ensimmäistä päälukua ei piirretty tekstin ensimmäisen 10 %:n aikana; vähintään 222 px:n janalla 10 %:n kohta on aina tilaa
+  kauempana, joten uusi sääntö näyttää enemmän. Ajetaan ennen peittoja. Piilotettu merkki on silti pysäkki, ja vedettäessä sen
+  nimi näkyy. Mitattu mainin versiota vastaan: kantin tutkielma ennallaan (360, 412, 1280 px); Luinin opas 360 px luku 2 pois
+  (muste 16,57 < 17) ja luku 9 pois lopusta (346,98 > 343), tilalle 1.2; 412 px luvut 2 ja 9 pois, 1.1, 2.2 ja 9.1 näkyviin;
+  synteettinen esipuhe (luku 1 kohdassa 4,8 %) 1280 px:llä luku 1 näkyviin, 412 px:llä piilossa (35,1 < 39,2). `testi.js`
+  tarkistaa mahtumisen ja napauttaa aikajanan hypyssä viimeistä piirrettyä päälukua (oppaan viimeinen ei mahdu). Otsikkotasoja on neljä (# nimi, ## pääluku, ### alaluku, #### alaluvun
   alaluku); aikajanan oletus on pääluvut ja alaluvut, *Kaikki* lisää alalukujen alaluvut; kirjanmerkki ruosteinen nauha viivan
   alla; nykyinen kohta kolmio ja hiusviiva. "Vinoneliöestetiikkaa, ei palluraestetiikkaa." Antiikva
   (Literata, `luin/fontit/`, OFL) ja klassinen tyyli; salmiakkien kyljet hieman koverat (c = 0,38) on

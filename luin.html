@@ -2238,14 +2238,13 @@
     var cs = getComputedStyle($('#jana-svg'));
     return [parseFloat(cs.getPropertyValue('--v-laita')), w - parseFloat(cs.getPropertyValue('--o-laita'))];
   }
-  // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit().
-  // Ensimmäisen pääluvun merkkiä ei piirretä, jos se on tekstin ensimmäisen 10 %:n aikana (käyttäjän pyyntö 29.10.2026:
-  // yleensä tekstin alussa päällekkäin alkutikin kanssa). Se on silti pysäkki, ja vedettäessä sen nimi näkyy.
+  // Aikajanalle piirrettävät merkit asetusten mukaan. Sivutetun aikajanan pysäkit ovat janaPysakit(). Mitkä merkit
+  // mahtuvat ja mitkä peittävät toisiaan, ratkaisee piirraJana(); piilotettu merkki on silti pysäkki, ja vedettäessä sen
+  // nimi näkyy.
   function janaKohteet() {
-    var a = [], eka = nyt.doc.toc.filter(function (t) { return t.lvl === 1; })[0];
-    if (eka && osuus({ b: eka.b, o: 0 }) >= 0.1) eka = null;
+    var a = [];
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
-    nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso && t !== eka) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
+    nyt.doc.toc.forEach(function (t) { if (t.lvl <= aset.janaTaso) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
@@ -2300,6 +2299,21 @@
     var maj = '';
     var kohteet = janaKohteet(), P = janaKarjet(1);
     var merkki = function (m) { var k = janaKarjet(m.lvl); return { m: m, x: X(osuus(m.k)), karki: k.karki, sisa: k.sisa }; };
+    // Käyttäjän pyyntö 30.10.2026: etappimerkin (pääluku, alaluku, alaluvun alaluku) musteen pitää mahtua sivusuunnassa
+    // janalle (x0…x1). Ensimmäisen näkyvän pääluvun vasemmalle puolelle janaa pitää lisäksi mahtua vähintään yksi
+    // kuvitteellinen päälukumerkki (musteen leveys 2 × kärki); tämä korvasi säännön, jonka mukaan ensimmäistä päälukua ei
+    // piirretty tekstin ensimmäisen 10 %:n aikana. Sääntö ajetaan ennen peittoja, jotta janan alkuun mahtumaton ei peitä
+    // seuraavaa.
+    var alussa = true;
+    kohteet = kohteet.filter(function (m) {
+      if (m.km || m.majakka) return true;
+      var a = merkki(m);
+      return a.x - a.karki >= x0 && a.x + a.karki <= x1;
+    }).sort(function (a, b) { return osuus(a.k) - osuus(b.k); }).filter(function (m) {
+      if (m.km || m.majakka || m.lvl !== 1 || !alussa) return true;
+      var a = merkki(m);
+      return !(alussa = a.x - a.karki < x0 + 2 * P.karki);
+    });
     // Käyttäjän pyyntö 29.10.2026: kahdesta toistensa sisäalaan menevästä pääluvun merkistä näytetään vain ensimmäinen,
     // paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa (luvunPaino()); silloin jälkimmäinen.
     var paaN = kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl === 1; }).map(merkki);
@@ -2309,15 +2323,13 @@
     // Alaluvut näkyvien päälukujen kohdalla (käyttäjän säännöt 29.10.2026; pääluvut piirretään ylimmäisinä):
     // pääluvun jälkeinen alaluku (luvun 2 kohdalla 2.1), joka tunkee pääluvun merkin musteen päälle, jää pois, muuten täyte
     // ja ontto täyte menevät sekaisin (tuttifrutti). Edeltävä alaluku (1.3 luvun 2 edellä) saa näkyä, jos sen oikea kärki ei
-    // ulottuisi pääluvun kehän sisäalaan; kehän alle saa, koska se on pääluvun takana. Edeltävä ei kuitenkaan saa ulottua
-    // janan alun ohi pääluvun päällä (aiempi poikkeus ensimmäisen pääluvun alaluvulle, ennen tikkujen poistoa alkutikku).
-    // Piilotettu pääluku ei estä alalukuja.
+    // ulottuisi pääluvun kehän sisäalaan; kehän alle saa, koska se on pääluvun takana. Piilotettu pääluku ei estä alalukuja.
     kohteet = kohteet.filter(function (m) {
       if (m.km || m.majakka || m.lvl === 1) return true;
       var a = merkki(m), x = a.x;
       return !paat.some(function (px) {
         if (x >= px) return x - a.karki < px + P.karki;
-        return x + a.karki > px - P.sisa || x - a.karki <= x0 && x + a.karki > px - P.karki;
+        return x + a.karki > px - P.sisa;
       });
     });
     // Käyttäjän pyyntö 29.10.2026: sama sääntö kuin pääluvuilla myös alaluvuille (alaluku ja alaluvun alaluku keskenään),

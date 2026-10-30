@@ -38,14 +38,18 @@ const laidat = pg => pg.evaluate(() => {
   const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1]),
     [sn ? 'sivunapit' : 'nuoli']: vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right };
   for (const k in v) v[k] = r2(v[k]); for (const k in o) o[k] = r2(o[k]);
-  const N = window.__luin.nyt(), eka = N.doc.toc.filter(t => t.lvl === 1)[0], ekaOsuus = (N.cum[eka.b]) / N.total;
+  // Etappimerkkien muste mahtuu janalle, ja ensimmäisen näkyvän pääluvun vasemmalle puolelle mahtuu kuvitteellinen
+  // päälukumerkki (käyttäjän pyyntö 30.10.2026). Pääluvun musteen puolileveys = polku + kehän jiiri 1,033 (luin.html janaKarjet()).
+  const J = window.__luin.JANA, kR = J.koko[1][0] + 1.033;
+  const etapit = [...q('#jana-svg').querySelectorAll('.j1, .j2, .j3')].map(e => { const b = e.getBBox(), j = e.classList.contains('j1') ? 1.033 : 0; return { j1: !!j, v: b.x - j, o: b.x + b.width + j }; });
+  const ekaJ1 = etapit.filter(e => e.j1).sort((a, b) => a.v - b.v)[0];
+  const mahtuu = etapit.every(e => e.v >= xr[0] - .01 && e.o <= xr[1] + .01) && (!ekaJ1 || ekaJ1.v >= xr[0] + 2 * kR - .01);
   return { v, o, kiekkoKeski: kiekko.left + kiekko.width / 2, harmaa: cs('.takaisin').color, kiekkoVari: cs('#lukija .ratas').color, nappiVari: cs('#sivu-ed svg').fill,
-    j1: q('#jana-svg').querySelectorAll('.j1').length, ekaPiirretty: [...q('#jana-svg').querySelectorAll('.j1')].some(x => x.parentNode.querySelector('title').textContent === eka.text),
-    ekaOsuus: r2(ekaOsuus) };
+    j1: q('#jana-svg').querySelectorAll('.j1').length, mahtuu };
 });
 const raksiKeski = pg => pg.evaluate(() => { const r = document.querySelector('#asetukset .sulje svg').getBoundingClientRect(); return r.left + r.width / 2; });
 const laidatOk = (l, vo, oo) => Object.values(l.v).every(x => Math.abs(x - vo) <= .35) && Object.values(l.o).every(x => Math.abs(x - oo) <= .35) &&
-  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 > 0 && !(l.ekaOsuus < .1 && l.ekaPiirretty) && Math.abs(l.raksi - l.kiekkoKeski) < .01;
+  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 > 0 && l.mahtuu && Math.abs(l.raksi - l.kiekkoKeski) < .01;
 
 palvelin.listen(0, async () => {
   const BASE = 'http://localhost:' + palvelin.address().port + '/';
@@ -258,12 +262,11 @@ palvelin.listen(0, async () => {
   tulos('merkintöjen tuonti', vrt.sama && vrt.merkit > 0 && vienti2.includes('Sijainti: ') && vienti2.includes(osio.nimi) && /<!-- kohta/.test(vienti2) &&
     perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
 
-  // Aikajana: viimeisen pääluvun merkki vie sen otsikkoon.
+  // Aikajana: viimeisen piirretyn pääluvun merkki vie sen otsikkoon (viimeinen pääluku ei aina mahdu janan loppuun).
   await avaaPalkit();
   const kohde = await p.evaluate(() => {
-    const t = window.__luin.nyt().doc.toc.filter(x => x.lvl === 1).pop();
-    const g = [...document.querySelectorAll('#jana-svg g')].find(x => x.textContent === t.text);
-    const bb = g.getBoundingClientRect(); return { x: bb.left + bb.width / 2, y: bb.top + bb.height / 2, nimi: t.text };
+    const g = [...document.querySelectorAll('#jana-svg .j1')].map(e => e.parentNode).sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left).pop();
+    const bb = g.getBoundingClientRect(); return { x: bb.left + bb.width / 2, y: bb.top + bb.height / 2, nimi: g.querySelector('title').textContent };
   });
   await p.mouse.click(kohde.x, kohde.y); await p.waitForTimeout(150);
   tulos('aikajanan hyppy', (await p.textContent('#jana-kohta')) === kohde.nimi, kohde.nimi);
