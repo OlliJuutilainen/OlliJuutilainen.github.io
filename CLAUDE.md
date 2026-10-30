@@ -709,6 +709,9 @@ Käyttäjän vaatimukset 20.10.2026:
   yläkärki hipoi nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455), mutta "aivan överin iso", joten samana päivänä väliltä: 8,4
   (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
   kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
+  **Kirjanmerkit aikajanalla** (käyttäjän pyyntö 30.10.2026): kirjanmerkki, jonka nauhan vasen reuna (x − 3,1) tulisi ennen edellisen näkyvän
+  nauhan keskilinjaa (loven laaksonpohja), jää pois (`piirraJana()`, `JANA.kmLeveys`). Ketjussa verrataan aina viimeksi näkyviin jääneeseen, ei
+  pois jätettyyn. Mitattu Chromiumissa: välit 0/2 → 1 nauha, 0/3,1 → 2 (tasan keskilinjalla näkyy), ketju 0–8 px kahden välein → 0, 4, 8.
   Merkkien peitto (käyttäjän pyynnöt 29.10.2026 aikajärjestyksessä 08.43, 08.46, 08.47, 08.55; "tuttifrutti"): **pääluvuista**
   näytetään kahdesta törmäävästä vain ensimmäinen, paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa
   (`luvunPaino()`: otsikkotaso, varsinainen luku ennen oheisaineistoa, numeroitu ennen numeroimatonta, alaluvullinen ennen
