@@ -2233,6 +2233,7 @@
   JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
   JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
+  JANA.kmLeveys = 6.2;
   // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita). Alku- ja lopputikkuja ei ole (käyttäjän pyyntö 29.10.2026).
   function janaRajat(w) {
     var cs = getComputedStyle($('#jana-svg'));
@@ -2325,11 +2326,21 @@
     pois = karsiPaallekkaiset(kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl > 1; }).map(merkki));
     kohteet = kohteet.filter(function (m) { return pois.indexOf(m) < 0; })
       .sort(function (a, b) { return (a.lvl === 1 ? 1 : 0) - (b.lvl === 1 ? 1 : 0); });
+    // Käyttäjän pyyntö 30.10.2026: kirjanmerkki, jonka nauhan vasen reuna tulisi ennen edellisen näkyvän nauhan keskikohtakuopan
+    // (loven laaksonpohjan, nauhan keskilinja) kohtaa, jää pois. Ketjussa verrataan aina viimeksi näkyviin jääneeseen,
+    // joten ketjun joka toinen tai harvempi nauha näkyy eikä pois jätetty pidä seuraavia piilossa.
+    var kmEdellinen = null, kmPois = [];
+    kohteet.filter(function (m) { return m.km; }).map(function (m) { return { m: m, x: X(osuus(m.k)) }; })
+      .sort(function (p, q) { return p.x - q.x; }).forEach(function (p) {
+        if (kmEdellinen !== null && p.x - JANA.kmLeveys / 2 < kmEdellinen) kmPois.push(p.m);
+        else kmEdellinen = p.x;
+      });
+    kohteet = kohteet.filter(function (m) { return kmPois.indexOf(m) < 0; });
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + JANA.viiva + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
-      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, 6.2, 10.6) + '"/>';
+      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, JANA.kmLeveys, 10.6) + '"/>';
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
