@@ -747,7 +747,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=3270e905"></script>
+<script src="luin/md.js?v=4c59c866"></script>
 <script>
 (function () {
   'use strict';
@@ -802,7 +802,7 @@
   // edistymisen tilanne (vientipäivä ja sijainti) otsikon alle, oletuksena pois.
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
-  // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei; kirjallisuusluettelon ja DOI:n linkit toimivat aina).
+  // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei, myöskään kirjallisuusluettelon DOI-linkit).
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0, av: 5 };
@@ -1409,14 +1409,14 @@
   }
 
   // Verkkolinkit (käyttäjän pyyntö 29.10.2026): tekstin linkit muualle ovat oletuksena tavallista tekstiä, koska ne
-  // aukesivat liian helposti (SEP:n Dewey-leikkeessä 180 linkkiä: sisällys, ristiviittaukset ja alaviitemerkit vievät SEP:n
-  // sivulle; kosketusnäyttö osuu myös viereiseen linkkiin, ja pitkä painallus avaa linkin valikon eikä valitse tekstiä).
-  // Kirjallisuusluettelon ja DOI:n linkit (md.js: class kirj) toimivat aina, verkkoartikkelin omat luettelot (SEP:n Other
-  // Internet Resources) eivät. Tekstin sisäiset linkit (#…) eivät ole verkkolinkkejä. Osoite säilyy data-href:ssä.
+  // aukesivat liian helposti (SEP:n Dewey-leikkeessä 180 linkkiä; kosketusnäyttö osuu myös viereiseen linkkiin, ja pitkä
+  // painallus avaa linkin valikon eikä valitse tekstiä). Käyttäjän päätös 30.10.2026: kytkin koskee kaikkia, myös
+  // kirjallisuusluettelon DOI-linkkejä, koska Luinin idea on suljettu lukuympäristö ilman häiriötekijöitä; linkit saa
+  // tarvittaessa hetkeksi päälle. Tekstin sisäiset linkit (#…) eivät ole verkkolinkkejä. Osoite säilyy data-href:ssä.
   function paivitaLinkit() {
     $$('a[href], a[data-href]', art).forEach(function (a) {
       var h = a.getAttribute('href') || a.dataset.href;
-      if (h.charAt(0) === '#' || a.classList.contains('kirj')) return;
+      if (h.charAt(0) === '#') return;
       if (aset.verkkolinkit) { if (!a.hasAttribute('href')) { a.setAttribute('href', h); delete a.dataset.href; } }
       else if (a.hasAttribute('href')) { a.dataset.href = h; a.removeAttribute('href'); }
     });
@@ -2233,6 +2233,7 @@
   JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
   JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
+  JANA.kmLeveys = 6.2;
   // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita). Alku- ja lopputikkuja ei ole (käyttäjän pyyntö 29.10.2026).
   function janaRajat(w) {
     var cs = getComputedStyle($('#jana-svg'));
@@ -2337,11 +2338,21 @@
     pois = karsiPaallekkaiset(kohteet.filter(function (m) { return !m.km && !m.majakka && m.lvl > 1; }).map(merkki));
     kohteet = kohteet.filter(function (m) { return pois.indexOf(m) < 0; })
       .sort(function (a, b) { return (a.lvl === 1 ? 1 : 0) - (b.lvl === 1 ? 1 : 0); });
+    // Käyttäjän pyyntö 30.10.2026: kirjanmerkki, jonka nauhan vasen reuna tulisi ennen edellisen näkyvän nauhan keskikohtakuopan
+    // (loven laaksonpohjan, nauhan keskilinja) kohtaa, jää pois. Ketjussa verrataan aina viimeksi näkyviin jääneeseen,
+    // joten ketjun joka toinen tai harvempi nauha näkyy eikä pois jätetty pidä seuraavia piilossa.
+    var kmEdellinen = null, kmPois = [];
+    kohteet.filter(function (m) { return m.km; }).map(function (m) { return { m: m, x: X(osuus(m.k)) }; })
+      .sort(function (p, q) { return p.x - q.x; }).forEach(function (p) {
+        if (kmEdellinen !== null && p.x - JANA.kmLeveys / 2 < kmEdellinen) kmPois.push(p.m);
+        else kmEdellinen = p.x;
+      });
+    kohteet = kohteet.filter(function (m) { return kmPois.indexOf(m) < 0; });
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + JANA.viiva + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
-      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, 6.2, 10.6) + '"/>';
+      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, JANA.kmLeveys, 10.6) + '"/>';
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';

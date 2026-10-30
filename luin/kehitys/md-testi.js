@@ -170,8 +170,10 @@ sama('Latomo: lähde omana lainauksenaan', M.lahteetLainaukseen('# T\n\n> Sä lo
 
 // Yläindeksiin linkitetty merkki (Latomon <sup>-muunnos) ei ole ^[…]-alaviite; HTML-huomautukset riveittäin.
 const yl = M.parse('# T\n\nA.^\\[[7](https://e.org/n.html#note-7)\\]^ B^[2](https://e.org/x)^ C^[[3](u)]^ D^[oikea alaviite] E.\n');
-sama('linkitetty yläindeksi ei ole alaviite', yl.notes, 1);
-tulos('linkitetty yläindeksi', yl.html.includes('A.<sup>[<a href="https://e.org/n.html#note-7">7</a>]</sup> B<sup><a href="https://e.org/x">2</a></sup> C<sup>[<a href="u">3</a>]</sup> D<label'), yl.html);
+// Alaviitteen osoitteeseen (#note-7) linkitetty merkki on 30.10.2026 alkaen Luinin alaviite (sivun omat viitenumerot, alla).
+sama('linkitetty yläindeksi ei ole ^[…]-alaviite', yl.notes, 2);
+tulos('linkitetty yläindeksi', yl.html.includes('A.<label class="fnref" for="fn1">1</label>') && yl.html.includes('Alaviitteen 7 teksti on lähteen omalla sivulla') &&
+  yl.html.includes(' B<sup><a href="https://e.org/x">2</a></sup> C<sup>[<a href="u">3</a>]</sup> D<label'), yl.html);
 const hv = M.parse('# T\n\nA<sup>[<a href="u">1</a>]</sup> ja <b>x</b>.\n\nB <i>y</i>.\n').warnings.map(w => w.ln + ' ' + w.msg);
 sama('HTML-huomautus riviä kohden', JSON.stringify(hv), JSON.stringify(['3 6 HTML-merkintää näkyy tekstinä: <sup>, <a>, <b>.', '5 2 HTML-merkintää näkyy tekstinä: <i>.']));
 
@@ -182,18 +184,37 @@ sama('julkaisutieto: tietorivit', JSON.stringify(sep4.lines), JSON.stringify(['H
 sama('julkaisutieto: luettu versio', sep4.paatelty.julkaistu, '2024-03-31');
 sama('kursivoitu alaotsikko ennallaan', M.parse('# T\n\n*Kirjoitus vuodelta 2018*\n\n' + PITKA).sub, 'Kirjoitus vuodelta 2018');
 
-// Verkkolinkit (käyttäjän pyyntö 29.10.2026): kirjallisuusluettelon (myös luettelon kohdat) ja DOI:n linkit ovat kirj, verkkoartikkelin
-// oma luettelo ei; osoitteen näköinen linkkiteksti on url (katkeaa mistä tahansa); doi:10.… linkittyy doi.org:iin.
+// Verkkolinkit: osoitteen näköinen linkkiteksti on url (katkeaa mistä tahansa), doi:10.… linkittyy doi.org:iin (29.10.2026).
+// Kirjallisuusluettelon linkeillä ei ole poikkeusta (käyttäjän päätös 30.10.2026: kytkin koskee kaikkia).
 const vl = M.parse('# T\n\nKatso [luku 3](https://e.org/a#c), <https://e.org/b> ja doi:10.1000/xyz\\_1.\n\n## Bibliography\n\n' +
-  '- Aho, A., 2001, *Kirja*. URL = <[https://e.org/arkisto/kirja/][1]\\>\n- Bee, B., 2002, “Artikkeli”, *Lehti*, 3(2): 1–9. doi:10.2307/2176692\n\n' +
-  'Cee, C. 2003. *Toinen*. [Linkki](https://e.org/c). https://e.org/d\n\n## Other Internet Resources\n\n- [Sivusto](https://e.org/e), https://doi.org/10.5555/f\n\n[1]: https://e.org/arkisto/kirja/\n').html;
+  '- Aho, A., 2001, *Kirja*. URL = <[https://e.org/arkisto/kirja/][1]\\>\n\n[1]: https://e.org/arkisto/kirja/\n').html;
 sama('verkkolinkkien luokat', (vl.match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n'), [
   '<a href="https://e.org/a#c">luku 3</a>', '<a class="url" href="https://e.org/b">https://e.org/b</a>',
-  '<a class="url kirj" href="https://doi.org/10.1000/xyz_1">doi:10.1000/xyz_1</a>',
-  '<a class="url kirj" href="https://e.org/arkisto/kirja/">https://e.org/arkisto/kirja/</a>',
-  '<a class="url kirj" href="https://doi.org/10.2307/2176692">doi:10.2307/2176692</a>',
-  '<a class="kirj" href="https://e.org/c">Linkki</a>', '<a class="url kirj" href="https://e.org/d">https://e.org/d</a>',
-  '<a href="https://e.org/e">Sivusto</a>', '<a class="url kirj" href="https://doi.org/10.5555/f">https://doi.org/10.5555/f</a>'].join('\n'));
+  '<a class="url" href="https://doi.org/10.1000/xyz_1">doi:10.1000/xyz_1</a>',
+  '<a class="url" href="https://e.org/arkisto/kirja/">https://e.org/arkisto/kirja/</a>'].join('\n'));
+
+// Tekstin omaan sivuun osoittavat linkit Luinin sisäisiksi (käyttäjän pyyntö 30.10.2026): ankkuri otsikkoon linkin nimen tai
+// luvun numeron perusteella; tuntematon jää verkkolinkiksi.
+const si = M.parse('---\nlähde: https://e.org/art/\n---\n\n# T\n\n- [1. Alku][1]\n- [2.1 Osa][2]\n\nKatso [kohta 2.1][2], [luku 1](https://e.org/art/#x9), ' +
+  '[tuntematon][3] ja [muu sivu](https://e.org/toinen/#Alku).\n\n## 1. Alku\n\nA.\n\n## 2. Keski\n\n### 2.1 Osa\n\nB.\n\n' +
+  '[1]: https://e.org/art//#Alku\n[2]: https://e.org/art/index.html#Osa\n[3]: https://e.org/art/#Zzz\n').html;
+sama('sisäiset linkit', (si.match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n'), ['<a href="#luku-1">1. Alku</a>', '<a href="#luku-2-1">2.1 Osa</a>',
+  '<a href="#luku-2-1">kohta 2.1</a>', '<a href="#luku-1">luku 1</a>', '<a href="https://e.org/art/#Zzz">tuntematon</a>',
+  '<a href="https://e.org/toinen/#Alku">muu sivu</a>'].join('\n'));
+
+// Verkkosivun omat viitenumerot Luinin alaviitteiksi (käyttäjän pyyntö 30.10.2026). SEP: merkki linkkinä erilliselle Notes-sivulle;
+// ilman sivua alaviite kertoo sen, liitetyllä Notes-sivun leikkeellä teksti tulee siitä ja osion otsikko etukenttineen jää pois.
+const SEP = '---\nlähde: https://plato.stanford.edu/entries/x/\n---\n\n# X\n\nYksi.^\\[[1](https://plato.stanford.edu/entries/x/notes.html#note-1)\\]^ ' +
+  'Kaksi.^\\[[2](https://plato.stanford.edu/entries/x/notes.html#note-2)\\]^ Potenssi 10^2^.\n';
+const sp1 = M.parse(SEP);
+tulos('SEP: viitenumerot alaviitteiksi ilman Notes-sivua', sp1.notes === 2 && sp1.html.includes('Alaviitteen 1 teksti on lähteen omalla sivulla') && sp1.html.includes('10<sup>2</sup>'), sp1.html);
+const sp2 = M.parse(SEP + '\n---\nlähde: https://plato.stanford.edu/entries/x/notes.html\n---\n\n# X > Notes (Stanford Encyclopedia of Philosophy)\n\n' +
+  '[1.][1] Ensimmäinen viite.\n\n[2.][2] Toinen alkaa\n\n> lainaus jatkuu.\n\n[1]: https://plato.stanford.edu/entries/x/index.html#ref-1\n');
+tulos('SEP: Notes-sivun leike alaviitteiksi', sp2.notes === 2 && sp2.html.includes('<span class="fnnum">1</span>Ensimmäinen viite.</span>') &&
+  sp2.html.includes('<span class="fnnum">2</span>Toinen alkaa<br>lainaus jatkuu.</span>') && sp2.toc.length === 0 && !/Notes|lähde:/.test(sp2.html), sp2.html);
+// Yleinen sivun lopun viite paluulinkillä (WordPress, Pandoc): ^1^ ja numeroitu kohta, jossa ↩ …#fnref1.
+const wp = M.parse('# T\n\nVäite.^1^ Toinen.^2^\n\n1. Ensimmäinen. [↩](https://e.org/p/#fnref1)\n2. Toinen. [↩][9]\n\n[9]: https://e.org/p/#fnref2\n');
+tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes('<span class="fnnum">2</span>Toinen.</span>') && !/<ol/.test(wp.html), wp.html);
 
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html

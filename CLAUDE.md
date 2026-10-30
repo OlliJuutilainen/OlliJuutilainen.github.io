@@ -709,6 +709,9 @@ Käyttäjän vaatimukset 20.10.2026:
   yläkärki hipoi nykyisen kohdan kolmion kärkeä (puolikorkeus 11,455), mutta "aivan överin iso", joten samana päivänä väliltä: 8,4
   (entinen 5,92). Kirjanmerkkien nauha ei peitä kehää: yläreuna hipoo pääluvun alakärjen musteen huippua (`JANA.km` = y + 8,4 + 1,545,
   kehän jiiri kärjessä 1,545; mitattu 32,0 vs. 31,875 px). Hajurakoja ei käyttäjän pyynnöstä vähennetty.
+  **Kirjanmerkit aikajanalla** (käyttäjän pyyntö 30.10.2026): kirjanmerkki, jonka nauhan vasen reuna (x − 3,1) tulisi ennen edellisen näkyvän
+  nauhan keskilinjaa (loven laaksonpohja), jää pois (`piirraJana()`, `JANA.kmLeveys`). Ketjussa verrataan aina viimeksi näkyviin jääneeseen, ei
+  pois jätettyyn. Mitattu Chromiumissa: välit 0/2 → 1 nauha, 0/3,1 → 2 (tasan keskilinjalla näkyy), ketju 0–8 px kahden välein → 0, 4, 8.
   Merkkien peitto (käyttäjän pyynnöt 29.10.2026 aikajärjestyksessä 08.43, 08.46, 08.47, 08.55; "tuttifrutti"): **pääluvuista**
   näytetään kahdesta törmäävästä vain ensimmäinen, paitsi jos jälkimmäinen on selvästi korkeammalla hierarkiassa
   (`luvunPaino()`: otsikkotaso, varsinainen luku ennen oheisaineistoa, numeroitu ennen numeroimatonta, alaluvullinen ennen
@@ -963,10 +966,16 @@ Käyttäjän vaatimukset 20.10.2026:
 - Pitkän painalluksen suomi–suomi-sanakirja on myöhempi idea (opas, luku 9.2).
 - **Verkkolinkit** (käyttäjän pyyntö 29.10.2026; opas, luku 4.5): asetusten *Teksti → Näytä:* -listan viimeisenä kytkin
   *Verkkolinkit* (`aset.verkkolinkit`, **oletus pois**): tekstin linkit muille sivuille ovat tavallista tekstiä (`paivitaLinkit()`,
-  `href` → `data-href`), koska ne aukesivat liian helposti (SEP:n Dewey-leikkeessä 180 linkkiä). **Aina toimivat** kirjallisuusluettelon
-  (BIB-otsikon alla, myös luettelon kohdat) ja DOI:n linkit (md.js: luokka `kirj`); verkkoartikkelin oma lähdelista (SEP:n *Other
-  Internet Resources*) ei ole kirjallisuusluettelo. md.js linkittää `doi:10.…`:n doi.org:iin, ja linkki, jonka teksti on osoite tai DOI,
-  saa luokan `url` (katkeaa mistä tahansa). Sisäiset linkit (`#…`) eivät ole verkkolinkkejä.
+  `href` → `data-href`), koska ne aukesivat liian helposti (SEP:n Dewey-leikkeessä 180 linkkiä). **Kytkin koskee kaikkia, myös
+  kirjallisuusluettelon DOI-linkkejä** (käyttäjän päätös 30.10.2026: Luinin idea on suljettu lukuympäristö ilman häiriötekijöitä;
+  29.10.2026 luettelon ja DOI:n linkit olivat poikkeus, luokka `kirj`, joka poistettiin). md.js linkittää `doi:10.…`:n doi.org:iin, ja
+  linkki, jonka teksti on osoite tai DOI, saa luokan `url` (katkeaa mistä tahansa). Sisäiset linkit (`#…`) eivät ole verkkolinkkejä.
+- **Sivun omat viitenumerot ja linkit Luinin omiksi** (käyttäjän pyyntö 30.10.2026; opas, luku 3.6): md.js `sivunViitteet()` tekee
+  yläindeksinumerosta (SEP `^\[[7](…/notes.html#note-7)\]^`, `^[7](…#fn7)^`, `^7^`) alaviitteen, jos sen määritelmä on tekstissä
+  (alaviiteosio *Notes* tms. tai numeroitu kohta paluulinkillä ↩ `#fnref7`); alaviitteen osoitteella linkitetty ilman määritelmää kertoo
+  tekstin olevan lähteen omalla sivulla, numeron perässä `10^2^` jää potenssiksi. Latomo liittää SEP:n Notes-sivun leikkeen (saman
+  kansion `notes.html`) artikkelin perään, kun se pudotetaan artikkelin jälkeen (`alaviitesivu()`). Linkki tekstin omaan sivuun
+  ankkurin kera (etukentän `lähde`) on Luinin sisäinen, jos ankkurin jokin linkki on otsikon nimi tai linkin tekstissä on luvun numero.
 - **Ei vaakavieritystä** (29.10.2026, Light Phone): `#teksti { overflow-wrap: break-word }` koko tekstille. Dewey-leike oli
   vierityksessä 360 px:n ruudulla 690 px leveä (URL-linkit), ja 32 px:n koolla kaikki testitekstit levisivät. `testi.js` tarkistaa.
 - **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna

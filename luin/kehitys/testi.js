@@ -727,8 +727,8 @@ palvelin.listen(0, async () => {
   await mob360.context().close();
 
   // Light Phone (360 × 413, 29.10.2026). Vierityksessä sivu ei levene sivusuunnassa: ylipitkät sanat ja osoitteet katkeavat
-  // (SEP:n Dewey-leike oli 690 px leveä), myös suurimmalla kirjasinkoolla. Verkkolinkit ovat oletuksena tavallista tekstiä
-  // paitsi kirjallisuusluettelon ja DOI:n (kirj). Asetukset, jotka eivät muuta asettelua (verkkolinkit, teema, aikajana), eivät
+  // (SEP:n Dewey-leike oli 690 px leveä), myös suurimmalla kirjasinkoolla. Verkkolinkit ovat oletuksena tavallista tekstiä,
+  // myös kirjallisuusluettelon (käyttäjän päätös 30.10.2026). Asetukset, jotka eivät muuta asettelua (verkkolinkit, teema, aikajana), eivät
   // asettele tekstiä uudelleen (Deweyllä sivutettuna jokainen napautus kesti 3,3 s); marginaali asettelee.
   const lp = await (await b.newContext({ viewport: { width: 360, height: 413 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true })).newPage();
   lp.on('pageerror', e => sivuvirheet.push(e.message));
@@ -743,8 +743,7 @@ palvelin.listen(0, async () => {
   tulos('vierityksessä ei vaakavieritystä (360 px, koko 32 ja 19)', yli32 === 0 && yli19 === 0, 'ylitys ' + yli32 + ' ja ' + yli19 + ' px');
   const linkit = () => lp.evaluate(() => {
     const A = [...document.querySelectorAll('#teksti a')], ulko = a => !/^#/.test(a.getAttribute('href') || a.dataset.href || '#');
-    return { ulko: A.filter(ulko).length, kirj: A.filter(a => a.classList.contains('kirj')).length,
-      muuToimii: A.filter(a => ulko(a) && !a.classList.contains('kirj') && a.hasAttribute('href')).length, kirjPois: A.filter(a => a.classList.contains('kirj') && !a.hasAttribute('href')).length };
+    return { ulko: A.filter(ulko).length, toimii: A.filter(a => ulko(a) && a.hasAttribute('href')).length };
   });
   const vl0 = await linkit();
   await lp.evaluate(() => document.querySelector('#lukija .ratas').click());
@@ -757,8 +756,8 @@ palvelin.listen(0, async () => {
   const as2 = await lp.evaluate(() => window.__luin.tila.asetteluja);
   await lp.click('#asetukset [data-kytkin="verkkolinkit"]');
   const vl2 = await linkit(), vlTallessa = await lp.evaluate(() => JSON.parse(localStorage.getItem('luin-asetukset')).verkkolinkit);
-  tulos('verkkolinkit oletuksena pois, kirjallisuusluettelon ja DOI:n linkit aina', vl0.muuToimii === 0 && vl0.kirjPois === 0 && vl1.muuToimii === vl1.ulko - vl1.kirj &&
-    vl2.muuToimii === 0 && vl2.kirjPois === 0 && vlTallessa === 0, JSON.stringify({ vl0, vl1, vl2 }));
+  tulos('verkkolinkit oletuksena pois, kytkin palauttaa kaikki', vl0.toimii === 0 && vl1.toimii === vl1.ulko && vl2.toimii === 0 && vlTallessa === 0,
+    JSON.stringify({ vl0, vl1, vl2 }));
   tulos('asetus asettelee tekstin vain, jos asettelu muuttuu', as1 === as0 && as2 === as0 + 1, 'asetteluja ' + [as0, as1, as2].join(' → '));
   await lp.context().close();
 
