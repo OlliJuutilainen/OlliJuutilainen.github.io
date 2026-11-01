@@ -2373,8 +2373,8 @@
       if (g.classList.contains('tuleva') !== tul) g.classList.toggle('tuleva');
     });
   }
-  // Sivun ensimmäinen merkki. Aikajana ei enää käytä tätä (sivutettuna se pysähtyy vain merkkeihin,
-  // ks. janaKohde), mutta testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
+  // Sivun ensimmäinen merkki. Aikajana käyttää tätä vain viimeisen sivun pysäkkiin (janaPysakit), ja
+  // testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
   // ulkopuolisille sivuille ei voi käyttää caretRangeFromPointia kuten nykyinenKohta(), joten
   // merkki haetaan puolitushaulla merkkien laatikoista (kohdanLaatikko).
   var sivuAlut = {};
@@ -2400,7 +2400,7 @@
   }
   // Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia, vaan napautus ja veto
   // vievät suhteelliseen kohtaan. Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain merkkeihin,
-  // eli tekstin alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
+  // eli tekstin alkuun, viimeisen sivun alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
   // paluumajakkaan ja voimassa olevaan kohtaan (haamuun), ja lähin voittaa. Pysäkit ovat samat
   // riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. E-ink-näyttö päivittyy näin
   // vedettäessä vain pysäkiltä toiselle siirryttäessä.
@@ -2410,6 +2410,9 @@
     if (nyt.majakka) a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
     if (tila.ankkuri) a.push({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
     a.push({ k: { b: 0, o: 0 }, nimi: nyt.e.title });
+    // Viimeinen sivu (käyttäjän pyyntö 1.11.2026): ilman tätä veto janan loppuun pysähtyi viimeiseen otsikkoon
+    // (tutkielmassa Kirjallisuus, 52 / 56), eikä loppuun päässyt kuin sivua kääntämällä.
+    if (tila.sivuja > 1) { var vika = sivunAlku(tila.sivuja - 1); a.push({ k: vika, nimi: nimi(vika) }); }
     nyt.doc.toc.forEach(function (t) { a.push({ k: { b: t.b, o: 0 }, nimi: t.text }); });
     nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
     return a;
