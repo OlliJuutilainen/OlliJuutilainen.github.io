@@ -933,6 +933,13 @@ Käyttäjän vaatimukset 20.10.2026:
   kun marginaali vaikuttaa (`innerWidth < 33 × koko + 72`). Yläraja on harkittu: 40 px:llä tasattuun tekstiin tuli 412 px:llä
   silmin nähtäviä aukkoja.
 - Aikajanan oletus (käyttäjän päätös 22.10.2026): työpöydällä pääluvut ja alaluvut (`janaTaso: 2`), mobiilissa (`(max-width: 700px), (pointer: coarse)`) vain pääluvut (`janaTaso: 1`). Koskee vain ensikäyttöä; tallennettuja asetuksia ei muuteta. Mitattu Chromiumissa: työpöytä Pääluvut+Alaluvut, mobiili vain Pääluvut, tallennettu 2 säilyy mobiilissakin.
+- **Verho** (käyttäjän päätös 1.11.2026; `verhoAuki()` = navinäkymä tai Asetukset-/Merkinnät-paneeli auki): verhon takana eivät toimi
+  tekstin napautus (navissa se sulkee palkit, paneelin ollessa auki ei tee mitään), reunanapautus, pyyhkäisy, valinta eikä
+  alleviivaus, eikä hiiren rulla käännä sivua (sivutettuna rulla ei tee verhon takana mitään, vierityksessä vierittää). Sallittua:
+  sivunkääntö näppäimillä (nuolet, PageUp/Down, väli, Home/End; ei kun kohteena on `select`, tai väli painikkeella/`summary`/linkillä) ja
+  alapalkin kirjanmerkkinappi aina. Aiemmin paneeli ei estänyt mitään muuta kuin näppäimet ja navi ei estänyt valintaa.
+  Mitattu Chromiumissa 1280 px sivutettuna: ilman verhoa reuna −1 sivu, nuoli +1, rulla +1, alleviivaus syntyy; navissa ja
+  asetuksissa reuna 0, nuoli +1, rulla 0, alleviivaus 0. `testi.js` sulkee navin ennen alleviivausta (se luotti vanhaan aukkoon).
 - **Postilaatikko** (käyttäjän pyyntö 25.10.2026: Light Phoneen ei voi näppäillä linkkejä; opas, luku 2.2): Latomon
   *Lähetä postilaatikkoon* tulostaa wrangler 3.114.17 -komennon, joka tallentaa tekstin KV:hen avaimella
   `luin:<koodi>:<slug>` (30 päivää). Luin hakee sen workerin reitiltä `/api/luin` lukulistaan, kun laatikon koodi on annettu.
