@@ -910,7 +910,7 @@ Käyttäjän vaatimukset 20.10.2026:
   etappien `tuleva`-luokka (`vedenjakaja()`; etapeilla `data-f`), kerran ruudunpäivitystä kohden (e-ink).
   Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan,
   myös merkin vieressä ja kummitusmerkin kohdalla). Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain pysäkeille
-  (`janaPysakit()`: tekstin alku, kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
+  (`janaPysakit()`: tekstin alku, viimeisen sivun alku (käyttäjän pyyntö 1.11.2026), kaikkien tasojen otsikot, kirjanmerkit, majakka, voimassa oleva kohta), lähin voittaa, ja
   pysäkit ovat samat riippumatta aikajanalle valituista merkeistä. Perustelu: ilman e-inkiä luetaan mieluummin vierittäen,
   e-inkissä veto ei tee ilotulitusta. Sivun alkuun pyöristävä `sivunAlku()` jäi vain testien käyttöön.
 - Kirjanmerkin paikka (käyttäjän päätökset 21.10.2026 ja 22.10.2026; opas, luku 4.3): kirjanmerkki menee aina kappaleen alkuun
