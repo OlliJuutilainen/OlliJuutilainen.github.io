@@ -127,6 +127,10 @@ rivin korkeus pysyi ennallaan; `aria-label="©"`. Muiden ohjelmien alatunnisteis
 
 ## Repon rakenne
 
+`docs/mietintamyssy/` on hylly konsepti-ideoinnille (käyttäjän pyyntö 2.11.2026): pohdintoja mahdollisia
+myöhempiä toteutuksia varten, ei toteutettuja eikä päätettyjä. Lisää uusi idea omana tiedostonaan ja riville
+kansion `README.md`:hen. Älä toteuta niistä mitään pyytämättä.
+
 `arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
 `tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
 
