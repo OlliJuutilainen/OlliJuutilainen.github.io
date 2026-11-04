@@ -203,7 +203,7 @@ Käyttäjän vaatimukset 20.10.2026:
 - Aikajanapalkki (käyttäjän päätökset 21.10.2026): alapalkin vasemmassa reunassa on aina näkyvä
   kirjanmerkin ääriviiva (`#km-nappi`; ohut viiva alapalkin tekstien värillä `--harmaa`, aiemmin hyvin haalea `--viiva`), joka asettaa kirjanmerkin ilman palkin avaamista ja muuttuu kupariseksi
   (`--ruoste`), kun ruudulla (sivutettuna tällä sivulla) on kirjanmerkki; silloin napautus poistaa näkyvät
-  kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* listasymbolein (avaa kirjanmerkit ja
+  kirjanmerkit. Laatikkoa *Aseta kirjanmerkki* ei ole (käyttäjän päätös 21.10.2026: pelkkä symboli alhaalla riittää). Avatun palkin alla vasemmalla on laatikko *Merkinnät* (kuvake avoin kirja 4.11.2026 alkaen, ks. *Sisälmys*; ennen listasymbolein) (avaa kirjanmerkit ja
   alleviivaukset). Aikajanalla vain luettu osa (nykyiseen kohtaan asti) on tekstin värinen; tuleva viiva ja
   salmiakit ja kirjanmerkit ovat `--viiva`-harmaita (kirjanmerkit käyttäjän päätöksellä 22.10.2026; ennen ne näkyivät tulevassa osassa kuparisina), ja vedettäessä nekin vaihtuvat vedenjakajan mukana.
   Natsaa ei ole (käyttäjän päätös 22.10.2026; 21.10.2026 alapalkissa oli `natsanPaikka()`-mitattu natsa).
@@ -303,9 +303,7 @@ Käyttäjän vaatimukset 20.10.2026:
   jää näkyviin), joten siellä sulku on käytännössä raksista. Jos tekstissä on valinta, napautus ei sulje (valinta pitää tekstin ennallaan).
 - **Sisälmys** (käyttäjän pyyntö 4.11.2026; opas, luku 4.7.1): navissa *Etsi*-laatikon oikealla puolella laatikko *Sisälmys* (käyttäjän
   sana, ei *Sisällys*), joka avaa sisällysluettelon ponnahduslaatikkona (`avaaSisalmys()`, luokka `sisalmys`) riippumatta asetuksen
-  *Sisällysluettelo* tilasta; tekstissä ilman lukuja nappi on piilossa. Kuvake on **puu**: pääluvun ontto salmiakki, runko ja haarat
-  alalukujen täytettyihin salmiakkeihin. Ensimmäinen versio ilman runkoa näytti Merkintöjen listalta (mitattu kuvakaappauksesta DPR 4),
-  älä palaa siihen. Tasot lvl ≤ 2 kuten tekstin luettelossa, sivutettuna sivunumerot, nykyinen osio merkitty ja keskelle vieritetty,
+  *Sisällysluettelo* tilasta; tekstissä ilman lukuja nappi on piilossa. **Kuvakkeet** (käyttäjän valinnat 4.11.2026, luonnoksista): Sisälmys = Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä (S4b); ensin kokeiltu puu (runko ja haarat alalukuihin) hylättiin, koska hierarkiaa ei tässä koossa nähnyt. Merkinnät = avoin kirja (E3, `#merk-avaa svg` 23 × 16,1 px): vasemmalla sivulla rivit, keskimmäinen paksu (alleviivaus), oikealla nauha. Nauhan yläreuna on sivun yläreunan käyrällä (luonnoksessa kulma pisti reunan yli, käyttäjä: "irvistys"). Pikseliruudukkoon piirretyt tarkemmat versiot (1/2 px:n rivit) olivat käyttäjän mukaan huonompia; älä "siistiä" vasenta sivua. Etsin linssin ulkokehää pienennettiin samalla (puolilävistäjä 7,42 → 7,10, sisempi ennallaan, keskipiste ei siirtynyt). Tasot lvl ≤ 2 kuten tekstin luettelossa, sivutettuna sivunumerot, nykyinen osio merkitty ja keskelle vieritetty,
   laatikko laatikkorivin vasemmassa reunassa (`tasaus: 'vasen'`) yläpalkin alapuolella. Sulku: raksi, nappi uudelleen, Esc, tekstialueen
   napautus, joka sulkee vain laatikon ja jättää navin auki (document-kaappaaja; sama kuin haun laatikolla). Kohdan valinta = hyppy,
   majakka jää, navi auki. Mitattu Chromiumissa 1280 px sivut/vieritys ja 412 px sivut tutkielmalla ja oppaalla (40 kohtaa, lista vierii):

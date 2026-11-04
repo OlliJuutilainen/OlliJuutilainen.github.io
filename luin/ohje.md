@@ -282,7 +282,7 @@ Ennen 21.10.2026 viedyssä tiedostossa ei ole `[n/m]`-merkintöjä eikä kirjanm
 
 ### 4.7 Haku
 
-Aikajanan alla laatikon *Merkinnät* oikealla puolella on laatikko *Etsi* (suurennuslasi, jonka linssi on kaksi sisäkkäistä onttoa salmiakkia). Se avaa ponnahduslaatikon, jossa on hakukenttä, osumien määrä ja osumalista. Säännöt (käyttäjän päätökset 21.10.2026):
+Aikajanan alla laatikon *Merkinnät* oikealla puolella on laatikko *Etsi* (suurennuslasi, jonka linssi on kaksi sisäkkäistä onttoa salmiakkia; ulkokehää pienennetty hieman 4.11.2026). Se avaa ponnahduslaatikon, jossa on hakukenttä, osumien määrä ja osumalista. Säännöt (käyttäjän päätökset 21.10.2026):
 
 - Haku etsii sanojen alkuja: *kantil* löytää sanat *kantilainen* ja *kantilaisuus*, mutta ei sanan keskeltä (*etiikka* ei löydä sanaa *eläinetiikka*).
 - Usean sanan haku on aina fraasi, kuin lainausmerkit olisi kirjoitettu: *kantilainen eläinetiikka* löytää vain nämä sanat peräkkäin tässä järjestyksessä, ei kumpaakin erikseen (JA) eikä jompaakumpaa (TAI). Fraasin jokainen sana on sekin alku.
@@ -297,7 +297,7 @@ Avoimen tekstin viimeisin haku muistetaan (ei tallenneta). Kun laatikko avataan 
 
 #### 4.7.1 Sisälmys
 
-Käyttäjän pyyntö 4.11.2026: *Etsi*-laatikon oikealla puolella on laatikko *Sisälmys* (käyttäjän sana), joka avaa sisällysluettelon ponnahduslaatikkona riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Kuvake on puu: pääluvun ontto salmiakki (aikajanan merkki), siitä runko ja haarat alalukujen täytettyihin salmiakkeihin. Ensimmäinen versio ilman runkoa näytti Merkintöjen listakuvakkeelta. Tekstissä ilman pää- tai alalukuja laatikkoa ei ole.
+Käyttäjän pyyntö 4.11.2026: *Etsi*-laatikon oikealla puolella on laatikko *Sisälmys* (käyttäjän sana), joka avaa sisällysluettelon ponnahduslaatikkona riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Kuvake on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Merkinnät sai samalla uuden kuvakkeen, avoimen kirjan, jonka vasemmalla sivulla on rivejä (keskimmäinen paksu kuin alleviivaus) ja oikealla nauha, koska kaksi luettelokuvaketta sekoittui. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt (käyttäjän valinnat 4.11.2026). Tekstissä ilman pää- tai alalukuja laatikkoa ei ole.
 
 Luettelossa ovat samat tasot kuin tekstin sisällysluettelossa (pääluvut ja sisennettyinä alaluvut), kohdat ruosteella (napautettava), sivutettuna oikeassa reunassa sivunumero. Nykyinen osio on merkitty ruosteisella viivalla kuten valittu hakuosuma ja vieritetty listan keskelle. Laatikko on laatikkorivin vasemmassa reunassa (keskitettynä se jäi kapealla ruudulla vinoon), ei nouse yläpalkin päälle, ja lista vierii (enintään 75 % ikkunan korkeudesta, `sovitaLista()`, yhteinen haun kanssa). Sulkeutuu raksista, napista uudelleen, Escistä tai tekstialueen napautuksesta. Tekstin napautus sulkee vain laatikon, navi jää auki (ponnahduslaatikon yleinen sääntö). Kohdan valinta on hyppy kuten haussa: lähtökohtaan jää majakka, navi jää auki.
 
