@@ -142,6 +142,8 @@ palvelin.listen(0, async () => {
   tulos('koon paluu', ennen.s === jalkeen.s && ennen.a.b === jalkeen.a.b && ennen.a.o === jalkeen.a.o, 'sivu ' + ennen.s + ' → ' + jalkeen.s);
   await kuva('2-sivu');
 
+  // Navinäkymä (verho) estää valinnasta alleviivaamisen (1.11.2026): suljetaan se ennen valintaa.
+  if (await p.evaluate(() => !document.querySelector('#jana').hidden)) await p.click('#ala-nappi');
   // Alleviivaus valinnasta ja säilyminen.
   await p.evaluate(() => {
     const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 120 && x.getBoundingClientRect().width);

@@ -1606,6 +1606,11 @@
   // Mobiilin palkkien peittämä yläreuna (hyppy ei vie kohtaa yläpalkin alle).
   function ylaPeitto() { return mobiili() && palkitAuki() ? $('.ylapalkki').getBoundingClientRect().bottom : 0; }
   function palkitAuki() { return !$('#jana').hidden; }
+  // "Verho": navinäkymä tai asetus-/merkintäpaneeli. Verhon takaa ei toimi napautus, reunanapautus, pyyhkäisy,
+  // valinta eikä alleviivaus. Sallittua: vieritys rullalla ja sivunkääntö näppäimillä (käyttäjän päätös 1.11.2026).
+  // Alapalkin kirjanmerkkinappi toimii aina.
+  function paneeliAuki() { return !$('#asetukset').hidden || !$('#merkinnat').hidden; }
+  function verhoAuki() { return palkitAuki() || paneeliAuki(); }
   function nykyinenKohta() {
     var B = nyt.blocks, n = B.length, lo = 0, hi = n, k;
     if (!n) return { b: 0, o: 0 };
@@ -1705,8 +1710,10 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
-    if (!$('#asetukset').hidden || !$('#merkinnat').hidden) return;
     var k = e.key;
+    // Paneelin omat säätimet: valinta ja painikkeet käyttävät nuolia ja välilyöntiä itse.
+    if (e.target.closest && e.target.closest('select')) return;
+    if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
     // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
     // yleensä välitä näppäimiä sivulle; jos välittää, ne kääntävät sivua (alas = seuraava).
     if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
@@ -1718,7 +1725,7 @@
   sivuEl.addEventListener('wheel', function (e) {
     if (aset.sivutus !== 'sivut') return;
     e.preventDefault();
-    if (palkitAuki()) return;
+    if (verhoAuki()) return; // verhon takana rulla ei käännä sivua (käyttäjän päätös 1.11.2026)
     var nytAika = Date.now();
     if (nytAika - rullaAika < 380 || Math.abs(e.deltaY) + Math.abs(e.deltaX) < 4) return;
     rullaAika = nytAika;
@@ -1727,7 +1734,7 @@
   var kosketus = null;
   sivuEl.addEventListener('touchstart', function (e) { if (e.touches.length === 1) kosketus = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; }, { passive: true });
   sivuEl.addEventListener('touchend', function (e) {
-    if (!kosketus || aset.sivutus !== 'sivut' || !aset.sivuPyyhka || palkitAuki()) return;
+    if (!kosketus || aset.sivutus !== 'sivut' || !aset.sivuPyyhka || verhoAuki()) return;
     var t = e.changedTouches[0], dx = t.clientX - kosketus.x, dy = t.clientY - kosketus.y;
     var lyhyt = Date.now() - kosketus.t < 600;
     kosketus = null;
@@ -1747,10 +1754,11 @@
     // Kun palkit ovat auki, tekstialueen napautus vain sulkee ne (rauhallinen lukunäkymä): mikään muu tekstialueen
     // toiminto, ei linkki, kirjanmerkki, alleviivaus eikä reunanapautus, toimi (käyttäjän vaatimus 26.10.2026).
     // Auki oleva ponnahdus suljetaan ensin. Valinta pitää tekstin ennallaan.
-    if (palkitAuki()) {
+    if (verhoAuki()) {
       if (!valintaTyhja()) return;
       e.preventDefault();
-      if (!pop.hidden) suljePop(); else avaaJana(false);
+      // Navinäkymän verho sulkeutuu tekstin napautuksesta; paneeli ei (se sulkeutuu omasta napistaan).
+      if (!pop.hidden) suljePop(); else if (palkitAuki() && !paneeliAuki()) avaaJana(false);
       return;
     }
     var go = t.closest('a[data-go]');
@@ -1937,7 +1945,7 @@
     if (osoitin !== 'mouse') valAjastin = setTimeout(kasitteleValinta, 1200);
   });
   function kasitteleValinta() {
-    if (!nyt || tila.nakyma !== 'lukija') return;
+    if (!nyt || tila.nakyma !== 'lukija' || verhoAuki()) return;
     var s = getSelection();
     if (!s || !s.rangeCount || s.isCollapsed) return;
     var r = s.getRangeAt(0);
@@ -2385,8 +2393,8 @@
       if (g.classList.contains('tuleva') !== tul) g.classList.toggle('tuleva');
     });
   }
-  // Sivun ensimmäinen merkki. Aikajana ei enää käytä tätä (sivutettuna se pysähtyy vain merkkeihin,
-  // ks. janaKohde), mutta testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
+  // Sivun ensimmäinen merkki. Aikajana käyttää tätä vain viimeisen sivun pysäkkiin (janaPysakit), ja
+  // testit käyvät sillä sivut läpi (window.__luin.sivunAlku). Ruudun
   // ulkopuolisille sivuille ei voi käyttää caretRangeFromPointia kuten nykyinenKohta(), joten
   // merkki haetaan puolitushaulla merkkien laatikoista (kohdanLaatikko).
   var sivuAlut = {};
@@ -2412,7 +2420,7 @@
   }
   // Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia, vaan napautus ja veto
   // vievät suhteelliseen kohtaan. Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain merkkeihin,
-  // eli tekstin alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
+  // eli tekstin alkuun, viimeisen sivun alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
   // paluumajakkaan ja voimassa olevaan kohtaan (haamuun), ja lähin voittaa. Pysäkit ovat samat
   // riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. E-ink-näyttö päivittyy näin
   // vedettäessä vain pysäkiltä toiselle siirryttäessä.
@@ -2422,6 +2430,9 @@
     if (nyt.majakka) a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
     if (tila.ankkuri) a.push({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
     a.push({ k: { b: 0, o: 0 }, nimi: nyt.e.title });
+    // Viimeinen sivu (käyttäjän pyyntö 1.11.2026): ilman tätä veto janan loppuun pysähtyi viimeiseen otsikkoon
+    // (tutkielmassa Kirjallisuus, 52 / 56), eikä loppuun päässyt kuin sivua kääntämällä.
+    if (tila.sivuja > 1) { var vika = sivunAlku(tila.sivuja - 1); a.push({ k: vika, nimi: nimi(vika) }); }
     nyt.doc.toc.forEach(function (t) { a.push({ k: { b: t.b, o: 0 }, nimi: t.text }); });
     nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
     return a;
