@@ -510,6 +510,28 @@ palvelin.listen(0, async () => {
     return { k: a.b + ':' + a.o, ero: r.left + m.x0 + (n.cum[a.b] + a.o) / n.total * m.w - m.x }; }, mg);
   tulos('ei magneettia vierityksessä', mgA.k !== mg.b + ':0' && Math.abs(mgA.ero) < 1.5, 'otsikko ' + mg.b + ':0, perillä ' + mgA.k + ', ero napautukseen ' + mgA.ero.toFixed(2) + ' px');
 
+  // Kirjanmerkin nauha (käyttäjän pyyntö 4.11.2026): osuma nauhaan vie tasan kirjanmerkkiin myös 2,5 px keskeltä
+  // (nauha 6,2 px), mutta saman x:n napautus viivalla vie yhä suhteelliseen kohtaan. Kirjanmerkki on pääluvun
+  // jälkeisen kappaleen alussa, joten sivutettuna lähin pysäkki olisi otsikko.
+  const kmj = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), t = n.doc.toc.filter(x => x.lvl === 1)[3], b = t.b + 1;
+    n.merk.km.push({ id: 'testikm-jana', b, o: 0, s: n.txt[b].slice(0, 40), t: 1, osio: t.text }); L.mene({ b: 0, o: 0 });
+    return { b, f: n.cum[b] / n.total }; });
+  await p.waitForTimeout(300);
+  const kmjNapsu = async (dx, y) => {
+    await p.evaluate(() => window.__luin.mene({ b: 0, o: 0 })); await p.waitForTimeout(300);
+    const r = await p.evaluate(f => { const L = window.__luin, b = document.querySelector('#jana-svg').getBoundingClientRect(), xr = L.janaRajat(b.width);
+      const x = b.left + xr[0] + f * (xr[1] - xr[0]), e = [...document.querySelectorAll('#jana-svg .j-km')].find(e => { const q = e.getBoundingClientRect(); return Math.abs((q.left + q.right) / 2 - x) < .5; });
+      return { x, top: b.top, piirretty: !!e }; }, kmj.f);
+    await p.mouse.click(r.x + dx, r.top + y); await p.waitForTimeout(300);
+    const a = await p.evaluate(() => window.__luin.tila.ankkuri);
+    return { k: a.b + ':' + a.o, piirretty: r.piirretty };
+  };
+  const JK = await p.evaluate(() => window.__luin.JANA), kmjT = [await kmjNapsu(-2.5, JK.km + 4), await kmjNapsu(2.5, JK.km + 4), await kmjNapsu(2.5, JK.y)];
+  await p.evaluate(() => { const L = window.__luin, n = L.nyt(); n.merk.km = n.merk.km.filter(k => k.id !== 'testikm-jana'); L.mene({ b: 0, o: 0 }); });
+  await p.waitForTimeout(300);
+  tulos('kirjanmerkin nauha aikajanalla', kmjT[0].piirretty && kmjT[0].k === kmj.b + ':0' && kmjT[1].k === kmj.b + ':0' && kmjT[2].k !== kmj.b + ':0',
+    'kirjanmerkki ' + kmj.b + ':0; nauha −2,5 px → ' + kmjT[0].k + ', +2,5 px → ' + kmjT[1].k + ', viiva +2,5 px → ' + kmjT[2].k);
+
   // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
   const mj = await p.evaluate(async () => {
     const L = window.__luin, n = L.nyt().blocks.length, nakyy = () => !document.getElementById('majakka').hidden;
