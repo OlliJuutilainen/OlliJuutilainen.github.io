@@ -726,6 +726,21 @@ palvelin.listen(0, async () => {
   const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
   tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
+  // Sisälmys (4.11.2026): Etsin oikealla puolella samalla rivillä, laatikko auki napista; tekstialueen napautus laatikon
+  // ulkopuolella sulkee vain laatikon (navi auki, sivu sama); raksi sulkee; kohdan valinta hyppää ja jättää majakan.
+  const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#pop').hidden ? '' : document.querySelector('#pop').className, s: window.__luin.tila.sivu, maj: !!window.__luin.majakka() }));
+  if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await mob360.click('#ala-nappi');
+  const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: s.left > e.right, rivi: s.top === e.top, h: s.height === e.height }; });
+  await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
+  const ss1 = await sisT(), pr = await mob360.evaluate(() => document.querySelector('#pop').getBoundingClientRect().right);
+  await mob360.mouse.click(Math.min(359, pr + 4), 300); await mob360.waitForTimeout(100);
+  const ss2 = await sisT();
+  await mob360.click('#sis-avaa'); await mob360.click('#pop .s-sulje'); await mob360.waitForTimeout(100);
+  const ss3 = await sisT();
+  await mob360.click('#sis-avaa'); await mob360.click('#pop .s-kohta:last-child'); await mob360.waitForTimeout(300);
+  const ss4 = await sisT();
+  tulos('Sisälmys', sg.oikealla && sg.rivi && sg.h && /sisalmys/.test(ss1.pop) && ss1.navi && !ss2.pop && ss2.navi && ss2.s === ss1.s && !ss3.pop && ss3.navi && !ss4.pop && ss4.navi && ss4.s > ss1.s && ss4.maj,
+    JSON.stringify({ sg, ss1, ss2, ss3, ss4 }));
   await mob360.context().close();
 
   // Light Phone (360 × 413, 29.10.2026). Vierityksessä sivu ei levene sivusuunnassa: ylipitkät sanat ja osoitteet katkeavat
