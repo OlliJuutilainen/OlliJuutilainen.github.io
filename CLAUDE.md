@@ -23,6 +23,10 @@ Mihin kirjataan: yhden ohjelman päätös sen omaan tiedostoon, kaikkia ohjelmia
 opin, joka palvelisi koko Tusinasoftin kehitystä, ehdota käyttäjälle lyhyttä kirjausta tähän tiedostoon;
 käyttäjä päättää. Pidä tämä tiedosto lyhyenä.
 
+Kirjaa säästeliäästi. Sääntötiedostoihin vain se, minkä tuleva istunto voisi uskottavasti rikkoa tai mitä koodista
+ei näe. Historia, mittaukset, hylätyt vaihtoehdot ja päivän vaikutelmat eivät kuulu sinne vaan commit-viestiin tai
+koodin kommenttiin.
+
 ## Todentaminen — tämän repon tärkein sääntö
 
 **Älä väitä mitään, mitä et ole todentanut.** Tässä projektissa on toistuvasti käynyt niin,
