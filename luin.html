@@ -511,7 +511,7 @@
      2 px:n siirto (→ 725) jättää painopisteen 0,2–0,6 px tekstin alle (DPR 1–4). Laatikon koko ennallaan. */
   #etsi-avaa svg { width: 18.08px; height: 18.08px; position: relative; top: 1.15px; }
   .laatikko[hidden] { display: none; }
-  #merk-avaa svg { width: 23px; height: 16.1px; }
+  #merk-avaa svg { width: 10px; height: 12px; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
@@ -665,8 +665,8 @@
       <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
-        <!-- Merkinnät (käyttäjän valinta 4.11.2026, luonnos E3): avoin kirja, vasemmalla sivulla rivit, joista keskimmäinen paksu (alleviivaus), oikealla sivulla nauha (kirjanmerkki). Nauhan yläreuna on sivun yläreunan käyrällä (y 1,444 ja 1,008 käyrän keskiviivalla, reunaviiva peittää sen): luonnoksessa nauha alkoi y 0,4:stä ja sen kulma pisti reunan yli. Entinen kuvake (salmiakkiluettelo) siirtyi Sisälmykselle, koska se sekoittui siihen. -->
-        <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 20 14" aria-hidden="true"><path class="l-viiva" style="stroke-width:.85" d="M10 2.4Q5.5 .4 .6 1V11.6Q5.5 11 10 13.2Q14.5 11 19.4 11.6V1Q14.5 .4 10 2.4ZM10 2.4V13.2"/><path class="l-viiva" style="stroke-width:.6" d="M2.4 4.4H8.2M2.4 9.2H6.8"/><path class="l-viiva" style="stroke-width:1.5" d="M2.4 6.8H8.2"/><path class="l-pis" d="M12.7 1.444L14.9 1.008V7.8L13.8 6.7L12.7 7.8Z"/></svg>Merkinnät</button>
+        <!-- Merkinnät (käyttäjän valinta 4.11.2026): litteä sivu, alalaidassa paksu viiva (alleviivaus) ja yläreunasta nauha (kirjanmerkki). -->
+        <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
         <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. -->
         <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 0.97L15.17 8.07L8.07 15.17L0.97 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.62 11.62L17.15 17.15"/></svg>Etsi</button>
         <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
