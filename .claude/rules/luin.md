@@ -335,7 +335,8 @@ Käyttäjän vaatimukset 20.10.2026:
   seuraavaan yhtä korkeaan tai korkeampaan otsikkoon (ennen vain `##` ja suomen/englannin nimet). Sama sääntö ja `p.bib` lisättiin
   myös hylättyyn iA Writerin Luin-pohjaan (`document.html`, `luin.css`; zip tehty uudelleen, pidä nimilista samana). Testattu: md-testi 99 OK
   ennallaan + 8 uutta, selaintesti tutkielmalla 49 OK ennallaan, iA-pohja Chromiumissa jäljitellyllä iA-sisällöllä (oikealla
-  iA:lla testaamatta).
+  iA:lla testaamatta). Samana päivänä: numeroimaton otsikko numeroitujen yläpuolella aloittaa numeroinnin alusta (`numTaso`);
+  Vernunft-md:n varoitukset 39 → 3 (32 tuli hegelin suojaamattomasta `[?]`:stä, joka on nyt `\[?\]`), jäljelle jääneet aiheellisia.
 - **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
   (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,
   tarkistetut kohdat [✓] lähteineen), sinetöity lisälehti antiikin, kirkkoisien, klassikoiden ja arkistojen merkitsemiseen

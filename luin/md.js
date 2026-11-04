@@ -1317,7 +1317,7 @@
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
-    var inBib = false, bibTaso = 0, nums = [], lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
+    var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
     // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
     var alas = sivuLuvut(tokens, t0);
     alas.forEach(function (i) {
@@ -1376,7 +1376,12 @@
               warn('Otsikon numero ' + nm[1] + ' ei jatka edellistä numerointia.');
             }
             nums = parts.slice();
+            numTaso = lvl0 - d;
           } else {
+            // Numeroimaton otsikko numeroitujen yläpuolella aloittaa uuden numeroinnin: lexikonin jokainen hakusana (##)
+            // numeroi omat väliotsikkonsa (### 1 …) alusta (käyttäjän pyyntö 4.11.2026). Saman tason numeroimaton
+            // (## Kirjallisuus numeroitujen lukujen välissä) ei katkaise.
+            if (numTaso && lvl0 < numTaso) { nums = []; numTaso = 0; }
             id = slug(txt);
             if (lvl >= 3) cls += ' caps';
           }
