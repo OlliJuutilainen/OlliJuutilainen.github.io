@@ -499,6 +499,9 @@
   /* paneelit: asetukset ja merkinnät */
   .paneeli { position: fixed; top: 0; right: 0; bottom: 0; width: min(25rem, 100%); background: var(--paperi);
     border-left: 1px solid var(--muste); z-index: 40; overflow-y: auto; padding: 0 18px 34px; -webkit-overflow-scrolling: touch; }
+  /* Lukijassa asetukset päättyvät alapalkin kaistan yläpuolelle, jotta kirjanmerkki- ja sivunapit pysyvät käytössä
+     (käyttäjän pyyntö 4.11.2026); sijoitaPaneeli() asettaa muuttujan. */
+  #asetukset { bottom: var(--paneeli-ala, 0px); }
   .paneeli header { position: sticky; top: 0; z-index: 1; background: var(--paperi); display: flex; align-items: center;
     justify-content: space-between; height: 50px; border-bottom: 1px solid var(--viiva); margin: 0 -18px 4px; padding: 0 2px 0 18px; }
   .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
@@ -1173,6 +1176,13 @@
   }, true);
 
   /* ---------- paneelit ---------- */
+  // Asetuspaneelin alareuna alapalkin kaistan yläreunaan (lukijassa), muuten ruudun alareunaan.
+  function sijoitaPaneeli() {
+    var v = 0;
+    if (!$('#lukija').hidden) { var b = $('#ala-rivi').getBoundingClientRect(); if (b.height) v = Math.max(0, Math.round(innerHeight - b.top)); }
+    document.documentElement.style.setProperty('--paneeli-ala', v + 'px');
+  }
+  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) sijoitaPaneeli(); });
   function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); }
   $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', suljePaneelit); });
   $('#lista .info').addEventListener('click', function () {
@@ -1183,6 +1193,8 @@
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () {
     tuoVal = { al: 1, ki: 1, km: 1, ed: 1 }; $('#tuo-tieto').textContent = '';
     suljePop(); piirraAsetukset();
+    if (!$('#lukija').hidden) avaaJana(false); // navi ja asetukset eivät ole yhtä aikaa auki: tekstin napautus sulkee asetukset
+    sijoitaPaneeli();
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#postilaatikko').hidden = !!nyt; $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = LS.get('luin-laatikko', ''); $('#laatikko-tieto').textContent = '';
@@ -1757,8 +1769,11 @@
     if (verhoAuki()) {
       if (!valintaTyhja()) return;
       e.preventDefault();
-      // Navinäkymän verho sulkeutuu tekstin napautuksesta; paneeli ei (se sulkeutuu omasta napistaan).
-      if (!pop.hidden) suljePop(); else if (palkitAuki() && !paneeliAuki()) avaaJana(false);
+      // Navinäkymän ja Asetusten verho sulkeutuu tekstin napautuksesta (Asetukset käyttäjän pyynnöstä 4.11.2026);
+      // Merkinnät-paneeli sulkeutuu vain omasta napistaan.
+      if (!pop.hidden) suljePop();
+      else if (!$('#asetukset').hidden) $('#asetukset').hidden = true;
+      else if (palkitAuki() && !paneeliAuki()) avaaJana(false);
       return;
     }
     var go = t.closest('a[data-go]');
