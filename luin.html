@@ -2283,9 +2283,9 @@
   // alakärjen musteen huippua (y + 8,4 + 1,545; ennen nauha peitti kehän ja ulottui sisäalan alimpaan kohtaan).
   var JANA = { y: 22, koko: { 1: [6.36, 8.4], 2: [3.38, 4.51], 3: [1.61, 2.17] } };
   JANA.km = Math.round((JANA.y + JANA.koko[1][1] + 1.545) * 100) / 100;
+  JANA.kmLeveys = 6.2; JANA.kmKorkeus = 10.6;
   // Osoittimen ja kummitusmerkin pystyviiva ulottuu 2 px nauhan alareunan yläpuolelle kuten ennen.
-  JANA.viiva = Math.round((JANA.km + 10.6 - 2) * 100) / 100;
-  JANA.kmLeveys = 6.2;
+  JANA.viiva = Math.round((JANA.km + JANA.kmKorkeus - 2) * 100) / 100;
   // Aikajanan päät palkkien laidoissa (--v-laita, --o-laita). Alku- ja lopputikkuja ei ole (käyttäjän pyyntö 29.10.2026).
   function janaRajat(w) {
     var cs = getComputedStyle($('#jana-svg'));
@@ -2339,6 +2339,8 @@
     });
     return pois;
   }
+  // Piirretyt kirjanmerkkinauhat maalausjärjestyksessä (päällimmäinen viimeisenä) osumaa varten, ks. janaKohde().
+  var janaNauhat = [];
   function piirraJana() {
     var svg = $('#jana-svg');
     if (!nyt || $('#jana').hidden) return;
@@ -2400,11 +2402,12 @@
         else kmEdellinen = p.x;
       });
     kohteet = kohteet.filter(function (m) { return kmPois.indexOf(m) < 0; });
+    var nauhatTul = [], nauhatLu = [];
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
       if (m.majakka) { maj = '<g class="j-majakka" transform="translate(' + x + ' 0)"><title>' + esc(m.nimi) + '</title><path class="j-maj-v" d="M0 9V' + JANA.viiva + '"/><path class="j-maj" d="M-4.5 1.5H4.5L0 9Z"/></g>'; return; }
-      if (m.km) d = '<path class="j-km" d="' + nauha(x, JANA.km, JANA.kmLeveys, 10.6) + '"/>';
+      if (m.km) { d = '<path class="j-km" d="' + nauha(x, JANA.km, JANA.kmLeveys, JANA.kmKorkeus) + '"/>'; (on ? nauhatLu : nauhatTul).push({ x: x, k: m.k, nimi: m.nimi, km: true }); }
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
@@ -2414,6 +2417,7 @@
       if (on) luettu += d; else tuleva += d;
     });
     s += tuleva + luettu + maj;
+    janaNauhat = nauhatTul.concat(nauhatLu);
     var osoitin = '<path class="j-nyt-v" d="M0 9V' + JANA.viiva + '"/><path class="j-nyt" d="M-4.5 1.5H4.5L0 9Z"/>';
     s += '<g' + (janaVeto ? ' class="haamu"' : '') + ' transform="translate(' + cx + ' 0)">' + osoitin + '</g>';
     if (janaVeto) s += '<g id="j-veto" transform="translate(' + X(janaVeto.f) + ' 0)">' + osoitin + '</g>';
@@ -2481,9 +2485,13 @@
     nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
     return a;
   }
-  function janaKohde(clientX) {
+  function janaKohde(clientX, clientY) {
     var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), xr = janaRajat(r.width), x0 = xr[0], x1 = xr[1];
-    var x = clientX - r.left, f = clamp((x - x0) / (x1 - x0), 0, 1);
+    var x = clientX - r.left, y = clientY - r.top, f = clamp((x - x0) / (x1 - x0), 0, 1);
+    // Käyttäjän pyyntö 4.11.2026: osuma piirrettyyn kirjanmerkin nauhaan (sen rajauslaatikkoon) vie tasan kirjanmerkkiin
+    // molemmissa lukutavoissa, ei osoittimen kohtaan eikä lähimpään pysäkkiin. Päällekkäisistä nauhoista päällimmäinen.
+    if (y >= JANA.km && y <= JANA.km + JANA.kmKorkeus)
+      for (var i = janaNauhat.length - 1; i >= 0; i--) if (Math.abs(x - janaNauhat[i].x) <= JANA.kmLeveys / 2) return janaNauhat[i];
     if (aset.sivutus === 'sivut') {
       var paras = null, ero = Infinity;
       janaPysakit().forEach(function (m) { var d = Math.abs(osuus(m.k) - f); if (d < ero) { ero = d; paras = m; } });
@@ -2501,8 +2509,8 @@
   var janaVeto = null;
   (function () {
     var svg = $('#jana-svg'), veto = false, odottaa = null;
-    var nayta = function (clientX) {
-      var m = janaKohde(clientX), f = osuus(m.k), g = $('#j-veto');
+    var nayta = function (clientX, clientY) {
+      var m = janaKohde(clientX, clientY), f = osuus(m.k), g = $('#j-veto');
       $('#jana-kohta').textContent = m.nimi;
       if (!veto) return;
       // Edistyminen (sivunumero tai prosentti) seuraa vetoa heti eikä vaihdu vasta irrotettaessa (käyttäjän pyyntö 26.10.2026).
@@ -2515,15 +2523,15 @@
       vedenjakaja(f);
     };
     var loppu = function () { veto = false; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
-    svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX); });
+    svg.addEventListener('pointerdown', function (e) { veto = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX, e.clientY); });
     svg.addEventListener('pointermove', function (e) {
       if (!veto && e.pointerType !== 'mouse') return;
-      var x = e.clientX;
+      var x = e.clientX, y = e.clientY;
       if (odottaa) cancelAnimationFrame(odottaa);
-      odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x); });
+      odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x, y); });
     });
     svg.addEventListener('pointerleave', function () { if (!veto) { if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } paivita(); } });
-    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX); if (m.majakka) palaa(); else hyppaa(m.k, false, false, 'jana'); });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; loppu(); var m = janaKohde(e.clientX, e.clientY); if (m.majakka) palaa(); else hyppaa(m.k, false, false, 'jana'); });
     svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
 
