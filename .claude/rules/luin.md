@@ -192,6 +192,8 @@ Käyttäjän vaatimukset 20.10.2026:
   72,829 vs. 72,832 px; käyttäjän päätös 4.11.2026, #470:ssä hetken LUiN-perusviivalla, 16.16px), keskikohta 24 px logon oikeasta reunasta kuten tietoa-napissa, 22 px,
   napautusala 40 × 40. Otsikko ja kaikki sen alla pysyivät paikallaan (mitattu). Hylättyjä luonnoksia mm. savupiippupirtti,
   salmiakki harjakatolla, kotisalmiakki, asukas, päätyikkuna, kirjanmerkkiovi; Othala-riimu jätettiin pois (äärioikeiston käytössä).
+  #471:n Pages-julkaisu jäi jumiin (`updating_pages` 10 min, aikaraja), ja uudelleenajo samalla SHA:lla kaatui heti
+  (`Deployment cancelled`, 4.11.2026); uusi commit mainiin käynnisti uuden julkaisun. Siksi tämä rivi.
 - Nimen tekstimuoto (ei-graafinen, esim. infolaatikko ja logon `aria-label`) on *LUiN.HTML* (käyttäjän päätös 21.10.2026);
   tiedostonimi ja polut pysyvät `luin.html`.
 - **`md.js?v=<SHA-1:n alku>`** (29.10.2026: käyttäjän selain piti vanhan md.js:n, vaikka korjaus oli julkaistu; Pages antaa
