@@ -1,5 +1,5 @@
 /* iA Writerin esikatselupohja Luinin ulkoasulla (luin.html, #teksti). Värit ja mitat ovat Luinin; kun ne muuttuvat
-   siellä, päivitä tänne. Lainauksen lähde ja motto: skripti document.html:ssä. */
+   siellä, päivitä tänne. Lainauksen lähde ja motto sekä kirjallisuusluettelo: skripti document.html:ssä. */
 @font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2"); font-weight: 380 700; font-style: normal; }
 @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2"); font-weight: 380 700; font-style: italic; }
 :root {
@@ -22,6 +22,8 @@ h2 { font-size: 1.3em; margin: 3.2em 0 1em; line-height: 1.25; letter-spacing: .
 h3 { font-size: 1.04em; margin: 2.3em 0 .7em; font-style: italic; line-height: 1.35; }
 h4, h5, h6 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
 p { margin: 0 0 1.1em; }
+/* Kirjallisuusluettelo riippuvalla sisennyksellä kuten Luinissa (#teksti p.bib); skripti document.html:ssä. */
+p.bib { padding-left: 1.7em; text-indent: -1.7em; margin: 0 0 .75em; font-size: .9em; line-height: 1.45; }
 hr { border: 0; border-top: 1px solid var(--viiva); margin: 2.2em 0; }
 del { text-decoration-color: var(--harmaa); }
 mark { background: none; box-shadow: inset 0 -.45em var(--viiva); color: inherit; }
