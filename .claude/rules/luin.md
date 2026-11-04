@@ -280,6 +280,14 @@ Käyttäjän vaatimukset 20.10.2026:
   alapalkin kirjanmerkkinappi aina. Aiemmin paneeli ei estänyt mitään muuta kuin näppäimet ja navi ei estänyt valintaa.
   Mitattu Chromiumissa 1280 px sivutettuna: ilman verhoa reuna −1 sivu, nuoli +1, rulla +1, alleviivaus syntyy; navissa ja
   asetuksissa reuna 0, nuoli +1, rulla 0, alleviivaus 0. `testi.js` sulkee navin ennen alleviivausta (se luotti vanhaan aukkoon).
+  **Asetukset lukijassa** (käyttäjän pyyntö 4.11.2026): tekstialueen napautus sulkee Asetukset-paneelin kuten navin (Merkinnät-paneeli
+  sulkeutuu edelleen vain omasta napistaan). Paneelin alareuna on alapalkin kaistan yläreunassa (`sijoitaPaneeli()`, CSS-muuttuja
+  `--paneeli-ala`, päivittyy ikkunan koon muuttuessa), joten kirjanmerkki- ja sivunapit (`#sivunapit`) sekä sivunkäännön näppäimet
+  toimivat asetusten ollessa auki; alapalkista ei poistu asetuksista. Asetusten avaus sulkee navin (ei molempia yhtä aikaa, jotta yksi
+  napautus riittää). Alleviivaus ei synny (verho). Mitattu Chromiumissa 1280 ja 412 px sivutettuna: paneelin alareuna = kaistan yläreuna
+  (760 / 756), sivunappi +1 sivu, PageDown +1 sivu, kirjanmerkki asettuu, tekstin napautus sulkee asetukset (työpöytä; mobiilissa
+  `#teksti.click()`); `testi.js` ennallaan (49 riviä, 0 VIKAa). Kapealla puhelimella paneeli peittää tekstistä lähes kaiken (412 px:llä 12 px
+  jää näkyviin), joten siellä sulku on käytännössä raksista. Jos tekstissä on valinta, napautus ei sulje (valinta pitää tekstin ennallaan).
 - **Postilaatikko** (käyttäjän pyyntö 25.10.2026: Light Phoneen ei voi näppäillä linkkejä; opas, luku 2.2): Latomon
   *Lähetä postilaatikkoon* tulostaa wrangler 3.114.17 -komennon, joka tallentaa tekstin KV:hen avaimella
   `luin:<koodi>:<slug>` (30 päivää). Luin hakee sen workerin reitiltä `/api/luin` lukulistaan, kun laatikon koodi on annettu.
