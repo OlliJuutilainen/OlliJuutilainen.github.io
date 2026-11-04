@@ -328,6 +328,12 @@ Käyttäjän vaatimukset 20.10.2026:
   ankkurin kera (etukentän `lähde`) on Luinin sisäinen, jos ankkurin jokin linkki on otsikon nimi tai linkin tekstissä on luvun numero.
 - **Ei vaakavieritystä** (29.10.2026, Light Phone): `#teksti { overflow-wrap: break-word }` koko tekstille. Dewey-leike oli
   vierityksessä 360 px:n ruudulla 690 px leveä (URL-linkit), ja 32 px:n koolla kaikki testitekstit levisivät. `testi.js` tarkistaa.
+- **Kirjallisuusluettelo millä tahansa otsikkotasolla** (käyttäjän pyyntö 4.11.2026; hegel-linjaston Kant-Lexikon,
+  `### Weiterführende Literatur`; opas, luku 3.4): `BIB` (md.js) tunnistaa suomen, englannin ja saksan nimet, ja osio jatkuu
+  seuraavaan yhtä korkeaan tai korkeampaan otsikkoon (ennen vain `##` ja suomen/englannin nimet). Sama sääntö ja `p.bib`
+  iA Writerin Luin-pohjassa (`document.html`, `luin.css`; zip tehty uudelleen, pidä nimilista samana). Testattu: md-testi 99 OK
+  ennallaan + 8 uutta, selaintesti tutkielmalla 49 OK ennallaan, iA-pohja Chromiumissa jäljitellyllä iA-sisällöllä (oikealla
+  iA:lla testaamatta).
 - **Viitetyylin varanto `docs/viitteet/`** (käyttäjän pyyntö 28.10.2026): Teologian tyyli 2021 säännöiksi purettuna
   (`teologian-tyyli-2021.md`; PDF ei ole repossa), APA 7 -turvaverkko sen aukkoihin (`apa7-turvaverkko.md`, omin sanoin,
   tarkistetut kohdat [✓] lähteineen), sinetöity lisälehti antiikin, kirkkoisien, klassikoiden ja arkistojen merkitsemiseen
