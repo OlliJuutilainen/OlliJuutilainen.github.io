@@ -205,6 +205,21 @@
      tuntematon selain hylkäisi koko säännön. */
   .osuma mark { background: var(--viiva); color: var(--muste); }
   ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
+  /* Sisälmys (käyttäjän pyyntö 4.11.2026): navin sisällysluettelo. Otsikkorivi raksin kanssa, lista vierii (sovitaLista).
+     Kohdat ruosteella kuten tekstin sisällysluettelossa (napautettava); nykyinen osio merkitty kuten valittu hakuosuma. */
+  .valikko.sisalmys { width: min(24rem, calc(100vw - 24px)); padding: 0; }
+  .s-yla { display: flex; align-items: center; justify-content: space-between; height: 44px; padding-left: 14px; border-bottom: 1px solid var(--viiva); }
+  .s-ots { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); }
+  .valikko button.s-sulje { width: 44px; min-height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  .valikko button.s-sulje svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 1.2; fill: none; }
+  .s-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0; }
+  .valikko button.s-kohta { display: flex; align-items: baseline; gap: 14px; min-height: 0; padding: 8px 14px; font-size: .9rem; line-height: 1.4; color: var(--ruoste); }
+  .valikko button.s-kohta.t2 { padding-left: 34px; font-size: .84rem; }
+  .valikko button.s-kohta:hover { text-decoration: none; }
+  .valikko button.s-kohta:hover .s-nimi { text-decoration: underline; text-underline-offset: 3px; }
+  .valikko button.s-kohta[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
+  .valikko button.s-kohta.t2[aria-current] { padding-left: 32px; }
+  .s-sivu { margin-left: auto; font-size: .74rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
 
   /* ---------- lukija ---------- */
   /* Yläpalkki 44 → 56 px (käyttäjän pyyntö 29.10.2026: hajurakoa kuten aikajanakerrokseen). */
@@ -493,6 +508,8 @@
      yläpuolelle (mitattu pikseleistä). Chromium piirtää kuvakkeen kokonaiseen pikseliin (722,5 → 723), joten
      2 px:n siirto (→ 725) jättää painopisteen 0,2–0,6 px tekstin alle (DPR 1–4). Laatikon koko ennallaan. */
   #etsi-avaa svg { width: 18.08px; height: 18.08px; position: relative; top: 1.15px; }
+  .laatikko[hidden] { display: none; }
+  #sis-avaa svg { width: 16px; height: 13px; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
@@ -649,6 +666,11 @@
         <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H13.5M5.5 9.5H13.5"/></svg>Merkinnät</button>
         <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan. -->
         <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 0.65L15.49 8.07L8.07 15.49L0.65 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.78 11.78L17.15 17.15"/></svg>Etsi</button>
+        <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake on puu eikä luettelo, jotta se ei
+             sekoitu Merkintöjen tasaiseen listaan: ylimpänä aikajanan pääluvun ontto salmiakki, josta runko ja haarat alalukujen
+             täytettyihin salmiakkeihin (sama nuottimainen erottelu kuin aikajanalla). Ensimmäinen versio ilman runkoa näytti
+             Merkintöjen kuvakkeelta. -->
+        <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" hidden><svg viewBox="0 0 16 13" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M2.4 .7L4.1 2.4L2.4 4.1L.7 2.4ZM2.4 4.1V10.6M2.4 6.8H4.6M2.4 10.6H4.6"/><path class="l-pis" d="M5.9 5.6L7.2 6.8L5.9 8L4.6 6.8ZM5.9 9.4L7.2 10.6L5.9 11.8L4.6 10.6Z"/><path class="l-viiva" d="M6.2 2.4H15.5M9 6.8H15.5M9 10.6H15.5"/></svg>Sisälmys</button>
       </div>
     </div>
     <div id="ala-rivi">
@@ -1114,20 +1136,24 @@
     pop.className = 'valikko' + (luokka ? ' ' + luokka : '');
     pop.innerHTML = html; pop.hidden = false; popToiminto = toiminto;
     popPaikka = { rect: rect, tasaus: tasaus };
+    $('#sis-avaa').setAttribute('aria-expanded', String(luokka === 'sisalmys'));
     sijoitaPop();
   }
   // Kirjausta muokatessa ja haettaessa rajana on näkyvä alue (visualViewport), jotta näppäimistö
   // ei peitä muokkainta tai hakukenttää; muut valikot sijoitetaan kuten ennenkin.
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
-    var haku = hakuAuki(), vw = innerWidth;
+    var haku = hakuAuki(), sis = sisalmysAuki(), vw = innerWidth;
     // Hakunapin paikka luetaan joka kerta: ikkunan korkeuden muutos (näppäimistö) siirtää sitä.
     if (haku) popPaikka.rect = $('#etsi-avaa').getBoundingClientRect();
     var rect = popPaikka.rect;
     var vv = (muokkaus || haku) && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
-    if (haku) sovitaHaku(rect, yla, ala);
+    // Sisälmys ei nouse näkyvän yläpalkin päälle (mobiilissa palkki on navissa auki).
+    if (sis) { var yp = $('.ylapalkki').getBoundingClientRect(); if (yp.height) yla = yp.bottom; }
+    if (haku) sovitaLista('.h-lista', rect, yla, ala, Math.max(300, innerHeight * 0.6));
+    if (sis) sovitaLista('.s-lista', rect, yla, ala, Math.max(300, innerHeight * 0.75));
     var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
-    var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : rect.left + rect.width / 2 - w / 2;
+    var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : popPaikka.tasaus === 'vasen' ? rect.left : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
     // peita: laatikko napin päälle (tuonnin kuittaus peittää Tuo-napin, ettei sitä paineta uudestaan).
     if (popPaikka.tasaus === 'peita') y = rect.top - 10;
@@ -1140,6 +1166,7 @@
     if (muokkaus && !lopetaKirjaus(true) && !pakko) return;
     muokkaus = null;
     pop.hidden = true; popToiminto = null;
+    $('#sis-avaa').setAttribute('aria-expanded', 'false');
   }
   // Sivutetun näkymän alaviite ponnahduslaatikossa (viitenumeron napautus ja haun alaviiteosuma).
   function naytaViite(fn) {
@@ -1169,7 +1196,7 @@
     if (popToiminto(b.dataset.k, b) !== true) suljePop();
   });
   document.addEventListener('click', function (e) {
-    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref')) return;
+    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref, #sis-avaa')) return;
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
@@ -1396,6 +1423,7 @@
         : html.indexOf('</header>') >= 0 ? html.replace('</header>', '</header>' + sis) : sis + html;
     }
     art.innerHTML = html;
+    $('#sis-avaa').hidden = !sisalmysKohdat().length;
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
@@ -2182,6 +2210,7 @@
   });
   $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
   $('#etsi-avaa').addEventListener('click', avaaHaku);
+  $('#sis-avaa').addEventListener('click', function () { if (sisalmysAuki()) suljePop(); else avaaSisalmys(); });
   $$('#merkinnat details.m-osio').forEach(function (d) {
     d.open = !aset[d.dataset.kiinni];
     d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
@@ -2588,6 +2617,34 @@
     return (a > 0 ? '…' : '') + esc(t.slice(a, o.s)) + '<mark>' + esc(t.slice(o.s, o.e)) + '</mark>' + esc(t.slice(o.e, z)) + (z < t.length ? '…' : '');
   }
   function hakuAuki() { return !pop.hidden && pop.classList.contains('haku'); }
+  /* ---------- Sisälmys ----------
+     Käyttäjän pyyntö 4.11.2026: navissa Etsi-laatikon oikealla puolella *Sisälmys*, joka avaa sisällysluettelon
+     ponnahduslaatikkona riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Samat tasot kuin
+     tekstin sisällysluettelossa (pääluvut ja alaluvut), sivutettuna sivunumerot. Nykyinen osio on merkitty ja
+     vieritetty listan keskelle. Sulkeutuu raksista, napista uudelleen, Escistä tai tekstialueen napautuksesta;
+     tekstin napautus sulkee vain laatikon, navi jää auki (document-kaappaaja ja sivuEl:n verho). Kohdan valinta
+     on hyppy kuten haussa: lähtökohtaan jää majakka, navi jää auki. */
+  function sisalmysAuki() { return !pop.hidden && pop.classList.contains('sisalmys'); }
+  function sisalmysKohdat() { return nyt ? nyt.doc.toc.filter(function (t) { return t.lvl <= 2; }) : []; }
+  function avaaSisalmys() {
+    var T = sisalmysKohdat(), sivut = aset.sivutus === 'sivut', k = tila.ankkuri || { b: 0, o: 0 }, nyky = -1;
+    if (!T.length) return;
+    T.forEach(function (t, i) { if (t.b <= k.b) nyky = i; });
+    // Laatikko tasataan navin laatikkorivin vasempaan reunaan (Merkinnät), ei napin keskelle: kapealla ruudulla keskitys
+    // jätti sen vinoon.
+    var n = $('#sis-avaa').getBoundingClientRect(), m = $('#merk-avaa').getBoundingClientRect();
+    naytaPop({ left: m.left, right: n.right, top: n.top, bottom: n.bottom, width: n.right - m.left, height: n.height },
+      '<div class="s-yla"><span class="s-ots">Sisälmys</span><button type="button" class="s-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' +
+      '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div><div class="s-lista">' +
+      T.map(function (t, i) {
+        return '<button type="button" class="s-kohta t' + t.lvl + '" data-k="siirry" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
+          '<span class="s-nimi">' + esc(t.text) + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
+      }).join('') + '</div>', 'sisalmys', function (k, b) {
+        if (k === 'siirry') hyppaa({ b: +b.dataset.b, o: 0 }, false, false, 'sisalmys');
+      }, 'vasen');
+    var lista = $('.s-lista', pop), c = $('.s-kohta[aria-current]', lista);
+    if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
+  }
   // Avoimen tekstin viimeisin haku muistetaan (nyt.haku), ja valittu osuma on listassa merkitty.
   // Ensimmäisellä kerralla kenttä saa kohdistuksen; jos haku on jo tehty, lista on tärkeämpi
   // kuin näppäimistö, joka peittäisi puolet ruudusta.
@@ -2636,15 +2693,15 @@
     var c = $('.osuma[aria-current]', lista);
     if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
   }
-  // Osumalista vie tilan, joka napin yläpuolella (tai näppäimistön peittäessä napin näkyvällä
-  // alueella) on jäljellä; enintään 60 % ikkunan korkeudesta, vähintään kaksi osumaa.
-  function sovitaHaku(rect, yla, ala) {
-    var lista = $('.h-lista', pop);
+  // Osumalista (ja Sisälmyksen lista) vie tilan, joka napin yläpuolella (tai näppäimistön peittäessä napin näkyvällä
+  // alueella) on jäljellä; haussa enintään 60 % ikkunan korkeudesta, Sisälmyksessä 75 %; vähintään kaksi kohtaa.
+  function sovitaLista(sel, rect, yla, ala, enint) {
+    var lista = $(sel, pop);
     if (!lista) return;
     lista.style.maxHeight = '';
     var muu = pop.offsetHeight - lista.offsetHeight;
     var vara = (rect.top < ala ? rect.top : ala) - yla - 16;
-    lista.style.maxHeight = Math.max(90, Math.min(vara, Math.max(300, innerHeight * 0.6)) - muu) + 'px';
+    lista.style.maxHeight = Math.max(90, Math.min(vara, enint) - muu) + 'px';
   }
   function valitseOsuma(i) {
     var h = nyt.haku, o = h.osumat[i];

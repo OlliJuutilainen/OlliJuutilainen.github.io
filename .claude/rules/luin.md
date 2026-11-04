@@ -290,6 +290,15 @@ Käyttäjän vaatimukset 20.10.2026:
   (760 / 756), sivunappi +1 sivu, PageDown +1 sivu, kirjanmerkki asettuu, tekstin napautus sulkee asetukset (työpöytä; mobiilissa
   `#teksti.click()`); `testi.js` ennallaan (49 riviä, 0 VIKAa). Kapealla puhelimella paneeli peittää tekstistä lähes kaiken (412 px:llä 12 px
   jää näkyviin), joten siellä sulku on käytännössä raksista. Jos tekstissä on valinta, napautus ei sulje (valinta pitää tekstin ennallaan).
+- **Sisälmys** (käyttäjän pyyntö 4.11.2026; opas, luku 4.7.1): navissa *Etsi*-laatikon oikealla puolella laatikko *Sisälmys* (käyttäjän
+  sana, ei *Sisällys*), joka avaa sisällysluettelon ponnahduslaatikkona (`avaaSisalmys()`, luokka `sisalmys`) riippumatta asetuksen
+  *Sisällysluettelo* tilasta; tekstissä ilman lukuja nappi on piilossa. Kuvake on **puu**: pääluvun ontto salmiakki, runko ja haarat
+  alalukujen täytettyihin salmiakkeihin. Ensimmäinen versio ilman runkoa näytti Merkintöjen listalta (mitattu kuvakaappauksesta DPR 4),
+  älä palaa siihen. Tasot lvl ≤ 2 kuten tekstin luettelossa, sivutettuna sivunumerot, nykyinen osio merkitty ja keskelle vieritetty,
+  laatikko laatikkorivin vasemmassa reunassa (`tasaus: 'vasen'`) yläpalkin alapuolella. Sulku: raksi, nappi uudelleen, Esc, tekstialueen
+  napautus, joka sulkee vain laatikon ja jättää navin auki (document-kaappaaja; sama kuin haun laatikolla). Kohdan valinta = hyppy,
+  majakka jää, navi auki. Mitattu Chromiumissa 1280 px sivut/vieritys ja 412 px sivut tutkielmalla ja oppaalla (40 kohtaa, lista vierii):
+  napautus laatikon ulkopuolelle ei kääntänyt sivua eikä vierittänyt; `testi.js` 49 riviä ennallaan + *Sisälmys* (360 px).
 - **Postilaatikko** (käyttäjän pyyntö 25.10.2026: Light Phoneen ei voi näppäillä linkkejä; opas, luku 2.2): Latomon
   *Lähetä postilaatikkoon* tulostaa wrangler 3.114.17 -komennon, joka tallentaa tekstin KV:hen avaimella
   `luin:<koodi>:<slug>` (30 päivää). Luin hakee sen workerin reitiltä `/api/luin` lukulistaan, kun laatikon koodi on annettu.
