@@ -177,12 +177,22 @@ Käyttäjän vaatimukset 20.10.2026:
   Katariinan pyörä, kannuksen ratas, Fortunan pyörä, kauharatas (L-koukut näyttivät hakaristiltä), Ramellin kirjat,
   vedessä-versio. SVG on samana kahdessa paikassa (`.ratas`-nappi listassa ja `#ratas-polku`-`<g>` lukijassa), pidä ne yhtenevinä.
 - Lukulistan logon oikealla puolella on KEICK•WALKin ⓘ-napin tapaan tietoa-nappi (käyttäjän pyyntö 21.10.2026), mutta
-  ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Käyttäjän pyyntö
-  4.11.2026: salmiakki alas logon alareunan tasolle (ennen LUiN-versaalien keskilinjalla, 54,00 px): alakärki on HTML-rivin
-  alareunassa (mitattu 91,4 vs. 91,2 px, 412 px leveä ikkuna). Siirto on `position: relative; top: 28px`, joten asettelu
-  ei muutu (`.lhead` ja seuraava otsikko samoilla paikoilla 94 / 128 px). Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
+  ympyrän sijaan koverakylkinen salmiakki, jonka sisällä i salmiakkipisteineen (`--harmaa`, auki ruoste). Käyttäjän päätös
+  4.11.2026 (myöhemmin): **i:n rungon alareuna on LUiN-versaalien perusviivalla** (`top: 18.7px`; mitattu 77,29 vs. 77,30 px,
+  pikseleistä ±1 laitepikseli DPR 4:llä), kuten kotimerkin lattia (ks. alla). Hylätyt: keskikohta versaalien keskilinjalla
+  (21.10.2026, 54 px), alakärki HTML-rivin alareunassa (#465, `top: 28px`; käyttäjä: "mennyt html-tekstin tasolle") ja
+  salmiakin sivukärjet loppupisteen sivukärkien tasolla (4,6 px alempana; käyttäjän toinen ehdotus, Claude valitsi i:n,
+  koska käyttäjä toivoi "HIUKAN alempaa" kohtaa kuin alakärki perusviivalla). Siirto on suhteellinen, joten asettelu ei muutu.
+  Se avaa logon alle ohuen `--viiva`-kehyksisen laatikon,
   jossa on vain *LUiN.HTML on lukulaite Markdown-teksteille. Tiedot tallentuvat vain tähän selaimeen.* (käyttäjä: erittäin
   lyhyesti). Kiinni ollessa sivu on pikselilleen ennallaan.
+- **Kotimerkki** (käyttäjän pyyntö ja valinta 4.11.2026; valittu 22 luonnoksesta: perinteiset pirtit, salmiakkipirtit, villit):
+  Latomossa, Latomon ohjeessa ja käyttöohjeessa logon oikealla puolella on `a.kotimerkki` lukulistaan (logo on yhä myös linkki).
+  Muoto *Harjasalmiakki*: pirtti (viiva 1,15 / 24, `--harmaa`) ja ovi, harjan yllä leijuu logon i:n pisteen kaltainen ruosteinen
+  koverakylkinen salmiakki. Musteen alareuna (lattiaviiva) on LUiN-versaalien perusviivalla (`margin-top: 16.16px`; mitattu 69,392
+  vs. 69,391 px, pikseleistä ±1 laitepikseli DPR 4:llä), keskikohta 24 px logon oikeasta reunasta kuten tietoa-napissa, 22 px,
+  napautusala 40 × 40. Otsikko ja kaikki sen alla pysyivät paikallaan (mitattu). Hylättyjä luonnoksia mm. savupiippupirtti,
+  salmiakki harjakatolla, kotisalmiakki, asukas, päätyikkuna, kirjanmerkkiovi; Othala-riimu jätettiin pois (äärioikeiston käytössä).
 - Nimen tekstimuoto (ei-graafinen, esim. infolaatikko ja logon `aria-label`) on *LUiN.HTML* (käyttäjän päätös 21.10.2026);
   tiedostonimi ja polut pysyvät `luin.html`.
 - **`md.js?v=<SHA-1:n alku>`** (29.10.2026: käyttäjän selain piti vanhan md.js:n, vaikka korjaus oli julkaistu; Pages antaa
