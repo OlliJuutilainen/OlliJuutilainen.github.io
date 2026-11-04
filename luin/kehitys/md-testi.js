@@ -229,6 +229,8 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('ei kirjallisuutta: ### Philosophische Funktion', lkm(eib, /class="bib"/g), 0);
   const sis = M.parse(runko + '### Weiterführende Literatur\n\n' + lahteet + '#### Primärquellen\n\n' + lahteet + loppu).html;
   sama('kirjallisuus jatkuu alemman tason otsikon yli', lkm(sis, /class="bib"/g), 4);
+  const lex = M.parse('---\ntitle: T\n---\n\n# T\n\n## Vernunft\n\n### 1 Eins\n\nText hier.\n\n### 2 Zwei\n\nText hier.\n\n## Vernunft, praktische\n\n### 1 Eins\n\nText hier.\n\n### 3 Drei\n\nText hier.\n');
+  sama('numerointi alkaa alusta numeroimattoman ylemmän otsikon jälkeen', lex.warnings.map(w => w.msg).join(' | '), 'Otsikon numero 3 ei jatka edellistä numerointia.');
 }
 
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
