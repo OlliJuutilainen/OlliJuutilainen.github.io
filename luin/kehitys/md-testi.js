@@ -216,6 +216,21 @@ tulos('SEP: Notes-sivun leike alaviitteiksi', sp2.notes === 2 && sp2.html.includ
 const wp = M.parse('# T\n\nVäite.^1^ Toinen.^2^\n\n1. Ensimmäinen. [↩](https://e.org/p/#fnref1)\n2. Toinen. [↩][9]\n\n[9]: https://e.org/p/#fnref2\n');
 tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes('<span class="fnnum">2</span>Toinen.</span>') && !/<ol/.test(wp.html), wp.html);
 
+// Kirjallisuusluettelo millä tahansa otsikkotasolla ja suomeksi, englanniksi tai saksaksi (käyttäjän pyyntö 4.11.2026)
+{
+  const runko = '---\ntitle: T\n---\n\n# T\n\n## Verpflichtung\n\nLeipäteksti, joka on tarpeeksi pitkä ollakseen tavallinen kappale eikä tietorivi otsikon alla, ja jatkuu.\n\n';
+  const lahteet = 'Baum, Manfred: „Freiheit und Verbindlichkeit“, in: Byrd, Sharon (Hg.): Philosophia Practica, Berlin 2005, 31–43.\n\nGuyer, Paul: „The Obligation to be Virtuous“, in: Social Philosophy and Policy 27, 2010, 206–232.\n\n';
+  const loppu = '## Verpflichtungsgrund\n\nTavallinen kappale taas, jonka ei pidä olla lähde vaan leipätekstiä, ja siinä on riittävästi sanoja.\n';
+  for (const nimi of ['Weiterführende Literatur', 'Literaturverzeichnis', 'Further reading', 'Bibliography', 'Kirjallisuus', 'Käytetty kirjallisuus']) {
+    const bh = M.parse(runko + '### ' + nimi + '\n\n' + lahteet + loppu).html;
+    tulos('kirjallisuus ### ' + nimi, lkm(bh, /class="bib"/g) === 2 && !/class="bib"[^>]*>Tavallinen/.test(bh), lkm(bh, /class="bib"/g));
+  }
+  const eib = M.parse(runko + '### Philosophische Funktion\n\n' + lahteet + loppu).html;
+  sama('ei kirjallisuutta: ### Philosophische Funktion', lkm(eib, /class="bib"/g), 0);
+  const sis = M.parse(runko + '### Weiterführende Literatur\n\n' + lahteet + '#### Primärquellen\n\n' + lahteet + loppu).html;
+  sama('kirjallisuus jatkuu alemman tason otsikon yli', lkm(sis, /class="bib"/g), 4);
+}
+
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
 const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../md.js'))).digest('hex').slice(0, 8);

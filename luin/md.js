@@ -337,7 +337,20 @@
     return { kids: kids.slice(0, -1).concat([{ t: 'p', ln: vika.ln, text: alku.join('\n') }]), text: x, ln: vika.ln + r.length - 1 };
   }
 
-  var BIB = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited)$/i;
+  // Kirjallisuusluettelon otsikko millä tahansa otsikkotasolla (käyttäjän pyyntö 4.11.2026: Kant-Lexikonin
+  // ### Weiterführende Literatur). Osio jatkuu seuraavaan yhtä korkean tai korkeamman tason otsikkoon.
+  var BIB = new RegExp('^(' + [
+    // suomi
+    'kirjallisuus', 'kirjallisuusluettelo', 'kirjallisuutta', 'käytetty kirjallisuus', 'lähdekirjallisuus',
+    'suositeltavaa kirjallisuutta', 'lisälukemista', 'lähteet', 'lähdeluettelo', 'lähteet ja kirjallisuus', 'bibliografia',
+    // englanti
+    'references', 'reference list', 'bibliography', 'select(ed)? bibliography', 'works cited', 'literature cited', 'literature',
+    'sources', '(further|suggested|recommended|additional) reading', '(references|bibliography) and further reading',
+    // saksa
+    '((weiterführende|ausgewählte|verwendete|zitierte) )?literatur', 'literaturverzeichnis', 'literaturhinweise',
+    'literaturangaben', '(primär|sekundär)literatur', 'bibliographie', 'bibliografie', 'quellen', 'quellenverzeichnis',
+    'quellen und literatur', 'quellen- und literaturverzeichnis'
+  ].join('|') + ')$', 'i');
 
   /* ---------- Sivuseikkojen pääluvut ----------
      Käyttäjän pyyntö 29.10.2026: kun tekstin päälukurunko on tukeva, lopun (ja alun) vain muodollisesti pääluvuiksi
@@ -858,7 +871,7 @@
   // ja lyhenteen määrittelevään kappaleeseen tai luettelon kohtaan t.lyhId.
   // lisa: alaviitteiden ja sitaattien määritelmien tekstit, jotka eivät ole lohkoissa ([^tunnus]: …).
   function viittaukset(tokens, uniq, lisa) {
-    var kohdat = [], inBib = false, lyhTaso = 0, lyhOts = '', lyh = {};
+    var kohdat = [], inBib = false, bibTaso = 0, lyhTaso = 0, lyhOts = '', lyh = {};
     function maarittele(x, teksti, otsikko) {
       var m; LYH_EM.lastIndex = 0;
       while ((m = LYH_EM.exec(teksti))) {
@@ -877,7 +890,7 @@
       var ed = edel; edel = t;
       if (t.t === 'h') {
         var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), tx = plain(t.text).trim();
-        if (lvl === 2) inBib = BIB.test(tx);
+        if (BIB.test(tx)) { inBib = true; bibTaso = lvl; } else if (inBib && lvl <= bibTaso) inBib = false;
         if (lyhTaso && lvl <= lyhTaso) lyhTaso = 0;
         if (!lyhTaso && LYH.test(tx)) { lyhTaso = lvl; lyhOts = tx; }
         return;
@@ -1304,7 +1317,7 @@
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
-    var inBib = false, nums = [], lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
+    var inBib = false, bibTaso = 0, nums = [], lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
     // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
     var alas = sivuLuvut(tokens, t0);
     alas.forEach(function (i) {
@@ -1368,7 +1381,7 @@
             if (lvl >= 3) cls += ' caps';
           }
           id = uniq(id);
-          if (lvl0 === 2) inBib = BIB.test(txt);
+          if (BIB.test(txt)) { inBib = true; bibTaso = lvl0; } else if (inBib && lvl0 <= bibTaso) inBib = false;
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });

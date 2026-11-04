@@ -57,13 +57,37 @@
       fig.appendChild(fc);
     });
   }
+  /* Kirjallisuusluettelo kuten Luinissa (luin/md.js, BIB; käyttäjän pyyntö 4.11.2026): otsikon jälkeiset kappaleet
+     seuraavaan yhtä korkeaan tai korkeampaan otsikkoon saavat riippuvan sisennyksen (p.bib). Pidä nimilista samana kuin
+     md.js:ssä. */
+  var BIB = new RegExp('^(' + [
+    'kirjallisuus', 'kirjallisuusluettelo', 'kirjallisuutta', 'käytetty kirjallisuus', 'lähdekirjallisuus',
+    'suositeltavaa kirjallisuutta', 'lisälukemista', 'lähteet', 'lähdeluettelo', 'lähteet ja kirjallisuus', 'bibliografia',
+    'references', 'reference list', 'bibliography', 'select(ed)? bibliography', 'works cited', 'literature cited', 'literature',
+    'sources', '(further|suggested|recommended|additional) reading', '(references|bibliography) and further reading',
+    '((weiterführende|ausgewählte|verwendete|zitierte) )?literatur', 'literaturverzeichnis', 'literaturhinweise',
+    'literaturangaben', '(primär|sekundär)literatur', 'bibliographie', 'bibliografie', 'quellen', 'quellenverzeichnis',
+    'quellen und literatur', 'quellen- und literaturverzeichnis'
+  ].join('|') + ')$', 'i');
+  function kirjallisuus(juuri) {
+    var bib = false, taso = 0;
+    Array.prototype.forEach.call(juuri.querySelectorAll('h1, h2, h3, h4, h5, h6, p'), function (el) {
+      if (/^H[1-6]$/.test(el.nodeName)) {
+        var lvl = +el.nodeName[1], tx = el.textContent.replace(/\s+/g, ' ').trim();
+        if (BIB.test(tx)) { bib = true; taso = lvl; } else if (bib && lvl <= taso) bib = false;
+        return;
+      }
+      if (el.closest && el.closest('blockquote, li, figure, .footnotes')) return;
+      el.classList.toggle('bib', bib);
+    });
+  }
   // Muunnos koko dokumentille aina, kun sisältö vaihtuu: iA Writerin tapahtuma (kaapataan dokumentin tasolla, koska se ei
   // välttämättä kupli) ja varalle MutationObserver, jos sisältö vaihtuu ilman tapahtumaa.
   var kesken = false;
   function aja() {
     if (kesken || !document.body) return;
     kesken = true;
-    try { muunna(document.body); } finally { kesken = false; }
+    try { muunna(document.body); kirjallisuus(document.body); } finally { kesken = false; }
   }
   document.addEventListener('ia-writer-change', aja, true);
   function alusta() {
