@@ -1112,7 +1112,7 @@ palvelin.listen(0, async () => {
   const kt2 = await kn();
   const kk2 = await kp2.evaluate(() => !document.querySelector('#kahvat').hidden);
   tulos('kosketusmaalaus', kt0.n === 0 && kt1.n === 0 && kt1.y !== kt0.y && kt2.n === 1 && kt2.x.split(' ').length >= 3 && !kk2, JSON.stringify({ napautus: kt0.n, vieritys: [kt1.n, kt0.y, kt1.y], maalaus: kt2.x, kahvat: kk2 }));
-  // Sukkela sanasto (oletus): pelkkä pitkä painallus sanaan (ei vetoa) avaa vain sanakirjan, ei alleviivausta eikä kahvoja.
+  // Sukkela sanaselitys (oletus): pelkkä pitkä painallus sanaan (ei vetoa) avaa vain sanakirjan, ei alleviivausta eikä kahvoja.
   // Pois päältä sama painallus avaa valikon sanakirjoineen, ja luonnoksen napautus tuo kahvat.
   const [kb] = [ksanat[7]];
   const kTila = () => kp2.evaluate(() => ({ n: window.__luin.nyt().merk.al.length, luonnos: document.querySelectorAll('mark.luonnos').length, kahvat: !document.querySelector('#kahvat').hidden,
@@ -1125,7 +1125,7 @@ palvelin.listen(0, async () => {
   const kt4 = await kTila();
   await kosk('touchStart', kb.x, kb.y); await kp2.waitForTimeout(60); await kosk('touchEnd'); await kp2.waitForTimeout(400);
   const kt5 = await kTila();
-  tulos('pitkä painallus sanaan: sukkela sanasto', kt3.n === kt2.n && /sanakirja/.test(kt3.pop) && kt3.luonnos > 0 && !kt3.kahvat &&
+  tulos('pitkä painallus sanaan: sukkela sanaselitys', kt3.n === kt2.n && /sanakirja/.test(kt3.pop) && kt3.luonnos > 0 && !kt3.kahvat &&
     kt4.n === kt2.n && kt4.napit === 'ali,kir,sk,kaanna,kopioi' && !kt4.kahvat && kt5.kahvat, JSON.stringify({ kt3, kt4, kahvatNapautuksesta: kt5.kahvat }));
   await kk.close();
   }
