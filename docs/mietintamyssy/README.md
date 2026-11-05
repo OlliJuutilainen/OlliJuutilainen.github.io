@@ -7,3 +7,4 @@ mutta tarkista väitteet uudelleen: tiedot ovat kirjoitushetken tilanne.
 | Tiedosto | Aihe | Hyllyyn |
 |---|---|---|
 | [luin-volumenapit.md](luin-volumenapit.md) | Luin: sivunkääntö äänenvoimakkuusnapeilla (Light Phone 3, oma Android-kääre, ulkopuoliset käyttäjät) | 2.11.2026 |
+| [luin-maalauskone.md](luin-maalauskone.md) | Luin: maalauskoneen jatko (vakiosivunumerot kopioon, käännös Luinin sisällä, kytkin alapalkkiin, laitetestit) | 5.11.2026 |
