@@ -394,6 +394,13 @@
   html.oma-maalaus #teksti { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   html.maalaa, html.maalaa body { overflow: hidden; }
   mark.ali.luonnos, .ali-piilo mark.ali.luonnos { text-decoration: underline dashed var(--ruoste); text-decoration-thickness: .13em; }
+  /* Törmäävät alleviivaukset (käyttäjän päätös 5.11.2026): toisiinsa rajautuvat vuorottelevat ruostetta ja okraa
+     (varitaAl()); ketjun vanhin on ruoste. */
+  mark.ali.okra, mark.ali.luonnos.okra, .ali-piilo mark.ali.luonnos.okra { text-decoration-color: var(--okra); }
+  /* Kirjauksen merkki: pieni ruosteinen kynä alleviivauksen alun yläpuolella riviväliin (piirraKirjausmerkit()). */
+  .kirm { position: absolute; width: 22px; height: 22px; color: var(--ruoste); cursor: pointer; z-index: 2;
+    -webkit-tap-highlight-color: transparent; }
+  .kirm svg { position: absolute; left: 2.5px; top: 2.5px; width: 17px; height: 17px; }
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
@@ -1358,10 +1365,14 @@
   });
   document.addEventListener('click', function (e) {
     // Maalauksen ja kahvan vedon perään tuleva klikkaus ei sulje juuri näytettyjä kahvoja eikä valikkoa.
-    if (Date.now() - tila.maalattu < 250) { if (sivuEl.contains(e.target)) e.stopPropagation(); return; }
+    // Hidas laite (Via, e-ink) voi lähettää klikkauksen yli 250 ms myöhässä, jolloin se sulki juuri avatun valikon
+    // (käyttäjän havainto 5.11.2026): eleen jälkeinen klikkaus nielaistaan, kunnes tulee uusi painallus (enintään 1,5 s).
+    if (Date.now() - tila.maalattu < 250 || tila.niele && Date.now() - tila.niele < 1500) {
+      tila.niele = 0; if (sivuEl.contains(e.target)) e.stopPropagation(); return;
+    }
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
-    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref, #kahvat')) return;
+    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
@@ -1704,6 +1715,7 @@
       });
       piirraAlleviivaus(h);
     });
+    varitaAl();
     if (muuttui) tallennaMerkit();
     paivitaKorostus();
   }
@@ -2100,6 +2112,8 @@
     if (fn) return;
     var km = t.closest('.km');
     if (km) { naytaKmPop(km.dataset.k, km.getBoundingClientRect()); return; }
+    var kq = t.closest('.kirm');
+    if (kq) { kirjausMerkista(kq.dataset.h, kq.getBoundingClientRect()); return; }
     var m = t.closest('mark.ali');
     if (m && m.classList.contains('luonnos')) { naytaKahvat(luonnos); naytaValintaPop(luonnos.segs, alRect(luonnos) || m.getBoundingClientRect()); return; }
     if (m && aset.alTekstissa && valintaTyhja()) { naytaAlPop(m.dataset.h, m.getBoundingClientRect()); return; }
@@ -2154,7 +2168,7 @@
         var mid = rs > 0 ? t.splitText(rs) : t;
         if (re - rs < mid.nodeValue.length) mid.splitText(re - rs);
         var m = document.createElement('mark');
-        m.className = 'ali' + (luokka ? ' ' + luokka : ''); m.dataset.h = h.id;
+        m.className = 'ali' + (luokka ? ' ' + luokka : '') + (h.okra ? ' okra' : ''); m.dataset.h = h.id;
         mid.parentNode.insertBefore(m, mid); m.appendChild(mid);
       });
     });
@@ -2173,6 +2187,7 @@
     tallennaMerkit();
     if (kahvaH && kahvaH.id === id) piilotaKahvat();
     poistaMerkit(id);
+    varitaAl(); piirraKirjausmerkit();
     paivitaKorostus();
   }
   function alTeksti(h) { return h.segs.map(function (s) { return s.x; }).join('\n\n'); }
@@ -2181,10 +2196,15 @@
       return segs.every(function (s) { return h.segs.some(function (q) { return q.b === s.b && q.s <= s.s && q.e >= s.e; }); });
     })[0];
     if (sama) return sama;
-    var h = { id: uusiId(), segs: segs, t: Date.now() };
+    var rajattu = rajaaSegs(segs, true, null);
+    if (!rajattu.length) {
+      var g = nyt.cum[segs[0].b] + segs[0].s;
+      return nyt.merk.al.filter(function (h) { return h.segs.some(function (q) { return nyt.cum[q.b] + q.s <= g && g < nyt.cum[q.b] + q.e; }); })[0] || null;
+    }
+    var h = { id: uusiId(), segs: rajattu, t: Date.now() };
     nyt.merk.al.push(h);
     nyt.merk.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; });
-    tallennaMerkit(); piirraAlleviivaus(h);
+    tallennaMerkit(); piirraAlleviivaus(h); varitaAl();
     return h;
   }
   // Alleviivauksen napautus: valikko ja kahvat. Valikko sijoitetaan alleviivauksen näkyvien rivien ja kahvojen
@@ -2264,7 +2284,7 @@
       $('.jaljella', pop).textContent = 'Tallennustila on täynnä.';
       return false;
     }
-    paivitaMerkinnat();
+    paivitaMerkinnat(); piirraKirjausmerkit();
     return true;
   }
   // Sovellus voi päätyä taustalle kesken kirjoittamisen: luonnos talteen, muokkain jää auki.
@@ -2277,7 +2297,7 @@
   });
 
   var valAjastin = null, osoitin = 'mouse';
-  document.addEventListener('pointerdown', function (e) { osoitin = e.pointerType || 'mouse'; }, true);
+  document.addEventListener('pointerdown', function (e) { osoitin = e.pointerType || 'mouse'; tila.niele = 0; }, true);
   document.addEventListener('mousedown', function (e) { tila.klikit = e.detail; }, true);
   document.addEventListener('pointerup', function (e) {
     if (osoitin === 'mouse' && !pop.contains(e.target)) setTimeout(kasitteleValinta, 0);
@@ -2358,10 +2378,76 @@
     try { r.setStart(a.n, a.i); r.setEnd(z.n, z.i); } catch (er) { return []; }
     return r.collapsed ? sanaKohdassa(p) : valintaPaloiksi(r);
   }
+  /* Törmäys (käyttäjän päätös 5.11.2026): uusi tai venytetty alue ei mene toisen alleviivauksen päälle eikä lomitu, vaan
+     pysähtyy sen rajaan aloituspisteen puolelta katsoen. Kohdat lasketaan koko tekstin merkkiasemina (nyt.cum). */
+  function gPaikka(k) { return nyt.cum[k.b] + k.o; }
+  function gKohta(g) {
+    var lo = 0, hi = nyt.cum.length - 1;
+    while (lo < hi) { var m = (lo + hi + 1) >> 1; if (nyt.cum[m] <= g) lo = m; else hi = m - 1; }
+    return { b: lo, o: Math.min(g - nyt.cum[lo], (nyt.txt[lo] || '').length) };
+  }
+  function alValit(ohita) {
+    var V = [];
+    nyt.merk.al.forEach(function (h) {
+      if (h === ohita) return;
+      h.segs.forEach(function (q) { if (!q.orpo && nyt.cum[q.b] != null) V.push([nyt.cum[q.b] + q.s, nyt.cum[q.b] + q.e]); });
+    });
+    return V.sort(function (a, b) { return a[0] - b[0]; });
+  }
+  function rajaaSegs(segs, eteen, ohita) {
+    if (!segs.length) return segs;
+    var a = segs[0], z = segs[segs.length - 1], S = nyt.cum[a.b] + a.s, E = nyt.cum[z.b] + z.e, V = alValit(ohita);
+    if (!V.some(function (v) { return v[0] < E && v[1] > S; })) return segs;
+    var c, d, i;
+    if (eteen) {
+      c = S; d = E;
+      for (i = 0; i < V.length; i++) if (V[i][0] <= c && c < V[i][1]) c = V[i][1];
+      for (i = 0; i < V.length; i++) if (V[i][0] >= c && V[i][0] < d) d = V[i][0];
+    } else {
+      c = S; d = E;
+      for (i = V.length - 1; i >= 0; i--) if (V[i][0] < d && d <= V[i][1]) d = V[i][0];
+      for (i = 0; i < V.length; i++) if (V[i][1] <= d && V[i][1] > c) c = V[i][1];
+    }
+    if (d <= c) return [];
+    var r = segsValilta(gKohta(c), gKohta(d));
+    // Varmistus: sanan laajennus ei saa viedä rajan yli.
+    return r.filter(function (q) { var g0 = nyt.cum[q.b] + q.s, g1 = nyt.cum[q.b] + q.e; return !V.some(function (v) { return v[0] < g1 && v[1] > g0; }); });
+  }
+  function rajattuValilta(alku, loppu, ohita) { return rajaaSegs(segsValilta(alku, loppu), gPaikka(alku) <= gPaikka(loppu), ohita); }
+  // Värit: alleviivaukset järjestyksessä; vierekkäiset (päällekkäin tai välissä ei kirjainta eikä numeroa samassa lohkossa)
+  // muodostavat ketjun, jonka vanhin (t) on ruoste ja muut vuorotellen okraa ja ruostetta. Luonnos on uusin.
+  function varitaAl() {
+    if (!nyt) return;
+    var ehja = function (h) { return h.segs.length && !h.segs.some(function (q) { return q.orpo || nyt.cum[q.b] == null; }); };
+    var L = nyt.merk.al.filter(ehja);
+    if (luonnos.segs.length && ehja(luonnos)) L.push(luonnos);
+    var g0 = function (h) { return nyt.cum[h.segs[0].b] + h.segs[0].s; }, g1 = function (h) { var q = h.segs[h.segs.length - 1]; return nyt.cum[q.b] + q.e; };
+    L.sort(function (a, b) { return g0(a) - g0(b); });
+    var viereen = function (a, b) {
+      if (g0(b) < g1(a)) return true;
+      var q = a.segs[a.segs.length - 1], r = b.segs[0];
+      return q.b === r.b && !/[\p{L}\p{N}]/u.test((nyt.txt[q.b] || '').slice(q.e, r.s));
+    };
+    var aseta = function (h, okra) {
+      if (!!h.okra === okra) return;
+      h.okra = okra;
+      $$('mark.ali[data-h="' + h.id + '"]', art).forEach(function (m) { m.classList.toggle('okra', okra); });
+    };
+    for (var i = 0; i < L.length;) {
+      var j = i + 1;
+      while (j < L.length && viereen(L[j - 1], L[j])) j++;
+      var v = i;
+      for (var k = i; k < j; k++) if ((L[k] === luonnos ? Infinity : L[k].t || 0) < (L[v] === luonnos ? Infinity : L[v].t || 0)) v = k;
+      for (k = i; k < j; k++) aseta(L[k], Math.abs(k - v) % 2 === 1);
+      i = j;
+    }
+    nyt.merk.al.forEach(function (h) { if (L.indexOf(h) < 0) aseta(h, false); });
+    if (L.indexOf(luonnos) < 0) aseta(luonnos, false);
+  }
   function samatSegs(a, b) { return a.length === b.length && a.every(function (s, i) { return s.b === b[i].b && s.s === b[i].s && s.e === b[i].e; }); }
   function piirraLuonnos(segs) {
     if (samatSegs(segs, luonnos.segs)) return;
-    poistaMerkit('luonnos'); luonnos.segs = segs; piirraAlleviivaus(luonnos, 'luonnos');
+    poistaMerkit('luonnos'); luonnos.segs = segs; piirraAlleviivaus(luonnos, 'luonnos'); varitaAl();
   }
   function poistaLuonnos() {
     if (kahvaH === luonnos) piilotaKahvat();
@@ -2472,10 +2558,11 @@
     if (!k) return;
     var p = veto.paa === 'alku' ? k : veto.kiinni, q = veto.paa === 'alku' ? veto.kiinni : k;
     if (!kohtaEnnen(p, q) || p.b === q.b && p.o === q.o) return;
-    var segs = segsValilta(p, q);
+    var segs = rajattuValilta(veto.kiinni, k, veto.h);
     if (!segs.length || samatSegs(segs, veto.h.segs)) return;
     if (veto.h === luonnos) piirraLuonnos(segs);
     else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h); }
+    varitaAl();
     sijoitaKahvat();
   }
   function lopetaVeto(e) {
@@ -2485,15 +2572,18 @@
     veto = null;
     piilotaLupa();
     lopetaReuna();
-    tila.maalattu = Date.now();
+    tila.maalattu = tila.niele = Date.now();
     if (v.h !== luonnos) { jarjestaAl(); tallennaMerkit(); paivitaMerkinnat(); }
+    varitaAl(); piirraKirjausmerkit();
     if (kahvaH !== v.h) { kahvatEl.classList.remove('vedossa'); return; }
-    // Vedon jälkeen kahvat eivät palaa (ensin piiloon, sitten luokka pois, ettei mikään ruutu näytä niitä); pelkkä napautus
-    // kahvaan jättää ne. Alleviivauksen napautus tuo ne taas.
-    if (v.liike) piilotaKahvat(); else sijoitaKahvat();
+    // Sukkelalla alleviivauksella kahvat eivät palaa vedon jälkeen (ensin piiloon, sitten luokka pois, ettei mikään ruutu
+    // näytä niitä); alleviivauksen napautus tuo ne taas. Ilman sukkelaa kahvat ja valikko palaavat (käyttäjän päätös
+    // 5.11.2026). Pelkkä napautus kahvaan jättää ne aina.
+    var palaa = !v.liike || !autoAli();
+    if (palaa) sijoitaKahvat(); else piilotaKahvat();
     kahvatEl.classList.remove('vedossa');
     if (v.h === luonnos) naytaValintaPop(luonnos.segs, alRect(luonnos));
-    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h), v.liike);
+    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h), !palaa);
   }
   /* Suurennuslasi (pilotti 5.11.2026, käyttäjän pyyntö Booxin tapaan): kosketus- ja kynävedossa (ei hiirellä) vedettävän
      pään rivi näkyy 1,25-kertaisena rivin yläpuolella pyöristetyssä laatikossa: koko rivin kirjaimet ja ylemmän rivin
@@ -2618,7 +2708,8 @@
     if (!maal || !maal.aktiivinen) return;
     var k = kohtaPisteessa(maal.x, maal.y);
     if (!k) return;
-    var segs = segsValilta(maal.alku, k);
+    var segs = rajattuValilta(maal.alku, k, null);
+    if (!segs.length) segs = maal.eka;
     if (segs.length) piirraLuonnos(segs);
   }
   var maalRaf = 0;
@@ -2645,7 +2736,7 @@
   // avaa valikon myös sukkelana: pitkä painallus on puhelimella sekä maalaus että sanan valinta.
   // Sukkela sanaselitys (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanakirjan; luonnos näyttää sanan.
   function valmisMaalaus(valinta) {
-    tila.maalattu = Date.now();
+    tila.maalattu = tila.niele = Date.now();
     var segs = luonnos.segs.slice();
     if (!segs.length) return;
     if (valinta && sukkelaSanasto() && yksiSana(segs)) sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs));
@@ -2655,7 +2746,7 @@
   function sukkelaSanasto() { return !!(aset.sukSana && aset.sanakirja); }
   function maalausSallittu(t) {
     return omaMaalaus() && nyt && tila.nakyma === 'lukija' && !verhoAuki() && !muokkaus &&
-      !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, label, input, textarea, .luin-ui'));
+      !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, .kirm, label, input, textarea, .luin-ui'));
   }
   sivuEl.addEventListener('mousedown', function (e) {
     if (e.button !== 0 || osoitin !== 'mouse' || !maalausSallittu(e.target)) return;
@@ -3041,7 +3132,40 @@
     if (sivut && raja === yla) ala = Math.max(Math.min(ala, tilaa - NAUHA_KATTO), Math.min(2, tilaa / 2));
     return { left: r.left, top: nousu - NAUHA_K - ala };
   }
+  // Kirjauksen merkki (käyttäjän pyyntö 5.11.2026): kynä alleviivauksen ensimmäisen merkin vasemmassa yläkulmassa, rivivälissä
+  // (edellisen rivin alaosien alapuolella, oman rivin kirjainten yläpuolella; vain tarkkeet voivat osua). Kappaleen alun
+  // kirjanmerkin kohdalla kynä väistää vasemmalle. Napautus näyttää kirjauksen, toinen napautus avaa muokkaimen.
+  function piirraKirjausmerkit() {
+    $$('.kirm', sivuEl).forEach(function (n) { n.remove(); });
+    if (!nyt || !aset.alTekstissa) return;
+    var sr = sivuEl.getBoundingClientRect(), al = art.getBoundingClientRect().left, sivut = aset.sivutus === 'sivut';
+    nyt.merk.al.forEach(function (h) {
+      var a = h.segs[0];
+      if (!h.n || !a || h.segs.some(function (q) { return q.orpo; }) || !nyt.blocks[a.b]) return;
+      var r = kohdanLaatikko({ b: a.b, o: a.s });
+      if (!r || !r.height) return;
+      if (sivut && Math.floor((r.left - al + 2) / tila.stride) !== tila.sivu) return;
+      var km = a.s === 0 && aset.kmTekstissa && nyt.merk.km.some(function (k) { return k.b === a.b && k.o === 0 && !k.orpo; });
+      var x = r.left - 1 - (km ? 10 : 0) - 11, y = r.top + 1.5 - 11;
+      var n = document.createElement('span');
+      n.className = 'kirm luin-ui'; n.dataset.h = h.id; n.innerHTML = IK_KIRJAA;
+      n.setAttribute('role', 'button'); n.setAttribute('aria-label', 'Kirjaus');
+      if (sivut) n.style.position = 'fixed';
+      n.style.left = (sivut ? x : x - sr.left) + 'px';
+      n.style.top = (sivut ? y : y - sr.top) + 'px';
+      sivuEl.appendChild(n);
+    });
+  }
+  function kirjausMerkista(id, rect) {
+    var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
+    if (!h || !h.n) return;
+    var r = alRect(h) || rect;
+    if (!pop.hidden && pop.classList.contains('kirnaky') && pop.dataset.kirm === id) { delete pop.dataset.kirm; avaaKirjaus(h, r, false); return; }
+    naytaPop(r, '<div class="esi kir"><div>' + esc(h.n) + '</div></div>', 'kirnaky', null);
+    pop.dataset.kirm = id;
+  }
   function piirraKirjanmerkit() {
+    piirraKirjausmerkit();
     $$('.km', sivuEl).forEach(function (n) { n.remove(); });
     if (!nyt || !aset.kmTekstissa) return;
     var sr = sivuEl.getBoundingClientRect(), al = art.getBoundingClientRect().left, sivut = aset.sivutus === 'sivut';
