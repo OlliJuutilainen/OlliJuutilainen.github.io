@@ -478,25 +478,22 @@
     border: 1px solid var(--harmaa); }
   #sivunapit button + button { width: 53px; border-left: 0; }
   #sivunapit svg { width: 14px; height: 14px; fill: var(--harmaa); }
-  /* Siirtymien kumous (käyttäjän pyyntö 5.11.2026): toinen pari sivunappien oikealla puolella. Oletuksena näkyvissä vain
-     sivunappien kanssa (kumoNaky()), koska sivuhyppely on murhe juuri sivunkäännössä; pyyhkäisyn ja reunanapautuksen
-     kanssa niitä ei näytetä, ettei niitä luulla sivunapeiksi. Asetuksista saa päälle ja pois missä tahansa tilassa.
-     Erottuu sivunapeista kolmella tavalla: viistetyt kulmat (vinoneliön sukua, ei pyöreä), koukkunuoli eikä suora nuoli
-     ja 12 px:n rako parien välissä. Raon kumpikin puolisko kuuluu lähemmän parin napautusalueeseen (6 + 6 px), ettei
-     seuraavan sivun napin ohi osunut napautus kumoa. Kun pari näkyy, se ottaa sivunappien napautusalueen ruudun
-     oikeaan reunaan asti. Ei mitään kumottavaa: nuoli --viiva-värinen, laatikko ennallaan. */
-  #kumonapit { display: flex; align-items: center; align-self: stretch; margin-left: -24px; padding-left: 6px;
-    margin-right: calc(-1 * var(--o-laita)); padding-right: var(--o-laita); pointer-events: auto; }
-  #ala-oikea.kumo #sivunapit { margin-right: 0; padding-right: 6px; }
-  .kumo-pari { position: relative; display: flex; width: 89px; height: 34px; }
-  .kumo-kehys { position: absolute; inset: 0; width: 89px; height: 34px; fill: var(--paperi); stroke: var(--harmaa); stroke-width: 1; }
-  .kumo-pari button { position: relative; flex: 1 1 0; display: flex; align-items: center; justify-content: center; }
-  .kumo-pari svg.kumo-ik { width: 16px; height: 14px; overflow: visible; }
+  /* Siirtymien kumous (käyttäjän pyynnöt 5.11.2026): pieni kytkinpari navinäkymässä Sisälmyksen oikealla puolella, vain jos
+     se mahtuu samalle riville (piirraKumo(); ensimmäinen versio oli alapalkissa sivunappien vieressä, mutta se ei näyttänyt
+     hyvältä). Oletuksena näkyy vain sivunappien kanssa (kumoNaky()), asetuksista päälle ja pois missä tahansa tilassa.
+     Laatikko kuten Merkinnät ja Etsi, mutta selvästi matalampi (24 px) ja ilman tekstiä; koukkunuolen kärki on sivunuolen
+     pienennetty lovettu salmiakki. Napautusalue ulottuu 6 px laatikon yli ja alle. Ei mitään kumottavaa: nuoli --viiva-värinen. */
+  #kumonapit { display: flex; align-self: center; height: 24px; border: 1px solid var(--harmaa); }
+  #kumonapit.ei-mahdu { display: none; }
+  #kumonapit button { position: relative; width: 24px; height: 100%; display: flex; align-items: center; justify-content: center; }
+  #kumonapit button + button { border-left: 1px solid var(--harmaa); }
+  #kumonapit button::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
+  #kumonapit svg { width: 12px; height: 10.5px; overflow: visible; }
   .kumo-ik .k { fill: var(--harmaa); }
   .kumo-ik .v { fill: none; stroke: var(--harmaa); stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
-  .kumo-pari button[aria-disabled="true"] { cursor: default; }
-  .kumo-pari button[aria-disabled="true"] .k { fill: var(--viiva); }
-  .kumo-pari button[aria-disabled="true"] .v { stroke: var(--viiva); }
+  #kumonapit button[aria-disabled="true"] { cursor: default; }
+  #kumonapit button[aria-disabled="true"] .k { fill: var(--viiva); }
+  #kumonapit button[aria-disabled="true"] .v { stroke: var(--viiva); }
   /* Aikajanakerroksen välit (käyttäjän pyyntö 29.10.2026: pystysuunnassa hajurakoa kaikkiin väleihin, ja koska pääluvun
      merkki kasvoi, palkki suurenee melko paljon; mitattu musteesta): reunasta osion nimeen 15 → 22 px, nimestä osoittimen
      kolmioon 7,25 → 12,5 px, kirjanmerkin nauhasta laatikoihin 14 → 23,5 px ja laatikoista alareunaan 13 → 21 px
@@ -722,6 +719,11 @@
         <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
         <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
         <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
+        <!-- Siirtymien kumous: pieni kytkinpari, vain jos mahtuu Sisälmyksen oikealle puolelle (piirraKumo()). -->
+        <div id="kumonapit" hidden>
+          <button type="button" id="kumo-taakse" aria-label="Kumoa siirtymä" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></svg></button>
+          <button type="button" id="kumo-eteen" aria-label="Tee siirtymä uudelleen" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><g transform="translate(16 0) scale(-1 1)"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></g></svg></button>
+        </div>
       </div>
     </div>
     <div id="ala-rivi">
@@ -734,15 +736,6 @@
         <div id="sivunapit" hidden>
           <button type="button" id="sivu-ed" aria-label="Edellinen sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 7Q7.18 5.18 12.4 2.2Q10.22 5.18 9 7Q10.22 8.82 12.4 11.8Q7.18 8.82 1 7Z"/></svg></button>
           <button type="button" id="sivu-se" aria-label="Seuraava sivu"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M13 7Q6.82 5.18 1.6 2.2Q3.78 5.18 5 7Q3.78 8.82 1.6 11.8Q6.82 8.82 13 7Z"/></svg></button>
-        </div>
-        <!-- Siirtymien kumous (käyttäjän pyyntö 5.11.2026): viistekulmainen laatikko ja koukkunuolet, kärkenä sivunuolen
-             pienennetty lovettu salmiakki. Tee uudelleen on kumoamisen peilikuva. -->
-        <div id="kumonapit" hidden>
-          <div class="kumo-pari">
-            <svg class="kumo-kehys" viewBox="0 0 89 34" aria-hidden="true"><path d="M6.5 .5H82.5L88.5 6.5V27.5L82.5 33.5H6.5L.5 27.5V6.5Z"/><path d="M44.5 .5V33.5"/></svg>
-            <button type="button" id="kumo-taakse" aria-label="Kumoa siirtymä" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></svg></button>
-            <button type="button" id="kumo-eteen" aria-label="Tee siirtymä uudelleen" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><g transform="translate(16 0) scale(-1 1)"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></g></svg></button>
-          </div>
         </div>
       </div>
     </div>
@@ -2841,7 +2834,7 @@
     $('#jana').hidden = !auki;
     document.body.classList.toggle('palkit-auki', auki);
     $('#ala-nappi').setAttribute('aria-expanded', String(auki));
-    if (auki) piirraJana(); else suljeLaatikot();
+    if (auki) { piirraJana(); piirraKumo(); } else suljeLaatikot();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
@@ -2923,7 +2916,7 @@
   }
 
   /* ---------- siirtymien kumous ----------
-     Käyttäjän pyyntö 5.11.2026: alapalkin toinen pari kumoaa siirtymän ja tekee sen uudelleen. Siirtymiä ovat hypyt
+     Käyttäjän pyyntö 5.11.2026: navinäkymän pieni pari kumoaa siirtymän ja tekee sen uudelleen. Siirtymiä ovat hypyt
      (linkki, aikajana, haku, Merkinnät, Sisälmys, majakan paluu, Home/End) ja sivunkäännöt; vierityksen liike ei ole.
      Alle SARJA ms:n välein käännetyt sivut ovat yksi siirtymä, joten vahingossa ryöpsähtänyt sivujen sarja kumoutuu
      kerralla, mutta lukiessa käännetty sivu kumoutuu sivu kerrallaan. Uusi siirtymä tyhjentää uudelleen tehtävät.
@@ -2959,20 +2952,23 @@
     if (m && m.k.b === p.k.b && m.k.o === p.k.o && (m.k.ed || 0) === (p.k.ed || 0)) poistaMajakka();
     piirraKumo();
   }
+  // Näkyy vain, jos mahtuu samalle riville kuin sitä edeltävä näkyvä laatikko (yleensä Sisälmys); muuten piiloon, ettei
+  // navinäkymä kasva rivillä. Mitataan vain aikajanan ollessa auki (piilossa laatikoilla ei ole paikkaa).
   function piirraKumo() {
-    var n = kumoNaky();
-    $('#kumonapit').hidden = !n;
-    $('#ala-oikea').classList.toggle('kumo', n);
+    var n = kumoNaky(), el = $('#kumonapit');
+    el.hidden = !n;
+    if (n && palkitAuki()) {
+      el.classList.remove('ei-mahdu');
+      var ed = el.previousElementSibling;
+      while (ed && ed.hidden) ed = ed.previousElementSibling;
+      if (ed && el.getBoundingClientRect().top >= ed.getBoundingClientRect().bottom) el.classList.add('ei-mahdu');
+    }
     $('#kumo-taakse').setAttribute('aria-disabled', String(!hist.taakse.length));
     $('#kumo-eteen').setAttribute('aria-disabled', String(!hist.eteen.length));
   }
   $('#kumo-taakse').addEventListener('click', function () { kumoa(-1); });
   $('#kumo-eteen').addEventListener('click', function () { kumoa(1); });
-  // Parin ympärillä oleva tyhjä alue toimii kuten sivunapeissa: lähemmän napin suuntaan.
-  $('#kumonapit').addEventListener('click', function (e) {
-    if (e.target !== this) return;
-    kumoa(e.clientX >= $('#kumo-eteen').getBoundingClientRect().left ? 1 : -1);
-  });
+  window.addEventListener('resize', function () { if (nyt && palkitAuki()) piirraKumo(); });
 
   $('#majakka-palaa').addEventListener('click', palaa);
   $('#majakka-sulje').addEventListener('click', poistaMajakka);

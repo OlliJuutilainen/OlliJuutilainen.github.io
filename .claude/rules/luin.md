@@ -97,7 +97,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (e-ink).
 - **Kumonapit** (opas 4.9, `kumoNaky()`): oletuksena näkyvät vain sivunappien kanssa, ei pyyhkäisyn eikä reunanapautuksen,
   ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` toimii kaikissa tiloissa eikä kuulu
-  `SIVUTAVAT`-listaan. Ei tekstiä napeissa.
+  `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Sisälmyksen oikealla puolella, vain jos
+  mahtuu samalle riville (`piirraKumo()`); ei alapalkissa (käyttäjä: ei näyttänyt siellä hyvältä).
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska käyttäjän työpöytäselain ei
   noudattanut CSS:ää). **Sisällysluetteloa ei pakoteta omalle sivulleen**; se kulkee otsikkolohkon perässä.
