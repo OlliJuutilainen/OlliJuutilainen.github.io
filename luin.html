@@ -262,7 +262,6 @@
     font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility;
     hyphens: manual; -webkit-hyphens: manual; overflow-wrap: break-word; }
   #teksti.tavu-ei { hyphens: none; -webkit-hyphens: none; }
-  #teksti.tavu-selain { hyphens: auto; -webkit-hyphens: auto; }
   header.tt { margin: 0 0 2.6em; }
   header.tt h1 { font-size: 1.55em; line-height: 1.2; margin: 0 0 .5em; font-weight: 400; letter-spacing: .05em; }
   header.tt .sub { font-size: .95em; color: var(--harmaa); margin: 0; text-transform: uppercase; letter-spacing: .075em; }
@@ -308,8 +307,6 @@
   #teksti hr { border: 0; height: 1px; background: var(--viiva); margin: 2.7em 0; width: 6em; }
   #teksti p.bib { padding-left: 1.7em; text-indent: -1.7em; margin-bottom: .75em; font-size: .9em; line-height: 1.45;
     overflow-wrap: anywhere; }
-  /* Lähdeluetteloa ei tavuteta (md.js OHITA); myöskään selaimen oma tavutus ei koske sitä. */
-  #teksti.tavu-selain p.bib { hyphens: manual; -webkit-hyphens: manual; }
   #teksti code, #teksti pre { font-family: ui-monospace, Menlo, monospace; font-size: .86em; }
   #teksti pre { white-space: pre-wrap; margin: 0 0 1.1em; }
   #teksti a { color: var(--ruoste); text-underline-offset: .15em; }
@@ -707,7 +704,7 @@
   <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
   <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|meso:Meso|reilu:Reilu"></div></div>
-  <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Varovainen|tihea:Tiheä|selain:Selaimen"></div></div>
+  <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Vähä|tihea:Raju"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
@@ -850,6 +847,8 @@
   if (tallennetut && !(tallennetut.av >= 5)) { aset.sivunapit = 0; aset.av = 5; }
   // Marginaalin avaimet vaihtuivat 29.10.2026 (kolme arvoa): keski ja vanha levea (36) → meso, syva ja syvin → reilu.
   aset.marginaali = { keski: 'meso', levea: 'meso', syva: 'reilu', syvin: 'reilu' }[aset.marginaali] || aset.marginaali;
+  // Selaimen oma tavutus poistettiin 5.11.2026 (Firefoxin suomen tavutus oli huono); tallennettu arvo → oletus.
+  if (aset.tavutus === 'selain') aset.tavutus = OLETUS.tavutus;
   if (!tallennetut && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) aset.teema = 'tumma';
   // Aikajanan oletus (22.10.2026): työpöydällä pääluvut ja alaluvut, mobiilissa (kapea ruutu tai
   // sormiosoitin) vain pääluvut. Koskee vain ensikäyttöä; tallennettua valintaa ei kosketa.
@@ -1567,7 +1566,7 @@
     document.body.classList.toggle('mobiili', mob);
     YLA = mob ? 26 : 26 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--yla')) || 56);
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
-      aset.tasaus === 'tasattu' ? 'tasattu' : '', 'tavu-' + (aset.tavutus === 'selain' ? 'selain' : aset.tavutus === 'ei' ? 'ei' : 'js')].join(' ');
+      aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
     document.body.classList.toggle('sivutus', sivut);
     var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
     document.body.classList.toggle('reunat', reunat);
