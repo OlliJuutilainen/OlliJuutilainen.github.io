@@ -67,12 +67,13 @@
   .ik.ratas { height: 1.2em; vertical-align: -.26em; fill: currentColor; fill-rule: evenodd; }
   .ik.nauha { fill: none; stroke: var(--harmaa); stroke-width: 1; }
   .ik.nauha.on { fill: var(--ruoste); stroke: var(--ruoste); }
-  /* Maalauskoneen kahva, sanakirja ja käännös (luin.html, pilotti 5.11.2026). */
+  /* Maalauskoneen kahva, sanaselitys ja käännös (luin.html, pilotti 5.11.2026). Sanaselityksen merkki on luin.html:n
+     IK_SANASTO: musteen lambda ja ruosteinen pyöreä linssi, joka nousee laatikon yläpuolelle. */
   .ik.kahva { fill: var(--ruoste); height: 1.1em; vertical-align: -.25em; }
   .ik.kahva .kk { fill: none; stroke: var(--ruoste); stroke-width: 1.6; }
   .ik.koti { height: 1.2em; vertical-align: -.26em; overflow: visible; }
   .ik.koti .k { fill: none; stroke: var(--harmaa); stroke-width: 1.15; stroke-linejoin: miter; }
-  .ik.kirja { height: 1.15em; vertical-align: -.22em; }
+  .ik.sanasto { height: 1.15em; vertical-align: -.22em; overflow: visible; }
   .ik-kaanna { font-size: .9em; white-space: nowrap; }
   .ik.nuoli { fill: none; stroke: var(--harmaa); stroke-width: 1; height: .9em; vertical-align: -.06em; }
   .ik.kr { fill: none; stroke: var(--harmaa); stroke-width: 1.3; height: .9em; vertical-align: -.06em; }
@@ -177,7 +178,7 @@
   <h2>Alleviivaukset ja kirjaukset</h2>
   <p>Maalaa tekstiä, niin se alleviivataan heti: hiirellä vetämällä ja kosketusnäytöllä painamalla sanaa hetken ja
     vetämällä siitä eteenpäin. Maalaus tarttuu aina kokonaisiin sanoihin. Pelkkä pitkä painallus sanaan ilman vetoa
-    ja hiiren tuplaklikkaus avaavat sanan sanakirjassa (<span class="ui">Sukkela sanaselitys</span>). Kun maalaat pidemmälle,
+    ja hiiren tuplaklikkaus avaavat sanan selityksen (<span class="ui">Sukkela sanaselitys</span>). Kun maalaat pidemmälle,
     maalaus alleviivaa.</p>
   <p>Napauta alleviivausta, niin saat valikon ja sen päihin kahvat
     <svg class="ik kahva" viewBox="0 0 13 16" aria-hidden="true"><path class="kk" d="M0 14H5Q7.5 14 10 7"/><path d="M10 3.2Q10.84 5.56 12.2 7Q10.84 8.44 10 10.8Q9.16 8.44 7.8 7Q9.16 5.56 10 3.2Z"/></svg>,
@@ -190,9 +191,13 @@
     <li><span class="ik-laatikko"><svg class="ik kyna" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.72 3.32L16.68 7.28L9.18 14.78L3.39 16.61L5.22 10.82Z"/></svg></span>
       <span><span class="ui">Kirjaa</span>: kirjoita alleviivaukseen muistiinpano eli kirjaus.
       <span class="ui">Tallenna</span> tallentaa, <span class="ui">Peruuta</span> peruu.</span></li>
-    <li><span class="ik-laatikko"><svg class="ik kirja" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" aria-hidden="true"><path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5"/><path d="M10.6 10.3L5.4 17.6"/></svg></span>
-      <span><span class="ui">Sanakirja</span> (kun valittuna on yksi sana): sanan merkitys englanninkielisestä Wikisanakirjasta
-      (Wiktionary). Taivutetun sanan perusmuotoa voi napauttaa.</span></li>
+    <li><span class="ik-laatikko"><svg class="ik sanasto" viewBox="3.6 0 22.5 20" fill="none" aria-hidden="true"><path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="currentColor" stroke-width="1.5"/><g stroke="var(--ruoste)"><circle cx="18.19" cy="3.69" r="6" stroke-width="1.15"/><path d="M15.01 8.78L9.5 17.6" stroke-width="1.5"/></g></svg></span>
+      <span><span class="ui">Sanaselitys</span> (kun valittuna on enintään kymmenen sanaa, esimerkiksi sanonta tai sananlasku):
+      merkitys englanninkielisestä Wikisanakirjasta (Wiktionary). Ensin haetaan tasan tekstin muoto. Jos sitä ei ole, Luin
+      etsii lähimmän (<i>ponillehan</i> → <i>poni</i>, <i>pratityasamutpadaa</i> → <i>pratītyasamutpāda</i>) ja kertoo sen;
+      useammasta lähimmästä voi valita. Kursiivissa ja lainauksessa kelpaa mikä tahansa kieli, muuten arvaukset haetaan vain
+      tekstin kielestä, ja toisen kielen selityksestä huomautetaan. Taivutetun sanan perusmuotoa voi napauttaa; takaisin
+      ei palata. Raksi oikeassa yläkulmassa sulkee.</span></li>
     <li><span class="ik-laatikko"><span class="ik-kaanna" aria-hidden="true">→<i>en</i></span></span>
       <span><span class="ui">Käännä</span>: avaa maalatun tekstin DeepL-kääntäjässä uudessa välilehdessä
       (suomesta englanniksi, muista kielistä suomeksi).</span></li>
@@ -205,9 +210,9 @@
     <span class="ik-ali" aria-hidden="true">Abc</span>. Katkoviivan napautus tuo kahvat, joilla aluetta
     voi säätää ennen valintaa.</p>
   <p>Jos kytket asetuksista <span class="ui">Sukkela sanaselitys</span> pois, pitkä painallus sanaan avaa valikon ja
-    tuplaklikkaus maalaa sanan.</p>
-  <p>Sanakirja ja käännös ovat Luinin ainoat toiminnot, jotka käyttävät verkkoa: vain kun napautat niitä. Ne saa
-    asetuksista pois valikosta.</p>
+    tuplaklikkaus maalaa sanan. Valikon sanaselitys on oma kytkimensä: kumpikin toimii ilman toista.</p>
+  <p>Sanaselitys ja käännös ovat Luinin ainoat toiminnot, jotka käyttävät verkkoa: vain kun napautat niitä. Ne saa
+    asetuksista valikkoon tai pois; käännös on oletuksena pois.</p>
   <p>Kaikki kirjanmerkit, alleviivaukset ja kirjaukset ovat aikajanan alla laatikossa
     <span class="ui">Merkinnät</span>. Merkinnän napautus vie sen kohtaan. Laatikko sulkeutuu raksista tai
     napista.</p>
@@ -244,7 +249,7 @@
       <span class="ui">Reunat</span> (liehu tai tasattu), <span class="ui">Marginaali</span> (ohut, meso tai reilu; vain kapealla
       ruudulla) ja <span class="ui">Tavutus</span> (ei, vähä tai raju).</li>
     <li><span class="ui">Teksti</span>: näkyvätkö tekstissä sisällysluettelo, kirjanmerkit ja alleviivaukset,
-      alleviivataanko valinta heti (<span class="ui">Sukkela alleviivaus</span>), avaako yksi sana sanakirjan
+      alleviivataanko valinta heti (<span class="ui">Sukkela alleviivaus</span>), avaako yksi sana suoraan sanaselityksen
       (<span class="ui">Sukkela sanaselitys</span>) ja toimivatko tekstin linkit muille
       sivuille (<span class="ui">Verkkolinkit</span>). Verkkolinkit ovat oletuksena pois, myös kirjallisuusluettelon, jotta
       lukeminen pysyy omassa rauhassaan eikä napautus vie vahingossa pois tekstistä: ne näkyvät tavallisena tekstinä.
@@ -253,7 +258,7 @@
       pois tekstistä, jotta selaimen värit ja valikot eivät sekoitu alleviivaukseen; kopioi silloin valikon napista.
       <span class="ui">Selaimen</span> tapa palauttaa selaimen valinnan (kahvat tulevat silti sukkelaan
       alleviivaukseen napautuksesta). <span class="ui">Kopioon viite</span>: ei, lyhyt (<i>Korsgaard 2018, 8.5.3</i>) tai pitkä
-      (koko lähdeviite ja luku). <span class="ui">Valikossa</span>: sanakirja ja käännös.</li>
+      (koko lähdeviite ja luku). <span class="ui">Valikossa</span>: sanaselitys ja käännös (oletuksena vain sanaselitys).</li>
     <li><span class="ui">Aikajana</span>: mitkä luvut (pääluvut, alaluvut tai kaikki) ja näkyvätkö
       kirjanmerkit aikajanalla.</li>
   </ul>
