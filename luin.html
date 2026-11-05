@@ -389,7 +389,14 @@
   /* Kahvan salmiakki 20 × 25 px (käyttäjän pyyntö 5.11.2026: ennen 13 × 16; yläkärki ennallaan rivin alla). */
   .kahva .k-ote { position: absolute; left: -26px; top: calc(var(--kh, 20px) + 1px); width: 52px; height: 48px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
+  #kahvat.lapi .k-ote { pointer-events: none; }
   .kahva .k-ote svg { position: absolute; left: 16px; top: 0; width: 20px; height: 25px; fill: var(--ruoste); }
+  /* Suurennuslasi kahvan kosketusvedossa (pilotti 5.11.2026, Booxin tapaan): vedettävän pään rivi 1,25-kertaisena rivin
+     yläpuolella, ettei katse jää sormeen. Sisältö on lohkon klooni laskettuine tyyleineen (lupaKlooni()). */
+  #lupa { position: fixed; z-index: 25; overflow: hidden; pointer-events: none; user-select: none; -webkit-user-select: none;
+    background: var(--paperi); border: 1px solid var(--muste); border-radius: 6px; }
+  #lupa .l-sisus { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  #lupa .l-varsi { position: absolute; width: 1.5px; background: var(--ruoste); }
   .km { position: absolute; width: 9px; height: 15px; color: var(--ruoste); cursor: pointer; z-index: 2; }
   .km svg { display: block; width: 9px; height: 15px; fill: currentColor; }
 
@@ -849,6 +856,7 @@
 
 <div class="valikko" id="pop" hidden></div>
 <div id="kahvat" hidden><div class="kahva" data-paa="alku"><span class="k-varsi"></span><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><span class="k-varsi"></span><span class="k-ote"></span></div></div>
+<div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
@@ -2281,7 +2289,7 @@
     if (!h || !h.segs.length || h.segs.some(function (s) { return s.orpo; })) return;
     kahvaH = h; kahvatEl.hidden = false; sijoitaKahvat();
   }
-  function piilotaKahvat() { kahvaH = null; if (kahvatEl) kahvatEl.hidden = true; }
+  function piilotaKahvat() { kahvaH = null; if (kahvatEl) kahvatEl.hidden = true; piilotaLupa(); }
   function sijoitaKahvat() {
     if (!kahvaH || !nyt) return;
     var sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
@@ -2325,9 +2333,10 @@
       var paa = o.parentNode.dataset.paa, el = kahvaEl[paa], sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
       var x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top) + (parseFloat(el.style.getPropertyValue('--kh')) || 20) / 2;
       veto = { paa: paa, h: kahvaH, id: e.pointerId, dx: e.clientX - x0, dy: e.clientY - y0, x: e.clientX, y: e.clientY,
-        kiinni: paa === 'alku' ? { b: z.b, o: z.e } : { b: a.b, o: a.s }, pop: !pop.hidden };
+        kiinni: paa === 'alku' ? { b: z.b, o: z.e } : { b: a.b, o: a.s }, pop: !pop.hidden, lupa: e.pointerType !== 'mouse' };
       try { o.setPointerCapture(e.pointerId); } catch (er) {}
       if (!pop.hidden) suljePop();
+      if (veto.lupa) lupaAskel();
       aloitaReuna(function () { return veto; }, kahvaAskel);
     });
     o.addEventListener('pointermove', function (e) {
@@ -2341,7 +2350,16 @@
   });
   function kahvaAskel() {
     if (!veto) return;
-    var k = kohtaPisteessa(veto.x - veto.dx + (veto.paa === 'alku' ? 1 : -1), veto.y - veto.dy);
+    siirraKahvaa();
+    if (veto.lupa) lupaAskel();
+  }
+  // Kohta luetaan kahvojen otealueen läpi: 52 × 48 px:n ote rivin alla peitti alemman rivin keskikohdan, jolloin
+  // veto suoraan alaspäin ei edennyt ennen kuin sormi oli 2,5 riviä alempana (mitattu 5.11.2026).
+  function siirraKahvaa() {
+    var k;
+    kahvatEl.classList.add('lapi');
+    try { k = kohtaPisteessa(veto.x - veto.dx + (veto.paa === 'alku' ? 1 : -1), veto.y - veto.dy); }
+    finally { kahvatEl.classList.remove('lapi'); }
     if (!k) return;
     var p = veto.paa === 'alku' ? k : veto.kiinni, q = veto.paa === 'alku' ? veto.kiinni : k;
     if (!kohtaEnnen(p, q) || p.b === q.b && p.o === q.o) return;
@@ -2356,6 +2374,7 @@
     if (vetoRaf) { cancelAnimationFrame(vetoRaf); vetoRaf = 0; kahvaAskel(); }
     var v = veto;
     veto = null;
+    piilotaLupa();
     lopetaReuna();
     tila.maalattu = Date.now();
     if (v.h !== luonnos) { jarjestaAl(); tallennaMerkit(); paivitaMerkinnat(); }
@@ -2363,6 +2382,92 @@
     sijoitaKahvat();
     if (v.h === luonnos) naytaValintaPop(luonnos.segs, alRect(luonnos));
     else if (v.pop) naytaAlPop(v.h.id, alRect(v.h));
+  }
+  /* Suurennuslasi (pilotti 5.11.2026, käyttäjän pyyntö Booxin tapaan): kosketus- ja kynävedossa (ei hiirellä) vedettävän
+     pään rivi näkyy 1,25-kertaisena rivin yläpuolella pyöristetyssä laatikossa: koko rivin kirjaimet ja ylemmän rivin
+     alareuna, leveyttä noin kahdeksan kirjainta (Literatan keskileveys 0,546 em, mitattu tutkielmasta). Lasi seuraa
+     sormea sivusuunnassa niin, että alleviivauksen pää ja varsi pysyvät näkyvissä, ja hyppää riviltä toiselle kahvan mukana.
+     Sisältö on vedettävän lohkon klooni, jonka jokaiselle elementille kopioidaan alkuperäisen lasketut tyylit (lohkon
+     muotoilu riippuu #teksti-valitsimista ja sisaruksista), joten rivitys on sama. Klooni tehdään uudelleen vain, kun
+     alue tai lohko muuttuu. Lasi ei saa kaataa vetoa: virhe sulkee lasin loppuvedon ajaksi. */
+  var LUPA_Z = 1.25, LUPA_LEV = 8 * .546, lupaEl = $('#lupa'), lupaSis = $('.l-sisus', lupaEl), lupa = null;
+  var LUPA_TYYLIT = ['display', 'float', 'clear', 'box-sizing', 'width', 'vertical-align', 'margin-top', 'margin-right', 'margin-bottom',
+    'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'border-top-width', 'border-right-width',
+    'border-bottom-width', 'border-left-width', 'border-top-style', 'border-right-style', 'border-bottom-style', 'border-left-style',
+    'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color', 'background-color', 'background-image',
+    'background-clip', 'color', 'font-family', 'font-size', 'font-style', 'font-weight', 'font-stretch', 'font-variant-ligatures',
+    'font-variant-caps', 'font-variant-numeric', 'font-variant-position', 'font-feature-settings', 'font-variation-settings',
+    'font-kerning', 'font-optical-sizing', 'line-height', 'letter-spacing', 'word-spacing', 'text-transform', 'text-align',
+    'text-align-last', 'text-indent', 'hyphens', 'hyphenate-character', 'white-space', 'text-wrap', 'overflow-wrap', 'word-break',
+    'line-break', 'tab-size', 'text-rendering', 'text-decoration-line', 'text-decoration-style', 'text-decoration-color',
+    'text-decoration-thickness', 'text-underline-offset', 'text-underline-position', 'text-decoration-skip-ink'];
+  function lupaTyyli(a, k) {
+    var cs = getComputedStyle(a), s = '';
+    for (var i = 0; i < LUPA_TYYLIT.length; i++) { var v = cs.getPropertyValue(LUPA_TYYLIT[i]); if (v) s += LUPA_TYYLIT[i] + ':' + v + ';'; }
+    if (cs.position === 'relative') s += 'position:relative;top:' + cs.top + ';left:' + cs.left + ';';
+    k.style.cssText = s;
+    ['id', 'data-b', 'data-h', 'for', 'name', 'href'].forEach(function (n) { k.removeAttribute(n); });
+  }
+  // Lohkon klooni: { juuri: lasiin tuleva elementti, lohko: kohtien laskun elementti }. Taulukon rivi tarvitsee taulukon.
+  function lupaKlooni(el) {
+    var kl = el.cloneNode(true), a = el.getElementsByTagName('*'), c = kl.getElementsByTagName('*'), juuri = kl;
+    lupaTyyli(el, kl);
+    for (var i = 0; i < a.length; i++) lupaTyyli(a[i], c[i]);
+    kl.style.margin = '0'; kl.style.float = 'none';
+    if (el.tagName === 'TR' && el.closest('table')) {
+      var tb = el.closest('table');
+      juuri = tb.cloneNode(false); lupaTyyli(tb, juuri);
+      juuri.style.margin = '0'; juuri.style.tableLayout = 'fixed'; juuri.style.width = tb.getBoundingClientRect().width + 'px';
+      [].forEach.call(el.cells, function (td, j) { kl.cells[j].style.width = td.getBoundingClientRect().width + 'px'; });
+      juuri.appendChild(kl);
+    } else if (kl.style.display !== 'block') kl.style.display = 'block';
+    return { juuri: juuri, lohko: kl };
+  }
+  function piilotaLupa() { if (!lupa) return; lupa = null; lupaEl.hidden = true; lupaSis.textContent = ''; }
+  function lupaAskel() {
+    try { lupaPaikka(); }
+    catch (er) { veto.lupa = false; piilotaLupa(); if (window.console) console.warn('Luin: suurennuslasi pois', er); }
+  }
+  function lupaPaikka() {
+    var alku = veto.paa === 'alku', sg = veto.h.segs, s = alku ? sg[0] : sg[sg.length - 1];
+    var k = alku ? { b: s.b, o: s.s } : { b: s.b, o: Math.max(s.s, s.e - 1) }, r = kohdanLaatikko(k);
+    // Kahvan pää ruudun ulkopuolella (sivutettuna toisella sivulla): ei lasia.
+    if (!r || !r.height || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) { if (lupa) lupaEl.hidden = true; return; }
+    if (!lupa) lupa = {};
+    if (lupa.b !== k.b || lupa.segs !== sg) {
+      var kl = lupaKlooni(nyt.blocks[k.b]);
+      lupaSis.textContent = '';
+      lupaSis.appendChild(kl.juuri);
+      lupa.varsi = document.createElement('span'); lupa.varsi.className = 'l-varsi'; lupaSis.appendChild(lupa.varsi);
+      lupa.b = k.b; lupa.segs = sg; lupa.lohko = kl.lohko; lupa.juuri = kl.juuri;
+      lupaSis.style.width = kl.juuri.style.width;
+    }
+    lupaEl.hidden = false;
+    var p = solmuun(lupa.lohko, k.o);
+    if (!p || p.i >= p.n.nodeValue.length) { lupaEl.hidden = true; return; }
+    var q = document.createRange(); q.setStart(p.n, p.i); q.setEnd(p.n, p.i + 1);
+    var qs = q.getClientRects(), cr = qs[qs.length - 1], sr = lupaSis.getBoundingClientRect(), Z = LUPA_Z;
+    if (!cr) { lupaEl.hidden = true; return; }
+    // Kloonin koordinaatit (skaalaamaton, .l-sisuksen vasen yläkulma): merkin laatikko ja kahvan x. Skaala mitataan,
+    // koska ensimmäisellä kerralla .l-sisuksella ei ole vielä muunnosta.
+    var zm = sr.width / lupaSis.offsetWidth || Z;
+    var mt = (cr.top - sr.top) / zm, mh = cr.height / zm, bx = ((alku ? cr.left : cr.right) - sr.left) / zm;
+    var jr = lupa.juuri.getBoundingClientRect(), j0 = (jr.left - sr.left) / zm, j1 = j0 + jr.width / zm;
+    var cs = getComputedStyle(nyt.blocks[k.b]), fs = parseFloat(cs.fontSize) || 19, lh = parseFloat(cs.lineHeight) || fs * 1.62;
+    var em = parseFloat(getComputedStyle(art).fontSize) || fs;
+    // Ikkuna: ylemmän rivin perusviivan yläpuolelta (0,12 em) alleviivauksen alle. Literatan nousu on 22/28 laatikosta.
+    var yla = mt + mh * 22 / 28 - lh - .12 * fs, ala = mt + mh + .1 * fs;
+    var w = Math.round(LUPA_LEV * em * Z), h = Math.round((ala - yla) * Z), lw = w / Z;
+    // Keskikohta sormen mukaan, rajattuna lohkoon ja niin, että kahvan pää jää lasiin (marginaali yksi kirjain).
+    var bxR = alku ? r.left : r.right, cx = bx + (veto.x - veto.dx - bxR), m = Math.min(lw / 2, .55 * em);
+    if (j1 - j0 > lw) cx = clamp(cx, j0 + lw / 2, j1 - lw / 2);
+    cx = clamp(cx, bx - (lw / 2 - m), bx + (lw / 2 - m));
+    var vasen = cx - lw / 2;
+    lupaSis.style.transform = 'translate(' + (-vasen * Z) + 'px,' + (-yla * Z) + 'px) scale(' + Z + ')';
+    lupa.varsi.style.left = (bx - .75) + 'px'; lupa.varsi.style.top = mt + 'px'; lupa.varsi.style.height = (mh + 2) + 'px';
+    // Lasi rivin yläpuolelle sormen kohdalle, ruudun sisään.
+    var L = clamp(bxR + (cx - bx) - w / 2 - 1, 6, Math.max(6, innerWidth - w - 8)), T = Math.max(4, r.top - 3 - (h + 2));
+    lupaEl.style.left = L + 'px'; lupaEl.style.top = T + 'px'; lupaEl.style.width = (w + 2) + 'px'; lupaEl.style.height = (h + 2) + 'px';
   }
   function jarjestaAl() { nyt.merk.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; }); }
   // Laita: vierityksessä ylä- tai alalaitaan vienti vierittää, sivutettuna laidassa viipyminen (0,65 s) kääntää sivun kerran.
@@ -3965,7 +4070,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();

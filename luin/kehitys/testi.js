@@ -1047,6 +1047,13 @@ palvelin.listen(0, async () => {
   const m2 = await mtila();
   const m2t = await mp.evaluate(() => { const n = window.__luin.nyt(), m = JSON.parse(localStorage.getItem('luin-merkit:' + n.e.id)); return m.al[m.al.length - 1].segs.map(s => s.x).join(' '); });
   tulos('loppukahvan veto', m2.n === 1 && m2.x.length > m1.x.length && m2.x.indexOf(m1.x) === 0 && m2.reunat && m2.kahvaEro.every(v => v < .5) && m2t === m2.x, JSON.stringify({ ennen: m1.x, jalkeen: m2.x }));
+  // Hiirellä ei suurennuslasia (osoitin ei peitä tekstiä); takaisin lähtökohtaan sama alue.
+  const lk2 = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
+  await mp.mouse.move(lk2.x, lk2.y); await mp.mouse.down(); await mp.mouse.move(lk2.x - 40, lk2.y, { steps: 4 });
+  const hiiriLupa = await mp.evaluate(() => !document.querySelector('#lupa').hidden);
+  await mp.mouse.move(lk2.x, lk2.y, { steps: 4 }); await mp.mouse.up(); await mp.waitForTimeout(200);
+  const m2b = await mtila();
+  tulos('hiirellä ei suurennuslasia', !hiiriLupa && m2b.x === m2.x && m2b.kahvat, JSON.stringify({ hiiriLupa, x: m2b.x }));
   // Ilman sukkelaa: luonnos ja valikko; Esc poistaa luonnoksen.
   await mp.evaluate(() => { window.__luin.aset.auto = 0; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
   sw = await sanat();
@@ -1153,6 +1160,42 @@ palvelin.listen(0, async () => {
   const kt5 = await kTila();
   tulos('pitkä painallus sanaan: sukkela sanaselitys', kt3.n === kt2.n && /sanakirja/.test(kt3.pop) && kt3.luonnos > 0 && !kt3.kahvat &&
     kt4.n === kt2.n && kt4.napit === 'ali,kir,sk,kaanna,kopioi' && !kt4.kahvat && kt5.kahvat, JSON.stringify({ kt3, kt4, kahvatNapautuksesta: kt5.kahvat }));
+  // Suurennuslasi (pilotti 5.11.2026): kosketusvedossa kahvan rivi 1,25-kertaisena rivin yläpuolella, noin kahdeksan
+  // kirjaimen levyisenä. Klooni rivittyy kuten alkuperäinen, varsi on kahvan pään kohdalla, ja lasi lähtee vedon
+  // päättyessä. Kohta luetaan kahvan otealueen läpi: veto suoraan riviä alemmas etenee (ennen ote peitti alemman rivin).
+  const lupaTila = () => kp2.evaluate(() => {
+    const L = document.querySelector('#lupa'), n = window.__luin.nyt(), h = window.__luin.kahvat();
+    const sg = h ? h.segs : [], z = sg[sg.length - 1], x = sg.map(s => s.x).join(' ');
+    const paikat = el => { const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), out = []; let t;
+      while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote,.fnref,.luin-ui,input')) continue;
+        for (let i = 0; i < t.data.length; i++) { if (t.data.charCodeAt(i) === 0xAD) continue; const q = document.createRange(); q.setStart(t, i); q.setEnd(t, i + 1); const rs = q.getClientRects(); out.push(rs[rs.length - 1] || null); } }
+      return out; };
+    const po = z ? paikat(n.blocks[z.b]) : [], lop = z && po[Math.max(z.s, z.e - 1)];
+    if (!z || L.hidden) return { lupa: false, x, riviYla: lop ? lop.top : null };
+    const lr = L.getBoundingClientRect(), juuri = L.querySelector('.l-sisus').firstElementChild, pk = paikat(juuri), or = n.blocks[z.b].getBoundingClientRect(), kr = juuri.getBoundingClientRect();
+    let ero = 0;
+    po.forEach((r, i) => { const k = pk[i]; if (!r || !k || !r.width) return; ero = Math.max(ero, Math.abs(r.left - or.left - (k.left - kr.left) / 1.25), Math.abs(r.top - or.top - (k.top - kr.top) / 1.25)); });
+    const vr = L.querySelector('.l-varsi').getBoundingClientRect(), klop = pk[Math.max(z.s, z.e - 1)];
+    return { lupa: true, x, riviYla: lop.top, w: lr.width, h: lr.height, ylapuolella: lr.bottom <= lop.top, ero: +ero.toFixed(2), varsi: +Math.abs(vr.left + vr.width / 2 - klop.right).toFixed(2),
+      varsiLasissa: vr.left > lr.left && vr.right < lr.right, varjo: getComputedStyle(L).boxShadow, pointer: getComputedStyle(L).pointerEvents };
+  });
+  const kote = () => kp2.evaluate(() => { const k = document.querySelector('.kahva[data-paa="loppu"]'), r = k.querySelector('.k-ote').getBoundingClientRect(); return { x: r.left + 26, y: r.top + 12, kx: parseFloat(k.style.left) }; });
+  const lo = await kote();
+  await kosk('touchStart', lo.x, lo.y); await kp2.waitForTimeout(100);
+  const lu0 = await lupaTila();
+  // Sormi seuraavan sanan kohdalle (sana voi olla rivin lopussa, joten pelkkä siirto oikealle ei riitä).
+  await kosk('touchMove', lo.x + ksanat[8].x - kb.x, lo.y + ksanat[8].y - kb.y); await kp2.waitForTimeout(100);
+  const lu1 = await lupaTila(), lo1 = await kote();
+  // Sormi tasan kahvan päälle ja suoraan riviä alemmas.
+  await kosk('touchMove', lo1.kx + (lo.x - lo.kx), lo1.y); await kp2.waitForTimeout(100);
+  const lu2 = await lupaTila();
+  await kosk('touchMove', lo1.kx + (lo.x - lo.kx), lo1.y + 31); await kp2.waitForTimeout(100);
+  const lu3 = await lupaTila();
+  await kosk('touchEnd'); await kp2.waitForTimeout(300);
+  const lu4 = await lupaTila();
+  tulos('suurennuslasi kahvan kosketusvedossa', [lu0, lu1, lu3].every(t => t.lupa && t.w === 106 && t.h === 53 && t.ylapuolella && t.ero < .5 && t.varsi < .5 && t.varsiLasissa &&
+    t.varjo === 'none' && t.pointer === 'none') && lu1.x.length > lu0.x.length && !lu4.lupa && lu4.x === lu3.x, JSON.stringify({ lu0, lu1, lu4: lu4.lupa }));
+  tulos('kahvan veto riviä alemmas otealueen läpi', lu3.x.length > lu2.x.length && lu3.riviYla > lu2.riviYla + 20, JSON.stringify({ ennen: lu2.x.slice(-30), jalkeen: lu3.x.slice(-30), rivi: [lu2.riviYla, lu3.riviYla] }));
   await kk.close();
   }
 
