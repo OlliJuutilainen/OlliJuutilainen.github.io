@@ -3352,7 +3352,7 @@
     function tekstissa(tapa, monia) {
       var x = '<i>' + esc(haku) + '</i>';
       if (tapa === 'f' || tapa === 'tv') return huom('Tekstissä ' + x + (monia ? '. Sama toisin kirjoitettuna:' : ': sama toisin kirjoitettuna.'));
-      return huom('Tekstissä ' + x + ', jolle ei ole omaa sivua' + (monia ? '. Lähimmät osumat:' : ': lähin osuma.'));
+      return huom(monia ? 'Lähimmät osumat:' : 'Lähin osuma.');
     }
     // Selitys (yksi tai useampi tasan sama muoto). alku: huomautukset ennen määritelmiä.
     function selitys(v, osumat, alku, etusija) {
