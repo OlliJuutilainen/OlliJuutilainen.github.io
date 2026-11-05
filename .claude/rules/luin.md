@@ -101,9 +101,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` toimii kaikissa tiloissa eikä kuulu
   `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Etsin oikealla puolella, vain jos
   mahtuu samalle riville (`piirraKumo()`); ei alapalkissa (käyttäjä: ei näyttänyt siellä hyvältä).
-- **Kokoruutu** (opas 4.10, `aset.kokoruutu`, oletus pois): selain sallii sen vain eleestä, joten tekstin avauksen
-  jälkeinen ensimmäinen napautus vie kokoruutuun (`krAvaus`). Itse poistuttua (takaisin-ele, yläpalkin nappi, veto
-  yläosasta alas sivutettuna) Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita; Vian kääntö kytkee asetuksen pois.
+- **Kokoruutu** (opas 4.10): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös 5.11.2026). Nappi muistaa valinnan
+  (`aset.kokoruutu`); selain sallii kokoruudun vain eleestä, joten tekstin avauksen jälkeinen ensimmäinen napautus vie
+  kokoruutuun (`krAvaus`). Takaisin-eleen tai alasvedon jälkeen Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita.
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska käyttäjän työpöytäselain ei
   noudattanut CSS:ää). **Sisällysluetteloa ei pakoteta omalle sivulleen**; se kulkee otsikkolohkon perässä.

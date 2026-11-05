@@ -70,9 +70,12 @@
   /* Maalauskoneen kahva, sanakirja ja käännös (luin.html, pilotti 5.11.2026). */
   .ik.kahva { fill: var(--ruoste); height: 1.1em; vertical-align: -.25em; }
   .ik.kahva .kk { fill: none; stroke: var(--ruoste); stroke-width: 1.6; }
+  .ik.koti { height: 1.2em; vertical-align: -.26em; overflow: visible; }
+  .ik.koti .k { fill: none; stroke: var(--harmaa); stroke-width: 1.15; stroke-linejoin: miter; }
   .ik.kirja { height: 1.15em; vertical-align: -.22em; }
   .ik-kaanna { font-size: .9em; white-space: nowrap; }
   .ik.nuoli { fill: none; stroke: var(--harmaa); stroke-width: 1; height: .9em; vertical-align: -.06em; }
+  .ik.kr { fill: none; stroke: var(--harmaa); stroke-width: 1.3; height: .9em; vertical-align: -.06em; }
   .ik.j1 { fill: var(--paperi); stroke: var(--muste); stroke-width: 1.3; height: .9em; vertical-align: -.1em; }
   .ik.j2 { fill: var(--muste); height: .8em; vertical-align: -.06em; }
   .ik.j-nyt { fill: var(--muste); height: .7em; vertical-align: .02em; }
@@ -113,7 +116,7 @@
   <p>Teksti avataan linkistä, ja avattu teksti tallentuu lukulistaan. Lukulista on lukulaitteen etusivu.
     Nimikkeen alla näkyvät tekijä, luettu osuus ja viimeisin lukupäivä. Nimikkeen napautus jatkaa lukemista
     siitä, mihin jäit.</p>
-  <p>Tekstistä pääset takaisin lukulistaan yläpalkin linkistä <span class="ui">‹ Lukulista</span>.</p>
+  <p>Tekstistä pääset takaisin lukulistaan yläpalkin vasemmasta kulmasta, kotimerkistä <svg class="ik koti" viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="var(--ruoste)" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg>.</p>
   <p>Lukulistan alla on kenttä <span class="ui">Laatikon koodi tai linkki</span>. Linkki avaa tekstin. Koodi ottaa käyttöön
     <b>postilaatikon</b>: sen jälkeen Latomossa samaan laatikkoon lähetetyt tekstit tulevat lukulistaan itsestään aina, kun
     avaat lukulistan. Laatikon voi ottaa käyttöön myös sen linkistä, ja koodin voi vaihtaa tai poistaa lukulistan
@@ -137,6 +140,12 @@
     kääntyy alaspäin. Samasta kohdasta ne sulkeutuvat. Hiirellä palkit ovat aina näkyvissä, ja aikajana
     avautuu alapalkista.</p>
   <p>Yläpalkissa ovat paluu lukulistaan ja asetusten kiekko <svg class="ik ratas" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg>.</p>
+  <p>Kiekon vasemmalla puolella oleva kulmanappi
+    <svg class="ik kr" viewBox="0 0 22 22" aria-hidden="true"><path d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/></svg>
+    vie kokoruutuun, jossa selaimen omat palkit ovat piilossa. Luin muistaa valinnan: kun avaat tekstin seuraavan
+    kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman napautusta. Samasta
+    napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivunkäännössä ruudun yläosasta alas
+    vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen.</p>
   <p>Aikajana näyttää koko tekstin vaakaviivana. Luvut ovat sillä salmiakkeina: pääluku ontto
     <svg class="ik j1" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0.6Q6.6 3.95 9.2 6Q6.6 8.05 5 11.4Q3.4 8.05 0.8 6Q3.4 3.95 5 0.6Z"/></svg>,
     alaluku pienempi ja täytetty
@@ -230,11 +239,7 @@
       sivunkäännön tavat: <span class="ui">Reunanapautus</span>, <span class="ui">Pyyhkäisy</span> ja
       <span class="ui">Painikkeet</span> (alalaitaan nuolinapit). Mikä tahansa yhdistelmä käy, yksi on pakko valita.
       <span class="ui">Kumoa ja tee uudelleen</span> näyttää tai piilottaa siirtymien kumoamisen napit; oletuksena ne
-      näkyvät painikkeiden kanssa, aikajanan alla ja vain jos ne mahtuvat.
-      <span class="ui">Kokoruutu</span> piilottaa selaimen omat palkit: kun avaat tekstin, ensimmäinen napautus tai
-      sivunkääntö vie kokoruutuun. Pois pääsee puhelimen takaisin-eleellä, vetämällä ruudun yläosasta alas
-      (sivunkäännössä) tai yläpalkin kulmanapista. Silloin kokoruutu palaa vasta, kun avaat tekstin uudelleen. Jos selain
-      kääntää näytön kokoruudussa, Luin poistuu siitä ja kytkee asetuksen pois.</li>
+      näkyvät painikkeiden kanssa, aikajanan alla ja vain jos ne mahtuvat.</li>
     <li><span class="ui">Kirjasinkoko</span>, <span class="ui">Kappalejako</span> (väli tai sisennys),
       <span class="ui">Reunat</span> (liehu tai tasattu), <span class="ui">Marginaali</span> (ohut, meso tai reilu; vain kapealla
       ruudulla) ja <span class="ui">Tavutus</span> (ei, vähä tai raju).</li>
