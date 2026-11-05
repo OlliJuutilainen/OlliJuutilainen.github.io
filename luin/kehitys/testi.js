@@ -1035,9 +1035,16 @@ palvelin.listen(0, async () => {
   // Kahvat vasta alleviivauksen napautuksesta (käyttäjän päätös 5.11.2026).
   await mp.mouse.click(sw.s[3].x, sw.s[3].y); await mp.waitForTimeout(200);
   const m1 = await mtila();
-  const ks = await mp.evaluate(() => { const k = document.querySelector('.kahva[data-paa="loppu"]'), r = k.querySelector('svg').getBoundingClientRect();
-    return { w: r.width, h: r.height, rako: +(r.top - (k.getBoundingClientRect().top + parseFloat(k.style.getPropertyValue('--kh')))).toFixed(2) }; });
-  tulos('kahvan salmiakki 20 × 25 px rivin alla', ks.w === 20 && ks.h === 25 && ks.rako === 1, JSON.stringify(ks));
+  // Kaarikahva (käyttäjän päätös 5.11.2026): nuppi ja ote rivin keskikorkeudella sanan ulkopuolella, kaari alkaa
+  // alleviivauksen päästä. Nuppi 19 px:llä 6,1 × 10,6 px.
+  const ks = await mp.evaluate(() => [...document.querySelectorAll('.kahva')].map(k => {
+    const top = parseFloat(k.style.top), kh = parseFloat(k.style.getPropertyValue('--kh')), x = parseFloat(k.style.left), s = k.dataset.paa === 'loppu' ? 1 : -1;
+    const n = k.querySelector('.kn').getBoundingClientRect(), o = k.querySelector('.k-ote').getBoundingClientRect(), kk = k.querySelector('.kk').getBoundingClientRect();
+    return { nuppi: [+n.width.toFixed(1), +n.height.toFixed(1)], nuppiY: +(n.top + n.height / 2 - top - kh / 2).toFixed(2), oteY: +(o.top + o.height / 2 - top - kh / 2).toFixed(2),
+      ulkona: s * (n.left + n.width / 2 - x) > 0, oteUlos: s * (o.left + o.width / 2 - x) > 0, kaariAlku: +(s > 0 ? kk.left - x : x - kk.right).toFixed(2), kaariAla: +(kk.bottom - top - kh).toFixed(2) };
+  }));
+  tulos('kaarikahva: nuppi ja ote rivin keskellä', ks.length === 2 && ks.every(k => k.nuppi[0] === 6.1 && k.nuppi[1] === 10.6 && Math.abs(k.nuppiY) < .3 && Math.abs(k.oteY) < .3 &&
+    k.ulkona && k.oteUlos && Math.abs(k.kaariAlku + 2) < .3 && k.kaariAla > -1 && k.kaariAla < 2), JSON.stringify(ks));
   const oma = await mp.evaluate(() => [document.documentElement.classList.contains('oma-maalaus'), getComputedStyle(document.querySelector('#teksti')).userSelect]);
   tulos('Luinin maalaus sanarajoihin ilman selaimen valintaa', oma[0] && oma[1] === 'none' && m0.n === 1 && m0.reunat && m0.sel === '' && !m0.kahvat && !m0.pop &&
     m1.kahvat && m1.kahvaEro.every(v => v < .5) && /rivi/.test(m1.pop), JSON.stringify({ oma, m0, m1 }));
@@ -1051,9 +1058,12 @@ palvelin.listen(0, async () => {
   const lk2 = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
   await mp.mouse.move(lk2.x, lk2.y); await mp.mouse.down(); await mp.mouse.move(lk2.x - 40, lk2.y, { steps: 4 });
   const hiiriLupa = await mp.evaluate(() => !document.querySelector('#lupa').hidden);
+  const hiiriVeto = await mp.evaluate(() => ({ katko: [...document.querySelectorAll('mark.ali.vedossa')].map(m => getComputedStyle(m).textDecorationStyle).join(), kahvat: getComputedStyle(document.querySelector('.kahva')).visibility }));
   await mp.mouse.move(lk2.x, lk2.y, { steps: 4 }); await mp.mouse.up(); await mp.waitForTimeout(200);
   const m2b = await mtila();
+  const hiiriJalkeen = await mp.evaluate(() => document.querySelectorAll('mark.ali.vedossa').length);
   tulos('hiirellä ei suurennuslasia', !hiiriLupa && m2b.x === m2.x && m2b.kahvat, JSON.stringify({ hiiriLupa, x: m2b.x }));
+  tulos('alleviivauksen veto: katkoviiva ja kahvat poissa, sitten ennallaan', /^dashed(,dashed)*$/.test(hiiriVeto.katko) && hiiriVeto.kahvat === 'hidden' && hiiriJalkeen === 0 && m2b.kahvaEro.every(v => v < .5), JSON.stringify({ hiiriVeto, hiiriJalkeen }));
   // Ilman sukkelaa: luonnos ja valikko; Esc poistaa luonnoksen.
   await mp.evaluate(() => { window.__luin.aset.auto = 0; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
   sw = await sanat();
@@ -1192,6 +1202,8 @@ palvelin.listen(0, async () => {
   // Sormi seuraavan sanan kohdalle (sana voi olla rivin lopussa, joten pelkkä siirto oikealle ei riitä).
   await kosk('touchMove', lo.x + ksanat[8].x - kb.x, lo.y + ksanat[8].y - kb.y); await kp2.waitForTimeout(100);
   const lu1 = await lupaTila(), lo1 = await kote();
+  const vedossa = await kp2.evaluate(() => ({ nak: [...document.querySelectorAll('.kahva')].map(k => getComputedStyle(k).visibility).join(),
+    viiva: [...document.querySelectorAll('mark.ali')].filter(m => m.classList.contains('luonnos') || m.classList.contains('vedossa')).map(m => getComputedStyle(m).textDecorationStyle).join() }));
   // Sormi tasan kahvan päälle ja suoraan riviä alemmas.
   await kosk('touchMove', lo1.kx + (lo.x - lo.kx), lo1.y); await kp2.waitForTimeout(100);
   const lu2 = await lupaTila();
@@ -1201,6 +1213,8 @@ palvelin.listen(0, async () => {
   const lu4 = await lupaTila();
   tulos('suurennuslasi kahvan kosketusvedossa', [lu0, lu1, lu3].every(t => t.lupa && t.w === 106 && t.h === 53 && t.ylapuolella && t.ero < .5 && t.varsi < .5 && t.varsiLasissa &&
     t.varjo === 'none' && t.pointer === 'none') && lu1.x.length > lu0.x.length && !lu4.lupa && lu4.x === lu3.x, JSON.stringify({ lu0, lu1, lu4: lu4.lupa }));
+  const jalkeen = await kp2.evaluate(() => [...document.querySelectorAll('.kahva')].map(k => getComputedStyle(k).visibility).join());
+  tulos('kahvat poissa vedon ajan, katkoviiva', vedossa.nak === 'hidden,hidden' && /^dashed(,dashed)*$/.test(vedossa.viiva) && jalkeen === 'visible,visible', JSON.stringify({ vedossa, jalkeen }));
   tulos('kahvan veto riviä alemmas otealueen läpi', lu3.x.length > lu2.x.length && lu3.riviYla > lu2.riviYla + 20, JSON.stringify({ ennen: lu2.x.slice(-30), jalkeen: lu3.x.slice(-30), rivi: [lu2.riviYla, lu3.riviYla] }));
   await kk.close();
   }
