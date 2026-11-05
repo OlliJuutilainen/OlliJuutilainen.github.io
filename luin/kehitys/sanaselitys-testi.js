@@ -260,6 +260,38 @@ palvelin.listen(0, async () => {
   tulos('raksin muste lisää-linkin oikean laidan tasalla (±1 px)', raksi && Math.abs(raksi[1] - kuvaus.lisa[1]) <= 1, JSON.stringify(kuvaus));
   tulos('merkin muste lisää-linkin vasemman laidan tasalla (±1 px)', merkki && Math.abs(merkki[1] - kuvaus.lisa[0]) <= 1, JSON.stringify({ merkki, lisa: kuvaus.lisa }));
   tulos('raksin alalaita sanan peruslinjalla (±1 px)', Math.abs(kuvaus.raksiAla - kuvaus.sanaAla) <= 1, JSON.stringify({ raksi: [kuvaus.raksiYla, kuvaus.raksiAla], sana: [kuvaus.sanaYla, kuvaus.sanaAla] }));
+  // Lambdan haarojen välisen aukon lakipiste raksin haarojen välisen aukon lakipisteen korkeudella (±1 px). Linssi piiloon,
+  // koska sen varsi halkoo aukon; lakipiste = aukon ylin tyhjä pikseli (täyttö siemenestä aukon alaosasta).
+  const lakipisteet = await (async () => {
+    await p.addStyleTag({ content: '#pop .linssi { visibility: hidden !important; }' });
+    const out = {};
+    for (const [nimi, sel] of [['lambda', '#pop .sk-ots svg.sanasto'], ['raksi', '#pop .sk-sulje svg']]) {
+      const r = await p.evaluate(s => { const b = document.querySelector(s).getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; }, sel);
+      const kuva64 = (await p.screenshot({ clip: { x: r.x, y: r.y, width: r.w, height: r.h } })).toString('base64');
+      out[nimi] = await p.evaluate(async ([b64, nimi, r]) => {
+        const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+        const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+        const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+        const W = c.width, H = c.height, d = g.getImageData(0, 0, W, H).data, K = W / r.w;
+        const pa = [d[0], d[1], d[2]];
+        const muste = (x, y) => { const i = (y * W + x) * 4; return Math.abs(d[i] - pa[0]) + Math.abs(d[i + 1] - pa[1]) + Math.abs(d[i + 2] - pa[2]) > 60; };
+        const u = nimi === 'lambda' ? r.w / 22.5 * K : r.w / 10 * K;
+        const raja = Math.round(nimi === 'lambda' ? 17 * u : 8.5 * u + 1), sy = raja - 1;
+        // Siemen: rajarivillä ensimmäisen musteen (haara) jälkeinen tyhjä väli ennen toista haaraa.
+        let x1 = 0; while (x1 < W && !muste(x1, sy)) x1++;
+        let x2 = x1; while (x2 < W && muste(x2, sy)) x2++;
+        let x3 = x2; while (x3 < W && !muste(x3, sy)) x3++;
+        const sx = Math.round((x2 + x3 - 1) / 2);
+        const nahty = new Uint8Array(W * H), pino = [[sx, sy]]; let ylin = H;
+        while (pino.length) { const [x, y] = pino.pop(); if (x < 0 || y < 0 || x >= W || y >= raja || nahty[y * W + x] || muste(x, y)) continue;
+          nahty[y * W + x] = 1; ylin = Math.min(ylin, y); pino.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]); }
+        return +(ylin / K).toFixed(2);
+      }, [kuva64, nimi, r]);
+      out[nimi] += r.y;
+    }
+    return out;
+  })();
+  tulos('lambdan aukon lakipiste raksin aukon lakipisteen korkeudella (±1 px)', Math.abs(lakipisteet.lambda - lakipisteet.raksi) <= 1, JSON.stringify(lakipisteet));
   await kuva('sk-mittaus');
   await p.click('#pop .sk-sulje');
 
