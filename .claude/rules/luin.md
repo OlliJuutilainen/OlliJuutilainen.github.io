@@ -83,7 +83,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Asetusten avaus sulkee navin.
 - **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
   vasemmalle, keskelle ja oikealle, koko korkeudelle palkkien väliin. Rinnakkain vain, jos kolme 19rem:n saraketta mahtuu
-  laitojen väliin; muuten yksi kerrallaan samaan tilaan. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme.
+  laitojen väliin; muuten yksi kerrallaan samaan tilaan. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme, paitsi
+  että hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä eikä peitä osumaa (`suljeHypynTielta()`).
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
 - **Aikajanan merkit nuottien tapaan**: suurempi aika-arvo ontompi (pääluku iso ontto salmiakki, alaluku pienempi
   täytetty, alaluvun alaluku lähes pistemäinen). Vain luettu osa on tekstin värinen; tulevat merkit ja kirjanmerkit

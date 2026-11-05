@@ -1316,6 +1316,7 @@
      kavennettu ikkuna) auki on yksi kerrallaan: napin painallus sulkee avoimen laatikon ja avaa omansa samaan tilaan
      palkkien laitojen väliin. Jos ikkuna kapenee rinnakkaisten ollessa auki, jäljelle jää viimeksi avattu.
      Hyppy laatikosta (merkintä, osuma, Sisälmyksen kohta) sulkee kaikki kolme, koska keskimmäinen peittäisi tekstin;
+     poikkeus: hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä (suljeHypynTielta);
      navi jää auki. Navin sulkeminen sulkee myös laatikot. */
   var LAATIKOT = ['merkinnat', 'sisalmys', 'haku'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
   var laatikkoJarj = [];   // avausjärjestys; viimeinen on viimeksi avattu
@@ -3388,7 +3389,7 @@
       var b = e.target.closest('button[data-k]');
       if (!b || !nyt || !nyt.haku) return;
       var k = b.dataset.k, h = nyt.haku;
-      if (k === 'osuma') { suljePaneelit(); valitseOsuma(+b.dataset.i); }
+      if (k === 'osuma') { suljeHypynTielta(); valitseOsuma(+b.dataset.i); }
       else if (k === 'viit') {
         aset.hakuViit = aset.hakuViit ? 0 : 1; tallennaAset();
         b.setAttribute('aria-pressed', String(!!aset.hakuViit));
@@ -3417,6 +3418,10 @@
     var h = nyt.haku, o = h.osumat[i];
     if (!o) return;
     h.valittu = i;
+    if (hakuAuki()) {
+      $$('.osuma', hakuEl).forEach(function (b) { if (+b.dataset.i === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+      keskitaNykyinen($('.h-lista', hakuEl), '.osuma[aria-current]');
+    }
     // Vierityksessä kapealla ruudulla alaviite avataan tekstin sisään ennen hyppyä; leveällä se on
     // reunuksessa valmiiksi näkyvissä.
     var tg = o.n && nyt.blocks[o.b] && $('#fn' + o.n, nyt.blocks[o.b]);
@@ -3431,6 +3436,7 @@
       var mj = $('#majakka'), hr = r.getBoundingClientRect(), raja = (mj.hidden ? $('#ala') : mj).getBoundingClientRect().top - 12;
       if (hr.bottom > raja) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, Math.max(0, Math.min(hr.bottom - raja, hr.top - YLA - ylaPeitto()))); }
     }
+    if (hakuAuki() && osumaPeitossa(o, r)) suljeLaatikko('haku');
   }
   // Enter: valitun jälkeinen osuma, tai jos mitään ei ole valittu, ensimmäinen lukukohdasta eteenpäin.
   function seuraavaOsuma() {
@@ -3438,7 +3444,25 @@
     if (!O.length) return;
     if (h.valittu >= 0) i = (h.valittu + 1) % O.length;
     else { for (i = 0; i < O.length && (O[i].b < k.b || O[i].b === k.b && O[i].a < k.o); i++); if (i === O.length) i = 0; }
-    suljePaneelit(); valitseOsuma(i);
+    suljeHypynTielta(); valitseOsuma(i);
+  }
+  // Hyppy haun osumaan (napautus tai Enter) sulkee paneelit kuten muut hypyt, paitsi Etsin, jos se on rinnakkaisasettelussa
+  // kokonaan leipätekstin palstan (#teksti) ulkopuolella: silloin osumia voi käydä läpi laatikon pysyessä tekstin vieressä
+  // (käyttäjän päätös 5.11.2026). Leveällä marginaalilla Etsi voi peittää sivuhuomioita; jos se peittää itse osuman,
+  // valitseOsuma() sulkee sen (osumaPeitossa). Sivutettuna palsta on koko leveys, joten Etsi sulkeutuu.
+  function suljeHypynTielta() {
+    var w = $('#teksti').getBoundingClientRect(), r = hakuEl.getBoundingClientRect();
+    if (!hakuAuki() || !laatikkoMitat().rinn || aset.sivutus === 'sivut' || r.left < w.right && r.right > w.left) { suljePaneelit(); return; }
+    $$('.paneeli').forEach(function (p) { if (p !== hakuEl) p.hidden = true; });
+    laatikotMuuttuivat();
+  }
+  // Osuman korostus (r) tai, jos korostusta ei ole, alaviitteen osuma ylipäätään voi jäädä auki olevan Etsin alle.
+  function osumaPeitossa(o, r) {
+    if (!r) return !!o.n;
+    var e = hakuEl.getBoundingClientRect();
+    return Array.prototype.some.call(r.getClientRects(), function (q) {
+      return q.width && q.left < e.right && q.right > e.left && q.top < e.bottom && q.bottom > e.top;
+    });
   }
   // Valittu osuma korostetaan tekstissä CSS Custom Highlight -rajapinnalla, joka ei muuta DOMia
   // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
