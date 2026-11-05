@@ -622,7 +622,7 @@ palvelin.listen(0, async () => {
   await m.goto(BASE + 'luin.html#tuo'); await m.waitForTimeout(600);
   await m.reload(); await m.waitForTimeout(400);
   const siirto = await m.evaluate(() => ({ sivunapit: window.__luin.aset.sivunapit, av: window.__luin.aset.av }));
-  tulos('sivunapit pois oletuksista (av 5)', siirto.sivunapit === 0 && siirto.av === 5, JSON.stringify(siirto));
+  tulos('sivunapit pois oletuksista (av 5; nyt av 6)', siirto.sivunapit === 0 && siirto.av === 6, JSON.stringify(siirto));
   // Kaistan napautus nuolen kohdalta (koko kaista on nappi; nuoli ei ota napautuksia).
   const nuoliKohta = () => m.evaluate(() => { const r = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   const kaista = async () => { const k = await nuoliKohta(); await m.mouse.click(k.x, k.y); await m.waitForTimeout(100); };
@@ -1009,8 +1009,10 @@ palvelin.listen(0, async () => {
   });
   await mp.addInitScript(() => { window.__avattu = []; window.open = u => { window.__avattu.push(u); return null; }; });
   await mp.goto(BASE + 'luin.html');
-  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
+  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
   await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
+  // Käännös ei ole oletuksena valikossa (av 6, käyttäjän päätös 5.11.2026); kytketään päälle valikon järjestystä ja DeepL:ää varten.
+  await mp.evaluate(() => { window.__luin.aset.kaannos = 1; });
   // Pitkän kappaleen sanojen keskikohdat (sanan kolmas merkki), kappale ruudun keskellä.
   const sanat = () => mp.evaluate(() => {
     const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300 && !x.querySelector('mark'));
@@ -1073,13 +1075,13 @@ palvelin.listen(0, async () => {
   sw = await sanat();
   await veda(sw.s[1], sw.s[3]);
   const m3 = await mtila();
-  // Valikon järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, (sanakirja yhdelle sanalle), käännös, kopio; ei kirjanmerkkiä.
+  // Valikon järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanaselitys (enintään 10 sanaa), käännös, kopio; ei kirjanmerkkiä.
   const jarj = await mp.evaluate(() => [...document.querySelectorAll('#pop button[data-k]')].map(b => b.dataset.k).join());
   await mp.mouse.click(sw.s[2].x, sw.s[2].y); await mp.waitForTimeout(200);
   const m3b = await mtila();
   await mp.keyboard.press('Escape'); await mp.waitForTimeout(100);
   const m4 = await mtila();
-  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,kaanna,kopioi' && m3b.kahvat && m3b.luonnos > 0 &&
+  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,sk,kaanna,kopioi' && m3b.kahvat && m3b.luonnos > 0 &&
     m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, jarj, kahvatNapautuksesta: m3b.kahvat, m4 }));
   // Kopio viitteellä: lyhyt (Sukunimi vuosi, luku) ja pitkä (koko viite ja luku).
   const kopioi = async tapa => {
@@ -1099,8 +1101,8 @@ palvelin.listen(0, async () => {
     JSON.stringify({ lyhyt: kl.leike.slice(-60), pitka: kp.leike.slice(-80) }));
   tulos('kopion ikoni kertoo viitteen', ikonit[0] === 0 && ikonit[1] === 1 && ikonit[2] === 1, JSON.stringify(ikonit));
   await mp.evaluate(() => { window.__luin.aset.kopioViite = 'ei'; });
-  // Sanakirja: työpöydän tuplaklikkaus avaa sen suoraan (ei valikkoa, ei alleviivausta); perusmuoto on napautettava,
-  // ‹ palaa edelliseen sanaan, lisää vie sanan Wikisanakirjan sivulle.
+  // Sanaselitys: työpöydän tuplaklikkaus avaa sen suoraan (ei valikkoa, ei alleviivausta); perusmuoto on napautettava,
+  // takaisin ei pääse (käyttäjän linjaus 5.11.2026: Luin ei ole selain), lisää vie sanan Wikisanakirjan sivulle.
   sw = await sanat();
   const nEnnen = (await mtila()).n;
   await mp.mouse.dblclick(sw.s[4].x, sw.s[4].y); await mp.waitForTimeout(350);
@@ -1109,10 +1111,9 @@ palvelin.listen(0, async () => {
   const sk1t = await mtila();
   await mp.click('#pop button.sk-sana'); await mp.waitForTimeout(300);
   const sk2 = await mp.evaluate(() => document.querySelector('#pop').innerText);
-  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(300);
-  const sk3 = await mp.evaluate(() => document.querySelector('#pop .sk-ots span').textContent);
+  const sk3 = await mp.evaluate(() => ({ ots: document.querySelector('#pop .sk-o').textContent, takaisin: !!document.querySelector('#pop .sk-takaisin') }));
   tulos('sanakirja tuplaklikkauksesta', /sanakirja/.test(sk1.luokka) && sk1t.n === nEnnen && !sk1t.kahvat && sk1.linkit.join() === 'perusmuoto' && /genitive of perusmuoto/.test(sk1.teksti) &&
-    !sk1.takaisin && /^https:\/\/en\.wiktionary\.org\/wiki\//.test(sk1.lisaa) && !/valikko|englanninkielinen/.test(sk1.teksti) && /base form/.test(sk2) && /‹/.test(sk2) && sk3.length > 0 && skHaut.length === 2,
+    !sk1.takaisin && /^https:\/\/en\.wiktionary\.org\/wiki\//.test(sk1.lisaa) && !/valikko|englanninkielinen/.test(sk1.teksti) && /base form/.test(sk2) && !/‹/.test(sk2) && sk3.ots === 'perusmuoto' && !sk3.takaisin && skHaut.length === 2,
     JSON.stringify({ linkit: sk1.linkit, haut: skHaut, lisaa: sk1.lisaa }));
   await mp.keyboard.press('Escape');
   // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.
@@ -1136,8 +1137,9 @@ palvelin.listen(0, async () => {
     body: JSON.stringify({ fi: [{ partOfSpeech: 'Noun', language: 'Finnish', definitions: [{ definition: 'test' }] }] }) }));
   const kosk = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
   await kp2.goto(BASE + 'luin.html');
-  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
+  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
   await kp2.goto(BASE + 'luin.html#tuo'); await kp2.waitForTimeout(600);
+  await kp2.evaluate(() => { window.__luin.aset.kaannos = 1; });
   const ksanat = await kp2.evaluate(() => {
     const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300);
     window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 200);

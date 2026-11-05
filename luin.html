@@ -157,13 +157,30 @@
   .valikko .sk-kieli { margin-top: 9px; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--harmaa); }
   .valikko .sk-ol { margin: 1px 0 0; padding-left: 1.35em; }
   .valikko .sk-ol li { margin: 2px 0; }
-  .valikko button.sk-sana, .valikko button.sk-takaisin { display: inline; width: auto; min-height: 0; padding: 0; font: inherit; text-align: inherit;
+  .valikko button.sk-sana, .valikko button.sk-vaihto { display: inline; width: auto; min-height: 0; padding: 0; font: inherit; text-align: inherit;
     color: var(--ruoste); text-decoration: underline; text-decoration-color: var(--viiva); text-underline-offset: 3px; }
-  .valikko button.sk-takaisin { font-style: normal; font-size: .82rem; text-decoration: none; }
   .valikko .sk-tieto { margin-top: 6px; color: var(--harmaa); }
-  /* Sanaselityksen merkki otsikon oikeassa ylänurkassa: lambdan jalat sanan peruslinjalle, musteen oikea laita lisää-linkin
-     tasalle (mitattu 5.11.2026). */
+  /* Sanaselityksen merkki otsikossa ja raksi oikeassa yläkulmassa (käyttäjän pyyntö 5.11.2026). Raksin muste on lisää-linkin
+     oikean laidan tasalla (kuten merkki ennen) ja alalaita sanan peruslinjalla; merkin musteen oikea laita on lisää-linkin
+     vasemman laidan tasalla, joten alarivin lisää on tasan merkin ja raksin välin alla. Lambdan jalat ovat peruslinjalla.
+     Mitattu 5.11.2026. */
+  .valikko .sk-ots { padding-right: var(--sk-raksi, 28.5px); }
+  .valikko .sk-o { min-width: 0; overflow-wrap: anywhere; }
   .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 22.5px; height: 20px; margin: 0 -1.35px 0 auto; position: relative; top: 1.6px; }
+  .valikko button.sk-sulje { position: absolute; top: 0; right: 0; width: 44px; height: 42px; min-height: 0; padding: 0; color: var(--muste); }
+  .valikko button.sk-sulje svg { position: absolute; right: var(--sk-raksi-r, 14.6px); top: var(--sk-raksi-y, 22px); width: 10px; height: 10px;
+    stroke: currentColor; stroke-width: 1.2; fill: none; }
+  /* Huomautukset (käyttäjän pyyntö 5.11.2026): tekstin muodosta poikkeava osuma ja toisen kielen selitys hiljaa, harmaalla
+     kursiivilla; kirjainten muunnos (kreikka ↔ latina) varoitusmerkillä. */
+  .valikko .sk-huom { margin-top: 6px; font-size: .8rem; font-style: italic; color: var(--harmaa); line-height: 1.4; }
+  .valikko .sk-varo { display: flex; align-items: center; gap: 9px; margin-top: 8px; font-size: .82rem; line-height: 1.4; }
+  .valikko .sk-varo svg { flex: 0 0 auto; width: 24px; height: 24px; }
+  .valikko .sk-varo b { font-weight: 600; letter-spacing: .03em; }
+  .valikko .sk-alaots { margin-top: 12px; font-size: 1rem; font-style: italic; }
+  .valikko .sk-vaihdot { margin: 6px 0 0; padding: 0; list-style: none; }
+  .valikko .sk-vaihdot li { margin: 5px 0; }
+  .valikko .sk-vaihdot button.sk-vaihto { font-size: 1rem; font-style: italic; }
+  .valikko .sk-vk { margin-left: 4px; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
   .valikko a.sk-lisa { margin-left: auto; font-size: .82rem; font-style: normal; color: var(--ruoste); text-decoration: none; }
   .valikko .sk-lahde { font-size: .64rem; letter-spacing: .02em; color: var(--huomio); color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva)); }
@@ -669,10 +686,12 @@
   .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
   .valinnat button:disabled .sal-sisa { fill: none; }
   .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
-  /* Sukkela sanaselitys (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja ruosteinen pyöreä linssi. */
+  /* Sukkela sanaselitys (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja ruosteinen pyöreä linssi.
+     Asetuksissa lambda on okraa, jotta merkki erottuu kokonaan tekstistä (käyttäjän pyyntö 5.11.2026: kokoruoste ei ollut
+     hyvä, leivän värinen lambda sulautui tekstiin). Muualla lambda on musteen. */
   .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
   .valinnat.nipukka svg.sanasto { width: 18.7px; height: 16.6px; margin-left: 3px; }
-  .valinnat button:disabled svg.sanasto .linssi { stroke: currentColor; }
+  .valinnat.nipukka svg.sanasto .lambda { stroke: var(--okra); }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
@@ -810,12 +829,13 @@
     <div class="valinnat nipukka" data-k="sukSana:Sukkela sanaselitys"></div>
     <div class="valinnat pino" data-k="verkkolinkit:Verkkolinkit"></div></div>
   <!-- Maalauskone (pilotti 5.11.2026): Luinin oma maalaus (kahvat, ei selaimen valintaa) tai selaimen valinta,
-       kopion viite ja valikon sanakirja ja käännös. Sanakirja ja käännös hakevat verkosta vain napautettaessa. -->
+       kopion viite ja valikon sanaselitys ja käännös. Ne hakevat verkosta vain napautettaessa. Valikon sanaselitys ja
+       Sukkela sanaselitys ovat toisistaan riippumattomat (käyttäjän päätös 5.11.2026). -->
   <h3>Maalaus</h3>
   <div class="asetus" data-a="maalaus"><span class="nimi">Tapa</span><div class="valinnat" data-v="luin:Luinin|selain:Selaimen"></div></div>
   <div class="asetus" data-a="kopioViite"><span class="nimi">Kopioon viite</span><div class="valinnat" data-v="ei:Ei|lyhyt:Lyhyt|pitka:Pitkä"></div></div>
   <div class="asetus"><span class="nimi kehote">Valikossa:</span>
-    <div class="valinnat pino" data-k="sanakirja:Sanakirja (Wiktionary)|kaannos:Käännös (DeepL)"></div></div>
+    <div class="valinnat pino" data-k="sanakirja:Sanaselitys (Wiktionary)|kaannos:Käännös (DeepL)"></div></div>
   <h3>Aikajana</h3>
   <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Pääluvut|2:Alaluvut|3:Kaikki"></div>
@@ -946,11 +966,12 @@
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, sukSana: 1, kumoNapit: null, kokoruutu: 0, av: 5 };
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kumoNapit: null, kokoruutu: 0, av: 6 };
   // sukSana (Sukkela sanaselitys, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
-  // pitkä painallus ilman vetoa) avaa vain sanakirjan. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
+  // pitkä painallus ilman vetoa) avaa vain sanaselityksen. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
+  // Riippumaton valikon sanaselityksestä (sanakirja): kumpikin toimii ilman toista (käyttäjän päätös 5.11.2026).
   // maalaus (pilotti 5.11.2026): luin = Luinin oma maalaus (ei selaimen valintaa tekstissä, kahvat), selain = selaimen
-  // valinta kuten ennen. kopioViite: kopioon lyhyt (Korsgaard 2018, 8.5.3) tai pitkä viite. sanakirja, kaannos: valikon napit.
+  // valinta kuten ennen. kopioViite: kopioon lyhyt (Korsgaard 2018, 8.5.3) tai pitkä viite. sanakirja (sanaselitys), kaannos: valikon napit.
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -968,6 +989,9 @@
   // av 5 (22.10.2026): sivunapit eivät ole enää oletuksena; mobiilin oikea alanurkka on palkkinuolen. Ne olivat
   // oletuksena päällä vain saman päivän, joten tallennettu päällä-arvo on oletus eikä valinta.
   if (tallennetut && !(tallennetut.av >= 5)) { aset.sivunapit = 0; aset.av = 5; }
+  // av 6 (5.11.2026): valikon käännös ei ole enää oletuksena (käyttäjän päätös). Se oli oletuksena päällä vain saman päivän
+  // pilotissa, joten tallennettu päällä-arvo on oletus eikä valinta.
+  if (tallennetut && !(tallennetut.av >= 6)) { aset.kaannos = 0; aset.av = 6; }
   // Marginaalin avaimet vaihtuivat 29.10.2026 (kolme arvoa): keski ja vanha levea (36) → meso, syva ja syvin → reilu.
   aset.marginaali = { keski: 'meso', levea: 'meso', syva: 'reilu', syvin: 'reilu' }[aset.marginaali] || aset.marginaali;
   // Selaimen oma tavutus poistettiin 5.11.2026 (Firefoxin suomen tavutus oli huono); tallennettu arvo → oletus.
@@ -1507,7 +1531,7 @@
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
-        var pois = kv[0] === 'auto' && !aset.alTekstissa || kv[0] === 'sukSana' && !aset.sanakirja || tapa && aset.sivutus !== 'sivut';
+        var pois = kv[0] === 'auto' && !aset.alTekstissa || tapa && aset.sivutus !== 'sivut';
         var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
         return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + (kv[0] === 'kumoNapit' ? kumoNaky() : !!aset[kv[0]]) + '"' + (pois ? ' disabled' : '') +
           (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
@@ -2218,7 +2242,7 @@
       ikNappi('poista', IK_POISTA, 'Poista alleviivaus') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
       if (k === 'kir') { piilotaKahvat(); avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioiViitteella(h.segs).then(function () { kopioitu(b); }); return true; }
-      if (k === 'sk') { piilotaKahvat(); sanakirja(h.segs[0].x, rect, [], tekstinKieli(h.segs)); return true; }
+      if (k === 'sk') { piilotaKahvat(); sanaselitys(h.segs, rect); return true; }
       if (k === 'kaanna') { kaanna(h.segs); return true; }
       if (k === 'poista') {
         if (h.n) { varmistaAlPoisto(h, rect); return true; }
@@ -2315,10 +2339,10 @@
     var segs = valintaPaloiksi(r);
     if (!segs.length) return;
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
-    // Työpöydän tuplaklikkaus on sanakirja (käyttäjän päätös 5.11.2026).
+    // Työpöydän tuplaklikkaus on sanaselitys (käyttäjän päätös 5.11.2026).
     if (osoitin === 'mouse' && tila.klikit >= 2 && sukkelaSanasto() && yksiSana(segs)) {
       s.removeAllRanges();
-      sanakirja(segs[0].x, rect, [], tekstinKieli(segs));
+      sanaselitys(segs, rect);
       return;
     }
     if (autoAli()) {
@@ -2334,7 +2358,7 @@
   // Valinnan (tai Luinin maalauksen luonnoksen) valikko. Luonnoksen merkit poistetaan ennen toimintoa.
   function naytaValintaPop(segs, rect) {
     function pois() { getSelection().removeAllRanges(); poistaLuonnos(); }
-    // Järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanakirja (yksi sana), käännös, kopio. Kirjanmerkkiä ei
+    // Järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanaselitys (enintään SK_SANAT sanaa), käännös, kopio. Kirjanmerkkiä ei
     // valikossa ole: kirjanmerkki tehdään vain alapalkin nauhasta kappaleen alkuun.
     naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
       if (k === 'ali') { pois(); luoAlleviivaus(segs); }
@@ -2345,7 +2369,7 @@
         return true;
       }
       if (k === 'kopioi') { kopioiViitteella(segs).then(function () { kopioitu(b); }); return true; }
-      if (k === 'sk') { sanakirja(segs[0].x, rect, [], tekstinKieli(segs)); return true; }
+      if (k === 'sk') { sanaselitys(segs, rect); return true; }
       if (k === 'kaanna') { kaanna(segs); return true; }
     });
   }
@@ -2734,16 +2758,17 @@
   // Luonnos alleviivaukseksi (sukkela) tai valikoksi. Kahvat eivät tule tässä vaan vasta alleviivauksen tai luonnoksen
   // uudesta napautuksesta (käyttäjän päätös 5.11.2026). Kosketuksella pelkkä painettu sana (ei vetoa) on valinta, joka
   // avaa valikon myös sukkelana: pitkä painallus on puhelimella sekä maalaus että sanan valinta.
-  // Sukkela sanaselitys (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanakirjan; luonnos näyttää sanan.
+  // Sukkela sanaselitys (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanaselityksen; luonnos näyttää sanan.
+  // Valikon sanaselitys ei vaikuta tähän (käyttäjän päätös 5.11.2026: toisistaan riippumattomat).
   function valmisMaalaus(valinta) {
     tila.maalattu = tila.niele = Date.now();
     var segs = luonnos.segs.slice();
     if (!segs.length) return;
-    if (valinta && sukkelaSanasto() && yksiSana(segs)) sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs));
+    if (valinta && sukkelaSanasto() && yksiSana(segs)) sanaselitys(segs, alRect(luonnos));
     else if (autoAli() && !valinta) { poistaLuonnos(); luoAlleviivaus(segs); }
     else naytaValintaPop(segs, alRect(luonnos));
   }
-  function sukkelaSanasto() { return !!(aset.sukSana && aset.sanakirja); }
+  function sukkelaSanasto() { return !!aset.sukSana; }
   function maalausSallittu(t) {
     return omaMaalaus() && nyt && tila.nakyma === 'lukija' && !verhoAuki() && !muokkaus &&
       !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, .kirm, label, input, textarea, .luin-ui'));
@@ -2763,15 +2788,15 @@
     maalausAskelRaf();
   });
   document.addEventListener('mouseup', function () { if (maal && maal.tapa === 'hiiri') lopetaMaalaus(); });
-  // Hiiren tuplaklikkaus on työpöydällä sanakirja (käyttäjän päätös 5.11.2026): sana näkyy luonnoksena laatikon ajan.
-  // Ilman sanakirjaa tuplaklikkaus maalaa sanan.
+  // Hiiren tuplaklikkaus on työpöydällä sanaselitys (käyttäjän päätös 5.11.2026): sana näkyy luonnoksena laatikon ajan.
+  // Ilman Sukkelaa sanaselitystä tuplaklikkaus maalaa sanan.
   sivuEl.addEventListener('dblclick', function (e) {
     if (osoitin !== 'mouse' || !maalausSallittu(e.target)) return;
     var k = kohtaPisteessa(e.clientX, e.clientY), segs = k ? sanaKohdassa(k) : [];
     if (!segs.length) return;
     suljePop(); piilotaKahvat(); poistaLuonnos();
     piirraLuonnos(segs);
-    if (sukkelaSanasto() && yksiSana(segs)) { tila.maalattu = Date.now(); sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs)); }
+    if (sukkelaSanasto() && yksiSana(segs)) { tila.maalattu = Date.now(); sanaselitys(segs, alRect(luonnos)); }
     else valmisMaalaus();
   });
   sivuEl.addEventListener('touchstart', function (e) {
@@ -2803,7 +2828,7 @@
   // Pitkän painalluksen valikko (Android) ei aukea Luinin maalauksessa; työpöydän hiiren oikea painike toimii.
   sivuEl.addEventListener('contextmenu', function (e) { if (omaMaalaus() && (maal || osoitin !== 'mouse')) e.preventDefault(); });
 
-  /* ---------- valikon lisät: kopio viitteellä, sanakirja, käännös (pilotti 5.11.2026) ---------- */
+  /* ---------- valikon lisät: kopio viitteellä, sanaselitys, käännös (pilotti 5.11.2026) ---------- */
   // Paikannin: syvimmän numeroidun otsikon numero (8.5.3), ei sivunumeroita eikä sanallisia otsikoita, ellei ole pakko:
   // numeroimattoman yläotsikon alla numerointi alkaa alusta (lexikonin hakusana), joten sen nimi tulee eteen, ja
   // ilman numeroita paikannin on luvun nimi. Ennen ensimmäistä otsikkoa paikanninta ei ole.
@@ -2855,12 +2880,15 @@
     en: 'the and of to is that in it for as with be not are this which by or from an was have their they his its',
     de: 'der die das und ist nicht zu ein eine mit sich dass auf den von des im auch als wird dem sind',
     fr: 'le la les et est des une que qui dans pas pour du au sur sont il elle nous ce une ou',
-    sv: 'och att det som är en på inte för med av har den till om de var ett jag'
+    sv: 'och att det som är en på inte för med av har den till om de var ett jag',
+    // Latina vain sanaselitykselle (DeepL ei käännä latinaa). Ei sanoja, jotka ovat myös ranskaa tai englantia (et, est, in).
+    la: 'atque autem enim esse etiam igitur ita nam neque nec nisi quae quam quia quibus quod sed sicut sunt tamen ut vel ab ac aut eius eorum ille ipse iam vero quoque inter'
   }, KIELI_SANAT = {};
   Object.keys(KIELET).forEach(function (k) { var o = {}; KIELET[k].split(' ').forEach(function (w) { o[w] = 1; }); KIELI_SANAT[k] = o; });
-  function kieliPisteet(t) {
+  function kieliPisteet(t, latina) {
     var w = String(t).toLowerCase().match(/[\p{L}’']+/gu) || [], paras = { k: '', p: 0 };
     Object.keys(KIELI_SANAT).forEach(function (k) {
+      if (k === 'la' && !latina) return;
       var p = 0;
       w.forEach(function (x) { if (KIELI_SANAT[k][x]) p++; else if (k === 'fi' && /(ssa|ssä|sta|stä|lla|llä|lta|ltä|ksi|isen|isuus|nsa|nsä)$/.test(x)) p += .5; });
       if (p > paras.p) paras = { k: k, p: p };
@@ -2880,7 +2908,7 @@
     var l = tekstinKieli(segs), t = segs.map(function (s) { return s.x; }).join('\n\n');
     window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), '_blank', 'noopener');
   }
-  // Sanaselityksen merkki (valinnan valikko, sanakirjan otsikko ja Sukkela sanaselitys asetuksissa; käyttäjän pyyntö
+  // Sanaselityksen merkki (valinnan valikko, selitysikkunan otsikko ja Sukkela sanaselitys asetuksissa; käyttäjän pyyntö
   // 5.11.2026): musteen lambda (logos) ja ruosteinen linssi (värit kokeiltiin päittäin, käyttäjä palasi tähän
   // 5.11.2026). Linssi on pyöreä (syrjähyppy salmiakkiestetiikasta, käyttäjän
   // pyyntö 5.11.2026; ennen Etsin salmiakki peilattuna): säde 6.0, varsi 58° vaakatasosta ja 10.4 pitkä. Varsi laskee
@@ -2899,23 +2927,356 @@
     return IK_KOPIOI.replace('</svg>', r ? '<g stroke-width="1">' + r + '</g></svg>' : '</svg>');
   }
   function yksiSana(segs) { return segs.length === 1 && segs[0].x.length <= 60 && /^[\p{L}\p{N}’'\-]+$/u.test(segs[0].x); }
-  // Sanakirjan nappi, kun valittuna on yksi sana (käyttäjän päätös 5.11.2026).
+  // Sanaselitys: yksi sana tai enintään SK_SANAT sanan ilmaus yhdestä kappaleesta (käyttäjän pyyntö 5.11.2026: Wiktionaryssä
+  // on sanontoja ja sananlaskuja omina sivuinaan). Raja 10 kattaa tunnetuimmat sananlaskut (a bird in the hand is worth two
+  // in the bush); pidemmille tuskin on sivua, ja lambda tukkisi lauseen mittaisen valinnan valikon turhaan.
+  var SK_SANAT = 10;
+  function sanaLkm(x) { return (String(x).match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length; }
+  function selitettava(segs) { var n = segs.length === 1 && segs[0].x.length <= 200 ? sanaLkm(segs[0].x) : 0; return n >= 1 && n <= SK_SANAT; }
+  // Valikon sanaselitys (aset.sanakirja) ja käännös (aset.kaannos) ovat omat kytkimensä, eivätkä ne riipu Sukkelasta
+  // sanaselityksestä (käyttäjän päätös 5.11.2026). Sukkelana yhden sanan valinta avaa sanaselityksen suoraan; valikkoon lambda
+  // tulee maalatulle sanalle tai enintään SK_SANAT sanan ilmaukselle.
   function lisaNapit(segs) {
-    return (aset.sanakirja && yksiSana(segs) ? ikNappi('sk', IK_SANASTO, 'Sanakirja (Wiktionary)') : '') +
+    return (aset.sanakirja && selitettava(segs) ? ikNappi('sk', IK_SANASTO, 'Sanaselitys (Wiktionary)') : '') +
       (aset.kaannos ? ikNappi('kaanna', ikKaanna(kohdeKieli(tekstinKieli(segs))), 'Käännä (DeepL)') : '');
   }
 
-  // Sanakirja: englanninkielisen Wikisanakirjan REST-rajapinta (CORS sallittu). Haku vain napautuksesta. Taivutusmuodon
-  // perusmuoto (inessive plural of talo) on napautettava, ja ‹ palaa edelliseen sanaan tai valikkoon.
-  var SK_URL = 'https://en.wiktionary.org/api/rest_v1/page/definition/', skVarasto = {}, skVuoro = 0;
+  /* ---------- sanaselitys (englanninkielinen Wikisanakirja) ----------
+     Määritelmät REST-rajapinnasta (/api/rest_v1/page/definition/, CORS sallittu), ehdokkaat MediaWikin rajapinnasta
+     (prefixsearch ja search, origin=*). Haku vain napautuksesta. Wiktionary on kranttu kirjoitusasusta, joten ensin haetaan
+     tasan tekstin muoto; vasta sen puuttuessa kielikohtainen ketju (skKetju, käyttäjän linjaukset 5.11.2026). Ketjun ehdot
+     (kieli, loppunapsu, majuminuluku) ratkaistaan tässä eikä Wikisanakirjan haussa: palvelimen haku on vain ehdokkaiden
+     lähde, joten sen kirjainkoko- ja diakriittisäännöt eivät muuta tulosta. */
+  var SK_URL = 'https://en.wiktionary.org/api/rest_v1/page/definition/',
+    SK_API = 'https://en.wiktionary.org/w/api.php?action=query&format=json&formatversion=2&origin=*',
+    skVarasto = {}, skHakuVarasto = {}, skVuoro = 0;
+  // Ketjujen kielet: Wikisanakirjan kielikoodi ja nimi (luokat Category:Finnish lemmas ja Category:Finnish non-lemma forms).
+  var SK_NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish' };
+  var SK_ELAT = { fi: 'suomesta', en: 'englannista', la: 'latinasta', grc: 'muinaiskreikasta', el: 'nykykreikasta', de: 'saksasta', fr: 'ranskasta', sv: 'ruotsista' };
+  var SK_LAHDE = '<span class="sk-lahde">Wiktionary, CC BY-SA</span>';
   function haeSana(sana) {
     if (skVarasto.hasOwnProperty(sana)) return Promise.resolve(skVarasto[sana]);
-    return fetch(SK_URL + encodeURIComponent(sana)).then(function (r) {
+    return fetch(SK_URL + encodeURIComponent(sana.replace(/ /g, '_'))).then(function (r) {
       if (r.status === 404) return null;
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function (j) { skVarasto[sana] = j; return j; });
   }
+  // Ehdokkaat palvelimen hausta: [{ o: otsikko, i: järjestys, kk: { kieli: 'l' (lemma) tai 'm' (taivutusmuoto) } }].
+  // Kielilista rajaa ehdokkaat näiden kielten lemma- ja muotoluokkiin samassa pyynnössä; '*' ei rajaa. tapa 'alku' on
+  // otsikon alkuhaku (prefixsearch, suosituimmat ensin), 'teksti' koko tekstin haku (search).
+  function skEhdokkaat(q, kielet, tapa) {
+    var rajattu = kielet !== '*', avain = tapa + '|' + q + '|' + (rajattu ? kielet.join(',') : '*');
+    if (skHakuVarasto[avain]) return skHakuVarasto[avain];
+    var u = SK_API + (tapa === 'alku' ? '&generator=prefixsearch&gpslimit=50&gpssearch=' : '&generator=search&gsrnamespace=0&gsrlimit=20&gsrsearch=') +
+      encodeURIComponent(q);
+    if (rajattu) u += '&prop=categories&cllimit=max&clcategories=' + encodeURIComponent(kielet.map(function (k) {
+      return 'Category:' + SK_NIMI[k] + ' lemmas|Category:' + SK_NIMI[k] + ' non-lemma forms';
+    }).join('|'));
+    var p = fetch(u).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function (j) {
+      return ((j.query && j.query.pages) || []).filter(function (s) { return s.ns === 0 && s.title; }).map(function (s) {
+        var kk = {};
+        (s.categories || []).forEach(function (c) {
+          var m = /^Category:(.+) (lemmas|non-lemma forms)$/.exec(c.title || '');
+          var k = m && Object.keys(SK_NIMI).filter(function (x) { return SK_NIMI[x] === m[1]; })[0];
+          if (k) kk[k] = kk[k] === 'l' || m[2] === 'lemmas' ? 'l' : 'm';
+        });
+        return { o: s.title, i: s.index || 0, kk: kk };
+      }).filter(function (e) { return !rajattu || Object.keys(e.kk).length; }).sort(function (a, z) { return a.i - z.i; });
+    });
+    skHakuVarasto[avain] = p;
+    p.catch(function () { delete skHakuVarasto[avain]; });
+    return p;
+  }
+
+  // Majuminuluku: kirjainkoko (majuskeli, minuskeli), lukumerkit (diakriitit) sekä väli- ja heittomerkit vapaat, kuten
+  // hakukoneessa (pratityasamutpada = pratītyasamutpāda, ars longa vita brevis = ars longa, vita brevis).
+  function skTaitto(s) {
+    return String(s).normalize('NFD').replace(/[̀-ͯ᪰-᫿᷀-᷿⃐-⃿︠-︯]/g, '').toLowerCase()
+      .replace(/ς/g, 'σ').replace(/ß/g, 'ss').replace(/æ/g, 'ae').replace(/œ/g, 'oe').replace(/ø/g, 'o').replace(/[łŀ]/g, 'l')
+      .replace(/đ/g, 'd').replace(/ı/g, 'i').replace(/[’'ʼ`´]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  }
+  // Tasan sama: vain heittomerkki (’ → ', Wikisanakirjan otsikoissa suora) ja välit yhtenäistetään.
+  function skSuora(s) { return String(s).replace(/[’ʼ]/g, "'").replace(/\s+/g, ' ').trim(); }
+  function ekaPieni(s) { var a = Array.from(s); return a.length ? a[0].toLowerCase() + a.slice(1).join('') : s; }
+  function skSanat(s) { return String(s).split(/\s+/).map(function (w) { return w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''); }).filter(Boolean); }
+  function kirjaimia(w) { return Array.from(w).filter(function (c) { return /\p{L}/u.test(c); }).length; }
+  function uniq(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
+  // Haettava muoto: maalauksen reunoilta pois kaikki muu kuin kirjaimet ja numerot (lainausmerkit, pisteet, pilkut).
+  function skHakusana(x) { return skSuora(String(x).replace(/­/g, '')).replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''); }
+  // Tasan sama muoto: tekstin kirjoitusasu ja, jos se alkaa isolla (virkkeen alku, Being), sama pienellä; versaalina myös
+  // kokonaan pienellä ja isolla alkukirjaimella (käyttäjän linjaus 5.11.2026: tulokset sekä isolla että pienellä).
+  function skMuodot(s) {
+    var a = [s], p = ekaPieni(s);
+    if (p !== s) a.push(p);
+    if (Array.from(s).length > 1 && s === s.toUpperCase() && s !== s.toLowerCase()) { a.push(s.toLowerCase()); a.push(Array.from(s)[0] + Array.from(s).slice(1).join('').toLowerCase()); }
+    return uniq(a);
+  }
+  // Saksan helpot kokeilut: ss ↔ ß, ae oe ue → ä ö ü ja kirjainkoko (substantiivit isolla).
+  function skSaksaMuodot(s) {
+    var v = [s, s.replace(/ss/g, 'ß'), s.replace(/ß/g, 'ss'), s.replace(/ae/g, 'ä').replace(/oe/g, 'ö').replace(/ue/g, 'ü').replace(/^Ae/, 'Ä').replace(/^Oe/, 'Ö').replace(/^Ue/, 'Ü')];
+    var out = [];
+    v.forEach(function (x) { [x, Array.from(x)[0].toUpperCase() + Array.from(x).slice(1).join(''), ekaPieni(x)].forEach(function (y) { out.push(y); }); });
+    var jo = skMuodot(s);
+    return uniq(out).filter(function (x) { return jo.indexOf(x) < 0; }).slice(0, 6);
+  }
+  // Loppunapsu (suomimenettely, käyttäjän linjaus 5.11.2026): montako kirjainta sanan lopusta saa enintään pudottaa.
+  // Kolmen kirjaimen sanasta ei yhtään, 4–5: kaksi, 6: kolme, 7–8: neljä, 9: viisi, vähintään 10: kuusi (ponillehan → poni).
+  function skNapsu(n) { return n <= 3 ? 0 : n <= 5 ? 2 : n === 6 ? 3 : n <= 8 ? 4 : n === 9 ? 5 : 6; }
+  // Sanasta pois k viimeistä kirjainta (ja perään jäävät muut merkit: Kant's → Kant).
+  function skKatkaise(w, k) {
+    var a = Array.from(w);
+    while (k > 0 && a.length) { if (/\p{L}/u.test(a.pop())) k--; }
+    while (a.length && !/[\p{L}\p{N}]/u.test(a[a.length - 1])) a.pop();
+    return a.join('');
+  }
+  function yhteinenAlku(a, b) { a = Array.from(a); b = Array.from(b); var i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; }
+  // Monen sanan ilmaus sanoittain (kaikkien kielten pelastusrengas, käyttäjän pyyntö 5.11.2026): sama sanamäärä, ja jokainen
+  // ehdokkaan sana jatkaa tekstin sanaa, josta on pudotettu lopusta enintään min(skNapsu, 3) kirjainta, eikä ole siitä
+  // paljon pidempi (kovan onnen → kova onni, ars long Vita breve → ars longa, vita brevis). taita: majuminuluku samalla.
+  function skSanoittain(teksti, ehdokas, taita) {
+    var a = skSanat(teksti), b = skSanat(ehdokas);
+    if (a.length !== b.length) return false;
+    return a.every(function (w, i) {
+      var x = taita ? skTaitto(w) : ekaPieni(skSuora(w)), y = taita ? skTaitto(b[i]) : ekaPieni(skSuora(b[i]));
+      if (x === y) return true;
+      var n = Array.from(x).length, d = Math.min(skNapsu(kirjaimia(x)), 3);
+      return d > 0 && yhteinenAlku(x, y) >= n - d && Math.abs(Array.from(y).length - n) <= d + 1;
+    });
+  }
+  // Ilmauksen alkuhaut: ensimmäinen sana (lopusta napsien) ja välilyönti sekä toisen sanan napsittu alku. Välilyönti rajaa
+  // haun ilmauksiin, joten sanoittainen vertailu saa ehdokkaat, vaikka ensimmäinen sana poikkeaisi (kovan onnen → kova on).
+  function skIlmausHaut(haku) {
+    var w = skSanat(haku), d0 = Math.min(skNapsu(kirjaimia(w[0])), 3), toka = w[1] ? skKatkaise(w[1], Math.min(skNapsu(kirjaimia(w[1])), 3)) || Array.from(w[1])[0] : '';
+    var q = [];
+    for (var k = 0; k <= d0; k++) { var a = skKatkaise(w[0], k); if (a) q.push(a + ' ' + toka); }
+    return uniq(q);
+  }
+
+  // Selitettävän ympäristö: kursiivi, lainaus ja leipätekstin muun tekstin ympäröimä 1–3 sanan kursiivirypäs (vip).
+  function skYmparisto(sg) {
+    var el = nyt.blocks[sg.b], t = nyt.txt[sg.b] || '', y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: skVirkkeenAlku(t, sg.s) };
+    if (!el) return y;
+    function em(p) { var e = p && p.n.parentElement && p.n.parentElement.closest('em, i'); return e && el.contains(e) ? e : null; }
+    var ea = em(solmuun(el, sg.s)), ez = em(solmuun(el, Math.max(sg.s, sg.e - 1)));
+    if (ea && ea === ez) {
+      var et = ea.textContent.replace(/­/g, '');
+      y.kursiivi = true; y.oma = et;
+      var muuta = solmut(el).some(function (n) { return !n.parentElement.closest('em, i') && /\p{L}/u.test(n.nodeValue); });
+      y.vip = muuta && sanaLkm(et) <= 3 && el.matches('p:not([class]), li') && !el.closest('blockquote, header, figure');
+    }
+    var lainaus = skLainaus(t, sg.s, sg.e);
+    if (el.closest('blockquote')) { y.lainaus = true; if (!y.oma) y.oma = t; }
+    else if (lainaus) { y.lainaus = true; if (!y.oma) y.oma = lainaus; }
+    return y;
+  }
+  // Lainausmerkkien sisällä samassa kappaleessa: ”…”, "…" ja »…» (sama merkki molemmissa päissä), “…”, „…“, «…».
+  function skLainaus(t, s, e) {
+    var ennen = t.slice(0, s), jalk = t.slice(e);
+    var parit = [['”', '”'], ['"', '"'], ['»', '»'], ['“', '”'], ['„', '“'], ['«', '»']];
+    for (var i = 0; i < parit.length; i++) {
+      var o = parit[i][0], c = parit[i][1], a = ennen.lastIndexOf(o), z = jalk.indexOf(c);
+      if (a < 0 || z < 0) continue;
+      if (o === c ? (ennen.split(o).length - 1) % 2 === 1 : ennen.indexOf(c, a + 1) < 0) return t.slice(a + 1, e + z);
+    }
+    return '';
+  }
+  function skVirkkeenAlku(t, s) {
+    var i = s - 1;
+    while (i >= 0 && /[\s"”“„»«‘’'(\[–—-]/.test(t[i])) i--;
+    return i < 0 || /[.!?…:]/.test(t[i]);
+  }
+  // Kieli: kreikan kirjaimet ratkaisevat (polytoninen merkintä tai kreikka muun tekstin keskellä: muinaiskreikka); muuten
+  // lainauksen tai kursiivin oma kieli, jos se erottuu (lainauksissa sen oma kieli ensin), sitten kappale ja tekstin alku.
+  function skKieli(sg, y) {
+    var t = nyt.txt[sg.b] || '';
+    if (/\p{Script=Greek}/u.test(sg.x)) {
+      var kr = (t.match(/\p{Script=Greek}/gu) || []).length, la = (t.match(/\p{Script=Latin}/gu) || []).length;
+      return /[̀̓̔͂ͅ]/.test(t.normalize('NFD')) || kr < la ? 'grc' : 'el';
+    }
+    var ehd = [y.oma, sg.x, t, nyt.txt.slice(0, 60).join(' ')];
+    for (var i = 0; i < ehd.length; i++) { if (!ehd[i]) continue; var v = kieliPisteet(ehd[i], true); if (v.p >= 2) return v.k; }
+    return 'fi';
+  }
+
+  // Hakuketju (käyttäjän linjaukset 5.11.2026). Askeleet: t = tasan sama muoto, tv = saksan helpot kokeilut, f = majuminuluku,
+  // n = loppunapsu, nf = loppunapsu ja majuminuluku yhtä aikaa, ne = erisnimen loppu pois (Kantin → Kant), gl = kreikan
+  // kirjaimet latinalaisiksi, lg-* = latinalaiset kirjaimet kreikkalaisiksi ja askel muinaiskreikasta. k: kielet tai '*'.
+  // Ryhmän askelten tulokset yhdistetään; ensimmäinen ryhmä, josta tulee osuma, ratkaisee. v: varoitus (1 heikot jäät, 2 SOS).
+  // Taivutusarvauksia (n) haetaan vain tekstin kielestä, paitsi kursiivissa ja lainauksessa (tekstin kieli ja viisi vierasta).
+  var SK_VIERAAT = ['la', 'en', 'fr', 'de', 'sv'];
+  function skKetju(kieli, y, monta, erisnimi) {
+    function A(t, k, v) { return { t: t, k: k === '*' ? '*' : [].concat(k), v: v || 0 }; }
+    var K;
+    if (kieli === 'grc' || kieli === 'el') {
+      var b = kieli === 'grc' ? 'el' : 'grc';
+      K = [[A('t', kieli)], [A('f', kieli)], [A('n', kieli)], [A('nf', kieli)], [A('t', b)], [A('f', b)], [A('n', b)], [A('nf', b)], [A('gl', '*', 1)]];
+    } else if (kieli === 'la') {
+      K = [[A('t', 'la')], [A('f', 'la')], [A('n', 'la')], [A('nf', 'la')], [A('t', '*')], [A('f', '*')], [A('lg-t', 'grc', 1)], [A('lg-f', 'grc', 1)], [A('lg-nf', 'grc', 2)]];
+    } else if (y.kursiivi || y.lainaus) {
+      K = [[A('t', kieli)]].concat(kieli === 'de' ? [[A('tv', 'de')]] : [], [[A('t', '*')], [A('n', uniq([kieli].concat(SK_VIERAAT)))], [A('f', '*')]]);
+      if (y.vip) K.push([A('nf', '*')]);
+    } else if (kieli === 'fi') {
+      // Erisnimi keskellä virkettä: muiden kielten tasan sama ja perusmuoto heti (nimet ovat yhteisiä); muuten muut kielet
+      // vasta viimeisenä.
+      K = erisnimi ? [[A('t', 'fi')], [A('t', '*')], [A('ne', '*')], [A('n', 'fi')], [A('f', 'fi')]] : [[A('t', 'fi')], [A('n', 'fi')], [A('f', 'fi')], [A('t', '*')]];
+    } else if (kieli === 'de') {
+      K = [[A('t', 'de')], [A('tv', 'de')], [A('n', 'de')], [A('f', '*')]];
+    } else if (kieli === 'fr') {
+      K = [[A('t', 'fr')], [A('f', 'fr')], [A('f', '*')]];
+    } else {
+      // Englanti (ja ruotsi): muiden kielten tasan sama ennen arvauksia, koska englanti lainaa sanoja taivutuksineen
+      // kursivoimatta; sitten hakukoneen tapaan kirjoitettu sama ja loppunapsu samassa ryhmässä.
+      K = [[A('t', kieli)], [A('t', '*')]].concat(erisnimi ? [[A('ne', '*')]] : [], [[A('f', '*'), A('n', kieli)]]);
+    }
+    if (monta && !K.some(function (g) { return g.some(function (a) { return a.t === 'nf' && a.k === '*'; }); })) K.push([A('nf', '*')]);
+    return K;
+  }
+
+  function skOnKieli(j, kielet) { return !!j && Object.keys(j).some(function (k) { return Array.isArray(j[k]) && (kielet === '*' || kielet.indexOf(k) >= 0); }); }
+  // Taivutusmuodon perusmuoto: muotomääritelmän (form-of-definition) linkki. Tyhjä, jos jokin sallitun kielen määritelmä on
+  // tavallinen (sivu on lemma).
+  function skPerusmuoto(j, kielet) {
+    var kohde = '', lemma = false;
+    Object.keys(j).forEach(function (k) {
+      if (!Array.isArray(j[k]) || kielet !== '*' && kielet.indexOf(k) < 0) return;
+      j[k].forEach(function (osa) { (osa.definitions || []).forEach(function (d) {
+        var h = d.definition || '';
+        if (!h.replace(/<[^>]*>/g, '').trim()) return;
+        if (h.indexOf('form-of-definition') < 0) { lemma = true; return; }
+        var m = !kohde && /form-of-definition-link[\s\S]*?href="(?:\.\/|\/wiki\/)([^"#?:]+)/.exec(h);
+        if (m) kohde = decodeURIComponent(m[1]).replace(/_/g, ' ');
+      }); });
+    });
+    return lemma ? '' : kohde;
+  }
+  // Ehdokkaat järjestykseen: tekstin kieli (kielilistan järjestys), sitten haettu alku itse (poni ennen ponia), lemmat ennen
+  // taivutusmuotoja, sitten Wikisanakirjan haun suosituimmuus.
+  function skJarjesta(e, kielet, alku) {
+    return e.map(function (x) {
+      var ks = Object.keys(x.kk || {}), ki = kielet === '*' ? 0 : Math.min.apply(null, ks.map(function (k) { return kielet.indexOf(k); }).filter(function (i) { return i >= 0; }).concat([99]));
+      return [x, ki, alku && x.o === alku ? 0 : 1, ks.some(function (k) { return x.kk[k] === 'l'; }) || kielet === '*' ? 0 : 1];
+    }).sort(function (a, z) { return a[1] - z[1] || a[2] - z[2] || a[3] - z[3] || a[0].i - z[0].i; }).map(function (x) { return x[0]; });
+  }
+  // Ehdokkaista enintään neljä vaihtoehtoa (käyttäjän pyyntö 5.11.2026). perus: taivutusmuoto vaihtuu perusmuotoonsa
+  // (ennemmin perusmuoto kuin taivutus), ja saman perusmuodon muodot yhdistyvät.
+  function skVaihtoehdot(ehd, kielet, tapa, perus) {
+    var top = ehd.slice(0, 6);
+    return Promise.all(top.map(function (e) { return haeSana(e.o).catch(function () { return null; }); })).then(function (js) {
+      var out = [], nahty = {};
+      top.forEach(function (e, i) {
+        var j = js[i];
+        if (!skOnKieli(j, kielet)) return;
+        var pm = perus ? skPerusmuoto(j, kielet) : '', o = pm || e.o;
+        if (nahty[o]) return;
+        nahty[o] = 1;
+        out.push({ o: o, j: pm ? null : j, kielet: kielet, tapa: tapa, kl: skKieletNimin(j, kielet) });
+      });
+      return out.slice(0, 4);
+    });
+  }
+  function skKieletNimin(j, kielet) {
+    return Object.keys(j).filter(function (k) { return Array.isArray(j[k]) && j[k].length && (kielet === '*' || kielet.indexOf(k) >= 0); })
+      .map(function (k) { return j[k][0].language || SK_NIMI[k] || k; }).slice(0, 2).join(', ');
+  }
+  function skYhdista(listat) {
+    var nahty = {}, out = [];
+    listat.forEach(function (l) { (l || []).forEach(function (e) { if (!nahty[e.o]) { nahty[e.o] = 1; out.push(e); } }); });
+    return out;
+  }
+  // Kreikan kirjaimet latinalaisiksi (oljenkorsi): karkea henkäys h:ksi, diftongit au, eu, ou; υ myös u:na (hybris, hubris).
+  function skLatinaksi(s) {
+    var M = { α: 'a', β: 'b', γ: 'g', δ: 'd', ε: 'e', ζ: 'z', η: 'e', θ: 'th', ι: 'i', κ: 'k', λ: 'l', μ: 'm', ν: 'n', ξ: 'x', ο: 'o', π: 'p',
+      ρ: 'r', σ: 's', ς: 's', τ: 't', υ: 'y', φ: 'ph', χ: 'ch', ψ: 'ps', ω: 'o' };
+    var lat = s.split(/(\s+)/).map(function (w) {
+      var d = w.normalize('NFD'), h = /^[^\p{L}]*[\p{L}][̀-ͯ]*̔/u.test(d) || /̔/.test(d.slice(0, 4));
+      var p = d.replace(/[̀-ͯ]/g, '').toLowerCase().replace(/αυ/g, 'au').replace(/ευ/g, 'eu').replace(/ηυ/g, 'eu').replace(/ου/g, 'ou')
+        .replace(/γ(?=[γκξχ])/g, 'n').replace(/[α-ως]/g, function (c) { return M[c] || c; });
+      return h ? (p.charAt(0) === 'r' ? 'rh' + p.slice(1) : 'h' + p) : p;
+    }).join('');
+    return uniq([lat, lat.replace(/y/g, 'u'), lat.replace(/k/g, 'c')]);
+  }
+  // Latinalaiset kirjaimet kreikkalaisiksi (epätoivoinen yritys): ē η, ō ω, loppu-e η (psyche → ψυχη), th φ ch ps x jne.
+  function skKreikaksi(s) {
+    var P = [['th', 'θ'], ['ph', 'φ'], ['ch', 'χ'], ['kh', 'χ'], ['ps', 'ψ'], ['rh', 'ρ'], ['ks', 'ξ'], ['ng', 'γγ'], ['nk', 'γκ'], ['ou', 'ου']];
+    var Y = { a: 'α', b: 'β', g: 'γ', d: 'δ', e: 'ε', z: 'ζ', i: 'ι', j: 'ι', k: 'κ', c: 'κ', q: 'κ', l: 'λ', m: 'μ', n: 'ν', x: 'ξ', o: 'ο', p: 'π',
+      r: 'ρ', s: 'σ', t: 'τ', u: 'υ', y: 'υ', f: 'φ', v: 'β', w: 'ω', h: '', 'η': 'η', 'ω': 'ω' };
+    return s.split(/(\s+)/).map(function (w) {
+      if (/^\s+$/.test(w)) return w;
+      w = w.toLowerCase().replace(/ē/g, 'η').replace(/ō/g, 'ω').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^h/, '').replace(/e$/, 'η');
+      P.forEach(function (p) { w = w.split(p[0]).join(p[1]); });
+      return w.replace(/[a-z]/g, function (c) { return Y[c] || ''; }).replace(/σ$/, 'ς');
+    }).join('');
+  }
+
+  // Yksi askel. Palauttaa { tapa, osumat: [{ o, j, kielet }] } (tasan sama: kaikki löytyneet muodot yhdessä) tai
+  // { tapa, vaihdot: [...] } (arvaukset: enintään neljä vaihtoehtoa) tai null.
+  function skAskel(a, haku, y) {
+    var t = a.t, k = a.k, monta = sanaLkm(haku) > 1;
+    if (t === 'gl') return skTasan(skLatinaksi(haku), '*', 'gl');
+    if (t.indexOf('lg-') === 0) return skAskel({ t: t.slice(3), k: k }, skKreikaksi(haku), y);
+    if (t === 't' || t === 'tv') return skTasan(t === 't' ? skMuodot(haku) : skSaksaMuodot(haku), k, t);
+    if (t === 'ne') {
+      // Erisnimi keskellä virkettä (Kantin, Hegelin, Heideggerin): perusmuoto kaikista kielistä tasan samana, lopusta
+      // napsien; pisin löytyvä voittaa.
+      var m = [], n = skNapsu(kirjaimia(haku));
+      for (var i = 1; i <= Math.min(n, 4); i++) { var c = skKatkaise(haku, i); if (kirjaimia(c) >= 3) m.push(c); }
+      return Promise.all(m.map(function (x) { return haeSana(x); })).then(function (js) {
+        for (var i = 0; i < m.length; i++) if (js[i]) return { tapa: 'n', vaihdot: [{ o: m[i], j: js[i], kielet: '*', tapa: 'n' }] };
+        return null;
+      });
+    }
+    var taita = t === 'nf' || t === 'f', jo = skMuodot(haku);
+    if (t === 'f') {
+      var tf = skTaitto(haku), qs = uniq([haku, tf]);
+      var haut = qs.map(function (q) { return skEhdokkaat(q, k, 'alku'); }).concat([skEhdokkaat(haku, k, 'teksti')]);
+      return Promise.all(haut).then(function (ls) {
+        var e = skYhdista(ls).filter(function (x) { return skTaitto(x.o) === tf && jo.indexOf(x.o) < 0; });
+        return e.length ? skVaihtoehdot(skJarjesta(e, k), k, 'f', false).then(function (v) { return v.length ? { tapa: 'f', vaihdot: v } : null; }) : null;
+      });
+    }
+    // Loppunapsu: yksi kirjain kerrallaan lopusta, ja ensimmäinen napsu, josta tulee ehdokkaita, ratkaisee. Kirjainkoko on
+    // vapaa vain virkkeen alussa (muuten Kantin ei vaihdu kanaksi); nf vapauttaa myös lukumerkit.
+    var versaali = haku === haku.toUpperCase() && haku !== haku.toLowerCase();
+    function alkaa(o, q) {
+      if (taita) return skTaitto(o).indexOf(skTaitto(q)) === 0;
+      o = skSuora(o); q = skSuora(q);
+      if (versaali) return o.toLowerCase().indexOf(q.toLowerCase()) === 0;
+      return y.alku ? ekaPieni(o).indexOf(ekaPieni(q)) === 0 : o.indexOf(q) === 0;
+    }
+    var askeleet = [];
+    if (monta) skIlmausHaut(haku).forEach(function (q) { askeleet.push({ q: q, ok: function (o) { return skSanoittain(haku, o, taita); } }); });
+    else for (var j = 1; j <= skNapsu(kirjaimia(haku)); j++) (function (q) {
+      if (q) askeleet.push({ q: q, alku: q, ok: function (o) { return o.indexOf(' ') < 0 && alkaa(o, q) && jo.indexOf(o) < 0; } });
+    })(skKatkaise(haku, j));
+    function seuraava(i) {
+      if (i >= askeleet.length) return Promise.resolve(null);
+      var s = askeleet[i], qs = taita ? uniq([s.q, skTaitto(s.q)]) : [s.q], haut = qs.map(function (q) { return skEhdokkaat(q, k, 'alku'); });
+      // nf: napsittu sana kokonaisena myös koko tekstin hausta, jos alkuhaku ei taita lukumerkkejä (pratityasamutpadaa →
+      // pratityasamutpada → pratītyasamutpāda).
+      if (taita && !monta) haut.push(skEhdokkaat(s.q, k, 'teksti'));
+      return Promise.all(haut).then(function (ls) {
+        var e = skYhdista(ls).filter(function (x) { return s.ok(x.o); });
+        if (!e.length) return seuraava(i + 1);
+        return skVaihtoehdot(skJarjesta(e, k, s.alku), k, t, true).then(function (v) {
+          // Ilmaus, joka poikkeaa vain väli- ja lukumerkeiltään (ars longa vita brevis), on sama toisin kirjoitettuna.
+          v.forEach(function (x) { if (monta && skTaitto(x.o) === skTaitto(haku)) x.tapa = 'f'; });
+          return v.length ? { tapa: t, vaihdot: v } : seuraava(i + 1);
+        });
+      });
+    }
+    return seuraava(0);
+  }
+  function skTasan(muodot, k, tapa) {
+    return Promise.all(muodot.map(function (m) { return haeSana(m); })).then(function (js) {
+      var os = muodot.map(function (m, i) { return { o: m, j: js[i], kielet: '*' }; }).filter(function (x) { return x.j && skOnKieli(x.j, '*'); });
+      if (!os.some(function (x) { return skOnKieli(x.j, k); })) return null;
+      // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026).
+      os.sort(function (a, z) { return (skOnKieli(z.j, k) ? 1 : 0) - (skOnKieli(a.j, k) ? 1 : 0); });
+      return { tapa: tapa, osumat: os };
+    });
+  }
+
   function skHtml(h) {
     var out = '', d = new DOMParser().parseFromString('<div>' + h + '</div>', 'text/html');
     (function kay(n) {
@@ -2923,8 +3284,9 @@
         if (c.nodeType === 3) { out += esc(c.nodeValue); return; }
         if (c.nodeType !== 1 || /^(SUP|STYLE|SCRIPT|LINK)$/.test(c.tagName)) return;
         if (c.tagName === 'A') {
-          var m = /^\/wiki\/([^#:?\/]+)(?:#|$)/.exec(c.getAttribute('href') || '');
-          out += m ? '<button type="button" class="sk-sana" data-k="sk-sana" data-sana="' + esc(decodeURIComponent(m[1]).replace(/_/g, ' ')) + '">' + esc(c.textContent) + '</button>' : esc(c.textContent);
+          var m = /^(?:\/wiki\/|\.\/)([^#:?\/]+)(?:#([^?]*))?$/.exec(c.getAttribute('href') || '');
+          out += m ? '<button type="button" class="sk-sana" data-k="sk-sana" data-sana="' + esc(decodeURIComponent(m[1]).replace(/_/g, ' ')) + '"' +
+            (m[2] ? ' data-kieli="' + esc(decodeURIComponent(m[2]).replace(/_/g, ' ')) + '"' : '') + '>' + esc(c.textContent) + '</button>' : esc(c.textContent);
           return;
         }
         var t = /^(I|EM)$/.test(c.tagName) ? 'em' : /^(B|STRONG)$/.test(c.tagName) ? 'b' : '';
@@ -2935,48 +3297,140 @@
     })(d.body.firstChild);
     return out;
   }
-  function skSisalto(j, kieli) {
-    var jarj = function (k) { return k === kieli ? 0 : k === 'en' ? 1 : k === 'fi' ? 2 : 3; };
-    var kielet = Object.keys(j).filter(function (k) { return Array.isArray(j[k]); });
-    kielet = kielet.map(function (k, i) { return [k, i]; }).sort(function (a, z) { return jarj(a[0]) - jarj(z[0]) || a[1] - z[1]; }).map(function (x) { return x[0]; });
-    var html = '';
-    kielet.slice(0, 4).forEach(function (k) {
+  // Määritelmät kielittäin: etusijakieli ensin, sitten ketjun kielet, englanti ja suomi; enintään neljä kieltä, kolme
+  // sanaluokkaa ja neljä määritelmää kustakin. Palauttaa myös näytetyt kielet (kielihuomautusta varten).
+  function skSisalto(j, kielet, etusija, tilaa) {
+    var jarj = function (k) { return k === etusija ? 0 : kielet !== '*' && kielet.indexOf(k) >= 0 ? 1 : k === 'en' ? 2 : k === 'fi' ? 3 : 4; };
+    var ks = Object.keys(j).filter(function (k) { return Array.isArray(j[k]) && (kielet === '*' || kielet.indexOf(k) >= 0); });
+    ks = ks.map(function (k, i) { return [k, i]; }).sort(function (a, z) { return jarj(a[0]) - jarj(z[0]) || a[1] - z[1]; }).map(function (x) { return x[0]; });
+    var html = '', nayt = [];
+    ks.slice(0, tilaa == null ? 4 : tilaa).forEach(function (k) {
+      var osat = '';
       j[k].slice(0, 3).forEach(function (osa) {
         var defs = (osa.definitions || []).filter(function (d) { return d.definition && d.definition.replace(/<[^>]*>/g, '').trim(); }).slice(0, 4);
         if (!defs.length) return;
-        html += '<div class="sk-kieli">' + esc(osa.language || k) + (osa.partOfSpeech ? ' · ' + esc(osa.partOfSpeech) : '') + '</div><ol class="sk-ol">' +
+        osat += '<div class="sk-kieli">' + esc(osa.language || k) + (osa.partOfSpeech ? ' · ' + esc(osa.partOfSpeech) : '') + '</div><ol class="sk-ol">' +
           defs.map(function (d) { return '<li>' + skHtml(d.definition) + '</li>'; }).join('') + '</ol>';
       });
+      if (osat) { html += osat; nayt.push(k); }
     });
-    return html;
+    return { html: html, kielet: nayt };
   }
-  function sanakirja(sana, rect, historia, kieli) {
-    historia = historia || [];
-    var vuoro = ++skVuoro, ed = historia[historia.length - 1];
-    // ‹ palaa vain perusmuodosta edelliseen sanaan; lisää avaa sanan Wikisanakirjan sivun uuteen välilehteen
-    // (käyttäjän pyyntö 5.11.2026: ‹ valikko hämmensi).
-    var ots = '<div class="sk-ots"><span>' + esc(sana) + '</span>' + (ed ? '<button type="button" class="sk-takaisin" data-k="sk-takaisin">‹ ' + esc(ed) + '</button>' : '') +
-      IK_SANASTO + '</div>';
-    // Alarivi (käyttäjän pyyntö 5.11.2026): lähdemaininta vasemmalla löydetylle sanalle, lisää aina oikeassa alanurkassa.
-    var ala = '<div class="sk-ala"><a class="sk-lisa" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(sana) + '">lisää</a></div>';
-    var lahde = '<span class="sk-lahde">Wiktionary, CC BY-SA</span>';
-    naytaPop(rect, ots + '<div class="sk-tieto">Haetaan…</div>' + ala, 'sanakirja', function (k, b) {
-      if (k === 'sk-sana') { sanakirja(b.dataset.sana, rect, historia.concat([sana]), kieli); return true; }
-      if (k === 'sk-takaisin') { if (ed) sanakirja(ed, rect, historia.slice(0, -1), kieli); return true; }
+  // Varoitusmerkki: suora salmiakki ja huutomerkki, jonka piste on pieni salmiakki (vinoneliöestetiikkaa).
+  var IK_VARO = '<svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.2L20.8 11L11 20.8L1.2 11Z" fill="none" stroke="currentColor" stroke-width="1.3"/>' +
+    '<path d="M11 5.8V12.8" stroke="currentColor" stroke-width="1.9"/><path d="M11 14.5L12.3 15.8L11 17.1L9.7 15.8Z" fill="currentColor"/></svg>';
+  var IK_SULJE_SK = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1L9 9M9 1L1 9"/></svg>';
+  function skKehys(otsikko, linkki) {
+    return '<div class="sk-ots"><span class="sk-o">' + esc(otsikko) + '</span>' + IK_SANASTO + '</div>' +
+      '<button type="button" class="sk-sulje" data-k="sk-sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE_SK + '</button>' +
+      '<div class="sk-runko"><div class="sk-tieto">Haetaan…</div></div><div class="sk-ala">' + skLisa(linkki) + '</div>';
+  }
+  function skLisa(o) { return o ? '<a class="sk-lisa" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '">lisää</a>' : ''; }
+  function skKieliKoodi(nimi) { return Object.keys(SK_NIMI).filter(function (k) { return SK_NIMI[k] === nimi; })[0] || ''; }
+
+  // Sanaselitys valinnasta (segs: yksi pala). Ketju ajetaan loppuun asti vain, jos tasan samaa ei löydy. Wikisanakirjassa ei
+  // surffata takaisin päin (käyttäjän linjaus 5.11.2026: Luin ei ole selain): perusmuodon linkki ja vaihtoehdon valinta
+  // vievät eteenpäin, raksi sulkee.
+  function sanaselitys(segs, rect) {
+    var sg = segs[0], haku = skHakusana(sg.x), y = skYmparisto(sg), vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
+    if (!haku) return;
+    y.kieli = skKieli(sg, y);
+    var monta = sanaLkm(haku) > 1, erisnimi = !monta && !y.alku && /^\p{Lu}/u.test(haku) && haku !== haku.toUpperCase();
+    var ketju = skKetju(y.kieli, y, monta, erisnimi);
+    naytaPop(rect, skKehys(haku, haku), 'sanakirja', function (k, b) {
+      if (k === 'sk-sulje') return false;
+      if (k === 'sk-sana') { vuoro = ++skVuoro; suoraan(b.dataset.sana, skKieliKoodi(b.dataset.kieli || '') || y.kieli); return true; }
+      if (k === 'sk-vaihto') { vuoro = ++skVuoro; valitse(vaihdot[+b.dataset.i]); return true; }
       return true;
     });
-    var pieni = sana.toLowerCase();
-    haeSana(sana).then(function (j) { return j || (pieni !== sana ? haeSana(pieni) : null); }).then(function (j) {
-      if (vuoro !== skVuoro || pop.hidden) return;
-      var s = j && skSisalto(j, kieli);
-      $('.sk-tieto', pop).outerHTML = s || '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>';
-      if (s) $('.sk-ala', pop).insertAdjacentHTML('afterbegin', lahde);
+    function ajossa(v) { return v === skVuoro && !pop.hidden && pop.classList.contains('sanakirja'); }
+    function nayta(v, otsikko, runko, lahde, linkki) {
+      if (!ajossa(v)) return;
+      $('.sk-o', pop).textContent = otsikko;
+      $('.sk-runko', pop).innerHTML = runko;
+      $('.sk-ala', pop).innerHTML = (lahde ? SK_LAHDE : '') + skLisa(linkki);
       sijoitaPop();
-    }).catch(function () {
-      if (vuoro !== skVuoro || pop.hidden) return;
-      var t = $('.sk-tieto', pop);
-      if (t) t.textContent = 'Haku ei onnistunut. Onko verkkoyhteys päällä?';
-    });
+    }
+    function huom(r) { return '<div class="sk-huom">' + r + '</div>'; }
+    function kieliHuom(nayt) {
+      return nayt.length && nayt.indexOf(y.kieli) < 0 ? huom(SK_ELAT[y.kieli].charAt(0).toUpperCase() + SK_ELAT[y.kieli].slice(1) + ' ei osumaa: selitys on toisen kielen.') : '';
+    }
+    function varoitus(a) {
+      if (!a || !a.v) return '';
+      var mita = a.t === 'gl' ? 'latinalaisin kirjaimin' : a.v === 2 ? 'kreikkalaisin kirjaimin, loppua napsien ja lukumerkeistä välittämättä' : 'kreikkalaisin kirjaimin';
+      return '<div class="sk-varo">' + IK_VARO + '<span><b>' + (a.v === 2 ? 'SOS.' : 'Heikoilla jäillä.') + '</b> Haettu tekstin <i>' + esc(haku) + '</i> ' + mita + '.</span></div>';
+    }
+    function tekstissa(tapa, monia) {
+      var x = '<i>' + esc(haku) + '</i>';
+      if (tapa === 'f' || tapa === 'tv') return huom('Tekstissä ' + x + (monia ? '. Sama toisin kirjoitettuna:' : ': sama toisin kirjoitettuna.'));
+      return huom('Tekstissä ' + x + ', jolle ei ole omaa sivua' + (monia ? '. Lähimmät osumat:' : ': lähin osuma.'));
+    }
+    // Selitys (yksi tai useampi tasan sama muoto). alku: huomautukset ennen määritelmiä.
+    function selitys(v, osumat, alku, etusija) {
+      var runko = '', nayt = [], tilaa = 4;
+      osumat.forEach(function (x, i) {
+        if (tilaa <= 0) return;
+        var s = skSisalto(x.j, x.kielet, etusija || y.kieli, tilaa);
+        if (!s.html) return;
+        if (i > 0) runko += '<div class="sk-alaots">' + esc(x.o) + '</div>';
+        runko += s.html; nayt = nayt.concat(s.kielet); tilaa -= s.kielet.length;
+      });
+      nayta(v, osumat[0].o, (alku || '') + (etusija ? '' : kieliHuom(nayt)) + runko, true, osumat[0].o);
+    }
+    function eiLoydy(v) {
+      nayta(v, haku, '<div class="sk-tieto">' + (virhe ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' :
+        (monta ? 'Ilmausta' : 'Sanaa') + ' ei löytynyt englanninkielisestä Wikisanakirjasta.') + '</div>', false, virhe ? '' : haku);
+    }
+    function valitse(x) {
+      if (!x) return;
+      var v = skVuoro, alku = varoitus(askel) || tekstissa(x.tapa, false);
+      (x.j ? Promise.resolve(x.j) : haeSana(x.o)).then(function (j) {
+        if (!j) { eiLoydy(v); return; }
+        x.j = j; selitys(v, [x], alku);
+      }).catch(function () { virhe = true; eiLoydy(v); });
+    }
+    function suoraan(o, kieli) {
+      var v = skVuoro;
+      nayta(v, o, '<div class="sk-tieto">Haetaan…</div>', false, o);
+      haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: '*' }], '', kieli); else nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); })
+        .catch(function () { nayta(v, o, '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
+    }
+    function aja(i) {
+      if (i >= ketju.length) return Promise.resolve(null);
+      return Promise.all(ketju[i].map(function (a) { return skAskel(a, haku, y).catch(function () { virhe = true; return null; }); })).then(function (rs) {
+        rs = rs.filter(Boolean);
+        if (!rs.length) return aja(i + 1);
+        var r = rs[0];
+        if (rs.length > 1) r = { tapa: r.tapa, vaihdot: skYhdista(rs.map(function (x) { return x.vaihdot || []; })).slice(0, 4) };
+        r.askel = ketju[i][0];
+        return r;
+      });
+    }
+    aja(0).then(function (r) {
+      if (!ajossa(vuoro)) return;
+      if (!r) { eiLoydy(vuoro); return; }
+      askel = r.askel;
+      var alku = varoitus(r.askel);
+      if (r.osumat) {
+        var eri = r.osumat[0].o !== haku && ekaPieni(r.osumat[0].o) !== ekaPieni(haku) && skMuodot(haku).indexOf(r.osumat[0].o) < 0;
+        selitys(vuoro, r.osumat, alku || (eri ? tekstissa('f', false) : ''));
+        return;
+      }
+      vaihdot = r.vaihdot;
+      if (vaihdot.length === 1) {
+        var x = vaihdot[0], v = vuoro;
+        (x.j ? Promise.resolve(x.j) : haeSana(x.o)).then(function (j) {
+          if (!j) { eiLoydy(v); return; }
+          x.j = j; selitys(v, [x], alku || tekstissa(x.tapa, false));
+        }).catch(function () { virhe = true; eiLoydy(v); });
+        return;
+      }
+      // Monta vaihtoehtoa: valitsin. Wikisanakirjassa ei ole tällaista sivua, joten lisää-linkkiä ei ole.
+      nayta(vuoro, haku, alku + (r.askel && r.askel.v ? '' : tekstissa(vaihdot[0].tapa, true)) + '<ul class="sk-vaihdot">' + vaihdot.map(function (x, i) {
+        return '<li><button type="button" class="sk-vaihto" data-k="sk-vaihto" data-i="' + i + '">' + esc(x.o) + '</button>' +
+          (x.kl ? ' <span class="sk-vk">' + esc(x.kl) + '</span>' : '') + '</li>';
+      }).join('') + '</ul>', false, '');
+    }).catch(function () { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); });
   }
 
   // Kopioitaessa pehmeät tavuviivat pois.
@@ -4312,6 +4766,10 @@
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
   window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+    // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
+    selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
+    selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
+    selitysKetju: function (kieli, y, monta, erisnimi) { return skKetju(kieli, y, monta, erisnimi); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
