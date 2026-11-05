@@ -415,14 +415,15 @@
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
-     samassa kohdassa kuin maalauksessa. Vedon ajaksi kahvat katoavat ja alleviivaus on katkoviiva. */
+     samassa kohdassa kuin maalauksessa. Kahvat vain kutsuvat tarttumaan: liikkeen alkaessa ne katoavat eivätkä palaa
+     vedon päätyttyä; alleviivaus pysyy yhtenäisenä (käyttäjän päätös 5.11.2026). Nuppi on kapea, koska sanaväli on vain
+     0,2 em. */
   .kahva .k-kaari { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
   .k-kaari .kk { fill: none; stroke: var(--ruoste); }
   .k-kaari .kn { fill: var(--ruoste); }
   .kahva .k-ote { position: absolute; width: 40px; height: 40px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
   #kahvat.vedossa .kahva { visibility: hidden; }
-  mark.ali.vedossa, .ali-piilo mark.ali.vedossa { text-decoration: underline dashed var(--ruoste); text-decoration-thickness: .13em; }
   #kahvat.lapi .k-ote { pointer-events: none; }
   /* Suurennuslasi kahvan kosketusvedossa (pilotti 5.11.2026, Booxin tapaan): vedettävän pään rivi 1,25-kertaisena rivin
      yläpuolella, ettei katse jää sormeen. Sisältö on lohkon klooni laskettuine tyyleineen (lupaKlooni()). */
@@ -2212,10 +2213,10 @@
   }
   // Alleviivauksen napautus: valikko ja kahvat. Valikko sijoitetaan alleviivauksen näkyvien rivien ja kahvojen
   // ulkopuolelle, ettei se peitä loppukahvaa.
-  function naytaAlPop(id, rect) {
+  function naytaAlPop(id, rect, eiKahvoja) {
     var h = nyt.merk.al.filter(function (x) { return x.id === id; })[0];
     if (!h) return;
-    naytaKahvat(h);
+    if (!eiKahvoja) naytaKahvat(h);
     rect = alRect(h) || rect;
     naytaPop(rect, (h.n ? '<div class="esi kir"><div>' + esc(lyhenna(h.n, 300)) + '</div></div>' : '') +
       ikNappi('poista', IK_POISTA, 'Poista alleviivaus') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
@@ -2406,11 +2407,12 @@
   }
   // Kaarikahvan muoto kahvan kohdasta (sanan reuna, merkin laatikon yläreuna), x ulospäin. Alleviivauksen keskikohta
   // mitattiin pikseleistä (5.11.2026: 19 px:llä 2 px paksu, keskikohta 0,263 em perusviivan alla, 13 px rivin keskeltä);
-  // Literatan perusviiva on 22/28 merkin laatikosta. Paraabeli y = uy − H·(x/w)² on neliöllinen Bézier, jonka ohjauspiste
-  // on (w/2, uy). Kaari alkaa 2 px alleviivauksen sisältä, ettei saumaan jää rakoa.
+  // Literatan perusviiva on 22/28 merkin laatikosta. Kaari alkaa 2 px alleviivauksen sisältä, ettei saumaan jää rakoa.
+  // Sanaväli on 0,2 em (mitattu), joten kaari ja nuppi pysyvät 0,23 em:n sisällä sanan reunasta: nupin keskikohta 0,12 em,
+  // puolileveys 0,11 em (seuraavan kirjaimen sivuväli ottaa ylityksen).
   function kahvaMuoto(h, fs) {
-    var th = Math.max(1, Math.round(.13 * fs)), uy = Math.round(h * 22 / 28) + .2 * fs + th / 2 + .25, w = .26 * fs;
-    return { th: th, uy: uy, yc: h / 2, w: w, nx: w, rx: .16 * fs, ry: .28 * fs };
+    var th = Math.max(1, Math.round(.13 * fs)), uy = Math.round(h * 22 / 28) + .2 * fs + th / 2 + .25, w = .12 * fs;
+    return { th: th, uy: uy, yc: h / 2, w: w, nx: w, rx: .11 * fs, ry: .32 * fs };
   }
   function asetaKahva(el, r, oikea, b) {
     el.hidden = !r;
@@ -2421,7 +2423,9 @@
     el.style.top = r.top + 'px';
     el.style.setProperty('--kh', r.height + 'px');
     var kk = $('.kk', el), kn = $('.kn', el), o = $('.k-ote', el);
-    kk.setAttribute('d', 'M' + f(-2 * s) + ' ' + f(g.uy) + 'L0 ' + f(g.uy) + 'Q' + f(s * g.w / 2) + ' ' + f(g.uy) + ' ' + f(s * g.w) + ' ' + f(g.yc));
+    // Pyöristetty kulma: vaakasuora alleviivauksen jatke kääntyy pystyyn nupin alle (kuutiollinen Bézier).
+    kk.setAttribute('d', 'M' + f(-2 * s) + ' ' + f(g.uy) + 'L0 ' + f(g.uy) + 'C' + f(s * g.w * .9) + ' ' + f(g.uy) + ' ' + f(s * g.w) + ' ' +
+      f(g.uy - (g.uy - g.yc) * .45) + ' ' + f(s * g.w) + ' ' + f(g.yc));
     kk.style.strokeWidth = g.th + 'px';
     kn.setAttribute('d', sal(s * g.nx, g.yc, g.rx, g.ry));
     // Ote 40 × 40 px nupin ympärillä, 4 px ulospäin (ettei se peitä omaa sanaa).
@@ -2464,7 +2468,7 @@
     });
   });
   // Liike ja päätös luetaan dokumentista: piilotettu kahva voi menettää osoittimen kaappauksen.
-  // Liikkeen alkaessa (yli 3 px) kahvat katoavat ja alleviivaus on katkoviiva kuten maalatessa (käyttäjän päätös 5.11.2026).
+  // Liikkeen alkaessa (yli 3 px) kahvat katoavat; alleviivaus pysyy yhtenäisenä (käyttäjän päätös 5.11.2026).
   document.addEventListener('pointermove', function (e) {
     if (!veto || e.pointerId !== veto.id) return;
     e.preventDefault();
@@ -2472,7 +2476,6 @@
     if (!veto.liike && Math.abs(veto.x - veto.x0) + Math.abs(veto.y - veto.y0) > 3) {
       veto.liike = true;
       kahvatEl.classList.add('vedossa');
-      if (veto.h !== luonnos) { poistaMerkit(veto.h.id); piirraAlleviivaus(veto.h, 'vedossa'); }
     }
     if (!vetoRaf) vetoRaf = requestAnimationFrame(function () { vetoRaf = 0; kahvaAskel(); });
   }, true);
@@ -2496,7 +2499,7 @@
     var segs = segsValilta(p, q);
     if (!segs.length || samatSegs(segs, veto.h.segs)) return;
     if (veto.h === luonnos) piirraLuonnos(segs);
-    else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h, veto.liike ? 'vedossa' : ''); }
+    else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h); }
     sijoitaKahvat();
   }
   function lopetaVeto(e) {
@@ -2505,15 +2508,16 @@
     var v = veto;
     veto = null;
     piilotaLupa();
-    kahvatEl.classList.remove('vedossa');
-    if (v.liike && v.h !== luonnos) { poistaMerkit(v.h.id); piirraAlleviivaus(v.h); }
     lopetaReuna();
     tila.maalattu = Date.now();
     if (v.h !== luonnos) { jarjestaAl(); tallennaMerkit(); paivitaMerkinnat(); }
-    if (kahvaH !== v.h) return;
-    sijoitaKahvat();
+    if (kahvaH !== v.h) { kahvatEl.classList.remove('vedossa'); return; }
+    // Vedon jälkeen kahvat eivät palaa (ensin piiloon, sitten luokka pois, ettei mikään ruutu näytä niitä); pelkkä napautus
+    // kahvaan jättää ne. Alleviivauksen napautus tuo ne taas.
+    if (v.liike) piilotaKahvat(); else sijoitaKahvat();
+    kahvatEl.classList.remove('vedossa');
     if (v.h === luonnos) naytaValintaPop(luonnos.segs, alRect(luonnos));
-    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h));
+    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h), v.liike);
   }
   /* Suurennuslasi (pilotti 5.11.2026, käyttäjän pyyntö Booxin tapaan): kosketus- ja kynävedossa (ei hiirellä) vedettävän
      pään rivi näkyy 1,25-kertaisena rivin yläpuolella pyöristetyssä laatikossa: koko rivin kirjaimet ja ylemmän rivin
