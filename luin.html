@@ -560,7 +560,7 @@
   .paneeli header { position: sticky; top: 0; z-index: 1; background: var(--paperi); display: flex; align-items: center;
     justify-content: space-between; height: 50px; border-bottom: 1px solid var(--viiva); margin: 0 -18px 4px; padding: 0 2px 0 18px; }
   .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
-  /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Merkinnät, Etsi ja Sisälmys avautuvat nappiensa järjestyksessä
+  /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
      vasemmalle, keskelle ja oikealle, yläpalkin ja navin väliin koko korkeudelle. sijoitaLaatikot() asettaa paikan ja
      koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen (enintään 25rem)
      ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. */
@@ -715,11 +715,11 @@
       <div class="jana-napit">
         <!-- Merkinnät (käyttäjän valinta 4.11.2026): litteä sivu, alalaidassa paksu viiva (alleviivaus) ja yläreunasta nauha (kirjanmerkki). -->
         <button type="button" class="laatikko" id="merk-avaa" aria-expanded="false" aria-controls="merkinnat"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
-        <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. Käyttäjän pyyntö 5.11.2026: vielä vähän (7,10 → 6,80), samoin perustein; varren alkupää seuraa ulkokehää. -->
-        <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
         <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
         <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
-        <!-- Siirtymien kumous: pieni kytkinpari, vain jos mahtuu Sisälmyksen oikealle puolelle (piirraKumo()). -->
+        <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. Käyttäjän pyyntö 5.11.2026: vielä vähän (7,10 → 6,80), samoin perustein; varren alkupää seuraa ulkokehää. -->
+        <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
+        <!-- Siirtymien kumous: pieni kytkinpari, vain jos mahtuu Etsin oikealle puolelle (piirraKumo()). -->
         <div id="kumonapit" hidden>
           <button type="button" id="kumo-taakse" aria-label="Kumoa siirtymä" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></svg></button>
           <button type="button" id="kumo-eteen" aria-label="Tee siirtymä uudelleen" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><g transform="translate(16 0) scale(-1 1)"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></g></svg></button>
@@ -830,7 +830,7 @@
     <div id="al-lista"></div></details>
 </div>
 
-<!-- ===== Etsi ja Sisälmys: navin laatikot Merkintöjen rinnalla (sijoitaLaatikot) ===== -->
+<!-- ===== Etsi ja Sisälmys: navin laatikot Merkintöjen rinnalla (sijoitaLaatikot; näytöllä Sisälmys keskellä, Etsi oikealla) ===== -->
 <div class="paneeli navilaatikko lista" id="haku" hidden role="dialog" aria-label="Etsi tekstistä">
   <header><h2>Etsi</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>
@@ -1302,16 +1302,17 @@
   }); });
 
   /* ---------- navin laatikot ----------
-     Käyttäjän pyyntö 5.11.2026: Merkinnät, Etsi ja Sisälmys avautuvat x-akselilla nappiensa järjestyksessä:
+     Käyttäjän pyyntö 5.11.2026: Merkinnät, Sisälmys ja Etsi avautuvat x-akselilla nappiensa järjestyksessä:
      vasemmalla, keskellä ja oikealla, yläpalkin alareunasta navin (tai Palaa takaisin -laatikon) yläreunaan.
      Kun kolme vähintään 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen väliin, kukin
-     saa kolmanneksen (enintään 25rem, laidoissa Merkinnät ja Sisälmys, Etsi keskellä) ja niitä voi olla auki
+     saa kolmanneksen (enintään 25rem, laidoissa Merkinnät ja Etsi, Sisälmys keskellä; käyttäjän päätös 5.11.2026: Etsistä on eniten hyötyä
+     tekstin vieressä, Sisälmystä tarvitaan tekstin kanssa vähiten, joten se on keskellä) ja niitä voi olla auki
      rinnakkain; leveällä ruudulla väliin jää tekstiä, jonka napautus sulkee Etsin ja Sisälmyksen. Muuten (mobiili,
      kavennettu ikkuna) auki on yksi kerrallaan: napin painallus sulkee avoimen laatikon ja avaa omansa samaan tilaan
      palkkien laitojen väliin. Jos ikkuna kapenee rinnakkaisten ollessa auki, jäljelle jää viimeksi avattu.
      Hyppy laatikosta (merkintä, osuma, Sisälmyksen kohta) sulkee kaikki kolme, koska keskimmäinen peittäisi tekstin;
      navi jää auki. Navin sulkeminen sulkee myös laatikot. */
-  var LAATIKOT = ['merkinnat', 'haku', 'sisalmys'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
+  var LAATIKOT = ['merkinnat', 'sisalmys', 'haku'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
   var laatikkoJarj = [];   // avausjärjestys; viimeinen on viimeksi avattu
   function laatikkoAuki(id) { return !$('#' + id).hidden; }
   function laatikoitaAuki() { return LAATIKOT.some(laatikkoAuki); }
@@ -2952,7 +2953,7 @@
     if (m && m.k.b === p.k.b && m.k.o === p.k.o && (m.k.ed || 0) === (p.k.ed || 0)) poistaMajakka();
     piirraKumo();
   }
-  // Näkyy vain, jos mahtuu samalle riville kuin sitä edeltävä näkyvä laatikko (yleensä Sisälmys); muuten piiloon, ettei
+  // Näkyy vain, jos mahtuu samalle riville kuin sitä edeltävä näkyvä laatikko (Etsi); muuten piiloon, ettei
   // navinäkymä kasva rivillä. Mitataan vain aikajanan ollessa auki (piilossa laatikoilla ei ole paikkaa).
   function piirraKumo() {
     var n = kumoNaky(), el = $('#kumonapit');
@@ -3330,7 +3331,7 @@
   var hakuEl = $('#haku'), sisEl = $('#sisalmys');
   function hakuAuki() { return !hakuEl.hidden; }
   /* ---------- Sisälmys ----------
-     Käyttäjän pyyntö 4.11.2026: navissa Etsi-laatikon oikealla puolella *Sisälmys*, joka avaa sisällysluettelon
+     Käyttäjän pyyntö 4.11.2026: navissa *Sisälmys* (5.11.2026 alkaen Merkintöjen ja Etsin välissä), joka avaa sisällysluettelon
      navin laatikkona (ks. navin laatikot) riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Samat tasot kuin
      tekstin sisällysluettelossa (pääluvut ja alaluvut), sivutettuna sivunumerot. Nykyinen osio on merkitty ja
      vieritetty listan keskelle. Sulkeutuu raksista, napista uudelleen, Escistä tai tekstialueen napautuksesta;

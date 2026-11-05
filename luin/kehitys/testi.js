@@ -752,11 +752,11 @@ palvelin.listen(0, async () => {
   const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
   tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
-  // Sisälmys (4.11.2026): Etsin oikealla puolella samalla rivillä, laatikko auki napista; tekstialueen napautus laatikon
+  // Sisälmys (4.11.2026): Merkintöjen ja Etsin välissä samalla rivillä (5.11.2026), laatikko auki napista; tekstialueen napautus laatikon
   // ulkopuolella sulkee vain laatikon (navi auki, sivu sama); raksi sulkee; kohdan valinta hyppää ja jättää majakan.
   const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#sisalmys').hidden ? '' : 'sisalmys', s: window.__luin.tila.sivu, maj: !!window.__luin.majakka() }));
   if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await kaista360();
-  const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: s.left > e.right, rivi: s.top === e.top, h: s.height === e.height }; });
+  const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: e.left > s.right, rivi: s.top === e.top, h: s.height === e.height }; });
   await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
   const ss1 = await sisT(), pr = await mob360.evaluate(() => document.querySelector('#sisalmys').getBoundingClientRect().right);
   await mob360.mouse.click(Math.min(359, pr + 4), 300); await mob360.waitForTimeout(100);
@@ -806,7 +806,7 @@ palvelin.listen(0, async () => {
   await kuAset({ sivutus: 'sivut', sivunapit: 1 });
   const kiinni = await ku.evaluate(() => !document.querySelector('#ala-rivi #kumonapit') && document.querySelector('#kumonapit').getBoundingClientRect().width === 0);
   await naviAuki();
-  const kul = await ku.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), si = q('#sis-avaa'), pa = q('#kumonapit'), n = q('.jana-napit');
+  const kul = await ku.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), si = q('#etsi-avaa'), pa = q('#kumonapit'), n = q('.jana-napit');
     const ta = q('#kumo-taakse'), id = (x, y) => { const e = document.elementFromPoint(x, y); return e && (e.closest('button') || e).id; };
     return { vali: +(pa.left - si.right).toFixed(2), keski: +((pa.top + pa.bottom) / 2 - (si.top + si.bottom) / 2).toFixed(2), korkeus: pa.height, leveys: pa.width,
       rivi: n.height, oikea: +(innerWidth - pa.right).toFixed(2), osumat: [id(ta.left + ta.width / 2, ta.top + ta.height / 2), id(ta.left + ta.width / 2, pa.top - 4), id(pa.right - 5, pa.bottom + 4)] }; });
@@ -936,7 +936,7 @@ palvelin.listen(0, async () => {
   const t5 = await tila2();
   tulos('työpöydän keskiklikkaus ja kapea ikkuna', !t4.jana && t4.yla && s1 === s0 + 1 && !t5.mob && t5.yla, JSON.stringify({ s0, s1, t4, t5 }));
   // Navin laatikot työpöydällä (käyttäjän pyyntö 5.11.2026): leveällä kolme rinnakkain nappien järjestyksessä (Merkinnät
-  // vasemmassa laidassa, Etsi keskellä, Sisälmys oikeassa laidassa), yläpalkin ja navin välissä, ei päällekkäin. Raon
+  // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026), yläpalkin ja navin välissä, ei päällekkäin. Raon
   // napautus sulkee Etsin ja Sisälmyksen, ei Merkintöjä eikä navia. Kavennus jättää viimeksi avatun koko leveydelle; navin
   // sulku sulkee laatikot.
   await tp.setViewportSize({ width: 1440, height: 900 }); await tp.waitForTimeout(400);
@@ -947,11 +947,11 @@ palvelin.listen(0, async () => {
     return { a, yp: R('.ylapalkki').bottom, ala: R('#ala').top, navi: !document.querySelector('#jana').hidden,
       ae: ['#merk-avaa', '#etsi-avaa', '#sis-avaa'].map(s => document.querySelector(s).getAttribute('aria-expanded')[0]).join('') };
   });
-  for (const s of ['#merk-avaa', '#etsi-avaa', '#sis-avaa']) { await tp.click(s); await tp.waitForTimeout(100); }
+  for (const s of ['#merk-avaa', '#sis-avaa', '#etsi-avaa']) { await tp.click(s); await tp.waitForTimeout(100); }
   const lt1 = await ltT(), [M, H, S] = [lt1.a.merkinnat, lt1.a.haku, lt1.a.sisalmys];
-  const rinn = !!(M && H && S) && M[0] === 24 && S[1] === 1440 - 29 && M[1] < H[0] && H[1] < S[0] && Math.abs((H[0] + H[1]) / 2 - (24 + 1411) / 2) <= 1 &&
+  const rinn = !!(M && H && S) && M[0] === 24 && H[1] === 1440 - 29 && M[1] < S[0] && S[1] < H[0] && Math.abs((S[0] + S[1]) / 2 - (24 + 1411) / 2) <= 1 &&
     [M, H, S].every(r => r[2] === lt1.yp + 12 && r[3] === lt1.ala - 12) && lt1.ae === 'ttt';
-  if (M && H) { await tp.mouse.click(Math.round((M[1] + H[0]) / 2), 400); await tp.waitForTimeout(100); }
+  if (M && S) { await tp.mouse.click(Math.round((M[1] + S[0]) / 2), 400); await tp.waitForTimeout(100); }
   const lt2 = await ltT();
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
   await tp.setViewportSize({ width: 800, height: 900 }); await tp.waitForTimeout(400);
