@@ -996,10 +996,13 @@ palvelin.listen(0, async () => {
   const veda = async (a, z) => { await mp.mouse.move(a.x, a.y); await mp.mouse.down(); await mp.mouse.move(z.x, z.y, { steps: 8 }); await mp.mouse.up(); await mp.waitForTimeout(250); };
   let sw = await sanat();
   await veda(sw.s[2], sw.s[5]);
+  const m0 = await mtila();
+  // Kahvat vasta alleviivauksen napautuksesta (käyttäjän päätös 5.11.2026).
+  await mp.mouse.click(sw.s[3].x, sw.s[3].y); await mp.waitForTimeout(200);
   const m1 = await mtila();
   const oma = await mp.evaluate(() => [document.documentElement.classList.contains('oma-maalaus'), getComputedStyle(document.querySelector('#teksti')).userSelect]);
-  tulos('Luinin maalaus sanarajoihin ilman selaimen valintaa', oma[0] && oma[1] === 'none' && m1.n === 1 && m1.reunat && m1.sel === '' && m1.kahvat && m1.kahvaEro.every(v => v < .5) && !m1.pop,
-    JSON.stringify({ oma, m1 }));
+  tulos('Luinin maalaus sanarajoihin ilman selaimen valintaa', oma[0] && oma[1] === 'none' && m0.n === 1 && m0.reunat && m0.sel === '' && !m0.kahvat && !m0.pop &&
+    m1.kahvat && m1.kahvaEro.every(v => v < .5) && /rivi/.test(m1.pop), JSON.stringify({ oma, m0, m1 }));
   // Loppukahvan veto kaksi sanaa eteenpäin (kahvan ja sormen ero säilyy).
   const lk = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
   await veda(lk, { x: lk.x + sw.s[7].x - sw.s[5].x, y: lk.y + sw.s[7].y - sw.s[5].y });
@@ -1011,9 +1014,14 @@ palvelin.listen(0, async () => {
   sw = await sanat();
   await veda(sw.s[1], sw.s[3]);
   const m3 = await mtila();
+  // Valikon järjestys (käyttäjän pyyntö 5.11.2026): alleviivaus, (sanakirja vain kosketuksella), käännös, kopio, kirjaus, kirjanmerkki.
+  const jarj = await mp.evaluate(() => [...document.querySelectorAll('#pop button[data-k]')].map(b => b.dataset.k).join());
+  await mp.mouse.click(sw.s[2].x, sw.s[2].y); await mp.waitForTimeout(200);
+  const m3b = await mtila();
   await mp.keyboard.press('Escape'); await mp.waitForTimeout(100);
   const m4 = await mtila();
-  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && m3.kahvat && m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, m4 }));
+  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kaanna,kopioi,kir,km' && m3b.kahvat && m3b.luonnos > 0 &&
+    m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, jarj, kahvatNapautuksesta: m3b.kahvat, m4 }));
   // Kopio viitteellä: lyhyt (Sukunimi vuosi, luku) ja pitkä (koko viite ja luku).
   const kopioi = async tapa => {
     await mp.evaluate(t => { window.__luin.aset.kopioViite = t; }, tapa);
@@ -1024,24 +1032,32 @@ palvelin.listen(0, async () => {
     await mp.keyboard.press('Escape');
     return r;
   };
+  const ikoni = async t => { await mp.evaluate(t => { window.__luin.aset.kopioViite = t; }, t); const w = await sanat(); await veda(w.s[1], w.s[3]);
+    const n = await mp.evaluate(() => document.querySelectorAll('#pop button[data-k="kopioi"] svg path').length); await mp.keyboard.press('Escape'); return n; };
+  const ikonit = [await ikoni('ei'), await ikoni('lyhyt'), await ikoni('pitka')];
   const kl = await kopioi('lyhyt'), kp = await kopioi('pitka');
   tulos('kopio viitteellä', kl.leike === kl.ote + ' (' + kl.lyhyt + (kl.loc ? ', ' + kl.loc : '') + ')' && kp.leike.indexOf(kp.ote + '\n\n' + kp.viite) === 0 && (!kp.loc || kp.leike.endsWith(' ' + kp.loc)),
     JSON.stringify({ lyhyt: kl.leike.slice(-60), pitka: kp.leike.slice(-80) }));
+  tulos('kopion ikoni kertoo viitteen', ikonit[0] === 0 && ikonit[1] === 1 && ikonit[2] === 1, JSON.stringify(ikonit));
   await mp.evaluate(() => { window.__luin.aset.kopioViite = 'ei'; });
-  // Sanakirja: yhden sanan valikossa, taivutusmuodon perusmuoto on napautettava, ‹ palaa.
+  // Sanakirja: työpöydän tuplaklikkaus avaa sen suoraan (ei valikkoa, ei alleviivausta); perusmuoto on napautettava,
+  // ‹ palaa edelliseen sanaan, lisää vie sanan Wikisanakirjan sivulle.
   sw = await sanat();
-  await mp.mouse.dblclick(sw.s[4].x, sw.s[4].y); await mp.waitForTimeout(250);
-  const skNappi = await mp.evaluate(() => !!document.querySelector('#pop button[data-k="sk"]'));
-  await mp.click('#pop button[data-k="sk"]'); await mp.waitForTimeout(300);
-  const sk1 = await mp.evaluate(() => ({ teksti: document.querySelector('#pop').innerText, linkit: [...document.querySelectorAll('#pop button.sk-sana')].map(x => x.dataset.sana) }));
+  const nEnnen = (await mtila()).n;
+  await mp.mouse.dblclick(sw.s[4].x, sw.s[4].y); await mp.waitForTimeout(350);
+  const sk1 = await mp.evaluate(() => ({ luokka: document.querySelector('#pop').className, teksti: document.querySelector('#pop').innerText, linkit: [...document.querySelectorAll('#pop button.sk-sana')].map(x => x.dataset.sana),
+    takaisin: !!document.querySelector('#pop .sk-takaisin'), lisaa: (document.querySelector('#pop a.sk-lisa') || {}).href || '' }));
+  const sk1t = await mtila();
   await mp.click('#pop button.sk-sana'); await mp.waitForTimeout(300);
   const sk2 = await mp.evaluate(() => document.querySelector('#pop').innerText);
-  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(200);
-  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(200);
-  const sk3 = await mp.evaluate(() => !!document.querySelector('#pop button[data-k="sk"]'));
-  tulos('sanakirja', skNappi && sk1.linkit.join() === 'perusmuoto' && /genitive of perusmuoto/.test(sk1.teksti) && /base form/.test(sk2) && sk3 && skHaut.length === 2,
-    JSON.stringify({ linkit: sk1.linkit, haut: skHaut }));
+  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(300);
+  const sk3 = await mp.evaluate(() => document.querySelector('#pop .sk-ots span').textContent);
+  tulos('sanakirja tuplaklikkauksesta', /sanakirja/.test(sk1.luokka) && sk1t.n === nEnnen && !sk1t.kahvat && sk1.linkit.join() === 'perusmuoto' && /genitive of perusmuoto/.test(sk1.teksti) &&
+    !sk1.takaisin && /^https:\/\/en\.wiktionary\.org\/wiki\//.test(sk1.lisaa) && !/valikko|englanninkielinen/.test(sk1.teksti) && /base form/.test(sk2) && /‹/.test(sk2) && sk3.length > 0 && skHaut.length === 2,
+    JSON.stringify({ linkit: sk1.linkit, haut: skHaut, lisaa: sk1.lisaa }));
+  await mp.keyboard.press('Escape');
   // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.
+  sw = await sanat(); await veda(sw.s[1], sw.s[2]);
   await mp.click('#pop button[data-k="kaanna"]');
   const dl = await mp.evaluate(() => window.__avattu.pop() || '');
   tulos('käännös DeepL-osoitteeseen', /^https:\/\/www\.deepl\.com\/translator#(fi|en|de|fr|sv)\/(fi|en)\/[^/]+$/.test(dl), dl.slice(0, 90));
@@ -1080,7 +1096,17 @@ palvelin.listen(0, async () => {
   for (let i = 1; i <= 8; i++) { await kosk('touchMove', ka.x + (kz.x - ka.x) * i / 8, ka.y + (kz.y - ka.y) * i / 8); await kp2.waitForTimeout(30); }
   await kosk('touchEnd'); await kp2.waitForTimeout(300);
   const kt2 = await kn();
-  tulos('kosketusmaalaus', kt0.n === 0 && kt1.n === 0 && kt1.y !== kt0.y && kt2.n === 1 && kt2.x.split(' ').length >= 3, JSON.stringify({ napautus: kt0.n, vieritys: [kt1.n, kt0.y, kt1.y], maalaus: kt2.x }));
+  const kk2 = await kp2.evaluate(() => !document.querySelector('#kahvat').hidden);
+  tulos('kosketusmaalaus', kt0.n === 0 && kt1.n === 0 && kt1.y !== kt0.y && kt2.n === 1 && kt2.x.split(' ').length >= 3 && !kk2, JSON.stringify({ napautus: kt0.n, vieritys: [kt1.n, kt0.y, kt1.y], maalaus: kt2.x, kahvat: kk2 }));
+  // Pelkkä pitkä painallus sanaan (ei vetoa) on valinta: valikko sanakirjoineen myös sukkelana, ei alleviivausta eikä kahvoja.
+  // Luonnoksen napautus tuo kahvat.
+  const [kb] = [ksanat[7]];
+  await kosk('touchStart', kb.x, kb.y); await kp2.waitForTimeout(600); await kosk('touchEnd'); await kp2.waitForTimeout(300);
+  const kt3 = await kp2.evaluate(() => ({ n: window.__luin.nyt().merk.al.length, luonnos: document.querySelectorAll('mark.luonnos').length, kahvat: !document.querySelector('#kahvat').hidden,
+    napit: [...document.querySelectorAll('#pop button[data-k]')].map(b => b.dataset.k).join() }));
+  await kosk('touchStart', kb.x, kb.y); await kp2.waitForTimeout(60); await kosk('touchEnd'); await kp2.waitForTimeout(400);
+  const kt4 = await kp2.evaluate(() => !document.querySelector('#kahvat').hidden);
+  tulos('pitkä painallus sanaan on valinta', kt3.n === kt2.n && kt3.luonnos > 0 && !kt3.kahvat && kt3.napit === 'ali,sk,kaanna,kopioi,kir,km' && kt4, JSON.stringify({ kt3, kahvatNapautuksesta: kt4 }));
   await kk.close();
   }
 

@@ -107,8 +107,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Maalauskone** (pilotti 5.11.2026, opas 4.3): Luinin oma maalaus (`aset.maalaus`, oletus) ottaa selaimen valinnan
   pois tekstistä tarkoituksella (`html.oma-maalaus`, käyttäjä: "lukurauhan astia, ei joka paikan höylä"); kopiointi
   on valikon napissa. Älä palauta valintaa "korjauksena". Sanaraja on `sanassa()`, jota käyttävät myös
-  `valintaPaloiksi()` ja viennin `esiintymat()`: pidä ne samana. Kahvat tulevat jokaiseen uuteen alleviivaukseen,
-  koska Firefox e-ink-laitteella ei jatka valintaa vetämällä.
+  `valintaPaloiksi()` ja viennin `esiintymat()`: pidä ne samana. Kahvat vain alleviivauksen tai luonnoksen
+  napautuksesta, ei maalauksen päätteeksi; työpöydän tuplaklikkaus on sanakirja; puhelimen pitkä painallus ilman
+  vetoa on valinta (valikko myös sukkelana). Käyttäjän päätökset 5.11.2026.
 - **Sanakirja ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi).
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
