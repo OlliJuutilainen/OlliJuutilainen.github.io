@@ -2432,7 +2432,7 @@
       var paa = o.parentNode.dataset.paa, el = kahvaEl[paa], sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
       var x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top) + (parseFloat(el.style.getPropertyValue('--kh')) || 20) / 2;
       veto = { paa: paa, h: kahvaH, id: e.pointerId, dx: e.clientX - x0, dy: e.clientY - y0, x: e.clientX, y: e.clientY,
-        kiinni: paa === 'alku' ? { b: z.b, o: z.e } : { b: a.b, o: a.s }, pop: !pop.hidden, lupa: e.pointerType !== 'mouse' };
+        kiinni: paa === 'alku' ? { b: z.b, o: z.e } : { b: a.b, o: a.s }, pop: !pop.hidden, lupa: LUPA_KAYTOSSA && e.pointerType !== 'mouse' };
       try { o.setPointerCapture(e.pointerId); } catch (er) {}
       if (!pop.hidden) suljePop();
       if (veto.lupa) lupaAskel();
@@ -2489,6 +2489,9 @@
      Sisältö on vedettävän lohkon klooni, jonka jokaiselle elementille kopioidaan alkuperäisen lasketut tyylit (lohkon
      muotoilu riippuu #teksti-valitsimista ja sisaruksista), joten rivitys on sama. Klooni tehdään uudelleen vain, kun
      alue tai lohko muuttuu. Lasi ei saa kaataa vetoa: virhe sulkee lasin loppuvedon ajaksi. */
+  // Hyllyllä (käyttäjän päätös 5.11.2026): tarve saattoi Booxilla johtua porrastuksen puutteesta; kokeillaan ilman.
+  // Koodi jää; true palauttaa lasin.
+  var LUPA_KAYTOSSA = false;
   var LUPA_Z = 1.25, LUPA_LEV = 8 * .546, lupaEl = $('#lupa'), lupaSis = $('.l-sisus', lupaEl), lupa = null;
   var LUPA_TYYLIT = ['display', 'float', 'clear', 'box-sizing', 'width', 'vertical-align', 'margin-top', 'margin-right', 'margin-bottom',
     'margin-left', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'border-top-width', 'border-right-width',
@@ -4171,7 +4174,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();

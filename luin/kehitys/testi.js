@@ -1180,7 +1180,13 @@ palvelin.listen(0, async () => {
       varsiLasissa: vr.left > lr.left && vr.right < lr.right, varjo: getComputedStyle(L).boxShadow, pointer: getComputedStyle(L).pointerEvents };
   });
   const kote = () => kp2.evaluate(() => { const k = document.querySelector('.kahva[data-paa="loppu"]'), r = k.querySelector('.k-ote').getBoundingClientRect(); return { x: r.left + 26, y: r.top + 12, kx: parseFloat(k.style.left) }; });
+  // Hyllyllä (käyttäjän päätös 5.11.2026): oletuksena ei lasia; muut tarkistukset koukulla päällä.
   const lo = await kote();
+  await kosk('touchStart', lo.x, lo.y); await kp2.waitForTimeout(100);
+  const hyllyLupa = await kp2.evaluate(() => !document.querySelector('#lupa').hidden);
+  await kosk('touchEnd'); await kp2.waitForTimeout(300);
+  tulos('suurennuslasi hyllyllä', !hyllyLupa, JSON.stringify({ hyllyLupa }));
+  await kp2.evaluate(() => window.__luin.lupa(true));
   await kosk('touchStart', lo.x, lo.y); await kp2.waitForTimeout(100);
   const lu0 = await lupaTila();
   // Sormi seuraavan sanan kohdalle (sana voi olla rivin lopussa, joten pelkkä siirto oikealle ei riitä).
