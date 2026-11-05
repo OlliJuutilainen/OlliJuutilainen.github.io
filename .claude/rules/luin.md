@@ -122,7 +122,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   1,25-kertaisena rivin yläpuolella. Klooni tarvitsee alkuperäisen lasketut tyylit (`lupaKlooni()`); `#lupa` pysyy
   `pointer-events: none` eikä saa `.luin-ui`-luokkaa. Kahvan kohta luetaan otealueen läpi (`#kahvat.lapi`).
 - **Kaarikahva** (käyttäjän päätös 5.11.2026, opas 4.3): ote on rivin keskikorkeudella kuten maalauksessa, ei rivin alla.
-  Vedon ajaksi kahvat katoavat ja alleviivaus on katkoviiva; älä tuo kahvoja vedon ajaksi näkyviin kysymättä.
+  Kahvat vain kutsuvat tarttumaan: vedon alkaessa ne katoavat eivätkä palaa vedon jälkeen. Alleviivaus pysyy vedon
+  ajan yhtenäisenä (ei katkoviivaa). Nuppi mahtuu sanaväliin (0,2 em); älä levennä sitä kysymättä.
 - **Sanakirja ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi).
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
