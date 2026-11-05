@@ -246,6 +246,13 @@
   /* Asetuskiekon ulkokehän muste palkkien oikeaan laitaan: muste 0,84 px svg:n reunan sisällä (pikselimitattu), svg 11 px
      napin reunasta, palkin padding 2 px. Kiekko on navinäkymän muiden tapaan harmaa (käyttäjän pyyntö 29.10.2026). */
   .ylapalkki .ratas { margin-right: calc(var(--o-laita) - 13.84px); color: var(--harmaa); }
+  /* Kokoruutunappi kiekon vasemmalla puolella, vain kun kokoruutu on asetuksissa päällä. Kulmat osoittavat ulos
+     (siirry kokoruutuun) tai kokoruudussa sisään (poistu). */
+  .ylapalkki .kr-nappi { color: var(--harmaa); }
+  .kr-nappi svg { width: 18px; height: 18px; fill: none !important; stroke: currentColor; stroke-width: 1.3; }
+  .kr-nappi .kr-sisaan, html.kokoruudussa .kr-nappi .kr-ulos { display: none; }
+  html.kokoruudussa .kr-nappi .kr-sisaan { display: inline; }
+  #kr-huom { margin: 2px 0 0; }
   /* Asetusten sulkuraksin keskikohta on lukijan kiekon keskikohdan kohdalla (käyttäjän pyynnöt 28.10.2026): sama
      marginaali ja reunus kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa
      kohdassa, vaikka kiekko ei ole. */
@@ -713,6 +720,7 @@
   <div class="ylapalkki">
     <a class="takaisin" href="#">‹ Lukulista</a>
     <span class="y-nimi" id="y-nimi"></span>
+    <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
   </div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
@@ -767,7 +775,12 @@
     <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
     <!-- Kumoa ja tee uudelleen (käyttäjän pyyntö 5.11.2026): toimii kummassakin tilassa, joten ei sisennetty Sivunkäännön alle.
          Oletuksena (kumoNapit null) näkyvät Painikkeiden kanssa; kytkimen napautus tekee valinnasta pysyvän. -->
-    <div class="valinnat pino" data-k="kumoNapit:Kumoa ja tee uudelleen"></div></div>
+    <div class="valinnat pino" data-k="kumoNapit:Kumoa ja tee uudelleen"></div>
+    <!-- Kokoruutu (käyttäjän pyyntö 5.11.2026): piilottaa selaimen palkit. Selain sallii sen vain napautuksesta, joten
+         Luin siirtyy kokoruutuun tekstin avauksen jälkeisellä ensimmäisellä napautuksella (krAvaus). Näkyy vain, jos
+         selaimessa on rajapinta. -->
+    <div class="valinnat pino" id="kr-kytkin" data-k="kokoruutu:Kokoruutu"></div>
+    <p class="huomio" id="kr-huom" hidden></p></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -921,7 +934,7 @@
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, sukSana: 1, kumoNapit: null, av: 5 };
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, sukSana: 1, kumoNapit: null, kokoruutu: 0, av: 5 };
   // sukSana (Sukkela sanaselitys, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
   // pitkä painallus ilman vetoa) avaa vain sanakirjan. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // maalaus (pilotti 5.11.2026): luin = Luinin oma maalaus (ei selaimen valintaa tekstissä, kahvat), selain = selaimen
@@ -970,6 +983,67 @@
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
   function omaMaalaus() { return aset.maalaus !== 'selain'; }
+
+  /* ---------- kokoruutu (käyttäjän pyyntö 5.11.2026; opas 4.10) ----------
+     Mobiiliselaimen palkit vievät sivutettuna tilaa pysyvästi (Firefox piilottaa omansa vain vieritettäessä), ja Via
+     piirtää alapalkkinsa Luinin alakaistan päälle. Kokoruutu piilottaa ne, mutta selain sallii sen vain käyttäjän
+     napautuksesta. Siksi asetus ei siirry kokoruutuun heti, vaan tekstin avauksen jälkeisellä ensimmäisellä
+     napautuksella, sivunkäännöllä tai näppäimellä (krOdottaa). Jos käyttäjä poistuu itse (Androidin takaisin-ele,
+     yläpalkin nappi tai veto ylhäältä alas), Luin ei palaa kokoruutuun ennen seuraavaa tekstin avausta.
+     Via kääntää näytön kokoruudussa vaakaan (käyttäjän havainto 5.11.2026). Jos asento vaihtuu kokoruutuun mennessä,
+     Luin poistuu heti, kytkee asetuksen pois ja kertoo syyn asetuksissa. Asentoa ei lukita (screen.orientation.lock),
+     koska se estäisi myös käyttäjän oman käännön. */
+  var KR_EL = document.documentElement;
+  var KR_TUKI = !!(KR_EL.requestFullscreen || KR_EL.webkitRequestFullscreen);
+  var krOdottaa = false, krPyynto = false, krAsento = null, alasveto = null;
+  function vaaka() { return !!(window.matchMedia && matchMedia('(orientation: landscape)').matches); }
+  function krPaalla() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  // Hylätty pyyntö (esim. vieritysele ei kelpaa selaimelle napautukseksi) jättää krOdottaa voimaan; se nollataan vasta,
+  // kun kokoruutu on päällä (krMuuttui).
+  function krSisaan() {
+    if (!KR_TUKI || krPaalla() || krPyynto) return;
+    krAsento = vaaka(); krPyynto = true;
+    try {
+      var p = KR_EL.requestFullscreen ? KR_EL.requestFullscreen({ navigationUI: 'hide' }) : KR_EL.webkitRequestFullscreen();
+      if (p && p.then) p.then(function () { krPyynto = false; }, function () { krPyynto = false; krAsento = null; });
+      else krPyynto = false;
+    } catch (x) { krPyynto = false; krAsento = null; }
+  }
+  function krUlos() {
+    if (!krPaalla()) return;
+    try { var p = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (x) {}
+  }
+  function paivitaKrNappi() {
+    var n = $('#kr-nappi'), on = krPaalla();
+    n.hidden = !KR_TUKI || !aset.kokoruutu;
+    n.setAttribute('aria-label', on ? 'Poistu kokoruudusta' : 'Kokoruutu'); n.title = n.getAttribute('aria-label');
+  }
+  function krMuuttui() {
+    var on = krPaalla();
+    if (on) krOdottaa = false;
+    document.documentElement.classList.toggle('kokoruudussa', on);
+    paivitaKrNappi();
+    if (!on || krAsento === null) { krAsento = null; return; }
+    var ennen = krAsento; krAsento = null;
+    // Selaimen oma kääntö ehtii tapahtua vasta hetken päästä.
+    setTimeout(function () {
+      if (!krPaalla() || vaaka() === ennen) return;
+      aset.kokoruutu = 0; tallennaAset(); krOdottaa = false;
+      LS.set('luin-kokoruutu-huom', 'Selain käänsi näytön kokoruudussa, joten kokoruutu kytkettiin pois.');
+      krUlos(); paivitaKrNappi();
+      if (!$('#asetukset').hidden) piirraAsetukset();
+    }, 700);
+  }
+  document.addEventListener('fullscreenchange', krMuuttui);
+  document.addEventListener('webkitfullscreenchange', krMuuttui);
+  function krAvaus(e) {
+    if (!krOdottaa || !nyt || !aset.kokoruutu || krPaalla()) return;
+    if (e.type === 'keydown' && /^(Shift|Control|Alt|Meta|Escape)$/.test(e.key)) return;
+    // Kytkin ja yläpalkin nappi hoitavat kokoruudun itse.
+    if (e.target.closest && e.target.closest('#kr-nappi, [data-kytkin="kokoruutu"]')) return;
+    krSisaan();
+  }
+  ['click', 'touchend', 'keydown'].forEach(function (t) { document.addEventListener(t, krAvaus, true); });
 
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
@@ -1395,6 +1469,8 @@
     $('#tietoa').hidden = !auki;
     this.setAttribute('aria-expanded', auki ? 'true' : 'false');
   });
+  $('#kr-nappi').addEventListener('click', function () { krOdottaa = false; if (krPaalla()) krUlos(); else krSisaan(); });
+  paivitaKrNappi();
   $$('.ratas').forEach(function (b) { b.addEventListener('click', function () {
     tuoVal = { al: 1, ki: 1, km: 1, ed: 1 }; $('#tuo-tieto').textContent = '';
     suljePop(); piirraAsetukset();
@@ -1429,6 +1505,9 @@
           (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO : kv[1]) + '</button>';
       }).join('');
     });
+    $('#kr-kytkin').hidden = !KR_TUKI;
+    var krh = LS.get('luin-kokoruutu-huom', '');
+    $('#kr-huom').textContent = krh; $('#kr-huom').hidden = !krh || !KR_TUKI;
     $('#koko-arvo').textContent = aset.koko + ' px';
     // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
     $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
@@ -1459,6 +1538,13 @@
       if (b.getAttribute('aria-disabled') === 'true') return;
       if (b.dataset.kytkin === 'kumoNapit') aset.kumoNapit = kumoNaky() ? 0 : 1;
       else aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+      // Kytkimen napautus on itse se napautus, jonka selain vaatii: kokoruutuun heti, pois kytkettäessä heti ulos.
+      if (b.dataset.kytkin === 'kokoruutu') {
+        LS.set('luin-kokoruutu-huom', '');
+        krOdottaa = false;
+        if (aset.kokoruutu) krSisaan(); else krUlos();
+        paivitaKrNappi();
+      }
     }
     else if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
     // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Pääluvut sammuttaa
@@ -1582,6 +1668,7 @@
     tallennaLista();
     nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };
     tila.nakyma = 'lukija';
+    krOdottaa = !!aset.kokoruutu;
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
@@ -1970,6 +2057,17 @@
     var lyhyt = Date.now() - kosketus.t < 600;
     kosketus = null;
     if (lyhyt && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5 && valintaTyhja()) { tila.pyyhkaisty = Date.now(); seuraava(dx < 0 ? 1 : -1); }
+  }, { passive: true });
+  // Kokoruudusta pois vetämällä ruudun yläosasta alas (käyttäjän ehdotus 5.11.2026). Vain sivutettuna, koska vierityksessä
+  // veto vierittää. Pystyeleitä ei sivutettuna käytetä muuhun; maalaus alkaa vasta pitkästä painalluksesta.
+  sivuEl.addEventListener('touchstart', function (e) {
+    alasveto = e.touches.length === 1 && e.touches[0].clientY < innerHeight * 0.25 ? { y: e.touches[0].clientY, x: e.touches[0].clientX, t: Date.now() } : null;
+  }, { passive: true });
+  sivuEl.addEventListener('touchend', function (e) {
+    var v = alasveto; alasveto = null;
+    if (!v || !krPaalla() || aset.sivutus !== 'sivut' || verhoAuki() || (maal && maal.aktiivinen)) return;
+    var t = e.changedTouches[0], dx = t.clientX - v.x, dy = t.clientY - v.y;
+    if (Date.now() - v.t < 800 && dy > 80 && dy > Math.abs(dx) * 1.5) krUlos();
   }, { passive: true });
 
   // Alapalkin kosketus muistetaan: sen perässä tuleva haamunapautus ei saa kääntää sivua reunanapautuksena
