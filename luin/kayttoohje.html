@@ -69,6 +69,8 @@
   .ik.nauha.on { fill: var(--ruoste); stroke: var(--ruoste); }
   /* Maalauskoneen kahva, sanakirja ja käännös (luin.html, pilotti 5.11.2026). */
   .ik.kahva { fill: var(--ruoste); height: 1.25em; vertical-align: -.3em; }
+  .ik.koti { height: 1.2em; vertical-align: -.26em; overflow: visible; }
+  .ik.koti .k { fill: none; stroke: var(--harmaa); stroke-width: 1.15; stroke-linejoin: miter; }
   .ik.kirja { height: 1.15em; vertical-align: -.22em; }
   .ik-kaanna { font-size: .9em; white-space: nowrap; }
   .ik.nuoli { fill: none; stroke: var(--harmaa); stroke-width: 1; height: .9em; vertical-align: -.06em; }
@@ -112,7 +114,7 @@
   <p>Teksti avataan linkistä, ja avattu teksti tallentuu lukulistaan. Lukulista on lukulaitteen etusivu.
     Nimikkeen alla näkyvät tekijä, luettu osuus ja viimeisin lukupäivä. Nimikkeen napautus jatkaa lukemista
     siitä, mihin jäit.</p>
-  <p>Tekstistä pääset takaisin lukulistaan yläpalkin linkistä <span class="ui">‹ Lukulista</span>.</p>
+  <p>Tekstistä pääset takaisin lukulistaan yläpalkin vasemmasta kulmasta, kotimerkistä <svg class="ik koti" viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="var(--ruoste)" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg>.</p>
   <p>Lukulistan alla on kenttä <span class="ui">Laatikon koodi tai linkki</span>. Linkki avaa tekstin. Koodi ottaa käyttöön
     <b>postilaatikon</b>: sen jälkeen Latomossa samaan laatikkoon lähetetyt tekstit tulevat lukulistaan itsestään aina, kun
     avaat lukulistan. Laatikon voi ottaa käyttöön myös sen linkistä, ja koodin voi vaihtaa tai poistaa lukulistan

@@ -39,7 +39,7 @@
     --yla: 56px; --ala: 40px;
   }
   /* Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026): musteen etäisyys ruudun reunasta. Vasemmalla kirjanmerkkinapin
-     symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), Lukulista-natsa, aikajanan alku, osion nimi ja
+     symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), kotimerkin seinä, aikajanan alku, osion nimi ja
      Merkinnät; oikealla asetuskiekko ja kalanruoto (kulmakivet; työpöydällä ennen 29,0 ja 28,5 px), edistyminen, aikajanan
      loppu ja sivunapit. Mobiilissa oikea laita on vasemman peilikuva (ennen tekstipalstan reuna + 10 px eli Keski-marginaalilla
      38,5 px, mikä jätti oikeaan laitaan oudon aukon). Laidat ovat kokonaislukuja, koska Chromium pyöristää SVG:n ja
@@ -258,9 +258,13 @@
      marginaali ja reunus kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa
      kohdassa, vaikka kiekko ei ole. */
   #asetukset .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
-  /* Natsan (‹) muste palkkien vasempaan laitaan: Literatan ‹:n vasen sivuväli on 0,05 em (mitattu). */
-  .takaisin { font-size: .86rem; padding: 0 10px 0 calc(var(--v-laita) - .05em); height: 44px; display: inline-flex; align-items: center;
-    text-decoration: none; color: var(--harmaa); white-space: nowrap; }
+  /* Paluu lukulistaan on kotimerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama pirtti ja ruosteinen
+     harjasalmiakki kuin Latomossa ja ohjeissa. Seinän muste palkkien vasempaan laitaan: seinän ulkoreuna on viewBoxin
+     x = 4,425 eli 4,06 px svg:n reunasta; padding on kokonaisluku, koska Chromium pyöristää svg:n paikan. */
+  .takaisin { padding: 0 11px 0 calc(var(--v-laita) - 4px); height: 44px; display: inline-flex; align-items: center;
+    flex: 0 0 auto; text-decoration: none; color: var(--harmaa); }
+  .takaisin svg { display: block; width: 22px; height: 22px; overflow: visible; }
+  .takaisin .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
   /* Mobiilissa (body.mobiili: kosketusnäyttö eli pointer: coarse; käyttäjän päätökset 22.10.2026) palkit ovat
@@ -719,7 +723,7 @@
 <!-- ===== Lukija ===== -->
 <section id="lukija" hidden>
   <div class="ylapalkki">
-    <a class="takaisin" href="#">‹ Lukulista</a>
+    <a class="takaisin" href="#" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="var(--ruoste)" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
     <span class="y-nimi" id="y-nimi"></span>
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
