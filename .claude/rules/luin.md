@@ -91,6 +91,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   vain pysäkeille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä. Poikkeus kumpaankin (käyttäjän
   pyyntö 4.11.2026): osuma piirrettyyn kirjanmerkin nauhaan vie tasan kirjanmerkkiin (`janaNauhat`). Liikkeessä
   päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (e-ink).
+- **Kumonapit** (opas 4.9, `kumoNaky()`): oletuksena näkyvät vain sivunappien kanssa, ei pyyhkäisyn eikä reunanapautuksen,
+  ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` toimii kaikissa tiloissa eikä kuulu
+  `SIVUTAVAT`-listaan. Ei tekstiä napeissa.
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska käyttäjän työpöytäselain ei
   noudattanut CSS:ää). **Sisällysluetteloa ei pakoteta omalle sivulleen**; se kulkee otsikkolohkon perässä.
