@@ -81,7 +81,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   alapalkin kirjanmerkki- ja sivunapit. Tekstialueen napautus sulkee Asetukset, Etsin ja Sisälmyksen tai navin;
   Merkinnät sulkeutuu vain napistaan tai raksistaan.
   Asetusten avaus sulkee navin.
-- **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Etsi ja Sisälmys avautuvat nappiensa järjestyksessä
+- **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
   vasemmalle, keskelle ja oikealle, koko korkeudelle palkkien väliin. Rinnakkain vain, jos kolme 19rem:n saraketta mahtuu
   laitojen väliin; muuten yksi kerrallaan samaan tilaan. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme.
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
@@ -97,7 +97,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (e-ink).
 - **Kumonapit** (opas 4.9, `kumoNaky()`): oletuksena näkyvät vain sivunappien kanssa, ei pyyhkäisyn eikä reunanapautuksen,
   ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` toimii kaikissa tiloissa eikä kuulu
-  `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Sisälmyksen oikealla puolella, vain jos
+  `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Etsin oikealla puolella, vain jos
   mahtuu samalle riville (`piirraKumo()`); ei alapalkissa (käyttäjä: ei näyttänyt siellä hyvältä).
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska käyttäjän työpöytäselain ei
