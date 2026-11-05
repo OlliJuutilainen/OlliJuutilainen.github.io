@@ -381,9 +381,10 @@
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   .kahva .k-varsi { position: absolute; left: -.75px; top: 0; width: 1.5px; height: calc(var(--kh, 20px) + 2px); background: var(--ruoste); }
-  .kahva .k-ote { position: absolute; left: -22px; top: calc(var(--kh, 20px) + 1px); width: 44px; height: 40px;
+  /* Kahvan salmiakki 20 × 25 px (käyttäjän pyyntö 5.11.2026: ennen 13 × 16; yläkärki ennallaan rivin alla). */
+  .kahva .k-ote { position: absolute; left: -26px; top: calc(var(--kh, 20px) + 1px); width: 52px; height: 48px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
-  .kahva .k-ote svg { position: absolute; left: 15.5px; top: 0; width: 13px; height: 16px; fill: var(--ruoste); }
+  .kahva .k-ote svg { position: absolute; left: 16px; top: 0; width: 20px; height: 25px; fill: var(--ruoste); }
   .km { position: absolute; width: 9px; height: 15px; color: var(--ruoste); cursor: pointer; z-index: 2; }
   .km svg { display: block; width: 9px; height: 15px; fill: currentColor; }
 
@@ -635,6 +636,10 @@
   .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
   .valinnat button:disabled .sal-sisa { fill: none; }
   .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
+  /* Sukkela sanasto (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja Etsin salmiakkilinssi. */
+  .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
+  .valinnat.nipukka svg.sanasto { width: 22px; height: 15px; margin-left: 3px; fill: none; stroke: var(--ruoste); }
+  .valinnat button:disabled svg.sanasto { stroke: currentColor; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
@@ -772,6 +777,7 @@
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
     <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div>
+    <div class="valinnat nipukka" data-k="sukSana:Sukkela sanasto"></div>
     <div class="valinnat pino" data-k="verkkolinkit:Verkkolinkit"></div></div>
   <!-- Maalauskone (pilotti 5.11.2026): Luinin oma maalaus (kahvat, ei selaimen valintaa) tai selaimen valinta,
        kopion viite ja valikon sanakirja ja käännös. Sanakirja ja käännös hakevat verkosta vain napautettaessa. -->
@@ -909,7 +915,9 @@
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, kumoNapit: null, av: 5 };
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, sukSana: 1, kumoNapit: null, av: 5 };
+  // sukSana (Sukkela sanasto, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
+  // pitkä painallus ilman vetoa) avaa vain sanakirjan. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // maalaus (pilotti 5.11.2026): luin = Luinin oma maalaus (ei selaimen valintaa tekstissä, kahvat), selain = selaimen
   // valinta kuten ennen. kopioViite: kopioon lyhyt (Korsgaard 2018, 8.5.3) tai pitkä viite. sanakirja, kaannos: valikon napit.
   var tallennetut = LS.get('luin-asetukset', null);
@@ -1406,11 +1414,11 @@
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
-        var pois = kv[0] === 'auto' && !aset.alTekstissa || tapa && aset.sivutus !== 'sivut';
+        var pois = kv[0] === 'auto' && !aset.alTekstissa || kv[0] === 'sukSana' && !aset.sanakirja || tapa && aset.sivutus !== 'sivut';
         var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
         return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + (kv[0] === 'kumoNapit' ? kumoNaky() : !!aset[kv[0]]) + '"' + (pois ? ' disabled' : '') +
           (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
-          (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[1]) + '</button>';
+          (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO : kv[1]) + '</button>';
       }).join('');
     });
     $('#koko-arvo').textContent = aset.koko + ' px';
@@ -2093,7 +2101,7 @@
     naytaKahvat(h);
     rect = alRect(h) || rect;
     naytaPop(rect, (h.n ? '<div class="esi kir"><div>' + esc(lyhenna(h.n, 300)) + '</div></div>' : '') +
-      lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()) + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + ikNappi('poista', IK_POISTA, 'Poista alleviivaus'), 'rivi', function (k, b) {
+      ikNappi('poista', IK_POISTA, 'Poista alleviivaus') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
       if (k === 'kir') { piilotaKahvat(); avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioiViitteella(h.segs).then(function () { kopioitu(b); }); return true; }
       if (k === 'sk') { piilotaKahvat(); sanakirja(h.segs[0].x, rect, [], tekstinKieli(h.segs)); return true; }
@@ -2194,7 +2202,7 @@
     if (!segs.length) return;
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
     // Työpöydän tuplaklikkaus on sanakirja (käyttäjän päätös 5.11.2026).
-    if (osoitin === 'mouse' && tila.klikit >= 2 && aset.sanakirja && yksiSana(segs)) {
+    if (osoitin === 'mouse' && tila.klikit >= 2 && sukkelaSanasto() && yksiSana(segs)) {
       s.removeAllRanges();
       sanakirja(segs[0].x, rect, [], tekstinKieli(segs));
       return;
@@ -2211,11 +2219,10 @@
   }
   // Valinnan (tai Luinin maalauksen luonnoksen) valikko. Luonnoksen merkit poistetaan ennen toimintoa.
   function naytaValintaPop(segs, rect) {
-    var alku = { b: segs[0].b, o: segs[0].s };
     function pois() { getSelection().removeAllRanges(); poistaLuonnos(); }
-    // Järjestys (käyttäjän pyyntö 5.11.2026): alleviivaus, sanakirja, käännös, kopio; sitten kirjaus ja kirjanmerkki.
-    naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + lisaNapit(segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()) + ikNappi('kir', IK_KIRJAA, 'Kirjaa') +
-      '<button type="button" data-k="km" class="km-ikoni" aria-label="Kirjanmerkki" title="Kirjanmerkki">' + NAUHA + '</button>', 'rivi', function (k, b) {
+    // Järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanakirja (yksi sana), käännös, kopio. Kirjanmerkkiä ei
+    // valikossa ole: kirjanmerkki tehdään vain alapalkin nauhasta kappaleen alkuun.
+    naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
       if (k === 'ali') { pois(); luoAlleviivaus(segs); }
       if (k === 'kir') {
         pois();
@@ -2226,7 +2233,6 @@
       if (k === 'kopioi') { kopioiViitteella(segs).then(function () { kopioitu(b); }); return true; }
       if (k === 'sk') { sanakirja(segs[0].x, rect, [], tekstinKieli(segs)); return true; }
       if (k === 'kaanna') { kaanna(segs); return true; }
-      if (k === 'km') { pois(); lisaaKirjanmerkki(alku); }
     });
   }
   /* ---------- maalauskone (pilotti 5.11.2026) ----------
@@ -2240,7 +2246,7 @@
      vierityksen); silloin maalaus jää painetun sanan kokoiseksi ja jatkuu kahvasta. */
   var PITKA = 450, luonnos = { id: 'luonnos', segs: [] }, kahvaH = null, maal = null, veto = null;
   var kahvatEl = $('#kahvat'), kahvaEl = { alku: $('.kahva[data-paa="alku"]', kahvatEl), loppu: $('.kahva[data-paa="loppu"]', kahvatEl) };
-  $$('.k-ote', kahvatEl).forEach(function (o) { o.innerHTML = '<svg viewBox="0 0 13 16" aria-hidden="true"><path d="' + sal(6.5, 8, 6.5, 8) + '"/></svg>'; });
+  $$('.k-ote', kahvatEl).forEach(function (o) { o.innerHTML = '<svg viewBox="0 0 20 25" aria-hidden="true"><path d="' + sal(10, 12.5, 10, 12.5) + '"/></svg>'; });
   function kohtaEnnen(a, z) { return a.b < z.b || a.b === z.b && a.o <= z.o; }
   function sanaKohdassa(k) {
     var t = nyt.txt[k.b] || '', s = k.o, e = k.o;
@@ -2417,13 +2423,16 @@
   // Luonnos alleviivaukseksi (sukkela) tai valikoksi. Kahvat eivät tule tässä vaan vasta alleviivauksen tai luonnoksen
   // uudesta napautuksesta (käyttäjän päätös 5.11.2026). Kosketuksella pelkkä painettu sana (ei vetoa) on valinta, joka
   // avaa valikon myös sukkelana: pitkä painallus on puhelimella sekä maalaus että sanan valinta.
+  // Sukkela sanasto (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanakirjan; luonnos näyttää sanan.
   function valmisMaalaus(valinta) {
     tila.maalattu = Date.now();
     var segs = luonnos.segs.slice();
     if (!segs.length) return;
-    if (autoAli() && !valinta) { poistaLuonnos(); luoAlleviivaus(segs); }
+    if (valinta && sukkelaSanasto() && yksiSana(segs)) sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs));
+    else if (autoAli() && !valinta) { poistaLuonnos(); luoAlleviivaus(segs); }
     else naytaValintaPop(segs, alRect(luonnos));
   }
+  function sukkelaSanasto() { return !!(aset.sukSana && aset.sanakirja); }
   function maalausSallittu(t) {
     return omaMaalaus() && nyt && tila.nakyma === 'lukija' && !verhoAuki() && !muokkaus &&
       !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, label, input, textarea, .luin-ui'));
@@ -2451,7 +2460,7 @@
     if (!segs.length) return;
     suljePop(); piilotaKahvat(); poistaLuonnos();
     piirraLuonnos(segs);
-    if (aset.sanakirja && yksiSana(segs)) { tila.maalattu = Date.now(); sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs)); }
+    if (sukkelaSanasto() && yksiSana(segs)) { tila.maalattu = Date.now(); sanakirja(segs[0].x, alRect(luonnos), [], tekstinKieli(segs)); }
     else valmisMaalaus();
   });
   sivuEl.addEventListener('touchstart', function (e) {
@@ -2560,6 +2569,9 @@
     var l = tekstinKieli(segs), t = segs.map(function (s) { return s.x; }).join('\n\n');
     window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), '_blank', 'noopener');
   }
+  // Sukkelan sanaston merkki asetuksissa: lambda ja sen vieressä Etsin salmiakkilinssi varsineen.
+  var IK_SANASTO = '<svg class="sanasto" viewBox="0 0 27 18" aria-hidden="true"><path d="M1.6 1.6C3.6 1.3 4.8 2.4 5.8 4.6L10.4 15.4C10.8 16.3 11.4 16.6 12.3 16.3" stroke-width="1.5"/>' +
+    '<path d="M7.2 8.2L2.4 16.6" stroke-width="1.5"/><path d="M19.5 3.2L23.8 7.5L19.5 11.8L15.2 7.5Z" stroke-width=".9"/><path d="M21.8 9.8L26 14" stroke-width="1.4"/></svg>';
   // Sanakirjan merkki on pieni lambda (logos; käyttäjän ehdotus 5.11.2026): koukku, pitkä kylki ja lyhyt jalka.
   var IK_SANAKIRJA = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">' +
     '<path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5"/><path d="M10.6 10.3L5.4 17.6"/></svg>';
@@ -2572,9 +2584,9 @@
     return IK_KOPIOI.replace('</svg>', r ? '<g stroke-width="1">' + r + '</g></svg>' : '</svg>');
   }
   function yksiSana(segs) { return segs.length === 1 && segs[0].x.length <= 60 && /^[\p{L}\p{N}’'\-]+$/u.test(segs[0].x); }
-  // Sanakirjan nappi vain kosketuksella; työpöydällä sanakirja on tuplaklikkauksessa (käyttäjän päätös 5.11.2026).
+  // Sanakirjan nappi, kun valittuna on yksi sana (käyttäjän päätös 5.11.2026).
   function lisaNapit(segs) {
-    return (aset.sanakirja && mobiili() && yksiSana(segs) ? ikNappi('sk', IK_SANAKIRJA, 'Sanakirja (Wiktionary)') : '') +
+    return (aset.sanakirja && yksiSana(segs) ? ikNappi('sk', IK_SANAKIRJA, 'Sanakirja (Wiktionary)') : '') +
       (aset.kaannos ? ikNappi('kaanna', ikKaanna(kohdeKieli(tekstinKieli(segs))), 'Käännä (DeepL)') : '');
   }
 
@@ -3452,7 +3464,7 @@
       return '<div class="merkki">' + NAUHA.replace('<svg', '<svg aria-hidden="true"') + '<button type="button" class="m-teksti" data-mene="km:' + k.id + '"><span class="m-kohta">' +
         esc((k.osio ? k.osio + ' · ' : '') + pvm(k.t)) + '</span>' + esc(k.s) + '…' + (k.orpo ? ' (kohtaa ei löydy)' : '') + '</button>' +
         '<div class="m-napit"><button type="button" data-poista="km:' + k.id + '">Poista</button></div></div>';
-    }).join('') : '<p class="tyhja-m">Ei kirjanmerkkejä. Lisää vasemman alanurkan nauhasta' + (autoAli() ? '' : ' tai valitsemalla tekstiä') + '.</p>';
+    }).join('') : '<p class="tyhja-m">Ei kirjanmerkkejä. Lisää vasemman alanurkan nauhasta.</p>';
     $('#al-lista').innerHTML = al.length ? al.map(function (h) {
       var o = osioKohdassa({ b: h.segs[0].b }), t = alTeksti(h);
       return '<div class="merkki"><button type="button" class="m-teksti" data-mene="al:' + h.id + '"><span class="m-kohta">' +
