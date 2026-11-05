@@ -964,6 +964,32 @@ palvelin.listen(0, async () => {
     Object.keys(lt3.a).join() === 'sisalmys' && lt3.a.sisalmys[0] === 24 && lt3.a.sisalmys[1] === 800 - 29 && lt3.ae === 'fft' &&
     Object.keys(lt4.a).join() === 'haku' && lt4.ae === 'ftf' && !lt5.navi && !Object.keys(lt5.a).length && lt5.ae === 'fff',
     JSON.stringify([lt1, lt2, lt3, lt4, lt5].map(x => x.a)) + ' ' + [lt1, lt2, lt3, lt4, lt5].map(x => x.ae).join(','));
+  // Etsi tekstin vieressä (käyttäjän päätös 5.11.2026): 1440 px:llä hyppy leipätekstin osumaan (napautus tai Enter) jättää
+  // Etsin auki, kun se on palstan ulkopuolella, ja sulkee muut laatikot; valittu osuma merkitään listaan ja kenttä pitää
+  // kohdistuksen. 800 px:llä (yksi kerrallaan) osuma sulkee Etsin kuten ennen.
+  const etT = () => tp.evaluate(() => {
+    const q = s => document.querySelector(s), t = q('#teksti').getBoundingClientRect(), e = q('#haku').getBoundingClientRect(), c = q('#haku .osuma[aria-current]');
+    return { auki: ['merkinnat', 'sisalmys', 'haku'].filter(id => !q('#' + id).hidden).join(), erillaan: e.left >= t.right, cur: c && +c.dataset.i,
+      valittu: window.__luin.nyt().haku.valittu, fokus: document.activeElement === q('#haku input') };
+  });
+  const etLehti = () => tp.evaluate(() => { const O = window.__luin.nyt().haku.osumat, i = O.findIndex((o, j) => !o.n && O[j + 1] && !O[j + 1].n); return i < 0 ? [] : [i, i + 1]; });
+  await tp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await tp.setViewportSize({ width: 1440, height: 900 }); await tp.reload(); await tp.waitForTimeout(600);
+  await tp.mouse.click(720, 885); await tp.waitForTimeout(100);
+  for (const s of ['#merk-avaa', '#sis-avaa', '#etsi-avaa']) { await tp.click(s); await tp.waitForTimeout(100); }
+  await tp.fill('#haku input', haku.q); await tp.waitForTimeout(300);
+  const etI = await etLehti();
+  await tp.click('#haku .osuma[data-i="' + etI[0] + '"]'); await tp.waitForTimeout(200);
+  const et1 = await etT();
+  await tp.focus('#haku input'); await tp.keyboard.press('Enter'); await tp.waitForTimeout(200);
+  const et2 = await etT();
+  await tp.setViewportSize({ width: 800, height: 900 }); await tp.waitForTimeout(400);
+  if (await tp.evaluate(() => document.querySelector('#haku').hidden)) { await tp.click('#etsi-avaa'); await tp.waitForTimeout(150); }
+  await tp.click('#haku .osuma[data-i="' + etI[0] + '"]'); await tp.waitForTimeout(200);
+  const et3 = await etT();
+  tulos('Etsi jää tekstin viereen', etI.length >= 2 && et1.auki === 'haku' && et1.erillaan && et1.cur === etI[0] && et1.valittu === etI[0] &&
+    et2.auki === 'haku' && et2.valittu === etI[0] + 1 && et2.cur === et2.valittu && et2.fokus && et3.auki === '' && et3.valittu === etI[0],
+    JSON.stringify({ etI, et1, et2, et3 }));
   await tp.context().close();
 
   // Maalauskone (pilotti 5.11.2026): Luinin oma maalaus tarttuu sanoihin ilman selaimen valintaa, kahvat ovat
