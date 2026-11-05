@@ -163,7 +163,7 @@
   .valikko .sk-tieto { margin-top: 6px; color: var(--harmaa); }
   /* Sanaselityksen merkki otsikon oikeassa ylänurkassa: lambdan jalat sanan peruslinjalle, musteen oikea laita lisää-linkin
      tasalle (mitattu 5.11.2026). */
-  .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 22.5px; height: 20px; margin: 0 -2px 0 auto; position: relative; top: 1.6px; }
+  .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 22.5px; height: 20px; margin: 0 -1.35px 0 auto; position: relative; top: 1.6px; }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
   .valikko a.sk-lisa { margin-left: auto; font-size: .82rem; font-style: normal; color: var(--ruoste); text-decoration: none; }
   .valikko .sk-lahde { font-size: .64rem; letter-spacing: .02em; color: var(--huomio); color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva)); }
@@ -653,10 +653,10 @@
   .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
   .valinnat button:disabled .sal-sisa { fill: none; }
   .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
-  /* Sukkela sanaselitys (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja pyöreä linssi. */
+  /* Sukkela sanaselitys (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä ruosteinen lambda ja musteen linssi. */
   .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
   .valinnat.nipukka svg.sanasto { width: 18.7px; height: 16.6px; margin-left: 3px; }
-  .valinnat button:disabled svg.sanasto .linssi { stroke: currentColor; }
+  .valinnat button:disabled svg.sanasto .lambda { stroke: currentColor; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
@@ -2774,14 +2774,15 @@
     window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), '_blank', 'noopener');
   }
   // Sanaselityksen merkki (valinnan valikko, sanakirjan otsikko ja Sukkela sanaselitys asetuksissa; käyttäjän pyyntö
-  // 5.11.2026): musteen lambda (logos) ja ruosteinen salmiakkilinssi, perusväriä ja ruostetta kuten alleviivausikonissa.
-  // Linssi on pyöreä (syrjähyppy salmiakkiestetiikasta, käyttäjän pyyntö 5.11.2026; ennen Etsin salmiakki peilattuna):
-  // säde 5.2, varsi 58° vaakatasosta ja 11.6 pitkä. Varsi laskee vasemmalle ja ristii lambdan oikean jalan haarakohdan
-  // alapuolella (11.8, 13.5), ja sen pää on jalkojen välissä niiden korkeudella (y 17.6). Linssi nousee 2.4 laatikon
-  // yläpuolelle (svg.sanasto: overflow visible). Yksikkö on valikon 20 px:n ikonien pikseli; leveys 22.5.
+  // 5.11.2026): ruosteinen lambda (logos) ja musteen linssi (värit vaihdettu päittäin kokeiluna, käyttäjän pyyntö
+  // 5.11.2026; ennen musteen lambda ja ruosteinen linssi). Linssi on pyöreä (syrjähyppy salmiakkiestetiikasta, käyttäjän
+  // pyyntö 5.11.2026; ennen Etsin salmiakki peilattuna): säde 6.0, varsi 58° vaakatasosta ja 10.4 pitkä. Varsi laskee
+  // vasemmalle ja ristii lambdan oikean jalan haarakohdan alapuolella (11.8, 13.5), ja sen pää on jalkojen välissä niiden
+  // korkeudella (y 17.6). Linssi nousee 2.9 laatikon yläpuolelle (svg.sanasto: overflow visible). Yksikkö on valikon
+  // 20 px:n ikonien pikseli; leveys 22.5.
   var IK_SANASTO = '<svg class="sanasto" viewBox="3.6 0 22.5 20" fill="none" aria-hidden="true">' +
-    '<path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="currentColor" stroke-width="1.5"/>' +
-    '<g class="linssi" stroke="var(--ruoste)"><circle cx="18.4" cy="3.35" r="5.2" stroke-width="1.15"/><path d="M15.65 7.76L9.5 17.6" stroke-width="1.5"/></g></svg>';
+    '<path class="lambda" d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="var(--ruoste)" stroke-width="1.5"/>' +
+    '<g class="linssi" stroke="currentColor"><circle cx="18.19" cy="3.69" r="6" stroke-width="1.15"/><path d="M15.01 8.78L9.5 17.6" stroke-width="1.5"/></g></svg>';
   // Käännöksen nuoli osoittaa kirjainten alalaitaan (käyttäjän pyyntö 5.11.2026; ennen keskellä).
   function ikKaanna(k) { return '<span class="ik-kaanna"><svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M.5 4H10.5M7.6 1.2L10.6 4L7.6 6.8"/></svg>' + k + '</span>'; }
   // Kopion ikoni: viitteen kanssa etummaisessa sivussa on yksi (lyhyt) tai kaksi (pitkä) haaleaa riviä (käyttäjän pyyntö
