@@ -124,7 +124,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `pointer-events: none` eikä saa `.luin-ui`-luokkaa. Kahvan kohta luetaan otealueen läpi (`#kahvat.lapi`).
 - **Kaarikahva** (käyttäjän päätös 5.11.2026, opas 4.3): ote on rivin keskikorkeudella kuten maalauksessa, ei rivin alla.
   Kahvat vain kutsuvat tarttumaan: vedon alkaessa ne katoavat eivätkä palaa vedon jälkeen. Alleviivaus pysyy vedon
-  ajan yhtenäisenä (ei katkoviivaa). Nuppi mahtuu sanaväliin (0,2 em); älä levennä sitä kysymättä.
+  ajan yhtenäisenä (ei katkoviivaa). Nuppi mahtuu sanaväliin (0,2 em); älä levennä sitä kysymättä. Ilman sukkelaa
+  alleviivausta kahvat ja valikko palaavat vedon jälkeen. Eleen jälkeinen haamuklikkaus nielaistaan (`tila.niele`).
+- **Törmäys ja värit** (käyttäjän päätös 5.11.2026): uusi alleviivaus pysähtyy vanhan rajaan, ei lomitu eikä yhdisty.
+  Vierekkäiset vuorottelevat ruostetta ja okraa (ketjun vanhin ruoste); muita värejä ei tarvita.
+- **Kirjauksen kynä** alleviivauksen alussa: napautus näyttää kirjauksen, toinen napautus muokkaa.
 - **Sanaselitys ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi). Käännös on
   oletuksena pois valikosta.

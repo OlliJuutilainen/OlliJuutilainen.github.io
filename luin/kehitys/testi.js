@@ -1225,6 +1225,78 @@ palvelin.listen(0, async () => {
   await kk.close();
   }
 
+  // Törmäys, värit ja kirjauksen kynä (käyttäjän päätökset 5.11.2026): uusi alleviivaus pysähtyy vanhan rajaan eikä lomitu;
+  // vierekkäiset vuorottelevat ruostetta ja okraa (ketjun vanhin ruoste); kirjauksen kynä alleviivauksen alussa näyttää
+  // kirjauksen ja toisella napautuksella avaa muokkaimen.
+  {
+  const tk = await b.newContext({ viewport: { width: 1280, height: 900 } });
+  const tp2 = await tk.newPage(); tp2.on('pageerror', e => sivuvirheet.push(e.message));
+  await tp2.goto(BASE + 'luin.html');
+  await tp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
+  await tp2.goto(BASE + 'luin.html#tuo'); await tp2.waitForTimeout(600);
+  const ts = await tp2.evaluate(() => { const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600 && !x.querySelector('.sidenote')) || [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600);
+    el.scrollIntoView({ block: 'center' });
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), o = []; let t; while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote, .fnref')) continue; const re = /[\p{L}]{5,}/gu; let m;
+      while ((m = re.exec(t.data))) { const q = document.createRange(); q.setStart(t, m.index + 2); q.setEnd(t, m.index + 3); const r = q.getClientRects()[0]; if (r && r.top > 60 && r.bottom < innerHeight - 60) o.push({ x: r.left + r.width / 2, y: r.top + r.height / 2 }); } } return o; });
+  const tveda = async (a, z) => { await tp2.mouse.move(a.x, a.y); await tp2.mouse.down(); await tp2.mouse.move(z.x, z.y, { steps: 8 }); await tp2.mouse.up(); await tp2.waitForTimeout(250); await tp2.keyboard.press('Escape'); await tp2.waitForTimeout(100); };
+  const ttila = () => tp2.evaluate(() => { const n = window.__luin.nyt(); return { al: n.merk.al.map(h => ({ g0: n.cum[h.segs[0].b] + h.segs[0].s, g1: n.cum[h.segs[h.segs.length - 1].b] + h.segs[h.segs.length - 1].e, t: h.t,
+    okra: [...document.querySelectorAll('mark.ali[data-h="' + h.id + '"]')].map(m => m.classList.contains('okra')) })), sis: document.querySelectorAll('mark.ali mark.ali').length }; });
+  await tveda(ts[4], ts[6]);
+  await tveda(ts[9], ts[5]);
+  await tveda(ts[1], ts[5]);
+  const tt = await ttila(), A = tt.al.slice().sort((x, y) => x.t - y.t)[0], muut = tt.al.filter(h => h !== A);
+  const eiLomitu = tt.al.every(h => tt.al.every(q => q === h || q.g1 <= h.g0 || q.g0 >= h.g1));
+  tulos('törmäys: uusi pysähtyy vanhan rajaan, okra vuorottelee', tt.al.length === 3 && tt.sis === 0 && eiLomitu && A.okra.every(v => !v) && muut.every(h => h.okra.length && h.okra.every(v => v)),
+    JSON.stringify(tt.al.map(h => [h.g0, h.g1, h.okra[0]])));
+  await tp2.mouse.click(ts[5].x, ts[5].y); await tp2.waitForTimeout(200);
+  await tp2.click('#pop button[data-k="poista"]'); await tp2.waitForTimeout(200);
+  const tt2 = await ttila();
+  tulos('vanhimman poisto: okra ruosteeksi', tt2.al.length === 2 && tt2.al.every(h => h.okra.every(v => !v)), JSON.stringify(tt2.al.map(h => h.okra[0])));
+  await tp2.mouse.click(ts[2].x, ts[2].y); await tp2.waitForTimeout(200);
+  await tp2.click('#pop button[data-k="kir"]'); await tp2.waitForTimeout(150);
+  await tp2.keyboard.type('Kirjaus kynää varten.'); await tp2.click('#pop button[data-k="tallenna"]'); await tp2.waitForTimeout(200);
+  const ky = await tp2.evaluate(() => { const k = document.querySelector('.kirm'); if (!k) return null; const n = window.__luin.nyt(), h = n.merk.al.find(x => x.n), r = k.querySelector('svg').getBoundingClientRect();
+    const m = document.querySelector('mark.ali[data-h="' + h.id + '"]').getClientRects()[0]; return { n: document.querySelectorAll('.kirm').length, dx: +(r.left + r.width / 2 - m.left).toFixed(1), dy: +(r.top + r.height / 2 - m.top).toFixed(1), x: k.getBoundingClientRect().left + 11, y: k.getBoundingClientRect().top + 11 }; });
+  await tp2.mouse.click(ky.x, ky.y); await tp2.waitForTimeout(200);
+  const ky1 = await tp2.evaluate(() => ({ luokka: document.querySelector('#pop').className, teksti: document.querySelector('#pop').innerText, kahvat: !document.querySelector('#kahvat').hidden }));
+  await tp2.mouse.click(ky.x, ky.y); await tp2.waitForTimeout(200);
+  const ky2 = await tp2.evaluate(() => ({ luokka: document.querySelector('#pop').className, ta: (document.querySelector('#pop textarea') || {}).value }));
+  await tp2.keyboard.press('Escape');
+  tulos('kirjauksen kynä: näyttää, toinen napautus muokkaa', ky && ky.n === 1 && Math.abs(ky.dx + 1) < 1.5 && Math.abs(ky.dy - 1.5) < 1.5 && /kirnaky/.test(ky1.luokka) && ky1.teksti === 'Kirjaus kynää varten.' && !ky1.kahvat &&
+    /kirjaus/.test(ky2.luokka) && ky2.ta === 'Kirjaus kynää varten.', JSON.stringify({ ky, ky1, ky2 }));
+  await tk.close();
+  }
+  // Sukkela pois (käyttäjän päätös 5.11.2026): kahvan vedon jälkeen kahvat ja valikko palaavat, eikä myöhässä tuleva
+  // haamuklikkaus (hidas laite) sulje valikkoa; uusi oikea napautus sulkee.
+  {
+  const hk = await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true, isMobile: true });
+  const hp = await hk.newPage(); hp.on('pageerror', e => sivuvirheet.push(e.message));
+  const hcdp = await hk.newCDPSession(hp); const hko = (type, x, y) => hcdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  await hp.goto(BASE + 'luin.html');
+  await hp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5, auto: 0 })); }, MD);
+  await hp.goto('about:blank'); await hp.goto(BASE + 'luin.html#tuo'); await hp.waitForTimeout(600);
+  const hs = await hp.evaluate(() => { const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300); window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 200);
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), o = []; let t; while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote, .fnref')) continue; const re = /[\p{L}]{6,}/gu; let m;
+      while ((m = re.exec(t.data))) { const q = document.createRange(); q.setStart(t, m.index + 2); q.setEnd(t, m.index + 3); const r = q.getClientRects()[0]; if (r) o.push({ x: r.left + r.width / 2, y: r.top + r.height / 2 }); } } return o; });
+  const haamu = (x, y) => hp.evaluate(([x, y]) => { x = Math.min(x, innerWidth - 20); (document.elementFromPoint(x, y) || document.body).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y })); }, [x, y]);
+  const htila = () => hp.evaluate(() => ({ pop: !document.querySelector('#pop').hidden, kahvat: !document.querySelector('#kahvat').hidden && [...document.querySelectorAll('.kahva')].every(k => getComputedStyle(k).visibility === 'visible'), luonnos: document.querySelectorAll('mark.luonnos').length }));
+  const [ha, hz] = [hs[1], hs[3]];
+  // Haamuklikkaus alleviivaamattomaan tekstiin kahden rivin päähän (luonnoksen päällä se ei sulkisi valikkoa muutenkaan).
+  const hg = hs.find(q => q.y > hz.y + 60 && q.y < 700) || hs[hs.length - 1];
+  await hko('touchStart', ha.x, ha.y); await hp.waitForTimeout(600); for (let i = 1; i <= 6; i++) { await hko('touchMove', ha.x + (hz.x - ha.x) * i / 6, ha.y + (hz.y - ha.y) * i / 6); await hp.waitForTimeout(30); } await hko('touchEnd');
+  await hp.waitForTimeout(400); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
+  const h0 = await htila();
+  await hko('touchStart', hs[2].x, hs[2].y); await hp.waitForTimeout(60); await hko('touchEnd'); await hp.waitForTimeout(400);
+  const hot = await hp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 20, y: r.top + 20 }; });
+  await hko('touchStart', hot.x, hot.y); await hp.waitForTimeout(60); for (let i = 1; i <= 4; i++) { await hko('touchMove', hot.x + i * 20, hot.y); await hp.waitForTimeout(40); } await hko('touchEnd');
+  await hp.waitForTimeout(400); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
+  const h1 = await htila();
+  await hko('touchStart', 200, 760); await hp.waitForTimeout(50); await hko('touchEnd'); await hp.waitForTimeout(300);
+  const h2 = await htila();
+  tulos('sukkela pois: kahvat ja valikko palaavat, haamuklikkaus ei sulje', h0.pop && h0.luonnos > 0 && h1.pop && h1.kahvat && h1.luonnos > 0 && !h2.pop && !h2.kahvat, JSON.stringify({ h0, h1, h2 }));
+  await hk.close();
+  }
+
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();
   process.exitCode = virheita ? 1 : 0;
