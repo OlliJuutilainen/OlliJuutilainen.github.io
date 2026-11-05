@@ -76,10 +76,14 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Alapalkissa ei ole natsaa eikä osion nimeä.
 - Navinäkymän merkit ovat kahdessa linjassa musteesta mitattuina (`--v-laita` / `--o-laita`, opas 4.4). Laidat ovat
   kokonaislukuja, koska Chromium pyöristää SVG:n ja reunuksen paikan kokonaiseen CSS-pikseliin.
-- **Verho** (`verhoAuki()`: navi tai Asetukset- tai Merkinnät-paneeli auki): sen takana eivät toimi tekstin napautus,
+- **Verho** (`verhoAuki()`: navi, Asetukset tai navin laatikko auki): sen takana eivät toimi tekstin napautus,
   reunanapautus, pyyhkäisy, valinta eikä alleviivaus, eikä rulla käännä sivua. Toimivat: sivunkääntö näppäimillä sekä
-  alapalkin kirjanmerkki- ja sivunapit. Tekstialueen napautus sulkee navin ja Asetukset, Merkinnät vain oman nappinsa.
+  alapalkin kirjanmerkki- ja sivunapit. Tekstialueen napautus sulkee Asetukset, Etsin ja Sisälmyksen tai navin;
+  Merkinnät sulkeutuu vain napistaan tai raksistaan.
   Asetusten avaus sulkee navin.
+- **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Etsi ja Sisälmys avautuvat nappiensa järjestyksessä
+  vasemmalle, keskelle ja oikealle, koko korkeudelle palkkien väliin. Rinnakkain vain, jos kolme 19rem:n saraketta mahtuu
+  laitojen väliin; muuten yksi kerrallaan samaan tilaan. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme.
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
 - **Aikajanan merkit nuottien tapaan**: suurempi aika-arvo ontompi (pääluku iso ontto salmiakki, alaluku pienempi
   täytetty, alaluvun alaluku lähes pistemäinen). Vain luettu osa on tekstin värinen; tulevat merkit ja kirjanmerkit

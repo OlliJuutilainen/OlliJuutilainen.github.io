@@ -183,26 +183,25 @@
   .k-ala { display: flex; align-items: center; padding-left: 14px; }
   .k-ala .jaljella { flex: 1 1 auto; font-size: .72rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
   .valikko .k-ala button { width: auto; padding: 9px 13px; }
-  /* haku: kenttä, osumien määrä ja osumalista, joka vierii; korkeus sovitetaan näkyvään alueeseen (sovitaHaku) */
-  .valikko.haku { width: min(24rem, calc(100vw - 24px)); padding: 0; }
+  /* Etsi: kenttä, osumien määrä ja osumalista, joka vierii laatikon jäljellä olevassa korkeudessa. */
   /* Kenttä 16 px, jotta iOS ei suurenna sivua kohdistettaessa. Selaimen oma (sininen) tyhjennysmerkki
      korvataan ohuella raksilla. */
-  .h-kentta { position: relative; margin: 12px 14px 0; }
-  .valikko.haku input { display: block; width: 100%; padding: 7px 36px 7px 9px; font: inherit; font-size: 1rem;
+  .h-kentta { position: relative; flex: 0 0 auto; margin: 12px 14px 0; }
+  #haku input { display: block; width: 100%; padding: 7px 36px 7px 9px; font: inherit; font-size: 1rem;
     color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
-  .valikko.haku input:focus { outline: none; border-color: var(--harmaa); }
-  .valikko.haku input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
-  .valikko button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
+  #haku input:focus { outline: none; border-color: var(--harmaa); }
+  #haku input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  #haku button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
     display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
-  .valikko button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
-  .h-ala { display: flex; align-items: flex-start; }
+  #haku button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
+  .h-ala { display: flex; flex: 0 0 auto; align-items: flex-start; }
   .h-tieto { flex: 1 1 auto; padding: 7px 14px 9px; font-size: .74rem; color: var(--harmaa); line-height: 1.45; font-variant-numeric: lining-nums; }
   /* Alaviitteet mukaan -kytkin: hyvin matalalla profiililla osumatiedon oikealla puolella, asetusten
      sisäkkäisillä salmiakeilla (sisin täyttyy valittuna). */
-  .valikko button.h-viit { flex: 0 0 auto; width: auto; min-height: 0; display: inline-flex; align-items: center; gap: 5px;
+  .valikko button.h-viit, #haku button.h-viit { flex: 0 0 auto; width: auto; min-height: 0; display: inline-flex; align-items: center; gap: 5px;
     padding: 7px 14px 9px 0; font-size: .74rem; line-height: 1.45; color: var(--harmaa); white-space: nowrap; }
-  .valikko button.h-viit:hover { text-decoration: none; }
-  .valikko button.h-viit[aria-pressed="false"] { opacity: .6; }
+  .valikko button.h-viit:hover, #haku button.h-viit:hover { text-decoration: none; }
+  .valikko button.h-viit[aria-pressed="false"], #haku button.h-viit[aria-pressed="false"] { opacity: .6; }
   .h-viit svg { width: 6.5px; height: 9px; flex: 0 0 auto; }
   .h-viit .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
   .h-viit .sal-sisa { fill: none; }
@@ -210,31 +209,26 @@
   /* Jakovalikon lukutietojen ehdotus (käyttäjän päätös 22.10.2026: ei pakotettu): sama matala kytkin viitteen alla. */
   .valikko .esi .v-teksti { display: block; }
   .valikko .esi button.h-viit.v-lisa { display: flex; padding: 8px 0 0; }
-  .h-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--viiva); }
-  .valikko button.osuma { padding: 9px 14px 10px; font-size: .86rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
-  .valikko button.osuma:last-child { border-bottom: 0; }
-  .valikko button.osuma:hover { text-decoration: none; }
-  .valikko button.osuma[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
+  .h-lista { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--viiva); }
+  #haku button.osuma { display: block; width: 100%; text-align: left; padding: 9px 14px 10px; font-size: .86rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
+  #haku button.osuma:last-child { border-bottom: 0; }
+  #haku button.osuma:hover { text-decoration: none; }
+  #haku button.osuma[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
   .o-kohta { display: block; font-size: .72rem; color: var(--harmaa); letter-spacing: .03em; margin-bottom: 2px; font-variant-numeric: lining-nums; }
   /* Osuma listassa ja valittu osuma tekstissä: umpinainen haalea tausta (ei läpikuultavuutta, e-ink),
      eri merkki kuin alleviivauksen ruosteinen viiva. Omina sääntöinään, koska ::highlightia
      tuntematon selain hylkäisi koko säännön. */
   .osuma mark { background: var(--viiva); color: var(--muste); }
   ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
-  /* Sisälmys (käyttäjän pyyntö 4.11.2026): navin sisällysluettelo. Otsikkorivi raksin kanssa, lista vierii (sovitaLista).
+  /* Sisälmys (käyttäjän pyyntö 4.11.2026): navin sisällysluettelo, lista vierii laatikossa.
      Kohdat ruosteella kuten tekstin sisällysluettelossa (napautettava); nykyinen osio merkitty kuten valittu hakuosuma. */
-  .valikko.sisalmys { width: min(24rem, calc(100vw - 24px)); padding: 0; }
-  .s-yla { display: flex; align-items: center; justify-content: space-between; height: 44px; padding-left: 14px; border-bottom: 1px solid var(--viiva); }
-  .s-ots { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); }
-  .valikko button.s-sulje { width: 44px; min-height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
-  .valikko button.s-sulje svg { width: 11px; height: 11px; stroke: currentColor; stroke-width: 1.2; fill: none; }
-  .s-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0; }
-  .valikko button.s-kohta { display: flex; align-items: baseline; gap: 14px; min-height: 0; padding: 8px 14px; font-size: .9rem; line-height: 1.4; color: var(--ruoste); }
-  .valikko button.s-kohta.t2 { padding-left: 34px; font-size: .84rem; }
-  .valikko button.s-kohta:hover { text-decoration: none; }
-  .valikko button.s-kohta:hover .s-nimi { text-decoration: underline; text-underline-offset: 3px; }
-  .valikko button.s-kohta[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
-  .valikko button.s-kohta.t2[aria-current] { padding-left: 32px; }
+  .s-lista { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0; }
+  #sisalmys button.s-kohta { width: 100%; text-align: left; display: flex; align-items: baseline; gap: 14px; min-height: 0; padding: 8px 14px; font-size: .9rem; line-height: 1.4; color: var(--ruoste); }
+  #sisalmys button.s-kohta.t2 { padding-left: 34px; font-size: .84rem; }
+  #sisalmys button.s-kohta:hover { text-decoration: none; }
+  #sisalmys button.s-kohta:hover .s-nimi { text-decoration: underline; text-underline-offset: 3px; }
+  #sisalmys button.s-kohta[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
+  #sisalmys button.s-kohta.t2[aria-current] { padding-left: 32px; }
   .s-sivu { margin-left: auto; font-size: .74rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
 
   /* ---------- lukija ---------- */
@@ -566,6 +560,14 @@
   .paneeli header { position: sticky; top: 0; z-index: 1; background: var(--paperi); display: flex; align-items: center;
     justify-content: space-between; height: 50px; border-bottom: 1px solid var(--viiva); margin: 0 -18px 4px; padding: 0 2px 0 18px; }
   .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
+  /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Merkinnät, Etsi ja Sisälmys avautuvat nappiensa järjestyksessä
+     vasemmalle, keskelle ja oikealle, yläpalkin ja navin väliin koko korkeudelle. sijoitaLaatikot() asettaa paikan ja
+     koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen (enintään 25rem)
+     ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. */
+  .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--muste); z-index: 30; }
+  .navilaatikko.lista { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+  .navilaatikko[hidden] { display: none; }
+  .navilaatikko.lista header { position: static; flex: 0 0 auto; margin: 0; }
   .paneeli h3 { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 400; color: var(--harmaa); margin: 24px 0 2px; }
   .sulje svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.4; fill: none; }
   .asetus { padding: 9px 0 5px; border-bottom: 1px solid var(--viiva); }
@@ -708,11 +710,11 @@
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
         <!-- Merkinnät (käyttäjän valinta 4.11.2026): litteä sivu, alalaidassa paksu viiva (alleviivaus) ja yläreunasta nauha (kirjanmerkki). -->
-        <button type="button" class="laatikko" id="merk-avaa"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
+        <button type="button" class="laatikko" id="merk-avaa" aria-expanded="false" aria-controls="merkinnat"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
         <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. Käyttäjän pyyntö 5.11.2026: vielä vähän (7,10 → 6,80), samoin perustein; varren alkupää seuraa ulkokehää. -->
-        <button type="button" class="laatikko" id="etsi-avaa"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
+        <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
         <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
-        <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
+        <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
       </div>
     </div>
     <div id="ala-rivi">
@@ -818,13 +820,25 @@
 </div>
 
 <!-- ===== Kirjanmerkit, alleviivaukset ja kirjaukset ===== -->
-<div class="paneeli" id="merkinnat" hidden role="dialog" aria-label="Kirjanmerkit, alleviivaukset ja kirjaukset">
+<div class="paneeli navilaatikko" id="merkinnat" hidden role="dialog" aria-label="Kirjanmerkit, alleviivaukset ja kirjaukset">
   <header><h2>Merkinnät</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <!-- Osiot supistuvat otsikon vieressä olevasta salmiakista (käyttäjän pyyntö 21.10.2026); tila muistetaan. -->
   <details class="m-osio" data-kiinni="kmKiinni" open><summary><h3>Kirjanmerkit</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
     <div id="km-lista"></div></details>
   <details class="m-osio" data-kiinni="alKiinni" open><summary><h3>Alleviivaukset ja kirjaukset</h3><svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
     <div id="al-lista"></div></details>
+</div>
+
+<!-- ===== Etsi ja Sisälmys: navin laatikot Merkintöjen rinnalla (sijoitaLaatikot) ===== -->
+<div class="paneeli navilaatikko lista" id="haku" hidden role="dialog" aria-label="Etsi tekstistä">
+  <header><h2>Etsi</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
+  <div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>
+  <div class="h-ala"><div class="h-tieto" aria-live="polite"></div><button type="button" class="h-viit" data-k="viit" aria-pressed="false"></button></div>
+  <div class="h-lista"></div>
+</div>
+<div class="paneeli navilaatikko lista" id="sisalmys" hidden role="dialog" aria-label="Sisälmys">
+  <header><h2>Sisälmys</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
+  <div class="s-lista"></div>
 </div>
 
 <div class="valikko" id="pop" hidden></div>
@@ -1206,22 +1220,14 @@
     pop.className = 'valikko' + (luokka ? ' ' + luokka : '');
     pop.innerHTML = html; pop.hidden = false; popToiminto = toiminto;
     popPaikka = { rect: rect, tasaus: tasaus };
-    $('#sis-avaa').setAttribute('aria-expanded', String(luokka === 'sisalmys'));
     sijoitaPop();
   }
-  // Kirjausta muokatessa ja haettaessa rajana on näkyvä alue (visualViewport), jotta näppäimistö
-  // ei peitä muokkainta tai hakukenttää; muut valikot sijoitetaan kuten ennenkin.
+  // Kirjausta muokatessa rajana on näkyvä alue (visualViewport), jotta näppäimistö ei peitä muokkainta;
+  // muut valikot sijoitetaan kuten ennenkin.
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
-    var haku = hakuAuki(), sis = sisalmysAuki(), vw = innerWidth;
-    // Hakunapin paikka luetaan joka kerta: ikkunan korkeuden muutos (näppäimistö) siirtää sitä.
-    if (haku) popPaikka.rect = $('#etsi-avaa').getBoundingClientRect();
-    var rect = popPaikka.rect;
-    var vv = (muokkaus || haku) && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
-    // Sisälmys ei nouse näkyvän yläpalkin päälle (mobiilissa palkki on navissa auki).
-    if (sis) { var yp = $('.ylapalkki').getBoundingClientRect(); if (yp.height) yla = yp.bottom; }
-    if (haku) sovitaLista('.h-lista', rect, yla, ala, Math.max(300, innerHeight * 0.6));
-    if (sis) sovitaLista('.s-lista', rect, yla, ala, Math.max(300, innerHeight * 0.75));
+    var vw = innerWidth, rect = popPaikka.rect;
+    var vv = muokkaus && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
     var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : popPaikka.tasaus === 'vasen' ? rect.left : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
@@ -1238,7 +1244,6 @@
     pop.hidden = true; popToiminto = null;
     // Kahvat ja maalauksen luonnos lähtevät valikon mukana, paitsi kesken vedon (veto voi kääntää sivua).
     if (!veto && !maal) { poistaLuonnos(); piilotaKahvat(); }
-    $('#sis-avaa').setAttribute('aria-expanded', 'false');
   }
   // Sivutetun näkymän alaviite ponnahduslaatikossa (viitenumeron napautus ja haun alaviiteosuma).
   function naytaViite(fn) {
@@ -1272,7 +1277,7 @@
     if (Date.now() - tila.maalattu < 250) { if (sivuEl.contains(e.target)) e.stopPropagation(); return; }
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
-    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref, #sis-avaa, #kahvat')) return;
+    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .fnref, #kahvat')) return;
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
@@ -1285,9 +1290,88 @@
     if (!$('#lukija').hidden) { var b = $('#ala-rivi').getBoundingClientRect(); if (b.height) v = Math.max(0, Math.round(innerHeight - b.top)); }
     document.documentElement.style.setProperty('--paneeli-ala', v + 'px');
   }
-  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) sijoitaPaneeli(); });
-  function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); }
-  $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', suljePaneelit); });
+  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) sijoitaPaneeli(); sijoitaLaatikot(); });
+  function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); }
+  // Navin laatikon raksi sulkee vain sen laatikon, Asetusten raksi kaikki paneelit.
+  $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', function () {
+    var l = b.closest('.navilaatikko');
+    if (l) suljeLaatikko(l.id); else suljePaneelit();
+  }); });
+
+  /* ---------- navin laatikot ----------
+     Käyttäjän pyyntö 5.11.2026: Merkinnät, Etsi ja Sisälmys avautuvat x-akselilla nappiensa järjestyksessä:
+     vasemmalla, keskellä ja oikealla, yläpalkin alareunasta navin (tai Palaa takaisin -laatikon) yläreunaan.
+     Kun kolme vähintään 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen väliin, kukin
+     saa kolmanneksen (enintään 25rem, laidoissa Merkinnät ja Sisälmys, Etsi keskellä) ja niitä voi olla auki
+     rinnakkain; leveällä ruudulla väliin jää tekstiä, jonka napautus sulkee Etsin ja Sisälmyksen. Muuten (mobiili,
+     kavennettu ikkuna) auki on yksi kerrallaan: napin painallus sulkee avoimen laatikon ja avaa omansa samaan tilaan
+     palkkien laitojen väliin. Jos ikkuna kapenee rinnakkaisten ollessa auki, jäljelle jää viimeksi avattu.
+     Hyppy laatikosta (merkintä, osuma, Sisälmyksen kohta) sulkee kaikki kolme, koska keskimmäinen peittäisi tekstin;
+     navi jää auki. Navin sulkeminen sulkee myös laatikot. */
+  var LAATIKOT = ['merkinnat', 'haku', 'sisalmys'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
+  var laatikkoJarj = [];   // avausjärjestys; viimeinen on viimeksi avattu
+  function laatikkoAuki(id) { return !$('#' + id).hidden; }
+  function laatikoitaAuki() { return LAATIKOT.some(laatikkoAuki); }
+  function laatikotMuuttuivat() {
+    laatikkoJarj = laatikkoJarj.filter(laatikkoAuki);
+    LAATIKOT.forEach(function (id) { $(LAATIKKONAPIT[id]).setAttribute('aria-expanded', String(laatikkoAuki(id))); });
+  }
+  // Laitojen väli ja sarakkeiden mitat (px). rinn: kolme mahtuu rinnakkain.
+  function laatikkoMitat() {
+    var juuri = document.documentElement, cs = getComputedStyle(juuri), rem = parseFloat(cs.fontSize) || 16;
+    var vw = juuri.clientWidth, v = parseFloat(cs.getPropertyValue('--v-laita')) || 0, o = parseFloat(cs.getPropertyValue('--o-laita')) || 0;
+    var tila = vw - v - o, rako = 2 * rem, rinn = tila >= 3 * 19 * rem + 2 * rako;
+    return { vw: vw, v: v, o: o, tila: tila, rinn: rinn, w: rinn ? Math.min(25 * rem, Math.floor((tila - 2 * rako) / 3)) : tila };
+  }
+  function sijoitaLaatikot() {
+    if (!laatikoitaAuki()) return;
+    var m = laatikkoMitat();
+    if (!m.rinn && laatikkoJarj.length > 1) {
+      var vika = laatikkoJarj[laatikkoJarj.length - 1];
+      LAATIKOT.forEach(function (id) { if (id !== vika) $('#' + id).hidden = true; });
+      laatikotMuuttuivat();
+    }
+    // Pystysuunnassa näkyvän yläpalkin ja navin väliin (navi kiinni: alapalkin kaista), Palaa takaisin -laatikon
+    // yläpuolelle, ja näppäimistön ollessa auki näkyvälle alueelle.
+    var VALI = 12, vv = window.visualViewport, yp = $('.ylapalkki').getBoundingClientRect(), mj = $('#majakka');
+    var yla = Math.max(yp.height ? yp.bottom : 0, vv ? vv.offsetTop : 0) + VALI;
+    var ala = (mj.hidden ? $('#ala') : mj).getBoundingClientRect().top;
+    if (vv) ala = Math.min(ala, vv.offsetTop + vv.height);
+    ala -= VALI;
+    LAATIKOT.forEach(function (id, i) {
+      var el = $('#' + id);
+      if (el.hidden) return;
+      var x = !m.rinn || i === 0 ? m.v : i === 2 ? m.vw - m.o - m.w : m.v + (m.tila - m.w) / 2;
+      el.style.left = Math.round(x) + 'px'; el.style.width = Math.round(m.w) + 'px';
+      el.style.top = Math.round(yla) + 'px'; el.style.height = Math.max(120, Math.round(ala - yla)) + 'px';
+    });
+  }
+  function suljeLaatikko(id) { $('#' + id).hidden = true; laatikotMuuttuivat(); }
+  function suljeLaatikot() { LAATIKOT.forEach(function (id) { $('#' + id).hidden = true; }); laatikotMuuttuivat(); }
+  function avaaLaatikko(id) {
+    if (!nyt) return;
+    if (id === 'sisalmys' && !taytaSisalmys()) return;
+    if (id === 'merkinnat') paivitaMerkinnat();
+    suljePop();
+    if (!laatikkoMitat().rinn) LAATIKOT.forEach(function (x) { if (x !== id) $('#' + x).hidden = true; });
+    var el = $('#' + id);
+    el.hidden = false;
+    laatikkoJarj = laatikkoJarj.filter(function (x) { return x !== id; }).concat(id);
+    laatikotMuuttuivat();
+    sijoitaLaatikot();
+    if (id === 'haku') avaaHaku();
+    else if (id === 'sisalmys') keskitaNykyinen($('.s-lista', el), '.s-kohta[aria-current]');
+  }
+  function vaihdaLaatikko(id) { if (laatikkoAuki(id)) suljeLaatikko(id); else avaaLaatikko(id); }
+  if (window.ResizeObserver) {
+    var laatikkoRO = new ResizeObserver(function () { sijoitaLaatikot(); });
+    ['#ala', '#majakka', '.ylapalkki'].forEach(function (s) { laatikkoRO.observe($(s)); });
+  }
+  // Listan valittu kohta vieritetään listan keskelle.
+  function keskitaNykyinen(lista, sel) {
+    var c = lista && $(sel, lista);
+    if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
+  }
   $('#lista .info').addEventListener('click', function () {
     var auki = $('#tietoa').hidden;
     $('#tietoa').hidden = !auki;
@@ -1384,7 +1468,7 @@
     if (ennen.verkkolinkit !== aset.verkkolinkit) paivitaLinkit();
     if (ASETTELU.some(function (x) { return ennen[x] !== aset[x]; })) asettele(a); else paivita();
     // Asetukset pysyvät auki, kun niissä vaihdetaan Vieritys/Sivut; muut paneelit suljetaan.
-    if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); sijoitaNipukka(); }
+    if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); sijoitaNipukka(); }
   }
 
   /* ---------- tekstin solmut ja kohdat ----------
@@ -1732,7 +1816,7 @@
   // "Verho": navinäkymä tai asetus-/merkintäpaneeli. Verhon takaa ei toimi napautus, reunanapautus, pyyhkäisy,
   // valinta eikä alleviivaus. Sallittua: vieritys rullalla ja sivunkääntö näppäimillä (käyttäjän päätös 1.11.2026).
   // Alapalkin kirjanmerkkinappi toimii aina.
-  function paneeliAuki() { return !$('#asetukset').hidden || !$('#merkinnat').hidden; }
+  function paneeliAuki() { return !$('#asetukset').hidden || laatikoitaAuki(); }
   function verhoAuki() { return palkitAuki() || paneeliAuki(); }
   function nykyinenKohta() {
     var B = nyt.blocks, n = B.length, lo = 0, hi = n, k;
@@ -1813,9 +1897,11 @@
   window.addEventListener('resize', function () {
     clearTimeout(kokoAjastin);
     kokoAjastin = setTimeout(function () {
-      // Näppäimistö muuttaa korkeutta kirjausta tai hakua kirjoitettaessa; asettelu sulkisi valikon.
-      if (muokkaus || hakuAuki()) return;
+      // Näppäimistö muuttaa korkeutta kirjausta tai hakua kirjoitettaessa; asettelu sulkisi valikon. Etsi-laatikon
+      // ollessa auki leveyden muutos (ikkunan kavennus työpöydällä) asettelee silti.
+      if (muokkaus) return;
       var koko = innerWidth + 'x' + innerHeight, leveysSama = koko.split('x')[0] === edKoko.split('x')[0];
+      if (hakuAuki() && leveysSama) return;
       edKoko = koko;
       if (!nyt || (leveysSama && aset.sivutus !== 'sivut')) return;
       asettele(tila.ankkuri);
@@ -1884,10 +1970,11 @@
     if (verhoAuki()) {
       if (!valintaTyhja()) return;
       e.preventDefault();
-      // Navinäkymän ja Asetusten verho sulkeutuu tekstin napautuksesta (Asetukset käyttäjän pyynnöstä 4.11.2026);
-      // Merkinnät-paneeli sulkeutuu vain omasta napistaan.
+      // Navinäkymän ja Asetusten verho sulkeutuu tekstin napautuksesta (Asetukset käyttäjän pyynnöstä 4.11.2026),
+      // samoin Etsi ja Sisälmys (molemmat kerralla); Merkinnät sulkeutuu vain omasta napistaan tai raksistaan.
       if (!pop.hidden) suljePop();
       else if (!$('#asetukset').hidden) $('#asetukset').hidden = true;
+      else if (hakuAuki() || sisalmysAuki()) { suljeLaatikko('haku'); suljeLaatikko('sisalmys'); }
       else if (palkitAuki() && !paneeliAuki()) avaaJana(false);
       return;
     }
@@ -2082,7 +2169,7 @@
     if (ta && ta.value.trim()) { muokkaus.h.n = ta.value.trim(); tallennaMerkit(); }
   }
   if (window.visualViewport) ['resize', 'scroll'].forEach(function (t) {
-    visualViewport.addEventListener(t, function () { if (muokkaus || hakuAuki()) sijoitaPop(); });
+    visualViewport.addEventListener(t, function () { if (muokkaus) sijoitaPop(); if (hakuAuki()) sijoitaLaatikot(); });
   });
 
   var valAjastin = null, osoitin = 'mouse';
@@ -2716,7 +2803,7 @@
     $('#jana').hidden = !auki;
     document.body.classList.toggle('palkit-auki', auki);
     $('#ala-nappi').setAttribute('aria-expanded', String(auki));
-    if (auki) piirraJana();
+    if (auki) piirraJana(); else suljeLaatikot();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
@@ -2728,9 +2815,7 @@
     if (e.target !== this) return;
     seuraava(e.clientX >= $('#sivu-se').getBoundingClientRect().left ? 1 : -1);
   });
-  $('#merk-avaa').addEventListener('click', function () { paivitaMerkinnat(); $('#merkinnat').hidden = false; });
-  $('#etsi-avaa').addEventListener('click', avaaHaku);
-  $('#sis-avaa').addEventListener('click', function () { if (sisalmysAuki()) suljePop(); else avaaSisalmys(); });
+  LAATIKOT.forEach(function (id) { $(LAATIKKONAPIT[id]).addEventListener('click', function () { vaihdaLaatikko(id); }); });
   $$('#merkinnat details.m-osio').forEach(function (d) {
     d.open = !aset[d.dataset.kiinni];
     d.addEventListener('toggle', function () { aset[d.dataset.kiinni] = d.open ? 0 : 1; tallennaAset(); });
@@ -3208,92 +3293,81 @@
     if (z < t.length) { var u = t.lastIndexOf(' ', z); if (u > o.e) z = u; }
     return (a > 0 ? '…' : '') + esc(t.slice(a, o.s)) + '<mark>' + esc(t.slice(o.s, o.e)) + '</mark>' + esc(t.slice(o.e, z)) + (z < t.length ? '…' : '');
   }
-  function hakuAuki() { return !pop.hidden && pop.classList.contains('haku'); }
+  var hakuEl = $('#haku'), sisEl = $('#sisalmys');
+  function hakuAuki() { return !hakuEl.hidden; }
   /* ---------- Sisälmys ----------
      Käyttäjän pyyntö 4.11.2026: navissa Etsi-laatikon oikealla puolella *Sisälmys*, joka avaa sisällysluettelon
-     ponnahduslaatikkona riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Samat tasot kuin
+     navin laatikkona (ks. navin laatikot) riippumatta siitä, onko tekstin alun sisällysluettelo asetuksista päällä. Samat tasot kuin
      tekstin sisällysluettelossa (pääluvut ja alaluvut), sivutettuna sivunumerot. Nykyinen osio on merkitty ja
      vieritetty listan keskelle. Sulkeutuu raksista, napista uudelleen, Escistä tai tekstialueen napautuksesta;
-     tekstin napautus sulkee vain laatikon, navi jää auki (document-kaappaaja ja sivuEl:n verho). Kohdan valinta
-     on hyppy kuten haussa: lähtökohtaan jää majakka, navi jää auki. */
-  function sisalmysAuki() { return !pop.hidden && pop.classList.contains('sisalmys'); }
+     tekstin napautus sulkee vain laatikon, navi jää auki (sivuEl:n verho). Kohdan valinta on hyppy kuten haussa:
+     lähtökohtaan jää majakka, navi jää auki. */
+  function sisalmysAuki() { return !sisEl.hidden; }
   function sisalmysKohdat() { return nyt ? nyt.doc.toc.filter(function (t) { return t.lvl <= 2; }) : []; }
-  function avaaSisalmys() {
+  function taytaSisalmys() {
     var T = sisalmysKohdat(), sivut = aset.sivutus === 'sivut', k = tila.ankkuri || { b: 0, o: 0 }, nyky = -1;
-    if (!T.length) return;
+    if (!T.length) return false;
     T.forEach(function (t, i) { if (t.b <= k.b) nyky = i; });
-    // Laatikko tasataan navin laatikkorivin vasempaan reunaan (Merkinnät), ei napin keskelle: kapealla ruudulla keskitys
-    // jätti sen vinoon.
-    var n = $('#sis-avaa').getBoundingClientRect(), m = $('#merk-avaa').getBoundingClientRect();
-    naytaPop({ left: m.left, right: n.right, top: n.top, bottom: n.bottom, width: n.right - m.left, height: n.height },
-      '<div class="s-yla"><span class="s-ots">Sisälmys</span><button type="button" class="s-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' +
-      '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div><div class="s-lista">' +
-      T.map(function (t, i) {
-        return '<button type="button" class="s-kohta t' + t.lvl + '" data-k="siirry" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
-          '<span class="s-nimi">' + esc(t.text) + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
-      }).join('') + '</div>', 'sisalmys', function (k, b) {
-        if (k === 'siirry') hyppaa({ b: +b.dataset.b, o: 0 }, false, false, 'sisalmys');
-      }, 'vasen');
-    var lista = $('.s-lista', pop), c = $('.s-kohta[aria-current]', lista);
-    if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
+    $('.s-lista', sisEl).innerHTML = T.map(function (t, i) {
+      return '<button type="button" class="s-kohta t' + t.lvl + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
+        '<span class="s-nimi">' + esc(t.text) + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
+    }).join('');
+    return true;
   }
+  sisEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button.s-kohta');
+    if (!b || !nyt) return;
+    suljePaneelit();
+    hyppaa({ b: +b.dataset.b, o: 0 }, false, false, 'sisalmys');
+  });
   // Avoimen tekstin viimeisin haku muistetaan (nyt.haku), ja valittu osuma on listassa merkitty.
   // Ensimmäisellä kerralla kenttä saa kohdistuksen; jos haku on jo tehty, lista on tärkeämpi
   // kuin näppäimistö, joka peittäisi puolet ruudusta.
   var hakuAjastin = null;
+  // Kenttä ja sen kuuntelijat ovat pysyviä; laatikon avaus (avaaLaatikko) palauttaa avoimen tekstin haun.
   function avaaHaku() {
-    if (!nyt) return;
-    var h = nyt.haku || (nyt.haku = { q: '', valittu: -1, osumat: [] });
-    naytaPop($('#etsi-avaa').getBoundingClientRect(),
-      '<div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
-      '<button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>' +
-      '<div class="h-ala"><div class="h-tieto" aria-live="polite"></div><button type="button" class="h-viit" data-k="viit" aria-pressed="' + !!aset.hakuViit + '">' +
-      SAL_IKONI + 'alaviitteet</button></div><div class="h-lista"></div>', 'haku', function (k, b) {
-        if (k === 'osuma') return valitseOsuma(+b.dataset.i);
-        if (k === 'viit') {
-          aset.hakuViit = aset.hakuViit ? 0 : 1; tallennaAset();
-          b.setAttribute('aria-pressed', !!aset.hakuViit);
-          h.valittu = -1; korosta(null); paivitaHaku();
-          return true;
-        }
-        if (k === 'tyhjenna') { var i = $('input', pop); i.value = ''; paivitaHaku(); i.focus({ preventScroll: true }); return true; }
-      });
-    var inp = $('input', pop);
+    var h = nyt.haku || (nyt.haku = { q: '', valittu: -1, osumat: [] }), inp = $('input', hakuEl);
     inp.value = h.q;
-    inp.addEventListener('input', function () { clearTimeout(hakuAjastin); hakuAjastin = setTimeout(paivitaHaku, 120); });
-    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(hakuAjastin); paivitaHaku(); seuraavaOsuma(); } });
+    $('.h-viit', hakuEl).setAttribute('aria-pressed', String(!!aset.hakuViit));
     paivitaHaku();
+    keskitaNykyinen($('.h-lista', hakuEl), '.osuma[aria-current]');
     if (!h.q) inp.focus({ preventScroll: true });
   }
+  (function () {
+    var inp = $('input', hakuEl);
+    $('.h-viit', hakuEl).innerHTML = SAL_IKONI + 'alaviitteet';
+    inp.addEventListener('input', function () { clearTimeout(hakuAjastin); hakuAjastin = setTimeout(paivitaHaku, 120); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(hakuAjastin); paivitaHaku(); seuraavaOsuma(); } });
+    // Napin painallus ei vie kohdistusta kentästä (näppäimistö pysyy).
+    hakuEl.addEventListener('mousedown', function (e) { if (!e.target.closest('input')) e.preventDefault(); });
+    hakuEl.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-k]');
+      if (!b || !nyt || !nyt.haku) return;
+      var k = b.dataset.k, h = nyt.haku;
+      if (k === 'osuma') { suljePaneelit(); valitseOsuma(+b.dataset.i); }
+      else if (k === 'viit') {
+        aset.hakuViit = aset.hakuViit ? 0 : 1; tallennaAset();
+        b.setAttribute('aria-pressed', String(!!aset.hakuViit));
+        h.valittu = -1; korosta(null); paivitaHaku();
+      } else if (k === 'tyhjenna') { inp.value = ''; paivitaHaku(); inp.focus({ preventScroll: true }); }
+    });
+  })();
   function paivitaHaku() {
-    var h = nyt && nyt.haku, inp = hakuAuki() && $('input', pop);
+    var h = nyt && nyt.haku, inp = hakuAuki() && $('input', hakuEl);
     if (!h || !inp) return;
     if (inp.value !== h.q) { h.q = inp.value; h.valittu = -1; korosta(null); }
-    $('.h-tyhj', pop).hidden = !h.q;
+    $('.h-tyhj', hakuEl).hidden = !h.q;
     var ehdot = hakuehdot(h.q), r = etsi(ehdot, aset.hakuViit), sivut = aset.sivutus === 'sivut';
     h.osumat = r.osumat;
-    $('.h-tieto', pop).textContent = !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”.' :
+    $('.h-tieto', hakuEl).textContent = !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”.' :
       !r.n ? 'Ei osumia.' : lkm(r.n, 'osuma', 'osumaa') + (r.n > r.osumat.length ? ', näytetään ' + r.osumat.length + ' ensimmäistä' : '');
-    var lista = $('.h-lista', pop);
+    var lista = $('.h-lista', hakuEl);
     lista.innerHTML = r.osumat.map(function (o, i) {
       var os = osioKohdassa(o), kohta = [os ? os.text : '', o.n ? 'alaviite ' + o.n : '', sivut ? 's. ' + (sivuKohdassa({ b: o.b, o: o.a }) + 1) : ''].filter(Boolean).join(' · ');
       return '<button type="button" class="osuma" data-k="osuma" data-i="' + i + '"' + (i === h.valittu ? ' aria-current="true"' : '') + '>' +
         (kohta ? '<span class="o-kohta">' + esc(kohta) + '</span>' : '') + ote(o) + '</button>';
     }).join('');
     lista.hidden = !r.osumat.length;
-    sijoitaPop();
-    var c = $('.osuma[aria-current]', lista);
-    if (c) lista.scrollTop = c.offsetTop - lista.offsetTop - (lista.clientHeight - c.offsetHeight) / 2;
-  }
-  // Osumalista (ja Sisälmyksen lista) vie tilan, joka napin yläpuolella (tai näppäimistön peittäessä napin näkyvällä
-  // alueella) on jäljellä; haussa enintään 60 % ikkunan korkeudesta, Sisälmyksessä 75 %; vähintään kaksi kohtaa.
-  function sovitaLista(sel, rect, yla, ala, enint) {
-    var lista = $(sel, pop);
-    if (!lista) return;
-    lista.style.maxHeight = '';
-    var muu = pop.offsetHeight - lista.offsetHeight;
-    var vara = (rect.top < ala ? rect.top : ala) - yla - 16;
-    lista.style.maxHeight = Math.max(90, Math.min(vara, enint) - muu) + 'px';
   }
   function valitseOsuma(i) {
     var h = nyt.haku, o = h.osumat[i];
@@ -3305,9 +3379,7 @@
     if (tg && aset.sivutus !== 'sivut') tg.checked = true;
     hyppaa({ b: o.b, o: o.a }, true);
     // Sivutettuna alaviite näytetään ponnahduslaatikossa kuten viitenumeroa napautettaessa.
-    // Palauttaa true, jotta hakulaatikon sulkeminen ei sulje sitä.
-    var viite = false;
-    if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); viite = !!fn && naytaViite(fn); }
+    if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); if (fn) naytaViite(fn); }
     var r = korosta(o);
     // Vierityksessä pitkän alaviitteen osuma voi jäädä alapalkin tai Palaa takaisin -laatikon alle;
     // vieritetään sen verran, ettei osuma nouse yläpalkin alle.
@@ -3315,7 +3387,6 @@
       var mj = $('#majakka'), hr = r.getBoundingClientRect(), raja = (mj.hidden ? $('#ala') : mj).getBoundingClientRect().top - 12;
       if (hr.bottom > raja) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, Math.max(0, Math.min(hr.bottom - raja, hr.top - YLA - ylaPeitto()))); }
     }
-    return viite;
   }
   // Enter: valitun jälkeinen osuma, tai jos mitään ei ole valittu, ensimmäinen lukukohdasta eteenpäin.
   function seuraavaOsuma() {
@@ -3323,7 +3394,7 @@
     if (!O.length) return;
     if (h.valittu >= 0) i = (h.valittu + 1) % O.length;
     else { for (i = 0; i < O.length && (O[i].b < k.b || O[i].b === k.b && O[i].a < k.o); i++); if (i === O.length) i = 0; }
-    suljePop(); valitseOsuma(i);
+    suljePaneelit(); valitseOsuma(i);
   }
   // Valittu osuma korostetaan tekstissä CSS Custom Highlight -rajapinnalla, joka ei muuta DOMia
   // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
@@ -3795,7 +3866,7 @@
     naytaPop($('#tuo').getBoundingClientRect(), html, 'tuotu', function (k) {
       suljePaneelit();
       if (k === 'sijainti') hyppaa({ b: s.b, o: 0 });
-      else if (k === 'merk') { paivitaMerkinnat(); $('#merkinnat').hidden = false; }
+      else if (k === 'merk') avaaLaatikko('merkinnat');
     }, 'peita');
   }
   // Virke, jonka kohdalla kirjanmerkki on. Otsikon kohdalta lainataan seuraavan lohkon alku.
