@@ -633,7 +633,7 @@
   .valinnat button:disabled { color: var(--harmaa); opacity: .25; cursor: default; }
   .valinnat button:disabled .sal-sisa { fill: none; }
   .valinnat button:disabled .sukkela { text-decoration-color: currentColor; }
-  /* Sukkela sanasto (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja Etsin salmiakkilinssi. */
+  /* Sukkela sanaselitys (käyttäjän pyyntö 5.11.2026): kursiivi kuten sukkela, perässä lambda ja Etsin salmiakkilinssi. */
   .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
   .valinnat.nipukka svg.sanasto { width: 22px; height: 15px; margin-left: 3px; fill: none; stroke: var(--ruoste); }
   .valinnat button:disabled svg.sanasto { stroke: currentColor; }
@@ -770,7 +770,7 @@
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
     <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div>
-    <div class="valinnat nipukka" data-k="sukSana:Sukkela sanasto"></div>
+    <div class="valinnat nipukka" data-k="sukSana:Sukkela sanaselitys"></div>
     <div class="valinnat pino" data-k="verkkolinkit:Verkkolinkit"></div></div>
   <!-- Maalauskone (pilotti 5.11.2026): Luinin oma maalaus (kahvat, ei selaimen valintaa) tai selaimen valinta,
        kopion viite ja valikon sanakirja ja käännös. Sanakirja ja käännös hakevat verkosta vain napautettaessa. -->
@@ -909,7 +909,7 @@
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 1, sukSana: 1, kumoNapit: null, av: 5 };
-  // sukSana (Sukkela sanasto, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
+  // sukSana (Sukkela sanaselitys, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
   // pitkä painallus ilman vetoa) avaa vain sanakirjan. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // maalaus (pilotti 5.11.2026): luin = Luinin oma maalaus (ei selaimen valintaa tekstissä, kahvat), selain = selaimen
   // valinta kuten ennen. kopioViite: kopioon lyhyt (Korsgaard 2018, 8.5.3) tai pitkä viite. sanakirja, kaannos: valikon napit.
@@ -2416,7 +2416,7 @@
   // Luonnos alleviivaukseksi (sukkela) tai valikoksi. Kahvat eivät tule tässä vaan vasta alleviivauksen tai luonnoksen
   // uudesta napautuksesta (käyttäjän päätös 5.11.2026). Kosketuksella pelkkä painettu sana (ei vetoa) on valinta, joka
   // avaa valikon myös sukkelana: pitkä painallus on puhelimella sekä maalaus että sanan valinta.
-  // Sukkela sanasto (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanakirjan; luonnos näyttää sanan.
+  // Sukkela sanaselitys (käyttäjän päätös 5.11.2026): kosketuksen pelkkä sana avaa vain sanakirjan; luonnos näyttää sanan.
   function valmisMaalaus(valinta) {
     tila.maalattu = Date.now();
     var segs = luonnos.segs.slice();

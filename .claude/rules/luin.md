@@ -110,7 +110,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   on valikon napissa. Älä palauta valintaa "korjauksena". Sanaraja on `sanassa()`, jota käyttävät myös
   `valintaPaloiksi()` ja viennin `esiintymat()`: pidä ne samana. Kahvat vain alleviivauksen tai luonnoksen
   napautuksesta, ei maalauksen päätteeksi. Yhden sanan valinta (tuplaklikkaus, pitkä painallus ilman vetoa) avaa
-  vain sanakirjan (*Sukkela sanasto*, `aset.sukSana`). Valinnan valikossa ei ole kirjanmerkkiä: kirjanmerkki vain
+  vain sanakirjan (*Sukkela sanaselitys*, `aset.sukSana`). Valinnan valikossa ei ole kirjanmerkkiä: kirjanmerkki vain
   alapalkin nauhasta. Käyttäjän päätökset 5.11.2026.
 - **Sanakirja ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi).
