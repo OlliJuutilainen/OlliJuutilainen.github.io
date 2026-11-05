@@ -112,7 +112,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   vain sanakirjan (*Sukkela sanasto*, `aset.sukSana`). Valinnan valikossa ei ole kirjanmerkkiä: kirjanmerkki vain
   alapalkin nauhasta. Käyttäjän päätökset 5.11.2026.
 - **Sanakirja ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
-  käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi).
+  käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi). DeepL avautuu nimettyyn
+  välilehteen `luin-deepl` ilman `noopener`ia, jotta seuraava käännös menee samaan välilehteen: `noopener` ja
+  `w.opener = null` estävät sen (mitattu). Älä lisää niitä tietoturvakorjauksena.
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
 - **Tavutuskiellot** (opas 5): otsikoissa, `.sub`:ssa, `.meta`:ssa, sisällysluettelossa, lihavoinneissa ym. (`OHITA`
   md.js:ssä) ei ole pehmeitä tavuviivoja, ellei sana ole palstaa leveämpi. Kirjallisuusluettelo (`p.bib`) ei tavuta

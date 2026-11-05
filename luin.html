@@ -2564,10 +2564,13 @@
     return kieliPisteet(nyt.txt.slice(0, 60).join(' ')).k || 'fi';
   }
   function kohdeKieli(l) { return l === 'fi' ? 'en' : 'fi'; }
-  // Käännös avautuu DeepL:n verkkosivulle uuteen välilehteen (ei avainta, ei lisäosaa). Osoitteessa / on \/.
+  // Käännös avautuu DeepL:n verkkosivulle (ei avainta, ei lisäosaa). Osoitteessa / on \/. Välilehti on nimetty: kun se
+  // on vielä auki, seuraava käännös latautuu siihen eikä uuteen (käyttäjän pyyntö 5.11.2026). Ei noopeneria: se estää
+  // uudelleenkäytön, samoin w.opener = null (mitattu Chromiumissa 5.11.2026).
   function kaanna(segs) {
     var l = tekstinKieli(segs), t = segs.map(function (s) { return s.x; }).join('\n\n');
-    window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), '_blank', 'noopener');
+    var w = window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), 'luin-deepl');
+    if (w) try { w.focus(); } catch (e) {}
   }
   // Sukkelan sanaston merkki asetuksissa: lambda ja sen vieressä Etsin salmiakkilinssi varsineen.
   var IK_SANASTO = '<svg class="sanasto" viewBox="0 0 27 18" aria-hidden="true"><path d="M1.6 1.6C3.6 1.3 4.8 2.4 5.8 4.6L10.4 15.4C10.8 16.3 11.4 16.6 12.3 16.3" stroke-width="1.5"/>' +

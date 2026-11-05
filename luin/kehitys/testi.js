@@ -972,7 +972,7 @@ palvelin.listen(0, async () => {
       : { fi: [{ partOfSpeech: 'Noun', language: 'Finnish', definitions: [{ definition: '<a href="/wiki/Appendix:Glossary#x">genitive</a> of <i><a href="/wiki/perusmuoto#Finnish">perusmuoto</a></i>' }] }] };
     r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(j) });
   });
-  await mp.addInitScript(() => { window.__avattu = []; window.open = u => { window.__avattu.push(u); return null; }; });
+  await mp.addInitScript(() => { window.__avattu = []; window.open = (u, n, f) => { window.__avattu.push(u); window.__ikkuna = [n, f || '']; return null; }; });
   await mp.goto(BASE + 'luin.html');
   await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
   await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
@@ -1062,8 +1062,10 @@ palvelin.listen(0, async () => {
   // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.
   sw = await sanat(); await veda(sw.s[1], sw.s[2]);
   await mp.click('#pop button[data-k="kaanna"]');
-  const dl = await mp.evaluate(() => window.__avattu.pop() || '');
+  const dl = await mp.evaluate(() => window.__avattu.pop() || ''), dlIk = await mp.evaluate(() => window.__ikkuna);
   tulos('käännös DeepL-osoitteeseen', /^https:\/\/www\.deepl\.com\/translator#(fi|en|de|fr|sv)\/(fi|en)\/[^/]+$/.test(dl), dl.slice(0, 90));
+  // Sama nimetty välilehti joka kerta, ilman noopeneria, joka estäisi uudelleenkäytön (käyttäjän pyyntö 5.11.2026).
+  tulos('käännös samaan DeepL-välilehteen', dlIk && dlIk[0] === 'luin-deepl' && !/noopener/.test(dlIk[1]), JSON.stringify(dlIk));
   await mp.keyboard.press('Escape');
   // Selaimen tapa: teksti valittavissa kuten ennen.
   await mp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.maalaus = 'selain'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
