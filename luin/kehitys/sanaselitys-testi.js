@@ -174,7 +174,7 @@ palvelin.listen(0, async () => {
   tulos('fi: virkkeen alun iso kirjain → pieni (Kello → kello)', r.ots === 'kello' && !r.huom.length, JSON.stringify(r));
   r = await selita('ponillehan');
   console.log('     ponillehan: ' + pyynnot.length + ' pyyntöä: ' + pyynnot.map(u => u.replace(/^.*(gpssearch|gsrsearch)=([^&]*).*$/, '$1=$2').replace(/^\/api\/rest_v1\/page\/definition\//, 'rest:')).join(' · '));
-  tulos('fi: loppunapsu ja perusmuoto (ponillehan → poni)', r.ots === 'poni' && /lähin osuma/.test(r.huom.join()) && /pony/.test(r.maar.join()), JSON.stringify(r));
+  tulos('fi: loppunapsu ja perusmuoto (ponillehan → poni)', r.ots === 'poni' && /lähin osuma/i.test(r.huom.join()) && /pony/.test(r.maar.join()), JSON.stringify(r));
   await kuva('sk-ponillehan');
   r = await selita('Kissoi');
   tulos('fi: saman perusmuodon taivutukset yhdistyvät (Kissoi → kissa)', r.ots === 'kissa' && !r.vaihdot.length, JSON.stringify(r));
@@ -195,7 +195,7 @@ palvelin.listen(0, async () => {
   r = await selita('ars longa vita brevis');
   tulos('kursiivi: ilmaus ilman pilkkua (ars longa vita brevis)', r.ots === 'ars longa, vita brevis' && /toisin kirjoitettuna/.test(r.huom.join()), JSON.stringify(r));
   r = await selita('ars long Vita breve');
-  tulos('kursiivi: ilmaus sanoittain napsien (ars long Vita breve)', r.ots === 'ars longa, vita brevis' && /lähin osuma/.test(r.huom.join()), JSON.stringify(r));
+  tulos('kursiivi: ilmaus sanoittain napsien (ars long Vita breve)', r.ots === 'ars longa, vita brevis' && /lähin osuma/i.test(r.huom.join()), JSON.stringify(r));
   r = await selita('cogito');
   tulos('kursiivi: muun kielen tasan sama ja kielihuomautus (cogito)', r.ots === 'cogito' && /Suomesta ei osumaa/.test(r.huom.join()) && r.kielet[0].startsWith('Latin'), JSON.stringify(r));
   r = await selita('pratityasamutpadaa');
