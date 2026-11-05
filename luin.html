@@ -396,12 +396,17 @@
   mark.ali.luonnos, .ali-piilo mark.ali.luonnos { text-decoration: underline dashed var(--ruoste); text-decoration-thickness: .13em; }
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
-  .kahva .k-varsi { position: absolute; left: -.75px; top: 0; width: 1.5px; height: calc(var(--kh, 20px) + 2px); background: var(--ruoste); }
-  /* Kahvan salmiakki 20 × 25 px (käyttäjän pyyntö 5.11.2026: ennen 13 × 16; yläkärki ennallaan rivin alla). */
-  .kahva .k-ote { position: absolute; left: -26px; top: calc(var(--kh, 20px) + 1px); width: 52px; height: 48px;
+  /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
+     päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
+     samassa kohdassa kuin maalauksessa. Vedon ajaksi kahvat katoavat ja alleviivaus on katkoviiva. */
+  .kahva .k-kaari { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
+  .k-kaari .kk { fill: none; stroke: var(--ruoste); }
+  .k-kaari .kn { fill: var(--ruoste); }
+  .kahva .k-ote { position: absolute; width: 40px; height: 40px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
+  #kahvat.vedossa .kahva { visibility: hidden; }
+  mark.ali.vedossa, .ali-piilo mark.ali.vedossa { text-decoration: underline dashed var(--ruoste); text-decoration-thickness: .13em; }
   #kahvat.lapi .k-ote { pointer-events: none; }
-  .kahva .k-ote svg { position: absolute; left: 16px; top: 0; width: 20px; height: 25px; fill: var(--ruoste); }
   /* Suurennuslasi kahvan kosketusvedossa (pilotti 5.11.2026, Booxin tapaan): vedettävän pään rivi 1,25-kertaisena rivin
      yläpuolella, ettei katse jää sormeen. Sisältö on lohkon klooni laskettuine tyyleineen (lupaKlooni()). */
   #lupa { position: fixed; z-index: 25; overflow: hidden; pointer-events: none; user-select: none; -webkit-user-select: none;
@@ -867,7 +872,7 @@
 </div>
 
 <div class="valikko" id="pop" hidden></div>
-<div id="kahvat" hidden><div class="kahva" data-paa="alku"><span class="k-varsi"></span><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><span class="k-varsi"></span><span class="k-ote"></span></div></div>
+<div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kk"/><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kk"/><path class="kn"/></svg><span class="k-ote"></span></div></div>
 <div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -2334,7 +2339,6 @@
      vierityksen); silloin maalaus jää painetun sanan kokoiseksi ja jatkuu kahvasta. */
   var PITKA = 450, luonnos = { id: 'luonnos', segs: [] }, kahvaH = null, maal = null, veto = null;
   var kahvatEl = $('#kahvat'), kahvaEl = { alku: $('.kahva[data-paa="alku"]', kahvatEl), loppu: $('.kahva[data-paa="loppu"]', kahvatEl) };
-  $$('.k-ote', kahvatEl).forEach(function (o) { o.innerHTML = '<svg viewBox="0 0 20 25" aria-hidden="true"><path d="' + sal(10, 12.5, 10, 12.5) + '"/></svg>'; });
   function kohtaEnnen(a, z) { return a.b < z.b || a.b === z.b && a.o <= z.o; }
   function sanaKohdassa(k) {
     var t = nyt.txt[k.b] || '', s = k.o, e = k.o;
@@ -2373,15 +2377,31 @@
   function sijoitaKahvat() {
     if (!kahvaH || !nyt) return;
     var sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
-    asetaKahva(kahvaEl.alku, kohdanLaatikko({ b: a.b, o: a.s }), false);
-    asetaKahva(kahvaEl.loppu, kohdanLaatikko({ b: z.b, o: Math.max(z.s, z.e - 1) }), true);
+    asetaKahva(kahvaEl.alku, kohdanLaatikko({ b: a.b, o: a.s }), false, a.b);
+    asetaKahva(kahvaEl.loppu, kohdanLaatikko({ b: z.b, o: Math.max(z.s, z.e - 1) }), true, z.b);
   }
-  function asetaKahva(el, r, oikea) {
+  // Kaarikahvan muoto kahvan kohdasta (sanan reuna, merkin laatikon yläreuna), x ulospäin. Alleviivauksen keskikohta
+  // mitattiin pikseleistä (5.11.2026: 19 px:llä 2 px paksu, keskikohta 0,263 em perusviivan alla, 13 px rivin keskeltä);
+  // Literatan perusviiva on 22/28 merkin laatikosta. Paraabeli y = uy − H·(x/w)² on neliöllinen Bézier, jonka ohjauspiste
+  // on (w/2, uy). Kaari alkaa 2 px alleviivauksen sisältä, ettei saumaan jää rakoa.
+  function kahvaMuoto(h, fs) {
+    var th = Math.max(1, Math.round(.13 * fs)), uy = Math.round(h * 22 / 28) + .2 * fs + th / 2 + .25, w = .26 * fs;
+    return { th: th, uy: uy, yc: h / 2, w: w, nx: w, rx: .16 * fs, ry: .28 * fs };
+  }
+  function asetaKahva(el, r, oikea, b) {
     el.hidden = !r;
     if (!r) return;
+    var fs = parseFloat(getComputedStyle(nyt.blocks[b] || art).fontSize) || 19, g = kahvaMuoto(r.height, fs), s = oikea ? 1 : -1;
+    function f(n) { return Math.round(n * 100) / 100; }
     el.style.left = (oikea ? r.right : r.left) + 'px';
     el.style.top = r.top + 'px';
     el.style.setProperty('--kh', r.height + 'px');
+    var kk = $('.kk', el), kn = $('.kn', el), o = $('.k-ote', el);
+    kk.setAttribute('d', 'M' + f(-2 * s) + ' ' + f(g.uy) + 'L0 ' + f(g.uy) + 'Q' + f(s * g.w / 2) + ' ' + f(g.uy) + ' ' + f(s * g.w) + ' ' + f(g.yc));
+    kk.style.strokeWidth = g.th + 'px';
+    kn.setAttribute('d', sal(s * g.nx, g.yc, g.rx, g.ry));
+    // Ote 40 × 40 px nupin ympärillä, 4 px ulospäin (ettei se peitä omaa sanaa).
+    o.style.left = (s * (g.nx + 4) - 20) + 'px'; o.style.top = (g.yc - 20) + 'px';
   }
   var kahvaRaf = 0;
   window.addEventListener('scroll', function () {
@@ -2399,7 +2419,6 @@
       });
     });
     if (!u) return null;
-    if (kahvaH === h) u.bottom += 18;
     u.width = u.right - u.left; u.height = u.bottom - u.top;
     return u;
   }
@@ -2412,22 +2431,29 @@
       e.preventDefault(); e.stopPropagation();
       var paa = o.parentNode.dataset.paa, el = kahvaEl[paa], sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
       var x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top) + (parseFloat(el.style.getPropertyValue('--kh')) || 20) / 2;
-      veto = { paa: paa, h: kahvaH, id: e.pointerId, dx: e.clientX - x0, dy: e.clientY - y0, x: e.clientX, y: e.clientY,
+      veto = { paa: paa, h: kahvaH, id: e.pointerId, dx: e.clientX - x0, dy: e.clientY - y0, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY,
         kiinni: paa === 'alku' ? { b: z.b, o: z.e } : { b: a.b, o: a.s }, pop: !pop.hidden, lupa: LUPA_KAYTOSSA && e.pointerType !== 'mouse' };
       try { o.setPointerCapture(e.pointerId); } catch (er) {}
       if (!pop.hidden) suljePop();
       if (veto.lupa) lupaAskel();
       aloitaReuna(function () { return veto; }, kahvaAskel);
     });
-    o.addEventListener('pointermove', function (e) {
-      if (!veto || e.pointerId !== veto.id) return;
-      e.preventDefault();
-      veto.x = e.clientX; veto.y = e.clientY;
-      if (!vetoRaf) vetoRaf = requestAnimationFrame(function () { vetoRaf = 0; kahvaAskel(); });
-    });
-    o.addEventListener('pointerup', lopetaVeto);
-    o.addEventListener('pointercancel', lopetaVeto);
   });
+  // Liike ja päätös luetaan dokumentista: piilotettu kahva voi menettää osoittimen kaappauksen.
+  // Liikkeen alkaessa (yli 3 px) kahvat katoavat ja alleviivaus on katkoviiva kuten maalatessa (käyttäjän päätös 5.11.2026).
+  document.addEventListener('pointermove', function (e) {
+    if (!veto || e.pointerId !== veto.id) return;
+    e.preventDefault();
+    veto.x = e.clientX; veto.y = e.clientY;
+    if (!veto.liike && Math.abs(veto.x - veto.x0) + Math.abs(veto.y - veto.y0) > 3) {
+      veto.liike = true;
+      kahvatEl.classList.add('vedossa');
+      if (veto.h !== luonnos) { poistaMerkit(veto.h.id); piirraAlleviivaus(veto.h, 'vedossa'); }
+    }
+    if (!vetoRaf) vetoRaf = requestAnimationFrame(function () { vetoRaf = 0; kahvaAskel(); });
+  }, true);
+  document.addEventListener('pointerup', lopetaVeto, true);
+  document.addEventListener('pointercancel', lopetaVeto, true);
   function kahvaAskel() {
     if (!veto) return;
     siirraKahvaa();
@@ -2446,7 +2472,7 @@
     var segs = segsValilta(p, q);
     if (!segs.length || samatSegs(segs, veto.h.segs)) return;
     if (veto.h === luonnos) piirraLuonnos(segs);
-    else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h); }
+    else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h, veto.liike ? 'vedossa' : ''); }
     sijoitaKahvat();
   }
   function lopetaVeto(e) {
@@ -2455,6 +2481,8 @@
     var v = veto;
     veto = null;
     piilotaLupa();
+    kahvatEl.classList.remove('vedossa');
+    if (v.liike && v.h !== luonnos) { poistaMerkit(v.h.id); piirraAlleviivaus(v.h); }
     lopetaReuna();
     tila.maalattu = Date.now();
     if (v.h !== luonnos) { jarjestaAl(); tallennaMerkit(); paivitaMerkinnat(); }
