@@ -3,7 +3,7 @@
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
 // kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn, haun,
-// paluumajakan, palkit ja navin laatikot (mobiili 412 ja 360 px, työpöytä 1280 ja 1440 px).
+// paluumajakan, siirtymien kumouksen, palkit ja navin laatikot (mobiili 412 ja 360 px, työpöytä 1280 ja 1440 px).
 // Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
@@ -32,11 +32,11 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
 const laidat = pg => pg.evaluate(() => {
   const q = s => document.querySelector(s), R = s => q(s).getBoundingClientRect(), cs = s => getComputedStyle(q(s)), em = s => parseFloat(cs(s).fontSize);
   const vw = document.documentElement.clientWidth, svg = R('#jana-svg'), xr = window.__luin.janaRajat(svg.width), r2 = x => +x.toFixed(2);
-  const sn = !q('#sivunapit').hidden, kiekko = R('#lukija .ratas svg');
+  const sn = !q('#sivunapit').hidden, kn = !q('#kumonapit').hidden, kiekko = R('#lukija .ratas svg');
   const v = { km: R('#km-nappi svg').left, takaisin: R('.takaisin').left + parseFloat(cs('.takaisin').paddingLeft) + .05 * em('.takaisin'),
     kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), merk: R('#merk-avaa').left, jana: svg.left + xr[0] };
   const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1]),
-    [sn ? 'sivunapit' : 'nuoli']: vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right };
+    [kn ? 'kumonapit' : sn ? 'sivunapit' : 'nuoli']: vw - R(kn ? '.kumo-pari' : sn ? '#sivu-se' : '#palkki-nuoli').right };
   for (const k in v) v[k] = r2(v[k]); for (const k in o) o[k] = r2(o[k]);
   // Etappimerkkien muste mahtuu janalle, ja ensimmäisen näkyvän pääluvun vasemmalle puolelle mahtuu kuvitteellinen
   // päälukumerkki (käyttäjän pyyntö 30.10.2026). Pääluvun musteen puolileveys = polku + kehän jiiri 1,033 (luin.html janaKarjet()).
@@ -676,7 +676,7 @@ palvelin.listen(0, async () => {
   const mjp2 = await m.evaluate(() => !!window.__luin.majakka() && !document.querySelector('#jana').hidden);
   tulos('palkkien avaus ei poista majakkaa', mjp && mjp2);
   // Sivutettuna, sivunapit valittuina.
-  await m.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; a.sivunapit = 1; a.av = 5; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await m.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'sivut'; a.sivunapit = 1; a.kumoNapit = 0; a.av = 5; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await m.reload(); await m.waitForTimeout(400);
   await m.evaluate(() => { window.__luin.mene({ b: 30, o: 0 }); }); await m.waitForTimeout(200);
   const ps0 = await palkit();
@@ -738,20 +738,23 @@ palvelin.listen(0, async () => {
   await mob360.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ sivutus: 'sivut', marginaali: 'levea', sivunapit: 1, av: 5 })); }, MD);
   // #tuo on samassa dokumentissa, joten asetukset luetaan vasta uudelleenlatauksessa.
   await mob360.goto(BASE + 'luin.html#tuo'); await mob360.waitForTimeout(600); await mob360.reload(); await mob360.waitForTimeout(600);
-  await mob360.click('#ala-nappi'); await mob360.waitForTimeout(100);
-  const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit'), nu = q('#palkki-nuoli');
+  const vapaa360 = () => mob360.evaluate(() => { const k = document.querySelector('#km-nappi').getBoundingClientRect(), n = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: (k.right + n.left) / 2, y: k.top + k.height / 2 }; });
+  const kaista360 = async () => { const v = await vapaa360(); await mob360.mouse.click(v.x, v.y); await mob360.waitForTimeout(100); };
+  await kaista360();
+  const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), n = q('.jana-napit'), km = q('#km-nappi'), sn = q('#sivunapit'), nu = q('#palkki-nuoli'), ku = q('.kumo-pari');
     const pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
     const merk = q('#merk-avaa'), se = q('#sivu-se');
-    return { paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(sn, nu) || pa(km, nu) || pa(km, sn), korkeus: [se.height, merk.height] }; });
-  tulos('Merkinnät ja Etsi kapealla ruudulla', !m3.paalla, JSON.stringify(m3));
+    return { kumo: !document.querySelector('#kumonapit').hidden, paalla: pa(n, km) || pa(n, sn) || pa(n, nu) || pa(n, ku) || pa(sn, nu) || pa(km, nu) || pa(km, sn) || pa(km, ku) || pa(nu, ku),
+      korkeus: [se.height, merk.height, ku.height] }; });
+  tulos('Merkinnät ja Etsi kapealla ruudulla (sivunapit ja kumonapit)', m3.kumo && !m3.paalla, JSON.stringify(m3));
   // Mobiilissa laidat 17 px kummallakin puolella marginaalista riippumatta (tässä Reilu).
   const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
-  tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
-  tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
+  tulos('palkkien laidat mobiilissa (360 px, sivunapit ja kumonapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
+  tulos('sivunapit ja kumonapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1] && m3.korkeus[2] === m3.korkeus[1], JSON.stringify(m3));
   // Sisälmys (4.11.2026): Etsin oikealla puolella samalla rivillä, laatikko auki napista; tekstialueen napautus laatikon
   // ulkopuolella sulkee vain laatikon (navi auki, sivu sama); raksi sulkee; kohdan valinta hyppää ja jättää majakan.
   const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#sisalmys').hidden ? '' : 'sisalmys', s: window.__luin.tila.sivu, maj: !!window.__luin.majakka() }));
-  if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await mob360.click('#ala-nappi');
+  if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await kaista360();
   const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: s.left > e.right, rivi: s.top === e.top, h: s.height === e.height }; });
   await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
   const ss1 = await sisT(), pr = await mob360.evaluate(() => document.querySelector('#sisalmys').getBoundingClientRect().right);
@@ -779,6 +782,76 @@ palvelin.listen(0, async () => {
   tulos('Sisälmys', sg.oikealla && sg.rivi && sg.h && /sisalmys/.test(ss1.pop) && ss1.navi && !ss2.pop && ss2.navi && ss2.s === ss1.s && !ss3.pop && ss3.navi && !ss4.pop && ss4.navi && ss4.s > ss1.s && ss4.maj,
     JSON.stringify({ sg, ss1, ss2, ss3, ss4 }));
   await mob360.context().close();
+
+  // Siirtymien kumous (käyttäjän pyyntö 5.11.2026). Oletuksena kumonapit näkyvät vain sivunappien kanssa; kytkin näyttää ne
+  // missä tahansa tilassa. Pari on sivunappien oikealla puolella 12 px:n raon päässä, oikea reuna 17 px ruudun reunasta, ja raon
+  // puolikkaat kuuluvat lähemmälle parille. Hyppy kumoutuu ja tehdään uudelleen samalle sivulle, nopea sivusarja kumoutuu
+  // kerralla ja hidas sivu kerrallaan, uusi siirtymä tyhjentää uudelleen tehtävät, vierityksessä paluu tarkkaan kohtaan.
+  const ku = await (await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true })).newPage();
+  ku.on('pageerror', e => sivuvirheet.push(e.message));
+  const kuAset = async a => { await ku.evaluate(a => localStorage.setItem('luin-asetukset', JSON.stringify(Object.assign({ av: 5 }, a))), a); await ku.reload(); await ku.waitForTimeout(500); };
+  await ku.goto(BASE + 'luin.html');
+  await ku.evaluate(md => localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })), MD);
+  await ku.goto(BASE + 'luin.html#tuo'); await ku.waitForTimeout(600);
+  const kaistaK = async () => { const v = await ku.evaluate(() => { const k = document.querySelector('#km-nappi').getBoundingClientRect(), n = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: (k.right + n.left) / 2, y: k.top + k.height / 2 }; });
+    await ku.mouse.click(v.x, v.y); await ku.waitForTimeout(100); };
+  const kNakyy = () => ku.evaluate(() => !document.querySelector('#kumonapit').hidden);
+  await kuAset({ sivutus: 'sivut' }); const kn1 = await kNakyy();
+  await kuAset({ sivutus: 'sivut', sivunapit: 1 }); const kn2 = await kNakyy();
+  await kuAset({ sivutus: 'vieritys', sivunapit: 1 }); const kn3 = await kNakyy();
+  tulos('kumonapit oletuksena vain sivunappien kanssa', !kn1 && kn2 && !kn3, JSON.stringify([kn1, kn2, kn3]));
+  await kuAset({ sivutus: 'sivut', sivunapit: 1 });
+  const kul = await ku.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), se = q('#sivu-se'), pa = q('.kumo-pari'), r = q('#ala-rivi'), y = r.top + r.height / 2;
+    const id = (x, y) => { const e = document.elementFromPoint(x, y); return e && (e.closest('button, #sivunapit, #kumonapit') || e).id; };
+    return { rako: +(pa.left - se.right).toFixed(2), reuna: +(innerWidth - pa.right).toFixed(2), korkeus: pa.height,
+      osumat: [id(se.right + 3, y), id(pa.left - 3, y), id(innerWidth - 1, y), id(pa.left + 10, y), id(pa.right - 10, y), id(pa.left + 10, r.top + 1)] }; });
+  tulos('kumonappien paikka ja napautusalue', kul.rako === 12 && kul.reuna === 17 && kul.korkeus === 34 &&
+    JSON.stringify(kul.osumat) === JSON.stringify(['sivunapit', 'kumonapit', 'kumonapit', 'kumo-taakse', 'kumo-eteen', 'kumonapit']), JSON.stringify(kul));
+  const kut = () => ku.evaluate(() => { const L = window.__luin; return { s: L.tila.sivu, t: document.querySelector('#kumo-taakse').getAttribute('aria-disabled') === 'false',
+    e: document.querySelector('#kumo-eteen').getAttribute('aria-disabled') === 'false', maj: !!L.majakka(), jana: !document.querySelector('#jana').hidden }; });
+  await ku.evaluate(() => window.__luin.mene({ b: 20, o: 0 })); await ku.waitForTimeout(100);
+  const kh0 = await kut();
+  await ku.click('#kumo-taakse', { force: true }); await ku.waitForTimeout(50);   // ei mitään kumottavaa: ei tee mitään eikä avaa aikajanaa
+  const kh0b = await kut();
+  await ku.evaluate(() => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); }); await ku.waitForTimeout(100);
+  const kh1 = await kut();
+  await ku.click('#kumo-taakse'); await ku.waitForTimeout(100);
+  const kh2 = await kut();
+  await ku.click('#kumo-eteen'); await ku.waitForTimeout(100);
+  const kh3 = await kut();
+  tulos('hypyn kumous ja uudelleen', !kh0.t && !kh0.e && kh0b.s === kh0.s && !kh0b.jana && kh1.s > kh0.s && kh1.t && !kh1.e && kh1.maj &&
+    kh2.s === kh0.s && !kh2.t && kh2.e && !kh2.maj && !kh2.jana && kh3.s === kh1.s && kh3.t && !kh3.e, JSON.stringify([kh0, kh0b, kh1, kh2, kh3]));
+  // Sivusarja: kolme nopeaa käännöstä = yksi siirtymä; kaksi yli 2 s:n välein = kaksi; uusi siirtymä tyhjentää uudelleen tehtävät.
+  await ku.evaluate(() => window.__luin.mene({ b: 20, o: 0 })); await ku.waitForTimeout(100);
+  const ks0 = (await kut()).s;
+  for (let i = 0; i < 3; i++) await ku.keyboard.press('ArrowRight');
+  const ks1 = (await kut()).s;
+  await ku.click('#kumo-taakse'); await ku.waitForTimeout(50);
+  const ks2 = await kut();
+  await ku.keyboard.press('ArrowRight'); const ks3 = await kut();
+  await ku.waitForTimeout(2100); await ku.keyboard.press('ArrowRight'); await ku.waitForTimeout(50);
+  await ku.click('#kumo-taakse'); await ku.waitForTimeout(50); const ks4 = await kut();
+  tulos('sivusarjan kumous', ks1 === ks0 + 3 && ks2.s === ks0 && ks2.e && !ks3.e && ks3.s === ks0 + 1 && ks4.s === ks0 + 1, JSON.stringify({ ks0, ks1, ks2, ks3, ks4 }));
+  // Palkit auki (verho): kumous toimii ja palkit jäävät auki.
+  await kaistaK(); const kv0 = await kut();
+  await ku.click('#kumo-taakse'); await ku.waitForTimeout(50); const kv1 = await kut();
+  tulos('kumous palkkien ollessa auki', kv0.jana && kv1.jana && kv1.s === ks0, JSON.stringify([kv0, kv1]));
+  // Kytkin: ilman sivunappeja päälle, ja vierityksessä näkyy yhä; paluu tarkkaan vierityskohtaan.
+  await kuAset({ sivutus: 'sivut' });
+  await kaistaK(); await ku.click('#lukija .ratas');
+  await ku.click('#asetukset button[data-kytkin="kumoNapit"]'); await ku.waitForTimeout(50);
+  const kk1 = await ku.evaluate(() => ({ n: !document.querySelector('#kumonapit').hidden, a: window.__luin.aset.kumoNapit, p: document.querySelector('#asetukset button[data-kytkin="kumoNapit"]').getAttribute('aria-pressed') }));
+  await ku.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await ku.waitForTimeout(100);
+  await ku.click('#asetukset .sulje');
+  const kk2 = await kNakyy();
+  await ku.evaluate(() => window.scrollTo(0, 3333)); await ku.waitForTimeout(200);
+  const ky0 = await ku.evaluate(() => scrollY);
+  await ku.evaluate(() => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); }); await ku.waitForTimeout(100);
+  const ky1 = await ku.evaluate(() => scrollY);
+  await ku.click('#kumo-taakse'); await ku.waitForTimeout(100);
+  const ky2 = await ku.evaluate(() => scrollY);
+  tulos('kumonappien kytkin ja vierityksen kumous', kk1.n && kk1.a === 1 && kk1.p === 'true' && kk2 && ky1 > ky0 + 1000 && ky2 === ky0, JSON.stringify({ kk1, kk2, y: [ky0, ky1, ky2] }));
+  await ku.context().close();
 
   // Light Phone (360 × 413, 29.10.2026). Vierityksessä sivu ei levene sivusuunnassa: ylipitkät sanat ja osoitteet katkeavat
   // (SEP:n Dewey-leike oli 690 px leveä), myös suurimmalla kirjasinkoolla. Verkkolinkit ovat oletuksena tavallista tekstiä,
@@ -883,6 +956,133 @@ palvelin.listen(0, async () => {
     Object.keys(lt4.a).join() === 'haku' && lt4.ae === 'ftf' && !lt5.navi && !Object.keys(lt5.a).length && lt5.ae === 'fff',
     JSON.stringify([lt1, lt2, lt3, lt4, lt5].map(x => x.a)) + ' ' + [lt1, lt2, lt3, lt4, lt5].map(x => x.ae).join(','));
   await tp.context().close();
+
+  // Maalauskone (pilotti 5.11.2026): Luinin oma maalaus tarttuu sanoihin ilman selaimen valintaa, kahvat ovat
+  // merkkien reunoilla ja niiden veto säätää aluetta; kosketuksella pitkä painallus ja veto maalaavat, napautus ja
+  // vieritys eivät. Valikon lisät: kopio viitteellä, sanakirja (Wiktionary siepattuna) ja käännös (DeepL-osoite).
+  {
+  const mk = await b.newContext({ viewport: { width: 1280, height: 900 } });
+  await mk.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: BASE.slice(0, -1) });
+  const mp = await mk.newPage();
+  mp.on('pageerror', e => sivuvirheet.push(e.message));
+  const skHaut = [];
+  await mp.route('https://en.wiktionary.org/**', r => {
+    const w = decodeURIComponent(r.request().url().split('/').pop()); skHaut.push(w);
+    const j = w === 'perusmuoto' ? { fi: [{ partOfSpeech: 'Noun', language: 'Finnish', definitions: [{ definition: 'base form' }] }] }
+      : { fi: [{ partOfSpeech: 'Noun', language: 'Finnish', definitions: [{ definition: '<a href="/wiki/Appendix:Glossary#x">genitive</a> of <i><a href="/wiki/perusmuoto#Finnish">perusmuoto</a></i>' }] }] };
+    r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(j) });
+  });
+  await mp.addInitScript(() => { window.__avattu = []; window.open = u => { window.__avattu.push(u); return null; }; });
+  await mp.goto(BASE + 'luin.html');
+  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
+  await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
+  // Pitkän kappaleen sanojen keskikohdat (sanan kolmas merkki), kappale ruudun keskellä.
+  const sanat = () => mp.evaluate(() => {
+    const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300 && !x.querySelector('mark'));
+    el.scrollIntoView({ block: 'center' });
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), out = []; let t;
+    while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote, .fnref')) continue; const re = /[\p{L}]{6,}/gu; let m;
+      while ((m = re.exec(t.data))) { const q = document.createRange(); q.setStart(t, m.index + 2); q.setEnd(t, m.index + 3); const r = q.getClientRects()[0]; if (r) out.push({ x: r.left + r.width / 2, y: r.top + r.height / 2 }); } }
+    return { b: +el.dataset.b, s: out };
+  });
+  const mtila = () => mp.evaluate(() => {
+    const L = window.__luin, n = L.nyt(), al = n.merk.al, h = al[al.length - 1], K = document.querySelectorAll('.kahva');
+    const reunat = h ? h.segs.every(s => { const t = n.txt[s.b], w = /[\p{L}\p{N}]/u; return !(w.test(t[s.s - 1] || '') && w.test(t[s.s])) && !(w.test(t[s.e] || '') && w.test(t[s.e - 1])); }) : false;
+    const mk = h && [...document.querySelectorAll('mark.ali[data-h="' + h.id + '"]')], eka = mk && mk.length && mk[0].getClientRects()[0], vika = mk && mk.length && [...mk[mk.length - 1].getClientRects()].pop();
+    return { n: al.length, x: h ? h.segs.map(s => s.x).join(' ') : '', reunat, sel: getSelection().toString(), kahvat: !document.querySelector('#kahvat').hidden,
+      kahvaEro: eka ? [Math.abs(K[0].getBoundingClientRect().left - eka.left), Math.abs(K[1].getBoundingClientRect().left - vika.right)].map(v => +v.toFixed(2)) : null,
+      luonnos: document.querySelectorAll('mark.luonnos').length, pop: document.querySelector('#pop').hidden ? '' : document.querySelector('#pop').className };
+  });
+  const veda = async (a, z) => { await mp.mouse.move(a.x, a.y); await mp.mouse.down(); await mp.mouse.move(z.x, z.y, { steps: 8 }); await mp.mouse.up(); await mp.waitForTimeout(250); };
+  let sw = await sanat();
+  await veda(sw.s[2], sw.s[5]);
+  const m1 = await mtila();
+  const oma = await mp.evaluate(() => [document.documentElement.classList.contains('oma-maalaus'), getComputedStyle(document.querySelector('#teksti')).userSelect]);
+  tulos('Luinin maalaus sanarajoihin ilman selaimen valintaa', oma[0] && oma[1] === 'none' && m1.n === 1 && m1.reunat && m1.sel === '' && m1.kahvat && m1.kahvaEro.every(v => v < .5) && !m1.pop,
+    JSON.stringify({ oma, m1 }));
+  // Loppukahvan veto kaksi sanaa eteenpäin (kahvan ja sormen ero säilyy).
+  const lk = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
+  await veda(lk, { x: lk.x + sw.s[7].x - sw.s[5].x, y: lk.y + sw.s[7].y - sw.s[5].y });
+  const m2 = await mtila();
+  const m2t = await mp.evaluate(() => { const n = window.__luin.nyt(), m = JSON.parse(localStorage.getItem('luin-merkit:' + n.e.id)); return m.al[m.al.length - 1].segs.map(s => s.x).join(' '); });
+  tulos('loppukahvan veto', m2.n === 1 && m2.x.length > m1.x.length && m2.x.indexOf(m1.x) === 0 && m2.reunat && m2.kahvaEro.every(v => v < .5) && m2t === m2.x, JSON.stringify({ ennen: m1.x, jalkeen: m2.x }));
+  // Ilman sukkelaa: luonnos ja valikko; Esc poistaa luonnoksen.
+  await mp.evaluate(() => { window.__luin.aset.auto = 0; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
+  sw = await sanat();
+  await veda(sw.s[1], sw.s[3]);
+  const m3 = await mtila();
+  await mp.keyboard.press('Escape'); await mp.waitForTimeout(100);
+  const m4 = await mtila();
+  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && m3.kahvat && m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, m4 }));
+  // Kopio viitteellä: lyhyt (Sukunimi vuosi, luku) ja pitkä (koko viite ja luku).
+  const kopioi = async tapa => {
+    await mp.evaluate(t => { window.__luin.aset.kopioViite = t; }, tapa);
+    const w = await sanat(); await veda(w.s[1], w.s[3]); await mp.click('#pop button[data-k="kopioi"]'); await mp.waitForTimeout(150);
+    const r = await mp.evaluate(() => ({ leike: '', ote: [...document.querySelectorAll('mark.luonnos')].map(m => m.textContent).join('').replace(/­/g, ''),
+      lyhyt: window.__luin.lyhytViite(), viite: (window.__luin.nyt().e.viite || '').replace(/\*/g, ''), loc: (window.__luin.paikannin(+document.querySelector('mark.luonnos').closest('[data-b]').dataset.b) || {}).s || '' }));
+    r.leike = await mp.evaluate(() => navigator.clipboard.readText());
+    await mp.keyboard.press('Escape');
+    return r;
+  };
+  const kl = await kopioi('lyhyt'), kp = await kopioi('pitka');
+  tulos('kopio viitteellä', kl.leike === kl.ote + ' (' + kl.lyhyt + (kl.loc ? ', ' + kl.loc : '') + ')' && kp.leike.indexOf(kp.ote + '\n\n' + kp.viite) === 0 && (!kp.loc || kp.leike.endsWith(' ' + kp.loc)),
+    JSON.stringify({ lyhyt: kl.leike.slice(-60), pitka: kp.leike.slice(-80) }));
+  await mp.evaluate(() => { window.__luin.aset.kopioViite = 'ei'; });
+  // Sanakirja: yhden sanan valikossa, taivutusmuodon perusmuoto on napautettava, ‹ palaa.
+  sw = await sanat();
+  await mp.mouse.dblclick(sw.s[4].x, sw.s[4].y); await mp.waitForTimeout(250);
+  const skNappi = await mp.evaluate(() => !!document.querySelector('#pop button[data-k="sk"]'));
+  await mp.click('#pop button[data-k="sk"]'); await mp.waitForTimeout(300);
+  const sk1 = await mp.evaluate(() => ({ teksti: document.querySelector('#pop').innerText, linkit: [...document.querySelectorAll('#pop button.sk-sana')].map(x => x.dataset.sana) }));
+  await mp.click('#pop button.sk-sana'); await mp.waitForTimeout(300);
+  const sk2 = await mp.evaluate(() => document.querySelector('#pop').innerText);
+  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(200);
+  await mp.click('#pop button.sk-takaisin'); await mp.waitForTimeout(200);
+  const sk3 = await mp.evaluate(() => !!document.querySelector('#pop button[data-k="sk"]'));
+  tulos('sanakirja', skNappi && sk1.linkit.join() === 'perusmuoto' && /genitive of perusmuoto/.test(sk1.teksti) && /base form/.test(sk2) && sk3 && skHaut.length === 2,
+    JSON.stringify({ linkit: sk1.linkit, haut: skHaut }));
+  // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.
+  await mp.click('#pop button[data-k="kaanna"]');
+  const dl = await mp.evaluate(() => window.__avattu.pop() || '');
+  tulos('käännös DeepL-osoitteeseen', /^https:\/\/www\.deepl\.com\/translator#(fi|en|de|fr|sv)\/(fi|en)\/[^/]+$/.test(dl), dl.slice(0, 90));
+  await mp.keyboard.press('Escape');
+  // Selaimen tapa: teksti valittavissa kuten ennen.
+  await mp.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.maalaus = 'selain'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await mp.reload(); await mp.waitForTimeout(400);
+  const st = await mp.evaluate(() => [document.documentElement.classList.contains('oma-maalaus'), getComputedStyle(document.querySelector('#teksti')).userSelect]);
+  tulos('selaimen maalaus', !st[0] && st[1] !== 'none', JSON.stringify(st));
+  await mk.close();
+  // Kosketus: pitkä painallus ja veto maalaavat, napautus ja vieritys eivät.
+  const kk = await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true, isMobile: true });
+  const kp2 = await kk.newPage();
+  kp2.on('pageerror', e => sivuvirheet.push(e.message));
+  const cdp = await kk.newCDPSession(kp2);
+  const kosk = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
+  await kp2.goto(BASE + 'luin.html');
+  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
+  await kp2.goto(BASE + 'luin.html#tuo'); await kp2.waitForTimeout(600);
+  const ksanat = await kp2.evaluate(() => {
+    const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300);
+    window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 200);
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), out = []; let t;
+    while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote, .fnref')) continue; const re = /[\p{L}]{6,}/gu; let m;
+      while ((m = re.exec(t.data))) { const q = document.createRange(); q.setStart(t, m.index + 2); q.setEnd(t, m.index + 3); const r = q.getClientRects()[0]; if (r) out.push({ x: r.left + r.width / 2, y: r.top + r.height / 2 }); } }
+    return out;
+  });
+  const kn = () => kp2.evaluate(() => ({ n: window.__luin.nyt().merk.al.length, x: (window.__luin.nyt().merk.al.slice(-1)[0] || { segs: [] }).segs.map(s => s.x).join(' '), y: scrollY }));
+  const [ka, kz] = [ksanat[1], ksanat[4]];
+  await kosk('touchStart', ka.x, ka.y); await kp2.waitForTimeout(80); await kosk('touchEnd'); await kp2.waitForTimeout(500);
+  const kt0 = await kn();
+  await kosk('touchStart', ka.x, ka.y); for (let i = 1; i <= 6; i++) { await kosk('touchMove', ka.x, ka.y - i * 25); await kp2.waitForTimeout(20); } await kosk('touchEnd'); await kp2.waitForTimeout(700);
+  const kt1 = await kn();
+  await kp2.evaluate(y => window.scrollTo(0, y), kt0.y); await kp2.waitForTimeout(200);
+  await kosk('touchStart', ka.x, ka.y); await kp2.waitForTimeout(600);
+  for (let i = 1; i <= 8; i++) { await kosk('touchMove', ka.x + (kz.x - ka.x) * i / 8, ka.y + (kz.y - ka.y) * i / 8); await kp2.waitForTimeout(30); }
+  await kosk('touchEnd'); await kp2.waitForTimeout(300);
+  const kt2 = await kn();
+  tulos('kosketusmaalaus', kt0.n === 0 && kt1.n === 0 && kt1.y !== kt0.y && kt2.n === 1 && kt2.x.split(' ').length >= 3, JSON.stringify({ napautus: kt0.n, vieritys: [kt1.n, kt0.y, kt1.y], maalaus: kt2.x }));
+  await kk.close();
+  }
 
   tulos('ei sivuvirheitä', sivuvirheet.length === 0, sivuvirheet.join(' | '));
   await b.close(); palvelin.close();
