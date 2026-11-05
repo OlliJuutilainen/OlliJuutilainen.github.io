@@ -1054,11 +1054,10 @@ palvelin.listen(0, async () => {
   const lk = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
   await veda(lk, { x: lk.x + sw.s[7].x - sw.s[5].x, y: lk.y + sw.s[7].y - sw.s[5].y });
   const m2piilo = await mp.evaluate(() => document.querySelector('#kahvat').hidden);
-  // Vedon jälkeen kahvat eivät palaa; alleviivauksen napautus tuo ne.
   await mp.mouse.click(sw.s[3].x, sw.s[3].y); await mp.waitForTimeout(200);
   const m2 = await mtila();
   const m2t = await mp.evaluate(() => { const n = window.__luin.nyt(), m = JSON.parse(localStorage.getItem('luin-merkit:' + n.e.id)); return m.al[m.al.length - 1].segs.map(s => s.x).join(' '); });
-  tulos('loppukahvan veto', m2piilo && m2.kahvat && m2.n === 1 && m2.x.length > m1.x.length && m2.x.indexOf(m1.x) === 0 && m2.reunat && m2.kahvaEro.every(v => v < .5) && m2t === m2.x, JSON.stringify({ ennen: m1.x, jalkeen: m2.x }));
+  tulos('loppukahvan veto', !m2piilo && m2.kahvat && m2.n === 1 && m2.x.length > m1.x.length && m2.x.indexOf(m1.x) === 0 && m2.reunat && m2.kahvaEro.every(v => v < .5) && m2t === m2.x, JSON.stringify({ ennen: m1.x, jalkeen: m2.x }));
   // Hiirellä ei suurennuslasia (osoitin ei peitä tekstiä); takaisin lähtökohtaan sama alue.
   const lk2 = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
   await mp.mouse.move(lk2.x, lk2.y); await mp.mouse.down(); await mp.mouse.move(lk2.x - 40, lk2.y, { steps: 4 });
@@ -1068,8 +1067,8 @@ palvelin.listen(0, async () => {
   const m2b = await mtila();
   const hiiriJalkeen = await mp.evaluate(() => document.querySelector('#kahvat').hidden);
   tulos('hiirellä ei suurennuslasia', !hiiriLupa && m2b.x === m2.x, JSON.stringify({ hiiriLupa, x: m2b.x }));
-  // Vedon aikana kahvat poissa ja alleviivaus yhtenäinen; vedon jälkeen kahvat eivät palaa (käyttäjän päätös 5.11.2026).
-  tulos('alleviivauksen veto: kahvat poissa, viiva yhtenäinen, ei paluuta', /^solid(,solid)*$/.test(hiiriVeto.viiva) && hiiriVeto.kahvat === 'hidden' && hiiriJalkeen && !m2b.kahvat, JSON.stringify({ hiiriVeto, hiiriJalkeen }));
+  // Kahvat pysyvät näkyvissä vedon aikana ja jälkeen, alleviivaus yhtenäinen (käyttäjän päätös 5.11.2026).
+  tulos('alleviivauksen veto: kahvat näkyvissä koko ajan, viiva yhtenäinen', /^solid(,solid)*$/.test(hiiriVeto.viiva) && hiiriVeto.kahvat === 'visible' && !hiiriJalkeen && m2b.kahvat, JSON.stringify({ hiiriVeto, hiiriJalkeen }));
   // Ilman sukkelaa: luonnos ja valikko; Esc poistaa luonnoksen.
   await mp.evaluate(() => { window.__luin.aset.auto = 0; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
   sw = await sanat();
@@ -1220,7 +1219,7 @@ palvelin.listen(0, async () => {
   tulos('suurennuslasi kahvan kosketusvedossa', [lu0, lu1, lu3].every(t => t.lupa && t.w === 106 && t.h === 53 && t.ylapuolella && t.ero < .5 && t.varsi < .5 && t.varsiLasissa &&
     t.varjo === 'none' && t.pointer === 'none') && lu1.x.length > lu0.x.length && !lu4.lupa, JSON.stringify({ lu0, lu1, lu4: lu4.lupa }));
   const jalkeen = await kp2.evaluate(() => document.querySelector('#kahvat').hidden);
-  tulos('kosketusveto: kahvat poissa vedon ajan eivätkä palaa', vedossa.nak === 'hidden,hidden' && jalkeen, JSON.stringify({ vedossa, jalkeen }));
+  tulos('kosketusveto: kahvat näkyvissä vedon aikana ja jälkeen', vedossa.nak === 'visible,visible' && !jalkeen, JSON.stringify({ vedossa, jalkeen }));
   tulos('kahvan veto riviä alemmas otealueen läpi', lu3.x.length > lu2.x.length && lu3.riviYla > lu2.riviYla + 20, JSON.stringify({ ennen: lu2.x.slice(-30), jalkeen: lu3.x.slice(-30), rivi: [lu2.riviYla, lu3.riviYla] }));
   await kk.close();
   }

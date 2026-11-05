@@ -422,15 +422,13 @@
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
-     samassa kohdassa kuin maalauksessa. Kahvat vain kutsuvat tarttumaan: liikkeen alkaessa ne katoavat eivätkä palaa
-     vedon päätyttyä; alleviivaus pysyy yhtenäisenä (käyttäjän päätös 5.11.2026). Nuppi on kapea, koska sanaväli on vain
-     0,2 em. */
+     samassa kohdassa kuin maalauksessa. Kahvat pysyvät näkyvissä myös vedon aikana (käyttäjän päätös 5.11.2026). Nuppi on
+     kapea, koska sanaväli on vain 0,2 em. */
   .kahva .k-kaari { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
   .k-kaari .kk { fill: none; stroke: var(--ruoste); }
   .k-kaari .kn { fill: var(--ruoste); }
   .kahva .k-ote { position: absolute; width: 40px; height: 40px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
-  #kahvat.vedossa .kahva { visibility: hidden; }
   #kahvat.lapi .k-ote { pointer-events: none; }
   /* Suurennuslasi kahvan kosketusvedossa (pilotti 5.11.2026, Booxin tapaan): vedettävän pään rivi 1,25-kertaisena rivin
      yläpuolella, ettei katse jää sormeen. Sisältö on lohkon klooni laskettuine tyyleineen (lupaKlooni()). */
@@ -2553,16 +2551,12 @@
       aloitaReuna(function () { return veto; }, kahvaAskel);
     });
   });
-  // Liike ja päätös luetaan dokumentista: piilotettu kahva voi menettää osoittimen kaappauksen.
-  // Liikkeen alkaessa (yli 3 px) kahvat katoavat; alleviivaus pysyy yhtenäisenä (käyttäjän päätös 5.11.2026).
+  // Liike ja päätös luetaan dokumentista (kaappaus voi kadota). Kahvat pysyvät näkyvissä myös vedon aikana ja sen jälkeen
+  // (käyttäjän päätös 5.11.2026; hetken kokeiltiin katoavia kahvoja ja katkoviivaa).
   document.addEventListener('pointermove', function (e) {
     if (!veto || e.pointerId !== veto.id) return;
     e.preventDefault();
     veto.x = e.clientX; veto.y = e.clientY;
-    if (!veto.liike && Math.abs(veto.x - veto.x0) + Math.abs(veto.y - veto.y0) > 3) {
-      veto.liike = true;
-      kahvatEl.classList.add('vedossa');
-    }
     if (!vetoRaf) vetoRaf = requestAnimationFrame(function () { vetoRaf = 0; kahvaAskel(); });
   }, true);
   document.addEventListener('pointerup', lopetaVeto, true);
@@ -2599,15 +2593,10 @@
     tila.maalattu = tila.niele = Date.now();
     if (v.h !== luonnos) { jarjestaAl(); tallennaMerkit(); paivitaMerkinnat(); }
     varitaAl(); piirraKirjausmerkit();
-    if (kahvaH !== v.h) { kahvatEl.classList.remove('vedossa'); return; }
-    // Sukkelalla alleviivauksella kahvat eivät palaa vedon jälkeen (ensin piiloon, sitten luokka pois, ettei mikään ruutu
-    // näytä niitä); alleviivauksen napautus tuo ne taas. Ilman sukkelaa kahvat ja valikko palaavat (käyttäjän päätös
-    // 5.11.2026). Pelkkä napautus kahvaan jättää ne aina.
-    var palaa = !v.liike || !autoAli();
-    if (palaa) sijoitaKahvat(); else piilotaKahvat();
-    kahvatEl.classList.remove('vedossa');
+    if (kahvaH !== v.h) return;
+    sijoitaKahvat();
     if (v.h === luonnos) naytaValintaPop(luonnos.segs, alRect(luonnos));
-    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h), !palaa);
+    else if (v.pop) naytaAlPop(v.h.id, alRect(v.h));
   }
   /* Suurennuslasi (pilotti 5.11.2026, käyttäjän pyyntö Booxin tapaan): kosketus- ja kynävedossa (ei hiirellä) vedettävän
      pään rivi näkyy 1,25-kertaisena rivin yläpuolella pyöristetyssä laatikossa: koko rivin kirjaimet ja ylemmän rivin
