@@ -337,6 +337,18 @@ Käyttäjän pyyntö 5.11.2026: navinäkymässä on pieni kytkinpari, joka kumoa
 - **Paluu.** Piste on ankkuri, sivutettuna sivu ja sivumäärä, vierityksessä tarkka vierityskohta (sama logiikka kuin majakan paluussa, `siirryPisteeseen()`): jos asettelu on ennallaan, paluu on täsmälleen samaan sivuun tai vierityskohtaan, muuten ankkuriin. Kumous ei jätä majakkaa; jos se vie majakan lähtökohtaan, majakka poistuu. Navi jää auki.
 - Historiaa ei tallenneta; se koskee avointa tekstiä tällä lukukerralla.
 
+### 4.10 Kokoruutu
+
+Käyttäjän pyyntö 5.11.2026. Mobiiliselainten palkit vievät sivunkäännössä tilaa pysyvästi: Firefox piilottaa omansa vain vieritettäessä, eikä sivutettu teksti vieritä, ja Via piirtää alapalkkinsa Luinin alakaistan päälle (molemmat käyttäjän havaintoja OnePlus Nordilla). Selaimen palkkeja ei voi piilottaa sivulta muuten kuin kokoruudulla (Fullscreen API).
+
+- **Asetus** *Liikkuminen* → *Kokoruutu* (`aset.kokoruutu`, oletus pois), näkyy vain, jos selaimessa on rajapinta. Kytkimen napautus vie heti kokoruutuun tai pois.
+- **Selain sallii kokoruudun vain käyttäjän eleestä**, joten se ei voi jatkua uudelleenlatauksen yli. Siksi tekstin avaus asettaa `krOdottaa`, ja ensimmäinen napautus, sivunkääntö tai näppäin (`click`, `touchend`, `keydown` sieppausvaiheessa, `krAvaus()`) vie kokoruutuun; ele tekee samalla oman tehtävänsä. Hylätty pyyntö (esim. vieritysele ei kelpaa selaimelle) jättää odotuksen voimaan.
+- **Poistuminen**: Androidin takaisin-ele (selaimen oma), yläpalkin kulmanappi kiekon vasemmalla puolella (`#kr-nappi`, näkyy kun asetus on päällä; kokoruudussa kulmat sisäänpäin) ja sivutettuna veto ruudun ylimmästä neljänneksestä alas (≥ 80 px, alle 0,8 s, pääosin pystysuoraan). Vierityksessä veto vierittää, joten siellä vetoa ei ole. Sivutettuna pystyeleitä ei käytetä muuhun, ja maalaus alkaa vasta pitkästä painalluksesta. Itse poistuttua Luin ei palaa kokoruutuun ennen seuraavaa tekstin avausta (käyttäjän linja: selaimen palkkiin on oltava luonteva reitti).
+- **Via kääntää näytön kokoruudussa vaakaan** (käyttäjän havainto; ilmeisesti se kohtelee kokoruutua kuin videota). Jos asento vaihtuu 0,7 s:n kuluessa kokoruutuun menosta, Luin poistuu, kytkee asetuksen pois ja kertoo syyn asetuksissa (`luin-kokoruutu-huom`). Asentoa ei lukita (`screen.orientation.lock`), koska lukko estäisi myös käyttäjän oman käännön.
+- Kokoruudun vaihto muuttaa ikkunan korkeutta, joten sivutettu teksti asetellaan uudelleen samaan kohtaan (tavallinen `resize`).
+- Testattu Chromiumissa (kytkin, ensimmäinen napautus, oma poistuminen, nappi, veto, asennon vaihto simuloituna `matchMedia`-korvauksella, koska Chromium ei muuta ikkunan kokoa kokoruudussa). Lukija on asetuksen ollessa pois pikselilleen ennallaan. Oikeilla puhelimilla (Firefox, Via, Boox, Light Phone) testaamatta.
+- Selaintesti (`luin/kehitys/selaintesti.html`, PR 463) poistettiin: sen nykäisy ja sormivieritys eivät kertoneet käyttäjälle mitään, ja käyttäjän omat havainnot riittivät.
+
 ## 5. Tavutus
 
 Selaimen oma suomen tavutus puuttuu Androidin Chromesta^[Androidin tavutussanastoissa ei ole suomea. Macin Safari ja Firefox tavuttavat suomea itse, mutta asetus *Selaimen* poistettiin 5.11.2026 (käyttäjän päätös): Firefoxin tulos oli huono.], joten `md.js` tavuttaa itse ja lisää pehmeät tavuviivat. Säännöt: konsonanttisääntö, vokaalisääntö ja diftongit. Kirjasäännön mukaan *ie*, *uo* ja *yö* ovat diftongeja vain ensitavussa, mutta yhdyssanoissa ne aloittavat usein jälkiosan (*itse|tietoisuus*), joten ne käsitellään diftongeina kaikkialla paitsi monikon genetiivissä (*talvi-en*).
