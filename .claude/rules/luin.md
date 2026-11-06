@@ -93,7 +93,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   rinnakkain, kolme laatikkonappia siirtyvät alapalkkiin (`#ala-laatikot`), jos mahtuvat: ensin palkkinuolen kanssa,
   sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
   sivunappeja, auki olevan laatikon nappi himmenee, laatikon ollessa auki aikajanakerros on piilossa (`laatikko-auki`),
-  ja paljaan alapalkin napautus vie suoraan lukunäkymään. Kumonapit jäävät aikajanan alle (ei alapalkkiin).
+  ja paljaan alapalkin napautus vie suoraan lukunäkymään.
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
 - **Aikajanan merkit nuottien tapaan**: suurempi aika-arvo ontompi (pääluku iso ontto salmiakki, alaluku pienempi
   täytetty, alaluvun alaluku lähes pistemäinen). Vain luettu osa on tekstin värinen; tulevat merkit ja kirjanmerkit
@@ -105,12 +105,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   vain pysäkeille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä. Poikkeus kumpaankin (käyttäjän
   pyyntö 4.11.2026): osuma piirrettyyn kirjanmerkin nauhaan vie tasan kirjanmerkkiin (`janaNauhat`). Liikkeessä
   päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (e-ink).
-- **Kumonapit** (opas 4.9, `kumoNaky()`): oletuksena näkyvät vain sivunappien kanssa, ei pyyhkäisyn eikä reunanapautuksen,
-  ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` (*Näytä edellisen ja seuraavan kohdan
-  kytkimet*) on vain sivutettuna; vierityksessä ei kytkintä eikä nappeja (käyttäjän pyyntö 6.11.2026). Ei kuulu `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Etsin oikealla puolella, vain jos
-  mahtuu samalle riville (`piirraKumo()`); ahtaassa navinäkymässä rivillä yksin vasemmassa laidassa; ei alapalkissa
-  (käyttäjä: ei näyttänyt siellä hyvältä).
-- **Kokoruutu** (opas 4.10): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös 5.11.2026). Nappi muistaa valinnan
+- **Siirtymien kumousta ei ole** (käyttäjän päätös 6.11.2026: ei tyydyttävää visuaalista ratkaisua; lukijaa auttavat
+  majakka ja kirjanmerkit). Älä palauta sitä kysymättä.
+- **Kokoruutu** (opas 4.9): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös 5.11.2026). Nappi muistaa valinnan
   (`aset.kokoruutu`); selain sallii kokoruudun vain eleestä, joten tekstin avauksen jälkeinen ensimmäinen napautus vie
   kokoruutuun (`krAvaus`). Takaisin-eleen tai alasvedon jälkeen Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita.
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).

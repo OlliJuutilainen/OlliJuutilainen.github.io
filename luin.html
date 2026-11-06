@@ -564,22 +564,6 @@
     border: 1px solid var(--harmaa); }
   #sivunapit button + button { width: 53px; border-left: 0; }
   #sivunapit svg { width: 14px; height: 14px; fill: var(--harmaa); }
-  /* Siirtymien kumous (käyttäjän pyynnöt 5.11.2026): pieni kytkinpari navinäkymässä Sisälmyksen oikealla puolella, vain jos
-     se mahtuu samalle riville (piirraKumo(); ensimmäinen versio oli alapalkissa sivunappien vieressä, mutta se ei näyttänyt
-     hyvältä). Oletuksena näkyy vain sivunappien kanssa (kumoNaky()), asetuksista päälle ja pois, vain sivutettuna.
-     Laatikko kuten Merkinnät ja Etsi, mutta selvästi matalampi (24 px) ja ilman tekstiä; koukkunuolen kärki on sivunuolen
-     pienennetty lovettu salmiakki. Napautusalue ulottuu 6 px laatikon yli ja alle. Ei mitään kumottavaa: nuoli --viiva-värinen. */
-  #kumonapit { display: flex; align-self: center; height: 24px; border: 1px solid var(--harmaa); }
-  #kumonapit.ei-mahdu { display: none; }
-  #kumonapit button { position: relative; width: 24px; height: 100%; display: flex; align-items: center; justify-content: center; }
-  #kumonapit button + button { border-left: 1px solid var(--harmaa); }
-  #kumonapit button::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
-  #kumonapit svg { width: 12px; height: 10.5px; overflow: visible; }
-  .kumo-ik .k { fill: var(--harmaa); }
-  .kumo-ik .v { fill: none; stroke: var(--harmaa); stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
-  #kumonapit button[aria-disabled="true"] { cursor: default; }
-  #kumonapit button[aria-disabled="true"] .k { fill: var(--viiva); }
-  #kumonapit button[aria-disabled="true"] .v { stroke: var(--viiva); }
   /* Aikajanakerroksen välit (käyttäjän pyyntö 29.10.2026: pystysuunnassa hajurakoa kaikkiin väleihin, ja koska pääluvun
      merkki kasvoi, palkki suurenee melko paljon; mitattu musteesta): reunasta osion nimeen 15 → 22 px, nimestä osoittimen
      kolmioon 7,25 → 12,5 px, kirjanmerkin nauhasta laatikoihin 14 → 23,5 px ja laatikoista alareunaan 13 → 21 px
@@ -732,11 +716,6 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  /* Kumonappien kytkin Sivunkäännön lisäkytkinten linjassa ja koossa, pienellä raolla erotettuna (käyttäjän pyyntö 6.11.2026). */
-  #kumo-kytkin { margin-top: 5px; }
-  /* Kapealla rivittyy: teksti vasempaan reunaan ja salmiakki ensimmäisen rivin kohdalle (rivin korkeus 1.25). */
-  #kumo-kytkin button { text-align: left; align-items: flex-start; line-height: 1.25; padding-top: 7px; padding-bottom: 7px; }
-  #kumo-kytkin svg { flex: none; margin-top: calc((1.25em - 9.6px) / 2 - .5px); }
   /* Verkkopalvelun nimi valikon kytkimissä harmaampana ja kursiivina (käyttäjän pyyntö 6.11.2026). */
   .valinnat .palvelu { color: var(--huomio); }
   .valinnat .palvelu i { font-weight: 380; }
@@ -837,11 +816,6 @@
         <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
         <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. Käyttäjän pyyntö 5.11.2026: vielä vähän (7,10 → 6,80), samoin perustein; varren alkupää seuraa ulkokehää. -->
         <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
-        <!-- Siirtymien kumous: pieni kytkinpari, vain jos mahtuu Etsin oikealle puolelle (piirraKumo()). -->
-        <div id="kumonapit" hidden>
-          <button type="button" id="kumo-taakse" aria-label="Kumoa siirtymä" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></svg></button>
-          <button type="button" id="kumo-eteen" aria-label="Tee siirtymä uudelleen" aria-disabled="true"><svg class="kumo-ik" viewBox="0 0 16 14" aria-hidden="true"><g transform="translate(16 0) scale(-1 1)"><path class="k" d="M1.15 4.59Q4.26 3.61 7.13 1.6Q6.04 3.5 5.46 4.59Q6.04 5.68 7.13 7.58Q4.26 5.57 1.15 4.59Z"/><path class="v" d="M5.6 4.6H10.6A3.7 3.7 0 0 1 10.6 12H5"/></g></svg></button>
-        </div>
       </div>
     </div>
     <div id="ala-rivi">
@@ -872,10 +846,7 @@
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
        yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
-    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
-    <!-- Kumonapit (käyttäjän pyyntö 5.11.2026): vain Sivunkäännössä, vierityksessä ei vaihtoehtonakaan (6.11.2026).
-         Oletuksena (kumoNapit null) näkyvät Painikkeiden kanssa; kytkimen napautus tekee valinnasta pysyvän. -->
-    <div class="valinnat nipukka" id="kumo-kytkin" data-k="kumoNapit:Näytä edellisen ja seuraavan kohdan kytkimet"></div></div>
+    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -1032,7 +1003,7 @@
   var OLETUS = { teema: 'vaalea', koko: 19, kappale: 'vali', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 0, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 1, verkkolinkit: 0, janaTaso: 2, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kumoNapit: null, kokoruutu: 0, av: 6 };
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, av: 6 };
   // sukSana (Sukkela sanaselitys, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
   // pitkä painallus ilman vetoa) avaa vain sanaselityksen. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // Riippumaton valikon sanaselityksestä (sanakirja): kumpikin toimii ilman toista (käyttäjän päätös 5.11.2026).
@@ -1043,6 +1014,8 @@
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
   // salmiakkien ja logon kanssa. Vanha tallennettu arvo ohitetaan.
   delete aset.kirjasin;
+  // Siirtymien kumous poistettiin 6.11.2026 (käyttäjän päätös); vanha kytkimen arvo ohitetaan.
+  delete aset.kumoNapit;
   // av 2 (21.10.2026): sukkela alleviivaus ja aikajanan kaikki tasot tulivat oletuksiksi.
   // Aiemmin tallennetut asetukset sisälsivät vanhat oletukset, joten ne vaihdetaan kerran.
   if (tallennetut && !(tallennetut.av >= 2)) aset.auto = 1;
@@ -1079,9 +1052,6 @@
   var MARG = { kapea: 0, meso: 32, reilu: 60 };
   var MARG_SYVIN = 60;
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
-  // kumoNapit: null = automaattinen (näkyvät sivunappien kanssa), 1/0 = käyttäjän valinta. Vain sivutettuna: vierityksessä
-  // ei nappeja eikä kytkintä (käyttäjän pyyntö 6.11.2026).
-  function kumoNaky() { return aset.sivutus === 'sivut' && (aset.kumoNapit == null ? !!aset.sivunapit : !!aset.kumoNapit); }
   function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
@@ -1614,13 +1584,12 @@
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
         var pois = kv[0] === 'auto' && !aset.alTekstissa || tapa && aset.sivutus !== 'sivut';
         var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
-        return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + (kv[0] === 'kumoNapit' ? kumoNaky() : !!aset[kv[0]]) + '"' + (pois ? ' disabled' : '') +
+        return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + !!aset[kv[0]] + '"' + (pois ? ' disabled' : '') +
           (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
           (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO :
           (/ \(/.test(kv[1]) ? '<span>' + kv[1].replace(/ \((.+)\)$/, ' <span class="palvelu">(<i>$1</i>)</span>') + '</span>' : kv[1])) + '</button>';
       }).join('');
     });
-    $('#kumo-kytkin').hidden = aset.sivutus !== 'sivut';
     $('#koko-arvo').textContent = aset.koko + ' px';
     // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
     $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
@@ -1632,10 +1601,9 @@
   function sijoitaNipukka() {
     var s = $('#asetukset button[data-arvo="sivut"]');
     if (!s || !s.offsetParent) return;
-    [$('#sivunapit-kytkin'), $('#kumo-kytkin')].forEach(function (n) {
-      n.style.paddingLeft = '0';
-      n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
-    });
+    var n = $('#sivunapit-kytkin');
+    n.style.paddingLeft = '0';
+    n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
@@ -1651,8 +1619,7 @@
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
     if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
-      if (b.dataset.kytkin === 'kumoNapit') aset.kumoNapit = kumoNaky() ? 0 : 1;
-      else aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+      aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
     }
     else if (b.dataset.askel) aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32);
     // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Pääluvut sammuttaa
@@ -1785,7 +1752,6 @@
     $('#y-nimi').textContent = e.title;
     avaaJana(false);
     $('#majakka').hidden = true;
-    hist = { taakse: [], eteen: [], sarja: 0 };
     piirraTeksti();
     var k = paikanna(e.pos) || { b: 0, o: 0 };
     asettele(k);
@@ -2082,7 +2048,6 @@
     var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
     $('#jana-pros').textContent = pros;
     $('#sivunapit').hidden = aset.sivutus !== 'sivut' || !aset.sivunapit;
-    piirraKumo();
     $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
     majakanSuunta();
     piirraKirjanmerkit();
@@ -2140,7 +2105,7 @@
   }
 
   // Sivunkääntö ei avaa eikä sulje palkkeja (käyttäjän päätös 22.10.2026: vain napautus).
-  function seuraava(d) { if (aset.sivutus === 'sivut') { var p = piste(); sivulle(tila.sivu + d); kirjaa(p, true); } }
+  function seuraava(d) { if (aset.sivutus === 'sivut') sivulle(tila.sivu + d); }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
@@ -2152,8 +2117,8 @@
     // yleensä välitä näppäimiä sivulle; jos välittää, ne kääntävät sivua (alas = seuraava).
     if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
     else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'AudioVolumeUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); seuraava(-1); }
-    else if (k === 'Home') { e.preventDefault(); var p0 = piste(); sivulle(0); kirjaa(p0); }
-    else if (k === 'End') { e.preventDefault(); var p1 = piste(); sivulle(tila.sivuja - 1); kirjaa(p1); }
+    else if (k === 'Home') { e.preventDefault(); sivulle(0); }
+    else if (k === 'End') { e.preventDefault(); sivulle(tila.sivuja - 1); }
   });
   var rullaAika = 0;
   sivuEl.addEventListener('wheel', function (e) {
@@ -3945,7 +3910,7 @@
     $('#jana').hidden = !auki;
     document.body.classList.toggle('palkit-auki', auki);
     $('#ala-nappi').setAttribute('aria-expanded', String(auki));
-    if (auki) { piirraJana(); naviAlas(); piirraKumo(); } else suljeLaatikot();
+    if (auki) { piirraJana(); naviAlas(); } else suljeLaatikot();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026, CSS #ala-laatikot): mobiilissa, kun laatikot eivät mahdu rinnakkain,
@@ -3957,8 +3922,10 @@
     if (!palkitAuki()) return;
     var b = document.body, napit = LAATIKKONAPPIJARJ.map(function (s) { return $(s); });
     var siirra = function (alas) {
-      napit.forEach(function (n) { if (alas) $('#ala-laatikot').appendChild(n); else $('.jana-napit').insertBefore(n, $('#kumonapit')); });
+      napit.forEach(function (n) { if (alas) $('#ala-laatikot').appendChild(n); else $('.jana-napit').appendChild(n); });
       b.classList.toggle('navi-alas', alas); b.classList.remove('ilman-nuolta');
+      // Laatikkonappien ollessa alapalkissa aikajanan alle ei jää riviä.
+      $('#jana').classList.toggle('ei-napit', alas);
     };
     if (!mobiili() || laatikkoMitat().rinn) { if (b.classList.contains('navi-alas')) siirra(false); return; }
     siirra(true);
@@ -3997,9 +3964,8 @@
      Pyyhkäisy, näppäimet, sivunapit ja vieritys eivät poista sitä. Peräkkäiset hakuosumat säilyttävät
      haun ensimmäisen lähtökohdan. Majakkaa ei tallenneta: se koskee vain tätä lukukertaa. */
   function hyppaa(k, haku, eiMajakkaa, tapa) {
-    var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY, alku = ed && piste();
+    var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
     mene(k, ylaPeitto() && YLA + ylaPeitto());
-    if (alku) kirjaa(alku);
     if (!ed || eiMajakkaa) return;
     // Kynnykset ovat aikajanan omia (käyttäjän päätös 22.10.2026): aikajanalta tehty hyppy jättää kummitusmerkin
     // vähintään 10 %:n ja laatikon vähintään 50 %:n matkalla (osuus kirjan pituudesta). Muulla hypyllä
@@ -4033,80 +3999,15 @@
     var m = nyt && nyt.majakka;
     if (!m) return;
     nyt.majakka = null; piirraMajakka();
-    var alku = piste();
-    siirryPisteeseen(m);
-    kirjaa(alku);
-  }
-  // Majakan tai historian piste: ankkuri ja vierityksessä tarkka vierityskohta, historiassa sivutettuna myös sivu.
-  function siirryPisteeseen(m) {
-    // Sivutettuna sama asettelu (sama sivumäärä ja ikkuna): täsmälleen sama sivu ja ankkuri.
-    if (m.sivu != null && aset.sivutus === 'sivut' && m.sivuja === tila.sivuja && m.w === innerWidth && m.ih === innerHeight) {
-      sivulle(m.sivu, true); tila.ankkuri = Object.assign({}, m.k); paivita();
-    }
     // Asettelu ennallaan (sama korkeus ja leveys): vieritetään täsmälleen samaan kohtaan.
-    else if (m.y != null && aset.sivutus !== 'sivut' && m.h === document.documentElement.scrollHeight && m.w === innerWidth) {
+    if (m.y != null && aset.sivutus !== 'sivut' && m.h === document.documentElement.scrollHeight && m.w === innerWidth) {
       tila.ankkuri = m.k; tila.hiljaa = Date.now() + 250;
       window.scrollTo(0, m.y);
       paivita();
     } else mene(m.k);
   }
 
-  /* ---------- siirtymien kumous ----------
-     Käyttäjän pyyntö 5.11.2026: navinäkymän pieni pari kumoaa siirtymän ja tekee sen uudelleen. Siirtymiä ovat hypyt
-     (linkki, aikajana, haku, Merkinnät, Sisälmys, majakan paluu, Home/End) ja sivunkäännöt; vierityksen liike ei ole.
-     Alle SARJA ms:n välein käännetyt sivut ovat yksi siirtymä, joten vahingossa ryöpsähtänyt sivujen sarja kumoutuu
-     kerralla, mutta lukiessa käännetty sivu kumoutuu sivu kerrallaan. Uusi siirtymä tyhjentää uudelleen tehtävät.
-     Historia koskee avointa tekstiä tällä lukukerralla kuten majakka; sitä ei tallenneta. Kumoaminen ei jätä majakkaa;
-     jos se vie majakan lähtökohtaan, majakka poistuu. */
-  var hist = { taakse: [], eteen: [], sarja: 0 }, SARJA = 2000, HIST_MAX = 200;
-  function piste() {
-    var sivut = aset.sivutus === 'sivut';
-    return { k: Object.assign({}, tila.ankkuri), sivu: sivut ? tila.sivu : null, sivuja: tila.sivuja, y: sivut ? null : scrollY,
-      h: document.documentElement.scrollHeight, w: innerWidth, ih: innerHeight };
-  }
-  function samassa(p) { return aset.sivutus === 'sivut' ? p.sivu === tila.sivu : p.y != null && Math.abs(scrollY - p.y) < 1; }
-  // p: piste ennen siirtymää. Kirjataan vain, jos näkymä siirtyi.
-  function kirjaa(p, kaanto) {
-    if (!nyt || !p || !p.k || samassa(p)) return;
-    var t = Date.now();
-    if (!(kaanto && hist.sarja && t - hist.sarja < SARJA)) {
-      hist.taakse.push(p);
-      if (hist.taakse.length > HIST_MAX) hist.taakse.shift();
-    }
-    hist.sarja = kaanto ? t : 0;
-    hist.eteen = [];
-    piirraKumo();
-  }
-  function kumoa(d) {
-    if (!nyt) return;
-    var mista = d < 0 ? hist.taakse : hist.eteen, minne = d < 0 ? hist.eteen : hist.taakse;
-    if (!mista.length) return;
-    var p = mista.pop();
-    minne.push(piste()); hist.sarja = 0;
-    siirryPisteeseen(p);
-    var m = nyt.majakka;
-    if (m && m.k.b === p.k.b && m.k.o === p.k.o && (m.k.ed || 0) === (p.k.ed || 0)) poistaMajakka();
-    piirraKumo();
-  }
-  // Näkyy vain, jos mahtuu samalle riville kuin sitä edeltävä näkyvä laatikko (Etsi); muuten piiloon, ettei
-  // navinäkymä kasva rivillä. Mitataan vain aikajanan ollessa auki (piilossa laatikoilla ei ole paikkaa).
-  function piirraKumo() {
-    var n = kumoNaky(), el = $('#kumonapit');
-    el.hidden = !n;
-    if (n && palkitAuki()) {
-      el.classList.remove('ei-mahdu');
-      var ed = el.previousElementSibling;
-      while (ed && ed.hidden) ed = ed.previousElementSibling;
-      if (ed && el.getBoundingClientRect().top >= ed.getBoundingClientRect().bottom) el.classList.add('ei-mahdu');
-    }
-    // Kun laatikkonapit ovat alapalkissa eikä kumonappeja ole, aikajanan alle ei jää riviä (naviAlas()).
-    $('#jana').classList.toggle('ei-napit', !!$('#ala-laatikot .laatikko') && (!n || el.classList.contains('ei-mahdu')));
-    $('#kumo-taakse').setAttribute('aria-disabled', String(!hist.taakse.length));
-    $('#kumo-eteen').setAttribute('aria-disabled', String(!hist.eteen.length));
-  }
-  $('#kumo-taakse').addEventListener('click', function () { kumoa(-1); });
-  $('#kumo-eteen').addEventListener('click', function () { kumoa(1); });
-  window.addEventListener('resize', function () { if (nyt && palkitAuki()) { naviAlas(); piirraKumo(); } });
+  window.addEventListener('resize', function () { if (nyt && palkitAuki()) naviAlas(); });
 
   $('#majakka-palaa').addEventListener('click', palaa);
   $('#majakka-sulje').addEventListener('click', poistaMajakka);
@@ -5092,7 +4993,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, hist: function () { return hist; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
