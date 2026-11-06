@@ -2205,6 +2205,12 @@
       if ((c === "'" || c === '’') && sanassa(t, i)) continue;
       if (st.length && st[st.length - 1] === c) { st.pop(); continue; }
       if (AVAAJA[c]) { st.push(AVAAJA[c]); continue; }
+      if (c === '/') {
+        // Foneettinen kauttaviiva avaa vain yksiselitteisen paketin: avaava ja sulkeva vinoviiva, välissä pelkkiä kirjaimia.
+        var j = t.indexOf('/', i + 1);
+        if ((i === 0 || !sanassa(t, i - 1)) && j > i + 1 && /^[\p{L}\p{M}]+$/u.test(t.slice(i + 1, j))) st.push(c);
+        continue;
+      }
       if (SYM.indexOf(c) >= 0 && (i === 0 || !sanassa(t, i - 1)) && i + 1 < e && !/\s/.test(t[i + 1])) st.push(c);
     }
     return st;
