@@ -1664,13 +1664,16 @@
     return c;
   }
   function lohkoOf(node) { var el = node.nodeType === 1 ? node : node.parentElement; el = el && el.closest('[data-b]'); return el && art.contains(el) ? el : null; }
-  function kohtaPisteessa(x, y) {
+  // vetoon: true, kun kohta luetaan vedon askeleessa (kahva, maalaus). Alaviiteviitteen (fnref) kohdalle osuva piste on silloin
+  // kappaleen oma kohta viitteen edessä: rivin viimeisen sanan oikealle puolelle vetäminen päättää valinnan sanan loppuun, eikä
+  // vedon tarvitse osua itse sanaan (käyttäjän pyyntö 6.11.2026). Napautuksessa viite pysyy ohitettuna.
+  function kohtaPisteessa(x, y, vetoon) {
     var node, off;
     if (document.caretRangeFromPoint) { var r = document.caretRangeFromPoint(x, y); if (!r) return null; node = r.startContainer; off = r.startOffset; }
     else if (document.caretPositionFromPoint) { var q = document.caretPositionFromPoint(x, y); if (!q) return null; node = q.offsetNode; off = q.offset; }
     else return null;
     var el = lohkoOf(node), pe = node.nodeType === 1 ? node : node.parentElement;
-    if (!el || pe.closest(POIS)) return null;
+    if (!el || pe.closest(POIS) && !(vetoon && pe.closest('.fnref'))) return null;
     return { b: +el.dataset.b, o: lohkoon(el, node, off) };
   }
   function kohdanLaatikko(k) {
@@ -2743,7 +2746,7 @@
   function siirraKahvaa() {
     var k;
     kahvatEl.classList.add('lapi');
-    try { k = kohtaPisteessa(veto.x - veto.dx + (veto.paa === 'alku' ? 1 : -1), veto.y - veto.dy); }
+    try { k = kohtaPisteessa(veto.x - veto.dx + (veto.paa === 'alku' ? 1 : -1), veto.y - veto.dy, true); }
     finally { kahvatEl.classList.remove('lapi'); }
     if (!k) return;
     var p = veto.paa === 'alku' ? k : veto.kiinni, q = veto.paa === 'alku' ? veto.kiinni : k;
@@ -2896,7 +2899,7 @@
   }
   function maalausAskel() {
     if (!maal || !maal.aktiivinen) return;
-    var k = kohtaPisteessa(maal.x, maal.y);
+    var k = kohtaPisteessa(maal.x, maal.y, true);
     if (!k) return;
     var segs = rajattuValilta(maal.alku, k, null);
     if (!segs.length) segs = maal.eka;

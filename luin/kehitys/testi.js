@@ -1126,6 +1126,50 @@ palvelin.listen(0, async () => {
   tulos('supistus takaisin yhteen sanaan avaa sanaselityksen (Sukkela päällä), muuten valikon', /rivi/.test(su1.laaj.pop) && su1.sana.luonnos.length > 0 && !/ /.test(su1.sana.luonnos.trim()) && /sanakirja/.test(su1.sana.pop) &&
     /rivi/.test(su0.sana.pop), JSON.stringify({ su1, su0 }));
   await mp.evaluate(() => { window.__luin.aset.sukSana = 1; });
+  // Käyttäjän pyyntö 6.11.2026: loppukahvan veto edellisen kappaleen viimeisen rivin viimeisen sanan oikealle puolelle päättää
+  // alleviivauksen sen sanan loppuun, vaikka kappaleen lopussa on alaviiteviite (osuma viitteeseen ohitettiin ennen).
+  {
+    const kk = await b.newContext({ viewport: { width: 412, height: 824 } }), kq = await kk.newPage();
+    await kq.goto(BASE + 'luin.html');
+    await kq.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
+    await kq.goto('about:blank'); await kq.goto(BASE + 'luin.html#tuo'); await kq.waitForTimeout(600);
+    const g = await kq.evaluate(() => {
+      const ps = [...document.querySelectorAll('#teksti p[data-b]')], ar = document.querySelector('#teksti').getBoundingClientRect();
+      const rivit = el => { const r = document.createRange(); r.selectNodeContents(el); const o = {};
+        [...r.getClientRects()].filter(x => x.width).forEach(x => { const k = Math.round(x.top), q = o[k] || (o[k] = { l: x.left, r: x.right, t: x.top, h: x.height }); q.l = Math.min(q.l, x.left); q.r = Math.max(q.r, x.right); });
+        return Object.values(o).sort((a, c) => a.t - c.t); };
+      for (let i = 0; i < ps.length - 1; i++) {
+        const el = ps[i], nx = ps[i + 1];
+        if (!el.querySelector('.fnref') || +nx.dataset.b !== +el.dataset.b + 1) continue;
+        el.scrollIntoView({ block: 'center' });
+        const A = rivit(el), C = rivit(nx), yl = A[A.length - 1];
+        const c = document.caretRangeFromPoint(yl.r + 20, yl.t + 13), f = c && (c.startContainer.nodeType === 1 ? c.startContainer : c.startContainer.parentElement).closest('.fnref');
+        if (!f || A.length < 3 || yl.r > ar.right - 40) continue;
+        return { b: +el.dataset.b, A, C, yl, ar: ar.right };
+      }
+      return null;
+    });
+    const tulosSegs = () => kq.evaluate(() => { const h = window.__luin.nyt().merk.al.slice(-1)[0]; return h ? h.segs.map(s => s.b + ':' + s.s + '-' + s.e).join(' ') : ''; });
+    const ote = () => kq.evaluate(() => { const k = document.querySelector('.kahva[data-paa="loppu"]'), r = k.querySelector('.k-ote').getBoundingClientRect();
+      return { x: r.left + 20, y: r.top + 20, hx: parseFloat(k.style.left), hy: parseFloat(k.style.top) + (parseFloat(k.style.getPropertyValue('--kh')) || 20) / 2 }; });
+    const ulos = [];
+    if (g) {
+      const m = kq.mouse, A = g.A, C = g.C;
+      await m.move(A[0].l + 14, A[0].t + A[0].h / 2); await m.down(); await m.move(C[0].l + 60, C[0].t + C[0].h / 2, { steps: 8 }); await m.up(); await kq.waitForTimeout(250);
+      await m.click(A[0].l + 30, A[0].t + A[0].h / 2); await kq.waitForTimeout(250);
+      const alussa = await tulosSegs();
+      for (const tx of [g.yl.r - 6, g.yl.r + 20, g.ar - 4]) {
+        const o = await ote();
+        await m.move(o.x, o.y); await m.down(); await m.move(tx + (o.x - o.hx), g.yl.t + 13 + (o.y - o.hy)); await kq.waitForTimeout(100);
+        ulos.push(await tulosSegs()); await m.up(); await kq.waitForTimeout(100);
+        const o3 = await ote();
+        await m.move(o3.x, o3.y); await m.down(); await m.move(C[0].l + 90 + (o3.x - o3.hx), C[0].t + 14 + (o3.y - o3.hy), { steps: 10 }); await m.up(); await kq.waitForTimeout(150);
+      }
+      ulos.unshift(alussa);
+    }
+    tulos('loppukahvan veto kappaleen viimeisen sanan oikealle puolelle (loppuviite)', !!g && /^\d+:0-\d+ \d+:0-\d+$/.test(ulos[0]) && ulos.slice(1).every(u => /^\d+:0-\d+$/.test(u) && u.split(/[:-]/)[0] == g.b), JSON.stringify({ b: g && g.b, ulos }));
+    await kk.close();
+  }
   // Kopio viitteellä: lyhyt (Sukunimi vuosi, luku) ja pitkä (koko viite ja luku).
   const kopioi = async tapa => {
     await mp.evaluate(t => { window.__luin.aset.kopioViite = t; }, tapa);
