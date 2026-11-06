@@ -785,10 +785,10 @@ palvelin.listen(0, async () => {
   await mob360.context().close();
 
   // Siirtymien kumous (käyttäjän pyynnöt 5.11.2026). Oletuksena kumonapit näkyvät vain sivunappien kanssa; kytkin näyttää ne
-  // missä tahansa tilassa. Pieni pari on navinäkymässä Sisälmyksen oikealla puolella samalla rivillä ja keskitettynä siihen,
+  // vain sivutettuna, vierityksessä ei nappeja eikä kytkintä (6.11.2026). Pieni pari on navinäkymässä Sisälmyksen oikealla puolella samalla rivillä ja keskitettynä siihen,
   // vain jos mahtuu (412 px kyllä, 360 px ei, myös ikkunan koon muuttuessa); alapalkissa sitä ei ole. Hyppy kumoutuu ja tehdään
   // uudelleen samalle sivulle, nopea sivusarja kumoutuu kerralla ja hidas sivu kerrallaan, uusi siirtymä tyhjentää uudelleen
-  // tehtävät, vierityksessä paluu tarkkaan kohtaan.
+  // tehtävät.
   const ku = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
   ku.on('pageerror', e => sivuvirheet.push(e.message));
   const kuAset = async a => { await ku.evaluate(a => localStorage.setItem('luin-asetukset', JSON.stringify(Object.assign({ av: 5 }, a))), a); await ku.reload(); await ku.waitForTimeout(500); };
@@ -844,22 +844,25 @@ palvelin.listen(0, async () => {
   await ku.waitForTimeout(2100); await ku.keyboard.press('ArrowRight'); await ku.waitForTimeout(50);
   await ku.click('#kumo-taakse'); await ku.waitForTimeout(50); const ks4 = await kut();
   tulos('sivusarjan kumous', ks1 === ks0 + 3 && ks2.s === ks0 && ks2.e && !ks3.e && ks3.s === ks0 + 1 && ks4.s === ks0 + 1, JSON.stringify({ ks0, ks1, ks2, ks3, ks4 }));
-  // Kytkin: ilman sivunappeja päälle, ja vierityksessä näkyy yhä; paluu tarkkaan vierityskohtaan.
+  // Kytkin: ilman sivunappeja päälle; Sivunkäännön lisäkytkinten linjassa ja koossa, pienellä raolla. Vierityksessä
+  // kytkin ja napit piilossa, valinta säilyy.
   await kuAset({ sivutus: 'sivut' });
   await naviAuki(); await ku.click('#lukija .ratas');
   await ku.click('#asetukset button[data-kytkin="kumoNapit"]'); await ku.waitForTimeout(50);
-  const kk1 = await ku.evaluate(() => ({ a: window.__luin.aset.kumoNapit, p: document.querySelector('#asetukset button[data-kytkin="kumoNapit"]').getAttribute('aria-pressed') }));
-  await ku.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await ku.waitForTimeout(100);
-  await ku.click('#asetukset .sulje');
-  await ku.evaluate(() => window.scrollTo(0, 3333)); await ku.waitForTimeout(200);
-  await naviAuki();
+  const kk1 = await ku.evaluate(() => { const q = s => document.querySelector(s), k = q('#asetukset button[data-kytkin="kumoNapit"]'),
+    p = q('#asetukset button[data-kytkin="sivunapit"]'), r = e => e.getBoundingClientRect();
+    return { a: window.__luin.aset.kumoNapit, p: k.getAttribute('aria-pressed'), teksti: k.textContent, linja: r(k.querySelector('svg')).left - r(p.querySelector('svg')).left,
+      koko: getComputedStyle(k).fontSize + '/' + getComputedStyle(p).fontSize, rako: Math.round(r(k).top - r(p).bottom) }; });
+  await ku.click('#asetukset .sulje'); await naviAuki();
   const kk2 = await kNakyy();
-  const ky0 = await ku.evaluate(() => scrollY);
-  await ku.evaluate(() => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); }); await ku.waitForTimeout(100);
-  const ky1 = await ku.evaluate(() => scrollY);
-  await ku.click('#kumo-taakse'); await ku.waitForTimeout(100);
-  const ky2 = await ku.evaluate(() => scrollY);
-  tulos('kumonappien kytkin ja vierityksen kumous', kk1.a === 1 && kk1.p === 'true' && kk2 && ky1 > ky0 + 1000 && ky2 === ky0, JSON.stringify({ kk1, kk2, y: [ky0, ky1, ky2] }));
+  await ku.click('#lukija .ratas');
+  await ku.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await ku.waitForTimeout(100);
+  const kk3 = await ku.evaluate(() => { const k = document.querySelector('#asetukset button[data-kytkin="kumoNapit"]'); return { naky: !!k.offsetParent, a: window.__luin.aset.kumoNapit }; });
+  await ku.click('#asetukset .sulje'); await naviAuki();
+  const kk4 = await kNakyy();
+  tulos('kumonappien kytkin vain sivutettuna', kk1.a === 1 && kk1.p === 'true' && kk1.teksti === 'Näytä edellisen ja seuraavan kohdan kytkimet' &&
+    Math.abs(kk1.linja) < 0.5 && kk1.koko.split('/')[0] === kk1.koko.split('/')[1] && kk1.rako > 0 && kk1.rako < 10 && kk2 && !kk3.naky && kk3.a === 1 && !kk4,
+    JSON.stringify({ kk1, kk2, kk3, kk4 }));
   await ku.context().close();
 
   // Light Phone (360 × 413, 29.10.2026). Vierityksessä sivu ei levene sivusuunnassa: ylipitkät sanat ja osoitteet katkeavat

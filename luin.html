@@ -25,6 +25,12 @@
     font-weight: 380 700; font-style: normal; font-display: swap; }
   @font-face { font-family: Literata; src: url(luin/fontit/literata-kursiivi.woff2) format("woff2");
     font-weight: 380 700; font-style: italic; font-display: swap; }
+  /* Kreikka (marginaalin μικρό, μέσο, μακρό; käyttäjän pyyntö 6.11.2026) erillisenä osajoukkona samasta Literatasta (3.103,
+     U+0370–03FF, samat akselit), ladataan vain kreikkaa näytettäessä. Yhtenäinen kreikka ei ole päätiedostoissa. */
+  @font-face { font-family: Literata; src: url(luin/fontit/literata-kreikka.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; unicode-range: U+0370-03FF; }
+  @font-face { font-family: Literata; src: url(luin/fontit/literata-kreikka-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; unicode-range: U+0370-03FF; }
   /* Kuusi väriä kummassakin teemassa, ei läpikuultavuutta eikä varjoja: e-ink näyttää ne
      harmaasävyinä, joten merkintöjen ero tehdään muodolla (salmiakki, ontto, nauha).
      --sitaatti on musteen ja harmaan välissä (Lab 70 %), jotta lainaus erottuu nopeasti vieritettäessä.
@@ -560,7 +566,7 @@
   #sivunapit svg { width: 14px; height: 14px; fill: var(--harmaa); }
   /* Siirtymien kumous (käyttäjän pyynnöt 5.11.2026): pieni kytkinpari navinäkymässä Sisälmyksen oikealla puolella, vain jos
      se mahtuu samalle riville (piirraKumo(); ensimmäinen versio oli alapalkissa sivunappien vieressä, mutta se ei näyttänyt
-     hyvältä). Oletuksena näkyy vain sivunappien kanssa (kumoNaky()), asetuksista päälle ja pois missä tahansa tilassa.
+     hyvältä). Oletuksena näkyy vain sivunappien kanssa (kumoNaky()), asetuksista päälle ja pois, vain sivutettuna.
      Laatikko kuten Merkinnät ja Etsi, mutta selvästi matalampi (24 px) ja ilman tekstiä; koukkunuolen kärki on sivunuolen
      pienennetty lovettu salmiakki. Napautusalue ulottuu 6 px laatikon yli ja alle. Ei mitään kumottavaa: nuoli --viiva-värinen. */
   #kumonapit { display: flex; align-self: center; height: 24px; border: 1px solid var(--harmaa); }
@@ -704,6 +710,14 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  /* Kumonappien kytkin Sivunkäännön lisäkytkinten linjassa ja koossa, pienellä raolla erotettuna (käyttäjän pyyntö 6.11.2026). */
+  #kumo-kytkin { margin-top: 5px; }
+  /* Kapealla rivittyy: teksti vasempaan reunaan ja salmiakki ensimmäisen rivin kohdalle (rivin korkeus 1.25). */
+  #kumo-kytkin button { text-align: left; align-items: flex-start; line-height: 1.25; padding-top: 7px; padding-bottom: 7px; }
+  #kumo-kytkin svg { flex: none; margin-top: calc((1.25em - 9.6px) / 2 - .5px); }
+  /* Verkkopalvelun nimi valikon kytkimissä harmaampana ja kursiivina (käyttäjän pyyntö 6.11.2026). */
+  .valinnat .palvelu { color: var(--huomio); }
+  .valinnat .palvelu i { font-weight: 380; }
   /* Sukkela alleviivaus näyttää itse, mitä tekee (käyttäjän valinta G 29.10.2026): ohut ruosteinen viiva, kursiivi,
      Literatan ohuin paino. Viiva himmenee pois päältä muun tekstin mukana ja on pois käytöstä harmaa kuten muukin. */
   .valinnat .sukkela { font-style: italic; font-weight: 380; text-decoration: underline; text-decoration-color: var(--ruoste);
@@ -835,16 +849,16 @@
        yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
     <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
-    <!-- Kumoa ja tee uudelleen (käyttäjän pyyntö 5.11.2026): toimii kummassakin tilassa, joten ei sisennetty Sivunkäännön alle.
+    <!-- Kumonapit (käyttäjän pyyntö 5.11.2026): vain Sivunkäännössä, vierityksessä ei vaihtoehtonakaan (6.11.2026).
          Oletuksena (kumoNapit null) näkyvät Painikkeiden kanssa; kytkimen napautus tekee valinnasta pysyvän. -->
-    <div class="valinnat pino" data-k="kumoNapit:Kumoa ja tee uudelleen"></div></div>
+    <div class="valinnat nipukka" id="kumo-kytkin" data-k="kumoNapit:Näytä edellisen ja seuraavan kohdan kytkimet"></div></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
-  <!-- Marginaali (käyttäjän pyyntö 22.10.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
+  <!-- Marginaali (käyttäjän pyyntö 22.10.2026; kreikaksi pienaakkosin 6.11.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
-  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Ohut|meso:Meso|reilu:Reilu"></div></div>
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" lang="el" data-v="kapea:μικρό|meso:μέσο|reilu:μακρό"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Vähä|tihea:Raju"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -1041,8 +1055,9 @@
   var MARG = { kapea: 0, meso: 32, reilu: 60 };
   var MARG_SYVIN = 60;
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
-  // kumoNapit: null = automaattinen (näkyvät sivunappien kanssa), 1/0 = käyttäjän valinta, joka pätee kaikissa tiloissa.
-  function kumoNaky() { return aset.kumoNapit == null ? aset.sivutus === 'sivut' && !!aset.sivunapit : !!aset.kumoNapit; }
+  // kumoNapit: null = automaattinen (näkyvät sivunappien kanssa), 1/0 = käyttäjän valinta. Vain sivutettuna: vierityksessä
+  // ei nappeja eikä kytkintä (käyttäjän pyyntö 6.11.2026).
+  function kumoNaky() { return aset.sivutus === 'sivut' && (aset.kumoNapit == null ? !!aset.sivunapit : !!aset.kumoNapit); }
   function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
@@ -1563,9 +1578,11 @@
         var viimeinen = tapa && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
         return '<button type="button" data-kytkin="' + kv[0] + '" aria-pressed="' + (kv[0] === 'kumoNapit' ? kumoNaky() : !!aset[kv[0]]) + '"' + (pois ? ' disabled' : '') +
           (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
-          (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO : kv[1]) + '</button>';
+          (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO :
+          (/ \(/.test(kv[1]) ? '<span>' + kv[1].replace(/ \((.+)\)$/, ' <span class="palvelu">(<i>$1</i>)</span>') + '</span>' : kv[1])) + '</button>';
       }).join('');
     });
+    $('#kumo-kytkin').hidden = aset.sivutus !== 'sivut';
     $('#koko-arvo').textContent = aset.koko + ' px';
     // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
     $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
@@ -1575,10 +1592,12 @@
   // Sivunvaihtopainikkeiden kytkin Sivut-vaihtoehdon alle, 16 px sisennettynä kuten Sukkela alleviivaus
   // Alleviivausten alla. Mitataan vasta näkyvästä paneelista (kirjasin vaihtelee).
   function sijoitaNipukka() {
-    var s = $('#asetukset button[data-arvo="sivut"]'), n = $('#sivunapit-kytkin');
+    var s = $('#asetukset button[data-arvo="sivut"]');
     if (!s || !s.offsetParent) return;
-    n.style.paddingLeft = '0';
-    n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
+    [$('#sivunapit-kytkin'), $('#kumo-kytkin')].forEach(function (n) {
+      n.style.paddingLeft = '0';
+      n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
+    });
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
@@ -2073,7 +2092,13 @@
     if (MOBIILI.addEventListener) MOBIILI.addEventListener('change', mobMuuttui); else if (MOBIILI.addListener) MOBIILI.addListener(mobMuuttui);
   }
   if (document.fonts && document.fonts.addEventListener) {
-    document.fonts.addEventListener('loadingdone', function () { if (nyt) asettele(tila.ankkuri); });
+    // Kreikan osajoukko latautuu jo asetusten marginaalinapeista; se asettelee tekstin vain, jos tekstissä on kreikkaa.
+    document.fonts.addEventListener('loadingdone', function (e) {
+      if (!nyt) return;
+      var kreikka = e.fontfaces && e.fontfaces.length && e.fontfaces.every(function (f) { return /U\+370-3FF/i.test(f.unicodeRange); });
+      if (kreikka && !/[\u0370-\u03FF]/.test(sivuEl.textContent)) return;
+      asettele(tila.ankkuri);
+    });
   }
 
   // Sivunkääntö ei avaa eikä sulje palkkeja (käyttäjän päätös 22.10.2026: vain napautus).

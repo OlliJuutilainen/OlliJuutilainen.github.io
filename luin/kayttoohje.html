@@ -25,6 +25,9 @@
     font-weight: 380 700; font-style: normal; font-display: swap; }
   @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2");
     font-weight: 380 700; font-style: italic; font-display: swap; }
+  /* Kreikka (marginaalin arvot) kuten luin.html:ssä. */
+  @font-face { font-family: Literata; src: url(fontit/literata-kreikka.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; unicode-range: U+0370-03FF; }
   /* Värit kuten luin.html:ssä. */
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
@@ -249,10 +252,10 @@
     <li><span class="ui">Liikkuminen</span>: vieritys tai sivut. Sivuihin valitaan lisäkytkimillä
       sivunkäännön tavat: <span class="ui">Reunanapautus</span>, <span class="ui">Pyyhkäisy</span> ja
       <span class="ui">Painikkeet</span> (alalaitaan nuolinapit). Mikä tahansa yhdistelmä käy, yksi on pakko valita.
-      <span class="ui">Kumoa ja tee uudelleen</span> näyttää tai piilottaa siirtymien kumoamisen napit; oletuksena ne
-      näkyvät painikkeiden kanssa, aikajanan alla ja vain jos ne mahtuvat.</li>
+      <span class="ui">Näytä edellisen ja seuraavan kohdan kytkimet</span> näyttää tai piilottaa siirtymien kumoamisen napit
+      (vain sivuina); oletuksena ne näkyvät painikkeiden kanssa, aikajanan alla ja vain jos ne mahtuvat.</li>
     <li><span class="ui">Kirjasinkoko</span>, <span class="ui">Kappalejako</span> (väli tai sisennys),
-      <span class="ui">Reunat</span> (liehu tai tasattu), <span class="ui">Marginaali</span> (ohut, meso tai reilu; vain kapealla
+      <span class="ui">Reunat</span> (liehu tai tasattu), <span class="ui">Marginaali</span> (<span lang="el">μικρό</span>, <span lang="el">μέσο</span> tai <span lang="el">μακρό</span>; vain kapealla
       ruudulla) ja <span class="ui">Tavutus</span> (ei, vähä tai raju).</li>
     <li><span class="ui">Teksti</span>: näkyvätkö tekstissä sisällysluettelo, kirjanmerkit ja alleviivaukset,
       alleviivataanko valinta heti (<span class="ui">Sukkela alleviivaus</span>), avaako yksi sana suoraan sanaselityksen
