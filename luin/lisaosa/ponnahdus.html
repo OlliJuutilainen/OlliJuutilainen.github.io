@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lisää lukimeen</title>
+<style>
+  /* Luinin värit (latomo.html); e-ink: ei varjoja, läpikuultavuutta eikä animaatioita. */
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426;
+    --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-width: 18rem; max-width: 30rem; background: var(--paperi); color: var(--muste);
+    font: 16px/1.45 var(--antiikva); overflow-wrap: break-word; }
+  main { padding: 14px 16px 16px; }
+  h1 { font-weight: 400; font-size: 1.05rem; margin: 0 0 4px; }
+  .meta { color: var(--harmaa); font-size: .86rem; margin: 0 0 12px; }
+  label { display: flex; gap: 8px; align-items: center; margin: 0 0 12px; font-size: .92rem; min-height: 36px; }
+  input[type="checkbox"] { width: 18px; height: 18px; margin: 0; accent-color: var(--ruoste); }
+  .napit { display: flex; flex-direction: column; gap: 8px; }
+  button { font: inherit; color: inherit; background: none; border: 1px solid var(--muste); padding: 0 12px;
+    min-height: 40px; cursor: pointer; font-size: .92rem; text-align: center; }
+  button.paa { color: var(--ruoste); border-color: var(--ruoste); }
+  button:disabled { color: var(--harmaa); border-color: var(--viiva); cursor: default; }
+  :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
+  #tila { color: var(--harmaa); font-size: .86rem; margin: 10px 0 0; }
+  #tila:empty { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="otsikko">Luetaan sivua…</h1>
+  <p class="meta" id="meta"></p>
+  <label id="valintarivi" hidden><input type="checkbox" id="valinta"> Vain valittu kohta</label>
+  <div class="napit">
+    <button type="button" class="paa" id="lukimeen" disabled>Lisää lukimeen</button>
+    <button type="button" id="latomoon" disabled>Avaa Latomossa</button>
+  </div>
+  <p id="tila"></p>
+</main>
+<script src="ponnahdus.js"></script>
+</body>
+</html>

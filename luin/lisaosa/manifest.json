@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Lisää lukimeen",
+  "version": "0.2.0",
+  "description": "Leikkaa verkkoartikkelin Luin-lukimelle. Teksti kulkee Latomon kautta lukulistaan, eikä sitä lähetetä minnekään. Alaviitteet haetaan tarvittaessa saman sivuston alaviitesivulta.",
+  "icons": {
+    "16": "kuvakkeet/16.png",
+    "32": "kuvakkeet/32.png",
+    "48": "kuvakkeet/48.png",
+    "96": "kuvakkeet/96.png",
+    "128": "kuvakkeet/128.png"
+  },
+  "action": {
+    "default_popup": "ponnahdus.html",
+    "default_title": "Lisää lukimeen",
+    "default_icon": {
+      "16": "kuvakkeet/16.png",
+      "32": "kuvakkeet/32.png",
+      "48": "kuvakkeet/48.png"
+    }
+  },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://ollijuutilainen.github.io/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://ollijuutilainen.github.io/luin/latomo.html*"],
+      "js": ["latomoon.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lisaa-lukimeen@tusinasoft",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["none"] }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  }
+}
