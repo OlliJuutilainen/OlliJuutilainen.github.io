@@ -169,7 +169,7 @@ palvelin.listen(0, async () => {
     const popAuto = !document.querySelector('#pop').hidden;
     document.querySelector('#pop').hidden = true;
     a.alTekstissa = 0; document.documentElement.classList.add('ali-piilo'); valitse(); const n2 = L.nyt().merk.al.length;
-    const viiva = getComputedStyle(document.querySelector('mark.ali')).textDecorationLine;
+    const viiva = getComputedStyle(document.querySelector('mark.ali')).backgroundImage === 'none' ? 'none' : 'underline';
     getSelection().removeAllRanges(); document.querySelector('#pop').hidden = true;
     L.nyt().merk.al.pop(); a.auto = 0; a.alTekstissa = 1; document.documentElement.classList.remove('ali-piilo');
     return { n0, n1, n2, viiva, popAuto };
@@ -1027,7 +1027,7 @@ palvelin.listen(0, async () => {
     const reunat = h ? h.segs.every(s => { const t = n.txt[s.b], w = /[\p{L}\p{N}]/u; return !(w.test(t[s.s - 1] || '') && w.test(t[s.s])) && !(w.test(t[s.e] || '') && w.test(t[s.e - 1])); }) : false;
     const mk = h && [...document.querySelectorAll('mark.ali[data-h="' + h.id + '"]')], eka = mk && mk.length && mk[0].getClientRects()[0], vika = mk && mk.length && [...mk[mk.length - 1].getClientRects()].pop();
     return { n: al.length, x: h ? h.segs.map(s => s.x).join(' ') : '', reunat, sel: getSelection().toString(), kahvat: !document.querySelector('#kahvat').hidden,
-      kahvaEro: eka ? [Math.abs(K[0].getBoundingClientRect().left - eka.left), Math.abs(K[1].getBoundingClientRect().left - vika.right)].map(v => +v.toFixed(2)) : null,
+      kahvaEro: eka ? [Math.abs(K[0].getBoundingClientRect().left - eka.left - parseFloat(getComputedStyle(mk[0]).paddingLeft)), Math.abs(K[1].getBoundingClientRect().left - vika.right + parseFloat(getComputedStyle(mk[mk.length - 1]).paddingRight))].map(v => +v.toFixed(2)) : null,
       luonnos: document.querySelectorAll('mark.luonnos').length, pop: document.querySelector('#pop').hidden ? '' : document.querySelector('#pop').className };
   });
   const veda = async (a, z) => { await mp.mouse.move(a.x, a.y); await mp.mouse.down(); await mp.mouse.move(z.x, z.y, { steps: 8 }); await mp.mouse.up(); await mp.waitForTimeout(250); };
@@ -1037,16 +1037,41 @@ palvelin.listen(0, async () => {
   // Kahvat vasta alleviivauksen napautuksesta (käyttäjän päätös 5.11.2026).
   await mp.mouse.click(sw.s[3].x, sw.s[3].y); await mp.waitForTimeout(200);
   const m1 = await mtila();
-  // Kaarikahva (käyttäjän päätös 5.11.2026): nuppi ja ote rivin keskikorkeudella sanan ulkopuolella, kaari alkaa
-  // alleviivauksen päästä. Nuppi mahtuu sanaväliin (0,2 em): 19 px:llä 4,2 × 12,2 px, keskikohta 0,12 em sanan reunasta.
+  // Kaarikahva (käyttäjän päätös 5.11.2026): nuppi ja ote rivin keskikorkeudella sanan ulkopuolella. Nuppi mahtuu sanaväliin
+  // (0,2 em): 19 px:llä 4,2 × 12,2 px, keskikohta 0,12 em sanan reunasta. Viivan jatke ja varsi ovat merkin omaa taustaa
+  // (luokat k-alku / k-loppu), ei SVG:tä.
   const ks = await mp.evaluate(() => [...document.querySelectorAll('.kahva')].map(k => {
     const top = parseFloat(k.style.top), kh = parseFloat(k.style.getPropertyValue('--kh')), x = parseFloat(k.style.left), s = k.dataset.paa === 'loppu' ? 1 : -1;
-    const n = k.querySelector('.kn').getBoundingClientRect(), o = k.querySelector('.k-ote').getBoundingClientRect(), kk = k.querySelector('.kk').getBoundingClientRect();
+    const n = k.querySelector('.kn').getBoundingClientRect(), o = k.querySelector('.k-ote').getBoundingClientRect();
     return { nuppi: [+n.width.toFixed(1), +n.height.toFixed(1)], nuppiY: +(n.top + n.height / 2 - top - kh / 2).toFixed(2), oteY: +(o.top + o.height / 2 - top - kh / 2).toFixed(2),
-      ulkona: s * (n.left + n.width / 2 - x) > 0, nuppiUlko: +(s > 0 ? n.right - x : x - n.left).toFixed(2), oteUlos: s * (o.left + o.width / 2 - x) > 0, kaariAlku: +(s > 0 ? kk.left - x : x - kk.right).toFixed(2), kaariAla: +(kk.bottom - top - kh).toFixed(2) };
+      ulkona: s * (n.left + n.width / 2 - x) > 0, nuppiUlko: +(s > 0 ? n.right - x : x - n.left).toFixed(2), oteUlos: s * (o.left + o.width / 2 - x) > 0 };
   }));
-  tulos('kaarikahva: nuppi ja ote rivin keskellä', ks.length === 2 && ks.every(k => k.nuppi[0] === 4.2 && k.nuppi[1] === 12.2 && k.nuppiUlko < 4.6 && Math.abs(k.nuppiY) < .3 && Math.abs(k.oteY) < .3 &&
-    k.ulkona && k.oteUlos && Math.abs(k.kaariAlku + 2) < .3 && k.kaariAla > -1 && k.kaariAla < 2), JSON.stringify(ks));
+  const paat = await mp.evaluate(() => [document.querySelectorAll('mark.k-alku').length, document.querySelectorAll('mark.k-loppu').length]);
+  tulos('kaarikahva: nuppi ja ote rivin keskellä', ks.length === 2 && paat[0] === 1 && paat[1] === 1 && ks.every(k => k.nuppi[0] === 4.2 && k.nuppi[1] === 12.2 && k.nuppiUlko < 4.6 && Math.abs(k.nuppiY) < .3 && Math.abs(k.oteY) < .3 &&
+    k.ulkona && k.oteUlos), JSON.stringify({ ks, paat }));
+  // Sauma (käyttäjän pyyntö 6.11.2026): viivan alareuna ja kahvan jatkeen/varren alareuna ovat samalla pikselirivillä, ruosteella
+  // ja okralla (ulkokulman pyöristys pois mittauksen ajaksi). Mitataan kuvakaappauksesta (selaimessa dekoodattuna), koska natiivi alleviivaus pyöristyi rivi riviltä eri tavoin.
+  const saumaPohja = async okra => {
+    await mp.evaluate(o => { document.querySelectorAll('mark.k-alku, mark.k-loppu').forEach(m => { m.style.borderRadius = '0'; }); const h = window.__luin.kahvat(); document.querySelectorAll('mark.ali[data-h="' + h.id + '"]').forEach(m => m.classList.toggle('okra', o)); document.querySelectorAll('.kahva').forEach(k => k.classList.toggle('okra', o)); }, okra);
+    const g = await mp.evaluate(() => [...document.querySelectorAll('.kahva')].map(k => ({ x: parseFloat(k.style.left), y: parseFloat(k.style.top), h: parseFloat(k.style.getPropertyValue('--kh')), s: k.dataset.paa === 'loppu' ? 1 : -1 })));
+    const out = [];
+    for (const k of g) {
+      const buf = await mp.screenshot({ clip: { x: Math.floor(k.x - 20), y: Math.floor(k.y), width: 40, height: Math.ceil(k.h) + 6 } });
+      const r = await mp.evaluate(async ([b64, x0, kx, s, okra]) => {
+        const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + b64)).blob());
+        const c = document.createElement('canvas'); c.width = bm.width; c.height = bm.height; const q = c.getContext('2d'); q.drawImage(bm, 0, 0);
+        const d = q.getImageData(0, 0, c.width, c.height).data, sc = bm.width / 40;
+        const vari = (x, y) => { const i = (y * c.width + x) * 4, R = d[i], G = d[i + 1], B = d[i + 2]; return okra ? R > 150 && G > 100 && B < 110 && R - B > 70 : R - B > 45 && G < R - 25; };
+        const pohja = xc => { const x = Math.round((xc - x0) * sc); let p = -1; for (let y = Math.floor(c.height * .5); y < c.height; y++) if (vari(x, y)) p = y; return p; };
+        return [pohja(kx - s * 5), pohja(kx + s * 2.3)];
+      }, [buf.toString('base64'), Math.floor(k.x - 20), k.x, k.s, okra]);
+      out.push(r);
+    }
+    return out;
+  };
+  const sRuoste = await saumaPohja(false), sOkra = await saumaPohja(true);
+  tulos('kahvan sauma: viiva ja varsi samalla pohjarivillä (ruoste ja okra)', [...sRuoste, ...sOkra].every(r => r[0] > 0 && r[0] === r[1]), JSON.stringify({ sRuoste, sOkra }));
+  await mp.evaluate(() => { document.querySelectorAll('mark.k-alku, mark.k-loppu').forEach(m => { m.style.borderRadius = ''; }); const h = window.__luin.kahvat(); document.querySelectorAll('mark.ali[data-h="' + h.id + '"]').forEach(m => m.classList.remove('okra')); document.querySelectorAll('.kahva').forEach(k => k.classList.remove('okra')); });
   const oma = await mp.evaluate(() => [document.documentElement.classList.contains('oma-maalaus'), getComputedStyle(document.querySelector('#teksti')).userSelect]);
   tulos('Luinin maalaus sanarajoihin ilman selaimen valintaa', oma[0] && oma[1] === 'none' && m0.n === 1 && m0.reunat && m0.sel === '' && !m0.kahvat && !m0.pop &&
     m1.kahvat && m1.kahvaEro.every(v => v < .5) && /rivi/.test(m1.pop), JSON.stringify({ oma, m0, m1 }));
@@ -1062,7 +1087,7 @@ palvelin.listen(0, async () => {
   const lk2 = await mp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 22, y: r.top + 8 }; });
   await mp.mouse.move(lk2.x, lk2.y); await mp.mouse.down(); await mp.mouse.move(lk2.x - 40, lk2.y, { steps: 4 });
   const hiiriLupa = await mp.evaluate(() => !document.querySelector('#lupa').hidden);
-  const hiiriVeto = await mp.evaluate(() => ({ viiva: [...document.querySelectorAll('mark.ali')].map(m => getComputedStyle(m).textDecorationStyle).join(), kahvat: getComputedStyle(document.querySelector('.kahva')).visibility }));
+  const hiiriVeto = await mp.evaluate(() => ({ viiva: [...document.querySelectorAll('mark.ali')].map(m => (b => b === 'none' ? 'none' : /repeating/.test(b) ? 'dashed' : 'solid')(getComputedStyle(m).backgroundImage)).join(), kahvat: getComputedStyle(document.querySelector('.kahva')).visibility }));
   await mp.mouse.move(lk2.x, lk2.y, { steps: 4 }); await mp.mouse.up(); await mp.waitForTimeout(200);
   const m2b = await mtila();
   const hiiriJalkeen = await mp.evaluate(() => document.querySelector('#kahvat').hidden);
@@ -1208,7 +1233,7 @@ palvelin.listen(0, async () => {
   await kosk('touchMove', lo.x + ksanat[8].x - kb.x, lo.y + ksanat[8].y - kb.y); await kp2.waitForTimeout(100);
   const lu1 = await lupaTila(), lo1 = await kote();
   const vedossa = await kp2.evaluate(() => ({ nak: [...document.querySelectorAll('.kahva')].map(k => getComputedStyle(k).visibility).join(),
-    viiva: [...document.querySelectorAll('mark.ali')].filter(m => m.classList.contains('luonnos') || m.classList.contains('vedossa')).map(m => getComputedStyle(m).textDecorationStyle).join() }));
+    viiva: [...document.querySelectorAll('mark.ali')].filter(m => m.classList.contains('luonnos') || m.classList.contains('vedossa')).map(m => (b => b === 'none' ? 'none' : /repeating/.test(b) ? 'dashed' : 'solid')(getComputedStyle(m).backgroundImage)).join() }));
   // Sormi tasan kahvan päälle ja suoraan riviä alemmas.
   await kosk('touchMove', lo1.kx + (lo.x - lo.kx), lo1.y); await kp2.waitForTimeout(100);
   const lu2 = await lupaTila();
