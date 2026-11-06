@@ -2200,7 +2200,10 @@
         vastinparia ei erota yksikään sana (sulut ja lopetusmerkki mukaan: "…varmaan)." kokonaan).
      Naapurialleviivaus ei vaikuta näihin: sääntö lasketaan aina yksin, ja törmäys vain leikkaa tuloksen (rajaaSegs()). */
   var LOPETUS = /[.!?…]/, SULKU = /["”“’‘'»«›‹)\]}]/, TRAIL = /[.,:;!?…"'“”„‘’«»‹›()\[\]{}\/\-–—]/;
-  var AVAAJA = { '(': ')', '[': ']', '{': '}', '“': '”', '‘': '’', '«': '»', '‹': '›', '„': '“' }, SYM = '"”»\'’/';
+  // Kahden merkin paketit: avaaja → sen kelpuuttamat sulkijat. Merkit, jotka voivat olla kumpaa tahansa ("  ”  »  '), ratkaistaan
+  // ympäristöstä; epäselvä merkki jää ilman paria eikä sitä koskaan oteta alleviivauksen reunaan (ei arvata käärmeen päätä).
+  var PARI_AVAA = { '(': ')', '[': ']', '{': '}', '“': '”', '‘': '’', '«': '»', '‹': '›', '„': '“”', '”': '”', '»': '»', '"': '"', "'": "'" };
+  var PARI_VARMA = '([{“‘«‹„';
   var LYHENTEET = /^(esim|jne|ym|yms|ks|vrt|ns|ts|nk|noin|ss|vs|mrd|milj|tms|tmv|ent|huom|kpl|klo|prof|dos|tri|nro|etc|cf|vol|pp|mm|ym)$/i;
   // Seuraava sana alkaa pienellä: piste ei päätä virkettä (3. kerros, esim. tämä).
   function pienellaSeuraa(t, i) {
@@ -2224,39 +2227,59 @@
     for (var i = s + 1; i < e; i++) if (sanassa(t, i) && !sanassa(t, i - 1) && virkkeenAlku(t, i)) return true;
     return false;
   }
-  // Valinnassa auki jääneet avaajat: pino sulkevista vastineista (uloin pohjalla).
-  function avoimet(t, s, e) {
-    var st = [];
-    for (var i = s; i < e; i++) {
+  // Lohkon merkkien parit (ei koskaan lohkon yli): P[i] on pariksi tulleen merkin paikka tai -1, jos merkki on epäselvä tai
+  // pariton. Foneettinen / on avaaja vain yksiselitteisessä paketissa: seuraavaan /:ään asti pelkkiä kirjaimia.
+  function parit(t) {
+    if (parit.t === t) return parit.P;
+    var n = t.length, P = [], st = [], i;
+    for (i = 0; i < n; i++) P.push(-1);
+    for (i = 0; i < n; i++) {
       var c = t[i];
-      if ((c === "'" || c === '’') && sanassa(t, i)) continue;
-      if (st.length && st[st.length - 1] === c) { st.pop(); continue; }
-      if (AVAAJA[c]) { st.push(AVAAJA[c]); continue; }
+      if (P[i] !== -1 || (c === "'" || c === '’') && sanassa(t, i)) continue;
       if (c === '/') {
-        // Foneettinen kauttaviiva avaa vain yksiselitteisen paketin: avaava ja sulkeva vinoviiva, välissä pelkkiä kirjaimia.
         var j = t.indexOf('/', i + 1);
-        if ((i === 0 || !sanassa(t, i - 1)) && j > i + 1 && /^[\p{L}\p{M}]+$/u.test(t.slice(i + 1, j))) st.push(c);
+        if (!sanassa(t, i - 1) && j > i + 1 && /^[\p{L}\p{M}]+$/u.test(t.slice(i + 1, j))) { P[i] = j; P[j] = i; }
         continue;
       }
-      if (SYM.indexOf(c) >= 0 && (i === 0 || !sanassa(t, i - 1)) && i + 1 < e && !/\s/.test(t[i + 1])) st.push(c);
+      var top = st.length ? st[st.length - 1] : -1, seur = t[i + 1] || '';
+      var sulkuYhteys = i > 0 && !/\s/.test(t[i - 1]) && !sanassa(t, i + 1);
+      var avausYhteys = !sanassa(t, i - 1) && seur !== '' && !/\s/.test(seur);
+      if (top >= 0 && PARI_AVAA[t[top]].indexOf(c) >= 0 && (!PARI_AVAA[c] || sulkuYhteys)) { P[i] = top; P[top] = i; st.pop(); continue; }
+      if (PARI_AVAA[c] && (PARI_VARMA.indexOf(c) >= 0 || avausYhteys)) st.push(i);
     }
-    return st;
+    parit.t = t; parit.P = P;
+    return P;
   }
   // Loppu viimeiseen sanamerkkiin (tai alkuun, jos sanaa ei ole): tyhjät ja välimerkit pois.
   function siivoaLoppu(t, s, e) {
     while (e > s && (/\s/.test(t[e - 1]) || !sanassa(t, e - 1) && TRAIL.test(t[e - 1]))) e--;
     return e;
   }
-  function loppuLaajennus(t, s, e) {
-    var st = avoimet(t, s, e), alku = null;
-    while (e < t.length) {
+  // Alku ensimmäiseen sanamerkkiin (tai muuhun kuin tyhjään tai irtonaiseen välimerkkiin).
+  function siivoaAlku(t, s, e) {
+    while (s < e && (/\s/.test(t[s]) || /[.,:;!?)\]}"'“”„‘’«»‹›(\[{\/]/.test(t[s]))) s++;
+    return s;
+  }
+  // Alkuun tulee heti edeltävä avaaja, jos sen sulkeva vastine on alleviivauksen sisällä (ei loppuun asti rajautuvalla).
+  function alkuLaajennus(t, s, e) {
+    var P = parit(t);
+    while (s > 0 && P[s - 1] > s - 1 && P[s - 1] < e) s--;
+    return s;
+  }
+  // Loppuun tulee heti seuraava sulkija, jos sen avaaja on alleviivauksen sisällä, ja virkkeen lopetusmerkki (sääntö 1).
+  // max: törmäyksen raja, jonka yli ei laajenneta.
+  function loppuLaajennus(t, s, e, max) {
+    var P = parit(t), alku = null;
+    if (max === undefined) max = t.length;
+    while (e < max) {
       var c = t[e];
-      if (st.length && st[st.length - 1] === c) { st.pop(); e++; continue; }
+      if (P[e] >= s && P[e] < e) { e++; continue; }
       if (!LOPETUS.test(c)) break;
       if (alku === null) alku = sisaltaaVirkkeenAlun(t, s, e);
       if (!alku) break;
       var q = e, r;
       while (q < t.length && LOPETUS.test(t[q])) q++;
+      if (q > max) break;
       r = q;
       while (r < t.length && SULKU.test(t[r])) r++;
       if (r < t.length && !/\s/.test(t[r])) break;
@@ -2264,6 +2287,15 @@
       e = q;
     }
     return e;
+  }
+  // Reunojen normalisointi: ensimmäinen pala (alku) ja viimeinen pala (loppu) siivotaan sanoihin ja paketit täydennetään.
+  function loppumerkit(t, s, e, alku, loppu) {
+    if (alku) s = siivoaAlku(t, s, e);
+    if (loppu) e = siivoaLoppu(t, s, e);
+    if (e <= s) return null;
+    if (alku) s = alkuLaajennus(t, s, e);
+    if (loppu) e = loppuLaajennus(t, s, e);
+    return [s, e];
   }
   function valintaPaloiksi(r) {
     var segs = [];
@@ -2279,11 +2311,11 @@
       while (e < t.length && e > s && sanassa(t, e) && sanassa(t, e - 1)) e++;
       if (e > s) segs.push({ b: b, s: s, e: e, x: t.slice(s, e) });
     });
-    // Loppumerkit lasketaan valinnan viimeiselle palalle (ks. LOPETUS): muualla lohkon loppu on valinnan sisällä.
-    if (segs.length) {
-      var z = segs[segs.length - 1], tz = nyt.txt[z.b], ez = siivoaLoppu(tz, z.s, z.e);
-      if (ez <= z.s) segs.pop();
-      else { ez = loppuLaajennus(tz, z.s, ez); z.e = ez; z.x = tz.slice(z.s, ez); }
+    // Reunat (ks. LOPETUS): vain valinnan ensimmäisen palan alku ja viimeisen palan loppu; muualla lohkon raja on valinnan sisällä.
+    for (var k = segs.length - 1; k >= 0; k--) {
+      var g = segs[k], tg = nyt.txt[g.b], n = loppumerkit(tg, g.s, g.e, k === 0, k === segs.length - 1);
+      if (!n) { segs.splice(k, 1); continue; }
+      g.s = n[0]; g.e = n[1]; g.x = tg.slice(g.s, g.e);
     }
     return segs;
   }
@@ -2544,18 +2576,19 @@
     }
     if (d <= c) return [];
     var r = segsValilta(gKohta(c), gKohta(d));
-    // Varmistus: sanan tai loppumerkin laajennus ei saa viedä rajan yli. Rajalle asti ulottuva pala leikataan rajaan
-    // (ja siivotaan viimeiseen sanaan, ettei välilyönti tai avaava sulku tule mukaan); rajan sisältä alkava pala pois.
+    // Varmistus: sanan tai merkkien laajennus ei saa viedä rajan yli. Rajan sisältä alkava pala alkaa vasta rajan jälkeen,
+    // rajalle asti ulottuva pala leikataan rajaan; kummassakin reuna siivotaan (väli ja avaava sulku eivät tule mukaan).
     return r.map(function (q) {
-      var g0 = nyt.cum[q.b] + q.s, g1 = nyt.cum[q.b] + q.e, raja = Infinity;
-      for (var i = 0; i < V.length; i++) {
-        if (!(V[i][0] < g1 && V[i][1] > g0)) continue;
-        if (V[i][0] <= g0) return null;
-        raja = Math.min(raja, V[i][0]);
+      var t = nyt.txt[q.b], base = nyt.cum[q.b], s = q.s, e = q.e, eRaja = null, i, a, z;
+      for (i = 0; i < V.length; i++) {
+        a = V[i][0] - base; z = V[i][1] - base;
+        if (!(a < e && z > s)) continue;
+        if (a <= s) s = z; else { e = a; eRaja = a; }
       }
-      if (raja === Infinity) return q;
-      var t = nyt.txt[q.b], e2 = siivoaLoppu(t, q.s, raja - nyt.cum[q.b]);
-      return e2 > q.s ? { b: q.b, s: q.s, e: e2, x: t.slice(q.s, e2) } : null;
+      if (s === q.s && e === q.e) return q;
+      if (s !== q.s) s = siivoaAlku(t, s, e);
+      if (e !== q.e) { e = siivoaLoppu(t, s, e); e = loppuLaajennus(t, s, e, eRaja); }
+      return e > s ? { b: q.b, s: s, e: e, x: t.slice(s, e) } : null;
     }).filter(Boolean);
   }
   function rajattuValilta(alku, loppu, ohita) { return rajaaSegs(segsValilta(alku, loppu), gPaikka(alku) <= gPaikka(loppu), ohita); }
