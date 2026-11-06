@@ -3274,8 +3274,9 @@
       var kr = (t.match(/\p{Script=Greek}/gu) || []).length, la = (t.match(/\p{Script=Latin}/gu) || []).length;
       return /[̀̓̔͂ͅ]/.test(t.normalize('NFD')) || kr < la ? 'grc' : 'el';
     }
+    // y.omaKieli: lainauksen tai kursiivin oma kieli, kun se erottui itsestään (skKetju: pitkä lainaus on kuin leipäteksti).
     var ehd = [y.oma, sg.x, t, nyt.txt.slice(0, 60).join(' ')];
-    for (var i = 0; i < ehd.length; i++) { if (!ehd[i]) continue; var v = kieliPisteet(ehd[i], true); if (v.p >= 2) return v.k; }
+    for (var i = 0; i < ehd.length; i++) { if (!ehd[i]) continue; var v = kieliPisteet(ehd[i], true); if (v.p >= 2) { if (i === 0) y.omaKieli = v.k; return v.k; } }
     return 'fi';
   }
 
@@ -3284,16 +3285,23 @@
   // kirjaimet latinalaisiksi, lg-* = latinalaiset kirjaimet kreikkalaisiksi ja askel muinaiskreikasta. k: kielet tai '*'.
   // Ryhmän askelten tulokset yhdistetään; ensimmäinen ryhmä, josta tulee osuma, ratkaisee. v: varoitus (1 heikot jäät, 2 SOS).
   // Taivutusarvauksia (n) haetaan vain tekstin kielestä, paitsi kursiivissa ja lainauksessa (tekstin kieli ja viisi vierasta).
+  // r: tasan saman muodon osumista näytetään vain nämä kielet (true = k), kun ketjun kieli löytyy (käyttäjän linjaus
+  // 6.11.2026, ensin suomeen, sitten kaikkiin kieliin: englannin is ei tuo afrikaansia). Muut kielet tulevat vasta, jos
+  // tekstin kielestä ei löydy mitään. Liudentuu kursiivissa (vieraat sanat) ja lyhyessä lainauksessa muualla kuin suomessa.
   var SK_VIERAAT = ['la', 'en', 'fr', 'de', 'sv'];
   function skKetju(kieli, y, monta, erisnimi) {
-    function A(t, k, v, r) { return { t: t, k: k === '*' ? '*' : [].concat(k), v: v || 0, r: !!r }; }
+    function A(t, k, v, r) { return { t: t, k: k === '*' ? '*' : [].concat(k), v: v || 0, r: r === true ? [].concat(k) : r || null }; }
+    // Lainaus muualla kuin suomessa: oman kielensä erottava (pitkä) lainaus on kuin leipäteksti; lyhyt lainaus (englannin
+    // scare quotes, termit) liudentuu kuin kursiivi, koska se merkitsee usein vierasta tai lainattua sanaa.
+    var vieras = y.kursiivi || y.lainaus && kieli !== 'fi' && y.omaKieli !== kieli;
     var K;
     if (kieli === 'grc' || kieli === 'el') {
+      // Kreikan kaksi kieltä pysyvät yhdessä: ilman diakriitteja kirjoitettu muinaiskreikka tunnistuu nykykreikaksi.
       var b = kieli === 'grc' ? 'el' : 'grc';
-      K = [[A('t', kieli)], [A('f', kieli)], [A('n', kieli)], [A('nf', kieli)], [A('t', b)], [A('f', b)], [A('n', b)], [A('nf', b)], [A('gl', '*', 1)]];
+      K = [[A('t', kieli, 0, [kieli, b])], [A('f', kieli)], [A('n', kieli)], [A('nf', kieli)], [A('t', b)], [A('f', b)], [A('n', b)], [A('nf', b)], [A('gl', '*', 1)]];
     } else if (kieli === 'la') {
-      K = [[A('t', 'la')], [A('f', 'la')], [A('n', 'la')], [A('nf', 'la')], [A('t', '*')], [A('f', '*')], [A('lg-t', 'grc', 1)], [A('lg-f', 'grc', 1)], [A('lg-nf', 'grc', 2)]];
-    } else if (y.kursiivi || y.lainaus && kieli !== 'fi') {
+      K = [[A('t', 'la', 0, true)], [A('f', 'la')], [A('n', 'la')], [A('nf', 'la')], [A('t', '*')], [A('f', '*')], [A('lg-t', 'grc', 1)], [A('lg-f', 'grc', 1)], [A('lg-nf', 'grc', 2)]];
+    } else if (vieras) {
       K = [[A('t', kieli)]].concat(kieli === 'de' ? [[A('tv', 'de')]] : [], [[A('t', '*')], [A('n', uniq([kieli].concat(SK_VIERAAT)))], [A('f', '*')]]);
       if (y.vip) K.push([A('nf', '*')]);
     } else if (kieli === 'fi') {
@@ -3302,15 +3310,16 @@
       // Suomikonteksti (käyttäjän linjaus 6.11.2026): kun suomenkielinen osuma löytyy, muiden kielten tietoja ei näytetä
       // (edes ei tuo latinan sanaa); r-lippu rajaa tasan samat muodot suomeen. Kursiivissa ketju on edellä, jossa muut
       // kielet saavat jäädä mukaan; lainaus on suomikontekstissa kuin leipäteksti, ja lainauksen sisäinen kursiivi on kursiivi.
-      K = erisnimi ? [[A('t', 'fi', 0, 1)], [A('t', '*')], [A('ne', '*')], [A('n', 'fi')], [A('f', 'fi')]] : [[A('t', 'fi', 0, 1)], [A('n', 'fi')], [A('f', 'fi')], [A('t', '*')]];
+      K = erisnimi ? [[A('t', 'fi', 0, true)], [A('t', '*')], [A('ne', '*')], [A('n', 'fi')], [A('f', 'fi')]] : [[A('t', 'fi', 0, true)], [A('n', 'fi')], [A('f', 'fi')], [A('t', '*')]];
     } else if (kieli === 'de') {
-      K = [[A('t', 'de')], [A('tv', 'de')], [A('n', 'de')], [A('f', '*')]];
+      K = [[A('t', 'de', 0, true)], [A('tv', 'de', 0, true)], [A('n', 'de')], [A('f', '*')]];
     } else if (kieli === 'fr') {
-      K = [[A('t', 'fr')], [A('f', 'fr')], [A('f', '*')]];
+      K = [[A('t', 'fr', 0, true)], [A('f', 'fr')], [A('f', '*')]];
     } else {
       // Englanti (ja ruotsi): muiden kielten tasan sama ennen arvauksia, koska englanti lainaa sanoja taivutuksineen
-      // kursivoimatta; sitten hakukoneen tapaan kirjoitettu sama ja loppunapsu samassa ryhmässä.
-      K = [[A('t', kieli)], [A('t', '*')]].concat(erisnimi ? [[A('ne', '*')]] : [], [[A('f', '*'), A('n', kieli)]]);
+      // kursivoimatta; sitten hakukoneen tapaan kirjoitettu sama ja loppunapsu samassa ryhmässä. Englannin iso alkukirjain
+      // keskellä virkettä (Dasein, Hegel) jättää muut kielet mukaan: nimet ja kursivoimatta lainatut termit ovat yhteisiä.
+      K = [[A('t', kieli, 0, !(kieli === 'en' && erisnimi))], [A('t', '*')]].concat(erisnimi ? [[A('ne', '*')]] : [], [[A('f', '*'), A('n', kieli)]]);
     }
     if (monta && !K.some(function (g) { return g.some(function (a) { return a.t === 'nf' && a.k === '*'; }); })) K.push([A('nf', '*')]);
     return K;
@@ -3450,10 +3459,10 @@
     }
     return seuraava(0);
   }
-  // rajaa: vain ketjun kielen (k) osumat ja määritelmät; muut kielet jäävät pois (suomikonteksti).
+  // rajaa: vain nämä kielet (ketjun kieli ja sen sisarkieli) osumiin ja määritelmiin; muut kielet jäävät pois.
   function skTasan(muodot, k, tapa, rajaa) {
     return Promise.all(muodot.map(function (m) { return haeSana(m); })).then(function (js) {
-      var kk = rajaa ? k : '*';
+      var kk = rajaa || '*';
       var os = muodot.map(function (m, i) { return { o: m, j: js[i], kielet: kk }; }).filter(function (x) { return x.j && skOnKieli(x.j, kk); });
       if (!os.some(function (x) { return skOnKieli(x.j, k); })) return null;
       // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026).
