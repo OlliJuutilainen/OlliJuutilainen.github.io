@@ -633,6 +633,8 @@
       });
     });
     function sep(ed, o) {
+      // Luvuittain alusta alkava pykälä ottaa alaluvun paikan: luvun 5 § 2 on 5.2 (käyttäjän sääntö 6.11.2026).
+      if (o.laji === 'pykala' && !ed.otsikko && !ed.pidetaan && /\d$/.test(ed.merkki)) return '.';
       if (ed.otsikko || ed.pidetaan || o.pidetaan || o.laji === 'pykala' || /^(pykala|kreikka-iso)$/.test(ed.laji)) return ', ';
       if (o.muoto === '()') return '';
       if (/\d$/.test(ed.merkki) && o.laji === 'kirjain') return '';
@@ -650,9 +652,13 @@
         cur = j; j = P._yla;
       }
       var s = '';
-      osat.forEach(function (o, k) { s += k ? sep(osat[k - 1], o) + o.merkki : o.merkki; });
+      osat.forEach(function (o, k) {
+        if (!k) { s = o.merkki; return; }
+        var v = sep(osat[k - 1], o);
+        s += v + (o.laji === 'pykala' && v === '.' ? o.merkki.replace(/^§\s*/, '') : o.merkki);
+      });
       t.paikka = s;
-      t.paikkaN = t.tn.merkki;
+      t.paikkaN = t.tn.laji === 'pykala' && /\.\d+[a-z]?$/.test(s) && !/^§/.test(s) ? s.replace(/^.*\./, '') : t.tn.merkki;
     });
     toc.forEach(function (t) { delete t._yla; });
     // Yhteenveto Latomolle: lajit esiintymisjärjestyksessä, määrä, esimerkki ja jatkuuko alempi numerointi yli rajojen.
@@ -666,6 +672,49 @@
       if (t.tarpeeton) y.jatkuu = true;
     });
     return yht;
+  }
+
+  // Paikannin tavoittelee pykälän tarkkuutta (käyttäjän sääntö 6.11.2026). Kun kirja on kattavasti numeroitu D tasolle
+  // (D-tasoisia kohtia on vähintään puolessa pääluvuista), lyhyemmän numeron perään tulee nollia: luvun 4 alku on 4.0.0
+  // kolmitasoisessa ja 4.0 kaksitasoisessa kirjassa, alaluvun 4.2 alku 4.2.0. Luvuittain alusta alkavat kappaleiden
+  // pykälät (§ 1 kappaleen alussa) ottavat alaluvun paikan: luvun 5 § 2 on 5.2. Pykälämerkki, joka ei ala alusta, riittää
+  // yksinään (§ 88). Vain kokonaan numeerinen paikannin täydennetään (Osa II, 3b ei).
+  function nollat(toc, kohdat) {
+    var nro = function (s) { return /^\d+(\.\d+)*$/.test(s || '') ? s.split('.') : null; };
+    function osio(b) { var o = null; toc.forEach(function (t) { if (t.b <= b) o = t; }); return o; }
+    function polku(b) {
+      var p = null;
+      for (var i = toc.length - 1; i >= 0; i--) if (toc[i].b <= b) { p = toc[i]; break; }
+      if (!p) return null;
+      var lvl = p.lvl + 1;
+      for (i = toc.indexOf(p); i >= 0; i--) if (toc[i].lvl < lvl) { if (toc[i].paikka) return toc[i]; lvl = toc[i].lvl; }
+      return null;
+    }
+    // Kappaleiden pykälät: nollautuvatko ne (§ 1 myöhemmin kuin suurempi numero)?
+    var pyk = kohdat.filter(function (k) { return /^§/.test(k.s); }), nollautuu = false;
+    pyk.forEach(function (k, i) { if (i && parseInt(k.n, 10) <= parseInt(pyk[i - 1].n, 10)) nollautuu = true; });
+    if (nollautuu) pyk.forEach(function (k) {
+      var o = polku(k.b), pn = o && nro(o.paikka);
+      if (pn) { k.s = o.paikka + '.' + k.n; k.nro = pn.concat([k.n]); }
+      else if (o) k.s = o.paikka + ', § ' + k.n;
+    });
+    var paat = toc.filter(function (t) { var n = nro(t.paikka); return n && n.length === 1; });
+    if (paat.length < 2) return;
+    var D = 1;
+    for (var d = 2; d <= 4; d++) {
+      var c = paat.filter(function (p) {
+        return toc.some(function (t) { var n = nro(t.paikka); return n && n.length >= d && n[0] === p.paikka; }) ||
+          pyk.some(function (k) { return k.nro && k.nro.length >= d && k.nro[0] === p.paikka; });
+      }).length;
+      if (c * 2 >= paat.length) D = d; else break;
+    }
+    if (D < 2) return;
+    toc.forEach(function (t) {
+      var n = nro(t.paikka);
+      if (!n || n.length >= D) return;
+      while (n.length < D) n.push('0');
+      t.paikka = t.paikkaN = n.join('.');
+    });
   }
 
   /* Latomon luurangotus (käyttäjän pyyntö 6.11.2026): rakennetunnisteelta näyttävät kappaleet otsikoiksi ja otsikkotasot
@@ -1892,6 +1941,8 @@
     var pyk = kohtaEhd.filter(function (k) { return k.pyk; }), pis = kohtaEhd.filter(function (k) { return k.piste; });
     res.kohtamerkit = (pyk.length >= 2 ? pyk : []).concat(pis.length >= 3 ? kohtaEhd.filter(function (k) { return !k.pyk; }) : [])
       .sort(function (a, z) { return a.b - z.b; }).map(function (k) { return { b: k.b, s: k.s, n: k.n }; });
+    nollat(res.toc, res.kohtamerkit);
+    res.kohtamerkit.forEach(function (k) { delete k.nro; });
 
     html = html.replace(/href="#(lyh-[^"]*)"/g, function (x, i) { return lyhOhjaus[i] ? 'href="#' + lyhOhjaus[i] + '"' : x; });
     // Ristiviittaukset otsikkoon tai nimiöön; ratkaisematon jää tekstiksi.

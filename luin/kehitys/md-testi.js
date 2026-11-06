@@ -247,7 +247,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   // Korsgaard: Part II alkaa luvusta 6, joten osa ei kuulu paikantimeen; luvut eivät myöskään saa huomautusta.
   let k = '# K\n\n';
   [['I', [1, 2]], ['II', [3, 4]]].forEach(([p, cs]) => { k += '## Part ' + p + '\n\n'; cs.forEach(c => { k += '### ' + c + ' Luku\n\n' + pr + '\n\n#### ' + c + '.1 Osio\n\n' + pr + '\n\n'; }); });
-  sama('paikannin: jatkuva numerointi ohittaa osan', pk(k), 'Part I 1 1.1 2 2.1 Part II 3 3.1 4 4.1');
+  sama('paikannin: jatkuva numerointi ohittaa osan', pk(k), 'Part I 1.0 1.1 2.0 2.1 Part II 3.0 3.1 4.0 4.1');
   sama('paikannin: osa ei katkaise numerointia', M.parse(k).warnings.length, 0);
   let o = '# O\n\n';
   ['I', 'II'].forEach(p => { o += '## Osa ' + p + '\n\n'; [1, 2].forEach(c => { o += '### ' + c + '. Luku\n\n' + pr + '\n\n#### a) Kohta\n\n' + pr + '\n\n#### b) Kohta\n\n' + pr + '\n\n'; }); });
@@ -274,12 +274,23 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   const ptoc = md => M.parse(md).toc.map(t => t.lvl + (t.pyk ? 'p' : '') + ' ' + (t.paikka || '')).join(' | ');
   let ide = '# Ideen\n\n## Einleitung\n\n' + hus(6) + '\n\n', np = 1;
   ['Erster', 'Zweiter'].forEach(a => { ide += '## ' + a + ' Abschnitt\n\n'; ['Erstes', 'Zweites'].forEach(k => { ide += '### ' + k + ' Kapitel\n\n'; for (let i = 0; i < 2; i++, np++) ide += '### § ' + np + '. Titel\n\n' + hus(20) + '\n\n'; }); });
-  sama('pykälät: alaluvun alaluvuiksi, paikannin § n', ptoc(ide), '1  | 1 1 | 2 1.1 | 3p § 1 | 3p § 2 | 2 1.2 | 3p § 3 | 3p § 4 | 1 2 | 2 2.1 | 3p § 5 | 3p § 6 | 2 2.2 | 3p § 7 | 3p § 8');
+  sama('pykälät: alaluvun alaluvuiksi, paikannin § n', ptoc(ide), '1  | 1 1.0 | 2 1.1 | 3p § 1 | 3p § 2 | 2 1.2 | 3p § 3 | 3p § 4 | 1 2.0 | 2 2.1 | 3p § 5 | 3p § 6 | 2 2.2 | 3p § 7 | 3p § 8');
   sama('pykälät ilman merkkiä: numerot jatkuvat kapitelien yli', ptoc(ide.replace(/### § (\d+)\./g, '## $1.')).split(' | ').slice(3, 5).join(' | '), '3p 1 | 3p 2');
   sama('pykälät ilman yläotsikoita', ptoc('# CM\n\n## § 1. A\n\n' + hus(10) + '\n\n## § 2. B\n\n' + hus(10)), '3p § 1 | 3p § 2');
   sama('pykälät: kymmenen lyhyttä numeroitua ilman yläotsikoita', ptoc('# P\n\n' + Array.from({ length: 10 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ')[0], '3p 1');
   sama('pykälät: lyhyen artikkelin viisi jaksoa ennallaan', ptoc('# A\n\n' + Array.from({ length: 5 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')), '1 1 | 1 2 | 1 3 | 1 4 | 1 5');
   sama('pykälät: pitkät luvut osien yli ovat lukuja', ptoc('# K\n\n## Part I\n\n### 1 C\n\n' + hus(80) + '\n\n### 2 C\n\n' + hus(80) + '\n\n## Part II\n\n### 3 C\n\n' + hus(80)), '1 Part I | 2 1 | 2 2 | 1 Part II | 2 3');
+  // Paikannin pykälän tarkkuudella (käyttäjän sääntö 6.11.2026): luvun alku 4.0.0 kolmitasoisessa, 4.0 kaksitasoisessa;
+  // luvuittain alusta alkava pykälä alaluvun paikalla (5.2), jatkuva yksinään (§ 88).
+  const kolme = '# K\n\n' + [1, 2].map(c => '## ' + c + '. Luku\n\n' + pr + '\n\n### ' + c + '.1 A\n\n#### ' + c + '.1.1 X\n\n' + pr + '\n\n### ' + c + '.2 B\n\n' + pr + '\n\n#### ' + c + '.2.1 Y\n\n' + pr).join('\n\n');
+  sama('paikannin: kolmitasoinen kirja', pk(kolme), '1.0.0 1.1.0 1.1.1 1.2.0 1.2.1 2.0.0 2.1.0 2.1.1 2.2.0 2.2.1');
+  sama('paikannin: kaksitasoinen kirja', pk('# K\n\n## 1. A\n\n' + pr + '\n\n### 1.1 B\n\n' + pr + '\n\n## 2. C\n\n### 2.1 D\n\n' + pr + '\n\n## 3. E\n\n' + pr), '1.0 1.1 2.0 2.1 3.0');
+  sama('paikannin: vain luvut, ei nollia', pk('# K\n\n## 1. A\n\n' + pr + '\n\n## 2. B\n\n' + pr), '1 2');
+  const nol = M.parse('# K\n\n## 1. A\n\n' + pr + '\n\n§ 1. ' + pr + '\n\n§ 2. ' + pr + '\n\n## 2. B\n\n' + pr + '\n\n§ 1. ' + pr + '\n\n§ 2. ' + pr);
+  sama('paikannin: luvuittain alusta alkavat pykälät 5.2-muodossa', nol.toc.map(t => t.paikka).join(' ') + ' | ' + nol.kohtamerkit.map(k => k.s).join(' '), '1.0 2.0 | 1.1 1.2 2.1 2.2');
+  const jat = M.parse('# K\n\n## 1. A\n\n' + pr + '\n\n§ 87. ' + pr + '\n\n§ 88. ' + pr + '\n\n## 2. B\n\n§ 89. ' + pr);
+  sama('paikannin: jatkuva pykälä riittää yksinään', jat.toc.map(t => t.paikka).join(' ') + ' | ' + jat.kohtamerkit.map(k => k.s).join(' '), '1 2 | § 87 § 88 § 89');
+  sama('paikannin: alusta alkavat §-otsikot luvun alla', pk('# K\n\n## 1. A\n\n' + pr + '\n\n### § 1. X\n\n' + pr + '\n\n### § 2. Y\n\n' + pr + '\n\n## 2. B\n\n### § 1. Z\n\n' + pr), '1.0 1.1 1.2 2.0 2.1');
   sama('luuranko: §-rivit ####-otsikoiksi', lr('# I\n\nERSTES KAPITEL\n\n§ 1. Titel\n\n' + hus(20) + '\n\n§ 2. Titel\n\n' + hus(20) + '\n\nZWEITES KAPITEL\n\n§ 3. Titel\n\n' + hus(20)),
     '3:## ERSTES KAPITEL | 5:#### § 1. Titel | 9:#### § 2. Titel | 13:## ZWEITES KAPITEL | 15:#### § 3. Titel');
   sama('luurangotus: ##-pykälät ####:ksi', lr('# I\n\n## Erstes Kapitel\n\n## § 1. A\n\n' + hus(20) + '\n\n## § 2. B\n\n' + hus(20)), '5:#### § 1. A | 9:#### § 2. B');
