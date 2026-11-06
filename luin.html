@@ -405,18 +405,42 @@
   body.reunat .fnref { cursor: default; }
 
   /* alleviivaus ja kirjanmerkki */
-  mark.ali { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--ruoste);
-    text-decoration-thickness: .13em; text-underline-offset: .2em; text-decoration-skip-ink: none; cursor: pointer; }
-  .ali-piilo mark.ali { text-decoration: none; cursor: inherit; }
+  /* Alleviivaus maalataan itse taustana, ei text-decorationilla (käyttäjän pyyntö 6.11.2026: kahva ja viivan sauma ei
+     ollut yhtenäinen). Selain pyöristi natiivin alleviivauksen paikan ja paksuuden rivi riviltä eri tavoin (sama teksti
+     2 tai 3 px paksuna), joten SVG-kahva ei voinut osua siihen kaavalla. Viiva on ankkuroitu merkin laatikon alareunaan
+     (background-position: 100 %; padding-bottom .0142 em nostaa alareunan viivan alareunaan, ja rivin korkeus ei muutu).
+     Väri on --ac, vaakaviiva --ali-bar (luonnoksella katkoviiva). */
+  mark.ali { --ac: var(--ruoste); --ali-h: .13em; --ali-pb: .0142em; --ali-bar: linear-gradient(var(--ac), var(--ac));
+    background: none; color: inherit; cursor: pointer; padding-bottom: var(--ali-pb); background-image: var(--ali-bar);
+    background-repeat: no-repeat; background-size: 100% var(--ali-h); background-position: 0 100%;
+    -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .ali-piilo mark.ali { background-image: none; cursor: inherit; }
+  /* Kahvan vaakaosa ja varsi (kahvaPaat() lisää luokan k-alku / k-loppu vain näkyvien kahvojen päiden merkkeihin). Ne ovat
+     saman merkin omaa taustaa eikä erillistä laatikkoa: merkki laajenee sanan reunan yli 0,185 em (padding, jonka negatiivinen
+     marginaali kumoaa, joten teksti ei liiku), viivan jatke ja varsi maalataan samassa laatikossa samalla pyöristyksellä, ja
+     ulompi kulma pyöristyy. Pseudo-elementti ei kelvannut: sen laatikko pyöristyi joillain riveillä 1 px eri tavoin kuin
+     merkin (mitattu 6.11.2026). Viivan paksuus ja varren korkeus ovat kokonaisia laitepikseleitä (kahvaMerkki() asettaa --ali-h ja
+     --ali-sh): selain pyöristää taustan koon ja paikan erikseen, ja murtoluvuilla varren pohja menee viivan pohjan ohi. slice, ettei jatke ja varsi toistu joka rivin päässä. Nuppi on SVG (#kahvat); varsi menee sen
+     alakärjen sisään. */
+  mark.ali.k-loppu, mark.ali.k-alku { -webkit-box-decoration-break: slice; box-decoration-break: slice; }
+  mark.ali.k-loppu { padding-right: .185em; margin-right: -.185em; border-bottom-right-radius: .2em;
+    background-image: var(--ali-bar), linear-gradient(var(--ac), var(--ac));
+    background-size: 100% var(--ali-h), var(--ali-h) var(--ali-sh); background-position: 0 100%, 100% 100%; }
+  mark.ali.k-alku { padding-left: .185em; margin-left: -.185em; border-bottom-left-radius: .2em;
+    background-image: var(--ali-bar), linear-gradient(var(--ac), var(--ac));
+    background-size: 100% var(--ali-h), var(--ali-h) var(--ali-sh); background-position: 0 100%, 0 100%; }
+  mark.ali.k-alku.k-loppu { background-image: var(--ali-bar), linear-gradient(var(--ac), var(--ac)), linear-gradient(var(--ac), var(--ac));
+    background-size: 100% var(--ali-h), var(--ali-h) var(--ali-sh), var(--ali-h) var(--ali-sh); background-position: 0 100%, 100% 100%, 0 100%; }
   /* Maalauskone (pilotti 5.11.2026): Luinin oma maalaus ottaa selaimen valinnan pois tekstistä, jotta selaimen
      maalausväri ei sekoitu alleviivaukseen. Luonnos (valikolla alleviivattaessa) on katkoviiva; kahvat ovat
      ruosteiset salmiakit varren alapäässä. Kahvojen kerros on palkkien alla, valikon alla ja tekstin päällä. */
   html.oma-maalaus #teksti { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   html.maalaa, html.maalaa body { overflow: hidden; }
-  mark.ali.luonnos, .ali-piilo mark.ali.luonnos { text-decoration: underline dashed var(--ruoste); text-decoration-thickness: .13em; }
+  mark.ali.luonnos { --ali-bar: repeating-linear-gradient(90deg, var(--ac) 0 .39em, transparent .39em .65em); }
+  .ali-piilo mark.ali.luonnos { background-image: var(--ali-bar); }
   /* Törmäävät alleviivaukset (käyttäjän päätös 5.11.2026): toisiinsa rajautuvat vuorottelevat ruostetta ja okraa
      (varitaAl()); ketjun vanhin on ruoste. */
-  mark.ali.okra, mark.ali.luonnos.okra, .ali-piilo mark.ali.luonnos.okra { text-decoration-color: var(--okra); }
+  mark.ali.okra { --ac: var(--okra); }
   /* Kirjauksen merkki: pieni ruosteinen kynä alleviivauksen alun yläpuolella riviväliin (piirraKirjausmerkit()). */
   .kirm { position: absolute; width: 22px; height: 22px; color: var(--ruoste); cursor: pointer; z-index: 2;
     -webkit-tap-highlight-color: transparent; }
@@ -429,10 +453,8 @@
      samassa kohdassa kuin maalauksessa. Kahvat pysyvät näkyvissä myös vedon aikana (käyttäjän päätös 5.11.2026). Nuppi on
      kapea, koska sanaväli on vain 0,2 em. */
   .kahva .k-kaari { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
-  .k-kaari .kk { fill: none; stroke: var(--ruoste); }
   .k-kaari .kn { fill: var(--ruoste); }
   /* Okra alleviivaus (varitaAl()) saa okrat kahvat: kahva on samaa väriä kuin viiva, jota se jatkaa. */
-  .kahva.okra .kk { stroke: var(--okra); }
   .kahva.okra .kn { fill: var(--okra); }
   .kahva .k-ote { position: absolute; width: 40px; height: 40px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
@@ -906,7 +928,7 @@
 </div>
 
 <div class="valikko" id="pop" hidden></div>
-<div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kk"/><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kk"/><path class="kn"/></svg><span class="k-ote"></span></div></div>
+<div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div></div>
 <div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -2585,7 +2607,25 @@
     if (!h || !h.segs.length || h.segs.some(function (s) { return s.orpo; })) return;
     kahvaH = h; kahvatEl.hidden = false; sijoitaKahvat();
   }
-  function piilotaKahvat() { kahvaH = null; if (kahvatEl) kahvatEl.hidden = true; piilotaLupa(); }
+  function piilotaKahvat() { kahvaH = null; if (kahvatEl) kahvatEl.hidden = true; kahvaPaat(); piilotaLupa(); }
+  // Viivan jatke ja varsi ovat alleviivauksen ensimmäisen ja viimeisen merkin pseudot (CSS .k-alku / .k-loppu): sama laatikko ja
+  // sama maalaus kuin viivassa, joten sauma on yhtenäinen. Luokka vain näkyvien kahvojen päihin.
+  function kahvaPaat() {
+    var mk = kahvaH ? $$('mark.ali[data-h="' + kahvaH.id + '"]', art) : [], a = mk[0], z = mk[mk.length - 1];
+    $$('mark.k-alku, mark.k-loppu', art).forEach(function (m) {
+      if (m !== a) m.classList.remove('k-alku');
+      if (m !== z) m.classList.remove('k-loppu');
+      if (m !== a && m !== z) { m.style.removeProperty('--ali-h'); m.style.removeProperty('--ali-sh'); }
+    });
+    if (a && !kahvaEl.alku.hidden) kahvaMerkki(a, 'k-alku');
+    if (z && !kahvaEl.loppu.hidden) kahvaMerkki(z, 'k-loppu');
+  }
+  function kahvaMerkki(m, luokka) {
+    var fs = parseFloat(getComputedStyle(m).fontSize) || 19, d = window.devicePixelRatio || 1;
+    function px(v) { return Math.max(1, Math.round(v * d)) / d + 'px'; }
+    m.classList.add(luokka);
+    m.style.setProperty('--ali-h', px(.13 * fs)); m.style.setProperty('--ali-sh', px(.78 * fs));
+  }
   function kahvaVari() { for (var p in kahvaEl) kahvaEl[p].classList.toggle('okra', !!(kahvaH && kahvaH.okra)); }
   function sijoitaKahvat() {
     if (!kahvaH || !nyt) return;
@@ -2593,29 +2633,23 @@
     var sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
     asetaKahva(kahvaEl.alku, kohdanLaatikko({ b: a.b, o: a.s }), false, a.b);
     asetaKahva(kahvaEl.loppu, kohdanLaatikko({ b: z.b, o: Math.max(z.s, z.e - 1) }), true, z.b);
+    kahvaPaat();
   }
-  // Kaarikahvan muoto kahvan kohdasta (sanan reuna, merkin laatikon yläreuna), x ulospäin. Alleviivauksen keskikohta
-  // mitattiin pikseleistä (5.11.2026: 19 px:llä 2 px paksu, keskikohta 0,263 em perusviivan alla, 13 px rivin keskeltä);
-  // Literatan perusviiva on 22/28 merkin laatikosta. Kaari alkaa 2 px alleviivauksen sisältä, ettei saumaan jää rakoa.
-  // Sanaväli on 0,2 em (mitattu), joten kaari ja nuppi pysyvät 0,23 em:n sisällä sanan reunasta: nupin keskikohta 0,12 em,
-  // puolileveys 0,11 em (seuraavan kirjaimen sivuväli ottaa ylityksen).
+  // Kaarikahvan nuppi kahvan kohdasta (sanan reuna, merkin laatikon yläreuna), x ulospäin. Sanaväli on 0,2 em (mitattu), joten
+  // nuppi pysyy 0,23 em:n sisällä sanan reunasta: keskikohta 0,12 em, puolileveys 0,11 em (seuraavan kirjaimen sivuväli ottaa
+  // ylityksen). Viivan jatke ja varsi eivät ole tässä vaan merkin pseudoissa (CSS), ks. kahvaPaat().
   function kahvaMuoto(h, fs) {
-    var th = Math.max(1, Math.round(.13 * fs)), uy = Math.round(h * 22 / 28) + .2 * fs + th / 2 + .25, w = .12 * fs;
-    return { th: th, uy: uy, yc: h / 2, w: w, nx: w, rx: .11 * fs, ry: .32 * fs };
+    var w = .12 * fs;
+    return { yc: h / 2, nx: w, rx: .11 * fs, ry: .32 * fs };
   }
   function asetaKahva(el, r, oikea, b) {
     el.hidden = !r;
     if (!r) return;
     var fs = parseFloat(getComputedStyle(nyt.blocks[b] || art).fontSize) || 19, g = kahvaMuoto(r.height, fs), s = oikea ? 1 : -1;
-    function f(n) { return Math.round(n * 100) / 100; }
     el.style.left = (oikea ? r.right : r.left) + 'px';
     el.style.top = r.top + 'px';
     el.style.setProperty('--kh', r.height + 'px');
-    var kk = $('.kk', el), kn = $('.kn', el), o = $('.k-ote', el);
-    // Pyöristetty kulma: vaakasuora alleviivauksen jatke kääntyy pystyyn nupin alle (kuutiollinen Bézier).
-    kk.setAttribute('d', 'M' + f(-2 * s) + ' ' + f(g.uy) + 'L0 ' + f(g.uy) + 'C' + f(s * g.w * .9) + ' ' + f(g.uy) + ' ' + f(s * g.w) + ' ' +
-      f(g.uy - (g.uy - g.yc) * .45) + ' ' + f(s * g.w) + ' ' + f(g.yc));
-    kk.style.strokeWidth = g.th + 'px';
+    var kn = $('.kn', el), o = $('.k-ote', el);
     kn.setAttribute('d', sal(s * g.nx, g.yc, g.rx, g.ry));
     // Ote 40 × 40 px nupin ympärillä, 4 px ulospäin (ettei se peitä omaa sanaa).
     o.style.left = (s * (g.nx + 4) - 20) + 'px'; o.style.top = (g.yc - 20) + 'px';
