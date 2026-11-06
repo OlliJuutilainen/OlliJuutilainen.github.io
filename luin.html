@@ -648,9 +648,12 @@
   .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
   /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
      vasemmalle, keskelle ja oikealle, yläpalkin ja navin väliin koko korkeudelle. sijoitaLaatikot() asettaa paikan ja
-     koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen (enintään 25rem)
-     ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. */
+     koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen ruudun
+     leveydestä ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. Hajurakoa ei ole
+     (käyttäjän pyyntö 6.11.2026): ylä- ja alareunana ovat palkkien viivat, ruudun reunassa ei ole reunusta, ja
+     vierekkäisten laatikoiden reunukset ovat päällekkäin. Ruudun oikeassa reunassa raksi on kiekon kohdalla kuten Asetuksissa. */
   .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--muste); z-index: 30; }
+  .navilaatikko.o-reuna .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
   .navilaatikko.lista { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
   .navilaatikko[hidden] { display: none; }
   .navilaatikko.lista header { position: static; flex: 0 0 auto; margin: 0; }
@@ -1464,9 +1467,10 @@
      Käyttäjän pyyntö 5.11.2026: Merkinnät, Sisälmys ja Etsi avautuvat x-akselilla nappiensa järjestyksessä:
      vasemmalla, keskellä ja oikealla, yläpalkin alareunasta navin (tai Palaa takaisin -laatikon) yläreunaan.
      Kun kolme vähintään 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen väliin, kukin
-     saa kolmanneksen (enintään 25rem, laidoissa Merkinnät ja Etsi, Sisälmys keskellä; käyttäjän päätös 5.11.2026: Etsistä on eniten hyötyä
+     saa kolmanneksen ruudun leveydestä (laidoissa Merkinnät ja Etsi, Sisälmys keskellä; käyttäjän päätös 5.11.2026: Etsistä on eniten hyötyä
      tekstin vieressä, Sisälmystä tarvitaan tekstin kanssa vähiten, joten se on keskellä) ja niitä voi olla auki
-     rinnakkain; leveällä ruudulla väliin jää tekstiä, jonka napautus sulkee Etsin ja Sisälmyksen. Muuten (mobiili,
+     rinnakkain; kolme yhdessä täyttävät palkkien välin reunasta reunaan (käyttäjän pyyntö 6.11.2026, ennen enintään 25rem
+     ja raot). Suljetun laatikon kohdalla näkyvän tekstin napautus sulkee Etsin ja Sisälmyksen. Muuten (mobiili,
      kavennettu ikkuna) auki on yksi kerrallaan: napin painallus sulkee avoimen laatikon ja avaa omansa samaan tilaan
      palkkien laitojen väliin. Jos ikkuna kapenee rinnakkaisten ollessa auki, jäljelle jää viimeksi avattu.
      Hyppy laatikosta (merkintä, osuma, Sisälmyksen kohta) sulkee kaikki kolme, koska keskimmäinen peittäisi tekstin;
@@ -1480,12 +1484,12 @@
     laatikkoJarj = laatikkoJarj.filter(laatikkoAuki);
     LAATIKOT.forEach(function (id) { $(LAATIKKONAPIT[id]).setAttribute('aria-expanded', String(laatikkoAuki(id))); });
   }
-  // Laitojen väli ja sarakkeiden mitat (px). rinn: kolme mahtuu rinnakkain.
+  // Ruudun leveys (px) ja rinn: kolme 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen
+  // väliin (raja on sama kuin ennen 6.11.2026, jolloin laatikot olivat laitojen välissä rakojen kera).
   function laatikkoMitat() {
     var juuri = document.documentElement, cs = getComputedStyle(juuri), rem = parseFloat(cs.fontSize) || 16;
     var vw = juuri.clientWidth, v = parseFloat(cs.getPropertyValue('--v-laita')) || 0, o = parseFloat(cs.getPropertyValue('--o-laita')) || 0;
-    var tila = vw - v - o, rako = 2 * rem, rinn = tila >= 3 * 19 * rem + 2 * rako;
-    return { vw: vw, v: v, o: o, tila: tila, rinn: rinn, w: rinn ? Math.min(25 * rem, Math.floor((tila - 2 * rako) / 3)) : tila };
+    return { vw: vw, rinn: vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
   }
   function sijoitaLaatikot() {
     if (!laatikoitaAuki()) return;
@@ -1495,19 +1499,28 @@
       LAATIKOT.forEach(function (id) { if (id !== vika) $('#' + id).hidden = true; });
       laatikotMuuttuivat();
     }
-    // Pystysuunnassa näkyvän yläpalkin ja navin väliin (navi kiinni: alapalkin kaista), Palaa takaisin -laatikon
-    // yläpuolelle, ja näppäimistön ollessa auki näkyvälle alueelle.
-    var VALI = 12, vv = window.visualViewport, yp = $('.ylapalkki').getBoundingClientRect(), mj = $('#majakka');
-    var yla = Math.max(yp.height ? yp.bottom : 0, vv ? vv.offsetTop : 0) + VALI;
-    var ala = (mj.hidden ? $('#ala') : mj).getBoundingClientRect().top;
+    // Pystysuunnassa näkyvän yläpalkin alareunasta navin (navi kiinni: alapalkin kaistan) yläreunaan ilman rakoa; palkkien
+    // viivat ovat laatikon ylä- ja alareuna. Näppäimistön ollessa auki näkyvän alueen reunaan. Palaa takaisin -laatikko
+    // kelluu navin yläpuolella, joten sen ollessa näkyvissä laatikko päättyy reunukseen sen yläpuolelle majakan oman
+    // välin (10 px) päähän.
+    var vv = window.visualViewport, yp = $('.ylapalkki').getBoundingClientRect(), mj = $('#majakka');
+    var yla = Math.round(Math.max(yp.height ? yp.bottom : 0, vv ? vv.offsetTop : 0));
+    var ala = mj.hidden ? $('#ala').getBoundingClientRect().top : mj.getBoundingClientRect().top - 10;
     if (vv) ala = Math.min(ala, vv.offsetTop + vv.height);
-    ala -= VALI;
+    ala = Math.round(ala);
+    // Vaakasuunnassa kolmannekset ruudun reunasta reunaan; yksi kerrallaan koko leveys. Vierekkäisten reunukset päällekkäin.
+    var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw];
     LAATIKOT.forEach(function (id, i) {
       var el = $('#' + id);
       if (el.hidden) return;
-      var x = !m.rinn || i === 0 ? m.v : i === 2 ? m.vw - m.o - m.w : m.v + (m.tila - m.w) / 2;
-      el.style.left = Math.round(x) + 'px'; el.style.width = Math.round(m.w) + 'px';
-      el.style.top = Math.round(yla) + 'px'; el.style.height = Math.max(120, Math.round(ala - yla)) + 'px';
+      var x0 = m.rinn ? raja[i] - (i ? 1 : 0) : 0, x1 = m.rinn ? raja[i + 1] : m.vw;
+      el.style.left = x0 + 'px'; el.style.width = (x1 - x0) + 'px';
+      el.style.top = yla + 'px'; el.style.height = Math.max(120, ala - yla) + 'px';
+      el.style.borderTopWidth = '0';
+      el.style.borderBottomWidth = mj.hidden ? '0' : '1px';
+      el.style.borderLeftWidth = x0 <= 0 ? '0' : '1px';
+      el.style.borderRightWidth = x1 >= m.vw ? '0' : '1px';
+      el.classList.toggle('o-reuna', x1 >= m.vw);
     });
   }
   function suljeLaatikko(id) { $('#' + id).hidden = true; laatikotMuuttuivat(); }
