@@ -535,7 +535,7 @@ palvelin.listen(0, async () => {
   tulos('kirjanmerkin nauha aikajanalla', kmjT[0].piirretty && kmjT[0].k === kmj.b + ':0' && kmjT[1].k === kmj.b + ':0' && kmjT[2].k !== kmj.b + ':0',
     'kirjanmerkki ' + kmj.b + ':0; nauha −2,5 px → ' + kmjT[0].k + ', +2,5 px → ' + kmjT[1].k + ', viiva +2,5 px → ' + kmjT[2].k);
 
-  // Paluumajakka: hyppy jättää majakan (laatikon vain lähdeviittaus, 6.11.2026), paluu vie samaan kohtaan ja poistaa sen,
+  // Paluumajakka: hyppy jättää majakan (laatikon lähdeviittaus, haku ja aikajana ≥ 50 %, 6.11.2026), paluu vie samaan kohtaan ja poistaa sen,
   // pieni hyppy ei jätä.
   const mj = await p.evaluate(async () => {
     const L = window.__luin, n = L.nyt().blocks.length, nakyy = () => !document.getElementById('majakka').hidden;
@@ -549,7 +549,7 @@ palvelin.listen(0, async () => {
     const ylos = document.getElementById('majakka').classList.contains('ylos');
     document.getElementById('majakka-palaa').click(); await odota();
     const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
-    // Aikajanalta tehty hyppy: alle 10 % ei jätä mitään, muuten vain kummitusmerkin, myös yli 50 %:n matkalla (6.11.2026).
+    // Aikajanalta tehty hyppy: alle 10 % ei jätä mitään, 10–50 % vain kummitusmerkin, yli 50 % myös laatikon (22.10.2026).
     const N = L.nyt(), kummi = () => !!L.majakka() && !!document.querySelector('#jana-svg .j-majakka');
     const kohdassa = osuus => { const i = N.cum.findIndex(c => c / N.total >= osuus); return Math.max(i, 1); };
     const hyppyJanalta = async (lahto, osuus) => {
@@ -559,7 +559,7 @@ palvelin.listen(0, async () => {
       return { maj: !!L.majakka(), laatikko: nakyy() };
     };
     const j5 = await hyppyJanalta(0, 0.05), j30 = await hyppyJanalta(0, 0.3), j90 = await hyppyJanalta(0, 0.9);
-    const pieni = !j5.maj, alle50 = j30.maj && !j30.laatikko, yli50 = j90.maj && !j90.laatikko && kummi();
+    const pieni = !j5.maj, alle50 = j30.maj && !j30.laatikko, yli50 = j90.maj && j90.laatikko && kummi();
     // Muu kuin aikajanan hyppy ei kuulu kynnyksiin: pieni siirtymäkin jättää kummituksen, mutta ei laatikkoa.
     window.scrollTo(0, 0); await odota(); await odota();
     L.hyppaa({ b: kohdassa(0.05), o: 0 }); await odota();
@@ -568,9 +568,13 @@ palvelin.listen(0, async () => {
     window.scrollTo(0, 0); await odota(); await odota();
     L.hyppaa({ b: kohdassa(0.05), o: 0 }, false, false, 'lahde'); await odota();
     const lahde = kummi() && nakyy();
-    return { iso, ylos, takaisin, pieni, alle50, yli50, muu, lahde, j5, j30, j90 };
+    // Haku jättää laatikon (toistaiseksi, 6.11.2026).
+    window.scrollTo(0, 0); await odota(); await odota();
+    L.hyppaa({ b: kohdassa(0.05), o: 0 }, true); await odota();
+    const haku = kummi() && nakyy();
+    return { iso, ylos, takaisin, pieni, alle50, yli50, muu, lahde, haku, j5, j30, j90 };
   });
-  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.yli50 && mj.muu && mj.lahde, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.yli50 && mj.muu && mj.lahde && mj.haku, JSON.stringify(mj));
 
   // Sisällysluettelon linkki ei jätä majakkaa, vaikka vie kirjan loppuun (22.10.2026).
   const sl = await p.evaluate(async () => {
