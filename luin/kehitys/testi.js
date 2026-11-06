@@ -3,7 +3,7 @@
 // Käynnistää oman tiedostopalvelimen, syöttää tekstin Latomon tavoin (luin-tuonti → #tuo)
 // ja mittaa: rakenteen, sivutuksen (leikkautuvat rivit), koon muutoksen paluun samaan
 // kohtaan, alleviivauksen ja kirjauksen säilymisen, merkintöjen viennin, aikajanan hypyn, haun,
-// paluumajakan, siirtymien kumouksen, palkit ja navin laatikot (mobiili 412 ja 360 px, työpöytä 1280 ja 1440 px).
+// paluumajakan, palkit ja navin laatikot (mobiili 412 ja 360 px, työpöytä 1280 ja 1440 px).
 // Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
@@ -759,16 +759,15 @@ palvelin.listen(0, async () => {
   const seK = await mob360.evaluate(() => document.querySelector('#sivu-se').getBoundingClientRect().height);
   await kaista360();
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026): 360 px:llä laatikkonapit mahtuvat alapalkkiin vain ilman palkkinuolta;
-  // kirjanmerkki ja sivunapit ovat piilossa, ja kumonapit ovat yksin aikajanan alla.
+  // kirjanmerkki ja sivunapit ovat piilossa, eikä aikajanan alle jää riviä. Siirtymien kumousta ei ole (poistettu 6.11.2026).
   const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), nakyy = s => document.querySelector(s).getClientRects().length > 0;
     const napit = ['#merk-avaa', '#sis-avaa', '#etsi-avaa'].map(q), pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
-    const ku = q('#kumonapit');
     return { alas: !!document.querySelector('#ala-rivi #etsi-avaa'), nuoli: nakyy('#palkki-nuoli'), km: nakyy('#km-nappi'), sn: nakyy('#sivunapit'),
       paalla: pa(napit[0], napit[1]) || pa(napit[1], napit[2]), oikea: +(innerWidth - napit[2].right).toFixed(2), korkeus: [document.querySelector('#merk-avaa').getBoundingClientRect().height],
-      kumo: nakyy('#kumonapit') ? [ku.left, Math.round(ku.height)] : null }; });
+      rivi: getComputedStyle(document.querySelector('.jana-napit')).display, kumo: !!document.querySelector('#kumonapit, #kumo-kytkin') }; });
   m3.korkeus.unshift(seK);
-  tulos('laatikkonapit alapalkissa ilman nuolta (360 px), kumonapit aikajanan alla', m3.alas && !m3.nuoli && !m3.km && !m3.sn && !m3.paalla && m3.oikea >= 17 &&
-    m3.kumo && m3.kumo[0] === 17, JSON.stringify(m3));
+  tulos('laatikkonapit alapalkissa ilman nuolta (360 px), aikajanan alla ei riviä', m3.alas && !m3.nuoli && !m3.km && !m3.sn && !m3.paalla && m3.oikea >= 17 &&
+    m3.rivi === 'none' && !m3.kumo, JSON.stringify(m3));
   // Mobiilissa laidat 17 px kummallakin puolella marginaalista riippumatta (tässä Reilu).
   const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
   tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
@@ -824,88 +823,6 @@ palvelin.listen(0, async () => {
   tulos('Sisälmys', sg.oikealla && sg.rivi && sg.h && /sisalmys/.test(ss1.pop) && ss1.navi && !ss2.pop && ss2.navi && ss2.s === ss1.s && !ss3.pop && ss3.navi && !ss4.pop && ss4.navi && ss4.s > ss1.s && ss4.maj,
     JSON.stringify({ sg, ss1, ss2, ss3, ss4 }));
   await mob360.context().close();
-
-  // Siirtymien kumous (käyttäjän pyynnöt 5.11.2026). Oletuksena kumonapit näkyvät vain sivunappien kanssa; kytkin näyttää ne
-  // vain sivutettuna, vierityksessä ei nappeja eikä kytkintä (6.11.2026). Pieni pari on navinäkymässä Sisälmyksen oikealla puolella samalla rivillä ja keskitettynä siihen,
-  // vain jos mahtuu (412 px kyllä, 360 px ei, myös ikkunan koon muuttuessa); alapalkissa sitä ei ole. Hyppy kumoutuu ja tehdään
-  // uudelleen samalle sivulle, nopea sivusarja kumoutuu kerralla ja hidas sivu kerrallaan, uusi siirtymä tyhjentää uudelleen
-  // tehtävät.
-  const ku = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
-  ku.on('pageerror', e => sivuvirheet.push(e.message));
-  const kuAset = async a => { await ku.evaluate(a => localStorage.setItem('luin-asetukset', JSON.stringify(Object.assign({ av: 5 }, a))), a); await ku.reload(); await ku.waitForTimeout(500); };
-  await ku.goto(BASE + 'luin.html');
-  await ku.evaluate(md => localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })), MD);
-  await ku.goto(BASE + 'luin.html#tuo'); await ku.waitForTimeout(600);
-  const kaistaK = async () => { const v = await ku.evaluate(() => { const k = document.querySelector('#km-nappi').getBoundingClientRect(), n = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: (k.right + n.left) / 2, y: k.top + k.height / 2 }; });
-    await ku.mouse.click(v.x, v.y); await ku.waitForTimeout(100); };
-  const naviAuki = async () => { if (await ku.evaluate(() => document.querySelector('#jana').hidden)) await kaistaK(); };
-  const kNakyy = () => ku.evaluate(() => { const e = document.querySelector('#kumonapit'); return !e.hidden && getComputedStyle(e).display !== 'none'; });
-  await kuAset({ sivutus: 'sivut' }); await naviAuki(); const kn1 = await kNakyy();
-  await kuAset({ sivutus: 'sivut', sivunapit: 1 }); await naviAuki(); const kn2 = await kNakyy();
-  await kuAset({ sivutus: 'vieritys', sivunapit: 1 }); await naviAuki(); const kn3 = await kNakyy();
-  tulos('kumonapit oletuksena vain sivunappien kanssa', !kn1 && kn2 && !kn3, JSON.stringify([kn1, kn2, kn3]));
-  await kuAset({ sivutus: 'sivut', sivunapit: 1 });
-  const kiinni = await ku.evaluate(() => !document.querySelector('#ala-rivi #kumonapit') && document.querySelector('#kumonapit').getBoundingClientRect().width === 0);
-  await naviAuki();
-  // Ahtaassa navinäkymässä (6.11.2026) laatikkonapit ovat alapalkissa, ja kumonapit jäävät yksin aikajanan alle palkkien vasempaan laitaan.
-  const kul = await ku.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), si = q('#etsi-avaa'), pa = q('#kumonapit'), n = q('.jana-napit');
-    const ta = q('#kumo-taakse'), id = (x, y) => { const e = document.elementFromPoint(x, y); return e && (e.closest('button') || e).id; };
-    return { vasen: pa.left, alas: !!document.querySelector('#ala-rivi #etsi-avaa'), keski: +((pa.top + pa.bottom) / 2 - (si.top + si.bottom) / 2).toFixed(2), korkeus: pa.height, leveys: pa.width,
-      rivi: n.height, oikea: +(innerWidth - pa.right).toFixed(2), osumat: [id(ta.left + ta.width / 2, ta.top + ta.height / 2), id(ta.left + ta.width / 2, pa.top - 4), id(pa.right - 5, pa.bottom + 4)] }; });
-  tulos('kumonappien paikka navinäkymässä (412 px)', kiinni && kul.alas && kul.vasen === 17 && kul.korkeus === 24 && kul.rivi === 24 && kul.oikea >= 17 &&
-    JSON.stringify(kul.osumat) === JSON.stringify(['kumo-taakse', 'kumo-taakse', 'kumo-eteen']), JSON.stringify({ kiinni, kul }));
-  await ku.setViewportSize({ width: 360, height: 740 }); await ku.waitForTimeout(400); await naviAuki();
-  const kr1 = await kNakyy(), kr1rivi = await ku.evaluate(() => document.querySelector('.jana-napit').getBoundingClientRect().height);
-  await ku.setViewportSize({ width: 412, height: 824 }); await ku.waitForTimeout(400); await naviAuki();
-  const kr2 = await kNakyy();
-  tulos('kumonapit aikajanan alla myös 360 px:llä (laatikkonapit alapalkissa)', kr1 && kr1rivi === 24 && kr2, JSON.stringify([kr1, kr1rivi, kr2]));
-  const kut = () => ku.evaluate(() => { const L = window.__luin; return { s: L.tila.sivu, t: document.querySelector('#kumo-taakse').getAttribute('aria-disabled') === 'false',
-    e: document.querySelector('#kumo-eteen').getAttribute('aria-disabled') === 'false', maj: !!L.majakka(), jana: !document.querySelector('#jana').hidden }; });
-  await kuAset({ sivutus: 'sivut', sivunapit: 1 });
-  await ku.evaluate(() => window.__luin.mene({ b: 20, o: 0 })); await ku.waitForTimeout(100);
-  await naviAuki();
-  const kh0 = await kut();
-  await ku.click('#kumo-taakse', { force: true }); await ku.waitForTimeout(50);   // ei mitään kumottavaa: ei tee mitään
-  const kh0b = await kut();
-  await ku.evaluate(() => { const L = window.__luin; L.hyppaa({ b: L.nyt().blocks.length - 1, o: 0 }); }); await ku.waitForTimeout(100);
-  const kh1 = await kut();
-  await ku.click('#kumo-taakse'); await ku.waitForTimeout(100);
-  const kh2 = await kut();
-  await ku.click('#kumo-eteen'); await ku.waitForTimeout(100);
-  const kh3 = await kut();
-  tulos('hypyn kumous ja uudelleen', !kh0.t && !kh0.e && kh0b.s === kh0.s && kh0b.jana && kh1.s > kh0.s && kh1.t && !kh1.e && kh1.maj &&
-    kh2.s === kh0.s && !kh2.t && kh2.e && !kh2.maj && kh2.jana && kh3.s === kh1.s && kh3.t && !kh3.e && kh3.jana, JSON.stringify([kh0, kh0b, kh1, kh2, kh3]));
-  // Sivusarja: kolme nopeaa käännöstä = yksi siirtymä; kaksi yli 2 s:n välein = kaksi; uusi siirtymä tyhjentää uudelleen tehtävät.
-  await ku.evaluate(() => window.__luin.mene({ b: 20, o: 0 })); await ku.waitForTimeout(100);
-  const ks0 = (await kut()).s;
-  for (let i = 0; i < 3; i++) await ku.keyboard.press('ArrowRight');
-  const ks1 = (await kut()).s;
-  await ku.click('#kumo-taakse'); await ku.waitForTimeout(50);
-  const ks2 = await kut();
-  await ku.keyboard.press('ArrowRight'); const ks3 = await kut();
-  await ku.waitForTimeout(2100); await ku.keyboard.press('ArrowRight'); await ku.waitForTimeout(50);
-  await ku.click('#kumo-taakse'); await ku.waitForTimeout(50); const ks4 = await kut();
-  tulos('sivusarjan kumous', ks1 === ks0 + 3 && ks2.s === ks0 && ks2.e && !ks3.e && ks3.s === ks0 + 1 && ks4.s === ks0 + 1, JSON.stringify({ ks0, ks1, ks2, ks3, ks4 }));
-  // Kytkin: ilman sivunappeja päälle; Sivunkäännön lisäkytkinten linjassa ja koossa, pienellä raolla. Vierityksessä
-  // kytkin ja napit piilossa, valinta säilyy.
-  await kuAset({ sivutus: 'sivut' });
-  await naviAuki(); await ku.click('#lukija .ratas');
-  await ku.click('#asetukset button[data-kytkin="kumoNapit"]'); await ku.waitForTimeout(50);
-  const kk1 = await ku.evaluate(() => { const q = s => document.querySelector(s), k = q('#asetukset button[data-kytkin="kumoNapit"]'),
-    p = q('#asetukset button[data-kytkin="sivunapit"]'), r = e => e.getBoundingClientRect();
-    return { a: window.__luin.aset.kumoNapit, p: k.getAttribute('aria-pressed'), teksti: k.textContent, linja: r(k.querySelector('svg')).left - r(p.querySelector('svg')).left,
-      koko: getComputedStyle(k).fontSize + '/' + getComputedStyle(p).fontSize, rako: Math.round(r(k).top - r(p).bottom) }; });
-  await ku.click('#asetukset .sulje'); await naviAuki();
-  const kk2 = await kNakyy();
-  await ku.click('#lukija .ratas');
-  await ku.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await ku.waitForTimeout(100);
-  const kk3 = await ku.evaluate(() => { const k = document.querySelector('#asetukset button[data-kytkin="kumoNapit"]'); return { naky: !!k.offsetParent, a: window.__luin.aset.kumoNapit }; });
-  await ku.click('#asetukset .sulje'); await naviAuki();
-  const kk4 = await kNakyy();
-  tulos('kumonappien kytkin vain sivutettuna', kk1.a === 1 && kk1.p === 'true' && kk1.teksti === 'Näytä edellisen ja seuraavan kohdan kytkimet' &&
-    Math.abs(kk1.linja) < 0.5 && kk1.koko.split('/')[0] === kk1.koko.split('/')[1] && kk1.rako > 0 && kk1.rako < 10 && kk2 && !kk3.naky && kk3.a === 1 && !kk4,
-    JSON.stringify({ kk1, kk2, kk3, kk4 }));
-  await ku.context().close();
 
   // Light Phone (360 × 413, 29.10.2026). Vierityksessä sivu ei levene sivusuunnassa: ylipitkät sanat ja osoitteet katkeavat
   // (SEP:n Dewey-leike oli 690 px leveä), myös suurimmalla kirjasinkoolla. Verkkolinkit ovat oletuksena tavallista tekstiä,
