@@ -55,6 +55,8 @@ const S = {
   ethos: { pop: 30, en: ['Noun', 'character of a people'], grc: ['Noun', 'custom, habit'] },
   // Translingual (mul) kuten oikeassa rajapinnassa: ISO 639 -kielikoodit ja symbolit (mitattu 6.11.2026).
   as: { pop: 98, mul: ['Symbol', ['Symbol for attosecond.', 'ISO 639-1 language code for Assamese.']], en: ['Conjunction', 'to such an extent'], fi: ['Noun', '(music) A-flat'], af: ['Noun', 'axle'] },
+  // As kuten oikeassa rajapinnassa: englanniksi vain taivutusviittaus (plural of A), Translingual arseeni.
+  As: { pop: 60, mul: ['Symbol', 'Symbol for arsenic.'], en: ['Noun', { muoto: 'plural of', k: 'A' }] },
   to: { pop: 97, mul: ['Symbol', 'ISO 639-1 language code for Tongan.'], en: ['Preposition', 'in the direction of'] },
   km: { pop: 50, mul: ['Symbol', ['Symbol for kilometre.', 'ISO 639-1 language code for Khmer.']], da: ['Noun', 'abbreviation of kilometer'] },
   jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
@@ -251,7 +253,7 @@ palvelin.listen(0, async () => {
   r = await selita('to', 'As we');
   tulos('en: to vain englantia, ei Translingualia', ainoa(r, 'to', 'English') && !/Translingual|Tongan/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
   r = await selita('As', 'As we');
-  tulos('en: As virkkeen alussa → as, vain englantia', ainoa(r, 'as', 'English') && !/attosecond|Assamese/.test(r.maar.join()), JSON.stringify(r));
+  tulos('en: As virkkeen alussa → as ensin (määritelmä ennen taivutusviittausta plural of A), vain englantia', r.ots === 'as' && r.kielet.length === 2 && r.kielet.every(k => k.startsWith('English')) && /to such an extent/.test(r.maar[0]) && /plural of A/.test(r.maar[1]) && !/attosecond|Assamese|arsenic/.test(r.maar.join()), JSON.stringify(r));
   // Tekstin kielen pikkusana ei liudu kursiivissa eikä lyhyessä lainauksessa (käyttäjän palaute 6.11.2026: as toi suomen
   // as-sävelen englannin ja Translingualin perään).
   r = await selita('as', 'They read#0');

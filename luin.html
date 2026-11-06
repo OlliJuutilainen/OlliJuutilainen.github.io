@@ -3565,8 +3565,11 @@
       var kk = rajaa || '*';
       var os = muodot.map(function (m, i) { return { o: m, j: js[i], kielet: kk }; }).filter(function (x) { return x.j && skOnKieli(x.j, kk); });
       if (!os.some(function (x) { return skOnKieli(x.j, k); })) return null;
-      // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026).
-      os.sort(function (a, z) { return (skOnKieli(z.j, k) ? 1 : 0) - (skOnKieli(a.j, k) ? 1 : 0); });
+      // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026). Sitten
+      // määritelmä ennen pelkkää taivutusviittausta (käyttäjän palaute 6.11.2026: virkkeen alun As on englanniksi vain
+      // plural of A, joten as tulee ensin; erisnimi kuten Kant on lemma ja pysyy ensin). Muuten tekstin muoto ensin.
+      var muotoVain = function (x) { return skPerusmuoto(x.j, kk) ? 1 : 0; };
+      os.sort(function (a, z) { return (skOnKieli(z.j, k) ? 1 : 0) - (skOnKieli(a.j, k) ? 1 : 0) || muotoVain(a) - muotoVain(z); });
       return { tapa: tapa, osumat: os };
     });
   }
