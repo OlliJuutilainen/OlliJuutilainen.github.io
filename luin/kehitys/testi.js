@@ -535,20 +535,21 @@ palvelin.listen(0, async () => {
   tulos('kirjanmerkin nauha aikajanalla', kmjT[0].piirretty && kmjT[0].k === kmj.b + ':0' && kmjT[1].k === kmj.b + ':0' && kmjT[2].k !== kmj.b + ':0',
     'kirjanmerkki ' + kmj.b + ':0; nauha −2,5 px → ' + kmjT[0].k + ', +2,5 px → ' + kmjT[1].k + ', viiva +2,5 px → ' + kmjT[2].k);
 
-  // Paluumajakka: iso hyppy jättää majakan, paluu vie samaan kohtaan ja poistaa sen, pieni hyppy ei jätä.
+  // Paluumajakka: hyppy jättää majakan (laatikon vain lähdeviittaus, 6.11.2026), paluu vie samaan kohtaan ja poistaa sen,
+  // pieni hyppy ei jätä.
   const mj = await p.evaluate(async () => {
     const L = window.__luin, n = L.nyt().blocks.length, nakyy = () => !document.getElementById('majakka').hidden;
     const odota = () => new Promise(r => setTimeout(r, 300));
     // Edellisen hypyn hiljainen jakso (250 ms) ohittaisi vierityksen, jolloin ankkuri jäisi vanhaksi.
     await odota(); window.scrollTo(0, 1000); await odota();
     const a = Object.assign({}, L.tila.ankkuri), y = scrollY;
-    L.hyppaa({ b: n - 1, o: 0 }); await odota();
+    L.hyppaa({ b: n - 1, o: 0 }, false, false, 'lahde'); await odota();
     const iso = nakyy();
     // Lähtökohta jäi taakse: nuoli ylös.
     const ylos = document.getElementById('majakka').classList.contains('ylos');
     document.getElementById('majakka-palaa').click(); await odota();
     const takaisin = L.tila.ankkuri.b === a.b && L.tila.ankkuri.o === a.o && Math.abs(scrollY - y) < 2 && !nakyy();
-    // Aikajanalta tehty hyppy: alle 10 % ei jätä mitään, 10–50 % vain kummitusmerkin, yli 50 % myös laatikon (22.10.2026).
+    // Aikajanalta tehty hyppy: alle 10 % ei jätä mitään, muuten vain kummitusmerkin, myös yli 50 %:n matkalla (6.11.2026).
     const N = L.nyt(), kummi = () => !!L.majakka() && !!document.querySelector('#jana-svg .j-majakka');
     const kohdassa = osuus => { const i = N.cum.findIndex(c => c / N.total >= osuus); return Math.max(i, 1); };
     const hyppyJanalta = async (lahto, osuus) => {
@@ -558,14 +559,18 @@ palvelin.listen(0, async () => {
       return { maj: !!L.majakka(), laatikko: nakyy() };
     };
     const j5 = await hyppyJanalta(0, 0.05), j30 = await hyppyJanalta(0, 0.3), j90 = await hyppyJanalta(0, 0.9);
-    const pieni = !j5.maj, alle50 = j30.maj && !j30.laatikko, yli50 = j90.maj && j90.laatikko;
-    // Muu kuin aikajanan hyppy ei kuulu kynnyksiin: pieni siirtymäkin jättää kummituksen ja laatikon.
+    const pieni = !j5.maj, alle50 = j30.maj && !j30.laatikko, yli50 = j90.maj && !j90.laatikko && kummi();
+    // Muu kuin aikajanan hyppy ei kuulu kynnyksiin: pieni siirtymäkin jättää kummituksen, mutta ei laatikkoa.
     window.scrollTo(0, 0); await odota(); await odota();
     L.hyppaa({ b: kohdassa(0.05), o: 0 }); await odota();
-    const muu = !!L.majakka() && nakyy();
-    return { iso, ylos, takaisin, pieni, alle50, yli50, muu, j5, j30, j90 };
+    const muu = kummi() && !nakyy();
+    // Lähdeviittaus jättää laatikon pienelläkin siirtymällä.
+    window.scrollTo(0, 0); await odota(); await odota();
+    L.hyppaa({ b: kohdassa(0.05), o: 0 }, false, false, 'lahde'); await odota();
+    const lahde = kummi() && nakyy();
+    return { iso, ylos, takaisin, pieni, alle50, yli50, muu, lahde, j5, j30, j90 };
   });
-  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.yli50 && mj.muu, JSON.stringify(mj));
+  tulos('paluumajakka', mj.iso && mj.ylos && mj.takaisin && mj.pieni && mj.alle50 && mj.yli50 && mj.muu && mj.lahde, JSON.stringify(mj));
 
   // Sisällysluettelon linkki ei jätä majakkaa, vaikka vie kirjan loppuun (22.10.2026).
   const sl = await p.evaluate(async () => {
@@ -774,8 +779,9 @@ palvelin.listen(0, async () => {
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
   // Sisälmys (4.11.2026): Merkintöjen ja Etsin välissä samalla rivillä (5.11.2026), laatikko auki napista; napin painallus
   // uudelleen sulkee vain laatikon (navi auki, sivu sama; mobiilissa laatikko peittää koko tekstialueen 6.11.2026 alkaen,
-  // joten tekstin napautusta ei voi kokeilla); raksi sulkee; kohdan valinta hyppää ja jättää majakan.
-  const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#sisalmys').hidden ? '' : 'sisalmys', s: window.__luin.tila.sivu, maj: !!window.__luin.majakka() }));
+  // joten tekstin napautusta ei voi kokeilla); raksi sulkee; kohdan valinta hyppää ja jättää majakan, mutta ei Palaa takaisin
+  // -laatikkoa (käyttäjän päätös 6.11.2026).
+  const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#sisalmys').hidden ? '' : 'sisalmys', s: window.__luin.tila.sivu, maj: !!window.__luin.majakka(), laatikko: !document.querySelector('#majakka').hidden }));
   if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await kaista360();
   const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: e.left > s.right, rivi: s.top === e.top, h: s.height === e.height }; });
   await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
@@ -786,6 +792,8 @@ palvelin.listen(0, async () => {
   const ss3 = await sisT();
   await mob360.click('#sis-avaa'); await mob360.click('#sisalmys .s-kohta:last-child'); await mob360.waitForTimeout(300);
   const ss4 = await sisT();
+  // Lähdeviittauksen laatikko seuraavaa testiä varten (laatikon alareunus 10 px sen yläpuolella).
+  await mob360.evaluate(async () => { window.__luin.hyppaa({ b: 0, o: 0 }, false, false, 'lahde'); await new Promise(r => setTimeout(r, 300)); });
   // Navin laatikot mobiilissa (käyttäjän pyyntö 5.11.2026): yksi kerrallaan ruudun reunasta reunaan, yläpalkin ja navin
   // välissä ilman rakoa ja reunusta (6.11.2026; Palaa takaisin -laatikon ollessa näkyvissä reunus 10 px sen yläpuolella);
   // toisen napin painallus vaihtaa laatikon samaan tilaan, saman napin painallus sulkee.
@@ -820,7 +828,7 @@ palvelin.listen(0, async () => {
     JSON.stringify([lk1, lk2, lk3]));
   tulos('paljas alapalkki sulkee laatikon ja navin', lkOk(lk4, 'haku') && !lk5.navi && !lk5.yla && !lk5.auki.length && lk5.km && lk6.jana && lk6.varit.every(c => c === lk6.varit[0]),
     JSON.stringify({ lk4, lk5, lk6 }));
-  tulos('Sisälmys', sg.oikealla && sg.rivi && sg.h && /sisalmys/.test(ss1.pop) && ss1.navi && !ss2.pop && ss2.navi && ss2.s === ss1.s && !ss3.pop && ss3.navi && !ss4.pop && ss4.navi && ss4.s > ss1.s && ss4.maj,
+  tulos('Sisälmys', sg.oikealla && sg.rivi && sg.h && /sisalmys/.test(ss1.pop) && ss1.navi && !ss2.pop && ss2.navi && ss2.s === ss1.s && !ss3.pop && ss3.navi && !ss4.pop && ss4.navi && ss4.s > ss1.s && ss4.maj && !ss4.laatikko,
     JSON.stringify({ sg, ss1, ss2, ss3, ss4 }));
   await mob360.context().close();
 

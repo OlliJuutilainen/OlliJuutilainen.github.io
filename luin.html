@@ -3956,9 +3956,9 @@
   });
 
   /* ---------- paluumajakka ----------
-     Käyttäjän pyyntö 21.10.2026: kun linkki (lähdeviittaus, sisällysluettelo), aikajana, merkintälista tai
-     haku vie kauas, lähtökohtaan jää majakka: alapalkin yläpuolelle laatikko Palaa takaisin ja aikajanalle
-     kummitusmerkki. Kauas = sivutettuna vähintään kaksi sivua, vierityksessä vähintään kaksi ruudullista;
+     Käyttäjän pyyntö 21.10.2026: kun linkki (lähdeviittaus, Sisälmys), aikajana, merkintälista tai
+     haku vie kauas, lähtökohtaan jää majakka: aikajanalle kummitusmerkki ja lähdeviittauksesta myös
+     alapalkin yläpuolelle laatikko Palaa takaisin. Kauas = sivutettuna vähintään kaksi sivua, vierityksessä vähintään kaksi ruudullista;
      lähemmäs pääsee yhdellä sivunkäännöllä. Majakka katoaa vain raksista, paluusta, tekstin napautuksesta
      (myös sivunkääntönapautuksesta) tai uudesta isosta hypystä, jonka lähtökohdasta tulee uusi majakka.
      Pyyhkäisy, näppäimet, sivunapit ja vieritys eivät poista sitä. Peräkkäiset hakuosumat säilyttävät
@@ -3967,12 +3967,12 @@
     var ed = tila.ankkuri && Object.assign({}, tila.ankkuri), sivut = aset.sivutus === 'sivut', p0 = tila.sivu, y0 = scrollY;
     mene(k, ylaPeitto() && YLA + ylaPeitto());
     if (!ed || eiMajakkaa) return;
-    // Kynnykset ovat aikajanan omia (käyttäjän päätös 22.10.2026): aikajanalta tehty hyppy jättää kummitusmerkin
-    // vähintään 10 %:n ja laatikon vähintään 50 %:n matkalla (osuus kirjan pituudesta). Muulla hypyllä
-    // (lähdeviittaus, haku, Merkinnät) ei ole kynnystä: kummitus ja laatikko tulevat aina, kun näkymä siirtyy.
-    var siirtyi = sivut ? tila.sivu !== p0 : Math.abs(scrollY - y0) >= 1, matka = Math.abs(osuus(ed) - osuus(k)), maj, laatikko;
-    if (tapa === 'jana') { maj = matka >= 0.1; laatikko = matka >= 0.5; }
-    else maj = laatikko = siirtyi;
+    // Palaa takaisin -laatikko vain lähdeviittauksesta eli bibliohypystä (käyttäjän päätös 6.11.2026; ennen
+    // myös Sisälmys, haku, Merkinnät, kyltti ja aikajana yli 50 %:n matkalla). Muut hypyt jättävät vain
+    // kummitusmerkin: aikajanalta vähintään 10 %:n matkalla (osuus kirjan pituudesta, 22.10.2026), muut aina,
+    // kun näkymä siirtyy.
+    var siirtyi = sivut ? tila.sivu !== p0 : Math.abs(scrollY - y0) >= 1, matka = Math.abs(osuus(ed) - osuus(k));
+    var maj = tapa === 'jana' ? matka >= 0.1 : siirtyi, laatikko = maj && tapa === 'lahde';
     if (!maj || haku && nyt.majakka && nyt.majakka.haku) return;
     // Vierityksessä myös tarkka kohta: ankkuri on rivi y = YLA:ssa, ja ylimmän rivin ollessa
     // lohkojen välissä (esim. sisällysluettelo) mene() vierittäisi seuraavan lohkon ylös.
