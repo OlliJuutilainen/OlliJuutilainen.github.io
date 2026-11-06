@@ -20,6 +20,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   tarkista käyttöohje.
 - `luin/ohje.md`: kehittäjän opas, avautuu `luin.html#u=luin/ohje.md`. Lukulistassa siihen ei ole linkkiä (käyttäjän
   päätös: pois julkisivusta, ei piiloteta repossa).
+- `luin/lisaosa/` (*Lisää lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
+  koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
+  jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Leikkeen muoto on Latomon ohjeen suositeltu MarkDownload-muoto
+  korvamerkkeineen, jotta Latomon MarkDownload-tila siivoaa sen; muuta niitä yhdessä. Lukevasta osasta käytetään
+  sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu neljään sivuun (luin.html, Latomo, Latomon ohje,
   käyttöohje). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
@@ -204,6 +209,8 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/latomo-testi.js [kuvakansio]`: Latomo selaimessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]`: lukija selaimessa (esim. tutkielmalla
   ja oppaalla). Sivun testikoukku on `window.__luin`.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]`: lisäosa Chromiumissa artikkelista
+  lukulistaan. `luin/kehitys/vertaa-markdownload.js sivu.html osoite`: lisäosa vs. MarkDownload Latomon läpi.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista 429:n (myös kohteliaalla User-Agentilla ja odottaen), joten oikeaa rajapintaa ei voi
