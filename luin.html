@@ -25,8 +25,8 @@
     font-weight: 380 700; font-style: normal; font-display: swap; }
   @font-face { font-family: Literata; src: url(luin/fontit/literata-kursiivi.woff2) format("woff2");
     font-weight: 380 700; font-style: italic; font-display: swap; }
-  /* Kreikka (marginaalin μικρό, μέσο, μακρό; käyttäjän pyyntö 6.11.2026) erillisenä osajoukkona samasta Literatasta (3.103,
-     U+0370–03FF, samat akselit), ladataan vain kreikkaa näytettäessä. Yhtenäinen kreikka ei ole päätiedostoissa. */
+  /* Kreikka tekstien sisältöä varten erillisenä osajoukkona samasta Literatasta (3.103, U+0370–03FF, samat akselit),
+     ladataan vain kreikkaa näytettäessä. Päätiedostoissa ei ole kreikkaa. Ohjelman kuoressa ei ole kreikkaa. */
   @font-face { font-family: Literata; src: url(luin/fontit/literata-kreikka.woff2) format("woff2");
     font-weight: 380 700; font-style: normal; font-display: swap; unicode-range: U+0370-03FF; }
   @font-face { font-family: Literata; src: url(luin/fontit/literata-kreikka-kursiivi.woff2) format("woff2");
@@ -856,9 +856,9 @@
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
-  <!-- Marginaali (käyttäjän pyyntö 22.10.2026; kreikaksi pienaakkosin 6.11.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
+  <!-- Marginaali (käyttäjän pyyntö 22.10.2026; latinaksi pienaakkosin ilman lukumerkkejä 6.11.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
        niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
-  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" lang="el" data-v="kapea:μικρό|meso:μέσο|reilu:μακρό"></div></div>
+  <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:mikro|meso:meso|reilu:makro"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Vähä|tihea:Raju"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
@@ -2092,7 +2092,7 @@
     if (MOBIILI.addEventListener) MOBIILI.addEventListener('change', mobMuuttui); else if (MOBIILI.addListener) MOBIILI.addListener(mobMuuttui);
   }
   if (document.fonts && document.fonts.addEventListener) {
-    // Kreikan osajoukko latautuu jo asetusten marginaalinapeista; se asettelee tekstin vain, jos tekstissä on kreikkaa.
+    // Kreikan osajoukon lataus (esim. sanaselityksestä) asettelee tekstin vain, jos tekstissä on kreikkaa.
     document.fonts.addEventListener('loadingdone', function (e) {
       if (!nyt) return;
       var kreikka = e.fontfaces && e.fontfaces.length && e.fontfaces.every(function (f) { return /U\+370-3FF/i.test(f.unicodeRange); });
