@@ -291,7 +291,8 @@ palvelin.listen(0, async () => {
     }
     return out;
   })();
-  tulos('lambdan aukon lakipiste raksin aukon lakipisteen korkeudella (±1 px)', Math.abs(lakipisteet.lambda - lakipisteet.raksi) <= 1, JSON.stringify(lakipisteet));
+  // Merkki on 0.85-kertainen (6.11.2026), joten lakipisteet eivät enää ole samalla korkeudella; vain suuruusluokka (±3 px).
+  tulos('lambdan aukon lakipiste raksin aukon lakipisteen lähellä (±3 px)', Math.abs(lakipisteet.lambda - lakipisteet.raksi) <= 3, JSON.stringify(lakipisteet));
   await kuva('sk-mittaus');
   await p.click('#pop .sk-sulje');
 
