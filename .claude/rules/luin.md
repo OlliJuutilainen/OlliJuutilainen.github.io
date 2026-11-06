@@ -81,7 +81,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kokonaislukuja, koska Chromium pyöristää SVG:n ja reunuksen paikan kokonaiseen CSS-pikseliin.
 - **Verho** (`verhoAuki()`: navi, Asetukset tai navin laatikko auki): sen takana eivät toimi tekstin napautus,
   reunanapautus, pyyhkäisy, valinta eikä alleviivaus, eikä rulla käännä sivua. Toimivat: sivunkääntö näppäimillä sekä
-  alapalkin kirjanmerkki- ja sivunapit. Tekstialueen napautus sulkee Asetukset, Etsin ja Sisälmyksen tai navin;
+  alapalkin kirjanmerkki- ja sivunapit (ahtaassa navinäkymässä ne ovat piilossa, ks. alla). Tekstialueen napautus sulkee Asetukset, Etsin ja Sisälmyksen tai navin;
   Merkinnät sulkeutuu vain napistaan tai raksistaan.
   Asetusten avaus sulkee navin.
 - **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
@@ -89,6 +89,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   rinnakkain ruudun kolmanneksina reunasta reunaan, muuten yksi kerrallaan koko leveydellä. Rinnakkain vain, jos kolme
   19rem:n saraketta rakoineen mahtuu laitojen väliin. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme, paitsi
   että hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä eikä peitä osumaa (`suljeHypynTielta()`).
+- **Ahdas navinäkymä** (käyttäjän pyyntö 6.11.2026, opas 4.7.2, `naviAlas()`): mobiilissa, kun laatikot eivät mahdu
+  rinnakkain, kolme laatikkonappia siirtyvät alapalkkiin (`#ala-laatikot`), jos mahtuvat: ensin palkkinuolen kanssa,
+  sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
+  sivunappeja, auki olevan laatikon nappi himmenee, laatikon ollessa auki aikajanakerros on piilossa (`laatikko-auki`),
+  ja paljaan alapalkin napautus vie suoraan lukunäkymään. Kumonapit jäävät aikajanan alle (ei alapalkkiin).
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
 - **Aikajanan merkit nuottien tapaan**: suurempi aika-arvo ontompi (pääluku iso ontto salmiakki, alaluku pienempi
   täytetty, alaluvun alaluku lähes pistemäinen). Vain luettu osa on tekstin värinen; tulevat merkit ja kirjanmerkit
@@ -103,7 +108,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Kumonapit** (opas 4.9, `kumoNaky()`): oletuksena näkyvät vain sivunappien kanssa, ei pyyhkäisyn eikä reunanapautuksen,
   ettei niitä luulla sivunapeiksi (käyttäjän päätös 5.11.2026). Kytkin `kumoNapit` (*Näytä edellisen ja seuraavan kohdan
   kytkimet*) on vain sivutettuna; vierityksessä ei kytkintä eikä nappeja (käyttäjän pyyntö 6.11.2026). Ei kuulu `SIVUTAVAT`-listaan. Ei tekstiä napeissa. Paikka on navinäkymän laatikkorivi Etsin oikealla puolella, vain jos
-  mahtuu samalle riville (`piirraKumo()`); ei alapalkissa (käyttäjä: ei näyttänyt siellä hyvältä).
+  mahtuu samalle riville (`piirraKumo()`); ahtaassa navinäkymässä rivillä yksin vasemmassa laidassa; ei alapalkissa
+  (käyttäjä: ei näyttänyt siellä hyvältä).
 - **Kokoruutu** (opas 4.10): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös 5.11.2026). Nappi muistaa valinnan
   (`aset.kokoruutu`); selain sallii kokoruudun vain eleestä, joten tekstin avauksen jälkeinen ensimmäinen napautus vie
   kokoruutuun (`krAvaus`). Takaisin-eleen tai alasvedon jälkeen Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita.

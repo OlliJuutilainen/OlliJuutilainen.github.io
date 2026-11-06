@@ -633,6 +633,25 @@
      2 px:n siirto (→ 725) jättää painopisteen 0,2–0,6 px tekstin alle (DPR 1–4). Laatikon koko ennallaan. */
   #etsi-avaa svg { width: 18.08px; height: 18.08px; position: relative; top: 1.15px; }
   .laatikko[hidden] { display: none; }
+  /* Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026; mobiili, kun navin laatikot eivät mahdu rinnakkain): Merkinnät, Sisälmys
+     ja Etsi siirtyvät alapalkkiin palkkien vasempaan laitaan, jos mahtuvat (naviAlas(); ensin palkkinuolen kanssa 24 px:n
+     välillä, sitten ilman nuolta, muuten ne jäävät aikajanan alle). Silloin navinäkymän alapalkissa ei ole kirjanmerkkiä eikä
+     sivunappeja, auki olevan laatikon nappi himmenee, ja laatikon ollessa auki aikajanakerros on piilossa: laatikko ulottuu
+     yläpalkista alapalkkiin. Paljaan alapalkin napautus sulkee kaiken (#ala-nappi). Napautusalue ulottuu nappien väleihin ja
+     kaistan reunoihin, ettei ohi osunut napautus sulje navia. */
+  #ala-laatikot { display: none; }
+  body.navi-alas.palkit-auki #ala-laatikot { position: absolute; z-index: 1; left: var(--v-laita); top: 0; bottom: 0; display: flex;
+    align-items: center; gap: 10px; pointer-events: none; }
+  #ala-laatikot .laatikko { position: relative; pointer-events: auto; }
+  #ala-laatikot .laatikko::after { content: ""; position: absolute; left: -6px; right: -6px; top: -6px; bottom: -6px; }
+  body.navi-alas.palkit-auki #km-nappi, body.navi-alas.palkit-auki #sivunapit, body.navi-alas.ilman-nuolta.palkit-auki #palkki-nuoli { display: none; }
+  body.navi-alas.laatikko-auki #jana { display: none; }
+  /* Aikajanan ollessa piilossa #ala:n yläviiva on laatikon alareuna; kaistan oma haalea viiva olisi sen vieressä toinen. */
+  body.navi-alas.laatikko-auki #ala-rivi { border-top-color: transparent; }
+  body.navi-alas .laatikko[aria-expanded="true"] { color: var(--viiva); border-color: var(--viiva); }
+  /* Kun aikajanan alle ei jää nappeja, kerroksen alareunassa on sama väli kuin ylhäällä (kirjanmerkin nauhan musteesta). */
+  #jana.ei-napit .jana-napit { display: none; }
+  body.mobiili #jana.ei-napit { padding-bottom: 20px; }
   #merk-avaa svg { width: 10px; height: 12px; }
   .laatikko .l-pis { fill: currentColor; }
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
@@ -830,6 +849,8 @@
            (käyttäjän päätös 22.10.2026). -->
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana" aria-label="Aikajana"></button>
+      <!-- Ahdas navinäkymä (naviAlas()): Merkinnät, Sisälmys ja Etsi siirtyvät tähän, jos mahtuvat. -->
+      <div id="ala-laatikot"></div>
       <div id="ala-oikea">
         <svg id="palkki-nuoli" viewBox="0.4 0.4 11.2 10.2" aria-hidden="true"><path d="M1 5L6 1L11 5M1 10L6 6L11 10"/></svg>
         <div id="sivunapit" hidden>
@@ -1483,6 +1504,10 @@
   function laatikotMuuttuivat() {
     laatikkoJarj = laatikkoJarj.filter(laatikkoAuki);
     LAATIKOT.forEach(function (id) { $(LAATIKKONAPIT[id]).setAttribute('aria-expanded', String(laatikkoAuki(id))); });
+    // Ahtaassa navinäkymässä aikajanakerros on piilossa laatikon ollessa auki (CSS); se piirretään uudelleen esiin tullessaan.
+    var b = document.body, oli = b.classList.contains('laatikko-auki'), on = laatikoitaAuki();
+    b.classList.toggle('laatikko-auki', on);
+    if (oli && !on) piirraJana();
   }
   // Ruudun leveys (px) ja rinn: kolme 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen
   // väliin (raja on sama kuin ennen 6.11.2026, jolloin laatikot olivat laitojen välissä rakojen kera).
@@ -3914,9 +3939,34 @@
     $('#jana').hidden = !auki;
     document.body.classList.toggle('palkit-auki', auki);
     $('#ala-nappi').setAttribute('aria-expanded', String(auki));
-    if (auki) { piirraJana(); piirraKumo(); } else suljeLaatikot();
+    if (auki) { piirraJana(); naviAlas(); piirraKumo(); } else suljeLaatikot();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
+  // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026, CSS #ala-laatikot): mobiilissa, kun laatikot eivät mahdu rinnakkain,
+  // Merkinnät, Sisälmys ja Etsi siirtyvät alapalkkiin, jos mahtuvat sinne: ensin palkkinuolen kanssa (väli 24 px kuten
+  // nuolen ja sivunappien välissä), sitten ilman nuolta (Light Phone 360 px), muuten ne jäävät aikajanan alle.
+  // Mitataan navin avautuessa ja ikkunan koon muuttuessa navin ollessa auki.
+  var LAATIKKONAPPIJARJ = ['#merk-avaa', '#sis-avaa', '#etsi-avaa'];
+  function naviAlas() {
+    if (!palkitAuki()) return;
+    var b = document.body, napit = LAATIKKONAPPIJARJ.map(function (s) { return $(s); });
+    var siirra = function (alas) {
+      napit.forEach(function (n) { if (alas) $('#ala-laatikot').appendChild(n); else $('.jana-napit').insertBefore(n, $('#kumonapit')); });
+      b.classList.toggle('navi-alas', alas); b.classList.remove('ilman-nuolta');
+    };
+    if (!mobiili() || laatikkoMitat().rinn) { if (b.classList.contains('navi-alas')) siirra(false); return; }
+    siirra(true);
+    var mahtuu = function () {
+      var vika = null;
+      napit.forEach(function (n) { if (!n.hidden) vika = n; });
+      if (!vika) return true;
+      var raja = b.classList.contains('ilman-nuolta') ? $('#ala-oikea').getBoundingClientRect().right - parseFloat(getComputedStyle($('#ala-oikea')).paddingRight)
+        : $('#palkki-nuoli').getBoundingClientRect().left - 24;
+      return vika.getBoundingClientRect().right <= raja + .01;
+    };
+    if (!mahtuu()) { b.classList.add('ilman-nuolta'); if (!mahtuu()) siirra(false); }
+    sijoitaLaatikot();
+  }
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#sivu-ed').addEventListener('click', function () { seuraava(-1); });
   $('#sivu-se').addEventListener('click', function () { seuraava(1); });
@@ -4043,12 +4093,14 @@
       while (ed && ed.hidden) ed = ed.previousElementSibling;
       if (ed && el.getBoundingClientRect().top >= ed.getBoundingClientRect().bottom) el.classList.add('ei-mahdu');
     }
+    // Kun laatikkonapit ovat alapalkissa eikä kumonappeja ole, aikajanan alle ei jää riviä (naviAlas()).
+    $('#jana').classList.toggle('ei-napit', !!$('#ala-laatikot .laatikko') && (!n || el.classList.contains('ei-mahdu')));
     $('#kumo-taakse').setAttribute('aria-disabled', String(!hist.taakse.length));
     $('#kumo-eteen').setAttribute('aria-disabled', String(!hist.eteen.length));
   }
   $('#kumo-taakse').addEventListener('click', function () { kumoa(-1); });
   $('#kumo-eteen').addEventListener('click', function () { kumoa(1); });
-  window.addEventListener('resize', function () { if (nyt && palkitAuki()) piirraKumo(); });
+  window.addEventListener('resize', function () { if (nyt && palkitAuki()) { naviAlas(); piirraKumo(); } });
 
   $('#majakka-palaa').addEventListener('click', palaa);
   $('#majakka-sulje').addEventListener('click', poistaMajakka);
@@ -4126,7 +4178,7 @@
   var janaNauhat = [];
   function piirraJana() {
     var svg = $('#jana-svg');
-    if (!nyt || $('#jana').hidden) return;
+    if (!nyt || $('#jana').hidden || !svg.getClientRects().length) return;
     var w = svg.clientWidth || 300, h = 44, xr = janaRajat(w), x0 = xr[0], x1 = xr[1], y = JANA.y;
     var X = function (f) { return x0 + f * (x1 - x0); };
     // Nykyiseen kohtaan asti luettu (musta), sen jälkeen tuleva (harmaa); kirjanmerkit luetussa kuparisina, tulevassa harmaina.
