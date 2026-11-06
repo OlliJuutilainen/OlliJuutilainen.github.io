@@ -2734,7 +2734,12 @@
     varitaAl(); piirraKirjausmerkit();
     if (kahvaH !== v.h) return;
     sijoitaKahvat();
-    if (v.h === luonnos) naytaValintaPop(luonnos.segs, alRect(luonnos));
+    // Vedon päätteeksi yhteen sanaan supistunut luonnos on yhden sanan valinta kuten alun perin: Sukkela sanaselitys
+    // avaa sanaselityksen eikä valikkoa (käyttäjän pyyntö 6.11.2026).
+    if (v.h === luonnos) {
+      if (sukkelaSanasto() && yksiSana(luonnos.segs)) sanaselitys(luonnos.segs.slice(), alRect(luonnos));
+      else naytaValintaPop(luonnos.segs, alRect(luonnos));
+    }
     else if (v.pop) naytaAlPop(v.h.id, alRect(v.h));
   }
   /* Suurennuslasi (pilotti 5.11.2026, käyttäjän pyyntö Booxin tapaan): kosketus- ja kynävedossa (ei hiirellä) vedettävän

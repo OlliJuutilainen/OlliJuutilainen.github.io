@@ -1107,6 +1107,25 @@ palvelin.listen(0, async () => {
   const m4 = await mtila();
   tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,sk,kaanna,kopioi' && m3b.kahvat && m3b.luonnos > 0 &&
     m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, jarj, kahvatNapautuksesta: m3b.kahvat, m4 }));
+  // Käyttäjän pyyntö 6.11.2026: yhden sanan luonnos, joka laajennettiin kahvasta ja supistettiin takaisin yhteen sanaan,
+  // avaa Sukkelan sanaselityksen eikä valikkoa. Ilman Sukkelaa se avaa valikon kuten ennenkin.
+  const supista = async sukSana => {
+    await mp.evaluate(s => { window.__luin.aset.sukSana = s; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); }, sukSana);
+    const w = await sanat(); await veda(w.s[4], w.s[5]);
+    await mp.mouse.click(w.s[4].x, w.s[4].y); await mp.waitForTimeout(200);
+    const o = await mp.evaluate(() => { const k = document.querySelector('.kahva[data-paa="loppu"]'), r = k.querySelector('.k-ote').getBoundingClientRect();
+      return { x: r.left + 22, y: r.top + 8, hx: parseFloat(k.style.left), hy: parseFloat(k.style.top) + (parseFloat(k.style.getPropertyValue('--kh')) || 20) / 2 }; });
+    const laaj = await mtila();
+    await veda(o, { x: w.s[4].x + (o.x - o.hx), y: w.s[4].y + (o.y - o.hy) });
+    const lopuksi = await mtila();
+    const sana = await mp.evaluate(() => ({ luonnos: [...document.querySelectorAll('mark.luonnos')].map(m => m.textContent).join('').replace(/­/g, ''), pop: document.querySelector('#pop').hidden ? '' : document.querySelector('#pop').className }));
+    await mp.keyboard.press('Escape');
+    return { laaj, lopuksi, sana };
+  };
+  const su1 = await supista(1), su0 = await supista(0);
+  tulos('supistus takaisin yhteen sanaan avaa sanaselityksen (Sukkela päällä), muuten valikon', /rivi/.test(su1.laaj.pop) && su1.sana.luonnos.length > 0 && !/ /.test(su1.sana.luonnos.trim()) && /sanakirja/.test(su1.sana.pop) &&
+    /rivi/.test(su0.sana.pop), JSON.stringify({ su1, su0 }));
+  await mp.evaluate(() => { window.__luin.aset.sukSana = 1; });
   // Kopio viitteellä: lyhyt (Sukunimi vuosi, luku) ja pitkä (koko viite ja luku).
   const kopioi = async tapa => {
     await mp.evaluate(t => { window.__luin.aset.kopioViite = t; }, tapa);
