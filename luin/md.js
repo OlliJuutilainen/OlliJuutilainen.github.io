@@ -376,7 +376,7 @@
     }
     for (var i = t0; i < tokens.length; i++) {
       var t = tokens[i];
-      if (t.t === 'h' && t.lvl <= 2) {
+      if (t.t === 'h' && t.lvl <= 2 && !t.pykala) {
         var nimi = lukuNimi(t.text.replace(/\s+\[[^\]]+\]$/, ''));
         nyky = { i: i, nimi: nimi, num: /^\s*\d+(\.\d+)*\.?\s/.test(plain(t.text)), bib: BIB.test(plain(t.text).trim()), massa: 0, pisin: 0 };
         osat.push(nyky);
@@ -555,6 +555,34 @@
       return k && (k[t.vaihto.arvo - 1] || k[t.vaihto.arvo + 1]) ? t.vaihto : t;
     });
   }
+  // Pykäläsarja (käyttäjän sääntö 6.11.2026): Husserlin tapainen lyhyehkö pykälä, pykälämerkillä tai ilman, on hierarkiassa
+  // korkeintaan alaluvun alaluku (####), vaikka sillä ei olisi yläotsikoita. Pykälämerkki riittää. Ilman sitä numerosarja
+  // (1, 2, 3 …, ei pisteellisiä) on pykäläsarja, kun sen osiot ovat lyhyehköjä (mediaani alle PYK_PITUUS merkkiä), niillä
+  // ei ole pisteellisiä alaosioita, numerointi ei ala ylemmän otsikon jälkeen alusta, ja se joko jatkuu ylemmän otsikon
+  // yli tai sarjassa on vähintään kymmenen pykälää (lyhyen artikkelin 1.–5. jaksot jäävät ennalleen).
+  // kohdat: [{ avain, arvo, taso (pienempi = ylempi), massa: oma teksti seuraavaan kohtaan asti }] → { avain: true }
+  var PYK_PITUUS = 6000;
+  function pykalaSarjat(kohdat) {
+    var tulos = {}, sarjat = {};
+    kohdat.forEach(function (k, i) {
+      if (k.avain === 'pykala') tulos.pykala = true;
+      if (k.avain === 'arabia' || k.avain === 'arabia)') (sarjat[k.avain] = sarjat[k.avain] || []).push(i);
+    });
+    Object.keys(sarjat).forEach(function (a) {
+      var S = sarjat[a], massat = [], jatkuu = 0, alkaa = 0, piste = false;
+      S.forEach(function (i, j) {
+        var m = kohdat[i].massa, yli = false, z = j + 1 < S.length ? S[j + 1] : kohdat.length;
+        for (var x = i + 1; x < kohdat.length && kohdat[x].taso > kohdat[i].taso; x++) { m += kohdat[x].massa; if (/^piste/.test(kohdat[x].avain || '')) piste = true; }
+        // Raja: ylempi otsikko tai sanallinen yksikkö (Kapitel, Part) millä tasolla tahansa, koska pdf-muunnoksen tasot heittelevät.
+        for (x = i + 1; x < z; x++) if (kohdat[x].taso < kohdat[i].taso || /^sana:/.test(kohdat[x].avain || '')) yli = true;
+        massat.push(m);
+        if (j + 1 < S.length && yli) { if (kohdat[z].arvo === kohdat[i].arvo + 1) jatkuu++; else if (kohdat[z].arvo === 1) alkaa++; }
+      });
+      massat.sort(function (x, y) { return x - y; });
+      if (massat[massat.length >> 1] < PYK_PITUUS && !piste && !alkaa && (jatkuu || S.length >= 10)) tulos[a] = true;
+    });
+    return tulos;
+  }
   var LAJIN_NIMI = { piste: 'pisteelliset numerot', arabia: 'numerot', pykala: 'pykälät', rooma: 'roomalaiset numerot',
     'rooma-pieni': 'pienet roomalaiset numerot', kirjain: 'pienet kirjaimet', 'kirjain-iso': 'isot kirjaimet', kreikka: 'kreikkalaiset numerot',
     'kreikka-iso': 'isot kreikkalaiset numerot', sana: 'sanallinen numerointi', lihava: 'lihavoidut rivit', kursiivi: 'kursivoidut rivit',
@@ -581,7 +609,8 @@
       pino.push(i);
     });
     // Jatkuvuus: saman vanhemman alla peräkkäiset samanlajiset otsikot (P1, P2 …) ja niiden suorat lapset lajeittain.
-    var ryhmat = {};
+    var ryhmat = {}, pykLaji = {};
+    toc.forEach(function (t) { if (t.pyk && t.tn) pykLaji[t.tn.avain] = 1; });
     toc.forEach(function (t, i) { if (t.tn) (ryhmat[t._yla + '|' + t.tn.avain] = ryhmat[t._yla + '|' + t.tn.avain] || []).push(i); });
     var lapset = {};
     toc.forEach(function (t, i) { if (t.tn && t._yla >= 0) ((lapset[t._yla] = lapset[t._yla] || {})[t.tn.avain] = lapset[t._yla][t.tn.avain] || []).push(t.tn.arvo); });
@@ -599,7 +628,8 @@
         });
       });
       P.forEach(function (p) {
-        Object.keys(ev).forEach(function (lk) { if (ev[lk].jatkuu && !ev[lk].alkaa) (toc[p].tarpeeton = toc[p].tarpeeton || {})[lk] = 1; });
+        // Pykälä viitataan ilman ylempiä tasoja (§ 12), ellei numerointi ala alusta.
+        Object.keys(ev).forEach(function (lk) { if ((ev[lk].jatkuu || pykLaji[lk]) && !ev[lk].alkaa) (toc[p].tarpeeton = toc[p].tarpeeton || {})[lk] = 1; });
       });
     });
     function sep(ed, o) {
@@ -613,7 +643,7 @@
       var osat = [t.tn], cur = i, j = t._yla;
       while (j >= 0) {
         var P = toc[j];
-        if (!P.tn) { if (!P.alas) osat.unshift({ otsikko: true, merkki: P.text }); break; }
+        if (!P.tn) { if (!P.alas && !t.pyk) osat.unshift({ otsikko: true, merkki: P.text }); break; }
         if (P.tarpeeton && P.tarpeeton[toc[cur].tn.avain]) break;
         // 6.2 sisältää jo luvun 6.
         if (!(toc[cur].tn.laji === 'piste' && toc[cur].tn.merkki.indexOf(P.tn.merkki + '.') === 0)) osat.unshift(P.tn);
@@ -670,7 +700,7 @@
       var t = tokens[i], nx = tokens[i + 1];
       if (t.t === 'h') {
         var raw = t.text.replace(/\s+\[[^\]]+\]$/, ''), ty = tyyli(raw.trim()), px = plain(ty.sis).trim();
-        items.push({ ln: t.ln, h: true, taso: t.lvl === 1 ? 2 : t.lvl, tn: tunnus(px), tyyli: ty.tyyli, teksti: t.text,
+        items.push({ ln: t.ln, ti: i, h: true, taso: t.lvl === 1 ? 2 : t.lvl, tn: tunnus(px), tyyli: ty.tyyli, teksti: t.text,
           setext: rivit[t.ln - 1] != null && !/^ {0,3}#/.test(rivit[t.ln - 1]) });
         continue;
       }
@@ -692,7 +722,7 @@
       }
       var jalkeen = yhdista ? tokens[i + 2] : nx;
       if (!tn && !proosaa(jalkeen)) continue;
-      items.push({ ln: t.ln, h: false, taso: null, tn: tn, tyyli: tn ? ty2.tyyli : ty2.tyyli || 'versaali', teksti: ty2.sis.trim(), yhdista: yhdista,
+      items.push({ ln: t.ln, ti: yhdista ? i + 1 : i, h: false, taso: null, tn: tn, tyyli: tn ? ty2.tyyli : ty2.tyyli || 'versaali', teksti: ty2.sis.trim(), yhdista: yhdista,
         proosa: proosaa(jalkeen) || !!tn && rakennetta(jalkeen) });
       if (yhdista) i++;
     }
@@ -736,11 +766,22 @@
     Object.keys(eka).forEach(function (a) { if (LIITESANAT.test(a.slice(5)) && taso[a] == null) taso[a] = perus; });
     if (eka.versaali != null) taso.versaali = perus;
     if (eka.lihava != null) taso.lihava = Math.min(perus + jarj.length, 6);
+    // Pykäläsarja on korkeintaan alaluvun alaluku (pykalaSarjat()); sen alla olevat lajit siirtyvät mukana.
+    var mitta = function (t) { return t.t === 'p' ? plain(t.text).length : t.t === 'list' ? t.items.reduce(function (a, it) { return a + it.text.length; }, 0) : t.t === 'bq' ? 400 : 0; };
+    var pykS = pykalaSarjat(items.map(function (x, k) {
+      var m = 0, z = k + 1 < items.length ? items[k + 1].ti : tokens.length;
+      for (var j = x.ti + 1; j < z; j++) m += mitta(tokens[j]);
+      return { avain: x.avain, arvo: x.tn && x.tn.arvo, taso: x.avain && taso[x.avain] != null ? taso[x.avain] : x.taso || 9, massa: m };
+    }));
+    jarj.forEach(function (a, k) {
+      if (pykS[a]) taso[a] = Math.max(taso[a], 4);
+      if (k && taso[a] <= taso[jarj[k - 1]]) taso[a] = Math.min(taso[jarj[k - 1]] + 1, 6);
+    });
     // Olemassa olevan otsikon laji siirtyy vain, jos sen #-tasolla on toinenkin laji tai uusi laji asettui sen yläpuolelle.
     var siirto = {};
     vanhat.forEach(function (a) {
       siirto[a] = vanhat.some(function (b) { return b !== a && moodi(tasoNyt[b]) === moodi(tasoNyt[a]); }) ||
-        jarj.slice(0, jarj.indexOf(a)).some(function (b) { return !tasoNyt[b]; });
+        jarj.slice(0, jarj.indexOf(a)).some(function (b) { return !tasoNyt[b]; }) || pykS[a] && moodi(tasoNyt[a]) < taso[a];
     });
     var tormays = {};
     items.forEach(function (x) { if (x.h && x.avain !== 'kursiivi') tormays[x.taso] = 1; });
@@ -1691,6 +1732,19 @@
 
     var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false, jaksoAlkaa = false, kohtaEhd = [];
     // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
+    (function () {
+      var kohdat = [], hs = [];
+      for (var i = t0; i < tokens.length; i++) {
+        var t = tokens[i];
+        if (t.t === 'h') {
+          var tn = tunnus(plain(t.text.replace(/\s+\[[^\]]+\]$/, '')).trim());
+          kohdat.push({ avain: tn && tn.avain, arvo: tn && tn.arvo, taso: t.lvl === 1 ? 2 : t.lvl, massa: 0 }); hs.push(t);
+        } else if (kohdat.length) kohdat[kohdat.length - 1].massa += t.t === 'p' ? plain(t.text).length : t.t === 'list' ? t.items.reduce(function (a, it) { return a + it.text.length; }, 0) : t.t === 'bq' ? 400 : 0;
+      }
+      var tns = ratkaiseTulkinnat(kohdat.map(function (k) { return k.avain ? { avain: k.avain } : null; }));
+      var pyk = pykalaSarjat(kohdat);
+      kohdat.forEach(function (k, i) { if (tns[i] && pyk[k.avain]) hs[i].pykala = true; });
+    })();
     var alas = sivuLuvut(tokens, t0);
     alas.forEach(function (i) {
       tokens[i].alas = true;
@@ -1728,13 +1782,18 @@
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
           var lvl0 = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), lvl = t.alas && !inQuote ? Math.min(lvl0 + 1, 4) : lvl0;
+          // Pykälä on korkeintaan alaluvun alaluku (pykalaSarjat()).
+          if (t.pykala && !inQuote) lvl0 = lvl = 4;
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
           var txt = plain(htext).trim();
           var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt), tn = inQuote ? null : tunnus(txt);
           var id, cls = 'sec';
-          if (nm) {
+          if (nm && t.pykala && !inQuote) {
+            // Pykäläsarja ei kuulu lukujen numerointiin (eikä sen tarkistukseen): se jatkuu lukujen yli.
+            id = 'luku-' + nm[1].split('.').join('-');
+          } else if (nm) {
             id = 'luku-' + nm[1].split('.').join('-');
             var parts = nm[1].split('.').map(Number), d = parts.length - 1, prevN = nums[d] || 0;
             // Tunnisteellisen yläotsikon (Part II, Kirja 3) alla luvut saavat alkaa alusta tai jatkua (Korsgaard: Part II alkaa luvusta 6).
@@ -1768,6 +1827,7 @@
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
           var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: lvl !== lvl0 || undefined };
           if (tn) te.tn = tn;
+          if (t.pykala && !inQuote) te.pyk = true;
           res.toc.push(te);
           h += '<h' + lvl + ' id="' + id + '" class="' + cls + '" data-b="' + (b++) + '">' + inline(htext, ctx) + '</h' + lvl + '>';
         } else if (t.t === 'p') {
