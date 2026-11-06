@@ -23,7 +23,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - `luin/lisaosa/` (*Lisää lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Leikkeen muoto on Latomon ohjeen suositeltu MarkDownload-muoto
-  korvamerkkeineen, jotta Latomon MarkDownload-tila siivoaa sen; muuta niitä yhdessä. Lukevasta osasta käytetään
+  korvamerkkeineen, jotta Latomon MarkDownload-tila siivoaa sen; muuta niitä yhdessä. Haetut alaviitteet
+  (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
+  kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu neljään sivuun (luin.html, Latomo, Latomon ohje,
   käyttöohje). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.

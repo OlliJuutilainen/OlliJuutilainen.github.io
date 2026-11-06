@@ -1,13 +1,17 @@
 // Lisää lukimeen vs. MarkDownload samalla verkkosivulla, molemmat Latomon läpi. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/vertaa-markdownload.js sivu.html https://sivun.osoite/ [välimuisti]
-// sivu.html on sivun tallennettu HTML (esim. curl), jota ei viedä repoon. MarkDownload 3.2.0 (AMO:n viimeisin) haetaan
+//     [--lisa notes.html=https://sivun.osoite/notes.html …]
+// sivu.html on sivun tallennettu HTML (esim. curl), jota ei viedä repoon. --lisa tarjoaa muita saman sivuston sivuja,
+// joita lisäosa hakee (SEP:n alaviitesivu); muut pyynnöt estetään. MarkDownload 3.2.0 (AMO:n viimeisin) haetaan
 // välimuistikansioon (oletus: käyttöjärjestelmän tmp) ja ajetaan Latomon ohjeen suositusasetuksin; Lisää lukimeen
 // ajaa luin/lisaosa/:n kirjastot ja leike.js:n. Tulostaa rakenteen, etukentän, viitteen ja leipätekstin erot sen jälkeen,
 // kun tunnetut muotoerot (luettelomerkin välit, viitelinkit tekstin sisään) on yhtenäistetty. Tulokset: välimuistiin.
 const fs = require('fs'), os = require('os'), path = require('path'), http = require('http'), cp = require('child_process');
 const { chromium } = require('playwright');
 
-const [, , SIVU, OSOITE, VALI = path.join(os.tmpdir(), 'vertaa-markdownload')] = process.argv;
+const ARG = process.argv.slice(2), LISAT = {};
+for (let i = ARG.indexOf('--lisa'); i >= 0; i = ARG.indexOf('--lisa')) { const [f, u] = ARG[i + 1].split('='); LISAT[u.split('#')[0]] = f; ARG.splice(i, 2); }
+const [SIVU, OSOITE, VALI = path.join(os.tmpdir(), 'vertaa-markdownload')] = ARG;
 if (!SIVU || !OSOITE) { console.error('Käyttö: vertaa-markdownload.js sivu.html https://osoite/ [välimuisti]'); process.exit(2); }
 const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
@@ -30,6 +34,7 @@ function normita(md) {
   return runko.split('\n').filter(r => r.trim());
 }
 const laske = md => ({ merkkejä: md.length, '##': (md.match(/^## /gm) || []).length, '###': (md.match(/^### /gm) || []).length,
+  alaviitteet: (md.match(/^\[\^[^\]]+\]:/gm) || []).length,
   yläindeksit: (md.match(/\^[^\s^]+\^/g) || []).length, html: (md.match(/<(sup|sub|table|iframe)\b/g) || []).length });
 
 (async () => {
@@ -44,7 +49,10 @@ const laske = md => ({ merkkejä: md.length, '##': (md.match(/^## /gm) || []).le
   const lue = (kansio, f) => fs.readFileSync(path.join(kansio, f), 'utf8');
   const b = await chromium.launch();
   const ctx = await b.newContext();
-  await ctx.route(/^https?:/, r => r.request().url().split('#')[0] === OSOITE.split('#')[0] ? r.fulfill({ body: html, contentType: 'text/html; charset=utf-8' }) : r.abort());
+  await ctx.route(/^https?:/, r => { const u = r.request().url().split('#')[0];
+    if (u === OSOITE.split('#')[0]) return r.fulfill({ body: html, contentType: 'text/html; charset=utf-8' });
+    if (LISAT[u]) return r.fulfill({ body: fs.readFileSync(LISAT[u], 'utf8'), contentType: 'text/html; charset=utf-8' });
+    return r.abort(); });
 
   // MarkDownload: taustasivun koodi sivulla, browser-rajapinta korvattu (vain asetukset).
   const p = await ctx.newPage();

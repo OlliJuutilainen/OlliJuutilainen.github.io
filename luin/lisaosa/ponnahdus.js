@@ -12,7 +12,9 @@ function valittu() { return leike.valinta && $('valinta').checked; }
 
 function nayta() {
   const sanoja = valittu() ? leike.valintaSanoja : leike.kokoSanoja;
-  $('meta').textContent = [leike.sivusto, sanoja ? luku(sanoja) : ''].filter(Boolean).join(' · ');
+  const viitteita = valittu() ? leike.valintaViitteita : leike.kokoViitteita;
+  $('meta').textContent = [leike.sivusto, sanoja ? luku(sanoja) : '',
+    viitteita ? viitteita + (viitteita === 1 ? ' alaviite' : ' alaviitettä') + ' haettu' : ''].filter(Boolean).join(' · ');
   const tyhja = !(valittu() ? leike.valinta : leike.koko);
   $('lukimeen').disabled = $('latomoon').disabled = tyhja;
   $('tila').textContent = tyhja ? 'Sivulta ei löytynyt artikkelia. Maalaa luettava kohta ja avaa ikkuna uudelleen.' : '';

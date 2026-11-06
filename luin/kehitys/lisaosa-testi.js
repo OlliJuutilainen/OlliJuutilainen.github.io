@@ -35,6 +35,30 @@ ${kappale(3)}
 <ol class="viitteet"><li id="viite-1">Koistinen 2013, 42.</li></ol>
 </article></main><footer>© Esimerkkiblogi</footer></body></html>`;
 
+// SEP:n rakenne (keksitty sisältö): johdanto, #main-text, jossa otsikon tunnisteessa on Readabilityn kielteinen sana
+// (#ExpeMeta), bibliografia luettelona, Academic Tools, ja alaviitteet erillisellä notes.html-sivulla (alaviite 3 puuttuu).
+const SEP = 'https://plato.example/entries/koe/';
+const sepKpl = n => `<p>${'Leipätekstiä tietosanakirjan artikkelissa, joka on tarpeeksi pitkä sisällöksi. '.repeat(n)}</p>`;
+const SEP_SIVUT = {
+  [SEP]: `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Koe (Stanford Encyclopedia of Philosophy)</title>
+<meta property="citation_author" content="Meikäläinen, Maija"></head><body><div id="container"><div id="navigation"><a href="/">Home</a></div>
+<div id="article"><div id="article-content"><div id="aueditable"><h1>Koe</h1><div id="pubinfo"><em>First published Thu Nov 1, 2018</em></div>
+<div id="preamble"><p>Johdannon kappale, jonka Readability pudottaa pois, vaikka se on artikkelin alku.</p></div>
+<div id="toc"><ul><li><a href="#Eka">1. Eka</a></li><li><a href="#ExpeMeta">2. Experience and Metaphysics</a></li></ul></div>
+<div id="main-text"><h2 id="Eka">1. Eka</h2>${sepKpl(5)}<p>Viittaus Deweyyn.<sup>[<a href="notes.html#note-1" id="ref-1">1</a>]</sup> Toinen.<sup>[<a href="notes.html#note-2" id="ref-2">2</a>]</sup> Kolmas.<sup>[<a href="notes.html#note-3" id="ref-3">3</a>]</sup></p>
+<h2 id="ExpeMeta">2. Experience and Metaphysics</h2><h3 id="Sub">2.1 Alaluku</h3>${sepKpl(5)}</div>
+<div id="bibliography"><h2 id="Bib">Bibliography</h2><ul><li>Dewey, John, 1925, <em>Experience and Nature</em>, Chicago: Open Court.</li><li>Dykhuizen, George, 1973, <em>The Life and Mind of John Dewey</em>, Carbondale.</li></ul></div>
+<div id="academic-tools"><h2 id="Aca">Academic Tools</h2><p>How to cite this entry.</p></div>
+<div id="other-internet-resources"><h2 id="Oth">Other Internet Resources</h2><ul><li><a href="https://example.org/dewey">Dewey-seura</a></li></ul></div>
+<div id="related-entries"><h2 id="Rel">Related Entries</h2><p><a href="../james/">James</a></p></div>
+</div></div></div></div></body></html>`,
+  [SEP + 'notes.html']: `<!doctype html><html><head><meta charset="utf-8"><title>Notes</title></head><body><div id="aueditable">
+<h2>Notes to <a href="index.html">Koe</a></h2>
+<div id="note-1"><p><a href="index.html#ref-1">1.</a> Ks. Dykhuizen 1973: 30–31.</p></div>
+<div id="note-2"><p><a href="index.html#ref-2">2.</a> Ensimmäinen kappale.</p><blockquote><p>Lainaus alaviitteessä.</p></blockquote><p>Jatko <a href="../james/">Jamesiin</a>.</p></div>
+</div></body></html>`
+};
+
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
@@ -51,6 +75,7 @@ ${kappale(3)}
   await ctx.route(/^https?:/, r => {
     const u = new URL(r.request().url());
     if (u.href.split('#')[0] === ARTIKKELI) return r.fulfill({ body: SIVU, contentType: 'text/html; charset=utf-8' });
+    if (SEP_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: SEP_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
       if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) return r.fulfill({ status: 404, body: '' });
@@ -80,10 +105,10 @@ ${kappale(3)}
 
   // Ikkuna sulkee itsensä napin jälkeen (window.close), joten joka kerta uusi välilehti.
   let ikkuna = null;
-  const avaaIkkuna = async () => {
+  const avaaIkkuna = async (sivu = ARTIKKELI) => {
     if (!ikkuna || ikkuna.isClosed()) { ikkuna = await ctx.newPage(); ikkuna.on('pageerror', e => virheet.push('ikkuna: ' + e.message)); }
     await ikkuna.goto(IKKUNA);
-    const tab = await ikkuna.evaluate(async u => (await chrome.tabs.query({ url: u }))[0].id, ARTIKKELI);
+    const tab = await ikkuna.evaluate(async u => (await chrome.tabs.query({ url: u }))[0].id, sivu);
     await ikkuna.goto(IKKUNA + '?valilehti=' + tab);
     await ikkuna.waitForFunction(() => !document.querySelector('#lukimeen').disabled || /voi|löytynyt/.test(document.body.textContent), null, { timeout: 5000 });
   };
@@ -165,6 +190,32 @@ ${kappale(3)}
   await avaaIkkuna();
   const ei = await ikkuna.evaluate(() => ({ pois: document.querySelector('#lukimeen').disabled, tila: document.querySelector('#tila').textContent }));
   tulos('tyhjä sivu: napit pois ja neuvo', ei.pois && /Maalaa luettava kohta/.test(ei.tila), JSON.stringify(ei));
+
+  // 7. SEP: johdanto, Readabilityn pudottama otsikko, bibliografia kappaleina, navigointiosiot pois, alaviitteet
+  // haettuina; puuttuva alaviite 3 jää yläindeksiksi. Luinissa alaviitteet ja kirjallisuusluettelo.
+  await artikkeli.goto(SEP);
+  await avaaIkkuna(SEP);
+  const sepMeta = await ikkuna.textContent('#meta');
+  tulos('SEP: ikkuna kertoo haetut alaviitteet', / · 2 alaviitettä haettu$/.test(sepMeta), sepMeta);
+  const latomo3 = await paina('#latomoon', /latomo\.html$/);
+  const sr = await latomo3.inputValue('#md'), st = await latomo3.evaluate(() => window.__latomo.tulos());
+  tulos('SEP: johdanto ja kaikki otsikot', /^# Koe\n\nJohdannon kappale/m.test(sr) && /^## 2\\\. Experience and Metaphysics$/m.test(sr) && /^### 2\.1 Alaluku$/m.test(sr),
+    (sr.match(/^#+ .*$/gm) || []).join(' | '));
+  tulos('SEP: bibliografia kappaleina, muut lähteet mukana, navigointi pois', /^## Bibliography\n\nDewey, John, 1925, \*Experience and Nature\*, Chicago: Open Court\.\n\nDykhuizen/m.test(sr) &&
+    /^## Other Internet Resources$/m.test(sr) && !/Academic Tools|How to cite|Related Entries|sisällys|toc/i.test(sr.replace(/^---[\s\S]*?\n---\n/, '')), (sr.match(/## Bibliography[\s\S]{0,160}/) || ['ei bibliografiaa'])[0].replace(/\n/g, ' | '));
+  tulos('SEP: alaviitteet haettu, paluulinkki pois, jatko sisennettynä', /Viittaus Deweyyn\.\[\^viite-1\] Toinen\.\[\^viite-2\]/.test(sr) &&
+    /^\[\^viite-1\]: Ks\. Dykhuizen 1973: 30–31\.$/m.test(sr) && /^\[\^viite-2\]: Ensimmäinen kappale\.\n\n    Lainaus alaviitteessä\.\n\n    Jatko \[Jamesiin\]\(https:\/\/plato\.example\/entries\/james\/\)\.$/m.test(sr) && !/ref-1|ref-2/.test(sr),
+    (sr.match(/^\[\^viite-[\s\S]*$/m) || ['ei määritelmiä'])[0].replace(/\n/g, ' | ').slice(0, 300));
+  tulos('SEP: puuttuva alaviite jää yläindeksiksi', /Kolmas\.\^\\\[\[3\]\(https:\/\/plato\.example\/entries\/koe\/notes\.html#note-3\)\\\]\^/.test(st.md) || /Kolmas\.\[\^viite-3\]/.test(st.md),
+    (st.md.match(/Kolmas\..{0,80}/) || [''])[0]);
+  await latomo3.close();
+  await avaaIkkuna(SEP);
+  const luin2 = await paina('#lukimeen', /luin\.html#id=/);
+  const L2 = await luin2.evaluate(() => ({ huom: [...document.querySelectorAll('#teksti .sidenote')].map(x => x.textContent.replace(/\u00ad/g, '').trim()),
+    bib: [...document.querySelectorAll('#teksti p.bib')].map(x => x.textContent.slice(0, 20)) }));
+  tulos('SEP Luinissa: alaviitteiden tekstit ja kirjallisuusluettelo', L2.huom.length === 3 && /Dykhuizen 1973/.test(L2.huom[0]) && /^2Ensimmäinen kappale\.Lainaus alaviitteessä\.Jatko Jamesiin\.$/.test(L2.huom[1]) &&
+    L2.bib.length === 2 && /^Dewey, John/.test(L2.bib[0]), JSON.stringify(L2).slice(0, 400));
+  await luin2.close();
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' / '));
   await ctx.close();
