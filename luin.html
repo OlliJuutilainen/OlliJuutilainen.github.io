@@ -429,6 +429,9 @@
   .kahva .k-kaari { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; }
   .k-kaari .kk { fill: none; stroke: var(--ruoste); }
   .k-kaari .kn { fill: var(--ruoste); }
+  /* Okra alleviivaus (varitaAl()) saa okrat kahvat: kahva on samaa väriä kuin viiva, jota se jatkaa. */
+  .kahva.okra .kk { stroke: var(--okra); }
+  .kahva.okra .kn { fill: var(--okra); }
   .kahva .k-ote { position: absolute; width: 40px; height: 40px;
     pointer-events: auto; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent; }
   #kahvat.lapi .k-ote { pointer-events: none; }
@@ -2456,6 +2459,7 @@
       if (!!h.okra === okra) return;
       h.okra = okra;
       $$('mark.ali[data-h="' + h.id + '"]', art).forEach(function (m) { m.classList.toggle('okra', okra); });
+      if (kahvaH === h) kahvaVari();
     };
     for (var i = 0; i < L.length;) {
       var j = i + 1;
@@ -2485,8 +2489,10 @@
     kahvaH = h; kahvatEl.hidden = false; sijoitaKahvat();
   }
   function piilotaKahvat() { kahvaH = null; if (kahvatEl) kahvatEl.hidden = true; piilotaLupa(); }
+  function kahvaVari() { for (var p in kahvaEl) kahvaEl[p].classList.toggle('okra', !!(kahvaH && kahvaH.okra)); }
   function sijoitaKahvat() {
     if (!kahvaH || !nyt) return;
+    kahvaVari();
     var sg = kahvaH.segs, a = sg[0], z = sg[sg.length - 1];
     asetaKahva(kahvaEl.alku, kohdanLaatikko({ b: a.b, o: a.s }), false, a.b);
     asetaKahva(kahvaEl.loppu, kohdanLaatikko({ b: z.b, o: Math.max(z.s, z.e - 1) }), true, z.b);
