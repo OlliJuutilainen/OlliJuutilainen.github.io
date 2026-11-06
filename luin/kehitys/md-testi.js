@@ -260,7 +260,8 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   // Luurangotus
   const lr = md => M.luuranko(md).muutokset.map(m => m.ln + ':' + m.uusi).join(' | ');
   let kp2 = '# K\n\n## Preface\n\n' + pr + '\n\n';
-  [['I', [1, 2]], ['II', [3, 4]]].forEach(([p, cs]) => { kp2 += 'PART ' + p + '\n\n'; cs.forEach(c => { kp2 += '## ' + c + ' Luku\n\n' + pr + '\n\n'; }); });
+  // Luvut ovat todellisen mittaisia (yli PYK_PITUUS): lyhyinä ja osien yli jatkuvina ne olisivat pykäliä.
+  [['I', [1, 2]], ['II', [3, 4]]].forEach(([p, cs]) => { kp2 += 'PART ' + p + '\n\n'; cs.forEach(c => { kp2 += '## ' + c + ' Luku\n\n' + pr.repeat(25) + '\n\n'; }); });
   sama('luuranko: PART-rivit otsikoiksi ja luvut niiden alle', lr(kp2), '7:## PART I | 9:### 1 Luku | 13:### 2 Luku | 17:## PART II | 19:### 3 Luku | 23:### 4 Luku');
   sama('luuranko: CHAPTER ja nimi yhdeksi otsikoksi, kohdat sarjoina', lr('# T\n\nCHAPTER 1\n\nThe Title\n\n' + pr + '\n\n1. Section\n\n' + pr + '\n\na) Sub\n\n' + pr + '\n\nb) Sub\n\n' + pr + '\n\n2. Section\n\n' + pr + '\n\nCHAPTER 2\n\n' + pr),
     '3:## CHAPTER 1. The Title | 9:### 1. Section | 13:#### a) Sub | 17:#### b) Sub | 21:### 2. Section | 25:## CHAPTER 2');
@@ -268,6 +269,20 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
     '3:## Johdanto | 7:### Tausta | 11:## Teoria | 15:### Kant');
   sama('luuranko: kursiiviotsikko samalla tasolla alemmaksi', lr('# T\n\n## Johdanto\n\n' + pr + '\n\n## *Tausta*\n\n' + pr + '\n\n## Teoria\n\n' + pr), '7:### *Tausta*');
   sama('luuranko: luettelon kohdat eivät ole otsikoita', lr('# T\n\n' + pr + '\n\na) jotain\n\nb) jotain muuta\n\n' + pr + '\n\n1. Asia.\n2. Toinen.\n\n' + pr), '');
+  // Pykäläsarja (käyttäjän sääntö 6.11.2026): korkeintaan alaluvun alaluku, merkillä tai ilman, myös ilman yläotsikoita.
+  const hus = n => 'Die natürliche Erkenntnis hebt an mit der Erfahrung und verbleibt in der Erfahrung. '.repeat(n);
+  const ptoc = md => M.parse(md).toc.map(t => t.lvl + (t.pyk ? 'p' : '') + ' ' + (t.paikka || '')).join(' | ');
+  let ide = '# Ideen\n\n## Einleitung\n\n' + hus(6) + '\n\n', np = 1;
+  ['Erster', 'Zweiter'].forEach(a => { ide += '## ' + a + ' Abschnitt\n\n'; ['Erstes', 'Zweites'].forEach(k => { ide += '### ' + k + ' Kapitel\n\n'; for (let i = 0; i < 2; i++, np++) ide += '### § ' + np + '. Titel\n\n' + hus(20) + '\n\n'; }); });
+  sama('pykälät: alaluvun alaluvuiksi, paikannin § n', ptoc(ide), '1  | 1 1 | 2 1.1 | 3p § 1 | 3p § 2 | 2 1.2 | 3p § 3 | 3p § 4 | 1 2 | 2 2.1 | 3p § 5 | 3p § 6 | 2 2.2 | 3p § 7 | 3p § 8');
+  sama('pykälät ilman merkkiä: numerot jatkuvat kapitelien yli', ptoc(ide.replace(/### § (\d+)\./g, '## $1.')).split(' | ').slice(3, 5).join(' | '), '3p 1 | 3p 2');
+  sama('pykälät ilman yläotsikoita', ptoc('# CM\n\n## § 1. A\n\n' + hus(10) + '\n\n## § 2. B\n\n' + hus(10)), '3p § 1 | 3p § 2');
+  sama('pykälät: kymmenen lyhyttä numeroitua ilman yläotsikoita', ptoc('# P\n\n' + Array.from({ length: 10 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ')[0], '3p 1');
+  sama('pykälät: lyhyen artikkelin viisi jaksoa ennallaan', ptoc('# A\n\n' + Array.from({ length: 5 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')), '1 1 | 1 2 | 1 3 | 1 4 | 1 5');
+  sama('pykälät: pitkät luvut osien yli ovat lukuja', ptoc('# K\n\n## Part I\n\n### 1 C\n\n' + hus(80) + '\n\n### 2 C\n\n' + hus(80) + '\n\n## Part II\n\n### 3 C\n\n' + hus(80)), '1 Part I | 2 1 | 2 2 | 1 Part II | 2 3');
+  sama('luuranko: §-rivit ####-otsikoiksi', lr('# I\n\nERSTES KAPITEL\n\n§ 1. Titel\n\n' + hus(20) + '\n\n§ 2. Titel\n\n' + hus(20) + '\n\nZWEITES KAPITEL\n\n§ 3. Titel\n\n' + hus(20)),
+    '3:## ERSTES KAPITEL | 5:#### § 1. Titel | 9:#### § 2. Titel | 13:## ZWEITES KAPITEL | 15:#### § 3. Titel');
+  sama('luurangotus: ##-pykälät ####:ksi', lr('# I\n\n## Erstes Kapitel\n\n## § 1. A\n\n' + hus(20) + '\n\n## § 2. B\n\n' + hus(20)), '5:#### § 1. A | 9:#### § 2. B');
   sama('luuranko: tutkielma ja opas ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../ohje.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
 }
 
