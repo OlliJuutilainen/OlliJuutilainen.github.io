@@ -21,7 +21,7 @@ const palvelin = http.createServer((q, r) => {
 });
 
 // Tekosanasto: otsikko → { kieli: [sanaluokka, määritelmä tai { muoto: 'perusmuoto' }], ... }, pop = suosituimmuus.
-const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit', af: 'Afrikaans' };
+const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit', af: 'Afrikaans', da: 'Danish', mul: 'Translingual' };
 const S = {
   kello: { pop: 90, fi: ['Noun', 'clock'] },
   kelloon: { pop: 5, fi: ['Noun', { muoto: 'illative singular of', k: 'kello' }] },
@@ -52,7 +52,13 @@ const S = {
   is: { pop: 99, en: ['Verb', 'third-person singular present of be'], af: ['Verb', 'present of wees'] },
   est: { pop: 70, la: ['Verb', 'is'], fr: ['Noun', 'east'] },
   gut: { pop: 60, de: ['Adjective', 'good'], en: ['Noun', 'intestine'] },
-  ethos: { pop: 30, en: ['Noun', 'character of a people'], grc: ['Noun', 'custom, habit'] }
+  ethos: { pop: 30, en: ['Noun', 'character of a people'], grc: ['Noun', 'custom, habit'] },
+  // Translingual (mul) kuten oikeassa rajapinnassa: ISO 639 -kielikoodit ja symbolit (mitattu 6.11.2026).
+  as: { pop: 98, mul: ['Symbol', ['Symbol for attosecond.', 'ISO 639-1 language code for Assamese.']], en: ['Conjunction', 'to such an extent'], af: ['Noun', 'axle'] },
+  to: { pop: 97, mul: ['Symbol', 'ISO 639-1 language code for Tongan.'], en: ['Preposition', 'in the direction of'] },
+  km: { pop: 50, mul: ['Symbol', ['Symbol for kilometre.', 'ISO 639-1 language code for Khmer.']], da: ['Noun', 'abbreviation of kilometer'] },
+  jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
+  IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] }
 };
 function taita(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/[,'’]/g, ''); }
 function rest(o) {
@@ -61,12 +67,17 @@ function rest(o) {
   for (const k of Object.keys(e)) {
     if (k === 'pop') continue;
     const [pos, d] = e[k];
-    const html = typeof d === 'string' ? d : '<span class="form-of-definition use-with-mention">' + d.muoto + ' <span class="form-of-definition-link"><i class="Latn mention" lang="' + k + '"><a rel="mw:WikiLink" href="/wiki/' + encodeURIComponent(d.k) + '#' + NIMI[k] + '" title="' + d.k + '">' + d.k + '</a></i></span></span>';
-    j[k] = [{ partOfSpeech: pos, language: NIMI[k], definitions: [{ definition: html }] }];
+    const html = d => typeof d === 'string' ? d : '<span class="form-of-definition use-with-mention">' + d.muoto + ' <span class="form-of-definition-link"><i class="Latn mention" lang="' + k + '"><a rel="mw:WikiLink" href="/wiki/' + encodeURIComponent(d.k) + '#' + NIMI[k] + '" title="' + d.k + '">' + d.k + '</a></i></span></span>';
+    const osa = { partOfSpeech: pos, language: NIMI[k], definitions: [].concat(d).map(x => ({ definition: html(x) })) };
+    // Oikean rajapinnan avaimet: Translingual on avaimen en alla ennen englantia, muinaiskreikka koodittomien kielten
+    // avaimessa other (λόγος, ψυχή; mitattu 6.11.2026).
+    const avain = k === 'mul' ? 'en' : k === 'grc' ? 'other' : k;
+    if (k === 'mul') j.en = [osa].concat(j.en || []); else (j[avain] = j[avain] || []).push(osa);
   }
   return j;
 }
 const pyynnot = [];
+const KERRAN_429 = new Set(['jos']); // ensimmäinen REST-haku antaa 429:n (Wikisanakirjan pyyntörajoitus)
 function api(u) {
   const q = u.searchParams, kat = (q.get('clcategories') || '').split('|').filter(Boolean);
   let t = Object.keys(S);
@@ -81,7 +92,7 @@ function api(u) {
   const pages = t.map((o, i) => {
     const p = { ns: 0, title: o, index: i + 1 };
     if (kat.length) {
-      p.categories = Object.keys(S[o]).filter(k => k !== 'pop').map(k => 'Category:' + NIMI[k] + (typeof S[o][k][1] === 'string' ? ' lemmas' : ' non-lemma forms'))
+      p.categories = Object.keys(S[o]).filter(k => k !== 'pop').map(k => 'Category:' + NIMI[k] + (typeof [].concat(S[o][k][1])[0] === 'string' ? ' lemmas' : ' non-lemma forms'))
         .filter(c => kat.includes(c)).map(c => ({ ns: 14, title: c }));
     }
     return p;
@@ -99,7 +110,7 @@ title: Sanaselityksen koe
 
 Ensimmäinen kappale on suomea ja se on aina tässä. Kello soi, ja hän katsoi kelloon, joka oli seinällä.
 
-Tämä kappale on myös suomea, ja ponillehan ei ole sivua. Kissoi on kirjoitusvirhe, mutta se on myös testi.
+Tämä kappale on myös suomea, ja jos ponillehan ei ole sivua. Kissoi on kirjoitusvirhe, mutta se on myös testi.
 
 Hänen mukaansa Kantin filosofia on vaikea, ja se on totta. Kantelx on keksitty sana, jolla on kaksi lähintä.
 
@@ -114,6 +125,8 @@ Der Begriff Strasse ist nicht das, was die Leute auf der Strasse sagen, und das 
 Hän ei jaksanut edes lukea sitä, ja *edes* kursiivissa on toinen tapaus, kuten myös ”hän ei edes yrittänyt” lainauksessa.
 
 The book on Kant's ethics is long, and it is the one that was written by them.
+
+As we went to the market, the distance was one km and the room was Part IV of the house, and it was the one.
 
 The ethos of the book is Dasein, and the so-called “ethos” is not that, but as he said, “it is the ethos of the people and it is the one that was there”.
 `;
@@ -131,6 +144,7 @@ palvelin.listen(0, async () => {
     const h = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
     if (u.pathname.startsWith('/api/rest_v1/page/definition/')) {
       const o = decodeURIComponent(u.pathname.slice('/api/rest_v1/page/definition/'.length)).replace(/_/g, ' ');
+      if (KERRAN_429.delete(o)) return route.fulfill({ status: 429, headers: h, body: '{}' });
       const j = rest(o);
       return route.fulfill(j ? { status: 200, headers: h, body: JSON.stringify(j) } : { status: 404, headers: h, body: '{}' });
     }
@@ -229,6 +243,21 @@ palvelin.listen(0, async () => {
   const ainoa = (r, ots, kieli) => r.ots === ots && r.kielet.length === 1 && r.kielet[0].startsWith(kieli);
   r = await selita('is', 'The book');
   tulos('en: englannista löytyvään ei tule muiden kielten tietoja (is, ei afrikaansia)', ainoa(r, 'is', 'English') && !/Afrikaans|wees/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
+  // Translingual (käyttäjän palaute 6.11.2026: as, in, to, did näyttivät ensin Translingualin): rajapinta antaa sen avaimen en
+  // alla, joten se näkyi englantina. Nyt tekstin kielestä löytyvään ei tule Translingualia, kielikoodit eivät näy koskaan,
+  // ja symbolin näköinen kirjoitusasu (IV) saa Translingualin tekstin kielen perään.
+  r = await selita('to', 'As we');
+  tulos('en: to vain englantia, ei Translingualia', ainoa(r, 'to', 'English') && !/Translingual|Tongan/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
+  r = await selita('As', 'As we');
+  tulos('en: As virkkeen alussa → as, vain englantia', ainoa(r, 'as', 'English') && !/attosecond|Assamese/.test(r.maar.join()), JSON.stringify(r));
+  r = await selita('km', 'As we');
+  tulos('en: km (ei englantia): Translingual ensin, ilman kielikoodia, tanska perässä', r.kielet[0].startsWith('Translingual') && /kilometre/.test(r.maar[0]) && !/Khmer/.test(r.maar.join()) && /Danish/.test(r.kielet.join()), JSON.stringify(r));
+  r = await selita('IV', 'As we');
+  tulos('en: symbolin näköinen IV: englanti ensin, Translingual perässä', r.kielet.length === 2 && r.kielet[0].startsWith('English') && r.kielet[1].startsWith('Translingual'), JSON.stringify(r));
+  r = await selita('jos');
+  tulos('verkkovirhe pysäyttää ketjun (429 suomesta: ei muiden kielten tietoja, virheilmoitus)', !r.kielet.length && /Haku ei onnistunut/.test(r.tieto), JSON.stringify(r));
+  r = await selita('jos');
+  tulos('virheen jälkeen uusi yritys: vain suomi', ainoa(r, 'jos', 'Finnish'), JSON.stringify(r));
   r = await selita('est', 'Sed quod');
   tulos('la: latinasta löytyvään ei tule muiden kielten tietoja (est, ei ranskaa)', ainoa(r, 'est', 'Latin'), JSON.stringify(r));
   r = await selita('gut', 'Der Begriff');
@@ -399,7 +428,8 @@ palvelin.listen(0, async () => {
     return tulos;
   });
   tulos('asetukset: Sukkela sanaselitys käytössä ilman valikon sanaselitystä', !ase.pois, JSON.stringify(ase));
-  tulos('asetukset: lambda okraa, linssi ruostetta, ei tekstin väriä', ase.lambda !== ase.teksti && /rgb\(176, 122, 22\)/.test(ase.lambda), JSON.stringify(ase));
+  // Lambda on asetuksissakin tekstin värinen (käyttäjän pyyntö 6.11.2026; okra 5.11. oli väliaikainen), linssi ruostetta.
+  tulos('asetukset: lambda tekstin väriä, linssi ruostetta', ase.lambda === ase.teksti && ase.linssi !== ase.teksti, JSON.stringify(ase));
   tulos('asetukset: Sanaselitys (Wiktionary), ei Sanakirja', /^Sanaselitys \(Wiktionary\)$/.test(ase.nimi.trim()), ase.nimi);
   if (KUVAT) await p.locator('#asetukset button[data-kytkin="sukSana"]').locator('xpath=ancestor::div[contains(@class,"asetus")]').screenshot({ path: path.join(KUVAT, 'sk-asetukset.png') });
   if (KUVAT) await p.locator('#asetukset button[data-kytkin="sanakirja"]').locator('xpath=ancestor::div[contains(@class,"asetus")]').screenshot({ path: path.join(KUVAT, 'sk-asetukset-valikossa.png') });
