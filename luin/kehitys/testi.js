@@ -1108,7 +1108,7 @@ palvelin.listen(0, async () => {
   tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,sk,kaanna,kopioi' && m3b.kahvat && m3b.luonnos > 0 &&
     m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, jarj, kahvatNapautuksesta: m3b.kahvat, m4 }));
   // Käyttäjän pyyntö 6.11.2026: yhden sanan luonnos, joka laajennettiin kahvasta ja supistettiin takaisin yhteen sanaan,
-  // avaa Sukkelan sanaselityksen eikä valikkoa. Ilman Sukkelaa se avaa valikon kuten ennenkin.
+  // on valinta kuten mikä tahansa: valikko, ei sanaselitystä, Sukkelalla tai ilman.
   const supista = async sukSana => {
     await mp.evaluate(s => { window.__luin.aset.sukSana = s; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); }, sukSana);
     const w = await sanat(); await veda(w.s[4], w.s[5]);
@@ -1123,8 +1123,19 @@ palvelin.listen(0, async () => {
     return { laaj, lopuksi, sana };
   };
   const su1 = await supista(1), su0 = await supista(0);
-  tulos('supistus takaisin yhteen sanaan avaa sanaselityksen (Sukkela päällä), muuten valikon', /rivi/.test(su1.laaj.pop) && su1.sana.luonnos.length > 0 && !/ /.test(su1.sana.luonnos.trim()) && /sanakirja/.test(su1.sana.pop) &&
+  tulos('supistus takaisin yhteen sanaan avaa valikon (Sukkela päällä tai pois)', /rivi/.test(su1.laaj.pop) && su1.sana.luonnos.length > 0 && !/ /.test(su1.sana.luonnos.trim()) && /rivi/.test(su1.sana.pop) &&
     /rivi/.test(su0.sana.pop), JSON.stringify({ su1, su0 }));
+  // Käyttäjän pyyntö 6.11.2026: hiiren tuplaklikkauksen toisella painalluksella aloitettu maalaus, joka palaa samaan sanaan, ei
+  // avaa sanaselitystä (dblclick tulee maalauksen jälkeen): ilman sukkelaa alleviivausta valikko.
+  {
+    await mp.evaluate(() => { window.__luin.aset.sukSana = 1; document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
+    const w = await sanat(), c = w.s[2], d = w.s[5];
+    await mp.mouse.move(c.x, c.y); await mp.mouse.down(); await mp.mouse.up(); await mp.mouse.down({ clickCount: 2 });
+    await mp.mouse.move(d.x, d.y, { steps: 8 }); await mp.mouse.move(c.x, c.y, { steps: 8 }); await mp.mouse.up({ clickCount: 2 }); await mp.waitForTimeout(300);
+    const tv = await mp.evaluate(() => ({ luonnos: [...document.querySelectorAll('mark.luonnos')].map(m => m.textContent).join('').replace(/\u00ad/g, ''), pop: document.querySelector('#pop').hidden ? '' : document.querySelector('#pop').className }));
+    await mp.keyboard.press('Escape');
+    tulos('hiiren tuplaklikkausveto takaisin sanaan: valikko, ei sanaselitystä', tv.luonnos.length > 0 && !/ /.test(tv.luonnos.trim()) && /rivi/.test(tv.pop), JSON.stringify(tv));
+  }
   await mp.evaluate(() => { window.__luin.aset.sukSana = 1; });
   // Käyttäjän pyyntö 6.11.2026: loppukahvan veto edellisen kappaleen viimeisen rivin viimeisen sanan oikealle puolelle päättää
   // alleviivauksen sen sanan loppuun, vaikka kappaleen lopussa on alaviiteviite (osuma viitteeseen ohitettiin ennen).
@@ -1309,6 +1320,25 @@ palvelin.listen(0, async () => {
   const jalkeen = await kp2.evaluate(() => document.querySelector('#kahvat').hidden);
   tulos('kosketusveto: kahvat näkyvissä vedon aikana ja jälkeen', vedossa.nak === 'visible,visible' && !jalkeen, JSON.stringify({ vedossa, jalkeen }));
   tulos('kahvan veto riviä alemmas otealueen läpi', lu3.x.length > lu2.x.length && lu3.riviYla > lu2.riviYla + 20, JSON.stringify({ ennen: lu2.x.slice(-30), jalkeen: lu3.x.slice(-30), rivi: [lu2.riviYla, lu3.riviYla] }));
+  // Käyttäjän pyyntö 6.11.2026: pitkä painallus, veto eteenpäin ja takaisin samaan sanaan on maalaus eikä sanan valinta:
+  // sukkelana alleviivaus sille sanalle, ilman sukkelaa valikko. Sukkela sanaselitys on päällä kummassakin.
+  const edesTakaisin = async auto => {
+    await kp2.keyboard.press('Escape');
+    await kp2.evaluate(a => { window.__luin.aset.sukSana = 1; window.__luin.aset.auto = a; }, auto);
+    const [a, z] = [ksanat[10], ksanat[13]], ennen = await kTila();
+    await kosk('touchStart', a.x, a.y); await kp2.waitForTimeout(600);
+    for (let i = 1; i <= 8; i++) { await kosk('touchMove', a.x + (z.x - a.x) * i / 8, a.y + (z.y - a.y) * i / 8); await kp2.waitForTimeout(30); }
+    const kesken = await kp2.evaluate(() => [...document.querySelectorAll('mark.luonnos')].map(m => m.textContent).join('').replace(/\u00ad/g, ''));
+    for (let i = 7; i >= 0; i--) { await kosk('touchMove', a.x + (z.x - a.x) * i / 8, a.y + (z.y - a.y) * i / 8); await kp2.waitForTimeout(30); }
+    await kosk('touchEnd'); await kp2.waitForTimeout(400);
+    const t = await kTila(), x = await kn();
+    if (t.n > ennen.n) await kp2.evaluate(() => { const n = window.__luin.nyt(); n.merk.al.pop(); });
+    return { kesken, uusi: t.n - ennen.n, x: t.n > ennen.n ? x.x : '', pop: t.pop, napit: t.napit };
+  };
+  const et1 = await edesTakaisin(1), et0 = await edesTakaisin(0);
+  await kp2.keyboard.press('Escape');
+  tulos('pitkä painallus, veto eteen ja takaisin: sukkelana alleviivaus, muuten valikko', / /.test(et1.kesken) && et1.uusi === 1 && !/ /.test(et1.x.trim()) && !et1.pop &&
+    / /.test(et0.kesken) && et0.uusi === 0 && /rivi/.test(et0.pop), JSON.stringify({ et1, et0 }));
   await kk.close();
   }
 

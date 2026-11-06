@@ -2465,7 +2465,11 @@
 
   var valAjastin = null, osoitin = 'mouse';
   document.addEventListener('pointerdown', function (e) { osoitin = e.pointerType || 'mouse'; tila.niele = 0; }, true);
-  document.addEventListener('mousedown', function (e) { tila.klikit = e.detail; }, true);
+  // Tuplaklikkauksen jälkeen vedetty valinta on maalaus, vaikka se palaisi samaan sanaan (tila.vedetty, käyttäjän pyyntö 6.11.2026).
+  document.addEventListener('mousedown', function (e) { tila.klikit = e.detail; tila.hx = e.clientX; tila.hy = e.clientY; tila.vedetty = false; }, true);
+  document.addEventListener('mousemove', function (e) {
+    if (e.buttons & 1 && Math.abs(e.clientX - tila.hx) + Math.abs(e.clientY - tila.hy) >= 5) tila.vedetty = true;
+  }, true);
   document.addEventListener('pointerup', function (e) {
     if (osoitin === 'mouse' && !pop.contains(e.target)) setTimeout(kasitteleValinta, 0);
   }, true);
@@ -2483,7 +2487,7 @@
     if (!segs.length) return;
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
     // Työpöydän tuplaklikkaus on sanaselitys (käyttäjän päätös 5.11.2026).
-    if (osoitin === 'mouse' && tila.klikit >= 2 && sukkelaSanasto() && yksiSana(segs)) {
+    if (osoitin === 'mouse' && tila.klikit >= 2 && !tila.vedetty && sukkelaSanasto() && yksiSana(segs)) {
       s.removeAllRanges();
       sanaselitys(segs, rect);
       return;
@@ -2751,6 +2755,7 @@
     if (!kohtaEnnen(p, q) || p.b === q.b && p.o === q.o) return;
     var segs = rajattuValilta(veto.kiinni, k, veto.h);
     if (!segs.length || samatSegs(segs, veto.h.segs)) return;
+    veto.muuttui = true;
     if (veto.h === luonnos) piirraLuonnos(segs);
     else { poistaMerkit(veto.h.id); veto.h.segs = segs; piirraAlleviivaus(veto.h); }
     varitaAl();
@@ -2768,10 +2773,10 @@
     varitaAl(); piirraKirjausmerkit();
     if (kahvaH !== v.h) return;
     sijoitaKahvat();
-    // Vedon päätteeksi yhteen sanaan supistunut luonnos on yhden sanan valinta kuten alun perin: Sukkela sanaselitys
-    // avaa sanaselityksen eikä valikkoa (käyttäjän pyyntö 6.11.2026).
+    // Luonnos, jota veto muutti, on valinta kuten mikä tahansa, myös yhteen sanaan palattuaan: valikko, ei sanaselitystä
+    // (käyttäjän pyyntö 6.11.2026; samana päivänä hetken avautui sanaselitys). Muuttamaton yhden sanan luonnos pysyy sanana.
     if (v.h === luonnos) {
-      if (sukkelaSanasto() && yksiSana(luonnos.segs)) sanaselitys(luonnos.segs.slice(), alRect(luonnos));
+      if (!v.muuttui && sukkelaSanasto() && yksiSana(luonnos.segs)) sanaselitys(luonnos.segs.slice(), alRect(luonnos));
       else naytaValintaPop(luonnos.segs, alRect(luonnos));
     }
     else if (v.pop) naytaAlPop(v.h.id, alRect(v.h));
@@ -2901,7 +2906,11 @@
     if (!k) return;
     var segs = rajattuValilta(maal.alku, k, null);
     if (!segs.length) segs = maal.eka;
-    if (segs.length) piirraLuonnos(segs);
+    if (!segs.length) return;
+    piirraLuonnos(segs);
+    // Kerran painetun sanan yli laajentunut maalaus on maalaus loppuun asti, vaikka veto palaisi samaan sanaan
+    // (käyttäjän pyyntö 6.11.2026): Sukkela sanaselitys koskee vain pelkkää painallusta.
+    if (!samatSegs(segs, maal.eka)) maal.laajeni = true;
   }
   var maalRaf = 0;
   function maalausAskelRaf() { if (!maalRaf) maalRaf = requestAnimationFrame(function () { maalRaf = 0; maalausAskel(); }); }
@@ -2916,7 +2925,8 @@
   function lopetaMaalaus() {
     if (!maal) return false;
     if (maalRaf) { cancelAnimationFrame(maalRaf); maalRaf = 0; maalausAskel(); }
-    var oli = maal.aktiivinen, sana = maal.tapa === 'kosketus' && maal.eka && samatSegs(luonnos.segs, maal.eka);
+    var oli = maal.aktiivinen, sana = maal.tapa === 'kosketus' && maal.eka && !maal.laajeni && samatSegs(luonnos.segs, maal.eka);
+    if (oli && maal.tapa === 'hiiri') hiiriMaalasi = true;
     peruMaalaus();
     if (!oli) return false;
     valmisMaalaus(sana);
@@ -2940,7 +2950,10 @@
     return omaMaalaus() && nyt && tila.nakyma === 'lukija' && !verhoAuki() && !muokkaus &&
       !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, .kirm, label, input, textarea, .luin-ui'));
   }
+  // Tuplaklikkauksen toinen painallus voi aloittaa maalauksen; silloin dblclick ei avaa sanaselitystä maalauksen päälle.
+  var hiiriMaalasi = false;
   sivuEl.addEventListener('mousedown', function (e) {
+    hiiriMaalasi = false;
     if (e.button !== 0 || osoitin !== 'mouse' || !maalausSallittu(e.target)) return;
     var k = kohtaPisteessa(e.clientX, e.clientY);
     if (k) maal = { alku: k, tapa: 'hiiri', x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, aktiivinen: false };
@@ -2958,7 +2971,7 @@
   // Hiiren tuplaklikkaus on työpöydällä sanaselitys (käyttäjän päätös 5.11.2026): sana näkyy luonnoksena laatikon ajan.
   // Ilman Sukkelaa sanaselitystä tuplaklikkaus maalaa sanan.
   sivuEl.addEventListener('dblclick', function (e) {
-    if (osoitin !== 'mouse' || !maalausSallittu(e.target)) return;
+    if (osoitin !== 'mouse' || hiiriMaalasi || !maalausSallittu(e.target)) return;
     var k = kohtaPisteessa(e.clientX, e.clientY), segs = k ? sanaKohdassa(k) : [];
     if (!segs.length) return;
     suljePop(); piilotaKahvat(); poistaLuonnos();
