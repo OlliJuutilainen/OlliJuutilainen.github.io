@@ -3165,8 +3165,38 @@
       if (r.status === 404) return null;
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    }).then(function (j) { skVarasto[sana] = j; return j; });
+    }).then(function (j) { j = skNormita(j); skVarasto[sana] = j; return j; });
   }
+  // REST-rajapinnan kieliavaimet eivät ole luotettavia (mitattu 6.11.2026): Translingual on avaimen en alla (as, in, to,
+  // did, is: ennen englantia), ja koodittomat kielet ovat yhdessä avaimessa other, myös muinaiskreikka (λόγος, ψυχή), jolloin
+  // grc-ketju ei löytänyt mitään. Avain luetaan siksi osan kielen nimestä: Translingual on mul, tunnetut nimet SK_NIMI:n
+  // koodeja, other jaetaan kielittäin. Translingualista pois ISO 639 -kielikoodit (as = assami, to = tonga): tekstin sana ei
+  // ole kielikoodi.
+  function skNormita(j) {
+    if (!j) return j;
+    var out = {};
+    Object.keys(j).forEach(function (k) {
+      if (!Array.isArray(j[k])) return;
+      j[k].forEach(function (osa) {
+        var n = osa.language || '', kk = n === 'Translingual' ? 'mul' : skKieliKoodi(n) || (k === 'other' ? 'other:' + n : k);
+        if (kk === 'mul') {
+          var defs = (osa.definitions || []).filter(function (d) { return !/ISO 639/.test(String(d.definition || '').replace(/<[^>]*>/g, '')); });
+          if (!defs.length) return;
+          osa = Object.assign({}, osa, { definitions: defs });
+        }
+        (out[kk] = out[kk] || []).push(osa);
+      });
+    });
+    return out;
+  }
+  // Translingual kuuluu kaikkiin kieliin, mutta selityksissä se tulee tekstin kielen, ketjun kielten, englannin ja suomen
+  // jälkeen ja ennen muita kieliä (km, CO2: vain Translingual). Kun tekstin kielestä löytyy osuma (r-lippu), Translingual
+  // jää pois, ellei kirjoitusasu ole symbolin näköinen (skSymboli: IV, CO2, pH), koska tavallisen sanan Translingual-osio on
+  // kirjaimia, yksikköjä ja koodeja (as = attosekunti).
+  function skJarjKieli(k, kielet, etusija) {
+    return k === etusija ? 0 : k === 'mul' ? 3.5 : kielet !== '*' && kielet.indexOf(k) >= 0 ? 1 : k === 'en' ? 2 : k === 'fi' ? 3 : 4;
+  }
+  function skSymboli(s) { return /\p{N}/u.test(s) || /\p{L}\p{Lu}/u.test(s); }
   // Ehdokkaat palvelimen hausta: [{ o: otsikko, i: järjestys, kk: { kieli: 'l' (lemma) tai 'm' (taivutusmuoto) } }].
   // Kielilista rajaa ehdokkaat näiden kielten lemma- ja muotoluokkiin samassa pyynnössä; '*' ei rajaa. tapa 'alku' on
   // otsikon alkuhaku (prefixsearch, suosituimmat ensin), 'teksti' koko tekstin haku (search).
@@ -3315,7 +3345,11 @@
   // tekstin kielestä ei löydy mitään. Liudentuu kursiivissa (vieraat sanat) ja lyhyessä lainauksessa muualla kuin suomessa.
   var SK_VIERAAT = ['la', 'en', 'fr', 'de', 'sv'];
   function skKetju(kieli, y, monta, erisnimi) {
-    function A(t, k, v, r) { return { t: t, k: k === '*' ? '*' : [].concat(k), v: v || 0, r: r === true ? [].concat(k) : r || null }; }
+    function A(t, k, v, r) {
+      r = r === true ? [].concat(k) : r || null;
+      if (r && y.symboli) r = r.concat('mul');
+      return { t: t, k: k === '*' ? '*' : [].concat(k), v: v || 0, r: r };
+    }
     // Lainaus muualla kuin suomessa: oman kielensä erottava (pitkä) lainaus on kuin leipäteksti; lyhyt lainaus (englannin
     // scare quotes, termit) liudentuu kuin kursiivi, koska se merkitsee usein vierasta tai lainattua sanaa.
     var vieras = y.kursiivi || y.lainaus && kieli !== 'fi' && y.omaKieli !== kieli;
@@ -3393,8 +3427,9 @@
     });
   }
   function skKieletNimin(j, kielet) {
-    return Object.keys(j).filter(function (k) { return Array.isArray(j[k]) && j[k].length && (kielet === '*' || kielet.indexOf(k) >= 0); })
-      .map(function (k) { return j[k][0].language || SK_NIMI[k] || k; }).slice(0, 2).join(', ');
+    var ks = Object.keys(j).filter(function (k) { return Array.isArray(j[k]) && j[k].length && (kielet === '*' || kielet.indexOf(k) >= 0); });
+    return ks.map(function (k, i) { return [k, i]; }).sort(function (a, z) { return skJarjKieli(a[0], kielet, kielet === '*' ? '' : kielet[0]) - skJarjKieli(z[0], kielet, kielet === '*' ? '' : kielet[0]) || a[1] - z[1]; })
+      .map(function (x) { return j[x[0]][0].language || SK_NIMI[x[0]] || x[0]; }).slice(0, 2).join(', ');
   }
   function skYhdista(listat) {
     var nahty = {}, out = [];
@@ -3519,7 +3554,7 @@
   // Määritelmät kielittäin: etusijakieli ensin, sitten ketjun kielet, englanti ja suomi; enintään neljä kieltä, kolme
   // sanaluokkaa ja neljä määritelmää kustakin. Palauttaa myös näytetyt kielet (kielihuomautusta varten).
   function skSisalto(j, kielet, etusija, tilaa) {
-    var jarj = function (k) { return k === etusija ? 0 : kielet !== '*' && kielet.indexOf(k) >= 0 ? 1 : k === 'en' ? 2 : k === 'fi' ? 3 : 4; };
+    var jarj = function (k) { return skJarjKieli(k, kielet, etusija); };
     var ks = Object.keys(j).filter(function (k) { return Array.isArray(j[k]) && (kielet === '*' || kielet.indexOf(k) >= 0); });
     ks = ks.map(function (k, i) { return [k, i]; }).sort(function (a, z) { return jarj(a[0]) - jarj(z[0]) || a[1] - z[1]; }).map(function (x) { return x[0]; });
     var html = '', nayt = [];
@@ -3553,7 +3588,7 @@
   function sanaselitys(segs, rect) {
     var sg = segs[0], haku = skHakusana(sg.x), y = skYmparisto(sg), vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
     if (!haku) return;
-    y.kieli = skKieli(sg, y);
+    y.kieli = skKieli(sg, y); y.symboli = skSymboli(haku);
     var monta = sanaLkm(haku) > 1, erisnimi = !monta && !y.alku && /^\p{Lu}/u.test(haku) && haku !== haku.toUpperCase();
     var ketju = skKetju(y.kieli, y, monta, erisnimi);
     naytaPop(rect, skKehys(haku, haku), 'sanakirja', function (k, b) {
@@ -3618,7 +3653,9 @@
       if (i >= ketju.length) return Promise.resolve(null);
       return Promise.all(ketju[i].map(function (a) { return skAskel(a, haku, y).catch(function () { virhe = true; return null; }); })).then(function (rs) {
         rs = rs.filter(Boolean);
-        if (!rs.length) return aja(i + 1);
+        // Verkkovirhe pysäyttää ketjun: seuraava askel vastaisi eri kysymykseen (429 tasan samassa suomesta, ja on toi muut
+        // kielet kuin suomesta ei olisi löytynyt mitään).
+        if (!rs.length) return virhe ? null : aja(i + 1);
         var r = rs[0];
         if (rs.length > 1) r = { tapa: r.tapa, vaihdot: skYhdista(rs.map(function (x) { return x.vaihdot || []; })).slice(0, 4) };
         r.askel = ketju[i][0];
