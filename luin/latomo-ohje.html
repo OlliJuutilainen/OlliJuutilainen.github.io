@@ -177,6 +177,22 @@
     vanhasta alusta lauseet, joita kentistä ei löydy (esimerkiksi ISBN ja lisenssi). Uusi alku valitaan tekstikentässä,
     joten sitä voi muotoilla heti omin käsin; kentät seuraavat tekstiä.</p>
 
+  <h2 id="rakenne">Rakenne ja paikantimet</h2>
+  <p>Latomo etsii tekstistä rakennetunnisteita: otsikkotasojen lisäksi numerot ja alanumerot (<i>4.3.4</i>), pykälät
+    (<i>§ 12</i>), roomalaiset numerot isoina ja pieninä, pisteellä tai sulkeilla (<i>IV.</i>, <i>iv)</i>, <i>(iv)</i>),
+    kirjaimet (<i>a)</i>, <i>A.</i>), kreikkalaiset numerot (<i>αʹ</i>, <i>β.</i>), sanalliset numeroinnit (<i>Ensimmäinen
+    osa</i>, <i>PT II</i>, <i>Chapter Three</i>, <i>Erster Teil</i>) sekä lihavoidut, kursivoidut ja versaalilla
+    kirjoitetut otsikkorivit. Jos tunnisteelta näyttävä rivi on tavallista tekstiä tai eri tunnisteet ovat samalla
+    otsikkotasolla, Latomo ehdottaa rakenteen merkitsemistä otsikoiksi: tunnisteet asettuvat sisäkkäin siinä
+    järjestyksessä, jossa ne tekstissä ensi kerran esiintyvät (<i>PART I</i> ennen lukua 1 tarkoittaa, että osat ovat
+    lukujen yläpuolella). Muutokset näkyvät ennen napin painamista, ja otsikkorivin voi aina korjata käsin.</p>
+  <p>Rakenne-osiossa näkyy kunkin otsikon <i>paikannin</i>, jolla kohtaan viitataan, kun Luinissa kopioi viitteen
+    kanssa. Jos kirjoittaja on numeroinut luvut muotoon <i>4.3.4</i>, numero riittää. Muuten paikannin kootaan
+    ylemmistä tunnisteista, esimerkiksi <i>Osa II, 3b</i>. Ylempi taso jää pois, jos alempi numerointi jatkuu sen yli:
+    Christine Korsgaardin <i>Fellow Creaturesissa</i> Part II alkaa luvusta 6, joten luvun paikannin on <i>6</i> eikä
+    <i>Part II, 6</i>. Jos kappaleet alkavat pykälillä (<i>§ 12.</i>) tai Tractatuksen tapaan numeroilla (<i>6.54</i>),
+    paikannin tarkentuu kappaleeseen.</p>
+
   <h2 id="annotaatiot">iA Writerin annotaatiot</h2>
   <p>iA Writer tallentaa tekijyysmerkinnät (Authorship) tiedoston loppuun riville, joka alkaa sanalla
     <code>Annotations:</code>. Kun Latomo tunnistaa tällaisen rivin, tekstikentän alle ilmestyy kytkin
