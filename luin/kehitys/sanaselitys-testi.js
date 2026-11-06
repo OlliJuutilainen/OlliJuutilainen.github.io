@@ -47,7 +47,8 @@ const S = {
   Dasein: { pop: 40, de: ['Noun', 'existence'], en: ['Noun', 'being-there'] },
   'Straße': { pop: 40, de: ['Noun', 'street'] },
   'kova onni': { pop: 20, fi: ['Noun', 'bad luck'] },
-  kova: { pop: 85, fi: ['Adjective', 'hard'] }
+  kova: { pop: 85, fi: ['Adjective', 'hard'] },
+  edes: { pop: 70, fi: ['Adverb', 'at least'], la: ['Verb', 'second-person singular present active subjunctive of edō'] }
 };
 function taita(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/[,'’]/g, ''); }
 function rest(o) {
@@ -105,6 +106,8 @@ Suomen kappale, jossa on kreikkaa λογος ja kovan onnen ilmaus sekä xyzzyq,
 Sed quod est in rebus psyche et quae sunt in animo, ut ita dicam, tamen nec enim ad hoc.
 
 Der Begriff Strasse ist nicht das, was die Leute auf der Strasse sagen, und das ist auch gut so.
+
+Hän ei jaksanut edes lukea sitä, ja *edes* kursiivissa on toinen tapaus, kuten myös ”hän ei edes yrittänyt” lainauksessa.
 
 The book on Kant's ethics is long, and it is the one that was written by them.
 `;
@@ -202,6 +205,12 @@ palvelin.listen(0, async () => {
   tulos('vip: napsu ja majuminuluku yhtä aikaa (pratityasamutpadaa)', r.ots === 'pratītyasamutpāda', JSON.stringify(r));
   r = await selita('λογος');
   tulos('kreikka: majuminuluku muinaiskreikasta (λογος → λόγος)', r.ots === 'λόγος' && r.kielet[0].startsWith('Ancient Greek') && /toisin kirjoitettuna/.test(r.huom.join()), JSON.stringify(r));
+  r = await selita('edes');
+  tulos('fi: suomesta löytyvään ei tule muiden kielten tietoja (edes, ei latinaa)', r.ots === 'edes' && r.kielet.length === 1 && r.kielet[0].startsWith('Finnish') && !/Latin/.test(r.maar.join() + r.kielet.join()), JSON.stringify(r));
+  r = await selita('edes', 1);
+  tulos('kursiivi: suomi ensin, muut kielet saavat jäädä mukaan (liudentunut)', r.kielet.length === 2 && r.kielet[0].startsWith('Finnish') && /Latin/.test(r.kielet[1]), JSON.stringify(r));
+  r = await selita('edes', 2);
+  tulos('lainaus: kuin suomikonteksti, vain suomi', r.kielet.length === 1 && r.kielet[0].startsWith('Finnish'), JSON.stringify(r));
   r = await selita('kovan onnen');
   tulos('fi: ilmauksen kongruenssi sanoittain (kovan onnen → kova onni)', r.ots === 'kova onni', JSON.stringify(r));
   r = await selita('xyzzyq');
