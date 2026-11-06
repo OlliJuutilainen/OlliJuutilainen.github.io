@@ -21,7 +21,7 @@ const palvelin = http.createServer((q, r) => {
 });
 
 // Tekosanasto: otsikko → { kieli: [sanaluokka, määritelmä tai { muoto: 'perusmuoto' }], ... }, pop = suosituimmuus.
-const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit' };
+const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit', af: 'Afrikaans' };
 const S = {
   kello: { pop: 90, fi: ['Noun', 'clock'] },
   kelloon: { pop: 5, fi: ['Noun', { muoto: 'illative singular of', k: 'kello' }] },
@@ -48,7 +48,11 @@ const S = {
   'Straße': { pop: 40, de: ['Noun', 'street'] },
   'kova onni': { pop: 20, fi: ['Noun', 'bad luck'] },
   kova: { pop: 85, fi: ['Adjective', 'hard'] },
-  edes: { pop: 70, fi: ['Adverb', 'at least'], la: ['Verb', 'second-person singular present active subjunctive of edō'] }
+  edes: { pop: 70, fi: ['Adverb', 'at least'], la: ['Verb', 'second-person singular present active subjunctive of edō'] },
+  is: { pop: 99, en: ['Verb', 'third-person singular present of be'], af: ['Verb', 'present of wees'] },
+  est: { pop: 70, la: ['Verb', 'is'], fr: ['Noun', 'east'] },
+  gut: { pop: 60, de: ['Adjective', 'good'], en: ['Noun', 'intestine'] },
+  ethos: { pop: 30, en: ['Noun', 'character of a people'], grc: ['Noun', 'custom, habit'] }
 };
 function taita(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/[,'’]/g, ''); }
 function rest(o) {
@@ -110,6 +114,8 @@ Der Begriff Strasse ist nicht das, was die Leute auf der Strasse sagen, und das 
 Hän ei jaksanut edes lukea sitä, ja *edes* kursiivissa on toinen tapaus, kuten myös ”hän ei edes yrittänyt” lainauksessa.
 
 The book on Kant's ethics is long, and it is the one that was written by them.
+
+The ethos of the book is Dasein, and the so-called “ethos” is not that, but as he said, “it is the ethos of the people and it is the one that was there”.
 `;
 
 palvelin.listen(0, async () => {
@@ -148,11 +154,19 @@ palvelin.listen(0, async () => {
   tulos('oletukset: sanaselitys valikossa, käännös ei, sukkela päällä', oletus.k === 0 && oletus.s === 1 && oletus.suk === 1 && oletus.av === 6, JSON.stringify(oletus));
 
   // Selitys tekstin kohdasta: odotetaan, kunnes Haetaan… vaihtuu.
+  // n: monesko esiintymä, tai 'kappaleen alku#monesko' (kokonainen sana siinä kappaleessa).
   async function selita(sana, n) {
     pyynnot.length = 0;
     await p.evaluate(([sana, n]) => {
       const T = window.__luin.nyt().txt;
       let b = -1, s = -1, c = 0;
+      if (typeof n === 'string') {
+        const [alku, m] = n.split('#'), i = T.findIndex(t => t.startsWith(alku));
+        const re = new RegExp('(?<![\\p{L}])' + sana + '(?![\\p{L}])', 'gu'), osumat = i < 0 ? [] : [...T[i].matchAll(re)];
+        const o = osumat[+(m || 0)];
+        if (!o) throw new Error('ei löydy: ' + sana + ' / ' + n);
+        return window.__luin.selitys(i, o.index, o.index + sana.length);
+      }
       for (let i = 0; i < T.length && b < 0; i++) { let j = -1; while ((j = T[i].indexOf(sana, j + 1)) >= 0) { if (c++ === (n || 0)) { b = i; s = j; break; } } }
       if (b < 0) throw new Error('ei löydy: ' + sana);
       window.__luin.selitys(b, s, s + sana.length);
@@ -211,6 +225,24 @@ palvelin.listen(0, async () => {
   tulos('kursiivi: suomi ensin, muut kielet saavat jäädä mukaan (liudentunut)', r.kielet.length === 2 && r.kielet[0].startsWith('Finnish') && /Latin/.test(r.kielet[1]), JSON.stringify(r));
   r = await selita('edes', 2);
   tulos('lainaus: kuin suomikonteksti, vain suomi', r.kielet.length === 1 && r.kielet[0].startsWith('Finnish'), JSON.stringify(r));
+  // Sama kaikissa kielissä (käyttäjän linjaus 6.11.2026): tekstin kielestä löytyvään ei tule muiden kielten tietoja.
+  const ainoa = (r, ots, kieli) => r.ots === ots && r.kielet.length === 1 && r.kielet[0].startsWith(kieli);
+  r = await selita('is', 'The book');
+  tulos('en: englannista löytyvään ei tule muiden kielten tietoja (is, ei afrikaansia)', ainoa(r, 'is', 'English') && !/Afrikaans|wees/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
+  r = await selita('est', 'Sed quod');
+  tulos('la: latinasta löytyvään ei tule muiden kielten tietoja (est, ei ranskaa)', ainoa(r, 'est', 'Latin'), JSON.stringify(r));
+  r = await selita('gut', 'Der Begriff');
+  tulos('de: saksasta löytyvään ei tule muiden kielten tietoja (gut, ei englantia)', ainoa(r, 'gut', 'German'), JSON.stringify(r));
+  r = await selita('ethos', 'The ethos');
+  tulos('en: leipätekstissä vain englanti (ethos)', ainoa(r, 'ethos', 'English'), JSON.stringify(r));
+  r = await selita('Dasein', 'The ethos');
+  tulos('en: iso alkukirjain keskellä virkettä jättää muut kielet mukaan (Dasein: englanti ensin, saksa perässä)', r.kielet.length === 2 && r.kielet[0].startsWith('English') && r.kielet[1].startsWith('German'), JSON.stringify(r));
+  r = await selita('ethos', 'The ethos#1');
+  tulos('en: lyhyt lainaus liudentuu (“ethos”: englanti ensin, kreikka perässä)', r.kielet.length === 2 && r.kielet[0].startsWith('English') && r.kielet[1].startsWith('Ancient Greek'), JSON.stringify(r));
+  r = await selita('ethos', 'The ethos#2');
+  tulos('en: oman kielensä erottava lainaus on kuin leipäteksti (vain englanti)', ainoa(r, 'ethos', 'English'), JSON.stringify(r));
+  const kk = await p.evaluate(() => window.__luin.selitysKetju('grc', {}, false, false)[0][0].r);
+  tulos('grc: kreikan kaksi kieltä pysyvät yhdessä', JSON.stringify(kk) === '["grc","el"]', JSON.stringify(kk));
   r = await selita('kovan onnen');
   tulos('fi: ilmauksen kongruenssi sanoittain (kovan onnen → kova onni)', r.ots === 'kova onni', JSON.stringify(r));
   r = await selita('xyzzyq');
