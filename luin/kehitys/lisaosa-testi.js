@@ -1,13 +1,16 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista. ollijuutilainen.github.io palvellaan tästä reposta.
+// (Lisää lukimeen) luin.html#tuo → lukulista. Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
+// paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
 // sen manifestiin lisätään <all_urls>. Muuten lisäosa on sama.
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { chromium } = require('playwright');
+const http = require('http');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -64,8 +67,19 @@ const SEP_SIVUT = {
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
   fs.cpSync(path.join(JUURI, 'luin/lisaosa'), lisaosa, { recursive: true });
   const man = JSON.parse(fs.readFileSync(path.join(lisaosa, 'manifest.json'), 'utf8'));
+  const palvelin = http.createServer((q, r) => {
+    const p = path.join(JUURI, decodeURIComponent(q.url.split(/[?#]/)[0]));
+    if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) { r.writeHead(404); return r.end(); }
+    r.writeHead(200, { 'Content-Type': TYYPIT[path.extname(p)] || 'application/octet-stream' });
+    fs.createReadStream(p).pipe(r);
+  }).listen(0);
+  await new Promise(r => palvelin.once('listening', r));
+  const PAIKALLINEN = 'http://127.0.0.1:' + palvelin.address().port + '/';
   man.host_permissions.push('<all_urls>');
+  man.content_scripts[0].matches = [PAIKALLINEN + 'luin/latomo.html*'];
   fs.writeFileSync(path.join(lisaosa, 'manifest.json'), JSON.stringify(man, null, 2));
+  const pj = path.join(lisaosa, 'ponnahdus.js');
+  fs.writeFileSync(pj, fs.readFileSync(pj, 'utf8').replace('https://ollijuutilainen.github.io/', PAIKALLINEN));
   const profiili = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-profiili-'));
 
   const ctx = await chromium.launchPersistentContext(profiili, { channel: 'chromium', headless: true,
@@ -74,6 +88,7 @@ const SEP_SIVUT = {
   // Vain http(s): reitti '**/*' sieppaisi myös lisäosan omat tiedostot (chrome-extension://), ja ikkuna jäisi tyhjäksi.
   await ctx.route(/^https?:/, r => {
     const u = new URL(r.request().url());
+    if (u.hostname === '127.0.0.1') return r.continue();
     if (u.href.split('#')[0] === ARTIKKELI) return r.fulfill({ body: SIVU, contentType: 'text/html; charset=utf-8' });
     if (SEP_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: SEP_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
@@ -119,6 +134,7 @@ const SEP_SIVUT = {
     const p = await uusi;
     p.on('pageerror', e => virheet.push('välilehti: ' + e.message));
     await p.waitForURL(minne, { timeout: 8000 });
+    if (!p.url().startsWith(PAIKALLINEN)) virheet.push('välilehti ei ole paikallinen: ' + p.url());
     await p.waitForTimeout(700);
     return p;
   };
@@ -176,7 +192,7 @@ const SEP_SIVUT = {
 
   // 5. Pelkkä Latomo osoitteella #lisaosa ilman odottavaa leikettä: tekstikenttä tyhjä.
   const tyhja = await ctx.newPage();
-  await tyhja.goto('https://ollijuutilainen.github.io/luin/latomo.html#lisaosa');
+  await tyhja.goto(PAIKALLINEN + 'luin/latomo.html#lisaosa');
   await tyhja.waitForTimeout(600);
   tulos('ei odottavaa leikettä: Latomo tyhjä', (await tyhja.inputValue('#md')) === '');
   await tyhja.close();

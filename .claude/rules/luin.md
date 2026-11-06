@@ -71,7 +71,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Pandocin `^[…]` toimii yhä.
 - Lähdeviittaus- ja lyhennelinkit (opas 3.4) syntyvät md.js:n omasta päättelystä (`viittaukset()`) **vain varmalla
   yhteydellä**. Ei BibTeX:ää, Pandocia tms. (käyttäjän vaatimus). Lyhenteille ei tehdä merkintöjä tiedostoon. Linkit
-  ovat vain alaviitteissä, eivät leipätekstissä, eikä selitysosiosta linkitetä edelleen (minimalismi).
+  ovat vain alaviitteissä, eikä selitysosiosta linkitetä edelleen (minimalismi). Ainoa poikkeus leipätekstissä on
+  hakasulkuviittaus `[Tekijä vuosi]`, joka alkaa heti sulusta (SEP; käyttäjän päätös 6.11.2026, `linkitaHaka()`).
 - Regexien `\b` ei toimi ä:n perässä; käytä `(?![\p{L}\p{N}])`.
 - **`md.js?v=<SHA-1:n alku>`**: luin.html ja Latomo lataavat md.js:n versiotunnisteella, koska Pages antaa `max-age=600`
   ja käyttäjän selain piti vanhan version. Kun muutat md.js:ää, päivitä tunniste (`md-testi.js` huomauttaa unohduksesta):
