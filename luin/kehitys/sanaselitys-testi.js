@@ -54,7 +54,7 @@ const S = {
   gut: { pop: 60, de: ['Adjective', 'good'], en: ['Noun', 'intestine'] },
   ethos: { pop: 30, en: ['Noun', 'character of a people'], grc: ['Noun', 'custom, habit'] },
   // Translingual (mul) kuten oikeassa rajapinnassa: ISO 639 -kielikoodit ja symbolit (mitattu 6.11.2026).
-  as: { pop: 98, mul: ['Symbol', ['Symbol for attosecond.', 'ISO 639-1 language code for Assamese.']], en: ['Conjunction', 'to such an extent'], af: ['Noun', 'axle'] },
+  as: { pop: 98, mul: ['Symbol', ['Symbol for attosecond.', 'ISO 639-1 language code for Assamese.']], en: ['Conjunction', 'to such an extent'], fi: ['Noun', '(music) A-flat'], af: ['Noun', 'axle'] },
   to: { pop: 97, mul: ['Symbol', 'ISO 639-1 language code for Tongan.'], en: ['Preposition', 'in the direction of'] },
   km: { pop: 50, mul: ['Symbol', ['Symbol for kilometre.', 'ISO 639-1 language code for Khmer.']], da: ['Noun', 'abbreviation of kilometer'] },
   jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
@@ -127,6 +127,8 @@ Hän ei jaksanut edes lukea sitä, ja *edes* kursiivissa on toinen tapaus, kuten
 The book on Kant's ethics is long, and it is the one that was written by them.
 
 As we went to the market, the distance was one km and the room was Part IV of the house, and it was the one.
+
+They read it *as* a draft, and he called it “as good” as the rest of the book that was there.
 
 The ethos of the book is Dasein, and the so-called “ethos” is not that, but as he said, “it is the ethos of the people and it is the one that was there”.
 `;
@@ -250,6 +252,12 @@ palvelin.listen(0, async () => {
   tulos('en: to vain englantia, ei Translingualia', ainoa(r, 'to', 'English') && !/Translingual|Tongan/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
   r = await selita('As', 'As we');
   tulos('en: As virkkeen alussa → as, vain englantia', ainoa(r, 'as', 'English') && !/attosecond|Assamese/.test(r.maar.join()), JSON.stringify(r));
+  // Tekstin kielen pikkusana ei liudu kursiivissa eikä lyhyessä lainauksessa (käyttäjän palaute 6.11.2026: as toi suomen
+  // as-sävelen englannin ja Translingualin perään).
+  r = await selita('as', 'They read#0');
+  tulos('en: kursiivin pikkusana (*as*) vain englantia, ei suomea', ainoa(r, 'as', 'English') && !/Finnish|A-flat|Translingual/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
+  r = await selita('as', 'They read#1');
+  tulos('en: lyhyen lainauksen pikkusana (“as good”) vain englantia', ainoa(r, 'as', 'English') && !/Finnish|A-flat/.test(r.kielet.join() + r.maar.join()), JSON.stringify(r));
   r = await selita('km', 'As we');
   tulos('en: km (ei englantia): Translingual ensin, ilman kielikoodia, tanska perässä', r.kielet[0].startsWith('Translingual') && /kilometre/.test(r.maar[0]) && !/Khmer/.test(r.maar.join()) && /Danish/.test(r.kielet.join()), JSON.stringify(r));
   r = await selita('IV', 'As we');
