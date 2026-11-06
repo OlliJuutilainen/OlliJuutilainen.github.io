@@ -193,6 +193,26 @@ palvelin.listen(0, async () => {
   await p.waitForTimeout(300);
   tulos('rivit kappaleiksi', (await p.inputValue('#md')).startsWith('Ensimmäinen rivi on tässä.\n\nToinen rivi jatkuu.\n\nKolmas'));
 
+  // 6b. Luurangotus (käyttäjän pyyntö 6.11.2026): PART-rivit otsikoiksi, luvut niiden alle, paikantimet rakenteessa.
+  {
+    const pr = 'Leipätekstiä on tässä tarpeeksi pitkästi, jotta se on proosaa eikä otsikko. '.repeat(4);
+    let k = '# Fellow\n\n';
+    [['I', [1, 2]], ['II', [3, 4]]].forEach(([q, cs]) => { k += 'PART ' + q + '\n\n'; cs.forEach(c => { k += '## ' + c + ' Luku\n\n' + pr + '\n\n'; }); });
+    const p3 = await ctx.newPage();
+    await p3.goto(BASE + 'luin/latomo.html');
+    await p3.fill('#md', k); await p3.waitForTimeout(450);
+    const nappi = await p3.$('.ehdotus button:has-text("Merkitse rakenne otsikoiksi")');
+    const rivit = await p3.$$eval('.ehdotus ol.luuranko li', a => a.length);
+    if (nappi) { await nappi.click(); await p3.waitForTimeout(400); }
+    const jalk = await p3.inputValue('#md');
+    const otsikot = jalk.split('\n').filter(l => /^#/.test(l)).join(' / ');
+    const tun = await p3.textContent('#tunnisteet');
+    tulos('luurangotus: ehdotus ja nappi', !!nappi && rivit === 6, rivit);
+    tulos('luurangotus: osat ##, luvut ###', otsikot === '# Fellow / ## PART I / ### 1 Luku / ### 2 Luku / ## PART II / ### 3 Luku / ### 4 Luku', otsikot);
+    tulos('luurangotus: osa ei kuulu paikantimeen (numerointi jatkuu)', /numerointi jatkuu yli rajojen/.test(tun) && !(await p3.$('.ehdotus ol.luuranko')), tun);
+    await p3.close();
+  }
+
   // 7. Luiniin: lukulista näyttää sivuston alaotsikon paikalla (ei toistoa tietorivillä), jakovalikon viitteessä
   // ei ole lukutietoja ennen kuin ne valitaan.
   await p.click('#avaa');

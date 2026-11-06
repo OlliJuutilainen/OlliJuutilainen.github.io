@@ -233,6 +233,44 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('numerointi alkaa alusta numeroimattoman ylemmän otsikon jälkeen', lex.warnings.map(w => w.msg).join(' | '), 'Otsikon numero 3 ei jatka edellistä numerointia.');
 }
 
+// Rakennetunnisteet ja paikantimet (käyttäjän pyyntö 6.11.2026, md.js tunnus(), paikat(), luuranko()).
+{
+  const tn = x => { const t = M.tunnus(x); return t ? t.avain + ' ' + t.merkki + (t.nimi ? ' / ' + t.nimi : '') : '—'; };
+  [['PT II: Ethics', 'sana:part Part II / Ethics'], ['Ensimmäinen osa', 'sana:osa Osa I'], ['3. luku: Etiikka', 'sana:luku 3 / Etiikka'],
+    ['Chapter Three. Kant', 'sana:chapter 3 / Kant'], ['Erster Teil. Von', 'sana:teil Teil I / Von'], ['Second Meditation', 'sana:meditation Meditation II'],
+    ['§ 12. Otsikko', 'pykala § 12 / Otsikko'], ['IV. Kingdom', 'rooma. IV / Kingdom'], ['(iv) Foo', 'rooma-pieni() (iv) / Foo'], ['iv. Foo', 'rooma-pieni. iv / Foo'],
+    ['a) Foo', 'kirjain) a / Foo'], ['C. Foo', 'kirjain-iso. C / Foo'], ['α΄ Foo', 'kreikkaʹ αʹ / Foo'], ['ιβ΄', 'kreikkaʹ ιβʹ'], ['β. Foo', 'kreikka. β / Foo'],
+    ['4.3.4 Foo', 'piste3 4.3.4 / Foo'], ['6 The Kingdom', 'arabia 6 / The Kingdom'],
+    ['I Think', '—'], ['Toinen osa ihmisistä on', '—'], ['Partial', '—'], ['Act of God', '—'], ['1990 Foo', '—']].forEach(x => sama('tunnus ' + x[0], tn(x[0]), x[1]));
+  const pr = 'Leipätekstiä on tässä tarpeeksi pitkästi, jotta se on proosaa eikä otsikko. '.repeat(4);
+  const pk = md => M.parse(md).toc.map(t => t.paikka || '').join(' ');
+  // Korsgaard: Part II alkaa luvusta 6, joten osa ei kuulu paikantimeen; luvut eivät myöskään saa huomautusta.
+  let k = '# K\n\n';
+  [['I', [1, 2]], ['II', [3, 4]]].forEach(([p, cs]) => { k += '## Part ' + p + '\n\n'; cs.forEach(c => { k += '### ' + c + ' Luku\n\n' + pr + '\n\n#### ' + c + '.1 Osio\n\n' + pr + '\n\n'; }); });
+  sama('paikannin: jatkuva numerointi ohittaa osan', pk(k), 'Part I 1 1.1 2 2.1 Part II 3 3.1 4 4.1');
+  sama('paikannin: osa ei katkaise numerointia', M.parse(k).warnings.length, 0);
+  let o = '# O\n\n';
+  ['I', 'II'].forEach(p => { o += '## Osa ' + p + '\n\n'; [1, 2].forEach(c => { o += '### ' + c + '. Luku\n\n' + pr + '\n\n#### a) Kohta\n\n' + pr + '\n\n#### b) Kohta\n\n' + pr + '\n\n'; }); });
+  sama('paikannin: alusta alkava numerointi tarvitsee osan', M.parse(o).toc.slice(-6).map(t => t.paikka).join(' | '), 'Osa II, 1 | Osa II, 1a | Osa II, 1b | Osa II, 2 | Osa II, 2a | Osa II, 2b');
+  sama('paikannin: I. ja A.', pk('# T\n\n## I. Yksi\n\n### A. Alku\n\n' + pr + '\n\n### B. Loppu\n\n' + pr + '\n\n## II. Kaksi\n\n### A. Alku\n\n' + pr), 'I I.A I.B II II.A');
+  sama('paikannin: H., I., J. ovat kirjaimia', M.parse('# T\n\n## H. a\n\n' + pr + '\n\n## I. b\n\n' + pr + '\n\n## J. c\n\n' + pr).toc.map(t => t.tn.laji).join(), 'kirjain-iso,kirjain-iso,kirjain-iso');
+  const kp = M.parse('# T\n\n## Johdanto\n\n§ 1. ' + pr + '\n\n§ 2. ' + pr + '\n\nVälikappale.\n\n§ 3 ' + pr);
+  sama('kohtamerkit: pykälät kappaleiden alussa', kp.kohtamerkit.map(k => k.b + ':' + k.s).join(' '), '2:§ 1 3:§ 2 5:§ 3');
+  sama('kohtamerkit: yksi pykälä ei riitä', M.parse('# T\n\n§ 1. ' + pr).kohtamerkit.length, 0);
+  // Luurangotus
+  const lr = md => M.luuranko(md).muutokset.map(m => m.ln + ':' + m.uusi).join(' | ');
+  let kp2 = '# K\n\n## Preface\n\n' + pr + '\n\n';
+  [['I', [1, 2]], ['II', [3, 4]]].forEach(([p, cs]) => { kp2 += 'PART ' + p + '\n\n'; cs.forEach(c => { kp2 += '## ' + c + ' Luku\n\n' + pr + '\n\n'; }); });
+  sama('luuranko: PART-rivit otsikoiksi ja luvut niiden alle', lr(kp2), '7:## PART I | 9:### 1 Luku | 13:### 2 Luku | 17:## PART II | 19:### 3 Luku | 23:### 4 Luku');
+  sama('luuranko: CHAPTER ja nimi yhdeksi otsikoksi, kohdat sarjoina', lr('# T\n\nCHAPTER 1\n\nThe Title\n\n' + pr + '\n\n1. Section\n\n' + pr + '\n\na) Sub\n\n' + pr + '\n\nb) Sub\n\n' + pr + '\n\n2. Section\n\n' + pr + '\n\nCHAPTER 2\n\n' + pr),
+    '3:## CHAPTER 1. The Title | 9:### 1. Section | 13:#### a) Sub | 17:#### b) Sub | 21:### 2. Section | 25:## CHAPTER 2');
+  sama('luuranko: lihavoidut ja kursivoidut rivit', lr('# T\n\n**Johdanto**\n\n' + pr + '\n\n*Tausta*\n\n' + pr + '\n\n**Teoria**\n\n' + pr + '\n\n*Kant*\n\n' + pr),
+    '3:## Johdanto | 7:### Tausta | 11:## Teoria | 15:### Kant');
+  sama('luuranko: kursiiviotsikko samalla tasolla alemmaksi', lr('# T\n\n## Johdanto\n\n' + pr + '\n\n## *Tausta*\n\n' + pr + '\n\n## Teoria\n\n' + pr), '7:### *Tausta*');
+  sama('luuranko: luettelon kohdat eivät ole otsikoita', lr('# T\n\n' + pr + '\n\na) jotain\n\nb) jotain muuta\n\n' + pr + '\n\n1. Asia.\n2. Toinen.\n\n' + pr), '');
+  sama('luuranko: tutkielma ja opas ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../ohje.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
+}
+
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
 const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../md.js'))).digest('hex').slice(0, 8);

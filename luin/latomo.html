@@ -167,6 +167,13 @@
   ol.rakenne li.t3 { padding-left: 2.8em; font-size: .94em; }
   ol.rakenne svg { flex: 0 0 auto; width: 10px; height: 12px; position: relative; top: 1px; }
   ol.rakenne .alas { color: var(--harmaa); font-style: italic; font-size: .9em; }
+  /* Paikannin (md.js paikat()): millä tunnisteella kohtaan viitataan, oikeassa laidassa. */
+  ol.rakenne .paikka { margin-left: auto; padding-left: 12px; color: var(--harmaa); font-size: .86em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tunnisteet { margin: 2px 0 8px; }
+  .ehdotus ol.luuranko { list-style: none; margin: 6px 0 0; padding: 0; font-size: .82rem; }
+  .ehdotus ol.luuranko li { overflow-wrap: anywhere; margin: 2px 0; }
+  .ehdotus ol.luuranko .ln { color: var(--harmaa); margin-right: 6px; }
+  .ehdotus ol.luuranko code { font-family: inherit; }
   .j1 { fill: none; stroke: var(--muste); stroke-width: 1.3; } .j2, .j3 { fill: var(--muste); }
   ul.lahteet { list-style: none; margin: 0; padding: 0; font-size: .88rem; }
   ul.lahteet li { margin: 0 0 6px; padding-left: 1.2em; text-indent: -1.2em; }
@@ -288,13 +295,14 @@
 
   <details class="rakenne-osio" id="rakenne-osio" open hidden>
     <summary>Rakenne<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+    <p class="pieni tunnisteet" id="tunnisteet" hidden></p>
     <ol class="rakenne" id="rakenne"></ol>
     <div id="lahteet"></div>
   </details>
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
-<script src="md.js?v=24c8fd32"></script>
+<script src="md.js?v=28b43f63"></script>
 <script>
 (function () {
   'use strict';
@@ -736,8 +744,17 @@
     $('#rakenne').innerHTML = d.toc.map(function (t) {
       return '<li class="t' + t.lvl + '"><svg viewBox="0 0 10 12"><path class="j' + t.lvl + '" d="' + MERKKI[t.lvl] + '"/></svg>' + esc(t.text) +
         // Sivuseikan pääluku ladotaan alalukuna (md.js sivuLuvut()).
-        (t.alas ? ' <span class="alas" title="Merkitty päälukutasolle, mutta tekstin runko on muissa luvuissa">ladotaan alalukuna</span>' : '') + '</li>';
+        (t.alas ? ' <span class="alas" title="Merkitty päälukutasolle, mutta tekstin runko on muissa luvuissa">ladotaan alalukuna</span>' : '') +
+        // Paikannin näytetään, kun se ei ole otsikon oma alku (2.1 Valistus): Osa II, 3b, tai 6 osan alla.
+        (t.paikka && t.text.toLowerCase().indexOf(t.paikka.toLowerCase()) !== 0 ? '<span class="paikka" title="Paikannin: näin kohtaan viitataan (kopio viitteellä)">' + esc(t.paikka) + '</span>' : '') + '</li>';
     }).join('') || '<li class="pieni">Ei lukuja.</li>';
+    // Tunnistetut rakennetunnisteet (havaintolinssit) ja se, jätetäänkö ylempi taso paikantimesta pois.
+    var tu = d.tunnisteet || [], km = d.kohtamerkit || [];
+    $('#tunnisteet').hidden = !tu.length && !km.length;
+    $('#tunnisteet').innerHTML = (tu.length ? 'Tunnisteet: ' + tu.map(function (x) {
+      return esc(x.kuvaus) + ' ×' + x.maara + (x.jatkuu ? ' <i>(numerointi jatkuu yli rajojen, joten paikantimessa ei ole tätä tasoa)</i>' : '');
+    }).join(' · ') + '.' : '') + (km.length ? (tu.length ? ' ' : '') + 'Kappaleiden kohtamerkit: ' + km.length + ' (' + esc(km[0].s) +
+      (km.length > 1 ? ' … ' + esc(km[km.length - 1].s) : '') + '): paikannin tarkentuu kappaleeseen.' : '');
     $('#lahteet').innerHTML = lahteet(d.viittaukset);
     naytaMdl(src);
     naytaAnn();
@@ -944,6 +961,22 @@
     return { t: 'Tekstin alku ei vastaa kenttiä, ja Luin näyttää tekstin oman alun. Sen voi kirjoittaa kentistä tekstiin' +
       (lisa.length ? ' (katkoviivalla merkityt rivit vain toisella napilla)' : '') + ' ja muokata sitten tekstikentässä.', html: html, napit: napit };
   }
+  // Luurangotus (käyttäjän pyyntö 6.11.2026, md.js luuranko()): rakennetunnisteelta näyttävät rivit otsikoiksi ja
+  // otsikkotasot tunnisteiden mukaan. Vain napista.
+  function luurankoEhdotus(raw) {
+    var r = L.luuranko(raw);
+    if (!r.muutokset.length) return null;
+    var uusia = r.muutokset.filter(function (m) { return !/^ {0,3}#/.test(m.vanha); }).length, tasoja = r.muutokset.length - uusia;
+    var NAYTA = 12, html = '<p class="pieni">' + r.lajit.map(function (l) { return '#'.repeat(l.taso) + ' ' + esc(l.kuvaus) + ' (' + l.maara + ')'; }).join(' · ') + '</p>' +
+      '<ol class="luuranko">' + r.muutokset.slice(0, NAYTA).map(function (m) {
+        return '<li><span class="ln">rivi ' + m.ln + '</span><code>' + esc(m.vanha) + '</code> → <code>' + esc(m.uusi) + '</code></li>';
+      }).join('') + (r.muutokset.length > NAYTA ? '<li class="pieni">… ja ' + (r.muutokset.length - NAYTA) + ' muuta.</li>' : '') + '</ol>';
+    var t = [];
+    if (uusia) t.push(uusia + (uusia > 1 ? ' riviä näyttää' : ' rivi näyttää') + ' rakennetunnisteelta (numero, kirjain, pykälä, osa tai luku), mutta ' + (uusia > 1 ? 'ne ovat' : 'se on') + ' tavallista tekstiä');
+    if (tasoja) t.push(tasoja + (tasoja > 1 ? ' otsikon' : ' otsikon') + ' taso ei vastaa tunnisteiden sisäkkäisyyttä');
+    return { t: t.join(', ja ') + '. Otsikoina ne tulevat Sisälmykseen ja aikajanalle, ja niistä koostuu paikannin.', html: html,
+      napit: [['Merkitse rakenne otsikoiksi', function () { md.value = L.luuranko(md.value).src; }]] };
+  }
   function naytaEhdotukset(src) {
     ehdotukset = [];
     var raw = md.value;
@@ -977,6 +1010,7 @@
         md.value = r.join('\n');
       }]] });
     var le = lohkoEhdotus(); if (le) ehdotukset.push(le);
+    var lr = luurankoEhdotus(raw); if (lr) ehdotukset.push(lr);
     if (!d.paatelty.otsikko && !yksi(tila.arvot.otsikko) && !L.etukentta(src).meta.otsikko) {
       var eka = (L.etukentta(raw).body.split('\n').filter(function (x) { return x.trim(); })[0] || '').trim();
       var napit = [];

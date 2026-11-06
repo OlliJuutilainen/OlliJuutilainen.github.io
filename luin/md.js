@@ -406,6 +406,378 @@
     return osat.slice(0, a).concat(osat.slice(z + 1)).map(function (o) { return o.i; });
   }
 
+  /* ---------- Rakennetunnisteet ja paikantimet (luurangotus) ----------
+     Käyttäjän pyyntö 6.11.2026: tunnistetaan otsikon tai rivin alun rakennetunniste havaintolinsseittäin ja kootaan
+     siitä sisällysluettelon kohdalle paikannin, jolla kohtaan voi viitata. tunnus(teksti) → { laji, muoto, arvo, merkki,
+     sana, pidetaan, nimi } tai null. Lajit: piste (1.2.3, syv), arabia (1, 1., 1)), pykala (§ 12), rooma (IV), rooma-pieni
+     (iv), kirjain (a), kirjain-iso (A), kreikka (α′, β), kreikka-iso (Α′) ja sana (Part II, PT II, Ensimmäinen osa, Luku 3,
+     Chapter Three, Erster Teil, Livre premier …). Muoto erottaa saman lajin eri tasot: '.' (IV.), ')' (iv)), '()' ((iv)),
+     '' (pelkkä). Yksikirjaiminen I, V, X ja L (myös pienet) on monitulkintainen: vaihto kertoo kirjaintulkinnan, ja
+     ratkaiseTulkinnat() valitsee sarjan perusteella (H., I., J. ovat kirjaimia). Roomalaiset numerot vain 1–99, joten C. ja
+     D. ovat kirjaimia. */
+  function roomaArvo(s) {
+    var u = String(s).toUpperCase();
+    if (!u || !/^(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/.test(u)) return 0;
+    var v = { I: 1, V: 5, X: 10, L: 50, C: 100 }, n = 0;
+    for (var i = 0; i < u.length; i++) { var a = v[u[i]], z = v[u[i + 1]] || 0; n += a < z ? -a : a; }
+    return n;
+  }
+  function roomaksi(n) {
+    var r = '';
+    [[90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].forEach(function (x) { while (n >= x[0]) { r += x[1]; n -= x[0]; } });
+    return r;
+  }
+  var KR_AAKKOSET = 'αβγδεζηθικλμνξοπρστυφχψω';
+  var KR_LUKU = { 'α': 1, 'β': 2, 'γ': 3, 'δ': 4, 'ε': 5, 'ϛ': 6, 'ς': 6, 'ζ': 7, 'η': 8, 'θ': 9, 'ι': 10, 'κ': 20, 'λ': 30, 'μ': 40, 'ν': 50,
+    'ξ': 60, 'ο': 70, 'π': 80, 'ϟ': 90, 'ϙ': 90, 'ρ': 100, 'σ': 200, 'τ': 300, 'υ': 400, 'φ': 500, 'χ': 600, 'ψ': 700, 'ω': 800, 'ϡ': 900 };
+  // Kreikkalainen numero (keraialla α′, ιβ′) on lukuarvo; pelkkä kirjain (β.) on aakkosjärjestys.
+  function kreikkaArvo(s, keraia) {
+    s = s.toLowerCase().replace(/στ/g, 'ϛ');
+    if (!keraia && s.length === 1) return KR_AAKKOSET.indexOf(s) + 1;
+    var n = 0;
+    for (var i = 0; i < s.length; i++) { if (!KR_LUKU[s[i]]) return 0; n += KR_LUKU[s[i]]; }
+    return n;
+  }
+  // Järjestys- ja perusluvut sanoina (suomi, englanti, saksa, ranska, latina).
+  var LUKUSANAT = {};
+  [['ensimmäinen first erste erster erstes ersten premier première primus prima primum one yksi eins', 1],
+    ['toinen second zweite zweiter zweites deuxième seconde secundus secunda secundum two kaksi', 2],
+    ['kolmas third dritte dritter drittes troisième tertius tertia tertium three kolme', 3],
+    ['neljäs fourth vierte vierter viertes quatrième quartus quarta quartum four neljä', 4],
+    ['viides fifth fünfte fünfter fünftes cinquième quintus quinta quintum five viisi', 5],
+    ['kuudes sixth sechste sechster sechstes sixième sextus sexta sextum six kuusi', 6],
+    ['seitsemäs seventh siebente siebenter siebentes siebte siebter siebtes septième septimus septima septimum seven seitsemän', 7],
+    ['kahdeksas eighth achte achter achtes huitième octavus octava octavum eight kahdeksan', 8],
+    ['yhdeksäs ninth neunte neunter neuntes neuvième nonus nona nonum nine yhdeksän', 9],
+    ['kymmenes tenth zehnte zehnter zehntes dixième decimus decima decimum ten kymmenen', 10],
+    ['yhdestoista eleventh elfte elfter elftes onzième eleven', 11], ['kahdestoista twelfth zwölfte zwölfter zwölftes douzième twelve', 12],
+    ['kolmastoista thirteenth thirteen', 13], ['neljästoista fourteenth fourteen', 14], ['viidestoista fifteenth fifteen', 15],
+    ['kuudestoista sixteenth sixteen', 16], ['seitsemästoista seventeenth seventeen', 17], ['kahdeksastoista eighteenth eighteen', 18],
+    ['yhdeksästoista nineteenth nineteen', 19], ['kahdeskymmenes twentieth twenty', 20]
+  ].forEach(function (x) { x[0].split(' ').forEach(function (w) { LUKUSANAT[w] = x[1]; }); });
+  // Rakennesanat: [muodot, avain, paikantimen esitys]. Esitys '' = sana jätetään paikantimesta pois ja käytetään vain numeroa
+  // (luku, chapter, section: Korsgaard 6.2, ei Chapter 6, 2). Muut pysyvät (Osa II, 3b; Book I, Part II; Lecture 3).
+  var RAKENNESANAT = [
+    ['osa', 'osa', 'Osa'], ['part pt', 'part', 'Part'], ['teil', 'teil', 'Teil'], ['partie', 'partie', 'Partie'], ['pars', 'pars', 'Pars'],
+    ['kirja', 'kirja', 'Kirja'], ['book bk', 'book', 'Book'], ['buch', 'buch', 'Buch'], ['livre', 'livre', 'Livre'], ['liber', 'liber', 'Liber'],
+    ['nide', 'nide', 'Nide'], ['volume vol', 'volume', 'Vol.'], ['band bd', 'band', 'Bd.'], ['tome', 'tome', 'Tome'],
+    ['division', 'division', 'Division'], ['abteilung', 'abteilung', 'Abteilung'], ['jakso', 'jakso', 'Jakso'],
+    ['luento', 'luento', 'Luento'], ['lecture', 'lecture', 'Lecture'], ['vorlesung', 'vorlesung', 'Vorlesung'],
+    ['meditation', 'meditation', 'Meditation'], ['meditatio', 'meditatio', 'Meditatio'], ['mietiskely', 'mietiskely', 'Mietiskely'],
+    ['essay', 'essay', 'Essay'], ['essee', 'essee', 'Essee'], ['kirje', 'kirje', 'Kirje'], ['letter', 'letter', 'Letter'],
+    ['liite', 'liite', 'Liite'], ['appendix', 'appendix', 'Appendix'], ['anhang', 'anhang', 'Anhang'], ['annexe', 'annexe', 'Annexe'],
+    ['näytös', 'naytos', 'Näytös'], ['act', 'act', 'Act'], ['akt', 'akt', 'Akt'], ['kohtaus', 'kohtaus', 'Kohtaus'], ['scene', 'scene', 'Scene'],
+    ['laulu', 'laulu', 'Laulu'], ['canto', 'canto', 'Canto'], ['kysymys', 'kysymys', 'Kysymys'], ['quaestio', 'quaestio', 'Q.'],
+    ['question', 'question', 'Question'], ['articulus', 'articulus', 'Art.'], ['article', 'article', 'Article'],
+    ['luku', 'luku', ''], ['chapter ch chap', 'chapter', ''], ['kapitel kap', 'kapitel', ''], ['chapitre', 'chapitre', ''],
+    ['caput cap', 'caput', ''], ['hauptstück', 'hauptstuck', ''], ['section sect sec', 'section', ''], ['abschnitt', 'abschnitt', ''],
+    ['alaluku', 'alaluku', ''], ['kohta', 'kohta', '']
+  ];
+  var LIITESANAT = /^(liite|appendix|anhang|annexe)$/;
+  var RSANA = {};
+  RAKENNESANAT.forEach(function (x) { x[0].split(' ').forEach(function (w) { RSANA[w] = { avain: x[1], esitys: x[2] }; }); });
+  var RS_SANAT = Object.keys(RSANA).sort(function (a, z) { return z.length - a.length; }).join('|');
+  var RS_LUKU = Object.keys(LUKUSANAT).sort(function (a, z) { return z.length - a.length; }).join('|');
+  var RS_NUM = '\\d{1,3}|[IVXLivxl]{1,7}|[A-Z]|' + RS_LUKU;
+  var EI_KIRJ = '(?![\\p{L}\\p{N}])', EROTIN = '(?:\\s*[:.–—-]\\s*|\\s+|$)';
+  // B: Part II, PT II, Chapter 6, Luku kolme, Pars prima. A: Ensimmäinen osa, Erster Teil, The First Part. C: 3. luku, II osa.
+  var RE_SANA_B = new RegExp('^(' + RS_SANAT + ')(?:\\.\\s*|\\s+)(' + RS_NUM + ')' + EI_KIRJ + '\\.?' + EROTIN + '(.*)$', 'iu');
+  var RE_SANA_A = new RegExp('^(?:the\\s+|der\\s+|die\\s+|das\\s+|le\\s+|la\\s+)?(' + RS_LUKU + ')\\s+(' + RS_SANAT + ')' + EI_KIRJ + '\\.?(?:\\s*[:.–—-]\\s*|$)(.*)$', 'iu');
+  var RE_SANA_C = new RegExp('^(\\d{1,3}\\.|[IVXL]{1,7}\\.?)\\s+(' + RS_SANAT + ')' + EI_KIRJ + '\\.?(?:\\s*[:.–—-]\\s*|$)(.*)$', 'iu');
+  var RE_PYKALA = /^§§?\s*(\d{1,4}[a-z]?)\.?(?:\s+|$)(.*)$/;
+  var RE_PISTE = /^(\d{1,3}(?:\.\d{1,3})+)\.?(?:\s+|$)(.*)$/;
+  var RE_ARABIA = /^(\d{1,3})(?:([.):])(?:\s+|$)|\s+(?=\S))(.*)$/;
+  var RE_SULUT = /^\((\d{1,3}|[ivxl]{1,7}|[IVXL]{1,7}|[a-z]|[A-Z]|[α-ω]{1,2}|[Α-Ω])\)(?:\s+|$)(.*)$/u;
+  var RE_TUNNISTE = /^([ivxl]{1,7}|[IVXL]{1,7}|[a-z]|[A-Z]|[α-ωϛϟϡ]{1,3}|[Α-Ω]{1,3})([ʹ΄'’´′])?([.)])?(?:\s+|$)(.*)$/u;
+  function lukuarvo(x) {
+    if (/^\d+$/.test(x)) return { arvo: +x, tapa: 'arabia' };
+    var l = LUKUSANAT[x.toLowerCase()];
+    if (l) return { arvo: l, tapa: 'sana' };
+    var r = roomaArvo(x);
+    if (r) return { arvo: r, tapa: 'rooma' };
+    if (/^[A-Z]$/.test(x)) return { arvo: x.charCodeAt(0) - 64, tapa: 'kirjain' };
+    return null;
+  }
+  function sanaTunnus(sana, num, nimi) {
+    var s = RSANA[sana.toLowerCase().replace(/\.$/, '')], a = s && lukuarvo(num);
+    if (!a) return null;
+    var nn = a.tapa === 'arabia' ? String(a.arvo) : a.tapa === 'rooma' ? num : a.tapa === 'kirjain' ? num : s.esitys ? roomaksi(a.arvo) : String(a.arvo);
+    return { laji: 'sana', muoto: '', avain: 'sana:' + s.avain, sana: s.avain, arvo: a.arvo, merkki: s.esitys ? s.esitys + ' ' + nn : nn,
+      pidetaan: !!s.esitys, nimi: nimi.trim() };
+  }
+  function tunnus(teksti) {
+    var s = String(teksti || '').replace(/\s+/g, ' ').trim(), m, t;
+    if (!s) return null;
+    if ((m = RE_SANA_B.exec(s)) && (t = sanaTunnus(m[1], m[2], m[3]))) return t;
+    if ((m = RE_SANA_A.exec(s)) && (t = sanaTunnus(m[2], m[1], m[3]))) return t;
+    if ((m = RE_SANA_C.exec(s)) && (t = sanaTunnus(m[2], m[1].replace(/\.$/, ''), m[3]))) return t;
+    if ((m = RE_PYKALA.exec(s))) return { laji: 'pykala', muoto: '', avain: 'pykala', arvo: parseInt(m[1], 10), merkki: '§ ' + m[1], nimi: m[2].trim() };
+    if ((m = RE_PISTE.exec(s))) {
+      var o = m[1].split('.');
+      return { laji: 'piste', muoto: '', syv: o.length, avain: 'piste' + o.length, arvo: +o[o.length - 1], merkki: m[1], nimi: m[2].trim() };
+    }
+    if ((m = RE_ARABIA.exec(s))) return { laji: 'arabia', muoto: m[2] || '', avain: m[2] === ')' ? 'arabia)' : 'arabia', arvo: +m[1], merkki: m[1], nimi: m[3].trim() };
+    var sulut = RE_SULUT.exec(s), muoto, x, nimi, keraia = '';
+    if (sulut) { x = sulut[1]; muoto = '()'; nimi = sulut[2]; }
+    else if ((m = RE_TUNNISTE.exec(s))) {
+      x = m[1]; keraia = m[2] || ''; muoto = m[3] || ''; nimi = m[4];
+      // Ilman välimerkkiä vain pelkkä tunniste (IV) tai monikirjaiminen roomalainen ennen isoa alkukirjainta (IV Johdanto).
+      if (!muoto && !keraia && nimi && !(/^[IVXL]{2,}$/.test(x) && /^\p{Lu}/u.test(nimi))) return null;
+      if (keraia && /^[a-zA-Z]+$/.test(x)) return null;
+    } else return null;
+    if (/^\d+$/.test(x)) return { laji: 'arabia', muoto: muoto, avain: 'arabia()', arvo: +x, merkki: '(' + x + ')', nimi: nimi.trim() };
+    var kehys = function (y) { return muoto === '()' ? '(' + y + ')' : y; }, r = roomaArvo(x), tn;
+    if (/^[Ͱ-Ͽ]+$/.test(x)) {
+      var ka = kreikkaArvo(x, !!keraia);
+      if (!ka) return null;
+      var iso = x !== x.toLowerCase();
+      return { laji: iso ? 'kreikka-iso' : 'kreikka', muoto: keraia ? 'ʹ' + muoto : muoto, avain: (iso ? 'kreikka-iso' : 'kreikka') + (keraia ? 'ʹ' : '') + muoto,
+        arvo: ka, merkki: kehys(x + (keraia ? 'ʹ' : '')), nimi: nimi.trim() };
+    }
+    var pieni = x === x.toLowerCase();
+    if (x.length === 1) {
+      var kirj = { laji: pieni ? 'kirjain' : 'kirjain-iso', muoto: muoto, avain: (pieni ? 'kirjain' : 'kirjain-iso') + muoto,
+        arvo: x.toLowerCase().charCodeAt(0) - 96, merkki: kehys(x), nimi: nimi.trim() };
+      if (!r) return kirj;
+      tn = { laji: pieni ? 'rooma-pieni' : 'rooma', muoto: muoto, avain: (pieni ? 'rooma-pieni' : 'rooma') + muoto, arvo: r, merkki: kehys(x), nimi: nimi.trim(), vaihto: kirj };
+      return tn;
+    }
+    if (!r) return null;
+    return { laji: pieni ? 'rooma-pieni' : 'rooma', muoto: muoto, avain: (pieni ? 'rooma-pieni' : 'rooma') + muoto, arvo: r, merkki: kehys(x), nimi: nimi.trim() };
+  }
+  // Monitulkintaiset I, V, X, L (i, v, x, l): kirjaimia, jos samassa sarjassa (sama kirjainkoko ja muoto) on kiistaton
+  // naapurikirjain (H. tai J. ennen I.:tä); muuten roomalaisia (I. ja A. eri tasoilla).
+  function ratkaiseTulkinnat(tns) {
+    var kirjaimet = {};
+    tns.forEach(function (t) { if (t && !t.vaihto && /^kirjain/.test(t.laji)) (kirjaimet[t.avain] = kirjaimet[t.avain] || {})[t.arvo] = 1; });
+    return tns.map(function (t) {
+      var k = t && t.vaihto && kirjaimet[t.vaihto.avain];
+      return k && (k[t.vaihto.arvo - 1] || k[t.vaihto.arvo + 1]) ? t.vaihto : t;
+    });
+  }
+  var LAJIN_NIMI = { piste: 'pisteelliset numerot', arabia: 'numerot', pykala: 'pykälät', rooma: 'roomalaiset numerot',
+    'rooma-pieni': 'pienet roomalaiset numerot', kirjain: 'pienet kirjaimet', 'kirjain-iso': 'isot kirjaimet', kreikka: 'kreikkalaiset numerot',
+    'kreikka-iso': 'isot kreikkalaiset numerot', sana: 'sanallinen numerointi', lihava: 'lihavoidut rivit', kursiivi: 'kursivoidut rivit',
+    versaali: 'versaalirivit' };
+  function lajinKuvaus(t) {
+    if (t.laji === 'sana') return 'sanallinen numerointi (' + t.sana + ')';
+    var esim = { piste: '1.1', arabia: '1', rooma: 'I', 'rooma-pieni': 'i', kirjain: 'a', 'kirjain-iso': 'A', kreikka: 'α', 'kreikka-iso': 'Α' }[t.laji];
+    var m = t.muoto.replace('ʹ', ''), k = t.muoto.indexOf('ʹ') >= 0 ? 'ʹ' : '';
+    if (t.laji === 'piste') esim = Array(t.syv + 1).join('1.').slice(0, -1);
+    return (LAJIN_NIMI[t.laji] || t.laji) + (esim ? ' ' + (m === '()' ? '(' + esim + k + ')' : esim + k + m) : '');
+  }
+
+  // Paikantimet sisällysluettelon kohtiin (käyttäjän pyyntö 6.11.2026). Jos kirjoittaja on numeroinut 4.3.4, se riittää.
+  // Muuten paikannin kootaan ylempien tunnisteiden ketjusta (Osa II, 3b), mutta ylempi taso jätetään pois, jos sen alla
+  // numerointi jatkuu yli sen rajan: Korsgaardin Fellow Creaturesissa Part II alkaa luvusta 6, joten luvun 6 paikannin on 6.
+  // Numeroimaton yläotsikko tulee nimenä eteen (lexikonin hakusana, jonka alla numerointi alkaa alusta).
+  function paikat(toc) {
+    var pino = [];
+    var tns = ratkaiseTulkinnat(toc.map(function (t) { return t.tn; }));
+    toc.forEach(function (t, i) {
+      if (tns[i]) t.tn = tns[i]; else delete t.tn;
+      while (pino.length && toc[pino[pino.length - 1]].lvl >= t.lvl) pino.pop();
+      t._yla = pino.length ? pino[pino.length - 1] : -1;
+      pino.push(i);
+    });
+    // Jatkuvuus: saman vanhemman alla peräkkäiset samanlajiset otsikot (P1, P2 …) ja niiden suorat lapset lajeittain.
+    var ryhmat = {};
+    toc.forEach(function (t, i) { if (t.tn) (ryhmat[t._yla + '|' + t.tn.avain] = ryhmat[t._yla + '|' + t.tn.avain] || []).push(i); });
+    var lapset = {};
+    toc.forEach(function (t, i) { if (t.tn && t._yla >= 0) ((lapset[t._yla] = lapset[t._yla] || {})[t.tn.avain] = lapset[t._yla][t.tn.avain] || []).push(t.tn.arvo); });
+    Object.keys(ryhmat).forEach(function (k) {
+      var P = ryhmat[k], ev = {};
+      P.forEach(function (p, j) {
+        var L = lapset[p] || {};
+        Object.keys(L).forEach(function (lk) {
+          var e = ev[lk] = ev[lk] || { jatkuu: 0, alkaa: 0, ed: null };
+          var eka = L[lk][0];
+          if (e.ed == null) { if (eka > 1) e.jatkuu++; }
+          else if (eka === e.ed + 1) e.jatkuu++;
+          else if (eka === 1) e.alkaa++;
+          e.ed = L[lk][L[lk].length - 1];
+        });
+      });
+      P.forEach(function (p) {
+        Object.keys(ev).forEach(function (lk) { if (ev[lk].jatkuu && !ev[lk].alkaa) (toc[p].tarpeeton = toc[p].tarpeeton || {})[lk] = 1; });
+      });
+    });
+    function sep(ed, o) {
+      if (ed.otsikko || ed.pidetaan || o.pidetaan || o.laji === 'pykala' || /^(pykala|kreikka-iso)$/.test(ed.laji)) return ', ';
+      if (o.muoto === '()') return '';
+      if (/\d$/.test(ed.merkki) && o.laji === 'kirjain') return '';
+      return '.';
+    }
+    toc.forEach(function (t, i) {
+      if (!t.tn) return;
+      var osat = [t.tn], cur = i, j = t._yla;
+      while (j >= 0) {
+        var P = toc[j];
+        if (!P.tn) { if (!P.alas) osat.unshift({ otsikko: true, merkki: P.text }); break; }
+        if (P.tarpeeton && P.tarpeeton[toc[cur].tn.avain]) break;
+        // 6.2 sisältää jo luvun 6.
+        if (!(toc[cur].tn.laji === 'piste' && toc[cur].tn.merkki.indexOf(P.tn.merkki + '.') === 0)) osat.unshift(P.tn);
+        cur = j; j = P._yla;
+      }
+      var s = '';
+      osat.forEach(function (o, k) { s += k ? sep(osat[k - 1], o) + o.merkki : o.merkki; });
+      t.paikka = s;
+      t.paikkaN = t.tn.merkki;
+    });
+    toc.forEach(function (t) { delete t._yla; });
+    // Yhteenveto Latomolle: lajit esiintymisjärjestyksessä, määrä, esimerkki ja jatkuuko alempi numerointi yli rajojen.
+    var yht = [], ix = {};
+    toc.forEach(function (t) {
+      if (!t.tn) return;
+      var a = t.tn.avain;
+      if (ix[a] == null) { ix[a] = yht.length; yht.push({ avain: a, kuvaus: lajinKuvaus(t.tn), maara: 0, esim: t.tn.merkki, jatkuu: false }); }
+      var y = yht[ix[a]];
+      y.maara++;
+      if (t.tarpeeton) y.jatkuu = true;
+    });
+    return yht;
+  }
+
+  /* Latomon luurangotus (käyttäjän pyyntö 6.11.2026): rakennetunnisteelta näyttävät kappaleet otsikoiksi ja otsikkotasot
+     tunnisteiden mukaan. Ehdokas on yksirivinen, enintään 100 merkin kappale tai yksikohtainen numeroitu luettelo, jonka
+     perässä on tekstiä ja joka ei pääty virkkeen tapaan. Tunnisteellinen ehdokas kelpaa, kun sen lajista on sarja (arvot
+     kasvavat yhdellä tai alkavat alusta) tai se on sanallinen (Part II) tai pykälä; tunnisteeton lihavoitu, kursivoitu tai
+     versaalirivi, kun niitä on vähintään kaksi ja kunkin perässä on proosaa. Tasot: olemassa olevien otsikoiden lajit
+     pitävät järjestyksensä (tasoittain, sitten esiintymisjärjestyksessä); jos samalla #-tasolla on eri lajeja, ne erotetaan.
+     Uusi laji asettuu ensiesiintymänsä mukaan ennen ensimmäistä myöhemmin alkavaa lajia, ei kuitenkaan pisteellisten
+     numeroiden (1, 1.1, 1.1.1) väliin. Tunnisteeton lihavoitu ja kursivoitu ovat alimpia, versaali ylimmän lajin tasolla.
+     Tunnisteettomat otsikot siirtyvät vanhempansa mukana. → { muutokset: [{ ln, vanha, uusi }], lajit: [{ kuvaus, taso,
+     maara, esim }], src } */
+  function luuranko(src) {
+    src = String(src || '').replace(/\r\n?/g, '\n');
+    var ek = etukentta(src), V = valmistele(ek.body, ek.ln), tokens = blocksOf(V.L, V.N), rivit = src.split('\n');
+    var items = [], t0 = tokens[0] && tokens[0].t === 'h' && tokens[0].lvl === 1 ? 1 : 0;
+    function tyyli(x) {
+      var m;
+      if ((m = /^(\*\*|__)(?!\s)([^*_]+?)\1$/.exec(x))) return { tyyli: 'lihava', sis: m[2] };
+      if ((m = /^([*_])(?![\s*_])([^*_]+?)\1$/.exec(x))) return { tyyli: 'kursiivi', sis: m[2] };
+      return { tyyli: '', sis: x };
+    }
+    function proosaa(t) { return t && (t.t === 'p' && plain(t.text).length >= 200 || t.t === 'bq' || t.t === 'list' && t.items.length > 1); }
+    // Tunnisteen perässä saa olla myös alempi rakenne (PART I ja heti 1 Luku).
+    function rakennetta(t) {
+      if (!t) return false;
+      if (t.t === 'h') return true;
+      var x = t.t === 'p' && t.text.indexOf('\n') < 0 ? t.text : t.t === 'list' && t.items.length === 1 && t.items[0].ord ? rivit[t.ln - 1].trim() : null;
+      return x != null && x.length <= 100 && !!tunnus(plain(tyyli(x.trim()).sis).trim());
+    }
+    for (var i = t0; i < tokens.length; i++) {
+      var t = tokens[i], nx = tokens[i + 1];
+      if (t.t === 'h') {
+        var raw = t.text.replace(/\s+\[[^\]]+\]$/, ''), ty = tyyli(raw.trim()), px = plain(ty.sis).trim();
+        items.push({ ln: t.ln, h: true, taso: t.lvl === 1 ? 2 : t.lvl, tn: tunnus(px), tyyli: ty.tyyli, teksti: t.text,
+          setext: rivit[t.ln - 1] != null && !/^ {0,3}#/.test(rivit[t.ln - 1]) });
+        continue;
+      }
+      var line = null;
+      if (t.t === 'p' && t.text.indexOf('\n') < 0) line = t.text;
+      else if (t.t === 'list' && t.items.length === 1 && t.items[0].ord && t.items[0].text.indexOf('\n') < 0) line = rivit[t.ln - 1].trim();
+      if (line == null || !nx) continue;
+      var ty2 = tyyli(line.trim()), p = plain(ty2.sis).trim();
+      if (!p || p.length > 100) continue;
+      var tn = tunnus(p);
+      // Otsikon nimi alkaa isolla (a) jotain on luettelon kohta) eikä pääty virkkeen tapaan.
+      if (tn && tn.nimi && (/[.,;:!]$/.test(p) || !/^[\p{Lu}\p{N}"“”«»'‘’(\[]/u.test(tn.nimi))) continue;
+      if (!tn && (!ty2.tyyli && !(p === p.toUpperCase() && /\p{Lu}{2,}/u.test(p) && /\p{L}{3,}/u.test(p)) || /[.,;:!?]$/.test(p) || p.length > 80)) continue;
+      // Pelkkä tunniste (CHAPTER 6) ja seuraavalla rivillä lyhyt nimi: yhdeksi otsikoksi.
+      var yhdista = null;
+      if (tn && !tn.nimi && nx.t === 'p' && nx.text.indexOf('\n') < 0 && tokens[i + 2]) {
+        var nn = plain(tyyli(nx.text.trim()).sis).trim();
+        if (nn && nn.length <= 80 && !/[.,;:!]$/.test(nn) && !tunnus(nn)) yhdista = { ln: nx.ln, teksti: tyyli(nx.text.trim()).sis.trim() };
+      }
+      var jalkeen = yhdista ? tokens[i + 2] : nx;
+      if (!tn && !proosaa(jalkeen)) continue;
+      items.push({ ln: t.ln, h: false, taso: null, tn: tn, tyyli: tn ? ty2.tyyli : ty2.tyyli || 'versaali', teksti: ty2.sis.trim(), yhdista: yhdista,
+        proosa: proosaa(jalkeen) || !!tn && rakennetta(jalkeen) });
+      if (yhdista) i++;
+    }
+    var tns = ratkaiseTulkinnat(items.map(function (x) { return x.tn; }));
+    items.forEach(function (x, k) { x.tn = tns[k]; x.avain = x.tn ? x.tn.avain : x.tyyli && (!x.h || x.tyyli === 'kursiivi') ? x.tyyli : ''; });
+    // Uusien ehdokkaiden lajit: sarjan näyttö.
+    var sarjat = {};
+    items.forEach(function (x) { if (x.tn) (sarjat[x.avain] = sarjat[x.avain] || []).push(x); });
+    var kelpaa = {};
+    Object.keys(sarjat).forEach(function (a) {
+      var s = sarjat[a], ok = 0;
+      for (var k = 1; k < s.length; k++) if (s[k].tn.arvo === s[k - 1].tn.arvo + 1 || s[k].tn.arvo === 1) ok++;
+      var vah = /^(sana|pykala)/.test(a) ? 1 : a === 'arabia' && !s.some(function (x) { return x.tn.muoto; }) ? 3 : 2;
+      // Sarjasta ainakin yhden perässä on proosaa (muuten kyse on lyhyistä kohdista, ei otsikoista).
+      kelpaa[a] = s.some(function (x) { return x.h; }) || s.length >= vah && (s.length < 2 || ok * 2 >= s.length - 1) && s.some(function (x) { return x.proosa; });
+    });
+    var tyylit = {};
+    items.forEach(function (x) { if (!x.tn && !x.h && x.avain) tyylit[x.avain] = (tyylit[x.avain] || 0) + 1; });
+    items = items.filter(function (x) { return x.h || (x.tn ? kelpaa[x.avain] : tyylit[x.avain] >= 2); });
+    // Lajien järjestys.
+    var eka = {}, tasoNyt = {}, jarj = [];
+    items.forEach(function (x, k) {
+      if (!x.avain) return;
+      if (eka[x.avain] == null) eka[x.avain] = k;
+      if (x.h) (tasoNyt[x.avain] = tasoNyt[x.avain] || []).push(x.taso);
+    });
+    function moodi(a) { var c = {}, b = null; a.forEach(function (v) { c[v] = (c[v] || 0) + 1; if (b == null || c[v] > c[b]) b = v; }); return +b; }
+    var vanhat = Object.keys(tasoNyt).filter(function (a) { return a !== 'lihava' && a !== 'kursiivi'; });
+    vanhat.sort(function (a, z) { return moodi(tasoNyt[a]) - moodi(tasoNyt[z]) || (/^piste/.test(a) && /^piste/.test(z) ? +a.slice(5) - +z.slice(5) : 0) || eka[a] - eka[z]; });
+    jarj = vanhat.slice();
+    Object.keys(eka).filter(function (a) { return !tasoNyt[a] && a !== 'lihava' && a !== 'kursiivi' && a !== 'versaali' && !LIITESANAT.test(a.slice(5)); })
+      .sort(function (a, z) { return eka[a] - eka[z]; }).forEach(function (a) {
+        var k = jarj.findIndex(function (b) { return eka[b] > eka[a]; });
+        if (k < 0) k = jarj.length;
+        while (k > 0 && k < jarj.length && /^piste/.test(jarj[k]) && /^piste/.test(jarj[k - 1]) || k > 0 && k < jarj.length && jarj[k] === 'arabia' && /^piste/.test(jarj[k + 1] || '')) k++;
+        jarj.splice(k, 0, a);
+      });
+    var perus = vanhat.length ? Math.max(2, Math.min.apply(null, vanhat.map(function (a) { return moodi(tasoNyt[a]); }))) : 2;
+    var taso = {};
+    jarj.forEach(function (a, k) { taso[a] = Math.min(perus + k, 6); });
+    Object.keys(eka).forEach(function (a) { if (LIITESANAT.test(a.slice(5)) && taso[a] == null) taso[a] = perus; });
+    if (eka.versaali != null) taso.versaali = perus;
+    if (eka.lihava != null) taso.lihava = Math.min(perus + jarj.length, 6);
+    // Olemassa olevan otsikon laji siirtyy vain, jos sen #-tasolla on toinenkin laji tai uusi laji asettui sen yläpuolelle.
+    var siirto = {};
+    vanhat.forEach(function (a) {
+      siirto[a] = vanhat.some(function (b) { return b !== a && moodi(tasoNyt[b]) === moodi(tasoNyt[a]); }) ||
+        jarj.slice(0, jarj.indexOf(a)).some(function (b) { return !tasoNyt[b]; });
+    });
+    var tormays = {};
+    items.forEach(function (x) { if (x.h && x.avain !== 'kursiivi') tormays[x.taso] = 1; });
+    // Uudet tasot otsikoille. Tunnisteettomat (ja kursiiviotsikot ilman törmäystä) siirtyvät vanhempansa mukana.
+    var ed = [], muutokset = [], uusi = rivit.slice(), poista = {};
+    items.forEach(function (x) {
+      var L;
+      if (x.avain && taso[x.avain] != null && (!x.h || siirto[x.avain])) L = taso[x.avain];
+      else if (x.avain === 'kursiivi' && (!x.h || tormays[x.taso])) {
+        // Kursiivi on alempi taso kuin edeltävä pystyotsikko (törmäys: sama #-taso kuin pystyillä otsikoilla).
+        var e = ed.filter(function (y) { return y.avain !== 'kursiivi'; }).pop();
+        L = e ? e.uusi + 1 : perus;
+      } else {
+        var vanh = null;
+        for (var k = ed.length - 1; k >= 0; k--) if (ed[k].h && ed[k].taso < x.taso) { vanh = ed[k]; break; }
+        L = x.taso + (vanh ? vanh.uusi - vanh.taso : 0);
+      }
+      L = Math.max(2, Math.min(L, 6));
+      x.uusi = L; ed.push(x);
+      if (x.h && L === x.taso) return;
+      var vanha = rivit[x.ln - 1], teksti;
+      if (x.h) teksti = x.setext ? vanha.trim() : vanha.replace(/^ {0,3}#{1,6}\s*/, '').replace(/\s+#+\s*$/, '');
+      else teksti = x.yhdista ? x.teksti + (/[.:)]$/.test(x.teksti) ? ' ' : '. ') + x.yhdista.teksti : x.teksti;
+      var r = '#'.repeat(L) + ' ' + teksti;
+      uusi[x.ln - 1] = r;
+      if (x.h && x.setext && RE_SETEXT.test(rivit[x.ln] || '')) poista[x.ln] = 1;
+      if (x.yhdista) { poista[x.yhdista.ln - 1] = 1; if (!(rivit[x.ln] || '').trim()) poista[x.ln] = 1; }
+      muutokset.push({ ln: x.ln, vanha: vanha.trim() + (x.yhdista ? ' / ' + rivit[x.yhdista.ln - 1].trim() : ''), uusi: r });
+    });
+    var lajit = Object.keys(eka).map(function (a) {
+      var xs = items.filter(function (x) { return x.avain === a; }), tn = xs[0].tn;
+      return { avain: a, kuvaus: tn ? lajinKuvaus(tn) : LAJIN_NIMI[a], taso: moodi(xs.map(function (x) { return x.uusi; })), maara: xs.length,
+        esim: plain(xs[0].teksti).slice(0, 60) };
+    }).sort(function (a, z) { return a.taso - z.taso || eka[a.avain] - eka[z.avain]; });
+    return { muutokset: muutokset, lajit: lajit, src: uusi.filter(function (r, k) { return !poista[k]; }).join('\n') };
+  }
+
   /* ---------- Esikäsittely ----------
      Ennen lohkojäsennystä: kommentit pois (<!-- … --> myös monirivisenä ja iA Writerin //-rivit),
      alaviitteiden ([^tunnus]: …), sitaattien ([#avain]: …) ja viitelinkkien ([tunnus]: osoite)
@@ -1317,7 +1689,7 @@
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
-    var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false;
+    var inBib = false, bibTaso = 0, nums = [], numTaso = 0, lyhOhjaus = {}, xrefKohde = {}, tocPaikka = false, jaksoAlkaa = false, kohtaEhd = [];
     // Sivuseikkojen pääluvut alalukuina (sivuLuvut()); osion alaotsikot laskevat mukana.
     var alas = sivuLuvut(tokens, t0);
     alas.forEach(function (i) {
@@ -1360,11 +1732,14 @@
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
           var txt = plain(htext).trim();
-          var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt);
+          var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt), tn = inQuote ? null : tunnus(txt);
           var id, cls = 'sec';
           if (nm) {
             id = 'luku-' + nm[1].split('.').join('-');
             var parts = nm[1].split('.').map(Number), d = parts.length - 1, prevN = nums[d] || 0;
+            // Tunnisteellisen yläotsikon (Part II, Kirja 3) alla luvut saavat alkaa alusta tai jatkua (Korsgaard: Part II alkaa luvusta 6).
+            if (jaksoAlkaa && d === 0 && parts[0] === 1) prevN = 0;
+            jaksoAlkaa = false;
             // Ylemmän tason otsikko puuttuu, jos alaluku aloittaa seuraavan luvun (2.7 → 3.1 ilman 3:a; MarkDownload-leike).
             var yla = d > 0 && parts[d] === 1 && parts[d - 1] === (nums[d - 1] || 0) + 1 &&
               parts.slice(0, d - 1).join('.') === nums.slice(0, d - 1).join('.');
@@ -1381,21 +1756,27 @@
             // Numeroimaton otsikko numeroitujen yläpuolella aloittaa uuden numeroinnin: lexikonin jokainen hakusana (##)
             // numeroi omat väliotsikkonsa (### 1 …) alusta (käyttäjän pyyntö 4.11.2026). Saman tason numeroimaton
             // (## Kirjallisuus numeroitujen lukujen välissä) ei katkaise.
-            if (numTaso && lvl0 < numTaso) { nums = []; numTaso = 0; }
+            if (numTaso && lvl0 < numTaso) { if (tn) jaksoAlkaa = true; else { nums = []; numTaso = 0; } }
             id = slug(txt);
-            if (lvl >= 3) cls += ' caps';
+            // Muu tunniste (Part II, a), § 12) on numero siinä missä 2.1: ei versaalikursiivia.
+            if (lvl >= 3 && !tn) cls += ' caps';
           }
           id = uniq(id);
           if (BIB.test(txt)) { inBib = true; bibTaso = lvl0; } else if (inBib && lvl0 <= bibTaso) inBib = false;
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
-          res.toc.push({ lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: lvl !== lvl0 || undefined });
+          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: lvl !== lvl0 || undefined };
+          if (tn) te.tn = tn;
+          res.toc.push(te);
           h += '<h' + lvl + ' id="' + id + '" class="' + cls + '" data-b="' + (b++) + '">' + inline(htext, ctx) + '</h' + lvl + '>';
         } else if (t.t === 'p') {
           if (/(^|\s)\$\$|(^|\s)\$[^\s$][^$\n]*[^\s$\\]\$(?=$|[\s.,;:!?)])/.test(t.text) && !res.matikka) {
             res.matikka = true; warn('Matematiikkaa ($…$) ei ladota: lausekkeet näkyvät sellaisinaan.');
           }
+          // Pykälä tai pisteellinen numero kappaleen alussa (§ 12. …, Tractatus 6.54 …) on kohtamerkki: paikannin kappaleen tarkkuudella.
+          var km = !inQuote && !inBib && /^(?:§§?\s*(\d{1,4}[a-z]?)|(\d{1,3}(?:\.\d{1,3})*))(?=[.\s])/.exec(plain(t.text.slice(0, 40)).trim());
+          if (km) kohtaEhd.push({ b: b, s: km[1] ? '§ ' + km[1] : km[2], n: km[1] || km[2], pyk: !!km[1], piste: !!km[2] && km[2].indexOf('.') > 0 });
           h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, null, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');
@@ -1446,6 +1827,11 @@
       return h;
     }
     html += render(tokens.slice(t0), false);
+    res.tunnisteet = paikat(res.toc);
+    // Kohtamerkit vasta sarjasta: vähintään kaksi pykälää tai kolme pisteellistä numeroa (luvut 1, 2 … vain niiden seurana).
+    var pyk = kohtaEhd.filter(function (k) { return k.pyk; }), pis = kohtaEhd.filter(function (k) { return k.piste; });
+    res.kohtamerkit = (pyk.length >= 2 ? pyk : []).concat(pis.length >= 3 ? kohtaEhd.filter(function (k) { return !k.pyk; }) : [])
+      .sort(function (a, z) { return a.b - z.b; }).map(function (k) { return { b: k.b, s: k.s, n: k.n }; });
 
     html = html.replace(/href="#(lyh-[^"]*)"/g, function (x, i) { return lyhOhjaus[i] ? 'href="#' + lyhOhjaus[i] + '"' : x; });
     // Ristiviittaukset otsikkoon tai nimiöön; ratkaisematon jää tekstiksi.
@@ -1589,7 +1975,7 @@
     return count;
   }
 
-  root.LuinMD = { parse: parse, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
+  root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
     iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);
