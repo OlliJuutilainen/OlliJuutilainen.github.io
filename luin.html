@@ -3390,7 +3390,9 @@
     }
     // Lainaus muualla kuin suomessa: oman kielensä erottava (pitkä) lainaus on kuin leipäteksti; lyhyt lainaus (englannin
     // scare quotes, termit) liudentuu kuin kursiivi, koska se merkitsee usein vierasta tai lainattua sanaa.
-    var vieras = y.kursiivi || y.lainaus && kieli !== 'fi' && y.omaKieli !== kieli;
+    // Tekstin kielen pikkusana (KIELI_SANAT: as, the, ja, on) ei liudu kursiivissa eikä lainauksessa: se on korostus tai
+    // mainittu sana, ei vieras sana (käyttäjän palaute 6.11.2026: kursiivin tai lainauksen as toi suomen as-sävelen).
+    var vieras = !y.pikkusana && (y.kursiivi || y.lainaus && kieli !== 'fi' && y.omaKieli !== kieli);
     var K;
     if (kieli === 'grc' || kieli === 'el') {
       // Kreikan kaksi kieltä pysyvät yhdessä: ilman diakriitteja kirjoitettu muinaiskreikka tunnistuu nykykreikaksi.
@@ -3563,8 +3565,11 @@
       var kk = rajaa || '*';
       var os = muodot.map(function (m, i) { return { o: m, j: js[i], kielet: kk }; }).filter(function (x) { return x.j && skOnKieli(x.j, kk); });
       if (!os.some(function (x) { return skOnKieli(x.j, k); })) return null;
-      // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026).
-      os.sort(function (a, z) { return (skOnKieli(z.j, k) ? 1 : 0) - (skOnKieli(a.j, k) ? 1 : 0); });
+      // Ketjun kielen osumat ensin; muut kielet saavat jäädä mukaan (tasan sama muoto, käyttäjän linjaus 5.11.2026). Sitten
+      // määritelmä ennen pelkkää taivutusviittausta (käyttäjän palaute 6.11.2026: virkkeen alun As on englanniksi vain
+      // plural of A, joten as tulee ensin; erisnimi kuten Kant on lemma ja pysyy ensin). Muuten tekstin muoto ensin.
+      var muotoVain = function (x) { return skPerusmuoto(x.j, kk) ? 1 : 0; };
+      os.sort(function (a, z) { return (skOnKieli(z.j, k) ? 1 : 0) - (skOnKieli(a.j, k) ? 1 : 0) || muotoVain(a) - muotoVain(z); });
       return { tapa: tapa, osumat: os };
     });
   }
@@ -3627,6 +3632,7 @@
     var sg = segs[0], haku = skHakusana(sg.x), y = skYmparisto(sg), vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
     if (!haku) return;
     y.kieli = skKieli(sg, y); y.symboli = skSymboli(haku);
+    y.pikkusana = !!(KIELI_SANAT[y.kieli] && KIELI_SANAT[y.kieli][haku.toLowerCase()]);
     var monta = sanaLkm(haku) > 1, erisnimi = !monta && !y.alku && /^\p{Lu}/u.test(haku) && haku !== haku.toUpperCase();
     var ketju = skKetju(y.kieli, y, monta, erisnimi);
     naytaPop(rect, skKehys(haku, haku), 'sanakirja', function (k, b) {
