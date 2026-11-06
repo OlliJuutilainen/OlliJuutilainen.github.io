@@ -2165,19 +2165,93 @@
     if (SANAN.test(c)) return true;
     return (c === "'" || c === '’') && SANAN.test(t[i - 1] || '') && SANAN.test(t[i + 1] || '');
   }
+  /* Alleviivauksen loppumerkit (käyttäjän säännöt 6.11.2026). Loppu siivotaan aina viimeiseen sanamerkkiin ja merkit
+     lisätään takaisin vain näillä säännöillä (siivoaLoppu(), loppuLaajennus()):
+     1) virkkeen lopetusmerkki (. ! ? …) tulee mukaan vain, jos alleviivaus alkaa viimeistään virkkeen ensimmäisestä sanasta
+        ja loppuu sen viimeiseen sanaan; lyhyempään ei koskaan, eikä pilkku, kaksoispiste tai puolipiste koskaan;
+     2) alleviivaukseen jäänyt avaava lainausmerkki tai sulku (myös "/") tuo sulkevan vastineensa mukaan, kun sanaa ja
+        vastinparia ei erota yksikään sana (sulut ja lopetusmerkki mukaan: "…varmaan)." kokonaan).
+     Naapurialleviivaus ei vaikuta näihin: sääntö lasketaan aina yksin, ja törmäys vain leikkaa tuloksen (rajaaSegs()). */
+  var LOPETUS = /[.!?…]/, SULKU = /["”“’‘'»«›‹)\]}]/, TRAIL = /[.,:;!?…"'“”„‘’«»‹›()\[\]{}\/\-–—]/;
+  var AVAAJA = { '(': ')', '[': ']', '{': '}', '“': '”', '‘': '’', '«': '»', '‹': '›', '„': '“' }, SYM = '"”»\'’/';
+  var LYHENTEET = /^(esim|jne|ym|yms|ks|vrt|ns|ts|nk|noin|ss|vs|mrd|milj|tms|tmv|ent|huom|kpl|klo|prof|dos|tri|nro|etc|cf|vol|pp|mm|ym)$/i;
+  // Seuraava sana alkaa pienellä: piste ei päätä virkettä (3. kerros, esim. tämä).
+  function pienellaSeuraa(t, i) {
+    while (i < t.length && !sanassa(t, i)) i++;
+    return i < t.length && /\p{Ll}/u.test(t[i]);
+  }
+  function virkkeenAlku(t, s) {
+    var p = s - 1, valia = false;
+    while (p >= 0 && /[\s"“”„‘’'«»‹›()\[\]{}\-–—\/]/.test(t[p])) { if (/\s/.test(t[p])) valia = true; p--; }
+    if (p < 0) return true;
+    if (!valia || !LOPETUS.test(t[p])) return false;
+    if (t[p] === '!' || t[p] === '?') return true;
+    var q = p; while (q > 0 && sanassa(t, q - 1)) q--;
+    var sana = t.slice(q, p);
+    if (t[p] === '.' && (/^\p{L}$/u.test(sana) || LYHENTEET.test(sana))) return false;
+    return !pienellaSeuraa(t, s);
+  }
+  // Viimeinen virke alkaa valinnan alussa tai sen sisällä (sisäinen virkkeenraja ei haittaa, kunhan viimeinen virke on kokonainen).
+  function sisaltaaVirkkeenAlun(t, s, e) {
+    if (virkkeenAlku(t, s)) return true;
+    for (var i = s + 1; i < e; i++) if (sanassa(t, i) && !sanassa(t, i - 1) && virkkeenAlku(t, i)) return true;
+    return false;
+  }
+  // Valinnassa auki jääneet avaajat: pino sulkevista vastineista (uloin pohjalla).
+  function avoimet(t, s, e) {
+    var st = [];
+    for (var i = s; i < e; i++) {
+      var c = t[i];
+      if ((c === "'" || c === '’') && sanassa(t, i)) continue;
+      if (st.length && st[st.length - 1] === c) { st.pop(); continue; }
+      if (AVAAJA[c]) { st.push(AVAAJA[c]); continue; }
+      if (SYM.indexOf(c) >= 0 && (i === 0 || !sanassa(t, i - 1)) && i + 1 < e && !/\s/.test(t[i + 1])) st.push(c);
+    }
+    return st;
+  }
+  // Loppu viimeiseen sanamerkkiin (tai alkuun, jos sanaa ei ole): tyhjät ja välimerkit pois.
+  function siivoaLoppu(t, s, e) {
+    while (e > s && (/\s/.test(t[e - 1]) || !sanassa(t, e - 1) && TRAIL.test(t[e - 1]))) e--;
+    return e;
+  }
+  function loppuLaajennus(t, s, e) {
+    var st = avoimet(t, s, e), alku = null;
+    while (e < t.length) {
+      var c = t[e];
+      if (st.length && st[st.length - 1] === c) { st.pop(); e++; continue; }
+      if (!LOPETUS.test(c)) break;
+      if (alku === null) alku = sisaltaaVirkkeenAlun(t, s, e);
+      if (!alku) break;
+      var q = e, r;
+      while (q < t.length && LOPETUS.test(t[q])) q++;
+      r = q;
+      while (r < t.length && SULKU.test(t[r])) r++;
+      if (r < t.length && !/\s/.test(t[r])) break;
+      if (/[.…]/.test(t[q - 1]) && pienellaSeuraa(t, r)) break;
+      e = q;
+    }
+    return e;
+  }
   function valintaPaloiksi(r) {
     var segs = [];
     nyt.blocks.forEach(function (el, b) {
       if (!el || !r.intersectsNode(el)) return;
       var t = nyt.txt[b], s = el.contains(r.startContainer) ? lohkoon(el, r.startContainer, r.startOffset) : 0;
       var e = el.contains(r.endContainer) ? lohkoon(el, r.endContainer, r.endOffset) : t.length;
-      while (s < e && /\s/.test(t[s])) s++;
+      // Alun irtonaiset sulkevat merkit pois (vanhan alleviivauksen perään rajattu alku ei ala ") "):
+      while (s < e && (/\s/.test(t[s]) || /[.,:;!?)\]}]/.test(t[s]))) s++;
       while (e > s && /\s/.test(t[e - 1])) e--;
       // Kesken sanan alkava tai loppuva valinta laajenee koko sanaan.
       while (s > 0 && s < e && sanassa(t, s - 1) && sanassa(t, s)) s--;
       while (e < t.length && e > s && sanassa(t, e) && sanassa(t, e - 1)) e++;
       if (e > s) segs.push({ b: b, s: s, e: e, x: t.slice(s, e) });
     });
+    // Loppumerkit lasketaan valinnan viimeiselle palalle (ks. LOPETUS): muualla lohkon loppu on valinnan sisällä.
+    if (segs.length) {
+      var z = segs[segs.length - 1], tz = nyt.txt[z.b], ez = siivoaLoppu(tz, z.s, z.e);
+      if (ez <= z.s) segs.pop();
+      else { ez = loppuLaajennus(tz, z.s, ez); z.e = ez; z.x = tz.slice(z.s, ez); }
+    }
     return segs;
   }
   function piirraAlleviivaus(h, luokka) {
@@ -2437,8 +2511,19 @@
     }
     if (d <= c) return [];
     var r = segsValilta(gKohta(c), gKohta(d));
-    // Varmistus: sanan laajennus ei saa viedä rajan yli.
-    return r.filter(function (q) { var g0 = nyt.cum[q.b] + q.s, g1 = nyt.cum[q.b] + q.e; return !V.some(function (v) { return v[0] < g1 && v[1] > g0; }); });
+    // Varmistus: sanan tai loppumerkin laajennus ei saa viedä rajan yli. Rajalle asti ulottuva pala leikataan rajaan
+    // (ja siivotaan viimeiseen sanaan, ettei välilyönti tai avaava sulku tule mukaan); rajan sisältä alkava pala pois.
+    return r.map(function (q) {
+      var g0 = nyt.cum[q.b] + q.s, g1 = nyt.cum[q.b] + q.e, raja = Infinity;
+      for (var i = 0; i < V.length; i++) {
+        if (!(V[i][0] < g1 && V[i][1] > g0)) continue;
+        if (V[i][0] <= g0) return null;
+        raja = Math.min(raja, V[i][0]);
+      }
+      if (raja === Infinity) return q;
+      var t = nyt.txt[q.b], e2 = siivoaLoppu(t, q.s, raja - nyt.cum[q.b]);
+      return e2 > q.s ? { b: q.b, s: q.s, e: e2, x: t.slice(q.s, e2) } : null;
+    }).filter(Boolean);
   }
   function rajattuValilta(alku, loppu, ohita) { return rajaaSegs(segsValilta(alku, loppu), gPaikka(alku) <= gPaikka(loppu), ohita); }
   // Värit: alleviivaukset järjestyksessä; vierekkäiset (päällekkäin tai välissä ei kirjainta eikä numeroa samassa lohkossa)
@@ -2923,7 +3008,7 @@
     var r = aset.kopioViite === 'lyhyt' ? '<path d="M10 15.6H13.6"/>' : aset.kopioViite === 'pitka' ? '<path d="M10 13.2H15M10 15.6H13.6"/>' : '';
     return IK_KOPIOI.replace('</svg>', r ? '<g stroke-width="1">' + r + '</g></svg>' : '</svg>');
   }
-  function yksiSana(segs) { return segs.length === 1 && segs[0].x.length <= 60 && /^[\p{L}\p{N}’'\-]+$/u.test(segs[0].x); }
+  function yksiSana(segs) { return segs.length === 1 && segs[0].x.length <= 60 && /^[\p{L}\p{N}’'\-]+$/u.test(segs[0].x.replace(/[^\p{L}\p{N}]+$/u, '')); }
   // Sanaselitys: yksi sana tai enintään SK_SANAT sanan ilmaus yhdestä kappaleesta (käyttäjän pyyntö 5.11.2026: Wiktionaryssä
   // on sanontoja ja sananlaskuja omina sivuinaan). Raja 10 kattaa tunnetuimmat sananlaskut (a bird in the hand is worth two
   // in the bush); pidemmille tuskin on sivua, ja lambda tukkisi lauseen mittaisen valinnan valikon turhaan.
