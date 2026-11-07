@@ -61,6 +61,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa
   järkevältä. Latomon ohje ei mainosta iA Writeria eikä neuvo sen käyttöä; se mainitaan vain, kun se vastaa
   kysymykseen *miksi juuri näin*.
+- **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kaikki tasot; kosketusnäytöllä ja e-inkissä sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). E-ink-tunnistusta ei ole todennettu oikealla laitteella.
 - Uusi oletus koskee vain ensikäyttöä. Tallennettuja asetuksia muutetaan vain kerran, `aset.av`-numeron avulla.
 
 ### Markdown-konventiot (opas 3)
