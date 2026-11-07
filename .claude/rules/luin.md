@@ -158,7 +158,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Alleviivauksen loppumerkit** (käyttäjän säännöt 6.11.2026, opas 4.3): lopetusmerkki vain kokonaiseen virkkeeseen, pilkku/kaksoispiste/puolipiste ei koskaan, valintaan jääneen avaajan sulkeva vastine heti sanan perässä mukaan. Säännöt ovat `valintaPaloiksi()`:ssa eikä naapuri vaikuta niihin; älä siirrä niitä törmäyskoodiin.
 - **Sivun nurkka ja pito** (käyttäjän idea 7.11.2026, opas 4.3, `nurkkaAskel()`): vedon käännön jälkeen liikkuva pää pysyy
   rajan yli seuraavassa sanassa, kunnes osoitin poistuu kääntäneeltä alueelta, eikä nurkka saa kääntää samaa sivua uudelleen
-  ("ei saa räpsyä"). Nurkka kääntää vain matkana (ulkoa sisään neliön ilmestyttyä) ja 0,3 s:n viiveellä; neliö ilmestyy 0,8 s:n jälkeen tekstialueen nurkkaan, ei tekstin päälle (käyttäjän palaute 7.11.2026). Laidan 0,65 s:n kääntö pysyy rinnalla.
+  ("ei saa räpsyä"). Nurkka kääntää vain matkana (ulkoa sisään neliön ilmestyttyä) ja 0,3 s:n viiveellä; neliö ilmestyy 0,8 s:n jälkeen tekstialueen nurkkaan, ei tekstin päälle (käyttäjän palaute 7.11.2026). Ahtaalla reunalla se kasvaa vapaaseen tilaan viimeisen rivin alle tai viereen (`nurkanPaikka()`), ja sen merkki on pelkkä ohut natsa, ei sivunappien salmiakki (käyttäjän linjaus 7.11.2026). Laidan 0,65 s:n kääntö pysyy rinnalla.
 - **Kirjauksen kynä** alleviivauksen alussa: napautus näyttää kirjauksen, toinen napautus muokkaa.
 - **Sanaselitys ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi). Käännös on
