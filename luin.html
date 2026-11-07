@@ -1656,11 +1656,11 @@
     var t = rg.getBoundingClientRect(), yhdessa = Math.abs(vr.top - sr.top) < 2;
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 6.6 - r.left) + 'px';
-    ka.style.top = Math.round((ens.top + ens.bottom) / 2 - 3.3 - r.top) + 'px';
+    ka.style.top = Math.round((ens.top + ens.bottom) / 2 + 1.7 - r.top) + 'px';
     var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
     ko.hidden = !yhdessa || x + 31 > r.width;
     ko.style.left = x + 'px';
-    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 22.5 - r.top) + 'px';
+    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 17.5 - r.top) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
