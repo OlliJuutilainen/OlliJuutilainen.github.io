@@ -182,6 +182,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   luvusta 6 → *6*). Kappaleen alun pykälä tai Tractatus-numero tarkentaa paikantimen kappaleeseen (`kohtamerkit`).
   Tarkkuus on aina alimman numerotason (käyttäjän sääntö 6.11.2026, `nollat()`): kattavasti kolmitasoisessa luvun alku
   *4.0.0*, kaksitasoisessa *4.0*; luvuittain alusta alkava pykälä alaluvun paikalla (*5.2*), jatkuva yksinään (*§ 88*).
+- **Tasojen nimet ovat luku, osio ja kohta** (`h2`/`h3`/`h4`, käyttäjän päätös 7.11.2026; ennen pääluku, alaluku, alaluvun alaluku).
+  **Ylin taso jää käyttämättä** (pilotti, md.js `laske`, opas 3.2): korkeintaan kaksi tasoa ja yli 10 lukua → kaikki tasoa alemmas,
+  sivuseikkojen alennus perutaan (SEP:n Bibliography on osio). Käyttäjä haluaa myöhemmin parempia perusteita; raja on raja-aita.
+  Sisällys, Sisälmys ja aikajana lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`): aikajanan *Luvut* näyttää Beauvoirissa osiot,
+  ja avoimen tekstin puuttuvat tasot ovat asetuksissa himmeitä (`janaTasotNyt()`).
 - **Pykälä on korkeintaan alaluvun alaluku** (käyttäjän sääntö 6.11.2026, `pykalaSarjat()`, opas 3.2): Husserlin tapainen
   lyhyehkö pykälä, merkillä tai ilman, ladotaan `h4`:ksi myös ilman yläotsikoita. Pelkkien pykälien tekstissä
   sisällysluettelot ja aikajana näyttävät ylimmän olemassa olevan tason (`tocRaja()`).

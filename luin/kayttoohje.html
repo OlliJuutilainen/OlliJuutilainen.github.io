@@ -147,10 +147,12 @@
     kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman napautusta. Samasta
     napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivunkäännössä ruudun yläosasta alas
     vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen.</p>
-  <p>Aikajana näyttää koko tekstin vaakaviivana. Luvut ovat sillä salmiakkeina: pääluku ontto
+  <p>Aikajana näyttää koko tekstin vaakaviivana. Otsikot ovat sillä salmiakkeina: luku ontto
     <svg class="ik j1" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0.6Q6.6 3.95 9.2 6Q6.6 8.05 5 11.4Q3.4 8.05 0.8 6Q3.4 3.95 5 0.6Z"/></svg>,
-    alaluku pienempi ja täytetty
-    <svg class="ik j2" viewBox="1 1 8 10" aria-hidden="true"><path d="M5 1.4Q6.37 4.25 8.6 6Q6.37 7.75 5 10.6Q3.63 7.75 1.4 6Q3.63 4.25 5 1.4Z"/></svg>.
+    osio pienempi ja täytetty
+    <svg class="ik j2" viewBox="1 1 8 10" aria-hidden="true"><path d="M5 1.4Q6.37 4.25 8.6 6Q6.37 7.75 5 10.6Q3.63 7.75 1.4 6Q3.63 4.25 5 1.4Z"/></svg>,
+    kohta lähes piste. Jos tekstissä on korkeintaan kaksi otsikkotasoa ja ylimpiä otsikoita on yli kymmenen, ne ovat
+    osioita eivätkä lukuja.
     Kohta, jossa olet, on kolmio
     <svg class="ik j-nyt" viewBox="-5 1 10 8.5" aria-hidden="true"><path d="M-4.5 1.5H4.5L0 9Z"/></svg>,
     ja luettu osa on piirretty tekstin värillä, tuleva haaleammin. Napauta tai vedä aikajanaa, niin pääset
@@ -270,8 +272,9 @@
       alleviivaukseen napautuksesta). <span class="ui">Kopioon viite</span>: ei, lyhyt (<i>Korsgaard 2018, 8.5.3</i>) tai pitkä
       (koko lähdeviite ja luku). <span class="ui">Valikossa</span>: sanaselitys ja lausekäännös (oletuksena vain sanaselitys). Asetuksissa ei näy palvelujen nimiä. Sanaselitys tulee Wikisanakirjasta (Wiktionary), ja lähde näkyy selitysikkunassa.
       Lausekäännös avautuu DeepL-palveluun, mikä kerrotaan käännösnapin vihjeessä, kun hiiri on napin päällä.</li>
-    <li><span class="ui">Aikajana</span>: mitkä luvut (pääluvut, alaluvut tai kaikki) ja näkyvätkö
-      kirjanmerkit aikajanalla.</li>
+    <li><span class="ui">Aikajana</span>: mitkä tasot (luvut, osiot, kohdat) ja näkyvätkö
+      kirjanmerkit aikajanalla. Valinta luetaan tekstin ylimmästä tasosta: jos tekstissä ei ole lukuja, <i>Luvut</i> näyttää
+      sen osiot. Avoimen tekstin puuttuvat tasot ovat himmeinä.</li>
   </ul>
 
   <div class="lisaosat">

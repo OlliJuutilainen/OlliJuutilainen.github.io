@@ -103,6 +103,12 @@ sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.l
     '## Bibliography\n\n### Primary\n\nKant, I. (1785). *Grundlegung*.\n\n## Academic Tools\n\n> [How to cite](https://e.org/c).\n\n' +
     '## Other Internet Resources\n\n- [A](https://a.org)\n- [B](https://b.org)\n\n## Related Entries\n\n[Kant](https://e.org/kant) | [ethics](https://e.org/e)\n';
   sama('sivuseikat: SEP:n loppu alalukuina', tasot(sep), '1 1. Johdanto | 1 2. Teoria | 2 2.1 Osa | 1 3. Kritiikki | 2* Bibliography | 3* Primary | 2* Academic Tools | 2* Other Internet Resources | 2* Related Entries');
+  // Ylin taso käyttämättä (pilotti 7.11.2026): korkeintaan kaksi tasoa ja yli 10 lukua → osiot ja kohdat, alennus perutaan.
+  const monta = n => '# T\n\n' + Array.from({ length: n }, (_, i) => luku((i + 1) + '. L' + (i + 1), 1)).join('') + '## Bibliography\n\n### Primary\n\nKant, I. (1785). *Grundlegung*.\n';
+  sama('ylin taso: 11 lukua osioiksi', tasot(monta(11)).split(' | ').slice(-4).join(' | '), '2 10. L10 | 2 11. L11 | 2 Bibliography | 3 Primary');
+  tulos('ylin taso: laskettu-lippu ja h3/h4', M.parse(monta(11)).laskettu && M.parse(monta(11)).html.includes('<h4 id="primary"'));
+  sama('ylin taso: 10 lukua pysyy', tasot(monta(10)).split(' | ').slice(-3).join(' | '), '1 10. L10 | 2* Bibliography | 3* Primary');
+  sama('ylin taso: kolme tasoa pysyy', tasot(monta(11).replace('## 2. L2\n', '## 2. L2\n\n### 2.1 A\n\n#### 2.1.1 B\n')).split(' | ').slice(0, 2).join(' | '), '1 1. L1 | 1 2. L2');
   const sd = M.parse(sep);
   tulos('sivuseikat: kirjallisuusluettelo säilyy', lkm(sd.html, /class="bib"/g) === 1 && sd.html.includes('<h3 id="bibliography" class="sec caps"') && sd.html.includes('<h4 id="primary" class="sec caps"'));
   sama('sivuseikat: lyhyt numeroimaton linkkiosio', tasot('# T\n\n' + luku('1. A', 3) + luku('2. B', 3) + luku('3. C', 3) + '## Linkit\n\n- [x](https://x.fi)\n'),
@@ -278,7 +284,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('pykälät ilman merkkiä: numerot jatkuvat kapitelien yli', ptoc(ide.replace(/### § (\d+)\./g, '## $1.')).split(' | ').slice(3, 5).join(' | '), '3p 1 | 3p 2');
   sama('pykälät ilman yläotsikoita', ptoc('# CM\n\n## § 1. A\n\n' + hus(10) + '\n\n## § 2. B\n\n' + hus(10)), '3p § 1 | 3p § 2');
   sama('pykälät: kolmekymmentä lyhyttä numeroitua ilman yläotsikoita', ptoc('# P\n\n' + Array.from({ length: 30 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ')[0], '3p 1');
-  sama('pykälät: neljätoista lyhyehköä numeroitua jaksoa (Beauvoir) ovat lukuja', ptoc('# A\n\n' + Array.from({ length: 14 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ').slice(0, 3).join(' | '), '1 1 | 1 2 | 1 3');
+  sama('pykälät: neljätoista lyhyehköä numeroitua jaksoa (Beauvoir) ovat osioita (yli 10 lukua), eivät pykäliä', ptoc('# A\n\n' + Array.from({ length: 14 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ').slice(0, 3).join(' | '), '2 1 | 2 2 | 2 3');
   sama('pykälät: lyhyen artikkelin viisi jaksoa ennallaan', ptoc('# A\n\n' + Array.from({ length: 5 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')), '1 1 | 1 2 | 1 3 | 1 4 | 1 5');
   sama('pykälät: pitkät luvut osien yli ovat lukuja', ptoc('# K\n\n## Part I\n\n### 1 C\n\n' + hus(80) + '\n\n### 2 C\n\n' + hus(80) + '\n\n## Part II\n\n### 3 C\n\n' + hus(80)), '1 Part I | 2 1 | 2 2 | 1 Part II | 2 3');
   // Paikannin pykälän tarkkuudella (käyttäjän sääntö 6.11.2026): luvun alku 4.0.0 kolmitasoisessa, 4.0 kaksitasoisessa;
