@@ -737,6 +737,8 @@
      mitataan sijoitaLiikKuvat()-funktiossa; ne eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
   .asetus[data-a="sivutus"] { position: relative; }
   .liik-kuva { position: absolute; left: 0; top: 0; display: block; color: var(--harmaa); opacity: .6; }
+  .liik-kuva { -webkit-tap-highlight-color: transparent; }
+  .liik-kuva:focus, .liik-kuva:focus-visible { outline: none; }
   .liik-kuva[hidden] { display: none; }
   .liik-kuva[aria-pressed="true"] { color: var(--muste); opacity: 1; }
   .liik-kuva svg { display: block; overflow: visible; }
