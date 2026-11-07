@@ -109,6 +109,17 @@ sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.l
   tulos('ylin taso: laskettu-lippu ja h3/h4', M.parse(monta(11)).laskettu && M.parse(monta(11)).html.includes('<h4 id="primary"'));
   sama('ylin taso: 10 lukua pysyy', tasot(monta(10)).split(' | ').slice(-3).join(' | '), '1 10. L10 | 2* Bibliography | 3* Primary');
   sama('ylin taso: kolme tasoa pysyy', tasot(monta(11).replace('## 2. L2\n', '## 2. L2\n\n### 2.1 A\n\n#### 2.1.1 B\n')).split(' | ').slice(0, 2).join(' | '), '1 1. L1 | 1 2. L2');
+  // Iso kirjallisuusosio luvuksi (käyttäjän sääntö 7.11.2026): ≥ 25 % otsikosta tekstin loppuun.
+  const kohta = 'Kant, I. (1785). *Grundlegung zur Metaphysik der Sitten*. Riga: Hartknoch, Johann Friedrich.\n\n';
+  const bibOsa = k => '## Bibliography\n\n### Primary\n\n' + kohta.repeat(k) + '### Secondary\n\n' + kohta.repeat(k) + '## Other Internet Resources\n\n- [A](https://a.org)\n';
+  const lopputasot = md => M.parse(md).toc.map(t => t.lvl + (t.alas ? '*' : '') + (t.laskettu ? 'L' : '') + ' ' + t.text).slice(-5).join(' | ');
+  sama('iso kirjallisuus: pieni pysyy osiona', lopputasot(monta(11).replace(/## Bibliography[^]*$/, '') + bibOsa(5)),
+    '2L 11. L11 | 2L Bibliography | 3L Primary | 3L Secondary | 2L Other Internet Resources');
+  sama('iso kirjallisuus: luku ja alaotsikot osioita (ylin taso käyttämättä)', lopputasot(monta(11).replace(/## Bibliography[^]*$/, '') + bibOsa(10)),
+    '2L 11. L11 | 1 Bibliography | 2 Primary | 2 Secondary | 2L Other Internet Resources');
+  sama('iso kirjallisuus: sivuseikkojen alennus perutaan', lopputasot('# T\n\n' + [1, 2, 3, 4].map(i => luku(i + '. L' + i, 1)).join('') + bibOsa(5)),
+    '1 4. L4 | 1 Bibliography | 2 Primary | 2 Secondary | 2* Other Internet Resources');
+  tulos('iso kirjallisuus: h2 ja p.bib', (h => h.includes('<h2 id="bibliography"') && h.includes('<h3 id="primary"') && lkm(h, /class="bib"/g) === 20)(M.parse(monta(11).replace(/## Bibliography[^]*$/, '') + bibOsa(10)).html));
   const sd = M.parse(sep);
   tulos('sivuseikat: kirjallisuusluettelo säilyy', lkm(sd.html, /class="bib"/g) === 1 && sd.html.includes('<h3 id="bibliography" class="sec caps"') && sd.html.includes('<h4 id="primary" class="sec caps"'));
   sama('sivuseikat: lyhyt numeroimaton linkkiosio', tasot('# T\n\n' + luku('1. A', 3) + luku('2. B', 3) + luku('3. C', 3) + '## Linkit\n\n- [x](https://x.fi)\n'),
