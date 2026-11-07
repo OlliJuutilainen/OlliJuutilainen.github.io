@@ -152,7 +152,7 @@
   .valikko button.ik svg { display: block; width: 20px; height: 20px; }
   .valikko button.ik svg.kyna { width: 24px; height: 24px; }
   .valikko button.ik svg.sanasto { width: 22.5px; }
-  /* Valinnan valikon raksi (käyttäjän pyyntö 7.11.2026): reunanapautus ja pitkä alleviivaus vievät ne alueet, joiden
+  /* Valinnan ja alleviivauksen valikon raksi (käyttäjän pyynnöt 7.11.2026): reunanapautus ja pitkä alleviivaus vievät ne alueet, joiden
      napautus vain sulkisi valikon. Ohut kuin sanaselityksen raksi, ettei sitä sekoita poistoikoniin. */
   .valikko button.ik.sulje-ik { min-width: 44px; padding: 0 12px; color: var(--muste); }
   .valikko button.ik.sulje-ik svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
@@ -2430,7 +2430,8 @@
     if (!eiKahvoja) naytaKahvat(h);
     rect = alRect(h) || rect;
     naytaPop(rect, (h.n ? '<div class="esi kir"><div>' + esc(lyhenna(h.n, 300)) + '</div></div>' : '') +
-      ikNappi('poista', ikPoista(h), 'Poista alleviivaus') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
+      ikNappi('poista', ikPoista(h), 'Poista alleviivaus') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(h.segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()) +
+      ikNappi('sulje', IK_SULJE, 'Sulje', 'sulje-ik'), 'rivi', function (k, b) {
       if (k === 'kir') { piilotaKahvat(); avaaKirjaus(h, rect, false); return true; }
       if (k === 'kopioi') { kopioiViitteella(h.segs).then(function () { kopioitu(b); }); return true; }
       if (k === 'sk') { piilotaKahvat(); sanaselitys(h.segs, rect); return true; }
