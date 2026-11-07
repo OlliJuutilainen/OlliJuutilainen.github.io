@@ -106,7 +106,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Sisälmys on tasan palstan levyinen. Vierityksessä reunushuomioiden kanssa palsta siirtyy pysyvästi oikealle, jotta
   Merkinnät mahtuu vasemmalle (`palstanSiirto()`, .wrapin `left`); ahtaimmillaan Merkinnät laihtuu, Etsi ei. Väljällä
   Etsi on huomioiden takana ja Merkinnät ja Etsi yhtä kaukana tekstistä, mutta **auki olevien laatikoiden väliin ei
-  koskaan jää tilaa** (käyttäjän sääntö): Sisälmyksen ollessa auki ne ovat kiinni siinä.
+  koskaan jää tilaa** (käyttäjän sääntö): Sisälmyksen ollessa auki ne ovat kiinni siinä. Etsi pysyy väljällä
+  huomioiden takana myös Sisälmyksen ollessa auki (osumat näkyvät huomioissa), joten Sisälmys peittää palstan ja
+  huomiot palstan vasemmasta reunasta alkaen; Merkinnät ei kutistu (käyttäjän pyyntö 7.11.2026).
 - **Ahdas navinäkymä** (käyttäjän pyyntö 6.11.2026, opas 4.7.2, `naviAlas()`): mobiilissa, kun laatikot eivät mahdu
   rinnakkain, kolme laatikkonappia siirtyvät alapalkkiin (`#ala-laatikot`), jos mahtuvat: ensin palkkinuolen kanssa,
   sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
