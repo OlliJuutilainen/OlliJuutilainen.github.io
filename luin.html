@@ -1557,13 +1557,47 @@
     var b = document.body, oli = b.classList.contains('laatikko-auki'), on = laatikoitaAuki();
     b.classList.toggle('laatikko-auki', on);
     if (oli && !on) piirraJana();
+    // Sisälmyksen avaus ja sulku siirtää Merkintöjä ja Etsiä marginaaleissa (laatikoiden väliin ei jää tilaa).
+    if (on) sijoitaLaatikot();
   }
-  // Ruudun leveys (px) ja rinn: kolme 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen
-  // väliin (raja on sama kuin ennen 6.11.2026, jolloin laatikot olivat laitojen välissä rakojen kera).
+  /* Marginaalit (käyttäjän pyyntö 7.11.2026): kun palstan kummallekin puolelle mahtuu laatikko, Merkinnät on vasemmassa
+     marginaalissa ja Etsi oikeassa, kumpikin kiinni palstan reunassa, ja Sisälmys on tasan palstan levyinen (se ei tarvitse
+     enempää). Laatikko on vähintään LAATIKKO_MIN levyinen; oikealla on reunushuomioiden takia tilaa joka tapauksessa
+     enemmän, joten ahtaimmillaan Merkinnät laihtuu ja Etsi saa LAATIKKO_HYVA (palstanSiirto()). Etsi peittää silloin
+     reunushuomiot. Kun huomioidenkin oikealle puolelle mahtuu LAATIKKO_HYVA (ja vasemmalle samoin), Etsi on huomioiden
+     takana, jotta ne näkyvät kokonaisina (palstan kohdalta leikattuina ne näyttivät rikkinäisiltä). Laatikot ulottuvat
+     ruudun reunaan. Väljällä ruudulla kapeampi puoli saa enintään LAATIKKO_MAX levyisen laatikon, ja Merkinnät ja Etsi
+     ovat yhtä kaukana tekstistä (palstasta, oikealla huomioineen). Auki olevien laatikoiden väliin ei kuitenkaan koskaan
+     jää tilaa: Sisälmyksen ollessa auki Merkinnät ja Etsi ovat kiinni siinä. Muuten kolmannekset kuten ennen. */
+  var LAATIKKO_MIN = 16, LAATIKKO_HYVA = 19, LAATIKKO_MAX = 25;   // rem
+  function remPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
+  // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat keskitetyssä .wrapissa, joten
+  // vasen marginaali on oikeaa kapeampi. Palstaa siirretään oikealle oikean ilmatilan kustannuksella sen verran, että
+  // vasemmalle mahtuu LAATIKKO_HYVA (ahtaimmillaan LAATIKKO_MIN) ja oikealle vähintään LAATIKKO_HYVA, kuitenkin niin,
+  // että huomioiden oikealle puolelle jää #sivun 16 px:n reuna. Jos marginaaleihin ei mahdu laatikoita, siirtoa ei tehdä.
+  function palstanSiirto(vw, em) {
+    var rem = remPx(), cw = 33 * em, w = (33 + 2.2 + 13) * em, M = vw - cw, L0 = (vw - w) / 2, Lmax = vw - w - 16;
+    var L = Math.max(L0, Math.min(LAATIKKO_HYVA * rem, Lmax, Math.max(LAATIKKO_MIN * rem, M - LAATIKKO_HYVA * rem)));
+    return L >= LAATIKKO_MIN * rem && M - L >= LAATIKKO_MIN * rem ? Math.round(L - L0) : 0;
+  }
+  // Näkyvän palstan reunat ruudulla (sivutettuna #teksti on palstojen nauha, josta näkyy yksi); h: reunushuomioiden oikea
+  // reuna (.wrapin oikea reuna, body.reunat), muuten palstan.
+  function palstanReunat() {
+    if (aset.sivutus === 'sivut') { var l = sivuEl.getBoundingClientRect().left + (parseFloat(art.style.marginLeft) || 0); return { l: l, r: l + tila.W, h: l + tila.W }; }
+    var r = art.getBoundingClientRect();
+    return { l: r.left, r: r.right, h: document.body.classList.contains('reunat') ? art.parentNode.getBoundingClientRect().right : r.right };
+  }
+  // Ruudun leveys (px), marg: palstan reunat, kun laatikot mahtuvat marginaaleihin, ja rinn: laatikot voivat olla auki
+  // rinnakkain (marginaaleissa tai kolmanneksina, kun kolme 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat
+  // palkkien laitojen väliin; raja on sama kuin ennen 6.11.2026, jolloin laatikot olivat laitojen välissä rakojen kera).
   function laatikkoMitat() {
     var juuri = document.documentElement, cs = getComputedStyle(juuri), rem = parseFloat(cs.fontSize) || 16;
     var vw = juuri.clientWidth, v = parseFloat(cs.getPropertyValue('--v-laita')) || 0, o = parseFloat(cs.getPropertyValue('--o-laita')) || 0;
-    return { vw: vw, rinn: vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
+    var p = nyt && tila.nakyma === 'lukija' ? palstanReunat() : null, pl = p && Math.round(p.l), pr = p && Math.round(p.r), ph = p && Math.round(p.h);
+    var mahtuu = function (o, ko) { return pl >= ko * rem - .5 && vw - o >= ko * rem - .5; };
+    // o: Etsin puoleinen tekstin reuna (huomioiden takana tai palstan reunassa).
+    var marg = !p ? null : mahtuu(ph, LAATIKKO_HYVA) ? { l: pl, r: pr, o: ph } : mahtuu(pr, LAATIKKO_MIN) ? { l: pl, r: pr, o: pr } : null;
+    return { vw: vw, rem: rem, marg: marg, rinn: !!marg || vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
   }
   function sijoitaLaatikot() {
     if (!laatikoitaAuki()) return;
@@ -1582,12 +1616,19 @@
     var ala = mj.hidden ? $('#ala').getBoundingClientRect().top : mj.getBoundingClientRect().top - 10;
     if (vv) ala = Math.min(ala, vv.offsetTop + vv.height);
     ala = Math.round(ala);
-    // Vaakasuunnassa kolmannekset ruudun reunasta reunaan; yksi kerrallaan koko leveys. Vierekkäisten reunukset päällekkäin.
-    var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw];
+    // Vaakasuunnassa marginaaleissa (ks. LAATIKKO_MIN), muuten kolmannekset ruudun reunasta reunaan; yksi kerrallaan koko
+    // leveys. Vierekkäisten reunukset päällekkäin: palstan reunoilla viiva on palstan ulkopuolella (vasemmalla pikseli
+    // l - 1, oikealla r), ja Sisälmyksen sisäleveys on palstan leveys.
+    var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw], vali = {};
+    if (m.marg) {
+      var pl = m.marg.l, pr = m.marg.r, po = m.marg.o, mx = Math.round(LAATIKKO_MAX * m.rem), g = Math.max(0, Math.min(pl, m.vw - po) - mx);
+      if (laatikkoAuki('sisalmys')) { po = pr; g = 0; }
+      vali = { merkinnat: [0, pl - g], sisalmys: [pl - 1, pr + 1], haku: [po + g, m.vw] };
+    }
     LAATIKOT.forEach(function (id, i) {
       var el = $('#' + id);
       if (el.hidden) return;
-      var x0 = m.rinn ? raja[i] - (i ? 1 : 0) : 0, x1 = m.rinn ? raja[i + 1] : m.vw;
+      var x0 = m.marg ? vali[id][0] : m.rinn ? raja[i] - (i ? 1 : 0) : 0, x1 = m.marg ? vali[id][1] : m.rinn ? raja[i + 1] : m.vw;
       el.style.left = x0 + 'px'; el.style.width = (x1 - x0) + 'px';
       el.style.top = yla + 'px'; el.style.height = Math.max(120, ala - yla) + 'px';
       el.style.borderTopWidth = '0';
@@ -2045,6 +2086,8 @@
     var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
     document.body.classList.toggle('reunat', reunat);
     document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
+    // Reunushuomioiden kanssa palsta siirtyy oikealle, jos vasempaan marginaaliin ei muuten mahtuisi Merkinnät (palstanSiirto()).
+    art.parentNode.style.left = reunat ? palstanSiirto(sivuEl.clientWidth, koko) + 'px' : '';
     if (sivut) {
       art.style.transform = 'none';
       var vw = sivuEl.clientWidth, mr = Math.max(vw < 480 ? 16 : 20, marginaali());
@@ -2066,6 +2109,7 @@
       tavutaPitkat();
     }
     mene(k || { b: 0, o: 0 });
+    sijoitaLaatikot();
   }
 
   // yla: vierityksessä kohdan rivin paikka, jos se ei ole YLA (hyppy mobiilin palkkien ollessa auki).
@@ -4763,10 +4807,11 @@
   // Hyppy haun osumaan (napautus tai Enter) sulkee paneelit kuten muut hypyt, paitsi Etsin, jos se on rinnakkaisasettelussa
   // kokonaan leipätekstin palstan (#teksti) ulkopuolella: silloin osumia voi käydä läpi laatikon pysyessä tekstin vieressä
   // (käyttäjän päätös 5.11.2026). Leveällä marginaalilla Etsi voi peittää sivuhuomioita; jos se peittää itse osuman,
-  // valitseOsuma() sulkee sen (osumaPeitossa). Sivutettuna palsta on koko leveys, joten Etsi sulkeutuu.
+  // valitseOsuma() sulkee sen (osumaPeitossa). Sivutettuna verrataan näkyvään palstaan (palstanReunat()): marginaaleissa
+  // Etsi jää auki (7.11.2026), kolmanneksina se peittää palstaa ja sulkeutuu.
   function suljeHypynTielta() {
-    var w = $('#teksti').getBoundingClientRect(), r = hakuEl.getBoundingClientRect();
-    if (!hakuAuki() || !laatikkoMitat().rinn || aset.sivutus === 'sivut' || r.left < w.right && r.right > w.left) { suljePaneelit(); return; }
+    var w = palstanReunat(), r = hakuEl.getBoundingClientRect();
+    if (!hakuAuki() || !laatikkoMitat().rinn || r.left < w.r - .5 && r.right > w.l + .5) { suljePaneelit(); return; }
     $$('.paneeli').forEach(function (p) { if (p !== hakuEl) p.hidden = true; });
     laatikotMuuttuivat();
   }
