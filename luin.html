@@ -91,6 +91,9 @@
   .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
   h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
     margin: 0; padding-bottom: 7px; border-bottom: 1px solid var(--viiva); }
+  /* Pitkä katkeamaton sana (verkko-osoite alaotsikkona, tekijänä tai viestissä) ei saa leventää sivua: asetteluleveys
+     kasvoi 360 → 1440 px, ja ruutuun sovittava WebView (Native Alpha, Light Phone) pienensi koko listan. */
+  #lista { overflow-wrap: anywhere; }
   ul.nimikkeet { list-style: none; margin: 0; padding: 0; }
   li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
   li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
