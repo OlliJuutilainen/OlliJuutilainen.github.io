@@ -756,14 +756,16 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistus samana päivänä): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
+  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
-     lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkin vasemmassa yläkulmassa alas osoittava ruosteinen
-     kärki kuin alkukirjain, kahden rivin korkuinen (ylimmät kaksi riviä sisennetty). Koodeksi 32 × 25 px: vasemmalla
-     sivulla rivit ja sen oikeassa alakulmassa oikealle osoittava samankokoinen kärki, oikea sivu tyhjä (sitä ei vielä
-     näy). Kärki on navigaattorin nyt-pisteen nuoli: takaa lovettu, kyljet koverat, ei vartta (käyttäjä: "ei varrellisia
-     nuolia"; lovettoman keihäänkärjen hän hylkäsi kahdesti). Rivit suoria (aaltoilevat kokeiltiin). Viivat 1 px, rivit
-     0,8 px. Paikka mitataan sijoitaLiikKuvat()-funktiossa; ne eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
+     lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkissa 7 suoraa riviä; vasemmassa yläkulmassa alas
+     osoittava ruosteinen kärki kuin alkukirjain, kolmen rivin korkuinen (ne sisennetty). Koodeksi 44 × 32 px (käyttäjän valinta
+     12 muunnelmasta 8.11.2026): suorakulmapari, alla suora kansi ja selän kohdalla pieni kieleke. Vasemmalla sivulla viisi
+     suoraa riviä tasavälein; kaksi alinta lyhyitä, ja niiden perässä niiden välissä oikealle osoittava kärki (käärön
+     alkukirjaimen peilikuva: kärki syrjäyttää rivejä, rivivälit eivät veny). Kärki on käärön kokoinen eikä kasva kuvan
+     mukana. Oikea sivu tyhjä (sitä ei vielä näy). Kärki on navigaattorin nyt-pisteen nuoli: takaa lovettu, kyljet koverat, ei vartta (käyttäjä:
+     "ei varrellisia nuolia"; käyttäjän sanastossa keihäänkärki tarkoittaa tätä). Viivat 1 px, rivit 0,8 px. Paikka mitataan sijoitaLiikKuvat()-funktiossa; ne
+     eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
   .asetus[data-a="sivutus"] { position: relative; }
   .liik-kuva { position: absolute; left: 0; top: 0; display: block; color: var(--harmaa); opacity: .6; }
   .liik-kuva { -webkit-tap-highlight-color: transparent; }
@@ -772,7 +774,7 @@
   .liik-kuva[aria-pressed="true"] { color: var(--muste); opacity: 1; }
   .liik-kuva svg { display: block; overflow: visible; }
   #liik-kaaro svg { width: 23px; height: 42px; }
-  #liik-koodeksi svg { width: 32px; height: 25px; }
+  #liik-koodeksi svg { width: 44px; height: 32px; }
   .asetus[data-a="sivutus"] .nimi { margin-bottom: 4px; }
   .liik-kuva .lk-v { fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
   .liik-kuva .lk-t { fill: currentColor; }
@@ -912,8 +914,8 @@
        mitataan (sijoitaNipukka). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen:</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
     <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
-    <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M11.6 10.5H16.6M11.6 13.5H16.6M6.4 16.5H16.6M6.4 19.5H16.6M6.4 22.5H16.6M6.4 25.5H16.6M6.4 28.5H16.6M6.4 31.5H16.6"/><path class="lk-n" d="M6.7 9.2Q7.97 9.9 8.6 11.02Q9.23 9.9 10.5 9.2Q9.34 11.44 8.6 14.8Q7.86 11.44 6.7 9.2Z"/></svg></button>
-    <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 32 25"><path class="lk-v" d="M16 3Q9 1 2 1.5V20.5Q9 20 16 22Q23 20 30 20.5V1.5Q23 1 16 3ZM16 3V22M2 20.5V22.5Q9 22 16 24Q23 22 30 22.5V20.5"/><path class="lk-r" d="M4 5H14M4 8H14M4 11H14M4 14H14M4 17H7.4"/><path class="lk-n" d="M8.6 15.3Q9.3 16.57 10.42 17.2Q9.3 17.83 8.6 19.1Q10.84 17.94 14.2 17.2Q10.84 16.46 8.6 15.3Z"/></svg></button></div>
+    <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M12 12H16.6M12 15H16.6M12 18H16.6M6.4 21H16.6M6.4 24H16.6M6.4 27H16.6M6.4 30H16.6"/><path class="lk-n" d="M6.4 10.7Q7.93 11.77 8.7 13.49Q9.47 11.77 11 10.7Q9.59 14.14 8.7 19.3Q7.81 14.14 6.4 10.7Z"/></svg></button>
+    <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 44 32"><path class="lk-v" d="M2 2.5H42V26H2ZM22 2.5V26M2 26V28.4H42V26M20.2 28.4V28.96Q20.2 29.8 22 29.8Q23.8 29.8 23.8 28.96V28.4"/><path class="lk-r" d="M4.5 6.65H19.5M4.5 10.45H19.5M4.5 14.25H19.5M4.5 18.05H9.4M4.5 21.85H9.4"/><path class="lk-n" d="M10.9 17.65Q11.97 19.18 13.7 19.95Q11.97 20.72 10.9 22.25Q14.34 20.84 19.5 19.95Q14.34 19.06 10.9 17.65Z"/></svg></button></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -1734,8 +1736,8 @@
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
     sijoitaLiikKuvat(s, n);
   }
-  // Käärö Vieritys-sanan alle (sanan keskelle) ja koodeksi lisäkytkinten oikealle puolelle; molempien keskikohta
-  // lisäkytkinten keskikohdan korkeudella (käyttäjän palaute 7.11.2026: ylärullaan ankkuroituna alareunat osuivat sattumalta tasan). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
+  // Käärö Vieritys-sanan alle (sanan keskelle), keskikohta 4 px lisäkytkinten keskikohdan alapuolella (käyttäjän
+  // palautteet 7.–8.11.2026). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
   function sijoitaLiikKuvat(s, n) {
     var v = $('#asetukset button[data-arvo="vieritys"]'), ka = $('#liik-kaaro'), ko = $('#liik-koodeksi');
     var r = s.closest('.asetus').getBoundingClientRect(), vr = v.getBoundingClientRect(), sr = s.getBoundingClientRect();
@@ -1745,11 +1747,19 @@
     var t = rg.getBoundingClientRect(), yhdessa = Math.abs(vr.top - sr.top) < 2;
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
-    ka.style.top = Math.round((ens.top + vik.bottom) / 2 - 21 - r.top) + 'px';
-    var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
-    ko.hidden = !yhdessa || x + 32 > r.width;
+    ka.style.top = Math.round((ens.top + vik.bottom) / 2 - 17 - r.top) + 'px';
+    // Koodeksin yläreuna Sivunkääntö-sanan pienten kirjainten yläreunaan (käyttäjän pyyntö 8.11.2026), sanan oikealle
+    // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuu (väli 32 px). Pienten kirjainten
+    // (u, n) muste alkaa Literatassa 0,694 em tekstilaatikon yläreunan alapuolella (mitattu pikseleistä 8.11.2026:
+    // 10,0 px / 14,4 px; canvasin measureText ei kelpaa, koska se ei käytä optisen koon akselia).
+    rg.selectNode(s.lastChild);
+    var ts = rg.getBoundingClientRect(), y = ts.top + .694 * parseFloat(getComputedStyle(s).fontSize);
+    var oik = Math.max.apply(null, nb.filter(function (b) { return b.top < y + 32 && b.bottom > y; }).map(function (b) { return b.right; }).concat(ts.right));
+    // Ahtaalla (320 px) väli kapenee 32 px:stä, kunnes kuva mahtuu, kuitenkin vähintään 16 px; muuten kuva piiloon.
+    var x = Math.round(Math.min(oik + 32 - r.left, r.width - 44));
+    ko.hidden = !yhdessa || x < oik + 16 - r.left;
     ko.style.left = x + 'px';
-    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 12.5 - r.top) + 'px';
+    ko.style.top = Math.round(y - 2 - r.top) + 'px'; // koodeksin yläviivan muste alkaa 2 px kuvan yläreunasta
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
