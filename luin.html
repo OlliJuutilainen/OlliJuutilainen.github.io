@@ -38,7 +38,7 @@
      haalea viiva). */
   :root {
     --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
-    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a; --sitaatti: #514331; --hius: #e3d7c3;
+    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a; --sitaatti: #514331; --hius: #e3d7c3; --valo: #fffdf8;
     --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --koko: 19px;
@@ -55,7 +55,7 @@
   @media (pointer: coarse) { :root { --v-laita: 17px; --o-laita: 17px; } }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
-    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d;
+    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d; --valo: #3f3428;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -463,16 +463,21 @@
   .kirm.okra { color: var(--okra); }
   .kirm svg { position: absolute; left: 2.5px; top: 2.5px; width: 17px; height: 17px; }
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
-  /* Sivun nurkka (käyttäjän idea 7.11.2026, aloitaReuna()): kun maalauksen tai kahvan liikkuva pää on viipynyt sivun
-     viimeisellä rivillä, tekstialueen oikeaan alanurkkaan (alapalkin yläpuolelle) ilmestyy haalea neliö; sinne vienti kääntää
-     sivun. Taaksepäin peilikuvana vasemmassa yläkulmassa. Koko asetetaan JS:llä. Ei läpikuultavuutta eikä siirtymää (e-ink). */
-  #nurkka { position: fixed; background: var(--hius); pointer-events: none; z-index: 14; }
-  /* Suuntamerkki (käyttäjän pyyntö 7.11.2026: liikennemerkkien selkeys, ei niiden tyyli): pelkkä ohut natsa eli yksi kulmaviiva,
-     ei sivunappien lovettu salmiakki (käyttäjän linjaus samana päivänä: "vielä hienovaraisempi pelkkä natsa"); hyvin haalea
-     (--viiva). Viivan paksuus on kiinteä (non-scaling-stroke), koko ja paikka kokonaisina pikseleinä JS:llä (nurkkaAskel()). */
-  #nurkka svg { position: absolute; fill: none; stroke: var(--viiva); stroke-width: 1.3; stroke-linecap: round;
+  /* Kummitus (käyttäjän pyyntö 7.11.2026; ennen haalea neliö tekstialueen nurkassa, aloitaReuna()): kun maalauksen tai kahvan
+     liikkuva pää on viipynyt sivun viimeisellä rivillä, alapalkin elementit katoavat näkyvistä ja käytöstä, ja palkkiin ilmestyy
+     palkin korkuinen haalea neliö, jonka oikea reuna on tekstipalstan oikean reunan linjassa; sinne vienti kääntää sivun.
+     Taaksepäin peilikuvana yläpalkissa (mobiilissa palkit ovat vedon aikana kiinni: tekstin yläpuolinen kaista), vasen reuna
+     palstan vasemman reunan linjassa. Tekstialueeseen ei kosketa. Koko ja paikka JS:llä. Ei läpikuultavuutta eikä siirtymää
+     (e-ink): käännön edellä neliö vain vaalenee hetkeksi (.valo) ja palaa. */
+  #kummitus { position: fixed; background: var(--hius); pointer-events: none; z-index: 21; }
+  #kummitus.valo { background: var(--valo); }
+  body.kummitus-ala #ala-rivi, body.kummitus-yla .ylapalkki { pointer-events: none; }
+  body.kummitus-ala #ala-rivi > *, body.kummitus-yla .ylapalkki > * { visibility: hidden; }
+  /* Suuntamerkki: vanha kunnon natsanuoli eli yksi ohut kulmaviiva (käyttäjän linjaus 7.11.2026: liikennemerkkien selkeys, ei
+     niiden tyyli; ei sivunappien lovettu salmiakki), hyvin haalea (--viiva). Viivan paksuus on kiinteä (non-scaling-stroke). */
+  #kummitus svg { position: absolute; fill: none; stroke: var(--viiva); stroke-width: 1.3; stroke-linecap: round;
     stroke-linejoin: round; overflow: visible; }
-  #nurkka path { vector-effect: non-scaling-stroke; }
+  #kummitus path { vector-effect: non-scaling-stroke; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
@@ -977,7 +982,7 @@
 
 <div class="valikko" id="pop" hidden></div>
 <div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div></div>
-<div id="nurkka" hidden aria-hidden="true"><svg viewBox="0 0 14 14"><path/></svg></div>
+<div id="kummitus" hidden aria-hidden="true"><svg viewBox="0 0 14 14"><path/></svg></div>
 <div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -2974,48 +2979,46 @@
     lupaEl.style.left = L + 'px'; lupaEl.style.top = T + 'px'; lupaEl.style.width = (w + 2) + 'px'; lupaEl.style.height = (h + 2) + 'px';
   }
   function jarjestaAl() { nyt.merk.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; }); }
-  // Laita: vierityksessä ylä- tai alalaitaan vienti vierittää, sivutettuna laidassa viipyminen (0,65 s) kääntää sivun kerran.
-  // paa(): liikkuvan pään suunta ja kohta (sivun nurkka, nurkkaAskel()).
-  var reunaVali = 0, reunaSuunta = 0, reunaAlku = 0, reunaKaannetty = false;
+  // Laita: vierityksessä ylä- tai alalaitaan vienti vierittää. Sivutettuna sivu kääntyy vedossa vain kummituksesta
+  // (kummitusAskel()); paa(): liikkuvan pään suunta ja kohta.
+  // Sivutettuna laidassa viipyminen (0,65 s, 28 px ruudun reunasta) käänsi ennen myös sivun, mutta poistettiin 7.11.2026:
+  // viimeisen rivin lopun alleviivaava sormi on usein ruudun reunan lähellä, ja laita käänsi sivun ennen kuin nurkan neliö
+  // (0,8 s) ehti näkyä (käyttäjän havainto: "ennenaikaisia sivun vaihtamisia"; mitattu 360 px:llä: kääntö 0,78 s, neliö
+  // vasta uudella sivulla).
+  var reunaVali = 0;
   function aloitaReuna(lue, askel, paa) {
     lopetaReuna();
     reunaVali = setInterval(function () {
       var p = lue();
       if (!p) return lopetaReuna();
-      var sivut = aset.sivutus === 'sivut', s = laita(p, sivut);
-      if (s !== reunaSuunta) { reunaSuunta = s; reunaAlku = Date.now(); reunaKaannetty = false; }
-      // Nurkan kääntö kuittaa myös laidan, jos sormi on siinä: sama sivu ei käänny kahdesti.
-      if (sivut && nurkkaAskel(p, paa, askel)) { reunaKaannetty = true; return; }
-      if (!s) return;
-      if (!sivut) { window.scrollBy(0, s * 16); askel(); }
-      else if (!reunaKaannetty && Date.now() - reunaAlku > 650) {
-        reunaKaannetty = true;
-        kaannaVedossa(s, function (q) { return laita(q, true) !== s; }, askel);
-      }
+      if (aset.sivutus === 'sivut') { kummitusAskel(p, paa, askel); return; }
+      var s = laita(p);
+      if (s) { window.scrollBy(0, s * 16); askel(); }
     }, 80);
   }
-  function laita(p, sivut) {
-    if (sivut) return p.x > innerWidth - 28 ? 1 : p.x < 28 ? -1 : 0;
-    return p.y > alaRaja() - 40 ? 1 : p.y < Math.max(ylaRaja(), ylaPeitto()) + 40 ? -1 : 0;
-  }
-  function lopetaReuna() { clearInterval(reunaVali); reunaVali = 0; reunaSuunta = 0; pito = null; piilotaNurkka(); }
+  function laita(p) { return p.y > alaRaja() - 40 ? 1 : p.y < Math.max(ylaRaja(), ylaPeitto()) + 40 ? -1 : 0; }
+  function lopetaReuna() { clearInterval(reunaVali); reunaVali = 0; pito = null; piilotaKummitus(); }
 
-  /* Sivun nurkka ja pito (käyttäjän pyyntö 7.11.2026). Kun liikkuva pää on ollut sivun viimeisellä rivillä NURKKA_VIIVE,
-     tekstialueen oikeaan alanurkkaan tulee haalea neliö (#nurkka): oikea reuna ruudun reunassa, alareuna alapalkin yläreunassa,
-     sivu NURKKA_KOKO, mutta ei koskaan tekstin päälle (käyttäjän palaute samana päivänä: ensin 12 px palstan kulman vieressä
-     0,4 s:n jälkeen oli liian pieni ja tuli liian nopeasti). Kun palstan ja ruudun reunan väli on ahdas (Light Phone, natiivi
-     kääre: marginaali 16 px), neliö ottaa tilaa sieltä, missä tekstiä ei ole: sivun viimeisen rivin alta (kaista ulottuu
-     ruudun leveydelle, joten neliöstä tulee tarvittaessa leveä suorakaide) ja lyhyen viimeisen rivin lopun viereltä
-     (nurkanPaikka()). Neliössä viipyminen
-     NURKKA_KAANTO kääntää sivun (käyttäjän pyyntö samana päivänä; ensin kääntö oli heti), mutta vain matkana: jos osoitin oli
-     jo siellä neliön ilmestyessä, se on vietävä ensin pois.
-     Taaksepäin sama peilikuvana: sivun ensimmäinen rivi ja vasen yläkulma (yläpalkin alla). Laidan viipymäkääntö toimii ennallaan.
-     Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, kunnes osoitin
-     poistuu alueelta, joka käänsi sivun. Ilman pitoa sormen kohta luettiin heti uudelta sivulta (nurkasta koko sivu kerralla), ja
-     nurkka olisi kääntänyt sivun uudelleen. Pidon aikana nurkka ei ilmesty. */
-  var NURKKA_VIIVE = 800, NURKKA_KAANTO = 300, NURKKA_KOKO = 44;
-  var nurkka = { d: 0, alku: 0, nakyy: false, ulkona: false, sisaan: 0 }, pito = null, nurkkaEl = $('#nurkka');
-  function piilotaNurkka() { nurkka.d = 0; nurkka.nakyy = false; nurkka.sisaan = 0; if (nurkkaEl) nurkkaEl.hidden = true; }
+  /* Kummitus ja pito (käyttäjän pyyntö 7.11.2026; korvasi saman päivän sivun nurkan, joka oli tekstialueen nurkassa).
+     Kun liikkuva pää on ollut sivun viimeisellä rivillä KUMMITUS_VIIVE, alapalkin elementit katoavat näkyvistä ja käytöstä
+     (body.kummitus-ala), ja palkkiin tulee palkin korkuinen haalea neliö (#kummitus), jonka oikea reuna on tekstipalstan
+     oikean reunan linjassa senhetkisellä marginaalilla. Taaksepäin peilikuvana: sivun ensimmäinen rivi, yläpalkki
+     (body.kummitus-yla), neliön vasen reuna palstan vasemman reunan linjassa. Mobiilissa palkit ovat vedon aikana aina kiinni
+     (verho estää alleviivauksen), joten yläpalkin paikka on tekstin yläpuolinen kaista, ja neliö on sen korkuinen; tekstin
+     päälle se ei tule. Neliössä tai sen takana ruudun reunan puolella viipyminen KUMMITUS_KAANTO saa neliön vaalenemaan
+     hetkeksi (KUMMITUS_VALO; käyttäjä: "joku rauha, ei mitään adhd-räpsyä"), ja sitten sivu kääntyy. Kääntö vaatii matkan:
+     jos osoitin oli jo alueella neliön ilmestyessä, se on vietävä ensin pois.
+     Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, ja neliö
+     pysyy palkissa, kunnes osoitin poistuu alueelta; vasta sitten palkki palaa ja maalaus seuraa osoitinta. Ilman pitoa sormen
+     kohta luettiin heti uudelta sivulta, ja kummitus olisi kääntänyt sivun uudelleen ("ei saa räpsyä"). */
+  var KUMMITUS_VIIVE = 800, KUMMITUS_KAANTO = 300, KUMMITUS_VALO = 250;
+  var kumm = { d: 0, alku: 0, nakyy: false, ulkona: false, sisaan: 0, valo: 0, z: null }, pito = null, kummEl = $('#kummitus');
+  function piilotaKummitus() {
+    kumm.d = 0; kumm.nakyy = false; kumm.sisaan = 0; kumm.valo = 0; kumm.z = null;
+    if (!kummEl) return;
+    kummEl.hidden = true; kummEl.classList.remove('valo');
+    document.body.classList.remove('kummitus-ala', 'kummitus-yla');
+  }
   function edellinen(k) {
     return k.o > 0 ? { b: k.b, o: k.o - 1 } : k.b > 0 ? { b: k.b - 1, o: Math.max(0, (nyt.txt[k.b - 1] || '').length - 1) } : null;
   }
@@ -3042,68 +3045,85 @@
     var a = sg[0], z = sg[sg.length - 1];
     return { d: d, k: d > 0 ? { b: z.b, o: z.e } : { b: a.b, o: a.s } };
   }
-  // Nurkan neliö (x, y vasen yläkulma, s sivu), jos liikkuva pää n on sivun viimeisessä (d > 0) tai ensimmäisessä (d < 0) sanassa.
-  function nurkanPaikka(n) {
+  // Kummituksen neliö (x, y vasen yläkulma, w = h sivu), jos liikkuva pää n on sivun viimeisellä (d > 0) tai ensimmäisellä
+  // (d < 0) rivillä.
+  function kummituksenPaikka(n) {
     if (!n || (n.d > 0 ? tila.sivu >= tila.sivuja - 1 : tila.sivu <= 0)) return null;
     var raja = sivunAlku(tila.sivu + (n.d > 0 ? 1 : 0));
     if (!raja || raja.ed) return null;
-    var m = n.d > 0 ? edellinen(raja) : raja, r = m && kohdanLaatikko(m);
+    // Rivi mitataan rajan lähimmästä sanan merkistä: raja on usein rivinvaihdon välilyönti, jonka laatikko siirtyi edellisen
+    // sivun viimeiselle riville, kun luonnoksen merkintä alkoi siitä (mitattu 7.11.2026, työpöytä: x = -327, kummitus ei tullut).
+    var m = n.d > 0 ? sanaMerkki(edellinen(raja), -1) : sanaMerkki(raja, 1), r = m && kohdanLaatikko(m);
     if (!r || r.left < 0 || r.right > innerWidth) return null;
-    // Pää sivun viimeisellä (ensimmäisellä) rivillä missä tahansa kohtaa (käyttäjän pyyntö 7.11.2026; ennen vain viimeinen
-    // sana). Sanaväli rajaan kelpaa aina: sivun yli tavutettuun sanaan tarttunut pää on jo seuraavalla sivulla.
+    // Pää sivun viimeisellä (ensimmäisellä) rivillä missä tahansa kohtaa. Sanaväli rajaan kelpaa aina: sivun yli tavutettuun
+    // sanaan tarttunut pää on jo seuraavalla sivulla.
     if (n.d > 0 ? sanaValissa(n.k, raja) : sanaValissa(raja, n.k)) {
       var q = kohdanLaatikko(n.d > 0 ? edellinen(n.k) || n.k : n.k);
       if (!q || q.left < 0 || q.right > innerWidth || !samallaRivilla(q, r)) return null;
     }
-    var al = art.getBoundingClientRect().left + tila.sivu * tila.stride, vw = innerWidth;
-    var reuna = Math.floor(n.d > 0 ? vw - (al + tila.W) : al), pys = Math.min(NURKKA_KOKO, reuna), lev = pys;
-    var ala = alaRaja(), yla = Math.max(ylaRaja(), ylaPeitto());
-    if (pys < NURKKA_KOKO) {
-      // Ahdas reuna: etsi tilaa, jossa ei ole tekstiä. kaista = tyhjä väli viimeisen rivin alla (ensimmäisen yllä), jonka
-      // yli neliö saa levitä koko ruudun leveydelle; vieri = tyhjä väli viimeisen rivin lopun (ensimmäisen alun) vieressä,
-      // jolloin neliö saa nousta rivin korkeuden verran kaistan yli, ei edelliselle riville. Viereen jätetään 0,45 rivin korkeutta
-      // (tavutuksen viiva ei ole merkin laatikossa).
-      var kaista = Math.floor(n.d > 0 ? ala - r.bottom : r.top - yla) - 2, vieri = Math.floor(n.d > 0 ? vw - r.right : r.left) - Math.ceil(r.height * .45);
-      var vSivu = Math.min(NURKKA_KOKO, Math.floor(r.height) + Math.max(0, kaista) - 1, vieri);
-      var kSivu = Math.min(NURKKA_KOKO, kaista);
-      pys = Math.max(pys, kSivu, vSivu);
-      // Kaistaan mahtuva neliö levenee suorakaiteeksi, jonka ala on sama kuin NURKKA_KOKO:n neliön (enintään puolet ruudusta).
-      lev = pys <= kaista ? Math.min(Math.max(pys, Math.ceil(NURKKA_KOKO * NURKKA_KOKO / pys)), Math.floor(vw / 2)) : pys;
+    var al = Math.round(art.getBoundingClientRect().left + tila.sivu * tila.stride), ar = Math.round(al + tila.W), yla, ala;
+    if (n.d > 0) {
+      // Alapalkin rivi ilman yläreunan viivaa (työpöydällä #alan reunus on rivin yläpuolella).
+      var ap = $('#ala-rivi'), pr = ap.getBoundingClientRect();
+      yla = Math.ceil(pr.top + (parseFloat(getComputedStyle(ap).borderTopWidth) || 0)); ala = Math.floor(pr.bottom);
+    } else if (mobiili()) {
+      yla = 0; ala = Math.floor(art.getBoundingClientRect().top);
+    } else {
+      var yp = $('.ylapalkki'), yr = yp.getBoundingClientRect();
+      yla = Math.max(0, Math.ceil(yr.top)); ala = Math.floor(yr.bottom - (parseFloat(getComputedStyle(yp).borderBottomWidth) || 0));
     }
-    if (pys < 8) return null;
-    lev = Math.min(lev, vw);
-    return n.d > 0 ? { d: 1, x: vw - lev, y: ala - pys, w: lev, h: pys } : { d: -1, x: 0, y: yla, w: lev, h: pys };
+    var sv = ala - yla;
+    if (sv < 12) return null;
+    return n.d > 0 ? { d: 1, x: ar - sv, y: yla, w: sv, h: sv } : { d: -1, x: al, y: yla, w: sv, h: sv };
   }
   function samallaRivilla(a, b) { return Math.abs(a.top + a.bottom - b.top - b.bottom) / 2 < Math.min(a.height, b.height) / 2; }
-  // Osoitin neliössä tai sen takana ruudun nurkan puolella (m: laajennus, pidon päättymisen hystereesi).
-  function nurkassa(p, z, m) {
+  // Osoitin neliössä tai sen takana ruudun reunan puolella (m: laajennus, pidon päättymisen hystereesi).
+  function kummituksessa(p, z, m) {
     return z.d > 0 ? p.x >= z.x - m && p.y >= z.y - m : p.x <= z.x + z.w + m && p.y <= z.y + z.h + m;
   }
-  function nurkkaAskel(p, paa, askel) {
-    var z = !pito && paa ? nurkanPaikka(paa()) : null;
-    if (!z) { if (nurkka.d) piilotaNurkka(); return false; }
-    if (z.d !== nurkka.d) { piilotaNurkka(); nurkka.d = z.d; nurkka.alku = Date.now(); }
-    var sis = nurkassa(p, z, 0);
-    if (!nurkka.nakyy) {
-      if (Date.now() - nurkka.alku < NURKKA_VIIVE) return false;
-      nurkka.nakyy = true; nurkka.ulkona = !sis;
-      nurkkaEl.style.left = z.x + 'px'; nurkkaEl.style.top = z.y + 'px';
-      nurkkaEl.style.width = z.w + 'px'; nurkkaEl.style.height = z.h + 'px';
-      // Pelkkä natsa (ei salmiakkia), noin kolmasosa lyhyemmästä sivusta, keskellä.
-      var nu = $('svg', nurkkaEl), nk = clamp(Math.round(Math.min(z.w, z.h) * .32), 8, 14);
-      nu.style.width = nu.style.height = nk + 'px';
-      nu.style.left = Math.floor((z.w - nk) / 2) + 'px'; nu.style.top = Math.floor((z.h - nk) / 2) + 'px';
-      $('path', nu).setAttribute('d', z.d > 0 ? 'M4.5 1.5L10 7L4.5 12.5' : 'M9.5 1.5L4 7L9.5 12.5');
-      nurkkaEl.hidden = false;
-      return false;
+  function naytaKummitus(z) {
+    kummEl.style.left = z.x + 'px'; kummEl.style.top = z.y + 'px';
+    kummEl.style.width = z.w + 'px'; kummEl.style.height = z.h + 'px';
+    // Natsa noin kolmasosa sivusta, keskellä.
+    var nu = $('svg', kummEl), nk = clamp(Math.round(z.w * .32), 8, 14);
+    nu.style.width = nu.style.height = nk + 'px';
+    nu.style.left = Math.floor((z.w - nk) / 2) + 'px'; nu.style.top = Math.floor((z.h - nk) / 2) + 'px';
+    $('path', nu).setAttribute('d', z.d > 0 ? 'M4.5 1.5L10 7L4.5 12.5' : 'M9.5 1.5L4 7L9.5 12.5');
+    kummEl.classList.remove('valo');
+    document.body.classList.toggle('kummitus-ala', z.d > 0);
+    document.body.classList.toggle('kummitus-yla', z.d < 0);
+    kummEl.hidden = false;
+  }
+  function kummitusAskel(p, paa, askel) {
+    // Käännön jälkeen neliö pysyy, kunnes pito päättyy (osoitin pois alueelta).
+    if (pito) { if (!pito.ulos(p)) return; pito = null; askel(); }
+    if (kumm.z && kumm.z.pito) piilotaKummitus();
+    var z = paa ? kummituksenPaikka(paa()) : null;
+    if (!z) { if (kumm.d) piilotaKummitus(); return; }
+    if (z.d !== kumm.d) { piilotaKummitus(); kumm.d = z.d; kumm.alku = Date.now(); }
+    var sis = kummituksessa(p, kumm.z || z, 0);
+    if (!kumm.nakyy) {
+      if (Date.now() - kumm.alku < KUMMITUS_VIIVE) return;
+      kumm.nakyy = true; kumm.ulkona = !sis; kumm.z = z;
+      naytaKummitus(z);
+      return;
     }
-    if (!sis) { nurkka.ulkona = true; nurkka.sisaan = 0; return false; }
-    if (!nurkka.ulkona) return false;
-    if (!nurkka.sisaan) nurkka.sisaan = Date.now();
-    if (Date.now() - nurkka.sisaan < NURKKA_KAANTO) return false;
-    piilotaNurkka();
-    kaannaVedossa(z.d, function (q) { return !nurkassa(q, z, 6); }, askel);
-    return true;
+    z = kumm.z;
+    if (!sis) {
+      kumm.ulkona = true; kumm.sisaan = 0;
+      if (kumm.valo) { kumm.valo = 0; kummEl.classList.remove('valo'); }
+      return;
+    }
+    if (!kumm.ulkona) return;
+    if (!kumm.sisaan) kumm.sisaan = Date.now();
+    if (Date.now() - kumm.sisaan < KUMMITUS_KAANTO) return;
+    if (!kumm.valo) { kumm.valo = Date.now(); kummEl.classList.add('valo'); return; }
+    if (Date.now() - kumm.valo < KUMMITUS_VALO) return;
+    kummEl.classList.remove('valo'); kumm.valo = 0;
+    var p0 = tila.sivu;
+    kaannaVedossa(z.d, function (q) { return !kummituksessa(q, z, 6); }, askel);
+    // Neliö jää palkkiin pidon ajaksi (kumm.z.pito); ilman käännöstä (sivun raja) palkki palaa heti.
+    if (tila.sivu !== p0 && pito) z.pito = true; else piilotaKummitus();
   }
   // Sivunkääntö vedon aikana: liikkuva pää pidetään rajan yli seuraavan sanan kohdalla, kunnes ulos(osoitin).
   function kaannaVedossa(d, ulos, askel) {
@@ -5201,7 +5221,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, nurkanPaikka: function (n) { return nurkanPaikka(n); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
