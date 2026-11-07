@@ -36,7 +36,7 @@ const laidat = pg => pg.evaluate(() => {
   const sn = nakyy('#sivunapit'), kiekko = R('#lukija .ratas svg');
   // Ahtaassa navinäkymässä (mobiili, navi-alas) kirjanmerkki ja sivunapit ovat piilossa, 360 px:llä myös nuoli; Merkinnät on alapalkissa.
   const v = { km: nakyy('#km-nappi') ? R('#km-nappi svg').left : null, koti: R('.takaisin svg').left + 4.425 * R('.takaisin svg').width / 24,
-    kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), merk: R('#merk-avaa').left, jana: svg.left + xr[0] };
+    kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), etsi: R('#etsi-avaa').left, jana: svg.left + xr[0] };
   const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1]),
     [sn ? 'sivunapit' : 'nuoli']: sn || nakyy('#palkki-nuoli') ? vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right : null };
   for (const k in v) if (v[k] === null) delete v[k]; for (const k in o) if (o[k] === null) delete o[k];
@@ -686,8 +686,8 @@ palvelin.listen(0, async () => {
       kerros: Math.round(innerHeight - ala.top) }; });
     // Navi auki: laatikkonapit alapalkissa palkkien vasemmassa laidassa ja kaistan keskellä (ahdas navinäkymä 6.11.2026).
     await avaaPalkitM(); await m.waitForTimeout(100);
-    const auki = await m.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), merk = q('#merk-avaa'), rivi = q('#ala-rivi'),
-      bt = parseFloat(getComputedStyle(document.querySelector('#ala-rivi')).borderTopWidth), nu = q('#palkki-nuoli'), et = q('#etsi-avaa');
+    const auki = await m.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), merk = q('#etsi-avaa'), rivi = q('#ala-rivi'),
+      bt = parseFloat(getComputedStyle(document.querySelector('#ala-rivi')).borderTopWidth), nu = q('#palkki-nuoli'), et = q('#merk-avaa');
       return { alas: document.body.classList.contains('navi-alas') && !!document.querySelector('#ala-rivi #merk-avaa'),
         napit: [merk.left, +((merk.top + merk.bottom) / 2 - (rivi.top + bt + rivi.bottom) / 2).toFixed(2), +(nu.left - et.right).toFixed(2)],
         piilossa: ['#km-nappi', '#sivunapit'].every(s => !document.querySelector(s).getClientRects().length) }; });
@@ -717,8 +717,8 @@ palvelin.listen(0, async () => {
   await kaista();
   await m.keyboard.press('PageUp'); await m.waitForTimeout(100);
   const ps4 = await palkit();
-  // Paljaan kaistan napautus (Etsin ja nuolen välistä) sulkee palkit.
-  const kx = await m.evaluate(() => { const n = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return (n.right + s.left) / 2; });
+  // Paljaan kaistan napautus (Merkintöjen ja nuolen välistä; napit Etsi, Sisälmys, Merkinnät 7.11.2026) sulkee palkit.
+  const kx = await m.evaluate(() => { const n = document.querySelector('#merk-avaa').getBoundingClientRect(), s = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return (n.right + s.left) / 2; });
   await m.mouse.click(kx, 824 - 22); await m.waitForTimeout(100);
   const ps5 = await palkit();
   tulos('mobiilin palkit sivutettuna', psPiilo && !ps0.jana && !psT.jana && psT.s === ps0.s && ps1.yla && ps1.jana && ps2.jana && ps2.s === ps1.s + 1 && !ps3.jana && ps3.s === ps2.s && ps4.jana && ps4.s === ps3.s - 1 && !ps5.jana && !ps5.yla,
@@ -772,7 +772,7 @@ palvelin.listen(0, async () => {
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026): 360 px:llä laatikkonapit mahtuvat alapalkkiin vain ilman palkkinuolta;
   // kirjanmerkki ja sivunapit ovat piilossa, eikä aikajanan alle jää riviä. Siirtymien kumousta ei ole (poistettu 6.11.2026).
   const m3 = await mob360.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), nakyy = s => document.querySelector(s).getClientRects().length > 0;
-    const napit = ['#merk-avaa', '#sis-avaa', '#etsi-avaa'].map(q), pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
+    const napit = ['#etsi-avaa', '#sis-avaa', '#merk-avaa'].map(q), pa = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
     return { alas: !!document.querySelector('#ala-rivi #etsi-avaa'), nuoli: nakyy('#palkki-nuoli'), km: nakyy('#km-nappi'), sn: nakyy('#sivunapit'),
       paalla: pa(napit[0], napit[1]) || pa(napit[1], napit[2]), oikea: +(innerWidth - napit[2].right).toFixed(2), korkeus: [document.querySelector('#merk-avaa').getBoundingClientRect().height],
       rivi: getComputedStyle(document.querySelector('.jana-napit')).display, kumo: !!document.querySelector('#kumonapit, #kumo-kytkin') }; });
@@ -783,13 +783,13 @@ palvelin.listen(0, async () => {
   const l3 = await laidat(mob360); await mob360.click('#lukija .ratas'); l3.raksi = await raksiKeski(mob360); await mob360.click('#asetukset .sulje');
   tulos('palkkien laidat mobiilissa (360 px, sivunapit)', laidatOk(l3, 17, 17), JSON.stringify(l3));
   tulos('sivunapit laatikoiden korkuiset', m3.korkeus[0] === m3.korkeus[1], JSON.stringify(m3));
-  // Sisälmys (4.11.2026): Merkintöjen ja Etsin välissä samalla rivillä (5.11.2026), laatikko auki napista; napin painallus
+  // Sisälmys (4.11.2026): Etsin ja Merkintöjen välissä samalla rivillä (5.11.2026; järjestys 7.11.2026), laatikko auki napista; napin painallus
   // uudelleen sulkee vain laatikon (navi auki, sivu sama; mobiilissa laatikko peittää koko tekstialueen 6.11.2026 alkaen,
   // joten tekstin napautusta ei voi kokeilla); raksi sulkee; kohdan valinta hyppää ja jättää majakan, mutta ei Palaa takaisin
   // -laatikkoa (käyttäjän päätös 6.11.2026).
   const sisT = () => mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, pop: document.querySelector('#sisalmys').hidden ? '' : 'sisalmys', s: window.__luin.tila.sivu, maj: !!window.__luin.majakka(), laatikko: !document.querySelector('#majakka').hidden }));
   if (await mob360.evaluate(() => document.querySelector('#jana').hidden)) await kaista360();
-  const sg = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: e.left > s.right, rivi: s.top === e.top, h: s.height === e.height }; });
+  const sg = await mob360.evaluate(() => { const e = document.querySelector('#merk-avaa').getBoundingClientRect(), s = document.querySelector('#sis-avaa').getBoundingClientRect(); return { oikealla: e.left > s.right, rivi: s.top === e.top, h: s.height === e.height }; });
   await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
   const ss1 = await sisT();
   await mob360.click('#sis-avaa'); await mob360.waitForTimeout(100);
@@ -823,7 +823,7 @@ palvelin.listen(0, async () => {
     t.a[id][4] === (t.maj ? '0px 0px 1px 0px' : '0px 0px 0px 0px');
   // Paljaan alapalkin napautus laatikon ollessa auki vie suoraan lukunäkymään (käyttäjän pyyntö 6.11.2026).
   await mob360.click('#etsi-avaa'); await mob360.waitForTimeout(100); const lk4 = await lkT();
-  const paljas = await mob360.evaluate(() => { const e = document.querySelector('#etsi-avaa').getBoundingClientRect(), r = document.querySelector('#ala-rivi').getBoundingClientRect();
+  const paljas = await mob360.evaluate(() => { const e = document.querySelector('#merk-avaa').getBoundingClientRect(), r = document.querySelector('#ala-rivi').getBoundingClientRect();
     return { x: (e.right + 6 + r.right) / 2, y: r.top + r.height / 2 }; });
   await mob360.mouse.click(paljas.x, paljas.y); await mob360.waitForTimeout(100);
   const lk5 = await mob360.evaluate(() => ({ navi: !document.querySelector('#jana').hidden, yla: getComputedStyle(document.querySelector('.ylapalkki')).display !== 'none',
@@ -912,10 +912,11 @@ palvelin.listen(0, async () => {
   const t5 = await tila2();
   tulos('työpöydän keskiklikkaus ja kapea ikkuna', !t4.jana && t4.yla && s1 === s0 + 1 && !t5.mob && t5.yla, JSON.stringify({ s0, s1, t4, t5 }));
   // Navin laatikot työpöydällä (käyttäjän pyyntö 5.11.2026): leveällä kolme rinnakkain nappien järjestyksessä (Merkinnät
-  // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026) yläpalkin ja navin
+  // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026; 7.11.2026 alkaen Etsi
+  // vasemmalla ja Merkinnät oikealla) yläpalkin ja navin
   // välissä ilman rakoa, vierekkäisten reunukset päällekkäin ja ruudun reunassa ei reunusta (6.11.2026). Marginaaleissa
-  // (7.11.2026, sivutettuna 1440 px): Sisälmys palstan levyinen 12 px:n kaistaleineen (0,75rem), Merkinnät ja Etsi kiinni
-  // siinä; ilman Sisälmystä Merkinnät ja Etsi yhtä kaukana palstasta, vähintään kaistaleen päässä. Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin
+  // (7.11.2026, sivutettuna 1440 px): Sisälmys palstan levyinen 5 px:n kaistaleineen (0,3125rem), Etsi ja Merkinnät kiinni
+  // siinä; ilman Sisälmystä Etsi ja Merkinnät yhtä kaukana palstasta, vähintään kaistaleen päässä. Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin
   // napautus sulkee Sisälmyksen, ei Merkintöjä eikä navia. Kavennus jättää viimeksi avatun koko leveydelle; navin sulku sulkee laatikot.
   await tp.setViewportSize({ width: 1440, height: 900 }); await tp.waitForTimeout(400);
   await tp.mouse.click(720, 885); await tp.waitForTimeout(100);
@@ -932,12 +933,12 @@ palvelin.listen(0, async () => {
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
   const lt0 = await ltT(), [M0, H0] = [lt0.a.merkinnat, lt0.a.haku];
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
-  const rinn = !!(M && H && S && M0 && H0) && P.length && M[0] === 0 && M[1] === P[0] - 12 && S[0] === P[0] - 13 && S[1] === P[1] + 13 && H[0] === P[1] + 12 && H[1] === 1440 &&
-    M.slice(4).join() === '0,1,0,0' && S.slice(4).join() === '1,1,0,0' && H.slice(4).join() === '1,0,0,0' &&
+  const rinn = !!(M && H && S && M0 && H0) && P.length && H[0] === 0 && H[1] === P[0] - 5 && S[0] === P[0] - 6 && S[1] === P[1] + 6 && M[0] === P[1] + 5 && M[1] === 1440 &&
+    H.slice(4).join() === '0,1,0,0' && S.slice(4).join() === '1,1,0,0' && M.slice(4).join() === '1,0,0,0' &&
     [M, H, S].every(r => r[2] === lt1.yp && r[3] === lt1.ala) && lt1.ae === 'ttt' &&
-    M0[0] === 0 && P[0] - M0[1] >= 12 && H0[1] === 1440 && P[0] - M0[1] === H0[0] - P[1] && H0.slice(4).join() === '1,0,0,0';
+    H0[0] === 0 && P[0] - H0[1] >= 5 && M0[1] === 1440 && P[0] - H0[1] === M0[0] - P[1] && M0.slice(4).join() === '1,0,0,0';
   await tp.click('#etsi-avaa'); await tp.waitForTimeout(100);
-  await tp.mouse.click(1200, 400); await tp.waitForTimeout(100);
+  await tp.mouse.click(200, 400); await tp.waitForTimeout(100);
   const lt2 = await ltT();
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
   await tp.setViewportSize({ width: 800, height: 900 }); await tp.waitForTimeout(400);
@@ -955,7 +956,7 @@ palvelin.listen(0, async () => {
   // kohdistuksen. 800 px:llä (yksi kerrallaan) osuma sulkee Etsin kuten ennen.
   const etT = () => tp.evaluate(() => {
     const q = s => document.querySelector(s), t = q('#teksti').getBoundingClientRect(), e = q('#haku').getBoundingClientRect(), c = q('#haku .osuma[aria-current]');
-    return { auki: ['merkinnat', 'sisalmys', 'haku'].filter(id => !q('#' + id).hidden).join(), erillaan: e.left >= t.right - .5, cur: c && +c.dataset.i,
+    return { auki: ['merkinnat', 'sisalmys', 'haku'].filter(id => !q('#' + id).hidden).join(), erillaan: e.right <= t.left + .5 || e.left >= t.right - .5, cur: c && +c.dataset.i,
       valittu: window.__luin.nyt().haku.valittu, fokus: document.activeElement === q('#haku input') };
   });
   const etLehti = () => tp.evaluate(() => { const O = window.__luin.nyt().haku.osumat, i = O.findIndex((o, j) => !o.n && O[j + 1] && !O[j + 1].n); return i < 0 ? [] : [i, i + 1]; });
