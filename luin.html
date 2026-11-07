@@ -465,6 +465,9 @@
      viimeisellä rivillä, tekstialueen oikeaan alanurkkaan (alapalkin yläpuolelle) ilmestyy haalea neliö; sinne vienti kääntää
      sivun. Taaksepäin peilikuvana vasemmassa yläkulmassa. Koko asetetaan JS:llä. Ei läpikuultavuutta eikä siirtymää (e-ink). */
   #nurkka { position: fixed; background: var(--hius); pointer-events: none; z-index: 14; }
+  /* Suuntanuoli (käyttäjän pyyntö 7.11.2026: liikennemerkkien selkeys, ei niiden tyyli): sama lovettu salmiakki kuin sivunapeissa,
+     joten sama merkki tarkoittaa sivunkääntöä kaikkialla; hyvin haalea (--viiva, käyttäjän pyyntö). Koko ja paikka kokonaisina pikseleinä JS:llä (nurkkaAskel()). */
+  #nurkka svg { position: absolute; fill: var(--viiva); }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
@@ -966,7 +969,7 @@
 
 <div class="valikko" id="pop" hidden></div>
 <div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div></div>
-<div id="nurkka" hidden aria-hidden="true"></div>
+<div id="nurkka" hidden aria-hidden="true"><svg viewBox="0 0 14 14"><path/></svg></div>
 <div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -3058,6 +3061,10 @@
       nurkka.nakyy = true; nurkka.ulkona = !sis;
       nurkkaEl.style.left = z.x + 'px'; nurkkaEl.style.top = z.y + 'px';
       nurkkaEl.style.width = nurkkaEl.style.height = z.s + 'px';
+      // Nuoli kuin sivunapeissa (#sivu-se, #sivu-ed), 0,4 neliön sivusta, keskellä.
+      var nu = $('svg', nurkkaEl), nk = Math.max(10, Math.round(z.s * .4)), no = Math.floor((z.s - nk) / 2);
+      nu.style.width = nu.style.height = nk + 'px'; nu.style.left = nu.style.top = no + 'px';
+      $('path', nu).setAttribute('d', $(z.d > 0 ? '#sivu-se path' : '#sivu-ed path').getAttribute('d'));
       nurkkaEl.hidden = false;
       return false;
     }
