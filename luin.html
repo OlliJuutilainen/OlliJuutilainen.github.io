@@ -694,8 +694,9 @@
      koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen ruudun
      leveydestä ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. Hajurakoa ei ole
      (käyttäjän pyyntö 6.11.2026): ylä- ja alareunana ovat palkkien viivat, ruudun reunassa ei ole reunusta, ja
-     vierekkäisten laatikoiden reunukset ovat päällekkäin. Ruudun oikeassa reunassa raksi on kiekon kohdalla kuten Asetuksissa. */
-  .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--muste); z-index: 30; }
+     vierekkäisten laatikoiden reunukset ovat päällekkäin. Ruudun oikeassa reunassa raksi on kiekon kohdalla kuten Asetuksissa.
+     Reunus on pykälää musteesta haaleampi --harmaa (käyttäjän pyyntö 7.11.2026). */
+  .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--harmaa); z-index: 30; }
   .navilaatikko.o-reuna .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
   .navilaatikko.lista { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
   .navilaatikko[hidden] { display: none; }
@@ -1562,28 +1563,26 @@
     // Sisälmyksen avaus ja sulku siirtää Merkintöjä ja Etsiä marginaaleissa (laatikoiden väliin ei jää tilaa).
     if (on) sijoitaLaatikot();
   }
-  /* Marginaalit (käyttäjän pyyntö 7.11.2026): kun palstan kummallekin puolelle mahtuu laatikko, Merkinnät on vasemmassa
-     marginaalissa ja Etsi oikeassa, kumpikin kiinni palstan reunassa, ja Sisälmys on tasan palstan levyinen (se ei tarvitse
-     enempää). Laatikko on vähintään LAATIKKO_MIN levyinen; oikealla on reunushuomioiden takia tilaa joka tapauksessa
-     enemmän, joten ahtaimmillaan Merkinnät laihtuu ja Etsi saa LAATIKKO_HYVA (palstanSiirto()). Etsi peittää silloin
-     reunushuomiot. Kun huomioidenkin oikealle puolelle mahtuu LAATIKKO_HYVA (ja vasemmalle samoin), Etsi on huomioiden
-     takana, jotta ne näkyvät kokonaisina (palstan kohdalta leikattuina ne näyttivät rikkinäisiltä). Laatikot ulottuvat
-     ruudun reunaan. Väljällä ruudulla kapeampi puoli saa enintään LAATIKKO_MAX levyisen laatikon, ja Merkinnät ja Etsi
-     ovat yhtä kaukana tekstistä (palstasta, oikealla huomioineen). Auki olevien laatikoiden väliin ei kuitenkaan koskaan
-     jää tilaa: Sisälmyksen ollessa auki Merkinnät ja Etsi ovat kiinni siinä. Etsi pysyy silloinkin huomioiden takana
-     (osumat näkyvät huomioissa; käyttäjän pyyntö 7.11.2026), joten Sisälmys peittää palstan ja huomiot: se alkaa palstan
-     vasemmasta reunasta, jotta Merkinnät ei kutistu (palstan levyisenä Etsiin asti se olisi venyttänyt Merkinnät palstan
-     päälle, 1920 px:llä 791 px leveäksi). Muuten kolmannekset kuten ennen. */
-  var LAATIKKO_MIN = 16, LAATIKKO_HYVA = 19, LAATIKKO_MAX = 25;   // rem
+  /* Marginaalit (käyttäjän pyynnöt 7.11.2026): kun palstan kummallekin puolelle mahtuu laatikko, Merkinnät on vasemmassa
+     marginaalissa ja Etsi oikeassa, ja Sisälmys on palstan levyinen kaistaleineen. Laatikon ja palstan välissä on aina
+     hienoinen tyhjä kaistale (LAATIKKO_KAISTA; ilman sitä laatikon reuna näytti leikkaavan tekstiä). Sisälmys ei ole koskaan
+     leveämpi (siitä ei ole hyötyä), ja sen ollessa auki Merkinnät ja Etsi ovat kiinni siinä: auki olevien laatikoiden väliin
+     ei jää tilaa. Ainoa poikkeus: kun Etsi on reunushuomioiden takana, huomioiden kaistale jää Sisälmyksen ja Etsin väliin.
+     Palsta on keskellä ruutua aina kun mahtuu (palstanSiirto()), joten marginaalit ovat yhtä leveät ja Etsi peittää
+     reunushuomiot. Vasta kun huomioidenkin oikealle puolelle mahtuu LAATIKKO_HYVA, Etsi on huomioiden takana, ja osumat
+     näkyvät huomioissa; silloin Merkinnät saa huomioiden verran enemmän tilaa. Laatikot ulottuvat ruudun reunaan. Kun
+     Sisälmys on kiinni ja tilaa on yllin kyllin, kapeampi puoli saa enintään LAATIKKO_MAX levyisen laatikon ja Merkinnät ja Etsi
+     ovat yhtä kaukana tekstistä (oikealla huomioineen; huomioita peittävä Etsi ei siirry irti palstasta, koska se leikkaisi
+     ne). Jos marginaaleihin ei mahdu, kolmannekset kuten ennen. */
+  var LAATIKKO_MIN = 16, LAATIKKO_HYVA = 19, LAATIKKO_MAX = 25, LAATIKKO_KAISTA = .75;   // rem
   function remPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
-  // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat keskitetyssä .wrapissa, joten
-  // vasen marginaali on oikeaa kapeampi. Palstaa siirretään oikealle oikean ilmatilan kustannuksella sen verran, että
-  // vasemmalle mahtuu LAATIKKO_HYVA (ahtaimmillaan LAATIKKO_MIN) ja oikealle vähintään LAATIKKO_HYVA, kuitenkin niin,
-  // että huomioiden oikealle puolelle jää #sivun 16 px:n reuna. Jos marginaaleihin ei mahdu laatikoita, siirtoa ei tehdä.
+  // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat .wrapissa, joka on keskitetty.
+  // Palsta siirretään keskelle ruutua, kuitenkin niin, että huomioiden oikealle puolelle jää #sivun 16 px:n reuna. Siirto
+  // tehdään vain, jos laatikot mahtuvat silloin marginaaleihin (muuten kolmannekset peittävät palstan joka tapauksessa).
   function palstanSiirto(vw, em) {
-    var rem = remPx(), cw = 33 * em, w = (33 + 2.2 + 13) * em, M = vw - cw, L0 = (vw - w) / 2, Lmax = vw - w - 16;
-    var L = Math.max(L0, Math.min(LAATIKKO_HYVA * rem, Lmax, Math.max(LAATIKKO_MIN * rem, M - LAATIKKO_HYVA * rem)));
-    return L >= LAATIKKO_MIN * rem && M - L >= LAATIKKO_MIN * rem ? Math.round(L - L0) : 0;
+    var rem = remPx(), k = LAATIKKO_KAISTA * rem, min = LAATIKKO_MIN * rem - .5, cw = 33 * em, w = (33 + 2.2 + 13) * em, L0 = (vw - w) / 2;
+    var L = Math.max(L0, Math.min((vw - cw) / 2, vw - w - 16));
+    return L - k >= min && vw - L - cw - k >= min ? Math.round(L - L0) : 0;
   }
   // Näkyvän palstan reunat ruudulla (sivutettuna #teksti on palstojen nauha, josta näkyy yksi); h: reunushuomioiden oikea
   // reuna (.wrapin oikea reuna, body.reunat), muuten palstan.
@@ -1599,9 +1598,10 @@
     var juuri = document.documentElement, cs = getComputedStyle(juuri), rem = parseFloat(cs.fontSize) || 16;
     var vw = juuri.clientWidth, v = parseFloat(cs.getPropertyValue('--v-laita')) || 0, o = parseFloat(cs.getPropertyValue('--o-laita')) || 0;
     var p = nyt && tila.nakyma === 'lukija' ? palstanReunat() : null, pl = p && Math.round(p.l), pr = p && Math.round(p.r), ph = p && Math.round(p.h);
-    var mahtuu = function (o, ko) { return pl >= ko * rem - .5 && vw - o >= ko * rem - .5; };
-    // o: Etsin puoleinen tekstin reuna (huomioiden takana tai palstan reunassa).
-    var marg = !p ? null : mahtuu(ph, LAATIKKO_HYVA) ? { l: pl, r: pr, o: ph } : mahtuu(pr, LAATIKKO_MIN) ? { l: pl, r: pr, o: pr } : null;
+    var k = Math.round(LAATIKKO_KAISTA * rem), mahtuu = function (o, ko) { return pl - k >= ko * rem - .5 && vw - o - k >= ko * rem - .5; };
+    // o: Etsin puoleinen tekstin reuna (huomioiden takana tai palstan reunassa); peitto: Etsi peittää reunushuomiot.
+    var marg = !p ? null : ph > pr && mahtuu(ph, LAATIKKO_HYVA) ? { l: pl, r: pr, o: ph, k: k } :
+      mahtuu(pr, LAATIKKO_MIN) ? { l: pl, r: pr, o: pr, k: k, peitto: ph > pr } : null;
     return { vw: vw, rem: rem, marg: marg, rinn: !!marg || vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
   }
   function sijoitaLaatikot() {
@@ -1622,13 +1622,12 @@
     if (vv) ala = Math.min(ala, vv.offsetTop + vv.height);
     ala = Math.round(ala);
     // Vaakasuunnassa marginaaleissa (ks. LAATIKKO_MIN), muuten kolmannekset ruudun reunasta reunaan; yksi kerrallaan koko
-    // leveys. Vierekkäisten reunukset päällekkäin: palstan reunoilla viiva on palstan ulkopuolella (vasemmalla pikseli
-    // l - 1, oikealla r), ja Sisälmyksen sisäleveys on palstan leveys.
+    // leveys. Vierekkäisten reunukset päällekkäin; Sisälmyksen sisäleveys on palstan leveys kaistaleineen.
     var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw], vali = {};
     if (m.marg) {
-      var pl = m.marg.l, pr = m.marg.r, po = m.marg.o, mx = Math.round(LAATIKKO_MAX * m.rem), g = Math.max(0, Math.min(pl, m.vw - po) - mx);
-      if (laatikkoAuki('sisalmys')) g = 0;
-      vali = { merkinnat: [0, pl - g], sisalmys: [pl - 1, po + 1], haku: [po + g, m.vw] };
+      var pl = m.marg.l, pr = m.marg.r, po = m.marg.o, k = m.marg.k, mx = Math.round(LAATIKKO_MAX * m.rem);
+      var g = laatikkoAuki('sisalmys') || m.marg.peitto ? k : Math.max(k, Math.min(pl, m.vw - po) - mx);
+      vali = { merkinnat: [0, pl - g], sisalmys: [pl - k - 1, pr + k + 1], haku: [po + g, m.vw] };
     }
     LAATIKOT.forEach(function (id, i) {
       var el = $('#' + id);
