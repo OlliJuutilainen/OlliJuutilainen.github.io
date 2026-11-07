@@ -440,7 +440,7 @@ palvelin.listen(0, async () => {
   tulos('asetukset: Sukkela sanaselitys käytössä ilman valikon sanaselitystä', !ase.pois, JSON.stringify(ase));
   // Lambda on asetuksissakin tekstin värinen (käyttäjän pyyntö 6.11.2026; okra 5.11. oli väliaikainen), linssi ruostetta.
   tulos('asetukset: lambda tekstin väriä, linssi ruostetta', ase.lambda === ase.teksti && ase.linssi !== ase.teksti, JSON.stringify(ase));
-  tulos('asetukset: Sanaselitys ja Käännös ilman palvelun nimeä', /^Sanaselitys$/.test(ase.nimi.trim()) && /^Käännös$/.test(ase.kaannos.trim()), ase.nimi + ' / ' + ase.kaannos);
+  tulos('asetukset: Sanaselitys ja Lausekäännös ilman palvelun nimeä', /^Sanaselitys$/.test(ase.nimi.trim()) && /^Lausekäännös$/.test(ase.kaannos.trim()), ase.nimi + ' / ' + ase.kaannos);
   if (KUVAT) await p.locator('#asetukset button[data-kytkin="sukSana"]').locator('xpath=ancestor::div[contains(@class,"asetus")]').screenshot({ path: path.join(KUVAT, 'sk-asetukset.png') });
   if (KUVAT) await p.locator('#asetukset button[data-kytkin="sanakirja"]').locator('xpath=ancestor::div[contains(@class,"asetus")]').screenshot({ path: path.join(KUVAT, 'sk-asetukset-valikossa.png') });
 
