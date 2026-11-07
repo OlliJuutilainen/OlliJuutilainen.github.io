@@ -475,9 +475,17 @@
   body.kummitus-ala #ala-rivi > *, body.kummitus-yla .ylapalkki > * { visibility: hidden; }
   /* Suuntamerkki: vanha kunnon natsanuoli eli yksi ohut kulmaviiva (käyttäjän linjaus 7.11.2026: liikennemerkkien selkeys, ei
      niiden tyyli; ei sivunappien lovettu salmiakki), hyvin haalea (--viiva). Viivan paksuus on kiinteä (non-scaling-stroke). */
-  #kummitus svg { position: absolute; fill: none; stroke: var(--viiva); stroke-width: 1.3; stroke-linecap: round;
+  #kummitus > svg { position: absolute; fill: none; stroke: var(--viiva); stroke-width: 1.3; stroke-linecap: round;
     stroke-linejoin: round; overflow: visible; }
-  #kummitus path { vector-effect: non-scaling-stroke; }
+  #kummitus > svg path { vector-effect: non-scaling-stroke; }
+  /* Opas neliön vieressä palkissa (käyttäjän pyyntö 7.11.2026): valinnan valikon alleviivausmerkki (asdf) ja sen ja neliön
+     välissä yksinkertainen suuntanuoli. Taaksepäin neliön oikealla puolella ← asdf, eteenpäin peilikuvana vasemmalla asdf →. */
+  #kummitus .km-opas { position: absolute; top: 0; bottom: 0; left: calc(100% + 10px); display: flex; align-items: center;
+    gap: 7px; white-space: nowrap; }
+  #kummitus.eteen .km-opas { left: auto; right: calc(100% + 10px); flex-direction: row-reverse; }
+  #kummitus .km-nuoli { display: block; width: 16px; height: 10px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
+    stroke-linecap: round; stroke-linejoin: round; }
+  #kummitus.eteen .km-nuoli { transform: scaleX(-1); }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
@@ -982,7 +990,7 @@
 
 <div class="valikko" id="pop" hidden></div>
 <div id="kahvat" hidden><div class="kahva" data-paa="alku"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div><div class="kahva" data-paa="loppu"><svg class="k-kaari" aria-hidden="true"><path class="kn"/></svg><span class="k-ote"></span></div></div>
-<div id="kummitus" hidden aria-hidden="true"><svg viewBox="0 0 14 14"><path/></svg></div>
+<div id="kummitus" hidden aria-hidden="true"><svg viewBox="0 0 14 14"><path/></svg><span class="km-opas"><svg class="km-nuoli" viewBox="0 0 16 10"><path d="M15.25 5H1M4.75 1.25L1 5L4.75 8.75"/></svg><span class="ik-ali teksti">asdf</span></span></div>
 <div id="lupa" hidden aria-hidden="true"><div class="l-sisus"></div></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -3085,7 +3093,9 @@
     }
     var sv = ala - yla;
     if (sv < 12) return null;
-    return n.d > 0 ? { d: 1, x: ar - sv, y: yla, w: sv, h: sv } : { d: -1, x: al, y: yla, w: sv, h: sv };
+    // Neliö marginaaliin palstan viereen (käyttäjän pyyntö 7.11.2026): taaksepäin oikea reuna palstan vasemmassa reunassa,
+    // eteenpäin vasen reuna palstan oikeassa reunassa. Jos ei mahdu, niin lähelle ruudun reunaa kuin mahtuu, koko ennallaan.
+    return n.d > 0 ? { d: 1, x: Math.min(ar, innerWidth - sv), y: yla, w: sv, h: sv } : { d: -1, x: Math.max(0, al - sv), y: yla, w: sv, h: sv };
   }
   function samallaRivilla(a, b) { return Math.abs(a.top + a.bottom - b.top - b.bottom) / 2 < Math.min(a.height, b.height) / 2; }
   // Osoitin neliössä tai sen takana ruudun reunan puolella (m: laajennus, pidon päättymisen hystereesi).
@@ -3101,6 +3111,7 @@
     nu.style.left = Math.floor((z.w - nk) / 2) + 'px'; nu.style.top = Math.floor((z.h - nk) / 2) + 'px';
     $('path', nu).setAttribute('d', z.d > 0 ? 'M4.5 1.5L10 7L4.5 12.5' : 'M9.5 1.5L4 7L9.5 12.5');
     kummEl.classList.remove('valo');
+    kummEl.classList.toggle('eteen', z.d > 0);
     document.body.classList.toggle('kummitus-ala', z.d > 0);
     document.body.classList.toggle('kummitus-yla', z.d < 0);
     kummEl.hidden = false;
