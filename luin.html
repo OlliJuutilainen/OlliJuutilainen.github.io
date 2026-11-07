@@ -1692,8 +1692,8 @@
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
     sijoitaLiikKuvat(s, n);
   }
-  // Käärö Vieritys-sanan alle (sanan keskelle) ja koodeksi lisäkytkinten oikealle puolelle; molempien keskikohta
-  // lisäkytkinten keskikohdan korkeudella (käyttäjän palaute 7.11.2026: ylärullaan ankkuroituna alareunat osuivat sattumalta tasan). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
+  // Käärö Vieritys-sanan alle (sanan keskelle), keskikohta lisäkytkinten keskikohdan korkeudella (käyttäjän palaute
+  // 7.11.2026: ylärullaan ankkuroituna alareunat osuivat sattumalta tasan koodeksin kanssa). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
   function sijoitaLiikKuvat(s, n) {
     var v = $('#asetukset button[data-arvo="vieritys"]'), ka = $('#liik-kaaro'), ko = $('#liik-koodeksi');
     var r = s.closest('.asetus').getBoundingClientRect(), vr = v.getBoundingClientRect(), sr = s.getBoundingClientRect();
@@ -1704,10 +1704,17 @@
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
     ka.style.top = Math.round((ens.top + vik.bottom) / 2 - 21 - r.top) + 'px';
-    var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
+    // Koodeksin yläreuna Sivunkääntö-sanan kirjainten yläreunaan (käyttäjän pyyntö 8.11.2026), sanan oikealle puolelle
+    // niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuu. Kirjainten (k:n varren) yläreuna on
+    // Literatassa 0,45 em tekstilaatikon yläreunan alapuolella (mitattu pikseleistä 8.11.2026: 6,5 px / 14,4 px;
+    // canvasin measureText antoi 1 px liian korkean, koska se ei käytä optisen koon akselia).
+    rg.selectNode(s.lastChild);
+    var ts = rg.getBoundingClientRect(), y = ts.top + .45 * parseFloat(getComputedStyle(s).fontSize);
+    var oik = Math.max.apply(null, nb.filter(function (b) { return b.top < y + 32 && b.bottom > y; }).map(function (b) { return b.right; }).concat(ts.right));
+    var x = Math.round(oik + 24 - r.left);
     ko.hidden = !yhdessa || x + 44 > r.width;
     ko.style.left = x + 'px';
-    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 16 - r.top) + 'px';
+    ko.style.top = Math.round(y - 2 - r.top) + 'px'; // koodeksin yläviivan muste alkaa 2 px kuvan yläreunasta
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
