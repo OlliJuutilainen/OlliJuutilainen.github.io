@@ -2230,6 +2230,12 @@
 
   // Sivunkääntö ei avaa eikä sulje palkkeja (käyttäjän päätös 22.10.2026: vain napautus).
   function seuraava(d) { if (aset.sivutus === 'sivut') sivulle(tila.sivu + d); }
+  // Tahallinen "seuraava" (painike, reunanapautus, näppäin) viimeisellä sivulla avaa navin (käyttäjän toive 7.11.2026).
+  // Vedon aikainen käännös, rulla ja pyyhkäisy käyttävät seuraava():a eivätkä avaa; verhon ollessa auki ei avata uudelleen.
+  function seuraavaPainettu(d) {
+    if (aset.sivutus === 'sivut' && d > 0 && tila.sivu >= tila.sivuja - 1 && !verhoAuki()) { avaaJana(true); return; }
+    seuraava(d);
+  }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
@@ -2239,7 +2245,7 @@
     if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
     // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
     // yleensä välitä näppäimiä sivulle; jos välittää, ne kääntävät sivua (alas = seuraava).
-    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraava(1); }
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraavaPainettu(1); }
     else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'AudioVolumeUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); seuraava(-1); }
     else if (k === 'Home') { e.preventDefault(); sivulle(0); }
     else if (k === 'End') { e.preventDefault(); sivulle(tila.sivuja - 1); }
@@ -2330,7 +2336,7 @@
     if (aset.sivutus !== 'sivut' || !aset.sivuReuna) return;
     if (Date.now() - alaKosk < 800 || t.closest('#ala') || e.clientY >= alaRaja()) return;
     var x = e.clientX / innerWidth;
-    if (x < 0.3) seuraava(-1); else if (x > 0.7) seuraava(1);
+    if (x < 0.3) seuraava(-1); else if (x > 0.7) seuraavaPainettu(1);
   });
   // Tekstin napautus ei avaa palkkeja missään tilassa (käyttäjän päätökset 22.10.2026: työpöydällä hiirellä kauhea
   // tapa, mobiilissa avautui liian helposti vahingossa). Palkit avataan alapalkista tai mobiilin alakaistasta.
@@ -4221,12 +4227,12 @@
   }
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
   $('#sivu-ed').addEventListener('click', function () { seuraava(-1); });
-  $('#sivu-se').addEventListener('click', function () { seuraava(1); });
+  $('#sivu-se').addEventListener('click', function () { seuraavaPainettu(1); });
   // Nappien ympärillä oleva tyhjä alue (ylä- ja alapuoli, oikea reuna) kääntää sen napin suuntaan, jonka kohdalla
   // napautus on; oikean napin oikealla puolella seuraavalle sivulle.
   $('#sivunapit').addEventListener('click', function (e) {
     if (e.target !== this) return;
-    seuraava(e.clientX >= $('#sivu-se').getBoundingClientRect().left ? 1 : -1);
+    (e.clientX >= $('#sivu-se').getBoundingClientRect().left ? seuraavaPainettu(1) : seuraava(-1));
   });
   LAATIKOT.forEach(function (id) { $(LAATIKKONAPIT[id]).addEventListener('click', function () { vaihdaLaatikko(id); }); });
   $$('#merkinnat details.m-osio').forEach(function (d) {
