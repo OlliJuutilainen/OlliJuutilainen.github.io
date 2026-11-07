@@ -1368,6 +1368,11 @@
       if (!inBib || t.t !== 'p') return;
       var tx = plain(t.text).trim();
       var nm = /^([^,(]+?)\s*[,(]/.exec(tx), vm = /\((1[5-9]\d\d[a-z]?|20\d\d[a-z]?|s\.\s?a\.)\)/.exec(tx);
+      // SEP:n tapa ilman sulkeita: Kahn, Charles H., 1979, *Teos* (vuosi pilkun jälkeen ennen nimekettä).
+      if (!vm) {
+        var sv = /^[^*“"(]{0,120}?[,\s]\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=[,.])/u.exec(tx);
+        if (sv) vm = { 1: sv[1], index: sv[0].length - sv[1].length };
+      }
       // Tekijätön kohta osiossa *works by X* (alkaa vuodella) ja edellisen kohdan tekijä viivoina (–––, 2013).
       var tekijaton = osioTekija && vm && vm.index === 0, viivat = nm && /^[–—-]{2,}$/.test(nm[1]) && kohdat.length;
       if (!vm || !tekijaton && !viivat && (!nm || !/^\p{Lu}/u.test(nm[1]))) return;
@@ -1376,7 +1381,7 @@
       k.id = uniq('kirj-' + slug(k.nimi) + '-' + slug(k.vuosi));
       // Kaikkien tekijöiden sukunimet: kaksi tekijää viitataan muodossa A & B, useampi A et al. (Teologian tyyli).
       k.suvut = tekijaton ? [nimi] : viivat ? kohdat[kohdat.length - 1].suvut
-        : nimet(tx.slice(0, vm.index).replace(/,?\s*(\(?toim\.\)?|\(eds?\.\))\s*$/i, '')).map(function (n) { return n.suku || n.koko; });
+        : nimet(tx.slice(0, vm.index).replace(/,?\s*$/, '').replace(/,?\s*(\(?toim\.\)?|\(eds?\.\))\s*$/i, '')).map(function (n) { return n.suku || n.koko; });
       t.kirja = k;
       kohdat.push(k);
     });
@@ -1387,7 +1392,7 @@
     kohdat.forEach(function (k) {
       lisaa(k.nimi, k);
       var s = k.suvut;
-      if (s.length === 2) { lisaa(s[0] + ' & ' + s[1], k); lisaa(s[0] + ' ja ' + s[1], k); }
+      if (s.length === 2) { lisaa(s[0] + ' & ' + s[1], k); lisaa(s[0] + ' ja ' + s[1], k); lisaa(s[0] + ' and ' + s[1], k); }
       if (s.length > 2) { lisaa(s[0] + ' et al.', k); lisaa(s[0] + ' ym.', k); lisaa(s.slice(0, -1).join(', ') + ' & ' + s[s.length - 1], k); }
     });
     // Lyhenne ja paikannin: numeroita (4:429, 6:442–44), painoksen kirjain ja numero (A1/B1) tai
@@ -1472,18 +1477,24 @@
       });
       return out + esc(teksti.slice(last));
     }
-    // Leipätekstin hakasulkuviittaus (SEP: [Heidegger 1929], [Friedman 2000, chap. 7], [Cassirer 1906, 1907a],
-    // käyttäjän päätös 6.11.2026). Vain hakasulkeiden sisältä, sulkujen alusta alkava tekijä ja vuosi, ja vain
+    // Leipätekstin hakasulku- ja kaarisulkuviittaus (SEP: [Heidegger 1929], [Friedman 2000, chap. 7], [Cassirer 1906,
+    // 1907a], (Kahn 1960: 238), (Patin 1899; Graham 2002); käyttäjän päätös 6.11.2026 ja huomio 7.11.2026). Vain hakasulkeiden sisältä, sulkujen alusta alkava tekijä ja vuosi, ja vain
     // yksiselitteinen kohta; samaan sulkuun pilkulla tai puolipisteellä erotetut vuodet ja tekijät mukaan.
     // Lyhenteitä ei linkitetä leipätekstissä.
-    var HAKA = /\[([^\[\]\n]{3,160})\]/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
+    var HAKA = /\[([^\[\]\n]{3,160})\]|\(([^()\n]{3,160})\)/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
     function linkitaHaka(teksti, kirjaa) {
-      if (!re || teksti.indexOf('[') < 0) return esc(teksti);
+      if (!re || !/[[(]/.test(teksti)) return esc(teksti);
       var out = '', last = 0, h;
       HAKA.lastIndex = 0;
       while ((h = HAKA.exec(teksti))) {
-        var sis = h[1], alku0 = h.index + 1, os = loyda(sis);
-        if (!os.length || os[0].alku !== 0 || !VUOSI.test(os[0].tunnus)) continue;
+        var sis = h[1] || h[2], alku0 = h.index + 1;
+        // Sulkujen alussa tekijä ja vuosi, mahdollisesti vihjesanan jälkeen (see, e.g., cf., ks., vrt.). Ensimmäisen
+        // tekijän ei tarvitse olla luettelossa (Hülsz 2013, Long 2013: Long linkittyy).
+        var vihje = /^(?:(?:see(?: also)?|cf\.?|e\.\s?g\.,?|compare|ks\.|vrt\.|esim\.)\s+)?/i.exec(sis)[0];
+        // Kelpaamaton sulku tutkitaan sisältä: ([Friedman 2000] kaarisulkeiden sisällä).
+        if (!RE_HAKA_ALKU.test(sis.slice(vihje.length))) { HAKA.lastIndex = h.index + 1; continue; }
+        var os = loyda(sis).filter(function (o) { return VUOSI.test(o.tunnus) || o.alku > 0; });
+        if (!os.length) { HAKA.lastIndex = h.index + 1; continue; }
         var kaikki = [];
         os.forEach(function (o) {
           kaikki.push(o);
@@ -1507,6 +1518,7 @@
     }
     return { kohdat: kohdat, linkita: linkita, linkitaHaka: linkitaHaka };
   }
+  var RE_HAKA_ALKU = /^\p{Lu}[\p{L}’'-]+(?:\s+(?:and|&|ja|und)\s+\p{Lu}[\p{L}’'-]+|\s+et al\.|\s+ym\.)?\s+(?:1[5-9]\d\d|20\d\d)[a-z]?(?![\p{L}\p{N}])/u;
   var RE_OSIOTEKIJA = /(?:works|writings|schriften|teokset|teoksia)\s+(?:by|of|von)\s+(\p{Lu}[\p{L}’'-]+)\s*$/iu;
 
   // Otsikkolohkon tietorivi: lyhyitä rivejä. Pitkäriviinen kappale on jo leipätekstiä (verkkoleikkeen johdanto).
