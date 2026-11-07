@@ -454,9 +454,9 @@
   .kirm svg { position: absolute; left: 2.5px; top: 2.5px; width: 17px; height: 17px; }
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
   /* Sivun nurkka (käyttäjän idea 7.11.2026, aloitaReuna()): kun maalauksen tai kahvan liikkuva pää on viipynyt sivun
-     viimeisessä sanassa, palstan oikean alakulman viereen ilmestyy haalea neliö; sinne vienti kääntää sivun. Taaksepäin
-     peilikuvana vasemmassa yläkulmassa. Ei läpikuultavuutta eikä siirtymää (e-ink). */
-  #nurkka { position: fixed; width: 12px; height: 12px; background: var(--hius); pointer-events: none; z-index: 14; }
+     viimeisessä sanassa, tekstialueen oikeaan alanurkkaan (alapalkin yläpuolelle) ilmestyy haalea neliö; sinne vienti kääntää
+     sivun. Taaksepäin peilikuvana vasemmassa yläkulmassa. Koko asetetaan JS:llä. Ei läpikuultavuutta eikä siirtymää (e-ink). */
+  #nurkka { position: fixed; background: var(--hius); pointer-events: none; z-index: 14; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
@@ -2939,15 +2939,18 @@
   function lopetaReuna() { clearInterval(reunaVali); reunaVali = 0; reunaSuunta = 0; pito = null; piilotaNurkka(); }
 
   /* Sivun nurkka ja pito (käyttäjän pyyntö 7.11.2026). Kun liikkuva pää on ollut sivun viimeisessä sanassa NURKKA_VIIVE,
-     palstan oikean alakulman viereen tulee haalea neliö (#nurkka). Vienti sen puolelle (palstan oikealle puolelle ja viimeisen
-     rivin alle) kääntää sivun heti, mutta vain matkana: jos osoitin oli jo siellä neliön ilmestyessä, se on vietävä ensin pois.
-     Taaksepäin sama peilikuvana: sivun ensimmäinen sana ja vasen yläkulma. Laidan viipymäkääntö toimii ennallaan.
+     tekstialueen oikeaan alanurkkaan tulee haalea neliö (#nurkka): oikea reuna ruudun reunassa, alareuna alapalkin yläreunassa,
+     sivu NURKKA_KOKO, mutta enintään palstan ja ruudun reunan väli, ettei neliö mene tekstin päälle (käyttäjän palaute samana
+     päivänä: ensin 12 px palstan kulman vieressä 0,4 s:n jälkeen oli liian pieni ja tuli liian nopeasti). Neliössä viipyminen
+     NURKKA_KAANTO kääntää sivun (käyttäjän pyyntö samana päivänä; ensin kääntö oli heti), mutta vain matkana: jos osoitin oli
+     jo siellä neliön ilmestyessä, se on vietävä ensin pois.
+     Taaksepäin sama peilikuvana: sivun ensimmäinen sana ja vasen yläkulma (yläpalkin alla). Laidan viipymäkääntö toimii ennallaan.
      Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, kunnes osoitin
      poistuu alueelta, joka käänsi sivun. Ilman pitoa sormen kohta luettiin heti uudelta sivulta (nurkasta koko sivu kerralla), ja
      nurkka olisi kääntänyt sivun uudelleen. Pidon aikana nurkka ei ilmesty. */
-  var NURKKA_VIIVE = 400, NURKKA_KOKO = 12;
-  var nurkka = { d: 0, alku: 0, nakyy: false, ulkona: false }, pito = null, nurkkaEl = $('#nurkka');
-  function piilotaNurkka() { nurkka.d = 0; nurkka.nakyy = false; if (nurkkaEl) nurkkaEl.hidden = true; }
+  var NURKKA_VIIVE = 1000, NURKKA_KAANTO = 300, NURKKA_KOKO = 44;
+  var nurkka = { d: 0, alku: 0, nakyy: false, ulkona: false, sisaan: 0 }, pito = null, nurkkaEl = $('#nurkka');
+  function piilotaNurkka() { nurkka.d = 0; nurkka.nakyy = false; nurkka.sisaan = 0; if (nurkkaEl) nurkkaEl.hidden = true; }
   function edellinen(k) {
     return k.o > 0 ? { b: k.b, o: k.o - 1 } : k.b > 0 ? { b: k.b - 1, o: Math.max(0, (nyt.txt[k.b - 1] || '').length - 1) } : null;
   }
@@ -2974,20 +2977,21 @@
     var a = sg[0], z = sg[sg.length - 1];
     return { d: d, k: d > 0 ? { b: z.b, o: z.e } : { b: a.b, o: a.s } };
   }
-  // Nurkan paikka, jos liikkuva pää n on sivun viimeisessä (d > 0) tai ensimmäisessä (d < 0) sanassa: x palstan reuna,
-  // y viimeisen merkin alareuna tai ensimmäisen yläreuna.
+  // Nurkan neliö (x, y vasen yläkulma, s sivu), jos liikkuva pää n on sivun viimeisessä (d > 0) tai ensimmäisessä (d < 0) sanassa.
   function nurkanPaikka(n) {
     if (!n || (n.d > 0 ? tila.sivu >= tila.sivuja - 1 : tila.sivu <= 0)) return null;
     var raja = sivunAlku(tila.sivu + (n.d > 0 ? 1 : 0));
     if (!raja || raja.ed || (n.d > 0 ? sanaValissa(n.k, raja) : sanaValissa(raja, n.k))) return null;
     var m = n.d > 0 ? edellinen(raja) : raja, r = m && kohdanLaatikko(m);
     if (!r || r.left < 0 || r.right > innerWidth) return null;
-    var al = art.getBoundingClientRect().left + tila.sivu * tila.stride;
-    return n.d > 0 ? { d: 1, x: al + tila.W, y: r.bottom } : { d: -1, x: al, y: r.top };
+    var al = art.getBoundingClientRect().left + tila.sivu * tila.stride, vw = innerWidth;
+    var sv = Math.floor(Math.min(NURKKA_KOKO, n.d > 0 ? vw - (al + tila.W) : al));
+    if (sv < 8) return null;
+    return n.d > 0 ? { d: 1, x: vw - sv, y: alaRaja() - sv, s: sv } : { d: -1, x: 0, y: ylaRaja(), s: sv };
   }
-  // Osoitin nurkan puolella (m: laajennus, pidon päättymisen hystereesi).
+  // Osoitin neliössä tai sen takana ruudun nurkan puolella (m: laajennus, pidon päättymisen hystereesi).
   function nurkassa(p, z, m) {
-    return z.d > 0 ? p.x >= z.x + 2 - m && p.y >= z.y + 2 - m : p.x <= z.x - 2 + m && p.y <= z.y - 2 + m;
+    return z.d > 0 ? p.x >= z.x - m && p.y >= z.y - m : p.x <= z.x + z.s + m && p.y <= z.y + z.s + m;
   }
   function nurkkaAskel(p, paa, askel) {
     var z = !pito && paa ? nurkanPaikka(paa()) : null;
@@ -2997,13 +3001,15 @@
     if (!nurkka.nakyy) {
       if (Date.now() - nurkka.alku < NURKKA_VIIVE) return false;
       nurkka.nakyy = true; nurkka.ulkona = !sis;
-      nurkkaEl.style.left = (z.d > 0 ? z.x + 3 : z.x - 3 - NURKKA_KOKO) + 'px';
-      nurkkaEl.style.top = (z.d > 0 ? z.y + 3 : z.y - 3 - NURKKA_KOKO) + 'px';
+      nurkkaEl.style.left = z.x + 'px'; nurkkaEl.style.top = z.y + 'px';
+      nurkkaEl.style.width = nurkkaEl.style.height = z.s + 'px';
       nurkkaEl.hidden = false;
       return false;
     }
-    if (!sis) { nurkka.ulkona = true; return false; }
+    if (!sis) { nurkka.ulkona = true; nurkka.sisaan = 0; return false; }
     if (!nurkka.ulkona) return false;
+    if (!nurkka.sisaan) nurkka.sisaan = Date.now();
+    if (Date.now() - nurkka.sisaan < NURKKA_KAANTO) return false;
     piilotaNurkka();
     kaannaVedossa(z.d, function (q) { return !nurkassa(q, z, 6); }, askel);
     return true;
