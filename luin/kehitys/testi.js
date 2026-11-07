@@ -604,8 +604,8 @@ palvelin.listen(0, async () => {
   });
   tulos('lähdeviittaus jättää majakan', lahdeV.ohitettu || lahdeV.majakka, JSON.stringify(lahdeV));
 
-  // Alaviitteen lyhennelinkki (md.js, viittaukset()) vie lyhenteen selitykseen; lähtökohta on edempänä,
-  // joten nuoli osoittaa alas, ja paluu vie takaisin.
+  // Alaviitteen lyhennelinkki (md.js, viittaukset()) vie lyhenteen selitykseen, ja paluu vie takaisin. Nuoli osoittaa
+  // lähtökohtaan: alas, kun selitysosio on ennen linkkiä (tutkielma), ylös, kun se on kirjallisuusluettelossa (SEP:n Dewey).
   const ly = await p.evaluate(async () => {
     const L = window.__luin, odota = () => new Promise(r => setTimeout(r, 300));
     const linkit = [...document.querySelectorAll('#teksti a.lahde')].filter(x => !document.getElementById(x.getAttribute('href').slice(1)).classList.contains('bib'));
@@ -615,11 +615,11 @@ palvelin.listen(0, async () => {
     L.hyppaa({ b: b0, o: 0 }); await odota();
     a.click(); await odota();
     const mj = document.getElementById('majakka'), perilla = L.tila.ankkuri.b === +kohde.dataset.b;
-    const alas = !mj.hidden && !mj.classList.contains('ylos');
+    const nuoli = mj.hidden ? null : mj.classList.contains('ylos') ? 'ylos' : 'alas', odotettu = b0 > +kohde.dataset.b ? 'alas' : 'ylos';
     document.getElementById('majakka-palaa').click(); await odota();
-    return { linkkeja: linkit.length, perilla, alas, takaisin: L.tila.ankkuri.b === b0 };
+    return { linkkeja: linkit.length, perilla, nuoli, odotettu, takaisin: L.tila.ankkuri.b === b0 };
   });
-  tulos('lyhennelinkki', ly.ohitettu || ly.perilla && ly.alas && ly.takaisin, JSON.stringify(ly));
+  tulos('lyhennelinkki', ly.ohitettu || ly.perilla && ly.nuoli === ly.odotettu && ly.takaisin, JSON.stringify(ly));
 
   // Palkit (käyttäjän päätökset 22.10.2026). Mobiilissa (kosketusnäyttö, 412 px) yläpalkki ja aikajanakerros ovat
   // piilossa, ja alakaistan napautus avaa ja sulkee ne yhdessä; tekstin napautus, vieritys ja sivunkääntö eivät
@@ -1379,14 +1379,17 @@ palvelin.listen(0, async () => {
   const htila = () => hp.evaluate(() => ({ pop: !document.querySelector('#pop').hidden, kahvat: !document.querySelector('#kahvat').hidden && [...document.querySelectorAll('.kahva')].every(k => getComputedStyle(k).visibility === 'visible'), luonnos: document.querySelectorAll('mark.luonnos').length }));
   const [ha, hz] = [hs[1], hs[3]];
   // Haamuklikkaus alleviivaamattomaan tekstiin kahden rivin päähän (luonnoksen päällä se ei sulkisi valikkoa muutenkaan).
-  const hg = hs.find(q => q.y > hz.y + 60 && q.y < 700) || hs[hs.length - 1];
+  // Kohta valitaan eleen jälkeen sellaisesta sanasta, jonka päällä ei ole valikkoa eikä kahvaa: SEP:n Deweyssä valikko
+  // peitti kiinteän kohdan, ja haamu osui Kirjaa-nappiin (oikea haamuklikkaus tulee kosketuskohtaan, ei valikon päälle).
+  const haamunKohta = () => hp.evaluate(([hs, y0]) => hs.find(q => { if (q.y <= y0 + 60 || q.y >= 700) return false;
+    const e = document.elementFromPoint(Math.min(q.x, innerWidth - 20), q.y); return e && e.closest('#teksti') && !e.closest('.luin-ui, #pop, #kahvat, mark'); }) || hs[hs.length - 1], [hs, hz.y]);
   await hko('touchStart', ha.x, ha.y); await hp.waitForTimeout(600); for (let i = 1; i <= 6; i++) { await hko('touchMove', ha.x + (hz.x - ha.x) * i / 6, ha.y + (hz.y - ha.y) * i / 6); await hp.waitForTimeout(30); } await hko('touchEnd');
-  await hp.waitForTimeout(400); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
+  await hp.waitForTimeout(400); let hg = await haamunKohta(); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
   const h0 = await htila();
   await hko('touchStart', hs[2].x, hs[2].y); await hp.waitForTimeout(60); await hko('touchEnd'); await hp.waitForTimeout(400);
   const hot = await hp.evaluate(() => { const r = document.querySelector('.kahva[data-paa="loppu"] .k-ote').getBoundingClientRect(); return { x: r.left + 20, y: r.top + 20 }; });
   await hko('touchStart', hot.x, hot.y); await hp.waitForTimeout(60); for (let i = 1; i <= 4; i++) { await hko('touchMove', hot.x + i * 20, hot.y); await hp.waitForTimeout(40); } await hko('touchEnd');
-  await hp.waitForTimeout(400); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
+  await hp.waitForTimeout(400); hg = await haamunKohta(); await haamu(hg.x, hg.y); await hp.waitForTimeout(100);
   const h1 = await htila();
   await hko('touchStart', 200, 760); await hp.waitForTimeout(50); await hko('touchEnd'); await hp.waitForTimeout(300);
   const h2 = await htila();

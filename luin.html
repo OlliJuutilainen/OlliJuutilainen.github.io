@@ -333,6 +333,10 @@
   #teksti.tasattu p:not(.bib):not(.meta):not(.sub) { text-align: justify; }
   #teksti.sisennys p { margin: 0; text-indent: 1.4em; }
   #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
+  /* Väliotsikon ja luettelon kohdan väli optisesti sama kuin otsikon ja leipätekstin (p.bib: .9em, riviväli 1,45), jotta
+     kirjanmerkin nauha mahtuu kohdan yläpuolelle eikä joudu reunukseen (käyttäjän valinta 7.11.2026; SEP:n Deweyssä h4 + p.bib
+     jätti nauhalle 3,5 px, raja 4 px). Padding, koska reunus yhdistyisi otsikon alareunukseen. */
+  #teksti h3 + p.bib, #teksti h4 + p.bib, #teksti.sisennys h3 + p.bib, #teksti.sisennys h4 + p.bib { padding-top: .15em; }
   #teksti.sisennys header p, #teksti.sisennys h2 + p, #teksti.sisennys h3 + p, #teksti.sisennys h4 + p,
   #teksti.sisennys hr + p, #teksti.sisennys blockquote + p, #teksti.sisennys figure + p, #teksti.sisennys ol + p, #teksti.sisennys ul + p,
   #teksti.sisennys pre + p, #teksti.sisennys blockquote p, #teksti.sisennys nav p { text-indent: 0; }
@@ -1997,7 +2001,8 @@
   // merkin keskikohdan samaan kohtaan, jotta sama kohta luetaan takaisin samana: rivin yläreunaa
   // käytettäessä otsikon riviltä luettiin edellinen rivi, koska otsikon rivien laatikot menevät
   // päällekkäin (line-height 1,25). Mobiilissa yläpalkki on piilossa, joten rivi on 26 px ruudun yläreunasta
-  // (asettele()).
+  // (asettele()). Rivin kohta luetaan 1 px rivin vasemmasta reunasta: 3 px:n päästä kapea alkumerkki (kirjallisuusluettelon
+  // [ACF], 5,7 px) jäi puolivälistään vasemmalle, ja kohdaksi tuli toinen merkki (mitattu SEP:n Deweyllä 7.11.2026).
   var YLA = 82;
   function mobiili() { return document.body.classList.contains('mobiili'); }
   // Lukualueen rajat ikkunassa. Mobiilissa avautuva yläpalkki ja aikajanakerros ovat tekstin päällä eivätkä
@@ -2024,7 +2029,7 @@
         var rs = B[ed].getClientRects(), vika = rs[rs.length - 1];
         if (vika && Math.floor((vika.left - al + 2) / s) >= p) {
           var x0 = al + p * s, kk = null;
-          for (var j = 0; j < rs.length; j++) if (Math.floor((rs[j].left - al + 2) / s) === p) { kk = kohtaPisteessa(x0 + 3, rs[j].top + 6); break; }
+          for (var j = 0; j < rs.length; j++) if (Math.floor((rs[j].left - al + 2) / s) === p) { kk = kohtaPisteessa(x0 + 1, rs[j].top + 6); break; }
           return kk && kk.b === ed ? kk : { b: ed, o: 0 };
         }
       }
@@ -2037,7 +2042,7 @@
     if (lo >= n) return { b: n - 1, o: 0 };
     var r = B[lo].getBoundingClientRect();
     if (r.top >= YLA) return { b: lo, o: 0 };
-    k = kohtaPisteessa(r.left + 3, YLA);
+    k = kohtaPisteessa(r.left + 1, YLA);
     return k && k.b === lo ? k : { b: lo, o: 0 };
   }
 
