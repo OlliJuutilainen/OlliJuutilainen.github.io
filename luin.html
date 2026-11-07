@@ -458,7 +458,7 @@
   .kirm svg { position: absolute; left: 2.5px; top: 2.5px; width: 17px; height: 17px; }
   #kahvat { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 15; }
   /* Sivun nurkka (käyttäjän idea 7.11.2026, aloitaReuna()): kun maalauksen tai kahvan liikkuva pää on viipynyt sivun
-     viimeisessä sanassa, tekstialueen oikeaan alanurkkaan (alapalkin yläpuolelle) ilmestyy haalea neliö; sinne vienti kääntää
+     viimeisellä rivillä, tekstialueen oikeaan alanurkkaan (alapalkin yläpuolelle) ilmestyy haalea neliö; sinne vienti kääntää
      sivun. Taaksepäin peilikuvana vasemmassa yläkulmassa. Koko asetetaan JS:llä. Ei läpikuultavuutta eikä siirtymää (e-ink). */
   #nurkka { position: fixed; background: var(--hius); pointer-events: none; z-index: 14; }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
@@ -2943,13 +2943,13 @@
   }
   function lopetaReuna() { clearInterval(reunaVali); reunaVali = 0; reunaSuunta = 0; pito = null; piilotaNurkka(); }
 
-  /* Sivun nurkka ja pito (käyttäjän pyyntö 7.11.2026). Kun liikkuva pää on ollut sivun viimeisessä sanassa NURKKA_VIIVE,
+  /* Sivun nurkka ja pito (käyttäjän pyyntö 7.11.2026). Kun liikkuva pää on ollut sivun viimeisellä rivillä NURKKA_VIIVE,
      tekstialueen oikeaan alanurkkaan tulee haalea neliö (#nurkka): oikea reuna ruudun reunassa, alareuna alapalkin yläreunassa,
      sivu NURKKA_KOKO, mutta enintään palstan ja ruudun reunan väli, ettei neliö mene tekstin päälle (käyttäjän palaute samana
      päivänä: ensin 12 px palstan kulman vieressä 0,4 s:n jälkeen oli liian pieni ja tuli liian nopeasti). Neliössä viipyminen
      NURKKA_KAANTO kääntää sivun (käyttäjän pyyntö samana päivänä; ensin kääntö oli heti), mutta vain matkana: jos osoitin oli
      jo siellä neliön ilmestyessä, se on vietävä ensin pois.
-     Taaksepäin sama peilikuvana: sivun ensimmäinen sana ja vasen yläkulma (yläpalkin alla). Laidan viipymäkääntö toimii ennallaan.
+     Taaksepäin sama peilikuvana: sivun ensimmäinen rivi ja vasen yläkulma (yläpalkin alla). Laidan viipymäkääntö toimii ennallaan.
      Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, kunnes osoitin
      poistuu alueelta, joka käänsi sivun. Ilman pitoa sormen kohta luettiin heti uudelta sivulta (nurkasta koko sivu kerralla), ja
      nurkka olisi kääntänyt sivun uudelleen. Pidon aikana nurkka ei ilmesty. */
@@ -2986,14 +2986,21 @@
   function nurkanPaikka(n) {
     if (!n || (n.d > 0 ? tila.sivu >= tila.sivuja - 1 : tila.sivu <= 0)) return null;
     var raja = sivunAlku(tila.sivu + (n.d > 0 ? 1 : 0));
-    if (!raja || raja.ed || (n.d > 0 ? sanaValissa(n.k, raja) : sanaValissa(raja, n.k))) return null;
+    if (!raja || raja.ed) return null;
     var m = n.d > 0 ? edellinen(raja) : raja, r = m && kohdanLaatikko(m);
     if (!r || r.left < 0 || r.right > innerWidth) return null;
+    // Pää sivun viimeisellä (ensimmäisellä) rivillä missä tahansa kohtaa (käyttäjän pyyntö 7.11.2026; ennen vain viimeinen
+    // sana). Sanaväli rajaan kelpaa aina: sivun yli tavutettuun sanaan tarttunut pää on jo seuraavalla sivulla.
+    if (n.d > 0 ? sanaValissa(n.k, raja) : sanaValissa(raja, n.k)) {
+      var q = kohdanLaatikko(n.d > 0 ? edellinen(n.k) || n.k : n.k);
+      if (!q || q.left < 0 || q.right > innerWidth || !samallaRivilla(q, r)) return null;
+    }
     var al = art.getBoundingClientRect().left + tila.sivu * tila.stride, vw = innerWidth;
     var sv = Math.floor(Math.min(NURKKA_KOKO, n.d > 0 ? vw - (al + tila.W) : al));
     if (sv < 8) return null;
     return n.d > 0 ? { d: 1, x: vw - sv, y: alaRaja() - sv, s: sv } : { d: -1, x: 0, y: ylaRaja(), s: sv };
   }
+  function samallaRivilla(a, b) { return Math.abs(a.top + a.bottom - b.top - b.bottom) / 2 < Math.min(a.height, b.height) / 2; }
   // Osoitin neliössä tai sen takana ruudun nurkan puolella (m: laajennus, pidon päättymisen hystereesi).
   function nurkassa(p, z, m) {
     return z.d > 0 ? p.x >= z.x - m && p.y >= z.y - m : p.x <= z.x + z.s + m && p.y <= z.y + z.s + m;
