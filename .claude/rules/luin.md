@@ -84,7 +84,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 ### Lukija (opas 4)
 
 - **Mobiili = kosketusnäyttö** `(pointer: coarse)`; hiiri on työpöytä myös kapeassa ikkunassa (leveysehdolla palkit
-  piiloutuivat työpöydällä). Aikajanan oletustason ehto `(max-width: 700px), (pointer: coarse)` on erillinen.
+  piiloutuivat työpöydällä).
 - **Tekstin napautus ei avaa palkkeja** (ne avautuivat vahingossa). Vain alakaistan tai alapalkin napautus avaa ja
   sulkee ne; vieritys ja sivunkääntö eivät vaikuta, eikä keskiklikkaus työpöydällä avaa ("hiirellä kauhea tapa").
   Alapalkissa ei ole natsaa eikä osion nimeä.
