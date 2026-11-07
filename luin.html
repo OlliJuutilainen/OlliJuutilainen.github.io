@@ -489,6 +489,10 @@
   #kummitus .km-nuoli { display: block; width: 16px; height: 10px; fill: none; stroke: var(--harmaa); stroke-width: 1.2;
     stroke-linecap: round; stroke-linejoin: round; }
   #kummitus.eteen .km-nuoli { transform: scaleX(-1); }
+  /* asdf himmeämpänä ja pienempänä kuin valikossa (käyttäjän pyyntö 7.11.2026): harmaa teksti, 2 px:n viiva ruosteen ja
+     paperin puolivälissä (peittävä sekoitus, ei läpikuultavuutta). */
+  #kummitus .ik-ali.teksti { width: auto; height: auto; padding-bottom: 1px; font-size: .78rem; color: var(--harmaa);
+    border-bottom: 2px solid color-mix(in srgb, var(--ruoste) 50%, var(--paperi)); }
   .kahva { position: absolute; width: 0; height: 0; pointer-events: none; }
   /* Kaarikahva (käyttäjän päätös 5.11.2026; ennen varsi ja 20 × 25 px:n salmiakki rivin alla): alleviivaus kohoaa sanan
      päästä paraabelina rivin keskikorkeudelle, ja päässä on pieni salmiakkinuppi. Ote on nupin ympärillä rivin keskellä,
@@ -3050,7 +3054,7 @@
      Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, ja neliö
      pysyy palkissa, kunnes osoitin poistuu alueelta; vasta sitten palkki palaa ja maalaus seuraa osoitinta. Ilman pitoa sormen
      kohta luettiin heti uudelta sivulta, ja kummitus olisi kääntänyt sivun uudelleen ("ei saa räpsyä"). */
-  var KUMMITUS_VIIVE = 800, KUMMITUS_KAANTO = 300, KUMMITUS_VALO = 250;
+  var KUMMITUS_VIIVE = 950, KUMMITUS_KAANTO = 300, KUMMITUS_VALO = 250;
   var kumm = { d: 0, alku: 0, nakyy: false, ulkona: false, sisaan: 0, valo: 0, z: null }, pito = null, kummEl = $('#kummitus');
   function piilotaKummitus() {
     kumm.d = 0; kumm.nakyy = false; kumm.sisaan = 0; kumm.valo = 0; kumm.z = null;
