@@ -731,7 +731,7 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, korjaukset samana päivänä): käärö 29 × 56 px, koodeksi 32 × 36 px,
+  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, korjaukset samana päivänä): käärö 24 × 46 px, koodeksi 32 × 36 px,
      viivat 1 px, nuolet kokonaan ontot ja kuvan ulkopuolella (käärön oikealla, koodeksin alla), kirjassa vain kannen alareuna, nuoli kirjaa kapeampi. Rullan
      päädyt ovat edestä katsotun lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px), eivät puoliympyröitä. Paikka
      mitataan sijoitaLiikKuvat()-funktiossa; ne eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
@@ -742,7 +742,7 @@
   .liik-kuva[hidden] { display: none; }
   .liik-kuva[aria-pressed="true"] { color: var(--muste); opacity: 1; }
   .liik-kuva svg { display: block; overflow: visible; }
-  #liik-kaaro svg { width: 27px; height: 52px; }
+  #liik-kaaro svg { width: 24px; height: 46px; }
   #liik-koodeksi svg { width: 31px; height: 35px; }
   .asetus[data-a="sivutus"] .nimi { margin-bottom: 4px; }
   .liik-kuva .lk-v { fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
@@ -1655,8 +1655,8 @@
     var rg = document.createRange(); rg.selectNode(v.lastChild);
     var t = rg.getBoundingClientRect(), yhdessa = Math.abs(vr.top - sr.top) < 2;
     ka.hidden = !yhdessa;
-    ka.style.left = Math.round((t.left + t.right) / 2 - 7.5 - r.left) + 'px';
-    ka.style.top = Math.round((ens.top + ens.bottom) / 2 - 4 - r.top) + 'px';
+    ka.style.left = Math.round((t.left + t.right) / 2 - 6.6 - r.left) + 'px';
+    ka.style.top = Math.round((ens.top + ens.bottom) / 2 - 3.3 - r.top) + 'px';
     var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
     ko.hidden = !yhdessa || x + 31 > r.width;
     ko.style.left = x + 'px';
