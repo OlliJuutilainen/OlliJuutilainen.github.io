@@ -333,6 +333,10 @@
   #teksti.tasattu p:not(.bib):not(.meta):not(.sub) { text-align: justify; }
   #teksti.sisennys p { margin: 0; text-indent: 1.4em; }
   #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
+  /* Väliotsikon ja luettelon kohdan väli optisesti sama kuin otsikon ja leipätekstin (p.bib: .9em, riviväli 1,45), jotta
+     kirjanmerkin nauha mahtuu kohdan yläpuolelle eikä joudu reunukseen (käyttäjän valinta 7.11.2026; SEP:n Deweyssä h4 + p.bib
+     jätti nauhalle 3,5 px, raja 4 px). Padding, koska reunus yhdistyisi otsikon alareunukseen. */
+  #teksti h3 + p.bib, #teksti h4 + p.bib, #teksti.sisennys h3 + p.bib, #teksti.sisennys h4 + p.bib { padding-top: .15em; }
   #teksti.sisennys header p, #teksti.sisennys h2 + p, #teksti.sisennys h3 + p, #teksti.sisennys h4 + p,
   #teksti.sisennys hr + p, #teksti.sisennys blockquote + p, #teksti.sisennys figure + p, #teksti.sisennys ol + p, #teksti.sisennys ul + p,
   #teksti.sisennys pre + p, #teksti.sisennys blockquote p, #teksti.sisennys nav p { text-indent: 0; }
