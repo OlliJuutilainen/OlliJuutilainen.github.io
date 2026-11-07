@@ -1568,7 +1568,10 @@
      takana, jotta ne näkyvät kokonaisina (palstan kohdalta leikattuina ne näyttivät rikkinäisiltä). Laatikot ulottuvat
      ruudun reunaan. Väljällä ruudulla kapeampi puoli saa enintään LAATIKKO_MAX levyisen laatikon, ja Merkinnät ja Etsi
      ovat yhtä kaukana tekstistä (palstasta, oikealla huomioineen). Auki olevien laatikoiden väliin ei kuitenkaan koskaan
-     jää tilaa: Sisälmyksen ollessa auki Merkinnät ja Etsi ovat kiinni siinä. Muuten kolmannekset kuten ennen. */
+     jää tilaa: Sisälmyksen ollessa auki Merkinnät ja Etsi ovat kiinni siinä. Etsi pysyy silloinkin huomioiden takana
+     (osumat näkyvät huomioissa; käyttäjän pyyntö 7.11.2026), joten Sisälmys peittää palstan ja huomiot: se alkaa palstan
+     vasemmasta reunasta, jotta Merkinnät ei kutistu (palstan levyisenä Etsiin asti se olisi venyttänyt Merkinnät palstan
+     päälle, 1920 px:llä 791 px leveäksi). Muuten kolmannekset kuten ennen. */
   var LAATIKKO_MIN = 16, LAATIKKO_HYVA = 19, LAATIKKO_MAX = 25;   // rem
   function remPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
   // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat keskitetyssä .wrapissa, joten
@@ -1622,8 +1625,8 @@
     var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw], vali = {};
     if (m.marg) {
       var pl = m.marg.l, pr = m.marg.r, po = m.marg.o, mx = Math.round(LAATIKKO_MAX * m.rem), g = Math.max(0, Math.min(pl, m.vw - po) - mx);
-      if (laatikkoAuki('sisalmys')) { po = pr; g = 0; }
-      vali = { merkinnat: [0, pl - g], sisalmys: [pl - 1, pr + 1], haku: [po + g, m.vw] };
+      if (laatikkoAuki('sisalmys')) g = 0;
+      vali = { merkinnat: [0, pl - g], sisalmys: [pl - 1, po + 1], haku: [po + g, m.vw] };
     }
     LAATIKOT.forEach(function (id, i) {
       var el = $('#' + id);
