@@ -689,14 +689,14 @@
   .paneeli header { position: sticky; top: 0; z-index: 1; background: var(--paperi); display: flex; align-items: center;
     justify-content: space-between; height: 50px; border-bottom: 1px solid var(--viiva); margin: 0 -18px 4px; padding: 0 2px 0 18px; }
   .paneeli h2 { font-size: .76rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; margin: 0; }
-  /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
+  /* Navin laatikot (käyttäjän pyyntö 5.11.2026): Etsi, Sisälmys ja Merkinnät (järjestys 7.11.2026) avautuvat nappiensa järjestyksessä
      vasemmalle, keskelle ja oikealle, yläpalkin ja navin väliin koko korkeudelle. sijoitaLaatikot() asettaa paikan ja
      koon: kun kolme vähintään 19rem:n saraketta mahtuu palkkien laitojen väliin, kukin saa kolmanneksen ruudun
      leveydestä ja ne voivat olla auki rinnakkain; muuten auki on yksi kerrallaan koko leveydellä. Hajurakoa ei ole
      (käyttäjän pyyntö 6.11.2026): ylä- ja alareunana ovat palkkien viivat, ruudun reunassa ei ole reunusta, ja
      vierekkäisten laatikoiden reunukset ovat päällekkäin. Ruudun oikeassa reunassa raksi on kiekon kohdalla kuten Asetuksissa.
-     Reunus on pykälää musteesta haaleampi --harmaa (käyttäjän pyyntö 7.11.2026). */
-  .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--harmaa); z-index: 30; }
+     Reunus on palkkien viivan väri --viiva (käyttäjän pyynnöt 7.11.2026: muste ja --harmaa olivat liian kirkkaita). */
+  .navilaatikko { right: auto; bottom: auto; border: 1px solid var(--viiva); z-index: 30; }
   .navilaatikko.o-reuna .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
   .navilaatikko.lista { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
   .navilaatikko[hidden] { display: none; }
@@ -875,12 +875,13 @@
       <div class="jana-yla"><span id="jana-kohta"></span><span id="jana-pros"></span></div>
       <svg id="jana-svg" aria-label="Aikajana: napauta siirtyäksesi"></svg>
       <div class="jana-napit">
-        <!-- Merkinnät (käyttäjän valinta 4.11.2026): litteä sivu, alalaidassa paksu viiva (alleviivaus) ja yläreunasta nauha (kirjanmerkki). -->
-        <button type="button" class="laatikko" id="merk-avaa" aria-expanded="false" aria-controls="merkinnat"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
-        <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
-        <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
+        <!-- Järjestys Etsi, Sisälmys, Merkinnät kuten laatikoilla (käyttäjän päätös 7.11.2026; ennen Merkinnät vasemmalla). -->
         <!-- Suurennuslasin linssi on kaksi sisäkkäistä onttoa salmiakkia (kehä 2,5 px), varsi 1,6 px. Linssin pinta-ala oli 2,5-kertainen entiseen (käyttäjän päätös 22.10.2026, kolminkertainen oli liian iso); käyttäjän päätös 27.10.2026: siitä −20 % (2,0-kertainen), kehän paksuus ja varren pituus ennallaan.  Käyttäjän pyyntö 4.11.2026: ulkokehää pienennettiin hieman (puolilävistäjä 7,42 → 7,10), sisempi salmiakki ja varren loppupää ennallaan; linssin keskipiste ei siirtynyt. Käyttäjän pyyntö 5.11.2026: vielä vähän (7,10 → 6,80), samoin perustein; varren alkupää seuraa ulkokehää. -->
         <button type="button" class="laatikko" id="etsi-avaa" aria-expanded="false" aria-controls="haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button>
+        <!-- Sisälmys (käyttäjän pyyntö 4.11.2026): sisällysluettelo ponnahduslaatikkona. Kuvake (käyttäjän valinta 4.11.2026, luonnos S4b) on Merkintöjen entinen salmiakkiluettelo, rivit laskevasti lyhenevinä. Ensin kokeiltu puu (pääluvun salmiakista runko ja haarat alalukuihin) hylättiin: hierarkiaa ei tässä koossa nähnyt. -->
+        <button type="button" class="laatikko" id="sis-avaa" aria-expanded="false" aria-controls="sisalmys" hidden><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-pis" d="M2 .3L3.3 1.5L2 2.7L.7 1.5ZM2 4.3L3.3 5.5L2 6.7L.7 5.5ZM2 8.3L3.3 9.5L2 10.7L.7 9.5Z"/><path class="l-viiva" d="M5.5 1.5H13.5M5.5 5.5H11.8M5.5 9.5H10"/></svg>Sisälmys</button>
+        <!-- Merkinnät (käyttäjän valinta 4.11.2026): litteä sivu, alalaidassa paksu viiva (alleviivaus) ja yläreunasta nauha (kirjanmerkki). -->
+        <button type="button" class="laatikko" id="merk-avaa" aria-expanded="false" aria-controls="merkinnat"><svg viewBox="0 0 10 12" aria-hidden="true"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/><path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>Merkinnät</button>
       </div>
     </div>
     <div id="ala-rivi">
@@ -888,7 +889,7 @@
            (käyttäjän päätös 22.10.2026). -->
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana" aria-label="Aikajana"></button>
-      <!-- Ahdas navinäkymä (naviAlas()): Merkinnät, Sisälmys ja Etsi siirtyvät tähän, jos mahtuvat. -->
+      <!-- Ahdas navinäkymä (naviAlas()): Etsi, Sisälmys ja Merkinnät siirtyvät tähän, jos mahtuvat. -->
       <div id="ala-laatikot"></div>
       <div id="ala-oikea">
         <svg id="palkki-nuoli" viewBox="0.4 0.4 11.2 10.2" aria-hidden="true"><path d="M1 5L6 1L11 5M1 10L6 6L11 10"/></svg>
@@ -992,7 +993,7 @@
     <div id="al-lista"></div></details>
 </div>
 
-<!-- ===== Etsi ja Sisälmys: navin laatikot Merkintöjen rinnalla (sijoitaLaatikot; näytöllä Sisälmys keskellä, Etsi oikealla) ===== -->
+<!-- ===== Etsi ja Sisälmys: navin laatikot Merkintöjen rinnalla (sijoitaLaatikot; näytöllä Etsi vasemmalla, Sisälmys keskellä) ===== -->
 <div class="paneeli navilaatikko lista" id="haku" hidden role="dialog" aria-label="Etsi tekstistä">
   <header><h2>Etsi</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <div class="h-kentta"><input type="search" aria-label="Etsi tekstistä" placeholder="Etsi tekstistä" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="h-tyhj" data-k="tyhjenna" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>
@@ -1537,10 +1538,10 @@
   }); });
 
   /* ---------- navin laatikot ----------
-     Käyttäjän pyyntö 5.11.2026: Merkinnät, Sisälmys ja Etsi avautuvat x-akselilla nappiensa järjestyksessä:
-     vasemmalla, keskellä ja oikealla, yläpalkin alareunasta navin (tai Palaa takaisin -laatikon) yläreunaan.
+     Käyttäjän pyyntö 5.11.2026: laatikot avautuvat x-akselilla nappiensa järjestyksessä vasemmalle, keskelle ja oikealle
+     (7.11.2026 alkaen Etsi, Sisälmys, Merkinnät; ennen Merkinnät vasemmalla ja Etsi oikealla), yläpalkin alareunasta navin (tai Palaa takaisin -laatikon) yläreunaan.
      Kun kolme vähintään 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat palkkien laitojen väliin, kukin
-     saa kolmanneksen ruudun leveydestä (laidoissa Merkinnät ja Etsi, Sisälmys keskellä; käyttäjän päätös 5.11.2026: Etsistä on eniten hyötyä
+     saa kolmanneksen ruudun leveydestä (laidoissa Etsi ja Merkinnät, Sisälmys keskellä; käyttäjän päätös 5.11.2026: Etsistä on eniten hyötyä
      tekstin vieressä, Sisälmystä tarvitaan tekstin kanssa vähiten, joten se on keskellä) ja niitä voi olla auki
      rinnakkain; kolme yhdessä täyttävät palkkien välin reunasta reunaan (käyttäjän pyyntö 6.11.2026, ennen enintään 25rem
      ja raot). Suljetun laatikon kohdalla näkyvän tekstin napautus sulkee Etsin ja Sisälmyksen. Muuten (mobiili,
@@ -1549,7 +1550,7 @@
      Hyppy laatikosta (merkintä, osuma, Sisälmyksen kohta) sulkee kaikki kolme, koska keskimmäinen peittäisi tekstin;
      poikkeus: hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä (suljeHypynTielta);
      navi jää auki. Navin sulkeminen sulkee myös laatikot. */
-  var LAATIKOT = ['merkinnat', 'sisalmys', 'haku'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
+  var LAATIKOT = ['haku', 'sisalmys', 'merkinnat'], LAATIKKONAPIT = { merkinnat: '#merk-avaa', haku: '#etsi-avaa', sisalmys: '#sis-avaa' };
   var laatikkoJarj = [];   // avausjärjestys; viimeinen on viimeksi avattu
   function laatikkoAuki(id) { return !$('#' + id).hidden; }
   function laatikoitaAuki() { return LAATIKOT.some(laatikkoAuki); }
@@ -1560,21 +1561,18 @@
     var b = document.body, oli = b.classList.contains('laatikko-auki'), on = laatikoitaAuki();
     b.classList.toggle('laatikko-auki', on);
     if (oli && !on) piirraJana();
-    // Sisälmyksen avaus ja sulku siirtää Merkintöjä ja Etsiä marginaaleissa (laatikoiden väliin ei jää tilaa).
+    // Sisälmyksen avaus ja sulku siirtää Etsiä ja Merkintöjä marginaaleissa (laatikoiden väliin ei jää tilaa).
     if (on) sijoitaLaatikot();
   }
-  /* Marginaalit (käyttäjän pyynnöt 7.11.2026): kun palstan kummallekin puolelle mahtuu laatikko, Merkinnät on vasemmassa
-     marginaalissa ja Etsi oikeassa, ja Sisälmys on palstan levyinen kaistaleineen. Laatikon ja palstan välissä on aina
-     hienoinen tyhjä kaistale (LAATIKKO_KAISTA; ilman sitä laatikon reuna näytti leikkaavan tekstiä). Sisälmys ei ole koskaan
-     leveämpi (siitä ei ole hyötyä), ja sen ollessa auki Merkinnät ja Etsi ovat kiinni siinä: auki olevien laatikoiden väliin
-     ei jää tilaa. Ainoa poikkeus: kun Etsi on reunushuomioiden takana, huomioiden kaistale jää Sisälmyksen ja Etsin väliin.
-     Palsta on keskellä ruutua aina kun mahtuu (palstanSiirto()), joten marginaalit ovat yhtä leveät ja Etsi peittää
-     reunushuomiot. Vasta kun huomioidenkin oikealle puolelle mahtuu LAATIKKO_HYVA, Etsi on huomioiden takana, ja osumat
-     näkyvät huomioissa; silloin Merkinnät saa huomioiden verran enemmän tilaa. Laatikot ulottuvat ruudun reunaan. Kun
-     Sisälmys on kiinni ja tilaa on yllin kyllin, kapeampi puoli saa enintään LAATIKKO_MAX levyisen laatikon ja Merkinnät ja Etsi
-     ovat yhtä kaukana tekstistä (oikealla huomioineen; huomioita peittävä Etsi ei siirry irti palstasta, koska se leikkaisi
-     ne). Jos marginaaleihin ei mahdu, kolmannekset kuten ennen. */
-  var LAATIKKO_MIN = 16, LAATIKKO_HYVA = 19, LAATIKKO_MAX = 25, LAATIKKO_KAISTA = .75;   // rem
+  /* Marginaalit (käyttäjän pyynnöt 7.11.2026): kun palstan kummallekin puolelle mahtuu laatikko, Etsi on vasemmassa
+     marginaalissa ja Merkinnät oikeassa, kumpikin ruudun reunasta hienon hienon kaistaleen (LAATIKKO_KAISTA, 5 px; ilman
+     sitä laatikon reuna näytti leikkaavan tekstiä, 12 px oli liikaa ja 3 px liian vähän) päähän palstasta. Sisälmys on
+     palstan levyinen kaistaleineen, ei koskaan leveämpi (siitä ei ole hyötyä), ja sen ollessa auki laatikoiden väliin ei jää
+     tilaa. Etsi on vasemmalla, koska siellä se ei peitä reunushuomioita (osumat näkyvät niissä); Merkinnät peittää ne, eikä
+     sen tarvitse väistää (käyttäjän linjaus; aiempi versio vei laatikon huomioiden taakse ja jätti väliin huomioiden
+     kaistaleen). Palsta on keskellä ruutua aina kun mahtuu (palstanSiirto()), joten marginaalit ovat yhtä leveät. Jos
+     marginaaleihin ei mahdu, kolmannekset kuten ennen. */
+  var LAATIKKO_MIN = 16, LAATIKKO_KAISTA = .3125;   // rem
   function remPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
   // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat .wrapissa, joka on keskitetty.
   // Palsta siirretään keskelle ruutua, kuitenkin niin, että huomioiden oikealle puolelle jää #sivun 16 px:n reuna. Siirto
@@ -1584,12 +1582,11 @@
     var L = Math.max(L0, Math.min((vw - cw) / 2, vw - w - 16));
     return L - k >= min && vw - L - cw - k >= min ? Math.round(L - L0) : 0;
   }
-  // Näkyvän palstan reunat ruudulla (sivutettuna #teksti on palstojen nauha, josta näkyy yksi); h: reunushuomioiden oikea
-  // reuna (.wrapin oikea reuna, body.reunat), muuten palstan.
+  // Näkyvän palstan reunat ruudulla (sivutettuna #teksti on palstojen nauha, josta näkyy yksi).
   function palstanReunat() {
-    if (aset.sivutus === 'sivut') { var l = sivuEl.getBoundingClientRect().left + (parseFloat(art.style.marginLeft) || 0); return { l: l, r: l + tila.W, h: l + tila.W }; }
+    if (aset.sivutus === 'sivut') { var l = sivuEl.getBoundingClientRect().left + (parseFloat(art.style.marginLeft) || 0); return { l: l, r: l + tila.W }; }
     var r = art.getBoundingClientRect();
-    return { l: r.left, r: r.right, h: document.body.classList.contains('reunat') ? art.parentNode.getBoundingClientRect().right : r.right };
+    return { l: r.left, r: r.right };
   }
   // Ruudun leveys (px), marg: palstan reunat, kun laatikot mahtuvat marginaaleihin, ja rinn: laatikot voivat olla auki
   // rinnakkain (marginaaleissa tai kolmanneksina, kun kolme 19rem:n saraketta ja niiden väliin kahden remin raot mahtuvat
@@ -1597,12 +1594,10 @@
   function laatikkoMitat() {
     var juuri = document.documentElement, cs = getComputedStyle(juuri), rem = parseFloat(cs.fontSize) || 16;
     var vw = juuri.clientWidth, v = parseFloat(cs.getPropertyValue('--v-laita')) || 0, o = parseFloat(cs.getPropertyValue('--o-laita')) || 0;
-    var p = nyt && tila.nakyma === 'lukija' ? palstanReunat() : null, pl = p && Math.round(p.l), pr = p && Math.round(p.r), ph = p && Math.round(p.h);
-    var k = Math.round(LAATIKKO_KAISTA * rem), mahtuu = function (o, ko) { return pl - k >= ko * rem - .5 && vw - o - k >= ko * rem - .5; };
-    // o: Etsin puoleinen tekstin reuna (huomioiden takana tai palstan reunassa); peitto: Etsi peittää reunushuomiot.
-    var marg = !p ? null : ph > pr && mahtuu(ph, LAATIKKO_HYVA) ? { l: pl, r: pr, o: ph, k: k } :
-      mahtuu(pr, LAATIKKO_MIN) ? { l: pl, r: pr, o: pr, k: k, peitto: ph > pr } : null;
-    return { vw: vw, rem: rem, marg: marg, rinn: !!marg || vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
+    var p = nyt && tila.nakyma === 'lukija' ? palstanReunat() : null, pl = p && Math.round(p.l), pr = p && Math.round(p.r);
+    var k = Math.round(LAATIKKO_KAISTA * rem), min = LAATIKKO_MIN * rem - .5;
+    var marg = p && pl - k >= min && vw - pr - k >= min ? { l: pl, r: pr, k: k } : null;
+    return { vw: vw, marg: marg, rinn: !!marg || vw - v - o >= 3 * 19 * rem + 2 * 2 * rem };
   }
   function sijoitaLaatikot() {
     if (!laatikoitaAuki()) return;
@@ -1625,9 +1620,8 @@
     // leveys. Vierekkäisten reunukset päällekkäin; Sisälmyksen sisäleveys on palstan leveys kaistaleineen.
     var raja = [0, Math.round(m.vw / 3), Math.round(2 * m.vw / 3), m.vw], vali = {};
     if (m.marg) {
-      var pl = m.marg.l, pr = m.marg.r, po = m.marg.o, k = m.marg.k, mx = Math.round(LAATIKKO_MAX * m.rem);
-      var g = laatikkoAuki('sisalmys') || m.marg.peitto ? k : Math.max(k, Math.min(pl, m.vw - po) - mx);
-      vali = { merkinnat: [0, pl - g], sisalmys: [pl - k - 1, pr + k + 1], haku: [po + g, m.vw] };
+      var pl = m.marg.l, pr = m.marg.r, k = m.marg.k;
+      vali = { haku: [0, pl - k], sisalmys: [pl - k - 1, pr + k + 1], merkinnat: [pr + k, m.vw] };
     }
     LAATIKOT.forEach(function (id, i) {
       var el = $('#' + id);
@@ -4258,10 +4252,10 @@
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026, CSS #ala-laatikot): mobiilissa, kun laatikot eivät mahdu rinnakkain,
-  // Merkinnät, Sisälmys ja Etsi siirtyvät alapalkkiin, jos mahtuvat sinne: ensin palkkinuolen kanssa (väli 24 px kuten
+  // Etsi, Sisälmys ja Merkinnät siirtyvät alapalkkiin, jos mahtuvat sinne: ensin palkkinuolen kanssa (väli 24 px kuten
   // nuolen ja sivunappien välissä), sitten ilman nuolta (Light Phone 360 px), muuten ne jäävät aikajanan alle.
   // Mitataan navin avautuessa ja ikkunan koon muuttuessa navin ollessa auki.
-  var LAATIKKONAPPIJARJ = ['#merk-avaa', '#sis-avaa', '#etsi-avaa'];
+  var LAATIKKONAPPIJARJ = ['#etsi-avaa', '#sis-avaa', '#merk-avaa'];
   function naviAlas() {
     if (!palkitAuki()) return;
     var b = document.body, napit = LAATIKKONAPPIJARJ.map(function (s) { return $(s); });

@@ -96,18 +96,19 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   alapalkin kirjanmerkki- ja sivunapit (ahtaassa navinäkymässä ne ovat piilossa, ks. alla). Tekstialueen napautus sulkee Asetukset, Etsin ja Sisälmyksen tai navin;
   Merkinnät sulkeutuu vain napistaan tai raksistaan.
   Asetusten avaus sulkee navin.
-- **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): Merkinnät, Sisälmys ja Etsi avautuvat nappiensa järjestyksessä
-  vasemmalle, keskelle ja oikealle, koko korkeudelle palkkien väliin **ilman hajurakoa** (käyttäjän pyyntö 6.11.2026):
-  rinnakkain ruudun kolmanneksina reunasta reunaan, muuten yksi kerrallaan koko leveydellä. Rinnakkain vain, jos kolme
-  19rem:n saraketta rakoineen mahtuu laitojen väliin. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme, paitsi
-  että hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä eikä peitä osumaa (`suljeHypynTielta()`).
-- **Marginaalit** (käyttäjän pyynnöt 7.11.2026, opas 4.7.2, `LAATIKKO_MIN`): kun palstan kummallekin puolelle mahtuu
-  laatikko, kolmannesten sijaan Merkinnät on vasemmassa ja Etsi oikeassa marginaalissa, ja **Sisälmys on palstan
-  levyinen, ei koskaan leveämpi**. Laatikon ja palstan välissä on aina hienoinen kaistale (`LAATIKKO_KAISTA`), ja Sisälmys
-  on palstan ja kaistaleiden levyinen. **Auki olevien laatikoiden väliin ei jää tilaa**, paitsi reunushuomioiden kaistale,
-  kun Etsi on huomioiden takana (käyttäjän myönnytys). Vierityksessä palsta on keskellä ruutua aina, kun laatikot mahtuvat
-  (`palstanSiirto()`, .wrapin `left`), joten marginaalit ovat yhtä leveät ja Etsi peittää huomiot; vasta kun huomioiden
-  oikealle puolelle mahtuu 19rem, Etsi on niiden takana. Kolmannekset vain, jos marginaaleihin ei mahdu.
+- **Navin laatikot** (opas 4.7.2, `sijoitaLaatikot()`): **Etsi, Sisälmys ja Merkinnät** (käyttäjän päätös 7.11.2026; ennen
+  Merkinnät vasemmalla ja Etsi oikealla) avautuvat nappiensa järjestyksessä vasemmalle, keskelle ja oikealle, koko
+  korkeudelle palkkien väliin ilman hajurakoa palkkeihin (6.11.2026). Etsi on vasemmalla, koska siellä se ei koskaan peitä
+  reunushuomioita (osumat näkyvät niissä livenä). Rinnakkain marginaaleissa (alla) tai, jos ne eivät mahdu, ruudun
+  kolmanneksina, kun kolme 19rem:n saraketta rakoineen mahtuu laitojen väliin; muuten yksi kerrallaan koko leveydellä.
+  Hyppy laatikosta ja navin sulku sulkevat kaikki kolme, paitsi että hakuosuma jättää rinnakkain Etsin auki, kun se on
+  palstan vieressä eikä peitä osumaa (`suljeHypynTielta()`). Reunus on `--viiva` (muste ja `--harmaa` liian kirkkaita).
+- **Marginaalit** (käyttäjän pyynnöt 7.11.2026, opas 4.7.2): Etsi vasemmassa ja Merkinnät oikeassa marginaalissa, ja
+  **Sisälmys on palstan levyinen, ei koskaan leveämpi**. Laatikon ja palstan välissä on aina hienon hieno kaistale
+  (`LAATIKKO_KAISTA`, 5 px: 12 px liikaa, 3 px liian vähän), ja Sisälmys on palstan ja kaistaleiden levyinen. **Auki olevien
+  laatikoiden väliin ei jää tilaa.** Laatikot täyttävät marginaalinsa ruudun reunaan. Merkinnät peittää reunushuomiot
+  eikä väistä niitä (käyttäjän linjaus). Vierityksessä palsta on keskellä ruutua aina, kun laatikot mahtuvat
+  (`palstanSiirto()`, .wrapin `left`), joten marginaalit ovat yhtä leveät.
 - **Ahdas navinäkymä** (käyttäjän pyyntö 6.11.2026, opas 4.7.2, `naviAlas()`): mobiilissa, kun laatikot eivät mahdu
   rinnakkain, kolme laatikkonappia siirtyvät alapalkkiin (`#ala-laatikot`), jos mahtuvat: ensin palkkinuolen kanssa,
   sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
