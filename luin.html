@@ -724,6 +724,19 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, korjaukset samana päivänä): käärö 29 × 56 px, koodeksi 32 × 36 px,
+     viivat 1 px, nuolet kokonaan ontot ja kuvan ulkopuolella (käärön oikealla, koodeksin alla), kirjassa vain kannen alareuna, nuoli kirjaa kapeampi. Rullan
+     päädyt ovat edestä katsotun lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px), eivät puoliympyröitä. Paikka
+     mitataan sijoitaLiikKuvat()-funktiossa; ne eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
+  .asetus[data-a="sivutus"] { position: relative; }
+  .liik-kuva { position: absolute; left: 0; top: 0; display: block; color: var(--harmaa); opacity: .6; }
+  .liik-kuva[hidden] { display: none; }
+  .liik-kuva[aria-pressed="true"] { color: var(--muste); opacity: 1; }
+  .liik-kuva svg { display: block; overflow: visible; }
+  #liik-kaaro svg { width: 29px; height: 56px; }
+  #liik-koodeksi svg { width: 32px; height: 36px; }
+  .liik-kuva .lk-v { fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
+  .liik-kuva .lk-t { fill: currentColor; }
   /* Verkkopalvelun nimi valikon kytkimissä harmaampana ja kursiivina (käyttäjän pyyntö 6.11.2026). */
   .valinnat .palvelu { color: var(--huomio); }
   .valinnat .palvelu i { font-weight: 380; }
@@ -852,9 +865,14 @@
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
-       yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). -->
+       yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa).
+       Vaihtoehtojen kuvat (käyttäjän pyyntö 7.11.2026, pilotti): käärö Vieritys-sanan alla alasnuoli oikealla puolellaan,
+       koodeksi Sivunkäännön lisäkytkinten oikealla puolella oikealle osoittava nuoli alla. Ne ovat vaihtoehtonsa värisiä ja valitsevat sen; paikka mitataan
+       (sijoitaNipukka). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
-    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div></div>
+    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
+    <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 29 56"><path class="lk-t" d="M0.0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3.0 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0.0 4ZM13.0 4Q13.95 3.35 14.5 2.5Q15.05 3.35 16.0 4Q15.05 4.65 14.5 5.5Q13.95 4.65 13.0 4ZM0.0 52Q0.95 51.35 1.5 50.5Q2.05 51.35 3.0 52Q2.05 52.65 1.5 53.5Q0.95 52.65 0.0 52ZM13.0 52Q13.95 51.35 14.5 50.5Q15.05 51.35 16.0 52Q15.05 52.65 14.5 53.5Q13.95 52.65 13.0 52Z"/><path class="lk-v" d="M4.5 1H11.5A1 3 0 0 1 11.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 49H11.5A1 3 0 0 1 11.5 55H4.5A1 3 0 0 1 4.5 49ZM4.5 7V49M11.5 7V49M21 5.5H24V44.5Q25.4 43.8 27.5 42Q24.6 47.4 22.5 55Q20.4 47.4 17.5 42Q19.6 43.8 21 44.5Z"/></svg></button>
+    <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 32 36"><path class="lk-v" d="M16 3Q9 1 2 1.5V20.5Q9 20 16 22Q23 20 30 20.5V1.5Q23 1 16 3ZM16 3V22M2 20.5V22.5Q9 22 16 24Q23 22 30 22.5V20.5M7 29H16.5Q15.8 27.6 14 25.5Q19.4 28.4 25 30.5Q19.4 32.6 14 35.5Q15.8 33.4 16.5 32H7Z"/></svg></button></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -1613,6 +1631,24 @@
     var n = $('#sivunapit-kytkin');
     n.style.paddingLeft = '0';
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
+    sijoitaLiikKuvat(s, n);
+  }
+  // Käärö Vieritys-sanan alle (käärö sanan keskelle, ylärulla ensimmäisen lisäkytkimen kohdalle) ja koodeksi lisäkytkinten
+  // oikealle puolelle niiden keskikohdalle. Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
+  function sijoitaLiikKuvat(s, n) {
+    var v = $('#asetukset button[data-arvo="vieritys"]'), ka = $('#liik-kaaro'), ko = $('#liik-koodeksi');
+    var r = s.closest('.asetus').getBoundingClientRect(), vr = v.getBoundingClientRect(), sr = s.getBoundingClientRect();
+    var nb = $$('button', n).map(function (b) { return b.getBoundingClientRect(); }), ens = nb[0], vik = nb[nb.length - 1];
+    ka.setAttribute('aria-pressed', aset.sivutus === 'vieritys'); ko.setAttribute('aria-pressed', aset.sivutus === 'sivut');
+    var rg = document.createRange(); rg.selectNode(v.lastChild);
+    var t = rg.getBoundingClientRect(), yhdessa = Math.abs(vr.top - sr.top) < 2;
+    ka.hidden = !yhdessa;
+    ka.style.left = Math.round((t.left + t.right) / 2 - 8 - r.left) + 'px';
+    ka.style.top = Math.round((ens.top + ens.bottom) / 2 - 4 - r.top) + 'px';
+    var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
+    ko.hidden = !yhdessa || x + 32 > r.width;
+    ko.style.left = x + 'px';
+    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 18 - r.top) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
