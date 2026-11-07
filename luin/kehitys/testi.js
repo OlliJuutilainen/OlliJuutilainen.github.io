@@ -1194,6 +1194,8 @@ palvelin.listen(0, async () => {
   await mp.keyboard.press('Escape');
   // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.
   sw = await sanat(); await veda(sw.s[1], sw.s[2]);
+  const kaannaVihje = await mp.evaluate(() => document.querySelector('#pop button[data-k="kaanna"]').title);
+  tulos('käännösnapin vihje kertoo DeepL:n ja uuden välilehden', /DeepL/.test(kaannaVihje) && /välilehte/.test(kaannaVihje), kaannaVihje);
   await mp.click('#pop button[data-k="kaanna"]');
   const dl = await mp.evaluate(() => window.__avattu.pop() || '');
   tulos('käännös DeepL-osoitteeseen', /^https:\/\/www\.deepl\.com\/translator#(fi|en|de|fr|sv)\/(fi|en)\/[^/]+$/.test(dl), dl.slice(0, 90));
