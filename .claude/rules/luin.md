@@ -160,8 +160,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Alleviivauksen loppumerkit** (käyttäjän säännöt 6.11.2026, opas 4.3): lopetusmerkki vain kokonaiseen virkkeeseen, pilkku/kaksoispiste/puolipiste ei koskaan, valintaan jääneen avaajan sulkeva vastine heti sanan perässä mukaan. Säännöt ovat `valintaPaloiksi()`:ssa eikä naapuri vaikuta niihin; älä siirrä niitä törmäyskoodiin.
 - **Kummitus ja pito** (käyttäjän pyyntö 7.11.2026, opas 4.3, `kummitusAskel()`; korvasi saman päivän sivun nurkan):
   tekstialueeseen ei kosketa. Kun liikkuva pää on 0,8 s sivun viimeisellä rivillä, alapalkin elementit katoavat näkyvistä ja
-  käytöstä, ja palkkiin tulee palkin korkuinen neliö natsanuolineen, oikea reuna palstan oikean reunan linjassa; taaksepäin
-  yläpalkissa, vasen reuna palstan vasemman reunan linjassa (mobiilissa palkit ovat vedon aikana kiinni, joten neliö on tekstin
+  käytöstä, ja palkkiin tulee palkin korkuinen neliö natsanuolineen marginaaliin: vasen reuna palstan oikean reunan linjassa,
+  ja jos ei mahdu, ruudun reunassa koko ennallaan; vieressä palstan puolella *asdf →* (valinnan valikon alleviivausmerkki).
+  Taaksepäin peilikuvana yläpalkissa: oikea reuna palstan vasemman reunan linjassa, vieressä *← asdf* (mobiilissa palkit ovat vedon aikana kiinni, joten neliö on tekstin
   yläpuolisen kaistan korkuinen). Kääntö vain matkana (ulkoa sisään), 0,3 s viipymä, sitten neliö vaalenee 0,25 s (`--valo`,
   "ei adhd-räpsyä") ja sivu kääntyy. Pidon ajan pää pysyy rajan yli seuraavassa sanassa ja neliö palkissa, eikä sama sivu
   käänny uudelleen ("ei saa räpsyä"). **Sivutettuna laita ei käännä vedossa** (poistettu 7.11.2026: laidan 0,65 s ehti
