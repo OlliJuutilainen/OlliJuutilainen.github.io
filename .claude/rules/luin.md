@@ -158,9 +158,15 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   samaa väriä kuin viiva (`.kahva.okra`, `kahvaVari()`; käyttäjän päätös 6.11.2026). Samoin okrat ovat kirjauksen kynä
   tekstissä (`.kirm.okra`), valikon poistoikonin viiva (`ikPoista()`) ja kirjausruudun kohdekatkelman viiva (`.ali-teksti.okra`).
 - **Alleviivauksen loppumerkit** (käyttäjän säännöt 6.11.2026, opas 4.3): lopetusmerkki vain kokonaiseen virkkeeseen, pilkku/kaksoispiste/puolipiste ei koskaan, valintaan jääneen avaajan sulkeva vastine heti sanan perässä mukaan. Säännöt ovat `valintaPaloiksi()`:ssa eikä naapuri vaikuta niihin; älä siirrä niitä törmäyskoodiin.
-- **Sivun nurkka ja pito** (käyttäjän idea 7.11.2026, opas 4.3, `nurkkaAskel()`): vedon käännön jälkeen liikkuva pää pysyy
-  rajan yli seuraavassa sanassa, kunnes osoitin poistuu kääntäneeltä alueelta, eikä nurkka saa kääntää samaa sivua uudelleen
-  ("ei saa räpsyä"). Nurkka kääntää vain matkana (ulkoa sisään neliön ilmestyttyä) ja 0,3 s:n viiveellä; neliö ilmestyy 0,8 s:n jälkeen tekstialueen nurkkaan, ei tekstin päälle (käyttäjän palaute 7.11.2026). Ahtaalla reunalla se kasvaa vapaaseen tilaan viimeisen rivin alle tai viereen (`nurkanPaikka()`), ja sen merkki on pelkkä ohut natsa, ei sivunappien salmiakki (käyttäjän linjaus 7.11.2026). Laidan 0,65 s:n kääntö pysyy rinnalla.
+- **Kummitus ja pito** (käyttäjän pyyntö 7.11.2026, opas 4.3, `kummitusAskel()`; korvasi saman päivän sivun nurkan):
+  tekstialueeseen ei kosketa. Kun liikkuva pää on 0,8 s sivun viimeisellä rivillä, alapalkin elementit katoavat näkyvistä ja
+  käytöstä, ja palkkiin tulee palkin korkuinen neliö natsanuolineen, oikea reuna palstan oikean reunan linjassa; taaksepäin
+  yläpalkissa, vasen reuna palstan vasemman reunan linjassa (mobiilissa palkit ovat vedon aikana kiinni, joten neliö on tekstin
+  yläpuolisen kaistan korkuinen). Kääntö vain matkana (ulkoa sisään), 0,3 s viipymä, sitten neliö vaalenee 0,25 s (`--valo`,
+  "ei adhd-räpsyä") ja sivu kääntyy. Pidon ajan pää pysyy rajan yli seuraavassa sanassa ja neliö palkissa, eikä sama sivu
+  käänny uudelleen ("ei saa räpsyä"). **Sivutettuna laita ei käännä vedossa** (poistettu 7.11.2026: laidan 0,65 s ehti
+  neliön 0,8 s:n edelle, kun sormi oli viimeisen rivin lopussa ruudun reunan lähellä); älä palauta sitä. Rivi mitataan
+  rajan lähimmästä sanan merkistä, ei rajasta (välilyönnin laatikko hyppäsi edelliselle sivulle).
 - **Kirjauksen kynä** alleviivauksen alussa: napautus näyttää kirjauksen, toinen napautus muokkaa.
 - **Sanaselitys ja käännös** ovat ainoat lukijan verkkohaut, vain napautuksesta (poikkeus suljetusta lukuympäristöstä,
   käyttäjän pyyntö 5.11.2026). DeepL-osoitteessa `/` on `\/`, ja lähdekieli on pakollinen (`auto` ei toimi). Käännös on
