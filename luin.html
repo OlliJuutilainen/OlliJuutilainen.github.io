@@ -756,14 +756,16 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistus samana päivänä): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
+  /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
-     lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkin vasemmassa yläkulmassa alas osoittava ruosteinen
-     kärki kuin alkukirjain, kahden rivin korkuinen (ylimmät kaksi riviä sisennetty). Koodeksi 32 × 25 px: vasemmalla
-     sivulla rivit ja sen oikeassa alakulmassa oikealle osoittava samankokoinen kärki, oikea sivu tyhjä (sitä ei vielä
-     näy). Kärki on navigaattorin nyt-pisteen nuoli: takaa lovettu, kyljet koverat, ei vartta (käyttäjä: "ei varrellisia
-     nuolia"; lovettoman keihäänkärjen hän hylkäsi kahdesti). Rivit suoria (aaltoilevat kokeiltiin). Viivat 1 px, rivit
-     0,8 px. Paikka mitataan sijoitaLiikKuvat()-funktiossa; ne eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
+     lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkissa 7 suoraa riviä; vasemmassa yläkulmassa alas
+     osoittava ruosteinen kärki kuin alkukirjain, kolmen rivin korkuinen (ne sisennetty). Koodeksi 44 × 32 px: sivut
+     kaartuvat selkään, alla kaksi sivupinon viivaa; vasemmalla sivulla neljä riviä sivun kaarta seuraten ja viimeisen
+     lyhyen rivin perässä oikealle osoittava kärki, samankokoinen kuin käärössä (ei kasva kuvan mukana); oikea sivu tyhjä
+     (sitä ei vielä näy). Kärki on navigaattorin nyt-pisteen nuoli: takaa lovettu, kyljet koverat, ei vartta (käyttäjä:
+     "ei varrellisia nuolia"; käyttäjän sanastossa keihäänkärki tarkoittaa tätä). Kärki on vaakassa, vaikka rivi kaartuu
+     (kallistettuna se näytti putoavan). Viivat 1 px, rivit 0,8 px. Paikka mitataan sijoitaLiikKuvat()-funktiossa; ne
+     eivät vaikuta rivin korkeuteen. Väri ja himmeys kuten vaihtoehdon napissa. */
   .asetus[data-a="sivutus"] { position: relative; }
   .liik-kuva { position: absolute; left: 0; top: 0; display: block; color: var(--harmaa); opacity: .6; }
   .liik-kuva { -webkit-tap-highlight-color: transparent; }
@@ -772,7 +774,7 @@
   .liik-kuva[aria-pressed="true"] { color: var(--muste); opacity: 1; }
   .liik-kuva svg { display: block; overflow: visible; }
   #liik-kaaro svg { width: 23px; height: 42px; }
-  #liik-koodeksi svg { width: 32px; height: 25px; }
+  #liik-koodeksi svg { width: 44px; height: 32px; }
   .asetus[data-a="sivutus"] .nimi { margin-bottom: 4px; }
   .liik-kuva .lk-v { fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
   .liik-kuva .lk-t { fill: currentColor; }
@@ -912,8 +914,8 @@
        mitataan (sijoitaNipukka). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen:</span><div class="valinnat" data-v="vieritys:Vieritys|sivut:Sivunkääntö"></div>
     <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
-    <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M11.6 10.5H16.6M11.6 13.5H16.6M6.4 16.5H16.6M6.4 19.5H16.6M6.4 22.5H16.6M6.4 25.5H16.6M6.4 28.5H16.6M6.4 31.5H16.6"/><path class="lk-n" d="M6.7 9.2Q7.97 9.9 8.6 11.02Q9.23 9.9 10.5 9.2Q9.34 11.44 8.6 14.8Q7.86 11.44 6.7 9.2Z"/></svg></button>
-    <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 32 25"><path class="lk-v" d="M16 3Q9 1 2 1.5V20.5Q9 20 16 22Q23 20 30 20.5V1.5Q23 1 16 3ZM16 3V22M2 20.5V22.5Q9 22 16 24Q23 22 30 22.5V20.5"/><path class="lk-r" d="M4 5H14M4 8H14M4 11H14M4 14H14M4 17H7.4"/><path class="lk-n" d="M8.6 15.3Q9.3 16.57 10.42 17.2Q9.3 17.83 8.6 19.1Q10.84 17.94 14.2 17.2Q10.84 16.46 8.6 15.3Z"/></svg></button></div>
+    <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M12 12H16.6M12 15H16.6M12 18H16.6M6.4 21H16.6M6.4 24H16.6M6.4 27H16.6M6.4 30H16.6"/><path class="lk-n" d="M6.4 10.7Q7.93 11.77 8.7 13.49Q9.47 11.77 11 10.7Q9.59 14.14 8.7 19.3Q7.81 14.14 6.4 10.7Z"/></svg></button>
+    <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 44 32"><path class="lk-v" d="M2 2.5C2.42 2.5 3.67 2.5 4.5 2.5C5.33 2.5 6.17 2.5 7 2.51C7.83 2.52 8.67 2.53 9.5 2.57C10.33 2.6 11.17 2.64 12 2.71C12.83 2.79 13.67 2.87 14.5 3.02C15.33 3.16 16.17 3.33 17 3.58C17.83 3.82 18.67 4.11 19.5 4.49C20.33 4.88 21.58 5.67 22 5.9M2 24.6C2.42 24.6 3.67 24.6 4.5 24.6C5.33 24.6 6.17 24.6 7 24.61C7.83 24.62 8.67 24.63 9.5 24.67C10.33 24.7 11.17 24.74 12 24.81C12.83 24.89 13.67 24.97 14.5 25.12C15.33 25.26 16.17 25.43 17 25.68C17.83 25.92 18.67 26.21 19.5 26.59C20.33 26.98 21.58 27.77 22 28M2 2.5V24.6M42 2.5C41.58 2.5 40.33 2.5 39.5 2.5C38.67 2.5 37.83 2.5 37 2.51C36.17 2.52 35.33 2.53 34.5 2.57C33.67 2.6 32.83 2.64 32 2.71C31.17 2.79 30.33 2.87 29.5 3.02C28.67 3.16 27.83 3.33 27 3.58C26.17 3.82 25.33 4.11 24.5 4.49C23.67 4.88 22.42 5.67 22 5.9M42 24.6C41.58 24.6 40.33 24.6 39.5 24.6C38.67 24.6 37.83 24.6 37 24.61C36.17 24.62 35.33 24.63 34.5 24.67C33.67 24.7 32.83 24.74 32 24.81C31.17 24.89 30.33 24.97 29.5 25.12C28.67 25.26 27.83 25.43 27 25.68C26.17 25.92 25.33 26.21 24.5 26.59C23.67 26.98 22.42 27.77 22 28M42 2.5V24.6M22 5.9V28M2 26.1C2.37 26.1 3.49 26.1 4.24 26.1C4.98 26.1 5.73 26.1 6.47 26.11C7.22 26.12 7.97 26.12 8.71 26.14C9.46 26.16 10.2 26.19 10.95 26.24C11.7 26.28 12.44 26.34 13.19 26.43C13.93 26.53 14.68 26.63 15.42 26.79C16.17 26.95 16.92 27.13 17.66 27.38C18.41 27.63 19.53 28.13 19.9 28.28L22 28M42 26.1C41.63 26.1 40.51 26.1 39.76 26.1C39.02 26.1 38.27 26.1 37.52 26.11C36.78 26.12 36.03 26.12 35.29 26.14C34.54 26.16 33.8 26.19 33.05 26.24C32.3 26.28 31.56 26.34 30.81 26.43C30.07 26.53 29.32 26.63 28.58 26.79C27.83 26.95 27.08 27.13 26.34 27.38C25.59 27.63 24.47 28.13 24.1 28.28L22 28M2 24.6V26.1M42 24.6V26.1M2 27.6C2.33 27.6 3.32 27.6 3.98 27.6C4.63 27.6 5.29 27.6 5.95 27.61C6.61 27.61 7.27 27.61 7.93 27.63C8.58 27.64 9.24 27.65 9.9 27.68C10.56 27.71 11.22 27.75 11.88 27.8C12.53 27.86 13.19 27.92 13.85 28.02C14.51 28.11 15.17 28.23 15.83 28.38C16.48 28.53 17.47 28.83 17.8 28.92L22 28M42 27.6C41.67 27.6 40.68 27.6 40.02 27.6C39.37 27.6 38.71 27.6 38.05 27.61C37.39 27.61 36.73 27.61 36.08 27.63C35.42 27.64 34.76 27.65 34.1 27.68C33.44 27.71 32.78 27.75 32.13 27.8C31.47 27.86 30.81 27.92 30.15 28.02C29.49 28.11 28.83 28.23 28.17 28.38C27.52 28.53 26.53 28.83 26.2 28.92L22 28M2 24.6V27.6M42 24.6V27.6"/><path class="lk-r" d="M4.5 6.37C4.92 6.37 6.17 6.37 7 6.38C7.83 6.39 8.67 6.4 9.5 6.43C10.33 6.47 11.17 6.5 12 6.58C12.83 6.66 13.67 6.74 14.5 6.89C15.33 7.03 16.17 7.2 17 7.44C17.83 7.69 19.08 8.21 19.5 8.36M4.5 10.05C4.92 10.05 6.17 10.05 7 10.06C7.83 10.08 8.67 10.08 9.5 10.12C10.33 10.15 11.17 10.19 12 10.26C12.83 10.34 13.67 10.43 14.5 10.57C15.33 10.71 16.17 10.88 17 11.13C17.83 11.37 19.08 11.89 19.5 12.04M4.5 13.73C4.92 13.74 6.17 13.74 7 13.75C7.83 13.76 8.67 13.77 9.5 13.8C10.33 13.83 11.17 13.87 12 13.95C12.83 14.02 13.67 14.11 14.5 14.25C15.33 14.4 16.17 14.56 17 14.81C17.83 15.06 19.08 15.57 19.5 15.73M4.5 18.15C4.64 18.16 5.04 18.16 5.32 18.16C5.59 18.16 5.86 18.16 6.13 18.16C6.41 18.16 6.68 18.16 6.95 18.17C7.22 18.17 7.49 18.17 7.77 18.18C8.04 18.18 8.31 18.19 8.58 18.19C8.86 18.2 9.26 18.21 9.4 18.22"/><path class="lk-n" d="M10.9 17.85Q11.97 19.38 13.7 20.15Q11.97 20.91 10.9 22.45Q14.34 21.04 19.5 20.15Q14.34 19.25 10.9 17.85Z"/></svg></button></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
@@ -1703,9 +1705,9 @@
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
     ka.style.top = Math.round((ens.top + vik.bottom) / 2 - 21 - r.top) + 'px';
     var x = Math.round(Math.max.apply(null, nb.map(function (b) { return b.right; }).concat(sr.right)) + 28 - r.left);
-    ko.hidden = !yhdessa || x + 32 > r.width;
+    ko.hidden = !yhdessa || x + 44 > r.width;
     ko.style.left = x + 'px';
-    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 12.5 - r.top) + 'px';
+    ko.style.top = Math.round((ens.top + vik.bottom) / 2 - 16 - r.top) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
