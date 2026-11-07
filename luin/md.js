@@ -362,6 +362,8 @@
   var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Alussa vain nimen perusteella (Johdanto ilman numeroa ennen 1. lukua on varsinainen luku).
   var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  // Ylimmälle tasolle (luvut) enintään näin monta otsikkoa kaksitasoisessa tekstissä; muuten taso jää käyttämättä (parse()).
+  var LUKUJA_ENINTAAN = 10;
   function lukuNimi(text) { return plain(text).trim().replace(/^((\d+(\.\d+)*|[IVXLC]+)[.):]?|[A-Z][.):])\s+/, '').trim(); }
   function sivuLuvut(tokens, t0) {
     var osat = [], nyky = null;
@@ -1948,6 +1950,21 @@
       tokens[i].alas = true;
       for (var j = i + 1; j < tokens.length && !(tokens[j].t === 'h' && tokens[j].lvl <= 2); j++) if (tokens[j].t === 'h') tokens[j].alas = true;
     });
+    // Ylin taso jää käyttämättä (pilotti, käyttäjän päätös 7.11.2026): kun tekstissä on korkeintaan kaksi otsikkotasoa ja
+    // luvuiksi tulisi yli 10 otsikkoa (SEP:n Beauvoirin 14), kaikki otsikot ladotaan tasoa alempana: luvut osioiksi ja osiot
+    // kohdiksi. Sivuseikkojen alennus (sivuLuvut()) perutaan, joten kirjallisuusluettelo on osio muiden rinnalla.
+    var laske = (function () {
+      var tasot = {}, ylimmat = 0;
+      for (var i = t0; i < tokens.length; i++) {
+        var t = tokens[i];
+        if (t.t !== 'h') continue;
+        var l = t.pykala ? 4 : t.lvl === 1 ? 2 : Math.min(t.lvl, 4);
+        tasot[l] = 1;
+        if (l === 2 && !t.alas) ylimmat++;
+      }
+      return Object.keys(tasot).length <= 2 && !(tasot[3] && tasot[4]) && ylimmat > LUKUJA_ENINTAAN;
+    })();
+    res.laskettu = laske;
     function renderList(items, inQuote) {
       var i = 0;
       function ryhma(lvl) {
@@ -1981,9 +1998,10 @@
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
-          var lvl0 = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), lvl = t.alas && !inQuote ? Math.min(lvl0 + 1, 4) : lvl0;
+          var lvl0 = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), lvl = t.alas && !inQuote && !laske ? Math.min(lvl0 + 1, 4) : lvl0;
           // Pykälä on korkeintaan alaluvun alaluku (pykalaSarjat()).
           if (t.pykala && !inQuote) lvl0 = lvl = 4;
+          if (laske && !inQuote) lvl = Math.min(lvl0 + 1, 4);
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
@@ -2025,7 +2043,7 @@
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
-          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: lvl !== lvl0 || undefined };
+          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: !laske && lvl !== lvl0 || undefined, laskettu: laske || undefined };
           if (tn) te.tn = tn;
           if (t.pykala && !inQuote) te.pyk = true;
           res.toc.push(te);

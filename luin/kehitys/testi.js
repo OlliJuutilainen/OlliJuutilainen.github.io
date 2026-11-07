@@ -48,11 +48,11 @@ const laidat = pg => pg.evaluate(() => {
   const ekaJ1 = etapit.filter(e => e.j1).sort((a, b) => a.v - b.v)[0];
   const mahtuu = etapit.every(e => e.v >= xr[0] - .01 && e.o <= xr[1] + .01) && (!ekaJ1 || ekaJ1.v >= xr[0] + 2 * kR - .01);
   return { v, o, kiekkoKeski: kiekko.left + kiekko.width / 2, harmaa: cs('.takaisin').color, kiekkoVari: cs('#lukija .ratas').color, nappiVari: cs('#sivu-ed svg').fill,
-    j1: q('#jana-svg').querySelectorAll('.j1').length, mahtuu };
+    j1: q('#jana-svg').querySelectorAll('.j1').length, j2: q('#jana-svg').querySelectorAll('.j2').length, mahtuu };
 });
 const raksiKeski = pg => pg.evaluate(() => { const r = document.querySelector('#asetukset .sulje svg').getBoundingClientRect(); return r.left + r.width / 2; });
 const laidatOk = (l, vo, oo) => Object.values(l.v).every(x => Math.abs(x - vo) <= .35) && Object.values(l.o).every(x => Math.abs(x - oo) <= .35) &&
-  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && l.j1 > 0 && l.mahtuu && Math.abs(l.raksi - l.kiekkoKeski) < .01;
+  l.kiekkoVari === l.harmaa && l.nappiVari === l.harmaa && (l.j1 > 0 || l.j2 > 0) && l.mahtuu && Math.abs(l.raksi - l.kiekkoKeski) < .01;
 
 palvelin.listen(0, async () => {
   const BASE = 'http://localhost:' + palvelin.address().port + '/';
@@ -267,10 +267,12 @@ palvelin.listen(0, async () => {
   tulos('merkintöjen tuonti', vrt.sama && vrt.merkit > 0 && vienti2.includes('Sijainti: ') && vienti2.includes(osio.nimi) && /<!-- kohta/.test(vienti2) &&
     perilla.b >= osio.a && perilla.b < osio.z, vrt.tieto + ' | siirtymä lohkoon ' + perilla.b + ' (' + osio.nimi + ')');
 
-  // Aikajana: viimeisen piirretyn pääluvun merkki vie sen otsikkoon (viimeinen pääluku ei aina mahdu janan loppuun).
+  // Aikajana: viimeisen piirretyn luvun merkki vie sen otsikkoon (viimeinen pääluku ei aina mahdu janan loppuun).
   await avaaPalkit();
   const kohde = await p.evaluate(() => {
-    const g = [...document.querySelectorAll('#jana-svg .j1')].map(e => e.parentNode).sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left).pop();
+    // Ylin tekstissä oleva taso (Beauvoirin kaltaisessa tekstissä luvut ovat osioita, md.js laske).
+    const sel = ['.j1', '.j2', '.j3'].find(c => document.querySelector('#jana-svg ' + c));
+    const g = [...document.querySelectorAll('#jana-svg ' + sel)].map(e => e.parentNode).sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left).pop();
     const bb = g.getBoundingClientRect(); return { x: bb.left + bb.width / 2, y: bb.top + bb.height / 2, nimi: g.querySelector('title').textContent };
   });
   await p.mouse.click(kohde.x, kohde.y); await p.waitForTimeout(150);
