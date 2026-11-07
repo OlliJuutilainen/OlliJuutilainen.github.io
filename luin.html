@@ -2959,7 +2959,7 @@
      Pito: käännön jälkeen liikkuva pää pysyy uuden sivun ensimmäisessä (taaksepäin edellisen viimeisessä) sanassa, kunnes osoitin
      poistuu alueelta, joka käänsi sivun. Ilman pitoa sormen kohta luettiin heti uudelta sivulta (nurkasta koko sivu kerralla), ja
      nurkka olisi kääntänyt sivun uudelleen. Pidon aikana nurkka ei ilmesty. */
-  var NURKKA_VIIVE = 1000, NURKKA_KAANTO = 300, NURKKA_KOKO = 44;
+  var NURKKA_VIIVE = 800, NURKKA_KAANTO = 300, NURKKA_KOKO = 44;
   var nurkka = { d: 0, alku: 0, nakyy: false, ulkona: false, sisaan: 0 }, pito = null, nurkkaEl = $('#nurkka');
   function piilotaNurkka() { nurkka.d = 0; nurkka.nakyy = false; nurkka.sisaan = 0; if (nurkkaEl) nurkkaEl.hidden = true; }
   function edellinen(k) {
