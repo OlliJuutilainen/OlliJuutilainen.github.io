@@ -301,13 +301,14 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
 // jatkuvat vuodet, osion *Selected works by X* tekijättömät kohdat, viivat (–––) edellisen tekijän paikalla. Ei
 // linkkiä: kaksiselitteinen vuosi, sulkujen keskellä alkava tekijä, kirjallisuusluettelo itse, lyhenne leipätekstissä.
 {
-  const sep = M.parse('# T\n\nKuten \\[Heidegger 1929\\] ja \\[Cassirer 1906, 1907a\\] sekä \\[Friedman 2000, chap. 7\\]. Myös (Kahn 1960: 238), (see Kahn 1979) ja (Hülsz 2013, Long 2013). Ei: \\[Cassirer 1925\\], \\[vgl. Heidegger 1929\\], (ilmestyi 1929), Kahn (1979), \\[Schilpp 1949\\].\n\n' +
+  const sep = M.parse('# T\n\nKuten \\[Heidegger 1929\\] ja \\[Cassirer 1906, 1907a\\] sekä \\[Friedman 2000, chap. 7\\]. Myös (Kahn 1960: 238), (see Kahn 1979) ja (Hülsz 2013, Long 2013). Kertova Kahn (1979) ja sulun keskeltä (kuten Barnes 1982 sanoo). Kaksi tekijää (Celikates & Jaeggi 2009 \\[2017: 261\\]) ja yksi (Watene 2016). Kursiivi välissä (*pace* Barnes 1982) ja (*Timaeus* 39 with Long 2013). Ei: \\[Cassirer 1925\\], (ilmestyi 1929), Kahn (1959–1961), \\[Schilpp 1949\\].\n\n' +
     '## Bibliography\n\n### Selected works by Cassirer\n\n(Ks. \\[Heidegger 1929\\].)\n\n(1906) *Erkenntnisproblem I*. Berlin.\n\n(1907a) *Erkenntnisproblem II*. Berlin.\n\n(1925a) *Sprache und Mythos*.\n\n(1925b) *Philosophie der symbolischen Formen II*.\n\n' +
-    '### Secondary\n\nFriedman, M. (2000) *A Parting of the Ways*. Chicago.\n\nKahn, Charles H., 1960, *Anaximander*, New York.\n\n–––, 1979, *The Art and Thought of Heraclitus*, Cambridge.\n\nLong, A. A. 2013, “Heraclitus on Measure,” Cambridge.\n\nHeidegger, M. (1927) *Sein und Zeit*.\n\n–––, (1929) *Kant und das Problem der Metaphysik*.\n');
+    '### Secondary\n\nFriedman, M. (2000) *A Parting of the Ways*. Chicago.\n\nKahn, Charles H., 1960, *Anaximander*, New York.\n\n–––, 1979, *The Art and Thought of Heraclitus*, Cambridge.\n\nLong, A. A. 2013, “Heraclitus on Measure,” Cambridge.\n\nBarnes, Jonathan, 1982, *The Presocratic Philosophers*, London.\n\nCelikates, Robin and Rahel Jaeggi, 2009 \\[2017\\], “Technik und Verdinglichung”, in *Handbuch* (zu Habermas 1968), Stuttgart.\n\nWatene, K. 2013, “Nussbaum”, Oxford.\n\n–––, 2016, “Valuing Nature”, Oxford.\n\nWatene, K. and J. Drydyk (eds.), 2016, *Theorizing Justice*, London.\n\nHeidegger, M. (1927) *Sein und Zeit*.\n\n–––, (1929) *Kant und das Problem der Metaphysik*.\n');
   const linkit = [...sep.html.matchAll(/<a class="lahde" href="#([^"]+)">([^<]+)<\/a>/g)].map(m => m[2] + '→' + m[1]);
   sama('hakasulkuviittaukset leipätekstissä', linkit.join(' | '),
     'Heidegger 1929→kirj-heidegger-1929 | Cassirer 1906→kirj-cassirer-1906 | 1907a→kirj-cassirer-1907a | Friedman 2000→kirj-friedman-2000 | ' +
-    'Kahn 1960→kirj-kahn-1960 | Kahn 1979→kirj-kahn-1979 | Long 2013→kirj-long-2013');
+    'Kahn 1960→kirj-kahn-1960 | Kahn 1979→kirj-kahn-1979 | Long 2013→kirj-long-2013 | 1979→kirj-kahn-1979 | Barnes 1982→kirj-barnes-1982 | ' +
+    'Celikates &amp; Jaeggi 2009→kirj-celikates-2009 | Watene 2016→kirj-watene-2016 | Barnes 1982→kirj-barnes-1982 | Long 2013→kirj-long-2013');
   sama('hakasulkuviittaukset: raportti', sep.viittaukset.filter(v => !v.kohde).map(v => v.teksti + ': ' + v.syy).join(' | '),
     'Cassirer 1925: Vuosi on luettelossa vain kirjaimin: Cassirer 1925a, Cassirer 1925b.');
 }
