@@ -283,7 +283,7 @@
      marginaali ja reunus kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa
      kohdassa, vaikka kiekko ei ole. */
   #asetukset .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
-  /* Paluu lukulistaan on kotimerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama pirtti ja ruosteinen
+  /* Paluu lukulistaan on kotimerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama pirtti ja yksivärinen
      harjasalmiakki kuin Latomossa ja ohjeissa. Seinän muste palkkien vasempaan laitaan: seinän ulkoreuna on viewBoxin
      x = 4,425 eli 4,06 px svg:n reunasta; padding on kokonaisluku, koska Chromium pyöristää svg:n paikan. */
   .takaisin { padding: 0 11px 0 calc(var(--v-laita) - 4px); height: 44px; display: inline-flex; align-items: center;
@@ -799,7 +799,7 @@
 <!-- ===== Lukija ===== -->
 <section id="lukija" hidden>
   <div class="ylapalkki">
-    <a class="takaisin" href="#" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="var(--ruoste)" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+    <a class="takaisin" href="#" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
     <span class="y-nimi" id="y-nimi"></span>
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
