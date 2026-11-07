@@ -914,8 +914,8 @@ palvelin.listen(0, async () => {
   // Navin laatikot työpöydällä (käyttäjän pyyntö 5.11.2026): leveällä kolme rinnakkain nappien järjestyksessä (Merkinnät
   // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026) yläpalkin ja navin
   // välissä ilman rakoa, vierekkäisten reunukset päällekkäin ja ruudun reunassa ei reunusta (6.11.2026). Marginaaleissa
-  // (7.11.2026, sivutettuna 1440 px): Sisälmys tasan palstan levyinen, Merkinnät ja Etsi kiinni siinä; ilman Sisälmystä
-  // Merkinnät enintään 25rem ja Etsi yhtä kaukana palstasta. Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin
+  // (7.11.2026, sivutettuna 1440 px): Sisälmys palstan levyinen 12 px:n kaistaleineen (0,75rem), Merkinnät ja Etsi kiinni
+  // siinä; ilman Sisälmystä Merkinnät ja Etsi yhtä kaukana palstasta, vähintään kaistaleen päässä. Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin
   // napautus sulkee Sisälmyksen, ei Merkintöjä eikä navia. Kavennus jättää viimeksi avatun koko leveydelle; navin sulku sulkee laatikot.
   await tp.setViewportSize({ width: 1440, height: 900 }); await tp.waitForTimeout(400);
   await tp.mouse.click(720, 885); await tp.waitForTimeout(100);
@@ -932,10 +932,10 @@ palvelin.listen(0, async () => {
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
   const lt0 = await ltT(), [M0, H0] = [lt0.a.merkinnat, lt0.a.haku];
   await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
-  const rinn = !!(M && H && S && M0 && H0) && P.length && M[0] === 0 && M[1] === P[0] && S[0] === P[0] - 1 && S[1] === P[1] + 1 && H[0] === P[1] && H[1] === 1440 &&
+  const rinn = !!(M && H && S && M0 && H0) && P.length && M[0] === 0 && M[1] === P[0] - 12 && S[0] === P[0] - 13 && S[1] === P[1] + 13 && H[0] === P[1] + 12 && H[1] === 1440 &&
     M.slice(4).join() === '0,1,0,0' && S.slice(4).join() === '1,1,0,0' && H.slice(4).join() === '1,0,0,0' &&
     [M, H, S].every(r => r[2] === lt1.yp && r[3] === lt1.ala) && lt1.ae === 'ttt' &&
-    M0[0] === 0 && M0[1] === 400 && H0[1] === 1440 && P[0] - M0[1] === H0[0] - P[1] && H0.slice(4).join() === '1,0,0,0';
+    M0[0] === 0 && P[0] - M0[1] >= 12 && H0[1] === 1440 && P[0] - M0[1] === H0[0] - P[1] && H0.slice(4).join() === '1,0,0,0';
   await tp.click('#etsi-avaa'); await tp.waitForTimeout(100);
   await tp.mouse.click(1200, 400); await tp.waitForTimeout(100);
   const lt2 = await ltT();
