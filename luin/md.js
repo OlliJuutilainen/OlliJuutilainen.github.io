@@ -1333,7 +1333,10 @@
   // ja lyhenteen määrittelevään kappaleeseen tai luettelon kohtaan t.lyhId.
   // lisa: alaviitteiden ja sitaattien määritelmien tekstit, jotka eivät ole lohkoissa ([^tunnus]: …).
   function viittaukset(tokens, uniq, lisa) {
-    var kohdat = [], inBib = false, bibTaso = 0, lyhTaso = 0, lyhOts = '', lyh = {}, osioTekija = '';
+    var kohdat = [], inBib = false, bibTaso = 0, lyhTaso = 0, lyhOts = '', lyh = {}, osioTekija = '', osioTaso = 0, aiheet = {};
+    // Viivojen (–––) tekijä on välittömästi edeltävän luettelon kappaleen tekijä, vaikka siltä puuttuisi vuosi
+    // (SEP: Robeyns, I., “Is Nancy Fraser’s…” ilman vuotta, perässä –––, 2003 …); muuten viivat periytyivät väärälle.
+    var edTekija = null;
     function maarittele(x, teksti, otsikko) {
       var m; LYH_EM.lastIndex = 0;
       while ((m = LYH_EM.exec(teksti))) {
@@ -1355,7 +1358,12 @@
         if (BIB.test(tx)) { inBib = true; bibTaso = lvl; } else if (inBib && lvl <= bibTaso) inBib = false;
         // Luettelon osio yhden tekijän teoksille (SEP: ### Selected works by Cassirer): kohdat alkavat vuodella.
         var ot = inBib && lvl > bibTaso && RE_OSIOTEKIJA.exec(tx);
-        if (inBib && lvl > bibTaso) osioTekija = ot ? ot[1] : '';
+        edTekija = null;
+        // Osion tekijä periytyy sen alaotsikoille (Dewey: ### A. Works by Dewey → #### Individual works).
+        if (inBib && lvl > bibTaso) {
+          if (ot) { osioTekija = ot[1]; osioTaso = lvl; aiheet[ot[1]] = 1; }
+          else if (!osioTekija || lvl <= osioTaso) osioTekija = '';
+        }
         if (lyhTaso && lvl <= lyhTaso) lyhTaso = 0;
         if (!lyhTaso && LYH.test(tx)) { lyhTaso = lvl; lyhOts = tx; }
         return;
@@ -1365,20 +1373,36 @@
         if (t.t === 'p') maarittele(t, t.text, otsikko);
         else if (t.items) t.items.forEach(function (it, j) { maarittele(it, it.text, j === 0 ? otsikko : null); });
       }
-      if (!inBib || t.t !== 'p') return;
+      if (!inBib || t.t !== 'p') { if (t.t !== 'p') edTekija = null; return; }
       var tx = plain(t.text).trim();
       var nm = /^([^,(]+?)\s*[,(]/.exec(tx), vm = /\((1[5-9]\d\d[a-z]?|20\d\d[a-z]?|s\.\s?a\.)\)/.exec(tx);
+      // SEP:n tapa ilman sulkeita: Kahn, Charles H., 1979, *Teos*; McCarthy, Thomas A., 1978 [1980], …; Ebbighausen,
+      // Rolf (ed.), 1976, …; osion *Works by X* kohta vuodella alkaen: 1962 [1989], *Strukturwandel…* (Habermas).
+      // Tekijän jälkeinen vuosi voittaa myöhemmän sulkuvuoden (Celikates, Robin and Rahel Jaeggi, 2009 [2017], … (1968) …).
+      if (!vm || vm.index > 0) {
+        var sa = osioTekija && /^((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=[,.]|\s*\[)/.exec(tx);
+        var sv = sa || /^[^*“"(]{0,120}?(?:\s*\((?:eds?|trans|toim|hrsg|hg)\.?\))?[,\s]\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=[,.]|\s*\[)/iu.exec(tx);
+        if (sv && (!vm || sv[0].length - sv[1].length < vm.index)) vm = { 1: sv[1], index: sv[0].length - sv[1].length };
+      }
       // Tekijätön kohta osiossa *works by X* (alkaa vuodella) ja edellisen kohdan tekijä viivoina (–––, 2013).
-      var tekijaton = osioTekija && vm && vm.index === 0, viivat = nm && /^[–—-]{2,}$/.test(nm[1]) && kohdat.length;
-      if (!vm || !tekijaton && !viivat && (!nm || !/^\p{Lu}/u.test(nm[1]))) return;
-      var nimi = tekijaton ? osioTekija : viivat ? kohdat[kohdat.length - 1].nimi : nm[1];
+      var tekijaton = osioTekija && vm && vm.index === 0, viivat = nm && /^[–—-]{2,}$/.test(nm[1]) && edTekija;
+      // Sukunimen perässä pelkät nimikirjaimet ilman pilkkua (Claassen R., 2011): tekijä on sukunimi.
+      var nimiOsa = nm && /^(\p{Lu}[\p{L}’'-]+)\s+(?:\p{Lu}\.\s*)+$/u.exec(nm[1]);
+      var oma = nm && !viivat && /^\p{Lu}/u.test(nm[1]) ? (nimiOsa ? nimiOsa[1] : nm[1]) : '';
+      if (!vm || !tekijaton && !viivat && !oma) {
+        edTekija = viivat ? edTekija : oma ? { nimi: oma, suvut: sukunimet(tx.split(/[“"*(]|,\s*(?:1[5-9]\d\d|20\d\d)/)[0].replace(/,?\s*$/, '')) } : null;
+        return;
+      }
+      var nimi = tekijaton ? osioTekija : viivat ? edTekija.nimi : oma;
       var k = { nimi: nimi, vuosi: vuosiAvain(vm[1]), ots: nimi + ' ' + vm[1] };
       k.id = uniq('kirj-' + slug(k.nimi) + '-' + slug(k.vuosi));
       // Kaikkien tekijöiden sukunimet: kaksi tekijää viitataan muodossa A & B, useampi A et al. (Teologian tyyli).
-      k.suvut = tekijaton ? [nimi] : viivat ? kohdat[kohdat.length - 1].suvut
-        : nimet(tx.slice(0, vm.index).replace(/,?\s*(\(?toim\.\)?|\(eds?\.\))\s*$/i, '')).map(function (n) { return n.suku || n.koko; });
+      k.suvut = tekijaton ? [nimi] : viivat ? edTekija.suvut
+        : sukunimet(tx.slice(0, vm.index).replace(/,?\s*$/, '').replace(/,?\s*(\(?toim\.\)?|\(eds?\.\))\s*$/i, ''));
+      if (nimiOsa && !k.suvut.length) k.suvut = [nimi];
       t.kirja = k;
       kohdat.push(k);
+      edTekija = { nimi: k.nimi, suvut: k.suvut };
     });
     var lyhenteet = Object.keys(lyh);
     if (!kohdat.length && !lyhenteet.length) return null;
@@ -1387,8 +1411,12 @@
     kohdat.forEach(function (k) {
       lisaa(k.nimi, k);
       var s = k.suvut;
-      if (s.length === 2) { lisaa(s[0] + ' & ' + s[1], k); lisaa(s[0] + ' ja ' + s[1], k); }
-      if (s.length > 2) { lisaa(s[0] + ' et al.', k); lisaa(s[0] + ' ym.', k); lisaa(s.slice(0, -1).join(', ') + ' & ' + s[s.length - 1], k); }
+      if (s.length === 2) { lisaa(s[0] + ' & ' + s[1], k); lisaa(s[0] + ' ja ' + s[1], k); lisaa(s[0] + ' and ' + s[1], k); }
+      if (s.length > 2) {
+        lisaa(s[0] + ' et al.', k); lisaa(s[0] + ' ym.', k);
+        // Kolme tekijää myös Oxfordin pilkulla ja and-sanalla (SEP: Gilbert, Kaebnick, & Murray 2012).
+        ['& ', ', & ', 'and ', ', and '].forEach(function (v) { lisaa(s.slice(0, -1).join(', ') + (v.charAt(0) === ',' ? v : ' ' + v) + s[s.length - 1], k); });
+      }
     });
     // Lyhenne ja paikannin: numeroita (4:429, 6:442–44), painoksen kirjain ja numero (A1/B1) tai
     // roomalainen numero (BXXX).
@@ -1442,6 +1470,9 @@
       if (VUOSI.test(tunnus)) {
         var v = vuosiAvain(tunnus), sama = ehdokkaat.filter(function (k) { return k.vuosi === v; });
         if (sama.length === 1) return { k: sama[0], syy: 'vuosi' };
+        // Yhden tekijän viittaus ei tarkoita usean tekijän kohtaa (Watene 2016 vs. Watene and Drydyk (eds.) 2016).
+        var yksin = sama.filter(function (k) { return k.suvut.length <= 1; });
+        if (sama.length > 1 && yksin.length === 1 && nimi === yksin[0].nimi) return { k: yksin[0], syy: 'vuosi' };
         if (sama.length) return { k: null, syy: 'Luettelossa on useampi ' + nimi + ' ' + tunnus + '.' };
         var lahella = ehdokkaat.filter(function (k) { return k.vuosi.indexOf(v) === 0; });
         return { k: null, syy: lahella.length ? 'Vuosi on luettelossa vain kirjaimin: ' + lahella.map(function (k) { return k.ots; }).join(', ') + '.'
@@ -1472,18 +1503,29 @@
       });
       return out + esc(teksti.slice(last));
     }
-    // Leipätekstin hakasulkuviittaus (SEP: [Heidegger 1929], [Friedman 2000, chap. 7], [Cassirer 1906, 1907a],
-    // käyttäjän päätös 6.11.2026). Vain hakasulkeiden sisältä, sulkujen alusta alkava tekijä ja vuosi, ja vain
+    // Leipätekstin hakasulku- ja kaarisulkuviittaus (SEP: [Heidegger 1929], [Friedman 2000, chap. 7], [Cassirer 1906,
+    // 1907a], (Kahn 1960: 238), (Patin 1899; Graham 2002); käyttäjän päätös 6.11.2026 ja huomio 7.11.2026). Vain hakasulkeiden sisältä, sulkujen alusta alkava tekijä ja vuosi, ja vain
     // yksiselitteinen kohta; samaan sulkuun pilkulla tai puolipisteellä erotetut vuodet ja tekijät mukaan.
     // Lyhenteitä ei linkitetä leipätekstissä.
-    var HAKA = /\[([^\[\]\n]{3,160})\]/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
-    function linkitaHaka(teksti, kirjaa) {
-      if (!re || teksti.indexOf('[') < 0) return esc(teksti);
+    var HAKA = /\[([^\[\]\n]{3,160})\]|\(([^()\n]{3,160})\)/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
+    var aiheLista = Object.keys(aiheet), aihe = aiheLista.length === 1 && avaimet[aiheLista[0]] ? aiheLista[0] : '';
+    // tila: { syv } kappaleen sulkusyvyys palasta toiseen. inline() antaa tekstin paloina muotoilun välein, joten
+    // (*pace* Larmore 1995) tulee kahdessa palassa: kesken jäänyt ja jatkuva sulku luetaan pelkin tekijä–vuosi-osumin.
+    function linkitaHaka(teksti, kirjaa, tila) {
+      var syv0 = tila && tila.syv || 0, syv = syv0, auki = -1, sulku0 = syv0 ? -1 : 0;
+      for (var x = 0; x < teksti.length; x++) {
+        var c = teksti.charAt(x);
+        if (c === '(' || c === '[') { if (!syv) auki = x; syv++; }
+        else if ((c === ')' || c === ']') && syv) { syv--; if (!syv && sulku0 < 0) sulku0 = x; }
+      }
+      if (tila) tila.syv = syv;
+      if (sulku0 < 0) sulku0 = teksti.length;
+      if (!re || !/[[()\]]/.test(teksti) && !syv0) return esc(teksti);
       var out = '', last = 0, h;
-      HAKA.lastIndex = 0;
-      while ((h = HAKA.exec(teksti))) {
-        var sis = h[1], alku0 = h.index + 1, os = loyda(sis);
-        if (!os.length || os[0].alku !== 0 || !VUOSI.test(os[0].tunnus)) continue;
+      function pelkat(alku0, sis) {
+        lisaa0(loyda(sis).filter(function (o) { return VUOSI.test(o.tunnus); }), alku0, sis);
+      }
+      function lisaa0(os, alku0, sis) {
         var kaikki = [];
         os.forEach(function (o) {
           kaikki.push(o);
@@ -1503,10 +1545,72 @@
           last = l;
         });
       }
+      // Edellisestä palasta jatkuva sulku.
+      if (syv0) pelkat(0, teksti.slice(0, sulku0));
+      HAKA.lastIndex = syv0 ? sulku0 : 0;
+      while ((h = HAKA.exec(teksti))) {
+        var sis = h[1] || h[2], alku0 = h.index + 1;
+        // Vuoden perässä oleva hakasulku on käännöksen tai painoksen vuosi (1981 [1984a: 285], 1988b essay 3 [1992a: 31],
+        // 2011 [2012: 58]), ei oma viittaus: 1992a on eri teos kuin käännös.
+        if (h[1] && RE_KAANNOS.test(teksti.slice(Math.max(0, h.index - 40), h.index))) continue;
+        // Sulkujen alussa tekijä ja vuosi, mahdollisesti vihjesanan jälkeen (see, e.g., cf., ks., vrt.). Ensimmäisen
+        // tekijän ei tarvitse olla luettelossa (Hülsz 2013, Long 2013: Long linkittyy).
+        var vihje = RE_VIHJE.exec(sis)[0], alku = sis.slice(vihje.length);
+        // Artikkelin aiheen oma teos pelkällä vuodella (Habermas: (1983 [1990: 89]), (1992a: 37)): vain kun luettelossa on
+        // yksi *Works by X* -osio ja vuoden perässä on käännöksen vuosi tai paikannin; pelkkä (1929) voi olla tapahtuma.
+        var paljas = aihe && RE_AIHEVUOSI.test(alku);
+        // Kertova viittaus: tekijä suoraan ennen sulkua, sulussa vuosi (Benhabib (1986), Rehg (1991 & 1994), Heath (2014: 843)).
+        var ennen = h[2] && RE_KERTOVA_VUOSI.test(sis) && RE_KERTOVA_NIMI.exec(teksti.slice(Math.max(0, h.index - 80), h.index));
+        var kertoja = ennen && avaimet[ennen[1]] ? ennen[1] : '';
+        // Varmuus tulee luettelon yksiselitteisestä osumasta, ei paikasta sulkujen sisällä (käyttäjän linjaus 7.11.2026, SEP-pesukone).
+        var os = loyda(sis).filter(function (o) { return VUOSI.test(o.tunnus); });
+        if (kertoja) {
+          var km, kre = /(^|[;,&]\s*|\band\s+)((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=[\s,;:)&]|$)/g;
+          while ((km = kre.exec(sis))) {
+            var ka = km.index + km[1].length, kl = ka + km[2].length;
+            if (km.index > 0 && /\p{Lu}[\p{L}’'-]+\s*$/u.test(sis.slice(0, km.index))) continue;
+            // Aiheen oma teos samalla vuodella (Kohlberg ([1976a]: 9–49) Habermas-artikkelissa): kumpaakaan ei linkitetä.
+            if (paljas && ratkaise(aihe, km[2]).k) continue;
+            if (!os.some(function (o) { return o.alku < kl && o.loppu > ka; })) os.push({ alku: ka, loppu: kl, nimi: kertoja, tunnus: km[2] });
+          }
+        }
+        if (paljas) {
+          // Puolipisteellä alkavat paljaat vuodet; tekijän perässä oleva puolipistevuosi on saman tekijän (loyda, JATKO).
+          var pm, pre = /(^|;\s*)((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=(?:\s+(?:chapter|chap\.|ch\.|essay|part|vol\.)\s*\d+)?(?:\s*\[|:\s*\d))/g;
+          while ((pm = pre.exec(sis))) {
+            var pa = pm.index + pm[1].length, pl = pa + pm[2].length;
+            if (pm.index === 0) { pa = vihje.length; pl = pa + RE_AIHEVUOSI.exec(alku)[1].length; }
+            if (kertoja && ratkaise(kertoja, sis.slice(pa, pl)).k) continue;
+            if (!os.some(function (o) { return o.alku < pl && o.loppu > pa; })) os.push({ alku: pa, loppu: pl, nimi: aihe, tunnus: sis.slice(pa, pl) });
+          }
+        }
+        if (!os.length) { HAKA.lastIndex = h.index + 1; continue; }
+        lisaa0(os, alku0, sis);
+      }
+      // Seuraavaan palaan jatkuva sulku.
+      if (syv && auki >= 0 && auki + 1 >= last) pelkat(auki + 1, teksti.slice(auki + 1));
       return out + esc(teksti.slice(last));
     }
     return { kohdat: kohdat, linkita: linkita, linkitaHaka: linkitaHaka };
   }
+  // Luettelon kohdan tekijöiden sukunimet viittauksia varten (nimet() ennallaan, koska viitteen kokoaminen käyttää sitä):
+  // nimikirjaimet pois (A. de-Shalit → de-Shalit), ja erillinen pelkkä nimikirjain kertoo kaksiosaisesta sukunimestä
+  // (SEP: Padgett Walsh, K. and Lewiston, J. → nimet() lukee Padgett etunimeksi ja K.:n omaksi nimekseen).
+  function sukunimet(tx) {
+    var n = nimet(tx).slice(), alku = /^(?:\p{Lu}\.\s*)+$/u;
+    for (var i = 1; i < n.length; i++) {
+      if (n[i].koko && alku.test(n[i].koko) && n[i - 1].suku && n[i - 1].etu && /^\p{Lu}[\p{L}’'-]+$/u.test(n[i - 1].etu)) {
+        n[i - 1] = { suku: n[i - 1].etu + ' ' + n[i - 1].suku }; n.splice(i, 1); i--;
+      }
+    }
+    return n.map(function (x) { return x.suku || String(x.koko || '').replace(/^(?:\p{Lu}\.\s*)+/u, ''); }).filter(Boolean);
+  }
+  var RE_VIHJE = /^(?:(?:see|cf\.?|compare|pace|also|esp\.|especially|e\.\s?g\.|i\.\s?e\.|for (?:example|instance)|ks\.|vrt\.|esim\.|vgl\.|siehe)[\s,]+)*/i;
+  var RE_AIHEVUOSI = /^((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=(?:\s+(?:chapter|chap\.|ch\.|essay|part|vol\.)\s*\d+)?(?:\s*\[(?:1[5-9]\d\d|20\d\d)|:\s*\d))/;
+  var RE_KAANNOS = /(?:1[5-9]\d\d|20\d\d)[a-z]?(?:\s+(?:chapter|chap\.|ch\.|essay|part|vol\.)\s*\d+)?\s*$/;
+  var RE_KERTOVA_VUOSI = /^(?:1[5-9]\d\d|20\d\d)[a-z]?(?=[\s,;:)&]|$)/;
+  var RE_KERTOVA_NIMI = /(\p{Lu}[\p{L}’'-]+(?:\s+(?:and|&)\s+\p{Lu}[\p{L}’'-]+|\s+et al\.)?)\s*$/u;
+  var RE_HAKA_ALKU = /^\p{Lu}[\p{L}’'-]+(?:\s+(?:and|&|ja|und)\s+\p{Lu}[\p{L}’'-]+|\s+et al\.|\s+ym\.)?\s+(?:1[5-9]\d\d|20\d\d)[a-z]?(?![\p{L}\p{N}])/u;
   var RE_OSIOTEKIJA = /(?:works|writings|schriften|teokset|teoksia)\s+(?:by|of|von)\s+(\p{Lu}[\p{L}’'-]+)\s*$/iu;
 
   // Otsikkolohkon tietorivi: lyhyitä rivejä. Pitkäriviinen kappale on jo leipätekstiä (verkkoleikkeen johdanto).
@@ -1709,9 +1813,10 @@
     }
     var ctx = { note: note, br: false, warn: warn, refs: refs };
     // Leipäteksti: hakasulkuviittaukset kirjallisuusluettelon kohtiin (ei luettelossa itsessään eikä otsikoissa).
-    var leipa = { note: note, br: false, warn: warn, refs: refs, cite: function (t) { return vt ? vt.linkitaHaka(t, kirjaa) : esc(t); } };
+    var leipa = { note: note, br: false, warn: warn, refs: refs, syv: 0, cite: function (t) { return vt ? vt.linkitaHaka(t, kirjaa, leipa) : esc(t); } };
     var metaCtx = { note: note, br: true, warn: warn, refs: refs };
     function blk(tag, cls, md, c, id) {
+      if (c === leipa) leipa.syv = 0;
       return '<' + tag + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + ' data-b="' + (b++) + '">' + inline(md, c || ctx) + '</' + tag + '>';
     }
 
@@ -1854,6 +1959,7 @@
             var it = items[i++], tm = /^\[([ xX])\][ \t]+/.exec(it.text), cls = tm ? 'tehtava' : '', arvo = ord && kaare ? start + n : 0;
             curLn = it.ln;
             var lc = it.lyhId ? ctx : leipa;
+            leipa.syv = 0;
             var sisalto = tm ? '<span class="ruutu' + (tm[1] === ' ' ? '' : ' tehty') + '" aria-hidden="true"></span>' + inline(it.text.slice(tm[0].length), lc) : inline(it.text, lc);
             var id = it.lyhOts ? '' : it.lyhId || '';
             h += '<li' + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + (arvo ? ' value="' + arvo + '"' : '') + ' data-b="' + (b++) + '">' + sisalto + '</li>';

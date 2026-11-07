@@ -103,7 +103,9 @@
       // Paluulinkki (SEP: <a href="index.html#ref-1">1.</a>) pois.
       const paluu = [...k.querySelectorAll('a[href]')].find(x => /^\[?\d+[a-z]?\.?\]?$/i.test(x.textContent.trim()));
       if (paluu) paluu.remove();
-      const teksti = muunna(k.innerHTML, 'inlined').trim();
+      // Linkin ulkopuolelle jäänyt piste (SEP:n Heraclitus: <a …>1</a>. The B prefix …) pois alusta.
+      let teksti = muunna(k.innerHTML, 'inlined').trim();
+      if (paluu) teksti = teksti.replace(/^\\?[.):\]]\s*/, '');
       if (!teksti) continue;
       const tunnus = m.nro.replace(/[^0-9A-Za-z]/g, '');
       m.sup.replaceWith(d.createTextNode('XLUINVIITE' + tunnus + 'X'));

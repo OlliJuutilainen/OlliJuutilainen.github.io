@@ -58,7 +58,7 @@ const SEP_SIVUT = {
   [SEP + 'notes.html']: `<!doctype html><html><head><meta charset="utf-8"><title>Notes</title></head><body><div id="aueditable">
 <h2>Notes to <a href="index.html">Koe</a></h2>
 <div id="note-1"><p><a href="index.html#ref-1">1.</a> Ks. Dykhuizen 1973: 30–31.</p></div>
-<div id="note-2"><p><a href="index.html#ref-2">2.</a> Ensimmäinen kappale.</p><blockquote><p>Lainaus alaviitteessä.</p></blockquote><p>Jatko <a href="../james/">Jamesiin</a>.</p></div>
+<div id="note-2"><p><a href="index.html#ref-2">2</a>. Ensimmäinen kappale.</p><blockquote><p>Lainaus alaviitteessä.</p></blockquote><p>Jatko <a href="../james/">Jamesiin</a>.</p></div>
 </div></body></html>`
 };
 
