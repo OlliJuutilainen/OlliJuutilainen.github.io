@@ -152,6 +152,10 @@
   .valikko button.ik svg { display: block; width: 20px; height: 20px; }
   .valikko button.ik svg.kyna { width: 24px; height: 24px; }
   .valikko button.ik svg.sanasto { width: 22.5px; }
+  /* Valinnan valikon raksi (käyttäjän pyyntö 7.11.2026): reunanapautus ja pitkä alleviivaus vievät ne alueet, joiden
+     napautus vain sulkisi valikon. Ohut kuin sanaselityksen raksi, ettei sitä sekoita poistoikoniin. */
+  .valikko button.ik.sulje-ik { min-width: 44px; padding: 0 12px; color: var(--muste); }
+  .valikko button.ik.sulje-ik svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
   svg.sanasto { overflow: visible; } /* pyöreä linssi nousee laatikon yläpuolelle (IK_SANASTO) */
   /* Sanakirja (avoin kirja) ja käännös (nuoli ja kohdekieli), pilotti 5.11.2026. */
   .ik-kaanna { display: inline-flex; align-items: center; gap: 3px; font-size: .9rem; font-style: italic; color: var(--muste); }
@@ -995,6 +999,7 @@
     '<path d="M3.5 3.5L16.5 16.5" stroke="var(--paperi)" stroke-width="4.2" fill="none"/><path d="M3.5 3.5L16.5 16.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
   var IK_KOPIOI = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.7" y="1.7" width="9.6" height="12.6"/>' +
     '<rect x="7.7" y="5.7" width="9.6" height="12.6" fill="var(--paperi)"/></svg>';
+  var IK_SULJE = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1L9 9M9 1L1 9"/></svg>';
   var IK_KOPIOITU = '<svg viewBox="0 0 20 20"><path d="M4.5 10.5L8.5 14.5L15.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
   function ikNappi(k, ikoni, nimi, luokka) {
     return '<button type="button" data-k="' + k + '" class="ik' + (luokka ? ' ' + luokka : '') + '" aria-label="' + nimi + '" title="' + nimi + '">' + ikoni + '</button>';
@@ -2548,10 +2553,12 @@
   // Valinnan (tai Luinin maalauksen luonnoksen) valikko. Luonnoksen merkit poistetaan ennen toimintoa.
   function naytaValintaPop(segs, rect) {
     function pois() { getSelection().removeAllRanges(); poistaLuonnos(); }
-    // Järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanaselitys (enintään SK_SANAT sanaa), käännös, kopio. Kirjanmerkkiä ei
+    // Järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanaselitys (enintään SK_SANAT sanaa), käännös, kopio, raksi (7.11.2026). Kirjanmerkkiä ei
     // valikossa ole: kirjanmerkki tehdään vain alapalkin nauhasta kappaleen alkuun.
-    naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()), 'rivi', function (k, b) {
-      if (k === 'ali') { pois(); luoAlleviivaus(segs); }
+    naytaPop(rect, ikNappi('ali', IK_ALI, 'Alleviivaa') + ikNappi('kir', IK_KIRJAA, 'Kirjaa') + lisaNapit(segs) + ikNappi('kopioi', ikKopioi(), kopioNimi()) +
+      ikNappi('sulje', IK_SULJE, 'Sulje', 'sulje-ik'), 'rivi', function (k, b) {
+      if (k === 'ali' || k === 'sulje') pois();
+      if (k === 'ali') luoAlleviivaus(segs);
       if (k === 'kir') {
         pois();
         var ennen = nyt.merk.al.length, h = luoAlleviivaus(segs);

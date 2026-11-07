@@ -1078,13 +1078,23 @@ palvelin.listen(0, async () => {
   await veda(sw.s[1], sw.s[3]);
   const m3 = await mtila();
   // Valikon järjestys (käyttäjän päätös 5.11.2026): alleviivaus, kirjaus, sanaselitys (enintään 10 sanaa), käännös, kopio; ei kirjanmerkkiä.
+  // Viimeisenä raksi (käyttäjän pyyntö 7.11.2026).
   const jarj = await mp.evaluate(() => [...document.querySelectorAll('#pop button[data-k]')].map(b => b.dataset.k).join());
   await mp.mouse.click(sw.s[2].x, sw.s[2].y); await mp.waitForTimeout(200);
   const m3b = await mtila();
   await mp.keyboard.press('Escape'); await mp.waitForTimeout(100);
   const m4 = await mtila();
-  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,sk,kaanna,kopioi' && m3b.kahvat && m3b.luonnos > 0 &&
+  tulos('luonnos ja valikko ilman sukkelaa', m3.luonnos > 0 && m3.n === 1 && /rivi/.test(m3.pop) && !m3.kahvat && jarj === 'ali,kir,sk,kaanna,kopioi,sulje' && m3b.kahvat && m3b.luonnos > 0 &&
     m4.luonnos === 0 && !m4.kahvat && !m4.pop, JSON.stringify({ m3, jarj, kahvatNapautuksesta: m3b.kahvat, m4 }));
+  // Raksi sulkee valikon kuten napautus muualle: luonnos ja kahvat pois, ei alleviivausta (käyttäjän pyyntö 7.11.2026).
+  sw = await sanat();
+  await veda(sw.s[1], sw.s[3]);
+  await mp.mouse.click(sw.s[2].x, sw.s[2].y); await mp.waitForTimeout(200);
+  const r0 = await mtila();
+  await mp.click('#pop button[data-k="sulje"]'); await mp.waitForTimeout(200);
+  const r1 = await mtila();
+  tulos('valinnan valikon raksi sulkee', /rivi/.test(r0.pop) && r0.kahvat && r0.luonnos > 0 && !r1.pop && !r1.kahvat && r1.luonnos === 0 && r1.n === r0.n,
+    JSON.stringify({ r0, r1 }));
   // Käyttäjän pyyntö 6.11.2026: yhden sanan luonnos, joka laajennettiin kahvasta ja supistettiin takaisin yhteen sanaan,
   // on valinta kuten mikä tahansa: valikko, ei sanaselitystä, Sukkelalla tai ilman.
   const supista = async sukSana => {
@@ -1253,7 +1263,7 @@ palvelin.listen(0, async () => {
   await kosk('touchStart', kb.x, kb.y); await kp2.waitForTimeout(60); await kosk('touchEnd'); await kp2.waitForTimeout(400);
   const kt5 = await kTila();
   tulos('pitkä painallus sanaan: sukkela sanaselitys', kt3.n === kt2.n && /sanakirja/.test(kt3.pop) && kt3.luonnos > 0 && !kt3.kahvat &&
-    kt4.n === kt2.n && kt4.napit === 'ali,kir,sk,kaanna,kopioi' && !kt4.kahvat && kt5.kahvat, JSON.stringify({ kt3, kt4, kahvatNapautuksesta: kt5.kahvat }));
+    kt4.n === kt2.n && kt4.napit === 'ali,kir,sk,kaanna,kopioi,sulje' && !kt4.kahvat && kt5.kahvat, JSON.stringify({ kt3, kt4, kahvatNapautuksesta: kt5.kahvat }));
   // Suurennuslasi (pilotti 5.11.2026): kosketusvedossa kahvan rivi 1,25-kertaisena rivin yläpuolella, noin kahdeksan
   // kirjaimen levyisenä. Klooni rivittyy kuten alkuperäinen, varsi on kahvan pään kohdalla, ja lasi lähtee vedon
   // päättyessä. Kohta luetaan kahvan otealueen läpi: veto suoraan riviä alemmas etenee (ennen ote peitti alemman rivin).
