@@ -912,10 +912,11 @@ palvelin.listen(0, async () => {
   const t5 = await tila2();
   tulos('työpöydän keskiklikkaus ja kapea ikkuna', !t4.jana && t4.yla && s1 === s0 + 1 && !t5.mob && t5.yla, JSON.stringify({ s0, s1, t4, t5 }));
   // Navin laatikot työpöydällä (käyttäjän pyyntö 5.11.2026): leveällä kolme rinnakkain nappien järjestyksessä (Merkinnät
-  // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026), ruudun kolmanneksina
-  // reunasta reunaan yläpalkin ja navin välissä ilman rakoa, vierekkäisten reunukset päällekkäin ja ruudun reunassa ei
-  // reunusta (6.11.2026). Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin napautus sulkee Sisälmyksen, ei Merkintöjä
-  // eikä navia. Kavennus jättää viimeksi avatun koko leveydelle; navin sulku sulkee laatikot.
+  // vasemmassa laidassa, Sisälmys keskellä, Etsi oikeassa laidassa; järjestys vaihdettu 5.11.2026) yläpalkin ja navin
+  // välissä ilman rakoa, vierekkäisten reunukset päällekkäin ja ruudun reunassa ei reunusta (6.11.2026). Marginaaleissa
+  // (7.11.2026, sivutettuna 1440 px): Sisälmys tasan palstan levyinen, Merkinnät ja Etsi kiinni siinä; ilman Sisälmystä
+  // Merkinnät enintään 25rem ja Etsi yhtä kaukana palstasta. Etsin sulkemisen jälkeen sen kohdalla näkyvän tekstin
+  // napautus sulkee Sisälmyksen, ei Merkintöjä eikä navia. Kavennus jättää viimeksi avatun koko leveydelle; navin sulku sulkee laatikot.
   await tp.setViewportSize({ width: 1440, height: 900 }); await tp.waitForTimeout(400);
   await tp.mouse.click(720, 885); await tp.waitForTimeout(100);
   const ltT = () => tp.evaluate(() => {
@@ -923,13 +924,18 @@ palvelin.listen(0, async () => {
     for (const id of ['merkinnat', 'haku', 'sisalmys']) if (!document.getElementById(id).hidden) { const r = R('#' + id), c = getComputedStyle(document.getElementById(id));
       a[id] = [r.left, r.right, r.top, r.bottom].map(Math.round).concat([c.borderLeftWidth, c.borderRightWidth, c.borderTopWidth, c.borderBottomWidth].map(parseFloat)); }
     return { a, yp: R('.ylapalkki').bottom, ala: R('#ala').top, navi: !document.querySelector('#jana').hidden,
-      ae: ['#merk-avaa', '#etsi-avaa', '#sis-avaa'].map(s => document.querySelector(s).getAttribute('aria-expanded')[0]).join('') };
+      ae: ['#merk-avaa', '#etsi-avaa', '#sis-avaa'].map(s => document.querySelector(s).getAttribute('aria-expanded')[0]).join(''),
+      p: window.__luin.aset.sivutus === 'sivut' ? (l => [l, l + window.__luin.tila.W])(R('#sivu').left + parseFloat(document.querySelector('#teksti').style.marginLeft)).map(Math.round) : null };
   });
   for (const s of ['#merk-avaa', '#sis-avaa', '#etsi-avaa']) { await tp.click(s); await tp.waitForTimeout(100); }
-  const lt1 = await ltT(), [M, H, S] = [lt1.a.merkinnat, lt1.a.haku, lt1.a.sisalmys];
-  const rinn = !!(M && H && S) && M[0] === 0 && M[1] === 480 && S[0] === 479 && S[1] === 960 && H[0] === 959 && H[1] === 1440 &&
+  const lt1 = await ltT(), [M, H, S] = [lt1.a.merkinnat, lt1.a.haku, lt1.a.sisalmys], P = lt1.p || [];
+  await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
+  const lt0 = await ltT(), [M0, H0] = [lt0.a.merkinnat, lt0.a.haku];
+  await tp.click('#sis-avaa'); await tp.waitForTimeout(100);
+  const rinn = !!(M && H && S && M0 && H0) && P.length && M[0] === 0 && M[1] === P[0] && S[0] === P[0] - 1 && S[1] === P[1] + 1 && H[0] === P[1] && H[1] === 1440 &&
     M.slice(4).join() === '0,1,0,0' && S.slice(4).join() === '1,1,0,0' && H.slice(4).join() === '1,0,0,0' &&
-    [M, H, S].every(r => r[2] === lt1.yp && r[3] === lt1.ala) && lt1.ae === 'ttt';
+    [M, H, S].every(r => r[2] === lt1.yp && r[3] === lt1.ala) && lt1.ae === 'ttt' &&
+    M0[0] === 0 && M0[1] === 400 && H0[1] === 1440 && P[0] - M0[1] === H0[0] - P[1] && H0.slice(4).join() === '1,0,0,0';
   await tp.click('#etsi-avaa'); await tp.waitForTimeout(100);
   await tp.mouse.click(1200, 400); await tp.waitForTimeout(100);
   const lt2 = await ltT();
@@ -943,13 +949,13 @@ palvelin.listen(0, async () => {
   tulos('navin laatikot työpöydällä', rinn && Object.keys(lt2.a).join() === 'merkinnat' && lt2.navi && lt2.ae === 'tff' &&
     Object.keys(lt3.a).join() === 'sisalmys' && lt3.a.sisalmys[0] === 0 && lt3.a.sisalmys[1] === 800 && lt3.a.sisalmys.slice(4).join() === '0,0,0,0' && lt3.ae === 'fft' &&
     Object.keys(lt4.a).join() === 'haku' && lt4.ae === 'ftf' && !lt5.navi && !Object.keys(lt5.a).length && lt5.ae === 'fff',
-    JSON.stringify([lt1, lt2, lt3, lt4, lt5].map(x => x.a)) + ' ' + [lt1, lt2, lt3, lt4, lt5].map(x => x.ae).join(','));
+    JSON.stringify([lt1, lt0, lt2, lt3, lt4, lt5].map(x => x.a)) + ' palsta ' + P + ' ' + [lt1, lt2, lt3, lt4, lt5].map(x => x.ae).join(','));
   // Etsi tekstin vieressä (käyttäjän päätös 5.11.2026): 1440 px:llä hyppy leipätekstin osumaan (napautus tai Enter) jättää
   // Etsin auki, kun se on palstan ulkopuolella, ja sulkee muut laatikot; valittu osuma merkitään listaan ja kenttä pitää
   // kohdistuksen. 800 px:llä (yksi kerrallaan) osuma sulkee Etsin kuten ennen.
   const etT = () => tp.evaluate(() => {
     const q = s => document.querySelector(s), t = q('#teksti').getBoundingClientRect(), e = q('#haku').getBoundingClientRect(), c = q('#haku .osuma[aria-current]');
-    return { auki: ['merkinnat', 'sisalmys', 'haku'].filter(id => !q('#' + id).hidden).join(), erillaan: e.left >= t.right, cur: c && +c.dataset.i,
+    return { auki: ['merkinnat', 'sisalmys', 'haku'].filter(id => !q('#' + id).hidden).join(), erillaan: e.left >= t.right - .5, cur: c && +c.dataset.i,
       valittu: window.__luin.nyt().haku.valittu, fokus: document.activeElement === q('#haku input') };
   });
   const etLehti = () => tp.evaluate(() => { const O = window.__luin.nyt().haku.osumat, i = O.findIndex((o, j) => !o.n && O[j + 1] && !O[j + 1].n); return i < 0 ? [] : [i, i + 1]; });

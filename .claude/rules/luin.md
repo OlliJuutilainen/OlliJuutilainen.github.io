@@ -101,6 +101,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   rinnakkain ruudun kolmanneksina reunasta reunaan, muuten yksi kerrallaan koko leveydellä. Rinnakkain vain, jos kolme
   19rem:n saraketta rakoineen mahtuu laitojen väliin. Hyppy laatikosta ja navin sulku sulkevat kaikki kolme, paitsi
   että hakuosuma jättää rinnakkain Etsin auki, kun se on palstan vieressä eikä peitä osumaa (`suljeHypynTielta()`).
+- **Marginaalit** (käyttäjän pyyntö 7.11.2026, opas 4.7.2, `LAATIKKO_MIN`): kun palstan kummallekin puolelle mahtuu
+  laatikko, kolmannesten sijaan Merkinnät on vasemmassa marginaalissa ja Etsi oikeassa kiinni palstan reunoissa, ja
+  Sisälmys on tasan palstan levyinen. Vierityksessä reunushuomioiden kanssa palsta siirtyy pysyvästi oikealle, jotta
+  Merkinnät mahtuu vasemmalle (`palstanSiirto()`, .wrapin `left`); ahtaimmillaan Merkinnät laihtuu, Etsi ei. Väljällä
+  Etsi on huomioiden takana ja Merkinnät ja Etsi yhtä kaukana tekstistä, mutta **auki olevien laatikoiden väliin ei
+  koskaan jää tilaa** (käyttäjän sääntö): Sisälmyksen ollessa auki ne ovat kiinni siinä.
 - **Ahdas navinäkymä** (käyttäjän pyyntö 6.11.2026, opas 4.7.2, `naviAlas()`): mobiilissa, kun laatikot eivät mahdu
   rinnakkain, kolme laatikkonappia siirtyvät alapalkkiin (`#ala-laatikot`), jos mahtuvat: ensin palkkinuolen kanssa,
   sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
