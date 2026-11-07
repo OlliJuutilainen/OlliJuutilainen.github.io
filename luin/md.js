@@ -559,9 +559,10 @@
   // korkeintaan alaluvun alaluku (####), vaikka sillä ei olisi yläotsikoita. Pykälämerkki riittää. Ilman sitä numerosarja
   // (1, 2, 3 …, ei pisteellisiä) on pykäläsarja, kun sen osiot ovat lyhyehköjä (mediaani alle PYK_PITUUS merkkiä), niillä
   // ei ole pisteellisiä alaosioita, numerointi ei ala ylemmän otsikon jälkeen alusta, ja se joko jatkuu ylemmän otsikon
-  // yli tai sarjassa on vähintään kymmenen pykälää (lyhyen artikkelin 1.–5. jaksot jäävät ennalleen).
+  // yli tai sarjassa on vähintään PYK_MAARA pykälää (käyttäjän linjaus 7.11.2026: oikeita pykäliä on kymmeniä tai satoja, joten
+  // Beauvoir-artikkelin 14 numeroitua jaksoa ovat päälukuja, eivät pykäliä; lyhyiden artikkelien jaksot jäävät ennalleen).
   // kohdat: [{ avain, arvo, taso (pienempi = ylempi), massa: oma teksti seuraavaan kohtaan asti }] → { avain: true }
-  var PYK_PITUUS = 6000;
+  var PYK_PITUUS = 6000, PYK_MAARA = 30;
   function pykalaSarjat(kohdat) {
     var tulos = {}, sarjat = {};
     kohdat.forEach(function (k, i) {
@@ -579,7 +580,7 @@
         if (j + 1 < S.length && yli) { if (kohdat[z].arvo === kohdat[i].arvo + 1) jatkuu++; else if (kohdat[z].arvo === 1) alkaa++; }
       });
       massat.sort(function (x, y) { return x - y; });
-      if (massat[massat.length >> 1] < PYK_PITUUS && !piste && !alkaa && (jatkuu || S.length >= 10)) tulos[a] = true;
+      if (massat[massat.length >> 1] < PYK_PITUUS && !piste && !alkaa && (jatkuu || S.length >= PYK_MAARA)) tulos[a] = true;
     });
     return tulos;
   }

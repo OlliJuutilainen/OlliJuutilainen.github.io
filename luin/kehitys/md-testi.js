@@ -277,7 +277,8 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('pykälät: alaluvun alaluvuiksi, paikannin § n', ptoc(ide), '1  | 1 1.0 | 2 1.1 | 3p § 1 | 3p § 2 | 2 1.2 | 3p § 3 | 3p § 4 | 1 2.0 | 2 2.1 | 3p § 5 | 3p § 6 | 2 2.2 | 3p § 7 | 3p § 8');
   sama('pykälät ilman merkkiä: numerot jatkuvat kapitelien yli', ptoc(ide.replace(/### § (\d+)\./g, '## $1.')).split(' | ').slice(3, 5).join(' | '), '3p 1 | 3p 2');
   sama('pykälät ilman yläotsikoita', ptoc('# CM\n\n## § 1. A\n\n' + hus(10) + '\n\n## § 2. B\n\n' + hus(10)), '3p § 1 | 3p § 2');
-  sama('pykälät: kymmenen lyhyttä numeroitua ilman yläotsikoita', ptoc('# P\n\n' + Array.from({ length: 10 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ')[0], '3p 1');
+  sama('pykälät: kolmekymmentä lyhyttä numeroitua ilman yläotsikoita', ptoc('# P\n\n' + Array.from({ length: 30 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ')[0], '3p 1');
+  sama('pykälät: neljätoista lyhyehköä numeroitua jaksoa (Beauvoir) ovat lukuja', ptoc('# A\n\n' + Array.from({ length: 14 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')).split(' | ').slice(0, 3).join(' | '), '1 1 | 1 2 | 1 3');
   sama('pykälät: lyhyen artikkelin viisi jaksoa ennallaan', ptoc('# A\n\n' + Array.from({ length: 5 }, (x, i) => '## ' + (i + 1) + '. Teema\n\n' + hus(10)).join('\n\n')), '1 1 | 1 2 | 1 3 | 1 4 | 1 5');
   sama('pykälät: pitkät luvut osien yli ovat lukuja', ptoc('# K\n\n## Part I\n\n### 1 C\n\n' + hus(80) + '\n\n### 2 C\n\n' + hus(80) + '\n\n## Part II\n\n### 3 C\n\n' + hus(80)), '1 Part I | 2 1 | 2 2 | 1 Part II | 2 3');
   // Paikannin pykälän tarkkuudella (käyttäjän sääntö 6.11.2026): luvun alku 4.0.0 kolmitasoisessa, 4.0 kaksitasoisessa;
