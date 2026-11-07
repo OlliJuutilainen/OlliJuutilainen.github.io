@@ -364,18 +364,43 @@
   var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Ylimmälle tasolle (luvut) enintään näin monta otsikkoa kaksitasoisessa tekstissä; muuten taso jää käyttämättä (parse()).
   var LUKUJA_ENINTAAN = 10;
+  // Kirjallisuusosio on luku, kun se vie vähintään tämän osuuden tekstistä (bibLuku(), käyttäjän sääntö 7.11.2026).
+  var BIB_OSUUS = 0.25;
+  /* Iso kirjallisuusosio luvuksi (käyttäjän sääntö 7.11.2026, SEP:n Beauvoir): kun luvun tasolla (## tai #) oleva
+     kirjallisuusotsikko ja kaikki sen jälkeinen tekstin loppuun vievät vähintään BIB_OSUUS tekstistä, sivuseikkojen
+     alennus ja ylimmän tason jättäminen käyttämättä perutaan sen osiolta: otsikko on luku ja sen alaotsikot osioita.
+     Kirjallisuuden oletetaan olevan lopussa, joten sen jälkeiset osiot (Other Internet Resources) lasketaan sen osuuteen;
+     ne itse jäävät ennalleen. Palauttaa merkittävien otsikoiden indeksit. */
+  function bibLuku(tokens, t0) {
+    var kaikki = 0, osa = 0, alku = -1, i;
+    for (i = t0; i < tokens.length; i++) {
+      var t = tokens[i];
+      if (t.t === 'h') {
+        if (alku < 0 && t.lvl <= 2 && !t.pykala && BIB.test(plain(t.text.replace(/\s+\[[^\]]+\]$/, '')).trim())) alku = i;
+        continue;
+      }
+      var m = mittaa(t)[0];
+      kaikki += m;
+      if (alku >= 0) osa += m;
+    }
+    if (alku < 0 || osa < kaikki * BIB_OSUUS) return [];
+    var tulos = [alku];
+    for (i = alku + 1; i < tokens.length && !(tokens[i].t === 'h' && tokens[i].lvl <= 2); i++) if (tokens[i].t === 'h') tulos.push(i);
+    return tulos;
+  }
   function lukuNimi(text) { return plain(text).trim().replace(/^((\d+(\.\d+)*|[IVXLC]+)[.):]?|[A-Z][.):])\s+/, '').trim(); }
+  // Lohkon tekstin pituus [yhteensä, pisin kappale tai kohta] merkkeinä.
+  function pit(x) { return plain(String(x || '')).replace(/\s+/g, ' ').trim().length; }
+  function mittaa(t) {
+    if (t.t === 'p') return [pit(t.text), pit(t.text)];
+    if (t.t === 'list') return t.items.reduce(function (a, it) { var n = pit(it.text); return [a[0] + n, Math.max(a[1], n)]; }, [0, 0]);
+    if (t.t === 'bq') return t.kids.reduce(function (a, k) { var m = mittaa(k); return [a[0] + m[0], Math.max(a[1], m[1])]; }, [0, 0]);
+    if (t.t === 'table') return [t.rivit.reduce(function (a, r) { return a + r.solut.reduce(function (b, c) { return b + pit(c.text); }, 0); }, 0), 0];
+    if (t.t === 'pre') return [t.text.length, 0];
+    return [0, 0];
+  }
   function sivuLuvut(tokens, t0) {
     var osat = [], nyky = null;
-    function pit(x) { return plain(String(x || '')).replace(/\s+/g, ' ').trim().length; }
-    function mittaa(t) {
-      if (t.t === 'p') return [pit(t.text), pit(t.text)];
-      if (t.t === 'list') return t.items.reduce(function (a, it) { var n = pit(it.text); return [a[0] + n, Math.max(a[1], n)]; }, [0, 0]);
-      if (t.t === 'bq') return t.kids.reduce(function (a, k) { var m = mittaa(k); return [a[0] + m[0], Math.max(a[1], m[1])]; }, [0, 0]);
-      if (t.t === 'table') return [t.rivit.reduce(function (a, r) { return a + r.solut.reduce(function (b, c) { return b + pit(c.text); }, 0); }, 0), 0];
-      if (t.t === 'pre') return [t.text.length, 0];
-      return [0, 0];
-    }
     for (var i = t0; i < tokens.length; i++) {
       var t = tokens[i];
       if (t.t === 'h' && t.lvl <= 2 && !t.pykala) {
@@ -1965,6 +1990,7 @@
       return Object.keys(tasot).length <= 2 && !(tasot[3] && tasot[4]) && ylimmat > LUKUJA_ENINTAAN;
     })();
     res.laskettu = laske;
+    bibLuku(tokens, t0).forEach(function (i) { tokens[i].bibLuku = true; });
     function renderList(items, inQuote) {
       var i = 0;
       function ryhma(lvl) {
@@ -2002,6 +2028,7 @@
           // Pykälä on korkeintaan alaluvun alaluku (pykalaSarjat()).
           if (t.pykala && !inQuote) lvl0 = lvl = 4;
           if (laske && !inQuote) lvl = Math.min(lvl0 + 1, 4);
+          if (t.bibLuku && !inQuote) lvl = lvl0;
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
@@ -2043,7 +2070,7 @@
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
-          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: !laske && lvl !== lvl0 || undefined, laskettu: laske || undefined };
+          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: !laske && lvl !== lvl0 || undefined, laskettu: laske && !t.bibLuku || undefined, bibLuku: t.bibLuku && !inQuote || undefined };
           if (tn) te.tn = tn;
           if (t.pykala && !inQuote) te.pyk = true;
           res.toc.push(te);
