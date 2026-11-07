@@ -1169,7 +1169,7 @@
     if (h === 'tuo') return tuo();
     if (p.get('id')) return avaaId(p.get('id'));
     if (p.get('u')) return avaaOsoite(p.get('u'));
-    if (p.get('l')) return avaaLaatikko(p.get('l'));
+    if (p.get('l')) return otaLaatikko(p.get('l'));
     naytaLista();
   }
   window.addEventListener('hashchange', reitti);
@@ -1338,7 +1338,7 @@
     }).catch(function (err) { if (pakko) throw err; return null; });
   }
   // #l=<koodi>: laatikko linkistä tai Lisää-kentästä. Koodi talteen, osoite siistiksi ja haku heti.
-  function avaaLaatikko(k) {
+  function otaLaatikko(k) {
     k = k.trim().toLowerCase();
     history.replaceState(null, '', location.pathname + location.search);
     if (!LAATIKKO_RE.test(k)) { naytaLista(); return viesti('Laatikon koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.'); }
