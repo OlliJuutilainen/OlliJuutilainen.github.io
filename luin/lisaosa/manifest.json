@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lisää lukimeen",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Leikkaa verkkoartikkelin Luin-lukimelle. Teksti kulkee Latomon kautta lukulistaan, eikä sitä lähetetä minnekään. Alaviitteet haetaan tarvittaessa saman sivuston alaviitesivulta.",
   "icons": {
     "16": "kuvakkeet/16.png",
