@@ -1736,8 +1736,7 @@
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
     sijoitaLiikKuvat(s, n);
   }
-  // Käärö Vieritys-sanan alle (sanan keskelle), keskikohta 4 px lisäkytkinten keskikohdan alapuolella (käyttäjän
-  // palautteet 7.–8.11.2026). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
+  // Käärö Vieritys-sanan alle (sanan keskelle). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
   function sijoitaLiikKuvat(s, n) {
     var v = $('#asetukset button[data-arvo="vieritys"]'), ka = $('#liik-kaaro'), ko = $('#liik-koodeksi');
     var r = s.closest('.asetus').getBoundingClientRect(), vr = v.getBoundingClientRect(), sr = s.getBoundingClientRect();
@@ -1747,7 +1746,6 @@
     var t = rg.getBoundingClientRect(), yhdessa = Math.abs(vr.top - sr.top) < 2;
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
-    ka.style.top = Math.round((ens.top + vik.bottom) / 2 - 17 - r.top) + 'px';
     // Koodeksin yläreuna Sivunkääntö-sanan pienten kirjainten yläreunaan (käyttäjän pyyntö 8.11.2026), sanan oikealle
     // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuu (väli 32 px). Pienten kirjainten
     // (u, n) muste alkaa Literatassa 0,694 em tekstilaatikon yläreunan alapuolella (mitattu pikseleistä 8.11.2026:
@@ -1759,7 +1757,12 @@
     var x = Math.round(Math.min(oik + 32 - r.left, r.width - 44));
     ko.hidden = !yhdessa || x < oik + 16 - r.left;
     ko.style.left = x + 'px';
-    ko.style.top = Math.round(y - 2 - r.top) + 'px'; // koodeksin yläviivan muste alkaa 2 px kuvan yläreunasta
+    var koY = Math.round(y - 2 - r.top); // koodeksin yläviivan muste alkaa 2 px kuvan yläreunasta
+    ko.style.top = koY + 'px';
+    // Käärön muste alkaa koodeksin musteen alareunasta eli selän kielekkeen alareunasta (käyttäjän pyyntö 8.11.2026;
+    // muitakin kiinnekohtia voidaan vielä kokeilla): kieleke päättyy 30,3 px koodeksin yläreunasta, käärön rullan
+    // muste alkaa 0,5 px kuvan yläreunasta. Ilman koodeksia käärö lisäkytkinten keskelle kuten ennen.
+    ka.style.top = (ko.hidden ? Math.round((ens.top + vik.bottom) / 2 - 17 - r.top) : Math.round(koY + 30.3 - .5)) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
