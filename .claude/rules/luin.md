@@ -87,8 +87,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Lukija (opas 4)
 
-- **Mobiili = kosketusnäyttö** `(pointer: coarse)`; hiiri on työpöytä myös kapeassa ikkunassa (leveysehdolla palkit
-  piiloutuivat työpöydällä).
+- **Mobiili = kosketusnäyttö** `(pointer: coarse), (hover: none)`; hiiri on työpöytä myös kapeassa ikkunassa (leveysehdolla palkit
+  piiloutuivat työpöydällä). `hover: none` on välttämätön: Booxin Firefox ei täytä `pointer: coarse`a (Palmalla lukijan
+  yläpalkki näkyi, 8.11.2026). Pidä ehto samana kaikissa kolmessa kohdassa (CSS `--v-laita`, `sivutusOletus()`, `MOBIILI`).
 - **Tekstin napautus ei avaa palkkeja** (ne avautuivat vahingossa). Vain alakaistan tai alapalkin napautus avaa ja
   sulkee ne; vieritys ja sivunkääntö eivät vaikuta, eikä keskiklikkaus työpöydällä avaa ("hiirellä kauhea tapa").
   Alapalkissa ei ole natsaa eikä osion nimeä.
