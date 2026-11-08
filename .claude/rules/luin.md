@@ -62,7 +62,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   järkevältä. Latomon ohje ei mainosta iA Writeria eikä neuvo sen käyttöä; se mainitaan vain, kun se vastaa
   kysymykseen *miksi juuri näin*.
 - **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kaikki tasot; kosketusnäytöllä ja e-inkissä sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). E-ink-tunnistusta ei ole todennettu oikealla laitteella.
-- Uusi oletus koskee vain ensikäyttöä. Tallennettuja asetuksia muutetaan vain kerran, `aset.av`-numeron avulla.
+- Uusi oletus koskee vain ensikäyttöä. Tallennettuja asetuksia muutetaan vain kerran, `aset.av`-numeron avulla. Tallennetut asetukset ohittavat OLETUKSEN, joten päätetty oletus ei näy vanhalla käyttäjällä ilman `av`-siirtoa (7.11.2026 päätökset jäivät ilman, korjattu `av 7`:llä 8.11.2026: sivunkäännön kaikki tavat, sisennys, ei sukkelaa alleviivausta, aikajanan kaikki tasot; sivutuksen valintaa ei kosketa). Muuttaessasi oletusta nosta `av` ja siirrä.
 
 ### Markdown-konventiot (opas 3)
 

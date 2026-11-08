@@ -169,7 +169,7 @@ palvelin.listen(0, async () => {
   await p.goto(BASE + 'luin.html#tuo');
   await p.waitForTimeout(500);
   const oletus = await p.evaluate(() => ({ k: window.__luin.aset.kaannos, s: window.__luin.aset.sanakirja, suk: window.__luin.aset.sukSana, av: window.__luin.aset.av }));
-  tulos('oletukset: sanaselitys valikossa, käännös ei, sukkela päällä', oletus.k === 0 && oletus.s === 1 && oletus.suk === 1 && oletus.av === 6, JSON.stringify(oletus));
+  tulos('oletukset: sanaselitys valikossa, käännös ei, sukkela päällä', oletus.k === 0 && oletus.s === 1 && oletus.suk === 1 && oletus.av === 7, JSON.stringify(oletus));
 
   // Selitys tekstin kohdasta: odotetaan, kunnes Haetaan… vaihtuu.
   // n: monesko esiintymä, tai 'kappaleen alku#monesko' (kokonainen sana siinä kappaleessa).
@@ -448,7 +448,7 @@ palvelin.listen(0, async () => {
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.av = 5; a.kaannos = 1; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await p.reload(); await p.waitForTimeout(400);
   const av = await p.evaluate(() => ({ k: window.__luin.aset.kaannos, av: window.__luin.aset.av }));
-  tulos('av 6: tallennettu pilotin käännös pois kerran', av.k === 0 && av.av === 6, JSON.stringify(av));
+  tulos('av 6→7: tallennettu pilotin käännös pois kerran', av.k === 0 && av.av === 7, JSON.stringify(av));
 
   // Kapea kosketusruutu (360 px): pitkä otsikko rivittyy, eikä se, merkki ja raksi mene päällekkäin, eikä ikkuna ylitä ruutua.
   await p.setViewportSize({ width: 360, height: 740 });
