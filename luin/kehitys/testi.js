@@ -753,7 +753,8 @@ palvelin.listen(0, async () => {
   const ilman = await m.evaluate(() => ({ piilo: document.querySelector('#sivunapit').hidden, tallessa: JSON.parse(localStorage.getItem('luin-asetukset')).sivunapit }));
   await asetuksetM(); await m.click('#sivunapit-kytkin button[data-kytkin="sivunapit"]'); await m.click('#asetukset [data-a="sivutus"] button[data-arvo="vieritys"]'); await m.waitForTimeout(100);
   // Asetukset pysyvät auki Liikkumisen vaihtuessa.
-  const kytV = await m.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button[data-kytkin="sivunapit"]').disabled, nakyy: !document.querySelector('#sivunapit').hidden }));
+  // Vierityksessä kytkin on pois käytöstä luokalla pois (7.11.2026 alkaen sen napautus valitsee sivunkäännön), ei disabled-ominaisuudella.
+  const kytV = await m.evaluate(() => ({ pois: document.querySelector('#sivunapit-kytkin button[data-kytkin="sivunapit"]').classList.contains('pois'), nakyy: !document.querySelector('#sivunapit').hidden }));
   await m.click('#asetukset .sulje');
   tulos('sivunvaihtopainikkeiden kytkin', Math.abs(kyt.ero - 16) < 0.6 && !kyt.pois && ilman.piilo && ilman.tallessa === 0 && kytV.pois && !kytV.nakyy, JSON.stringify({ kyt, ilman, kytV }));
   await m.context().close();
@@ -996,8 +997,10 @@ palvelin.listen(0, async () => {
   });
   await mp.addInitScript(() => { window.__avattu = []; window.open = u => { window.__avattu.push(u); return null; }; });
   await mp.goto(BASE + 'luin.html');
-  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
-  await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
+  // Maalaustestit olettavat sukkelan alleviivauksen (oletuksena pois 7.11.2026 alkaen). about:blank välissä, jotta sivu
+  // latautuu uudelleen ja lukee asetukset: pelkkä #tuo samaan osoitteeseen ei lataa sivua.
+  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1 })); }, MD);
+  await mp.goto('about:blank'); await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
   // Käännös ei ole oletuksena valikossa (av 6, käyttäjän päätös 5.11.2026); kytketään päälle valikon järjestystä ja DeepL:ää varten.
   await mp.evaluate(() => { window.__luin.aset.kaannos = 1; });
   // Pitkän kappaleen sanojen keskikohdat (sanan kolmas merkki), kappale ruudun keskellä.
@@ -1139,7 +1142,7 @@ palvelin.listen(0, async () => {
   {
     const kk = await b.newContext({ viewport: { width: 412, height: 824 } }), kq = await kk.newPage();
     await kq.goto(BASE + 'luin.html');
-    await kq.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
+    await kq.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1 })); }, MD);
     await kq.goto('about:blank'); await kq.goto(BASE + 'luin.html#tuo'); await kq.waitForTimeout(600);
     const g = await kq.evaluate(() => {
       const ps = [...document.querySelectorAll('#teksti p[data-b]')], ar = document.querySelector('#teksti').getBoundingClientRect();
@@ -1234,8 +1237,9 @@ palvelin.listen(0, async () => {
     body: JSON.stringify({ fi: [{ partOfSpeech: 'Noun', language: 'Finnish', definitions: [{ definition: 'test' }] }] }) }));
   const kosk = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
   await kp2.goto(BASE + 'luin.html');
-  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6 })); }, MD);
-  await kp2.goto(BASE + 'luin.html#tuo'); await kp2.waitForTimeout(600);
+  // Vieritys ja sukkela alleviivaus: kosketusnäytön ensikäytön oletus on 7.11.2026 alkaen sivunkääntö ilman sukkelaa.
+  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1, sivutus: 'vieritys' })); }, MD);
+  await kp2.goto('about:blank'); await kp2.goto(BASE + 'luin.html#tuo'); await kp2.waitForTimeout(600);
   await kp2.evaluate(() => { window.__luin.aset.kaannos = 1; });
   const ksanat = await kp2.evaluate(() => {
     const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 300);
@@ -1348,8 +1352,9 @@ palvelin.listen(0, async () => {
   const tk = await b.newContext({ viewport: { width: 1280, height: 900 } });
   const tp2 = await tk.newPage(); tp2.on('pageerror', e => sivuvirheet.push(e.message));
   await tp2.goto(BASE + 'luin.html');
-  await tp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5 })); }, MD);
-  await tp2.goto(BASE + 'luin.html#tuo'); await tp2.waitForTimeout(600);
+  // Sukkela alleviivaus päälle ja sivu ladataan uudelleen (about:blank välissä), jotta veto tekee alleviivauksen.
+  await tp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5, auto: 1 })); }, MD);
+  await tp2.goto('about:blank'); await tp2.goto(BASE + 'luin.html#tuo'); await tp2.waitForTimeout(600);
   const ts = await tp2.evaluate(() => { const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600 && !x.querySelector('.sidenote')) || [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600);
     el.scrollIntoView({ block: 'center' });
     const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), o = []; let t; while ((t = tw.nextNode())) { if (t.parentElement.closest('.sidenote, .fnref')) continue; const re = /[\p{L}]{5,}/gu; let m;

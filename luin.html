@@ -1740,22 +1740,25 @@
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
     // Koodeksin yläreuna Sivunkääntö-sanan pienten kirjainten yläreunaan (käyttäjän pyyntö 8.11.2026), sanan oikealle
-    // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuu (väli 32 px). Pienten kirjainten
+    // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuisi yläreuna sanan tasolla (väli 28 px). Pienten kirjainten
     // (u, n) muste alkaa Literatassa 0,694 em tekstilaatikon yläreunan alapuolella (mitattu pikseleistä 8.11.2026:
     // 10,0 px / 14,4 px; canvasin measureText ei kelpaa, koska se ei käytä optisen koon akselia).
     rg.selectNode(s.lastChild);
     var ts = rg.getBoundingClientRect(), y = ts.top + .694 * parseFloat(getComputedStyle(s).fontSize);
     var oik = Math.max.apply(null, nb.filter(function (b) { return b.top < y + 32 && b.bottom > y; }).map(function (b) { return b.right; }).concat(ts.right));
-    // Ahtaalla (320 px) väli kapenee 32 px:stä, kunnes kuva mahtuu, kuitenkin vähintään 16 px; muuten kuva piiloon.
-    var x = Math.round(Math.min(oik + 32 - r.left, r.width - 44));
+    // Ahtaalla (320 px) väli kapenee 28 px:stä, kunnes kuva mahtuu, kuitenkin vähintään 16 px; muuten kuva piiloon.
+    var x = Math.round(Math.min(oik + 28 - r.left, r.width - 44));
     ko.hidden = !yhdessa || x < oik + 16 - r.left;
     ko.style.left = x + 'px';
-    var koY = Math.round(y - 2 - r.top); // koodeksin yläviivan muste alkaa 2 px kuvan yläreunasta
-    ko.style.top = koY + 'px';
-    // Käärön muste alkaa koodeksin musteen alareunasta eli selän kielekkeen alareunasta (käyttäjän pyyntö 8.11.2026;
-    // muitakin kiinnekohtia voidaan vielä kokeilla): kieleke päättyy 30,3 px koodeksin yläreunasta, käärön rullan
-    // muste alkaa 0,5 px kuvan yläreunasta. Ilman koodeksia käärö lisäkytkinten keskelle kuten ennen.
-    ka.style.top = (ko.hidden ? Math.round((ens.top + vik.bottom) / 2 - 17 - r.top) : Math.round(koY + 30.3 - .5)) + 'px';
+    // Käärön paikka (käyttäjän pyyntö 8.11.2026): sen muste alkaa siitä, mihin koodeksin selän kieleke päättyisi, kun
+    // koodeksin yläviiva on Sivunkääntö-sanan pienten kirjainten tasolla (koodeksin muste alkaa 2 px ja kieleke päättyy
+    // 30,3 px kuvan yläreunasta, käärön muste alkaa 0,5 px). Ilman koodeksia käärö lisäkytkinten keskelle kuten ennen.
+    var kaY = ko.hidden ? Math.round((ens.top + vik.bottom) / 2 - 17 - r.top) : Math.round(y - 2 - r.top + 30.3 - .5);
+    ka.style.top = kaY + 'px';
+    // Koodeksin musteen keskikohta käärön musteen keskikohdan tasalle (käyttäjän pyyntö 8.11.2026; käärö paikallaan):
+    // käärön muste 0,5–41,5 px (keskikohta 21), koodeksin 2–30,3 px (keskikohta 16,15). Vaakapaikka lasketaan yllä
+    // yläreunan tason mukaan, jotta koodeksi ei siirry sivusuunnassa.
+    ko.style.top = Math.round(kaY + 21 - 16.15) + 'px';
   }
   $('#asetukset').addEventListener('click', function (e) {
     var v = e.target.closest('button[data-vie]');
