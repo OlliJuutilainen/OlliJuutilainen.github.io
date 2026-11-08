@@ -553,10 +553,10 @@
      Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan (palkkiopasKlikki). */
   #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
-    color: #d9d9d9; text-align: center; user-select: none; -webkit-user-select: none; }
-  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026), sama vaaleus kuin --hius; poikkeus kuuden
+    color: #c6c6c6; text-align: center; user-select: none; -webkit-user-select: none; }
+  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026; tummennettu vähän, kun #d9d9d9 oli liian haalea); poikkeus kuuden
      värin paletista vain tässä. */
-  :root[data-teema="tumma"] #palkkiopas { color: #2b2b2b; }
+  :root[data-teema="tumma"] #palkkiopas { color: #404040; }
   body:not(.sivutus) #palkkiopas { display: none; }
   #palkkiopas svg { display: block; height: min(62%, 135vw); width: auto; fill: none; stroke: currentColor; stroke-width: 12;
     stroke-linejoin: miter; stroke-linecap: butt; }
@@ -4427,10 +4427,26 @@
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
   // Turvakaistan (kameran loven) napautus toimii kuten alakaistan: avaa ja sulkee navin. Vain lukijassa ja mobiilissa.
-  $('#turva').addEventListener('click', function () {
-    if ($('#lukija').hidden || !document.body.classList.contains('mobiili') || !turva()) return;
-    avaaJana(!palkitAuki());
-  });
+  // Tunnistus on koordinaateista (kosketus alkaa ja loppuu kaistalla, liike alle 12 px), ei elementin klikkauksesta:
+  // OnePlus Nordilla (Chrome) kaistan click ei tullut perille (käyttäjän havainto 8.11.2026).
+  (function () {
+    var alku = null, viim = 0;
+    function kaistalla(y) { var t = turva(); return t > 0 && y < t; }
+    function vaihda() {
+      if (Date.now() - viim < 500) return;
+      if ($('#lukija').hidden || !document.body.classList.contains('mobiili') || !turva()) return;
+      viim = Date.now(); avaaJana(!palkitAuki());
+    }
+    window.addEventListener('pointerdown', function (e) {
+      alku = e.pointerType !== 'mouse' && kaistalla(e.clientY) ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
+    }, true);
+    window.addEventListener('pointerup', function (e) {
+      var a = alku; alku = null;
+      if (a && kaistalla(e.clientY) && Math.abs(e.clientX - a.x) + Math.abs(e.clientY - a.y) < 12 && Date.now() - a.t < 600) vaihda();
+    }, true);
+    window.addEventListener('pointercancel', function () { alku = null; }, true);
+    $('#turva').addEventListener('click', vaihda);
+  })();
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026, CSS #ala-laatikot): mobiilissa, kun laatikot eivät mahdu rinnakkain,
   // Etsi, Sisälmys ja Merkinnät siirtyvät alapalkkiin, jos mahtuvat sinne: ensin palkkinuolen kanssa (väli 24 px kuten
   // nuolen ja sivunappien välissä), sitten ilman nuolta (Light Phone 360 px), muuten ne jäävät aikajanan alle.
