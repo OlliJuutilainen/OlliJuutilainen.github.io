@@ -2332,6 +2332,39 @@
     if (aset.sivutus === 'sivut' && d > 0 && tila.sivu >= tila.sivuja - 1 && !verhoAuki()) { avaaJana(true); return; }
     seuraava(d);
   }
+  /* Erittäin pitkä painallus (OSIO_MS) hyppää seuraavan osion alkuun (käyttäjän pyyntö 8.11.2026): reunanapautus, sivunkäännön
+     painike tai laitteen sivunkääntönäppäin (PageDown/PageUp, äänenvoimakkuus). Merkkipaalu on tekstin ylin käytössä oleva
+     taso osiosta alaspäin: jos osioita on, osio tai luku; muuten luku; muuten kohta; ilman otsikoita 10 sivua. Hyppy lasketaan
+     sivulta, jolla painallus alkoi (näppäimen ensimmäinen painallus ehtii kääntää yhden sivun). Taaksepäin: edellisen
+     merkkipaalun sivu (kesken osiota sen alku). Sivun ja luvun jälkeen ei merkkipaalua: viimeinen tai ensimmäinen sivu. */
+  var OSIO_MS = 1100, osioAjastin = 0;
+  function osioSivu(d, s0) {
+    var toc = nyt.doc.toc, B = nyt.blocks, tasot = {}, viim = tila.sivuja - 1;
+    toc.forEach(function (t) { tasot[Math.min(t.lvl, 3)] = 1; });
+    var raja = tasot[2] ? 2 : tasot[1] ? 1 : tasot[3] ? 3 : 0;
+    if (!raja) return clamp(s0 + 10 * d, 0, viim);
+    var al = art.getBoundingClientRect().left, s = tila.stride, p = null;
+    toc.forEach(function (t) {
+      var rs = t.lvl <= raja && B[t.b] && B[t.b].getClientRects();
+      if (!rs || !rs.length) return;
+      var x = Math.floor((rs[0].left - al + 2) / s);
+      if (d > 0 ? x > s0 && (p === null || x < p) : x < s0 && (p === null || x > p)) p = x;
+    });
+    return p === null ? (d > 0 ? viim : 0) : p;
+  }
+  function osioPeru() { clearTimeout(osioAjastin); osioAjastin = 0; }
+  // ehto kysytään vasta ajastimen laukeamishetkellä (verho, tila ja asetukset ovat voineet muuttua).
+  function osioAloita(d, s0, ehto, klikki) {
+    osioPeru();
+    osioAjastin = setTimeout(function () {
+      osioAjastin = 0;
+      if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || verhoAuki() || (ehto && !ehto())) return;
+      if (klikki) tila.osioHyppy = Date.now();
+      sivulle(osioSivu(d, s0));
+    }, OSIO_MS);
+  }
+  var OSIO_NAPPI = { PageDown: 1, AudioVolumeDown: 1, PageUp: -1, AudioVolumeUp: -1 };
+  document.addEventListener('keyup', function (e) { if (OSIO_NAPPI[e.key]) osioPeru(); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
@@ -2339,6 +2372,14 @@
     // Paneelin omat säätimet: valinta ja painikkeet käyttävät nuolia ja välilyöntiä itse.
     if (e.target.closest && e.target.closest('select')) return;
     if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
+    // Laitteen sivunkääntönäppäin: pidetty näppäin ei käännä sivuja toistolla vaan odottaa pitkää painallusta.
+    if (OSIO_NAPPI[k]) {
+      e.preventDefault();
+      if (e.repeat) return;
+      osioAloita(OSIO_NAPPI[k], tila.sivu);
+      if (OSIO_NAPPI[k] > 0) seuraavaPainettu(1); else seuraava(-1);
+      return;
+    }
     // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
     // yleensä välitä näppäimiä sivulle; jos välittää, ne kääntävät sivua (alas = seuraava).
     if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === 'AudioVolumeDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); seuraavaPainettu(1); }
@@ -2357,7 +2398,26 @@
     seuraava((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1);
   }, { passive: false });
   var kosketus = null;
-  sivuEl.addEventListener('touchstart', function (e) { if (e.touches.length === 1) kosketus = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; }, { passive: true });
+  sivuEl.addEventListener('touchstart', function (e) {
+    osioPeru(); tila.osioHyppy = 0;
+    if (e.touches.length !== 1) return;
+    var t0 = e.touches[0], tg = e.target;
+    kosketus = { x: t0.clientX, y: t0.clientY, t: Date.now() };
+    // Pitkä reunanapautus: sama alue kuin reunanapautuksessa (30 % laidoilla), ei linkin, merkin eikä alapalkin kohdalla.
+    // Tekstin maalaus ehtii alkaa (PITKA) ennen tätä; hyppy perii sen, joten laidalla paikallaan pidetty sormi ei maalaa.
+    var x = t0.clientX / innerWidth;
+    if ((x < 0.3 || x > 0.7) && aset.sivuReuna && !(tg.closest && tg.closest('a[href], a[data-go], .fnref, .km, .kirm, mark.ali, .luin-ui, #ala'))) {
+      osioAloita(x < 0.3 ? -1 : 1, tila.sivu, function () {
+        if (!kosketus || t0.clientY >= alaRaja()) return false;
+        peruMaalaus(); poistaLuonnos(); kosketus = null;
+        return true;
+      }, true);
+    }
+  }, { passive: true });
+  sivuEl.addEventListener('touchmove', function (e) {
+    if (osioAjastin && (e.touches.length !== 1 || !kosketus || Math.abs(e.touches[0].clientX - kosketus.x) + Math.abs(e.touches[0].clientY - kosketus.y) > 10)) osioPeru();
+  }, { passive: true });
+  ['touchend', 'touchcancel'].forEach(function (t) { sivuEl.addEventListener(t, osioPeru, { passive: true }); });
   sivuEl.addEventListener('touchend', function (e) {
     // Luinin maalauksen veto ei ole pyyhkäisy (maalauksen touchend-käsittelijä tulee tämän jälkeen).
     if (maal && maal.aktiivinen) { kosketus = null; return; }
@@ -2388,6 +2448,7 @@
   /* ---------- napautukset tekstissä ---------- */
   sivuEl.addEventListener('click', function (e) {
     if (!nyt) return;
+    if (tila.osioHyppy && Date.now() - tila.osioHyppy < 1500) { tila.osioHyppy = 0; e.preventDefault(); return; } // pitkän painalluksen perään tuleva klikkaus
     var t = e.target;
     // Kun palkit ovat auki, tekstialueen napautus vain sulkee ne (rauhallinen lukunäkymä): mikään muu tekstialueen
     // toiminto, ei linkki, kirjanmerkki, alleviivaus eikä reunanapautus, toimi (käyttäjän vaatimus 26.10.2026).
@@ -4327,6 +4388,17 @@
     sijoitaLaatikot();
   }
   $('#km-nappi').addEventListener('click', vaihdaKirjanmerkki);
+  // Pitkä painallus sivunkääntöpainikkeella tai sen tyhjällä ympäristöllä: osiohyppy (OSIO_MS). Klikkaus, joka tulee hypyn perään, nielaistaan.
+  (function () {
+    var nap = $('#sivunapit');
+    function suunta(e) { return e.clientX >= $('#sivu-se').getBoundingClientRect().left ? 1 : -1; }
+    nap.addEventListener('pointerdown', function (e) { tila.osioHyppy = 0; osioAloita(suunta(e), tila.sivu, null, true); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { nap.addEventListener(t, osioPeru); });
+    nap.addEventListener('click', function (e) {
+      if (tila.osioHyppy && Date.now() - tila.osioHyppy < 1500) { tila.osioHyppy = 0; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+    nap.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  })();
   $('#sivu-ed').addEventListener('click', function () { seuraava(-1); });
   $('#sivu-se').addEventListener('click', function () { seuraavaPainettu(1); });
   // Nappien ympärillä oleva tyhjä alue (ylä- ja alapuoli, oikea reuna) kääntää sen napin suuntaan, jonka kohdalla
