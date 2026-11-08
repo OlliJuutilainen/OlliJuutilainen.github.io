@@ -953,7 +953,7 @@
        Sukkela sanaselitys ovat toisistaan riippumattomat (käyttäjän päätös 5.11.2026). -->
   <h3>Maalaus</h3>
   <div class="asetus" data-a="maalaus"><span class="nimi">Tapa</span><div class="valinnat" data-v="luin:Luinin|selain:Selaimen"></div></div>
-  <div class="asetus" data-a="kopioViite"><span class="nimi">Kopioon viite</span><div class="valinnat" data-v="ei:Ei|lyhyt:Lyhyt|pitka:Pitkä"></div></div>
+  <div class="asetus" data-a="kopioViite"><span class="nimi">Lähteen sisällyttäminen kopiointiin</span><div class="valinnat" data-v="ei:Ei|lyhyt:Viittauksena|pitka:Kokonaan"></div></div>
   <div class="asetus"><span class="nimi kehote">Valikossa:</span>
     <div class="valinnat pino" data-k="sanakirja:Sanaselitys|kaannos:Lausekäännös"></div></div>
   <h3>Aikajana</h3>
@@ -1097,7 +1097,7 @@
   // pitkä painallus ilman vetoa) avaa vain sanaselityksen. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // Riippumaton valikon sanaselityksestä (sanakirja): kumpikin toimii ilman toista (käyttäjän päätös 5.11.2026).
   // maalaus (pilotti 5.11.2026): luin = Luinin oma maalaus (ei selaimen valintaa tekstissä, kahvat), selain = selaimen
-  // valinta kuten ennen. kopioViite: kopioon lyhyt (Korsgaard 2018, 8.5.3) tai pitkä viite. sanakirja (sanaselitys), kaannos: valikon napit.
+  // valinta kuten ennen. kopioViite: lähde kopioon viittauksena (lyhyt: Korsgaard 2018, 8.5.3) tai kokonaan (pitka); nimet käyttäjän päätös 8.11.2026. sanakirja (sanaselitys), kaannos: valikon napit.
   var tallennetut = LS.get('luin-asetukset', null);
   var aset = Object.assign({}, OLETUS, tallennetut || {});
   // Kirjasinvalinta (antiikva/groteski) poistettiin 21.10.2026: groteski ei sovi valikkojen,
@@ -3516,7 +3516,7 @@
     if (!nimi) nimi = e.title || '';
     return (nimi + (vuosi ? ' ' + vuosi : '')).trim();
   }
-  function kopioNimi() { return aset.kopioViite === 'lyhyt' ? 'Kopioi lyhyen viitteen kanssa' : aset.kopioViite === 'pitka' ? 'Kopioi pitkän viitteen kanssa' : 'Kopioi'; }
+  function kopioNimi() { return aset.kopioViite === 'lyhyt' ? 'Kopioi viittauksen kanssa' : aset.kopioViite === 'pitka' ? 'Kopioi koko lähteen kanssa' : 'Kopioi'; }
   function kopioiViitteella(segs) {
     var ote = segs.map(function (x) { return x.x; }).join('\n\n'), loc = sijainti(segs), e = nyt.e;
     if (aset.kopioViite === 'lyhyt') return kopioi(ote + ' (' + lyhytViite() + (loc ? ', ' + loc : '') + ')');
