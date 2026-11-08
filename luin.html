@@ -56,9 +56,10 @@
      loppu ja sivunapit. Mobiilissa oikea laita on vasemman peilikuva (ennen tekstipalstan reuna + 10 px eli Keski-marginaalilla
      38,5 px, mikä jätti oikeaan laitaan oudon aukon). Laidat ovat kokonaislukuja, koska Chromium pyöristää SVG:n ja
      reunuksen paikan kokonaiseen pikseliin (mitattu): puolikkaalla laidalla sivunapit tai ruoto jäi aina 0,5 px sivuun.
-     Kosketusnäyttö = body.mobiili (asettele()); asetuspaneeli tarvitsee arvon myös lukulistassa, joten ehto on mediakysely. */
+     Kosketusnäyttö = body.mobiili (asettele()); asetuspaneeli tarvitsee arvon myös lukulistassa, joten ehto on mediakysely
+     (sama kuin MOBIILI: pointer: coarse tai hover: none). */
   :root { --v-laita: 24px; --o-laita: 29px; }
-  @media (pointer: coarse) { :root { --v-laita: 17px; --o-laita: 17px; } }
+  @media (pointer: coarse), (hover: none) { :root { --v-laita: 17px; --o-laita: 17px; } }
   :root[data-teema="tumma"] {
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d; --valo: #3f3428;
@@ -314,7 +315,7 @@
   .takaisin .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
-  /* Mobiilissa (body.mobiili: kosketusnäyttö eli pointer: coarse; käyttäjän päätökset 22.10.2026) palkit ovat
+  /* Mobiilissa (body.mobiili: kosketusnäyttö eli pointer: coarse tai hover: none; käyttäjän päätökset 22.10.2026) palkit ovat
      piilossa, kunnes ne avataan alakaistasta (palkit-auki); tekstin napautus ei avaa niitä, koska se tapahtui
      liian helposti vahingossa. Yläpalkki tulee tekstin päälle, joten teksti ei siirry. --yv on yläpalkin varaama
      tila. Alapalkin tilalla on reunukseton kaista, jossa kelluvat kirjanmerkki, palkkinuoli ja sivunapit. */
@@ -1173,7 +1174,7 @@
   // (media `update: slow|none`, `monochrome` tai Boox/Onyx käyttäjäagentissa); silloin sivunkääntö myös suurella laitteella.
   function sivutusOletus() {
     if (!window.matchMedia) return false;
-    var kosketus = matchMedia('(pointer: coarse)').matches;
+    var kosketus = matchMedia('(pointer: coarse), (hover: none)').matches;
     var eink = matchMedia('(update: slow)').matches || matchMedia('(update: none)').matches ||
       matchMedia('(monochrome)').matches || /\b(boox|onyx)\b/i.test(navigator.userAgent || '');
     return kosketus || eink;
@@ -1184,7 +1185,11 @@
   // Lukijan mobiiliasettelu (body.mobiili, asettele()) ratkaistaan syöttötavasta eikä leveydestä (käyttäjän päätös
   // 22.10.2026): kosketusnäyttö on mobiili, hiiri työpöytä myös kapeassa tai suurennetussa ikkunassa, jossa
   // palkit piiloutuivat, kun ehtona oli myös leveys enintään 700 px.
-  var MOBIILI = window.matchMedia ? matchMedia('(pointer: coarse)') : null;
+  // Kosketusnäyttö on myös hover: none (käyttäjän havainto 8.11.2026: Palman Firefoxissa lukijan yläpalkki näkyi).
+  // Firefox Androidilla laskee kynää tukevan kosketusnäytön (Boox) tarkaksi osoittimeksi, jolloin pointer: coarse ei
+  // täyty, mutta leijuvaksi se laskee vain hiiren ja kosketuslevyn (GeckoAppShell.getPointerCapabilities). Hiirellä
+  // hover: hover, joten työpöytä ja kosketusläppäri hiiren kanssa pysyvät työpöytinä.
+  var MOBIILI = window.matchMedia ? matchMedia('(pointer: coarse), (hover: none)') : null;
   /* Turvakaistan varasääntö (käyttäjän pyyntö 8.11.2026: jos selain ei tunnista kameran aluetta, musta kaista silti).
      Selaimen ilmoittama loven korkeus (env(safe-area-inset-top), #turva-env) on ensisijainen. Jos se on 0, mutta
      kosketusnäytöllä pystyasennossa sivu peittää näytön koko korkeuden (kokoruutu ilman selaimen omaa mustaa reunusta) ja
