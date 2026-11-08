@@ -1740,14 +1740,14 @@
     ka.hidden = !yhdessa;
     ka.style.left = Math.round((t.left + t.right) / 2 - 11.5 - r.left) + 'px';
     // Koodeksin yläreuna Sivunkääntö-sanan pienten kirjainten yläreunaan (käyttäjän pyyntö 8.11.2026), sanan oikealle
-    // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuisi yläreuna sanan tasolla (väli 28 px). Pienten kirjainten
+    // puolelle niin, ettei se osu niihin lisäkytkimiin, joiden korkeudelle se ulottuisi yläreuna sanan tasolla (väli 26 px). Pienten kirjainten
     // (u, n) muste alkaa Literatassa 0,694 em tekstilaatikon yläreunan alapuolella (mitattu pikseleistä 8.11.2026:
     // 10,0 px / 14,4 px; canvasin measureText ei kelpaa, koska se ei käytä optisen koon akselia).
     rg.selectNode(s.lastChild);
     var ts = rg.getBoundingClientRect(), y = ts.top + .694 * parseFloat(getComputedStyle(s).fontSize);
     var oik = Math.max.apply(null, nb.filter(function (b) { return b.top < y + 32 && b.bottom > y; }).map(function (b) { return b.right; }).concat(ts.right));
-    // Ahtaalla (320 px) väli kapenee 28 px:stä, kunnes kuva mahtuu, kuitenkin vähintään 16 px; muuten kuva piiloon.
-    var x = Math.round(Math.min(oik + 28 - r.left, r.width - 44));
+    // Ahtaalla (320 px) väli kapenee 26 px:stä, kunnes kuva mahtuu, kuitenkin vähintään 16 px; muuten kuva piiloon.
+    var x = Math.round(Math.min(oik + 26 - r.left, r.width - 44));
     ko.hidden = !yhdessa || x < oik + 16 - r.left;
     ko.style.left = x + 'px';
     // Käärön paikka (käyttäjän pyyntö 8.11.2026): sen muste alkaa siitä, mihin koodeksin selän kieleke päättyisi, kun
