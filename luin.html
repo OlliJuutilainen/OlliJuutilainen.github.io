@@ -70,6 +70,8 @@
   /* Musta turvakaista loven kohdalla kaiken päällä; vain taaksepäin kääntävä kummitusneliö piirtyy sen päälle. */
   #turva { position: fixed; top: 0; left: 0; right: 0; height: var(--turva); background: #000; z-index: 60;
     pointer-events: none; }
+  /* Mobiilissa kaistan napautus avaa ja sulkee navin kuten alakaista (käyttäjän pyyntö 8.11.2026, JS: #turva). */
+  body.mobiili #turva { pointer-events: auto; }
   #turva-env { position: fixed; top: 0; left: 0; width: 0; height: env(safe-area-inset-top, 0px); visibility: hidden;
     pointer-events: none; }
   /* Suuren näkymän korkeus (selaimen palkit piilossa); palkkioppaan mitta. */
@@ -4422,6 +4424,11 @@
     if (auki) { piirraJana(); naviAlas(); } else suljeLaatikot();
   }
   $('#ala-nappi').addEventListener('click', function () { avaaJana(!palkitAuki()); });
+  // Turvakaistan (kameran loven) napautus toimii kuten alakaistan: avaa ja sulkee navin. Vain lukijassa ja mobiilissa.
+  $('#turva').addEventListener('click', function () {
+    if ($('#lukija').hidden || !document.body.classList.contains('mobiili') || !turva()) return;
+    avaaJana(!palkitAuki());
+  });
   // Ahdas navinäkymä (käyttäjän pyyntö 6.11.2026, CSS #ala-laatikot): mobiilissa, kun laatikot eivät mahdu rinnakkain,
   // Etsi, Sisälmys ja Merkinnät siirtyvät alapalkkiin, jos mahtuvat sinne: ensin palkkinuolen kanssa (väli 24 px kuten
   // nuolen ja sivunappien välissä), sitten ilman nuolta (Light Phone 360 px), muuten ne jäävät aikajanan alle.
