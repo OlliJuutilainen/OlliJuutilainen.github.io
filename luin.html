@@ -543,8 +543,8 @@
   /* sivutettu näkymä: CSS-palstat, yksi palsta kerrallaan näkyvissä */
   body.sivutus { overflow: hidden; }
   /* Palkkivara (käyttäjän pyyntö 8.11.2026, opas 4.9): mobiiliselain piilottaa palkkinsa vain, kun sivua vieritetään, eikä
-     sivutettu teksti vieritä. Sivutettuna kosketusnäytöllä dokumentti on siksi hiukan suuren näkymän (100lvh) korkeutta
-     pidempi: pystypyyhkäisy vierittää tyhjää dokumenttia, jolloin selain piilottaa palkit (ja vastasuuntaan tuo ne
+     sivutettu teksti vieritä. Sivutettuna kosketusnäytöllä dokumentti on siksi puolitoista suuren näkymän
+     korkeutta (150lvh): pystypyyhkäisy vierittää tyhjää dokumenttia, jolloin selain piilottaa palkit (ja vastasuuntaan tuo ne
      takaisin). Kaikki näkyvä on position: fixed, joten vieritys ei liikuta mitään. Ei vetämällä päivitystä eikä reunahehkua.
      Kokoruudussa vara on pois, jotta alasveto ylhäältä toimii kuten ennen. */
   html.palkkivara:not(.kokoruudussa), html.palkkivara.maalaa:not(.kokoruudussa) { overflow: hidden auto; overscroll-behavior-y: none; }
@@ -565,7 +565,9 @@
   #palkkiopas p { font-weight: 700; text-transform: uppercase; }
   #palkkiopas .po-iso { font-size: min(3.3rem, 6.5vh); line-height: 1.05; letter-spacing: .05em; }
   #palkkiopas .po-pieni { font-size: min(1.45rem, 3vh); line-height: 1.3; letter-spacing: .06em; }
-  html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
+  html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: 150vh; min-height: 150lvh; }
+  /* 150lvh eikä 100lvh + 2 px: Brave Nordilla 2 px:n vara ei piilottanut palkkeja, 150lvh piilotti (luin/kehitys/palkkikoe.html,
+     käyttäjän koe 8.11.2026: muunnelmat D ja G toimivat, A, B, C, E eivät). */
   body.sivutus #sivu { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     padding: 0; overflow: hidden; }
   body.sivutus .wrap { max-width: none; height: 100%; margin: 0; position: static; }
