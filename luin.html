@@ -43,7 +43,13 @@
     --groteski: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
     --koko: 16px;
     --yla: 56px; --ala: 40px;
+    /* Turvakaista (käyttäjän pyyntö 8.11.2026): kameran lovi tai reikä ruudun yläreunassa. Selain kertoo sen korkeuden vain
+       laitteilla, joilla sisältö ulottuu loven kohdalle (kokoruutu ja viewport-fit=cover); muualla, kuten Light Phonella ja
+       työpöydällä, se on 0, eikä mikään siirry. Kaista on musta (#turva), ja kaikki näkymät alkavat sen alapuolelta. */
+    --turva: env(safe-area-inset-top, 0px);
   }
+  /* Varasääntö (paivitaTurva()): selain ei kerro lovea, mutta sivu peittää pitkän puhelinnäytön koko korkeuden. */
+  html.turva-arvio { --turva: 32px; }
   /* Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026): musteen etäisyys ruudun reunasta. Vasemmalla kirjanmerkkinapin
      symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), kotimerkin seinä, aikajanan alku, osion nimi ja
      Merkinnät; oikealla asetuskiekko ja kalanruoto (kulmakivet; työpöydällä ennen 29,0 ja 28,5 px), edistyminen, aikajanan
@@ -60,7 +66,12 @@
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); padding-top: var(--turva); }
+  /* Musta turvakaista loven kohdalla kaiken päällä; vain taaksepäin kääntävä kummitusneliö piirtyy sen päälle. */
+  #turva { position: fixed; top: 0; left: 0; right: 0; height: var(--turva); background: #000; z-index: 60;
+    pointer-events: none; }
+  #turva-env { position: fixed; top: 0; left: 0; width: 0; height: env(safe-area-inset-top, 0px); visibility: hidden;
+    pointer-events: none; }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
@@ -69,7 +80,7 @@
   [aria-pressed="true"] .sal { fill: currentColor; }
 
   /* ---------- lukulista ---------- */
-  #lista { max-width: 40rem; margin: 0 auto; padding: 18px 16px 22px; min-height: 100vh;
+  #lista { max-width: 40rem; margin: 0 auto; padding: 18px 16px 22px; min-height: calc(100vh - var(--turva));
     display: flex; flex-direction: column; }
   .lhead { display: flex; align-items: flex-start; justify-content: space-between; margin: 6px 0 34px; }
   .lhead svg.logo { height: 64px; margin: 6px 0 0 2px; }
@@ -274,7 +285,7 @@
 
   /* ---------- lukija ---------- */
   /* Yläpalkki 44 → 56 px (käyttäjän pyyntö 29.10.2026: hajurakoa kuten aikajanakerrokseen). */
-  .ylapalkki { position: fixed; top: 0; left: 0; right: 0; height: var(--yla); display: flex; align-items: center;
+  .ylapalkki { position: fixed; top: var(--turva); left: 0; right: 0; height: var(--yla); display: flex; align-items: center;
     padding: 0 2px 0 0; background: var(--paperi); border-bottom: 1px solid var(--viiva); z-index: 20;
     user-select: none; -webkit-user-select: none; }
   /* Asetuskiekon ulkokehän muste palkkien oikeaan laitaan: muste 0,84 px svg:n reunan sisällä (pikselimitattu), svg 11 px
@@ -473,6 +484,8 @@
      palstan vasemman reunan linjassa. Tekstialueeseen ei kosketa. Koko ja paikka JS:llä. Ei läpikuultavuutta eikä siirtymää
      (e-ink): käännön edellä neliö vain vaalenee hetkeksi (.valo) ja palaa. */
   #kummitus { position: fixed; background: var(--hius); pointer-events: none; z-index: 21; }
+  /* Mobiilissa taaksepäin kääntävä neliö ulottuu turvakaistaan (käyttäjän pyyntö 8.11.2026), joten se on kaistan päällä. */
+  #kummitus.kaistassa { z-index: 61; }
   #kummitus.valo { background: var(--valo); }
   body.kummitus-ala #ala-rivi, body.kummitus-yla .ylapalkki { pointer-events: none; }
   body.kummitus-ala #ala-rivi > *, body.kummitus-yla .ylapalkki > * { visibility: hidden; }
@@ -525,7 +538,7 @@
 
   /* sivutettu näkymä: CSS-palstat, yksi palsta kerrallaan näkyvissä */
   body.sivutus { overflow: hidden; }
-  body.sivutus #sivu { position: fixed; top: calc(var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
+  body.sivutus #sivu { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     padding: 0; overflow: hidden; }
   body.sivutus .wrap { max-width: none; height: 100%; margin: 0; position: static; }
   body.sivutus #teksti { height: 100%; max-width: none; column-fill: auto; orphans: 2; widows: 2; }
@@ -681,7 +694,7 @@
   .laatikko .l-viiva { stroke: currentColor; stroke-width: 1; fill: none; }
 
   /* paneelit: asetukset ja merkinnät */
-  .paneeli { position: fixed; top: 0; right: 0; bottom: 0; width: min(25rem, 100%); background: var(--paperi);
+  .paneeli { position: fixed; top: var(--turva); right: 0; bottom: 0; width: min(25rem, 100%); background: var(--paperi);
     border-left: 1px solid var(--muste); z-index: 40; overflow-y: auto; padding: 0 18px 34px; -webkit-overflow-scrolling: touch; }
   /* Lukijassa asetukset päättyvät alapalkin kaistan yläpuolelle, jotta kirjanmerkki- ja sivunapit pysyvät käytössä
      (käyttäjän pyyntö 4.11.2026); sijoitaPaneeli() asettaa muuttujan. */
@@ -829,6 +842,7 @@
 </style>
 </head>
 <body>
+<div id="turva" aria-hidden="true"></div><div id="turva-env" aria-hidden="true"></div>
 
 <!-- ===== Lukulista ===== -->
 <section id="lista" hidden>
@@ -1021,6 +1035,8 @@
 
   /* ---------- apuvälineet ---------- */
   function $(s, r) { return (r || document).querySelector(s); }
+  // Turvakaistan korkeus (--turva, kameran lovi): 0 laitteilla, joilla selain ei vie sisältöä loven kohdalle.
+  function turva() { var t = document.getElementById('turva'); return t ? t.getBoundingClientRect().height : 0; }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   var esc = LuinMD.esc;
   var LS = {
@@ -1130,6 +1146,21 @@
   // 22.10.2026): kosketusnäyttö on mobiili, hiiri työpöytä myös kapeassa tai suurennetussa ikkunassa, jossa
   // palkit piiloutuivat, kun ehtona oli myös leveys enintään 700 px.
   var MOBIILI = window.matchMedia ? matchMedia('(pointer: coarse)') : null;
+  /* Turvakaistan varasääntö (käyttäjän pyyntö 8.11.2026: jos selain ei tunnista kameran aluetta, musta kaista silti).
+     Selaimen ilmoittama loven korkeus (env(safe-area-inset-top), #turva-env) on ensisijainen. Jos se on 0, mutta
+     kosketusnäytöllä pystyasennossa sivu peittää näytön koko korkeuden (kokoruutu ilman selaimen omaa mustaa reunusta) ja
+     näyttö on pitkä (vähintään 2,1 : 1, kuten 20 : 9 -puhelimet), kaista on 32 px (html.turva-arvio; tilarivin korkeus,
+     johon lovi mahtuu). Light Phone (lähes neliö) ja Palma (2 : 1) jäävät ulkopuolelle. */
+  function paivitaTurva() {
+    var e = document.getElementById('turva-env'), env = e ? e.getBoundingClientRect().height : 0;
+    var sw = screen.width || 0, sh = screen.height || 0, pysty = innerHeight > innerWidth && sh > sw;
+    var arvio = !env && !!(MOBIILI && MOBIILI.matches) && pysty && innerHeight >= sh - 2 && sh / sw >= 2.1;
+    document.documentElement.classList.toggle('turva-arvio', arvio);
+  }
+  paivitaTurva();
+  window.addEventListener('resize', paivitaTurva);
+  document.addEventListener('fullscreenchange', paivitaTurva);
+  document.addEventListener('webkitfullscreenchange', paivitaTurva);
   function tallennaAset() { LS.set('luin-asetukset', aset); }
   // Marginaali px (käyttäjän pyyntö 22.10.2026). Kapea on ennen asetusta ainoa ollut leveys: vierityksessä
   // 16 px, sivutettuna 16 px alle 480 px:n ruudulla ja muuten 20 px. Muut ovat vähintään tämän.
@@ -1466,7 +1497,7 @@
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
     var vw = innerWidth, rect = popPaikka.rect;
-    var vv = muokkaus && window.visualViewport, yla = vv ? vv.offsetTop : 0, ala = vv ? vv.offsetTop + vv.height : innerHeight;
+    var vv = muokkaus && window.visualViewport, yla = Math.max(vv ? vv.offsetTop : 0, turva()), ala = vv ? vv.offsetTop + vv.height : innerHeight;
     var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : popPaikka.tasaus === 'vasen' ? rect.left : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
@@ -1616,7 +1647,7 @@
     // kelluu navin yläpuolella, joten sen ollessa näkyvissä laatikko päättyy reunukseen sen yläpuolelle majakan oman
     // välin (10 px) päähän.
     var vv = window.visualViewport, yp = $('.ylapalkki').getBoundingClientRect(), mj = $('#majakka');
-    var yla = Math.round(Math.max(yp.height ? yp.bottom : 0, vv ? vv.offsetTop : 0));
+    var yla = Math.round(Math.max(yp.height ? yp.bottom : 0, vv ? vv.offsetTop : 0, turva()));
     var ala = mj.hidden ? $('#ala').getBoundingClientRect().top : mj.getBoundingClientRect().top - 10;
     if (vv) ala = Math.min(ala, vv.offsetTop + vv.height);
     ala = Math.round(ala);
@@ -2095,7 +2126,7 @@
     sivuAlut = {};
     var sivut = aset.sivutus === 'sivut', mob = !!(MOBIILI && MOBIILI.matches);
     document.body.classList.toggle('mobiili', mob);
-    YLA = mob ? 26 : 26 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--yla')) || 56);
+    asetaYla(mob);
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
       aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
     document.body.classList.toggle('sivutus', sivut);
@@ -2172,10 +2203,13 @@
   // (asettele()). Rivin kohta luetaan 1 px rivin vasemmasta reunasta: 3 px:n päästä kapea alkumerkki (kirjallisuusluettelon
   // [ACF], 5,7 px) jäi puolivälistään vasemmalle, ja kohdaksi tuli toinen merkki (mitattu SEP:n Deweyllä 7.11.2026).
   var YLA = 82;
+  function asetaYla(mob) {
+    YLA = turva() + (mob ? 26 : 26 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--yla')) || 56));
+  }
   function mobiili() { return document.body.classList.contains('mobiili'); }
   // Lukualueen rajat ikkunassa. Mobiilissa avautuva yläpalkki ja aikajanakerros ovat tekstin päällä eivätkä
   // muuta rajoja, jotta kirjanmerkkinapin tila ei vaihdu palkkien avautuessa.
-  function ylaRaja() { return mobiili() ? 0 : $('.ylapalkki').getBoundingClientRect().bottom; }
+  function ylaRaja() { return mobiili() ? turva() : $('.ylapalkki').getBoundingClientRect().bottom; }
   function alaRaja() { return (mobiili() ? $('#ala-rivi') : $('#ala')).getBoundingClientRect().top; }
   // Mobiilin palkkien peittämä yläreuna (hyppy ei vie kohtaa yläpalkin alle).
   function ylaPeitto() { return mobiili() && palkitAuki() ? $('.ylapalkki').getBoundingClientRect().bottom : 0; }
@@ -2266,6 +2300,8 @@
       // Näppäimistö muuttaa korkeutta kirjausta tai hakua kirjoitettaessa; asettelu sulkisi valikon. Etsi-laatikon
       // ollessa auki leveyden muutos (ikkunan kavennus työpöydällä) asettelee silti.
       if (muokkaus) return;
+      // Kokoruutuun siirtyminen voi tuoda turvakaistan ilman leveyden muutosta (vierityksessä ei asetella).
+      asetaYla(mobiili());
       var koko = innerWidth + 'x' + innerHeight, leveysSama = koko.split('x')[0] === edKoko.split('x')[0];
       if (hakuAuki() && leveysSama) return;
       edKoko = koko;
@@ -3176,13 +3212,16 @@
       var q = kohdanLaatikko(n.d > 0 ? edellinen(n.k) || n.k : n.k);
       if (!q || q.left < 0 || q.right > innerWidth || !samallaRivilla(q, r)) return null;
     }
-    var al = Math.round(art.getBoundingClientRect().left + tila.sivu * tila.stride), ar = Math.round(al + tila.W), yla, ala;
+    var al = Math.round(art.getBoundingClientRect().left + tila.sivu * tila.stride), ar = Math.round(al + tila.W), yla, ala, v = 0;
     if (n.d > 0) {
       // Alapalkin rivi ilman yläreunan viivaa (työpöydällä #alan reunus on rivin yläpuolella).
       var ap = $('#ala-rivi'), pr = ap.getBoundingClientRect();
       yla = Math.ceil(pr.top + (parseFloat(getComputedStyle(ap).borderTopWidth) || 0)); ala = Math.floor(pr.bottom);
     } else if (mobiili()) {
-      yla = 0; ala = Math.floor(art.getBoundingClientRect().top);
+      // Turvakaistan kanssa neliö ulottuu ruudun yläreunasta kaistan läpi tekstin yläpuoliseen kaistaan (käyttäjän pyyntö
+      // 8.11.2026), mutta natsa ja asdf ovat kaistan alapuolisessa näkyvässä osassa (v), jonne kameran reikä ei ulotu.
+      yla = 0; ala = Math.floor(art.getBoundingClientRect().top); v = Math.ceil(turva());
+      if (ala - v < 12) return null;
     } else {
       var yp = $('.ylapalkki'), yr = yp.getBoundingClientRect();
       yla = Math.max(0, Math.ceil(yr.top)); ala = Math.floor(yr.bottom - (parseFloat(getComputedStyle(yp).borderBottomWidth) || 0));
@@ -3191,7 +3230,7 @@
     if (sv < 12) return null;
     // Neliö marginaaliin palstan viereen (käyttäjän pyyntö 7.11.2026): taaksepäin oikea reuna palstan vasemmassa reunassa,
     // eteenpäin vasen reuna palstan oikeassa reunassa. Jos ei mahdu, niin lähelle ruudun reunaa kuin mahtuu, koko ennallaan.
-    return n.d > 0 ? { d: 1, x: Math.min(ar, innerWidth - sv), y: yla, w: sv, h: sv } : { d: -1, x: Math.max(0, al - sv), y: yla, w: sv, h: sv };
+    return n.d > 0 ? { d: 1, x: Math.min(ar, innerWidth - sv), y: yla, w: sv, h: sv, v: 0 } : { d: -1, x: Math.max(0, al - sv), y: yla, w: sv, h: sv, v: v };
   }
   function samallaRivilla(a, b) { return Math.abs(a.top + a.bottom - b.top - b.bottom) / 2 < Math.min(a.height, b.height) / 2; }
   // Osoitin neliössä tai sen takana ruudun reunan puolella (m: laajennus, pidon päättymisen hystereesi).
@@ -3201,10 +3240,12 @@
   function naytaKummitus(z) {
     kummEl.style.left = z.x + 'px'; kummEl.style.top = z.y + 'px';
     kummEl.style.width = z.w + 'px'; kummEl.style.height = z.h + 'px';
-    // Natsa noin kolmasosa sivusta, keskellä.
-    var nu = $('svg', kummEl), nk = clamp(Math.round(z.w * .32), 8, 14);
+    // Natsa noin kolmasosa sivusta, keskellä; turvakaistan kanssa (z.v) natsa ja opas keskellä kaistan alapuolista osaa.
+    var nu = $('svg', kummEl), nk = clamp(Math.round(Math.min(z.w, z.h - z.v) * .32), 8, 14);
     nu.style.width = nu.style.height = nk + 'px';
-    nu.style.left = Math.floor((z.w - nk) / 2) + 'px'; nu.style.top = Math.floor((z.h - nk) / 2) + 'px';
+    nu.style.left = Math.floor((z.w - nk) / 2) + 'px'; nu.style.top = (z.v + Math.floor((z.h - z.v - nk) / 2)) + 'px';
+    $('.km-opas', kummEl).style.top = z.v + 'px';
+    kummEl.classList.toggle('kaistassa', z.v > 0);
     $('path', nu).setAttribute('d', z.d > 0 ? 'M4.5 1.5L10 7L4.5 12.5' : 'M9.5 1.5L4 7L9.5 12.5');
     kummEl.classList.remove('valo');
     kummEl.classList.toggle('eteen', z.d > 0);
@@ -5342,7 +5383,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
