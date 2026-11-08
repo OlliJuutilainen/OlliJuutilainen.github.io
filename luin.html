@@ -553,10 +553,10 @@
      Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan (palkkiopasKlikki). */
   #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
-    color: #d9d9d9; text-align: center; user-select: none; -webkit-user-select: none; }
-  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026), sama vaaleus kuin --hius; poikkeus kuuden
+    color: #c6c6c6; text-align: center; user-select: none; -webkit-user-select: none; }
+  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026; tummennettu vähän, kun #d9d9d9 oli liian haalea); poikkeus kuuden
      värin paletista vain tässä. */
-  :root[data-teema="tumma"] #palkkiopas { color: #2b2b2b; }
+  :root[data-teema="tumma"] #palkkiopas { color: #404040; }
   body:not(.sivutus) #palkkiopas { display: none; }
   #palkkiopas svg { display: block; height: min(62%, 135vw); width: auto; fill: none; stroke: currentColor; stroke-width: 12;
     stroke-linejoin: miter; stroke-linecap: butt; }
