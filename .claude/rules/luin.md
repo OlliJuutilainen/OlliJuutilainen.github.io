@@ -137,6 +137,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Kokoruutu** (opas 4.9): **vain yläpalkin nappi, ei asetusta** (käyttäjän päätös 5.11.2026). Nappi muistaa valinnan
   (`aset.kokoruutu`); selain sallii kokoruudun vain eleestä, joten tekstin avauksen jälkeinen ensimmäinen napautus vie
   kokoruutuun (`krAvaus`). Takaisin-eleen tai alasvedon jälkeen Luin ei palaa ennen seuraavaa avausta. Asentoa ei lukita.
+- **Palkkivara** (käyttäjän pyyntö 8.11.2026, opas 4.9): sivutettuna kosketusnäytöllä dokumentti on 2 px `100lvh`:ta pidempi (`html.palkkivara`), jotta pystypyyhkäisy vierittää ja selain piilottaa palkkinsa. Älä palauta `body.sivutus`:n `overflow: hidden`ia sinne äläkä käytä pystyeleitä sivutettuna muuhun (paitsi kokoruudun alasveto, jolloin vara on pois); uusi näkyvä elementti sivutettuna on `position: fixed`.
 - **Turvakaista** (käyttäjän pyyntö 8.11.2026, opas 4.9): kameran loven kohdalla musta `#turva` (`--turva` = `env(safe-area-inset-top)`, varasääntönä 32 px `paivitaTurva()`), ja kaikki näkymät alkavat sen alta. Light Phone säästetään (kaista 0). Uusi kiinteä elementti tai yläraja ottaa `--turva`/`turva()`:n huomioon; `viewport-fit=cover` on välttämätön, jotta selain kertoo loven.
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sisennys vain kappaleelle, jonka edellä on kappale** (CSS `p + p`, käyttäjän pyyntö 7.11.2026): sisällysluettelon, otsikkolohkon, otsikon, lainauksen tai luettelon jälkeen ei sisennetä. Älä palauta poikkeusluetteloa.
