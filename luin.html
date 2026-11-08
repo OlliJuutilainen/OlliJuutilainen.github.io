@@ -553,12 +553,13 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
     color: var(--hius); text-align: center; user-select: none; -webkit-user-select: none; }
   body:not(.sivutus) #palkkiopas { display: none; }
-  #palkkiopas svg { display: block; height: min(52%, 105vw); width: auto; fill: none; stroke: currentColor; stroke-width: 3;
+  #palkkiopas svg { display: block; height: min(52%, 105vw); width: auto; fill: none; stroke: currentColor; stroke-width: 9;
     stroke-linejoin: miter; stroke-linecap: butt; }
   #palkkiopas svg .po-sormi { fill: currentColor; stroke: none; }
   #palkkiopas p { margin: 0; padding: 0 16px; }
-  #palkkiopas .po-iso { font-style: italic; font-size: 2.6rem; line-height: 1.1; }
-  #palkkiopas .po-pieni { font-size: 1.2rem; line-height: 1.5; letter-spacing: .02em; }
+  #palkkiopas p { font-weight: 700; text-transform: uppercase; }
+  #palkkiopas .po-iso { font-size: 2.5rem; line-height: 1.1; letter-spacing: .06em; }
+  #palkkiopas .po-pieni { font-size: 1.1rem; line-height: 1.5; letter-spacing: .08em; }
   html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
   body.sivutus #sivu { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     padding: 0; overflow: hidden; }
