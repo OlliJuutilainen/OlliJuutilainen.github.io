@@ -538,6 +538,13 @@
 
   /* sivutettu näkymä: CSS-palstat, yksi palsta kerrallaan näkyvissä */
   body.sivutus { overflow: hidden; }
+  /* Palkkivara (käyttäjän pyyntö 8.11.2026, opas 4.9): mobiiliselain piilottaa palkkinsa vain, kun sivua vieritetään, eikä
+     sivutettu teksti vieritä. Sivutettuna kosketusnäytöllä dokumentti on siksi hiukan suuren näkymän (100lvh) korkeutta
+     pidempi: pystypyyhkäisy vierittää tyhjää dokumenttia, jolloin selain piilottaa palkit (ja vastasuuntaan tuo ne
+     takaisin). Kaikki näkyvä on position: fixed, joten vieritys ei liikuta mitään. Ei vetämällä päivitystä eikä reunahehkua.
+     Kokoruudussa vara on pois, jotta alasveto ylhäältä toimii kuten ennen. */
+  html.palkkivara:not(.kokoruudussa), html.palkkivara.maalaa:not(.kokoruudussa) { overflow: hidden auto; overscroll-behavior-y: none; }
+  html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
   body.sivutus #sivu { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     padding: 0; overflow: hidden; }
   body.sivutus .wrap { max-width: none; height: 100%; margin: 0; position: static; }
@@ -1356,6 +1363,7 @@
     tallennaKohta(true);
     nyt = null; tila.nakyma = 'lista';
     document.body.classList.remove('sivutus', 'reunat');
+    document.documentElement.classList.remove('palkkivara');
     $('#lukija').hidden = true; $('#lista').hidden = false;
     document.title = 'Luin';
     var ul = $('#nimikkeet');
@@ -2130,6 +2138,7 @@
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
       aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
     document.body.classList.toggle('sivutus', sivut);
+    document.documentElement.classList.toggle('palkkivara', sivut && mob);
     var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
     document.body.classList.toggle('reunat', reunat);
     document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
