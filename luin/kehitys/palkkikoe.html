@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fi" class="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Palkkikoe</title>
+<!-- Luinin palkkivaran koe (8.11.2026). Käyttäjän havainto Bravella Nordilla: sivutettuna pystypyyhkäisy ei piilota
+     selaimen palkkeja, vaikka Chromiumissa dokumentti vierii 2 px. Palkkeja ei ole testiselaimessa, joten muunnelmat
+     kokeillaan oikealla laitteella. Rakenne jäljittelee luin.html:n sivutettua tilaa: kiinteä palsta (overflow: hidden),
+     jonka sisällä palstoitettu teksti, kiinteä alapalkki ja passiivinen pois -touchmove-kuuntelija palstassa. -->
+<style>
+  :root { --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font: 17px/1.5 Georgia, serif; }
+  #ohjaus { position: fixed; top: 0; left: 0; right: 0; z-index: 5; background: var(--paperi); border-bottom: 1px solid var(--viiva);
+    padding: 8px 10px 6px; font: 14px/1.35 system-ui, sans-serif; }
+  #napit { display: flex; flex-wrap: wrap; gap: 6px; }
+  #napit button { font: inherit; padding: 6px 9px; border: 1px solid var(--harmaa); background: none; color: var(--muste); }
+  #napit button.valittu { background: var(--muste); color: var(--paperi); }
+  #kuvaus { margin: 6px 0 2px; color: var(--harmaa); }
+  #lukema { font-weight: 700; }
+  #tulos { font-size: 22px; font-weight: 800; margin-top: 2px; }
+  #tulos.kylla { color: #2f6b2f; }
+  #tulos.ei { color: var(--ruoste); }
+  #sivu { position: fixed; left: 0; right: 0; bottom: 62px; overflow: hidden; }
+  #teksti { height: 100%; column-width: 100vw; column-gap: 0; padding: 0 20px; box-sizing: border-box; transform: translateX(0); }
+  #ala { position: fixed; left: 0; right: 0; bottom: 0; height: 44px; border-top: 1px solid var(--viiva); background: var(--paperi);
+    display: flex; align-items: center; justify-content: center; color: var(--harmaa); font: 14px system-ui, sans-serif; }
+  #mitta-l { position: fixed; top: 0; left: 0; width: 0; height: 100vh; height: 100lvh; visibility: hidden; pointer-events: none; }
+  #mitta-s { position: fixed; top: 0; left: 0; width: 0; height: 100vh; height: 100svh; visibility: hidden; pointer-events: none; }
+
+  /* Muunnelmat (luokka html:ssä). a = luin.html nyt. */
+  html.a, html.b, html.d, html.e { overflow: hidden auto; }
+  html.a, html.c, html.d, html.e { overscroll-behavior-y: none; }
+  html.a body, html.b body, html.c body, html.e body { box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
+  html.d body, html.g body { box-sizing: border-box; min-height: 150vh; min-height: 150lvh; }
+  html.e #sivu, html.g #sivu { overflow: clip; }
+  html.f #sivu { position: static; overflow: visible; margin-top: var(--ohjaus); }
+  html.f #teksti { column-width: auto; height: auto; padding-bottom: 80px; }
+</style>
+</head>
+<body>
+<div id="mitta-l"></div><div id="mitta-s"></div>
+<div id="ohjaus">
+  <div id="napit">
+    <button data-m="a">A nyt</button><button data-m="b">B</button><button data-m="c">C</button><button data-m="d">D</button>
+    <button data-m="e">E</button><button data-m="g">G kaikki</button><button data-m="f">F vertailu</button>
+  </div>
+  <div id="kuvaus"></div>
+  <div id="lukema"></div>
+  <div id="tulos"></div>
+</div>
+<div id="sivu"><article id="teksti"></article></div>
+<div id="ala">alapalkki</div>
+<script>
+(function () {
+  var KUVAUS = {
+    a: 'A: kuten Luin nyt. Juuri overflow hidden auto, ei vetämällä päivitystä, vara 2 px, palsta overflow hidden.',
+    b: 'B: kuin A, mutta vetämällä päivitys sallittu (ei overscroll-behavioria).',
+    c: 'C: kuin A, mutta juuren overflow näkyvä (ei overflow-x: hiddenia).',
+    d: 'D: kuin A, mutta iso vara (sivu 150 % korkeudesta).',
+    e: 'E: kuin A, mutta palsta overflow clip (ei vieritysaluetta).',
+    g: 'G: kaikki muutokset: vetämällä päivitys sallittu, juuri näkyvä, iso vara, palsta clip.',
+    f: 'F: vertailu: tavallinen pitkä sivu kuten Luinin vieritys.'
+  };
+  var kpl = 'Pyyhkäise tekstiä ylöspäin keskeltä ja katso, piiloutuvatko selaimen palkit. Sivu ei käänny pyyhkäisystä, eikä tekstin kuulu liikkua (paitsi F:ssä). Alaspäin pyyhkäisy tuo palkit takaisin. ';
+  var t = '';
+  for (var i = 0; i < 40; i++) t += '<p>' + (i + 1) + '. ' + kpl + kpl + '</p>';
+  document.getElementById('teksti').innerHTML = t;
+  var html = document.documentElement, ohjaus = document.getElementById('ohjaus'), sivu = document.getElementById('sivu');
+  var mL = document.getElementById('mitta-l'), mS = document.getElementById('mitta-s');
+  var piiloutui = false;
+  function paikka() { var h = ohjaus.getBoundingClientRect().height; sivu.style.top = html.classList.contains('f') ? '' : h + 'px'; html.style.setProperty('--ohjaus', h + 'px'); }
+  function paivita() {
+    var l = mL.offsetHeight, s = mS.offsetHeight, ih = innerHeight;
+    var piilossa = ih >= l - 2;
+    if (piilossa && l - s > 20) piiloutui = true;
+    document.getElementById('lukema').textContent = 'vieritys ' + Math.round(scrollY) + ' / ' + (document.scrollingElement.scrollHeight - ih) +
+      ' · ikkuna ' + ih + ' · palkit piilossa ' + l + ' · näkyvissä ' + s;
+    var tu = document.getElementById('tulos');
+    tu.textContent = l - s <= 20 ? 'selain ei kerro piilotettavia palkkeja' : piiloutui ? 'PIILOUTUI tällä muunnelmalla' : 'ei ole piiloutunut';
+    tu.className = piiloutui ? 'kylla' : 'ei';
+  }
+  function valitse(m) {
+    html.className = m; piiloutui = false;
+    document.querySelectorAll('#napit button').forEach(function (b) { b.classList.toggle('valittu', b.dataset.m === m); });
+    document.getElementById('kuvaus').textContent = KUVAUS[m];
+    scrollTo(0, 0); paikka(); paivita();
+  }
+  document.getElementById('napit').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) valitse(b.dataset.m); });
+  // Kuten luin.html: palstassa ei-passiivinen touchmove-kuuntelija (maalaus), joka ei estä mitään.
+  sivu.addEventListener('touchmove', function () {}, { passive: false });
+  addEventListener('scroll', paivita, { passive: true });
+  addEventListener('resize', function () { paikka(); paivita(); });
+  valitse('a');
+})();
+</script>
+</body>
+</html>
