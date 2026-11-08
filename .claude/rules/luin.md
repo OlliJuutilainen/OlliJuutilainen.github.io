@@ -27,8 +27,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
-- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu neljään sivuun (luin.html, Latomo, Latomon ohje,
-  käyttöohje). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
+  Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5): manifestin `description` enintään 132 merkkiä, ja kaupan
+  zipistä poistetaan `browser_specific_settings`. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
+  lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
+- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu viiteen sivuun (luin.html, Latomo, Latomon ohje,
+  käyttöohje, tietosuoja). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
@@ -265,5 +268,5 @@ viedä repoon ilman erillistä lupaa.
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
+käyttöohje, lisäosan tietosuojasivu) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
 (`aria-label="©"`). Muiden ohjelmien alatunnisteissa on tavallinen ©.
