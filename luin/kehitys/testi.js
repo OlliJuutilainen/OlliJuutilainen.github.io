@@ -631,12 +631,12 @@ palvelin.listen(0, async () => {
   const m = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true })).newPage();
   m.on('pageerror', e => sivuvirheet.push(e.message));
   await m.goto(BASE + 'luin.html');
-  // av 4 ja sivunapit päällä: vanha tallennus, jossa sivunapit olivat oletuksena päällä (av 5 kytkee ne pois).
-  await m.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 4, sivunapit: 1 })); }, MD);
+  // av 6 -tallennus vanhoilla valinnoilla: av 7 asettaa 7.11.2026 päätetyt oletukset kerran.
+  await m.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, sivunapit: 0, sivuReuna: 0, sivuPyyhka: 0, kappale: 'rako', auto: 1, janaTaso: 2, sivutus: 'vieritys' })); }, MD);
   await m.goto(BASE + 'luin.html#tuo'); await m.waitForTimeout(600);
   await m.reload(); await m.waitForTimeout(400);
-  const siirto = await m.evaluate(() => ({ sivunapit: window.__luin.aset.sivunapit, av: window.__luin.aset.av }));
-  tulos('sivunapit pois oletuksista (av 5; nyt av 6)', siirto.sivunapit === 0 && siirto.av === 6, JSON.stringify(siirto));
+  const siirto = await m.evaluate(() => { const a = window.__luin.aset; return { n: a.sivunapit, r: a.sivuReuna, p: a.sivuPyyhka, k: a.kappale, au: a.auto, j: a.janaTaso, s: a.sivutus, av: a.av }; });
+  tulos('av 7: sivunkäännön tavat, sisennys, ei sukkelaa, kaikki tasot kerran; sivutus säilyy', siirto.n === 1 && siirto.r === 1 && siirto.p === 1 && siirto.k === 'sisennys' && siirto.au === 0 && siirto.j === 3 && siirto.s === 'vieritys' && siirto.av === 7, JSON.stringify(siirto));
   // Kaistan napautus nuolen kohdalta (koko kaista on nappi; nuoli ei ota napautuksia).
   const nuoliKohta = () => m.evaluate(() => { const r = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   const kaista = async () => { const k = await nuoliKohta(); await m.mouse.click(k.x, k.y); await m.waitForTimeout(100); };
@@ -999,7 +999,7 @@ palvelin.listen(0, async () => {
   await mp.goto(BASE + 'luin.html');
   // Maalaustestit olettavat sukkelan alleviivauksen (oletuksena pois 7.11.2026 alkaen). about:blank välissä, jotta sivu
   // latautuu uudelleen ja lukee asetukset: pelkkä #tuo samaan osoitteeseen ei lataa sivua.
-  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1 })); }, MD);
+  await mp.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 7, auto: 1 })); }, MD);
   await mp.goto('about:blank'); await mp.goto(BASE + 'luin.html#tuo'); await mp.waitForTimeout(600);
   // Käännös ei ole oletuksena valikossa (av 6, käyttäjän päätös 5.11.2026); kytketään päälle valikon järjestystä ja DeepL:ää varten.
   await mp.evaluate(() => { window.__luin.aset.kaannos = 1; });
@@ -1142,7 +1142,7 @@ palvelin.listen(0, async () => {
   {
     const kk = await b.newContext({ viewport: { width: 412, height: 824 } }), kq = await kk.newPage();
     await kq.goto(BASE + 'luin.html');
-    await kq.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1 })); }, MD);
+    await kq.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 7, auto: 1 })); }, MD);
     await kq.goto('about:blank'); await kq.goto(BASE + 'luin.html#tuo'); await kq.waitForTimeout(600);
     const g = await kq.evaluate(() => {
       const ps = [...document.querySelectorAll('#teksti p[data-b]')], ar = document.querySelector('#teksti').getBoundingClientRect();
@@ -1238,7 +1238,7 @@ palvelin.listen(0, async () => {
   const kosk = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] });
   await kp2.goto(BASE + 'luin.html');
   // Vieritys ja sukkela alleviivaus: kosketusnäytön ensikäytön oletus on 7.11.2026 alkaen sivunkääntö ilman sukkelaa.
-  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, auto: 1, sivutus: 'vieritys' })); }, MD);
+  await kp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 7, auto: 1, sivutus: 'vieritys' })); }, MD);
   await kp2.goto('about:blank'); await kp2.goto(BASE + 'luin.html#tuo'); await kp2.waitForTimeout(600);
   await kp2.evaluate(() => { window.__luin.aset.kaannos = 1; });
   const ksanat = await kp2.evaluate(() => {
@@ -1353,7 +1353,7 @@ palvelin.listen(0, async () => {
   const tp2 = await tk.newPage(); tp2.on('pageerror', e => sivuvirheet.push(e.message));
   await tp2.goto(BASE + 'luin.html');
   // Sukkela alleviivaus päälle ja sivu ladataan uudelleen (about:blank välissä), jotta veto tekee alleviivauksen.
-  await tp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 5, auto: 1 })); }, MD);
+  await tp2.evaluate(md => { localStorage.clear(); localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 7, auto: 1 })); }, MD);
   await tp2.goto('about:blank'); await tp2.goto(BASE + 'luin.html#tuo'); await tp2.waitForTimeout(600);
   const ts = await tp2.evaluate(() => { const el = [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600 && !x.querySelector('.sidenote')) || [...document.querySelectorAll('#teksti p[data-b]')].find(x => x.textContent.length > 600);
     el.scrollIntoView({ block: 'center' });
