@@ -548,12 +548,12 @@
      takaisin). Kaikki näkyvä on position: fixed, joten vieritys ei liikuta mitään. Ei vetämällä päivitystä eikä reunahehkua.
      Kokoruudussa vara on pois, jotta alasveto ylhäältä toimii kuten ennen. */
   html.palkkivara:not(.kokoruudussa), html.palkkivara.maalaa:not(.kokoruudussa) { overflow: hidden auto; overscroll-behavior-y: none; }
-  /* Palkkiopas (pilotti, käyttäjän pyyntö 8.11.2026, opas 4.9): erittäin iso ja haalea pyyhkäisymerkki tekstin alla.
-     Tekstin alla eikä päällä, jotta teksti pysyy luettavana; haaleus on väri (--hius), ei läpikuultavuus (e-ink).
+  /* Palkkiopas (pilotti, käyttäjän pyyntö 8.11.2026, opas 4.9): erittäin iso ja haalea pyyhkäisymerkki tekstin päällä.
+     Tekstin päällä (käyttäjän pyyntö 8.11.2026: alla se peittyi eikä siitä saanut selvää); haaleus on väri, ei läpikuultavuus (e-ink).
      Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan (palkkiopasKlikki). */
   #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
-    color: #c6c6c6; text-align: center; user-select: none; -webkit-user-select: none; }
+    color: #c6c6c6; z-index: 10; text-align: center; user-select: none; -webkit-user-select: none; }
   /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026; tummennettu vähän, kun #d9d9d9 oli liian haalea); poikkeus kuuden
      värin paletista vain tässä. */
   :root[data-teema="tumma"] #palkkiopas { color: #404040; }
