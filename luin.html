@@ -72,6 +72,8 @@
     pointer-events: none; }
   #turva-env { position: fixed; top: 0; left: 0; width: 0; height: env(safe-area-inset-top, 0px); visibility: hidden;
     pointer-events: none; }
+  /* Suuren näkymän korkeus (selaimen palkit piilossa); palkkioppaan mitta. */
+  #palkki-mitta { position: fixed; top: 0; left: 0; width: 0; height: 100vh; height: 100lvh; visibility: hidden; pointer-events: none; }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
@@ -544,6 +546,19 @@
      takaisin). Kaikki näkyvä on position: fixed, joten vieritys ei liikuta mitään. Ei vetämällä päivitystä eikä reunahehkua.
      Kokoruudussa vara on pois, jotta alasveto ylhäältä toimii kuten ennen. */
   html.palkkivara:not(.kokoruudussa), html.palkkivara.maalaa:not(.kokoruudussa) { overflow: hidden auto; overscroll-behavior-y: none; }
+  /* Palkkiopas (pilotti, käyttäjän pyyntö 8.11.2026, opas 4.9): erittäin iso ja haalea pyyhkäisymerkki tekstin alla.
+     Tekstin alla eikä päällä, jotta teksti pysyy luettavana; haaleus on väri (--hius), ei läpikuultavuus (e-ink).
+     Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan (palkkiopasKlikki). */
+  #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
+    color: var(--hius); text-align: center; user-select: none; -webkit-user-select: none; }
+  body:not(.sivutus) #palkkiopas { display: none; }
+  #palkkiopas svg { display: block; height: min(52%, 105vw); width: auto; fill: none; stroke: currentColor; stroke-width: 3;
+    stroke-linejoin: miter; stroke-linecap: butt; }
+  #palkkiopas svg .po-sormi { fill: currentColor; stroke: none; }
+  #palkkiopas p { margin: 0; padding: 0 16px; }
+  #palkkiopas .po-iso { font-style: italic; font-size: 2.6rem; line-height: 1.1; }
+  #palkkiopas .po-pieni { font-size: 1.2rem; line-height: 1.5; letter-spacing: .02em; }
   html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
   body.sivutus #sivu { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     padding: 0; overflow: hidden; }
@@ -849,7 +864,7 @@
 </style>
 </head>
 <body>
-<div id="turva" aria-hidden="true"></div><div id="turva-env" aria-hidden="true"></div>
+<div id="turva" aria-hidden="true"></div><div id="turva-env" aria-hidden="true"></div><div id="palkki-mitta" aria-hidden="true"></div>
 
 <!-- ===== Lukulista ===== -->
 <section id="lista" hidden>
@@ -886,6 +901,9 @@
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
   </div>
+  <!-- Palkkiopas: ennen #sivua, jotta se piirtyy tekstin alle. Natsat ylöspäin ja sormen salmiakki. -->
+  <div id="palkkiopas" hidden><svg viewBox="0 0 100 150" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M12 38L50 8L88 38M12 70L50 40L88 70M12 102L50 72L88 102"/><path class="po-sormi" d="M50 119Q52.5 129.5 59 132Q52.5 134.5 50 145Q47.5 134.5 41 132Q47.5 129.5 50 119Z"/></svg>
+    <p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat<br>napautus sulkee ohjeen</p></div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
     <div id="majakka" hidden>
@@ -1217,7 +1235,7 @@
   }
   function krMuuttui() {
     var on = krPaalla();
-    if (on) krOdottaa = false;
+    if (on) { krOdottaa = false; piilotaPalkkiopas(); }
     document.documentElement.classList.toggle('kokoruudussa', on);
     paivitaKrNappi();
   }
@@ -1364,6 +1382,7 @@
     nyt = null; tila.nakyma = 'lista';
     document.body.classList.remove('sivutus', 'reunat');
     document.documentElement.classList.remove('palkkivara');
+    piilotaPalkkiopas();
     $('#lukija').hidden = true; $('#lista').hidden = false;
     document.title = 'Luin';
     var ul = $('#nimikkeet');
@@ -1962,6 +1981,7 @@
     piirraTeksti();
     var k = paikanna(e.pos) || { b: 0, o: 0 };
     asettele(k);
+    naytaPalkkiopas();
   }
 
   // Tasot luetaan tekstin ylimmästä olemassa olevasta tasosta (käyttäjän sääntö 6.11.2026 pelkkien pykälien tekstistä,
@@ -2197,7 +2217,9 @@
   }
 
   function sivulle(p, pidaAnkkuri) {
+    var ed = tila.sivu;
     tila.sivu = clamp(p, 0, tila.sivuja - 1);
+    if (tila.sivu !== ed) piilotaPalkkiopas();
     art.style.transform = 'translateX(' + (-tila.sivu * tila.stride) + 'px)';
     if (!pidaAnkkuri) tila.ankkuri = nykyinenKohta();
     suljePop();
@@ -2453,6 +2475,33 @@
   var alaKosk = 0;
   ['pointerdown', 'touchstart', 'click'].forEach(function (t) { $('#ala').addEventListener(t, function () { alaKosk = Date.now(); }, true); });
   function valintaTyhja() { var s = getSelection(); return !s || s.isCollapsed; }
+
+  /* ---------- palkkiopas (pilotti, käyttäjän pyyntö 8.11.2026, opas 4.9) ----------
+     Sivutettuna kosketusnäytöllä iso haalea merkki kertoo, että ylöspäin pyyhkäisy piilottaa selaimen palkit (palkkivara).
+     Näkyy tekstin avauksessa ja kun Asetuksista on juuri valittu sivunkääntö, vain jos selaimen palkit ovat nyt näkyvissä
+     ja piiloutuvat vieritettäessä: suuri näkymä (100lvh, palkit piilossa) on ikkunaa korkeampi. Selainta ei tunnisteta
+     nimeltä; mitta kertoo suoraan, onko piilotettavaa. Ei kokoruudussa eikä kun kokoruutu on valittu (ensimmäinen napautus
+     vie sinne). Katoaa mistä tahansa napautuksesta (tekstialueella napautus ei tee muuta), sivun vaihtuessa, palkkien
+     piiloutuessa ja lukulistaan palattaessa. */
+  var opasEl = $('#palkkiopas'), palkkiMitta = $('#palkki-mitta');
+  function selainPalkit() { return palkkiMitta.offsetHeight - innerHeight > 20; }
+  function naytaPalkkiopas() {
+    if (opasEl) opasEl.hidden = !(nyt && aset.sivutus === 'sivut' && mobiili() && !krPaalla() && !(aset.kokoruutu && krOdottaa) && selainPalkit());
+  }
+  function piilotaPalkkiopas() { if (opasEl) opasEl.hidden = true; }
+  document.addEventListener('click', function (e) {
+    if (opasEl.hidden) return;
+    piilotaPalkkiopas();
+    if (e.target.closest && e.target.closest('#sivu')) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  window.addEventListener('resize', function () { if (!opasEl.hidden && !selainPalkit()) piilotaPalkkiopas(); });
+  // Asetuksista sivunkääntöön: opas, kun Asetukset sulkeutuu (sulkutapoja on monta, joten seurataan hidden-attribuuttia).
+  var sivutusAsetuksiin = null;
+  new MutationObserver(function () {
+    if (!$('#asetukset').hidden) { sivutusAsetuksiin = aset.sivutus; return; }
+    if (sivutusAsetuksiin !== null && sivutusAsetuksiin !== 'sivut' && aset.sivutus === 'sivut') naytaPalkkiopas();
+    sivutusAsetuksiin = null;
+  }).observe($('#asetukset'), { attributes: true, attributeFilter: ['hidden'] });
 
   /* ---------- napautukset tekstissä ---------- */
   sivuEl.addEventListener('click', function (e) {
