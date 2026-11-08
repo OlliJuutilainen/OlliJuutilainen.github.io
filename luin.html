@@ -2408,8 +2408,11 @@
       sivulle(osioSivu(d, s0));
     }, OSIO_MS);
   }
-  var OSIO_NAPPI = { PageDown: 1, AudioVolumeDown: 1, PageUp: -1, AudioVolumeUp: -1 };
-  document.addEventListener('keyup', function (e) { if (OSIO_NAPPI[e.key]) osioPeru(); });
+  // Sivunkääntönäppäimet, nuolet ja välilyönti (Palman sivunkääntö- ja nuolinäppäimet, käyttäjän pyyntö 8.11.2026).
+  var OSIO_NAPPI = { PageDown: 1, AudioVolumeDown: 1, ArrowRight: 1, ArrowDown: 1, PageUp: -1, AudioVolumeUp: -1, ArrowLeft: -1, ArrowUp: -1 };
+  function osioSuunta(e) { return e.key === ' ' ? (e.shiftKey ? -1 : 1) : OSIO_NAPPI[e.key]; }
+  var osioNappi = null; // painettu näppäin: { k, t, s, d, tehty }; toistotapahtuma hyppää, jos ajastin ei ehtinyt
+  document.addEventListener('keyup', function (e) { if (osioSuunta(e)) osioPeru(); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
@@ -2418,11 +2421,19 @@
     if (e.target.closest && e.target.closest('select')) return;
     if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
     // Laitteen sivunkääntönäppäin: pidetty näppäin ei käännä sivuja toistolla vaan odottaa pitkää painallusta.
-    if (OSIO_NAPPI[k]) {
+    var od = osioSuunta(e);
+    if (od) {
       e.preventDefault();
-      if (e.repeat) return;
-      osioAloita(OSIO_NAPPI[k], tila.sivu);
-      if (OSIO_NAPPI[k] > 0) seuraavaPainettu(1); else seuraava(-1);
+      if (e.repeat) {
+        // Jos keyup-tapahtuma jäi ajastimelta pois tai ajastin keskeytyi, pitkä painallus tunnistetaan toistosta.
+        if (osioNappi && osioNappi.k === k && !osioNappi.tehty && Date.now() - osioNappi.t >= OSIO_MS && !verhoAuki()) {
+          osioNappi.tehty = true; osioPeru(); sivulle(osioSivu(osioNappi.d, osioNappi.s));
+        }
+        return;
+      }
+      osioNappi = { k: k, t: Date.now(), s: tila.sivu, d: od, tehty: false };
+      osioAloita(od, tila.sivu, function () { if (osioNappi) osioNappi.tehty = true; return true; });
+      if (od > 0) seuraavaPainettu(1); else seuraava(-1);
       return;
     }
     // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
