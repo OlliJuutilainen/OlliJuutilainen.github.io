@@ -550,30 +550,27 @@
   html.palkkivara:not(.kokoruudussa), html.palkkivara.maalaa:not(.kokoruudussa) { overflow: hidden auto; overscroll-behavior-y: none; }
   /* Palkkiopas (pilotti, käyttäjän pyyntö 8.11.2026, opas 4.9): erittäin iso pyyhkäisymerkki tekstin päällä.
      Kun opas näkyy, leipäteksti vetäytyy hiuksen ja paperin väliin (#sivu on oppaan seuraava sisarus), joten merkki ja
-     kyltti eivät sotkeudu kirjaimiin (8.11.2026: tekstin päällä haalea merkki ja lihava versaali olivat lukukelvottomia).
-     Kyltti on harvennettua versaalia, ylä- ja alapuolella hiusviiva ja salmiakki (semikehys). Haaleus on väri, ei
-     läpikuultavuus (e-ink). Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan. */
+     kyltti erottuvat, vaikka ne ovat haaleaa paletin --viivaa. Neljä natsaa, ei salmiakkeja eikä viivoja (käyttäjän
+     linjaus 8.11.2026). Haaleus on väri, ei läpikuultavuus (e-ink). Ei animaatiota. Ei ota napautuksia: napautus menee
+     tekstialueelle, joka sulkee oppaan. */
   #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;
-    color: #8e8e8e; z-index: 10; text-align: center; user-select: none; -webkit-user-select: none; }
-  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026); poikkeus kuuden värin paletista vain tässä. */
-  :root[data-teema="tumma"] #palkkiopas { color: #6f6f6f; }
+    color: var(--viiva); z-index: 10; text-align: center; user-select: none; -webkit-user-select: none; }
   body:not(.sivutus) #palkkiopas { display: none; }
   body.sivutus #palkkiopas:not([hidden]) ~ #sivu, body.sivutus #palkkiopas:not([hidden]) ~ #sivu * {
     --po-himmea: color-mix(in srgb, var(--hius) 70%, var(--paperi));
     color: var(--po-himmea) !important; border-color: var(--po-himmea) !important; text-decoration-color: var(--po-himmea) !important;
     fill: var(--po-himmea) !important; stroke: var(--po-himmea) !important; }
-  #palkkiopas .po-merkki { display: block; height: min(52%, 110vw); width: auto; fill: none; stroke: currentColor; stroke-width: 10;
+  #palkkiopas .po-merkki { display: block; height: min(54%, 110vw); width: auto; fill: none; stroke: currentColor; stroke-width: 10;
     stroke-linejoin: miter; stroke-linecap: butt; }
-  #palkkiopas .po-sormi { fill: currentColor; stroke: none; }
-  #palkkiopas .po-kyltti { display: flex; flex-direction: column; align-items: center; margin-top: 3.5vh; }
-  #palkkiopas p { margin: 0; padding: 0; font-weight: 500; text-transform: uppercase; }
+  /* Kyltin koko on ison rivin koko; selite on suhteessa siihen, joten se jää aina kapeammaksi (412 px: 80 % ison rivin
+     leveydestä). Alaraja 10 px Light Phonea varten (selite silloin 95 %). */
+  #palkkiopas .po-kyltti { display: flex; flex-direction: column; align-items: center; gap: 1.1vh; margin-top: 4.5vh;
+    font-size: min(1.8rem, 7.2vw, 4.6vh); }
+  #palkkiopas p { margin: 0; padding: 0; text-transform: uppercase; }
   /* Negatiivinen oikea marginaali kumoaa viimeisen kirjaimen perään jäävän harvennuksen, jotta rivi on keskellä. */
-  #palkkiopas .po-iso { font-size: min(1.8rem, 7.2vw, 4.6vh); line-height: 1.2; letter-spacing: .16em; margin-right: -.16em; }
-  #palkkiopas .po-pieni { font-size: min(.98rem, 4vw, 2.5vh); line-height: 1.4; letter-spacing: .22em; margin-right: -.22em; font-weight: 400; }
-  #palkkiopas .po-viiva { display: flex; align-items: center; gap: 10px; align-self: stretch; margin: 1.6vh 0; }
-  #palkkiopas .po-viiva i { flex: 1; border-top: 1.5px solid currentColor; }
-  #palkkiopas .po-viiva svg { width: 11px; height: 11px; fill: currentColor; }
+  #palkkiopas .po-iso { font-size: 1em; font-weight: 500; line-height: 1.2; letter-spacing: .16em; margin-right: -.16em; }
+  #palkkiopas .po-pieni { font-size: max(.45em, 10px); font-weight: 400; line-height: 1.4; letter-spacing: .2em; margin-right: -.2em; }
   html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: 150vh; min-height: 150lvh; }
   /* 150lvh eikä 100lvh + 2 px: Brave Nordilla 2 px:n vara ei piilottanut palkkeja, 150lvh piilotti (luin/kehitys/palkkikoe.html,
      käyttäjän koe 8.11.2026: muunnelmat D ja G toimivat, A, B, C, E eivät). */
@@ -918,10 +915,9 @@
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
   </div>
-  <!-- Palkkiopas: heti ennen #sivua, koska CSS himmentää tekstin sisarusvalitsimella (#palkkiopas ~ #sivu). Natsat ylöspäin,
-       sormen salmiakki ja kyltti viivojen välissä. -->
-  <div id="palkkiopas" hidden><svg class="po-merkki" viewBox="0 0 100 150" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M12 38L50 8L88 38M12 70L50 40L88 70M12 102L50 72L88 102"/><path class="po-sormi" d="M50 119Q52.5 129.5 59 132Q52.5 134.5 50 145Q47.5 134.5 41 132Q47.5 129.5 50 119Z"/></svg>
-    <div class="po-kyltti"><span class="po-viiva" aria-hidden="true"><i></i><svg viewBox="0 0 10 10"><path d="M5 0Q5.6 3.9 10 5Q5.6 6.1 5 10Q4.4 6.1 0 5Q4.4 3.9 5 0Z"/></svg><i></i></span><p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat</p><span class="po-viiva" aria-hidden="true"><i></i><svg viewBox="0 0 10 10"><path d="M5 0Q5.6 3.9 10 5Q5.6 6.1 5 10Q4.4 6.1 0 5Q4.4 3.9 5 0Z"/></svg><i></i></span></div></div>
+  <!-- Palkkiopas: heti ennen #sivua, koska CSS himmentää tekstin sisarusvalitsimella (#palkkiopas ~ #sivu). Neljä natsaa ylöspäin ja kyltti. -->
+  <div id="palkkiopas" hidden><svg class="po-merkki" viewBox="0 0 100 142" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M12 38L50 8L88 38M12 70L50 40L88 70M12 102L50 72L88 102M12 134L50 104L88 134"/></svg>
+    <div class="po-kyltti"><p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat</p></div></div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
     <div id="majakka" hidden>
