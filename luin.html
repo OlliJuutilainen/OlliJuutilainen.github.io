@@ -557,7 +557,9 @@
     stroke-linejoin: miter; stroke-linecap: butt; }
   #palkkiopas svg .po-sormi { fill: currentColor; stroke: none; }
   #palkkiopas p { margin: 0; padding: 0 16px; }
-  #palkkiopas p { font-weight: 700; text-transform: uppercase; }
+  /* Groteski vain tässä (käyttäjän pilotti 8.11.2026: Literatan lihava versaali "kauhean näköistä"). Laitteen oma
+     kirjasin, ei latausta. */
+  #palkkiopas p { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-weight: 800; text-transform: uppercase; }
   #palkkiopas .po-iso { font-size: 2.5rem; line-height: 1.1; letter-spacing: .06em; }
   #palkkiopas .po-pieni { font-size: 1.1rem; line-height: 1.5; letter-spacing: .08em; }
   html.palkkivara:not(.kokoruudussa) body.sivutus { overflow: visible; box-sizing: border-box; min-height: calc(100vh + 2px); min-height: calc(100lvh + 2px); }
@@ -904,7 +906,7 @@
   </div>
   <!-- Palkkiopas: ennen #sivua, jotta se piirtyy tekstin alle. Natsat ylöspäin ja sormen salmiakki. -->
   <div id="palkkiopas" hidden><svg viewBox="0 0 100 150" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M12 38L50 8L88 38M12 70L50 40L88 70M12 102L50 72L88 102"/><path class="po-sormi" d="M50 119Q52.5 129.5 59 132Q52.5 134.5 50 145Q47.5 134.5 41 132Q47.5 129.5 50 119Z"/></svg>
-    <p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat<br>napautus sulkee ohjeen</p></div>
+    <p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat</p></div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
     <div id="majakka" hidden>
