@@ -551,7 +551,10 @@
      Ei animaatiota. Ei ota napautuksia: napautus menee tekstialueelle, joka sulkee oppaan (palkkiopasKlikki). */
   #palkkiopas { position: fixed; top: calc(var(--turva) + var(--yv) + 24px); bottom: calc(var(--ala) + 18px); left: 0; right: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; pointer-events: none;
-    color: var(--hius); text-align: center; user-select: none; -webkit-user-select: none; }
+    color: #d9d9d9; text-align: center; user-select: none; -webkit-user-select: none; }
+  /* Neutraali harmaa ilman paletin ruskeaa sävyä (käyttäjän pyyntö 8.11.2026), sama vaaleus kuin --hius; poikkeus kuuden
+     värin paletista vain tässä. */
+  :root[data-teema="tumma"] #palkkiopas { color: #2b2b2b; }
   body:not(.sivutus) #palkkiopas { display: none; }
   #palkkiopas svg { display: block; height: min(52%, 105vw); width: auto; fill: none; stroke: currentColor; stroke-width: 9;
     stroke-linejoin: miter; stroke-linecap: butt; }
@@ -904,7 +907,7 @@
   </div>
   <!-- Palkkiopas: ennen #sivua, jotta se piirtyy tekstin alle. Natsat ylöspäin ja sormen salmiakki. -->
   <div id="palkkiopas" hidden><svg viewBox="0 0 100 150" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M12 38L50 8L88 38M12 70L50 40L88 70M12 102L50 72L88 102"/><path class="po-sormi" d="M50 119Q52.5 129.5 59 132Q52.5 134.5 50 145Q47.5 134.5 41 132Q47.5 129.5 50 119Z"/></svg>
-    <p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat<br>napautus sulkee ohjeen</p></div>
+    <p class="po-iso">pyyhkäise ylös</p><p class="po-pieni">selaimen palkit katoavat</p></div>
   <div id="sivu"><div class="wrap"><article id="teksti" lang="fi"></article></div></div>
   <footer id="ala">
     <div id="majakka" hidden>
