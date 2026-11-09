@@ -73,7 +73,7 @@ private const val KEYCODE_LP3_319 = 319
 private const val KEY_LONG_PRESS_MS = 500L
 private const val KEY_SEQUENCE_MS = 1000L
 
-private const val PKG_TIDAL = "com.aspiro.wamp"
+private const val PKG_TIDAL = "com.aspiro.tidal"
 private const val PKG_NATIVE_ALPHA = "com.cylonid.nativealpha"
 private const val PKG_SOITIN = "fi.tusinasaa.soitin"
 private const val PKG_BINARYEYE = "de.markusfisch.android.binaryeye"
