@@ -87,6 +87,11 @@
     line-height: 1; border-bottom: 3px solid var(--ruoste); vertical-align: baseline; }
   .ik-ali svg { width: .62em; height: .62em; margin-bottom: .14em; }
   .ui { font-style: italic; }
+  /* Lisää lukimeen -lisäosan linkki kuvakkeineen (käyttäjän pyyntö 9.11.2026), kuten Latomossa. */
+  a.lisaosa { display: flex; align-items: center; gap: 14px; margin: 0 0 1em; text-decoration: none; color: inherit; }
+  a.lisaosa img { flex: 0 0 auto; width: 40px; height: 40px; }
+  a.lisaosa .nimi { color: var(--ruoste); text-decoration: underline; text-underline-offset: 3px; }
+  a.lisaosa .mika { display: block; font-size: .85rem; color: var(--harmaa); line-height: 1.5; }
   /* Harvemmin tarvittavat osiot supistettuina kuten asetusten vienti ja tuonti. */
   .lisaosat { margin-top: 40px; }
   details.osio { border-top: 1px solid var(--viiva); }
@@ -117,6 +122,9 @@
   <p>Teksti avataan linkistä, ja avattu teksti tallentuu lukulistaan. Lukulista on lukulaitteen etusivu.
     Nimikkeen alla näkyvät tekijä, luettu osuus ja viimeisin lukupäivä. Nimikkeen napautus jatkaa lukemista
     siitä, mihin jäit.</p>
+  <p>Verkkoartikkelin saa lukulistaan selainlisäosalla <i>Lisää lukimeen</i>: se leikkaa avoimen sivun tekstin ja vie
+    sen Latomon kautta Luiniin.</p>
+  <a class="lisaosa" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><span class="nimi">Lisää lukimeen</span><span class="mika">Selainlisäosa Chromeen</span></span></a>
   <p>Tekstistä pääset takaisin lukulistaan yläpalkin vasemmasta kulmasta, kotimerkistä <svg class="ik koti" viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="var(--harmaa)" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg>.</p>
   <p>Lukulistan alla on kenttä <span class="ui">Laatikon koodi tai linkki</span>. Linkki avaa tekstin. Koodi ottaa käyttöön
     <b>postilaatikon</b>: sen jälkeen Latomossa samaan laatikkoon lähetetyt tekstit tulevat lukulistaan itsestään aina, kun

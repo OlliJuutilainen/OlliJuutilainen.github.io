@@ -146,14 +146,14 @@ const SEP_SIVUT = {
   tulos('ikkuna: otsikko ja sanamäärä', ik.otsikko === 'Kokeilukirjoitus' && /^Esimerkkiblogi · \d+ sanaa$/.test(ik.meta) && !ik.valinta, JSON.stringify(ik));
   if (KUVAT) { await ikkuna.setViewportSize({ width: 360, height: 300 }); await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-ikkuna.png') }); }
 
-  // 2. Avaa Latomossa: leike tekstikentässä, MarkDownload-tila päällä korvamerkistä, siivous tehty.
+  // 2. Avaa Latomossa: leike tekstikentässä, siivous päällä korvamerkistä.
   const latomo = await paina('#latomoon', /latomo\.html$/);
   const L = await latomo.evaluate(() => ({ md: document.querySelector('#md').value, t: window.__latomo.tulos(),
-    mdl: document.querySelector('#mdl').getAttribute('aria-pressed'), tila: document.querySelector('#mdl-tila').textContent.trim(), hash: location.hash }));
+    leike: !document.querySelector('#leike-tila').hidden, tila: document.querySelector('#leike-tila').textContent.trim(), hash: location.hash }));
   const raaka = L.md, md = L.t.md;
   tulos('Latomo: leike tekstikentässä, osoitteesta pois #lisaosa', /^---\ntekijä: Maija Meikäläinen\nsivusto: Esimerkkiblogi\njulkaistu: 2026-10-08T07:30:00\+03:00\nlähde: https:\/\/esimerkki\.test\/blogi\/2026\/kirjoitus\.html\nleikattu: \d{4}-\d\d-\d\d\n---\n# Kokeilukirjoitus\n\n/.test(raaka) && L.hash === '',
     raaka.split('\n').slice(0, 9).join(' | '));
-  tulos('Latomo: korvamerkki kytkee MarkDownload-tilan', L.mdl === 'true' && /^haettu: \d{4}-\d\d-\d\d$/m.test(md) && !/leikattu/.test(md), L.mdl + ' | ' + L.tila);
+  tulos('Latomo: korvamerkki kytkee leikkeen siivouksen', L.leike && /^haettu: \d{4}-\d\d-\d\d$/m.test(md) && !/leikattu/.test(md), L.leike + ' | ' + L.tila);
   tulos('viite koottu', /^Meikäläinen, Maija \(2026\)\. Kokeilukirjoitus\./.test(L.t.koottu || ''), L.t.koottu);
   tulos('oman sivun yläindeksilinkki numeroksi', /lähteeseen\.\^1\^ Sitten/.test(md), (md.match(/lähteeseen\..{0,40}/) || [''])[0]);
   tulos('suhteellinen linkki absoluuttiseksi', /^\[\d+\]: https:\/\/esimerkki\.test\/blogi\/2025\/vanha\.html$/m.test(raaka), (raaka.match(/^\[\d+\]: .*vanha.*$/m) || ['ei löydy'])[0]);

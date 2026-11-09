@@ -1,8 +1,8 @@
 // Latomon selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/latomo-testi.js [kuvakansio]
 // Tarkistaa: tutkielma läpäisee Latomon muuttumattomana, tyypin ja kenttien vaikutuksen etukenttään ja
-// viitteeseen, lisäkentät (osana teosta avaa toimittajat, vuosikerran ja sivut), MarkDownload-leikkeen
-// (oletuspohja ja latomo-ohje.html:n suositeltu pohja), pelkän tekstin ehdotukset, julkaisuajan
+// viitteeseen, lisäkentät (osana teosta avaa toimittajat, vuosikerran ja sivut), leikkeen siivouksen
+// (korvamerkki leikattu:), pelkän tekstin ehdotukset, julkaisuajan
 // tarkkuuden, blogin nimen ja kaunokirjallisen kokoelman alaotsikon paikalla, siirron Luiniin (lukulista ja
 // jakovalikon lukutiedot ehdotuksena) ja puhelimen leveyden.
 const http = require('http');
@@ -91,8 +91,8 @@ palvelin.listen(0, async () => {
   await tiedostona('kant-ja-elainetiikka.md', KANT);
   let t = await T(), k = await kentat();
   tulos('tutkielma läpäisee muuttumattomana', t.md === KANT, t.md.length + ' / ' + KANT.length);
-  const mdlRivi = () => p.evaluate(() => !document.querySelector('#mdl-rivi').hidden);
-  tulos('MarkDownload-rivi piilossa tavallisella tekstillä', !(await mdlRivi()));
+  const leikeTila = () => p.evaluate(() => !document.querySelector('#leike-tila').hidden);
+  tulos('leikkeen siivous piilossa tavallisella tekstillä', !(await leikeTila()));
   tulos('kentät tekstistä', k['tekijä'] === 'Olli Juutilainen' && k.julkaistu === '7/2026' && k.otsikko === 'KANT JA ELÄINETIIKKA', JSON.stringify(k));
   tulos('^[…]-alaviitteiden muunnosehdotus', (await ehdotukset()).some(x => /\^\[…\]/.test(x)));
   await kuva('1-tutkielma');
@@ -120,21 +120,13 @@ palvelin.listen(0, async () => {
   t = await T();
   tulos('osana teosta viitteessä', /etsimässä\. \*Kokoomateos\*\. Uskonnonfilosofian kandidaatintutkielma\. Helsingin yliopisto, 1–20\.$/.test(t.koottu), t.koottu);
 
-  // 4. MarkDownloadin oletuspohja: ehdotus, siivous, tiedot, sivuston erotus.
+  // 4. MarkDownloadin oletuspohja: oma tila kytkimineen ja ehdotuksineen poistettiin 9.11.2026; sivuston erotus toimii yhä.
   await tiedostona('leike.md', OLETUSLEIKE);
-  tulos('MarkDownload tunnistetaan', (await ehdotukset()).some(x => /MarkDownload/.test(x)) && !(await mdlRivi()));
-  await p.click('.ehdotus button:has-text("Käytä MarkDownload-tilaa")');
-  await p.waitForTimeout(300);
-  tulos('ehdotuksesta päälle kytketty rivi näkyy', (await mdlRivi()) && (await p.getAttribute('#mdl', 'aria-pressed')) === 'true');
-  k = await kentat();
-  tulos('leikkeen tiedot', await p.inputValue('#tyyppi') === 'blogi' && k['tekijä'] === 'Maija Meikäläinen' && k['lähde'] === 'https://example.com/blogi/kirjoitus' && k.haettu === '8.10.2026', JSON.stringify(k));
-  tulos('siivous', /1 tyhjä korostus, 1 HTML-rivi, Excerpt-lainaus/.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+  tulos('ei MarkDownload-ehdotusta eikä kytkintä', !(await ehdotukset()).some(x => /MarkDownload/.test(x)) && !(await p.$('#mdl')) && !(await leikeTila()), (await ehdotukset()).join(' / '));
   await p.click('.ehdotus button:has-text("Erota sivuston nimeksi")');
   await p.waitForTimeout(300);
   t = await T();
-  tulos('sivuston nimi erotettu', /^# Kirjoitus Markdownista$/m.test(await p.inputValue('#md')) && t.koottu === 'Meikäläinen, Maija (s.a.). Kirjoitus Markdownista. *Esimerkkiblogi*. https://example.com/blogi/kirjoitus (luettu 8.10.2026).', t.koottu);
-  tulos('tulos ilman jäänteitä', !/Excerpt|\*\*\n|<iframe/.test(t.md) && /tags: \[markdown, writing\]/.test(t.md) && !/^source:/m.test(t.md), etu(t).replace(/\n/g, ' | '));
-  tulos('tekstikenttä ennallaan', (await p.inputValue('#md')).includes('<iframe'));
+  tulos('sivuston nimi erotettu', /^# Kirjoitus Markdownista$/m.test(await p.inputValue('#md')) && (await p.inputValue('#k-sivusto')) === 'Esimerkkiblogi', await p.inputValue('#k-sivusto'));
   await kuva('2-leike');
 
   // 5. Suositeltu pohja: koneen aikaleima kuukauden tarkkuudella, täyttämätön muuttuja ohitetaan.
@@ -149,32 +141,24 @@ palvelin.listen(0, async () => {
   tulos('blogin nimi alaotsikon paikalla', await p.textContent('#tiedot .ala') === 'Risto Uron blogi' && !/Risto Uron blogi/.test(await p.textContent('#tiedot .meta')), await p.textContent('#tiedot'));
   tulos('blogin viite Teologian tyylin mukaan', t.koottu === 'Uro, Risto (2017). Auttaako evoluutio ymmärtämään uskontoa? *Risto Uron blogi* huhtikuu/2017. http://blogs.helsinki.fi/uro/2017/04/ (luettu 23.10.2017).', t.koottu);
   tulos('yläindeksit ja tyhjä linkki', /^Kappale\.\^1\^ Toinen\^\[2\]\(https:\/\/example\.org\/x\)\^ ja H~2~O\.\n\n\n\n\[4\]:/m.test(t.md) &&
-    /1 tyhjä linkki\. 3 HTML-indeksiä Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+    /1 tyhjä linkki\. 3 HTML-indeksiä Markdowniksi\./.test(await p.textContent('#leike-tila')), await p.textContent('#leike-tila'));
   tulos('kuukausi etukenttään', /^julkaistu: 2017-04$/m.test(t.md), etu(t).replace(/\n/g, ' | '));
 
-  // 5b. Korvamerkki uudella sivulla (tila pois): leikattu: näyttää rivin ja kytkee tilan päälle ilman ehdotusta;
-  // tulokseen avain haettu, joten valmis teksti ei ole enää merkitty. Pois kytkeminen koskee vain tätä tekstiä.
+  // 5b. Korvamerkki uudella sivulla: leikattu: kytkee siivouksen; tulokseen avain haettu, joten valmis teksti ei ole
+  // enää merkitty.
   const p2 = await ctx.newPage();
   p2.on('pageerror', e => virheet.push(e.message));
   await p2.goto(BASE + 'luin/latomo.html');
   await p2.setInputFiles('#tiedosto', { name: 'suositus.md', mimeType: 'text/markdown', buffer: Buffer.from(SUOSITUSLEIKE) });
   await p2.waitForTimeout(450);
-  const tila2 = () => p2.evaluate(() => [!document.querySelector('#mdl-rivi').hidden, document.querySelector('#mdl').getAttribute('aria-pressed'),
-    !document.querySelector('#mdl-tila').hidden, [...document.querySelectorAll('.ehdotus p')].some(x => /MarkDownload/.test(x.textContent))]);
+  const tila2 = () => p2.evaluate(() => [!document.querySelector('#leike-tila').hidden]);
   let t2 = await p2.evaluate(() => window.__latomo.tulos()), s2 = await tila2();
-  tulos('korvamerkki kytkee tilan', s2.join() === 'true,true,true,false' && /^haettu: 2017-10-23$/m.test(t2.md) && !/leikattu/.test(t2.md), s2.join() + ' | ' + etu(t2).replace(/\n/g, ' | '));
+  tulos('korvamerkki kytkee tilan', s2.join() === 'true' && /^haettu: 2017-10-23$/m.test(t2.md) && !/leikattu/.test(t2.md), s2.join() + ' | ' + etu(t2).replace(/\n/g, ' | '));
   await kuva('2b-korvamerkki');
-  await p2.click('#mdl');
-  await p2.waitForTimeout(300);
-  s2 = await tila2(); t2 = await p2.evaluate(() => window.__latomo.tulos());
-  tulos('korvamerkityn saa pois', s2.join() === 'true,false,false,false' && /<sup>/.test(t2.md), s2.join());
-  await p2.setInputFiles('#tiedosto', { name: 'valmis.md', mimeType: 'text/markdown', buffer: Buffer.from(SUOSITUSLEIKE) });
-  await p2.waitForTimeout(450);
-  tulos('pois-valinta ei siirry seuraavaan tekstiin', (await tila2()).join() === 'true,true,true,false', (await tila2()).join());
   t2 = await p2.evaluate(() => window.__latomo.tulos());
   await p2.setInputFiles('#tiedosto', { name: 'valmis.md', mimeType: 'text/markdown', buffer: Buffer.from(t2.md) });
   await p2.waitForTimeout(450);
-  tulos('valmis teksti ei ole merkitty', (await tila2()).join() === 'false,false,false,false', (await tila2()).join());
+  tulos('valmis teksti ei ole merkitty', (await tila2()).join() === 'false', (await tila2()).join());
   await p2.close();
 
   // 6. Pelkkä teksti: ehdotukset, otsikko kentästä tekstin alkuun, itse kirjoitettu aika omalla tarkkuudellaan.
@@ -268,7 +252,7 @@ palvelin.listen(0, async () => {
   tulos('360 px ilman vaakavieritystä', leveys[0] <= leveys[1], leveys.join(' / '));
   await kuva('4-kapea');
 
-  // 9. Tyhjennys: nappi vain tekstin kanssa, vahvistus (älä! peruu), sitten kaikki tyhjäksi; MarkDownload-kytkin säilyy.
+  // 9. Tyhjennys: nappi vain tekstin kanssa, vahvistus (älä! peruu), sitten kaikki tyhjäksi.
   await p.fill('#osoite', 'https://example.com/teksti.md');
   await p.fill('#k-laji', 'Muutettu laji');
   await p.waitForTimeout(300);
@@ -289,7 +273,7 @@ palvelin.listen(0, async () => {
     nimi: document.querySelector('#tiedostonimi').textContent, tila: window.__latomo.tila(), tulos: window.__latomo.tulos() }));
   const n3 = await nakyvat();
   tulos('kaikki tyhjäksi', !jalki.md && !jalki.osoite && /pudota/.test(jalki.nimi) && !Object.keys(jalki.tila.arvot).length && jalki.tulos === null &&
-    n3.join() === 'false,false,false' && (await p.getAttribute('#mdl', 'aria-pressed')) === 'false' && await p.evaluate(() => document.querySelector('#mdl-rivi').hidden), JSON.stringify(n3) + ' ' + JSON.stringify(jalki.tila.arvot));
+    n3.join() === 'false,false,false' && !(await leikeTila()), JSON.stringify(n3) + ' ' + JSON.stringify(jalki.tila.arvot));
   // Uusi teksti tyhjennyksen jälkeen: kentät tulevat uudesta tekstistä, eivät vanhoista.
   await tiedostona('kant-ja-elainetiikka.md', KANT);
   t = await T();
@@ -344,7 +328,7 @@ palvelin.listen(0, async () => {
   await tiedostona('ann.md', POHJA + '\n' + ANN + '\n');
   tulos('tiedostosta ladattu teksti alkaa ilman piilotusta', (await p.getAttribute('#ann', 'aria-pressed')) === 'false' && /Annotations:/.test((await T()).md));
 
-  // 13. MarkDownload-leike SEP:stä (29.10.2026): [n]-alaviitemerkit (välilyönti ennen </sup>) yläindeksiksi ilman ^[-alaviitettä,
+  // 13. Leike SEP:stä (29.10.2026): [n]-alaviitemerkit (välilyönti ennen </sup>) yläindeksiksi ilman ^[-alaviitettä,
   // otsikkorivitön HTML-taulukko Markdown-taulukoksi ja taulukon jälkeisten huomautusten rivinumerot tekstikentän riveinä.
   await tiedostona('sep.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# John Dewey\n\n' +
     '## 1. Bio\n\n## 2. Psychology\n\nHabit.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-7" id="ref-7">7</a>] </sup> Habits.<sup>[<a href="https://plato.stanford.edu/entries/dewey/notes.html#note-8">8</a>] </sup>Kiinni.\n\n' +
@@ -355,12 +339,8 @@ palvelin.listen(0, async () => {
   tulos('SEP: taulukko Markdowniksi', sep.md.includes('\n\n| Mind is | Consciousness is |\n| --- | --- |\n| Meanings *in* life | A \\| B |\n| Yksi |  |\n\n'), sep.md);
   // Viitenumerot ovat 30.10.2026 alkaen Luinin alaviitteitä (md.js, sivunViitteet()).
   tulos('SEP: viitenumerot alaviitteiksi, ei HTML-huomautuksia, rivinumero tekstikentän', /2 alaviitettä · 1 taulukko/.test(await p.textContent('#luvut')) &&
-    JSON.stringify(sepV) === JSON.stringify(['rivi 16Pääluvun 3 otsikko puuttuu: 3.1 alkaa ilman sitä. Lisää se ##-rivinä ennen riviä 16. MarkDownload jättää joskus luvun otsikon pois. Miksi?']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
-  tulos('SEP: Miksi?-linkki ohjeeseen', (await p.getAttribute('#varoitukset a', 'href')) === 'latomo-ohje.html#otsikko-puuttuu');
-  await p.click('#mdl'); await p.waitForTimeout(300);
-  tulos('ilman MarkDownload-tilaa vain neuvo', (await p.$$eval('#varoitukset p', x => x.map(e => e.textContent))).some(x => /^rivi 16Pääluvun 3 otsikko puuttuu: 3\.1 alkaa ilman sitä\. Lisää se ##-rivinä ennen riviä 16\.$/.test(x)));
-  await p.click('#mdl'); await p.waitForTimeout(300);
-  tulos('SEP: tila kertoo taulukosta', /2 HTML-indeksiä ja 1 HTML-taulukko Markdowniksi\./.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+    JSON.stringify(sepV) === JSON.stringify(['rivi 16Pääluvun 3 otsikko puuttuu: 3.1 alkaa ilman sitä. Lisää se ##-rivinä ennen riviä 16. Verkkoleikkeestä jää joskus luvun otsikko pois.']), (await p.textContent('#luvut')) + ' | ' + sepV.join(' | '));
+  tulos('SEP: tila kertoo taulukosta', /2 HTML-indeksiä ja 1 HTML-taulukko Markdowniksi\./.test(await p.textContent('#leike-tila')), await p.textContent('#leike-tila'));
   // Tunnettu sivusto (29.10.2026): plato.stanford.edu antaa sivuston nimen, etukentän oma nimi voittaa, muut sivustot eivät saa nimeä.
   tulos('SEP: sivuston nimi kenttään ja etukenttään', (await p.inputValue('#k-sivusto')) === 'Stanford Encyclopedia of Philosophy' && /\nsivusto: Stanford Encyclopedia of Philosophy\n/.test(sep.md), await p.inputValue('#k-sivusto'));
   await tiedostona('sep-oma.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\nsivusto: Oma nimi\n---\n\n# John Dewey\n\nTeksti.\n');
@@ -368,26 +348,15 @@ palvelin.listen(0, async () => {
   await tiedostona('muu.md', '---\nlähde: https://example.com/blogi/kirjoitus\nleikattu: 2026-10-29\n---\n\n# Kirjoitus\n\nTeksti.\n');
   tulos('muu sivusto: nimeä ei keksitä', (await p.inputValue('#k-sivusto')) === '', await p.inputValue('#k-sivusto'));
 
-  // 14. Valinnan leike (Download Selection As Markdown): pohjan # {pageTitle} ja valinnan oma pääotsikko peräkkäin, ja
+  // 14. Valinnan leike: leikkeen # otsikko ja valinnan oma pääotsikko peräkkäin, ja
   // lainauksen sisällä kuvakkeiden ja linkkien taulukko (SEP:n Academic Tools).
   await tiedostona('valinta.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# John Dewey\n\n# John Dewey\n\n' +
     '## 1. Bio\n\nLeipä.\n\n## Academic Tools\n\n> <table class="vert-top"><tbody><tr><td><img src="../../symbols/a.jpg" alt="a"></td><td><a href="https://e.org/c?x=1&amp;y=2" target="other">How to cite</a>.</td></tr>' +
     '<tr><td><img src="../../symbols/b.png" alt="b"></td><td><a href="https://e.org/p">PDF</a> at <a href="https://e.org/">X</a>.</td></tr></tbody></table>\n\n## Other\n\nLoppu.\n');
   const val = await T(), valV = await p.$$eval('#varoitukset p', x => x.map(e => e.textContent));
-  tulos('valinta: toistunut pääotsikko pois', (val.md.match(/^# John Dewey$/gm) || []).length === 1 && /toistunut pääotsikko/.test(await p.textContent('#mdl-tila')), await p.textContent('#mdl-tila'));
+  tulos('valinta: toistunut pääotsikko pois', (val.md.match(/^# John Dewey$/gm) || []).length === 1 && /toistunut pääotsikko/.test(await p.textContent('#leike-tila')), await p.textContent('#leike-tila'));
   tulos('valinta: kuvakkeiden taulukko kappaleiksi', val.md.includes('## Academic Tools\n\n> [How to cite](https://e.org/c?x=1&y=2).\n>\n> [PDF](https://e.org/p) at [X](https://e.org/).\n\n## Other'), val.md);
   tulos('valinta: ei huomautuksia', JSON.stringify(valV) === JSON.stringify(['Ei huomautettavaa.']), valV.join(' | '));
-
-  // 15. MarkDownloadin validateUri: suhteellinen osoite lähteen perään kahdella kauttaviivalla tai ilman erotinta.
-  await tiedostona('osoitteet.md', '---\nlähde: https://plato.stanford.edu/entries/dewey/\nleikattu: 2026-10-29\n---\n\n# T\n\nKatso [Sellars][1], [luku][2], [ohje](https://plato.stanford.edu/entries/dewey//../../info.html#c) ja [sama](https://plato.stanford.edu/entries/dewey/).\n\n[1]: https://plato.stanford.edu/entries/dewey//../sellars/\n[2]: https://plato.stanford.edu/entries/dewey//#Psyc\n');
-  const os1 = (await T()).md;
-  tulos('osoitteet: kaksoiskauttaviiva ratkaistu', os1.includes('[ohje](https://plato.stanford.edu/info.html#c) ja [sama](https://plato.stanford.edu/entries/dewey/).') &&
-    os1.includes('[1]: https://plato.stanford.edu/entries/sellars/\n[2]: https://plato.stanford.edu/entries/dewey/#Psyc') && /Korjattu 3 sivun omaa linkkiä\./.test(await p.textContent('#mdl-tila')), os1 + ' | ' + await p.textContent('#mdl-tila'));
-  await tiedostona('osoitteet2.md', '---\nlähde: https://e.org/blogi/kirjoitus.html\nleikattu: 2026-10-29\n---\n\n# T\n\n[Kuva](https://e.org/blogi/kirjoitus.html../kuvat/a.html), [ankkuri](https://e.org/blogi/kirjoitus.html#x) ja [toinen](https://e.org/blogi/kirjoitus.htmlnotes.html).\n');
-  tulos('osoitteet: liimattu suhteellinen ratkaistu, ankkuri ennallaan', (await T()).md.includes('[Kuva](https://e.org/kuvat/a.html), [ankkuri](https://e.org/blogi/kirjoitus.html#x) ja [toinen](https://e.org/blogi/notes.html).'), (await T()).md);
-
-  await tiedostona('osoitteet3.md', '---\nlähde: https://e.org/blog\nleikattu: 2026-10-29\n---\n\n# T\n\n[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).\n');
-  tulos('osoitteet: kansioton lähde ei korjaa', (await T()).md.includes('[Arkisto](https://e.org/blog-archive) ja [x](https://e.org/blog/x).'), (await T()).md);
 
   // 16. SEP:n Notes-sivu (30.10.2026): kun tekstikentässä on artikkelin leike, saman kansion notes.html-leike liitetään perään
   // (etukenttä ja paluulinkkien määrittelyt pois), ja viitenumeroista tulee Luinin alaviitteitä Notes-sivun tekstein.
