@@ -6,9 +6,47 @@ sijoitettu täysin Composeen ilman XML- tai WebView-kerroksia.
 
 ## Ohjaus
 
-- **Napautus:** käynnistää, pysäyttää tai jatkaa ajastinta.
-- **Tuplanapautus:** nollaa kuluneen ajan ja aloittaa uuden kierroksen.
-- **Pitkä painallus:** palauttaa ajastimen lepotilaan ilman uutta käynnistystä.
+Kosketus toimii vain napin eli rinkulan alueella (neliö, jonka sivu on kaksi rinkulan
+halkaisijaa); muualla ruudulla se ei tee mitään.
+
+- **Napautus:** käynnistää kellon (soi), pysäyttää tauolle tai jatkaa.
+- **Pitkä painallus (1 s):** pysäyttää kellon kokonaan kaikissa tiloissa (käyttäjän päätös
+  9.11.2026). Soiva kello soi loppuun, eikä napautus sillä aikaa käynnistä uutta. Alusta
+  aloittamista ei ole.
+
+## Laitteen napit
+
+Sovellus käsittelee Light Phone 3:n napit itse (`dispatchKeyEvent`), kun se on etualalla;
+Key Mapperin ΒΟΡΟΦΘΟΡΟΣ-kartat poistetaan käytöstä.
+
+| Nappi | Toiminto |
+| --- | --- |
+| 319 | taskulamppu päälle/pois |
+| FOCUS | BinaryEye |
+| pitkä äänenvoimakkuus ylös | Tusinasää sijaintilinkillä |
+| pitkä äänenvoimakkuus alas | Tidal |
+| ylös → alas (1 s) | Native Alpha |
+| alas → ylös (1 s) | KEICK•WALK |
+
+Lyhyt äänenvoimakkuuspainallus säätää mediaäänenvoimakkuutta napin noustessa; sarjan jälkeen
+ensimmäisen painalluksen säätö perutaan. Muut napit menevät järjestelmälle. Toisen sovelluksen
+avattuaan ΒΟΡΟΦΘΟΡΟΣ sulkeutuu. HOME-nappia sovellus ei saa koskaan (Android käsittelee sen
+itse), joten pitkän HOME-painalluksen kartat jäävät Key Mapperiin.
+
+Tusinasään token ja avain eivät ole repossa. Lisää ne Macin tiedostoon
+`~/.gradle/gradle.properties`; ilman niitä ΒΟΡΟΦΘΟΡΟΣin rakennus keskeytyy virheeseen:
+
+```properties
+ouroboros.tusinasaa.token=<TOKEN>
+ouroboros.tusinasaa.key=<AVAIN>
+```
+
+Asennus (`android`-kansiossa) ja nappiloki:
+
+```bash
+ANDROID_SERIAL=LP3LHMA541401108 ./gradlew :ouroboros:installDebug
+adb -s LP3LHMA541401108 logcat | grep "nappi "
+```
 
 Sovellus pitää näytön hereillä, piilottaa järjestelmäpalkit ja lukitsee
 suunnan pystyasentoon. Viimeistelyvaihe näkyy kahden sekunnin ajan ennen kuin
