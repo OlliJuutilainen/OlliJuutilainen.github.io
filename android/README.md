@@ -162,6 +162,40 @@ Toiminta:
   Sovellus ei kysy sitä, mutta soitto toimii ilmankin. Halutessasi:
   `adb -s LP3LHMA541401108 shell pm grant fi.tusinasaa.soitin android.permission.POST_NOTIFICATIONS`
 
+## Odotushuone (napit)
+
+Moduuli `:odotushuone` (`fi.tusinasaa.odotushuone`) käsittelee Light Phone 3:n napit itse
+(`dispatchKeyEvent`), kun se on etualalla; Key Mapperin Odotushuone-kartat poistetaan käytöstä.
+
+| Nappi | Toiminto |
+| --- | --- |
+| 319 | taskulamppu päälle/pois |
+| FOCUS | BinaryEye |
+| pitkä äänenvoimakkuus ylös | Tusinasää sijaintilinkillä |
+| pitkä äänenvoimakkuus alas | Tidal |
+| ylös → alas (1 s) | Native Alpha |
+| alas → ylös (1 s) | KEICK•WALK |
+
+Lyhyt äänenvoimakkuuspainallus säätää mediaäänenvoimakkuutta, kun nappi nousee; sarjan jälkeen
+ensimmäisen painalluksen säätö perutaan. Muut napit menevät järjestelmälle. Toisen sovelluksen
+avattuaan Odotushuone sulkeutuu. HOME-nappia sovellus ei saa koskaan (Android käsittelee sen itse),
+joten pitkän HOME-painalluksen kartat jäävät Key Mapperiin.
+
+Tusinasään token ja avain eivät ole repossa. Lisää Macin tiedostoon `~/.gradle/gradle.properties`:
+
+```properties
+odotushuone.tusinasaa.token=<TOKEN>
+odotushuone.tusinasaa.key=<AVAIN>
+```
+
+Ilman niitä Odotushuoneen rakennus keskeytyy virheeseen (muihin moduuleihin tämä ei vaikuta).
+
+```bash
+ANDROID_SERIAL=LP3LHMA541401108 ./gradlew :odotushuone:installDebug
+```
+
+Kaikki napit kirjataan lokiin: `adb -s LP3LHMA541401108 logcat -s Odotushuone`.
+
 ## QR-intentin pohja
 
 Manifestissa on sekä `MAIN/LAUNCHER` -intentti että valmiit `VIEW`-intentit, jotka

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Napit avaavat nämä sovellukset. Android 11+ ei näytä muita paketteja ilman tätä,
+         jolloin getLaunchIntentForPackage palauttaisi nullin. -->
+    <queries>
+        <package android:name="com.aspiro.wamp" />
+        <package android:name="com.cylonid.nativealpha" />
+        <package android:name="fi.tusinasaa.soitin" />
+        <package android:name="de.markusfisch.android.binaryeye" />
+        <package android:name="fi.tusinasaa" />
+    </queries>
+
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"

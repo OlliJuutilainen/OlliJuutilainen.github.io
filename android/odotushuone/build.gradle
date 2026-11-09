@@ -3,6 +3,26 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+String quoted(Object value) {
+    String s = value == null ? '' : value.toString().trim()
+    return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+}
+
+// Pitkä äänenvoimakkuus ylös avaa Tusinasään sijaintilinkillä. Token ja avain luetaan
+// Gradle-ominaisuuksista (esim. ~/.gradle/gradle.properties), eivät ne koskaan päädy repoon.
+def tusinasaaToken = (findProperty('odotushuone.tusinasaa.token') ?: '').toString().trim()
+def tusinasaaKey = (findProperty('odotushuone.tusinasaa.key') ?: '').toString().trim()
+
+gradle.taskGraph.whenReady { graph ->
+    boolean apkRequested = graph.allTasks.any {
+        it.project == project && it.name ==~ /(assemble|install|package|bundle).*/
+    }
+    if (apkRequested && (!tusinasaaToken || !tusinasaaKey)) {
+        throw new GradleException("Puuttuu Gradle-ominaisuus 'odotushuone.tusinasaa.token' tai " +
+                "'odotushuone.tusinasaa.key'. Lisää ne tiedostoon ~/.gradle/gradle.properties.")
+    }
+}
+
 android {
     namespace 'fi.tusinasaa.odotushuone'
     compileSdk 34
@@ -11,8 +31,10 @@ android {
         applicationId 'fi.tusinasaa.odotushuone'
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '1.1'
+        buildConfigField 'String', 'TUSINASAA_TOKEN', quoted(tusinasaaToken)
+        buildConfigField 'String', 'TUSINASAA_KEY', quoted(tusinasaaKey)
     }
 
     buildTypes {
@@ -22,7 +44,7 @@ android {
     }
 
     buildFeatures {
-        buildConfig false
+        buildConfig true
     }
 
     compileOptions {
