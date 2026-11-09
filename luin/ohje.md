@@ -33,6 +33,17 @@ Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.
 - Käyttöönottoa ei tarvita. Tekstien säilytys verkossa (KV, repo, Dropbox) on luvun 9 kysymys.
 - Suomi–suomi-sanakirjaa ei ole: sanaselitys on englanninkielisestä Wikisanakirjasta (luku 4.3). Vaihtoehdot ovat luvussa 9.
 
+### 1.3 Nimet
+
+Käyttäjän nimistö (9.11.2026):
+
+- **Pääotsikko: *Luin.*** Minä luin sen. Samalla viittaus lukulistaan: siinä ovat myös luettavat, ne jotka tulevat olemaan luettuja. Pääsivun linkin esikatselun otsikko (`og:title`) on *Luin.*
+- **Alaotsikko: *HTML*.**
+- **Pitkä, tyylitelty, virallinen nimi: *LUiN.HTML*** (logo, `aria-label`, infolaatikko).
+- **Osoite: `luin.html`.**
+- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Avaa Luinissa*).
+- **Sivuston ytimen työkalu: *lukin*,** genetiivi *lukimen* (*Lisää lukimeen*).
+
 ## 2. Tiedostot ja tietovirta
 
 ### 2.1 Tiedostot

@@ -26,7 +26,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
-  sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
+  sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
+  (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*): opas 1.3.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
