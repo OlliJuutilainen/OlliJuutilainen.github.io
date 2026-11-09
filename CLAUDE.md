@@ -80,6 +80,15 @@ avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
 CI-tarkistuksia eikä muita katselmoijia. Käyttäjän **"yhiistä!"** tarkoittaa aina: yhdistä
 (merge) kyseinen PR. **"pryhiistä!"** tarkoittaa: tee PR kehityshaarasta ja yhdistä se heti.
 
+**MACIN REPO EI PÄIVITY ITSESTÄÄN.** Käyttäjän Macin klooni (`~/OlliJuutilainen.github.io`) ei seuraa
+GitHubia automaattisesti, eikä se välttämättä ole edes `main`-haarassa (9.11.2026: se oli vanhassa
+`claude/…`-haarassa ja `main` 1427 committia jäljessä, joten `installDebug` asensi vanhan koodin, vaikka
+muutos oli yhdistetty). Kun annat Macilla ajettavan käännös-, asennus- tai skriptikomennon, anna aina
+ensin `cd ~/OlliJuutilainen.github.io && git checkout main && git pull && git log --oneline -1` ja
+kerro, minkä commitin tai sitä uudemman pitää näkyä. Älä päättele laitteella näkyvästä vanhasta
+toiminnasta, että koodi on väärin, ennen kuin asennetun version on todettu uudeksi (esim.
+`dumpsys package <paketti> | grep versionName`).
+
 **Kehityskone on macOS Big Sur.** Uusin `wrangler` kaatuu siinä hiljaa virheeseen
 `dyld: Symbol not found: _SecTrustCopyCertificateChain`, koska sen mukana tuleva esbuild
 vaatii macOS 12:n. Siksi `generaattori.html` on pinnattu versioon **`wrangler@3.114.17`**,
