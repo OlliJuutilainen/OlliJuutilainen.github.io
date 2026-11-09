@@ -9,6 +9,8 @@ viite: Tusinasoft (2026). *Luin: kehittäjän opas*. Luonnos 20.10.2026.
 Ensimmäinen kokeiluversio, lokakuu 2026.
 Tusinasoft
 
+**Ohjeosio on vanhentunut.** Päivitetään mahdollisesti pian (tätä kirjoittaessa on 9. marraskuuta 2026).
+
 ## 1. Mikä Luin on
 
 Luin on selaimessa toimiva lukulaite Markdown-teksteille. Se on tehty ensisijaisesti omien tekstien jakamiseen: kirjoittaja latoo tekstin Latomossa, ja lukija lukee sen Luinissa puhelimella, e-ink-laitteella tai tietokoneella. Kaikki tapahtuu lukijan selaimessa. Palvelinta ei ole, eikä mitään lähetetä minnekään.^[Ainoa verkkopyyntö on #u=-linkin tekstin haku. Sekin on tavallinen tiedostohaku, joka ei lähetä lukijasta mitään.]
