@@ -8,10 +8,13 @@ enabled = true
 binding = "LOCATIONS"
 id = "033276b4df18419a8eb60a7d42a4efef"
 
-# Coneelta Cännycälle: Latomon kirjoitukset postilaatikkoon (POST /api/luin) rajataan osoitetta kohti.
-# wrangler 3 -syntaksi (unsafe.bindings); period on 10 tai 60 sekuntia.
-[[unsafe.bindings]]
-name = "LUIN_RAJA"
-type = "ratelimit"
-namespace_id = "1001"
-simple = { limit = 20, period = 60 }
+# Coneelta Cännycälle: Luinin ja Latomon kirjoitukset postilaatikkoon (POST /api/luin) kulkevat Durable Objectin
+# laskurin kautta (osoitekohtainen minuuttiraja ja päiväraja, worker/src/index.js LuinRaja). SQLite-pohjainen, koska
+# vain se toimii ilmaistasolla.
+[[durable_objects.bindings]]
+name = "LUIN_LASKURI"
+class_name = "LuinRaja"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["LuinRaja"]

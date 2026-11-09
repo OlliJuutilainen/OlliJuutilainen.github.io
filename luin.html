@@ -1102,7 +1102,7 @@
 </defs></svg>
 
 <script src="luin/md.js?v=6f5d55be"></script>
-<script src="luin/posti.js?v=e4cab227"></script>
+<script src="luin/posti.js?v=e188ca79"></script>
 <script>
 (function () {
   'use strict';
@@ -1620,7 +1620,8 @@
           return;
         }
         // Vanha worker ei tunne merkintöjä: POST ilman tekstiä on sille bad_payload.
-        postiVirhe = x.s === 429 ? 'Liian monta lähetystä hetken sisällä. Lähetys yritetään myöhemmin uudelleen.'
+        postiVirhe = x.s === 429 ? (x.j.error === 'daily_limit' ? 'Postilaatikon päivän lähetysraja on täynnä. Lähetys yritetään myöhemmin uudelleen.'
+          : 'Liian monta lähetystä hetken sisällä. Lähetys yritetään myöhemmin uudelleen.')
           : x.s === 400 && x.j.error === 'bad_payload' ? 'Worker ei vielä ota merkintöjä vastaan: se on päivitettävä kerran (Latomon Coneelta Cännycälle -osio).'
           : 'Merkintöjen lähetys ei onnistunut (' + x.s + (x.j.error ? ', ' + x.j.error : '') + ').';
         var err = new Error(postiVirhe); err.seis = x.s === 429 || x.s === 400;
