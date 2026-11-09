@@ -33,6 +33,10 @@ näppäimet ja reunanapautus eivät tee mitään.
   - *Tap screen* (2.1.0+, Android 7+) ja *Swipe screen* (2.5.0+) toimivat saavutettavuuspalvelulla.
   - Rajaus *App in foreground*: kartta toimii vain, kun valittu sovellus on aktiivinen ikkuna.
     <https://keymapper.app/user-guide/constraints/>
+- **LP3 (ADB-kokeet 9.11.2026):** Android 14, ruutu 1080×1240. Luin Native Alphassa sivutettuna kääntää
+  sivua sekä `input tap 1060 620` (eteen) ja `input tap 20 620` (taakse) että `input keyevent
+  KEYCODE_PAGE_DOWN`. Tavat A ja B ovat siis molemmat mahdollisia; B vaatii Android 14:ssä Shizukun tai
+  Key Mapperin näppäimistön.
 
 ## Todentamatta
 
@@ -41,17 +45,17 @@ näppäimet ja reunanapautus eivät tee mitään.
   nimiä `AudioVolumeUp/Down`, ei Androidia.
 - Mitä Booxin sovelluskohtainen volumenappien sivunkääntö lähettää (näppäin, pyyhkäisy, vieritys).
   Oikealla Boox-laitteella ei ole testattu (`luin/ohje.md`).
-- LP3:n Android-versio (vaikuttaa Shizuku-vaatimukseen).
 
 ## 1. LP3 + Native Alpha + Key Mapper (ei koodia)
 
 **Ensin ADB-kokeet** (Luin auki Native Alphassa, sivunkääntö valittuna):
 
 ```bash
-adb -s <LP3-serial> shell input keyevent KEYCODE_PAGE_DOWN
-adb -s <LP3-serial> shell wm size
-adb -s <LP3-serial> shell input tap <leveys − 20> <korkeus / 2>
+adb -s LP3LHMA541401108 shell input keyevent KEYCODE_PAGE_DOWN
+adb -s LP3LHMA541401108 shell input tap 1060 620
 ```
+
+Tehty 9.11.2026: molemmat kääntävät (ks. todennettua).
 
 Lisäksi Key Mapperin painalluksen tallennus kertoo, näkyvätkö volumenapit sille.
 
@@ -94,8 +98,8 @@ tai ominaisuus halutaan muille.
 
 ## Jatkoaskeleet, jos otetaan hyllyltä
 
-1. ADB-kokeet LP3:lla.
-2. Tapa A Key Mapperiin.
+1. ~~ADB-kokeet LP3:lla.~~ Tehty 9.11.2026.
+2. Tapa A Key Mapperiin (volume down → Tap screen 1060, 620; volume up → 20, 620).
 3. Palma: Booxin asetus ja kokeilu.
 4. Pieni näppäintestisivu (näyttää sivulle tulevat näppäin-, kosketus- ja rullatapahtumat) Palman,
    Firefoxin ja LP3:n selvittämiseen.
