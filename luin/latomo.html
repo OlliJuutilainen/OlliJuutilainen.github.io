@@ -285,44 +285,39 @@
       tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
       <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
       <b>Koneelta kännykälle</b> vie tekstin postilaatikon kautta kännykän tai muun lukulaitteen Luiniin.</p>
-    <!-- Koneelta kännykälle (käyttäjän pyyntö 9.11.2026; ennen Lähetä postilaatikkoon, 25.10.2026): Latomo
-         kirjoittaa tekstin workerin KV:hen reitillä POST /api/luin, kun tässä selaimessa on salakoodi (workerin
-         salaisuus LUIN_SALAKOODI). Kun laatikon koodi ja salakoodi ovat muistissa, napin painallus lähettää heti.
-         Ilman salakoodia jäljellä on entinen wrangler-komento (macOS Big Sur, ks. CLAUDE.md). Luin hakee laatikon
-         lukulistaan, kun sen asetuksissa on sama laatikon koodi. Koodit ovat salasanoja, joten ne ovat vain tämän
-         selaimen muistissa (luin-laatikko yhteinen Luinin kanssa, luin-salakoodi vain Latomon). -->
+    <!-- Koneelta kännykälle (käyttäjän pyynnöt 9.11.2026; ennen Lähetä postilaatikkoon, 25.10.2026): Latomo
+         kirjoittaa tekstin workerin KV:hen reitillä POST /api/luin. Pitkä arvottu laatikon koodi (vähintään 24 merkkiä)
+         on itse avain: salaisuutta workeriin tai Päätettä ei tarvita uudelle käyttäjälle, laatikolle eikä laitteelle.
+         Lyhyellä itse keksityllä koodilla voi vain lukea, koska sen voi arvata; sille jää wrangler-komento (macOS Big
+         Sur, ks. CLAUDE.md). Kun pitkä koodi on muistissa, napin painallus lähettää heti. Luin hakee laatikon
+         lukulistaan, kun sen asetuksissa on sama koodi. Koodi on vain tämän selaimen muistissa (luin-laatikko,
+         yhteinen Luinin kanssa). -->
     <div class="laatikko" id="laatikko" hidden>
       <div class="kentta"><label for="laatikko-koodi">Laatikon koodi</label>
-        <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="8–40 merkkiä: a–z, 0–9, -">
+        <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="paina Arvo">
           <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
-      <p class="pieni">Anna sama koodi kerran kännykän Luinissa lukulistan Lisää-kenttään.
-        Koodi on salasana: kuka tahansa sen tietävä voi lukea laatikon tekstit.</p>
-      <div class="kentta"><label for="salakoodi">Salakoodi</label>
-        <div class="syote"><input id="salakoodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="sama kuin workerissa">
-          <button type="button" class="pieni-nappi" id="salakoodi-arvo">Arvo</button></div></div>
-      <p class="pieni">Salakoodilla tämä selain saa kirjoittaa laatikkoon. Se annetaan vain tässä, kerran;
-        kännykkä ei tarvitse sitä.</p>
+      <p class="pieni">Koodi on laatikon avain: sen tietävä voi lukea laatikon tekstit ja lähettää laatikkoon. Arvottua
+        koodia ei voi arvata. Avaa laatikon linkki (alla) kerran kännykässä, niin kännykän Luin hakee laatikon.</p>
       <div class="rivi"><button type="button" class="paa" id="kk-laheta">Lähetä kännykälle</button></div>
       <p class="pieni" id="laatikko-virhe" hidden></p>
       <p class="pieni" id="kk-virhe" hidden></p>
       <p class="ok" id="kk-tila" hidden></p>
-      <details class="kk-lisa" id="kk-kayttoonotto">
-        <summary>Käyttöönotto kerran<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
-        <p class="pieni">Salakoodi tallennetaan workeriin Macin Päätteessä. Ensimmäinen komento hakee uusimman koodin,
-          toinen kysyy salakoodin (liitä yllä oleva), kolmas julkaisee workerin.</p>
+      <details class="kk-lisa" id="kk-kayttoonotto" hidden>
+        <summary>Workerin päivitys<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+        <p class="pieni">Worker päivitetään kerran Macin Päätteessä. Sen jälkeen lähettäminen ei tarvitse Päätettä.</p>
         <pre class="komento" id="kk-komennot"></pre>
         <div class="rivi"><button type="button" id="kk-kopioi">Kopioi komennot</button></div>
       </details>
       <details class="kk-lisa" id="laatikko-tulos">
-        <summary>Ilman salakoodia: komento Päätteeseen<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+        <summary>Komento Päätteeseen<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
+        <p class="pieni">Lyhyellä itse keksityllä koodilla Latomo ei voi lähettää; sen tilalle käy tämä komento.</p>
         <pre class="komento" id="laatikko-komento"></pre>
         <div class="rivi"><button type="button" id="laatikko-kopioi">Kopioi komento</button></div>
-        <p class="pieni">Liitä komento Macin Päätteeseen.</p>
       </details>
       <p class="pieni" id="laatikko-ohje" hidden>Laatikon linkki (avaa kerran kännykässä, tai anna koodi Luinin lukulistan
-        Lisää-kenttään): <code id="laatikko-linkki"></code><br>Teksti tulee lukulistaan, kun Luin seuraavan kerran
-        näyttää lukulistan. Laatikko säilyttää tekstin 30 päivää; lukulaitteessa se säilyy, kunnes poistat sen. Saman
-        otsikon uusi lähetys korvaa vanhan version.</p>
+        Lisää-kenttään): <code id="laatikko-linkki"></code> <button type="button" class="pieni-nappi" id="linkki-kopioi">Kopioi linkki</button><br>Teksti tulee
+        lukulistaan, kun Luin seuraavan kerran näyttää lukulistan. Laatikko säilyttää tekstin 30 päivää; lukulaitteessa se
+        säilyy, kunnes poistat sen. Saman otsikon uusi lähetys korvaa vanhan version.</p>
     </div>
   </section>
 
@@ -1170,18 +1165,17 @@
     ].join('\n');
   }
   var LAATIKKO_API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/api/luin';
-  var SALAKOODI_RE = /^[A-Za-z0-9_-]{12,100}$/;
-  var skKentta = $('#salakoodi');
-  try { skKentta.value = JSON.parse(localStorage.getItem('luin-salakoodi')) || ''; } catch (e) {}
+  var KIRJOITUS_MIN = 24;
+  // Salakoodi oli käytössä hetken 9.11.2026 ennen kuin pitkä laatikon koodi korvasi sen.
+  try { localStorage.removeItem('luin-salakoodi'); } catch (e) {}
   var KAYTTOONOTTO = [
     'cd ~/OlliJuutilainen.github.io && git checkout main && git pull && git log --oneline -1',
-    'npx -y wrangler@3.114.17 secret put LUIN_SALAKOODI',
     'npx -y wrangler@3.114.17 deploy'
   ].join('\n');
   $('#kk-komennot').textContent = KAYTTOONOTTO;
   function lahetysTiedot() {
     var t = nykyinen(), otsikko = t ? (t.doc.title || nimi || 'teksti') : '';
-    return { t: t, k: lkKentta.value.trim().toLowerCase(), sk: skKentta.value.trim(), otsikko: otsikko,
+    return { t: t, k: lkKentta.value.trim().toLowerCase(), otsikko: otsikko,
       id: t ? (L.slug(otsikko).slice(0, 60) || 'teksti') : '' };
   }
   function paivitaLahetys() {
@@ -1189,7 +1183,7 @@
     var ok = LAATIKKO_RE.test(d.k) && !!d.t;
     virhe.hidden = ok || (!d.k && !!d.t);
     virhe.textContent = !d.t ? 'Tekstikenttä on tyhjä.' : 'Koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.';
-    $('#laatikko-tulos').hidden = $('#laatikko-ohje').hidden = !ok;
+    $('#laatikko-ohje').hidden = !ok;
     $('#kk-laheta').disabled = !ok;
     if (!ok) return ok;
     try { localStorage.setItem('luin-laatikko', JSON.stringify(d.k)); } catch (e) {}
@@ -1203,36 +1197,39 @@
     e.textContent = teksti; e.hidden = !teksti;
   }
   function kello(t) { var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function vanhaWorker() {
+    kkTila('Worker ei vielä ota lähetyksiä vastaan. Päivitä se kerran (alla).', true);
+    $('#kk-kayttoonotto').hidden = false; $('#kk-kayttoonotto').open = true;
+  }
   var lahettaa = false;
   function lahetaKannykalle() {
     if (lahettaa || !paivitaLahetys()) return;
     var d = lahetysTiedot();
-    if (!SALAKOODI_RE.test(d.sk)) {
-      kkTila(d.sk ? 'Salakoodissa on 12–100 merkkiä: kirjaimia, numeroita, väliviivoja ja alaviivoja.'
-        : 'Anna salakoodi. Ilman sitä tekstin voi lähettää Päätteen komennolla (alla).', true);
-      if (!d.sk) skKentta.focus();
+    if (d.k.length < KIRJOITUS_MIN) {
+      kkTila('Tällä koodilla voi vain lukea, koska se on lyhyt ja sen voi arvata. Arvo uusi koodi ja avaa sen linkki kerran ' +
+        'kännykässä, tai lähetä komennolla (Komento Päätteeseen).', true);
       return;
     }
     lahettaa = true; $('#kk-laheta').disabled = true; kkTila('Lähetetään…');
     fetch(LAATIKKO_API, {
       method: 'POST', cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + d.sk },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ l: d.k, id: d.id, md: d.t.md })
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; });
     }).then(function (v) {
       if (v.s === 200 && v.j.ok) {
-        try { localStorage.setItem('luin-salakoodi', JSON.stringify(d.sk)); } catch (e) {}
+        $('#kk-kayttoonotto').hidden = true;
         kkTila('Lähetetty kännykälle klo ' + kello(v.j.t || Date.now()) + ': ' + d.otsikko +
           '. Teksti tulee lukulistaan, kun avaat sen.');
-      } else if (v.s === 401) {
-        kkTila('Salakoodi ei kelpaa. Sen pitää olla sama kuin workerin LUIN_SALAKOODI.', true);
-      } else if (v.s === 503 || (v.s === 400 && v.j.error === 'bad_key')) {
-        // 400 bad_key: vanha worker käsittelee POSTin hakuna ilman ?l=-parametria.
-        kkTila('Worker ei vielä ota salakoodia vastaan. Tee käyttöönotto kerran (alla).', true);
-        $('#kk-kayttoonotto').open = true;
+      } else if (v.s === 429) {
+        kkTila('Liian monta lähetystä hetken sisällä. Yritä minuutin päästä uudelleen.', true);
       } else if (v.s === 413) {
         kkTila('Teksti on liian suuri lähetettäväksi (yli 5 Mt).', true);
+      } else if (v.s === 400 && v.j.error === 'bad_key' || v.s === 401 || v.s === 503) {
+        // Koodi on tarkistettu ennen lähetystä, joten bad_key tulee vanhalta workerilta, joka käsittelee POSTin
+        // hakuna ilman ?l=-parametria; 401 ja 503 hetken 9.11.2026 käytössä olleelta salakoodiversiolta.
+        vanhaWorker();
       } else {
         kkTila('Lähetys ei onnistunut (' + v.s + (v.j.error ? ', ' + v.j.error : '') + ').', true);
       }
@@ -1245,27 +1242,19 @@
     $('#laatikko').hidden = !auki; this.setAttribute('aria-expanded', String(auki));
     if (!auki) return;
     kkTila('');
-    var ok = paivitaLahetys();
-    // Kun molemmat koodit ovat muistissa, sama painallus lähettää (käyttäjän toive: helpotettu reitti).
-    if (ok && SALAKOODI_RE.test(skKentta.value.trim())) lahetaKannykalle();
+    // Kun pitkä koodi on muistissa, sama painallus lähettää (käyttäjän toive: helpotettu reitti).
+    if (paivitaLahetys() && lkKentta.value.trim().length >= KIRJOITUS_MIN) lahetaKannykalle();
     else if (!lkKentta.value) lkKentta.focus();
-    else if (!skKentta.value) skKentta.focus();
   });
   $('#kk-laheta').addEventListener('click', lahetaKannykalle);
   lkKentta.addEventListener('input', function () { kkTila(''); paivitaLahetys(); });
-  skKentta.addEventListener('input', function () { kkTila(''); });
-  function arpa(n) {
-    // Sekaantumattomat merkit (ei 0/o, 1/l/i), jotta koodin voi näppäillä puhelimeen.
-    var m = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(n), out = '';
-    crypto.getRandomValues(r);
-    for (var i = 0; i < n; i++) out += m[r[i] % m.length];
-    return out;
-  }
   $('#laatikko-arvo').addEventListener('click', function () {
-    lkKentta.value = 'luukku-' + arpa(6); kkTila(''); paivitaLahetys();
-  });
-  $('#salakoodi-arvo').addEventListener('click', function () {
-    skKentta.value = arpa(24); kkTila(''); $('#kk-kayttoonotto').open = true;
+    // Sekaantumattomat merkit (ei 0/o, 1/l/i), neljän ryhmissä, jotta koodin voi tarvittaessa näppäillä.
+    // 24 merkkiä 31 merkin joukosta on noin 119 bittiä, joten koodia ei voi arvata.
+    var m = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(24), out = 'kk';
+    crypto.getRandomValues(r);
+    for (var i = 0; i < 24; i++) out += (i % 4 ? '' : '-') + m[r[i] % m.length];
+    lkKentta.value = out; kkTila(''); paivitaLahetys();
   });
   function kopioi(b, teksti, nimi) {
     function valmis() { b.textContent = 'Kopioitu'; setTimeout(function () { b.textContent = nimi; }, 1500); }
@@ -1277,6 +1266,7 @@
     paivitaLahetys(); kopioi(this, $('#laatikko-komento').textContent, 'Kopioi komento');
   });
   $('#kk-kopioi').addEventListener('click', function () { kopioi(this, KAYTTOONOTTO, 'Kopioi komennot'); });
+  $('#linkki-kopioi').addEventListener('click', function () { kopioi(this, $('#laatikko-linkki').textContent, 'Kopioi linkki'); });
 
   // Testien koukku: tila ja tulos.
   window.__latomo = { tila: function () { return tila; }, tulos: function () { return nykyinen(); }, paivita: paivita };
