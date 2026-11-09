@@ -251,7 +251,7 @@ const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 // (Latomo arpoo 24 satunnaista merkkiä): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
 // eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä koodilla voi vain lukea; Luin, Latomo ja lisäosa
 // eivät 9.11.2026 alkaen hyväksy uutta alle 24 merkin koodia (luin/posti.js), joten vain vanha lyhyt koodi on lukukoodi.
-// Kirjoitukset rajataan osoitetta kohti sidonnalla LUIN_RAJA (wrangler.toml) ja muistirajoittimella (alla). Avain, metatieto
+// Kirjoitukset rajataan Durable Objectin laskurilla (LuinRaja, alla). Avain, metatieto
 // ja vanheneminen ovat samat kuin komennon kv:key put -kirjoituksessa.
 const LUIN_TTL = 30 * 24 * 3600;
 const LUIN_MD_MAX = 5 * 1024 * 1024;
@@ -263,45 +263,70 @@ const LUIN_KIRJOITUS_MIN = 24;
 const LUIN_MERK_TTL = 365 * 24 * 3600;
 const LUIN_MERK_MAX = 1024 * 1024;
 
-// Muistirajoitin (9.11.2026): sidonta LUIN_RAJA julkaistiin, mutta 15 pyyntöä samasta osoitteesta minuutissa
-// meni läpi. Siksi lisäksi laskuri tämän isolaatin muistissa: se ei tarvitse sidontaa eikä kuluta KV-kirjoituksia,
-// mutta Cloudflare voi ohjata pyynnöt eri isolaatteihin, joten se on vain paras arvaus. Otsake X-Luin-Raja kertoo,
-// oliko sidonta käytössä (sidonta / ei-sidontaa) ja kumpi rajoitin pysäytti pyynnön.
+// Rajoitin (käyttäjän valinta 9.11.2026): Durable Object LuinRaja (sidonta LUIN_LASKURI, wrangler.toml) on yksi
+// yhteinen laskuri kaikille pyynnöille, joten raja pitää. Ensin kokeiltiin Cloudflaren ratelimit-sidontaa (wrangler 3:n
+// unsafe-muoto) ja isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi. Kaksi rajaa:
+// - osoitekohtainen: LUIN_RAJA_MAARA POST-pyyntöä minuutissa, myös virheelliset (roskan pommittaja pysähtyy);
+// - päiväraja: LUIN_PAIVA_MAX todellista KV-kirjoitusta UTC-päivässä, vaikka osoite vaihtuisi. Ilmaistason KV antaa
+//   1000 kirjoitusta päivässä (nollautuu 00 UTC); loput jäävät Keikkaloihtimelle ja muulle.
+// Jos laskuri puuttuu tai ei vastaa, kirjoitus päästetään läpi (lähettäminen ei saa rikkoutua suojan takia).
+// Otsake X-Luin-Raja: laskuri / ei-laskuria, ja 429:ssä syy (osoite / paiva).
 const LUIN_RAJA_MAARA = 20;
 const LUIN_RAJA_JAKSO = 60 * 1000;
-const luinMuisti = new Map();
+const LUIN_PAIVA_MAX = 500;
 
-function muistiRajoita(ip, nyt) {
-  const ajat = (luinMuisti.get(ip) || []).filter((t) => nyt - t < LUIN_RAJA_JAKSO);
-  const ok = ajat.length < LUIN_RAJA_MAARA;
-  if (ok) ajat.push(nyt);
-  luinMuisti.set(ip, ajat);
-  if (luinMuisti.size > 5000) {
-    for (const [k, v] of luinMuisti) if (!v.length || nyt - v[v.length - 1] >= LUIN_RAJA_JAKSO) luinMuisti.delete(k);
+export class LuinRaja {
+  constructor(state) {
+    this.state = state;
+    this.osoitteet = new Map();
   }
-  return ok;
+  async fetch(req) {
+    const { laji, ip } = await req.json();
+    const nyt = Date.now();
+    if (laji === "osoite") {
+      const ajat = (this.osoitteet.get(ip) || []).filter((t) => nyt - t < LUIN_RAJA_JAKSO);
+      const ok = ajat.length < LUIN_RAJA_MAARA;
+      if (ok) ajat.push(nyt);
+      this.osoitteet.set(ip, ajat);
+      if (this.osoitteet.size > 5000) {
+        for (const [k, v] of this.osoitteet) if (!v.length || nyt - v[v.length - 1] >= LUIN_RAJA_JAKSO) this.osoitteet.delete(k);
+      }
+      return Response.json({ ok });
+    }
+    const paiva = new Date(nyt).toISOString().slice(0, 10);
+    let p = await this.state.storage.get("paiva");
+    if (!p || p.d !== paiva) p = { d: paiva, n: 0 };
+    if (p.n >= LUIN_PAIVA_MAX) return Response.json({ ok: false, n: p.n });
+    p.n++;
+    await this.state.storage.put("paiva", p);
+    return Response.json({ ok: true, n: p.n });
+  }
+}
+
+async function luinLaskuri(env, laji, ip) {
+  if (!env.LUIN_LASKURI) return true;
+  try {
+    const obj = env.LUIN_LASKURI.get(env.LUIN_LASKURI.idFromName("luin"));
+    const r = await obj.fetch("https://luin-raja/", { method: "POST", body: JSON.stringify({ laji, ip }) });
+    return !!(await r.json()).ok;
+  } catch (e) {
+    logEvent("luin_raja_error", { laji });
+    return true;
+  }
 }
 
 async function handleLuinPost(req, env) {
-  const sidonta = !!(env.LUIN_RAJA && typeof env.LUIN_RAJA.limit === "function");
-  const vastaus = await luinKirjoita(req, env, sidonta);
+  const vastaus = await luinKirjoita(req, env);
   const headers = new Headers(vastaus.headers);
-  headers.set("X-Luin-Raja", (sidonta ? "sidonta" : "ei-sidontaa") + (vastaus.status === 429 ? "; " + vastaus.pysaytti : ""));
+  headers.set("X-Luin-Raja", (env.LUIN_LASKURI ? "laskuri" : "ei-laskuria") + (vastaus.pysaytti ? "; " + vastaus.pysaytti : ""));
   return new Response(vastaus.body, { status: vastaus.status, headers });
 }
 
-async function luinKirjoita(req, env, sidonta) {
+async function luinKirjoita(req, env) {
   const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
-  if (sidonta) {
-    const { success } = await env.LUIN_RAJA.limit({ key: "luin:" + ip });
-    if (!success) {
-      logEvent("luin_post_rate_limited", { by: "binding" });
-      return Object.assign(errorResponse("rate_limited", 429), { pysaytti: "sidonta" });
-    }
-  }
-  if (!muistiRajoita(ip, Date.now())) {
-    logEvent("luin_post_rate_limited", { by: "memory" });
-    return Object.assign(errorResponse("rate_limited", 429), { pysaytti: "muisti" });
+  if (!(await luinLaskuri(env, "osoite", ip))) {
+    logEvent("luin_post_rate_limited", { by: "address" });
+    return Object.assign(errorResponse("rate_limited", 429), { pysaytti: "osoite" });
   }
   let body;
   try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
@@ -322,6 +347,10 @@ async function luinKirjoita(req, env, sidonta) {
   if (!env.LOCATIONS || typeof env.LOCATIONS.put !== "function") {
     logEvent("kv_error", { reason: "missing_binding" });
     return errorResponse("bad_payload", 500);
+  }
+  if (!(await luinLaskuri(env, "paiva", ip))) {
+    logEvent("luin_post_daily_limit");
+    return Object.assign(errorResponse("daily_limit", 429), { pysaytti: "paiva" });
   }
   const t = Date.now();
   if (merk) {

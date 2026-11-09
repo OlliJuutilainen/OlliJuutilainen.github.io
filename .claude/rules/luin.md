@@ -257,8 +257,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä).
   **Uusi koodi on aina 24–40 merkkiä** (käyttäjän päätös 9.11.2026: koodilla on voitava sekä lähettää että lukea), myös itse
   keksitty lause; siistiminen (pienet, ä/ö → a/o, välit ja välimerkit pois) ja pikaohje ovat `luin/posti.js`:ssä, lisäosassa
-  kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset rajataan osoitetta kohti sidonnalla `LUIN_RAJA`
-  (`wrangler.toml`, wrangler 3:n `unsafe.bindings`-muoto; koodi toimii ilman sitä). Koodia ei kirjoiteta repoon. Reitti vaatii,
+  kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset kulkevat Durable Objectin laskurin `LuinRaja`
+  kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
+  Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 - **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
