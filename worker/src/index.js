@@ -246,7 +246,7 @@ async function handleGig(req, env) {
 const LUIN_BOX_RE = /^[a-z0-9-]{8,40}$/;
 const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 
-// Koneelta kännykälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
+// Coneelta Cännycälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
 // Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md }. Pitkä laatikon koodi on itse avain
 // (Latomo arpoo 24 satunnaista merkkiä): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
 // eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä (itse keksityllä) koodilla voi vain lukea.
