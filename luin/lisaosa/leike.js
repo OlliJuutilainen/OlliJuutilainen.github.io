@@ -120,6 +120,114 @@
     }).join('\n').replace(/\n{3,}/g, '\n\n'));
   }
 
+  // Blogger-sovite (blogspot.com ja omat verkkotunnukset, klassinen ja Contempo-pohja). Readability ottaa etusivulta
+  // kaikki kirjoitukset otsikkolinkkeineen, Featured Postin ja Popular Postsin katkelmat, eikä se löydä päiväystä,
+  // tekijää eikä blogin nimeä. Kirjoitukset otetaan .widget.Blogin .post-bodysta. Yksittäisen kirjoituksen sivulla
+  // etukenttään tulevat tekijä, blogin nimi ja päiväys; etusivulla, arkistossa ja tunnistesivulla otsikko on blogin
+  // nimi ja kirjoitukset ovat lukuja (##) päiväyksineen. Katkaistu kirjoitus (Lue lisää, Contempon katkelma)
+  // haetaan kokonaan sen omalta sivulta.
+  const BLOG_HAKU = 20;
+  const OTSIKOT = 'h1, h2, h3, h4, h5, h6';
+  function blogPvm(post) {
+    const e = post.querySelector('.published, [itemprop="datePublished"]');
+    const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(e && (e.getAttribute('datetime') || e.getAttribute('title') || e.getAttribute('content')) || '');
+    // Päivä kirjoittajan aikavyöhykkeellä sellaisenaan (Bloggerin aikaleima on paikallista aikaa poikkeamineen).
+    return m ? { iso: m[0], fi: +m[3] + '.' + +m[2] + '.' + m[1] } : null;
+  }
+  function blogTekija(post) {
+    const e = post.querySelector('.post-author [itemprop="name"], .post-author .fn, .post-author');
+    return rivi(e && e.textContent).replace(/^(?:posted by|lähettänyt|kirjoittanut|by)\s+/i, '');
+  }
+  function blogSiivoa(el, siirto) {
+    el.querySelectorAll('.jump-link, .post-share-buttons, .snippet-fade, script, style').forEach(x => x.remove());
+    // Kuvateksti taulukossa: kuva jää pois, ja kuvan ja tekstin taulukosta tulisi Markdown-taulukko.
+    el.querySelectorAll('table.tr-caption-container').forEach(t => {
+      const k = rivi(t.querySelector('.tr-caption') && t.querySelector('.tr-caption').textContent);
+      if (!k) return t.remove();
+      const p = document.createElement('p'), em = document.createElement('em');
+      em.textContent = k; p.appendChild(em); t.replaceWith(p);
+    });
+    // Bloggerin editori kirjoittaa sisennykset ja tuplavälit sitovina välilyönteinä; kappaleen alun sitova välilyönti
+    // jäi Markdowniin, ja rivillinen niitä teki kuvatekstistä koodilohkon.
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n; (n = w.nextNode());) if (!n.parentElement.closest('pre, code')) n.data = n.data.replace(/ /g, ' ');
+    // Otsikkotyyli korostuksena: yli 200 merkin "otsikko" on kappaleita, lainausmerkillä alkava lainaus.
+    el.querySelectorAll(OTSIKOT).forEach(h => {
+      const t = rivi(h.textContent);
+      if (t.length <= 200) return;
+      const palat = [[]];
+      for (const c of [...h.childNodes]) if (c.nodeName === 'BR') palat.push([]); else palat[palat.length - 1].push(c);
+      const kpl = palat.filter(p => p.some(c => rivi(c.textContent))).map(p => {
+        const e = document.createElement('p'); p.forEach(c => e.appendChild(c)); return e;
+      });
+      if (/^["“”«»„]/.test(t)) {
+        const bq = document.createElement('blockquote'); kpl.forEach(p => bq.appendChild(p)); h.replaceWith(bq);
+      } else h.replaceWith(...kpl);
+    });
+    // Lihavoitu otsikko (### **1. Values …**): lihavointi on otsikon tyyli, ei korostus.
+    el.querySelectorAll(OTSIKOT).forEach(h => h.querySelectorAll('b, strong').forEach(b => b.replaceWith(...b.childNodes)));
+    // Tyhjät kappaleet (<p><br></p>, kuvan kehys) jäivät Markdowniin kovina rivinvaihtoina.
+    [...el.querySelectorAll('p, div')].reverse().forEach(p => { if (!rivi(p.textContent) && !p.querySelector('hr, table')) p.remove(); });
+    if (siirto) el.querySelectorAll(OTSIKOT).forEach(h => {
+      const u = document.createElement('h' + Math.min(6, +h.tagName[1] + siirto));
+      while (h.firstChild) u.appendChild(h.firstChild);
+      h.replaceWith(u);
+    });
+    return el;
+  }
+  async function blogger() {
+    const gen = document.querySelector('meta[name="generator"]');
+    if (!/blogger/i.test(gen && gen.content || '') && !/\.blogspot\.[a-z.]+$/.test(location.hostname)) return null;
+    const postit = [...document.querySelectorAll('.widget.Blog .post-outer, .widget.Blog .post')]
+      .filter((p, i, k) => p.querySelector('.post-body') && !k.some(q => q !== p && q.contains(p)));
+    if (!postit.length) return null;
+    const syote = document.querySelector('link[rel="alternate"][type="application/atom+xml"][href$="/feeds/posts/default"]');
+    const nimi = rivi(syote && syote.getAttribute('title')).replace(/\s+-\s+Atom$/, '');
+    const otsikkoOf = p => rivi(p.querySelector('.post-title') && p.querySelector('.post-title').textContent);
+
+    if (postit.length === 1) {
+      const p = postit[0], pvm = blogPvm(p);
+      return { html: irrota([blogSiivoa(p.querySelector('.post-body').cloneNode(true), 0)]).innerHTML,
+        otsikko: otsikkoOf(p) || nimi, tekija: blogTekija(p), sivusto: nimi, julkaistu: pvm ? pvm.iso : '' };
+    }
+    // Contempon etusivulla uusin kirjoitus on vain Featured Postissa; klassisessa pohjassa se toistaa listan kirjoitusta.
+    const linkkiOf = p => p.querySelector('.post-title a[href], a.timestamp-link[href], .jump-link a[href]');
+    const osoitteet = new Set(postit.map(p => linkkiOf(p) && linkkiOf(p).href));
+    for (const f of document.querySelectorAll('.widget.FeaturedPost')) {
+      const l = linkkiOf(f), pf = blogPvm(f);
+      if (!l || osoitteet.has(l.href) || !f.querySelector('.post-body')) continue;
+      osoitteet.add(l.href);
+      const j = pf ? postit.findIndex(p => (blogPvm(p) || { iso: '' }).iso < pf.iso) : 0;
+      postit.splice(j < 0 ? postit.length : j, 0, f);
+    }
+    const osat = await Promise.all(postit.map(async (p, i) => {
+      let body = p.querySelector('.post-body').cloneNode(true);
+      const linkki = linkkiOf(p);
+      if (linkki && p.querySelector('.jump-link, .post-snippet, .snippet-item')) {
+        const sd = i < BLOG_HAKU ? await hae(linkki.href) : null;
+        const koko = sd && sd.querySelector('.widget.Blog .post-body');
+        if (koko) {
+          body = document.importNode(koko, true);
+          body.querySelectorAll('a[href]').forEach(x => { try { x.setAttribute('href', new URL(x.getAttribute('href'), linkki.href).href); } catch (e) {} });
+        } else {
+          const r = document.createElement('p'), em = document.createElement('em');
+          em.textContent = 'Katkelma: koko kirjoitus ei latautunut.'; r.appendChild(em); body.appendChild(r);
+        }
+      }
+      const tasot = [...body.querySelectorAll(OTSIKOT)].map(h => +h.tagName[1]);
+      const siirto = tasot.length ? Math.max(0, 3 - Math.min(...tasot)) : 0;
+      const kehys = document.createElement('div');
+      const h = document.createElement('h2'); h.textContent = otsikkoOf(p) || (blogPvm(p) || {}).fi || '';
+      if (h.textContent) kehys.appendChild(h);
+      const pvm = blogPvm(p);
+      if (pvm) { const r = document.createElement('p'), em = document.createElement('em'); em.textContent = pvm.fi; r.appendChild(em); kehys.appendChild(r); }
+      kehys.appendChild(blogSiivoa(body, siirto));
+      return kehys;
+    }));
+    const tekijat = [...new Set(postit.map(blogTekija).filter(Boolean))];
+    return { html: irrota(osat).innerHTML, otsikko: nimi, tekija: tekijat.length === 1 ? tekijat[0] : '', sivusto: '', julkaistu: '' };
+  }
+
   async function valmista(html) {
     const d = jasenna(html);
     // Sivun sisäinen linkki (#viite-1) sivun osoitteeksi kuten MarkDownloadissa: Latomo tekee leikkeen omalle
@@ -158,15 +266,19 @@
 
   let artikkeli = null;
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
-  const sisalto = sovite() || (artikkeli && artikkeli.content) || '';
+  const sep = sovite();
+  let blogi = null;
+  if (!sep) try { blogi = await blogger(); } catch (e) { blogi = null; }
+  const sisalto = sep || (blogi && blogi.html) || (artikkeli && artikkeli.content) || '';
 
-  const otsikko = siisti(rivi(artikkeli && artikkeli.title || document.title), rivi(artikkeli && artikkeli.siteName)) || osoite;
+  const otsikko = blogi ? blogi.otsikko || osoite
+    : siisti(rivi(artikkeli && artikkeli.title || document.title), rivi(artikkeli && artikkeli.siteName)) || osoite;
   const p = new Date(), pv = n => String(n).padStart(2, '0');
   const etu = ['---'];
   const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
-  kentta('tekijä', artikkeli && artikkeli.byline);
-  kentta('sivusto', artikkeli && artikkeli.siteName);
-  kentta('julkaistu', artikkeli && artikkeli.publishedTime);
+  kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
+  kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
+  kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
   kentta('lähde', osoite);
   kentta('leikattu', p.getFullYear() + '-' + pv(p.getMonth() + 1) + '-' + pv(p.getDate()));
   etu.push('---', '# ' + otsikko, '', '');
@@ -175,7 +287,7 @@
   const [koko, valinta] = await Promise.all([sisalto ? valmista(sisalto) : null, valintaHtml ? valmista(valintaHtml) : null]);
   const sanoja = s => (s.match(/\S+/g) || []).length;
   return {
-    otsikko, sivusto: rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
+    otsikko, sivusto: (blogi && (blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
     koko: koko && koko.md ? alku + koko.md + '\n' : '', kokoSanoja: koko ? sanoja(koko.md) : 0, kokoViitteita: koko ? koko.viitteita : 0,
     valinta: valinta && valinta.md ? alku + valinta.md + '\n' : '', valintaSanoja: valinta ? sanoja(valinta.md) : 0,
     valintaViitteita: valinta ? valinta.viitteita : 0
