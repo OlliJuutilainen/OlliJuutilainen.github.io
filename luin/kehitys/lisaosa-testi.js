@@ -62,6 +62,31 @@ const SEP_SIVUT = {
 </div></body></html>`
 };
 
+// Bloggerin rakenne (keksitty sisältö, klassisen ja Contempo-pohjan luokat): etusivulla kaksi kirjoitusta, joista toinen
+// katkaistu (Lue lisää), Featured Post (uusin, vain siinä) ja Popular Posts; kirjoituksessa sitovia välilyöntejä,
+// lainaus otsikkotyylinä, kuvateksti taulukossa, lihavoitu väliotsikko. Kirjoituksen oma sivu on myös yksittäinen leike.
+const BLOGI = 'https://koeblogi.blogspot.com/';
+const BLOG_POSTI = BLOGI + '2026/09/toinen.html';
+const blogKpl = n => `<p>&nbsp;${'Blogikirjoituksen virke, jossa on tarpeeksi sanoja sisällöksi. '.repeat(n)}</p>`;
+const blogPosti = (otsikko, url, aika, runko, hyppy) => `<div class="post-outer"><div class="post hentry"><h3 class="post-title entry-title"><a href="${url}">${otsikko}</a></h3>
+<div class="post-body entry-content">${runko}</div>${hyppy ? `<div class="jump-link"><a href="${url}#more">Lue lisää »</a></div>` : ''}
+<div class="post-footer"><span class="post-author vcard">Lähettänyt <span class="fn"><a class="g-profile" href="https://www.blogger.com/profile/1"><span itemprop="name">Maija Bloggaaja</span></a></span></span>
+<span class="post-timestamp"><a class="timestamp-link" href="${url}"><abbr class="published" title="${aika}">${aika}</abbr></a></span></div></div></div>`;
+const blogSivu = (otsikko, keski) => `<!doctype html><html lang="fi"><head><meta charset="utf-8"><title>${otsikko}</title><meta name="generator" content="blogger">
+<link rel="alternate" type="application/atom+xml" title="  Koeblogi - Atom" href="${BLOGI}feeds/posts/default"></head><body>
+<div class="widget Header"><h1 class="title">Koeblogi</h1></div><div class="main">${keski}</div>
+<div class="sidebar"><div class="widget PopularPosts"><ul><li><div class="item-title">Ensimmäinen</div><div class="item-snippet">Suosittu katkelma...</div></li></ul></div></div></body></html>`;
+const BLOG_RUNKO_1 = `${blogKpl(4)}<p><br></p><h4 style="text-align: left;">"Lainaus, joka on kirjoitettu otsikkotyylillä ja on pitkä. ${'Lainauksen jatko kulkee. '.repeat(8)}<br>Toinen lainauksen kappale."</h4>
+<table class="tr-caption-container"><tbody><tr><td><img src="https://koeblogi.example/kuva.jpg"></td></tr><tr><td class="tr-caption">Kuvateksti taulukossa</td></tr></tbody></table>
+<h2><b>Lihavoitu väliotsikko</b></h2>${blogKpl(3)}<span>&nbsp;&nbsp; &nbsp;</span><span>&nbsp;&nbsp; &nbsp;</span><span>&nbsp;Kuvateksti välilyöntien perässä</span>`;
+const BLOG_SIVUT = {
+  [BLOGI]: blogSivu('Koeblogi', `<div class="widget FeaturedPost"><div class="widget-content"><h3 class="post-title"><a href="${BLOGI}2026/10/uusin.html">Uusin</a></h3>
+<abbr class="published" title="2026-10-21T07:02:00-07:00">x</abbr><div class="post-body entry-content"><div class="snippet-item">Uusimman katkelma...</div></div></div></div>
+<div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Ensimmäinen', BLOGI + '2026/09/eka.html', '2026-09-03T10:19:00-07:00', BLOG_RUNKO_1, false)}
+${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)}</div></div>`),
+  [BLOG_POSTI]: blogSivu('Koeblogi: Toinen', `<div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2) + '<p>Hypyn jälkeinen loppu.</p>', false)}</div></div>`)
+};
+
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
@@ -90,6 +115,7 @@ const SEP_SIVUT = {
     const u = new URL(r.request().url());
     if (u.hostname === '127.0.0.1') return r.continue();
     if (u.href.split('#')[0] === ARTIKKELI) return r.fulfill({ body: SIVU, contentType: 'text/html; charset=utf-8' });
+    if (BLOG_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: BLOG_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (SEP_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: SEP_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -232,6 +258,29 @@ const SEP_SIVUT = {
   tulos('SEP Luinissa: alaviitteiden tekstit ja kirjallisuusluettelo', L2.huom.length === 3 && /Dykhuizen 1973/.test(L2.huom[0]) && /^2Ensimmäinen kappale\.Lainaus alaviitteessä\.Jatko Jamesiin\.$/.test(L2.huom[1]) &&
     L2.bib.length === 2 && /^Dewey, John/.test(L2.bib[0]), JSON.stringify(L2).slice(0, 400));
   await luin2.close();
+
+  // 8. Blogger: etusivu kokoelmana (otsikko blogin nimi, kirjoitukset lukuina päiväyksineen, katkaistu haettuna, Featured
+  // Postin uusin mukana, Popular Posts pois), siivous; kirjoituksen sivu yksittäisenä leikkeenä etukenttineen.
+  await artikkeli.goto(BLOGI);
+  await avaaIkkuna(BLOGI);
+  const latomo4 = await paina('#latomoon', /latomo\.html$/);
+  const br = await latomo4.inputValue('#md');
+  await latomo4.close();
+  const brOts = (br.match(/^#+ .*$/gm) || []).join(' | ');
+  tulos('Blogger etusivu: blogin nimi, kirjoitukset lukuina, uusin Featured Postista, tekijä', /^tekijä: Maija Bloggaaja$/m.test(br) && !/^sivusto:|^julkaistu:/m.test(br) &&
+    brOts === '# Koeblogi | ## Uusin | ## Ensimmäinen | ### Lihavoitu väliotsikko | ## Toinen' && /^## Ensimmäinen\n\n\*3\.9\.2026\*\n\nBlogikirjoituksen virke/m.test(br) && /^## Toinen\n\n\*1\.9\.2026\*$/m.test(br), brOts);
+  tulos('Blogger etusivu: katkaistu haettu, hakematon merkitty, sivupalkki pois', /Hypyn jälkeinen loppu\./.test(br) && !/Lue lisää|Suosittu/.test(br) &&
+    /Uusimman katkelma\.\.\.\n\n\*Katkelma: koko kirjoitus ei latautunut\.\*/.test(br), (br.match(/## Uusin[\s\S]{0,120}/) || [''])[0].replace(/\n/g, ' | '));
+  tulos('Blogger: sitovat välilyönnit, otsikkolainaus, kuvateksti', !/\u00a0/.test(br) && !/^ /m.test(br.replace(/^```[\s\S]*?```$/gm, '')) &&
+    /^> "Lainaus, joka on kirjoitettu otsikkotyylillä[^\n]*\n> ?\n> Toinen lainauksen kappale\."$/m.test(br) && /^\*Kuvateksti taulukossa\*$/m.test(br) &&
+    /^Kuvateksti välilyöntien perässä$/m.test(br) && !/\|/.test(br), (br.match(/> "Lainaus[\s\S]{0,40}|Kuvateksti.{0,40}/g) || []).join(' / '));
+  await artikkeli.goto(BLOG_POSTI);
+  await avaaIkkuna(BLOG_POSTI);
+  const latomo5 = await paina('#latomoon', /latomo\.html$/);
+  const bp = await latomo5.inputValue('#md');
+  await latomo5.close();
+  tulos('Blogger kirjoitus: otsikko, tekijä, blogin nimi, päivä paikallisena', /^tekijä: Maija Bloggaaja\nsivusto: Koeblogi\njulkaistu: 2026-09-01\nlähde: https:\/\/koeblogi\.blogspot\.com\/2026\/09\/toinen\.html$/m.test(bp) &&
+    /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' / '));
   await ctx.close();
