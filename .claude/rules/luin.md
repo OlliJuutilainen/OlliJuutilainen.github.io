@@ -28,7 +28,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
-  zipistä poistetaan `browser_specific_settings`. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
+  zipistä poistetaan `browser_specific_settings`. Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
+  (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu viiteen sivuun (luin.html, Latomo, Latomon ohje,
   käyttöohje, tietosuoja). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
