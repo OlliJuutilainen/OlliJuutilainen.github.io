@@ -1,13 +1,15 @@
 // Luinin kuvakkeet: Lisää lukimeen -lisäosan logo eli Latomon kytkimen salmiakki (ulkoreuna ja täytetty sisus)
 // ruosteella. Samasta lähteestä syntyvät lisäosan kuvakkeet (luin/lisaosa/kuvakkeet/) ja Luinin sivujen välilehti- ja
-// kotivalikkokuvakkeet sekä linkin esikatselukuva (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png, jako.png).
+// kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png).
+// Linkin esikatselukuva luin/kuvakkeet/jako-logo.png on sen sijaan LUiN.HTML-logo (logo.js).
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-kuvakkeet.js
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const logo = require('./logo.js');
 const LISAOSA = path.resolve(__dirname, '../lisaosa/kuvakkeet');
 const SIVUT = path.resolve(__dirname, '../kuvakkeet');
-const RUOSTE = '#8c5426', RUOSTE_TUMMA = '#b8794a', PAPERI = '#faf5ea';   // luin.html:n --ruoste ja --paperi
+const RUOSTE = '#8c5426', RUOSTE_TUMMA = '#b8794a', PAPERI = '#faf5ea', MUSTE = '#231c14';   // luin.html:n värit
 // Salmiakin keskipiste on (4, 5.5); neliö -1.6 -.1 11.2 11.2 rajaa sen tiiviisti.
 const salmiakki = (v, vari) => `<path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z" fill="none" stroke="${vari}" stroke-width="${v}" stroke-linejoin="miter"/>
   <path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z" fill="${vari}"/>`;
@@ -38,7 +40,11 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
   // Kotivalikko (apple-touch-icon, Androidin pikakuvake): paperitausta, koska iOS täyttää läpinäkyvän mustalla, ja
   // väljä reunus, koska kuvake pyöristetään tai rajataan; salmiakki on noin 60 % korkeudesta.
   await kuva(180, '-3.65 -1.85 15.3 15.3', .9, PAPERI, path.join(SIVUT, '180.png'));
-  // Linkin esikatselu (og:image; WhatsApp, Signal ym.): sama kuin kotivalikossa, mutta niin iso, että palvelut kelpuuttavat sen.
-  await kuva(600, '-3.65 -1.85 15.3 15.3', .9, PAPERI, path.join(SIVUT, 'jako.png'));
+  // Linkin esikatselu (og:image; WhatsApp, Signal ym.): LUiN.HTML-logo (logo.js) paperilla, 1200 × 630 eli palveluiden
+  // leveän kortin mitta. Logo on 520 px leveä, jotta se säilyy kokonaisena, jos palvelu rajaa kuvasta keskineliön.
+  await p.setViewportSize({ width: 1200, height: 630 });
+  await p.setContent(`<html><body style="margin:0;width:1200px;height:630px;display:flex;align-items:center;justify-content:center;
+    background:${PAPERI};color:${MUSTE};--ruoste:${RUOSTE}">${logo().replace('<svg ', '<svg style="width:520px;height:auto;display:block;fill:currentColor;overflow:visible" ')}</body></html>`);
+  await p.screenshot({ path: path.join(SIVUT, 'jako-logo.png'), clip: { x: 0, y: 0, width: 1200, height: 630 } });
   await b.close();
 })();
