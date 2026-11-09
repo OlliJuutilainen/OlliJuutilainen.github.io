@@ -1,8 +1,7 @@
 // Luinin kuvakkeet: Lisää lukimeen -lisäosan logo eli Latomon kytkimen salmiakki (ulkoreuna ja täytetty sisus)
 // ruosteella. Samasta lähteestä syntyvät lisäosan kuvakkeet (luin/lisaosa/kuvakkeet/) ja Luinin sivujen välilehti- ja
 // kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png).
-// Linkin esikatselukuvat ovat tumman teeman väreillä: jako-salmiakki-tumma.png (Latomo) ja LUiN.HTML-logo (logo.js)
-// jako-logo-tumma.png (muut sivut).
+// Linkin esikatselukuva jako-logo-tumma.png on LUiN.HTML-logo (logo.js) tumman teeman väreillä.
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-kuvakkeet.js
 const fs = require('fs');
 const path = require('path');
@@ -43,9 +42,8 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
   // väljä reunus, koska kuvake pyöristetään tai rajataan; salmiakki on noin 60 % korkeudesta.
   await kuva(180, '-3.65 -1.85 15.3 15.3', .9, PAPERI, path.join(SIVUT, '180.png'));
   // Linkin esikatselu (og:image; WhatsApp, Signal ym.) tumman teeman väreillä, koska viestimet ovat useimmiten tummia
-  // (käyttäjän linjaus 9.11.2026). Latomo: salmiakki neliönä (käyttäjän pyyntö), sommitelma kuin kotivalikossa.
-  await kuva(600, '-3.65 -1.85 15.3 15.3', .9, PAPERI_TUMMA, path.join(SIVUT, 'jako-salmiakki-tumma.png'), RUOSTE_TUMMA);
-  // Muut sivut: LUiN.HTML-logo, 1200 × 630 eli palveluiden leveän kortin mitta. Logo on 520 px leveä, jotta se säilyy
+  // (käyttäjän linjaus 9.11.2026). Kaikilla sivuilla LUiN.HTML-logo, myös Latomossa (salmiakkineliö oli korttina liian
+  // korkea, käyttäjä 9.11.2026). 1200 × 630 eli palveluiden leveän kortin mitta. Logo on 520 px leveä, jotta se säilyy
   // kokonaisena, jos palvelu rajaa kuvasta keskineliön.
   await p.setViewportSize({ width: 1200, height: 630 });
   await p.setContent(`<html><body style="margin:0;width:1200px;height:630px;display:flex;align-items:center;justify-content:center;
