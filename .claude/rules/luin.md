@@ -36,8 +36,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - Luinin kuvake on Lisää lukimeen -lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
   tumman teeman ruosteineen, 32 px Safarille, 180 px kotivalikkoon paperitaustalla), linkitetty samoihin viiteen
   sivuun. Neliöt ovat salmiakkia. Linkin esikatselu (`og:image`, absoluuttinen osoite) on tumman teeman väreillä, koska
-  viestimet ovat useimmiten tummia (käyttäjän linjaus 9.11.2026): Latomossa salmiakki (`jako-salmiakki-tumma.png`), muilla
-  sivuilla leveä LUiN.HTML-logo (`jako-logo-tumma.png`, 1200 × 630, niin kapea, että keskineliöksi rajattunakin näkyy kokonaan).
+  viestimet ovat useimmiten tummia (käyttäjän linjaus 9.11.2026): kaikilla sivuilla, myös Latomossa, leveä LUiN.HTML-logo
+  (`jako-logo-tumma.png`, 1200 × 630, niin kapea, että keskineliöksi rajattunakin näkyy kokonaan; salmiakkineliö oli korttina
+  liian korkea).
   Kun kuva muuttuu, vaihda tiedostonimi: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
