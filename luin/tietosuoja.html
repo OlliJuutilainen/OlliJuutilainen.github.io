@@ -91,7 +91,7 @@
 
   <h2>Lyhyesti</h2>
   <p>Lisäosa ei kerää, tallenna eikä lähetä tietoja kehittäjälle tai kenellekään muulle. Siinä ei ole analytiikkaa,
-    mainoksia eikä seurantaa.</p>
+    mainoksia eikä seurantaa. Tekstiä ei lähetetä minnekään, ellet itse valitse <i>Lähetä postina</i> (alla).</p>
 
   <h2>Mitä lisäosa käsittelee</h2>
   <ul>
@@ -103,6 +103,10 @@
     <li><b>Latomo ja Luin.</b> Lisäosa avaa Latomon (<code>ollijuutilainen.github.io/luin/latomo.html</code>) ja kirjoittaa
       leikkeen sen tekstikenttään. Teksti ei kulje osoitteessa eikä palvelimen kautta. Luin säilyttää tekstit tämän
       selaimen omassa muistissa (localStorage).</li>
+    <li><b>Lähetä postina (valinnainen).</b> Jos valitset sen, lisäosa muistaa valinnan ja antamasi laatikon koodin
+      lisäosamuistissa, ja Latomo lähettää leikkeen Luinin postilaatikkoon (Cloudflare Workers -palvelu
+      <code>tusinasaa-worker.ollijuutilainen.workers.dev</code>), josta toinen laite, jossa on sama koodi, hakee sen.
+      Laatikko säilyttää tekstin 30 päivää. Sen voi lukea kuka tahansa koodin tietävä; muuta tietoa ei lähetetä.</li>
   </ul>
 
   <h2>Verkkopyynnöt</h2>

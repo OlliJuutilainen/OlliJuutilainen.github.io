@@ -22,7 +22,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   päätös: pois julkisivusta, ei piiloteta repossa).
 - `luin/lisaosa/` (*Lisää lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
-  jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
+  jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Lähetä postina käyttää lisäksi `#laatikko-koodi`, `#laheta`, `#kk-tila`
+  (alkaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
   leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
@@ -253,10 +254,16 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
 - **Coneelta Cännycälle** (käyttäjän nimi, kirjoitusasu tarkalleen näin: ei *Koneelta kännykälle*; ja pyynnöt 9.11.2026, opas 2.2; ennen *Lähetä postilaatikkoon*): Latomo kirjoittaa
   tekstin laatikkoon reitillä `POST /api/luin`, ja Luin hakee tekstit samalta reitiltä GET:llä. **Pitkä arvottu laatikon
   koodi (≥ 24 merkkiä, `kk-` ja 24 satunnaista) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
-  laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä). Lyhyellä
-  koodilla voi vain lukea; sille jää `wrangler@3.114.17`-komento. Kirjoitukset rajataan osoitetta kohti sidonnalla `LUIN_RAJA`
+  laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä).
+  **Uusi koodi on aina 24–40 merkkiä** (käyttäjän päätös 9.11.2026: koodilla on voitava sekä lähettää että lukea), myös itse
+  keksitty lause; siistiminen (pienet, ä/ö → a/o, välit ja välimerkit pois) ja pikaohje ovat `luin/posti.js`:ssä, lisäosassa
+  kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset rajataan osoitetta kohti sidonnalla `LUIN_RAJA`
   (`wrangler.toml`, wrangler 3:n `unsafe.bindings`-muoto; koodi toimii ilman sitä). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
+- **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
+  tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
+  Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
+  `tallennaMerkit()` kirjaa. Kun muutat merkintöjen tietomuotoa tai tallennusta, aja `posti-testi.js`.
 
 ### Testit (opas 8)
 
@@ -267,7 +274,9 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]`: lukija selaimessa (esim. tutkielmalla
   ja oppaalla). Sivun testikoukku on `window.__luin`.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]`: lisäosa Chromiumissa artikkelista
-  lukulistaan.
+  lukulistaan ja Lähetä postina.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]`: postilaatikko ja merkintäposti kahdella
+  laitteella workerin oikealla koodilla (muistissa oleva KV).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.

@@ -865,6 +865,20 @@
   #laatikko-koodi { display: block; width: 100%; margin-top: 12px; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
     background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   #laatikko-koodi:focus { outline: none; border-color: var(--harmaa); }
+  .koodirivi { display: flex; align-items: center; gap: 4px; margin-top: 12px; }
+  .koodirivi #laatikko-koodi { flex: 1 1 auto; min-width: 0; margin-top: 0; }
+  button.kysy { flex: 0 0 auto; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  button.kysy svg { width: 20px; height: 20px; }
+  button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  button.kysy text { fill: currentColor; font: 400 10.5px var(--antiikva); }
+  button.kysy[aria-expanded="true"] { color: var(--ruoste); }
+  .kysy-ohje { margin: 8px 0 0; padding: 2px 12px; border: 1px solid var(--viiva); font-size: .8rem; line-height: 1.5; color: var(--harmaa); }
+  .kysy-ohje p { margin: 8px 0; }
+  .kysy-ohje b, .kysy-ohje i { color: var(--muste); }
+  #posti-merk { margin-top: 14px; }
+  #posti-paalla, #posti-lajit { flex-direction: column; align-items: flex-start; }
+  #posti-lajit { padding-left: 16px; }
+  #posti-lajit[hidden] { display: none; }
   /* Tuonnin kuittaus (käyttäjän pyyntö 22.10.2026): ponnahduslaatikko Tuo-napin päällä, ruosteinen rasti ja
      kehotus tekstiin. Tuotu sijainti on kyltti: ruosteinen kehys ja täytetty ruosteinen pää, jonka kolmio
      osoittaa kohdan suuntaan kuten paluumajakassa (alas = edempänä tekstissä). */
@@ -1032,16 +1046,25 @@
       </div>
     </details>
   </div>
-  <!-- Postilaatikko (käyttäjän pyyntö 25.10.2026): Latomon Lähetä-komennolla lähetetyt tekstit tulevat
-       lukulistaan itsestään, kun laatikon koodi on annettu kerran. Vain lukulistassa (vienti vain lukijassa). -->
+  <!-- Postilaatikko (käyttäjän pyyntö 25.10.2026): postina lähetetyt tekstit tulevat lukulistaan itsestään, kun laatikon
+       koodi on annettu kerran. Merkintäposti (käyttäjän pyyntö 9.11.2026) avautuu kerroksittain: koodi, sen alla Lähetä myös
+       merkinnät ja valittuna sen alla lajit (oletuksena kaikki). Lukulistassa valinta on kaikkien tekstien oletus, avoimen
+       tekstin asetuksissa vain sen tekstin (luin-posti:<id>). Koodin pikaohje (luin/posti.js) ?-napin takana. -->
   <div id="postilaatikko">
     <details class="vienti" id="laatikko-osio">
       <summary>Postilaatikko<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
       <div class="vienti-sis">
-        <p class="huomio jatko">Latomossa lähetetyt tekstit tulevat lukulistaan itsestään, kun tähän on annettu sama laatikon koodi kuin Latomossa.</p>
-        <input type="text" id="laatikko-koodi" aria-label="Laatikon koodi" placeholder="laatikon koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <p class="huomio jatko">Postina lähetetyt tekstit tulevat lukulistaan itsestään, kun tähän on annettu sama laatikon koodi kuin Latomossa tai Lisää lukimeen -lisäosassa.</p>
+        <div class="koodirivi"><input type="text" id="laatikko-koodi" aria-label="Laatikon koodi" placeholder="laatikon koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Ohje: laatikon koodi"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><text x="10" y="13.6" text-anchor="middle">?</text></svg></button></div>
+        <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
         <p class="huomio" id="laatikko-tieto"></p>
         <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Tallenna ja hae</button></div>
+        <div id="posti-merk" hidden>
+          <div class="valinnat" id="posti-paalla"></div>
+          <div class="valinnat posti-lajit" id="posti-lajit"></div>
+          <p class="huomio" id="posti-tieto"></p>
+        </div>
       </div>
     </details>
   </div>
@@ -1079,6 +1102,7 @@
 </defs></svg>
 
 <script src="luin/md.js?v=6f5d55be"></script>
+<script src="luin/posti.js?v=e4cab227"></script>
 <script>
 (function () {
   'use strict';
@@ -1142,7 +1166,11 @@
   var OLETUS = { teema: 'vaalea', koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, av: 7 };
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0,
+    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, av: 7 };
+  // postiMerk (käyttäjän pyyntö 9.11.2026): Lähetä myös merkinnät postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
+  // postiEd: lähetettävät lajit, oletuksena kaikki. Tekstikohtainen valinta ohittaa nämä (luin-posti:<id>).
+  var P = window.LuinPosti;
   // sukSana (Sukkela sanaselitys, käyttäjän pyyntö 5.11.2026): yhden sanan valinta (työpöydällä tuplaklikkaus, kosketuksella
   // pitkä painallus ilman vetoa) avaa vain sanaselityksen. Pois: tuplaklikkaus maalaa sanan, pitkä painallus avaa valikon.
   // Riippumaton valikon sanaselityksestä (sanakirja): kumpikin toimii ilman toista (käyttäjän päätös 5.11.2026).
@@ -1289,7 +1317,16 @@
     if (!LS.set('luin-lista', lista)) viesti('Tallennustila on täynnä: lukulistaa ei voitu tallentaa.');
   }
   function merkit(id) { var m = LS.get('luin-merkit:' + id, null) || {}; m.km = m.km || []; m.al = m.al || []; return m; }
-  function tallennaMerkit() { return nyt ? LS.set('luin-merkit:' + nyt.e.id, nyt.merk) : false; }
+  // Tallennus kirjaa poistot ja kirjausten muokkaukset merkintäpostia varten (luin/posti.js) ja merkitsee tekstin
+  // lähetettäväksi, jos sen merkinnät lähetetään.
+  function tallennaMerkit() {
+    if (!nyt) return false;
+    var mu = P.kirjaaMuutokset(nyt.merk, nyt.kuva);
+    nyt.kuva = mu.kuva;
+    var ok = LS.set('luin-merkit:' + nyt.e.id, nyt.merk);
+    if (ok && mu.muuttui && postiValinnat(nyt.e.id).on) postiLikainen(nyt.e.id);
+    return ok;
+  }
   function viesti(t) { var v = $('#viesti'); v.textContent = t; v.hidden = !t; }
 
   /* ---------- reititys ---------- */
@@ -1332,6 +1369,16 @@
     var e = lista.filter(function (x) { return x.id === id; })[0];
     var md = e && LS.get('luin-teksti:' + id, null);
     if (!e || md == null) { viesti('Tekstiä ei ole tämän laitteen lukulistassa.'); return naytaLista(); }
+    // Merkintäposti: jos laatikossa on tämän tekstin merkintöjä (tai niitä lähetetään), haetaan tuoreimmat ennen avausta,
+    // jotta toisella laitteella tehdyt ovat mukana ja lukukohta on uusin. Enintään 2,5 s; sitten avataan joka tapauksessa.
+    var k = laatikonKoodi(), h = location.hash;
+    if (window.fetch && LAATIKKO_RE.test(k) && (LS.get('luin-posti-tunnetut', {})[id] || postiValinnat(id).on) && Date.now() - laatikkoHaettu > 15000) {
+      var valmis = false;
+      var aja = function () { if (valmis || location.hash !== h) return; valmis = true; avaa(e, md); };
+      postiHae(k, P.avain(id), 2500).then(function (p) { if (p && !valmis) postiSovella(id, p); }).catch(function () {}).then(aja);
+      setTimeout(aja, 2600);
+      return;
+    }
     avaa(e, md);
   }
 
@@ -1426,33 +1473,43 @@
     $('#tyhja').hidden = lista.length > 0;
     window.scrollTo(0, 0);
     haeLaatikko();
+    postiLahetaLikaiset();
   }
 
   /* ---------- postilaatikko ----------
-     Latomon Lähetä-komento tallentaa tekstin workerin KV:hen (luin:<koodi>:<tunnus>, metatietona lähetysaika t;
+     Latomo ja Lisää lukimeen tallentavat tekstin workerin KV:hen (luin:<koodi>:<tunnus>, metatietona lähetysaika t;
      worker/src/index.js, handleLuin). Kun laatikon koodi on annettu, lukulista hakee laatikon sisällyksen ja
      siitä vain uudet tai uudelleen lähetetyt tekstit (nähdyt lähetysajat: luin-laatikko-nahdyt). Listasta
      poistettu teksti ei siis palaa, ellei sitä lähetetä uudelleen. Tunnus on sama kuin Latomon Avaa Luinissa
      -tuonnissa (p-<slug>), joten uusi versio korvaa vanhan ja merkinnät säilyvät. Haku enintään minuutin
-     välein; verkkovirhe ohitetaan hiljaa paitsi asetuksista käynnistettäessä. */
+     välein; verkkovirhe ohitetaan hiljaa paitsi asetuksista käynnistettäessä.
+     Merkintäposti (käyttäjän pyyntö 9.11.2026, luin/posti.js): merkinnät kulkevat laatikossa omina avaimin
+     (luinm:<koodi>:<avain>). Vastaanotto on aina päällä: laatikon merkinnät yhdistetään niihin teksteihin, jotka ovat
+     tällä laitteella. Lähetys vain, jos se on valittu (yleisesti tai tekstikohtaisesti): muuttuneet tekstit
+     (luin-posti-likaiset) lähetetään, kun lukija palaa lukulistaan, Luin jää taustalle tai lukulista hakee laatikon.
+     Ennen lähetystä haetaan laatikon versio ja yhdistetään se, joten toisen laitteen merkinnät eivät katoa. */
   var LAATIKKO_API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/api/luin';
-  var LAATIKKO_RE = /^[a-z0-9-]{8,40}$/, laatikkoHaettu = 0;
+  var LAATIKKO_RE = P.RE, laatikkoHaettu = 0, postiVirhe = '';
+  function laatikonKoodi() { return LS.get('luin-laatikko', ''); }
+  function haeLaatikosta(u, json, ms) {
+    var ohjain = ms && window.AbortController ? new AbortController() : null;
+    if (ohjain) setTimeout(function () { ohjain.abort(); }, ms);
+    return fetch(u, { cache: 'no-store', signal: ohjain ? ohjain.signal : undefined }).then(function (r) {
+      if (json === 'm' && r.status === 404) return null;
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return json ? r.json() : r.text();
+    });
+  }
   function haeLaatikko(pakko) {
-    var k = LS.get('luin-laatikko', '');
+    var k = laatikonKoodi();
     if (!LAATIKKO_RE.test(k) || !window.fetch || !pakko && Date.now() - laatikkoHaettu < 60000) return Promise.resolve(null);
     laatikkoHaettu = Date.now();
     var osoite = LAATIKKO_API + '?l=' + encodeURIComponent(k);
-    function hae(u, json) {
-      return fetch(u, { cache: 'no-store' }).then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return json ? r.json() : r.text();
-      });
-    }
-    return hae(osoite, true).then(function (d) {
+    return haeLaatikosta(osoite, true).then(function (d) {
       var nahdyt = LS.get('luin-laatikko-nahdyt', {});
       var uudet = (d.texts || []).filter(function (x) { return nahdyt[k + ':' + x.id] !== x.t; });
       return Promise.all(uudet.map(function (x) {
-        return hae(osoite + '&id=' + encodeURIComponent(x.id)).then(function (md) {
+        return haeLaatikosta(osoite + '&id=' + encodeURIComponent(x.id)).then(function (md) {
           var id = 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
@@ -1465,15 +1522,157 @@
           tallennaLista();
           if (tila.nakyma === 'lista') { naytaLista(); viesti(n === 1 ? 'Postilaatikosta tuli teksti.' : 'Postilaatikosta tuli ' + n + ' tekstiä.'); }
         }
-        return { n: n, kaikki: (d.texts || []).length };
+        // Merkinnät tekstien jälkeen, jotta juuri tullut teksti saa omansa.
+        return postiVastaanota(k, d.merk || []).then(function () {
+          postiLahetaLikaiset();
+          return { n: n, kaikki: (d.texts || []).length };
+        });
       });
     }).catch(function (err) { if (pakko) throw err; return null; });
   }
+
+  /* Merkintäposti. */
+  var POSTI_LAJIT = [['al', 'Alleviivaukset'], ['ki', 'Kirjaukset'], ['km', 'Kirjanmerkit'], ['ed', 'Edistymisen tilanne']];
+  function postiYleinen() { return { on: aset.postiMerk, al: aset.postiAl, ki: aset.postiKi, km: aset.postiKm, ed: aset.postiEd }; }
+  // Tekstin valinta sellaisenaan (asetuksia varten) ja voimassa oleva (on vain, kun koodilla voi lähettää).
+  function postiAsetus(id) { return (id && LS.get('luin-posti:' + id, null)) || postiYleinen(); }
+  function postiValinnat(id) {
+    var v = Object.assign({}, postiAsetus(id)), k = laatikonKoodi();
+    v.on = !!(v.on && k.length >= P.MIN && LAATIKKO_RE.test(k) && (v.al || v.ki || v.km || v.ed));
+    return v;
+  }
+  function postiLikainen(id) { var l = LS.get('luin-posti-likaiset', {}); l[id] = Date.now(); LS.set('luin-posti-likaiset', l); }
+  function postiPaikallinen(a) {
+    return P.paikalliset(a).filter(function (id) { return lista.some(function (e) { return e.id === id; }); })[0] || '';
+  }
+  function postiHae(k, a, ms) {
+    return haeLaatikosta(LAATIKKO_API + '?l=' + encodeURIComponent(k) + '&id=' + encodeURIComponent(a) + '&m=1', 'm', ms)
+      .then(function (p) { return p && p.v === 1 && typeof p === 'object' ? p : null; });
+  }
+  // Laatikon paketti tämän laitteen tekstiin. Avoimessa tekstissä yhdistetään näkyviin merkintöihin ja piirretään
+  // uudelleen; lukukohtaa ei silloin siirretä (lukijan oma kohta on totta).
+  function postiSovella(id, p) {
+    var e = lista.filter(function (x) { return x.id === id; })[0];
+    if (!e || !p) return null;
+    var auki = !!(nyt && nyt.e.id === id);
+    var m = auki ? nyt.merk : merkit(id);
+    var r = P.yhdista(m, auki ? null : e, p);
+    if (r.muuttui) {
+      LS.set('luin-merkit:' + id, m);
+      if (auki) { nyt.kuva = P.kuva(nyt.merk); var a = tila.ankkuri; piirraTeksti(); asettele(a); paivitaMerkinnat(); }
+    }
+    if (r.sijainti) tallennaLista();
+    var v = postiValinnat(id);
+    if (v.on && P.sisalto(P.paketti(id, m, e, v)) !== P.sisalto(p)) postiLikainen(id);
+    return r;
+  }
+  function postiVastaanota(k, merk) {
+    var nahdyt = LS.get('luin-laatikko-nahdyt', {}), tunnetut = {};
+    var uudet = merk.filter(function (x) {
+      var id = postiPaikallinen(x.id);
+      if (id) tunnetut[id] = 1;
+      return id && nahdyt[k + ':m:' + x.id] !== x.t;
+    });
+    // Tekstit, joilla on merkintöjä laatikossa: avaus hakee niiden tuoreimmat (avaaId).
+    LS.set('luin-posti-tunnetut', tunnetut);
+    return Promise.all(uudet.map(function (x) {
+      return postiHae(k, x.id).then(function (p) {
+        if (p) postiSovella(postiPaikallinen(x.id), p);
+        var n = LS.get('luin-laatikko-nahdyt', {});
+        n[k + ':m:' + x.id] = x.t;
+        LS.set('luin-laatikko-nahdyt', n);
+      }).catch(function () {});
+    }));
+  }
+  // Lähettää muuttuneet tekstit yksi kerrallaan. 429 (rajoitus) ja vanha worker keskeyttävät; loput jäävät odottamaan.
+  var postiKaynnissa = null;
+  function postiLahetaLikaiset() {
+    if (postiKaynnissa) return postiKaynnissa;
+    var k = laatikonKoodi(), ids = Object.keys(LS.get('luin-posti-likaiset', {}));
+    if (!ids.length || !window.fetch || k.length < P.MIN || !LAATIKKO_RE.test(k)) return Promise.resolve();
+    var i = 0;
+    function seuraava() {
+      if (i >= ids.length) return Promise.resolve();
+      return postiLaheta(ids[i++], k).then(seuraava, function (err) { if (!(err && err.seis)) return seuraava(); });
+    }
+    postiKaynnissa = seuraava().then(function () { postiKaynnissa = null; piirraPosti(); }, function () { postiKaynnissa = null; piirraPosti(); });
+    return postiKaynnissa;
+  }
+  function postiLaheta(id, k) {
+    var e = lista.filter(function (x) { return x.id === id; })[0], v = postiValinnat(id), alku = Date.now(), a = P.avain(id);
+    function valmis() { var l = LS.get('luin-posti-likaiset', {}); if (l[id] <= alku) { delete l[id]; LS.set('luin-posti-likaiset', l); } }
+    if (!e || !v.on) { valmis(); return Promise.resolve(); }
+    return postiHae(k, a).then(function (p) {
+      if (p) postiSovella(id, p);
+      var m = nyt && nyt.e.id === id ? nyt.merk : merkit(id), pk = P.paketti(id, m, e, v);
+      // Laatikossa on jo sama, tai lähetettävää ei ole.
+      if (p ? P.sisalto(pk) === P.sisalto(p) : !(pk.km || []).length && !(pk.al || []).length && !Object.keys(pk.del).length && !pk.pos) { valmis(); return; }
+      return fetch(LAATIKKO_API, {
+        method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ l: k, id: a, m: pk })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; });
+      }).then(function (x) {
+        if (x.s === 200 && x.j.ok) {
+          valmis(); postiVirhe = '';
+          var n = LS.get('luin-laatikko-nahdyt', {}); n[k + ':m:' + a] = x.j.t; LS.set('luin-laatikko-nahdyt', n);
+          var lah = LS.get('luin-posti-lahetetty', {}); lah[id] = x.j.t; LS.set('luin-posti-lahetetty', lah);
+          return;
+        }
+        // Vanha worker ei tunne merkintöjä: POST ilman tekstiä on sille bad_payload.
+        postiVirhe = x.s === 429 ? 'Liian monta lähetystä hetken sisällä. Lähetys yritetään myöhemmin uudelleen.'
+          : x.s === 400 && x.j.error === 'bad_payload' ? 'Worker ei vielä ota merkintöjä vastaan: se on päivitettävä kerran (Latomon Coneelta Cännycälle -osio).'
+          : 'Merkintöjen lähetys ei onnistunut (' + x.s + (x.j.error ? ', ' + x.j.error : '') + ').';
+        var err = new Error(postiVirhe); err.seis = x.s === 429 || x.s === 400;
+        throw err;
+      });
+    });
+  }
+  function kello(t) { var d = new Date(t); return d.getHours() + '.' + ('0' + d.getMinutes()).slice(-2); }
+  // Asetusten kerrokset: koodi (pitkä) → Lähetä myös merkinnät → lajit. Lukulistassa yleinen valinta, avoimessa
+  // tekstissä vain sen tekstin.
+  function piirraPosti() {
+    var k = laatikonKoodi(), pitka = k.length >= P.MIN && LAATIKKO_RE.test(k), kirja = nyt ? nyt.e.id : '';
+    $('#posti-merk').hidden = !pitka;
+    if (!pitka) return;
+    var v = postiAsetus(kirja);
+    $('#posti-paalla').innerHTML = '<button type="button" data-posti="on" aria-pressed="' + !!v.on + '">' + SAL_IKONI +
+      (kirja ? 'Lähetä myös tämän tekstin merkinnät' : 'Lähetä myös merkinnät') + '</button>';
+    $('#posti-lajit').hidden = !v.on;
+    $('#posti-lajit').innerHTML = POSTI_LAJIT.map(function (l) {
+      return '<button type="button" data-posti="' + l[0] + '" aria-pressed="' + !!v[l[0]] + '">' + SAL_IKONI + l[1] + '</button>';
+    }).join('');
+    var lah = kirja && LS.get('luin-posti-lahetetty', {})[kirja], odottaa = kirja && LS.get('luin-posti-likaiset', {})[kirja];
+    var t = !v.on ? (kirja ? 'Muiden tekstien valinta on lukulistan asetuksissa.' : 'Merkinnät voi lähettää laatikon kautta muihin laitteisiin, joissa on sama koodi ja sama teksti.')
+      : kirja ? 'Merkinnät lähtevät, kun palaat lukulistaan tai Luin jää taustalle. ' +
+        (odottaa ? 'Muutoksia odottaa lähetystä.' : lah ? 'Viimeksi lähetetty ' + pvm(lah) + ' klo ' + kello(lah) + '.' : '')
+      : 'Merkinnät lähtevät, kun palaat tekstistä lukulistaan tai Luin jää taustalle, ja ne tulevat itsestään muihin laitteisiin, ' +
+        'joissa on sama koodi ja sama teksti. Yksittäisen tekstin valinnan voi muuttaa sen omissa asetuksissa.';
+    $('#posti-tieto').textContent = (t + (postiVirhe && v.on ? ' ' + postiVirhe : '')).trim();
+  }
+  function postiValitse(x) {
+    var kirja = nyt ? nyt.e.id : '', v = Object.assign({}, postiAsetus(kirja));
+    v[x] = v[x] ? 0 : 1;
+    if (kirja) LS.set('luin-posti:' + kirja, v);
+    else { aset.postiMerk = v.on; aset.postiAl = v.al; aset.postiKi = v.ki; aset.postiKm = v.km; aset.postiEd = v.ed; tallennaAset(); }
+    // Valinta lähettää myös jo olemassa olevat merkinnät (lukulistassa heti, tekstissä palattaessa lukulistaan).
+    if (postiValinnat(kirja).on) {
+      if (kirja) postiLikainen(kirja);
+      else { lista.forEach(function (e) { if (!LS.get('luin-posti:' + e.id, null)) postiLikainen(e.id); }); postiLahetaLikaiset(); }
+    }
+    piirraPosti();
+  }
+  // Laatikon koodin kentät: uusi koodi siistitään (posti.js) ja sen on oltava 24–40 merkkiä.
+  function koodiTieto(k) {
+    return k && k.length < P.MIN ? 'Nykyinen koodi on lyhyt (' + k.length + ' merkkiä): sillä voi vain lukea. Vaihda vähintään ' +
+      P.MIN + ' merkin koodiin, niin voit myös lähettää.' : '';
+  }
   // #l=<koodi>: laatikko linkistä tai Lisää-kentästä. Koodi talteen, osoite siistiksi ja haku heti.
   function otaLaatikko(k) {
-    k = k.trim().toLowerCase();
+    k = P.koodi(k);
     history.replaceState(null, '', location.pathname + location.search);
-    if (!LAATIKKO_RE.test(k)) { naytaLista(); return viesti('Laatikon koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.'); }
+    var virhe = P.koodiVirhe(k);
+    if (virhe) { naytaLista(); return viesti(virhe); }
     LS.set('luin-laatikko', k);
     laatikkoHaettu = Date.now(); naytaLista();
     viesti('Postilaatikko ' + k + ': haetaan…');
@@ -1495,11 +1694,12 @@
     else location.hash = 'l=' + encodeURIComponent(v);
   });
   $('#laatikko-tallenna').addEventListener('click', function () {
-    var k = $('#laatikko-koodi').value.trim().toLowerCase(), tieto = $('#laatikko-tieto');
-    if (!k) { LS.del('luin-laatikko'); tieto.textContent = 'Koodi poistettu. Lukulista ei hae postilaatikosta.'; return; }
-    if (!LAATIKKO_RE.test(k)) { tieto.textContent = 'Koodissa on 8–40 merkkiä: kirjaimia a–z, numeroita ja väliviivoja.'; return; }
+    var raaka = $('#laatikko-koodi').value, k = P.koodi(raaka), tieto = $('#laatikko-tieto');
+    if (!raaka.trim()) { LS.del('luin-laatikko'); tieto.textContent = 'Koodi poistettu. Lukulista ei hae postilaatikosta.'; piirraPosti(); return; }
+    var virhe = P.koodiVirhe(k);
+    if (virhe) { tieto.textContent = virhe; return; }
     LS.set('luin-laatikko', k); $('#laatikko-koodi').value = k;
-    tieto.textContent = 'Haetaan…';
+    tieto.textContent = 'Haetaan…'; piirraPosti();
     haeLaatikko(true).then(function (r) {
       tieto.textContent = !r.kaikki ? 'Koodi tallennettu. Laatikko on tyhjä.' :
         'Koodi tallennettu. Laatikossa ' + lkm(r.kaikki, 'teksti', 'tekstiä') + ', joista uusia ' + r.n + '.';
@@ -1507,7 +1707,15 @@
       tieto.textContent = 'Koodi tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen lukulistassa.';
     });
   });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden && tila.nakyma === 'lista') haeLaatikko(); });
+  $('#laatikko-kysy').addEventListener('click', function () {
+    var o = $('#laatikko-ohje'), auki = o.hidden;
+    if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
+    o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && tila.nakyma === 'lista') haeLaatikko();
+    if (document.hidden) postiLahetaLikaiset();
+  });
 
   $('#nimikkeet').addEventListener('click', function (ev) {
     var b = ev.target.closest('button.jako');
@@ -1770,8 +1978,10 @@
     if (!$('#lukija').hidden) avaaJana(false); // navi ja asetukset eivät ole yhtä aikaa auki: tekstin napautus sulkee asetukset
     sijoitaPaneeli();
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
-    $('#postilaatikko').hidden = !!nyt; $('#laatikko-osio').open = false;
-    $('#laatikko-koodi').value = LS.get('luin-laatikko', ''); $('#laatikko-tieto').textContent = '';
+    $('#laatikko-osio').open = false;
+    $('#laatikko-koodi').value = laatikonKoodi(); $('#laatikko-tieto').textContent = koodiTieto(laatikonKoodi());
+    $('#laatikko-ohje').hidden = true; $('#laatikko-kysy').setAttribute('aria-expanded', 'false');
+    piirraPosti();
     $('#asetukset').hidden = false;
     sijoitaNipukka();
   }); });
@@ -1856,6 +2066,8 @@
     if (v) { aset[v.dataset.vie] = aset[v.dataset.vie] ? 0 : 1; tallennaAset(); piirraVienti(); return; }
     var tv = e.target.closest('button[data-tuo]');
     if (tv) { tuoVal[tv.dataset.tuo] = tuoVal[tv.dataset.tuo] ? 0 : 1; piirraVienti(); return; }
+    var pb = e.target.closest('button[data-posti]');
+    if (pb) { postiValitse(pb.dataset.posti); return; }
     var vt = e.target.closest('#vie, #tuo');
     if (vt) { vahvistaSiirto(vt); return; }
     var si = e.target.closest('button[data-siirry]');
@@ -2000,6 +2212,7 @@
     lista = [e].concat(lista.filter(function (x) { return x !== e; }));
     tallennaLista();
     nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };
+    nyt.kuva = P.kuva(nyt.merk);
     tila.nakyma = 'lukija';
     krOdottaa = !!aset.kokoruutu;
     $('#lista').hidden = true; $('#lukija').hidden = false;
@@ -2313,6 +2526,13 @@
     if (!nyt || !tila.ankkuri) return;
     clearTimeout(tallennusAjastin);
     var f = function () {
+      // posT: milloin lukukohta viimeksi siirtyi (merkintäpostin uusin lukukohta voittaa). Pelkkä avaus ei siirrä.
+      var ed = nyt.e.pos, a = tila.ankkuri;
+      if (!ed || ed.b !== a.b || ed.o !== a.o) {
+        nyt.e.posT = Date.now();
+        var pv = postiValinnat(nyt.e.id);
+        if (pv.on && pv.ed) postiLikainen(nyt.e.id);
+      }
       nyt.e.pos = tila.ankkuri; nyt.e.pct = Math.round(osuus(tila.ankkuri) * 100); nyt.e.opened = Date.now();
       tallennaLista();
     };
@@ -2345,6 +2565,9 @@
     vierAjastin = requestAnimationFrame(function () {
       vierAjastin = 0;
       if (Date.now() < tila.hiljaa) return;
+      // Lukulistaan-linkki (href="#") vierittää sivun alkuun ennen kuin hashchange ehtii lukulistaan; se ei ole lukemista,
+      // eikä lukukohdaksi saa jäädä tekstin alku (mitattu 9.11.2026: tallentui joka toisella kerralla).
+      if (!/^#(id|u)=/.test(location.hash)) return;
       tila.ankkuri = nykyinenKohta(); tila.ankkuri.s = katkelma(tila.ankkuri, 32);
       paivita();
     });
@@ -5580,6 +5803,8 @@
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
     selitysKetju: function (kieli, y, monta, erisnimi) { return skKetju(kieli, y, monta, erisnimi); },
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
+    // Merkintäposti (posti-testi.js): tallennus kuten käyttäjän muutoksessa ja lähetys heti.
+    tallennaMerkit: function () { return tallennaMerkit(); }, postiLaheta: function () { return postiLahetaLikaiset(); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
 </script>

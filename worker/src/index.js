@@ -247,14 +247,21 @@ const LUIN_BOX_RE = /^[a-z0-9-]{8,40}$/;
 const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 
 // Coneelta Cännycälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
-// Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md }. Pitkä laatikon koodi on itse avain
+// Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md } (teksti) tai { l, id, m } (merkinnät). Pitkä laatikon koodi on itse avain
 // (Latomo arpoo 24 satunnaista merkkiä): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
-// eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä (itse keksityllä) koodilla voi vain lukea.
+// eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä koodilla voi vain lukea; Luin, Latomo ja lisäosa
+// eivät 9.11.2026 alkaen hyväksy uutta alle 24 merkin koodia (luin/posti.js), joten vain vanha lyhyt koodi on lukukoodi.
 // Kirjoitukset rajataan osoitetta kohti, jos sidonta LUIN_RAJA on olemassa (wrangler.toml). Avain, metatieto
 // ja vanheneminen ovat samat kuin komennon kv:key put -kirjoituksessa.
 const LUIN_TTL = 30 * 24 * 3600;
 const LUIN_MD_MAX = 5 * 1024 * 1024;
 const LUIN_KIRJOITUS_MIN = 24;
+// Merkintäposti (käyttäjän pyyntö 9.11.2026): Luin ja Latomo lähettävät tekstin merkinnät (alleviivaukset, kirjaukset,
+// kirjanmerkit, lukukohta) JSONina avaimella "luinm:<laatikko>:<tekstin tunnus>", erillään teksteistä, jotta vanha Luin ei
+// lue niitä teksteiksi. Yhdistäminen tehdään selaimessa ennen lähetystä (luin/posti.js); worker vain säilyttää. Merkinnät
+// ovat pieniä ja ne halutaan säilyttää pitkään, koska laite voi olla käyttämättä kuukausia.
+const LUIN_MERK_TTL = 365 * 24 * 3600;
+const LUIN_MERK_MAX = 1024 * 1024;
 
 async function handleLuinPost(req, env) {
   if (env.LUIN_RAJA && typeof env.LUIN_RAJA.limit === "function") {
@@ -278,13 +285,19 @@ async function handleLuinPost(req, env) {
     logEvent("luin_post_short_key");
     return errorResponse("short_key", 403);
   }
-  if (!md.trim()) return errorResponse("bad_payload", 400);
-  if (md.length > LUIN_MD_MAX) return errorResponse("too_large", 413);
+  const merk = body && body.m && typeof body.m === "object" && !Array.isArray(body.m) ? JSON.stringify(body.m) : "";
+  if (!merk && !md.trim()) return errorResponse("bad_payload", 400);
+  if (md.length > LUIN_MD_MAX || merk.length > LUIN_MERK_MAX) return errorResponse("too_large", 413);
   if (!env.LOCATIONS || typeof env.LOCATIONS.put !== "function") {
     logEvent("kv_error", { reason: "missing_binding" });
     return errorResponse("bad_payload", 500);
   }
   const t = Date.now();
+  if (merk) {
+    await env.LOCATIONS.put(`luinm:${box}:${id}`, merk, { metadata: { t }, expirationTtl: LUIN_MERK_TTL });
+    logEvent("luin_merk_post_200", { bytes: merk.length });
+    return jsonResponse({ ok: true, id, t }, { headers: { "Cache-Control": "no-store" } });
+  }
   await env.LOCATIONS.put(`luin:${box}:${id}`, md, { metadata: { t }, expirationTtl: LUIN_TTL });
   logEvent("luin_post_200", { bytes: md.length });
   return jsonResponse({ ok: true, id, t }, { headers: { "Cache-Control": "no-store" } });
@@ -295,6 +308,7 @@ async function handleLuin(req, env) {
   const url = new URL(req.url);
   const box = (url.searchParams.get("l") || "").trim().toLowerCase();
   const id = (url.searchParams.get("id") || "").trim().toLowerCase();
+  const m = url.searchParams.get("m") === "1";
 
   if (!LUIN_BOX_RE.test(box) || (id && !LUIN_ID_RE.test(id))) {
     logEvent("luin_bad_key");
@@ -305,7 +319,18 @@ async function handleLuin(req, env) {
     return errorResponse("bad_payload", 500);
   }
 
-  const prefix = `luin:${box}:`;
+  const prefix = `luin:${box}:`, mPrefix = `luinm:${box}:`;
+  if (id && m) {
+    const json = await env.LOCATIONS.get(mPrefix + id);
+    if (json == null) {
+      logEvent("luin_merk_not_found");
+      return errorResponse("not_found", 404);
+    }
+    logEvent("luin_merk_200", { bytes: json.length });
+    return new Response(json, {
+      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    });
+  }
   if (id) {
     const md = await env.LOCATIONS.get(prefix + id);
     if (md == null) {
@@ -318,13 +343,15 @@ async function handleLuin(req, env) {
     });
   }
 
-  const listed = await env.LOCATIONS.list({ prefix, limit: 200 });
-  const texts = listed.keys.map((k) => ({
-    id: k.name.slice(prefix.length),
-    t: k.metadata && Number.isFinite(Number(k.metadata.t)) ? Number(k.metadata.t) : 0,
-  }));
-  logEvent("luin_list", { n: texts.length });
-  return jsonResponse({ v: 1, texts }, { headers: { "Cache-Control": "no-store" } });
+  const aika = (k) => (k.metadata && Number.isFinite(Number(k.metadata.t)) ? Number(k.metadata.t) : 0);
+  const [listed, mListed] = await Promise.all([
+    env.LOCATIONS.list({ prefix, limit: 200 }),
+    env.LOCATIONS.list({ prefix: mPrefix, limit: 200 }),
+  ]);
+  const texts = listed.keys.map((k) => ({ id: k.name.slice(prefix.length), t: aika(k) }));
+  const merk = mListed.keys.map((k) => ({ id: k.name.slice(mPrefix.length), t: aika(k) }));
+  logEvent("luin_list", { n: texts.length, m: merk.length });
+  return jsonResponse({ v: 1, texts, merk }, { headers: { "Cache-Control": "no-store" } });
 }
 
 // ---- Lisäominaisuus: kansio soittolistana -----------------------------
