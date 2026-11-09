@@ -94,7 +94,7 @@
   // Laatikon paketti p paikallisiin merkintöihin m ja lukulistan nimikkeeseen e (lukukohta). Muuttaa m:ää ja e:tä.
   // Samassa kohdassa oleva merkintä on sama, vaikka tunnus olisi eri (esim. tiedostosta tuotu): tunnukseksi jää
   // aakkosissa ensimmäinen, jolloin molemmat laitteet päätyvät samaan.
-  function yhdista(m, e, p) {
+  function yhdista(m, e, p, viimeisin) {
     m.km = m.km || []; m.al = m.al || []; m.del = m.del || {};
     var laji = p.laji || {}, r = { muuttui: false, sijainti: false };
     Object.keys(p.del || {}).forEach(function (id) {
@@ -126,9 +126,19 @@
         m.al.push(c); r.muuttui = true; return;
       }
       tunnus(lh, rh.id);
-      if (laji.ki && (rh.n || '') !== (lh.n || '') && (rh.nt || 0) > (lh.nt || 0)) {
-        if (rh.n) lh.n = rh.n; else delete lh.n;
-        lh.nt = rh.nt; r.muuttui = true;
+      if (laji.ki && (rh.n || '') !== (lh.n || '')) {
+        var a = lh.n || '', b = rh.n || '';
+        if (a && b && a.indexOf(b) < 0 && b.indexOf(a) < 0 && (lh.nt || lh.t || 0) > (viimeisin || 0) && (rh.nt || rh.t || 0) > (viimeisin || 0)) {
+          // Samassa kohdassa kaksi eri kirjausta (paikallista on muokattu viimeisen laatikosta nähdyn version jälkeen): kumpaakaan ei hukata, saapunut liitetään perään (9.11.2026).
+          // Jo yhdistetty kirjaus sisältää toisen, joten kaiku takaisin ei liitä uudestaan.
+          var d = new Date();
+          function kk(n) { return (n < 10 ? '0' : '') + n; }
+          lh.n = a + '\n\n---\n\n*(Toinen kirjaus postista ' + kk(d.getDate()) + '.' + kk(d.getMonth() + 1) + '.' + d.getFullYear() + ')*\n\n' + b;
+          lh.nt = Date.now(); r.muuttui = true;
+        } else if ((rh.nt || 0) > (lh.nt || 0)) {
+          if (rh.n) lh.n = rh.n; else delete lh.n;
+          lh.nt = rh.nt; r.muuttui = true;
+        }
       }
     });
     m.al.sort(function (a, b) { return a.segs[0].b - b.segs[0].b || a.segs[0].s - b.segs[0].s; });

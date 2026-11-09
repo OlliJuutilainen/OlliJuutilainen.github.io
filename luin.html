@@ -1556,7 +1556,7 @@
     if (!e || !p) return null;
     var auki = !!(nyt && nyt.e.id === id);
     var m = auki ? nyt.merk : merkit(id);
-    var r = P.yhdista(m, auki ? null : e, p);
+    var r = P.yhdista(m, auki ? null : e, p, (LS.get('luin-laatikko-nahdyt', {})[laatikonKoodi() + ':m:' + P.avain(id)] || 0));
     if (r.muuttui) {
       LS.set('luin-merkit:' + id, m);
       if (auki) { nyt.kuva = P.kuva(nyt.merk); var a = tila.ankkuri; piirraTeksti(); asettele(a); paivitaMerkinnat(); }
