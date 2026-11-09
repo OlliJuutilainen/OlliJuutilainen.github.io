@@ -246,30 +246,24 @@ async function handleGig(req, env) {
 const LUIN_BOX_RE = /^[a-z0-9-]{8,40}$/;
 const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 
-// Koneelta kännykälle (käyttäjän pyyntö 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
-// Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md }, otsake Authorization: Bearer <salakoodi>.
-// Salakoodi on workerin salaisuus LUIN_SALAKOODI; laatikon koodi ei riitä kirjoittamiseen, koska sen voi
-// valita itse ja arvata. Avain, metatieto ja vanheneminen ovat samat kuin komennon kv:key put -kirjoituksessa.
+// Koneelta kännykälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
+// Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md }. Pitkä laatikon koodi on itse avain
+// (Latomo arpoo 24 satunnaista merkkiä): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
+// eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä (itse keksityllä) koodilla voi vain lukea.
+// Kirjoitukset rajataan osoitetta kohti, jos sidonta LUIN_RAJA on olemassa (wrangler.toml). Avain, metatieto
+// ja vanheneminen ovat samat kuin komennon kv:key put -kirjoituksessa.
 const LUIN_TTL = 30 * 24 * 3600;
 const LUIN_MD_MAX = 5 * 1024 * 1024;
-
-function samatMerkit(a, b) {
-  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
-  let ero = x.length ^ y.length;
-  for (let i = 0; i < Math.max(x.length, y.length); i++) ero |= (x[i] || 0) ^ (y[i] || 0);
-  return ero === 0;
-}
+const LUIN_KIRJOITUS_MIN = 24;
 
 async function handleLuinPost(req, env) {
-  if (!env.LUIN_SALAKOODI) {
-    logEvent("luin_post_not_configured");
-    return errorResponse("not_configured", 503);
-  }
-  const auth = req.headers.get("Authorization") || "";
-  const koodi = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  if (!koodi || !samatMerkit(koodi, String(env.LUIN_SALAKOODI).trim())) {
-    logEvent("luin_post_unauthorized");
-    return errorResponse("unauthorized", 401);
+  if (env.LUIN_RAJA && typeof env.LUIN_RAJA.limit === "function") {
+    const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
+    const { success } = await env.LUIN_RAJA.limit({ key: "luin:" + ip });
+    if (!success) {
+      logEvent("luin_post_rate_limited");
+      return errorResponse("rate_limited", 429);
+    }
   }
   let body;
   try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
@@ -279,6 +273,10 @@ async function handleLuinPost(req, env) {
   if (!LUIN_BOX_RE.test(box) || !LUIN_ID_RE.test(id)) {
     logEvent("luin_bad_key");
     return errorResponse("bad_key", 400);
+  }
+  if (box.length < LUIN_KIRJOITUS_MIN) {
+    logEvent("luin_post_short_key");
+    return errorResponse("short_key", 403);
   }
   if (!md.trim()) return errorResponse("bad_payload", 400);
   if (md.length > LUIN_MD_MAX) return errorResponse("too_large", 413);

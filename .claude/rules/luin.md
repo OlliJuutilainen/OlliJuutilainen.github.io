@@ -250,12 +250,13 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
 - **Latomossa ei ole MarkDownload-tilaa** (käyttäjän päätös 9.11.2026, kun lisäosa pääsi Chrome Web Storeen): ei
   kytkintä, ehdotusta, Excerpt-, validateUri- eikä leikkeen loppurivien käsittelyä. Leike siivotaan vain korvamerkistä.
   Latomon ohjeen ja kehittäjän oppaan MarkDownload-osiot ovat vanhentuneita; käyttäjä ei halua niitä nyt korjattavan.
-- **Koneelta kännykälle** (käyttäjän nimi ja pyyntö 9.11.2026, opas 2.2; ennen *Lähetä postilaatikkoon*): Latomo kirjoittaa
-  tekstin laatikkoon reitillä `POST /api/luin` salakoodilla (workerin salaisuus `LUIN_SALAKOODI`, Latomon `luin-salakoodi`),
-  ja Luin hakee tekstit samalta reitiltä GET:llä. Kun molemmat koodit ovat muistissa, napin painallus lähettää heti.
-  Laatikon koodi ei riitä kirjoittamiseen, koska sen voi valita itse ja arvata. Ilman salakoodia jäljellä on
-  `wrangler@3.114.17`-komento. Kumpaakaan koodia ei kirjoiteta repoon. Reitti vaatii, että `tusinasaa-worker` on julkaistu
-  tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
+- **Koneelta kännykälle** (käyttäjän nimi ja pyynnöt 9.11.2026, opas 2.2; ennen *Lähetä postilaatikkoon*): Latomo kirjoittaa
+  tekstin laatikkoon reitillä `POST /api/luin`, ja Luin hakee tekstit samalta reitiltä GET:llä. **Pitkä arvottu laatikon
+  koodi (≥ 24 merkkiä, `kk-` ja 24 satunnaista) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
+  laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä). Lyhyellä
+  koodilla voi vain lukea; sille jää `wrangler@3.114.17`-komento. Kirjoitukset rajataan osoitetta kohti sidonnalla `LUIN_RAJA`
+  (`wrangler.toml`, wrangler 3:n `unsafe.bindings`-muoto; koodi toimii ilman sitä). Koodia ei kirjoiteta repoon. Reitti vaatii,
+  että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 
 ### Testit (opas 8)
 
