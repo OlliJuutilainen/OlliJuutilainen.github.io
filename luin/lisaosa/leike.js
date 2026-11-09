@@ -140,6 +140,10 @@
   }
   function blogSiivoa(el, siirto) {
     el.querySelectorAll('.jump-link, .post-share-buttons, .snippet-fade, script, style').forEach(x => x.remove());
+    // Kirjoittajan itse lisäämä jakonappi kirjoituksen alussa (Philosophical Disquisitions: <a class="twitter-share-button">Tweet</a>)
+    // jäi otsikon alle yksin riville, ja Latomo luki sen tietoriviksi tekijän ja päiväyksen paikalle.
+    el.querySelectorAll('.twitter-share-button, .fb-share-button, .fb-like, .g-plusone, a[href*="twitter.com/share"], a[href*="facebook.com/sharer"]')
+      .forEach(x => x.remove());
     // Kuvateksti taulukossa: kuva jää pois, ja kuvan ja tekstin taulukosta tulisi Markdown-taulukko.
     el.querySelectorAll('table.tr-caption-container').forEach(t => {
       const k = rivi(t.querySelector('.tr-caption') && t.querySelector('.tr-caption').textContent);

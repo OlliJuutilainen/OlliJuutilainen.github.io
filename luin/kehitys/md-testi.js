@@ -331,6 +331,14 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
     'Cassirer 1925: Vuosi on luettelossa vain kirjaimin: Cassirer 1925a, Cassirer 1925b.');
 }
 
+// Viitelinkki otsikossa (vanhan Lisää lukimeen -leikkeen blogin etusivu, 9.11.2026: ### [Otsikko][1]): Sisälmyksessä ja
+// tunnisteessa pelkkä teksti, otsikossa linkki. Määrittelemätön [x][y] jää näkyviin kuten leipätekstissä.
+{
+  const v = M.parse('# Blogi\n\n## [Ensimmäinen kirjoitus][1]\n\nTeksti.\n\n## [Toinen][kakkos]\n\nTeksti.\n\n## Ei [linkki][9]\n\nTeksti.\n\n[1]: https://blogi.example/1.html\n[kakkos]: https://blogi.example/2.html\n');
+  sama('viitelinkki otsikossa: Sisälmys', v.toc.map(t => t.text + '#' + t.id).join(' | '), 'Ensimmäinen kirjoitus#ensimmainen-kirjoitus | Toinen#toinen | Ei [linkki][9]#ei-linkki-9');
+  tulos('viitelinkki otsikossa: otsikko on linkki', /<h2[^>]*><a href="https:\/\/blogi\.example\/1\.html">Ensimmäinen kirjoitus<\/a><\/h2>/.test(v.html), (v.html.match(/<h2[^>]*>.*?<\/h2>/) || [])[0]);
+}
+
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
 const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../md.js'))).digest('hex').slice(0, 8);

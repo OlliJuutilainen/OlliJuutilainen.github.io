@@ -84,7 +84,9 @@ const BLOG_SIVUT = {
 <abbr class="published" title="2026-10-21T07:02:00-07:00">x</abbr><div class="post-body entry-content"><div class="snippet-item">Uusimman katkelma...</div></div></div></div>
 <div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Ensimmäinen', BLOGI + '2026/09/eka.html', '2026-09-03T10:19:00-07:00', BLOG_RUNKO_1, false)}
 ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)}</div></div>`),
-  [BLOG_POSTI]: blogSivu('Koeblogi: Toinen', `<div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2) + '<p>Hypyn jälkeinen loppu.</p>', false)}</div></div>`)
+  // Kirjoittajan oma jakonappi kirjoituksen alussa (Philosophical Disquisitions) ei saa jäädä tietoriviksi.
+  [BLOG_POSTI]: blogSivu('Koeblogi: Toinen', `<div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00',
+    '<div style="text-align:left"><a class="twitter-share-button" href="http://twitter.com/share">Tweet</a></div>' + blogKpl(2) + '<p>Hypyn jälkeinen loppu.</p>', false)}</div></div>`)
 };
 
 (async () => {
@@ -280,7 +282,7 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
   const bp = await latomo5.inputValue('#md');
   await latomo5.close();
   tulos('Blogger kirjoitus: otsikko, tekijä, blogin nimi, päivä paikallisena', /^tekijä: Maija Bloggaaja\nsivusto: Koeblogi\njulkaistu: 2026-09-01\nlähde: https:\/\/koeblogi\.blogspot\.com\/2026\/09\/toinen\.html$/m.test(bp) &&
-    /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
+    /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp) && !/Tweet|twitter/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' / '));
   await ctx.close();

@@ -309,8 +309,9 @@
   }
 
   // Merkinnätön teksti (sisällysluettelo, lähdeviite). Alaviitteet jäävät pois.
-  function plain(s) {
-    return unesc(inline(String(s), { note: null, br: false }).replace(/<br>/g, ' ').replace(/<[^>]+>/g, ''));
+  // refs: viitelinkit [teksti][1] tekstiksi (Sisälmys, otsikon tunniste); ilman niitä hakasulkeet jäisivät näkyviin.
+  function plain(s, refs) {
+    return unesc(inline(String(s), { note: null, br: false, refs: refs }).replace(/<br>/g, ' ').replace(/<[^>]+>/g, ''));
   }
 
   function slug(s) {
@@ -2032,7 +2033,7 @@
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
-          var txt = plain(htext).trim();
+          var txt = plain(htext, { link: refs.link }).trim();
           var nm = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(txt), tn = inQuote ? null : tunnus(txt);
           var id, cls = 'sec';
           if (nm && t.pykala && !inQuote) {
