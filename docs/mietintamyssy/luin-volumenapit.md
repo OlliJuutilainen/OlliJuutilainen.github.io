@@ -69,6 +69,9 @@ painalluksen; verhon takana (navi, asetukset) napautus ei käännä.
 koordinaatteja. Vaatii Shizukun (käynnistettävä uudelleen jokaisen uudelleenkäynnistyksen jälkeen ADB:llä
 tai langattomalla virheenkorjauksella) tai Key Mapperin näppäimistön, joka syrjäyttäisi kirjoitusnäppäimistön.
 
+**Shizuku hylätty** (käyttäjän linjaus 9.11.2026): päivittäinen ADB-käynnistys on Light Phone -käytön vastaista.
+Älä ehdota sitä uudelleen.
+
 ## 2. Oma Android-kääre
 
 Activity saa volumenapit ennen WebViewtä (`dispatchKeyEvent`), joten kääre voi välittää ne sivulle
