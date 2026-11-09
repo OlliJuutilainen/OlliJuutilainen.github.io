@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.6 -.1 11.2 11.2">
+<style>.r { fill: none; stroke: #8c5426 } .s { fill: #8c5426 }
+@media (prefers-color-scheme: dark) { .r { stroke: #b8794a } .s { fill: #b8794a } }</style>
+<path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z" stroke-width="1.25" stroke-linejoin="miter"/>
+<path class="s" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/>
+</svg>

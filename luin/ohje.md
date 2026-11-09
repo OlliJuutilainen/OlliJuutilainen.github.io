@@ -41,6 +41,7 @@ Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.
 - `luin/md.js` – Markdown-jäsennin ja suomen tavutus. Yhteinen lukijalle ja Latomolle.
 - `luin/latomo.html` – generaattori: tarkistaa tekstin, täydentää lähdetiedot etukenttään ja siirtää tekstin Luiniin tai antaa sen ladattavaksi (luku 7).
 - `luin/lisaosa/` – Lisää lukimeen -selainlisäosa (luku 7.5).
+- `luin/kuvakkeet/` – Luinin sivujen välilehti- ja kotivalikkokuvake: lisäosan salmiakki. Tuottaa `luin/kehitys/lisaosa-kuvakkeet.js` yhdessä lisäosan kuvakkeiden kanssa.
 - `luin/latomo-ohje.html` – Latomon ohje kirjoittajalle, myös MarkDownload-asetukset (luku 7.4).
 - `luin/fontit/` – Literata (OFL), kevennetty: paino 380–700 ja optinen koko 10–36. Noin 83 kt leikkausta kohti.
 - `luin/kehitys/logo.js` – logon generaattori. `node luin/kehitys/logo.js` tulostaa SVG:n, joka on kopioitu luin.html:ään ja Latomoon.
