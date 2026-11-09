@@ -350,9 +350,13 @@ leikattu: {date:YYYY-MM-DD}
   <h2 id="postilaatikko">Coneelta Cännycälle</h2>
   <p><span class="ui">Coneelta Cännycälle</span> siirtää tekstin esimerkiksi Macin Latomosta kännykän Luiniin ilman linkkejä.
     Teksti kulkee postilaatikon kautta. Laatikon koodi on sen avain: kuka tahansa koodin tietävä voi lukea laatikon tekstit
-    ja lähettää laatikkoon. Siksi koodi arvotaan napilla <span class="ui">Arvo</span> niin pitkäksi, ettei sitä voi arvata.</p>
+    ja lähettää laatikkoon. Koodissa on oltava vähintään 24 merkkiä (enintään 40), jotta sillä voi sekä lähettää että lukea.
+    Pelkät kirjaimet riittävät, isoja ja pieniä kirjaimia ei erotella, ja välilyönnit ja välimerkit jätetään pois (ä ja ö
+    luetaan a:ksi ja o:ksi). Hyvä koodi on pitkä ja erikoinen lause, jonka muistat, ilman välejä: ”Torikaffeilla on
+    hemmetin mukavaa.” → <i>torikaffeillaonhemmetinmukavaa</i>. Napilla <span class="ui">Arvo</span> saa arvotun koodin,
+    jota ei voi arvata. Sama ohje on kentän vieressä ?-napin takana.</p>
   <ol>
-    <li>Paina <span class="ui">Coneelta Cännycälle</span> ja <span class="ui">Arvo</span>.</li>
+    <li>Paina <span class="ui">Coneelta Cännycälle</span> ja kirjoita laatikon koodi tai paina <span class="ui">Arvo</span>.</li>
     <li>Avaa laatikon linkki kerran kännykässä (<span class="ui">Kopioi linkki</span>, ja vie se kännykkään esimerkiksi
       viestinä), tai anna koodi kännykän Luinissa lukulistan alla olevaan kenttään ja paina <span class="ui">Lisää</span>.</li>
     <li>Paina <span class="ui">Lähetä kännykälle</span>. Tämä selain muistaa koodin, joten jatkossa pelkkä
@@ -361,8 +365,11 @@ leikattu: {date:YYYY-MM-DD}
   <p>Teksti tulee kännykän lukulistaan itsestään, kun lukulista avataan. Laatikko säilyttää tekstin 30 päivää;
     lukulaitteessa se säilyy, kunnes poistat sen lukulistasta. Saman otsikon uusi lähetys korvaa vanhan version, ja merkinnät
     säilyvät. Lukulistasta poistettu teksti ei palaa, ellei sitä lähetetä uudelleen.</p>
-  <p>Lyhyellä itse keksityllä koodilla laatikkoa voi vain lukea, koska koodin voisi arvata. Silloin tekstin voi lähettää
-    Päätteen komennolla (<span class="ui">Komento Päätteeseen</span>).</p>
+  <p>Jos tämän selaimen Luinissa on tekstille merkintöjä, koodin alle tulee <span class="ui">Lähetä myös merkinnät</span>
+    lajeineen (alleviivaukset, kirjaukset, kirjanmerkit, edistymisen tilanne). Valittuna ne lähtevät tekstin perässä, ja
+    kännykän Luin yhdistää ne omiinsa: kännykässä tehdyt merkinnät eivät katoa. Valinnan oletus on Luinin asetuksista.</p>
+  <p>Lisää lukimeen -lisäosassa sama käy valinnalla <span class="ui">Lähetä postina</span>: leike lähtee laatikkoon ja
+    avautuu myös tämän selaimen Luinissa, ellei <span class="ui">Älä avaa nyt</span> ole valittuna.</p>
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 <script>

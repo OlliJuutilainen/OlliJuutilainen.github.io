@@ -30,6 +30,23 @@
   :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
   #tila { color: var(--harmaa); font-size: .86rem; margin: 10px 0 0; }
   #tila:empty { display: none; }
+  /* Lähetä postina (käyttäjän pyyntö 9.11.2026): valittuna aukeavat laatikon koodi ?-ohjeineen ja Älä avaa nyt. */
+  .posti { margin: -6px 0 12px 26px; }
+  .koodi { display: flex; gap: 4px; align-items: center; }
+  input[type="text"] { flex: 1 1 auto; min-width: 0; font: inherit; font-size: .92rem; color: inherit; background: var(--paperi);
+    border: 1px solid var(--muste); border-radius: 0; padding: 6px 8px; min-height: 36px; }
+  button.kysy { flex: 0 0 auto; border: 0; padding: 0; width: 36px; min-height: 36px; color: var(--harmaa); display: inline-flex;
+    align-items: center; justify-content: center; }
+  button.kysy svg { width: 20px; height: 20px; }
+  button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  button.kysy text { fill: currentColor; font: 400 10.5px var(--antiikva); }
+  button.kysy[aria-expanded="true"] { color: var(--ruoste); }
+  .ohje { margin: 6px 0 0; padding: 0 10px; border: 1px solid var(--viiva); font-size: .8rem; line-height: 1.45; color: var(--harmaa); }
+  .ohje p { margin: 7px 0; }
+  .ohje b, .ohje i { color: var(--muste); }
+  #koodi-virhe { color: var(--harmaa); font-size: .8rem; margin: 4px 0 0; }
+  #koodi-virhe:empty { display: none; }
+  .posti label { margin: 6px 0 0; }
 </style>
 </head>
 <body>
@@ -37,6 +54,19 @@
   <h1 id="otsikko">Luetaan sivua…</h1>
   <p class="meta" id="meta"></p>
   <label id="valintarivi" hidden><input type="checkbox" id="valinta"> Vain valittu kohta</label>
+  <label><input type="checkbox" id="posti"> Lähetä postina</label>
+  <div class="posti" id="posti-osa" hidden>
+    <div class="koodi"><input type="text" id="koodi" aria-label="Laatikon koodi" placeholder="laatikon koodi" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Ohje: laatikon koodi"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><text x="10" y="13.6" text-anchor="middle">?</text></svg></button></div>
+    <div class="ohje" id="ohje" hidden>
+      <p>Laatikon koodissa on oltava <b>vähintään 24 merkkiä</b> (enintään 40), jotta sillä voi sekä lähettää että lukea. Pelkät kirjaimet riittävät.</p>
+      <p>Isoja ja pieniä kirjaimia ei erotella. Välilyönnit ja välimerkit jätetään pois, ja ä ja ö luetaan a:ksi ja o:ksi.</p>
+      <p>Vinkki: pitkä ja erikoinen lause, jonka muistat, ilman välejä. ”Torikaffeilla on hemmetin mukavaa.” → <i>torikaffeillaonhemmetinmukavaa</i></p>
+      <p>Koodi on laatikon avain: sen tietävä voi lukea laatikon tekstit ja lähettää laatikkoon.</p>
+    </div>
+    <p id="koodi-virhe"></p>
+    <label><input type="checkbox" id="ala-avaa"> Älä avaa nyt</label>
+  </div>
   <div class="napit">
     <button type="button" class="paa" id="lukimeen" disabled>Lisää lukimeen</button>
     <button type="button" id="latomoon" disabled>Avaa Latomossa</button>
