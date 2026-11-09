@@ -22,12 +22,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   päätös: pois julkisivusta, ei piiloteta repossa).
 - `luin/lisaosa/` (*Lisää lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
-  jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Leikkeen muoto on Latomon ohjeen suositeltu MarkDownload-muoto
-  korvamerkkeineen, jotta Latomon MarkDownload-tila siivoaa sen; muuta niitä yhdessä. Haetut alaviitteet
+  jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
+  leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026).
-  Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5): manifestin `description` enintään 132 merkkiä, ja kaupan
+  Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu viiteen sivuun (luin.html, Latomo, Latomon ohje,
@@ -237,9 +237,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   Kaunokirjallisen tekstin `teos`-kenttä on *Kokoelma* (käyttäjän sateenvarjosana, ei *novellikokoelma*).
 - Ehdotukset muuttavat tekstikenttää vain napista. Myös luurangotus (`luuranko()`, opas 7.1): hyvin merkitty teksti ei saa
   rakenne-ehdotusta (tutkielma, opas; `md-testi.js` tarkistaa).
-- MarkDownload-tila on **aina pois sivua avattaessa** (valintaa ei muisteta), ja sen rivi on piilossa, ellei
-  etukentässä ole korvamerkkiä `leikattu:` tai tila ole päällä. Latomon ohjeen MarkDownload-osio antaa suosituksen,
-  ei oletusarvoja (opas 7.4).
+- **Latomossa ei ole MarkDownload-tilaa** (käyttäjän päätös 9.11.2026, kun lisäosa pääsi Chrome Web Storeen): ei
+  kytkintä, ehdotusta, Excerpt-, validateUri- eikä leikkeen loppurivien käsittelyä. Leike siivotaan vain korvamerkistä.
+  Latomon ohjeen ja kehittäjän oppaan MarkDownload-osiot ovat vanhentuneita; käyttäjä ei halua niitä nyt korjattavan.
 - **Postilaatikko** (opas 2.2): *Lähetä postilaatikkoon* tulostaa `wrangler@3.114.17`-komennon, ja Luin hakee tekstit
   workerin reitiltä `/api/luin`. Laatikon koodi on salasana: sitä ei kirjoiteta repoon. Reitti vaatii, että
   `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
@@ -253,7 +253,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/testi.js teksti.md [kuvakansio]`: lukija selaimessa (esim. tutkielmalla
   ja oppaalla). Sivun testikoukku on `window.__luin`.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]`: lisäosa Chromiumissa artikkelista
-  lukulistaan. `luin/kehitys/vertaa-markdownload.js sivu.html osoite`: lisäosa vs. MarkDownload Latomon läpi.
+  lukulistaan.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.

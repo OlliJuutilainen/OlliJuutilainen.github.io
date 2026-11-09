@@ -18,12 +18,12 @@
     toimittajat, vuosikerran ja sivut. Kaikki on vapaaehtoista, otsikko riittää. Kaunokirjallisella teos on
     Kokoelma; se ja blogin nimi näkyvät Luinissa alaotsikon paikalla (md.js, kehys).
   - Kentät esitäytetään tekstistä ja etukentästä. Etukenttään kirjoitetaan vain se, mikä poikkeaa
-    tekstistä päätellystä, joten MarkDownload-leikkeen voi tallentaa sellaisenaan.
+    tekstistä päätellystä, joten verkkoleikkeen voi tallentaa sellaisenaan.
   - Lähdeviite kootaan kentistä (LuinMD.kokoaViite); oma viite ohittaa sen. HTML-version
     lukutietoja ei lisätä viitteeseen: lukija voi lisätä ne jakovalikosta ehdotuksena.
-  - MarkDownload-tila (Firefoxin lisäosa) siivoaa leikkeen jäänteet ja lukee haku- ja
-    lähdetiedot leikkeen lopusta. Siivous ei muuta tekstikenttää, vain tuloksen. Kytkin näkyy vain, kun
-    etukentässä on korvamerkki leikattu: (ohjeen pohja) tai tila on päällä (käyttäjän päätös 27.10.2026).
+  - Lisää lukimeen -lisäosan leike (korvamerkki leikattu: etukentässä) siivotaan jäänteistä. Siivous ei muuta
+    tekstikenttää, vain tuloksen. MarkDownload-tila kytkimineen poistettiin 9.11.2026 (käyttäjän pyyntö), kun
+    lisäosa pääsi Chrome Web Storeen.
   - Ehdotukset muuttavat tekstikenttää vain napista.
 -->
 <style>
@@ -87,20 +87,19 @@
   /* Pois päältä teksti himmeämpi salmiakin tyhjyyden lisäksi, samoin viereinen ohjelinkki;
      päällä teksti musteella ja linkki ruosteella kuten muut linkit. */
   .kytkin[aria-pressed="false"] { color: var(--harmaa); }
-  .kytkin[aria-pressed="true"] + a.pieni { color: var(--ruoste); }
-  /* MarkDownload on ehdollinen lisä (käyttäjän päätös 23.10.2026): sisennetty ja himmeä, ehtolause edessä, ja kytkin
-     kehystettynä ja isommalla salmiakilla, jotta sen tunnistaa napiksi eikä luettelomerkiksi. Aina pois sivua avattaessa. */
+  /* Ehdollinen lisä (annotaatiot): sisennetty ja himmeä, ehtolause edessä, ja kytkin kehystettynä ja isommalla
+     salmiakilla, jotta sen tunnistaa napiksi eikä luettelomerkiksi. */
   .ehdollinen { margin: 10px 0 0 14px; padding-left: 12px; border-left: 1px solid var(--viiva); gap: 4px 10px; }
   .ehdollinen .jos { font-size: .8rem; font-style: italic; color: var(--harmaa); }
   .ehdollinen button.kytkin { border: 1px solid var(--viiva); padding: 0 10px 0 8px; min-height: 30px; font-size: .8rem; }
   .ehdollinen .kytkin[aria-pressed="true"] { border-color: var(--muste); }
   .ehdollinen .kytkin svg { width: 11px; height: 15px; }
   .ehdollinen .kytkin .sal-ulko { stroke-width: 1.1; }
-  /* MarkDownload-rivi on pelkkä kytkin ja pieni i-salmiakki ohjeeseen (käyttäjän päätös 27.10.2026: tietäville). */
-  a.ohje-i { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 30px; color: var(--harmaa); }
-  a.ohje-i svg { width: 12px; height: 12px; }
-  a.ohje-i .kehys { fill: none; stroke: currentColor; stroke-width: 1.4; }
-  .kytkin[aria-pressed="true"] + a.ohje-i, a.ohje-i:hover { color: var(--ruoste); }
+  /* Lisää lukimeen -lisäosan linkki kuvakkeineen johdannon alla (käyttäjän pyyntö 9.11.2026). */
+  a.lisaosa { display: flex; align-items: center; gap: 14px; margin: -8px 0 22px; text-decoration: none; color: inherit; }
+  a.lisaosa img { flex: 0 0 auto; width: 40px; height: 40px; }
+  a.lisaosa .nimi { color: var(--ruoste); text-decoration: underline; text-underline-offset: 3px; }
+  a.lisaosa .mika { display: block; font-size: .82rem; color: var(--harmaa); line-height: 1.5; }
   .tarkistus { margin-top: 24px; border-top: 1px solid var(--viiva); }
   .tiedot { margin: 14px 0 0; }
   .tiedot .nimi { font-size: 1.15rem; letter-spacing: .04em; }
@@ -192,6 +191,7 @@
   <h1>Latomo</h1>
   <p class="johdanto">Latoo Markdown-tekstin luettavaksi Luinissa. Kaikki tapahtuu tässä selaimessa;
     mitään ei lähetetä verkkoon. <a href="latomo-ohje.html">Ohje</a>.</p>
+  <a class="lisaosa" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><span class="nimi">Lisää lukimeen</span><span class="mika">Selainlisäosa Chromeen: leikkaa verkkoartikkelin Latomoon.</span></span></a>
 
   <label class="otsake" for="md">Teksti</label>
   <textarea id="md" spellcheck="false" placeholder="# Otsikko&#10;&#10;*Alaotsikko*&#10;&#10;Tekijä&#10;&#10;## 1. Johdanto&#10;&#10;Tekstiä.[^Alaviite.]&#10;&#10;Pelkkä teksti käy myös: otsikon ja muut tiedot voi antaa alla."></textarea>
@@ -208,15 +208,11 @@
       <button type="button" class="pieni-nappi ala" id="tyhjenna-ei">älä!</button>
     </div>
   </div>
-  <div class="rivi ehdollinen" id="mdl-rivi" hidden>
-    <button type="button" class="kytkin" id="mdl" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>MarkDownload-leike</button>
-    <a class="ohje-i" href="latomo-ohje.html#markdownload" aria-label="Ohje: MarkDownload" title="Ohje"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></a>
-  </div>
   <div class="rivi ehdollinen" id="ann-rivi" hidden>
     <span class="jos">Teksti sisältää iA Writerin annotaatiot (tekijyysmerkinnät)</span>
     <button type="button" class="kytkin" id="ann" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>Piilota annotaatiot</button>
   </div>
-  <p class="pieni" id="mdl-tila" hidden></p>
+  <p class="pieni" id="leike-tila" hidden></p>
 
   <section class="tarkistus" id="tarkistus" hidden>
     <div class="tiedot" id="tiedot"></div>
@@ -355,12 +351,11 @@
   var tila;
   function alusta() {
     tila = { arvot: {}, koskettu: {}, lisatyt: {}, tyyppi: '', tyyppiKoskettu: false, tarkkuus: 2, tarkkuusKoskettu: false,
-      oma: null, omaKoskettu: false, muokkaa: false, ohitettu: {}, mdlPois: false };
+      oma: null, omaKoskettu: false, muokkaa: false, ohitettu: {} };
   }
   alusta();
-  var nimi = '', mdl = false, mdlNyt = false, ann = false;
-  // MarkDownload-tila on aina pois sivua avattaessa (käyttäjän päätös 23.10.2026); valintaa ei muisteta.
-  // mdl on käyttäjän valinta tekstille ilman korvamerkkiä, mdlNyt voimassa oleva tila (lahde()).
+  var nimi = '', leike = false, ann = false;
+  // leike: tekstikentässä on lisäosan leike (korvamerkki), joten tulos siivotaan (lahde()).
 
   function koodi() { return KOODI[tila.tyyppi] || 'e'; }
   function tyypin(f) { return (f.tyypille && f.tyypille[koodi()]) || f; }
@@ -392,23 +387,11 @@
   }
   rakennaKentat();
 
-  /* ---------- MarkDownload ----------
-     Leikkeen jäänteet pois tuloksesta (rivimäärä säilyy, joten huomautusten rivinumerot pätevät tekstikenttään):
-     pelkät **-rivit, pelkkää HTML:ää olevat rivit (upotukset), oletuspohjan Excerpt-lainaus erottimineen ja
-     tyhjät linkit; <sup>/<sub> iA Writerin muotoon (siivoaRivi). Leikkeen lopusta luetaan haku- ja lähdetiedot (Tallennettu: …, Lähde: …), joita ei poisteta. */
-  var RE_HAETTU = /^(?:tallennettu|haettu|luettu|leikattu|saved|clipped|retrieved|created)\s*:\s*(.+?)[\s\\]*$/i;
-  var RE_LAHDE = /^(?:lähde|source|url|osoite|alkuperäinen)\s*:\s*<?(https?:\/\/[^\s>]+?)>?[\s\\]*$/i;
-  function takaosa(src) {
-    // Vain rungosta: lyhyessä leikkeessä viimeiset kuusi riviä ulottuisivat muuten etukenttään.
-    var r = L.etukentta(src).body.split('\n').filter(function (l) { return l.trim(); }).slice(-6), t = {};
-    r.forEach(function (l) {
-      var m = RE_HAETTU.exec(l.trim()), u = RE_LAHDE.exec(l.trim());
-      if (m && L.pvm(m[1])) t.haettu = m[1];
-      if (u) t['lähde'] = u[1];
-    });
-    return t;
-  }
-  // Rivin sisällä: Strip Images jättää linkitetystä kuvasta tyhjän linkin ([](…), [][4]), ja MarkDownload säilyttää
+  /* ---------- verkkoleike ----------
+     Lisää lukimeen -leikkeen jäänteet pois tuloksesta (rivimäärä säilyy, joten huomautusten rivinumerot pätevät
+     tekstikenttään): pelkät **-rivit, pelkkää HTML:ää olevat rivit (upotukset) ja tyhjät linkit; <sup>/<sub> iA Writerin
+     muotoon (siivoaRivi) ja otsikkoriviton HTML-taulukko Markdowniksi (taulukko). */
+  // Rivin sisällä: kuvan poisto jättää linkitetystä kuvasta tyhjän linkin ([](…), [][4]), ja leike säilyttää
   // <sup>/<sub>-merkinnät HTML:nä (sivun omat alaviitemerkit). Ne muutetaan iA Writerin ^…^- ja ~…~-muotoon, jos
   // sisällössä ei ole välilyöntejä eikä muuta HTML:ää; linkki leikkeen omaan sivuun (#fn1) jää pelkäksi tekstiksi.
   // Reunojen välilyönnit eivät estä muuntoa (SEP: 7</a>] </sup>); välilyönti jää merkin ulkopuolelle, jos sen perässä ei
@@ -426,7 +409,7 @@
       return (ennen && !/\s/.test(koko[kohta - 1] || ' ') ? ' ' : '') + m + s + m + (jalkeen && !/\s/.test(seur || ' ') ? ' ' : '');
     });
   }
-  // MarkDownload jättää otsikkorivittömän taulukon yhdeksi HTML-riviksi (lainauksessa > <table>). Yksinkertainen
+  // Turndown (GFM) jättää otsikkorivittömän taulukon yhdeksi HTML-riviksi (lainauksessa > <table>). Yksinkertainen
   // taulukko (ei yhdistettyjä soluja eikä muuta HTML:ää kuin lihavointi, kursiivi, linkki, kuva ja rivinvaihto)
   // muutetaan Markdown-taulukoksi, jonka ensimmäinen rivi on otsikkorivi. Kuvat jätetään pois (Luin ei näytä kuvia), ja
   // pelkkien kuvien sarake putoaa; yhden sarakkeen taulukosta tulee kappaleita (SEP:n Academic Tools: kuvake ja linkki).
@@ -470,43 +453,19 @@
     md.splice(1, 0, alku + '|' + new Array(kaytossa.length + 1).join(' --- |'));
     return md;
   }
-  // MarkDownload (3.4.0, validateUri) liittää suhteellisen osoitteen sivun osoitteen perään: kauttaviivaan päättyvän
-  // perään tulee toinen kauttaviiva (dewey//notes.html, dewey//../addams-jane/), muuten osoite liimautuu suoraan
-  // (kirjoitus.htmlnotes.html), eikä ../-osia ratkaista. Lähteen alkuiset osoitteet ratkaistaan uudelleen lähteestä.
-  function korjaaOsoitteet(l, lahdeU, tehty) {
-    if (l.indexOf(lahdeU) < 0) return l;
-    // Ilman kauttaviivaa vain tiedostonimeen päättyvä lähde (kirjoitus.html): blog + -archive on oikea osoite.
-    var kansio = /\/$/.test(lahdeU);
-    if (!kansio && (/\?/.test(lahdeU) || !/\/[^\/]*\.[a-z0-9]+$/i.test(lahdeU))) return l;
-    var re = new RegExp(lahdeU.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^\\s)"<>\\]]*)', 'g');
-    return l.replace(re, function (k, r) {
-      var rel = kansio ? (r[0] === '/' ? r.slice(1) : null) : (r && !/^[#?\/]/.test(r) ? r : null);
-      if (rel == null) return k;
-      try { tehty.osoite++; return new URL(rel, lahdeU).href; } catch (e) { tehty.osoite--; return k; }
-    });
-  }
   function siivoa(src) {
-    var r = src.split('\n'), tehty = { korostus: 0, html: 0, ote: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0, osoite: 0 }, aita = false, ote = false;
-    var tau = {}, ed1 = null, lahdeU = String(L.etukentta(src).meta['lähde'] || '').trim().split('#')[0];
-    if (!/^https?:\/\/[^\/]+\//.test(lahdeU)) lahdeU = '';
-    var oma = (L.etukentta(src).meta['lähde'] || takaosa(src)['lähde'] || '').split('#')[0].replace(/\/$/, '');
+    var r = src.split('\n'), tehty = { korostus: 0, html: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0 }, aita = false;
+    var tau = {}, ed1 = null;
+    var oma = String(L.etukentta(src).meta['lähde'] || '').trim().split('#')[0].replace(/\/$/, '');
     for (var i = 0; i < r.length; i++) {
       var l = r[i];
       if (/^ {0,3}(```|~~~)/.test(l)) { aita = !aita; continue; }
       if (aita) continue;
-      if (lahdeU) l = r[i] = korjaaOsoitteet(l, lahdeU, tehty);
-      if (!ote && /[\[<]/.test(l)) {
+      if (/[\[<]/.test(l)) {
         var ennen = l;
         l = r[i] = siivoaRivi(l, oma, tehty);
         if (!l.trim() && ennen.trim()) continue;
       }
-      if (ote) {
-        if (/^\s*>/.test(l)) { r[i] = ''; continue; }
-        if (!l.trim()) continue;
-        if (/^ {0,3}([-*_])( *\1){2,} *$/.test(l)) r[i] = '';
-        ote = false; continue;
-      }
-      if (/^\s*>\s*#{1,6}\s*Excerpt\s*$/i.test(l)) { r[i] = ''; ote = true; tehty.ote++; continue; }
       if (/^\s*(\*\*|__)\s*$/.test(l)) { r[i] = ''; tehty.korostus++; continue; }
       // Valinnan leike: pohjan # {pageTitle} ja valinnan oma pääotsikko peräkkäin.
       var h1 = /^#\s+(.+?)\s*#*\s*$/.exec(l);
@@ -529,20 +488,13 @@
   }
   // Tuloksen rivinumero tekstikentän riviksi.
   function rivi(ln) { return siivous && siivous.kartta[ln - 1] || ln; }
-  // Korvamerkki (käyttäjän päätös 27.10.2026): ohjeen pohjan etukenttäavain leikattu (tallennusaika). Se kytkee tilan
-  // päälle, ellei käyttäjä ole kytkenyt sitä tältä tekstiltä pois. Tulokseen avain menee nimellä haettu (md.js ALIAS),
-  // joten valmiissa tekstissä merkkiä ei enää ole.
+  // Korvamerkki (käyttäjän päätös 27.10.2026): lisäosan etukenttäavain leikattu (tallennusaika) kytkee siivouksen.
+  // Tulokseen avain menee nimellä haettu (md.js ALIAS), joten valmiissa tekstissä merkkiä ei enää ole.
   function merkitty(src) { return L.etukentta(src).raaka.leikattu != null; }
-  // Ilman korvamerkkiä: MarkDownloadin oletuspohja tai leikkeen jäänteet. Suositellun pohjan vanhaa muotoa (lähde +
-  // haettu: VVVV-KK-PP) ei enää tunnisteta, koska Latomon oma tulos on samanlainen ja on jo siivottu.
-  function naytteeltaMdl(src) {
-    var ek = L.etukentta(src).raaka;
-    return !!(ek.source && (ek.created || ek.author)) || /^\s*>\s*#{1,6}\s*Excerpt\s*$/im.test(src) || !!takaosa(src)['lähde'];
-  }
   // Blogin etusivu tai listaus: lähde on pelkkä sivuston osoite ja tekstissä on vähintään kolme samalle sivustolle
   // linkitettyä väliotsikkoa (### [Otsikko][1]), eli kokonaisia kirjoituksia ei ole leikattu erikseen.
   function naytteeltaEtusivulta(src) {
-    var ek = L.etukentta(src), u = ek.raaka['lähde'] || ek.raaka.source || takaosa(src)['lähde'] || '', host;
+    var ek = L.etukentta(src), u = ek.raaka['lähde'] || ek.raaka.source || '', host;
     try { var a = new URL(String(u).trim()); if (a.pathname.replace(/\/+$/, '')) return false; host = a.host; } catch (e) { return false; }
     var def = {};
     ek.body.split('\n').forEach(function (l) { var m = /^\[([^\]]+)\]:\s*(\S+)/.exec(l); if (m) def[m[1]] = m[2]; });
@@ -567,13 +519,13 @@
     }
     return { src: n ? r.join('\n') : src, n: n };
   }
-  // Tulokseen menevä teksti: tekstikenttä, MarkDownload-tilassa siivottuna.
+  // Tulokseen menevä teksti: tekstikenttä, leikkeenä siivottuna.
   var siivous = null;
   function lahde() {
     var src = md.value;
     if (ann) src = poistaAnnotaatiot(src).src;
-    mdlNyt = merkitty(md.value) ? !tila.mdlPois : mdl;
-    if (!mdlNyt) { siivous = null; return src; }
+    leike = merkitty(md.value);
+    if (!leike) { siivous = null; return src; }
     siivous = siivoa(src);
     return siivous.src;
   }
@@ -622,18 +574,18 @@
     try { return SIVUSTOT[new URL(String(u).trim()).hostname.replace(/^www\./, '')] || ''; } catch (e) { return ''; }
   }
   function esitayta(d, src) {
-    var t = d.tiedot, ta = mdlNyt ? takaosa(src) : {};
-    if (!tila.tyyppiKoskettu) tila.tyyppi = t.tyyppi || (mdlNyt ? 'blogi' : '');
+    var t = d.tiedot;
+    if (!tila.tyyppiKoskettu) tila.tyyppi = t.tyyppi || (leike ? 'blogi' : '');
     KENTAT.forEach(function (f) {
       if (tila.koskettu[f.k]) return;
-      var v = t[f.k] || ta[f.k] || '';
-      if (f.k === 'sivusto' && !v) v = tunnettuSivusto(t['lähde'] || ta['lähde']);
-      if (f.k === 'tekijä' && mdlNyt) v = v.replace(/^(by|kirjoittanut|teksti:)\s+/i, '');
+      var v = t[f.k] || '';
+      if (f.k === 'sivusto' && !v) v = tunnettuSivusto(t['lähde']);
+      if (f.k === 'tekijä' && leike) v = v.replace(/^(by|kirjoittanut|teksti:)\s+/i, '');
       if (f.pvm && v) { var p = L.pvm(v); if (p) v = L.pvmMuoto(p, 'kentta', f.k === 'haettu' ? 3 : 4); }
       tila.arvot[f.k] = v;
     });
     // Julkaisuajan tarkkuus: itse kirjoitettu ja tekstissä tai etukentässä ilmoitettu sellaisenaan, koneen
-    // aikaleima (2026-10-08T07:30, MarkDownload) tyypin oletuksella (blogissa kuukausi).
+    // aikaleima (2026-10-08T07:30, leike) tyypin oletuksella (blogissa kuukausi).
     if (!tila.tarkkuusKoskettu) {
       var lv = tila.koskettu.julkaistu ? tila.arvot.julkaistu : t.julkaistu, p = L.pvm(lv);
       tila.tarkkuus = !p ? OLETUS_T[koodi()] : !tila.koskettu.julkaistu && /\dT\d/.test(lv) ? Math.min(p.t, OLETUS_T[koodi()]) : p.t;
@@ -712,7 +664,7 @@
     naytaTyhjennys();
     if (!md.value.trim()) {
       $('#tarkistus').hidden = $('#tiedot-osio').hidden = $('#rakenne-osio').hidden = true;
-      $('#mdl-tila').hidden = $('#mdl-rivi').hidden = $('#ann-rivi').hidden = true; d = tulos = null; return;
+      $('#leike-tila').hidden = $('#ann-rivi').hidden = true; d = tulos = null; return;
     }
     d = L.parse(src);
     esitayta(d, src);
@@ -742,11 +694,10 @@
     $('#luvut').textContent = osat.join(' · ') + (tulos.lisatty ? ' · otsikko lisätään tekstin alkuun' : '');
     naytaEhdotukset(src);
     $('#varoitukset').innerHTML = d.warnings.length ? '<div class="varoitukset">' + d.warnings.map(function (w) {
-      // Puuttuva luvun otsikko: neuvo, mihin se lisätään; MarkDownload-leikkeessä myös syy (Readability poistaa otsikon).
+      // Puuttuva luvun otsikko: neuvo, mihin se lisätään; leikkeessä myös syy (Readability poistaa otsikon).
       var neuvo = w.puuttuu ? ' Lisää se ' + '#'.repeat(w.taso) + '-rivinä ennen riviä ' + rivi(w.ln) + '.' : '';
-      if (w.puuttuu && mdlNyt) neuvo += ' MarkDownload jättää joskus luvun otsikon pois.';
-      return '<p>' + (w.ln ? '<span class="ln">rivi ' + rivi(w.ln) + '</span>' : '') + esc(w.msg + neuvo) +
-        (w.puuttuu && mdlNyt ? ' <a href="latomo-ohje.html#otsikko-puuttuu" target="_blank" rel="noopener">Miksi?</a>' : '') + '</p>';
+      if (w.puuttuu && leike) neuvo += ' Verkkoleikkeestä jää joskus luvun otsikko pois.';
+      return '<p>' + (w.ln ? '<span class="ln">rivi ' + rivi(w.ln) + '</span>' : '') + esc(w.msg + neuvo) + '</p>';
     }).join('') + '</div>' : '<p class="ok">Ei huomautettavaa.</p>';
     $('#rakenne').innerHTML = d.toc.map(function (t) {
       return '<li class="t' + t.lvl + '"><svg viewBox="0 0 10 12"><path class="j' + t.lvl + '" d="' + MERKKI[t.lvl] + '"/></svg>' + esc(t.text) +
@@ -763,7 +714,7 @@
     }).join(' · ') + '.' : '') + (km.length ? (tu.length ? ' ' : '') + 'Kappaleiden kohtamerkit: ' + km.length + ' (' + esc(km[0].s) +
       (km.length > 1 ? ' … ' + esc(km[km.length - 1].s) : '') + '): paikannin tarkentuu kappaleeseen.' : '');
     $('#lahteet').innerHTML = lahteet(d.viittaukset);
-    naytaMdl(src);
+    naytaLeike();
     naytaAnn();
     naytaViite();
   }
@@ -776,27 +727,19 @@
     $('#ann').setAttribute('aria-pressed', String(on && ann));
   }
 
-  function naytaMdl(src) {
-    var b = $('#mdl'), t = $('#mdl-tila');
-    b.setAttribute('aria-pressed', String(mdlNyt));
-    // Rivi näkyy korvamerkillä tai päällä ollessaan (ehdotuksesta päälle kytketyn saa pois).
-    $('#mdl-rivi').hidden = !(mdlNyt || merkitty(md.value));
-    if (!mdlNyt || !siivous) { t.hidden = true; return; }
+  function naytaLeike() {
+    var t = $('#leike-tila');
+    if (!leike || !siivous) { t.hidden = true; return; }
     var s = siivous.tehty, o = [];
     if (s.korostus) o.push(s.korostus + (s.korostus > 1 ? ' tyhjää korostusta' : ' tyhjä korostus'));
     if (s.html) o.push(s.html + ' HTML-' + (s.html > 1 ? 'riviä' : 'rivi'));
-    if (s.ote) o.push('Excerpt-lainaus');
     if (s.otsikko) o.push('toistunut pääotsikko');
     if (s.tyhja) o.push(s.tyhja + (s.tyhja > 1 ? ' tyhjää linkkiä' : ' tyhjä linkki'));
-    var ta = takaosa(src), lu = [];
-    if (ta.haettu) lu.push('haettu ' + L.pvmMuoto(L.pvm(ta.haettu), 'meta', 3));
-    if (ta['lähde']) { try { lu.push('lähde ' + new URL(ta['lähde']).hostname); } catch (e) {} }
     var mu = [];
     if (s.indeksi) mu.push(s.indeksi + ' HTML-' + (s.indeksi > 1 ? 'indeksiä' : 'indeksi'));
     if (s.taulukko) mu.push(s.taulukko + ' HTML-' + (s.taulukko > 1 ? 'taulukkoa' : 'taulukko'));
-    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length || s.osoite ? '' : 'Ei siivottavaa. ') +
-      (mu.length ? mu.join(' ja ') + ' Markdowniksi. ' : '') +
-      (s.osoite ? 'Korjattu ' + s.osoite + (s.osoite > 1 ? ' sivun omaa linkkiä' : ' sivun oma linkki') + '. ' : '') + (lu.length ? 'Leikkeen lopusta: ' + lu.join(', ') + '.' : '');
+    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length ? '' : 'Ei siivottavaa. ') +
+      (mu.length ? mu.join(' ja ') + ' Markdowniksi.' : '');
     t.hidden = false;
   }
 
@@ -987,7 +930,6 @@
   function naytaEhdotukset(src) {
     ehdotukset = [];
     var raw = md.value;
-    if (!mdlNyt && !merkitty(raw) && naytteeltaMdl(raw)) ehdotukset.push({ t: 'Teksti näyttää MarkDownload-leikkeeltä.', napit: [['Käytä MarkDownload-tilaa', function () { asetaMdl(true); }]] });
     if (!tila.ohitettu.etusivu && naytteeltaEtusivulta(raw)) ehdotukset.push({ t: 'Teksti näyttää blogin etusivulta tai listaukselta: siinä on monta kirjoitusta, ja otsikko on blogin nimi. Avaa yksittäinen kirjoitus omalle sivulleen ja leikkaa se erikseen.',
       napit: [['Ohita', function () { tila.ohitettu.etusivu = true; }]] });
     var ots = yksi(tila.arvot.otsikko), sm = /^(.{8,}?)\s+[-–—|·•]\s+([^-–—|·•]{2,40})$/.exec(ots);
@@ -1090,16 +1032,10 @@
   $('#viite-kokoa').addEventListener('click', function () { tila.oma = null; tila.muokkaa = false; tila.omaKoskettu = true; paivita(); });
   osoite.addEventListener('input', function () { tila.osoiteKoskettu = true; myohemmin(150); });
 
-  function asetaMdl(on) {
-    if (merkitty(md.value)) tila.mdlPois = !on; else mdl = on;
-    paivita();
-  }
-  $('#mdl').addEventListener('click', function () { asetaMdl(!mdlNyt); });
   $('#ann').addEventListener('click', function () { ann = !ann; paivita(); });
 
   /* ---------- tyhjennys ----------
-     Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi; myös MarkDownload-tila palaa alkutilaan (rivi piiloon),
-     samoin korvamerkin kumoava pois-valinta (se kuuluu tekstille, alusta()).
+     Teksti, tiedot, oma viite, julkinen osoite ja tiedoston nimi.
      Vahvistus kysytään aina, koska tyhjennystä ei voi perua. */
   // Ilman tekstiä tiedot ja osoite ovat piilossa, joten nappi näkyy vain, kun tekstikentässä on jotain.
   function tyhjaa() { return !md.value.trim(); }
@@ -1118,7 +1054,7 @@
   $('#varmistus').addEventListener('keydown', function (e) { if (e.key === 'Escape') varmista(false); });
   $('#tyhjenna-kylla').addEventListener('click', function () {
     clearTimeout(ajastin);
-    alusta(); nimi = ''; mdl = false;
+    alusta(); nimi = '';
     ann = false;
     md.value = ''; osoite.value = ''; $('#viite').value = ''; $('#tiedosto').value = '';
     $('#tiedostonimi').textContent = 'tai pudota .md- tai .txt-tiedosto kenttään';
