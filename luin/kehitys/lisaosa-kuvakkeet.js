@@ -1,6 +1,6 @@
 // Luinin kuvakkeet: Lisää lukimeen -lisäosan logo eli Latomon kytkimen salmiakki (ulkoreuna ja täytetty sisus)
 // ruosteella. Samasta lähteestä syntyvät lisäosan kuvakkeet (luin/lisaosa/kuvakkeet/) ja Luinin sivujen välilehti- ja
-// kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png).
+// kotivalikkokuvakkeet sekä linkin esikatselukuva (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png, jako.png).
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-kuvakkeet.js
 const fs = require('fs');
 const path = require('path');
@@ -38,5 +38,7 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
   // Kotivalikko (apple-touch-icon, Androidin pikakuvake): paperitausta, koska iOS täyttää läpinäkyvän mustalla, ja
   // väljä reunus, koska kuvake pyöristetään tai rajataan; salmiakki on noin 60 % korkeudesta.
   await kuva(180, '-3.65 -1.85 15.3 15.3', .9, PAPERI, path.join(SIVUT, '180.png'));
+  // Linkin esikatselu (og:image; WhatsApp, Signal ym.): sama kuin kotivalikossa, mutta niin iso, että palvelut kelpuuttavat sen.
+  await kuva(600, '-3.65 -1.85 15.3 15.3', .9, PAPERI, path.join(SIVUT, 'jako.png'));
   await b.close();
 })();
