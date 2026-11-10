@@ -54,7 +54,7 @@ const SEP_SIVUT = {
 <div id="academic-tools"><h2 id="Aca">Academic Tools</h2><p>How to cite this entry.</p></div>
 <div id="other-internet-resources"><h2 id="Oth">Other Internet Resources</h2><ul><li><a href="https://example.org/dewey">Dewey-seura</a></li></ul></div>
 <div id="related-entries"><h2 id="Rel">Related Entries</h2><p><a href="../james/">James</a></p></div>
-</div></div></div></div></body></html>`,
+</div><div id="article-copyright"><p><a href="../../info.html#c">Copyright &copy; 2018</a> by <br><a href="https://example.org/">Maija Meikäläinen</a> &lt;<a href="mailto:m%40example.org"><em>m<abbr title=" at ">@</abbr>example.org</em></a>&gt;</p></div></div></div></div></body></html>`,
   [SEP + 'notes.html']: `<!doctype html><html><head><meta charset="utf-8"><title>Notes</title></head><body><div id="aueditable">
 <h2>Notes to <a href="index.html">Koe</a></h2>
 <div id="note-1"><p><a href="index.html#ref-1">1.</a> Ks. Dykhuizen 1973: 30–31.</p></div>
@@ -133,7 +133,8 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
 <li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="mw-reference-text reference-text"><a href="#CITEREFKirjoittaja2010">Kirjoittaja 2010</a>, s. 5. <a class="external text" href="https://esimerkki.test/lahde">Verkkolähde</a></span></li></ol></div>
 </section><section><div class="mw-heading mw-heading2"><h2 id="Kirjallisuutta">Kirjallisuutta</h2></div>
 <ul><li><cite id="CITEREFKirjoittaja2010">Kirjoittaja, Maija (2010). <i>Kirja</i>. Helsinki: Kustantaja.</cite></li></ul>
-</section><table class="navbox"><tr><td>Navigointilaatikko</td></tr></table></div></div></body></html>`;
+</section><table class="navbox"><tr><td>Navigointilaatikko</td></tr></table></div></div>
+<footer><ul><li id="footer-info-copyright">Teksti on saatavilla <a rel="nofollow" class="external text" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fi">Creative Commons Nimeä-JaaSamoin 4.0</a> -lisenssillä; lisäehtoja voi sisältyä. Katso käyttöehdot.</li></ul></footer></body></html>`;
 
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
@@ -314,6 +315,8 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
   tulos('SEP: alaviitteet haettu, paluulinkki pois, jatko sisennettynä', /Viittaus Deweyyn\.\[\^viite-1\] Toinen\.\[\^viite-2\]/.test(sr) &&
     /^\[\^viite-1\]: Ks\. Dykhuizen 1973: 30–31\.$/m.test(sr) && /^\[\^viite-2\]: Ensimmäinen kappale\.\n\n    Lainaus alaviitteessä\.\n\n    Jatko \[Jamesiin\]\(https:\/\/plato\.example\/entries\/james\/\)\.$/m.test(sr) && !/ref-1|ref-2/.test(sr),
     (sr.match(/^\[\^viite-[\s\S]*$/m) || ['ei määritelmiä'])[0].replace(/\n/g, ' | ').slice(0, 300));
+  tulos('SEP: tekijänoikeus etukenttään ilman sähköpostia', /^oikeudet: Copyright © 2018 by Maija Meikäläinen$/m.test(sr) && /^oikeudet-lähde: https:\/\/plato\.example\/info\.html#terms$/m.test(sr),
+    (sr.match(/^oikeudet.*$/gm) || []).join(' | '));
   tulos('SEP: puuttuva alaviite jää yläindeksiksi', /Kolmas\.\^\\\[\[3\]\(https:\/\/plato\.example\/entries\/koe\/notes\.html#note-3\)\\\]\^/.test(st.md) || /Kolmas\.\[\^viite-3\]/.test(st.md),
     (st.md.match(/Kolmas\..{0,80}/) || [''])[0]);
   await latomo3.close();
@@ -356,7 +359,9 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
   const lg = await latomo6.inputValue('#md');
   const lgL = await latomo6.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
     return { lahde: [...d.querySelectorAll('.sidenote a.lahde')].map(a => a.textContent + '>' + a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length,
-      meta: [...d.querySelectorAll('header .meta')].map(x => x.innerHTML) }; }, lg);
+      meta: [...d.querySelectorAll('header .meta')].map(x => x.innerHTML),
+      oik: [...d.querySelectorAll('h2, h3, h4')].slice(-3).map(h => h.tagName + ' ' + h.textContent).join(' | '),
+      oikP: d.querySelector('#tekijanoikeudet') && d.querySelector('#tekijanoikeudet').nextElementSibling ? d.querySelector('#tekijanoikeudet').nextElementSibling.className : 'ei' }; }, lg);
   await latomo6.close();
   tulos('Logos: etukenttä, tekijärivi ja otsikot, sisällys pois', /^tekijä: Maija Kirjoittaja\nsivusto: Ensyklopedia Logos\njulkaistu: 2018-05-05$/m.test(lg) &&
     /^# Koe, Artikkeli\n\nMaija Kirjoittaja {2}\nJulkaistu 5\.5\.2018\n\nJohdannon kappale/m.test(lg) && (lg.match(/^#+ .*$/gm) || []).join(' | ') === '# Koe, Artikkeli | ## Ensimmäinen luku | ### Pieni osio | ## Kirjallisuus | ### Ensyklopedia Logoksen artikkelit' &&
@@ -368,6 +373,10 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
     (lg.match(/### Ensyklopedia[\s\S]{0,200}/) || [''])[0].replace(/\n/g, ' | '));
   tulos('Logos Luinissa: alaviitteen tekijä–vuosi linkittyy luettelon kohtaan, otsikkolohkossa tekijä', lgL.lahde.length === 3 && lgL.lahde.every(x => x === 'Toinen 2015>#kirj-toinen-2015') &&
     lgL.bib === 2 && lgL.meta.join('|') === 'Maija Kirjoittaja<br>Julkaistu 5.5.2018', JSON.stringify(lgL));
+  // Tekijänoikeusmerkintä (10.11.2026): Logoksen ehto etukenttään, Luinissa kohtana kirjallisuusluettelon alla, ei p.bib.
+  tulos('Logos: tekijänoikeus etukenttään ja Luinissa kohtana kirjallisuuden alla', /^oikeudet: Tekijänoikeus on alkuperäisellä tekijällä, joka on luovuttanut Filosofia\.fi-portaalille luvan kertajulkaisuun\. Muusta julkaisemisesta on sovittava tekijän kanssa\.$/m.test(lg) &&
+    /^oikeudet-lähde: https:\/\/filosofia\.fi\/fi\/tekijanoikeudet-ja-filosofiafi$/m.test(lg) && lgL.oik === 'H2 Kirjallisuus | H3 Ensyklopedia Logoksen artikkelit | H4 Tekijänoikeudet' && lgL.oikP === '',
+    lgL.oik + ' / ' + lgL.oikP);
 
   // 10. Wikipedia (10.11.2026): siistitty, viitteet ja lähde? alaviitteinä, käännöshuomautus alaviitteenä, wikilinkit
   // tekstinä ja olemassa olevat artikkelit loppuun, tyhjä Lähteet pois, Kirjallisuutta kappaleina, ei tekijää.
@@ -376,7 +385,8 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
   const latomo7 = await paina('#latomoon', /latomo\.html$/);
   const wk = await latomo7.inputValue('#md');
   const wkL = await latomo7.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
-    return { sn: [...d.querySelectorAll('.sidenote')].map(x => x.textContent.replace(/­/g, '')), lahde: [...d.querySelectorAll('a.lahde')].map(a => a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length }; }, wk);
+    return { sn: [...d.querySelectorAll('.sidenote')].map(x => x.textContent.replace(/­/g, '')), lahde: [...d.querySelectorAll('a.lahde')].map(a => a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length,
+      oik: d.querySelector('#tekijanoikeudet') ? d.querySelector('#tekijanoikeudet').tagName + ' ' + [...d.querySelectorAll('#tekijanoikeudet ~ p')].map(p => p.textContent.replace(/\u00ad/g, '')).join(' | ') : 'ei' }; }, wk);
   await latomo7.close();
   tulos('Wikipedia: etukenttä ilman tekijää, muokkauspäivä, sivusto Wikipedia', /^---\nsivusto: Wikipedia\njulkaistu: 2026-10-24\nlähde: https:\/\/fi\.wikipedia\.org\/wiki\/Koeartikkeli\n/.test(wk) && !/^tekijä:/m.test(wk),
     wk.split('\n').slice(0, 6).join(' | '));
@@ -392,6 +402,8 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
     /^## Wikipedia-artikkelit\n\n- +\[Koehistoria\]\[\d+\]\n- +\[Pallo\]\[\d+\]\n*\n\[/m.test(wk) && /^\[\d+\]: https:\/\/fi\.wikipedia\.org\/wiki\/Pallo$/m.test(wk) &&
     !/Kiekko\]|Puuttuva|Punainen|Tiedosto:|Koe \(|Otava\]/.test(wk.split('## Wikipedia-artikkelit')[1] || 'x') && !/Katso myös/.test(wk),
     (wk.match(/## Wikipedia-artikkelit[\s\S]{0,200}/) || [''])[0].replace(/\n/g, ' | '));
+  tulos('Wikipedia: lisenssi etukenttään (versionumero ei katkaise) ja Luinissa selityksineen', /^oikeudet: Teksti on saatavilla Creative Commons Nimeä-JaaSamoin 4\.0 -lisenssillä; lisäehtoja voi sisältyä\.$/m.test(wk) &&
+    /^H4 Merkintä lähteessä: Teksti on saatavilla .* \| Tätä saa jakaa ja muokata, myös kaupallisesti, .* \| Lisätietoja: Creative Commons -lisenssin CC BY-SA 4\.0 \(Attribution-ShareAlike\) tiivistelmä suomeksi osoitteessa https:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/deed\.fi$/.test(wkL.oik), wkL.oik);
   tulos('Wikipedia Luinissa: Kirjallisuutta kirjallisuusluettelona, alaviitteen tekijä–vuosi linkittyy', wkL.bib === 1 && wkL.lahde.join() === '#kirj-kirjoittaja-2010' && wkL.sn.length === 5,
     JSON.stringify(wkL).slice(0, 400));
   await artikkeli.goto(BLOG_POSTI);

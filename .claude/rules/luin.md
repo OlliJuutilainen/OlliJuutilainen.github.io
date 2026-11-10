@@ -226,6 +226,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sivuseikkojen alennus perutaan (SEP:n Bibliography on osio). Käyttäjä haluaa myöhemmin parempia perusteita; raja on raja-aita.
   Sisällys, Sisälmys ja aikajana lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`), ja avoimen tekstin puuttuvat
   tasot ovat asetuksissa himmeitä (`janaTasotNyt()`).
+- **Tekijänoikeusmerkintä** (käyttäjän pyyntö ja säännöt 10.11.2026, md.js `oikeudet()`/`oikeusTaso()`, opas 3.2): etukentän
+  `oikeudet:` (ja `oikeudet-lähde:`) → tekstin loppuun otsikko *Tekijänoikeudet*, merkintä sellaisenaan, kaverillinen selitys
+  (käyttäjän toivoma rento sävy) ja virallinen linkki. Lisäosa kirjoittaa sen vain, kun lähde kertoo (SEP, Logos, Wikipedia,
+  `rel="license"`); Latomossa se on valinnainen kenttä, oletuksena piilossa. Taso: kohta; kuivan loppuosion alla aina kohta;
+  pelkkien osioiden tai pelkkien lukujen tekstissä sama taso; ilman otsikoita kohta yksin. Merkintä lisätään vasta tasojen
+  laskennan jälkeen: se ei saa muuttaa muiden otsikoiden tasoja (`laske`, alennukset) eikä lohkonumeroita (kirjanmerkit),
+  eikä sen kappaleista tule kirjallisuusluettelon kohtia (`md-testi.js` tarkistaa).
 - **Iso kirjallisuusosio on luku** (käyttäjän sääntö 7.11.2026, md.js `bibLuku()`, opas 3.2): luvun tasolla oleva
   kirjallisuusotsikko, joka tekstin loppuun asti (myös sen jälkeiset osiot) vie ≥ 25 % tekstistä, pysyy lukuna ja sen
   alaotsikot osioina; alennukset (sivuseikat, `laske`) perutaan vain siltä. Beauvoirissa näin käy (30 %).

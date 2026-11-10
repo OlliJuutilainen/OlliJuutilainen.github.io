@@ -343,7 +343,9 @@
   var BIB = new RegExp('^(' + [
     // suomi
     'kirjallisuus', 'kirjallisuusluettelo', 'kirjallisuutta', 'käytetty kirjallisuus', 'lähdekirjallisuus',
-    'suositeltavaa kirjallisuutta', 'lisälukemista', 'lähteet', 'lähdeluettelo', 'lähteet ja kirjallisuus', 'bibliografia',
+    'suositeltavaa kirjallisuutta', 'lisälukemista', 'lähteet',
+    // Ensyklopedia Logos (käyttäjän lupa 10.11.2026): Suositeltavaa/Suositeltua jatkolukemista, Muu kirjallisuus.
+    '(suositeltavaa |suositeltua )?jatkolukemista', 'muu kirjallisuus', 'lähdeluettelo', 'lähteet ja kirjallisuus', 'bibliografia',
     // englanti
     'references', 'reference list', 'bibliography', 'select(ed)? bibliography', 'works cited', 'literature cited', 'literature',
     'sources', '(further|suggested|recommended|additional) reading', '(references|bibliography) and further reading',
@@ -360,7 +362,7 @@
      jos varsinaiset luvut ovat numeroituja eikä se ole (tai luvuissa ei ole numeroita lainkaan). Runko on tukeva, kun
      jäljelle jää vähintään kolme päälukua ja niissä on vähintään kaksi kolmasosaa tekstistä (kirjallisuusluetteloita
      lukuun ottamatta). Muuten mitään ei muuteta. Keskeltä tekstiä ei alenneta mitään. */
-  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|(suositeltavaa |suositeltua )?jatkolukemista|muu kirjallisuus|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Alussa vain nimen perusteella (Johdanto ilman numeroa ennen 1. lukua on varsinainen luku).
   var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Ylimmälle tasolle (luvut) enintään näin monta otsikkoa kaksitasoisessa tekstissä; muuten taso jää käyttämättä (parse()).
@@ -432,6 +434,84 @@
     runko.forEach(function (o) { if (!o.bib) oma += o.massa; });
     if (runko.length < 3 || oma * 3 < kaikki * 2) return [];
     return osat.slice(0, a).concat(osat.slice(z + 1)).map(function (o) { return o.i; });
+  }
+
+  /* ---------- Tekijänoikeusmerkintä ----------
+     Käyttäjän pyyntö 10.11.2026: koko tekstin (myös kirjallisuuden) jälkeen otsikko Tekijänoikeudet, kun etukentässä on
+     `oikeudet:` (lisäosa kirjoittaa sen vain, kun tieto löytyy sivulta; Latomossa valinnainen kenttä). Kolme kappaletta:
+     merkintä sellaisenaan, kaverillinen selitys (käyttäjän toivoma rento kirjakieli, ei lakimiestä) ja virallinen linkki
+     (Creative Commons, lähteen omat ehdot tai tekijänoikeuslaki). `oikeudet-lähde:` on sivu, jolla merkintä on. */
+  var OIK_CC = {
+    'by': 'Tätä saa jakaa ja muokata vapaasti, myös kaupallisesti, kunhan kertoo, kuka sen kirjoitti ja mistä sen löysi.',
+    'by-sa': 'Tätä saa jakaa ja muokata, myös kaupallisesti, kunhan mainitsee tekijän ja jakaa oman versionsa samalla lisenssillä. Vapaasta tekstistä ei siis saa tehdä omaa suljettua.',
+    'by-nc': 'Tätä saa jakaa ja muokata, kunhan mainitsee tekijän eikä tee sillä rahaa.',
+    'by-nc-sa': 'Tätä saa jakaa ja muokata, kunhan mainitsee tekijän, ei tee sillä rahaa ja jakaa oman versionsa samalla lisenssillä.',
+    'by-nd': 'Tätä saa jakaa sellaisenaan, myös kaupallisesti, kunhan mainitsee tekijän. Muokattua versiota ei saa jakaa.',
+    'by-nc-nd': 'Tätä saa jakaa sellaisenaan, kunhan mainitsee tekijän eikä tee sillä rahaa. Muokattua versiota ei saa jakaa.'
+  };
+  var OIK_SELITYS = {
+    vapaa: 'Vapaata riistaa: tekstillä saa tehdä mitä haluaa. Tekijän mainitseminen on silti reilua.',
+    kaikki: 'Tekijä omistaa tekstin. Omaan käyttöön saa kopioida ja siitä saa lainata lähde mainiten, mutta omille nettisivuille tai muuhun jakoon sitä ei saa viedä ilman lupaa. Kaupan joulukuusen koristeita ei siis viedä omalle kotikirppikselle.',
+    sep: 'Tämän saa lukea, ladata, tulostaa ja pitää omissa laitteissa (kuten Luinissa), ja sen saa lähettää kaverille tai enintään 30 hengen suljettuun porukkaan, kunhan siitä ei tehdä rahaa. Julkiselle nettisivulle sitä ei saa laittaa; jaa mieluummin linkki.',
+    logos: 'Kirjoittaja omistaa tekstin, ja Filosofia.fi sai luvan julkaista sen kerran kaikkien luettavaksi. Omaan käyttöön sen saa pitää ja siitä saa lainata lähde mainiten, mutta muualle julkaisemisesta pitää sopia kirjoittajan kanssa.'
+  };
+  var OIK_LAKI = 'https://www.finlex.fi/fi/lainsaadanto/1961/404';
+  var OIK_NIMET = { by: 'Attribution', sa: 'ShareAlike', nc: 'NonCommercial', nd: 'NoDerivatives' };
+  function oikeudet(meta) {
+    var t = String(meta.oikeudet || '').replace(/\s+/g, ' ').trim();
+    if (!t) return null;
+    var u = String(meta['oikeudet-lähde'] || '').trim(), host = '';
+    try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) { u = ''; }
+    var r = { koodi: t, selitys: '', linkki: '', linkkiTeksti: '' };
+    // Creative Commons: osoitteesta, lyhenteestä (CC BY-SA 4.0) tai nimestä (Attribution-ShareAlike, Nimeä-JaaSamoin).
+    var cu = /creativecommons\.org\/licenses\/((?:by)(?:-nc)?(?:-sa|-nd)?)\/(\d\.\d)/i.exec(u + ' ' + t);
+    var ck = /\bCC[ -]?(BY(?:[ -]NC)?(?:[ -](?:SA|ND))?)(?:[ -](\d\.\d))?(?![\p{L}\p{N}])/iu.exec(t);
+    var nimi = /(Attribution|Nimeä)((?:[- ](?:NonCommercial|EiKaupallinen|ShareAlike|JaaSamoin|NoDerivatives|NoDerivs|EiMuutoksia))*)\s*(\d\.\d)?/i.exec(t);
+    var laji = '', versio = '';
+    if (cu) { laji = cu[1].toLowerCase(); versio = cu[2]; }
+    else if (ck) { laji = ck[1].toLowerCase().replace(/ /g, '-'); versio = ck[2] || ''; }
+    else if (nimi) {
+      var o = nimi[2].toLowerCase();
+      laji = 'by' + (/noncommercial|eikaupallinen/.test(o) ? '-nc' : '') + (/sharealike|jaasamoin/.test(o) ? '-sa' : /noderiv|eimuutoksia/.test(o) ? '-nd' : '');
+      versio = nimi[3] || '';
+    }
+    if (laji && OIK_CC[laji]) {
+      versio = versio || '4.0';
+      r.selitys = OIK_CC[laji];
+      r.linkki = 'https://creativecommons.org/licenses/' + laji + '/' + versio + '/deed.fi';
+      r.linkkiTeksti = 'Creative Commons -lisenssin CC ' + laji.toUpperCase() + ' ' + versio + ' (' + laji.split('-').map(function (x) { return OIK_NIMET[x]; }).join('-') + ') tiivistelmä suomeksi';
+      return r;
+    }
+    if (/\bCC0\b|publicdomain\/zero/i.test(t + ' ' + u)) {
+      r.selitys = OIK_SELITYS.vapaa; r.linkki = 'https://creativecommons.org/publicdomain/zero/1.0/deed.fi'; r.linkkiTeksti = 'Creative Commons CC0 -luovutuksen tiivistelmä suomeksi';
+      return r;
+    }
+    if (/public domain|tekijänoikeusvapaa|tekijänoikeus on rauennut|publicdomain\/mark/i.test(t + ' ' + u)) {
+      r.selitys = OIK_SELITYS.vapaa; r.linkki = u || OIK_LAKI; r.linkkiTeksti = u ? 'lähteen omat ehdot' : 'tekijänoikeuslaki Finlexissä';
+      return r;
+    }
+    if (host === 'plato.stanford.edu') { r.selitys = OIK_SELITYS.sep; r.linkki = u; r.linkkiTeksti = 'Stanford Encyclopedia of Philosophyn käyttöehdot (Terms of Use)'; return r; }
+    if (/(^|\.)filosofia\.fi$/.test(host)) { r.selitys = OIK_SELITYS.logos; r.linkki = u; r.linkkiTeksti = 'Filosofia.fi:n tekijänoikeussivu'; return r; }
+    if (/©|\(c\)|copyright|kaikki oikeudet|all rights reserved|tekijänoikeus/i.test(t)) {
+      r.selitys = OIK_SELITYS.kaikki; r.linkki = u || OIK_LAKI; r.linkkiTeksti = u ? 'lähteen omat ehdot' : 'tekijänoikeuslaki Finlexissä';
+      return r;
+    }
+    if (u) { r.linkki = u; r.linkkiTeksti = 'lähteen omat ehdot'; }
+    return r;
+  }
+  // Merkinnän otsikkotaso (käyttäjän säännöt 10.11.2026), tasot sellaisina kuin ne näkyvät (laske, alennukset, pykälät):
+  // kohta (h4) on oletus ja kuivan loppuosion (kirjallisuus, lähteet, linkit) alla aina; ilman otsikoita kohta yksin;
+  // jos tekstissä on vain yhtä tasoa eikä kuivaa loppua, sama taso (pelkät osiot → osio, pelkät luvut → luku).
+  var OIK_KUIVA = /^(wikipedia[- ]artikkelit|wikipedia articles|ensyklopedia logoksen artikkelit|aiheesta muualla|external links|internet-lähteet|verkkolähteet|linkit)$/i;
+  function oikeusTaso(otsikot) {
+    if (!otsikot.length) return 4;
+    var tasot = {}, ylin = 4;
+    otsikot.forEach(function (o) { tasot[o.lvl] = 1; ylin = Math.min(ylin, o.lvl); });
+    var kuiva = function (o) { return BIB.test(o.nimi) || OHEIS.test(o.nimi) || OIK_KUIVA.test(o.nimi); };
+    var ylimmat = otsikot.filter(function (o) { return o.lvl === ylin; });
+    if (kuiva(otsikot[otsikot.length - 1]) || kuiva(ylimmat[ylimmat.length - 1])) return 4;
+    var lajit = Object.keys(tasot);
+    return lajit.length === 1 ? +lajit[0] : 4;
   }
 
   /* ---------- Rakennetunnisteet ja paikantimet (luurangotus) ----------
@@ -1992,6 +2072,29 @@
     })();
     res.laskettu = laske;
     bibLuku(tokens, t0).forEach(function (i) { tokens[i].bibLuku = true; });
+    // Tekijänoikeusmerkintä loppuun vasta tasojen laskennan jälkeen, joten se ei muuta muiden otsikoiden tasoja eikä
+    // lohkojen numeroita (kirjanmerkit).
+    var oik = oikeudet(m);
+    if (oik) {
+      var nakyvat = [];
+      for (var oi = t0; oi < tokens.length; oi++) {
+        var ot = tokens[oi];
+        if (ot.t !== 'h') continue;
+        var o0 = ot.lvl === 1 ? 2 : Math.min(ot.lvl, 4), ol = ot.alas && !laske ? Math.min(o0 + 1, 4) : o0;
+        if (ot.pykala) o0 = ol = 4;
+        if (laske) ol = Math.min(o0 + 1, 4);
+        if (ot.bibLuku) ol = o0;
+        nakyvat.push({ lvl: ol, nimi: lukuNimi(ot.text.replace(/\s+\[[^\]]+\]$/, '')) });
+      }
+      var oln = tokens.length ? tokens[tokens.length - 1].ln : 1, suojaa = function (x) { return x.replace(/[\\`*_[\]<>#|~^=$]/g, '\\$&'); };
+      tokens.push({ t: 'h', lvl: oikeusTaso(nakyvat), text: 'Tekijänoikeudet', ln: oln, oik: true });
+      tokens.push({ t: 'p', text: '*Merkintä lähteessä:* ' + suojaa(oik.koodi), ln: oln, oik: true });
+      if (oik.selitys) tokens.push({ t: 'p', text: oik.selitys, ln: oln, oik: true });
+      // Osoite kirjoitettuna (käyttäjän linjaus 10.11.2026): verkkolinkit ovat oletuksena pois, joten pelkkä linkkiteksti
+      // ei kertoisi, mistä lisätiedot löytyvät. Paljas osoite on linkki vain verkkolinkit päällä.
+      if (oik.linkki) tokens.push({ t: 'p', text: 'Lisätietoja: ' + suojaa(oik.linkkiTeksti) + ' osoitteessa <' + oik.linkki.replace(/[<>\s]/g, encodeURIComponent) + '>', ln: oln, oik: true });
+      res.oikeudet = oik;
+    }
     function renderList(items, inQuote) {
       var i = 0;
       function ryhma(lvl) {
@@ -2030,6 +2133,7 @@
           if (t.pykala && !inQuote) lvl0 = lvl = 4;
           if (laske && !inQuote) lvl = Math.min(lvl0 + 1, 4);
           if (t.bibLuku && !inQuote) lvl = lvl0;
+          if (t.oik) lvl0 = lvl = t.lvl;
           // iA Writerin ristiviittauksen nimiö otsikon perässä: # Otsikko [Nimiö]
           var htext = t.text, nimio = /^(.*\S)\s+\[([^\]]+)\]$/.exec(htext);
           if (nimio) htext = nimio[1];
@@ -2067,7 +2171,7 @@
             if (lvl >= 3 && !tn) cls += ' caps';
           }
           id = uniq(id);
-          if (BIB.test(txt)) { inBib = true; bibTaso = lvl0; } else if (inBib && lvl0 <= bibTaso) inBib = false;
+          if (BIB.test(txt)) { inBib = true; bibTaso = lvl0; } else if (inBib && lvl0 <= bibTaso || t.oik) inBib = false;
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });

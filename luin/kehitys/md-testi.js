@@ -350,5 +350,36 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   });
 });
 
+// Tekijänoikeusmerkintä (käyttäjän säännöt 10.11.2026): taso näkyvistä tasoista, muut otsikot ja lohkot ennallaan,
+// merkintä ei ole kirjallisuusluettelon kohta.
+(function () {
+  const ek = o => '---\noikeudet: ' + o + '\n---\n';
+  const hs = h => (h.match(/<h[2-4][^>]*>[^<]*/g) || []).map(x => x.replace(/<h(\d)[^>]*>/, 'h$1 ')).join(' | ');
+  const tap = [
+    ['ei otsikoita → kohta', '# T\n\nKappale.\n', 'h4 Tekijänoikeudet'],
+    ['pelkät luvut → luku', '# T\n\n## Yksi\n\nA.\n\n## Kaksi\n\nB.\n', 'h2 Yksi | h2 Kaksi | h2 Tekijänoikeudet'],
+    ['pelkät osiot → osio', '# T\n\n### Yksi\n\nA.\n\n### Kaksi\n\nB.\n', 'h3 Yksi | h3 Kaksi | h3 Tekijänoikeudet'],
+    ['luvut ja osiot → kohta', '# T\n\n## Yksi\n\nA.\n\n### Ala\n\nB.\n', 'h2 Yksi | h3 Ala | h4 Tekijänoikeudet'],
+    ['pelkät luvut ja kirjallisuus → kohta', '# T\n\n## Yksi\n\nA.\n\n## Kirjallisuus\n\nKant, Immanuel (1781). *KrV*.\n', 'h2 Yksi | h2 Kirjallisuus | h4 Tekijänoikeudet']
+  ];
+  tap.forEach(([nimi, md, odotus]) => {
+    const r = M.parse(ek('CC BY 4.0') + md), r0 = M.parse(md);
+    tulos('tekijänoikeudet: ' + nimi, hs(r.html) === odotus && hs(r.html).startsWith(hs(r0.html)) &&
+      (r.html.match(/class="bib"/g) || []).length === (r0.html.match(/class="bib"/g) || []).length, hs(r.html));
+  });
+  // Ylin taso jää käyttämättä (yli 10 lukua, kaksi tasoa) myös merkinnän kanssa.
+  const iso = '# T\n\n' + Array.from({ length: 12 }, (_, i) => '## Luku ' + (i + 1) + '\n\nTeksti.\n\n### Ala\n\nLisää.\n').join('\n');
+  const a = M.parse(iso), b = M.parse(ek('© 2026 Kirjoittaja') + iso);
+  tulos('tekijänoikeudet: muiden otsikoiden tasot ja lohkonumerot ennallaan (laske)', b.laskettu === a.laskettu && a.laskettu && hs(b.html).startsWith(hs(a.html)) &&
+    b.toc.slice(0, -1).every((t, i) => t.lvl === a.toc[i].lvl && t.b === a.toc[i].b), hs(b.html).slice(-60));
+  const sel = M.parse(ek('Copyright © 2024 by X') + '# T\n\nA.\n').html;
+  tulos('tekijänoikeudet: ilman lähdesivua kaikki oikeudet ja tekijänoikeuslaki', /Kaupan joulukuusen koristeita/.test(sel) && /finlex\.fi\/fi\/lainsaadanto\/1961\/404/.test(sel));
+  const sep = M.parse('---\noikeudet: Copyright © 2024 by X\noikeudet-lähde: https://plato.stanford.edu/info.html#terms\n---\n# T\n\nA.\n');
+  tulos('tekijänoikeudet: lisätietojen osoite kirjoitettuna (verkkolinkit ovat oletuksena pois)',
+    /Lisätietoja: Stanford Encyclopedia of Philosophyn käyttöehdot \(Terms of Use\) osoitteessa <a class="url" href="https:\/\/plato\.stanford\.edu\/info\.html#terms">https:\/\/plato\.stanford\.edu\/info\.html#terms<\/a><\/p>/.test(sep.html),
+    (sep.html.match(/Lisätietoja.*$/) || [''])[0]);
+  tulos('tekijänoikeudet: ei merkintää ilman etukenttää', !/tekijanoikeudet/.test(M.parse('# T\n\n## A\n\nB.\n').html));
+})();
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);
