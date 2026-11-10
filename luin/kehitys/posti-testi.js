@@ -1,10 +1,11 @@
 // Postilaatikon ja merkintäpostin selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]
 // Kaksi laitetta (erilliset selainkontekstit, eri localStorage) ja yksi laatikko: workerin oikea koodi
-// (worker/src/index.js) muistissa olevalla KV:llä, johon sivujen kutsut reititetään. Tarkistaa: koodin siistiminen ja
-// 24 merkin alaraja (Luin, Latomo), pikaohje, asetusten kerrokset (koodi → Lähetä myös merkinnät → lajit), lähetys
-// lukulistaan palattaessa, vastaanotto toisessa laitteessa (alleviivaus, kirjaus, kirjanmerkki, lukukohta), poiston
-// kulku poistomerkintänä, tekstikohtainen valinta ja Latomon Lähetä myös merkinnät.
+// (worker/src/index.js) muistissa olevalla KV:llä, johon sivujen kutsut reititetään. Tarkistaa: laatikkolauseen sääntö
+// (24–40 merkkiä a–z, 0–9, -; muut merkit hylätään, isot pieniksi; Luin, Lisää-kenttä, Latomo), i-ohje, Postihuilun
+// tekstit, asetusten kerrokset (lause → Huiluta myös merkintöjä → lajit), lähetys lukulistaan palattaessa, vastaanotto
+// toisessa laitteessa (alleviivaus, kirjaus, kirjanmerkki, lukukohta), poiston kulku poistomerkintänä, tekstikohtainen
+// valinta ja Latomon Postihuilu (vain teksti, ei merkintöjä).
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -86,26 +87,43 @@ function muistiKV() {
   const kerros0 = await a.evaluate(() => !document.querySelector('#posti-merk').hidden);
   await a.click('#laatikko-kysy');
   const ohje = await a.evaluate(() => ({ auki: !document.querySelector('#laatikko-ohje').hidden, t: document.querySelector('#laatikko-ohje').textContent }));
-  tulos('pikaohje ?-napista: vähintään 24, kirjaimet riittävät, isot ja pienet, vinkki', ohje.auki && /vähintään 24 merkkiä/.test(ohje.t) &&
-    /Pelkät kirjaimet riittävät/.test(ohje.t) && /Isoja ja pieniä kirjaimia ei erotella/.test(ohje.t) && /torikaffeillaonhemmetinmukavaa/.test(ohje.t), ohje.t.slice(0, 90));
+  const osio = await a.evaluate(() => ({ ots: document.querySelector('#laatikko-osio summary').textContent,
+    teksti: document.querySelector('#laatikko-osio .huomio.jatko').textContent, rivi: document.querySelector('#laatikko-osio .koodirivi').textContent.trim(),
+    nappi: document.querySelector('#laatikko-tallenna').textContent, lista: document.querySelector('#lisaa-ots').textContent,
+    paikka: document.querySelector('#lisaa-syote').placeholder, lisaa: document.querySelector('#lisaa-kentta button').textContent }));
+  tulos('Postihuilu: asetusten ja lukulistan tekstit', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
+    osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut lukulistat.' && osio.lista === 'Postihuilu' &&
+    osio.paikka === 'Laatikkolause tai linkki' && osio.lisaa === 'Soita huilua!', JSON.stringify(osio));
+  tulos('i-ohje: haarukka 24–40, muita merkkejä ei hyväksytä, esimerkit, 30 päivää', ohje.auki && /merkkihaarukka on 24–40/.test(ohje.t) &&
+    /MUITA MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ\./.test(ohje.t) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(ohje.t) &&
+    /torikaffeillaonhemmetinmukavaa/.test(ohje.t) && /kestää 30 päivää/.test(ohje.t), ohje.t.slice(0, 90));
   await a.fill('#laatikko-koodi', 'lyhytkoodi');
   await a.click('#laatikko-tallenna');
   const lyhyt = await a.evaluate(() => ({ t: document.querySelector('#laatikko-tieto').textContent, ls: localStorage.getItem('luin-laatikko') }));
   tulos('Luin: lyhyt koodi hylätään', /vähintään 24 merkkiä \(nyt 10\)/.test(lyhyt.t) && lyhyt.ls === null, lyhyt.t);
-  tulos('Luin: Lähetä myös merkinnät ei näy ilman koodia', !kerros0);
+  tulos('Luin: Huiluta myös merkintöjä ei näy ilman lausetta', !kerros0);
   await a.fill('#laatikko-koodi', 'Torikaffeilla on hemmetin mukavaa.');
+  await a.click('#laatikko-tallenna');
+  const valit = await a.evaluate(() => ({ t: document.querySelector('#laatikko-tieto').textContent, ls: localStorage.getItem('luin-laatikko') }));
+  tulos('Luin: välilyönnit ja välimerkit hylätään', /Ei kelpaa: välilyönti, ”\.”\.$/.test(valit.t) && valit.ls === null, valit.t);
+  await a.fill('#laatikko-koodi', 'Torikaffeillaönhemmetinmukavaa');
+  await a.click('#laatikko-tallenna');
+  const aakk = await a.evaluate(() => document.querySelector('#laatikko-tieto').textContent);
+  tulos('Luin: ääkköset hylätään', /Ei kelpaa: ”ö”\.$/.test(aakk), aakk);
+  await a.fill('#laatikko-koodi', ' TorikaffeillaOnHemmetinMukavaa ');
   await a.click('#laatikko-tallenna');
   await a.waitForFunction(() => /tallennettu/.test(document.querySelector('#laatikko-tieto').textContent));
   const tall = await a.evaluate(() => ({ k: JSON.parse(localStorage.getItem('luin-laatikko')), kentta: document.querySelector('#laatikko-koodi').value,
     t: document.querySelector('#laatikko-tieto').textContent, merk: !document.querySelector('#posti-merk').hidden,
     lajit: !document.querySelector('#posti-lajit').hidden, nappi: document.querySelector('#posti-paalla button').textContent }));
-  tulos('Luin: lause siistitään koodiksi ja laatikon teksti tulee', tall.k === KOODI && tall.kentta === KOODI && /Laatikossa 1 teksti/.test(tall.t), JSON.stringify(tall));
-  tulos('kerros 2: Lähetä myös merkinnät näkyy, lajit piilossa', tall.merk && !tall.lajit && tall.nappi === 'Lähetä myös merkinnät');
+  tulos('Luin: isot pieniksi, laatikon teksti tulee', tall.k === KOODI && tall.kentta === KOODI && tall.t === 'Laatikkolause tallennettu. Laatikossa 1 teksti, joista uusia 1.', JSON.stringify(tall));
+  tulos('kerros 2: Huiluta myös merkintöjä näkyy, lajit piilossa', tall.merk && !tall.lajit && tall.nappi === 'Huiluta myös merkintöjä');
   await a.click('#posti-paalla button');
   const kerros3 = await a.evaluate(() => ({ lajit: [...document.querySelectorAll('#posti-lajit button')].map(b => b.textContent + ':' + b.getAttribute('aria-pressed')),
-    nakyy: !document.querySelector('#posti-lajit').hidden, aset: JSON.parse(localStorage.getItem('luin-asetukset')).postiMerk }));
-  tulos('kerros 3: lajit auki, oletuksena kaikki', kerros3.nakyy && kerros3.aset === 1 &&
-    kerros3.lajit.join() === 'Alleviivaukset:true,Kirjaukset:true,Kirjanmerkit:true,Edistymisen tilanne:true', kerros3.lajit.join());
+    nakyy: !document.querySelector('#posti-lajit').hidden, aset: JSON.parse(localStorage.getItem('luin-asetukset')).postiMerk,
+    tieto: document.querySelector('#posti-tieto').textContent }));
+  tulos('kerros 3: lajit auki, oletuksena kaikki, lukulistassa ei selitystä', kerros3.nakyy && kerros3.aset === 1 && kerros3.tieto === '' &&
+    kerros3.lajit.join() === 'Alleviivaukset:true,Kirjaukset:true,Kirjanmerkit:true,Edistymisen tilanne:true', kerros3.lajit.join() + ' / ' + kerros3.tieto);
   if (KUVAT) await a.screenshot({ path: path.join(KUVAT, 'posti-asetukset-lista.png') });
 
   // --- 2. Laite A: merkinnät tekstiin ja lähetys lukulistaan palattaessa ---
@@ -137,11 +155,19 @@ function muistiKV() {
 
   // --- 3. Laite B: vastaanotto ilman omaa lähetysvalintaa ---
   const b = B.sivu;
-  await b.goto(OSOITE + 'luin.html#l=' + encodeURIComponent('TORIKAFFEILLA on hemmetin mukavaa'));
+  await b.goto(OSOITE + 'luin.html');
+  await b.fill('#lisaa-syote', 'torikaffeilla on hemmetin mukavaa');
+  await b.press('#lisaa-syote', 'Enter');
+  await b.waitForFunction(() => /Ei kelpaa/.test(document.querySelector('#viesti').textContent));
+  tulos('B: Postihuilu-kenttä hylkää välilyönnit', (await LS(b, 'luin-laatikko')) === null);
+  await b.fill('#lisaa-syote', 'https://ollijuutilainen.github.io/luin.html#l=' + encodeURIComponent('TORIKAFFEILLAonhemmetinmukavaa'));
+  await b.press('#lisaa-syote', 'Enter');
   await b.waitForFunction(() => /teksti|käytössä/.test(document.querySelector('#viesti').textContent));
+  const viestiB = await b.evaluate(() => document.querySelector('#viesti').textContent);
+  tulos('B: ilmoitus Postihuilun kautta kantautui teksti', viestiB === 'Postihuilun kautta kantautui teksti.', viestiB);
   for (let i = 0; i < 40; i++) { if ((await LS(b, 'luin-merkit:p-kant-ja-elainetiikka'))) break; await odota(100); }
   const mB = await LS(b, 'luin-merkit:p-kant-ja-elainetiikka'), eB = (await LS(b, 'luin-lista')).filter(e => e.id === 'p-kant-ja-elainetiikka')[0];
-  tulos('B: Lisää-kentän koodi siistitty', (await LS(b, 'luin-laatikko')) === KOODI);
+  tulos('B: linkin lause pienillä', (await LS(b, 'luin-laatikko')) === KOODI);
   tulos('B: alleviivaukset, kirjaus ja kirjanmerkki tulivat', mB && mB.al.length === 2 && mB.km.length === 1 && mB.al.filter(h => h.n === 'Laitteen A kirjaus').length === 1,
     mB ? JSON.stringify({ al: mB.al.map(h => h.id + (h.n ? '+' : '')), km: mB.km.map(k => k.id) }) : 'ei');
   tulos('B: lukukohta tuli', eB && eB.pos && eB.pos.b === ankA.b && eB.pct === laatikossa.pct && eB.pct > 0, eB && JSON.stringify(eB.pos) + ' ' + eB.pct + ' %');
@@ -155,8 +181,10 @@ function muistiKV() {
   await b.click('#lukija .ratas');
   await b.click('#laatikko-osio summary');
   const kirjaNappi = await b.evaluate(() => document.querySelector('#posti-paalla button').textContent + ':' + document.querySelector('#posti-paalla button').getAttribute('aria-pressed'));
-  tulos('B: tekstin asetuksissa oma valinta, oletus pois', kirjaNappi === 'Lähetä myös tämän tekstin merkinnät:false', kirjaNappi);
+  tulos('B: tekstin asetuksissa oma valinta, oletus pois', kirjaNappi === 'Huiluta myös tämän tekstin merkintöjä:false', kirjaNappi);
   await b.click('#posti-paalla button');
+  const tietoB = await b.evaluate(() => document.querySelector('#posti-tieto').textContent);
+  tulos('B: tekstin asetuksissa selitys', /^Merkinnät lähtevät, kun poistut tekstistä lukulistaan tai Luin jää taustalle\./.test(tietoB), tietoB);
   if (KUVAT) await b.screenshot({ path: path.join(KUVAT, 'posti-asetukset-teksti.png') });
   const omaB = await LS(b, 'luin-posti:p-kant-ja-elainetiikka');
   tulos('B: tekstikohtainen valinta tallessa, yleinen ennallaan', omaB && omaB.on === 1 && !(await LS(b, 'luin-asetukset') || {}).postiMerk, JSON.stringify(omaB));
@@ -188,36 +216,42 @@ function muistiKV() {
   const l3 = JSON.parse(KV.m.get('luinm:' + KOODI + ':kant-ja-elainetiikka').v);
   tulos('A: uusi lähetys ei palauta poistettua', l3.al.length === 1 && l3.km.length === 2 && l3.del.a2, JSON.stringify({ al: l3.al.map(h => h.id), km: l3.km.map(k => k.id) }));
 
-  // --- 6. Latomo: koodin raja ja Lähetä myös merkinnät ---
+  // --- 6. Latomo: laatikkolauseen sääntö ja Postihuilu (vain teksti; merkintäosio poistettu 10.11.2026) ---
   await a.goto(OSOITE + 'luin/latomo.html');
   await a.fill('#md', KANT);
   await a.dispatchEvent('#md', 'input');
   await a.waitForFunction(() => window.__latomo.tulos());
-  // Tyhjä kenttä ennen avausta, ettei muistissa oleva koodi lähetä heti.
+  // Tyhjä kenttä ennen avausta, ettei muistissa oleva lause lähetä heti.
   await a.evaluate(() => { document.querySelector('#laatikko-koodi').value = ''; });
+  const lat0 = await a.evaluate(() => ({ nappi: document.querySelector('#laheta').textContent, soita: document.querySelector('#kk-laheta').textContent,
+    label: document.querySelector('label[for="laatikko-koodi"]').textContent, merk: !!document.querySelector('#kk-merk') }));
+  tulos('Latomo: Postihuilu, Laatikkolause, Soita huilua!, ei merkintäosiota', lat0.nappi === 'Postihuilu' && lat0.soita === 'Soita huilua!' &&
+    lat0.label === 'Laatikkolause' && !lat0.merk, JSON.stringify(lat0));
   await a.click('#laheta');
   await a.fill('#laatikko-koodi', 'liian-lyhyt');
   const lat1 = await a.evaluate(() => ({ v: document.querySelector('#laatikko-virhe').textContent, nappi: document.querySelector('#kk-laheta').disabled }));
-  tulos('Latomo: lyhyt koodi ei kelpaa', /vähintään 24 merkkiä \(nyt 11\)/.test(lat1.v) && lat1.nappi, lat1.v);
+  tulos('Latomo: lyhyt lause ei kelpaa', /vähintään 24 merkkiä \(nyt 11\)/.test(lat1.v) && lat1.nappi, lat1.v);
   await a.click('#laatikko-kysy');
   const lat2 = await a.evaluate(() => document.querySelector('#laatikko-ohje').textContent);
-  tulos('Latomo: pikaohje ?-napista', /vähintään 24 merkkiä/.test(lat2) && /torikaffeillaonhemmetinmukavaa/.test(lat2));
+  tulos('Latomo: i-ohje', /merkkihaarukka on 24–40/.test(lat2) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(lat2) && /kestää 30 päivää/.test(lat2));
   await a.fill('#laatikko-koodi', 'Torikaffeilla on hemmetin MUKAVAA');
-  const lat3 = await a.evaluate(() => ({ nappi: document.querySelector('#kk-laheta').disabled, merk: !document.querySelector('#kk-merk').hidden,
-    on: document.querySelector('#kk-merk-on').getAttribute('aria-pressed'), maara: document.querySelector('#kk-merk-maara').textContent,
-    linkki: document.querySelector('#laatikko-linkki').textContent }));
-  tulos('Latomo: lause kelpaa, merkintärivi näkyy Luinin valinnalla', !lat3.nappi && lat3.merk && lat3.on === 'true' && /luin\.html#l=torikaffeillaonhemmetinmukavaa$/.test(lat3.linkki) &&
-    /1 alleviivaus, 1 kirjaus, 2 kirjanmerkkiä/.test(lat3.maara), JSON.stringify(lat3));
+  const latV = await a.evaluate(() => ({ v: document.querySelector('#laatikko-virhe').textContent, nappi: document.querySelector('#kk-laheta').disabled }));
+  tulos('Latomo: välilyönnit hylätään', /Ei kelpaa: välilyönti\.$/.test(latV.v) && latV.nappi, latV.v);
+  const LAUSE2 = 'tori-kaffeilla-on-hemmetin-mukavaa';
+  await a.fill('#laatikko-koodi', 'Tori-Kaffeilla-on-hemmetin-MUKAVAA');
+  const lat3 = await a.evaluate(() => ({ nappi: document.querySelector('#kk-laheta').disabled, lause: document.querySelector('#laatikko-lause').textContent,
+    linkki: document.querySelector('#laatikko-linkki').textContent, ohje: document.querySelector('#laatikko-ohje-linkki').textContent.replace(/\s+/g, ' ').trim(),
+    nakyy: !document.querySelector('#laatikko-ohje-linkki').hidden }));
+  tulos('Latomo: yhdysmerkillinen lause kelpaa, toisen laitteen ohje ja linkki', !lat3.nappi && lat3.nakyy && lat3.lause === LAUSE2 &&
+    new RegExp('luin\\.html#l=' + LAUSE2 + '$').test(lat3.linkki) && /^TOISEN LAITTEEN PÄÄSSÄ: Teksti kotiutuu/.test(lat3.ohje) &&
+    /ollessa tori-kaffeilla-on-hemmetin-mukavaa tai kopioimalla/.test(lat3.ohje) && /VAROITUS: Huilu lumoaa/.test(lat3.ohje), JSON.stringify(lat3));
   if (KUVAT) await a.locator('#laatikko').screenshot({ path: path.join(KUVAT, 'posti-latomo.png') });
-  // Laatikon versioon kirjaus, jota Latomon selaimessa ei ole: yhdistyy eikä katoa.
-  const l4 = JSON.parse(KV.m.get('luinm:' + KOODI + ':kant-ja-elainetiikka').v);
-  l4.al.push({ id: 'z9', segs: [{ b: merkA.b1 + 1, s: 0, e: 12, x: 'x' }], t: Date.now(), n: 'Vain laatikossa', nt: Date.now() });
-  KV.m.set('luinm:' + KOODI + ':kant-ja-elainetiikka', { v: JSON.stringify(l4), meta: { t: Date.now() } });
   await a.click('#kk-laheta');
-  await a.waitForFunction(() => /^Lähetetty|ei onnistunut|ilman/.test(document.querySelector('#kk-tila').textContent + document.querySelector('#kk-virhe').textContent));
+  await a.waitForFunction(() => /^Lähetetty|ei onnistunut/.test(document.querySelector('#kk-tila').textContent + document.querySelector('#kk-virhe').textContent));
   const lat4 = await a.evaluate(() => document.querySelector('#kk-tila').textContent || document.querySelector('#kk-virhe').textContent);
-  const l5 = JSON.parse(KV.m.get('luinm:' + KOODI + ':kant-ja-elainetiikka').v);
-  tulos('Latomo: teksti merkintöineen', /merkintöineen/.test(lat4) && l5.al.some(h => h.id === 'z9') && l5.km.length === 2 && !!l5.del.a2, lat4);
+  tulos('Latomo: teksti laatikossa ilman merkintöjä', /^Lähetetty klo \d\d:\d\d: KANT JA ELÄINETIIKKA\.$/.test(lat4) &&
+    KV.m.has('luin:' + LAUSE2 + ':kant-ja-elainetiikka') && !KV.m.has('luinm:' + LAUSE2 + ':kant-ja-elainetiikka') &&
+    (await LS(a, 'luin-laatikko')) === LAUSE2, lat4);
 
   if (KUVAT) {
     await b.goto(OSOITE + 'luin.html');

@@ -1,8 +1,9 @@
 /* Lisää lukimeen: Latomon puoli. Ponnahdusikkuna jättää leikkeen lisäosan muistiin ja avaa latomo.html#lisaosa;
    tämä kirjoittaa leikkeen tekstikenttään kuin käyttäjä olisi liittänyt sen, ja Lisää lukimeen -napilla painaa
-   vielä Avaa Luinissa. Rajapinta Latomoon on vain tunnisteita: #md ja #avaa, postina lähetettäessä (9.11.2026) myös
-   #laatikko-koodi, #laheta (Coneelta Cännycälle; kelpaavalla koodilla painallus lähettää), #kk-tila (Lähetetty…),
-   #kk-virhe ja #laatikko-virhe. */
+   vielä Avaa Luinissa. Rajapinta Latomoon on vain tunnisteita: #md ja #avaa, Postihuilulla (9.11.2026) myös
+   #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Lähetetty…),
+   #kk-virhe ja #laatikko-virhe. Kun tekstiä ei lisätä tämän selaimen lukulistaan (10.11.2026), lauseen kenttä saa
+   data-ei-muistia-attribuutin, eikä Latomo silloin tallenna lausetta Luinin muistiin. */
 (async () => {
   if (location.hash !== '#lisaosa') return;
   const api = globalThis.browser || globalThis.chrome;
@@ -18,6 +19,7 @@
   md.dispatchEvent(new Event('input', { bubbles: true }));
   const posti = odottaa.posti;
   if (posti && posti.k && $('laatikko-koodi') && $('laheta')) {
+    if (posti.eiMuistia) $('laatikko-koodi').setAttribute('data-ei-muistia', '');
     $('laatikko-koodi').value = posti.k;
     $('laatikko-koodi').dispatchEvent(new Event('input', { bubbles: true }));
     if (!odottaa.avaa) return;

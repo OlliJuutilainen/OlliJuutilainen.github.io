@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sekä Lähetä postina (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -299,37 +299,54 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
   tulos('Blogger kirjoitus: otsikko, tekijä, blogin nimi, päivä paikallisena', /^tekijä: Maija Bloggaaja\nsivusto: Koeblogi\njulkaistu: 2026-09-01\nlähde: https:\/\/koeblogi\.blogspot\.com\/2026\/09\/toinen\.html$/m.test(bp) &&
     /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp) && !/Tweet|twitter/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
 
-  // Lähetä postina (9.11.2026): koodin raja ikkunassa, Älä avaa nyt jättää Latomon auki lähetyksen jälkeen, ilman sitä
-  // teksti avautuu myös Luinissa. Koodi ja valinnat muistetaan.
+  // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
+  // lukulistaan heti -valintaa Latomo jää auki eikä lause jää Luinin muistiin; valinnan kanssa teksti avautuu myös
+  // Luinissa. Lause ja valinnat muistetaan. Lisää lukimeen ei lähetä postia.
+  const KOODI = 'torikaffeillaonhemmetinmukavaa';
   await avaaIkkuna(BLOG_POSTI);
-  await ikkuna.check('#posti');
-  await ikkuna.fill('#koodi', 'liian lyhyt');
-  const pk1 = await ikkuna.evaluate(() => ({ osa: !document.querySelector('#posti-osa').hidden, pois: document.querySelector('#lukimeen').disabled,
-    v: document.querySelector('#koodi-virhe').textContent }));
-  tulos('postina: lyhyt koodi estää lähetyksen', pk1.osa && pk1.pois && /vähintään 24 merkkiä \(nyt 10\)/.test(pk1.v), JSON.stringify(pk1));
-  await ikkuna.fill('#koodi', 'Torikaffeilla on hemmetin mukavaa.');
-  await ikkuna.check('#ala-avaa');
+  const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('.napit > button')].map(b => b.textContent),
+    kiinni: document.querySelector('#posti-osa').hidden }));
+  tulos('ikkuna: kolme nappia, Postihuilu kiinni', pk0.napit.join() === 'Lisää lukimeen,Muokkaa Latomossa,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
+  await ikkuna.click('#postihuilu');
+  const pk1 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#posti-osa').hidden, paikka: document.querySelector('#koodi').placeholder,
+    soita: document.querySelector('#soita').textContent, heti: document.querySelector('#heti').checked,
+    hetiTeksti: document.querySelector('label.heti').textContent.trim(), ruutu: document.activeElement.id }));
+  tulos('Postihuilu: kenttä, Soita huilua!, heti valittuna', pk1.auki && pk1.paikka === 'Laatikkolause' && pk1.soita === 'Soita huilua!' && pk1.heti &&
+    pk1.hetiTeksti === 'Lisää tämän selaimen lukulistaan heti' && pk1.ruutu === 'koodi', JSON.stringify(pk1));
+  const virhe = async lause => { await ikkuna.fill('#koodi', lause); return ikkuna.evaluate(() => ({ v: document.querySelector('#koodi-virhe').textContent, pois: document.querySelector('#soita').disabled })); };
+  const v1 = await virhe('liianlyhyt'), v2 = await virhe('Torikaffeilla on hemmetin mukavaa.'), v3 = await virhe('TorikaffeillaOnHemmetinMukavaa');
+  tulos('Postihuilu: lyhyt ja välilyönnit estävät, isot kirjaimet kelpaavat', v1.pois && /vähintään 24 merkkiä \(nyt 10\)/.test(v1.v) &&
+    v2.pois && /Ei kelpaa: välilyönti, ”\.”\.$/.test(v2.v) && !v3.pois && v3.v === '', JSON.stringify([v1, v2, v3]));
   await ikkuna.click('#kysy');
-  const pk2 = await ikkuna.evaluate(() => ({ pois: document.querySelector('#lukimeen').disabled, nappi: document.querySelector('#lukimeen').textContent,
-    ohje: !document.querySelector('#ohje').hidden && /vähintään 24 merkkiä/.test(document.querySelector('#ohje').textContent) }));
-  tulos('postina: lause kelpaa, nappi Lähetä postina, ?-ohje', !pk2.pois && pk2.nappi === 'Lähetä postina' && pk2.ohje, JSON.stringify(pk2));
-  if (KUVAT) { await ikkuna.setViewportSize({ width: 360, height: 640 }); await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-posti.png') }); }
+  const pk2 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#ohje').hidden, t: document.querySelector('#ohje').textContent }));
+  tulos('Postihuilu: i-ohje johdantoineen, ilman soiton kestoa', pk2.auki && /^\s*Lähetä teksti esimerkiksi tietokoneelta kännykälle/.test(pk2.t) &&
+    /LUiN\.HTML:ssä\./.test(pk2.t) && /merkkihaarukka on 24–40/.test(pk2.t) && /virhelyöntien huomaamista\.\s*$/.test(pk2.t) && !/todellistumatta/.test(pk2.t), pk2.t.slice(0, 80));
+  if (KUVAT) { await ikkuna.setViewportSize({ width: 360, height: 900 }); await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-posti.png') }); }
   await ikkuna.click('#kysy');
-  const lat6 = await paina('#lukimeen', /latomo\.html$/);
+  await ikkuna.uncheck('#heti');
+  const lat6 = await paina('#soita', /latomo\.html$/);
   await lat6.waitForFunction(() => /^Lähetetty/.test(document.querySelector('#kk-tila').textContent) || !document.querySelector('#kk-virhe').hidden, null, { timeout: 8000 });
   await lat6.waitForTimeout(500);
-  const pk3 = { url: lat6.url(), tila: await lat6.evaluate(() => document.querySelector('#kk-tila').textContent || document.querySelector('#kk-virhe').textContent),
-    kv: KV.has('luin:torikaffeillaonhemmetinmukavaa:toinen') };
-  tulos('postina, älä avaa nyt: laatikossa, Latomo jää auki', pk3.kv && /latomo\.html$/.test(pk3.url) && /^Lähetetty/.test(pk3.tila), JSON.stringify(pk3));
+  const pk3 = await lat6.evaluate(() => ({ url: location.href, tila: document.querySelector('#kk-tila').textContent || document.querySelector('#kk-virhe').textContent,
+    muisti: localStorage.getItem('luin-laatikko'), lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.id) }));
+  pk3.kv = KV.has('luin:' + KOODI + ':toinen');
+  tulos('ilman heti-valintaa: laatikossa, Latomo jää auki, ei lukulistaan eikä lausetta muistiin', pk3.kv && /latomo\.html$/.test(pk3.url) &&
+    /^Lähetetty/.test(pk3.tila) && pk3.muisti === null && !pk3.lista.includes('p-toinen'), JSON.stringify(pk3));
   await lat6.close();
   KV.clear();
   await avaaIkkuna(BLOG_POSTI);
-  const pk4 = await ikkuna.evaluate(() => ({ posti: document.querySelector('#posti').checked, k: document.querySelector('#koodi').value, ala: document.querySelector('#ala-avaa').checked }));
-  tulos('postina: valinnat ja siistitty koodi muistissa', pk4.posti && pk4.k === 'torikaffeillaonhemmetinmukavaa' && pk4.ala, JSON.stringify(pk4));
-  await ikkuna.uncheck('#ala-avaa');
-  const luin3 = await paina('#lukimeen', /luin\.html#id=/);
-  tulos('postina ja avaa nyt: laatikossa ja Luinissa', KV.has('luin:torikaffeillaonhemmetinmukavaa:toinen') && /#id=p-toinen$/.test(luin3.url()), luin3.url());
+  const pk4 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#posti-osa').hidden, k: document.querySelector('#koodi').value, heti: document.querySelector('#heti').checked }));
+  tulos('Postihuilu: auki, lause pienillä ja valinta muistissa', pk4.auki && pk4.k === KOODI && !pk4.heti, JSON.stringify(pk4));
+  await ikkuna.check('#heti');
+  const luin3 = await paina('#soita', /luin\.html#id=/);
+  const muisti3 = await luin3.evaluate(() => localStorage.getItem('luin-laatikko'));
+  tulos('heti-valinnalla: laatikossa ja Luinissa', KV.has('luin:' + KOODI + ':toinen') && /#id=p-toinen$/.test(luin3.url()) && muisti3 === JSON.stringify(KOODI), luin3.url() + ' ' + muisti3);
   await luin3.close();
+  KV.clear();
+  await avaaIkkuna(BLOG_POSTI);
+  const luin4 = await paina('#lukimeen', /luin\.html#id=/);
+  tulos('Lisää lukimeen ei soita huilua, vaikka Postihuilu on auki', KV.size === 0 && /#id=p-toinen$/.test(luin4.url()), luin4.url() + ' KV ' + KV.size);
+  await luin4.close();
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' / '));
   await ctx.close();
