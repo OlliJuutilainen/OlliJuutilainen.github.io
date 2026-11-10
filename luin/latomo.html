@@ -296,7 +296,7 @@
     <p class="pieni"><b>Avaa Luinissa</b> tallentaa tekstin tämän selaimen lukulistaan. Saman nimisen
       tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
       <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
-      <b>Postihuilu</b> vie tekstin postilaatikon kautta kännykän tai muun laitteen Luiniin.</p>
+      <b>Postihuilu</b> kuljettaa tekstin luettavaksi toisella laitteella, esimerkiksi niin sanotusti ”coneelta cännycälle”.</p>
     <!-- Postihuilu (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026; ennen Coneelta Cännycälle ja Lähetä postilaatikkoon,
          25.10.2026; tekstit käyttäjän sanoin): Latomo kirjoittaa tekstin workerin KV:hen reitillä POST /api/luin.
          Laatikkolause (24–40 merkkiä a–z, 0–9, -, luin/posti.js) on itse avain: salaisuutta workeriin tai Päätettä ei
@@ -306,8 +306,8 @@
          (luin-laatikko, yhteinen Luinin kanssa), paitsi kun Lisää lukimeen lähettää ilman lukulistaan lisäämistä
          (data-ei-muistia, latomoon.js). Merkintöjä Latomo ei lähetä (käyttäjän päätös 10.11.2026: juuri ladotussa
          tekstissä niitä ei ole; Luin lähettää ne itse). Lisää lukimeen käyttää tunnisteita #laheta, #laatikko-koodi,
-         #kk-tila (alkaa "Lähetetty"), #kk-virhe ja #laatikko-virhe (latomoon.js): älä nimeä uudelleen, vanhat lisäosat
-         käyttävät niitä yhä. -->
+         #kk-tila (alkaa "Ladottu postitettavaksi"; 0.4.0 odotti "Lähetetty"), #kk-virhe ja #laatikko-virhe
+         (latomoon.js): älä nimeä uudelleen, vanhat lisäosat käyttävät niitä yhä. -->
     <div class="laatikko" id="laatikko" hidden>
       <div class="kentta"><label for="laatikko-koodi">Laatikkolause</label>
         <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="vähintään 24 merkkiä tai Arvo">
@@ -1222,8 +1222,9 @@
     postita({ l: d.k, id: d.id, md: d.t.md }).then(function (v) {
       if (v.s === 200 && v.j.ok) {
         $('#kk-kayttoonotto').hidden = true;
-        // "Lähetetty" alussa: lisäosa (latomoon.js) tunnistaa onnistuneen lähetyksen siitä.
-        kkTila('Lähetetty klo ' + kello(v.j.t || Date.now()) + ': ' + d.otsikko + '.');
+        // Käyttäjän sanamuoto 10.11.2026 (ennen Lähetetty klo …: lähetys tapahtuu jo paneelin avauksesta, joten kuittaus
+        // näytti tulevan ennen lähettämistä). Lisäosa (latomoon.js) tunnistaa onnistuneen lähetyksen alusta.
+        kkTila('Ladottu postitettavaksi klo ' + kello(v.j.t || Date.now()) + ': ' + d.otsikko + '.');
       } else if (v.s === 429) {
         kkTila(v.j.error === 'daily_limit' ? 'Postilaatikon päivän lähetysraja on täynnä. Yritä huomenna uudelleen (raja nollautuu klo 2 tai 3 Suomen aikaa).'
           : 'Liian monta lähetystä hetken sisällä. Yritä minuutin päästä uudelleen.', true);

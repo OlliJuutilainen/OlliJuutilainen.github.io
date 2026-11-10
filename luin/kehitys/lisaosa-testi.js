@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -88,6 +88,50 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
   [BLOG_POSTI]: blogSivu('Koeblogi: Toinen', `<div class="widget Blog"><div class="blog-posts hfeed">${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00',
     '<div style="text-align:left"><a class="twitter-share-button" href="http://twitter.com/share">Tweet</a></div>' + blogKpl(2) + '<p>Hypyn jälkeinen loppu.</p>', false)}</div></div>`)
 };
+// Ensyklopedia Logos (filosofia.fi, keksitty sisältö, rakenne 10.11.2026 sivuilta): tekijärivi, sisällysluettelo, lihavoitu
+// ankkuriotsikko, kursiiviosio, viittaus toiseen artikkeliin sulkeissa ja tekstissä, kirjallisuus kappaleina.
+const LOGOS = 'https://filosofia.fi/fi/ensyklopedia/koe-artikkeli';
+const logosSivu = (ots, runko) => `<!doctype html><html lang="fi"><head><meta charset="utf-8"><title>${ots} | filosofia.fi</title>
+<link rel="canonical" href="https://filosofia.fi/fi/ensyklopedia/${ots === 'Koe, Artikkeli' ? 'koe-artikkeli' : 'toinen'}"></head><body>
+<nav><a href="/fi">Etusivu</a></nav><h1 class="title" id="page-title">${ots}</h1>
+<div class="node node-ensyklopedia" about="/fi/ensyklopedia/x"><div class="content"><div class="field field-name-body"><div class="field-items"><div class="field-item even">${runko}</div></div></div></div></div>
+<footer>Tekijänoikeudet</footer></body></html>`;
+const LOGOS_SIVUT = {
+  [LOGOS]: logosSivu('Koe, Artikkeli', `<p><em>Maija Kirjoittaja</em> <em>(julkaistu 5. 5. 2018)</em></p>
+<p>Johdannon kappale, jossa on tarpeeksi sanoja Readabilityn ja leikkurin iloksi. Se jatkuu vielä toisellakin virkkeellä.</p>
+<ol><li><a href="#Ensimmäinen%20luku">Ensimmäinen luku</a></li><li><a href="#Kirjallisuus">Kirjallisuus</a></li></ol><hr>
+<p><strong>&nbsp;</strong></p>
+<p><a id="Ensimmäinen luku" name="Ensimmäinen luku"><strong>Ensimmäinen luku</strong></a></p>
+<p>Ajattelu on vaikuttanut kehitykseen. (ks. "<a href="/node/22099/">Toinen artikkeli</a>") Seuraava virke viittaa kirjaan (Kirjoittaja 2010, 3).</p>
+<p><em>Pieni osio</em></p>
+<p>Tekstissä mainitaan myös ”<a href="/node/22099/">Toinen artikkeli</a>” ilman sulkeita, ja kaksi asiaa (ks. Kirjoittaja 2010; ”<a href="/node/22099/">Toinen artikkeli</a>”).</p>
+<p>&nbsp;</p>
+<p><a id="Kirjallisuus" name="Kirjallisuus"><strong>Kirjallisuus </strong></a></p>
+<p>Kirjoittaja, Maija (2010). <em>Kirja</em>. Kustantaja, Helsinki.</p>`),
+  'https://filosofia.fi/node/22099/': logosSivu('Toinen artikkeli', `<p><em>Kalle Toinen (19.4.2015</em>)</p><p>Toisen artikkelin teksti.</p>`)
+};
+
+// Wikipedia (fi, keksitty sisältö, Parsoid-rakenne 10.11.2026): muokkauslinkit, ohjausrivi, tietolaatikko, kuva, viitteet,
+// lähde?-merkintä, käännöshuomautus, sininen, punainen ja tiedostolinkki, tyhjäksi jäävä Lähteet, Kirjallisuutta-luettelo.
+const WIKI = 'https://fi.wikipedia.org/wiki/Koeartikkeli';
+const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><title>Koeartikkeli – Wikipedia</title>
+<script type="application/ld+json">{"@type":"Article","name":"Koeartikkeli","author":{"@type":"Organization","name":"Wikimedia-hankkeiden muokkaajat"},"datePublished":"2004-10-28T20:36:20Z","dateModified":"2026-10-24T07:22:49Z"}</script></head><body>
+<h1 id="firstHeading" class="firstHeading"><span class="mw-page-title-main">Koeartikkeli</span></h1>
+<div id="mw-content-text"><div class="mw-parser-output"><section>
+<div class="hatnote navigation-not-searchable">Tämä artikkeli käsittelee koetta. Muita merkityksiä on sivulla <a href="/wiki/Koe_(t%C3%A4smennyssivu)">Koe</a>.</div>
+<table class="infobox"><tr><th>Tietolaatikko</th><td>Tietolaatikon rivi</td></tr></table>
+<figure class="mw-default-size"><a href="/wiki/Tiedosto:Kuva.jpg"><img src="//upload.example/kuva.jpg" alt="Kuva"></a><figcaption>Kuvateksti, jota ei tule.</figcaption></figure>
+<p><b>Koeartikkeli</b> on <a rel="mw:WikiLink" href="/wiki/Pallo" title="Pallo">pallo</a> ja <a href="/wiki/Punainen?action=edit&amp;redlink=1" class="new" title="Punainen (sivua ei ole)">punainen</a> ja <a href="/wiki/Tiedosto:Kuva.jpg">tiedosto</a>.<sup class="mw-ref reference" id="cite_ref-1"><a href="#cite_note-1"><span>[1]</span></a></sup> Toinen virke viittaa samaan.<sup class="mw-ref reference" id="cite_ref-1-1"><a href="#cite_note-1"><span>[1]</span></a></sup></p>
+</section><section><div class="mw-heading mw-heading2"><h2 id="Historia">Historia</h2><span class="mw-editsection">[<a href="/w/index.php?action=edit">muokkaa</a> | <a href="#">muokkaa wikitekstiä</a>]</span></div>
+<div class="hatnote navigation-not-searchable">Pääartikkeli: <a href="/wiki/Koehistoria">Koehistoria</a></div>
+<p>Historiassa <a href="/wiki/Pallo" title="Pallo">pallot</a> olivat litteitä<sup style="font-style:italic;"><a href="/wiki/Malline:L%C3%A4hde"><span class="noprint" title="mikä lähde?">lähde?</span></a></sup> ja <a href="/wiki/Kiekko" title="Kiekko">kiekot</a> pyöreitä.<sup class="mw-ref reference" id="cite_ref-2"><a href="#cite_note-2"><span>[2]</span></a></sup></p>
+<div class="noprint noviewer"><figure><figcaption>Käännös suomeksi</figcaption></figure> <div>Tämä artikkeli tai sen osa on käännetty muunkielisen Wikipedian artikkelista. Alkuperäinen artikkeli: <a class="extiw" href="https://en.wikipedia.org/wiki/Test">en:Test</a></div></div>
+</section><section><div class="mw-heading mw-heading2"><h2 id="Lähteet">Lähteet</h2><span class="mw-editsection">[muokkaa]</span></div>
+<div class="viitteet-malline"><ol class="mw-references references"><li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="mw-reference-text reference-text">Meikäläinen, Matti: <i>Kirja pallosta</i>, s. 12. <a href="/wiki/Otava">Otava</a>, 2001.</span></li>
+<li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="mw-reference-text reference-text"><a href="#CITEREFKirjoittaja2010">Kirjoittaja 2010</a>, s. 5. <a class="external text" href="https://esimerkki.test/lahde">Verkkolähde</a></span></li></ol></div>
+</section><section><div class="mw-heading mw-heading2"><h2 id="Kirjallisuutta">Kirjallisuutta</h2></div>
+<ul><li><cite id="CITEREFKirjoittaja2010">Kirjoittaja, Maija (2010). <i>Kirja</i>. Helsinki: Kustantaja.</cite></li></ul>
+</section><table class="navbox"><tr><td>Navigointilaatikko</td></tr></table></div></div></body></html>`;
 
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
@@ -134,6 +178,8 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
     if (u.href.split('#')[0] === ARTIKKELI) return r.fulfill({ body: SIVU, contentType: 'text/html; charset=utf-8' });
     if (BLOG_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: BLOG_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (SEP_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: SEP_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
+    if (LOGOS_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: LOGOS_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === WIKI) return r.fulfill({ body: WIKI_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
       if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) return r.fulfill({ status: 404, body: '' });
@@ -168,7 +214,8 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
     await ikkuna.goto(IKKUNA);
     const tab = await ikkuna.evaluate(async u => (await chrome.tabs.query({ url: u }))[0].id, sivu);
     await ikkuna.goto(IKKUNA + '?valilehti=' + tab);
-    await ikkuna.waitForFunction(() => !document.querySelector('#lukimeen').disabled || /voi|löytynyt/.test(document.body.textContent), null, { timeout: 5000 });
+    // Vain tila- ja otsikkorivi: piilotetussa ohjeessa on sana "voi", jolloin odotus päättyi joskus ennen leikettä.
+    await ikkuna.waitForFunction(() => !document.querySelector('#lukimeen').disabled || /voi|löytynyt/.test(document.querySelector('#tila').textContent + document.querySelector('#otsikko').textContent), null, { timeout: 5000 });
   };
   // Nappi avaa uuden välilehden; odotetaan sen asettuvan (Latomo, tai Luin jos nappi oli Lisää lukimeen).
   const paina = async (nappi, minne) => {
@@ -299,6 +346,52 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
   tulos('Blogger kirjoitus: otsikko, tekijä, blogin nimi, päivä paikallisena', /^tekijä: Maija Bloggaaja\nsivusto: Koeblogi\njulkaistu: 2026-09-01\nlähde: https:\/\/koeblogi\.blogspot\.com\/2026\/09\/toinen\.html$/m.test(bp) &&
     /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp) && !/Tweet|twitter/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
 
+  // 9. Ensyklopedia Logos (10.11.2026): etukenttä ja tekijärivi, otsikot, sisällysluettelo pois, viittaukset toiseen
+  // artikkeliin alaviitteinä ja artikkeli kirjallisuusluettelon loppuun; Luinissa alaviitteen tekijä–vuosi linkittyy.
+  await artikkeli.goto(LOGOS);
+  await avaaIkkuna(LOGOS);
+  const latomo6 = await paina('#latomoon', /latomo\.html$/);
+  const lg = await latomo6.inputValue('#md');
+  const lgL = await latomo6.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
+    return { lahde: [...d.querySelectorAll('.sidenote a.lahde')].map(a => a.textContent + '>' + a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length,
+      meta: [...d.querySelectorAll('header .meta')].map(x => x.innerHTML) }; }, lg);
+  await latomo6.close();
+  tulos('Logos: etukenttä, tekijärivi ja otsikot, sisällys pois', /^tekijä: Maija Kirjoittaja\nsivusto: Ensyklopedia Logos\njulkaistu: 2018-05-05$/m.test(lg) &&
+    /^# Koe, Artikkeli\n\nMaija Kirjoittaja {2}\nJulkaistu 5\.5\.2018\n\nJohdannon kappale/m.test(lg) && (lg.match(/^#+ .*$/gm) || []).join(' | ') === '# Koe, Artikkeli | ## Ensimmäinen luku | ### Pieni osio | ## Kirjallisuus | ### Ensyklopedia Logoksen artikkelit' &&
+    !/Ensimmäinen%20luku|\]\(#|^___$/m.test(lg), (lg.match(/^#+ .*$/gm) || []).join(' | '));
+  tulos('Logos: ks.-sulkeet alaviitteeksi, muu viittaus jää, linkki tekstiksi', /kehitykseen\.\[\^viite-logos1\] Seuraava virke viittaa kirjaan \(Kirjoittaja 2010, 3\)\./.test(lg) &&
+    /mainitaan myös ”Toinen artikkeli”\[\^viite-logos2\] ilman/.test(lg) && /\(ks\. Kirjoittaja 2010; ”Toinen artikkeli”\[\^viite-logos3\]\)/.test(lg) &&
+    /^\[\^viite-logos1\]: Ks\. Ensyklopedia Logoksen artikkeli ”Toinen artikkeli” \(Toinen 2015\)\.$/m.test(lg) && !/node\/22099/.test(lg), (lg.match(/.{0,40}viite-logos1\].{0,40}/) || [''])[0]);
+  tulos('Logos: artikkeli kirjallisuusluettelon loppuun, osoite kirjoitettuna', /^### Ensyklopedia Logoksen artikkelit\n\nToinen, Kalle \(2015\)\. Toinen artikkeli\. \*Ensyklopedia Logos\*\. https:\/\/filosofia\.fi\/fi\/ensyklopedia\/toinen$/m.test(lg),
+    (lg.match(/### Ensyklopedia[\s\S]{0,200}/) || [''])[0].replace(/\n/g, ' | '));
+  tulos('Logos Luinissa: alaviitteen tekijä–vuosi linkittyy luettelon kohtaan, otsikkolohkossa tekijä', lgL.lahde.length === 3 && lgL.lahde.every(x => x === 'Toinen 2015>#kirj-toinen-2015') &&
+    lgL.bib === 2 && lgL.meta.join('|') === 'Maija Kirjoittaja<br>Julkaistu 5.5.2018', JSON.stringify(lgL));
+
+  // 10. Wikipedia (10.11.2026): siistitty, viitteet ja lähde? alaviitteinä, käännöshuomautus alaviitteenä, wikilinkit
+  // tekstinä ja olemassa olevat artikkelit loppuun, tyhjä Lähteet pois, Kirjallisuutta kappaleina, ei tekijää.
+  await artikkeli.goto(WIKI);
+  await avaaIkkuna(WIKI);
+  const latomo7 = await paina('#latomoon', /latomo\.html$/);
+  const wk = await latomo7.inputValue('#md');
+  const wkL = await latomo7.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
+    return { sn: [...d.querySelectorAll('.sidenote')].map(x => x.textContent.replace(/­/g, '')), lahde: [...d.querySelectorAll('a.lahde')].map(a => a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length }; }, wk);
+  await latomo7.close();
+  tulos('Wikipedia: etukenttä ilman tekijää, muokkauspäivä, sivusto Wikipedia', /^---\nsivusto: Wikipedia\njulkaistu: 2026-10-24\nlähde: https:\/\/fi\.wikipedia\.org\/wiki\/Koeartikkeli\n/.test(wk) && !/^tekijä:/m.test(wk),
+    wk.split('\n').slice(0, 6).join(' | '));
+  tulos('Wikipedia: muokkaa, ohjausrivit, tietolaatikko, kuva, navigointi pois', !/muokkaa|Pääartikkeli|Muita merkityksiä|Tietolaatikko|Kuvateksti|Navigointilaatikko|Käännös suomeksi/.test(wk) &&
+    (wk.match(/^#+ .*$/gm) || []).join(' | ') === '# Koeartikkeli | ## Historia | ## Kirjallisuutta | ## Wikipedia-artikkelit', (wk.match(/^#+ .*$/gm) || []).join(' | '));
+  tulos('Wikipedia: viitteet alaviitteinä (toistuva samalla tunnuksella), lähde? ja käännöshuomautus alaviitteinä', /tiedosto\.\[\^viite-w1\] Toinen virke viittaa samaan\.\[\^viite-w1\]/.test(wk) &&
+    /litteitä\[\^viite-w3\] ja kiekot pyöreitä\.\[\^viite-w2\]\[\^viite-w4\]$/m.test(wk) && /^\[\^viite-w1\]: Meikäläinen, Matti: \*Kirja pallosta\*, s\. 12\. Otava, 2001\.$/m.test(wk) &&
+    /^\[\^viite-w2\]: Kirjoittaja 2010, s\. 5\. \[Verkkolähde\]\(https:\/\/esimerkki\.test\/lahde\)$/m.test(wk) && /^\[\^viite-w3\]: \*lähde\?\* – mikä lähde\?$/m.test(wk) &&
+    /^\[\^viite-w4\]: \*Wikipedian huomautus:\* Tämä artikkeli tai sen osa on käännetty muunkielisen Wikipedian artikkelista\. Alkuperäinen artikkeli: en:Test$/m.test(wk),
+    (wk.match(/^\[\^viite[\s\S]*$/m) || [''])[0].replace(/\n/g, ' | ').slice(0, 400));
+  tulos('Wikipedia: wikilinkit tekstinä, vain olemassa olevat artikkelit loppuun', /^\*\*Koeartikkeli\*\* on pallo ja punainen ja tiedosto\./m.test(wk) &&
+    /^## Wikipedia-artikkelit\n\n- +\[Pallo\]\[\d+\]\n- +\[Kiekko\]\[\d+\]\n*\n\[/m.test(wk) && /^\[\d+\]: https:\/\/fi\.wikipedia\.org\/wiki\/Pallo$/m.test(wk) && !/Punainen|Tiedosto:|Koehistoria|Otava\]/.test(wk.split('## Wikipedia-artikkelit')[1] || 'x'),
+    (wk.match(/## Wikipedia-artikkelit[\s\S]{0,200}/) || [''])[0].replace(/\n/g, ' | '));
+  tulos('Wikipedia Luinissa: Kirjallisuutta kirjallisuusluettelona, alaviitteen tekijä–vuosi linkittyy', wkL.bib === 1 && wkL.lahde.join() === '#kirj-kirjoittaja-2010' && wkL.sn.length === 5,
+    JSON.stringify(wkL).slice(0, 400));
+  await artikkeli.goto(BLOG_POSTI);
+
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
   // lukulistaan heti -valintaa Latomo jää auki eikä lause jää Luinin muistiin; valinnan kanssa teksti avautuu myös
   // Luinissa. Lause ja valinnat muistetaan. Lisää lukimeen ei lähetä postia.
@@ -325,13 +418,13 @@ ${blogPosti('Toinen', BLOG_POSTI, '2026-09-01T23:30:00+03:00', blogKpl(2), true)
   await ikkuna.click('#kysy');
   await ikkuna.uncheck('#heti');
   const lat6 = await paina('#soita', /latomo\.html$/);
-  await lat6.waitForFunction(() => /^Lähetetty/.test(document.querySelector('#kk-tila').textContent) || !document.querySelector('#kk-virhe').hidden, null, { timeout: 8000 });
+  await lat6.waitForFunction(() => /^Ladottu postitettavaksi/.test(document.querySelector('#kk-tila').textContent) || !document.querySelector('#kk-virhe').hidden, null, { timeout: 8000 });
   await lat6.waitForTimeout(500);
   const pk3 = await lat6.evaluate(() => ({ url: location.href, tila: document.querySelector('#kk-tila').textContent || document.querySelector('#kk-virhe').textContent,
     muisti: localStorage.getItem('luin-laatikko'), lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.id) }));
   pk3.kv = KV.has('luin:' + KOODI + ':toinen');
   tulos('ilman heti-valintaa: laatikossa, Latomo jää auki, ei lukulistaan eikä lausetta muistiin', pk3.kv && /latomo\.html$/.test(pk3.url) &&
-    /^Lähetetty/.test(pk3.tila) && pk3.muisti === null && !pk3.lista.includes('p-toinen'), JSON.stringify(pk3));
+    /^Ladottu postitettavaksi/.test(pk3.tila) && pk3.muisti === null && !pk3.lista.includes('p-toinen'), JSON.stringify(pk3));
   await lat6.close();
   KV.clear();
   await avaaIkkuna(BLOG_POSTI);
