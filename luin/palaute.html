@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Palaute – LUiN.HTML</title>
+<link rel="icon" href="kuvakkeet/32.png" sizes="32x32">
+<link rel="icon" href="kuvakkeet/kuvake.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="kuvakkeet/180.png">
+<meta property="og:title" content="Palaute – LUiN.HTML">
+<meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="LUiN.HTML">
+<meta name="twitter:card" content="summary_large_image">
+<!--
+  Palaute kehittäjälle (käyttäjän pyyntö 10.11.2026): nimi, sähköposti (vähintään toinen) ja viesti (pakollinen).
+  Lähetys workerin reitille POST /api/palaute (worker/src/index.js handlePalaute), joka toimittaa viestin kehittäjän
+  postilaatikkoon tekstinä: se kantautuu Luinin lukulistaan kuin Postihuilun teksti. ?mista=<sivu> kertoo, mistä
+  linkistä tultiin. Piilokenttä ansa pysäyttää yksinkertaiset botit. Tyylit kuten tietosuoja.html:ssä.
+-->
+<script>
+  try {
+    var a = JSON.parse(localStorage.getItem('luin-asetukset') || 'null');
+    var tumma = a ? a.teema === 'tumma' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.teema = tumma ? 'tumma' : 'vaalea';
+  } catch (e) {}
+</script>
+<style>
+  @font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; }
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #8c5426; --okra: #b07a16;
+    --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+  }
+  :root[data-teema="tumma"] {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+    --ruoste: #b8794a; --okra: #d4a443;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font: 17px/1.55 var(--antiikva); overflow-wrap: break-word; }
+  main { max-width: 40rem; margin: 0 auto; padding: 24px 16px 40px; }
+  a { color: var(--ruoste); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
+  a.koti { color: inherit; display: inline-block; }
+  svg.logo { display: block; height: 56px; width: auto; fill: currentColor; overflow: visible; margin: 4px 0 18px 2px; }
+  /* Kotimerkki (käyttäjän valinta 4.11.2026, luonnos 12 *Harjasalmiakki* 22:sta): pirtti, jonka harjan yllä leijuu
+     logon i:n pisteen kaltainen salmiakki (yksivärinen kuin pirtti, käyttäjän pyyntö 7.11.2026). Musteen alareuna (lattiaviivan alareuna) on logon
+     loppupisteen alakärjen tasolla, ja keskikohta on 24 px logon oikeasta reunasta kuten lukulistan tietoa-napissa. */
+  a.kotimerkki { display: inline-block; vertical-align: top; width: 40px; height: 40px; margin: 19.6px 0 0 4px;
+    color: var(--harmaa); }
+  a.kotimerkki svg { display: block; width: 22px; height: 22px; margin: 9px; overflow: visible; }
+  a.kotimerkki .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
+  h1 { font-weight: 400; font-size: 1.5rem; letter-spacing: .04em; margin: 0 0 6px; }
+  .johdanto { color: var(--harmaa); margin: 0 0 8px; font-size: .95rem; }
+  h2 { font-weight: 400; font-size: 1.16rem; letter-spacing: .04em; margin: 34px 0 8px; }
+  h3 { font-weight: 400; font-style: italic; font-size: 1rem; margin: 22px 0 6px; }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 1.3em; }
+  li { margin: 0 0 5px; }
+  .ui { font-style: italic; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: .84em; overflow-wrap: anywhere; }
+  pre { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere;
+    margin: 0 0 12px; padding: 10px 12px; border-left: 2px solid var(--viiva); }
+  .viite { padding-left: 1.6em; text-indent: -1.6em; font-size: .92rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 0 0 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--viiva); }
+  th { font-weight: 400; font-style: italic; color: var(--harmaa); }
+  td:first-child { white-space: nowrap; padding-right: 14px; }
+  td.ryhma { white-space: normal; padding-top: 14px; }
+  button { font: inherit; color: inherit; background: none; border: 1px solid var(--muste); padding: 0 12px; min-height: 36px;
+    cursor: pointer; font-size: .86rem; }
+  .huom { font-size: .88rem; color: var(--harmaa); padding-left: 12px; border-left: 1px solid var(--viiva); }
+  .foot { margin: 0; padding: 0 16px 22px; text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; }
+  /* ©: suora salmiakki, jonka sisällä Literatan oman ©-merkin C fonttiyksikköinä (käyttäjän pyyntö 29.10.2026);
+     keskikohta versaalin keskilinjalla. */
+  .foot svg { width: 1.1em; height: 1.1em; vertical-align: -.2em; overflow: visible; fill: currentColor; }
+  .foot .k { fill: none; stroke: currentColor; stroke-width: 58; }
+  /* Lomake: Luinin kenttätyyli (lukulistan Postihuilu-kenttä), ruosteinen lähetysnappi. */
+  label { display: block; margin: 16px 0 4px; font-size: .9rem; }
+  label .valinn { color: var(--harmaa); font-style: italic; font-size: .82rem; }
+  input, textarea { display: block; width: 100%; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  textarea { min-height: 11rem; resize: vertical; line-height: 1.5; }
+  input:focus, textarea:focus { outline: none; border-color: var(--harmaa); }
+  .ansa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .napit { margin: 18px 0 0; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  button.laheta { color: var(--ruoste); border-color: var(--ruoste); min-height: 40px; font-size: .95rem; }
+  button.laheta:disabled { color: var(--harmaa); border-color: var(--viiva); cursor: default; }
+  #tila { font-size: .9rem; color: var(--harmaa); margin: 14px 0 0; }
+  #tila:empty { display: none; }
+  #tila.ok { color: var(--muste); padding-left: 12px; border-left: 2px solid var(--ruoste); }
+  form + .huom { margin-top: 30px; }
+</style>
+</head>
+<body>
+<main>
+  <a class="koti" href="../luin.html" aria-label="Lukulistaan"><svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg></a><a class="kotimerkki" href="../luin.html" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+  <h1>Palaute</h1>
+  <p class="johdanto">Ongelmat, kehitysehdotukset ja muut ajatukset Luinista, Latomosta ja Lisää lukimeen -lisäosasta
+    suoraan kehittäjälle. Anna nimi tai sähköposti (vähintään toinen) ja viesti.</p>
+  <form id="lomake" novalidate>
+    <label for="nimi">Nimi <span class="valinn">(nimi tai sähköposti)</span></label>
+    <input id="nimi" name="nimi" type="text" maxlength="200" autocomplete="name">
+    <label for="sposti">Sähköposti <span class="valinn">(jos haluat vastauksen)</span></label>
+    <input id="sposti" name="sposti" type="email" maxlength="200" autocomplete="email" spellcheck="false" autocapitalize="off">
+    <label for="viesti">Viesti</label>
+    <textarea id="viesti" name="viesti" maxlength="10000" required></textarea>
+    <div class="ansa" aria-hidden="true"><label for="ansa">Jätä tyhjäksi</label><input id="ansa" name="ansa" type="text" tabindex="-1" autocomplete="off"></div>
+    <div class="napit"><button type="submit" class="laheta" id="laheta">Lähetä</button></div>
+    <p id="tila" role="status"></p>
+  </form>
+  <p class="huom">Viesti kulkee kehittäjän postilaatikkoon (Cloudflare Workers -palvelu) ja säilyy siellä enintään
+    30 päivää, kunnes kehittäjä lukee sen. Muualle sitä ei lähetetä.</p>
+</main>
+<script>
+(function () {
+  'use strict';
+  var API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/api/palaute';
+  var $ = function (id) { return document.getElementById(id); };
+  var mista = (new URLSearchParams(location.search).get('mista') || '').slice(0, 200);
+  var VIRHE = {
+    no_message: 'Kirjoita viesti.', no_sender: 'Anna nimi tai sähköposti.', bad_email: 'Sähköpostiosoite ei näytä oikealta.',
+    too_large: 'Viesti on liian pitkä.', rate_limited: 'Liian monta lähetystä hetken sisällä. Yritä minuutin päästä uudelleen.',
+    daily_limit: 'Palvelun päivän lähetysraja on täynnä. Yritä huomenna uudelleen.',
+    not_configured: 'Palautteen vastaanotto ei ole vielä käytössä.'
+  };
+  function tila(t, ok) { $('tila').textContent = t; $('tila').className = ok ? 'ok' : ''; }
+  function tarkista() {
+    var nimi = $('nimi').value.trim(), sposti = $('sposti').value.trim(), viesti = $('viesti').value.trim();
+    if (!viesti) return VIRHE.no_message;
+    if (!nimi && !sposti) return VIRHE.no_sender;
+    if (sposti && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sposti)) return VIRHE.bad_email;
+    return '';
+  }
+  $('lomake').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var v = tarkista();
+    if (v) { tila(v); return; }
+    $('laheta').disabled = true; tila('Lähetetään…');
+    fetch(API, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      nimi: $('nimi').value.trim(), sposti: $('sposti').value.trim(), viesti: $('viesti').value.trim(), mista: mista, ansa: $('ansa').value
+    }) }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; });
+    }).then(function (x) {
+      if (x.s === 200 && x.j.ok) {
+        tila('Kiitos! Viesti on perillä.', true);
+        $('viesti').value = '';
+      } else tila(VIRHE[x.j.error] || 'Lähetys ei onnistunut (' + x.s + (x.j.error ? ', ' + x.j.error : '') + ').');
+    }, function () { tila('Ei yhteyttä. Tarkista verkkoyhteys ja yritä uudelleen.'); })
+      .then(function () { $('laheta').disabled = false; });
+  });
+})();
+</script>
+<p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
+</body>
+</html>

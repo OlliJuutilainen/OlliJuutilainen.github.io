@@ -37,8 +37,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   zipistä poistetaan `browser_specific_settings`. Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
-- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu viiteen sivuun (luin.html, Latomo, Latomon ohje,
-  käyttöohje, tietosuoja). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
+- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu kuuteen sivuun (luin.html, Latomo, Latomon ohje,
+  käyttöohje, tietosuoja, palaute). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
 - Luinin kuvake on Lisää lukimeen -lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
   tumman teeman ruosteineen, 32 px Safarille, 180 px kotivalikkoon paperitaustalla), linkitetty samoihin viiteen
   sivuun. Neliöt ovat salmiakkia. Linkin esikatselu (`og:image`, absoluuttinen osoite) on tumman teeman väreillä, koska
@@ -47,6 +47,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   liian korkea).
   Kun kuva muuttuu, vaihda tiedostonimi: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
+- `luin/palaute.html` (käyttäjän pyyntö 10.11.2026): nimi tai sähköposti ja viesti kehittäjälle reitille
+  `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
+  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: lukulistan alin pieni *palaute*, käyttöohjeen loppu ja
+  Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
+- Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa erityisesti tuetut sivustot ja sivustotoiveiden
+  kappaleen (käyttäjän sanamuoto). Kun leike.js saa uuden sovitteen, lisää sivusto ensimmäiseen kappaleeseen.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
@@ -283,6 +289,8 @@ Aja repon juuressa:
   ja oppaalla). Sivun testikoukku on `window.__luin`.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]`: lisäosa Chromiumissa artikkelista
   lukulistaan ja Lähetä postina.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/palaute-testi.js [kuvakansio]`: palautelomake workerin oikealla koodilla,
+  kantautuminen Luiniin ja Latomon plussa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]`: postilaatikko ja merkintäposti kahdella
   laitteella workerin oikealla koodilla (muistissa oleva KV).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [osoitteet]`: Logoksen ja Wikipedian oikeat
@@ -305,5 +313,5 @@ viedä repoon ilman erillistä lupaa.
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje, lisäosan tietosuojasivu) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
+käyttöohje, lisäosan tietosuojasivu, palaute) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
 (`aria-label="©"`). Muiden ohjelmien alatunnisteissa on tavallinen ©.
