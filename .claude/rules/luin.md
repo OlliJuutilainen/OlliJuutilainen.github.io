@@ -62,9 +62,16 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
+- **Arkistohylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+  `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Hyllyssä ei ole Postihuilua, ohjeita eikä
+  Latomoa (käyttäjän rajaus); linkki hyllylle on lukulistan alalaidassa himmeänä ja vain, kun hyllyllä on jotain. Sanat
+  *Luin.* ja *Puhalla pölyt.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+  Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
+  (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
+  tulos samana kuin tekstin oma vienti.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
-- **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni jakonappi (lähdeviite, verkkotekstin linkki,
-  poisto). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
+- **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
+  *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki

@@ -117,6 +117,31 @@
   .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
   h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
     margin: 0; padding-bottom: 7px; border-bottom: 1px solid var(--viiva); }
+  /* Otsikkorivi (käyttäjän pyyntö 10.11.2026): vasemmalla kaikkien valinta samassa linjassa nimikkeiden valintojen kanssa,
+     oikealla valittujen määrä ja valikko, kun jotain on valittuna. Viiva on rivin, ei otsikon. */
+  .ots-rivi { display: flex; align-items: flex-end; border-bottom: 1px solid var(--viiva); min-height: 30px; }
+  .ots-rivi h2.ots { flex: 1 1 auto; border-bottom: 0; }
+  .val-maara { flex: 0 0 auto; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); padding-bottom: 7px;
+    font-variant-numeric: lining-nums; }
+  .ots-rivi button.jako { height: 34px; margin: 0 -10px 0 0; align-self: center; }
+  /* Valinnan salmiakki (ei ruutua eikä raksia): ontto, valittuna täytetty kuten asetusten kytkimissä; osittain valittu
+     otsikkorivillä sisäkkäinen ääriviiva. */
+  button.valitse { flex: 0 0 auto; width: 34px; height: 44px; margin: 10px 0 0 -11px; color: var(--harmaa);
+    display: inline-flex; align-items: center; justify-content: center; }
+  .ots-rivi button.valitse { height: 30px; margin: 0 0 0 -11px; align-self: center; }
+  button.valitse svg { width: 10px; height: 14px; overflow: visible; }
+  button.valitse .sal-ulko { fill: none; stroke: currentColor; stroke-width: .75; }
+  button.valitse .sal-sisa { fill: none; }
+  button.valitse[aria-pressed="true"] { color: var(--muste); }
+  button.valitse[aria-pressed="true"] .sal-sisa { fill: currentColor; }
+  button.valitse[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
+  /* Arkistohylly: vain logo, kotilinkki, asetukset, hylly ja alatunniste. */
+  .loikea { display: flex; align-items: flex-start; }
+  .lhead .koti svg { fill: none; }
+  .lhead .koti .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
+  #lista.arkisto .vain-lista, #lista.arkisto button.info, #lista.arkisto .tietoa { display: none; }
+  .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
+  .ark-linkki a { color: var(--harmaa); text-underline-offset: 3px; }
   /* Pitkä katkeamaton sana (verkko-osoite alaotsikkona, tekijänä tai viestissä) ei saa leventää sivua: asetteluleveys
      kasvoi 360 → 1440 px, ja ruutuun sovittava WebView (Native Alpha, Light Phone) pienensi koko listan. */
   #lista { overflow-wrap: anywhere; }
@@ -130,6 +155,8 @@
   button.jako { flex: 0 0 auto; width: 40px; height: 44px; margin: 10px -10px 0 0; color: var(--harmaa);
     display: inline-flex; align-items: center; justify-content: center; }
   button.jako svg { width: 15px; height: 15px; }
+  /* Nimikkeen valikko: kolme salmiakkia rivissä (käyttäjän pyyntö 10.11.2026; ennen jakomerkki). */
+  button.jako svg.kolme { width: 17px; height: 7px; fill: currentColor; }
   .tyhja { color: var(--harmaa); font-style: italic; margin: 18px 0; line-height: 1.55; }
   .lisaa { margin: 22px 0 0; font-size: .88rem; line-height: 1.8; color: var(--harmaa); }
   .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
@@ -256,6 +283,14 @@
   /* Peruutus on hiljaisempi kuin poisto (vakiintunut käytäntö: toissijainen toiminto ei huuda), kursiivi ja
      harmaa kuten asetusten Näytä:-otsikko. */
   .valikko.rivi button.ei { padding: 9px 18px; font-style: italic; color: var(--harmaa); }
+  /* Lukulistan vahvistuskysymys Latomon Lasse Lehtisen tapaan (käyttäjän pyyntö 10.11.2026): kysymys ja kaksi nappia. */
+  .valikko.kysely { padding: 0; max-width: min(20rem, calc(100vw - 24px)); }
+  .valikko.kysely .kys { padding: 12px 15px 10px; font-size: .92rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
+  .valikko.kysely .kuka { color: var(--harmaa); }
+  .valikko.kysely .napit { display: flex; }
+  .valikko.kysely .napit button { width: auto; flex: 1 1 auto; text-align: center; }
+  .valikko.kysely .napit button + button { border-left: 1px solid var(--viiva); }
+  .valikko.kysely button.ei { font-style: italic; color: var(--harmaa); }
   .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
@@ -928,16 +963,22 @@
     <div class="lmerkki">
     <svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg>
     <button class="info" type="button" aria-label="Tietoa: LUiN.HTML" aria-controls="tietoa" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
-    <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button>
+    <div class="loikea"><a class="ikoni koti" id="ark-koti" href="#" aria-label="Lukulistaan" title="Lukulistaan" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+    <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on lukulaite Markdown-teksteille. Tiedot tallentuvat vain tähän selaimeen.</p></div>
-  <h2 class="ots">Lukulista</h2>
+  <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
+       on valittuna, oikeaan nurkkaan tulee valittujen valikko. Arkistohyllyssä sama rivi otsikolla Arkistohylly. -->
+  <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
+    <h2 class="ots" id="lista-ots">Lukulista</h2><span class="val-maara" id="val-maara" hidden></span>
+    <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
     linkistä, joka avaa tekstin Luinissa.</p>
   <p class="viesti" id="viesti" hidden></p>
   <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): laatikkolause tai linkki
        (tekstin osoite tai Luin-linkki). Otsikko Postihuilu ja nappi Soita huilua! käyttäjän pyynnöstä 10.11.2026. -->
+  <div class="vain-lista">
   <div class="lisaa-ots-rivi"><p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
     <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: Postihuilu"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
   <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo lukulistallesi sisältöä toisten laitteittesi lukulistoilta ja uusimman luettavan kappaleen <a href="luin/latomo.html">Latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
@@ -951,6 +992,10 @@
   <p class="lisaa uusi"><a href="luin/latomo.html">Uusi teksti LATOMOSSA</a></p>
   <!-- Palaute kehittäjälle (käyttäjän pyyntö 10.11.2026): huomaamattomasti vasemmalla alhaalla. -->
   <p class="lisaa palaute"><a href="luin/palaute.html?mista=lukulista">palaute</a></p>
+  </div>
+  <!-- Arkistohylly (käyttäjän pyyntö 10.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun hyllyllä
+       on jotain. -->
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">arkistohylly</a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
@@ -1180,8 +1225,10 @@
     return '<button type="button" data-k="' + k + '" class="ik' + (luokka ? ' ' + luokka : '') + '" aria-label="' + nimi + '" title="' + nimi + '">' + ikoni + '</button>';
   }
   function kopioitu(b) { b.innerHTML = IK_KOPIOITU; b.setAttribute('aria-label', 'Kopioitu'); b.title = 'Kopioitu'; }
-  var JAKO = '<svg viewBox="0 0 15 15"><path d="M3.2 7.5L11.8 3M3.2 7.5L11.8 12" stroke="currentColor" stroke-width="1.1" fill="none"/><path fill="currentColor" d="' +
-    sal(3.2, 7.5, 2.6, 3.1) + sal(11.8, 3, 2.6, 3.1) + sal(11.8, 12, 2.6, 3.1) + '"/></svg>';
+  // Lukulistan nimikkeen ja valittujen valikko (käyttäjän pyyntö 10.11.2026: ei jakomerkki vaan kolmen pisteen merkki
+  // Luinin tapaan): kolme koverakylkistä salmiakkia rivissä. Valinnan salmiakki on asetusten kytkimen muotoinen.
+  var KOLME = '<svg class="kolme" viewBox="0 0 17 7" aria-hidden="true"><path d="' + sal(2.5, 3.5, 2.3, 3.1) + sal(8.5, 3.5, 2.3, 3.1) + sal(14.5, 3.5, 2.3, 3.1) + '"/></svg>';
+  var VALITSE = '<svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
 
   /* ---------- asetukset ---------- */
   // vieAl, vieKm, vieKi: merkintöjen viennin valinnat (oletuksena alleviivaukset ja kirjaukset). vieEd:
@@ -1363,7 +1410,7 @@
     if (p.get('id')) return avaaId(p.get('id'));
     if (p.get('u')) return avaaOsoite(p.get('u'));
     if (p.get('l')) return otaLaatikko(p.get('l'));
-    naytaLista();
+    naytaLista(h === 'arkisto');
   }
   window.addEventListener('hashchange', reitti);
 
@@ -1374,6 +1421,7 @@
     var doc = LuinMD.parse(t.md);
     var id = 'p-' + LuinMD.slug(doc.title || t.nimi || 'teksti').slice(0, 60);
     var e = lisaaListaan(id, doc, { src: 'paikallinen' });
+    delete e.luettu;
     if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
     tallennaLista();
     location.replace('#id=' + encodeURIComponent(e.id));
@@ -1478,28 +1526,65 @@
     return vara();
   }
 
-  /* ---------- lukulistanäkymä ---------- */
-  function naytaLista() {
+  /* ---------- lukulistanäkymä ----------
+     Arkistohylly (käyttäjän pyyntö 10.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
+     listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Hyllyssä ei ole Postihuilua, ohjeita
+     eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
+     näkymä vaihtuu lukulistan ja hyllyn välillä. */
+  var valitut = {};
+  function naytettavat(ark) {
+    var a = lista.filter(function (e) { return !!e.luettu === !!ark; });
+    return ark ? a.slice().sort(function (x, y) { return y.luettu - x.luettu; }) : a;
+  }
+  function naytaLista(ark) {
+    ark = !!ark;
     tallennaKohta(true);
-    nyt = null; tila.nakyma = 'lista';
+    // Näkymän vaihtuessa valinta nollautuu, eikä edellisen näkymän ilmoitus jää näkyviin.
+    if (ark !== !!tila.arkisto && tila.nakyma === 'lista') viesti('');
+    if (ark !== !!tila.arkisto || tila.nakyma !== 'lista') valitut = {};
+    nyt = null; tila.nakyma = 'lista'; tila.arkisto = ark;
     document.body.classList.remove('sivutus', 'reunat');
     document.documentElement.classList.remove('palkkivara');
     piilotaPalkkiopas();
     $('#lukija').hidden = true; $('#lista').hidden = false;
-    document.title = 'Luin';
-    var ul = $('#nimikkeet');
-    ul.innerHTML = lista.map(function (e) {
-      var ala = e.sub || e.kehys;
-      var tieto = [e.author || (e.sivusto !== ala ? e.sivusto : ''), e.pct != null ? e.pct + ' %' : '', e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
-      return '<li class="nimike"><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
-        '<span class="n-ots">' + esc(e.title) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
-        '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
-        '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Jaa tai poista">' + JAKO + '</button></li>';
-    }).join('');
-    $('#tyhja').hidden = lista.length > 0;
+    $('#lista').classList.toggle('arkisto', ark);
+    $('#ark-koti').hidden = !ark;
+    $('#lista-ots').textContent = ark ? 'Arkistohylly' : 'Lukulista';
+    document.title = ark ? 'Arkistohylly – Luin' : 'Luin';
+    piirraNimikkeet();
+    $('#tyhja').textContent = ark ? 'Arkistohylly on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
+      : 'Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai linkistä, joka avaa tekstin Luinissa.';
     window.scrollTo(0, 0);
     haeLaatikko();
     postiLahetaLikaiset();
+  }
+  function piirraNimikkeet() {
+    var ark = tila.arkisto, nak = naytettavat(ark), ul = $('#nimikkeet');
+    var nyky = {};
+    nak.forEach(function (e) { if (valitut[e.id]) nyky[e.id] = 1; });
+    valitut = nyky;
+    ul.innerHTML = nak.map(function (e) {
+      var ala = e.sub || e.kehys;
+      var tieto = [e.author || (e.sivusto !== ala ? e.sivusto : ''), e.pct != null ? e.pct + ' %' : '',
+        ark ? 'luettu ' + pvm(e.luettu) : e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
+      return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
+        '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
+        '<span class="n-ots">' + esc(e.title) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
+        '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
+        '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
+    }).join('');
+    $('#tyhja').hidden = nak.length > 0;
+    $('#ark-linkki').hidden = ark || !lista.some(function (e) { return e.luettu; });
+    paivitaValinta();
+  }
+  function valitutEt() { return naytettavat(tila.arkisto).filter(function (e) { return valitut[e.id]; }); }
+  function paivitaValinta() {
+    var n = naytettavat(tila.arkisto).length, v = valitutEt().length, k = $('#valitse-kaikki');
+    k.hidden = !n;
+    k.setAttribute('aria-pressed', !v ? 'false' : v === n ? 'true' : 'mixed');
+    k.setAttribute('aria-label', v === n && n ? 'Tyhjennä valinta' : 'Valitse kaikki'); k.title = k.getAttribute('aria-label');
+    $('#val-valikko').hidden = $('#val-maara').hidden = !v;
+    $('#val-maara').textContent = v + ' valittu';
   }
 
   /* ---------- postilaatikko ----------
@@ -1539,14 +1624,17 @@
           var id = 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
-          return lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
+          // Uudelleen lähetetty teksti palaa hyllyltä lukulistaan.
+          var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
+          delete e.luettu;
+          return e;
         }).catch(function () { return null; });
       })).then(function (es) {
         var n = es.filter(Boolean).length;
         LS.set('luin-laatikko-nahdyt', nahdyt);
         if (n) {
           tallennaLista();
-          if (tila.nakyma === 'lista') { naytaLista(); viesti(n === 1 ? 'Postihuilun kautta kantautui teksti.' : 'Postihuilun kautta kantautui ' + n + ' tekstiä.'); }
+          if (tila.nakyma === 'lista' && !tila.arkisto) { naytaLista(); viesti(n === 1 ? 'Postihuilun kautta kantautui teksti.' : 'Postihuilun kautta kantautui ' + n + ' tekstiä.'); }
         }
         // Merkinnät tekstien jälkeen, jotta juuri tullut teksti saa omansa.
         return postiVastaanota(k, d.merk || []).then(function () {
@@ -1756,7 +1844,9 @@
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
       (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
-      '<button type="button" data-k="poista" class="vaara">Poista listasta</button>', '', function (k, nappi) {
+      '<button type="button" data-k="luin">' + (e.luettu ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
+      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista hyllyltä' : 'Poista listasta') + '</button>', '', function (k, nappi) {
+      if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lisa') {
         aset.viiteLisa = aset.viiteLisa ? 0 : 1; tallennaAset();
         nappi.setAttribute('aria-pressed', !!aset.viiteLisa);
@@ -1767,12 +1857,79 @@
       if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu'; }); return true; }
       if (k === 'poista') {
         if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät'; return true; }
-        lista = lista.filter(function (x) { return x.id !== e.id; });
-        LS.del('luin-teksti:' + e.id); LS.del('luin-merkit:' + e.id);
-        tallennaLista(); naytaLista();
+        poistaListasta([e]);
       }
     }, 'oikea');
   });
+  function poistaListasta(es) {
+    var pois = {};
+    es.forEach(function (e) { pois[e.id] = 1; LS.del('luin-teksti:' + e.id); LS.del('luin-merkit:' + e.id); });
+    lista = lista.filter(function (x) { return !pois[x.id]; });
+    tallennaLista(); naytaLista(tila.arkisto);
+  }
+  // Valinta: nimikkeen salmiakki ja otsikkorivin kaikki/ei mitään.
+  $('#nimikkeet').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button.valitse');
+    if (!b) return;
+    if (valitut[b.dataset.id]) delete valitut[b.dataset.id]; else valitut[b.dataset.id] = 1;
+    b.setAttribute('aria-pressed', String(!!valitut[b.dataset.id]));
+    paivitaValinta();
+  });
+  $('#valitse-kaikki').innerHTML = VALITSE; $('#val-valikko').innerHTML = KOLME;
+  $('#valitse-kaikki').addEventListener('click', function () {
+    var nak = naytettavat(tila.arkisto), kaikki = nak.length && valitutEt().length === nak.length;
+    valitut = {};
+    if (!kaikki) nak.forEach(function (e) { valitut[e.id] = 1; });
+    $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
+    paivitaValinta();
+  });
+  // Valittujen valikko: Luin. (hyllyssä Puhalla pölyt.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
+  $('#val-valikko').addEventListener('click', function () {
+    var b = this, es = valitutEt();
+    if (!es.length) return;
+    var n = es.length, ark = tila.arkisto;
+    naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
+      '<button type="button" data-k="luin">' + (ark ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
+      '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' +
+      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
+      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista hyllyltä' : 'Poista listasta') + '</button>', '', function (k, nappi) {
+      if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
+      if (k === 'zip') { vieZip(es); return; }
+      if (k === 'viitteet') {
+        kopioi(es.map(function (e) { return viite(e); }).join('\n'), es.map(function (e) { return '<p>' + viite(e, true) + '</p>'; }).join(''))
+          .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu' : 'Lähdeviitteet kopioitu'; });
+        return true;
+      }
+      if (k === 'poista') {
+        if (!nappi.dataset.varmista) {
+          nappi.dataset.varmista = 1;
+          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen';
+          return true;
+        }
+        poistaListasta(es);
+      }
+    }, 'oikea');
+  });
+  // Luin. ja Puhalla pölyt. kysyvät vahvistuksen Latomon Lasse Lehtisen tapaan (käyttäjän pyyntö 10.11.2026).
+  function kysyLuin(es, rect) {
+    var ark = !!es[0].luettu, n = es.length;
+    var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin luettavien listaan?' : 'Nostetaanko ' + n + ' tekstiä takaisin luettavien listaan?')
+      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään arkistohyllyyn?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään arkistohyllyyn?');
+    naytaPop(rect, '<div class="kys">”' + kys + '” <span class="kuka">kysyi Lasse Lehtinen.</span></div>' +
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
+      '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
+      if (k !== 'ok') return;
+      var t = Date.now(), ids = {};
+      es.forEach(function (e) { ids[e.id] = 1; if (ark) delete e.luettu; else e.luettu = t; });
+      // Hyllyltä nostettu teksti nousee lukulistan kärkeen.
+      if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
+      tallennaLista();
+      es.forEach(function (e) { delete valitut[e.id]; });
+      piirraNimikkeet();
+      viesti(ark ? (n === 1 ? 'Teksti palasi lukulistaan.' : n + ' tekstiä palasi lukulistaan.')
+        : (n === 1 ? 'Teksti siirtyi arkistohyllyyn.' : n + ' tekstiä siirtyi arkistohyllyyn.'));
+    }, 'oikea');
+  }
 
   /* ---------- ponnahdusvalikko ---------- */
   var popToiminto = null, popPaikka = null;
@@ -2152,7 +2309,7 @@
      jotta kohta ei muutu tavutuksen tai asetusten mukana. */
   var POIS = '.sidenote,.fnref,.luin-ui,input';
   function solmut(el) {
-    var tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), a = [], n;
+    var tw = (el.ownerDocument || document).createTreeWalker(el, NodeFilter.SHOW_TEXT, null), a = [], n;
     while ((n = tw.nextNode())) { if (!n.parentElement.closest(POIS)) a.push(n); }
     return a;
   }
@@ -2247,6 +2404,9 @@
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
+    // Hyllyn tekstistä kotimerkki palaa arkistohyllyyn.
+    var tk = $('.takaisin'), tkn = e.luettu ? 'Arkistohyllyyn' : 'Lukulistaan';
+    tk.setAttribute('href', e.luettu ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
     piirraTeksti();
@@ -5451,6 +5611,83 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
     tieto.textContent = 'Ladattu: ' + a.download;
   }
+  /* Valittujen tekstien merkinnät zip-pakettina (käyttäjän pyyntö 10.11.2026): jokaisesta tekstistä sama .md kuin tekstin
+     omasta viennistä, samoilla viennin valinnoilla (aset.vieAl ym.). Avaamaton teksti jäsennetään erilliseen dokumenttiin
+     (ei piirretä, ei haeta kuvia), ja merkinnät paikannetaan siihen kuten avattaessa; mitään ei tallenneta. Zip on
+     pakkaamaton (store) ja nimet UTF-8:na. */
+  function virtuaaliNyt(e) {
+    var md = LS.get('luin-teksti:' + e.id, null);
+    if (md == null) return null;
+    var doc = LuinMD.parse(md), d = document.implementation.createHTMLDocument('').createElement('div');
+    d.innerHTML = doc.html;
+    var v = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0, virt: true };
+    $$('[data-b]', d).forEach(function (el) { var b = +el.dataset.b; v.blocks[b] = el; v.txt[b] = lohkoteksti(el); });
+    return v;
+  }
+  function vieZip(es) {
+    var val = vieValitut();
+    if (!val.al && !val.ki && !val.km) { viesti('Viennin valinnoissa ei ole merkintöjä. Valinnat ovat avoimen tekstin asetuksissa.'); return; }
+    var oli = nyt, tiedostot = [], nimet = {}, tyhjat = 0;
+    try {
+      es.forEach(function (e) {
+        var v = virtuaaliNyt(e);
+        if (!v) { tyhjat++; return; }
+        nyt = v;
+        v.merk.km.forEach(function (k) { var p = paikanna(k); if (p) { k.b = p.b; k.o = p.o; } k.orpo = !p; });
+        v.merk.al.forEach(function (h) { h.segs.forEach(function (q) {
+          var p = paikanna({ b: q.b, o: q.s, s: q.x });
+          if (p) { q.e = p.o + (q.e - q.s); q.b = p.b; q.s = p.o; }
+          q.orpo = !p;
+        }); });
+        var md = merkinnatMd(val);
+        if (!md) { tyhjat++; return; }
+        var nimi = LuinMD.slug(e.title).slice(0, 60) || 'teksti', n = nimi, i = 2;
+        while (nimet[n]) n = nimi + '-' + i++;
+        nimet[n] = 1;
+        tiedostot.push({ nimi: n + '-merkinnat.md', data: new TextEncoder().encode(md) });
+      });
+    } finally { nyt = oli; }
+    if (!tiedostot.length) { viesti(es.length === 1 ? 'Tekstissä ei ole vietäviä merkintöjä.' : 'Valituissa teksteissä ei ole vietäviä merkintöjä.'); return; }
+    var d = new Date(), pv = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(zip(tiedostot));
+    a.download = 'luin-merkinnat-' + pv + '.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+    viesti('Ladattu: ' + a.download + ' (' + lkm(tiedostot.length, 'teksti', 'tekstiä') + ')' +
+      (tyhjat ? '. Ilman vietäviä merkintöjä: ' + lkm(tyhjat, 'teksti', 'tekstiä') + '.' : '.'));
+  }
+  var CRC = null;
+  function crc32(b) {
+    if (!CRC) { CRC = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC[n] = c >>> 0; } }
+    var x = 0xFFFFFFFF;
+    for (var i = 0; i < b.length; i++) x = CRC[(x ^ b[i]) & 255] ^ (x >>> 8);
+    return (x ^ 0xFFFFFFFF) >>> 0;
+  }
+  function zip(tiedostot) {
+    var osat = [], keskus = [], kohta = 0, d = new Date();
+    var aika = (d.getHours() << 11) | (d.getMinutes() << 5) | Math.floor(d.getSeconds() / 2);
+    var pvmD = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    function otsake(koko) { var b = new Uint8Array(koko); return { b: b, v: new DataView(b.buffer) }; }
+    tiedostot.forEach(function (f) {
+      var nimi = new TextEncoder().encode(f.nimi), crc = crc32(f.data), n = f.data.length;
+      var l = otsake(30 + nimi.length), v = l.v;
+      v.setUint32(0, 0x04034b50, true); v.setUint16(4, 20, true); v.setUint16(6, 0x0800, true); v.setUint16(8, 0, true);
+      v.setUint16(10, aika, true); v.setUint16(12, pvmD, true); v.setUint32(14, crc, true); v.setUint32(18, n, true);
+      v.setUint32(22, n, true); v.setUint16(26, nimi.length, true); v.setUint16(28, 0, true); l.b.set(nimi, 30);
+      var c = otsake(46 + nimi.length), w = c.v;
+      w.setUint32(0, 0x02014b50, true); w.setUint16(4, 20, true); w.setUint16(6, 20, true); w.setUint16(8, 0x0800, true);
+      w.setUint16(10, 0, true); w.setUint16(12, aika, true); w.setUint16(14, pvmD, true); w.setUint32(16, crc, true);
+      w.setUint32(20, n, true); w.setUint32(24, n, true); w.setUint16(28, nimi.length, true); w.setUint32(42, kohta, true);
+      c.b.set(nimi, 46);
+      osat.push(l.b, f.data); keskus.push(c.b);
+      kohta += l.b.length + n;
+    });
+    var kk = keskus.reduce(function (s, b) { return s + b.length; }, 0), loppu = otsake(22), e = loppu.v;
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, tiedostot.length, true); e.setUint16(10, tiedostot.length, true);
+    e.setUint32(12, kk, true); e.setUint32(16, kohta, true);
+    return new Blob(osat.concat(keskus, [loppu.b]), { type: 'application/zip' });
+  }
   // Viennin osio on syvin otsikko, jonka alla merkintä on: lohkot otsikosta seuraavaan otsikkoon
   // (i = -1: ennen ensimmäistä otsikkoa).
   function tocIndeksi(b) { var i = -1; nyt.doc.toc.forEach(function (t, j) { if (t.b <= b) i = j; }); return i; }
@@ -5524,7 +5761,7 @@
     var out = '# ' + e.title + '\n\n*Luetun merkinnät*\n\n';
     if (v.ed) {
       // Sijainti vain otsikon tarkkuudella (käyttäjän päätös 21.10.2026).
-      var p = polku((tila.ankkuri || e.pos || { b: 0 }).b);
+      var p = polku((!nyt.virt && tila.ankkuri || e.pos || { b: 0 }).b);
       out += 'Viety: ' + pvm() + '<br>\nSijainti: ' + (p.length ? p.map(function (t) { return t.text; }).join(' › ') : 'tekstin alku') + '\n\n';
     }
     out += viite(e, 'md') + '\n\n---';
