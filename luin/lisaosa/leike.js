@@ -382,8 +382,8 @@
      alaviitteitä, samoin Wikipedian omat merkinnät (lähde?, citation needed). Ylläpito- ja tynkähuomautukset
      (”Tämä artikkeli tai sen osa on käännetty …”) ovat alaviite lähimmän kappaleen perässä, koska ne eivät ole
      leipätekstiä eivätkä lainauksia. Lähde- ja kirjallisuusluettelot kappaleiksi (md.js:n kirjallisuusluettelo).
-     Wikilinkit (vain olemassa olevat artikkelit) ovat tekstissä pelkkää tekstiä, ja artikkelit tulevat loppuun
-     esiintymisjärjestyksessä omaksi luetteloksi linkkeineen: verkkoon pääsee vain sieltä ja vain, kun Luinin
+     Wikilinkit ovat tekstissä pelkkää tekstiä. Loppuun tulevat linkkeineen vain toimittajien valitsemat artikkelit
+     (Pääartikkeli- ja Katso myös -ohjausrivit, Katso myös -osio): verkkoon pääsee vain sieltä ja vain, kun Luinin
      verkkolinkit ovat päällä. Tekstin sisäinen linkki luettelon kohtaan vaatisi md.js:n muutosta (ei nyt). Tekijää ei
      ole (viite alkaa otsikolla), julkaistu on luetun version muokkauspäivä. */
   const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja)(\s|_)*:/i;
@@ -453,6 +453,36 @@
       b.remove();
       if (t && ed) ed.appendChild(merkki(lisaa('*' + (fi ? 'Wikipedian huomautus' : 'Wikipedia notice') + ':* ' + t)));
     });
+    // Loppuluettelon artikkelit (käyttäjän valinta 10.11.2026: kaikki wikilinkit tekivät satojen rivien luettelon, Age of
+    // Enlightenment 547): vain toimittajien omat valinnat eli Pääartikkeli-, Katso myös- ja Lisätietoja-ohjausrivien
+    // artikkelit esiintymisjärjestyksessä ja Katso myös -osio, joka siirtyy kokonaan luetteloon. Muut wikilinkit tekstiksi.
+    const artikkelit = new Map();
+    const artikkeli = a => {
+      let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
+      const sisainen = u.hostname === location.hostname || /(^|\.)wikipedia\.org$/.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
+      const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
+      const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
+      if (!sisainen || !nimi || punainen || WIKI_NIMIAVARUUS.test(nimi) || u.pathname === location.pathname) return null;
+      return { avain: 'https://' + location.hostname.replace(/\.m\./, '.') + '/wiki/' + u.pathname.slice(6), nimi: rivi(a.getAttribute('title')) || nimi };
+    };
+    const talteen = juuri => juuri.querySelectorAll('a[href]').forEach(a => {
+      const k = artikkeli(a);
+      if (k && !artikkelit.has(k.avain)) artikkelit.set(k.avain, k.nimi);
+    });
+    el.querySelectorAll('.hatnote, .dablink, .rellink').forEach(h => {
+      if (/^\s*(pääartikkeli|pääartikkelit|katso myös|lisätietoja|main articles?|see also|further information)\b/i.test(h.textContent)) talteen(h);
+    });
+    const KATSO = /^(katso myös|see also)$/i;
+    el.querySelectorAll('h2').forEach(h => {
+      if (!KATSO.test(rivi(h.textContent.replace(/\[(muokkaa|edit)[^\]]*\]/gi, '')))) return;
+      const kaare = h.closest('section') && h.closest('section').querySelector('h2') === h ? h.closest('section') : null;
+      if (kaare && el.contains(kaare)) { talteen(kaare); kaare.remove(); return; }
+      const alku = h.closest('.mw-heading') || h;
+      while (alku.nextElementSibling && !/^H2$/.test(alku.nextElementSibling.tagName) && !alku.nextElementSibling.querySelector('h2')) {
+        talteen(alku.nextElementSibling); alku.nextElementSibling.remove();
+      }
+      alku.remove();
+    });
     // Kaavat: TeX-teksti koodina.
     el.querySelectorAll('.mwe-math-element').forEach(m => {
       const tex = m.querySelector('annotation[encoding="application/x-tex"]'), img = m.querySelector('img[alt]');
@@ -468,18 +498,11 @@
       '.authority-control', '.NavFrame', '.navigaatiomalline', '.noprint', '.mw-kartographer-maplink', '.mw-kartographer-map'].join(', ')).forEach(x => x.remove());
     // Parsoidin osiot ja otsikkokääreet auki, jotta otsikot ja sisältö ovat samalla tasolla.
     el.querySelectorAll('section, div.mw-heading, div.section-heading, .mf-section-0, [class*="mf-section-"]').forEach(x => x.replaceWith(...x.childNodes));
-    // Wikilinkit: olemassa olevat artikkelit luetteloon, tekstissä pelkkä teksti.
-    const artikkelit = new Map();
+    // Wikilinkit tekstiksi; verkkolinkit jäävät (toimivat vain Luinin verkkolinkit päällä).
     el.querySelectorAll('a[href]').forEach(a => {
       let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return; }
       const sisainen = u.hostname === location.hostname || /(^|\.)wikipedia\.org$/.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
       if (!sisainen && !a.classList.contains('extiw')) { a.setAttribute('href', u.href); return; }
-      const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
-      const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
-      if (sisainen && nimi && !punainen && !WIKI_NIMIAVARUUS.test(nimi) && u.pathname !== location.pathname) {
-        const avain = 'https://' + location.hostname.replace(/\.m\./, '.') + '/wiki/' + u.pathname.slice(6);
-        if (!artikkelit.has(avain)) artikkelit.set(avain, rivi(a.getAttribute('title')) || nimi);
-      }
       a.replaceWith(...a.childNodes);
     });
     // Tyhjiksi jääneet otsikot pois (fi: Lähteet, jossa oli vain viiteluettelo; en: Notes, References).

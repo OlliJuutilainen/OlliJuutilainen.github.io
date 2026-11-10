@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]
 // Kaksi laitetta (erilliset selainkontekstit, eri localStorage) ja yksi laatikko: workerin oikea koodi
 // (worker/src/index.js) muistissa olevalla KV:llä, johon sivujen kutsut reititetään. Tarkistaa: laatikkolauseen sääntö
-// (24–40 merkkiä a–z, 0–9, -; muut merkit hylätään, isot pieniksi; Luin, Lisää-kenttä, Latomo), i-ohje, Postihuilun
+// (24–52 merkkiä a–z, 0–9, -; muut merkit hylätään, isot pieniksi; Luin, Lisää-kenttä, Latomo), i-ohje, Postihuilun
 // tekstit, asetusten kerrokset (lause → Huiluta myös merkintöjä → lajit), lähetys lukulistaan palattaessa, vastaanotto
 // toisessa laitteessa (alleviivaus, kirjaus, kirjanmerkki, lukukohta), poiston kulku poistomerkintänä, tekstikohtainen
 // valinta ja Latomon Postihuilu (vain teksti, ei merkintöjä).
@@ -94,7 +94,7 @@ function muistiKV() {
   tulos('Postihuilu: asetusten ja lukulistan tekstit', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
     osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut lukulistat.' && osio.lista === 'Postihuilu' &&
     osio.paikka === 'Laatikkolause tai linkki' && osio.lisaa === 'Soita huilua!', JSON.stringify(osio));
-  tulos('i-ohje: haarukka 24–40, muita merkkejä ei hyväksytä, esimerkit, 30 päivää', ohje.auki && /merkkihaarukka on 24–40/.test(ohje.t) &&
+  tulos('i-ohje: haarukka 24–52, muita merkkejä ei hyväksytä, esimerkit, 30 päivää', ohje.auki && /merkkihaarukka on 24–52/.test(ohje.t) &&
     /MUITA MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ\./.test(ohje.t) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(ohje.t) &&
     /torikaffeillaonhemmetinmukavaa/.test(ohje.t) && /kestää 30 päivää/.test(ohje.t), ohje.t.slice(0, 90));
   await a.fill('#laatikko-koodi', 'lyhytkoodi');
@@ -233,7 +233,7 @@ function muistiKV() {
   tulos('Latomo: lyhyt lause ei kelpaa', /vähintään 24 merkkiä \(nyt 11\)/.test(lat1.v) && lat1.nappi, lat1.v);
   await a.click('#laatikko-kysy');
   const lat2 = await a.evaluate(() => document.querySelector('#laatikko-ohje').textContent);
-  tulos('Latomo: i-ohje', /merkkihaarukka on 24–40/.test(lat2) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(lat2) && /kestää 30 päivää/.test(lat2));
+  tulos('Latomo: i-ohje', /merkkihaarukka on 24–52/.test(lat2) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(lat2) && /kestää 30 päivää/.test(lat2));
   await a.fill('#laatikko-koodi', 'Torikaffeilla on hemmetin MUKAVAA');
   const latV = await a.evaluate(() => ({ v: document.querySelector('#laatikko-virhe').textContent, nappi: document.querySelector('#kk-laheta').disabled }));
   tulos('Latomo: välilyönnit hylätään', /Ei kelpaa: välilyönti\.$/.test(latV.v) && latV.nappi, latV.v);

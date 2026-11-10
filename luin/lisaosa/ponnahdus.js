@@ -29,7 +29,7 @@ function koodiVirhe(k) {
   });
   if (vaarat.length) return 'Laatikkolauseessa saa olla vain kirjaimia a–z, numeroita ja yhdysmerkkejä (-). Ei kelpaa: ' + vaarat.join(', ') + '.';
   if (k.length < 24) return 'Laatikkolauseessa on oltava vähintään 24 merkkiä (nyt ' + k.length + ').';
-  if (k.length > 40) return 'Laatikkolauseessa voi olla enintään 40 merkkiä (nyt ' + k.length + ').';
+  if (k.length > 52) return 'Laatikkolauseessa voi olla enintään 52 merkkiä (nyt ' + k.length + ').';
   return '';
 }
 
