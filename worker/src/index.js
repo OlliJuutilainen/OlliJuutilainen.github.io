@@ -414,6 +414,48 @@ async function handleLuin(req, env) {
   return jsonResponse({ v: 1, texts, merk }, { headers: { "Cache-Control": "no-store" } });
 }
 
+// Palaute (käyttäjän pyyntö 10.11.2026, luin/palaute.html): kenttinä nimi, sähköposti (vähintään toinen) ja viesti.
+// POST /api/palaute, runko { nimi, sposti, viesti, mista, ansa }. Viesti toimitetaan kehittäjän postilaatikkoon tekstinä
+// (luin:<PALAUTE_LAATIKKO>:palaute-<aika>), joten se kantautuu Luinin lukulistaan kuin Postihuilun teksti; sähköpostia ei
+// tarvita. PALAUTE_LAATIKKO on workerin salaisuus (wrangler secret put), ei repossa. Ilman sitä vastaus on 503
+// not_configured. Sama laskuri kuin postilla (osoitekohtainen minuuttiraja ja päiväraja). ansa on piilokenttä: botti
+// täyttää sen, ihminen ei; täytetty kuitataan onnistuneeksi, mutta mitään ei tallenneta.
+const PALAUTE_MAX = { nimi: 200, sposti: 200, viesti: 10000, mista: 200 };
+const PALAUTE_SPOSTI_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function handlePalaute(req, env) {
+  if (req.method !== "POST") return errorResponse("bad_method", 405);
+  const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
+  if (!(await luinLaskuri(env, "osoite", ip))) return errorResponse("rate_limited", 429);
+  let body;
+  try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
+  const k = {};
+  for (const n of Object.keys(PALAUTE_MAX)) k[n] = String((body && body[n]) || "").replace(/\r\n?/g, "\n").trim();
+  if (Object.keys(PALAUTE_MAX).some((n) => k[n].length > PALAUTE_MAX[n])) return errorResponse("too_large", 413);
+  if (!k.viesti) return errorResponse("no_message", 400);
+  if (!k.nimi && !k.sposti) return errorResponse("no_sender", 400);
+  if (k.sposti && !PALAUTE_SPOSTI_RE.test(k.sposti)) return errorResponse("bad_email", 400);
+  if (body && body.ansa) { logEvent("palaute_ansa"); return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } }); }
+  const box = String(env.PALAUTE_LAATIKKO || "").trim().toLowerCase();
+  if (!LUIN_BOX_RE.test(box) || box.length < LUIN_KIRJOITUS_MIN || !env.LOCATIONS || typeof env.LOCATIONS.put !== "function") {
+    logEvent("palaute_not_configured");
+    return errorResponse("not_configured", 503);
+  }
+  if (!(await luinLaskuri(env, "paiva", ip))) return errorResponse("daily_limit", 429);
+  const t = Date.now();
+  // Suomen aika otsikkoon (Luinin lukulistassa näkyy otsikko); rivinvaihdot ja Markdownin otsikkomerkit pois kentistä.
+  const aika = new Intl.DateTimeFormat("fi-FI", { timeZone: "Europe/Helsinki", day: "numeric", month: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit" }).format(new Date(t)).replace(" klo", "").replace(/\s+/, " klo ");
+  const rivi = (x) => x.replace(/\s+/g, " ").replace(/^[#>*\-+\s]+/, "");
+  const md = "# Palaute: " + (rivi(k.nimi) || rivi(k.sposti)) + "\n\n" +
+    [k.nimi && "Nimi: " + rivi(k.nimi), k.sposti && "Sähköposti: " + rivi(k.sposti), "Lähetetty " + aika,
+      k.mista && "Sivulta: " + rivi(k.mista)].filter(Boolean).join("  \n") + "\n\n## Viesti\n\n" + k.viesti + "\n";
+  const id = "palaute-" + t.toString(36);
+  await env.LOCATIONS.put(`luin:${box}:${id}`, md, { metadata: { t }, expirationTtl: LUIN_TTL });
+  logEvent("palaute_200", { bytes: md.length });
+  return jsonResponse({ ok: true, t }, { headers: { "Cache-Control": "no-store" } });
+}
+
 // ---- Lisäominaisuus: kansio soittolistana -----------------------------
 // Tavallinen keikka (audio + tracks) ei käytä mitään tämän osion koodista.
 //
@@ -769,6 +811,13 @@ export default {
       if (url.pathname === "/api/dropbox" || url.pathname === "/api/drive") {
         const check = url.pathname === "/api/drive" ? driveCheck : dropboxCheck;
         return corsify(await handleFolderCheck(check, env), {
+          origin,
+          requestHeaders: acrHeaders,
+          allowedOrigins,
+        });
+      }
+      if (url.pathname === "/api/palaute") {
+        return corsify(await handlePalaute(req, env), {
           origin,
           requestHeaders: acrHeaders,
           allowedOrigins,

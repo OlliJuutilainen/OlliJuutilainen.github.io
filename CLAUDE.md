@@ -17,7 +17,7 @@ tässä tiedostossa, joka oli kasvanut 118 000 merkkiin ja latautui jokaiseen is
 
 Claude Code lataa tiedoston itse, kun luet tai muokkaat sen `paths`-kuvioihin osuvaa tiedostoa. Jos
 ohjelman työ alkaa muualta (esim. `worker/src/index.js`: reitit `/api/gig`, `/api/drive*` ja `/api/dropbox`
-ovat soittimen, `/api/luin` Luinin) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
+ovat soittimen, `/api/luin` ja `/api/palaute` Luinin) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
 
 Mihin kirjataan: yhden ohjelman päätös sen omaan tiedostoon, kaikkia ohjelmia koskeva tähän. Kun huomaat
 opin, joka palvelisi koko Tusinasoftin kehitystä, ehdota käyttäjälle lyhyttä kirjausta tähän tiedostoon;
@@ -145,7 +145,7 @@ Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekk�
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
 myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
-`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, Luinin käyttöohjeessa, Keikkaloihtimessa, Omat keikkani -listassa ja
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, Luinin käyttöohjeessa ja palautesivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
