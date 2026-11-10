@@ -6,12 +6,14 @@
    aidattu koodi, *kursiivi*, **lihavointi**, viitelinkit lopussa, kuvat pois, Markdown-merkit suojattuina,
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
-   haettuina Luinin alaviitteiksi. */
+   haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
+   (käyttäjän pyyntö 10.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
   // Alaviitteen paikka Turndownin läpi: pelkkiä kirjaimia ja numeroita, joita Turndown ei suojaa.
-  const MERKKI = /XLUINVIITE([0-9A-Za-z]+)X/g;
+  // Ei-ahne: vierekkäiset merkit (Wikipedia: kolme viitettä peräkkäin) eivät sulaudu yhdeksi.
+  const MERKKI = /XLUINVIITE([0-9A-Za-z]+?)X/g;
 
   function muunna(html, linkit = 'referenced') {
     const td = new TurndownService({ headingStyle: 'atx', hr: '___', bulletListMarker: '-', codeBlockStyle: 'fenced',
@@ -111,14 +113,18 @@
       m.sup.replaceWith(d.createTextNode('XLUINVIITE' + tunnus + 'X'));
       if (!maar.has(tunnus)) maar.set(tunnus, teksti);
     }
-    // Jatkokappaleet sisennettyinä; lainausmerkit pois, koska alaviitteessä ei ole lainauslohkoa (sama kuin md.js:n
-    // sivunViitteet(), kun Notes-sivun leike liitetään Latomossa).
-    return [...maar].map(([t, s]) => '[^viite-' + t + ']: ' + s.split('\n').map((r, i) => {
+    return [...maar].map(([t, s]) => maaritelma(t, s));
+  }
+  // Jatkokappaleet sisennettyinä; lainausmerkit pois, koska alaviitteessä ei ole lainauslohkoa (sama kuin md.js:n
+  // sivunViitteet(), kun Notes-sivun leike liitetään Latomossa).
+  function maaritelma(t, s) {
+    return '[^viite-' + t + ']: ' + s.split('\n').map((r, i) => {
       if (!i) return r;
       const k = r.replace(/^ {0,3}(?:>\s?)+/, '');
       return k.trim() ? '    ' + k : '';
-    }).join('\n').replace(/\n{3,}/g, '\n\n'));
+    }).join('\n').replace(/\n{3,}/g, '\n\n');
   }
+  const merkki = t => document.createTextNode('XLUINVIITE' + t + 'X');
 
   // Blogger-sovite (blogspot.com ja omat verkkotunnukset, klassinen ja Contempo-pohja). Readability ottaa etusivulta
   // kaikki kirjoitukset otsikkolinkkeineen, Featured Postin ja Popular Postsin katkelmat, eikä se löydä päiväystä,
@@ -232,15 +238,300 @@
     return { html: irrota(osat).innerHTML, otsikko: nimi, tekija: tekijat.length === 1 ? tekijat[0] : '', sivusto: '', julkaistu: '' };
   }
 
-  async function valmista(html) {
+
+  /* Ensyklopedia Logos (filosofia.fi/fi/ensyklopedia/…, käyttäjän pyyntö 10.11.2026). Drupalin runko .field-item:
+     luvut ovat lihavoituja kappaleita (yleensä ankkurin kera), osiot kursiivikappaleita, ensimmäinen kursiivirivi on
+     tekijä ja päiväys (etukenttään ja kahdeksi tietoriviksi), alun sisällysluettelo ja tyhjät kappaleet pois.
+     Viittaus toiseen Logoksen artikkeliin (ks. ”Hobbes, Thomas”) on alaviite, ja artikkelit tulevat kirjallisuusluettelon
+     loppuun omaksi osiokseen tekijöineen, vuosineen ja kirjoitettuine osoitteineen: alaviitteen tekijä–vuosi linkittyy
+     md.js:n omalla päättelyllä luettelon kohtaan, eikä verkko-osoite ole linkki ilman verkkolinkkejä. */
+  const LOGOS_NIMI = 'Ensyklopedia Logos', LOGOS_GEN = 'Ensyklopedia Logoksen', LOGOS_HAKU = 30;
+  const pvmIso = s => { const m = /(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})/.exec(s || ''); return m ? m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0') : ''; };
+  // Tekijärivi: *Lilli Alanen* *(julkaistu 5. 5. 2018)*, *Rauno Huttunen (julkaistu 20.6.2010, muokattu 13.9.2014)* tai
+  // *Markku Roinila (19.4.2018)*.
+  function logosTekija(runko) {
+    for (const p of [...runko.children].slice(0, 3)) {
+      const t = rivi(p.textContent);
+      const m = t.length < 200 && /^(.*?)\(\s*(?:julkaistu\s+)?(\d{1,2}\.\s*\d{1,2}\.\s*\d{4})\s*(?:,\s*muokattu\s+([^)]*))?\)\s*$/i.exec(t);
+      if (m) return { p, tekija: rivi(m[1]), alku: rivi(m[2]), julkaistu: pvmIso(m[2]), muokattu: rivi(m[3]) };
+    }
+    return null;
+  }
+  // Lilli Alanen ja Tuomo Aho → Alanen, Lilli & Tuomo Aho (kirjallisuusluettelon tapa).
+  function kaanteinen(nimet) {
+    return nimet.split(/\s*(?:,|\s&\s|\sja\s)\s*/).filter(Boolean).map((n, i) => {
+      const o = n.trim().split(/\s+/);
+      return i || o.length < 2 ? n.trim() : o[o.length - 1] + ', ' + o.slice(0, -1).join(' ');
+    }).join(' & ');
+  }
+  const logosLinkki = a => {
+    let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
+    return /(^|\.)filosofia\.fi$/.test(u.hostname) && /^\/(?:fi\/)?(?:node\/\d+|ensyklopedia\/[^/]+)\/?$/.test(u.pathname) ? u.href.split('#')[0] : null;
+  };
+  async function logos() {
+    const runko = /(^|\.)filosofia\.fi$/.test(location.hostname) && /\/ensyklopedia\/[^/]+/.test(location.pathname) &&
+      document.querySelector('.node-ensyklopedia .field-name-body .field-item');
+    if (!runko) return null;
+    const el = runko.cloneNode(true);
+    const meta = logosTekija(el);
+    // Tekijärivi jää tekstiin tavallisena tietorivinä: kursiivina se olisi Luinissa alaotsikko, ja pois jätettynä
+    // otsikkolohkosta puuttuisi tekijä aina, kun tekstissä on muita tietorivejä (Englannista suomentanut …).
+    // Nimi ja päiväys omille riveilleen: pelkän julkaisurivin eteen md.js lisäisi etukentän tekijän toiseen kertaan.
+    if (meta) {
+      const p = document.createElement('p'), pv = x => x.replace(/(\d)\.\s+(?=\d)/g, '$1.');
+      if (meta.tekija) p.append(meta.tekija, document.createElement('br'));
+      p.append('Julkaistu ' + pv(meta.alku) + (meta.muokattu ? ', muokattu ' + pv(meta.muokattu) : ''));
+      meta.p.replaceWith(p);
+    }
+    // Alun sisällysluettelo (vain #-linkkejä), viivat ja tyhjät kappaleet (&nbsp;, pelkkä kuva).
+    [...el.children].forEach(e => {
+      const linkit = [...e.querySelectorAll('a[href]')];
+      if (/^(OL|UL)$/.test(e.tagName) && linkit.length && linkit.every(a => a.getAttribute('href').startsWith('#'))) e.remove();
+      else if (e.tagName === 'HR' || e.tagName === 'P' && !rivi(e.textContent)) e.remove();
+    });
+    // Otsikot: koko kappale lihavoituna → luku, kursiivina (lyhyt, ei virkkeen loppumerkkiä, ei lainausmerkkiä) → osio.
+    const koko = (p, sel) => { const t = [...p.querySelectorAll(sel)].map(x => x.textContent).join(''); return rivi(t) && rivi(t) === rivi(p.textContent); };
+    [...el.children].forEach(p => {
+      if (p.tagName !== 'P' || p.querySelector('img')) return;
+      const t = rivi(p.textContent);
+      const taso = koko(p, 'strong, b') && t.length <= 150 && !/[.!?]$/.test(t) ? 2
+        : koko(p, 'em, i') && t.length <= 100 && !/[.!?…]$/.test(t) && !/^["”“»„'’]/.test(t) ? 3 : 0;
+      if (!taso) return;
+      const h = document.createElement('h' + taso); h.textContent = t.replace(/:$/, taso === 3 ? ':' : ''); p.replaceWith(h);
+    });
+    // Viittaukset Logoksen artikkeleihin: haetaan kerran, tekijä, vuosi, otsikko ja pysyvä osoite.
+    const kohteet = new Map();
+    el.querySelectorAll('a[href]').forEach(a => {
+      const u = logosLinkki(a);
+      if (u && u.split('#')[0] !== osoite.split('#')[0] && !kohteet.has(u) && kohteet.size < LOGOS_HAKU) kohteet.set(u, null);
+    });
+    await Promise.all([...kohteet.keys()].map(async u => {
+      const d = await hae(u);
+      const r = d && d.querySelector('.node-ensyklopedia .field-name-body .field-item');
+      const ots = rivi(d && (d.querySelector('#page-title') || d.querySelector('h1') || {}).textContent);
+      if (!ots) return;
+      const kan = d.querySelector('link[rel="canonical"]'), node = d.querySelector('.node-ensyklopedia[about]');
+      let pysyva = u;
+      try { pysyva = new URL(kan ? kan.getAttribute('href') : node ? node.getAttribute('about') : u, u).href; } catch (e) {}
+      const t = r && logosTekija(r);
+      kohteet.set(u, { ots, osoite: pysyva, tekija: t ? t.tekija : '', vuosi: t && t.julkaistu ? t.julkaistu.slice(0, 4) : '' });
+    }));
+    const jarjestys = [], maar = [];
+    // Viittausmuoto kuten md.js:n kirjallisuusluettelossa: kaksi tekijää A & B, useampi A et al.
+    const suvut = k => k.tekija.split(/\s*(?:,|\s&\s|\sja\s)\s*/).filter(Boolean).map(x => x.trim().split(/\s+/).pop());
+    const tieto = k => {
+      if (!k.tekija || !k.vuosi) return '';
+      const s = suvut(k);
+      return ' (' + (s.length === 2 ? s.join(' & ') : s[0] + (s.length > 2 ? ' et al.' : '')) + ' ' + k.vuosi + ')';
+    };
+    const nimeta = k => '”' + k.ots + '”' + tieto(k);
+    const luettelona = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' ja ' + a[a.length - 1];
+    let n = 0;
+    const uusiViite = ks => {
+      ks.forEach(k => { if (!jarjestys.includes(k)) jarjestys.push(k); });
+      const t = 'logos' + (++n);
+      maar.push([t, 'Ks. ' + LOGOS_GEN + ' ' + (ks.length > 1 ? 'artikkelit ' : 'artikkeli ') + luettelona(ks.map(nimeta)) + '.']);
+      return t;
+    };
+    // Sulkeet, joissa on vain ks./vrt. ja Logos-linkkejä, korvautuvat alaviitteellä (merkki välimerkin jälkeen); muualla
+    // linkki jää tekstiksi ja alaviite tulee sen perään (lainausmerkin jälkeen).
+    el.querySelectorAll('p, li, blockquote').forEach(p => {
+      if (![...p.querySelectorAll('a[href]')].some(a => kohteet.get(logosLinkki(a)))) return;
+      const LINKKI = /<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
+      let html = p.innerHTML.replace(/\s*\(((?:[^()<]|<(?!\/?p\b)[^>]*>)*)\)([.,;:]?)/g, (koko, sis, valim) => {
+        const ks = [];
+        const jaljella = sis.replace(LINKKI, (x, h, t) => {
+          const k = kohteet.get(logosLinkki({ getAttribute: () => h.replace(/&amp;/g, '&') }));
+          if (k) { ks.push(k); return ''; }
+          return x;
+        }).replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ');
+        if (!ks.length || !/^\s*(?:ks\.?|katso|vrt\.?)(?:\s+myös)?(?:\s+(?:ensyklopedia-?)?artikkel\w*)?[\s"”“’'.,;:–-]*(?:(?:ja|sekä)[\s"”“’'.,;:]*)*$/i.test(jaljella)) return koko;
+        return valim + 'XLUINVIITE' + uusiViite(ks) + 'X';
+      });
+      html = html.replace(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>(["”“’]?)/g, (x, h, t, lm) => {
+        const k = kohteet.get(logosLinkki({ getAttribute: () => h.replace(/&amp;/g, '&') }));
+        return k ? t + lm + 'XLUINVIITE' + uusiViite([k]) + 'X' : x;
+      });
+      p.innerHTML = html;
+    });
+    // Artikkelit kirjallisuusluettelon loppuun (### osio luettelon sisällä, jotta md.js lukee kohdat luetteloksi).
+    if (jarjestys.length) {
+      const BIB = /^(kirjallisuus|kirjallisuutta|lähteet|lähdekirjallisuus|kirjallisuusluettelo)$/i;
+      const otsikot = [...el.children].filter(e => e.tagName === 'H2');
+      let bib = otsikot.find(h => BIB.test(rivi(h.textContent)));
+      if (!bib) { bib = document.createElement('h2'); bib.textContent = 'Kirjallisuus'; el.appendChild(bib); }
+      let loppu = bib;
+      while (loppu.nextElementSibling && loppu.nextElementSibling.tagName !== 'H2') loppu = loppu.nextElementSibling;
+      const osat = [document.createElement('h3')];
+      osat[0].textContent = LOGOS_GEN + ' artikkelit';
+      jarjestys.forEach(k => {
+        const p = document.createElement('p'), em = document.createElement('em');
+        p.append((k.tekija ? kaanteinen(k.tekija) + ' (' + (k.vuosi || 's.a.') + '). ' : '') + k.ots + (/[.?!]$/.test(k.ots) ? ' ' : '. '));
+        em.textContent = LOGOS_NIMI; p.append(em, '. ' + k.osoite);
+        osat.push(p);
+      });
+      loppu.after(...osat);
+    }
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('#page-title') || {}).textContent),
+      tekija: meta ? meta.tekija : '', sivusto: LOGOS_NIMI, julkaistu: meta ? meta.julkaistu : '',
+      maar: maar.map(([t, x]) => maaritelma(t, x)) };
+  }
+
+  /* Wikipedia (fi ja en, käyttäjän pyyntö 10.11.2026). Luettavaksi siistitty: muokkauslinkit, kuvat kuvateksteineen,
+     tietolaatikot, navigointi, sivupalkit ja ohjausrivit (”… redirects here”, Pääartikkeli) pois. Viitteet ovat
+     alaviitteitä, samoin Wikipedian omat merkinnät (lähde?, citation needed). Ylläpito- ja tynkähuomautukset
+     (”Tämä artikkeli tai sen osa on käännetty …”) ovat alaviite lähimmän kappaleen perässä, koska ne eivät ole
+     leipätekstiä eivätkä lainauksia. Lähde- ja kirjallisuusluettelot kappaleiksi (md.js:n kirjallisuusluettelo).
+     Wikilinkit (vain olemassa olevat artikkelit) ovat tekstissä pelkkää tekstiä, ja artikkelit tulevat loppuun
+     esiintymisjärjestyksessä omaksi luetteloksi linkkeineen: verkkoon pääsee vain sieltä ja vain, kun Luinin
+     verkkolinkit ovat päällä. Tekstin sisäinen linkki luettelon kohtaan vaatisi md.js:n muutosta (ei nyt). Tekijää ei
+     ole (viite alkaa otsikolla), julkaistu on luetun version muokkauspäivä. */
+  const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja)(\s|_)*:/i;
+  async function wikipedia() {
+    const alku = /(^|\.)wikipedia\.org$/.test(location.hostname) && /^\/wiki\/./.test(location.pathname) &&
+      document.querySelector('#mw-content-text .mw-parser-output');
+    if (!alku) return null;
+    const fi = /^fi\b/i.test(document.documentElement.lang || '');
+    const el = alku.cloneNode(true);
+    let n = 0;
+    const maar = [], viiteTunnus = new Map();
+    const lisaa = (teksti, solmu) => { const t = 'w' + (++n); maar.push([t, teksti]); return t; };
+    // Viitteet (sup.reference, Parsoid: sup.mw-ref): teksti alkuperäisestä viiteluettelosta. Toistuva nimetty viite saa
+    // saman tunnuksen.
+    el.querySelectorAll('sup.reference, sup.mw-ref').forEach(sup => {
+      const a = sup.querySelector('a[href*="#"]');
+      const id = a && decodeURIComponent(a.getAttribute('href').split('#')[1] || '');
+      const li = id && document.getElementById(id);
+      const rt = li && (li.querySelector('.reference-text, .mw-reference-text') || li);
+      if (!rt) return sup.remove();
+      if (!viiteTunnus.has(id)) {
+        const k = rt.cloneNode(true);
+        k.querySelectorAll('.mw-cite-backlink, .Z3988, .cs1-maint, .cs1-hidden-error, style, link, sup.reference, sup.mw-ref').forEach(x => x.remove());
+        // Viitteen sisäiset merkinnät (full citation needed) hakasulkeisiin kursiivina; alaviite ei voi sisältää alaviitettä.
+        k.querySelectorAll('sup.Inline-Template, sup.noprint, span.noprint').forEach(x => {
+          const t = rivi(x.textContent).replace(/^\[|\]$/g, '').trim();
+          if (!t) return x.remove();
+          const em = document.createElement('em'); em.textContent = t; x.replaceWith(' [', em, ']');
+        });
+        k.querySelectorAll('sup').forEach(x => x.replaceWith(...x.childNodes));
+        k.querySelectorAll('a[href]').forEach(x => {
+          let u; try { u = new URL(x.getAttribute('href'), osoite); } catch (e) { return; }
+          // Wikilinkit ja sivun omat ankkurit (#CITEREF…) tekstiksi; verkkolinkit jäävät.
+          if (u.hostname === location.hostname || x.classList.contains('extiw')) x.replaceWith(...x.childNodes);
+          else x.setAttribute('href', u.href);
+        });
+        const t = muunna(k.innerHTML, 'inlined').trim();
+        if (!t) return sup.remove();
+        viiteTunnus.set(id, lisaa(t));
+      }
+      sup.replaceWith(merkki(viiteTunnus.get(id)));
+    });
+    // Rivinsisäiset merkinnät (lähde?, selvennä, citation needed): alaviitteeksi selityksineen.
+    const LAATIKKO = '.ambox, .tmbox, .ombox, .cmbox, .mbox-small, .asbox, .stub, table.metadata, div.metadata, .noprint.noviewer';
+    // fi:n Selvennä-malline on myös ilman noprint-luokkaa: yläindeksissä pelkkä linkki mallineeseen.
+    const mallineet = [...el.querySelectorAll('sup:not(.reference):not(.mw-ref)')].filter(x => rivi(x.textContent).length < 40 &&
+      [...x.querySelectorAll('a[href]')].some(a => /\/wiki\/(Malline|Template|Wikipedia|Ohje):/i.test(decodeURIComponent(a.getAttribute('href')))));
+    [...el.querySelectorAll('sup.Inline-Template, sup.noprint, span.noprint'), ...mallineet].forEach(m => {
+      if (!el.contains(m) || !m.closest('p, li, dd, td, blockquote') || m.closest(LAATIKKO + ', .infobox, .navbox, .sidebar')) return;
+      const nakyva = rivi(m.textContent).replace(/^\[|\]$/g, '').trim();
+      const sel = rivi([m, ...m.querySelectorAll('[title]')].map(x => x.getAttribute && x.getAttribute('title') || '').filter(x => x && !/:/.test(x.slice(0, 20)) || /\(/.test(x)).join(' '));
+      // fi: <sup style="font-style:italic"><span class="noprint">selvennä</span></sup>: kääre lähtee mukana.
+      let kohde = m;
+      while (/^(SUP|I|EM|SPAN|A)$/.test(kohde.parentElement.tagName) && rivi(kohde.parentElement.textContent).replace(/^\[|\]$/g, '').trim() === nakyva) kohde = kohde.parentElement;
+      if (!nakyva) return kohde.remove();
+      kohde.replaceWith(merkki(lisaa('*' + nakyva + '*' + (sel && sel !== nakyva ? ' – ' + sel : ''))));
+    });
+    // Huomautuslaatikot alaviitteiksi lähimpään edeltävään (alussa seuraavaan) kappaleeseen.
+    el.querySelectorAll(LAATIKKO).forEach(b => {
+      if (!el.contains(b) || b.parentElement.closest(LAATIKKO)) return;
+      const k = (b.querySelector('.mbox-text, .ambox-text, .asbox-body') || b).cloneNode(true);
+      k.querySelectorAll('style, link, img, figure, figcaption, .mbox-image, .hide-when-compact, .mw-collapsible-toggle').forEach(x => x.remove());
+      k.querySelectorAll('a[href]').forEach(x => x.replaceWith(...x.childNodes));
+      const t = muunna(k.innerHTML, 'inlined').replace(/\s*\n+\s*/g, ' ').trim();
+      const kaikki = [...el.querySelectorAll('p')].filter(p => rivi(p.textContent) && !b.contains(p));
+      const ed = kaikki.filter(p => p.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).pop() || kaikki[0];
+      b.remove();
+      if (t && ed) ed.appendChild(merkki(lisaa('*' + (fi ? 'Wikipedian huomautus' : 'Wikipedia notice') + ':* ' + t)));
+    });
+    // Kaavat: TeX-teksti koodina.
+    el.querySelectorAll('.mwe-math-element').forEach(m => {
+      const tex = m.querySelector('annotation[encoding="application/x-tex"]'), img = m.querySelector('img[alt]');
+      const c = document.createElement('code');
+      c.textContent = rivi(tex ? tex.textContent : img ? img.getAttribute('alt') : m.textContent).replace(/^\{\\displaystyle\s*(.*)\}$/, '$1');
+      m.replaceWith(c);
+    });
+    el.querySelectorAll(['style', 'link', 'meta', 'script', 'noscript', '.mw-editsection', '.mw-empty-elt', '.shortdescription',
+      '.hatnote', '.dablink', '.rellink', 'figure', '.thumb', '.gallery', '.mw-gallery-traditional', '.mw-gallery-packed', 'img',
+      'audio', 'video', '.infobox', 'table.sidebar', '.sidebar', '.navbox', '.navbox-styles', '.vertical-navbox', '.sistersitebox',
+      '.side-box', '.portalbox', '.portal', '#toc', '.toc', '#coordinates', '.geo-default', '.quotebox', '.mw-references-wrap',
+      'ol.references', '.reflist', '.viitteet-malline', '.references-small', '.Z3988', '.cs1-maint', '.mw-cite-backlink',
+      '.authority-control', '.NavFrame', '.navigaatiomalline', '.noprint', '.mw-kartographer-maplink', '.mw-kartographer-map'].join(', ')).forEach(x => x.remove());
+    // Parsoidin osiot ja otsikkokääreet auki, jotta otsikot ja sisältö ovat samalla tasolla.
+    el.querySelectorAll('section, div.mw-heading, div.section-heading, .mf-section-0, [class*="mf-section-"]').forEach(x => x.replaceWith(...x.childNodes));
+    // Wikilinkit: olemassa olevat artikkelit luetteloon, tekstissä pelkkä teksti.
+    const artikkelit = new Map();
+    el.querySelectorAll('a[href]').forEach(a => {
+      let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return; }
+      const sisainen = u.hostname === location.hostname || /(^|\.)wikipedia\.org$/.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
+      if (!sisainen && !a.classList.contains('extiw')) { a.setAttribute('href', u.href); return; }
+      const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
+      const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
+      if (sisainen && nimi && !punainen && !WIKI_NIMIAVARUUS.test(nimi) && u.pathname !== location.pathname) {
+        const avain = 'https://' + location.hostname.replace(/\.m\./, '.') + '/wiki/' + u.pathname.slice(6);
+        if (!artikkelit.has(avain)) artikkelit.set(avain, rivi(a.getAttribute('title')) || nimi);
+      }
+      a.replaceWith(...a.childNodes);
+    });
+    // Tyhjiksi jääneet otsikot pois (fi: Lähteet, jossa oli vain viiteluettelo; en: Notes, References).
+    const ots = h => /^H[2-6]$/.test(h.tagName);
+    [...el.querySelectorAll('h2, h3, h4, h5, h6')].reverse().forEach(h => {
+      let tyhja = true;
+      for (let e = h.nextElementSibling; e && !(ots(e) && +e.tagName[1] <= +h.tagName[1]); e = e.nextElementSibling) {
+        if (!ots(e) && rivi(e.textContent)) { tyhja = false; break; }
+        if (ots(e)) { tyhja = false; break; }
+      }
+      if (tyhja) h.remove();
+    });
+    // Lähde- ja kirjallisuusluettelot kappaleiksi.
+    const BIB = /^(lähteet|lähdeteokset|kirjallisuus|kirjallisuutta|lähdekirjallisuus|aiheesta muualla kirjallisuutta|references|sources|bibliography|works cited|cited works|further reading|citations|primary sources|secondary sources|general and cited (references|sources)|selected bibliography)$/i;
+    let bib = 0;
+    [...el.children].forEach(e => {
+      if (ots(e)) { const t = +e.tagName[1]; if (BIB.test(rivi(e.textContent))) bib = t; else if (bib && t <= bib) bib = 0; return; }
+      if (!bib) return;
+      const listat = /^(UL|OL)$/.test(e.tagName) ? [e] : [...e.querySelectorAll('ul, ol')].filter(l => !l.parentElement.closest('ul, ol'));
+      listat.forEach(l => l.replaceWith(...[...l.children].filter(li => li.tagName === 'LI').map(li => {
+        const p = document.createElement('p');
+        li.querySelectorAll('ul, ol').forEach(x => x.remove());
+        while (li.firstChild) p.appendChild(li.firstChild);
+        return p;
+      })));
+      if (/^DIV$/.test(e.tagName) && el.contains(e)) e.replaceWith(...e.childNodes);
+    });
+    if (artikkelit.size) {
+      const h = document.createElement('h2'), ul = document.createElement('ul');
+      h.textContent = fi ? 'Wikipedia-artikkelit' : 'Wikipedia articles';
+      artikkelit.forEach((nimi, u) => { const li = document.createElement('li'), a = document.createElement('a'); a.href = u; a.textContent = nimi; li.appendChild(a); ul.appendChild(li); });
+      el.append(h, ul);
+    }
+    let julkaistu = '';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+      try { const j = JSON.parse(s.textContent); julkaistu = julkaistu || String(j.dateModified || '').slice(0, 10); } catch (e) {}
+    });
+    return { html: el.innerHTML, otsikko: rivi((document.querySelector('#firstHeading, h1') || {}).textContent),
+      tekija: '', sivusto: 'Wikipedia', julkaistu, maar: maar.map(([t, x]) => maaritelma(t, x)) };
+  }
+
+  async function valmista(html, omat = []) {
     const d = jasenna(html);
     // Sivun sisäinen linkki (#viite-1) sivun osoitteeksi kuten MarkDownloadissa: Latomo tekee leikkeen omalle
     // sivulle vievästä yläindeksilinkistä pelkän numeron. Readability jättää #-linkit ennalleen.
     d.querySelectorAll('a[href^="#"]').forEach(a => a.setAttribute('href', osoite + a.getAttribute('href')));
     const maar = await viitteet(d);
     let md = muunna(d.body.innerHTML).replace(MERKKI, '[^viite-$1]');
-    if (maar.length) md += '\n\n' + maar.join('\n\n');
-    return { md, viitteita: maar.length };
+    // Sovitteen omat alaviitteet vain, jos niiden merkki on mukana (valinta voi olla osa tekstistä).
+    const kaikki = maar.concat(omat.filter(x => md.includes('[^viite-' + /^\[\^viite-([^\]]+)\]/.exec(x)[1] + ']')));
+    if (kaikki.length) md += '\n\n' + kaikki.join('\n\n');
+    return { md, viitteita: kaikki.length };
   }
 
   // Readability antaa usein välilehden otsikon (Kirjoitus | Blogi). Lisää lukimeen -polulla kukaan ei paina Latomon
@@ -272,8 +563,12 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) try { blogi = await blogger(); } catch (e) { blogi = null; }
+  if (!sep) for (const f of [logos, wikipedia, blogger]) {
+    try { blogi = await f(); } catch (e) { blogi = null; }
+    if (blogi) break;
+  }
   const sisalto = sep || (blogi && blogi.html) || (artikkeli && artikkeli.content) || '';
+  const omat = (blogi && blogi.maar) || [];
 
   const otsikko = blogi ? blogi.otsikko || osoite
     : siisti(rivi(artikkeli && artikkeli.title || document.title), rivi(artikkeli && artikkeli.siteName)) || osoite;
@@ -288,7 +583,7 @@
   etu.push('---', '# ' + otsikko, '', '');
   const alku = etu.join('\n');
 
-  const [koko, valinta] = await Promise.all([sisalto ? valmista(sisalto) : null, valintaHtml ? valmista(valintaHtml) : null]);
+  const [koko, valinta] = await Promise.all([sisalto ? valmista(sisalto, omat) : null, valintaHtml ? valmista(valintaHtml) : null]);
   const sanoja = s => (s.match(/\S+/g) || []).length;
   return {
     otsikko, sivusto: (blogi && (blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),

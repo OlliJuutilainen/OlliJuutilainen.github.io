@@ -1,7 +1,7 @@
 /* Lisää lukimeen: Latomon puoli. Ponnahdusikkuna jättää leikkeen lisäosan muistiin ja avaa latomo.html#lisaosa;
    tämä kirjoittaa leikkeen tekstikenttään kuin käyttäjä olisi liittänyt sen, ja Lisää lukimeen -napilla painaa
    vielä Avaa Luinissa. Rajapinta Latomoon on vain tunnisteita: #md ja #avaa, Postihuilulla (9.11.2026) myös
-   #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Lähetetty…),
+   #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Ladottu postitettavaksi…),
    #kk-virhe ja #laatikko-virhe. Kun tekstiä ei lisätä tämän selaimen lukulistaan (10.11.2026), lauseen kenttä saa
    data-ei-muistia-attribuutin, eikä Latomo silloin tallenna lausetta Luinin muistiin. */
 (async () => {
@@ -23,7 +23,8 @@
     $('laatikko-koodi').value = posti.k;
     $('laatikko-koodi').dispatchEvent(new Event('input', { bubbles: true }));
     if (!odottaa.avaa) return;
-    // Lähetys ja odotus: onnistunut lähetys kirjoittaa #kk-tilaan "Lähetetty…", epäonnistunut #kk-virheeseen.
+    // Lähetys ja odotus: onnistunut lähetys kirjoittaa #kk-tilaan "Ladottu postitettavaksi…" (ennen 10.11.2026
+    // "Lähetetty…"), epäonnistunut #kk-virheeseen.
     $('laheta').click();
     const lahti = await new Promise(valmis => {
       const alku = Date.now();
@@ -31,7 +32,7 @@
         const v = $('kk-virhe'), lv = $('laatikko-virhe'), t = $('kk-tila');
         if (v && !v.hidden && v.textContent) return valmis(false);
         if (lv && !lv.hidden && lv.textContent) return valmis(false);
-        if (t && !t.hidden && /^Lähetetty/.test(t.textContent)) return valmis(true);
+        if (t && !t.hidden && /^(Ladottu postitettavaksi|Lähetetty)/.test(t.textContent)) return valmis(true);
         if (Date.now() - alku > 30000) return valmis(false);
         setTimeout(katso, 150);
       })();

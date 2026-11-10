@@ -247,9 +247,9 @@ function muistiKV() {
     /ollessa tori-kaffeilla-on-hemmetin-mukavaa tai kopioimalla/.test(lat3.ohje) && /VAROITUS: Huilu lumoaa/.test(lat3.ohje), JSON.stringify(lat3));
   if (KUVAT) await a.locator('#laatikko').screenshot({ path: path.join(KUVAT, 'posti-latomo.png') });
   await a.click('#kk-laheta');
-  await a.waitForFunction(() => /^Lähetetty|ei onnistunut/.test(document.querySelector('#kk-tila').textContent + document.querySelector('#kk-virhe').textContent));
+  await a.waitForFunction(() => /^Ladottu postitettavaksi|ei onnistunut/.test(document.querySelector('#kk-tila').textContent + document.querySelector('#kk-virhe').textContent));
   const lat4 = await a.evaluate(() => document.querySelector('#kk-tila').textContent || document.querySelector('#kk-virhe').textContent);
-  tulos('Latomo: teksti laatikossa ilman merkintöjä', /^Lähetetty klo \d\d:\d\d: KANT JA ELÄINETIIKKA\.$/.test(lat4) &&
+  tulos('Latomo: teksti laatikossa ilman merkintöjä', /^Ladottu postitettavaksi klo \d\d:\d\d: KANT JA ELÄINETIIKKA\.$/.test(lat4) &&
     KV.m.has('luin:' + LAUSE2 + ':kant-ja-elainetiikka') && !KV.m.has('luinm:' + LAUSE2 + ':kant-ja-elainetiikka') &&
     (await LS(a, 'luin-laatikko')) === LAUSE2, lat4);
 

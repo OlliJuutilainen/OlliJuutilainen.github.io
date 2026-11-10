@@ -113,6 +113,9 @@
   <ul>
     <li>Jos artikkelin alaviitteet ovat saman sivuston toisella sivulla, lisäosa hakee enintään kolme tällaista sivua
       samalta sivustolta, kuten selain hakisi ne, jos avaisit ne itse.</li>
+    <li>Jos leikkaat Ensyklopedia Logoksen (filosofia.fi) artikkelin, joka viittaa toisiin Logoksen artikkeleihin, lisäosa
+      hakee viitatut artikkelit samalta sivustolta (enintään 30) ja ottaa niistä otsikon, tekijän ja julkaisuvuoden
+      kirjallisuusluetteloon.</li>
     <li>Jos leikkaat Blogger-blogin etusivun tai arkistosivun, jolla kirjoitukset on katkaistu (<i>Lue lisää</i>), lisäosa
       hakee katkaistut kirjoitukset kokonaisina niiden omilta sivuilta samasta blogista, enintään 20 sivua.</li>
     <li>Latomon ja Luinin sivut tulevat GitHub Pagesista. GitHub voi kirjata sivupyynnön kuten minkä tahansa
@@ -135,7 +138,11 @@
     (ollijuutilainen.github.io/luin/latomo.html) opens and receives it, then it is deleted; if the transfer is interrupted, the next clip replaces it, and clips
     older than two minutes are discarded. Luin keeps texts in your browser’s own storage. If an article’s footnotes are on another page of the
     same site, the extension fetches up to three such pages from that site. When you clip the front or archive page of a
-    Blogger blog where posts are cut short, it fetches up to 20 of those posts in full from the same blog. The Latomo and Luin pages are served by
+    Blogger blog where posts are cut short, it fetches up to 20 of those posts in full from the same blog. When you clip an
+    article of Ensyklopedia Logos (filosofia.fi) that refers to other Logos articles, it fetches up to 30 of them from the same
+    site for their title, author and year. If you use Postihuilu, the extension remembers your box phrase in its local storage,
+    and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),
+    where it is kept for 30 days and can be read by anyone who knows the phrase. The Latomo and Luin pages are served by
     GitHub Pages, which may log page requests like any website; the clipped text is not sent to it.</p>
   </div>
 
