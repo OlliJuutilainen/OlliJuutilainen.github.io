@@ -31,8 +31,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*): opas 1.3.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
-  luettelon osioon; Wikipedian wikilinkit ovat tekstissä tekstiä ja artikkelit loppuluettelossa (tekstin linkki luetteloon
-  vaatisi md.js:n). Alaviitemerkki `XLUINVIITE…X` on ei-ahne, jotta vierekkäiset merkit eivät sulaudu.
+  luettelon osioon; Wikipedian wikilinkit ovat tekstissä tekstiä, ja loppuluettelossa ovat vain Pääartikkeli-, Katso myös- ja
+  Lisätietoja-ohjausrivien artikkelit ja Katso myös -osio (käyttäjän valinta 10.11.2026: kaikki wikilinkit olivat liikaa). Alaviitemerkki `XLUINVIITE…X` on ei-ahne, jotta vierekkäiset merkit eivät sulaudu.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
@@ -268,7 +268,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   tekstin laatikkoon reitillä `POST /api/luin`, ja Luin hakee tekstit samalta reitiltä GET:llä. **Pitkä arvottu laatikon
   koodi (≥ 24 merkkiä, `kk-` ja 24 satunnaista) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
   laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä).
-  **Uusi laatikkolause on aina 24–40 merkkiä** (käyttäjän päätös 9.11.2026: lauseella on voitava sekä lähettää että lukea),
+  **Uusi laatikkolause on aina 24–52 merkkiä** (käyttäjän päätökset 9.11.2026 ja 10.11.2026: yläraja 52, ennen 40; lauseella on voitava sekä lähettää että lukea),
   **vain a–z, 0–9 ja `-`** (käyttäjän päätös 10.11.2026): isot kirjaimet luetaan pieniksi, muut merkit hylätään eikä niitä
   siistitä pois. Sääntö ja ohje ovat `luin/posti.js`:ssä, lisäosassa kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset kulkevat Durable Objectin laskurin `LuinRaja`
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta

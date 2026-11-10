@@ -126,6 +126,8 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
 <div class="hatnote navigation-not-searchable">Pääartikkeli: <a href="/wiki/Koehistoria">Koehistoria</a></div>
 <p>Historiassa <a href="/wiki/Pallo" title="Pallo">pallot</a> olivat litteitä<sup style="font-style:italic;"><a href="/wiki/Malline:L%C3%A4hde"><span class="noprint" title="mikä lähde?">lähde?</span></a></sup> ja <a href="/wiki/Kiekko" title="Kiekko">kiekot</a> pyöreitä.<sup class="mw-ref reference" id="cite_ref-2"><a href="#cite_note-2"><span>[2]</span></a></sup></p>
 <div class="noprint noviewer"><figure><figcaption>Käännös suomeksi</figcaption></figure> <div>Tämä artikkeli tai sen osa on käännetty muunkielisen Wikipedian artikkelista. Alkuperäinen artikkeli: <a class="extiw" href="https://en.wikipedia.org/wiki/Test">en:Test</a></div></div>
+</section><section><div class="mw-heading mw-heading2"><h2 id="Katso_myös">Katso myös</h2><span class="mw-editsection">[muokkaa]</span></div>
+<ul><li><a href="/wiki/Pallo" title="Pallo">Pallo</a></li><li><a href="/wiki/Puuttuva?action=edit&amp;redlink=1" class="new">Puuttuva</a></li></ul>
 </section><section><div class="mw-heading mw-heading2"><h2 id="Lähteet">Lähteet</h2><span class="mw-editsection">[muokkaa]</span></div>
 <div class="viitteet-malline"><ol class="mw-references references"><li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="mw-reference-text reference-text">Meikäläinen, Matti: <i>Kirja pallosta</i>, s. 12. <a href="/wiki/Otava">Otava</a>, 2001.</span></li>
 <li id="cite_note-2"><span class="mw-cite-backlink"><a href="#cite_ref-2">↑</a></span> <span class="mw-reference-text reference-text"><a href="#CITEREFKirjoittaja2010">Kirjoittaja 2010</a>, s. 5. <a class="external text" href="https://esimerkki.test/lahde">Verkkolähde</a></span></li></ol></div>
@@ -385,8 +387,10 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
     /^\[\^viite-w2\]: Kirjoittaja 2010, s\. 5\. \[Verkkolähde\]\(https:\/\/esimerkki\.test\/lahde\)$/m.test(wk) && /^\[\^viite-w3\]: \*lähde\?\* – mikä lähde\?$/m.test(wk) &&
     /^\[\^viite-w4\]: \*Wikipedian huomautus:\* Tämä artikkeli tai sen osa on käännetty muunkielisen Wikipedian artikkelista\. Alkuperäinen artikkeli: en:Test$/m.test(wk),
     (wk.match(/^\[\^viite[\s\S]*$/m) || [''])[0].replace(/\n/g, ' | ').slice(0, 400));
-  tulos('Wikipedia: wikilinkit tekstinä, vain olemassa olevat artikkelit loppuun', /^\*\*Koeartikkeli\*\* on pallo ja punainen ja tiedosto\./m.test(wk) &&
-    /^## Wikipedia-artikkelit\n\n- +\[Pallo\]\[\d+\]\n- +\[Kiekko\]\[\d+\]\n*\n\[/m.test(wk) && /^\[\d+\]: https:\/\/fi\.wikipedia\.org\/wiki\/Pallo$/m.test(wk) && !/Punainen|Tiedosto:|Koehistoria|Otava\]/.test(wk.split('## Wikipedia-artikkelit')[1] || 'x'),
+  // Käyttäjän valinta 10.11.2026: loppuun vain Pääartikkeli-ohjausrivin ja Katso myös -osion artikkelit, osio pois tekstistä.
+  tulos('Wikipedia: wikilinkit tekstinä, loppuun vain Pääartikkeli ja Katso myös', /^\*\*Koeartikkeli\*\* on pallo ja punainen ja tiedosto\./m.test(wk) &&
+    /^## Wikipedia-artikkelit\n\n- +\[Koehistoria\]\[\d+\]\n- +\[Pallo\]\[\d+\]\n*\n\[/m.test(wk) && /^\[\d+\]: https:\/\/fi\.wikipedia\.org\/wiki\/Pallo$/m.test(wk) &&
+    !/Kiekko\]|Puuttuva|Punainen|Tiedosto:|Koe \(|Otava\]/.test(wk.split('## Wikipedia-artikkelit')[1] || 'x') && !/Katso myös/.test(wk),
     (wk.match(/## Wikipedia-artikkelit[\s\S]{0,200}/) || [''])[0].replace(/\n/g, ' | '));
   tulos('Wikipedia Luinissa: Kirjallisuutta kirjallisuusluettelona, alaviitteen tekijä–vuosi linkittyy', wkL.bib === 1 && wkL.lahde.join() === '#kirj-kirjoittaja-2010' && wkL.sn.length === 5,
     JSON.stringify(wkL).slice(0, 400));
@@ -413,7 +417,7 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
   await ikkuna.click('#kysy');
   const pk2 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#ohje').hidden, t: document.querySelector('#ohje').textContent }));
   tulos('Postihuilu: i-ohje johdantoineen, ilman soiton kestoa', pk2.auki && /^\s*Lähetä teksti esimerkiksi tietokoneelta kännykälle/.test(pk2.t) &&
-    /LUiN\.HTML:ssä\./.test(pk2.t) && /merkkihaarukka on 24–40/.test(pk2.t) && /virhelyöntien huomaamista\.\s*$/.test(pk2.t) && !/todellistumatta/.test(pk2.t), pk2.t.slice(0, 80));
+    /LUiN\.HTML:ssä\./.test(pk2.t) && /merkkihaarukka on 24–52/.test(pk2.t) && /virhelyöntien huomaamista\.\s*$/.test(pk2.t) && !/todellistumatta/.test(pk2.t), pk2.t.slice(0, 80));
   if (KUVAT) { await ikkuna.setViewportSize({ width: 360, height: 900 }); await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-posti.png') }); }
   await ikkuna.click('#kysy');
   await ikkuna.uncheck('#heti');

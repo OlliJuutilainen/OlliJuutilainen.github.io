@@ -243,7 +243,7 @@ async function handleGig(req, env) {
 // tekstit (?l=&id=). Laatikon koodi on salasana: se kulkee vain Luinin
 // asetuksissa ja Latomon kentässä, ei repossa. Tekstit vanhenevat KV:stä
 // (komennon --ttl); lukulaitteella ne säilyvät.
-const LUIN_BOX_RE = /^[a-z0-9-]{8,40}$/;
+const LUIN_BOX_RE = /^[a-z0-9-]{8,52}$/; // 52: käyttäjän päätös 10.11.2026 (ennen 40)
 const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 
 // Coneelta Cännycälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman

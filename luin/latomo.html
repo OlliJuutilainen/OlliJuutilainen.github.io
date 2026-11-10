@@ -327,7 +327,7 @@
       <b>Postihuilu</b> kuljettaa tekstin luettavaksi toisella laitteella, esimerkiksi niin sanotusti ”coneelta cännycälle”.</p>
     <!-- Postihuilu (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026; ennen Coneelta Cännycälle ja Lähetä postilaatikkoon,
          25.10.2026; tekstit käyttäjän sanoin): Latomo kirjoittaa tekstin workerin KV:hen reitillä POST /api/luin.
-         Laatikkolause (24–40 merkkiä a–z, 0–9, -, luin/posti.js) on itse avain: salaisuutta workeriin tai Päätettä ei
+         Laatikkolause (24–52 merkkiä a–z, 0–9, -, luin/posti.js) on itse avain: salaisuutta workeriin tai Päätettä ei
          tarvita uudelle käyttäjälle, laatikolle eikä laitteelle. Lyhyempää ei hyväksytä (käyttäjän päätös 9.11.2026:
          lauseella on aina voitava sekä lähettää että lukea). Kun lause on muistissa, napin painallus lähettää heti. Luin
          hakee laatikon lukulistaan, kun sen asetuksissa on sama lause. Lause on vain tämän selaimen muistissa
@@ -376,7 +376,7 @@
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
 <script src="md.js?v=6f5d55be"></script>
-<script src="posti.js?v=0d3006d4"></script>
+<script src="posti.js?v=91bf4ff2"></script>
 <script>
 (function () {
   'use strict';
@@ -1193,7 +1193,7 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
   });
   // ---- Postilaatikko ----
-  // Laatikkolause tarkistetaan kuten Luinissa (posti.js): 24–40 merkkiä a–z, 0–9 ja -, jotta sillä voi sekä lähettää että lukea.
+  // Laatikkolause tarkistetaan kuten Luinissa (posti.js): 24–52 merkkiä a–z, 0–9 ja -, jotta sillä voi sekä lähettää että lukea.
   var P = window.LuinPosti;
   var lkKentta = $('#laatikko-koodi');
   function lueLS(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }

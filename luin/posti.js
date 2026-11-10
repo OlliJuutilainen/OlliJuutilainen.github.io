@@ -2,7 +2,7 @@
    Postihuilu ja avaimen nimi laatikkolause 10.11.2026).
    - Laatikkolause: isot kirjaimet luetaan pieniksi ja reunojen tyhjä pois, muuten lause kelpaa vain sellaisenaan
      (a–z, numerot ja yhdysmerkki; ääkköset, muut merkit ja välilyönnit hylätään, käyttäjän päätös 10.11.2026: ennen ne
-     siistittiin pois, mikä hämärsi, mikä lause oikeastaan on). Uusi lause on 24–40 merkkiä, jotta sillä voi sekä lähettää
+     siistittiin pois, mikä hämärsi, mikä lause oikeastaan on). Uusi lause on 24–52 merkkiä, jotta sillä voi sekä lähettää
      että lukea (worker kelpuuttaa kirjoitukset vain vähintään 24 merkin lauseella). Luin-linkki (…#l=<lause>) kelpaa
      lauseen paikalle. Lisää lukimeen -lisäosassa on sama sääntö ja ohje omana kopionaan (luin/lisaosa/ponnahdus.js ja
      ponnahdus.html), koska lisäosa ei lataa sivuston tiedostoja.
@@ -12,8 +12,8 @@
      poistettu ei palaa toisesta laitteesta; kirjauksen uusin muokkaus (nt) voittaa; lukukohdista uusin (posT). */
 (function (g) {
   'use strict';
-  var MIN = 24, MAX = 40;
-  var RE = /^[a-z0-9-]{8,40}$/;          // workerin hyväksymä muoto (lukeminen); vanhat lyhyet koodit toimivat lukemiseen
+  var MIN = 24, MAX = 52;
+  var RE = /^[a-z0-9-]{8,52}$/;          // workerin hyväksymä muoto (lukeminen); vanhat lyhyet koodit toimivat lukemiseen
 
   // Lauseen kirjoitusasu: Luin-linkistä #l=-osa, reunojen tyhjä pois, isot kirjaimet pieniksi. Muuta ei muuteta.
   function koodi(s) {
@@ -39,7 +39,7 @@
   // Sanamuodot ovat käyttäjän (10.11.2026); älä siloittele.
   var OHJE_YDIN = '<p>Laatikkolause on postilaatikon avain: vain sen tietävä pääsee sekä lukemaan laatikon tekstit että ' +
     'lähettämään laatikkoon.</p>' +
-    '<p>Lauseen merkkihaarukka on 24–40 koostuen pienistä ei-ääkkösellisistä kirjaimista, joiden lisäksi halutessa myös ' +
+    '<p>Lauseen merkkihaarukka on 24–52 koostuen pienistä ei-ääkkösellisistä kirjaimista, joiden lisäksi halutessa myös ' +
     'yhdysmerkeistä (väliviiva eli ”-”) ja numeroista. Isot kirjaimet luetaan pieniksi. MUITA <b>MERKKEJÄ JA VÄLILYÖNTEJÄ ' +
     'EI HYVÄKSYTÄ</b>.</p>' +
     '<p>Hyvät tyyli- ja turvallisuuspisteet saava laatikkolause on sekä erikoinen että mieleenpainuva.</p>' +
