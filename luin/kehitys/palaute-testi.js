@@ -1,7 +1,7 @@
 // Palautteen selaintesti (käyttäjän pyyntö 10.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/palaute-testi.js [kuvakansio]
 // luin/palaute.html lähettää workerin oikealle koodille (muistissa oleva KV, PALAUTE_LAATIKKO testin lause). Tarkistaa
-// lomakkeen ehdot (viesti pakollinen, nimi tai sähköposti), botin piilokentän, ilman salaisuutta 503:n, viestin
+// lomakkeen ehdot (vain viesti pakollinen), botin piilokentän, ilman salaisuutta 503:n, viestin
 // kantautumisen Luinin lukulistaan Postihuilun kautta sekä Latomon pikku plussan.
 const http = require('http'), fs = require('fs'), os = require('os'), path = require('path');
 const { chromium } = require('playwright');
@@ -50,11 +50,12 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
   const t1 = await tila();
   await s.fill('#viesti', 'Latomo ei tunne Hegel-sivustoa.');
   await s.click('#laheta');
+  await s.waitForFunction(() => !/Lähetetään/.test(document.querySelector('#tila').textContent));
   const t2 = await tila();
   await s.fill('#sposti', 'huono-osoite');
   await s.click('#laheta');
   const t3 = await tila();
-  tulos('lomake: viesti pakollinen, nimi tai sähköposti, sähköpostin muoto', t1 === 'Kirjoita viesti.' && t2 === 'Anna nimi tai sähköposti.' &&
+  tulos('lomake: vain viesti pakollinen, sähköpostin muoto', t1 === 'Kirjoita viesti.' && /Palautteen vastaanotto/.test(t2) &&
     t3 === 'Sähköpostiosoite ei näytä oikealta.' && m.size === 0, [t1, t2, t3].join(' / '));
   await s.fill('#sposti', '');
   await s.fill('#nimi', 'Kaveri');
