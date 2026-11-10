@@ -139,6 +139,14 @@
   .lisaa-ots { margin: 22px 0 0; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa); }
   .lisaa-kentta { display: flex; gap: 8px; margin: 22px 0 0; }
   .lisaa-ots + .lisaa-kentta { margin-top: 8px; }
+  /* Postihuilun i-nappi otsikon oikealla puolella (käyttäjän pyyntö 10.11.2026): pieni, otsikon mittainen rivi. */
+  .lisaa-ots-rivi { display: flex; align-items: center; gap: 0; margin: 22px 0 0; }
+  .lisaa-ots-rivi .lisaa-ots { margin: 0; }
+  .lisaa-ots-rivi + .kysy-ohje { margin: 4px 0 0; }
+  .lisaa-ots-rivi + .kysy-ohje + .lisaa-kentta, .lisaa-ots-rivi + .lisaa-kentta { margin-top: 8px; }
+  button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
+  button.kysy.pieni svg { width: 14px; height: 14px; }
+  .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
   .lisaa-kentta input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
     background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   .lisaa-kentta input:focus { outline: none; border-color: var(--harmaa); }
@@ -925,7 +933,9 @@
   <p class="viesti" id="viesti" hidden></p>
   <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): laatikkolause tai linkki
        (tekstin osoite tai Luin-linkki). Otsikko Postihuilu ja nappi Soita huilua! käyttäjän pyynnöstä 10.11.2026. -->
-  <p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
+  <div class="lisaa-ots-rivi"><p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
+    <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: Postihuilu"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
+  <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo lukulistallesi sisältöä toisten laitteittesi lukulistoilta ja uusimman luettavan kappaleen <a href="luin/latomo.html">Latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
   <form class="lisaa-kentta" id="lisaa-kentta"><input id="lisaa-syote" type="text" aria-labelledby="lisaa-ots"
     placeholder="Laatikkolause tai linkki" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="submit">Soita huilua!</button></form>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
@@ -994,10 +1004,10 @@
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
        yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa).
-       Vaihtoehtojen kuvat (käyttäjän pyyntö 7.11.2026, pilotti): käärö Rulla-sanan alla ja koodeksi Sivunkäännön
+       Vaihtoehtojen kuvat (käyttäjän pyyntö 7.11.2026, pilotti): käärö Rullaus-sanan alla ja koodeksi Sivunkäännön
        lisäkytkinten oikealla puolella, suunnat kuvan sisällä. Ne ovat vaihtoehtonsa värisiä ja valitsevat sen; paikka
        mitataan (sijoitaNipukka). -->
-  <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen:</span><div class="valinnat" data-v="vieritys:Rulla|sivut:Sivunkääntö"></div>
+  <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen:</span><div class="valinnat" data-v="vieritys:Rullaus|sivut:Sivunkääntö"></div>
     <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
     <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M12 12H16.6M12 15H16.6M12 18H16.6M6.4 21H16.6M6.4 24H16.6M6.4 27H16.6M6.4 30H16.6"/><path class="lk-n" d="M6.4 10.7Q7.93 11.77 8.7 13.49Q9.47 11.77 11 10.7Q9.59 14.14 8.7 19.3Q7.81 14.14 6.4 10.7Z"/></svg></button>
     <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 44 32"><path class="lk-v" d="M2 2.5H42V26H2ZM22 2.5V26M2 26V28.4H42V26M20.2 28.4V28.96Q20.2 29.8 22 29.8Q23.8 29.8 23.8 28.96V28.4"/><path class="lk-r" d="M4.5 6.65H19.5M4.5 10.45H19.5M4.5 14.25H19.5M4.5 18.05H9.4M4.5 21.85H9.4"/><path class="lk-n" d="M10.9 17.65Q11.97 19.18 13.7 19.95Q11.97 20.72 10.9 22.25Q14.34 20.84 19.5 19.95Q14.34 19.06 10.9 17.65Z"/></svg></button></div>
@@ -1032,7 +1042,7 @@
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. Vienti ja tuonti ovat erillisiä
        supistettuja osioita omine valintoineen (käyttäjän päätös 21.10.2026). -->
   <div id="vienti">
-    <p class="huomio jatko">Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa. Kirjaukset, alleviivaukset ja muut merkinnät on mahdollista ottaa talteen viemällä tekstitiedostoon. Lukemisen jatkaminen toisessa laitteessa omilla merkinnöillä onnistuu tekstitiedoston tuonnilla.</p>
+    <p class="huomio jatko">Luettuun muodostuneet merkinnät ovat tallessa vain tämän selaimen muistissa. Kirjaukset, alleviivaukset ja muut merkinnät on mahdollista ottaa talteen viemällä tekstitiedostoon. Lukemisen jatkaminen toisessa laitteessa omilla merkinnöillä onnistuu myös tekstitiedoston tuonnilla. Jouhevan usealla laitteella tapahtuvan lukemisen vaihtoehtona on myös alempana esitelty <b>Postihuilu</b>.</p>
     <details class="vienti" id="vie-osio">
       <summary>Vie merkinnät tekstitiedostoon<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
       <div class="vienti-sis">
@@ -1718,6 +1728,10 @@
     if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
   });
+  $('#huilu-kysy').addEventListener('click', function () {
+    var o = $('#huilu-ohje'), auki = o.hidden;
+    o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
+  });
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && tila.nakyma === 'lista') haeLaatikko();
     if (document.hidden) postiLahetaLikaiset();
@@ -2036,7 +2050,7 @@
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
     sijoitaLiikKuvat(s, n);
   }
-  // Käärö Rulla-sanan alle (sanan keskelle). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
+  // Käärö Rullaus-sanan alle (sanan keskelle). Jos vaihtoehdot rivittyvät tai koodeksi ei mahdu, kuva on piilossa.
   function sijoitaLiikKuvat(s, n) {
     var v = $('#asetukset button[data-arvo="vieritys"]'), ka = $('#liik-kaaro'), ko = $('#liik-koodeksi');
     var r = s.closest('.asetus').getBoundingClientRect(), vr = v.getBoundingClientRect(), sr = s.getBoundingClientRect();

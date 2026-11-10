@@ -70,6 +70,9 @@
   h1 { font-weight: 400; font-size: 1.5rem; letter-spacing: .04em; margin: 0 0 6px; }
   .johdanto { color: var(--harmaa); margin: 0 0 22px; font-size: .95rem; }
   a { color: var(--ruoste); text-underline-offset: 3px; }
+  h2.alaots { font-weight: 400; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muste);
+    margin: 30px 0 0; padding-top: 12px; border-top: 1px solid var(--viiva); }
+  h2.alaots + .otsake { margin-top: 12px; }
   .otsake { display: block; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa);
     margin: 26px 0 7px; }
   textarea, input[type=text], input[type=url], select { width: 100%; font: inherit; color: inherit; background: var(--paperi);
@@ -160,6 +163,10 @@
   .esikatselu { margin: 10px 0 0; padding: 10px 12px; border-left: 2px solid var(--viiva); font-size: .92rem; overflow-wrap: anywhere; }
   .esikatselu.oma { border-left-color: var(--ruoste); }
   .laatikko { margin: 14px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--viiva); }
+  .nimirivi { display: flex; align-items: center; margin: 0 0 4px; }
+  .nimirivi label { display: block; margin: 0; font-size: .84rem; color: var(--harmaa); }
+  .nimirivi button.kysy { min-height: 30px; width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
+  .nimirivi button.kysy svg { width: 15px; height: 15px; }
   .laatikko .kentta { margin-top: 0; }
   .laatikko .kentta + .pieni + .kentta { margin-top: 13px; }
   /* Laatikkolauseen ohje i-napin takana (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026), kuten Luinin asetuksissa. */
@@ -224,6 +231,7 @@
     mitään ei lähetetä verkkoon, ellet lähetä tekstiä kännykälle. <a href="latomo-ohje.html">Ohje</a>.</p>
   <div class="lisaosa"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><a class="nimi" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener">Lisää lukimeen</a><span class="mika">Selainlisäosa Chrome-pohjaisiin selaimiin työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin Latomoon. Firefoxiin, myös Androidilla: <a href="lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia.</span></span></div>
 
+  <h2 class="alaots">Tai lisää teksti suoraan ilman välikäsiä</h2>
   <label class="otsake" for="md">Teksti</label>
   <textarea id="md" spellcheck="false" placeholder="# Otsikko&#10;&#10;*Alaotsikko*&#10;&#10;Tekijä&#10;&#10;## 1. Johdanto&#10;&#10;Tekstiä.[^Alaviite.]&#10;&#10;Pelkkä teksti käy myös: otsikon ja muut tiedot voi antaa alla."></textarea>
   <div class="rivi">
@@ -309,10 +317,10 @@
          #kk-tila (alkaa "Lähetetty"), #kk-virhe ja #laatikko-virhe (latomoon.js): älä nimeä uudelleen, vanhat lisäosat
          käyttävät niitä yhä. -->
     <div class="laatikko" id="laatikko" hidden>
-      <div class="kentta"><label for="laatikko-koodi">Laatikkolause</label>
+      <div class="kentta"><div class="nimirivi"><label for="laatikko-koodi">Laatikkolause</label>
+          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
         <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="vähintään 24 merkkiä tai Arvo">
-          <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button>
-          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div></div>
+          <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
       <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
       <div class="rivi"><button type="button" class="paa" id="kk-laheta">Soita huilua!</button></div>
       <p class="pieni" id="laatikko-virhe" hidden></p>
