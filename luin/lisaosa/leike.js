@@ -572,6 +572,38 @@
     return otsikko;
   }
 
+  /* Tekijänoikeusmerkintä (käyttäjän pyyntö 10.11.2026): etukenttään `oikeudet:` merkintä sellaisena kuin lähde sen
+     ilmaisee ja `oikeudet-lähde:` sivu, jolla se on. Vain kun tieto löytyy kohtalaisen varmasti: SEP:n artikkelin
+     ©-rivi, Ensyklopedia Logoksen tekijänoikeussivun artikkeleita koskeva ehto, Wikipedian alatunnisteen lisenssi tai
+     sivun lisenssilinkki (rel="license", esim. Creative Commons -merkki blogissa). Selitys ja otsikko syntyvät md.js:ssä. */
+  function oikeudet() {
+    const ac = document.getElementById('article-copyright');
+    if (ac && document.getElementById('aueditable')) {
+      const k = ac.cloneNode(true);
+      k.querySelectorAll('a[href^="mailto:"], em, abbr').forEach(x => x.remove());
+      const t = rivi(k.textContent).replace(/\s*<\s*>\s*$/, '').replace(/\s*<[^>]*>\s*$/, '');
+      if (/copyright/i.test(t)) return { teksti: t, lahde: location.origin + '/info.html#terms' };
+    }
+    if (/(^|\.)filosofia\.fi$/.test(location.hostname) && /\/ensyklopedia\/[^/]+/.test(location.pathname) && document.querySelector('.node-ensyklopedia')) {
+      return { teksti: 'Tekijänoikeus on alkuperäisellä tekijällä, joka on luovuttanut Filosofia.fi-portaalille luvan kertajulkaisuun. ' +
+        'Muusta julkaisemisesta on sovittava tekijän kanssa.', lahde: 'https://filosofia.fi/fi/tekijanoikeudet-ja-filosofiafi' };
+    }
+    const wf = /(^|\.)wikipedia\.org$/.test(location.hostname) && document.getElementById('footer-info-copyright');
+    if (wf) {
+      const a = wf.querySelector('a[href]');
+      // Ensimmäinen virke; versionumeron piste (4.0) ei lopeta sitä.
+      const t = (rivi(wf.textContent).match(/^.*?\.(?=\s|$)/) || [''])[0];
+      if (a && /creative commons/i.test(a.textContent)) return { teksti: t || rivi(a.textContent), lahde: a.href };
+    }
+    const l = document.querySelector('link[rel~="license"][href], a[rel~="license"][href]');
+    if (l) {
+      const u = l.href, cc = /creativecommons\.org\/(?:licenses\/([a-z-]+)\/(\d\.\d)|publicdomain\/(zero|mark))/i.exec(u);
+      const t = rivi(l.textContent || l.getAttribute('title') || '');
+      if (cc) return { teksti: t && /creative|cc|nimeä|attribution/i.test(t) ? t : cc[3] ? (cc[3] === 'zero' ? 'CC0 1.0' : 'Public Domain Mark') : 'CC ' + cc[1].toUpperCase() + ' ' + cc[2], lahde: u };
+    }
+    return null;
+  }
+
   // Valinta ennen Readabilityä.
   let valintaHtml = '';
   const sel = window.getSelection();
@@ -602,6 +634,9 @@
   kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
   kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
   kentta('lähde', osoite);
+  let oikeus = null;
+  try { oikeus = oikeudet(); } catch (e) { oikeus = null; }
+  if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
   kentta('leikattu', p.getFullYear() + '-' + pv(p.getMonth() + 1) + '-' + pv(p.getDate()));
   etu.push('---', '# ' + otsikko, '', '');
   const alku = etu.join('\n');

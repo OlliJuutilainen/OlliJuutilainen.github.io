@@ -120,6 +120,18 @@ palvelin.listen(0, async () => {
   t = await T();
   tulos('osana teosta viitteessä', /etsimässä\. \*Kokoomateos\*\. Uskonnonfilosofian kandidaatintutkielma\. Helsingin yliopisto, 1–20\.$/.test(t.koottu), t.koottu);
 
+  // 3b. Tekijänoikeudet (käyttäjän pyyntö 10.11.2026): valinnainen kenttä, oletuksena piilossa; lisättynä etukenttään ja
+  // esikatseluun tekstin loppuun.
+  const oikPiilossa = !(await p.$('#k-oikeudet')) || !(await p.isVisible('#k-oikeudet'));
+  await p.click('#lisaa'); await p.click('#lisaa-valikko button[data-k="oikeudet"]');
+  await p.fill('#k-oikeudet', 'CC BY-NC 4.0');
+  await p.waitForTimeout(300);
+  t = await T();
+  const oikHtml = await p.evaluate(() => { const r = window.__latomo.tulos(); return window.LuinMD.parse(r.md).html.replace(/[\s\S]*id="tekijanoikeudet"/, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 160); });
+  tulos('tekijänoikeudet: piilossa oletuksena, lisättynä etukenttään ja loppuun', oikPiilossa && /^oikeudet: CC BY-NC 4\.0$/m.test(t.md) && /Merkintä lähteessä: CC BY-NC 4\.0 Tätä saa jakaa ja muokata, kunhan mainitsee tekijän eikä tee sillä rahaa\./.test(oikHtml), oikHtml);
+  await p.fill('#k-oikeudet', '');
+  await p.waitForTimeout(200);
+
   // 4. MarkDownloadin oletuspohja: oma tila kytkimineen ja ehdotuksineen poistettiin 9.11.2026; sivuston erotus toimii yhä.
   await tiedostona('leike.md', OLETUSLEIKE);
   tulos('ei MarkDownload-ehdotusta eikä kytkintä', !(await ehdotukset()).some(x => /MarkDownload/.test(x)) && !(await p.$('#mdl')) && !(await leikeTila()), (await ehdotukset()).join(' / '));
