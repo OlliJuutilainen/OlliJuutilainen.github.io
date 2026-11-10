@@ -3901,7 +3901,8 @@
     if (k.p >= 2) return k.k;
     return kieliPisteet(nyt.txt.slice(0, 60).join(' ')).k || 'fi';
   }
-  function kohdeKieli(l) { return l === 'fi' ? 'en' : 'fi'; }
+  // Kohdekieli: suomesta latinaksi (käyttäjän pyyntö 10.11.2026), muista suomeksi.
+  function kohdeKieli(l) { return l === 'fi' ? 'la' : 'fi'; }
   // Käännös avautuu DeepL:n verkkosivulle uuteen välilehteen (ei avainta, ei lisäosaa). Osoitteessa / on \/.
   function kaanna(segs) {
     var l = tekstinKieli(segs), t = segs.map(function (s) { return s.x; }).join('\n\n');
