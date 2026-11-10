@@ -1,8 +1,11 @@
-/* Luinin postilaatikko: yhteinen osa luin.html:lle ja Latomolle (käyttäjän pyyntö 9.11.2026).
-   - Laatikon koodi: kirjoitusasu siistitään samalla tavalla kaikkialla (isot kirjaimet pieniksi, ä ja ö a:ksi ja o:ksi,
-     välilyönnit ja välimerkit pois), ja uusi koodi on 24–40 merkkiä, jotta sillä voi sekä lähettää että lukea
-     (worker kelpuuttaa kirjoitukset vain vähintään 24 merkin koodilla). Lisää lukimeen -lisäosassa on sama sääntö
-     ja ohje omana kopionaan (luin/lisaosa/ponnahdus.js), koska lisäosa ei lataa sivuston tiedostoja.
+/* Luinin postilaatikko eli Postihuilu: yhteinen osa luin.html:lle ja Latomolle (käyttäjän pyynnöt 9.11.2026; nimi
+   Postihuilu ja avaimen nimi laatikkolause 10.11.2026).
+   - Laatikkolause: isot kirjaimet luetaan pieniksi ja reunojen tyhjä pois, muuten lause kelpaa vain sellaisenaan
+     (a–z, numerot ja yhdysmerkki; ääkköset, muut merkit ja välilyönnit hylätään, käyttäjän päätös 10.11.2026: ennen ne
+     siistittiin pois, mikä hämärsi, mikä lause oikeastaan on). Uusi lause on 24–40 merkkiä, jotta sillä voi sekä lähettää
+     että lukea (worker kelpuuttaa kirjoitukset vain vähintään 24 merkin lauseella). Luin-linkki (…#l=<lause>) kelpaa
+     lauseen paikalle. Lisää lukimeen -lisäosassa on sama sääntö ja ohje omana kopionaan (luin/lisaosa/ponnahdus.js ja
+     ponnahdus.html), koska lisäosa ei lataa sivuston tiedostoja.
    - Merkintäposti: tekstin merkinnät (alleviivaukset, kirjaukset, kirjanmerkit, lukukohta) kulkevat laatikossa JSONina
      (worker: luinm:<laatikko>:<avain>). Lähettäjä hakee ensin laatikon version, yhdistää sen omiinsa ja lähettää
      yhdistetyn, joten kumpikaan laite ei kadota toisen merkintöjä. Poistot kulkevat poistomerkintöinä (del), jotta
@@ -12,23 +15,41 @@
   var MIN = 24, MAX = 40;
   var RE = /^[a-z0-9-]{8,40}$/;          // workerin hyväksymä muoto (lukeminen); vanhat lyhyet koodit toimivat lukemiseen
 
+  // Lauseen kirjoitusasu: Luin-linkistä #l=-osa, reunojen tyhjä pois, isot kirjaimet pieniksi. Muuta ei muuteta.
   function koodi(s) {
-    return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9-]/g, '');
+    s = String(s || '').trim();
+    var m = /^https?:\/\/\S*#l=([^&\s]*)$/i.exec(s);
+    if (m) { try { s = decodeURIComponent(m[1]); } catch (e) { s = m[1]; } }
+    return s.trim().toLowerCase();
   }
-  // Uuden koodin tarkistus: '' kun kelpaa, muuten syy.
+  // Uuden lauseen tarkistus: '' kun kelpaa, muuten syy.
   function koodiVirhe(k) {
-    if (!k) return 'Anna laatikon koodi.';
-    if (k.length < MIN) return 'Koodissa on oltava vähintään ' + MIN + ' merkkiä (nyt ' + k.length + '), jotta sillä voi sekä lähettää että lukea.';
-    if (k.length > MAX) return 'Koodissa voi olla enintään ' + MAX + ' merkkiä (nyt ' + k.length + ').';
+    if (!k) return 'Anna laatikkolause.';
+    var vaarat = [];
+    String(k).replace(/[^a-z0-9-]/g, function (c) {
+      c = /\s/.test(c) ? 'välilyönti' : '”' + c + '”';
+      if (vaarat.indexOf(c) < 0) vaarat.push(c);
+    });
+    if (vaarat.length) return 'Laatikkolauseessa saa olla vain kirjaimia a–z, numeroita ja yhdysmerkkejä (-). Ei kelpaa: ' + vaarat.join(', ') + '.';
+    if (k.length < MIN) return 'Laatikkolauseessa on oltava vähintään ' + MIN + ' merkkiä (nyt ' + k.length + ').';
+    if (k.length > MAX) return 'Laatikkolauseessa voi olla enintään ' + MAX + ' merkkiä (nyt ' + k.length + ').';
     return '';
   }
-  // Pikaohje (?-napin takana Luinin asetuksissa ja Latomossa; lisäosassa sama sanoin).
-  var OHJE = '<p>Laatikon koodissa on oltava <b>vähintään 24 merkkiä</b> (enintään 40), jotta sillä voi sekä lähettää ' +
-    'että lukea. Pelkät kirjaimet riittävät.</p>' +
-    '<p>Isoja ja pieniä kirjaimia ei erotella. Välilyönnit ja välimerkit jätetään pois, ja ä ja ö luetaan a:ksi ja o:ksi.</p>' +
-    '<p>Vinkki: pitkä ja erikoinen lause, jonka muistat, ilman välejä. ”Torikaffeilla on hemmetin mukavaa.” → ' +
-    '<i>torikaffeillaonhemmetinmukavaa</i></p>' +
-    '<p>Koodi on laatikon avain: sen tietävä voi lukea laatikon tekstit ja lähettää laatikkoon.</p>';
+  // Laatikkolauseen ohje (i-napin takana Luinin asetuksissa ja Latomossa; lisäosassa sama ilman viimeistä kappaletta).
+  // Sanamuodot ovat käyttäjän (10.11.2026); älä siloittele.
+  var OHJE_YDIN = '<p>Laatikkolause on postilaatikon avain: vain sen tietävä pääsee sekä lukemaan laatikon tekstit että ' +
+    'lähettämään laatikkoon.</p>' +
+    '<p>Lauseen merkkihaarukka on 24–40 koostuen pienistä ei-ääkkösellisistä kirjaimista, joiden lisäksi halutessa myös ' +
+    'yhdysmerkeistä (väliviiva eli ”-”) ja numeroista. Isot kirjaimet luetaan pieniksi. MUITA <b>MERKKEJÄ JA VÄLILYÖNTEJÄ ' +
+    'EI HYVÄKSYTÄ</b>.</p>' +
+    '<p>Hyvät tyyli- ja turvallisuuspisteet saava laatikkolause on sekä erikoinen että mieleenpainuva.</p>' +
+    '<blockquote><i>”Torikaffeilla on hemmetin mukavaa.”</i> → (a) <b>tori-kaffeilla-on-hemmetin-mukavaa</b> TAI ' +
+    '(b) <b>torikaffeillaonhemmetinmukavaa</b></blockquote>' +
+    '<p>Torikahvittelun ystävä voisi päätyä yhteen kahdesta yllä esitetystä laatikkolauseesta (a) tai (b). Esimerkin (a) ' +
+    'edustama viivapilkontataktiikka voi edistää laatikkolauseiden hahmottamista ja siten kenties myös esimerkiksi ' +
+    'virhelyöntien huomaamista.</p>';
+  var OHJE = OHJE_YDIN + '<p>Yksi huilun soitto kestää 30 päivää. Jos soittoon ei yhdytä tässä ajassa, huilun kantama ' +
+    'yhdistämisen mahdollisuus raukeaa ja jää todellistumatta.</p>';
 
   // Tekstin avain laatikossa: Latomon ja laatikon tekstit ovat lukulistassa p-<slug>, laatikossa <slug> (sama kuin
   // tekstin oma tunnus laatikossa); osoitteesta haetut u-<tiiviste> sellaisenaan.
@@ -149,6 +170,6 @@
     return r;
   }
 
-  g.LuinPosti = { MIN: MIN, MAX: MAX, RE: RE, koodi: koodi, koodiVirhe: koodiVirhe, OHJE: OHJE, avain: avain,
+  g.LuinPosti = { MIN: MIN, MAX: MAX, RE: RE, koodi: koodi, koodiVirhe: koodiVirhe, OHJE: OHJE, OHJE_YDIN: OHJE_YDIN, avain: avain,
     paikalliset: paikalliset, kuva: kuva, kirjaaMuutokset: kirjaaMuutokset, paketti: paketti, sisalto: sisalto, yhdista: yhdista };
 })(typeof window !== 'undefined' ? window : globalThis);
