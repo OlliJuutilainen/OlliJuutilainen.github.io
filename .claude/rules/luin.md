@@ -16,6 +16,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle.
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin avaimella `luin-tuonti`
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
+- `luin/mika-on-markdown.md` (käyttäjän pyyntö 12.11.2026): *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
+  Latomon johdannon alta (`luin.html#u=luin/mika-on-markdown.md`; ei ponnahdusta, Latomoa ei sotketa). Sisältö ja sävy ovat
+  käyttäjän (myös iA Writerin, MarkTextin, Typoran ja Obsidianin esittely; poikkeus Latomon ohjeen iA Writer -linjaan).
+  Verkko-osoitteet ovat paljaina sulkeissa, koska verkkolinkit ovat lukimessa oletuksena pois ja linkkiteksti näkyisi ilman osoitetta.
+  Ei `luin/tekstit/`-kansioon (robots.txt estää sen).
 - `luin/kayttoohje.html`: lukijan käyttöohje, **ei Latomon**. Kun lukijan käyttäjälle näkyvä toiminta muuttuu,
   tarkista käyttöohje.
 - `luin/ohje.md`: kehittäjän opas, avautuu `luin.html#u=luin/ohje.md`. Lukulistassa siihen ei ole linkkiä (käyttäjän
@@ -87,7 +92,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
 - **Sanat ovat käyttäjän**: *kirjaus* (alleviivaukseen liitetty muistiinpano; käyttöliittymässä aina tämä sana),
   *Sisälmys* (navin sisällysluettelo, ei *Sisällys*). Peruutusnappi on *älä!* (pienellä, huutomerkillä, kursiivi,
-  `--harmaa`), ei *Ei*. Latomon tyhjennyksen vahvistus on *”Oletko aivan varma?” sanoi Lasse Lehtinen.*
+  `--harmaa`), ei *Ei*. Latomon tyhjennyksen vahvistus on *”Oletko aivan varma?”* ja kursiivilla *sanoi joskus myös Lasse
+  Lehtinen.* (12.11.2026). Latomon pääpainike on *Avaa lukimessa* (12.11.2026; ennen *Avaa Luinissa*).
 - **iA Writer -pohjasta (`luin/ia-writer/`) luovuttiin**, koska se ei toiminut käyttäjän iA Writerissä: älä tarjoa
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa
   järkevältä. Latomon ohje ei mainosta iA Writeria eikä neuvo sen käyttöä; se mainitaan vain, kun se vastaa

@@ -258,7 +258,7 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
   tulos('väliotsikko ##', /^## Väliotsikko$/m.test(md));
   await latomo.close();
 
-  // 3. Lisää lukimeen: Latomo painaa itse Avaa Luinissa, ja teksti on Luinin lukulistassa.
+  // 3. Lisää lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
   await avaaIkkuna();
   const luin = await paina('#lukimeen', /luin\.html#id=/);
   const lista = await luin.evaluate(() => ({ lista: JSON.parse(localStorage.getItem('luin-lista') || '[]'), avain: Object.keys(localStorage).filter(k => k.startsWith('luin-teksti:')),
