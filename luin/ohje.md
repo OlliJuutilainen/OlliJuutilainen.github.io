@@ -21,7 +21,7 @@ Tämä opas on kirjoitettu kehittäjälle, joka tutustuu koodiin. Siinä on luku
 
 1. Avaa `luin/latomo.html`.
 2. Valitse tai pudota tutkielman `.md`-tiedosto tekstikenttään. Latomo näyttää rakenteen ja huomautukset.
-3. Korjaa lähdeviite tarvittaessa ja paina **Avaa Luinissa**.
+3. Korjaa lähdeviite tarvittaessa ja paina **Avaa lukimessa**.
 
 Teksti tallentuu tämän selaimen lukulistaan. Toisella laitteella sama tehdään uudelleen kyseisen laitteen selaimessa, esimerkiksi Note Air3:lla Dropsyncin kansiosta valittuna.
 
@@ -41,7 +41,7 @@ Käyttäjän nimistö (9.11.2026):
 - **Alaotsikko: *HTML*.**
 - **Pitkä, tyylitelty, virallinen nimi: *LUiN.HTML*** (logo, `aria-label`, infolaatikko).
 - **Osoite: `luin.html`.**
-- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Avaa Luinissa*).
+- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Luinin lukulista*).
 - **Sivuston ytimen työkalu: *lukin*,** genetiivi *lukimen* (*Lisää lukimeen*).
 
 ## 2. Tiedostot ja tietovirta
