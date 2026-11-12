@@ -364,6 +364,8 @@
   #haku button.osuma:last-child { border-bottom: 0; }
   #haku button.osuma:hover { text-decoration: none; }
   #haku button.osuma[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
+  /* Erikoishaun ehdotus: komento ja sen alla selite ja kohtien määrä kuten osuman kohta. */
+  .e-selite { display: block; font-size: .72rem; color: var(--harmaa); letter-spacing: .03em; margin-top: 2px; font-variant-numeric: lining-nums; }
   .o-kohta { display: block; font-size: .72rem; color: var(--harmaa); letter-spacing: .03em; margin-bottom: 2px; font-variant-numeric: lining-nums; }
   /* Osuma listassa ja valittu osuma tekstissä: umpinainen haalea tausta (ei läpikuultavuutta, e-ink),
      eri merkki kuin alleviivauksen ruosteinen viiva. Omina sääntöinään, koska ::highlightia
@@ -2620,7 +2622,7 @@
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') LuinMD.tavutaDOM(art, aset.tavutus);
     paivitaLinkit();
-    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = [];
+    nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = []; nyt.erik = null;
     $$('[data-b]', art).forEach(function (el) {
       var b = +el.dataset.b, t = lohkoteksti(el);
       nyt.blocks[b] = el; nyt.txt[b] = t; nyt.cum[b] = nyt.total; nyt.total += t.length + 1;
@@ -4278,12 +4280,14 @@
     la: 'atque autem enim esse etiam igitur ita nam neque nec nisi quae quam quia quibus quod sed sicut sunt tamen ut vel ab ac aut eius eorum ille ipse iam vero quoque inter'
   }, KIELI_SANAT = {};
   Object.keys(KIELET).forEach(function (k) { var o = {}; KIELET[k].split(' ').forEach(function (w) { o[w] = 1; }); KIELI_SANAT[k] = o; });
-  function kieliPisteet(t, latina) {
+  // kaikki: valinnainen olio, johon kirjataan jokaisen kielen pisteet (erikoishaku vertaa tekstin kieleen).
+  function kieliPisteet(t, latina, kaikki) {
     var w = String(t).toLowerCase().match(/[\p{L}’']+/gu) || [], paras = { k: '', p: 0 };
     Object.keys(KIELI_SANAT).forEach(function (k) {
       if (k === 'la' && !latina) return;
       var p = 0;
       w.forEach(function (x) { if (KIELI_SANAT[k][x]) p++; else if (k === 'fi' && /(ssa|ssä|sta|stä|lla|llä|lta|ltä|ksi|isen|isuus|nsa|nsä)$/.test(x)) p += .5; });
+      if (kaikki) kaikki[k] = p;
       if (p > paras.p) paras = { k: k, p: p };
     });
     return paras;
@@ -5549,29 +5553,174 @@
   // alaviitteen osumassa (n = viitteen numero) s ja e ovat viitteen tekstissä ja a viitenumeron
   // edellinen merkki: viitenumeron jälkeinen merkki voi olla vasta alaviitteen alla, kun alaviite
   // on avattu tekstin sisään, jolloin vieritys veisi alaviitteen ruudun yläpuolelle.
-  function etsi(ehdot, viit) {
-    var osumat = [], n = 0, E = ehdot.length;
-    if (!E) return { osumat: osumat, n: 0 };
-    function sanoissa(S, f) {
-      for (var i = 0; i + E <= S.length; i++) {
-        var ok = true;
-        for (var j = 0; j < E && ok; j++) ok = ehdot[j].koko ? S[i + j].w === ehdot[j].w : S[i + j].w.lastIndexOf(ehdot[j].w, 0) === 0;
-        if (!ok) continue;
-        var v = S[i + E - 1], h = ehdot[E - 1];
-        f(S[i].s, h.koko || v.e - v.s !== v.w.length ? v.e : v.s + h.w.length);
-      }
+  function sanoissa(S, ehdot, f) {
+    var E = ehdot.length;
+    for (var i = 0; i + E <= S.length; i++) {
+      var ok = true;
+      for (var j = 0; j < E && ok; j++) ok = ehdot[j].koko ? S[i + j].w === ehdot[j].w : S[i + j].w.lastIndexOf(ehdot[j].w, 0) === 0;
+      if (!ok) continue;
+      var v = S[i + E - 1], h = ehdot[E - 1];
+      f(S[i].s, h.koko || v.e - v.s !== v.w.length ? v.e : v.s + h.w.length);
     }
+  }
+  function etsi(ehdot, viit) {
+    var osumat = [], n = 0;
+    if (!ehdot.length) return { osumat: osumat, n: 0 };
     nyt.txt.forEach(function (t, b) {
       if (t == null) return;
       var L = [];
-      sanoissa(sanat(b), function (s, e) { L.push({ b: b, s: s, e: e, a: s }); });
+      sanoissa(sanat(b), ehdot, function (s, e) { L.push({ b: b, s: s, e: e, a: s }); });
       if (viit) {
-        viitteet(b).forEach(function (v) { sanoissa(v.sanat, function (s, e) { L.push({ b: b, n: v.n, s: s, e: e, a: Math.max(0, v.o - 1) }); }); });
+        viitteet(b).forEach(function (v) { sanoissa(v.sanat, ehdot, function (s, e) { L.push({ b: b, n: v.n, s: s, e: e, a: Math.max(0, v.o - 1) }); }); });
         L.sort(function (x, y) { return x.a - y.a; });
       }
       L.forEach(function (o) { if (++n <= HAKU_MAX) osumat.push(o); });
     });
     return { osumat: osumat, n: n };
+  }
+
+  /* ---------- erikoishaut ----------
+     Käyttäjän pyyntö 12.11.2026: kenoviiva aloittaa erikoishaun. Ehdotuksina vain ne, joita tekstissä on, ja alku riittää
+     (/k → /kreikka). Komennon perään kirjoitetut sanat haetaan tavalliseen tapaan, mutta vain kohtien sisältä (/lainaus kant).
+     - Vieraat kielet (/vieras kaikki, tai kieli nimeltä, esim. /kreikka, /latina): muun kuin tekstin pääkirjoitusjärjestelmän
+       jaksot (kreikka, heprea ym.) sekä kappaleet, alaviitteet, lainaukset ja kursiivit, joiden kieli on muu kuin tekstin kieli.
+       Kieli tunnistetaan yleisimmistä sanoista (kieliPisteet): kappaleessa ja lainauksessa vähintään kaksi, kursiivissa yksi,
+       kun kursiivissa on vähintään kaksi sanaa eikä yhtään tekstin kielen sanaa. Lyhyt vieras ilmaus ilman pikkusanoja
+       (Dasein, a priori) ei siksi tunnistu. Kirjallisuusluettelon (p.bib) nimekkeistä vain kirjoitusjärjestelmä.
+     - Lainaukset (/lainaus): sisennetyt lainaukset ja lainausmerkeissä vähintään kolmen sanan jaksot. Yhden ja kahden sanan
+       lainausmerkit ovat useimmiten termejä tai varauksia (ks. ohje 4.7.3).
+     Ilman hakusanoja peräkkäiset kokonaiset kappaleet (sama lainaus, sama kieli) ovat yksi kohta. */
+  var ERIK = {
+    lainaus: 'lainaukset', vieras: 'vieraskieliset kohdat',
+    kreikka: 'kreikankieliset kohdat', latina: 'latinankieliset kohdat', saksa: 'saksankieliset kohdat',
+    englanti: 'englanninkieliset kohdat', ranska: 'ranskankieliset kohdat', ruotsi: 'ruotsinkieliset kohdat',
+    suomi: 'suomenkieliset kohdat', heprea: 'hepreankieliset kohdat', arabia: 'arabiankieliset kohdat',
+    kyrillinen: 'kyrilliset kohdat', devanagari: 'devanagarilla kirjoitetut kohdat', kiina: 'kiinan merkein kirjoitetut kohdat'
+  };
+  var ERIK_KIELI = { fi: 'suomi', en: 'englanti', de: 'saksa', fr: 'ranska', sv: 'ruotsi', la: 'latina' };
+  var ERIK_KIRJ = [['Greek', 'kreikka'], ['Hebrew', 'heprea'], ['Arabic', 'arabia'], ['Cyrillic', 'kyrillinen'], ['Devanagari', 'devanagari'], ['Han', 'kiina']]
+    .map(function (x) {
+      var k = '\\p{Script=' + x[0] + '}', sana = k + '[' + k + '\\p{M}]*';
+      return { l: x[1], kirj: x[0], testi: new RegExp(k, 'u'), jakso: new RegExp(sana + '(?:[^\\p{L}\\p{N}\\n]+' + sana + ')*', 'gu') };
+    });
+  var ERIK_AUKI = { '”': '”', '"': '"', '»': '»«', '“': '”', '„': '“”', '«': '»' };
+  // Lainausmerkkiparit tekstissä yhdellä tasolla (sisäkkäisiä ei eritellä), merkit mukaan; pariton avaaja ohitetaan.
+  function lainausJaksot(t) {
+    var a = [], auki = -1, sulku = '';
+    for (var i = 0; i < t.length; i++) {
+      var c = t[i];
+      if (auki >= 0 && sulku.indexOf(c) >= 0) { a.push({ s: auki, e: i + 1 }); auki = -1; }
+      else if (auki < 0 && ERIK_AUKI[c]) { auki = i; sulku = ERIK_AUKI[c]; }
+    }
+    return a;
+  }
+  function sanaLuku(t) { return (t.match(SANA) || []).length; }
+  // Vieras kieli latinalaisin kirjaimin: tunnistettu kieli, jos se ei ole tekstin kieli (min: vaadittu pistemäärä).
+  function vierasKieli(t, paa, kursiivi) {
+    var kaikki = {}, v = kieliPisteet(t, true, kaikki);
+    if (!v.k || v.k === paa) return '';
+    if (v.p >= 2 || kursiivi && v.p >= 1 && !kaikki[paa] && sanaLuku(t) >= 2) return ERIK_KIELI[v.k];
+    return '';
+  }
+  // Kursiivijaksot lohkon tekstin kohtina; vierekkäiset (vain väli välissä) yhdeksi.
+  function kursiivit(el, t) {
+    var a = [];
+    $$('em, i', el).forEach(function (k) {
+      if (k.parentElement.closest('em, i') && el.contains(k.parentElement.closest('em, i')) || k.closest(POIS)) return;
+      var s = lohkoon(el, k, 0), e = lohkoon(el, k, k.childNodes.length), ed = a[a.length - 1];
+      if (e <= s) return;
+      if (ed && !t.slice(ed.e, s).trim()) ed.e = e; else a.push({ s: s, e: e });
+    });
+    return a;
+  }
+  function erikTekstissa(t, el, A) {
+    var R = [], bib = el && el.matches('p.bib'), bq = el && el.closest('blockquote');
+    ERIK_KIRJ.forEach(function (x) {
+      if (x.kirj === A.kirj || !x.testi.test(t)) return;
+      var m; x.jakso.lastIndex = 0;
+      while ((m = x.jakso.exec(t))) R.push({ s: m.index, e: m.index + m[0].length, l: x.l, v: 1 });
+    });
+    if (bib) return R;
+    var koko = vierasKieli(t, A.paa);
+    if (koko) R.push({ s: 0, e: t.length, l: koko, v: 1, koko: 1, bq: bq });
+    var L = lainausJaksot(t);
+    if (bq) R.push({ s: 0, e: t.length, l: 'lainaus', koko: 1, bq: bq });
+    else L.forEach(function (x) { if (sanaLuku(t.slice(x.s, x.e)) >= 3) R.push({ s: x.s, e: x.e, l: 'lainaus' }); });
+    if (!koko) {
+      L.forEach(function (x) { var k = vierasKieli(t.slice(x.s, x.e), A.paa); if (k) R.push({ s: x.s, e: x.e, l: k, v: 1 }); });
+      if (el) kursiivit(el, t).forEach(function (x) { var k = vierasKieli(t.slice(x.s, x.e), A.paa, true); if (k) R.push({ s: x.s, e: x.e, l: k, v: 1 }); });
+    }
+    return R;
+  }
+  // Tekstin kieli ja pääkirjoitusjärjestelmä tekstin alusta; kohdat lohkoittain (b) ja alaviitteittäin (v[b][n]).
+  function erikAlueet() {
+    if (nyt.erik) return nyt.erik;
+    var otos = nyt.txt.slice(0, 60).join(' '), kirj = 'Latin', most = (otos.match(/\p{Script=Latin}/gu) || []).length;
+    ERIK_KIRJ.forEach(function (x) { var c = (otos.match(new RegExp('\\p{Script=' + x.kirj + '}', 'gu')) || []).length; if (c > most) { most = c; kirj = x.kirj; } });
+    var A = nyt.erik = { paa: kieliPisteet(otos, true).k || 'fi', kirj: kirj, b: [], v: [] };
+    nyt.txt.forEach(function (t, b) {
+      if (t == null) return;
+      A.b[b] = erikTekstissa(t, nyt.blocks[b], A);
+      var V = viitteet(b);
+      if (V.length) { A.v[b] = {}; V.forEach(function (v) { A.v[b][v.n] = erikTekstissa(v.t, null, A); }); }
+    });
+    return A;
+  }
+  // Komennon kohdat: /vieras kaikki vieraat (sisäkkäisistä uloin), muuten nimetty laji.
+  function komAlueet(kom, R) {
+    if (!R) return [];
+    if (kom !== 'vieras') return R.filter(function (r) { return r.l === kom; });
+    var V = R.filter(function (r) { return r.v; });
+    return V.filter(function (r, i) {
+      return !V.some(function (q, j) { return j !== i && q.s <= r.s && q.e >= r.e && (q.e - q.s > r.e - r.s || j < i); });
+    }).sort(function (x, y) { return x.s - y.s; });
+  }
+  function etsiErik(kom, ehdot, viit) {
+    var A = erikAlueet(), osumat = [], n = 0, ed = null;
+    nyt.txt.forEach(function (t, b) {
+      if (t == null) return;
+      var L = [];
+      komAlueet(kom, A.b[b]).forEach(function (r) {
+        if (ehdot.length) { sanoissa(sanat(b), ehdot, function (s, e) { if (s >= r.s && e <= r.e) L.push({ b: b, s: s, e: e, a: s }); }); return; }
+        if (r.koko && ed && ed.b === b - 1 && ed.l === r.l && ed.bq === r.bq) { ed.b = b; return; }
+        ed = r.koko ? { b: b, l: r.l, bq: r.bq } : null;
+        L.push({ b: b, s: r.s, e: r.e, a: r.s, alue: 1 });
+      });
+      if (viit && A.v[b]) {
+        viitteet(b).forEach(function (v) {
+          komAlueet(kom, A.v[b][v.n]).forEach(function (r) {
+            var a = Math.max(0, v.o - 1);
+            if (ehdot.length) sanoissa(v.sanat, ehdot, function (s, e) { if (s >= r.s && e <= r.e) L.push({ b: b, n: v.n, s: s, e: e, a: a }); });
+            else L.push({ b: b, n: v.n, s: r.s, e: r.e, a: a, alue: 1 });
+          });
+        });
+        L.sort(function (x, y) { return x.a - y.a; });
+      }
+      L.forEach(function (o) { if (++n <= HAKU_MAX) osumat.push(o); });
+    });
+    return { osumat: osumat, n: n };
+  }
+  // Tekstissä tarjolla olevat erikoishaut ja niiden kohtien määrä: lainaus, vieras ja löytyneet kielet yleisyysjärjestyksessä.
+  function erikTarjolla(viit) {
+    var A = erikAlueet(), lajit = {};
+    function keraa(R) { (R || []).forEach(function (r) { if (r.v) lajit[r.l] = 1; }); }
+    A.b.forEach(keraa);
+    if (viit) A.v.forEach(function (o) { if (o) Object.keys(o).forEach(function (n) { keraa(o[n]); }); });
+    var kielet = Object.keys(lajit).map(function (l) { return { k: l, n: etsiErik(l, [], viit).n }; })
+      .sort(function (x, y) { return y.n - x.n; });
+    var a = [{ k: 'lainaus', n: etsiErik('lainaus', [], viit).n }];
+    if (kielet.length > 1) a.push({ k: 'vieras', n: etsiErik('vieras', [], viit).n });
+    return a.concat(kielet);
+  }
+  // Kentän sisältö erikoishakuna: null (tavallinen haku), { kom, loput }, { ehd: [...] } tai { tuntematon, tarj }.
+  function erikoishaku(q, viit) {
+    var m = /^\s*\/(\S*)(\s[\s\S]*)?$/.exec(q);
+    if (!m) return null;
+    var tok = m[1].toLowerCase(), loput = m[2] || '';
+    if (ERIK.hasOwnProperty(tok)) return { kom: tok, loput: loput };
+    var tarj = erikTarjolla(viit), sop = tarj.filter(function (x) { return x.k.indexOf(tok) === 0; });
+    if (m[2] != null && sop.length === 1) return { kom: sop[0].k, loput: loput };
+    return sop.length ? { ehd: sop } : { tuntematon: tok, tarj: tarj };
   }
   function osumanTeksti(o) {
     if (!o.n) return nyt.txt[o.b];
@@ -5579,8 +5728,15 @@
     return v ? v.t : '';
   }
   // Ote osuman ympäriltä sanan rajoilla.
+  // Erikoishaun pitkä kohta (lainaus, vieraskielinen kappale) näytetään alustaan ilman ympäristöä.
   function ote(o) {
-    var t = osumanTeksti(o), a = Math.max(0, o.s - 45), z = Math.min(t.length, o.e + 90);
+    var t = osumanTeksti(o);
+    if (o.alue && o.e - o.s > 120) {
+      var y = t.lastIndexOf(' ', o.s + 140);
+      if (y <= o.s + 60) y = o.s + 140;
+      return '<mark>' + esc(t.slice(o.s, y)) + '</mark>…';
+    }
+    var a = Math.max(0, o.s - 45), z = Math.min(t.length, o.e + 90);
     if (a > 0) { var v = t.indexOf(' ', a); if (v >= 0 && v < o.s) a = v + 1; }
     if (z < t.length) { var u = t.lastIndexOf(' ', z); if (u > o.e) z = u; }
     return (a > 0 ? '…' : '') + esc(t.slice(a, o.s)) + '<mark>' + esc(t.slice(o.s, o.e)) + '</mark>' + esc(t.slice(o.e, z)) + (z < t.length ? '…' : '');
@@ -5629,7 +5785,14 @@
     var inp = $('input', hakuEl);
     $('.h-viit', hakuEl).innerHTML = SAL_IKONI + 'alaviitteet';
     inp.addEventListener('input', function () { clearTimeout(hakuAjastin); hakuAjastin = setTimeout(paivitaHaku, 120); });
-    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(hakuAjastin); paivitaHaku(); seuraavaOsuma(); } });
+    // Enter erikoishaun ehdotuksissa valitsee ensimmäisen ehdotuksen.
+    inp.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault(); clearTimeout(hakuAjastin);
+      var x = nyt && erikoishaku(inp.value, aset.hakuViit);
+      if (x && x.ehd) { valitseErik(x.ehd[0].k); return; }
+      paivitaHaku(); seuraavaOsuma();
+    });
     // Napin painallus ei vie kohdistusta kentästä (näppäimistö pysyy).
     hakuEl.addEventListener('mousedown', function (e) { if (!e.target.closest('input')) e.preventDefault(); });
     hakuEl.addEventListener('click', function (e) {
@@ -5637,6 +5800,7 @@
       if (!b || !nyt || !nyt.haku) return;
       var k = b.dataset.k, h = nyt.haku;
       if (k === 'osuma') { suljeHypynTielta(); valitseOsuma(+b.dataset.i); }
+      else if (k === 'erik') valitseErik(b.dataset.kom);
       else if (k === 'viit') {
         aset.hakuViit = aset.hakuViit ? 0 : 1; tallennaAset();
         b.setAttribute('aria-pressed', String(!!aset.hakuViit));
@@ -5644,16 +5808,36 @@
       } else if (k === 'tyhjenna') { inp.value = ''; paivitaHaku(); inp.focus({ preventScroll: true }); }
     });
   })();
+  // Ehdotuksen valinta: komento kenttään välilyönnin kera (perään voi kirjoittaa hakusanoja) ja haku heti.
+  function valitseErik(kom) {
+    var inp = $('input', hakuEl);
+    inp.value = '/' + kom + ' ';
+    paivitaHaku();
+  }
   function paivitaHaku() {
     var h = nyt && nyt.haku, inp = hakuAuki() && $('input', hakuEl);
     if (!h || !inp) return;
     if (inp.value !== h.q) { h.q = inp.value; h.valittu = -1; korosta(null); }
     $('.h-tyhj', hakuEl).hidden = !h.q;
-    var ehdot = hakuehdot(h.q), r = etsi(ehdot, aset.hakuViit), sivut = aset.sivutus === 'sivut';
+    var lista = $('.h-lista', hakuEl), tieto = $('.h-tieto', hakuEl), x = erikoishaku(h.q, aset.hakuViit);
+    if (x && (x.ehd || x.tuntematon != null)) {
+      h.osumat = [];
+      tieto.textContent = x.ehd ? 'Erikoishaku: valitse tai jatka kirjoittamista.' :
+        'Tekstissä ei ole erikoishakua /' + x.tuntematon + '. Tarjolla: ' + x.tarj.map(function (e) { return '/' + e.k; }).join(', ') + '.';
+      lista.innerHTML = (x.ehd || []).map(function (e) {
+        return '<button type="button" class="osuma erik" data-k="erik" data-kom="' + e.k + '">/' + e.k +
+          '<span class="e-selite">' + esc(ERIK[e.k]) + ' · ' + e.n.toLocaleString('fi-FI') + '</span></button>';
+      }).join('');
+      lista.hidden = !x.ehd;
+      return;
+    }
+    var ehdot = hakuehdot(x ? x.loput : h.q), r = x ? etsiErik(x.kom, ehdot, aset.hakuViit) : etsi(ehdot, aset.hakuViit), sivut = aset.sivutus === 'sivut';
     h.osumat = r.osumat;
-    $('.h-tieto', hakuEl).textContent = !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”.' :
-      !r.n ? 'Ei osumia.' : lkm(r.n, 'osuma', 'osumaa') + (r.n > r.osumat.length ? ', näytetään ' + r.osumat.length + ' ensimmäistä' : '');
-    var lista = $('.h-lista', hakuEl);
+    var nayt = r.n > r.osumat.length ? ', näytetään ' + r.osumat.length + ' ensimmäistä' : '';
+    tieto.textContent = x ? (!r.n ? 'Ei osumia: ' + ERIK[x.kom] + '.' : ehdot.length ? lkm(r.n, 'osuma', 'osumaa') + ' (' + ERIK[x.kom] + ')' + nayt :
+        ERIK[x.kom].charAt(0).toUpperCase() + ERIK[x.kom].slice(1) + ': ' + r.n.toLocaleString('fi-FI') + nayt) :
+      !ehdot.length ? 'Sanojen alut peräkkäin. Lainausmerkeissä koko sana: ”Kant”. Kenoviiva aloittaa erikoishaun: /lainaus.' :
+      !r.n ? 'Ei osumia.' : lkm(r.n, 'osuma', 'osumaa') + nayt;
     lista.innerHTML = r.osumat.map(function (o, i) {
       var os = osioKohdassa(o), kohta = [os ? os.text : '', o.n ? 'alaviite ' + o.n : '', sivut ? 's. ' + (sivuKohdassa({ b: o.b, o: o.a }) + 1) : ''].filter(Boolean).join(' · ');
       return '<button type="button" class="osuma" data-k="osuma" data-i="' + i + '"' + (i === h.valittu ? ' aria-current="true"' : '') + '>' +
