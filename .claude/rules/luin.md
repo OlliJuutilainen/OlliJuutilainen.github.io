@@ -85,12 +85,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
 - **Hyllymerkki** (käyttäjän valinta 12.11.2026, mietintämyssyn luonnos *Ulkoneva*): paluu hyllylle on kolmen kirjan pino
-  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Pinon muste on
-  viewBoxin alaosassa, joten svg nousee 4 px (yläpalkissa ja pölyhyllyssä `margin-top: -8px`, alasivuilla marginaali
-  `7px 11px 15px`), jotta muste on kiekon keskilinjalla. Koodin tunnisteet (`.koti`, `a.kotimerkki`, `#ark-koti`) jäivät.
-- **Hyllymerkin paikka** (käyttäjän pyyntö 12.11.2026): alasivuilla (Latomo, ohjeet, palaute, tietosuoja) hyllymerkki on
-  yläoikealla täsmälleen pölyhyllyn hyllymerkin kohdalla eli hyllyn asetuskiekon vasemmalla puolella (mitattu samaksi
-  360, 700 ja 1280 px:n leveydellä), jotta se ei nyrjähdä sivulta toiselle. Navin yläpalkissa se on vasemmalla.
+  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 28 px
+  (suurennettu 12.11.2026, ennen 22 px), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
+  `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
+- **Hyllymerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (pölyhylly ja alasivut: Latomo, ohjeet, palaute,
+  tietosuoja) vaakapaikka on sama kaikkialla eli hyllyn asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
+  loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
+  joten pystypaikka eroaa pölyhyllyn ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).

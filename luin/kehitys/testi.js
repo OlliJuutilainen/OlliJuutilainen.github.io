@@ -35,7 +35,7 @@ const laidat = pg => pg.evaluate(() => {
   const nakyy = s => q(s).getClientRects().length > 0;
   const sn = nakyy('#sivunapit'), kiekko = R('#lukija .ratas svg');
   // Ahtaassa navinäkymässä (mobiili, navi-alas) kirjanmerkki ja sivunapit ovat piilossa, 360 px:llä myös nuoli; Merkinnät on alapalkissa.
-  const v = { km: nakyy('#km-nappi') ? R('#km-nappi svg').left : null, koti: R('.takaisin svg').left + 4.425 * R('.takaisin svg').width / 24,
+  const v = { km: nakyy('#km-nappi') ? R('#km-nappi svg').left : null, koti: R('.takaisin svg').left + 4.55 * R('.takaisin svg').width / 24,
     kohta: R('#jana-kohta').left + .04 * em('#jana-kohta'), etsi: R('#etsi-avaa').left, jana: svg.left + xr[0] };
   const o = { kiekko: vw - (kiekko.right - .84), pros: vw - (R('#jana-pros').right - .058 * em('#jana-pros')), jana: vw - (svg.left + xr[1]),
     [sn ? 'sivunapit' : 'nuoli']: sn || nakyy('#palkki-nuoli') ? vw - R(sn ? '#sivu-se' : '#palkki-nuoli').right : null };
