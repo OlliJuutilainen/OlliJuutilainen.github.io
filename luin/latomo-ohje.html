@@ -57,12 +57,11 @@
      12.11.2026): oikea reuna 44 px hyllyn 40rem-palstan sisäreunasta; kaava toimii myös Latomon 44rem-palstassa.
      Pystysuunnassa musteen alareuna on logon loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva ja kuten
      pölyhyllyssä (käyttäjän pyyntö 12.11.2026): kärki 24 + 4 + 56 · 110,48/138 = 72,83 px sivun yläreunasta, musteen
-     alareuna 25,61 px svg:n yläreunasta (viewBoxin y 21,95), joten laatikko 72,83 − 25,61 − 8 = 39,2 px. Merkki on 28 px
-     (suurennettu 12.11.2026, ennen 22 px); viivan paksuus pysyi 1,05 px:ssä (0,9 viewBoxin yksikköä). */
+     alareuna 36,58 px svg:n yläreunasta (viewBoxin y 21,95), joten svg 72,83 − 36,58 = 36,25 px ja laatikko (padding 2 px) 34,25 px; musteen oikea reuna ennallaan. Merkki on 40 px (suurennettu 12.11.2026 toisen kerran, ennen 28 px ja 22 px); viivan paksuus pysyi 1,05 px:ssä (0,9 viewBoxin yksikköä). */
   main { position: relative; }
-  a.kotimerkki { position: absolute; top: 39.2px; right: calc(60px + (100% - min(40rem, 100%)) / 2); width: 44px;
-    height: 44px; color: var(--harmaa); }
-  a.kotimerkki svg { display: block; width: 28px; height: 28px; margin: 8px; overflow: visible; }
+  a.kotimerkki { position: absolute; top: 34.25px; right: calc(63.73px + (100% - min(40rem, 100%)) / 2); width: 40px;
+    height: 40px; padding: 2px; color: var(--harmaa); }
+  a.kotimerkki svg { display: block; width: 40px; height: 40px; overflow: visible; }
   a.kotimerkki .k { fill: none; stroke: currentColor; stroke-width: .9; stroke-linejoin: miter; }
   h1 { font-weight: 400; font-size: 1.5rem; letter-spacing: .04em; margin: 0 0 6px; }
   .johdanto { color: var(--harmaa); margin: 0 0 8px; font-size: .95rem; }

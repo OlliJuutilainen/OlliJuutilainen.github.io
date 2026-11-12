@@ -85,13 +85,15 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
 - **Hyllymerkki** (käyttäjän valinta 12.11.2026, mietintämyssyn luonnos *Ulkoneva*): paluu hyllylle on kolmen kirjan pino
-  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 28 px
-  (suurennettu 12.11.2026, ennen 22 px), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
+  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
+  (suurennettu 12.11.2026 kahdesti, ennen 28 px ja 22 px; musteen paikat ennallaan: alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
   `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
 - **Hyllymerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (pölyhylly ja alasivut: Latomo, ohjeet, palaute,
   tietosuoja) vaakapaikka on sama kaikkialla eli hyllyn asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
   loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
   joten pystypaikka eroaa pölyhyllyn ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki hyllylle** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Pölyhyllyllä hyllymerkin vasemmalla
+  on versaalilinkki *Takaisin ylihyllyyn* (`#ark-takaisin`, sama osoite kuin merkillä; sana *ylihylly* on käyttäjän) ja Pölyhylly-linkki hyllyn alalaidassa on versaalia.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
