@@ -18,15 +18,26 @@ for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa`, lahes(m.reiat[2] + m.A, m.L - sw / 2));
   tulos(`T ${T}: ylin reikä nokan jälkeen`, m.reiat[0] - m.A > m.bk);
 }
-// Nuotit: ei portaita eikä toistoa vierekkäin, joka arvonnassa.
-let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647, huonot = [];
-for (let i = 0; i < 500; i++) {
-  const l = H.arvoNuotit(rnd).filter((n, j, a) => j === 0 || n.u !== a[j - 1].u);
-  let nousu = true, lasku = true;
-  for (let j = 1; j < l.length; j++) { if (l[j].p <= l[j - 1].p) nousu = false; if (l[j].p >= l[j - 1].p) lasku = false; }
-  if (nousu || lasku) huonot.push(JSON.stringify(l));
+// Nuotit (käyttäjän säännöt 12.11.2026): viivaston sisällä, jakson keskellä, ensimmäinen ja viimeinen jakso soi, ei kahta
+// tyhjää peräkkäin, ei samaa korkeutta peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).
+let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+const nv = { paikka: 0, ulos: 0, reuna: 0, aukot: 0, porras: 0, toisto: 0 }; let kerrat = 0, aukollisia = 0;
+for (const [x0, x1] of [[241, 358], [237, 344], [617, 734], [300, 358], [100, 358]]) {
+  const k = H.kaista({ vasen: 150, yla: -8, keskiY: 40, oikea: x1 }), kes = H.jaksonKeskit(k, x0, x1);
+  for (let i = 0; i < 2000; i++) {
+    const q = H.nuottiPaikat(k, x0, x1, H.arvoNuotit(rnd)); kerrat++;
+    for (const a of q) { if (a.p < 0 || a.p > 3) nv.ulos++; if (kes.indexOf(a.x) < 0 || Math.abs(a.y - k.y(a.x, a.p)) > 1e-9) nv.paikka++; }
+    const soi = kes.map(x => q.some(a => a.x === x));
+    if (!soi[0] || !soi[soi.length - 1]) nv.reuna++;
+    for (let j = 1; j < soi.length; j++) if (!soi[j] && !soi[j - 1]) nv.aukot++;
+    if (soi.includes(false)) aukollisia++;
+    const mel = q.filter(a => !a.sointi).map(a => a.p);
+    let nousu = true, lasku = true;
+    for (let j = 1; j < mel.length; j++) { if (mel[j] <= mel[j - 1]) nousu = false; if (mel[j] >= mel[j - 1]) lasku = false; if (mel[j] === mel[j - 1]) nv.toisto++; }
+    if ((nousu || lasku) && mel.length > 2) nv.porras++;
+  }
 }
-tulos('nuotit: ei porrasmuodostelmaa 500 arvonnassa', !huonot.length, huonot[0]);
+tulos(`nuotit: ${kerrat} arvontaa sääntöjen mukaan`, Object.values(nv).every(x => x === 0), JSON.stringify(nv) + `, aukollisia ${Math.round(aukollisia / kerrat * 100)} %`);
 // Versiotunniste.
 const html = fs.readFileSync(path.join(JUURI, 'luin.html'), 'utf8'), v = (html.match(/huilu\.js\?v=([0-9a-f]+)/) || [])[1];
 const oikea = crypto.createHash('sha1').update(fs.readFileSync(path.join(JUURI, 'luin', 'huilu.js'))).digest('hex').slice(0, 8);
@@ -60,12 +71,13 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const pts = [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]].map(([x, y]) => new DOMPoint(x, y).matrixTransform(m));
       const nappi = l.querySelector('.huilunappi').getBoundingClientRect(), syote = document.querySelector('#lisaa-syote').getBoundingClientRect(), nb = nu && nu.getBoundingClientRect();
       const kysy = document.querySelector('#huilu-kysy').getBoundingClientRect();
+      const viivat = svg.querySelector('path').getBoundingClientRect();
       const os = document.querySelector('.n-ots'), hs = os.querySelector('svg.huilutettu'), fs = parseFloat(getComputedStyle(os).fontSize);
       const mk = document.createElement('span'); mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; os.insertBefore(mk, hs);
       const perus = mk.getBoundingClientRect().bottom, hr = hs.getBoundingClientRect(); mk.remove();
       return { kysyRako: Math.min(...pts.map(q => q.x)) - kysy.right, keski: (perus - (hr.top + hr.bottom) / 2) / fs,
         viivatVasen: svg.querySelector('path').getBBox().x - (t.right - l.getBoundingClientRect().left),
-        nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: syote.top - nb.bottom },
+        nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: syote.top - nb.bottom, viivastonAlle: nb.bottom - viivat.bottom },
         huilutetut: document.querySelectorAll('.n-ots svg.huilutettu').length, nOts: [...document.querySelectorAll('.n-ots')].map(x => x.textContent),
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
@@ -78,7 +90,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: kelpaamaton lause ei soita`, !(await hylly()).nuotit);
     await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
     const j = await hylly();
-    tulos(`${w} px: painallus tuo nuotit napin yläpuolelle`, j.nuotit && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.ala > 2, JSON.stringify(j.nuotit));
+    tulos(`${w} px: painallus tuo nuotit napin yläpuolelle, eivät viivaston alle`, j.nuotit && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
     tulos(`${w} px: ei vaakavieritystä hyllyllä`, j.vaaka);
     if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-hylly-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);

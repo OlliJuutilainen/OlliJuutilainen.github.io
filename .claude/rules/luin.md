@@ -314,8 +314,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   hajuraon päässä. **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
   mitat isoja (huilu 6 px, viivaväli 4 px, siksak ±2,4 px): ohut viiva ei ole lupa pienentää. Nuotit ilmestyvät vasta
-  painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena epäsäännöllisenä muodostelmana (ei portaita),
-  eivätkä liiku. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
+  painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
+  **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
+  ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Sormireiät logon mittasuhteissa, sivukärjet reunaviivan sisäpinnassa,
   kärjet hipaisten, alin alakärki pohjaviivan sisäpinnassa. Ei ääniaukkoa, ei ruostetta. Kaistan luokka ei saa olla
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
