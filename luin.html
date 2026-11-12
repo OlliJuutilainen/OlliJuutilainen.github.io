@@ -195,7 +195,7 @@
   /* Napautettava alue isompi kuin merkki (käyttäjän pyyntö 12.11.2026: merkki avaa ponnahduksen *MERKITTY*); täyte ja vastakkainen
      reunus pitävät merkin paikan ja mitat ennallaan. */
   .n-ots svg.merkitty { box-sizing: content-box; padding: 9px; margin: -9px -9px -9px calc(.45em - 9px); cursor: pointer; }
-  .valikko.sisaltaa { padding: 8px 36px 8px 12px; font-size: .8rem; line-height: 1.45; }
+  .valikko.sisaltaa { padding: 8px 12px; font-size: .8rem; line-height: 1.45; }
   .valikko.sisaltaa .sk-kieli { margin: 0 0 3px; font-size: .68rem; }
   .valikko.sisaltaa ul { list-style: none; margin: 0; padding: 0; }
   /* Luettelon viiva on ontto salmiakki (käyttäjän pyyntö 12.11.2026). */
@@ -2095,7 +2095,8 @@
   });
 
   // Merkitty-merkin ponnahdus (käyttäjän pyyntö 12.11.2026): hiiren vienti, napsautus tai napautus näyttää, mitä tekstissä on (otsikko MERKITTY; kooltaan pieni, käyttäjän pyyntö 12.11.2026).
-  // Sulkeutuu napautuksesta muualle (yleinen suljePop) tai raksista. Merkki on linkin sisällä, joten napautus ei avaa tekstiä.
+  // Hiirellä näkyy vain merkin päällä (mouseout sulkee); kosketuksella sulkeutuu napautuksesta muualle (yleinen suljePop) tai merkistä uudelleen. Ei raksia. Merkki on linkin sisällä, joten napautus ei avaa tekstiä.
+  function HIIRI() { return matchMedia('(hover: hover) and (pointer: fine)').matches; }
   function naytaSisaltaa(svg) {
     var li = svg.closest('li.nimike'), a = li && li.querySelector('a.avaa'), id = a && decodeURIComponent(a.getAttribute('href').slice(4));
     if (!id) return;
@@ -2105,19 +2106,25 @@
     if (m.km.length) rivit.push('kirjanmerkkejä');
     if (!rivit.length) return;
     if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === svg) return;
-    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">MERKITTY</div><ul>' + rivit.map(function (r) { return '<li><svg viewBox="0 0 8 11" aria-hidden="true"><path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>' + r + '</li>'; }).join('') + '</ul>' +
-      '<button type="button" class="sk-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE + '</button>', 'sisaltaa', function () { return false; }, 'vasen');
+    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">MERKITTY</div><ul>' + rivit.map(function (r) { return '<li><svg viewBox="0 0 8 11" aria-hidden="true"><path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>' + r + '</li>'; }).join('') + '</ul>', 'sisaltaa', function () { return false; }, 'vasen');
     pop._merkki = svg;
   }
   $('#nimikkeet').addEventListener('click', function (ev) {
     var s = ev.target.closest('svg.merkitty');
     if (!s) return;
     ev.preventDefault(); ev.stopPropagation();
+    // Hiirellä ponnahdus on jo auki (hiiren vienti) eikä napsautus sulje sitä; kosketuksella uusi napautus sulkee.
+    if (!HIIRI() && !pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) { suljePop(); return; }
     naytaSisaltaa(s);
+  });
+  $('#nimikkeet').addEventListener('mouseout', function (ev) {
+    var s = ev.target.closest && ev.target.closest('svg.merkitty');
+    if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !HIIRI()) return;
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) suljePop();
   });
   $('#nimikkeet').addEventListener('mouseover', function (ev) {
     var s = ev.target.closest && ev.target.closest('svg.merkitty');
-    if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !HIIRI()) return;
     naytaSisaltaa(s);
   });
   $('#nimikkeet').addEventListener('click', function (ev) {
