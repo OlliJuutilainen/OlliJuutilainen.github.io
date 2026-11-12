@@ -121,7 +121,8 @@
       svg: '<path d="' + d2 + '" fill="none" stroke="currentColor" stroke-width="' + vw + '" stroke-linejoin="miter" stroke-miterlimit="12"/>' +
         '<g transform="translate(' + f(nokka[0]) + ' ' + f(nokka[1]) + ') rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g>',
       y: function (x, p) { return E[1] + siirto(p) + tri(x); },
-      kallistus: function (x) { return Math.atan2(tri(x + .01) - tri(x - .01), .02); },
+      // Nuotit kallistuvat aina oikealle huilun kulmassa (käyttäjä 12.11.2026: 90° − 68° = 22° pystysuorasta).
+      nuottiKallistus: (90 - kulma) * Math.PI / 180,
       sp: sp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
       alaY: E[1] + siirto(0) + Math.max(amp, sp * .75) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, sp * .75) - .5,
       viivaY: function (x, p) { return E[1] + siirto(p) + tri(x); }
@@ -131,7 +132,7 @@
   // Nuotit (käyttäjän säännöt 12.11.2026): korkeus aina viivalla tai välissä, ei koskaan ylimmän viivan yläpuolella eikä
   // alimman alapuolella (p 0–3 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
   // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Yksi nuotti jaksoa kohti (ei
-  // päällekkäisiä ääniä), salmiakki kallistuneena viivaston mukaan. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
+  // päällekkäisiä ääniä), salmiakki aina oikealle kallistuneena huilujen kulmassa. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
   // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
   // ei melodiaestetiikkaa); vain sama korkeus peräkkäin ja porras hylätään. arvoNuotit() palauttaa vain siemenen, jotta sama muodostelma säilyy uudelleenpiirrossa (leveys).
   function arvoNuotit(rnd) { return { siemen: Math.floor((rnd || Math.random)() * 4294967296) }; }
@@ -179,8 +180,8 @@
   }
   function nuotit(k, x0, x1, lista) {
     var ry = k.sp * .75, rx = ry * LOGO;
-    // Salmiakki kallistuu viivaston mukana siinä kohdassa (ei pystyssä).
-    return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry, null, k.kallistus(q.x)); }).join('');
+    // Salmiakki kallistuu aina oikealle huilujen kulmassa.
+    return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry, null, k.nuottiKallistus); }).join('');
   }
 
   g.LuinHuilu = { mitat: mitat, huilu: huilu, vino: vino, rajat: rajat, kaista: kaista, arvoNuotit: arvoNuotit, nuotit: nuotit,

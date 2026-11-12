@@ -29,10 +29,11 @@ for (const [x0, x1] of [[241, 358], [237, 344], [617, 734], [300, 358], [100, 35
     for (const a of q) {
       if (a.p < 0 || a.p > 3) nv.ulos++;
       if (kes.indexOf(a.x) < 0 || Math.abs(a.y - k.y(a.x, a.p)) > 1e-9 || a.x > k.loppu) nv.paikka++;
-      // Kallistus = viivan kaltevuus nuotin kohdalla (siksakin jakson keskellä ±atan(4·amp/jakso)).
-      if (Math.abs(Math.abs(k.kallistus(a.x)) - Math.atan(4 * 2.4 / k.jakso)) > 1e-6) nv.kallistus++;
+
     }
     if (new Set(q.map(a => a.x)).size !== q.length) nv.paallekkain++;
+    // Kallistus aina oikealle huilun kulmassa: 90° − 68° = 22°.
+    if (Math.abs(k.nuottiKallistus - 22 * Math.PI / 180) > 1e-9) nv.kallistus++;
     if (Math.abs((k.loppu - k.xz) / (k.jakso / 2) - Math.round((k.loppu - k.xz) / (k.jakso / 2))) > 1e-9 || k.loppu > x1 || x1 - k.loppu >= k.jakso / 2) nv.loppu++;
     const soi = kes.map(x => q.some(a => a.x === x));
     if (!soi[0] || !soi[soi.length - 1]) nv.reuna++;
