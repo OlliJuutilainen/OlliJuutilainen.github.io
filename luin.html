@@ -736,6 +736,15 @@
   #km-nappi[aria-pressed="true"] svg { fill: var(--ruoste); stroke: var(--ruoste); }
   body.mobiili #km-nappi { width: calc(var(--ala) + 7px); padding: 0 1px 0 17px; justify-content: flex-start; }
   #ala-nappi { position: absolute; inset: 0; }
+  /* Haun korostuksen merkki ja sammutin (käyttäjän pyyntö 12.11.2026): kirjanmerkin erottimen oikealla puolella painunut
+     nappi, jonka umpinainen tausta on korostuksen väri (--viiva) ja lasi Etsin lasi ruosteella (napautettava). Näkyy vain,
+     kun korostus on tekstissä. Napautusalue on koko palkin korkuinen, ettei ohi osunut napautus avaa navia. */
+  #haku-sammuta { position: absolute; z-index: 1; top: 0; bottom: 0; left: 65px; padding: 0 12px; display: flex; align-items: center; }
+  #haku-sammuta[hidden] { display: none; }
+  #haku-sammuta span { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--viiva); }
+  #haku-sammuta svg { width: 18.08px; height: 18.08px; }
+  #haku-sammuta .l-viiva { stroke: var(--ruoste); fill: none; }
+  body.mobiili #haku-sammuta { left: calc(var(--ala) + 7px); padding: 0 10px; }
   /* Oikean laidan kokonaisuus: kalanruodon muste tai näkyvien sivunappien reunus palkkien oikeassa laidassa; sivunappien
      napautusalue ulottuu sen yli ruudun reunaan asti. */
   #ala-oikea { position: absolute; top: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 24px;
@@ -835,7 +844,7 @@
     align-items: center; gap: 10px; pointer-events: none; }
   #ala-laatikot .laatikko { position: relative; pointer-events: auto; }
   #ala-laatikot .laatikko::after { content: ""; position: absolute; left: -6px; right: -6px; top: -6px; bottom: -6px; }
-  body.navi-alas.palkit-auki #km-nappi, body.navi-alas.palkit-auki #sivunapit, body.navi-alas.ilman-nuolta.palkit-auki #palkki-nuoli { display: none; }
+  body.navi-alas.palkit-auki #km-nappi, body.navi-alas.palkit-auki #haku-sammuta, body.navi-alas.palkit-auki #sivunapit, body.navi-alas.ilman-nuolta.palkit-auki #palkki-nuoli { display: none; }
   body.navi-alas.laatikko-auki #jana { display: none; }
   /* Aikajanan ollessa piilossa #ala:n yläviiva on laatikon alareuna; kaistan oma haalea viiva olisi sen vieressä toinen. */
   body.navi-alas.laatikko-auki #ala-rivi { border-top-color: transparent; }
@@ -1095,6 +1104,8 @@
       <!-- Aina näkyvä kirjanmerkkinappi: ääriviiva, kuparinen kun kirjanmerkki on näkyvissä. Ei kytkettävissä pois
            (käyttäjän päätös 22.10.2026). -->
       <button type="button" id="km-nappi" aria-pressed="false" aria-label="Aseta kirjanmerkki"><svg viewBox="0 0 10 16"><path d="M.5 .5H9.5V15.3L5 11.3L.5 15.3Z"/></svg></button>
+      <!-- Haun korostus päällä (käyttäjän pyyntö 12.11.2026): painunut suurennuslasi kirjanmerkin vieressä; napautus sammuttaa korostuksen. -->
+      <button type="button" id="haku-sammuta" aria-pressed="true" aria-label="Sammuta haun korostus" title="Sammuta haun korostus" hidden><span><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg></span></button>
       <button type="button" id="ala-nappi" aria-expanded="false" aria-controls="jana" aria-label="Aikajana"></button>
       <!-- Ahdas navinäkymä (naviAlas()): Etsi, Sisälmys ja Merkinnät siirtyvät tähän, jos mahtuvat. -->
       <div id="ala-laatikot"></div>
@@ -5957,7 +5968,8 @@
   // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
   // Korostus pysyy, kunnes hakua muutetaan, teksti suljetaan tai lukija sammuttaa sen (sammutaKorostus).
   // Alaviitteen osuma korostetaan auki olevassa ponnahduslaatikossa tai tekstin alaviitteessä.
-  function korosta(o) {
+  function korosta(o) { var r = korostaTekstiin(o); hakuNappi(); return r; }
+  function korostaTekstiin(o) {
     if (!window.CSS || !CSS.highlights || typeof Highlight !== 'function') return;
     CSS.highlights.delete('haku');
     var el = o && nyt && nyt.blocks[o.b], ns;
@@ -5989,9 +6001,12 @@
       });
       if (!osui) return false;
     }
-    h.sammui = true; CSS.highlights.delete('haku');
+    h.sammui = true; CSS.highlights.delete('haku'); hakuNappi();
     return true;
   }
+  // Alapalkin painunut lasi näkyy, kun korostus on tekstissä; sen napautus sammuttaa korostuksen.
+  function hakuNappi() { var hl = window.CSS && CSS.highlights && CSS.highlights.get('haku'); $('#haku-sammuta').hidden = !(hl && hl.size); }
+  $('#haku-sammuta').addEventListener('click', function () { sammutaKorostus(); });
 
   /* ---------- merkintälista ---------- */
   function paivitaMerkinnat() {
