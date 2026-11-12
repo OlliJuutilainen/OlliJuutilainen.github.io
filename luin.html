@@ -192,15 +192,15 @@
      voi olla jokaisessa hyllyn kirjassa: pienaakkosen korkuinen, ei ruostetta (ei napautettava). */
   .n-ots svg.merkitty { display: inline-block; height: .6em; width: .5em; margin-left: .45em; vertical-align: 0; overflow: visible;
     color: var(--harmaa); }
-  /* Napautettava alue isompi kuin merkki (käyttäjän pyyntö 12.11.2026: merkki avaa ponnahduksen *Sisältää*); täyte ja vastakkainen
+  /* Napautettava alue isompi kuin merkki (käyttäjän pyyntö 12.11.2026: merkki avaa ponnahduksen *MERKITTY*); täyte ja vastakkainen
      reunus pitävät merkin paikan ja mitat ennallaan. */
   .n-ots svg.merkitty { box-sizing: content-box; padding: 9px; margin: -9px -9px -9px calc(.45em - 9px); cursor: pointer; }
-  .valikko.sisaltaa { padding: 11px 44px 11px 15px; font-size: .9rem; line-height: 1.5; }
-  .valikko.sisaltaa .sk-kieli { margin: 0 0 4px; }
+  .valikko.sisaltaa { padding: 8px 36px 8px 12px; font-size: .8rem; line-height: 1.45; }
+  .valikko.sisaltaa .sk-kieli { margin: 0 0 3px; font-size: .68rem; }
   .valikko.sisaltaa ul { list-style: none; margin: 0; padding: 0; }
   /* Luettelon viiva on ontto salmiakki (käyttäjän pyyntö 12.11.2026). */
   .valikko.sisaltaa li { display: flex; align-items: center; gap: .6em; }
-  .valikko.sisaltaa li svg { flex: 0 0 auto; width: 6px; height: 8.25px; fill: none; stroke: currentColor; stroke-width: .9; }
+  .valikko.sisaltaa li svg { flex: 0 0 auto; width: 5px; height: 6.9px; fill: none; stroke: currentColor; stroke-width: .9; }
   .n-hanta { white-space: nowrap; }
   .n-ots svg.merkitty .l-viiva { fill: none; stroke: currentColor; stroke-width: 1; }
   .n-ots svg.merkitty .l-pis { fill: currentColor; }
@@ -2083,7 +2083,7 @@
     if (document.hidden) postiLahetaLikaiset();
   });
 
-  // Merkitty-merkin ponnahdus (käyttäjän pyyntö 12.11.2026): hiiren vienti, napsautus tai napautus näyttää, mitä tekstissä on.
+  // Merkitty-merkin ponnahdus (käyttäjän pyyntö 12.11.2026): hiiren vienti, napsautus tai napautus näyttää, mitä tekstissä on (otsikko MERKITTY; kooltaan pieni, käyttäjän pyyntö 12.11.2026).
   // Sulkeutuu napautuksesta muualle (yleinen suljePop) tai raksista. Merkki on linkin sisällä, joten napautus ei avaa tekstiä.
   function naytaSisaltaa(svg) {
     var li = svg.closest('li.nimike'), a = li && li.querySelector('a.avaa'), id = a && decodeURIComponent(a.getAttribute('href').slice(4));
@@ -2094,7 +2094,7 @@
     if (m.km.length) rivit.push('kirjanmerkkejä');
     if (!rivit.length) return;
     if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === svg) return;
-    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">Sisältää</div><ul>' + rivit.map(function (r) { return '<li><svg viewBox="0 0 8 11" aria-hidden="true"><path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>' + r + '</li>'; }).join('') + '</ul>' +
+    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">MERKITTY</div><ul>' + rivit.map(function (r) { return '<li><svg viewBox="0 0 8 11" aria-hidden="true"><path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>' + r + '</li>'; }).join('') + '</ul>' +
       '<button type="button" class="sk-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE + '</button>', 'sisaltaa', function () { return false; }, 'vasen');
     pop._merkki = svg;
   }
