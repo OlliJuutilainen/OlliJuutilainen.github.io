@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Postihuilun kuvitus 2</title>
+<!--
+  Mietintämyssy, kierros 2 (käyttäjän palaute 12.11.2026): otsikon alla huilu ja nelilinja jatkoon, varrettomat nuotit
+  myös kulmikkaalle viivastolle, huilutettu = kolmen salmiakin huilu vinossa pystyssä (jyrkempi kuin sanaselityksen
+  suurennuslasin varsi, yläpää oikealla), nuottikuva toistaiseksi kuvitusta. Sääntö: reiät eivät ylitä putken reunoja.
+-->
+<style>
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata.woff2) format("woff2");
+    font-weight: 200 900; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 200 900; font-style: italic; font-display: swap; }
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #8c5426; --huomio: #74624a; --hius: #e3d7c3;
+    --antiikva: Literata, Georgia, "Noto Serif", serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-teema="vaalea"]) {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --huomio: #a69272; --hius: #2f261d; } }
+  :root[data-teema="tumma"] {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --huomio: #a69272; --hius: #2f261d; }
+  .v { --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426; --hius: #e3d7c3; }
+  .t { --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; }
+  html.eink body { filter: grayscale(1) contrast(1.15); }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); font-size: 16px; line-height: 1.55; }
+  main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-weight: 400; font-size: 1.9rem; letter-spacing: .04em; margin: 0 0 4px; }
+  .ala { color: var(--harmaa); font-style: italic; margin: 0 0 22px; }
+  h2 { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; color: var(--harmaa);
+    border-bottom: 1px solid var(--viiva); padding-bottom: 6px; margin: 46px 0 14px; }
+  h3 { font-weight: 500; font-size: 1.05rem; margin: 22px 0 4px; letter-spacing: .02em; }
+  p, li { max-width: 68ch; }
+  a { color: var(--ruoste); text-underline-offset: 3px; }
+  .ohjaimet { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; background: var(--paperi);
+    padding: 8px 0; z-index: 5; border-bottom: 1px solid var(--hius); }
+  button { font: inherit; color: var(--muste); background: var(--paperi); border: 1px solid var(--harmaa); border-radius: 0;
+    padding: 5px 11px; min-height: 34px; cursor: pointer; font-size: .86rem; }
+  button[aria-pressed="true"] { color: var(--ruoste); border-color: var(--ruoste); }
+  .muisti { border-left: 2px solid var(--ruoste); padding: 6px 12px; color: var(--harmaa); font-size: .92rem; margin: 10px 0; }
+  .sel { font-size: .8rem; color: var(--harmaa); margin: 4px 0 0; }
+
+  .naytteet { display: flex; flex-wrap: wrap; margin: 10px 0; }
+  .nayte { background: var(--paperi); color: var(--muste); display: flex; align-items: flex-end; flex-wrap: wrap; gap: 18px;
+    padding: 14px 16px 10px; border: 1px solid var(--hius); flex: 1 1 300px; }
+  .koko { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .62rem; color: var(--harmaa); letter-spacing: .06em; }
+  .koko svg, .nayte svg { overflow: visible; display: block; }
+  .koko span { white-space: nowrap; }
+  .leveä { flex-basis: 100%; }
+  .leveä svg { width: 100%; max-width: 620px; height: auto; }
+
+  /* Luin.html:n tyylien kopiot asiayhteyskuviin. */
+  .puhelin { width: 390px; max-width: 100%; border: 1px solid var(--viiva); padding: 18px 16px 20px; background: var(--paperi); color: var(--muste); }
+  .lisaa-ots { margin: 0; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa); }
+  .ots-rivi { display: flex; align-items: center; min-height: 18px; }
+  .kysy { width: 30px; height: 30px; margin: -4px 0 -4px 2px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  .kysy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+  .kaista { display: block; margin: 1px 0 0; color: var(--harmaa); }
+  .lisaa-kentta { display: flex; gap: 8px; margin: 8px 0 0; }
+  .lisaa-kentta input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; }
+  .lisaa-kentta button { flex: 0 0 auto; padding: 0 14px; min-height: 38px; font-size: .9rem; }
+  .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45;
+    display: flex; gap: 9px; align-items: center; }
+  .lista { list-style: none; margin: 16px 0 0; padding: 0; border-top: 1px solid var(--viiva); }
+  .lista li { display: flex; border-bottom: 1px solid var(--hius); }
+  .lista .avaa { flex: 1 1 auto; padding: 13px 0 12px; min-width: 0; }
+  .n-ots { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; letter-spacing: .05em; line-height: 1.3; }
+  .n-ala { display: block; font-style: italic; color: var(--harmaa); font-size: .92rem; }
+  .n-tieto { display: flex; align-items: center; gap: 6px; font-size: .74rem; color: var(--harmaa); margin-top: 6px; letter-spacing: .02em; }
+  .jako { flex: 0 0 auto; width: 40px; height: 44px; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  .rinnakkain { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .rinnakkain > * { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+  .rinnakkain .sel { max-width: 390px; }
+  table { border-collapse: collapse; width: 100%; font-size: .86rem; margin-top: 8px; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--hius); vertical-align: middle; }
+  th { font-weight: 400; color: var(--harmaa); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+  td.ik { width: 48px; color: var(--muste); }
+  .foot { text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; margin-top: 50px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Postihuilu, kierros 2</h1>
+<p class="ala">Mietintämyssy, ei päätetty. <a href="luin-postihuilu-kuvitus.html">Kierros 1</a></p>
+
+<div class="ohjaimet">
+  <button type="button" id="teema" aria-pressed="false">Tumma teema</button>
+  <button type="button" id="eink" aria-pressed="false">E-ink-koe</button>
+</div>
+
+<div class="muisti"><b>Palaute:</b> otsikon alla huilu ja aaltoileva nelilinja jatkoon. Varrettomat nuotit kokeillaan
+  myös kulmikkaalla viivastolla. Huilutettu on kolmen salmiakin huilu vinossa pystyssä: jyrkempi kuin sanaselityksen
+  suurennuslasin varsi, yläpää oikealla. Nuottikuva on toistaiseksi kuvitusta. <b>Reiät ovat reikiä: ne eivät ylitä putken
+  reunaviivoja, mieluummin pienemmät.</b> Idea: nuotit tulevat huilun tuutista.</div>
+<div class="muisti"><b>Toinen palaute:</b> suu takaisin symmetriseksi kuten kierroksen 1 kolmen salmiakin huilussa, ja
+  reiät suuremmiksi mutta eivät ihon halki. Nyt reiät ovat 80 % putken sisäkorkeudesta, ja huilu on pidennetty 4 ×
+  paksuudeksi, jotta isot reiät mahtuvat erilleen. <b>Valittu:</b> otsikon kaistaksi lyhyt huilu ja kulmikas nelilinja,
+  vinon huilun kulmaksi 68°.</div>
+<div class="muisti"><b>Kolmas palaute:</b> ikkuna samalla värillä kuin salmiakit, reikäsalmiakit 90° käännettyinä
+  (pitkittäin) ketjuksi, joka saa hiukan lomittua. Valitsematta jääneet vaihtoehdot on poistettu tältä sivulta.
+  Ensimmäinen kokeilu on luin.html:ssä: kaista lukulistan Postihuilu-otsikon alla ja huilu Postihuilun kautta kantautuneen
+  tekstin nimen perässä.</div>
+
+<h2>Yksi huilu</h2>
+<p>Kaikki tämän sivun huilut piirtää sama funktio: symmetrinen nokka, ikkuna ja kolme koveraa salmiakkireikää samalla
+  värillä, pitkittäin putken suuntaan ketjuna, jossa kärjet menevät hiukan lomittain. Reikä ei ylitä putken reunaa.</p>
+<div class="naytteet" id="yksi"></div>
+
+<h2>Huilutettu: vino huilu</h2>
+<p>68° vaakatasosta, nokka ylhäällä oikealla ja kello alhaalla vasemmalla, kuten soitettavassa nokkahuilussa.
+  Vertailuna sanaselityksen suurennuslasi (varsi 58°).</p>
+<div class="naytteet" id="kulmat"></div>
+
+<h2>Kulmikas nelilinja</h2>
+<div id="viivastot"></div>
+
+<h2>Tuutista ulos</h2>
+<p>Viivasto lähtee huilun kellosta. Kellon kohdalla viivat ovat putken sisällä, ja ne levenevät täyteen väliin
+  muutaman nuotin matkalla: otsikon kaistana ja kuvituksena.</p>
+<h3>Otsikon kaista</h3>
+<div class="rinnakkain" id="kaistat"></div>
+<h3>Kuvitus</h3>
+<div id="kuvitukset"></div>
+
+<h2>Lukulistassa</h2>
+<p>Huilutettu teksti kolmessa paikassa. Otsikon alla on valittu kaista: lyhyt huilu, jonka kellosta lähtevä kulmikas
+  nelilinja kantaa loput leveydestä (ks. kaksi huilua alla).</p>
+<div class="rinnakkain" id="listat"></div>
+
+<h2>Kaksi huilua?</h2>
+<p>Pidän järjestelyä hassuna vain, jos huiluja on kaksi eri piirrosta. Jos piirros on sama ja vain asento vaihtuu, se on
+  yksi huilu kahdessa asennossa:</p>
+<ul>
+  <li><b>Makaava huilu</b> (otsikon alla) on soitin levossa. Se kertoo, missä Postihuilu on.</li>
+  <li><b>Pystyssä vinossa</b> (nimikkeessä, ilmoituksessa) on soitin soitossa. Se kertoo, että teksti on huilutettu.</li>
+</ul>
+<p>Otsikon huilu on samanmittainen kuin vino huilu; pituus tulee tuutista lähtevästä viivastosta. Kaista vie pystytilaa 15 px.</p>
+<table>
+  <thead><tr><th></th><th>Paikka</th><th>Luonnos</th></tr></thead>
+  <tbody id="kartta"></tbody>
+</table>
+<p class="sel">Auki: tarkoittaako huilutettu tekstiä, joka on lähetetty laatikkoon tältä laitteelta, joka on kantautunut
+  laatikosta, vai kumpaakin? Luinissa laatikon tekstillä on tunnus <code>p-…</code> Latomon siirron tapaan, joten pelkästä
+  tunnuksesta eroa ei näe.</p>
+
+<p class="foot">MIETINTÄMYSSY · 12.11.2026</p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  function f(n) { return Math.round(n * 100) / 100; }
+  function sal(cx, cy, rx, ry, c) {
+    c = c == null ? 0.38 : c;
+    var P = [[cx, cy - ry], [cx + rx, cy], [cx, cy + ry], [cx - rx, cy]], d = 'M' + f(P[0][0]) + ' ' + f(P[0][1]);
+    for (var i = 0; i < 4; i++) {
+      var a = P[i], b = P[(i + 1) % 4];
+      d += 'Q' + f(cx + (a[0] + b[0] - 2 * cx) * c) + ' ' + f(cy + (a[1] + b[1] - 2 * cy) * c) + ' ' + f(b[0]) + ' ' + f(b[1]);
+    }
+    return d + 'Z';
+  }
+
+  // ---------- Huilu: nokka origossa, akseli +x, kello x = L ----------
+  // o.sw viiva, o.k reiän korkeus osuutena sisäkorkeudesta, o.vari runko ja reiät, o.ikkuna ruoste.
+  function huilu(L, T, o) {
+    o = o || {};
+    // Nokka symmetrinen kuten kierroksen 1 kolmen salmiakin huilussa (käyttäjä 12.11.2026: epäsymmetrinen suu oli eri huilu):
+    // suippenee molemmista reunoista pyöristettyyn kärkeen, mitat kuvion 4 suhteina (pituus 0,82 T).
+    var sw = o.sw || 1.1, k = o.k || .8, vari = o.vari || 'currentColor', h = T / 2, bk = T * .82;
+    var px = T * .107, py = T * .286, cy = T * .25, ky = T * .107;
+    var runko = 'M' + f(L) + ' ' + f(-h) + 'H' + f(bk) + 'L' + f(px) + ' ' + f(-py) + 'Q0 ' + f(-cy) + ' 0 ' + f(-ky) + 'V' + f(ky) +
+      'Q0 ' + f(cy) + ' ' + f(px) + ' ' + f(py) + 'L' + f(bk) + ' ' + f(h) + 'H' + f(L) + 'Z';
+    var x1 = bk + T * .1, w = T * .45, d = T * .34;
+    var ikkuna = 'M' + f(x1) + ' ' + f(-h) + 'H' + f(x1 + w) + 'L' + f(x1 + w * .65) + ' ' + f(-h + d) + 'H' + f(x1) + 'Z';
+    // Reiät (kolmas palaute 12.11.2026): pitkä akseli putken suuntaan, ketjuna, kärjet hiukan lomittain (väli 1,8 A);
+    // poikittain 0,74 A, joten reikä ei ylitä reunaa. Ikkuna on reikien värinen. Sama kuin luin/kehitys/postihuilu-kuvio.js.
+    var sisa = h - sw / 2, A = sisa * k, B = A * .74, vali = A * 1.8;
+    var a0 = x1 + w + T * .15, b0 = L - T * .35, kk = (a0 + b0) / 2, xs = [kk - vali, kk, kk + vali];
+    var reiat = xs.map(function (x) { return sal(x, 0, A, B, .38); }).join('');
+    return { L: L, T: T, sw: sw,
+      svg: '<path d="' + runko + '" fill="none" stroke="' + vari + '" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
+        '<path d="' + ikkuna + reiat + '" fill="' + vari + '"/>' };
+  }
+  function kierra(p, th) { var c = Math.cos(th), s = Math.sin(th); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
+  // Vino huilu: kulma vaakatasosta; nokka ylhäällä oikealla (theta = 180 - kulma) tai kello ylhäällä (theta = -kulma).
+  function vino(kulma, L, T, o, korkeus, kelloYlos) {
+    var th = (kelloYlos ? -kulma : 180 - kulma) * Math.PI / 180, hu = huilu(L, T, o), h = T / 2, pad = hu.sw;
+    var pts = [[0, -h], [0, h], [L, -h], [L, h]].map(function (p) { return kierra(p, th); });
+    var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(0, xs) - pad, y0 = Math.min.apply(0, ys) - pad, lw = Math.max.apply(0, xs) + pad - x0, lh = Math.max.apply(0, ys) + pad - y0;
+    var lev = korkeus * lw / lh;
+    return '<svg viewBox="' + f(x0) + ' ' + f(y0) + ' ' + f(lw) + ' ' + f(lh) + '" width="' + f(lev) + '" height="' + korkeus + '" aria-hidden="true">' +
+      '<g transform="rotate(' + f(th * 180 / Math.PI) + ')">' + hu.svg + '</g></svg>';
+  }
+  // Sanaselityksen merkki luin.html:stä (IK_SANASTO) vertailuksi.
+  function sanaselitys(k) {
+    return '<svg viewBox="3.6 0 22.5 20" width="' + f(k * 22.5 / 20) + '" height="' + k + '" fill="none" aria-hidden="true">' +
+      '<path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="currentColor" stroke-width="1.5"/>' +
+      '<g stroke="var(--ruoste)"><circle cx="18.19" cy="3.69" r="6" stroke-width="1.15"/><path d="M15.01 8.78L9.5 17.6" stroke-width="1.5"/></g></svg>';
+  }
+  var VAKIO = { L: 25.6, T: 6.4 }; // pituus 4 × paksuus: isot reiät (80 %) mahtuvat erilleen
+  function hvino(k, kulma, o) { return vino(kulma || 68, VAKIO.L, VAKIO.T, o, k); }
+
+  // ---------- Viivasto keskilinjaa pitkin ----------
+  // keski: [{x, y, tx, ty, s}], o: n viivat, sp väli, alku puolikorkeus alussa, levea levenemismatka, tyyli 'aalto'|'kulma',
+  // amp, jakso, nuotit [{s, p, ruoste}] (p = viivan indeksi alhaalta, puolikkaat välejä), sw viiva.
+  function viivasto(keski, o) {
+    var n = o.n, sp = o.sp;
+    function e(s) { if (!o.levea) return 1; var t = Math.max(0, Math.min(1, s / o.levea)); return t * t * (3 - 2 * t); }
+    function aalto(s) {
+      if (!o.amp) return 0;
+      if (o.tyyli === 'kulma') { var q = ((s % o.jakso) + o.jakso) % o.jakso / o.jakso; return o.amp * (q < .5 ? -1 + 4 * q : 3 - 4 * q); }
+      return o.amp * Math.sin(2 * Math.PI * s / o.jakso);
+    }
+    function siirto(s, p) {
+      var taysi = ((n - 1) / 2 - p) * sp, alku = ((n - 1) / 2 - p) * (2 * o.alku / (n - 1)), t = e(s);
+      return alku + (taysi - alku) * t + aalto(s) * t;
+    }
+    function piste(c, p) { var m = siirto(c.s, p); return [c.x - c.ty * m, c.y + c.tx * m]; }
+    var d = '';
+    for (var i = 0; i < n; i++) d += 'M' + keski.map(function (c) { var q = piste(c, i); return f(q[0]) + ' ' + f(q[1]); }).join('L');
+    var out = '<path d="' + d + '" fill="none" stroke="' + (o.vari || 'currentColor') + '" stroke-width="' + (o.sw || .7) + '" stroke-linejoin="miter"/>';
+    (o.nuotit || []).forEach(function (nu) {
+      var c = keski.reduce(function (a, b) { return Math.abs(b.s - nu.s) < Math.abs(a.s - nu.s) ? b : a; });
+      var q = piste(c, nu.p);
+      out += '<path d="' + sal(q[0], q[1], sp * .5, sp * .53, .42) + '" fill="' + (nu.ruoste ? 'var(--ruoste)' : (o.vari || 'currentColor')) + '"/>';
+    });
+    return out;
+  }
+  function suora(x0, y, x1, askel) {
+    var a = [], s = 0;
+    for (var x = x0; x <= x1 + 1e-6; x += askel || .5) { a.push({ x: x, y: y, tx: 1, ty: 0, s: x - x0 }); }
+    return a;
+  }
+  function kaari(P, xLoppu) { // kuutiollinen Bézier P[0..3], sitten vaakasuora jatko
+    var a = [], s = 0, ed = null;
+    for (var i = 0; i <= 240; i++) {
+      var t = i / 240, u = 1 - t;
+      var x = u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0];
+      var y = u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1];
+      var dx = 3 * u * u * (P[1][0] - P[0][0]) + 6 * u * t * (P[2][0] - P[1][0]) + 3 * t * t * (P[3][0] - P[2][0]);
+      var dy = 3 * u * u * (P[1][1] - P[0][1]) + 6 * u * t * (P[2][1] - P[1][1]) + 3 * t * t * (P[3][1] - P[2][1]);
+      var l = Math.hypot(dx, dy) || 1;
+      if (ed) s += Math.hypot(x - ed[0], y - ed[1]);
+      a.push({ x: x, y: y, tx: dx / l, ty: dy / l, s: s }); ed = [x, y];
+    }
+    for (var xx = P[3][0] + .5; xx <= xLoppu; xx += .5) { s += .5; a.push({ x: xx, y: P[3][1], tx: 1, ty: 0, s: s }); }
+    return a;
+  }
+
+  function koko(svg, nimi) { return '<div class="koko">' + svg + '<span>' + nimi + '</span></div>'; }
+  function kaksi(fn) { return '<div class="nayte v">' + fn() + '</div><div class="nayte t">' + fn() + '</div>'; }
+
+  // ---------- Yksi huilu ----------
+  $('#yksi').innerHTML = kaksi(function () {
+    var b = huilu(VAKIO.L, VAKIO.T);
+    function vaaka(hu, k) { return '<svg viewBox="-1 -4.2 27.6 8.4" width="' + f(k * 27.6 / 8.4) + '" height="' + k + '" aria-hidden="true">' + hu.svg + '</svg>'; }
+    return koko(vaaka(b, 72), '72 px') + koko(vaaka(b, 24), '24 px') + koko(vaaka(b, 14), '14 px');
+  });
+
+  // ---------- Kulmat ----------
+  $('#kulmat').innerHTML = kaksi(function () {
+    var h = koko(sanaselitys(64), 'sanaselitys 58°') + koko(hvino(64), '68°');
+    [16, 20, 24, 32].forEach(function (k) { h += koko(hvino(k, 68), '68° · ' + k + ' px'); });
+    h += koko(sanaselitys(20), 'sanaselitys 20 px');
+    return h;
+  });
+
+  // ---------- Otsikkoon: puhelinkuva ----------
+  function kysy() {
+    return '<span class="kysy"><svg viewBox="0 0 20 20"><path d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor" stroke="none"/></svg></span>';
+  }
+  // kaista(tyyppi, leveys, otsikon leveys): palauttaa {svg, korkeus}
+  function kaista(o, lev, otsLev) {
+    var T = o.T, sw = 1, H, cy, sis = '';
+    if (o.tyyppi === 'venytetty') {
+      H = Math.ceil(T + sw + 2); cy = H / 2;
+      sis = '<g transform="translate(.5 ' + cy + ')">' + huilu(otsLev + 1, T, { sw: sw, vari: 'var(--harmaa)' }).svg + '</g>';
+    } else {
+      var L = T * 4, n = 4, sp = o.sp || 2.4; H = Math.ceil(Math.max(T, (n - 1) * sp + sp * 1.06 + (o.amp || 0) * 2) + sw + 2); cy = H / 2;
+      var x0 = .5 + L, keski = suora(x0, cy, lev - .5, .5);
+      var nuotit = o.nuotit || [{ s: L * 2.1, p: 0 }, { s: L * 3.2, p: 1 }, { s: L * 4.3, p: 1.5 }, { s: L * 5.4, p: 2.5 }, { s: L * 6.5, p: 3 }];
+      sis = viivasto(keski, { n: n, sp: sp, alku: T / 2 - sw - .3, levea: L * 1.4, tyyli: o.tyyli, amp: o.amp, jakso: o.jakso, sw: .75, vari: 'var(--harmaa)', nuotit: nuotit }) +
+        '<g transform="translate(.5 ' + cy + ')">' + huilu(L, T, { sw: sw, vari: 'var(--harmaa)' }).svg + '</g>';
+    }
+    return { korkeus: H, svg: '<svg class="kaista" viewBox="0 0 ' + lev + ' ' + H + '" width="' + lev + '" height="' + H + '" aria-hidden="true">' + sis + '</svg>' };
+  }
+  function puhelin(o, sisalto, kuvateksti) {
+    return '<div><div class="puhelin"><div class="ots-rivi"><span class="lisaa-ots">Postihuilu</span>' + kysy() + '</div>' +
+      '<span class="kaista-paikka" data-o=\'' + JSON.stringify(o) + '\' data-teksti="' + kuvateksti + '"></span>' +
+      '<div class="lisaa-kentta"><input placeholder="Laatikkolause tai linkki"><button type="button">Soita huilua!</button></div>' + (sisalto || '') +
+      '</div><p class="sel"></p></div>';
+  }
+  $('#kaistat').innerHTML = [
+    puhelin({ tyyppi: 'viivasto', T: 5, tyyli: 'kulma', amp: .8, jakso: 22 }, '', 'Valittu: lyhyt huilu ja kulmikas nelilinja. Kaista {H} px. Sama luin.html:ssä.')
+  ].join('');
+
+  // ---------- Viivastovertailu ----------
+  function viivastoNayte(tyyli, amp, jakso, n, taite, otsikko) {
+    var sp = 3.6, cy = 12, keski = suora(0, cy, 48, .25);
+    var xs = [9, 17, 25, 33, 41];
+    if (taite) { xs = []; for (var x = jakso; x < 46; x += jakso) xs.push(x); xs = xs.slice(-5); } // vain huiput, jotta nousu näkyy
+    var ps = (n === 5 ? [0, 1, 2, 3, 4] : [0, 1, 1.5, 2.5, 3]).slice(-xs.length);
+    var nuotit = xs.map(function (x, i) { return { s: x, p: ps[i] }; });
+    var sis = viivasto(keski, { n: n, sp: sp * (n === 5 ? .8 : 1), alku: (n - 1) / 2 * sp, levea: 0, tyyli: tyyli, amp: amp, jakso: jakso, sw: .7, nuotit: nuotit });
+    function s(k) { return '<svg viewBox="0 0 48 24" width="' + k * 2 + '" height="' + k + '" aria-hidden="true">' + sis + '</svg>'; }
+    return '<h3>' + otsikko + '</h3><div class="naytteet">' + kaksi(function () { return koko(s(96), '96 px') + koko(s(32), '32 px') + koko(s(16), '16 px'); }) + '</div>';
+  }
+  $('#viivastot').innerHTML =
+    viivastoNayte('kulma', 1.2, 16, 4, false, 'Kulmikas nelilinja, varrettomat nuotit');
+
+  // ---------- Kuvitukset ----------
+  function kuvitus(fn, otsikko) { return '<h3>' + otsikko + '</h3><div class="naytteet"><div class="nayte v leveä">' + fn() + '</div><div class="nayte t leveä">' + fn() + '</div></div>'; }
+  function vaakaKuvitus(tyyli, amp, jakso) {
+    var T = 8, L = T * 4, sp = 4, n = 4, cy = 20, x0 = 3 + L;
+    var nuotit = [[22, 0], [34, 1], [46, 1.5], [58, 2.5], [70, 3], [82, 3.5]].map(function (q, i) { return { s: q[0], p: q[1] }; });
+    return '<svg viewBox="0 0 140 40" aria-hidden="true">' +
+      viivasto(suora(x0, cy, 138, .5), { n: n, sp: sp, alku: T / 2 - 1.4, levea: 18, tyyli: tyyli, amp: amp, jakso: jakso, sw: .7, nuotit: nuotit }) +
+      '<g transform="translate(3 ' + cy + ')">' + huilu(L, T).svg + '</g></svg>';
+  }
+  function vinoKuvitus(tyyli, amp, jakso) {
+    var T = 8, L = T * 4, a = 68 * Math.PI / 180, th = Math.PI - a, d = [Math.cos(th), Math.sin(th)];
+    var nokka = [30, 3], B = [nokka[0] + d[0] * L, nokka[1] + d[1] * L];
+    var P = [B, [B[0] + d[0] * 9, B[1] + d[1] * 9], [B[0] - 1, 56], [B[0] + 16, 56]];
+    var keski = kaari(P, 138), S = keski[keski.length - 1].s;
+    var nuotit = [[S - 84, 0], [S - 70, 1], [S - 56, 1.5], [S - 42, 2.5], [S - 28, 3], [S - 14, 3.5]].map(function (q, i) { return { s: q[0], p: q[1] }; });
+    return '<svg viewBox="0 0 140 66" aria-hidden="true">' +
+      viivasto(keski, { n: 4, sp: 4, alku: T / 2 - 1.4, levea: 16, tyyli: tyyli, amp: amp, jakso: jakso, sw: .7, nuotit: nuotit }) +
+      '<g transform="translate(' + nokka[0] + ' ' + nokka[1] + ') rotate(' + f(th * 180 / Math.PI) + ')">' + huilu(L, T).svg + '</g></svg>';
+  }
+  $('#kuvitukset').innerHTML =
+    kuvitus(function () { return vaakaKuvitus('kulma', 1.2, 20); }, 'Vaaka') +
+    kuvitus(function () { return vinoKuvitus('kulma', 1.2, 20); }, 'Vino huilu, viivasto kaartuu kellosta oikealle');
+
+  // ---------- Lukulista ----------
+  var KOLME = '<svg viewBox="0 0 17 7" width="17" height="7" aria-hidden="true"><path d="' + sal(2.5, 3.5, 2.3, 3.1) + sal(8.5, 3.5, 2.3, 3.1) + sal(14.5, 3.5, 2.3, 3.1) + '" fill="currentColor"/></svg>';
+  function nimike(ots, ala, tieto, paikka, huilutettu) {
+    var hu = function (k) { return '<span style="color:var(--muste);display:inline-flex">' + hvino(k, 68) + '</span>'; };
+    return '<li><div class="avaa"><span class="n-ots">' + ots + (huilutettu && paikka === 'otsikko' ? hu(18) : '') + '</span>' + (ala ? '<span class="n-ala">' + ala + '</span>' : '') +
+      '<span class="n-tieto">' + (huilutettu && paikka === 'tieto' ? hu(13) : '') + tieto + '</span></div>' +
+      '<span class="jako">' + (huilutettu && paikka === 'nappi' ? hu(22) : KOLME) + '</span></li>';
+  }
+  var paikat = [['otsikko', 'Huilu nimen perässä, 18 px.'], ['tieto', 'Huilu tietorivin alussa, 13 px.'], ['nappi', 'Huilu valikkonapin paikalla, 22 px: napautus avaa valikon kuten ennen, ja kolme pistettä ovat nyt reikiä.']];
+  $('#listat').innerHTML = paikat.map(function (q) {
+    var lista = '<div class="viesti"><span style="color:var(--muste);display:inline-flex">' + hvino(18, 68) + '</span><span>Postihuilun kautta kantautui teksti.</span></div>' +
+      '<ul class="lista">' + nimike('Kant ja eläinetiikka', 'Kokeiluteksti', 'luettu 12 %', q[0], true) + nimike('Käyttöohje', '', 'luettu 34 %', q[0], false) + '</ul>';
+    return puhelin({ tyyppi: 'viivasto', T: 5, tyyli: 'kulma', amp: .8, jakso: 22 }, lista, q[1]);
+  }).join('');
+
+  // ---------- Paikkakartta ----------
+  function kaistaPieni() { return '<svg viewBox="0 0 120 12" width="60" height="6" aria-hidden="true" style="color:var(--harmaa)">' + kaista({ tyyppi: 'viivasto', T: 5, tyyli: 'kulma', amp: .8, jakso: 22 }, 120, 0).svg.replace(/^<svg[^>]*>|<\/svg>$/g, '') + '</svg>'; }
+  var KARTTA = [
+    [kaistaPieni(), 'Lukulistan otsikko <i>POSTIHUILU</i>', 'makaava huilu, tuutista viivasto (kuvassa pienennetty)'],
+    [hvino(20), 'Huilutettu nimike', 'vino huilu (paikka avoinna: otsikko, tietorivi tai valikkonappi)'],
+    [hvino(18), 'Ilmoitus <i>kantautui</i>', 'vino huilu'],
+    [hvino(16), 'Asetusten <i>Postihuilu</i>-osio', 'vino huilu summaryn salmiakin tilalla tai rinnalla, tai ennallaan'],
+    [hvino(18), 'Latomon ja lisäosan <i>Postihuilu</i>-nappi', 'vino huilu tai ei merkkiä (napissa on jo sana)'],
+    ['<svg viewBox="0 0 140 66" width="46" height="22" aria-hidden="true">' + vinoKuvitus('kulma', 1.2, 20).replace(/^<svg[^>]*>|<\/svg>$/g, '') + '</svg>', 'Latomon postiosio, käyttöohjeen luku', 'kuvitus: huilu ja viivasto isona']
+  ];
+  $('#kartta').innerHTML = KARTTA.map(function (r) { return '<tr><td class="ik">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>'; }).join('');
+
+  var juuri = document.documentElement;
+  $('#teema').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); juuri.setAttribute('data-teema', on ? 'tumma' : 'vaalea');
+  });
+  $('#eink').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); juuri.classList.toggle('eink', on);
+  });
+  // Kaistat todellisella sisäleveydellä ja otsikon leveydellä (fontin latauduttua).
+  function piirraKaistat() {
+    document.querySelectorAll('.kaista-paikka').forEach(function (el) {
+      var ph = el.closest('.puhelin'), cs = getComputedStyle(ph), lev = Math.floor(ph.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+      var ots = ph.querySelector('.lisaa-ots').getBoundingClientRect().width, k = kaista(JSON.parse(el.dataset.o), lev, Math.round(ots));
+      el.innerHTML = k.svg;
+      ph.parentNode.querySelector('.sel').textContent = el.dataset.teksti.replace('{H}', k.korkeus);
+    });
+  }
+  piirraKaistat();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(piirraKaistat);
+  window.__huilu = { huilu: huilu };
+})();
+</script>
+</body>
+</html>

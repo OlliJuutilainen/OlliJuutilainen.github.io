@@ -305,6 +305,12 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
+- **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026, ensimmäinen kokeilu; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`):
+  lukulistan otsikon alla `.huilukaista` (lyhyt huilu, jonka tuutista lähtee kulmikas nelilinja, 15 px) ja Postihuilun kautta
+  kantautuneen tekstin (`e.src === 'laatikko'`) nimen perässä sama huilu vinossa, 68°, nokka ylhäällä oikealla (`HUILUTETTU`).
+  Molemmat syntyvät `luin/kehitys/postihuilu-kuvio.js`:stä: muuta siellä ja liitä tuloste. Käyttäjän säännöt: reiät ovat reikiä
+  eivätkä koskaan ylitä putken reunaviivoja; reiät pitkittäin ketjuna, kärjet hiukan lomittain; ikkuna reikien värinen; suu
+  symmetrinen. Ei ruostetta. Älä tarjoa aaltoilevia tai muita hylättyjä vaihtoehtoja.
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
   *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
   `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
