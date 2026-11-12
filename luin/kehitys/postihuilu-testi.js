@@ -12,12 +12,20 @@ const lahes = (a, b) => Math.abs(a - b) < 1e-9;
 // Geometria: sivukärjet irti reunasta, logon mittasuhde, reiät hipaisten, alin kärki pohjan sisäpintaan.
 for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   const m = H.mitat(T, sw);
-  tulos(`T ${T}: sivukärjet irti reunaviivan sisäpinnasta (0,85-kertaiset)`, lahes(m.B, m.sisa * .85) && m.B < m.sisa, m.sisa - m.B);
+  tulos(`T ${T}: sivukärjet irti reunaviivan sisäpinnasta (0,65-kertaiset)`, lahes(m.B, m.sisa * .65) && m.B < m.sisa, m.sisa - m.B);
   tulos(`T ${T}: huilun pituus täysikokoisten reikien mukainen`, lahes(m.L, m.bk + m.sisa * .9 + 6 * m.sisa / H.LOGO + sw / 2), m.L);
   tulos(`T ${T}: logon mittasuhde`, lahes(m.B / m.A, H.LOGO), m.B / m.A);
   tulos(`T ${T}: reiät hipaisevat (ei rakoa, ei lomitusta)`, lahes(m.reiat[1] - m.reiat[0], 2 * m.A) && lahes(m.reiat[2] - m.reiat[1], 2 * m.A));
   tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa`, lahes(m.reiat[2] + m.A, m.L - sw / 2));
   tulos(`T ${T}: ylin reikä nokan jälkeen`, m.reiat[0] - m.A > m.bk);
+  // Ääniaukko (käyttäjä 12.11.2026): siivu ja ääriviiva samassa linjassa, leuka 45° ja puolivälissä vaakaan, ilmaa reikiin ja seiniin.
+  const a = m.aukko, au = H.aukko(m), u = au.ulko, i = a.viiva / 2;
+  const v = au.viiva.slice(1).split('L').map(p => p.split(' ').map(Number));
+  tulos(`T ${T}: aukko nokan suoran osan jälkeen`, a.x0 > m.bk);
+  tulos(`T ${T}: ääriviivan ulkoreuna siivun päiden linjassa`, Math.abs(v[0][1] - i + a.W) < .006 && Math.abs(v[v.length - 1][1] + i - a.W) < .006);
+  tulos(`T ${T}: leuka ensin 45°, sitten vaakaan puolivälissä keskiviivalle`, lahes(u[2][0] - u[1][0], u[2][1] - u[1][1]) && lahes(Math.abs(u[2][1]), a.W / 2) && lahes(u[3][0], u[2][0]));
+  tulos(`T ${T}: rako aukosta ylimmän reiän kärkeen`, m.reiat[0] - m.A - a.x2 > T * .5, m.reiat[0] - m.A - a.x2);
+  tulos(`T ${T}: aukko irti seinistä`, m.sisa - a.W > sw, m.sisa - a.W);
 }
 // Nuotit (käyttäjän säännöt 12.11.2026): viivaston sisällä, jakson keskellä, ensimmäinen ja viimeinen jakso soi, ei kahta
 // tyhjää peräkkäin, ei samaa korkeutta peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Postihuilun ääniaukko</title>
+<!--
+  Mietintämyssy (käyttäjän pyyntö 12.11.2026): vielä yksi yritys ääniaukoksi. Melko ylhäällä hyvin matala täytetty
+  suorakaide sormisalmiakkien värillä, ja tasan sen reunoilta alaspäin (kelloa kohti) tyhjän suorakulmion ääriviivat.
+  Muuten huilu on luin/huilu.js:n nykyinen (68°, REIKA 0,85, pituus ennallaan paitsi versiossa 6).
+-->
+<style>
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata.woff2) format("woff2");
+    font-weight: 200 900; font-style: normal; font-display: swap; }
+  :root { --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426; --hius: #e3d7c3;
+    --antiikva: Literata, Georgia, "Noto Serif", serif; }
+  @media (prefers-color-scheme: dark) { :root:not([data-teema="vaalea"]) {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; } }
+  :root[data-teema="tumma"] { --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; }
+  html.eink body { filter: grayscale(1) contrast(1.15); }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); font-size: 16px; line-height: 1.55; }
+  main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-weight: 400; font-size: 1.9rem; letter-spacing: .04em; margin: 0 0 4px; }
+  .ala { color: var(--harmaa); font-style: italic; margin: 0 0 22px; }
+  h2 { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; color: var(--harmaa);
+    border-bottom: 1px solid var(--viiva); padding-bottom: 6px; margin: 40px 0 14px; }
+  p { max-width: 68ch; }
+  a { color: var(--ruoste); text-underline-offset: 3px; }
+  .ohjaimet { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; background: var(--paperi);
+    padding: 8px 0; z-index: 5; border-bottom: 1px solid var(--hius); }
+  button { font: inherit; color: var(--muste); background: var(--paperi); border: 1px solid var(--harmaa); border-radius: 0;
+    padding: 5px 11px; min-height: 34px; cursor: pointer; font-size: .86rem; }
+  button[aria-pressed="true"] { color: var(--ruoste); border-color: var(--ruoste); }
+  .reikanapit { display: flex; gap: 8px; flex-wrap: wrap; }
+  .muisti { border-left: 2px solid var(--ruoste); padding: 6px 12px; color: var(--harmaa); font-size: .92rem; margin: 10px 0; }
+
+  .versiot { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0; margin: 10px 0; }
+  .versio { border: 1px solid var(--hius); padding: 12px 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .versio h3 { margin: 0; font-weight: 500; font-size: 1rem; letter-spacing: .02em; }
+  .versio .mitat { margin: 0; font-size: .74rem; color: var(--harmaa); line-height: 1.4; }
+  .kuvat { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .koko { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .62rem; color: var(--harmaa); letter-spacing: .06em; }
+  .koko svg { display: block; overflow: visible; }
+  .iso { color: var(--muste); }
+  .pieni { color: var(--harmaa); }
+
+  /* Asiayhteys: luin.html:n hyllyn Postihuilu-otsikko ja kaista sekä huilutettu nimi. */
+  .puhelin { width: 100%; max-width: 360px; padding: 4px 0 0; }
+  .lisaa-ots { margin: 0; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa); }
+  .ots-rivi { display: flex; align-items: center; min-height: 18px; }
+  .kysy { width: 30px; height: 30px; margin: -4px 0 -4px 2px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
+  .kysy svg { width: 14px; height: 14px; }
+  .huilulohko { position: relative; }
+  svg.huilukuvio { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; color: var(--harmaa); }
+  .huilu-paikka { flex: 0 0 auto; width: 24px; height: 18px; margin-left: 6px; }
+  .huilukaista { display: block; height: 30px; }
+  .n-ots { display: flex; align-items: center; font-size: 1.05rem; letter-spacing: .05em; line-height: 1.3; margin-top: 6px; }
+  .n-ots svg.huilutettu { display: inline-block; height: 1.15em; width: .67em; margin-left: .42em; vertical-align: -.285em; overflow: visible; color: var(--harmaa); }
+  .foot { text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; margin-top: 50px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Postihuilun ääniaukko</h1>
+<p class="ala">Mietintämyssy, ei päätetty. <a href="luin-postihuilu-kuvitus.md">Postihuilun kuvitus</a></p>
+
+<div class="ohjaimet">
+  <button type="button" id="teema" aria-pressed="false">Tumma teema</button>
+  <button type="button" id="eink" aria-pressed="false">E-ink-koe</button>
+  <span class="reikanapit" role="group" aria-label="Sormireikien koko">
+    <button type="button" data-reika=".85" aria-pressed="true">Reiät 0,85 (nyt)</button>
+    <button type="button" data-reika=".75" aria-pressed="false">0,75</button>
+    <button type="button" data-reika=".65" aria-pressed="false">0,65</button>
+  </span>
+</div>
+
+<div class="muisti"><b>Pyyntö 12.11.2026</b> (mallikuvana nokkahuilun ikkuna): melko ylös hyvin matala suorakaide täytettynä sormisalmiakkien värillä,
+  ja tasan sen reunojen tasolta alaspäin tyhjän suorakulmion ääriviivat. Ääriviivan ulkoreuna on samassa linjassa
+  siivun päiden kanssa. Muu huilu on nykyinen (68°, reiät 0,85, pituus ennallaan, paitsi versio 6). Mallikuvassa siivua ei ole täytetty eikä alareunaa piirretty, mutta valokuvissa ne näkyvät näin.</div>
+<div class="muisti"><b>Valittu 12.11.2026:</b> versio 5 reiät 0,65, ja lisäksi alaosaan "leukaperät ja leveä leuka":
+  sivut kääntyvät ensin 45° sisäänpäin ja puolivälissä matkaa keskiviivalle vaakaan. Toteutettu <code>luin/huilu.js</code>:ään;
+  tämän sivun kuvissa leukaa ei ole.</div>
+<div class="muisti"><b>Sormireiät:</b> valitsimella voi kokeilla pienempiä reikiä (kerroin putken sisäkorkeudesta; nyt
+  0,85). Alin alakärki pysyy pohjaviivan sisäpinnassa ja huilun pituus ennallaan, joten pienemmät reiät jättävät
+  ääniaukon ja ylimmän reiän väliin enemmän tilaa.</div>
+
+<p>Mitat ovat putken sisäpuoliskon (<i>s</i> = 2,63 px nykyisellä 6 px:n huilulla) kerrannaisia: <i>leveys</i> poikki
+  putken, <i>siivu</i> ja <i>laatikko</i> putken suuntaan (laatikko siivu mukaan lukien), <i>alku</i> nokan
+  suoran osan alusta. Kuvat: 8-kertainen, hyllyn todellinen koko (6 px) ja huilutettu nimen perässä (6,4 px, pienennetty 1,15 em:iin).</p>
+
+<h2>Versiot</h2>
+<div class="versiot" id="versiot"></div>
+
+<h2>Hyllyllä ja lukulistassa</h2>
+<div class="versiot" id="asiayhteys"></div>
+
+<p class="foot">© TUSINASOFT 2026</p>
+</main>
+<script src="../../luin/huilu.js"></script>
+<script>
+(function () {
+  'use strict';
+  var H = window.LuinHuilu;
+  function f(n) { return Math.round(n * 100) / 100; }
+  function $(s) { return document.querySelector(s); }
+
+  // Versiot: leveys = puolileveys poikki putken, siivu ja laatikko putken suuntaan (s-kerrannaisina), alku = siivun alku
+  // nokan suoran osan alusta (bk), pid = huilun pidennys aukon ja reikien välistä (s-kerrannainen), viiva = ääriviivan paksuus / sw.
+  var VERSIOT = [
+    { nimi: 'Kuvan mukainen', kuvaus: 'kapea ja pitkä ikkuna kuten kuvan nokkahuilussa',
+      leveys: .45, siivu: .5, laatikko: 1.7, alku: .12, viiva: .85 },
+    { nimi: 'Kuvan mukainen, tukevampi', kuvaus: 'sama muoto hiukan leveämpänä, jotta erottuu 6 px:n koossa',
+      leveys: .6, siivu: .55, laatikko: 1.7, alku: .12, viiva: .85 },
+    { nimi: 'Reiän levyinen', kuvaus: 'leveys kuten sormireiän',
+      leveys: .85, siivu: .5, laatikko: 1.4, alku: .12, viiva: .85 },
+    { nimi: 'Matala laatikko', kuvaus: 'reiän levyinen, paksumpi siivu, lyhyt ääriviivaosa',
+      leveys: .85, siivu: .6, laatikko: 1, alku: .14, viiva: .85 },
+    { nimi: 'Ohut siivu, syvä laatikko', kuvaus: 'ohuin siivu, ääriviiva ohuempi',
+      leveys: .6, siivu: .38, laatikko: 1.7, alku: .1, viiva: .7 },
+    { nimi: 'Pidennetty huilu', kuvaus: 'huilu 0,6 s pidempi aukon ja reikien välistä, jotta pitkän laatikon ja reikien väliin jää ilmaa',
+      leveys: .5, siivu: .5, laatikko: 2, alku: .12, viiva: .85, pid: .6 }
+  ];
+
+  var REIKA = .85;
+  // Huilu ääniaukolla paikalliskoordinaateissa: nokka origossa, akseli +x, kello x = L + pidennys. Pidennys tulee aukon
+  // ja reikien väliin. Reiät REIKA-kertaisina, ketju ankkuroituna alhaalta kuten huilu.js:ssä.
+  function huiluAukolla(T, sw, v) {
+    var m = H.mitat(T, sw), s = m.sisa, e = (v.pid || 0) * s, h = m.h, bk = m.bk, L = m.L + e;
+    var B = s * REIKA, A = B / H.LOGO, karki = L - sw / 2, ylin = karki - 6 * A;
+    var px = T * .107, py = T * .286, cy = T * .25, ky = T * .107;
+    var runko = 'M' + f(L) + ' ' + f(-h) + 'H' + f(bk) + 'L' + f(px) + ' ' + f(-py) + 'Q0 ' + f(-cy) + ' 0 ' + f(-ky) + 'V' + f(ky) +
+      'Q0 ' + f(cy) + ' ' + f(px) + ' ' + f(py) + 'L' + f(bk) + ' ' + f(h) + 'H' + f(L) + 'Z';
+    var reiat = [5, 3, 1].map(function (k) { return H.sal(karki - k * A, 0, A, B); }).join('');
+    var W = v.leveys * s, x0 = bk + v.alku * s, x1 = x0 + v.siivu * s, x2 = x0 + v.laatikko * s, st = sw * v.viiva, i = st / 2;
+    // Siivu täytettynä; ääriviiva sisäpuolelle, jotta sen ulkoreuna on tasan siivun päiden linjassa.
+    var siivu = 'M' + f(x0) + ' ' + f(-W) + 'H' + f(x1) + 'V' + f(W) + 'H' + f(x0) + 'Z';
+    var laatikko = 'M' + f(x1) + ' ' + f(-W + i) + 'H' + f(x2 - i) + 'V' + f(W - i) + 'H' + f(x1);
+    return {
+      svg: '<path d="' + runko + '" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
+        '<path class="laatikko" d="' + laatikko + '" fill="none" stroke="currentColor" stroke-width="' + f(st) + '" stroke-linejoin="miter" stroke-linecap="butt"/>' +
+        '<path class="siivu" d="' + siivu + '" fill="currentColor"/>' +
+        '<path class="reiat" d="' + reiat + '" fill="currentColor"/>',
+      L: L, e: e, rako: ylin - x2, seinarako: s - W
+    };
+  }
+  function vino(T, sw, v, kulma, luokka, korkeus) {
+    var a = huiluAukolla(T, sw, v), th = (180 - kulma) * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th), h = T / 2;
+    var pts = [[0, -h], [0, h], [a.L, -h], [a.L, h]].map(function (p) { return [p[0] * c - p[1] * sn, p[0] * sn + p[1] * c]; });
+    var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; }), pad = sw / 2;
+    var x = Math.min.apply(0, xs) - pad, y = Math.min.apply(0, ys) - pad, w = Math.max.apply(0, xs) + pad - x, hh = Math.max.apply(0, ys) + pad - y;
+    var mitta = korkeus ? ' height="' + f(korkeus) + '" width="' + f(korkeus * w / hh) + '"' : '';
+    return '<svg class="' + (luokka || '') + '" viewBox="' + f(x) + ' ' + f(y) + ' ' + f(w) + ' ' + f(hh) + '"' + mitta + ' aria-hidden="true">' +
+      '<g transform="rotate(' + f(180 - kulma) + ')">' + a.svg + '</g></svg>';
+  }
+
+  var T = 6, SW = .75;
+  function versiot() {
+  $('#versiot').innerHTML = VERSIOT.map(function (v, n) {
+    var a = huiluAukolla(T, SW, v), r = H.rajat(T, SW, 68), hIso = r.h * 8 * (a.L + SW) / (H.mitat(T, SW).L + SW);
+    return '<div class="versio" data-n="' + (n + 1) + '"><h3>' + (n + 1) + '. ' + v.nimi + '</h3>' +
+      '<div class="kuvat">' +
+      '<div class="koko iso">' + vino(T, SW, v, 68, 'iso', hIso) + '<span>8 ×</span></div>' +
+      '<div class="koko pieni">' + vino(T, SW, v, 68, 'todellinen') + '<span>6 px</span></div>' +
+      '<div class="koko pieni">' + vino(6.4, .9, v, 68, 'nimi', 18.4) + '<span>nimen perässä</span></div>' +
+      '</div><p class="mitat">' + v.kuvaus + '. Leveys ' + f(2 * v.leveys) + ' s, siivu ' + v.siivu + ' s, laatikko ' + v.laatikko +
+      ' s, alku ' + v.alku + ' s. Rako laatikosta ylimmän reiän kärkeen ' + f(a.rako) + ' px, seinään ' + f(a.seinarako) + ' px.</p></div>';
+  }).join('');
+  // Todellinen koko viewBoxin mitoilla (1 yksikkö = 1 CSS-px).
+  document.querySelectorAll('svg.todellinen').forEach(function (el) {
+    var vb = el.getAttribute('viewBox').split(' ').map(Number); el.setAttribute('width', vb[2]); el.setAttribute('height', vb[3]);
+  });
+  }
+  versiot();
+
+  // Asiayhteys: hyllyn otsikko, i-nappi, vino huilu ja kaista; lukulistan nimi ja huilutettu-merkki.
+  var I = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1Q8.3 5.7 13 7Q8.3 8.3 7 13Q5.7 8.3 1 7Q5.7 5.7 7 1Z" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>';
+  function asiayhteys() {
+  $('#asiayhteys').innerHTML = VERSIOT.map(function (v, n) {
+    return '<div class="versio"><h3>' + (n + 1) + '. ' + v.nimi + '</h3><div class="puhelin" data-n="' + n + '"><div class="huilulohko">' +
+      '<div class="ots-rivi"><h2 class="lisaa-ots" style="border:0;padding:0;margin:0">Postihuilu</h2><span class="kysy">' + I + '</span><span class="huilu-paikka"></span></div>' +
+      '<div class="huilukaista"></div><svg class="huilukuvio"></svg></div>' +
+      '<div class="n-ots">Kant ja eläinetiikka' + vino(6.4, .9, v, 68, 'huilutettu') + '</div></div></div>';
+  }).join('');
+  }
+  asiayhteys();
+  function piirra() {
+    document.querySelectorAll('.puhelin').forEach(function (ph) {
+      var v = VERSIOT[+ph.dataset.n], lohko = ph.querySelector('.huilulohko'), R = lohko.getBoundingClientRect();
+      var paikka = lohko.querySelector('.huilu-paikka').getBoundingClientRect(), kaista = lohko.querySelector('.huilukaista').getBoundingClientRect();
+      var opt = { vasen: paikka.left - R.left, yla: paikka.top - R.top, keskiY: kaista.top - R.top + kaista.height / 2, oikea: R.width - 1, T: T, sw: SW, kulma: 68 };
+      var k = H.kaista(opt), a = huiluAukolla(T, SW, v), th = (180 - 68) * Math.PI / 180;
+      // Vaihda kaistan huilu ääniaukolliseen; pidennetty siirtyy akselin suuntaan taaksepäin, joten kello pysyy viuhkan alussa.
+      var svg = k.svg.replace(/(<g transform="translate\(([-\d.]+) ([-\d.]+)\) rotate\([-\d.]+\)">)[\s\S]*<\/g>$/, function (_, alku, tx, ty) {
+        return '<g transform="translate(' + f(+tx - a.e * Math.cos(th)) + ' ' + f(+ty - a.e * Math.sin(th)) + ') rotate(' + f(180 - 68) + ')">' + a.svg + '</g>';
+      });
+      var kuvio = lohko.querySelector('svg.huilukuvio');
+      kuvio.setAttribute('width', R.width); kuvio.setAttribute('height', R.height); kuvio.setAttribute('viewBox', '0 0 ' + f(R.width) + ' ' + f(R.height));
+      kuvio.innerHTML = svg;
+    });
+  }
+  piirra();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(piirra);
+  addEventListener('resize', piirra);
+
+  document.querySelectorAll('.reikanapit button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      REIKA = +b.dataset.reika;
+      document.querySelectorAll('.reikanapit button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      versiot(); asiayhteys(); piirra();
+    });
+  });
+  var juuri = document.documentElement;
+  $('#teema').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); juuri.setAttribute('data-teema', on ? 'tumma' : 'vaalea');
+  });
+  $('#eink').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); juuri.classList.toggle('eink', on);
+  });
+  window.__aukko = { VERSIOT: VERSIOT, huiluAukolla: huiluAukolla, vino: vino, reika: function (r) { REIKA = r; } };
+})();
+</script>
+</body>
+</html>
