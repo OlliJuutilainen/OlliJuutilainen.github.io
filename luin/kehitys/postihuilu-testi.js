@@ -9,10 +9,11 @@ let viat = 0;
 function tulos(nimi, ok, tieto) { if (!ok) viat++; console.log((ok ? 'OK   ' : 'VIKA ') + nimi + (tieto != null ? ' – ' + tieto : '')); }
 const lahes = (a, b) => Math.abs(a - b) < 1e-9;
 
-// Geometria: kärjet reunan sisäpintaan, logon mittasuhde, reiät hipaisten, alin kärki pohjan sisäpintaan.
+// Geometria: sivukärjet irti reunasta, logon mittasuhde, reiät hipaisten, alin kärki pohjan sisäpintaan.
 for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   const m = H.mitat(T, sw);
-  tulos(`T ${T}: sivukärjet reunaviivan sisäpinnassa`, lahes(m.B, m.sisa), m.sisa - m.B);
+  tulos(`T ${T}: sivukärjet irti reunaviivan sisäpinnasta (0,85-kertaiset)`, lahes(m.B, m.sisa * .85) && m.B < m.sisa, m.sisa - m.B);
+  tulos(`T ${T}: huilun pituus täysikokoisten reikien mukainen`, lahes(m.L, m.bk + m.sisa * .9 + 6 * m.sisa / H.LOGO + sw / 2), m.L);
   tulos(`T ${T}: logon mittasuhde`, lahes(m.B / m.A, H.LOGO), m.B / m.A);
   tulos(`T ${T}: reiät hipaisevat (ei rakoa, ei lomitusta)`, lahes(m.reiat[1] - m.reiat[0], 2 * m.A) && lahes(m.reiat[2] - m.reiat[1], 2 * m.A));
   tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa`, lahes(m.reiat[2] + m.A, m.L - sw / 2));

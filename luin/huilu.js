@@ -4,9 +4,9 @@
    - huilutetun (Postihuilun kautta kantautuneen) tekstin nimen perässä.
    Käyttäjän säännöt:
    - Sormireiät ovat koveria salmiakkeja Luinin logon mittasuhteissa (leveys/korkeus 0,767, kaarevuus 0,38), pitkittäin
-     putken suuntaan. Sivukärjet yltävät juuri ja juuri reunaviivan sisäpintaan, reiät hipaisevat toisiaan kärjistään
-     (eivät lomitu), ja alimman reiän alakärki yltää juuri ja juuri kellon pohjaviivan sisäpintaan. Reikä ei koskaan
-     halkaise ihoa. Huilun pituus seuraa näistä.
+     putken suuntaan. Sivukärjet ovat irti reunaviivasta (REIKA), reiät hipaisevat toisiaan kärjistään (eivät lomitu), ja
+     alimman reiän alakärki yltää juuri ja juuri kellon pohjaviivan sisäpintaan. Reikä ei koskaan halkaise ihoa. Huilun
+     pituus on täysikokoisten reikien (sivukärjet sisäpinnassa) mukainen.
    - Suu on symmetrinen. Ääniaukkoa ei ole (käyttäjä: poistetaan, ellei se näytä luontevalta).
    - Viivat ovat ohuita, mutta mittoja ei pienennetä niiden mukana. Viivasto lähtee viuhkana alimman reiän alakärjestä
      (ei valmiiksi levällään), kaartuu sileänä kaarena vaakasuoraksi ja jatkuu kulmikkaana, selvästi näkyvin taittein:
@@ -19,6 +19,7 @@
   'use strict';
   var LOGO = 0.767;            // logon salmiakin leveys / korkeus (luin.html:n logo)
   var KAARI = 0.38;            // salmiakin kaarevuus (luin.html sal())
+  var REIKA = 0.85;            // sormireiän koko: sivukärjet irti reunaviivan sisäpinnasta (käyttäjä 12.11.2026)
   function f(n) { return Math.round(n * 100) / 100; }
   // Kovera salmiakki; kulma (rad) kallistaa sen keskipisteensä ympäri (nuotit viivaston mukana).
   function sal(cx, cy, rx, ry, c, kulma) {
@@ -34,9 +35,11 @@
   }
 
   // Huilun mitat paksuudesta T ja viivasta sw.
+  // Reiät ovat REIKA-kertaiset täyteen (sivukärjet sisäpinnassa) verrattuna, ja ketju ankkuroituu alhaalta: alin alakärki
+  // pysyy pohjaviivan sisäpinnassa ja huilun pituus on täysikokoisten reikien mukainen (käyttäjä 12.11.2026).
   function mitat(T, sw) {
-    var h = T / 2, sisa = h - sw / 2, B = sisa, A = B / LOGO, bk = T * .82, ketjuAlku = bk + sisa * .9;
-    var L = ketjuAlku + 6 * A + sw / 2;
+    var h = T / 2, sisa = h - sw / 2, B = sisa * REIKA, A = B / LOGO, bk = T * .82;
+    var L = bk + sisa * .9 + 6 * sisa / LOGO + sw / 2, ketjuAlku = L - sw / 2 - 6 * A;
     return { T: T, sw: sw, h: h, sisa: sisa, A: A, B: B, bk: bk, L: L, ketjuAlku: ketjuAlku,
       reiat: [ketjuAlku + A, ketjuAlku + 3 * A, ketjuAlku + 5 * A], karki: L - sw / 2 };
   }
