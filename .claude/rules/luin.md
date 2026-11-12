@@ -301,11 +301,14 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
-- **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava;
-  vain Latomon *Arvo*): kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka lukumäärä
-  (`MAARA`). Sanoissa ei saa olla ääkkösiä eikä niistä pudotettuja muotoja (*delfiinia*), eikä samassa paikassa lähisynonyymejä.
-  Kun muutat sanoja, aja `python3 luin/kehitys/laatikkolause-sanat.py` (Voikko: `apt-get install voikko-fi python3-libvoikko`)
-  ja `laatikkolause-testi.js`, ja päivitä `laatikkolause.js?v=` kuten md.js:n.
+- **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
+  *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
+  `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
+  lukumäärä (`MAARA`). **Ei lauseita, joista pitää poistaa ääkköset** (käyttäjän rajaus 12.11.2026): ei ääkkösiä, ei niistä
+  pudotettuja muotoja (*delfiinia*) eikä oikeita sanoja, joiden ääkkösellinen vastine on yleinen (*etana*/*etänä*,
+  *niittaa*/*niittää*). Samassa paikassa ei lähisynonyymejä. Kun muutat sanoja, aja `python3 luin/kehitys/laatikkolause-sanat.py`
+  (`apt-get install voikko-fi python3-libvoikko`, `pip install wordfreq`) ja `laatikkolause-testi.js`, kopioi tiedosto
+  lisäosaan ja päivitä `laatikkolause.js?v=` kuten md.js:n.
 - **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka

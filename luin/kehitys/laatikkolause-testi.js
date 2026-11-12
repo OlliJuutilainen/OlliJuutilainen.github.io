@@ -1,8 +1,10 @@
 // Laatikkolauseen arpojan testi (luin/laatikkolause.js). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]
 // Tarkistaa ilman selainta: sanat ovat a–z ja yksikäsitteisiä, MAARA on sama kuin suora laskenta, tasajakauma
-// (khiin neliö), arvotut lauseet kelpaavat posti.js:lle ja purkautuvat yksikäsitteisesti. Selaimessa: Latomon Arvo täyttää
-// kentän, näyttää virkkeen ja piilottaa sen, kun kenttää muokataan. Sanojen kieliasun tarkistaa laatikkolause-sanat.py.
+// (khiin neliö), arvotut lauseet kelpaavat posti.js:lle ja purkautuvat yksikäsitteisesti, lisäosan kopio on sama. Selaimessa:
+// Latomon Arvo täyttää kentän, näyttää virkkeen ja piilottaa sen, kun kenttää muokataan; Luinin asetusten Arvo täyttää
+// mutta ei tallenna ennen Soita huilua! -nappia; lisäosan ponnahdusikkunan Arvo (selainrajapinta tynkänä) täyttää ja
+// muistaa lauseen. Sanojen kieliasun tarkistaa laatikkolause-sanat.py.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -21,6 +23,8 @@ JARJ.forEach(k => {
   const ws = S[k], vaarat = ws.filter(w => !/^[a-z0-9]+$/.test(w)), kaks = ws.filter((w, i) => ws.indexOf(w) !== i);
   tulos('sanat ' + k + ': ' + ws.length + ', vain a–z/0–9 ja ei kaksoiskappaleita', ws.length > 90 && !vaarat.length && !kaks.length, vaarat.concat(kaks).join(' '));
 });
+tulos('lisäosan laatikkolause.js on sama kuin luin/laatikkolause.js',
+  fs.readFileSync(path.join(JUURI, 'luin/lisaosa/laatikkolause.js'), 'utf8') === fs.readFileSync(path.join(JUURI, 'luin/laatikkolause.js'), 'utf8'), 'cp luin/laatikkolause.js luin/lisaosa/');
 tulos('luvut 2–99', S.n.length === 98 && S.n[0] === '2' && S.n[97] === '99');
 
 // 2. MAARA toisin laskettuna: kolmen parin (a+s, v+n, o+p) pituushistogrammit sanapareista suoraan ja niiden kaikki
@@ -115,6 +119,69 @@ palvelin.listen(0, async () => {
     const t4 = await p.evaluate(() => !document.querySelector('#laatikko-arvottu').hidden);
     tulos(leveys + ' px: palautus näyttää sen taas', t4);
     tulos(leveys + ' px: ei sivuvirheitä', !virheet.length, virheet.join(' | '));
+  }
+
+  // Luinin asetukset: Arvo täyttää kentän ja näyttää virkkeen, Soita huilua! vasta tallentaa.
+  for (const leveys of [760, 360]) {
+    const p = await (await b.newContext({ viewport: { width: leveys, height: 900 } })).newPage();
+    const virheet = [];
+    p.on('pageerror', e => virheet.push(e.message));
+    await p.route(/workers\.dev/, r => r.abort());
+    await p.goto(BASE + 'luin.html');
+    await p.evaluate(() => localStorage.clear());
+    await p.reload();
+    await p.click('.ratas');
+    await p.click('#laatikko-osio > summary');
+    await p.click('#laatikko-arvo');
+    const t = await p.evaluate(() => {
+      const e = document.querySelector('#laatikko-arvottu'), k = document.querySelector('#laatikko-koodi');
+      return { lause: k.value, nakyy: !e.hidden && e.getBoundingClientRect().height > 0, teksti: e.textContent,
+        virke: (e.querySelector('.virke') || {}).textContent, tyyli: getComputedStyle(e.querySelector('.virke') || e).fontStyle,
+        ls: localStorage.getItem('luin-laatikko'), leveys: document.documentElement.scrollWidth <= innerWidth };
+    });
+    const osat = t.lause.split('-');
+    tulos('Luin ' + leveys + ' px: Arvo täyttää kentän, ei tallenna', osat.length === 6 && !P.koodiVirhe(t.lause) && t.ls === null, t.lause + ' / ' + t.ls);
+    tulos('Luin ' + leveys + ' px: virke pystykirjaimin, määrä ja ohje', t.nakyy && t.tyyli === 'normal' &&
+      t.virke === osat.join(' ').replace(/^./, c => c.toUpperCase()) + '.' && /biljoonan lauseen joukosta\. Ota käyttöön soittamalla huilua\.$/.test(t.teksti), t.teksti);
+    tulos('Luin ' + leveys + ' px: ei vaakavieritystä', t.leveys);
+    if (KUVAT) await p.locator('#laatikko-osio').screenshot({ path: path.join(KUVAT, 'luin-arvo-' + leveys + '.png') });
+    await p.click('#laatikko-tallenna');
+    await p.waitForTimeout(300);
+    const ls = await p.evaluate(() => JSON.parse(localStorage.getItem('luin-laatikko')));
+    tulos('Luin ' + leveys + ' px: Soita huilua! tallentaa arvotun', ls === t.lause, ls);
+    await p.type('#laatikko-koodi', 'x');
+    tulos('Luin ' + leveys + ' px: muokkaus piilottaa virkkeen', await p.evaluate(() => document.querySelector('#laatikko-arvottu').hidden));
+    tulos('Luin ' + leveys + ' px: ei sivuvirheitä', !virheet.length, virheet.join(' | '));
+  }
+
+  // Lisäosan ponnahdusikkuna tavallisena sivuna, selainrajapinta tynkänä (koko ketju: lisaosa-testi.js).
+  for (const leveys of [288, 480]) {
+    const p = await (await b.newContext({ viewport: { width: leveys, height: 700 } })).newPage();
+    const virheet = [];
+    p.on('pageerror', e => virheet.push(e.message));
+    await p.addInitScript(() => {
+      const muisti = { posti: { on: true, k: '', heti: true } };
+      window.__muisti = muisti;
+      window.chrome = {
+        storage: { local: { get: async k => ({ [k]: muisti[k] }), set: async o => Object.assign(muisti, o) } },
+        tabs: { query: async () => [{ id: 1 }], get: async () => ({ id: 1 }), create: async () => ({}) },
+        scripting: { executeScript: async () => [{ result: { otsikko: 'Koe', sivusto: 'koe', koko: '# Koe\n\nTeksti.', kokoSanoja: 2 } }] }
+      };
+    });
+    await p.goto(BASE + 'luin/lisaosa/ponnahdus.html');
+    await p.waitForSelector('#otsikko:text("Koe")');
+    await p.click('#arvo');
+    const t = await p.evaluate(() => ({ lause: document.querySelector('#koodi').value, virke: document.querySelector('#arvottu').textContent,
+      soita: document.querySelector('#soita').disabled, muisti: window.__muisti.posti.k,
+      leveys: document.documentElement.scrollWidth <= innerWidth }));
+    const osat = t.lause.split('-');
+    tulos('lisäosa ' + leveys + ' px: Arvo täyttää, muistaa ja sallii soiton', osat.length === 6 && !P.koodiVirhe(t.lause) && !t.soita && t.muisti === t.lause, t.lause);
+    tulos('lisäosa ' + leveys + ' px: virke näkyy', t.virke === osat.join(' ').replace(/^./, c => c.toUpperCase()) + '.', t.virke);
+    tulos('lisäosa ' + leveys + ' px: ei vaakavieritystä', t.leveys);
+    if (KUVAT) await p.screenshot({ path: path.join(KUVAT, 'lisaosa-arvo-' + leveys + '.png') });
+    await p.type('#koodi', 'x');
+    tulos('lisäosa ' + leveys + ' px: muokkaus piilottaa virkkeen', await p.evaluate(() => document.querySelector('#arvottu').textContent === ''));
+    tulos('lisäosa ' + leveys + ' px: ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   }
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä.' : 'Kaikki kunnossa.');

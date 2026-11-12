@@ -916,6 +916,7 @@
   #laatikko-koodi { display: block; width: 100%; margin-top: 4px; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
     background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   #laatikko-koodi:focus { outline: none; border-color: var(--harmaa); }
+  #laatikko-arvottu .virke { font-style: normal; color: var(--muste); }
   /* Postihuilu (10.11.2026): rivi "Laatikkolause:" i-nappeineen, ohje sen alla, kenttä koko leveydellä. */
   .koodirivi { display: flex; align-items: center; gap: 2px; margin-top: 6px; font-size: .78rem; color: var(--harmaa); font-style: italic; }
   .kysy-ohje blockquote { margin: 8px 0; padding: 0 0 0 10px; border-left: 2px solid var(--viiva); overflow-wrap: anywhere; }
@@ -1125,8 +1126,12 @@
           <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
         <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
         <input type="text" id="laatikko-koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa; luin/laatikkolause.js) täyttää kentän muistettavalla
+             virkkeellä mutta ei tallenna: lause otetaan käyttöön Soita huilua! -napista. -->
+        <p class="huomio" id="laatikko-arvottu" hidden></p>
         <p class="huomio" id="laatikko-tieto"></p>
-        <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Soita huilua!</button></div>
+        <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Soita huilua!</button>
+          <button type="button" class="laatikko" id="laatikko-arvo">Arvo</button></div>
         <div id="posti-merk" hidden>
           <div class="valinnat" id="posti-paalla"></div>
           <div class="valinnat posti-lajit" id="posti-lajit"></div>
@@ -1172,6 +1177,7 @@
 
 <script src="luin/md.js?v=c86b4465"></script>
 <script src="luin/posti.js?v=91bf4ff2"></script>
+<script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script>
 (function () {
   'use strict';
@@ -1818,6 +1824,23 @@
       tieto.textContent = 'Laatikkolause tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen hyllyllä.';
     });
   });
+  // Arvo: virke ja lauseiden määrä kentän alla, kunnes kentän lause muuttuu (Latomon tapaan).
+  var arvottu = null;
+  function naytaArvottu() {
+    var e = $('#laatikko-arvottu'), nakyy = !!arvottu && P.koodi($('#laatikko-koodi').value) === arvottu.lause;
+    e.hidden = !nakyy;
+    if (!nakyy) return;
+    e.innerHTML = '';
+    var s = document.createElement('span'); s.className = 'virke'; s.textContent = arvottu.virke;
+    e.appendChild(s);
+    e.appendChild(document.createTextNode(' Arvottu noin ' + Math.round(window.LuinLause.MAARA / 1e12) +
+      ' biljoonan lauseen joukosta. Ota käyttöön soittamalla huilua.'));
+  }
+  $('#laatikko-arvo').addEventListener('click', function () {
+    arvottu = window.LuinLause.arvo();
+    $('#laatikko-koodi').value = arvottu.lause; $('#laatikko-tieto').textContent = ''; naytaArvottu();
+  });
+  $('#laatikko-koodi').addEventListener('input', naytaArvottu);
   $('#laatikko-kysy').addEventListener('click', function () {
     var o = $('#laatikko-ohje'), auki = o.hidden;
     if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
@@ -2164,6 +2187,7 @@
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = laatikonKoodi(); $('#laatikko-tieto').textContent = koodiTieto(laatikonKoodi());
+    $('#laatikko-arvottu').hidden = true;
     $('#laatikko-ohje').hidden = true; $('#laatikko-kysy').setAttribute('aria-expanded', 'false');
     piirraPosti();
     $('#asetukset').hidden = false;

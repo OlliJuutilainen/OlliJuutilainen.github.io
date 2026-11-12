@@ -5,13 +5,15 @@
    Soita huilua! ja ohje. Soita huilua! antaa leikkeen Latomolle, joka lähettää sen laatikkoon ja, kun Lisää tämän selaimen
    lukulistaan heti on valittuna (oletus), avaa sen myös tämän selaimen Luinissa. Ilman sitä teksti ei tule tämän selaimen
    lukulistaan eikä lause jää Latomon muistiin (kaverin kone). Lauseen sääntö ja ohje ovat samat kuin luin/posti.js:ssä
-   (kopio, koska lisäosa ei lataa sivuston tiedostoja); lause ja valinnat muistetaan lisäosan muistissa. */
+   (kopio, koska lisäosa ei lataa sivuston tiedostoja); lause ja valinnat muistetaan lisäosan muistissa.
+   Arvo (0.7.0, käyttäjän pyyntö 12.11.2026): laatikkolause.js on tavulleen sama kopio kuin luin/laatikkolause.js
+   (laatikkolause-testi.js tarkistaa); virke näkyy napin vieressä, kunnes kentän lause muuttuu. */
 const api = globalThis.browser || globalThis.chrome;
 const LATOMO = 'https://ollijuutilainen.github.io/luin/latomo.html#lisaosa';
 const TIEDOSTOT = ['kirjastot/Readability.js', 'kirjastot/turndown.js', 'kirjastot/turndown-plugin-gfm.js', 'leike.js'];
 const $ = id => document.getElementById(id);
 const luku = n => n.toLocaleString('fi-FI') + (n === 1 ? ' sana' : ' sanaa');
-let leike = null;
+let leike = null, arvottu = null;
 
 // Sama kuin luin/posti.js: koodi() ja koodiVirhe().
 function koodi(s) {
@@ -38,6 +40,7 @@ function huiluAuki() { return !$('posti-osa').hidden; }
 
 function nayta() {
   const kv = koodiVirhe(koodi($('koodi').value));
+  $('arvottu').textContent = arvottu && koodi($('koodi').value) === arvottu.lause ? arvottu.virke : '';
   $('koodi-virhe').textContent = $('koodi').value.trim() ? kv : '';
   if (!leike) return;
   const sanoja = valittu() ? leike.valintaSanoja : leike.kokoSanoja;
@@ -77,6 +80,7 @@ async function aloita() {
     if (auki && !$('koodi').value) $('koodi').focus();
   });
   $('heti').addEventListener('change', muista);
+  $('arvo').addEventListener('click', () => { arvottu = globalThis.LuinLause.arvo(); $('koodi').value = arvottu.lause; muista(); nayta(); });
   $('koodi').addEventListener('input', () => { muista(); nayta(); });
   $('koodi').addEventListener('change', () => { const k = koodi($('koodi').value); if (k) $('koodi').value = k; muista(); nayta(); });
   $('koodi').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('soita').disabled) $('soita').click(); });
