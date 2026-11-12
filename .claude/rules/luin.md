@@ -210,6 +210,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Erikoishaut** (käyttäjän pyyntö 12.11.2026, opas 4.7.3): kenoviiva aloittaa erikoishaun (`/lainaus`, `/vieras`, kielet).
   Ehdotuksina vain tekstissä olevat; `ERIK`-taulun komentonimet ovat käyttäjälle näkyviä, älä vaihda niitä kysymättä.
   Lainausmerkkilainaus vaatii vähintään kolme sanaa (1–2 sanaa ovat termejä). Kohdat lasketaan kerran tekstiä kohden (`nyt.erik`).
+- **Haun korostus sammuu sen omasta napautuksesta** (käyttäjän pyyntö 12.11.2026, `sammutaKorostus()`; Esc lisänä, ei varaan):
+  ei uutta nappia. Napautus ei tee muuta (ei sivunkääntöä, ei alleviivauksen valikkoa); pidä tarkistus reunanapautuksen edellä.
 - Kirjanmerkki menee aina kappaleen alkuun (`o: 0`; säännöt opas 4.3).
 - **Sisennys vain kappaleelle, jonka edellä on kappale** (CSS `p + p`, käyttäjän pyyntö 7.11.2026): sisällysluettelon, otsikkolohkon, otsikon, lainauksen tai luettelon jälkeen ei sisennetä. Älä palauta poikkeusluetteloa.
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska käyttäjän työpöytäselain ei

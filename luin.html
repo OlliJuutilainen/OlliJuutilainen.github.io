@@ -3076,7 +3076,11 @@
   var osioNappi = null; // painettu näppäin: { k, t, s, d, tehty }; toistotapahtuma hyppää, jos ajastin ei ehtinyt
   document.addEventListener('keyup', function (e) { if (osioSuunta(e)) osioPeru(); });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return; }
+    if (e.key === 'Escape') {
+      // Lisänä näppäimistölle: kun ponnahdusta eikä paneelia ole auki, Esc sammuttaa haun korostuksen (navi saa olla auki).
+      if (!muokkaus && pop.hidden && !paneeliAuki() && sammutaKorostus()) return;
+      if (muokkaus) lopetaKirjaus(false); suljePop(); suljePaneelit(); return;
+    }
     if (!nyt || tila.nakyma !== 'lukija' || aset.sivutus !== 'sivut' || (e.target.closest && e.target.closest('input, textarea'))) return;
     var k = e.key;
     // Paneelin omat säätimet: valinta ja painikkeet käyttävät nuolia ja välilyöntiä itse.
@@ -3227,6 +3231,8 @@
       return;
     }
     if (fn) return;
+    // Haun korostuksen napautus sammuttaa sen (käyttäjän pyyntö 12.11.2026): viesti on perillä, eikä napautus tee muuta.
+    if (pop.hidden && valintaTyhja() && sammutaKorostus(e.clientX, e.clientY)) { e.preventDefault(); return; }
     var km = t.closest('.km');
     if (km) { naytaKmPop(km.dataset.k, km.getBoundingClientRect()); return; }
     var kq = t.closest('.kirm');
@@ -5910,6 +5916,7 @@
     hyppaa({ b: o.b, o: o.a }, true);
     // Sivutettuna alaviite näytetään ponnahduslaatikossa kuten viitenumeroa napautettaessa.
     if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); if (fn) naytaViite(fn); }
+    h.sammui = false;
     var r = korosta(o);
     // Vierityksessä pitkän alaviitteen osuma voi jäädä alapalkin tai Palaa takaisin -laatikon alle;
     // vieritetään sen verran, ettei osuma nouse yläpalkin alle.
@@ -5948,7 +5955,7 @@
   }
   // Valittu osuma korostetaan tekstissä CSS Custom Highlight -rajapinnalla, joka ei muuta DOMia
   // (kohdat ja alleviivaukset nojaavat tekstisolmuihin). Ilman rajapintaa korostusta ei ole.
-  // Korostus pysyy, kunnes hakua muutetaan tai teksti suljetaan.
+  // Korostus pysyy, kunnes hakua muutetaan, teksti suljetaan tai lukija sammuttaa sen (sammutaKorostus).
   // Alaviitteen osuma korostetaan auki olevassa ponnahduslaatikossa tai tekstin alaviitteessä.
   function korosta(o) {
     if (!window.CSS || !CSS.highlights || typeof Highlight !== 'function') return;
@@ -5966,7 +5973,25 @@
     CSS.highlights.set('haku', new Highlight(r));
     return r;
   }
-  function paivitaKorostus() { var h = nyt && nyt.haku; korosta(h && h.valittu >= 0 ? h.osumat[h.valittu] : null); }
+  function paivitaKorostus() { var h = nyt && nyt.haku; korosta(h && h.valittu >= 0 && !h.sammui ? h.osumat[h.valittu] : null); }
+  /* Korostuksen sammutus (käyttäjän pyyntö 12.11.2026): korostuksen napautus tekstissä (x, y) tai Esc (ilman pistettä).
+     Osuma pysyy valittuna, joten Enter jatkaa siitä; seuraava valittu osuma korostuu taas. Napautukselle 6 px:n vara
+     rivin ylä- ja alapuolella, koska sormi osuu harvoin rivin sisään. Palauttaa true, jos korostus sammui. */
+  function sammutaKorostus(x, y) {
+    var h = nyt && nyt.haku, hl = window.CSS && CSS.highlights && CSS.highlights.get('haku');
+    if (!h || !hl || !hl.size) return false;
+    if (x !== undefined) {
+      var osui = false;
+      hl.forEach(function (r) {
+        Array.prototype.forEach.call(r.getClientRects(), function (q) {
+          if (q.width && x >= q.left - 2 && x <= q.right + 2 && y >= q.top - 6 && y <= q.bottom + 6) osui = true;
+        });
+      });
+      if (!osui) return false;
+    }
+    h.sammui = true; CSS.highlights.delete('haku');
+    return true;
+  }
 
   /* ---------- merkintälista ---------- */
   function paivitaMerkinnat() {
