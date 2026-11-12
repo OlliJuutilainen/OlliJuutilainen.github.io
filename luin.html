@@ -17,11 +17,12 @@
 <meta property="og:image:alt" content="LUiN.HTML">
 <meta name="twitter:card" content="summary_large_image">
 <!--
-  Luin: lukulista ja lukulaite. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
+  Luin: hylly (ent. lukulista; koodissa yhä lista) ja lukulaite. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
   tämän selaimen localStorageen: lukulista, tekstit, lukukohta, kirjanmerkit, alleviivaukset ja kirjaukset.
   Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti ja asetuksissa annetun
   postilaatikon tekstit (workerin /api/luin; Postihuilu Latomossa, Lisää lukimeen -lisäosassa ja täällä).
-  Reitit: #           lukulista
+  Reitit: #           hylly
+          #arkisto    pölyhylly (luetuiksi merkityt)
           #id=<id>    lukulistan teksti
           #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
           #l=<koodi>  laatikkolause talteen ja laatikon haku (lukulistan Postihuilu-kenttä kelpuuttaa
@@ -135,7 +136,7 @@
   button.valitse[aria-pressed="true"] { color: var(--muste); }
   button.valitse[aria-pressed="true"] .sal-sisa { fill: currentColor; }
   button.valitse[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
-  /* Arkistohylly: vain logo, kotilinkki, asetukset, hylly ja alatunniste. */
+  /* Pölyhylly (ent. arkistohylly): vain logo, kotilinkki, asetukset, hylly ja alatunniste. */
   .loikea { display: flex; align-items: flex-start; }
   .lhead .koti svg { fill: none; }
   .lhead .koti .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
@@ -164,7 +165,6 @@
   .lisaa { margin: 22px 0 0; font-size: .88rem; line-height: 1.8; color: var(--harmaa); }
   .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
   .lisaa.uusi { margin-top: 12px; }
-  .lisaa.palaute { margin-top: 28px; font-size: .74rem; }
   .lisaa b { font-weight: 600; }
   /* Asetusten palaute (käyttäjän pyyntö 10.11.2026): ruoste särähti, --viiva oli liian haalea, joten linkki on --harmaa.
      Oma jakoviiva oli liikaa (Postihuilun details.vienti on jo viivan päällä), joten erottelu on ilmaa. */
@@ -211,7 +211,8 @@
   .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
   .valikko.rivi button { width: auto; padding: 9px 13px; }
   .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
-  .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px)); }
+  .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px));
+    max-height: calc(100vh - var(--turva) - 16px); overflow-y: auto; overscroll-behavior: contain; }
   .valikko.viite .nro { color: var(--ruoste); font-family: var(--groteski); font-size: .75em; margin-right: .4em; }
   /* Alaviitteen lähdeviittaus kirjallisuusluetteloon (md.js, viittaukset()): käyttäjän päätös 21.10.2026,
      ei ruostetta vaan alaotsikon harmaa; haalea alleviivaus kertoo, että sitä voi napauttaa. */
@@ -507,6 +508,18 @@
     margin: .25em calc((var(--hl) + var(--hv)) * -1) 1.1em 0;
     padding: 0 0 0 .85em; border: 0; text-indent: -.85em; }
   body.reunat .fnref { cursor: default; }
+  /* Pitkä reunushuomio, joka työntäisi seuraavan huomion kauas viitenumerostaan, katkaistaan rivin rajalta, ja sen alle
+     tulee lisää…-nappi (sovitaHuomiot(), käyttäjän pyyntö 12.11.2026). Nappi on oma kellukkeensa heti huomion perässä:
+     huomion sisältö ei muutu (ponnahdus, haku ja kohdat lukevat sitä), eikä napissa ole tekstisolmua (lohkon kohdat). */
+  body.reunat .sidenote.pitka { margin-bottom: 0; }
+  body.reunat .sidenote.katkaistu { overflow: hidden; }
+  .sn-lisaa { display: none; }
+  body.reunat .sn-lisaa { display: block; float: right; clear: right; width: var(--hl); box-sizing: border-box;
+    margin: 0 calc((var(--hl) + var(--hv)) * -1) 1.1em 0; padding: .1em 0 0 .85em; font-size: .8em; line-height: 1.46;
+    text-align: left; text-indent: 0; font-style: italic; color: var(--ruoste); }
+  .sn-lisaa::before { content: 'lis\00E4\00E4\2026'; }
+  .sn-lisaa.auki::before { content: 'v\00E4hemm\00E4n'; }
+  .sn-lisaa:hover { text-decoration: underline; text-underline-offset: 3px; }
 
   /* alleviivaus ja kirjanmerkki */
   /* Alleviivaus maalataan itse taustana, ei text-decorationilla (käyttäjän pyyntö 6.11.2026: kahva ja viivan sauma ei
@@ -924,6 +937,7 @@
   #laatikko-koodi { display: block; width: 100%; margin-top: 4px; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
     background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
   #laatikko-koodi:focus { outline: none; border-color: var(--harmaa); }
+  #laatikko-arvottu .virke { font-style: normal; color: var(--muste); }
   /* Postihuilu (10.11.2026): rivi "Laatikkolause:" i-nappeineen, ohje sen alla, kenttä koko leveydellä. */
   .koodirivi { display: flex; align-items: center; gap: 2px; margin-top: 6px; font-size: .78rem; color: var(--harmaa); font-style: italic; }
   .kysy-ohje blockquote { margin: 8px 0; padding: 0 0 0 10px; border-left: 2px solid var(--viiva); overflow-wrap: anywhere; }
@@ -965,23 +979,23 @@
 <body>
 <div id="turva" aria-hidden="true"></div><div id="turva-env" aria-hidden="true"></div><div id="palkki-mitta" aria-hidden="true"></div>
 
-<!-- ===== Lukulista ===== -->
+<!-- ===== Hylly (ent. lukulista; nimi käyttäjän päätös 12.11.2026) ===== -->
 <section id="lista" hidden>
   <div class="lhead">
     <div class="lmerkki">
     <svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg>
     <button class="info" type="button" aria-label="Tietoa: LUiN.HTML" aria-controls="tietoa" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
-    <div class="loikea"><a class="ikoni koti" id="ark-koti" href="#" aria-label="Lukulistaan" title="Lukulistaan" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+    <div class="loikea"><a class="ikoni koti" id="ark-koti" href="#" aria-label="Hyllylle" title="Hyllylle" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on lukulaite Markdown-teksteille. Tiedot tallentuvat vain tähän selaimeen.</p></div>
   <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
-       on valittuna, oikeaan nurkkaan tulee valittujen valikko. Arkistohyllyssä sama rivi otsikolla Arkistohylly. -->
+       on valittuna, oikeaan nurkkaan tulee valittujen valikko. Pölyhyllyllä sama rivi otsikolla Pölyhylly. -->
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
-    <h2 class="ots" id="lista-ots">Lukulista</h2><span class="val-maara" id="val-maara" hidden></span>
+    <h2 class="ots" id="lista-ots">Hylly</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <ul class="nimikkeet" id="nimikkeet"></ul>
-  <p class="tyhja" id="tyhja" hidden>Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai
+  <p class="tyhja" id="tyhja" hidden>Hylly on tyhjä. Tekstit tulevat tänne Latomosta tai
     linkistä, joka avaa tekstin Luinissa.</p>
   <p class="viesti" id="viesti" hidden></p>
   <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): laatikkolause tai linkki
@@ -990,7 +1004,7 @@
   <div class="lisaa-ots-rivi"><p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
     <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: Postihuilu"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
   <svg class="huilukaista" width="100%" height="15" aria-hidden="true"><path d="M20.5 8.7L21 8.7L21.5 8.71L22 8.72L22.5 8.73L23 8.74L23.5 8.77L24 8.79L24.5 8.82L25 8.86L25.5 8.9L26 8.94L26.5 8.99L27 9.05L27.5 9.11L28 9.18L28.5 9.25L29 9.33L29.5 9.41L30 9.5L30.5 9.59L31 9.69L31.5 9.79L32 9.85L32.5 9.9L33 9.95L33.5 10L34 10.04L34.5 10.08L35 10.12L35.5 10.15L36 10.18L36.5 10.2L37 10.22L37.5 10.23L38 10.24L38.5 10.25L39 10.25L39.5 10.24L40 10.23L40.5 10.22L41 10.2L41.5 10.17L42 10.14L42.5 10.11L43 10.2L43.5 10.3L44 10.39L44.5 10.49L45 10.58L45.5 10.67L46 10.76L46.5 10.85L47 10.94L47.5 11.02L48 11.1L48.5 11.17L53.5 11.9L64.5 10.3L75.5 11.9L86.5 10.3L97.5 11.9L108.5 10.3L119.5 11.9L130.5 10.3L141.5 11.9L152.5 10.3L163.5 11.9L174.5 10.3L185.5 11.9L196.5 10.3L207.5 11.9L218.5 10.3L229.5 11.9L240.5 10.3L251.5 11.9L262.5 10.3L273.5 11.9L284.5 10.3L295.5 11.9L306.5 10.3L317.5 11.9L328.5 10.3L339.5 11.9L350.5 10.3L361.5 11.9L372.5 10.3L383.5 11.9L394.5 10.3L405.5 11.9L416.5 10.3L427.5 11.9L438.5 10.3L449.5 11.9L460.5 10.3L471.5 11.9L482.5 10.3L493.5 11.9L504.5 10.3L515.5 11.9L526.5 10.3L537.5 11.9L548.5 10.3L559.5 11.9L570.5 10.3L581.5 11.9L592.5 10.3L603.5 11.9L614.5 10.3L625.5 11.9L636.5 10.3L640 10.81M20.5 7.9L21 7.9L21.5 7.9L22 7.9L22.5 7.9L23 7.91L23.5 7.91L24 7.92L24.5 7.93L25 7.95L25.5 7.96L26 7.98L26.5 8L27 8.03L27.5 8.06L28 8.09L28.5 8.13L29 8.17L29.5 8.22L30 8.27L30.5 8.32L31 8.38L31.5 8.45L32 8.46L32.5 8.47L33 8.48L33.5 8.48L34 8.49L34.5 8.48L35 8.47L35.5 8.46L36 8.45L36.5 8.43L37 8.41L37.5 8.38L38 8.35L38.5 8.31L39 8.27L39.5 8.23L40 8.18L40.5 8.13L41 8.08L41.5 8.02L42 7.96L42.5 7.9L43 7.97L43.5 8.03L44 8.1L44.5 8.17L45 8.25L45.5 8.32L46 8.4L46.5 8.47L47 8.55L47.5 8.62L48 8.7L48.5 8.77L53.5 9.5L64.5 7.9L75.5 9.5L86.5 7.9L97.5 9.5L108.5 7.9L119.5 9.5L130.5 7.9L141.5 9.5L152.5 7.9L163.5 9.5L174.5 7.9L185.5 9.5L196.5 7.9L207.5 9.5L218.5 7.9L229.5 9.5L240.5 7.9L251.5 9.5L262.5 7.9L273.5 9.5L284.5 7.9L295.5 9.5L306.5 7.9L317.5 9.5L328.5 7.9L339.5 9.5L350.5 7.9L361.5 9.5L372.5 7.9L383.5 9.5L394.5 7.9L405.5 9.5L416.5 7.9L427.5 9.5L438.5 7.9L449.5 9.5L460.5 7.9L471.5 9.5L482.5 7.9L493.5 9.5L504.5 7.9L515.5 9.5L526.5 7.9L537.5 9.5L548.5 7.9L559.5 9.5L570.5 7.9L581.5 9.5L592.5 7.9L603.5 9.5L614.5 7.9L625.5 9.5L636.5 7.9L640 8.41M20.5 7.1L21 7.1L21.5 7.09L22 7.09L22.5 7.08L23 7.07L23.5 7.06L24 7.05L24.5 7.04L25 7.03L25.5 7.03L26 7.02L26.5 7.01L27 7.01L27.5 7.01L28 7.01L28.5 7.01L29 7.02L29.5 7.03L30 7.04L30.5 7.06L31 7.08L31.5 7.1L32 7.07L32.5 7.04L33 7.01L33.5 6.97L34 6.93L34.5 6.88L35 6.83L35.5 6.78L36 6.72L36.5 6.66L37 6.59L37.5 6.53L38 6.45L38.5 6.38L39 6.3L39.5 6.22L40 6.14L40.5 6.05L41 5.96L41.5 5.87L42 5.78L42.5 5.69L43 5.73L43.5 5.77L44 5.81L44.5 5.86L45 5.92L45.5 5.97L46 6.03L46.5 6.1L47 6.16L47.5 6.23L48 6.3L48.5 6.37L53.5 7.1L64.5 5.5L75.5 7.1L86.5 5.5L97.5 7.1L108.5 5.5L119.5 7.1L130.5 5.5L141.5 7.1L152.5 5.5L163.5 7.1L174.5 5.5L185.5 7.1L196.5 5.5L207.5 7.1L218.5 5.5L229.5 7.1L240.5 5.5L251.5 7.1L262.5 5.5L273.5 7.1L284.5 5.5L295.5 7.1L306.5 5.5L317.5 7.1L328.5 5.5L339.5 7.1L350.5 5.5L361.5 7.1L372.5 5.5L383.5 7.1L394.5 5.5L405.5 7.1L416.5 5.5L427.5 7.1L438.5 5.5L449.5 7.1L460.5 5.5L471.5 7.1L482.5 5.5L493.5 7.1L504.5 5.5L515.5 7.1L526.5 5.5L537.5 7.1L548.5 5.5L559.5 7.1L570.5 5.5L581.5 7.1L592.5 5.5L603.5 7.1L614.5 5.5L625.5 7.1L636.5 5.5L640 6.01M20.5 6.3L21 6.3L21.5 6.29L22 6.28L22.5 6.26L23 6.24L23.5 6.21L24 6.18L24.5 6.15L25 6.12L25.5 6.09L26 6.06L26.5 6.03L27 5.99L27.5 5.96L28 5.93L28.5 5.9L29 5.87L29.5 5.84L30 5.81L30.5 5.79L31 5.77L31.5 5.75L32 5.69L32.5 5.61L33 5.54L33.5 5.46L34 5.37L34.5 5.28L35 5.19L35.5 5.09L36 4.99L36.5 4.89L37 4.78L37.5 4.67L38 4.56L38.5 4.45L39 4.33L39.5 4.21L40 4.09L40.5 3.97L41 3.85L41.5 3.72L42 3.6L42.5 3.48L43 3.49L43.5 3.5L44 3.52L44.5 3.55L45 3.59L45.5 3.62L46 3.67L46.5 3.72L47 3.78L47.5 3.84L48 3.9L48.5 3.97L53.5 4.7L64.5 3.1L75.5 4.7L86.5 3.1L97.5 4.7L108.5 3.1L119.5 4.7L130.5 3.1L141.5 4.7L152.5 3.1L163.5 4.7L174.5 3.1L185.5 4.7L196.5 3.1L207.5 4.7L218.5 3.1L229.5 4.7L240.5 3.1L251.5 4.7L262.5 3.1L273.5 4.7L284.5 3.1L295.5 4.7L306.5 3.1L317.5 4.7L328.5 3.1L339.5 4.7L350.5 3.1L361.5 4.7L372.5 3.1L383.5 4.7L394.5 3.1L405.5 4.7L416.5 3.1L427.5 4.7L438.5 3.1L449.5 4.7L460.5 3.1L471.5 4.7L482.5 3.1L493.5 4.7L504.5 3.1L515.5 4.7L526.5 3.1L537.5 4.7L548.5 3.1L559.5 4.7L570.5 3.1L581.5 4.7L592.5 3.1L603.5 4.7L614.5 3.1L625.5 4.7L636.5 3.1L640 3.61" fill="none" stroke="currentColor" stroke-width=".75" stroke-linejoin="miter"/><path d="M62.5 9.32Q63 10.06 63.7 10.59Q63 11.13 62.5 11.86Q62 11.13 61.3 10.59Q62 10.06 62.5 9.32ZM84.5 6.92Q85 7.66 85.7 8.19Q85 8.73 84.5 9.46Q84 8.73 83.3 8.19Q84 7.66 84.5 6.92ZM106.5 5.72Q107 6.46 107.7 6.99Q107 7.53 106.5 8.26Q106 7.53 105.3 6.99Q106 6.46 106.5 5.72ZM128.5 3.32Q129 4.06 129.7 4.59Q129 5.13 128.5 5.86Q128 5.13 127.3 4.59Q128 4.06 128.5 3.32ZM150.5 2.12Q151 2.86 151.7 3.39Q151 3.93 150.5 4.66Q150 3.93 149.3 3.39Q150 2.86 150.5 2.12Z" fill="currentColor"/><g transform="translate(.5 7.5)"><path d="M20 -2.5H4.1L0.54 -1.43Q0 -1.25 0 -0.53V0.54Q0 1.25 0.54 1.43L4.1 2.5H20Z" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><path d="M4.6 -2.5H6.85L6.06 -0.8H4.6ZM10.05 -1.18Q10.65 -0.45 11.65 0Q10.65 0.45 10.05 1.18Q9.44 0.45 8.45 0Q9.44 -0.45 10.05 -1.18ZM12.93 -1.18Q13.53 -0.45 14.53 0Q13.53 0.45 12.93 1.18Q12.32 0.45 11.33 0Q12.32 -0.45 12.93 -1.18ZM15.81 -1.18Q16.41 -0.45 17.41 0Q16.41 0.45 15.81 1.18Q15.2 0.45 14.21 0Q15.2 -0.45 15.81 -1.18Z" fill="currentColor"/></g></svg>
-  <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo lukulistallesi sisältöä toisten laitteittesi lukulistoilta ja uusimman luettavan kappaleen <a href="luin/latomo.html">Latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
+  <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo hyllyllesi sisältöä toisten laitteittesi hyllyiltä ja uusimman luettavan kappaleen <a href="luin/latomo.html">Latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
   <form class="lisaa-kentta" id="lisaa-kentta"><input id="lisaa-syote" type="text" aria-labelledby="lisaa-ots"
     placeholder="Laatikkolause tai linkki" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="submit">Soita huilua!</button></form>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
@@ -999,19 +1013,17 @@
     <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
     <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeiluteksti: Kant ja eläinetiikka</a></p>
   <p class="lisaa uusi"><a href="luin/latomo.html">Uusi teksti LATOMOSSA</a></p>
-  <!-- Palaute kehittäjälle (käyttäjän pyyntö 10.11.2026): huomaamattomasti vasemmalla alhaalla. -->
-  <p class="lisaa palaute"><a href="luin/palaute.html?mista=lukulista">palaute</a></p>
   </div>
-  <!-- Arkistohylly (käyttäjän pyyntö 10.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun hyllyllä
+  <!-- Pölyhylly, ent. arkistohylly (käyttäjän pyynnöt 10.11. ja 12.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun hyllyllä
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">arkistohylly</a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">pölyhylly</a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
 <!-- ===== Lukija ===== -->
 <section id="lukija" hidden>
   <div class="ylapalkki">
-    <a class="takaisin" href="#" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+    <a class="takaisin" href="#" aria-label="Hyllylle" title="Hyllylle"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
     <span class="y-nimi" id="y-nimi"></span>
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
@@ -1131,13 +1143,17 @@
     <details class="vienti" id="laatikko-osio">
       <summary>Postihuilu<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></summary>
       <div class="vienti-sis">
-        <p class="huomio jatko">Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut lukulistat.</p>
+        <p class="huomio jatko">Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut hyllyt.</p>
         <div class="koodirivi"><label for="laatikko-koodi">Laatikkolause:</label>
           <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
         <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
         <input type="text" id="laatikko-koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa; luin/laatikkolause.js) täyttää kentän muistettavalla
+             virkkeellä mutta ei tallenna: lause otetaan käyttöön Soita huilua! -napista. -->
+        <p class="huomio" id="laatikko-arvottu" hidden></p>
         <p class="huomio" id="laatikko-tieto"></p>
-        <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Soita huilua!</button></div>
+        <div class="vienti-napit"><button type="button" class="laatikko" id="laatikko-tallenna">Soita huilua!</button>
+          <button type="button" class="laatikko" id="laatikko-arvo">Arvo</button></div>
         <div id="posti-merk" hidden>
           <div class="valinnat" id="posti-paalla"></div>
           <div class="valinnat posti-lajit" id="posti-lajit"></div>
@@ -1146,7 +1162,7 @@
       </div>
     </details>
   </div>
-  <!-- Palaute kehittäjälle myös asetusten alimpana (käyttäjän pyyntö 10.11.2026), pieni kuten lukulistan linkki. -->
+  <!-- Palaute kehittäjälle asetusten alimpana (käyttäjän pyyntö 10.11.2026); hyllyltä linkki poistettiin 12.11.2026. -->
   <p class="aset-palaute"><a href="luin/palaute.html?mista=asetukset">palaute</a></p>
 </div>
 
@@ -1181,8 +1197,9 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=a05a41c6"></script>
+<script src="luin/md.js?v=c86b4465"></script>
 <script src="luin/posti.js?v=91bf4ff2"></script>
+<script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script>
 (function () {
   'use strict';
@@ -1398,7 +1415,7 @@
   var art = $('#teksti'), sivuEl = $('#sivu'), pop = $('#pop');
 
   function tallennaLista() {
-    if (!LS.set('luin-lista', lista)) viesti('Tallennustila on täynnä: lukulistaa ei voitu tallentaa.');
+    if (!LS.set('luin-lista', lista)) viesti('Tallennustila on täynnä: hyllyä ei voitu tallentaa.');
   }
   function merkit(id) { var m = LS.get('luin-merkit:' + id, null) || {}; m.km = m.km || []; m.al = m.al || []; return m; }
   // Tallennus kirjaa poistot ja kirjausten muokkaukset merkintäpostia varten (luin/posti.js) ja merkitsee tekstin
@@ -1453,7 +1470,7 @@
   function avaaId(id) {
     var e = lista.filter(function (x) { return x.id === id; })[0];
     var md = e && LS.get('luin-teksti:' + id, null);
-    if (!e || md == null) { viesti('Tekstiä ei ole tämän laitteen lukulistassa.'); return naytaLista(); }
+    if (!e || md == null) { viesti('Tekstiä ei ole tämän laitteen hyllyllä.'); return naytaLista(); }
     // Merkintäposti: jos laatikossa on tämän tekstin merkintöjä (tai niitä lähetetään), haetaan tuoreimmat ennen avausta,
     // jotta toisella laitteella tehdyt ovat mukana ja lukukohta on uusin. Enintään 2,5 s; sitten avataan joka tapauksessa.
     var k = laatikonKoodi(), h = location.hash;
@@ -1537,11 +1554,11 @@
     return vara();
   }
 
-  /* ---------- lukulistanäkymä ----------
-     Arkistohylly (käyttäjän pyyntö 10.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
-     listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Hyllyssä ei ole Postihuilua, ohjeita
+  /* ---------- hyllynäkymä (ent. lukulista) ----------
+     Pölyhylly (ent. arkistohylly; käyttäjän pyynnöt 10.11. ja 12.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
+     listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Pölyhyllyllä ei ole Postihuilua, ohjeita
      eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
-     näkymä vaihtuu lukulistan ja hyllyn välillä. */
+     näkymä vaihtuu hyllyn ja pölyhyllyn välillä. */
   var valitut = {};
   function naytettavat(ark) {
     var a = lista.filter(function (e) { return !!e.luettu === !!ark; });
@@ -1560,11 +1577,11 @@
     $('#lukija').hidden = true; $('#lista').hidden = false;
     $('#lista').classList.toggle('arkisto', ark);
     $('#ark-koti').hidden = !ark;
-    $('#lista-ots').textContent = ark ? 'Arkistohylly' : 'Lukulista';
-    document.title = ark ? 'Arkistohylly – Luin' : 'Luin';
+    $('#lista-ots').textContent = ark ? 'Pölyhylly' : 'Hylly';
+    document.title = ark ? 'Pölyhylly – Luin' : 'Luin';
     piirraNimikkeet();
-    $('#tyhja').textContent = ark ? 'Arkistohylly on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
-      : 'Lukulista on tyhjä. Tekstit tulevat tänne Latomosta tai linkistä, joka avaa tekstin Luinissa.';
+    $('#tyhja').textContent = ark ? 'Pölyhylly on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
+      : 'Hylly on tyhjä. Tekstit tulevat tänne Latomosta tai linkistä, joka avaa tekstin Luinissa.';
     window.scrollTo(0, 0);
     haeLaatikko();
     postiLahetaLikaiset();
@@ -1635,7 +1652,7 @@
           var id = 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
-          // Uudelleen lähetetty teksti palaa hyllyltä lukulistaan.
+          // Uudelleen lähetetty teksti palaa pölyhyllyltä hyllylle.
           var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
           delete e.luettu;
           return e;
@@ -1769,8 +1786,8 @@
       return '<button type="button" data-posti="' + l[0] + '" aria-pressed="' + !!v[l[0]] + '">' + SAL_IKONI + l[1] + '</button>';
     }).join('');
     var lah = kirja && LS.get('luin-posti-lahetetty', {})[kirja], odottaa = kirja && LS.get('luin-posti-likaiset', {})[kirja];
-    var t = !kirja ? '' : !v.on ? 'Muiden tekstien valinta on lukulistan asetuksissa.'
-      : 'Merkinnät lähtevät, kun poistut tekstistä lukulistaan tai Luin jää taustalle. ' +
+    var t = !kirja ? '' : !v.on ? 'Muiden tekstien valinta on hyllyn asetuksissa.'
+      : 'Merkinnät lähtevät, kun poistut tekstistä hyllylle tai Luin jää taustalle. ' +
         (odottaa ? 'Muutoksia odottaa lähetystä.' : lah ? 'Viimeksi lähetetty ' + pvm(lah) + ' klo ' + kello(lah) + '.' : '');
     $('#posti-tieto').textContent = (t + (postiVirhe && v.on ? ' ' + postiVirhe : '')).trim();
   }
@@ -1819,7 +1836,7 @@
   });
   $('#laatikko-tallenna').addEventListener('click', function () {
     var raaka = $('#laatikko-koodi').value, k = P.koodi(raaka), tieto = $('#laatikko-tieto');
-    if (!raaka.trim()) { LS.del('luin-laatikko'); tieto.textContent = 'Laatikkolause poistettu. Lukulista ei hae postilaatikosta.'; piirraPosti(); return; }
+    if (!raaka.trim()) { LS.del('luin-laatikko'); tieto.textContent = 'Laatikkolause poistettu. Hylly ei hae postilaatikosta.'; piirraPosti(); return; }
     var virhe = P.koodiVirhe(k);
     if (virhe) { tieto.textContent = virhe; return; }
     LS.set('luin-laatikko', k); $('#laatikko-koodi').value = k;
@@ -1828,9 +1845,26 @@
       tieto.textContent = !r.kaikki ? 'Laatikkolause tallennettu. Laatikko on tyhjä.' :
         'Laatikkolause tallennettu. Laatikossa ' + lkm(r.kaikki, 'teksti', 'tekstiä') + ', joista uusia ' + r.n + '.';
     }, function (err) {
-      tieto.textContent = 'Laatikkolause tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen lukulistassa.';
+      tieto.textContent = 'Laatikkolause tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen hyllyllä.';
     });
   });
+  // Arvo: virke ja lauseiden määrä kentän alla, kunnes kentän lause muuttuu (Latomon tapaan).
+  var arvottu = null;
+  function naytaArvottu() {
+    var e = $('#laatikko-arvottu'), nakyy = !!arvottu && P.koodi($('#laatikko-koodi').value) === arvottu.lause;
+    e.hidden = !nakyy;
+    if (!nakyy) return;
+    e.innerHTML = '';
+    var s = document.createElement('span'); s.className = 'virke'; s.textContent = arvottu.virke;
+    e.appendChild(s);
+    e.appendChild(document.createTextNode(' Arvottu noin ' + Math.round(window.LuinLause.MAARA / 1e12) +
+      ' biljoonan lauseen joukosta. Ota käyttöön soittamalla huilua.'));
+  }
+  $('#laatikko-arvo').addEventListener('click', function () {
+    arvottu = window.LuinLause.arvo();
+    $('#laatikko-koodi').value = arvottu.lause; $('#laatikko-tieto').textContent = ''; naytaArvottu();
+  });
+  $('#laatikko-koodi').addEventListener('input', naytaArvottu);
   $('#laatikko-kysy').addEventListener('click', function () {
     var o = $('#laatikko-ohje'), auki = o.hidden;
     if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
@@ -1856,7 +1890,7 @@
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
       (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista hyllyltä' : 'Poista listasta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista pölyhyllyltä' : 'Poista hyllyltä') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lisa') {
         aset.viiteLisa = aset.viiteLisa ? 0 : 1; tallennaAset();
@@ -1894,7 +1928,7 @@
     $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
     paivitaValinta();
   });
-  // Valittujen valikko: Luin. (hyllyssä Puhalla pölyt.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
+  // Valittujen valikko: Luin. (pölyhyllyllä Puhalla pölyt.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
   $('#val-valikko').addEventListener('click', function () {
     var b = this, es = valitutEt();
     if (!es.length) return;
@@ -1903,7 +1937,7 @@
       '<button type="button" data-k="luin">' + (ark ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista hyllyltä' : 'Poista listasta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista pölyhyllyltä' : 'Poista hyllyltä') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
       if (k === 'viitteet') {
@@ -1924,21 +1958,21 @@
   // Luin. ja Puhalla pölyt. kysyvät vahvistuksen Latomon Lasse Lehtisen tapaan (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
-    var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin luettavien listaan?' : 'Nostetaanko ' + n + ' tekstiä takaisin luettavien listaan?')
-      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään arkistohyllyyn?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään arkistohyllyyn?');
+    var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin hyllylle?' : 'Nostetaanko ' + n + ' tekstiä takaisin hyllylle?')
+      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään pölyhyllylle?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään pölyhyllylle?');
     naytaPop(rect, '<div class="kys">”' + kys + '” <span class="kuka">kysyi Lasse Lehtinen.</span></div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Puhalla pölyt.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
       es.forEach(function (e) { ids[e.id] = 1; if (ark) delete e.luettu; else e.luettu = t; });
-      // Hyllyltä nostettu teksti nousee lukulistan kärkeen.
+      // Pölyhyllyltä nostettu teksti nousee hyllyn kärkeen.
       if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
       tallennaLista();
       es.forEach(function (e) { delete valitut[e.id]; });
       piirraNimikkeet();
-      viesti(ark ? (n === 1 ? 'Teksti palasi lukulistaan.' : n + ' tekstiä palasi lukulistaan.')
-        : (n === 1 ? 'Teksti siirtyi arkistohyllyyn.' : n + ' tekstiä siirtyi arkistohyllyyn.'));
+      viesti(ark ? (n === 1 ? 'Teksti palasi hyllylle.' : n + ' tekstiä palasi hyllylle.')
+        : (n === 1 ? 'Teksti siirtyi pölyhyllylle.' : n + ' tekstiä siirtyi pölyhyllylle.'));
     }, 'oikea');
   }
 
@@ -2177,6 +2211,7 @@
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = laatikonKoodi(); $('#laatikko-tieto').textContent = koodiTieto(laatikonKoodi());
+    $('#laatikko-arvottu').hidden = true;
     $('#laatikko-ohje').hidden = true; $('#laatikko-kysy').setAttribute('aria-expanded', 'false');
     piirraPosti();
     $('#asetukset').hidden = false;
@@ -2415,8 +2450,8 @@
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
-    // Hyllyn tekstistä kotimerkki palaa arkistohyllyyn.
-    var tk = $('.takaisin'), tkn = e.luettu ? 'Arkistohyllyyn' : 'Lukulistaan';
+    // Pölyhyllyn tekstistä kotimerkki palaa pölyhyllylle.
+    var tk = $('.takaisin'), tkn = e.luettu ? 'Pölyhyllylle' : 'Hyllylle';
     tk.setAttribute('href', e.luettu ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
@@ -2590,6 +2625,58 @@
     });
   }
 
+  /* Reunushuomioiden katkaisu (käyttäjän pyyntö 12.11.2026, Marxin Pääoma: 1600 px:n alaviite työnsi seuraavia jopa
+     4000 px viitenumeroidensa alle). Huomio katkaistaan vain, kun se muuten työntäisi seuraavaa huomiota yli SN_VARA riviä
+     alemmas kuin tämän viitenumero; näkyviin jää niin monta riviä kuin ennen seuraavaa huomiota mahtuu, kuitenkin
+     vähintään SN_MIN, ja katkaisun pitää piilottaa ainakin kaksi riviä. Viimeistä huomiota ei katkaista (ei ketään
+     työnnettävää). Kellukkeet simuloidaan yhdellä mittauksella: huomion yläreuna on max(viitenumero + d, edellisen loppu
+     + marginaalit), missä d on pienin mitattu huomion ja viitenumeron väli (työntämätön huomio). lisää… avaa huomion
+     kokonaan (nyt.snAuki, tekstikohtainen) ja vähemmän katkaisee sen uudelleen. Vain body.reunat; muualla mitään ei katkaista. */
+  var SN_MIN = 6, SN_VARA = 2;
+  function sovitaHuomiot() {
+    var sns = $$('.sidenote', art);
+    sns.forEach(function (s) { if (s.classList.contains('pitka')) { s.classList.remove('pitka', 'katkaistu'); s.style.maxHeight = ''; } });
+    $$('.sn-lisaa', art).forEach(function (b) { b.parentNode.removeChild(b); });
+    if (!document.body.classList.contains('reunat') || sns.length < 2) return;
+    var auki = nyt.snAuki || (nyt.snAuki = {});
+    var m = sns.map(function (s) {
+      var f = s.previousElementSibling && s.previousElementSibling.previousElementSibling, r = s.getBoundingClientRect();
+      return f && f.classList.contains('fnref') && r.height ? { s: s, a: f.getBoundingClientRect().top, t: r.top, h: r.height } : null;
+    }).filter(Boolean);
+    if (m.length < 2) return;
+    var cs = getComputedStyle(m[0].s), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || 1.46 * fs;
+    var G = parseFloat(cs.marginTop) + parseFloat(cs.marginBottom), napinK = lh + .1 * fs;
+    var d = Math.min.apply(null, m.map(function (x) { return x.t - x.a; })), loppu = -Infinity;
+    m.forEach(function (x, i) {
+      var yla = Math.max(x.a + d, loppu + G), h = x.h, seur = m[i + 1];
+      if (seur) {
+        var tilaa = seur.a + d - G - yla, rivit = Math.round(x.h / lh);
+        if (h > tilaa + SN_VARA * lh) {
+          var k = Math.max(SN_MIN, Math.floor((tilaa - napinK) / lh));
+          if (k <= rivit - 2) { x.k = k; h = (auki[x.s.dataset.n] ? x.h : k * lh) + napinK; }
+        }
+      }
+      loppu = yla + h;
+    });
+    m.forEach(function (x) {
+      if (!x.k) return;
+      var n = x.s.dataset.n, b = document.createElement('button');
+      b.type = 'button'; b.className = 'sn-lisaa luin-ui' + (auki[n] ? ' auki' : ''); b.dataset.n = n;
+      b.setAttribute('aria-label', auki[n] ? 'vähemmän' : 'lisää');
+      x.s.classList.add('pitka');
+      if (!auki[n]) { x.s.classList.add('katkaistu'); x.s.style.maxHeight = Math.round(x.k * lh) + 'px'; }
+      x.s.parentNode.insertBefore(b, x.s.nextSibling);
+    });
+  }
+  // lisää… / vähemmän. Huomion yläpuolella mikään ei liiku; vähemmän pitää napin samalla kohdalla ruudulla.
+  function vaihdaHuomio(b) {
+    var n = b.dataset.n, auki = nyt.snAuki || (nyt.snAuki = {}), y = b.getBoundingClientRect().top;
+    if (auki[n]) delete auki[n]; else auki[n] = 1;
+    sovitaHuomiot();
+    var nb = $('.sn-lisaa[data-n="' + n + '"]', art);
+    if (!auki[n] && nb) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, nb.getBoundingClientRect().top - y); }
+  }
+
   function asettele(k) {
     tila.asetteluja++;
     sovellaTeema();
@@ -2626,6 +2713,7 @@
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       tavutaPitkat();
     }
+    sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
     sijoitaLaatikot();
   }
@@ -2987,6 +3075,8 @@
     }
     var go = t.closest('a[data-go]');
     if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }, false, true); return; }
+    var lisaa = t.closest('.sn-lisaa');
+    if (lisaa) { e.preventDefault(); vaihdaHuomio(lisaa); return; }
     var a = t.closest('#teksti a[href]');
     if (a) {
       var href = a.getAttribute('href');
@@ -5456,6 +5546,8 @@
     // reunuksessa valmiiksi näkyvissä.
     var tg = o.n && nyt.blocks[o.b] && $('#fn' + o.n, nyt.blocks[o.b]);
     if (tg && aset.sivutus !== 'sivut') tg.checked = true;
+    // Katkaistun reunushuomion osuma voi olla piilossa: huomio avataan kokonaan.
+    if (o.n && $('.sidenote.katkaistu[data-n="' + o.n + '"]', nyt.blocks[o.b])) { (nyt.snAuki || (nyt.snAuki = {}))[o.n] = 1; sovitaHuomiot(); }
     hyppaa({ b: o.b, o: o.a }, true);
     // Sivutettuna alaviite näytetään ponnahduslaatikossa kuten viitenumeroa napautettaessa.
     if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); if (fn) naytaViite(fn); }

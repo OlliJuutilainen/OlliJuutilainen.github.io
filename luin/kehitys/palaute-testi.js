@@ -88,9 +88,10 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
   await s.goto(OSOITE + 'luin.html#l=' + LAUSE);
   await s.waitForFunction(() => /kantautui|käytössä/.test(document.querySelector('#viesti').textContent));
   const L = await s.evaluate(() => ({ viesti: document.querySelector('#viesti').textContent,
-    lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.title), palaute: document.querySelector('.lisaa.palaute a').getAttribute('href') }));
-  tulos('Luin: palaute kantautui lukulistaan; lukulistan palautelinkki', L.viesti === 'Postihuilun kautta kantautui teksti.' && L.lista.join() === 'Palaute: Kaveri' &&
-    L.palaute === 'luin/palaute.html?mista=lukulista', JSON.stringify(L));
+    lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.title), palaute: [...document.querySelectorAll('#lista a')].filter(a => /palaute\.html/.test(a.getAttribute('href'))).length,
+    asetukset: (document.querySelector('.aset-palaute a') || {}).getAttribute?.('href') }));
+  tulos('Luin: palaute kantautui hyllylle; hyllyllä ei palautelinkkiä, asetuksissa on', L.viesti === 'Postihuilun kautta kantautui teksti.' && L.lista.join() === 'Palaute: Kaveri' &&
+    L.palaute === 0 && L.asetukset === 'luin/palaute.html?mista=asetukset', JSON.stringify(L));
 
   // 5. Latomon pikku plussa.
   await s.goto(OSOITE + 'luin/latomo.html');

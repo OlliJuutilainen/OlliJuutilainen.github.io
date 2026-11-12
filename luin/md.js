@@ -1281,14 +1281,14 @@
     if (t === 1) return String(p.y);
     if (t === 2) return tapa === 'kentta' ? p.m + '/' + p.y : KK[p.m - 1] + 'kuu' + (tapa === 'viite' ? '/' : ' ') + p.y;
     var d = p.d + '.' + p.m + '.' + p.y;
-    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' : ' klo ') + p.h + '.' + kaksi(p.mi);
+    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' + p.h + ':' : ' klo ' + p.h + '.') + kaksi(p.mi);
   }
   function pvmIso(p, t) {
     if (!p) return '';
     t = Math.min(p.t, t || 4);
-    // Kellonaika välilyönnillä ja pisteellä (2026-10-08 14.05): T-muotoinen aikaleima on koneen (MarkDownload), ja
+    // Kellonaika välilyönnillä ja pisteellä (2026-10-08 14:05): T-muotoinen aikaleima on koneen (MarkDownload), ja
     // Latomo ilmoittaa sen oletuksena vain kuukauden tarkkuudella.
-    return p.y + (t >= 2 ? '-' + kaksi(p.m) : '') + (t >= 3 ? '-' + kaksi(p.d) : '') + (t >= 4 ? ' ' + kaksi(p.h) + '.' + kaksi(p.mi) : '');
+    return p.y + (t >= 2 ? '-' + kaksi(p.m) : '') + (t >= 3 ? '-' + kaksi(p.d) : '') + (t >= 4 ? ' ' + kaksi(p.h) + ':' + kaksi(p.mi) : '');
   }
 
   /* ---------- Tekijät ----------
@@ -1723,7 +1723,28 @@
   var RE_OSIOTEKIJA = /(?:works|writings|schriften|teokset|teoksia)\s+(?:by|of|von)\s+(\p{Lu}[\p{L}’'-]+)\s*$/iu;
 
   // Otsikkolohkon tietorivi: lyhyitä rivejä. Pitkäriviinen kappale on jo leipätekstiä (verkkoleikkeen johdanto).
-  function tietorivi(t) { return t.split('\n').every(function (l) { return l.replace(/\\\s*$|\s+$/, '').length <= 100; }); }
+  // Lyhytkään proosavirke ei ole tietorivi (käyttäjän pyyntö 12.11.2026: Wait But Whyn ”Last month, I got a phone call.”
+  // ja Manifestin ensimmäinen virke menivät otsikkolohkoon, ja etukentän tekijä jäi pois): rivi päättyy kysymys- tai
+  // huutomerkkiin, tai siinä on vähintään neljä sanaa ja loppuna piste, kaksoispiste tai … Ei, jos rivillä on päiväys,
+  // vuosiluku, julkaisutieto, tunniste (DOI, ISBN) tai tekijyyden sana (suomentanut, toim., tutkielma, yliopisto).
+  var RE_TIETOSANA = /\b(?:isbn|issn|doi|toim\.|toimittanut|toimittaneet|suom\.|suomentanut|suomentaneet|kääntänyt|käännös|translated|translation|transl\.|edited|ed\.|eds\.|written|kirjoittanut|kirjoittaneet|painos|edition|tutkielma|väitöskirja|thesis|dissertation|yliopisto\w*|university|kustan\w*|publisher)(?![\p{L}\p{N}])/iu;
+  function tietoMerkki(l) {
+    var p = plain(l);
+    return /(1[5-9]\d\d|20\d\d)/.test(p) || RE_JULK.test(p) || RE_TIETOSANA.test(p) || !!pvm(p, true);
+  }
+  function proosaRivi(l) {
+    var raaka = l.replace(/\\\s*$/, '').trim(), p = plain(raaka).replace(/\s+/g, ' ').trim();
+    var loppu = /([.:!?…])["”’»)\]*]*$/.exec(p);
+    // Kursivoituun teoksen nimeen päättyvä rivi on viitetieto (Nico Dario Müller, *Kantianism for Animals*.).
+    if (!loppu || tietoMerkki(raaka) || /[*_][^*_]+[*_][.:]?$/.test(raaka)) return false;
+    var sanoja = p.split(' ').length;
+    return /[!?]/.test(loppu[1]) ? sanoja >= 2 : sanoja >= 4;
+  }
+  // Monirivinen kappale on proosaa vain, jos missään sen rivissä ei ole julkaisutietoa (pdf:n kirjan tietorivit).
+  function tietorivi(t) {
+    var r = t.split('\n');
+    return r.every(function (l) { return l.replace(/\\\s*$|\s+$/, '').length <= 100; }) && !(r.some(proosaRivi) && !r.some(tietoMerkki));
+  }
 
   // Pandocin ^[…]-alaviitteet iA Writerin muotoon [^…] (Latomon ehdotus). Koodi ohitetaan.
   // Lainauksen perään omaksi kappaleekseen tai omaksi lainauksekseen kirjoitettu lähde lainauksen viimeiseksi riviksi
@@ -2388,6 +2409,6 @@
   }
 
   root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
-    tyyppiAvain: tyyppiAvain, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
+    tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
     iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -52,7 +52,7 @@ const ek = M.etukentta('---\ncreated: 2026-10-08T10:00:00 (UTC +03:00)\ntags: [a
 sama('etukentän aliakset', [ek.meta.haettu, ek.meta['lähde'], ek.meta['tekijä'], ek.meta.list].join('|'), '2026-10-08T10:00:00 (UTC +03:00)|https://x.fi/a||yksi, kaksi');
 
 // Päivämäärät
-[['heinäkuussa 2026', '2026-07'], ['8.10.2026 klo 14.05', '2026-10-08 14.05'], ['2026-10-08T07:30:00+03:00', '2026-10-08 07.30'], ['2026-10-08 14.05', '2026-10-08 14.05'], ['8. lokakuuta 2026', '2026-10-08'],
+[['heinäkuussa 2026', '2026-07'], ['8.10.2026 klo 14.05', '2026-10-08 14:05'], ['2026-10-08T07:30:00+03:00', '2026-10-08 07:30'], ['2026-10-08 14:05', '2026-10-08 14:05'], ['8. lokakuuta 2026', '2026-10-08'],
   ['October 8, 2026', '2026-10-08'], ['10/2026', '2026-10'], ['7/26', '2026-07'], ['10 / 26', '2026-10'], ['31/12', ''], ['13/26', ''], ['lokakuu/2026', '2026-10'], ['2026', '2026']].forEach(x => sama('pvm ' + x[0], M.pvmIso(M.pvm(x[0])), x[1]));
 sama('pvm viitteeseen', M.pvmMuoto(M.pvm('2017-04'), 'viite'), 'huhtikuu/2017');
 
@@ -194,6 +194,14 @@ tulos('linkitetty yläindeksi', yl.html.includes('A.<label class="fnref" for="fn
 const hv = M.parse('# T\n\nA<sup>[<a href="u">1</a>]</sup> ja <b>x</b>.\n\nB <i>y</i>.\n').warnings.map(w => w.ln + ' ' + w.msg);
 sama('HTML-huomautus riviä kohden', JSON.stringify(hv), JSON.stringify(['3 6 HTML-merkintää näkyy tekstinä: <sup>, <a>, <b>.', '5 2 HTML-merkintää näkyy tekstinä: <i>.']));
 
+// Lyhyt proosavirke otsikon alla on leipätekstiä, ei tietorivi (käyttäjän pyyntö 12.11.2026, Wait But Why): tekijä etukentästä.
+const proosa = M.parse('---\ntekijä: Tim Urban\njulkaistu: 2017-04-20\n---\n# Neuralink\n\nLast month, I got a phone call.\n\nToinen kappale.\n');
+sama('proosavirke: tietorivit etukentästä', JSON.stringify(proosa.lines), JSON.stringify(['Tim Urban', '20.4.2017']));
+tulos('proosavirke: leipätekstinä otsikkolohkon jälkeen', /<\/header><p[^>]*>Last month, I got a phone call\.<\/p>/.test(proosa.html), proosa.html.slice(0, 300));
+sama('proosavirke: kysymys ja kaksoispisteeseen päättyvä', [M.tietorivi('What does it feel like?'), M.tietorivi('Ohje on siirtynyt kahdeksi verkkosivuksi:')].join(), 'false,false');
+sama('tietorivi: nimi, päiväys, vuosi, suomentaja ja lyhyt pisteellinen säilyvät', ['Graham J. Hitch & Alan D. Baddeley', 'Julkaistu 5.5.2018',
+  'Uskonnonfilosofian kandidaatintutkielma Helsingin yliopistossa heinäkuussa 2026.', 'Englannista suomentanut Markku Roinila.', 'Ensimmäinen kokeiluversio, lokakuu 2026.', 'Karl Marx.']
+  .map(M.tietorivi).join(), 'true,true,true,true,true,true');
 // Kursivoitu julkaisutieto otsikon alla on tietorivi, ei alaotsikko (SEP); julkaistu on luettu versio, tekijä etukentästä.
 const sep4 = M.parse('---\ntekijä: Hildebrand, David\n---\n\n# John Dewey\n\n*First published Thu Nov 1, 2018; substantive revision Sun Mar 31, 2024*\n\n' + PITKA);
 sama('julkaisutieto: ei alaotsikkoa', sep4.sub, '');
@@ -341,10 +349,10 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
 
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
-// Samoin posti.js (9.11.2026): sed-komennossa md → posti.
-['md', 'posti'].forEach(nimi => {
+// Samoin posti.js (9.11.2026): sed-komennossa md → posti. Samoin laatikkolause.js (12.11.2026).
+[['md'], ['posti'], ['laatikkolause']].forEach(([nimi, sivut]) => {
   const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../' + nimi + '.js'))).digest('hex').slice(0, 8);
-  ['../../luin.html', '../latomo.html'].forEach(f => {
+  (sivut || ['../../luin.html', '../latomo.html']).forEach(f => {
     const v = (new RegExp(nimi + '\\.js\\?v=([0-9a-f]+)').exec(lue(f)) || [])[1];
     tulos(nimi + '.js?v= ajan tasalla: ' + f.split('/').pop(), v === mdV, v + ' ≠ ' + mdV + ' (aja kommentin sed-komento)');
   });

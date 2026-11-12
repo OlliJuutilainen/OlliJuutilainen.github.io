@@ -179,11 +179,11 @@ palvelin.listen(0, async () => {
   tulos('pelkän tekstin ehdotukset', e.some(x => /tyhjiä rivejä/.test(x)) && e.some(x => /#-otsikkoa/.test(x)), e.join(' / '));
   await p.selectOption('#tyyppi', 'blogi');
   await p.fill('#k-otsikko', 'Kokeilu');
-  await p.fill('#k-julkaistu', '8.10.2026 14.05');
+  await p.fill('#k-julkaistu', '8.10.2026 14:05');
   await p.fill('#k-sivusto', 'Tusinablogi');
   await p.waitForTimeout(300);
   t = await T();
-  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14.05.' && /^julkaistu: 2026-10-08 14\.05$/m.test(t.md), t.koottu);
+  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14.05.' && /^julkaistu: 2026-10-08 14:05$/m.test(t.md), t.koottu);
   tulos('otsikko tekstin alkuun', /---\n\n# Kokeilu\n\nEnsimmäinen rivi/.test(t.md));
   await p.click('.ehdotus button:has-text("Tee jokaisesta rivistä kappale")');
   await p.waitForTimeout(300);
@@ -369,6 +369,24 @@ palvelin.listen(0, async () => {
   tulos('valinta: toistunut pääotsikko pois', (val.md.match(/^# John Dewey$/gm) || []).length === 1 && /toistunut pääotsikko/.test(await p.textContent('#leike-tila')), await p.textContent('#leike-tila'));
   tulos('valinta: kuvakkeiden taulukko kappaleiksi', val.md.includes('## Academic Tools\n\n> [How to cite](https://e.org/c?x=1&y=2).\n>\n> [PDF](https://e.org/p) at [X](https://e.org/).\n\n## Other'), val.md);
   tulos('valinta: ei huomautuksia', JSON.stringify(valV) === JSON.stringify(['Ei huomautettavaa.']), valV.join(' | '));
+
+  // 15b. Peräkkäiset alaviitteet yhdeksi (12.11.2026, Wikipedia): sama ryhmä toisaalla saa saman merkin, yksin esiintyvä
+  // jäsen pitää oman määritelmänsä, vain ryhmissä esiintyvän määritelmä poistuu, monirivinen määritelmä säilyy kokonaan.
+  await tiedostona('wiki.md', '---\nlähde: https://en.wikipedia.org/wiki/X\nleikattu: 2026-11-12\n---\n\n# X\n\n' +
+    'Yksi.[^viite-w1][^viite-w2][^viite-w3] Kaksi.[^viite-w3] Kolme.[^viite-w1][^viite-w2][^viite-w3] Neljä.[^viite-w4] [^viite-w5]\n\n' +
+    'Määrittelemätön.[^viite-w1][^puuttuu]\n\n```\nkoodi[^viite-w1][^viite-w2]\n```\n\n' +
+    '[^viite-w1]: Eka.\n\n[^viite-w2]: Toka rivi 1.\n\n    Toka rivi 2.\n\n[^viite-w3]: Kolmas.\n\n[^viite-w4]: Neljäs.\n\n[^viite-w5]: Viides.\n');
+  const wk = await T(), wkHtml = await p.evaluate(m => LuinMD.parse(m), wk.md);
+  tulos('ryhmä: sama ryhmä samalla merkillä, välilyönnin erottamat ryhmäksi', (wk.md.match(/\[\^ryhma-1\]/g) || []).length === 3 && /Neljä\.\[\^ryhma-2\]\n/.test(wk.md), wk.md);
+  tulos('ryhmä: määrittelemätön ja koodiaita ennallaan', wk.md.includes('Määrittelemätön.[^viite-w1][^puuttuu]') && wk.md.includes('koodi[^viite-w1][^viite-w2]'), wk.md);
+  tulos('ryhmä: yksin esiintyvä jää, pelkkä ryhmän jäsen poistuu', /^\[\^viite-w3\]: Kolmas\./m.test(wk.md) && /^\[\^viite-w1\]: Eka\./m.test(wk.md) &&
+    !/^\[\^viite-w2\]:/m.test(wk.md) && !/^ {4}Toka rivi 2\.\n\n\[\^viite-w3/m.test(wk.md), wk.md);
+  tulos('ryhmä: määritelmä kokoaa jäsenet järjestyksessä', wk.md.includes('[^ryhma-1]: Eka.\n\n    Toka rivi 1.\n\n    Toka rivi 2.\n\n    Kolmas.') &&
+    wk.md.includes('[^ryhma-2]: Neljäs.\n\n    Viides.'), wk.md.slice(-200));
+  tulos('ryhmä: md.js näyttää yhden numeron kaikkine teksteineen', wkHtml.notes === 6 && !/<\/span><label class="fnref"/.test(wkHtml.html.replace(/Määrittelemätön[\s\S]*?<\/p>/, '')) &&
+    wkHtml.html.includes('<span class="fnnum">1</span>Eka.<br>Toka rivi 1.<br>Toka rivi 2.<br>Kolmas.</span>') && !wkHtml.warnings.length,
+    wkHtml.notes + ' ' + JSON.stringify(wkHtml.warnings) + ' ' + (wkHtml.html.match(/<span class="fnnum">1<\/span>.*?<\/span>/) || [])[0]);
+  tulos('ryhmä: tila kertoo', /3 peräkkäisten alaviitteiden ryhmää yhdistetty\./.test(await p.textContent('#leike-tila')), await p.textContent('#leike-tila'));
 
   // 16. SEP:n Notes-sivu (30.10.2026): kun tekstikentässä on artikkelin leike, saman kansion notes.html-leike liitetään perään
   // (etukenttä ja paluulinkkien määrittelyt pois), ja viitenumeroista tulee Luinin alaviitteitä Notes-sivun tekstein.

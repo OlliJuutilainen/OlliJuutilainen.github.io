@@ -29,7 +29,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Postihuilu käyttää lisäksi `#laatikko-koodi` (attribuutti `data-ei-muistia`), `#laheta`, `#kk-tila`
   (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
-  leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit); muuta niitä yhdessä. Haetut alaviitteet
+  leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit, peräkkäiset alaviitemerkit yhdeksi `[^ryhma-N]`:ksi,
+  käyttäjän pyyntö 12.11.2026 Wikipedian takia: yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
@@ -58,7 +59,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
 - `luin/palaute.html` (käyttäjän pyyntö 10.11.2026): viesti kehittäjälle (nimi ja sähköposti vapaaehtoisia, vain viesti pakollinen) reitille
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
-  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: lukulistan alin pieni *palaute*, Asetusten alin pieni *palaute* (`?mista=asetukset`), käyttöohjeen loppu ja
+  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; hyllyltä pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
   Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa erityisesti tuetut sivustot ja sivustotoiveiden
   kappaleen (käyttäjän sanamuoto). Kun leike.js saa uuden sovitteen, lisää sivusto ensimmäiseen kappaleeseen.
@@ -71,9 +72,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
-- **Arkistohylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+- **Hylly ja pölyhylly** (käyttäjän päätös 12.11.2026): käyttöliittymässä lukulista on *Hylly* ja arkistohylly *Pölyhylly*
+  (kaikilla Luinin sivuilla ja lisäosassa; sijamuodot *hyllylle*, *hyllyllä*, *hyllyltä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa* eikä *arkistohyllyä*.
+- **Pölyhylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Hyllyssä ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus); linkki hyllylle on lukulistan alalaidassa himmeänä ja vain, kun hyllyllä on jotain. Sanat
+  Latomoa (käyttäjän rajaus); linkki pölyhyllylle on hyllyn alalaidassa himmeänä ja vain, kun pölyhyllyllä on jotain. Sanat
   *Luin.* ja *Puhalla pölyt.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
@@ -259,6 +263,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Tavutuskiellot** (opas 5): otsikoissa, `.sub`:ssa, `.meta`:ssa, sisällysluettelossa, lihavoinneissa ym. (`OHITA`
   md.js:ssä) ei ole pehmeitä tavuviivoja, ellei sana ole palstaa leveämpi. Kirjallisuusluettelo (`p.bib`) ei tavuta
   lainkaan (Teologian tyyli, APA 7).
+- **Pitkä reunushuomio katkaistaan** (käyttäjän pyyntö 12.11.2026, `sovitaHuomiot()`, opas 3): vain kun se työntäisi seuraavaa
+  huomiota; *lisää…*/*vähemmän* on oma kelluke huomion perässä eikä siinä ole tekstisolmua (teksti `::before`). Älä siirrä nappia
+  huomion sisään: ponnahdus, haku ja lohkon kohdat lukevat huomion sisältöä.
 - `#teksti { overflow-wrap: break-word }` estää vaakavierityksen (Light Phone, pitkät osoitteet); `testi.js` tarkistaa.
 
 Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
@@ -290,7 +297,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   *TOISEN LAITTEEN PÄÄSSÄ* ja lisäosan johdanto) ovat käyttäjän sanamuotoja: älä siloittele. Latomo ei lähetä merkintöjä
   (käyttäjän päätös 10.11.2026). Latomo kirjoittaa
   tekstin laatikkoon reitillä `POST /api/luin`, ja Luin hakee tekstit samalta reitiltä GET:llä. **Pitkä arvottu laatikon
-  koodi (≥ 24 merkkiä, `kk-` ja 24 satunnaista) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
+  koodi (≥ 24 merkkiä) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
   laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä).
   **Uusi laatikkolause on aina 24–52 merkkiä** (käyttäjän päätökset 9.11.2026 ja 10.11.2026: yläraja 52, ennen 40; lauseella on voitava sekä lähettää että lukea),
   **vain a–z, 0–9 ja `-`** (käyttäjän päätös 10.11.2026): isot kirjaimet luetaan pieniksi, muut merkit hylätään eikä niitä
@@ -304,6 +311,14 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   Molemmat syntyvät `luin/kehitys/postihuilu-kuvio.js`:stä: muuta siellä ja liitä tuloste. Käyttäjän säännöt: reiät ovat reikiä
   eivätkä koskaan ylitä putken reunaviivoja; reiät pitkittäin ketjuna, kärjet hiukan lomittain; ikkuna reikien värinen; suu
   symmetrinen. Ei ruostetta. Älä tarjoa aaltoilevia tai muita hylättyjä vaihtoehtoja.
+- **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
+  *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
+  `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
+  lukumäärä (`MAARA`). **Ei lauseita, joista pitää poistaa ääkköset** (käyttäjän rajaus 12.11.2026): ei ääkkösiä, ei niistä
+  pudotettuja muotoja (*delfiinia*) eikä oikeita sanoja, joiden ääkkösellinen vastine on yleinen (*etana*/*etänä*,
+  *niittaa*/*niittää*). Samassa paikassa ei lähisynonyymejä. Kun muutat sanoja, aja `python3 luin/kehitys/laatikkolause-sanat.py`
+  (`apt-get install voikko-fi python3-libvoikko`, `pip install wordfreq`) ja `laatikkolause-testi.js`, kopioi tiedosto
+  lisäosaan ja päivitä `laatikkolause.js?v=` kuten md.js:n.
 - **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
@@ -327,6 +342,7 @@ Aja repon juuressa:
   artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden ja rikkinäisten lähdelinkkien pitää olla 0.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista 429:n (myös kohteliaalla User-Agentilla ja odottaen), joten oikeaa rajapintaa ei voi

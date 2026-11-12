@@ -73,7 +73,8 @@
   .mika-md a { text-decoration: none; }
   .mika-md-nimi { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; text-decoration: underline;
     text-underline-offset: 3px; margin-right: .5em; }
-  .mika-md-avaa { font-size: .82rem; font-style: italic; color: var(--harmaa); }
+  /* Selite karvan verran pienempänä ja suluissa (käyttäjän pyyntö 12.11.2026). */
+  .mika-md-avaa { font-size: .76rem; font-style: italic; color: var(--harmaa); }
   a { color: var(--ruoste); text-underline-offset: 3px; }
   h2.alaots { font-weight: 400; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muste);
     margin: 30px 0 0; padding-top: 12px; border-top: 1px solid var(--viiva); }
@@ -235,14 +236,14 @@
 </head>
 <body>
 <main>
-  <a class="koti" href="../luin.html" aria-label="Lukulistaan"><svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg></a><a class="kotimerkki" href="../luin.html" aria-label="Lukulistaan" title="Lukulistaan"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
+  <a class="koti" href="../luin.html" aria-label="Hyllylle"><svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg></a><a class="kotimerkki" href="../luin.html" aria-label="Hyllylle" title="Hyllylle"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 0.45Q12.61 1.55 13.45 2.35Q12.61 3.15 12 4.25Q11.39 3.15 10.55 2.35Q11.39 1.55 12 0.45Z"/></svg></a>
   <h1>Latomo</h1>
   <p class="johdanto">Latoo Markdown-tekstin lukimeen helposti luettavaksi, seurattavaksi ja merkittäväksi. Kaikki
     tapahtuu tässä selaimessa; mitään ei lähetetä verkkoon, ellet käytä Postihuilua toiseen laitteeseen lähettämiseen
     (ks. alempana). <a href="latomo-ohje.html">Pitkä ohje</a>.</p>
   <!-- Mikä on Markdown (käyttäjän pyyntö 12.11.2026): oma teksti lukimessa, ei ponnahdus; uusi välilehti, jotta Latomo jää auki. -->
   <p class="mika-md"><a href="../luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener"><span class="mika-md-nimi">Mikä on Markdown</span>
-    <span class="mika-md-avaa">avaa lukimeen uudessa välilehdessä</span></a></p>
+    <span class="mika-md-avaa">(avaa lukimeen uudessa välilehdessä)</span></a></p>
   <div class="lisaosa"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><a class="nimi" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener">Lisää lukimeen</a><span class="mika">Selainlisäosa Chrome-pohjaisiin selaimiin työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin Latomoon. Firefoxiin, myös Androidilla: <a href="lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia. <button type="button" class="plussa" id="plussa" aria-expanded="false" aria-controls="lisaosa-lisa" aria-label="Lisää: erityisesti tuetut sivustot">+</button></span></span></div>
   <!-- Käyttäjän sanamuodot 10.11.2026 (toinen kappale); kun sovitteita tulee lisää (leike.js), lisää sivusto ensimmäiseen. -->
   <div class="lisaosa-lisa" id="lisaosa-lisa" hidden>
@@ -332,7 +333,7 @@
       <button type="button" id="lataa">Lataa .md</button>
       <button type="button" id="laheta" aria-expanded="false">Postihuilu</button>
     </div>
-    <p class="pieni"><b>Avaa lukimessa</b> tallentaa tekstin tämän selaimen lukulistaan. Saman nimisen
+    <p class="pieni"><b>Avaa lukimessa</b> tallentaa tekstin tämän selaimen hyllylle. Saman nimisen
       tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
       <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
       <b>Postihuilu</b> kuljettaa tekstin luettavaksi toisella laitteella, esimerkiksi niin sanotusti <i>coneelta cännycälle</i>.</p>
@@ -352,6 +353,8 @@
           <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
         <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="vähintään 24 merkkiä tai Arvo">
           <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
+      <!-- Arvotun lauseen virke mielikuvaksi (laatikkolause.js, 12.11.2026); piiloon, kun kentän lause on toinen. -->
+      <p class="pieni" id="laatikko-arvottu" hidden></p>
       <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
       <div class="rivi"><button type="button" class="paa" id="kk-laheta">Soita huilua!</button></div>
       <p class="pieni" id="laatikko-virhe" hidden></p>
@@ -365,12 +368,12 @@
       </details>
       <div class="pieni" id="laatikko-ohje-linkki" hidden>
         <p><b>TOISEN LAITTEEN PÄÄSSÄ:</b><br>
-          Teksti kotiutuu toisen laitteen lukulistaan joko soittamalla huilua laatikkolauseen ollessa <b id="laatikko-lause"></b>
+          Teksti kotiutuu toisen laitteen hyllylle joko soittamalla huilua laatikkolauseen ollessa <b id="laatikko-lause"></b>
           tai kopioimalla alla oleva linkki joko selaimen osoiteriville tai laatikkolauseelle tarkoitettuun tekstikenttään.</p>
         <p><code id="laatikko-linkki"></code> <button type="button" class="pieni-nappi" id="linkki-kopioi">Kopioi linkki</button></p>
         <p>Yksi huilun soitto kestää 30 päivää, joka toimii aikarajana tekstin vastaanottamiseen muilla laitteilla.
-          <b>VAROITUS:</b> Huilu lumoaa lukulistan korvaamaan samalla otsikolla nimetyn vanhan tekstin uudella postitetulla,
-          mikä pitää lukulistat siisteinä ja vapauttaa sinut lukemiseen roskaversioiden poistelemisen sijaan. Kun arvioit
+          <b>VAROITUS:</b> Huilu lumoaa hyllyn korvaamaan samalla otsikolla nimetyn vanhan tekstin uudella postitetulla,
+          mikä pitää hyllyt siisteinä ja vapauttaa sinut lukemiseen roskaversioiden poistelemisen sijaan. Kun arvioit
           voivasi olla tekstiesi kanssa vaarassa saada ikäviä seurauksia huilun armottomasta ja postilaatikot lävistävästä
           soinnista, varustaudu kirjoittamalla lähetettävään kuoreen osittain tai kokonaan eri otsikko.</p>
       </div>
@@ -386,8 +389,9 @@
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
-<script src="md.js?v=a05a41c6"></script>
+<script src="md.js?v=c86b4465"></script>
 <script src="posti.js?v=91bf4ff2"></script>
+<script src="laatikkolause.js?v=29cb216a"></script>
 <script>
 (function () {
   'use strict';
@@ -547,6 +551,7 @@
   }
   function siivoa(src) {
     var r = src.split('\n'), tehty = { korostus: 0, html: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0 }, aita = false;
+    tehty.ryhma = 0;
     var tau = {}, ed1 = null;
     var oma = String(L.etukentta(src).meta['lähde'] || '').trim().split('#')[0].replace(/\/$/, '');
     for (var i = 0; i < r.length; i++) {
@@ -570,13 +575,80 @@
       if (tb) { tau[i] = tb; tehty.taulukko++; continue; }
       if (l.trim() && /^\s*(<[^>]+>\s*)+$/.test(l) && !/^\s*<(https?:|br\b)/i.test(l)) { r[i] = ''; tehty.html++; }
     }
+    var lisarivit = ryhmitaViitteet(r, tehty);
     // Taulukko vie useita rivejä, joten tuloksen rivinumerot muunnetaan tekstikentän riveiksi (kartta, rivi()).
     var ulos = [], kartta = [];
     r.forEach(function (l, j) {
       var x = tau[j] ? [].concat((r[j - 1] || '').trim() ? [''] : [], tau[j], (r[j + 1] || '').trim() ? [''] : []) : [l];
       x.forEach(function (y) { ulos.push(y); kartta.push(j + 1); });
     });
+    lisarivit.forEach(function (y) { ulos.push(y); kartta.push(r.length); });
     return { src: ulos.join('\n'), tehty: tehty, kartta: kartta };
+  }
+  // Peräkkäiset alaviitemerkit yhdeksi (käyttäjän pyyntö 12.11.2026: Wikipediassa saman sanan perässä on usein 2–5 viitettä,
+  // jotka näkyivät lukimessa toisiinsa kiinni olevina numeroina). Ryhmä saa yhden merkin ja määritelmän, jossa jäsenten
+  // tekstit ovat omilla riveillään samassa järjestyksessä, joten yksi napautus avaa kaikki. md.js:ää ei muuteta: määritelmän
+  // jatkorivit (tyhjä rivi ja neljän välin sisennys) ovat sen omaa Markdownia. Sama ryhmä toisaalla saa saman merkin.
+  // Jäsenen oma määritelmä jää, jos jäsen esiintyy myös yksin; muuten rivit tyhjennetään (rivimäärä säilyy, kartta pätee).
+  // Uudet määritelmät tulevat tekstin loppuun. Vain merkit, joilla on määritelmä; koodiaidat ohitetaan.
+  function ryhmitaViitteet(r, tehty) {
+    var RE_DEF = /^ {0,3}\[\^([^\]]+)\]:[ \t]?(.*)$/, RE_UUSI = /^ {0,3}(#{1,6}(\s|$)|>|[-*+]\s|\d{1,9}[.)]\s|```|~~~)/;
+    var defs = {}, maar = {}, aita = false, i, k;
+    function nimi(x) { return String(x).replace(/\s+/g, ' ').trim().toLowerCase(); }
+    for (i = 0; i < r.length; i++) {
+      if (/^ {0,3}(```|~~~)/.test(r[i])) { aita = !aita; continue; }
+      if (aita) continue;
+      var dm = RE_DEF.exec(r[i]);
+      if (!dm) continue;
+      // Sama jatkorivien sääntö kuin md.js:n valmistele(): laiska jatko ja tyhjän rivin jälkeen sisennetty.
+      var osat = [dm[2]];
+      for (k = i + 1; k < r.length;) {
+        if (!r[k].trim()) {
+          var j = k + 1;
+          while (j < r.length && !r[j].trim()) j++;
+          if (j < r.length && /^(?: {4}|\t)/.test(r[j])) { osat.push(''); k = j; continue; }
+          break;
+        }
+        if (/^ {0,3}\[[\^#][^\]]+\]:/.test(r[k]) || (!/^[ \t]/.test(r[k]) && RE_UUSI.test(r[k]))) break;
+        osat.push(r[k].trim()); k++;
+      }
+      if (!defs[nimi(dm[1])]) { defs[nimi(dm[1])] = { a: i, b: k, osat: osat }; maar[i] = true; }
+      i = k - 1;
+    }
+    var ryhmat = {}, uudet = [], kaytto = {}, n = 0;
+    aita = false;
+    for (i = 0; i < r.length; i++) {
+      if (/^ {0,3}(```|~~~)/.test(r[i])) { aita = !aita; continue; }
+      if (aita || maar[i] || RE_DEF.test(r[i])) continue;
+      r[i] = r[i].replace(/\[\^[^\]\s]+\](?:[ \t]*\[\^[^\]\s]+\])+/g, function (koko) {
+        var jas = (koko.match(/\[\^[^\]\s]+\]/g) || []).map(function (x) { return x.slice(2, -1); });
+        jas = jas.filter(function (x, y) { return jas.indexOf(x) === y; });
+        if (jas.length < 2 || !jas.every(function (x) { return defs[nimi(x)]; })) return koko;
+        var avain = jas.map(nimi).join('\n');
+        if (!ryhmat[avain]) {
+          var t = 'ryhma-' + (++n), rivit = [];
+          jas.forEach(function (x, y) {
+            defs[nimi(x)].osat.forEach(function (o, z) {
+              if (!y && !z) rivit.push('[^' + t + ']: ' + o);
+              else if (!z) rivit.push('', '    ' + o);
+              else rivit.push(o ? '    ' + o : '');
+            });
+          });
+          ryhmat[avain] = t;
+          uudet.push('');
+          uudet.push.apply(uudet, rivit);
+        }
+        tehty.ryhma++;
+        return '[^' + ryhmat[avain] + ']';
+      });
+      (r[i].match(/\[\^[^\]\s]+\](?!:)/g) || []).forEach(function (x) { kaytto[nimi(x.slice(2, -1))] = true; });
+    }
+    if (!n) return [];
+    Object.keys(defs).forEach(function (x) {
+      if (kaytto[x]) return;
+      for (var j = defs[x].a; j < defs[x].b; j++) r[j] = '';
+    });
+    return uudet;
   }
   // Tuloksen rivinumero tekstikentän riviksi.
   function rivi(ln) { return siivous && siivous.kartta[ln - 1] || ln; }
@@ -832,8 +904,9 @@
     var mu = [];
     if (s.indeksi) mu.push(s.indeksi + ' HTML-' + (s.indeksi > 1 ? 'indeksiä' : 'indeksi'));
     if (s.taulukko) mu.push(s.taulukko + ' HTML-' + (s.taulukko > 1 ? 'taulukkoa' : 'taulukko'));
-    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length ? '' : 'Ei siivottavaa. ') +
-      (mu.length ? mu.join(' ja ') + ' Markdowniksi.' : '');
+    var ry = s.ryhma ? ' ' + s.ryhma + (s.ryhma > 1 ? ' peräkkäisten alaviitteiden ryhmää yhdistetty.' : ' peräkkäisten alaviitteiden ryhmä yhdistetty.') : '';
+    t.textContent = ((o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length || ry ? '' : 'Ei siivottavaa. ') +
+      (mu.length ? mu.join(' ja ') + ' Markdowniksi.' : '') + ry).trim();
     t.hidden = false;
   }
 
@@ -927,7 +1000,8 @@
         continue;
       }
       var ala = /^\*(?!\*)[^*]+\*$/.test(o.trim());
-      if (!ala && (/^\s*([#>|*+-]|\d+[.)]\s|```|~~~|---|\[|<|\{\{)/.test(o) || !r.every(function (x) { return x.replace(/\\\s*$|\s+$/, '').length <= 100; }))) break;
+      // Sama sääntö kuin md.js:n otsikkolohkossa: lyhytkään proosavirke ei kuulu alkuun, jottei kenttien kirjoitus pyyhi sitä.
+      if (!ala && (/^\s*([#>|*+-]|\d+[.)]\s|```|~~~|---|\[|<|\{\{)/.test(o) || !L.tietorivi(o.trim()))) break;
       kpl.push({ teksti: o.trim(), ala: ala });
       loppu = pos + o.indexOf(o.trim()) + o.trim().length;
     }
@@ -1310,14 +1384,23 @@
     if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
   });
+  // Arvo (12.11.2026; ennen kk- ja 24 satunnaista merkkiä): muistettava virke, ks. laatikkolause.js. Virke näkyy
+  // kentän alla, kunnes kentän lause muuttuu.
+  var arvottu = null;
+  function naytaArvottu() {
+    var e = $('#laatikko-arvottu'), nakyy = !!arvottu && P.koodi(lkKentta.value) === arvottu.lause;
+    e.hidden = !nakyy;
+    if (!nakyy) return;
+    e.innerHTML = '';
+    var i = document.createElement('i'); i.textContent = arvottu.virke;
+    e.appendChild(i);
+    e.appendChild(document.createTextNode(' Arvottu noin ' + Math.round(window.LuinLause.MAARA / 1e12) + ' biljoonan lauseen joukosta.'));
+  }
   $('#laatikko-arvo').addEventListener('click', function () {
-    // Sekaantumattomat merkit (ei 0/o, 1/l/i), neljän ryhmissä, jotta lauseen voi tarvittaessa näppäillä.
-    // 24 merkkiä 31 merkin joukosta on noin 119 bittiä, joten lausetta ei voi arvata.
-    var m = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(24), out = 'kk';
-    crypto.getRandomValues(r);
-    for (var i = 0; i < 24; i++) out += (i % 4 ? '' : '-') + m[r[i] % m.length];
-    lkKentta.value = out; kkTila(''); paivitaLahetys();
+    arvottu = window.LuinLause.arvo();
+    lkKentta.value = arvottu.lause; kkTila(''); paivitaLahetys(); naytaArvottu();
   });
+  lkKentta.addEventListener('input', naytaArvottu);
   function kopioi(b, teksti, nimi) {
     function valmis() { b.textContent = 'Kopioitu'; setTimeout(function () { b.textContent = nimi; }, 1500); }
     if (navigator.clipboard) navigator.clipboard.writeText(teksti).then(valmis, function () { window.prompt('Kopioi:', teksti); });
