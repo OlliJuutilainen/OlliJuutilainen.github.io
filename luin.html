@@ -3230,11 +3230,37 @@
     if (!valintaTyhja()) return;
     if (!pop.hidden) { suljePop(); return; }
     if (tila.pyyhkaisty && Date.now() - tila.pyyhkaisty < 400) return;
-    if (aset.sivutus !== 'sivut' || !aset.sivuReuna) return;
     if (Date.now() - alaKosk < 800 || t.closest('#ala') || e.clientY >= alaRaja()) return;
     var x = e.clientX / innerWidth;
-    if (x < 0.3) seuraava(-1); else if (x > 0.7) seuraavaPainettu(1);
+    // Reunanapautus (jos päällä) on laitojen ensisijainen toiminto; vain ylänapautusalue (ylaKaista()) menee sen edelle.
+    if (aset.sivutus === 'sivut' && aset.sivuReuna && (x < 0.3 || x > 0.7)) { if (x < 0.3) seuraava(-1); else seuraavaPainettu(1); return; }
+    // Ilmeisen tyhjän kohdan napautus avaa navin (käyttäjän pyyntö 12.11.2026), vain mobiilissa ("hiirellä kauhea tapa").
+    if (mobiili() && tyhjaKohta(e.clientX, e.clientY)) avaaJana(true);
   });
+  /* Ilmeisen tyhjä kohta (käyttäjän pyyntö 12.11.2026): napautuksen ympäriltä ei löydy tekstiä, sivuhuomiota, kuvaa, taulukkoa
+     eikä käyttöliittymän merkkiä turvavälin (1,5 em, vähintään 28 px) sisältä. Tekstin rivien oikeat laatikot (ei kappaleen
+     koko laatikko), joten kappaleen lyhyen viimeisen rivin oikealla puolella oleva tila on tyhjää. Mitataan vain napautuksen
+     korkeudella olevat lohkot, koska vierityksessä lohkoja on tuhansia. */
+  function tyhjaKohta(x, y) {
+    if (!nyt) return false;
+    var vara = Math.max(28, 1.5 * (parseFloat(getComputedStyle(art).fontSize) || 16));
+    var x0 = x - vara, x1 = x + vara, y0 = y - vara, y1 = y + vara;
+    function osuu(r) { return r.right > x0 && r.left < x1 && r.bottom > y0 && r.top < y1; }
+    function jokinOsuu(rs) { for (var i = 0; i < rs.length; i++) if (osuu(rs[i])) return true; return false; }
+    var muut = sivuEl.querySelectorAll('.sidenote, .luin-ui, img, table, pre, figure'), i;
+    for (i = 0; i < muut.length; i++) if (jokinOsuu(muut[i].getClientRects())) return false;
+    var rng = document.createRange(), B = nyt.blocks;
+    for (i = 0; i < B.length; i++) {
+      if (!B[i] || !jokinOsuu(B[i].getClientRects())) continue;
+      var ns = solmut(B[i]);
+      for (var j = 0; j < ns.length; j++) {
+        if (!/\S/.test(ns[j].nodeValue)) continue;
+        rng.selectNodeContents(ns[j]);
+        if (jokinOsuu(rng.getClientRects())) return false;
+      }
+    }
+    return true;
+  }
   // Tekstin napautus ei avaa palkkeja missään tilassa (käyttäjän päätökset 22.10.2026: työpöydällä hiirellä kauhea
   // tapa, mobiilissa avautui liian helposti vahingossa). Palkit avataan alapalkista tai mobiilin alakaistasta.
 
@@ -5107,19 +5133,34 @@
   // Tunnistus on koordinaateista (kosketus alkaa ja loppuu kaistalla, liike alle 12 px), ei elementin klikkauksesta:
   // OnePlus Nordilla (Chrome) kaistan click ei tullut perille (käyttäjän havainto 8.11.2026).
   (function () {
-    var alku = null, viim = 0;
-    function kaistalla(y) { var t = turva(); return t > 0 && y < t; }
+    var alku = null, viim = 0, ylaKosk = 0;
+    // Ylänapautusalue (käyttäjän pyyntö 12.11.2026): turvakaistan alla yläpalkin korkuinen alue (--yla) on kokonaan napautusherkkä,
+    // kun palkit ovat kiinni, ja menee tekstin, linkkien ja reunanapautuksen edelle. Palkkien, paneelin, ponnahduksen,
+    // valinnan, maalauksen ja palkkioppaan ollessa auki alue on tavallista tekstiä (yläpalkki on silloin itse alueella).
+    function ylaKaista(y) {
+      if (!mobiili() || $('#lukija').hidden || verhoAuki() || !pop.hidden || !valintaTyhja() || (maal && maal.aktiivinen) || (opasEl && !opasEl.hidden)) return false;
+      var h = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--yla')) || 56;
+      return y < turva() + h;
+    }
+    function kaistalla(y) { var t = turva(); return (t > 0 && y < t) || ylaKaista(y); }
     function vaihda() {
       if (Date.now() - viim < 500) return;
-      if ($('#lukija').hidden || !document.body.classList.contains('mobiili') || !turva()) return;
+      if ($('#lukija').hidden || !document.body.classList.contains('mobiili')) return;
       viim = Date.now(); avaaJana(!palkitAuki());
     }
+    // Alueen napautuksen perään tuleva klikkaus ei saa osua tekstiin eikä juuri avautuneeseen yläpalkkiin.
+    document.addEventListener('click', function (e) {
+      if (Date.now() - ylaKosk < 700) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
     window.addEventListener('pointerdown', function (e) {
       alku = e.pointerType !== 'mouse' && kaistalla(e.clientY) ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
     }, true);
     window.addEventListener('pointerup', function (e) {
       var a = alku; alku = null;
-      if (a && kaistalla(e.clientY) && Math.abs(e.clientX - a.x) + Math.abs(e.clientY - a.y) < 12 && Date.now() - a.t < 600) vaihda();
+      if (a && kaistalla(e.clientY) && Math.abs(e.clientX - a.x) + Math.abs(e.clientY - a.y) < 12 && Date.now() - a.t < 600) {
+        if (!(turva() > 0 && e.clientY < turva())) ylaKosk = Date.now();
+        vaihda();
+      }
     }, true);
     window.addEventListener('pointercancel', function () { alku = null; }, true);
     $('#turva').addEventListener('click', vaihda);
@@ -6478,7 +6519,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },

@@ -148,6 +148,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Mobiili = kosketusnäyttö** `(pointer: coarse), (hover: none)`; hiiri on työpöytä myös kapeassa ikkunassa (leveysehdolla palkit
   piiloutuivat työpöydällä). `hover: none` on välttämätön: Booxin Firefox ei täytä `pointer: coarse`a (Palmalla lukijan
   yläpalkki näkyi, 8.11.2026). Pidä ehto samana kaikissa kolmessa kohdassa (CSS `--v-laita`, `sivutusOletus()`, `MOBIILI`).
+- **Napin avaavat alueet mobiilissa** (käyttäjän pyyntö 12.11.2026, `ylaKaista()` ja `tyhjaKohta()`): turvakaistan alla yläpalkin
+  korkuinen alue (`--yla`) on kokonaan napautusherkkä, kun palkit ovat kiinni, ja menee tekstin, linkkien ja reunanapautuksen
+  edelle (ainoa, joka syrjäyttää reunanapautuksen). Lisäksi ilmeisen tyhjän kohdan napautus avaa navin (ei tekstiä, sivuhuomiota,
+  kuvaa tai taulukkoa 1,5 em:n, väh. 28 px:n sisällä; rivien omat laatikot, joten lyhyen rivin oikea puoli on tyhjää); reunanapautus
+  (jos päällä) on laitojen ensisijainen toiminto. Alue ei ole herkkä palkkien, paneelin, ponnahduksen, valinnan, maalauksen eikä
+  palkkioppaan ollessa auki. Vain kosketus: hiirellä tyhjä kohta ei avaa ("hiirellä kauhea tapa").
 - **Tekstin napautus ei avaa palkkeja** (ne avautuivat vahingossa). Vain alakaistan tai alapalkin napautus avaa ja
   sulkee ne; vieritys ja sivunkääntö eivät vaikuta, eikä keskiklikkaus työpöydällä avaa ("hiirellä kauhea tapa").
   Alapalkissa ei ole natsaa eikä osion nimeä.
