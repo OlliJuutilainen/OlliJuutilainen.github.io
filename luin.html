@@ -157,6 +157,10 @@
   #lista.arkisto .vain-lista, #lista.arkisto button.info, #lista.arkisto .tietoa { display: none; }
   .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
   .ark-linkki a { color: var(--harmaa); text-underline-offset: 3px; text-transform: uppercase; letter-spacing: .14em; }
+  /* Pölyhyllylinkin alla pitkähkö kapea nuoli (käyttäjän pyyntö 12.11.2026): kärki on tekstin lopun kohdalla; kirjainvälin
+     jälkeen jäävä .14em on poistettu nuolen oikeasta reunasta. */
+  .ark-linkki a { display: inline-block; }
+  .ark-linkki svg { display: block; width: 60px; height: 8px; margin: 3px .14em 0 auto; fill: none; stroke: currentColor; stroke-width: 1; }
   /* Pölyhyllyn paluuteksti hyllymerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
      Hylly-otsikko. Voi rivittyä kahdelle riville, koska 360 px:n ruudulle ei mahdu logo, teksti, merkki ja kiekko yhdelle. */
   .lhead a.ark-takaisin { align-self: flex-start; margin: 0 2px 0 0; height: 59.5px; display: flex; align-items: flex-end; justify-content: flex-end;
@@ -1135,7 +1139,7 @@
   </div>
   <!-- Pölyhylly, ent. arkistohylly (käyttäjän pyynnöt 10.11. ja 12.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun hyllyllä
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">pölyhylly</a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">pölyhylly<svg viewBox="0 0 60 8" aria-hidden="true"><path d="M0 4H59.5M55.5 .8L59.5 4L55.5 7.2"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -460 L460 0 L0 460 L-460 0Z"/><path d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
