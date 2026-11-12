@@ -320,7 +320,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
   ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
-  salmiakki kallistuu viivaston mukana; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
+  salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa (22° pystysuorasta), ylämäkiviivalla pystyssä; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
   kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Merkintöjen merkki (`MERKITTY`, käyttäjän pyyntö 12.11.2026: kirjanmerkki, alleviivaus
   tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, sivukärjet reunaviivan sisäpinnassa,
