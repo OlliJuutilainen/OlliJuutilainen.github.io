@@ -125,6 +125,7 @@
 <main>
 <h1>Postihuilu</h1>
 <p class="ala">Visualisointi-ideat ja esittelyversiot. Mietintämyssy, ei päätetty.</p>
+<p class="muisti">Jatko: <a href="luin-postihuilu-kuvitus-2.html">kierros 2</a> (otsikon alla huilu, nelilinja, vino huilu huilutetulle tekstille).</p>
 
 <div class="ohjaimet">
   <button type="button" id="teema" aria-pressed="false">Tumma teema</button>
@@ -249,9 +250,10 @@
   }
   // 4 Kolmen salmiakin huilu: putki, jonka reiät ovat nimikkeen valikon kolme salmiakkia (6.5 välein).
   function kolmen() {
-    return '<path d="M7 5.2H34M7 8.8H34M34 4.4V9.6M7 5.2L3 6.1Q2.4 6.3 2.4 6.9V7.2Q2.4 7.8 3 7.9L7 8.8" ' + V + ' stroke-width="1.1"/>' +
-      '<path d="M8.2 5.2H10.8L10.1 6.6H8.2Z" ' + R + '/>' +
-      '<path d="' + sal(16, 7, 2.2, 3, .38) + sal(22.5, 7, 2.2, 3, .38) + sal(29, 7, 2.2, 3, .38) + '" ' + M + '/>';
+    // Korjattu 12.11.2026 (käyttäjä): reiät ovat reikiä, eivät saa ylittää putken reunoja. Putki paksummaksi, reiät sisään.
+    return '<path d="M7 4.2H34M7 9.8H34M34 4.2V9.8M7 4.2L3 5.4Q2.4 5.6 2.4 6.4V7.6Q2.4 8.4 3 8.6L7 9.8" ' + V + ' stroke-width="1.1"/>' +
+      '<path d="M8.2 4.2H10.8L10.1 5.8H8.2Z" ' + R + '/>' +
+      '<path d="' + sal(16, 7, 1, 1.35, .38) + sal(22.5, 7, 1, 1.35, .38) + sal(29, 7, 1, 1.35, .38) + '" ' + M + '/>';
   }
   // 5 Logon lävistäjä: ruosteinen salmiakki (henkäys) -> kiila -> pieni salmiakki (kello), kolme reikää evenodd-aukkoina.
   function lavistaja(reiat, koko) {
@@ -368,9 +370,9 @@
     { nro: '3b', nimi: 'Sorvattu nokkahuilu, ilman renkaita', lahde: 'sorvausrenkaat … tai ei', vb: '0 0 36 14', d: function () { return sorvattu(false); },
       huom: ['Sama siluetti ilman renkaita. Pienissä koissa selkeämpi, isona vähemmän luonnetta. Renkaat voisi näyttää vain isoissa koissa (kuvitus) ja jättää merkistä pois.'], o: 3, kp: 2, pi: 2, ei: 3 },
     { nro: 4, nimi: 'Kolmen salmiakin huilu', lahde: 'napit salmiakkeja · kolme pistettä huilutettua', vb: '0 0 36 14', d: kolmen,
-      huom: ['<b>Osuvuus:</b> reiät ovat samat kolme koveraa salmiakkia ja sama mittasuhde kuin nimikkeen valikkonapissa, joten huilu syntyy Luinin omasta merkistä.',
-        '<b>Mahtuvuus:</b> salmiakit ovat putkea leveämpiä ja erottuvat vielä 12 px:n korkeudessa. Tämä on vaakahuiluista pienessä koossa luettavin.',
-        '<b>Riski:</b> ilman nokkaa se on helmet langassa (vrt. 18, jossa tämä on tarkoitus).'], o: 3, kp: 3, pi: 3, ei: 3 },
+      huom: ['<b>Korjattu 12.11.:</b> reiät ovat reikiä, joten ne ovat nyt putken sisällä eivätkä ylitä reunaviivoja. Alkuperäisessä ne olivat putkea isommat.',
+        '<b>Osuvuus:</b> reiät ovat samat kolme koveraa salmiakkia kuin nimikkeen valikkonapissa, joten huilu syntyy Luinin omasta merkistä.',
+        '<b>Jatko:</b> kierroksella 2 tämä on vinossa pystyssä huilutetun tekstin merkkinä.'], o: 3, kp: 3, pi: 3, ei: 3 },
 
     { perhe: 'II · Logon ja lambdan kielioppi' },
     { nro: 5, nimi: 'Logon lävistäjähuilu', lahde: 'kulmikas nokkahuilu · logon N', vb: '0 0 24 24', d: function () { return lavistaja('sal'); },
@@ -428,7 +430,8 @@
     { nro: 18, nimi: 'Valikkonapin huilu', lahde: 'lukulistasta kolme pistettä huilutettua', vb: '0 0 17 7', d: function () { return kolmeHuilu(true); }, d0: function () { return kolmeHuilu(false); },
       huom: ['<b>Ajatus:</b> nimikkeen kolmen salmiakin valikkonapin läpi kulkee putki, kun teksti on postilaatikossa, eli kolme pistettä on huilutettu. Valikkoon tulee <i>Huiluta</i>.',
         '<b>Mahtuvuus:</b> nolla. Sama 17 × 7 px:n merkki, kaksi hiusviivaa lisää.',
-        '<b>Riski:</b> hienovarainen: käyttäjä ei välttämättä huomaa eroa ennen kuin se selitetään.'], o: 3, kp: 3, pi: 3, ei: 2 }
+        '<b>Riski:</b> hienovarainen: käyttäjä ei välttämättä huomaa eroa ennen kuin se selitetään.',
+        '<b>Kierros 2:</b> hylätty. Salmiakit ylittävät putken, mikä on reikien sääntöä vastaan, ja huilutettu merkitään vinolla huilulla.'], o: 3, kp: 3, pi: 3, ei: 2 }
   ];
 
   function nayte(c, luokka) {
@@ -452,7 +455,7 @@
     var s = '<svg viewBox="0 0 100 7" preserveAspectRatio="none" aria-hidden="true">' +
       '<path d="M5 2.2H100M5 4.8H100M5 2.2L.5 3.1V3.9L5 4.8" fill="none" stroke="var(--harmaa)" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>';
     // Salmiakit erillisenä, jotta ne eivät veny preserveAspectRatio="none":n mukana.
-    return s + '<svg viewBox="0 0 30 7" style="left:auto;right:6px;width:30px" aria-hidden="true"><path d="' + sal(5, 3.5, 1.8, 2.6) + sal(15, 3.5, 1.8, 2.6) + sal(25, 3.5, 1.8, 2.6) + '" fill="var(--harmaa)"/></svg>';
+    return s + '<svg viewBox="0 0 30 7" style="left:auto;right:6px;width:30px" aria-hidden="true"><path d="' + sal(5, 3.5, .5, .7) + sal(10, 3.5, .5, .7) + sal(15, 3.5, .5, .7) + '" fill="var(--harmaa)"/></svg>';
   }
   function kysy() {
     return '<span class="kysy"><svg viewBox="0 0 20 20"><path d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor" stroke="none"/></svg></span>';

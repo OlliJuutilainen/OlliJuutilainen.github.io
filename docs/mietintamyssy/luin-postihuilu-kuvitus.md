@@ -24,3 +24,21 @@ Ehdotus sivun lopussa: merkiksi logon lävistäjähuilu salmiakkireiillä (5), t
 minima (7), huilutetulle tekstille valikkonapin kolme salmiakkia putkessa (18), merkintöjen taustalähetykselle luomi
 ja kolme ripseä (13) ja isoksi kuvitukseksi gregoriaaninen nelilinja (9). Animaatio (11) olisi Luinin ensimmäinen,
 joten e-inkissä sitä ei pidä näyttää.
+
+## Kierros 2 (12.11.2026)
+
+Sivu: [luin-postihuilu-kuvitus-2.html](luin-postihuilu-kuvitus-2.html). Käyttäjä piti eniten kierroksen 1 kuvioista
+*Otsikon alla huilu* (15) ja *Gregoriaaninen nelilinja, aaltoileva* (9). Palautteen pohjalta:
+
+- **Reiät ovat reikiä** (käyttäjä): salmiakkireikä ei koskaan ylitä putken reunaviivoja, mieluummin pienempi. Sivun
+  `huilu()` mitoittaa reiän osuutena putken sisäkorkeudesta (oletus 55 %) ja pitää sen erossa ikkunasta ja nokasta;
+  tarkistus ajettiin selaimessa kaikilla sivun mitoilla. Kierroksen 1 kuviot 4 ja 15 korjattiin samaan sääntöön.
+- **Huilutettu** = kolmen salmiakin huilu vinossa pystyssä, yläpää oikealla, jyrkempi kuin sanaselityksen linssin
+  varsi (58°). Sivulla 62–80°, oletus 72°, nokka ylhäällä. Paikkavaihtoehdot lukulistassa: nimen perässä, tietorivillä,
+  valikkonapin paikalla.
+- **Varrettomat nuotit** myös kulmikkaalla viivastolla (vapaasti, huippujen taitteissa, vuoristo, viisilinja).
+- **Nuotit tuutista**: viivasto lähtee kellosta putken sisältä ja levenee (otsikon kaista, vaakakuvitus, vino huilu
+  kaartuvalla viivastolla). Nuottikuva on toistaiseksi kuvitusta.
+- Avoinna: kaksi huilua (makaava otsikossa, vino tilana) vai yksi huilu kahdessa asennossa; huilutettu = lähetetty,
+  kantautunut vai kumpikin.
+
