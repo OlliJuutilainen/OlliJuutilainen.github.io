@@ -1,0 +1,6 @@
+# Luinin jakolinkin sivu (worker/luin/index.js): https://luin.ollijuutilainen.workers.dev/?t=<nimi>&u=<osoite>.
+# Ei KV:tä eikä salaisuuksia. Julkaisu repon juuressa: npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml
+name = "luin"
+main = "index.js"
+compatibility_date = "2025-09-28"
+workers_dev = true

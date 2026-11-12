@@ -95,9 +95,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
-- **Jakolinkki** (käyttäjän pyyntö 12.11.2026, opas 7.3): *Kopioi linkki* antaa workerin `GET /luin?t=&u=` -sivun, jotta
-  esikatselussa näkyy tekstin nimi. Sivulla ei saa olla `og:url`ia, meta refreshiä eikä 302:ta: hakijat seuraisivat niitä
-  `luin.html`:ään ja näyttäisivät taas *Luin.*. Vaatii workerin julkaisun.
+- **Jakolinkki** (käyttäjän pyyntö 12.11.2026, opas 7.3): *Kopioi linkki* antaa oman workerin `luin` (`worker/luin/`, ei
+  `tusinasaa-worker`: käyttäjän valinta) sivun `?t=&u=`, jotta esikatselussa näkyy tekstin nimi. Sivulla ei saa olla `og:url`ia, meta refreshiä eikä 302:ta: hakijat seuraisivat niitä
+  `luin.html`:ään ja näyttäisivät taas *Luin.*. Julkaisu: `npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml`.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
