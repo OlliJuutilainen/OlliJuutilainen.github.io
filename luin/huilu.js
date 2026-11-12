@@ -113,26 +113,31 @@
   // Viuhka: keskilinja on kuutiollinen Bézier kärjestä huilun suuntaan ja kaarena vaakasuoraksi; viivat ovat sen
   // normaalin suuntaisia siirtymiä, jotka kasvavat kärjen nollasta täyteen väliin kaaren matkalla (smoothstep).
   function kaista(o) {
-    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 4, n = 4, vw = o.vw || .6;
+    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 4, n = o.n || 4, vw = o.vw || .6;
     var jakso = o.jakso || 30, amp = o.amp == null ? 2.4 : o.amp, r = rajat(T, sw, kulma), th = r.th;
     var nokka = [o.vasen - r.x, o.yla - r.y], d = [Math.cos(th), Math.sin(th)];
     var P0 = kierra([r.m.karki, 0], th); P0 = [nokka[0] + P0[0], nokka[1] + P0[1]];
-    var pudotus = Math.max(sp * 2, o.keskiY - P0[1]);
-    var E = [P0[0] + pudotus * .5, P0[1] + pudotus];
-    var Q = [P0, [P0[0] + d[0] * pudotus * .55, P0[1] + d[1] * pudotus * .55], [E[0] - pudotus * .6, E[1]], E];
+    // Viuhka (käyttäjä 12.11.2026: "pohjasta lähtee ensin YHDESTÄ ALAS SUUNTAUTUVASTA vektorista kaarteena avautumaan"):
+    // jokainen viiva on oma kaarensa alimman reiän kärjestä, kaikki samaan suuntaan huilun akselia alas, ja kaaret ovat
+    // saman muodon eri kokoisia kopioita kärjen suhteen, joten ne eivät leikkaa vaan avautuvat. Ennen viivat siirrettiin
+    // yhden keskikaaren normaalin suuntaan, ja kaarteen sisäpuolella siirto ylitti säteen: ylin viiva sinkoutui suoraan
+    // oikealle. Ylimmälläkin viivalla on vähintään viivavälin pudotus.
     var siirto = function (p) { return ((n - 1) / 2 - p) * sp; };
-    var kaari = [], s = 0, ed = null, N = 40;
-    for (var i = 0; i <= N; i++) {
-      var t = i / N, u = 1 - t;
-      var x = u * u * u * Q[0][0] + 3 * u * u * t * Q[1][0] + 3 * u * t * t * Q[2][0] + t * t * t * Q[3][0];
-      var y = u * u * u * Q[0][1] + 3 * u * u * t * Q[1][1] + 3 * u * t * t * Q[2][1] + t * t * t * Q[3][1];
-      var dx = 3 * u * u * (Q[1][0] - Q[0][0]) + 6 * u * t * (Q[2][0] - Q[1][0]) + 3 * t * t * (Q[3][0] - Q[2][0]);
-      var dy = 3 * u * u * (Q[1][1] - Q[0][1]) + 6 * u * t * (Q[2][1] - Q[1][1]) + 3 * t * t * (Q[3][1] - Q[2][1]);
-      var l = Math.hypot(dx, dy) || 1;
-      if (ed) s += Math.hypot(x - ed[0], y - ed[1]);
-      kaari.push({ x: x, y: y, nx: -dy / l, ny: dx / l, s: s }); ed = [x, y];
+    var pudotus = Math.max(sp * (n - 1) / 2 + sp, o.keskiY - P0[1]);
+    var E = [P0[0] + pudotus * .5, P0[1] + pudotus];
+    var C = [[0, 0], [d[0] * .55, d[1] * .55], [-.1, 1], [.5, 1]], N = 40;
+    function kaari(k) { // kaari, jonka pudotus on k
+      var out = [];
+      for (var i = 0; i <= N; i++) {
+        var t = i / N, u = 1 - t, b = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t];
+        out.push([P0[0] + k * (b[0] * C[0][0] + b[1] * C[1][0] + b[2] * C[2][0] + b[3] * C[3][0]),
+          P0[1] + k * (b[0] * C[0][1] + b[1] * C[1][1] + b[2] * C[2][1] + b[3] * C[3][1])]);
+      }
+      return out;
     }
-    var S = s, xz = E[0] + sp;
+    var kaaret = [];
+    for (var i = 0; i < n; i++) kaaret.push(kaari(pudotus + siirto(i)));
+    var xz = P0[0] + .5 * (pudotus + siirto(0)) + .25 * sp;
     function tri(x) { // 0 alussa, taitteet jakson neljänneksissä
       if (x <= xz) return 0;
       var u = ((x - xz) / jakso) % 1;
@@ -145,10 +150,7 @@
     for (var xx = xz + jakso / 4; xx < loppu; xx += jakso / 2) taitteet.push(xx);
     var d2 = '';
     for (i = 0; i < n; i++) {
-      var oi = siirto(i), pts = kaari.map(function (c) {
-        var q = c.s / S, e = q * q * (3 - 2 * q);
-        return [c.x + c.nx * oi * e, c.y + c.ny * oi * e];
-      });
+      var oi = siirto(i), pts = kaaret[i].slice();
       var yi = E[1] + oi;
       pts.push([xz, yi]);
       taitteet.forEach(function (x) { pts.push([x, yi + tri(x)]); });
@@ -162,7 +164,7 @@
       // Nuotin kallistus (käyttäjä 12.11.2026): alamäkiviivalla (viiva laskee oikealle, ruudun y kasvaa) oikealle huilun
       // kulmassa (90° − 68° = 22° pystysuorasta), ylämäkiviivalla pystyssä ruudun suhteen.
       nuottiKallistus: function (x) { return tri(x + .01) - tri(x - .01) > 0 ? (90 - kulma) * Math.PI / 180 : 0; },
-      sp: sp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
+      sp: sp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaaret.map(function (k) { return Math.min.apply(0, k.map(function (q) { return q[0]; })); })) - vw / 2,
       alaY: E[1] + siirto(0) + Math.max(amp, sp * .75) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, sp * .75) - .5,
       viivaY: function (x, p) { return E[1] + siirto(p) + tri(x); }
     };

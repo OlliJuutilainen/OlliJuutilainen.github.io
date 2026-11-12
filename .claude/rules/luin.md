@@ -325,7 +325,8 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
   Hyllyllä huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
-  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
+  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä yhtenä alas suuntautuvana vektorina (huilun akseli) ja avautuvat
+  kaarena (käyttäjä 12.11.2026; kukin viiva oma kaarensa, saman muodon kopio kärjen suhteen: keskikaaren siirtymät sinkosivat sisäviivat suoraan oikealle) ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
   mitat isoja (huilu 6 px, viivaväli 4 px, siksak ±2,4 px): ohut viiva ei ole lupa pienentää. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
