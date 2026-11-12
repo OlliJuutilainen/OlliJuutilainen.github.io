@@ -42,3 +42,8 @@ Sivu: [luin-postihuilu-kuvitus-2.html](luin-postihuilu-kuvitus-2.html). Käyttä
 - Avoinna: kaksi huilua (makaava otsikossa, vino tilana) vai yksi huilu kahdessa asennossa; huilutettu = lähetetty,
   kantautunut vai kumpikin.
 
+Samana päivänä vielä: suu takaisin symmetriseksi kuten kuviossa 4 (käyttäjä: epäsymmetrinen suu teki eri huilun), reiät
+80 % sisäkorkeudesta (55 % oli liian pieni, ei kuitenkaan ihon halki), huilun pituus 4 × paksuus, jotta isot reiät
+mahtuvat erilleen. **Käyttäjän valinnat:** otsikon kaistaksi lyhyt huilu ja kulmikas nelilinja (15 px), vinon huilun
+kulmaksi 68°.
+
