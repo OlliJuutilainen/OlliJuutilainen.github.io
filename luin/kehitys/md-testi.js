@@ -194,6 +194,14 @@ tulos('linkitetty yläindeksi', yl.html.includes('A.<label class="fnref" for="fn
 const hv = M.parse('# T\n\nA<sup>[<a href="u">1</a>]</sup> ja <b>x</b>.\n\nB <i>y</i>.\n').warnings.map(w => w.ln + ' ' + w.msg);
 sama('HTML-huomautus riviä kohden', JSON.stringify(hv), JSON.stringify(['3 6 HTML-merkintää näkyy tekstinä: <sup>, <a>, <b>.', '5 2 HTML-merkintää näkyy tekstinä: <i>.']));
 
+// Lyhyt proosavirke otsikon alla on leipätekstiä, ei tietorivi (käyttäjän pyyntö 12.11.2026, Wait But Why): tekijä etukentästä.
+const proosa = M.parse('---\ntekijä: Tim Urban\njulkaistu: 2017-04-20\n---\n# Neuralink\n\nLast month, I got a phone call.\n\nToinen kappale.\n');
+sama('proosavirke: tietorivit etukentästä', JSON.stringify(proosa.lines), JSON.stringify(['Tim Urban', '20.4.2017']));
+tulos('proosavirke: leipätekstinä otsikkolohkon jälkeen', /<\/header><p[^>]*>Last month, I got a phone call\.<\/p>/.test(proosa.html), proosa.html.slice(0, 300));
+sama('proosavirke: kysymys ja kaksoispisteeseen päättyvä', [M.tietorivi('What does it feel like?'), M.tietorivi('Ohje on siirtynyt kahdeksi verkkosivuksi:')].join(), 'false,false');
+sama('tietorivi: nimi, päiväys, vuosi, suomentaja ja lyhyt pisteellinen säilyvät', ['Graham J. Hitch & Alan D. Baddeley', 'Julkaistu 5.5.2018',
+  'Uskonnonfilosofian kandidaatintutkielma Helsingin yliopistossa heinäkuussa 2026.', 'Englannista suomentanut Markku Roinila.', 'Ensimmäinen kokeiluversio, lokakuu 2026.', 'Karl Marx.']
+  .map(M.tietorivi).join(), 'true,true,true,true,true,true');
 // Kursivoitu julkaisutieto otsikon alla on tietorivi, ei alaotsikko (SEP); julkaistu on luettu versio, tekijä etukentästä.
 const sep4 = M.parse('---\ntekijä: Hildebrand, David\n---\n\n# John Dewey\n\n*First published Thu Nov 1, 2018; substantive revision Sun Mar 31, 2024*\n\n' + PITKA);
 sama('julkaisutieto: ei alaotsikkoa', sep4.sub, '');
