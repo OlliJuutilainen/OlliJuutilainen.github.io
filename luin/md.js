@@ -1346,6 +1346,25 @@
     if (/^(kauno|fikt|fict|run|novel|lit|proosa|poe)/.test(s)) return 'kaunokirjallinen';
     return '';
   }
+  /* Lisätieto: nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa (käyttäjän hierarkia 12.11.2026).
+     1. Verkkojulkaisu (sivusto, ei tieteellinen teksti): sivuston nimi, ei tekijä (SEP, OECS, Logos, Wikipedia, MIA, WBW, blogit).
+        Kantajasivusto (Gutenberg, Wikisource, Internet Archive …) ei ole julkaisu vaan kirjan kuljettaja: siltä irrotettu osa
+        on kirjan osa (kohta 3).
+     2. Alaotsikko.
+     3. Yhtenäisen kirjan osa (teos ilman toimittajaa ja lehden numeroa): teoksen nimi. Kaunokirjallisen tekstin teos
+        menee sivuston edelle.
+     4. Muuten (itsenäinen tieteellinen teksti, kokoomateoksen tai lehden artikkeli): tekijä.
+     t: tiedot (KENTAT-avaimet) → rivi tai ''. */
+  var KANTAJA = /(^|[^\p{L}])(project gutenberg|gutenberg|wikisource|archive\.org|hathitrust|google books|google kirjat|runeberg|doria|digi\.kansalliskirjasto)([^\p{L}]|$)|^internet archive$/iu;
+  function lisatieto(t) {
+    t = t || {};
+    var k = function (x) { return String(t[x] || '').trim(); };
+    var ty = tyyppiAvain(t.tyyppi), sivusto = k('sivusto'), ala = k('alaotsikko'), teos = k('teos');
+    var kirja = teos && !k('toimittaja') && !k('numero');
+    if (ty === 'kaunokirjallinen' && teos && !ala) return teos;
+    if (sivusto && ty !== 'tieteellinen' && !KANTAJA.test(sivusto)) return sivusto;
+    return ala || (kirja ? teos : '') || k('tekijä');
+  }
   function piste(s) { s = s.trim(); return !s || /[.!?]\*?$/.test(s) ? s : s + '.'; }
   // Versaalein kirjoitettu nimi virkekirjoitukseksi (hävittää erisnimien isot kirjaimet, siksi viite on muokattava).
   function virkkeeksi(t) { return t && t === t.toUpperCase() && /\p{Lu}/u.test(t) ? t.charAt(0) + t.slice(1).toLowerCase() : t; }
@@ -2408,7 +2427,7 @@
     return count;
   }
 
-  root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, KENTAT: KENTAT,
+  root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, lisatieto: lisatieto, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
     iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

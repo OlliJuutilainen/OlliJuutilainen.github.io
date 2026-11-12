@@ -95,6 +95,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
+- **Lisätieto** (käyttäjän hierarkia 12.11.2026, opas 7.3): nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa on
+  `LuinMD.lisatieto()`: verkkojulkaisun sivusto (ei tekijä) › alaotsikko › kirjan osan teos › tekijä. Gutenbergin kaltainen
+  kantajasivusto ei ole julkaisu. Pidä hylly ja jakolinkki samassa funktiossa. Julkaisupäivä hyllyssä on avoin kysymys.
 - **Jakolinkki** (käyttäjän pyyntö 12.11.2026, opas 7.3): *Kopioi linkki* antaa oman workerin `luin` (`worker/luin/`, ei
   `tusinasaa-worker`: käyttäjän valinta) sivun `?t=&u=`, jotta esikatselussa näkyy tekstin nimi. Sivulla ei saa olla `og:url`ia, meta refreshiä eikä 302:ta: hakijat seuraisivat niitä
   `luin.html`:ään ja näyttäisivät taas *Luin.*. Julkaisu: `npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml`.
