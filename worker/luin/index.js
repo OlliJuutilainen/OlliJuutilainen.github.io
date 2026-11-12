@@ -1,4 +1,4 @@
-// Luinin jakolinkki (käyttäjän pyyntö 12.11.2026): GET https://luin.ollijuutilainen.workers.dev/?t=<otsikko>&u=<tekstin osoite>.
+// Luinin jakolinkki (käyttäjän pyyntö 12.11.2026): GET https://luin.ollijuutilainen.workers.dev/?t=<otsikko>&d=<lisätieto>&u=<tekstin osoite>.
 // Oma worker (käyttäjän valinta 12.11.2026), jotta linkissä ei näy tusinasaa-worker. Julkaisu repon juuressa:
 //   npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml
 // Viestimien esikatselu ei näe osoitteen #-osaa eikä aja JavaScriptiä, joten luin.html#u=… näytti aina staattisen otsikon *Luin.*. Tämä sivu antaa
@@ -12,7 +12,11 @@ function htmlEsc(s) {
 function handleLuinJako(req) {
   const url = new URL(req.url);
   const u = (url.searchParams.get("u") || "").trim().slice(0, 2048);
-  const t = (url.searchParams.get("t") || "").replace(/\s+/g, " ").trim().slice(0, 200) || "Luin.";
+  const t0 = (url.searchParams.get("t") || "").replace(/\s+/g, " ").trim().slice(0, 200), t = t0 || "Luin.";
+  // d: lisätieto (hyllyn toinen rivi: sivusto, alaotsikko, teos tai tekijä). Ilman sitä tekstin linkissä ei ole kuvausta,
+  // jotta Luinin oma alaotsikko ei kummittele vieraan tekstin alla (käyttäjä 12.11.2026).
+  const d = (url.searchParams.get("d") || "").replace(/\s+/g, " ").trim().slice(0, 200);
+  const kuvaus = d || (t0 ? "" : "Lukulaite Markdown-teksteille.");
   const kohde = LUIN_SIVU + (u ? "#u=" + encodeURIComponent(u) : "");
   const k = htmlEsc(kohde), o = htmlEsc(t);
   const html = `<!doctype html>
@@ -25,8 +29,7 @@ function handleLuinJako(req) {
 <title>${o}</title>
 <meta property="og:title" content="${o}">
 <meta property="og:site_name" content="Luin.">
-<meta property="og:description" content="Lukulaite Markdown-teksteille.">
-<meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma.png">
+${kuvaus ? `<meta property="og:description" content="${htmlEsc(kuvaus)}">\n` : ""}<meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="LUiN.HTML">

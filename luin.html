@@ -1231,7 +1231,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=c86b4465"></script>
+<script src="luin/md.js?v=35f85476"></script>
 <script src="luin/posti.js?v=91bf4ff2"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=3d68d7fc"></script>
@@ -1513,6 +1513,8 @@
     e.viite = doc.viite || ''; e.sivusto = doc.tiedot.sivusto || ''; e.osoite = doc.meta.osoite || '';
     // kehys: blogin nimi tai kokoelma alaotsikon paikalla, kun alaotsikkoa ei ole (md.js).
     e.kehys = doc.kehys || '';
+    // ala: nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa (md.js lisatieto, käyttäjän hierarkia 12.11.2026).
+    e.ala = LuinMD.lisatieto(doc.tiedot);
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
   }
@@ -1567,12 +1569,14 @@
     return u ? location.href.split('#')[0] + '#u=' + encodeURIComponent(u) : '';
   }
   // Jakolinkki (Kopioi linkki, käyttäjän pyyntö 12.11.2026): oman workerin (worker/luin/) sivu antaa viestimien esikatseluun tekstin nimen
+  // ja lisätiedon (d, sama kuin hyllyn toinen rivi)
   // (luin.html#u=… näytti aina *Luin.*, koska #-osa ei kulje palvelimelle) ja ohjaa selaimen luin.html#u=…:hun.
   // Lähdeviitteen lukutiedot pitävät suoran Luin-linkin.
   var JAKO_API = 'https://luin.ollijuutilainen.workers.dev/';
   function jakoLinkki(e) {
     var u = e.url || e.osoite;
-    return u ? JAKO_API + '?t=' + encodeURIComponent(e.title || '') + '&u=' + encodeURIComponent(u) : '';
+    var d = e.ala != null ? e.ala : e.sub || e.kehys || '';
+    return u ? JAKO_API + '?t=' + encodeURIComponent(e.title || '') + (d ? '&d=' + encodeURIComponent(d) : '') + '&u=' + encodeURIComponent(u) : '';
   }
 
   /* ---------- lähdeviite (jakonappi) ----------
@@ -1645,14 +1649,31 @@
     haeLaatikko();
     postiLahetaLikaiset();
   }
+  // Ennen 12.11.2026 tallennetuilta nimikkeiltä puuttuu ala: jäsennetään tallennettu teksti kerran, yksi kerrallaan
+  // taustalla, ja piirretään hylly uudelleen. Siihen asti näkyy vanha rivi (alaotsikko tai kehys).
+  var alaTyossa = false;
+  function taydennaAla() {
+    if (alaTyossa) return;
+    var e = lista.filter(function (x) { return x.ala == null && LS.get('luin-teksti:' + x.id, null) != null; })[0];
+    if (!e) return;
+    alaTyossa = true;
+    setTimeout(function () {
+      alaTyossa = false;
+      var md = LS.get('luin-teksti:' + e.id, null);
+      try { e.ala = md == null ? '' : LuinMD.lisatieto(LuinMD.parse(md).tiedot); } catch (err) { e.ala = ''; }
+      tallennaLista();
+      if (!$('#lista').hidden) piirraNimikkeet();
+      taydennaAla();
+    }, 30);
+  }
   function piirraNimikkeet() {
     var ark = tila.arkisto, nak = naytettavat(ark), ul = $('#nimikkeet');
     var nyky = {};
     nak.forEach(function (e) { if (valitut[e.id]) nyky[e.id] = 1; });
     valitut = nyky;
     ul.innerHTML = nak.map(function (e) {
-      var ala = e.sub || e.kehys;
-      var tieto = [e.author || (e.sivusto !== ala ? e.sivusto : ''), e.pct != null ? e.pct + ' %' : '',
+      var ala = e.ala != null ? e.ala : e.sub || e.kehys;
+      var tieto = [(e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
         ark ? 'luettu ' + pvm(e.luettu) : e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
       return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
         '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
@@ -1661,6 +1682,7 @@
         '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
     }).join('');
     $('#tyhja').hidden = nak.length > 0;
+    taydennaAla();
     $('#ark-linkki').hidden = ark || !lista.some(function (e) { return e.luettu; });
     paivitaValinta();
   }
