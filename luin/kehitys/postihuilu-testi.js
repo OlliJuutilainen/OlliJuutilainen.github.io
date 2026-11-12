@@ -12,11 +12,11 @@ const lahes = (a, b) => Math.abs(a - b) < 1e-9;
 // Geometria: sivukärjet irti reunasta, logon mittasuhde, reiät hipaisten, alin kärki pohjan sisäpintaan.
 for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   const m = H.mitat(T, sw);
-  tulos(`T ${T}: sivukärjet irti reunaviivan sisäpinnasta (0,65-kertaiset)`, lahes(m.B, m.sisa * .65) && m.B < m.sisa, m.sisa - m.B);
+  tulos(`T ${T}: viisi reikää, sivukärjet irti reunaviivan sisäpinnasta`, m.reiat.length === 5 && m.B < m.sisa - sw / 2, m.sisa - m.B);
   tulos(`T ${T}: huilun pituus täysikokoisten reikien mukainen`, lahes(m.L, m.bk + m.sisa * .9 + 6 * m.sisa / H.LOGO + sw / 2), m.L);
   tulos(`T ${T}: logon mittasuhde`, lahes(m.B / m.A, H.LOGO), m.B / m.A);
-  tulos(`T ${T}: reiät hipaisevat (ei rakoa, ei lomitusta)`, lahes(m.reiat[1] - m.reiat[0], 2 * m.A) && lahes(m.reiat[2] - m.reiat[1], 2 * m.A));
-  tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa`, lahes(m.reiat[2] + m.A, m.L - sw / 2));
+  tulos(`T ${T}: reiät hipaisevat (ei rakoa, ei lomitusta)`, m.reiat.every((x, i) => !i || lahes(x - m.reiat[i - 1], 2 * m.A)));
+  tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa (ehdoton)`, lahes(m.reiat[m.reiat.length - 1] + m.A, m.L - sw / 2));
   tulos(`T ${T}: ylin reikä nokan jälkeen`, m.reiat[0] - m.A > m.bk);
   // Ääniaukko (käyttäjä 12.11.2026): siivu ja ääriviiva samassa linjassa, leuka 45° ja puolivälissä vaakaan, ilmaa reikiin ja seiniin.
   const a = m.aukko, au = H.aukko(m), u = au.ulko, i = a.viiva / 2;
@@ -24,23 +24,44 @@ for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   tulos(`T ${T}: aukko nokan suoran osan jälkeen`, a.x0 > m.bk);
   tulos(`T ${T}: ääriviivan ulkoreuna siivun päiden linjassa`, Math.abs(v[0][1] - i + a.W) < .006 && Math.abs(v[v.length - 1][1] + i - a.W) < .006);
   tulos(`T ${T}: leuka ensin 45°, sitten vaakaan puolivälissä keskiviivalle`, lahes(u[2][0] - u[1][0], u[2][1] - u[1][1]) && lahes(Math.abs(u[2][1]), a.W / 2) && lahes(u[3][0], u[2][0]));
-  tulos(`T ${T}: rako aukosta ylimmän reiän kärkeen`, m.reiat[0] - m.A - a.x2 > T * .5, m.reiat[0] - m.A - a.x2);
+  tulos(`T ${T}: rako aukon leuasta ylimmän reiän kärkeen 0,2 × paksuus`, lahes(m.reiat[0] - m.A - a.x2, T * .2), m.reiat[0] - m.A - a.x2);
   tulos(`T ${T}: aukko irti seinistä`, m.sisa - a.W > sw, m.sisa - a.W);
 }
-// Nuotit (käyttäjän säännöt 12.11.2026): viivaston sisällä, jakson keskellä, ensimmäinen ja viimeinen jakso soi, ei kahta
-// tyhjää peräkkäin, ei samaa korkeutta peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).
+// Viuhka (käyttäjä 12.11.2026): kaikki viivat lähtevät kärjestä samaan suuntaan (huilun akseli alas), eivät leikkaa
+// toisiaan, ja ylin viiva ei nouse kärjen yläpuolelle eikä käänny taaksepäin (sinkoutuminen).
+for (const keskiY of [20, 30, 40]) {
+  const k = H.kaista({ vasen: 150, yla: -8, keskiY, oikea: 358 });
+  const viivat = k.svg.match(/<path d="([^"]+)"/)[1].split('M').filter(Boolean).map(v => v.split('L').map(p => p.split(' ').map(Number)));
+  const alku = viivat.map(v => v[0]), suunta = viivat.map(v => Math.atan2(v[1][1] - v[0][1], v[1][0] - v[0][0]) * 180 / Math.PI);
+  const yksi = alku.every(p => Math.hypot(p[0] - alku[0][0], p[1] - alku[0][1]) < 1e-6) && suunta.every(a => Math.abs(a - 112) < 1);
+  // Ylin viiva: y kasvaa (alas) tai pysyy, kunnes se on vaakasuora; x ei palaa taaksepäin kaarteen jälkeen.
+  const ylin = viivat[viivat.length - 1].filter(p => p[0] <= k.xz), alin = viivat[0].filter(p => p[0] <= k.xz);
+  const eiNouse = ylin.every((p, i) => !i || p[1] >= ylin[i - 1][1] - 1e-6);
+  const ulkona = Math.min(...alin.map(p => p[0])) < Math.min(...ylin.map(p => p[0])) - 1;
+  // Ei risteä: naapuriviivojen janat eivät leikkaa toisiaan yhteisen varren jälkeen.
+  const leikkaa = (a, b, c, d) => { const r = (p, q, s) => (q[0] - p[0]) * (s[1] - p[1]) - (q[1] - p[1]) * (s[0] - p[0]);
+    return r(a, b, c) * r(a, b, d) < 0 && r(c, d, a) * r(c, d, b) < 0; };
+  const jarjestys = viivat.every((v, i) => !i || !v.some((p, j) => j > 1 && j < v.length - 1 && viivat[i - 1].some((q, l) => l > 1 && l < viivat[i - 1].length - 1 && leikkaa(p, v[j + 1], q, viivat[i - 1][l + 1]))));
+  tulos(`viuhka (keskiY ${keskiY}): yhdestä alas suuntautuvasta vektorista, ylin ei nouse, alin ulkokaarella, ei risteä`, yksi && eiNouse && ulkona && jarjestys,
+    JSON.stringify({ yksi, eiNouse, ulkona, jarjestys }));
+}
+// Nuotit (käyttäjän säännöt 12.11.2026): aina viivalla, jokaiselle viivalle yksi ääni kierrosta kohti, jakson keskellä,
+// ensimmäinen ja viimeinen jakso soi, ei kahta tyhjää peräkkäin, ei samaa viivaa peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).
 let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-const nv = { paikka: 0, ulos: 0, reuna: 0, aukot: 0, porras: 0, toisto: 0, paallekkain: 0, kallistus: 0, loppu: 0 }; let kerrat = 0, aukollisia = 0;
+const nv = { paikka: 0, ulos: 0, reuna: 0, aukot: 0, porras: 0, toisto: 0, paallekkain: 0, kallistus: 0, loppu: 0, viivat: 0 }; let kerrat = 0, aukollisia = 0;
 for (const [x0, x1] of [[241, 358], [237, 344], [617, 734], [300, 358], [100, 358]]) {
   const k = H.kaista({ vasen: 150, yla: -8, keskiY: 40, oikea: x1 }), kes = H.jaksonKeskit(k, x0, x1);
   for (let i = 0; i < 2000; i++) {
     const q = H.nuottiPaikat(k, x0, x1, H.arvoNuotit(rnd)); kerrat++;
     for (const a of q) {
-      if (a.p < 0 || a.p > 3) nv.ulos++;
+      if (a.p < 0 || a.p > 4 || a.p !== Math.round(a.p)) nv.ulos++;
       if (kes.indexOf(a.x) < 0 || Math.abs(a.y - k.y(a.x, a.p)) > 1e-9 || a.x > k.loppu) nv.paikka++;
 
     }
     if (new Set(q.map(a => a.x)).size !== q.length) nv.paallekkain++;
+    // Jokaiselle viivalle yksi ääni: jokainen viiden ryhmä on eri viivoilla, ja vähintään viisi soi, kun jaksoja on viisi.
+    for (let r = 0; r < q.length; r += 5) { const ryhma = q.slice(r, r + 5).map(a => a.p); if (new Set(ryhma).size !== ryhma.length) nv.viivat++; }
+    if (kes.length >= 5 && q.length < 5) nv.viivat++;
     // Kallistus: alamäessä (viiva laskee oikealle) 22° oikealle, ylämäessä 0°.
     for (const a of q) {
       const alamaki = k.y(a.x + .5, 0) > k.y(a.x - .5, 0), kl = k.nuottiKallistus(a.x);
