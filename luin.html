@@ -192,6 +192,9 @@
   .valikko.sisaltaa { padding: 11px 44px 11px 15px; font-size: .9rem; line-height: 1.5; }
   .valikko.sisaltaa .sk-kieli { margin: 0 0 4px; }
   .valikko.sisaltaa ul { list-style: none; margin: 0; padding: 0; }
+  /* Luettelon viiva on ontto salmiakki (käyttäjän pyyntö 12.11.2026). */
+  .valikko.sisaltaa li { display: flex; align-items: center; gap: .6em; }
+  .valikko.sisaltaa li svg { flex: 0 0 auto; width: 6px; height: 8.25px; fill: none; stroke: currentColor; stroke-width: .9; }
   .n-hanta { white-space: nowrap; }
   .n-ots svg.merkitty .l-viiva { fill: none; stroke: currentColor; stroke-width: 1; }
   .n-ots svg.merkitty .l-pis { fill: currentColor; }
@@ -2047,7 +2050,7 @@
     if (m.km.length) rivit.push('kirjanmerkkejä');
     if (!rivit.length) return;
     if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === svg) return;
-    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">Sisältää</div><ul>' + rivit.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>' +
+    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">Sisältää</div><ul>' + rivit.map(function (r) { return '<li><svg viewBox="0 0 8 11" aria-hidden="true"><path d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/></svg>' + r + '</li>'; }).join('') + '</ul>' +
       '<button type="button" class="sk-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE + '</button>', 'sisaltaa', function () { return false; }, 'vasen');
     pop._merkki = svg;
   }
