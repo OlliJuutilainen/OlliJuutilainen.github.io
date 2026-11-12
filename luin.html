@@ -302,7 +302,7 @@
      Mitattu 6.11.2026. */
   .valikko .sk-ots { padding-right: var(--sk-raksi, 28.5px); }
   .valikko .sk-o { min-width: 0; overflow-wrap: anywhere; }
-  .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 19.1px; height: 17px; margin: 0 -1.15px 0 auto; position: relative; top: 1.4px; }
+  .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 20.93px; height: 18.6px; margin: 0 -1.26px 0 auto; position: relative; top: 1.53px; }
   .valikko button.sk-sulje { position: absolute; top: 0; right: 0; width: 44px; height: 42px; min-height: 0; padding: 0; color: var(--muste); }
   .valikko button.sk-sulje svg { position: absolute; right: var(--sk-raksi-r, 14.6px); top: var(--sk-raksi-y, 22px); width: 10px; height: 10px;
     stroke: currentColor; stroke-width: 1.2; fill: none; }
@@ -319,19 +319,18 @@
   .valikko .sk-vk { margin-left: 4px; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
   .valikko a.sk-lisa { margin-left: auto; font-size: .82rem; font-style: normal; color: var(--ruoste); text-decoration: none; }
-  /* Alkuperä (käyttäjän pyyntö 12.11.2026): epsilon-nappi (ἔτυμον; lambda on λόγος) jokaisen sivun vieressä: otsikossa
-     lambdan vasemmalla, vaihtoehtojen ja alaotsikoiden rivillä samassa sarakkeessa kuin otsikon epsilon (--sk-ety-r, mitattu
-     12.11.2026: keskikohdat 0,02 px:n päässä; valitsimen epsilon pysyy paikallaan, kun valinta vie sen otsikkoon). Avaa
-     kehystetyn Alkuperä-laatikon ennen määritelmiä, kuten Wikisanakirjassa etymologia on ensin. Suljettuna ruoste
-     (napautettava), auki musteen värinen. */
-  .valikko button.sk-ety { display: inline-flex; align-items: flex-end; justify-content: center; flex: 0 0 auto; width: 26px; min-height: 0;
-    height: 24px; margin: -4px 0 -3px; padding: 0 0 3px; color: var(--ruoste); text-decoration: none; }
+  /* Alkuperä (käyttäjän pyyntö 12.11.2026): epsilon-nappi (ἔτυμον) heti sen sanan perässä, josta se kertoo: otsikossa,
+     valitsimen riveillä ja alaotsikoissa (käyttäjän palaute 12.11.2026: lambdan vieressä oikeassa yläkulmassa se näytti
+     samanarvoiselta merkiltä, vaikka on nappi, eikä ollut selvää mille sanalle). Kirjaimen tapaan peruslinjalla, musteen väli
+     sanaan 5 px. Napautusala jatkuu oikealle (ei sanan päälle). Avaa kehystetyn Alkuperä-laatikon ennen määritelmiä.
+     Suljettuna ruoste (napautettava), auki musteen värinen. */
+  .valikko button.sk-ety { display: inline-flex; align-items: flex-end; flex: 0 0 auto; width: auto; min-height: 0;
+    height: 24px; margin: -4px 0 -3px 1px; padding: 0 12px 3px 4px; color: var(--ruoste); text-decoration: none; }
   .valikko button.sk-ety svg { width: 7.2px; height: 9.4px; fill: none; stroke: currentColor; stroke-width: 1.25; overflow: visible; }
   .valikko button.sk-ety[aria-pressed="true"] { color: var(--muste); }
-  .valikko .sk-ots button.sk-ety { margin-left: auto; margin-right: -3px; }
-  .valikko .sk-ots button.sk-ety + svg.sanasto { margin-left: 0; }
-  .valikko .sk-alaots, .valikko .sk-vaihdot li { display: flex; align-items: baseline; gap: 4px; }
-  .valikko .sk-alaots button.sk-ety, .valikko .sk-vaihdot button.sk-ety { margin-left: auto; margin-right: var(--sk-ety-r, 55.45px); align-self: center; }
+  .valikko .sk-ots button.sk-ety { margin-left: -11px; }
+  .valikko .sk-alaots, .valikko .sk-vaihdot li { display: flex; align-items: baseline; }
+  .valikko .sk-vaihdot .sk-vk { margin-left: 0; }
   .valikko .sk-ety-laatikko { margin-top: 8px; padding: 4px 10px 6px; border: 1px solid var(--viiva); }
   .valikko .sk-ety-ots { display: flex; align-items: center; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--harmaa); }
   .valikko button.sk-ety-sulje { position: relative; margin-left: auto; width: 30px; height: 24px; min-height: 0; padding: 0; margin-right: -9px; color: var(--harmaa); }
@@ -5092,8 +5091,8 @@
       // Monta vaihtoehtoa: valitsin. Wikisanakirjassa ei ole tällaista sivua, joten lisää-linkkiä ei ole.
       nayta(vuoro, haku, alku + (r.askel && r.askel.v ? '' : tekstissa(vaihdot[0].tapa, true)) + '<ul class="sk-vaihdot">' + vaihdot.map(function (x, i) {
         return '<li><button type="button" class="sk-vaihto" data-k="sk-vaihto" data-i="' + i + '">' + esc(x.o) + '</button>' +
-          (x.kl ? ' <span class="sk-vk">' + esc(x.kl) + '</span>' : '') +
-          skEtyNappi(x.o).replace('data-k="sk-ety"', 'data-k="sk-ety-v" data-i="' + i + '"') + '</li>';
+          skEtyNappi(x.o).replace('data-k="sk-ety"', 'data-k="sk-ety-v" data-i="' + i + '"') +
+          (x.kl ? '<span class="sk-vk">' + esc(x.kl) + '</span>' : '') + '</li>';
       }).join('') + '</ul>', false, '');
     }).catch(function () { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); });
   }
