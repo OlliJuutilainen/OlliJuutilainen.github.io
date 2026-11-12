@@ -25,7 +25,7 @@ const palvelin = http.createServer((q, r) => {
 let virheita = 0;
 function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   ' : 'VIKA ') + nimi + (tieto ? ' – ' + tieto : '')); }
 // Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026), palkit ja asetukset auki: musteen etäisyys ruudun reunasta laskettuna
-// laatikoista ja tunnetuista sivuväleistä (kotimerkin seinä 4,425/24 svg:n leveydestä, osion nimi 0,04 em, edistyminen 0,058 em, kiekon kehä 0,84 px svg:n reunan
+// laatikoista ja tunnetuista sivuväleistä (hyllymerkin alin kirja 4,425/24 svg:n leveydestä, osion nimi 0,04 em, edistyminen 0,058 em, kiekon kehä 0,84 px svg:n reunan
 // sisällä, aikajanan päät ilman tikkuja; sivuvälit ja kehä mitattu pikseleistä 29.10.2026).
 // Samalla raksin ja kiekon keskikohdat, navinäkymän värit ja ensimmäisen pääluvun merkki.
 // (Päälukujen määrää ei verrata: lomittuvista pääluvuista voi näkyä vain yksi, karsiPaallekkaiset().)
