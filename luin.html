@@ -1566,10 +1566,10 @@
     var u = e.url || e.osoite;
     return u ? location.href.split('#')[0] + '#u=' + encodeURIComponent(u) : '';
   }
-  // Jakolinkki (Kopioi linkki, käyttäjän pyyntö 12.11.2026): workerin /luin-sivu antaa viestimien esikatseluun tekstin nimen
+  // Jakolinkki (Kopioi linkki, käyttäjän pyyntö 12.11.2026): oman workerin (worker/luin/) sivu antaa viestimien esikatseluun tekstin nimen
   // (luin.html#u=… näytti aina *Luin.*, koska #-osa ei kulje palvelimelle) ja ohjaa selaimen luin.html#u=…:hun.
   // Lähdeviitteen lukutiedot pitävät suoran Luin-linkin.
-  var JAKO_API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/luin';
+  var JAKO_API = 'https://luin.ollijuutilainen.workers.dev/';
   function jakoLinkki(e) {
     var u = e.url || e.osoite;
     return u ? JAKO_API + '?t=' + encodeURIComponent(e.title || '') + '&u=' + encodeURIComponent(u) : '';
