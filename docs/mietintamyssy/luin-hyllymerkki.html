@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Hyllymerkki</title>
+<!--
+  Mietintämyssy (käyttäjän pyyntö 12.11.2026): kotimerkin (pirtti ja harjasalmiakki) tilalle merkki, joka kuvaa hyllyä,
+  koska lukulista on nyt Hylly. Luonnokset ovat samassa 24 × 24 -ruudussa ja samalla viivalla (1,15, terävät kulmat,
+  yksivärinen) kuin pirtti. Ei päätetty, ei toteutettu.
+-->
+<style>
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata.woff2) format("woff2");
+    font-weight: 200 900; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 200 900; font-style: italic; font-display: swap; }
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #8c5426; --hius: #e3d7c3;
+    --antiikva: Literata, Georgia, "Noto Serif", serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-teema="vaalea"]) {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; } }
+  :root[data-teema="tumma"] {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; }
+  .v { --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426; --hius: #e3d7c3; }
+  .t { --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; --hius: #2f261d; }
+  html.eink body { filter: grayscale(1) contrast(1.15); }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); font-size: 16px; line-height: 1.55; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-weight: 400; font-size: 1.9rem; letter-spacing: .04em; margin: 0 0 4px; }
+  .ala { color: var(--harmaa); font-style: italic; margin: 0 0 22px; }
+  h2 { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; color: var(--harmaa);
+    border-bottom: 1px solid var(--viiva); padding-bottom: 6px; margin: 46px 0 14px; }
+  p, li { max-width: 68ch; }
+  a { color: var(--ruoste); text-underline-offset: 3px; }
+  .ohjaimet { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; background: var(--paperi);
+    padding: 8px 0; z-index: 5; border-bottom: 1px solid var(--hius); }
+  button { font: inherit; color: var(--muste); background: var(--paperi); border: 1px solid var(--harmaa); border-radius: 0;
+    padding: 5px 11px; min-height: 34px; cursor: pointer; font-size: .86rem; }
+  button[aria-pressed="true"] { color: var(--ruoste); border-color: var(--ruoste); }
+  .muisti { border-left: 2px solid var(--ruoste); padding: 6px 12px; color: var(--harmaa); font-size: .92rem; margin: 10px 0; }
+
+  svg .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
+  svg .f { fill: currentColor; stroke: none; }
+  svg { overflow: visible; display: block; }
+
+  .kortit { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 0; margin: 10px 0; }
+  .kortti { border: 1px solid var(--hius); margin: -1px 0 0 -1px; padding: 12px 14px 12px; cursor: pointer; background: var(--paperi); }
+  .kortti[aria-current="true"] { outline: 2px solid var(--ruoste); outline-offset: -2px; }
+  .k-ots { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; }
+  .k-nro { font-size: .7rem; color: var(--harmaa); letter-spacing: .08em; min-width: 1.6em; }
+  .k-nimi { font-size: 1.02rem; letter-spacing: .03em; }
+  .k-rivi { display: flex; align-items: flex-end; gap: 14px; }
+  .k-pari { display: flex; gap: 0; }
+  .k-pari > div { background: var(--paperi); color: var(--harmaa); padding: 8px 10px; display: flex; align-items: flex-end; gap: 12px; }
+  .k-iso { color: var(--muste); }
+  .k-sel { font-size: .84rem; color: var(--harmaa); margin: 8px 0 0; line-height: 1.45; }
+
+  /* Asiayhteydet, kopioitu luin.html:stä ja Latomosta. */
+  .yhteys { display: flex; flex-wrap: wrap; gap: 0; margin: 10px 0; }
+  .yhteys > div { flex: 1 1 380px; background: var(--paperi); color: var(--muste); padding: 16px 16px 18px; border: 1px solid var(--hius); margin: -1px 0 0 -1px; min-width: 0; }
+  .otsake { display: flex; }
+  .otsake svg.logo { height: 56px; width: auto; fill: currentColor; margin: 4px 0 0 2px; }
+  a.kotimerkki { display: inline-block; vertical-align: top; width: 40px; height: 40px; margin: 19.6px 0 0 4px; color: var(--harmaa); }
+  a.kotimerkki svg { width: 22px; height: 22px; margin: 9px; }
+  .ylapalkki { height: 56px; display: flex; align-items: center; padding: 0 2px 0 0; background: var(--paperi);
+    border-bottom: 1px solid var(--viiva); margin: 0 -16px; }
+  .takaisin { padding: 0 11px 0 20px; height: 44px; display: inline-flex; align-items: center; color: var(--harmaa); }
+  .takaisin svg { width: 22px; height: 22px; }
+  .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
+    text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
+  .ratas { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); margin-right: 15px; }
+  .ratas svg { width: 22px; height: 22px; fill: currentColor; }
+  .lause { font-size: 17px; line-height: 1.5; margin: 14px 0 0; }
+  .ik { display: inline; height: 1.2em; width: auto; vertical-align: -.26em; color: var(--harmaa); }
+  .rivisto { display: flex; flex-wrap: wrap; gap: 0; }
+  .rivisto > span { display: inline-flex; flex-direction: column; align-items: center; width: 52px; padding: 6px 0 4px;
+    font-size: .6rem; color: var(--harmaa); }
+  .rivisto svg { width: 22px; height: 22px; margin-bottom: 4px; }
+  .foot { text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; margin-top: 50px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Hyllymerkki</h1>
+<p class="ala">Mietintämyssy, ei päätetty. Kotimerkin tilalle merkki, joka on hylly eikä koti.</p>
+
+<div class="ohjaimet">
+  <button type="button" id="teema" aria-pressed="false">Tumma teema</button>
+  <button type="button" id="eink" aria-pressed="false">E-ink-koe</button>
+</div>
+
+<div class="muisti"><b>Lähtökohta:</b> lukulista on nyt <i>Hylly</i>, mutta paluumerkki on yhä pirtti. Kaikki luonnokset on
+  piirretty samaan 24 × 24 -ruutuun samalla 1,15:n viivalla, terävin kulmin ja yhdellä värillä kuin nykyinen
+  <i>Harjasalmiakki</i>. Musteen ala- ja vasen reuna ovat pirtin kohdalla (x 4,425, y 22,075), jotta logon vieren ja yläpalkin
+  sijoitussäännöt pysyvät. Napauta korttia, niin se vaihtuu alempiin asiayhteyskuviin. Jokaisessa kortissa merkki on
+  todellisessa koossaan (22 px) vaaleana ja tummana sekä suurennettuna.</div>
+
+<h2>Nykyinen</h2>
+<div class="kortit" id="nykyinen"></div>
+
+<h2>I · Kirjarivi laudalla</h2>
+<p>Suorin tulkinta: selkämykset seisovat laudalla. Erot ovat siinä, mikä rivistä tekee elävän.</p>
+<div class="kortit" id="ryhma-1"></div>
+
+<h2>II · Salmiakki hyllyllä</h2>
+<p>Hyllyllä ei olekaan kirjoja vaan Luinin oma merkki: tekstit ovat salmiakkeja.</p>
+<div class="kortit" id="ryhma-2"></div>
+
+<h2>III · Mikä hyllyä kannattelee</h2>
+<p>Kirjoista huomio siirtyy itse hyllyyn: kannakkeisiin, naruihin ja seinään.</p>
+<div class="kortit" id="ryhma-3"></div>
+
+<h2>IV · Kehikot</h2>
+<p>Hylly kaappina tai lokerona, ja kerran myös sen ulkopuolella.</p>
+<div class="kortit" id="ryhma-4"></div>
+
+<h2>V · Pirtin perilliset</h2>
+<p>Siltoja vanhaan merkkiin: harja ja harjasalmiakki säilyvät, mutta ne tehdään kirjoista.</p>
+<div class="kortit" id="ryhma-5"></div>
+
+<h2>VI · Lukemisen jäljet</h2>
+<p>Hylly, josta näkee, että jotain luetaan juuri nyt.</p>
+<div class="kortit" id="ryhma-6"></div>
+
+<h2>Asiayhteydessä: <span id="valittu-nimi"></span></h2>
+<div class="yhteys" id="yhteys"></div>
+
+<h2>Kaikki rinnakkain, 22 px</h2>
+<div class="yhteys" id="rinnakkain"></div>
+
+<p class="foot">© TUSINASOFT 2026</p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  function f(n) { return Math.round(n * 1000) / 1000; }
+  function p(x, y) { return f(x) + ' ' + f(y); }
+
+  // Koverakylkinen salmiakki samoin mittasuhtein kuin harjasalmiakki (ohjauspiste 0,42 puolikkaista keskeltä).
+  function sal(cx, cy, hw, hh) {
+    var k = 0.42;
+    return 'M' + p(cx, cy - hh) + 'Q' + p(cx + k * hw, cy - k * hh) + ' ' + p(cx + hw, cy) +
+      'Q' + p(cx + k * hw, cy + k * hh) + ' ' + p(cx, cy + hh) +
+      'Q' + p(cx - k * hw, cy + k * hh) + ' ' + p(cx - hw, cy) +
+      'Q' + p(cx - k * hw, cy - k * hh) + ' ' + p(cx, cy - hh) + 'Z';
+  }
+  // Puolikas salmiakki: kovera kolmio, jonka suora kylki on annettu.
+  function polku(pts, kiinni) {
+    return 'M' + pts.map(function (q) { return p(q[0], q[1]); }).join('L') + (kiinni ? 'Z' : '');
+  }
+  // Kallellaan oleva kirja: kantapiste, kallistus asteina (+ = yläpää oikealle), leveys, pituus, kanta 'v' tai 'o'.
+  function kirja(x, y, aste, w, L, kanta) {
+    var a = aste * Math.PI / 180, d = [Math.sin(a), -Math.cos(a)], n = [Math.cos(a), Math.sin(a)];
+    var o = kanta === 'o' ? [x - w * n[0], y - w * n[1]] : [x, y];
+    var b = [o[0] + w * n[0], o[1] + w * n[1]];
+    return polku([o, b, [b[0] + L * d[0], b[1] + L * d[1]], [o[0] + L * d[0], o[1] + L * d[1]]], true);
+  }
+  function k(d) { return '<path class="k" d="' + d + '"/>'; }
+  function t(d) { return '<path class="f" d="' + d + '"/>'; }
+  var LAUTA = 'M4.425 21.5H19.575';
+  var HARJA = sal(12, 2.35, 1.45, 1.9);
+
+  var M = [];
+  function merkki(ryhma, nimi, sel, sisus) { M.push({ ryhma: ryhma, nimi: nimi, sel: sel, sisus: sisus }); }
+
+  merkki(0, 'Harjasalmiakki', 'Nykyinen kotimerkki: pirtti, jonka harjan yllä leijuu logon i:n pisteen kaltainen salmiakki.',
+    k('M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5') + t(HARJA));
+
+  // I · Kirjarivi laudalla
+  merkki(1, 'Kolme selkää', 'Kolme eri korkuista selkämystä ja matala neljäs. Harjasalmiakki siirtyy pisimmän kirjan päälle i:n pisteeksi.',
+    k(LAUTA + 'M6 21.5V10H9V21.5M9 10V7.5H12.5V21.5M12.5 11H15.5V21.5M15.5 13.5H18.5V21.5') + t(sal(10.75, 4.1, 1.45, 1.9)));
+  merkki(1, 'Nojaaja', 'Kaksi pystyä ja kolmas nojaa niihin. Hyllyn tavallisin ele, ja siinä on liikettä ilman salmiakkia.',
+    k(LAUTA + 'M5.5 21.5V8H8.5V21.5M8.5 9.5H11.5V21.5') + k(kirja(16.08, 21.32, -24, 3, 11.5, 'v')));
+  merkki(1, 'Kirjatuki', 'Kirjat pysyvät pystyssä koverakylkisen tuen varassa: puolikas salmiakki seisoo laudalla.',
+    k(LAUTA + 'M5 21.5V9H8V21.5M8 8H10.75V21.5M10.75 10.5H13.6V21.5') +
+    k('M13.6 21.5V11.2Q15 17.4 19.2 21.5'));
+  merkki(1, 'Selkänauhat', 'Vanhojen nahkaselkien nauhat. Keskimmäisen kirjan nimilappu on salmiakki, joten mitään ei leiju.',
+    k(LAUTA + 'M5 21.5V8.5H9V21.5M9 6.5H13.5V21.5M13.5 9.5H17.5V21.5' +
+      'M5 11H9M5 19H9M9 9H13.5M9 19H13.5M13.5 12H17.5M13.5 19H17.5') + t(sal(11.25, 13.9, 1.2, 1.65)));
+  merkki(1, 'Pino ja pysty', 'Kolme makaavaa kirjaa pinossa ja kaksi pystyssä. Hylly, jota oikeasti käytetään.',
+    k(LAUTA + 'M5 21.5V19.2H12.5V21.5M5.8 19.2V17H11.6V19.2M6.4 17V15H11V17M12.5 21.5V9.5H15.5V21.5M15.5 8H18.5V21.5'));
+
+  // II · Salmiakki hyllyllä
+  merkki(2, 'Salmiakki hyllyllä', 'Kaksi kirjaa ja niiden vieressä salmiakki pystyssä kärjellään kuin koriste-esine.',
+    k(LAUTA + 'M5 21.5V9H8V21.5M8 10.5H11V21.5') + k(sal(15.6, 15.275, 3, 4.825)));
+  merkki(2, 'Salmiakkirivi', 'Hyllyllä on kolme salmiakkia: tekstit ovat Luinin omia merkkejä. Keskimmäinen on harjasalmiakin perillinen.',
+    k(LAUTA) + t(sal(7.6, 16.4, 2, 4.525)) + t(sal(12, 14.9, 2.2, 6.025)) + t(sal(16.4, 16.9, 1.8, 4.025)));
+  merkki(2, 'i hyllyssä', 'Logon i (pää- ja jalkapäätteineen ja salmiakkipisteineen) on yksi kirja muiden joukossa: se, jota luetaan.',
+    k(LAUTA + 'M5.6 21.5V10.5H8.6V21.5M15.6 21.5V9H18.6V21.5') +
+    t('M11.15 9.925H13.5V20.925H11.15ZM10.05 9.925H11.15V10.455H10.05ZM10.05 20.395H14.6V20.925H10.05Z') +
+    t(sal(12.33, 7.125, 1.18, 1.55)));
+
+  // III · Mikä hyllyä kannattelee
+  merkki(3, 'Konsolit', 'Seinähylly kahden koverakylkisen konsolin päällä. Konsolit ovat salmiakin neljänneksiä.',
+    k('M4.425 15.5H19.575M6 15.5V7.5H8.8V15.5M8.8 9H11.6V15.5M11.6 6.5H14.4V15.5') +
+    t('M4.425 16.075H8.2Q6.2 17.5 5.6 22.075H4.425Z') + t('M19.575 16.075H15.8Q17.8 17.5 18.4 22.075H19.575Z'));
+  merkki(3, 'Ripustettu', 'Hylly roikkuu naruista salmiakkinaulassa. Narut piirtävät vanhan pirtin harjan, ja naula on harjasalmiakki.',
+    k('M5.6 19.5L12 4.6L18.4 19.5') + k('M5 19.5H19V21.5H5Z') +
+    k('M8.7 19.5V13.6H10.6V19.5M10.6 10.9H13.1V19.5M13.1 13.8H15.1V19.5') + t(HARJA));
+  merkki(3, 'Kannake', 'Hylly sivulta: seinä, lauta ja vinotuki. Laudalla yksi kirja ja salmiakki, siinä kaikki.',
+    k('M5 22.075V4.5M5 12.5H19.575M5 19.5L12 12.5M8 12.5V4H12V12.5') + t(sal(16, 9.5, 1.45, 2.425)));
+  merkki(3, 'Kaksi lautaa', 'Kaksi irrallista seinälautaa porrastettuina: ylempi on Hylly, alempi Pölyhylly, jonka kirjat ovat jo kallellaan.',
+    k('M4.425 12H14.2M5.5 12V5H8V12M8 6.3H10.5V12') + t(sal(12.3, 8.6, 1.2, 2.825)) +
+    k('M9.8 21.5H19.575M15.5 21.5V14.5H18V21.5') + k(kirja(13.46, 21.32, 18, 2.4, 6.6, 'o')));
+
+  // IV · Kehikot
+  merkki(4, 'Kirjakaappi', 'Kehys, välihylly ja kahden kerroksen kirjat. Harjasalmiakki on kaapin kruunun kohdalla.',
+    k('M5 21.5V7H19V21.5ZM5 14H19M6.9 14V9.2H9V14M9 8.6H11.1V14M11.1 9.8H12.9V14M6.9 21.5V16H9.2V21.5M9.2 16.8H11.4V21.5') +
+    k(kirja(13.32, 21.32, -20, 2.2, 5.6, 'v')) + t(sal(12, 3.6, 1.45, 1.9)));
+  merkki(4, 'Laatikon ulkopuolella', 'Lokero, jossa on kirjoja, ja yksi kirja on päässyt ulos ja nojaa lokeron kylkeen.',
+    k('M5 21.5V9H13.5V21.5ZM6.3 21.5V12H8.6V21.5M8.6 11H10.6V21.5M10.6 13H12.2V21.5') +
+    k(kirja(16.4, 21.32, -16, 2.2, 10.5, 'v')) + k('M13.5 21.5H19.575'));
+  merkki(4, 'Hyllyrivit', 'Kolme hyllyä päällekkäin ja selkämykset viivoina. Hylly on luettelo, ja merkki sanoo sen suoraan.',
+    k('M4.425 8.5H19.575M4.425 15H19.575M4.425 21.5H19.575' +
+      'M6.2 8.5V4M8.4 8.5V3.2M10.6 8.5V4.6M15.4 8.5V3.6' +
+      'M6.2 15V11.2M8.4 15V10.4M12.8 15V10.8M15 15V9.8M17.2 15V11' +
+      'M6.2 21.5V17.6M10.6 21.5V16.8M12.8 21.5V17.4M17.2 21.5V16.6'));
+
+  // V · Pirtin perilliset
+  merkki(5, 'Harjakirjat', 'Kaksi kirjaa nojaa toisiinsa ja tekee harjan. Salmiakki lepää niiden yläkulmien välissä kuin vanhan harjan yllä.',
+    k(LAUTA) + k(kirja(7.2, 21.32, 24, 2.3, 11.8, 'o')) + k(kirja(16.8, 21.32, -24, 2.3, 11.8, 'v')) + t(sal(12, 7.7, 1.45, 1.9)));
+  merkki(5, 'Kumollaan', 'Kesken jäänyt kirja auki selkä ylöspäin päädystä katsottuna: kannet ja lehtiö tekevät katon. Harjasalmiakki säilyy.',
+    k(LAUTA + 'M4.9 21.5L12 9L19.1 21.5M7.4 21.5L12 12.6L16.6 21.5') + t(HARJA));
+  merkki(5, 'Kirjapirtti', 'Pienin siirto: pirtti pysyy, mutta oven tilalla on hylly. Koti on se, missä kirjat ovat.',
+    k('M5 21.5V12.5L12 5.5L19 12.5V21.5ZM7.8 21.5V15H10V21.5M10 13H12.6V21.5M12.6 15.6H14.6V21.5') +
+    k(kirja(16.1, 21.32, -16, 1.8, 5.3, 'v')) + t(HARJA));
+
+  // VI · Lukemisen jäljet
+  merkki(6, 'Aukko', 'Rivissä on rako, ja raossa leijuu salmiakki: kirja on otettu luettavaksi.',
+    k(LAUTA + 'M5 21.5V9H7.5V21.5M7.5 10.5H9.6V21.5M14 21.5V9.5H16.4V21.5M16.4 11H19V21.5') + t(sal(11.8, 15, 1.2, 1.6)));
+  merkki(6, 'Kirjanmerkki', 'Keskimmäisestä kirjasta roikkuu nauha laudan reunan yli. Nauhan pää on Luinin kirjanmerkin lovipää.',
+    k('M4.425 17H19.575M5.5 17V7H8.5V17M8.5 5.5H12.2V17M12.2 8.5H15V17M15 10H18.2V17') +
+    t('M9.75 17.575H11.15V22.075L10.45 21.1L9.75 22.075Z'));
+
+  var nimet = ['', 'I', 'II', 'III', 'IV', 'V', 'VI'];
+  function svg(m, luokka) { return '<svg viewBox="0 0 24 24" aria-hidden="true"' + (luokka ? ' class="' + luokka + '"' : '') + '>' + m.sisus + '</svg>'; }
+
+  var valittu = 0;
+  var nro = 0;
+  M.forEach(function (m, i) {
+    m.nro = m.ryhma === 0 ? '0' : String(++nro);
+    var el = document.createElement('div');
+    el.className = 'kortti'; el.tabIndex = 0; el.dataset.i = i;
+    el.innerHTML = '<p class="k-ots"><span class="k-nro">' + m.nro + '</span><span class="k-nimi">' + m.nimi + '</span></p>' +
+      '<div class="k-rivi"><div class="k-pari">' +
+        '<div class="v">' + svg(m).replace('<svg', '<svg width="22" height="22"') + '</div>' +
+        '<div class="t">' + svg(m).replace('<svg', '<svg width="22" height="22"') + '</div></div>' +
+        '<div class="k-iso">' + svg(m).replace('<svg', '<svg width="88" height="88"') + '</div></div>' +
+      '<p class="k-sel">' + m.sel + '</p>';
+    el.addEventListener('click', function () { valitse(i); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); valitse(i); } });
+    document.getElementById(m.ryhma === 0 ? 'nykyinen' : 'ryhma-' + m.ryhma).appendChild(el);
+  });
+
+  var LOGO = '<svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg>';
+  var RATAS = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4M22.6 12L19.6 12M12 22.6L12 19.6M1.4 12L4.4 12"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/></svg>';
+
+  function yhteys(m, luokka) {
+    return '<div class="' + luokka + '">' +
+      '<div class="otsake">' + LOGO + '<a class="kotimerkki" href="#" onclick="return false">' + svg(m) + '</a></div>' +
+      '<div class="ylapalkki" style="margin-top:22px"><a class="takaisin" href="#" onclick="return false">' + svg(m) + '</a>' +
+        '<span class="y-nimi">Kant ja eläinetiikka</span><span class="ratas">' + RATAS + '</span></div>' +
+      '<p class="lause">Tekstistä pääset takaisin hyllylle yläpalkin vasemmasta kulmasta, hyllymerkistä ' +
+        svg(m, 'ik') + '.</p></div>';
+  }
+  function valitse(i) {
+    valittu = i;
+    document.querySelectorAll('.kortti').forEach(function (el) { el.setAttribute('aria-current', String(+el.dataset.i === i)); });
+    document.getElementById('valittu-nimi').textContent = M[i].nro + ' ' + M[i].nimi;
+    document.getElementById('yhteys').innerHTML = yhteys(M[i], 'v') + yhteys(M[i], 't');
+    try { history.replaceState(null, '', '#' + i); } catch (e) {}
+  }
+  var rivi = function (luokka) {
+    return '<div class="' + luokka + '"><div class="rivisto">' + M.map(function (m) {
+      return '<span>' + svg(m) + m.nro + '</span>'; }).join('') + '</div></div>';
+  };
+  document.getElementById('rinnakkain').innerHTML = rivi('v') + rivi('t');
+  var alku = parseInt(location.hash.slice(1), 10);
+  valitse(alku >= 0 && alku < M.length ? alku : 0);
+
+  var juuri = document.documentElement;
+  document.getElementById('teema').addEventListener('click', function () {
+    var tumma = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', String(tumma));
+    juuri.setAttribute('data-teema', tumma ? 'tumma' : 'vaalea');
+  });
+  document.getElementById('eink').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', String(on));
+    juuri.classList.toggle('eink', on);
+  });
+  window.__merkit = M;
+})();
+</script>
+</body>
+</html>
