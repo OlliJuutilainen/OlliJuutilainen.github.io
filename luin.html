@@ -324,7 +324,7 @@
   .valikko .sk-vaihdot button.sk-vaihto { font-size: 1rem; font-style: italic; }
   .valikko .sk-vk { margin-left: 4px; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
-  .valikko a.sk-lisa { display: inline-flex; align-self: center; margin: -3px -1px -3px auto; line-height: 0; text-decoration: none; }
+  .valikko a.sk-lisa { display: inline-flex; align-self: center; margin: -3px -2.5px -3px auto; line-height: 0; text-decoration: none; }
   .valikko a.sk-lisa svg { width: 20px; height: 20px; fill: none; }
   .valikko a.sk-lisa .kehys { stroke: var(--viiva); stroke-width: 1; }
   .valikko a.sk-lisa .plus { stroke: var(--ruoste); stroke-width: 1.2; }
@@ -357,7 +357,7 @@
   /* Raksi on ΛΟΓΟΣ-rivillä, kun otsikko näkyy; muuten sanan peruslinjalla kuten ennen (mitattu 5.11.2026). */
   .valikko.sk-logos-nak button.sk-sulje svg { top: 13.5px; }
   .valikko .sk-ety-runko { margin-top: 6px; }
-  .valikko .sk-muoto { margin-top: 7px; font-size: .8rem; line-height: 1.4; color: var(--harmaa); }
+  .valikko .sk-muoto { margin-top: 10px; font-size: .8rem; line-height: 1.4; color: var(--harmaa); }
   .valikko .sk-ety-laatikko { margin-top: 8px; padding: 4px 10px 6px; border: 1px solid var(--viiva); }
   .valikko .sk-ety-ots { display: flex; align-items: center; }
   .valikko .sk-ety-ots .sk-osa { margin-top: 0; }
@@ -5021,8 +5021,8 @@
       '<div class="sk-runko"><div class="sk-tieto">Haetaan…</div></div><div class="sk-ala">' + skLisa(linkki) + '</div>';
   }
   // Lisää on pikku plussa kuten Latomossa (käyttäjän pyyntö 12.11.2026; ennen sana *lisää*), kevyesti kehystettynä painikkeeksi
-  // suoraan salmiakkiin (vinoneliöestetiikkaa; kehys --viiva, plussa ruoste).
-  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1.5L18.5 10L10 18.5L1.5 10Z"/><path class="plus" d="M10 6.4V13.6M6.4 10H13.6"/></svg></a>' : ''; }
+  // tavalliseen neliöön (käyttäjän valinta 12.11.2026, ei salmiakkia; kehys --viiva, plussa ruoste).
+  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '"><svg viewBox="0 0 20 20" aria-hidden="true"><rect class="kehys" x="2.5" y="2.5" width="15" height="15"/><path class="plus" d="M10 6.4V13.6M6.4 10H13.6"/></svg></a>' : ''; }
   function skKieliKoodi(nimi) { return Object.keys(SK_NIMI).filter(function (k) { return SK_NIMI[k] === nimi; })[0] || ''; }
 
   // Sanaselitys valinnasta (segs: yksi pala). Ketju ajetaan loppuun asti vain, jos tasan samaa ei löydy. Wikisanakirjassa ei
