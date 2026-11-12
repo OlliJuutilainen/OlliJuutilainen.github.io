@@ -184,7 +184,7 @@ Lähdetiedot ovat avaimet `tyyppi` (tieteellinen, blogi, kaunokirjallinen; puutt
 
 Englanninkieliset ja MarkDownloadin avaimet yhtenäistetään (`LuinMD.avain`): `author` on tekijä, `source` lähde, `created` ja `leikattu` (Latomon korvamerkki, luku 7.4) haettu, `title` otsikko, `published` ja `date` julkaistu, `site` sivusto. Täyttämättä jäänyt pohjan muuttuja (`{byline}`) ohitetaan, ja sisennetyt jatkorivit (YAML-luettelo) liitetään edelliseen arvoon.
 
-Päiväys tallennetaan ISO-muodossa siihen tarkkuuteen, joka halutaan ilmoittaa: `2026` vuosi, `2026-10` kuukausi, `2026-10-08` päivä, `2026-10-08 14.05` minuutti. T-muotoinen aikaleima (`2026-10-08T07:30:00`) on koneen, ja Latomo ilmoittaa sen oletuksena tyypin tarkkuudella (blogissa kuukausi).
+Päiväys tallennetaan ISO-muodossa siihen tarkkuuteen, joka halutaan ilmoittaa: `2026` vuosi, `2026-10` kuukausi, `2026-10-08` päivä, `2026-10-08 14:05` minuutti. T-muotoinen aikaleima (`2026-10-08T07:30:00`) on koneen, ja Latomo ilmoittaa sen oletuksena tyypin tarkkuudella (blogissa kuukausi).
 
 Etukentän arvot saa tekstiin iA Writerin tapaan: `[%avain]`.
 

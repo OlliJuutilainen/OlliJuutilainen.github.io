@@ -179,11 +179,11 @@ palvelin.listen(0, async () => {
   tulos('pelkän tekstin ehdotukset', e.some(x => /tyhjiä rivejä/.test(x)) && e.some(x => /#-otsikkoa/.test(x)), e.join(' / '));
   await p.selectOption('#tyyppi', 'blogi');
   await p.fill('#k-otsikko', 'Kokeilu');
-  await p.fill('#k-julkaistu', '8.10.2026 14.05');
+  await p.fill('#k-julkaistu', '8.10.2026 14:05');
   await p.fill('#k-sivusto', 'Tusinablogi');
   await p.waitForTimeout(300);
   t = await T();
-  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14.05.' && /^julkaistu: 2026-10-08 14\.05$/m.test(t.md), t.koottu);
+  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14.05.' && /^julkaistu: 2026-10-08 14:05$/m.test(t.md), t.koottu);
   tulos('otsikko tekstin alkuun', /---\n\n# Kokeilu\n\nEnsimmäinen rivi/.test(t.md));
   await p.click('.ehdotus button:has-text("Tee jokaisesta rivistä kappale")');
   await p.waitForTimeout(300);

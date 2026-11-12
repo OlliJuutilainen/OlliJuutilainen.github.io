@@ -1281,14 +1281,14 @@
     if (t === 1) return String(p.y);
     if (t === 2) return tapa === 'kentta' ? p.m + '/' + p.y : KK[p.m - 1] + 'kuu' + (tapa === 'viite' ? '/' : ' ') + p.y;
     var d = p.d + '.' + p.m + '.' + p.y;
-    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' : ' klo ') + p.h + '.' + kaksi(p.mi);
+    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' + p.h + ':' : ' klo ' + p.h + '.') + kaksi(p.mi);
   }
   function pvmIso(p, t) {
     if (!p) return '';
     t = Math.min(p.t, t || 4);
-    // Kellonaika välilyönnillä ja pisteellä (2026-10-08 14.05): T-muotoinen aikaleima on koneen (MarkDownload), ja
+    // Kellonaika välilyönnillä ja pisteellä (2026-10-08 14:05): T-muotoinen aikaleima on koneen (MarkDownload), ja
     // Latomo ilmoittaa sen oletuksena vain kuukauden tarkkuudella.
-    return p.y + (t >= 2 ? '-' + kaksi(p.m) : '') + (t >= 3 ? '-' + kaksi(p.d) : '') + (t >= 4 ? ' ' + kaksi(p.h) + '.' + kaksi(p.mi) : '');
+    return p.y + (t >= 2 ? '-' + kaksi(p.m) : '') + (t >= 3 ? '-' + kaksi(p.d) : '') + (t >= 4 ? ' ' + kaksi(p.h) + ':' + kaksi(p.mi) : '');
   }
 
   /* ---------- Tekijät ----------
