@@ -305,12 +305,17 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
-- **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026, ensimmäinen kokeilu; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`):
-  lukulistan otsikon alla `.huilukaista` (lyhyt huilu, jonka tuutista lähtee kulmikas nelilinja, 15 px) ja Postihuilun kautta
-  kantautuneen tekstin (`e.src === 'laatikko'`) nimen perässä sama huilu vinossa, 68°, nokka ylhäällä oikealla (`HUILUTETTU`).
-  Molemmat syntyvät `luin/kehitys/postihuilu-kuvio.js`:stä: muuta siellä ja liitä tuloste. Käyttäjän säännöt: reiät ovat reikiä
-  eivätkä koskaan ylitä putken reunaviivoja; reiät pitkittäin ketjuna, kärjet hiukan lomittain; ikkuna reikien värinen; suu
-  symmetrinen. Ei ruostetta. Älä tarjoa aaltoilevia tai muita hylättyjä vaihtoehtoja.
+- **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`): `luin/huilu.js`
+  (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
+  Hyllyllä huilu on *Postihuilu*-otsikon oikealla puolella (`.huilu-paikka`), asetuksissa omassa lohkossaan *Soita huilua!*
+  -napin (oikeassa reunassa) yläpuolella; Arvo on laatikkolauseen rivillä kentän oikean laidan tasalla. Kellosta lähtee
+  viuhkana kulmikas nelilinja, joka taittuu yhdessä selkeässä kulmassa vaakasuoraksi (ei kaarta). Nuotit ilmestyvät vasta
+  painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena epäsäännöllisenä muodostelmana (ei portaita),
+  eivätkä liiku. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`).
+  Käyttäjän säännöt: sormireiät logon mittasuhteissa, sivukärjet reunaviivan sisäpinnassa, kärjet hipaisten (ei lomitusta),
+  alin alakärki pohjaviivan sisäpinnassa; ääniaukko keskellä, ääriviivainen puolisuunnikas; ohuet viivat; ei ruostetta.
+  Nimikkeen kolme salmiakkia ovat pystyssä samoin kärjet hipaisten. Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
+  vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät).
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
   *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
   `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
@@ -343,6 +348,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio hyllyllä ja asetuksissa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista 429:n (myös kohteliaalla User-Agentilla ja odottaen), joten oikeaa rajapintaa ei voi

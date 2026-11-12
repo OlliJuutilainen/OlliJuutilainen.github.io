@@ -88,7 +88,7 @@ function muistiKV() {
   await a.click('#laatikko-kysy');
   const ohje = await a.evaluate(() => ({ auki: !document.querySelector('#laatikko-ohje').hidden, t: document.querySelector('#laatikko-ohje').textContent }));
   const osio = await a.evaluate(() => ({ ots: document.querySelector('#laatikko-osio summary').textContent,
-    teksti: document.querySelector('#laatikko-osio .huomio.jatko').textContent, rivi: document.querySelector('#laatikko-osio .koodirivi').textContent.trim(),
+    teksti: document.querySelector('#laatikko-osio .huomio.jatko').textContent, rivi: document.querySelector('#laatikko-osio .koodirivi label').textContent.trim(),
     nappi: document.querySelector('#laatikko-tallenna').textContent, lista: document.querySelector('#lisaa-ots').textContent,
     paikka: document.querySelector('#lisaa-syote').placeholder, lisaa: document.querySelector('#lisaa-kentta button').textContent }));
   tulos('Postihuilu: asetusten ja lukulistan tekstit', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
