@@ -112,7 +112,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **"Vinoneliöestetiikkaa, ei palluraestetiikkaa."** Koverakylkiset salmiakit, antiikva (Literata, `luin/fontit/`, OFL),
   klassinen tyyli. Kirjasinvalinta poistettiin: groteski palaa vain, jos koko ohjelman ulkoasu sovitetaan siihen.
   Tarkoituksellinen poikkeus: sanaselityksen merkin (`IK_SANASTO`) linssi on pyöreä (käyttäjän syrjähyppy 5.11.2026).
-  Ohjelman kuoressa ei ole kreikkaa (käyttäjän päätös 6.11.2026; marginaali on *mikro, meso, makro*). Kreikka on vain
+  Ohjelman kuoressa ei ole kreikkaa (käyttäjän päätös 6.11.2026; marginaali on *mikro, meso, makro*), paitsi sanaselityksen
+  piirretyt merkit: lambda (λόγος) ja alkuperän epsilon (ἔτυμον, käyttäjän pyyntö 12.11.2026). Kreikka on vain
   sisällöissä: erillinen osajoukko `literata-kreikka*.woff2`, koska päätiedostoissa ei ole kreikkaa.
 - **Suljettu lukuympäristö ilman häiriötekijöitä**: verkkolinkit ovat oletuksena pois (`aset.verkkolinkit`), myös
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
@@ -257,6 +258,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Taivutusarvaukset (loppunapsu) vain tekstin kielestä, paitsi kursiivissa ja lainauksessa. Wikisanakirjassa ei surffata
   takaisin päin (Luin ei ole selain), merkki ei ole linkki, ja ulos vievät linkit ovat korkean kynnyksen takana. REST-rajapinnan kieliavaimiin ei luoteta (`skNormita()`: Translingual on avaimen `en` alla, muinaiskreikka avaimen `other`); kieli luetaan osan nimestä. Tekstin kielestä löytyvään sanaan ei näytetä muiden kielten tietoja (käyttäjän linjaus 6.11.2026, ensin suomi, sitten kaikki kielet: *edes* ei tuo latinaa, *is* ei afrikaansia; `r`-lippu ketjussa). Kursiivissa tämä liudentuu: tekstin kieli ensin, muut jäävät mukaan; ei kuitenkaan tekstin kielen pikkusanalle (`KIELET`-lista, `y.pikkusana`: *as* ei tuo suomea kursiivissa eikä lainauksessa). Suomenkielinen lainaus on kuin leipäteksti; muissa kielissä vain oman kielensä erottava lainaus (`y.omaKieli`), lyhyt lainaus liudentuu. Englannin iso alkukirjain keskellä virkettä (*Dasein*) jättää muut kielet mukaan, ja kreikan kaksi kieltä näkyvät yhdessä. Lainauksen sisäinen kursiivi on kursiivi. Translingual (`mul`) noudattaa samaa: pois tekstin kielestä löytyvältä, paitsi symbolin näköiselle kirjoitusasulle (IV, CO2, pH); muuten tekstin kielen, ketjun kielten, englannin ja suomen jälkeen; ISO 639 -kielikoodit eivät näy koskaan (käyttäjän palaute 6.11.2026). Verkkovirhe pysäyttää ketjun. Enintään
   10 sanaa (`SK_SANAT`). Raksin ja merkin paikka on mitattu lisää-linkistä; asetuksissakin lambda on tekstin värinen (6.11.2026).
+- **Alkuperä** (käyttäjän pyyntö 12.11.2026, opas 4.3): epsilon-nappi jokaisen sivun vieressä (otsikko, valitsimen rivit,
+  alaotsikot; kaikki samassa sarakkeessa) avaa *Alkuperä*-laatikon ennen määritelmiä. Käyttäjä pyysi *eettaa*, mutta perusteli
+  sen sanalla *etymo* (ἔτυμον alkaa epsilonilla), joten merkki on ε; vaihto η:hen on yksi polku (`IK_ETY`). Haku `action=parse`:lla
+  vain napautuksesta, vain näkyneiden kielten osiot, taivutusmuodolle perusmuodon sivu. Koko sivua ei haeta (megatavuja).
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
   Numero on md.js:n `paikat()`-paikannin (käyttäjän pyyntö 6.11.2026, opas 3.2): kirjoittajan `4.3.4` sellaisenaan, muuten
   tunnisteiden ketju (*Osa II, 3b*), ja ylempi taso pois, jos alempi numerointi jatkuu sen yli (Korsgaardin Part II alkaa

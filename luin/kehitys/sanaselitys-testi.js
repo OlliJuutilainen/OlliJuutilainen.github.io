@@ -62,6 +62,38 @@ const S = {
   jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
   IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] }
 };
+// Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
+// Osion teksti sisältää oman otsikkonsa ja alaosionsa (section=N), siksi mukana on ääntämys ja sanaluokka, joita ei saa näkyä.
+const E = {
+  kello: { Finnish: ['From <span class="etyl"><a href="https://en.wikipedia.org/wiki/Proto-Finnic_language">Proto-Finnic</a></span> <i class="Latn mention" lang="urj-fin-pro"><a href="/wiki/Reconstruction:Proto-Finnic/kello">*kello</a></i>; compare <i class="Latn mention" lang="fi"><a href="/wiki/kellua#Finnish">kellua</a></i>.<sup class="reference">[1]</sup>'] },
+  as: { English: ['From Middle English <i>as</i>, from Old English <i>eallswā</i>.'] },
+  kanteli: { Finnish: ['A made-up etymology for <i>kanteli</i>.'] },
+  kantele: { Finnish: [] },
+  Kant: { English: ['From the surname of <a href="/wiki/Immanuel_Kant" title="x">Immanuel Kant</a>.', 'Second sense of Kant.'], German: ['From <span class="etyl">Middle High German</span> <i><a href="/wiki/kant#Middle_High_German">kant</a></i>.'] }
+};
+const NIMET = Object.fromEntries(Object.entries(NIMI).map(([k, v]) => [k, v]));
+function parse(u) {
+  const q = u.searchParams, o = q.get('page'), e = E[o];
+  if (!e) return { error: { code: 'missingtitle' } };
+  const osiot = []; let n = 0;
+  for (const kieli of Object.keys(S[o]).filter(k => k !== 'pop').map(k => NIMET[k])) {
+    osiot.push({ toclevel: 1, level: '2', line: kieli, index: String(++n) });
+    const et = e[kieli] || [];
+    const nimeta = et.length > 1;
+    et.forEach((t, i) => {
+      osiot.push({ toclevel: 2, level: '3', line: 'Etymology' + (nimeta ? ' ' + (i + 1) : ''), index: String(++n), teksti: t });
+      osiot.push({ toclevel: 3, level: nimeta ? '4' : '3', line: 'Noun', index: String(++n) });
+    });
+    if (!et.length) osiot.push({ toclevel: 2, level: '3', line: 'Pronunciation', index: String(++n) });
+  }
+  if (q.get('prop') === 'sections') return { parse: { title: o, sections: osiot.map(({ teksti, ...x }) => x) } };
+  const s = osiot.find(x => x.index === q.get('section'));
+  return { parse: { title: o, text: '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><div class="mw-heading mw-heading3"><h3 id="Etymology">' + s.line + '</h3></div>' +
+    '<div class="NavFrame"><div class="NavHead">Etymology tree</div><div class="NavContent">PUU</div></div>' +
+    '<p>' + s.teksti + '</p><style>.x{}</style>' + (/Second/.test(s.teksti) ? '<ul><li>Cognate one</li><li>Cognate two<ul><li>SISÄ</li></ul></li></ul>' : '') +
+    '<div class="mw-heading mw-heading4"><h4 id="Pronunciation">Pronunciation</h4></div><ul><li>IPA: ÄÄNTÄMYS</li></ul>' +
+    '<div class="mw-heading mw-heading4"><h4 id="Noun">Noun</h4></div><p><b>' + o + '</b></p><ol><li>MÄÄRITELMÄ</li></ol></div>' } };
+}
 function taita(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/[,'’]/g, ''); }
 function rest(o) {
   const e = S[o]; if (!e) return null;
@@ -152,6 +184,7 @@ palvelin.listen(0, async () => {
       const j = rest(o);
       return route.fulfill(j ? { status: 200, headers: h, body: JSON.stringify(j) } : { status: 404, headers: h, body: '{}' });
     }
+    if (u.pathname === '/w/api.php' && u.searchParams.get('action') === 'parse') return route.fulfill({ status: 200, headers: h, body: JSON.stringify(parse(u)) });
     if (u.pathname === '/w/api.php') return route.fulfill({ status: 200, headers: h, body: JSON.stringify(api(u)) });
     return route.fulfill({ status: 404, headers: h, body: '{}' });
   });
@@ -222,6 +255,64 @@ palvelin.listen(0, async () => {
   await p.waitForFunction(() => /made-up/.test(document.querySelector('#pop .sk-runko').textContent));
   r = await p.evaluate(() => ({ ots: document.querySelector('#pop .sk-o').textContent, takaisin: !!document.querySelector('#pop .sk-takaisin'), lisaa: !!document.querySelector('#pop .sk-lisa') }));
   tulos('valitsimen valinta ilman paluuta valitsimeen', r.ots === 'kanteli' && !r.takaisin && r.lisaa, JSON.stringify(r));
+
+  // Alkuperä (käyttäjän pyyntö 12.11.2026): epsilon otsikossa ja valitsimen riveillä; laatikko ennen määritelmiä.
+  const ety = () => p.evaluate(() => {
+    const q = s => document.querySelector('#pop ' + s), qa = s => [...document.querySelectorAll('#pop ' + s)];
+    const l = q('.sk-ety-laatikko'), runko = q('.sk-runko');
+    return { ots: q('.sk-o').textContent, nappi: !!q('.sk-ots button.sk-ety'), painettu: qa('button.sk-ety').map(b => b.getAttribute('aria-pressed')),
+      auki: !!l, teksti: l ? l.querySelector('.sk-ety-runko').textContent : '', kielet: l ? [...l.querySelectorAll('.sk-kieli')].map(e => e.textContent) : [],
+      ensin: !!l && runko.querySelector('.sk-ety-laatikko, .sk-kieli') === l, sanat: l ? [...l.querySelectorAll('button.sk-sana')].map(b => b.dataset.sana) : [],
+      kpl: l ? l.querySelectorAll('.sk-ety-p').length : 0, rivit: l ? l.querySelectorAll('.sk-ety-li').length : 0, nakyy: !document.querySelector('#pop').hidden };
+  });
+  const odotaEty = () => p.waitForFunction(() => { const t = document.querySelector('#pop .sk-ety-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
+  r = await selita('kelloon');
+  let e = await ety();
+  tulos('alkuperä: epsilon otsikossa, laatikko kiinni ja ei hakua ennen napautusta', e.nappi && !e.auki && e.painettu.join() === 'false' && !pyynnot.some(u => /action=parse/.test(u)), JSON.stringify(e));
+  pyynnot.length = 0;
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  e = await ety();
+  tulos('alkuperä: epsilon avaa laatikon ensimmäiseksi, vain etymologia (ei puuta, ääntämystä, sanaluokkaa eikä viitettä)',
+    e.auki && e.ensin && e.painettu.join() === 'true' && /^Perusmuodon kello alkuperä\.From Proto-Finnic \*kello; compare kellua\.$/.test(e.teksti) && !e.kielet.length && e.kpl === 1, JSON.stringify(e));
+  tulos('alkuperä: taivutusmuodolle perusmuodon sivulta, kaksi pyyntöä (osioluettelo ja yksi osio)',
+    pyynnot.length === 2 && /page=kello&prop=sections/.test(pyynnot[0]) && /page=kello&prop=text&section=2/.test(pyynnot[1]), pyynnot.join(' · '));
+  tulos('alkuperä: Wikisanakirjan sana on linkki eteenpäin, rekonstruktio ja Wikipedia eivät', e.sanat.join() === 'kellua', JSON.stringify(e.sanat));
+  await kuva('sk-alkupera-kello');
+  await p.click('#pop .sk-ety-sulje');
+  e = await ety();
+  tulos('alkuperä: laatikon raksi sulkee vain laatikon', !e.auki && e.nakyy && e.painettu.join() === 'false', JSON.stringify(e));
+  pyynnot.length = 0;
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  tulos('alkuperä: uudelleenavaus välimuistista', pyynnot.length === 0, pyynnot.join(' · '));
+  await p.click('#pop .sk-ots button.sk-ety');
+  e = await ety();
+  tulos('alkuperä: epsilon sulkee uudelleen painettuna', !e.auki && e.nakyy, JSON.stringify(e));
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  await p.click('#pop .sk-ety-laatikko button.sk-sana');
+  await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kellua' && !/Haetaan/.test(document.querySelector('#pop .sk-runko').textContent));
+  e = await ety();
+  tulos('alkuperä: linkki eteenpäin sulkee laatikon (uusi sana)', !e.auki && e.nakyy, JSON.stringify(e));
+
+  r = await selita('Kantelx');
+  e = await ety();
+  const vaihtoEty = await p.evaluate(() => [...document.querySelectorAll('#pop .sk-vaihdot li')].map(li => !!li.querySelector('button.sk-ety')));
+  tulos('alkuperä: valitsimessa epsilon jokaisella rivillä, ei otsikossa', vaihtoEty.join() === 'true,true' && !e.nappi, JSON.stringify(vaihtoEty));
+  await kuva('sk-alkupera-valitsin');
+  await p.click('#pop .sk-vaihdot li:nth-child(2) button.sk-ety');
+  await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kanteli');
+  await odotaEty();
+  e = await ety();
+  tulos('alkuperä: rivin epsilon avaa sanan ja alkuperän ensimmäiseksi', e.auki && e.ensin && /made-up etymology/.test(e.teksti) && e.painettu.join() === 'true', JSON.stringify(e));
+  await kuva('sk-alkupera-kanteli');
+  r = await selita('Kantelx');
+  await p.click('#pop .sk-vaihdot li:nth-child(1) button.sk-ety');
+  await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kantele');
+  await odotaEty();
+  e = await ety();
+  tulos('alkuperä: kirjaamaton etymologia', e.auki && /ei ole kirjattu alkuperää/.test(e.teksti), JSON.stringify(e));
 
   let y = await ymp('ars longa vita brevis');
   tulos('ympäristö: kursiivi, vip ja suomi', y.kursiivi && !y.vip && y.kieli === 'fi', JSON.stringify(y));
@@ -466,6 +557,33 @@ palvelin.listen(0, async () => {
   }
 
   tulos('ei sivuvirheitä', !sivuvirheet.length, sivuvirheet.join(' | '));
+  // Monta kieltä ja monta etymologiaa: kielen nimi ja numero, luettelorivit omina kappaleinaan (sisäluettelo pois).
+  r = await selita('Kantin');
+  if (r.ots === 'Kant') {
+    await p.click('#pop .sk-ots button.sk-ety');
+    await odotaEty();
+    e = await ety();
+    tulos('alkuperä: kielet selityksen järjestyksessä nimettyinä, numerot (English · 1, English · 2, German)',
+      e.kielet.join('|') === 'English · 1|English · 2|German' && e.rivit === 2 && !/SISÄ|PUU|ÄÄNTÄMYS|MÄÄRITELMÄ/.test(e.teksti), JSON.stringify(e));
+    await kuva('sk-alkupera-kant');
+    await p.click('#pop .sk-sulje');
+  } else tulos('alkuperä: Kant', false, JSON.stringify(r));
+  // Kaksi sivua samassa selityksessä (virkkeen alun As ja as): alaotsikolla oma epsilon, laatikko sen alle.
+  r = await selita('As');
+  const alaots = await p.evaluate(() => [...document.querySelectorAll('#pop .sk-alaots')].map(a => a.querySelector('span').textContent + ':' + !!a.querySelector('button.sk-ety')));
+  if (alaots.length) {
+    await p.click('#pop .sk-alaots button.sk-ety');
+    await odotaEty();
+    const a = await p.evaluate(() => {
+      const l = document.querySelector('#pop .sk-ety-laatikko'), al = document.querySelector('#pop .sk-alaots');
+      return { jalkeen: !!l && l.parentElement.previousElementSibling === al, teksti: l ? l.textContent : '',
+        otsikko: document.querySelector('#pop .sk-ots button.sk-ety').getAttribute('aria-pressed'), alaots: al.querySelector('button.sk-ety').getAttribute('aria-pressed') };
+    });
+    tulos('alkuperä: alaotsikon epsilon avaa sen sivun (As → A) laatikon alaotsikon alle, otsikon epsilon ennallaan', a.jalkeen && /Perusmuodon A alkuperä/.test(a.teksti) && a.otsikko === 'false' && a.alaots === 'true', JSON.stringify(alaots) + ' ' + JSON.stringify(a));
+    await kuva('sk-alkupera-alaots');
+    await p.click('#pop .sk-sulje');
+  } else tulos('alkuperä: As ja as alaotsikkona', false, JSON.stringify(r));
+
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'kaikki kunnossa');
   process.exit(virheita ? 1 : 0);
