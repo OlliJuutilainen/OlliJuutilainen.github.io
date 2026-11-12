@@ -1561,6 +1561,14 @@
     var u = e.url || e.osoite;
     return u ? location.href.split('#')[0] + '#u=' + encodeURIComponent(u) : '';
   }
+  // Jakolinkki (Kopioi linkki, käyttäjän pyyntö 12.11.2026): workerin /luin-sivu antaa viestimien esikatseluun tekstin nimen
+  // (luin.html#u=… näytti aina *Luin.*, koska #-osa ei kulje palvelimelle) ja ohjaa selaimen luin.html#u=…:hun.
+  // Lähdeviitteen lukutiedot pitävät suoran Luin-linkin.
+  var JAKO_API = 'https://tusinasaa-worker.ollijuutilainen.workers.dev/luin';
+  function jakoLinkki(e) {
+    var u = e.url || e.osoite;
+    return u ? JAKO_API + '?t=' + encodeURIComponent(e.title || '') + '&u=' + encodeURIComponent(u) : '';
+  }
 
   /* ---------- lähdeviite (jakonappi) ----------
      Viite on tekstin oma (etukentän viite tai Latomon kentistä Teologian tyylin mukaan koottu, md.js
@@ -1869,7 +1877,7 @@
       viesti('Laatikkolause ' + k + ' on käytössä, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen.');
     });
   }
-  // Postihuilu-kenttä: Luin-linkki seuraa omaa #-osaansa, muu verkko-osoite avataan tekstinä (#u=), muuten laatikkolause.
+  // Postihuilu-kenttä: Luin-linkki seuraa omaa #-osaansa (jakolinkki u-parametriaan), muu verkko-osoite avataan tekstinä (#u=), muuten laatikkolause.
   $('#lisaa-kentta').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var v = $('#lisaa-syote').value.trim(), x = null;
@@ -1878,6 +1886,7 @@
     try { x = /^https?:\/\//i.test(v) ? new URL(v) : null; } catch (e) {}
     if (!x && !P.koodiVirhe(P.koodi(v))) soitaHuilua($('#huilulohko'));
     if (x && /luin\.html$/.test(x.pathname) && /^#(u|l|id)=/.test(x.hash)) location.hash = x.hash;
+    else if (x && x.href.split('?')[0] === JAKO_API && x.searchParams.get('u')) location.hash = 'u=' + encodeURIComponent(x.searchParams.get('u'));
     else if (x) location.hash = 'u=' + encodeURIComponent(v);
     else location.hash = 'l=' + encodeURIComponent(v);
   });
@@ -1975,7 +1984,7 @@
     if (!b) return;
     var e = lista.filter(function (x) { return x.id === b.dataset.id; })[0];
     if (!e) return;
-    var url = linkki(e);
+    var url = jakoLinkki(e);
     naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
