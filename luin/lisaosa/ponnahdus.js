@@ -48,7 +48,7 @@ function nayta() {
   $('meta').textContent = [leike.sivusto, sanoja ? luku(sanoja) : '',
     viitteita ? viitteita + (viitteita === 1 ? ' alaviite' : ' alaviitettä') + ' haettu' : ''].filter(Boolean).join(' · ');
   const tyhja = !(valittu() ? leike.valinta : leike.koko);
-  $('lukimeen').disabled = $('latomoon').disabled = tyhja;
+  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja;
   $('soita').disabled = tyhja || !!kv;
   $('tila').textContent = tyhja ? 'Sivulta ei löytynyt artikkelia. Maalaa luettava kohta ja avaa ikkuna uudelleen.' : '';
 }
@@ -57,10 +57,11 @@ function muista() {
   api.storage.local.set({ posti: { on: huiluAuki(), k: koodi($('koodi').value), heti: $('heti').checked } });
 }
 
-// avaa: Latomo painaa itse (Avaa Luinissa tai, postin kanssa, lähetyksen). posti: { k, avaaNyt, eiMuistia } tai null.
-async function laheta(avaa, posti) {
-  $('lukimeen').disabled = $('latomoon').disabled = $('soita').disabled = true;
-  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, avaa, posti, aika: Date.now() } });
+// avaa: Latomo painaa itse (Avaa lukimessa tai, postin kanssa, lähetyksen). posti: { k, avaaNyt, eiMuistia } tai null.
+// lataa (0.8.0): Latomo painaa Lataa .md, jotta tiedosto on Latomon ladoma (leikesiivous, etukenttä), ei raaka leike.
+async function laheta(avaa, posti, lataa) {
+  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = $('soita').disabled = true;
+  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, avaa, posti, lataa: !!lataa, aika: Date.now() } });
   await api.tabs.create({ url: LATOMO });
   window.close();
 }
@@ -105,7 +106,8 @@ async function aloita() {
   if (leike.valinta) { $('valintarivi').hidden = false; $('valinta').checked = true; }
   $('valinta').addEventListener('change', nayta);
   $('lukimeen').addEventListener('click', () => laheta(true, null));
-  // Muokkaa Latomossa täyttää kelpaavan lauseen valmiiksi, kun Postihuilu on auki, mutta ei lähetä.
+  $('lataa').addEventListener('click', () => laheta(false, null, true));
+  // Säädä Latomossa (0.8.0; ennen Muokkaa Latomossa) täyttää kelpaavan lauseen valmiiksi, kun Postihuilu on auki, mutta ei lähetä.
   $('latomoon').addEventListener('click', () => {
     const k = koodi($('koodi').value);
     laheta(false, huiluAuki() && !koodiVirhe(k) ? { k, avaaNyt: false } : null);

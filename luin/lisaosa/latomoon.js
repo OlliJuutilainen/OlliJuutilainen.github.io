@@ -3,7 +3,8 @@
    vielä Avaa Luinissa. Rajapinta Latomoon on vain tunnisteita: #md ja #avaa, Postihuilulla (9.11.2026) myös
    #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Ladottu postitettavaksi…),
    #kk-virhe ja #laatikko-virhe. Kun tekstiä ei lisätä tämän selaimen lukulistaan (10.11.2026), lauseen kenttä saa
-   data-ei-muistia-attribuutin, eikä Latomo silloin tallenna lausetta Luinin muistiin. */
+   data-ei-muistia-attribuutin, eikä Latomo silloin tallenna lausetta Luinin muistiin. Lataa .md (0.8.0, 12.11.2026)
+   painaa #lataa; Latomo jää auki. */
 (async () => {
   if (location.hash !== '#lisaosa') return;
   const api = globalThis.browser || globalThis.chrome;
@@ -40,5 +41,6 @@
     if (lahti && posti.avaaNyt) $('avaa').click();
     return;
   }
-  if (odottaa.avaa) $('avaa').click();
+  if (odottaa.lataa && $('lataa')) $('lataa').click();
+  else if (odottaa.avaa) $('avaa').click();
 })();
