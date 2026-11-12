@@ -43,6 +43,7 @@
   button.kysy svg { width: 20px; height: 20px; }
   button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
   button.kysy[aria-expanded="true"] { color: var(--ruoste); }
+  #postihuilu svg.huilu { display: inline-block; height: 1.15em; width: .66em; margin-left: .42em; vertical-align: -.2em; overflow: visible; }
   button[aria-expanded="true"]#postihuilu { color: var(--ruoste); border-color: var(--ruoste); }
   .ohje { margin: 6px 0 0; padding: 0 10px; border: 1px solid var(--viiva); font-size: .76rem; line-height: 1.45; color: var(--harmaa); }
   .ohje p { margin: 7px 0; }
@@ -65,8 +66,11 @@
   <label id="valintarivi" hidden><input type="checkbox" id="valinta"> Vain valittu kohta</label>
   <div class="napit">
     <button type="button" class="paa" id="lukimeen" disabled>Lisää lukimeen</button>
-    <button type="button" id="latomoon" disabled>Muokkaa Latomossa</button>
-    <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu</button>
+    <button type="button" id="latomoon" disabled>Säädä Latomossa</button>
+    <button type="button" id="lataa" disabled>Lataa .md</button>
+    <!-- Huilu: sama vino huilu kuin Luinin huilutetun tekstin merkki (luin/huilu.js LuinHuilu.vino(), kopio, koska lisäosa
+         ei lataa sivuston tiedostoja; käyttäjän pyyntö 12.11.2026). -->
+    <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu<svg class="huilu" viewBox="-15.52 -1.65 18.93 33.24" aria-hidden="true"><g transform="rotate(112)"><path d="M32.3 -3.2H5.25L0.68 -1.83Q0 -1.6 0 -0.68V0.68Q0 1.6 0.68 1.83L5.25 3.2H32.3Z" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/><path d="M6.49 -1.15L8.69 -1.51V1.51L6.49 1.16Z" fill="none" stroke="currentColor" stroke-width="0.77" stroke-linejoin="miter"/><path d="M13.92 -2.75Q15.28 -1.04 17.51 0Q15.28 1.05 13.92 2.75Q12.56 1.05 10.34 0Q12.56 -1.04 13.92 -2.75ZM21.09 -2.75Q22.45 -1.04 24.68 0Q22.45 1.05 21.09 2.75Q19.73 1.05 17.51 0Q19.73 -1.04 21.09 -2.75ZM28.26 -2.75Q29.62 -1.04 31.85 0Q29.62 1.05 28.26 2.75Q26.9 1.05 24.68 0Q26.9 -1.04 28.26 -2.75Z" fill="currentColor"/></g></svg></button>
     <div class="posti" id="posti-osa" hidden>
       <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>

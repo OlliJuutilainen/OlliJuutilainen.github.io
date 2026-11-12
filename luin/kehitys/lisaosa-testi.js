@@ -341,6 +341,16 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
   tulos('väliotsikko ##', /^## Väliotsikko$/m.test(md));
   await latomo.close();
 
+  // 2b. Lataa .md (0.8.0): Latomo painaa itse Lataa .md; tiedosto on Latomon ladoma teksti (sama kuin kohdassa 2), ja Latomo jää auki.
+  await avaaIkkuna();
+  const lataus = new Promise(valmis => ctx.once('page', p => p.once('download', valmis)));
+  const latomoL = await paina('#lataa', /latomo\.html$/);
+  const dl = await Promise.race([lataus, new Promise(r => setTimeout(() => r(null), 5000))]);
+  const dlMd = dl ? fs.readFileSync(await dl.path(), 'utf8') : '';
+  tulos('Lataa .md: Latomon ladoma tiedosto, Latomo auki', !!dl && dl.suggestedFilename() === 'kokeilukirjoitus.md' && dlMd === md && /latomo\.html$/.test(latomoL.url()),
+    dl ? dl.suggestedFilename() + ' ' + dlMd.length + '/' + md.length : 'ei latausta');
+  await latomoL.close();
+
   // 3. Lisää lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
   await avaaIkkuna();
   const luin = await paina('#lukimeen', /luin\.html#id=/);
@@ -541,7 +551,7 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
   await avaaIkkuna(BLOG_POSTI);
   const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('.napit > button')].map(b => b.textContent),
     kiinni: document.querySelector('#posti-osa').hidden }));
-  tulos('ikkuna: kolme nappia, Postihuilu kiinni', pk0.napit.join() === 'Lisää lukimeen,Muokkaa Latomossa,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
+  tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Lisää lukimeen,Säädä Latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
   await ikkuna.click('#postihuilu');
   const pk1 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#posti-osa').hidden, paikka: document.querySelector('#koodi').placeholder,
     soita: document.querySelector('#soita').textContent, heti: document.querySelector('#heti').checked,
