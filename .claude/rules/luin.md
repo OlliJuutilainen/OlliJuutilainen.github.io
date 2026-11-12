@@ -114,7 +114,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Tarkoituksellinen poikkeus: sanaselityksen merkin (`IK_SANASTO`) linssi on pyöreä (käyttäjän syrjähyppy 5.11.2026).
   Ohjelman kuoressa ei ole kreikkaa (käyttäjän päätös 6.11.2026; marginaali on *mikro, meso, makro*), paitsi sanaselityksessä
   (käyttäjän kompromissi 12.11.2026: lingua francat vuodelta 0 ja 2026): merkkien lambda ja linssi-epsilon sekä otsikot λόγος
-  ja ἔτυμον minuskeleina. Kreikka tulee erillisistä osajoukoista `literata-kreikka*.woff2` (U+0370–03FF) ja
+  ja ἔτυμον (12.11.2026 kokeiltavana majuskeleina ΛΟΓΟΣ, ΕΤΥΜΟΝ). Kreikka tulee erillisistä osajoukoista `literata-kreikka*.woff2` (U+0370–03FF) ja
   `literata-kreikka-laaja*.woff2` (polytoninen U+1F00–1FFF), koska päätiedostoissa ei ole kreikkaa.
 - **Suljettu lukuympäristö ilman häiriötekijöitä**: verkkolinkit ovat oletuksena pois (`aset.verkkolinkit`), myös
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
@@ -270,9 +270,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   10 sanaa (`SK_SANAT`). Raksin paikka on mitattu lisää-linkistä; asetuksissakin lambda on tekstin värinen (6.11.2026).
 - **Alkuperä ja perusmuoto** (käyttäjän pyynnöt 12.11.2026, opas 4.3): selitysikkunan otsikossa ei ole lambdaa (valikossa ja
   asetuksissa on). Sanan perässä on alaindeksinä linssi-epsilon vain, kun sivulla on etymologia (osioluettelo haetaan heti);
-  suljettuna linssi muste ja ε ruoste, auki toisin päin. Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle.
-  Ikkunan ylin rivi λόγος ja laatikon ylin rivi ἔτυμον ovat entisen ALKUPERÄ-otsikon tyyliä ilman versaalia (käyttäjä: yhtä
-  huomaamattoman harmaa, älä suurenna); raksit niiden riveillä. Määritelmillä ei ole kehystä.
+  linssi aina muste, ε ruoste ja auki muste. Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle. **Ei
+  linssiä valitsimeen**: vasta valitun sanan selitykseen. Ikkunan ylin rivi ΛΟΓΟΣ ja laatikon ylin rivi ΕΤΥΜΟΝ ovat majuskeleita
+  (kokeilu, ei lukumerkkejä) entisen ALKUPERÄ-otsikon koossa ja värissä (käyttäjä: yhtä huomaamattoman harmaa, älä suurenna),
+  väljästi harvennettuina; raksit niiden riveillä. Määritelmillä ei ole kehystä. Lisää-linkki on plussa (+).
   **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä otsikon alla Wikisanakirjan
   sanoin (”käden” – genitive singular); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
   muualta kysymättä.
