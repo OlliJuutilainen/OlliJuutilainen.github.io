@@ -558,7 +558,7 @@ palvelin.listen(0, async () => {
   }
 
   tulos('ei sivuvirheitä', !sivuvirheet.length, sivuvirheet.join(' | '));
-  // Otsikot vievät sanan λόγος ja (varaketjulla) ἔτυμον → ἔτυμος → etymon selitykseen, vihje suomeksi ja latinalaisittain.
+  // Otsikot vievät sanan λόγος ja ἔτυμον (varalla etymon) selitykseen, vihje suomeksi ja latinalaisittain.
   r = await selita('kelloon');
   const vihjeet = await p.evaluate(() => [document.querySelector('#pop .sk-logos').title, document.querySelector('#pop .sk-ots .sk-ety').title]);
   pyynnot.length = 0;
@@ -574,7 +574,7 @@ palvelin.listen(0, async () => {
   await p.click('#pop .sk-ety-ots .sk-osa');
   await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'etymon' && !/Haetaan/.test(document.querySelector('#pop .sk-runko').textContent));
   const etyHaut = pyynnot.filter(u => /definition/.test(u)).map(u => decodeURIComponent(u.split('/').pop()));
-  tulos('ΕΤΥΜΟΝ vie varaketjulla ἔτυμον → ἔτυμος → etymon; vihje Alkuperä (etymon)', etyHaut.slice(0, 3).join('|') === 'ἔτυμον|ἔτυμος|etymon' && etyVihje === 'Alkuperä (etymon)', etyHaut.join('|') + ' ' + etyVihje);
+  tulos('ΕΤΥΜΟΝ vie sanaan ἔτυμον, varalla etymon (tekosanastossa vain etymon); vihje Alkuperä (etymon)', etyHaut.slice(0, 2).join('|') === 'ἔτυμον|etymon' && etyVihje === 'Alkuperä (etymon)', etyHaut.join('|') + ' ' + etyVihje);
   await p.click('#pop .sk-sulje');
 
   // Monta kieltä ja monta etymologiaa: kielen nimi ja numero, luettelorivit omina kappaleinaan (sisäluettelo pois).
