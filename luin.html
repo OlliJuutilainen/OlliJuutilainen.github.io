@@ -180,12 +180,18 @@
      saman huilun vinossa pystyssä, 68° vaakatasosta, nokka ylhäällä oikealla (luin/kehitys/postihuilu-kuvio.js). */
   /* Keskikohta 0,29 em perusviivan yläpuolella: pienaakkosten (x-korkeus 0,51 em) ja versaalien (0,74 em) keskikohtien
      välissä, lähempänä pienaakkosia (mitattu Literatasta 12.11.2026; −0,2 em jätti huilun 0,375 em:iin, liian ylös). */
-  .n-ots svg.huilutettu { display: inline-block; height: 1.15em; width: .67em; margin-left: .42em; vertical-align: -.285em; overflow: visible; }
+  .n-ots svg.huilutettu { display: inline-block; height: 1.15em; width: .67em; margin-left: .7em; vertical-align: -.285em; overflow: visible; }
   /* Merkitty (käyttäjän pyyntö 12.11.2026): tekstissä on kirjanmerkki, alleviivaus tai kirjaus. Merkinnät-napin kuvake
      (sivu, alleviivaus, nauha) pienenä ja harmaana nimen perässä, huilu sen oikealla puolella. Hienovarainen, koska se
      voi olla jokaisessa hyllyn kirjassa: pienaakkosen korkuinen, ei ruostetta (ei napautettava). */
   .n-ots svg.merkitty { display: inline-block; height: .6em; width: .5em; margin-left: .45em; vertical-align: 0; overflow: visible;
     color: var(--harmaa); }
+  /* Napautettava alue isompi kuin merkki (käyttäjän pyyntö 12.11.2026: merkki avaa ponnahduksen *Sisältää*); täyte ja vastakkainen
+     reunus pitävät merkin paikan ja mitat ennallaan. */
+  .n-ots svg.merkitty { box-sizing: content-box; padding: 9px; margin: -9px -9px -9px calc(.45em - 9px); cursor: pointer; }
+  .valikko.sisaltaa { padding: 11px 44px 11px 15px; font-size: .9rem; line-height: 1.5; }
+  .valikko.sisaltaa .sk-kieli { margin: 0 0 4px; }
+  .valikko.sisaltaa ul { list-style: none; margin: 0; padding: 0; }
   .n-hanta { white-space: nowrap; }
   .n-ots svg.merkitty .l-viiva { fill: none; stroke: currentColor; stroke-width: 1; }
   .n-ots svg.merkitty .l-pis { fill: currentColor; }
@@ -2030,6 +2036,32 @@
     if (document.hidden) postiLahetaLikaiset();
   });
 
+  // Merkitty-merkin ponnahdus (käyttäjän pyyntö 12.11.2026): hiiren vienti, napsautus tai napautus näyttää, mitä tekstissä on.
+  // Sulkeutuu napautuksesta muualle (yleinen suljePop) tai raksista. Merkki on linkin sisällä, joten napautus ei avaa tekstiä.
+  function naytaSisaltaa(svg) {
+    var li = svg.closest('li.nimike'), a = li && li.querySelector('a.avaa'), id = a && decodeURIComponent(a.getAttribute('href').slice(4));
+    if (!id) return;
+    var m = merkit(id), rivit = [];
+    if (m.al.length) rivit.push('alleviivauksia');
+    if (m.al.some(function (h) { return h.n; })) rivit.push('kirjauksia');
+    if (m.km.length) rivit.push('kirjanmerkkejä');
+    if (!rivit.length) return;
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === svg) return;
+    naytaPop(svg.getBoundingClientRect(), '<div class="sk-kieli">Sisältää</div><ul>' + rivit.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>' +
+      '<button type="button" class="sk-sulje" data-k="sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE + '</button>', 'sisaltaa', function () { return false; }, 'vasen');
+    pop._merkki = svg;
+  }
+  $('#nimikkeet').addEventListener('click', function (ev) {
+    var s = ev.target.closest('svg.merkitty');
+    if (!s) return;
+    ev.preventDefault(); ev.stopPropagation();
+    naytaSisaltaa(s);
+  });
+  $('#nimikkeet').addEventListener('mouseover', function (ev) {
+    var s = ev.target.closest && ev.target.closest('svg.merkitty');
+    if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    naytaSisaltaa(s);
+  });
   $('#nimikkeet').addEventListener('click', function (ev) {
     var b = ev.target.closest('button.jako');
     if (!b) return;
@@ -2197,7 +2229,7 @@
     }
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
-    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
+    if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, svg.merkitty, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
