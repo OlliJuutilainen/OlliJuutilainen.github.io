@@ -84,8 +84,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
-- **Kotimerkin paikka** (käyttäjän pyyntö 12.11.2026): alasivuilla (Latomo, ohjeet, palaute, tietosuoja) kotimerkki on
-  yläoikealla täsmälleen pölyhyllyn kotimerkin kohdalla eli hyllyn asetuskiekon vasemmalla puolella (mitattu samaksi
+- **Hyllymerkki** (käyttäjän valinta 12.11.2026, mietintämyssyn luonnos *Ulkoneva*): paluu hyllylle on kolmen kirjan pino
+  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Pinon muste on
+  viewBoxin alaosassa, joten svg nousee 4 px (yläpalkissa ja pölyhyllyssä `margin-top: -8px`, alasivuilla marginaali
+  `7px 11px 15px`), jotta muste on kiekon keskilinjalla. Koodin tunnisteet (`.koti`, `a.kotimerkki`, `#ark-koti`) jäivät.
+- **Hyllymerkin paikka** (käyttäjän pyyntö 12.11.2026): alasivuilla (Latomo, ohjeet, palaute, tietosuoja) hyllymerkki on
+  yläoikealla täsmälleen pölyhyllyn hyllymerkin kohdalla eli hyllyn asetuskiekon vasemmalla puolella (mitattu samaksi
   360, 700 ja 1280 px:n leveydellä), jotta se ei nyrjähdä sivulta toiselle. Navin yläpalkissa se on vasemmalla.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,

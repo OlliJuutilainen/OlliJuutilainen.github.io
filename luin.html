@@ -62,7 +62,7 @@
   /* Varasääntö (paivitaTurva()): selain ei kerro lovea, mutta sivu peittää pitkän puhelinnäytön koko korkeuden. */
   html.turva-arvio { --turva: 32px; }
   /* Palkkien yhteiset laidat (käyttäjän pyyntö 29.10.2026): musteen etäisyys ruudun reunasta. Vasemmalla kirjanmerkkinapin
-     symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), kotimerkin seinä, aikajanan alku, osion nimi ja
+     symboli (kulmakivi: työpöydällä 24 px, mobiilissa lohkon keskellä 17 px), hyllymerkin alin kirja, aikajanan alku, osion nimi ja
      Merkinnät; oikealla asetuskiekko ja kalanruoto (kulmakivet; työpöydällä ennen 29,0 ja 28,5 px), edistyminen, aikajanan
      loppu ja sivunapit. Mobiilissa oikea laita on vasemman peilikuva (ennen tekstipalstan reuna + 10 px eli Keski-marginaalilla
      38,5 px, mikä jätti oikeaan laitaan oudon aukon). Laidat ovat kokonaislukuja, koska Chromium pyöristää SVG:n ja
@@ -138,7 +138,8 @@
   button.valitse[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
   /* Pölyhylly (ent. arkistohylly): vain logo, kotilinkki, asetukset, hylly ja alatunniste. */
   .loikea { display: flex; align-items: flex-start; }
-  .lhead .koti svg { fill: none; overflow: visible; }
+  /* Pölyhyllyn hyllymerkki nousee kiekon tasalle kuten yläpalkissa. */
+  .lhead .koti svg { fill: none; overflow: visible; margin-top: -8px; }
   .lhead .koti .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
   #lista.arkisto .vain-lista, #lista.arkisto button.info, #lista.arkisto .tietoa { display: none; }
   .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
@@ -394,12 +395,14 @@
      marginaali ja reunus kuin kiekolla, paneeli ulottuu ruudun oikeaan reunaan. Lukulistasta avattuna raksi on samassa
      kohdassa, vaikka kiekko ei ole. */
   #asetukset .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
-  /* Paluu lukulistaan on kotimerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama pirtti ja yksivärinen
-     harjasalmiakki kuin Latomossa ja ohjeissa. Seinän muste palkkien vasempaan laitaan: seinän ulkoreuna on viewBoxin
-     x = 4,425 eli 4,06 px svg:n reunasta; padding on kokonaisluku, koska Chromium pyöristää svg:n paikan. */
+  /* Paluu hyllylle on hyllymerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama kirjapino kuin Latomossa ja
+     ohjeissa (käyttäjän valinta 12.11.2026, luonnos *Ulkoneva*; ennen pirtti ja harjasalmiakki). Alimman kirjan muste palkkien
+     vasempaan laitaan: sen ulkoreuna on viewBoxin x = 4,425 eli 4,06 px svg:n reunasta; padding on kokonaisluku, koska
+     Chromium pyöristää svg:n paikan. Pinon muste on viewBoxin alaosassa (y 10,5–22,1), joten svg nousee 4 px, jotta musteen
+     keskikohta on palkin ja kiekon keskellä (negatiivinen marginaali eikä transform, jotta paikka pysyy kokonaisluvussa). */
   .takaisin { padding: 0 11px 0 calc(var(--v-laita) - 4px); height: 44px; display: inline-flex; align-items: center;
     flex: 0 0 auto; text-decoration: none; color: var(--harmaa); }
-  .takaisin svg { display: block; width: 22px; height: 22px; overflow: visible; }
+  .takaisin svg { display: block; width: 22px; height: 22px; overflow: visible; margin-top: -8px; }
   .takaisin .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
@@ -1007,7 +1010,7 @@
     <div class="lmerkki">
     <svg class="logo" viewBox="-2 -2 215.18 138" role="img" aria-label="LUiN.HTML"><path d="M7 0H22V100H7ZM0 0H29V3.4H0ZM0 95.5H47V100H0ZM43.8 76H47.2V100H43.8ZM62 0V66C62 90 70.5 101.5 81.5 101.5C93 101.5 100 91 100 72V0H96.6V72C96.6 87.5 90.5 96.5 83 96.5C80 96.5 77 93 77 84V0ZM55 0H84V3.4H55ZM90 0H106.6V3.4H90ZM118 30H133V100H118ZM111 30H133V33.4H111ZM111 96.6H140V100H111ZM152 0L167.5 0L190 100L174.5 100ZM152 0H155.4V100H152ZM186.6 0H190V100H186.6ZM145 0H160V3.4H145ZM180 0H196.6V3.4H180ZM145.5 96.6H162V100H145.5Z"/><path d="M133 12L199.59 98.88L204.68 100L198.18 100L131.59 13.12L125.5 12Z"/><path d="M204.68 91.52Q207.15 96.78 211.18 100Q207.15 103.22 204.68 108.48Q201.43 104.24 198.18 100Q202.21 96.78 204.68 91.52Z"/><path fill="var(--ruoste)" d="M125.5 2.22Q129.25 7.11 133 12Q128.35 15.72 125.5 21.78Q122.65 15.72 118 12Q122.65 8.28 125.5 2.22Z"/><path d="M9.6 112L9.6 130M20.1 112L20.1 130M9.6 121L20.1 121M66.1 113.25L79.1 113.25M72.6 112L72.6 130M125.1 130L125.1 112M125.1 112L132.35 130M132.35 130L139.6 112M139.6 112L139.6 130M186.85 112L186.85 130M185.6 128.75L196.6 128.75" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="butt"/><path d="M7 112H12.2V113.5H7ZM7 128.5H12.2V130H7ZM17.5 112H22.7V113.5H17.5ZM17.5 128.5H22.7V130H17.5ZM70 128.5H75.2V130H70ZM122.5 128.5H127.7V130H122.5ZM137 128.5H142.2V130H137ZM184.25 112H189.45V113.5H184.25ZM195.1 123.52H196.6V130H195.1Z"/></svg>
     <button class="info" type="button" aria-label="Tietoa: LUiN.HTML" aria-controls="tietoa" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
-    <div class="loikea"><a class="ikoni koti" id="ark-koti" href="#" aria-label="Hyllylle" title="Hyllylle" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 -1.45Q12.91 0.2 14.18 1.4Q12.91 2.6 12 4.25Q11.09 2.6 9.82 1.4Q11.09 0.2 12 -1.45Z"/></svg></a>
+    <div class="loikea"><a class="ikoni koti" id="ark-koti" href="#" aria-label="Hyllylle" title="Hyllylle" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg></a>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on lukulaite Markdown-teksteille. Tiedot tallentuvat vain tähän selaimeen.</p></div>
@@ -1047,7 +1050,7 @@
 <!-- ===== Lukija ===== -->
 <section id="lukija" hidden>
   <div class="ylapalkki">
-    <a class="takaisin" href="#" aria-label="Hyllylle" title="Hyllylle"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V12.5L12 5.5L19 12.5V21.5ZM10.25 21.5V16.5H13.75V21.5"/><path fill="currentColor" d="M12 -1.45Q12.91 0.2 14.18 1.4Q12.91 2.6 12 4.25Q11.09 2.6 9.82 1.4Q11.09 0.2 12 -1.45Z"/></svg></a>
+    <a class="takaisin" href="#" aria-label="Hyllylle" title="Hyllylle"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg></a>
     <span class="y-nimi" id="y-nimi"></span>
     <button class="ikoni kr-nappi" type="button" id="kr-nappi" aria-label="Kokoruutu" title="Kokoruutu" hidden><svg viewBox="0 0 22 22"><path class="kr-ulos" d="M2.5 8V2.5H8M14 2.5H19.5V8M19.5 14V19.5H14M8 19.5H2.5V14"/><path class="kr-sisaan" d="M8 2.5V8H2.5M19.5 8H14V2.5M14 19.5V14H19.5M2.5 14H8V19.5"/></svg></button>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><use href="#ratas-polku"/></svg></button>
@@ -2538,7 +2541,7 @@
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
-    // Pölyhyllyn tekstistä kotimerkki palaa pölyhyllylle.
+    // Pölyhyllyn tekstistä hyllymerkki palaa pölyhyllylle.
     var tk = $('.takaisin'), tkn = e.luettu ? 'Pölyhyllylle' : 'Hyllylle';
     tk.setAttribute('href', e.luettu ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
