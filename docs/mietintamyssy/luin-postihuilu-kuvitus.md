@@ -52,3 +52,8 @@ ketjuksi, joka lomittuu hiukan. Valitsematta jääneet vaihtoehdot poistettiin k
 aaltoilevia ym.). Kaista ja huilutettu merkki toteutettiin luin.html:ään (`luin/kehitys/postihuilu-kuvio.js`,
 `.claude/rules/luin.md`). Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`); merkin paikka nimen perässä.
 
+Toinen versio (12.11.2026, toteutettu luin.html:ään, ei mietintämyssyn sivuille): yksikään huilu ei ole vaakatasossa;
+hyllyllä huilu otsikon oikealla puolella ja asetuksissa Soita huilua! -napin yläpuolella, viuhka alimman reiän kärjestä,
+yksi selkeä taite, harvempi siksak, nuotit vasta painalluksesta epäsäännöllisinä; reiät logon mittasuhteissa ja
+kärjet hipaisten; ääniaukko keskellä ääriviivana. Kierrosten 1–2 sivut ovat ideoinnin historiaa.
+
