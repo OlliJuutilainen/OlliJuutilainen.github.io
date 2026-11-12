@@ -203,7 +203,8 @@
   .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
   .valikko.rivi button { width: auto; padding: 9px 13px; }
   .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
-  .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px)); }
+  .valikko.viite { padding: 12px 15px 13px; font-size: .9rem; line-height: 1.5; max-width: min(30rem, calc(100vw - 24px));
+    max-height: calc(100vh - var(--turva) - 16px); overflow-y: auto; overscroll-behavior: contain; }
   .valikko.viite .nro { color: var(--ruoste); font-family: var(--groteski); font-size: .75em; margin-right: .4em; }
   /* Alaviitteen lähdeviittaus kirjallisuusluetteloon (md.js, viittaukset()): käyttäjän päätös 21.10.2026,
      ei ruostetta vaan alaotsikon harmaa; haalea alleviivaus kertoo, että sitä voi napauttaa. */
@@ -499,6 +500,18 @@
     margin: .25em calc((var(--hl) + var(--hv)) * -1) 1.1em 0;
     padding: 0 0 0 .85em; border: 0; text-indent: -.85em; }
   body.reunat .fnref { cursor: default; }
+  /* Pitkä reunushuomio, joka työntäisi seuraavan huomion kauas viitenumerostaan, katkaistaan rivin rajalta, ja sen alle
+     tulee lisää…-nappi (sovitaHuomiot(), käyttäjän pyyntö 12.11.2026). Nappi on oma kellukkeensa heti huomion perässä:
+     huomion sisältö ei muutu (ponnahdus, haku ja kohdat lukevat sitä), eikä napissa ole tekstisolmua (lohkon kohdat). */
+  body.reunat .sidenote.pitka { margin-bottom: 0; }
+  body.reunat .sidenote.katkaistu { overflow: hidden; }
+  .sn-lisaa { display: none; }
+  body.reunat .sn-lisaa { display: block; float: right; clear: right; width: var(--hl); box-sizing: border-box;
+    margin: 0 calc((var(--hl) + var(--hv)) * -1) 1.1em 0; padding: .1em 0 0 .85em; font-size: .8em; line-height: 1.46;
+    text-align: left; text-indent: 0; font-style: italic; color: var(--ruoste); }
+  .sn-lisaa::before { content: 'lis\00E4\00E4\2026'; }
+  .sn-lisaa.auki::before { content: 'v\00E4hemm\00E4n'; }
+  .sn-lisaa:hover { text-decoration: underline; text-underline-offset: 3px; }
 
   /* alleviivaus ja kirjanmerkki */
   /* Alleviivaus maalataan itse taustana, ei text-decorationilla (käyttäjän pyyntö 6.11.2026: kahva ja viivan sauma ei
@@ -2601,6 +2614,58 @@
     });
   }
 
+  /* Reunushuomioiden katkaisu (käyttäjän pyyntö 12.11.2026, Marxin Pääoma: 1600 px:n alaviite työnsi seuraavia jopa
+     4000 px viitenumeroidensa alle). Huomio katkaistaan vain, kun se muuten työntäisi seuraavaa huomiota yli SN_VARA riviä
+     alemmas kuin tämän viitenumero; näkyviin jää niin monta riviä kuin ennen seuraavaa huomiota mahtuu, kuitenkin
+     vähintään SN_MIN, ja katkaisun pitää piilottaa ainakin kaksi riviä. Viimeistä huomiota ei katkaista (ei ketään
+     työnnettävää). Kellukkeet simuloidaan yhdellä mittauksella: huomion yläreuna on max(viitenumero + d, edellisen loppu
+     + marginaalit), missä d on pienin mitattu huomion ja viitenumeron väli (työntämätön huomio). lisää… avaa huomion
+     kokonaan (nyt.snAuki, tekstikohtainen) ja vähemmän katkaisee sen uudelleen. Vain body.reunat; muualla mitään ei katkaista. */
+  var SN_MIN = 6, SN_VARA = 2;
+  function sovitaHuomiot() {
+    var sns = $$('.sidenote', art);
+    sns.forEach(function (s) { if (s.classList.contains('pitka')) { s.classList.remove('pitka', 'katkaistu'); s.style.maxHeight = ''; } });
+    $$('.sn-lisaa', art).forEach(function (b) { b.parentNode.removeChild(b); });
+    if (!document.body.classList.contains('reunat') || sns.length < 2) return;
+    var auki = nyt.snAuki || (nyt.snAuki = {});
+    var m = sns.map(function (s) {
+      var f = s.previousElementSibling && s.previousElementSibling.previousElementSibling, r = s.getBoundingClientRect();
+      return f && f.classList.contains('fnref') && r.height ? { s: s, a: f.getBoundingClientRect().top, t: r.top, h: r.height } : null;
+    }).filter(Boolean);
+    if (m.length < 2) return;
+    var cs = getComputedStyle(m[0].s), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || 1.46 * fs;
+    var G = parseFloat(cs.marginTop) + parseFloat(cs.marginBottom), napinK = lh + .1 * fs;
+    var d = Math.min.apply(null, m.map(function (x) { return x.t - x.a; })), loppu = -Infinity;
+    m.forEach(function (x, i) {
+      var yla = Math.max(x.a + d, loppu + G), h = x.h, seur = m[i + 1];
+      if (seur) {
+        var tilaa = seur.a + d - G - yla, rivit = Math.round(x.h / lh);
+        if (h > tilaa + SN_VARA * lh) {
+          var k = Math.max(SN_MIN, Math.floor((tilaa - napinK) / lh));
+          if (k <= rivit - 2) { x.k = k; h = (auki[x.s.dataset.n] ? x.h : k * lh) + napinK; }
+        }
+      }
+      loppu = yla + h;
+    });
+    m.forEach(function (x) {
+      if (!x.k) return;
+      var n = x.s.dataset.n, b = document.createElement('button');
+      b.type = 'button'; b.className = 'sn-lisaa luin-ui' + (auki[n] ? ' auki' : ''); b.dataset.n = n;
+      b.setAttribute('aria-label', auki[n] ? 'vähemmän' : 'lisää');
+      x.s.classList.add('pitka');
+      if (!auki[n]) { x.s.classList.add('katkaistu'); x.s.style.maxHeight = Math.round(x.k * lh) + 'px'; }
+      x.s.parentNode.insertBefore(b, x.s.nextSibling);
+    });
+  }
+  // lisää… / vähemmän. Huomion yläpuolella mikään ei liiku; vähemmän pitää napin samalla kohdalla ruudulla.
+  function vaihdaHuomio(b) {
+    var n = b.dataset.n, auki = nyt.snAuki || (nyt.snAuki = {}), y = b.getBoundingClientRect().top;
+    if (auki[n]) delete auki[n]; else auki[n] = 1;
+    sovitaHuomiot();
+    var nb = $('.sn-lisaa[data-n="' + n + '"]', art);
+    if (!auki[n] && nb) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, nb.getBoundingClientRect().top - y); }
+  }
+
   function asettele(k) {
     tila.asetteluja++;
     sovellaTeema();
@@ -2637,6 +2702,7 @@
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       tavutaPitkat();
     }
+    sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
     sijoitaLaatikot();
   }
@@ -2998,6 +3064,8 @@
     }
     var go = t.closest('a[data-go]');
     if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }, false, true); return; }
+    var lisaa = t.closest('.sn-lisaa');
+    if (lisaa) { e.preventDefault(); vaihdaHuomio(lisaa); return; }
     var a = t.closest('#teksti a[href]');
     if (a) {
       var href = a.getAttribute('href');
@@ -5467,6 +5535,8 @@
     // reunuksessa valmiiksi näkyvissä.
     var tg = o.n && nyt.blocks[o.b] && $('#fn' + o.n, nyt.blocks[o.b]);
     if (tg && aset.sivutus !== 'sivut') tg.checked = true;
+    // Katkaistun reunushuomion osuma voi olla piilossa: huomio avataan kokonaan.
+    if (o.n && $('.sidenote.katkaistu[data-n="' + o.n + '"]', nyt.blocks[o.b])) { (nyt.snAuki || (nyt.snAuki = {}))[o.n] = 1; sovitaHuomiot(); }
     hyppaa({ b: o.b, o: o.a }, true);
     // Sivutettuna alaviite näytetään ponnahduslaatikossa kuten viitenumeroa napautettaessa.
     if (o.n && aset.sivutus === 'sivut') { var fn = $('label.fnref[for="fn' + o.n + '"]', nyt.blocks[o.b]); if (fn) naytaViite(fn); }

@@ -263,6 +263,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Tavutuskiellot** (opas 5): otsikoissa, `.sub`:ssa, `.meta`:ssa, sisällysluettelossa, lihavoinneissa ym. (`OHITA`
   md.js:ssä) ei ole pehmeitä tavuviivoja, ellei sana ole palstaa leveämpi. Kirjallisuusluettelo (`p.bib`) ei tavuta
   lainkaan (Teologian tyyli, APA 7).
+- **Pitkä reunushuomio katkaistaan** (käyttäjän pyyntö 12.11.2026, `sovitaHuomiot()`, opas 3): vain kun se työntäisi seuraavaa
+  huomiota; *lisää…*/*vähemmän* on oma kelluke huomion perässä eikä siinä ole tekstisolmua (teksti `::before`). Älä siirrä nappia
+  huomion sisään: ponnahdus, haku ja lohkon kohdat lukevat huomion sisältöä.
 - `#teksti { overflow-wrap: break-word }` estää vaakavierityksen (Light Phone, pitkät osoitteet); `testi.js` tarkistaa.
 
 Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
