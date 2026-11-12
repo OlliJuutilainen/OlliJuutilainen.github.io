@@ -165,6 +165,14 @@
   /* Keskikohta 0,29 em perusviivan yläpuolella: pienaakkosten (x-korkeus 0,51 em) ja versaalien (0,74 em) keskikohtien
      välissä, lähempänä pienaakkosia (mitattu Literatasta 12.11.2026; −0,2 em jätti huilun 0,375 em:iin, liian ylös). */
   .n-ots svg.huilutettu { display: inline-block; height: 1.15em; width: .67em; margin-left: .42em; vertical-align: -.285em; overflow: visible; }
+  /* Merkitty (käyttäjän pyyntö 12.11.2026): tekstissä on kirjanmerkki, alleviivaus tai kirjaus. Merkinnät-napin kuvake
+     (sivu, alleviivaus, nauha) pienenä ja harmaana nimen perässä, huilu sen oikealla puolella. Hienovarainen, koska se
+     voi olla jokaisessa hyllyn kirjassa: pienaakkosen korkuinen, ei ruostetta (ei napautettava). */
+  .n-ots svg.merkitty { display: inline-block; height: .6em; width: .5em; margin-left: .45em; vertical-align: 0; overflow: visible;
+    color: var(--harmaa); }
+  .n-hanta { white-space: nowrap; }
+  .n-ots svg.merkitty .l-viiva { fill: none; stroke: currentColor; stroke-width: 1; }
+  .n-ots svg.merkitty .l-pis { fill: currentColor; }
   .tyhja { color: var(--harmaa); font-style: italic; margin: 18px 0; line-height: 1.55; }
   .lisaa { margin: 22px 0 0; font-size: .88rem; line-height: 1.8; color: var(--harmaa); }
   .lisaa a { color: var(--ruoste); text-underline-offset: 3px; }
@@ -1218,7 +1226,7 @@
 <script src="luin/md.js?v=c86b4465"></script>
 <script src="luin/posti.js?v=91bf4ff2"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=3af19176"></script>
+<script src="luin/huilu.js?v=9f0623b4"></script>
 <script>
 (function () {
   'use strict';
@@ -1274,6 +1282,19 @@
   // Luinin tapaan): kolme koverakylkistä salmiakkia rivissä. Valinnan salmiakki on asetusten kytkimen muotoinen.
   // Huilutetun tekstin merkki: sama vino huilu kuin Postihuilussa (luin/huilu.js, käyttäjän valinta 12.11.2026).
   var HUILUTETTU = LuinHuilu.vino({ luokka: 'huilutettu', nimi: 'Postihuilusta' });
+  // Merkityn tekstin merkki: Merkinnät-napin kuvake (#merk-avaa), käyttäjän pyyntö 12.11.2026.
+  var MERKITTY = '<svg class="merkitty" viewBox="0 0 10 12" role="img" aria-label="Merkintöjä"><path class="l-viiva" d="M.5 .5H9.5V11.5H.5Z"/>' +
+    '<path class="l-viiva" style="stroke-width:1.6" d="M2.3 8.7H7.7"/><path class="l-pis" d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z"/></svg>';
+  function onMerkintoja(id) { var m = merkit(id); return m.km.length > 0 || m.al.length > 0; }
+  // Nimi ja sen perään merkki ja huilu. Viimeinen sana sidotaan merkkeihin (.n-hanta), jotta ne eivät jää yksin
+  // uudelle riville; pitkää sanaa (verkko-osoite) ei sidota, koska nowrap estäisi sen katkaisun ja leventäisi sivua.
+  function nimiMerkein(e) {
+    var mk = (onMerkintoja(e.id) ? MERKITTY : '') + (e.src === 'laatikko' ? HUILUTETTU : '');
+    if (!mk) return esc(e.title);
+    var t = e.title, i = t.lastIndexOf(' ') + 1, viim = t.slice(i);
+    if (viim.length > 20) return esc(t) + '<span class="n-hanta">' + mk + '</span>';
+    return esc(t.slice(0, i)) + '<span class="n-hanta">' + esc(viim) + mk + '</span>';
+  }
   // Pystyssä, kärjet hipaisten, logon mittasuhteissa (leveys/korkeus 0,767) kuten huilun sormireiät.
   var KOLME = '<svg class="kolme" viewBox="0 0 5 17" aria-hidden="true"><path d="' + [17 / 6, 17 / 2, 17 * 5 / 6].map(function (y) {
     return sal(2.5, y, 17 / 6 * LuinHuilu.LOGO, 17 / 6); }).join('') + '"/></svg>';
@@ -1619,7 +1640,7 @@
         ark ? 'luettu ' + pvm(e.luettu) : e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
       return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
         '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
-        '<span class="n-ots">' + esc(e.title) + (e.src === 'laatikko' ? HUILUTETTU : '') + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
+        '<span class="n-ots">' + nimiMerkein(e) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
         '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
         '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
     }).join('');

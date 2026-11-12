@@ -32,8 +32,11 @@ for (const [x0, x1] of [[241, 358], [237, 344], [617, 734], [300, 358], [100, 35
 
     }
     if (new Set(q.map(a => a.x)).size !== q.length) nv.paallekkain++;
-    // Kallistus aina oikealle huilun kulmassa: 90° − 68° = 22°.
-    if (Math.abs(k.nuottiKallistus - 22 * Math.PI / 180) > 1e-9) nv.kallistus++;
+    // Kallistus: alamäessä (viiva laskee oikealle) 22° oikealle, ylämäessä 0°.
+    for (const a of q) {
+      const alamaki = k.y(a.x + .5, 0) > k.y(a.x - .5, 0), kl = k.nuottiKallistus(a.x);
+      if (alamaki ? Math.abs(kl - 22 * Math.PI / 180) > 1e-9 : kl !== 0) nv.kallistus++;
+    }
     if (Math.abs((k.loppu - k.xz) / (k.jakso / 2) - Math.round((k.loppu - k.xz) / (k.jakso / 2))) > 1e-9 || k.loppu > x1 || x1 - k.loppu >= k.jakso / 2) nv.loppu++;
     const soi = kes.map(x => q.some(a => a.x === x));
     if (!soi[0] || !soi[soi.length - 1]) nv.reuna++;
@@ -67,6 +70,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       sessionStorage.setItem('alustettu', '1');
       localStorage.setItem('luin-teksti:p-kant', JSON.stringify('# Kant ja eläinetiikka\n\nTeksti.'));
       localStorage.setItem('luin-teksti:oma', JSON.stringify('# Käyttöohje\n\nTeksti.'));
+      localStorage.setItem('luin-merkit:p-kant', JSON.stringify({ km: [{ id: 'k1', b: 1, o: 0 }], al: [] }));
       localStorage.setItem('luin-lista', JSON.stringify([{ id: 'p-kant', title: 'Kant ja eläinetiikka', added: 1, src: 'laatikko' },
         { id: 'oma', title: 'Käyttöohje', added: 2, src: 'paikallinen' }]));
     });
@@ -81,12 +85,14 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const kysy = document.querySelector('#huilu-kysy').getBoundingClientRect();
       const viivat = svg.querySelector('path').getBoundingClientRect();
       const os = document.querySelector('.n-ots'), hs = os.querySelector('svg.huilutettu'), fs = parseFloat(getComputedStyle(os).fontSize);
-      const mk = document.createElement('span'); mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; os.insertBefore(mk, hs);
+      const mk = document.createElement('span'); mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; hs.parentNode.insertBefore(mk, hs);
       const perus = mk.getBoundingClientRect().bottom, hr = hs.getBoundingClientRect(); mk.remove();
       return { kysyRako: Math.min(...pts.map(q => q.x)) - kysy.right, keski: (perus - (hr.top + hr.bottom) / 2) / fs,
         viivatVasen: svg.querySelector('path').getBBox().x - (t.right - l.getBoundingClientRect().left),
         viivatOikea: l.getBoundingClientRect().right - viivat.right,
         nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: syote.top - nb.bottom, viivastonAlle: nb.bottom - viivat.bottom },
+        merkityt: document.querySelectorAll('.n-ots svg.merkitty').length,
+        merkkiRako: (() => { const m = os.querySelector('svg.merkitty').getBoundingClientRect(); return [m.top < hr.bottom && m.bottom > hr.top, hr.left - m.right]; })(),
         huilutetut: document.querySelectorAll('.n-ots svg.huilutettu').length, nOts: [...document.querySelectorAll('.n-ots')].map(x => x.textContent),
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
@@ -94,6 +100,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: huilu i-napin oikealla puolella, ei kosketa siihen`, e.kysyRako > 0, Math.round(e.kysyRako * 10) / 10);
     tulos(`${w} px: huilutetun huilun keskikohta 0,29 em perusviivan yläpuolella`, Math.abs(e.keski - .29) < .02, Math.round(e.keski * 1000) / 1000);
     tulos(`${w} px: ei nuotteja ennen painallusta`, !e.nuotit);
+    tulos(`${w} px: merkintöjen merkki vain merkityllä, huilu sen oikealla puolella samalla rivillä`, e.merkityt === 1 && e.merkkiRako[0] && e.merkkiRako[1] > 2, e.merkkiRako[1].toFixed(1));
     tulos(`${w} px: siksak päättyy kokonaiseen palaan lohkon sisällä`, e.viivatOikea >= 0 && e.viivatOikea < 15.5, Math.round(e.viivatOikea * 10) / 10 + ' px oikeaan reunaan');
     tulos(`${w} px: huilutettu vain kantautuneella, nimet ennallaan`, e.huilutetut === 1 && e.nOts.join('|') === 'Kant ja eläinetiikka|Käyttöohje');
     await p.fill('#lisaa-syote', 'lyhyt'); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(200);
