@@ -20,12 +20,15 @@
   var LOGO = 0.767;            // logon salmiakin leveys / korkeus (luin.html:n logo)
   var KAARI = 0.38;            // salmiakin kaarevuus (luin.html sal())
   function f(n) { return Math.round(n * 100) / 100; }
-  function sal(cx, cy, rx, ry, c) {
+  // Kovera salmiakki; kulma (rad) kallistaa sen keskipisteensä ympäri (nuotit viivaston mukana).
+  function sal(cx, cy, rx, ry, c, kulma) {
     c = c == null ? KAARI : c;
-    var P = [[cx, cy - ry], [cx + rx, cy], [cx, cy + ry], [cx - rx, cy]], d = 'M' + f(P[0][0]) + ' ' + f(P[0][1]);
+    var co = Math.cos(kulma || 0), si = Math.sin(kulma || 0);
+    function q(x, y) { return f(cx + x * co - y * si) + ' ' + f(cy + x * si + y * co); }
+    var P = [[0, -ry], [rx, 0], [0, ry], [-rx, 0]], d = 'M' + q(P[0][0], P[0][1]);
     for (var i = 0; i < 4; i++) {
       var a = P[i], b = P[(i + 1) % 4];
-      d += 'Q' + f(cx + (a[0] + b[0] - 2 * cx) * c) + ' ' + f(cy + (a[1] + b[1] - 2 * cy) * c) + ' ' + f(b[0]) + ' ' + f(b[1]);
+      d += 'Q' + q((a[0] + b[0]) * c, (a[1] + b[1]) * c) + ' ' + q(b[0], b[1]);
     }
     return d + 'Z';
   }
@@ -97,8 +100,11 @@
       var u = ((x - xz) / jakso) % 1;
       return amp * (u < .25 ? -4 * u : u < .75 ? -2 + 4 * u : 4 - 4 * u);
     }
+    // Siksak päättyy aina kokonaisen palan (puolijakson) lepokohtaan: kapeammalla näytöllä se lyhenee pala palalta eikä
+    // katkea kesken taitteen (käyttäjän pyyntö 12.11.2026).
+    var loppu = o.oikea > xz ? xz + Math.floor((o.oikea - xz) / (jakso / 2)) * (jakso / 2) : xz;
     var taitteet = [];
-    for (var xx = xz + jakso / 4; xx < o.oikea; xx += jakso / 2) taitteet.push(xx);
+    for (var xx = xz + jakso / 4; xx < loppu; xx += jakso / 2) taitteet.push(xx);
     var d2 = '';
     for (i = 0; i < n; i++) {
       var oi = siirto(i), pts = kaari.map(function (c) {
@@ -108,14 +114,15 @@
       var yi = E[1] + oi;
       pts.push([xz, yi]);
       taitteet.forEach(function (x) { pts.push([x, yi + tri(x)]); });
-      if (o.oikea > xz) pts.push([o.oikea, yi + tri(o.oikea)]);
+      if (loppu > xz) pts.push([loppu, yi]);
       d2 += 'M' + pts.map(function (p) { return f(p[0]) + ' ' + f(p[1]); }).join('L');
     }
     return {
       svg: '<path d="' + d2 + '" fill="none" stroke="currentColor" stroke-width="' + vw + '" stroke-linejoin="miter" stroke-miterlimit="12"/>' +
         '<g transform="translate(' + f(nokka[0]) + ' ' + f(nokka[1]) + ') rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g>',
       y: function (x, p) { return E[1] + siirto(p) + tri(x); },
-      sp: sp, xz: xz, jakso: jakso, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
+      kallistus: function (x) { return Math.atan2(tri(x + .01) - tri(x - .01), .02); },
+      sp: sp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
       alaY: E[1] + siirto(0) + Math.max(amp, sp * .75) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, sp * .75) - .5,
       viivaY: function (x, p) { return E[1] + siirto(p) + tri(x); }
     };
@@ -123,7 +130,8 @@
 
   // Nuotit (käyttäjän säännöt 12.11.2026): korkeus aina viivalla tai välissä, ei koskaan ylimmän viivan yläpuolella eikä
   // alimman alapuolella (p 0–3 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
-  // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
+  // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Yksi nuotti jaksoa kohti (ei
+  // päällekkäisiä ääniä), salmiakki kallistuneena viivaston mukaan. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
   // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
   // ei melodiaestetiikkaa); vain sama korkeus peräkkäin ja porras hylätään. arvoNuotit() palauttaa vain siemenen, jotta sama muodostelma säilyy uudelleenpiirrossa (leveys).
   function arvoNuotit(rnd) { return { siemen: Math.floor((rnd || Math.random)() * 4294967296) }; }
@@ -138,6 +146,7 @@
   // Jakson keskikohdat välillä [x0, x1] (nuotin kärjet mahtuvat väliin).
   function jaksonKesket(k, x0, x1) {
     var rx = k.sp * .75 * LOGO, out = [];
+    x1 = Math.min(x1, k.loppu);
     for (var x = k.xz + k.jakso / 2; x <= x1 - rx - 1; x += k.jakso / 2) if (x >= x0 + rx + 1) out.push(x);
     return out;
   }
@@ -165,16 +174,13 @@
     } while (kulkuPorras(ps) && ++yritys < 40);
     var i = 0;
     for (j = 0; j < m; j++) if (soi[j]) { out.push({ x: keskit[j], y: k.y(keskit[j], ps[i]), p: ps[i], j: j }); i++; }
-    // Joskus yksi yhteissointi: toinen ääni samaan jaksoon, viivaston sisälle ja vähintään puolitoista väliä erilleen.
-    if (rnd() < .45) {
-      var q = out[Math.floor(rnd() * out.length)], p2 = q.p >= 2 ? q.p - 2 : q.p <= 1 ? q.p + 2 : q.p - 1.5;
-      out.push({ x: q.x, y: k.y(q.x, p2), p: p2, j: q.j, sointi: true });
-    }
-    return out.sort(function (a, b) { return a.x - b.x || a.p - b.p; });
+    // Ei koskaan kahta ääntä päällekkäin (käyttäjä: ei kiksejä eikä häröääniä): yksi nuotti jaksoa kohti.
+    return out;
   }
   function nuotit(k, x0, x1, lista) {
     var ry = k.sp * .75, rx = ry * LOGO;
-    return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry); }).join('');
+    // Salmiakki kallistuu viivaston mukana siinä kohdassa (ei pystyssä).
+    return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry, null, k.kallistus(q.x)); }).join('');
   }
 
   g.LuinHuilu = { mitat: mitat, huilu: huilu, vino: vino, rajat: rajat, kaista: kaista, arvoNuotit: arvoNuotit, nuotit: nuotit,
