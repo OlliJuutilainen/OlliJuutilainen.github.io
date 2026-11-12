@@ -551,6 +551,7 @@
   }
   function siivoa(src) {
     var r = src.split('\n'), tehty = { korostus: 0, html: 0, tyhja: 0, indeksi: 0, taulukko: 0, otsikko: 0 }, aita = false;
+    tehty.ryhma = 0;
     var tau = {}, ed1 = null;
     var oma = String(L.etukentta(src).meta['lähde'] || '').trim().split('#')[0].replace(/\/$/, '');
     for (var i = 0; i < r.length; i++) {
@@ -574,13 +575,80 @@
       if (tb) { tau[i] = tb; tehty.taulukko++; continue; }
       if (l.trim() && /^\s*(<[^>]+>\s*)+$/.test(l) && !/^\s*<(https?:|br\b)/i.test(l)) { r[i] = ''; tehty.html++; }
     }
+    var lisarivit = ryhmitaViitteet(r, tehty);
     // Taulukko vie useita rivejä, joten tuloksen rivinumerot muunnetaan tekstikentän riveiksi (kartta, rivi()).
     var ulos = [], kartta = [];
     r.forEach(function (l, j) {
       var x = tau[j] ? [].concat((r[j - 1] || '').trim() ? [''] : [], tau[j], (r[j + 1] || '').trim() ? [''] : []) : [l];
       x.forEach(function (y) { ulos.push(y); kartta.push(j + 1); });
     });
+    lisarivit.forEach(function (y) { ulos.push(y); kartta.push(r.length); });
     return { src: ulos.join('\n'), tehty: tehty, kartta: kartta };
+  }
+  // Peräkkäiset alaviitemerkit yhdeksi (käyttäjän pyyntö 12.11.2026: Wikipediassa saman sanan perässä on usein 2–5 viitettä,
+  // jotka näkyivät lukimessa toisiinsa kiinni olevina numeroina). Ryhmä saa yhden merkin ja määritelmän, jossa jäsenten
+  // tekstit ovat omilla riveillään samassa järjestyksessä, joten yksi napautus avaa kaikki. md.js:ää ei muuteta: määritelmän
+  // jatkorivit (tyhjä rivi ja neljän välin sisennys) ovat sen omaa Markdownia. Sama ryhmä toisaalla saa saman merkin.
+  // Jäsenen oma määritelmä jää, jos jäsen esiintyy myös yksin; muuten rivit tyhjennetään (rivimäärä säilyy, kartta pätee).
+  // Uudet määritelmät tulevat tekstin loppuun. Vain merkit, joilla on määritelmä; koodiaidat ohitetaan.
+  function ryhmitaViitteet(r, tehty) {
+    var RE_DEF = /^ {0,3}\[\^([^\]]+)\]:[ \t]?(.*)$/, RE_UUSI = /^ {0,3}(#{1,6}(\s|$)|>|[-*+]\s|\d{1,9}[.)]\s|```|~~~)/;
+    var defs = {}, maar = {}, aita = false, i, k;
+    function nimi(x) { return String(x).replace(/\s+/g, ' ').trim().toLowerCase(); }
+    for (i = 0; i < r.length; i++) {
+      if (/^ {0,3}(```|~~~)/.test(r[i])) { aita = !aita; continue; }
+      if (aita) continue;
+      var dm = RE_DEF.exec(r[i]);
+      if (!dm) continue;
+      // Sama jatkorivien sääntö kuin md.js:n valmistele(): laiska jatko ja tyhjän rivin jälkeen sisennetty.
+      var osat = [dm[2]];
+      for (k = i + 1; k < r.length;) {
+        if (!r[k].trim()) {
+          var j = k + 1;
+          while (j < r.length && !r[j].trim()) j++;
+          if (j < r.length && /^(?: {4}|\t)/.test(r[j])) { osat.push(''); k = j; continue; }
+          break;
+        }
+        if (/^ {0,3}\[[\^#][^\]]+\]:/.test(r[k]) || (!/^[ \t]/.test(r[k]) && RE_UUSI.test(r[k]))) break;
+        osat.push(r[k].trim()); k++;
+      }
+      if (!defs[nimi(dm[1])]) { defs[nimi(dm[1])] = { a: i, b: k, osat: osat }; maar[i] = true; }
+      i = k - 1;
+    }
+    var ryhmat = {}, uudet = [], kaytto = {}, n = 0;
+    aita = false;
+    for (i = 0; i < r.length; i++) {
+      if (/^ {0,3}(```|~~~)/.test(r[i])) { aita = !aita; continue; }
+      if (aita || maar[i] || RE_DEF.test(r[i])) continue;
+      r[i] = r[i].replace(/\[\^[^\]\s]+\](?:[ \t]*\[\^[^\]\s]+\])+/g, function (koko) {
+        var jas = (koko.match(/\[\^[^\]\s]+\]/g) || []).map(function (x) { return x.slice(2, -1); });
+        jas = jas.filter(function (x, y) { return jas.indexOf(x) === y; });
+        if (jas.length < 2 || !jas.every(function (x) { return defs[nimi(x)]; })) return koko;
+        var avain = jas.map(nimi).join('\n');
+        if (!ryhmat[avain]) {
+          var t = 'ryhma-' + (++n), rivit = [];
+          jas.forEach(function (x, y) {
+            defs[nimi(x)].osat.forEach(function (o, z) {
+              if (!y && !z) rivit.push('[^' + t + ']: ' + o);
+              else if (!z) rivit.push('', '    ' + o);
+              else rivit.push(o ? '    ' + o : '');
+            });
+          });
+          ryhmat[avain] = t;
+          uudet.push('');
+          uudet.push.apply(uudet, rivit);
+        }
+        tehty.ryhma++;
+        return '[^' + ryhmat[avain] + ']';
+      });
+      (r[i].match(/\[\^[^\]\s]+\](?!:)/g) || []).forEach(function (x) { kaytto[nimi(x.slice(2, -1))] = true; });
+    }
+    if (!n) return [];
+    Object.keys(defs).forEach(function (x) {
+      if (kaytto[x]) return;
+      for (var j = defs[x].a; j < defs[x].b; j++) r[j] = '';
+    });
+    return uudet;
   }
   // Tuloksen rivinumero tekstikentän riviksi.
   function rivi(ln) { return siivous && siivous.kartta[ln - 1] || ln; }
@@ -836,8 +904,9 @@
     var mu = [];
     if (s.indeksi) mu.push(s.indeksi + ' HTML-' + (s.indeksi > 1 ? 'indeksiä' : 'indeksi'));
     if (s.taulukko) mu.push(s.taulukko + ' HTML-' + (s.taulukko > 1 ? 'taulukkoa' : 'taulukko'));
-    t.textContent = (o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length ? '' : 'Ei siivottavaa. ') +
-      (mu.length ? mu.join(' ja ') + ' Markdowniksi.' : '');
+    var ry = s.ryhma ? ' ' + s.ryhma + (s.ryhma > 1 ? ' peräkkäisten alaviitteiden ryhmää yhdistetty.' : ' peräkkäisten alaviitteiden ryhmä yhdistetty.') : '';
+    t.textContent = ((o.length ? 'Pois tuloksesta: ' + o.join(', ') + '. ' : mu.length || ry ? '' : 'Ei siivottavaa. ') +
+      (mu.length ? mu.join(' ja ') + ' Markdowniksi.' : '') + ry).trim();
     t.hidden = false;
   }
 
