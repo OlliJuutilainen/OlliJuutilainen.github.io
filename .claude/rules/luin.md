@@ -290,7 +290,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   *TOISEN LAITTEEN PÄÄSSÄ* ja lisäosan johdanto) ovat käyttäjän sanamuotoja: älä siloittele. Latomo ei lähetä merkintöjä
   (käyttäjän päätös 10.11.2026). Latomo kirjoittaa
   tekstin laatikkoon reitillä `POST /api/luin`, ja Luin hakee tekstit samalta reitiltä GET:llä. **Pitkä arvottu laatikon
-  koodi (≥ 24 merkkiä, `kk-` ja 24 satunnaista) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
+  koodi (≥ 24 merkkiä) on itse avain**: ei salaisuutta workeriin eikä Päätettä uudelle käyttäjälle,
   laatikolle tai laitteelle (käyttäjä: salakoodi per worker oli liian epäskaalautuva; sen tilalle tämä samana päivänä).
   **Uusi laatikkolause on aina 24–52 merkkiä** (käyttäjän päätökset 9.11.2026 ja 10.11.2026: yläraja 52, ennen 40; lauseella on voitava sekä lähettää että lukea),
   **vain a–z, 0–9 ja `-`** (käyttäjän päätös 10.11.2026): isot kirjaimet luetaan pieniksi, muut merkit hylätään eikä niitä
@@ -298,6 +298,11 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
   Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
+- **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava;
+  vain Latomon *Arvo*): kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka lukumäärä
+  (`MAARA`). Sanoissa ei saa olla ääkkösiä eikä niistä pudotettuja muotoja (*delfiinia*), eikä samassa paikassa lähisynonyymejä.
+  Kun muutat sanoja, aja `python3 luin/kehitys/laatikkolause-sanat.py` (Voikko: `apt-get install voikko-fi python3-libvoikko`)
+  ja `laatikkolause-testi.js`, ja päivitä `laatikkolause.js?v=` kuten md.js:n.
 - **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
@@ -321,6 +326,7 @@ Aja repon juuressa:
   artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden ja rikkinäisten lähdelinkkien pitää olla 0.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista 429:n (myös kohteliaalla User-Agentilla ja odottaen), joten oikeaa rajapintaa ei voi
