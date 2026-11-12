@@ -29,7 +29,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md` ja `#avaa` (`latomoon.js`):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Postihuilu käyttää lisäksi `#laatikko-koodi` (attribuutti `data-ei-muistia`), `#laheta`, `#kk-tila`
   (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
-  leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit); muuta niitä yhdessä. Haetut alaviitteet
+  leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit, peräkkäiset alaviitemerkit yhdeksi `[^ryhma-N]`:ksi,
+  käyttäjän pyyntö 12.11.2026 Wikipedian takia: yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Lisää lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
