@@ -158,7 +158,8 @@
   button.jako svg { width: 15px; height: 15px; }
   /* Nimikkeen valikko: kolme salmiakkia rivissä (käyttäjän pyyntö 10.11.2026; ennen jakomerkki). */
   /* Kolme salmiakkia pystyssä, kärjet hipaisten, logon mittasuhteissa kuten huilun sormireiät (12.11.2026). */
-  button.jako svg.kolme { width: 5px; height: 17px; fill: currentColor; }
+  /* Pienennetty 85 %:iin (käyttäjän pyyntö 12.11.2026); viewBox 5 × 17 pitää mittasuhteet. */
+  button.jako svg.kolme { width: 4.25px; height: 14.45px; fill: currentColor; }
   /* Huilutettu (käyttäjän valinta 12.11.2026): Postihuilun kautta kantautunut teksti (e.src 'laatikko') saa nimensä perään
      saman huilun vinossa pystyssä, 68° vaakatasosta, nokka ylhäällä oikealla (luin/kehitys/postihuilu-kuvio.js). */
   /* Keskikohta 0,29 em perusviivan yläpuolella: pienaakkosten (x-korkeus 0,51 em) ja versaalien (0,74 em) keskikohtien
@@ -957,8 +958,10 @@
   #laatikko-arvottu .virke { font-style: normal; color: var(--muste); }
   /* Postihuilu (10.11.2026): rivi "Laatikkolause:" i-nappeineen, ohje sen alla, kenttä koko leveydellä. */
   .koodirivi { display: flex; align-items: center; gap: 2px; margin-top: 6px; font-size: .78rem; color: var(--harmaa); font-style: italic; }
-  /* Arvo laatikkolauseen rivillä i-napin oikealla puolella pienen hajuraon päässä (käyttäjän pyyntö 12.11.2026). */
-  .koodirivi .arvo { margin-left: 12px; font-style: normal; color: var(--muste); }
+  /* Arvo laatikkolauseen tekstikentän oikealla puolella samalla rivillä, kenttä kapenee (käyttäjän pyyntö 12.11.2026). */
+  .koodikentta { display: flex; gap: 8px; margin-top: 4px; }
+  .koodikentta #laatikko-koodi { flex: 1 1 auto; min-width: 0; width: auto; margin-top: 0; }
+  .koodikentta .arvo { flex: 0 0 auto; color: var(--muste); }
   .kysy-ohje blockquote { margin: 8px 0; padding: 0 0 0 10px; border-left: 2px solid var(--viiva); overflow-wrap: anywhere; }
   button.kysy { flex: 0 0 auto; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); font-style: normal; }
   button.kysy svg { width: 20px; height: 20px; }
@@ -1167,9 +1170,9 @@
         <p class="huomio jatko">Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut hyllyt.</p>
         <div class="koodirivi"><label for="laatikko-koodi">Laatikkolause:</label>
           <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button>
-          <button type="button" class="laatikko arvo" id="laatikko-arvo">Arvo</button></div>
+</div>
         <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
-        <input type="text" id="laatikko-koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="koodikentta"><input type="text" id="laatikko-koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="laatikko arvo" id="laatikko-arvo">Arvo</button></div>
         <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa; luin/laatikkolause.js) täyttää kentän muistettavalla
              virkkeellä mutta ei tallenna: lause otetaan käyttöön Soita huilua! -napista. -->
         <p class="huomio" id="laatikko-arvottu" hidden></p>
@@ -1223,7 +1226,7 @@
 <script src="luin/md.js?v=c86b4465"></script>
 <script src="luin/posti.js?v=91bf4ff2"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=37e33d5e"></script>
+<script src="luin/huilu.js?v=99817dcd"></script>
 <script>
 (function () {
   'use strict';
