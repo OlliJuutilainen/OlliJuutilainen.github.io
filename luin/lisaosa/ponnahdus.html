@@ -49,6 +49,9 @@
   .ohje p.johdanto { font-size: .84rem; color: var(--muste); }
   .ohje blockquote { margin: 7px 0; padding: 0 0 0 8px; border-left: 2px solid var(--viiva); overflow-wrap: anywhere; }
   .ohje b, .ohje i { color: var(--muste); }
+  .arvo { display: flex; gap: 8px; align-items: center; margin: 6px 0 0; }
+  .arvo button { flex: 0 0 auto; min-height: 32px; padding: 0 10px; font-size: .84rem; }
+  #arvottu { font-size: .76rem; line-height: 1.35; color: var(--harmaa); font-style: italic; }
   #koodi-virhe { color: var(--harmaa); font-size: .8rem; margin: 4px 0 0; }
   #koodi-virhe:empty { display: none; }
   .posti label.heti { margin: 6px 0 0; min-height: 28px; font-size: .76rem; color: var(--harmaa); gap: 6px; }
@@ -68,6 +71,8 @@
       <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>
         <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Tietoa: Postihuilu ja laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
+      <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa): laatikkolause.js on kopio luin/laatikkolause.js:stä. -->
+      <div class="arvo"><button type="button" id="arvo">Arvo</button><span id="arvottu"></span></div>
       <!-- Sanamuodot käyttäjän (10.11.2026). Laatikkolauseen osuus on sama kuin luin/posti.js:n OHJE_YDIN: muuta yhdessä. -->
       <div class="ohje" id="ohje" hidden>
         <p class="johdanto">Lähetä teksti esimerkiksi tietokoneelta kännykälle soittamalla postihuilua. Syötä laatikkolause, soita huilua, ja siitä eteenpäin 30 päivän ajan postin voi vastaanottaa soittamalla millä tahansa muulla laitteella syöttämällä saman laatikkolauseen LUiN.HTML:ssä.</p>
@@ -83,6 +88,7 @@
   </div>
   <p id="tila"></p>
 </main>
+<script src="laatikkolause.js"></script>
 <script src="ponnahdus.js"></script>
 </body>
 </html>
