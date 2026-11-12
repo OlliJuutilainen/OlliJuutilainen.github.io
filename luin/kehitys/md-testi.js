@@ -349,10 +349,10 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
 
 // Välimuistin ohitus (29.10.2026: selain piti vanhan md.js:n): sivujen ?v= on md.js:n SHA-1:n alku. Muutoksen jälkeen:
 //   V=$(sha1sum luin/md.js | cut -c1-8); sed -i -E "s/md\.js\?v=[0-9a-f]+/md.js?v=$V/" luin.html luin/latomo.html
-// Samoin posti.js (9.11.2026): sed-komennossa md → posti.
-['md', 'posti'].forEach(nimi => {
+// Samoin posti.js (9.11.2026): sed-komennossa md → posti. laatikkolause.js (12.11.2026) on vain Latomossa.
+[['md'], ['posti'], ['laatikkolause', ['../latomo.html']]].forEach(([nimi, sivut]) => {
   const mdV = require('crypto').createHash('sha1').update(fs.readFileSync(path.resolve(__dirname, '../' + nimi + '.js'))).digest('hex').slice(0, 8);
-  ['../../luin.html', '../latomo.html'].forEach(f => {
+  (sivut || ['../../luin.html', '../latomo.html']).forEach(f => {
     const v = (new RegExp(nimi + '\\.js\\?v=([0-9a-f]+)').exec(lue(f)) || [])[1];
     tulos(nimi + '.js?v= ajan tasalla: ' + f.split('/').pop(), v === mdV, v + ' ≠ ' + mdV + ' (aja kommentin sed-komento)');
   });

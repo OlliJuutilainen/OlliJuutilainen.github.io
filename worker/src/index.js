@@ -248,7 +248,7 @@ const LUIN_ID_RE = /^[a-z0-9-]{1,60}$/;
 
 // Coneelta Cännycälle (käyttäjän pyynnöt 9.11.2026): Latomo kirjoittaa tekstin laatikkoon suoraan, ilman
 // Päätteen wrangler-komentoa. POST /api/luin, runko { l, id, md } (teksti) tai { l, id, m } (merkinnät). Pitkä laatikon koodi on itse avain
-// (Latomo arpoo 24 satunnaista merkkiä): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
+// (Latomon Arvo antaa noin 2^48:n joukosta arvotun virkkeen, luin/laatikkolause.js): sitä ei voi arvata, joten jokainen kirjoittaa vain omaan laatikkoonsa,
 // eikä uusi käyttäjä tai laite tarvitse salaisuutta workeriin. Lyhyellä koodilla voi vain lukea; Luin, Latomo ja lisäosa
 // eivät 9.11.2026 alkaen hyväksy uutta alle 24 merkin koodia (luin/posti.js), joten vain vanha lyhyt koodi on lukukoodi.
 // Kirjoitukset rajataan Durable Objectin laskurilla (LuinRaja, alla). Avain, metatieto

@@ -353,6 +353,8 @@
           <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
         <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="vähintään 24 merkkiä tai Arvo">
           <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
+      <!-- Arvotun lauseen virke mielikuvaksi (laatikkolause.js, 12.11.2026); piiloon, kun kentän lause on toinen. -->
+      <p class="pieni" id="laatikko-arvottu" hidden></p>
       <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
       <div class="rivi"><button type="button" class="paa" id="kk-laheta">Soita huilua!</button></div>
       <p class="pieni" id="laatikko-virhe" hidden></p>
@@ -389,6 +391,7 @@
 
 <script src="md.js?v=c86b4465"></script>
 <script src="posti.js?v=91bf4ff2"></script>
+<script src="laatikkolause.js?v=4355b66e"></script>
 <script>
 (function () {
   'use strict';
@@ -1312,14 +1315,23 @@
     if (auki && !o.innerHTML) o.innerHTML = P.OHJE;
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
   });
+  // Arvo (12.11.2026; ennen kk- ja 24 satunnaista merkkiä): muistettava virke, ks. laatikkolause.js. Virke näkyy
+  // kentän alla, kunnes kentän lause muuttuu.
+  var arvottu = null;
+  function naytaArvottu() {
+    var e = $('#laatikko-arvottu'), nakyy = !!arvottu && P.koodi(lkKentta.value) === arvottu.lause;
+    e.hidden = !nakyy;
+    if (!nakyy) return;
+    e.innerHTML = '';
+    var i = document.createElement('i'); i.textContent = arvottu.virke;
+    e.appendChild(i);
+    e.appendChild(document.createTextNode(' Arvottu noin ' + Math.round(window.LuinLause.MAARA / 1e12) + ' biljoonan lauseen joukosta.'));
+  }
   $('#laatikko-arvo').addEventListener('click', function () {
-    // Sekaantumattomat merkit (ei 0/o, 1/l/i), neljän ryhmissä, jotta lauseen voi tarvittaessa näppäillä.
-    // 24 merkkiä 31 merkin joukosta on noin 119 bittiä, joten lausetta ei voi arvata.
-    var m = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(24), out = 'kk';
-    crypto.getRandomValues(r);
-    for (var i = 0; i < 24; i++) out += (i % 4 ? '' : '-') + m[r[i] % m.length];
-    lkKentta.value = out; kkTila(''); paivitaLahetys();
+    arvottu = window.LuinLause.arvo();
+    lkKentta.value = arvottu.lause; kkTila(''); paivitaLahetys(); naytaArvottu();
   });
+  lkKentta.addEventListener('input', naytaArvottu);
   function kopioi(b, teksti, nimi) {
     function valmis() { b.textContent = 'Kopioitu'; setTimeout(function () { b.textContent = nimi; }, 1500); }
     if (navigator.clipboard) navigator.clipboard.writeText(teksti).then(valmis, function () { window.prompt('Kopioi:', teksti); });
