@@ -138,9 +138,13 @@
   button.valitse[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
   /* Pölyhylly (ent. arkistohylly): vain logo, kotilinkki, asetukset, hylly ja alatunniste. */
   .loikea { display: flex; align-items: flex-start; }
-  /* Pölyhyllyn hyllymerkki nousee kiekon tasalle kuten yläpalkissa. */
-  .lhead .koti svg { fill: none; overflow: visible; margin-top: -8px; }
-  .lhead .koti .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
+  /* Pölyhyllyn hyllymerkki (käyttäjän pyyntö 12.11.2026): musteen alareuna logon loppupisteen alakärjen tasolla kuten
+     alasivuilla ja ennen pirtin lattiaviiva, ei kiekon keskilinjalla. Kärki 24 + 6 + 64 · 110,48/138 = 81,24 px, musteen
+     alareuna 25,61 px 28 px:n svg:n yläreunasta ja svg 8 px laatikon yläreunasta: 81,24 − 25,61 − 8 − 24 = 23,63. Merkki
+     28 px (ennen 22 px), viiva 1,05 px kuten ennen (0,9 viewBoxin yksikköä). */
+  .lhead .koti { position: relative; top: 23.63px; }
+  .lhead .koti svg { width: 28px; height: 28px; fill: none; overflow: visible; }
+  .lhead .koti .k { fill: none; stroke: currentColor; stroke-width: .9; stroke-linejoin: miter; }
   #lista.arkisto .vain-lista, #lista.arkisto button.info, #lista.arkisto .tietoa { display: none; }
   .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
   .ark-linkki a { color: var(--harmaa); text-underline-offset: 3px; }
@@ -397,13 +401,14 @@
   #asetukset .sulje { margin-right: calc(var(--o-laita) - 13.84px); }
   /* Paluu hyllylle on hyllymerkki (käyttäjän pyyntö 5.11.2026; ennen teksti ‹ Lukulista), sama kirjapino kuin Latomossa ja
      ohjeissa (käyttäjän valinta 12.11.2026, luonnos *Ulkoneva*; ennen pirtti ja harjasalmiakki). Alimman kirjan muste palkkien
-     vasempaan laitaan: sen ulkoreuna on viewBoxin x = 4,425 eli 4,06 px svg:n reunasta; padding on kokonaisluku, koska
-     Chromium pyöristää svg:n paikan. Pinon muste on viewBoxin alaosassa (y 10,5–22,1), joten svg nousee 4 px, jotta musteen
-     keskikohta on palkin ja kiekon keskellä (negatiivinen marginaali eikä transform, jotta paikka pysyy kokonaisluvussa). */
-  .takaisin { padding: 0 11px 0 calc(var(--v-laita) - 4px); height: 44px; display: inline-flex; align-items: center;
+     vasempaan laitaan; padding on kokonaisluku, koska Chromium pyöristää svg:n paikan. Merkki on 28 px (suurennettu 12.11.2026, ennen 22 px) ja viiva 1,05 px kuten ennen
+     (0,9 viewBoxin yksikköä), joten alimman kirjan ulkoreuna on viewBoxin x = 4,55 eli 5,31 px svg:n reunasta. Pinon
+     muste on viewBoxin alaosassa (y 10,65–21,95), joten svg nousee 5 px, jotta musteen keskikohta on palkin ja kiekon
+     keskellä (negatiivinen marginaali eikä transform, jotta paikka pysyy kokonaisluvussa). */
+  .takaisin { padding: 0 11px 0 calc(var(--v-laita) - 5px); height: 44px; display: inline-flex; align-items: center;
     flex: 0 0 auto; text-decoration: none; color: var(--harmaa); }
-  .takaisin svg { display: block; width: 22px; height: 22px; overflow: visible; margin-top: -8px; }
-  .takaisin .k { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linejoin: miter; }
+  .takaisin svg { display: block; width: 28px; height: 28px; overflow: visible; margin-top: -10px; }
+  .takaisin .k { fill: none; stroke: currentColor; stroke-width: .9; stroke-linejoin: miter; }
   .y-nimi { flex: 1 1 auto; min-width: 0; text-align: center; font-size: .68rem; letter-spacing: .16em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--harmaa); }
   /* Mobiilissa (body.mobiili: kosketusnäyttö eli pointer: coarse tai hover: none; käyttäjän päätökset 22.10.2026) palkit ovat
