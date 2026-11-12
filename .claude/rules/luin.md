@@ -325,25 +325,26 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
   Hyllyllä huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
-  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä yhtenä alas suuntautuvana vektorina (huilun akseli) ja avautuvat
-  kaarteessa nauhana, alin viiva leveimmällä ulkokaarella (käyttäjä 12.11.2026, `VIUHKA`). Keskikaaren säde on aina suurempi kuin
-  sisimmän viivan siirto: muuten ylin viiva sinkoutuu suoraan oikealle. Säteittäin leviäviä kaaria käyttäjä ei halunnut (nippu katosi). Viivat jatkuvat sitten
+  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
   mitat isoja (huilu 6 px, viivaväli 4 px, siksak ±2,4 px): ohut viiva ei ole lupa pienentää. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
-  **Viisi reikää, viisi viivaa, nuotti aina viivalla ja jokaiselle viivalle yksi ääni jossain järjestyksessä** (käyttäjä 12.11.2026;
-  ennen kolme reikää, neljä viivaa ja välit), **aina siksakin jakson keskellä**; ensimmäinen
+  **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
   ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
   salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa (22° pystysuorasta), ylämäkiviivalla pystyssä; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
   kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Merkintöjen merkki (`MERKITTY`, käyttäjän pyyntö 12.11.2026: kirjanmerkki, alleviivaus
-  tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, kärjet hipaisten, ja **alin alakärki pohjaviivan sisäpinnassa on ehdoton** (käyttäjä: ei hajurakoa);
-  ketju täyttää tilan aukon leukaan asti (`RAKO`), ja reikien koko seuraa siitä (huilun pituus ja yläosa ennallaan, mietintämyssyn versio A). **Ääniaukko** (`AUKKO`,
+  tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, sivukärjet irti reunaviivasta (`REIKA` 0,65, pienennetty ääniaukolle; käyttäjä 12.11.2026),
+  kärjet hipaisten, alin alakärki pohjaviivan sisäpinnassa (ketju ankkuroituu alhaalta, huilun pituus ennallaan). **Ääniaukko** (`AUKKO`,
   käyttäjän valinta 12.11.2026, nokkahuilun ikkuna): melko ylhäällä matala täytetty siivu reikien värillä, sen päiden linjasta
   kelloa kohti tyhjä ääriviiva, jonka alaosassa leukaperät ja leveä leuka (45° sisäänpäin, puolivälissä keskiviivalle vaakaan). Ei ruostetta. Kaistan luokka ei saa olla
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
   Postihuilu-napissa on kopio vanhemmasta huilusta (ääniaukollinen). Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
-  vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa).
+  vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa, viisi reikää ja viisi viivaa).
+  **Viuhka on tarkoituksella yhden keskikaaren normaalisiirtymät** (`kaista()`), vaikka sisimmät viivat kääntyvät kaarteessa
+  jyrkästi: käyttäjä palautti sen 12.11.2026, kun säteittäin leviävät kaaret ja nauhaviuhka (ympyränkaari, viisi viivaa)
+  veivät viivaston sulavuuden. Älä "korjaa" sitä kysymättä. Viisi reikää ja viisi viivaa kokeiltiin samana päivänä ja
+  hylättiin (käyttäjä: pitää olla särö lammen pinnassa, pakotettu 5–5 sotii mystiikkaa vastaan).
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
   *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
   `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
