@@ -153,8 +153,12 @@
   .ark-linkki a { color: var(--harmaa); text-underline-offset: 3px; text-transform: uppercase; letter-spacing: .14em; }
   /* Pölyhyllyn paluuteksti hyllymerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
      Hylly-otsikko. Voi rivittyä kahdelle riville, koska 360 px:n ruudulle ei mahdu logo, teksti, merkki ja kiekko yhdelle. */
-  .lhead a.ark-takaisin { align-self: flex-start; margin: 41px 2px 0 0; text-align: right; font-size: .68rem; line-height: 1.3;
-    letter-spacing: .14em; text-transform: uppercase; color: var(--harmaa); text-decoration: none; min-width: 0; }
+  .lhead a.ark-takaisin { align-self: flex-start; margin: 0 2px 0 0; height: 59.5px; display: flex; align-items: flex-end; justify-content: flex-end;
+    text-align: right; font-size: .5rem; line-height: 1.3; letter-spacing: .14em; text-transform: uppercase; color: var(--harmaa);
+    text-decoration: none; min-width: 0; }
+  /* Teksti on selvästi pienempi kuin ennen (.68rem → .5rem, käyttäjän pyyntö 12.11.2026) ja sen viimeisen rivin perusviiva on
+     hyllymerkin musteen alareunan tasolla (merkin alareuna 57,24 px .loikea-laatikon yläreunasta + viivan puolikas; laatikon
+     alareuna on perusviivan alapuolella 0,195 em, joten 58,8 px; mitattu kuvasta: teksti asettuu kokonaiseen pikseliin, joten 59,5 px osuu 0,24 px:n päähän pinon alareunasta). Alareunaan kiinnitys pitää linjan myös rivittyessä. */
   /* Pitkä katkeamaton sana (verkko-osoite alaotsikkona, tekijänä tai viestissä) ei saa leventää sivua: asetteluleveys
      kasvoi 360 → 1440 px, ja ruutuun sovittava WebView (Native Alpha, Light Phone) pienensi koko listan. */
   #lista { overflow-wrap: anywhere; }
@@ -767,7 +771,7 @@
      oikeassa laidassa. Käyttäjän pyyntö 8.11.2026: napit askeleen himmeämmiksi (--harmaa → --huomio, reunus ja nuoli). */
   #sivunapit { display: flex; align-items: center; align-self: stretch; margin-right: calc(-1 * var(--o-laita));
     padding-right: var(--o-laita); pointer-events: auto; }
-  #sivunapit button { width: 54px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--paperi);
+  #sivunapit button { width: 54px; height: 59.5px; display: flex; align-items: center; justify-content: center; background: var(--paperi);
     border: 1px solid var(--huomio); }
   #sivunapit button + button { width: 53px; border-left: 0; }
   #sivunapit svg { width: 14px; height: 14px; fill: var(--huomio); }
