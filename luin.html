@@ -328,10 +328,10 @@
   .valikko .sk-vaihdot button.sk-vaihto { font-size: 1rem; font-style: italic; }
   .valikko .sk-vk { margin-left: 4px; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
-  .valikko a.sk-lisa { display: inline-flex; align-self: center; margin: -5px -2.5px -5px auto; line-height: 0; text-decoration: none; }
-  .valikko a.sk-lisa svg { width: 24px; height: 24px; fill: none; }
-  /* Kehys asteen viivaa selvempi (käyttäjän pyyntö 12.11.2026): 40 % harmaata. */
-  .valikko a.sk-lisa .kehys { stroke: var(--viiva); stroke: color-mix(in srgb, var(--harmaa) 40%, var(--viiva)); stroke-width: 1; }
+  /* Pelkkä plussa ilman kehystä (käyttäjän päätös 12.11.2026; neliö ja salmiakki kokeiltiin), 24 px:n kehyksen mittakaavassa.
+     Napautusala on plussaa isompi (padding), ja negatiivinen reunus pitää musteen raksin oikean laidan tasalla. */
+  .valikko a.sk-lisa { display: inline-flex; align-self: center; margin: -8px -8px -8px auto; padding: 8px; line-height: 0; text-decoration: none; }
+  .valikko a.sk-lisa svg { width: 10.5px; height: 10.5px; fill: none; overflow: visible; }
   .valikko a.sk-lisa .plus { stroke: var(--ruoste); stroke-width: 1.3; }
   /* Alkuperä (käyttäjän pyynnöt 12.11.2026): linssi-epsilon (IK_ETY) alaindeksinä sanan perässä pienellä hajuraolla,
      epsilonin alareuna 1,2 px sanan peruslinjan alapuolella (käyttäjän pyynnöt; svg:n alareuna 6,75 px peruslinjan alla; linssin säde 7, käyttäjän pyyntö: epsilon oikealla painolla vaati isomman linssin). Vain kun alkuperä on (etyNapiksi). Linssi
@@ -5032,9 +5032,8 @@
       '<button type="button" class="sk-sulje" data-k="sk-sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE_SK + '</button>' +
       '<div class="sk-runko"><div class="sk-tieto">Haetaan…</div></div><div class="sk-ala">' + skLisa(linkki) + '</div>';
   }
-  // Lisää on pikku plussa kuten Latomossa (käyttäjän pyyntö 12.11.2026; ennen sana *lisää*), kevyesti kehystettynä painikkeeksi
-  // tavalliseen neliöön (käyttäjän valinta 12.11.2026, ei salmiakkia; kehys --viiva, plussa ruoste).
-  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="kehys" x="2.5" y="2.5" width="19" height="19"/><path class="plus" d="M12 7.4V16.6M7.4 12H16.6"/></svg></a>' : ''; }
+  // Lisää on pelkkä ruosteinen plussa (käyttäjän pyynnöt 12.11.2026; ennen sana *lisää*, välillä kehystettynä).
+  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '"><svg viewBox="6.75 6.75 10.5 10.5" aria-hidden="true"><path class="plus" d="M12 7.4V16.6M7.4 12H16.6"/></svg></a>' : ''; }
   function skKieliKoodi(nimi) { return Object.keys(SK_NIMI).filter(function (k) { return SK_NIMI[k] === nimi; })[0] || ''; }
 
   // Sanaselitys valinnasta (segs: yksi pala). Ketju ajetaan loppuun asti vain, jos tasan samaa ei löydy. Wikisanakirjassa ei
