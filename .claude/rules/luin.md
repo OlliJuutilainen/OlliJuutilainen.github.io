@@ -365,10 +365,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
   Postihuilu-napissa on kopio vanhemmasta huilusta (ääniaukollinen). Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
   vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa, viisi reikää ja viisi viivaa).
-  **Viuhka on tarkoituksella yhden keskikaaren normaalisiirtymät** (`kaista()`), vaikka sisimmät viivat kääntyvät kaarteessa
-  jyrkästi: käyttäjä palautti sen 12.11.2026, kun säteittäin leviävät kaaret ja nauhaviuhka (ympyränkaari, viisi viivaa)
-  veivät viivaston sulavuuden. Älä "korjaa" sitä kysymättä. Viisi reikää ja viisi viivaa kokeiltiin samana päivänä ja
-  hylättiin (käyttäjä: pitää olla särö lammen pinnassa, pakotettu 5–5 sotii mystiikkaa vastaan).
+  Viuhkan sisäviivojen jyrkkä käännös on tarkoituksellinen (`kaista()`): älä korjaa sitä kysymättä (historia commitissa f3f21b3).
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
   *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
   `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka
