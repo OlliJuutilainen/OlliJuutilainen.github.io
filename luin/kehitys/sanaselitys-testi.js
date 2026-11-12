@@ -67,6 +67,8 @@ const S = {
 const E = {
   kello: { Finnish: ['From <span class="etyl"><a href="https://en.wikipedia.org/wiki/Proto-Finnic_language">Proto-Finnic</a></span> <i class="Latn mention" lang="urj-fin-pro"><a href="/wiki/Reconstruction:Proto-Finnic/kello">*kello</a></i>; compare <i class="Latn mention" lang="fi"><a href="/wiki/kellua#Finnish">kellua</a></i>.<sup class="reference">[1]</sup>'] },
   as: { English: ['From Middle English <i>as</i>, from Old English <i>eallswā</i>.'] },
+  // As on englanniksi pelkkä taivutusviittaus (plural of A), mutta sillä on tässä oma etymologia: muoto pysyy, ei hyppyä A:han.
+  As: { English: ['Own etymology of the plural As.'] },
   kanteli: { Finnish: ['A made-up etymology for <i>kanteli</i>.'] },
   kantele: { Finnish: [] },
   Kant: { English: ['From the surname of <a href="/wiki/Immanuel_Kant" title="x">Immanuel Kant</a>.', 'Second sense of Kant.'], German: ['From <span class="etyl">Middle High German</span> <i><a href="/wiki/kant#Middle_High_German">kant</a></i>.'] }
@@ -223,11 +225,13 @@ palvelin.listen(0, async () => {
       window.__luin.selitys(b, s, s + sana.length);
     }, [sana, n]);
     await p.waitForFunction(() => { const t = document.querySelector('#pop .sk-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
+    await p.waitForTimeout(150); // alkuperän saatavuus (osioluettelo) ja mahdollinen perusmuoto
     return p.evaluate(() => {
       const q = s => document.querySelector('#pop ' + s), qa = s => [...document.querySelectorAll('#pop ' + s)];
       return { ots: q('.sk-o').textContent, huom: qa('.sk-huom').map(e => e.textContent), varo: qa('.sk-varo').map(e => e.textContent),
         kielet: qa('.sk-kieli').map(e => e.textContent), maar: qa('.sk-ol li').map(e => e.textContent), vaihdot: qa('.sk-vaihto').map(e => e.textContent),
-        tieto: (q('.sk-tieto') || {}).textContent || '', lisaa: !!q('.sk-lisa'), takaisin: !!q('.sk-takaisin'), raksi: !!q('.sk-sulje') };
+        tieto: (q('.sk-tieto') || {}).textContent || '', lisaa: !!q('.sk-lisa'), takaisin: !!q('.sk-takaisin'), raksi: !!q('.sk-sulje'),
+        muoto: (q('.sk-muoto') || {}).textContent || '', lambda: !!q('.sk-ots svg.sanasto'), logos: (q('.sk-osa') || {}).textContent === 'λόγος' };
     });
   }
   const ymp = (sana, n) => p.evaluate(([sana, n]) => {
@@ -236,7 +240,11 @@ palvelin.listen(0, async () => {
   }, [sana, n]);
 
   let r = await selita('kelloon');
-  tulos('fi: tasan sama taivutusmuoto (kelloon), yksi pyyntö', r.ots === 'kelloon' && /illative singular of kello/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && pyynnot.length === 1, JSON.stringify(r) + ' ' + pyynnot.length);
+  tulos('fi: pelkkä taivutusmuoto (kelloon) → perusmuoto ensin, taivutus pienellä (”kelloon” – illative singular)',
+    r.ots === 'kello' && r.muoto === '”kelloon” – illative singular' && /clock/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && !r.lambda && r.logos,
+    JSON.stringify(r) + ' ' + pyynnot.join(' · '));
+  tulos('fi: perusmuodon päätös: muodon määritelmät, muodon osioluettelo, perusmuodon määritelmät (3 pyyntöä + perusmuodon osiot)',
+    pyynnot.slice(0, 3).join(' | ') === '/api/rest_v1/page/definition/kelloon | /w/api.php?action=parse&format=json&formatversion=2&origin=*&redirects=1&disableeditsection=1&page=kelloon&prop=sections | /api/rest_v1/page/definition/kello', pyynnot.join(' · '));
   await kuva('sk-kelloon');
   r = await selita('Kello');
   tulos('fi: virkkeen alun iso kirjain → pieni (Kello → kello)', r.ots === 'kello' && !r.huom.length, JSON.stringify(r));
@@ -263,20 +271,22 @@ palvelin.listen(0, async () => {
     return { ots: q('.sk-o').textContent, nappi: !!q('.sk-ots button.sk-ety'), painettu: qa('button.sk-ety').map(b => b.getAttribute('aria-pressed')),
       auki: !!l, teksti: l ? l.querySelector('.sk-ety-runko').textContent : '', kielet: l ? [...l.querySelectorAll('.sk-kieli')].map(e => e.textContent) : [],
       ensin: !!l && runko.querySelector('.sk-ety-laatikko, .sk-kieli') === l, sanat: l ? [...l.querySelectorAll('button.sk-sana')].map(b => b.dataset.sana) : [],
-      kpl: l ? l.querySelectorAll('.sk-ety-p').length : 0, rivit: l ? l.querySelectorAll('.sk-ety-li').length : 0, nakyy: !document.querySelector('#pop').hidden };
+      kpl: l ? l.querySelectorAll('.sk-ety-p').length : 0, rivit: l ? l.querySelectorAll('.sk-ety-li').length : 0, nakyy: !document.querySelector('#pop').hidden,
+      etymon: !!l && l.querySelector('.sk-ety-ots .sk-osa').textContent === 'ἔτυμον' };
   });
   const odotaEty = () => p.waitForFunction(() => { const t = document.querySelector('#pop .sk-ety-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
   r = await selita('kelloon');
   let e = await ety();
-  tulos('alkuperä: epsilon otsikossa, laatikko kiinni ja ei hakua ennen napautusta', e.nappi && !e.auki && e.painettu.join() === 'false' && !pyynnot.some(u => /action=parse/.test(u)), JSON.stringify(e));
+  tulos('alkuperä: linssi otsikon sanan perässä, laatikko kiinni, ei osion tekstin hakua ennen napautusta',
+    e.nappi && !e.auki && e.painettu.join() === 'false' && !pyynnot.some(u => /prop=text/.test(u)), JSON.stringify(e));
   pyynnot.length = 0;
   await p.click('#pop .sk-ots button.sk-ety');
   await odotaEty();
   e = await ety();
   tulos('alkuperä: epsilon avaa laatikon ensimmäiseksi, vain etymologia (ei puuta, ääntämystä, sanaluokkaa eikä viitettä)',
-    e.auki && e.ensin && e.painettu.join() === 'true' && /^Perusmuodon kello alkuperä\.From Proto-Finnic \*kello; compare kellua\.$/.test(e.teksti) && !e.kielet.length && e.kpl === 1, JSON.stringify(e));
-  tulos('alkuperä: taivutusmuodolle perusmuodon sivulta, kaksi pyyntöä (osioluettelo ja yksi osio)',
-    pyynnot.length === 2 && /page=kello&prop=sections/.test(pyynnot[0]) && /page=kello&prop=text&section=2/.test(pyynnot[1]), pyynnot.join(' · '));
+    e.auki && e.ensin && e.painettu.join() === 'true' && /^From Proto-Finnic \*kello; compare kellua\.$/.test(e.teksti) && !e.kielet.length && e.kpl === 1 && e.etymon, JSON.stringify(e));
+  tulos('alkuperä: avaus hakee vain osion tekstin (osioluettelo jo muistissa)',
+    pyynnot.length === 1 && /page=kello&prop=text&section=2/.test(pyynnot[0]), pyynnot.join(' · '));
   tulos('alkuperä: Wikisanakirjan sana on linkki eteenpäin, rekonstruktio ja Wikipedia eivät', e.sanat.join() === 'kellua', JSON.stringify(e.sanat));
   await kuva('sk-alkupera-kello');
   await p.click('#pop .sk-ety-sulje');
@@ -299,7 +309,7 @@ palvelin.listen(0, async () => {
   r = await selita('Kantelx');
   e = await ety();
   const vaihtoEty = await p.evaluate(() => [...document.querySelectorAll('#pop .sk-vaihdot li')].map(li => !!li.querySelector('button.sk-ety')));
-  tulos('alkuperä: valitsimessa epsilon jokaisella rivillä, ei otsikossa', vaihtoEty.join() === 'true,true' && !e.nappi, JSON.stringify(vaihtoEty));
+  tulos('alkuperä: valitsimessa linssi vain rivillä, jonka sivulla on etymologia (kantele ei, kanteli kyllä), ei otsikossa', vaihtoEty.join() === 'false,true' && !e.nappi, JSON.stringify(vaihtoEty));
   await kuva('sk-alkupera-valitsin');
   await p.click('#pop .sk-vaihdot li:nth-child(2) button.sk-ety');
   await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kanteli');
@@ -308,11 +318,11 @@ palvelin.listen(0, async () => {
   tulos('alkuperä: rivin epsilon avaa sanan ja alkuperän ensimmäiseksi', e.auki && e.ensin && /made-up etymology/.test(e.teksti) && e.painettu.join() === 'true', JSON.stringify(e));
   await kuva('sk-alkupera-kanteli');
   r = await selita('Kantelx');
-  await p.click('#pop .sk-vaihdot li:nth-child(1) button.sk-ety');
+  await p.click('#pop .sk-vaihto[data-i="0"]');
   await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kantele');
-  await odotaEty();
+  await p.waitForTimeout(200);
   e = await ety();
-  tulos('alkuperä: kirjaamaton etymologia', e.auki && /ei ole kirjattu alkuperää/.test(e.teksti), JSON.stringify(e));
+  tulos('alkuperä: sivulla ei etymologiaa → ei linssiä', !e.nappi && !e.auki, JSON.stringify(e));
 
   let y = await ymp('ars longa vita brevis');
   tulos('ympäristö: kursiivi, vip ja suomi', y.kursiivi && !y.vip && y.kieli === 'fi', JSON.stringify(y));
@@ -397,11 +407,17 @@ palvelin.listen(0, async () => {
   await selita('kelloon');
   const m = await p.evaluate(() => {
     const q = s => document.querySelector('#pop ' + s).getBoundingClientRect();
-    const o = q('.sk-o'), r = document.createRange(); r.selectNodeContents(document.querySelector('#pop .sk-lisa'));
+    const so = document.createRange(); so.selectNodeContents(document.querySelector('#pop .sk-o').firstChild);
+    const o = so.getBoundingClientRect(), r = document.createRange(); r.selectNodeContents(document.querySelector('#pop .sk-lisa'));
     const l = r.getBoundingClientRect(), pop = document.querySelector('#pop').getBoundingClientRect();
-    return { pop: { x: pop.left, y: pop.top, w: pop.width, h: pop.height }, lisa: { x: l.left, y: l.top, w: l.width, h: l.height }, sana: { x: o.left, y: o.top, w: o.width, h: o.height } };
+    const lr = document.createRange(); lr.selectNodeContents(document.querySelector('#pop .sk-logos')); const lg = lr.getBoundingClientRect();
+    return { pop: { x: pop.left, y: pop.top, w: pop.width, h: pop.height }, lisa: { x: l.left, y: l.top, w: l.width, h: l.height }, sana: { x: o.left, y: o.top, w: o.width, h: o.height },
+      logos: { x: lg.left, y: lg.top, w: lg.width, h: lg.height } };
   });
+  // Linssi-epsilon piiloon pikselimittauksen ajaksi: sen varsi kurkottaa sanan alle (mitataan erikseen alla).
+  await p.evaluate(() => { document.querySelector('#pop .sk-ots .sk-ety').style.visibility = 'hidden'; });
   const png = await p.screenshot({ clip: { x: m.pop.x, y: m.pop.y, width: m.pop.w, height: m.pop.h } });
+  await p.evaluate(() => { document.querySelector('#pop .sk-ots .sk-ety').style.visibility = ''; });
   const kuvaus = await p.evaluate(async ([b64, m]) => {
     const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
     const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
@@ -414,56 +430,37 @@ palvelin.listen(0, async () => {
     // Kuvan pikselit (laitepikseleitä, deviceScaleFactor) CSS-pikseleiksi: K.
     const K = W / m.pop.w, X = v => Math.round(v * K);
     const ox = m.pop.x, oy = m.pop.y, ylin = X(m.sana.y - oy + m.sana.h);
-    // Otsikkorivi: sanan oikealta laidalta ruudun reunaan (1 px reunus pois).
+    // Otsikkorivi: sanan oikealta laidalta ruudun reunaan (1 px reunus pois); linssi-epsilon sanan perässä jää alueen
+    // vasempaan päähän omaksi ryhmäkseen.
     const otsS = sar(X(m.sana.x - ox + m.sana.w + 4), W - X(2), X(2), ylin);
     // Ryhmät: merkki ja raksi erillään.
     const ryh = []; otsS.forEach(x => { if (ryh.length && x - ryh[ryh.length - 1][1] <= X(2)) ryh[ryh.length - 1][1] = x; else ryh.push([x, x]); });
     const lisaS = sar(X(m.lisa.x - ox - 2), X(m.lisa.x - ox + m.lisa.w + 2), X(m.lisa.y - oy), X(m.lisa.y - oy + m.lisa.h));
     const raksi = ryh[ryh.length - 1], raksiR = riv(raksi[0], raksi[1] + 1, X(2), ylin);
     // Sanan peruslinja: sanan musteen alin rivi (kelloon: ei alapidennyksiä).
-    const sanaR = riv(X(m.sana.x - ox), X(m.sana.x - ox + m.sana.w), X(2), ylin);
+    const sanaR = riv(X(m.sana.x - ox), X(m.sana.x - ox + m.sana.w), X(m.sana.y - oy), ylin);
+    const logosR = riv(X(m.logos.x - ox), X(m.logos.x - ox + m.logos.w), X(m.logos.y - oy), X(m.logos.y - oy + m.logos.h));
     // Takaisin CSS-pikseleiksi: vasen laita pikselin alku, oikea laita pikselin loppu.
     const va = v => +(v / K).toFixed(2), oi = v => +((v + 1) / K).toFixed(2);
     return { ryhmat: ryh.map(g => [va(g[0]), oi(g[1])]), lisa: [va(lisaS[0]), oi(lisaS[lisaS.length - 1])], raksiAla: oi(raksiR[raksiR.length - 1]), raksiYla: va(raksiR[0]),
-      sanaAla: oi(sanaR[sanaR.length - 1]), sanaYla: va(sanaR[0]), K };
+      sanaAla: oi(sanaR[sanaR.length - 1]), sanaYla: va(sanaR[0]), logosYla: va(logosR[0]), logosAla: oi(logosR[logosR.length - 1]), K };
   }, [png.toString('base64'), m]);
-  const merkki = kuvaus.ryhmat[kuvaus.ryhmat.length - 2], raksi = kuvaus.ryhmat[kuvaus.ryhmat.length - 1];
+  const raksi = kuvaus.ryhmat[kuvaus.ryhmat.length - 1];
   tulos('raksin muste lisää-linkin oikean laidan tasalla (±1 px)', raksi && Math.abs(raksi[1] - kuvaus.lisa[1]) <= 1, JSON.stringify(kuvaus));
-  tulos('merkin muste lisää-linkin vasemman laidan tasalla (±1 px)', merkki && Math.abs(merkki[1] - kuvaus.lisa[0]) <= 1, JSON.stringify({ merkki, lisa: kuvaus.lisa }));
-  tulos('raksin alalaita sanan peruslinjalla (±1 px)', Math.abs(kuvaus.raksiAla - kuvaus.sanaAla) <= 1, JSON.stringify({ raksi: [kuvaus.raksiYla, kuvaus.raksiAla], sana: [kuvaus.sanaYla, kuvaus.sanaAla] }));
-  // Lambdan haarojen välisen aukon lakipiste raksin haarojen välisen aukon lakipisteen korkeudella (±1 px). Linssi piiloon,
-  // koska sen varsi halkoo aukon; lakipiste = aukon ylin tyhjä pikseli (täyttö siemenestä aukon alaosasta).
-  const lakipisteet = await (async () => {
-    await p.addStyleTag({ content: '#pop .linssi { visibility: hidden !important; }' });
-    const out = {};
-    for (const [nimi, sel] of [['lambda', '#pop .sk-ots svg.sanasto'], ['raksi', '#pop .sk-sulje svg']]) {
-      const r = await p.evaluate(s => { const b = document.querySelector(s).getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; }, sel);
-      const kuva64 = (await p.screenshot({ clip: { x: r.x, y: r.y, width: r.w, height: r.h } })).toString('base64');
-      out[nimi] = await p.evaluate(async ([b64, nimi, r]) => {
-        const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
-        const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
-        const g = c.getContext('2d'); g.drawImage(img, 0, 0);
-        const W = c.width, H = c.height, d = g.getImageData(0, 0, W, H).data, K = W / r.w;
-        const pa = [d[0], d[1], d[2]];
-        const muste = (x, y) => { const i = (y * W + x) * 4; return Math.abs(d[i] - pa[0]) + Math.abs(d[i + 1] - pa[1]) + Math.abs(d[i + 2] - pa[2]) > 60; };
-        const u = nimi === 'lambda' ? r.w / 22.5 * K : r.w / 10 * K;
-        const raja = Math.round(nimi === 'lambda' ? 17 * u : 8.5 * u + 1), sy = raja - 1;
-        // Siemen: rajarivillä ensimmäisen musteen (haara) jälkeinen tyhjä väli ennen toista haaraa.
-        let x1 = 0; while (x1 < W && !muste(x1, sy)) x1++;
-        let x2 = x1; while (x2 < W && muste(x2, sy)) x2++;
-        let x3 = x2; while (x3 < W && !muste(x3, sy)) x3++;
-        const sx = Math.round((x2 + x3 - 1) / 2);
-        const nahty = new Uint8Array(W * H), pino = [[sx, sy]]; let ylin = H;
-        while (pino.length) { const [x, y] = pino.pop(); if (x < 0 || y < 0 || x >= W || y >= raja || nahty[y * W + x] || muste(x, y)) continue;
-          nahty[y * W + x] = 1; ylin = Math.min(ylin, y); pino.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]); }
-        return +(ylin / K).toFixed(2);
-      }, [kuva64, nimi, r]);
-      out[nimi] += r.y;
-    }
-    return out;
-  })();
-  // Merkki on 0.85-kertainen (6.11.2026), joten lakipisteet eivät enää ole samalla korkeudella; vain suuruusluokka (±3 px).
-  tulos('lambdan aukon lakipiste raksin aukon lakipisteen lähellä (±3 px)', Math.abs(lakipisteet.lambda - lakipisteet.raksi) <= 3, JSON.stringify(lakipisteet));
+  // Otsikossa ei ole lambdaa (käyttäjän pyyntö 12.11.2026): sanan perässä vain linssi-epsilon ja oikeassa reunassa raksi.
+  tulos('otsikossa sanan oikealla puolella vain raksi (linssi piilossa mittauksessa), ei lambdaa', kuvaus.ryhmat.length === 1 && !(await p.evaluate(() => !!document.querySelector('#pop .sk-ots svg.sanasto'))), JSON.stringify(kuvaus.ryhmat));
+  // Linssi-epsilonin peruslinja sanan peruslinjalla: epsilonin polun alareuna (musteen keskiviiva) ja sanan peruslinja.
+  const ep = await p.evaluate(() => {
+    const e = document.querySelector('#pop .sk-ots .sk-ety .e').getBoundingClientRect(), c = document.querySelector('#pop .sk-ots .sk-ety circle').getBoundingClientRect();
+    const so = document.createRange(); so.selectNodeContents(document.querySelector('#pop .sk-o').firstChild); const o = so.getClientRects();
+    const viim = o[o.length - 1];
+    return { eAla: +e.bottom.toFixed(2), eYla: +e.top.toFixed(2), kehaYla: +c.top.toFixed(2), kehaVasen: +c.left.toFixed(2), sanaLoppu: +viim.right.toFixed(2) };
+  });
+  tulos('linssi-epsilon: epsilonin alareuna karvan sanan alareunan alapuolella (−0,5…1,6 px), kehän sisäreuna tiukasti epsilonin musteen päällä (≤ 1,5 px), pieni hajurako sanaan (1–5 px)',
+    ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) >= -.5 && ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) <= 1.6 && (ep.eYla - .475) - (ep.kehaYla + .55) <= 1.5 && ep.kehaVasen - ep.sanaLoppu >= 1 && ep.kehaVasen - ep.sanaLoppu <= 5, JSON.stringify(Object.assign(ep, { sanaAla: kuvaus.sanaAla + m.pop.y })));
+  // Raksi on λόγος-rivillä (12.11.2026; ennen sanan peruslinjalla), kuten ἔτυμον-laatikon raksi omalla rivillään.
+  tulos('raksi λόγος-otsikon rivillä (muste otsikon musteen korkeudella ±1 px)', kuvaus.raksiYla >= kuvaus.logosYla - 1 && kuvaus.raksiAla <= kuvaus.logosAla + 1,
+    JSON.stringify({ raksi: [kuvaus.raksiYla, kuvaus.raksiAla], logos: [kuvaus.logosYla, kuvaus.logosAla] }));
   await kuva('sk-mittaus');
   await p.click('#pop .sk-sulje');
 
@@ -548,8 +545,8 @@ palvelin.listen(0, async () => {
     await selita(sana);
     const k = await p.evaluate(() => {
       const R = s => document.querySelector('#pop ' + s).getBoundingClientRect(), pop = document.querySelector('#pop').getBoundingClientRect();
-      const o = R('.sk-o'), m = R('.sk-ots svg.sanasto'), x = R('.sk-sulje svg');
-      return { pois: pop.left < 0 || pop.right > innerWidth, paalle: o.right > m.left + .5 || m.right > x.left + .5 };
+      const o = R('.sk-o'), x = R('.sk-sulje svg');
+      return { pois: pop.left < 0 || pop.right > innerWidth, paalle: o.right > x.left + .5 };
     });
     tulos('360 px: ' + sana + ' ilman päällekkäisyyttä', !k.pois && !k.paalle, JSON.stringify(k));
     await kuva('sk-360-' + sana);
@@ -579,7 +576,8 @@ palvelin.listen(0, async () => {
       return { jalkeen: !!l && l.parentElement.previousElementSibling === al, teksti: l ? l.textContent : '',
         otsikko: document.querySelector('#pop .sk-ots button.sk-ety').getAttribute('aria-pressed'), alaots: al.querySelector('button.sk-ety').getAttribute('aria-pressed') };
     });
-    tulos('alkuperä: alaotsikon epsilon avaa sen sivun (As → A) laatikon alaotsikon alle, otsikon epsilon ennallaan', a.jalkeen && /Perusmuodon A alkuperä/.test(a.teksti) && a.otsikko === 'false' && a.alaots === 'true', JSON.stringify(alaots) + ' ' + JSON.stringify(a));
+    tulos('alkuperä: taivutusmuoto omalla etymologialla pysyy (As ei → A); alaotsikon linssi avaa laatikon sen alle, otsikon linssi ennallaan',
+      JSON.stringify(alaots) === '["As:true"]' && a.jalkeen && /Own etymology of the plural As/.test(a.teksti) && a.otsikko === 'false' && a.alaots === 'true', JSON.stringify(alaots) + ' ' + JSON.stringify(a));
     await kuva('sk-alkupera-alaots');
     await p.click('#pop .sk-sulje');
   } else tulos('alkuperä: As ja as alaotsikkona', false, JSON.stringify(r));

@@ -1211,7 +1211,7 @@ palvelin.listen(0, async () => {
   const sk2 = await mp.evaluate(() => document.querySelector('#pop').innerText);
   const sk3 = await mp.evaluate(() => ({ ots: document.querySelector('#pop .sk-o').textContent, takaisin: !!document.querySelector('#pop .sk-takaisin') }));
   tulos('sanakirja tuplaklikkauksesta', /sanakirja/.test(sk1.luokka) && sk1t.n === nEnnen && !sk1t.kahvat && sk1.linkit.join() === 'perusmuoto' && /genitive of perusmuoto/.test(sk1.teksti) &&
-    !sk1.takaisin && /^https:\/\/en\.wiktionary\.org\/wiki\//.test(sk1.lisaa) && !/valikko|englanninkielinen/.test(sk1.teksti) && /base form/.test(sk2) && !/‹/.test(sk2) && sk3.ots === 'perusmuoto' && !sk3.takaisin && skHaut.length === 2,
+    !sk1.takaisin && /^https:\/\/en\.wiktionary\.org\/wiki\//.test(sk1.lisaa) && !/valikko|englanninkielinen/.test(sk1.teksti) && /base form/.test(sk2) && !/‹/.test(sk2) && sk3.ots === 'perusmuoto' && !sk3.takaisin && skHaut.filter(h => !/api\.php/.test(h)).length === 2,
     JSON.stringify({ linkit: sk1.linkit, haut: skHaut, lisaa: sk1.lisaa }));
   await mp.keyboard.press('Escape');
   // Käännös: DeepL:n osoite lähde- ja kohdekielellä, / kenoviivalla.

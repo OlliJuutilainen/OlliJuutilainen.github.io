@@ -112,9 +112,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **"Vinoneliöestetiikkaa, ei palluraestetiikkaa."** Koverakylkiset salmiakit, antiikva (Literata, `luin/fontit/`, OFL),
   klassinen tyyli. Kirjasinvalinta poistettiin: groteski palaa vain, jos koko ohjelman ulkoasu sovitetaan siihen.
   Tarkoituksellinen poikkeus: sanaselityksen merkin (`IK_SANASTO`) linssi on pyöreä (käyttäjän syrjähyppy 5.11.2026).
-  Ohjelman kuoressa ei ole kreikkaa (käyttäjän päätös 6.11.2026; marginaali on *mikro, meso, makro*), paitsi sanaselityksen
-  piirretyt merkit: lambda (λόγος) ja alkuperän epsilon (ἔτυμον, käyttäjän pyyntö 12.11.2026). Kreikka on vain
-  sisällöissä: erillinen osajoukko `literata-kreikka*.woff2`, koska päätiedostoissa ei ole kreikkaa.
+  Ohjelman kuoressa ei ole kreikkaa (käyttäjän päätös 6.11.2026; marginaali on *mikro, meso, makro*), paitsi sanaselityksessä
+  (käyttäjän kompromissi 12.11.2026: lingua francat vuodelta 0 ja 2026): merkkien lambda ja linssi-epsilon sekä otsikot λόγος
+  ja ἔτυμον minuskeleina. Kreikka tulee erillisistä osajoukoista `literata-kreikka*.woff2` (U+0370–03FF) ja
+  `literata-kreikka-laaja*.woff2` (polytoninen U+1F00–1FFF), koska päätiedostoissa ei ole kreikkaa.
 - **Suljettu lukuympäristö ilman häiriötekijöitä**: verkkolinkit ovat oletuksena pois (`aset.verkkolinkit`), myös
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
 - **Sanat ovat käyttäjän**: *kirjaus* (alleviivaukseen liitetty muistiinpano; käyttöliittymässä aina tämä sana),
@@ -266,11 +267,15 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `aset.sanakirja` säilyy). Ensin aina tasan tekstin muoto, vasta sen puuttuessa kielikohtainen ketju (`skKetju()`). Tasan samoista muodoista (virkkeen alun *As* ja *as*) määritelmä ennen pelkkää taivutusviittausta (*plural of A*; `skTasan()`), muuten tekstin muoto ensin.
   Taivutusarvaukset (loppunapsu) vain tekstin kielestä, paitsi kursiivissa ja lainauksessa. Wikisanakirjassa ei surffata
   takaisin päin (Luin ei ole selain), merkki ei ole linkki, ja ulos vievät linkit ovat korkean kynnyksen takana. REST-rajapinnan kieliavaimiin ei luoteta (`skNormita()`: Translingual on avaimen `en` alla, muinaiskreikka avaimen `other`); kieli luetaan osan nimestä. Tekstin kielestä löytyvään sanaan ei näytetä muiden kielten tietoja (käyttäjän linjaus 6.11.2026, ensin suomi, sitten kaikki kielet: *edes* ei tuo latinaa, *is* ei afrikaansia; `r`-lippu ketjussa). Kursiivissa tämä liudentuu: tekstin kieli ensin, muut jäävät mukaan; ei kuitenkaan tekstin kielen pikkusanalle (`KIELET`-lista, `y.pikkusana`: *as* ei tuo suomea kursiivissa eikä lainauksessa). Suomenkielinen lainaus on kuin leipäteksti; muissa kielissä vain oman kielensä erottava lainaus (`y.omaKieli`), lyhyt lainaus liudentuu. Englannin iso alkukirjain keskellä virkettä (*Dasein*) jättää muut kielet mukaan, ja kreikan kaksi kieltä näkyvät yhdessä. Lainauksen sisäinen kursiivi on kursiivi. Translingual (`mul`) noudattaa samaa: pois tekstin kielestä löytyvältä, paitsi symbolin näköiselle kirjoitusasulle (IV, CO2, pH); muuten tekstin kielen, ketjun kielten, englannin ja suomen jälkeen; ISO 639 -kielikoodit eivät näy koskaan (käyttäjän palaute 6.11.2026). Verkkovirhe pysäyttää ketjun. Enintään
-  10 sanaa (`SK_SANAT`). Raksin ja merkin paikka on mitattu lisää-linkistä; asetuksissakin lambda on tekstin värinen (6.11.2026).
-- **Alkuperä** (käyttäjän pyyntö 12.11.2026, opas 4.3): epsilon-nappi (ε, ἔτυμον; käyttäjä vahvisti) heti sen sanan perässä,
-  josta se kertoo (otsikko, valitsimen rivit, alaotsikot), avaa *Alkuperä*-laatikon ennen määritelmiä. **Ei lambdan viereen**:
-  rinnakkain eri virassa olevat λ ja ε häiritsivät (käyttäjän palaute 12.11.2026). Lambdaa harkitaan, mutta älä poista sitä kysymättä. Haku `action=parse`:lla
-  vain napautuksesta, vain näkyneiden kielten osiot, taivutusmuodolle perusmuodon sivu. Koko sivua ei haeta (megatavuja).
+  10 sanaa (`SK_SANAT`). Raksin paikka on mitattu lisää-linkistä; asetuksissakin lambda on tekstin värinen (6.11.2026).
+- **Alkuperä ja perusmuoto** (käyttäjän pyynnöt 12.11.2026, opas 4.3): selitysikkunan otsikossa ei ole lambdaa (valikossa ja
+  asetuksissa on). Sanan perässä on alaindeksinä linssi-epsilon vain, kun sivulla on etymologia (osioluettelo haetaan heti);
+  suljettuna linssi muste ja ε ruoste, auki toisin päin. Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle.
+  Ikkunan ylin rivi λόγος ja laatikon ylin rivi ἔτυμον ovat entisen ALKUPERÄ-otsikon tyyliä ilman versaalia (käyttäjä: yhtä
+  huomaamattoman harmaa, älä suurenna); raksit niiden riveillä. Määritelmillä ei ole kehystä.
+  **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä otsikon alla Wikisanakirjan
+  sanoin (”käden” – genitive singular); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
+  muualta kysymättä.
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
   Numero on md.js:n `paikat()`-paikannin (käyttäjän pyyntö 6.11.2026, opas 3.2): kirjoittajan `4.3.4` sellaisenaan, muuten
   tunnisteiden ketju (*Osa II, 3b*), ja ylempi taso pois, jos alempi numerointi jatkuu sen yli (Korsgaardin Part II alkaa
