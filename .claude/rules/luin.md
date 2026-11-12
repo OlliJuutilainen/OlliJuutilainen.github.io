@@ -271,11 +271,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Alkuperä ja perusmuoto** (käyttäjän pyynnöt 12.11.2026, opas 4.3): selitysikkunan otsikossa ei ole lambdaa (valikossa ja
   asetuksissa on). Sanan perässä on alaindeksinä linssi-epsilon vain, kun sivulla on etymologia (osioluettelo haetaan heti);
   linssi aina muste, ε ruoste ja auki muste. Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle. **Ei
-  linssiä valitsimeen**: vasta valitun sanan selitykseen. Ikkunan ylin rivi ΛΟΓΟΣ ja laatikon ylin rivi ΕΤΥΜΟΝ ovat majuskeleita
-  (kokeilu, ei lukumerkkejä) entisen ALKUPERÄ-otsikon koossa ja värissä (käyttäjä: yhtä huomaamattoman harmaa, älä suurenna),
-  väljästi harvennettuina; raksit niiden riveillä. Määritelmillä ei ole kehystä. Lisää-linkki on plussa (+).
+  linssiä valitsimeen**: vasta valitun sanan selitykseen. Selitysikkunan ylin rivi ΛΟΓΟΣ (vain kun selitys näkyy) ja laatikon
+  ylin rivi ΕΤΥΜΟΝ ovat majuskeleita (kokeilu, ei lukumerkkejä) entisen ALKUPERÄ-otsikon koossa, harmaata haaleampina ja hyvin
+  väljästi harvennettuina (käyttäjä: huomaamaton, älä suurenna); raksit niiden riveillä. Ne eivät näytä linkeiltä, mutta vievät
+  sanan λόγος / ἔτυμον selitykseen (käyttäjän vitsi; vihjeet *Sana (logos)*, *Alkuperä (etymon)*). Määritelmillä ei ole kehystä.
+  Lisää-linkki on salmiakkiin kehystetty plussa.
   **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä otsikon alla Wikisanakirjan
-  sanoin (”käden” – genitive singular); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
+  sanoin (”käden” · genitive singular); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
   muualta kysymättä.
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
   Numero on md.js:n `paikat()`-paikannin (käyttäjän pyyntö 6.11.2026, opas 3.2): kirjoittajan `4.3.4` sellaisenaan, muuten
