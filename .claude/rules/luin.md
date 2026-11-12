@@ -58,7 +58,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
 - `luin/palaute.html` (käyttäjän pyyntö 10.11.2026): viesti kehittäjälle (nimi ja sähköposti vapaaehtoisia, vain viesti pakollinen) reitille
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
-  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: lukulistan alin pieni *palaute*, Asetusten alin pieni *palaute* (`?mista=asetukset`), käyttöohjeen loppu ja
+  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; hyllyltä pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
   Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa erityisesti tuetut sivustot ja sivustotoiveiden
   kappaleen (käyttäjän sanamuoto). Kun leike.js saa uuden sovitteen, lisää sivusto ensimmäiseen kappaleeseen.
@@ -71,9 +71,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
-- **Arkistohylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+- **Hylly ja pölyhylly** (käyttäjän päätös 12.11.2026): käyttöliittymässä lukulista on *Hylly* ja arkistohylly *Pölyhylly*
+  (kaikilla Luinin sivuilla ja lisäosassa; sijamuodot *hyllylle*, *hyllyllä*, *hyllyltä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa* eikä *arkistohyllyä*.
+- **Pölyhylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Hyllyssä ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus); linkki hyllylle on lukulistan alalaidassa himmeänä ja vain, kun hyllyllä on jotain. Sanat
+  Latomoa (käyttäjän rajaus); linkki pölyhyllylle on hyllyn alalaidassa himmeänä ja vain, kun pölyhyllyllä on jotain. Sanat
   *Luin.* ja *Puhalla pölyt.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä

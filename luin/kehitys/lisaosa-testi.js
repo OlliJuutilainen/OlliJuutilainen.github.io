@@ -547,7 +547,7 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
     soita: document.querySelector('#soita').textContent, heti: document.querySelector('#heti').checked,
     hetiTeksti: document.querySelector('label.heti').textContent.trim(), ruutu: document.activeElement.id }));
   tulos('Postihuilu: kenttä, Soita huilua!, heti valittuna', pk1.auki && pk1.paikka === 'Laatikkolause' && pk1.soita === 'Soita huilua!' && pk1.heti &&
-    pk1.hetiTeksti === 'Lisää tämän selaimen lukulistaan heti' && pk1.ruutu === 'koodi', JSON.stringify(pk1));
+    pk1.hetiTeksti === 'Lisää tämän selaimen hyllylle heti' && pk1.ruutu === 'koodi', JSON.stringify(pk1));
   const virhe = async lause => { await ikkuna.fill('#koodi', lause); return ikkuna.evaluate(() => ({ v: document.querySelector('#koodi-virhe').textContent, pois: document.querySelector('#soita').disabled })); };
   const v1 = await virhe('liianlyhyt'), v2 = await virhe('Torikaffeilla on hemmetin mukavaa.'), v3 = await virhe('TorikaffeillaOnHemmetinMukavaa');
   tulos('Postihuilu: lyhyt ja välilyönnit estävät, isot kirjaimet kelpaavat', v1.pois && /vähintään 24 merkkiä \(nyt 10\)/.test(v1.v) &&

@@ -92,7 +92,7 @@ function muistiKV() {
     nappi: document.querySelector('#laatikko-tallenna').textContent, lista: document.querySelector('#lisaa-ots').textContent,
     paikka: document.querySelector('#lisaa-syote').placeholder, lisaa: document.querySelector('#lisaa-kentta button').textContent }));
   tulos('Postihuilu: asetusten ja lukulistan tekstit', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
-    osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut lukulistat.' && osio.lista === 'Postihuilu' &&
+    osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut hyllyt.' && osio.lista === 'Postihuilu' &&
     osio.paikka === 'Laatikkolause tai linkki' && osio.lisaa === 'Soita huilua!', JSON.stringify(osio));
   tulos('i-ohje: haarukka 24–52, muita merkkejä ei hyväksytä, esimerkit, 30 päivää', ohje.auki && /merkkihaarukka on 24–52/.test(ohje.t) &&
     /MUITA MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ\./.test(ohje.t) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(ohje.t) &&
@@ -184,7 +184,7 @@ function muistiKV() {
   tulos('B: tekstin asetuksissa oma valinta, oletus pois', kirjaNappi === 'Huiluta myös tämän tekstin merkintöjä:false', kirjaNappi);
   await b.click('#posti-paalla button');
   const tietoB = await b.evaluate(() => document.querySelector('#posti-tieto').textContent);
-  tulos('B: tekstin asetuksissa selitys', /^Merkinnät lähtevät, kun poistut tekstistä lukulistaan tai Luin jää taustalle\./.test(tietoB), tietoB);
+  tulos('B: tekstin asetuksissa selitys', /^Merkinnät lähtevät, kun poistut tekstistä hyllylle tai Luin jää taustalle\./.test(tietoB), tietoB);
   if (KUVAT) await b.screenshot({ path: path.join(KUVAT, 'posti-asetukset-teksti.png') });
   const omaB = await LS(b, 'luin-posti:p-kant-ja-elainetiikka');
   tulos('B: tekstikohtainen valinta tallessa, yleinen ennallaan', omaB && omaB.on === 1 && !(await LS(b, 'luin-asetukset') || {}).postiMerk, JSON.stringify(omaB));

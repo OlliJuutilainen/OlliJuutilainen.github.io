@@ -4,7 +4,7 @@ viite: Tusinasoft (2026). *Luin: kehittäjän opas*. Luonnos 20.10.2026.
 
 # LUIN – KEHITTÄJÄN OPAS
 
-*Lukulista, lukulaite ja Latomo*
+*Hylly, lukulaite ja Latomo*
 
 Ensimmäinen kokeiluversio, lokakuu 2026.
 Tusinasoft
@@ -37,11 +37,11 @@ Tutkielma on väliaikaisesti myös verkossa (`luin/tekstit/kant-ja-elainetiikka.
 
 Käyttäjän nimistö (9.11.2026):
 
-- **Pääotsikko: *Luin.*** Minä luin sen. Samalla viittaus lukulistaan: siinä ovat myös luettavat, ne jotka tulevat olemaan luettuja. Pääsivun linkin esikatselun otsikko (`og:title`) on *Luin.*
+- **Pääotsikko: *Luin.*** Minä luin sen. Samalla viittaus hyllyyn: siinä ovat myös luettavat, ne jotka tulevat olemaan luettuja. Pääsivun linkin esikatselun otsikko (`og:title`) on *Luin.*
 - **Alaotsikko: *HTML*.**
 - **Pitkä, tyylitelty, virallinen nimi: *LUiN.HTML*** (logo, `aria-label`, infolaatikko).
 - **Osoite: `luin.html`.**
-- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Luinin lukulista*).
+- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Luinin hylly*).
 - **Sivuston ytimen työkalu: *lukin*,** genetiivi *lukimen* (*Lisää lukimeen*).
 
 ## 2. Tiedostot ja tietovirta
@@ -90,11 +90,13 @@ Kaikki on selaimen localStoragessa, joka on yhteinen muiden ollijuutilainen.gith
 
 Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-` + osoitteen tiiviste. Saman otsikon uusi versio Latomosta korvaa vanhan ja säilyttää merkinnät.
 
-### 2.4 Käyttöohje ja lukulistan linkit
+### 2.4 Käyttöohje ja hyllyn linkit
 
-Lukulistan alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026) ja pienaakkosin (versaali kokeiltu 27.10.2026 ja poistettu). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje; Latomolla on oma ohjeensa (`luin/latomo-ohje.html`, luku 7.4). Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
+**Nimet** (käyttäjän päätös 12.11.2026): lukulista on käyttöliittymässä *Hylly* ja arkistohylly (luetuiksi merkityt, `#arkisto`) *Pölyhylly*. Koodissa ja tässä oppaassa vanha nimi *lukulista* (`luin-lista`, `#lista`, `naytaLista()`) on paikoin yhä; tunnisteita ja reittiä `#arkisto` ei nimetty uudelleen.
 
-**Palaute** (käyttäjän pyyntö 10.11.2026): `luin/palaute.html` (viesti pakollinen, nimi ja sähköposti vapaaehtoisia; piilokenttä botteja vastaan) lähettää reitille `POST /api/palaute`. Worker kirjoittaa viestin kehittäjän postilaatikkoon tekstinä `luin:<PALAUTE_LAATIKKO>:palaute-<aika>` (otsikko *Palaute: nimi*, tietorivit ja viesti), joten se kantautuu Luinin lukulistaan Postihuilun kautta ilman sähköpostipalvelua. Laatikkolause on workerin salaisuus (`npx -y wrangler@3.114.17 secret put PALAUTE_LAATIKKO`), ei repossa; ilman sitä vastaus on 503 ja sivu kertoo, ettei vastaanotto ole vielä käytössä. Sama laskuri kuin postilla. Linkit: lukulistan alin pieni *palaute*, käyttöohjeen loppu ja Latomon plussan takana. *(Todennettu käytössä 10.11.2026: käyttäjän ensimmäinen testipalaute kantautui lukulistaan.)*
+Hyllyn alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026) ja pienaakkosin (versaali kokeiltu 27.10.2026 ja poistettu). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje; Latomolla on oma ohjeensa (`luin/latomo-ohje.html`, luku 7.4). Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
+
+**Palaute** (käyttäjän pyyntö 10.11.2026): `luin/palaute.html` (viesti pakollinen, nimi ja sähköposti vapaaehtoisia; piilokenttä botteja vastaan) lähettää reitille `POST /api/palaute`. Worker kirjoittaa viestin kehittäjän postilaatikkoon tekstinä `luin:<PALAUTE_LAATIKKO>:palaute-<aika>` (otsikko *Palaute: nimi*, tietorivit ja viesti), joten se kantautuu Luinin lukulistaan Postihuilun kautta ilman sähköpostipalvelua. Laatikkolause on workerin salaisuus (`npx -y wrangler@3.114.17 secret put PALAUTE_LAATIKKO`), ei repossa; ilman sitä vastaus on 503 ja sivu kertoo, ettei vastaanotto ole vielä käytössä. Sama laskuri kuin postilla. Linkit: Asetusten alin pieni *palaute*, käyttöohjeen loppu ja Latomon plussan takana (hyllyn alalaidan linkki poistettiin käyttäjän pyynnöstä 12.11.2026). *(Todennettu käytössä 10.11.2026: käyttäjän ensimmäinen testipalaute kantautui lukulistaan.)*
 
 ## 3. Merkintäkieli
 
