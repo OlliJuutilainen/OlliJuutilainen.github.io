@@ -310,7 +310,7 @@
   .valikko .sk-o { min-width: 0; overflow-wrap: anywhere; }
   .valikko .sk-ots svg.sanasto { flex: 0 0 auto; width: 20.93px; height: 18.6px; margin: 0 -1.26px 0 auto; position: relative; top: 1.53px; }
   .valikko button.sk-sulje { position: absolute; top: 0; right: 0; width: 44px; height: 42px; min-height: 0; padding: 0; color: var(--muste); }
-  .valikko button.sk-sulje svg { position: absolute; right: var(--sk-raksi-r, 14.6px); top: var(--sk-raksi-y, 13.5px); width: 10px; height: 10px;
+  .valikko button.sk-sulje svg { position: absolute; right: var(--sk-raksi-r, 14.6px); top: var(--sk-raksi-y, 22px); width: 10px; height: 10px;
     stroke: currentColor; stroke-width: 1.2; fill: none; }
   /* Huomautukset (käyttäjän pyyntö 5.11.2026): tekstin muodosta poikkeava osuma ja toisen kielen selitys hiljaa, harmaalla
      kursiivilla; kirjainten muunnos (kreikka ↔ latina) varoitusmerkillä. */
@@ -324,14 +324,19 @@
   .valikko .sk-vaihdot button.sk-vaihto { font-size: 1rem; font-style: italic; }
   .valikko .sk-vk { margin-left: 4px; font-size: .74rem; letter-spacing: .04em; color: var(--harmaa); }
   .valikko .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
-  .valikko a.sk-lisa { margin-left: auto; font-size: 1.05rem; line-height: 1; font-style: normal; color: var(--ruoste); text-decoration: none; }
+  .valikko a.sk-lisa { display: inline-flex; align-self: center; margin: -3px -2.5px -3px auto; line-height: 0; text-decoration: none; }
+  .valikko a.sk-lisa svg { width: 20px; height: 20px; fill: none; }
+  .valikko a.sk-lisa .kehys { stroke: var(--viiva); stroke-width: 1; }
+  .valikko a.sk-lisa .plus { stroke: var(--ruoste); stroke-width: 1.2; }
   /* Alkuperä (käyttäjän pyynnöt 12.11.2026): linssi-epsilon (IK_ETY) alaindeksinä sanan perässä pienellä hajuraolla,
      epsilonin alareuna 1,2 px sanan peruslinjan alapuolella (käyttäjän pyynnöt; svg:n alareuna 6,75 px peruslinjan alla; linssin säde 7, käyttäjän pyyntö: epsilon oikealla painolla vaati isomman linssin). Vain kun alkuperä on (etyNapiksi). Linssi
      aina muste, epsilon ruoste ja auki muste. Napautusala on laajempi kuin merkki (::after).
      Otsikossa ei ole lambdaa. λόγος on ikkunan ylin rivi (koko ikkunan otsikko: sana ja sen selitys) raksi rivillään, ja
      ἔτυμον on laatikkonsa ylin rivi raksi rivillään; kumpikin majuskeleina ΛΟΓΟΣ ja ΕΤΥΜΟΝ (ei lukumerkkejä) entisen
-     ALKUPERÄ-otsikon koossa ja värissä, väljällä harvennuksella (käyttäjän pyynnöt 12.11.2026). Otsikon ja sanan sekä sanan ja
-     selityksen välissä on väljä väli. Taivutusrivi ”kelloon” – illative singular. */
+     ALKUPERÄ-otsikon koossa, harmaata haaleampina ja hyvin väljällä harvennuksella (käyttäjän pyynnöt 12.11.2026: haaleampi,
+     ja ettei katoa, väljempi). ΛΟΓΟΣ vain ikkunassa, jossa on selitys. Otsikot eivät näytä linkeiltä, mutta vievät sanan
+     λόγος tai ἔτυμον selitykseen (käyttäjän vitsi); hiirellä vihje suomeksi ja latinalaisittain: Sana (logos), Alkuperä
+     (etymon). Otsikon ja sanan sekä sanan ja selityksen välissä on väljä väli. Taivutusrivi ”kelloon” · illative singular. */
   .valikko .sk-ety-nappi { display: inline; }
   .valikko button.sk-ety { display: inline-block; position: relative; width: auto; min-height: 0; height: auto; margin: 0 0 0 3px; padding: 0;
     line-height: 0; vertical-align: baseline; text-decoration: none; }
@@ -342,11 +347,17 @@
   .valikko button.sk-ety[aria-pressed="true"] .e { stroke: var(--muste); }
   .valikko .sk-alaots, .valikko .sk-vaihdot li { display: flex; align-items: baseline; }
   .valikko .sk-vaihdot .sk-vk { margin-left: 8px; }
-  .valikko .sk-osa { display: block; font-size: .72rem; letter-spacing: .16em; line-height: 1.3; color: var(--harmaa); }
+  .valikko .sk-osa { display: block; font-size: .72rem; letter-spacing: .2em; line-height: 1.3; color: var(--harmaa);
+    color: color-mix(in srgb, var(--harmaa) 72%, var(--viiva)); }
+  .valikko button.sk-osa { width: auto; min-height: 0; padding: 0; text-align: left; font-family: inherit; }
+  .valikko button.sk-osa:hover { text-decoration: none; }
+  .valikko button.sk-osa[hidden] { display: none; }
   .valikko .sk-logos { margin: 0 0 8px; padding-right: var(--sk-raksi, 28.5px); }
   .valikko .sk-ots { margin-bottom: 5px; }
+  /* Raksi on ΛΟΓΟΣ-rivillä, kun otsikko näkyy; muuten sanan peruslinjalla kuten ennen (mitattu 5.11.2026). */
+  .valikko.sk-logos-nak button.sk-sulje svg { top: 13.5px; }
   .valikko .sk-ety-runko { margin-top: 6px; }
-  .valikko .sk-muoto { margin-top: 7px; font-size: .8rem; line-height: 1.4; color: var(--harmaa); }
+  .valikko .sk-muoto { margin-top: 10px; font-size: .8rem; line-height: 1.4; color: var(--harmaa); }
   .valikko .sk-ety-laatikko { margin-top: 8px; padding: 4px 10px 6px; border: 1px solid var(--viiva); }
   .valikko .sk-ety-ots { display: flex; align-items: center; }
   .valikko .sk-ety-ots .sk-osa { margin-top: 0; }
@@ -5003,12 +5014,15 @@
     // Otsikossa ei ole lambdaa (käyttäjän pyyntö 12.11.2026): määritelmillä on oma λόγος-otsikkonsa kuten alkuperällä ἔτυμον.
     // λόγος on koko ikkunan otsikko (käyttäjä: sana asialle ja sen selitykselle), ylimpänä kuten ἔτυμον laatikossaan, ja
     // raksi on sen rivillä kuten laatikon raksi.
-    return '<div class="sk-osa sk-logos" lang="grc">ΛΟΓΟΣ</div><div class="sk-ots"><span class="sk-o">' + esc(otsikko) + '</span></div>' +
+    // Vain ikkunassa, jossa on selitys (käyttäjän pyyntö 12.11.2026: ei valitsimessa eikä viesteissä), siksi aluksi piilossa.
+    // Otsikko ei näytä linkiltä, mutta vie sanan λόγος selitykseen (käyttäjän vitsi; ΕΤΥΜΟΝ samoin).
+    return '<button type="button" class="sk-osa sk-logos" data-k="sk-osa" data-sana="λόγος|logos" lang="grc" title="Sana (logos)" hidden>ΛΟΓΟΣ</button><div class="sk-ots"><span class="sk-o">' + esc(otsikko) + '</span></div>' +
       '<button type="button" class="sk-sulje" data-k="sk-sulje" aria-label="Sulje" title="Sulje">' + IK_SULJE_SK + '</button>' +
       '<div class="sk-runko"><div class="sk-tieto">Haetaan…</div></div><div class="sk-ala">' + skLisa(linkki) + '</div>';
   }
-  // Lisää on pikku plussa kuten Latomossa (käyttäjän pyyntö 12.11.2026; ennen sana *lisää*).
-  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '">+</a>' : ''; }
+  // Lisää on pikku plussa kuten Latomossa (käyttäjän pyyntö 12.11.2026; ennen sana *lisää*), kevyesti kehystettynä painikkeeksi
+  // tavalliseen neliöön (käyttäjän valinta 12.11.2026, ei salmiakkia; kehys --viiva, plussa ruoste).
+  function skLisa(o) { return o ? '<a class="sk-lisa" title="Avaa Wiktionary" aria-label="Avaa Wiktionary" href="https://en.wiktionary.org/wiki/' + encodeURIComponent(o.replace(/ /g, '_')) + '"><svg viewBox="0 0 20 20" aria-hidden="true"><rect class="kehys" x="2.5" y="2.5" width="15" height="15"/><path class="plus" d="M10 6.4V13.6M6.4 10H13.6"/></svg></a>' : ''; }
   function skKieliKoodi(nimi) { return Object.keys(SK_NIMI).filter(function (k) { return SK_NIMI[k] === nimi; })[0] || ''; }
 
   // Sanaselitys valinnasta (segs: yksi pala). Ketju ajetaan loppuun asti vain, jos tasan samaa ei löydy. Wikisanakirjassa ei
@@ -5026,6 +5040,7 @@
       if (k === 'sk-sana') { vuoro = ++skVuoro; suoraan(b.dataset.sana, skKieliKoodi(b.dataset.kieli || '') || y.kieli); return true; }
       if (k === 'sk-vaihto') { vuoro = ++skVuoro; valitse(vaihdot[+b.dataset.i]); return true; }
       if (k === 'sk-ety') { alkupera(b.dataset.o); return true; }
+      if (k === 'sk-osa') { vuoro = ++skVuoro; suoraanKetju(b.dataset.sana.split('|')); return true; }
       return true;
     });
     function ajossa(v) { return v === skVuoro && !pop.hidden && pop.classList.contains('sanakirja'); }
@@ -5033,6 +5048,8 @@
     function nayta(v, otsikko, runko, lahde, linkki, ety) {
       if (!ajossa(v)) return;
       $('.sk-o', pop).innerHTML = esc(otsikko) + (ety ? skEtyPaikka(ety) : '');
+      $('.sk-logos', pop).hidden = !ety;
+      pop.classList.toggle('sk-logos-nak', !!ety);
       $('.sk-runko', pop).innerHTML = runko;
       $('.sk-ala', pop).innerHTML = (lahde ? SK_LAHDE : '') + skLisa(linkki);
       sijoitaPop();
@@ -5071,7 +5088,7 @@
         var s = skSisalto(x.j, x.kielet, etusija || y.kieli, tilaa);
         if (!s.html) return;
         etyKielet[x.o] = s.kielet.map(function (k) { return (x.j[k][0] || {}).language || ''; });
-        var muoto = x.muoto ? '<div class="sk-muoto">”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' – ' + esc(x.muoto.kuvaus) : '') + '</div>' : '';
+        var muoto = x.muoto ? '<div class="sk-muoto">”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' · ' + esc(x.muoto.kuvaus) : '') + '</div>' : '';
         if (i > 0) runko += '<div class="sk-alaots"><span>' + esc(x.o) + skEtyPaikka(x.o) + '</span></div>' + muoto;
         else ylin = muoto;
         runko += '<div class="sk-ety-paikka" data-o="' + esc(x.o) + '"></div>' + s.html;
@@ -5113,7 +5130,7 @@
       var auki = !paikka.firstChild;
       napit.forEach(function (n) { n.setAttribute('aria-pressed', auki ? 'true' : 'false'); });
       if (!auki) { paikka.innerHTML = ''; sijoitaPop(); return; }
-      paikka.innerHTML = '<div class="sk-ety-laatikko"><div class="sk-ety-ots"><span class="sk-osa" lang="grc">ΕΤΥΜΟΝ</span><button type="button" class="sk-ety-sulje" data-k="sk-ety" data-o="' +
+      paikka.innerHTML = '<div class="sk-ety-laatikko"><div class="sk-ety-ots"><button type="button" class="sk-osa" data-k="sk-osa" data-sana="ἔτυμον|ἔτυμος|etymon" lang="grc" title="Alkuperä (etymon)">ΕΤΥΜΟΝ</button><button type="button" class="sk-ety-sulje" data-k="sk-ety" data-o="' +
         esc(o) + '" aria-label="Sulje alkuperä" title="Sulje">' + IK_SULJE_SK + '</button></div><div class="sk-ety-runko"><div class="sk-tieto">Haetaan…</div></div></div>';
       sijoitaPop();
       var nimet = etyKielet[o] || [], valmis = function (html) {
@@ -5146,6 +5163,18 @@
       nayta(v, o, '<div class="sk-tieto">Haetaan…</div>', false, o);
       haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: '*' }], '', kieli); else nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); })
         .catch(function () { nayta(v, o, '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
+    }
+    // Otsikon vitsi: ensimmäinen löytyvä sivu (ἔτυμον, ἔτυμος, etymon), kreikka etusijalla kreikalle.
+    function suoraanKetju(lista) {
+      var v = skVuoro;
+      nayta(v, lista[0], '<div class="sk-tieto">Haetaan…</div>', false, '');
+      (function seur(i) {
+        if (i >= lista.length) { nayta(v, lista[0], '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, lista[0]); return; }
+        haeSana(lista[i]).then(function (j) {
+          if (!j) { seur(i + 1); return; }
+          selitys(v, [{ o: lista[i], j: j, kielet: '*' }], '', /\p{Script=Greek}/u.test(lista[i]) ? 'grc' : 'en');
+        }).catch(function () { nayta(v, lista[0], '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
+      })(0);
     }
     function aja(i) {
       if (i >= ketju.length) return Promise.resolve(null);

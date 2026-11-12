@@ -60,6 +60,7 @@ const S = {
   to: { pop: 97, mul: ['Symbol', 'ISO 639-1 language code for Tongan.'], en: ['Preposition', 'in the direction of'] },
   km: { pop: 50, mul: ['Symbol', ['Symbol for kilometre.', 'ISO 639-1 language code for Khmer.']], da: ['Noun', 'abbreviation of kilometer'] },
   jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
+  etymon: { pop: 20, en: ['Noun', 'an earlier form of a word'] },
   IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] }
 };
 // Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
@@ -231,7 +232,7 @@ palvelin.listen(0, async () => {
       return { ots: q('.sk-o').textContent, huom: qa('.sk-huom').map(e => e.textContent), varo: qa('.sk-varo').map(e => e.textContent),
         kielet: qa('.sk-kieli').map(e => e.textContent), maar: qa('.sk-ol li').map(e => e.textContent), vaihdot: qa('.sk-vaihto').map(e => e.textContent),
         tieto: (q('.sk-tieto') || {}).textContent || '', lisaa: !!q('.sk-lisa'), takaisin: !!q('.sk-takaisin'), raksi: !!q('.sk-sulje'),
-        muoto: (q('.sk-muoto') || {}).textContent || '', lambda: !!q('.sk-ots svg.sanasto'), logos: (q('.sk-osa') || {}).textContent === 'ΛΟΓΟΣ' };
+        muoto: (q('.sk-muoto') || {}).textContent || '', lambda: !!q('.sk-ots svg.sanasto'), logos: !!q('.sk-logos') && !q('.sk-logos').hidden && q('.sk-logos').textContent === 'ΛΟΓΟΣ' };
     });
   }
   const ymp = (sana, n) => p.evaluate(([sana, n]) => {
@@ -240,8 +241,8 @@ palvelin.listen(0, async () => {
   }, [sana, n]);
 
   let r = await selita('kelloon');
-  tulos('fi: pelkkä taivutusmuoto (kelloon) → perusmuoto ensin, taivutus pienellä (”kelloon” – illative singular)',
-    r.ots === 'kello' && r.muoto === '”kelloon” – illative singular' && /clock/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && !r.lambda && r.logos,
+  tulos('fi: pelkkä taivutusmuoto (kelloon) → perusmuoto ensin, taivutus pienellä (”kelloon” · illative singular)',
+    r.ots === 'kello' && r.muoto === '”kelloon” · illative singular' && /clock/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && !r.lambda && r.logos,
     JSON.stringify(r) + ' ' + pyynnot.join(' · '));
   tulos('fi: perusmuodon päätös: muodon määritelmät, muodon osioluettelo, perusmuodon määritelmät (3 pyyntöä + perusmuodon osiot)',
     pyynnot.slice(0, 3).join(' | ') === '/api/rest_v1/page/definition/kelloon | /w/api.php?action=parse&format=json&formatversion=2&origin=*&redirects=1&disableeditsection=1&page=kelloon&prop=sections | /api/rest_v1/page/definition/kello', pyynnot.join(' · '));
@@ -311,6 +312,7 @@ palvelin.listen(0, async () => {
   const vaihtoEty = await p.evaluate(() => [...document.querySelectorAll('#pop .sk-vaihdot li')].map(li => !!li.querySelector('button.sk-ety')));
   const vaihtoHaut = pyynnot.filter(u => /action=parse/.test(u)).length;
   tulos('alkuperä: valitsimessa ei linssiä eikä alkuperähakuja (käyttäjän linjaus: vasta valitun sanan selityksessä)', vaihtoEty.join() === 'false,false' && !e.nappi && !vaihtoHaut, JSON.stringify(vaihtoEty) + ' ' + vaihtoHaut);
+  tulos('ΛΟΓΟΣ vain selitysikkunassa: valitsimessa piilossa', !r.logos, JSON.stringify(r));
   await kuva('sk-alkupera-valitsin');
   await p.click('#pop .sk-vaihto[data-i="1"]');
   await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'kanteli' && document.querySelector('#pop .sk-ots button.sk-ety'));
@@ -556,6 +558,25 @@ palvelin.listen(0, async () => {
   }
 
   tulos('ei sivuvirheitä', !sivuvirheet.length, sivuvirheet.join(' | '));
+  // Otsikot vievät sanan λόγος ja (varaketjulla) ἔτυμον → ἔτυμος → etymon selitykseen, vihje suomeksi ja latinalaisittain.
+  r = await selita('kelloon');
+  const vihjeet = await p.evaluate(() => [document.querySelector('#pop .sk-logos').title, document.querySelector('#pop .sk-ots .sk-ety').title]);
+  pyynnot.length = 0;
+  await p.click('#pop .sk-logos');
+  await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'λόγος' && !/Haetaan/.test(document.querySelector('#pop .sk-runko').textContent));
+  const lg = await p.evaluate(() => ({ kielet: [...document.querySelectorAll('#pop .sk-kieli')].map(e => e.textContent) }));
+  tulos('ΛΟΓΟΣ vie sanan λόγος selitykseen (muinaiskreikka); vihjeet Sana (logos) ja linssissä Alkuperä', lg.kielet[0] && lg.kielet[0].startsWith('Ancient Greek') && vihjeet.join('|') === 'Sana (logos)|Alkuperä', JSON.stringify(lg) + ' ' + vihjeet.join('|'));
+  r = await selita('kelloon');
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  const etyVihje = await p.evaluate(() => document.querySelector('#pop .sk-ety-ots .sk-osa').title);
+  pyynnot.length = 0;
+  await p.click('#pop .sk-ety-ots .sk-osa');
+  await p.waitForFunction(() => document.querySelector('#pop .sk-o').textContent === 'etymon' && !/Haetaan/.test(document.querySelector('#pop .sk-runko').textContent));
+  const etyHaut = pyynnot.filter(u => /definition/.test(u)).map(u => decodeURIComponent(u.split('/').pop()));
+  tulos('ΕΤΥΜΟΝ vie varaketjulla ἔτυμον → ἔτυμος → etymon; vihje Alkuperä (etymon)', etyHaut.slice(0, 3).join('|') === 'ἔτυμον|ἔτυμος|etymon' && etyVihje === 'Alkuperä (etymon)', etyHaut.join('|') + ' ' + etyVihje);
+  await p.click('#pop .sk-sulje');
+
   // Monta kieltä ja monta etymologiaa: kielen nimi ja numero, luettelorivit omina kappaleinaan (sisäluettelo pois).
   r = await selita('Kantin');
   if (r.ots === 'Kant') {
