@@ -47,3 +47,8 @@ Samana päivänä vielä: suu takaisin symmetriseksi kuten kuviossa 4 (käyttäj
 mahtuvat erilleen. **Käyttäjän valinnat:** otsikon kaistaksi lyhyt huilu ja kulmikas nelilinja (15 px), vinon huilun
 kulmaksi 68°.
 
+Kolmas palaute ja ensimmäinen kokeilu (12.11.2026): ikkuna reikien värinen, reikäsalmiakit 90° käännettyinä pitkittäin
+ketjuksi, joka lomittuu hiukan. Valitsematta jääneet vaihtoehdot poistettiin kierroksen 2 sivulta (käyttäjä: ei enää
+aaltoilevia ym.). Kaista ja huilutettu merkki toteutettiin luin.html:ään (`luin/kehitys/postihuilu-kuvio.js`,
+`.claude/rules/luin.md`). Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`); merkin paikka nimen perässä.
+
