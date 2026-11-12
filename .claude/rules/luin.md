@@ -275,7 +275,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   ylin rivi ΕΤΥΜΟΝ ovat majuskeleita (kokeilu, ei lukumerkkejä) entisen ALKUPERÄ-otsikon koossa, harmaata haaleampina ja hyvin
   väljästi harvennettuina (käyttäjä: huomaamaton, älä suurenna); raksit niiden riveillä. Ne eivät näytä linkeiltä, mutta vievät
   sanan λόγος / ἔτυμον selitykseen (käyttäjän vitsi; vihjeet *Sana (logos)*, *Alkuperä (etymon)*). Määritelmillä ei ole kehystä.
-  Lisää-linkki on tavalliseen neliöön kehystetty plussa (ei salmiakkia); raksissa ei kehystä.
+  Lisää-linkki on pelkkä plussa ilman kehystä (neliö ja salmiakki kokeiltiin); raksissa ei kehystä.
   **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä otsikon alla Wikisanakirjan
   sanoin (”käden” · genitive singular); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
   muualta kysymättä.
