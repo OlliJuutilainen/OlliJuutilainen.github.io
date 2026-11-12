@@ -309,15 +309,18 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 - **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`): `luin/huilu.js`
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
-  Hyllyllä huilu on *Postihuilu*-otsikon oikealla puolella (`.huilu-paikka`), asetuksissa omassa lohkossaan *Soita huilua!*
-  -napin (oikeassa reunassa) yläpuolella; Arvo on laatikkolauseen rivillä kentän oikean laidan tasalla. Kellosta lähtee
-  viuhkana kulmikas nelilinja, joka taittuu yhdessä selkeässä kulmassa vaakasuoraksi (ei kaarta). Nuotit ilmestyvät vasta
+  Hyllyllä huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
+  -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen rivillä i-napin oikealla pienen
+  hajuraon päässä. **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
+  kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
+  mitat isoja (huilu 6 px, viivaväli 4 px, siksak ±2,4 px): ohut viiva ei ole lupa pienentää. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena epäsäännöllisenä muodostelmana (ei portaita),
-  eivätkä liiku. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`).
-  Käyttäjän säännöt: sormireiät logon mittasuhteissa, sivukärjet reunaviivan sisäpinnassa, kärjet hipaisten (ei lomitusta),
-  alin alakärki pohjaviivan sisäpinnassa; ääniaukko keskellä, ääriviivainen puolisuunnikas; ohuet viivat; ei ruostetta.
-  Nimikkeen kolme salmiakkia ovat pystyssä samoin kärjet hipaisten. Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
-  vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät).
+  eivätkä liiku. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
+  keskikohta 0,29 em perusviivan yläpuolella). Sormireiät logon mittasuhteissa, sivukärjet reunaviivan sisäpinnassa,
+  kärjet hipaisten, alin alakärki pohjaviivan sisäpinnassa. Ei ääniaukkoa, ei ruostetta. Kaistan luokka ei saa olla
+  `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
+  Postihuilu-napissa on kopio vanhemmasta huilusta (ääniaukollinen). Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
+  vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa).
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):
   *Arvo* Latomossa, Luinin asetuksissa (täyttää, ei tallenna ennen *Soita huilua!*) ja lisäosassa (0.7.0; tavulleen sama kopio
   `luin/lisaosa/laatikkolause.js`). Kaava laatusana–tekijä–teonsana–luku–kohde–paikka, tasajakauma hylkäysotannalla ja tarkka

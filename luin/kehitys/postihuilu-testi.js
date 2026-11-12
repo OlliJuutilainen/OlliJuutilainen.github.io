@@ -16,7 +16,7 @@ for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   tulos(`T ${T}: logon mittasuhde`, lahes(m.B / m.A, H.LOGO), m.B / m.A);
   tulos(`T ${T}: reiät hipaisevat (ei rakoa, ei lomitusta)`, lahes(m.reiat[1] - m.reiat[0], 2 * m.A) && lahes(m.reiat[2] - m.reiat[1], 2 * m.A));
   tulos(`T ${T}: alin alakärki pohjaviivan sisäpinnassa`, lahes(m.reiat[2] + m.A, m.L - sw / 2));
-  tulos(`T ${T}: ääniaukko ennen ylintä reikää`, m.aukkoAlku + m.aukkoPit < m.reiat[0] - m.A && m.aukkoAlku > m.bk);
+  tulos(`T ${T}: ylin reikä nokan jälkeen`, m.reiat[0] - m.A > m.bk);
 }
 // Nuotit: ei portaita eikä toistoa vierekkäin, joka arvonnassa.
 let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647, huonot = [];
@@ -60,13 +60,18 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const pts = [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]].map(([x, y]) => new DOMPoint(x, y).matrixTransform(m));
       const nappi = l.querySelector('.huilunappi').getBoundingClientRect(), syote = document.querySelector('#lisaa-syote').getBoundingClientRect(), nb = nu && nu.getBoundingClientRect();
       const kysy = document.querySelector('#huilu-kysy').getBoundingClientRect();
-      return { rako: Math.min(...pts.map(q => q.x)) - t.right, kysyRako: kysy.left - Math.max(...pts.map(q => q.x)),
+      const os = document.querySelector('.n-ots'), hs = os.querySelector('svg.huilutettu'), fs = parseFloat(getComputedStyle(os).fontSize);
+      const mk = document.createElement('span'); mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; os.insertBefore(mk, hs);
+      const perus = mk.getBoundingClientRect().bottom, hr = hs.getBoundingClientRect(); mk.remove();
+      return { kysyRako: Math.min(...pts.map(q => q.x)) - kysy.right, keski: (perus - (hr.top + hr.bottom) / 2) / fs,
+        viivatVasen: svg.querySelector('path').getBBox().x - (t.right - l.getBoundingClientRect().left),
         nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: syote.top - nb.bottom },
         huilutetut: document.querySelectorAll('.n-ots svg.huilutettu').length, nOts: [...document.querySelectorAll('.n-ots')].map(x => x.textContent),
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
     const e = await hylly();
-    tulos(`${w} px: huilu otsikon oikealla puolella, ei kosketa tekstiin eikä i-nappiin`, e.rako > 2 && e.kysyRako > 0, Math.round(e.rako * 10) / 10 + ' / ' + Math.round(e.kysyRako * 10) / 10);
+    tulos(`${w} px: huilu i-napin oikealla puolella, ei kosketa siihen`, e.kysyRako > 0, Math.round(e.kysyRako * 10) / 10);
+    tulos(`${w} px: huilutetun huilun keskikohta 0,29 em perusviivan yläpuolella`, Math.abs(e.keski - .29) < .02, Math.round(e.keski * 1000) / 1000);
     tulos(`${w} px: ei nuotteja ennen painallusta`, !e.nuotit);
     tulos(`${w} px: huilutettu vain kantautuneella, nimet ennallaan`, e.huilutetut === 1 && e.nOts.join('|') === 'Kant ja eläinetiikka|Käyttöohje');
     await p.fill('#lisaa-syote', 'lyhyt'); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(200);
@@ -83,12 +88,12 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const arvo = document.querySelector('#laatikko-arvo').getBoundingClientRect(), kentta = document.querySelector('#laatikko-koodi').getBoundingClientRect();
       const kysy = document.querySelector('#laatikko-kysy').getBoundingClientRect(), nappi = l.querySelector('.huilunappi').getBoundingClientRect();
       return { arvo: arvo.right - kentta.right, arvoKysy: arvo.left - kysy.right, arvoRivi: Math.abs((arvo.top + arvo.bottom) / 2 - (kysy.top + kysy.bottom) / 2),
-        nappi: nappi.right - kentta.right, viivatLohkossa: kuvio.x >= 0, nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: nappi.top - nb.bottom },
+        nappi: nappi.right - kentta.right, viivatLohkossa: kuvio.x >= 0, viiva: [...l.querySelectorAll('*')].some(e => parseFloat(getComputedStyle(e).borderBottomWidth) > 0 && !e.matches('button')), nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: nappi.top - nb.bottom },
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
     const a = await aset();
-    tulos(`${w} px: Arvo laatikkolauseen rivillä i-napin oikealla, kentän oikean laidan tasalla`, Math.abs(a.arvo) < .5 && a.arvoKysy > 0 && a.arvoRivi < 1, JSON.stringify(a));
-    tulos(`${w} px: Soita huilua! oikeassa reunassa, viuhka lohkon sisällä, ei nuotteja ennen painallusta`, Math.abs(a.nappi) < .5 && a.viivatLohkossa && !a.nuotit);
+    tulos(`${w} px: Arvo laatikkolauseen rivillä i-napin oikealla pienen hajuraon päässä`, a.arvoKysy >= 8 && a.arvoKysy <= 20 && a.arvoRivi < 1, JSON.stringify(a));
+    tulos(`${w} px: Soita huilua! oikeassa reunassa, viuhka lohkon sisällä, ei erotteluviivaa, ei nuotteja ennen painallusta`, Math.abs(a.nappi) < .5 && a.viivatLohkossa && !a.viiva && !a.nuotit, JSON.stringify(a));
     await p.fill('#laatikko-koodi', LAUSE); await p.click('#laatikko-tallenna'); await p.waitForTimeout(400);
     const a2 = await aset();
     tulos(`${w} px: asetuksissa painallus tuo nuotit napin yläpuolelle`, a2.nuotit && a2.nuotit.vasen >= 0 && a2.nuotit.oikea >= 0 && a2.nuotit.ala > 2, JSON.stringify(a2.nuotit));

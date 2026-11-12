@@ -7,10 +7,10 @@
      putken suuntaan. Sivukärjet yltävät juuri ja juuri reunaviivan sisäpintaan, reiät hipaisevat toisiaan kärjistään
      (eivät lomitu), ja alimman reiän alakärki yltää juuri ja juuri kellon pohjaviivan sisäpintaan. Reikä ei koskaan
      halkaise ihoa. Huilun pituus seuraa näistä.
-   - Suu on symmetrinen. Ääniaukko on keskellä kuten reiät: ääriviivainen puolisuunnikas, jonka kellon puoleinen
-     reuna on hiukan pidempi.
-   - Viivat ovat ohuita. Viivasto lähtee viuhkana alimman reiän alakärjestä (ei valmiiksi levällään), taittuu yhdessä
-     selkeässä kulmassa vaakasuoraksi ja jatkuu kulmikkaana.
+   - Suu on symmetrinen. Ääniaukkoa ei ole (käyttäjä: poistetaan, ellei se näytä luontevalta).
+   - Viivat ovat ohuita, mutta mittoja ei pienennetä niiden mukana. Viivasto lähtee viuhkana alimman reiän alakärjestä
+     (ei valmiiksi levällään), kaartuu sileänä kaarena vaakasuoraksi ja jatkuu kulmikkaana, selvästi näkyvin taittein:
+     vain alkuviuhka kaartuu (käyttäjä: "ikäänkuin aaltomuotojen loputtomuudesta kvantteihin tässä siirrytään").
    - Nuotit ilmestyvät vasta Soita huilua! -napin painalluksesta ja vain napin yläpuolelle; muodostelma on joka kerta
      uusi ja epäsäännöllinen (ei portaita).
    - Ei ruostetta (ruoste = napautettava).
@@ -32,10 +32,9 @@
 
   // Huilun mitat paksuudesta T ja viivasta sw.
   function mitat(T, sw) {
-    var h = T / 2, sisa = h - sw / 2, B = sisa, A = B / LOGO, bk = T * .82;
-    var aukkoAlku = bk + sisa * .45, aukkoPit = sisa * .8, ketjuAlku = aukkoAlku + aukkoPit + sisa * .6;
+    var h = T / 2, sisa = h - sw / 2, B = sisa, A = B / LOGO, bk = T * .82, ketjuAlku = bk + sisa * .9;
     var L = ketjuAlku + 6 * A + sw / 2;
-    return { T: T, sw: sw, h: h, sisa: sisa, A: A, B: B, bk: bk, L: L, aukkoAlku: aukkoAlku, aukkoPit: aukkoPit,
+    return { T: T, sw: sw, h: h, sisa: sisa, A: A, B: B, bk: bk, L: L, ketjuAlku: ketjuAlku,
       reiat: [ketjuAlku + A, ketjuAlku + 3 * A, ketjuAlku + 5 * A], karki: L - sw / 2 };
   }
   // Huilu paikalliskoordinaateissa (SVG-sisältö).
@@ -45,12 +44,8 @@
     var px = T * .107, py = T * .286, cy = T * .25, ky = T * .107;
     var runko = 'M' + f(L) + ' ' + f(-h) + 'H' + f(bk) + 'L' + f(px) + ' ' + f(-py) + 'Q0 ' + f(-cy) + ' 0 ' + f(-ky) + 'V' + f(ky) +
       'Q0 ' + f(cy) + ' ' + f(px) + ' ' + f(py) + 'L' + f(bk) + ' ' + f(h) + 'H' + f(L) + 'Z';
-    // Ääniaukko: nokan puoleinen reuna 0,84 × sisäkorkeuden puolikas, kellon puoleinen 1,1 ×; viiva sisäpuolella.
-    var a1 = m.sisa * .42, a2 = m.sisa * .55, x1 = m.aukkoAlku, x2 = x1 + m.aukkoPit;
-    var aukko = 'M' + f(x1) + ' ' + f(-a1) + 'L' + f(x2) + ' ' + f(-a2) + 'V' + f(a2) + 'L' + f(x1) + ' ' + f(a1) + 'Z';
     var reiat = m.reiat.map(function (x) { return sal(x, 0, m.A, m.B); }).join('');
     return '<path d="' + runko + '" fill="none" stroke="' + vari + '" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
-      '<path d="' + aukko + '" fill="none" stroke="' + vari + '" stroke-width="' + f(sw * .85) + '" stroke-linejoin="miter"/>' +
       '<path d="' + reiat + '" fill="' + vari + '"/>';
   }
   function kierra(p, th) { var c = Math.cos(th), s = Math.sin(th); return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]; }
@@ -74,37 +69,54 @@
   // Kaista: vino huilu ja sen kellosta kulmikas nelilinja oikeaan reunaan.
   // o: vasen (huilun vasen reuna), yla (huilun yläreuna), keskiY (viivaston keskilinja vaakaosuudella), oikea (viivojen loppu),
   //    T, sw (huilu), sp (viivaväli), vw (viivan paksuus), jakso, amp, kulma.
+  // Viuhka: keskilinja on kuutiollinen Bézier kärjestä huilun suuntaan ja kaarena vaakasuoraksi; viivat ovat sen
+  // normaalin suuntaisia siirtymiä, jotka kasvavat kärjen nollasta täyteen väliin kaaren matkalla (smoothstep).
   function kaista(o) {
-    var T = o.T || 4.4, sw = o.sw || .7, kulma = o.kulma || 68, sp = o.sp || 2.4, n = 4, vw = o.vw || .55;
-    var jakso = o.jakso || 32, amp = o.amp == null ? .8 : o.amp, r = rajat(T, sw, kulma), th = r.th;
+    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 4, n = 4, vw = o.vw || .6;
+    var jakso = o.jakso || 30, amp = o.amp == null ? 2.4 : o.amp, r = rajat(T, sw, kulma), th = r.th;
     var nokka = [o.vasen - r.x, o.yla - r.y], d = [Math.cos(th), Math.sin(th)];
     var P0 = kierra([r.m.karki, 0], th); P0 = [nokka[0] + P0[0], nokka[1] + P0[1]];
-    // Kulma: keskilinja kulkee kärjestä huilun suuntaan, kunnes se on keskiY:n tasolla, ja kääntyy vaakasuoraksi.
-    var s1 = Math.max(sp * 1.5, (o.keskiY - P0[1]) / d[1]), C = [P0[0] + d[0] * s1, P0[1] + d[1] * s1];
-    var n1 = [-d[1], d[0]], n2 = [0, 1], k = 1 + n1[0] * n2[0] + n1[1] * n2[1], mi = [(n1[0] + n2[0]) / k, (n1[1] + n2[1]) / k];
+    var pudotus = Math.max(sp * 2, o.keskiY - P0[1]);
+    var E = [P0[0] + pudotus * .5, P0[1] + pudotus];
+    var Q = [P0, [P0[0] + d[0] * pudotus * .55, P0[1] + d[1] * pudotus * .55], [E[0] - pudotus * .6, E[1]], E];
     var siirto = function (p) { return ((n - 1) / 2 - p) * sp; };
-    var kulmat = [], xMax = -1e9;
-    for (var i = 0; i < n; i++) { var oi = siirto(i), q = [C[0] + mi[0] * oi, C[1] + mi[1] * oi]; kulmat.push(q); xMax = Math.max(xMax, q[0]); }
-    var xz = xMax + sp;
+    var kaari = [], s = 0, ed = null, N = 40;
+    for (var i = 0; i <= N; i++) {
+      var t = i / N, u = 1 - t;
+      var x = u * u * u * Q[0][0] + 3 * u * u * t * Q[1][0] + 3 * u * t * t * Q[2][0] + t * t * t * Q[3][0];
+      var y = u * u * u * Q[0][1] + 3 * u * u * t * Q[1][1] + 3 * u * t * t * Q[2][1] + t * t * t * Q[3][1];
+      var dx = 3 * u * u * (Q[1][0] - Q[0][0]) + 6 * u * t * (Q[2][0] - Q[1][0]) + 3 * t * t * (Q[3][0] - Q[2][0]);
+      var dy = 3 * u * u * (Q[1][1] - Q[0][1]) + 6 * u * t * (Q[2][1] - Q[1][1]) + 3 * t * t * (Q[3][1] - Q[2][1]);
+      var l = Math.hypot(dx, dy) || 1;
+      if (ed) s += Math.hypot(x - ed[0], y - ed[1]);
+      kaari.push({ x: x, y: y, nx: -dy / l, ny: dx / l, s: s }); ed = [x, y];
+    }
+    var S = s, xz = E[0] + sp;
     function tri(x) { // 0 alussa, taitteet jakson neljänneksissä
       if (x <= xz) return 0;
       var u = ((x - xz) / jakso) % 1;
       return amp * (u < .25 ? -4 * u : u < .75 ? -2 + 4 * u : 4 - 4 * u);
     }
     var taitteet = [];
-    for (var x = xz + jakso / 4; x < o.oikea; x += jakso / 2) taitteet.push(x);
+    for (var xx = xz + jakso / 4; xx < o.oikea; xx += jakso / 2) taitteet.push(xx);
     var d2 = '';
     for (i = 0; i < n; i++) {
-      var yi = C[1] + siirto(i), pts = [P0, kulmat[i], [xz, yi]];
+      var oi = siirto(i), pts = kaari.map(function (c) {
+        var q = c.s / S, e = q * q * (3 - 2 * q);
+        return [c.x + c.nx * oi * e, c.y + c.ny * oi * e];
+      });
+      var yi = E[1] + oi;
+      pts.push([xz, yi]);
       taitteet.forEach(function (x) { pts.push([x, yi + tri(x)]); });
-      pts.push([o.oikea, yi + tri(o.oikea)]);
+      if (o.oikea > xz) pts.push([o.oikea, yi + tri(o.oikea)]);
       d2 += 'M' + pts.map(function (p) { return f(p[0]) + ' ' + f(p[1]); }).join('L');
     }
     return {
       svg: '<path d="' + d2 + '" fill="none" stroke="currentColor" stroke-width="' + vw + '" stroke-linejoin="miter" stroke-miterlimit="12"/>' +
         '<g transform="translate(' + f(nokka[0]) + ' ' + f(nokka[1]) + ') rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g>',
-      y: function (x, p) { return C[1] + siirto(p) + tri(x); },
-      sp: sp, xz: xz, alku: P0, kulma: C, alaY: C[1] + siirto(-.5) + amp, ylaY: C[1] + siirto(n - .5) - amp
+      y: function (x, p) { return E[1] + siirto(p) + tri(x); },
+      sp: sp, xz: xz, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
+      alaY: E[1] + siirto(-.5) + amp + sp * .75, ylaY: E[1] + siirto(n - .5) - amp - sp * .75
     };
   }
 
