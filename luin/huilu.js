@@ -115,49 +115,70 @@
       svg: '<path d="' + d2 + '" fill="none" stroke="currentColor" stroke-width="' + vw + '" stroke-linejoin="miter" stroke-miterlimit="12"/>' +
         '<g transform="translate(' + f(nokka[0]) + ' ' + f(nokka[1]) + ') rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g>',
       y: function (x, p) { return E[1] + siirto(p) + tri(x); },
-      sp: sp, xz: xz, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
-      alaY: E[1] + siirto(-.5) + amp + sp * .75, ylaY: E[1] + siirto(n - .5) - amp - sp * .75
+      sp: sp, xz: xz, jakso: jakso, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
+      alaY: E[1] + siirto(0) + Math.max(amp, sp * .75) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, sp * .75) - .5,
+      viivaY: function (x, p) { return E[1] + siirto(p) + tri(x); }
     };
   }
 
-  // Nuotit: epäsäännöllinen muodostelma välille [x0, x1]. Palauttaa luettelon { u (0–1), p (viiva tai väli) }, jotta
-  // muodostelma säilyy, kun kaista piirretään uudelleen eri leveydelle. rnd = Math.random tai testin oma.
-  function arvoNuotit(rnd) {
-    rnd = rnd || Math.random;
-    var nmaara = 4 + Math.floor(rnd() * 3), lista = [], yritys = 0;
-    while (yritys++ < 50) {
-      lista = [];
-      // Kerrostettu satunnainen paikka: jokaisella nuotilla oma lohko, sisällä vapaa heitto.
-      for (var i = 0; i < nmaara; i++) {
-        var u = (i + .15 + rnd() * .7) / nmaara, p = Math.floor(rnd() * 8) / 2 - .5; // -0,5 … 3
-        lista.push({ u: u, p: p });
+  // Nuotit (käyttäjän säännöt 12.11.2026): korkeus aina viivalla tai välissä, ei koskaan ylimmän viivan yläpuolella eikä
+  // alimman alapuolella (p 0–3 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
+  // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
+  // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
+  // ei melodiaestetiikkaa); vain sama korkeus peräkkäin ja porras hylätään. arvoNuotit() palauttaa vain siemenen, jotta sama muodostelma säilyy uudelleenpiirrossa (leveys).
+  function arvoNuotit(rnd) { return { siemen: Math.floor((rnd || Math.random)() * 4294967296) }; }
+  function satunnainen(siemen) { // mulberry32
+    var a = siemen >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0; var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Jakson keskikohdat välillä [x0, x1] (nuotin kärjet mahtuvat väliin).
+  function jaksonKesket(k, x0, x1) {
+    var rx = k.sp * .75 * LOGO, out = [];
+    for (var x = k.xz + k.jakso / 2; x <= x1 - rx - 1; x += k.jakso / 2) if (x >= x0 + rx + 1) out.push(x);
+    return out;
+  }
+  function kulkuPorras(ps) {
+    if (ps.length < 3) return false;
+    var nousu = true, lasku = true;
+    for (var i = 1; i < ps.length; i++) { if (ps[i] <= ps[i - 1]) nousu = false; if (ps[i] >= ps[i - 1]) lasku = false; }
+    return nousu || lasku;
+  }
+  function nuottiPaikat(k, x0, x1, nu) {
+    var keskit = jaksonKesket(k, x0, x1), m = keskit.length, out = [];
+    if (!m || !nu) return out;
+    var rnd = satunnainen(nu.siemen), soi, ps, yritys = 0;
+    do {
+      // Soivat jaksot: ensimmäinen ja viimeinen aina, välissä tyhjä vain soivan jälkeen.
+      soi = [];
+      for (var j = 0; j < m; j++) soi.push(j === 0 || j === m - 1 || !soi[j - 1] || rnd() >= .12);
+      // Korkeudet: pelkkä arvonta viivaston seitsemästä paikasta, ei sama kuin edellinen (ei melodiaestetiikkaa).
+      ps = [];
+      for (j = 0; j < m; j++) {
+        if (!soi[j]) continue;
+        var p; do { p = Math.floor(rnd() * 7) / 2; } while (ps.length && p === ps[ps.length - 1]);
+        ps.push(p);
       }
-      // Ei portaita: hylätään, jos korkeudet ovat yksitoikkoisesti nousevat tai laskevat tai jos sama korkeus toistuu
-      // vierekkäin.
-      var nousu = true, lasku = true, toisto = false;
-      for (i = 1; i < lista.length; i++) {
-        if (lista[i].p <= lista[i - 1].p) nousu = false;
-        if (lista[i].p >= lista[i - 1].p) lasku = false;
-        if (lista[i].p === lista[i - 1].p) toisto = true;
-      }
-      if (!nousu && !lasku && !toisto) break;
-    }
-    // Joskus kaksi ääntä yhtä aikaa (vähintään puolitoista väliä erillään).
+    } while (kulkuPorras(ps) && ++yritys < 40);
+    var i = 0;
+    for (j = 0; j < m; j++) if (soi[j]) { out.push({ x: keskit[j], y: k.y(keskit[j], ps[i]), p: ps[i], j: j }); i++; }
+    // Joskus yksi yhteissointi: toinen ääni samaan jaksoon, viivaston sisälle ja vähintään puolitoista väliä erilleen.
     if (rnd() < .45) {
-      var j = Math.floor(rnd() * lista.length), q = lista[j].p + (lista[j].p > 1.25 ? -2 : 2);
-      lista.push({ u: lista[j].u, p: q });
+      var q = out[Math.floor(rnd() * out.length)], p2 = q.p >= 2 ? q.p - 2 : q.p <= 1 ? q.p + 2 : q.p - 1.5;
+      out.push({ x: q.x, y: k.y(q.x, p2), p: p2, j: q.j, sointi: true });
     }
-    return lista;
+    return out.sort(function (a, b) { return a.x - b.x || a.p - b.p; });
   }
   function nuotit(k, x0, x1, lista) {
-    var ry = k.sp * .75, rx = ry * LOGO, reuna = rx + 1;
-    return lista.map(function (nu) {
-      var x = x0 + reuna + nu.u * Math.max(0, x1 - x0 - 2 * reuna);
-      return sal(x, k.y(x, nu.p), rx, ry);
-    }).join('');
+    var ry = k.sp * .75, rx = ry * LOGO;
+    return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry); }).join('');
   }
 
   g.LuinHuilu = { mitat: mitat, huilu: huilu, vino: vino, rajat: rajat, kaista: kaista, arvoNuotit: arvoNuotit, nuotit: nuotit,
+    nuottiPaikat: nuottiPaikat, jaksonKeskit: jaksonKesket,
     sal: sal, LOGO: LOGO };
   if (typeof module !== 'undefined' && module.exports) module.exports = g.LuinHuilu;
 })(typeof window !== 'undefined' ? window : globalThis);
