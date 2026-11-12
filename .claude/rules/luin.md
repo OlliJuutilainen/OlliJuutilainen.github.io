@@ -38,6 +38,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
   luettelon osioon; Wikipedian wikilinkit ovat tekstissä tekstiä, ja loppuluettelossa ovat vain Pääartikkeli-, Katso myös- ja
   Lisätietoja-ohjausrivien artikkelit ja Katso myös -osio (käyttäjän valinta 10.11.2026: kaikki wikilinkit olivat liikaa). Alaviitemerkki `XLUINVIITE…X` on ei-ahne, jotta vierekkäiset merkit eivät sulaudu.
+  marxists.org-, Wait But Why- ja OECS-sovitteet (käyttäjän pyyntö 11.11.2026, opas 7.5; OECS on psykologian SEP:n vastine)
+  tekevät nekin vain md.js:n ymmärtämää Markdownia. OECS:n viittauksista poistetaan APA:n pilkku (*Mitchell 2009*) tarkoituksella:
+  md.js linkittää vain SEP-muodon. oecs.mit.edu (PubPub) estää pilvikontin, joten sen runko on todentamatta; mitattu
+  oecs.knowledgefutures.orgista. Kun muutat niitä tai `samanSivunViitteet()`:ä, aja `hakuteos-pesukone.js` (rikki ja epäilyttävä 0).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa

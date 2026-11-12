@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -136,6 +136,86 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
 </section><table class="navbox"><tr><td>Navigointilaatikko</td></tr></table></div></div>
 <footer><ul><li id="footer-info-copyright">Teksti on saatavilla <a rel="nofollow" class="external text" href="https://creativecommons.org/licenses/by-sa/4.0/deed.fi">Creative Commons Nimeä-JaaSamoin 4.0</a> -lisenssillä; lisäehtoja voi sisältyä. Katso käyttöehdot.</li></ul></footer></body></html>`;
 
+// marxists.org (keksitty sisältö, rakenne 11.11.2026 sivuilta): nimiö otsikkoina ennen viivaa, luvun nimi viivojen välissä
+// rivinvaihdolla, sisällysluettelo #-linkkeinä, tietolohko Written/Copyleft, sisennetyt lainaukset, viite samalla sivulla
+// jatkokappaleineen, viite toisella sivulla <a name>-ankkurilla, tähtirivi taulukkona, navigointi ja päivitysrivi.
+const MIA = 'https://www.marxists.org/archive/koe/works/1917/teos/ch01.htm';
+const MIA_KPL = n => `Body paragraph number ${n} has enough words for the reader to read it and for the clipper to count it as text.`;
+const MIA_SIVUT = {
+  [MIA]: `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="author" content="Maija Kirjoittaja">
+<title>The Test Work — Chapter 1</title><link rel="stylesheet" type="text/css" href="../../../../css/works.css"></head><body>
+<h2>Maija Ilmari Kirjoittaja</h2><h3>The Test Work</h3><hr class="end"><h3>Chapter I<br>Class Society</h3><hr class="end">
+<p class="index"><a href="#s1">The First Section</a><br><a href="#s2">The Second Section</a></p><hr class="end">
+<p class="information"><span class="info">Written:</span> August 1917;<br><span class="info">Source:</span> Collected Works, Volume 1.<br>
+<span class="info">Copyleft:</span> Marxists Internet Archive (marxists.org) 2000. Permission is granted under the terms of the <a href="../../../../admin/legal/cc/by-sa.htm">Creative Commons ShareAlike License</a>.</p>
+<h4 id="s1">1. The First Section</h4>
+<p>${MIA_KPL(1)} A mark<sup class="ednote"><a href="#fw01" id="bk01">[1]</a></sup> is here.</p>
+<p class="quoteb">“An indented quotation.”</p><p class="quoteb">Second paragraph of the quotation.</p>
+<p>${MIA_KPL(2)} The other page<sup class="enote"><a href="notes.htm#n2">[2]</a></sup> too.</p>
+<h4 id="s2">2. The Second Section</h4><p>${MIA_KPL(3)}</p>
+<table class="TNRtable"><tr><td>*</td><td>&nbsp;</td><td>*</td></tr></table>
+<p>${MIA_KPL(4)}<br><br></p><hr class="base"><h3>Notes</h3>
+<p class="endnote"><sup class="ednote"><a href="#bk01" id="fw01">[1]</a></sup> First note text.</p>
+<p class="endnote">Continuation of the first note.</p><hr class="end">
+<p class="next">Next: <a href="ch02.htm">Chapter Two</a></p>
+<table class="footer"><tr><td class="footer-backward"><a href="index.htm">Index</a></td></tr></table>
+<p class="updat">Last updated on: 1.1.2026</p></body></html>`,
+  'https://www.marxists.org/archive/koe/works/1917/teos/notes.htm': `<!DOCTYPE html><html><body><a name="n1"> </a><p class="fst"><span class="term">1.</span> Wrong one.</p>
+<a name="n2"> </a><p class="fst"><span class="term">2.</span> Second note on the other page.</p></body></html>`
+};
+// Wait But Why (keksitty sisältö, rakenne 11.11.2026 sivuilta): PDF-mainos, sininen ja harmaa viite samalla numerolla,
+// ← open these, kuva ja sen lähderivi pienellä, viiva, väliotsikot isona lihavointina, Sources rivinvaihdoin,
+// Related posts, uutiskirje ja Patreon, viiteluettelot paluulinkkeineen.
+const WBW = 'https://waitbutwhy.com/2026/01/koe.html';
+const WBW_KPL = n => `<p>Paragraph ${n} is a long paragraph of the post. It has many words, because the post would otherwise be too short for the end-of-post rules. ` +
+  'Tim writes long posts, and so does this test, with a sentence after sentence after sentence until the paragraph is long enough.</p>';
+const WBW_SIVU = `<!doctype html><html lang="en-US"><head><meta charset="utf-8"><title>Koe Post - Wait But Why</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","datePublished":"2026-01-15T10:00:00+00:00","author":{"name":"Tim Testi"}},{"@type":"Person","name":"Tim Testi"}]}</script></head>
+<body><header id="header">Home Menu</header><article><header class="entry-header"><h1>Koe Post</h1><div class="entry-meta"><span class="date">January 15, 2026</span> By Tim Testi</div></header>
+<div class="entry-content">
+<p><span style="font-size: 12pt;"><em><strong>PDF: </strong>We made a fancy PDF of this post. <a href="https://gum.co/x">Buy it here.</a></em></span></p>
+<p>Opening paragraph with notes.<a href="#footnote-1-9" id="note-1-9" rel="footnote">1</a><a href="#footnote2-1-9" id="note2-1-9" rel="footnote2">1</a><sup>← open these</sup></p>
+<p><a href="https://waitbutwhy.com/wp-content/uploads/x.png"><img src="https://waitbutwhy.com/wp-content/uploads/x.png"></a></p>
+<p><span style="font-size: 8pt;">Image: Somebody</span></p>
+<p style="text-align: center;">_______</p>
+<p><span style="font-size: 16pt;"><strong>A Big Section</strong></span></p>${WBW_KPL(1)}
+<p><span style="font-size: 24pt;"><strong>Part 2: Larger</strong></span></p>${WBW_KPL(2)}${WBW_KPL(3)}
+<p style="text-align: center;">_______</p>${WBW_KPL(4)}
+<p><span style="font-size: 14pt;"><strong>Sources</strong></span><br>Source One: <a href="https://example.test/1">First Title</a><br>Source Two: <a href="https://example.test/2">Second Title</a></p>
+<p><strong><span style="font-size: 16pt;">Related Wait But Why Posts</span></strong></p>
+<p><a href="https://waitbutwhy.com/2014/05/x.html">Other Post</a> – description.</p>
+<p class="has-text-align-center wp-block-paragraph">_______</p>
+<p class="wp-block-paragraph">If you like Wait But Why, sign up for our <strong><a href="https://newsletter.waitbutwhy.com/join">email list</a></strong> and we’ll send you new posts.</p>
+<p class="wp-block-paragraph">To support Wait But Why, visit our <strong><a href="https://patreon.com/waitbutwhy">Patreon page</a></strong>.</p>
+<div id="social-ads"><a href="https://twitter.com/intent/tweet">Tweet</a></div>
+<div class="footnotes"><hr><ol><li id="footnote-1-9" class="footnote"><p>Blue note text.<a href="#note-1-9" class="footnote-return">&#8617;</a></p></li></ol></div>
+<div class="footnotes2"><hr><ol><li id="footnote2-1-9" class="footnote2"><p>Gray source, <a href="https://example.test/kirja"><em>Book</em></a>, 12.<a href="#note2-1-9" class="footnote2-return">&#8617;</a></p></li></ol></div>
+</div></article><footer id="footer">Popular Posts</footer></body></html>`;
+// Open Encyclopedia of Cognitive Science (keksitty sisältö, oecs.knowledgefutures.orgin rakenne 11.11.2026, osoite
+// oecs.mit.edu): citation_*-metatiedot, APA-viittaukset, KaTeX, kuva kuvateksteineen, taulukko kuvatekstein, Further
+// reading ja References, tekijä- ja lisenssiosio.
+const OECS = 'https://oecs.mit.edu/pub/koe123';
+const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Koe Entry — OECS</title>
+<meta name="citation_title" content="Koe Entry"><meta name="citation_author" content="Ada Aaltonen"><meta name="citation_author" content="Bo Berg">
+<meta name="citation_publication_date" content="2024/07/24"><meta name="citation_journal_title" content="Open Encyclopedia of Cognitive Science">
+<meta name="citation_doi" content="10.21428/e2759450.koe"></head><body><main><article><header><h1>Koe Entry</h1><div>Ada Aaltonen · University</div></header>
+<aside><nav class="toc"><h3>Contents</h3><ul><li><a href="#history">History</a></li></ul></nav></aside>
+<div class="article-body"><article>
+<p>An entry about a topic. Its first paragraph is long enough not to be read as a line of the title block (<a href="#citation-A-bottom" id="citation-A-1-inline" data-node-type="citation" data-value="" data-unstructured-value="&lt;p&gt;Mitchell, M. (2009). Complexity. OUP.&lt;/p&gt;" data-custom-label="Mitchell, 2009" class="citation">Mitchell, 2009</a>).</p>
+<h1 id="history">History</h1>
+<p>As <a href="#citation-B-bottom" id="citation-B-1-inline" data-node-type="citation" data-value="https://doi.org/10.1/x" data-custom-label="Turing (1937)" class="citation">Turing (1937)</a> showed, the noise <math-inline className="math-node"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">σ</annotation></semantics></math></span><span class="katex-html" aria-hidden="true">σ</span></span></math-inline> and <math-inline className="math-node"><span class="katex"><span class="katex-mathml"><math><semantics><mrow></mrow><annotation encoding="application/x-tex">x^2 + 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true">x2+1</span></span></math-inline> matter. See <a href="#n1" class="reference" data-node-type="reference" data-target-id="n1">Figure 1</a>.</p>
+<figure id="n1" data-node-type="image"><img src="/assets/a.png"><figcaption><div><strong>Figure 1</strong><div><p>A caption of the figure.</p></div></div></figcaption></figure>
+<h2 id="sub">Sub section</h2><p>The table follows.</p>
+<div><table><caption>Table 1</caption><tbody><tr><td><p>A</p></td><td><p>B</p></td></tr><tr><td><p>1</p></td><td><p>2</p></td></tr></tbody></table></div>
+<h1 id="key-references">Further reading</h1><ul><li><p>Reader, R. (2020). <em>Further</em>. Press.</p></li></ul>
+<div class="pub-notes"><h1>References</h1><ul>
+<li id="citation-A-bottom"><span class="pub-note-content-component"><span><div class="csl-bib-body"></div></span><span><p>Mitchell, M. (2009). <em>Complexity: A guided tour</em>. Oxford University Press.</p></span></span> <a href="#citation-A-1-inline" class="return-link">↩</a></li>
+<li id="citation-B-bottom"><span class="pub-note-content-component"><span><div class="csl-bib-body"><div class="csl-entry">Turing, A. M. (1937). On computable numbers. <i>Proceedings of the LMS</i>, <i>42</i>, 230–265.</div></div></span><span></span></span> <a href="#citation-B-1-inline" class="return-link">↩</a></li>
+</ul></div>
+<footer class="pub-footer"><section class="pub-attributions"><h2>Authors</h2><ul><li>Ada Aaltonen</li></ul></section>
+<section class="pub-license"><h2>License</h2><p><a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a></p></section></footer>
+</article></div></article></main></body></html>`;
+
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
@@ -183,6 +263,9 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
     if (SEP_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: SEP_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (LOGOS_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: LOGOS_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === WIKI) return r.fulfill({ body: WIKI_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (MIA_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: MIA_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === WBW) return r.fulfill({ body: WBW_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === OECS) return r.fulfill({ body: OECS_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
       if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) return r.fulfill({ status: 404, body: '' });
@@ -406,6 +489,49 @@ const WIKI_SIVU = `<!doctype html><html lang="fi"><head><meta charset="utf-8"><t
     /^H4 Merkintä lähteessä: Teksti on saatavilla .* \| Tätä saa jakaa ja muokata, myös kaupallisesti, .* \| Lisätietoja: Creative Commons -lisenssin CC BY-SA 4\.0 \(Attribution-ShareAlike\) tiivistelmä suomeksi osoitteessa https:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/deed\.fi$/.test(wkL.oik), wkL.oik);
   tulos('Wikipedia Luinissa: Kirjallisuutta kirjallisuusluettelona, alaviitteen tekijä–vuosi linkittyy', wkL.bib === 1 && wkL.lahde.join() === '#kirj-kirjoittaja-2010' && wkL.sn.length === 5,
     JSON.stringify(wkL).slice(0, 400));
+  // 11.–13. marxists.org, Wait But Why ja OECS (11.11.2026): leike Latomoon ja Luinin jäsennys.
+  const leikeLuin = async url => {
+    await artikkeli.goto(url);
+    await avaaIkkuna(url);
+    const l = await paina('#latomoon', /latomo\.html$/);
+    const md = await l.inputValue('#md');
+    const luin = await l.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
+      return { sn: [...d.querySelectorAll('.sidenote')].map(x => x.textContent.replace(/\u00ad/g, '')), lahde: [...d.querySelectorAll('a.lahde')].map(a => a.textContent.replace(/\u00ad/g, '') + '>' + a.getAttribute('href')),
+        bib: d.querySelectorAll('p.bib').length, lainaus: d.querySelectorAll('blockquote').length, taulukko: d.querySelectorAll('table').length,
+        meta: [...d.querySelectorAll('header .meta, header .sub')].map(x => x.textContent.replace(/\u00ad/g, '')).join(' | '), varoitukset: r.warnings.map(w => w.msg) }; }, md);
+    await l.close();
+    return { md, luin, ots: (md.match(/^#+ .*$/gm) || []).join(' | ') };
+  };
+  const mia = await leikeLuin(MIA);
+  tulos('marxists.org: etukenttä nimiöstä (tekijä, teos, kirjoitusvuosi) ja Copyleft CC BY-SA 2.0', /^---\ntekijä: Maija Kirjoittaja\nteos: The Test Work\nsivusto: Marxists Internet Archive\njulkaistu: 1917\nlähde: https:\/\/www\.marxists\.org\/archive\/koe\/works\/1917\/teos\/ch01\.htm\noikeudet: Copyleft: Marxists Internet Archive \(marxists\.org\) 2000\. Permission is granted under the terms of the Creative Commons ShareAlike License\.\noikeudet-lähde: https:\/\/creativecommons\.org\/licenses\/by-sa\/2\.0\/\n/.test(mia.md),
+    mia.md.split('\n').slice(0, 9).join(' | '));
+  tulos('marxists.org: luvun nimi otsikoksi, osiot, tietolohko loppuun, navigointi ja sisällys pois', mia.ots === '# Chapter I: Class Society | ## 1\\. The First Section | ## 2\\. The Second Section | ## Marxists Internet Archive' &&
+    !/Next|Chapter Two|Index|Last updated|The Test Work\n|\(#s1\)/.test(mia.md.split('---').slice(2).join('---')) && /^## Marxists Internet Archive\n\nWritten: August 1917; {2}\nSource: Collected Works, Volume 1\. {2}\nCopyleft:/m.test(mia.md), mia.ots);
+  const miaOsat = [/^> “An indented quotation\.”\n> ?\n> Second paragraph of the quotation\.$/m, /number 3 has enough[^\n]*\n\n___\n\nBody paragraph number 4/,
+    /A mark\[\^viite-mia1\] is here\./, /The other page\[\^viite-2\] too\./, /^\[\^viite-mia1\]: First note text\.\n\n {4}Continuation of the first note\.$/m,
+    /^\[\^viite-2\]: Second note on the other page\.$/m].map(re => re.test(mia.md));
+  tulos('marxists.org: lainaus, tähtirivi osanvaihdoksi, viitteet samalta ja toiselta sivulta', miaOsat.every(Boolean) && !/^Notes$|number 4[^\n]* {2}$/m.test(mia.md),
+    miaOsat.join() + ' | ' + mia.md.split('---').slice(2).join('---').slice(0, 900).replace(/\n/g, ' | '));
+  tulos('marxists.org Luinissa: kaksi alaviitettä, lainaus, otsikkolohkossa tekijä ja teos, ei varoituksia', mia.luin.sn.length === 2 && mia.luin.lainaus === 1 &&
+    /Maija Kirjoittaja/.test(mia.luin.meta) && /The Test Work, 1917/.test(mia.luin.meta) && !mia.luin.varoitukset.length, JSON.stringify(mia.luin).slice(0, 400));
+  const wbw = await leikeLuin(WBW);
+  tulos('Wait But Why: etukenttä (schema.org), mainokset, kuvarivi, Related ja tilauskehotus pois', /^---\ntekijä: Tim Testi\nsivusto: Wait But Why\njulkaistu: 2026-01-15\n/.test(wbw.md) &&
+    !/PDF|Image:|open these|Related|Other Post|email list|Patreon|Tweet|↩/.test(wbw.md) && /^Opening paragraph with notes\.\[\^viite-wbw1\]\[\^viite-wbw2\]$/m.test(wbw.md),
+    wbw.md.slice(0, 400).replace(/\n/g, ' | '));
+  tulos('Wait But Why: väliotsikot koon mukaan, Sources kappaleiksi, viivat osanvaihdoksi vain tekstin keskellä', wbw.ots === '# Koe Post | ### A Big Section | ## Part 2: Larger | ## Sources' &&
+    /Paragraph 3[^\n]*\n\n___\n\n<p>|Paragraph 3[^\n]*\n\n___\n\nParagraph 4/.test(wbw.md) && /^## Sources\n\nSource One: \[First Title\]\[\d+\]\n\nSource Two: \[Second Title\]\[\d+\]$/m.test(wbw.md) && (wbw.md.match(/^___$/gm) || []).length === 1,
+    wbw.ots);
+  tulos('Wait But Why: sininen ja harmaa viite alaviitteinä ilman paluulinkkiä', /^\[\^viite-wbw1\]: Blue note text\.$/m.test(wbw.md) && /^\[\^viite-wbw2\]: Gray source, \[\*Book\*\]\(https:\/\/example\.test\/kirja\), 12\.$/m.test(wbw.md) &&
+    wbw.luin.sn.length === 2 && wbw.luin.bib === 2, JSON.stringify(wbw.luin).slice(0, 300));
+  const oe = await leikeLuin(OECS);
+  tulos('OECS: etukenttä citation-metatiedoista (tekijät, päivä, DOI) ja lisenssi', /^---\ntekijä: Ada Aaltonen & Bo Berg\nsivusto: Open Encyclopedia of Cognitive Science\njulkaistu: 2024-07-24\ndoi: 10\.21428\/e2759450\.koe\nlähde: https:\/\/oecs\.mit\.edu\/pub\/koe123\noikeudet: Creative Commons Attribution-NonCommercial 4\.0 International License\noikeudet-lähde: https:\/\/creativecommons\.org\/licenses\/by-nc\/4\.0\/\n/.test(oe.md),
+    oe.md.split('\n').slice(0, 9).join(' | '));
+  tulos('OECS: otsikot, viittaukset tekstinä ilman APA-pilkkua, kaavat, kuvateksti, taulukko, ei tekijä- eikä sisällysosiota', oe.ots === '# Koe Entry | ## History | ### Sub section | ## Further reading | ## References' &&
+    /\(Mitchell 2009\)\./.test(oe.md) && /As Turing \(1937\) showed, the noise \*σ\* and `x\^2 \+ 1` matter\. See Figure 1\./.test(oe.md) && /^\*Figure 1\. A caption of the figure\.\*$/m.test(oe.md) &&
+    /^\*Table 1\*\n\n\| A \| B \|\n\| --- \| --- \|\n\| 1 \| 2 \|$/m.test(oe.md) && !/Authors|Contents|↩|Ada Aaltonen ·/.test(oe.md.split('---').slice(2).join('---')),
+    oe.ots + ' / ' + (oe.md.match(/As Turing[^\n]*/) || [''])[0]);
+  tulos('OECS Luinissa: kirjallisuus kappaleina, tekijä–vuosi linkittyy luetteloon (myös kertova)', oe.luin.bib === 3 && oe.luin.taulukko === 1 &&
+    oe.luin.lahde.join() === 'Mitchell 2009>#kirj-mitchell-2009,1937>#kirj-turing-1937' && !oe.luin.varoitukset.length, JSON.stringify(oe.luin).slice(0, 400));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
