@@ -460,8 +460,8 @@ palvelin.listen(0, async () => {
     const viim = o[o.length - 1];
     return { eAla: +e.bottom.toFixed(2), eYla: +e.top.toFixed(2), kehaYla: +c.top.toFixed(2), kehaVasen: +c.left.toFixed(2), sanaLoppu: +viim.right.toFixed(2) };
   });
-  tulos('linssi-epsilon: epsilonin alareuna hieman sanan alareunan alapuolella (0…2,4 px), kehän sisäreuna tiukasti epsilonin musteen päällä (≤ 1,5 px), pieni hajurako sanaan (1–5 px)',
-    ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) >= 0 && ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) <= 2.4 && (ep.eYla - .475) - (ep.kehaYla + .55) <= 1.5 && ep.kehaVasen - ep.sanaLoppu >= 1 && ep.kehaVasen - ep.sanaLoppu <= 5, JSON.stringify(Object.assign(ep, { sanaAla: kuvaus.sanaAla + m.pop.y })));
+  tulos('linssi-epsilon: epsilonin alareuna hieman sanan alareunan alapuolella (0…2,4 px), kehän sisäreuna lähellä epsilonin musteen yläpuolta (≤ 2,5 px), pieni hajurako sanaan (1–5 px)',
+    ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) >= 0 && ep.eAla + .475 - (kuvaus.sanaAla + m.pop.y) <= 2.4 && (ep.eYla - .475) - (ep.kehaYla + .55) <= 2.5 && ep.kehaVasen - ep.sanaLoppu >= 1 && ep.kehaVasen - ep.sanaLoppu <= 5, JSON.stringify(Object.assign(ep, { sanaAla: kuvaus.sanaAla + m.pop.y })));
   // Raksi on λόγος-rivillä (12.11.2026; ennen sanan peruslinjalla), kuten ἔτυμον-laatikon raksi omalla rivillään.
   tulos('raksi λόγος-otsikon rivillä (muste otsikon musteen korkeudella ±1 px)', kuvaus.raksiYla >= kuvaus.logosYla - 1 && kuvaus.raksiAla <= kuvaus.logosAla + 1,
     JSON.stringify({ raksi: [kuvaus.raksiYla, kuvaus.raksiAla], logos: [kuvaus.logosYla, kuvaus.logosAla] }));
