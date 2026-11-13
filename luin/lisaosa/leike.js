@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com (13.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1201,6 +1201,166 @@
       naytto: [ENC_NIMI, teos].filter(Boolean).join(' · ') + (artikkelit.length > 1 ? ' (' + (artikkelit.indexOf(w) + 1) + '/' + artikkelit.length + ')' : '') };
   }
 
+  /* IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (IRED; käyttäjän pyyntö 13.11.2026). Hakuteos on vain
+     FlippingBook-kirjana (englanniksi online.flippingbook.com/view/544664, 1258 sivua, 21 hakusanaa), lataus estetty, lisenssi
+     CC BY-NC-ND. Katselin piirtää sivut kuvina, mutta jokaisen sivun oma osoite /view/<kirja>/<n>/ antaa hakukoneille sivun
+     tekstin HTML:nä (#text-container, kappaleet p:inä). Leikataan hakusana, jolla katselija on: sisällysluettelo (sivu, jolla
+     pistejonot ja sivunumerot) antaa painetut aloitussivut, osoite = painettu + numerationOffset (1). Hakusanan sivut haetaan
+     samalta sivustolta. Sivun sisäinen kappalejako puuttuu lähteestä (sivu on usein yksi kappale); sivunvaihdossa jatkuva virke
+     yhdistetään, tavuviivaan päättyvä ilman väliä. Otsikot ovat omia versaalikappaleitaan (II. ORIGINS OF THE CONCEPT; VII. A.
+     INFANT RESEARCH alkaa joskus samassa kappaleessa tekstin kanssa) → ## / ###. REFERENCES-osion sivut ovat yksi kappale:
+     pilkotaan kohdiksi tekijä–vuoden alusta. Pois: Back to Table of Contents, sivunumero, lisenssikappale (etukenttään).
+     Tekijä on IPA (lisenssi vaatii nimeämään sen), julkaistu hakusanan uusimman painoksen vuosi. Mitattu 13.11.2026. */
+  const IRED_NIMI = 'IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis';
+  // Kirjallisuuden kohdan alku: tekijäyksiköitä (Sukunimi, I. I. tai Bion W.R.), välissä pilkku, and tai &, sitten (vuosi).
+  const IRED_TEKIJA = String.raw`(?:(?:van|von|de|da|di|le|la|du|del|der)\s)?\p{Lu}[\p{L}'’-]+(?:\s\p{Lu}[\p{L}'’-]+)?,?\s(?:-?\p{Lu}\.\s?){1,4}`;
+  const IRED_KOHTA = new RegExp(String.raw`(?<=[.)\d])(?<![\s,.-]\p{Lu}\.)\s+(?=${IRED_TEKIJA}(?:(?:,|;)?\s?(?:and\s|&\s)?${IRED_TEKIJA})*(?:\(Eds?\.\)\s?)?\((?:1[6-9]|20)\d\d\s?[a-z]?(?:\s*\[[^\]]*\])?\))`, 'u');
+  const ired = { haku: new Map() };
+  function iredSivu(u) {
+    if (!ired.haku.has(u)) ired.haku.set(u, hae(u).then(d => {
+      const t = d && d.getElementById('text-container');
+      if (!t) return null;
+      const ps = [...t.querySelectorAll(':scope > p:not(.powered-by)')].map(p => rivi(p.textContent)).filter(Boolean);
+      // Kirjan viimeinen sivu navigaatiosta: sen jälkeiset osoitteet antavat 200:n ja kansisivun.
+      ps.viim = +((/\/(\d+)\/?$/.exec((d.querySelector('.nav-links a.last') || {}).getAttribute ? d.querySelector('.nav-links a.last').getAttribute('href') : '') || [])[1] || 0);
+      return ps;
+    }));
+    return ired.haku.get(u);
+  }
+  // Versaaliotsikko sanan alkukirjaimin: DRIVE(S) → Drive(s), (ORT) ja roomalaiset numerot ennallaan, pikkusanat pienin.
+  function iredOtsikko(s) {
+    const pienet = /^(of|the|and|in|on|a|an|to|for|or|as|at|by|with|from|vs)$/;
+    return rivi(s).split(' ').map((w, i, k) => {
+      if (/^\(?[A-Z]{2,4}\)[:,]?$/.test(w) || /^[IVX]+\.$/.test(w) || /^[A-Z]\.$/.test(w) || /^(US|UK|USA)[:,]?$/.test(w)) return w;
+      const l = w.toLowerCase();
+      if (i > 0 && pienet.test(l) && !/[:(]$|^[IVX]+\.$|^[A-Z]\.$/.test(k[i - 1])) return l;
+      return l.replace(/(^\(?|[-/])(\p{L})/gu, (x, a, b) => a + b.toUpperCase());
+    }).join(' ');
+  }
+  async function iredLeike() {
+    if (location.hostname !== 'online.flippingbook.com' || !/IPA Inter-Regional Encyclopedic Dictionary/i.test(document.title)) return null;
+    const m = /^\/view\/(\d+)\/?(\d+)?/.exec(location.pathname);
+    if (!m) return null;
+    const kirja = '/view/' + m[1] + '/', sivuOsoite = n => location.origin + kirja + n + '/';
+    const nyt = +(m[2] || 1);
+    const siirto = +((/"numerationOffset"\s*:\s*(\d+)/.exec(document.documentElement.innerHTML) || [, 1])[1]);
+    // Sisällysluettelo: ensimmäisiltä sivuilta kappale, jossa on vähintään viisi pistejonoa ja sivunumeroa.
+    let sis = [], viim = 0;
+    for (let n = 1; n <= 6 && sis.length < 2; n++) {
+      const ps = await iredSivu(sivuOsoite(n)) || [];
+      viim = viim || ps.viim || 0;
+      for (const p of ps) {
+        const k = [...p.matchAll(/(\S[^.]*?)\s*\.{5,}\s*(\d+)/g)].map(x => ({ nimi: rivi(x[1]), alku: +x[2] + siirto }));
+        if (k.length >= 5) { sis = k; break; }
+      }
+    }
+    if (!sis.length) return null;
+    sis.sort((a, b) => a.alku - b.alku);
+    let i = sis.length - 1;
+    while (i >= 0 && sis[i].alku > nyt) i--;
+    // Kansi tai sisällysluettelo: ei hakusanaa (leike ilmoittaa, ettei sivulta löytynyt artikkelia).
+    if (i < 0) return { html: '', tyhja: true, otsikko: IRED_NIMI, sivusto: IRED_NIMI };
+    const alku = sis[i].alku, loppu = i + 1 < sis.length ? sis[i + 1].alku - 1 : viim || null;
+    const sivut = [];
+    for (let n = alku; loppu ? n <= loppu : n < alku + 300; n += 6) {
+      const era = await Promise.all([0, 1, 2, 3, 4, 5].filter(k => !loppu || n + k <= loppu).map(k => iredSivu(sivuOsoite(n + k))));
+      sivut.push(...era);
+      if (!loppu && era.some(x => !x)) break;
+    }
+    // Kappaleet sivuittain; Back to Table of Contents ja sivunumero pois.
+    const kpl = [];
+    let jatkuu = false;
+    for (const ps of sivut) {
+      if (!ps) { kpl.push({ puuttuu: true }); jatkuu = false; continue; }
+      const sis2 = ps.filter(p => !/^back to table of contents$/i.test(p) && !/^\d{1,4}$/.test(p));
+      sis2.forEach((p, j) => {
+        const ed = kpl[kpl.length - 1];
+        if (j === 0 && jatkuu && ed && ed.t) {
+          ed.t = /\p{L}-$/u.test(ed.t) ? ed.t + p : ed.t + ' ' + p;
+        } else kpl.push({ t: p });
+      });
+      const viim = kpl[kpl.length - 1];
+      jatkuu = !!(viim && viim.t && !/[.!?:”"’)\]]$/.test(viim.t) && !/^[A-Z0-9 .,:;’'()\-–&/]+$/.test(viim.t));
+    }
+    const nimi = iredOtsikko(sis[i].nimi);
+    const el = document.createElement('div');
+    const lisaa = (tag, teksti) => { const e = document.createElement(tag); e.textContent = teksti; el.appendChild(e); return e; };
+    let lahteet = false, oikeus = null, painos = '';
+    // Versaalisanoja välilyönnein (ei sisäkkäistä valinnaista välilyöntiä: pitkä versaalikappale jumitti välilehden).
+    const OTS = /^((?:[IVX]+\.\s+)?(?:[A-Z]\.\s+)?[A-Z0-9(][A-Z0-9’'()\-–&/,:.]*(?:\s+[A-Z0-9(][A-Z0-9’'()\-–&/,:.]*)*)(?:\s+(?=\p{Lu}\p{Ll})|$)/u;
+    // See also -luettelo on versaalinimiä peräkkäin (EGO PSYCHOLOGY ENACTMENT …): nimet sisällysluettelosta, pisin ensin.
+    // Muunnelmat: TRANSFORMATION(S) myös TRANSFORMATIONS ja TRANSFORMATION, SETTING, (THE …) myös ilman pilkkua.
+    // Myös lyhyet muodot, joita See also -luettelot käyttävät: CONTAINMENT, SETTING, DRIVES, FIELD THEORIES.
+    const nimet = sis.flatMap(x => [x.nimi, x.nimi.replace(/[()]/g, ''), x.nimi.replace(/\s*\([^)]*\)/g, ''), x.nimi.replace(/,/g, ''),
+      x.nimi.split(/[:,]/)[0], x.nimi.replace(/\(S\)$/, 'S'), x.nimi.replace(/\(S\)$/, ' (S)'), x.nimi.replace(/^PSYCHOANALYTIC\s+/, '').replace(/\s+AND CONCEPTS$/, '')]
+      .map(v => ({ v: rivi(v).toUpperCase(), n: x.nimi }))).sort((a, b) => b.v.length - a.v.length);
+    // Palauttaa nimet ja loput (REFERENCES Abend, S. … samassa kappaleessa).
+    const katso = t => { const k = []; let r = rivi(t);
+      while (r) {
+        const n = nimet.find(x => r.toUpperCase().startsWith(x.v) && !/^[\p{L}]/u.test(r.slice(x.v.length)));
+        // Tuntematon versaalisana (REGRESSION (coming soon)) omaksi kohdakseen.
+        const u = !n && !/^REFERENCES\b/.test(r) && /^([A-ZÄÖÅ][A-ZÄÖÅ-]+(?:\s\(coming soon\))?)(?=[\s;,]|$)/.exec(r);
+        if (!n && !u) break;
+        k.push(n ? iredOtsikko(n.n) : iredOtsikko(u[1].replace(/\s\(coming soon\)$/, '')) + (/coming soon/.test(u[1]) ? ' (coming soon)' : ''));
+        r = rivi(r.slice(n ? n.v.length : u[1].length).replace(/^[;,]/, ''));
+      }
+      return { k: k.join('; '), loput: r }; };
+    let katsoP = null;
+    kpl.forEach((k, j) => {
+      if (k.puuttuu) { lisaa('p', '[Sivu ei latautunut.]'); return; }
+      // Rivinvaihdon katkaisema yhdyssana (self- representation) yhteen; self- and object jää.
+      let t = k.t.replace(/^([IVX]+\.)(?=[A-Z])/, '$1 ').replace(/(\p{Ll})- (?!(?:and|or|to|nor|as well)\b)(\p{Ll})/gu, '$1-$2').replace(/(\d) (st|nd|rd|th)\b/g, '$1$2').replace(/\s+([.,;:](?:\s|$))/g, '$1').replace(/\s+([.,;:])$/, '$1');
+      if (j === 0) {
+        // Hakusanan alku: NIMI Tri-Regional Entry First Edition 2017: Inter-Regional Editorial Board: …
+        const pois = t.toUpperCase().startsWith(sis[i].nimi.toUpperCase()) ? t.slice(sis[i].nimi.length).trim() : t;
+        painos = ([...pois.matchAll(/Edition[^0-9]{0,20}((?:19|20)\d\d)/gi)].map(x => x[1]).sort().pop()) || '';
+        if (pois) lisaa('p', pois).dataset.tieto = '1';
+        return;
+      }
+      if (/is licensed under Creative Commons/i.test(t)) { oikeus = { teksti: t.replace(/\s*Please click here for terms\.?$/i, ''), lahde: 'https://www.ipa.world/IPA/Encyclopedic_Dictionary' }; return; }
+      if (katsoP && /^[^a-z]*$/.test(t.split(/\bREFERENCES\b/)[0]) && !/^REFERENCES/.test(t)) {
+        const k = katso(t);
+        const vali = () => /:\s*$/.test(katsoP.textContent) ? '' : '; ';
+        if (k.k) katsoP.textContent += vali() + k.k;
+        if (!k.loput || k.loput === t) { if (k.loput) katsoP.textContent += vali() + k.loput; return; }
+        t = k.loput;
+      }
+      const o = OTS.exec(t);
+      const ots = o && rivi(o[1]).replace(/[:,]$/, '');
+      if (ots && ots.length >= 4 && /[A-Z]{3}/.test(ots.replace(/^[IVX]+\.\s*(?:[A-Z]\.\s*)?/, '')) && (ots === t.replace(/[:,]$/, '') || /^[IVX]+\.|^REFERENCES|^SEE ALSO/i.test(ots))) {
+        const ala = /^[IVX]+\.\s*[A-Z]\.\s/.test(ots);
+        lisaa(ala ? 'h3' : 'h2', iredOtsikko(ots));
+        lahteet = /^(references|bibliography)/i.test(ots);
+        t = rivi(t.slice(o[0].length));
+        if (!t) return;
+      }
+      if (/^see also\b:?/i.test(t)) {
+        const k = katso(t.replace(/^see also\b:?\s*/i, ''));
+        katsoP = lisaa('p', 'See also: ' + k.k);
+        if (!k.loput) return;
+        if (!/^REFERENCES|^[IVX]+\./.test(k.loput)) { katsoP.textContent += (k.k ? '; ' : '') + k.loput; return; }
+        t = k.loput;
+        const o2 = OTS.exec(t), ots2 = o2 && rivi(o2[1]).replace(/[:,]$/, '');
+        if (ots2) { lisaa('h2', iredOtsikko(ots2)); lahteet = /^(references|bibliography)/i.test(ots2); t = rivi(t.slice(o2[0].length)); if (!t) return; }
+      } else katsoP = null;
+      if (lahteet) {
+        // Kohdat: tekijä(t), vuosi sulkeissa (Bion, W. R. (1962a); Bion W.R. (1959)).
+        t.split(IRED_KOHTA)
+          .forEach(x => { if (rivi(x)) lisaa('p', rivi(x)); });
+        return;
+      }
+      // Alaluku kappaleen keskellä (III. Be. Thomas Ogden and Judith Mitrani Two other …): otsikkoa ei erota tekstistä
+      // luotettavasti, joten alaluku aloittaa vain uuden kappaleen.
+      t.split(/\s+(?=[IVX]+\.\s[A-Z][a-z]?\.\s+\p{Lu})/u).forEach(x => lisaa('p', x));
+    });
+    // Ensimmäinen kappale (painokset ja toimituskunta) tietoriviksi kursiivilla.
+    const tieto = el.querySelector('p[data-tieto]');
+    if (tieto) { tieto.removeAttribute('data-tieto'); const em = document.createElement('em'); em.textContent = tieto.textContent; tieto.textContent = ''; tieto.appendChild(em); }
+    return { html: el.innerHTML, otsikko: nimi, tekija: 'International Psychoanalytical Association', sivusto: IRED_NIMI,
+      julkaistu: painos, lahde: sivuOsoite(alku), oikeus,
+      naytto: IRED_NIMI + ' (' + (loppu ? loppu - alku + 1 : sivut.length) + ' sivua)' };
+  }
+
   async function valmista(html, omat = [], otsikkoMd = '') {
     const d = jasenna(html);
     // Sivun sisäinen linkki (#viite-1) sivun osoitteeksi kuten MarkDownloadissa: Latomo tekee leikkeen omalle
@@ -1275,11 +1435,12 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }
-  const sisalto = sep || (blogi && blogi.html) || (artikkeli && artikkeli.content) || '';
+  // Sovitteen tyhjä runko (IRED:n kansi) on tyhjä leike, ei Readabilityn arvaus katselimen sivusta.
+  const sisalto = sep || (blogi && blogi.html) || (blogi && blogi.tyhja ? '' : artikkeli && artikkeli.content) || '';
   const omat = (blogi && blogi.maar) || [];
 
   const otsikko = blogi ? blogi.otsikko || osoite

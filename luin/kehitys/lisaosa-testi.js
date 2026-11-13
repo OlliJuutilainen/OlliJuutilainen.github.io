@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -243,6 +243,32 @@ ${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoan
 <h2>Bibliography</h2><p>Kosan, Ada. (1999). <i>Entry</i>. Paris: PUF.</p>`, 'https://www.encyclopedia.com/psychology/koe/koe-aihe-1875-1961')}
 <footer>© 2019 Encyclopedia.com | All rights reserved.</footer></main></body></html>`;
 
+// IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
+// 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
+// virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
+// Kirjan viimeisen sivun (a.last) jälkeiset osoitteet antavat 200:n ja kansisivun kuten oikea sivusto.
+const IRED_KIRJA = 'https://online.flippingbook.com/view/999/';
+const iredSivu = (n, ps) => `<!doctype html><html><head><meta charset="utf-8"><title>IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis - Page ${n}</title></head><body>
+<div class="nav-links"><a class="first" href="${IRED_KIRJA}i/">i</a><a class="last" href="${IRED_KIRJA}9/">9</a></div>
+<div id="text-container" itemprop="text"><h1 id="page-title">IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis</h1>
+${ps.map(p => '<p>' + p + '</p>').join('\n')}
+<p class="powered-by">Made with <a href="https://flippingbook.com/">FlippingBook</a> - professional solution</p></div>
+<script>var c = {"numerationOffset":1};</script></body></html>`;
+const IRED_SIVUT = {
+  1: [], 2: ['IPA INTER-REGIONAL ENCYCLOPEDIC DICTIONARY OF PSYCHOANALYSIS', 'CONTENTS',
+    'ALPHA: THE FIRST ........................ 2 BETA ........................ 4 GAMMA ........................ 5 DELTA ........................ 6 EPSILON ........................ 7'],
+  3: ['Back to Table of Contents', 'ALPHA: THE FIRST Tri-Regional Entry First Edition 2017: Inter-Regional Editorial Board: Ada Testi (Europe) Second Edition 2022: Bo Koe', 'I. DEFINITION',
+    'Alpha is a concept whose first paragraph runs over the page and ends with the counter-', '2'],
+  4: ['Back to Table of Contents', 'transference of the analyst , as the 1 st edition said.', 'VII. A. SUBSECTION TITLE The subsection text follows here.',
+    'See also: BETA GAMMA', 'DELTA REFERENCES Akhtar, S. (2009). Comprehensive Dictionary. London: Karnac. Bion W.R. (1959). Attacks on linking. Int. J. 40:308-15 Bion, W. R. (1962a) Learning from Experience. London: Tavistock.',
+    'The IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis is licensed under Creative Commons Licence CC-BY-NC-ND. Core rights remain with the authors. Please click here for terms.', '3'],
+  5: ['Back to Table of Contents', 'BETA Tri-Regional Entry', 'Beta text that must not be in Alpha.', '4'],
+  8: ['Back to Table of Contents', 'EPSILON Tri-Regional Entry', 'Epsilon begins on the second last page.', '7'],
+  9: ['Back to Table of Contents', 'Epsilon continues on the last page of the book.', '8']
+};
+const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/999\/(\d+|i)\/?$/.exec(u); if (!m) return null;
+  const n = m[1] === 'i' ? 1 : +m[1]; return iredSivu(n, IRED_SIVUT[n] || (n > 9 ? IRED_SIVUT[2] : ['Back to Table of Contents', 'Page ' + n + ' body.', String(n - 1)])); };
+
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
@@ -294,6 +320,7 @@ ${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoan
     if (u.href.split('#')[0] === WBW) return r.fulfill({ body: WBW_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === OECS) return r.fulfill({ body: OECS_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === ENC) return r.fulfill({ body: ENC_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
       if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) return r.fulfill({ status: 404, body: '' });
@@ -619,6 +646,27 @@ ${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoan
   tulos('Encyclopedia.com: valinta toisessa artikkelissa leikkaa sen (katkennut byline → allekirjoitus, otsikon toisto pois)', /^---\ntekijä: Ada I\. KoÉsan\nteos: International Dictionary of Psychoanalysis\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/psychology\/koe\/koe-aihe-1875-1961\n/.test(en2) &&
     /^# Koe, Aihe \(1875-1961\)\n\nThe second article/m.test(en2) && !/first article|KOE, AIHE/.test(en2) && en2Lisa === 'International Dictionary of Psychoanalysis', en2.split('\n').slice(0, 9).join(' | ') + ' / lisätieto ' + en2Lisa);
   await artikkeli.evaluate(() => getSelection().removeAllRanges());
+  // 15. IPA:n IRED (13.11.2026): hakusana sen keskeltä, kirjan viimeinen sivu ja kansi.
+  await artikkeli.goto(IRED_KIRJA + '4/');
+  await avaaIkkuna(IRED_KIRJA + '4/');
+  const irIk = await ikkuna.evaluate(() => ({ otsikko: document.querySelector('#otsikko').textContent, meta: document.querySelector('#meta').textContent }));
+  tulos('IRED: ikkunassa hakusana ja sivumäärä', irIk.otsikko === 'Alpha: The First' && /^IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis \(2 sivua\) · \d+ sanaa$/.test(irIk.meta), JSON.stringify(irIk));
+  const ir = await leikeLuin(IRED_KIRJA + '4/');
+  tulos('IRED: etukenttä (IPA tekijänä, uusin painos, hakusanan ensimmäinen sivu, lisenssi)', /^---\ntekijä: International Psychoanalytical Association\nsivusto: IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis\njulkaistu: 2022\nlähde: https:\/\/online\.flippingbook\.com\/view\/999\/3\/\noikeudet: The IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis is licensed under Creative Commons Licence CC-BY-NC-ND\. Core rights remain with the authors\.\noikeudet-lähde: https:\/\/www\.ipa\.world\/IPA\/Encyclopedic_Dictionary\n/.test(ir.md),
+    ir.md.split('\n').slice(0, 8).join(' | '));
+  const irOsat = [/^\*Tri-Regional Entry First Edition 2017: .* Second Edition 2022: Bo Koe\*$/m, /ends with the counter-transference of the analyst, as the 1st edition said\.$/m,
+    /^The subsection text follows here\.$/m, /^See also: Beta; Gamma; Delta$/m, /^Akhtar, S\. \(2009\)\. Comprehensive Dictionary\. London: Karnac\.\n\nBion W\.R\. \(1959\)\. Attacks on linking\. Int\. J\. 40:308-15\n\nBion, W\. R\. \(1962a\) Learning from Experience\. London: Tavistock\.$/m].map(re => re.test(ir.md));
+  tulos('IRED: otsikot versaaleista, sivunvaihto ja tavuviiva yhteen, See also, kirjallisuus kohdiksi, ei seuraavaa hakusanaa eikä sivun jäänteitä',
+    ir.ots === '# Alpha: The First | ## I. Definition | ### VII. A. Subsection Title | ## References' && irOsat.every(Boolean) && !/Beta text|Back to Table|FlippingBook|^\d$|click here/m.test(ir.md),
+    ir.ots + ' / ' + irOsat.join());
+  tulos('IRED Luinissa: kolme kirjallisuuden kohtaa, ei varoituksia', ir.luin.bib === 3 && !ir.luin.varoitukset.length, JSON.stringify(ir.luin).slice(0, 300));
+  const irL = await leikeLuin(IRED_KIRJA + '9/');
+  tulos('IRED: viimeinen hakusana päättyy kirjan viimeiseen sivuun (ei kansisivua perään)', /^# Epsilon$/m.test(irL.md) && /Epsilon begins on the second last page\.\n\nEpsilon continues on the last page/.test(irL.md) && !/CONTENTS|ALPHA/.test(irL.md.split('---').slice(2).join('---')),
+    irL.md.split('---').slice(2).join('---').slice(0, 300).replace(/\n/g, ' | '));
+  await artikkeli.goto(IRED_KIRJA + '1/');
+  await avaaIkkuna(IRED_KIRJA + '1/');
+  const irK = await ikkuna.evaluate(() => ({ tila: document.querySelector('#tila').textContent, pois: document.querySelector('#lukimeen').disabled }));
+  tulos('IRED: kansisivulta ei leikata mitään', irK.pois && /ei löytynyt artikkelia/.test(irK.tila), JSON.stringify(irK));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen

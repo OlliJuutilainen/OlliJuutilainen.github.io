@@ -45,6 +45,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   oecs.knowledgefutures.orgista. Kun muutat niitä tai `samanSivunViitteet()`:ä, aja `hakuteos-pesukone.js` (rikki ja epäilyttävä 0).
   Encyclopedia.com-sovite (käyttäjän pyyntö 13.11.2026, koko sivusto, opas 7.5) leikkaa aihesivulta yhden artikkelin (valinta,
   muuten lukukohta) ja kirjoittaa `teos`-kentän hakuteoksesta; Encyclopedia.com on md.js:n `KANTAJA`, jotta lisätietona näkyy hakuteos.
+  IRED-sovite (IPA:n psykoanalyysin sanakirja FlippingBookina, 13.11.2026, opas 7.5) hakee hakusanan sivut sivuston
+  hakukoneteksteistä; sovitteen regexeissä ei saa olla sisäkkäisiä valinnaisia kvanttoreita (jumitti välilehden).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
