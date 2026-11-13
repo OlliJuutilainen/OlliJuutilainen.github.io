@@ -43,6 +43,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   tekevät nekin vain md.js:n ymmärtämää Markdownia. OECS:n viittauksista poistetaan APA:n pilkku (*Mitchell 2009*) tarkoituksella:
   md.js linkittää vain SEP-muodon. oecs.mit.edu (PubPub) estää pilvikontin, joten sen runko on todentamatta; mitattu
   oecs.knowledgefutures.orgista. Kun muutat niitä tai `samanSivunViitteet()`:ä, aja `hakuteos-pesukone.js` (rikki ja epäilyttävä 0).
+  Encyclopedia.com-sovite (käyttäjän pyyntö 13.11.2026, koko sivusto, opas 7.5) leikkaa aihesivulta yhden artikkelin (valinta,
+  muuten lukukohta) ja kirjoittaa `teos`-kentän hakuteoksesta; Encyclopedia.com on md.js:n `KANTAJA`, jotta lisätietona näkyy hakuteos.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta

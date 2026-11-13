@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin artikkelit Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -30,7 +30,16 @@ const SARJAT = {
     'archive/marx/works/1845/theses/theses.htm', 'archive/lukacs/works/history/hcc05.htm', 'suomi/lenin/1917/valtio-ja-vallankumous.htm',
     'suomi/marx-engels/1848/kommunistisen-puolueen-manifesti/ch01.htm'].map(p => 'https://www.marxists.org/' + p),
   wbw: ['2015/01/artificial-intelligence-revolution-1.html', '2016/03/sound.html', '2017/04/neuralink.html', '2014/05/life-weeks.html',
-    '2014/06/taming-mammoth-let-peoples-opinions-run-life.html'].map(p => 'https://waitbutwhy.com/' + p)
+    '2014/06/taming-mammoth-let-peoples-opinions-run-life.html'].map(p => 'https://waitbutwhy.com/' + p),
+  // Encyclopedia.com (13.11.2026): monen artikkelin aihesivut (ensimmäinen artikkeli) ja artikkelien omat osoitteet eri
+  // hakuteoksista: International Dictionary of Psychoanalysis (myös katkennut byline), IESS, Encyclopedia of Philosophy,
+  // New Catholic Encyclopedia.
+  enc: ['people/medicine/psychology-and-psychiatry-biographies/carl-gustav-jung', 'people/medicine/psychology-and-psychiatry-biographies/sigmund-freud',
+    'psychology/dictionaries-thesauruses-pictures-and-press-releases/jung-carl-gustav-1875-1961',
+    'psychology/dictionaries-thesauruses-pictures-and-press-releases/collective-unconscious-analytical-psychology',
+    'psychology/dictionaries-thesauruses-pictures-and-press-releases/transference', 'psychology/dictionaries-thesauruses-pictures-and-press-releases/psychoanalysis',
+    'social-sciences/applied-and-social-sciences-magazines/psychoanalysis', 'humanities/encyclopedias-almanacs-transcripts-and-maps/jung-carl-gustav-1875-1961',
+    'religion/encyclopedias-almanacs-transcripts-and-maps/free-will'].map(p => 'https://www.encyclopedia.com/' + p)
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -62,7 +71,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -74,7 +83,7 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/marxists\.org/.test(url) ? osat.slice(-3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/marxists\.org|encyclopedia\.com/.test(url) ? osat.slice(-3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);

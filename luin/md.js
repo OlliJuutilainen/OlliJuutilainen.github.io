@@ -1349,13 +1349,13 @@
   /* Lisätieto: nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa (käyttäjän hierarkia 12.11.2026).
      1. Verkkojulkaisu (sivusto, ei tieteellinen teksti): sivuston nimi, ei tekijä (SEP, OECS, Logos, Wikipedia, MIA, WBW, blogit).
         Kantajasivusto (Gutenberg, Wikisource, Internet Archive …) ei ole julkaisu vaan kirjan kuljettaja: siltä irrotettu osa
-        on kirjan osa (kohta 3).
+        on kirjan osa (kohta 3). Encyclopedia.com kantaa Galen ja Oxfordin hakuteoksia (13.11.2026): lisätietona hakuteos.
      2. Alaotsikko.
      3. Yhtenäisen kirjan osa (teos ilman toimittajaa ja lehden numeroa): teoksen nimi. Kaunokirjallisen tekstin teos
         menee sivuston edelle.
      4. Muuten (itsenäinen tieteellinen teksti, kokoomateoksen tai lehden artikkeli): tekijä.
      t: tiedot (KENTAT-avaimet) → rivi tai ''. */
-  var KANTAJA = /(^|[^\p{L}])(project gutenberg|gutenberg|wikisource|archive\.org|hathitrust|google books|google kirjat|runeberg|doria|digi\.kansalliskirjasto)([^\p{L}]|$)|^internet archive$/iu;
+  var KANTAJA = /(^|[^\p{L}])(project gutenberg|gutenberg|wikisource|archive\.org|hathitrust|google books|google kirjat|runeberg|doria|digi\.kansalliskirjasto|encyclopedia\.com)([^\p{L}]|$)|^internet archive$/iu;
   function lisatieto(t) {
     t = t || {};
     var k = function (x) { return String(t[x] || '').trim(); };

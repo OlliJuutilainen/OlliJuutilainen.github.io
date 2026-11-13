@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com (13.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1128,6 +1128,79 @@
       sivusto: OECS_NIMI, julkaistu: pv, doi: meta('citation_doi')[0] || '', maar, oikeus };
   }
 
+  /* Encyclopedia.com (käyttäjän pyyntö 13.11.2026: koko sivusto, psykoanalyysin vuoksi erityisesti International Dictionary
+     of Psychoanalysis). Sivusto kantaa Galen ja Oxfordin hakuteoksia: aihesivulla on usein monta artikkelia eri teoksista
+     (.articleWrapper, Carl Gustav Jung -sivulla 10), ja jokaisella on oma osoitteensa, jolla se on yksin (sitaattiruudun
+     osoite). Leikataan yksi artikkeli: se, jossa valinta on, muuten se, joka on lukukohdalla (ruudun kolmanneksen korkeudella),
+     muuten ensimmäinen. lähde on artikkelin oma osoite, teos hakuteos ja sivusto Encyclopedia.com (md.js:n kantajasivusto).
+     Tekijä bylinestä (Kirsch, Thomas → Thomas Kirsch), mutta artikkelin oma allekirjoitus menee edelle, kun byline on katkennut
+     (IDP: byline "Tr", allekirjoitus "David I. TrÉsan"); ilman bylineä allekirjoitukset ("Jolande Jacobi", "Alasdair MacIntyre
+     (1967)", "[p. nolan]"; IESS:n neliosaisessa Psychoanalysis-artikkelissa neljä). Julkaisupäivää ei ole: "updated 2018" on sivuston päiväys, ei teoksen. Sivuston sisäiset
+     linkit (a.interlinked, data-topic, data-article) tekstiksi kuten Wikipedian wikilinkit; artikkelin oma sisällysluettelo
+     (IESS: kappaleita, joissa vain #-linkki) ja otsikon toisto pois. Mitattu 13.11.2026 seitsemältä sivulta. */
+  const ENC_NIMI = 'Encyclopedia.com';
+  function encNimi(s) {
+    s = rivi(s).replace(/^\[|\]$/g, '').replace(/\s*\((?:1[5-9]|20)\d\d\)$/, '').replace(/\s+\./g, '.');
+    const k = /^([^,]+),\s*(.+)$/.exec(s);
+    if (k) s = k[2] + ' ' + k[1];
+    // Versaalit tai gemenat (EVANS, R. I.; [p. nolan]) sanan alkukirjaimin; sekamuoto sellaisenaan.
+    if (s === s.toUpperCase() || s === s.toLowerCase()) s = s.toLowerCase().replace(/(^|[\s.'’-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+    return s;
+  }
+  const ENC_ALLEKIRJOITUS = /^\[?(?:(?:\p{Lu}\.|\p{L}[\p{L}'’-]*\.?|de|van|von|der|la|du)\s+){1,4}\p{L}[\p{L}'’-]*\]?(?:\s+\((?:1[5-9]|20)\d\d\))?$/u;
+  async function encyclopediaCom() {
+    if (!/(^|\.)encyclopedia\.com$/.test(location.hostname)) return null;
+    const artikkelit = [...document.querySelectorAll('.articleWrapper')].filter(w => w.querySelector('.doccontentwrapper'));
+    if (!artikkelit.length) return null;
+    const s = window.getSelection(), valittu = s && s.rangeCount && !s.isCollapsed && s.anchorNode;
+    const korkeus = innerHeight / 3;
+    const w = valittu && artikkelit.find(a => a.contains(valittu)) ||
+      artikkelit.find(a => { const r = a.getBoundingClientRect(); return r.height && r.top <= korkeus && r.bottom > korkeus; }) ||
+      artikkelit.find(a => { const r = a.getBoundingClientRect(); return r.height && r.top > korkeus; }) || artikkelit[0];
+    const el = w.querySelector('.doccontentwrapper').cloneNode(true);
+    el.querySelectorAll('script, style, noscript, iframe, ins, .article-content-ad').forEach(x => x.remove());
+    const by = [...w.querySelectorAll('.bylinecontainer > span')].map(x => rivi(x.textContent));
+    const teos = by[0] || '';
+    const otsikko = rivi((w.querySelector('h1.doctitle') || {}).textContent) || rivi((el.querySelector('h1') || {}).textContent);
+    // Otsikon toisto rungon alussa (JUNG, CARL GUSTAV (1875-1961); IESS 2008: Freud, Sigmund <em>1856-1939</em>).
+    const h1 = el.querySelector('h1'), tiivis = t => rivi(t).replace(/\s/g, '').toLowerCase();
+    if (h1 && otsikko && tiivis(h1.textContent).startsWith(tiivis(otsikko))) h1.remove();
+    el.querySelectorAll('h1').forEach(h => { const u = document.createElement('h2'); while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u); });
+    // Artikkelin oma sisällysluettelo: kappale, jossa on vain linkki saman artikkelin ankkuriin.
+    el.querySelectorAll('p').forEach(p => {
+      const a = p.querySelectorAll('a'), h = a.length === 1 && a[0].getAttribute('href') || '';
+      if (/^#./.test(h) && rivi(p.textContent) === rivi(a[0].textContent) && el.querySelector('[id="' + CSS.escape(h.slice(1)) + '"], a[name="' + CSS.escape(h.slice(1)) + '"]')) p.remove();
+    });
+    el.querySelectorAll('a').forEach(a => {
+      let sisainen = !a.getAttribute('href') || a.classList.contains('interlinked') || a.hasAttribute('data-topic') || a.hasAttribute('data-article');
+      try { sisainen = sisainen || /^#/.test(a.getAttribute('href')) || /(^|\.)encyclopedia\.com$/.test(new URL(a.getAttribute('href'), osoite).hostname); } catch (e) {}
+      if (sisainen) a.replaceWith(...a.childNodes);
+    });
+    // Lucida Sans Unicode -kääreet (Burgh<span>ö</span>lzli) pois, jotta teksti ei katkea.
+    el.querySelectorAll('span').forEach(x => x.replaceWith(...x.childNodes));
+    el.normalize();
+    [...el.querySelectorAll('p, div')].reverse().forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' ')) && !p.querySelector('hr, table')) p.remove(); });
+    const kaytetyt = [...new Set([...el.querySelectorAll('h2, h3, h4, h5, h6')].map(h => +h.tagName[1]))].sort();
+    el.querySelectorAll('h2, h3, h4, h5, h6').forEach(h => {
+      const u = document.createElement('h' + Math.min(6, kaytetyt.indexOf(+h.tagName[1]) + 2));
+      while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u);
+    });
+    const allek = [...el.querySelectorAll(':scope > p')].map(p => rivi(p.textContent))
+      .filter(t => t.length <= 60 && ENC_ALLEKIRJOITUS.test(t) && !/^(see also|bibliography|works|further)/i.test(t)).map(encNimi);
+    const bt = by[1] ? encNimi(by[1]) : '';
+    const sukunimi = by[1] ? rivi(by[1].split(',')[0]).toLowerCase() : '';
+    let tekija = bt;
+    const ehja = sukunimi && allek.find(a => a.toLowerCase().includes(sukunimi) && a.length > bt.length);
+    if (ehja) tekija = ehja;
+    else if (!bt && allek.length) { const k = [...new Set(allek)]; tekija = k.length > 2 ? k.join(', ').replace(/, ([^,]*)$/, ' & $1') : k.join(' & '); }
+    // Artikkelin oma osoite sitaattiruudun otsikkolinkistä (href päättyy rivinvaihtoon, jonka URL-jäsennys poistaa).
+    let lahde = osoite;
+    const ca = w.querySelector('.citation-container .cittext a[href]');
+    try { if (ca) { const u = new URL(ca.getAttribute('href').trim(), location.origin); if (u.pathname.length > 1) lahde = u.origin + u.pathname; } } catch (e) {}
+    return { html: irrota([el]).innerHTML, otsikko, tekija, teos, sivusto: ENC_NIMI, lahde,
+      naytto: [ENC_NIMI, teos].filter(Boolean).join(' · ') + (artikkelit.length > 1 ? ' (' + (artikkelit.indexOf(w) + 1) + '/' + artikkelit.length + ')' : '') };
+  }
+
   async function valmista(html, omat = [], otsikkoMd = '') {
     const d = jasenna(html);
     // Sivun sisäinen linkki (#viite-1) sivun osoitteeksi kuten MarkDownloadissa: Latomo tekee leikkeen omalle
@@ -1202,7 +1275,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }
@@ -1219,7 +1292,7 @@
   kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
   kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
   kentta('doi', blogi && blogi.doi);
-  kentta('lähde', osoite);
+  kentta('lähde', blogi && blogi.lahde || osoite);
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
   if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
@@ -1232,7 +1305,7 @@
   const [koko, valinta] = await Promise.all([sisalto ? valmista(sisalto, omat, otsikkoMd) : null, valintaHtml ? valmista(valintaHtml) : null]);
   const sanoja = s => (s.match(/\S+/g) || []).length;
   return {
-    otsikko, sivusto: (blogi && (blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
+    otsikko, sivusto: (blogi && (blogi.naytto || blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
     koko: koko && koko.md ? alku + koko.md + '\n' : '', kokoSanoja: koko ? sanoja(koko.md) : 0, kokoViitteita: koko ? koko.viitteita : 0,
     valinta: valinta && valinta.md ? alku + valinta.md + '\n' : '', valintaSanoja: valinta ? sanoja(valinta.md) : 0,
     valintaViitteita: valinta ? valinta.viitteita : 0

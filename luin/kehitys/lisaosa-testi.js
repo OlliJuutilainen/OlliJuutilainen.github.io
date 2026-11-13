@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -216,6 +216,33 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
 <section class="pub-license"><h2>License</h2><p><a href="https://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a></p></section></footer>
 </article></div></article></main></body></html>`;
 
+// Encyclopedia.com (keksitty sisältö, sivuston rakenne 13.11.2026): aihesivulla kaksi artikkelia eri hakuteoksista. Ensimmäisessä
+// (IESS:n tapaan) oma sisällysluettelo, h2-ankkurit, sivuston sisäiset linkit, Lucida-kääre, tyhjä byline ja allekirjoitus;
+// toisessa (IDP:n tapaan) otsikon toisto, katkennut byline ja ehjä allekirjoitus. Kummallakin oma osoite sitaattiruudussa.
+const ENC = 'https://www.encyclopedia.com/people/koe/koe-aihe';
+const encArtikkeli = (n, otsikko, teos, byline, runko, oma) => `<div class="articleWrapper" id="articleWrapper-${n}"><span class="document-id" data-val="x"></span>
+<h1 class="doctitle" data-toggle="collapse" data-target="#collapseExample${n}"> ${otsikko}</h1>
+<div class="divpagetoolscontrol"><div class="logo-copy"><span>updated <strong class="topic_updated"><time datetime="2018-06-27">Jun 27 2018</time></strong></span></div></div>
+<div class="doccontentwrapper collapse show" id="collapseExample${n}"><div class="article-content-ad"></div>${runko}</div>
+<div class="bylinecontainer"> <span>${teos}</span> <span>${byline}</span></div>
+<div class="modal fade" id="citationModal${n}"><div class="modal-body citation-container"><div class="TopicCitationDiv">Cite this article
+<p class="cittext"> "<a href="${oma}\n">${otsikko}\n.</a>" <u>${teos}</u>. . <i>Encyclopedia.com.</i> 30 Oct. 2026 &lt;<a href="https://www.encyclopedia.com">https://www.encyclopedia.com</a>&gt;.</p></div></div></div></div>`;
+const ENC_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Koe Aihe | Encyclopedia.com</title></head><body><main>
+<ul class="breadcrumb"><li><a href="/people">People</a></li></ul><div id="block-trustme-content"><article><div></div></article></div>
+${encArtikkeli(0, 'Koe, Aihe', 'International Encyclopedia of the Social Sciences', '', `<h1>Koe, Aihe</h1>
+<p><a href="#A">Early career</a></p><p><a href="#B">Later work</a></p>
+${'<p>The first article opens with a paragraph about the subject and <a class="interlinked" href="/people/koe/toinen">another person</a>, enough words for a body. </p>'.repeat(2)}
+<h2><a id="A">Early career</a></h2><p>He studied at Burgh<span style="font-family:Lucida Sans Unicode;"><span style="font-family:Lucida Sans Unicode;">ö</span></span>lzli and read <a data-topic="12" href="/places/koe">a place</a> and <a href="http://www.example.test/ulos">an outside site</a>.</p>
+<h2><a id="B">Later work</a></h2><p>The later work continues here with more text about the subject.</p>
+<p>Jolanda Testi</p>
+<h2><a id="C">BIBLIOGRAPHY</a></h2><p>Testi, Jolanda 1960 <i>A Book</i>. London: Press.</p>`, 'https://www.encyclopedia.com/social-sciences/koe/koe-aihe')}
+${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoanalysis', 'Ko ', `<h1>KOE, AIHE (1875-1961)</h1>
+<p id="toinen-alku">The second article is a dictionary entry about the same subject, written by another author for another work.</p>
+<p>Ada I. Ko<span style="font-family:Lucida Sans Unicode;"><span style="font-family:Lucida Sans Unicode;">É</span></span>san</p>
+<p><i>See also:</i> Something; Another.</p>
+<h2>Bibliography</h2><p>Kosan, Ada. (1999). <i>Entry</i>. Paris: PUF.</p>`, 'https://www.encyclopedia.com/psychology/koe/koe-aihe-1875-1961')}
+<footer>© 2019 Encyclopedia.com | All rights reserved.</footer></main></body></html>`;
+
 (async () => {
   // Lisäosasta testikopio, jonka manifestissa <all_urls>.
   const lisaosa = fs.mkdtempSync(path.join(os.tmpdir(), 'lisaosa-'));
@@ -266,6 +293,7 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
     if (MIA_SIVUT[u.href.split('#')[0]]) return r.fulfill({ body: MIA_SIVUT[u.href.split('#')[0]], contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === WBW) return r.fulfill({ body: WBW_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === OECS) return r.fulfill({ body: OECS_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === ENC) return r.fulfill({ body: ENC_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
       if (!p.startsWith(JUURI) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) return r.fulfill({ status: 404, body: '' });
@@ -566,6 +594,31 @@ const OECS_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
     oe.ots + ' / ' + (oe.md.match(/As Turing[^\n]*/) || [''])[0]);
   tulos('OECS Luinissa: kirjallisuus kappaleina, tekijä–vuosi linkittyy luetteloon (myös kertova)', oe.luin.bib === 3 && oe.luin.taulukko === 1 &&
     oe.luin.lahde.join() === 'Mitchell 2009>#kirj-mitchell-2009,1937>#kirj-turing-1937' && !oe.luin.varoitukset.length, JSON.stringify(oe.luin).slice(0, 400));
+  // 14. Encyclopedia.com (13.11.2026): ylhäältä ensimmäinen artikkeli, valinnasta toinen; artikkelin oma osoite ja hakuteos.
+  await artikkeli.goto(ENC);
+  await avaaIkkuna(ENC);
+  const encIk = await ikkuna.evaluate(() => ({ otsikko: document.querySelector('#otsikko').textContent, meta: document.querySelector('#meta').textContent }));
+  tulos('Encyclopedia.com: ikkunassa hakuteos ja artikkelin järjestysnumero', encIk.otsikko === 'Koe, Aihe' &&
+    /^Encyclopedia\.com · International Encyclopedia of the Social Sciences \(1\/2\) · \d+ sanaa$/.test(encIk.meta), JSON.stringify(encIk));
+  const en = await leikeLuin(ENC);
+  tulos('Encyclopedia.com: etukenttä (allekirjoitus tekijäksi, teos, oma osoite, ei päiväystä)', /^---\ntekijä: Jolanda Testi\nteos: International Encyclopedia of the Social Sciences\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/social-sciences\/koe\/koe-aihe\nleikattu: /.test(en.md),
+    en.md.split('\n').slice(0, 7).join(' | '));
+  tulos('Encyclopedia.com: oma sisällys ja otsikon toisto pois, sisäiset linkit tekstiksi, ulkoinen jää, toinen artikkeli ei mukana', en.ots === '# Koe, Aihe | ## Early career | ## Later work | ## BIBLIOGRAPHY' &&
+    /studied at Burghölzli and read a place and \[an outside site\]\[\d+\]\./.test(en.md) && /and another person, enough/.test(en.md) && !/\(#A\)|\[Early career\]|second article|updated|Cite this/.test(en.md),
+    en.ots + ' / ' + (en.md.match(/He studied[^\n]*/) || [''])[0]);
+  tulos('Encyclopedia.com Luinissa: kirjallisuus kappaleena, ei varoituksia', en.luin.bib === 1 && !en.luin.varoitukset.length, JSON.stringify(en.luin).slice(0, 300));
+  await artikkeli.goto(ENC);
+  await artikkeli.evaluate(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById('toinen-alku'));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  await avaaIkkuna(ENC);
+  await ikkuna.uncheck('#valinta');
+  const encL2 = await paina('#latomoon', /latomo\.html$/);
+  const en2 = await encL2.inputValue('#md');
+  const en2Lisa = await encL2.evaluate(md => window.LuinMD.lisatieto(window.LuinMD.etukentta(md).meta), en2);
+  await encL2.close();
+  tulos('Encyclopedia.com: valinta toisessa artikkelissa leikkaa sen (katkennut byline → allekirjoitus, otsikon toisto pois)', /^---\ntekijä: Ada I\. KoÉsan\nteos: International Dictionary of Psychoanalysis\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/psychology\/koe\/koe-aihe-1875-1961\n/.test(en2) &&
+    /^# Koe, Aihe \(1875-1961\)\n\nThe second article/m.test(en2) && !/first article|KOE, AIHE/.test(en2) && en2Lisa === 'International Dictionary of Psychoanalysis', en2.split('\n').slice(0, 9).join(' | ') + ' / lisätieto ' + en2Lisa);
+  await artikkeli.evaluate(() => getSelection().removeAllRanges());
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
