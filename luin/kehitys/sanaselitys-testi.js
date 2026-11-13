@@ -241,8 +241,8 @@ palvelin.listen(0, async () => {
   }, [sana, n]);
 
   let r = await selita('kelloon');
-  tulos('fi: pelkkä taivutusmuoto (kelloon) → perusmuoto ensin, taivutus pienellä (”kelloon” · illative singular)',
-    r.ots === 'kello' && r.muoto === '”kelloon” · illative singular' && /clock/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && !r.lambda && r.logos,
+  tulos('fi: pelkkä taivutusmuoto (kelloon) → perusmuoto ensin, taivutus pienellä ((”kelloon” · illative singular))',
+    r.ots === 'kello' && r.muoto === '(”kelloon” · illative singular)' && /clock/.test(r.maar[0]) && !r.huom.length && r.raksi && !r.takaisin && !r.lambda && r.logos,
     JSON.stringify(r) + ' ' + pyynnot.join(' · '));
   tulos('fi: perusmuodon päätös: muodon määritelmät, muodon osioluettelo, perusmuodon määritelmät (3 pyyntöä + perusmuodon osiot)',
     pyynnot.slice(0, 3).join(' | ') === '/api/rest_v1/page/definition/kelloon | /w/api.php?action=parse&format=json&formatversion=2&origin=*&redirects=1&disableeditsection=1&page=kelloon&prop=sections | /api/rest_v1/page/definition/kello', pyynnot.join(' · '));

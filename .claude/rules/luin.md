@@ -26,7 +26,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - `luin/ohje.md`: kehittäjän opas, avautuu `luin.html#u=luin/ohje.md`. Lukulistassa siihen ei ole linkkiä (käyttäjän
   päätös: pois julkisivusta, ei piiloteta repossa).
 - `luin/lisaosa/` (*Lisää lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
-  koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja (0.8.0, *Lataa .md*) `#lataa` (`latomoon.js`):
+  koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja (0.8.0, *Lataa .md*) `#lataa` (`latomoon.js`; taustavälilehti sulkeutuu vain, jos `#lataa` lisää `body`yn `a[download]`-linkin):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Postihuilu käyttää lisäksi `#laatikko-koodi` (attribuutti `data-ei-muistia`), `#laheta`, `#kk-tila`
   (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
   leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit, peräkkäiset alaviitemerkit yhdeksi `[^ryhma-N]`:ksi,
@@ -51,8 +51,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (käyttäjän pyyntö 12.11.2026). Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
-- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu kuuteen sivuun (luin.html, Latomo, Latomon ohje,
-  käyttöohje, tietosuoja, palaute). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
+- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu seitsemään sivuun (luin.html, Latomo, Latomon ohje,
+  käyttöohje, tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
 - Luinin kuvake on Lisää lukimeen -lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
   tumman teeman ruosteineen, 32 px Safarille, 180 px kotivalikkoon paperitaustalla), linkitetty samoihin viiteen
   sivuun. Neliöt ovat salmiakkia. Linkin esikatselu (`og:image`, absoluuttinen osoite) on tumman teeman väreillä, koska
@@ -65,8 +65,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
   joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; hyllyltä pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
   Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
-- Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa erityisesti tuetut sivustot ja sivustotoiveiden
-  kappaleen (käyttäjän sanamuoto). Kun leike.js saa uuden sovitteen, lisää sivusto ensimmäiseen kappaleeseen.
+- Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
+  jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta;
+  käyttäjän pyyntö 13.11.2026, lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
@@ -278,8 +279,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   väljästi harvennettuina (käyttäjä: huomaamaton, älä suurenna); raksit niiden riveillä. Ne eivät näytä linkeiltä, mutta vievät
   sanan λόγος / ἔτυμον selitykseen (käyttäjän vitsi; vihjeet *Sana (logos)*, *Alkuperä (etymon)*). Määritelmillä ei ole kehystä.
   Lisää-linkki on pelkkä plussa ilman kehystä (neliö ja salmiakki kokeiltiin); raksissa ei kehystä.
-  **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä kursiivilla otsikon alla Wikisanakirjan
-  sanoin (”käden” · genitive singular; kursiivi on kokeilu sivuosaan väistämiseksi, käyttäjä 13.11.2026); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
+  **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä kursiivilla, sisennettynä ja sulkeissa otsikon alla Wikisanakirjan
+  sanoin ((”käden” · genitive singular); kursiivi on kokeilu sivuosaan väistämiseksi, käyttäjä 13.11.2026); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
   muualta kysymättä.
 - **Kopion paikannin**: luvun numero, ei sivunumeroita, sanallinen otsikko vain pakosta (käyttäjän linjaus 5.11.2026).
   Numero on md.js:n `paikat()`-paikannin (käyttäjän pyyntö 6.11.2026, opas 3.2): kirjoittajan `4.3.4` sellaisenaan, muuten
@@ -420,5 +421,5 @@ viedä repoon ilman erillistä lupaa.
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje, lisäosan tietosuojasivu, palaute) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
+käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot) ©-merkki on SVG: suora salmiakki ja sen sisällä Literatan oman ©-merkin sisempi C sellaisenaan
 (`aria-label="©"`). Muiden ohjelmien alatunnisteissa on tavallinen ©.

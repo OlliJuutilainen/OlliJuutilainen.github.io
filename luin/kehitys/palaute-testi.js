@@ -99,11 +99,11 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
   await s.click('#plussa');
   const jalkeen = await s.evaluate(() => ({ piilo: document.querySelector('#lisaosa-lisa').hidden, nappi: document.querySelector('#plussa').textContent,
     linkit: [...document.querySelectorAll('#lisaosa-lisa a')].map(a => a.textContent.replace(/\s+/g, ' ') + '>' + a.getAttribute('href')),
+    uusi: document.querySelector('#lisaosa-lisa a[href="sivustot.html"]').target === '_blank',
     vari: getComputedStyle(document.querySelector('#plussa')).color === getComputedStyle(document.querySelector('.lisaosa .nimi')).color }));
-  tulos('Latomo: plussa avaa tuetut sivustot ja palautelinkin', ennen.piilo && ennen.nappi === '+' && !jalkeen.piilo && jalkeen.nappi === '–' && jalkeen.vari &&
-    jalkeen.linkit.join(' | ') === 'Stanford Encyclopedia of Philosophy>https://plato.stanford.edu/ | Open Encyclopedia of Cognitive Science>https://oecs.mit.edu/ | Encyclopedia.com>https://www.encyclopedia.com/ | ' +
-    'Ensyklopedia Logos>https://filosofia.fi/fi/ensyklopedia | suomeksi>https://fi.wikipedia.org/ | englanniksi>https://en.wikipedia.org/ | ' +
-    'Marxists Internet Archive>https://www.marxists.org/ | Wait But Why>https://waitbutwhy.com/ | Blogspot>https://www.blogger.com/ | kuulemme mielellämme>palaute.html?mista=latomo',
+  tulos('Latomo: plussa avaa palautelinkin ja linkin tuettuihin sivustoihin', ennen.piilo && ennen.nappi === '+' && !jalkeen.piilo && jalkeen.nappi === '–' && jalkeen.vari &&
+    jalkeen.linkit.join(' | ') === 'kuulemme mielellämme>palaute.html?mista=latomo | tähän mennessä tuettujen sivustojen lista>sivustot.html' &&
+    jalkeen.uusi,
     JSON.stringify(jalkeen));
   if (KUVAT) { await s.setViewportSize({ width: 412, height: 900 }); await s.locator('.lisaosa').screenshot({ path: path.join(KUVAT, 'latomo-plussa.png') });
     await s.screenshot({ path: path.join(KUVAT, 'latomo-plussa-sivu.png') }); }

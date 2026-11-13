@@ -369,15 +369,39 @@ ${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoan
   tulos('väliotsikko ##', /^## Väliotsikko$/m.test(md));
   await latomo.close();
 
-  // 2b. Lataa .md (0.8.0): Latomo painaa itse Lataa .md; tiedosto on Latomon ladoma teksti (sama kuin kohdassa 2), ja Latomo jää auki.
+  // 2b. Lataa .md (0.8.0; taustalla 13.11.2026): Latomo avautuu taustavälilehdelle, painaa itse Lataa .md ja sulkee itsensä;
+  // tiedosto on Latomon ladoma teksti (sama kuin kohdassa 2).
+  // Välilehden etu- tai taustatila lisäosan omalta sivulta: headless-Chromiumissa visibilityState on taustallakin visible.
+  const tarkkailija = await ctx.newPage();
+  await tarkkailija.goto(IKKUNA);
   await avaaIkkuna();
-  const lataus = new Promise(valmis => ctx.once('page', p => p.once('download', valmis)));
-  const latomoL = await paina('#lataa', /latomo\.html$/);
-  const dl = await Promise.race([lataus, new Promise(r => setTimeout(() => r(null), 5000))]);
+  const uusiL = ctx.waitForEvent('page');
+  await ikkuna.click('#lataa');
+  const latomoL = await uusiL;
+  latomoL.on('pageerror', e => virheet.push('välilehti: ' + e.message));
+  const dlP = latomoL.waitForEvent('download', { timeout: 8000 }).catch(() => null);
+  const kiinniP = latomoL.waitForEvent('close', { timeout: 12000 }).then(() => Date.now(), () => 0);
+  await latomoL.waitForURL(/latomo\.html$/, { timeout: 8000 });
+  const taustaL = await tarkkailija.evaluate(async () => (await chrome.tabs.query({})).filter(t => /latomo\.html/.test(t.url)).map(t => t.active ? 'edessä' : 'taustalla').join());
+  await tarkkailija.close();
+  const dl = await dlP, alkoi = Date.now(), kiinni = await kiinniP;
   const dlMd = dl ? fs.readFileSync(await dl.path(), 'utf8') : '';
-  tulos('Lataa .md: Latomon ladoma tiedosto, Latomo auki', !!dl && dl.suggestedFilename() === 'kokeilukirjoitus.md' && dlMd === md && /latomo\.html$/.test(latomoL.url()),
-    dl ? dl.suggestedFilename() + ' ' + dlMd.length + '/' + md.length : 'ei latausta');
-  await latomoL.close();
+  tulos('Lataa .md: Latomon ladoma tiedosto taustavälilehdeltä, joka sulkee itsensä', !!dl && dl.suggestedFilename() === 'kokeilukirjoitus.md' && dlMd === md &&
+    taustaL === 'taustalla' && kiinni > 0 && ikkuna.isClosed(),
+    (dl ? dl.suggestedFilename() + ' ' + dlMd.length + '/' + md.length : 'ei latausta') + ' | ' + taustaL + ' | ' + (kiinni ? 'kiinni ' + (kiinni - alkoi) + ' ms latauksen jälkeen' : 'jäi auki'));
+  if (!latomoL.isClosed()) await latomoL.close();
+  // 2c. Androidin Firefoxissa taustavälilehteä ei kokeiltu: Android-käyttäjäagentilla Latomo avautuu eteen ja jää auki kuten 0.8.0:ssa.
+  ikkuna = await ctx.newPage(); ikkuna.on('pageerror', e => virheet.push('ikkuna: ' + e.message));
+  await (await ctx.newCDPSession(ikkuna)).send('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (Android 12; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0' });
+  await avaaIkkuna();
+  const ua = await ikkuna.evaluate(() => navigator.userAgent);
+  const latausA = new Promise(valmis => ctx.once('page', p => p.once('download', valmis)));
+  const latomoA = await paina('#lataa', /latomo\.html$/);
+  const dlA = await Promise.race([latausA, new Promise(r => setTimeout(() => r(null), 5000))]);
+  await latomoA.waitForTimeout(3000);
+  tulos('Lataa .md Androidilla: Latomo edessä ja auki', /Android/.test(ua) && !!dlA && dlA.suggestedFilename() === 'kokeilukirjoitus.md' && !latomoA.isClosed(),
+    (dlA ? dlA.suggestedFilename() : 'ei latausta') + ' | ' + (latomoA.isClosed() ? 'sulkeutui' : 'auki'));
+  if (!latomoA.isClosed()) await latomoA.close();
 
   // 3. Lisää lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
   await avaaIkkuna();

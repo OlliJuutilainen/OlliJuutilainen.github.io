@@ -124,7 +124,7 @@
   .lisaosa img { flex: 0 0 auto; width: 40px; height: 40px; }
   .lisaosa .nimi { text-underline-offset: 3px; }
   .lisaosa .mika { display: block; font-size: .82rem; color: var(--harmaa); line-height: 1.5; }
-  /* Pikku plussa (käyttäjän pyyntö 10.11.2026): erityistuetut sivustot ja sivustotoiveet auki napautuksesta, jotta
+  /* Pikku plussa (käyttäjän pyyntö 10.11.2026): sivustotoiveet ja linkki tuettuihin sivustoihin auki napautuksesta, jotta
      lisäosan rivi pysyy entisen näköisenä, vaikka lista kasvaa. Ruoste = napautettava; e-ink: ei animaatiota. */
   button.plussa { border: 0; padding: 0 4px; min-height: 0; font-size: .95rem; line-height: 1; color: var(--ruoste); vertical-align: baseline; }
   .lisaosa-lisa { margin: -12px 0 22px 54px; font-size: .82rem; color: var(--harmaa); line-height: 1.5; }
@@ -248,22 +248,15 @@
   <!-- Mikä on Markdown (käyttäjän pyyntö 12.11.2026): oma teksti lukimessa, ei ponnahdus; uusi välilehti, jotta Latomo jää auki. -->
   <p class="mika-md"><a href="../luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener"><span class="mika-md-nimi">Mikä on Markdown</span>
     <span class="mika-md-avaa">(avaa lukimeen uudessa välilehdessä)</span></a></p>
-  <div class="lisaosa"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><a class="nimi" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener">Lisää lukimeen</a><span class="mika">Selainlisäosa Chrome-pohjaisiin selaimiin työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin Latomoon. Firefoxiin, myös Androidilla: <a href="lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia. <button type="button" class="plussa" id="plussa" aria-expanded="false" aria-controls="lisaosa-lisa" aria-label="Lisää: erityisesti tuetut sivustot">+</button></span></span></div>
-  <!-- Käyttäjän sanamuodot 10.11.2026 (toinen kappale); kun sovitteita tulee lisää (leike.js), lisää sivusto ensimmäiseen. -->
+  <div class="lisaosa"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><a class="nimi" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener">Lisää lukimeen</a><span class="mika">Selainlisäosa Chrome-pohjaisiin selaimiin työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin Latomoon. Firefoxiin, myös Androidilla: <a href="lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia. <button type="button" class="plussa" id="plussa" aria-expanded="false" aria-controls="lisaosa-lisa" aria-label="Lisää: sivustotoiveet ja tuetut sivustot">+</button></span></span></div>
+  <!-- Käyttäjän sanamuodot 10.11.2026 ja 13.11.2026. Tuetut sivustot ovat omalla sivullaan sivustot.html (uusi välilehti,
+       jotta Latomo jää auki); kun leike.js saa uuden sovitteen, lisää sivusto sinne. -->
   <div class="lisaosa-lisa" id="lisaosa-lisa" hidden>
-    <p>Tällä erää seuraavat sivustot ovat työpöytäversioina erityisesti optimoitu toimimaan Lisää lukimeen -työkalun ja
-      Latomon kanssa: <a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a>,
-      <a href="https://oecs.mit.edu/" target="_blank" rel="noopener">Open Encyclopedia of Cognitive Science</a>,
-      <a href="https://www.encyclopedia.com/" target="_blank" rel="noopener">Encyclopedia.com</a>,
-      <a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a>,
-      Wikipedia (<a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
-      <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a>),
-      <a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a>,
-      <a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a> ja
-      <a href="https://www.blogger.com/" target="_blank" rel="noopener">Blogspot</a>-blogit.</p>
-    <p>Jos joku suosimasi pitkän internetlukemisen sivusto puuttuu tältä listalta, <a href="palaute.html?mista=latomo">kuulemme
-      mielellämme</a>, ja melko todennäköisesti matalalla kynnyksellä järjestämme senkin sivuston Latomon kyvyksi
-      (toistaiseksi). Hesarin timanttijuttujen ym. maksumuurien kiertopalveluita emme ikävä kyllä aio tarjota. Luinin
+    <p>Jos haluaisit jonkin suosimasi pitkän internetlukemisen sivuston räätälöidyksi toimimaan hyvin Lisää lukimeen
+      -työkalun ja Latomon kanssa, <a href="palaute.html?mista=latomo">kuulemme mielellämme</a>, ja melko todennäköisesti
+      järjestämme senkin matalalla kynnyksellä Latomon kyvyksi (toistaiseksi). Katso
+      <a href="sivustot.html" target="_blank" rel="noopener">tähän mennessä tuettujen sivustojen lista</a> (uudessa
+      välilehdessä). Hesarin timanttijuttujen ym. maksumuurien kiertopalveluita emme ikävä kyllä aio tarjota. Luinin
       ystäviä ovat ensisijaisesti (1) omaa tekstiä epäkaupallisesti jakavat ihmiset, minkä lisäksi (2) tekijänoikeusvapaan
       tekstin internetissä jakaminen sekä (3) omaan käyttöön ostetun tekstin lukeminen [Luiniin viedyt tekstithän eivät
       näy edes sovelluksen kehittäjälle, jos suoraa jakolinkkiä ei anneta].</p>
