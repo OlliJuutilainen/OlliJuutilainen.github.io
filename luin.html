@@ -362,7 +362,7 @@
   /* Raksi on ΛΟΓΟΣ-rivillä, kun otsikko näkyy; muuten sanan peruslinjalla kuten ennen (mitattu 5.11.2026). */
   .valikko.sk-logos-nak button.sk-sulje svg { top: 13.5px; }
   .valikko .sk-ety-runko { margin-top: 6px; }
-  .valikko .sk-muoto { margin-top: 10px; font-size: .8rem; line-height: 1.4; font-style: italic; color: var(--harmaa); }
+  .valikko .sk-muoto { margin-top: 10px; font-size: .8rem; line-height: 1.4; padding-left: .9em; font-style: italic; color: var(--harmaa); }
   .valikko .sk-ety-laatikko { margin-top: 11px; padding: 4px 10px 11px; border: 1px solid var(--viiva); }
   .valikko .sk-ety-ots { display: flex; align-items: center; }
   .valikko .sk-ety-ots .sk-osa { margin-top: 0; }
@@ -5100,7 +5100,7 @@
         var s = skSisalto(x.j, x.kielet, etusija || y.kieli, tilaa);
         if (!s.html) return;
         etyKielet[x.o] = s.kielet.map(function (k) { return (x.j[k][0] || {}).language || ''; });
-        var muoto = x.muoto ? '<div class="sk-muoto">”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' · ' + esc(x.muoto.kuvaus) : '') + '</div>' : '';
+        var muoto = x.muoto ? '<div class="sk-muoto">(”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' · ' + esc(x.muoto.kuvaus) : '') + ')</div>' : '';
         if (i > 0) runko += '<div class="sk-alaots"><span>' + esc(x.o) + skEtyPaikka(x.o) + '</span></div>' + muoto;
         else ylin = muoto;
         runko += '<div class="sk-ety-paikka" data-o="' + esc(x.o) + '"></div>' + s.html;
