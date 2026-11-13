@@ -145,7 +145,7 @@ Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekk�
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
 myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
-`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, Luinin käyttöohjeessa ja palautesivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, tuettujen sivustojen sivulla, Luinin käyttöohjeessa ja palautesivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`, käyttäjän päätös 19.10.2026),
 esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*), uudelleenohjaussivulla `index.html` eikä
 kokoruudun kelloissa (Odotushuone, Ouroboros).
