@@ -4,7 +4,10 @@
    #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Ladottu postitettavaksi…),
    #kk-virhe ja #laatikko-virhe. Kun tekstiä ei lisätä tämän selaimen lukulistaan (10.11.2026), lauseen kenttä saa
    data-ei-muistia-attribuutin, eikä Latomo silloin tallenna lausetta Luinin muistiin. Lataa .md (0.8.0, 12.11.2026)
-   painaa #lataa; Latomo jää auki. */
+   painaa #lataa. Taustalla (13.11.2026; ei Androidilla) Latomo on taustavälilehdellä ja sulkee itsensä, kun lataus on
+   lähtenyt: Latomo lisää latauslinkin (a[download]) sivuun ja poistaa sen heti, joten linkin näkeminen todistaa latauksen.
+   Sulku odottaa 2,5 s, koska Latomo vapauttaa tiedoston osoitteen 2 s:n päästä; välilehti, jolla on vain yksi
+   historiamerkintä, saa sulkea itsensä. Jos linkkiä ei näy, Latomo jää taustalle auki. */
 (async () => {
   if (location.hash !== '#lisaosa') return;
   const api = globalThis.browser || globalThis.chrome;
@@ -41,6 +44,12 @@
     if (lahti && posti.avaaNyt) $('avaa').click();
     return;
   }
-  if (odottaa.lataa && $('lataa')) $('lataa').click();
-  else if (odottaa.avaa) $('avaa').click();
+  if (odottaa.lataa && $('lataa')) {
+    const vahti = new MutationObserver(() => {});
+    vahti.observe(document.body, { childList: true });
+    $('lataa').click();
+    const lahti = vahti.takeRecords().some(m => [...m.addedNodes].some(n => n.nodeName === 'A' && n.hasAttribute('download')));
+    vahti.disconnect();
+    if (odottaa.taustalla && lahti) setTimeout(() => window.close(), 2500);
+  } else if (odottaa.avaa) $('avaa').click();
 })();

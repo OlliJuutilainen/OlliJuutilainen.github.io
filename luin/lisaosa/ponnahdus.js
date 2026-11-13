@@ -59,10 +59,14 @@ function muista() {
 
 // avaa: Latomo painaa itse (Avaa lukimessa tai, postin kanssa, lähetyksen). posti: { k, avaaNyt, eiMuistia } tai null.
 // lataa (0.8.0): Latomo painaa Lataa .md, jotta tiedosto on Latomon ladoma (leikesiivous, etukenttä), ei raaka leike.
+// Taustalla (käyttäjän toive 13.11.2026: Latomoa ei tarvitse nähdä): Latomo avautuu taustavälilehdelle, ja latomoon.js
+// sulkee sen latauksen jälkeen. Androidin Firefoxissa ei kokeiltu, joten siellä Latomo avautuu eteen ja jää auki kuten ennen.
+const ANDROID = /Android/i.test(navigator.userAgent);
 async function laheta(avaa, posti, lataa) {
   $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = $('soita').disabled = true;
-  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, avaa, posti, lataa: !!lataa, aika: Date.now() } });
-  await api.tabs.create({ url: LATOMO });
+  const taustalla = !!lataa && !ANDROID;
+  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, avaa, posti, lataa: !!lataa, taustalla, aika: Date.now() } });
+  await api.tabs.create({ url: LATOMO, active: !taustalla });
   window.close();
 }
 
