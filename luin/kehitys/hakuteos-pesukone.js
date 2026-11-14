@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat ja New Adventin ja CCEL:n kirkkoisät Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -60,7 +60,17 @@ const SARJAT = {
   // CCEL (14.11.2026): Ignatiuksen luku (kootaan kirje kahtena recensiona), Justinoksen 1. apologian juuri (68 lukua), Tertullianuksen
   // Apologian luku (otsikot kappaleina), Tunnustusten luku (kootaan Book I), Khrysostomoksen pitkä homilia yksin, Lutherin Galatalaiskirje.
   ccel: ['schaff/anf01/anf01.v.ii.i', 'schaff/anf01/anf01.viii.ii', 'schaff/anf03/anf03.iv.iii.i', 'schaff/npnf101/npnf101.vi.I_1.I',
-    'schaff/npnf111/npnf111.vi.i', 'luther/galatians/galatians.iv'].map(p => 'https://ccel.org/ccel/' + p + '.html')
+    'schaff/npnf111/npnf111.vi.i', 'luther/galatians/galatians.iv'].map(p => 'https://ccel.org/ccel/' + p + '.html'),
+  // Psyche ja Aeon (14.11.2026): sama julkaisija ja alusta. Psychoanalyysi, Jung ja kiintymyssuhde: Ideas-esseet, Guide
+  // (luvut, Key points, Learn more), Aeonin pitkät esseet (nostolainaukset, kuvatekstit).
+  psyche: ['https://psyche.co/ideas/for-donald-winnicott-the-psyche-is-not-inside-us-but-between-us',
+    'https://psyche.co/ideas/jungs-archetypes-are-a-mirror-that-shows-who-and-what-we-are',
+    'https://psyche.co/ideas/my-failed-analysis-gave-me-confidence-and-taught-me-when-to-quit',
+    'https://psyche.co/ideas/why-so-many-of-us-see-our-loved-ones-after-they-have-died',
+    'https://psyche.co/guides/how-to-reconnect-with-your-inner-child',
+    'https://aeon.co/essays/when-clinging-to-old-hopes-gets-in-the-way-of-healing-and-growth',
+    'https://aeon.co/essays/learn-your-own-attachment-style-to-become-a-better-parent',
+    'https://aeon.co/essays/what-do-we-know-about-social-attachment-and-human-nature']
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -92,7 +102,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }

@@ -5,7 +5,7 @@ Luiniin*; painotus akateeminen, humanistinen ja syväluotaava). Lista on karsitt
 
 **Mitään ei ole tarkistettu, ellei toisin mainita.** Verkkotunnukset ovat muistista. Maksumuurit ja tekninen sopivuus
 ovat arvauksia: sisältö voi tulla JavaScriptillä, olla pdf:nä tai skannauksena. Ennen sovitteen tekemistä mittaa ensin,
-mitä yleinen leikkaus (Readability) jo antaa. Aeon esimerkiksi tuli jo ilman sovitetta kelvollisena. Merkintä *(€)*
+mitä yleinen leikkaus (Readability) jo antaa. Aeon esimerkiksi tuli jo ilman sovitetta kelvollisena (sovite tehtiin silti siistimään sitä, ks. alla). Merkintä *(€)*
 tarkoittaa osittaista maksumuuria, *(pdf)* pdf-painotteista sisältöä ja *(?)* epävarmaa verkkotunnusta tai sisältöä.
 
 ## Tehdyt ja jo tuetut
@@ -15,9 +15,10 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Ennen tätä listaa: SEP, Blogger, Ensyklopedia Logos, Wikipedia (fi, en), marxists.org, Wait But Why, OECS,
   Encyclopedia.com ja IPA:n IRED.
 - Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026), Project Gutenberg
-  (PR #701, 14.11.2026) sekä New Advent ja CCEL (14.11.2026).
-- Mitattu, ei sovitetta tarvita: Aeon (aeon.co). Readability antaa tekstin, tekijän ja päiväyksen. Nostolainaukset
-  toistuvat kappaleina ja kuvatekstit jäävät kappaleiksi; pieni sovite voisi siistiä ne, mutta kiirettä ei ole.
+  (PR #701, 14.11.2026), New Advent ja CCEL (14.11.2026) sekä Psyche ja Aeon yhdellä sovitteella (14.11.2026).
+  Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
+  parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
+  osiot ja pilkkoi dialogit.
 
 ## Alustat: yksi sovite kattaisi monta sivustoa
 
@@ -422,7 +423,6 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Esseelehdet ja long read
 
-- Psyche (Aeonin sisarlehti; mittaa ensin kuten Aeon)
 - Noema
 - Lapham's Quarterly
 - Public Domain Review

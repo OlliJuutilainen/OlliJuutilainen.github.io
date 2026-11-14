@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL, Psyche ja Aeon), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -368,6 +368,46 @@ const CC_SIVUT = {
   [CC + 'ii.i.iii.html']: ccLuku('ii.i.iii', `<p class="c18"><span class="c17">III.</span></p><p class="c10">Third chapter text.</p>`, 'Chapter III.'),
   [CC + 'ii.ii.html']: ccLuku('ii.ii', `<h2>Epistle to the Others</h2><p>Must not be included.</p>`),
 };
+// Psyche ja Aeon (keksitty sisältö, psyche.co:n ja aeon.co:n rakenne 14.11.2026). Psychen opas: schema.org-tiedot, otsake
+// ingresseineen, #authorBio (tekijä ja Edited by), useita .article-content-lohkoja, Key points -laatikko (h3 + oma lohko),
+// h2-osiot, väliotsikko h3.subheading, uutiskirjelaatikko, You may like -sivulaatikko, nostolainaus, anfangi toisen osan
+// alussa ja dialogi, jonka jokainen repliikki on oma blockquotensa. Aeonin essee: lyhyt h1 ja pitkä hakukoneotsikko,
+// tekijän esittely asidessa (/users/), anfangi myös ensimmäisessä kappaleessa ja loppuosa .no-pagemarks (aiheet, päiväys).
+const PSYCHE = 'https://psyche.co/guides/how-to-koe';
+const ldArtikkeli = (otsikko, tekija, pv) => `<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"${otsikko}","datePublished":"${pv}T10:00:00.000Z","author":[{"@type":"Person","name":"${tekija}"}]}</script>`;
+const PSYCHE_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>How to koe | Psyche Guides</title>
+<meta property="og:title" content="How to koe | Psyche Guides">${ldArtikkeli('How to koe', 'Ada Aaltonen', '2026-03-12')}</head><body>
+<nav><a href="/heal">Heal</a></nav><main class="flex-1"><div class="section-heal"><header><div><h1 class="font-heading">How to koe</h1>
+<h2 class="font-article">A standfirst that summarises the guide</h2><div>by Ada Aaltonen, psychotherapist</div></div></header>
+<div id="guide-content"><div class="grid"><div><div class="hidden lg:block"><div><a href="/authors/ada-aaltonen">Ada Aaltonen</a> <div class="text-with-links inline"><p>is a hidden duplicate bio.</p></div></div><div>Edited by <a href="/people/ed">Eino Editori</a></div></div>
+<div><button><span>Author Bio</span></button><button>Share</button></div>
+<div id="authorBio" class="invisible h-0"><div class="flex"><div><a class="font-bold" href="https://psyche.co/authors/ada-aaltonen">Ada Aaltonen</a><div class="text-with-links inline"><p>is a psychotherapist who writes on <em>attachment</em>.</p></div></div><div>Edited by <a href="/people/ed">Eino Editori</a></div></div></div></div>
+<div class="group"><audio></audio><div><p class="text-xl">Listen to this article</p><p>19 minute listen</p></div>
+<div id="_S_1_"><div class="article-content text-copy"><p>The need to know paragraph opens the guide.</p><figure class="ld-newsletter-block-wrapper"><p>Sign up to our newsletter</p></figure><p>A second opening paragraph.</p></div>
+<div class="bg-section-surface"><h3 class="font-heading">Key points</h3><div class="text-copy"><div class="article-content text-copy"><ol><li><strong>First point.</strong> More words.</li><li><strong>Second point.</strong> Even more.</li></ol></div></div><button>Read more</button></div>
+<h2 class="font-heading">What to do</h2><div class="article-content text-copy"><p>Steps begin here.</p><h3 class="subheading">Recognise the pattern</h3>
+<p>Body of the first step.</p><p class="pullquote">A repeated pull quote</p><p>The text continues after the pull quote.</p>
+<aside class="font-body"><div><p class="text-xl font-bold">You may like</p></div><div><article><h4>Another essay</h4><p>Someone Else</p></article></div></aside>
+<p><span class="ld-dropcap">A</span> new part begins with a drop cap.</p>
+<blockquote><p>Him: Which friend?</p></blockquote>
+<blockquote><p>Me: Why?</p></blockquote>
+<blockquote><p>Him: [silence]</p></blockquote>
+<p>After the dialogue.</p></div>
+<h2 class="font-heading">Links and books</h2><div class="article-content text-copy"><p>The <a href="https://example.org/book">book</a> <em>Playing and Reality</em> (1971).</p></div></div>
+<div class="mt-10"><button>Save</button><button>Share</button></div></div></div></div>
+<div class="bg-psyche-stone-200"><section><div>Explore more</div><article><h4>What we lose</h4><p>by Ana T</p></article></section></div></div></main></body></html>`;
+const AEON = 'https://aeon.co/essays/when-koe-gets-in-the-way-of-a-long-seo-headline';
+const AEON_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>When koe gets in the way of a long SEO headline | Aeon Essays</title>
+<meta property="og:title" content="When koe gets in the way of a long SEO headline | Aeon Essays">${ldArtikkeli('When koe gets in the way of a long SEO headline', 'Bo Berg', '2022-05-13')}</head><body>
+<main class="flex-1 section-psychology"><div class="relative"><div><h1 class="font-serif">When koe gets in the way</h1><h2>The standfirst of the essay</h2><p>by Bo Berg + BIO</p></div></div>
+<div class="mx-auto"><div class="px-6"><aside><div><div><a class="mr-[0.7ex] inline" href="https://aeon.co/users/bo-berg">Bo Berg</a><span class="inline"><p>is a psychoanalyst in <a href="https://example.org/practice">private practice</a>. His writing has appeared in <em>Psychoanalytic Dialogues</em>.</p></span></div>
+<p class="text-grey-dark">Edited by<a href="/users/pam">Pam Toimittaja</a></p></div><div>3,600 words<button>Save</button></div><div><a href="/psychology">Psychology</a></div><div>SYNDICATE THIS ESSAY</div></aside>
+<div id="article-content" class="article-content"><div class="has-dropcap"><p><span class="ld-dropcap">T</span>he essay opens with a drop cap.</p>
+<p>The first part continues.</p><p class="pullquote">Hope involves not only a wish</p><p><span class="ld-dropcap">A</span> second part.</p>
+<blockquote><p>A single quotation from Freud.</p></blockquote><p>Closing paragraph.</p></div>
+<div class="no-pagemarks flex"><div><a class="text-section block" href="/psychology/mood-emotion">Mood and emotion</a></div><div class="font-mono">13 May 2022</div><div><button>Save</button></div></div></div></div></div>
+<div class="print:hidden"><a href="/essays/other"><p>Being small</p><p>Tom W</p></a></div></main></body></html>`;
 
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
@@ -450,6 +490,8 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === PG) return r.fulfill({ body: PG_SIVU, contentType: 'text/html; charset=utf-8' });
     const kk = NA_SIVUT[u.href.split('#')[0]] || CC_SIVUT[u.href.split('#')[0]];
     if (kk) return r.fulfill({ body: kk, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === PSYCHE) return r.fulfill({ body: PSYCHE_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === AEON) return r.fulfill({ body: AEON_SIVU, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -863,6 +905,30 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     /^\[\^viite-cc1\]: Literally, “before the ages\.”$/m.test(ccRunko) && /^\[\^viite-cc2\]: Literally, “imitators;” comp\. Eph\. v\. 1\.$/m.test(ccRunko) && !/485|490|asv\.Eph/.test(ccRunko),
     ccRunko.replace(/\n/g, ' | ').slice(0, 900));
   tulos('CCEL Luinissa: kaksi alaviitettä, ei varoituksia', cc.luin.sn.length === 2 && !cc.luin.varoitukset.length, JSON.stringify(cc.luin).slice(0, 400));
+  // 20. Psyche ja Aeon (14.11.2026): opas lohkoineen ja Key points, nostolainaus, anfangi osanvaihdoksi, dialogi yhdeksi
+  // lainaukseksi, tekijän esittely loppuun; Aeonin lyhyt otsikko ja loppuosa pois.
+  const ps = await leikeLuin(PSYCHE);
+  const psRunko = ps.md.split('---').slice(2).join('---');
+  tulos('Psyche: etukenttä schema.org-tiedoista (tekijä, päivä)', /^---\ntekijä: Ada Aaltonen\nsivusto: Psyche\njulkaistu: 2026-03-12\nlähde: https:\/\/psyche\.co\/guides\/how-to-koe\n/.test(ps.md),
+    ps.md.split('\n').slice(0, 7).join(' | '));
+  tulos('Psyche: oppaan osiot ja Key points sivun järjestyksessä, väliotsikko', ps.ots === '# How to koe | ## Key points | ## What to do | ### Recognise the pattern | ## Links and books', ps.ots);
+  tulos('Psyche: nostolainaus, uutiskirje, You may like, ingressi, napit ja kuuntelu pois; anfangi osanvaihdoksi',
+    !/A repeated pull quote|newsletter|You may like|Another essay|standfirst|Read more|Listen to|Save|Share|Explore more|hidden duplicate/.test(psRunko) &&
+    /^1\. {2}\*\*First point\.\*\* More words\.$/m.test(psRunko) && /The text continues after the pull quote\.\n\n___\n\nA new part begins with a drop cap\./.test(psRunko),
+    psRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('Psyche: dialogin repliikit yhdeksi lainaukseksi, esittely ja Edited by loppuun',
+    /^> Him: Which friend\?\n> ?\n> Me: Why\?\n> ?\n> Him: \\\[silence\\\]$/m.test(psRunko) &&
+    /\n___\n\nAda Aaltonen is a psychotherapist who writes on \*attachment\*\.\n\nEdited by Eino Editori\n/.test(psRunko), psRunko.replace(/\n/g, ' | ').slice(-500));
+  tulos('Psyche Luinissa: yksi lainaus, kehys Psyche, ei varoituksia', ps.luin.lainaus === 1 && /Psyche/.test(ps.luin.meta) && !ps.luin.varoitukset.length, JSON.stringify(ps.luin).slice(0, 400));
+  const ae = await leikeLuin(AEON);
+  const aeRunko = ae.md.split('---').slice(2).join('---');
+  tulos('Aeon: painettu lyhyt otsikko, etukenttä, ensimmäisen kappaleen anfangi ei tee osanvaihtoa',
+    ae.ots === '# When koe gets in the way' && /^---\ntekijä: Bo Berg\nsivusto: Aeon\njulkaistu: 2022-05-13\n/.test(ae.md) &&
+    /^# When koe gets in the way\n\nThe essay opens with a drop cap\.\n\nThe first part continues\.\n\n___\n\nA second part\.$/m.test(aeRunko), aeRunko.replace(/\n/g, ' | ').slice(0, 500));
+  tulos('Aeon: nostolainaus, aiheet, päiväysrivi ja suositukset pois; esittely asidesta linkkeineen',
+    !/Hope involves|Mood and emotion|13 May 2022|Being small|SYNDICATE|3,600/.test(aeRunko) && /^> A single quotation from Freud\.$/m.test(aeRunko) &&
+    /\n___\n\nBo Berg is a psychoanalyst in \[private practice\]\[1\]\. His writing has appeared in \*Psychoanalytic Dialogues\*\.\n\nEdited by Pam Toimittaja\n/.test(aeRunko),
+    aeRunko.replace(/\n/g, ' | ').slice(-500));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
