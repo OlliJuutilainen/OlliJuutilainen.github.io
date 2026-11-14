@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology ja Project Gutenberg (14.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg sekä Psyche ja Aeon (14.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1262,6 +1262,83 @@
       sivusto: SAET_NIMI, julkaistu: pv, lahde: osoite.split('?')[0], oikeus };
   }
 
+  /* Psyche ja Aeon (käyttäjän pyyntö 14.11.2026: psykoterapiaa, psykoanalyysia, Jungia ja kiintymyssuhdetta pitkinä
+     esseinä; sama julkaisija Aeon Media ja sama alusta). Readability antaa tekstin, mutta nostolainaukset (p.pullquote)
+     toistuvat kesken kappaleiden, osanvaihdot katoavat, oppaan (Psyche Guide) väliotsikot What to do, Learn more ja Links
+     and books sekä Key points -laatikko putoavat, ja dialogin jokainen repliikki on oma lainauksensa. Runko on sivun
+     .article-content-lohkot ja niiden väliset h2/h3-otsikot (opas: Key points -laatikko on h3 ja oma lohkonsa, joten se
+     tulee ##-luvuksi sivun järjestyksessä). Pois: uutiskirjelaatikko (figure.ld-newsletter-block-wrapper), You may like
+     -sivulaatikko (aside), kuvat, napit ja Aeonin loppuosa (.no-pagemarks: aiheet, päiväys, jakonapit). Anfangi
+     (span.ld-dropcap) aloittaa osan, joten sen kappaleen eteen tulee osanvaihto (ei ensimmäiseen kappaleeseen). Peräkkäiset
+     blockquotet yhdeksi lainaukseksi. Otsikko on sivun h1 (Aeonissa painettu lyhyt otsikko, esim. When hope gets in the
+     way; og:title on pidempi hakukoneotsikko). Ingressi jää pois: kursiivina se olisi Luinissa alaotsikko ja lähdeviitteessä,
+     ja sivuston nimi näkyy kehyksenä. Tekijän esittely (Psychen #authorBio, Aeonin aside) ja Edited by loppuun osanvaihdon
+     jälkeen. Etukenttään tekijät ja julkaisupäivä schema.org-tiedoista. Mitattu 14.11.2026. */
+  async function aeonPsyche() {
+    const sivusto = /(^|\.)psyche\.co$/.test(location.hostname) ? 'Psyche' : /(^|\.)aeon\.co$/.test(location.hostname) ? 'Aeon' : '';
+    if (!sivusto) return null;
+    const juuret = [...document.querySelectorAll('.article-content')].filter(r => !r.parentElement.closest('.article-content'));
+    if (!juuret.length) return null;
+    let yhteinen = juuret[0];
+    while (!juuret.every(r => yhteinen.contains(r))) yhteinen = yhteinen.parentElement;
+    const el = document.createElement('div');
+    if (juuret.length === 1) el.append(...[...juuret[0].childNodes].map(n => n.cloneNode(true)));
+    else {
+      // Lohkot ja niiden väliset otsikot sivun järjestyksessä.
+      const osat = [...yhteinen.querySelectorAll('.article-content, h2, h3')].filter(e =>
+        e.matches('.article-content') ? juuret.includes(e) : !e.closest('.article-content, aside'));
+      for (const e of osat) {
+        if (e.matches('.article-content')) el.append(...[...e.childNodes].map(n => n.cloneNode(true)));
+        else { const h = document.createElement('h2'); h.textContent = rivi(e.textContent); if (h.textContent) el.appendChild(h); }
+      }
+    }
+    el.querySelectorAll('script, style, noscript, button, svg, aside, figure, img, template, audio, video, .pullquote, .no-pagemarks')
+      .forEach(x => x.remove());
+    let ensimmainen = true;
+    el.querySelectorAll('p, .ld-dropcap').forEach(e => {
+      if (e.matches('p')) { if (rivi(e.textContent)) ensimmainen = false; return; }
+      const kpl = e.closest('p');
+      e.replaceWith(e.textContent);
+      if (kpl && !ensimmainen && kpl.previousElementSibling && kpl.previousElementSibling.tagName !== 'HR')
+        kpl.before(document.createElement('hr'));
+    });
+    // Peräkkäiset lainaukset (dialogi, jonka jokainen repliikki on oma blockquotensa) yhdeksi.
+    el.querySelectorAll('blockquote').forEach(b => {
+      let n = b.nextSibling;
+      while (n && n.nodeType === 3 && !n.textContent.trim()) n = n.nextSibling;
+      if (n && n.nodeName === 'BLOCKQUOTE' && b.parentNode) { n.prepend(...b.childNodes); b.remove(); }
+    });
+    el.querySelectorAll('blockquote').forEach(b => [...b.childNodes].forEach(c => {
+      if (c.nodeType === 3 && c.textContent.trim()) { const p = document.createElement('p'); c.replaceWith(p); p.appendChild(c); }
+    }));
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent)) p.remove(); });
+    // Tekijän esittely: nimilinkki ja sen perässä oleva esittely, sitten Edited by.
+    const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map(s => { try { return JSON.parse(s.textContent); } catch (e) { return null; } })
+      .find(d => d && /Article/.test(d['@type']));
+    const tekijat = ld && [].concat(ld.author || []).map(a => rivi(a && a.name)).filter(Boolean) || [];
+    const bio = document.querySelector('#authorBio') || document.querySelector('aside a[href*="/users/"]') && document.querySelector('aside a[href*="/users/"]').closest('aside');
+    if (bio) {
+      const kpl = [];
+      bio.querySelectorAll('a[href*="/authors/"], a[href*="/users/"]').forEach(a => {
+        const esit = a.nextElementSibling;
+        if (!esit || !rivi(esit.textContent) || /^edited by/i.test(rivi(esit.textContent))) return;
+        const p = document.createElement('p'); p.textContent = rivi(a.textContent) + ' ';
+        p.append(...[...(esit.querySelector('p') || esit).childNodes].map(n => n.cloneNode(true)));
+        kpl.push(p);
+      });
+      const toim = [...bio.querySelectorAll('div, p')].find(x => /^edited by\s*\S/i.test(rivi(x.textContent)) && !x.querySelector('div, p'));
+      if (toim) { const p = document.createElement('p'); p.textContent = rivi(toim.textContent).replace(/^edited by\s*/i, 'Edited by '); kpl.push(p); }
+      if (kpl.length) el.append(document.createElement('hr'), ...kpl);
+    }
+    el.querySelectorAll('div, span').forEach(d => d.replaceWith(...d.childNodes));
+    el.normalize();
+    const h1 = document.querySelector('main h1') || document.querySelector('h1');
+    const pv = (/^(\d{4}-\d\d-\d\d)/.exec(ld && ld.datePublished || '') || [])[1] || '';
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 && h1.textContent) || rivi(ld && ld.headline), sivusto,
+      tekija: tekijat.length > 2 ? tekijat.slice(0, -1).join(', ') + ' & ' + tekijat[tekijat.length - 1] : tekijat.join(' & '),
+      julkaistu: pv, lahde: osoite.split('?')[0] };
+  }
+
   /* Project Gutenberg (käyttäjän pyyntö 14.11.2026: alkuteokset). Kirjojen HTML on tehty käsin, ja rakenne vaihtelee
      kirjasta toiseen; yhteistä on Ebookmakerin kehys: sisältö on #pg-start-separatorin ja #pg-end-separatorin välissä
      (lisenssiteksti ja otsake jäävät pois) ja metatiedot Dublin Corea (dc.title, dc.creator, marcrel.trl, dc.language,
@@ -1722,7 +1799,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, aeonPsyche, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }

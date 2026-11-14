@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|psyche] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -52,7 +52,17 @@ const SARJAT = {
   // p.toc): Critique of Pure Reason, Meditations, Ethics, Treatise, Critique of Practical Reason, Augustinus; ilman viitteitä:
   // Republic, Beyond Good and Evil; suomeksi: Kalevala (23 000 säettä), Seitsemän veljestä.
   gutenberg: ['4280', '48433', '5683', '621', '38427', '2680', '3800', '4705', '3296', '1497', '4363', '7000', '11940']
-    .map(n => 'https://www.gutenberg.org/cache/epub/' + n + '/pg' + n + '-images.html')
+    .map(n => 'https://www.gutenberg.org/cache/epub/' + n + '/pg' + n + '-images.html'),
+  // Psyche ja Aeon (14.11.2026): sama julkaisija ja alusta. Psychoanalyysi, Jung ja kiintymyssuhde: Ideas-esseet, Guide
+  // (luvut, Key points, Learn more), Aeonin pitkät esseet (nostolainaukset, kuvatekstit).
+  psyche: ['https://psyche.co/ideas/for-donald-winnicott-the-psyche-is-not-inside-us-but-between-us',
+    'https://psyche.co/ideas/jungs-archetypes-are-a-mirror-that-shows-who-and-what-we-are',
+    'https://psyche.co/ideas/my-failed-analysis-gave-me-confidence-and-taught-me-when-to-quit',
+    'https://psyche.co/ideas/why-so-many-of-us-see-our-loved-ones-after-they-have-died',
+    'https://psyche.co/guides/how-to-reconnect-with-your-inner-child',
+    'https://aeon.co/essays/when-clinging-to-old-hopes-gets-in-the-way-of-healing-and-growth',
+    'https://aeon.co/essays/learn-your-own-attachment-style-to-become-a-better-parent',
+    'https://aeon.co/essays/what-do-we-know-about-social-attachment-and-human-nature']
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -84,7 +94,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|psyche\.co|aeon\.co)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }

@@ -14,10 +14,10 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 - Ennen tätä listaa: SEP, Blogger, Ensyklopedia Logos, Wikipedia (fi, en), marxists.org, Wait But Why, OECS,
   Encyclopedia.com ja IPA:n IRED.
-- Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026) ja Project Gutenberg
-  (PR #701, 14.11.2026).
-- Mitattu, ei sovitetta tarvita: Aeon (aeon.co). Readability antaa tekstin, tekijän ja päiväyksen. Nostolainaukset
-  toistuvat kappaleina ja kuvatekstit jäävät kappaleiksi; pieni sovite voisi siistiä ne, mutta kiirettä ei ole.
+- Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026), Project Gutenberg
+  (PR #701, 14.11.2026) sekä Psyche ja Aeon yhdellä sovitteella (14.11.2026). Psyche valittiin psykoterapeutin
+  näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin parantaa lukemista eniten:
+  Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden osiot ja pilkkoi dialogit.
 
 ## Alustat: yksi sovite kattaisi monta sivustoa
 
@@ -422,7 +422,6 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Esseelehdet ja long read
 
-- Psyche (Aeonin sisarlehti; mittaa ensin kuten Aeon)
 - Noema
 - Lapham's Quarterly
 - Public Domain Review
