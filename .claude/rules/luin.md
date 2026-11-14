@@ -47,6 +47,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   muuten lukukohta) ja kirjoittaa `teos`-kentän hakuteoksesta; Encyclopedia.com on md.js:n `KANTAJA`, jotta lisätietona näkyy hakuteos.
   IRED-sovite (IPA:n psykoanalyysin sanakirja FlippingBookina, 13.11.2026, opas 7.5) hakee hakusanan sivut sivuston
   hakukoneteksteistä; sovitteen regexeissä ei saa olla sisäkkäisiä valinnaisia kvanttoreita (jumitti välilehden).
+  SAET-sovite (St Andrews Encyclopaedia of Theology, 14.11.2026, opas 7.5): viittaukset ovat jo SEP-muotoa; Attributions-osio
+  (lähdepainos, käännökset) jää tekstiin, Copyright-rivi etukenttään.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta

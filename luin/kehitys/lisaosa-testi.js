@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -243,6 +243,35 @@ ${encArtikkeli(1, 'Koe, Aihe (1875-1961)', 'International Dictionary of Psychoan
 <h2>Bibliography</h2><p>Kosan, Ada. (1999). <i>Entry</i>. Paris: PUF.</p>`, 'https://www.encyclopedia.com/psychology/koe/koe-aihe-1875-1961')}
 <footer>© 2019 Encyclopedia.com | All rights reserved.</footer></main></body></html>`;
 
+// St Andrews Encyclopaedia of Theology (keksitty sisältö, saet.ac.uk:n rakenne 14.11.2026): citation-metatiedot, tiivistelmä
+// otsikon ja tekijän kera, sisällysluettelo, sitaattiruutu ja avainsanat (pois), luvut sisäkkäisinä div:eina (h2, h3, h4,
+// span.heading_label), tekstiviittaus span.bibref > span.citation, ristiviittaus a.citation, lainaus, Attributions (Copyright
+// ja ORCID-kuva, lähdepainoskappale) ja sisäkkäinen bibliografia (li > h3 + ul).
+const SAET = 'https://www.saet.ac.uk/Buddhism/Koe';
+const saetViite = (teksti, nimi, lisa = '') => `<span class="bibref" title="&lt;div class=&quot;popup&quot;&gt;${teksti}&lt;/div&gt;" data-toggle="tooltip" data-html="true"><span class="citation">${nimi}</span>${lisa}</span>`;
+const SAET_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Koe (1200–1253) - St Andrews Encyclopaedia of Theology</title>
+<meta name="citation_title" content="Koe (1200–1253)"><meta name="citation_journal_title" content="St Andrews Encyclopaedia of Theology">
+<meta name="citation_author" content="Ada Aaltonen"><meta name="citation_author" content="Bo Berg"><meta name="citation_publication_date" content="2024/03/28"></head><body>
+<nav><a href="https://www.saet.ac.uk/articles">Articles</a></nav><section role="main"><div class="container article-contents"><div class="row"><div class="col-md-8">
+<div id="abstract"><h1 class="page-heading">Koe (1200–1253)</h1><p id="author"><em>Ada Aaltonen and Bo Berg</em></p>
+<p>The abstract opens the article and is long enough to be a real paragraph of an encyclopaedia entry about practice.</p></div></div>
+<div class="col-md-4"><p class="page-heading"><a href="#" class="btn">Cite</a> <a href="#" class="pdf_link btn">Save</a></p></div></div>
+<div class="row"><div class="col-md-8"><p id="keywords"><a class="btn btn-small-tag" href="https://www.saet.ac.uk/index.php/search?kw=Zen">Zen</a></p></div></div></div>
+<nav id="nav-top" class="sticky-nav"><ul class="sticky-nav__menu"><li><a href="#toc">Contents</a></li></ul></nav>
+<div class="container article-contents"><div class="row"><div class="col-md-8"><div id="toc"><h2 id="contents" class="page-heading">Table of contents</h2><ul><li><p><a href="#section1"><span class="heading_label">1</span> Life</a></p></li></ul></div></div></div>
+<div class="row"><div class="col-md-8"><div class="modal" id="cite_modal"><div class="modal-body"><span id="MHRA_style">Ada Aaltonen, 'Koe', in St Andrews Encyclopaedia of Theology</span></div></div>
+<div><h2 id="section1" class="page-heading"><span class="heading_label">1</span> Life</h2>
+<p>He trained for years (${saetViite('Bodiford, William M. 1993. &lt;em&gt;Sōtō Zen in Medieval Japan&lt;/em&gt;. University of Hawaii Press.', 'Bodiford 1993', ': 224')}), as discussed below (${saetViite('', '<a href="#section2.1" class="citation">section 2.1</a>')}).</p>
+<blockquote><p>A quoted passage from the master.</p></blockquote></div>
+<div><h2 id="section2"><span class="heading_label">2</span> Thought</h2><p>Thought begins here.</p>
+<div><h3 id="section2.1"><span class="heading_label">2.1</span> Time</h3><p>Time is being (${saetViite('Raud, Rein. 2012.', 'Raud 2012')}).</p>
+<div><h4 id="section2.1.1"><span class="heading_label">2.1.1</span> Being-time</h4><p>Being-time in the <i lang="ja-latn">Shōbōgenzō</i>.</p></div></div></div>
+</div></div>
+<div class="row"><div class="col-md-8"><div id="attrib"><h3>Attributions</h3><p>Copyright <a href="https://orcid.org/0000">Ada Aaltonen</a> <a href="https://orcid.org/0000"><img src="https://www.saet.ac.uk/files/ORCIDiD_iconvector.svg" alt="ORCID logo"></a> (<a href="https://creativecommons.org/licenses/by-nc/3.0">CC BY-NC</a>)</p><p>Texts are quoted according to the Taishō edition.</p></div></div></div>
+<div class="row"><div class="col-md-8"><div id="bibliography_div"><h2 id="bibliography">Bibliography</h2><ul><li><h3 id="id9">Further reading</h3><ul><li>Heine, Steven. 2020. <cite>Readings of the Eye</cite>. Columbia University Press.</li></ul></li>
+<li><h3 id="id10">Works cited</h3><ul><li>Bodiford, William M. 1993. <cite>Sōtō Zen in Medieval Japan</cite>. University of Hawaii Press.</li><li>Raud, Rein. 2012. ‘The Existential Moment’, <cite>Philosophy East and West</cite> 62, no. 2: 153–173. <a href="https://doi.org/10.1353/pew.2012.0029">https://doi.org/10.1353/pew.2012.&#8203;0029</a></li></ul></li></ul></div></div></div>
+</div></section><footer><h3>About</h3><p>ISSN 2753-3492</p></footer></body></html>`;
+
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
 // virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
@@ -320,6 +349,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === WBW) return r.fulfill({ body: WBW_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === OECS) return r.fulfill({ body: OECS_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === ENC) return r.fulfill({ body: ENC_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === SAET) return r.fulfill({ body: SAET_SIVU, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -667,6 +697,18 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await avaaIkkuna(IRED_KIRJA + '1/');
   const irK = await ikkuna.evaluate(() => ({ tila: document.querySelector('#tila').textContent, pois: document.querySelector('#lukimeen').disabled }));
   tulos('IRED: kansisivulta ei leikata mitään', irK.pois && /ei löytynyt artikkelia/.test(irK.tila), JSON.stringify(irK));
+  // 16. St Andrews Encyclopaedia of Theology (14.11.2026): tiivistelmä johdannoksi, luvut, viittaukset, Attributions, bibliografia.
+  const sa = await leikeLuin(SAET);
+  tulos('SAET: etukenttä citation-metatiedoista (kaksi tekijää, päivä) ja Copyright-rivi lisenssilinkkeineen', /^---\ntekijä: Ada Aaltonen & Bo Berg\nsivusto: St Andrews Encyclopaedia of Theology\njulkaistu: 2024-03-28\nlähde: https:\/\/www\.saet\.ac\.uk\/Buddhism\/Koe\noikeudet: Copyright Ada Aaltonen \(CC BY-NC\)\noikeudet-lähde: https:\/\/creativecommons\.org\/licenses\/by-nc\/3\.0\n/.test(sa.md),
+    sa.md.split('\n').slice(0, 9).join(' | '));
+  tulos('SAET: otsikot numeroineen, tiivistelmä johdantona, ei sisällystä, sitaattiruutua, avainsanoja eikä tekijäriviä', sa.ots === '# Koe (1200–1253) | ## 1\\. Life | ## 2\\. Thought | ### 2.1 Time | #### 2.1.1 Being-time | ## Attributions | ## Bibliography | ### Further reading | ### Works cited' &&
+    /^# Koe \(1200–1253\)\n\nThe abstract opens/m.test(sa.md) && !/Table of contents|Contents|Cite|Save|MHRA|Zen\]|Ada Aaltonen and Bo Berg|ORCID|ISSN|About/.test(sa.md.split('---').slice(2).join('---')),
+    sa.ots);
+  tulos('SAET: tekstiviittaukset tekstinä, ristiviittaus linkkinä, lainaus, kursiivit, Attributions-kappale', /He trained for years \(Bodiford 1993: 224\), as discussed below \(\[section 2\.1\]\[\d+\]\)\./.test(sa.md) &&
+    /^> A quoted passage from the master\.$/m.test(sa.md) && /Being-time in the \*Shōbōgenzō\*\./.test(sa.md) && /^## Attributions\n\nTexts are quoted according to the Taishō edition\.$/m.test(sa.md) &&
+    /^Bodiford, William M\. 1993\. \*Sōtō Zen in Medieval Japan\*\. University of Hawaii Press\.$/m.test(sa.md), (sa.md.match(/He trained[^\n]*/) || [''])[0]);
+  tulos('SAET Luinissa: kolme kirjallisuuden kohtaa, tekijä–vuosi linkittyy luetteloon, lainaus, ei varoituksia', sa.luin.bib === 3 && sa.luin.lainaus === 1 &&
+    sa.luin.lahde.join() === 'Bodiford 1993>#kirj-bodiford-1993,Raud 2012>#kirj-raud-2012' && !sa.luin.varoitukset.length, JSON.stringify(sa.luin).slice(0, 400));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
