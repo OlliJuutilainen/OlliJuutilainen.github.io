@@ -334,8 +334,7 @@
   .valikko a.sk-lisa svg { width: 10.5px; height: 10.5px; fill: none; overflow: visible; }
   .valikko a.sk-lisa .plus { stroke: var(--ruoste); stroke-width: 1.3; }
   /* Alkuperä (käyttäjän pyynnöt 12.11.2026): linssi-epsilon (IK_ETY) alaindeksinä sanan perässä pienellä hajuraolla,
-     epsilonin alareuna 1,2 px sanan peruslinjan alapuolella (käyttäjän pyynnöt; svg:n alareuna 6,75 px peruslinjan alla; linssin säde 7, käyttäjän pyyntö: epsilon oikealla painolla vaati isomman linssin). Vain kun alkuperä on (etyNapiksi). Linssi
-     aina muste, epsilon ruoste ja auki muste. Napautusala on laajempi kuin merkki (::after).
+     epsilonin alareuna 1,2 px sanan peruslinjan alapuolella (käyttäjän pyynnöt; svg:n alareuna 6,75 px peruslinjan alla; linssin säde 7, käyttäjän pyyntö: epsilon oikealla painolla vaati isomman linssin). Vain kun alkuperä on (etyNapiksi). Värireaktio (käyttäjän pyyntö 14.11.2026): alussa linssi ja epsilon ruostetta, osoitettaessa epsilon muste, auki (painettuna) myös linssi muste. Napautusala on laajempi kuin merkki (::after).
      Otsikossa ei ole lambdaa. λόγος on ikkunan ylin rivi (koko ikkunan otsikko: sana ja sen selitys) raksi rivillään, ja
      ἔτυμον on laatikkonsa ylin rivi raksi rivillään; kumpikin majuskeleina ΛΟΓΟΣ ja ΕΤΥΜΟΝ (ei lukumerkkejä) entisen
      ALKUPERÄ-otsikon koossa, harmaata haaleampina ja hyvin väljällä harvennuksella 0,26 em (käyttäjän pyynnöt 12.11.2026:
@@ -347,9 +346,8 @@
     line-height: 0; vertical-align: baseline; text-decoration: none; }
   .valikko button.sk-ety::after { content: ''; position: absolute; inset: -9px -10px -6px -3px; }
   .valikko button.sk-ety svg { width: 15.1px; height: 15.15px; vertical-align: -6.75px; overflow: visible; fill: none; }
-  .valikko button.sk-ety .linssi { stroke: var(--muste); }
-  .valikko button.sk-ety .e { stroke: var(--ruoste); }
-  .valikko button.sk-ety[aria-pressed="true"] .e { stroke: var(--muste); }
+  .valikko button.sk-ety .linssi, .valikko button.sk-ety .e { stroke: var(--ruoste); }
+  .valikko button.sk-ety[aria-pressed="true"] .linssi, .valikko button.sk-ety[aria-pressed="true"] .e { stroke: var(--muste); }
   .valikko .sk-alaots, .valikko .sk-vaihdot li { display: flex; align-items: baseline; }
   .valikko .sk-vaihdot .sk-vk { margin-left: 8px; }
   .valikko .sk-osa { display: block; font-size: .72rem; letter-spacing: .26em; line-height: 1.3; color: var(--harmaa);
@@ -4952,7 +4950,7 @@
      Varsi kurkottaa vasemmalle alas sanan loppukirjaimen alle, 55° vaakatasosta (käyttäjä: 35° oli liian lappeellaan), 9 px pitkä, ja
      epsilonin keskusta on linssin keskustan oikealla puolella; linssi (kehä ja varsi) on 1 px ylempänä ja vasemmalla
      epsiloniin nähden (käyttäjän kokeilu 13.11.2026, translate). Yksikkö on CSS-pikseli; viewBox rajaa
-     linssin, ja varsi piirtyy sen ulkopuolelle (overflow visible). Linssi on aina muste; epsilon ruoste ja auki muste (käyttäjän linjaus 12.11.2026). */
+     linssin, ja varsi piirtyy sen ulkopuolelle (overflow visible). Linssi on aina muste; värit kuten CSS:ssä (käyttäjän pyyntö 14.11.2026). */
   var IK_ETY = '<svg viewBox="-7.55 -9.6 15.1 15.15" aria-hidden="true"><g class="linssi" transform="translate(-1 -1)"><circle cx="0" cy="-2.05" r="7" stroke-width="1.1"/>' +
     '<path d="M-4.02 3.68L-9.19 11.05" stroke-width="1.35"/></g><path class="e" stroke-width=".95" transform="translate(-1.1 -7.1) scale(.72)" ' +
     'd="M6.5 1.3C5.9.5 5 .1 3.9.1C2.2.1 1 1 1 2.3C1 3.6 2.2 4.5 3.7 4.5H5.2M3.7 4.5C1.8 4.5.3 5.4.3 6.8C.3 8.3 1.8 9.3 3.8 9.3C5.1 9.3 6.2 8.8 6.9 7.9" ' +
