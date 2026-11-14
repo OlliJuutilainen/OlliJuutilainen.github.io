@@ -4966,11 +4966,21 @@
      ne, joiden määritelmät selityksessä näkyivät (nimellä, kuten skNormita lukee), samassa järjestyksessä. Osion tekstistä
      otetaan vain oman otsikon ja seuraavan otsikon väliset kappaleet ja luettelorivit (ei puuta, taulukoita eikä
      ääntämystä). Haku vain napautuksesta. */
-  var SK_PARSE = 'https://en.wiktionary.org/w/api.php?action=parse&format=json&formatversion=2&origin=*&redirects=1&disableeditsection=1&page=',
-    skEtyVarasto = {};
-  function skParse(o, lisa) {
-    return fetch(SK_PARSE + encodeURIComponent(o) + lisa).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (j) { return j && j.parse || null; });
+  var SK_PARSE_API = 'https://en.wiktionary.org/w/api.php?action=parse&format=json&formatversion=2&origin=*',
+    SK_PARSE = SK_PARSE_API + '&redirects=1&disableeditsection=1&page=', skEtyVarasto = {};
+  // API:n virhe tulee HTTP 200:lla; puuttuva sivu on tyhjä, muut virheet ovat virheitä (ei "ei kirjattu").
+  function skVastaus(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json().then(function (j) {
+      if (j && j.error && j.error.code !== 'missingtitle') throw new Error(j.error.code || 'api');
+      return j && j.parse || null;
+    });
+  }
+  function skParse(o, lisa) { return fetch(SK_PARSE + encodeURIComponent(o) + lisa).then(skVastaus); }
+  // Wikiteksti jäsennettynä sivun nimellä (POST: osio voi olla pitkä; origin on oltava osoitteessa).
+  function skJasenna(otsikko, teksti) {
+    var q = new URLSearchParams(); q.set('title', otsikko); q.set('contentmodel', 'wikitext'); q.set('prop', 'text'); q.set('text', teksti);
+    return fetch(SK_PARSE_API + '&disableeditsection=1', { method: 'POST', body: q }).then(skVastaus).then(function (pp) { return (pp && pp.text) || ''; });
   }
   // Sivun osioluettelo (pieni) on yhteinen alkuperän saatavuudelle, perusmuodon päätökselle ja laatikolle: haetaan kerran.
   var skOsioVarasto = {};
@@ -4995,31 +5005,67 @@
         return kaikki.slice(0, n).filter(function (y) { return y.kieli === x.kieli; }).length < 3;
       }).slice(0, 6);
   }
+  /* Osiota ei jäsennetä yksinään (section=N): Wikisanakirjan etymologiamallineet ({{der}}, {{bor}} ym.) tarkistavat, että
+     kieli on sama kuin nykyinen kielen otsikko (L2), ja lukevat sen otsikkolaskurista (Module:pages get_current_L2). Yksinään
+     jäsennetty osio on laskurissa osio 1 eli sivun ensimmäinen kieli, joten muun kielen etymologia oli Lua-virhe (historia:
+     suomi osio 24, virhe "does not match the L2 header (Albanian)", käyttäjän havainto 14.11.2026). Siksi haetaan osion
+     wikiteksti, karsitaan se oman otsikon ja seuraavan otsikon väliin ja jäsennetään kaikki osiot yhdessä pyynnössä sivun
+     nimellä niin, että kunkin edellä on täyteotsikoita (=a=) tasan sen osionumeroon asti. */
+  function skEtyWiki(wt) {
+    var rivit = String(wt || '').split('\n'), out = [rivit[0]];
+    for (var i = 1; i < rivit.length && !/^(={1,6}).+\1\s*$/.test(rivit[i]); i++) out.push(rivit[i]);
+    return out.join('\n');
+  }
   function haeAlkupera(o, nimet) {
     var avain = o + '|' + nimet.join('|');
     if (skEtyVarasto[avain]) return skEtyVarasto[avain];
     var p = haeOsiot(o).then(function (sections) {
-      var osiot = skEtyOsiot(sections, nimet);
+      var osiot = skEtyOsiot(sections, nimet), otsikko = o;
+      if (!osiot.length) return osiot;
       return Promise.all(osiot.map(function (x) {
-        return skParse(o, '&prop=text&section=' + x.i).then(function (pp) { x.html = skEtyHtml(pp && pp.text); return x; });
-      }));
+        return skParse(o, '&prop=wikitext&section=' + x.i).then(function (pp) {
+          if (pp && pp.title) otsikko = pp.title;
+          x.wiki = skEtyWiki(pp && pp.wikitext); return x;
+        });
+      })).then(function () {
+        var teksti = '__NOTOC__\n', ed = 0;
+        osiot.slice().sort(function (a, z) { return a.i - z.i; }).forEach(function (x) {
+          for (var k = ed + 1; k < +x.i; k++) teksti += '=a=\n';
+          teksti += x.wiki + '\n'; ed = +x.i;
+        });
+        return skJasenna(otsikko, teksti);
+      }).then(function (h) {
+        var osat = skOsiot(h);
+        osiot.forEach(function (x) { var t = skEtyHtml(osat[x.i] || []); x.html = t.html; x.virhe = t.virhe; });
+        return osiot;
+      });
     });
     p.catch(function () { delete skEtyVarasto[avain]; });
     return (skEtyVarasto[avain] = p);
   }
-  function skEtyHtml(h) {
-    if (!h) return '';
-    var d = new DOMParser().parseFromString(String(h), 'text/html'), juuri = d.querySelector('.mw-parser-output') || d.body, kpl = [], otsikoita = 0;
+  // Jäsennetyn tekstin elementit otsikoittain: osat[n] = n:nnen otsikon jälkeiset elementit (otsikot laskettuina kuten osiot).
+  function skOsiot(h) {
+    var d = new DOMParser().parseFromString(String(h || ''), 'text/html'), juuri = d.querySelector('.mw-parser-output') || d.body, osat = {}, n = 0;
     for (var e = juuri.firstElementChild; e; e = e.nextElementSibling) {
-      if (/^H[1-6]$/.test(e.tagName) || e.classList.contains('mw-heading')) { if (otsikoita++) break; continue; }
+      if (/^H[1-6]$/.test(e.tagName) || e.classList.contains('mw-heading')) { n++; continue; }
+      (osat[n] = osat[n] || []).push(e);
+    }
+    return osat;
+  }
+  // Kappaleet ja luettelorivit; Lua-virheen sisältävä kappale jää pois (virhe: true), jottei virheteksti näy alkuperänä.
+  function skEtyHtml(lista) {
+    var kpl = [], virhe = false;
+    lista.forEach(function (e) {
       if (e.tagName === 'P') kpl.push([e, false]);
       else if (/^(UL|OL)$/.test(e.tagName)) [].forEach.call(e.children, function (li) { if (li.tagName === 'LI') kpl.push([li, true]); });
-    }
-    return kpl.map(function (x) {
+    });
+    var html = kpl.map(function (x) {
+      if (x[0].querySelector('.error, .scribunto-error')) { virhe = true; return ''; }
       [].forEach.call(x[0].querySelectorAll('ul, ol, dl, table, style, .NavFrame, .mw-collapsible'), function (y) { y.remove(); });
       var t = skHtml(x[0].innerHTML).trim();
       return t ? '<p class="sk-ety-p' + (x[1] ? ' sk-ety-li' : '') + '">' + t + '</p>' : '';
     }).filter(Boolean).slice(0, 6).join('');
+    return { html: html, virhe: virhe && !html };
   }
   function skKehys(otsikko, linkki) {
     // Otsikossa ei ole lambdaa (käyttäjän pyyntö 12.11.2026): määritelmillä on oma λόγος-otsikkonsa kuten alkuperällä ἔτυμον.
@@ -5148,12 +5194,13 @@
         $('.sk-ety-runko', paikka).innerHTML = html; sijoitaPop();
       };
       haeAlkupera(o, nimet).then(function (os) {
+        var virhe = os.some(function (x) { return x.virhe; });
         os = os.filter(function (x) { return x.html; });
         // Kielen nimi ja numero vain, kun niistä on apua: monta osiota tai selityksessä monta kieltä.
         var nimea = os.length > 1 || nimet.length > 1;
         valmis((os.length ? os.map(function (x) {
           return (nimea ? '<div class="sk-kieli">' + esc(x.kieli) + (x.nro ? ' · ' + x.nro : '') + '</div>' : '') + x.html;
-        }).join('') : '<div class="sk-tieto">Wikisanakirjaan ei ole kirjattu alkuperää.</div>'));
+        }).join('') : '<div class="sk-tieto">' + (virhe ? 'Wikisanakirjan alkuperää ei saatu luettua.' : 'Wikisanakirjaan ei ole kirjattu alkuperää.') + '</div>'));
       }).catch(function () { valmis('<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>'); });
     }
     function eiLoydy(v) {
