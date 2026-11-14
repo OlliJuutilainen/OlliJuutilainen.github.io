@@ -287,6 +287,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Lisää-linkki on pelkkä plussa ilman kehystä (neliö ja salmiakki kokeiltiin); raksissa ei kehystä.
   **Etymologiaosiota ei jäsennetä yksinään** (`section=N`): mallineet lukevat kielen otsikkolaskurista, ja muu kuin sivun ensimmäinen
   kieli oli Lua-virhe (*historia*, 14.11.2026). Wikiteksti jäsennetään täyteotsikoiden perässä (`haeAlkupera()`).
+  Mobiiliselain saa jäsennyksen `<section class="mf-section-N">`-kääreissä (Androidin Firefox, 14.11.2026): `skOsiot()` purkaa ne.
+  Pilvikontista mobiilimuodon saa oikeasta rajapinnasta POSTilla mobiilin User-Agentin kanssa (GET antaa 429:n).
   **Perusmuoto ensin**: pelkkien taivutusviittausten sivu vaihtuu perusmuotoon, taivutus pienellä kursiivilla, sisennettynä ja sulkeissa otsikon alla Wikisanakirjan
   sanoin ((”käden” · genitive singular); kursiivi on kokeilu sivuosaan väistämiseksi, käyttäjä 13.11.2026); muoto pysyy, jos sillä on omia merkityksiä tai oma etymologia. Lambdaa ei poisteta
   muualta kysymättä.
@@ -415,8 +417,8 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio hyllyllä ja asetuksissa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
-  Wikisanakirja antaa pilvikontista 429:n (myös kohteliaalla User-Agentilla ja odottaen), joten oikeaa rajapintaa ei voi
-  kokeilla sieltä.
+  Wikisanakirja antaa pilvikontista GET-pyynnöille 429:n (myös kohteliaalla User-Agentilla ja odottaen); action=parse
+  toimii POSTilla (14.11.2026), joten jäsennyksen voi kokeilla oikeaa rajapintaa vasten muuntamalla GETit POSTeiksi (`route.fetch`).
 
 ### Väliaikaiset tekstit
 
