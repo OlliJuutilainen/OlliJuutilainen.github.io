@@ -275,7 +275,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   10 sanaa (`SK_SANAT`). Raksin paikka on mitattu lisää-linkistä; asetuksissakin lambda on tekstin värinen (6.11.2026).
 - **Alkuperä ja perusmuoto** (käyttäjän pyynnöt 12.11.2026, opas 4.3): selitysikkunan otsikossa ei ole lambdaa (valikossa ja
   asetuksissa on). Sanan perässä on alaindeksinä linssi-epsilon vain, kun sivulla on etymologia (osioluettelo haetaan heti);
-  linssi aina muste, ε ruoste ja auki muste. Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle. **Ei
+  linssi ja ε alussa ruostetta, osoitettaessa ε muste, auki myös linssi muste (14.11.2026). Kehä tiukasti ε:n päällä (diakriitit "kehän takana"); varsi sanan alle. **Ei
   linssiä valitsimeen**: vasta valitun sanan selitykseen. Selitysikkunan ylin rivi ΛΟΓΟΣ (vain kun selitys näkyy) ja laatikon
   ylin rivi ΕΤΥΜΟΝ ovat majuskeleita (kokeilu, ei lukumerkkejä) entisen ALKUPERÄ-otsikon koossa, harmaata haaleampina ja hyvin
   väljästi harvennettuina (käyttäjä: huomaamaton, älä suurenna); raksit niiden riveillä. Ne eivät näytä linkeiltä, mutta vievät
