@@ -4732,7 +4732,7 @@
     } else if (kieli === 'la') {
       K = [[A('t', 'la', 0, true)], [A('f', 'la')], [A('n', 'la')], [A('nf', 'la')], [A('t', '*')], [A('f', '*')], [A('lg-t', 'grc', 1)], [A('lg-f', 'grc', 1)], [A('lg-nf', 'grc', 2)]];
     } else if (vieras) {
-      K = [[A('t', kieli)]].concat(kieli === 'de' ? [[A('tv', 'de')]] : [], [[A('t', '*')], [A('n', uniq([kieli].concat(SK_VIERAAT)))], [A('f', '*')]]);
+      K = [[A('t', kieli)]].concat(kieli === 'de' ? [[A('tv', 'de')]] : [], [[A('t', '*')]], kieli === 'fi' ? [[A('tx', 'fi')]] : [], [[A('n', uniq([kieli].concat(SK_VIERAAT)))], [A('f', '*')]]);
       if (y.vip) K.push([A('nf', '*')]);
     } else if (kieli === 'fi') {
       // Erisnimi keskellä virkettä: muiden kielten tasan sama ja perusmuoto heti (nimet ovat yhteisiä); muuten muut kielet
@@ -4740,7 +4740,8 @@
       // Suomikonteksti (käyttäjän linjaus 6.11.2026): kun suomenkielinen osuma löytyy, muiden kielten tietoja ei näytetä
       // (edes ei tuo latinan sanaa); r-lippu rajaa tasan samat muodot suomeen. Kursiivissa ketju on edellä, jossa muut
       // kielet saavat jäädä mukaan; lainaus on suomikontekstissa kuin leipäteksti, ja lainauksen sisäinen kursiivi on kursiivi.
-      K = erisnimi ? [[A('t', 'fi', 0, true)], [A('t', '*')], [A('ne', '*')], [A('n', 'fi')], [A('f', 'fi')]] : [[A('t', 'fi', 0, true)], [A('n', 'fi')], [A('f', 'fi')], [A('t', '*')]];
+      // Taulukkohaku (tx) ennen loppunapsua; erisnimellä vasta perusmuodon (ne) jälkeen, ettei Kantin vaihdu kantiksi.
+      K = erisnimi ? [[A('t', 'fi', 0, true)], [A('t', '*')], [A('ne', '*')], [A('tx', 'fi')], [A('n', 'fi')], [A('f', 'fi')]] : [[A('t', 'fi', 0, true)], [A('tx', 'fi')], [A('n', 'fi')], [A('f', 'fi')], [A('t', '*')]];
     } else if (kieli === 'de') {
       K = [[A('t', 'de', 0, true)], [A('tv', 'de', 0, true)], [A('n', 'de')], [A('f', '*')]];
     } else if (kieli === 'fr') {
@@ -4867,7 +4868,26 @@
         return null;
       });
     }
-    var taita = t === 'nf' || t === 'f', jo = skMuodot(haku);
+    var taita = t === 'nf' || t === 'f', jo = skMuodot(haku), pituus = kirjaimia(haku);
+    if (t === 'tx') {
+      // Taulukkohaku (käyttäjän pyyntö 14.11.2026): Wikisanakirjan tekstihaku indeksoi taivutustaulukot, joten tasan
+      // tekstin muodolla haku löytää perusmuodon, jonka taulukossa muoto on (käsitteen → käsite), vaikka muodolla ei ole
+      // omaa sivua eikä perusmuoto ala napsitulla alulla (vartalo vaihtuu). Vain kielen lemmat ilman välilyöntiä, sama
+      // alku vähintään kaksi kirjainta (esimerkkilauseet pois) ja enintään kirjaimen pidempi kuin muoto (hakea → haen).
+      if (monta || pituus < 3) return Promise.resolve(null);
+      var tt = skTaitto(haku);
+      return skEhdokkaat(haku, k, 'teksti').then(function (ls) {
+        var e = ls.filter(function (x) {
+          return x.o.indexOf(' ') < 0 && jo.indexOf(x.o) < 0 && k.some(function (kk) { return x.kk[kk] === 'l'; }) &&
+            yhteinenAlku(skTaitto(x.o), tt) >= 2 && kirjaimia(x.o) <= pituus + 1;
+        }).sort(function (a, z) { return yhteinenAlku(skTaitto(z.o), tt) - yhteinenAlku(skTaitto(a.o), tt) || a.i - z.i; });
+        if (!e.length) return null;
+        return skVaihtoehdot(e, k, 'tx', false).then(function (v) {
+          v.forEach(function (x) { x.muoto = { o: y.alku ? ekaPieni(haku) : haku, kuvaus: '' }; });
+          return v.length ? { tapa: 'tx', vaihdot: v } : null;
+        });
+      });
+    }
     if (t === 'f') {
       var tf = skTaitto(haku), qs = uniq([haku, tf]);
       var haut = qs.map(function (q) { return skEhdokkaat(q, k, 'alku'); }).concat([skEhdokkaat(haku, k, 'teksti')]);
@@ -4890,8 +4910,24 @@
     else for (var j = 1; j <= skNapsu(kirjaimia(haku)); j++) (function (q) {
       if (q) askeleet.push({ q: q, alku: q, ok: function (o) { return o.indexOf(' ') < 0 && alkaa(o, q) && jo.indexOf(o) < 0; } });
     })(skKatkaise(haku, j));
+    // Pituusehto (käyttäjän pyyntö 14.11.2026): perusmuoto on harvoin yli kirjaimen pidempi kuin taivutusmuoto, joten
+    // pidemmät ehdokkaat ovat johdoksia ja yhdyssanoja (käsittee → käsitteellinen). Yhden sanan napsu jatkuu, kunnes
+    // tulee lyhyitä ehdokkaita, ja ne näytetään yksin; pitkät ensimmäisestä napsusta vasta, jos lyhyitä ei tule lainkaan.
+    var varalla = null;
+    function lyhyt(x) { return kirjaimia(x.o) <= pituus + 1; }
+    function tarjoa(e, s, i) {
+      return skVaihtoehdot(skJarjesta(e, k, s.alku), k, t, true).then(function (v) {
+        // Ilmaus, joka poikkeaa vain väli- ja lukumerkeiltään (ars longa vita brevis), on sama toisin kirjoitettuna.
+        v.forEach(function (x) { if (monta && skTaitto(x.o) === skTaitto(haku)) x.tapa = 'f'; });
+        return v.length ? { tapa: t, vaihdot: v } : seuraava(i + 1);
+      });
+    }
     function seuraava(i) {
-      if (i >= askeleet.length) return Promise.resolve(null);
+      if (i >= askeleet.length) {
+        if (!varalla) return Promise.resolve(null);
+        var w = varalla; varalla = null;
+        return tarjoa(w.e, w.s, askeleet.length);
+      }
       var s = askeleet[i], qs = taita ? uniq([s.q, skTaitto(s.q)]) : [s.q], haut = qs.map(function (q) { return skEhdokkaat(q, k, 'alku'); });
       // nf: napsittu sana kokonaisena myös koko tekstin hausta, jos alkuhaku ei taita lukumerkkejä (pratityasamutpadaa →
       // pratityasamutpada → pratītyasamutpāda).
@@ -4899,11 +4935,12 @@
       return Promise.all(haut).then(function (ls) {
         var e = skYhdista(ls).filter(function (x) { return s.ok(x.o); });
         if (!e.length) return seuraava(i + 1);
-        return skVaihtoehdot(skJarjesta(e, k, s.alku), k, t, true).then(function (v) {
-          // Ilmaus, joka poikkeaa vain väli- ja lukumerkeiltään (ars longa vita brevis), on sama toisin kirjoitettuna.
-          v.forEach(function (x) { if (monta && skTaitto(x.o) === skTaitto(haku)) x.tapa = 'f'; });
-          return v.length ? { tapa: t, vaihdot: v } : seuraava(i + 1);
-        });
+        if (!monta) {
+          var lyh = e.filter(lyhyt);
+          if (!lyh.length) { if (!varalla) varalla = { e: e, s: s }; return seuraava(i + 1); }
+          e = lyh;
+        }
+        return tarjoa(e, s, i);
       });
     }
     return seuraava(0);
@@ -5150,6 +5187,7 @@
     }
     function tekstissa(tapa, monia) {
       var x = '<i>' + esc(haku) + '</i>';
+      if (tapa === 'tx' && !monia) return '';
       if (tapa === 'f' || tapa === 'tv') return huom('Tekstissä ' + x + (monia ? '. Sama toisin kirjoitettuna:' : ': sama toisin kirjoitettuna.'));
       return huom(monia ? 'Lähimmät osumat:' : 'Lähin osuma.');
     }
