@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -304,6 +304,71 @@ const PG_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><tit
 <section class="pg-boilerplate pgheader" id="pg-footer"><div id="pg-end-separator"><span>*** END OF THE PROJECT GUTENBERG EBOOK ***</span></div>
 <h2 id="pg-footer-heading">THE FULL PROJECT GUTENBERG LICENSE</h2><p>Section 1. General Terms of Use.</p></section></body></html>`;
 
+// New Advent (keksityt sivut, rakenne 14.11.2026): isien teos yhdellä sivulla (mainokset, tukipyyntö, sanastolinkit, <q>,
+// span.stiki-raamatunkohdat, tietolohko) ja Irenaeuksen tapaan luvuittain pilkottu teos: luvun sivulta kootaan sisällysluettelon
+// saman väliotsikon (Book I) luvut, ei seuraavan (Book II). Catholic Encyclopedian artikkelin MLA-viite etukenttään.
+const NA = 'https://www.newadvent.org/fathers/';
+const naSivu = (otsikko, muru, runko, pub = '') => `<!DOCTYPE html><html lang="en"><head><title>${otsikko}</title><meta charset="utf-8"></head><body class="fathers">
+<div id="capitalcity"><a href="../cathen/a.htm">A</a></div><div id="mi5"><span class="breadcrumbs">${muru}</span></div>
+<div id="springfield2"><div class='catholicadnet-728x90' id='fathers-728x90-top'></div>${runko}
+<div class='catholicadnet-728x90' id='fathers-728x90-bottom'></div>${pub}</div><div id="ogdenville"><p>Copyright &#169; 2026 by New Advent LLC.</p></div></body></html>`;
+const NA_TUKI = `<p><em><a href="https://gumroad.com/l/na2"><strong>Please help support the mission of New Advent</strong> and get the full contents…</a></em></p>`;
+const NA_PUB = `<div class="pub"> <h2>About this page</h2> <p id="src"><strong>Source.</strong> <span id="srctrans">Translated by Alexander Roberts and James Donaldson.</span> From <span id="srcwork">Ante-Nicene Fathers</span>, <span id="srcvolume">Vol. 1.</span> <span id="srced">Edited by Alexander Roberts, James Donaldson, and A. Cleveland Coxe.</span> (<span id="srcpublisher">Buffalo, NY: Christian Literature Publishing Co.,</span> <span id="srcyear">1885.</span>) <span id="kk">Revised and edited for New Advent by Kevin Knight.</span></p> <p id="contactus"><strong>Contact information.</strong> The editor of New Advent is Kevin Knight.</p> </div>`;
+const NA_SIVUT = {
+  [NA + '0199.htm']: naSivu('CHURCH FATHERS: Epistle to the Koeans (St. Ignatius)', '<a href="../">Home</a> > <a href="../fathers/">Fathers of the Church</a> > Epistle to the Koeans (St. Ignatius)',
+    `<h1>The Epistle of Ignatius to the Koeans</h1>${NA_TUKI}<h2 class="chapter0">Greeting</h2><p><a href="../cathen/07644a.htm">Ignatius</a>, to the <a href="../cathen/03744a.htm">Church</a> which is at Koe.</p>
+<h2 class="chapter1">Chapter 1. Praise of the Koeans</h2><p>I received the disciple of Him <q>who gave Himself for us, an <a href="../cathen/11215d.htm">offering</a> to God,</q> <span class="stiki" id="note010492"><a href="../bible/eph005.htm#verse2">Ephesians&nbsp;5:2</a></span> [you hastened to see me].</p>
+<div class="CMtag_300x250"></div><p>For since there is no strife raging among you which might distress you, you are certainly living in accordance with the will of God.</p>
+<h2 class="chapter2">Chapter 2. Exhortations</h2><p>Refreshed <span class="stiki" id="note010503"><a href="../bible/1co016.htm#verse18">1&nbsp;Corinthians&nbsp;16:18</a>,&nbsp;etc.</span> me, see <a href="https://example.org/">an outside page</a>.</p>`, NA_PUB),
+  [NA + '0198.htm']: naSivu('CHURCH FATHERS: Against Koes (St. Irenaeus)', '<a href="../">Home</a> > <a href="../fathers/">Fathers of the Church</a> > Against Koes (St. Irenaeus)',
+    `<h1>Against Koes</h1>${NA_TUKI}<h2>Book I</h2><p><a href="../fathers/0198101.htm"><strong>Chapter 1</strong></a> First description.
+<br><a href="../fathers/0198102.htm"><strong>Chapter 2</strong></a> Second description.<br><a href="../fathers/0198103.htm"><strong>Chapter 3</strong></a> Third description.</p>
+<h2>Book II</h2><p><a href="../fathers/0198201.htm"><strong>Chapter 1</strong></a> Of the second book.</p>`),
+};
+[1, 2, 3].forEach(n => {
+  NA_SIVUT[NA + '019810' + n + '.htm'] = naSivu('CHURCH FATHERS: Against Koes, I.' + n + ' (St. Irenaeus)',
+    '<a href="../">Home</a> > <a href="../fathers/">Fathers of the Church</a> > <a href="../fathers/0198.htm">Against Koes (St. Irenaeus)</a> > Book I, Chapter ' + n,
+    `<h1>Against Koes (Book I, Chapter ${n})</h1>${NA_TUKI}<span class="h1a">Description of chapter ${n}.</span><p>1. Text of chapter ${n} with a <a href="../cathen/01173c.htm">Valentinian</a> aeon.</p>`,
+    NA_PUB.replace('James Donaldson.</span>', 'William Rambaut.</span>'));
+});
+NA_SIVUT[NA + '0198201.htm'] = naSivu('CHURCH FATHERS: Against Koes, II.1 (St. Irenaeus)', 'Home > Book II, Chapter 1', '<h1>Against Koes (Book II, Chapter 1)</h1><p>Book two text that must not be included.</p>', NA_PUB);
+NA_SIVUT['https://www.newadvent.org/cathen/99999a.htm'] = naSivu('CATHOLIC ENCYCLOPEDIA: Koe Article', 'Home > Encyclopedia > K > Koe Article',
+  `<h1>Koe Article</h1>${NA_TUKI}<h2 id="section1">History</h2>${'<p>The article text about the <a href="../cathen/14389b.htm">Synoptics</a> (<a href="../bible/rom014.htm#vrs10">Romans 14:10</a>) goes on at some length here. </p>'.repeat(12)}`,
+  `<div class="pub"><h2>About this page</h2><p id="mla"><strong>MLA citation.</strong> <span id="mlaauthor">Prat, Ferdinand.</span> <span id="mlaarticle">"Koe Article."</span> <span id="mlawork">The Catholic Encyclopedia.</span> <span id="mlavolume">Vol. 11.</span> <span id="mlapublisher">New York: Robert Appleton Company,</span> <span id="mlayear">1911.</span></p></div>`);
+
+// Christian Classics Ethereal Library (keksitty nide, lukijan rakenne 14.11.2026): sisällysluettelo /book/menu/…/toc/html
+// (versaali ylin kohta tekijäksi, katkaistu nimi), kirjeen juurisivu (h2 ja <br>), luku h3:lla (sup.Note → div.footer_note,
+// span.mnote, span.pb, span.index, scripRef, selauspalkit), luku ilman otsikkoa katkaistulla nimellä (otsikko kappaleesta) ja
+// luku ehjällä nimellä, jonka alussa toistuva numero. Leikkuu alkaa lyhyestä luvusta, joten koko kirje kootaan.
+const CC = 'https://ccel.org/ccel/schaff/anf99/anf99.';
+const ccLuku = (sid, runko, navi = 'Chapter') => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>
+  Philip Schaff: ANF99. The Koe Fathers -
+        Christian Classics Ethereal Library
+</title></head><body><div id="content"><a id="book_section_id" name="${sid}"></a><div id="book-section" class="contentSection">
+<form id="ccelmod-book-menu-searchbox"><input type="hidden" name="authorID[]" value="schaff"/><input type="hidden" name="workID[]" value="anf99"/><input type="hidden" name="versionID[]" value="anf99"/></form>
+<nav><a id="nav-workTitle" class="navbar-brand" href="https://ccel.org/ccel/schaff/anf99/anf99.">ANF99. The Koe Fathers</a></nav>
+<div id="theText"><a id="book_section_id" name="${sid}"></a><table class="book_navbar" id="book_navbar_top"><tbody><tr><td class="book_navbar_prev"><a href="x.html">« Prev</a></td><td class="book_navbar_title">${navi}</td><td class="book_navbar_next"><a href="y.html">Next »</a></td></tr></tbody></table>
+<div class="book-content">${runko}</div><table class="book_navbar" id="book_navbar_bottom"><tbody><tr><td class="book_navbar_prev"><a href="x.html">« Prev</a></td><td class="book_navbar_title">${navi}</td></tr></tbody></table></div></div></div></body></html>`;
+const ccViite = (id, n, teksti) => `<sup class="Note" id="fna_${id}"><a class="Note" href="#fnf_${id}">${n}</a></sup><span class="mnote" id="mnf_${id}"><sup><a class="NoteRef" href="#fna_${id}">${n}</a></sup><span class="Footnote">${teksti}</span></span>`;
+const ccViitteet = v => `<hr class="footnotes-hr" /><div class="footnotes">${v.map(([id, n, t]) => `<div class="footer_note" id="fnf_${id}"><sup><a class="NoteRef" href="#fna_${id}">${n}</a></sup><span class="Footnote">    ${t} </span></div>`).join('')}</div>`;
+const CC_RAAMATTU = `<a class="scripRef" href="/ccel/bible/asv.Eph.5.html#Eph.5.1" onclick="return goBible('nt','Eph','5','1','5','1');">Eph. v. 1</a>`;
+const CC_SIVUT = {
+  'https://ccel.org/book/menu/schaff/anf99/anf99/toc/html': `<div style="display:block"><li class="TOC1 list-group-item px-0" id="toci"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.i.html" title="Title Page">Title Page</a></li>
+<li class="TOC1 list-group-item px-0" id="tocii"><a href="javascript:t('dii.i')" class="no_underline"><i></i></a><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.html" title="IGNATIUS">IGNATIUS</a></li>
+<div id="dii.i" style="display:none"><li class="TOC2 list-group-item px-0" id="tocii.i"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.i.html" title="Epistle to the Koeans: Shorter and...">Epistle to the Koeans: Shorter and...</a></li>
+<div id="dii.i.i" style="display:none"><li class="TOC3 list-group-item px-0" id="tocii.i.i"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.i.i.html" title="Chapter I.—Praise of the...">Chapter I.—Praise of the...</a></li>
+<li class="TOC3 list-group-item px-0" id="tocii.i.ii"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.i.ii.html" title="Chapter II.—Congratulations and...">Chapter II.—Congratulations and...</a></li>
+<li class="TOC3 list-group-item px-0" id="tocii.i.iii"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.i.iii.html" title="Chapter III.">Chapter III.</a></li></div>
+<li class="TOC2 list-group-item px-0" id="tocii.ii"><a class="TOC d-inline-block" href="/ccel/schaff/anf99/anf99.ii.ii.html" title="Epistle to the Others">Epistle to the Others</a></li></div></div>`,
+  [CC + 'ii.i.html']: ccLuku('ii.i', `<span class="pb" id="ii.i-Page_49"><a class="page" title="Page 49" href="/ccel/schaff/anf99/Page_49.html">49</a></span><h2 id="ii.i-p0.1">The Epistle of Ignatius to the Koeans<br /> Shorter and Longer Versions </h2> <hr class="HR30" />
+<p id="ii.i-p1"><span class="index" id="ii.i-p1.1" subject1="Ignatius" title="49" type="subject"></span><i>Ignatius, to the Church which is at Koe</i>${ccViite('ii.i-p1.3', 485, 'Literally, “before the ages.”')}<i> in Asia.</i></p>` + ccViitteet([['ii.i-p1.3', 485, 'Literally, “before the ages.”']])),
+  [CC + 'ii.i.i.html']: ccLuku('ii.i.i', `<h3 id="ii.i.i-p0.1">Chapter I.—Praise of the Koeans.</h3> <p id="ii.i.i-p1"><span class="sc">I have</span> become acquainted with your name. Being the followers${ccViite('ii.i.i-p1.3', 490, 'Literally, “imitators;” comp. ' + CC_RAAMATTU + '.')} of God.</p>
+<p id="ii.i.i-p8">I have become acquainted with your greatly-desired name, the longer version.</p>` + ccViitteet([['ii.i.i-p1.3', 490, 'Literally, “imitators;” comp. ' + CC_RAAMATTU + '.']]), 'Chapter I.—Praise of the Koeans.'),
+  [CC + 'ii.i.ii.html']: ccLuku('ii.i.ii', `<p class="c41"><span class="c2">Chapter II.—Congratulations and entreaties to the Koeans.</span></p><p class="c8">————————————</p><p class="c10">As to my fellow-servant Burrhus.</p>`, 'Congratulations and…'),
+  [CC + 'ii.i.iii.html']: ccLuku('ii.i.iii', `<p class="c18"><span class="c17">III.</span></p><p class="c10">Third chapter text.</p>`, 'Chapter III.'),
+  [CC + 'ii.ii.html']: ccLuku('ii.ii', `<h2>Epistle to the Others</h2><p>Must not be included.</p>`),
+};
+
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
 // virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
@@ -383,6 +448,8 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === ENC) return r.fulfill({ body: ENC_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === SAET) return r.fulfill({ body: SAET_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === PG) return r.fulfill({ body: PG_SIVU, contentType: 'text/html; charset=utf-8' });
+    const kk = NA_SIVUT[u.href.split('#')[0]] || CC_SIVUT[u.href.split('#')[0]];
+    if (kk) return r.fulfill({ body: kk, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -762,6 +829,40 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     /^This paragraph follows the old-style note and belongs to the text, not to the note\.$/m.test(pgRunko) && /SUBSTANCE\n```\n\n\[\^viite-pg3\]$/m.test(pgRunko) &&
     /inner sense\.\[\^viite-pg4\] It is nothing else\./.test(pgRunko) && /^\[\^viite-pg4\]: A TEI note\.$/m.test(pgRunko), pgRunko.replace(/\n/g, ' | ').slice(0, 1400));
   tulos('Gutenberg Luinissa: viisi alaviitettä, ei varoituksia', pg.luin.sn.length === 5 && !pg.luin.varoitukset.length, JSON.stringify(pg.luin).slice(0, 500));
+  // 18. New Advent (14.11.2026): yhden sivun teos, luvuittain pilkotun teoksen kirja ja Catholic Encyclopedia.
+  const na = await leikeLuin(NA + '0199.htm');
+  const naRunko = na.md.split('---').slice(2).join('---');
+  tulos('New Advent: etukenttä tietolohkosta', /^---\ntekijä: Ignatius\nteos: Ante-Nicene Fathers\nnumero: 1\ntoimittaja: Alexander Roberts, James Donaldson & A\. Cleveland Coxe\nsuomentaja: Kääntäneet Alexander Roberts ja James Donaldson\nsivusto: New Advent\njulkaistu: 1885\npaikka: Buffalo, NY\nkustantaja: Christian Literature Publishing Co\.\nlähde: https:\/\/www\.newadvent\.org\/fathers\/0199\.htm\n/.test(na.md),
+    na.md.split('\n').slice(0, 13).join(' | '));
+  tulos('New Advent: mainokset, tukipyyntö ja tietolohko pois, sanastolinkit tekstiksi, <q> lainausmerkeiksi, raamatunkohdat alaviitteiksi',
+    na.ots === '# The Epistle of Ignatius to the Koeans | ## Greeting | ## Chapter 1. Praise of the Koeans | ## Chapter 2. Exhortations' &&
+    /^Ignatius, to the Church which is at Koe\.$/m.test(naRunko) && /“who gave Himself for us, an offering to God,”\[\^viite-na1\] \\\[you hastened to see me\\\]\./.test(naRunko) &&
+    /^Refreshed\[\^viite-na2\] me, see \[an outside page\]\[\d+\]\.$/m.test(naRunko) && /^\[\^viite-na1\]: Ephesians\s5:2$/m.test(naRunko) && /^\[\^viite-na2\]: 1\sCorinthians\s16:18,\setc\.$/m.test(naRunko) &&
+    !/support the mission|About this page|Kevin Knight|Copyright|cathen|bible\//.test(naRunko), naRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('New Advent Luinissa: kaksi alaviitettä, ei varoituksia', na.luin.sn.length === 2 && !na.luin.varoitukset.length, JSON.stringify(na.luin).slice(0, 400));
+  const nk = await leikeLuin(NA + '0198102.htm');
+  const nkRunko = nk.md.split('---').slice(2).join('---');
+  tulos('New Advent: luvun sivulta koko kirja (Book I), lähde sisällysluettelo, ei Book II:ta',
+    nk.ots === '# Against Koes, Book I | ## Chapter 1 | ## Chapter 2 | ## Chapter 3' && /\nlähde: https:\/\/www\.newadvent\.org\/fathers\/0198\.htm\n/.test(nk.md) &&
+    /\ntekijä: Irenaeus\n/.test(nk.md) && /\nsuomentaja: Kääntäneet Alexander Roberts ja William Rambaut\n/.test(nk.md) &&
+    /^\*Description of chapter 2\.\*\n\n1\\\. Text of chapter 2 with a Valentinian aeon\.$/m.test(nkRunko) && !/Book two|Book II|First description/.test(nkRunko),
+    nk.ots + ' / ' + nkRunko.replace(/\n/g, ' | ').slice(0, 700));
+  const ce = await leikeLuin('https://www.newadvent.org/cathen/99999a.htm');
+  tulos('New Advent: Catholic Encyclopedian MLA-viite etukenttään', /^---\ntekijä: Ferdinand Prat\nteos: The Catholic Encyclopedia\nnumero: 11\nsivusto: New Advent\njulkaistu: 1911\npaikka: New York\nkustantaja: Robert Appleton Company\n/.test(ce.md) &&
+    ce.ots === '# Koe Article | ## History' && /Synoptics \(Romans 14:10\)/.test(ce.md), ce.md.split('\n').slice(0, 10).join(' | '));
+  // 19. CCEL (14.11.2026): luvun sivulta koko kirje sisällysluettelon mukaan.
+  const cc = await leikeLuin(CC + 'ii.i.i.html');
+  const ccRunko = cc.md.split('---').slice(2).join('---');
+  tulos('CCEL: etukenttä (versaali ylin kohta tekijäksi, nide teokseksi, kirjeen sivu lähteeksi)', /^---\ntekijä: Ignatius\nteos: ANF99\. The Koe Fathers\nsivusto: Christian Classics Ethereal Library\nlähde: https:\/\/ccel\.org\/ccel\/schaff\/anf99\/anf99\.ii\.i\.html\n/.test(cc.md),
+    cc.md.split('\n').slice(0, 7).join(' | '));
+  tulos('CCEL: luvut koottuina; otsikko h3:sta, kappaleesta (katkaistu nimi) ja sisällysluettelosta; toisto ja viivat pois',
+    cc.ots === '# The Epistle of Ignatius to the Koeans: Shorter and Longer Versions | ## Chapter I.—Praise of the Koeans. | ## Chapter II.—Congratulations and entreaties to the Koeans. | ## Chapter III.' &&
+    /^Third chapter text\.$/m.test(ccRunko) && !/^III\.$|————|Prev|Next|Page|^49$|Must not be included/m.test(ccRunko), cc.ots + ' / ' + ccRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('CCEL: alaviitteet footer_note-lohkoista, marginaalin toisto ja numerot pois, Raamatun linkki tekstiksi',
+    /^\*Ignatius, to the Church which is at Koe\*\[\^viite-cc1\] \*in Asia\.\*$/m.test(ccRunko) && /followers\[\^viite-cc2\] of God\./.test(ccRunko) &&
+    /^\[\^viite-cc1\]: Literally, “before the ages\.”$/m.test(ccRunko) && /^\[\^viite-cc2\]: Literally, “imitators;” comp\. Eph\. v\. 1\.$/m.test(ccRunko) && !/485|490|asv\.Eph/.test(ccRunko),
+    ccRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('CCEL Luinissa: kaksi alaviitettä, ei varoituksia', cc.luin.sn.length === 2 && !cc.luin.varoitukset.length, JSON.stringify(cc.luin).slice(0, 400));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
