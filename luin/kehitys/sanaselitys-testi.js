@@ -61,10 +61,16 @@ const S = {
   km: { pop: 50, mul: ['Symbol', ['Symbol for kilometre.', 'ISO 639-1 language code for Khmer.']], da: ['Noun', 'abbreviation of kilometer'] },
   jos: { pop: 90, fi: ['Conjunction', 'if'], en: ['Noun', 'a made-up English sense'] },
   etymon: { pop: 20, en: ['Noun', 'an earlier form of a word'] },
-  IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] }
+  IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] },
+  // historia kuten oikeassa sivussa: suomi ei ole sivun ensimmäinen kieli (14.11.2026).
+  historia: { pop: 80, la: ['Noun', 'history, narrative'], fi: ['Noun', 'history'] },
+  historiaa: { pop: 10, fi: ['Noun', { muoto: 'partitive singular of', k: 'historia' }] }
 };
 // Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
-// Osion teksti sisältää oman otsikkonsa ja alaosionsa (section=N), siksi mukana on ääntämys ja sanaluokka, joita ei saa näkyä.
+// Osion wikiteksti (prop=wikitext&section=N) sisältää oman otsikkonsa ja alaosionsa, siksi mukana on sanaluokka, jota ei saa näkyä.
+// Etymologiamallineet ({{der}} ym.) tarkistavat kielen kuten Module:etymology/templates: nykyinen L2 luetaan sivun
+// osioluettelosta otsikkolaskurin mukaan. Pelkän osion jäsennys (section=N) laskee otsikot ykkösestä, joten muu kuin sivun
+// ensimmäinen kieli antaa Lua-virheen (mitattu oikeasta sivusta historia 14.11.2026: suomen osio 24, L2 Albanian).
 const E = {
   kello: { Finnish: ['From <span class="etyl"><a href="https://en.wikipedia.org/wiki/Proto-Finnic_language">Proto-Finnic</a></span> <i class="Latn mention" lang="urj-fin-pro"><a href="/wiki/Reconstruction:Proto-Finnic/kello">*kello</a></i>; compare <i class="Latn mention" lang="fi"><a href="/wiki/kellua#Finnish">kellua</a></i>.<sup class="reference">[1]</sup>'] },
   as: { English: ['From Middle English <i>as</i>, from Old English <i>eallswā</i>.'] },
@@ -72,30 +78,66 @@ const E = {
   As: { English: ['Own etymology of the plural As.'] },
   kanteli: { Finnish: ['A made-up etymology for <i>kanteli</i>.'] },
   kantele: { Finnish: [] },
-  Kant: { English: ['From the surname of <a href="/wiki/Immanuel_Kant" title="x">Immanuel Kant</a>.', 'Second sense of Kant.'], German: ['From <span class="etyl">Middle High German</span> <i><a href="/wiki/kant#Middle_High_German">kant</a></i>.'] }
+  Kant: { English: ['From the surname of <a href="/wiki/Immanuel_Kant" title="x">Immanuel Kant</a>.', 'Second sense of Kant.'], German: ['From <span class="etyl">Middle High German</span> <i><a href="/wiki/kant#Middle_High_German">kant</a></i>.'] },
+  historia: { Latin: ['From Ancient Greek <i>ἱστορία</i> (Latin).'], Finnish: ['From <span class="etyl">Ancient Greek</span> <i class="Polyt mention" lang="grc"><a href="/wiki/%E1%BC%B1%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1#Ancient_Greek">ἱστορία</a></i>.'] }
 };
 const NIMET = Object.fromEntries(Object.entries(NIMI).map(([k, v]) => [k, v]));
-function parse(u) {
-  const q = u.searchParams, o = q.get('page'), e = E[o];
-  if (!e) return { error: { code: 'missingtitle' } };
-  const osiot = []; let n = 0;
+function osioLista(o) {
+  const e = E[o], osiot = []; let n = 0;
   for (const kieli of Object.keys(S[o]).filter(k => k !== 'pop').map(k => NIMET[k])) {
     osiot.push({ toclevel: 1, level: '2', line: kieli, index: String(++n) });
     const et = e[kieli] || [];
     const nimeta = et.length > 1;
     et.forEach((t, i) => {
-      osiot.push({ toclevel: 2, level: '3', line: 'Etymology' + (nimeta ? ' ' + (i + 1) : ''), index: String(++n), teksti: t });
+      osiot.push({ toclevel: 2, level: '3', line: 'Etymology' + (nimeta ? ' ' + (i + 1) : ''), index: String(++n), teksti: t, kieli });
       osiot.push({ toclevel: 3, level: nimeta ? '4' : '3', line: 'Noun', index: String(++n) });
     });
     if (!et.length) osiot.push({ toclevel: 2, level: '3', line: 'Pronunciation', index: String(++n) });
   }
-  if (q.get('prop') === 'sections') return { parse: { title: o, sections: osiot.map(({ teksti, ...x }) => x) } };
+  return osiot;
+}
+// Osion wikiteksti: oma otsikko, malline ja sen alaosiot (vain syvemmät; Etymology N:n alla sanaluokka).
+function osionWiki(osiot, s) {
+  const i = osiot.indexOf(s), ala = [];
+  for (const x of osiot.slice(i + 1)) { if (+x.level <= +s.level) break; ala.push(x); }
+  return '='.repeat(+s.level) + s.line + '='.repeat(+s.level) + '\n{{luin-testi|' + s.kieli + '|' + s.index + '}}\n' +
+    ala.map(x => '='.repeat(+x.level) + x.line + '='.repeat(+x.level) + '\nMÄÄRITELMÄ').join('\n');
+}
+// Jäsennin: otsikot laskuriin, malline kuten {{der}} (kielen tarkistus nykyisen L2:n mukaan), muut rivit kappaleiksi.
+const jasennykset = [];
+let RIKKI = false; // jäsennys laskee otsikot väärin (kuten vanha section=N): virheteksti ei saa näkyä alkuperänä
+function jasenna(o, wiki) {
+  const osiot = E[o] ? osioLista(o) : [];
+  let h = 0, out = '';
+  for (const rivi of wiki.split('\n')) {
+    if (rivi === '__NOTOC__' || !rivi.trim()) continue;
+    const m = /^(={1,6})(.+?)\1\s*$/.exec(rivi);
+    if (m) { h++; const t = m[1].length; out += '<div class="mw-heading mw-heading' + t + '"><h' + t + '>' + m[2] + '</h' + t + '></div>'; continue; }
+    const ml = /^\{\{luin-testi\|([^|]+)\|(\d+)\}\}$/.exec(rivi);
+    if (ml) {
+      let l2 = '';
+      for (let k = h; k >= 1 && !l2; k--) { const x = osiot.find(x => +x.index === k); if (x && x.level === '2') l2 = x.line; }
+      if (RIKKI) l2 = 'Albanian';
+      jasennykset.push(ml[2] + ':' + (l2 === ml[1] ? 'ok' : l2));
+      if (l2 && l2 !== ml[1]) { out += '<p>From <strong class="error"><span class="scribunto-error mw-scribunto-error-1">Lua error in <a href="/wiki/Module:etymology/templates#L-72">Module:etymology/templates</a> at line 72: Language does not match the L2 header (' + l2 + ').</span></strong>.</p>'; continue; }
+      const t = osiot.find(x => x.index === ml[2]).teksti;
+      out += '<div class="NavFrame"><div class="NavHead">Etymology tree</div><div class="NavContent">PUU</div></div>' +
+        '<p>' + t + '</p><style>.x{}</style>' + (/Second/.test(t) ? '<ul><li>Cognate one</li><li>Cognate two<ul><li>SISÄ</li></ul></li></ul>' : '');
+      continue;
+    }
+    out += '<p>' + rivi + '</p>';
+  }
+  return '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">' + out + '</div>';
+}
+function parse(q) {
+  if (q.get('text') !== null) return { parse: { title: q.get('title'), text: jasenna(q.get('title'), q.get('text')) } };
+  const o = q.get('page'), e = E[o];
+  if (!e) return { error: { code: 'missingtitle' } };
+  const osiot = osioLista(o);
+  if (q.get('prop') === 'sections') return { parse: { title: o, sections: osiot.map(({ teksti, kieli, ...x }) => x) } };
   const s = osiot.find(x => x.index === q.get('section'));
-  return { parse: { title: o, text: '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><div class="mw-heading mw-heading3"><h3 id="Etymology">' + s.line + '</h3></div>' +
-    '<div class="NavFrame"><div class="NavHead">Etymology tree</div><div class="NavContent">PUU</div></div>' +
-    '<p>' + s.teksti + '</p><style>.x{}</style>' + (/Second/.test(s.teksti) ? '<ul><li>Cognate one</li><li>Cognate two<ul><li>SISÄ</li></ul></li></ul>' : '') +
-    '<div class="mw-heading mw-heading4"><h4 id="Pronunciation">Pronunciation</h4></div><ul><li>IPA: ÄÄNTÄMYS</li></ul>' +
-    '<div class="mw-heading mw-heading4"><h4 id="Noun">Noun</h4></div><p><b>' + o + '</b></p><ol><li>MÄÄRITELMÄ</li></ol></div>' } };
+  if (q.get('prop') === 'wikitext') return { parse: { title: o, wikitext: osionWiki(osiot, s) } };
+  return { parse: { title: o, text: jasenna(o, osionWiki(osiot, s)) } };
 }
 function taita(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/[,'’]/g, ''); }
 function rest(o) {
@@ -168,6 +210,8 @@ As we went to the market, the distance was one km and the room was Part IV of th
 They read it *as* a draft, and he called it “as good” as the rest of the book that was there.
 
 The ethos of the book is Dasein, and the so-called “ethos” is not that, but as he said, “it is the ethos of the people and it is the one that was there”.
+
+Viimeinen kappale on suomea, ja hän luki historiaa koko illan.
 `;
 
 palvelin.listen(0, async () => {
@@ -178,8 +222,8 @@ palvelin.listen(0, async () => {
   const sivuvirheet = [];
   p.on('pageerror', e => sivuvirheet.push(e.message));
   await p.route('https://en.wiktionary.org/**', route => {
-    const u = new URL(route.request().url());
-    pyynnot.push(decodeURIComponent(u.pathname + u.search));
+    const u = new URL(route.request().url()), post = route.request().method() === 'POST' ? new URLSearchParams(route.request().postData() || '') : null;
+    pyynnot.push((post ? 'POST ' : '') + decodeURIComponent(u.pathname + u.search) + (post ? ' ' + [...post.keys()].filter(k => k !== 'text').map(k => k + '=' + post.get(k)).join('&') : ''));
     const h = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
     if (u.pathname.startsWith('/api/rest_v1/page/definition/')) {
       const o = decodeURIComponent(u.pathname.slice('/api/rest_v1/page/definition/'.length)).replace(/_/g, ' ');
@@ -187,7 +231,10 @@ palvelin.listen(0, async () => {
       const j = rest(o);
       return route.fulfill(j ? { status: 200, headers: h, body: JSON.stringify(j) } : { status: 404, headers: h, body: '{}' });
     }
-    if (u.pathname === '/w/api.php' && u.searchParams.get('action') === 'parse') return route.fulfill({ status: 200, headers: h, body: JSON.stringify(parse(u)) });
+    if (u.pathname === '/w/api.php' && u.searchParams.get('action') === 'parse') {
+      const q = new URLSearchParams(u.search); if (post) for (const [k, v] of post) q.set(k, v);
+      return route.fulfill({ status: 200, headers: h, body: JSON.stringify(parse(q)) });
+    }
     if (u.pathname === '/w/api.php') return route.fulfill({ status: 200, headers: h, body: JSON.stringify(api(u)) });
     return route.fulfill({ status: 404, headers: h, body: '{}' });
   });
@@ -286,8 +333,8 @@ palvelin.listen(0, async () => {
   e = await ety();
   tulos('alkuperä: epsilon avaa laatikon ensimmäiseksi, vain etymologia (ei puuta, ääntämystä, sanaluokkaa eikä viitettä)',
     e.auki && e.ensin && e.painettu.join() === 'true' && /^From Proto-Finnic \*kello; compare kellua\.$/.test(e.teksti) && !e.kielet.length && e.kpl === 1 && e.etymon, JSON.stringify(e));
-  tulos('alkuperä: avaus hakee vain osion tekstin (osioluettelo jo muistissa)',
-    pyynnot.length === 1 && /page=kello&prop=text&section=2/.test(pyynnot[0]), pyynnot.join(' · '));
+  tulos('alkuperä: avaus hakee vain osion wikitekstin ja jäsennyksen (osioluettelo jo muistissa)',
+    pyynnot.length === 2 && /page=kello&prop=wikitext&section=2$/.test(pyynnot[0]) && /^POST .*title=kello/.test(pyynnot[1]), pyynnot.join(' · '));
   tulos('alkuperä: Wikisanakirjan sana on linkki eteenpäin, rekonstruktio ja Wikipedia eivät', e.sanat.join() === 'kellua', JSON.stringify(e.sanat));
   await kuva('sk-alkupera-kello');
   await p.click('#pop .sk-ety-sulje');
@@ -580,11 +627,14 @@ palvelin.listen(0, async () => {
   // Monta kieltä ja monta etymologiaa: kielen nimi ja numero, luettelorivit omina kappaleinaan (sisäluettelo pois).
   r = await selita('Kantin');
   if (r.ots === 'Kant') {
+    pyynnot.length = 0; jasennykset.length = 0;
     await p.click('#pop .sk-ots button.sk-ety');
     await odotaEty();
     e = await ety();
     tulos('alkuperä: kielet selityksen järjestyksessä nimettyinä, numerot (English · 1, English · 2, German)',
       e.kielet.join('|') === 'English · 1|English · 2|German' && e.rivit === 2 && !/SISÄ|PUU|ÄÄNTÄMYS|MÄÄRITELMÄ/.test(e.teksti), JSON.stringify(e));
+    tulos('alkuperä: kolme osiota, yksi jäsennys, jokainen oman kielensä alla',
+      pyynnot.filter(u => /^POST/.test(u)).length === 1 && jasennykset.join() === '2:ok,4:ok,7:ok', pyynnot.join(' · ') + ' ' + jasennykset.join());
     await kuva('sk-alkupera-kant');
     await p.click('#pop .sk-sulje');
   } else tulos('alkuperä: Kant', false, JSON.stringify(r));
@@ -604,6 +654,30 @@ palvelin.listen(0, async () => {
     await kuva('sk-alkupera-alaots');
     await p.click('#pop .sk-sulje');
   } else tulos('alkuperä: As ja as alaotsikkona', false, JSON.stringify(r));
+
+  // Muu kuin sivun ensimmäinen kieli (historia: latina ensin, suomi toisena; käyttäjän havainto 14.11.2026): {{der}} ei saa
+  // antaa Lua-virhettä, eikä laatikko saa väittää alkuperää kirjaamattomaksi.
+  r = await selita('historiaa');
+  tulos('historiaa → historia, taivutus pienellä', r.ots === 'historia' && r.muoto === '(”historiaa” · partitive singular)', JSON.stringify(r));
+  pyynnot.length = 0; jasennykset.length = 0;
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  e = await ety();
+  tulos('alkuperä: muun kuin sivun ensimmäisen kielen etymologiamalline jäsentyy oikean kielen alla (ei Lua-virhettä)',
+    e.auki && /^From Ancient Greek ἱστορία\.$/.test(e.teksti) && jasennykset.join() === '5:ok', JSON.stringify(e) + ' ' + jasennykset.join());
+  tulos('alkuperä: osion wikiteksti ja yksi jäsennys (POST, sivun nimi)',
+    pyynnot.length === 2 && /page=historia&prop=wikitext&section=5$/.test(pyynnot[0]) && /^POST .*title=historia/.test(pyynnot[1]), pyynnot.join(' · '));
+  await kuva('sk-alkupera-historia');
+  await p.click('#pop .sk-sulje');
+  await p.reload(); await p.waitForTimeout(500);
+  RIKKI = true;
+  r = await selita('historiaa');
+  await p.click('#pop .sk-ots button.sk-ety');
+  await odotaEty();
+  e = await ety();
+  RIKKI = false;
+  tulos('alkuperä: Lua-virhe ei näy alkuperänä eikä väitä alkuperää kirjaamattomaksi', e.teksti === 'Wikisanakirjan alkuperää ei saatu luettua.', JSON.stringify(e));
+  await p.click('#pop .sk-sulje');
 
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'kaikki kunnossa');
