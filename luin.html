@@ -2228,7 +2228,7 @@
   }
 
   /* ---------- ponnahdusvalikko ---------- */
-  var popToiminto = null, popPaikka = null;
+  var popToiminto = null, popPaikka = null, asetteluOdottaa = false;
   var muokkaus = null;   // avoin kirjausmuokkain: { h: alleviivaus, uusi, alku: kirjaus ennen muokkausta }
   function naytaPop(rect, html, luokka, toiminto, tasaus) {
     if (muokkaus) lopetaKirjaus(true);
@@ -2258,6 +2258,12 @@
     if (muokkaus && !lopetaKirjaus(true) && !pakko) return;
     muokkaus = null;
     pop.hidden = true; popToiminto = null;
+    // Ponnahduksen aikana latautunut fontti (ks. loadingdone) asettelee vasta nyt, omana tehtävänään: suljePop() voi tulla
+    // asettelun sisältä (sivulle()), ja uusi ponnahdus voi avautua samasta napautuksesta.
+    if (asetteluOdottaa) {
+      asetteluOdottaa = false;
+      setTimeout(function () { if (!nyt) return; if (pop.hidden) asettele(tila.ankkuri); else asetteluOdottaa = true; }, 0);
+    }
     // Kahvat ja maalauksen luonnos lähtevät valikon mukana, paitsi kesken vedon (veto voi kääntää sivua).
     if (!veto && !maal) { poistaLuonnos(); piilotaKahvat(); }
   }
@@ -3137,11 +3143,27 @@
     if (MOBIILI.addEventListener) MOBIILI.addEventListener('change', mobMuuttui); else if (MOBIILI.addListener) MOBIILI.addListener(mobMuuttui);
   }
   if (document.fonts && document.fonts.addEventListener) {
-    // Kreikan osajoukon lataus (esim. sanaselityksestä) asettelee tekstin vain, jos tekstissä on kreikkaa.
+    /* Fontin lataus asettelee tekstin, koska rivit voivat muuttua. Rajatun merkkialueen osajoukko (kreikka U+0370–03FF ja
+       polytoninen U+1F00–1FFF) ei asettele, jos tekstissä ei ole sen merkkejä: sanaselitys lataa niitä itselleen. Ponnahduksen
+       ollessa auki asettelu odottaa sen sulkeutumista (asetteluOdottaa, suljePop()), koska sivutettuna asettelu kutsuu
+       sivulle():a, joka sulkee ponnahduksen: selityksen ensimmäinen kursiivi ja alkuperän ἱστορία sulkivat ikkunan heti
+       (käyttäjän havainto Palmalla 14.11.2026; mitattu: Literata italic latautui ikkunan ollessa auki). */
+    var fonttiKaytossa = function (f) {
+      var r = String(f.unicodeRange || '').replace(/\s/g, '');
+      if (!r || /^U\+0+-10FFFF$/i.test(r)) return true;
+      var teksti = sivuEl.textContent;
+      return r.split(',').some(function (osa) {
+        var m = /^U\+([0-9A-F?]+)(?:-([0-9A-F]+))?$/i.exec(osa);
+        if (!m) return true;
+        var a = parseInt(m[1].replace(/\?/g, '0'), 16), z = m[2] ? parseInt(m[2], 16) : parseInt(m[1].replace(/\?/g, 'F'), 16);
+        for (var i = 0; i < teksti.length; i++) { var c = teksti.codePointAt(i); if (c >= a && c <= z) return true; if (c > 0xFFFF) i++; }
+        return false;
+      });
+    };
     document.fonts.addEventListener('loadingdone', function (e) {
       if (!nyt) return;
-      var kreikka = e.fontfaces && e.fontfaces.length && e.fontfaces.every(function (f) { return /U\+370-3FF/i.test(f.unicodeRange); });
-      if (kreikka && !/[\u0370-\u03FF]/.test(sivuEl.textContent)) return;
+      if (e.fontfaces && e.fontfaces.length && !e.fontfaces.some(fonttiKaytossa)) return;
+      if (!pop.hidden) { asetteluOdottaa = true; return; }
       asettele(tila.ankkuri);
     });
   }
