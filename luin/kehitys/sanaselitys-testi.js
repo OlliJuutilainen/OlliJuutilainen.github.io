@@ -106,27 +106,40 @@ function osionWiki(osiot, s) {
 // Jäsennin: otsikot laskuriin, malline kuten {{der}} (kielen tarkistus nykyisen L2:n mukaan), muut rivit kappaleiksi.
 const jasennykset = [];
 let RIKKI = false; // jäsennys laskee otsikot väärin (kuten vanha section=N): virheteksti ei saa näkyä alkuperänä
+// MOBIILI: Wikimedian mobiilimuotoilu, jonka mobiiliselain (Androidin Firefox) saa: ylimmän tason otsikon jälkeinen sisältö
+// <section class="mf-section-N collapsible-block">-kääreessä, alemmat otsikot sen sisällä (mitattu oikeasta vastauksesta 14.11.2026).
+let MOBIILI = false;
+function mobiiliksi(osat) {
+  const tasot = osat.filter(x => x.taso).map(x => x.taso), L = Math.min(...tasot);
+  let out = '<section class="mf-section-0" id="mf-section-0">', k = 0;
+  for (const x of osat) {
+    if (x.taso === L) { k++; out += '</section>' + x.html.replace('class="mw-heading ', 'class="mw-heading section-heading ') + '<section class="mf-section-' + k + ' collapsible-block" id="mf-section-' + k + '">'; }
+    else out += x.html;
+  }
+  return out + '</section>';
+}
 function jasenna(o, wiki) {
-  const osiot = E[o] ? osioLista(o) : [];
+  const osiot = E[o] ? osioLista(o) : [], osat = [];
   let h = 0, out = '';
   for (const rivi of wiki.split('\n')) {
     if (rivi === '__NOTOC__' || !rivi.trim()) continue;
     const m = /^(={1,6})(.+?)\1\s*$/.exec(rivi);
-    if (m) { h++; const t = m[1].length; out += '<div class="mw-heading mw-heading' + t + '"><h' + t + '>' + m[2] + '</h' + t + '></div>'; continue; }
+    if (m) { h++; const t = m[1].length; osat.push({ taso: t, html: '<div class="mw-heading mw-heading' + t + '"><h' + t + '>' + m[2] + '</h' + t + '></div>' }); continue; }
     const ml = /^\{\{luin-testi\|([^|]+)\|(\d+)\}\}$/.exec(rivi);
     if (ml) {
       let l2 = '';
       for (let k = h; k >= 1 && !l2; k--) { const x = osiot.find(x => +x.index === k); if (x && x.level === '2') l2 = x.line; }
       if (RIKKI) l2 = 'Albanian';
       jasennykset.push(ml[2] + ':' + (l2 === ml[1] ? 'ok' : l2));
-      if (l2 && l2 !== ml[1]) { out += '<p>From <strong class="error"><span class="scribunto-error mw-scribunto-error-1">Lua error in <a href="/wiki/Module:etymology/templates#L-72">Module:etymology/templates</a> at line 72: Language does not match the L2 header (' + l2 + ').</span></strong>.</p>'; continue; }
+      if (l2 && l2 !== ml[1]) { osat.push({ html: '<p>From <strong class="error"><span class="scribunto-error mw-scribunto-error-1">Lua error in <a href="/wiki/Module:etymology/templates#L-72">Module:etymology/templates</a> at line 72: Language does not match the L2 header (' + l2 + ').</span></strong>.</p>' }); continue; }
       const t = osiot.find(x => x.index === ml[2]).teksti;
-      out += '<div class="NavFrame"><div class="NavHead">Etymology tree</div><div class="NavContent">PUU</div></div>' +
-        '<p>' + t + '</p><style>.x{}</style>' + (/Second/.test(t) ? '<ul><li>Cognate one</li><li>Cognate two<ul><li>SISÄ</li></ul></li></ul>' : '');
+      osat.push({ html: '<div class="NavFrame"><div class="NavHead">Etymology tree</div><div class="NavContent">PUU</div></div>' +
+        '<p>' + t + '</p><style>.x{}</style>' + (/Second/.test(t) ? '<ul><li>Cognate one</li><li>Cognate two<ul><li>SISÄ</li></ul></li></ul>' : '') });
       continue;
     }
-    out += '<p>' + rivi + '</p>';
+    osat.push({ html: '<p>' + rivi + '</p>' });
   }
+  out = MOBIILI && osat.some(x => x.taso) ? mobiiliksi(osat) : osat.map(x => x.html).join('');
   return '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">' + out + '</div>';
 }
 function parse(q) {
@@ -676,8 +689,26 @@ palvelin.listen(0, async () => {
   await odotaEty();
   e = await ety();
   RIKKI = false;
-  tulos('alkuperä: Lua-virhe ei näy alkuperänä eikä väitä alkuperää kirjaamattomaksi', e.teksti.startsWith('Wikisanakirjan alkuperää ei saatu luettua.') && !/Lua error/.test(e.teksti), JSON.stringify(e));
+  tulos('alkuperä: Lua-virhe ei näy alkuperänä eikä väitä alkuperää kirjaamattomaksi', e.teksti === 'Wikisanakirjan alkuperää ei saatu luettua.', JSON.stringify(e));
   await p.click('#pop .sk-sulje');
+  for (const mob of [true, false]) {
+    // Mobiilimuoto (Androidin Firefox, käyttäjän havainto 14.11.2026): sama tulos kuin työpöytämuodossa, myös monen osion sivulla.
+    MOBIILI = mob;
+    await p.reload(); await p.waitForTimeout(500);
+    r = await selita('historiaa');
+    await p.click('#pop .sk-ots button.sk-ety');
+    await odotaEty();
+    e = await ety();
+    tulos('alkuperä ' + (mob ? 'mobiilimuodossa' : 'työpöytämuodossa (uusi sivu)') + ': historia', /^From Ancient Greek ἱστορία\.$/.test(e.teksti), JSON.stringify(e));
+    await p.click('#pop .sk-sulje');
+    r = await selita('Kantin');
+    await p.click('#pop .sk-ots button.sk-ety');
+    await odotaEty();
+    e = await ety();
+    tulos('alkuperä ' + (mob ? 'mobiilimuodossa' : 'työpöytämuodossa (uusi sivu)') + ': Kant (kolme osiota, kaksi kieltä)', e.kielet.join('|') === 'English · 1|English · 2|German' && e.rivit === 2, JSON.stringify(e));
+    await p.click('#pop .sk-sulje');
+  }
+  MOBIILI = false;
 
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'kaikki kunnossa');
