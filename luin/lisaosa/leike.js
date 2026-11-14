@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology (14.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1201,6 +1201,65 @@
       naytto: [ENC_NIMI, teos].filter(Boolean).join(' · ') + (artikkelit.length > 1 ? ' (' + (artikkelit.indexOf(w) + 1) + '/' + artikkelit.length + ')' : '') };
   }
 
+  /* St Andrews Encyclopaedia of Theology (SAET; käyttäjän pyyntö 14.11.2026: hyvin pitkät, vertaisarvioidut artikkelit
+     kristinuskosta, buddhalaisuudesta, islamista, hindulaisuudesta ja juutalaisuudesta, 8 000–17 000 sanaa). Readability
+     ottaisi sisällysluettelon, sitaattiruudun ja avainsanat. Runko: tiivistelmä (#abstract ilman otsikkoa ja tekijää)
+     johdannoksi kuten SEP:n preamble, luvut h2[id^=section]-otsikoiden lohkoista (alaluvut h3, h4 sisäkkäisinä div:eina),
+     sitten #bibliography_div. Otsikon numero span.heading_label (1 → 1., 2.1 ennallaan). Tekstiviittaukset ovat jo SEP:n
+     muotoa (span.bibref > span.citation: Moriya 1995) ja tekstiksi; ristiviittaus a.citation[href^="#section"] jää
+     linkiksi. Kirjallisuus on sisäkkäinen luettelo (li > h3 Further reading / Works cited + ul): alaotsikot ja kohdat
+     kappaleiksi, cite kursiiviksi. #attrib: Copyright-rivi ja CC-linkki etukenttään, muut kappaleet (lähdepainos,
+     käännökset) Attributions-osioksi ennen kirjallisuutta. Mitattu 14.11.2026. */
+  const SAET_NIMI = 'St Andrews Encyclopaedia of Theology';
+  async function saet() {
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    if (!/st andrews encyclopaedia of theology/i.test(meta('citation_journal_title')[0] || '') && !/(^|\.)saet\.ac\.uk$/.test(location.hostname)) return null;
+    const luvut = [...document.querySelectorAll('h2[id^="section"]')].map(h => h.parentElement)
+      .filter((x, i, kaikki) => x && kaikki.indexOf(x) === i && !kaikki.some(y => y !== x && y.contains(x)));
+    if (!luvut.length) return null;
+    const el = document.createElement('div');
+    const tiiv = document.getElementById('abstract');
+    if (tiiv) {
+      const k = tiiv.cloneNode(true);
+      k.querySelectorAll('h1, #author').forEach(x => x.remove());
+      el.append(...k.childNodes);
+    }
+    luvut.forEach(l => el.appendChild(l.cloneNode(true)));
+    let oikeus = null;
+    const attr = document.getElementById('attrib');
+    if (attr) {
+      const ps = [...attr.querySelectorAll('p')];
+      const cp = ps.find(p => /copyright/i.test(p.textContent)), cc = cp && cp.querySelector('a[href*="creativecommons.org"]');
+      if (cp) oikeus = { teksti: rivi(cp.textContent), lahde: cc ? cc.href : osoite };
+      const muut = ps.filter(p => p !== cp && rivi(p.textContent));
+      if (muut.length) { const h = document.createElement('h2'); h.textContent = 'Attributions'; el.append(h, ...muut.map(p => p.cloneNode(true))); }
+    }
+    const bib = document.getElementById('bibliography_div');
+    if (bib) {
+      const k = bib.cloneNode(true);
+      // li > h3 + ul → h3 ja kappaleet; ilman alaotsikkoa suoraan kappaleiksi.
+      const kohdat = ul => [...ul.children].filter(li => li.tagName === 'LI').flatMap(li => {
+        const sis = li.querySelector(':scope > ul'), ots = li.querySelector(':scope > h3, :scope > h4');
+        if (sis) return [...(ots ? [ots] : []), ...kohdat(sis)];
+        const p = document.createElement('p'); while (li.firstChild) p.appendChild(li.firstChild); return [p];
+      });
+      k.querySelectorAll(':scope > ul').forEach(ul => ul.replaceWith(...kohdat(ul)));
+      el.append(...k.childNodes);
+    }
+    el.querySelectorAll('script, style, noscript, button, nav, .modal, #toc, #keywords').forEach(x => x.remove());
+    el.querySelectorAll('span.heading_label').forEach(s => s.replaceWith(rivi(s.textContent).replace(/^(\d+)$/, '$1.')));
+    el.querySelectorAll('span.bibref, span.citation').forEach(s => s.replaceWith(...s.childNodes));
+    el.querySelectorAll('cite').forEach(c => { const e = document.createElement('em'); while (c.firstChild) e.appendChild(c.firstChild); c.replaceWith(e); });
+    el.querySelectorAll('img').forEach(x => x.remove());
+    el.querySelectorAll('div').forEach(d => d.replaceWith(...d.childNodes));
+    el.normalize();
+    const tekijat = meta('citation_author');
+    const pv = (/^(\d{4})[/-](\d\d)[/-](\d\d)/.exec(meta('citation_publication_date')[0] || meta('DC.issued')[0] || '') || []).slice(1).join('-');
+    const otsikko = meta('citation_title')[0] || rivi(((tiiv && tiiv.querySelector('h1')) || document.querySelector('h1') || {}).textContent);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: tekijat.length > 2 ? tekijat.join(', ').replace(/, ([^,]*)$/, ' & $1') : tekijat.join(' & '),
+      sivusto: SAET_NIMI, julkaistu: pv, lahde: osoite.split('?')[0], oikeus };
+  }
+
   /* IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (IRED; käyttäjän pyyntö 13.11.2026). Hakuteos on vain
      FlippingBook-kirjana (englanniksi online.flippingbook.com/view/544664, 1258 sivua, 21 hakusanaa), lataus estetty, lisenssi
      CC BY-NC-ND. Katselin piirtää sivut kuvina, mutta jokaisen sivun oma osoite /view/<kirja>/<n>/ antaa hakukoneille sivun
@@ -1435,7 +1494,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }
