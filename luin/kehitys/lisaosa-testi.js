@@ -474,11 +474,14 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await latomoL.waitForURL(/latomo\.html$/, { timeout: 8000 });
   const taustaL = await tarkkailija.evaluate(async () => (await chrome.tabs.query({})).filter(t => /latomo\.html/.test(t.url)).map(t => t.active ? 'edessä' : 'taustalla').join());
   await tarkkailija.close();
-  const dl = await dlP, alkoi = Date.now(), kiinni = await kiinniP;
+  const dl = await dlP, alkoi = Date.now();
+  // Kuittaus (14.11.2026): sulkeutumista odottaessa Latomo kertoo sulkeutuvansa.
+  const kuittausL = await latomoL.evaluate(() => { const e = document.getElementById('lataa-tila'); return e && !e.hidden ? e.textContent : null; }).catch(() => null);
+  const kiinni = await kiinniP;
   const dlMd = dl ? fs.readFileSync(await dl.path(), 'utf8') : '';
   tulos('Lataa .md: Latomon ladoma tiedosto taustavälilehdeltä, joka sulkee itsensä', !!dl && dl.suggestedFilename() === 'kokeilukirjoitus.md' && dlMd === md &&
-    taustaL === 'taustalla' && kiinni > 0 && ikkuna.isClosed(),
-    (dl ? dl.suggestedFilename() + ' ' + dlMd.length + '/' + md.length : 'ei latausta') + ' | ' + taustaL + ' | ' + (kiinni ? 'kiinni ' + (kiinni - alkoi) + ' ms latauksen jälkeen' : 'jäi auki'));
+    taustaL === 'taustalla' && kiinni > 0 && ikkuna.isClosed() && /^Ladattu: kokeilukirjoitus\.md .* Välilehti sulkeutuu pian itsestään\.$/.test(kuittausL || ''),
+    (dl ? dl.suggestedFilename() + ' ' + dlMd.length + '/' + md.length : 'ei latausta') + ' | ' + taustaL + ' | ' + (kiinni ? 'kiinni ' + (kiinni - alkoi) + ' ms latauksen jälkeen' : 'jäi auki') + ' | ' + kuittausL);
   if (!latomoL.isClosed()) await latomoL.close();
   // 2c. Androidin Firefoxissa taustavälilehteä ei kokeiltu: Android-käyttäjäagentilla Latomo avautuu eteen ja jää auki kuten 0.8.0:ssa.
   ikkuna = await ctx.newPage(); ikkuna.on('pageerror', e => virheet.push('ikkuna: ' + e.message));

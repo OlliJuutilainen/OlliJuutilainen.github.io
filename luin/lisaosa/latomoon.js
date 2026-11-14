@@ -7,7 +7,8 @@
    painaa #lataa. Taustalla (13.11.2026; ei Androidilla) Latomo on taustavälilehdellä ja sulkee itsensä, kun lataus on
    lähtenyt: Latomo lisää latauslinkin (a[download]) sivuun ja poistaa sen heti, joten linkin näkeminen todistaa latauksen.
    Sulku odottaa 2,5 s, koska Latomo vapauttaa tiedoston osoitteen 2 s:n päästä; välilehti, jolla on vain yksi
-   historiamerkintä, saa sulkea itsensä. Jos linkkiä ei näy, Latomo jää taustalle auki. */
+   historiamerkintä, saa sulkea itsensä. Jos linkkiä ei näy, Latomo jää taustalle auki. Odotuksen ajan Latomon kuittaus
+   (#lataa-tila, 14.11.2026) kertoo sulkeutumisesta. */
 (async () => {
   if (location.hash !== '#lisaosa') return;
   const api = globalThis.browser || globalThis.chrome;
@@ -50,6 +51,14 @@
     $('lataa').click();
     const lahti = vahti.takeRecords().some(m => [...m.addedNodes].some(n => n.nodeName === 'A' && n.hasAttribute('download')));
     vahti.disconnect();
-    if (odottaa.taustalla && lahti) setTimeout(() => window.close(), 2500);
+    if (odottaa.taustalla && lahti) {
+      // Kuittaus (14.11.2026): Latomon #lataa-tila kertoo, että välilehti sulkeutuu, ja jos sulku ei onnistu, että sen voi sulkea.
+      const tila = $('lataa-tila'), kuittaus = tila ? tila.textContent : '';
+      if (tila) tila.textContent = kuittaus + ' Välilehti sulkeutuu pian itsestään.';
+      setTimeout(() => {
+        window.close();
+        setTimeout(() => { if (tila) tila.textContent = kuittaus + ' Välilehti ei sulkeutunut itsestään; voit sulkea sen.'; }, 500);
+      }, 2500);
+    }
   } else if (odottaa.avaa) $('avaa').click();
 })();
