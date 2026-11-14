@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg sekä Psyche ja Aeon (14.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1565,6 +1565,368 @@
       sivusto: PG_NIMI, lahde, maar, oikeus: oik ? { teksti: oik, lahde: 'https://www.gutenberg.org/policy/license.html' } : null };
   }
 
+  /* Kirkkoisät: New Advent ja CCEL (käyttäjän pyyntö 14.11.2026: varhaiskristillisyyden ja Paavalin vastaanoton tutkimukseen).
+     Kumpikin pilkkoo osan teoksista lukuihin omille sivuilleen (CCEL kauttaaltaan, New Advent esim. Irenaeuksen Against Heresies),
+     joten lyhyen luvun sivulta leikataan koko kirja: sivut haetaan samalta sivustolta kuuden erissä kuten IRED:ssä, enintään
+     KK_RAJA sivua (muuten vain tämä sivu). */
+  const KK_RAJA = 250, KK_LYHYT = 2500;
+  const kkSanoja = el => (rivi(el.textContent).match(/\S+/g) || []).length;
+  async function kkHae(osoitteet) {
+    const tulos = [];
+    for (let i = 0; i < osoitteet.length; i += 6) tulos.push(...await Promise.all(osoitteet.slice(i, i + 6).map(hae)));
+    return tulos;
+  }
+  // <q> lainausmerkeiksi (Turndown jättäisi pelkän tekstin): uloimmat ”…” suomalaisittain ei, vaan lähteen englannin “…”, sisemmät ‘…’.
+  function kkLainaukset(el) {
+    [...el.querySelectorAll('q')].reverse().forEach(q => {
+      let syva = 0;
+      for (let x = q.parentElement; x && x !== el; x = x.parentElement) if (x.tagName === 'Q') syva++;
+      const [a, b] = syva % 2 ? ['‘', '’'] : ['“', '”'];
+      q.replaceWith(a, ...q.childNodes, b);
+    });
+  }
+  // Sivuston sisäinen linkki (sanastoartikkeli, Raamatun jae, toinen luku) tekstiksi kuten Wikipedian wikilinkit; ulkoiset jäävät.
+  function kkLinkit(el, isanta) {
+    el.querySelectorAll('a').forEach(a => {
+      const h = a.getAttribute('href') || '';
+      if (!h || /^(#|\.|\/|javascript:)/i.test(h) || !/^[a-z][a-z0-9+.-]*:/i.test(h) || isanta.test(h)) a.replaceWith(...a.childNodes);
+    });
+  }
+  // Käytetyt otsikkotasot järjestyksessä h2…h4:ksi (kuten Gutenbergissä).
+  function kkTasoita(el) {
+    const ots = [...el.querySelectorAll(OTSIKOT)];
+    ots.forEach(h => { if (!rivi(h.textContent)) h.remove(); });
+    const kaytetyt = [...new Set([...el.querySelectorAll(OTSIKOT)].map(h => +h.tagName[1]))].sort();
+    el.querySelectorAll(OTSIKOT).forEach(h => {
+      const u = document.createElement('h' + Math.min(4, kaytetyt.indexOf(+h.tagName[1]) + 2));
+      while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u);
+    });
+  }
+  // Otsikon taso: sivun ylin otsikko tasolle 1 + syvyys, alemmat suhteessa siihen.
+  function kkSiirra(el, syvyys) {
+    const hs = [...el.querySelectorAll(OTSIKOT)];
+    if (!hs.length) return;
+    const ylin = Math.min(...hs.map(h => +h.tagName[1]));
+    hs.forEach(h => {
+      const u = document.createElement('h' + Math.min(6, Math.max(2, 1 + syvyys + (+h.tagName[1] - ylin))));
+      while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u);
+    });
+  }
+  // Otsikkoteksti: rivinvaihto (<br>) kaksoispisteeksi (The Epistle of Ignatius to the Ephesians<br>Shorter and Longer Versions).
+  function kkOtsikkoTeksti(h) {
+    const k = h.cloneNode(true);
+    k.querySelectorAll('br').forEach(b => b.replaceWith('\u0001'));
+    return k.textContent.split('\u0001').map(rivi).filter(Boolean).reduce((s, x) => !s ? x : s + (/[.:;!?]$/.test(s) ? ' ' : ': ') + x, '');
+  }
+  const kkLuettelo = nimet => nimet.length > 2 ? nimet.slice(0, -1).join(', ') + ' & ' + nimet[nimet.length - 1] : nimet.join(' & ');
+  const kkNimet = s => rivi(s).split(/\s*,\s*(?:and\s+)?|\s+and\s+/).map(rivi).filter(Boolean);
+  const kkKaantaja = nimet => !nimet.length ? '' : (nimet.length > 1 || /^(the\s+)?fathers\b/i.test(nimet[0]) ? 'Kääntäneet ' : 'Kääntänyt ') +
+    kkLuettelo(nimet).replace(/ & ([^&]*)$/, ' ja $1');
+  // Pelkkä osan nimi (Book I., Homily 3): otsikoksi tarvitaan teoksen nimi eteen.
+  const KK_OSA = /^(book|part|chapter|homily|sermon|letter|epistle|section|tractate|lecture|discourse|question|article|kirja|osa|luku)\s+([\dIVXLCDM]+)\.?$/i;
+
+  /* New Advent (newadvent.org): kirkkoisät (ANF- ja NPNF-käännökset, Kevin Knightin tarkistamina), Catholic Encyclopedia (1907–1913)
+     ja Summa theologiae. Runko #springfield2 ilman mainoksia (catholicadnet, CMtag), tukipyyntöä (gumroad), h1:tä ja tietolohkoa
+     (.pub). Sanastolinkit (../cathen/…) ja muut sivuston linkit tekstiksi. Raamatunkohdat ovat isien teksteissä lainauksen perässä
+     omina span.stiki-merkintöinään (ANF:ssä ne olivat alaviitteitä): alaviitteiksi. <q> lainausmerkeiksi. Irenaeuksen luvun
+     kuvaus (span.h1a) kursiiviksi. Summan artikkeliluettelo (#article1 …) pois.
+     Koko teos: isien sisällysluettelosivulta (Stromata, Homilies on Romans: lapsitiedostot alkavat sivun numerolla 0210 → 02101)
+     kaikki osat ja luvun sivulta (murupolku … > Book I, Chapter 1) sisällysluettelon saman väliotsikon (Book I) luvut; osan otsikko
+     on sisällysluettelon linkkiteksti. Etukenttään tietolohkosta: isät tekijä (otsikon sulkeista ilman St.), suomentaja,
+     teos, numero (Vol.), toimittaja, paikka, kustantaja ja vuosi; Catholic Encyclopedia MLA-viitteestä tekijä, teos, numero,
+     paikka, kustantaja ja vuosi; Summa tekijä, teos (Prima Pars ym.), suomentaja, vuosi ja verkkoversion tekijänoikeusrivi.
+     Raamattu (jakeet rinnakkain kolmella kielellä) ja hakemistosivut jäävät Readabilitylle. Mitattu 14.11.2026. */
+  const NA_NIMI = 'New Advent';
+  const NA_ISANTA = /^https?:\/\/([a-z0-9-]+\.)*newadvent\.org(\/|$)/i;
+  function naRunko(d, maar, laskuri) {
+    const juuri = d.getElementById('springfield2');
+    if (!juuri) return null;
+    const el = juuri.cloneNode(true);
+    el.querySelectorAll('script, style, noscript, ins, iframe, form, .pub, .breadcrumbs, h1, [class^="catholicadnet"], [class*="CMtag"]').forEach(x => x.remove());
+    el.querySelectorAll('a[href*="gumroad.com"]').forEach(a => { const p = a.closest('p'); if (el.contains(a)) (p && el.contains(p) ? p : a).remove(); });
+    el.querySelectorAll('ol, ul').forEach(l => {
+      const lit = [...l.children].filter(li => li.tagName === 'LI');
+      if (lit.length && lit.every(li => { const a = li.querySelectorAll('a[href]'); return a.length === 1 && /#article\d+$/.test(a[0].getAttribute('href')); })) l.remove();
+    });
+    el.querySelectorAll('span.h1a').forEach(s => {
+      const p = d.createElement('p'), em = d.createElement('em');
+      while (s.firstChild) em.appendChild(s.firstChild);
+      p.appendChild(em); s.replaceWith(p);
+    });
+    kkLainaukset(el);
+    el.querySelectorAll('span.stiki').forEach(s => {
+      const k = s.cloneNode(true);
+      kkLinkit(k, NA_ISANTA);
+      const t = muunna(k.innerHTML, 'inlined').trim();
+      const ed = s.previousSibling;
+      if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+      if (!t) { s.remove(); return; }
+      const tunnus = 'na' + (++laskuri.n);
+      s.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    kkLinkit(el, NA_ISANTA);
+    return el;
+  }
+  async function newadvent() {
+    if (!/(^|\.)newadvent\.org$/i.test(location.hostname)) return null;
+    const osasto = (/^\/(fathers|cathen|summa)\/([^/]+)\.htm$/i.exec(location.pathname) || []);
+    if (!osasto[1] || !document.getElementById('springfield2')) return null;
+    const maar = [], laskuri = { n: 0 };
+    const h1 = document.querySelector('#springfield2 h1');
+    let otsikko = h1 ? rivi(h1.textContent) : '';
+    // Sisällysluettelon osat ryhmiksi väliotsikoittain: [{ nimi, linkit: [{ u, nimi }] }].
+    const ryhmat = (d, oma) => {
+      const r = [{ nimi: '', linkit: [] }];
+      const juuri = d.getElementById('springfield2');
+      if (!juuri) return r;
+      const w = d.createTreeWalker(juuri, NodeFilter.SHOW_ELEMENT);
+      for (let x = w.nextNode(); x; x = w.nextNode()) {
+        if (/^H[2-4]$/.test(x.tagName)) r.push({ nimi: rivi(x.textContent), linkit: [] });
+        if (x.tagName !== 'A' || !x.getAttribute('href')) continue;
+        let u; try { u = new URL(x.getAttribute('href'), oma); } catch (e) { continue; }
+        const t = (/^\/fathers\/([^/]+)\.htm$/i.exec(u.pathname) || [])[1];
+        if (!t || u.hash || !NA_ISANTA.test(u.href)) continue;
+        const ryhma = r[r.length - 1];
+        if (!ryhma.linkit.some(l => l.u === u.href)) ryhma.linkit.push({ u: u.href, t, nimi: rivi(x.textContent) });
+      }
+      return r.filter(g => g.linkit.length);
+    };
+    let osat = null, nimi = otsikko, lahde = osoite;
+    if (osasto[1] === 'fathers') {
+      // Sisällysluettelosivu: lapsitiedostot alkavat sivun omalla numerolla, eikä niiden ulkopuolella ole tekstiä.
+      const omat = ryhmat(document, osoite).map(g => ({ nimi: g.nimi, linkit: g.linkit.filter(l => l.t.startsWith(osasto[2]) && l.t.length > osasto[2].length) })).filter(g => g.linkit.length);
+      if (omat.length) {
+        const raaka = document.getElementById('springfield2').cloneNode(true);
+        raaka.querySelectorAll('script, style, .pub, h1, h2, h3, h4, [class^="catholicadnet"], [class*="CMtag"]').forEach(x => x.remove());
+        raaka.querySelectorAll('a[href*="gumroad.com"]').forEach(a => { if (raaka.contains(a)) (a.closest('p') || a).remove(); });
+        raaka.querySelectorAll('p, li, td').forEach(p => { if (raaka.contains(p) && p.querySelector('a[href]')) p.remove(); });
+        if (kkSanoja(raaka) < 60) osat = omat;
+      }
+      // Luvun sivu: murupolun viimeinen linkki on teoksen sisällysluettelo, josta otetaan luvun väliotsikon alla olevat sivut.
+      const muru = document.querySelector('.breadcrumbs');
+      const ylalinkki = muru && [...muru.querySelectorAll('a[href]')].pop();
+      if (!osat && muru && ylalinkki && /\bchapter\b/i.test(rivi(muru.lastChild && muru.lastChild.textContent))) {
+        const yla = new URL(ylalinkki.getAttribute('href'), osoite).href, yd = await hae(yla);
+        const g = yd && ryhmat(yd, yla).find(x => x.linkit.some(l => l.u === osoite));
+        const yh = yd && yd.querySelector('#springfield2 h1');
+        if (g && g.linkit.length >= 3) { osat = [g]; nimi = [yh ? rivi(yh.textContent) : '', g.nimi].filter(Boolean).join(', '); lahde = yla; }
+      }
+    }
+    if (osat && osat.reduce((n, g) => n + g.linkit.length, 0) > KK_RAJA) { osat = null; lahde = osoite; }
+    const el = document.createElement('div');
+    let sivuja = 1;
+    if (osat) {
+      const kaikki = osat.flatMap(g => g.linkit);
+      const docs = await kkHae(kaikki.map(l => l.u));
+      sivuja = 0;
+      const ryhmaOtsikot = osat.length > 1 && osat.some(g => g.nimi);
+      osat.forEach(g => {
+        if (ryhmaOtsikot && g.nimi) { const h = document.createElement('h2'); h.textContent = g.nimi; el.appendChild(h); }
+        g.linkit.forEach(l => {
+          const d = l.u === osoite ? document : docs[kaikki.indexOf(l)];
+          const r = d && naRunko(d, maar, laskuri);
+          if (!r) return;
+          sivuja++;
+          kkSiirra(r, ryhmaOtsikot ? 3 : 2);
+          const h = document.createElement(ryhmaOtsikot ? 'h3' : 'h2');
+          h.textContent = l.nimi;
+          el.appendChild(h);
+          el.append(...r.childNodes);
+        });
+      });
+      otsikko = nimi;
+    } else {
+      const r = naRunko(document, maar, laskuri);
+      if (!r || kkSanoja(r) < 40) return null;
+      // Homilian raamatunkohta ensimmäisenä lyhyenä kappaleena (Romans 1:1-2) kursiiviksi: Luinissa alaotsikko eikä tietorivi.
+      const ens = [...r.children].find(x => rivi(x.textContent));
+      if (ens && ens.tagName === 'P' && /^(?:[1-3]\s)?\p{Lu}[\p{L}.]+(?:\s\p{Lu}[\p{L}.]+)?\s\d+:\d+(?:[-–]\d+)?(?:,\s?\d+(?:[-–]\d+)?)*$/u.test(rivi(ens.textContent))) {
+        const em = document.createElement('em');
+        while (ens.firstChild) em.appendChild(ens.firstChild);
+        ens.appendChild(em);
+      }
+      el.append(...r.childNodes);
+    }
+    kkTasoita(el);
+    el.normalize();
+    // Tietolohko.
+    const pub = id => rivi((document.getElementById(id) || {}).textContent).replace(/[.,;]+$/, '');
+    // Kustantajan lyhenteen piste jää (Co.).
+    const paikkaJa = id => {
+      const s = rivi((document.getElementById(id) || {}).textContent).replace(/[,;]+$/, ''), m = /^(.*?):\s*(.*)$/.exec(s);
+      return !s ? {} : m ? { paikka: m[1], kustantaja: m[2] } : { kustantaja: s };
+    };
+    // Translated by J. Walker, J. Sheppard and H. Browne, and revised by George B. Stevens.
+    const kaannos = s => {
+      const m = /^(.*?),?\s+(?:and\s+)?revised by\s+(.*)$/i.exec(s.replace(/^.*?translated by\s+/i, ''));
+      const k = kkKaantaja(kkNimet(m ? m[1] : s.replace(/^.*?translated by\s+/i, '')));
+      return k && m ? k + '; tarkistanut ' + kkLuettelo(kkNimet(m[2])).replace(/ & ([^&]*)$/, ' ja $1') : k;
+    };
+    const tulos = { html: irrota([el]).innerHTML, otsikko, sivusto: NA_NIMI, lahde, maar,
+      naytto: NA_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
+    if (osasto[1] === 'fathers') {
+      const ots = /\(([^()]*)\)\s*$/.exec(rivi(document.title));
+      tulos.tekija = ots ? rivi(ots[1].replace(/^(St\.|Saint|Pope|Blessed|Bl\.)\s+/i, '')) : '';
+      tulos.suomentaja = kaannos(pub('srctrans'));
+      tulos.teos = pub('srcwork');
+      tulos.numero = (/(\d+)/.exec(pub('srcvolume')) || [])[1] || '';
+      tulos.toimittaja = kkLuettelo(kkNimet(pub('srced').replace(/^edited by\s+/i, '')));
+      Object.assign(tulos, paikkaJa('srcpublisher'));
+      tulos.julkaistu = (/\d{4}/.exec(pub('srcyear')) || [])[0] || '';
+    } else if (osasto[1] === 'cathen') {
+      const t = pub('mlaauthor'), m = /^([^,]+),\s*([^,]+)$/.exec(t);
+      tulos.tekija = m ? m[2] + ' ' + m[1] : t;
+      tulos.teos = pub('mlawork');
+      tulos.numero = (/(\d+)/.exec(pub('mlavolume')) || [])[1] || '';
+      Object.assign(tulos, paikkaJa('mlapublisher'));
+      tulos.julkaistu = (/\d{4}/.exec(pub('mlayear')) || [])[0] || '';
+    } else {
+      // Summa: tietolohko on <br>-riveinä.
+      const p = document.querySelector('.pub');
+      const rivit = p ? p.innerHTML.split(/<br\s*\/?>/i).map(h => rivi(jasenna(h).body.textContent)) : [];
+      const osa = /\(([^,()]+),\s*Q\.\s*\d+\)\s*$/.exec(rivi(document.title));
+      tulos.tekija = 'Thomas Aquinas';
+      tulos.teos = 'Summa Theologiae' + (osa ? ', ' + osa[1] : '');
+      const kaant = rivit.find(r => /translated by/i.test(r));
+      tulos.suomentaja = kaant ? kkKaantaja([rivi(kaant.replace(/^.*?translated by\s+/i, ''))]) : '';
+      tulos.julkaistu = ((rivit.find(r => /edition/i.test(r)) || '').match(/\b(1[89]\d\d|20\d\d)\b/) || [])[0] || '';
+      const oik = rivit.find(r => /copyright/i.test(r));
+      if (oik) tulos.oikeus = { teksti: oik, lahde: osoite };
+    }
+    return tulos;
+  }
+
+  /* Christian Classics Ethereal Library (ccel.org; käyttäjän pyyntö 14.11.2026). Lukijan sivu (#theText .book-content) on yksi
+     sisällysluettelon kohta: ANF- ja NPNF-niteissä luku (Justinoksen 1. apologia 68 sivua), muissa kirjoissa usein luku tai
+     osa. Sisällysluettelo tulee osoitteesta /book/menu/<tekijä>/<teos>/<versio>/toc/html (li.TOCn, sisäkkäisyys tasosta).
+     Leikattava kohta: sivu, jolla on alakohtia, alakohtineen; lyhyt (alle KK_LYHYT sanaa) lehtisivu, jolla on vähintään
+     kaksi sisarta, ylemmän kohdan kanssa (Ignatiuksen Efesolaiskirjeen luku → koko kirje); pitkä lehtisivu (Khrysostomoksen
+     homilia) yksin. Alaviitteet: sup.Note → div.footer_note (span.mnote on sama viite marginaalissa, pois). Sivunumerot
+     (span.pb), hakemistomerkit (span.index), selauspalkit ja viivakappaleet pois; Raamatun ja muut sivuston linkit tekstiksi.
+     Osan otsikko: sivun h1–h4; ilman niitä (NPNF:n Tunnustukset, ANF:n Tertullianus: otsikot luokiteltuina kappaleina)
+     sisällysluettelon nimi, kun se ei ole katkaistu (…), ja alun toisto (I. ↔ Chapter I) pois, muuten kappale, jonka
+     teksti sisältää katkaistun nimen (lyhyt edeltävä Book I. -kappale menee otsikoksi). Tekijä: ANF:n versaali ylin kohta
+     (IGNATIUS, JUSTIN MARTYR), muuten välilehden otsikon alku (Martin Luther: …), paitsi Schaffin kokoelmissa. Teos
+     selauspalkin kirjan nimestä (ANF01. The Apostolic Fathers …). Mitattu 14.11.2026. */
+  const CCEL_NIMI = 'Christian Classics Ethereal Library';
+  const CCEL_ISANTA = /^https?:\/\/([a-z0-9-]+\.)*ccel\.org(\/|$)/i;
+  function ccelSivu(d, n, syvyys, maar, laskuri, teosNimi = '') {
+    const s = d && (d.querySelector('#theText .book-content') || d.querySelector('.book-content'));
+    if (!s) return null;
+    const el = s.cloneNode(true);
+    el.querySelectorAll('script, style, span.pb, span.index, span.mnote, hr, table.book_navbar').forEach(x => x.remove());
+    const viit = new Map();
+    el.querySelectorAll('.footer_note[id]').forEach(f => viit.set(f.id, f));
+    el.querySelectorAll('sup.Note').forEach(sup => {
+      const a = sup.querySelector('a[href^="#"]'), f = a && viit.get(a.getAttribute('href').slice(1));
+      const k = f && (f.querySelector('span.Footnote') || f).cloneNode(true);
+      if (k) { k.querySelectorAll('sup').forEach(x => { if (x.querySelector('a.NoteRef')) x.remove(); }); kkLinkit(k, CCEL_ISANTA); }
+      const t = k ? muunna(k.innerHTML, 'inlined').trim() : '';
+      if (!t) { sup.remove(); return; }
+      const tunnus = 'cc' + (++laskuri.n);
+      sup.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('div.footnotes').forEach(x => x.remove());
+    kkLainaukset(el);
+    kkLinkit(el, CCEL_ISANTA);
+    el.querySelectorAll('p, div').forEach(p => { if (el.contains(p) && !p.querySelector('img, table') && /^[\s—–\-_*·.]*$/.test(p.textContent)) p.remove(); });
+    // Otsikko.
+    const hs = el.querySelectorAll(OTSIKOT);
+    let nimi = '';
+    if (hs.length) {
+      if (!syvyys) { nimi = kkOtsikkoTeksti(hs[0]); hs[0].remove(); }
+      kkSiirra(el, syvyys);
+      return { el, nimi };
+    }
+    const navi = rivi((d.querySelector('.book_navbar_title') || {}).textContent);
+    const katkaistu = t => /(\.\.\.|…)$/.test(t) || t.length >= 75;
+    const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    const kpl = [...el.children].filter(x => rivi(x.textContent)).slice(0, 6);
+    const nimiT = [n.nimi, navi].find(x => x && !katkaistu(x)) || n.nimi || navi;
+    const alku = tiivis(katkaistu(nimiT) ? nimiT.replace(/(\.\.\.|…)$/, '').replace(/\s+\S*$/, '') : nimiT);
+    // Kappale, jossa nimi on kokonaisena (Chapter II.—That the God …): se otsikoksi; lyhyt edeltävä osan nimi (Book I.) ensin.
+    const i = alku.length >= 4 ? kpl.findIndex(p => rivi(p.textContent).length <= 300 && tiivis(p.textContent).includes(alku)) : -1;
+    const ed = i > 0 ? kpl[i - 1] : null;
+    if (ed && KK_OSA.test(rivi(ed.textContent))) { nimi = rivi(ed.textContent); ed.remove(); }
+    else if (i >= 0) { nimi = rivi(kpl[i].textContent); kpl[i].remove(); }
+    else nimi = rivi(nimiT);
+    // Toistot pois: alun lyhyet kappaleet, jotka sisältyvät otsikkoon (I. ↔ Chapter I.; Homily I. ja Acts I. 1, 2 ↔ Homily I on Acts i. 1, 2)
+    // tai toistavat teoksen nimen (Tertullianuksen Apologian 1. luku: Apology.).
+    const t = tiivis(nimi), tn = tiivis(teosNimi);
+    kpl.forEach(p => { const x = tiivis(p.textContent); if (el.contains(p) && x && rivi(p.textContent).length <= 60 && (t.includes(x) || x === tn)) p.remove(); });
+    if (syvyys && nimi) { const h = document.createElement('h' + Math.min(6, 1 + syvyys)); h.textContent = nimi; el.insertBefore(h, el.firstChild); }
+    return { el, nimi };
+  }
+  async function ccel() {
+    if (!/(^|\.)ccel\.org$/i.test(location.hostname)) return null;
+    const oma = document.querySelector('#theText .book-content');
+    const sid = (document.querySelector('a#book_section_id[name], #book_section_id[name]') || { getAttribute: () => '' }).getAttribute('name');
+    const tunnus = k => ((document.querySelector('input[name="' + k + 'ID[]"]') || {}).value || '').trim();
+    const tek = tunnus('author'), teos = tunnus('work'), versio = tunnus('version') || teos;
+    if (!oma || !sid || !tek || !teos) return null;
+    const toc = await hae(location.origin + '/book/menu/' + tek + '/' + teos + '/' + versio + '/toc/html');
+    const solmut = [], juuret = [], pino = [];
+    if (toc) toc.querySelectorAll('li[class*="TOC"]').forEach(li => {
+      const taso = +((/\bTOC(\d+)\b/.exec(li.className) || [])[1] || 0), a = li.querySelector('a.TOC[href]');
+      if (!taso || !a) return;
+      const n = { id: (li.id || '').replace(/^toc/, ''), href: new URL(a.getAttribute('href'), location.origin).href,
+        nimi: rivi(a.getAttribute('title') || a.textContent), taso, lapset: [], yla: null };
+      while (pino.length && pino[pino.length - 1].taso >= taso) pino.pop();
+      if (pino.length) { n.yla = pino[pino.length - 1]; n.yla.lapset.push(n); } else juuret.push(n);
+      pino.push(n); solmut.push(n);
+    });
+    const tiedosto = u => (/[^/]*$/.exec(u.split(/[?#]/)[0]) || [''])[0];
+    // Sisällysluettelon tunniste voi puuttua edestä (NPNF:n Tunnustukset: tocI_1 ↔ vi.I_1).
+    const nyk = solmut.find(n => n.id === sid) || solmut.find(n => tiedosto(n.href) === tiedosto(location.pathname)) ||
+      solmut.filter(n => n.id && sid.endsWith('.' + n.id)).sort((a, b) => b.id.length - a.id.length)[0] ||
+      { id: sid, href: osoite, nimi: '', taso: 1, lapset: [], yla: null };
+    const litistä = n => [n, ...n.lapset.flatMap(litistä)];
+    let juuri = nyk;
+    if (!nyk.lapset.length && nyk.yla && nyk.yla.lapset.length >= 3 && kkSanoja(oma) < KK_LYHYT) juuri = nyk.yla;
+    let sivut = litistä(juuri);
+    if (sivut.length > KK_RAJA) { juuri = nyk; sivut = litistä(nyk).length <= KK_RAJA ? litistä(nyk) : [nyk]; }
+    // Myös nykyinen sivu haetaan: lukijan skriptit muuttavat elävää sivua (viitteiden näyttötapa).
+    const docs = sivut.length > 1 || sivut[0] !== nyk ? await kkHae(sivut.map(n => n.href)) : [];
+    const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
+    let otsikko = '', sivuja = 0;
+    sivut.forEach((n, i) => {
+      const d = docs[i] || (n === nyk ? document : null);
+      let syvyys = 0;
+      for (let x = n; x && x !== juuri; x = x.yla) syvyys++;
+      const s = ccelSivu(d, n, syvyys, maar, laskuri, otsikko);
+      if (!s) return;
+      sivuja++;
+      if (n === juuri) otsikko = s.nimi;
+      el.append(...s.el.childNodes);
+    });
+    if (kkSanoja(el) < 20) return null;
+    kkTasoita(el);
+    el.normalize();
+    const isoAlku = s => s.toLowerCase().split(/\s+/).map((w, i) => i && /^(of|the|and|de|von)$/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    // Kirja välilehden otsikosta (Martin Luther: Commentary on … - Christian Classics Ethereal Library); selauspalkissa on lyhenne (NPNF (V1-11)).
+    const alku = /^([^:]+):\s/.exec(rivi(document.title));
+    const kirja = alku ? rivi(rivi(document.title).slice(alku[0].length).replace(/\s*-\s*Christian Classics Ethereal Library\s*$/i, ''))
+      : rivi((document.getElementById('nav-workTitle') || {}).textContent);
+    otsikko = otsikko || juuri.nimi;
+    // Pelkkä osan nimi (Book I., CHAPTER I): eteen ylemmän kohdan tai kirjan nimi.
+    if (KK_OSA.test(otsikko)) {
+      const osa = (otsikko === otsikko.toUpperCase() ? isoAlku(otsikko) : otsikko).replace(/\.$/, '');
+      const yla = juuri.yla && juuri.yla.nimi && !/(\.\.\.|…)$/.test(juuri.yla.nimi) ? juuri.yla.nimi : kirja;
+      otsikko = yla ? yla.replace(/\.$/, '') + ', ' + osa : osa;
+    }
+    otsikko = otsikko.replace(/(?<!\b(?:etc|St|Co|[A-Za-z]))\.$/, '');
+    let ylin = juuri;
+    while (ylin.yla) ylin = ylin.yla;
+    const versaali = ylin !== juuri && /\p{Lu}/u.test(ylin.nimi) && ylin.nimi === ylin.nimi.toUpperCase() && !/\d/.test(ylin.nimi) && ylin.nimi.split(/\s+/).length <= 4;
+    // Schaffin niteen nimessä pyhimys (NPNF1-11. Saint Chrysostom: Homilies …).
+    const pyha = /^(?:ANF|NPNF)[\d-]+\.\s+(?:Saint|St\.)\s+([^:]+):/.exec(kirja);
+    const tekija = versaali ? isoAlku(ylin.nimi) : tek !== 'schaff' && alku ? rivi(alku[1]) : pyha ? rivi(pyha[1]) : '';
+    return { html: irrota([el]).innerHTML, otsikko, tekija, teos: kirja && kirja !== otsikko ? kirja : '', sivusto: CCEL_NIMI, lahde: juuri.href,
+      maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
+  }
+
   /* IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (IRED; käyttäjän pyyntö 13.11.2026). Hakuteos on vain
      FlippingBook-kirjana (englanniksi online.flippingbook.com/view/544664, 1258 sivua, 21 hakusanaa), lataus estetty, lisenssi
      CC BY-NC-ND. Katselin piirtää sivut kuvina, mutta jokaisen sivun oma osoite /view/<kirja>/<n>/ antaa hakukoneille sivun
@@ -1799,7 +2161,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, aeonPsyche, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }
@@ -1814,9 +2176,13 @@
   const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
   kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
   kentta('teos', blogi && blogi.teos);
+  kentta('numero', blogi && blogi.numero);
+  kentta('toimittaja', blogi && blogi.toimittaja);
   kentta('suomentaja', blogi && blogi.suomentaja);
   kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
   kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
+  kentta('paikka', blogi && blogi.paikka);
+  kentta('kustantaja', blogi && blogi.kustantaja);
   kentta('doi', blogi && blogi.doi);
   kentta('lähde', blogi && blogi.lahde || osoite);
   let oikeus = null;
