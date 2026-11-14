@@ -5011,6 +5011,9 @@
      suomi osio 24, virhe "does not match the L2 header (Albanian)", käyttäjän havainto 14.11.2026). Siksi haetaan osion
      wikiteksti, karsitaan se oman otsikon ja seuraavan otsikon väliin ja jäsennetään kaikki osiot yhdessä pyynnössä sivun
      nimellä niin, että kunkin edellä on täyteotsikoita (=a=) tasan sen osionumeroon asti. */
+  // VÄLIAIKAINEN (14.11.2026): käyttäjän laitteella historia antoi tyhjän alkuperän, jota ei saatu toistettua Chromiumissa.
+  // Rivi näkyy vain, kun alkuperästä ei tule tekstiä; poista, kun syy on löytynyt.
+  function skDbg(t) { return '<div class="sk-tieto" style="font-size:.7rem;overflow-wrap:anywhere">' + esc(String(t || '')) + '</div>'; }
   function skEtyWiki(wt) {
     var rivit = String(wt || '').split('\n'), out = [rivit[0]];
     for (var i = 1; i < rivit.length && !/^(={1,6}).+\1\s*$/.test(rivit[i]); i++) out.push(rivit[i]);
@@ -5021,6 +5024,7 @@
     if (skEtyVarasto[avain]) return skEtyVarasto[avain];
     var p = haeOsiot(o).then(function (sections) {
       var osiot = skEtyOsiot(sections, nimet), otsikko = o;
+      osiot.dbg = 'osioita ' + sections.length;
       if (!osiot.length) return osiot;
       return Promise.all(osiot.map(function (x) {
         return skParse(o, '&prop=wikitext&section=' + x.i).then(function (pp) {
@@ -5037,6 +5041,9 @@
       }).then(function (h) {
         var osat = skOsiot(h);
         osiot.forEach(function (x) { var t = skEtyHtml(osat[x.i] || []); x.html = t.html; x.virhe = t.virhe; });
+        osiot.dbg += ' · ' + osiot.map(function (x) { return x.kieli + ' ' + x.i + ': wt ' + (x.wiki || '').length + ' ' + JSON.stringify((x.wiki || '').slice(0, 40)) +
+          ', sis. ' + (osat[x.i] || []).map(function (e) { return e.tagName.toLowerCase(); }).join('+'); }).join(' · ') +
+          ' · jäsennys ' + String(h || '').length + ' m, otsikoita ' + osat._n + ' (' + otsikko + ')';
         return osiot;
       });
     });
@@ -5050,6 +5057,7 @@
       if (/^H[1-6]$/.test(e.tagName) || e.classList.contains('mw-heading')) { n++; continue; }
       (osat[n] = osat[n] || []).push(e);
     }
+    osat._n = n;
     return osat;
   }
   // Kappaleet ja luettelorivit; Lua-virheen sisältävä kappale jää pois (virhe: true), jottei virheteksti näy alkuperänä.
@@ -5194,14 +5202,15 @@
         $('.sk-ety-runko', paikka).innerHTML = html; sijoitaPop();
       };
       haeAlkupera(o, nimet).then(function (os) {
-        var virhe = os.some(function (x) { return x.virhe; });
-        os = os.filter(function (x) { return x.html; });
+        var virhe = os.some(function (x) { return x.virhe; }), dbg = os.dbg;
+        os = os.filter(function (x) { return x.html; }); os.dbg = dbg;
         // Kielen nimi ja numero vain, kun niistä on apua: monta osiota tai selityksessä monta kieltä.
         var nimea = os.length > 1 || nimet.length > 1;
         valmis((os.length ? os.map(function (x) {
           return (nimea ? '<div class="sk-kieli">' + esc(x.kieli) + (x.nro ? ' · ' + x.nro : '') + '</div>' : '') + x.html;
-        }).join('') : '<div class="sk-tieto">' + (virhe ? 'Wikisanakirjan alkuperää ei saatu luettua.' : 'Wikisanakirjaan ei ole kirjattu alkuperää.') + '</div>'));
-      }).catch(function () { valmis('<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>'); });
+        }).join('') : '<div class="sk-tieto">' + (virhe ? 'Wikisanakirjan alkuperää ei saatu luettua.' : 'Wikisanakirjaan ei ole kirjattu alkuperää.') + '</div>' +
+          skDbg('kielet ' + nimet.join('+') + ' · ' + (os.dbg || ''))));
+      }).catch(function (e) { valmis('<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>' + skDbg(e && e.message)); });
     }
     function eiLoydy(v) {
       nayta(v, haku, '<div class="sk-tieto">' + (virhe ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' :

@@ -676,7 +676,7 @@ palvelin.listen(0, async () => {
   await odotaEty();
   e = await ety();
   RIKKI = false;
-  tulos('alkuperä: Lua-virhe ei näy alkuperänä eikä väitä alkuperää kirjaamattomaksi', e.teksti === 'Wikisanakirjan alkuperää ei saatu luettua.', JSON.stringify(e));
+  tulos('alkuperä: Lua-virhe ei näy alkuperänä eikä väitä alkuperää kirjaamattomaksi', e.teksti.startsWith('Wikisanakirjan alkuperää ei saatu luettua.') && !/Lua error/.test(e.teksti), JSON.stringify(e));
   await p.click('#pop .sk-sulje');
 
   await b.close(); palvelin.close();
