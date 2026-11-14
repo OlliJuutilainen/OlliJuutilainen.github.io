@@ -14,8 +14,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 - Ennen tätä listaa: SEP, Blogger, Ensyklopedia Logos, Wikipedia (fi, en), marxists.org, Wait But Why, OECS,
   Encyclopedia.com ja IPA:n IRED.
-- Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026) ja Project Gutenberg
-  (PR #701, 14.11.2026).
+- Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026), Project Gutenberg
+  (PR #701, 14.11.2026) sekä New Advent ja CCEL (14.11.2026).
 - Mitattu, ei sovitetta tarvita: Aeon (aeon.co). Readability antaa tekstin, tekijän ja päiväyksen. Nostolainaukset
   toistuvat kappaleina ja kuvatekstit jäävät kappaleiksi; pieni sovite voisi siistiä ne, mutta kiirettä ei ole.
 

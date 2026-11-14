@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat ja New Adventin ja CCEL:n kirkkoisät Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -52,7 +52,15 @@ const SARJAT = {
   // p.toc): Critique of Pure Reason, Meditations, Ethics, Treatise, Critique of Practical Reason, Augustinus; ilman viitteitä:
   // Republic, Beyond Good and Evil; suomeksi: Kalevala (23 000 säettä), Seitsemän veljestä.
   gutenberg: ['4280', '48433', '5683', '621', '38427', '2680', '3800', '4705', '3296', '1497', '4363', '7000', '11940']
-    .map(n => 'https://www.gutenberg.org/cache/epub/' + n + '/pg' + n + '-images.html')
+    .map(n => 'https://www.gutenberg.org/cache/epub/' + n + '/pg' + n + '-images.html'),
+  // New Advent (14.11.2026): yhden sivun teokset (Ignatius, Justinos, Tertullianus, Khrysostomoksen homilia), Irenaeuksen luku
+  // (kootaan Book I), Stromatan sisällysluettelo (kootaan kahdeksan kirjaa), Catholic Encyclopedia ja Summa.
+  newadvent: ['fathers/0104', 'fathers/0126', 'fathers/0301', 'fathers/210201', 'fathers/0103101', 'fathers/0210', 'cathen/11567b', 'summa/1002']
+    .map(p => 'https://www.newadvent.org/' + p + '.htm'),
+  // CCEL (14.11.2026): Ignatiuksen luku (kootaan kirje kahtena recensiona), Justinoksen 1. apologian juuri (68 lukua), Tertullianuksen
+  // Apologian luku (otsikot kappaleina), Tunnustusten luku (kootaan Book I), Khrysostomoksen pitkä homilia yksin, Lutherin Galatalaiskirje.
+  ccel: ['schaff/anf01/anf01.v.ii.i', 'schaff/anf01/anf01.viii.ii', 'schaff/anf03/anf03.iv.iii.i', 'schaff/npnf101/npnf101.vi.I_1.I',
+    'schaff/npnf111/npnf111.vi.i', 'luther/galatians/galatians.iv'].map(p => 'https://ccel.org/ccel/' + p + '.html')
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -84,7 +92,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
