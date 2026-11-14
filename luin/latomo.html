@@ -331,6 +331,9 @@
       <button type="button" id="lataa">Lataa .md</button>
       <button type="button" id="laheta" aria-expanded="false">Postihuilu</button>
     </div>
+    <!-- Latauksen kuittaus (käyttäjän pyyntö 14.11.2026): Lisää lukimeen painaa Lataa .md:n taustavälilehdellä, ja jos
+         välilehti jää auki, tämä kertoo latauksen lähteneen. Piiloon, kun tekstiä muutetaan. -->
+    <p class="ok" id="lataa-tila" role="status" hidden></p>
     <p class="pieni"><b>Avaa lukimessa</b> tallentaa tekstin tämän selaimen hyllylle. Saman nimisen
       tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
       <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
@@ -1154,7 +1157,7 @@
   /* ---------- tapahtumat ---------- */
   var ajastin = null;
   function myohemmin(ms) { clearTimeout(ajastin); ajastin = setTimeout(paivita, ms || 200); }
-  md.addEventListener('input', function () { if (!md.value.trim()) { alusta(); nimi = ''; } myohemmin(250); });
+  md.addEventListener('input', function () { $('#lataa-tila').hidden = true; if (!md.value.trim()) { alusta(); nimi = ''; } myohemmin(250); });
   $('#kentat').addEventListener('input', function (ev) {
     var r = ev.target.closest('.kentta'), k = r && r.dataset.k;
     if (!k) return;
@@ -1281,6 +1284,11 @@
     a.download = (L.slug(t.doc.title || nimi || 'teksti').slice(0, 60)) + '.md';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    $('#lataa-tila').textContent = 'Ladattu: ' + a.download + ' (selaimen latauskansioon, ' + kello(Date.now()) + ').';
+    $('#lataa-tila').hidden = false;
+    // Lisäosan painaessa sivu on ylälaidassa: kuittaus ruudun keskelle. Käsin painettaessa se on yleensä jo näkyvissä.
+    var r = $('#lataa-tila').getBoundingClientRect();
+    if (r.top < 0 || r.bottom > innerHeight) $('#lataa-tila').scrollIntoView({ block: 'center' });
   });
   // ---- Postilaatikko ----
   // Laatikkolause tarkistetaan kuten Luinissa (posti.js): 24–52 merkkiä a–z, 0–9 ja -, jotta sillä voi sekä lähettää että lukea.

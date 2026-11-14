@@ -489,8 +489,11 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   const latomoA = await paina('#lataa', /latomo\.html$/);
   const dlA = await Promise.race([latausA, new Promise(r => setTimeout(() => r(null), 5000))]);
   await latomoA.waitForTimeout(3000);
-  tulos('Lataa .md Androidilla: Latomo edessä ja auki', /Android/.test(ua) && !!dlA && dlA.suggestedFilename() === 'kokeilukirjoitus.md' && !latomoA.isClosed(),
-    (dlA ? dlA.suggestedFilename() : 'ei latausta') + ' | ' + (latomoA.isClosed() ? 'sulkeutui' : 'auki'));
+  // Kuittaus (14.11.2026): auki jäävässä Latomossa näkyy ruudulla (vieritetty esiin), että lataus lähti.
+  const kuittausA = latomoA.isClosed() ? null : await latomoA.evaluate(() => { const e = document.getElementById('lataa-tila'); const r = e && e.getBoundingClientRect(); return e && !e.hidden && r.height && r.top >= 0 && r.bottom <= innerHeight ? e.textContent : null; });
+  tulos('Lataa .md Androidilla: Latomo edessä ja auki, kuittaus näkyy', /Android/.test(ua) && !!dlA && dlA.suggestedFilename() === 'kokeilukirjoitus.md' && !latomoA.isClosed() &&
+    /^Ladattu: kokeilukirjoitus\.md /.test(kuittausA || ''),
+    (dlA ? dlA.suggestedFilename() : 'ei latausta') + ' | ' + (latomoA.isClosed() ? 'sulkeutui' : 'auki') + ' | ' + kuittausA);
   if (!latomoA.isClosed()) await latomoA.close();
 
   // 3. Lisää lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
