@@ -1,7 +1,7 @@
 // Lisää lukimeen -lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -272,6 +272,38 @@ const SAET_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
 <li><h3 id="id10">Works cited</h3><ul><li>Bodiford, William M. 1993. <cite>Sōtō Zen in Medieval Japan</cite>. University of Hawaii Press.</li><li>Raud, Rein. 2012. ‘The Existential Moment’, <cite>Philosophy East and West</cite> 62, no. 2: 153–173. <a href="https://doi.org/10.1353/pew.2012.0029">https://doi.org/10.1353/pew.2012.&#8203;0029</a></li></ul></li></ul></div></div></div>
 </div></section><footer><h3>About</h3><p>ISSN 2753-3492</p></footer></body></html>`;
 
+// Project Gutenberg (keksitty kirja, Ebookmakerin kehys 14.11.2026): otsake ja lisenssi erottimien ulkopuolella, Dublin Core,
+// nimiö otsikkoina, sisällysluettelo (p.toc otsikkolinkein ja taulukko sivunumerolinkein), DP:n span.pagenum ja fnanchor →
+// div.footnote, vanha p.footnote kappaleen perässä (seuraava leipäteksti ei saa valua viitteeseen), TEI:n dt/dd-viite,
+// linkitön [1]-viite, viitemerkki <pre>-kaaviossa.
+const PG = 'https://www.gutenberg.org/cache/epub/99999/pg99999-images.html';
+const PG_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>The Project Gutenberg eBook of Koe Kritiikki, by Kant</title>
+<meta name="dc.title" content="Koe Kritiikki"><meta name="dc.language" content="en"><meta name="dc.rights" content="Public domain in the USA.">
+<meta name="dc.creator" content="Kant, Immanuel, 1724-1804"><meta name="marcrel.trl" content="Meiklejohn, J. M. D. (John Miller Dow), 1830-1902">
+<meta name="generator" content="Ebookmaker 0.14.6 by Project Gutenberg"></head><body>
+<section class="pg-boilerplate pgheader" id="pg-header"><h2 id="pg-header-heading">The Project Gutenberg eBook of Koe Kritiikki</h2>
+<p>This ebook is for the use of anyone anywhere in the United States.</p><div id="pg-start-separator"><span>*** START OF THE PROJECT GUTENBERG EBOOK ***</span></div></section>
+<h1>Koe Kritiikki</h1><h2>By Immanuel Kant</h2><h4>Translated by J. M. D. Meiklejohn</h4><hr>
+<h2>Contents</h2><p class="toc"><a href="#pref" class="pginternal">PREFACE</a></p><p class="toc"><a href="#ch1" class="pginternal">CHAPTER I. Of Space</a></p><p class="toc"><a href="#ch2" class="pginternal">CHAPTER II. Of Time</a></p>
+<table data-summary="Pages"><tr><td>Preface</td><td><a href="#Page_1">1</a></td></tr><tr><td>Space</td><td><a href="#Page_2">2</a></td></tr></table><hr>
+<h2><a id="pref"></a>PREFACE</h2>
+<p>Human reason has this peculiar fate that in one species of its knowledge it is burdened by questions which it cannot dismiss, and which it cannot answer either, because they transcend every capacity of human reason whatever, as the reader will see.<a class="fnanchor pginternal" href="#Footnote_1" id="FNanchor_1">1</a><span class="pagenum"><a id="Page_1">1</a></span> It falls into this difficulty without fault.</p>
+<p>Metaphysics was once called the queen of all the sciences.[1] Now it is scorned by all.</p>
+<p class="footnote">[1] "Regina"</p>
+<h2 id="ch1">CHAPTER I. Of Space</h2>
+<p>Space is not an empirical conception.<a href="#linknote-2" id="linknoteref-2" class="pginternal">[2]</a></p>
+<p class="footnote"><a id="linknote-2"></a> <a href="#linknoteref-2" class="pginternal">[2]</a> A note in the old style.</p>
+<p>This paragraph follows the old-style note and belongs to the text, not to the note.</p>
+<pre>  1        2
+  SUBSTANCE<a href="#linknote-3" id="linknoteref-3" class="pginternal">[3]</a></pre>
+<p class="footnote"><a id="linknote-3"></a> <a href="#linknoteref-3" class="pginternal">[3]</a> A note on the table.</p>
+<h2 id="ch2">CHAPTER II. Of Time</h2>
+<p>Time is the form of inner sense.<a href="#note_4" id="noteref_4" class="pginternal"><span class="tei tei-noteref">4</span></a><span class="tei tei-pb" id="page2">[pg 2]</span> It is nothing else.</p>
+<div class="footnote"><p><a id="Footnote_1" href="#FNanchor_1" class="label">[1]</a> A DP footnote.</p><p>Its second paragraph.</p></div>
+<dl class="tei tei-list-footnotes"><dt><a href="#noteref_4" id="note_4" class="pginternal">4.</a></dt><dd><p>A TEI note.</p></dd></dl>
+<section class="pg-boilerplate pgheader" id="pg-footer"><div id="pg-end-separator"><span>*** END OF THE PROJECT GUTENBERG EBOOK ***</span></div>
+<h2 id="pg-footer-heading">THE FULL PROJECT GUTENBERG LICENSE</h2><p>Section 1. General Terms of Use.</p></section></body></html>`;
+
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
 // virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
@@ -350,6 +382,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === OECS) return r.fulfill({ body: OECS_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === ENC) return r.fulfill({ body: ENC_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === SAET) return r.fulfill({ body: SAET_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === PG) return r.fulfill({ body: PG_SIVU, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -709,6 +742,20 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     /^Bodiford, William M\. 1993\. \*Sōtō Zen in Medieval Japan\*\. University of Hawaii Press\.$/m.test(sa.md), (sa.md.match(/He trained[^\n]*/) || [''])[0]);
   tulos('SAET Luinissa: kolme kirjallisuuden kohtaa, tekijä–vuosi linkittyy luetteloon, lainaus, ei varoituksia', sa.luin.bib === 3 && sa.luin.lainaus === 1 &&
     sa.luin.lahde.join() === 'Bodiford 1993>#kirj-bodiford-1993,Raud 2012>#kirj-raud-2012' && !sa.luin.varoitukset.length, JSON.stringify(sa.luin).slice(0, 400));
+  // 17. Project Gutenberg (14.11.2026): kirja erottimien välistä, nimiö, sisällys, sivunumerot, neljä viitetapaa.
+  const pg = await leikeLuin(PG);
+  const pgRunko = pg.md.split('---').slice(2).join('---');
+  tulos('Gutenberg: etukenttä (tekijä ja kääntäjä nimijärjestyksessä, kirjan sivu, lisenssi)', /^---\ntekijä: Immanuel Kant\nsuomentaja: Kääntänyt J\. M\. D\. Meiklejohn\nsivusto: Project Gutenberg\nlähde: https:\/\/www\.gutenberg\.org\/ebooks\/99999\noikeudet: Public domain in the USA\.\noikeudet-lähde: https:\/\/www\.gutenberg\.org\/policy\/license\.html\n/.test(pg.md),
+    pg.md.split('\n').slice(0, 9).join(' | '));
+  tulos('Gutenberg: otsake, lisenssi, nimiöotsikot, sisällys ja sivunumerot pois', pg.ots === '# Koe Kritiikki | ## PREFACE | ## CHAPTER I. Of Space | ## CHAPTER II. Of Time' &&
+    /^By Immanuel Kant$/m.test(pgRunko) && !/START OF|END OF|LICENSE|anyone anywhere|General Terms|Contents|\[pg 2\]|Page|Preface \||^\d$/m.test(pgRunko) && (pgRunko.match(/^___$/gm) || []).length === 1,
+    pg.ots + ' / ' + pgRunko.slice(0, 300).replace(/\n/g, ' | '));
+  tulos('Gutenberg: DP-, vanha, TEI- ja linkitön viite alaviitteiksi; leipäteksti ei valu viitteeseen; kaavion merkki kaavion perään',
+    /whatever, as the reader will see\.\[\^viite-pg1\] It falls into this difficulty without fault\./.test(pgRunko) && /queen of all the sciences\.\[\^viite-pgt1\] Now it is scorned/.test(pgRunko) &&
+    /^\[\^viite-pg1\]: A DP footnote\.\n\n {4}Its second paragraph\.$/m.test(pgRunko) && /^\[\^viite-pgt1\]: "Regina"$/m.test(pgRunko) && /^\[\^viite-pg2\]: A note in the old style\.$/m.test(pgRunko) &&
+    /^This paragraph follows the old-style note and belongs to the text, not to the note\.$/m.test(pgRunko) && /SUBSTANCE\n```\n\n\[\^viite-pg3\]$/m.test(pgRunko) &&
+    /inner sense\.\[\^viite-pg4\] It is nothing else\./.test(pgRunko) && /^\[\^viite-pg4\]: A TEI note\.$/m.test(pgRunko), pgRunko.replace(/\n/g, ' | ').slice(0, 1400));
+  tulos('Gutenberg Luinissa: viisi alaviitettä, ei varoituksia', pg.luin.sn.length === 5 && !pg.luin.varoitukset.length, JSON.stringify(pg.luin).slice(0, 500));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
