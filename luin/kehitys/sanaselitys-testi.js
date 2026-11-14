@@ -64,8 +64,23 @@ const S = {
   IV: { pop: 40, mul: ['Numeral', 'Roman numeral four.'], en: ['Noun', 'intravenous drip'] },
   // historia kuten oikeassa sivussa: suomi ei ole sivun ensimmäinen kieli (14.11.2026).
   historia: { pop: 80, la: ['Noun', 'history, narrative'], fi: ['Noun', 'history'] },
-  historiaa: { pop: 10, fi: ['Noun', { muoto: 'partitive singular of', k: 'historia' }] }
+  historiaa: { pop: 10, fi: ['Noun', { muoto: 'partitive singular of', k: 'historia' }] },
+  // Taulukkohaku: käsitteen-sivua ei ole, mutta tekstihaku löytää käsitteen taivutustaulukosta (taulu: tekstihaun
+  // indeksoima taulukon teksti; käyttäjä tarkisti oikeasta hausta 14.11.2026). Napsu käsittee tuo pitkiä johdoksia.
+  käsite: { pop: 70, fi: ['Noun', 'concept'], taulu: ['käsitteen', 'käsitettä', 'käsitteet'] },
+  käsitteellinen: { pop: 40, fi: ['Adjective', 'conceptual'] },
+  käsitteellistää: { pop: 20, fi: ['Verb', 'to conceptualize'] },
+  käsitteenmuodostus: { pop: 15, fi: ['Noun', 'concept formation'] },
+  käsitys: { pop: 60, fi: ['Noun', 'conception, view'] },
+  // Esimerkkilauseessa muoto käsitteen: eri alku, ei saa tulla ehdokkaaksi.
+  määritellä: { pop: 50, fi: ['Verb', 'to define'], taulu: ['käsitteen'] },
+  // Pituusehto ilman taulukkoa: liikkeen → napsu liikke tuo vain liikkeenjohdon, jatketaan liikeeseen.
+  liike: { pop: 65, fi: ['Noun', 'movement'] },
+  liikkeenjohto: { pop: 25, fi: ['Noun', 'management'] },
+  // Vain pitkiä ehdokkaita: pituusehto ei saa estää tulosta (varalla ensimmäisen napsun pitkät).
+  kuvaannollinen: { pop: 30, fi: ['Adjective', 'figurative'] }
 };
+const META = new Set(['pop', 'taulu']);
 // Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
 // Osion wikiteksti (prop=wikitext&section=N) sisältää oman otsikkonsa ja alaosionsa, siksi mukana on sanaluokka, jota ei saa näkyä.
 // Etymologiamallineet ({{der}} ym.) tarkistavat kielen kuten Module:etymology/templates: nykyinen L2 luetaan sivun
@@ -84,7 +99,7 @@ const E = {
 const NIMET = Object.fromEntries(Object.entries(NIMI).map(([k, v]) => [k, v]));
 function osioLista(o) {
   const e = E[o], osiot = []; let n = 0;
-  for (const kieli of Object.keys(S[o]).filter(k => k !== 'pop').map(k => NIMET[k])) {
+  for (const kieli of Object.keys(S[o]).filter(k => !META.has(k)).map(k => NIMET[k])) {
     osiot.push({ toclevel: 1, level: '2', line: kieli, index: String(++n) });
     const et = e[kieli] || [];
     const nimeta = et.length > 1;
@@ -157,7 +172,7 @@ function rest(o) {
   const e = S[o]; if (!e) return null;
   const j = {};
   for (const k of Object.keys(e)) {
-    if (k === 'pop') continue;
+    if (META.has(k)) continue;
     const [pos, d] = e[k];
     const html = d => typeof d === 'string' ? d : '<span class="form-of-definition use-with-mention">' + d.muoto + ' <span class="form-of-definition-link"><i class="Latn mention" lang="' + k + '"><a rel="mw:WikiLink" href="/wiki/' + encodeURIComponent(d.k) + '#' + NIMI[k] + '" title="' + d.k + '">' + d.k + '</a></i></span></span>';
     const osa = { partOfSpeech: pos, language: NIMI[k], definitions: [].concat(d).map(x => ({ definition: html(x) })) };
@@ -178,13 +193,13 @@ function api(u) {
     t = t.filter(o => EI_TAITTOA ? o.toLowerCase().startsWith(a.toLowerCase()) : taita(o).startsWith(taita(a)));
   } else {
     const sanat = taita(q.get('gsrsearch')).split(/\s+/);
-    t = t.filter(o => sanat.every(w => taita(o).split(/\s+/).includes(w)));
+    t = t.filter(o => sanat.every(w => taita(o).split(/\s+/).includes(w) || (S[o].taulu || []).map(taita).includes(w)));
   }
   t.sort((a, b) => S[b].pop - S[a].pop);
   const pages = t.map((o, i) => {
     const p = { ns: 0, title: o, index: i + 1 };
     if (kat.length) {
-      p.categories = Object.keys(S[o]).filter(k => k !== 'pop').map(k => 'Category:' + NIMI[k] + (typeof [].concat(S[o][k][1])[0] === 'string' ? ' lemmas' : ' non-lemma forms'))
+      p.categories = Object.keys(S[o]).filter(k => !META.has(k)).map(k => 'Category:' + NIMI[k] + (typeof [].concat(S[o][k][1])[0] === 'string' ? ' lemmas' : ' non-lemma forms'))
         .filter(c => kat.includes(c)).map(c => ({ ns: 14, title: c }));
     }
     return p;
@@ -225,6 +240,8 @@ They read it *as* a draft, and he called it “as good” as the rest of the boo
 The ethos of the book is Dasein, and the so-called “ethos” is not that, but as he said, “it is the ethos of the people and it is the one that was there”.
 
 Viimeinen kappale on suomea, ja hän luki historiaa koko illan.
+
+Käsitteen määritelmä ja liikkeen suunta ovat kuvaannon asioita.
 `;
 
 palvelin.listen(0, async () => {
@@ -709,6 +726,18 @@ palvelin.listen(0, async () => {
     await p.click('#pop .sk-sulje');
   }
   MOBIILI = false;
+
+  // Taulukkohaku ja pituusehto (käyttäjän pyyntö 14.11.2026).
+  await p.reload(); await p.waitForTimeout(500);
+  r = await selita('Käsitteen');
+  console.log('     Käsitteen: ' + pyynnot.length + ' pyyntöä: ' + pyynnot.map(u => u.replace(/^.*(gpssearch|gsrsearch)=([^&]*).*$/, '$1=$2').replace(/^\/api\/rest_v1\/page\/definition\//, 'rest:')).join(' · '));
+  tulos('fi: taulukkohaku (Käsitteen → käsite, muoto otsikon alla, ei esimerkkilauseen määritellä eikä napsun johdoksia)',
+    r.ots === 'käsite' && r.muoto === '(”käsitteen”)' && /concept/.test(r.maar[0]) && !r.huom.length && !r.vaihdot.length && !pyynnot.some(u => /gpssearch/.test(u)), JSON.stringify(r));
+  await kuva('sk-kasitteen');
+  r = await selita('liikkeen');
+  tulos('fi: pituusehto (liikkeen → liike, ei liikkeenjohto)', r.ots === 'liike' && /movement/.test(r.maar[0]) && /lähin osuma/i.test(r.huom.join()), JSON.stringify(r));
+  r = await selita('kuvaannon');
+  tulos('fi: pituusehto ei estä tulosta, kun lyhyitä ei tule (kuvaannon → kuvaannollinen)', r.ots === 'kuvaannollinen' && /figurative/.test(r.maar[0]), JSON.stringify(r));
 
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'kaikki kunnossa');
