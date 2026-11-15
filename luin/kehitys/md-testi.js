@@ -389,5 +389,21 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('tekijänoikeudet: ei merkintää ilman etukenttää', !/tekijanoikeudet/.test(M.parse('# T\n\n## A\n\nB.\n').html));
 })();
 
+// Rahoitushuomautus (käyttäjän säännöt 15.11.2026): otsikkolohkon alkuun ilman lohkonumeroa, kolme lajia.
+(function () {
+  const runko = '# T\n\n*Ala*\n\n## A\n\nB.\n';
+  const ek = (laji, u) => '---\nrahoitus: ' + laji + (u ? '\nlahjoitusosoite: ' + u : '') + '\n---\n';
+  const a = M.parse(runko), m = M.parse(ek('mainokset') + runko);
+  tulos('rahoitus: mainokset otsikkolohkon alussa hakasulkeissa', /^<header class="tt"><p class="rahoitus">\[Tämä sivusto pysyy todennäköisesti pystyssä mainostulojen voimin\..*\]<\/p><h1 /.test(m.html), m.html.slice(0, 200));
+  tulos('rahoitus: lohkonumerot ja sisällys ennallaan', m.blocks === a.blocks && m.html.replace(/<p class="rahoitus">.*?<\/p>/, '') === a.html);
+  tulos('rahoitus: mainoksiin ei lahjoitusosoitetta', !/osoitteessa/.test(M.parse(ek('mainokset', 'https://x.org/d') + runko).html));
+  const l = M.parse(ek('lahjoitukset', 'https://donate.wikimedia.org/') + runko).html;
+  tulos('rahoitus: lahjoitukset osoitteineen', /\[Tämä sivusto toimii lahjoitusten varassa\. Lahjoittaa voi osoitteessa <a class="url" href="https:\/\/donate\.wikimedia\.org\/">https:\/\/donate\.wikimedia\.org\/<\/a>\]<\/p>/.test(l), (l.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
+  tulos('rahoitus: mainokset ja lahjoitukset alkaa huomautuksella', /<p class="rahoitus">\[Huom\. huom\.!/.test(M.parse(ek('mainokset ja lahjoitukset', 'https://x.org/d') + runko).html));
+  tulos('rahoitus: tuntematon laji tai ilman etukenttää ei huomautusta', !/rahoitus/.test(M.parse(ek('jotain') + runko).html) && !/rahoitus/.test(a.html));
+  const ilman = M.parse(ek('lahjoitukset', 'https://x.org/d') + 'Pelkkä teksti.\n').html;
+  tulos('rahoitus: ilman otsikkoa tekstin alussa', /^<p class="rahoitus">/.test(ilman), ilman.slice(0, 80));
+})();
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

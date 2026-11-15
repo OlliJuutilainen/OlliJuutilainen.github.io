@@ -98,6 +98,9 @@
   ul.sivustot { list-style: none; padding: 0; }
   ul.sivustot li { margin: 0 0 10px; }
   ul.sivustot .mika { display: block; font-size: .86rem; color: var(--harmaa); }
+  /* Kunniasalmiakki (käyttäjän pyyntö 15.11.2026): Luinin sertifioima eli käyttäjän itse siedettävästi läpikäymä sovite.
+     Logon koverakylkinen salmiakki okrana (ruoste on napautettavan väri). */
+  .kunnia svg { width: .62em; height: .78em; vertical-align: -.02em; fill: var(--okra); overflow: visible; }
 </style>
 </head>
 <body>
@@ -107,6 +110,8 @@
   <p class="johdanto">Näille sivustoille Lisää lukimeen -lisäosalla on oma sovitteensa: työpöytäselaimessa artikkeli
     tulee <a href="latomo.html">Latomoon</a> siistimpänä kuin yleisin keinoin, esimerkiksi alaviitteineen. Muiltakin
     sivuilta leikkaaminen yleensä onnistuu. Puuttuuko suosikkisi? <a href="palaute.html?mista=sivustot">Kerro meille</a>.</p>
+  <p class="johdanto"><span class="kunnia" role="img" title="Kunniasalmiakki: Luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span> Kunniasalmiakki merkitsee Luinin sertifioimaa sovitetta: kehittäjä on itse käynyt sen
+    siedettävästi läpi.</p>
 
   <nav class="aakkoset" id="aakkoset" aria-label="Alkukirjaimet" hidden></nav>
 
@@ -118,18 +123,14 @@
       <span class="mika">Bloggerin blogit, myös omilla verkkotunnuksillaan</span></li>
     <li><a href="https://ccel.org/" target="_blank" rel="noopener">Christian Classics Ethereal Library</a>
       <span class="mika">ccel.org; kirkkoisät ja muut klassikot, luvun sivulta koko kirje tai kirja alaviitteineen</span></li>
-    <li><a href="https://www.encyclopedia.com/" target="_blank" rel="noopener">Encyclopedia.com</a>
-      <span class="mika">Galen ja Oxfordin hakuteokset, kuten International Dictionary of Psychoanalysis; yksi artikkeli kerrallaan</span></li>
-    <li><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a>
+    <li><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a> <span class="kunnia" role="img" title="Kunniasalmiakki: Luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
       <span class="mika">filosofia.fi</span></li>
     <li><a href="https://www.journal-psychoanalysis.eu/" target="_blank" rel="noopener">European Journal of Psychoanalysis</a>
       <span class="mika">journal-psychoanalysis.eu; artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
     <li><a href="https://online.flippingbook.com/view/544664/" target="_blank" rel="noopener">IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis</a>
       <span class="mika">FlippingBook-kirja; leikkaa hakusanan, jonka sivulla olet</span></li>
-    <li><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a>
+    <li><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a> <span class="kunnia" role="img" title="Kunniasalmiakki: Luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
       <span class="mika">marxists.org</span></li>
-    <li><a href="https://www.newadvent.org/" target="_blank" rel="noopener">New Advent</a>
-      <span class="mika">newadvent.org; kirkkoisät, Catholic Encyclopedia ja Summa, raamatunkohdat alaviitteinä</span></li>
     <li><a href="https://oecs.mit.edu/" target="_blank" rel="noopener">Open Encyclopedia of Cognitive Science</a>
       <span class="mika">oecs.mit.edu</span></li>
     <li><a href="https://www.gutenberg.org/" target="_blank" rel="noopener">Project Gutenberg</a>
@@ -138,14 +139,18 @@
       <span class="mika">psyche.co; esseet ja oppaat (Guides) osioineen ilman nostolainauksia</span></li>
     <li><a href="https://www.saet.ac.uk/" target="_blank" rel="noopener">St Andrews Encyclopaedia of Theology</a>
       <span class="mika">saet.ac.uk; kristinusko, buddhalaisuus, islam, hindulaisuus, juutalaisuus</span></li>
-    <li><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a>
+    <li><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a> <span class="kunnia" role="img" title="Kunniasalmiakki: Luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
       <span class="mika">plato.stanford.edu</span></li>
     <li><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
       <span class="mika">waitbutwhy.com</span></li>
     <li>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
-      <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a>
+      <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a> <span class="kunnia" role="img" title="Kunniasalmiakki: Luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
       <span class="mika">fi.wikipedia.org, en.wikipedia.org</span></li>
   </ul>
+  <!-- Piilotetut (käyttäjän sääntö 15.11.2026): sovite pysyy, mutta sivusto ei näy listassa, koska se näyttää mainoksia
+       eikä siellä ole lahjoitusnappia. Leikattuun tekstiin tulee rahoitushuomautus (leike.js RAHOITUS, md.js rahoitus()).
+       - Encyclopedia.com (encyclopedia.com; Galen ja Oxfordin hakuteokset, yksi artikkeli kerrallaan)
+       - New Advent (newadvent.org; kirkkoisät, Catholic Encyclopedia ja Summa, raamatunkohdat alaviitteinä) -->
   </div>
 </main>
 <script>
