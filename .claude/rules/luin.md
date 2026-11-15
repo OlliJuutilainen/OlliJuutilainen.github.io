@@ -105,7 +105,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   *pölyhyllyä* eikä *arkistohyllyä* (*kellarin veivihyllystö* on käyttäjän nimeämä poikkeus).
 - **Kellarin veivihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Säädä tietoja* ja *Uusi laitos*, alla); linkki kellarin veivihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki kellarin veivihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
   *Luin.* ja *Poimi kellarin veivihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
@@ -123,8 +123,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, tiedot ja laitos, poisto; kolme salmiakkia, ennen jakomerkki).
-- **Tiedot ja uusi laitos** (käyttäjän pyyntö ja nimi 15.11.2026, opas 7.1, `tuoPinosta()`): *Säädä tietoja Latomossa* lukitsee
-  leipätekstin (merkinnät eivät saa voida irrota muualta kuin otsikkolohkosta); *Uusi laitos Latomossa* antaa muokata ja kysyy
+- **Tiedot ja uusi laitos** (käyttäjän pyyntö ja nimi 15.11.2026, opas 7.1, `tuoPinosta()`): *Muuta metatietoja* lukitsee
+  leipätekstin (merkinnät eivät saa voida irrota muualta kuin otsikkolohkosta); *Uusi laitos* antaa muokata ja kysyy
   tallennettaessa: toinen laitos merkintöineen, ilman merkintöjä vai korvaava. Merkinnät siirretään lohkot rinnastamalla
   (`kohdista()`), ei pelkällä katkelmahaulla (osui naapurikappaleeseen). **Pino pysyy pinona**: laitos näkyy vain tietorivin
   *2. laitos* -sanoina, ei kansioita, ryhmiä eikä erikoisvärejä (käyttäjän linjaus 15.11.2026). Testi `laitos-testi.js`. Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
