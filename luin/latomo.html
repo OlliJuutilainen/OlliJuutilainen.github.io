@@ -148,11 +148,10 @@
   .varoitukset { margin: 14px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--ruoste); font-size: .88rem; }
   .varoitukset p { margin: 0 0 6px; }
   .ln { color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; margin-right: .5em; }
-  /* Tyhjennys: nappi rivin oikeassa reunassa, vahvistus omalla rivillään (käyttäjän toive 22.10.2026: Lasse Lehtinen). */
+  /* Tyhjennys: nappi rivin oikeassa reunassa, vahvistus omalla rivillään (käyttäjän toive 22.10.2026). */
   #tyhjenna { margin-left: auto; }
   .varmistus { margin: 10px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--ruoste); }
   .varmistus p { margin: 0; font-size: .92rem; }
-  .varmistus .kuka { color: var(--harmaa); }
   .varmistus p.pieni { font-size: .82rem; margin-top: 2px; }
   .varmistus .rivi { margin-top: 6px; gap: 8px 14px; }
   button.vaara { border-color: var(--ruoste); color: var(--ruoste); }
@@ -287,7 +286,7 @@
     <button type="button" class="pieni-nappi" id="tyhjenna" hidden>Tyhjennä kentät</button>
   </div>
   <div class="varmistus" id="varmistus" role="alertdialog" aria-labelledby="varmistus-kysymys" hidden>
-    <p id="varmistus-kysymys">”Oletko aivan varma?” <i class="kuka">sanoi joskus myös Lasse Lehtinen.</i></p>
+    <p id="varmistus-kysymys">Oletko aivan varma?</p>
     <p class="pieni">Teksti ja kaikki tiedot tyhjennetään. Tätä ei voi perua.</p>
     <div class="rivi">
       <button type="button" class="pieni-nappi vaara" id="tyhjenna-kylla">Olen, tyhjennä</button>
