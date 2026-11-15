@@ -1248,7 +1248,7 @@
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
-    <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
+    <div class="valinnat pino" data-k="sisallys:Sisälmys|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
     <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div>
     <div class="valinnat nipukka" data-k="sukSana:Sukkela Sanaselitys"></div>
     <div class="valinnat pino" data-k="verkkolinkit:Verkkolinkit"></div></div>
@@ -2767,7 +2767,7 @@
   function piirraTeksti() {
     var d = nyt.doc, html = d.html;
     if (aset.sisallys && d.toc.length) {
-      var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisällys</p><ol>' + d.toc.filter(function (t) { return t.lvl <= tocRaja(2, d.toc); }).map(function (t) {
+      var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisälmys</p><ol>' + d.toc.filter(function (t) { return t.lvl <= tocRaja(2, d.toc); }).map(function (t) {
         return '<li class="t' + (t.lvl - tasoSiirto(d.toc)) + '"><a href="#" data-go="' + t.b + '">' + esc(t.text) + '</a></li>';
       }).join('') + '</ol></nav>';
       // {{TOC}} (iA Writer) määrää paikan; muuten otsikkolohkon jälkeen.
