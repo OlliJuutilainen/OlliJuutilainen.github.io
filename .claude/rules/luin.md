@@ -55,6 +55,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sivustolta; tietosuojasivu mainitsee). Molemmat ovat md.js:n `KANTAJA`-sivustoja, joten lisätietona on tekijä.
   Psyche–Aeon-sovite (14.11.2026, opas 7.5): ingressi jätetään pois tarkoituksella (kursiivina se olisi Luinissa alaotsikko ja
   lähdeviitteessä); anfangi `span.ld-dropcap` on osanvaihdon ainoa merkki.
+  European Journal of Psychoanalysis -sovite (15.11.2026, opas 7.5): lohkot (Bibliography, Notes, Bio, Publication Date) tunnistetaan
+  otsikkosanasta, koska numerointi vaihtelee; APA-pilkku pois kuten OECS:ssä. Etukentässä `tyyppi: tieteellinen`, `teos` ja `numero`
+  ilman `sivusto`a (viite toistaisi lehden nimen); `article:published_time` on WordPressin aika, ei julkaisupäivä.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta

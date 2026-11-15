@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat ja New Adventin ja CCEL:n kirkkoisät Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet ja European Journal of Psychoanalysisin artikkelit Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -70,7 +70,17 @@ const SARJAT = {
     'https://psyche.co/guides/how-to-reconnect-with-your-inner-child',
     'https://aeon.co/essays/when-clinging-to-old-hopes-gets-in-the-way-of-healing-and-growth',
     'https://aeon.co/essays/learn-your-own-attachment-style-to-become-a-better-parent',
-    'https://aeon.co/essays/what-do-we-know-about-social-attachment-and-human-nature']
+    'https://aeon.co/essays/what-do-we-know-about-social-attachment-and-human-nature'],
+  // European Journal of Psychoanalysis (15.11.2026): lihavoidut väliotsikot kahdella tasolla (lihavoitu kursiivi ###), numeroidut
+  // otsikot, linkittömät [1]-viitteet (Notes, Note, Wordin tyhjät ankkurit), merkittömät viitteet (Consciousness), References-
+  // otsikko, kuvatekstit h6:na, sisennetyt lainaukset, artikkeli ilman väliotsikoita ja viitteitä.
+  ejp: ['freuds-compass-a-critical-defense-of-oedipal-bodies', 'freud-and-the-21st-century-political',
+    'a-large-language-model-is-structured-like-the-unconscious-the-ordinary-perverse-psychosis-of-ai',
+    'a-martian-among-the-spectra-autism-subjectivity-and-philosophy',
+    'psychoanalysis-and-artificial-intelligence-metapsychological-foundations-clinical-implications-and-the-transformation-of-analytic-practice',
+    'the-reticular-system-in-freud-and-lacans-theories', 'consciousness-and-cognitive-sciences',
+    'the-voice-that-ends-opera-moses-encounter-and-the-failure-of-representation-in']
+    .map(p => 'https://www.journal-psychoanalysis.eu/articles/' + p + '/')
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -102,7 +112,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
