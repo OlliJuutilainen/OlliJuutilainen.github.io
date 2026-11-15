@@ -1366,7 +1366,7 @@
     if (/^(kauno|fikt|fict|run|novel|lit|proosa|poe)/.test(s)) return 'kaunokirjallinen';
     return '';
   }
-  /* Lisätieto: nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa (käyttäjän hierarkia 12.11.2026).
+  /* Lisätieto: nimen jälkeinen rivi pinossa ja jakolinkin esikatselussa (käyttäjän hierarkia 12.11.2026).
      1. Verkkojulkaisu (sivusto, ei tieteellinen teksti): sivuston nimi, ei tekijä (SEP, OECS, Logos, Wikipedia, MIA, WBW, blogit).
         Kantajasivusto (Gutenberg, Wikisource, Internet Archive …) ei ole julkaisu vaan kirjan kuljettaja: siltä irrotettu osa
         on kirjan osa (kohta 3). Encyclopedia.com kantaa Galen ja Oxfordin hakuteoksia (13.11.2026): lisätietona hakuteos.

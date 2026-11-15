@@ -64,7 +64,7 @@ const oikea = crypto.createHash('sha1').update(fs.readFileSync(path.join(JUURI, 
 tulos('luin.html lataa huilu.js:n oikealla versiotunnisteella', v === oikea,
   v === oikea ? v : `${v} ≠ ${oikea}: V=$(sha1sum luin/huilu.js | cut -c1-8); sed -i -E "s/huilu\\.js\\?v=[0-9a-f]+/huilu.js?v=$V/" luin.html`);
 
-// Selaimessa: hylly ja asetukset ennen ja jälkeen Soita huilua! -painalluksen.
+// Selaimessa: pino ja asetukset ennen ja jälkeen Soita huilua! -painalluksen.
 const { chromium } = require('playwright');
 const LAUSE = 'kokeilu-laatikko-lause-huilu';
 (async () => {
@@ -85,7 +85,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     });
     await p.goto('file://' + path.join(JUURI, 'luin.html'));
     await p.waitForTimeout(600);
-    const hylly = () => p.evaluate(() => {
+    const pino = () => p.evaluate(() => {
       const l = document.querySelector('#huilulohko'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit');
       const rg = document.createRange(); rg.selectNodeContents(document.querySelector('#lisaa-ots')); const t = rg.getBoundingClientRect();
       const runko = svg.querySelector('g path'), bb = runko.getBBox(), m = runko.getScreenCTM();
@@ -105,7 +105,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
         huilutetut: document.querySelectorAll('.n-ots svg.huilutettu').length, nOts: [...document.querySelectorAll('.n-ots')].map(x => x.textContent),
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
-    const e = await hylly();
+    const e = await pino();
     tulos(`${w} px: huilu i-napin oikealla puolella, ei kosketa siihen`, e.kysyRako > 0, Math.round(e.kysyRako * 10) / 10);
     tulos(`${w} px: huilutetun huilun keskikohta 0,29 em perusviivan yläpuolella`, Math.abs(e.keski - .29) < .02, Math.round(e.keski * 1000) / 1000);
     tulos(`${w} px: ei nuotteja ennen painallusta`, !e.nuotit);
@@ -113,12 +113,12 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: siksak päättyy kokonaiseen palaan lohkon sisällä`, e.viivatOikea >= 0 && e.viivatOikea < 15.5, Math.round(e.viivatOikea * 10) / 10 + ' px oikeaan reunaan');
     tulos(`${w} px: huilutettu vain kantautuneella, nimet ennallaan`, e.huilutetut === 1 && e.nOts.join('|') === 'Kant ja eläinetiikka|Käyttöohje');
     await p.fill('#lisaa-syote', 'lyhyt'); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(200);
-    tulos(`${w} px: kelpaamaton lause ei soita`, !(await hylly()).nuotit);
+    tulos(`${w} px: kelpaamaton lause ei soita`, !(await pino()).nuotit);
     await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
-    const j = await hylly();
+    const j = await pino();
     tulos(`${w} px: painallus tuo nuotit napin yläpuolelle, eivät viivaston alle`, j.nuotit && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
-    tulos(`${w} px: ei vaakavieritystä hyllyllä`, j.vaaka);
-    if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-hylly-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
+    tulos(`${w} px: ei vaakavieritystä pinossa`, j.vaaka);
+    if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);
     const aset = () => p.evaluate(() => {
       const l = document.querySelector('#huilulohko-aset'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit'), nb = nu && nu.getBoundingClientRect();
