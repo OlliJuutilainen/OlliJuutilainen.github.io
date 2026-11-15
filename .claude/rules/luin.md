@@ -97,15 +97,16 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
-- **Pino ja uumen** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
-  näkymä *Uumen* (kaikilla Luinin sivuilla ja lisäosassa). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
-  ei *pinolle*), uumen yksikössä (*uumeneen*, *uumenessa*, *uumenesta*, ei *uumeniin*). Koodin tunnisteet (`luin-lista`, `#lista`,
-  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *hyllyä*,
-  *pölyhyllyä* eikä *arkistohyllyä*.
-- **Uumen ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+- **Pino ja kellarin veivihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
+  näkymä *Kellarin veivihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; ennen *Uumen*). Nimi on aina kokonainen, ei pelkkä
+  *veivihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
+  ei *pinolle*), samoin kellarin veivihyllystö (*kellarin veivihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *uumenta*, *hyllyä*,
+  *pölyhyllyä* eikä *arkistohyllyä* (*kellarin veivihyllystö* on käyttäjän nimeämä poikkeus).
+- **Kellarin veivihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Säädä tietoja* ja *Uusi laitos*, alla); linkki uumeneen on pinon alalaidassa himmeänä ja vain, kun uumenessa on jotain. Sanat
-  *Luin.* ja *Poimi uumenesta.* (15.11.2026, ennen *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Säädä tietoja* ja *Uusi laitos*, alla); linkki kellarin veivihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
+  *Luin.* ja *Poimi kellarin veivihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
@@ -113,12 +114,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
   (suurennettu 12.11.2026 kahdesti, ennen 28 px ja 22 px; musteen paikat ennallaan: alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
   `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
-- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (uumen ja alasivut: Latomo, ohjeet, palaute,
+- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (kellarin veivihyllystö ja alasivut: Latomo, ohjeet, palaute,
   tietosuoja) vaakapaikka on sama kaikkialla eli pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
   loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
-  joten pystypaikka eroaa uumenen ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Uumenessa pinomerkin vasemmalla
-  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja Uumen-linkki pinon alalaidassa on versaalia.
+  joten pystypaikka eroaa kellarin veivihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin veivihyllystössä pinomerkin vasemmalla
+  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja veivihyllystölinkki pinon alalaidassa on versaalia.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, tiedot ja laitos, poisto; kolme salmiakkia, ennen jakomerkki).
