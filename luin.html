@@ -248,7 +248,7 @@
   .huilukaista + .kysy-ohje { margin: 4px 0 0; }
   .huilukaista + .kysy-ohje + .lisaa-kentta, .huilukaista + .lisaa-kentta { margin-top: 8px; }
   button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
-  button.kysy.pieni svg { width: 14px; height: 14px; }
+  button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
   .lisaa-kentta input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
     background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
@@ -1078,8 +1078,8 @@
   .koodikentta .arvo { flex: 0 0 auto; color: var(--muste); }
   .kysy-ohje blockquote { margin: 8px 0; padding: 0 0 0 10px; border-left: 2px solid var(--viiva); overflow-wrap: anywhere; }
   button.kysy { flex: 0 0 auto; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); font-style: normal; }
-  button.kysy svg { width: 20px; height: 20px; }
-  button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  /* i-napit hakasulkeissa kuten hyllyn tietoa-nappi (käyttäjän pyyntö 15.11.2026; ennen salmiakki). */
+  button.kysy svg { width: 18px; height: 26px; fill: currentColor; }
   button.kysy text { fill: currentColor; font: 400 10.5px var(--antiikva); }
   button.kysy[aria-expanded="true"] { color: var(--ruoste); }
   .kysy-ohje { margin: 8px 0 0; padding: 2px 12px; border: 1px solid var(--viiva); font-size: .8rem; line-height: 1.5; color: var(--harmaa); }
@@ -1149,7 +1149,7 @@
   <div class="vain-lista">
   <div class="huilulohko" id="huilulohko"><svg class="huilukuvio" aria-hidden="true"></svg>
   <div class="lisaa-ots-rivi"><p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
-    <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: Postihuilu"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button><span class="huilu-paikka" aria-hidden="true"></span></div>
+    <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: Postihuilu"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button><span class="huilu-paikka" aria-hidden="true"></span></div>
   <div class="huilukaista" aria-hidden="true"></div>
   <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo pinoosi sisältöä toisten laitteittesi pinoista ja uusimman luettavan kappaleen <a href="luin/latomo.html">Latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
   <form class="lisaa-kentta" id="lisaa-kentta"><input id="lisaa-syote" type="text" aria-labelledby="lisaa-ots"
@@ -1295,7 +1295,7 @@
       <div class="vienti-sis">
         <p class="huomio jatko">Huilun soittaminen yhdistää kaikki valitulla Laatikkolauseella varustetut pinot.</p>
         <div class="koodirivi"><label for="laatikko-koodi">Laatikkolause:</label>
-          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button>
+          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button>
 </div>
         <div class="kysy-ohje" id="laatikko-ohje" hidden></div>
         <div class="koodikentta"><input type="text" id="laatikko-koodi" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="laatikko arvo" id="laatikko-arvo">Arvo</button></div>

@@ -181,13 +181,13 @@
   .nimirivi { display: flex; align-items: center; margin: 0 0 4px; }
   .nimirivi label { display: block; margin: 0; font-size: .84rem; color: var(--harmaa); }
   .nimirivi button.kysy { min-height: 30px; width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
-  .nimirivi button.kysy svg { width: 15px; height: 15px; }
+  .nimirivi button.kysy svg { width: 13.5px; height: 19.5px; }
   .laatikko .kentta { margin-top: 0; }
   .laatikko .kentta + .pieni + .kentta { margin-top: 13px; }
   /* Laatikkolauseen ohje i-napin takana (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026), kuten Luinin asetuksissa. */
   button.kysy { border: 0; padding: 0; width: 40px; justify-content: center; color: var(--harmaa); }
-  button.kysy svg { width: 20px; height: 20px; }
-  button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  /* i-nappi hakasulkeissa kuten Luinin tietoa-napit (käyttäjän pyyntö 15.11.2026; ennen salmiakki). */
+  button.kysy svg { width: 18px; height: 26px; fill: currentColor; }
   button.kysy text { fill: currentColor; font: 400 10.5px var(--antiikva); }
   button.kysy[aria-expanded="true"] { color: var(--ruoste); }
   .kysy-ohje { margin: 10px 0 0; padding: 2px 12px; border: 1px solid var(--viiva); font-size: .82rem; line-height: 1.5; color: var(--harmaa); }
@@ -351,7 +351,7 @@
          (latomoon.js): älä nimeä uudelleen, vanhat lisäosat käyttävät niitä yhä. -->
     <div class="laatikko" id="laatikko" hidden>
       <div class="kentta"><div class="nimirivi"><label for="laatikko-koodi">Laatikkolause</label>
-          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
+          <button type="button" class="kysy" id="laatikko-kysy" aria-expanded="false" aria-controls="laatikko-ohje" aria-label="Tietoa: laatikkolause"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button></div>
         <div class="syote"><input id="laatikko-koodi" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="vähintään 24 merkkiä tai Arvo">
           <button type="button" class="pieni-nappi" id="laatikko-arvo">Arvo</button></div></div>
       <!-- Arvotun lauseen virke mielikuvaksi (laatikkolause.js, 12.11.2026); piiloon, kun kentän lause on toinen. -->
