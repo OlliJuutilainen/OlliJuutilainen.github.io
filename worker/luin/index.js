@@ -16,7 +16,7 @@ function handleLuinJako(req) {
   // d: lisätieto (hyllyn toinen rivi: sivusto, alaotsikko, teos tai tekijä). Ilman sitä tekstin linkissä ei ole kuvausta,
   // jotta Luinin oma alaotsikko ei kummittele vieraan tekstin alla (käyttäjä 12.11.2026).
   const d = (url.searchParams.get("d") || "").replace(/\s+/g, " ").trim().slice(0, 200);
-  const kuvaus = d || (t0 ? "" : "Lukulaite Markdown-teksteille.");
+  const kuvaus = d || (t0 ? "" : "Lukemisen tyyssija internetissä.");
   const kohde = LUIN_SIVU + (u ? "#u=" + encodeURIComponent(u) : "");
   const k = htmlEsc(kohde), o = htmlEsc(t);
   const html = `<!doctype html>
