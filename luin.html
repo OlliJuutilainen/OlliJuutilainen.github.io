@@ -405,10 +405,9 @@
   /* Peruutus on hiljaisempi kuin poisto (vakiintunut käytäntö: toissijainen toiminto ei huuda), kursiivi ja
      harmaa kuten asetusten Näytä:-otsikko. */
   .valikko.rivi button.ei { padding: 9px 18px; font-style: italic; color: var(--harmaa); }
-  /* Lukulistan vahvistuskysymys Latomon Lasse Lehtisen tapaan (käyttäjän pyyntö 10.11.2026): kysymys ja kaksi nappia. */
+  /* Lukulistan vahvistuskysymys (käyttäjän pyyntö 10.11.2026): kysymys ja kaksi nappia. */
   .valikko.kysely { padding: 0; max-width: min(20rem, calc(100vw - 24px)); }
   .valikko.kysely .kys { padding: 12px 15px 10px; font-size: .92rem; line-height: 1.45; border-bottom: 1px solid var(--viiva); }
-  .valikko.kysely .kuka { color: var(--harmaa); }
   .valikko.kysely .napit { display: flex; }
   .valikko.kysely .napit button { width: auto; flex: 1 1 auto; text-align: center; }
   .valikko.kysely .napit button + button { border-left: 1px solid var(--viiva); }
@@ -2390,12 +2389,12 @@
       }
     }, 'oikea');
   });
-  // Luin. ja Poimi kellarin veivihyllystöstä. kysyvät vahvistuksen Latomon Lasse Lehtisen tapaan (käyttäjän pyyntö 10.11.2026).
+  // Luin. ja Poimi kellarin veivihyllystöstä. kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
     var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin pinoon?' : 'Nostetaanko ' + n + ' tekstiä takaisin pinoon?')
       : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään kellarin veivihyllystöön?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään kellarin veivihyllystöön?');
-    naytaPop(rect, '<div class="kys">”' + kys + '” <span class="kuka">kysyi Lasse Lehtinen.</span></div>' +
+    naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
