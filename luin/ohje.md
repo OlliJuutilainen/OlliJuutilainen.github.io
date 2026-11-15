@@ -95,7 +95,7 @@ Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-`
 
 ### 2.4 Käyttöohje ja pinon linkit
 
-**Nimet** (käyttäjän päätös 12.11.2026): lukulista on käyttöliittymässä *Pino* (ennen *Hylly*) ja luetuiksi merkittyjen näkymä (`#arkisto`) *Uumen* (ennen *Pölyhylly*, sitä ennen arkistohylly; nimet 15.11.2026). Koodissa ja tässä oppaassa vanha nimi *lukulista* (`luin-lista`, `#lista`, `naytaLista()`) on paikoin yhä; tunnisteita ja reittiä `#arkisto` ei nimetty uudelleen.
+**Nimet** (käyttäjän päätös 12.11.2026): lukulista on käyttöliittymässä *Pino* (ennen *Hylly*) ja luetuiksi merkittyjen näkymä (`#arkisto`) *Kellarin veivihyllystö* (15.11.2026; ennen samana päivänä *Uumen*, sitä ennen *Pölyhylly* ja arkistohylly). Koodissa ja tässä oppaassa vanha nimi *lukulista* (`luin-lista`, `#lista`, `naytaLista()`) on paikoin yhä; tunnisteita ja reittiä `#arkisto` ei nimetty uudelleen.
 
 Pinon alla ovat linkit *Käyttöohje* (`luin/kayttoohje.html`) ja *Kokeiluteksti: Kant ja eläinetiikka*, ja pienen välin jälkeen *Uusi teksti Latomossa*, jossa sana *Latomossa* on lihavoitu (käyttäjän päätös 22.10.2026) ja pienaakkosin (versaali kokeiltu 27.10.2026 ja poistettu). Käyttöohje on lukulaitteen ohje lukijalle, ei Latomon ohje; Latomolla on oma ohjeensa (`luin/latomo-ohje.html`, luku 7.4). Se on tavallinen HTML-sivu eikä Luinissa luettava teksti, koska harvemmin tarvittavat osiot (merkintöjen vienti ja tuonti, lähdeviite ja poistaminen, tietojen säilyminen) ovat lopussa supistettuina `<details>`-osioina, eikä md.js tue raakaa HTML:ää. Olennaisin on ensin, ja vientiin ei keskitytä. Ikonit ja logo on kopioitu luin.html:stä, ja teema luetaan asetuksista kuten Latomossa. Kun lukijan käyttäjälle näkyvä toiminta muuttuu, tarkista myös käyttöohje.
 
