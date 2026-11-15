@@ -1351,8 +1351,8 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=db7f77f7"></script>
-<script src="luin/posti.js?v=91bf4ff2"></script>
+<script src="luin/md.js?v=6fbd4ef2"></script>
+<script src="luin/posti.js?v=f6b8549e"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=63a4dc63"></script>
 <script>
@@ -1616,6 +1616,7 @@
     var t = LS.get('luin-tuonti', null);
     LS.del('luin-tuonti');
     if (!t || !t.md) { viesti('Siirrettävää tekstiä ei löytynyt. Avaa teksti uudelleen Latomosta.'); return naytaLista(); }
+    if (t.pinosta) return tuoPinosta(t);
     var doc = LuinMD.parse(t.md);
     var id = 'p-' + LuinMD.slug(doc.title || t.nimi || 'teksti').slice(0, 60);
     var e = lisaaListaan(id, doc, { src: 'paikallinen' });
@@ -1623,6 +1624,154 @@
     if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
     tallennaLista();
     location.replace('#id=' + encodeURIComponent(e.id));
+  }
+
+  /* ---------- tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026) ----------
+     Pinon nimikkeen valikosta Latomoon kahdella tavalla. *Säädä tietoja*: leipäteksti on lukittu, vain etukenttä ja
+     otsikkolohko muuttuvat, ja tallennus hylätään, jos muuta muuttui. *Uusi laitos*: tekstiä saa muokata, ja tallennettaessa
+     valitaan, tuleeko toinen laitos merkintöineen, ilman merkintöjä vai korvaako se alkuperäisen (merkinnät siirretään).
+     Merkinnät siirretään rinnastamalla lohkot (kohdista()): sama lohkoteksti samassa järjestyksessä säilyttää kohdan
+     tasan; muuttuneesta lohkosta katkelmaa haetaan ensin rinnastettujen naapurien välistä, sitten koko tekstistä.
+     Löytymätön jää orvoksi (Merkinnät: kohtaa ei löydy) eikä katoa. */
+  function lohkot(md) {
+    var doc = LuinMD.parse(md), d = document.implementation.createHTMLDocument('').createElement('div'), txt = [], laji = [], oik = -1;
+    d.innerHTML = doc.html;
+    // Tekijänoikeusosio (md.js oikeudet()) syntyy etukentästä tekstin loppuun, joten se saa muuttua kuten otsikkolohko.
+    if (doc.oikeudet) $$('h2,h3,h4,h5', d).forEach(function (h) { if (h.textContent.trim() === 'Tekijänoikeudet' && h.dataset.b) oik = +h.dataset.b; });
+    $$('[data-b]', d).forEach(function (el) {
+      var b = +el.dataset.b;
+      txt[b] = lohkoteksti(el);
+      laji[b] = el.closest('header.tt') ? 'otsikko' : oik >= 0 && b >= oik ? 'oikeudet' : '';
+    });
+    for (var i = 0; i < txt.length; i++) if (txt[i] == null) { txt[i] = ''; laji[i] = laji[i] || ''; }
+    return { doc: doc, txt: txt, laji: laji };
+  }
+  // map[vanha lohko] = uusi lohko tai -1. Yhteinen alku ja loppu suoraan, välissä pisin yhteinen alijono; hyvin suuressa
+  // muutoksessa (yli 4 miljoonaa paria) vain kummassakin kerran esiintyvät lohkot järjestyksessä.
+  function kohdista(A, B) {
+    var n = A.length, m = B.length, map = [], a0 = 0, a1 = n, b1 = m, i, j;
+    for (i = 0; i < n; i++) map[i] = -1;
+    while (a0 < n && a0 < m && A[a0] === B[a0]) { map[a0] = a0; a0++; }
+    while (a1 > a0 && b1 > a0 && A[a1 - 1] === B[b1 - 1]) { a1--; b1--; map[a1] = b1; }
+    var N = a1 - a0, M = b1 - a0;
+    if (!N || !M) return map;
+    if (N * M <= 4e6) {
+      var W = M + 1, T = new Int32Array((N + 1) * W);
+      for (i = N - 1; i >= 0; i--) for (j = M - 1; j >= 0; j--)
+        T[i * W + j] = A[a0 + i] === B[a0 + j] ? T[(i + 1) * W + j + 1] + 1 : Math.max(T[(i + 1) * W + j], T[i * W + j + 1]);
+      for (i = 0, j = 0; i < N && j < M;) {
+        if (A[a0 + i] === B[a0 + j]) { map[a0 + i] = a0 + j; i++; j++; }
+        else if (T[(i + 1) * W + j] >= T[i * W + j + 1]) i++; else j++;
+      }
+      return map;
+    }
+    var nA = {}, nB = {}, paikka = {}, ed = a0 - 1;
+    for (i = a0; i < a1; i++) nA[A[i]] = (nA[A[i]] || 0) + 1;
+    for (j = a0; j < b1; j++) { nB[B[j]] = (nB[B[j]] || 0) + 1; paikka[B[j]] = j; }
+    for (i = a0; i < a1; i++) if (nA[A[i]] === 1 && nB[A[i]] === 1 && paikka[A[i]] > ed) { map[i] = paikka[A[i]]; ed = paikka[A[i]]; }
+    return map;
+  }
+  // Vanhan laitoksen kohta (lohko vb, siirtymä o, katkelma s) uudessa laitoksessa, tai null.
+  function uusiKohta(vb, o, s, map, B) {
+    if (map[vb] >= 0) return { b: map[vb], o: o };
+    if (!s) return null;
+    var pi = vb - 1, ni = vb + 1;
+    while (pi >= 0 && !(map[pi] >= 0)) pi--;
+    while (ni < map.length && !(map[ni] >= 0)) ni++;
+    var w0 = pi >= 0 ? map[pi] + 1 : 0, w1 = ni < map.length ? map[ni] : B.length, odotus = clamp(w0 + (vb - pi - 1), 0, Math.max(0, B.length - 1));
+    function lohkosta(b) {
+      var t = B[b], i = t.indexOf(s), paras = -1;
+      while (i >= 0) { if (paras < 0 || Math.abs(i - o) < Math.abs(paras - o)) paras = i; i = t.indexOf(s, i + 1); }
+      return paras;
+    }
+    function hae(a, z) {
+      if (a >= z) return null;
+      var c0 = clamp(odotus, a, z - 1);
+      for (var d = 0; c0 - d >= a || c0 + d < z; d++) {
+        var c = d ? [c0 - d, c0 + d] : [c0];
+        for (var k = 0; k < c.length; k++) {
+          if (c[k] < a || c[k] >= z) continue;
+          var p = lohkosta(c[k]);
+          if (p >= 0) return { b: c[k], o: p };
+        }
+      }
+      return null;
+    }
+    return hae(w0, w1) || hae(0, B.length);
+  }
+  // Merkinnät ja lukukohta vanhasta laitoksesta uuteen. Palauttaa siirretyt (kopio) ja irronneiden määrän.
+  function siirraMerkinnat(m0, pos0, vanha, uusi, map) {
+    var m = JSON.parse(JSON.stringify(m0)), irti = 0, B = uusi.txt;
+    m.km.forEach(function (k) {
+      var p = uusiKohta(k.b, k.o, k.s || (vanha.txt[k.b] || '').slice(k.o, k.o + 40), map, B);
+      if (p) { k.b = p.b; k.o = p.o; } else irti++;
+      delete k.orpo;
+    });
+    m.al.forEach(function (h) {
+      var pois = false;
+      h.segs.forEach(function (q) {
+        var p = uusiKohta(q.b, q.s, q.x, map, B);
+        if (p) { q.e = p.o + (q.e - q.s); q.b = p.b; q.s = p.o; } else pois = true;
+        delete q.orpo;
+      });
+      if (pois) irti++;
+    });
+    var pos = null;
+    if (pos0) {
+      var p = uusiKohta(pos0.b, pos0.o, pos0.s || (vanha.txt[pos0.b] || '').slice(pos0.o, pos0.o + 32), map, B);
+      if (!p) for (var b = Math.min(pos0.b, map.length - 1); b >= 0 && !p; b--) if (map[b] >= 0) p = { b: map[b], o: 0 };
+      if (p) pos = { b: p.b, o: p.o, s: (B[p.b] || '').slice(p.o, p.o + 32) };
+    }
+    return { m: m, pos: pos, irti: irti, n: m.km.length + m.al.length };
+  }
+  function tuoPinosta(t) {
+    var p = t.pinosta, e0 = lista.filter(function (x) { return x.id === p.id; })[0], md0 = e0 && LS.get('luin-teksti:' + p.id, null);
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!e0 || md0 == null) { viesti('Alkuperäistä tekstiä ei enää ole tämän laitteen pinossa, joten mitään ei tallennettu.'); return naytaLista(); }
+    var vanha = lohkot(md0), uusi = lohkot(t.md), map = kohdista(vanha.txt, uusi.txt);
+    var tiedot = p.tila === 'tiedot', korvaa = tiedot || p.valinta === 'korvaa', viedaan = korvaa || p.valinta === 'merk';
+    if (tiedot) {
+      // Vain otsikkolohko ja tekijänoikeusosio saavat muuttua.
+      var kaytetty = {}, i;
+      map.forEach(function (j) { if (j >= 0) kaytetty[j] = 1; });
+      for (i = 0; i < vanha.txt.length; i++) if (map[i] < 0 && !vanha.laji[i]) break;
+      var muuttui = i < vanha.txt.length;
+      for (i = 0; !muuttui && i < uusi.txt.length; i++) if (!kaytetty[i] && !uusi.laji[i]) muuttui = true;
+      if (muuttui) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(!!e0.luettu); }
+    }
+    var s = viedaan ? siirraMerkinnat(merkit(p.id), e0.pos, vanha, uusi, map) : null, e, id;
+    if (korvaa) {
+      id = p.id;
+      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(!!e0.luettu); }
+      e = lisaaListaan(id, uusi.doc);
+      LS.set('luin-merkit:' + id, s.m);
+    } else {
+      var juuri = e0.alkup || e0.id;
+      var n = 1 + Math.max.apply(null, lista.filter(function (x) { return (x.alkup || x.id) === juuri; }).map(function (x) { return x.laitos || 1; }));
+      // Merkintäpostin avain on tunnisteen 60 ensimmäistä merkkiä p-:n jälkeen (posti.js avain()), joten laitoksen
+      // numero mahtuu niihin.
+      var pohja = 'p-' + (LuinMD.slug(uusi.doc.title || e0.title || 'teksti').slice(0, 46) || 'teksti') + '-laitos-' + n, k = 2;
+      id = pohja;
+      while (lista.some(function (x) { return x.id === id; }) || LS.get('luin-teksti:' + id, null) != null) id = pohja + '-' + k++;
+      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
+      e = lisaaListaan(id, uusi.doc, { src: 'paikallinen', alkup: juuri, laitos: n });
+      if (s) { delete s.m.del; LS.set('luin-merkit:' + id, s.m); }
+    }
+    // Muokattua tekstiä ei korvata verkosta haetulla (avaaOsoite()).
+    e.muokattu = Date.now();
+    if (s) {
+      if (s.pos) e.pos = s.pos; else delete e.pos;
+      if (!korvaa && e0.pct != null) e.pct = e0.pct;
+    }
+    tallennaLista();
+    var nimi = '”' + e.title + '”', irti = s && s.irti ? ' ' + (s.irti === s.n ? (s.n === 1 ? 'Merkintä ei löytänyt kohtaansa; se on' :
+      'Yksikään merkinnöistä (' + s.n + ') ei löytänyt kohtaansa; ne ovat') : 'Merkinnöistä ' + s.irti + '/' + s.n + ' ei löytänyt kohtaansa; ' +
+      (s.irti === 1 ? 'se on' : 'ne ovat')) + ' tallessa tekstin Merkinnöissä merkinnällä ”kohtaa ei löydy”.' : '';
+    var siirtyi = s && s.n && !s.irti ? ' ' + (s.n === 1 ? 'Merkintä löysi kohtansa.' : 'Kaikki ' + s.n + ' merkintää löysivät kohtansa.') : '';
+    viesti(tiedot ? 'Tiedot päivitetty: ' + nimi + '.' + irti :
+      korvaa ? 'Uusi laitos korvasi alkuperäisen: ' + nimi + '.' + siirtyi + irti :
+      e.laitos + '. laitos lisättiin pinoon: ' + nimi + (s ? '.' + siirtyi + irti : ' ilman merkintöjä.'));
+    naytaLista(korvaa && !!e.luettu);
   }
 
   function lisaaListaan(id, doc, extra) {
@@ -1665,7 +1814,9 @@
   }
   function avaaOsoite(u) {
     var abs = dropbox(u), id = 'u-' + fnv(abs);
-    var vanha = LS.get('luin-teksti:' + id, null);
+    var vanha = LS.get('luin-teksti:' + id, null), oma = lista.filter(function (x) { return x.id === id; })[0];
+    // Latomossa muokattu (tiedot tai korvaava laitos) avataan pinosta eikä haeta uudelleen.
+    if (oma && oma.muokattu && vanha != null) return avaa(oma, vanha);
     fetch(abs, { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
@@ -1793,7 +1944,7 @@
     valitut = nyky;
     ul.innerHTML = nak.map(function (e) {
       var ala = e.ala != null ? e.ala : e.sub || e.kehys;
-      var tieto = [(e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
+      var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
         ark ? 'luettu ' + pvm(e.luettu) : e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
       return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
         '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
@@ -2170,8 +2321,12 @@
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
       (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi uumenesta.' : 'Luin.') + '</button>' +
+      '<button type="button" data-k="tiedot">Säädä tietoja Latomossa</button>' +
+      '<button type="button" data-k="laitos">Uusi laitos Latomossa</button>' +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista uumenesta' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
+      // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
+      if (k === 'tiedot' || k === 'laitos') { location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); return; }
       if (k === 'lisa') {
         aset.viiteLisa = aset.viiteLisa ? 0 : 1; tallennaAset();
         nappi.setAttribute('aria-pressed', !!aset.viiteLisa);
@@ -6460,7 +6615,7 @@
       var o = osioKohdassa({ b: h.segs[0].b }), t = alTeksti(h);
       return '<div class="merkki"><button type="button" class="m-teksti" data-mene="al:' + h.id + '"><span class="m-kohta">' +
         esc((o ? o.text + ' · ' : '') + pvm(h.t)) + '</span>' + esc(lyhenna(t, 220)) +
-        (h.n ? '<span class="m-kirjaus">' + esc(lyhenna(h.n, 400)) + '</span>' : '') + '</button>' +
+        (h.segs.some(function (q) { return q.orpo; }) ? ' (kohtaa ei löydy)' : '') + (h.n ? '<span class="m-kirjaus">' + esc(lyhenna(h.n, 400)) + '</span>' : '') + '</button>' +
         '<div class="m-napit"><button type="button" data-kopioi="' + h.id + '">Kopioi</button><button type="button" data-poista="al:' + h.id + '">Poista</button></div></div>';
     }).join('') : '<p class="tyhja-m">Ei alleviivauksia. Valitse tekstiä' + (autoAli() ? '.' : ' ja napauta valikon alleviivausmerkkiä.') + '</p>';
   }

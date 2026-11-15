@@ -112,6 +112,16 @@
   .kytkin[aria-pressed="false"] { color: var(--harmaa); }
   /* Ehdollinen lisä (annotaatiot): sisennetty ja himmeä, ehtolause edessä, ja kytkin kehystettynä ja isommalla
      salmiakilla, jotta sen tunnistaa napiksi eikä luettelomerkiksi. */
+  /* Pinosta (käyttäjän pyyntö 15.11.2026): tietojen säätö tai uusi laitos pinon tekstistä. Ei ruostetta: ei napautettava. */
+  .pinosta { margin: 30px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--viiva); }
+  .pinosta .otsake { margin: 0 0 4px; }
+  .pinosta-nimi { margin: 0; font-style: italic; font-size: 1.06rem; line-height: 1.35; overflow-wrap: anywhere; }
+  textarea[readonly] { border-color: var(--viiva); color: var(--harmaa); }
+  .laitos-valinnat { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: 26px 0 0; }
+  .laitos-valinnat .otsake { margin: 0 0 3px; }
+  .laitos-valinnat button.kytkin { align-items: flex-start; text-align: left; min-height: 0; padding: 5px 0; }
+  .laitos-valinnat .kytkin svg { margin-top: .38em; }
+  .laitos-valinnat .sel { display: block; margin-top: 1px; font-size: .8rem; line-height: 1.45; color: var(--harmaa); }
   .ehdollinen { margin: 10px 0 0 14px; padding-left: 12px; border-left: 1px solid var(--viiva); gap: 4px 10px; }
   .ehdollinen .jos { font-size: .8rem; font-style: italic; color: var(--harmaa); }
   .ehdollinen button.kytkin { border: 1px solid var(--viiva); padding: 0 10px 0 8px; min-height: 30px; font-size: .8rem; }
@@ -262,6 +272,13 @@
       näy edes sovelluksen kehittäjälle, jos suoraa jakolinkkiä ei anneta].</p>
   </div>
 
+  <!-- Pinosta (käyttäjän pyyntö 15.11.2026): Luinin pinovalikon Säädä tietoja Latomossa (#tiedot=<id>) ja Uusi laitos
+       Latomossa (#laitos=<id>). Tekstit kirjoittaa pinoon(). -->
+  <section class="pinosta" id="pinosta" hidden>
+    <p class="otsake" id="pinosta-lappu"></p>
+    <p class="pinosta-nimi" id="pinosta-nimi"></p>
+    <p class="pieni" id="pinosta-ohje"></p>
+  </section>
   <h2 class="alaots" id="md-otsikko">Tai lisää teksti suoraan alla olevaan tekstikenttään</h2>
   <textarea id="md" aria-labelledby="md-otsikko" spellcheck="false" placeholder="# Otsikko&#10;&#10;*Alaotsikko*&#10;&#10;Tekijä&#10;&#10;## 1. Johdanto&#10;&#10;Tekstiä.[^Alaviite.]&#10;&#10;Pelkkä teksti käy myös: otsikon ja muut tiedot voi antaa alla."></textarea>
   <div class="rivi">
@@ -326,6 +343,7 @@
       selaimessa. Dropbox-jakolinkki muutetaan suoraksi latauslinkiksi.</p>
     <p class="esikatselu" id="linkki" hidden></p>
 
+    <div class="laitos-valinnat" id="laitos-valinnat" role="radiogroup" aria-labelledby="laitos-otsake" hidden></div>
     <div class="rivi" style="margin-top:22px">
       <button type="button" class="paa" id="avaa">Avaa lukimessa</button>
       <button type="button" id="lataa">Lataa .md</button>
@@ -334,8 +352,8 @@
     <!-- Latauksen kuittaus (käyttäjän pyyntö 14.11.2026): Luin-lisäosa painaa Lataa .md:n taustavälilehdellä, ja jos
          välilehti jää auki, tämä kertoo latauksen lähteneen. Piiloon, kun tekstiä muutetaan. -->
     <p class="ok" id="lataa-tila" role="status" hidden></p>
-    <p class="pieni"><b>Avaa lukimessa</b> tallentaa tekstin tämän selaimen pinoon. Saman nimisen
-      tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.
+    <p class="pieni"><span id="avaa-ohje"><b>Avaa lukimessa</b> tallentaa tekstin tämän selaimen pinoon. Saman nimisen
+      tekstin uusi versio korvaa vanhan, ja kirjanmerkit ja alleviivaukset siirtyvät mukana.</span>
       <b>Lataa .md</b> antaa tekstin etukenttineen jaettavaksi tai verkkoon.
       <b>Postihuilu</b> kuljettaa tekstin luettavaksi toisella laitteella, esimerkiksi niin sanotusti <i>coneelta cännycälle</i>.</p>
     <!-- Postihuilu (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026; ennen Coneelta Cännycälle ja Lähetä postilaatikkoon,
@@ -390,8 +408,8 @@
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
-<script src="md.js?v=db7f77f7"></script>
-<script src="posti.js?v=91bf4ff2"></script>
+<script src="md.js?v=6fbd4ef2"></script>
+<script src="posti.js?v=f6b8549e"></script>
 <script src="laatikkolause.js?v=29cb216a"></script>
 <script>
 (function () {
@@ -687,6 +705,8 @@
   // Tulokseen menevä teksti: tekstikenttä, leikkeenä siivottuna.
   var siivous = null;
   function lahde() {
+    // Tietojen säädössä leipäteksti kulkee sellaisenaan (pinoon()).
+    if (tiedotLukittu()) { siivous = null; leike = false; return md.value; }
     var src = md.value;
     if (ann) src = poistaAnnotaatiot(src).src;
     leike = merkitty(md.value);
@@ -888,7 +908,7 @@
 
   // Kytkin näkyy vain, kun tekstikentässä on annotaatiorivi; ilman sitä tila ei vaikuta tulokseen.
   function naytaAnn() {
-    var on = poistaAnnotaatiot(md.value).n > 0;
+    var on = !tiedotLukittu() && poistaAnnotaatiot(md.value).n > 0;
     if (!on) ann = false;  // uusi teksti alkaa aina ilman piilotusta
     $('#ann-rivi').hidden = !on;
     $('#ann').setAttribute('aria-pressed', String(on && ann));
@@ -1141,6 +1161,8 @@
       if (nimi) napit.push(['Tiedoston nimi otsikoksi', function () { tila.arvot.otsikko = nimi; tila.koskettu.otsikko = true; }]);
       ehdotukset.push({ t: 'Tekstissä ei ole #-otsikkoa. Kirjoita otsikko alle kenttään, niin se lisätään tekstin alkuun.', napit: napit });
     }
+    // Tietojen säädössä ei ehdotuksia: useimmat muuttavat tekstiä.
+    if (tiedotLukittu()) ehdotukset = [];
     $('#ehdotukset').innerHTML = ehdotukset.map(function (e, i) {
       return '<div class="ehdotus"><p>' + esc(e.t) + '</p>' + (e.html || '') + (e.napit.length ? '<div class="rivi">' + e.napit.map(function (n, j) {
         return '<button type="button" class="pieni-nappi" data-e="' + i + '" data-n="' + j + '">' + esc(n[0]) + '</button>';
@@ -1225,6 +1247,7 @@
   $('#varmistus').addEventListener('keydown', function (e) { if (e.key === 'Escape') varmista(false); });
   $('#tyhjenna-kylla').addEventListener('click', function () {
     clearTimeout(ajastin);
+    pinostaPois();
     alusta(); nimi = '';
     ann = false;
     md.value = ''; osoite.value = ''; $('#viite').value = ''; $('#tiedosto').value = '';
@@ -1251,6 +1274,7 @@
     if (!f) return;
     var r = new FileReader();
     r.onload = function () {
+      pinostaPois();
       var liite = md.value.trim() && alaviitesivu(md.value, String(r.result));
       if (liite) { md.value = liite; $('#tiedostonimi').textContent = 'Alaviitteet liitetty: ' + f.name; paivita(); return; }
       alusta();
@@ -1272,7 +1296,9 @@
   $('#avaa').addEventListener('click', function () {
     var t = nykyinen();
     if (!t) return;
-    try { localStorage.setItem('luin-tuonti', JSON.stringify({ md: t.md, nimi: nimi })); }
+    var siirto = { md: t.md, nimi: nimi };
+    if (pino) siirto.pinosta = { id: pino.id, tila: pino.tila, valinta: pino.valinta };
+    try { localStorage.setItem('luin-tuonti', JSON.stringify(siirto)); }
     catch (e) { alert('Selaimen tallennustila on täynnä tai estetty, joten tekstiä ei voitu siirtää Luiniin.'); return; }
     location.href = '../luin.html#tuo';
   });
@@ -1414,6 +1440,87 @@
   }
   $('#kk-kopioi').addEventListener('click', function () { kopioi(this, KAYTTOONOTTO, 'Kopioi komennot'); });
   $('#linkki-kopioi').addEventListener('click', function () { kopioi(this, $('#laatikko-linkki').textContent, 'Kopioi linkki'); });
+
+  /* ---------- pinosta (käyttäjän pyyntö 15.11.2026) ----------
+     Luinin pinovalikko avaa Latomon osoitteella #tiedot=<id> tai #laitos=<id>, ja teksti luetaan pinosta (sama selain).
+     Avaa lukimessa (tässä Tallenna) vie sen takaisin luin.html#tuo-reitillä tunnisteineen ja valintoineen; Luin siirtää
+     merkinnät (tuoPinosta()). Tietojen säädössä tekstikenttä on lukittu, ja siivous, annotaatioiden piilotus ja ehdotukset
+     ovat pois, joten leipäteksti kulkee sellaisenaan; Luin hylkää tallennuksen, jos muu kuin otsikkolohko tai
+     tekijänoikeusosio muuttui. Uudessa laitoksessa Latomo toimii kuten aina, ja tallennettaessa valitaan, tuleeko toinen
+     laitos merkintöineen, ilman merkintöjä vai korvaako se alkuperäisen. */
+  var pino = null, AVAA_OHJE = $('#avaa-ohje').innerHTML, MD_OTSIKKO = $('#md-otsikko').textContent;
+  function tiedotLukittu() { return !!pino && pino.tila === 'tiedot'; }
+  var SAL_KYTKIN = '<svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
+  function naytaValinnat() {
+    var p = pino, v = $('#laitos-valinnat');
+    if (!p || p.tila !== 'laitos') { v.hidden = true; v.innerHTML = ''; return; }
+    var nl = p.laitos + '. laitos', mm = p.n ? ' (' + p.n + ')' : '';
+    var V = [];
+    if (p.n) V.push(['merk', nl + ' merkintöineen', 'Alkuperäinen jää pinoon ennalleen. Merkinnät' + mm + ' kopioidaan uuteen laitokseen; muuttuneista kohdista osa voi irrota.']);
+    V.push(['tyhja', nl + ' ilman merkintöjä', p.n ? 'Alkuperäinen jää pinoon merkintöineen.' : 'Alkuperäinen jää pinoon ennalleen.']);
+    V.push(['korvaa', 'Korvaa alkuperäinen', p.n ? 'Merkinnät' + mm + ' siirretään uuteen tekstiin; muuttuneista kohdista osa voi irrota. Alkuperäistä ei jää.' : 'Alkuperäistä ei jää.']);
+    v.innerHTML = '<span class="otsake" id="laitos-otsake">Tallennettaessa</span>' + V.map(function (x) {
+      return '<button type="button" class="kytkin" role="radio" data-v="' + x[0] + '" aria-checked="' + (p.valinta === x[0]) + '" aria-pressed="' + (p.valinta === x[0]) + '">' +
+        SAL_KYTKIN + '<span>' + esc(x[1]) + '<span class="sel">' + esc(x[2]) + '</span></span></button>';
+    }).join('');
+    v.hidden = false;
+  }
+  $('#laitos-valinnat').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-v]');
+    if (!b || !pino) return;
+    pino.valinta = b.dataset.v;
+    naytaValinnat();
+  });
+  function pinoon() {
+    var m = /^#(tiedot|laitos)=(.+)$/.exec(location.hash);
+    if (!m) return;
+    var id = decodeURIComponent(m[2]), lista = lueLS('luin-lista', []), e = lista.filter(function (x) { return x.id === id; })[0];
+    var teksti = lueLS('luin-teksti:' + id, null);
+    $('#pinosta').hidden = false;
+    if (!e || typeof teksti !== 'string') {
+      $('#pinosta-lappu').textContent = 'Pinosta';
+      $('#pinosta-nimi').textContent = '';
+      $('#pinosta-ohje').textContent = 'Tekstiä ei löytynyt tämän selaimen pinosta. Avaa se uudelleen pinon valikosta.';
+      return;
+    }
+    var mk = lueLS('luin-merkit:' + id, null) || {}, n = (mk.km || []).length + (mk.al || []).length;
+    var juuri = e.alkup || e.id;
+    var laitos = 1 + Math.max.apply(null, lista.filter(function (x) { return (x.alkup || x.id) === juuri; }).map(function (x) { return x.laitos || 1; }));
+    pino = { id: id, tila: m[1], valinta: n ? 'merk' : 'tyhja', n: n, laitos: laitos };
+    alusta(); ann = false;
+    md.value = teksti; nimi = e.title || ''; osoite.value = '';
+    md.readOnly = pino.tila === 'tiedot';
+    $('#tiedostonimi').textContent = 'tai pudota .md- tai .txt-tiedosto kenttään';
+    $('#pinosta-nimi').textContent = e.title || 'Nimetön';
+    if (pino.tila === 'tiedot') {
+      $('#pinosta-lappu').textContent = 'Pinosta · tietojen säätö';
+      $('#pinosta-ohje').textContent = 'Leipäteksti on lukittu: vain tiedot muuttuvat' + (n ? ', joten merkinnät (' + n + ') pysyvät paikallaan. ' +
+        'Jos muutat otsikkoa, alaotsikkoa tai tietorivejä, niihin osuneet merkinnät voivat irrota.' : '.') +
+        ' Tekstiä voi muuttaa pinon valikon kohdasta Uusi laitos Latomossa.';
+      $('#avaa').textContent = 'Tallenna tiedot';
+      $('#avaa-ohje').innerHTML = '<b>Tallenna tiedot</b> päivittää tekstin tiedot pinossa ja palaa pinoon.';
+      $('#md-otsikko').textContent = 'Teksti (lukittu)';
+    } else {
+      $('#pinosta-lappu').textContent = 'Pinosta · uusi laitos';
+      $('#pinosta-ohje').textContent = 'Muokkaa tekstiä ja tietoja vapaasti. Ennen tallennusta valitse alempaa, tuleeko pinoon ' +
+        laitos + '. laitos vai korvaako se alkuperäisen.';
+      $('#avaa').textContent = 'Tallenna pinoon';
+      $('#avaa-ohje').innerHTML = '<b>Tallenna pinoon</b> toimii yllä valitulla tavalla ja palaa pinoon.';
+      $('#md-otsikko').textContent = 'Uuden laitoksen teksti';
+    }
+    naytaValinnat();
+    paivita();
+  }
+  // Uusi tiedosto tai tyhjennys päättää pinotilan.
+  function pinostaPois() {
+    if (!pino && $('#pinosta').hidden) return;
+    pino = null; md.readOnly = false;
+    $('#pinosta').hidden = true; naytaValinnat();
+    $('#avaa').textContent = 'Avaa lukimessa';
+    $('#avaa-ohje').innerHTML = AVAA_OHJE; $('#md-otsikko').textContent = MD_OTSIKKO;
+    if (/^#(tiedot|laitos)=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
+  }
+  pinoon();
 
   // Testien koukku: tila ja tulos.
   window.__latomo = { tila: function () { return tila; }, tulos: function () { return nykyinen(); }, paivita: paivita };
