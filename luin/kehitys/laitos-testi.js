@@ -107,7 +107,7 @@ const LAITOS = MD.replace('## 1. Johdanto\n\n', '## 1. Johdanto\n\nUusi alkukapp
   await pinoon();
   await page.click(`#nimikkeet button.jako[data-id="${ID}"]`);
   const kohdat = await page.$$eval('#pop button[data-k]', bs => bs.map(b => b.textContent));
-  tulos('valikossa Säädä tietoja ja Uusi laitos', kohdat.includes('Säädä tietoja Latomossa') && kohdat.includes('Uusi laitos Latomossa'), kohdat.join(' | '));
+  tulos('valikossa Muuta metatietoja ja Uusi laitos', kohdat.includes('Muuta metatietoja') && kohdat.includes('Uusi laitos'), kohdat.join(' | '));
   await page.keyboard.press('Escape');
 
   // 1. Tietojen säätö: tekijä lisää otsikkolohkoon lohkon, joten leipätekstin lohkot siirtyvät yhdellä.

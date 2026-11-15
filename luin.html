@@ -1627,7 +1627,7 @@
   }
 
   /* ---------- tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026) ----------
-     Pinon nimikkeen valikosta Latomoon kahdella tavalla. *Säädä tietoja*: leipäteksti on lukittu, vain etukenttä ja
+     Pinon nimikkeen valikosta Latomoon kahdella tavalla. *Muuta metatietoja*: leipäteksti on lukittu, vain etukenttä ja
      otsikkolohko muuttuvat, ja tallennus hylätään, jos muuta muuttui. *Uusi laitos*: tekstiä saa muokata, ja tallennettaessa
      valitaan, tuleeko toinen laitos merkintöineen, ilman merkintöjä vai korvaako se alkuperäisen (merkinnät siirretään).
      Merkinnät siirretään rinnastamalla lohkot (kohdista()): sama lohkoteksti samassa järjestyksessä säilyttää kohdan
@@ -2321,8 +2321,8 @@
       '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
       (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="tiedot">Säädä tietoja Latomossa</button>' +
-      '<button type="button" data-k="laitos">Uusi laitos Latomossa</button>' +
+      '<button type="button" data-k="tiedot">Muuta metatietoja</button>' +
+      '<button type="button" data-k="laitos">Uusi laitos</button>' +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
