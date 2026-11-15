@@ -132,7 +132,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `luin.html`:ään ja näyttäisivät taas *Luin.*. Julkaisu: `npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml`.
 - **Ei sanaa *lukulaite*** käyttäjälle näkyvään tekstiin (käyttäjän päätös 15.11.2026: Luin ei ole laite eikä e-lukijan
   kilpailija). Virallinen kuvaus on *lukemisen tyyssija internetissä* (infolaatikko, käyttöohje, `og:description`, jakoworker).
-  Pinon tietoa-napin kehys on hakasulkeet, ei salmiakki (salmiakit ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä).
+  i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
+  ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa on yhä salmiakki.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
