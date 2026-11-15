@@ -3,7 +3,7 @@
 //   npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml
 // Viestimien esikatselu ei näe osoitteen #-osaa eikä aja JavaScriptiä, joten luin.html#u=… näytti aina staattisen otsikon *Luin.*. Tämä sivu antaa
 // og:titleksi tekstin nimen ja ohjaa selaimen JavaScriptillä Luiniin (luin.html#u=…). Ei meta refreshiä, ei 302:ta eikä og:urlia,
-// koska hakijat seuraisivat niitä luin.html:ään. Otsikko tulee linkistä (Luin kopioi hyllyn nimen), joten worker ei hae
+// koska hakijat seuraisivat niitä luin.html:ään. Otsikko tulee linkistä (Luin kopioi pinon nimen), joten worker ei hae
 // mitään: md.js:n otsikkopäättelyä ei kopioida, eikä ilmaistason CPU-raja tule vastaan. Kohde on aina luin.html.
 const LUIN_SIVU = "https://ollijuutilainen.github.io/luin.html";
 function htmlEsc(s) {
@@ -13,7 +13,7 @@ function handleLuinJako(req) {
   const url = new URL(req.url);
   const u = (url.searchParams.get("u") || "").trim().slice(0, 2048);
   const t0 = (url.searchParams.get("t") || "").replace(/\s+/g, " ").trim().slice(0, 200), t = t0 || "Luin.";
-  // d: lisätieto (hyllyn toinen rivi: sivusto, alaotsikko, teos tai tekijä). Ilman sitä tekstin linkissä ei ole kuvausta,
+  // d: lisätieto (pinon toinen rivi: sivusto, alaotsikko, teos tai tekijä). Ilman sitä tekstin linkissä ei ole kuvausta,
   // jotta Luinin oma alaotsikko ei kummittele vieraan tekstin alla (käyttäjä 12.11.2026).
   const d = (url.searchParams.get("d") || "").replace(/\s+/g, " ").trim().slice(0, 200);
   const kuvaus = d || (t0 ? "" : "Lukulaite Markdown-teksteille.");
