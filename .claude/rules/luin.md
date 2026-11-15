@@ -76,7 +76,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
 - `luin/palaute.html` (käyttäjän pyyntö 10.11.2026): viesti kehittäjälle (nimi ja sähköposti vapaaehtoisia, vain viesti pakollinen) reitille
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
-  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; hyllyltä pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
+  joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; pinosta pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
   Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta;
@@ -93,26 +93,28 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
-- **Hylly ja pölyhylly** (käyttäjän päätös 12.11.2026): käyttöliittymässä lukulista on *Hylly* ja arkistohylly *Pölyhylly*
-  (kaikilla Luinin sivuilla ja lisäosassa; sijamuodot *hyllylle*, *hyllyllä*, *hyllyltä*). Koodin tunnisteet (`luin-lista`, `#lista`,
-  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa* eikä *arkistohyllyä*.
-- **Pölyhylly ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
-  `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Hyllyssä ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus); linkki pölyhyllylle on hyllyn alalaidassa himmeänä ja vain, kun pölyhyllyllä on jotain. Sanat
-  *Luin.* ja *Puhalla pölyt.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+- **Pino ja uumen** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
+  näkymä *Uumen* (kaikilla Luinin sivuilla ja lisäosassa). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
+  ei *pinolle*), uumen yksikössä (*uumeneen*, *uumenessa*, *uumenesta*, ei *uumeniin*). Koodin tunnisteet (`luin-lista`, `#lista`,
+  `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *hyllyä*,
+  *pölyhyllyä* eikä *arkistohyllyä*.
+- **Uumen ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+  `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
+  Latomoa (käyttäjän rajaus); linkki uumeneen on pinon alalaidassa himmeänä ja vain, kun uumenessa on jotain. Sanat
+  *Luin.* ja *Poimi uumenesta.* (15.11.2026, ennen *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
-- **Hyllymerkki** (käyttäjän valinta 12.11.2026, mietintämyssyn luonnos *Ulkoneva*): paluu hyllylle on kolmen kirjan pino
+- **Pinomerkki** (käyttäjän valinta 12.11.2026, mietintämyssyn luonnos *Ulkoneva*): paluu pinoon on kolmen kirjan pino
   kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
   (suurennettu 12.11.2026 kahdesti, ennen 28 px ja 22 px; musteen paikat ennallaan: alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
   `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
-- **Hyllymerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (pölyhylly ja alasivut: Latomo, ohjeet, palaute,
-  tietosuoja) vaakapaikka on sama kaikkialla eli hyllyn asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
+- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (uumen ja alasivut: Latomo, ohjeet, palaute,
+  tietosuoja) vaakapaikka on sama kaikkialla eli pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
   loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
-  joten pystypaikka eroaa pölyhyllyn ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki hyllylle** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Pölyhyllyllä hyllymerkin vasemmalla
-  on versaalilinkki *Takaisin ylihyllyyn* (`#ark-takaisin`, sama osoite kuin merkillä; sana *ylihylly* on käyttäjän) ja Pölyhylly-linkki hyllyn alalaidassa on versaalia.
+  joten pystypaikka eroaa uumenen ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Uumenessa pinomerkin vasemmalla
+  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja Uumen-linkki pinon alalaidassa on versaalia.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
@@ -122,15 +124,15 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   rahoituksesta. 2) Mainokset ja lahjoitus: ensin *Huom. huom.!*, sitten kehotus harkita lahjoitusta. 3) Lahjoitukset ilman
   mainoksia: vähemmän moralisoiva toteamus. Vain sovitesivustoille, ei yleiselle leikkeelle eikä Bloggerille. Uudelle
   sovitteelle tarkista sivuston mainokset ja lahjoitusmahdollisuus.
-- **Lisätieto** (käyttäjän hierarkia 12.11.2026, opas 7.3): nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa on
+- **Lisätieto** (käyttäjän hierarkia 12.11.2026, opas 7.3): nimen jälkeinen rivi pinossa ja jakolinkin esikatselussa on
   `LuinMD.lisatieto()`: verkkojulkaisun sivusto (ei tekijä) › alaotsikko › kirjan osan teos › tekijä. Gutenbergin kaltainen
-  kantajasivusto ei ole julkaisu. Pidä hylly ja jakolinkki samassa funktiossa. Julkaisupäivä hyllyssä on avoin kysymys.
+  kantajasivusto ei ole julkaisu. Pidä pino ja jakolinkki samassa funktiossa. Julkaisupäivä pinossa on avoin kysymys.
 - **Jakolinkki** (käyttäjän pyyntö 12.11.2026, opas 7.3): *Kopioi linkki* antaa oman workerin `luin` (`worker/luin/`, ei
   `tusinasaa-worker`: käyttäjän valinta) sivun `?t=&u=`, jotta esikatselussa näkyy tekstin nimi. Sivulla ei saa olla `og:url`ia, meta refreshiä eikä 302:ta: hakijat seuraisivat niitä
   `luin.html`:ään ja näyttäisivät taas *Luin.*. Julkaisu: `npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml`.
 - **Ei sanaa *lukulaite*** käyttäjälle näkyvään tekstiin (käyttäjän päätös 15.11.2026: Luin ei ole laite eikä e-lukijan
   kilpailija). Virallinen kuvaus on *lukemisen tyyssija internetissä* (infolaatikko, käyttöohje, `og:description`, jakoworker).
-  Hyllyn tietoa-napin kehys on hakasulkeet, ei salmiakki (salmiakit ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä).
+  Pinon tietoa-napin kehys on hakasulkeet, ei salmiakki (salmiakit ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
@@ -260,7 +262,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   samaan sanaan, on maalaus (sukkelana alleviivaus, muuten valikko; `maal.laajeni`, hiiren tuplaklikkausveto `hiiriMaalasi`,
   selaimen tapa `tila.vedetty`), ja kahvasta muutettu luonnos avaa valikon myös yhteen sanaan supistuttuaan (`veto.muuttui`). Valinnan valikossa ei ole kirjanmerkkiä: kirjanmerkki vain alapalkin nauhasta. Käyttäjän
   päätökset 5.11.2026.
-- **Suurennuslasi on hyllyllä** (`LUPA_KAYTOSSA = false`, käyttäjän päätös 5.11.2026; älä ota käyttöön kysymättä; jos lasi
+- **Suurennuslasi on pinossa** (`LUPA_KAYTOSSA = false`, käyttäjän päätös 5.11.2026; älä ota käyttöön kysymättä; jos lasi
   osoittautuu tarpeettomaksi, käyttäjä harkitsee sen poistoa). Pilotti 5.11.2026, opas 4.3: kahvan kosketusvedossa (ei hiirellä) vedettävän pään rivi näkyy
   1,25-kertaisena rivin yläpuolella. Klooni tarvitsee alkuperäisen lasketut tyylit (`lupaKlooni()`); `#lupa` pysyy
   `pointer-events: none` eikä saa `.luin-ui`-luokkaa. Kahvan kohta luetaan otealueen läpi (`#kahvat.lapi`).
@@ -382,7 +384,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 - **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`): `luin/huilu.js`
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
-  Hyllyllä huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
+  Pinossa huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
   samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
@@ -433,7 +435,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio hyllyllä ja asetuksissa.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio pinossa ja asetuksissa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista GET-pyynnöille 429:n (myös kohteliaalla User-Agentilla ja odottaen); action=parse
