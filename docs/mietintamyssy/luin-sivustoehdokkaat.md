@@ -1,4 +1,4 @@
-# Luin: sivustoehdokkaat Lisää lukimeen -sovitteiksi
+# Luin: sivustoehdokkaat Luin-lisäosan sovitteiksi
 
 Hyllyyn 14.11.2026. Pohjana on käyttäjän pyytämä aivoriihi (*mieti kaikenlaisia muita nettisivuja, jotka voisivat sopia
 Luiniin*; painotus akateeminen, humanistinen ja syväluotaava). Lista on karsittu käyttäjän kriteereillä (ks. *Karsitut*).

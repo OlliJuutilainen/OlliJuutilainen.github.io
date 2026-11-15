@@ -1,4 +1,4 @@
-// SEP-pesukone: Stanford Encyclopedia of Philosophyn artikkelit Lisää lukimeen -lisäosan, Latomon ja md.js:n läpi.
+// SEP-pesukone: Stanford Encyclopedia of Philosophyn artikkelit Luin-lisäosan, Latomon ja md.js:n läpi.
 // Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--vali kansio] [--nayta] dewey cassirer heraclitus …
 // Sivut haetaan kerran välimuistiin (oletus: käyttöjärjestelmän tmp/sep-pesukone; SEP:n tekstejä ei viedä repoon),

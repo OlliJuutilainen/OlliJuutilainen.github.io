@@ -13,7 +13,7 @@ Markdownin sanasto on **pääpiirteiltään** laajasti jaettu. Murteita on, mutt
 
 ## Markdown Luinissa
 
-Luiniin voi lisätä verkkotekstejä Chrome- ja Firefox-selainten Lisää lukimeen -lisäosan automaation avulla, mutta Latomoon voit liittää myös minkä tahansa oman tekstisi.
+Luiniin voi lisätä verkkotekstejä Chrome- ja Firefox-selainten Luin-lisäosan automaation avulla, mutta Latomoon voit liittää myös minkä tahansa oman tekstisi.
 
 Mitään vaatimusta ei ole, että teksti olisi jäsennelty Markdownin etiketin mukaisesti: pelkkä teksti käy. Merkinnät kuitenkin palkitaan. Latomo kääntää otsikot, kursivoinnit ja alaviitemerkinnätkin kauniisti jäsentyvään asetteluun lukimessa luettavaksi.[^Tämä on alaviite. Se on kirjoitettu suoraan tekstin sekaan; merkintätapa on alempana sanastossa.]
 
