@@ -409,6 +409,37 @@ const AEON_SIVU = `<!doctype html><html lang="en"><head><meta charset="utf-8"><t
 <div class="no-pagemarks flex"><div><a class="text-section block" href="/psychology/mood-emotion">Mood and emotion</a></div><div class="font-mono">13 May 2022</div><div><button>Save</button></div></div></div></div></div>
 <div class="print:hidden"><a href="/essays/other"><p>Being small</p><p>Tom W</p></a></div></main></body></html>`;
 
+// European Journal of Psychoanalysis (keksitty sisältö, journal-psychoanalysis.eu:n rakenne 15.11.2026). Uusi artikkeli:
+// tekijät and-sanalla, Summary-otsakkeellinen tiivistelmä, lihavoidut väliotsikot (lihavoitu kursiivi alemmalla tasolla,
+// kaksoispisteeseen päättyvä lihavointi ei ole otsikko), APA-viittaukset, linkittömät [1]-viitteet (yksi jaettuna <b>[</b>2]:ksi,
+// Wordin tyhjä ankkuri), sisennetyt lainauskappaleet, kuvateksti h6:na ja .wp-caption-textinä, lohkot Bibliography, Notes
+// (jatkokappale, tyhjä kappale, viite ilman merkkiä), Bio ja Publication Date eri järjestyksessä kuin numerot, sivupalkin
+// Vol. ja No., väärä article:published_time. Vanha artikkeli: ei julkaisupäivää eikä numeroa, References, merkittömät viitteet.
+const EJP = 'https://www.journal-psychoanalysis.eu/articles/koe-article/';
+const EJP_VANHA = 'https://www.journal-psychoanalysis.eu/articles/old-koe/';
+const ejpSivu = (otsikko, tekija, intro, runko, lohkot, sivupalkki) => `<!doctype html><html lang="en-US"><head><meta charset="utf-8">
+<title>${otsikko} - European Journal of Psychoanalysis</title><meta property="og:site_name" content="European Journal of Psychoanalysis -">
+<meta property="article:published_time" content="2025-12-01T05:31:56+00:00"></head><body><header class="header"><nav class="header_nav"><a href="/">Home</a> <a href="/journal/">Journal</a></nav></header>
+<div class="aricle_content"><div class="container"><div class="content"><div class="content_main"><article class="article_post"><div class="article_top"><p class="article_author">${tekija}</p><h1 class="article_title">${otsikko}</h1></div>
+${intro}<div class="article_text typical_text">${runko}</div><div class="article_bottom"><div class="article_notes">${lohkot.map(([n, t], i) => `<div class="article_notes_box" id="block-${i + 1}"><h3 class="article_notes_title">${n}:</h3><div class="article_notes_text">${t}</div></div>`).join('')}</div>
+<div class="article_widgets"><div class="article_widget_box"><h3 class="article_widget_title">Share This Article</h3></div><div class="article_widget_box"><h3 class="article_widget_title">Topics</h3><div class="article_tags"><a>Freud</a></div></div></div></div></article></div>
+<div class="content_sidebar right"><div class="article_details"><div class="article_details_box"><h3 class="article_details_title">Publication</h3><p class="article_details_description"><a href="/x/">${sivupalkki}</a></p>
+<a class="article_details_link download" href="https://www.journal-psychoanalysis.eu/wp-content/themes/europeanjourna/pdf.php?ida=1"><span>Download.pdf</span></a></div></div></div></div></div></div>
+<footer class="footer"><p>Published by I.S.A.P. - ISSN 2284-1059</p><p>© 2024 European Journal of Psychoanalysis</p></footer></body></html>`;
+const EJP_SIVU = ejpSivu('Koe Article: A Test', 'Ada Aaltonen and Bo Berg',
+  `<div class="article_intro"><p><strong>Summary:</strong></p><p>This article tests the clipper.</p></div>`,
+  `<p><strong>Introduction</strong></p><p>The opening cites Koe (Koe, 2020, p. 5) and a note.[1] Two authors (Koe &amp; Testi, 2019; Muu et al., 2018) here.</p>
+<p style="padding-left: 40px;">An indented quotation.</p><p style="padding-left: 40px;">Its second paragraph.</p>
+<p><strong><em>A Subsection</em></strong></p><p><strong>Bold lead-in that is not a heading:</strong></p><p>Split mark<b>[</b>2] and a Word anchor<a href="#_ftnref2" name="_ftn2"></a> here.</p>
+<h6 style="text-align: center;"><strong>Figure 1: </strong><em>The Koe Schema</em></h6><div id="attachment_1" class="wp-caption aligncenter"><img src="https://www.journal-psychoanalysis.eu/wp-content/uploads/1.png" alt=""><p class="wp-caption-text">Adapted from Koe (2020).</p></div>
+<p><img src="https://www.journal-psychoanalysis.eu/wp-content/uploads/2.png" alt=""></p><p>&nbsp;</p><p><b>Conclusion</b></p><p>The end.</p>`,
+  [['Bibliography', '<p>Koe, A. (2020). <i>A test book</i>. Koe Press.</p><p>Koe, A., &amp; Testi, B. (2019). Paired. <i>Koe Journal</i>, <i>1</i>(2), 3–4.</p><p>Muu, C., Toinen, D., &amp; Kolmas, E. (2018). <i>Three</i>. Press.</p>'],
+    ['Bio', '<p><strong>Ada Aaltonen </strong>is a psychoanalyst.</p><p>&nbsp;</p>'], ['Publication Date', '<p>March 3rd, 2026</p>'],
+    ['Notes', '<p>[1] First note (Koe, 2020).</p><p>&nbsp;</p><p>Continuation of the first note.</p><p>[2] Second note.</p><p>[3] A note without a mark.</p>']],
+  'Vol. 13, No. 1, 2026');
+const EJP_VANHA_SIVU = ejpSivu('Old Koe', 'Cee Vanha', '', `<p>An old article (Koe, 2020).</p>`,
+  [['References', '<p>Koe, A. (2020). <i>A test book</i>. Koe Press.</p>'], ['Notes', '<hr><div><p>1 Koe (2020).</p><p>2 Ibid.</p></div>']], 'Articles');
+
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
 // virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
@@ -492,6 +523,8 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (kk) return r.fulfill({ body: kk, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === PSYCHE) return r.fulfill({ body: PSYCHE_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === AEON) return r.fulfill({ body: AEON_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === EJP) return r.fulfill({ body: EJP_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href.split('#')[0] === EJP_VANHA) return r.fulfill({ body: EJP_VANHA_SIVU, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -929,6 +962,32 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     !/Hope involves|Mood and emotion|13 May 2022|Being small|SYNDICATE|3,600/.test(aeRunko) && /^> A single quotation from Freud\.$/m.test(aeRunko) &&
     /\n___\n\nBo Berg is a psychoanalyst in \[private practice\]\[1\]\. His writing has appeared in \*Psychoanalytic Dialogues\*\.\n\nEdited by Pam Toimittaja\n/.test(aeRunko),
     aeRunko.replace(/\n/g, ' | ').slice(-500));
+  // 21. European Journal of Psychoanalysis (15.11.2026): tiivistelmä, väliotsikot, viitteet, lohkot otsikkosanasta, etukenttä sivupalkista.
+  const ej = await leikeLuin(EJP);
+  const ejRunko = ej.md.split('---').slice(2).join('---');
+  tulos('EJP: etukenttä (tyyppi, tekijät, lehti, numero, Publication Date), ei sivustoa eikä WordPressin aikaa',
+    /^---\ntyyppi: tieteellinen\ntekijä: Ada Aaltonen & Bo Berg\nteos: European Journal of Psychoanalysis\nnumero: 13:1\njulkaistu: 2026-03-03\nlähde: https:\/\/www\.journal-psychoanalysis\.eu\/articles\/koe-article\/\nleikattu: /.test(ej.md) &&
+    !/sivusto:|2025-12-01/.test(ej.md), ej.md.split('\n').slice(0, 9).join(' | '));
+  tulos('EJP: otsikot lihavoinneista (kursiivi alempi taso), kaksoispisteellinen ei otsikko; Bibliography ja Bio lopussa, Notes vain merkittömälle',
+    ej.ots === '# Koe Article: A Test | ## Introduction | ### A Subsection | ## Conclusion | ## Bibliography | ## Bio | ## Notes' &&
+    /^\*\*Bold lead-in that is not a heading:\*\*$/m.test(ejRunko), ej.ots);
+  tulos('EJP: tiivistelmä alkuun otsakkeineen ja osanvaihto; lainaus, kuvatekstit kursiivina, kuvat ja tyhjät kappaleet pois',
+    /^# Koe Article: A Test\n\n\*\*Summary:\*\* This article tests the clipper\.\n\n___\n\n## Introduction\n/m.test(ejRunko) &&
+    /^> An indented quotation\.\n> ?\n> Its second paragraph\.$/m.test(ejRunko) && /^\*Figure 1: The Koe Schema\*\n\n\*Adapted from Koe 2020\.\*$|^\*Figure 1: The Koe Schema\*\n\n\*Adapted from Koe \(2020\)\.\*$/m.test(ejRunko) &&
+    !/uploads|Share This|Topics|Download|ISSN|March 3rd|Publication Date/.test(ejRunko), ejRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('EJP: APA-pilkku pois, [1]- ja jaettu <b>[</b>2]-merkki alaviitteiksi jatkokappaleineen, merkitön viite Notes-osioon',
+    /\(Koe 2020, p\. 5\) and a note\.\[\^viite-ejp1\] Two authors \(Koe & Testi 2019; Muu et al\. 2018\)/.test(ejRunko) &&
+    /^Split mark\[\^viite-ejp2\] and a Word anchor here\.$/m.test(ejRunko) &&
+    /^\[\^viite-ejp1\]: First note \(Koe 2020\)\.\n\n {4}Continuation of the first note\.$/m.test(ejRunko) && /^\[\^viite-ejp2\]: Second note\.$/m.test(ejRunko) &&
+    /^## Notes\n\n\\\[3\\\] A note without a mark\.$/m.test(ejRunko) && !/\\\[[12]\\\]|\*\*\\\[\*\*/.test(ejRunko),
+    ejRunko.replace(/\n/g, ' | ').slice(0, 1400));
+  tulos('EJP Luinissa: kaksi alaviitettä, kolme kirjallisuuden kohtaa, viittaukset linkittyvät, lainaus',
+    ej.luin.sn.length === 2 && ej.luin.bib === 3 && ['Koe 2020', 'Koe & Testi 2019', 'Muu et al. 2018'].every(x => ej.luin.lahde.some(l => l.startsWith(x + '>'))) &&
+    ej.luin.lainaus === 1 && !ej.luin.varoitukset.length, JSON.stringify(ej.luin).slice(0, 600));
+  const ejv = await leikeLuin(EJP_VANHA);
+  tulos('EJP vanha artikkeli: ei julkaisupäivää eikä numeroa, References, merkittömät viitteet Notes-osioksi',
+    /^---\ntyyppi: tieteellinen\ntekijä: Cee Vanha\nteos: European Journal of Psychoanalysis\nlähde: /.test(ejv.md) && !/julkaistu:|numero:/.test(ejv.md) &&
+    ejv.ots === '# Old Koe | ## References | ## Notes' && /^1 Koe \(2020\)\.\n\n2 Ibid\.$/m.test(ejv.md) && ejv.luin.bib === 1, ejv.md.replace(/\n/g, ' | ').slice(0, 700));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen

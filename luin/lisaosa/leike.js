@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1339,6 +1339,149 @@
       julkaistu: pv, lahde: osoite.split('?')[0] };
   }
 
+  /* European Journal of Psychoanalysis (journal-psychoanalysis.eu, käyttäjän pyyntö 15.11.2026). WordPress, oma teema.
+     Readability antaa leipätekstin, mutta tiivistelmä (.article_intro), kirjallisuus, viitteet, tekijän esittely ja
+     julkaisupäivä putoavat: ne ovat artikkelin alla lohkoissa .article_notes_box (otsikko h3.article_notes_title:
+     Bibliography/References, Notes/Note, Bio/Bios, Publication Date). Lohkojen numerointi ja järjestys vaihtelevat, joten
+     lohko tunnistetaan otsikkosanasta. Runko .article_text: väliotsikot ovat kokonaan lihavoituja kappaleita (##; lihavoitu
+     kursiivi ###; kaksoispisteeseen päättyvä tai pitkä virke ei ole otsikko), kuvatekstit h6:na ja .wp-caption-textinä
+     (kursiivikappaleiksi, kuvat pois), lainaukset sisennettyinä kappaleina (style padding-left). Viitemerkit ovat tekstissä
+     linkittöminä [1]; ne yhdistetään Notes-lohkon [1]-kappaleisiin järjestyksessä. Viite, jolle ei löydy merkkiä
+     (Consciousness: merkit puuttuvat sivulta, numerot ilman hakasulkeita), jää Notes-osioksi. Tekstiviittaukset ovat APA:n
+     muotoa (Badiou, 2017, p. 61): pilkku tekijän ja vuoden välistä pois kuten OECS:ssä, jotta md.js linkittää ne
+     kirjallisuusluetteloon. Kirjallisuus kappaleina (p.bib). Tiivistelmä alkuun ennen osanvaihtoa, sen Summary:-otsake
+     kappaleen alkuun. Etukenttään tyyppi tieteellinen, teos (lehti) ja numero sivupalkista (Vol. 12, No. 1, 2025 → 12:1),
+     julkaistu Publication Date -lohkosta (article:published_time on WordPressin aika, ei julkaisupäivä; ilman lohkoa vuosi
+     numerosta, vanhoissa artikkeleissa ei mitään), tekijät .article_authorista. Mitattu 15.11.2026. */
+  const EJP_NIMI = 'European Journal of Psychoanalysis';
+  const EJP_KUUT = { january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12 };
+  // APA:n pilkku sulkujen sisällä tekijän ja vuoden välistä pois: (Freud, 1925/1998, p. 11) → (Freud 1925/1998, p. 11).
+  const ejpViittaukset = juuri => {
+    const w = document.createTreeWalker(juuri, NodeFilter.SHOW_TEXT);
+    for (let t; (t = w.nextNode());) {
+      if (!/\(/.test(t.nodeValue)) continue;
+      t.nodeValue = t.nodeValue.replace(/\([^()]*\)/g, s => s.replace(/(\p{Lu}[\p{L}’'-]+(?:\s+et\s+al\.?)?),\s+((?:1[5-9]\d\d|20\d\d)[a-z]?)(?=[\s,;:)/]|$)/gu, '$1 $2'));
+    }
+  };
+  async function ejp() {
+    if (!/(^|\.)journal-psychoanalysis\.eu$/.test(location.hostname)) return null;
+    const runko = document.querySelector('article.article_post .article_text');
+    if (!runko) return null;
+    const art = runko.closest('article');
+    const el = runko.cloneNode(true);
+    const tyhja = p => !rivi(p.textContent);
+    // Kuvat pois, kuvatekstit (h6, .wp-caption-text) kursiivikappaleiksi.
+    const kursiivi = x => { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = rivi(x.textContent); p.appendChild(em); return p; };
+    el.querySelectorAll('.wp-caption').forEach(d => { const c = d.querySelector('.wp-caption-text'); c && !tyhja(c) ? d.replaceWith(kursiivi(c)) : d.remove(); });
+    el.querySelectorAll('h6').forEach(h => tyhja(h) ? h.remove() : h.replaceWith(kursiivi(h)));
+    el.querySelectorAll('script, style, noscript, button, svg, img, figure, iframe').forEach(x => x.remove());
+    // Wordin tyhjät viiteankkurit (<a href="#_ftnref1" name="_ftn1"></a>).
+    el.querySelectorAll('a').forEach(a => { if (tyhja(a)) a.remove(); });
+    // Väliotsikot: kappale, jonka koko teksti on lihavoitu.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      if (!t || t.length > 200 || /:$/.test(t) || (/\.$/.test(t) && t.split(' ').length > 8)) return;
+      const osa = sel => [...p.querySelectorAll(sel)].filter(x => !x.parentElement.closest(sel) || !p.contains(x.parentElement.closest(sel))).map(x => x.textContent).join('');
+      if (rivi(osa('b, strong')).replace(/\s/g, '') !== t.replace(/\s/g, '')) return;
+      const h = document.createElement(rivi(osa('i, em')).replace(/\s/g, '') === t.replace(/\s/g, '') ? 'h3' : 'h2');
+      h.textContent = t;
+      p.replaceWith(h);
+    });
+    // Sisennetyt kappaleet lainauksiksi, peräkkäiset yhdeksi.
+    el.querySelectorAll('p[style*="padding-left"]').forEach(p => {
+      const ed = p.previousElementSibling;
+      const b = ed && ed.tagName === 'BLOCKQUOTE' ? ed : document.createElement('blockquote');
+      if (b !== ed) p.before(b);
+      p.removeAttribute('style');
+      b.appendChild(p);
+    });
+    el.querySelectorAll('p').forEach(p => { if (tyhja(p)) p.remove(); });
+    // Lohkot otsikkosanasta.
+    const lohkot = [...art.querySelectorAll('.article_notes_box')].map(b => ({
+      nimi: rivi((b.querySelector('.article_notes_title') || {}).textContent).replace(/:$/, ''),
+      kpl: [...b.querySelectorAll('.article_notes_text p')].filter(p => !tyhja(p) && !p.querySelector('p'))
+    }));
+    // Viitteet: [n]-kappale aloittaa viitteen, numeroton kappale jatkaa edellistä.
+    // Merkki voi jakautua elementtien kesken (<b>[</b>2]), joten haku tehdään rungon yhdistetystä tekstistä.
+    const solmut = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t; (t = w.nextNode());) solmut.push(t);
+    let koko = '';
+    const alut = solmut.map(t => { const a = koko.length; koko += t.nodeValue; return a; });
+    const maar = [], jaljelle = [], poistot = [];
+    let kohta = 0;
+    for (const l of lohkot.filter(l => /^notes?$/i.test(l.nimi))) {
+      const viitteet = [];
+      for (const p of l.kpl) {
+        const m = /^\s*\[(\d{1,3})\]\s*/.exec(p.textContent);
+        if (m) viitteet.push({ n: m[1], kpl: [p] });
+        else if (viitteet.length && !/^\s*\d{1,3}\s/.test(p.textContent)) viitteet[viitteet.length - 1].kpl.push(p);
+        else viitteet.push({ n: '', kpl: [p] });
+      }
+      for (const v of viitteet) {
+        const i = v.n ? koko.indexOf('[' + v.n + ']', kohta) : -1;
+        if (i < 0) { jaljelle.push(...v.kpl); continue; }
+        kohta = i + v.n.length + 2;
+        const tunnus = 'ejp' + (maar.length + 1);
+        poistot.push({ i, loppu: kohta, tunnus });
+        const k = document.createElement('div');
+        v.kpl.forEach(p => k.appendChild(p.cloneNode(true)));
+        ejpViittaukset(k);
+        const t = muunna(k.innerHTML, 'inlined').trim().replace(/^\\\[\d{1,3}\\\]\s*/, '');
+        if (t) maar.push(maaritelma(tunnus, t)); else poistot.pop();
+      }
+    }
+    // Merkit lopusta alkuun, jotta aiemmat paikat pysyvät: merkin merkit pois solmuista, alaviitemerkki alun paikalle.
+    for (const m of poistot.reverse()) {
+      solmut.forEach((t, j) => {
+        const a = alut[j], l = a + t.nodeValue.length;
+        if (l <= m.i || a >= m.loppu) return;
+        const x = Math.max(m.i, a) - a, y = Math.min(m.loppu, l) - a;
+        if (a <= m.i) {
+          const loput = t.splitText(x);
+          loput.nodeValue = loput.nodeValue.slice(y - x);
+          loput.before(m.solmu = merkki(m.tunnus));
+        } else t.nodeValue = t.nodeValue.slice(0, x) + t.nodeValue.slice(y);
+      });
+    }
+    // Merkki pois muotoilusta, jossa ei ole muuta (<b>[</b>2] → **[^viite-…]**).
+    poistot.forEach(m => {
+      let e = m.solmu.parentElement;
+      while (e && e !== el && /^(B|STRONG|I|EM|SPAN|SUP)$/.test(e.tagName) && e.textContent === m.solmu.nodeValue) { e.replaceWith(m.solmu); e = m.solmu.parentElement; }
+    });
+    ejpViittaukset(el);
+    // Tiivistelmä alkuun: Summary:-otsake kappaleen alkuun.
+    const intro = art.querySelector('.article_intro');
+    const alku = intro ? [...intro.querySelectorAll('p')].filter(p => !tyhja(p)).map(p => p.cloneNode(true)) : [];
+    if (alku.length > 1 && /^summary:?$/i.test(rivi(alku[0].textContent)) && alku[0].querySelector('b, strong')) {
+      const s = document.createElement('strong'); s.textContent = rivi(alku[0].textContent);
+      alku[1].prepend(s, ' ');
+      alku.shift();
+    }
+    if (alku.length) { alku.forEach(ejpViittaukset); el.prepend(...alku, document.createElement('hr')); }
+    // Muut lohkot sivun järjestyksessä: kirjallisuus kappaleina, kohdistamattomat viitteet, esittely ja muut.
+    let julkaistu = '';
+    for (const l of lohkot) {
+      if (/^publication date$/i.test(l.nimi)) {
+        const m = /([A-Z][a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(rivi(l.kpl.map(p => p.textContent).join(' ')));
+        if (m && EJP_KUUT[m[1].toLowerCase()]) julkaistu = m[3] + '-' + String(EJP_KUUT[m[1].toLowerCase()]).padStart(2, '0') + '-' + m[2].padStart(2, '0');
+        continue;
+      }
+      const kpl = /^notes?$/i.test(l.nimi) ? jaljelle : l.kpl;
+      if (!kpl.length) continue;
+      const h = document.createElement('h2'); h.textContent = l.nimi;
+      el.append(h, ...kpl.map(p => { const k = p.cloneNode(true); k.removeAttribute('style'); return k; }));
+    }
+    el.querySelectorAll('div, span').forEach(d => d.replaceWith(...d.childNodes));
+    el.normalize();
+    // Sivupalkki: Vol. 12, No. 1, 2025 → numero 12:1, vuosi julkaisupäivän varalle.
+    const vol = rivi((document.querySelector('.article_details_description') || {}).textContent);
+    const vm = /Vol\.?\s*(\d+)\s*,\s*No\.?\s*(\d+)(?:\s*,\s*(\d{4}))?/i.exec(vol);
+    const tekija = rivi((art.querySelector('.article_author') || {}).textContent).replace(/\s+and\s+/g, ' & ');
+    return { html: irrota([el]).innerHTML, otsikko: rivi((art.querySelector('h1.article_title') || document.querySelector('h1') || {}).textContent),
+      tekija, tyyppi: 'tieteellinen', teos: EJP_NIMI, numero: vm ? vm[1] + ':' + vm[2] : '', naytto: EJP_NIMI,
+      julkaistu: julkaistu || (vm && vm[3]) || '', lahde: osoite.split('?')[0], maar };
+  }
+
   /* Project Gutenberg (käyttäjän pyyntö 14.11.2026: alkuteokset). Kirjojen HTML on tehty käsin, ja rakenne vaihtelee
      kirjasta toiseen; yhteistä on Ebookmakerin kehys: sisältö on #pg-start-separatorin ja #pg-end-separatorin välissä
      (lisenssiteksti ja otsake jäävät pois) ja metatiedot Dublin Corea (dc.title, dc.creator, marcrel.trl, dc.language,
@@ -2161,7 +2304,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null;
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, ejp, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) break;
   }
@@ -2174,6 +2317,7 @@
   const p = new Date(), pv = n => String(n).padStart(2, '0');
   const etu = ['---'];
   const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
+  kentta('tyyppi', blogi && blogi.tyyppi);
   kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
   kentta('teos', blogi && blogi.teos);
   kentta('numero', blogi && blogi.numero);
