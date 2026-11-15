@@ -499,6 +499,26 @@
     if (u) { r.linkki = u; r.linkkiTeksti = 'lähteen omat ehdot'; }
     return r;
   }
+  /* ---------- Rahoitushuomautus ----------
+     Käyttäjän säännöt 15.11.2026: lisäosan sovitesivustoilta (ei muilta) leikatun tekstin alkuun hakasulkeinen yläotsake,
+     kun sivusto elää mainoksista tai lahjoituksista. Luin voisi muuten näyttää hyväksyneen sivun vapaaksi riistaksi.
+     Etukentässä `rahoitus:` (mainokset | mainokset ja lahjoitukset | lahjoitukset) ja `lahjoitusosoite:`. Sanamuodot
+     ovat käyttäjän sääntöjen mukaiset: 1 mainokset ilman lahjoitusta, 2 mainokset ja lahjoitus (ensin omatunnon
+     herättely), 3 lahjoitukset ilman mainoksia (vähemmän moralisoiva). */
+  var RAHOITUS = {
+    mainokset: 'Tämä sivusto pysyy todennäköisesti pystyssä mainostulojen voimin. Luin ei halua lakata toimimasta, mutta ' +
+      'tiedosta, että tämä Luinin lukukokemus on mahdollinen vain sivuston oman olemassaolon ansiosta.',
+    'mainokset ja lahjoitukset': 'Huom. huom.! Tämä sivusto elää osin mainoksista, jotka Luinissa jäävät näkemättä. ' +
+      'Jos luet täältä, harkitse lahjoitusta sivuston ylläpitäjälle.',
+    lahjoitukset: 'Tämä sivusto toimii lahjoitusten varassa.'
+  };
+  function rahoitus(meta) {
+    var laji = String(meta.rahoitus || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    if (!RAHOITUS[laji]) return null;
+    var u = String(meta.lahjoitusosoite || '').trim();
+    if (!/^https?:\/\/\S+$/i.test(u) || laji === 'mainokset') u = '';
+    return { laji: laji, teksti: RAHOITUS[laji], osoite: u };
+  }
   // Merkinnän otsikkotaso (käyttäjän säännöt 10.11.2026), tasot sellaisina kuin ne näkyvät (laske, alennukset, pykälät):
   // kohta (h4) on oletus ja kuivan loppuosion (kirjallisuus, lähteet, linkit) alla aina; ilman otsikoita kohta yksin;
   // jos tekstissä on vain yhtä tasoa eikä kuivaa loppua, sama taso (pelkät osiot → osio, pelkät luvut → luku).
@@ -2074,6 +2094,15 @@
       var tr = tietorivit(m, kehys);
       if (tr.length) { head += blk('p', 'meta', tr.join('\n'), metaCtx); res.lines = tr; }
     }
+    // Rahoitushuomautus otsikkolohkon alkuun ilman lohkonumeroa (data-b), joten kirjanmerkit ja merkinnät eivät siirry.
+    var rh = rahoitus(m);
+    if (rh) {
+      res.rahoitus = rh;
+      var rhHtml = '<p class="rahoitus">[' + inline(rh.teksti + (rh.osoite ? ' Lahjoittaa voi osoitteessa <' +
+        rh.osoite.replace(/[<>\s]/g, encodeURIComponent) + '>' : ''), ctx) + ']</p>';
+      if (head) head = head.replace(/^<header class="tt">/, function (x) { return x + rhHtml; });
+      else html += rhHtml;
+    }
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
@@ -2411,7 +2440,7 @@
   // Jos yksittäinen sana ei mahdu edes yksin riville, lukija tavuttaa sen erikseen (luin.html, tavutaPitkat()).
   // Lähdeluettelo (.bib) ei tavuta lainkaan (Teologian tyyli ja APA 7: ei tavutusta, ei tavuviivaa DOI:hin eikä
   // osoitteisiin); ylipitkä sana katkeaa ilman viivaa (overflow-wrap: anywhere).
-  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
+  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
   function tavutaDOM(rootEl, tila) {
     var o = TILAT[tila];
     if (!o) return 0;

@@ -80,7 +80,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta;
-  käyttäjän pyyntö 13.11.2026, lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`.
+  käyttäjän pyyntö 13.11.2026, lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`,
+  paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Kunniasalmiakki** (okra, käyttäjän
+  pyyntö 15.11.2026) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
+  Ensyklopedia Logos. Älä lisää sitä kysymättä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
@@ -113,6 +116,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
   *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
+- **Rahoitushuomautus** (käyttäjän säännöt 15.11.2026, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
+  itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
+  hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-
+  rahoituksesta. 2) Mainokset ja lahjoitus: ensin *Huom. huom.!*, sitten kehotus harkita lahjoitusta. 3) Lahjoitukset ilman
+  mainoksia: vähemmän moralisoiva toteamus. Vain sovitesivustoille, ei yleiselle leikkeelle eikä Bloggerille. Uudelle
+  sovitteelle tarkista sivuston mainokset ja lahjoitusmahdollisuus.
 - **Lisätieto** (käyttäjän hierarkia 12.11.2026, opas 7.3): nimen jälkeinen rivi hyllyssä ja jakolinkin esikatselussa on
   `LuinMD.lisatieto()`: verkkojulkaisun sivusto (ei tekijä) › alaotsikko › kirjan osan teos › tekijä. Gutenbergin kaltainen
   kantajasivusto ei ole julkaisu. Pidä hylly ja jakolinkki samassa funktiossa. Julkaisupäivä hyllyssä on avoin kysymys.

@@ -2290,6 +2290,26 @@
     return null;
   }
 
+  /* Rahoitus (käyttäjän säännöt 15.11.2026, md.js rahoitus()): sovitesivuston mainos- tai lahjoitusrahoitus etukenttään,
+     josta Luin tekee tekstin alkuun hakasulkeisen huomautuksen. Vain sovitteille (ei Bloggerille: blogit vaihtelevat, eikä
+     yleiselle leikkeelle). Tarkistettu 15.11.2026 sivuston sivuilta ja Chromiumissa ladatuista mainosverkoista:
+     Encyclopedia.com (Raptive) ja New Advent (CleanMedia) näyttävät mainoksia ilman lahjoitusnappia (New Adventin
+     19,99 dollarin latausta ei laskettu lahjoitukseksi), ja tuettujen sivustojen listassa ne ovat piilossa. Wait But Whyn
+     mainosverkkoliikenne tulee Disqus-kommenteista ja Amazonin kumppanilinkeistä, ei sivuston omista mainoksista.
+     Logos, OECS, SAET ja IRED: ei mainoksia eikä lahjoituspyyntöä. Avain on sovitefunktion nimi. */
+  const RAHOITUS = {
+    sep: { laji: 'lahjoitukset', osoite: 'https://plato.stanford.edu/support/donate.html' },
+    wikipedia: { laji: 'lahjoitukset', osoite: 'https://donate.wikimedia.org/' },
+    marxists: { laji: 'lahjoitukset', osoite: 'https://www.marxists.org/admin/donate/index.htm' },
+    waitbutwhy: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/waitbutwhy' },
+    gutenberg: { laji: 'lahjoitukset', osoite: 'https://www.gutenberg.org/donate/' },
+    ccel: { laji: 'lahjoitukset', osoite: 'https://give.calvin.edu/give/583548/#!/donation/checkout' },
+    aeonPsyche: { laji: 'lahjoitukset', osoite: () => /(^|\.)aeon\.co$/.test(location.hostname) ? 'https://aeon.co/donate' : 'https://psyche.co/donate' },
+    ejp: { laji: 'lahjoitukset', osoite: 'https://www.paypal.com/donate/?hosted_button_id=5KCSPCEPPTCYC' },
+    encyclopediaCom: { laji: 'mainokset' },
+    newadvent: { laji: 'mainokset' }
+  };
+
   // Valinta ennen Readabilityä.
   let valintaHtml = '';
   const sel = window.getSelection();
@@ -2303,10 +2323,10 @@
   let artikkeli = null;
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
-  let blogi = null;
+  let blogi = null, sovitin = sep ? 'sep' : '';
   if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, ejp, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
-    if (blogi) break;
+    if (blogi) { sovitin = f.name; break; }
   }
   // Sovitteen tyhjä runko (IRED:n kansi) on tyhjä leike, ei Readabilityn arvaus katselimen sivusta.
   const sisalto = sep || (blogi && blogi.html) || (blogi && blogi.tyhja ? '' : artikkeli && artikkeli.content) || '';
@@ -2332,6 +2352,8 @@
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
   if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
+  const raha = RAHOITUS[sovitin];
+  if (raha) { kentta('rahoitus', raha.laji); kentta('lahjoitusosoite', typeof raha.osoite === 'function' ? raha.osoite() : raha.osoite); }
   kentta('leikattu', p.getFullYear() + '-' + pv(p.getMonth() + 1) + '-' + pv(p.getDate()));
   // Otsikon oma viitemerkki (marxists.org: Porvarit ja proletaarit[23]) #-rivin perään.
   const otsikkoMd = blogi && blogi.otsikkoMerkit ? blogi.otsikkoMerkit.replace(MERKKI, '[^viite-$1]') : '';

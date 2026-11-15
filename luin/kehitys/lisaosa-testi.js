@@ -706,9 +706,17 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await avaaIkkuna(SEP);
   const luin2 = await paina('#lukimeen', /luin\.html#id=/);
   const L2 = await luin2.evaluate(() => ({ huom: [...document.querySelectorAll('#teksti .sidenote')].map(x => x.textContent.replace(/\u00ad/g, '').trim()),
-    bib: [...document.querySelectorAll('#teksti p.bib')].map(x => x.textContent.slice(0, 20)) }));
+    bib: [...document.querySelectorAll('#teksti p.bib')].map(x => x.textContent.slice(0, 20)),
+    raha: (() => { const p = document.querySelector('#teksti header.tt > p.rahoitus:first-child'); if (!p) return null;
+      const c = getComputedStyle(p), a = p.querySelector('a'), v = document.createElement('span'); v.style.color = 'var(--harmaa)'; p.appendChild(v); const h = { color: getComputedStyle(v).color }; v.remove();
+      return { t: p.textContent, b: p.hasAttribute('data-b'), tt: c.textTransform, fs: c.fontStyle, fw: c.fontWeight, vari: c.color === h.color,
+        aTt: a && getComputedStyle(a).textTransform, aHref: a && a.hasAttribute('href'), h1b: document.querySelector('#teksti h1').dataset.b }; })() }));
   tulos('SEP Luinissa: alaviitteiden tekstit ja kirjallisuusluettelo', L2.huom.length === 3 && /Dykhuizen 1973/.test(L2.huom[0]) && /^2Ensimmäinen kappale\.Lainaus alaviitteessä\.Jatko Jamesiin\.$/.test(L2.huom[1]) &&
     L2.bib.length === 2 && /^Dewey, John/.test(L2.bib[0]), JSON.stringify(L2).slice(0, 400));
+  tulos('SEP Luinissa: rahoitushuomautus otsikkolohkon alussa (versaali, kursiivi, ohut, harmaa, hakasulkeissa, ei lohkonumeroa)',
+    L2.raha && /^\[Tämä sivusto toimii lahjoitusten varassa\. Lahjoittaa voi osoitteessa https:\/\/plato\.stanford\.edu\/support\/donate\.html\]$/.test(L2.raha.t) &&
+    !L2.raha.b && L2.raha.h1b === '0' && L2.raha.tt === 'uppercase' && L2.raha.fs === 'italic' && L2.raha.fw === '380' && L2.raha.vari &&
+    L2.raha.aTt === 'none' && !L2.raha.aHref, JSON.stringify(L2.raha));
   await luin2.close();
 
   // 8. Blogger: etusivu kokoelmana (otsikko blogin nimi, kirjoitukset lukuina päiväyksineen, katkaistu haettuna, Featured
@@ -733,6 +741,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await latomo5.close();
   tulos('Blogger kirjoitus: otsikko, tekijä, blogin nimi, päivä paikallisena', /^tekijä: Maija Bloggaaja\nsivusto: Koeblogi\njulkaistu: 2026-09-01\nlähde: https:\/\/koeblogi\.blogspot\.com\/2026\/09\/toinen\.html$/m.test(bp) &&
     /^# Toinen\n\nBlogikirjoituksen virke/m.test(bp) && /Hypyn jälkeinen loppu\.\n$/.test(bp) && !/Tweet|twitter/.test(bp), bp.slice(0, 300).replace(/\n/g, ' | '));
+  tulos('Blogger: ei rahoitushuomautusta (vain sovitesivustoille)', !/^rahoitus:|^lahjoitusosoite:/m.test(bp + br));
 
   // 9. Ensyklopedia Logos (10.11.2026): etukenttä ja tekijärivi, otsikot, sisällysluettelo pois, viittaukset toiseen
   // artikkeliin alaviitteinä ja artikkeli kirjallisuusluettelon loppuun; Luinissa alaviitteen tekijä–vuosi linkittyy.
@@ -839,8 +848,8 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   tulos('Encyclopedia.com: ikkunassa hakuteos ja artikkelin järjestysnumero', encIk.otsikko === 'Koe, Aihe' &&
     /^Encyclopedia\.com · International Encyclopedia of the Social Sciences \(1\/2\) · \d+ sanaa$/.test(encIk.meta), JSON.stringify(encIk));
   const en = await leikeLuin(ENC);
-  tulos('Encyclopedia.com: etukenttä (allekirjoitus tekijäksi, teos, oma osoite, ei päiväystä)', /^---\ntekijä: Jolanda Testi\nteos: International Encyclopedia of the Social Sciences\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/social-sciences\/koe\/koe-aihe\nleikattu: /.test(en.md),
-    en.md.split('\n').slice(0, 7).join(' | '));
+  tulos('Encyclopedia.com: etukenttä (allekirjoitus tekijäksi, teos, oma osoite, ei päiväystä, mainosrahoitus ilman lahjoitusosoitetta)', /^---\ntekijä: Jolanda Testi\nteos: International Encyclopedia of the Social Sciences\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/social-sciences\/koe\/koe-aihe\nrahoitus: mainokset\nleikattu: /.test(en.md),
+    en.md.split('\n').slice(0, 8).join(' | '));
   tulos('Encyclopedia.com: oma sisällys ja otsikon toisto pois, sisäiset linkit tekstiksi, ulkoinen jää, toinen artikkeli ei mukana', en.ots === '# Koe, Aihe | ## Early career | ## Later work | ## BIBLIOGRAPHY' &&
     /studied at Burghölzli and read a place and \[an outside site\]\[\d+\]\./.test(en.md) && /and another person, enough/.test(en.md) && !/\(#A\)|\[Early career\]|second article|updated|Cite this/.test(en.md),
     en.ots + ' / ' + (en.md.match(/He studied[^\n]*/) || [''])[0]);
@@ -966,8 +975,8 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   const ej = await leikeLuin(EJP);
   const ejRunko = ej.md.split('---').slice(2).join('---');
   tulos('EJP: etukenttä (tyyppi, tekijät, lehti, numero, Publication Date), ei sivustoa eikä WordPressin aikaa',
-    /^---\ntyyppi: tieteellinen\ntekijä: Ada Aaltonen & Bo Berg\nteos: European Journal of Psychoanalysis\nnumero: 13:1\njulkaistu: 2026-03-03\nlähde: https:\/\/www\.journal-psychoanalysis\.eu\/articles\/koe-article\/\nleikattu: /.test(ej.md) &&
-    !/sivusto:|2025-12-01/.test(ej.md), ej.md.split('\n').slice(0, 9).join(' | '));
+    /^---\ntyyppi: tieteellinen\ntekijä: Ada Aaltonen & Bo Berg\nteos: European Journal of Psychoanalysis\nnumero: 13:1\njulkaistu: 2026-03-03\nlähde: https:\/\/www\.journal-psychoanalysis\.eu\/articles\/koe-article\/\nrahoitus: lahjoitukset\nlahjoitusosoite: https:\/\/www\.paypal\.com\/donate\/\?hosted_button_id=5KCSPCEPPTCYC\nleikattu: /.test(ej.md) &&
+    !/sivusto:|2025-12-01/.test(ej.md), ej.md.split('\n').slice(0, 11).join(' | '));
   tulos('EJP: otsikot lihavoinneista (kursiivi alempi taso), kaksoispisteellinen ei otsikko; Bibliography ja Bio lopussa, Notes vain merkittömälle',
     ej.ots === '# Koe Article: A Test | ## Introduction | ### A Subsection | ## Conclusion | ## Bibliography | ## Bio | ## Notes' &&
     /^\*\*Bold lead-in that is not a heading:\*\*$/m.test(ejRunko), ej.ots);
