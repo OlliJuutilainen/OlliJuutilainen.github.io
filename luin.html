@@ -147,6 +147,10 @@
   .tietoa button.t-osa.t-miten { margin: .6em 0 0; font-size: inherit; letter-spacing: 0; text-transform: none; }
   .tietoa h3.t-ots { margin: 1em 0 .2em; font: inherit; font-weight: 600; color: var(--muste); }
   .tietoa h3.t-ots i { font-weight: 400; }
+  .tietoa hr.t-viiva { border: 0; border-top: 1px solid var(--viiva); margin: 1em 0 .2em; }
+  .tietoa svg.t-salmiakki { width: .6em; height: .72em; fill: var(--ruoste); vertical-align: -.06em; margin-left: .1em; }
+  .tietoa .t-vihje p + p { margin-top: .45em; }
+  @media (hover: hover) { .tietoa .t-vihje a.vihje:hover::after, .tietoa .t-vihje a.vihje:focus-visible::after { white-space: normal; width: max-content; max-width: 11rem; } }
   .tietoa p.t-viimeinen { padding-right: 22px; }
   .tietoa button.t-sulje { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; display: flex;
     align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
@@ -1206,17 +1210,22 @@
     ovat jo valiotapauksia, ja jonkinlaisia lukemisen ympäristöjä jo itsekin, mutta mikäli artikkeli on pitkä, ja tekstin
     haluaisi esimerkiksi printata PDF:ksi tai kopioida tekstiksi lukulaitteella lukua varten, linkkien mekaniikka huuhtoutuu
     samalla kerralla pois.</p>
-    <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti vaikeasti nautittavat
-    aarteet sinun luoksesi.</p>
-    <p>Kun saavut <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-selain">internet-selaimella</button>
-    mielenkiintoisen luettavan ääreen, saat poimittua sen talteen luin-selainlisäosan ruosteista salmiakkinappia painamalla.</p>
-    <p>Luettavat kerääntyvät sinne, mihin kirjoilla yleensäkin on tapana päätyä: <b>pinoon</b>. LUiN.HTML:n etusivun
-    omasta pinostasi käsin voit jatkossa avata haluamasi luettavan, ja etenkin, hyvillä mielin sulkea sen minä hetkenä
-    hyvänsä.</p>
+    <hr class="t-viiva">
+    <h3 class="t-ots">Ota luin elämääsi ja yhdisty aidosti siihen, mitä ihmiset olisivat halunneet sinulle kertoa, kun et yksinkertaisesti pystynyt vain kuunnella</h3>
+    <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti niin vaikeasti nautittavat
+    aarteet Sinun luoksesi – Ihmisen Luokse™.</p>
+    <p>Kun saavut nettiselaimella lukemisen arvoista vaikutelmaa heijastelevan tekstin äärelle, kaappaa löytö talteen
+    painamalla selaimen <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-lukimeen"><b>Lukimeen</b></button>-nappulaa
+    <svg class="t-salmiakki" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0.6Q6.6 3.95 9.2 6Q6.6 8.05 5 11.4Q3.4 8.05 0.8 6Q3.4 3.95 5 0.6Z"/></svg>.
+    Voit siirtyä lukemaan tekstiä heti tai myöhempänä istuntona.</p>
+    <p>Kaikki kerran avatut (vaikka kaverin linkistäkin) luettavat tai muuten vaan poimitut tekstit kerääntyvät
+    samankaltaiseen paikkaan, johon esimerkiksi fyysisilläkin kirjoilla on tapana päätyä: <b>pinoon</b>.</p>
+    <p>LUiN.HTML:n etusivun oma pinosi on jatkossa lukemisen kotisi. Sieltä voit jatkossa avata luettavan, ja etenkin –
+    hyvillä mielin sulkea sen.</p>
+    <hr class="t-viiva">
     <p>Omilla merkinnöillä kyllästetyn paperikirjapinon ulottuvuutta luin ei täytä. Kaupallisen sähkökirjan luettavuuden ja
-    käytettävyyden taso on kuitenkin jotain, jonka luin voi pitää tavoitteenaan tarjota käyttäjilleen saavutettavaksi myös
-    sellaisille internetin valtamerestä löydetyille aarteille, jotka normaalioloissa olisivat olleet hankalasti
-    poimittavissa.</p></div>
+    käytettävyyden luin voi kuitenkin tavoittaa ja tarjota – myös sellaisille internetin valtamerestä löydetyille aarteille,
+    jotka normaalioloissa olisivat saattaneet jäädä lukematta hankalasti poimittavina.</p></div>
     <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
     kokoonpano, luetussa eteneminen ja siihen tehdyt merkinnät tallentuvat siis luonnostaan tekemättä mitään, jos selaimesi
     vain sallii sen.</p>
@@ -1224,9 +1233,13 @@
     <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
     on ystäväsi (ks. sivun alaosa).</p>
     <button type="button" class="t-sulje" aria-label="Sulje tietolaatikko" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button>
-    <div class="t-vihje" id="vihje-selain" role="tooltip" hidden><p>Tuettuja ovat Firefox (työpöytä- <b>ja</b> mobiiliversio)
-      ja Chrome-pohjaiset selaimet (Chrome, Brave, Vivaldi, mitä ikinä). Chrome-pohjaisella mobiiliselaimella onnistuvat
-      vain tekstien lukeminen ja latomon käyttö käsin: luin-selainlisäosa toimii niissä vain työpöytäversiossa.</p></div>
+    <div class="t-vihje" id="vihje-lukimeen" role="tooltip" hidden><p><b>Lukimeen.</b> Selainlisäosa Chrome-pohjaisiin selaimiin
+      työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin latomoon. Firefoxiin, myös Androidilla:
+      <a href="luin/lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia.</p>
+      <p class="t-vihje-jatko">Sen lisäksi, että luinta kehitetään toimimaan mahdollisimman hyväksi yleiseksi nettitekstin
+      poimijaksi, myös erityisen sulavasti latoutuvaksi räätälöityvien sivujen
+      <a class="vihje" href="luin/sivustot.html" target="_blank" rel="noopener" data-vihje="Avaa lista räätälöidyistä sivustoista">listaa</a>
+      <a class="vihje" href="luin/palaute.html?mista=lukimeen" target="_blank" rel="noopener" data-vihje="Ehdota sivustoa lukimeen optimoitavaksi">kerrytetään</a>.</p></div>
     <div class="t-vihje" id="vihje-laite" role="tooltip" hidden><p>Esimerkiksi nettikahvilan coneella löydetty artikkeli
       junamatkaa varten cännycällä luettavaksi.</p></div>
     <div class="t-vihje" id="vihje-huilu" role="tooltip" hidden><p><b>Huom.</b> Taianomaisuudestaan huolimatta postihuilu
