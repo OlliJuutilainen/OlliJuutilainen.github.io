@@ -4,7 +4,7 @@
      (a–z, numerot ja yhdysmerkki; ääkköset, muut merkit ja välilyönnit hylätään, käyttäjän päätös 10.11.2026: ennen ne
      siistittiin pois, mikä hämärsi, mikä lause oikeastaan on). Uusi lause on 24–52 merkkiä, jotta sillä voi sekä lähettää
      että lukea (worker kelpuuttaa kirjoitukset vain vähintään 24 merkin lauseella). Luin-linkki (…#l=<lause>) kelpaa
-     lauseen paikalle. Luin-lisäosassa on sama sääntö ja ohje omana kopionaan (luin/lisaosa/ponnahdus.js ja
+     lauseen paikalle. Lukimeen-lisäosassa on sama sääntö ja ohje omana kopionaan (luin/lisaosa/ponnahdus.js ja
      ponnahdus.html), koska lisäosa ei lataa sivuston tiedostoja.
    - Merkintäposti: tekstin merkinnät (alleviivaukset, kirjaukset, kirjanmerkit, lukukohta) kulkevat laatikossa JSONina
      (worker: luinm:<laatikko>:<avain>). Lähettäjä hakee ensin laatikon version, yhdistää sen omiinsa ja lähettää

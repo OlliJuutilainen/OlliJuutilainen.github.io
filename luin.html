@@ -20,7 +20,7 @@
   Luin: pino (ent. hylly ja lukulista; koodissa yhä lista) ja lukin. Tekstit ovat Markdownia (luin/md.js), ja ne tallentuvat vain
   tämän selaimen localStorageen: lukulista, tekstit, lukukohta, kirjanmerkit, alleviivaukset ja kirjaukset.
   Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti ja asetuksissa annetun
-  postilaatikon tekstit (workerin /api/luin; Postihuilu Latomossa, Luin-lisäosassa ja täällä).
+  postilaatikon tekstit (workerin /api/luin; Postihuilu Latomossa, Lukimeen-lisäosassa ja täällä).
   Reitit: #           pino
           #arkisto    kellarin veivihyllystö (luetuiksi merkityt)
           #id=<id>    lukulistan teksti
@@ -2046,7 +2046,7 @@
   }
 
   /* ---------- postilaatikko ----------
-     Latomo ja Luin-lisäosa tallentavat tekstin workerin KV:hen (luin:<koodi>:<tunnus>, metatietona lähetysaika t;
+     Latomo ja Lukimeen-lisäosa tallentavat tekstin workerin KV:hen (luin:<koodi>:<tunnus>, metatietona lähetysaika t;
      worker/src/index.js, handleLuin). Kun laatikon koodi on annettu, lukulista hakee laatikon sisällyksen ja
      siitä vain uudet tai uudelleen lähetetyt tekstit (nähdyt lähetysajat: luin-laatikko-nahdyt). Listasta
      poistettu teksti ei siis palaa, ellei sitä lähetetä uudelleen. Tunnus on sama kuin Latomon Avaa Luinissa
