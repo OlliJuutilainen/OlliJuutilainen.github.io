@@ -1,9 +1,9 @@
-/* Lisää lukimeen: ponnahdusikkuna. Ei taustaskriptiä: ikkuna ajaa leikkurin välilehdellä, jättää tuloksen lisäosan
+/* Luin-lisäosa: ponnahdusikkuna. Ei taustaskriptiä: ikkuna ajaa leikkurin välilehdellä, jättää tuloksen lisäosan
    muistiin ja avaa Latomon, jonka latomoon.js täyttää. Androidin Firefoxissa ei ole valikko- eikä pikanäppäinrajapintaa,
    joten kaikki tapahtuu tästä ikkunasta.
    Postihuilu (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026; ennen Lähetä postina -valinta): napista aukeavat laatikkolause,
    Soita huilua! ja ohje. Soita huilua! antaa leikkeen Latomolle, joka lähettää sen laatikkoon ja, kun Lisää tämän selaimen
-   lukulistaan heti on valittuna (oletus), avaa sen myös tämän selaimen Luinissa. Ilman sitä teksti ei tule tämän selaimen
+   pinoon heti on valittuna (oletus), avaa sen myös tämän selaimen Luinissa. Ilman sitä teksti ei tule tämän selaimen
    lukulistaan eikä lause jää Latomon muistiin (kaverin kone). Lauseen sääntö ja ohje ovat samat kuin luin/posti.js:ssä
    (kopio, koska lisäosa ei lataa sivuston tiedostoja); lause ja valinnat muistetaan lisäosan muistissa.
    Arvo (0.7.0, käyttäjän pyyntö 12.11.2026): laatikkolause.js on tavulleen sama kopio kuin luin/laatikkolause.js
