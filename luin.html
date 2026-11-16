@@ -2414,13 +2414,14 @@
     if (!s) return;
     ev.preventDefault(); ev.stopPropagation();
     // Hiirellä ponnahdus on jo auki (hiiren vienti) eikä napsautus sulje sitä; kosketuksella uusi napautus sulkee.
-    if (!HIIRI() && !pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) { suljePop(); return; }
-    naytaSisaltaa(s);
+    // Merkin napsautus (hiirelläkin) kiinnittää ponnahduksen: se sulkeutuu vasta merkin tai muun kohdan napsautuksesta, eikä muuta napsautus avaa mitään.
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s && (!HIIRI() || pop._kiinni)) { suljePop(); return; }
+    naytaSisaltaa(s); pop._kiinni = true;
   });
   $('#nimikkeet').addEventListener('mouseout', function (ev) {
     var s = ev.target.closest && ev.target.closest('svg.merkitty');
     if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !HIIRI()) return;
-    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) suljePop();
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s && !pop._kiinni) suljePop();
   });
   $('#nimikkeet').addEventListener('mouseover', function (ev) {
     var s = ev.target.closest && ev.target.closest('svg.merkitty');
@@ -2558,7 +2559,7 @@
   function suljePop(pakko) {
     if (muokkaus && !lopetaKirjaus(true) && !pakko) return;
     muokkaus = null;
-    pop.hidden = true; popToiminto = null;
+    pop.hidden = true; popToiminto = null; pop._kiinni = false;
     // Ponnahduksen aikana latautunut fontti (ks. loadingdone) asettelee vasta nyt, omana tehtävänään: suljePop() voi tulla
     // asettelun sisältä (sivulle()), ja uusi ponnahdus voi avautua samasta napautuksesta.
     if (asetteluOdottaa) {
@@ -2605,11 +2606,11 @@
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
     if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, svg.merkitty, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
-    var merkkiPop = pop.classList.contains('sisaltaa') && !HIIRI();
+    var merkkiPop = pop.classList.contains('sisaltaa');
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
-    // Merkintöjen ponnahduksen ulkopuolinen napautus kosketuksella vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
+    // Merkintöjen ponnahduksen ulkopuolinen napautus tai napsautus (myös hiirellä) vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
     if (merkkiPop) { e.preventDefault(); e.stopPropagation(); }
   }, true);
 
