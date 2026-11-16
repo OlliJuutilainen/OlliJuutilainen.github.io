@@ -35,6 +35,14 @@ function koodiVirhe(k) {
   return '';
 }
 
+// Plussa (käyttäjän pyyntö 16.11.2026): Säädä latomossa ja sen alla olevat ovat oletuksena piilossa; valinta muistetaan.
+function lisatAuki() { return !$('lisat').hidden; }
+function asetaLisat(auki) {
+  $('lisat').hidden = !auki;
+  $('plussa').setAttribute('aria-expanded', String(auki));
+  $('plussa').setAttribute('aria-label', auki ? 'Vähemmän toimintoja' : 'Lisää toimintoja');
+}
+
 function valittu() { return leike && leike.valinta && $('valinta').checked; }
 function huiluAuki() { return !$('posti-osa').hidden; }
 
@@ -71,7 +79,13 @@ async function laheta(avaa, posti, lataa) {
 }
 
 async function aloita() {
-  const { posti } = await api.storage.local.get('posti');
+  const { posti, lisat } = await api.storage.local.get(['posti', 'lisat']);
+  asetaLisat(lisat === true);
+  $('plussa').addEventListener('click', () => {
+    const auki = !lisatAuki();
+    asetaLisat(auki);
+    api.storage.local.set({ lisat: auki });
+  });
   if (posti) {
     $('koodi').value = posti.k || '';
     // Ennen 10.11.2026 valinta oli Älä avaa nyt (alaAvaa) ja Postihuilu Lähetä postina (on).

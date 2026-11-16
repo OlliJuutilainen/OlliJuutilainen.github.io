@@ -103,7 +103,7 @@
       muuntaa artikkelin Markdown-tekstiksi selaimessasi. Muita välilehtiä se ei lue, eikä se toimi ilman napsautustasi.</li>
     <li><b>Lisäosan oma muisti.</b> Leike säilytetään selaimen paikallisessa lisäosamuistissa vain siihen asti, kun
       latomon sivu avautuu ja ottaa sen vastaan; sitten se poistetaan. Jos siirto katkeaa, seuraava leike korvaa sen,
-      eikä yli kaksi minuuttia vanhaa leikettä käytetä.</li>
+      eikä yli kaksi minuuttia vanhaa leikettä käytetä. Lisäksi se muistaa, jätitkö ikkunan plussan auki vai kiinni.</li>
     <li><b>Latomo ja luin.</b> Lisäosa avaa latomon (<code>ollijuutilainen.github.io/luin/latomo.html</code>) ja kirjoittaa
       leikkeen sen tekstikenttään. Teksti ei kulje osoitteessa eikä palvelimen kautta. Luin säilyttää tekstit tämän
       selaimen omassa muistissa (localStorage).</li>
@@ -131,7 +131,7 @@
   <h2>Oikeudet</h2>
   <ul>
     <li><code>activeTab</code> ja <code>scripting</code>: leikkuri ajetaan vain sillä välilehdellä, jolla napsautat kuvaketta.</li>
-    <li><code>storage</code>: leikkeen lyhyt säilytys matkalla latomoon.</li>
+    <li><code>storage</code>: leikkeen lyhyt säilytys matkalla latomoon sekä ikkunan valinnat.</li>
     <li><code>ollijuutilainen.github.io</code>: leikkeen kirjoittaminen latomon tekstikenttään.</li>
   </ul>
 
@@ -142,7 +142,7 @@
   <p>When you click its icon, it reads the content of the current tab and converts the article to Markdown locally in
     your browser. The clip is kept in the extension’s local storage only until the Latomo page
     (ollijuutilainen.github.io/luin/latomo.html) opens and receives it, then it is deleted; if the transfer is interrupted, the next clip replaces it, and clips
-    older than two minutes are discarded. Luin keeps texts in your browser’s own storage. If an article’s footnotes are on another page of the
+    older than two minutes are discarded. It also remembers whether you left the window’s plus open or closed. Luin keeps texts in your browser’s own storage. If an article’s footnotes are on another page of the
     same site, the extension fetches up to three such pages from that site. When you clip the front or archive page of a
     Blogger blog where posts are cut short, it fetches up to 20 of those posts in full from the same blog. When you clip an
     article of Ensyklopedia Logos (filosofia.fi) that refers to other Logos articles, it fetches up to 30 of them from the same

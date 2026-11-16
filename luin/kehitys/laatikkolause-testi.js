@@ -160,10 +160,10 @@ palvelin.listen(0, async () => {
     const virheet = [];
     p.on('pageerror', e => virheet.push(e.message));
     await p.addInitScript(() => {
-      const muisti = { posti: { on: true, k: '', heti: true } };
+      const muisti = { posti: { on: true, k: '', heti: true }, lisat: true };
       window.__muisti = muisti;
       window.chrome = {
-        storage: { local: { get: async k => ({ [k]: muisti[k] }), set: async o => Object.assign(muisti, o) } },
+        storage: { local: { get: async k => Object.fromEntries([].concat(k).map(a => [a, muisti[a]])), set: async o => Object.assign(muisti, o) } },
         tabs: { query: async () => [{ id: 1 }], get: async () => ({ id: 1 }), create: async () => ({}) },
         scripting: { executeScript: async () => [{ result: { otsikko: 'Koe', sivusto: 'koe', koko: '# Koe\n\nTeksti.', kokoSanoja: 2 } }] }
       };

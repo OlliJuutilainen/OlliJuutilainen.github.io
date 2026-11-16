@@ -14,6 +14,8 @@
     :root { --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; }
   }
   * { box-sizing: border-box; }
+  /* label { display: flex } ohitti hidden-attribuutin, joten Vain valittu kohta näkyi ilman valintaa. */
+  [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; min-width: 18rem; max-width: 30rem; background: var(--paperi); color: var(--muste);
     font: 16px/1.45 var(--antiikva); overflow-wrap: break-word; }
@@ -37,6 +39,11 @@
   button { font: inherit; color: inherit; background: none; border: 1px solid var(--muste); padding: 0 12px;
     min-height: 40px; cursor: pointer; font-size: .92rem; text-align: center; }
   button.paa { color: var(--ruoste); border-color: var(--ruoste); }
+  /* Plussa: musteen kehys kuten muissa napeissa, ruosteen risti (ruoste = napautettava). */
+  #plussa { display: flex; align-items: center; justify-content: center; min-height: 40px; color: var(--ruoste); }
+  #plussa svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  #plussa[aria-expanded="true"] .pysty { display: none; }
+
   button:disabled { color: var(--harmaa); border-color: var(--viiva); cursor: default; }
   :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
   #tila { color: var(--harmaa); font-size: .86rem; margin: 10px 0 0; }
@@ -79,31 +86,36 @@
   <label id="valintarivi" hidden><span class="sal"><input type="checkbox" id="valinta"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> Vain valittu kohta</label>
   <div class="napit">
     <button type="button" class="paa" id="lukimeen" disabled>Poimi lukimeen</button>
-    <button type="button" id="latomoon" disabled>Säädä latomossa</button>
-    <button type="button" id="lataa" disabled>Lataa .md</button>
-    <!-- Huilu ja viivasto (käyttäjän pyynnöt 12.11. ja 16.11.2026): vino huilu kuten Luinin huilutetun tekstin merkki
-         (LuinHuilu.vino(), T 6,4, sw 0,9; kopio, koska lisäosa ei lataa sivuston tiedostoja) ja sen oikealla irrallinen
-         siksak-nelilinja, kaksi jaksoa (viivaväli 5, siksak ±3, jakso 30, viiva 1,1, rako huiluun 5). Viivaston keskilinja on
-         huilun keskikohdan korkeudella, ja vertical-align: middle keskittää molemmat tekstin keskilinjaan. Ei viuhkaa:
-         napissa viivasto ei lähde huilusta. -->
-    <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu<svg class="huilu" viewBox="-14.54 -1.65 98.04 30.82" aria-hidden="true"><g transform="rotate(112)"><path d="M29.69 -3.2H5.25L0.68 -1.83Q0 -1.6 0 -0.68V0.68Q0 1.6 0.68 1.83L5.25 3.2H29.69Z" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/><path d="M6.57 -1.33L9.24 -1.33L9.88 -0.69L9.88 0.69L9.24 1.34L6.57 1.34" fill="none" stroke="currentColor" stroke-width="0.63" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M5.52 -1.65H6.57V1.65H5.52ZM17.58 -1.79Q18.47 -0.68 19.91 0Q18.47 0.68 17.58 1.79Q16.7 0.68 15.25 0Q16.7 -0.68 17.58 -1.79ZM22.24 -1.79Q23.13 -0.68 24.57 0Q23.13 0.68 22.24 1.79Q21.36 0.68 19.91 0Q21.36 -0.68 22.24 -1.79ZM26.9 -1.79Q27.79 -0.68 29.24 0Q27.79 0.68 26.9 1.79Q26.02 0.68 24.57 0Q26.02 -0.68 26.9 -1.79Z" fill="currentColor"/></g><path d="M22.95 22.91L30.45 19.91L45.45 25.91L60.45 19.91L75.45 25.91L82.95 22.91M22.95 17.91L30.45 14.91L45.45 20.91L60.45 14.91L75.45 20.91L82.95 17.91M22.95 12.91L30.45 9.91L45.45 15.91L60.45 9.91L75.45 15.91L82.95 12.91M22.95 7.91L30.45 4.91L45.45 10.91L60.45 4.91L75.45 10.91L82.95 7.91" transform="translate(-14.54 -1.65)" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-miterlimit="12"/></svg></button>
-    <div class="posti" id="posti-osa" hidden>
-      <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>
-        <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Tietoa: postihuilu ja laatikkolause"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button></div>
-      <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa): laatikkolause.js on kopio luin/laatikkolause.js:stä. -->
-      <div class="arvo"><button type="button" id="arvo">Arvo</button><span id="arvottu"></span></div>
-      <!-- Sanamuodot käyttäjän (10.11.2026). Laatikkolauseen osuus on sama kuin luin/posti.js:n OHJE_YDIN: muuta yhdessä. -->
-      <div class="ohje" id="ohje" hidden>
-        <p class="johdanto">Lähetä teksti esimerkiksi tietokoneelta kännykälle soittamalla postihuilua. Syötä laatikkolause, soita huilua, ja siitä eteenpäin 30 päivän ajan postin voi vastaanottaa soittamalla millä tahansa muulla laitteella syöttämällä saman laatikkolauseen LUiN.HTML:ssä.</p>
-        <p>Laatikkolause on postilaatikon avain: vain sen tietävä pääsee sekä lukemaan laatikon tekstit että lähettämään laatikkoon.</p>
-        <p>Lauseen merkkihaarukka on 24–52 koostuen pienistä ei-ääkkösellisistä kirjaimista, joiden lisäksi halutessa myös yhdysmerkeistä (väliviiva eli ”-”) ja numeroista. Isot kirjaimet luetaan pieniksi. MUITA <b>MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ</b>.</p>
-        <p>Hyvät tyyli- ja turvallisuuspisteet saava laatikkolause on sekä erikoinen että mieleenpainuva.</p>
-        <blockquote><i>”Torikaffeilla on hemmetin mukavaa.”</i> → (a) <b>tori-kaffeilla-on-hemmetin-mukavaa</b> TAI (b) <b>torikaffeillaonhemmetinmukavaa</b></blockquote>
-        <p>Torikahvittelun ystävä voisi päätyä yhteen kahdesta yllä esitetystä laatikkolauseesta (a) tai (b). Esimerkin (a) edustama viivapilkontataktiikka voi edistää laatikkolauseiden hahmottamista ja siten kenties myös esimerkiksi virhelyöntien huomaamista.</p>
+    <!-- Plussa (käyttäjän pyyntö 16.11.2026): muut toiminnot oletuksena piilossa, auki ja kiinni plussasta. Valinta muistetaan
+         (storage.local, avain lisat), joten ikkuna avautuu kuten viimeksi jätettiin. Auki plussa on miinus. -->
+    <button type="button" id="plussa" aria-expanded="false" aria-controls="lisat" aria-label="Lisää toimintoja"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="vaaka" d="M2 10H18"/><path class="pysty" d="M10 2V18"/></svg></button>
+    <div class="napit" id="lisat" hidden>
+      <button type="button" id="latomoon" disabled>Säädä latomossa</button>
+      <button type="button" id="lataa" disabled>Lataa .md</button>
+      <!-- Huilu ja viivasto (käyttäjän pyynnöt 12.11. ja 16.11.2026): vino huilu kuten Luinin huilutetun tekstin merkki
+           (LuinHuilu.vino(), T 6,4, sw 0,9; kopio, koska lisäosa ei lataa sivuston tiedostoja) ja sen oikealla irrallinen
+           siksak-nelilinja, kaksi jaksoa (viivaväli 5, siksak ±3, jakso 30, viiva 1,1, rako huiluun 5). Viivaston keskilinja on
+           huilun keskikohdan korkeudella, ja vertical-align: middle keskittää molemmat tekstin keskilinjaan. Ei viuhkaa:
+           napissa viivasto ei lähde huilusta. -->
+      <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu<svg class="huilu" viewBox="-14.54 -1.65 98.04 30.82" aria-hidden="true"><g transform="rotate(112)"><path d="M29.69 -3.2H5.25L0.68 -1.83Q0 -1.6 0 -0.68V0.68Q0 1.6 0.68 1.83L5.25 3.2H29.69Z" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/><path d="M6.57 -1.33L9.24 -1.33L9.88 -0.69L9.88 0.69L9.24 1.34L6.57 1.34" fill="none" stroke="currentColor" stroke-width="0.63" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M5.52 -1.65H6.57V1.65H5.52ZM17.58 -1.79Q18.47 -0.68 19.91 0Q18.47 0.68 17.58 1.79Q16.7 0.68 15.25 0Q16.7 -0.68 17.58 -1.79ZM22.24 -1.79Q23.13 -0.68 24.57 0Q23.13 0.68 22.24 1.79Q21.36 0.68 19.91 0Q21.36 -0.68 22.24 -1.79ZM26.9 -1.79Q27.79 -0.68 29.24 0Q27.79 0.68 26.9 1.79Q26.02 0.68 24.57 0Q26.02 -0.68 26.9 -1.79Z" fill="currentColor"/></g><path d="M22.95 22.91L30.45 19.91L45.45 25.91L60.45 19.91L75.45 25.91L82.95 22.91M22.95 17.91L30.45 14.91L45.45 20.91L60.45 14.91L75.45 20.91L82.95 17.91M22.95 12.91L30.45 9.91L45.45 15.91L60.45 9.91L75.45 15.91L82.95 12.91M22.95 7.91L30.45 4.91L45.45 10.91L60.45 4.91L75.45 10.91L82.95 7.91" transform="translate(-14.54 -1.65)" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-miterlimit="12"/></svg></button>
+      <div class="posti" id="posti-osa" hidden>
+        <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>
+          <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Tietoa: postihuilu ja laatikkolause"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button></div>
+        <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa): laatikkolause.js on kopio luin/laatikkolause.js:stä. -->
+        <div class="arvo"><button type="button" id="arvo">Arvo</button><span id="arvottu"></span></div>
+        <!-- Sanamuodot käyttäjän (10.11.2026). Laatikkolauseen osuus on sama kuin luin/posti.js:n OHJE_YDIN: muuta yhdessä. -->
+        <div class="ohje" id="ohje" hidden>
+          <p class="johdanto">Lähetä teksti esimerkiksi tietokoneelta kännykälle soittamalla postihuilua. Syötä laatikkolause, soita huilua, ja siitä eteenpäin 30 päivän ajan postin voi vastaanottaa soittamalla millä tahansa muulla laitteella syöttämällä saman laatikkolauseen LUiN.HTML:ssä.</p>
+          <p>Laatikkolause on postilaatikon avain: vain sen tietävä pääsee sekä lukemaan laatikon tekstit että lähettämään laatikkoon.</p>
+          <p>Lauseen merkkihaarukka on 24–52 koostuen pienistä ei-ääkkösellisistä kirjaimista, joiden lisäksi halutessa myös yhdysmerkeistä (väliviiva eli ”-”) ja numeroista. Isot kirjaimet luetaan pieniksi. MUITA <b>MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ</b>.</p>
+          <p>Hyvät tyyli- ja turvallisuuspisteet saava laatikkolause on sekä erikoinen että mieleenpainuva.</p>
+          <blockquote><i>”Torikaffeilla on hemmetin mukavaa.”</i> → (a) <b>tori-kaffeilla-on-hemmetin-mukavaa</b> TAI (b) <b>torikaffeillaonhemmetinmukavaa</b></blockquote>
+          <p>Torikahvittelun ystävä voisi päätyä yhteen kahdesta yllä esitetystä laatikkolauseesta (a) tai (b). Esimerkin (a) edustama viivapilkontataktiikka voi edistää laatikkolauseiden hahmottamista ja siten kenties myös esimerkiksi virhelyöntien huomaamista.</p>
+        </div>
+        <p id="koodi-virhe"></p>
+        <label class="heti"><span class="sal"><input type="checkbox" id="heti" checked><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> Lisää tämän selaimen pinoon heti</label>
       </div>
-      <p id="koodi-virhe"></p>
-      <label class="heti"><span class="sal"><input type="checkbox" id="heti" checked><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> Lisää tämän selaimen pinoon heti</label>
     </div>
   </div>
   <p id="tila"></p>
