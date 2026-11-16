@@ -84,11 +84,11 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
     t5 + ' | ' + md.replace(/\n/g, ' ⏎ '));
   if (KUVAT) await s.screenshot({ path: path.join(KUVAT, 'palaute.png'), fullPage: true });
 
-  // 4. Kehittäjän Luin: palaute kantautuu lukulistaan Postihuilun kautta.
+  // 4. Kehittäjän Luin: palaute kantautuu lukulistaan Postihuilun kautta. Infolaatikon (#tietoa) sivustovihjeen palautelinkki on tarkoituksellinen.
   await s.goto(OSOITE + 'luin.html#l=' + LAUSE);
   await s.waitForFunction(() => /kantautui|käytössä/.test(document.querySelector('#viesti').textContent));
   const L = await s.evaluate(() => ({ viesti: document.querySelector('#viesti').textContent,
-    lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.title), palaute: [...document.querySelectorAll('#lista a')].filter(a => /palaute\.html/.test(a.getAttribute('href'))).length,
+    lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.title), palaute: [...document.querySelectorAll('#lista a')].filter(a => /palaute\.html/.test(a.getAttribute('href')) && !a.closest('#tietoa')).length,
     asetukset: (document.querySelector('.aset-palaute a') || {}).getAttribute?.('href') }));
   tulos('Luin: palaute kantautui pinoon; pinossa ei palautelinkkiä, asetuksissa on', L.viesti === 'Postihuilun kautta kantautui teksti.' && L.lista.join() === 'Palaute: Kaveri' &&
     L.palaute === 0 && L.asetukset === 'luin/palaute.html?mista=asetukset', JSON.stringify(L));

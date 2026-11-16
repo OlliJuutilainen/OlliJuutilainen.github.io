@@ -437,7 +437,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   **vain a–z, 0–9 ja `-`** (käyttäjän päätös 10.11.2026): isot kirjaimet luetaan pieniksi, muut merkit hylätään eikä niitä
   siistitä pois. Sääntö ja ohje ovat `luin/posti.js`:ssä, lisäosassa kopiona: muuta yhdessä. Vanha lyhyt koodi toimii vain lukemiseen. Kirjoitukset kulkevat Durable Objectin laskurin `LuinRaja`
   kautta (`LUIN_LASKURI`, `wrangler.toml`): 20 POSTia minuutissa osoitetta kohti ja 500 KV-kirjoitusta UTC-päivässä. Älä palauta
-  Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon. Reitti vaatii,
+  Cloudflaren ratelimit-sidontaa tai isolaatin muistia: kumpikin päästi Macilta 25 pyyntöä minuutissa läpi (mitattu 9.11.2026). Koodia ei kirjoiteta repoon.
+  Pino hakee laatikon enintään minuutin välein ja tyhjän haun jälkeen kerran uudelleen (`haePinoon()`): KV:n listaus näyttää
+  edellisen minuutin sisällä luetun tilan. Ei jatkuvaa kyselyä: ilmaistasolla listauksia on 1000 päivässä, ja haku tekee kaksi. Reitti vaatii,
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 - **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`): `luin/huilu.js`
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
