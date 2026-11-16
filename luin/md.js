@@ -348,7 +348,8 @@
     '(suositeltavaa |suositeltua )?jatkolukemista', 'muu kirjallisuus', 'lähdeluettelo', 'lähteet ja kirjallisuus', 'bibliografia',
     // englanti
     'references', 'reference list', 'bibliography', 'select(ed)? bibliography', 'works cited', 'literature cited', 'literature',
-    'sources', '(further|suggested|recommended|additional) reading', '(references|bibliography) and further reading',
+    // Monikko (IEP: References and Further Readings, 16.11.2026).
+    'sources', '(further|suggested|recommended|additional) readings?', '(references|bibliography) and further readings?',
     // saksa
     '((weiterführende|ausgewählte|verwendete|zitierte) )?literatur', 'literaturverzeichnis', 'literaturhinweise',
     'literaturangaben', '(primär|sekundär)literatur', 'bibliographie', 'bibliografie', 'quellen', 'quellenverzeichnis',

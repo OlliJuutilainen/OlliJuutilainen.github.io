@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource ja Substack (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack ja Internet Encyclopedia of Philosophy (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2392,6 +2392,71 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Internet Encyclopedia of Philosophy (iep.utm.edu; käyttäjän pyyntö 16.11.2026, pahvin A4). WordPress, runko article
+     .entry-content: h1, johdanto, h3 Table of Contents ja sisäkkäinen ol (#H1, #SH1a …), osiot h2 (<a name="H1"> 1. Life),
+     alaosiot h3–h5, References and Further Reading luetteloina (merkintöjen kuvaukset sisäkkäisinä ul:ina) ja h3 Author
+     Information (nimi, sähköposti, yliopisto, maa). Readability antoi otsikon sivuston nimen kera, sisällysluettelon
+     linkkeineen, kirjallisuuden luettelona (Luinin p.bib syntyy kappaleista) ja sähköpostiosoitteen; tekijää ei tullut.
+     Sisällysluettelo, kuvat ja tekijälohko pois (tekijä etukenttään, yliopisto ei), kirjallisuus kappaleiksi (kuvaus samaan
+     kappaleeseen). Ei mainoksia eikä lahjoituspyyntöä. Mitattu 16.11.2026. */
+  const IEP_NIMI = 'Internet Encyclopedia of Philosophy';
+  async function iep() {
+    if (!/(^|\.)iep\.utm\.edu$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('article .entry-content');
+    const h1 = runko && runko.querySelector('h1');
+    if (!h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelector('h1').remove();
+    el.querySelectorAll('img, figure, script, style, noscript, .wp-caption').forEach(x => x.remove());
+    const OTS = /^H[1-6]$/;
+    // Sisällysluettelo: otsikko ja sitä seuraava luettelo.
+    el.querySelectorAll('h1, h2, h3, h4').forEach(h => {
+      if (!el.contains(h) || !/^table of contents$/i.test(rivi(h.textContent))) return;
+      for (let n = h.nextElementSibling; n && /^(OL|UL)$/.test(n.tagName); n = h.nextElementSibling) n.remove();
+      h.remove();
+    });
+    // Tekijälohko: ensimmäinen rivi on nimi.
+    let tekija = '';
+    el.querySelectorAll('h2, h3, h4').forEach(h => {
+      if (!el.contains(h) || !/^author information$/i.test(rivi(h.textContent))) return;
+      const p = h.nextElementSibling;
+      if (p && p.tagName === 'P') {
+        const k = p.cloneNode(true);
+        k.querySelectorAll('br').forEach(b => b.replaceWith('\n'));
+        tekija = rivi(k.textContent.split('\n')[0]);
+        p.remove();
+      }
+      for (let n = h.nextElementSibling; n && !OTS.test(n.tagName); n = h.nextElementSibling) n.remove();
+      h.remove();
+    });
+    // Osion ankkuri (<a name="H1"></a>) pois otsikosta.
+    el.querySelectorAll('h2 a[name], h3 a[name], h4 a[name], h5 a[name]').forEach(a => { if (!rivi(a.textContent)) a.remove(); });
+    // Kirjallisuus: luettelon kohdat kappaleiksi, kuvaus (sisäkkäinen luettelo) samaan kappaleeseen.
+    let bib = 0;
+    [...el.children].forEach(e => {
+      if (OTS.test(e.tagName)) {
+        const t = +e.tagName[1];
+        // Numero pois kirjallisuuden otsikosta (8. References and Further Readings): md.js tunnistaa osion vain nimestä.
+        if (/^(\d+\.\s*)?(references|bibliography|further reading)/i.test(rivi(e.textContent))) { bib = t; e.textContent = rivi(e.textContent).replace(/^\d+\.\s*/, ''); }
+        else if (bib && t <= bib) bib = 0;
+        return;
+      }
+      if (!bib || !/^(UL|OL)$/.test(e.tagName)) return;
+      e.replaceWith(...[...e.children].filter(li => li.tagName === 'LI').map(li => {
+        const p = document.createElement('p');
+        const kuvaus = [...li.querySelectorAll('ul, ol')].map(l => { const t = rivi(l.textContent); l.remove(); return t; }).filter(Boolean);
+        while (li.firstChild) p.appendChild(li.firstChild);
+        if (kuvaus.length) p.append(' ' + kuvaus.join(' '));
+        return p;
+      }));
+    });
+    // Tyhjät kappaleet (&nbsp;) pois.
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    kkTasoita(el);
+    if (kkSanoja(el) < 50) return null;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija, sivusto: IEP_NIMI, lahde: osoite.replace(/[?#].*$/, '') };
+  }
+
   /* Substack (alusta; käyttäjän pyyntö 16.11.2026, pahvin B3: The Convivial Society, Experimental History). Tunnistus alustasta
      (substackcdn.com-osoitteet ja .available-content .body.markup), joten omat verkkotunnukset käyvät. Readability jätti
      jakonapin (Share), maksullisen äänitteen kehotteen (Upgrade to paid to play voiceover) ja viitteet linkkiketjuiksi
@@ -3439,7 +3504,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

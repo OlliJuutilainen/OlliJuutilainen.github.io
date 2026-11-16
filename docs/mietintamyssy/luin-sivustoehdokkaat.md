@@ -22,6 +22,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   dhammatalks.org (PR #780, 16.11.2026, pahvin B1): koko kirja luvuittain, säkeet ja loppuviitteet.
   Wikisource (PR #781, 16.11.2026, pahvin A2): Wikipedia-sovite yleistettynä, sivunumerot [483].
   Substack (PR #782, 16.11.2026, pahvin B3): alustasovite, alaviitteet, kehotteet pois.
+  Internet Encyclopedia of Philosophy (PR-NUMERO, 16.11.2026, pahvin A4): tekijä, kirjallisuusluettelo, sisällysluettelo pois.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -108,7 +109,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Filosofian hakuteokset, katsaukset ja lehdet
 
-- Internet Encyclopedia of Philosophy: iep.utm.edu (SEP:n kaltainen, pitkät artikkelit)
+- Internet Encyclopedia of Philosophy: iep.utm.edu (SEP:n kaltainen, pitkät artikkelit; tehty 16.11.2026, ks. yllä)
 - 1000-Word Philosophy (lyhyehköjä, rajatapaus)
 - Utilitarianism.net
 - PhilArchive (pdf)
