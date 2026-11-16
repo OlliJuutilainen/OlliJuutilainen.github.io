@@ -578,9 +578,26 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   // 1. Koko artikkeli: ikkuna näyttää otsikon ja sanamäärän, valintariviä ei ole.
   await avaaIkkuna();
   const ik = await ikkuna.evaluate(() => ({ otsikko: document.querySelector('#otsikko').textContent, meta: document.querySelector('#meta').textContent,
-    valinta: !document.querySelector('#valintarivi').hidden }));
+    valinta: !document.querySelector('#valintarivi').hidden || document.querySelector('#valintarivi').getClientRects().length > 0 }));
   tulos('ikkuna: otsikko ja sanamäärä', ik.otsikko === 'Kokeilukirjoitus' && /^Esimerkkiblogi · \d+ sanaa$/.test(ik.meta) && !ik.valinta, JSON.stringify(ik));
+  // Plussa (16.11.2026): oletuksena näkyvät vain Poimi lukimeen ja plussa; plussa avaa muut, ja valinta muistetaan.
+  const nakyvat = () => ikkuna.evaluate(() => [...document.querySelectorAll('button')].filter(b => b.getClientRects().length)
+    .map(b => b.id + (b.getAttribute('aria-expanded') ? ':' + b.getAttribute('aria-expanded') : '')));
+  const nk0 = await nakyvat();
+  tulos('ikkuna: oletuksena vain Poimi lukimeen ja plussa', nk0.join() === 'lukimeen,plussa:false', nk0.join());
   if (KUVAT) { await ikkuna.setViewportSize({ width: 360, height: 300 }); await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-ikkuna.png') }); }
+  await ikkuna.click('#plussa');
+  const nk1 = await nakyvat();
+  tulos('plussa avaa Säädä latomossa ja sen alla olevat', nk1.join() === 'lukimeen,plussa:true,latomoon,lataa,postihuilu:false', nk1.join());
+  if (KUVAT) await ikkuna.screenshot({ path: path.join(KUVAT, 'lisaosa-ikkuna-auki.png') });
+  await avaaIkkuna();
+  const nk2 = await nakyvat();
+  tulos('plussan valinta muistetaan (auki)', nk2.join() === nk1.join(), nk2.join());
+  await ikkuna.click('#plussa');
+  await avaaIkkuna();
+  const nk3 = await nakyvat();
+  tulos('plussan valinta muistetaan (kiinni)', nk3.join() === nk0.join(), nk3.join());
+  await ikkuna.click('#plussa');
 
   // 2. Avaa Latomossa: leike tekstikentässä, siivous päällä korvamerkistä.
   const latomo = await paina('#latomoon', /latomo\.html$/);
@@ -658,7 +675,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await artikkeli.evaluate(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById('valittava'));
     const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   await avaaIkkuna();
-  const v = await ikkuna.evaluate(() => ({ nakyy: !document.querySelector('#valintarivi').hidden, valittu: document.querySelector('#valinta').checked, meta: document.querySelector('#meta').textContent }));
+  const v = await ikkuna.evaluate(() => ({ nakyy: document.querySelector('#valintarivi').getClientRects().length > 0, valittu: document.querySelector('#valinta').checked, meta: document.querySelector('#meta').textContent }));
   tulos('valinta: rivi näkyy ja on valittuna', v.nakyy && v.valittu && /· 1[0-9] sanaa$/.test(v.meta), JSON.stringify(v));
   const latomo2 = await paina('#latomoon', /latomo\.html$/);
   const raaka2 = await latomo2.inputValue('#md');
@@ -1004,7 +1021,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   // Luinissa. Lause ja valinnat muistetaan. Poimi lukimeen ei lähetä postia.
   const KOODI = 'torikaffeillaonhemmetinmukavaa';
   await avaaIkkuna(BLOG_POSTI);
-  const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('.napit > button')].map(b => b.textContent),
+  const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('#lukimeen, #lisat > button')].map(b => b.textContent),
     kiinni: document.querySelector('#posti-osa').hidden }));
   tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Poimi lukimeen,Säädä latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
   await ikkuna.click('#postihuilu');
