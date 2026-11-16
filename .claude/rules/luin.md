@@ -35,7 +35,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
-  Lisäosan nimi on *Luin* ilman loppupistettä (juoksevassa tekstissä *Luin-lisäosa*, käyttäjän päätös 15.11.2026) ja sen ensimmäinen
+  Lisäosan nimi on *Luin* ilman loppupistettä (juoksevassa tekstissä *luin-lisäosa*, käyttäjän päätös 15.11.2026) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Nimet, Postihuilu-napin
   lyhyt viivasto ja salmiakkivalintaruudut (16.11.2026) ovat lähdekoodissa, mutta `version` on yhä 0.9.0: **älä nosta versiota
   äläkä anna zippejä ennen kuin käyttäjä pyytää** (käyttäjä 16.11.2026: "älä päivitä lisäosaa vieläkään"). Kauppaosoitteen
@@ -98,6 +98,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 ### Käyttäjän linjaukset
 
+- **Nimet pienellä keskellä virkettä** (käyttäjän päätös 16.11.2026, opas 1.3): käyttäjälle näkyvässä suomenkielisessä tekstissä
+  *luin*, *luinin*, *latomo*, *postihuilu*, *pino*, *laatikkolause*, *luin-lisäosa*, *luin-linkki*. Iso alkukirjain vain virkkeen,
+  otsikon, sivun nimen ja nappinimen alussa (*Luin.*, *Pinoon*, *Latomon ohje*), napin tai kentän nimen lainauksessa
+  (`span.ui`: *Postihuilu*, *Arvo*, *Merkinnät*) ja englanninkielisessä tekstissä. Koodin kommentit ja kehittäjän opas jäivät.
 - **Pino ja kellarin veivihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
   näkymä *Kellarin veivihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; ennen *Uumen*). Nimi on aina kokonainen, ei pelkkä
   *veivihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,

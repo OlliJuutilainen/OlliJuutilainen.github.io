@@ -41,9 +41,9 @@ Käyttäjän nimistö (9.11.2026):
 - **Alaotsikko: *HTML*.**
 - **Pitkä, tyylitelty, virallinen nimi: *LUiN.HTML*** (logo, `aria-label`, infolaatikko).
 - **Osoite: `luin.html`.**
-- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan isolla (*Luinin pino*).
+- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan pienellä (*luinin pino*), samoin *latomo*, *postihuilu* ja *pino*; iso alkukirjain vain virkkeen tai otsikon alussa ja napin tai kentän nimen lainauksessa (käyttäjän päätös 16.11.2026, ennen isolla).
 - **Sivuston ytimen työkalu: *lukin*,** genetiivi *lukimen* (*Poimi lukimeen*).
-- **Selainlisäosa: *Luin*** ilman loppupistettä (käyttäjän nimistö 15.11.2026; ennen *Lisää lukimeen*). Lisäosa on itse Luin, joten sillä on tuotteen nimi; juoksevassa tekstissä *Luin-lisäosa*. Sen ensimmäinen nappi on *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*): sivulta poimitaan teksti pinoon, luettiin sitä heti tai ei. Lisäosan lähdekoodissa (`luin/lisaosa/`) nimet ovat jo, mutta versiota ei ole nostettu (käyttäjä 16.11.2026: ei vielä); asennettu lisäosa ja kauppasivut sanovat *Lisää lukimeen*, kunnes seuraava versio julkaistaan.
+- **Selainlisäosa: *Luin*** ilman loppupistettä (käyttäjän nimistö 15.11.2026; ennen *Lisää lukimeen*). Lisäosa on itse Luin, joten sillä on tuotteen nimi; juoksevassa tekstissä *luin-lisäosa*. Sen ensimmäinen nappi on *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*): sivulta poimitaan teksti pinoon, luettiin sitä heti tai ei. Lisäosan lähdekoodissa (`luin/lisaosa/`) nimet ovat jo, mutta versiota ei ole nostettu (käyttäjä 16.11.2026: ei vielä); asennettu lisäosa ja kauppasivut sanovat *Lisää lukimeen*, kunnes seuraava versio julkaistaan.
 
 ## 2. Tiedostot ja tietovirta
 
