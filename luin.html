@@ -2605,9 +2605,12 @@
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
     if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, svg.merkitty, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
+    var merkkiPop = pop.classList.contains('sisaltaa') && !HIIRI();
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
+    // Merkintöjen ponnahduksen ulkopuolinen napautus kosketuksella vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
+    if (merkkiPop) { e.preventDefault(); e.stopPropagation(); }
   }, true);
 
   /* ---------- paneelit ---------- */
