@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses ja Notre Dame Philosophical Reviews (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile ja Doppiozero (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2392,6 +2392,71 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Il Tascabile ja Doppiozero (käyttäjän pyyntö 16.11.2026, pahvin B4: italialaiset esseelehdet; kuvat, mainokset ja
+     liittyvät artikkelit pois). Il Tascabile (Treccani, WordPress): article.single, otsake .single__header (.single__title,
+     .single__author, .single__date, .single__excerpt), teksti .single__content ilman jakonappeja (.single__share).
+     Nostolainaukset ovat blockquote.blockquote-lohkoja, joissa on pelkkä lihavointi: Readability jätti ne keskelle tekstiä.
+     Haastattelun kysymykset (h3.qa__question) tulivat otsikoiksi: ne ovat lihavoituja kappaleita, vastaukset (div.qa__answer)
+     kappaleita. Ei mainoksia (vain Google Analytics) eikä lahjoituspyyntöä. Doppiozero (Drupal): article.articolo-doppiozero,
+     h1.titolo-articolo, .autori, .data-articolo (7 Novembre 2026), teksti .field--name-body. Lopun Leggi anche -kappale
+     (liittyvät artikkelit) ja kansikuvan tiedot (In copertina …) pois; tukipyyntö on tekstin ulkopuolella. Lahjoituksia
+     pyydetään, mainoksia ei ole. Ingressiä ei oteta (kuten Psyche–Aeonissa). Mitattu 16.11.2026. */
+  const IT_KUUKAUDET = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+  function itPvm(s) {
+    const m = /(\d{1,2})\s+(\p{L}+)\s+(\d{4})/u.exec(rivi(s));
+    const k = m ? IT_KUUKAUDET.indexOf(m[2].toLowerCase()) : -1;
+    return k >= 0 ? m[3] + '-' + String(k + 1).padStart(2, '0') + '-' + m[1].padStart(2, '0') : '';
+  }
+  function itSiivoa(el) {
+    el.querySelectorAll('figure, img, picture, video, iframe, script, style, noscript, form, button, svg, .wp-caption, .single__share').forEach(x => x.remove());
+  }
+  async function iltascabile() {
+    if (!/(^|\.)iltascabile\.com$/i.test(location.hostname)) return null;
+    // Teksti ei ole article.singlen sisällä (jäsentäjä sulkee sen aiemmin), joten haetaan koko sivulta.
+    const art = document;
+    const runko = document.querySelector('article.single') && document.querySelector('.single__content');
+    if (!runko) return null;
+    const el = runko.cloneNode(true);
+    itSiivoa(el);
+    // Nostolainaus: lähes koko teksti lihavoitu (myös useana palana, piste lihavoinnin ulkopuolella).
+    el.querySelectorAll('blockquote.blockquote').forEach(b => {
+      const lih = [...b.querySelectorAll('strong, b')].filter(x => !x.parentElement.closest('strong, b')).reduce((n, x) => n + rivi(x.textContent).length, 0);
+      if (lih >= 0.9 * rivi(b.textContent).length) b.remove();
+    });
+    el.querySelectorAll('.qa__question').forEach(q => {
+      const p = document.createElement('p'), s = document.createElement('strong');
+      s.textContent = rivi(q.textContent); p.appendChild(s); q.replaceWith(p);
+    });
+    el.querySelectorAll('.qa__answer').forEach(a => { const p = document.createElement('p'); p.innerHTML = a.innerHTML; a.replaceWith(p); });
+    // Kysymys–vastaus-parien väliset <br>:t ja niiden ympärille jääneet tyhjät kappaleet pois.
+    el.querySelectorAll('br').forEach(b => { if (b.parentElement && (b.parentElement === el || !b.parentElement.closest('p'))) b.remove(); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent)) x.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    const t = sel => rivi((art.querySelector(sel) || {}).textContent);
+    const tekijat = [...document.querySelectorAll('.single__header .single__author')].map(a => rivi(a.textContent)).filter(Boolean);
+    const aika = (document.querySelector('meta[property="article:published_time"]') || {}).content || '';
+    return { html: irrota([el]).innerHTML, otsikko: t('.single__title'), tekija: tekijat.join(' & '), sivusto: 'Il Tascabile',
+      julkaistu: aika.slice(0, 10) || itPvm(t('.single__date')), lahde: osoite };
+  }
+  async function doppiozero() {
+    if (!/(^|\.)doppiozero\.com$/i.test(location.hostname)) return null;
+    const art = document.querySelector('article.articolo-doppiozero');
+    const runko = art && art.querySelector('.field--name-body');
+    if (!runko) return null;
+    const el = runko.cloneNode(true);
+    itSiivoa(el);
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      if (/^leggi anche\b/i.test(t) || /^in copertina\b/i.test(t) && t.length < 300) p.remove();
+    });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' '))) x.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    const t = sel => rivi((art.querySelector(sel) || {}).textContent);
+    const tekijat = [...art.querySelectorAll('.autori a')].map(a => rivi(a.textContent)).filter(Boolean);
+    return { html: irrota([el]).innerHTML, otsikko: t('h1.titolo-articolo, h1'), tekija: tekijat.join(' & '), sivusto: 'Doppiozero',
+      julkaistu: itPvm(t('.data-articolo')), lahde: osoite };
+  }
+
   /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
      nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
      p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
@@ -3570,7 +3635,8 @@
      Encyclopedia.com (Raptive) ja New Advent (CleanMedia) näyttävät mainoksia ilman lahjoitusnappia (New Adventin
      19,99 dollarin latausta ei laskettu lahjoitukseksi), ja tuettujen sivustojen listassa ne ovat piilossa. Wait But Whyn
      mainosverkkoliikenne tulee Disqus-kommenteista ja Amazonin kumppanilinkeistä, ei sivuston omista mainoksista.
-     Logos, OECS, SAET, IRED ja LacusCurtius: ei mainoksia eikä lahjoituspyyntöä. Avain on sovitefunktion nimi. */
+     Logos, OECS, SAET, IRED ja LacusCurtius: ei mainoksia eikä lahjoituspyyntöä. Doppiozero (16.11.2026): lahjoitukset, ei
+     mainoksia. Avain on sovitefunktion nimi. */
   const RAHOITUS = {
     sep: { laji: 'lahjoitukset', osoite: 'https://plato.stanford.edu/support/donate.html' },
     wikipedia: { laji: 'lahjoitukset', osoite: 'https://donate.wikimedia.org/' },
@@ -3580,6 +3646,7 @@
     ccel: { laji: 'lahjoitukset', osoite: 'https://give.calvin.edu/give/583548/#!/donation/checkout' },
     aeonPsyche: { laji: 'lahjoitukset', osoite: () => /(^|\.)aeon\.co$/.test(location.hostname) ? 'https://aeon.co/donate' : 'https://psyche.co/donate' },
     ejp: { laji: 'lahjoitukset', osoite: 'https://www.paypal.com/donate/?hosted_button_id=5KCSPCEPPTCYC' },
+    doppiozero: { laji: 'lahjoitukset', osoite: 'https://www.doppiozero.com/sostieni-doppiozero' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -3598,7 +3665,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, oyc, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, oyc, iltascabile, doppiozero, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
