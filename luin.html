@@ -172,6 +172,13 @@
   .tietoa button.t-sana b { color: var(--ruoste); }
   .tietoa .t-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(22rem, calc(100% - 8px)); padding: 6px 10px 7px;
     font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); }
+  /* Vihje aukeaa ja sulkeutuu vain napsautuksesta (käyttäjän pyyntö 16.11.2026: hiiren viennillä avautunut vihje katosi,
+     kun hiiri lähti sanalta kohti vihjeen linkkiä). Oikean alakulman miinus sulkee kuten infolaatikon miinus. */
+  .tietoa .t-vihje p:last-of-type { padding-right: 16px; }
+  .tietoa button.t-vihje-sulje { position: absolute; right: 0; bottom: 0; width: 26px; height: 26px; display: flex;
+    align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
+  .tietoa button.t-vihje-sulje:hover { color: var(--ruoste); }
+  .tietoa button.t-vihje-sulje svg { width: 8px; height: 8px; fill: none; stroke: currentColor; stroke-width: 1.3; }
   .ikoni { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
   h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
@@ -1187,7 +1194,7 @@
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
   <!-- Infolaatikko (käyttäjän sanamuoto 16.11.2026): johdanto, avautuvat KIRJOITTAJA ja LUKIJA (plussa/miinus), aina näkyvä
-       jatko ja i-nappi, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen hiirellä ja napautuksesta. -->
+       jatko ja i-nappi, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen vain napautuksesta; ulkopuolinen napautus tai vihjeen miinus sulkee. -->
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija.<br>
     Sen ilo on kahden laatuista:<br><br>
     <span class="t-ilo">iloa <b>kirjoittajalle</b><br>
@@ -1254,15 +1261,15 @@
       <p class="t-vihje-jatko">Sen lisäksi, että luinta kehitetään toimimaan mahdollisimman hyväksi yleiseksi nettitekstin
       poimijaksi, myös erityisen sulavasti latoutuvaksi räätälöityvien sivujen
       <a class="vihje" href="luin/sivustot.html" target="_blank" rel="noopener" data-vihje="Avaa lista räätälöidyistä sivustoista">listaa</a>
-      <a class="vihje" href="luin/palaute.html?mista=lukimeen" target="_blank" rel="noopener" data-vihje="Ehdota sivustoa lukimeen optimoitavaksi">kerrytetään</a>.</p></div>
+      <a class="vihje" href="luin/palaute.html?mista=lukimeen" target="_blank" rel="noopener" data-vihje="Ehdota sivustoa lukimeen optimoitavaksi">kerrytetään</a>.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div>
     <div class="t-vihje" id="vihje-laite" role="tooltip" hidden><p>Esimerkiksi nettikahvilan coneella löydetty artikkeli
-      junamatkaa varten cännycällä luettavaksi.</p></div>
+      junamatkaa varten cännycällä luettavaksi.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div>
     <div class="t-vihje" id="vihje-huilu" role="tooltip" hidden><p><b>Huom.</b> Taianomaisuudestaan huolimatta postihuilu
       joutuu siirtämään tietoja laitteeltasi myös internetiin. Huilulla lähettämäsi tekstit ja, jos niin valitset, niihin
       tekemäsi merkinnät kulkevat luinin postilaatikkoon Cloudflaren palvelimelle. Tekstit säilyvät siellä 30 päivää ja
       merkinnät vuoden. Tietoihin ei pääse käsiksi arvaamalla, joten ne ovat suojassa laatikkolauseen vahvuuden verran.
       Kuka tahansa, joka tietää laatikkolauseesi, saa huilunsoitolla tekstit ja merkinnät taikottua omalle
-      laitteelleen. Hyvässä ja pahassa: samoinhan toimivat mökin avaimetkin.</p></div></div>
+      laitteelleen. Hyvässä ja pahassa: samoinhan toimivat mökin avaimetkin.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div></div>
   <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
        on valittuna, oikeaan nurkkaan tulee valittujen valikko. Kellarin veivihyllystössä sama rivi otsikolla Kellarin veivihyllystö. -->
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
@@ -2860,7 +2867,6 @@
       if (b === paitsi) return;
       b.setAttribute('aria-expanded', 'false');
       document.getElementById(b.getAttribute('aria-controls')).hidden = true;
-      b.classList.remove('kiinni');
     });
   }
   // Vihje sanan alle, laatikon sisään: vasen reuna sanan alun kohdalla, mutta ei yli laatikon oikean reunan.
@@ -2875,24 +2881,26 @@
     v.style.left = Math.round(vas) + 'px';
     v.style.top = Math.round(s.bottom - L.top - 1 + 6) + 'px';
   }
-  var tietoaHiiri = !!(window.matchMedia && matchMedia('(hover: hover)').matches);
+  // Napsautus avaa ja toinen napsautus sulkee; hiiren vienti ei avaa mitään (käyttäjän pyyntö 16.11.2026, ks. CSS).
   tietoaSanat().forEach(function (b) {
-    var v = document.getElementById(b.getAttribute('aria-controls'));
     b.addEventListener('click', function (e) {
       e.stopPropagation();
-      // Napautus kiinnittää vihjeen (hiirellä se on jo auki osoituksesta); toinen napautus sulkee.
-      if (b.classList.contains('kiinni')) { suljeTietoaVihjeet(); return; }
-      naytaTietoaVihje(b); b.classList.add('kiinni');
+      if (b.getAttribute('aria-expanded') === 'true') suljeTietoaVihjeet(); else naytaTietoaVihje(b);
     });
-    if (tietoaHiiri) {
-      b.addEventListener('mouseenter', function () { if (!$('#tietoa .t-sana.kiinni')) naytaTietoaVihje(b); });
-      b.addEventListener('mouseleave', function () {
-        if (!b.classList.contains('kiinni')) { v.hidden = true; b.setAttribute('aria-expanded', 'false'); }
-      });
-    }
-    v.addEventListener('click', function (e) { e.stopPropagation(); });
   });
-  document.addEventListener('click', function () { if ($('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#tietoa .t-vihje-sulje'), function (s) {
+    s.addEventListener('click', function (e) { e.stopPropagation(); suljeTietoaVihjeet(); });
+  });
+  // Vihjeen ulkopuolinen napsautus vain sulkee sen eikä avaa linkkiä tai paina nappia (käyttäjän perussääntö).
+  // Oman sanan napsautus kulkee sanan käsittelijälle, joka sulkee.
+  document.addEventListener('click', function (e) {
+    var auki = $('#tietoa .t-sana[aria-expanded="true"]');
+    if (!auki) return;
+    var v = document.getElementById(auki.getAttribute('aria-controls'));
+    if (v.contains(e.target) || auki.contains(e.target)) return;
+    e.preventDefault(); e.stopPropagation();
+    suljeTietoaVihjeet();
+  }, true);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && $('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet();
   });
