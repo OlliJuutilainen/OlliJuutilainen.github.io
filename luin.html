@@ -132,15 +132,17 @@
       left: -9px; top: calc(100% + 6px); z-index: 5; padding: 3px 9px 4px; white-space: nowrap; font-size: .8rem;
       font-weight: 400; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); }
   }
-  /* Infolaatikon osat (käyttäjän pyyntö 16.11.2026): KIRJOITTAJA ja LUKIJA versaalina ruosteella (napautettava), plussa
-     auki miinukseksi; rivien väli on tyhjä rivi. Oikean alakulman miinus sulkee laatikon kuten i-nappi. */
-  .tietoa button.t-osa { display: flex; align-items: center; gap: 8px; margin: .9em 0 0; padding: 2px 0; font: inherit;
+  /* Infolaatikon osat (käyttäjän pyyntö 16.11.2026): (1) KIRJOITTAJA ja (2) LUKIJA versaalina ruosteella (napautettava;
+     numerot johdannon mukaan), sisennettyinä sisältöineen, plussa auki miinukseksi; rivien väli on tyhjä rivi. Plussa on
+     versaalien keskilinjalla, ei rivilaatikon (mitattu musteesta). Oikean alakulman miinus sulkee laatikon kuten i-nappi. */
+  .tietoa button.t-osa { display: flex; align-items: center; gap: 7px; margin: .9em 0 0 .9em; padding: 2px 0; font: inherit;
     font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ruoste); background: none; border: 0;
     cursor: pointer; }
-  .tietoa .t-sisalto + button.t-osa, .tietoa p.t-jatko { margin-top: 1.32rem; }
+  .tietoa p + button.t-osa, .tietoa .t-sisalto + button.t-osa, .tietoa p.t-jatko { margin-top: 1.32rem; }
   .tietoa button.t-osa svg, .tietoa button.t-sulje svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+  .tietoa button.t-osa svg { width: 7px; height: 7px; transform: translateY(-.05em); }
   .tietoa button.t-osa[aria-expanded="true"] .pysty { display: none; }
-  .tietoa .t-sisalto { margin-top: .45em; }
+  .tietoa .t-sisalto { margin: .45em 0 0 .9em; }
   .tietoa p.t-viimeinen { padding-right: 22px; }
   .tietoa button.t-sulje { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; display: flex;
     align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
@@ -149,6 +151,10 @@
   .tietoa button.t-sana { font: inherit; padding: 0; color: var(--ruoste); background: none; border: 0; cursor: pointer;
     text-decoration: underline dotted; text-decoration-color: var(--ruoste); text-underline-offset: 3px; }
   .tietoa button.t-sana.t-huilu { text-decoration: none; }
+  /* Superpieni yläindeksikysymysmerkki (käyttäjän pyyntö 16.11.2026) avaa vihjeen; napautusala on merkkiä isompi. */
+  .tietoa button.t-sana.t-kysy { position: relative; font-size: .62em; line-height: 1; vertical-align: .75em; text-decoration: none;
+    margin-left: .05em; }
+  .tietoa button.t-sana.t-kysy::before { content: ""; position: absolute; inset: -8px -6px; }
   .tietoa button.t-sana b { color: var(--ruoste); }
   .tietoa .t-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(22rem, calc(100% - 8px)); padding: 6px 10px 7px;
     font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); }
@@ -1148,15 +1154,18 @@
   <!-- Infolaatikko (käyttäjän sanamuoto 16.11.2026): johdanto, avautuvat KIRJOITTAJA ja LUKIJA (plussa/miinus), aina näkyvä
        jatko ja oikean alakulman miinus, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen hiirellä ja napautuksesta. -->
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija. Sen hyöty on jaettavissa
-    kahteen osaan: hyötyihin (1) <b>kirjoittajalle</b> ja hyötyihin (2) <b>lukijalle</b>.</p>
-    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-kirjoittaja">Kirjoittaja<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
+    kahteen osaan: hyötyihin <b>(1)&nbsp;kirjoittajalle</b> ja hyötyihin <b>(2)&nbsp;lukijalle</b>.</p>
+    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-kirjoittaja">(1) Kirjoittaja<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
     <div class="t-sisalto" id="tietoa-kirjoittaja" hidden>
-    <p>Jaa oma epäkaupallinen pitkähkö kirjallinen tuotos mukavasti luettavaksi eri laitteilla.</p>
+    <p>Jaa oma epäkaupallinen kirjallinen tuotos <b>lukimessa</b> luettavaksi. Luettava näkyy mukavasti erilaisilla
+    laitteilla, ja lukemista on helppo jatkaa siitä, mihin edellisellä kerralla jäi.</p>
     <p>Lisää kirjoituksesi <b><a href="luin/latomo.html">Latomoon</a></b> pelkkänä tekstinä tai tekstitiedostona.
-    <b><i>Muotoilut</i></b>, sisällysluettelo, erottuva lainaus tai vaikka alaviitteet näkyvät lukimessa kauniisti, kun
-    varustat latomuksen yksinkertaisilla <b><a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">markdown</a></b>-käytännön
-    merkinnöillä. Unohda välttämätön tarve W-alkuisille tekstinkäsittelysovelluksille tai edes pdf- tai epub-tiedostoille.</p></div>
-    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-lukija">Lukija<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
+    Halutessasi esimerkiksi muotoilut, sisällysluettelo, lainaukset tai alaviitteet voivat näkyä lukimessa. Tämä onnistuu
+    tekstin lomaan tehtävillä yksinkertaisilla <b><a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">Markdown</a></b>-käytännön
+    merkinnöillä. Kaikelle on paikkansa, mutta unohda VÄLTTÄMÄTÖN tarve perinteisiksi kutsutuille monimutkaisille (kaikista
+    aakkosista esimerkiksi W-kirjaimelle alkaville) tekstinkäsittelyohjelmille ulkoasun luojana tai PDF- ja EPUB-tiedostoille
+    ainoina mahdollisina ulkoasun ja rakenteen säilyttämisen kanavina.</p></div>
+    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-lukija">(2) Lukija<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
     <div class="t-sisalto" id="tietoa-lukija" hidden>
     <p>Internetissä on vapaasti saatavilla paljon laadukasta lukemista, mutta lukukokemus on harvemmin lähellä paperikirjan
     tai kaupallisen sähkökirjan omalla lukulaitteella lukemisen kokemusta.</p>
@@ -1177,12 +1186,12 @@
     käytettävyyden taso on kuitenkin jotain, jonka Luin voi pitää tavoitteenaan tarjota käyttäjilleen saavutettavaksi myös
     sellaisille internetin valtamerestä löydetyille aarteille, jotka normaalioloissa olisivat olleet hankalasti
     poimittavissa.</p></div>
-    <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä internetiin. Pinon
+    <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
     kokoonpano, luetussa eteneminen ja siihen tehdyt merkinnät tallentuvat siis luonnostaan tekemättä mitään, jos selaimesi
     vain sallii sen.</p>
-    <p class="t-viimeinen">Jos haluat kuitenkin käyttää Luinia usealla <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-laite">laitteella</button>,
-    opettele <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>soittamaan huilua</b></button>
-    (ks. sivun alaosa).</p>
+    <p class="t-viimeinen">Jos haluat käyttää Luinia usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
+    <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
+    on ystäväsi (ks. sivun alaosa).</p>
     <button type="button" class="t-sulje" aria-label="Sulje tietolaatikko" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button>
     <div class="t-vihje" id="vihje-selain" role="tooltip" hidden><p>Tuettuja ovat Firefox (työpöytä- <b>ja</b> mobiiliversio)
       ja Chrome-pohjaiset selaimet (Chrome, Brave, Vivaldi, mitä ikinä). Chrome-pohjaisella mobiiliselaimella onnistuvat
