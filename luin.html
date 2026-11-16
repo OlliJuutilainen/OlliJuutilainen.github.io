@@ -2083,7 +2083,7 @@
     $('#tyhja').textContent = ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
       : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
-    haeLaatikko();
+    haePinoon();
     postiLahetaLikaiset();
   }
   // Ennen 12.11.2026 tallennetuilta nimikkeiltä puuttuu ala: jäsennetään tallennettu teksti kerran, yksi kerrallaan
@@ -2189,6 +2189,22 @@
         });
       });
     }).catch(function (err) { if (pakko) throw err; return null; });
+  }
+
+  // Pinon haku ja yksi jälkitarkistus (16.11.2026). Cloudflaren KV:n listaus näyttää uuden lähetyksen vasta noin
+  // puolen minuutin päästä (mitattu 33 s), joten heti lähetyksen jälkeen avattu pino ei saanut tekstiä ennen kuin pinosta
+  // poistui ja palasi. Jos haku ei tuonut mitään (tai jäi minuutin rajaan), tarkistetaan kerran uudelleen, kun minuutti
+  // on kulunut, jos pino on yhä näkyvissä. Vain yksi uusinta näyttökertaa kohden: listaus maksaa ilmaistasolla
+  // (1000 listausta päivässä, haku tekee kaksi), joten jatkuvaa kyselyä ei tehdä.
+  var laatikkoUusinta = 0;
+  function haePinoon() {
+    clearTimeout(laatikkoUusinta);
+    haeLaatikko().then(function (r) {
+      if (r && r.n || !LAATIKKO_RE.test(laatikonKoodi())) return;
+      laatikkoUusinta = setTimeout(function () {
+        if (!document.hidden && tila.nakyma === 'lista' && !tila.arkisto) haeLaatikko();
+      }, Math.max(1000, laatikkoHaettu + 61000 - Date.now()));
+    });
   }
 
   /* Merkintäposti. */
@@ -2439,7 +2455,7 @@
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
   });
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && tila.nakyma === 'lista') haeLaatikko();
+    if (!document.hidden && tila.nakyma === 'lista') haePinoon();
     if (document.hidden) postiLahetaLikaiset();
   });
 
