@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero ja Bryn Mawr Classical Review (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review ja Noema (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2409,6 +2409,36 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Noema (noemamag.com, Berggruen Institute; käyttäjän pyyntö 16.11.2026, pahvin B6: sovite vain, jos yleinen leikkaus on
+     selvästi huono). Mitattu: kolmessa artikkelissa 16 nostolainauksesta 12 toistui leipätekstinä (figure.quote), välissä
+     Read Noema in print -kehote, kuvatekstit ja lopussa liittyvät artikkelit. WordPress: teksti .entry-content, tekijän esittely
+     .bio-block (Credits) tekstin alussa, osanvaihdot hr.wp-block-separator. Nostolainaukset, kehotteet (.eos-subscribe-push),
+     jakonapit (.a2a_kit), kuvat kuvateksteineen (.content-image, figure) ja kortit (.single-card) pois; esittely loppuun
+     omaksi osiokseen. Etukenttä citation_title, citation_author ja datePublished. Ei mainoksia; lahjoituspyyntöä ei ole
+     (painettu lehti myydään). Mitattu 16.11.2026. */
+  async function noema() {
+    if (!/(^|\.)noemamag\.com$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('article .entry-content');
+    if (!runko) return null;
+    const el = runko.cloneNode(true);
+    const bio = el.querySelector('.bio-block .content');
+    const esittely = bio ? [...bio.querySelectorAll('p')].filter(p => rivi(p.textContent)).map(p => { const k = p.cloneNode(true); k.removeAttribute('style'); return k; }) : [];
+    el.querySelectorAll('.bio-block, figure, .content-image, .eos-subscribe-push, .a2a_kit, .single-card, script, style, noscript, img, iframe, button, svg').forEach(x => x.remove());
+    // Korttien kääreet ja tyhjät lohkot.
+    el.querySelectorAll('section, div, p').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('hr, br')) x.remove(); });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    if (kkSanoja(el) < 50) return null;
+    // Kuvien lähdemerkintä esittelyssä (Photographs courtesy of …) jää pois.
+    const es = esittely.filter(p => !/^(photographs?|images?|illustrations?|artwork)\b.*\b(courtesy|by)\b/i.test(rivi(p.textContent)));
+    if (es.length) { const h = document.createElement('h2'); h.textContent = 'Credits'; el.append(h, ...es); }
+    const meta = n => rivi((document.querySelector('meta[name="' + n + '"]') || {}).content);
+    let julkaistu = '';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => { const m = /"datePublished"\s*:\s*"(\d{4}-\d\d-\d\d)/.exec(s.textContent); if (m && !julkaistu) julkaistu = m[1]; });
+    return { html: irrota([el]).innerHTML, otsikko: meta('citation_title') || rivi((document.querySelector('h1') || {}).textContent),
+      tekija: document.querySelectorAll('meta[name="citation_author"]').length ? [...document.querySelectorAll('meta[name="citation_author"]')].map(m => rivi(m.content)).join(' & ') : '',
+      sivusto: 'Noema', julkaistu, lahde: osoite };
+  }
+
   /* Il Tascabile ja Doppiozero (käyttäjän pyyntö 16.11.2026, pahvin B4: italialaiset esseelehdet; kuvat, mainokset ja
      liittyvät artikkelit pois). Il Tascabile (Treccani, WordPress): article.single, otsake .single__header (.single__title,
      .single__author, .single__date, .single__excerpt), teksti .single__content ilman jakonappeja (.single__share).
@@ -3723,7 +3753,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
