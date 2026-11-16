@@ -2449,12 +2449,12 @@
     var url = jakoLinkki(e);
     naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
-      '<button type="button" data-k="viite">Kopioi lähdeviite.</button>' +
-      // Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon; Lataa md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
-      (url ? '<button type="button" data-k="linkki">Kopioi linkki.</button>' : '<button type="button" data-k="linkita">Linkitä tiedostoon.</button>') +
-      '<button type="button" data-k="lataa">Lataa md.</button>' +
-      '<button type="button" data-k="tiedot">Muuta metatietoja.</button>' +
-      '<button type="button" data-k="laitos">Lado uusi laitos.</button>' +
+      '<button type="button" data-k="viite">kopioi lähdeviite</button>' +
+      // Linkittömällä tekstillä linkin paikalla linkitä tiedostoon; lataa .md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
+      (url ? '<button type="button" data-k="linkki">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
+      '<button type="button" data-k="lataa">lataa .md</button>' +
+      '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
+      '<button type="button" data-k="laitos">lado uusi laitos</button>' +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
