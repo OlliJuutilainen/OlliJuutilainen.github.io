@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant ja dhammatalks.org (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org ja Wikisource (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -395,12 +395,57 @@
      verkkolinkit ovat päällä. Tekstin sisäinen linkki luettelon kohtaan vaatisi md.js:n muutosta (ei nyt). Tekijää ei
      ole (viite alkaa otsikolla), julkaistu on luetun version muokkauspäivä. */
   const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja|vaizdas|failas|specialus|pagalba|vikipedija|kategorija|portalas|šablonas|aptarimas|naudotojas|modulis|vikižodynas)(\s|_)*:/i;
+  /* Wikisource (käyttäjän pyyntö 16.11.2026, pahvin A2: en, de, la, fi; sama sovite kuin Wikipediassa). Lisäksi: painetun
+     lähteen sivunumerot yläindekseiksi [483] (en span.ws-pagenum[data-page-number], de span.PageNumber), otsake- ja
+     tietolaatikot (.ws-header, #headertemplate, de:n #textdaten), lisenssilaatikko (ensimmäinen virke etukenttään) ja
+     .ws-noexport pois. Metatiedot Wikisourcen yhteisistä tunnisteista #ws-author, #ws-title, #ws-year, #ws-publisher,
+     #ws-place, #ws-translator. */
+  const WS_LAATIKOT = '.ws-header, .wst-header, #headertemplate, .headertemplate, #textdaten, .licenseContainer, .wst-license, ' +
+    '.ws-license, #ws-data, .wst-footer, #footertemplate, .ws-noexport, table.otsikkomalline, table.otsikkomalline-huomiot';
+  function wsTiedot() {
+    const t = id => rivi((document.getElementById(id) || {}).textContent);
+    const lis = document.querySelector('.licenseContainer, .wst-license, .ws-license');
+    const lt = lis && rivi((lis.querySelector('.licenseText, .wst-license-text, td:last-child, p') || lis).textContent);
+    // fi: otsikkomalline (Kirjoittanut Juhani Aho).
+    const om = document.querySelector('table.otsikkomalline');
+    const omi = om && [...om.querySelectorAll('i, em')].find(x => /^\s*Kirjoittanut\s/.test(x.textContent));
+    const fiTek = omi ? rivi(omi.textContent).replace(/^Kirjoittanut\s+/, '') : '';
+    return { tekija: t('ws-author') || fiTek, otsikko: t('ws-title').split(/\s+[—–]\s+/)[0], vuosi: (/(1[0-9]\d\d|20\d\d)/.exec(t('ws-year')) || [])[1] || '',
+      kustantaja: t('ws-publisher'), paikka: t('ws-place'), suomentaja: t('ws-translator'),
+      lisenssi: lt ? (lt.match(/^.*?\.(?=\s|$)/) || [lt])[0] : '' };
+  }
+  function wsSivunumerot(el) {
+    el.querySelectorAll('span.ws-pagenum, span.pagenum[data-page-number], span.PageNumber').forEach(x => {
+      const n = rivi(x.getAttribute('data-page-number') || x.textContent).replace(/^\[\s*|\s*\]$/g, '');
+      if (!n || n.length > 12) { x.remove(); return; }
+      const sup = document.createElement('sup');
+      sup.textContent = '[' + n + ']';
+      x.replaceWith(sup);
+      if (sup.nextSibling && sup.nextSibling.nodeType === 3) sup.nextSibling.nodeValue = sup.nextSibling.nodeValue.replace(/^\s*/, ' ');
+    });
+  }
   async function wikipedia() {
-    const alku = /(^|\.)wikipedia\.org$/.test(location.hostname) && /^\/wiki\/./.test(location.pathname) &&
+    const ws = /(^|\.)wikisource\.org$/.test(location.hostname);
+    const alku = (ws || /(^|\.)wikipedia\.org$/.test(location.hostname)) && /^\/wiki\/./.test(location.pathname) &&
       document.querySelector('#mw-content-text .mw-parser-output');
     if (!alku) return null;
     const fi = /^fi\b/i.test(document.documentElement.lang || '');
+    const PROJ = ws ? 'Wikisource' : 'Wikipedia', projRe = ws ? /(^|\.)wikisource\.org$/ : /(^|\.)wikipedia\.org$/;
+    const wst = ws ? wsTiedot() : null;
     const el = alku.cloneNode(true);
+    if (ws) {
+      wsSivunumerot(el);
+      el.querySelectorAll(WS_LAATIKOT).forEach(x => x.remove());
+      // Mallineeton otsake ja selausrivi (la: ◄ Synopsis … | Meditatio II ►): lyhyet laatikot ennen ensimmäistä pitkää kappaletta
+      // ja nuolilla merkityt selausrivit.
+      const pitka = [...el.querySelectorAll('p')].find(p => rivi(p.textContent).length >= 200);
+      if (pitka) [...el.querySelectorAll('div, table, center')].forEach(x => {
+        if (!el.contains(x) || x.contains(pitka) || !(x.compareDocumentPosition(pitka) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+        // Viitteellinen otsikkolohko (de: Was ist Aufklärung?*) jää.
+        if (rivi(x.textContent).length < 400 && !x.querySelector('sup.reference, sup.mw-ref')) x.remove();
+      });
+      el.querySelectorAll('div, table, center, p').forEach(x => { if (el.contains(x) && /[◄►]/.test(x.textContent) && x.querySelector('a') && rivi(x.textContent).length < 300) x.remove(); });
+    }
     let n = 0;
     const maar = [], viiteTunnus = new Map();
     const lisaa = (teksti, solmu) => { const t = 'w' + (++n); maar.push([t, teksti]); return t; };
@@ -459,7 +504,7 @@
       const kaikki = [...el.querySelectorAll('p')].filter(p => rivi(p.textContent) && !b.contains(p));
       const ed = kaikki.filter(p => p.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).pop() || kaikki[0];
       b.remove();
-      if (t && ed) ed.appendChild(merkki(lisaa('*' + (fi ? 'Wikipedian huomautus' : 'Wikipedia notice') + ':* ' + t)));
+      if (t && ed) ed.appendChild(merkki(lisaa('*' + (fi ? PROJ + 'n huomautus' : PROJ + ' notice') + ':* ' + t)));
     });
     // Loppuluettelon artikkelit (käyttäjän valinta 10.11.2026: kaikki wikilinkit tekivät satojen rivien luettelon, Age of
     // Enlightenment 547): vain toimittajien omat valinnat eli Pääartikkeli-, Katso myös- ja Lisätietoja-ohjausrivien
@@ -467,7 +512,7 @@
     const artikkelit = new Map();
     const artikkeli = a => {
       let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
-      const sisainen = u.hostname === location.hostname || /(^|\.)wikipedia\.org$/.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
+      const sisainen = u.hostname === location.hostname || projRe.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
       const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
       const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
       if (!sisainen || !nimi || punainen || WIKI_NIMIAVARUUS.test(nimi) || u.pathname === location.pathname) return null;
@@ -509,7 +554,7 @@
     // Wikilinkit tekstiksi; verkkolinkit jäävät (toimivat vain Luinin verkkolinkit päällä).
     el.querySelectorAll('a[href]').forEach(a => {
       let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return; }
-      const sisainen = u.hostname === location.hostname || /(^|\.)wikipedia\.org$/.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
+      const sisainen = u.hostname === location.hostname || projRe.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
       if (!sisainen && !a.classList.contains('extiw')) { a.setAttribute('href', u.href); return; }
       a.replaceWith(...a.childNodes);
     });
@@ -540,7 +585,7 @@
     });
     if (artikkelit.size) {
       const h = document.createElement('h2'), ul = document.createElement('ul');
-      h.textContent = fi ? 'Wikipedia-artikkelit' : 'Wikipedia articles';
+      h.textContent = ws ? (fi ? 'Wikisource-sivut' : 'Wikisource pages') : fi ? 'Wikipedia-artikkelit' : 'Wikipedia articles';
       artikkelit.forEach((nimi, u) => { const li = document.createElement('li'), a = document.createElement('a'); a.href = u; a.textContent = nimi; li.appendChild(a); ul.appendChild(li); });
       el.append(h, ul);
     }
@@ -548,8 +593,14 @@
     document.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
       try { const j = JSON.parse(s.textContent); julkaistu = julkaistu || String(j.dateModified || '').slice(0, 10); } catch (e) {}
     });
-    return { html: el.innerHTML, otsikko: rivi((document.querySelector('#firstHeading, h1') || {}).textContent),
-      tekija: '', sivusto: 'Wikipedia', julkaistu, maar: maar.map(([t, x]) => maaritelma(t, x)) };
+    const otsikko = rivi((document.querySelector('#firstHeading, h1') || {}).textContent);
+    // Alasivu (Critique of Pure Reason (Meiklejohn)/Introduction): otsikoksi viimeinen osa, teokseksi teoksen nimi.
+    const palat = otsikko.split('/'), ala = palat.length > 1;
+    if (ws) return { html: el.innerHTML, otsikko: ala ? palat[palat.length - 1] : wst.otsikko || otsikko,
+      teos: ala ? wst.otsikko || palat[0] : '', tekija: wst.tekija, sivusto: PROJ, julkaistu: wst.vuosi,
+      kustantaja: wst.kustantaja, paikka: wst.paikka, suomentaja: wst.suomentaja ? kkKaantaja(kkNimet(wst.suomentaja)) : '',
+      oikeus: wst.lisenssi ? { teksti: wst.lisenssi, lahde: osoite } : null, maar: maar.map(([t, x]) => maaritelma(t, x)) };
+    return { html: el.innerHTML, otsikko, tekija: '', sivusto: 'Wikipedia', julkaistu, maar: maar.map(([t, x]) => maaritelma(t, x)) };
   }
 
   /* Viitemerkki ja sen kohde samalla sivulla (marxists.org, Wait But Why): merkki on #-linkki, jonka teksti on pelkkä

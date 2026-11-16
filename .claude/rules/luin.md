@@ -70,6 +70,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Korpora.org/kant-sovite (16.11.2026, opas 7.5): teos kootaan sisällysluettelon ja sivujen `<title>`-nimiön mukaan; AA-sivunumerot
   ovat yläindeksejä `4:393` (pahvin vaatimus: näkyvinä merkkeinä). Kappaleraja sivunvaihdossa on mitattu arvaus (opas 7.5); älä muuta
   rajaa mittaamatta uudelleen.
+  Wikisource kulkee `wikipedia()`-funktiossa (`ws`; opas 7.5): kun muutat sitä, aja sekä `--sarja wikipedia` (leikkeiden pitää
+  pysyä ennallaan) että `--sarja wikisource`.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
   tulee vain sovitteelta (yleinen leike ei kirjoita sitä).
   Open Journal Systems -sovite (16.11.2026, opas 7.5; Problemos ja muut journals.vu.lt:n lehdet): tunnistus alustasta (generator ja

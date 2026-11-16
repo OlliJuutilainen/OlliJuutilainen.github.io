@@ -20,6 +20,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   maksumuurin takana.
   Korpora.org/kant (PR #779, 16.11.2026, pahvin *20 uutta sivustosovitetta* A1): koko teos AA:n sivuista, sivunumerot 4:393.
   dhammatalks.org (PR #780, 16.11.2026, pahvin B1): koko kirja luvuittain, säkeet ja loppuviitteet.
+  Wikisource (PR #781, 16.11.2026, pahvin A2): Wikipedia-sovite yleistettynä, sivunumerot [483].
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -45,7 +46,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 - Projekt Gutenberg-DE: projekt-gutenberg.org
 - Standard Ebooks: standardebooks.org, siistityt public domain -tekstit
-- Wikisource / Wikiaineisto: fi, en, de, la, grc, fr
+- Wikisource / Wikiaineisto: fi, en, de, la, grc, fr (tehty 16.11.2026, ks. yllä)
 - Zeno.org: saksalaiset klassikot, Meyers, Eisler, Kant, Schopenhauer
 - Deutsches Textarchiv: deutschestextarchiv.de
 - Textlog.de: Eislerin Kant-Lexikon ja Wörterbuch
