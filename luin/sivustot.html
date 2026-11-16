@@ -98,9 +98,12 @@
   ul.sivustot { list-style: none; padding: 0; }
   ul.sivustot li { margin: 0 0 10px; }
   ul.sivustot .mika { display: block; font-size: .86rem; color: var(--harmaa); }
-  /* Kunniasalmiakki (käyttäjän pyyntö 15.11.2026): Luinin sertifioima eli käyttäjän itse siedettävästi läpikäymä sovite.
-     Logon koverakylkinen salmiakki okrana (ruoste on napautettavan väri). */
-  .kunnia svg { width: .62em; height: .78em; vertical-align: -.02em; fill: var(--okra); overflow: visible; }
+  /* Supersalmiakki (käyttäjän pyyntö 15.11.2026, logoksi ja vasemmalle 16.11.2026): Luinin sertifioima eli käyttäjän itse
+     siedettävästi läpikäymä sovite. Merkki on Luinin ja Lukimeen-lisäosan logo (luin/kuvakkeet/kuvake.svg) ruosteella.
+     Se riippuu rivin vasemmassa sarakkeessa, jotta nimet pysyvät linjassa; hajurako on reilu (käyttäjän pyyntö). */
+  ul.sivustot li, .selite { position: relative; padding-left: 2.3em; }
+  .super svg { position: absolute; left: 0; top: .2em; width: 1.15em; height: 1.15em; overflow: visible; fill: var(--ruoste); }
+  .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
 </style>
 </head>
 <body>
@@ -110,8 +113,9 @@
   <p class="johdanto">Näille sivustoille lukimeen-lisäosalla on oma sovitteensa: työpöytäselaimessa artikkeli
     tulee <a href="latomo.html">latomoon</a> siistimpänä kuin yleisin keinoin, esimerkiksi alaviitteineen. Muiltakin
     sivuilta leikkaaminen yleensä onnistuu. Puuttuuko suosikkisi? <a href="palaute.html?mista=sivustot">Kerro meille</a>.</p>
-  <p class="johdanto"><span class="kunnia" role="img" title="Kunniasalmiakki: luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span> Kunniasalmiakki merkitsee luinin sertifioimaa sovitetta: kehittäjä on itse käynyt sen
-    siedettävästi läpi.</p>
+  <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>SUPERSALMIAKKI uhoaa sertifioivan peräti ensimmäisen valioluokan
+    latomustulosta. Paina samannäköistä <strong>Lukimeen</strong>-salmiakkia selaimessa jonkun tämän sivuston sisältämän
+    kirjoituksen ollessa avattuna, ja sukkasi saattavat pian pyöriä ellei jopa irrota jalasta.</p>
 
   <nav class="aakkoset" id="aakkoset" aria-label="Alkukirjaimet" hidden></nav>
 
@@ -123,13 +127,13 @@
       <span class="mika">Bloggerin blogit, myös omilla verkkotunnuksillaan</span></li>
     <li><a href="https://ccel.org/" target="_blank" rel="noopener">Christian Classics Ethereal Library</a>
       <span class="mika">ccel.org; kirkkoisät ja muut klassikot, luvun sivulta koko kirje tai kirja alaviitteineen</span></li>
-    <li><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a> <span class="kunnia" role="img" title="Kunniasalmiakki: luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
+    <li><span class="super" role="img" title="Supersalmiakki: luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a>
       <span class="mika">filosofia.fi</span></li>
     <li><a href="https://www.journal-psychoanalysis.eu/" target="_blank" rel="noopener">European Journal of Psychoanalysis</a>
       <span class="mika">journal-psychoanalysis.eu; artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
     <li><a href="https://online.flippingbook.com/view/544664/" target="_blank" rel="noopener">IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis</a>
       <span class="mika">FlippingBook-kirja; leikkaa hakusanan, jonka sivulla olet</span></li>
-    <li><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a> <span class="kunnia" role="img" title="Kunniasalmiakki: luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
+    <li><span class="super" role="img" title="Supersalmiakki: luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a>
       <span class="mika">marxists.org</span></li>
     <li><a href="https://oecs.mit.edu/" target="_blank" rel="noopener">Open Encyclopedia of Cognitive Science</a>
       <span class="mika">oecs.mit.edu</span></li>
@@ -139,12 +143,12 @@
       <span class="mika">psyche.co; esseet ja oppaat (Guides) osioineen ilman nostolainauksia</span></li>
     <li><a href="https://www.saet.ac.uk/" target="_blank" rel="noopener">St Andrews Encyclopaedia of Theology</a>
       <span class="mika">saet.ac.uk; kristinusko, buddhalaisuus, islam, hindulaisuus, juutalaisuus</span></li>
-    <li><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a> <span class="kunnia" role="img" title="Kunniasalmiakki: luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
+    <li><span class="super" role="img" title="Supersalmiakki: luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a>
       <span class="mika">plato.stanford.edu</span></li>
     <li><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
       <span class="mika">waitbutwhy.com</span></li>
-    <li>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
-      <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a> <span class="kunnia" role="img" title="Kunniasalmiakki: luinin sertifioima" aria-label="kunniasalmiakki"><svg viewBox="-8 -10 16 20" aria-hidden="true"><path d="M0 -9.78Q3.75 -4.89 7.5 0Q2.85 3.72 0 9.78Q-2.85 3.72 -7.5 0Q-2.85 -3.72 0 -9.78Z"/></svg></span>
+    <li><span class="super" role="img" title="Supersalmiakki: luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
+      <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a>
       <span class="mika">fi.wikipedia.org, en.wikipedia.org</span></li>
   </ul>
   <!-- Piilotetut (käyttäjän sääntö 15.11.2026): sovite pysyy, mutta sivusto ei näy listassa, koska se näyttää mainoksia
