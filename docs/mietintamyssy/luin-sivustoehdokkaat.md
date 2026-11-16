@@ -21,7 +21,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Korpora.org/kant (PR #779, 16.11.2026, pahvin *20 uutta sivustosovitetta* A1): koko teos AA:n sivuista, sivunumerot 4:393.
   dhammatalks.org (PR #780, 16.11.2026, pahvin B1): koko kirja luvuittain, säkeet ja loppuviitteet.
   Wikisource (PR #781, 16.11.2026, pahvin A2): Wikipedia-sovite yleistettynä, sivunumerot [483].
-  Substack (PR-NUMERO, 16.11.2026, pahvin B3): alustasovite, alaviitteet, kehotteet pois.
+  Substack (PR #782, 16.11.2026, pahvin B3): alustasovite, alaviitteet, kehotteet pois.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
