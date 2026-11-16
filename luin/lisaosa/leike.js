@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org ja Wikisource (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource ja Substack (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2392,6 +2392,64 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Substack (alusta; käyttäjän pyyntö 16.11.2026, pahvin B3: The Convivial Society, Experimental History). Tunnistus alustasta
+     (substackcdn.com-osoitteet ja .available-content .body.markup), joten omat verkkotunnukset käyvät. Readability jätti
+     jakonapin (Share), maksullisen äänitteen kehotteen (Upgrade to paid to play voiceover) ja viitteet linkkiketjuiksi
+     loppuun ([1][19]). Runko .body.markup: tilaus-, jako- ja sovelluskehotteet (.subscribe-widget, p.button-wrapper,
+     .subscription-widget-wrap, .install-substack-app-embed …), upotetut kirjoitukset ja äänestykset, nostolainaukset
+     (.pullquote) ja otsikoiden linkkinapit pois; kuvat pois, kuvateksti kursiivikappaleeksi. Viitteet (a.footnote-anchor →
+     div.footnote: a.footnote-number, .footnote-content) alaviitteiksi. Etukenttä: otsikko h1.post-title, alaotsikko
+     h3.subtitle, tekijä meta[name=author], julkaistu ja julkaisu JSON-LD:stä (datePublished, publisher.name). Maksumuurin
+     takana olevasta kirjoituksesta tulee näkyvä osa. Mitattu 16.11.2026. */
+  const SS_POIS = ['.subscribe-widget', '.subscription-widget-wrap', '.subscription-widget', 'p.button-wrapper', '.button-wrapper',
+    '.captioned-button-wrap', '.install-substack-app-embed', '.digest-post-embed', '.embedded-post-wrap', '.embedded-publication-wrap',
+    '.poll-embed', '.pullquote', '.paywall', '.paywall-jump', '.header-anchor-parent', '.image-link-expand', '.audio-player-wrapper',
+    '.native-audio-embed', '.footnote', 'form', 'button', 'svg', 'input', 'script', 'style', 'noscript'].join(', ');
+  async function substack() {
+    const runko = document.querySelector('.available-content .body.markup, article .body.markup');
+    if (!runko || !document.querySelector('link[href*="substackcdn.com"], script[src*="substackcdn.com"], img[src*="substackcdn.com"]')) return null;
+    const el = runko.cloneNode(true);
+    const maar = [];
+    let n = 0;
+    el.querySelectorAll('a.footnote-anchor[href^="#"]').forEach(a => {
+      const id = decodeURIComponent(a.getAttribute('href').slice(1));
+      const k = runko.querySelector('[id="' + CSS.escape(id) + '"]');
+      const sisalto = k && k.closest('.footnote') && k.closest('.footnote').querySelector('.footnote-content');
+      const ulko = a.parentElement && a.parentElement.tagName === 'SPAN' && rivi(a.parentElement.textContent) === rivi(a.textContent) ? a.parentElement : a;
+      if (!sisalto) { ulko.remove(); return; }
+      const v = sisalto.cloneNode(true);
+      v.querySelectorAll(SS_POIS).forEach(x => x.remove());
+      const t = muunna(irrota([v]).innerHTML, 'inlined').trim();
+      const tunnus = 'ss' + (++n);
+      if (t) maar.push(maaritelma(tunnus, t));
+      ulko.replaceWith(merkki(tunnus));
+    });
+    // Kuva pois, kuvateksti kursiivikappaleeksi.
+    el.querySelectorAll('.captioned-image-container, figure').forEach(f => {
+      if (!el.contains(f)) return;
+      const k = rivi((f.querySelector('figcaption, .image-caption') || {}).textContent);
+      if (!k) { f.remove(); return; }
+      const p = document.createElement('p'), em = document.createElement('em');
+      em.textContent = k; p.appendChild(em); f.replaceWith(p);
+    });
+    el.querySelectorAll(SS_POIS).forEach(x => x.remove());
+    // Kuvalinkit ja kuvagalleriat ilman tekstiä.
+    el.querySelectorAll('a, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('br, hr')) x.remove(); });
+    if (kkSanoja(el) < 20) return null;
+    let julkaistu = '', julkaisu = '';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+      try {
+        const j = JSON.parse(s.textContent);
+        julkaistu = julkaistu || String(j.datePublished || '').slice(0, 10);
+        julkaisu = julkaisu || rivi(j.publisher && j.publisher.name);
+      } catch (e) {}
+    });
+    const t = sel => rivi((document.querySelector(sel) || {}).textContent);
+    return { html: irrota([el]).innerHTML, otsikko: t('h1.post-title') || t('h1'), alaotsikko: t('h3.subtitle, .subtitle'),
+      tekija: rivi((document.querySelector('meta[name="author"]') || {}).content), julkaistu, maar,
+      sivusto: julkaisu || rivi((document.querySelector('meta[property="og:site_name"]') || {}).content) || location.hostname.replace(/^www\./, '') };
+  }
+
   /* dhammatalks.org (Ṭhānissaro Bhikkhun kirjat; käyttäjän pyyntö 16.11.2026, pahvin *20 uutta sivustosovitetta* B1). Kirja on
      e-kirjan luvut omina sivuinaan (/books/<kirja>/SectionNNNN.html, runko main#content > section[epub_type]) ja kirjan
      etusivu (/books/<kirja>/), jolla on nimiö (hgroup: h1, p.subtitle, tekijä, Published <time>) ja sisällysluettelo
@@ -3381,7 +3439,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
