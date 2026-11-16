@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus ja Paul Grahamin esseet (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3264,6 +3264,105 @@
       maar, naytto: PS_NIMI };
   }
 
+  /* Tertullian Project (tertullian.org/fathers, Roger Pearsen litteroinnit; käyttäjän pyyntö 16.11.2026, pahvin valinnainen:
+     Porfyrioksen De abstinentia, Taylor 1823, kirja yhdeksi, kirja- ja lukunumerot). Teos on sivuina saman tiedostonimen
+     etuliitteellä (porphyry_abstinence_00_eintro.htm, _01_book1.htm …), sivun ylä- ja alalaidassa Previous/Next-kuvalinkit.
+     Sivu: lihavoitu otsakekappale (Porphyry, On abstinence from animal food (1823) Book 1. pp.11-44), h3 (BOOK ONE),
+     [Translated by …], luvut p > span.chapterno (1.), painetun laitoksen sivut span.pb (|12), viitemerkit a[href="#1"] sup,
+     viivan alla [Footnotes moved to the end and numbered] ja merkinnät <a name="1"> 1.&nbsp;* teksti (Taylorin oma merkki *, +,
+     § numeron perässä), lopussa litterointi- ja vapaan käytön rivi. Readability antoi yhden sivun ja jätti sivunumerot tekstiin.
+     Sivut kootaan Previous/Next-linkkejä pitkin (sama etuliite, enintään LC_OSIA), luvut lihavoiduiksi, sivunumerot
+     yläindekseiksi [12], viitteet alaviitteiksi, otsakekappale, käännösrivi, navigointi ja loppurivit pois. Etukenttä
+     otsakkeesta (tekijä ennen pilkkua, vuosi sulkeista) ja käännösrivistä; public domain -rivi oikeuksiksi. Mitattu 16.11.2026. */
+  const TT_RYHMA = u => { const m = /\/([a-z0-9]+(?:_[a-z]+)+?)_\d+_[^/]*\.html?$/i.exec(u); return m ? m[1] : null; };
+  function ttSivu(d, u, laskuri, maar) {
+    const b = d && d.body;
+    if (!b) return null;
+    const nav = rel => { const i = [...b.querySelectorAll('a img[alt]')].find(x => x.getAttribute('alt') === rel); try { return i ? new URL(i.parentElement.getAttribute('href'), u).href.split('#')[0] : ''; } catch (e) { return ''; } };
+    const el = b.cloneNode(true);
+    let otsake = '', kaannos = '', vapaa = '';
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      if (p.querySelector('img[alt="Next Page"], img[alt="Previous Page"], img[alt="Table Of Contents"]') && t.length < 40) return p.remove();
+      if (p.matches('.small')) { if (/public domain/i.test(t)) vapaa = t.replace(/^.*?(All material.*)$/i, '$1'); return p.remove(); }
+      if (p.matches('.editorial') && /footnotes/i.test(t)) return p.remove();
+      if (!otsake && p.querySelector('b') && rivi(p.querySelector('b').textContent) === t && p.getAttribute('align') === 'center') { otsake = t; return p.remove(); }
+      const km = /^\[\s*Translated by\s+(.+?)\s*\]$/i.exec(t);
+      if (km) { kaannos = km[1]; p.remove(); }
+    });
+    el.querySelectorAll('table, script, style, hr').forEach(x => x.remove());
+    // Viitteet: <a name="1"> kappaleen alussa; teksti ilman numeroa ja Taylorin merkkiä.
+    const kohteet = new Map();
+    el.querySelectorAll('p > a[name]:first-child').forEach(a => {
+      const p = a.parentElement, id = a.getAttribute('name');
+      if (!/^\d+$/.test(id)) return;
+      const k = p.cloneNode(true);
+      k.querySelector('a[name]').remove();
+      let t = muunna(irrota([k]).innerHTML, 'inlined').trim().replace(/^\d+\\?\.\s*/, '').replace(/^(?:\\?\*+|\+|<sup>[^<]*<\/sup>|§|\\?\[?[†‡§+*]\]?)\s*/, '');
+      kohteet.set(id, t);
+      p.remove();
+    });
+    el.querySelectorAll('a[href^="#"]').forEach(a => {
+      const id = a.getAttribute('href').slice(1), t = kohteet.get(id);
+      if (!t) { if (/^\d+$/.test(id)) a.remove(); return; }
+      const tunnus = 'tt' + (++laskuri.n);
+      maar.push(maaritelma(tunnus, t));
+      const ed = a.previousSibling;
+      if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+      a.replaceWith(merkki(tunnus));
+    });
+    // Merkki yläindeksin sisällä (<sup><a href="#2">2</a>.</sup>): yläindeksi auki, muuten md.js ei näe alaviitettä.
+    el.querySelectorAll('sup').forEach(x => { if (/XLUINVIITE/.test(x.textContent)) x.replaceWith(...x.childNodes); });
+    // Lihavointi yläindeksin sisällä (Taylorin alaviitteiden alaviitteet <sup><b>a</b></sup>) jäisi HTML:ksi.
+    el.querySelectorAll('sup b, sup strong').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('span.chapterno').forEach(s => { const st = document.createElement('strong'); st.textContent = rivi(s.textContent); s.replaceWith(st); });
+    el.querySelectorAll('span.pb').forEach(s => {
+      const n = rivi(s.textContent).replace(/^\|/, ''), a = s.closest('a');
+      const sup = document.createElement('sup'); sup.textContent = '[' + n + ']';
+      (a && el.contains(a) && rivi(a.textContent) === rivi(s.textContent) ? a : s).replaceWith(sup);
+      if (sup.nextSibling && sup.nextSibling.nodeType === 3) sup.nextSibling.nodeValue = sup.nextSibling.nodeValue.replace(/^\s*/, ' ');
+    });
+    el.querySelectorAll('a[name]').forEach(a => a.replaceWith(...a.childNodes));
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    return { el, otsake, kaannos, vapaa, ed: nav('Previous Page'), seur: nav('Next Page') };
+  }
+  async function tertullian() {
+    if (!/(^|\.)tertullian\.org$/i.test(location.hostname) || !/\/fathers\/[^/]+\.html?$/i.test(location.pathname)) return null;
+    const maar = [], laskuri = { n: 0 };
+    const oma = ttSivu(document, osoite, { n: 0 }, []);
+    if (!oma || kkSanoja(oma.el) < 100) return null;
+    const ryhma = TT_RYHMA(osoite), osat = [{ u: osoite, d: document }];
+    if (ryhma) for (const [suunta, lisaa] of [['ed', x => osat.unshift(x)], ['seur', x => osat.push(x)]]) {
+      let s = oma;
+      const nahty = new Set([osoite]);
+      while (osat.length < LC_OSIA && s[suunta] && TT_RYHMA(s[suunta]) === ryhma && !nahty.has(s[suunta])) {
+        const u = s[suunta], d = await hae(u);
+        nahty.add(u);
+        s = d && ttSivu(d, u, { n: 0 }, []);
+        if (!s) break;
+        lisaa({ u, d });
+      }
+    }
+    const el = document.createElement('div');
+    let ens = null, kaannos = '', vapaa = '';
+    osat.forEach(o => {
+      const s = ttSivu(o.d, o.u, laskuri, maar);
+      if (!s) return;
+      // Nimiö mieluiten teoksen omalta sivulta (Book 1), ei verkkolaitoksen johdannosta.
+      if (!ens || !/\(\d{4}\)/.test(ens.otsake) && /\(\d{4}\)/.test(s.otsake)) ens = s;
+      kaannos = kaannos || s.kaannos; vapaa = vapaa || s.vapaa;
+      el.append(...s.el.childNodes);
+    });
+    kkTasoita(el);
+    el.normalize();
+    // Otsake: Porphyry, On abstinence from animal food (1823) Book 1. pp.11-44 → tekijä, nimi, vuosi.
+    const ot = (ens.otsake || rivi(document.title)).replace(/(\(\d{4}\)).*$/, '$1').replace(/\s+(?:Book|Part|Chapter|Introduction|Preface)\b.*$/i, '').replace(/\s+pp?\.\s*[\d-]+.*$/i, '');
+    const om = /^([^,]{2,60}),\s*(.+?)(?:\s*\((\d{4})\))?$/.exec(ot);
+    return { html: irrota([el]).innerHTML, otsikko: om ? om[2] : ot, tekija: om ? om[1] : '', julkaistu: om && om[3] || '',
+      suomentaja: kaannos ? kkKaantaja([kaannos]) : '', sivusto: 'Tertullian Project', lahde: osat[0].u, maar,
+      oikeus: vapaa ? { teksti: vapaa, lahde: osoite } : null, naytto: 'Tertullian Project' + (osat.length > 1 ? ' (' + osat.length + ' sivua)' : '') };
+  }
+
   /* Korpora.org/kant (Bonnin Kant-korpus; käyttäjän pyyntö 16.11.2026: sivustoehdokkaiden opiskeluryhmän ensimmäinen).
      Akademie-Ausgaben niteet 1–23 painetun sivun mukaan: aaNN/PPP.html on yksi AA:n sivu, rivi rivinä taulukossa (rivinumero,
      teksti, rinnakkaisviittaukset omissa soluissaan). Readability antoi yhden sivun rivinumeroineen. Leikataan koko teos
@@ -4122,7 +4221,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

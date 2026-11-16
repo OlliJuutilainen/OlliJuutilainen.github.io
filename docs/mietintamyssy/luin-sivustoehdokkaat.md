@@ -35,6 +35,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
   Perseus (PR #796, 16.11.2026, pahvin A10): koko kirja TEI-XML:stä, Beta-koodi Unicodeksi, viitenumerot 327a ja 1.1.1.
   Paul Grahamin esseet (PR #797, 16.11.2026, pahvin lisäkohde): viitteet alaviitteiksi, päiväys etukenttään.
+  Tertullian Project (PR #798, 16.11.2026, pahvin valinnainen): De abstinentia viidestä sivusta yhdeksi, luvut ja viitteet.
   Five Books (PR #794, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
   WordPress (16.11.2026, pahvin A9): yleinen leikkaus riittää. Mitattu Daily Nousilla, Crooked Timberilla ja Political Theology
   Networkilla: teksti, väliotsikot, päiväys ja dialogin puhujat tulevat, kommentit ja jakonapit eivät. Puutteet: tekijäkentässä
@@ -160,7 +161,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - CCEL: ccel.org
 - Bibliothek der Kirchenväter: bkv.unifr.ch
 - Documenta Catholica Omnia (paljon pdf:iä)
-- Tertullian Project: tertullian.org
+- Tertullian Project: tertullian.org (tehty 16.11.2026, ks. yllä)
 - Early Church Texts
 - Vatican.va: asiakirjat
 - Gifford Lectures: giffordlectures.org
