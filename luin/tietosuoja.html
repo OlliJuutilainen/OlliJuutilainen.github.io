@@ -126,6 +126,9 @@
       tai sisällysluettelo, lisäosa hakee samalta sivustolta teoksen sisällysluettelon ja sen muut luvut, enintään 250 sivua.</li>
     <li>Jos leikkaat LacusCurtiuksen (penelope.uchicago.edu) sivun kirjasta, joka on jaettu usealle sivulle, lisäosa hakee
       samalta sivustolta kirjan muut sivut, enintään 40. Loebin käännöksestä se hakee lisäksi teoksen etusivun kääntäjän nimeä varten.</li>
+    <li>Jos leikkaat Open Journal Systems -lehden (esimerkiksi journals.vu.lt) artikkelin tiivistelmäsivun, lisäosa hakee
+      samalta sivustolta artikkelin HTML-kokotekstin; jos leikkaat kokotekstin, se hakee artikkelin tiivistelmäsivun
+      tekijän, lehden ja julkaisutietojen vuoksi. Kumpikin on yksi sivu.</li>
     <li>Latomon ja lukimen sivut tulevat GitHub Pagesista. GitHub voi kirjata sivupyynnön kuten minkä tahansa
       verkkosivun latauksen; leikkeen tekstiä se ei saa.</li>
   </ul>
@@ -149,7 +152,10 @@
     Blogger blog where posts are cut short, it fetches up to 20 of those posts in full from the same blog. When you clip an
     article of Ensyklopedia Logos (filosofia.fi) that refers to other Logos articles, it fetches up to 30 of them from the same
     site for their title, author and year. When you clip a page of New Advent or the Christian Classics Ethereal Library (ccel.org) that holds only one chapter
-    of a work or its table of contents, it fetches the table of contents and the other chapters from the same site, up to 250 pages. When you clip a page of LacusCurtius
+    of a work or its table of contents, it fetches the table of contents and the other chapters from the same site, up to 250 pages.
+    When you clip the abstract page of an Open Journal Systems journal article (for example journals.vu.lt), it fetches the article’s
+    HTML full text from the same site; when you clip the full text, it fetches the abstract page for the author, journal and
+    publication details. Either is one page. When you clip a page of LacusCurtius
     (penelope.uchicago.edu) from a book split over several pages, it fetches the book’s other pages from the same site, up to 40; for a Loeb
     translation it also fetches the work’s index page for the translator’s name. If you use Postihuilu, the extension remembers your box phrase in its local storage,
     and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),

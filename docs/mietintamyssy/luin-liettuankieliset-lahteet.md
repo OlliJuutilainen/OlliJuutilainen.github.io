@@ -1,6 +1,13 @@
 # Luin: liettuankieliset lähteet Lukimeen-lisäosan sovitteiksi
 
 Hyllyyn 16.11.2026. Pohjana käyttäjän kysymys: onko ilmeisen hyviä liettuankielisiä lähteitä, ei tusinatavaraa.
+
+**Toteutettu 16.11.2026** (opas 7.5 ja 5): lisäosan OJS-sovite (`ojs()`: Problemos ja muut journals.vu.lt:n lehdet, HTML-kokoteksti
+vuodesta 2019, vanhemmista pdf-artikkeleista tiivistelmäleike), liettuan Wikipedia (nimiavaruudet, ohjausrivit, luettelot), md.js:n
+liettuankieliset luettelonimet, lukijan kielentunnistus (DeepL-käännös, sanaselitys, `/liettua`) ja liettuan tavusäännöt. Alla olevat
+avoimet kysymykset ratkesivat näin: Readability antoi artikkelisivulta vain tiivistelmän; HTML on vuodesta 2019; molemmat tiivistelmät
+jäävät tekstin alkuun lähteen järjestyksessä; `citation_language` ei kelpaa (väärä Problemos 109:ssä), kieli tunnistetaan tekstistä.
+Tekemättä: VLE, Vikišaltiniai, *Filosofija. Sociologija* (`lmaleidykla.lt`) ja muut alla.
 Tarkistettu on vain se, mikä on merkitty *(tarkistettu)*; muu on muistista tai pelkkä vastaako osoite.
 
 ## Ykkönen: Problemos ja OJS-alusta

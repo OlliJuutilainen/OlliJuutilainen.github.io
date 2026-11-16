@@ -352,8 +352,11 @@
     // saksa
     '((weiterführende|ausgewählte|verwendete|zitierte) )?literatur', 'literaturverzeichnis', 'literaturhinweise',
     'literaturangaben', '(primär|sekundär)literatur', 'bibliographie', 'bibliografie', 'quellen', 'quellenverzeichnis',
-    'quellen und literatur', 'quellen- und literaturverzeichnis'
-  ].join('|') + ')$', 'i');
+    'quellen und literatur', 'quellen- und literaturverzeichnis',
+    // liettua (16.11.2026: Vilnan yliopiston lehdet, Lukimeen-lisäosan OJS-sovite)
+    'literatūra', 'literatūros sąrašas', '(naudota|cituota) literatūra', 'šaltiniai', 'šaltinių sąrašas', 'šaltiniai ir literatūra', 'literatūra ir šaltiniai',
+    'bibliografija'
+  ].join('|') + ')$', 'iu');
 
   /* ---------- Sivuseikkojen pääluvut ----------
      Käyttäjän pyyntö 29.10.2026: kun tekstin päälukurunko on tukeva, lopun (ja alun) vain muodollisesti pääluvuiksi
@@ -362,7 +365,7 @@
      jos varsinaiset luvut ovat numeroituja eikä se ole (tai luvuissa ei ole numeroita lainkaan). Runko on tukeva, kun
      jäljelle jää vähintään kolme päälukua ja niissä on vähintään kaksi kolmasosaa tekstistä (kirjallisuusluetteloita
      lukuun ottamatta). Muuten mitään ei muuteta. Keskeltä tekstiä ei alenneta mitään. */
-  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|(suositeltavaa |suositeltua )?jatkolukemista|muu kirjallisuus|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|bibliografija|literatūra|literatūros sąrašas|šaltiniai|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|(suositeltavaa |suositeltua )?jatkolukemista|muu kirjallisuus|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Alussa vain nimen perusteella (Johdanto ilman numeroa ennen 1. lukua on varsinainen luku).
   var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Ylimmälle tasolle (luvut) enintään näin monta otsikkoa kaksitasoisessa tekstissä; muuten taso jää käyttämättä (parse()).
@@ -2436,23 +2439,77 @@
     return out + word.slice(last);
   }
 
+  /* Liettua (16.11.2026: Vilnan yliopiston lehdet). Suomen säännöt tavuttivat i:n vokaalin edellä omaksi tavukseen
+     (tiesi-ogiai), vaikka liettuassa konsonantin ja vokaalin välinen i on liudennuksen merkki (tie-sio-giai, kiau-lė), ja
+     ą-, č-, ė-, š- ja ž-kirjaimiset sanat jäivät tavuttamatta, koska SANA ei tunne niitä. Liettuan säännöt: vokaalit
+     a ą e ę ė i į y o u ų ū, diftongit ai au ei ui ie uo ja lainasanojen eu (Eu-ro-pa, neu-ro-), konsonantin ja vokaalin välinen i kuuluu seuraavan tavun alkuun,
+     yksi konsonantti vokaalien välissä aloittaa tavun ja konsonanttiryhmästä viimeinen (ses-tra; VLKK sallii muutkin
+     jaot), ch, dz ja dž ovat yksi äänne (psi-cho-, me-džia-ga). Vain liettuaksi tunnistetulle kappaleelle (tavutaDOM:n
+     kieli), muu teksti kuten ennen. */
+  var VOK_LT = 'aąeęėiįyouųū';
+  var DIFT_LT = { ai: 1, au: 1, ei: 1, ui: 1, ie: 1, uo: 1, eu: 1 };
+  var DIGRAFI_LT = { ch: 1, dz: 1, 'dž': 1 };
+  function isVLt(ch) { return VOK_LT.indexOf(ch) >= 0; }
+  function tavurajatLt(w) {
+    var out = [], seenV = false, nuc = 0;
+    for (var k = 0; k < w.length; k++) {
+      var ch = w[k];
+      var liuda = ch === 'i' && k > 0 && !isVLt(w[k - 1]) && k + 1 < w.length && isVLt(w[k + 1]);
+      if (isVLt(ch) && !liuda) {
+        if (nuc === 0) { nuc = 1; seenV = true; continue; }
+        if (nuc === 1 && DIFT_LT[w[k - 1] + ch]) { nuc = 2; continue; }
+        out.push({ k: k, t: 'v' }); nuc = 1; continue;
+      }
+      nuc = 0;
+      if (liuda || !seenV || k + 1 >= w.length || !isVLt(w[k + 1])) continue;
+      var r = DIGRAFI_LT[w[k - 1] + ch] ? k - 1 : k;
+      if (r < 1 || !isVLt(w[r - 1]) && !seenVBefore(w, r)) continue;
+      out.push({ k: r, t: isVLt(w[r - 1]) ? 'c' : 'cc' });
+    }
+    return out;
+  }
+  function seenVBefore(w, r) { for (var i = 0; i < r; i++) if (isVLt(w[i])) return true; return false; }
+  var LIETUA = /^[a-ząčęėįšųūž]+$/;
+  function tavutaLt(word, o) {
+    if (!o || word.length < o.min) return word;
+    var w = word.toLowerCase();
+    if (!LIETUA.test(w) || /[qwx]/.test(w)) return word;
+    var out = '', last = 0;
+    tavurajatLt(w).forEach(function (r) {
+      if (r.k < o.L || word.length - r.k < o.R || r.k <= last) return;
+      if (r.t === 'c' && !o.c) return;
+      out += word.slice(last, r.k) + '\u00ad';
+      last = r.k;
+    });
+    return out + word.slice(last);
+  }
+  var SANA_LT = /\p{L}+/gu;
+
   var SANA = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
   // Otsikot, alaotsikko, tietorivit, sisällysluettelo (.luin-ui) ja lihavoinnit eivät saa pehmeitä tavuviivoja.
   // Jos yksittäinen sana ei mahdu edes yksin riville, lukija tavuttaa sen erikseen (luin.html, tavutaPitkat()).
   // Lähdeluettelo (.bib) ei tavuta lainkaan (Teologian tyyli ja APA 7: ei tavutusta, ei tavuviivaa DOI:hin eikä
   // osoitteisiin); ylipitkä sana katkeaa ilman viivaa (overflow-wrap: anywhere).
   var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
-  function tavutaDOM(rootEl, tila) {
+  // kieli(lohko): valinnainen; 'lt' tavuttaa lohkon liettuan säännöin, muu arvo kuten ennen (suomen säännöt).
+  var LOHKO = 'p, li, dd, dt, blockquote, td, th, figcaption, .sidenote';
+  function tavutaDOM(rootEl, tila, kieli) {
     var o = TILAT[tila];
     if (!o) return 0;
-    var tw = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, null), nodes = [], n, count = 0;
+    var tw = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT, null), nodes = [], n, count = 0, kielet = new Map();
     while ((n = tw.nextNode())) {
       if (!n.parentElement || n.parentElement.closest(OHITA)) continue;
       nodes.push(n);
     }
     nodes.forEach(function (t) {
-      var v = t.nodeValue;
-      var nv = v.replace(SANA, function (w) { var h = tavuta(w, o); if (h !== w) count++; return h; });
+      var v = t.nodeValue, lt = false;
+      if (kieli) {
+        var l = t.parentElement.closest(LOHKO) || rootEl;
+        if (!kielet.has(l)) kielet.set(l, kieli(l));
+        lt = kielet.get(l) === 'lt';
+      }
+      var nv = lt ? v.replace(SANA_LT, function (w) { var h = tavutaLt(w, o); if (h !== w) count++; return h; })
+        : v.replace(SANA, function (w) { var h = tavuta(w, o); if (h !== w) count++; return h; });
       if (nv !== v) t.nodeValue = nv;
     });
     return count;
@@ -2460,5 +2517,5 @@
 
   root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, lisatieto: lisatieto, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
-    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaDOM: tavutaDOM, esc: esc };
+    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

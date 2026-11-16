@@ -66,6 +66,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   LacusCurtius-sovite (16.11.2026, opas 7.5): Thayerin osoitteissa on `*` (`Isis_and_Osiris*/A.html`), joten niitä ei saa
   kirjoittaa `/* */`-kommenttiin (päätti kommentin). Kääntäjä vain varmasta etusivun lauseesta, muuten kenttä jää tyhjäksi.
   Pykälät ovat leikkeessä `<sup>`:na, jotka Latomo muuntaa (`^2^`); raakaleikkeestä md.js varoittaa niistä.
+  Open Journal Systems -sovite (16.11.2026, opas 7.5; Problemos ja muut journals.vu.lt:n lehdet): tunnistus alustasta (generator ja
+  `citation_*`, kokotekstin osoitteesta artikkelisivu), ei verkkotunnuksesta. Otsikko on kokotekstin `h1`, koska `citation_title` ja
+  `citation_language` voivat olla toisella kielellä kuin artikkeli. VU:n alaviitemerkki viittaa tiedostonimeen (`1_X.html#footnote-016`),
+  ei sivun ankkuriin. Pdf-artikkelista tiivistelmäleike metatiedoista. Testi myös `hakuteos-pesukone.js --sarja ojs`.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
@@ -371,6 +375,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Pykälä on korkeintaan alaluvun alaluku** (käyttäjän sääntö 6.11.2026, `pykalaSarjat()`, opas 3.2): Husserlin tapainen
   lyhyehkö pykälä, merkillä tai ilman, ladotaan `h4`:ksi myös ilman yläotsikoita. Pelkkien pykälien tekstissä
   sisällysluettelot ja aikajana näyttävät ylimmän olemassa olevan tason (`tocRaja()`).
+- **Liettuan tavutus** (16.11.2026, opas 5, md.js `tavutaLt()`): vain kappaleelle, jonka lukija tunnistaa liettuaksi (`tavutaDOM()`:n
+  kolmas parametri); muu teksti tavuttuu suomen säännöin kuten ennen. Liettua on myös `KIELET`-listassa (käännös, sanaselitys,
+  `/liettua`): listaan ei sanoja, jotka ovat toisen kielen listassa. md.js:n `BIB`/`OHEIS` tuntevat liettuan luettelonimet.
 - **Tavutuskiellot** (opas 5): otsikoissa, `.sub`:ssa, `.meta`:ssa, sisällysluettelossa, lihavoinneissa ym. (`OHITA`
   md.js:ssä) ei ole pehmeitä tavuviivoja, ellei sana ole palstaa leveämpi. Kirjallisuusluettelo (`p.bib`) ei tavuta
   lainkaan (Teologian tyyli, APA 7).
