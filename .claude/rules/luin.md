@@ -70,6 +70,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Korpora.org/kant-sovite (16.11.2026, opas 7.5): teos kootaan sisällysluettelon ja sivujen `<title>`-nimiön mukaan; AA-sivunumerot
   ovat yläindeksejä `4:393` (pahvin vaatimus: näkyvinä merkkeinä). Kappaleraja sivunvaihdossa on mitattu arvaus (opas 7.5); älä muuta
   rajaa mittaamatta uudelleen.
+  dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
+  tulee vain sovitteelta (yleinen leike ei kirjoita sitä).
   Open Journal Systems -sovite (16.11.2026, opas 7.5; Problemos ja muut journals.vu.lt:n lehdet): tunnistus alustasta (generator ja
   `citation_*`, kokotekstin osoitteesta artikkelisivu), ei verkkotunnuksesta. Otsikko on kokotekstin `h1`, koska `citation_title` ja
   `citation_language` voivat olla toisella kielellä kuin artikkeli. VU:n alaviitemerkki viittaa tiedostonimeen (`1_X.html#footnote-016`),

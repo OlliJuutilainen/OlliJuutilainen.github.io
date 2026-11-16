@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius ja Korpora.org/kant (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant ja dhammatalks.org (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2341,6 +2341,141 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* dhammatalks.org (Ṭhānissaro Bhikkhun kirjat; käyttäjän pyyntö 16.11.2026, pahvin *20 uutta sivustosovitetta* B1). Kirja on
+     e-kirjan luvut omina sivuinaan (/books/<kirja>/SectionNNNN.html, runko main#content > section[epub_type]) ja kirjan
+     etusivu (/books/<kirja>/), jolla on nimiö (hgroup: h1, p.subtitle, tekijä, Published <time>) ja sisällysluettelo
+     (.book-toc, sisäkkäiset ul:t). Readability antoi yhden luvun, säkeet erillisinä kappaleina ja viitteet numeroina.
+     Leikataan koko kirja sisällysluettelon järjestyksessä (sivut kuuden erissä, enintään KK_RAJA); luvun otsikon taso
+     sisällysluettelon syvyydestä (osa ##, sen luku ###). Pois: kansi, nimiösivu, tekijänoikeussivu (lisenssi etukenttään),
+     hakemistot (index-*.html: painetun kirjan sivunumerot) ja sivunumerot (span[epub_type=pagebreak]). Viitteet
+     (a[epub_type=noteref] span.fn:ssä) alaviitteiksi: sivun omat (div.footnotes) ja loppuviitteet (section[epub_type=endnotes],
+     li#en1.5), käytetyt pois lopusta. Säkeet (div.verse, rivit p:inä) lainaukseksi riveittäin, lainauksen lähde
+     (footer cite) omaksi rivikseen viivan kera, sutta- ja sanastolinkit tekstiksi. Sivusto ei näytä mainoksia eikä pyydä
+     lahjoituksia (kaikki jaetaan ilmaiseksi). Mitattu 16.11.2026. */
+  const DT_NIMI = 'dhammatalks.org';
+  const DT_ISANTA = /^https?:\/\/([a-z0-9-]+\.)*dhammatalks\.org(\/|$)/i;
+  const DT_POLKU = /^(\/(?:[a-z]{2}\/)?books\/[^/]+\/)(?:[^/]*\.html)?$/;
+  function dtSiivoa(el, d) {
+    el.querySelectorAll('script, style, noscript, button, svg, img, figure, span[epub_type="pagebreak"], [role="doc-pagebreak"]').forEach(x => x.remove());
+    // Otsikon rivinvaihto (The Road to Nirvāṇa<br>Is Paved …) välilyönniksi.
+    el.querySelectorAll('h1 br, h2 br, h3 br, h4 br, h5 br, h6 br').forEach(b => b.replaceWith(' '));
+    // Säkeet: rivit (p) yhdeksi kappaleeksi rivinvaihdoin, sisennysluokat (v2, v4) ja jatkosäkeistöt (div.verse-add) mukaan.
+    [...el.querySelectorAll('div.verse')].forEach(v => {
+      if (!el.contains(v) || v.parentElement.closest('div.verse')) return;
+      const sakeistot = [v, ...v.querySelectorAll('div.verse-add, div.verse')];
+      const ulos = [];
+      sakeistot.forEach(s => {
+        const rivit = [...s.children].filter(p => p.tagName === 'P' && rivi(p.textContent)).map(p => p.innerHTML.trim());
+        if (rivit.length) { const p = d.createElement('p'); p.innerHTML = rivit.join('<br>'); ulos.push(p); }
+      });
+      if (v.parentElement && v.parentElement.tagName === 'BLOCKQUOTE') v.replaceWith(...ulos);
+      else { const bq = d.createElement('blockquote'); bq.append(...ulos); v.replaceWith(bq); }
+    });
+    // Lainauksen lähde: — MN 19.
+    el.querySelectorAll('blockquote footer').forEach(f => {
+      const t = rivi(f.textContent).replace(/^[—–-]\s*/, '');
+      if (!t) { f.remove(); return; }
+      const p = d.createElement('p');
+      p.textContent = '— ' + t;
+      f.replaceWith(p);
+    });
+    // Luvun lopun allekirjoitus (footer: p.signature, address) kappaleiksi.
+    el.querySelectorAll('footer').forEach(f => {
+      const ps = [...f.querySelectorAll('p, address')].map(x => { const p = d.createElement('p'); p.innerHTML = x.innerHTML; return p; });
+      f.replaceWith(...ps);
+    });
+    kkLinkit(el, DT_ISANTA);
+  }
+  async function dhammatalks() {
+    if (!/(^|\.)dhammatalks\.org$/i.test(location.hostname)) return null;
+    const pm = DT_POLKU.exec(decodeURIComponent(location.pathname));
+    if (!pm) return null;
+    const kirjaU = location.origin + pm[1];
+    const kd = osoite === kirjaU ? document : await hae(kirjaU);
+    const toc = kd && kd.querySelector('.book-toc');
+    if (!toc) return null;
+    // Sisällysluettelo: tiedostot järjestyksessä, syvyys ensimmäisestä (tiedostotason) linkistä.
+    const tiedostot = [], syvyys = new Map();
+    toc.querySelectorAll('a[href]').forEach(a => {
+      let u;
+      try { u = new URL(a.getAttribute('href'), kirjaU); } catch (e) { return; }
+      const f = u.href.split('#')[0];
+      if (!f.startsWith(kirjaU) || /\/(cover|index-[^/]*)\.html$/i.test(f) || syvyys.has(f)) return;
+      let s = 0;
+      for (let x = a.closest('ul'); x && toc.contains(x); x = x.parentElement.closest('ul')) s++;
+      syvyys.set(f, Math.max(0, s - 1));
+      tiedostot.push(f);
+    });
+    if (!tiedostot.length || tiedostot.length > KK_RAJA) return null;
+    const ds = await kkHae(tiedostot);
+    const osat = tiedostot.map((u, i) => ({ u, d: ds[i], s: ds[i] && ds[i].querySelector('main#content section, main section') })).filter(o => o.s);
+    if (!osat.length) return null;
+    // Viitteiden kohteet kaikilta sivuilta: tiedosto#tunniste → elementti.
+    const kohteet = new Map();
+    osat.forEach(o => o.s.querySelectorAll('[epub_type="footnote"][id], [role="doc-footnote"][id], [epub_type="endnotes"] li[id], [role="doc-endnotes"] li[id], ol.notes li[id]')
+      .forEach(x => kohteet.set(o.u + '#' + x.id, x)));
+    const maar = [], kaytetyt = new Set();
+    let laskuri = 0, oikeus = null;
+    const el = document.createElement('div');
+    for (const o of osat) {
+      const tyyppi = o.s.getAttribute('epub_type') || '';
+      if (/titlepage|cover/.test(tyyppi)) continue;
+      if (/copyright/.test(tyyppi)) {
+        const l = o.s.querySelector('a[href*="creativecommons.org"]'), p = l && l.closest('p');
+        if (l) oikeus = { teksti: (rivi(p.textContent).match(/^.*?\.(?=\s|$)/) || [rivi(p.textContent)])[0], lahde: l.href };
+        continue;
+      }
+      const k = o.s.cloneNode(true);
+      // Viitemerkit (span.fn > a, myös toisen sivun loppuviitteisiin).
+      k.querySelectorAll('a[epub_type="noteref"], a[role="doc-noteref"]').forEach(a => {
+        let avain = '';
+        try { const u = new URL(a.getAttribute('href'), o.u); avain = u.href.split('#')[0] + u.hash; } catch (e) {}
+        const kohde = kohteet.get(avain);
+        const ulko = a.parentElement && a.parentElement.matches('span.fn, sup') && rivi(a.parentElement.textContent) === rivi(a.textContent) ? a.parentElement : a;
+        if (!kohde) { ulko.remove(); return; }
+        // Loppuviite on luettelon kohta (li#en1.5): sisältö ilman luettelomerkkiä.
+        const v = document.createElement('div');
+        v.append(...kohde.cloneNode(true).childNodes);
+        v.querySelectorAll('a[epub_type="backlink"], a[role="doc-backlink"]').forEach(x => x.remove());
+        dtSiivoa(v, document);
+        let t = muunna(irrota([v]).innerHTML, 'inlined').trim();
+        // Sivun oman viitteen numero tekstin alussa (1. AN 9:41 describes …).
+        t = t.replace(new RegExp('^' + rivi(a.textContent).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\\\?\\.\\s+'), '');
+        const tunnus = 'dt' + (++laskuri);
+        kaytetyt.add(avain);
+        if (t) maar.push(maaritelma(tunnus, t));
+        const ed = ulko.previousSibling;
+        if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+        ulko.replaceWith(merkki(tunnus));
+      });
+      k.querySelectorAll('div.footnotes, [epub_type="footnotes"]').forEach(x => x.remove());
+      // Loppuviiteosio: käytetyt pois; jos mitään ei jää, koko osio pois.
+      if (/endnotes|rearnotes/.test(tyyppi) || k.querySelector('ol.notes')) {
+        k.querySelectorAll('li[id]').forEach(li => { if (kaytetyt.has(o.u + '#' + li.id)) li.remove(); });
+        k.querySelectorAll('ol').forEach(ol => { if (!ol.querySelector('li')) ol.remove(); });
+        if (!rivi([...k.children].filter(x => !/^H[1-6]$/.test(x.tagName)).map(x => x.textContent).join(' '))) continue;
+      }
+      dtSiivoa(k, document);
+      kkSiirra(k, 1 + (syvyys.get(o.u) || 0));
+      el.append(...k.childNodes);
+    }
+    kkTasoita(el);
+    el.normalize();
+    if (kkSanoja(el) < 20) return null;
+    // Nimiö kirjan etusivulta.
+    const hg = kd.querySelector('.book-intro hgroup, hgroup');
+    const h1 = hg && hg.querySelector('h1');
+    const otsikko = h1 ? kkOtsikkoTeksti(h1).replace(/:\s/, ' ') : rivi(kd.title).replace(/\s*\|.*$/, '');
+    const ala = rivi(hg && hg.querySelector('p.subtitle') && hg.querySelector('p.subtitle').textContent);
+    const tek = rivi(hg && hg.querySelector('p em') && hg.querySelector('p em').textContent) ||
+      rivi((kd.querySelector('meta[name="author"]') || {}).content);
+    const aika = hg && hg.querySelector('time[datetime]');
+    const tulos = { html: irrota([el]).innerHTML, otsikko, alaotsikko: ala, tekija: tek, sivusto: DT_NIMI, lahde: kirjaU, maar, oikeus,
+      julkaistu: aika ? (/^\d{4}/.exec(aika.getAttribute('datetime')) || [''])[0] : '',
+      naytto: DT_NIMI + (osat.length > 1 ? ' (' + osat.length + ' sivua)' : '') };
+    return tulos;
+  }
+
   /* Korpora.org/kant (Bonnin Kant-korpus; käyttäjän pyyntö 16.11.2026: sivustoehdokkaiden opiskeluryhmän ensimmäinen).
      Akademie-Ausgaben niteet 1–23 painetun sivun mukaan: aaNN/PPP.html on yksi AA:n sivu, rivi rivinä taulukossa (rivinumero,
      teksti, rinnakkaisviittaukset omissa soluissaan). Readability antoi yhden sivun rivinumeroineen. Leikataan koko teos
@@ -3195,7 +3330,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
@@ -3209,6 +3344,7 @@
   const etu = ['---'];
   const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
   kentta('tyyppi', blogi && blogi.tyyppi);
+  kentta('alaotsikko', blogi && blogi.alaotsikko);
   kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
   kentta('teos', blogi && blogi.teos);
   kentta('numero', blogi && blogi.numero);

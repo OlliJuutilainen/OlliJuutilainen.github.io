@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit ja LacusCurtiuksen Loeb-käännökset Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -102,6 +102,11 @@ const SARJAT = {
   // Korpora.org/kant (16.11.2026): Akademie-Ausgaben sivuista kootut teokset. Grundlegung (viitteitä sivunvaihdon yli, h5-
   // otsikot), Was ist Aufklärung? (nimiö ja teksti samalla sivulla), KpV (nimiösivu, h2–h5, §-otsikot), Logik (I + otsikko),
   // Anthropologie (rinnakkaisviittaukset), KrV B:n Ästhetik (teos yli rajan: osa) ja kirje (vain sivu).
+  // dhammatalks.org (16.11.2026): kirja etusivulta ja luvun sivulta. Noble Strategy (allekirjoitus, ohjattu meditaatio), Mind Like
+  // Fire Unbound (säkeet, sivunumerot), Skill in Questions (sivun omat viitteet, sutta-lainaukset, osat ja luvut), Buddhist
+  // Romanticism (loppuviitteet omalla sivullaan, sisäkkäinen sisällysluettelo), Meditations 1 (44 puhetta).
+  dhamma: ['NobleStrategy/', 'MindLikeFire/Section0007.html', 'SkillInQuestions/', 'BuddhistRomanticism/Section0006.html', 'Meditations1/']
+    .map(p => 'https://www.dhammatalks.org/books/' + p),
   korpora: ['aa04/393', 'aa08/035', 'aa05/030', 'aa09/011', 'aa07/119', 'aa03/052', 'aa10/010'].map(p => 'https://korpora.org/kant/' + p + '.html')
 };
 const SARJA = otaArvo('--sarja');
@@ -134,7 +139,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -146,7 +151,7 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/journals\.vu\.lt/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk|uchicago|korpora/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/journals\.vu\.lt/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk|uchicago|korpora|dhammatalks/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);
