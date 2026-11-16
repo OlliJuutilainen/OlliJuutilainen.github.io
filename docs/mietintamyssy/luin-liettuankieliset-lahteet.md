@@ -8,6 +8,24 @@ liettuankieliset luettelonimet, lukijan kielentunnistus (DeepL-käännös, sanas
 avoimet kysymykset ratkesivat näin: Readability antoi artikkelisivulta vain tiivistelmän; HTML on vuodesta 2019; molemmat tiivistelmät
 jäävät tekstin alkuun lähteen järjestyksessä; `citation_language` ei kelpaa (väärä Problemos 109:ssä), kieli tunnistetaan tekstistä.
 Tekemättä: VLE, Vikišaltiniai, *Filosofija. Sociologija* (`lmaleidykla.lt`) ja muut alla.
+
+**Seuraava helmijyvä (arvio 16.11.2026): VLE.** Tarkistettu samana päivänä:
+
+- **Visuotinė lietuvių enciklopedija** (`vle.lt`) on ainoa jäljellä oleva, jolle sovite toisi selvästi lisää. Se on liettuan
+  Logos/SEP: yleisenkyklopedia, toimitettu, tekijät nimetty, kirjallisuusluettelot, ei mainoksia eikä lahjoituspyyntöä.
+  Sivu tulee palvelimelta valmiina HTML:nä (*Immanuel Kant*: 88 kt, väliotsikot `h3`). Readability antaa leipätekstin ja
+  12 väliotsikkoa, mutta: tekijäksi tulee välilehden nimi *Apie autorių*, artikkelin oikea tekijä puuttuu, kuvateksti
+  (*Immanuel Kant (dailininkas J. G. Beckeris, 1768, aliejus …)*) on leipätekstin seassa, kirjallisuus on yhtenä virkkeenä
+  tekstin lopussa (*… R. J. Sullivan An Introduction to Kant’s Ethics Cambridge 1995.*) eikä luettelona, ja loppuun jää irrallinen
+  luku (*952*). Sovitteen työ: runko ja otsikot, tekijä ja julkaisu- tai muokkauspäivä (*Publikuota*, *Redaguota*), kuvatekstit
+  pois, kirjallisuus luetteloksi (lähteessä kohdat erotettu puolipisteillä, vuosi ilman sulkuja: md.js:n tekijä–vuosi ei linkity
+  sellaisenaan), *Susiję straipsniai* ja *Citata*-laatikko pois. Ennen työtä: käyttöehdot (*Teisės ir naudojimo sąlygos*)
+  oikeusmerkintää varten, ja onko kirjallisuus sivulla omana elementtinään vai vain tekstinä.
+- *Filosofija. Sociologija* (`lmaleidykla.lt`, OJS 3.1.2): vain pdf:iä, ei HTML-kokotekstiä. Metatiedot ovat kunnossa
+  (`DC.Description` lt ja en, `DC.Title.Alternative`, avainsanat), joten nykyinen OJS-sovite tekee siitä luultavasti jo
+  tiivistelmäleikkeen (ei kokeiltu selaimessa). Ei omaa sovitetta; korkeintaan yksi selainkoe, että leike syntyy (numeron
+  *Titulinis*-kohta on nimiösivu ilman tiivistelmää, siitä tiivistelmäleikettä ei pidä tulla).
+- Vikišaltiniai (`lt.wikisource.org`): 2 430 sivua, 2 aktiivista käyttäjää. Pieni; ei kannata ennen VLE:tä.
 Tarkistettu on vain se, mikä on merkitty *(tarkistettu)*; muu on muistista tai pelkkä vastaako osoite.
 
 ## Ykkönen: Problemos ja OJS-alusta
