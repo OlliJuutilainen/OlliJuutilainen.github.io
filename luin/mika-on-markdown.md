@@ -1,4 +1,4 @@
-# Mikä on Markdown, ja miksi se on luinin kannalta olennainen käsite?
+# Mikä on Markdown, ja miksi se on lukimen kannalta olennainen käsite?
 
 Tusinasoft\
 marraskuu 2026
@@ -11,9 +11,9 @@ Markdownissa on silti olennaiset muotoiluun liittyvät kyvyt: kursivointi, lihav
 
 Markdownin sanasto on **pääpiirteiltään** laajasti jaettu. Murteita on, mutta perusmerkinnät ymmärtää lähes jokainen Markdownia käsittelevä ohjelma.
 
-## Markdown luinissa
+## Markdown lukimessa
 
-Luiniin voi lisätä verkkotekstejä Chrome- ja Firefox-selainten lukimeen-lisäosan automaation avulla, mutta latomoon voit liittää myös minkä tahansa oman tekstisi.
+Lukimeen voi lisätä verkkotekstejä Chrome- ja Firefox-selainten lukimeen-lisäosan automaation avulla, mutta latomoon voit liittää myös minkä tahansa oman tekstisi.
 
 Mitään vaatimusta ei ole, että teksti olisi jäsennelty Markdownin etiketin mukaisesti: pelkkä teksti käy. Merkinnät kuitenkin palkitaan. Latomo kääntää otsikot, kursivoinnit ja alaviitemerkinnätkin kauniisti jäsentyvään asetteluun lukimessa luettavaksi.[^Tämä on alaviite. Se on kirjoitettu suoraan tekstin sekaan; merkintätapa on alempana sanastossa.]
 
@@ -21,7 +21,7 @@ Lisäksi luin muodostaa risuaitasarjoilla (`#`, `##`, `###`, `####`) varustetuis
 
 Markdownin perinteisten ominaisuuksien ylittävänä tekijänä luin tunnistaa tekstin lopussa mahdollisesti olevan lähde- tai kirjallisuusluettelon. Alaviitteiden viittaukset, joilla on kirjallisuusluettelossa ilmeinen vastine, saavat tekstinsisäisen linkin luettelon kohtaan.
 
-### Luinin Markdown-sanasto
+### Lukimen Markdown-sanasto
 
 - `# Otsikko`: tekstin nimi. Sen alle voi kirjoittaa kursivoidun alaotsikon ja tietorivejä, kuten tekijän ja päiväyksen.
 - `## Luku`, `### Osio`, `#### Kohta`: otsikot hierarkioineen. Numeroitu otsikko (`## 2. Luku`, `### 2.1 Osio`) on myös kelvollinen.
@@ -38,11 +38,11 @@ Markdownin perinteisten ominaisuuksien ylittävänä tekijänä luin tunnistaa t
 - `{{TOC}}` omalla rivillään: sisällysluettelon paikka. `+++`: sivutettuna uusi sivu.
 - `// kommentti` rivin alussa: ei näy lukimessa.
 
-Jos olet jo Markdown-asioissa harrastunut: yllä oleva luinin sanasto pohjautuu **iA Writer** -nimisen kirjoitus- ja muistiinpanosovelluksen tyyliin.
+Jos olet jo Markdown-asioissa harrastunut: yllä oleva lukimen sanasto pohjautuu **iA Writer** -nimisen kirjoitus- ja muistiinpanosovelluksen tyyliin.
 
-## Markdown luinin ulkopuolella
+## Markdown lukimen ulkopuolella
 
-Tusinasoftin johtoryhmä ei pidä huonona ideana tutustua Markdowniin digitaalisen tekstin kirjoittamisen ja välittämisen muotona myös luinin ulkopuolella.
+Tusinasoftin johtoryhmä ei pidä huonona ideana tutustua Markdowniin digitaalisen tekstin kirjoittamisen ja välittämisen muotona myös lukimen ulkopuolella.
 
 Markdownia voi tuottaa sinänsä millä tahansa tekstiä suoltavalla editorilla, juurevimmillaan vaikka Macin TextEditillä (pelkän tekstin tilassa) tai Windowsin Muistiolla. Mikään ei estä, etteikö taivas olisi rajana pelkästään näiden käyttämisessä Markdown-tekstien tuottamiseen.
 

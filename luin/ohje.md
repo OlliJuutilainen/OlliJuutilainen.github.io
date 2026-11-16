@@ -41,7 +41,7 @@ Käyttäjän nimistö (9.11.2026):
 - **Alaotsikko: *HTML*.**
 - **Pitkä, tyylitelty, virallinen nimi: *LUiN.HTML*** (logo, `aria-label`, infolaatikko).
 - **Osoite: `luin.html`.**
-- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*,** genetiivi *luinin*. Käyttöliittymän juoksevassa tekstissä se kirjoitetaan pienellä (*luinin pino*), samoin *latomo*, *postihuilu* ja *pino*; iso alkukirjain vain virkkeen tai otsikon alussa ja napin tai kentän nimen lainauksessa (käyttäjän päätös 16.11.2026, ennen isolla).
+- **Lyhyt muoto puheessa ja tekstissä lähes aina: *luin*.** Taivutettuna käytetään työkalun nimeä (*lukimen pino*, *lukimessa*, *lukimeen*), ei *luinin*, *luinissa* tai *luiniin* (käyttäjän päätös 16.11.2026). *Luinin* vain, kun puhutaan koko organisaation laajuisesta entiteetistä (*Luinin sertifioima*, *Luinin ystäviä ovat…*), ja silloin aina isolla: se on erisnimi. Perusmuoto *luin* kirjoitetaan käyttöliittymän juoksevassa tekstissä pienellä, samoin *latomo*, *postihuilu* ja *pino*; iso alkukirjain vain virkkeen tai otsikon alussa ja napin tai kentän nimen lainauksessa (käyttäjän päätös 16.11.2026, ennen isolla).
 - **Sivuston ytimen työkalu: *lukin*,** genetiivi *lukimen* (*Poimi lukimeen*).
 - **Selainlisäosa: *Lukimeen*** (käyttäjän nimistö 16.11.2026; 15.11. *Luin*, ennen *Lisää lukimeen*). Juoksevassa tekstissä *lukimeen-lisäosa*. Sen ensimmäinen nappi on *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*): sivulta poimitaan teksti pinoon, luettiin sitä heti tai ei. Lisäosaan nimi tuli versiossa 0.10.0 (manifestin `name` ja `default_title`, ponnahdusikkunan `<title>`, kommentit); 0.9.0 ja sitä vanhemmat sanovat *Lisää lukimeen*.
 

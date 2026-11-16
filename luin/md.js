@@ -452,7 +452,7 @@
   var OIK_SELITYS = {
     vapaa: 'Vapaata riistaa: tekstillä saa tehdä mitä haluaa. Tekijän mainitseminen on silti reilua.',
     kaikki: 'Tekijä omistaa tekstin. Omaan käyttöön saa kopioida ja siitä saa lainata lähde mainiten, mutta omille nettisivuille tai muuhun jakoon sitä ei saa viedä ilman lupaa. Kaupan joulukuusen koristeita ei siis viedä omalle kotikirppikselle.',
-    sep: 'Tämän saa lukea, ladata, tulostaa ja pitää omissa laitteissa (kuten luinissa), ja sen saa lähettää kaverille tai enintään 30 hengen suljettuun porukkaan, kunhan siitä ei tehdä rahaa. Julkiselle nettisivulle sitä ei saa laittaa; jaa mieluummin linkki.',
+    sep: 'Tämän saa lukea, ladata, tulostaa ja pitää omissa laitteissa (kuten lukimessa), ja sen saa lähettää kaverille tai enintään 30 hengen suljettuun porukkaan, kunhan siitä ei tehdä rahaa. Julkiselle nettisivulle sitä ei saa laittaa; jaa mieluummin linkki.',
     logos: 'Kirjoittaja omistaa tekstin, ja Filosofia.fi sai luvan julkaista sen kerran kaikkien luettavaksi. Omaan käyttöön sen saa pitää ja siitä saa lainata lähde mainiten, mutta muualle julkaisemisesta pitää sopia kirjoittajan kanssa.'
   };
   var OIK_LAKI = 'https://www.finlex.fi/fi/lainsaadanto/1961/404';
@@ -507,8 +507,8 @@
      herättely), 3 lahjoitukset ilman mainoksia (vähemmän moralisoiva). */
   var RAHOITUS = {
     mainokset: 'Tämä sivusto pysyy todennäköisesti pystyssä mainostulojen voimin. Luin ei halua lakata toimimasta, mutta ' +
-      'tiedosta, että tämä luinin lukukokemus on mahdollinen vain sivuston oman olemassaolon ansiosta.',
-    'mainokset ja lahjoitukset': 'Huom. huom.! Tämä sivusto elää osin mainoksista, jotka luinissa jäävät näkemättä. ' +
+      'tiedosta, että tämä lukimen lukukokemus on mahdollinen vain sivuston oman olemassaolon ansiosta.',
+    'mainokset ja lahjoitukset': 'Huom. huom.! Tämä sivusto elää osin mainoksista, jotka lukimessa jäävät näkemättä. ' +
       'Jos luet täältä, harkitse lahjoitusta sivuston ylläpitäjälle.',
     lahjoitukset: 'Tämä sivusto toimii lahjoitusten varassa.'
   };
