@@ -130,6 +130,8 @@
       luvut, enintään 250 sivua.</li>
     <li>Jos leikkaat Open Yale Coursesin luennon, lisäosa hakee samalta sivustolta kurssin sivun luennon vuoden vuoksi.</li>
     <li>Jos leikkaat Perseus Digital Libraryn tekstisivun, lisäosa hakee samalta sivustolta teoksen XML-tiedoston (yksi tiedosto).</li>
+    <li>Jos leikkaat Tertullian Projectin (tertullian.org) sivun teoksesta, joka on jaettu usealle sivulle, lisäosa hakee samalta
+      sivustolta teoksen muut sivut, enintään 40.</li>
     <li>Jos leikkaat Korpora.orgin Kant-sivun (korpora.org/kant), lisäosa hakee samalta sivustolta niteen sisällysluettelon ja
       teoksen muut sivut, enintään 250.</li>
     <li>Jos leikkaat Open Journal Systems -lehden (esimerkiksi journals.vu.lt) artikkelin tiivistelmäsivun, lisäosa hakee
@@ -167,7 +169,8 @@
     table of contents and the work’s other pages from the same site, up to 250. When you clip a book’s front page or a chapter
     on dhammatalks.org, it fetches the book’s front page and its chapters from the same site, up to 250 pages. When you clip
     an Open Yale Courses lecture, it fetches the course page from the same site for the year. When you clip a text page of the
-    Perseus Digital Library, it fetches the work’s XML file from the same site (one file). If you use Postihuilu, the extension remembers your box phrase in its local storage,
+    Perseus Digital Library, it fetches the work’s XML file from the same site (one file). When you clip a page
+    of the Tertullian Project (tertullian.org) from a work split over several pages, it fetches the work’s other pages from the same site, up to 40. If you use Postihuilu, the extension remembers your box phrase in its local storage,
     and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),
     where it is kept for 30 days and can be read by anyone who knows the phrase. The Latomo and Luin pages are served by
     GitHub Pages, which may log page requests like any website; the clipped text is not sent to it.</p>
