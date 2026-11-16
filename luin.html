@@ -1252,13 +1252,13 @@
     <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
     kokoonpano, luetussa eteneminen ja siihen tehdyt merkinnät tallentuvat siis luonnostaan tekemättä mitään, jos selaimesi
     vain sallii sen.</p>
-    <p>Jos haluat käyttää luinia usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
+    <p>Jos haluat käyttää lukinta usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
     <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
     on ystäväsi (ks. sivun alaosa).</p>
     <div class="t-vihje" id="vihje-lukimeen" role="tooltip" hidden><p><b>Lukimeen.</b> Selainlisäosa Chrome-pohjaisiin selaimiin
       työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin latomoon. Firefoxiin, myös Androidilla:
       <a href="luin/lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia.</p>
-      <p class="t-vihje-jatko">Sen lisäksi, että luinta kehitetään toimimaan mahdollisimman hyväksi yleiseksi nettitekstin
+      <p class="t-vihje-jatko">Sen lisäksi, että lukimeen-lisäosaa kehitetään toimimaan mahdollisimman hyväksi yleiseksi nettitekstin
       poimijaksi, myös erityisen sulavasti latoutuvaksi räätälöityvien sivujen
       <a class="vihje" href="luin/sivustot.html" target="_blank" rel="noopener" data-vihje="Avaa lista räätälöidyistä sivustoista">listaa</a>
       <a class="vihje" href="luin/palaute.html?mista=lukimeen" target="_blank" rel="noopener" data-vihje="Ehdota sivustoa lukimeen optimoitavaksi">kerrytetään</a>.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div>
@@ -1266,7 +1266,7 @@
       junamatkaa varten cännycällä luettavaksi.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div>
     <div class="t-vihje" id="vihje-huilu" role="tooltip" hidden><p><b>Huom.</b> Taianomaisuudestaan huolimatta postihuilu
       joutuu siirtämään tietoja laitteeltasi myös internetiin. Huilulla lähettämäsi tekstit ja, jos niin valitset, niihin
-      tekemäsi merkinnät kulkevat luinin postilaatikkoon Cloudflaren palvelimelle. Tekstit säilyvät siellä 30 päivää ja
+      tekemäsi merkinnät kulkevat lukimen postilaatikkoon Cloudflaren palvelimelle. Tekstit säilyvät siellä 30 päivää ja
       merkinnät vuoden. Tietoihin ei pääse käsiksi arvaamalla, joten ne ovat suojassa laatikkolauseen vahvuuden verran.
       Kuka tahansa, joka tietää laatikkolauseesi, saa huilunsoitolla tekstit ja merkinnät taikottua omalle
       laitteelleen. Hyvässä ja pahassa: samoinhan toimivat mökin avaimetkin.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div></div>
@@ -1277,7 +1277,7 @@
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
-    linkistä, joka avaa tekstin luinissa.</p>
+    linkistä, joka avaa tekstin lukimessa.</p>
   <p class="viesti" id="viesti" hidden></p>
   <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): laatikkolause tai linkki
        (tekstin osoite tai Luin-linkki). Otsikko Postihuilu ja nappi Soita huilua! käyttäjän pyynnöstä 10.11.2026. -->
@@ -1484,8 +1484,8 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=af1c0f34"></script>
-<script src="luin/posti.js?v=f6b8549e"></script>
+<script src="luin/md.js?v=c78feaa1"></script>
+<script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=63a4dc63"></script>
 <script>
@@ -2050,7 +2050,7 @@
     piirraNimikkeet();
     huiluPinossa();
     $('#tyhja').textContent = ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
-      : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin luinissa.';
+      : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
     haeLaatikko();
     postiLahetaLikaiset();
@@ -7169,7 +7169,7 @@
     while (i < r.length && !r[i].trim()) i++;
     var nimi = /^# (.+?)\s*$/.exec(r[i] || ''), loppu = r.indexOf('---', i);
     if (!nimi || loppu < 0 || !r.slice(i, loppu).some(function (x) { return x.trim() === '*Luetun merkinnät*'; }))
-      return { virhe: 'Tiedosto ei ole luinin merkintätiedosto.' };
+      return { virhe: 'Tiedosto ei ole lukimen merkintätiedosto.' };
     var sijainti = null;
     r.slice(i, loppu).forEach(function (x) { var m = /^Sijainti: (.+?)\s*(<br>)?\s*$/.exec(x); if (m) sijainti = m[1]; });
     // Osiot ja merkinnät.

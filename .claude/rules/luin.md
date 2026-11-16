@@ -33,12 +33,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   käyttäjän pyyntö 12.11.2026 Wikipedian takia: yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
-  sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026); asetusten Maalaus-valinta on *Lukimen* (16.11.2026). Koko nimistö
+  sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin* (käyttäjän linjaus 6.11.2026); asetusten Maalaus-valinta on *Lukimen* (16.11.2026). Koko nimistö
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: manifestin `description` *luinin pinoon* → *lukimen pinoon* (16.11.2026). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -99,9 +99,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 ### Käyttäjän linjaukset
 
 - **Nimet pienellä keskellä virkettä** (käyttäjän päätös 16.11.2026, opas 1.3): käyttäjälle näkyvässä suomenkielisessä tekstissä
-  *luin*, *luinin*, *latomo*, *postihuilu*, *pino*, *laatikkolause*, *lukimeen-lisäosa*, *luin-linkki*. Iso alkukirjain vain virkkeen,
+  *luin*, *latomo*, *postihuilu*, *pino*, *laatikkolause*, *lukimeen-lisäosa*, *luin-linkki*. Iso alkukirjain vain virkkeen,
   otsikon, sivun nimen ja nappinimen alussa (*Luin.*, *Pinoon*, *Latomon ohje*), napin tai kentän nimen lainauksessa
   (`span.ui`: *Postihuilu*, *Arvo*, *Merkinnät*) ja englanninkielisessä tekstissä. Koodin kommentit ja kehittäjän opas jäivät.
+- **Luin ei taivu käyttäjälle näkyvässä tekstissä** (käyttäjän päätös 16.11.2026, opas 1.3): taivutettuna *lukin* (*lukimen pino*,
+  *lukimessa*, *lukimeen*, *lukinta*), ei *luinin*, *luinissa*, *luiniin*. *Luinin* vain vahvasti koko organisaation laajuisesta
+  entiteetistä (*Luinin sertifioima*, Latomon *Luinin ystäviä ovat…*), ja silloin aina isolla, erisnimenä.
 - **Pino ja kellarin veivihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
   näkymä *Kellarin veivihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; ennen *Uumen*). Nimi on aina kokonainen, ei pelkkä
   *veivihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
