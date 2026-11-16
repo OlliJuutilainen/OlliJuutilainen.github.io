@@ -294,6 +294,11 @@
   .huilunapit { display: flex; justify-content: flex-end; }
   .huilukaista + .kysy-ohje { margin: 4px 0 0; }
   .huilukaista + .kysy-ohje + .lisaa-kentta, .huilukaista + .lisaa-kentta { margin-top: 8px; }
+  /* Pinon osioiden hajurako (käyttäjän pyyntö 16.11.2026): pino, huilu, linkkilista ja kellarilinkki erillään reilulla ilmalla. */
+  #lista { --osiovali: 52px; }
+  #lista .vain-lista > .huilulohko > .lisaa-ots-rivi { margin-top: var(--osiovali); }
+  #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
+  #lista .ark-linkki { margin-top: var(--osiovali); }
   button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
   button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
