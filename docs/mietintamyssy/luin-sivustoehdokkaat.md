@@ -32,7 +32,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   testaamatta; Kant e-prints (periodicos.sbu.unicamp.br) julkaisee vain pdf:iä, ohitettu.
   Noema (PR #790, 16.11.2026, pahvin B6): mitattu ensin, 12/16 nostolainausta toistui tekstinä, joten sovite.
   Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
-  Andy Matuschakin esseet (PR-NUMERO, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
+  Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
   Online Library of Liberty (16.11.2026, pahvin A8): oll.libertyfund.org estää pilvikontin (CloudFrontin 403), joten testaamatta
   eikä sovitetta.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
