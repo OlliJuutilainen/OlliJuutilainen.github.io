@@ -327,6 +327,14 @@
   .valikko button { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 40px; }
   .valikko button:hover { text-decoration: underline; text-underline-offset: 3px; }
   .valikko .vaara { color: var(--ruoste); }
+  /* Napin vihje hiiren alla (käyttäjän pyyntö 16.11.2026), kuten infolaatikon a.vihje: kehys, ei varjoa eikä animaatiota.
+     Valikon levyinen ja rivittyvä, ettei se karkaa ruudulta (valikko on oikeassa laidassa). */
+  .valikko button.vihje { position: relative; }
+  @media (hover: hover) {
+    .valikko button.vihje:hover::after, .valikko button.vihje:focus-visible::after { content: attr(data-vihje); position: absolute;
+      left: 5px; right: 5px; top: calc(100% - 4px); z-index: 1; padding: 3px 9px 4px; font-size: .8rem; line-height: 1.35;
+      color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); pointer-events: none; }
+  }
   .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
     border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
   .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
@@ -2451,7 +2459,7 @@
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
       '<button type="button" data-k="viite">kopioi lähdeviite</button>' +
       // Linkittömällä tekstillä linkin paikalla linkitä tiedostoon; lataa .md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
-      (url ? '<button type="button" data-k="linkki">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
+      (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="merkinnät eivät siirry jaettavassa linkissä">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
       '<button type="button" data-k="lataa">lataa .md</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
@@ -2518,7 +2526,7 @@
   function kysyTiedosto(e, rect) {
     // Leveys mitataan vasemmasta laidasta: edellisen valikon paikassa ponnahdus kutistuisi mitattaessa ja levenisi ruudun reunaan.
     pop.style.left = '0px';
-    naytaPop(rect, '<div class="kys">Julkisen .md-tiedoston osoite. Dropbox-jakolinkki käy sellaisenaan.</div>' +
+    naytaPop(rect, '<div class="kys">Liittämällä tähän linkin tekstin sisältämään tiedostoon, esimerkiksi pilvitallennustilasi julkisena linkkinä voit jatkossa pinossa jakaa tekstin muille luettavaksi lukimessa (puhtaana, ilman omia merkintöjäsi).</div>' +
       '<div class="kentta"><input type="url" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="https://…" aria-label="Tiedoston osoite"></div>' +
       '<div class="tila" hidden></div>' +
       '<div class="napit"><button type="button" data-k="ok">Linkitä.</button>' +
@@ -2693,13 +2701,17 @@
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
     if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, svg.merkitty, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
-    var merkkiPop = pop.classList.contains('sisaltaa');
     suljePop();
-    // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
-    if (sivuEl.contains(e.target)) e.stopPropagation();
-    // Merkintöjen ponnahduksen ulkopuolinen napautus tai napsautus (myös hiirellä) vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
-    if (merkkiPop) { e.preventDefault(); e.stopPropagation(); }
+    nielaise(e);
   }, true);
+  /* Auki olevan laatikon (ponnahdus, infolaatikon vihje) ulkopuolinen napautus tai napsautus vain sulkee sen: mikään muu,
+     ei linkki, nappi, nimike eikä sivunkääntö, laukea samasta painalluksesta (käyttäjän vaatimus 16.11.2026, koko Luin;
+     ennen sääntö koski vain merkintöjen ponnahdusta, ja pinossa linkitysponnahduksen ohi napautus avasi tekstin).
+     Kuuntelijat ovat document-tason kaappausvaiheessa, joten nielaisu ehtii kaikkien muiden edelle. Poikkeukset ovat vain
+     ponnahduksen omat avaajat (yllä), jotka vaihtavat tai sulkevat sen itse. Uusi ohimenevä laatikko käyttää samaa nielaise():ä.
+     Vain käyttäjän oma napautus nielaistaan: ohjelman a.click() (lataa .md, viennit) tulee ponnahduksen ollessa auki ja
+     peruuntui muuten. */
+  function nielaise(e) { if (!e.isTrusted) return; e.preventDefault(); e.stopPropagation(); }
 
   /* ---------- paneelit ---------- */
   // Asetuspaneelin alareuna alapalkin kaistan yläreunaan (lukijassa), muuten ruudun alareunaan.
@@ -2899,7 +2911,13 @@
     }
     v.addEventListener('click', function (e) { e.stopPropagation(); });
   });
-  document.addEventListener('click', function () { if ($('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet(); });
+  document.addEventListener('click', function (e) {
+    var auki = $('#tietoa .t-sana[aria-expanded="true"]');
+    if (!auki) return;
+    var v = document.getElementById(auki.getAttribute('aria-controls'));
+    if (auki.contains(e.target) || (v && v.contains(e.target))) return;
+    suljeTietoaVihjeet(); nielaise(e);
+  }, true);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && $('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet();
   });

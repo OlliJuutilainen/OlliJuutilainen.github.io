@@ -133,6 +133,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Hyväksyy julkisen .md-osoitteen (Dropbox muunnetaan kuten Latomossa), jos leipäteksti on sama kuin pinossa
   (`leipaMuuttui()`, sama sääntö kuin tietojen säädössä), ja kirjoittaa sen etukentän `osoite:`-riviksi, jotta
   *Muuta metatietoja* säilyttää sen. Testi `linkki-testi.js`.
+- **Laatikon ohi napautus vain sulkee sen** (käyttäjän vaatimus 16.11.2026, koko Luin, `nielaise()`): auki olevan ponnahduksen
+  tai infolaatikon vihjeen ulkopuolinen napautus ei laukaise linkkiä, nappia eikä sivunkääntöä. Uusi ohimenevä laatikko
+  käyttää samaa document-tason kaappauskuuntelijaa. Vain `isTrusted`-napautus nielaistaan (ohjelman `a.click()` lataa
+  tiedostot ponnahduksen ollessa auki). Testi `ulkoklikkaus-testi.js`.
 - **Tiedot ja uusi laitos** (käyttäjän pyyntö ja nimi 15.11.2026, opas 7.1, `tuoPinosta()`): *Muuta metatietoja* lukitsee
   leipätekstin (merkinnät eivät saa voida irrota muualta kuin otsikkolohkosta); *Uusi laitos* antaa muokata ja kysyy
   tallennettaessa: toinen laitos merkintöineen, ilman merkintöjä vai korvaava. Merkinnät siirretään lohkot rinnastamalla
@@ -460,6 +464,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio pinossa ja asetuksissa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista GET-pyynnöille 429:n (myös kohteliaalla User-Agentilla ja odottaen); action=parse
