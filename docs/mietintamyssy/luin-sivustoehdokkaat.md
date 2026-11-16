@@ -33,6 +33,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Noema (PR #790, 16.11.2026, pahvin B6): mitattu ensin, 12/16 nostolainausta toistui tekstinä, joten sovite.
   Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
+  Perseus (PR #796, 16.11.2026, pahvin A10): koko kirja TEI-XML:stä, Beta-koodi Unicodeksi, viitenumerot 327a ja 1.1.1.
   Five Books (PR #794, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
   WordPress (16.11.2026, pahvin A9): yleinen leikkaus riittää. Mitattu Daily Nousilla, Crooked Timberilla ja Political Theology
   Networkilla: teksti, väliotsikot, päiväys ja dialogin puhujat tulevat, kommentit ja jakonapit eivät. Puutteet: tekijäkentässä
@@ -272,7 +273,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Antiikki
 
-- Perseus, Scaife Viewer (tekstit lyhyinä paloina sivua kohti; Scaife on sovellus)
+- Perseus, Scaife Viewer (tekstit lyhyinä paloina sivua kohti; Scaife on sovellus) (Perseus tehty 16.11.2026, ks. yllä; Scaife ei)
 - The Latin Library
 - Bibliotheca Augustana
 - LacusCurtius (tehty 16.11.2026)
