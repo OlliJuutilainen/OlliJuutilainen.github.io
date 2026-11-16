@@ -34,7 +34,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
   Perseus (PR #796, 16.11.2026, pahvin A10): koko kirja TEI-XML:stä, Beta-koodi Unicodeksi, viitenumerot 327a ja 1.1.1.
-  Paul Grahamin esseet (PR-NUMERO, 16.11.2026, pahvin lisäkohde): viitteet alaviitteiksi, päiväys etukenttään.
+  Paul Grahamin esseet (PR #797, 16.11.2026, pahvin lisäkohde): viitteet alaviitteiksi, päiväys etukenttään.
   Five Books (PR #794, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
   WordPress (16.11.2026, pahvin A9): yleinen leikkaus riittää. Mitattu Daily Nousilla, Crooked Timberilla ja Political Theology
   Networkilla: teksti, väliotsikot, päiväys ja dialogin puhujat tulevat, kommentit ja jakonapit eivät. Puutteet: tekijäkentässä
