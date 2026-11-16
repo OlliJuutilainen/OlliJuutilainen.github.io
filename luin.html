@@ -2435,12 +2435,12 @@
     var url = jakoLinkki(e);
     naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
-      '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
-      (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '') +
+      '<button type="button" data-k="viite">Kopioi lähdeviite.</button>' +
+      (url ? '<button type="button" data-k="linkki">Kopioi linkki.</button>' : '') +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="tiedot">Muuta metatietoja</button>' +
-      '<button type="button" data-k="laitos">Uusi laitos</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="tiedot">Muuta metatietoja.</button>' +
+      '<button type="button" data-k="laitos">Lado uusi laitos.</button>' +
+      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
       if (k === 'tiedot' || k === 'laitos') { location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); return; }
@@ -2450,10 +2450,10 @@
         $('.v-teksti', pop).innerHTML = viite(e, true);
         return true;
       }
-      if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu'; }); return true; }
-      if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu'; }); return true; }
+      if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu.'; }); return true; }
+      if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu.'; }); return true; }
       if (k === 'poista') {
-        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät'; return true; }
+        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät.'; return true; }
         poistaListasta([e]);
       }
     }, 'oikea');
@@ -2487,20 +2487,20 @@
     var n = es.length, ark = tila.arkisto;
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' +
-      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
+      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
+      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
       if (k === 'viitteet') {
         kopioi(es.map(function (e) { return viite(e); }).join('\n'), es.map(function (e) { return '<p>' + viite(e, true) + '</p>'; }).join(''))
-          .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu' : 'Lähdeviitteet kopioitu'; });
+          .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu.' : 'Lähdeviitteet kopioitu.'; });
         return true;
       }
       if (k === 'poista') {
         if (!nappi.dataset.varmista) {
           nappi.dataset.varmista = 1;
-          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen';
+          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät.' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen.';
           return true;
         }
         poistaListasta(es);
