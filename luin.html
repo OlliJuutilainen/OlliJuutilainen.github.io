@@ -1560,7 +1560,7 @@
   // Nimi ja sen perään merkki ja huilu. Viimeinen sana sidotaan merkkeihin (.n-hanta), jotta ne eivät jää yksin
   // uudelle riville; pitkää sanaa (verkko-osoite) ei sidota, koska nowrap estäisi sen katkaisun ja leventäisi sivua.
   function nimiMerkein(e) {
-    var mk = (onMerkintoja(e.id) ? MERKITTY : '') + (e.src === 'laatikko' ? HUILUTETTU : '');
+    var mk = (onMerkintoja(e.id) ? MERKITTY : '') + (e.src === 'laatikko' && !e.huiluNahty ? HUILUTETTU : '');
     if (!mk) return esc(e.title);
     var t = e.title, i = t.lastIndexOf(' ') + 1, viim = t.slice(i);
     if (viim.length > 20) return esc(t) + '<span class="n-hanta">' + mk + '</span>';
@@ -2151,7 +2151,7 @@
           nahdyt[k + ':' + x.id] = x.t;
           // Uudelleen lähetetty teksti palaa kellarin veivihyllystöstä pinoon.
           var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
-          delete e.luettu;
+          delete e.luettu; delete e.huiluNahty;
           return e;
         }).catch(function () { return null; });
       })).then(function (es) {
@@ -3162,6 +3162,9 @@
     doc = doc || LuinMD.parse(md);
     lisaaListaan(e.id, doc);
     e.opened = Date.now();
+    // Huilutettu-merkki poistuu tästä selaimesta, kun teksti avataan (käyttäjän pyyntö 16.11.2026); src säilyy, ja
+    // uudelleenlähetys Postihuilulla palauttaa merkin (haeLaatikko poistaa huiluNahty-lipun).
+    if (e.src === 'laatikko') e.huiluNahty = 1;
     lista = [e].concat(lista.filter(function (x) { return x !== e; }));
     tallennaLista();
     nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };

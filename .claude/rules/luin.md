@@ -421,7 +421,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
   ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
   salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa (22° pystysuorasta), ylämäkiviivalla pystyssä; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
-  kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`): sama huilu nimen perässä (`HUILUTETTU`,
+  kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`) eikä vielä avattu tässä selaimessa (`avaa()` asettaa `e.huiluNahty`, uudelleenlähetys poistaa sen; käyttäjä 16.11.2026): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Merkintöjen merkki (`MERKITTY`, käyttäjän pyyntö 12.11.2026: kirjanmerkki, alleviivaus
   tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, sivukärjet irti reunaviivasta (`REIKA` 0,65, pienennetty ääniaukolle; käyttäjä 12.11.2026),
   kärjet hipaisten, alin alakärki pohjaviivan sisäpinnassa (ketju ankkuroituu alhaalta, huilun pituus ennallaan). **Ääniaukko** (`AUKKO`,
