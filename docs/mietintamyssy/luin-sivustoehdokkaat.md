@@ -25,7 +25,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Internet Encyclopedia of Philosophy (PR #783, 16.11.2026, pahvin A4): tekijä, kirjallisuusluettelo, sisällysluettelo pois.
   Open Yale Courses (PR #784, 16.11.2026, pahvin B2): luennon litteraatio, aikaleimat pois.
   Notre Dame Philosophical Reviews (PR #785, 16.11.2026, pahvin A5): kirjan tiedot, arvioija tekijäksi, alaviitteet.
-  Il Tascabile ja Doppiozero (PR-NUMERO, 16.11.2026, pahvin B4): nostolainaukset, kuvat ja Leggi anche pois.
+  Il Tascabile ja Doppiozero (PR #786, 16.11.2026, pahvin B4): nostolainaukset, kuvat ja Leggi anche pois.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
