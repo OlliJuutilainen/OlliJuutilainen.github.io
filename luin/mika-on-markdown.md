@@ -1,4 +1,4 @@
-# Mikä on Markdown, ja miksi se on Luinin kannalta olennainen käsite?
+# Mikä on Markdown, ja miksi se on luinin kannalta olennainen käsite?
 
 Tusinasoft\
 marraskuu 2026
@@ -11,15 +11,15 @@ Markdownissa on silti olennaiset muotoiluun liittyvät kyvyt: kursivointi, lihav
 
 Markdownin sanasto on **pääpiirteiltään** laajasti jaettu. Murteita on, mutta perusmerkinnät ymmärtää lähes jokainen Markdownia käsittelevä ohjelma.
 
-## Markdown Luinissa
+## Markdown luinissa
 
-Luiniin voi lisätä verkkotekstejä Chrome- ja Firefox-selainten Luin-lisäosan automaation avulla, mutta Latomoon voit liittää myös minkä tahansa oman tekstisi.
+Luiniin voi lisätä verkkotekstejä Chrome- ja Firefox-selainten luin-lisäosan automaation avulla, mutta latomoon voit liittää myös minkä tahansa oman tekstisi.
 
 Mitään vaatimusta ei ole, että teksti olisi jäsennelty Markdownin etiketin mukaisesti: pelkkä teksti käy. Merkinnät kuitenkin palkitaan. Latomo kääntää otsikot, kursivoinnit ja alaviitemerkinnätkin kauniisti jäsentyvään asetteluun lukimessa luettavaksi.[^Tämä on alaviite. Se on kirjoitettu suoraan tekstin sekaan; merkintätapa on alempana sanastossa.]
 
-Lisäksi Luin muodostaa risuaitasarjoilla (`#`, `##`, `###`, `####`) varustetuista otsikoista **sisällysluettelon**, joka voi halutessa näkyä tekstin alussa. Otsikot näkyvät myös merkkipaaluina aikajanalla.
+Lisäksi luin muodostaa risuaitasarjoilla (`#`, `##`, `###`, `####`) varustetuista otsikoista **sisällysluettelon**, joka voi halutessa näkyä tekstin alussa. Otsikot näkyvät myös merkkipaaluina aikajanalla.
 
-Markdownin perinteisten ominaisuuksien ylittävänä tekijänä Luin tunnistaa tekstin lopussa mahdollisesti olevan lähde- tai kirjallisuusluettelon. Alaviitteiden viittaukset, joilla on kirjallisuusluettelossa ilmeinen vastine, saavat tekstinsisäisen linkin luettelon kohtaan.
+Markdownin perinteisten ominaisuuksien ylittävänä tekijänä luin tunnistaa tekstin lopussa mahdollisesti olevan lähde- tai kirjallisuusluettelon. Alaviitteiden viittaukset, joilla on kirjallisuusluettelossa ilmeinen vastine, saavat tekstinsisäisen linkin luettelon kohtaan.
 
 ### Luinin Markdown-sanasto
 
@@ -38,11 +38,11 @@ Markdownin perinteisten ominaisuuksien ylittävänä tekijänä Luin tunnistaa t
 - `{{TOC}}` omalla rivillään: sisällysluettelon paikka. `+++`: sivutettuna uusi sivu.
 - `// kommentti` rivin alussa: ei näy lukimessa.
 
-Jos olet jo Markdown-asioissa harrastunut: yllä oleva Luinin sanasto pohjautuu **iA Writer** -nimisen kirjoitus- ja muistiinpanosovelluksen tyyliin.
+Jos olet jo Markdown-asioissa harrastunut: yllä oleva luinin sanasto pohjautuu **iA Writer** -nimisen kirjoitus- ja muistiinpanosovelluksen tyyliin.
 
-## Markdown Luinin ulkopuolella
+## Markdown luinin ulkopuolella
 
-Tusinasoftin johtoryhmä ei pidä huonona ideana tutustua Markdowniin digitaalisen tekstin kirjoittamisen ja välittämisen muotona myös Luinin ulkopuolella.
+Tusinasoftin johtoryhmä ei pidä huonona ideana tutustua Markdowniin digitaalisen tekstin kirjoittamisen ja välittämisen muotona myös luinin ulkopuolella.
 
 Markdownia voi tuottaa sinänsä millä tahansa tekstiä suoltavalla editorilla, juurevimmillaan vaikka Macin TextEditillä (pelkän tekstin tilassa) tai Windowsin Muistiolla. Mikään ei estä, etteikö taivas olisi rajana pelkästään näiden käyttämisessä Markdown-tekstien tuottamiseen.
 
