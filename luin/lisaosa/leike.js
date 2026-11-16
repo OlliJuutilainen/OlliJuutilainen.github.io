@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy ja Open Yale Courses (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses ja Notre Dame Philosophical Reviews (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2392,6 +2392,47 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
+     nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
+     p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
+     REFERENCES lihavoituna kappaleena, Wordin loppuviitteet _ednref1 ↔ _edn1 viivan alla). Kirjan tiedot ensimmäiseksi
+     kappaleeksi (lukija näkee, mitä arvioidaan), arvioija tekijäksi ilman yliopistoa, numero ja lehti etukenttään kuten
+     European Journal of Psychoanalysisissa (tyyppi tieteellinen, teos ja numero ilman sivustoa). Kansikuva pois, lihavoitu
+     References-kappale otsikoksi (md.js:n kirjallisuusluettelo), viitteet alaviitteiksi (samanSivunViitteet). Ei mainoksia;
+     lahjoituspyyntöä ei ole. Mitattu 16.11.2026. */
+  const NDPR_NIMI = 'Notre Dame Philosophical Reviews';
+  async function ndpr() {
+    if (!/(^|\.)ndpr\.nd\.edu$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('.article-content');
+    const h1 = document.querySelector('h1.page-title, article h1');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('figure, img, script, style, form').forEach(x => x.remove());
+    // Viiva viitteiden edellä pois (viitteet siirtyvät alaviitteiksi).
+    el.querySelectorAll('hr').forEach(x => x.remove());
+    // Lihavoitu tai versaalein kirjoitettu kappale (REFERENCES, Works Cited) otsikoksi.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      if (!/^(references|works cited|bibliography|literature)$/i.test(t) || !p.querySelector('strong, b') && t !== t.toUpperCase()) return;
+      const h = document.createElement('h2');
+      h.textContent = t.charAt(0) + t.slice(1).toLowerCase();
+      p.replaceWith(h);
+    });
+    const maar = samanSivunViitteet(el, 'nd');
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('br')) x.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    const bib = document.querySelector('.meta-item__bibliography');
+    if (bib) el.prepend(...[...bib.children].map(x => x.cloneNode(true)));
+    const arv = rivi((document.querySelector('.meta-item__reviewer meta[property="name"]') || {}).content) ||
+      rivi((document.querySelector('.meta-item__reviewer') || {}).textContent).replace(/^Reviewed by\s+/i, '');
+    // Arvioija ilman yliopistoa (Lara Ostaric, Temple University); kaksi arvioijaa (A, Univ, and B, Univ).
+    const tekijat = arv.split(/\s+and\s+/).map(x => rivi(x.split(',')[0])).filter(Boolean);
+    const pv = (document.querySelector('meta[property="datePublished"]') || {}).content || '';
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija: tekijat.join(' & '), tyyppi: 'tieteellinen',
+      teos: NDPR_NIMI, numero: rivi((document.querySelector('.meta-item__edition') || {}).textContent), julkaistu: pv.slice(0, 10),
+      lahde: osoite, maar, naytto: NDPR_NIMI };
+  }
+
   /* Open Yale Courses (oyc.yale.edu; käyttäjän pyyntö 16.11.2026, pahvin B2): luennon sivu /<ala>/<kurssi>/lecture-N, jolla on
      Overview (.session-full__body) ja litteraatio piilotettuna (#inline_content: h1 kurssin nimi, h2 PHIL 176 - Lecture 1 -
      Course Introduction, luvut h3 Chapter 1. … [00:00:00], puhujat lihavoituina, [end of transcript], Back to Top).
@@ -3557,7 +3598,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, oyc, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, oyc, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

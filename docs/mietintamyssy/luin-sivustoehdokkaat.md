@@ -24,6 +24,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Substack (PR #782, 16.11.2026, pahvin B3): alustasovite, alaviitteet, kehotteet pois.
   Internet Encyclopedia of Philosophy (PR #783, 16.11.2026, pahvin A4): tekijä, kirjallisuusluettelo, sisällysluettelo pois.
   Open Yale Courses (PR #784, 16.11.2026, pahvin B2): luennon litteraatio, aikaleimat pois.
+  Notre Dame Philosophical Reviews (PR #785, 16.11.2026, pahvin A5): kirjan tiedot, arvioija tekijäksi, alaviitteet.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -119,7 +120,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - nLab: ncatlab.org (kaavapainotteinen, rajatapaus)
 - Eislerin Philosophen-Lexikon
 - Boston Collaborative Encyclopedia of Western Theology
-- Notre Dame Philosophical Reviews: ndpr.nd.edu
+- Notre Dame Philosophical Reviews: ndpr.nd.edu (tehty 16.11.2026, ks. yllä)
 - Phenomenological Reviews
 - Daily Nous, Crooked Timber, PEA Soup, New APPS, Brains Blog, Philosophers' Cocoon
 - Practical Ethics -blogi (Oxford)
