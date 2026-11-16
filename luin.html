@@ -10,7 +10,7 @@
 <link rel="icon" href="luin/kuvakkeet/kuvake.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="luin/kuvakkeet/180.png">
 <meta property="og:title" content="Luin.">
-<meta property="og:description" content="Lukemisen tyyssija internetissä.">
+<meta property="og:description" content="Internetin lukemisen tyyssija.">
 <meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -118,7 +118,7 @@
     align-items: center; justify-content: center; position: relative; top: 16.3px; }
   button.info svg { width: 18px; height: 26px; fill: currentColor; }
   button.info[aria-expanded="true"] { color: var(--ruoste); }
-  .tietoa { margin: -16px 0 30px; padding: 9px 13px 10px; border: 1px solid var(--viiva); color: var(--harmaa);
+  .tietoa { position: relative; margin: -16px 0 30px; padding: 9px 13px 10px; border: 1px solid var(--viiva); color: var(--harmaa);
     font-size: .88rem; line-height: 1.5; }
   .tietoa p { margin: 0; }
   .tietoa p + p { margin-top: .45em; }
@@ -132,6 +132,32 @@
       left: -9px; top: calc(100% + 6px); z-index: 5; padding: 3px 9px 4px; white-space: nowrap; font-size: .8rem;
       font-weight: 400; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); }
   }
+  /* Infolaatikon osat (käyttäjän pyyntö 16.11.2026): (1) KIRJOITTAJA ja (2) LUKIJA versaalina ruosteella (napautettava;
+     numerot johdannon mukaan), sisennettyinä sisältöineen, plussa auki miinukseksi; rivien väli on tyhjä rivi. Plussa on
+     versaalien keskilinjalla, ei rivilaatikon (mitattu musteesta). Oikean alakulman miinus sulkee laatikon kuten i-nappi. */
+  .tietoa button.t-osa { display: flex; align-items: center; gap: 7px; margin: .9em 0 0 .9em; padding: 2px 0; font: inherit;
+    font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ruoste); background: none; border: 0;
+    cursor: pointer; }
+  .tietoa p + button.t-osa, .tietoa .t-sisalto + button.t-osa, .tietoa p.t-jatko { margin-top: 1.32rem; }
+  .tietoa button.t-osa svg, .tietoa button.t-sulje svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+  .tietoa button.t-osa svg { width: 7px; height: 7px; transform: translateY(-.05em); }
+  .tietoa button.t-osa[aria-expanded="true"] .pysty { display: none; }
+  .tietoa .t-sisalto { margin: .45em 0 0 .9em; }
+  .tietoa p.t-viimeinen { padding-right: 22px; }
+  .tietoa button.t-sulje { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; display: flex;
+    align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
+  .tietoa button.t-sulje:hover { color: var(--ruoste); }
+  /* Vihjesana: ruoste ja pisteviiva (napautettava, mutta ei vie minnekään). */
+  .tietoa button.t-sana { font: inherit; padding: 0; color: var(--ruoste); background: none; border: 0; cursor: pointer;
+    text-decoration: underline dotted; text-decoration-color: var(--ruoste); text-underline-offset: 3px; }
+  .tietoa button.t-sana.t-huilu { text-decoration: none; }
+  /* Superpieni yläindeksikysymysmerkki (käyttäjän pyyntö 16.11.2026) avaa vihjeen; napautusala on merkkiä isompi. */
+  .tietoa button.t-sana.t-kysy { position: relative; font-size: .62em; line-height: 1; vertical-align: .75em; text-decoration: none;
+    margin-left: .05em; }
+  .tietoa button.t-sana.t-kysy::before { content: ""; position: absolute; inset: -8px -6px; }
+  .tietoa button.t-sana b { color: var(--ruoste); }
+  .tietoa .t-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(22rem, calc(100% - 8px)); padding: 6px 10px 7px;
+    font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); }
   .ikoni { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .ikoni svg { width: 22px; height: 22px; fill: currentColor; fill-rule: evenodd; }
   h2.ots { font-weight: 400; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa);
@@ -173,6 +199,16 @@
      Kärki on keskitetty reunaviivan keskelle: reunus 1 px padding-laatikon alla, joten kärjen keskilinja 0,5 px sen alla. */
   .ark-linkki a { display: inline-block; position: relative; text-decoration: none; padding-bottom: 0; border-bottom: 1px solid currentColor; }
   .ark-linkki svg.nuoli { position: absolute; right: 0; bottom: -4.5px; width: 5px; height: 8px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1; }
+  /* Veivi (käyttäjän pyyntö 16.11.2026): nuolen varsi jatkuu tekstin vasemmalle puolelle ja kiertää myötäpäivään ulkokaarena
+     (alhaalta lännen ja pohjoisen kautta koilliseen), josta kampivarsi tulee napaan eli ympyrän keskelle. Napa on versaalien
+     pystykeskellä: säde 0,894 em on mitattu versaalien keskeltä (perusviivan ja versaalikorkeuden puoliväli) alleviivauksen
+     keskelle. Suora jatke on reunaviiva kuten varsi (sama pikselikohdistus), svg:nä vain kaari ja kampi; kaaren vasen reuna
+     2,188 em tekstin vasemmasta reunasta (säde kahdesti ja 0,4 em:n rako). Kaari on linkin sisällä, joten sekin vie kellarin
+     veivihyllystöön. */
+  .ark-linkki a::before { content: ""; position: absolute; right: 100%; bottom: -1px; width: calc(1.294em + .5px); height: 0; border-bottom: 1px solid currentColor; }
+  .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -1px; width: 1.788em; height: 1.788em; overflow: visible;
+    fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
+  .ark-linkki svg.veivi path { vector-effect: non-scaling-stroke; }
   /* Kellarin veivihyllystön paluuteksti pinomerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
      Pino-otsikko. Voi rivittyä kahdelle riville, koska 360 px:n ruudulle ei mahdu logo, teksti, merkki ja kiekko yhdelle. */
   .lhead a.ark-takaisin { align-self: flex-start; margin: 0 2px 0 0; height: 59.5px; display: flex; align-items: flex-end; justify-content: flex-end;
@@ -1125,17 +1161,57 @@
     <div class="loikea"><a class="ark-takaisin" id="ark-takaisin" href="#" hidden>Takaisin pinoon</a><a class="ikoni koti" id="ark-koti" href="#" aria-label="Pinoon" title="Pinoon" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg></a>
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
-  <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on lukemisen tyyssija internetissä. Sillä voi olla sinulle
-    erityisesti kaksi asiaa tarjottavaa.</p>
-    <p>Jaa oma epäkaupallinen tekstisi helposti eri laitteilla <b>lukimella luettavaksi</b> lisäämällä sen
-    <a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">Markdown</a>-versio
-    <b><a href="luin/latomo.html">Latomoon</a></b>.</p>
-    <p>Poimi verkosta vapaasti luettavat pitkät tekstit <b>pinoosi</b> ja lue ne loppuun omaan tahtiisi alleviivauksin
-    ja kirjauksin.</p>
-    <p>Tiedot tallentuvat vain tähän selaimeen. Jos haluat käsitellä luettavaa usealla laitteella, opettele
-    <button type="button" class="linkki" id="tietoa-huilu-nappi" aria-expanded="false" aria-controls="tietoa-huilu"><b>soittamaan huilua</b></button>.</p>
-    <p id="tietoa-huilu" hidden><i>Postihuilu</i> kuljettaa tekstejä laitteelta toiselle, kun annat kaikille laitteillesi saman
-    laatikkolauseen. Huilu odottaa pinon alla, sivun alaosassa.</p></div>
+  <!-- Infolaatikko (käyttäjän sanamuoto 16.11.2026): johdanto, avautuvat KIRJOITTAJA ja LUKIJA (plussa/miinus), aina näkyvä
+       jatko ja oikean alakulman miinus, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen hiirellä ja napautuksesta. -->
+  <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija. Sen hyöty on jaettavissa
+    kahteen osaan: hyötyihin <b>(1)&nbsp;kirjoittajalle</b> ja hyötyihin <b>(2)&nbsp;lukijalle</b>.</p>
+    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-kirjoittaja">(1) Kirjoittaja<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
+    <div class="t-sisalto" id="tietoa-kirjoittaja" hidden>
+    <p>Jaa oma epäkaupallinen kirjallinen tuotos <b>lukimessa</b> luettavaksi. Luettava näkyy mukavasti erilaisilla
+    laitteilla, ja lukemista on helppo jatkaa siitä, mihin edellisellä kerralla jäi.</p>
+    <p>Lisää kirjoituksesi <b><a href="luin/latomo.html">Latomoon</a></b> pelkkänä tekstinä tai tekstitiedostona.
+    Halutessasi esimerkiksi muotoilut, sisällysluettelo, lainaukset tai alaviitteet voivat näkyä lukimessa. Tämä onnistuu
+    tekstin lomaan tehtävillä yksinkertaisilla <b><a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">Markdown</a></b>-käytännön
+    merkinnöillä. Kaikelle on paikkansa, mutta unohda VÄLTTÄMÄTÖN tarve perinteisiksi kutsutuille monimutkaisille (kaikista
+    aakkosista esimerkiksi W-kirjaimelle alkaville) tekstinkäsittelyohjelmille ulkoasun luojana tai PDF- ja EPUB-tiedostoille
+    ainoina mahdollisina ulkoasun ja rakenteen säilyttämisen kanavina.</p></div>
+    <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-lukija">(2) Lukija<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
+    <div class="t-sisalto" id="tietoa-lukija" hidden>
+    <p>Internetissä on vapaasti saatavilla paljon laadukasta lukemista, mutta lukukokemus on harvemmin lähellä paperikirjan
+    tai kaupallisen sähkökirjan omalla lukulaitteella lukemisen kokemusta.</p>
+    <p>Kirjanmerkkikansion paisumisen uhalla sivuston voi tallentaa myöhemmin luettavaksi. Kuitenkin siinä missä sekä
+    paperi- että sähkökirja suljetaan usein kesken luettavan osion, ja kirja aukeaa seuraavalla lukukerralla helposti
+    samasta paikasta, sama harvemmin luonnistuu pitkän internetsivutekstin kohdalla. Lukuun ottamatta erityisten sivustojen
+    omia järjestelmiä, alleviivausten ja sanallisten merkintöjen tekeminen ei ole verkkosivun tekstissä mahdollista.
+    Akateemisten tekstien osalta esimerkiksi alaviitteiden ja kirjallisuuslistan välillä pomppiminen voi myös nettitekstissä
+    olla vaivalloista.</p>
+    <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti vaikeasti nautittavat
+    aarteet Sinun luoksesi.</p>
+    <p>Kun saavut <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-selain">internet-selaimella</button>
+    mielenkiintoisen luettavan ääreen, saat poimittua sen talteen Luin-selainlisäosan ruosteista salmiakkinappia painamalla.</p>
+    <p>Luettavat kerääntyvät sinne, mihin kirjoilla yleensäkin on tapana päätyä: <b>pinoon</b>. LUiN.HTML:n etusivun
+    omasta pinostasi käsin voit jatkossa avata haluamasi luettavan, ja etenkin, hyvillä mielin sulkea sen minä hetkenä
+    hyvänsä.</p>
+    <p>Omilla merkinnöillä kyllästetyn paperikirjapinon ulottuvuutta Luin ei täytä. Kaupallisen sähkökirjan luettavuuden ja
+    käytettävyyden taso on kuitenkin jotain, jonka Luin voi pitää tavoitteenaan tarjota käyttäjilleen saavutettavaksi myös
+    sellaisille internetin valtamerestä löydetyille aarteille, jotka normaalioloissa olisivat olleet hankalasti
+    poimittavissa.</p></div>
+    <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
+    kokoonpano, luetussa eteneminen ja siihen tehdyt merkinnät tallentuvat siis luonnostaan tekemättä mitään, jos selaimesi
+    vain sallii sen.</p>
+    <p class="t-viimeinen">Jos haluat käyttää Luinia usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
+    <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
+    on ystäväsi (ks. sivun alaosa).</p>
+    <button type="button" class="t-sulje" aria-label="Sulje tietolaatikko" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button>
+    <div class="t-vihje" id="vihje-selain" role="tooltip" hidden><p>Tuettuja ovat Firefox (työpöytä- <b>ja</b> mobiiliversio)
+      ja Chrome-pohjaiset selaimet (Chrome, Brave, Vivaldi, mitä ikinä). Chrome-pohjaisella mobiiliselaimella onnistuvat
+      vain tekstien lukeminen ja Latomon käyttö käsin: Luin-selainlisäosa toimii niissä vain työpöytäversiossa.</p></div>
+    <div class="t-vihje" id="vihje-laite" role="tooltip" hidden><p>Esimerkiksi nettikahvilan coneella löydetty artikkeli
+      junamatkaa varten cännycällä luettavaksi.</p></div>
+    <div class="t-vihje" id="vihje-huilu" role="tooltip" hidden><p><b>Huom.</b> Taianomaisuudestaan huolimatta Postihuilu
+      joutuu siirtämään tietoja laitteeltasi myös internetiin. Huilulla lähettämäsi tekstit ja, jos niin valitset, niihin
+      tekemäsi merkinnät kulkevat Luinin postilaatikkoon Cloudflaren palvelimelle. Tekstit säilyvät siellä 30 päivää ja
+      merkinnät vuoden, ja ne voi lukea kuka tahansa, joka tietää laatikkolauseesi.</p></div></div>
   <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
        on valittuna, oikeaan nurkkaan tulee valittujen valikko. Kellarin veivihyllystössä sama rivi otsikolla Kellarin veivihyllystö. -->
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
@@ -1165,7 +1241,7 @@
   </div>
   <!-- Kellarin veivihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto">kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1 .953"/></svg>kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
@@ -2635,12 +2711,64 @@
   $('#lista .info').addEventListener('click', function () {
     var auki = $('#tietoa').hidden;
     $('#tietoa').hidden = !auki;
+    suljeTietoaVihjeet();
     this.setAttribute('aria-expanded', auki ? 'true' : 'false');
   });
-  $('#tietoa-huilu-nappi').addEventListener('click', function () {
-    var auki = $('#tietoa-huilu').hidden;
-    $('#tietoa-huilu').hidden = !auki;
-    this.setAttribute('aria-expanded', auki ? 'true' : 'false');
+  // Infolaatikon osat ja vihjeet (käyttäjän pyyntö 16.11.2026).
+  Array.prototype.forEach.call(document.querySelectorAll('#tietoa button.t-osa'), function (b) {
+    b.addEventListener('click', function () {
+      var osa = document.getElementById(b.getAttribute('aria-controls')), auki = osa.hidden;
+      osa.hidden = !auki;
+      b.setAttribute('aria-expanded', auki ? 'true' : 'false');
+      suljeTietoaVihjeet();
+    });
+  });
+  $('#tietoa .t-sulje').addEventListener('click', function () {
+    suljeTietoaVihjeet();
+    $('#tietoa').hidden = true;
+    $('#lista .info').setAttribute('aria-expanded', 'false');
+  });
+  function tietoaSanat() { return Array.prototype.slice.call(document.querySelectorAll('#tietoa .t-sana')); }
+  function suljeTietoaVihjeet(paitsi) {
+    tietoaSanat().forEach(function (b) {
+      if (b === paitsi) return;
+      b.setAttribute('aria-expanded', 'false');
+      document.getElementById(b.getAttribute('aria-controls')).hidden = true;
+      b.classList.remove('kiinni');
+    });
+  }
+  // Vihje sanan alle, laatikon sisään: vasen reuna sanan alun kohdalla, mutta ei yli laatikon oikean reunan.
+  function naytaTietoaVihje(b) {
+    var v = document.getElementById(b.getAttribute('aria-controls')), laatikko = $('#tietoa');
+    suljeTietoaVihjeet(b);
+    v.hidden = false;
+    b.setAttribute('aria-expanded', 'true');
+    var L = laatikko.getBoundingClientRect(), r = b.getClientRects(), s = r[r.length - 1] || b.getBoundingClientRect();
+    var alku = r[0] || s, vas = alku.left - L.left - 1 - 9;
+    vas = Math.max(4, Math.min(vas, laatikko.clientWidth - v.offsetWidth - 4));
+    v.style.left = Math.round(vas) + 'px';
+    v.style.top = Math.round(s.bottom - L.top - 1 + 6) + 'px';
+  }
+  var tietoaHiiri = !!(window.matchMedia && matchMedia('(hover: hover)').matches);
+  tietoaSanat().forEach(function (b) {
+    var v = document.getElementById(b.getAttribute('aria-controls'));
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      // Napautus kiinnittää vihjeen (hiirellä se on jo auki osoituksesta); toinen napautus sulkee.
+      if (b.classList.contains('kiinni')) { suljeTietoaVihjeet(); return; }
+      naytaTietoaVihje(b); b.classList.add('kiinni');
+    });
+    if (tietoaHiiri) {
+      b.addEventListener('mouseenter', function () { if (!$('#tietoa .t-sana.kiinni')) naytaTietoaVihje(b); });
+      b.addEventListener('mouseleave', function () {
+        if (!b.classList.contains('kiinni')) { v.hidden = true; b.setAttribute('aria-expanded', 'false'); }
+      });
+    }
+    v.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  document.addEventListener('click', function () { if ($('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && $('#tietoa .t-sana[aria-expanded="true"]')) suljeTietoaVihjeet();
   });
   $('#kr-nappi').addEventListener('click', function () {
     krOdottaa = false;
