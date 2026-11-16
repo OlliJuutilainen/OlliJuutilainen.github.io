@@ -34,6 +34,10 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
   Five Books (PR #794, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
+  WordPress (16.11.2026, pahvin A9): yleinen leikkaus riittää. Mitattu Daily Nousilla, Crooked Timberilla ja Political Theology
+  Networkilla: teksti, väliotsikot, päiväys ja dialogin puhujat tulevat, kommentit ja jakonapit eivät. Puutteet: tekijäkentässä
+  Readabilityn byline sellaisenaan (*by John Q on January 14, 2026*, *By Julian Forth*) ja Crooked Timberin Textile-viitteet
+  (*fn1.* tekstin lopussa ilman merkkiä tekstissä), joita ei voi yhdistää. Bylinen siivous koskisi kaikkia yleisiä leikkeitä.
   Online Library of Liberty (16.11.2026, pahvin A8): oll.libertyfund.org estää pilvikontin (CloudFrontin 403), joten testaamatta
   eikä sovitetta.
   Deutschlandfunk: Essay und Diskurs (16.11.2026, pahvin B9): käsikirjoitus on HTML:nä, ja yleinen leikkaus riittää. Mitattu
