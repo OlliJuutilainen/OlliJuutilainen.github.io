@@ -33,12 +33,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   käyttäjän pyyntö 12.11.2026 Wikipedian takia: yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
-  sanaa *lukin* (*Vie lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
+  sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
-  Lisäosan nimi on *Luin* ilman loppupistettä (juoksevassa tekstissä *Luin-lisäosa*) ja sen ensimmäinen nappi *Vie lukimeen* (käyttäjän päätös
-  15.11.2026; ennen kumpikin *Lisää lukimeen*). Sivut ja opas käyttävät jo uusia nimiä, mutta lisäosan koodiin (manifestin `name`
-  ja `default_title`, ponnahduksen `<title>` ja nappi `#lukimeen`, tiedostojen alkukommentit, `lisaosa-testi.js`:n odotukset) ne tehdään
-  vasta seuraavassa lisäosaversiossa (käyttäjä: ei nyt). Kauppaosoitteen `lis%C3%A4%C3%A4-lukimeen` ja `lisaa-lukimeen.xpi`:n saa jättää.
+  Lisäosan nimi on *Luin* ilman loppupistettä (juoksevassa tekstissä *Luin-lisäosa*, käyttäjän päätös 15.11.2026) ja sen ensimmäinen
+  nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Nimet, Postihuilu-napin
+  lyhyt viivasto ja salmiakkivalintaruudut (16.11.2026) ovat lähdekoodissa, mutta `version` on yhä 0.9.0: **älä nosta versiota
+  äläkä anna zippejä ennen kuin käyttäjä pyytää** (käyttäjä 16.11.2026: "älä päivitä lisäosaa vieläkään"). Kauppaosoitteen
+  `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
   luettelon osioon; Wikipedian wikilinkit ovat tekstissä tekstiä, ja loppuluettelossa ovat vain Pääartikkeli-, Katso myös- ja
@@ -143,7 +144,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei sanaa *lukulaite*** käyttäjälle näkyvään tekstiin (käyttäjän päätös 15.11.2026: Luin ei ole laite eikä e-lukijan
   kilpailija). Virallinen kuvaus on *lukemisen tyyssija internetissä* (infolaatikko, käyttöohje, `og:description`, jakoworker).
   i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
-  ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa on yhä salmiakki.
+  ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa on yhä salmiakki, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
@@ -411,7 +412,8 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   käyttäjän valinta 12.11.2026, nokkahuilun ikkuna): melko ylhäällä matala täytetty siivu reikien värillä, sen päiden linjasta
   kelloa kohti tyhjä ääriviiva, jonka alaosassa leukaperät ja leveä leuka (45° sisäänpäin, puolivälissä keskiviivalle vaakaan). Ei ruostetta. Kaistan luokka ei saa olla
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
-  Postihuilu-napissa on kopio vanhemmasta huilusta (ääniaukollinen). Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
+  Postihuilu-napissa on kopio `kaista()`:n huilusta ja lyhyestä viivastosta (kaksi siksak-jaksoa, käyttäjä 16.11.2026: "ei niin pitkästi";
+  mitat isommat kuin pinossa, koska nappi on pieni). Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
   vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa, viisi reikää ja viisi viivaa).
   Viuhkan sisäviivojen jyrkkä käännös on tarkoituksellinen (`kaista()`): älä korjaa sitä kysymättä (historia commitissa f3f21b3).
 - **Laatikkolauseen arpoja** (`luin/laatikkolause.js`, käyttäjän pyyntö 12.11.2026: oikeaoppinen ja kohtalaisen muistettava):

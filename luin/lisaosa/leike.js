@@ -1,4 +1,4 @@
-/* Lisää lukimeen: leikkuri. Ajetaan sivulla kirjastojen (Readability, Turndown, GFM) jälkeen; viimeisen lausekkeen arvo
+/* Luin-lisäosa: leikkuri. Ajetaan sivulla kirjastojen (Readability, Turndown, GFM) jälkeen; viimeisen lausekkeen arvo
    (lupaus) palaa ponnahdusikkunalle. IIFE, koska tiedosto ajetaan uudelleen joka kerta, kun ikkuna avataan samalla sivulla.
 
    Tulos noudattaa Latomon ohjeen suosittelemia MarkDownload-asetuksia (latomo-ohje.html#markdownload), jotta Latomon
@@ -2243,7 +2243,7 @@
     return { md, viitteita: kaikki.length };
   }
 
-  // Readability antaa usein välilehden otsikon (Kirjoitus | Blogi). Lisää lukimeen -polulla kukaan ei paina Latomon
+  // Readability antaa usein välilehden otsikon (Kirjoitus | Blogi). Poimi lukimeen -polulla kukaan ei paina Latomon
   // erotusnappia, joten sivuston nimi erotetaan tässä: h1, jolla otsikko alkaa, tai sivuston nimi lopussa.
   function siisti(otsikko, sivusto) {
     const h1 = rivi(document.querySelector('h1') && document.querySelector('h1').textContent);

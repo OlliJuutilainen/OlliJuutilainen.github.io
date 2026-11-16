@@ -1,7 +1,7 @@
 // Luin-lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Lisää lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL, Psyche ja Aeon), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Poimi lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL, Psyche ja Aeon), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -563,7 +563,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     // Vain tila- ja otsikkorivi: piilotetussa ohjeessa on sana "voi", jolloin odotus päättyi joskus ennen leikettä.
     await ikkuna.waitForFunction(() => !document.querySelector('#lukimeen').disabled || /voi|löytynyt/.test(document.querySelector('#tila').textContent + document.querySelector('#otsikko').textContent), null, { timeout: 5000 });
   };
-  // Nappi avaa uuden välilehden; odotetaan sen asettuvan (Latomo, tai Luin jos nappi oli Lisää lukimeen).
+  // Nappi avaa uuden välilehden; odotetaan sen asettuvan (Latomo, tai Luin jos nappi oli Poimi lukimeen).
   const paina = async (nappi, minne) => {
     const uusi = ctx.waitForEvent('page');
     await ikkuna.click(nappi);
@@ -641,13 +641,13 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     (dlA ? dlA.suggestedFilename() : 'ei latausta') + ' | ' + (latomoA.isClosed() ? 'sulkeutui' : 'auki') + ' | ' + kuittausA);
   if (!latomoA.isClosed()) await latomoA.close();
 
-  // 3. Lisää lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
+  // 3. Poimi lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
   await avaaIkkuna();
   const luin = await paina('#lukimeen', /luin\.html#id=/);
   const lista = await luin.evaluate(() => ({ lista: JSON.parse(localStorage.getItem('luin-lista') || '[]'), avain: Object.keys(localStorage).filter(k => k.startsWith('luin-teksti:')),
     tuonti: localStorage.getItem('luin-tuonti') }));
   const e = lista.lista[0] || {};
-  tulos('Lisää lukimeen: lukulistassa', lista.lista.length === 1 && e.title === 'Kokeilukirjoitus' && e.author && lista.avain.length === 1 && lista.tuonti === null,
+  tulos('Poimi lukimeen: pinossa', lista.lista.length === 1 && e.title === 'Kokeilukirjoitus' && e.author && lista.avain.length === 1 && lista.tuonti === null,
     JSON.stringify({ n: lista.lista.length, title: e.title, author: e.author, sivusto: e.sivusto, avain: lista.avain }));
   const luinTeksti = await luin.evaluate(() => document.body.innerText);
   tulos('Luin näyttää tekstin', /Kokeilukirjoitus/.test(luinTeksti) && /Väliotsikko/.test(luinTeksti));
@@ -1001,12 +1001,12 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
   // lukulistaan heti -valintaa Latomo jää auki eikä lause jää Luinin muistiin; valinnan kanssa teksti avautuu myös
-  // Luinissa. Lause ja valinnat muistetaan. Lisää lukimeen ei lähetä postia.
+  // Luinissa. Lause ja valinnat muistetaan. Poimi lukimeen ei lähetä postia.
   const KOODI = 'torikaffeillaonhemmetinmukavaa';
   await avaaIkkuna(BLOG_POSTI);
   const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('.napit > button')].map(b => b.textContent),
     kiinni: document.querySelector('#posti-osa').hidden }));
-  tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Lisää lukimeen,Säädä Latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
+  tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Poimi lukimeen,Säädä Latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
   await ikkuna.click('#postihuilu');
   const pk1 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#posti-osa').hidden, paikka: document.querySelector('#koodi').placeholder,
     soita: document.querySelector('#soita').textContent, heti: document.querySelector('#heti').checked,
@@ -1045,7 +1045,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   KV.clear();
   await avaaIkkuna(BLOG_POSTI);
   const luin4 = await paina('#lukimeen', /luin\.html#id=/);
-  tulos('Lisää lukimeen ei soita huilua, vaikka Postihuilu on auki', KV.size === 0 && /#id=p-toinen$/.test(luin4.url()), luin4.url() + ' KV ' + KV.size);
+  tulos('Poimi lukimeen ei soita huilua, vaikka Postihuilu on auki', KV.size === 0 && /#id=p-toinen$/.test(luin4.url()), luin4.url() + ' KV ' + KV.size);
   await luin4.close();
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' / '));
