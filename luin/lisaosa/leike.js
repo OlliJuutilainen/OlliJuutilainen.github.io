@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema ja Emergence Magazine (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine ja Andy Matuschakin esseet (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2603,6 +2603,44 @@
       lahde: osoite, maar, naytto: BMCR_NIMI };
   }
 
+  /* Andy Matuschakin esseet (andymatuschak.org ja Matuschakin ja Nielsenin numinous.productions/ttft; käyttäjän pyyntö
+     16.11.2026, pahvin B8: reunahuomautukset alaviitteiksi; notes.andymatuschak.org ei kuulu tähän). Reunahuomautukset ovat
+     tekstin sisäisiä span.sidenote- (andymatuschak.org) ja span.marginnote-elementtejä (ttft), joten Readability sulautti ne
+     leipätekstiin: alaviitteiksi. andymatuschak.org: article, header (kuva ja kuvateksti, h1, p.author, p.status: päiväys),
+     nav#toc (sisällys, tukijat ja Patreon) ja esimerkkiresepti kahdesti (.recipe.sidebar on leveän ruudun kopio). ttft:
+     #EssayContents, otsake .HeroContainer (h1 ja .Subtitle: .Authors, .Date), kuvat (.PullRight, .HandheldsOnly), lopussa
+     .Footer (kiitokset) jää. Otsake, sisällys ja kopiot pois. Matuschak pyytää tukea Patreonissa; mainoksia ei ole.
+     Mitattu 16.11.2026. */
+  const AM_KUUKAUDET = EN_KUUKAUDET;
+  async function matuschak() {
+    const am = /^(www\.)?andymatuschak\.org$/i.test(location.hostname), ttft = /^(www\.)?numinous\.productions$/i.test(location.hostname);
+    if (!am && !ttft) return null;
+    const runko = am ? document.querySelector('article') : document.querySelector('#EssayContents');
+    if (!runko || !runko.querySelector('.sidenote, .marginnote, p')) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('header, nav, #toc, .recipe.sidebar, .HeroContainer, .DesktopOnly, .HandheldsOnly, img, figure, video, script, style, noscript, svg').forEach(x => x.remove());
+    const maar = [];
+    let n = 0;
+    el.querySelectorAll('span.sidenote, span.marginnote, aside.sidenote').forEach(s => {
+      const t = muunna(irrota([s.cloneNode(true)]).innerHTML, 'inlined').trim();
+      const ed = s.previousSibling;
+      if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+      if (!t) { s.remove(); return; }
+      const tunnus = 'am' + (++n);
+      maar.push(maaritelma(tunnus, t));
+      s.replaceWith(merkki(tunnus));
+    });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('br, hr, table')) x.remove(); });
+    if (kkSanoja(el) < 100) return null;
+    const t = sel => rivi((document.querySelector(sel) || {}).textContent);
+    const tekija = am ? t('header .author') : [...document.querySelectorAll('.Authors a')].map(a => rivi(a.textContent)).join(' & ') || t('.Authors').replace(/\s+and\s+/g, ' & ');
+    const pv = am ? t('header .status') : t('.Date');
+    const m = /(\p{L}+)\s+(\d{4})/u.exec(pv), k = m ? AM_KUUKAUDET.indexOf(m[1].toLowerCase()) : -1;
+    return { html: irrota([el]).innerHTML, otsikko: t(am ? 'header h1' : '.HeroContainer h1') || t('h1'),
+      tekija, sivusto: am ? 'andymatuschak.org' : 'Numinous Productions', julkaistu: k >= 0 ? m[2] + '-' + String(k + 1).padStart(2, '0') : (/\d{4}/.exec(pv) || [''])[0],
+      lahde: osoite, maar };
+  }
+
   /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
      nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
      p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
@@ -3793,6 +3831,7 @@
     aeonPsyche: { laji: 'lahjoitukset', osoite: () => /(^|\.)aeon\.co$/.test(location.hostname) ? 'https://aeon.co/donate' : 'https://psyche.co/donate' },
     ejp: { laji: 'lahjoitukset', osoite: 'https://www.paypal.com/donate/?hosted_button_id=5KCSPCEPPTCYC' },
     doppiozero: { laji: 'lahjoitukset', osoite: 'https://www.doppiozero.com/sostieni-doppiozero' },
+    matuschak: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/quantumcountry' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -3811,7 +3850,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
