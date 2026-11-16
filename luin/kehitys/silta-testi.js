@@ -70,10 +70,12 @@ const SOVELLUS = () => {
   tulos('lukija: tila ilmoitettu, sivutettu oletuksena kosketusnäytöllä', t.l && !t.k && sivut[0] === 'sivut' && sivut[1], JSON.stringify([t, sivut]));
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'silta-lukija.png') });
   const s0 = sivut[2];
-  await page.keyboard.press('PageDown');
-  await page.keyboard.press('PageDown');
+  // Painallusten väli 200 ms: alle 120 ms:n välein tuleva saman näppäimen keydown on toistoa (osioToisto).
+  const tauko = (ms) => page.evaluate((ms) => new Promise(r => setTimeout(r, ms)), ms);
+  await page.keyboard.press('PageDown'); await tauko(200);
+  await page.keyboard.press('PageDown'); await tauko(200);
   const s2 = await page.evaluate(() => window.__luin.tila.sivu);
-  await page.keyboard.press('PageUp');
+  await page.keyboard.press('PageUp'); await tauko(200);
   const s1 = await page.evaluate(() => window.__luin.tila.sivu);
   tulos('PageDown kahdesti ja PageUp kerran: sivu +2 ja −1', s2 === s0 + 2 && s1 === s0 + 1, [s0, s2, s1].join(' → '));
 
@@ -83,6 +85,73 @@ const SOVELLUS = () => {
   await page.keyboard.up('PageDown');
   const sh = await page.evaluate(() => window.__luin.tila.sivu);
   tulos('pitkä PageDown (1,3 s toistoineen): hyppy yli yhden sivun', sh > s1 + 1, s1 + ' → ' + sh);
+
+  // WebView ei välttämättä merkitse toistoa (e.repeat), ja jokin laite voi toistaa alas–ylös-pareina (Light Phone
+  // 16.11.2026: pitkä painallus juoksutti sivuja). Tapahtumat syötetään suoraan, jotta repeat-lipun saa pois.
+  const syota = (sarja) => page.evaluate((sarja) => new Promise(valmis => {
+    let i = 0;
+    (function seur() {
+      if (i >= sarja.length) return setTimeout(valmis, 50);
+      const [tyyppi, avain, viive, toisto] = sarja[i++];
+      document.dispatchEvent(new KeyboardEvent(tyyppi, { key: avain, repeat: !!toisto, bubbles: true, cancelable: true }));
+      setTimeout(seur, viive);
+    })();
+  }), sarja);
+  const sivuNyt = () => page.evaluate(() => window.__luin.tila.sivu);
+  // Alku sivulta 4, jotta hyppy erottuu sivunkäännöstä (sivulta 0 seuraava luku alkaa jo sivulla 1).
+  const alku = async () => {
+    await page.keyboard.press('Home'); await tauko(200);
+    for (let i = 0; i < 4; i++) { await page.keyboard.press('PageDown'); await tauko(200); }
+    return sivuNyt();
+  };
+  // a) toisto ilman lippua: keydown 500 ms:n päästä ja sitten 50 ms välein, keyup lopuksi (1,5 s)
+  let a0 = await alku();
+  const toistoA = [['keydown', 'PageDown', 500]];
+  for (let i = 0; i < 20; i++) toistoA.push(['keydown', 'PageDown', 50]);
+  toistoA.push(['keyup', 'PageDown', 0]);
+  await syota(toistoA);
+  const a1 = await sivuNyt();
+  // vertailu: sama aidolla toistolipulla
+  let b0 = await alku();
+  await syota([['keydown', 'PageDown', 500]].concat(Array.from({ length: 20 }, () => ['keydown', 'PageDown', 50, true]), [['keyup', 'PageDown', 0]]));
+  const b1 = await sivuNyt();
+  tulos('pitkä painallus ilman repeat-lippua hyppää samaan kuin lipun kanssa', a0 === b0 && a1 === b1 && b1 > b0 + 1, [a0 + ' → ' + a1, b0 + ' → ' + b1].join(', '));
+  // b) toisto alas–ylös-pareina 50 ms välein (1,5 s)
+  let c0 = await alku();
+  const pari = [['keydown', 'PageDown', 10], ['keyup', 'PageDown', 490]];
+  for (let i = 0; i < 20; i++) pari.push(['keydown', 'PageDown', 10], ['keyup', 'PageDown', 40]);
+  await syota(pari);
+  const c1 = await sivuNyt();
+  tulos('pitkä painallus alas–ylös-pareina hyppää samaan', c0 === b0 && c1 === b1, c0 + ' → ' + c1);
+  // c) erilliset painallukset 200 ms välein kääntävät kukin sivun (ei hyppyä, ei nielaisua)
+  let d0 = await alku();
+  const erill = [];
+  for (let i = 0; i < 5; i++) erill.push(['keydown', 'PageDown', 80], ['keyup', 'PageDown', 120]);
+  await syota(erill);
+  const d1 = await sivuNyt();
+  tulos('viisi erillistä painallusta 200 ms välein: viisi sivua', d1 === d0 + 5, d0 + ' → ' + d1);
+  // d) PageUp heti PageDownin jälkeen ei ole toistoa
+  await syota([['keydown', 'PageDown', 30], ['keyup', 'PageDown', 30], ['keydown', 'PageUp', 30], ['keyup', 'PageUp', 0]]);
+  tulos('PageDown ja heti PageUp: takaisin samalle sivulle', (await sivuNyt()) === d1, d1 + ' → ' + (await sivuNyt()));
+
+  // Sivunkäännön tavat: sovelluksessa kaikki saa sammuttaa, koska napit kääntävät aina (käyttäjän pyyntö 16.11.2026);
+  // selaimessa viimeinen jää päälle.
+  const sammutaTavat = (p) => p.evaluate(() => {
+    const a = window.__luin.aset; a.sivuReuna = a.sivuPyyhka = a.sivunapit = 1;
+    document.querySelector('#lukija .ratas, .ratas:not([hidden])').click();
+    for (const k of ['sivuReuna', 'sivuPyyhka', 'sivunapit']) document.querySelector('#asetukset button[data-kytkin="' + k + '"]').click();
+    const tulos = [a.sivuReuna, a.sivuPyyhka, a.sivunapit].join('');
+    a.sivuReuna = a.sivuPyyhka = a.sivunapit = 1;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    return tulos;
+  });
+  const tavatSov = await sammutaTavat(page);
+  const sel = await (await selain.newContext({ viewport: { width: 393, height: 829 }, isMobile: true, hasTouch: true })).newPage();
+  await sel.goto(U + 'luin.html#u=luin/tekstit/kant-ja-elainetiikka.md');
+  await sel.waitForFunction(() => window.__luin && window.__luin.tila.sivuja > 3);
+  const tavatSel = await sammutaTavat(sel);
+  await sel.context().close();
+  tulos('sivunkäännön tavat: sovelluksessa kaikki pois, selaimessa viimeinen jää', tavatSov === '000' && tavatSel === '001', 'sovellus ' + tavatSov + ', selain ' + tavatSel);
 
   // Tekstikenttä aktiivisena: tila kertoo sen (sovellus jättää napit äänenvoimakkuudelle).
   await page.evaluate(() => { const i = document.createElement('input'); i.id = 'koekentta'; i.style.position = 'fixed'; document.body.appendChild(i); i.focus(); });
@@ -145,6 +214,8 @@ const SOVELLUS = () => {
   // 7. Vierityksessä PageDown vierittää (selaimen oma toiminto).
   await page.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.sivutus = 'vieritys'; a.teema = 'vaalea'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
   await page.goto(U + 'luin.html#u=luin/tekstit/kant-ja-elainetiikka.md');
+  // Pelkkä ankkurin vaihto ei lataa sivua, joten asetus luettaisiin vasta uudelleenlatauksessa.
+  await page.reload();
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' });
   await silta();
   await page.evaluate(() => new Promise(r => setTimeout(r, 500)));
