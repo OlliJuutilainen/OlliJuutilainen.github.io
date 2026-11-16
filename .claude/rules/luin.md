@@ -450,13 +450,14 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
   samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
-  mitat isoja (huilu 6 px, viivaväli 5 px, siksak ±4,85 px): ohut viiva ei ole lupa pienentää. **Väljä kolmilinja** (käyttäjän pyyntö 16.11.2026,
+  mitat isoja (huilu 6 px, viivaväli 8 px, siksak ±4,85 px): ohut viiva ei ole lupa pienentää. **Väljä kolmilinja** (käyttäjän pyyntö 16.11.2026,
   vertailu `docs/mietintamyssy/luin-postihuilu-valjempi.html`, muunnelma B): kolme viivaa, jakso 48, alamäki 22° vaakatasosta, siksak enintään
-  neljä jaksoa; jos se loppuu ennen napin oikeaa reunaa, nuotit soivat viivaston lopussa napin levyisellä matkalla. **Pinon Postihuilu on oletuksena kiinni**
+  neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
+  **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus; pinon lohko siksi enintään 24rem leveä). **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
-  ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
+  ja viimeinen soiva jakso rajaavat soiton, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
   salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa (22° pystysuorasta), ylämäkiviivalla pystyssä; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
   kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`) eikä vielä avattu tässä selaimessa (`avaa()` asettaa `e.huiluNahty`, uudelleenlähetys poistaa sen; käyttäjä 16.11.2026): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Merkintöjen merkki (`MERKITTY`, käyttäjän pyyntö 12.11.2026: kirjanmerkki, alleviivaus

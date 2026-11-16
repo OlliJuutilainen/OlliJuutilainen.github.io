@@ -116,12 +116,16 @@
   // Väljä kolmilinja (käyttäjän pyyntö 16.11.2026; ennen neljä viivaa, väli 4, jakso 30, ±2,4, nuotti 3 ja viivasto aina
   // oikeaan reunaan): kolme viivaa, väli 5, jakso 48 ja siksak niin jyrkkä, että alamäkiviiva on 22° vaakatasosta eli
   // kohtisuorassa sille kallistuvaa nuottia vastaan (amp = jakso · tan 22° / 4 ≈ 4,85). Siksak on enintään neljä jaksoa.
+  // Samana päivänä syvemmät välit (käyttäjä: "huomattavasti syvemmät"): väli 8 (ennen 5) ja nuotti välin korkuinen
+  // (puolikorkeus sp / 2, välissä oleva nuotti hipaisee molempia viivoja); ylin viiva pysyy paikallaan (kutsuja laskee
+  // keskiY:n siitä), joten alin viiva kaartuu syvemmälle alas ja vasemmalle.
   // Viuhka: keskilinja on kuutiollinen Bézier kärjestä huilun suuntaan ja kaarena vaakasuoraksi; viivat ovat sen
   // normaalin suuntaisia siirtymiä, jotka kasvavat kärjen nollasta täyteen väliin kaaren matkalla (smoothstep).
+  var KAARROS = .6;
   function kaista(o) {
-    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 5, n = o.n || 3, vw = o.vw || .6;
+    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
-    var palat = o.palat == null ? 8 : o.palat, nr = o.nr || 3.3, r = rajat(T, sw, kulma), th = r.th;
+    var palat = o.palat == null ? 8 : o.palat, nr = o.nr || sp / 2, r = rajat(T, sw, kulma), th = r.th;
     var nokka = [o.vasen - r.x, o.yla - r.y], d = [Math.cos(th), Math.sin(th)];
     var P0 = kierra([r.m.karki, 0], th); P0 = [nokka[0] + P0[0], nokka[1] + P0[1]];
     var pudotus = Math.max(sp * 2, o.keskiY - P0[1]);
@@ -153,7 +157,9 @@
     var d2 = '';
     for (i = 0; i < n; i++) {
       var oi = siirto(i), pts = kaari.map(function (c) {
-        var q = c.s / S, e = q * q * (3 - 2 * q);
+        // Ulommat (alemmat) viivat pullistuvat kaaren keskellä (KAARROS), jotta alin kaartuu syvemmin alas ja vasemmalle
+        // (käyttäjän pyyntö 16.11.2026); sisemmät pysyvät ennallaan.
+        var q = c.s / S, e = q * q * (3 - 2 * q) * (oi > 0 ? 1 + KAARROS * Math.sin(Math.PI * q) : 1);
         return [c.x + c.nx * oi * e, c.y + c.ny * oi * e];
       });
       var yi = E[1] + oi;
@@ -179,7 +185,7 @@
   // alimman alapuolella (p 0…n − 1 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
   // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Yksi nuotti jaksoa kohti (ei
   // päällekkäisiä ääniä); salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa ja on ylämäessä pystyssä. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
-  // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
+  // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä soiton ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
   // ei melodiaestetiikkaa); vain sama korkeus peräkkäin ja porras hylätään. arvoNuotit() palauttaa vain siemenen, jotta sama muodostelma säilyy uudelleenpiirrossa (leveys).
   function arvoNuotit(rnd) { return { siemen: Math.floor((rnd || Math.random)() * 4294967296) }; }
   function satunnainen(siemen) { // mulberry32
@@ -203,14 +209,16 @@
     for (var i = 1; i < ps.length; i++) { if (ps[i] <= ps[i - 1]) nousu = false; if (ps[i] >= ps[i - 1]) lasku = false; }
     return nousu || lasku;
   }
+  // Soitossa on tasan kolme nuottia (käyttäjän pyyntö 16.11.2026; ennen nuotti melkein joka jaksoon). Ne ovat
+  // peräkkäisten jaksonkeskien ikkunassa (kolme tai neljä keskeä, paikka arvotaan napin kohdalta): ikkunan ensimmäinen ja
+  // viimeinen soivat, ja neljän ikkunassa toinen kahdesta keskimmäisestä jää tyhjäksi, joten kahta tyhjää ei ole peräkkäin.
   function nuottiPaikat(k, x0, x1, nu) {
     var keskit = jaksonKesket(k, x0, x1), m = keskit.length, out = [];
     if (!m || !nu) return out;
-    var rnd = satunnainen(nu.siemen), soi, ps, yritys = 0;
+    var rnd = satunnainen(nu.siemen), w = Math.min(m, 4), alku = Math.floor(rnd() * (m - w + 1)), soi = [], ps, yritys = 0;
+    var tyhja = w === 4 ? 1 + Math.floor(rnd() * 2) : -1;
+    for (var j = 0; j < m; j++) soi.push(j >= alku && j < alku + w && j - alku !== tyhja);
     do {
-      // Soivat jaksot: ensimmäinen ja viimeinen aina, välissä tyhjä vain soivan jälkeen.
-      soi = [];
-      for (var j = 0; j < m; j++) soi.push(j === 0 || j === m - 1 || !soi[j - 1] || rnd() >= .12);
       // Korkeudet: pelkkä arvonta viivaston paikoista (kolmella viivalla viisi), ei sama kuin edellinen (ei melodiaestetiikkaa).
       ps = [];
       for (j = 0; j < m; j++) {
@@ -224,6 +232,7 @@
     // Ei koskaan kahta ääntä päällekkäin (käyttäjä: ei kiksejä eikä häröääniä): yksi nuotti jaksoa kohti.
     return out;
   }
+
   function nuotit(k, x0, x1, lista) {
     var ry = k.nr, rx = ry * LOGO;
     // Alamäessä oikealle huilujen kulmassa, ylämäessä pystyssä.
