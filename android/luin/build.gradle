@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Luin. Android-kääreenä: luin.html ladataan verkosta WebView-näkymään, joten Luin päivittyy itsestään
+// ja APK päivitetään vain, kun kääre muuttuu. Valmis APK on luin/luin.apk (ks. android/README.md).
+//
+// Valinnainen kehitysosoite: debug-rakennus voi ladata Luinin muualta kuin GitHub Pagesista, esimerkiksi
+// emulaattorissa koneen omasta palvelimesta (repon juuressa: python3 -m http.server 8123):
+//   ./gradlew :luin:installDebug -Pluin.osoite=http://10.0.2.2:8123/
+// Release käyttää aina julkista osoitetta.
+def julkinenOsoite = 'https://ollijuutilainen.github.io/'
+def kehitys = (findProperty('luin.osoite') ?: julkinenOsoite).toString().trim()
+if (!(kehitys ==~ /https?:\/\/[^\/?#]+\//)) {
+    throw new GradleException("Virheellinen Gradle-ominaisuus 'luin.osoite' (muoto https://palvelin/ ja kauttaviiva lopussa): " + kehitys)
+}
+
+android {
+    namespace 'fi.tusinasaa.luin'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'fi.tusinasaa.luin'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1'
+    }
+
+    // Kaikki versiot (Macin debug-rakennus, julkinen APK) allekirjoitetaan samalla avaimella, jotta ne
+    // asentuvat toistensa päälle eikä pino katoa päivityksessä: WebView-sovelluksen localStorage on sovelluksen
+    // omaa tietoa, ja poisto–asennus tyhjentäisi sen. Avain on repossa tarkoituksella kuten soittimessa; se ei
+    // suojaa mitään salaista. Älä vaihda sitä.
+    signingConfigs {
+        julkinen {
+            storeFile file('julkinen.jks')
+            storePassword 'lukimeen'
+            keyAlias 'luin'
+            keyPassword 'lukimeen'
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.julkinen
+            buildConfigField 'String', 'OSOITE', '"' + kehitys + '"'
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.julkinen
+            buildConfigField 'String', 'OSOITE', '"' + julkinenOsoite + '"'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}

@@ -1,0 +1,15 @@
+<resources>
+    <!--
+      DayNight: WebView kertoo sivulle prefers-color-scheme-arvon teeman mukaan (targetSdk 33+), joten ensimmäinen
+      käynnistys valitsee Luinin teeman järjestelmän mukaan kuten selain. Sen jälkeen teema on Luinin oma asetus, ja
+      tila- ja navigointipalkki seuraavat sivun taustaa (MainActivity.asetaVari). Paperin värinen ikkuna estää
+      valkoisen tai mustan välähdyksen ennen sivun latautumista. Ei animaatioita (e-ink).
+    -->
+    <style name="Theme.Luin" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/paperi</item>
+        <item name="android:statusBarColor">@color/paperi</item>
+        <item name="android:navigationBarColor">@color/paperi</item>
+        <item name="colorAccent">@color/ruoste</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>

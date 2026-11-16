@@ -12,8 +12,8 @@ tässä tiedostossa, joka oli kasvanut 118 000 merkkiin ja latautui jokaiseen is
 
 - `.claude/rules/soitin.md`: KEICK•WALK eli `soitin/` (soitin, Keikkaloihdin, Omat keikkani, ohjeet,
   keikka-analyysin taitopaketti) ja Android-kääre `android/soitin/`.
-- `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit) ja
-  `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Pdf:stä muunnettu teksti*).
+- `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit), Android-kääre
+  `android/luin/` ja `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Pdf:stä muunnettu teksti*).
 
 Claude Code lataa tiedoston itse, kun luet tai muokkaat sen `paths`-kuvioihin osuvaa tiedostoa. Jos
 ohjelman työ alkaa muualta (esim. `worker/src/index.js`: reitit `/api/gig`, `/api/drive*` ja `/api/dropbox`

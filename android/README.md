@@ -18,8 +18,8 @@ oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikok
 
 Rakennettu APK löytyy `app/build/outputs/apk/debug/` -hakemistosta. Se voidaan asentaa
 esimerkiksi `adb install` -komennolla. Huomaa, että juuriprojektiin on liitetty myös
-kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`) sekä keikkasoitin
-(`:soitin`). Siksi komennossa on moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa
+kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`), keikkasoitin
+(`:soitin`) ja Luin (`:luin`). Siksi komennossa on moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa
 kaikki moduulit.
 
 Projektissa on mukana Gradlen 8.4 wrapperi ja Android Gradle Plugin 8.3.2.
@@ -161,6 +161,59 @@ Toiminta:
 - Android 13:ssa ja uudemmissa soittoilmoitus näkyy vain, jos ilmoituslupa on myönnetty.
   Sovellus ei kysy sitä, mutta soitto toimii ilmankin. Halutessasi:
   `adb -s LP3LHMA541401108 shell pm grant fi.tusinasaa.soitin android.permission.POST_NOTIFICATIONS`
+
+## Luin. (lukin)
+
+Moduuli `:luin` (`fi.tusinasaa.luin`, nimi "Luin.") avaa Luinin (`https://ollijuutilainen.github.io/luin.html`)
+WebView-näkymässä. Sivu ladataan verkosta, joten Luin päivittyy itsestään; APK päivitetään vain, kun kääre muuttuu.
+Mitä sovellus tekee selaimeen verrattuna, on kehittäjän oppaan luvussa 7.6 (`luin/ohje.md`). Lyhyesti:
+äänenvoimakkuusnapit kääntävät sivua lukimessa (alas = seuraava, pitkä painallus hyppää osioon), lataukset menevät
+kansioon `Download/Luin`, kokoruutu piilottaa järjestelmän palkit, Luin aukeaa ilman verkkoa välimuistista, ja tekstin
+tai .md-tiedoston voi jakaa latomoon (Jaa → Luin.).
+
+Pino, merkinnät ja asetukset ovat sovelluksen omia (WebView:n localStorage). Selaimen pinon saa sovellukseen postihuilulla:
+sama laatikkolause sovelluksen asetuksiin.
+
+### Valmis APK
+
+Julkinen APK on **https://ollijuutilainen.github.io/luin/luin.apk** (release). Macilta kaikkiin laitteisiin:
+
+```bash
+cd ~/OlliJuutilainen.github.io && git checkout main && git pull && git log --oneline -1
+adb -s 9EC29B39 install -r luin/luin.apk          # Palma
+adb -s d7537c46 install -r luin/luin.apk          # OnePlus Nord
+adb -s LP3LHMA541401108 install -r luin/luin.apk  # Light Phone III
+```
+
+Uusi versio: nosta `versionCode`/`versionName` tiedostossa `luin/build.gradle`, rakenna ja kopioi:
+
+```bash
+./gradlew :luin:assembleRelease
+cp luin/build/outputs/apk/release/luin-release.apk ../luin/luin.apk
+```
+
+### Allekirjoitus
+
+Kaikki versiot allekirjoitetaan repon avaimella `luin/julkinen.jks` (salasana `lukimeen`). Kuten soittimessa avain on
+julkinen tarkoituksella: sen ansiosta Macilla rakennettu debug-versio ja julkinen APK asentuvat toistensa päälle. Älä
+vaihda sitä: eri avaimella allekirjoitettu versio vaatii vanhan poistamisen, ja poisto tyhjentää pinon.
+
+### Rakennus Macilla
+
+```bash
+./gradlew :luin:installDebug -Pandroid.injected.device.serial=9EC29B39
+adb -s 9EC29B39 shell am start -n fi.tusinasaa.luin/.MainActivity
+```
+
+Debug-rakennuksen sivun näkee Macin Chromessa osoitteessa `chrome://inspect`. Debug voi ladata Luinin myös muualta,
+esimerkiksi emulaattorissa koneen omasta palvelimesta (repon juuressa `python3 -m http.server 8123`, sitten
+`adb reverse tcp:8123 tcp:8123`):
+
+```bash
+./gradlew :luin:installDebug -Pluin.osoite=http://localhost:8123/
+```
+
+Light Phonessa sovellus löytyy Key Mapperista nimellä "Luin.".
 
 ## QR-intentin pohja
 

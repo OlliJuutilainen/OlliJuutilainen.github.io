@@ -1,6 +1,6 @@
 // Luinin kuvakkeet: Lukimeen-lisäosan logo eli Latomon kytkimen salmiakki (ulkoreuna ja täytetty sisus)
 // ruosteella. Samasta lähteestä syntyvät lisäosan kuvakkeet (luin/lisaosa/kuvakkeet/) ja Luinin sivujen välilehti- ja
-// kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png).
+// kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png) sekä Android-kääreen käynnistyskuvake (android/luin/).
 // Linkin esikatselukuva jako-logo-tumma.png on LUiN.HTML-logo (logo.js) tumman teeman väreillä.
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-kuvakkeet.js
 const fs = require('fs');
@@ -50,4 +50,59 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
     background:${PAPERI_TUMMA};color:${MUSTE_TUMMA};--ruoste:${RUOSTE_TUMMA}">${logo().replace('<svg ', '<svg style="width:520px;height:auto;display:block;fill:currentColor;overflow:visible" ')}</body></html>`);
   await p.screenshot({ path: path.join(SIVUT, 'jako-logo-tumma.png'), clip: { x: 0, y: 0, width: 1200, height: 630 } });
   await b.close();
+  android();
 })();
+
+// Android-kääreen (android/luin/) käynnistyskuvake vektorina: sama salmiakki samoissa mittasuhteissa kuin kotivalikon
+// 180.png (näkyvä 72 dp:n ruutu vastaa sen 15,3 yksikön viewBoxia, joten koko 108 dp:n kangas on 15,3 · 108 / 72 yksikköä).
+// Värit ovat resursseja (@color/ruoste, @color/paperi), joten tummassa järjestelmäteemassa kuvake on tumman teeman väreissä
+// kuten välilehden SVG. Monokromi (Android 13:n teemakuvake) on sama salmiakki.
+function android() {
+  const RES = path.resolve(__dirname, '../../android/luin/src/main/res');
+  const K = 15.3 * 108 / 72, siirto = n => +(K / 2 - n).toFixed(3);
+  const huom = '<!-- Tuottaa luin/kehitys/lisaosa-kuvakkeet.js; älä muokkaa käsin. -->\n';
+  fs.writeFileSync(path.join(RES, 'drawable/ic_luin_salmiakki.xml'), `<?xml version="1.0" encoding="utf-8"?>
+${huom}<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="${+K.toFixed(3)}"
+    android:viewportHeight="${+K.toFixed(3)}">
+    <group
+        android:translateX="${siirto(4)}"
+        android:translateY="${siirto(5.5)}">
+        <path
+            android:pathData="M4,0.9L7.2,5.5L4,10.1L0.8,5.5Z"
+            android:strokeColor="@color/ruoste"
+            android:strokeLineJoin="miter"
+            android:strokeWidth="0.9" />
+        <path
+            android:fillColor="@color/ruoste"
+            android:pathData="M4,3.2L5.6,5.5L4,7.8L2.4,5.5Z" />
+    </group>
+</vector>
+`);
+  fs.writeFileSync(path.join(RES, 'mipmap-anydpi-v26/ic_launcher.xml'), `<?xml version="1.0" encoding="utf-8"?>
+${huom}<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/paperi" />
+    <foreground android:drawable="@drawable/ic_luin_salmiakki" />
+    <monochrome android:drawable="@drawable/ic_luin_salmiakki" />
+</adaptive-icon>
+`);
+  // Android 7 (ennen mukautuvia kuvakkeita): paperinen pyöreäkulmainen ruutu, jonka koko vastaa mukautuvan kuvakkeen
+  // näkyvää osaa.
+  fs.writeFileSync(path.join(RES, 'mipmap/ic_launcher.xml'), `<?xml version="1.0" encoding="utf-8"?>
+${huom}<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="18dp"
+        android:left="18dp"
+        android:right="18dp"
+        android:top="18dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/paperi" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_luin_salmiakki" />
+</layer-list>
+`);
+}

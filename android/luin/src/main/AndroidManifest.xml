@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Ilman verkkoa Luin avataan WebView:n välimuistista (MainActivity.paivitaVerkko). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--
+      Asentoa ei lukita (Luinin linjaus: kokoruutukaan ei lukitse asentoa). configChanges pitää WebView:n
+      ja sen tilan kääntäessä, kokoruutuun mennessä ja teeman vaihtuessa; muuten aktiviteetti luotaisiin
+      uudelleen ja sivu ladattaisiin alusta. adjustResize: kirjauksen näppäimistö pienentää näkymää, kuten
+      selaimessa.
+    -->
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Luin">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|density|uiMode|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Jaa: teksti tai .md-tiedosto latomoon, .md-osoite tai luin-linkki lukimeen (Jako.java). -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+            </intent-filter>
+
+            <!-- Avaa tekstitiedosto (tiedostonhallinta, Dropbox): latomoon. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+            </intent-filter>
+
+            <!--
+              Luin-linkit ja jakolinkit. Ei autoVerify: Android 11:ssä ja vanhemmissa linkin napautus
+              kysyy avaajan, uudemmissa linkki aukeaa selaimeen, ellei käyttäjä salli sovelluksen
+              asetuksista (Avaa oletuksena → Lisää linkki).
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="ollijuutilainen.github.io" />
+                <data android:path="/luin.html" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="luin.ollijuutilainen.workers.dev" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

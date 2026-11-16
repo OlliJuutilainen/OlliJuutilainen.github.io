@@ -1,0 +1,5 @@
+<resources>
+    <!-- luin.html:n tumman teeman paperi. -->
+    <color name="paperi">#120e0b</color>
+    <color name="ruoste">#b8794a</color>
+</resources>
