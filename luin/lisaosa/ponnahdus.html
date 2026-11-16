@@ -39,9 +39,10 @@
   button { font: inherit; color: inherit; background: none; border: 1px solid var(--muste); padding: 0 12px;
     min-height: 40px; cursor: pointer; font-size: .92rem; text-align: center; }
   button.paa { color: var(--ruoste); border-color: var(--ruoste); }
-  /* Plussa: musteen kehys kuten muissa napeissa, ruosteen risti (ruoste = napautettava). */
-  #plussa { display: flex; align-items: center; justify-content: center; min-height: 40px; color: var(--ruoste); }
-  #plussa svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  /* Plussa: pieni kehyksetön laajennusmerkki Poimi lukimeen -napin alla (käyttäjän palaute 16.11.2026: omassa kehyksessään
+     isona se näytti toiminnolta). Kosketusala on silti koko rivi. Ruoste = napautettava. */
+  #plussa { display: flex; align-items: center; justify-content: center; border: 0; min-height: 28px; margin: -4px 0 -4px; color: var(--ruoste); }
+  #plussa svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.1; }
   #plussa[aria-expanded="true"] .pysty { display: none; }
 
   button:disabled { color: var(--harmaa); border-color: var(--viiva); cursor: default; }
@@ -88,7 +89,7 @@
     <button type="button" class="paa" id="lukimeen" disabled>Poimi lukimeen</button>
     <!-- Plussa (käyttäjän pyyntö 16.11.2026): muut toiminnot oletuksena piilossa, auki ja kiinni plussasta. Valinta muistetaan
          (storage.local, avain lisat), joten ikkuna avautuu kuten viimeksi jätettiin. Auki plussa on miinus. -->
-    <button type="button" id="plussa" aria-expanded="false" aria-controls="lisat" aria-label="Lisää toimintoja"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="vaaka" d="M2 10H18"/><path class="pysty" d="M10 2V18"/></svg></button>
+    <button type="button" id="plussa" aria-expanded="false" aria-controls="lisat" aria-label="Lisää toimintoja"><svg viewBox="0 0 11 11" aria-hidden="true"><path class="vaaka" d="M0 5.5H11"/><path class="pysty" d="M5.5 0V11"/></svg></button>
     <div class="napit" id="lisat" hidden>
       <button type="button" id="latomoon" disabled>Säädä latomossa</button>
       <button type="button" id="lataa" disabled>Lataa .md</button>
