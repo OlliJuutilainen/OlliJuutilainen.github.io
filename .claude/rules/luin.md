@@ -36,11 +36,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
-  nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Napin nimi, Postihuilu-napin
-  lyhyt viivasto ja salmiakkivalintaruudut (16.11.2026) ovat lähdekoodissa, mutta `version` on yhä 0.9.0: **älä nosta versiota
-  äläkä anna zippejä ennen kuin käyttäjä pyytää** (käyttäjä 16.11.2026: "älä päivitä lisäosaa vieläkään"). Nimeä *Lukimeen* ei ole
-  viety `luin/lisaosa/`-kansioon (manifestin `name` ja `default_title`, ponnahdusikkunan `<title>`, kommentit sanovat *Luin*): vaihda ne
-  vasta, kun käyttäjä pyytää lisäosan päivitystä. Sivustolla, oppaassa ja testien kommenteissa nimi on jo *Lukimeen*. Kauppaosoitteen
+  nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
+  pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -150,7 +148,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Ei sanaa *lukulaite*** käyttäjälle näkyvään tekstiin (käyttäjän päätös 15.11.2026: Luin ei ole laite eikä e-lukijan
   kilpailija). Virallinen kuvaus on *internetin lukemisen tyyssija* (infolaatikko, käyttöohje, `og:description`, jakoworker).
   i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
-  ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa on yhä salmiakki, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
+  ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa hakasulkeet ovat 0.10.0:sta, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki

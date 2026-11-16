@@ -1006,7 +1006,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   await avaaIkkuna(BLOG_POSTI);
   const pk0 = await ikkuna.evaluate(() => ({ napit: [...document.querySelectorAll('.napit > button')].map(b => b.textContent),
     kiinni: document.querySelector('#posti-osa').hidden }));
-  tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Poimi lukimeen,Säädä Latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
+  tulos('ikkuna: neljä nappia, Postihuilu kiinni', pk0.napit.join() === 'Poimi lukimeen,Säädä latomossa,Lataa .md,Postihuilu' && pk0.kiinni, JSON.stringify(pk0));
   await ikkuna.click('#postihuilu');
   const pk1 = await ikkuna.evaluate(() => ({ auki: !document.querySelector('#posti-osa').hidden, paikka: document.querySelector('#koodi').placeholder,
     soita: document.querySelector('#soita').textContent, heti: document.querySelector('#heti').checked,
