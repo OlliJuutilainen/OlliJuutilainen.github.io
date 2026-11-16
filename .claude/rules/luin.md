@@ -38,7 +38,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: manifestin `description` *luinin pinoon* → *lukimen pinoon* (16.11.2026); ikkunan plussa (16.11.2026, koodissa jo, versio nostamatta). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: ei mitään (0.11.0: plussa ja *lukimen pinoon*). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
