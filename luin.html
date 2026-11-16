@@ -2422,13 +2422,14 @@
     if (!s) return;
     ev.preventDefault(); ev.stopPropagation();
     // Hiirellä ponnahdus on jo auki (hiiren vienti) eikä napsautus sulje sitä; kosketuksella uusi napautus sulkee.
-    if (!HIIRI() && !pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) { suljePop(); return; }
-    naytaSisaltaa(s);
+    // Merkin napsautus (hiirelläkin) kiinnittää ponnahduksen: se sulkeutuu vasta merkin tai muun kohdan napsautuksesta, eikä muuta napsautus avaa mitään.
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s && (!HIIRI() || pop._kiinni)) { suljePop(); return; }
+    naytaSisaltaa(s); pop._kiinni = true;
   });
   $('#nimikkeet').addEventListener('mouseout', function (ev) {
     var s = ev.target.closest && ev.target.closest('svg.merkitty');
     if (!s || (ev.relatedTarget && s.contains(ev.relatedTarget)) || !HIIRI()) return;
-    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s) suljePop();
+    if (!pop.hidden && pop.classList.contains('sisaltaa') && pop._merkki === s && !pop._kiinni) suljePop();
   });
   $('#nimikkeet').addEventListener('mouseover', function (ev) {
     var s = ev.target.closest && ev.target.closest('svg.merkitty');
@@ -2443,14 +2444,14 @@
     var url = jakoLinkki(e);
     naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
-      '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
+      '<button type="button" data-k="viite">Kopioi lähdeviite.</button>' +
       // Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon; Lataa md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
-      (url ? '<button type="button" data-k="linkki">Kopioi linkki</button>' : '<button type="button" data-k="linkita">Linkitä tiedostoon</button>') +
-      '<button type="button" data-k="lataa">Lataa md</button>' +
-      '<button type="button" data-k="tiedot">Muuta metatietoja</button>' +
-      '<button type="button" data-k="laitos">Uusi laitos</button>' +
+      (url ? '<button type="button" data-k="linkki">Kopioi linkki.</button>' : '<button type="button" data-k="linkita">Linkitä tiedostoon.</button>') +
+      '<button type="button" data-k="lataa">Lataa md.</button>' +
+      '<button type="button" data-k="tiedot">Muuta metatietoja.</button>' +
+      '<button type="button" data-k="laitos">Lado uusi laitos.</button>' +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
@@ -2462,10 +2463,10 @@
         $('.v-teksti', pop).innerHTML = viite(e, true);
         return true;
       }
-      if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu'; }); return true; }
-      if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu'; }); return true; }
+      if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu.'; }); return true; }
+      if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu.'; }); return true; }
       if (k === 'poista') {
-        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät'; return true; }
+        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät.'; return true; }
         poistaListasta([e]);
       }
     }, 'oikea');
@@ -2515,8 +2516,8 @@
     naytaPop(rect, '<div class="kys">Julkisen .md-tiedoston osoite. Dropbox-jakolinkki käy sellaisenaan.</div>' +
       '<div class="kentta"><input type="url" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="https://…" aria-label="Tiedoston osoite"></div>' +
       '<div class="tila" hidden></div>' +
-      '<div class="napit"><button type="button" data-k="ok">Linkitä</button>' +
-      '<button type="button" data-k="ei" class="ei">Peruuta</button></div>', 'kysely tiedosto', function (k, nappi) {
+      '<div class="napit"><button type="button" data-k="ok">Linkitä.</button>' +
+      '<button type="button" data-k="ei" class="ei">Peruuta.</button></div>', 'kysely tiedosto', function (k, nappi) {
       if (k !== 'ok') return;
       var kentta = $('input', pop), tilaEl = $('.tila', pop), u = kentta.value.trim();
       function kerro(t) { tilaEl.textContent = t; tilaEl.hidden = !t; sijoitaPop(); }
@@ -2526,7 +2527,7 @@
       nappi.disabled = true; nappi.textContent = 'Tarkistetaan…'; kerro('');
       tarkistaTiedosto(e, u).then(function (syy) {
         if (pop.hidden || !pop.contains(nappi)) return;
-        nappi.disabled = false; nappi.textContent = 'Linkitä';
+        nappi.disabled = false; nappi.textContent = 'Linkitä.';
         if (syy) { kerro(syy); return; }
         var md = asetaOsoite(LS.get('luin-teksti:' + e.id, ''), u);
         if (!LS.set('luin-teksti:' + e.id, md)) { kerro('Tallennustila on täynnä: linkkiä ei voitu tallentaa.'); return; }
@@ -2568,21 +2569,21 @@
     if (!es.length) return;
     var n = es.length, ark = tila.arkisto;
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
-      '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' +
-      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
+      '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
+      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
       '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
-      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä' : 'Poista pinosta') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
       if (k === 'viitteet') {
         kopioi(es.map(function (e) { return viite(e); }).join('\n'), es.map(function (e) { return '<p>' + viite(e, true) + '</p>'; }).join(''))
-          .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu' : 'Lähdeviitteet kopioitu'; });
+          .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu.' : 'Lähdeviitteet kopioitu.'; });
         return true;
       }
       if (k === 'poista') {
         if (!nappi.dataset.varmista) {
           nappi.dataset.varmista = 1;
-          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen';
+          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät.' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen.';
           return true;
         }
         poistaListasta(es);
@@ -2640,7 +2641,7 @@
   function suljePop(pakko) {
     if (muokkaus && !lopetaKirjaus(true) && !pakko) return;
     muokkaus = null;
-    pop.hidden = true; popToiminto = null;
+    pop.hidden = true; popToiminto = null; pop._kiinni = false;
     // Ponnahduksen aikana latautunut fontti (ks. loadingdone) asettelee vasta nyt, omana tehtävänään: suljePop() voi tulla
     // asettelun sisältä (sivulle()), ja uusi ponnahdus voi avautua samasta napautuksesta.
     if (asetteluOdottaa) {
@@ -2687,11 +2688,11 @@
     // Pelkät kahvat (sukkela alleviivaus) lähtevät muualle napautuksesta, ja napautus toimii muuten tavalliseen tapaan.
     if (pop.hidden && kahvaH && !e.target.closest('#kahvat, mark.ali')) piilotaKahvat();
     if (pop.hidden || pop.contains(e.target) || e.target.closest('button.jako, svg.merkitty, mark.ali, .km, .kirm, .fnref, #kahvat')) return;
-    var merkkiPop = pop.classList.contains('sisaltaa') && !HIIRI();
+    var merkkiPop = pop.classList.contains('sisaltaa');
     suljePop();
     // Tekstiin osuva napautus vain sulkee valikon eikä käännä sivua.
     if (sivuEl.contains(e.target)) e.stopPropagation();
-    // Merkintöjen ponnahduksen ulkopuolinen napautus kosketuksella vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
+    // Merkintöjen ponnahduksen ulkopuolinen napautus tai napsautus (myös hiirellä) vain sulkee sen eikä avaa napautettua linkkiä (käyttäjän pyyntö 16.11.2026).
     if (merkkiPop) { e.preventDefault(); e.stopPropagation(); }
   }, true);
 
