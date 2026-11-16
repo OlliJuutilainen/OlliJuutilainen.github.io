@@ -123,6 +123,7 @@
   .tietoa p { margin: 0; }
   .tietoa p + p { margin-top: .45em; }
   .tietoa .t-ilo { display: block; margin-left: .9em; }
+  .tietoa .t-tyhja { visibility: hidden; }
   .tietoa b { font-weight: 600; color: var(--muste); }
   .tietoa a { color: var(--ruoste); text-underline-offset: 3px; }
   .tietoa button.linkki b { color: var(--ruoste); }
@@ -1185,7 +1186,8 @@
        jatko ja oikean alakulman miinus, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen hiirellä ja napautuksesta. -->
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija.<br>
     Sen ilo on kahden laatuista:<br><br>
-    <span class="t-ilo">iloa <b>kirjoittajalle</b> ja<br>
+    <span class="t-ilo">iloa <b>kirjoittajalle</b><br>
+    <span class="t-tyhja" aria-hidden="true">iloa <b>kirjoittajalle</b> </span>ja<br>
     iloa <b>lukijalle</b>.</span></p>
     <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-kirjoittaja">Kirjoittajalle<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
     <div class="t-sisalto" id="tietoa-kirjoittaja" hidden>
