@@ -396,7 +396,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   rakenne-ehdotusta (tutkielma, opas; `md-testi.js` tarkistaa).
 - **Latomossa ei ole MarkDownload-tilaa** (käyttäjän päätös 9.11.2026, kun lisäosa pääsi Chrome Web Storeen): ei
   kytkintä, ehdotusta, Excerpt-, validateUri- eikä leikkeen loppurivien käsittelyä. Leike siivotaan vain korvamerkistä.
-  Latomon ohjeen ja kehittäjän oppaan MarkDownload-osiot ovat vanhentuneita; käyttäjä ei halua niitä nyt korjattavan.
+  Latomon ohjeen ja kehittäjän oppaan MarkDownload-osiot ovat vanhentuneita; käyttäjä ei halua niitä nyt korjattavan. Ohjeen alussa on huomautus *Ei tarkistettu, ei ajan tasalla (16.11.2026)* (käyttäjän pyyntö); poista vasta, kun ohje on tarkistettu.
 - **Postihuilu** (käyttäjän nimi 10.11.2026 Latomossa, Luinissa ja lisäosassa; ennen *Coneelta Cännycälle* ja *Lähetä postilaatikkoon*; pyynnöt 9.11.2026, opas 2.2):
   käyttäjälle näkyvät tekstit (Postihuilu, Laatikkolause, *Soita huilua!*, *Huiluta myös merkintöjä*, i-ohje, Latomon
   *TOISEN LAITTEEN PÄÄSSÄ* ja lisäosan johdanto) ovat käyttäjän sanamuotoja: älä siloittele. Latomo ei lähetä merkintöjä
