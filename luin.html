@@ -136,12 +136,12 @@
   }
   /* Infolaatikon osat (käyttäjän pyyntö 16.11.2026): (1) KIRJOITTAJA ja (2) LUKIJA versaalina ruosteella (napautettava;
      numerot johdannon mukaan), sisennettyinä sisältöineen, plussa auki miinukseksi; rivien väli on tyhjä rivi. Plussa on
-     versaalien keskilinjalla, ei rivilaatikon (mitattu musteesta). Oikean alakulman miinus sulkee laatikon kuten i-nappi. */
+     versaalien keskilinjalla, ei rivilaatikon (mitattu musteesta). */
   .tietoa button.t-osa { display: flex; align-items: center; gap: 7px; margin: .9em 0 0 .9em; padding: 2px 0; font: inherit;
     font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ruoste); background: none; border: 0;
     cursor: pointer; }
   .tietoa p + button.t-osa, .tietoa .t-sisalto + button.t-osa, .tietoa p.t-jatko { margin-top: 1.32rem; }
-  .tietoa button.t-osa svg, .tietoa button.t-sulje svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+  .tietoa button.t-osa svg { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 1.3; }
   .tietoa button.t-osa svg { width: 7px; height: 7px; transform: translateY(-.05em); }
   .tietoa button.t-osa[aria-expanded="true"] .pysty { display: none; }
   .tietoa .t-sisalto { margin: .45em 0 0 .9em; }
@@ -154,14 +154,13 @@
   .tietoa .t-sisenna { padding-left: 1mm; }
   .tietoa h3.t-ots i { text-transform: none; }
   .tietoa h3.t-ero, .tietoa p.t-ero { margin-top: 2em; }
+  /* Aforismi (käyttäjän pyyntö 16.11.2026): lukijan blockquoten tapaan ohut viiva vasemmalla ja sisennys molemmin puolin. */
+  .tietoa h3.t-motto { margin: 2em 1.4em 1.5em .3em; padding-left: .9em; border-left: 1px solid var(--viiva); line-height: 1.55;
+    text-wrap: balance; }
   .tietoa svg.t-salmiakki { width: .62em; height: .85em; fill: var(--ruoste); vertical-align: -.1em; margin-right: .25em; }
   .tietoa svg.t-salmiakki .u { fill: none; stroke: var(--ruoste); stroke-width: 1.25; }
   .tietoa .t-vihje p + p { margin-top: .45em; }
   @media (hover: hover) { .tietoa .t-vihje a.vihje:hover::after, .tietoa .t-vihje a.vihje:focus-visible::after { white-space: normal; width: max-content; max-width: 11rem; } }
-  .tietoa p.t-viimeinen { padding-right: 22px; }
-  .tietoa button.t-sulje { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; display: flex;
-    align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
-  .tietoa button.t-sulje:hover { color: var(--ruoste); }
   /* Vihjesana: ruoste ja pisteviiva (napautettava, mutta ei vie minnekään). */
   .tietoa button.t-sana { font: inherit; padding: 0; color: var(--ruoste); background: none; border: 0; cursor: pointer;
     text-decoration: underline dotted; text-decoration-color: var(--ruoste); text-underline-offset: 3px; }
@@ -1195,7 +1194,7 @@
     <button class="ikoni ratas" type="button" aria-label="Asetukset"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></svg></button></div>
   </div>
   <!-- Infolaatikko (käyttäjän sanamuoto 16.11.2026): johdanto, avautuvat KIRJOITTAJA ja LUKIJA (plussa/miinus), aina näkyvä
-       jatko ja oikean alakulman miinus, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen vain napautuksesta; ulkopuolinen napautus tai vihjeen miinus sulkee. -->
+       jatko ja i-nappi, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen vain napautuksesta; ulkopuolinen napautus tai vihjeen miinus sulkee. -->
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija.<br>
     Sen ilo on kahden laatuista:<br><br>
     <span class="t-ilo">iloa <b>kirjoittajalle</b><br>
@@ -1237,7 +1236,7 @@
     ovat jo valiotapauksia, ja jonkinlaisia lukemisen ympäristöjä jo itsekin, mutta mikäli artikkeli on pitkä, ja tekstin
     haluaisi esimerkiksi printata PDF:ksi tai kopioida tekstiksi lukulaitteella lukua varten, linkkien mekaniikka huuhtoutuu
     samalla kerralla pois.</p>
-    <h3 class="t-ots t-ero"><i>Ota luin elämääsi ja yhdisty aidosti siihen, mitä ihmiset olisivat halunneet sinulle kertoa, kun et yksinkertaisesti pystynyt vain kuunnella.</i></h3>
+    <h3 class="t-ots t-ero t-motto"><i>Ota luin elämääsi ja yhdisty aidosti siihen, mitä ihmiset olisivat halunneet sinulle kertoa, kun et yksinkertaisesti pystynyt vain kuunnella.</i></h3>
     <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti niin vaikeasti nautittavat
     aarteet Sinun luoksesi – IhmisenLuokse™.</p>
     <p>Kun saavut nettiselaimella lukemisen arvoista vaikutelmaa heijastelevan tekstin äärelle, kaappaa löytö talteen
@@ -1253,10 +1252,9 @@
     <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
     kokoonpano, luetussa eteneminen ja siihen tehdyt merkinnät tallentuvat siis luonnostaan tekemättä mitään, jos selaimesi
     vain sallii sen.</p>
-    <p class="t-viimeinen">Jos haluat käyttää luinia usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
+    <p>Jos haluat käyttää luinia usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
     <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
     on ystäväsi (ks. sivun alaosa).</p>
-    <button type="button" class="t-sulje" aria-label="Sulje tietolaatikko" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button>
     <div class="t-vihje" id="vihje-lukimeen" role="tooltip" hidden><p><b>Lukimeen.</b> Selainlisäosa Chrome-pohjaisiin selaimiin
       työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi): leikkaa verkkoartikkelin latomoon. Firefoxiin, myös Androidilla:
       <a href="luin/lisaa-lukimeen.xpi">lataa lisäosa</a> (.xpi). Androidin Chrome ja Brave eivät tue lisäosia.</p>
@@ -2862,11 +2860,6 @@
       b.setAttribute('aria-expanded', auki ? 'true' : 'false');
       suljeTietoaVihjeet();
     });
-  });
-  $('#tietoa .t-sulje').addEventListener('click', function () {
-    suljeTietoaVihjeet();
-    $('#tietoa').hidden = true;
-    $('#lista .info').setAttribute('aria-expanded', 'false');
   });
   function tietoaSanat() { return Array.prototype.slice.call(document.querySelectorAll('#tietoa .t-sana')); }
   function suljeTietoaVihjeet(paitsi) {
