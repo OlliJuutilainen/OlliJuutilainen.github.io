@@ -27,6 +27,9 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Notre Dame Philosophical Reviews (PR #785, 16.11.2026, pahvin A5): kirjan tiedot, arvioija tekijäksi, alaviitteet.
   Il Tascabile ja Doppiozero (PR #786, 16.11.2026, pahvin B4): nostolainaukset, kuvat ja Leggi anche pois.
   Bryn Mawr Classical Review (PR #787, 16.11.2026, pahvin A6): kuten NDPR, kreikka säilyy.
+  Open Journal Systems muualla (PR #789, 16.11.2026, pahvin A7): Con-Textos Kantianos (revistas.ucm.es) toimii OJS-sovitteella
+  galleriailinkin kautta. journal.fi (Ajatus, Teologinen Aikakauskirja, Uskonnontutkija, Arctos) on botintorjunnan takana, joten
+  testaamatta; Kant e-prints (periodicos.sbu.unicamp.br) julkaisee vain pdf:iä, ohitettu.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
   on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin

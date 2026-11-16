@@ -1554,7 +1554,8 @@
   const OJS_LUETTELO = /^(literatūra|literatūros sąrašas|naudota literatūra|cituota literatūra|šaltiniai|šaltinių sąrašas|šaltiniai ir literatūra|literatūra ir šaltiniai|bibliografija|references|reference list|bibliography|literature|sources|works cited|kirjallisuus|lähteet|literatur|bibliographie)$/i;
   const OJS_KUVATEKSTI = /^(\d+\s*(lentelė|pav\.|paveikslas|schema|diagrama|grafikas)|(table|figure|fig\.|chart|diagram)\s*\d+)/i;
   const OJS_OIKEUS = /copyright\s*©|creative commons|open access article/i;
-  const ojsMeta = (d, n) => [...d.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.getAttribute('content'))).filter(Boolean);
+  // OJS:n vika (revistas.ucm.es 89492): tekijänä PHP:n taulukon tyyppinimi Array Array; tyhjäksi.
+  const ojsMeta = (d, n) => [...d.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.getAttribute('content'))).filter(x => x && !/^Array(\s+Array)*$/.test(x));
   const ojsSivu = d => !!d && /^open journal systems/i.test(rivi((d.querySelector('meta[name="generator"]') || {}).content)) && ojsMeta(d, 'citation_title').length > 0;
   const ojsKehys = d => d.querySelector('iframe[name="htmlFrame"], iframe[src*="/article/download/"]');
   // Taulukko ruudukoksi (yhdistetyt solut tyhjiksi soluiksi, solun kappaleet yhdeksi riviksi), ensimmäinen rivi otsikoksi:
@@ -1657,6 +1658,8 @@
       if (!/\/article\/view\/\d+\/?$/.test(location.pathname) || !ojsSivu(document)) return null;
       L = document;
       gOs = ojsMeta(L, 'citation_fulltext_html_url')[0] || '';
+      // Ilman metaa (Con-Textos Kantianos, revistas.ucm.es) galleriaa kuvaava linkki HTML (Spanish).
+      if (!gOs) { const g = [...L.querySelectorAll('a.obj_galley_link')].find(a => /\bhtml\b/i.test(rivi(a.textContent)) || a.classList.contains('html')); if (g) gOs = g.href; }
       if (!gOs) return ojsTiivistelma(L);
     }
     if (!G) {
@@ -1669,6 +1672,10 @@
     const h1 = [...G.querySelectorAll('h1')].find(h => rivi(h.textContent));
     const el = document.importNode(h1 ? h1.parentElement : G.body, true);
     if (!rivi(el.textContent)) return null;
+    // Väärä tiedosto galleriassa (Con-Textos Kantianos 89488: Felojin artikkelin HTML on Lazosin artikkeli): kun yhdenkään
+    // tekijän sukunimeä ei ole kokotekstissä, leikkeeksi tiivistelmä artikkelisivun tiedoista.
+    const sukunimet = ojsMeta(L, 'citation_author').map(t => (t.includes(',') ? t.split(',')[0] : t.split(/\s+/).pop()).trim()).filter(x => x.length > 1);
+    if (sukunimet.length && !sukunimet.some(n => el.textContent.includes(n))) return ojsTiivistelma(L);
     // Linkit: alaviitemerkin tiedostonimi (1_X.html#footnote-016) sivun omaksi ankkuriksi, muut absoluuttisiksi.
     const onId = id => { try { return !!el.querySelector('[id="' + CSS.escape(id) + '"], a[name="' + CSS.escape(id) + '"]'); } catch (e) { return false; } };
     el.querySelectorAll('a[href]').forEach(a => {
@@ -1793,6 +1800,16 @@
     // Yläindeksit ilman attribuutteja (InDesign: <sup xml:lang="en-GB">th</sup>), muuten md.js näyttäisi ne tekstinä; ennen
     // alaviitteitä, koska niiden teksti muunnetaan heti.
     el.querySelectorAll('sup, sub').forEach(x => [...x.attributes].forEach(a => x.removeAttribute(a.name)));
+    // Otsikot ennen tiivistelmää (revistas.ucm.es: h2 toistaa otsikon, seuraava h2 on toisen kielen otsikko): toisto pois,
+    // toisen kielen otsikko kursiivikappaleeksi.
+    const vrt = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+    const alkuOts = [...el.querySelectorAll(OTSIKOT)];
+    if (alkuOts.some(x => OJS_ABSTRAKTI.test(rivi(x.textContent).replace(/\s*[.:]$/, '')))) for (const h of alkuOts) {
+      const t = rivi(h.textContent).replace(/\s*[.:]$/, '');
+      if (OJS_ABSTRAKTI.test(t) || OJS_AVAINSANAT.test(t)) break;
+      if (vrt(t) === vrt(otsikko)) { h.remove(); continue; }
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); h.replaceWith(p);
+    }
     ejpViittaukset(el);
     const maar = samanSivunViitteet(el, 'ojs');
     // Tyhjiksi jääneet alaviitelohkot ja niiden edellä oleva viiva pois.
