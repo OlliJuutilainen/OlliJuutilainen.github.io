@@ -143,6 +143,10 @@
   .tietoa button.t-osa svg { width: 7px; height: 7px; transform: translateY(-.05em); }
   .tietoa button.t-osa[aria-expanded="true"] .pysty { display: none; }
   .tietoa .t-sisalto { margin: .45em 0 0 .9em; }
+  /* Kirjoittajan Miten? (käyttäjän pyyntö 16.11.2026): sama plussa/miinus kuin osissa, mutta pienellä ja ilman versaalia. */
+  .tietoa button.t-osa.t-miten { margin: .6em 0 0; font-size: inherit; letter-spacing: 0; text-transform: none; }
+  .tietoa h3.t-ots { margin: 1em 0 .2em; font: inherit; font-weight: 600; color: var(--muste); }
+  .tietoa h3.t-ots i { font-weight: 400; }
   .tietoa p.t-viimeinen { padding-right: 22px; }
   .tietoa button.t-sulje { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; display: flex;
     align-items: center; justify-content: center; padding: 0; color: var(--harmaa); background: none; border: 0; cursor: pointer; }
@@ -1164,28 +1168,44 @@
   <!-- Infolaatikko (käyttäjän sanamuoto 16.11.2026): johdanto, avautuvat KIRJOITTAJA ja LUKIJA (plussa/miinus), aina näkyvä
        jatko ja oikean alakulman miinus, joka sulkee laatikon. Vihjesanat (.t-sana) avaavat ponnahduksen hiirellä ja napautuksesta. -->
   <div class="tietoa" id="tietoa" hidden><p><b>LUiN.HTML</b> on internetin lukemisen tyyssija.<br>
-    Sen ilo on kahden laatuista:<br>
-    iloa <b>kirjoittajalle</b> ja iloa <b>lukijalle</b>.</p>
+    Sen ilo on kahden laatuista:<br><br>
+    iloa <b>kirjoittajalle</b> ja<br>
+    iloa <b>lukijalle</b>.</p>
     <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-kirjoittaja">Kirjoittajalle<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
     <div class="t-sisalto" id="tietoa-kirjoittaja" hidden>
     <p>Jaa oma epäkaupallinen kirjallinen tuotos <b>lukimessa</b> luettavaksi. Luettava näkyy mukavasti erilaisilla
-    laitteilla, ja lukemista on helppo jatkaa siitä, mihin edellisellä kerralla jäi.</p>
+    laitteilla, ja lukemista on helppo jatkaa siitä, mihin edellisellä kerralla jäi. Tavoittelemasi lukijan ei tarvitse olla
+    valmiiksi lukimen käyttäjä, eikä käyttäjätunnuksia tarvitse (tai sen enempää voi) luoda.</p>
+    <button type="button" class="t-osa t-miten" aria-expanded="false" aria-controls="tietoa-miten">Miten?<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
+    <div class="t-sisalto" id="tietoa-miten" hidden>
     <p>Lisää kirjoituksesi <b><a href="luin/latomo.html">latomoon</a></b> pelkkänä tekstinä tai tekstitiedostona.
     Halutessasi esimerkiksi muotoilut, sisällysluettelo, lainaukset tai alaviitteet voivat näkyä lukimessa. Tämä onnistuu
     tekstin lomaan tehtävillä yksinkertaisilla <b><a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">Markdown</a></b>-käytännön
     merkinnöillä. Kaikelle on paikkansa, mutta unohda VÄLTTÄMÄTÖN tarve perinteisiksi kutsutuille monimutkaisille (kaikista
     aakkosista esimerkiksi W-kirjaimelle alkaville) tekstinkäsittelyohjelmille ulkoasun luojana tai PDF- ja EPUB-tiedostoille
-    ainoina mahdollisina ulkoasun ja rakenteen säilyttämisen kanavina.</p></div>
+    ainoina mahdollisina ulkoasun ja rakenteen säilyttämisen kanavina.</p></div></div>
     <button type="button" class="t-osa" aria-expanded="false" aria-controls="tietoa-lukija">Lukijalle<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/><path class="pysty" d="M5 0V10"/></svg></button>
     <div class="t-sisalto" id="tietoa-lukija" hidden>
-    <p>Internetissä on vapaasti saatavilla paljon laadukasta lukemista, mutta lukukokemus on harvemmin lähellä paperikirjan
-    tai kaupallisen sähkökirjan omalla lukulaitteella lukemisen kokemusta.</p>
-    <p>Kirjanmerkkikansion paisumisen uhalla sivuston voi tallentaa myöhemmin luettavaksi. Kuitenkin siinä missä sekä
-    paperi- että sähkökirja suljetaan usein kesken luettavan osion, ja kirja aukeaa seuraavalla lukukerralla helposti
-    samasta paikasta, sama harvemmin luonnistuu pitkän internetsivutekstin kohdalla. Lukuun ottamatta erityisten sivustojen
-    omia järjestelmiä, alleviivausten ja sanallisten merkintöjen tekeminen ei ole verkkosivun tekstissä mahdollista.
-    Akateemisten tekstien osalta esimerkiksi alaviitteiden ja kirjallisuuslistan välillä pomppiminen voi myös nettitekstissä
-    olla vaivalloista.</p>
+    <p>Internetissä on vapaasti saatavilla paljon laadukasta lukemista, mutta lukukokemus on harvemmin lähellä kaupallisen
+    sähkökirjan omalla lukulaitteella lukemisen kokemusta (paperikirjoista ei tarvitse nyt samassa lauseessa puhuakaan).</p>
+    <h3 class="t-ots">Ensimmäinen ongelma: <i>"Lukeako nyt vai ei koskaan?"</i></h3>
+    <p>Yleensä, kun internetissä päätyy mielenkiintoisen kirjoituksen äärelle, juuri silloin ei ole oikea hetki lukea tekstiä.
+    Tähän hyvänä ensiapuna on toki selaimen oma kirjanmerkkikansio. Sen paisumisen uhalla paremman hetken joskus syttymiselle
+    voi antaa pienen mahdollisuuden.</p>
+    <p>Vaikka myöhempi hetki löytyisi, luettava voi silti helposti olla niin pitkä, että lukeminen jää kesken, ja samaan
+    kohtaan palaaminen on vaikeaa. Siinä missä paperi- ja sähkökirja ihan tavanomaisestikin suljetaan kesken luvun tai
+    osion, jotta sen voisi avata taas samasta paikasta, tämä harvemmin luonnistuu internetsivutekstien kanssa.</p>
+    <h3 class="t-ots">Merkittävä lukeminen</h3>
+    <p>Lukuun ottamatta erityisten sivustojen (vaihtelevasti toimivia) omia järjestelmiä, alleviivausten ja sanallisten
+    merkintöjen tekeminen ei ole verkkosivutekstissä tyypillisesti mahdollista. Asiatekstin ja erityisesti akateemisen
+    tekstin osalta tällainen voisi usein olla hyödyllistä.</p>
+    <p>Mitä vapaasti saatavilla oleviin akateemisiin nettiartikkeleihin tulee, viittaamisen ja kirjallisuuden kerroksia
+    toteutetaan vaihtelevilla vakavuuden asteilla. Joskus tekstin lomassansa sisältämät viitenumerot toimivat tekstin
+    sisäisinä linkkeinä johtaen kohdistuksen suoraan alaviitteeseen, ja alaviitteessä on jopa takaisinlinkitysmekanismi,
+    jotta lukemisen kohdan etsimiseen ei tarvitse käyttää aikaa. Tällaisen hyvin toimivan mekaniikan sisältävät sivustot
+    ovat jo valiotapauksia, ja jonkinlaisia lukemisen ympäristöjä jo itsekin, mutta mikäli artikkeli on pitkä, ja tekstin
+    haluaisi esimerkiksi printata PDF:ksi tai kopioida tekstiksi lukulaitteella lukua varten, linkkien mekaniikka huuhtoutuu
+    samalla kerralla pois.</p>
     <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti vaikeasti nautittavat
     aarteet sinun luoksesi.</p>
     <p>Kun saavut <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-selain">internet-selaimella</button>
