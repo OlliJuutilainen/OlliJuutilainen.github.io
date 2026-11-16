@@ -440,6 +440,46 @@ const EJP_SIVU = ejpSivu('Koe Article: A Test', 'Ada Aaltonen and Bo Berg',
 const EJP_VANHA_SIVU = ejpSivu('Old Koe', 'Cee Vanha', '', `<p>An old article (Koe, 2020).</p>`,
   [['References', '<p>Koe, A. (2020). <i>A test book</i>. Koe Press.</p>'], ['Notes', '<hr><div><p>1 Koe (2020).</p><p>2 Ibid.</p></div>']], 'Articles');
 
+// Open Journal Systems (16.11.2026): keksitty Vilnan yliopiston lehti. Artikkelisivulla citation_*-tiedot ja HTML-kokotekstin
+// osoite; kokoteksti VU:n InDesign-pohjalla (lehden tiedot, liettuankielinen otsikko ja santrauka, englanninkielinen otsikko ja
+// abstract, oikeuskappale, otsikot lihavoituina h2/h3, alaviitemerkki tiedostonimeen, taulukon otsikko h4:nä ja yhdistetty solu,
+// Literatūra h3:na, alaviitteet li#footnote-…). Toinen artikkeli on vain pdf:nä.
+const OJS_ART = 'https://www.journals.vu.lt/koe/en/article/view/101', OJS_GAL = 'https://www.journals.vu.lt/koe/en/article/download/101/202';
+const OJS_PDF = 'https://www.journals.vu.lt/koe/en/article/view/103';
+const ojsMetat = (m) => m.map(([n, c, l]) => `<meta name="${n}"${l ? ` xml:lang="${l}"` : ''} content="${c}"/>`).join('\n');
+const ojsArtikkeli = (m) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Koe | Koe journal</title>
+<meta name="generator" content="Open Journal Systems 3.5.0.5" />${ojsMetat(m)}</head><body><header><nav><a href="/koe/en">Koe</a></nav></header>
+<main><article class="obj_article_details"><h1 class="page_title">Koe</h1><section class="item abstract"><h2 class="label">Abstract</h2><p>Abstract text.</p></section>
+<a class="obj_galley_link pdf" href="/koe/en/article/view/101/201">PDF</a></article></main><footer>Vilnius University Press</footer></body></html>`;
+const OJS_ART_SIVU = ojsArtikkeli([['citation_journal_title', 'Koe'], ['citation_author', 'Ada Aaltonen'], ['citation_author', 'Bo Berg'],
+  ['citation_title', 'Testing the Clipper'], ['citation_language', 'en'], ['citation_date', '2026/11/04'], ['citation_volume', '7'],
+  ['citation_firstpage', '8'], ['citation_lastpage', '22'], ['citation_doi', '10.15388/Koe.2026.7.1'],
+  ['citation_abstract_html_url', 'https://www.journals.vu.lt/koe/article/view/101'], ['citation_fulltext_html_url', 'https://www.journals.vu.lt/koe/article/view/101/202'],
+  ['DC.Rights', 'Copyright (c) 2026 Authors'], ['DC.Rights', 'https://creativecommons.org/licenses/by/4.0']]);
+const OJS_GAL_SIVU = `<!DOCTYPE html><html lang="lt-LT"><head><meta charset="utf-8" /><title>1_Koe</title><link rel="stylesheet" href="/public/styles/OJSVU.css"></head>
+<body id="x1_Koe"><p lang="en-US"><a href="http://www.journals.vu.lt/koe">Koe</a>&#9;ISSN 1234-5678</p><p>2026, vol. 7, pp. 8–22&#9;DOI: <a href="https://doi.org/10.15388/Koe.2026.7.1">https://doi.org/10.15388/Koe.2026.7.1</a></p>
+<p>Filosofija / Philosophy</p><h1 lang="en-US">Kirpiklio bandymas</h1>
+<p lang="en-US"><strong>Ada Aaltonen<br /></strong>Vilniaus universitetas<br /><a href="mailto:ada@example.lt">ada@example.lt</a></p>
+<p><strong>Santrauka. </strong>Straipsnyje bandomas kirpiklis.<br /><strong>Pagrindiniai žodžiai: </strong>kirpiklis, bandymas</p>
+<h3 lang="en-US">Testing the Clipper</h3>
+<p><strong lang="en-GB">Abstract</strong><span lang="en-GB">. The article tests the clipper.<br /></span><strong>Keywords: </strong>clipper, test.</p>
+<p><strong>_________</strong></p>
+<p lang="en-US"><strong>Received:</strong><span> 28/08/2026. </span><strong>Accepted:</strong><span> 26/09/2026<br />Copyright © </span><span>Ada Aaltonen, Bo Berg</span><span>, 2026. Published by </span><a href="https://www.vu.lt/leidyba/en/"><span>Vilnius University Press</span></a><span>.<br />This is an Open Access article distributed under the terms of the </span><a href="https://creativecommons.org/licenses/by/4.0/"><span>Creative Commons Attribution License</span></a><span> (CC BY).</span></p>
+<h2><strong>Įvadas</strong></h2>
+<p>Pirmas sakinys cituoja Koe (Koe, 2020, p. 5) ir 20<sup lang="en-GB">th</sup> amžių<span><a id="footnote-001-backlink" href="1_Koe.html#footnote-001">1</a></span>.</p>
+<h3><strong>Poskyris</strong></h3><p>Antras sakinys.</p>
+<h4>1 lentelė. Koe duomenys</h4>
+<table><colgroup><col /><col /></colgroup><tbody><tr><td><p>Žodis</p></td><td colspan="2"><p>Dažnis</p></td></tr><tr><td><p>koe</p></td><td><p>1</p></td><td><p>2</p></td></tr></tbody></table>
+<h3 lang="en-US"><strong>Literatūra</strong></h3>
+<p>Koe, A., 2020. <em>Kirpiklis</em>. Vilnius: Koe.</p><p>Testi, B., 2019. Bandymas. <em>Koe</em> 1: 3–4.</p>
+<hr /><section><ol><li id="footnote-001"><p><span><a href="1_Koe.html#footnote-001-backlink">1</a></span><span>&#9;</span>Pirmoji išnaša (Testi, 2019).</p></li></ol></section></body></html>`;
+const OJS_PDF_SIVU = ojsArtikkeli([['citation_journal_title', 'Koe'], ['citation_author', 'Cee Vanha'], ['citation_title', 'Senas straipsnis'],
+  ['citation_date', '2017/10/27'], ['citation_volume', '92'], ['citation_firstpage', '7'], ['citation_lastpage', '22'],
+  ['citation_abstract_html_url', 'https://www.journals.vu.lt/koe/article/view/103'], ['citation_pdf_url', 'https://www.journals.vu.lt/koe/article/download/103/9'],
+  ['DC.Description', 'The old article is about clipping.', 'en'], ['DC.Description', 'Senas straipsnis apie kirpimą.', 'lt'],
+  ['DC.Title.Alternative', 'An old article', 'en'], ['DC.Subject', 'clipping', 'en'], ['DC.Subject', 'kirpimas', 'lt'],
+  ['DC.Rights', 'https://creativecommons.org/licenses/by/4.0']]);
+
 // IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis (keksitty kirja, FlippingBookin hakukonesivujen rakenne
 // 13.11.2026): sisällysluettelo sivulla 2 (painettu sivu + 1 = osoite), hakusana kahdella sivulla, sivunvaihdossa jatkuva
 // virke ja tavuviiva, otsikot versaalikappaleina, See also jatkuu seuraavassa kappaleessa REFERENCES-otsikkoon, lisenssi.
@@ -525,6 +565,11 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === AEON) return r.fulfill({ body: AEON_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === EJP) return r.fulfill({ body: EJP_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === EJP_VANHA) return r.fulfill({ body: EJP_VANHA_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href === OJS_ART) return r.fulfill({ body: OJS_ART_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (u.href === OJS_PDF) return r.fulfill({ body: OJS_PDF_SIVU, contentType: 'text/html; charset=utf-8' });
+    // journals.vu.lt ohjaa kokotekstin osoitteen download-osoitteeseen; Playwrightin keksitty 302 ei kanna sisältöskriptin
+    // fetchissä, joten sama sivu suoraan (uudelleenohjaus mitattu oikealla sivustolla hakuteos-pesukoneessa).
+    if (u.href === OJS_GAL || u.href === 'https://www.journals.vu.lt/koe/article/view/101/202') return r.fulfill({ body: OJS_GAL_SIVU, contentType: 'text/html; charset=utf-8' });
     if (iredHtml(u.href.split('#')[0])) return r.fulfill({ body: iredHtml(u.href.split('#')[0]), contentType: 'text/html; charset=utf-8' });
     if (u.hostname === 'ollijuutilainen.github.io') {
       const p = path.join(JUURI, decodeURIComponent(u.pathname));
@@ -1014,6 +1059,32 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   tulos('EJP vanha artikkeli: ei julkaisupäivää eikä numeroa, References, merkittömät viitteet Notes-osioksi',
     /^---\ntyyppi: tieteellinen\ntekijä: Cee Vanha\nteos: European Journal of Psychoanalysis\nlähde: /.test(ejv.md) && !/julkaistu:|numero:/.test(ejv.md) &&
     ejv.ots === '# Old Koe | ## References | ## Notes' && /^1 Koe \(2020\)\.\n\n2 Ibid\.$/m.test(ejv.md) && ejv.luin.bib === 1, ejv.md.replace(/\n/g, ' | ').slice(0, 700));
+  // 22. Open Journal Systems (16.11.2026): artikkelisivulta kokoteksti, kokotekstin sivulta artikkelisivun tiedot, pdf-artikkeli.
+  const oj = await leikeLuin(OJS_ART);
+  const ojRunko = oj.md.split('---').slice(2).join('---');
+  tulos('OJS: etukenttä artikkelisivun tiedoista (tekijät, lehti, numero, sivut, päivä, DOI, lähde) ja oikeuskappale, otsikko kokotekstin h1:stä',
+    /^---\ntyyppi: tieteellinen\ntekijä: Ada Aaltonen & Bo Berg\nteos: Koe\nnumero: 7\nsivut: 8–22\njulkaistu: 2026-11-04\ndoi: 10\.15388\/Koe\.2026\.7\.1\nlähde: https:\/\/www\.journals\.vu\.lt\/koe\/article\/view\/101\noikeudet: Copyright © Ada Aaltonen, Bo Berg, 2026\. Published by Vilnius University Press\. This is an Open Access article distributed under the terms of the Creative Commons Attribution License \(CC BY\)\.\noikeudet-lähde: https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/\n/.test(oj.md) &&
+    !/rahoitus:|sivusto:/.test(oj.md), oj.md.split('\n').slice(0, 13).join(' | '));
+  tulos('OJS: tiivistelmät alkuun (toisen kielen otsikko kursiivina), avainsanat omiksi kappaleikseen, lehden tiedot ja tekijän laitos pois',
+    /^# Kirpiklio bandymas\n\n\*\*Santrauka\.\*\* Straipsnyje bandomas kirpiklis\.\n\n\*\*Pagrindiniai žodžiai:\*\* kirpiklis, bandymas\n\n\*\*Abstract\.\*\* \*Testing the Clipper\.\* The article tests the clipper\.\n\n\*\*Keywords:\*\* clipper, test\.\n\n___\n\n## Įvadas\n/m.test(ojRunko) &&
+    !/ISSN|Filosofija \/|Vilniaus universitetas|mailto|Received|_{4}/.test(ojRunko), ojRunko.replace(/\n/g, ' | ').slice(0, 700));
+  tulos('OJS: otsikot ilman lihavointia, Literatūra luvuksi, taulukon otsikko kursiiviksi, yhdistetty solu ruudukoksi, alaviite tiedostonimen ankkurista',
+    oj.ots === '# Kirpiklio bandymas | ## Įvadas | ### Poskyris | ## Literatūra' && /^\*1 lentelė\. Koe duomenys\*$/m.test(ojRunko) &&
+    /^\| Žodis \| Dažnis \|  \|$/m.test(ojRunko) && /^\| koe \| 1 \| 2 \|$/m.test(ojRunko) &&
+    /cituoja Koe \(Koe 2020, p\. 5\) ir 20<sup>th<\/sup> amžių\[\^viite-ojs1\]\./.test(ojRunko) && /^\[\^viite-ojs1\]: Pirmoji išnaša \(Testi 2019\)\.$/m.test(ojRunko) &&
+    !/footnote|1_Koe|<section|<table/.test(ojRunko), ojRunko.replace(/\n/g, ' | ').slice(300, 1400));
+  // Leikkeen <sup> on tarkoituksellinen (Latomo muuntaa sen ^th^-muotoon), joten sen varoitus ei ole vika.
+  tulos('OJS Luinissa: alaviite, kaksi kirjallisuuden kohtaa, Koe 2020 ja Testi 2019 linkittyvät, taulukko',
+    oj.luin.sn.length === 1 && oj.luin.bib === 2 && ['Koe 2020', 'Testi 2019'].every(x => oj.luin.lahde.some(l => l.startsWith(x + '>'))) && oj.luin.taulukko === 1 &&
+    !oj.luin.varoitukset.filter(v => !/näkyy tekstinä: <sup>\.$/.test(v)).length,
+    JSON.stringify(oj.luin).slice(0, 600));
+  const ojg = await leikeLuin(OJS_GAL);
+  tulos('OJS: kokotekstin sivulta sama leike kuin artikkelisivulta', ojg.md === oj.md, ojg.md.split('\n').slice(0, 12).join(' | '));
+  const ojp = await leikeLuin(OJS_PDF);
+  tulos('OJS pdf-artikkeli: tiivistelmät metatiedoista kielen otsakkein (artikkelin kieli ensin), avainsanat, pdf:n osoite, etukenttä',
+    /^---\ntyyppi: tieteellinen\ntekijä: Cee Vanha\nteos: Koe\nnumero: 92\nsivut: 7–22\njulkaistu: 2017-10-27\nlähde: https:\/\/www\.journals\.vu\.lt\/koe\/article\/view\/103\noikeudet: CC BY 4\.0\n/.test(ojp.md) &&
+    /^# Senas straipsnis\n\n\*\*Santrauka\.\*\* Senas straipsnis apie kirpimą\.\n\n\*\*Pagrindiniai žodžiai:\*\* kirpimas\n\n\*\*Abstract\.\*\* \*An old article\.\* The old article is about clipping\.\n\n\*\*Keywords:\*\* clipping\n\nPDF: /m.test(ojp.md),
+    ojp.md.replace(/\n/g, ' | ').slice(0, 900));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen

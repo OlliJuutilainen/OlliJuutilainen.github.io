@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -385,7 +385,7 @@
       maar: maar.map(([t, x]) => maaritelma(t, x)) };
   }
 
-  /* Wikipedia (fi ja en, käyttäjän pyyntö 10.11.2026). Luettavaksi siistitty: muokkauslinkit, kuvat kuvateksteineen,
+  /* Wikipedia (fi ja en, käyttäjän pyyntö 10.11.2026; liettuan nimiavaruudet, ohjausrivit ja luettelot 16.11.2026). Luettavaksi siistitty: muokkauslinkit, kuvat kuvateksteineen,
      tietolaatikot, navigointi, sivupalkit ja ohjausrivit (”… redirects here”, Pääartikkeli) pois. Viitteet ovat
      alaviitteitä, samoin Wikipedian omat merkinnät (lähde?, citation needed). Ylläpito- ja tynkähuomautukset
      (”Tämä artikkeli tai sen osa on käännetty …”) ovat alaviite lähimmän kappaleen perässä, koska ne eivät ole
@@ -394,7 +394,7 @@
      (Pääartikkeli- ja Katso myös -ohjausrivit, Katso myös -osio): verkkoon pääsee vain sieltä ja vain, kun Luinin
      verkkolinkit ovat päällä. Tekstin sisäinen linkki luettelon kohtaan vaatisi md.js:n muutosta (ei nyt). Tekijää ei
      ole (viite alkaa otsikolla), julkaistu on luetun version muokkauspäivä. */
-  const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja)(\s|_)*:/i;
+  const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja|vaizdas|failas|specialus|pagalba|vikipedija|kategorija|portalas|šablonas|aptarimas|naudotojas|modulis|vikižodynas)(\s|_)*:/i;
   async function wikipedia() {
     const alku = /(^|\.)wikipedia\.org$/.test(location.hostname) && /^\/wiki\/./.test(location.pathname) &&
       document.querySelector('#mw-content-text .mw-parser-output');
@@ -478,9 +478,9 @@
       if (k && !artikkelit.has(k.avain)) artikkelit.set(k.avain, k.nimi);
     });
     el.querySelectorAll('.hatnote, .dablink, .rellink').forEach(h => {
-      if (/^\s*(pääartikkeli|pääartikkelit|katso myös|lisätietoja|main articles?|see also|further information)\b/i.test(h.textContent)) talteen(h);
+      if (/^\s*(pääartikkeli|pääartikkelit|katso myös|lisätietoja|main articles?|see also|further information|pagrindinis straipsnis|pagrindiniai straipsniai|taip pat skaitykite|taip pat žiūrėkite)(?![\p{L}\p{N}])/iu.test(h.textContent)) talteen(h);
     });
-    const KATSO = /^(katso myös|see also)$/i;
+    const KATSO = /^(katso myös|see also|taip pat skaitykite|taip pat žiūrėkite)$/i;
     el.querySelectorAll('h2').forEach(h => {
       if (!KATSO.test(rivi(h.textContent.replace(/\[(muokkaa|edit)[^\]]*\]/gi, '')))) return;
       const kaare = h.closest('section') && h.closest('section').querySelector('h2') === h ? h.closest('section') : null;
@@ -524,7 +524,7 @@
       if (tyhja) h.remove();
     });
     // Lähde- ja kirjallisuusluettelot kappaleiksi.
-    const BIB = /^(lähteet|lähdeteokset|kirjallisuus|kirjallisuutta|lähdekirjallisuus|aiheesta muualla kirjallisuutta|references|sources|bibliography|works cited|cited works|further reading|citations|primary sources|secondary sources|general and cited (references|sources)|selected bibliography)$/i;
+    const BIB = /^(lähteet|lähdeteokset|kirjallisuus|kirjallisuutta|lähdekirjallisuus|aiheesta muualla kirjallisuutta|references|sources|bibliography|works cited|cited works|further reading|citations|primary sources|secondary sources|general and cited (references|sources)|selected bibliography|šaltiniai|literatūra|bibliografija)$/i;
     let bib = 0;
     [...el.children].forEach(e => {
       if (ots(e)) { const t = +e.tagName[1]; if (BIB.test(rivi(e.textContent))) bib = t; else if (bib && t <= bib) bib = 0; return; }
@@ -1482,6 +1482,277 @@
       julkaistu: julkaistu || (vm && vm[3]) || '', lahde: osoite.split('?')[0], maar };
   }
 
+  /* Open Journal Systems (PKP:n lehtialusta), käyttäjän pyyntö 16.11.2026: liettuankieliset lähteet, ykkösenä Problemos.
+     Tunnistus alustasta, ei verkkotunnuksesta: artikkelin sivulla generator-meta *Open Journal Systems* ja citation_*-tiedot,
+     kokotekstin sivulla osoite …/article/(view|download)/<artikkeli>/<galleria>, jonka artikkelisivu on OJS:n. Artikkelin
+     sivulta (tiivistelmä) haetaan HTML-kokoteksti (citation_fulltext_html_url; OJS:n oletusnäkymässä kehyksen osoite), ja
+     kokotekstin sivulta artikkelisivun tiedot etukenttään. Vain pdf:nä julkaistu artikkeli jää Readabilitylle.
+     Vilniaus universitetas (journals.vu.lt: Problemos, Literatūra, Religija ir kultūra, Politologija, Kalbotyra ym.) julkaisee
+     kokotekstin InDesignin HTML:nä ilman OJS:n kehystä: alussa lehden tiedot, otsikko h1:nä, tekijä ja laitos, tiivistelmä
+     artikkelin kielellä, toisen kielen otsikko (h3, vuoden 2019 numeroissa h2) ja tiivistelmä, Received/Copyright-kappale.
+     Alku leikataan oikeuskappaleeseen asti: tiivistelmät jäävät lähteen järjestyksessä (toisen kielen otsikko kursiivina
+     otsakkeen perään) ja avainsanat omaksi kappaleekseen. Alaviitteet kolmella tavalla: 2024– li#footnote-NNN, jonka merkki
+     viittaa tiedostonimeen (1_Aleksandravicius.html#footnote-016) eikä sivun omaan ankkuriin; 2021–2023 div.footnote ja
+     sup; 2019 div.footnotes. Kirjallisuusluettelon otsikko on h3 lukujen h2:n alla, joten se nostetaan luvuksi; taulukon ja
+     kuvan otsikot (h4: *1 lentelė.*) ovat kuvatekstejä. Lehden citation_title voi olla toisella kielellä kuin artikkeli
+     (Problemos 109: liettuankielinen artikkeli, englanninkielinen citation_title ja citation_language en), joten otsikko on
+     kokotekstin h1. Mitattu 16.11.2026 Problemosin vuosikerroilla 2019–2026 sekä Literatūrassa, Religija ir kultūrassa,
+     Politologijassa ja Kalbotyrassa. Problemos: ei mainoksia eikä lahjoituspyyntöä, CC BY 4.0. */
+  const OJS_ABSTRAKTI = /^(santrauka|anotacija|abstract|summary|résumé|resume|zusammenfassung|tiivistelmä|аннотация|резюме)$/i;
+  const OJS_AVAINSANAT = /^(pagrindiniai žodžiai|reikšminiai žodžiai|raktiniai žodžiai|raktažodžiai|esminiai žodžiai|keywords|key words|schlüsselwörter|mots-clés|avainsanat|asiasanat|ключевые слова)$/i;
+  const OJS_LUETTELO = /^(literatūra|literatūros sąrašas|naudota literatūra|cituota literatūra|šaltiniai|šaltinių sąrašas|šaltiniai ir literatūra|literatūra ir šaltiniai|bibliografija|references|reference list|bibliography|literature|sources|works cited|kirjallisuus|lähteet|literatur|bibliographie)$/i;
+  const OJS_KUVATEKSTI = /^(\d+\s*(lentelė|pav\.|paveikslas|schema|diagrama|grafikas)|(table|figure|fig\.|chart|diagram)\s*\d+)/i;
+  const OJS_OIKEUS = /copyright\s*©|creative commons|open access article/i;
+  const ojsMeta = (d, n) => [...d.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.getAttribute('content'))).filter(Boolean);
+  const ojsSivu = d => !!d && /^open journal systems/i.test(rivi((d.querySelector('meta[name="generator"]') || {}).content)) && ojsMeta(d, 'citation_title').length > 0;
+  const ojsKehys = d => d.querySelector('iframe[name="htmlFrame"], iframe[src*="/article/download/"]');
+  // Taulukko ruudukoksi (yhdistetyt solut tyhjiksi soluiksi, solun kappaleet yhdeksi riviksi), ensimmäinen rivi otsikoksi:
+  // GFM:n taulukko tarvitsee tasasarakkeisen ruudukon ja otsikkorivin, muuten Turndown jättää sen HTML:ksi. Yksisarakkeinen tai
+  // yksirivinen kappaleeksi.
+  function ojsTaulukko(t) {
+    const ruudukko = [];
+    [...t.rows].forEach((r, i) => {
+      const rv = ruudukko[i] = ruudukko[i] || [];
+      let j = 0;
+      [...r.cells].forEach(c => {
+        while (rv[j] !== undefined) j++;
+        const cs = Math.max(1, c.colSpan || 1), rs = Math.max(1, c.rowSpan || 1);
+        for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) (ruudukko[i + a] = ruudukko[i + a] || [])[j + b] = a || b ? '' : rivi(c.textContent);
+        j += cs;
+      });
+    });
+    const n = Math.max(0, ...ruudukko.map(r => r.length));
+    if (n < 2 || ruudukko.length < 2) {
+      const p = document.createElement('p');
+      ruudukko.map(r => r.filter(Boolean).join(' ')).filter(Boolean).forEach((x, i) => { if (i) p.appendChild(document.createElement('br')); p.append(x); });
+      return rivi(p.textContent) ? t.replaceWith(p) : t.remove();
+    }
+    const u = document.createElement('table'), tb = document.createElement('tbody');
+    ruudukko.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < n; j++) { const c = document.createElement(i ? 'td' : 'th'); c.textContent = r[j] || ''; tr.appendChild(c); }
+      tb.appendChild(tr);
+    });
+    u.appendChild(tb);
+    t.replaceWith(u);
+  }
+  // Vain pdf:nä julkaistu artikkeli (Problemos 1968–2018): artikkelisivun tiedoista tiivistelmät otsikoineen ja avainsanoineen,
+  // kirjallisuus (citation_reference) ja pdf:n osoite näkyvänä tekstinä (Luinin verkkolinkit ovat oletuksena pois).
+  function ojsTiivistelma(L) {
+    const kieli = m => m.getAttribute('xml:lang') || m.getAttribute('lang') || '';
+    const metat = n => [...L.querySelectorAll('meta[name="' + n + '"]')].filter(m => rivi(m.getAttribute('content')));
+    const alt = metat('DC.Title.Alternative'), tiiv = metat('DC.Description').length ? metat('DC.Description') : metat('citation_abstract');
+    if (!tiiv.length) return null;
+    const el = document.createElement('div');
+    const sanat = metat('citation_keywords').length ? metat('citation_keywords') : metat('DC.Subject');
+    const otsikko = ojsMeta(L, 'citation_title')[0] || ojsMeta(L, 'DC.Title')[0] || '';
+    // Sivun omat otsakkeet (käyttöliittymän kielellä), varalla englanti.
+    const nimi = (sel, v) => rivi((L.querySelector(sel) || {}).textContent) || v;
+    // Otsakkeet tiivistelmän kielellä (VU:n kokotekstien sanoin), muuten sivun omat.
+    const OTSAKE = { lt: ['Santrauka', 'Pagrindiniai žodžiai'], en: ['Abstract', 'Keywords'], fi: ['Tiivistelmä', 'Avainsanat'],
+      de: ['Zusammenfassung', 'Schlüsselwörter'], fr: ['Résumé', 'Mots-clés'], ru: ['Аннотация', 'Ключевые слова'] };
+    const otsake = (k, i, sel, v) => (OTSAKE[k.slice(0, 2).toLowerCase()] || [])[i] || nimi(sel, v).replace(/[.:]$/, '');
+    // Artikkelin kielen tiivistelmä ensin: se, jolla ei ole toisen kielen otsikkoa.
+    const toinen = m => alt.some(a => kieli(a) && kieli(a) === kieli(m));
+    tiiv.sort((x, y) => toinen(x) - toinen(y)).forEach(m => {
+      const k = kieli(m), ots = alt.find(a => kieli(a) && kieli(a) === k);
+      const p = document.createElement('p'), st = document.createElement('strong');
+      st.textContent = otsake(k, 0, '.item.abstract .label, section.abstract h2', 'Abstract') + '.';
+      p.append(st, ' ');
+      if (ots) { const em = document.createElement('em'); const t = rivi(ots.getAttribute('content')); em.textContent = /[.?!…]$/.test(t) ? t : t + '.'; p.append(em, ' '); }
+      p.append(rivi(m.getAttribute('content')));
+      el.appendChild(p);
+      let av = sanat.filter(x => kieli(x) === k);
+      if (!av.length) av = metat('DC.Subject').filter(x => kieli(x) === k);
+      av = av.map(x => rivi(x.getAttribute('content')));
+      if (av.length) {
+        const q = document.createElement('p'), s2 = document.createElement('strong');
+        s2.textContent = otsake(k, 1, '.item.keywords .label', 'Keywords') + ':';
+        q.append(s2, ' ', av.join(', '));
+        el.appendChild(q);
+      }
+    });
+    const viitteet = ojsMeta(L, 'citation_reference');
+    if (viitteet.length) {
+      const h = document.createElement('h2'); h.textContent = nimi('.item.references .label, section.references h2', 'References');
+      el.appendChild(h);
+      viitteet.forEach(v => { const p = document.createElement('p'); p.textContent = v; el.appendChild(p); });
+    }
+    const pdf = ojsMeta(L, 'citation_pdf_url')[0];
+    if (pdf) { const p = document.createElement('p'), a = document.createElement('a'); a.href = pdf; a.textContent = pdf; p.append('PDF: ', a); el.appendChild(p); }
+    const teos = ojsMeta(L, 'citation_journal_title')[0] || '';
+    return Object.assign(ojsTiedot(L), { html: el.innerHTML, otsikko, naytto: teos, maar: [] });
+  }
+  function ojsTiedot(L) {
+    const vol = ojsMeta(L, 'citation_volume')[0] || '', nro = ojsMeta(L, 'citation_issue')[0] || '';
+    const s1 = ojsMeta(L, 'citation_firstpage')[0] || '', s2 = ojsMeta(L, 'citation_lastpage')[0] || '';
+    const r = ojsMeta(L, 'DC.Rights'), u = r.find(x => /creativecommons\.org\/licenses\/[a-z-]+\/\d/i.test(x));
+    const cc = u && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(u);
+    return { tekija: ojsMeta(L, 'citation_author').join(' & '), tyyppi: 'tieteellinen', teos: ojsMeta(L, 'citation_journal_title')[0] || '',
+      numero: vol && nro ? vol + ':' + nro : vol || nro, sivut: s1 && s2 && s1 !== s2 ? s1 + '–' + s2 : s1,
+      julkaistu: (ojsMeta(L, 'citation_date')[0] || ojsMeta(L, 'citation_publication_date')[0] || '').replace(/\//g, '-'),
+      doi: ojsMeta(L, 'citation_doi')[0] || '', lahde: ojsMeta(L, 'citation_abstract_html_url')[0] || osoite,
+      oikeus: cc ? { teksti: r.filter(x => x !== u).concat('CC ' + cc[1].toUpperCase() + ' ' + cc[2]).join('. '), lahde: u } : null };
+  }
+  async function ojs() {
+    const gal = /^(.*\/article\/)(?:view|download)\/(\d+)\/(\d+)\/?$/.exec(location.pathname);
+    let L = null, G = null, gOs = '';
+    if (gal) {
+      L = ojsSivu(document) ? document : await hae(location.origin + gal[1] + 'view/' + gal[2]);
+      if (!ojsSivu(L)) return null;
+      const k = ojsKehys(document);
+      if (k) gOs = k.src; else { G = document; gOs = osoite; }
+    } else {
+      if (!/\/article\/view\/\d+\/?$/.test(location.pathname) || !ojsSivu(document)) return null;
+      L = document;
+      gOs = ojsMeta(L, 'citation_fulltext_html_url')[0] || '';
+      if (!gOs) return ojsTiivistelma(L);
+    }
+    if (!G) {
+      if (!gOs) return null;
+      G = await hae(gOs);
+      const k = G && ojsKehys(G);
+      if (k) { gOs = new URL(k.getAttribute('src'), gOs).href; G = await hae(gOs); }
+      if (!G) return null;
+    }
+    const h1 = [...G.querySelectorAll('h1')].find(h => rivi(h.textContent));
+    const el = document.importNode(h1 ? h1.parentElement : G.body, true);
+    if (!rivi(el.textContent)) return null;
+    // Linkit: alaviitemerkin tiedostonimi (1_X.html#footnote-016) sivun omaksi ankkuriksi, muut absoluuttisiksi.
+    const onId = id => { try { return !!el.querySelector('[id="' + CSS.escape(id) + '"], a[name="' + CSS.escape(id) + '"]'); } catch (e) { return false; } };
+    el.querySelectorAll('a[href]').forEach(a => {
+      const h = a.getAttribute('href'), m = /^[^/?#:]+\.x?html?#(.+)$/i.exec(h);
+      if (m && onId(m[1])) a.setAttribute('href', '#' + m[1]);
+      else if (!h.startsWith('#')) { try { a.setAttribute('href', new URL(h.trim(), gOs).href); } catch (e) {} }
+    });
+    el.querySelectorAll('script, style, noscript, img, iframe, svg, button').forEach(x => x.remove());
+    const tyhja = p => !rivi(p.textContent.replace(/_/g, ''));
+    const otsikko = rivi(h1 ? h1.textContent : ojsMeta(L, 'citation_title')[0]);
+    const tekijat = ojsMeta(L, 'citation_author');
+    const tunnetut = new Set(tekijat.map(t => t.toLowerCase()));
+    // Alku oikeuskappaleeseen asti: tiivistelmät ja avainsanat talteen, muu (lehden tiedot, rubriikki, tekijä, laitos,
+    // rahoitus, päivämäärät) pois.
+    const lapset = [...el.children];
+    let oi = lapset.findIndex(e => e.tagName === 'P' && OJS_OIKEUS.test(e.textContent));
+    const alku = [];
+    let oikeus = null;
+    if (oi >= 0) {
+      // Oikeuskappale voi jatkua seuraavaan (Kalbotyra: Copyright ja Open Access -lause erikseen); viivat ja tyhjät mukaan.
+      const oa = oi;
+      while (lapset[oi + 1] && lapset[oi + 1].tagName === 'P' && (OJS_OIKEUS.test(lapset[oi + 1].textContent) || tyhja(lapset[oi + 1]))) oi++;
+      const etu = lapset.slice(0, oi + 1);
+      etu.forEach((e, i) => {
+        if (e.tagName !== 'P') return;
+        const s = e.querySelector('strong, b'), nimi = s && rivi(s.textContent).replace(/\s*[.:]\s*$/, '');
+        if (!nimi || !OJS_ABSTRAKTI.test(nimi) || !rivi(e.textContent).startsWith(rivi(s.textContent))) return;
+        // Tiivistelmän otsikko: edeltävä väliotsikko, jos se ei ole artikkelin otsikko eikä tekijä (2019: tekijä h3:na).
+        let ots = '';
+        for (let j = i - 1; j >= 0; j--) {
+          if (!/^H[1-6]$/.test(etu[j].tagName)) continue;
+          const t = rivi(etu[j].textContent);
+          if (etu[j].tagName !== 'H1' && t && !tunnetut.has(t.toLowerCase())) ots = t;
+          break;
+        }
+        const k = e.cloneNode(true);
+        k.querySelector('strong, b').remove();
+        const av = [...k.querySelectorAll('strong, b')].find(x => OJS_AVAINSANAT.test(rivi(x.textContent).replace(/\s*[.:]\s*$/, '')));
+        let avp = null;
+        if (av) {
+          const avNimi = rivi(av.textContent).replace(/\s*[.:]\s*$/, '');
+          const r = document.createRange();
+          r.setStartBefore(av); r.setEndAfter(k.lastChild);
+          const loput = r.extractContents();
+          loput.querySelector('strong, b').remove();
+          avp = document.createElement('p');
+          const st = document.createElement('strong'); st.textContent = avNimi + ':';
+          avp.append(st, ' ', loput);
+        }
+        // Otsakkeen jälkeinen piste tai kaksoispiste ja loppujen rivinvaihdot pois.
+        const siisti = p => {
+          const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+          for (let t; (t = w.nextNode());) { if (!t.nodeValue.trim()) continue; t.nodeValue = t.nodeValue.replace(/^\s*[.:]?\s*/, ''); break; }
+          // Rivinvaihto, jonka jälkeen ei ole tekstiä (myös kääreen sisällä: <span>…life.<br /></span>).
+          [...p.querySelectorAll('br')].reverse().forEach(b => {
+            const r = document.createRange(); r.setStartAfter(b); r.setEnd(p, p.childNodes.length);
+            if (!r.toString().trim()) b.remove();
+          });
+        };
+        const p = document.createElement('p'), st = document.createElement('strong');
+        st.textContent = nimi + '.';
+        p.append(st, ' ');
+        if (ots) { const em = document.createElement('em'); em.textContent = /[.?!…]$/.test(ots) ? ots : ots + '.'; p.append(em, ' '); }
+        const sisus = document.createElement('span');
+        sisus.append(...k.childNodes);
+        siisti(sisus);
+        p.append(...sisus.childNodes);
+        alku.push(p);
+        if (avp) {
+          const sp = document.createElement('span'); sp.append(...[...avp.childNodes].slice(2)); siisti(sp);
+          avp.append(...sp.childNodes); alku.push(avp);
+        }
+      });
+      const oik = document.createElement('div');
+      lapset.slice(oa, oi + 1).forEach(e => { const k = e.cloneNode(true); k.querySelectorAll('br').forEach(b => b.replaceWith(' ')); oik.append(k, ' '); });
+      const cc = oik.querySelector('a[href*="creativecommons.org"]');
+      const t = rivi(oik.textContent), c = t.search(/copyright/i);
+      if (c >= 0) oikeus = { teksti: t.slice(c), lahde: cc ? cc.getAttribute('href') : osoite };
+      etu.forEach(e => e.remove());
+    }
+    el.querySelectorAll('h1').forEach(h => h.remove());
+    el.querySelectorAll('p').forEach(p => { if (tyhja(p)) p.remove(); });
+    // Väliotsikot lihavoituina kappaleina (Kalbotyra: 1 Įvadas, 2.1 …), vain jos oikeita otsikoita ei ole; taso numeroinnista.
+    // Lihavoitu luettelon otsikko (Politologija: Literatūra ir šaltiniai) aina.
+    // Alaviitemerkki otsikossa (Kalbotyra: 4.1 …<sup>13</sup>) jää otsikkoon; md.js tekee siitä otsikon alaviitteen.
+    const merkitOf = x => [...x.querySelectorAll('a[href^="#"]')].filter(a => tunnusOf(a.textContent)).map(a => {
+      let k = a;
+      while (k.parentElement !== x && /^(SUP|SPAN)$/.test(k.parentElement.tagName) && rivi(k.parentElement.textContent) === rivi(a.textContent)) k = k.parentElement;
+      return k;
+    });
+    const ilmanMerkkeja = x => { const merkit = merkitOf(x), k = x.cloneNode(true); merkitOf(k).forEach(m => m.remove()); return { t: rivi(k.textContent), merkit }; };
+    const otsikoita = !!el.querySelector('h2, h3, h4, h5, h6');
+    el.querySelectorAll('p').forEach(p => {
+      const { t, merkit } = ilmanMerkkeja(p);
+      if (otsikoita && !OJS_LUETTELO.test(t.replace(/\s*[.:]$/, ''))) return;
+      if (!t || t.length > 160 || /[:;,]$/.test(t) || (/\.$/.test(t) && t.split(' ').length > 8) || p.closest('li, td, th, blockquote, .footnote, .footnotes, section')) return;
+      const b = [...p.querySelectorAll('strong, b')].filter(x => !x.parentElement.closest('strong, b')).map(x => ilmanMerkkeja(x).t).join('');
+      if (rivi(b).replace(/\s/g, '') !== t.replace(/\s/g, '')) return;
+      const nro = /^(\d+(?:\.\d+)*)\.?\s/.exec(t);
+      const h = document.createElement('h' + Math.min(6, 1 + (nro ? nro[1].split('.').length : 1)));
+      h.append(t, ...merkit);
+      p.replaceWith(h);
+    });
+    // Otsikot tekstiksi (lihavoinnit pois); kuvien ja taulukoiden otsikot kursiivikappaleiksi; kirjallisuus luvuksi; muut
+    // tasot järjestyksessä luvuiksi, osioiksi ja kohdiksi (Religija ir kultūra: h2 ja h4 ilman h3:a).
+    const tasot = new Set();
+    [...el.querySelectorAll('h2, h3, h4, h5, h6')].forEach(h => {
+      const { t, merkit } = ilmanMerkkeja(h);
+      if (!t) return h.remove();
+      if (OJS_KUVATEKSTI.test(t)) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.append(em, ...merkit); return h.replaceWith(p); }
+      const u = document.createElement(h.tagName);
+      u.append(t, ...merkit);
+      if (OJS_LUETTELO.test(t.replace(/\s*[.:]$/, ''))) u.dataset.luettelo = '1'; else tasot.add(+h.tagName[1]);
+      h.replaceWith(u);
+    });
+    const jarjestys = [...tasot].sort();
+    el.querySelectorAll('h2, h3, h4, h5, h6').forEach(h => {
+      const n = h.dataset.luettelo ? 2 : Math.min(6, 2 + jarjestys.indexOf(+h.tagName[1]));
+      if (n === +h.tagName[1] && !h.dataset.luettelo) return;
+      const u = document.createElement('h' + n); u.append(...h.childNodes); h.replaceWith(u);
+    });
+    // Yläindeksit ilman attribuutteja (InDesign: <sup xml:lang="en-GB">th</sup>), muuten md.js näyttäisi ne tekstinä; ennen
+    // alaviitteitä, koska niiden teksti muunnetaan heti.
+    el.querySelectorAll('sup, sub').forEach(x => [...x.attributes].forEach(a => x.removeAttribute(a.name)));
+    ejpViittaukset(el);
+    const maar = samanSivunViitteet(el, 'ojs');
+    // Tyhjiksi jääneet alaviitelohkot ja niiden edellä oleva viiva pois.
+    [...el.querySelectorAll('section, ol, ul, div')].reverse().forEach(x => { if (!rivi(x.textContent) && !x.querySelector('table')) x.remove(); });
+    while (el.lastElementChild && /^HR$/.test(el.lastElementChild.tagName)) el.lastElementChild.remove();
+    el.querySelectorAll('table').forEach(t => { if (!t.parentElement.closest('table')) ojsTaulukko(t); });
+    if (alku.length) el.prepend(...alku, document.createElement('hr'));
+    const tiedot = ojsTiedot(L);
+    return Object.assign(tiedot, { html: irrota([el]).innerHTML, otsikko, oikeus: oikeus || tiedot.oikeus, naytto: tiedot.teos, maar });
+  }
+
   /* Project Gutenberg (käyttäjän pyyntö 14.11.2026: alkuteokset). Kirjojen HTML on tehty käsin, ja rakenne vaihtelee
      kirjasta toiseen; yhteistä on Ebookmakerin kehys: sisältö on #pg-start-separatorin ja #pg-end-separatorin välissä
      (lisenssiteksti ja otsake jäävät pois) ja metatiedot Dublin Corea (dc.title, dc.creator, marcrel.trl, dc.language,
@@ -2324,7 +2595,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, ejp, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
@@ -2341,6 +2612,7 @@
   kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
   kentta('teos', blogi && blogi.teos);
   kentta('numero', blogi && blogi.numero);
+  kentta('sivut', blogi && blogi.sivut);
   kentta('toimittaja', blogi && blogi.toimittaja);
   kentta('suomentaja', blogi && blogi.suomentaja);
   kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
