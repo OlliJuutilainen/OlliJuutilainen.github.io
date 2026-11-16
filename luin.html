@@ -295,8 +295,18 @@
   /* Postihuilun i-nappi otsikon oikealla puolella (käyttäjän pyyntö 10.11.2026): pieni, otsikon mittainen rivi. */
   .lisaa-ots-rivi { display: flex; align-items: center; gap: 0; margin: 22px 0 0; }
   .lisaa-ots-rivi .lisaa-ots { margin: 0; }
+  /* Pinon Postihuilu on oletuksena kiinni (käyttäjän pyyntö 16.11.2026): näkyy vain versaaliotsikko, jonka perässä on
+     m-osion tapaan pieni salmiakki (ontto kiinni, täytetty auki). Otsikko avaa huilun, viivaston, i-napin ja kentän.
+     Tila ei tallennu: pino avautuu aina kiinni. */
+  .lisaa-ots-rivi button.lisaa-ots { display: inline-flex; align-items: center; gap: 7px; padding: 6px 0; margin: -6px 0; border: 0;
+    background: none; font-family: inherit; line-height: inherit; cursor: pointer; }
+  button.lisaa-ots svg { width: 6px; height: 7.4px; flex: 0 0 auto; position: relative; top: -.5px; }
+  button.lisaa-ots .sal { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  #huilulohko.auki button.lisaa-ots .sal { fill: currentColor; }
+  #huilulohko:not(.auki) > :not(.lisaa-ots-rivi), #huilulohko:not(.auki) .lisaa-ots-rivi > :not(.lisaa-ots) { display: none; }
   /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js): vino huilu otsikon oikealla puolella (.huilu-paikka),
-     sen kellosta kulmikas nelilinja oikeaan reunaan, ja nuotit Soita huilua! -napin yläpuolelle vasta painalluksesta.
+     sen kellosta kulmikas kolmilinja oikealle (enintään neljä jaksoa), ja nuotit Soita huilua! -napin yläpuolelle vasta
+     painalluksesta (leveällä näytöllä, kun siksak ei ulotu napin yläpuolelle, viivaston loppupäähän napin levyiseltä matkalta).
      piirraHuilu() piirtää kuvion mitatuista paikoista lohkon päälle (svg.huilukuvio); .huilukaista on viivaston tila.
      Otsikon harmaa, ei ruostetta (ruoste = napautettava). */
   .huilulohko { position: relative; }
@@ -1305,7 +1315,7 @@
        (tekstin osoite tai Luin-linkki). Otsikko Postihuilu ja nappi Soita huilua! käyttäjän pyynnöstä 10.11.2026. -->
   <div class="vain-lista">
   <div class="huilulohko" id="huilulohko"><svg class="huilukuvio" aria-hidden="true"></svg>
-  <div class="lisaa-ots-rivi"><p class="lisaa-ots" id="lisaa-ots">Postihuilu</p>
+  <div class="lisaa-ots-rivi"><button type="button" class="lisaa-ots" id="lisaa-ots" aria-expanded="false" aria-controls="lisaa-kentta">Postihuilu<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></button>
     <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: postihuilu"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2.84 4.53H5.48V5.19H3.72V23.1H5.48V23.76H2.84Z"/><path d="M15.16 4.53H12.52V5.19H14.28V23.1H12.52V23.76H15.16Z"/><path d="M9 8.74Q9.42 9.63 10.12 10.19Q9.42 10.74 9 11.64Q8.58 10.74 7.88 10.19Q8.58 9.63 9 8.74ZM8.25 12.96H9.75V20H8.25Z"/></svg></button><span class="huilu-paikka" aria-hidden="true"></span></div>
   <div class="huilukaista" aria-hidden="true"></div>
   <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo pinoosi sisältöä toisten laitteittesi pinoista ja uusimman luettavan kappaleen <a href="luin/latomo.html">latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
@@ -1510,7 +1520,7 @@
 <script src="luin/md.js?v=a4738694"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=63a4dc63"></script>
+<script src="luin/huilu.js?v=ef332137"></script>
 <script>
 (function () {
   'use strict';
@@ -2423,17 +2433,26 @@
   function piirraHuilu(lohko) {
     var svg = lohko && lohko.querySelector('svg.huilukuvio'), R = lohko && lohko.getBoundingClientRect();
     if (!svg || !R.width) return;
+    if (lohko.id === 'huilulohko' && !lohko.classList.contains('auki')) { svg.innerHTML = ''; return; }
     var kaistaEl = lohko.querySelector('.huilukaista'), kaista = kaistaEl.getBoundingClientRect(), nappi = lohko.querySelector('.huilunappi').getBoundingClientRect();
     var paikka = lohko.querySelector('.huilu-paikka'), r = LuinHuilu.rajat(HUILU.T, HUILU.sw, HUILU.kulma), vasen, yla;
     // Pinossa huilu i-napin oikealla puolella hiukan rivin yläpuolelle nousten; asetuksissa kuvio on napin yläpuolella
-    // oikealla (viuhka noin 110 px ennen napin vasenta reunaa), ei vasemmasta laidasta alkaen.
+    // oikealla, ei vasemmasta laidasta alkaen: huilu siirretään niin, että täysimittainen siksak (16.11.2026: enintään
+    // neljä jaksoa) päättyy napin oikeaan reunaan (viuhka noin 110 px ennen napin vasenta reunaa kuten ennenkin).
     if (paikka) { var P = paikka.getBoundingClientRect(); vasen = P.left - R.left + (P.width - r.w) / 2; yla = P.top - R.top - 8; }
-    else { vasen = Math.max(8, nappi.left - R.left - 110); yla = kaista.top - R.top + 2; }
+    else {
+      yla = kaista.top - R.top + 2;
+      var k0 = LuinHuilu.kaista({ vasen: 0, yla: yla, keskiY: yla + r.h + 11, oikea: 1e5, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma });
+      vasen = Math.max(8, nappi.right - R.left - k0.loppu - .01);
+    }
     var opt = { vasen: vasen, yla: yla, keskiY: yla + r.h + 11, oikea: R.width, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma };
     var k = LuinHuilu.kaista(opt);
     if (k.vasenReuna < 2) { opt.vasen += 2 - k.vasenReuna; k = LuinHuilu.kaista(opt); }
     var sis = k.svg;
-    if (lohko._nuotit) sis += '<path class="nuotit" d="' + LuinHuilu.nuotit(k, nappi.left - R.left, nappi.right - R.left, lohko._nuotit) + '" fill="currentColor"/>';
+    // Nuotit napin yläpuolelle; jos lyhentynyt siksak (16.11.2026) loppuu ennen napin oikeaa reunaa, napin levyiselle
+    // matkalle viivaston loppuun.
+    var nx1 = Math.min(nappi.right - R.left, k.loppu), nx0 = Math.min(nappi.left - R.left, nx1 - nappi.width);
+    if (lohko._nuotit) sis += '<path class="nuotit" d="' + LuinHuilu.nuotit(k, nx0, nx1, lohko._nuotit) + '" fill="currentColor"/>';
     // Kaistan korkeus kuvion mukaan (viivasto, siksak ja nuotit mahtuvat; kenttä tai nappi alkaa 3 px alempana).
     var korkeus = Math.ceil(k.alaY - (kaista.top - R.top)) + 3 + 'px';
     if (kaistaEl.style.height !== korkeus) kaistaEl.style.height = korkeus;
@@ -2458,6 +2477,11 @@
     if (this.open) { if (l._nuotit && Date.now() - l._soi > 3000) l._nuotit = null; piirraHuilu(l); }
   });
 
+  $('#lisaa-ots').addEventListener('click', function () {
+    var l = $('#huilulohko'), auki = l.classList.toggle('auki');
+    this.setAttribute('aria-expanded', String(auki));
+    piirraHuilu(l);
+  });
   $('#huilu-kysy').addEventListener('click', function () {
     var o = $('#huilu-ohje'), auki = o.hidden;
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
