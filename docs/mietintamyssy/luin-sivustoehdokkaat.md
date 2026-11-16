@@ -35,6 +35,9 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
   Online Library of Liberty (16.11.2026, pahvin A8): oll.libertyfund.org estää pilvikontin (CloudFrontin 403), joten testaamatta
   eikä sovitetta.
+  Deutschlandfunk: Essay und Diskurs (16.11.2026, pahvin B9): käsikirjoitus on HTML:nä, ja yleinen leikkaus riittää. Mitattu
+  kolmella esseellä: koko teksti väliotsikoineen (h2 tai lihavoidut kappaleet), ei soitinta eikä kehotteita; tekijän edessä on
+  *Von* ja julkaisupäivä puuttuu.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
   on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
@@ -471,7 +474,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Saksa
 
-- Deutschlandfunk: Essay und Diskurs, litteraatiot
+- Deutschlandfunk: Essay und Diskurs, litteraatiot (yleinen leikkaus riittää, 16.11.2026, ks. yllä)
 - SWR2 Wissen: käsikirjoitukset
 - Bundeszentrale für politische Bildung: Aus Politik und Zeitgeschichte
 - Perlentaucher
