@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine ja Andy Matuschakin esseet (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet ja Five Books (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2641,6 +2641,57 @@
       lahde: osoite, maar };
   }
 
+  /* Five Books (fivebooks.com; käyttäjän pyyntö 16.11.2026, pahvin B10: suositellut kirjat väliotsikoiksi, kansikuvat ja mainokset
+     pois). Haastattelu #interviewcontent: kysymykset p.question, vastaukset kappaleina, kirjan käsittelyn alussa aside[data-book-id]
+     (kaksi kopiota: leveä ja kapea ruutu), nostolainaukset p.pullquote, tukipyyntö .inline-box.-donate, kirjahylly
+     li.single-book[data-book-id] (h2.book-title: nimi ja by Tekijä) sivun alussa. Readability antoi haastattelun ilman yhtään
+     väliotsikkoa, nostolainaukset ja tukipyynnön tekstin seassa ja tekijäksi Five Books. Kirjan ensimmäinen aside väliotsikoksi
+     ## 1. Nimi, by Tekijä (kirjahyllyn tiedoista), muut asidet, kansikuvat, osto- ja kuuntelunapit, nostolainaukset ja tukipyyntö
+     pois; kysymykset lihavoiduiksi kappaleiksi (puhujia ei nimetä). Tekijäksi haastateltava (.interviewee-bio .heading), esittely
+     loppuun; haastattelijan rivi (Interview by …) jää. Päivä JSON-LD:stä. Ei mainoksia (vain Google Tag Manager), lahjoituksia
+     pyydetään. Mitattu 16.11.2026. */
+  async function fivebooks() {
+    if (!/(^|\.)fivebooks\.com$/i.test(location.hostname)) return null;
+    const runko = document.getElementById('interviewcontent');
+    if (!runko || !runko.querySelector('p.question')) return null;
+    const kirjat = new Map();
+    document.querySelectorAll('li.single-book[data-book-id]').forEach(li => {
+      const h = li.querySelector('.book-title'), nro = rivi((li.querySelector('.book-number') || {}).textContent);
+      if (!h || kirjat.has(li.dataset.bookId)) return;
+      const k = h.cloneNode(true); k.querySelectorAll('br').forEach(b => b.replaceWith(' '));
+      const nimi = rivi((h.querySelector('.title') || h).textContent), tek = rivi(k.textContent).slice(nimi.length).trim();
+      kirjat.set(li.dataset.bookId, { nro, nimi, tek });
+    });
+    const el = document.createElement('div'), nahty = new Set();
+    for (const c of runko.children) {
+      if (c.matches('aside[data-book-id]')) {
+        const id = c.dataset.bookId, k = kirjat.get(id);
+        if (nahty.has(id) || !k) continue;
+        nahty.add(id);
+        const h = document.createElement('h2');
+        h.append((k.nro ? k.nro + '. ' : ''), Object.assign(document.createElement('em'), { textContent: k.nimi }), k.tek ? ', ' + k.tek : '');
+        el.appendChild(h);
+        continue;
+      }
+      if (c.matches('aside, .social-buttons, .pullquote, .inline-box, .interview-book-ad, script, style, form, figure, picture')) continue;
+      const k = c.cloneNode(true);
+      k.querySelectorAll('aside, .pullquote, .inline-box, picture, img, .buy-button, .listen-button, script, style').forEach(x => x.remove());
+      k.querySelectorAll('span.drop-cap').forEach(s => s.replaceWith(...s.childNodes));
+      if (!rivi(k.textContent)) continue;
+      if (k.matches('p.question')) { const b = document.createElement('strong'); b.append(...k.childNodes); k.appendChild(b); k.removeAttribute('class'); }
+      el.appendChild(k);
+    }
+    // Upotetut kirjan tiedot kappaleen sisällä (aside kesken tekstin) jo poistettu; tyhjät pois.
+    if (kkSanoja(el) < 100) return null;
+    const bio = document.querySelector('.interviewee-bio');
+    const tekija = rivi((bio && bio.querySelector('.heading') || {}).textContent);
+    const esit = bio ? [...bio.querySelectorAll('.biography p')].filter(p => rivi(p.textContent)) : [];
+    if (esit.length) { const h = document.createElement('h2'); h.textContent = tekija || 'Biography'; el.append(h, ...esit.map(p => p.cloneNode(true))); }
+    let julkaistu = '';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => { const m = /"datePublished"\s*:\s*"(\d{4}-\d\d-\d\d)/.exec(s.textContent); if (m && !julkaistu) julkaistu = m[1]; });
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('h1') || {}).textContent), tekija, sivusto: 'Five Books', julkaistu, lahde: osoite };
+  }
+
   /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
      nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
      p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
@@ -3832,6 +3883,7 @@
     ejp: { laji: 'lahjoitukset', osoite: 'https://www.paypal.com/donate/?hosted_button_id=5KCSPCEPPTCYC' },
     doppiozero: { laji: 'lahjoitukset', osoite: 'https://www.doppiozero.com/sostieni-doppiozero' },
     matuschak: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/quantumcountry' },
+    fivebooks: { laji: 'lahjoitukset', osoite: 'https://fivebooks.com/support-us/' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -3850,7 +3902,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
