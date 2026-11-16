@@ -18,6 +18,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   (PR #701, 14.11.2026), New Advent ja CCEL (14.11.2026) sekä Psyche ja Aeon yhdellä sovitteella (14.11.2026).
   LacusCurtius (16.11.2026, antiikkiosiosta): Loebin vanhat käännökset ovat siellä vapaasti, vaikka Loeb itse on alla
   maksumuurin takana.
+  Korpora.org/kant (PR-NUMERO, 16.11.2026, pahvin *20 uutta sivustosovitetta* A1): koko teos AA:n sivuista, sivunumerot 4:393.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -71,7 +72,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Filosofian alkuteokset ja editiot
 
-- Korpora.org/kant: Akademie-Ausgabe
+- Korpora.org/kant: Akademie-Ausgabe (tehty 16.11.2026, ks. yllä)
 - Early Modern Texts: earlymoderntexts.com (Bennettin muokkaukset, pdf)
 - Nietzsche Source: nietzschesource.org (eKGWB)
 - Søren Kierkegaards Skrifter: sks.dk
