@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet ja Five Books (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books ja Perseus (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3044,6 +3044,174 @@
     return tulos;
   }
 
+  /* Perseus Digital Library (perseus.tufts.edu/hopper; käyttäjän pyyntö 16.11.2026, pahvin A10: lyhyistä paloista koko kirja,
+     viitenumerot kirja.luku.pykälä). Lukusivu text?doc=Perseus:text:1999.01.0168:book=1:section=327a näyttää yhden pykälän;
+     sama sivu tarjoaa koko teoksen TEI-XML:n (dltext?doc=…, yksi haku samalta sivustolta), josta leikataan osoitteen ylin osa
+     (book=1 → div type=book n=1; ilman jakoa koko teos). XML luetaan XML:nä (milestone on tyhjä elementti, jonka HTML-jäsennin
+     tulkitsisi alkutagiksi). Kreikka on XML:ssä Beta-koodia (NO/MW| PO/LEWS, *)ari/stwnos): Unicodeksi (psBeta). Kreikankielisessä
+     teoksessa (sivun .text_container.greek) koko teksti, muissa foreign[lang=greek]. Viitenumerot yläindekseiksi: pykälä
+     (milestone unit=section) tai luku, muodossa kirja.luku.pykälä; kirjaimellinen pykälä (Stephanus 327a, Bekker) sellaisenaan.
+     Puhujat (sp/speaker) lihavoituina puheenvuoron alkuun, säkeet (l) riveittäin, otsikot (head) väliotsikoiksi, teosten nimet
+     (title) kursiiviksi, viitteet (note) alaviitteiksi. Etukenttä teiHeaderista: nimi (ilman (English). Machine readable text),
+     tekijä, kääntäjä lähdeteoksen nimestä (translated by …), lähdeteos, kustantaja ja vuosi; lisenssi sivun rel=license-linkistä.
+     Scaife-lukija (scaife.perseus.org) on JavaScript-sovellus, jota sovite ei kata. Mitattu 16.11.2026. */
+  const PS_NIMI = 'Perseus Digital Library';
+  const PS_KIRJAIMET = { a: 'α', b: 'β', g: 'γ', d: 'δ', e: 'ε', z: 'ζ', h: 'η', q: 'θ', i: 'ι', k: 'κ', l: 'λ', m: 'μ', n: 'ν', c: 'ξ',
+    o: 'ο', p: 'π', r: 'ρ', s: 'σ', t: 'τ', u: 'υ', f: 'φ', x: 'χ', y: 'ψ', w: 'ω', v: 'ϝ' };
+  const PS_MERKIT = { ')': ['̓', 0], '(': ['̔', 0], '+': ['̈', 1], '/': ['́', 2], '\\': ['̀', 2], '=': ['͂', 2], '|': ['ͅ', 3] };
+  function psBeta(s) {
+    let ulos = '';
+    const t = String(s);
+    for (let i = 0; i < t.length;) {
+      let iso = false, merkit = [];
+      if (t[i] === '*') {
+        iso = true; i++;
+        while (i < t.length && PS_MERKIT[t[i]]) merkit.push(PS_MERKIT[t[i++]]);
+      }
+      const ch = (t[i] || '').toLowerCase();
+      if (!PS_KIRJAIMET[ch]) {
+        if (iso) ulos += merkit.map(m => m[0]).join('');
+        const p = { ':': '·', ';': ';', "'": '’', '#': 'ʹ' }[t[i]];
+        ulos += p !== undefined ? p : (t[i] || '');
+        i++; continue;
+      }
+      let k = PS_KIRJAIMET[ch];
+      i++;
+      if (ch === 's') {
+        if (t[i] === '1') { i++; } else if (t[i] === '2') { k = 'ς'; i++; } else if (t[i] === '3') { k = 'ϲ'; i++; }
+        else if (!iso && !/[a-z*)(\/\\=+|]/i.test(t[i] || '')) k = 'ς';
+      }
+      while (i < t.length && PS_MERKIT[t[i]]) merkit.push(PS_MERKIT[t[i++]]);
+      merkit.sort((a, b) => a[1] - b[1]);
+      ulos += (iso ? k.toUpperCase() : k) + merkit.map(m => m[0]).join('');
+    }
+    return ulos.normalize('NFC');
+  }
+  function psXml(u) {
+    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 20000);
+    return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '')
+      .then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null).finally(() => clearTimeout(ajastin));
+  }
+  async function perseus() {
+    if (!/(^|\.)perseus\.tufts\.edu$/i.test(location.hostname) || !/\/hopper\/text/.test(location.pathname)) return null;
+    let doc = '';
+    try { doc = new URL(osoite).searchParams.get('doc') || ''; } catch (e) { return null; }
+    const dm = /^(Perseus:text:[\d.]+)(?::(.*))?$/.exec(doc);
+    if (!dm) return null;
+    const avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
+    const kreikka = !!document.querySelector('.text_container.greek');
+    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+    const body = X && X.getElementsByTagName('body')[0];
+    if (!body) return null;
+    // Osoitteen ylin jako, jolle löytyy div (book=1 → div1 type=book n=1).
+    let osa = null, osaNimi = '';
+    const divit = [...body.getElementsByTagName('*')].filter(e => /^div\d?$/.test(e.tagName));
+    for (const [k, v] of avaimet) {
+      osa = divit.find(d => (d.getAttribute('type') || '').toLowerCase() === k.toLowerCase() && d.getAttribute('n') === v);
+      if (osa) { osaNimi = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase() + ' ' + v; break; }
+    }
+    const juuri = osa || body;
+    const el = document.createElement('div'), maar = [];
+    let laskuri = 0, kpl = null;
+    const tila = { kirja: osa && /^book$/i.test(osa.getAttribute('type') || '') ? osa.getAttribute('n') : '', luku: '' };
+    const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, tila.luku, n].filter(Boolean).join('.');
+    // Sisäinen muunnos: TEI-solmu → HTML-solmut (inline).
+    function inline(n, gr) {
+      if (n.nodeType === 3) return [document.createTextNode((gr ? psBeta(n.nodeValue) : n.nodeValue).replace(/\s+/g, ' '))];
+      if (n.nodeType !== 1) return [];
+      const tag = n.tagName, lang = (n.getAttribute('lang') || '').toLowerCase();
+      const g = lang ? lang === 'greek' : gr;
+      const lapset = () => [...n.childNodes].flatMap(c => inline(c, g));
+      if (tag === 'note') {
+        const v = document.createElement('div'); v.append(...lapset());
+        const t = muunna(irrota([v]).innerHTML, 'inlined').trim();
+        if (!t) return [];
+        const tunnus = 'ps' + (++laskuri);
+        maar.push(maaritelma(tunnus, t));
+        return [merkki(tunnus)];
+      }
+      if (tag === 'milestone') {
+        const u = n.getAttribute('unit'), nn = n.getAttribute('n') || '';
+        if (u === 'chapter') { tila.luku = nn; return []; }
+        if (u === 'section' || u === 'card') { const s = document.createElement('sup'); s.textContent = viite(nn); return [s, document.createTextNode(' ')]; }
+        return [];
+      }
+      if (tag === 'title') { const em = document.createElement('em'); em.append(...lapset()); return [em]; }
+      if (tag === 'lb') return [document.createTextNode(' ')];
+      if (tag === 'pb') return [];
+      if (tag === 'gap') return [document.createTextNode('…')];
+      if (tag === 'del') return [];
+      return lapset();
+    }
+    const uusiKpl = () => { kpl = document.createElement('p'); el.appendChild(kpl); return kpl; };
+    function lohko(n, gr) {
+      if (n.nodeType === 3) { if (rivi(n.nodeValue)) (kpl || uusiKpl()).append(...inline(n, gr)); return; }
+      if (n.nodeType !== 1) return;
+      const tag = n.tagName, lang = (n.getAttribute('lang') || '').toLowerCase();
+      const g = lang ? lang === 'greek' : gr;
+      if (/^div\d?$/.test(tag)) {
+        if (n !== juuri && /^chapter$/i.test(n.getAttribute('type') || '')) tila.luku = n.getAttribute('n') || '';
+        if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) tila.kirja = n.getAttribute('n') || '';
+        [...n.childNodes].forEach(c => lohko(c, g));
+        kpl = null; return;
+      }
+      if (tag === 'head') {
+        const h = document.createElement('h3'); h.append(...[...n.childNodes].flatMap(c => inline(c, g)));
+        if (rivi(h.textContent)) el.appendChild(h);
+        kpl = null; return;
+      }
+      if (tag === 'sp') {
+        const sp = n.getElementsByTagName('speaker')[0];
+        const nimi = sp ? rivi(kreikka ? psBeta(sp.textContent) : sp.textContent) : '';
+        let eka = true;
+        [...n.childNodes].forEach(c => {
+          if (c.nodeType === 1 && c.tagName === 'speaker') return;
+          if (c.nodeType === 1 && (c.tagName === 'p' || c.tagName === 'l' || c.tagName === 'lg')) {
+            lohko(c, g);
+            if (eka && nimi && kpl) { const b = document.createElement('strong'); b.textContent = nimi + ':'; kpl.prepend(b, ' '); }
+            eka = false;
+          } else lohko(c, g);
+        });
+        kpl = null; return;
+      }
+      if (tag === 'p') { uusiKpl(); kpl.append(...[...n.childNodes].flatMap(c => inline(c, g))); kpl = null; return; }
+      if (tag === 'l') {
+        const p = kpl && kpl.dataset.sae ? kpl : uusiKpl();
+        p.dataset.sae = '1';
+        if (p.childNodes.length) p.appendChild(document.createElement('br'));
+        p.append(...[...n.childNodes].flatMap(c => inline(c, g)));
+        return;
+      }
+      if (tag === 'lg' || tag === 'quote' || tag === 'cit' || tag === 'q') {
+        if (tag === 'lg' || [...n.childNodes].some(c => c.nodeType === 1 && /^(l|lg|p)$/.test(c.tagName))) { kpl = null; [...n.childNodes].forEach(c => lohko(c, g)); kpl = null; return; }
+      }
+      if (tag === 'castList' || tag === 'front') return;
+      (kpl || uusiKpl()).append(...inline(n, g));
+    }
+    [...juuri.childNodes].forEach(c => lohko(c, kreikka));
+    el.querySelectorAll('p').forEach(p => { p.removeAttribute('data-sae'); if (!rivi(p.textContent)) p.remove(); });
+    // Pelkkä viitenumero omana kappaleenaan (milestone ennen puheenvuoroa) seuraavan kappaleen alkuun.
+    [...el.querySelectorAll('p')].forEach(p => {
+      if ([...p.childNodes].some(c => c.nodeType === 1 ? c.tagName !== 'SUP' : rivi(c.nodeValue))) return;
+      const s = p.nextElementSibling;
+      if (s && s.tagName === 'P') { s.prepend(...p.childNodes); p.remove(); }
+    });
+    el.normalize();
+    if (kkSanoja(el) < 50) return null;
+    const ts = X.getElementsByTagName('titleStmt')[0], sd = X.getElementsByTagName('sourceDesc')[0];
+    const ek = (r, t) => r && r.getElementsByTagName(t)[0] ? rivi(r.getElementsByTagName(t)[0].textContent) : '';
+    // Otsake (teiHeader) on latinalaisin kirjaimin myös kreikankielisessä teoksessa.
+    let nimi = ek(ts, 'title').replace(/\s*\((English|Greek|Latin)\)\s*/i, ' ').replace(/\.?\s*Machine readable text\.?$/i, '').trim();
+    const lt = ek(sd, 'title');
+    const km = /^(.*?),?\s+translated by\s+(.+)$/i.exec(lt);
+    const kaantaja = km ? km[2] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
+    const vuosi = (/(1[5-9]\d\d|20\d\d)/.exec(ek(sd, 'date')) || [])[1] || '';
+    return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + ', ' + osaNimi : nimi, tekija: ek(ts, 'author'),
+      suomentaja: kaantaja ? kkKaantaja(kkNimet(kaantaja)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
+      sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaNimi ? ':' + avaimet.find(([k, v]) => osaNimi.toLowerCase() === (k + ' ' + v).toLowerCase()).join('=') : '')),
+      maar, naytto: PS_NIMI };
+  }
+
   /* Korpora.org/kant (Bonnin Kant-korpus; käyttäjän pyyntö 16.11.2026: sivustoehdokkaiden opiskeluryhmän ensimmäinen).
      Akademie-Ausgaben niteet 1–23 painetun sivun mukaan: aaNN/PPP.html on yksi AA:n sivu, rivi rivinä taulukossa (rivinumero,
      teksti, rinnakkaisviittaukset omissa soluissaan). Readability antoi yhden sivun rivinumeroineen. Leikataan koko teos
@@ -3902,7 +4070,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
