@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Luin</title>
+<title>Lukimeen</title>
 <style>
   /* Luinin värit (latomo.html); e-ink: ei varjoja, läpikuultavuutta eikä animaatioita. */
   :root {
@@ -51,8 +51,9 @@
   .koodi button.paa { flex: 0 0 auto; padding: 0 10px; }
   button.kysy { flex: 0 0 auto; border: 0; padding: 0; width: 30px; min-height: 40px; color: var(--harmaa); display: inline-flex;
     align-items: center; justify-content: center; }
-  button.kysy svg { width: 20px; height: 20px; }
-  button.kysy .kehys { fill: none; stroke: currentColor; stroke-width: 1.2; }
+  /* i-napin kehys on hakasulkeet kuten Luinissa ja Latomossa (15.11.2026; tähän 0.10.0:ssa): sulkeiden korkeus 1,3 ×
+     vanhan salmiakin koko (20 → 18 × 26). */
+  button.kysy svg { width: 18px; height: 26px; fill: currentColor; }
   button.kysy[aria-expanded="true"] { color: var(--ruoste); }
   #postihuilu svg.huilu { display: inline-block; height: 1.2em; width: 3.82em; margin-left: .42em; vertical-align: middle; }
   button[aria-expanded="true"]#postihuilu { color: var(--ruoste); border-color: var(--ruoste); }
@@ -78,7 +79,7 @@
   <label id="valintarivi" hidden><span class="sal"><input type="checkbox" id="valinta"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> Vain valittu kohta</label>
   <div class="napit">
     <button type="button" class="paa" id="lukimeen" disabled>Poimi lukimeen</button>
-    <button type="button" id="latomoon" disabled>Säädä Latomossa</button>
+    <button type="button" id="latomoon" disabled>Säädä latomossa</button>
     <button type="button" id="lataa" disabled>Lataa .md</button>
     <!-- Huilu ja viivasto (käyttäjän pyynnöt 12.11. ja 16.11.2026): vino huilu kuten Luinin huilutetun tekstin merkki
          (LuinHuilu.vino(), T 6,4, sw 0,9; kopio, koska lisäosa ei lataa sivuston tiedostoja) ja sen oikealla irrallinen
@@ -89,7 +90,7 @@
     <div class="posti" id="posti-osa" hidden>
       <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>
-        <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Tietoa: Postihuilu ja laatikkolause"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="kehys" d="M10 1Q13.78 6.22 19 10Q13.78 13.78 10 19Q6.22 13.78 1 10Q6.22 6.22 10 1Z"/><path d="M10 4.7Q10.44 5.63 11.15 6.2Q10.44 6.77 10 7.7Q9.56 6.77 8.85 6.2Q9.56 5.63 10 4.7ZM9.2 9.1H10.8V14.6H9.2Z" fill="currentColor"/></svg></button></div>
+        <button type="button" class="kysy" id="kysy" aria-expanded="false" aria-controls="ohje" aria-label="Tietoa: postihuilu ja laatikkolause"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2 1.5H5V2.25H3V23.75H5V24.5H2Z"/><path d="M16 1.5H13V2.25H15V23.75H13V24.5H16Z"/><path d="M9 7.2Q9.48 8.22 10.27 8.85Q9.48 9.48 9 10.5Q8.52 9.48 7.73 8.85Q8.52 8.22 9 7.2ZM8.15 12H9.85V20H8.15Z"/></svg></button></div>
       <!-- Arvo (käyttäjän pyyntö 12.11.2026, kuten Latomossa): laatikkolause.js on kopio luin/laatikkolause.js:stä. -->
       <div class="arvo"><button type="button" id="arvo">Arvo</button><span id="arvottu"></span></div>
       <!-- Sanamuodot käyttäjän (10.11.2026). Laatikkolauseen osuus on sama kuin luin/posti.js:n OHJE_YDIN: muuta yhdessä. -->

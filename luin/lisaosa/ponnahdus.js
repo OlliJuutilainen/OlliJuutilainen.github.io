@@ -1,4 +1,4 @@
-/* Luin-lisäosa: ponnahdusikkuna. Ei taustaskriptiä: ikkuna ajaa leikkurin välilehdellä, jättää tuloksen lisäosan
+/* Lukimeen-lisäosa: ponnahdusikkuna. Ei taustaskriptiä: ikkuna ajaa leikkurin välilehdellä, jättää tuloksen lisäosan
    muistiin ja avaa Latomon, jonka latomoon.js täyttää. Androidin Firefoxissa ei ole valikko- eikä pikanäppäinrajapintaa,
    joten kaikki tapahtuu tästä ikkunasta.
    Postihuilu (käyttäjän pyynnöt 9.11.2026 ja 10.11.2026; ennen Lähetä postina -valinta): napista aukeavat laatikkolause,

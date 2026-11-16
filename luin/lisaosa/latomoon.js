@@ -1,4 +1,4 @@
-/* Luin-lisäosa: Latomon puoli. Ponnahdusikkuna jättää leikkeen lisäosan muistiin ja avaa latomo.html#lisaosa;
+/* Lukimeen-lisäosa: Latomon puoli. Ponnahdusikkuna jättää leikkeen lisäosan muistiin ja avaa latomo.html#lisaosa;
    tämä kirjoittaa leikkeen tekstikenttään kuin käyttäjä olisi liittänyt sen, ja Poimi lukimeen -napilla painaa
    vielä Avaa lukimessa. Rajapinta Latomoon on vain tunnisteita: #md ja #avaa, Postihuilulla (9.11.2026) myös
    #laatikko-koodi, #laheta (Postihuilu; kelpaavalla lauseella painallus lähettää), #kk-tila (Ladottu postitettavaksi…),
