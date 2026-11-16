@@ -107,11 +107,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Ensyklopedia Logos. Älä lisää sitä kysymättä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `android/luin/` (opas 7.6, käyttäjän pyyntö 16.11.2026): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa
-  `luin.html`:n verkosta; `luin.html` ei tiedä sovelluksesta mitään, vaan silta `android/luin/src/main/assets/silta.js` kytkee
+  `luin.html`:n verkosta; `luin.html` tietää sovelluksesta vain `window.LuinApp`in olemassaolon (`NAPIT_AINA`: sivunkäännön tavat saa
+  sammuttaa kaikki, koska napit kääntävät aina; käyttäjän pyyntö 16.11.2026), vaan silta `android/luin/src/main/assets/silta.js` kytkee
   sen (`window.LuinApp`). Silta nojaa tunnisteisiin `#lukija` (äänenvoimakkuusnapit ovat PageDown/PageUp vain sen näkyessä),
   `body`n taustaväriin, latomon `#md`:hen sekä siihen, että lataukset ovat `URL.createObjectURL`- ja `a.click()`-latauslinkkejä
-  ja kopiointi `navigator.clipboard`ia: kun muutat niitä, aja `silta-testi.js`. Valmis APK `luin/luin.apk` (release) päivitetään
-  käsin, kun kääre muuttuu (nosta `versionCode`). Allekirjoitusavain `android/luin/julkinen.jks` on repossa tarkoituksella kuten
+  ja kopiointi `navigator.clipboard`ia: kun muutat niitä, aja `silta-testi.js`. **Kääreestä ei tehdä uutta versiota pyytämättä**
+  (käyttäjän vaatimus 16.11.2026): älä muuta `android/luin/`:ta (myös `silta.js` on APK:n sisällä), älä nosta `versionCode`a
+  äläkä rakenna `luin/luin.apk`:ta, ellei käyttäjä pyydä. Korjaa sovelluksen ongelmat `luin.html`:ssä, jonka sovellus lataa verkosta. Allekirjoitusavain `android/luin/julkinen.jks` on repossa tarkoituksella kuten
   soittimessa; älä vaihda sitä, tai päivitys vaatii poiston ja pino katoaa.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
@@ -267,7 +269,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sitten ilman (Light Phone 360 px), muuten ne jäävät aikajanan alle. Silloin navissa ei ole kirjanmerkkiä eikä
   sivunappeja, auki olevan laatikon nappi himmenee, laatikon ollessa auki aikajanakerros on piilossa (`laatikko-auki`),
   ja paljaan alapalkin napautus vie suoraan lukunäkymään.
-- **Osiohyppy pitkällä painalluksella** (käyttäjän pyyntö 8.11.2026, `osioAloita()`/`osioSivu()`, 1,1 s): reunanapautus (30 % laidoilla), sivunkääntöpainike ja PageDown/PageUp/nuolet/äänenvoimakkuusnäppäimet (nuolet lisätty 8.11.2026; toistotapahtuma hyppää myös, jos keyup puuttuu). Merkkipaalu: osiot jos on, muuten luvut, muuten kohdat, muuten 10 sivua. Laidalla hyppy peruu jo alkaneen maalauksen (paikallaan pidetty sormi laidalla ei maalaa); näppäimen toisto ei käännä sivuja. Laitteen näppäinten käytös Booxilla on todentamatta.
+- **Osiohyppy pitkällä painalluksella** (käyttäjän pyyntö 8.11.2026, `osioAloita()`/`osioSivu()`, 1,1 s): reunanapautus (30 % laidoilla), sivunkääntöpainike ja PageDown/PageUp/nuolet/äänenvoimakkuusnäppäimet (nuolet lisätty 8.11.2026; toistotapahtuma hyppää myös, jos keyup puuttuu). Merkkipaalu: osiot jos on, muuten luvut, muuten kohdat, muuten 10 sivua. Laidalla hyppy peruu jo alkaneen maalauksen (paikallaan pidetty sormi laidalla ei maalaa); näppäimen toisto ei käännä sivuja. Toisto tunnistetaan myös ilman `e.repeat`-lippua (`osioToisto()`: ei keyupia välissä tai alle 120 ms edellisestä keydownista), koska Light Phonen sovelluksessa pitkä painallus juoksutti sivuja (16.11.2026); testeissä painallusten väli vähintään 120 ms. Laitteen näppäinten käytös Booxilla on todentamatta.
 - **Seuraava viimeisellä sivulla avaa navin** (käyttäjän toive 7.11.2026, `seuraavaPainettu()`): vain tahallinen painallus (painike, reunanapautus, näppäin), ei vedon aikainen käännös, rulla eikä pyyhkäisy; verhon ollessa auki ei tapahdu mitään.
 - `AudioVolumeDown`/`Up` kääntävät sivua siltä varalta, että selain välittää äänenvoimakkuusnäppäimet (Boox). Ei kuollutta koodia.
 - **Aikajanan merkit nuottien tapaan**: suurempi aika-arvo ontompi (pääluku iso ontto salmiakki, alaluku pienempi
