@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet ja European Journal of Psychoanalysisin artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit ja Open Journal Systems -lehtien (Problemos ym.) artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -21,7 +21,8 @@ const SARJAT = {
     'https://filosofia.fi/fi/ensyklopedia/bioetiikka', 'https://filosofia.fi/fi/ensyklopedia/zizek-slavoj',
     'https://filosofia.fi/fi/ensyklopedia/hegelin-ensyklopedinen-jarjestelma'],
   wikipedia: ['https://fi.wikipedia.org/wiki/Litte%C3%A4_Maa', 'https://fi.wikipedia.org/wiki/Immanuel_Kant',
-    'https://en.wikipedia.org/wiki/Age_of_Enlightenment', 'https://en.wikipedia.org/wiki/Flat_Earth'],
+    'https://en.wikipedia.org/wiki/Age_of_Enlightenment', 'https://en.wikipedia.org/wiki/Flat_Earth',
+    'https://lt.wikipedia.org/wiki/Immanuel_Kant', 'https://lt.wikipedia.org/wiki/Filosofija'],
   // Psykologian ja kognitiotieteen artikkeleita: Complex Dynamical Systems, Working Memory, Intelligence, Emotions, Signal
   // Detection Theory (kaavat, taulukot), Attention (taulukko, kuvat).
   oecs: ['00hsw4x2', '1rgtz41v', 'r4aze9cq', 'bhn7j5s7', '608a12kc', 'xdqgwrkq'].map(p => 'https://oecs.knowledgefutures.org/pub/' + p),
@@ -80,7 +81,16 @@ const SARJAT = {
     'psychoanalysis-and-artificial-intelligence-metapsychological-foundations-clinical-implications-and-the-transformation-of-analytic-practice',
     'the-reticular-system-in-freud-and-lacans-theories', 'consciousness-and-cognitive-sciences',
     'the-voice-that-ends-opera-moses-encounter-and-the-failure-of-representation-in']
-    .map(p => 'https://www.journal-psychoanalysis.eu/articles/' + p + '/')
+    .map(p => 'https://www.journal-psychoanalysis.eu/articles/' + p + '/'),
+  // Open Journal Systems (16.11.2026): Vilnan yliopiston lehdet (journals.vu.lt). Problemos 2026 (liettua ja englanti,
+  // artikkelisivulta kokoteksti), 2025 (kokotekstin sivu; liettuankielinen ilman väliotsikoita), 2024 (h3-osiot), 2023 ja 2020
+  // (div.footnote), 2019 (tekijä h3:na, toisen kielen otsikko h2:na, tyhjä h1), pdf-artikkeli 2017 (Readabilitylle);
+  // Literatūra (kaksi luetteloa), Religija ir kultūra (h2 ja h4), Politologija (taulukot), Kalbotyra.
+  ojs: ['problemos/en/article/view/49370', 'problemos/en/article/view/46565', 'problemos/en/article/view/42172/41773',
+    'problemos/en/article/view/42215', 'problemos/en/article/view/34758/35144', 'problemos/en/article/view/32069',
+    'problemos/en/article/view/17104/16240', 'problemos/en/article/view/12735', 'problemos/en/article/view/12734/11466',
+    'problemos/en/article/view/10890', 'literatura/en/article/view/44682', 'religija-ir-kultura/en/article/view/48020',
+    'politologija/en/article/view/45186', 'kalbotyra/en/article/view/45716'].map(p => 'https://www.journals.vu.lt/' + p)
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -112,7 +122,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -124,7 +134,7 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/journals\.vu\.lt/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);

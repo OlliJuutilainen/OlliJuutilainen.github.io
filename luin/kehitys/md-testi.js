@@ -405,5 +405,20 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('rahoitus: ilman otsikkoa tekstin alussa', /^<p class="rahoitus">/.test(ilman), ilman.slice(0, 80));
 })();
 
+// Liettua (16.11.2026): tavusäännöt (liudentava i, diftongit, ch/dz/dž) ja kirjallisuusluettelon otsikot.
+(() => {
+  const tavut = (w, t) => M.tavutaLt(w, t).replace(/\u00ad/g, '-');
+  const T = { L: 2, R: 2, min: 5, c: true }, V = { L: 3, R: 3, min: 8, c: false };
+  [['tiesiogiai', 'tie-sio-giai'], ['kiaulė', 'kiau-lė'], ['medžiaga', 'me-džia-ga'], ['psichofiziologinė', 'psi-cho-fi-zio-lo-gi-nė'],
+    ['Karaliaučiuje', 'Ka-ra-liau-čiu-je'], ['teorija', 'te-o-ri-ja'], ['Lietuvos', 'Lie-tu-vos'], ['sąmonės', 'są-mo-nės'],
+    ['straipsnyje', 'straips-ny-je'], ['duona', 'duo-na'], ['neurologiniais', 'neu-ro-lo-gi-niais']]
+    .forEach(([w, o]) => sama('liettuan tavutus innokkaana: ' + w, tavut(w, T), o));
+  sama('liettuan tavutus maltillisena: konsonanttiryhmä', tavut('Bergsonas', V), 'Berg-sonas');
+  sama('liettuan tavutus maltillisena: ei yksinäisen konsonantin rajaa', tavut('tiesiogiai', V), 'tiesiogiai');
+  sama('liettuan tavutus: q, w ja x jättävät sanan rauhaan', tavut('Wittgensteinas', T), 'Wittgensteinas');
+  const bib = M.parse('# Otsikko\n\n## Įvadas\n\nTeksti (Bergson 2012: 3).\n\n## Literatūra\n\nBergson, H., 2012. *Matière et mémoire*. Paris: PUF.\n\n## Šaltiniai ir literatūra\n\nRiquier, C., 2009. *Archéologie de Bergson*. Paris: PUF.\n').html;
+  sama('liettuan kirjallisuusotsikot luetteloksi', lkm(bib, /<p class="bib/g), 2);
+})();
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);
