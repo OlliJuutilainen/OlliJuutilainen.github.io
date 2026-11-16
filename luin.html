@@ -149,8 +149,13 @@
   .tietoa button.t-osa.t-miten { margin: .6em 0 0; font-size: inherit; letter-spacing: 0; text-transform: none; }
   .tietoa h3.t-ots { margin: 1em 0 .2em; font: inherit; font-weight: 600; color: var(--muste); }
   .tietoa h3.t-ots i { font-weight: 400; }
-  .tietoa hr.t-viiva { border: 0; border-top: 1px solid var(--viiva); margin: 1em 0 .2em; }
-  .tietoa svg.t-salmiakki { width: .6em; height: .72em; fill: var(--ruoste); vertical-align: -.06em; margin-left: .1em; }
+  /* Lukijalle (käyttäjän pyyntö 16.11.2026): ongelmasta sulkemiseen "millimetrin" sisennys, väliotsikot versaalilla (lainauksen
+     kursiivi jää pieneksi), jakoviivojen tilalla ylimääräinen hajurako. */
+  .tietoa .t-sisenna { padding-left: 1mm; }
+  .tietoa h3.t-ots i { text-transform: none; }
+  .tietoa h3.t-ero, .tietoa p.t-ero { margin-top: 2em; }
+  .tietoa svg.t-salmiakki { width: .62em; height: .85em; fill: var(--ruoste); vertical-align: -.1em; margin-right: .25em; }
+  .tietoa svg.t-salmiakki .u { fill: none; stroke: var(--ruoste); stroke-width: 1.25; }
   .tietoa .t-vihje p + p { margin-top: .45em; }
   @media (hover: hover) { .tietoa .t-vihje a.vihje:hover::after, .tietoa .t-vihje a.vihje:focus-visible::after { white-space: normal; width: max-content; max-width: 11rem; } }
   .tietoa p.t-viimeinen { padding-right: 22px; }
@@ -1206,14 +1211,15 @@
     <div class="t-sisalto" id="tietoa-lukija" hidden>
     <p>Internetissä on vapaasti saatavilla paljon laadukasta lukemista, mutta lukukokemus on harvemmin lähellä kaupallisen
     sähkökirjan omalla lukulaitteella lukemisen kokemusta (paperikirjoista ei tarvitse nyt samassa lauseessa puhuakaan).</p>
-    <h3 class="t-ots">Ensimmäinen ongelma: <i>"Lukeako nyt vai ei koskaan?"</i></h3>
+    <div class="t-sisenna">
+    <h3 class="t-ots">ENSIMMÄINEN ONGELMA: <i>"Lukeako nyt vai ei koskaan?"</i></h3>
     <p>Yleensä, kun internetissä päätyy mielenkiintoisen kirjoituksen äärelle, juuri silloin ei ole oikea hetki lukea tekstiä.
     Tähän hyvänä ensiapuna on toki selaimen oma kirjanmerkkikansio. Sen paisumisen uhalla paremman hetken joskus syttymiselle
     voi antaa pienen mahdollisuuden.</p>
     <p>Vaikka myöhempi hetki löytyisi, luettava voi silti helposti olla niin pitkä, että lukeminen jää kesken, ja samaan
     kohtaan palaaminen on vaikeaa. Siinä missä paperi- ja sähkökirja ihan tavanomaisestikin suljetaan kesken luvun tai
     osion, jotta sen voisi avata taas samasta paikasta, tämä harvemmin luonnistuu internetsivutekstien kanssa.</p>
-    <h3 class="t-ots">Merkittävä lukeminen</h3>
+    <h3 class="t-ots">MERKITTÄVÄ LUKEMINEN</h3>
     <p>Lukuun ottamatta erityisten sivustojen (vaihtelevasti toimivia) omia järjestelmiä, alleviivausten ja sanallisten
     merkintöjen tekeminen ei ole verkkosivutekstissä tyypillisesti mahdollista. Asiatekstin ja erityisesti akateemisen
     tekstin osalta tällainen voisi usein olla hyödyllistä.</p>
@@ -1224,20 +1230,17 @@
     ovat jo valiotapauksia, ja jonkinlaisia lukemisen ympäristöjä jo itsekin, mutta mikäli artikkeli on pitkä, ja tekstin
     haluaisi esimerkiksi printata PDF:ksi tai kopioida tekstiksi lukulaitteella lukua varten, linkkien mekaniikka huuhtoutuu
     samalla kerralla pois.</p>
-    <hr class="t-viiva">
-    <h3 class="t-ots">Ota luin elämääsi ja yhdisty aidosti siihen, mitä ihmiset olisivat halunneet sinulle kertoa, kun et yksinkertaisesti pystynyt vain kuunnella</h3>
+    <h3 class="t-ots t-ero">OTA LUiN ELÄMÄÄSI JA YHDISTY AIDOSTI SIIHEN, MITÄ IHMISET OLISIVAT HALUNNEET SINULLE KERTOA, KUN ET YKSINKERTAISESTI PYSTYNYT VAIN KUUNNELLA</h3>
     <p>LUiN.HTML tuo verkon valtameren syvyyksistä löytyvät lukemattomat kirjalliset mutta monesti niin vaikeasti nautittavat
-    aarteet Sinun luoksesi – Ihmisen Luokse™.</p>
+    aarteet Sinun luoksesi – IhmisenLuokse™.</p>
     <p>Kun saavut nettiselaimella lukemisen arvoista vaikutelmaa heijastelevan tekstin äärelle, kaappaa löytö talteen
-    painamalla selaimen <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-lukimeen"><b>Lukimeen</b></button>-nappulaa
-    <svg class="t-salmiakki" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0.6Q6.6 3.95 9.2 6Q6.6 8.05 5 11.4Q3.4 8.05 0.8 6Q3.4 3.95 5 0.6Z"/></svg>.
+    painamalla selaimen <button type="button" class="t-sana" aria-expanded="false" aria-controls="vihje-lukimeen"><svg class="t-salmiakki" viewBox="0 0 8 11" aria-hidden="true"><path class="u" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg><b>Lukimeen</b></button>-nappulaa.
     Voit siirtyä lukemaan tekstiä heti tai myöhempänä istuntona.</p>
     <p>Kaikki kerran avatut (vaikka kaverin linkistäkin) luettavat tai muuten vaan poimitut tekstit kerääntyvät
-    samankaltaiseen paikkaan, johon esimerkiksi fyysisilläkin kirjoilla on tapana päätyä: <b>pinoon</b>.</p>
-    <p>LUiN.HTML:n etusivun oma pinosi on jatkossa lukemisen kotisi. Sieltä voit jatkossa avata luettavan, ja etenkin –
-    hyvillä mielin sulkea sen.</p>
-    <hr class="t-viiva">
-    <p>Omilla merkinnöillä kyllästetyn paperikirjapinon ulottuvuutta luin ei täytä. Kaupallisen sähkökirjan luettavuuden ja
+    samankaltaiseen paikkaan, johon esimerkiksi fyysisilläkin kirjoilla on tapana päätyä: <b>pinoon</b>.
+    LUiN.HTML:n etusivun oma pinosi on jatkossa lukemisen kotisi. Sieltä voit jatkossa avata luettavan, ja etenkin –
+    hyvillä mielin sulkea sen.</p></div>
+    <p class="t-ero">Omilla merkinnöillä kyllästetyn paperikirjapinon ulottuvuutta luin ei täytä. Kaupallisen sähkökirjan luettavuuden ja
     käytettävyyden luin voi kuitenkin tavoittaa ja tarjota – myös sellaisille internetin valtamerestä löydetyille aarteille,
     jotka normaalioloissa olisivat saattaneet jäädä lukematta hankalasti poimittavina.</p></div>
     <p class="t-jatko">Tiedot tallentuvat lähtökohtaisesti vain tälle laitteelle, eikä mitään lähetetä suureen internetiin. Pinon
