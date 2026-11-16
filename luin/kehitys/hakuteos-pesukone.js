@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet ja European Journal of Psychoanalysisin artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit ja LacusCurtiuksen Loeb-käännökset Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|lacus] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -80,7 +80,15 @@ const SARJAT = {
     'psychoanalysis-and-artificial-intelligence-metapsychological-foundations-clinical-implications-and-the-transformation-of-analytic-practice',
     'the-reticular-system-in-freud-and-lacans-theories', 'consciousness-and-cognitive-sciences',
     'the-voice-that-ends-opera-moses-encounter-and-the-failure-of-representation-in']
-    .map(p => 'https://www.journal-psychoanalysis.eu/articles/' + p + '/')
+    .map(p => 'https://www.journal-psychoanalysis.eu/articles/' + p + '/'),
+  // LacusCurtius (16.11.2026): Loebin käännökset luvuin ja pykälin, Loebin ja Thayerin viitteet, säkeet ja kuvataulukko (Suetonius),
+  // kääntäjä teoksen etusivulta (Plutarkhos), viitteetön kirja vuosilukutaulukkoineen (Cassius Dio), sivuille jaettu kirja
+  // (Tacituksen Annals 1B → 1A…1E, Isis ja Osiris A → A…E, Strabo 1B1 → luvut 1–4 väliotsikoin ja viitteen tunniste kappaleessa,
+  // Quintilianus ilman h1:tä), h1 Tekijä: Teos ja lukuluettelo (Frontinus) ja Smithin sanakirjan artikkeli (h4-tiedot,
+  // viittaamaton Thayer's Note loppuun).
+  lacus: ['Suetonius/12Caesars/Julius*', 'Plutarch/Lives/Caesar*', 'Cassius_Dio/44*', 'Tacitus/Annals/1B*',
+    'Plutarch/Moralia/Isis_and_Osiris*/A', 'Strabo/1B1*', 'Quintilian/Institutio_Oratoria/1A*', 'Frontinus/Strategemata/1*',
+    'secondary/SMIGRA*/Corona'].map(p => 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/' + p + '.html')
 };
 const SARJA = otaArvo('--sarja');
 const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJAT).flat();
@@ -112,7 +120,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|penelope\.uchicago\.edu)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -124,12 +132,14 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk|uchicago/.test(url) ? osat.slice(-2) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);
     const lahde = await s.evaluate(() => {
       const w = document.querySelector('#mw-content-text .mw-parser-output');
+      // LacusCurtius: viitemerkit a.ref (saman sivun viitteisiin), otsikkoina h1 (sivuille jaetussa kirjassa vain tämä sivu).
+      if (document.querySelector('table.headerbox, table.header') && /uchicago/.test(location.hostname)) return { otsikot: document.querySelectorAll('h1').length, viitteet: document.querySelectorAll('a.ref').length };
       if (w) return { otsikot: w.querySelectorAll('h2, h3, h4').length, viitteet: w.querySelectorAll('sup.reference, sup.mw-ref').length };
       const r = document.querySelector('.node-ensyklopedia .field-name-body .field-item');
       return { otsikot: r ? [...r.children].filter(p => p.tagName === 'P' && p.querySelector('a[name] strong, a[id] strong')).length : 0,

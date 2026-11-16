@@ -63,6 +63,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   European Journal of Psychoanalysis -sovite (15.11.2026, opas 7.5): lohkot (Bibliography, Notes, Bio, Publication Date) tunnistetaan
   otsikkosanasta, koska numerointi vaihtelee; APA-pilkku pois kuten OECS:ssä. Etukentässä `tyyppi: tieteellinen`, `teos` ja `numero`
   ilman `sivusto`a (viite toistaisi lehden nimen); `article:published_time` on WordPressin aika, ei julkaisupäivä.
+  LacusCurtius-sovite (16.11.2026, opas 7.5): Thayerin osoitteissa on `*` (`Isis_and_Osiris*/A.html`), joten niitä ei saa
+  kirjoittaa `/* */`-kommenttiin (päätti kommentin). Kääntäjä vain varmasta etusivun lauseesta, muuten kenttä jää tyhjäksi.
+  Pykälät ovat leikkeessä `<sup>`:na, jotka Latomo muuntaa (`^2^`); raakaleikkeestä md.js varoittaa niistä.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
