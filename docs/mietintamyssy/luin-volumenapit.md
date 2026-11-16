@@ -1,6 +1,6 @@
 # Luin: sivunkääntö äänenvoimakkuusnapeilla
 
-Hyllyyn 2.11.2026. Ei toteutettu. Lähtötilanne: Luinia luetaan Light Phone 3:lla Native Alphan
+Hyllyyn 2.11.2026. Kohta 2 (oma Android-kääre) toteutettu 16.11.2026: `android/luin/`, opas 7.6. Lähtötilanne: Luinia luetaan Light Phone 3:lla Native Alphan
 kautta, ja Key Mapper on laitteessa jo kovassa käytössä.
 
 Kysymykset:

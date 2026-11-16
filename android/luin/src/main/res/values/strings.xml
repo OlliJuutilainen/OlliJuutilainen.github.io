@@ -1,0 +1,15 @@
+<resources>
+    <!-- Luinin pääotsikko (luin/ohje.md 1.3). -->
+    <string name="app_name">Luin.</string>
+    <string name="load_error">Sivu ei latautunut.</string>
+    <string name="load_error_offline">Ilman verkkoyhteyttä luin aukeaa vain, jos se on avattu tällä laitteella verkossa.</string>
+    <string name="renderer_gone">Sivun näyttävä WebView kaatui toistuvasti.</string>
+    <string name="retry">Yritä uudelleen</string>
+    <string name="saved">Tallennettu: %1$s</string>
+    <string name="save_failed">Tallennus ei onnistunut.</string>
+    <string name="no_app_for_link">Linkkiä ei voi avata tällä laitteella.</string>
+    <string name="no_file_picker">Tiedostojen valitsinta ei löytynyt.</string>
+    <string name="share_web_page">Verkkosivun saa pinoon lukimeen-lisäosalla.</string>
+    <string name="share_unreadable">Tiedostoa ei voitu lukea.</string>
+    <string name="share_too_large">Tiedosto on liian suuri.</string>
+</resources>

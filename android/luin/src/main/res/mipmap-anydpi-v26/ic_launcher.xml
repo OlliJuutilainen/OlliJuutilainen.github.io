@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tuottaa luin/kehitys/lisaosa-kuvakkeet.js; älä muokkaa käsin. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/paperi" />
+    <foreground android:drawable="@drawable/ic_luin_salmiakki" />
+    <monochrome android:drawable="@drawable/ic_luin_salmiakki" />
+</adaptive-icon>

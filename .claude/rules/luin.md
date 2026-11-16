@@ -2,6 +2,7 @@
 paths:
   - "luin.html"
   - "luin/**"
+  - "android/luin/**"
   - "docs/viitteet/**"
 ---
 ## Luin
@@ -97,6 +98,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet, selite ja kirjainotsikot alkavat samasta x:stä; käyttäjän pyynnöt 15. ja 16.11.2026) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos. Älä lisää sitä kysymättä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
+- `android/luin/` (opas 7.6, käyttäjän pyyntö 16.11.2026): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa
+  `luin.html`:n verkosta; `luin.html` ei tiedä sovelluksesta mitään, vaan silta `android/luin/src/main/assets/silta.js` kytkee
+  sen (`window.LuinApp`). Silta nojaa tunnisteisiin `#lukija` (äänenvoimakkuusnapit ovat PageDown/PageUp vain sen näkyessä),
+  `body`n taustaväriin, latomon `#md`:hen sekä siihen, että lataukset ovat `URL.createObjectURL`- ja `a.click()`-latauslinkkejä
+  ja kopiointi `navigator.clipboard`ia: kun muutat niitä, aja `silta-testi.js`. Valmis APK `luin/luin.apk` (release) päivitetään
+  käsin, kun kääre muuttuu (nosta `versionCode`). Allekirjoitusavain `android/luin/julkinen.jks` on repossa tarkoituksella kuten
+  soittimessa; älä vaihda sitä, tai päivitys vaatii poiston ja pino katoaa.
 - `docs/viitteet/`: viitetyylin varanto (Teologian tyyli 2021, APA 7 -turvaverkko, sinetöity lisälehti, joka avataan
   vain todelliseen tarpeeseen). Etusija ja ratkaistut kysymykset ovat sen `README.md`:ssä. Kun muutat viitteen
   kokoamista (`kokoaViite`) tai lähdeviittausten linkitystä, tarkista varanto ja aja `node docs/viitteet/vertaa-luin.js`.
@@ -481,6 +489,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista GET-pyynnöille 429:n (myös kohteliaalla User-Agentilla ja odottaen); action=parse

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tuottaa luin/kehitys/lisaosa-kuvakkeet.js; älä muokkaa käsin. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="22.95"
+    android:viewportHeight="22.95">
+    <group
+        android:translateX="7.475"
+        android:translateY="5.975">
+        <path
+            android:pathData="M4,0.9L7.2,5.5L4,10.1L0.8,5.5Z"
+            android:strokeColor="@color/ruoste"
+            android:strokeLineJoin="miter"
+            android:strokeWidth="0.9" />
+        <path
+            android:fillColor="@color/ruoste"
+            android:pathData="M4,3.2L5.6,5.5L4,7.8L2.4,5.5Z" />
+    </group>
+</vector>
