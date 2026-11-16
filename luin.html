@@ -462,6 +462,12 @@
   .valikko.kysely .napit button { width: auto; flex: 1 1 auto; text-align: center; }
   .valikko.kysely .napit button + button { border-left: 1px solid var(--viiva); }
   .valikko.kysely button.ei { font-style: italic; color: var(--harmaa); }
+  .valikko.tiedosto .kentta { padding: 10px 15px 0; }
+  .valikko.tiedosto input { display: block; width: 100%; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  .valikko.tiedosto input:focus { outline: none; border-color: var(--harmaa); }
+  .valikko.tiedosto .tila { padding: 8px 15px 0; font-size: .8rem; line-height: 1.45; }
+  .valikko.tiedosto .napit { margin-top: 10px; border-top: 1px solid var(--viiva); }
   .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
@@ -1841,6 +1847,14 @@
     }
     return { m: m, pos: pos, irti: irti, n: m.km.length + m.al.length };
   }
+  // Muuttuiko leipäteksti? Vain otsikkolohko ja tekijänoikeusosio saavat muuttua (tietojen säätö ja Linkitä tiedostoon).
+  function leipaMuuttui(vanha, uusi, map) {
+    var kaytetty = {}, i;
+    map.forEach(function (j) { if (j >= 0) kaytetty[j] = 1; });
+    for (i = 0; i < vanha.txt.length; i++) if (map[i] < 0 && !vanha.laji[i]) return true;
+    for (i = 0; i < uusi.txt.length; i++) if (!kaytetty[i] && !uusi.laji[i]) return true;
+    return false;
+  }
   function tuoPinosta(t) {
     var p = t.pinosta, e0 = lista.filter(function (x) { return x.id === p.id; })[0], md0 = e0 && LS.get('luin-teksti:' + p.id, null);
     history.replaceState(null, '', location.pathname + location.search);
@@ -1848,13 +1862,7 @@
     var vanha = lohkot(md0), uusi = lohkot(t.md), map = kohdista(vanha.txt, uusi.txt);
     var tiedot = p.tila === 'tiedot', korvaa = tiedot || p.valinta === 'korvaa', viedaan = korvaa || p.valinta === 'merk';
     if (tiedot) {
-      // Vain otsikkolohko ja tekijänoikeusosio saavat muuttua.
-      var kaytetty = {}, i;
-      map.forEach(function (j) { if (j >= 0) kaytetty[j] = 1; });
-      for (i = 0; i < vanha.txt.length; i++) if (map[i] < 0 && !vanha.laji[i]) break;
-      var muuttui = i < vanha.txt.length;
-      for (i = 0; !muuttui && i < uusi.txt.length; i++) if (!kaytetty[i] && !uusi.laji[i]) muuttui = true;
-      if (muuttui) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(!!e0.luettu); }
+      if (leipaMuuttui(vanha, uusi, map)) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(!!e0.luettu); }
     }
     var s = viedaan ? siirraMerkinnat(merkit(p.id), e0.pos, vanha, uusi, map) : null, e, id;
     if (korvaa) {
@@ -2437,12 +2445,16 @@
     naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
       '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
       '<button type="button" data-k="viite">Kopioi lähdeviite.</button>' +
-      (url ? '<button type="button" data-k="linkki">Kopioi linkki.</button>' : '') +
-      '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      // Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon; Lataa md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
+      (url ? '<button type="button" data-k="linkki">Kopioi linkki.</button>' : '<button type="button" data-k="linkita">Linkitä tiedostoon.</button>') +
+      '<button type="button" data-k="lataa">Lataa md.</button>' +
       '<button type="button" data-k="tiedot">Muuta metatietoja.</button>' +
       '<button type="button" data-k="laitos">Lado uusi laitos.</button>' +
+      '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
+      if (k === 'lataa') { lataaMd(e); return; }
+      if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
       // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
       if (k === 'tiedot' || k === 'laitos') { location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); return; }
       if (k === 'lisa') {
@@ -2459,6 +2471,76 @@
       }
     }, 'oikea');
   });
+  /* ---------- Lataa md ja Linkitä tiedostoon (käyttäjän pyyntö 16.11.2026) ----------
+     Lataa md antaa pinoon tallennetun tekstin sellaisenaan. Linkitä tiedostoon ottaa julkisen .md-tiedoston osoitteen
+     (Dropbox-jakolinkki käy, kuten Latomossa), hakee tiedoston ja hyväksyy sen, jos leipäteksti on sama kuin pinossa
+     (otsikkolohko ja tekijänoikeusosio saavat erota, kuten tietojen säädössä). Osoite kirjoitetaan tekstin etukenttään
+     osoite:-riviksi kuten Latomossa, joten se säilyy Muuta metatietoja -tallennuksessa; sen jälkeen valikossa on Kopioi linkki. */
+  function lataaMd(e) {
+    var md = LS.get('luin-teksti:' + e.id, null);
+    if (md == null) { viesti('Tekstiä ei ole tämän laitteen pinossa.'); return; }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }));
+    a.download = (LuinMD.slug(e.title || 'teksti').slice(0, 60) || 'teksti') + '.md';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+    viesti('Ladattu: ' + a.download);
+  }
+  function asetaOsoite(md, u) {
+    md = String(md).replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+    var ek = LuinMD.etukentta(md);
+    if (ek.ln > 1) {
+      var r = md.split('\n'), loppu = ek.ln - 2;   // sulkeva ---
+      for (var i = 1; i < loppu; i++) if (/^osoite\s*:/i.test(r[i])) { r[i] = 'osoite: ' + u; return r.join('\n'); }
+      r.splice(loppu, 0, 'osoite: ' + u);
+      return r.join('\n');
+    }
+    return '---\nosoite: ' + u + '\n---\n\n' + md;
+  }
+  function tarkistaTiedosto(e, u) {
+    var md0 = LS.get('luin-teksti:' + e.id, null);
+    if (md0 == null) return Promise.resolve('Tekstiä ei ole tämän laitteen pinossa.');
+    return fetch(dropbox(u), { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (md) {
+      if (/^\s*<(!doctype|html)/i.test(md)) return 'Osoitteesta tuli verkkosivu eikä .md-tiedosto.';
+      var vanha = lohkot(md0), uusi = lohkot(md);
+      if (leipaMuuttui(vanha, uusi, kohdista(vanha.txt, uusi.txt))) return 'Tiedoston teksti ei ole sama kuin pinossa.';
+      return '';
+    }, function (err) { return 'Tiedostoa ei saatu haettua (' + err.message + ').'; });
+  }
+  function kysyTiedosto(e, rect) {
+    // Leveys mitataan vasemmasta laidasta: edellisen valikon paikassa ponnahdus kutistuisi mitattaessa ja levenisi ruudun reunaan.
+    pop.style.left = '0px';
+    naytaPop(rect, '<div class="kys">Julkisen .md-tiedoston osoite. Dropbox-jakolinkki käy sellaisenaan.</div>' +
+      '<div class="kentta"><input type="url" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="https://…" aria-label="Tiedoston osoite"></div>' +
+      '<div class="tila" hidden></div>' +
+      '<div class="napit"><button type="button" data-k="ok">Linkitä.</button>' +
+      '<button type="button" data-k="ei" class="ei">Peruuta.</button></div>', 'kysely tiedosto', function (k, nappi) {
+      if (k !== 'ok') return;
+      var kentta = $('input', pop), tilaEl = $('.tila', pop), u = kentta.value.trim();
+      function kerro(t) { tilaEl.textContent = t; tilaEl.hidden = !t; sijoitaPop(); }
+      // Jakolinkki vie osoitteen sellaisenaan muille, joten sen pitää olla täydellinen.
+      if (!/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(u)) { kerro('Anna tiedoston verkko-osoite.'); kentta.focus(); return true; }
+      if (nappi.disabled) return true;
+      nappi.disabled = true; nappi.textContent = 'Tarkistetaan…'; kerro('');
+      tarkistaTiedosto(e, u).then(function (syy) {
+        if (pop.hidden || !pop.contains(nappi)) return;
+        nappi.disabled = false; nappi.textContent = 'Linkitä.';
+        if (syy) { kerro(syy); return; }
+        var md = asetaOsoite(LS.get('luin-teksti:' + e.id, ''), u);
+        if (!LS.set('luin-teksti:' + e.id, md)) { kerro('Tallennustila on täynnä: linkkiä ei voitu tallentaa.'); return; }
+        e.osoite = u;
+        tallennaLista(); suljePop(); piirraNimikkeet();
+        viesti('Linkitetty: ”' + e.title + '”. Valikossa on nyt Kopioi linkki.');
+      });
+      return true;
+    }, 'oikea');
+    var kentta = $('input', pop);
+    kentta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('button[data-k="ok"]', pop).click(); } });
+    kentta.focus();
+  }
   function poistaListasta(es) {
     var pois = {};
     es.forEach(function (e) { pois[e.id] = 1; LS.del('luin-teksti:' + e.id); LS.del('luin-merkit:' + e.id); });
@@ -2487,9 +2569,9 @@
     if (!es.length) return;
     var n = es.length, ark = tila.arkisto;
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
-      '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
+      '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'Poista pinosta.') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }

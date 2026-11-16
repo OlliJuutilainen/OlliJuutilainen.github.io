@@ -126,8 +126,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin veivihyllystössä pinomerkin vasemmalla
   on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja veivihyllystölinkki pinon alalaidassa on versaalia.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
-- **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, verkkotekstin linkki,
-  *Luin.*, tiedot ja laitos, poisto; kolme salmiakkia, ennen jakomerkki).
+- **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, linkki, *Lataa md*,
+  tiedot ja laitos, *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). *Luin.* on molemmissa salmiakkivalikoissa
+  toiseksi alimpana, vain poisto sen alla (käyttäjän pyyntö 16.11.2026).
+- **Linkitä tiedostoon** (käyttäjän pyyntö 16.11.2026, `kysyTiedosto()`): linkittömällä tekstillä *Kopioi linkin* paikalla.
+  Hyväksyy julkisen .md-osoitteen (Dropbox muunnetaan kuten Latomossa), jos leipäteksti on sama kuin pinossa
+  (`leipaMuuttui()`, sama sääntö kuin tietojen säädössä), ja kirjoittaa sen etukentän `osoite:`-riviksi, jotta
+  *Muuta metatietoja* säilyttää sen. Testi `linkki-testi.js`.
 - **Tiedot ja uusi laitos** (käyttäjän pyyntö ja nimi 15.11.2026, opas 7.1, `tuoPinosta()`): *Muuta metatietoja* lukitsee
   leipätekstin (merkinnät eivät saa voida irrota muualta kuin otsikkolohkosta); *Uusi laitos* antaa muokata ja kysyy
   tallennettaessa: toinen laitos merkintöineen, ilman merkintöjä vai korvaava. Merkinnät siirretään lohkot rinnastamalla
@@ -454,6 +459,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio pinossa ja asetuksissa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
   Wikisanakirja antaa pilvikontista GET-pyynnöille 429:n (myös kohteliaalla User-Agentilla ja odottaen); action=parse

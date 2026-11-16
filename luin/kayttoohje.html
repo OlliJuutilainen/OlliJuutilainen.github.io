@@ -378,9 +378,14 @@
       <div>
         <p>Pinon nimikkeen oikealla puolella on valikkonappi
           <svg class="ik kolme" viewBox="0 0 17 7" aria-hidden="true"><path d="M2.5 0.4Q3.37 2.32 4.8 3.5Q3.37 4.68 2.5 6.6Q1.63 4.68 0.2 3.5Q1.63 2.32 2.5 0.4ZM8.5 0.4Q9.37 2.32 10.8 3.5Q9.37 4.68 8.5 6.6Q7.63 4.68 6.2 3.5Q7.63 2.32 8.5 0.4ZM14.5 0.4Q15.37 2.32 16.8 3.5Q15.37 4.68 14.5 6.6Q13.63 4.68 12.2 3.5Q13.63 2.32 14.5 0.4Z"/></svg>.
-          Siitä voi kopioida tekstin lähdeviitteen, kopioida linkin (verkosta avatulle tekstille), merkitä tekstin
-          luetuksi (<span class="ui">Luin.</span>) ja poistaa tekstin pinosta. Poisto vie myös tekstin merkinnät,
+          Siitä voi kopioida tekstin lähdeviitteen, kopioida linkin (verkosta avatulle tekstille), ladata tekstin
+          Markdown-tiedostona (<span class="ui">Lataa md.</span>), merkitä tekstin luetuksi
+          (<span class="ui">Luin.</span>) ja poistaa tekstin pinosta. Poisto vie myös tekstin merkinnät,
           joten se kysyy vahvistuksen.</p>
+        <p>Jos tekstillä ei ole linkkiä, linkin paikalla on <span class="ui">Linkitä tiedostoon.</span> Lataa teksti,
+          vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy
+          linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen
+          valikossa on <span class="ui">Kopioi linkki.</span></p>
         <p><span class="ui">Muuta metatietoja.</span> avaa tekstin latomoon, jossa voit muuttaa sen tietoja,
           kuten nimeä, kirjoittajaa ja julkaisutietoja. Itse teksti on silloin lukittu, joten kirjanmerkit ja
           alleviivaukset pysyvät paikallaan. Vain otsikkoon tai tietoriveihin osuneet merkinnät voivat irrota.</p>
@@ -394,7 +399,7 @@
           milloin luit tekstin ja (verkosta avatulle tekstille) mistä osoitteesta. Valinta muistetaan.</p>
         <p>Nimikkeen vasemmalla puolella oleva salmiakki valitsee tekstin, ja otsikkorivin salmiakki valitsee kaikki
           tai tyhjentää valinnan. Kun jotain on valittuna, otsikkorivin oikeaan reunaan tulee valittujen valikko:
-          <span class="ui">Luin.</span>, <span class="ui">Vie merkinnät (zip).</span>, lähdeviitteiden kopiointi ja poisto.
+          <span class="ui">Vie merkinnät (zip).</span>, lähdeviitteiden kopiointi, <span class="ui">Luin.</span> ja poisto.
           Zip-paketissa on jokaisesta tekstistä sama Markdown-tiedosto kuin tekstin omassa merkintöjen viennissä,
           samoilla viennin valinnoilla (ne ovat avoimen tekstin asetuksissa).</p>
         <p><span class="ui">Luin.</span> kysyy vielä varmistuksen ja siirtää tekstin <b>kellarin veivihyllystöön</b>.
