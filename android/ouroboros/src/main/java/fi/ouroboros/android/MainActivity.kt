@@ -74,7 +74,7 @@ private const val KEY_LONG_PRESS_MS = 500L
 private const val KEY_SEQUENCE_MS = 1000L
 
 private const val PKG_TIDAL = "com.aspiro.tidal"
-private const val PKG_NATIVE_ALPHA = "com.cylonid.nativealpha"
+private const val PKG_LUIN = "fi.tusinasaa.luin"
 private const val PKG_SOITIN = "fi.tusinasaa.soitin"
 private const val PKG_BINARYEYE = "de.markusfisch.android.binaryeye"
 private const val PKG_TUSINASAA = "fi.tusinasaa"
@@ -183,7 +183,7 @@ class MainActivity : ComponentActivity() {
             lastShortVolumeKey = 0
             restoreVolume(volumeBeforeLastShort)
             volumeHeldKey = 0
-            if (code == KeyEvent.KEYCODE_VOLUME_DOWN) openPackage(PKG_NATIVE_ALPHA) else openPackage(PKG_SOITIN)
+            if (code == KeyEvent.KEYCODE_VOLUME_DOWN) openPackage(PKG_LUIN) else openPackage(PKG_SOITIN)
             return
         }
         handler.removeCallbacks(volumeLongPress)

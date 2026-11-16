@@ -5,7 +5,7 @@
          jolloin getLaunchIntentForPackage palauttaisi nullin. -->
     <queries>
         <package android:name="com.aspiro.tidal" />
-        <package android:name="com.cylonid.nativealpha" />
+        <package android:name="fi.tusinasaa.luin" />
         <package android:name="fi.tusinasaa.soitin" />
         <package android:name="de.markusfisch.android.binaryeye" />
         <package android:name="fi.tusinasaa" />

@@ -25,7 +25,7 @@ Key Mapperin ΒΟΡΟΦΘΟΡΟΣ-kartat poistetaan käytöstä.
 | FOCUS | BinaryEye |
 | pitkä äänenvoimakkuus ylös | Tusinasää sijaintilinkillä |
 | pitkä äänenvoimakkuus alas | Tidal |
-| ylös → alas (1 s) | Native Alpha |
+| ylös → alas (1 s) | Luin. |
 | alas → ylös (1 s) | KEICK•WALK |
 
 Lyhyt äänenvoimakkuuspainallus säätää mediaäänenvoimakkuutta napin noustessa; sarjan jälkeen
