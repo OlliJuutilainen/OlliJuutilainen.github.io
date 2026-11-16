@@ -141,7 +141,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `tusinasaa-worker`: käyttäjän valinta) sivun `?t=&u=`, jotta esikatselussa näkyy tekstin nimi. Sivulla ei saa olla `og:url`ia, meta refreshiä eikä 302:ta: hakijat seuraisivat niitä
   `luin.html`:ään ja näyttäisivät taas *Luin.*. Julkaisu: `npx -y wrangler@3.114.17 deploy --config worker/luin/wrangler.toml`.
 - **Ei sanaa *lukulaite*** käyttäjälle näkyvään tekstiin (käyttäjän päätös 15.11.2026: Luin ei ole laite eikä e-lukijan
-  kilpailija). Virallinen kuvaus on *lukemisen tyyssija internetissä* (infolaatikko, käyttöohje, `og:description`, jakoworker).
+  kilpailija). Virallinen kuvaus on *internetin lukemisen tyyssija* (infolaatikko, käyttöohje, `og:description`, jakoworker).
   i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
   ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa on yhä salmiakki.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
