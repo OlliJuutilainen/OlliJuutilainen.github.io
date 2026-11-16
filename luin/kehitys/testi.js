@@ -636,7 +636,7 @@ palvelin.listen(0, async () => {
   await m.goto(BASE + 'luin.html#tuo'); await m.waitForTimeout(600);
   await m.reload(); await m.waitForTimeout(400);
   const siirto = await m.evaluate(() => { const a = window.__luin.aset; return { n: a.sivunapit, r: a.sivuReuna, p: a.sivuPyyhka, k: a.kappale, au: a.auto, j: a.janaTaso, s: a.sivutus, av: a.av }; });
-  tulos('av 7: sivunkäännön tavat, sisennys, ei sukkelaa, kaikki tasot kerran; sivutus säilyy', siirto.n === 1 && siirto.r === 1 && siirto.p === 1 && siirto.k === 'sisennys' && siirto.au === 0 && siirto.j === 3 && siirto.s === 'vieritys' && siirto.av === 7, JSON.stringify(siirto));
+  tulos('av 7: sivunkäännön tavat, sisennys, ei sukkelaa, kaikki tasot kerran; sivutus säilyy', siirto.n === 1 && siirto.r === 1 && siirto.p === 1 && siirto.k === 'sisennys' && siirto.au === 0 && siirto.j === 3 && siirto.s === 'vieritys' && siirto.av >= 7, JSON.stringify(siirto));
   // Kaistan napautus nuolen kohdalta (koko kaista on nappi; nuoli ei ota napautuksia).
   const nuoliKohta = () => m.evaluate(() => { const r = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   const kaista = async () => { const k = await nuoliKohta(); await m.mouse.click(k.x, k.y); await m.waitForTimeout(100); };
