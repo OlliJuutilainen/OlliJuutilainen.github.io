@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius ja Korpora.org/kant (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2341,6 +2341,252 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Korpora.org/kant (Bonnin Kant-korpus; käyttäjän pyyntö 16.11.2026: sivustoehdokkaiden opiskeluryhmän ensimmäinen).
+     Akademie-Ausgaben niteet 1–23 painetun sivun mukaan: aaNN/PPP.html on yksi AA:n sivu, rivi rivinä taulukossa (rivinumero,
+     teksti, rinnakkaisviittaukset omissa soluissaan). Readability antoi yhden sivun rivinumeroineen. Leikataan koko teos
+     sisällysluettelon (InhaltNN.html; teos colspan 9, sen osat 8, 7 …) mukaan, sivut samalta sivustolta kuuden erissä:
+     sivu kuuluu teokseen, kun sen <title> (Kant: AA IV, Grundlegung zur Metaphysik der ... , Seite 393) alkaa samoin kuin
+     aloitussivun; näin putoavat myös sivuston virhesivut (aa04/386.html on AA III:n sivu). Yli KO_RAJA sivun teoksesta
+     (KrV) leikataan suurin sisällysluettelon osa, joka mahtuu rajaan. Sivunumerot yläindekseiksi muodossa osa:sivu (4:393).
+     Rivit kappaleiksi: tyhjä taulukkorivi on kappaleraja. Sivunvaihdossa kappale päättyy, kun sivun viimeinen rivi päättyy
+     välimerkkiin ja on lyhyt (alle KO_LYHYT sivun pitkistä riveistä; mitattu Grundlegungilla ja KpV:llä: 75 % kappaleen
+     loppuriveistä, väärin 4/169 kappaleen sisäisestä välimerkkirivistä). Peräkkäiset otsikkorivit ovat yksi otsikko.
+     Viitteet (a[href="#1"] <sup>*</sup>) → <a name="1"> *) …) alaviitteiksi; viite on kokonaan alkusivullaan, ja
+     [Seitenumbruch] on sivunvaihto viitteen sisällä. AA:n kaksoisviiva (allgemein=zweckmäßig) yhdysmerkiksi ja ajatusviiva
+     ( - ) lyhyeksi ajatusviivaksi. Etusivu on kehyssivu (frameset): tekstikehys luetaan, kun lisäosa avataan sen päällä.
+     Ei mainoksia eikä lahjoituspyyntöä. Mitattu 16.11.2026. */
+  const KO_NIMI = 'Korpora', KO_RAJA = 250, KO_LYHYT = 0.75;
+  const KO_SIVU = /^\/kant\/aa(\d\d)\/(\d{3})\.html$/;
+  const koTeksti = x => rivi(x && x.textContent).replace(/ /g, ' ').trim();
+  // Sivun nimiön teosnimi: Kant: AA IV, Grundlegung zur Metaphysik der ... , Seite 393 → AA IV, Grundlegung zur Metaphysik der ...
+  const koNimio = d => rivi(d && d.title).replace(/^Kant:\s*/, '').replace(/\s*,\s*Seite\s+\d+\s*$/, '');
+  function koMerkki(d, osa, sivu) {
+    const s = d.createElement('sup');
+    s.textContent = osa + ':' + sivu;
+    return s;
+  }
+  // Yksi sivu riveiksi: { laji: 'h' (otsikko, taso), 'r' (tekstirivi, solu), 'tyhja' } ja viitteet tunnisteen mukaan.
+  function koSivu(d) {
+    const rivit = [], viitteet = new Map();
+    let inhalt = '';
+    for (const tr of d.querySelectorAll('tr')) {
+      const solut = [...tr.cells];
+      const nro = solut.find(c => c.querySelector('a[name^="z"]') && /^\d+$/.test(koTeksti(c)));
+      const solu = solut.find(c => c.colSpan === 3);
+      if (!solu) continue;
+      const t = koTeksti(solu);
+      const nav = [...solu.querySelectorAll('a[href]')].find(a => /Inhaltsverzeichnis/.test(a.textContent));
+      if (nav) { inhalt = nav.getAttribute('href'); continue; }
+      if (!nro) {
+        if (!t) { rivit.push({ laji: 'tyhja' }); continue; }
+        if (/^(Zeile:|Kant:|Text( \(Kant\))?:)/.test(t)) continue;
+        // Viite: <a name="1"> *) …</a> (myös ilman ankkuria *)Mehr …).
+        if (/^\*+\)/.test(t)) {
+          const a = solu.querySelector('a[name]:not([name^="z"])');
+          const id = a ? a.getAttribute('name') : String(viitteet.size + 1);
+          if (!viitteet.has(id)) viitteet.set(id, { solu, id });
+          continue;
+        }
+      }
+      const h = solu.querySelector('h1, h2, h3, h4, h5, h6');
+      if (h) { if (koTeksti(h)) rivit.push({ laji: 'h', taso: +h.tagName[1], teksti: koTeksti(h) }); continue; }
+      if (t) rivit.push({ laji: 'r', solu });
+      else if (!nro) rivit.push({ laji: 'tyhja' });
+    }
+    // Tyhjät rivit sivun alussa ja lopussa (ennen viitteitä ja alapalkkia) eivät ole kappalerajoja.
+    while (rivit.length && rivit[0].laji === 'tyhja') rivit.shift();
+    while (rivit.length && rivit[rivit.length - 1].laji === 'tyhja') rivit.pop();
+    return { rivit, viitteet, inhalt, nimio: koNimio(d) };
+  }
+  // Sisällysluettelo: [{ taso, otsikko, sivu, vuosi }] (sivu null, jos linkki puuttuu tai vie muualle).
+  function koSisallys(d) {
+    const kohdat = [];
+    let vuosi = '';
+    if (!d) return kohdat;
+    for (const tr of d.querySelectorAll('tr')) {
+      for (const c of tr.cells) {
+        const t = koTeksti(c);
+        if (!t || c.colSpan < 2) continue;
+        if (c.colSpan >= 12) { const v = /^(1[67]\d\d)\.?$/.exec(t); if (v) vuosi = v[1]; continue; }
+        const a = tr.querySelector('a[href]'), m = a && /^(\d{3})\.html$/.exec(a.getAttribute('href') || '');
+        kohdat.push({ taso: c.colSpan, otsikko: t.replace(/\s*\[[^\]]*\]\s*$/, ''), sivu: m ? +m[1] : null, vuosi });
+      }
+    }
+    // Linkitön kohta (Einleitung.) alkaa seuraavan linkillisen kohdan sivulta.
+    for (let i = kohdat.length - 1, s = null; i >= 0; i--) { if (kohdat[i].sivu == null) kohdat[i].sivu = s; else s = kohdat[i].sivu; }
+    return kohdat;
+  }
+  // Kohdan loppusivu: seuraava vähintään yhtä ylä kohta, joka alkaa myöhemmin (null: niteen loppuun).
+  function koLoppu(kohdat, i) {
+    for (let j = i + 1; j < kohdat.length; j++) if (kohdat[j].taso >= kohdat[i].taso && kohdat[j].sivu != null && kohdat[j].sivu > kohdat[i].sivu) return kohdat[j].sivu - 1;
+    return null;
+  }
+  const koVertaa = s => String(s || '').toLowerCase().replace(/[^\p{L}]/gu, '');
+  async function korpora() {
+    if (!/(^|\.)korpora\.org$/i.test(location.hostname)) return null;
+    // Kehyssivu: tekstikehyksen asiakirja (sama alkuperä).
+    let doc = document, u = osoite;
+    const kehys = document.querySelector('frame[name="mainFrame"], frame[src*="aa"], iframe[name="mainFrame"]');
+    if (kehys) { try { doc = kehys.contentDocument || doc; u = kehys.contentWindow.location.href.split('#')[0]; } catch (e) { return null; } }
+    let polku = '';
+    try { polku = new URL(u).pathname; } catch (e) { return null; }
+    const pm = KO_SIVU.exec(polku);
+    if (!pm) return null;
+    const osa = +pm[1], sivu = +pm[2], kansio = u.replace(/[^/]*$/, '');
+    const oma = koSivu(doc);
+    if (!oma.rivit.some(r => r.laji === 'r' || r.laji === 'h')) return null;
+    const sisd = await hae(new URL(oma.inhalt || 'Inhalt' + osa + '.html', u).href);
+    const kohdat = koSisallys(sisd);
+    // Teos: viimeinen colspan 9 -kohta, joka alkaa tällä sivulla tai ennen.
+    let ti = -1;
+    kohdat.forEach((k, i) => { if (k.taso === 9 && k.sivu != null && k.sivu <= sivu) ti = i; });
+    let alku = sivu, loppu = sivu, otsikko = '', teos = '', vuosi = '', koko = false;
+    if (ti >= 0) {
+      const tk = kohdat[ti];
+      vuosi = tk.vuosi;
+      const tl = koLoppu(kohdat, ti);
+      // Niteen viimeinen teos (KrV B) jatkuu loppuun: pituus vähintään viimeiseen sisällysluettelon sivuun.
+      let ts = tk.sivu;
+      for (let i = ti + 1; i < kohdat.length && kohdat[i].taso < 9; i++) if (kohdat[i].sivu != null) ts = Math.max(ts, kohdat[i].sivu);
+      const pitkaTeos = tl != null ? tl - tk.sivu >= KO_RAJA : ts - tk.sivu >= KO_RAJA;
+      if (!pitkaTeos) { alku = tk.sivu; loppu = tl; otsikko = tk.otsikko; koko = true; }
+      else {
+        // Suurin osa, joka sisältää sivun ja mahtuu rajaan (taso laskee: 8, 7 …). Teoksen viimeinen osa ilman loppusivua
+        // haetaan niteen loppuun asti (puuttuva sivu lopettaa).
+        for (let taso = 8; taso >= 2; taso--) {
+          let ki = -1;
+          for (let i = ti + 1; i < kohdat.length && kohdat[i].taso < 9; i++) if (kohdat[i].taso === taso && kohdat[i].sivu != null && kohdat[i].sivu <= sivu) ki = i;
+          if (ki < 0) continue;
+          let kl = koLoppu(kohdat, ki);
+          if (kl == null || tl != null && kl > tl) kl = tl;
+          if (kl != null ? kl < sivu || kl - kohdat[ki].sivu >= KO_RAJA : ts - kohdat[ki].sivu >= KO_RAJA) continue;
+          alku = kohdat[ki].sivu; loppu = kl; otsikko = kohdat[ki].otsikko; teos = tk.otsikko;
+          break;
+        }
+      }
+    }
+    // Sivut: aloitussivun nimiön mukaan; ilman loppusivua erissä, kunnes erässä ei ole teoksen sivua.
+    const osoite3 = n => kansio + String(n).padStart(3, '0') + '.html';
+    const nimio = (await hae(osoite3(alku)).then(d => d && koNimio(d))) || oma.nimio;
+    const sivut = [];
+    if (alku === sivu && loppu === sivu) sivut.push({ n: sivu, s: oma });
+    else {
+      for (let n = alku; loppu == null ? n < alku + KO_RAJA : n <= loppu; n += 6) {
+        const nrot = [];
+        for (let k = n; k < n + 6 && (loppu == null || k <= loppu) && k < alku + KO_RAJA; k++) nrot.push(k);
+        const ds = await kkHae(nrot.map(osoite3));
+        const osuvat = ds.map((d, i) => d && koNimio(d) === nimio ? { n: nrot[i], s: koSivu(d) } : null).filter(Boolean);
+        sivut.push(...osuvat);
+        if (loppu == null && !osuvat.length) break;
+      }
+      if (!sivut.some(x => x.n === sivu)) { sivut.length = 0; sivut.push({ n: sivu, s: oma }); alku = loppu = sivu; otsikko = ''; koko = false; }
+    }
+    // Pitkien rivien mitta koko leikkeestä (lyhyen sivun viimeiselle riville).
+    const pituus = el => koTeksti(el).length;
+    const kaikki = sivut.flatMap(x => x.s.rivit.filter(r => r.laji === 'r').map(r => pituus(r.solu))).sort((a, b) => a - b);
+    const pitka = kaikki.length ? kaikki[Math.floor(kaikki.length * 0.8)] : 60;
+    const el = document.createElement('div'), maar = [];
+    let laskuri = 0, kpl = null, ots = null, odottava = null, tekstia = false, inhalt = false;
+    const sulje = () => { kpl = null; ots = null; };
+    const otsikkoLohko = (taso, t) => {
+      kpl = null;
+      // Pelkkä numero omalla rivillään (I, Begriff der Logik.) pisteellä.
+      if (/^([IVXLC]+|\d+)$/.test(t)) t += '.';
+      if (ots && ots.taso === taso) { ots.h.textContent += ' ' + t; return; }
+      const h = document.createElement('h' + Math.min(6, taso));
+      h.textContent = t;
+      el.appendChild(h);
+      ots = { taso, h };
+    };
+    sivut.forEach((x, si) => {
+      const { n, s } = x;
+      // Sivun viimeinen tekstirivi edellisellä sivulla: päättyykö kappale?
+      if (si && kpl) {
+        const ed = sivut[si - 1].s.rivit.filter(r => r.laji !== 'tyhja');
+        const vr = ed[ed.length - 1];
+        const ens = s.rivit.find(r => r.laji !== 'tyhja');
+        if (!vr || vr.laji !== 'r' || !ens || ens.laji !== 'r' || /[.!?:]\)?(\s*\*+\))?$/.test(koTeksti(vr.solu)) && pituus(vr.solu) < pitka * KO_LYHYT) kpl = null;
+      }
+      odottava = koMerkki(document, osa, n);
+      // Viitteiden merkit ja tekstit tämän sivun riveiltä.
+      const kaytetyt = new Set();
+      const solut = s.rivit.filter(r => r.laji === 'r').map(r => {
+        const c = r.solu.cloneNode(true);
+        c.querySelectorAll('a[href^="#"]').forEach(a => {
+          const id = decodeURIComponent(a.getAttribute('href').slice(1)), v = s.viitteet.get(id);
+          if (!v || kaytetyt.has(id)) { if (!v) a.replaceWith(...a.childNodes); else a.remove(); return; }
+          kaytetyt.add(id);
+          const tunnus = 'ko' + (++laskuri);
+          const vk = v.solu.cloneNode(true);
+          vk.querySelectorAll('font').forEach(f => { if (/Seitenumbruch/.test(f.textContent)) f.replaceWith(' ', koMerkki(document, osa, n + 1), ' '); });
+          vk.querySelectorAll('a[name]').forEach(y => y.replaceWith(...y.childNodes));
+          koViivat(vk);
+          const t = muunna(irrota([vk]).innerHTML, 'inlined').trim().replace(/^(?:\\?\*)+\\?\)\s*/, '');
+          if (t) maar.push(maaritelma(tunnus, t));
+          const ed = a.previousSibling;
+          if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+          a.replaceWith(merkki(tunnus));
+        });
+        return c;
+      });
+      let ri = 0;
+      ots = null;
+      const tekstisivu = s.rivit.some(r => r.laji === 'r');
+      // Teoksen oma sisällysluettelo (Inhalt.) on yksi otsikkolohko, joka jatkuu seuraavalle sivulle, kun se alkaa otsikkorivillä
+      // (Anthropologie 123–124); tyhjä rivi tai tekstirivi päättää sen.
+      if (s.rivit.length && s.rivit[0].laji !== 'h') inhalt = false;
+      for (const r of s.rivit) {
+        if (r.laji === 'tyhja') { sulje(); inhalt = false; continue; }
+        if (r.laji === 'h') {
+          // Nimiösivut ennen tekstiä ja ensimmäisen sivun nimiö ja tekijärivi (Beantwortung der Frage: Was ist Aufklärung? von
+          // Immanuel Kant.) pois.
+          if (koko && !tekstia) {
+            const v = koVertaa(r.teksti);
+            if (!tekstisivu || koVertaa(otsikko).includes(v) || /^(abgefa(ß|ss)t)?(von)?(m)?immanuelkants?$/.test(v) || v === 'von') { kpl = null; continue; }
+          }
+          if (inhalt || /^Inhalt\.?$/.test(r.teksti) && !(ots && ots.taso === r.taso)) { inhalt = true; kpl = null; ots = null; continue; }
+          otsikkoLohko(r.taso, r.teksti);
+          continue;
+        }
+        inhalt = false;
+        ots = null;
+        const c = solut[ri++];
+        if (!kpl) { kpl = document.createElement('p'); el.appendChild(kpl); }
+        else kpl.append(' ');
+        if (odottava) { kpl.append(odottava, ' '); odottava = null; }
+        kpl.append(...c.childNodes);
+        tekstia = true;
+      }
+      // Viite ilman merkkiä tekstissä: sivun loppuun.
+      s.viitteet.forEach((v, id) => {
+        const viim = [...el.children].filter(p => p.tagName === 'P').pop();
+        if (kaytetyt.has(id) || !viim) return;
+        const tunnus = 'ko' + (++laskuri);
+        const vk = v.solu.cloneNode(true);
+        koViivat(vk);
+        const t = muunna(irrota([vk]).innerHTML, 'inlined').trim().replace(/^(?:\\?\*)+\\?\)\s*/, '');
+        if (t) { maar.push(maaritelma(tunnus, t)); viim.append(merkki(tunnus)); }
+      });
+    });
+    koViivat(el);
+    kkTasoita(el);
+    el.normalize();
+    if (!tekstia) return null;
+    const tekija = 'Immanuel Kant';
+    const tulos = { html: irrota([el]).innerHTML, otsikko: otsikko || nimio.replace(/^AA\s+[IVXLC]+,\s*/, ''), tekija, tyyppi: 'tieteellinen', sivusto: KO_NIMI,
+      teos: 'Kant’s gesammelte Schriften', numero: String(osa), sivut: sivut.length > 1 ? sivut[0].n + '–' + sivut[sivut.length - 1].n : String(sivu),
+      julkaistu: vuosi, lahde: sivut.length > 1 ? osoite3(sivut[0].n) : u, maar, naytto: KO_NIMI + (sivut.length > 1 ? ' (' + sivut.length + ' sivua)' : '') };
+    if (teos) tulos.otsikko = teos + ': ' + otsikko;
+    return tulos;
+  }
+  // AA:n kaksoisviiva (allgemein=zweckmäßig) yhdysmerkiksi, välilyöntien ympäröimä viiva ajatusviivaksi.
+  function koViivat(el) {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t = w.nextNode(); t; t = w.nextNode()) {
+      if (/[=-]/.test(t.nodeValue)) t.nodeValue = t.nodeValue.replace(/(\p{L})=(?=\p{L})/gu, '$1-').replace(/(^|\s)-(?=\s|$)/g, '$1–');
+    }
+  }
+
   /* LacusCurtius (penelope.uchicago.edu/Thayer, Bill Thayerin sivusto; käyttäjän pyyntö 16.11.2026: mietintämyssyn
      antiikkiosio, Loebin käännökset). Thayer on litteroinut Loeb Classical Libraryn käännöksiä, joiden tekijänoikeus on
      rauennut (Suetonius, Plutarkhos, Cassius Dio, Tacitus …), ja vanhoja hakuteoksia (Smithin Dictionary of Greek and
@@ -2949,7 +3195,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
