@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack ja Internet Encyclopedia of Philosophy (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy ja Open Yale Courses (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2392,6 +2392,59 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Open Yale Courses (oyc.yale.edu; käyttäjän pyyntö 16.11.2026, pahvin B2): luennon sivu /<ala>/<kurssi>/lecture-N, jolla on
+     Overview (.session-full__body) ja litteraatio piilotettuna (#inline_content: h1 kurssin nimi, h2 PHIL 176 - Lecture 1 -
+     Course Introduction, luvut h3 Chapter 1. … [00:00:00], puhujat lihavoituina, [end of transcript], Back to Top).
+     Readability antoi litteraation, mutta otsikko toistui kolmesti, aikaleimat jäivät otsikoihin, eikä tekijää, kurssia eikä
+     tiivistelmää tullut. Jokainen luento omana leikkeenään (pahvin linjaus). Overview omaksi osiokseen, luvut otsikoiksi ilman
+     aikaleimaa, loppumerkintä ja paluulinkki pois. Tekijä puhujamerkinnästä (Professor Shelly Kagan:), vuosi kurssisivulta
+     (recorded for Open Yale Courses in Spring 2007; yksi sivu samalta sivustolta), lisenssi sivun alatunnisteesta.
+     Ei mainoksia eikä lahjoituspyyntöä. Mitattu 16.11.2026. */
+  const OYC_NIMI = 'Open Yale Courses';
+  async function oyc() {
+    if (!/(^|\.)oyc\.yale\.edu$/i.test(location.hostname)) return null;
+    const lm = /^(\/[^/]+\/[^/]+)\/lecture-\d+\/?$/.exec(location.pathname);
+    const lit = document.getElementById('inline_content');
+    if (!lm || !lit) return null;
+    const el = document.createElement('div');
+    const aika = /\s*\[\d{1,2}:\d\d:\d\d\]\s*/g;
+    // Tiivistelmä.
+    const yl = document.querySelector('.session-full__body');
+    const ylp = yl ? [...yl.querySelectorAll('p')].filter(p => rivi(p.textContent)) : [];
+    if (ylp.length) {
+      // Samalle tasolle kuin litteraation luvut (h3).
+      const h = document.createElement('h3');
+      h.textContent = rivi((yl.querySelector('.session-full__body-label') || {}).textContent) || 'Overview';
+      el.append(h, ...ylp.map(p => p.cloneNode(true)));
+    }
+    const k = lit.cloneNode(true);
+    const kurssi = rivi((k.querySelector('h1') || {}).textContent);
+    const h2 = rivi((k.querySelector('h2') || {}).textContent);
+    k.querySelectorAll('h1, h2, a[href="#transcript-top"], script, style').forEach(x => x.remove());
+    // <p><h3>…</h3><p>… on rikkinäistä HTML:ää: jäsentäjä tekee tyhjiä kappaleita, jotka poistuvat.
+    k.querySelectorAll('p').forEach(p => { if (/^\[\s*end of transcript\s*\]$/i.test(rivi(p.textContent))) p.remove(); });
+    k.querySelectorAll('h3, h4').forEach(h => { h.textContent = rivi(h.textContent.replace(aika, ' ')); });
+    el.append(...k.childNodes);
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent)) p.remove(); });
+    kkTasoita(el);
+    if (kkSanoja(el) < 100) return null;
+    // Puhuja (Professor Shelly Kagan:) useimmin toistuvasta professorimerkinnästä.
+    const puhujat = new Map();
+    el.querySelectorAll('strong, b').forEach(b => {
+      const m = /^Professor\s+(.+?):?$/.exec(rivi(b.textContent));
+      if (m) puhujat.set(m[1].replace(/:$/, ''), (puhujat.get(m[1]) || 0) + 1);
+    });
+    const tekija = [...puhujat].sort((a, b) => b[1] - a[1]).map(x => x[0])[0] || '';
+    // Luennon nimi ilman kurssikoodia (PHIL 176 - Lecture 1 - Course Introduction → Lecture 1 - Course Introduction).
+    const nimi = rivi((document.querySelector('.session-full__title') || {}).textContent) || h2.replace(/^[A-Z]{2,5}\s*\d+[a-z]?\s*-\s*/, '');
+    const kd = await hae(location.origin + lm[1]);
+    const v = kd && /recorded for Open Yale Courses in (?:Spring|Fall|Summer|Winter)?\s*((?:19|20)\d\d)/i.exec(rivi(kd.body && kd.body.textContent));
+    const lis = document.querySelector('.footer__cp_wrapper_acc_statement');
+    const lt = lis && (rivi(lis.textContent).match(/^.*?\.(?=\s|$)/) || [''])[0];
+    return { html: irrota([el]).innerHTML, otsikko: nimi, teos: kurssi && kurssi !== nimi ? kurssi : '', tekija, sivusto: OYC_NIMI,
+      julkaistu: v ? v[1] : '', lahde: osoite, maar: [], oikeus: lt ? { teksti: lt, lahde: 'https://oyc.yale.edu/terms' } : null };
+  }
+
   /* Internet Encyclopedia of Philosophy (iep.utm.edu; käyttäjän pyyntö 16.11.2026, pahvin A4). WordPress, runko article
      .entry-content: h1, johdanto, h3 Table of Contents ja sisäkkäinen ol (#H1, #SH1a …), osiot h2 (<a name="H1"> 1. Life),
      alaosiot h3–h5, References and Further Reading luetteloina (merkintöjen kuvaukset sisäkkäisinä ul:ina) ja h3 Author
@@ -3504,7 +3557,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, oyc, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
