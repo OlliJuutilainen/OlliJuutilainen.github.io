@@ -124,6 +124,8 @@
       hakee katkaistut kirjoitukset kokonaisina niiden omilta sivuilta samasta blogista, enintään 20 sivua.</li>
     <li>Jos leikkaat New Adventin tai Christian Classics Ethereal Libraryn (ccel.org) sivun, jolla on vain teoksen yksi luku
       tai sisällysluettelo, lisäosa hakee samalta sivustolta teoksen sisällysluettelon ja sen muut luvut, enintään 250 sivua.</li>
+    <li>Jos leikkaat LacusCurtiuksen (penelope.uchicago.edu) sivun kirjasta, joka on jaettu usealle sivulle, lisäosa hakee
+      samalta sivustolta kirjan muut sivut, enintään 40. Loebin käännöksestä se hakee lisäksi teoksen etusivun kääntäjän nimeä varten.</li>
     <li>Jos leikkaat Open Journal Systems -lehden (esimerkiksi journals.vu.lt) artikkelin tiivistelmäsivun, lisäosa hakee
       samalta sivustolta artikkelin HTML-kokotekstin; jos leikkaat kokotekstin, se hakee artikkelin tiivistelmäsivun
       tekijän, lehden ja julkaisutietojen vuoksi. Kumpikin on yksi sivu.</li>
@@ -153,7 +155,9 @@
     of a work or its table of contents, it fetches the table of contents and the other chapters from the same site, up to 250 pages.
     When you clip the abstract page of an Open Journal Systems journal article (for example journals.vu.lt), it fetches the article’s
     HTML full text from the same site; when you clip the full text, it fetches the abstract page for the author, journal and
-    publication details. Either is one page. If you use Postihuilu, the extension remembers your box phrase in its local storage,
+    publication details. Either is one page. When you clip a page of LacusCurtius
+    (penelope.uchicago.edu) from a book split over several pages, it fetches the book’s other pages from the same site, up to 40; for a Loeb
+    translation it also fetches the work’s index page for the translator’s name. If you use Postihuilu, the extension remembers your box phrase in its local storage,
     and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),
     where it is kept for 30 days and can be read by anyone who knows the phrase. The Latomo and Luin pages are served by
     GitHub Pages, which may log page requests like any website; the clipped text is not sent to it.</p>

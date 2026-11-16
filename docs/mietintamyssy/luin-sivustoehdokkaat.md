@@ -16,6 +16,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Encyclopedia.com ja IPA:n IRED.
 - Tästä listasta tehdyt: St Andrews Encyclopaedia of Theology (PR #699, 14.11.2026), Project Gutenberg
   (PR #701, 14.11.2026), New Advent ja CCEL (14.11.2026) sekä Psyche ja Aeon yhdellä sovitteella (14.11.2026).
+  LacusCurtius (16.11.2026, antiikkiosiosta): Loebin vanhat käännökset ovat siellä vapaasti, vaikka Loeb itse on alla
+  maksumuurin takana.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -246,7 +248,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Perseus, Scaife Viewer (tekstit lyhyinä paloina sivua kohti; Scaife on sovellus)
 - The Latin Library
 - Bibliotheca Augustana
-- LacusCurtius
+- LacusCurtius (tehty 16.11.2026)
 - Attalus
 - ToposText
 - Theoi.com

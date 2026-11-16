@@ -63,6 +63,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   European Journal of Psychoanalysis -sovite (15.11.2026, opas 7.5): lohkot (Bibliography, Notes, Bio, Publication Date) tunnistetaan
   otsikkosanasta, koska numerointi vaihtelee; APA-pilkku pois kuten OECS:ssä. Etukentässä `tyyppi: tieteellinen`, `teos` ja `numero`
   ilman `sivusto`a (viite toistaisi lehden nimen); `article:published_time` on WordPressin aika, ei julkaisupäivä.
+  LacusCurtius-sovite (16.11.2026, opas 7.5): Thayerin osoitteissa on `*` (`Isis_and_Osiris*/A.html`), joten niitä ei saa
+  kirjoittaa `/* */`-kommenttiin (päätti kommentin). Kääntäjä vain varmasta etusivun lauseesta, muuten kenttä jää tyhjäksi.
+  Pykälät ovat leikkeessä `<sup>`:na, jotka Latomo muuntaa (`^2^`); raakaleikkeestä md.js varoittaa niistä.
   Open Journal Systems -sovite (16.11.2026, opas 7.5; Problemos ja muut journals.vu.lt:n lehdet): tunnistus alustasta (generator ja
   `citation_*`, kokotekstin osoitteesta artikkelisivu), ei verkkotunnuksesta. Otsikko on kokotekstin `h1`, koska `citation_title` ja
   `citation_language` voivat olla toisella kielellä kuin artikkeli. VU:n alaviitemerkki viittaa tiedostonimeen (`1_X.html#footnote-016`),

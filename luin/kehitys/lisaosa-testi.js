@@ -1,7 +1,7 @@
 // Lukimeen-lisäosan selaintesti. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-testi.js [kuvakansio]
 // Lataa luin/lisaosa/ Chromiumiin ja ajaa ketjun: keksitty artikkeli → ponnahdusikkuna → latomo.html#lisaosa →
-// (Poimi lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL, Psyche ja Aeon), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
+// (Poimi lukimeen) luin.html#tuo → lukulista, sovitteet (SEP, Blogger, Logos, Wikipedia, marxists.org, Wait But Why, OECS, Encyclopedia.com, IPA:n IRED, St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, CCEL, Psyche ja Aeon, European Journal of Psychoanalysis, LacusCurtius), sekä Postihuilu (workerin koodi muistissa olevalla KV:llä). Latomo ja Luin tulevat tästä reposta paikalliselta palvelimelta: ikkunan
 // tabs.create-navigointi ohittaa Playwrightin reitityksen, jolloin Latomo latautui oikealta GitHub Pagesilta ja md.js
 // paikallisesta reposta (6.11.2026: Pagesin uudempi Latomo kutsui funktiota, jota haaran md.js:ssä ei ollut).
 // Testissä ikkuna avataan välilehtenä, jolloin activeTab ei myönny; siksi lisäosa kopioidaan väliaikaiskansioon ja
@@ -440,6 +440,61 @@ const EJP_SIVU = ejpSivu('Koe Article: A Test', 'Ada Aaltonen and Bo Berg',
 const EJP_VANHA_SIVU = ejpSivu('Old Koe', 'Cee Vanha', '', `<p>An old article (Koe, 2020).</p>`,
   [['References', '<p>Koe, A. (2020). <i>A test book</i>. Koe Press.</p>'], ['Notes', '<hr><div><p>1 Koe (2020).</p><p>2 Ibid.</p></div>']], 'Articles');
 
+// LacusCurtius (keksitty kaksisivuinen kirja 16.11.2026, Thayerin sivupohja): otsake (teos, Vol., Loeb, vuosi, public domain),
+// edellinen/seuraava-linkit, h2 ja h1 sivunumeroineen, Thayerin huomautus nimiön edellä, luku ja pykälät, lippulinkki,
+// sivunumero tekstissä, Loebin ja Thayerin viitteet, div.mynote jatkona, latina, ponnahdukset (º, •), sanastopallo,
+// kulmasulkeet, säkeet ja vuosilukutaulukko. Teoksen etusivulla oikea ja toinen (vanhempi) käännös.
+const LC = 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Koetus/Annals/';
+const lcSivu = (osa, ed, seur, h1, runko, viitteet) => `<!DOCTYPE HTML><HTML LANG="en"><HEAD><TITLE>Koetus • Annals</TITLE>
+<BASE HREF="https://penelope.uchicago.edu/Thayer/"></HEAD><BODY CLASS="default"><P CLASS="m2 smaller right">Short URL for this page: bit.ly/Koe</P>
+<DIV CLASS="spacious"><DIV ALIGN="center"><IMG CLASS="setPageWidth" SRC="Images/Utility/empty.gif" ALT=""></DIV>
+<TABLE CLASS="headerbox"><TR CLASS="header4"><TD CLASS="mailcell">mail: <A HREF="E/HELP/contact.html">Bill Thayer</A></TD>
+<TD CLASS="flagcell"><A HREF="
+E/Roman/Texts/Koetus/home.html
+"><IMG CLASS="flag" SRC="Images/Utility/Icons/up.gif" ALT="[Link to the next level up]"><BR>Up</A></TD></TR>
+<TR CLASS="proofread1"><TD CLASS="previouscell">${ed ? `<SPAN CLASS="small">previous:</SPAN><BR><A HREF="
+E/Roman/Texts/Koetus/Annals/${ed}*.html
+">I.1</A>` : ''}</TD><TD><DIV CLASS="contents"><P CLASS="center">This webpage reproduces a section of <B>The Koe Annals</B> of Koetus
+published in Vol. II of the Loeb Classical Library edition of Koetus, 1931<P CLASS="center">The text is in the public domain.<P>This page has been carefully proofread.</DIV></TD>
+<TD CLASS="nextcell">${seur ? `<SPAN CLASS="small">next:</SPAN><BR><A HREF="
+E/Roman/Texts/Koetus/Annals/${seur}*.html
+">I.2</A>` : ''}</TD></TR></TABLE>
+<DIV CLASS="mynote"><P>Before e-mailing me, please read the orientation page.</DIV>
+<H2><SPAN CLASS="pagenum">(Vol. II)</SPAN> Koetus <SPAN CLASS="green">Annals</SPAN></H2>
+<H1><A ID="p3"><SPAN CLASS="pagenum"> p3 </SPAN></A> ${h1}</H1>
+${runko}${viitteet}
+<TABLE CLASS="footer" ID="navbar"><TR><TD>UP TO: Koetus</TD></TR></TABLE></DIV><P CLASS="r1">Page updated: 1 Jan 26</BODY></HTML>`;
+const lcViite = (id, tunnus, t) => `<P CLASS="justify"><A CLASS="note" ID="${id}" HREF="
+E/Roman/Texts/Koetus/Annals/1A*.html#ref${id.slice(4)}
+">${tunnus}</A> ${t}<P CLASS="ivy">❦</P>`;
+const LC_SIVUT = {
+  [LC + '1A*.html']: lcSivu('1A', '', '1B', 'Book I (beginning)',
+    `<P CLASS="justify"><A CLASS="chapter" NAME="1">1</A>
+<A HREF="
+L/Roman/Texts/Koetus/Annals/1A*.html#1
+"><IMG WIDTH="30" HEIGHT="20" SRC="Images/Utility/Flags/medium/Vatican.gif" ALT="[Legamen ad paginam Latinam]"></A>
+<A CLASS="sec" NAME="1.1">1</A> In the first year&#8288;<A CLASS="ref" ID="ref1" HREF="
+E/Roman/Texts/Koetus/Annals/1A*.html#note1
+">1</A> the <SPAN LANG="la" CLASS="Latin">res publica</SPAN> stood.&#8288;<A CLASS="ref" ID="ref:stood" HREF="
+E/Roman/Texts/Koetus/Annals/1A*.html#note:stood
+">a</A> <A CLASS="sec" NAME="1.2">2</A> The &lt;II&gt; legions marched <A CLASS="conversion" onMouseOver="return Ebox('300 meters',WIDTH,120)">•</A>two hundred paces
+<A ID="p5"><SPAN CLASS="pagenum"> p5 </SPAN></A>to the <A CLASS="glossary" HREF="E/Roman/Texts/secondary/SMIGRA*/Forum.html">•</A><A HREF="E/Gazetteer/Forum.html">Forum</A> and
+<A CLASS="correction" onMouseOver="return Ebox('The Loeb edition has: '+BadF+'koe'+CloseF+'',WIDTH,100)">º</A>sang:</P>
+<DIV ALIGN="center"><TABLE CLASS="verse"><TR><TD><P>"First line of the song,<P>Second line."</TD></TR></TABLE></DIV>
+<DIV ALIGN="center"><TABLE BORDER="0"><TR><TD><DIV ALIGN="center"><SPAN CLASS="small">B.C.</SPAN></DIV></TD></TR>
+<TR><TD><DIV ALIGN="center"><SPAN CLASS="small">44</SPAN></DIV></TD><TD><SPAN CLASS="small">Duration of time.</SPAN></TD></TR></TABLE></DIV>`,
+    `<HR CLASS="endnotes"><A ID="endnotes"></A><H2>The Loeb Editor's Notes:</H2>` +
+    lcViite('note1', '1', 'The year 14.<DIV CLASS="mynote"><P>Thayer\'s Note: See <A HREF="E/Roman/Texts/Koe/2*.html#3">Koe 2.3</A>.</DIV>') +
+    `<HR CLASS="endnotes"><A ID="endnotes_T"></A><H2>Thayer's Notes:</H2>` + lcViite('note:stood', 'a', 'Standing is a metaphor.')),
+  [LC + '1B*.html']: lcSivu('1B', '1A', '', 'Book I (continued)',
+    `<P CLASS="justify"><A CLASS="chapter" NAME="2">2</A> <A CLASS="sec" NAME="2.1">1</A> The second chapter.&#8288;<A CLASS="ref" ID="ref1" HREF="
+E/Roman/Texts/Koetus/Annals/1B*.html#note1
+">1</A></P>`,
+    `<HR CLASS="endnotes"><H2>The Loeb Editor's Notes:</H2>` + lcViite('note1', '1', 'Note of the second page.')),
+  'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Koetus/home.html': `<!DOCTYPE HTML><HTML><HEAD><TITLE>Koetus</TITLE></HEAD><BODY>
+<P>The Latin text is that of the Teubner edition. Elsewhere online, there is a different, older, translation (by Väärä Kääntäjä).
+<P>The English translation is by K. A. Kääntäjä, printed in the same edition.</BODY></HTML>`
+};
 // Open Journal Systems (16.11.2026): keksitty Vilnan yliopiston lehti. Artikkelisivulla citation_*-tiedot ja HTML-kokotekstin
 // osoite; kokoteksti VU:n InDesign-pohjalla (lehden tiedot, liettuankielinen otsikko ja santrauka, englanninkielinen otsikko ja
 // abstract, oikeuskappale, otsikot lihavoituina h2/h3, alaviitemerkki tiedostonimeen, taulukon otsikko h4:nä ja yhdistetty solu,
@@ -565,6 +620,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     if (u.href.split('#')[0] === AEON) return r.fulfill({ body: AEON_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === EJP) return r.fulfill({ body: EJP_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href.split('#')[0] === EJP_VANHA) return r.fulfill({ body: EJP_VANHA_SIVU, contentType: 'text/html; charset=utf-8' });
+    if (LC_SIVUT[decodeURIComponent(u.href.split('#')[0])]) return r.fulfill({ body: LC_SIVUT[decodeURIComponent(u.href.split('#')[0])], contentType: 'text/html; charset=utf-8' });
     if (u.href === OJS_ART) return r.fulfill({ body: OJS_ART_SIVU, contentType: 'text/html; charset=utf-8' });
     if (u.href === OJS_PDF) return r.fulfill({ body: OJS_PDF_SIVU, contentType: 'text/html; charset=utf-8' });
     // journals.vu.lt ohjaa kokotekstin osoitteen download-osoitteeseen; Playwrightin keksitty 302 ei kanna sisältöskriptin
@@ -1085,6 +1141,35 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     /^---\ntyyppi: tieteellinen\ntekijä: Cee Vanha\nteos: Koe\nnumero: 92\nsivut: 7–22\njulkaistu: 2017-10-27\nlähde: https:\/\/www\.journals\.vu\.lt\/koe\/article\/view\/103\noikeudet: CC BY 4\.0\n/.test(ojp.md) &&
     /^# Senas straipsnis\n\n\*\*Santrauka\.\*\* Senas straipsnis apie kirpimą\.\n\n\*\*Pagrindiniai žodžiai:\*\* kirpimas\n\n\*\*Abstract\.\*\* \*An old article\.\* The old article is about clipping\.\n\n\*\*Keywords:\*\* clipping\n\nPDF: /m.test(ojp.md),
     ojp.md.replace(/\n/g, ' | ').slice(0, 900));
+  // 23. LacusCurtius (16.11.2026): kaksisivuinen kirja ensimmäiseltä sivulta, Loebin ja Thayerin viitteet, kääntäjä etusivulta.
+  const lc = await leikeLuin(LC + '1A*.html');
+  const lcRunko = lc.md.split('---').slice(2).join('---');
+  tulos('LacusCurtius: etukenttä otsakkeesta, h2:sta ja etusivulta (oikea kääntäjä, ei vanhempaa), public domain',
+    /^---\ntekijä: Koetus\nteos: The Koe Annals\nnumero: 2\nsarja: Loeb Classical Library\nsuomentaja: Kääntänyt K\. A\. Kääntäjä\nsivusto: LacusCurtius\njulkaistu: 1931\nlähde: https:\/\/penelope\.uchicago\.edu\/Thayer\/E\/Roman\/Texts\/Koetus\/Annals\/1A\*\.html\noikeudet: The text is in the public domain\.\noikeudet-lähde: https:\/\/penelope\.uchicago\.edu\/Thayer\/E\/HELP\/Copyright\/home\.html\n/.test(lc.md),
+    lc.md.split('\n').slice(0, 12).join(' | '));
+  tulos('LacusCurtius: kirja kahdelta sivulta, otsikko teoksen nimellä, luvut lihavoituina ja pykälät yläindekseinä',
+    lc.ots === '# The Koe Annals, Book I' && /^\*\*1\*\* In the first year\[\^viite-lc1\] the \*res publica\* stood\.\[\^viite-lc2\] <sup>2<\/sup> The ⟨II⟩ legions marched\[\^viite-lc3\] two hundred paces to the Forum and\[\^viite-lc4\] sang:$/m.test(lcRunko) &&
+    /^\*\*2\*\* The second chapter\.\[\^viite-lc5\]$/m.test(lcRunko), lcRunko.replace(/\n/g, ' | ').slice(0, 700));
+  tulos('LacusCurtius: säkeet lainaukseksi, vuosilukutaulukko kappaleeksi; sivunumerot, liput, pallot, erottimet ja sivuhuomautus pois',
+    /^> "First line of the song, {2}\n> Second line\."$/m.test(lcRunko) && /^B\.C\. 44 Duration of time\.$/m.test(lcRunko) &&
+    !/p5|p3|Vol\. II\)|Latin|❦|º|•|e-mailing|continued|beginning|Editor's Notes|Thayer's Notes|<table|⁠/.test(lcRunko), lcRunko.replace(/\n/g, ' | ').slice(0, 900));
+  tulos('LacusCurtius: Loebin viite Thayerin jatkoineen, Thayerin kirjainviite ja ponnahdukset Thayer\'s Note -alaviitteinä, toisen sivun viite',
+    /^\[\^viite-lc1\]: The year 14\.\n\n {4}Thayer's Note: See \[Koe 2\.3\]\(https:\/\/penelope\.uchicago\.edu\/Thayer\/E\/Roman\/Texts\/Koe\/2\*\.html#3\)\.$/m.test(lcRunko) &&
+    /^\[\^viite-lc2\]: Thayer's Note: Standing is a metaphor\.$/m.test(lcRunko) && /^\[\^viite-lc3\]: Thayer's Note: 300 meters\.$/m.test(lcRunko) &&
+    /^\[\^viite-lc4\]: Thayer's Note: The Loeb edition has: “koe”\.$/m.test(lcRunko) && /^\[\^viite-lc5\]: Note of the second page\.$/m.test(lcRunko),
+    lcRunko.replace(/\n/g, ' | ').slice(-700));
+  // Latomo muuntaa yläindeksit (<sup>2</sup> → ^2^) kuten lisäosan polulla; raakaleikkeessä md.js varoittaisi niistä.
+  const lcLat = await ctx.newPage();
+  await lcLat.goto('https://ollijuutilainen.github.io/luin/latomo.html');
+  await lcLat.evaluate(md => { const e = document.getElementById('md'); e.value = md; e.dispatchEvent(new Event('input', { bubbles: true })); }, lc.md);
+  await lcLat.waitForTimeout(900);
+  const lcL = await lcLat.evaluate(() => { const md = window.__latomo.tulos().md, r = window.LuinMD.parse(md);
+    const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
+    return { yla: /stood\.\[\^viite-lc2\] \^2\^ The/.test(md), sn: d.querySelectorAll('.sidenote').length, sup: d.querySelectorAll('sup:not([class])').length,
+      lainaus: d.querySelectorAll('blockquote').length, varoitukset: r.warnings.map(w => w.msg) }; });
+  await lcLat.close();
+  tulos('LacusCurtius Latomon jälkeen Luinissa: pykälä ^2^, viisi alaviitettä, lainaus, ei varoituksia', lcL.yla && lcL.sn === 5 && lcL.lainaus === 1 && !lcL.varoitukset.length,
+    JSON.stringify(lcL));
   await artikkeli.goto(BLOG_POSTI);
 
   // Postihuilu (9.11.2026, kolme nappia 10.11.2026): laatikkolauseen sääntö ikkunassa; ilman Lisää tämän selaimen
