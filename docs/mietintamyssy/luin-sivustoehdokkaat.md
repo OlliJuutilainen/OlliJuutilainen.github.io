@@ -31,7 +31,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   galleriailinkin kautta. journal.fi (Ajatus, Teologinen Aikakauskirja, Uskonnontutkija, Arctos) on botintorjunnan takana, joten
   testaamatta; Kant e-prints (periodicos.sbu.unicamp.br) julkaisee vain pdf:iä, ohitettu.
   Noema (PR #790, 16.11.2026, pahvin B6): mitattu ensin, 12/16 nostolainausta toistui tekstinä, joten sovite.
-  Emergence Magazine (PR-NUMERO, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
+  Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
   on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
