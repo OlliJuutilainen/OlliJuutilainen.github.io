@@ -27,6 +27,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Notre Dame Philosophical Reviews (PR #785, 16.11.2026, pahvin A5): kirjan tiedot, arvioija tekijäksi, alaviitteet.
   Il Tascabile ja Doppiozero (PR #786, 16.11.2026, pahvin B4): nostolainaukset, kuvat ja Leggi anche pois.
   Bryn Mawr Classical Review (PR #787, 16.11.2026, pahvin A6): kuten NDPR, kreikka säilyy.
+  On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
+  on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -520,7 +522,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Open Yale Courses: Kagan, Hayes, Martin, Fry
 - Tanner Lectures (pdf)
 - Reith Lectures (BBC)
-- On Being: haastattelulitteraatiot
+- On Being: haastattelulitteraatiot (yleinen leikkaus riittää, 16.11.2026, ks. yllä)
 - History of Philosophy without any gaps: jaksosivut (?)
 - Philosophize This: litteraatiot (?)
 - MIT OpenCourseWare: humanistiset luentomuistiinpanot (pdf)
