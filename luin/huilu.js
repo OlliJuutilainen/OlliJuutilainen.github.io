@@ -1,6 +1,6 @@
 /* Postihuilun kuvio (käyttäjän valinnat ja säännöt 12.11.2026; ideointi docs/mietintamyssy/luin-postihuilu-kuvitus*).
    Yksi huilu, aina vinossa pystyssä (kulma 68° vaakatasosta, nokka ylhäällä oikealla), ei koskaan vaakatasossa:
-   - pinon Postihuilu-otsikon oikealla puolella ja asetusten Postihuilu-osiossa, josta lähtee kulmikas nelilinja;
+   - pinon Postihuilu-otsikon oikealla puolella ja asetusten Postihuilu-osiossa, josta lähtee kulmikas kolmilinja;
    - huilutetun (Postihuilun kautta kantautuneen) tekstin nimen perässä.
    Käyttäjän säännöt:
    - Sormireiät ovat koveria salmiakkeja Luinin logon mittasuhteissa (leveys/korkeus 0,767, kaarevuus 0,38), pitkittäin
@@ -23,7 +23,9 @@
   'use strict';
   var LOGO = 0.767;            // logon salmiakin leveys / korkeus (luin.html:n logo)
   var KAARI = 0.38;            // salmiakin kaarevuus (luin.html sal())
-  var REIKA = 0.65;            // sormireiän koko sisäkorkeudesta: pienennetty ääniaukolle tilaa (käyttäjä 12.11.2026; ennen 0,85)
+  // Sormireiän koko sisäkorkeudesta (käyttäjä 16.11.2026: pienemmät; ennen 0,65 ja sitä ennen 0,85). api.REIKA, jotta
+  // mietintämyssyn vertailusivu voi kokeilla muita kokoja.
+  var api = { REIKA: 0.5 };
   // Ääniaukko sisäkorkeuden puolikkaan (sisa) kerrannaisina: puolileveys, siivun alku nokan suoran osan alusta, siivun
   // ja koko aukon pituus putken suuntaan; ääriviiva sw:n kerrannaisena; leuka vie puolet puolileveydestä 45°:ssa.
   var AUKKO = { leveys: .6, alku: .1, siivu: .38, pituus: 1.7, viiva: .7, leuka: .5 };
@@ -45,7 +47,7 @@
   // Reiät ovat REIKA-kertaiset täyteen (sivukärjet sisäpinnassa) verrattuna, ja ketju ankkuroituu alhaalta: alin alakärki
   // pysyy pohjaviivan sisäpinnassa ja huilun pituus on täysikokoisten reikien mukainen (käyttäjä 12.11.2026).
   function mitat(T, sw) {
-    var h = T / 2, sisa = h - sw / 2, B = sisa * REIKA, A = B / LOGO, bk = T * .82;
+    var h = T / 2, sisa = h - sw / 2, B = sisa * api.REIKA, A = B / LOGO, bk = T * .82;
     var L = bk + sisa * .9 + 6 * sisa / LOGO + sw / 2, ketjuAlku = L - sw / 2 - 6 * A;
     var W = AUKKO.leveys * sisa, x0 = bk + AUKKO.alku * sisa;
     return { T: T, sw: sw, h: h, sisa: sisa, A: A, B: B, bk: bk, L: L, ketjuAlku: ketjuAlku,
@@ -107,14 +109,19 @@
       '<g transform="rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g></svg>';
   }
 
-  // Kaista: vino huilu ja sen kellosta kulmikas nelilinja oikeaan reunaan.
-  // o: vasen (huilun vasen reuna), yla (huilun yläreuna), keskiY (viivaston keskilinja vaakaosuudella), oikea (viivojen loppu),
-  //    T, sw (huilu), sp (viivaväli), vw (viivan paksuus), jakso, amp, kulma.
+  // Kaista: vino huilu ja sen kellosta kulmikas kolmilinja oikealle.
+  // o: vasen (huilun vasen reuna), yla (huilun yläreuna), keskiY (viivaston keskilinja vaakaosuudella), oikea (viivojen
+  //    enimmäisloppu), T, sw (huilu), n (viivoja), sp (viivaväli), vw (viivan paksuus), jakso, amp, palat (siksakin
+  //    enimmäispituus puolijaksoina), nr (nuotin puolikorkeus), kulma.
+  // Väljä kolmilinja (käyttäjän pyyntö 16.11.2026; ennen neljä viivaa, väli 4, jakso 30, ±2,4, nuotti 3 ja viivasto aina
+  // oikeaan reunaan): kolme viivaa, väli 5, jakso 48 ja siksak niin jyrkkä, että alamäkiviiva on 22° vaakatasosta eli
+  // kohtisuorassa sille kallistuvaa nuottia vastaan (amp = jakso · tan 22° / 4 ≈ 4,85). Siksak on enintään neljä jaksoa.
   // Viuhka: keskilinja on kuutiollinen Bézier kärjestä huilun suuntaan ja kaarena vaakasuoraksi; viivat ovat sen
   // normaalin suuntaisia siirtymiä, jotka kasvavat kärjen nollasta täyteen väliin kaaren matkalla (smoothstep).
   function kaista(o) {
-    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 4, n = 4, vw = o.vw || .6;
-    var jakso = o.jakso || 30, amp = o.amp == null ? 2.4 : o.amp, r = rajat(T, sw, kulma), th = r.th;
+    var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 5, n = o.n || 3, vw = o.vw || .6;
+    var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
+    var palat = o.palat == null ? 8 : o.palat, nr = o.nr || 3.3, r = rajat(T, sw, kulma), th = r.th;
     var nokka = [o.vasen - r.x, o.yla - r.y], d = [Math.cos(th), Math.sin(th)];
     var P0 = kierra([r.m.karki, 0], th); P0 = [nokka[0] + P0[0], nokka[1] + P0[1]];
     var pudotus = Math.max(sp * 2, o.keskiY - P0[1]);
@@ -139,8 +146,8 @@
       return amp * (u < .25 ? -4 * u : u < .75 ? -2 + 4 * u : 4 - 4 * u);
     }
     // Siksak päättyy aina kokonaisen palan (puolijakson) lepokohtaan: kapeammalla näytöllä se lyhenee pala palalta eikä
-    // katkea kesken taitteen (käyttäjän pyyntö 12.11.2026).
-    var loppu = o.oikea > xz ? xz + Math.floor((o.oikea - xz) / (jakso / 2)) * (jakso / 2) : xz;
+    // katkea kesken taitteen (käyttäjän pyyntö 12.11.2026). Leveällä näytöllä se on enintään `palat` palaa pitkä.
+    var loppu = o.oikea > xz ? xz + Math.min(palat || Infinity, Math.floor((o.oikea - xz) / (jakso / 2))) * (jakso / 2) : xz;
     var taitteet = [];
     for (var xx = xz + jakso / 4; xx < loppu; xx += jakso / 2) taitteet.push(xx);
     var d2 = '';
@@ -162,14 +169,14 @@
       // Nuotin kallistus (käyttäjä 12.11.2026): alamäkiviivalla (viiva laskee oikealle, ruudun y kasvaa) oikealle huilun
       // kulmassa (90° − 68° = 22° pystysuorasta), ylämäkiviivalla pystyssä ruudun suhteen.
       nuottiKallistus: function (x) { return tri(x + .01) - tri(x - .01) > 0 ? (90 - kulma) * Math.PI / 180 : 0; },
-      sp: sp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
-      alaY: E[1] + siirto(0) + Math.max(amp, sp * .75) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, sp * .75) - .5,
+      sp: sp, n: n, nr: nr, amp: amp, xz: xz, jakso: jakso, loppu: loppu, alku: P0, loppuKaari: E, vasenReuna: Math.min.apply(0, kaari.map(function (c) { return c.x - Math.abs(c.nx) * 1.5 * sp; })),
+      alaY: E[1] + siirto(0) + Math.max(amp, nr) + .5, ylaY: E[1] + siirto(n - 1) - Math.max(amp, nr) - .5,
       viivaY: function (x, p) { return E[1] + siirto(p) + tri(x); }
     };
   }
 
   // Nuotit (käyttäjän säännöt 12.11.2026): korkeus aina viivalla tai välissä, ei koskaan ylimmän viivan yläpuolella eikä
-  // alimman alapuolella (p 0–3 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
+  // alimman alapuolella (p 0…n − 1 puolen välein); vaakasuunnassa aina siksakin jakson keskellä (taitteiden puolivälissä, jossa
   // viiva on lepokohdassaan), ei satunnaisessa kohdassa. Yksi nuotti jaksoa kohti (ei
   // päällekkäisiä ääniä); salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa ja on ylämäessä pystyssä. Muodostelma arvotaan joka painalluksella uudelleen: jakso saa
   // jäädä välillä tyhjäksi, mutta ei kahta peräkkäin eikä ensimmäistä tai viimeistä. Korkeus on pelkkä arvonta (käyttäjä:
@@ -185,7 +192,7 @@
   }
   // Jakson keskikohdat välillä [x0, x1] (nuotin kärjet mahtuvat väliin).
   function jaksonKesket(k, x0, x1) {
-    var rx = k.sp * .75 * LOGO, out = [];
+    var rx = k.nr * LOGO, out = [];
     x1 = Math.min(x1, k.loppu);
     for (var x = k.xz + k.jakso / 2; x <= x1 - rx - 1; x += k.jakso / 2) if (x >= x0 + rx + 1) out.push(x);
     return out;
@@ -204,11 +211,11 @@
       // Soivat jaksot: ensimmäinen ja viimeinen aina, välissä tyhjä vain soivan jälkeen.
       soi = [];
       for (var j = 0; j < m; j++) soi.push(j === 0 || j === m - 1 || !soi[j - 1] || rnd() >= .12);
-      // Korkeudet: pelkkä arvonta viivaston seitsemästä paikasta, ei sama kuin edellinen (ei melodiaestetiikkaa).
+      // Korkeudet: pelkkä arvonta viivaston paikoista (kolmella viivalla viisi), ei sama kuin edellinen (ei melodiaestetiikkaa).
       ps = [];
       for (j = 0; j < m; j++) {
         if (!soi[j]) continue;
-        var p; do { p = Math.floor(rnd() * 7) / 2; } while (ps.length && p === ps[ps.length - 1]);
+        var p; do { p = Math.floor(rnd() * (2 * k.n - 1)) / 2; } while (ps.length && p === ps[ps.length - 1]);
         ps.push(p);
       }
     } while (kulkuPorras(ps) && ++yritys < 40);
@@ -218,13 +225,15 @@
     return out;
   }
   function nuotit(k, x0, x1, lista) {
-    var ry = k.sp * .75, rx = ry * LOGO;
+    var ry = k.nr, rx = ry * LOGO;
     // Alamäessä oikealle huilujen kulmassa, ylämäessä pystyssä.
     return nuottiPaikat(k, x0, x1, lista).map(function (q) { return sal(q.x, q.y, rx, ry, null, k.nuottiKallistus(q.x)); }).join('');
   }
 
-  g.LuinHuilu = { mitat: mitat, huilu: huilu, aukko: aukko, vino: vino, rajat: rajat, kaista: kaista, arvoNuotit: arvoNuotit, nuotit: nuotit,
+  g.LuinHuilu = api;
+  var osat = { mitat: mitat, huilu: huilu, aukko: aukko, vino: vino, rajat: rajat, kaista: kaista, arvoNuotit: arvoNuotit, nuotit: nuotit,
     nuottiPaikat: nuottiPaikat, jaksonKeskit: jaksonKesket,
     sal: sal, LOGO: LOGO };
+  for (var nimi in osat) api[nimi] = osat[nimi];
   if (typeof module !== 'undefined' && module.exports) module.exports = g.LuinHuilu;
 })(typeof window !== 'undefined' ? window : globalThis);

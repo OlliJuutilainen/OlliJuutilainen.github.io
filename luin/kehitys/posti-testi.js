@@ -156,6 +156,7 @@ function muistiKV() {
   // --- 3. Laite B: vastaanotto ilman omaa lähetysvalintaa ---
   const b = B.sivu;
   await b.goto(OSOITE + 'luin.html');
+  await b.click('#lisaa-ots'); // pinon Postihuilu on oletuksena kiinni (16.11.2026)
   await b.fill('#lisaa-syote', 'torikaffeilla on hemmetin mukavaa');
   await b.press('#lisaa-syote', 'Enter');
   await b.waitForFunction(() => /Ei kelpaa/.test(document.querySelector('#viesti').textContent));

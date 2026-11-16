@@ -39,7 +39,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: ei mitään (0.11.0: plussa ja *lukimen pinoon*). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: Postihuilu-napin kolmilinja ja pienemmät sormireiät (16.11.2026; 0.11.0: plussa ja *lukimen pinoon*). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -445,14 +445,17 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
   samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
-  mitat isoja (huilu 6 px, viivaväli 4 px, siksak ±2,4 px): ohut viiva ei ole lupa pienentää. Nuotit ilmestyvät vasta
+  mitat isoja (huilu 6 px, viivaväli 5 px, siksak ±4,85 px): ohut viiva ei ole lupa pienentää. **Väljä kolmilinja** (käyttäjän pyyntö 16.11.2026,
+  vertailu `docs/mietintamyssy/luin-postihuilu-valjempi.html`, muunnelma B): kolme viivaa, jakso 48, alamäki 22° vaakatasosta, siksak enintään
+  neljä jaksoa; jos se loppuu ennen napin oikeaa reunaa, nuotit soivat viivaston lopussa napin levyisellä matkalla. **Pinon Postihuilu on oletuksena kiinni**
+  (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
   ja viimeinen jakso soivat, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
   salmiakki kallistuu alamäkiviivalla oikealle huilujen kulmassa (22° pystysuorasta), ylämäkiviivalla pystyssä; korkeus pelkkä arvonta (käyttäjä: ei melodiaestetiikkaa). Siksak päättyy aina
   kokonaisen palan lepokohtaan, joten kapeassa näytössä se lyhenee pala palalta. Huilutettu = kantautunut laatikosta (`e.src === 'laatikko'`) eikä vielä avattu tässä selaimessa (`avaa()` asettaa `e.huiluNahty`, uudelleenlähetys poistaa sen; käyttäjä 16.11.2026): sama huilu nimen perässä (`HUILUTETTU`,
   keskikohta 0,29 em perusviivan yläpuolella). Merkintöjen merkki (`MERKITTY`, käyttäjän pyyntö 12.11.2026: kirjanmerkki, alleviivaus
-  tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, sivukärjet irti reunaviivasta (`REIKA` 0,65, pienennetty ääniaukolle; käyttäjä 12.11.2026),
+  tai kirjaus) on nimen ja huilun välissä, hienovarainen ja harmaa; viimeinen sana sidotaan merkkeihin (`nimiMerkein()`). Sormireiät logon mittasuhteissa, sivukärjet irti reunaviivasta (`REIKA` 0,5; käyttäjä 12.11.2026 ja pienemmiksi 16.11.2026),
   kärjet hipaisten, alin alakärki pohjaviivan sisäpinnassa (ketju ankkuroituu alhaalta, huilun pituus ennallaan). **Ääniaukko** (`AUKKO`,
   käyttäjän valinta 12.11.2026, nokkahuilun ikkuna): melko ylhäällä matala täytetty siivu reikien värillä, sen päiden linjasta
   kelloa kohti tyhjä ääriviiva, jonka alaosassa leukaperät ja leveä leuka (45° sisäänpäin, puolivälissä keskiviivalle vaakaan). Ei ruostetta. Kaistan luokka ei saa olla

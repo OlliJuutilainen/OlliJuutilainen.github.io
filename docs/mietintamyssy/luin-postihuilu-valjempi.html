@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Postihuilun väljempi viivasto</title>
+<!--
+  Mietintämyssy (käyttäjän pyyntö 16.11.2026): väljempi ja selkeämpi viivasto. Pyyntö: lyhyempi viivasto, vain kolme
+  viivaa, korkeampi siksak, matalampi taajuus ja pienemmät sormireiät. Toteutettiin muunnelma B; muut ovat vertailun
+  vuoksi. Kuvat piirtää luin/huilu.js pinon mitatuilla paikoilla (390 ja 860 px, mitattu luin.html:stä 16.11.2026),
+  nuotit samalla siemenellä, jotta muunnelmat ovat vertailukelpoisia.
+-->
+<style>
+  @font-face { font-family: Literata; src: url(../../luin/fontit/literata.woff2) format("woff2");
+    font-weight: 200 900; font-style: normal; font-display: swap; }
+  :root { --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c; --ruoste: #8c5426;
+    --antiikva: Literata, Georgia, "Noto Serif", serif; }
+  @media (prefers-color-scheme: dark) { :root:not([data-teema="vaalea"]) {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f; --ruoste: #b8794a; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font-family: var(--antiikva); font-size: 16px; line-height: 1.55; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+  h1 { font-weight: 400; font-size: 1.7rem; letter-spacing: .04em; margin: 0 0 4px; }
+  .ala { color: var(--harmaa); font-style: italic; margin: 0 0 22px; }
+  h2 { font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 400; color: var(--harmaa);
+    border-bottom: 1px solid var(--viiva); padding-bottom: 6px; margin: 40px 0 12px; }
+  h2.valittu { color: var(--ruoste); }
+  p { margin: 6px 0; max-width: 46em; }
+  .arvot { font-size: .82rem; color: var(--harmaa); font-variant-numeric: tabular-nums; }
+  .kuvat { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: flex-start; margin-top: 10px; }
+  .kuva { flex: 0 0 auto; max-width: 100%; overflow-x: auto; }
+  .kuva small { display: block; color: var(--harmaa); font-size: .72rem; letter-spacing: .1em; }
+  svg.lohko { display: block; color: var(--harmaa); overflow: visible; }
+  svg.lohko text { font-family: var(--antiikva); }
+  .reiat { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 10px; }
+  .reiat figure { margin: 0; text-align: center; color: var(--harmaa); font-size: .78rem; }
+  .reiat svg { display: block; color: var(--muste); }
+  .zoom { transform-origin: 0 0; }
+  .foot { margin: 56px auto 0; max-width: none; text-align: center; font-size: .7rem; letter-spacing: .18em; color: var(--viiva); }
+</style>
+</head>
+<body>
+<main>
+<h1>Postihuilun väljempi viivasto</h1>
+<p class="ala">Vertailu 16.11.2026. Toteutettiin muunnelma B.</p>
+<p>Pyyntö: lyhyempi viivasto, kolme viivaa, korkeampi siksak, matalampi taajuus, pienemmät sormireiät. Jokainen muunnelma
+  on piirretty luin/huilu.js:llä pinon mitatuilla paikoilla kahdessa leveydessä, painalluksen jälkeen (nuotit samalla
+  siemenellä). Leveässä näytössä siksak ei enää ulotu napin yläpuolelle, joten nuotit soivat viivaston loppupäässä.</p>
+<div id="muunnelmat"></div>
+
+<h2>Sormireiät</h2>
+<p>Reikäketju ankkuroituu edelleen alhaalta (alin kärki pohjaviivan sisäpinnassa) ja reiät hipaisevat toisiaan, joten
+  pienempi reikä jättää enemmän ilmaa ääniaukon ja ylimmän reiän väliin. Kuvat kahdeksankertaisina.</p>
+<div class="reiat" id="reiat"></div>
+<p class="foot">© TUSINASOFT 2026</p>
+</main>
+<script src="../../luin/huilu.js"></script>
+<script>
+(function () {
+  var H = window.LuinHuilu, OLETUS = H.REIKA;
+  var MUUNNELMAT = [
+    { id: '0', nimi: 'Nykyinen (ennen 16.11.2026)', o: { n: 4, sp: 4, jakso: 30, amp: 2.4, palat: 0, nr: 3 }, reika: .65,
+      selitys: 'Neljä viivaa, siksak oikeaan reunaan asti.' },
+    { id: 'A', nimi: 'A · varovainen väljennys', o: { n: 3, sp: 4.5, jakso: 40, amp: 3.6, palat: 8, nr: 2.8 }, reika: .55,
+      selitys: 'Kolme viivaa, vähän korkeampi ja harvempi. Ero nykyiseen jää pieneksi.' },
+    { id: 'B', nimi: 'B · 22°-siksak (toteutettu)', o: { n: 3, sp: 5, jakso: 48, palat: 8, nr: 3.3 }, reika: .5, valittu: true,
+      selitys: 'Alamäkiviiva on 22° vaakatasosta, eli kohtisuorassa sitä nuottia vastaan, joka kallistuu sillä huilujen kulmassa (22° pystysuorasta). Siksak enintään neljä jaksoa.' },
+    { id: 'C', nimi: 'C · laaja', o: { n: 3, sp: 6, jakso: 60, amp: 6, palat: 6, nr: 3.4 }, reika: .45,
+      selitys: 'Selvin aalto, mutta kapealla näytöllä vain kaksi ja puoli jaksoa ja kaista kasvaa korkeaksi otsikon vieressä.' },
+    { id: 'D', nimi: 'D · B kolmella jaksolla', o: { n: 3, sp: 5, jakso: 48, palat: 6, nr: 3.3 }, reika: .5,
+      selitys: 'Lyhyempi kuin B, mutta 390 px:ssä nuotteja mahtuu napin yläpuolelle vain kaksi.' },
+    { id: 'E', nimi: 'E · B loivempana', o: { n: 3, sp: 5, jakso: 48, amp: 3.6, palat: 8, nr: 3.3 }, reika: .5,
+      selitys: 'Matalampi siksak: rauhallisempi, mutta korkeuden lisäys jää huomaamattomaksi.' },
+    { id: 'F', nimi: 'F · B pienin nuotein', o: { n: 3, sp: 5, jakso: 48, palat: 8, nr: 2.5 }, reika: .5,
+      selitys: 'Nuotit kevyemmät, mutta viivalla ja välissä olevan ero hämärtyy.' }
+  ];
+  // Pinon mitatut paikat (luin.html 16.11.2026; lohkon vasemmasta yläkulmasta): otsikko, i-nappi, huilun paikka, kaista,
+  // nappi 116,9 px leveä lohkon oikeassa reunassa, kenttä 8 px kaistan alla.
+  var HUILU = { T: 6, sw: .75, kulma: 68 }, SIEMEN = { siemen: 2654435769 };
+  function lohko(W, m) {
+    H.REIKA = m.reika;
+    var r = H.rajat(HUILU.T, HUILU.sw, HUILU.kulma), vasen = 136.9 + (24 - r.w) / 2, yla = 2 - 8, kaistaY = 22;
+    var o = Object.assign({ vasen: vasen, yla: yla, keskiY: yla + r.h + 11, oikea: W, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma }, m.o);
+    var k = H.kaista(o);
+    var nL = W - 116.9, x1 = Math.min(W, k.loppu), x0 = Math.min(nL, x1 - 116.9);
+    var nuo = H.nuotit(k, x0, x1, SIEMEN);
+    var kaistaH = Math.ceil(k.alaY - kaistaY) + 3, kenttaY = kaistaY + kaistaH + 8, korkeus = kenttaY + 40;
+    H.REIKA = OLETUS;
+    return '<svg class="lohko" width="' + W + '" height="' + korkeus + '" viewBox="0 0 ' + W + ' ' + korkeus + '">' +
+      '<text x="0" y="15" font-size="11.84" letter-spacing="2.13" fill="currentColor">POSTIHUILU</text>' +
+      '<text x="111" y="15" font-size="12" fill="currentColor">[i]</text>' + k.svg +
+      '<path d="' + nuo + '" fill="currentColor"/>' +
+      '<rect x=".5" y="' + (kenttaY + .5) + '" width="' + (nL - 9) + '" height="39" fill="none" stroke="var(--viiva)"/>' +
+      '<text x="10" y="' + (kenttaY + 25) + '" font-size="15" fill="var(--viiva)">Laatikkolause tai linkki</text>' +
+      '<rect x="' + (nL + .5) + '" y="' + (kenttaY + .5) + '" width="115.9" height="39" fill="none" stroke="currentColor"/>' +
+      '<text x="' + (nL + 58.45) + '" y="' + (kenttaY + 25) + '" font-size="14" text-anchor="middle" fill="var(--muste)">Soita huilua!</text></svg>';
+  }
+  function arvot(m) {
+    var k = H.kaista(Object.assign({ vasen: 0, yla: 0, keskiY: 20, oikea: 999 }, m.o));
+    return 'viivoja ' + k.n + ' · väli ' + k.sp + ' px · jakso ' + k.jakso + ' px · siksak ±' + Math.round(k.amp * 100) / 100 +
+      ' px (' + Math.round(Math.atan(4 * k.amp / k.jakso) * 1800 / Math.PI) / 10 + '°) · pituus ' + (m.o.palat ? m.o.palat / 2 + ' jaksoa' : 'reunaan') +
+      ' · nuotti ' + Math.round(k.nr * 20) / 10 + ' px · reikä ' + m.reika;
+  }
+  document.getElementById('muunnelmat').innerHTML = MUUNNELMAT.map(function (m) {
+    return '<h2' + (m.valittu ? ' class="valittu"' : '') + '>' + m.nimi + '</h2><p>' + m.selitys + '</p><p class="arvot">' + arvot(m) + '</p>' +
+      '<div class="kuvat"><div class="kuva"><small>390 PX</small>' + lohko(358, m) + '</div><div class="kuva"><small>860 PX</small>' + lohko(608, m) + '</div></div>';
+  }).join('');
+  document.getElementById('reiat').innerHTML = [.65, .55, .5, .42].map(function (rk) {
+    H.REIKA = rk;
+    var r = H.rajat(6, .75, 68), s = '<svg viewBox="' + r.x + ' ' + r.y + ' ' + r.w + ' ' + r.h + '" style="width:' + (r.w * 8) + 'px;height:' + (r.h * 8) + 'px">' +
+      '<g transform="rotate(112)">' + H.huilu(6, .75) + '</g></svg>';
+    H.REIKA = OLETUS;
+    return '<figure>' + s + '<figcaption>' + String(rk).replace('.', ',') + (rk === .65 ? ' (ennen)' : rk === OLETUS ? ' (nyt)' : '') + '</figcaption></figure>';
+  }).join('');
+})();
+</script>
+</body>
+</html>
