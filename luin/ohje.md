@@ -445,6 +445,8 @@ Asetus *Maltillinen* (koodissa `varovainen`) käyttää vain kahta ensimmäistä
 
 Tasattu palsta kapealla ruudulla tarvitsee innokkaan tavutuksen; maltillisella sanavälit venyvät.
 
+Kaksirivinen kappale liehuu tasattunakin, jos sen ensimmäisen rivin sanaväli olisi yli 1 em (käyttäjän pyyntö 16.11.2026, `liehutaLyhyet()`, `LIEHU_RAJA`): isolla kirjasimella kapealla ruudulla lyhyen kappaleen kolme sanaa levisivät reunasta reunaan. Kahden rivin kappaleessa tasataan vain yksi rivi, joten palstan reunaa ei synny eikä liehuminen maksa juuri mitään; pidemmässä kappaleessa yksi löysä rivi ei ratkaise koko kappaleen tasausta, joten niihin sääntö ei ulotu. Sanaväli mitataan viereisten merkkien reunoista (välilyönnin oma laatikko on selainkohtainen). Tasaus ei muuta rivitystä: mitattu 16.11.2026 kolmella tekstillä (hakemuskoe, tutkielma, tämä opas), leveyksillä 360, 412, 631 ja 1280 px, koilla 16, 22 ja 28, vieritys ja sivut, tavutus ei ja maltillinen (144 yhdistelmää): sivumäärä, kappaleiden rivit, korkeudet ja paikat ennallaan, 54 kaksirivistä kappaletta liehuu (sanaväli 1,04–11,9 em), suurin tasattuna jäänyt kaksirivisen väli 0,999 em (työpöydällä enintään 0,88).
+
 ## 6. Ulkoasu
 
 ### 6.1 Värit

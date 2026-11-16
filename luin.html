@@ -619,6 +619,9 @@
   #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
   #teksti p { margin: 0 0 1.1em; }
   #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: justify; }
+  /* Kaksirivinen kappale, jonka ainoa tasattu rivi levenisi yli LIEHU_RAJA:n sanaväleihin, liehuu (liehutaLyhyet()).
+     Spesifisyys yli tasaussäännön. */
+  #teksti.tasattu p.liehu:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
   /* Sisennys vain kappaleelle, jonka edellä on leipätekstiä (p + p): otsikon, sisällysluettelon, otsikkolohkon, lainauksen,
      luettelon tai muun lohkon jälkeinen kappale on tasalaitainen (arkkiohje; käyttäjän pyyntö 7.11.2026). Ennen tämä
      tehtiin poikkeusluettelolla, josta puuttuivat mm. sisällysluettelo ja otsikkolohko. */
@@ -3297,6 +3300,55 @@
     });
   }
 
+  // Kaksirivinen kappale liehuu, jos sen ainoa tasattu rivi saisi sanaväleiksi yli LIEHU_RAJA em (käyttäjän pyyntö
+  // 16.11.2026: iso kirjasin kapealla ruudulla levitti lyhyen kappaleen kolme sanaa reunasta reunaan). Kahden rivin
+  // kappaleella tasaus ei muodosta palstan reunaa (vain yksi rivi tasataan), joten liehuminen ei maksa juuri mitään;
+  // pidemmässä kappaleessa yksi löysä rivi ei ratkaise koko kappaleen tasausta. Tasaus ei vaikuta rivitykseen, joten rivit,
+  // korkeudet ja sivut pysyvät. Sanaväli mitataan sanojen reunoista (välilyönnin oma laatikko on selainkohtainen).
+  // Ensin poistetaan vanhat luokat, sitten mitataan kaikki, lopuksi kirjoitetaan (kuten tavutaPitkat()).
+  var LIEHU_RAJA = 1;
+  function liehutaLyhyet() {
+    $$('p.liehu', art).forEach(function (el) { el.classList.remove('liehu'); });
+    if (!art.classList.contains('tasattu')) return;
+    var fs = parseFloat(getComputedStyle(art).fontSize), W = art.clientWidth, maxMerk = 6 * W / fs, lisaa = [];
+    var al = art.getBoundingClientRect().left, sivut = aset.sivutus === 'sivut' && tila.stride;
+    var palsta = function (x) { return sivut ? Math.floor((x - al + 2) / tila.stride) : 0; };
+    var laatikko = function (n, i) {
+      if (i < 0 || i >= n.length) return null;
+      var r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1);
+      var rs = r.getClientRects(); return rs.length ? rs[rs.length - 1] : null;
+    };
+    $$('p', art).forEach(function (el) {
+      if (el.textContent.length > maxMerk) return;
+      var cs = getComputedStyle(el);
+      if (cs.textAlign !== 'justify') return;
+      var lh = parseFloat(cs.lineHeight) || 1.62 * parseFloat(cs.fontSize);
+      var rg = document.createRange(); rg.selectNodeContents(el);
+      // Rivit: laatikot keskikohdan mukaan (sivutettuna palsta ensin); yläindeksi on samalla rivillä.
+      var rs = Array.prototype.filter.call(rg.getClientRects(), function (r) { return r.width > 0 && r.height > 0; })
+        .map(function (r) { return { p: palsta(r.left), y: r.top + r.height / 2 }; });
+      rs.sort(function (a, b) { return a.p - b.p || a.y - b.y; });
+      var rivit = [];
+      rs.forEach(function (r) {
+        var v = rivit[rivit.length - 1];
+        if (v && v.p === r.p && r.y - v.y < lh / 2) return;
+        rivit.push(r);
+      });
+      if (rivit.length !== 2) return;
+      var eka = rivit[0], rivilla = function (r) { return r && palsta(r.left) === eka.p && Math.abs(r.top + r.height / 2 - eka.y) < lh / 2; };
+      var vali = 0, w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+      while ((n = w.nextNode())) {
+        for (var i = n.data.indexOf(' '); i > 0; i = n.data.indexOf(' ', i + 1)) {
+          if (n.data[i - 1] === ' ' || n.data[i + 1] === ' ') continue;
+          var a = laatikko(n, i - 1), b = laatikko(n, i + 1);
+          if (rivilla(a) && rivilla(b)) vali = Math.max(vali, b.left - a.right);
+        }
+      }
+      if (vali > LIEHU_RAJA * fs) lisaa.push(el);
+    });
+    lisaa.forEach(function (el) { el.classList.add('liehu'); });
+  }
+
   // Sivutettuna: pääluku (h2) alkaa aina uudelta sivulta, ja alaluku (h3) siirretään uudelle sivulle, jos sille jäisi sivun
   // pohjalle (a) vain otsikko tai otsikko ja yksi tekstirivi tai (b) lainaus, joka ei mahdu samalle sivulle kokonaan.
   // Siirrettävä saa luokan `sivulle` (break-before: column). Koska kaikki selaimet eivät noudata palstanvaihtoa
@@ -3428,6 +3480,7 @@
       art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
       tavutaPitkat();
       alalukujenAlut();
+      liehutaLyhyet();
       var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
       var rs = viim ? viim.getClientRects() : [];
       var r = rs.length ? rs[rs.length - 1] : null;
@@ -3436,6 +3489,7 @@
       art.style.cssText = '';
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       tavutaPitkat();
+      liehutaLyhyet();
     }
     sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
