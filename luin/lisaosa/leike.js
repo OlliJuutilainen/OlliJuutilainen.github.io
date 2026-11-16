@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books ja Perseus (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus ja Paul Grahamin esseet (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2692,6 +2692,58 @@
     return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('h1') || {}).textContent), tekija, sivusto: 'Five Books', julkaistu, lahde: osoite };
   }
 
+  /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
+     elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
+     viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
+     Readability antoi tekstin, mutta viitteet jäivät linkkinumeroiksi loppuun eikä tekijää ja päiväystä tullut. Viitteet
+     alaviitteiksi, päiväys etukenttään, Thanks jää loppuun. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 16.11.2026. */
+  const PG_KUUKAUDET = EN_KUUKAUDET;
+  async function paulgraham() {
+    if (!/(^|\.)paulgraham\.com$/i.test(location.hostname)) return null;
+    // Essee: font-elementti, jossa on eniten tekstiä.
+    const ehdot = [...document.querySelectorAll('td > font')].filter(f => !f.parentElement.closest('font'));
+    const runko = ehdot.sort((a, b) => rivi(b.textContent).length - rivi(a.textContent).length)[0];
+    if (!runko || kkSanoja(runko) < 200) return null;
+    let html = runko.innerHTML;
+    const maar = [], tunnukset = new Map();
+    // Merkinnät: Notes-otsakkeen jälkeen [<a name="f1n">1</a>] teksti … seuraavaan merkintään tai Thanks-kappaleeseen.
+    const ni = html.search(/<b>\s*Notes\s*<\/b>/i);
+    let loppu = '';
+    if (ni >= 0) {
+      let notes = html.slice(ni).replace(/^<b>\s*Notes\s*<\/b>/i, '');
+      const ti = notes.search(/<b>\s*Thanks\s*<\/b>/i);
+      if (ti >= 0) { loppu = notes.slice(ti); notes = notes.slice(0, ti); }
+      html = html.slice(0, ni);
+      notes.split(/(?=\[\s*<a name="f\w+?n")/i).forEach(osa => {
+        const m = /^\[\s*<a name="(f\w+?n)"[^>]*>[\s\S]*?<\/a>\s*\]\s*/i.exec(osa);
+        if (!m) return;
+        const t = muunna(osa.slice(m[0].length).replace(/(<br\s*\/?>\s*)+$/i, '').replace(/(<br\s*\/?>\s*){2,}/gi, '<br><br>'), 'inlined').trim();
+        if (t) tunnukset.set(m[1], t);
+      });
+    }
+    let n = 0;
+    html = html.replace(/(?:<font[^>]*>\s*)?\[\s*<a href="#(f\w+?n)"[^>]*>[\s\S]*?<\/a>\s*\](?:\s*<\/font>)?/gi, (x, id) => {
+      const t = tunnukset.get(id);
+      if (!t) return '';
+      const tunnus = 'pg' + (++n);
+      maar.push(maaritelma(tunnus, t));
+      return 'XLUINVIITE' + tunnus + 'X';
+    });
+    const el = document.createElement('div');
+    const kpl = (html + (loppu ? '<br><br>' + loppu : '')).split(/(?:<br\s*\/?>\s*){2,}/i).map(x => x.trim()).filter(x => rivi(jasenna(x).body.textContent));
+    let julkaistu = '';
+    kpl.forEach((x, i) => {
+      const p = document.createElement('p');
+      p.innerHTML = x;
+      p.querySelectorAll('font').forEach(f => f.replaceWith(...f.childNodes));
+      const t = rivi(p.textContent), m = /^(\p{L}+)\s+(\d{4})$/u.exec(t), k = m ? PG_KUUKAUDET.indexOf(m[1].toLowerCase()) : -1;
+      if (!i && k >= 0) { julkaistu = m[2] + '-' + String(k + 1).padStart(2, '0'); return; }
+      el.appendChild(p);
+    });
+    const otsikko = rivi((document.querySelector('img[alt][width][height]:not([alt=""])') || {}).alt) || rivi(document.title);
+    return { html: irrota([el]).innerHTML, otsikko: rivi(document.title) || otsikko, tekija: 'Paul Graham', sivusto: 'paulgraham.com', julkaistu, lahde: osoite, maar };
+  }
+
   /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
      nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
      p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
@@ -4070,7 +4122,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
