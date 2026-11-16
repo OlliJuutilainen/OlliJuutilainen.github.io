@@ -35,10 +35,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kirjallisuusluettelon (`p.bib` vain kappaleista) sääntöjä: kun muutat niitä, aja `lisaosa-testi.js`. Lukevasta osasta käytetään
   sanaa *lukin* (*Poimi lukimeen*), tuotteesta *Luin*, genetiivi *Luinin* (käyttäjän linjaus 6.11.2026). Koko nimistö
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
-  Lisäosan nimi on *Luin* ilman loppupistettä (juoksevassa tekstissä *luin-lisäosa*, käyttäjän päätös 15.11.2026) ja sen ensimmäinen
-  nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Nimet, Postihuilu-napin
+  Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
+  nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Napin nimi, Postihuilu-napin
   lyhyt viivasto ja salmiakkivalintaruudut (16.11.2026) ovat lähdekoodissa, mutta `version` on yhä 0.9.0: **älä nosta versiota
-  äläkä anna zippejä ennen kuin käyttäjä pyytää** (käyttäjä 16.11.2026: "älä päivitä lisäosaa vieläkään"). Kauppaosoitteen
+  äläkä anna zippejä ennen kuin käyttäjä pyytää** (käyttäjä 16.11.2026: "älä päivitä lisäosaa vieläkään"). Nimeä *Lukimeen* ei ole
+  viety `luin/lisaosa/`-kansioon (manifestin `name` ja `default_title`, ponnahdusikkunan `<title>`, kommentit sanovat *Luin*): vaihda ne
+  vasta, kun käyttäjä pyytää lisäosan päivitystä. Sivustolla, oppaassa ja testien kommenteissa nimi on jo *Lukimeen*. Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -71,7 +73,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu seitsemään sivuun (luin.html, Latomo, Latomon ohje,
   käyttöohje, tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
-- Luinin kuvake on Luin-lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
+- Luinin kuvake on Lukimeen-lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
   tumman teeman ruosteineen, 32 px Safarille, 180 px kotivalikkoon paperitaustalla), linkitetty samoihin viiteen
   sivuun. Neliöt ovat salmiakkia. Linkin esikatselu (`og:image`, absoluuttinen osoite) on tumman teeman väreillä, koska
   viestimet ovat useimmiten tummia (käyttäjän linjaus 9.11.2026): kaikilla sivuilla, myös Latomossa, leveä LUiN.HTML-logo
@@ -99,7 +101,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 ### Käyttäjän linjaukset
 
 - **Nimet pienellä keskellä virkettä** (käyttäjän päätös 16.11.2026, opas 1.3): käyttäjälle näkyvässä suomenkielisessä tekstissä
-  *luin*, *luinin*, *latomo*, *postihuilu*, *pino*, *laatikkolause*, *luin-lisäosa*, *luin-linkki*. Iso alkukirjain vain virkkeen,
+  *luin*, *luinin*, *latomo*, *postihuilu*, *pino*, *laatikkolause*, *lukimeen-lisäosa*, *luin-linkki*. Iso alkukirjain vain virkkeen,
   otsikon, sivun nimen ja nappinimen alussa (*Luin.*, *Pinoon*, *Latomon ohje*), napin tai kentän nimen lainauksessa
   (`span.ui`: *Postihuilu*, *Arvo*, *Merkinnät*) ja englanninkielisessä tekstissä. Koodin kommentit ja kehittäjän opas jäivät.
 - **Pino ja kellarin veivihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
