@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile ja Doppiozero (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero ja Bryn Mawr Classical Review (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2457,6 +2457,47 @@
       julkaistu: itPvm(t('.data-articolo')), lahde: osoite };
   }
 
+  /* Bryn Mawr Classical Review (bmcr.brynmawr.edu; käyttäjän pyyntö 16.11.2026, pahvin A6: kuten NDPR, kreikka ja latina
+     koskemattomina). Arvio: .ref-id (BMCR 2026.10.35), h1.entry-title (kirjan nimi), .entry-citation (kirjan tiedot),
+     .meta-affiliation (arvioija span[itemprop=name], yliopisto, sähköposti), meta[itemprop=dateModified] (October 1, 2026) ja
+     [itemprop=reviewBody] (Wordin kappaleet, Google Books -esikatselulinkki Preview, lihavoitu Notes ja Wordin viitteet
+     _ftnref1 ↔ _ftn1; kokoomateoksessa lihavoitu Authors and titles ja luettelo). Kirjan tiedot ensimmäiseksi kappaleeksi,
+     arvioija(t) tekijäksi, BMCR ja numero etukenttään kuten NDPR:ssä. Preview-linkki, tyhjät kappaleet ja Notes-otsake pois,
+     viitteet alaviitteiksi, muut lihavoidut otsakekappaleet (Authors and titles) otsikoiksi. Tekstiä ei muuteta, joten
+     kreikka ja latina säilyvät sellaisinaan. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 16.11.2026. */
+  const BMCR_NIMI = 'Bryn Mawr Classical Review';
+  const EN_KUUKAUDET = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  async function bmcr() {
+    if (!/(^|\.)bmcr\.brynmawr\.edu$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('[itemprop="reviewBody"]');
+    const h1 = document.querySelector('h1.entry-title');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('figure, img, script, style, form').forEach(x => x.remove());
+    el.querySelectorAll('p').forEach(p => { if (/^preview$/i.test(rivi(p.textContent)) && p.querySelector('a')) p.remove(); });
+    const maar = samanSivunViitteet(el, 'bm');
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('br')) x.remove(); });
+    // Kokonaan lihavoitu lyhyt kappale on otsake: Notes (viitteet siirtyivät) pois, muut otsikoiksi.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent), b = p.querySelector('strong, b');
+      if (!b || rivi(b.textContent) !== t || t.length > 60) return;
+      if (/^(notes?|endnotes|footnotes)$/i.test(t)) { if (!p.nextElementSibling || /^H[1-6]$/.test(p.nextElementSibling.tagName)) p.remove(); return; }
+      const h = document.createElement('h2');
+      h.textContent = t;
+      p.replaceWith(h);
+    });
+    if (kkSanoja(el) < 50) return null;
+    const cit = document.querySelector('.entry-citation');
+    if (cit) { const p = document.createElement('p'), s = document.createElement('strong'); s.append(...cit.cloneNode(true).childNodes); p.appendChild(s); el.prepend(p); }
+    const tekijat = [...document.querySelectorAll('.meta-affiliation [itemprop="name"]')].map(x => rivi(x.textContent)).filter(Boolean);
+    const nro = rivi((document.querySelector('.ref-id') || {}).textContent).replace(/^BMCR\s*/i, '');
+    const pm = /(\p{L}+)\s+(\d{1,2}),\s*(\d{4})/u.exec(rivi((document.querySelector('meta[itemprop="dateModified"]') || {}).content));
+    const kk = pm ? EN_KUUKAUDET.indexOf(pm[1].toLowerCase()) : -1;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija: tekijat.join(' & '), tyyppi: 'tieteellinen',
+      teos: BMCR_NIMI, numero: nro, julkaistu: kk >= 0 ? pm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pm[2].padStart(2, '0') : (/^(\d{4})/.exec(nro) || [''])[0],
+      lahde: osoite, maar, naytto: BMCR_NIMI };
+  }
+
   /* Notre Dame Philosophical Reviews (ndpr.nd.edu; käyttäjän pyyntö 16.11.2026, pahvin A5). Arvio: header (h1 arvioitavan kirjan
      nimi, .meta-item__bibliography: kirjan tiedot lihavoituna kappaleena, p.meta-item__reviewer Reviewed by Nimi, Yliopisto,
      p.meta-item__edition 2025.10.3, meta[property=datePublished]) ja .article-content (Wordin kappaleet, kirjan kansikuva,
@@ -3665,7 +3706,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, oyc, iltascabile, doppiozero, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
