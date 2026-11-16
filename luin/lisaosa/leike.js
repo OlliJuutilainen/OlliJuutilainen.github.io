@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review ja Noema (16.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema ja Emergence Magazine (16.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2409,6 +2409,64 @@
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
+  /* Emergence Magazine (emergencemagazine.org; käyttäjän pyyntö 16.11.2026, pahvin B7: mittaa ensin kuten Noema). Mitattu:
+     nostolainaukset (.m-pull-quote) toistuivat tekstissä (2/3), kuvatekstien ja kuvaajien rivit (AI Chair 1.0, Kay Roxby /
+     Alamy) ja tekijätietojen otsakkeet (Writer, Translator) tulivat erillisinä kappaleina. Teksti on .essay-content-lohkoina:
+     section.m-default-text (osan alku span.new-section-drop versaalein), kuvat (figure, .m-variable-images), nostolainaukset;
+     alussa kerronnan soitin (Listen to this Story), tekijätiedot (.c-story-contributor: rooli ja esittely), päiväys ja ingressi.
+     Leikkeeseen vain tekstilohkot; osan alku osanvaihdoksi (hr), esittelyt loppuun omaksi osiokseen roolin mukaan otsikoituina.
+     Otsikko og:titlesta ilman tekijää, tekijä JSON-LD:stä (by James Bridle), kääntäjä Translator-esittelyn alusta (X is …),
+     päivä time[itemprop=datePublished]. Ingressiä ei oteta (kuten Psyche–Aeonissa). Ei mainoksia eikä lahjoituspyyntöä
+     etusivulla tai artikkeleissa. Mitattu 16.11.2026. */
+  async function emergence() {
+    if (!/(^|\.)emergencemagazine\.org$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('.essay-content');
+    if (!runko) return null;
+    const el = document.createElement('div');
+    runko.querySelectorAll('section.m-default-text').forEach(sec => {
+      if (sec.closest('.c-story-contributors')) return;
+      const k = sec.cloneNode(true);
+      k.querySelectorAll('figure, img, script, style, button, svg').forEach(x => x.remove());
+      // Osan alku (versaalein kirjoitettu alku, span.new-section-drop) osanvaihdoksi, paitsi ensimmäinen.
+      k.querySelectorAll('span.new-section-drop').forEach(s => {
+        const p = s.closest('p');
+        if (el.childNodes.length && p && k.contains(p)) p.before(document.createElement('hr'));
+        s.replaceWith(...s.childNodes);
+      });
+      el.append(...k.childNodes);
+    });
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    // Kappaleen sisäiset tyhjät rivit (<br /> &nbsp;<br />) kappalejaoksi.
+    el.querySelectorAll('p').forEach(p => {
+      if (!/<br\s*\/?>\s*(&nbsp;| )?\s*<br\s*\/?>/i.test(p.innerHTML)) return;
+      const osat = p.innerHTML.split(/<br\s*\/?>\s*(?:&nbsp;| )?\s*<br\s*\/?>/i).filter(x => rivi(jasenna(x).body.textContent));
+      p.replaceWith(...osat.map(x => { const q = document.createElement('p'); q.innerHTML = x; return q; }));
+    });
+    if (kkSanoja(el) < 50) return null;
+    let tekija = '', kaantaja = '';
+    const esittelyt = [...runko.querySelectorAll('.c-story-contributor')].map(c => ({ rooli: rivi((c.querySelector('.c-story-contributor__role') || {}).textContent),
+      ps: [...c.querySelectorAll('.c-story-contributor__bio p')].filter(p => rivi(p.textContent)) }));
+    if (esittelyt.length) {
+      const h = document.createElement('h2'); h.textContent = 'Contributors';
+      el.append(h);
+      esittelyt.forEach(e => {
+        const t = document.createElement('p'), s = document.createElement('strong');
+        if (e.rooli) { s.textContent = e.rooli + '.'; t.append(s, ' '); }
+        e.ps.forEach((p, i) => { if (i) { el.append(t.cloneNode(true)); t.textContent = ''; } t.append(...p.cloneNode(true).childNodes); });
+        el.append(t);
+        if (/^translator/i.test(e.rooli) && e.ps[0]) kaantaja = rivi((/^(.{3,60}?)\s+(?:is|was)\s/.exec(rivi(e.ps[0].textContent)) || [])[1] || '');
+      });
+    }
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+      try { const j = JSON.parse(s.textContent); const a = (j['@graph'] || [j]).map(x => x.author).find(Boolean); if (a && !tekija) tekija = rivi((Array.isArray(a) ? a : [a]).map(x => x.name).join(' & ')).replace(/^by\s+/i, ''); } catch (e) {}
+    });
+    const og = rivi((document.querySelector('meta[property="og:title"]') || {}).content);
+    const otsikko = tekija && og.endsWith(tekija) ? og.slice(0, -tekija.length).replace(/\s*[–—-]\s*$/, '') : og || rivi(document.title);
+    const aika = document.querySelector('time[itemprop="datePublished"][datetime]');
+    return { html: irrota([el]).innerHTML, otsikko, tekija, suomentaja: kaantaja ? kkKaantaja([kaantaja]) : '', sivusto: 'Emergence Magazine',
+      julkaistu: aika ? aika.getAttribute('datetime').slice(0, 10) : '', lahde: osoite };
+  }
+
   /* Noema (noemamag.com, Berggruen Institute; käyttäjän pyyntö 16.11.2026, pahvin B6: sovite vain, jos yleinen leikkaus on
      selvästi huono). Mitattu: kolmessa artikkelissa 16 nostolainauksesta 12 toistui leipätekstinä (figure.quote), välissä
      Read Noema in print -kehote, kuvatekstit ja lopussa liittyvät artikkelit. WordPress: teksti .entry-content, tekijän esittely
@@ -3753,7 +3811,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, dhammatalks, lacuscurtius, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
