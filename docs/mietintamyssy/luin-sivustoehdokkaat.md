@@ -33,7 +33,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Noema (PR #790, 16.11.2026, pahvin B6): mitattu ensin, 12/16 nostolainausta toistui tekstinä, joten sovite.
   Emergence Magazine (PR #791, 16.11.2026, pahvin B7): mitattu ensin, nostolainaukset ja kuvatekstien sirpaleet, joten sovite.
   Andy Matuschakin esseet (PR #792, 16.11.2026, pahvin B8): reunahuomautukset alaviitteiksi.
-  Five Books (PR-NUMERO, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
+  Five Books (PR #794, 16.11.2026, pahvin B10): suositellut kirjat väliotsikoiksi, nostolainaukset ja tukipyyntö pois.
   Online Library of Liberty (16.11.2026, pahvin A8): oll.libertyfund.org estää pilvikontin (CloudFrontin 403), joten testaamatta
   eikä sovitetta.
   Deutschlandfunk: Essay und Diskurs (16.11.2026, pahvin B9): käsikirjoitus on HTML:nä, ja yleinen leikkaus riittää. Mitattu
