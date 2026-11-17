@@ -28,8 +28,10 @@ function svg(p, luokka, id) {
     g.leik + '"/></clipPath><path clip-path="url(#' + id + ')" fill-rule="evenodd" d="' + g.polku + '"/></svg>';
 }
 const R = { o, svg, f }, EM = 11.84, e = x => R.f(x / EM) + 'em';
-const LINKKI = { ry: 7.86, lit: .85, ts: 1.8, tt: 1.3, tb: 1, go: 1.6, gi: 3.4, pry: 2.4, plit: .85, pts: .85, ptt: .7, ptb: .7, pgo: .45, pgi: .9, pnosto: 1.6 };
-LINKKI.pdx = LINKKI.ry * LINKKI.lit * .46;
+// Linkin rengas (käyttäjän pyynnöt 17.11.2026, kolmas kierros): sisäreunan laki versaalikorkeudella (8,51 px = .7188 em) eli
+// ulkolaki 8,51 + tt; alareuna 3,8 px perusviivan alla (nostettu 7,31 px:stä), joten ry = (8,51 + 1,5 + 3,8) / 2.
+const LINKKI = { ry: (8.51 + 1.5 + 3.8) / 2, lit: .81, ts: 2.1, tt: 1.5, tb: .85, go: 1.6, gi: 3.4, pry: 2.4, plit: .81, pts: .95, ptt: .8, ptb: .8, pgo: .45, pgi: .9, pnosto: 1.6 };
+LINKKI.pdx = LINKKI.ry * LINKKI.lit * .5;
 const OTS = { ry: 4.65, lit: .85, ts: 1.45, tt: 1.05, tb: .9, go: 1.1, gi: 2.3, pry: 1.75, plit: .85, pts: .7, ptt: .6, ptb: .6, pgo: .35, pgi: .7, pnosto: 1.2 };
 OTS.pdx = OTS.ry * OTS.lit * .46;
 const gl = R.o(LINKKI), go = R.o(OTS);
