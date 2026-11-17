@@ -212,8 +212,16 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kilpailija). Virallinen kuvaus on *internetin lukemisen tyyssija* (infolaatikko, käyttöohje, `og:description`, jakoworker).
   i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
   ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa hakasulkeet ovat 0.10.0:sta, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
+- **Korkea kontrasti ja sähköpapyrosointi** (käyttäjän pyyntö 17.11.2026, `aset.kontrasti`, `SAHKOPAPERI`): korkea kontrasti on
+  oma paletti `:root.kontrasti` kummallekin teemalle: tausta #fff tai #000, harmaa/huomio/sitaatti yksi taso, viiva ja hius
+  mustavalkokynnyksen (luminanssi 128) tummalla puolella, koska sähköpaperin nopea virkistys katoaa taustan lähellä olevat
+  sävyt; himmennys värillä, ei läpikuultavuudella. Uusi väri, `color-mix` tai `opacity`: tarkista korkea kontrasti
+  (`sahkopaperi-testi.js` mittaa). *Sähköpapyrosoi asetukset* on **kertanappi, ei kytkin** (käyttäjän vaatimus): asettaa
+  taulun kerralla eikä muista mitään; Ulkoasun otsikon rivillä versaali, kursiivi, ohut, harmaa, hakasulkeissa; kuittaus on
+  käänteinen laatta 1,5 s (`PAPYRUS_MS`), ei animaatiota. Taulun sisältö on käyttäjän (ensalkuun: vaalea, kontrasti,
+  sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
-- **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. E-ink: ei varjoja,
+- **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. Sähköpaperi: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.
 - **Latomon `--harmaa` poikkeaa tarkoituksella** muista Luinin sivuista (Latomon tekstistä suuri osa on pientä harmaata,
@@ -235,7 +243,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa
   järkevältä. Latomon ohje ei mainosta iA Writeria eikä neuvo sen käyttöä; se mainitaan vain, kun se vastaa
   kysymykseen *miksi juuri näin*.
-- **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kaikki tasot; kosketusnäytöllä ja e-inkissä sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). E-ink-tunnistusta ei ole todennettu oikealla laitteella.
+- **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kaikki tasot; kosketusnäytöllä ja sähköpaperilla sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). Sähköpaperin tunnistusta ei ole todennettu oikealla laitteella.
 - **Kirjasinkoon oletus kosketusnäytöllä riippuu ruudusta** (16.11.2026, `oletusKoko()`, käyttäjän havainto Note Airilla): kunnes käyttäjä säätää kokoa (`aset.kokoKasin`), `aset.koko` lasketaan joka latauksella. Uusi koon muuttaja asettaa `kokoKasin = 1`. Käyttöliittymän (palkit, napit) koko on laitteen tiheyden asia, ei tämän.
 - Uusi oletus koskee vain ensikäyttöä. Tallennettuja asetuksia muutetaan vain kerran, `aset.av`-numeron avulla. Tallennetut asetukset ohittavat OLETUKSEN, joten päätetty oletus ei näy vanhalla käyttäjällä ilman `av`-siirtoa (7.11.2026 päätökset jäivät ilman, korjattu `av 7`:llä 8.11.2026: sivunkäännön kaikki tavat, sisennys, ei sukkelaa alleviivausta, aikajanan kaikki tasot; sivutuksen valintaa ei kosketa). Muuttaessasi oletusta nosta `av` ja siirrä.
 
@@ -542,6 +550,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien ö-mappi ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi ja korkean kontrastin sävyt.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.

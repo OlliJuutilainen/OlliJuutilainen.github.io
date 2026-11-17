@@ -5,6 +5,9 @@
 Vastaa **suomeksi**. Kirjoita tiiviisti ja suoraan. Älä kehu ratkaisujasi äläkä pehmustele;
 kerro mitä teit ja mitä mittasit.
 
+Sano **sähköpaperi**, ei *e-ink* (käyttäjän vaatimus 17.11.2026: vierasperäistä termiä ei koskaan ensisijaisesti), niin
+käyttäjälle näkyvässä tekstissä, sääntötiedostoissa kuin vastauksissa.
+
 ## Ohjelmakohtaiset ohjeet
 
 KEICK•WALKin ja Luinin säännöt ovat omissa tiedostoissaan (käyttäjän päätös 3.11.2026; ennen ne olivat
