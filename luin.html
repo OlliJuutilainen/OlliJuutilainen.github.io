@@ -4236,7 +4236,7 @@
   /* Erittäin pitkä painallus (OSIO_MS) hyppää seuraavan osion alkuun (käyttäjän pyyntö 8.11.2026): reunanapautus, sivunkäännön
      painike tai laitteen sivunkääntönäppäin (PageDown/PageUp, äänenvoimakkuus). Merkkipaalu on tekstin ylin käytössä oleva
      taso osiosta alaspäin: jos osioita on, osio tai luku; muuten luku; muuten kohta; ilman otsikoita 10 sivua. Hyppy lasketaan
-     sivulta, jolla painallus alkoi (näppäimen ensimmäinen painallus ehtii kääntää yhden sivun). Taaksepäin: edellisen
+     sivulta, jolla painallus alkoi (näppäin kääntää sivun vasta noustessaan, joten ennen hyppyä ei käänny sivua). Taaksepäin: edellisen
      merkkipaalun sivu (kesken osiota sen alku). Sivun ja luvun jälkeen ei merkkipaalua: viimeinen tai ensimmäinen sivu. */
   var OSIO_MS = 1100, osioAjastin = 0;
   function osioSivu(d, s0) {
@@ -4273,11 +4273,19 @@
      ja raja säästää käännöt selaimessa, josta keyup puuttuisi kokonaan) tai kun edellinen keydown oli alle TOISTO_MS
      sitten (toisto alas–ylös-pareina; ihminen ei paina samaa näppäintä kahdeksasti sekunnissa). */
   var TOISTO_MS = 120, TOISTO_YLOS_MS = 1600;
-  var osioNappi = null; // painettu näppäin: { k, t, s, d, tehty, alas, ylos }; toistotapahtuma hyppää, jos ajastin ei ehtinyt
+  var osioNappi = null; // painettu näppäin: { k, t, s, d, tehty, odottaa, alas, ylos }; toistotapahtuma hyppää, jos ajastin ei ehtinyt
+  /* Sivu kääntyy vasta näppäimen noustessa (käyttäjän pyyntö 17.11.2026: Light Phonessa pitkä painallus käänsi ensin sivun
+     ja vasta sitten hyppäsi osioon). Painallus kääntää enintään yhden sivun (odottaa), eikä hypyn jälkeen mitään. */
   document.addEventListener('keyup', function (e) {
     if (!osioSuunta(e)) return;
     osioPeru();
-    if (osioNappi && osioNappi.k === e.key) osioNappi.ylos = true;
+    var n = osioNappi;
+    if (!n || n.k !== e.key) return;
+    n.ylos = true;
+    if (!n.odottaa) return;
+    n.odottaa = false;
+    if (n.tehty || !nyt || tila.nakyma !== 'lukija') return;
+    if (n.d > 0) seuraavaPainettu(1); else seuraava(-1);
   });
   function osioToisto(e) {
     var n = osioNappi, t = Date.now();
@@ -4297,7 +4305,7 @@
     // Paneelin omat säätimet: valinta ja painikkeet käyttävät nuolia ja välilyöntiä itse.
     if (e.target.closest && e.target.closest('select')) return;
     if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
-    // Laitteen sivunkääntönäppäin: pidetty näppäin ei käännä sivuja toistolla vaan odottaa pitkää painallusta.
+    // Laitteen sivunkääntönäppäin: kääntää sivun noustessaan (keyup), pidettynä hyppää osioon eikä käännä sivuja toistolla.
     var od = osioSuunta(e);
     if (od) {
       e.preventDefault();
@@ -4308,9 +4316,8 @@
         }
         return;
       }
-      osioNappi = { k: k, t: Date.now(), s: tila.sivu, d: od, tehty: false, alas: Date.now(), ylos: false };
+      osioNappi = { k: k, t: Date.now(), s: tila.sivu, d: od, tehty: false, odottaa: true, alas: Date.now(), ylos: false };
       osioAloita(od, tila.sivu, function () { if (osioNappi) osioNappi.tehty = true; return true; });
-      if (od > 0) seuraavaPainettu(1); else seuraava(-1);
       return;
     }
     // Booxin sivunkääntönäppäimet antavat PageDown/PageUp (sivunkääntötila). Äänenvoimakkuustilassa selain ei
