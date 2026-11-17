@@ -3144,15 +3144,8 @@
     return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '')
       .then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null).finally(() => clearTimeout(ajastin));
   }
-  async function perseus() {
-    if (!/(^|\.)perseus\.tufts\.edu$/i.test(location.hostname) || !/\/hopper\/text/.test(location.pathname)) return null;
-    let doc = '';
-    try { doc = new URL(osoite).searchParams.get('doc') || ''; } catch (e) { return null; }
-    const dm = /^(Perseus:text:[\d.]+)(?::(.*))?$/.exec(doc);
-    if (!dm) return null;
-    const avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
-    const kreikka = !!document.querySelector('.text_container.greek');
-    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+  // TEI-XML:n runko HTML:ksi: osoitteen ylin jako (avaimet), kreikka Unicodeksi, alaviitteet maar-listaan tunnuksin etu+N.
+  function psRunko(X, avaimet, kreikka, etu, maar) {
     const body = X && X.getElementsByTagName('body')[0];
     if (!body) return null;
     // Osoitteen ylin jako, jolle löytyy div (book=1 → div1 type=book n=1).
@@ -3163,7 +3156,7 @@
       if (osa) { osaNimi = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase() + ' ' + v; break; }
     }
     const juuri = osa || body;
-    const el = document.createElement('div'), maar = [];
+    const el = document.createElement('div');
     let laskuri = 0, kpl = null;
     const tila = { kirja: osa && /^book$/i.test(osa.getAttribute('type') || '') ? osa.getAttribute('n') : '', luku: '' };
     const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, tila.luku, n].filter(Boolean).join('.');
@@ -3178,14 +3171,16 @@
         const v = document.createElement('div'); v.append(...lapset());
         const t = muunna(irrota([v]).innerHTML, 'inlined').trim();
         if (!t) return [];
-        const tunnus = 'ps' + (++laskuri);
+        const tunnus = etu + (++laskuri);
         maar.push(maaritelma(tunnus, t));
         return [merkki(tunnus)];
       }
       if (tag === 'milestone') {
         const u = n.getAttribute('unit'), nn = n.getAttribute('n') || '';
         if (u === 'chapter') { tila.luku = nn; return []; }
-        if (u === 'section' || u === 'card') { const s = document.createElement('sup'); s.textContent = viite(nn); return [s, document.createTextNode(' ')]; }
+        // Puheenvuoron tai kappaleen raja kappaleen sisällä (Burnetin kreikassa jokainen vuoro): kappaleenvaihdoksi alla.
+        if (/^para$/i.test(u || '')) { const k = document.createElement('span'); k.dataset.psk = '1'; return [k]; }
+        if (u === 'section' || u === 'card') { const s = document.createElement('sup'); s.textContent = viite(nn); s.dataset.ps = '1'; return [s, document.createTextNode(' ')]; }
         return [];
       }
       if (tag === 'title') { const em = document.createElement('em'); em.append(...lapset()); return [em]; }
@@ -3241,15 +3236,137 @@
       (kpl || uusiKpl()).append(...inline(n, g));
     }
     [...juuri.childNodes].forEach(c => lohko(c, kreikka));
+    // Kappaleraja (span[data-psk]) katkaisee kappaleen; säkeistössä katkoa seuraava rivinvaihto pois.
+    [...el.querySelectorAll('p')].forEach(p => {
+      if (!p.querySelector('span[data-psk]')) return;
+      let nyt = p.cloneNode(false);
+      const osat = [nyt];
+      [...p.childNodes].forEach(c => {
+        if (c.nodeType === 1 && c.matches('span[data-psk]')) { nyt = p.cloneNode(false); osat.push(nyt); return; }
+        if (c.nodeType === 1 && c.tagName === 'BR' && !nyt.childNodes.length) return;
+        nyt.appendChild(c);
+      });
+      p.replaceWith(...osat);
+    });
+    // Säkeen loppuun jäänyt viitenumero (card säkeiden välissä) rivinvaihdon jälkeen seuraavan säkeen alkuun.
+    el.querySelectorAll('sup[data-ps]').forEach(s => {
+      let n = s.nextSibling;
+      while (n && n.nodeType === 3 && !rivi(n.nodeValue)) n = n.nextSibling;
+      if (n && n.nodeType === 1 && n.tagName === 'BR') n.after(s, ' ');
+    });
+    // Kappaleen loppuun jäänyt viitenumero (section juuri ennen para-rajaa, Iliaan card lainauksen q viimeisen säkeen
+    // perässä) seuraavan kappaleen alkuun: numero kuuluu sitä seuraavaan tekstiin.
+    [...el.querySelectorAll('p')].forEach(p => {
+      while (p.lastChild && (p.lastChild.nodeType === 3 ? !rivi(p.lastChild.nodeValue) : p.lastChild.tagName === 'BR')) p.lastChild.remove();
+      const s = p.lastChild, seur = p.nextElementSibling;
+      if (s && s !== p.firstChild && s.nodeType === 1 && s.matches('sup[data-ps]') && seur && seur.tagName === 'P') seur.prepend(s, ' ');
+    });
+    el.querySelectorAll('span[data-psk]').forEach(k => k.replaceWith(' '));
     el.querySelectorAll('p').forEach(p => { p.removeAttribute('data-sae'); if (!rivi(p.textContent)) p.remove(); });
     // Pelkkä viitenumero omana kappaleenaan (milestone ennen puheenvuoroa) seuraavan kappaleen alkuun.
     [...el.querySelectorAll('p')].forEach(p => {
       if ([...p.childNodes].some(c => c.nodeType === 1 ? c.tagName !== 'SUP' : rivi(c.nodeValue))) return;
       const s = p.nextElementSibling;
-      if (s && s.tagName === 'P') { s.prepend(...p.childNodes); p.remove(); }
+      if (s && s.tagName === 'P') { s.prepend(...p.childNodes, ' '); p.remove(); }
     });
     el.normalize();
-    if (kkSanoja(el) < 50) return null;
+    return { el, osaNimi };
+  }
+  /* Lomitettu käännös (semi-interlineaari; käyttäjän pyyntö 16.11.2026). Alkukielisellä sivulla (kreikka) Hopperin
+     sivupalkin käännöswidget (div.widget#translationN, otsikko English (1969), focus-linkki text?doc=…) kertoo saman teoksen
+     englanninkielisen laitoksen. Sen TEI-XML haetaan samoin, ja teksti lomitetaan viitenumeroittain: kunkin pykälän
+     (Stephanus 327a, 1.1.1, kortti) alkuteksti ja heti perään käännös lainauksena (md.js ladoo sen käännökseksi etukentän
+     ladonta: lomitettu käännös -rivistä). Pykälä on pienin yhteinen jako: kappaleet ja puheenvuorot eivät osu kielissä
+     yksiin (kreikan puheenvuorot ovat Burnetilla milestone unit=para -merkkejä saman p:n sisällä), pykälät osuvat.
+     Käännöksen pykälä, jota alkutekstissä ei ole, liitetään edelliseen pariin, jotta mitään ei katoa; käännöksen
+     väliotsikot jäävät pois (alkutekstin otsikot riittävät). Jos alle 80 % alkutekstin pykälistä löytää parinsa
+     (eri jako, esim. Caesarin englanninkielisessä vain luvut), lomitusta ei tehdä ja leike on alkukielinen kuten ennen. */
+  function psKaannosLinkki() {
+    for (const w of document.querySelectorAll('div.widget[id^="translation"]')) {
+      const h = w.querySelector('.header');
+      if (!h || !/^\s*English\b/i.test([...h.childNodes].filter(n => n.nodeType === 3).map(n => n.nodeValue).join(' '))) continue;
+      const a = [...h.querySelectorAll('a[href]')].find(x => rivi(x.textContent) === 'focus');
+      try { const d = a && new URL(a.getAttribute('href'), location.href).searchParams.get('doc'); if (d) return d; } catch (e) { /* ohi */ }
+    }
+    return '';
+  }
+  // Runko jaksoiksi viitenumeroiden (sup[data-ps]) kohdalta; kappale katkeaa kahtia, jos numero on sen keskellä.
+  function psJaksot(el) {
+    const jaksot = [{ n: '', solmut: [] }];
+    const lisaa = x => { if (x.tagName === 'H3' || rivi(x.textContent)) jaksot[jaksot.length - 1].solmut.push(x); };
+    [...el.children].forEach(lohko => {
+      if (!lohko.querySelector('sup[data-ps]')) { lisaa(lohko); return; }
+      let nyt = lohko.cloneNode(false);
+      [...lohko.childNodes].forEach(c => {
+        if (c.nodeType === 1 && c.matches('sup[data-ps]')) {
+          lisaa(nyt);
+          jaksot.push({ n: rivi(c.textContent), solmut: [] });
+          nyt = lohko.cloneNode(false);
+        }
+        nyt.appendChild(c);
+      });
+      lisaa(nyt);
+    });
+    jaksot.forEach(j => j.solmut.forEach(x => {
+      if (x.firstChild && x.firstChild.nodeType === 3) x.firstChild.nodeValue = x.firstChild.nodeValue.replace(/^\s+/, '');
+      if (x.lastChild && x.lastChild.nodeType === 3) x.lastChild.nodeValue = x.lastChild.nodeValue.replace(/\s+$/, '');
+    }));
+    return jaksot.filter(j => j.n || j.solmut.length);
+  }
+  async function psLomitus(avaimet, alku) {
+    const doc = psKaannosLinkki(), dm = /^(Perseus:text:[\d.]+)/.exec(doc);
+    if (!dm) return null;
+    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+    const maar = [], R = psRunko(X, avaimet, false, 'pk', maar);
+    if (!R || kkSanoja(R.el) < 50) return null;
+    const A = psJaksot(alku.cloneNode(true)), K = psJaksot(R.el);
+    const paikka = new Map();
+    A.forEach((j, i) => { if (j.n && !paikka.has(j.n)) paikka.set(j.n, i); });
+    const numeroita = A.filter(j => j.n).length;
+    const osuu = K.filter(j => j.n && paikka.has(j.n)).length;
+    if (!numeroita || osuu < 0.8 * numeroita) return null;
+    const kaannos = A.map(() => []);
+    let ed = 0;
+    K.forEach(j => {
+      const i = j.n && paikka.has(j.n) ? paikka.get(j.n) : !j.n ? 0 : ed;
+      ed = Math.max(ed, i);
+      j.solmut.forEach(x => {
+        if (x.tagName === 'H3') return;
+        x.querySelectorAll('sup[data-ps]').forEach(s => s.remove());
+        if (x.firstChild && x.firstChild.nodeType === 3) x.firstChild.nodeValue = x.firstChild.nodeValue.replace(/^\s+/, '');
+        if (rivi(x.textContent)) kaannos[i].push(x);
+      });
+    });
+    const el = document.createElement('div');
+    A.forEach((j, i) => {
+      el.append(...j.solmut);
+      if (!kaannos[i].length) return;
+      const bq = document.createElement('blockquote');
+      bq.append(...kaannos[i]);
+      el.appendChild(bq);
+    });
+    // Kääntäjä käännöksen teiHeaderista: lähdeteoksen nimi (… translated by Paul Shorey; The Iliad with an English
+    // Translation by A.T. Murray, Ph.D. in two volumes.) tai editor role=translator. Crawleyn Thukydideessa nimeä ei ole.
+    const sd = X.getElementsByTagName('sourceDesc')[0];
+    const lt = sd && sd.getElementsByTagName('title')[0] ? rivi(sd.getElementsByTagName('title')[0].textContent) : '';
+    const km = /\btranslat(?:ed|ion)\s+by\s+(.+?)(?:,?\s+(?:Ph\.\s?D|M\.\s?A|LL\.\s?D)\.?)?(?:\s+in\s+\w+\s+volumes?)?\.?$/i.exec(lt);
+    const kaantaja = km ? km[1] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
+    return { el, maar, kaantaja, pareja: osuu, numeroita };
+  }
+  async function perseus() {
+    if (!/(^|\.)perseus\.tufts\.edu$/i.test(location.hostname) || !/\/hopper\/text/.test(location.pathname)) return null;
+    let doc = '';
+    try { doc = new URL(osoite).searchParams.get('doc') || ''; } catch (e) { return null; }
+    const dm = /^(Perseus:text:[\d.]+)(?::(.*))?$/.exec(doc);
+    if (!dm) return null;
+    const avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
+    const kreikka = !!document.querySelector('.text_container.greek');
+    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+    const maar = [], R = psRunko(X, avaimet, kreikka, 'ps', maar);
+    if (!R || kkSanoja(R.el) < 50) return null;
+    let { el, osaNimi } = R, lomitus = null;
+    if (!/(^|\s)en(\s|$)/.test((document.querySelector('.text_container') || {}).className || '')) lomitus = await psLomitus(avaimet, el);
+    if (lomitus) { el = lomitus.el; maar.push(...lomitus.maar); }
     const ts = X.getElementsByTagName('titleStmt')[0], sd = X.getElementsByTagName('sourceDesc')[0];
     const ek = (r, t) => r && r.getElementsByTagName(t)[0] ? rivi(r.getElementsByTagName(t)[0].textContent) : '';
     // Otsake (teiHeader) on latinalaisin kirjaimin myös kreikankielisessä teoksessa.
@@ -3258,10 +3375,14 @@
     const km = /^(.*?),?\s+translated by\s+(.+)$/i.exec(lt);
     const kaantaja = km ? km[2] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
     const vuosi = (/(1[5-9]\d\d|20\d\d)/.exec(ek(sd, 'date')) || [])[1] || '';
+    el.querySelectorAll('sup[data-ps]').forEach(x => x.removeAttribute('data-ps'));
+    // Lomitetussa leikkeessä kääntäjä on käännöksen; muut tiedot (laitos, kustantaja, vuosi) alkutekstin.
+    const kaa = lomitus ? lomitus.kaantaja : kaantaja;
     return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + ', ' + osaNimi : nimi, tekija: ek(ts, 'author'),
-      suomentaja: kaantaja ? kkKaantaja(kkNimet(kaantaja)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
+      ladonta: lomitus ? 'lomitettu käännös' : '',
+      suomentaja: kaa ? kkKaantaja(kkNimet(kaa)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
       sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaNimi ? ':' + avaimet.find(([k, v]) => osaNimi.toLowerCase() === (k + ' ' + v).toLowerCase()).join('=') : '')),
-      maar, naytto: PS_NIMI };
+      maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : '') };
   }
 
   /* Tertullian Project (tertullian.org/fathers, Roger Pearsen litteroinnit; käyttäjän pyyntö 16.11.2026, pahvin valinnainen:
@@ -4248,6 +4369,7 @@
   kentta('paikka', blogi && blogi.paikka);
   kentta('kustantaja', blogi && blogi.kustantaja);
   kentta('doi', blogi && blogi.doi);
+  kentta('ladonta', blogi && blogi.ladonta);
   kentta('lähde', blogi && blogi.lahde || osoite);
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
