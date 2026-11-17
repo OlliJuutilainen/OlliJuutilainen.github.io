@@ -154,13 +154,13 @@
     var loppu = o.oikea > xz ? xz + Math.min(palat || Infinity, Math.floor((o.oikea - xz) / (jakso / 2))) * (jakso / 2) : xz;
     // o.alkuX ja o.loppuX = Soita huilua! -napin reunat (käyttäjän vaatimukset 17.11.2026): napin alku on aina siksakin
     // alakulmassa, kolmen kulmasta kulmaan ulottuvan välin (`valit`) päässä on yläkulma, ja napin loppu on aivan hiukan sen
-    // jälkeen laskevalla viivalla (`yli` väliä), johon siksak päättyy. Nappiin mahtuu siis reilut kolme väliä, ja soiton
+    // jälkeen laskevalla viivalla (`yli` väliä, alamäen puolivälissä eli lepokohdassa), johon siksak päättyy. Nappiin mahtuu siis reilut kolme väliä, ja soiton
     // kolme nuottia ovat välien keskikohdissa (lepokohdat). Korkeus seuraa jaksoa, joten alamäki pysyy 22°:ssa. Siksakin
     // alku (lepokohta) asettuu samaan rytmiin vähintään puoli viivaväliä ja alle välin viuhkan jälkeen; suunta (ensin ylös
     // tai alas) valitaan niin, että napin alku osuu alakulmaan. Kapeassa pinossa (320 px), jossa nappi alkaa jo viuhkan
     // kohdalla, ensimmäinen väli alkaa lepokohdastaan napin sisällä. `palat` ei rajaa tätä.
     if (o.loppuX != null && o.alkuX != null && o.alkuX < o.loppuX) {
-      var valit = o.valit || 3, yli = o.yli == null ? .12 : o.yli;
+      var valit = o.valit || 3, yli = o.yli == null ? .5 : o.yli; // .5: alamäen puolivälissä (käyttäjä 17.11.2026; ensin .12)
       var vali = (o.loppuX - o.alkuX) / (valit + yli), xmin = E[0] + sp / 2;
       jakso = 2 * vali;
       if (o.amp == null) amp = jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4;
