@@ -48,6 +48,9 @@ Sovelluksesta on kaksi varianttia (`productFlavors` tiedostossa `app/build.gradl
   kuvakkeellaan ja avaa aina sisäänrakennetun token+avain-parin. Sillä ei ole VIEW-suodattimia,
   joten `tusinasaa://`-linkit menevät edelleen perusversiolle.
 
+- **kotkavuori** (`fi.tusinasaa.kotkavuori`, "Tusinasää Kotkavuori"): sama malli kuin Haakis;
+  ominaisuudet `tusinasaa.kotkavuori.token` / `.key`, asennus `:app:installKotkavuoriDebug`.
+
 Haakis-version token ja avain **eivät ole repossa**. Lisää ne Macin tiedostoon
 `~/.gradle/gradle.properties` (generaattorin tulosteesta: `t=` ja `k=` Android-linkistä):
 
