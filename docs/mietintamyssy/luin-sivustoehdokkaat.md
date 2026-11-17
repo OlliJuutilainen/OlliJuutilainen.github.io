@@ -51,6 +51,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Pressbooks (PR #834, 17.11.2026, pahvin *20 sivustosovitetta* 1): alustasovite, luvun sivulta koko kirja osineen ja
   alaviitteineen, metatiedot kirjan tietueesta. pressbooks.pub ja useimmat yliopistojen verkot estävät pilvikontin, joten mitattu
   TMU:n ja PALNI:n palvelimilla.
+  OpenEdition Journals ja Books (PR #837, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
+  yläindekseinä, alaviitteet, kirjallisuus ja tekijät. Anubis-botintorjunta päästää curlin oman tunnisteen läpi.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -497,7 +499,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Ranska
 
-- OpenEdition Journals ja Books
+- OpenEdition Journals ja Books (tehty 17.11.2026, ks. yllä)
 - Persée
 - Cairn (osin avoin)
 - Érudit
