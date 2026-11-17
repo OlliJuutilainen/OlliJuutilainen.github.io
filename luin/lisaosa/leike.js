@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO ja Open Book Publishers (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers ja Faded Page (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3654,6 +3654,90 @@
       naytto: OBP_NIMI + (luettu > 1 ? ' (' + luettu + ' sivua)' : '') };
   }
 
+  /* Faded Page (fadedpage.com, Distributed Proofreaders Canadan kirjat; käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 9:
+     koko kirja HTML:nä, lisenssi- ja ylläpitotekstit pois). Kirjan HTML-muoto (books/<pid>/html.php, avautuu kirjan sivun
+     HTML-linkistä link.php:n kautta istuntoevästeellä) on fpgen-ohjelman tuottama yksi sivu: alussa DPC:n otsake (ehdot,
+     *Title:*, *Author:*, *Date of first publication:*, *Faded Page eBook #N*, tekijät, lähde) ja viiva hr.pbk, sitten kansi,
+     nimiö, sisällys- ja kuvaluettelotaulukot, luvut (div > h1, alaotsikko span.sub-head <br/>:n perässä), sivunumerot
+     span.pageno, alaviitteet a[href=#fN] → div.footnote (taulukko: div.footnote-id#fN ja teksti), runot div.lgc/lgl/lgp p.line,
+     lopussa hakemisto (sivunumerolinkit), *Transcriber’s Notes* ja *[The end of …]*. Leikkeeseen ensimmäisestä h1:stä alkaen
+     (otsake, kansi ja nimiö pois) ilman sisällystä, kuvaluetteloa, hakemistoa, ylläpitäjän huomautuksia ja loppuriviä;
+     sivunumerot pois; runon säkeet riveiksi ja tyhjä rivi säkeistön rajaksi. Tiedot DC-metoista (DC.Title, DC.Creator,
+     DC.Created) ja otsakkeen riveistä (Translator). Oikeudet: Kanadan public domain (otsakkeen lause). Ei mainoksia eikä
+     lahjoituspyyntöä. Readability antoi otsakkeen, sisällyksen ja hakemiston mukana, alaviitteet taulukkoina (raakaa HTML:ää
+     748) ja tekijän puuttuessa. Mitattu 17.11.2026. */
+  const FP_NIMI = 'Faded Page';
+  async function fadedpage() {
+    const m = /^\/books\/(\d+)\//.exec(location.pathname);
+    if (!/(^|\.)fadedpage\.com$/i.test(location.hostname) || !m) return null;
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(x => rivi(x.content)).filter(Boolean);
+    const el = document.body.cloneNode(true);
+    el.querySelectorAll('script, style, noscript, span.pageno, img').forEach(x => x.remove());
+    // Otsakkeen rivit (Title:, Author:, Translator:) ennen kuin ne poistetaan.
+    const otsake = {};
+    el.querySelectorAll('p.line').forEach(p => { const t = /^([A-Za-z ’']+):\s*(.+)$/.exec(rivi(p.textContent)); if (t && !otsake[t[1].toLowerCase()]) otsake[t[1].toLowerCase()] = t[2]; });
+    const pd = [...el.querySelectorAll('p')].map(p => rivi(p.textContent)).find(t => /public domain/i.test(t) && t.length < 300);
+    // Alaviitteet.
+    const maar = [], laskuri = { n: 0 }, viit = new Map();
+    el.querySelectorAll('div.footnote').forEach(f => {
+      // fpgen 4.6x: div.footnote-id#f1; 4.4x: div#f1 ilman luokkaa.
+      const id = f.querySelector('.footnote-id[id]') || f.querySelector('td [id^="f"]');
+      const solut = f.querySelectorAll('td');
+      const sisalto = solut.length > 1 ? solut[solut.length - 1] : f;
+      if (id) viit.set(id.id, sisalto);
+    });
+    el.querySelectorAll('a[href^="#f"]').forEach(a => {
+      const s = viit.get(a.getAttribute('href').slice(1));
+      if (!s) return;
+      const c = s.cloneNode(true);
+      c.querySelectorAll('a[href^="#"]').forEach(x => x.replaceWith(...x.childNodes));
+      const t = muunna(c.innerHTML, 'inlined').trim();
+      if (!t) { a.remove(); return; }
+      const tunnus = 'fp' + (++laskuri.n);
+      a.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('div.footnote, hr.footnotemark, a[id^="r"]').forEach(x => { if (x.tagName !== 'A' || !rivi(x.textContent)) x.remove(); });
+    // Ensimmäistä otsikkoa edeltävä (otsake, kansi, nimiö) pois.
+    const ots = [...el.querySelectorAll('h1, h2, h3')];
+    const lohko = h => { let x = h; while (x.parentElement && x.parentElement !== el) x = x.parentElement; return x; };
+    if (ots.length) { const raja = lohko(ots[0]); while (el.firstChild && el.firstChild !== raja) el.firstChild.remove(); }
+    // Sisällys, kuvaluettelo, hakemisto ja ylläpitäjän huomautukset otsikosta seuraavaan otsikkoon.
+    const POIS = /^(contents|table of contents|list of illustrations|illustrations|list of plates|index|transcriber[’']?s notes?:?|table des matières|tabl[ae] .*cynnwys|cynnwys)$/i;
+    [...el.querySelectorAll('h1, h2, h3, p')].forEach(h => {
+      if (!el.contains(h) || (h.tagName === 'P' && !/^transcriber/i.test(rivi(h.textContent)))) return;
+      if (!POIS.test(rivi(h.textContent))) return;
+      const alku = lohko(h);
+      let x = alku.nextSibling;
+      alku.remove();
+      while (x && !(x.nodeType === 1 && (x.querySelector && x.querySelector('h1, h2') || /^H[12]$/.test(x.tagName)))) { const s = x.nextSibling; x.remove(); x = s; }
+    });
+    [...el.querySelectorAll('p')].forEach(p => { if (/^\[the end of .*\]$/i.test(rivi(p.textContent))) p.remove(); });
+    // Runot: säkeet riveiksi, tyhjä rivi säkeistön rajaksi.
+    el.querySelectorAll('div.lgc, div.lgl, div.lgp').forEach(d => {
+      const ryhmat = [[]];
+      d.querySelectorAll('p.line').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) { if (ryhmat[ryhmat.length - 1].length) ryhmat.push([]); } else ryhmat[ryhmat.length - 1].push(p); });
+      const uudet = ryhmat.filter(r => r.length).map(r => { const p = document.createElement('p'); r.forEach((x, i) => { if (i) p.appendChild(document.createElement('br')); p.append(...x.childNodes); }); return p; });
+      if (uudet.length) d.replaceWith(...uudet);
+    });
+    el.querySelectorAll('h1, h2, h3, h4').forEach(h => { h.textContent = kkOtsikkoTeksti(h); });
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' ')) && !p.querySelector('hr')) p.remove(); });
+    el.querySelectorAll('span.it').forEach(s => { const i = document.createElement('em'); i.append(...s.childNodes); s.replaceWith(i); });
+    el.querySelectorAll('span.bold').forEach(s => { const i = document.createElement('strong'); i.append(...s.childNodes); s.replaceWith(i); });
+    el.querySelectorAll('table').forEach(t => { if (!t.querySelector('th')) ojsTaulukko(t); });
+    el.querySelectorAll('sup, sub').forEach(x => [...x.attributes].forEach(a => x.removeAttribute(a.name)));
+    kkLinkit(el, /^https?:\/\/(www\.)?fadedpage\.com\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const nimi = s => rivi(s).replace(/,?\s*\(?\d{4}\s*-\s*\d{0,4}\)?\s*$/, '').replace(/,\s*$/, '');
+    const tekijat = meta('DC.Creator').length ? meta('DC.Creator') : otsake.author ? [nimi(otsake.author)] : [];
+    const kaantaja = otsake.translator ? nimi(otsake.translator) : '';
+    return { html: irrota([el]).innerHTML, otsikko: meta('DC.Title')[0] || otsake.title || rivi(document.title).replace(/^The Distributed Proofreaders Canada eBook of\s*/i, ''),
+      tekija: kkLuettelo(tekijat.map(nimi)), suomentaja: kaantaja ? kkKaantaja([kaantaja]) : '', julkaistu: meta('DC.Created')[0] || (/\d{4}/.exec(otsake['date of first publication'] || '') || [''])[0],
+      sivusto: FP_NIMI, lahde: location.origin + '/showbook.php?pid=' + m[1], maar,
+      oikeus: pd ? { teksti: pd.replace(/\s*IF THE BOOK.*$/i, ''), lahde: location.origin + '/showbook.php?pid=' + m[1] } : null };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5305,7 +5389,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
