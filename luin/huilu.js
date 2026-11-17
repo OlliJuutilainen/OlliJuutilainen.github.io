@@ -152,6 +152,22 @@
     // Siksak päättyy aina kokonaisen palan (puolijakson) lepokohtaan: kapeammalla näytöllä se lyhenee pala palalta eikä
     // katkea kesken taitteen (käyttäjän pyyntö 12.11.2026). Leveällä näytöllä se on enintään `palat` palaa pitkä.
     var loppu = o.oikea > xz ? xz + Math.min(palat || Infinity, Math.floor((o.oikea - xz) / (jakso / 2))) * (jakso / 2) : xz;
+    // o.loppuX ja o.alkuX (käyttäjän vaatimus 17.11.2026): siksak päättyy tasan Soita huilua! -napin oikeaan reunaan, ja
+    // napin leveys on kokonainen määrä paloja, joten napin molemmat reunat ovat lepokohtia ja nuotit (jaksonkeskit napin
+    // sisällä) asettuvat napin x-välille symmetrisesti. Jaksoa venytetään tai kutistetaan sen verran (korkeus seuraa, joten
+    // alamäki pysyy 22°:ssa), ja siksakin alku siirtyy suoralla (puoli väliä + alle palan), niin että paloja on kokonainen
+    // määrä. `palat` ei rajaa tätä: neljän jakson katto jätti 390 px:ssä pitkän suoran viuhkan jälkeen, ja pinon pituuden
+    // rajaa lohkon leveys (CSS), asetuksissa huilun paikka.
+    if (o.loppuX != null && o.loppuX > xz + jakso / 4) {
+      var lev = o.alkuX != null && o.alkuX < o.loppuX ? o.loppuX - o.alkuX : 0;
+      var pala = lev ? lev / Math.max(2, Math.round(lev / (jakso / 2))) : (o.loppuX - xz) / Math.max(1, Math.min(palat || Infinity, Math.round((o.loppuX - xz) / (jakso / 2))));
+      // Suora viuhkan jälkeen on vähintään puoli väliä (ennen aina koko väli): muuten se venyisi lähes palan mittaiseksi.
+      var xmin = E[0] + sp / 2, pal = Math.max(1, Math.floor((o.loppuX - xmin) / pala + 1e-9));
+      jakso = 2 * pala;
+      if (o.amp == null) amp = jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4;
+      xz = o.loppuX - pal * pala;
+      loppu = o.loppuX;
+    }
     var taitteet = [];
     for (var xx = xz + jakso / 4; xx < loppu; xx += jakso / 2) taitteet.push(xx);
     var d2 = '';
@@ -200,7 +216,9 @@
   function jaksonKesket(k, x0, x1) {
     var rx = k.nr * LOGO, out = [];
     x1 = Math.min(x1, k.loppu);
-    for (var x = k.xz + k.jakso / 2; x <= x1 - rx - 1; x += k.jakso / 2) if (x >= x0 + rx + 1) out.push(x);
+    // Siksakin alku xz on itsekin lepokohta: kapeassa pinossa (320 px) se on napin sisällä, ja ilman sitä nuotit
+    // painuisivat napin oikeaan päähän (17.11.2026). Leveämmällä xz on napin vasemmalla puolella eikä vaikuta.
+    for (var i = 0, x = k.xz; x <= x1 - rx - 1; x = k.xz + ++i * k.jakso / 2) if (x >= x0 + rx + 1) out.push(x);
     return out;
   }
   function kulkuPorras(ps) {
@@ -209,15 +227,18 @@
     for (var i = 1; i < ps.length; i++) { if (ps[i] <= ps[i - 1]) nousu = false; if (ps[i] >= ps[i - 1]) lasku = false; }
     return nousu || lasku;
   }
-  // Soitossa on tasan kolme nuottia (käyttäjän pyyntö 16.11.2026; ennen nuotti melkein joka jaksoon). Ne ovat
-  // peräkkäisten jaksonkeskien ikkunassa (kolme tai neljä keskeä, paikka arvotaan napin kohdalta): ikkunan ensimmäinen ja
-  // viimeinen soivat, ja neljän ikkunassa toinen kahdesta keskimmäisestä jää tyhjäksi, joten kahta tyhjää ei ole peräkkäin.
+  // Soitossa on tasan kolme nuottia (käyttäjän pyyntö 16.11.2026; ennen nuotti melkein joka jaksoon), ja ne levittyvät
+  // koko napin x-välille (käyttäjä 17.11.2026: nuottien ala on selvästi napin ala): napin kohdan ensimmäinen ja viimeinen
+  // jaksonkeski soivat aina, ja kolmas on niiden välissä niin, ettei kahta tyhjää ole peräkkäin (viidellä keskeellä keskimmäinen,
+  // neljällä toinen kahdesta keskimmäisestä arvottuna).
   function nuottiPaikat(k, x0, x1, nu) {
     var keskit = jaksonKesket(k, x0, x1), m = keskit.length, out = [];
     if (!m || !nu) return out;
-    var rnd = satunnainen(nu.siemen), w = Math.min(m, 4), alku = Math.floor(rnd() * (m - w + 1)), soi = [], ps, yritys = 0;
-    var tyhja = w === 4 ? 1 + Math.floor(rnd() * 2) : -1;
-    for (var j = 0; j < m; j++) soi.push(j >= alku && j < alku + w && j - alku !== tyhja);
+    var rnd = satunnainen(nu.siemen), soi = [], ps, yritys = 0, vali;
+    if (m <= 3) vali = -1;
+    else if (m === 4) vali = 1 + Math.floor(rnd() * 2);
+    else vali = Math.floor((m - 1) / 2); // napin levyllä keskeitä on enintään viisi
+    for (var j = 0; j < m; j++) soi.push(m <= 3 || j === 0 || j === m - 1 || j === vali);
     do {
       // Korkeudet: pelkkä arvonta viivaston paikoista (kolmella viivalla viisi), ei sama kuin edellinen (ei melodiaestetiikkaa).
       ps = [];

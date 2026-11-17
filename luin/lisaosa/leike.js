@@ -1533,6 +1533,87 @@
       julkaistu: julkaistu || (vm && vm[3]) || '', lahde: osoite.split('?')[0], maar };
   }
 
+  /* Visuotinė lietuvių enciklopedija (vle.lt; mietintämyssyn liettuankielisten lähteiden seuraava kohde, toteutettu 17.11.2026).
+     Liettuan yleisenkyklopedia: toimitettu, tekijät nimetty. Sivun skripti kirjoittaa artikkelin uudelleen ajax-tiedoista:
+     .z-content (johdanto div.top-article-block, kappaleet div.text-in > div.cont, kuvat figure, väliotsikot h3), tekijät
+     .author:not(.temp) .author-name, päiväykset td[data-published] (Publikuota) ja kirjallisuus [data-lit] .accord. Ennen
+     skriptiä sama sisältö on .content-before-ajax-kappaleina (p.pav kuvateksti, p.lit kirjallisuus, p.aut tekijän numero);
+     silloin tekijä ja päiväys haetaan samasta ajax.php:stä kuin sivu itse (LoadVleNews; vastaus 0,7 Mt, koska siinä on
+     kaikki tekijät). Readability ottaisi välilehden nimen Apie autorių tekijäksi, kuvatekstin leipätekstiin ja kirjallisuuden
+     yhtenä virkkeenä. Johdannon syntymä- ja kuolinaika saavat sivun CSS:n merkit (* ja †, paikan eteen väli), hakusanat
+     (span.term) lihavoidaan kuten sivulla. Ristiviittaukset (a.rod) tekstiksi kuten Wikipediassa. Väliotsikot h3 → ##.
+     Kirjallisuus: R: (raštai, kohteen omat teokset) ja L: (literatūra) alaluvuiksi ### Raštai ja ### Literatūra otsikon
+     Literatūros sąrašas alle, kohdat puolipisteistä; lihavoidut tekijännimet tavalliseksi tekstiksi. Pois: Kiti šaltiniai
+     (elokuvat ja tv-ohjelmat linkkeinä), Susiję straipsniai, galleria ja Citata-laatikko. Oikeudet käyttöehdoista
+     (tarkistettu 17.11.2026). Ei mainoksia eikä lahjoituspyyntöä: ilman evästesuostumusta sivu lataa vain reCAPTCHAn,
+     Pinterestin jakonapin ja Cloudflaren tilaston. Mitattu 17.11.2026: Kant, Platonas, Vydūnas, Greimas, fenomenologija. */
+  const VLE_NIMI = 'Visuotinė lietuvių enciklopedija';
+  async function vle() {
+    if (!/(^|\.)vle\.lt$/i.test(location.hostname) || !/^\/straipsnis\/[^/]+/.test(location.pathname)) return null;
+    const z = document.querySelector('[data-main-content] .z-content'), raaka = document.querySelector('[data-main-content] .content-before-ajax');
+    const runko = z || raaka;
+    if (!runko || !rivi(runko.textContent)) return null;
+    const el = runko.cloneNode(true);
+    const litLahde = z ? document.querySelector('[data-lit] .accord') : el.querySelector('p.lit');
+    // Tekijän numero, monen tekijän artikkelissa kukin omana kappaleenaan (Vydūnas: 2896, 415).
+    const autId = [...el.querySelectorAll('p.aut')].map(p => rivi(p.textContent));
+    el.querySelectorAll('script, style, noscript, figure, img, p.pav, p.aut, p.lit, button').forEach(x => x.remove());
+    el.querySelectorAll('.top-article-block, .text-in > .cont').forEach(d => {
+      const p = document.createElement('p'); while (d.firstChild) p.appendChild(d.firstChild); d.replaceWith(p);
+    });
+    el.querySelectorAll('.bio-gim').forEach(s => s.prepend('*'));
+    el.querySelectorAll('.bio-mir').forEach(s => s.prepend('†'));
+    el.querySelectorAll('.bio-gim-vt, .bio-mir-vt').forEach(s => s.prepend(' '));
+    el.querySelectorAll('span.term').forEach(s => { const b = document.createElement('strong'); while (s.firstChild) b.appendChild(s.firstChild); s.replaceWith(b); });
+    el.querySelectorAll('a.rod').forEach(a => a.replaceWith(...a.childNodes));
+    // Väliotsikot tasoa ylemmäs (h3 → ##, h4 → ###); yksi kierros, jotta h4 ei nouse kahta tasoa.
+    el.querySelectorAll('h3, h4').forEach(h => { const n = document.createElement(h.tagName === 'H3' ? 'h2' : 'h3'); n.append(...h.childNodes); h.replaceWith(n); });
+    el.querySelectorAll('div').forEach(d => d.replaceWith(...d.childNodes));
+    // Kirjallisuus: <b>R:</b> teokset. <b>L: A. Gulyga</b> <i>Kantas</i> Vilnius 1989; <b>J. Baranova</b> …
+    const lit = litLahde && litLahde.innerHTML.replace(/&nbsp;/g, '\u00a0');
+    if (lit && rivi(litLahde.textContent)) {
+      // Muu kirjainmerkki (Greimas: P: kirjeet) aloittaa oman kohtansa merkkeineen ilman otsikkoa: merkitystä ei arvata.
+      const palat = lit.replace(/<(b|strong)>\s*(\p{Lu}):[\s\u00a0]*/gu, '\u0001$2\u0001<$1>').split(/\u0001(\p{Lu})\u0001/u);
+      const ryhmat = [];
+      if (rivi(palat[0].replace(/<[^>]*>/g, ''))) ryhmat.push(['', palat[0]]);
+      for (let i = 1; i < palat.length; i += 2) ryhmat.push([palat[i], palat[i + 1] || '']);
+      const h = document.createElement('h2'); h.textContent = 'Literatūros sąrašas'; el.append(h);
+      const nimetty = ryhmat.some(([r]) => r === 'R');
+      for (const [r, html] of ryhmat) {
+        const tuttu = r === 'R' || r === 'L';
+        if (nimetty && tuttu) { const h3 = document.createElement('h3'); h3.textContent = r === 'R' ? 'Raštai' : 'Literatūra'; el.append(h3); }
+        // Puolipiste erottaa kohdat; entiteetin (&amp;) puolipiste ei.
+        html.split(/(?<!&#?\w+);/).forEach((k, i) => {
+          const p = document.createElement('p'); p.append(...document.importNode(jasenna((i === 0 && r && !tuttu ? r + ': ' : '') + k.trim()).body, true).childNodes);
+          p.querySelectorAll('div').forEach(d => d.replaceWith(...d.childNodes));
+          p.querySelectorAll('b, strong').forEach(b => b.replaceWith(...b.childNodes));
+          p.normalize();
+          if (rivi(p.textContent)) el.append(p);
+        });
+      }
+    }
+    el.normalize();
+    let tekijat = [...document.querySelectorAll('.author-container .author:not(.temp) .author-name')].map(a => rivi(a.textContent)).filter(Boolean);
+    let pv = rivi((document.querySelector('td[data-published]') || {}).textContent);
+    const id = (document.querySelector('[data-load-news-id]') || { dataset: {} }).dataset.loadNewsId;
+    if ((!tekijat.length || !pv) && id) {
+      try {
+        const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 8000);
+        const v = await fetch(location.origin + '/ajax.php', { method: 'POST', credentials: 'same-origin', signal: ohi.signal,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'module=News&action=LoadVleNews&news_id=' + encodeURIComponent(id) })
+          .then(r => r.json()).finally(() => clearTimeout(ajastin));
+        const r = v && v.return || {}, a = r.article && r.article.main_article || {};
+        if (!pv) pv = a.news_date || '';
+        if (!tekijat.length && r.authors) tekijat = autId.map(n => r.authors[n]).filter(Boolean).map(t => rivi(t.FirstName + ' ' + t.LastName));
+      } catch (e) {}
+    }
+    const otsikko = rivi((document.querySelector('.titled-line h1 > span') || document.querySelector('h1') || {}).textContent) || rivi((document.querySelector('meta[property="og:title"]') || {}).content);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: tekijat.length > 2 ? tekijat.join(', ').replace(/, ([^,]*)$/, ' & $1') : tekijat.join(' & '),
+      sivusto: VLE_NIMI, julkaistu: /^\d{4}-\d\d-\d\d$/.test(pv) ? pv : '', lahde: (document.querySelector('meta[property="og:url"]') || {}).content || osoite,
+      oikeus: { teksti: '© LNB Mokslo ir enciklopedijų leidybos centras. Draudžiama atgaminti, saugoti ar perduoti šios svetainės turinį ar bet kurią jo dalį be Mokslo ir enciklopedijų leidybos centro sutikimo. Skatintina šios svetainės turinį naudoti mokslo, mokymosi ir tyrimų tikslais.',
+        lahde: 'https://www.vle.lt/teises-ir-naudojimo-salygos/' } };
+  }
+
   /* Open Journal Systems (PKP:n lehtialusta), käyttäjän pyyntö 16.11.2026: liettuankieliset lähteet, ykkösenä Problemos.
      Tunnistus alustasta, ei verkkotunnuksesta: artikkelin sivulla generator-meta *Open Journal Systems* ja citation_*-tiedot,
      kokotekstin sivulla osoite …/article/(view|download)/<artikkeli>/<galleria>, jonka artikkelisivu on OJS:n. Artikkelin
@@ -4342,7 +4423,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

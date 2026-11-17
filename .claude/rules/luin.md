@@ -81,6 +81,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `citation_*`, kokotekstin osoitteesta artikkelisivu), ei verkkotunnuksesta. Otsikko on kokotekstin `h1`, koska `citation_title` ja
   `citation_language` voivat olla toisella kielellä kuin artikkeli. VU:n alaviitemerkki viittaa tiedostonimeen (`1_X.html#footnote-016`),
   ei sivun ankkuriin. Pdf-artikkelista tiivistelmäleike metatiedoista. Testi myös `hakuteos-pesukone.js --sarja ojs`.
+  VLE-sovite (vle.lt, 17.11.2026, opas 7.5) lukee sivun skriptin renderöimän rungon tai, ilman sitä, raa'an rungon ja `ajax.php`:n:
+  pidä polut samana (ne antavat saman leikkeen). Hakuteospesukone ajaa vle.lt:n omat skriptit; testi `--sarja vle`.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
@@ -462,7 +464,8 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   mitat isoja (huilu 6 px, viivaväli 8 px, siksak ±4,85 px): ohut viiva ei ole lupa pienentää. **Väljä kolmilinja** (käyttäjän pyyntö 16.11.2026,
   vertailu `docs/mietintamyssy/luin-postihuilu-valjempi.html`, muunnelma B): kolme viivaa, jakso 48, alamäki 22° vaakatasosta, siksak enintään
   neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
-  **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus; pinon lohko siksi enintään 24rem leveä). **Pinon Postihuilu on oletuksena kiinni**
+  **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus). 17.11.2026: **siksak päättyy tasan napin oikeaan reunaan**,
+  ja napin reunat ovat lepokohtia (`loppuX`, `alkuX`; jakso joustaa, 22° pysyy), nuotit koko napin leveydelle; pinon lohko enintään 22.5rem. **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen

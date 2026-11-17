@@ -3,7 +3,7 @@
 // Tarkistaa hiirellä ja kosketuksella: pinossa nimikkeen valikon ja linkitysponnahduksen ohi napautettu nimike ei avaa
 // tekstiä eikä asetuskiekko asetuksia; infolaatikon kiinnitetyn vihjeen ohi napautettu nimike ei avaa tekstiä; lukimessa
 // alaviitteen ponnahduksen ohi napautettu sisäinen linkki ei hyppää. Lisäksi linkitysponnahduksen teksti ja Kopioi linkki
-// -napin vihje hiiren alla (sisältö ja mahtuminen ruutuun).
+// -napin ja Luin.-napin vihje hiiren alla viiveellä (sisältö ja mahtuminen ruutuun).
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -119,6 +119,12 @@ async function aja(selain, U, kosketus) {
   if (!kosketus) {
     await paina('#nimikkeet button.jako[data-id="p-linkitetty"]');
     await page.hover('#pop button[data-k="linkki"]');
+    // Vihje näkyy vasta pienen viiveen (0,6 s) jälkeen (käyttäjän pyyntö 17.11.2026).
+    const nakyy = s => page.$eval(s, b => getComputedStyle(b, '::after').visibility);
+    const heti = await nakyy('#pop button[data-k="linkki"]');
+    await page.waitForTimeout(800);
+    const myohemmin = await nakyy('#pop button[data-k="linkki"]');
+    tulos('hiiri: kopioi linkki -napin vihje viiveellä', heti === 'hidden' && myohemmin === 'visible', heti + ' → ' + myohemmin);
     const v = await page.$eval('#pop button[data-k="linkki"]', b => {
       const cs = getComputedStyle(b, '::after');
       // Pseudo-elementin laatikko mitataan sen tyyleillä tehdystä kopiosta samassa paikassa.
@@ -131,6 +137,13 @@ async function aja(selain, U, kosketus) {
     tulos('hiiri: kopioi linkki -napin vihje', v.content === '"merkinnät eivät siirry jaettavassa linkissä"', v.content);
     tulos('hiiri: vihje valikon levyinen', v.r.l >= v.pop.l && v.r.r <= v.pop.r && v.r.r <= v.vw, JSON.stringify(v));
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'ulko-vihje.png') });
+    // Luin.-napin vihje samoin viiveellä.
+    await page.hover('#pop button[data-k="luin"]');
+    const l0 = await nakyy('#pop button[data-k="luin"]');
+    await page.waitForTimeout(800);
+    const l1 = await page.$eval('#pop button[data-k="luin"]', b => { const c = getComputedStyle(b, '::after'); return c.visibility + ' ' + c.content; });
+    tulos('hiiri: Luin.-napin vihje viiveellä', l0 === 'hidden' && l1 === 'visible "vie kellarin veivihyllystöön"', l0 + ' → ' + l1);
+    if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'ulko-vihje-luin.png') });
     await page.keyboard.press('Escape');
     await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li');
   }
