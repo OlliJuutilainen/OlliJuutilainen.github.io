@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot ja Folger Shakespeare (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare ja Gwern.net (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3921,6 +3921,62 @@
       sivusto: 'Folger Shakespeare Library', lahde: osoite };
   }
 
+  /* Gwern.net (käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 16: reunahuomautukset alaviitteiksi, ponnahdukset ja
+     metatietolaatikot pois). Runko #markdownBody (Pandoc): tiivistelmä div.abstract > blockquote, alaviitteet a.footnote-ref →
+     section#footnotes li#fnN (sivu näyttää ne reunahuomautuksina ja ponnahduksina), päivämäärät span.date-range, jossa
+     alaindeksinä etäisyys nykyhetkeen (2006<sub>20ya</sub>, välin pituus <sub>10y</sub>), hinnat span.inflation-adjusted
+     (nykyarvo, alkuperäinen yläindeksinä ja vuosi alaindeksinä), lopussa sivuston kokoamat Bibliography-, Backlinks- ja
+     Similar Links -osiot. Readability jätti alaviitteet linkeiksi (alaviitteitä 0) ja alaindeksit raa'aksi HTML:ksi (478).
+     Alaviitteet alaviitteiksi ilman paluulinkkiä; päivämääristä etäisyys pois; hinnasta *$49.16 ($30 vuonna 2006)*; koostetut
+     osiot ja metatietolaatikko (tunnisteet, tila, varmuus, tärkeys) pois; sivuston sisäiset linkit tekstiksi. Kuvaus
+     (.page-description) jätetään pois kuten Psychen ingressi. Etukenttään tekijä Gwern Branwen ja päivämäärävälin alku.
+     Patreon-tukipyyntö, ei mainoksia. Mitattu 17.11.2026. */
+  async function gwern() {
+    const runko = document.getElementById('markdownBody');
+    if (!/(^|\.)gwern\.net$/i.test(location.hostname) || !runko) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, noscript, #link-bibliography-section, #backlinks-section, #similars-section, .aux-links-append, ' +
+      '.sidenote-column, #sidenote-column-left, #sidenote-column-right, .footnote-back, button').forEach(x => x.remove());
+    // Päivämäärä: etäisyys nykyhetkeen (<sub>) pois, välin viiva (<sup>–</sup>) tekstiksi.
+    el.querySelectorAll('.date-range').forEach(d => {
+      d.querySelectorAll('.subsup').forEach(s => s.replaceWith(rivi((s.querySelector('sup') || {}).textContent || '')));
+      d.querySelectorAll('sub').forEach(s => s.remove());
+      d.replaceWith(rivi(d.textContent));
+    });
+    el.querySelectorAll('.inflation-adjusted').forEach(x => {
+      const nyt = rivi(x.firstChild && x.firstChild.nodeType === 3 ? x.firstChild.textContent : ''), vuosi = x.getAttribute('data-year-original'), alk = x.getAttribute('data-amount-original');
+      x.replaceWith(nyt && alk && vuosi ? nyt + ' ($' + alk + ' vuonna ' + vuosi + ')' : rivi(x.textContent));
+    });
+    el.querySelectorAll('.subsup').forEach(s => s.replaceWith(rivi(s.textContent)));
+    const maar = [], laskuri = { n: 0 };
+    el.querySelectorAll('a.footnote-ref[href^="#"]').forEach(a => {
+      let li = null;
+      try { li = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]') || document.getElementById(a.getAttribute('href').slice(1)); } catch (e) {}
+      let t = '';
+      if (li) {
+        const c = li.cloneNode(true);
+        c.querySelectorAll('a.footnote-back, a[role="doc-backlink"]').forEach(x => x.remove());
+        c.querySelectorAll('a[href^="#"]').forEach(x => x.replaceWith(...x.childNodes));
+        kkLinkit(c, /^https?:\/\/(www\.)?gwern\.net\//i);
+        t = muunna(c.innerHTML, 'inlined').trim();
+      }
+      if (!t) { a.remove(); return; }
+      const tunnus = 'gw' + (++laskuri.n);
+      a.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('section#footnotes, section.footnotes').forEach(x => x.remove());
+    // Lainauksen yläindeksiviittaus (<sup><a …>1</a></sup>) tekstiksi ja ylä- ja alaindeksit ilman attribuutteja (Latomo muuntaa vain paljaan).
+    el.querySelectorAll('sup, sub').forEach(x => { [...x.attributes].forEach(at => x.removeAttribute(at.name)); if (x.children.length) x.textContent = x.textContent; });
+    // Otsikoiden ankkurilinkit ja sivuston sisäiset linkit tekstiksi.
+    kkLinkit(el, /^https?:\/\/(www\.)?gwern\.net\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const pv = /\d{4}-\d\d-\d\d/.exec(rivi((document.querySelector('.page-date-range') || {}).textContent));
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('header h1, h1') || {}).textContent) || rivi(document.title),
+      tekija: 'Gwern Branwen', sivusto: 'Gwern.net', julkaistu: pv ? pv[0] : '', lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5556,6 +5612,7 @@
     obp: { laji: 'lahjoitukset', osoite: 'https://www.openbookpublishers.com/donate.html' },
     archiveTeksti: { laji: 'lahjoitukset', osoite: 'https://archive.org/donate' },
     folger: { laji: 'lahjoitukset', osoite: 'https://events.folger.edu/donate/contribute1?ct=1' },
+    gwern: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/gwern' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -5574,7 +5631,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

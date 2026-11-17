@@ -74,6 +74,9 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   HTML:ssä ei ole tekstiä (pahvin sääntö 5).
   Wikipedia muilla kielillä: it, de, fr, da, es, et, sv, el (PR #859, 17.11.2026, pahvin *20 sivustosovitetta* 14): Wikipedia-sovite
   yleistetty, fi/en/lt ennallaan.
+  Encyclopaedia Iranica (17.11.2026, pahvin *20 sivustosovitetta* 15): iranicaonline.org on Cloudflaren haasteen ja Brillin
+  referenceworks.brill.com CloudFrontin takana pilvikontista, joten testaamatta eikä sovitetta.
+  Gwern.net (PR #GWNRO, 17.11.2026, pahvin *20 sivustosovitetta* 16): alaviitteet, päivämäärien ja hintojen alaindeksit siivottuina.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -241,7 +244,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Islam ja Iran
 
-- Encyclopaedia Iranica: iranicaonline.org
+- Encyclopaedia Iranica: iranicaonline.org (testaamatta 17.11.2026: estää pilvikontin, ks. yllä)
 - al-islam.org
 - Muslim Philosophy
 - Ibn Arabi Society: artikkelit
@@ -470,7 +473,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Scholarpedia
 - Quanta, Nautilus (paljon kuvia, teksti kantaa)
 - Edge: keskustelut
-- Gwern.net
+- Gwern.net (tehty 17.11.2026, ks. yllä)
 - Digital Humanities Quarterly
 
 ## Etiikka ja eläinetiikka
