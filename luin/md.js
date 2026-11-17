@@ -1227,7 +1227,10 @@
     editor: 'toimittaja', editors: 'toimittaja', toimittajat: 'toimittaja',
     translator: 'suomentaja', 'kääntäjä': 'suomentaja', kaantaja: 'suomentaja',
     pages: 'sivut', series: 'sarja', edition: 'painos', journal: 'teos', container: 'teos', lehti: 'teos', volume: 'numero', issue: 'numero',
-    booktitle: 'teos', 'container-title': 'teos', 'publisher-location': 'paikka'
+    booktitle: 'teos', 'container-title': 'teos', 'publisher-location': 'paikka',
+    // Luokittelu (käyttäjän pyyntö 17.11.2026): asiasanat ja ajoitus eivät kuulu viitteeseen (KENTAT), vaan lukimen
+    // kellarin veivihyllystön järjestyksiin. Obsidianin, iA Writerin ja MarkDownloadin tags käy sellaisenaan.
+    tags: 'asiasanat', tag: 'asiasanat', keywords: 'asiasanat', avainsanat: 'asiasanat', tunnisteet: 'asiasanat', asiasana: 'asiasanat'
   };
   function avain(a) { a = String(a || '').trim().toLowerCase(); return ALIAS[a] || a; }
   function etukentta(src) {
@@ -1392,6 +1395,40 @@
     if (ty === 'kaunokirjallinen' && teos && !ala) return teos;
     if (sivusto && ty !== 'tieteellinen' && !KANTAJA.test(sivusto)) return sivusto;
     return ala || (kirja ? teos : '') || k('tekijä');
+  }
+  /* Luokittelu (käyttäjän pyyntö 17.11.2026). Asiasanat: pilkuin tai puolipistein eroteltu luettelo, YAML:n [a, b] ja
+     #tunnisteet käyvät. Kirjoitusasu säilyy, kaksoiskappaleet karsitaan kirjainkoosta välittämättä. → taulukko */
+  function asiasanat(s) {
+    s = String(s || '').replace(/^\s*\[|\]\s*$/g, '').trim();
+    if (!s) return [];
+    var osat = /[,;]/.test(s) ? s.split(/[,;]/) : /^#/.test(s) ? s.split(/\s+(?=#)/) : [s], out = [], nahty = {};
+    osat.forEach(function (x) {
+      x = x.trim().replace(/^(["'])(.*)\1$/, '$2').replace(/^#/, '').replace(/\s+/g, ' ').trim();
+      var k = x.toLowerCase();
+      if (x && !nahty[k]) { nahty[k] = 1; out.push(x); }
+    });
+    return out;
+  }
+  /* Ajoitus: tekstin paikka aikajanalla, jos se on muu kuin julkaisuvuosi (Hegel-tutkimus Hegelin vuosille, Septuaginta
+     ennen Senecaa). Vuosi, väli tai vuosisata; eaa./eKr./BC tai miinus tekee ajasta ennen ajanlaskun alkua.
+     → { v: järjestysarvo (alku), t: näytettävä muoto } tai null */
+  function ajoitus(s) {
+    var x = String(s || '').trim().toLowerCase().replace(/[\u2212\u2013\u2014]/g, function (m) { return m === '\u2212' ? '-' : '–'; })
+      .replace(/^(n\.|noin|ca?\.|circa|c\.)\s*/, '');
+    if (!x) return null;
+    var eaa = /\s*(eaa\.?|ekr\.?|bce?|e\.\s?kr\.?)$/.test(x), jaa = /\s*(jaa\.?|jkr\.?|ad|ce|j\.\s?kr\.?)$/.test(x) || /^ad\s/.test(x);
+    x = x.replace(/\s*(eaa\.?|ekr\.?|bce?|e\.\s?kr\.?|jaa\.?|jkr\.?|ce|j\.\s?kr\.?)$/, '').replace(/^ad\s+|\s+ad$/, '').trim();
+    var m = /^(-?)(\d{1,4})(?:\s*(-luku|–|-)\s*(-?\d{1,4})?)?$/.exec(x.replace(/\s*-\s*luku$/, '-luku'));
+    if (!m || m[3] === '-' && !m[4] || m[3] === '–' && !m[4]) return null;
+    var neg = eaa || m[1] === '-', a = +m[2], b = m[4] != null ? Math.abs(+m[4]) : null, vs = m[3] === '-luku';
+    if (!a && !vs) return null;
+    var nimi = function (n) { return neg ? n + ' eaa.' : n < 1000 || jaa ? n + ' jaa.' : String(n); };
+    if (vs) return { v: neg ? -(a + 99) : a, t: a + '-luku' + (neg ? ' eaa.' : '') };
+    if (b != null) {
+      var v0 = neg ? -a : a, t = neg ? a + '–' + b + ' eaa.' : a + '–' + b + (a < 1000 || jaa ? ' jaa.' : '');
+      return { v: v0, t: t };
+    }
+    return { v: neg ? -a : a, t: nimi(a) };
   }
   function piste(s) { s = s.trim(); return !s || /[.!?]\*?$/.test(s) ? s : s + '.'; }
   // Versaalein kirjoitettu nimi virkekirjoitukseksi (hävittää erisnimien isot kirjaimet, siksi viite on muokattava).
@@ -2522,6 +2559,6 @@
   }
 
   root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, lisatieto: lisatieto, KENTAT: KENTAT,
-    tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet,
+    tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet, asiasanat: asiasanat, ajoitus: ajoitus,
     iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);

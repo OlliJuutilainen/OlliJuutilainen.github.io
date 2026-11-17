@@ -248,6 +248,15 @@
      kasvoi 360 → 1440 px, ja ruutuun sovittava WebView (Native Alpha, Light Phone) pienensi koko listan. */
   #lista { overflow-wrap: anywhere; }
   ul.nimikkeet { list-style: none; margin: 0; padding: 0; }
+  /* Kellarin veivihyllystön järjestys ja kortiston välikortit (käyttäjän pyyntö 17.11.2026): versaali, harva, harmaa; ei viivoja,
+     salmiakkeja eikä värejä, koska nimikkeiden omat viivat erottavat jo. */
+  .jarj-rivi { margin: 0 0 4px; font-size: .74rem; line-height: 1.6; color: var(--harmaa); letter-spacing: .02em; }
+  #lista:not(.arkisto) .jarj-rivi { display: none; }
+  .jarj-rivi button { color: var(--ruoste); padding: 6px 0; text-decoration: underline; text-decoration-color: var(--viiva); text-underline-offset: 3px; }
+  li.valiots { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 26px 0 3px;
+    font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); font-variant-numeric: lining-nums; }
+  li.valiots:first-child { padding-top: 12px; }
+  li.valiots .vo-lkm { letter-spacing: .04em; }
   li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
   li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
   .n-ots { display: block; font-size: 1.1rem; letter-spacing: .05em; line-height: 1.3; overflow-wrap: anywhere; }
@@ -507,6 +516,30 @@
   .valikko.tiedosto input:focus { outline: none; border-color: var(--harmaa); }
   .valikko.tiedosto .tila { padding: 8px 15px 0; font-size: .8rem; line-height: 1.45; }
   .valikko.tiedosto .napit { margin-top: 10px; border-top: 1px solid var(--viiva); }
+  /* Luokittele ja järjestys (käyttäjän pyyntö 17.11.2026): valinnan merkki on asetusten kytkimen salmiakki kuten pinon valinnassa. */
+  .valikko.luokittelu { width: min(22rem, calc(100vw - 24px)); max-width: min(22rem, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow-y: auto; }
+  .valikko .lk { padding: 6px 15px 4px; }
+  .valikko .lk-ots { margin: 8px 0 2px; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); }
+  .valikko .lk-sanat { display: flex; flex-wrap: wrap; margin: 0 0 0 -7px; max-height: 38vh; overflow-y: auto; }
+  .valikko button.lk-sana { display: inline-flex; align-items: center; gap: 6px; width: auto; min-height: 34px; padding: 3px 7px; }
+  .valikko button.lk-sana[hidden] { display: none; }
+  .valikko button.lk-sana.ehd span { font-style: italic; }
+  .valikko button.vk { display: flex; align-items: center; gap: 10px; }
+  .valikko.luokittelu button.vk { padding: 8px 0; margin-top: 4px; }
+  .valikko button.vk.erotin { border-top: 1px solid var(--viiva); margin-top: 4px; }
+  .valikko .lk-selite { display: block; font-size: .76rem; color: var(--harmaa); }
+  .valikko button.lk-sana svg, .valikko button.vk svg { flex: 0 0 auto; width: 7px; height: 10px; overflow: visible; color: var(--harmaa); }
+  .valikko button.lk-sana .sal-ulko, .valikko button.vk .sal-ulko { fill: none; stroke: currentColor; stroke-width: .75; }
+  .valikko button.lk-sana .sal-sisa, .valikko button.vk .sal-sisa { fill: none; }
+  .valikko button.lk-sana[aria-pressed="true"] svg, .valikko button.vk[aria-pressed="true"] svg { color: var(--muste); }
+  .valikko button.lk-sana[aria-pressed="true"] .sal-sisa, .valikko button.vk[aria-pressed="true"] .sal-sisa { fill: currentColor; }
+  .valikko button.lk-sana[aria-pressed="mixed"] .sal-sisa, .valikko button.vk[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
+  .valikko .lk .kentta { padding: 6px 0 2px; }
+  .valikko .lk input { display: block; width: 100%; padding: 6px 9px; font: inherit; font-size: 1rem; color: var(--muste);
+    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  .valikko .lk input:focus { outline: none; border-color: var(--harmaa); }
+  .valikko .lk .tila { padding: 6px 0 0; font-size: .8rem; line-height: 1.45; }
+  .valikko.luokittelu .napit { margin-top: 8px; border-top: 1px solid var(--viiva); }
   .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
@@ -1317,6 +1350,8 @@
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
     <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
+  <!-- Kellarin veivihyllystön järjestys (käyttäjän pyyntö 17.11.2026): pino on aina tulojärjestyksessä. -->
+  <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button></p>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
     linkistä, joka avaa tekstin lukimessa.</p>
@@ -1527,7 +1562,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=379d058a"></script>
+<script src="luin/md.js?v=a621e8f0"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=3ef9ca91"></script>
@@ -1614,7 +1649,8 @@
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0,
-    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, av: 8 };
+    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 8 };
+  // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): kellarin veivihyllystön järjestys (JARJ) ja pinon tekstit mukana.
   // postiMerk (käyttäjän pyyntö 9.11.2026): Huiluta myös merkintöjä (ent. Lähetä myös merkinnät) postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
   // postiEd: lähetettävät lajit, oletuksena kaikki. Tekstikohtainen valinta ohittaa nämä (luin-posti:<id>).
   var P = window.LuinPosti;
@@ -1938,6 +1974,8 @@
       id = p.id;
       if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(!!e0.luettu); }
       e = lisaaListaan(id, uusi.doc);
+      // Latomo näytti asiasanat ja ajoituksen (lkKirjoita ennen siirtoa), joten puuttuva avain on poisto.
+      lkMdsta(e, uusi.doc, true);
       LS.set('luin-merkit:' + id, s.m);
     } else {
       var juuri = e0.alkup || e0.id;
@@ -1978,6 +2016,7 @@
     e.kehys = doc.kehys || '';
     // ala: nimen jälkeinen rivi pinossa ja jakolinkin esikatselussa (md.js lisatieto, käyttäjän hierarkia 12.11.2026).
     e.ala = LuinMD.lisatieto(doc.tiedot);
+    lkMdsta(e, doc, false);
     Object.keys(extra || {}).forEach(function (k) { e[k] = extra[k]; });
     return e;
   }
@@ -2081,6 +2120,303 @@
     return vara();
   }
 
+  /* ---------- luokittelu (käyttäjän pyyntö 17.11.2026, docs/mietintamyssy/luin-kellarin-jarjestys.md) ----------
+     Asiasanat (e.asiasanat), ajoitus (e.ajoitus) ja käsikirjasto (e.kasikirja) sekä etukentästä luetut laji (e.tyyppi) ja
+     alkuperä (e.host, e.verkosta). Nimikkeen tiedot ovat totuus; asiasanat ja ajoitus kirjoitetaan myös tekstin etukenttään
+     (lkKirjoita), jotta ne kulkevat .md-tiedoston mukana. Tuleva teksti asettaa ne vain, jos sen etukentässä ne ovat: avaimeton
+     uusi versio (Postihuilu, Latomon Avaa lukimessa) ei pyyhi niitä, kuten ei merkintöjäkään. Muuta metatietoja ja korvaava
+     laitos ovat poikkeus (tosi): Latomo näki ne, joten puuttuva avain on poisto. Käsikirjasto on lukijan oma tila eikä mene
+     etukenttään. Pino pysyy pinona: luokittelu näkyy ja järjestää vain kellarin veivihyllystössä. */
+  var LK_V = 1;
+  function lkMdsta(e, d, tosi) {
+    var m = d.meta || {}, r = d.raaka || {};
+    var as = m.asiasanat != null ? LuinMD.asiasanat(m.asiasanat) : [];
+    if (as.length) e.asiasanat = as; else if (tosi) delete e.asiasanat;
+    var aj = String(m.ajoitus || '').trim();
+    if (aj) e.ajoitus = aj; else if (tosi) delete e.ajoitus;
+    e.tyyppi = (d.tiedot && d.tiedot.tyyppi) || LuinMD.tyyppiAvain(m.tyyppi);
+    var jp = LuinMD.pvm(m.julkaistu);
+    if (jp) e.jvuosi = jp.y; else delete e.jvuosi;
+    var u = String(m['lähde'] || '').trim(), host = '';
+    try { if (/^https?:\/\//i.test(u)) host = new URL(u).hostname.replace(/^www\./, ''); } catch (err) {}
+    e.host = host;
+    e.verkosta = host || r.leikattu != null || m.haettu ? 1 : 0;
+    e.lk = LK_V;
+  }
+  // Ennen luokittelua tallennetut nimikkeet: etukenttä luetaan kerran (vain alku, koska etukenttä on enintään 80 riviä).
+  function lkTaydenna() {
+    var muuttui = false;
+    lista.forEach(function (e) {
+      if (e.lk === LK_V) return;
+      var md = LS.get('luin-teksti:' + e.id, null);
+      if (md == null) return;
+      lkMdsta(e, LuinMD.etukentta(String(md).slice(0, 20000)), false);
+      muuttui = true;
+    });
+    if (muuttui) tallennaLista();
+  }
+  // Etukentän avain (aliaksineen ja jatkoriveineen) uuteen arvoon; tyhjä arvo poistaa, ja tyhjäksi jäänyt etukenttä poistuu.
+  // Kuten asetaOsoite(); leipäteksti ei muutu, joten merkinnät pysyvät kohdallaan.
+  function asetaAvain(md, avain, arvo) {
+    md = String(md).replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+    var ek = LuinMD.etukentta(md);
+    if (ek.ln > 1) {
+      var r = md.split('\n'), loppu = ek.ln - 2, uusi = [r[0]], ohita = false;
+      for (var i = 1; i < loppu; i++) {
+        var k = /^([^:\s][^:]*):/.exec(r[i]);
+        if (k) ohita = LuinMD.avain(k[1]) === avain;
+        else if (!/^\s+\S/.test(r[i])) ohita = false;
+        if (!ohita) uusi.push(r[i]);
+      }
+      if (arvo) uusi.push(avain + ': ' + arvo);
+      if (uusi.length === 1) return r.slice(loppu + 1).join('\n').replace(/^\n+/, '');
+      return uusi.concat(r.slice(loppu)).join('\n');
+    }
+    return arvo ? '---\n' + avain + ': ' + arvo + '\n---\n\n' + md : md;
+  }
+  function lkKirjoita(e) {
+    var md = LS.get('luin-teksti:' + e.id, null);
+    if (md == null) return true;
+    var m = LuinMD.etukentta(String(md).slice(0, 20000)).meta, as = (e.asiasanat || []).join(', '), aj = e.ajoitus || '';
+    if (LuinMD.asiasanat(m.asiasanat).join(', ') === as && String(m.ajoitus || '').trim() === aj) return true;
+    return LS.set('luin-teksti:' + e.id, asetaAvain(asetaAvain(md, 'asiasanat', as), 'ajoitus', aj));
+  }
+  function lkOn(e, s) { var k = s.toLowerCase(); return (e.asiasanat || []).some(function (x) { return x.toLowerCase() === k; }); }
+  // Kaikkien tekstien (pino ja kellarin veivihyllystö) asiasanat aakkosjärjestyksessä: sama sanasto kaikkialla ehkäisee
+  // rinnakkaismuotoja (filo / filosofia).
+  function lkSanasto() {
+    var m = {};
+    lista.forEach(function (e) {
+      (e.asiasanat || []).forEach(function (s) { var k = s.toLowerCase(); if (!m[k]) m[k] = { s: s, n: 0 }; m[k].n++; });
+    });
+    return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.s.localeCompare(b.s, 'fi'); });
+  }
+  // Ehdotukset: sovitesivuston ala ja saman tekijän tai sivuston muiden tekstien asiasanat. Vain ehdotuksia: mitään ei
+  // lisätä ilman napautusta.
+  var LK_EHDOTUS = [
+    [/(^|\.)(plato\.stanford\.edu|iep\.utm\.edu|ndpr\.nd\.edu|filosofia\.fi|korpora\.org)$/, 'filosofia'],
+    [/(^|\.)(oecs\.mit\.edu|oecs\.knowledgefutures\.org)$/, 'kognitiotiede'],
+    [/(^|\.)journal-psychoanalysis\.eu$/, 'psykoanalyysi'],
+    [/(^|\.)(newadvent\.org|ccel\.org|saet\.ac\.uk|tertullian\.org)$/, 'teologia'],
+    [/(^|\.)dhammatalks\.org$/, 'buddhalaisuus'],
+    [/(^|\.)(perseus\.tufts\.edu|scaife\.perseus\.org|penelope\.uchicago\.edu|bmcr\.brynmawr\.edu)$/, 'antiikki']
+  ];
+  function lkEhdotukset(es) {
+    var paino = {}, muoto = {};
+    function lisaa(s, p) { var k = s.toLowerCase(); paino[k] = (paino[k] || 0) + p; if (!muoto[k]) muoto[k] = s; }
+    es.forEach(function (e) {
+      LK_EHDOTUS.forEach(function (x) { if (x[0].test(e.host || '')) lisaa(x[1], 3); });
+      lista.forEach(function (o) {
+        if (o === e || !o.asiasanat) return;
+        if ((e.author && o.author === e.author) || (e.host && o.host === e.host) || (e.sivusto && o.sivusto === e.sivusto))
+          o.asiasanat.forEach(function (s) { lisaa(s, 1); });
+      });
+    });
+    return Object.keys(paino).filter(function (k) { return !es.every(function (e) { return lkOn(e, k); }); })
+      .sort(function (a, b) { return paino[b] - paino[a] || a.localeCompare(b, 'fi'); }).slice(0, 5).map(function (k) { return muoto[k]; });
+  }
+  function lkAjoitus(e) { return LuinMD.ajoitus(e.ajoitus); }
+  // Julkaisuvuosi: jäsennetyn tekstin vuosi tai etukentän julkaistu (vanhan nimikkeen vuosi voi puuttua).
+  function lkJulkaistu(e) { var y = parseInt(e.year, 10); return isNaN(y) ? e.jvuosi || null : y; }
+  function lkVuosi(e) { var a = lkAjoitus(e); return a ? a.v : lkJulkaistu(e); }
+  function lkMerkinnat(e) {
+    var m = merkit(e.id);
+    return { al: m.al.length, ki: m.al.filter(function (h) { return h.n; }).length };
+  }
+
+  /* Luokittele (nimikkeen valikko ja valittujen valikko): asiasanat, ajoitus ja käsikirjasto. Asiasanan napautus tallentaa
+     heti; useasta tekstistä osalla oleva on puolitäytetty, ja napautus antaa sen kaikille (kaikilla olevan napautus poistaa).
+     Kentän kirjoitus suodattaa sanastoa; Enter tai Valmis. lisää uuden. */
+  function luokittele(es, rect) {
+    lkTaydenna();
+    var n = es.length, ajKoskettu = false;
+    function tilaS(s) { var k = es.filter(function (e) { return lkOn(e, s); }).length; return k === 0 ? 'false' : k === n ? 'true' : 'mixed'; }
+    function nappi(s, ehd) {
+      return '<button type="button" class="lk-sana' + (ehd ? ' ehd' : '') + '" data-k="as" data-s="' + esc(s) + '" aria-pressed="' + tilaS(s) + '">' +
+        VALITSE + '<span>' + esc(s) + '</span></button>';
+    }
+    function sanat() {
+      var ehd = lkEhdotukset(es), on = {};
+      ehd.forEach(function (s) { on[s.toLowerCase()] = 1; });
+      var sanasto = lkSanasto().filter(function (x) { return !on[x.s.toLowerCase()] || tilaS(x.s) !== 'false'; });
+      return (ehd.length ? '<div class="lk-ots">ehdotus</div><div class="lk-sanat">' + ehd.map(function (s) { return nappi(s, true); }).join('') + '</div>' : '') +
+        (sanasto.length ? '<div class="lk-ots">asiasanat</div><div class="lk-sanat">' + sanasto.map(function (x) { return nappi(x.s); }).join('') + '</div>' : '');
+    }
+    var aj = es.map(function (e) { return e.ajoitus || ''; }), ajSama = aj.every(function (x) { return x === aj[0]; });
+    var vuosi = n === 1 && !es[0].ajoitus && lkJulkaistu(es[0]) ? 'oletus: julkaisuvuosi ' + lkJulkaistu(es[0]) : 'esim. 1807, 250 eaa. tai 1770–1831';
+    var kk = es.filter(function (e) { return e.kasikirja; }).length;
+    naytaPop(rect, '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
+      '<div class="lk"><div class="lk-lista">' + sanat() + '</div>' +
+      '<div class="kentta"><input type="text" class="lk-uusi" spellcheck="false" autocomplete="off" placeholder="uusi asiasana" aria-label="Uusi asiasana"></div>' +
+      '<div class="lk-ots">ajoitus</div>' +
+      '<div class="kentta"><input type="text" class="lk-aj" spellcheck="false" autocomplete="off" value="' + esc(ajSama ? aj[0] : '') + '" placeholder="' +
+        esc(ajSama ? vuosi : 'eri ajoituksia') + '" aria-label="Ajoitus"></div>' +
+      '<button type="button" class="vk" data-k="kk" aria-pressed="' + (kk === 0 ? 'false' : kk === n ? 'true' : 'mixed') + '">' + VALITSE +
+        '<span>käsikirjasto<span class="lk-selite">teksti, johon palataan aina uudelleen</span></span></button>' +
+      '<div class="tila" hidden></div></div>' +
+      '<div class="napit"><button type="button" data-k="ok">Valmis.</button></div>', 'kysely luokittelu', function (k, b) {
+      if (k === 'as') {
+        var s = b.dataset.s, pois = b.getAttribute('aria-pressed') === 'true';
+        es.forEach(function (e) {
+          var a = (e.asiasanat || []).filter(function (x) { return x.toLowerCase() !== s.toLowerCase(); });
+          if (!pois) a.push(s);
+          if (a.length) e.asiasanat = a; else delete e.asiasanat;
+        });
+        tallenna();
+        $$('button.lk-sana', pop).forEach(function (x) { x.setAttribute('aria-pressed', tilaS(x.dataset.s)); });
+        return true;
+      }
+      if (k === 'kk') {
+        var paalle = b.getAttribute('aria-pressed') !== 'true';
+        es.forEach(function (e) { if (paalle) e.kasikirja = 1; else delete e.kasikirja; });
+        b.setAttribute('aria-pressed', String(paalle));
+        tallenna();
+        return true;
+      }
+      if (k === 'ok') return valmis() ? undefined : true;
+    }, 'oikea');
+    var uusi = $('input.lk-uusi', pop), ajKentta = $('input.lk-aj', pop), tilaEl = $('.tila', pop);
+    function kerro(t) { tilaEl.textContent = t; tilaEl.hidden = !t; sijoitaPop(); }
+    function tallenna() { es.forEach(lkKirjoita); tallennaLista(); if (!$('#lista').hidden) piirraNimikkeet(); }
+    function lisaaUusi() {
+      var sanasto = lkSanasto(), lisatty = false;
+      LuinMD.asiasanat(uusi.value).forEach(function (s) {
+        var vanha = sanasto.filter(function (x) { return x.s.toLowerCase() === s.toLowerCase(); })[0];
+        if (vanha) s = vanha.s;
+        es.forEach(function (e) { if (!lkOn(e, s)) { e.asiasanat = (e.asiasanat || []).concat([s]); lisatty = true; } });
+      });
+      uusi.value = '';
+      if (lisatty) { tallenna(); $('.lk-lista', pop).innerHTML = sanat(); sijoitaPop(); }
+    }
+    function valmis() {
+      if (uusi.value.trim()) lisaaUusi();
+      var v = ajKentta.value.trim(), a = v ? LuinMD.ajoitus(v) : null;
+      if (v && !a) { kerro('Ajoitus on vuosiluku, väli tai vuosisata, esimerkiksi 1807, 250 eaa., 1770–1831 tai 1800-luku.'); ajKentta.focus(); return false; }
+      if (ajKoskettu) { es.forEach(function (e) { if (a) e.ajoitus = a.t; else delete e.ajoitus; }); tallenna(); }
+      var nimi = n === 1 ? '”' + es[0].title + '”' : n + ' tekstiä';
+      var as = n === 1 ? (es[0].asiasanat || []).join(', ') : '';
+      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.');
+      return true;
+    }
+    uusi.addEventListener('input', function () {
+      var q = uusi.value.trim().toLowerCase();
+      $$('button.lk-sana', pop).forEach(function (x) {
+        x.hidden = !!q && x.getAttribute('aria-pressed') === 'false' && x.dataset.s.toLowerCase().indexOf(q) < 0;
+      });
+    });
+    uusi.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); lisaaUusi(); } });
+    ajKentta.addEventListener('input', function () { ajKoskettu = true; kerro(''); });
+    ajKentta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('button[data-k="ok"]', pop).click(); } });
+  }
+
+  /* Kellarin veivihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Pino pysyy pinona: sen järjestys on aina se, missä
+     tekstit tulivat. Ryhmät ovat kortiston välikortteja (li.valiots); asiasanoittain sama teksti voi olla useassa ryhmässä. */
+  var JARJ = [['luettu', 'luetuksi merkitsemisen mukaan'], ['tekija', 'tekijän mukaan'], ['ajoitus', 'ajoituksen mukaan'],
+    ['laji', 'lajin mukaan'], ['asiasana', 'asiasanojen mukaan'], ['alkupera', 'alkuperän mukaan'],
+    ['merkinnat', 'merkintöjen määrän mukaan'], ['edistyminen', 'edistymisen mukaan']];
+  function jarjNyt() { return JARJ.some(function (j) { return j[0] === aset.kellariJarj; }) ? aset.kellariJarj : 'luettu'; }
+  function aakkos(a, b) { return String(a).localeCompare(String(b), 'fi', { sensitivity: 'base' }); }
+  function tekijaAvain(e) {
+    var nm = LuinMD.nimet(e.author)[0];
+    return (nm ? nm.suku || nm.koko : '') || String(e.title || '').replace(/^\W+/, '');
+  }
+  function ryhmita(es, avain, otsikot, jarjestys) {
+    var r = {}, out = [];
+    es.forEach(function (e) { [].concat(avain(e)).forEach(function (k) { (r[k] = r[k] || []).push(e); }); });
+    (jarjestys || Object.keys(r)).forEach(function (k) { if (r[k]) out.push({ ots: otsikot ? otsikot(k) : k, es: r[k] }); });
+    return out;
+  }
+  function jarjesta(nak) {
+    var j = jarjNyt(), luettuEnsin = function (x, y) { return (y.luettu || 0) - (x.luettu || 0); };
+    if (j === 'luettu') {
+      var kk = nak.filter(function (e) { return e.kasikirja; });
+      if (!kk.length && !aset.kellariPino) return [{ es: nak }];
+      return ryhmita(nak, function (e) { return e.kasikirja ? 'k' : e.luettu ? 'l' : e.pct ? 'p' : 'u'; },
+        function (k) { return { k: 'Käsikirjasto', l: 'Luetut', p: 'Kesken pinossa', u: 'Lukematta pinossa' }[k]; }, ['k', 'l', 'p', 'u']);
+    }
+    var a = nak.slice();
+    if (j === 'tekija') {
+      a.sort(function (x, y) { return aakkos(tekijaAvain(x), tekijaAvain(y)) || (lkVuosi(x) || 0) - (lkVuosi(y) || 0) || aakkos(x.title, y.title); });
+      return ryhmita(a, function (e) { var c = tekijaAvain(e).charAt(0).toUpperCase(); return /\p{L}/u.test(c) ? c : '#'; });
+    }
+    if (j === 'ajoitus') {
+      a.sort(function (x, y) {
+        var vx = lkVuosi(x), vy = lkVuosi(y);
+        return (vx == null) - (vy == null) || (vx || 0) - (vy || 0) || aakkos(tekijaAvain(x), tekijaAvain(y));
+      });
+      return ryhmita(a, function (e) {
+        var v = lkVuosi(e);
+        if (v == null) return 'Ajoittamattomat';
+        // Vuosisadat suomalaiseen tapaan (1800-luku = 1800–1899, 200-luku eaa. = 299–200 eaa.); ensimmäinen vuosisata ei ole 0-luku.
+        var c = Math.floor(Math.abs(v) / 100) * 100;
+        if (!c) return v < 0 ? '99–1 eaa.' : '1–99 jaa.';
+        return v < 0 ? c + '-luku eaa.' : c < 1000 ? c + '-luku jaa.' : c + '-luku';
+      });
+    }
+    if (j === 'laji') {
+      a.sort(luettuEnsin);
+      return ryhmita(a, function (e) { return e.tyyppi || 'x'; },
+        function (k) { return { tieteellinen: 'Tieteelliset', kaunokirjallinen: 'Kaunokirjallisuus', blogi: 'Blogit ja verkkosivut', x: 'Lajittelemattomat' }[k]; },
+        ['tieteellinen', 'kaunokirjallinen', 'blogi', 'x']);
+    }
+    if (j === 'asiasana') {
+      a.sort(luettuEnsin);
+      var sanat = {}, nimet = [];
+      a.forEach(function (e) { (e.asiasanat || []).forEach(function (s) { var k = s.toLowerCase(); if (!sanat[k]) { sanat[k] = s; nimet.push(k); } }); });
+      nimet.sort(aakkos);
+      return ryhmita(a, function (e) {
+        var k = (e.asiasanat || []).map(function (s) { return s.toLowerCase(); });
+        return k.length ? k.filter(function (x, i) { return k.indexOf(x) === i; }) : '\u0000';
+      }, function (k) { return k === '\u0000' ? 'Ilman asiasanaa' : sanat[k]; }, nimet.concat(['\u0000']));
+    }
+    if (j === 'alkupera') {
+      var lahde = function (e) { return e.sivusto || e.host || ''; };
+      a.sort(function (x, y) { return aakkos(lahde(x), lahde(y)) || luettuEnsin(x, y); });
+      return ryhmita(a, function (e) { return e.src === 'osoite' ? 'l' : e.verkosta ? 'v' : 'o'; },
+        function (k) { return { v: 'Poimittu verkosta', l: 'Avattu linkistä', o: 'Ladottu itse' }[k]; }, ['v', 'l', 'o']);
+    }
+    if (j === 'merkinnat') {
+      var mk = {};
+      a.forEach(function (e) { var m = lkMerkinnat(e); mk[e.id] = m.al + m.ki; });
+      a.sort(function (x, y) { return mk[y.id] - mk[x.id] || luettuEnsin(x, y); });
+      return ryhmita(a, function (e) { return mk[e.id] >= 20 ? 'r' : mk[e.id] ? 'm' : 'e'; },
+        function (k) { return { r: 'Runsaasti merkityt', m: 'Merkityt', e: 'Merkitsemättömät' }[k]; }, ['r', 'm', 'e']);
+    }
+    // edistyminen
+    a.sort(function (x, y) { return (y.pct == null ? -1 : y.pct) - (x.pct == null ? -1 : x.pct) || luettuEnsin(x, y); });
+    return ryhmita(a, function (e) { var p = e.pct || 0; return p >= 95 ? 'a' : p >= 50 ? 'b' : p > 0 ? 'c' : 'd'; },
+      function (k) { return { a: 'Luettu loppuun', b: 'Yli puolet', c: 'Alle puolet', d: 'Avaamatta' }[k]; }, ['a', 'b', 'c', 'd']);
+  }
+  // Kellarin veivihyllystön tietorivin lisät järjestyksen mukaan.
+  function jarjTieto(e) {
+    var j = jarjNyt(), t = [];
+    if (j === 'ajoitus') { var a = lkAjoitus(e); t.push(a ? 'ajoitus ' + a.t : lkJulkaistu(e) ? 'julkaistu ' + lkJulkaistu(e) : ''); }
+    if (j === 'merkinnat') {
+      var m = lkMerkinnat(e);
+      t.push(m.al ? m.al + (m.al === 1 ? ' alleviivaus' : ' alleviivausta') + (m.ki ? ', ' + m.ki + (m.ki === 1 ? ' kirjaus' : ' kirjausta') : '') : 'ei merkintöjä');
+    }
+    if (j === 'alkupera' && e.host && e.host !== e.sivusto) t.push(e.host);
+    return t;
+  }
+  $('#jarj').addEventListener('click', function () {
+    var b = this;
+    naytaPop(b.getBoundingClientRect(), '<div class="esi">Järjestä kellarin veivihyllystö</div>' +
+      JARJ.map(function (j) {
+        return '<button type="button" class="vk" data-k="j-' + j[0] + '" aria-pressed="' + (jarjNyt() === j[0]) + '">' + VALITSE + '<span>' + j[1] + '</span></button>';
+      }).join('') +
+      '<button type="button" class="vk erotin" data-k="pino" aria-pressed="' + !!aset.kellariPino + '">' + VALITSE + '<span>mukana myös pinon tekstit</span></button>',
+      'jarj', function (k, nappi) {
+        if (k === 'pino') {
+          aset.kellariPino = aset.kellariPino ? 0 : 1; tallennaAset();
+          nappi.setAttribute('aria-pressed', String(!!aset.kellariPino));
+          valitut = {}; piirraNimikkeet();
+          return true;
+        }
+        aset.kellariJarj = k.slice(2); tallennaAset();
+        piirraNimikkeet();
+      }, 'vasen');
+  });
+
   /* ---------- pinonäkymä (ent. hylly ja lukulista) ----------
      Kellarin veivihyllystö (ent. uumen, pölyhylly ja arkistohylly; käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
      listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Kellarin veivihyllystössä ei ole Postihuilua, ohjeita
@@ -2088,8 +2424,9 @@
      näkymä vaihtuu pinon ja kellarin veivihyllystön välillä. */
   var valitut = {};
   function naytettavat(ark) {
-    var a = lista.filter(function (e) { return !!e.luettu === !!ark; });
-    return ark ? a.slice().sort(function (x, y) { return y.luettu - x.luettu; }) : a;
+    // Kellarin veivihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
+    var a = lista.filter(function (e) { return ark && aset.kellariPino || !!e.luettu === !!ark; });
+    return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
   function naytaLista(ark) {
     ark = !!ark;
@@ -2131,24 +2468,36 @@
       taydennaAla();
     }, 30);
   }
+  function nimikeRivi(e, ark) {
+    var ala = e.ala != null ? e.ala : e.sub || e.kehys;
+    var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
+      ark ? (e.luettu ? 'luettu ' + pvm(e.luettu) : 'pinossa') : e.opened ? pvm(e.opened) : ''];
+    // Kellarin veivihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan).
+    if (ark) tieto = jarjTieto(e).concat(tieto, [e.kasikirja ? 'käsikirja' : '', (e.asiasanat || []).join(', ')]);
+    tieto = tieto.filter(Boolean).join(' · ');
+    return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
+      '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
+      '<span class="n-ots">' + nimiMerkein(e) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
+      '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
+      '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
+  }
   function piirraNimikkeet() {
     var ark = tila.arkisto, nak = naytettavat(ark), ul = $('#nimikkeet');
     var nyky = {};
     nak.forEach(function (e) { if (valitut[e.id]) nyky[e.id] = 1; });
     valitut = nyky;
-    ul.innerHTML = nak.map(function (e) {
-      var ala = e.ala != null ? e.ala : e.sub || e.kehys;
-      var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
-        ark ? 'luettu ' + pvm(e.luettu) : e.opened ? pvm(e.opened) : ''].filter(Boolean).join(' · ');
-      return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
-        '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
-        '<span class="n-ots">' + nimiMerkein(e) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
-        '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
-        '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
+    if (ark) lkTaydenna();
+    var ryhmat = ark ? jarjesta(nak) : [{ es: nak }];
+    ul.innerHTML = ryhmat.map(function (r) {
+      return (r.ots ? '<li class="valiots"><span>' + esc(r.ots) + '</span><span class="vo-lkm">' + r.es.length + '</span></li>' : '') +
+        r.es.map(function (e) { return nimikeRivi(e, ark); }).join('');
     }).join('');
     $('#tyhja').hidden = nak.length > 0;
     taydennaAla();
     $('#ark-linkki').hidden = ark || !lista.some(function (e) { return e.luettu; });
+    // Järjestyksen valinta vain kellarin veivihyllystössä ja vain, kun järjestettävää on.
+    $('#jarj-rivi').hidden = !ark || nak.length < 2 && !aset.kellariPino;
+    $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
     paivitaValinta();
   }
   function valitutEt() { return naytettavat(tila.arkisto).filter(function (e) { return valitut[e.id]; }); }
@@ -2549,6 +2898,7 @@
       // Linkittömällä tekstillä linkin paikalla linkitä tiedostoon; lataa .md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
       (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="merkinnät eivät siirry jaettavassa linkissä">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
       '<button type="button" data-k="lataa">lataa .md</button>' +
+      '<button type="button" data-k="luokittele">luokittele</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
       '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
@@ -2556,8 +2906,10 @@
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
+      if (k === 'luokittele') { luokittele([e], b.getBoundingClientRect()); return true; }
       // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
-      if (k === 'tiedot' || k === 'laitos') { location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); return; }
+      // Asiasanat ja ajoitus ensin etukenttään, jotta Latomo näyttää ne (luokittelu).
+      if (k === 'tiedot' || k === 'laitos') { lkKirjoita(e); location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); return; }
       if (k === 'lisa') {
         aset.viiteLisa = aset.viiteLisa ? 0 : 1; tallennaAset();
         nappi.setAttribute('aria-pressed', !!aset.viiteLisa);
@@ -2578,6 +2930,7 @@
      (otsikkolohko ja tekijänoikeusosio saavat erota, kuten tietojen säädössä). Osoite kirjoitetaan tekstin etukenttään
      osoite:-riviksi kuten Latomossa, joten se säilyy Muuta metatietoja -tallennuksessa; sen jälkeen valikossa on Kopioi linkki. */
   function lataaMd(e) {
+    lkKirjoita(e);
     var md = LS.get('luin-teksti:' + e.id, null);
     if (md == null) { viesti('Tekstiä ei ole tämän laitteen pinossa.'); return; }
     var a = document.createElement('a');
@@ -2653,7 +3006,8 @@
     var b = ev.target.closest('button.valitse');
     if (!b) return;
     if (valitut[b.dataset.id]) delete valitut[b.dataset.id]; else valitut[b.dataset.id] = 1;
-    b.setAttribute('aria-pressed', String(!!valitut[b.dataset.id]));
+    // Asiasanoittain sama teksti voi olla useassa ryhmässä.
+    $$('#nimikkeet button.valitse').forEach(function (x) { if (x.dataset.id === b.dataset.id) x.setAttribute('aria-pressed', String(!!valitut[b.dataset.id])); });
     paivitaValinta();
   });
   $('#valitse-kaikki').innerHTML = VALITSE; $('#val-valikko').innerHTML = KOLME;
@@ -2668,13 +3022,17 @@
   $('#val-valikko').addEventListener('click', function () {
     var b = this, es = valitutEt();
     if (!es.length) return;
-    var n = es.length, ark = tila.arkisto;
+    var n = es.length, ark = tila.arkisto, luetut = es.filter(function (e) { return e.luettu; }).length;
+    // Kun pino on mukana kellarin veivihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa.
+    var luin = luetut === n ? 'Poimi kellarin veivihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
-      '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      '<button type="button" data-k="luokittele">Luokittele.</button>' +
+      (luin ? '<button type="button" data-k="luin">' + luin + '</button>' : '') +
       '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
+      if (k === 'luokittele') { luokittele(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
       if (k === 'viitteet') {
         kopioi(es.map(function (e) { return viite(e); }).join('\n'), es.map(function (e) { return '<p>' + viite(e, true) + '</p>'; }).join(''))
