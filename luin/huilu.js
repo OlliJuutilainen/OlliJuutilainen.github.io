@@ -1,5 +1,5 @@
 /* Postihuilun kuvio (käyttäjän valinnat ja säännöt 12.11.2026; ideointi docs/mietintamyssy/luin-postihuilu-kuvitus*).
-   Yksi huilu, aina vinossa pystyssä (kulma 68° vaakatasosta, nokka ylhäällä oikealla), ei koskaan vaakatasossa:
+   Yksi huilu, aina vinossa pystyssä (kulma 64° vaakatasosta, HUILUKULMA; ennen 68°; nokka ylhäällä oikealla), ei koskaan vaakatasossa:
    - pinon Postihuilu-otsikon oikealla puolella ja asetusten Postihuilu-osiossa, josta lähtee kulmikas kolmilinja;
    - huilutetun (Postihuilun kautta kantautuneen) tekstin nimen perässä.
    Käyttäjän säännöt:
@@ -25,7 +25,9 @@
   var KAARI = 0.38;            // salmiakin kaarevuus (luin.html sal())
   // Sormireiän koko sisäkorkeudesta (käyttäjä 16.11.2026: pienemmät; ennen 0,65 ja sitä ennen 0,85). api.REIKA, jotta
   // mietintämyssyn vertailusivu voi kokeilla muita kokoja.
-  var api = { REIKA: 0.5 };
+  // HUILUKULMA: huilun kulma vaakatasosta (käyttäjän pyyntö 17.11.2026: hiukan myötäpäivään, jotta huilu svengaa sylin
+  // ulkomutkan kanssa; ennen 68°). Siksakin 22°:n alamäki ja nuottien kallistus pysyvät 68°:n mukaisina (kaista():n kulma).
+  var api = { REIKA: 0.5, HUILUKULMA: 64 };
   // Ääniaukko sisäkorkeuden puolikkaan (sisa) kerrannaisina: puolileveys, siivun alku nokan suoran osan alusta, siivun
   // ja koko aukon pituus putken suuntaan; ääriviiva sw:n kerrannaisena; leuka vie puolet puolileveydestä 45°:ssa.
   var AUKKO = { leveys: .6, alku: .1, siivu: .38, pituus: 1.7, viiva: .7, leuka: .5 };
@@ -103,7 +105,7 @@
   // Itsenäinen vino huilu (huilutetun tekstin merkki).
   function vino(o) {
     o = o || {};
-    var T = o.T || 6.4, sw = o.sw || .9, kulma = o.kulma || 68, r = rajat(T, sw, kulma);
+    var T = o.T || 6.4, sw = o.sw || .9, kulma = o.kulma || api.HUILUKULMA, r = rajat(T, sw, kulma);
     return '<svg class="' + (o.luokka || 'huilu') + '" viewBox="' + f(r.x) + ' ' + f(r.y) + ' ' + f(r.w) + ' ' + f(r.h) + '"' +
       (o.nimi ? ' role="img" aria-label="' + o.nimi + '"' : ' aria-hidden="true"') + '>' +
       '<g transform="rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g></svg>';
@@ -126,12 +128,15 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .1, nousuKohta: .65, nousuLeveys: .25, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .1, nousuKohta: .65, nousuLeveys: .25, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .4, kutistus: 1.4, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
     var palat = o.palat == null ? 8 : o.palat, nr = o.nr || sp / 2, r = rajat(T, sw, kulma), th = r.th;
     var nokka = [o.vasen - r.x, o.yla - r.y], d = [Math.cos(th), Math.sin(th)];
+    // Huilu piirretään HUILUKULMAan kierrettynä suunsa ympäri, joten suu (P0) ja viuhka pysyvät paikoillaan; vain viivojen
+    // lähtösuunta suusta seuraa huilua.
+    var hk = o.huiluKulma || api.HUILUKULMA, hth = (180 - hk) * Math.PI / 180, dh = [Math.cos(hth), Math.sin(hth)];
     var P0 = kierra([r.m.karki, 0], th); P0 = [nokka[0] + P0[0], nokka[1] + P0[1]];
     var pudotus = Math.max(sp * 2, o.keskiY - P0[1]);
     var E = [P0[0] + pudotus * .5, P0[1] + pudotus];
@@ -301,10 +306,14 @@
     function syliReuna(oi) {
       var k = (oi - siirto(n - 1)) / sp, harjaY = E[1] + oi - amp, vali = jakso / 2, ehdot = SYLI;
       var vali2 = Math.max(.3, Math.min(1, (syli - P0[0]) / (1.6 * vali))); // ahtaalla (360 px) kaarros mataloituu ja kapenee
-      var ka = Math.atan2(d[1], d[0]) + ehdot.kulma * k * Math.PI / 180, s0 = [Math.cos(ka), Math.sin(ka)];
+      var ka = Math.atan2(dh[1], dh[0]) + ehdot.kulma * k * Math.PI / 180, s0 = [Math.cos(ka), Math.sin(ka)];
       var lasku = [Math.cos((90 - kulma) * Math.PI / 180), Math.sin((90 - kulma) * Math.PI / 180)]; // laakson suunta (22° alas)
-      var A = [P0[0] - ehdot.vasen * vali * vali2 - k * ehdot.ulosX * sp, P0[1] + ehdot.alas * vali * vali2 + k * ehdot.ulosY * sp];
-      var Bp = [P0[0] + ehdot.pohjaX * vali - k * ehdot.pohjaUlosX * sp, harjaY + ehdot.syvyys * vali * vali2 + k * ehdot.pohjaUlos * sp];
+      // Kapealla näytöllä (360 px), jossa harja on lähellä suuta, kaarros pienenee samoissa mittasuhteissa (käyttäjän valinta
+      // 17.11.2026: puristunut kaari näytti kauhealta). vali2 pienentää jo välin mittaiset etäisyydet; pk pienentää samassa
+      // suhteessa viivojen erkanemisen (k · sp), joka ennen pysyi täysikokoisena ja vääristi pienen kaaren. 390 px:stä ylöspäin pk = 1.
+      var pk = Math.min(1, (syli - P0[0]) / (ehdot.kutistus * vali));
+      var A = [P0[0] - ehdot.vasen * vali * vali2 - k * ehdot.ulosX * sp * pk, P0[1] + ehdot.alas * vali * vali2 + k * ehdot.ulosY * sp * pk];
+      var Bp = [P0[0] + ehdot.pohjaX * vali - k * ehdot.pohjaUlosX * sp * pk, harjaY + ehdot.syvyys * vali * vali2 + k * ehdot.pohjaUlos * sp * pk];
       var H = [syli - ehdot.harjaEnnen * vali, harjaY], Ls = [syli + ehdot.laakso * vali, harjaY + 2 * amp * ehdot.laakso];
       var out;
       // Harjan korkeus: tukipistettä säädetään, kunnes kaaren ylin kohta on tasan yläkulmien korkeudella.
@@ -314,7 +323,7 @@
         var pohja = 0, ylin = Infinity;
         out.forEach(function (q, j) { if (q[1] > out[pohja][1]) pohja = j; });
         out.forEach(function (q, j) { if (j > pohja) ylin = Math.min(ylin, q[1]); });
-        H = [H[0], H[1] + (harjaY - ylin)];
+        if (ylin < Infinity) H = [H[0], H[1] + (harjaY - ylin)];
       }
       return out;
     }
@@ -336,7 +345,7 @@
     var kx = kaikki.map(function (p) { return p[0]; }), ky = kaikki.map(function (p) { return p[1]; });
     return {
       svg: '<path d="' + d2 + '" fill="none" stroke="currentColor" stroke-width="' + vw + '" stroke-linejoin="miter" stroke-miterlimit="12"/>' +
-        '<g transform="translate(' + f(nokka[0]) + ' ' + f(nokka[1]) + ') rotate(' + f(180 - kulma) + ')">' + huilu(T, sw) + '</g>',
+        '<g transform="translate(' + f(P0[0]) + ' ' + f(P0[1]) + ') rotate(' + f(180 - hk) + ') translate(' + f(-r.m.karki) + ' 0)">' + huilu(T, sw) + '</g>',
       y: function (x, p) { return E[1] + siirto(p) + tri(x); },
       // Nuotin kallistus (käyttäjä 12.11.2026): alamäkiviivalla (viiva laskee oikealle, ruudun y kasvaa) oikealle huilun
       // kulmassa (90° − 68° = 22° pystysuorasta), ylämäkiviivalla pystyssä ruudun suhteen.

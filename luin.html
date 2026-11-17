@@ -271,10 +271,11 @@
   /* Pienennetty 85 %:iin (käyttäjän pyyntö 12.11.2026); viewBox 5 × 17 pitää mittasuhteet. */
   button.jako svg.kolme { width: 4.25px; height: 14.45px; fill: currentColor; }
   /* Huilutettu (käyttäjän valinta 12.11.2026): Postihuilun kautta kantautunut teksti (e.src 'laatikko') saa nimensä perään
-     saman huilun vinossa pystyssä, 68° vaakatasosta, nokka ylhäällä oikealla (luin/kehitys/postihuilu-kuvio.js). */
+     saman huilun vinossa pystyssä, 64° vaakatasosta (17.11.2026; ennen 68°), nokka ylhäällä oikealla (luin/huilu.js vino()). */
   /* Keskikohta 0,29 em perusviivan yläpuolella: pienaakkosten (x-korkeus 0,51 em) ja versaalien (0,74 em) keskikohtien
      välissä, lähempänä pienaakkosia (mitattu Literatasta 12.11.2026; −0,2 em jätti huilun 0,375 em:iin, liian ylös). */
-  .n-ots svg.huilutettu { display: inline-block; height: 1.15em; width: .67em; margin-left: .7em; vertical-align: -.285em; overflow: visible; }
+  /* 64°:ssa sama mittakaava kuin 68°:ssa (1,15 em / 30,82 yksikköä): viewBox 19,67 × 30,39, keskikohta yhä 0,29 em. */
+  .n-ots svg.huilutettu { display: inline-block; height: 1.134em; width: .734em; margin-left: .7em; vertical-align: -.277em; overflow: visible; }
   /* Merkitty (käyttäjän pyyntö 12.11.2026): tekstissä on kirjanmerkki, alleviivaus tai kirjaus. Merkinnät-napin kuvake
      (sivu, alleviivaus, nauha) pienenä ja harmaana nimen perässä, huilu sen oikealla puolella. Hienovarainen, koska se
      voi olla jokaisessa pinon kirjassa: pienaakkosen korkuinen, ei ruostetta (ei napautettava). */
@@ -1569,7 +1570,7 @@
 <script src="luin/md.js?v=a621e8f0"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=7e172f16"></script>
+<script src="luin/huilu.js?v=644d480e"></script>
 <script>
 (function () {
   'use strict';
