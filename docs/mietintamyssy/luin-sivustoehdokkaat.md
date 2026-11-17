@@ -51,7 +51,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Pressbooks (PR #834, 17.11.2026, pahvin *20 sivustosovitetta* 1): alustasovite, luvun sivulta koko kirja osineen ja
   alaviitteineen, metatiedot kirjan tietueesta. pressbooks.pub ja useimmat yliopistojen verkot estävät pilvikontin, joten mitattu
   TMU:n ja PALNI:n palvelimilla.
-  OpenEdition Journals ja Books (PR #OENRO, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
+  OpenEdition Journals ja Books (PR #837, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
   yläindekseinä, alaviitteet, kirjallisuus ja tekijät. Anubis-botintorjunta päästää curlin oman tunnisteen läpi.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
