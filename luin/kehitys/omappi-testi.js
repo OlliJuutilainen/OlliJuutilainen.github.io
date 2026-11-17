@@ -76,47 +76,53 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('siirron viesti', (await page.textContent('#viesti')) === 'Teksti siirtyi ö-mappien mappiin ö.');
   t('kellarissa 1 nimike', (await page.$$('#nimikkeet li.nimike')).length === 1);
   t('kellari: ö-linkki näkyy', await page.isVisible('#om-linkki'));
-  // Mappisulkimen renkaat (käyttäjän pyyntö 17.11.2026): sama säde kuin kellarilinkin kammessa, alareuna alleviivauksen tasolla,
-  // alleviivaus renkaan alakärjestä toiseen, ei nuolta.
+  // Mappisulkimen renkaat (käyttäjän pyynnöt 17.11.2026): täyden soikion laki versaalikorkeudella, alareuna alleviivauksen
+  // alareunalla, alleviivaus renkaan alakärjestä toiseen, ei nuolta, viiva alhaalla 1 px kuten alleviivaus.
   const om = await page.evaluate(() => {
-    const a = document.querySelector('#om-linkki a'), ar = a.getBoundingClientRect(), r = [...a.querySelectorAll('svg.orengas')].map(x => x.getBoundingClientRect()),
-      ps = getComputedStyle(a, '::before'), em = parseFloat(getComputedStyle(a).fontSize);
-    return { n: r.length, lev: r.map(x => x.width / em), vas: r[0].left - ar.left, oik: ar.right - r[1].right, ala: r.map(x => x.bottom - ar.bottom),
-      viiva: [parseFloat(ps.left) / em, parseFloat(ps.right) / em, ps.borderBottomWidth, ps.bottom], oma: getComputedStyle(a).borderBottomColor,
+    const a = document.querySelector('#om-linkki a'), ar = a.getBoundingClientRect(), r = [...a.querySelectorAll('svg.orengas')],
+      ps = getComputedStyle(a, '::before'), em = parseFloat(getComputedStyle(a).fontSize), sp = a.querySelector('span');
+    const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; sp.appendChild(pr);
+    const bl = pr.getBoundingClientRect().bottom; pr.remove();
+    const c = document.createElement('canvas').getContext('2d'); c.font = '400 100px ' + getComputedStyle(a).fontFamily;
+    const vb = r[0].viewBox.baseVal, rr = r.map(x => x.getBoundingClientRect());
+    return { n: r.length, vas: rr[0].left - ar.left, oik: ar.right - rr[1].right, ala: rr.map(x => x.bottom - ar.bottom),
+      laki: rr.map(x => bl - (x.bottom - x.height * 2 * 7.86 / vb.height)), cap: c.measureText('H').actualBoundingBoxAscent / 100 * em,
+      keski: rr[0].width / 2 / em, viiva: [parseFloat(ps.left) / em, parseFloat(ps.right) / em, ps.borderBottomWidth], oma: getComputedStyle(a).borderBottomColor,
       nuoli: !!a.querySelector('svg.nuoli'), teksti: a.getAttribute('aria-label') };
   });
-  t('ö-linkin renkaat kammen kokoisia', om.n === 2 && om.lev.every(x => Math.abs(x - 1.788) < .01), JSON.stringify(om.lev));
-  t('renkaat ääripäissä, alareuna kuten kammessa', Math.abs(om.vas) < .5 && Math.abs(om.oik) < .5 && om.ala.every(x => Math.abs(x) < .1), JSON.stringify(om));
-  t('alleviivaus renkaiden alakärjestä toiseen, ei nuolta', Math.abs(om.viiva[0] - .894) < .01 && Math.abs(om.viiva[1] - .894) < .01 && om.viiva[2] === '1px' &&
+  t('renkaat ääripäissä, alareuna alleviivauksen alareunalla', om.n === 2 && Math.abs(om.vas) < .5 && Math.abs(om.oik) < .5 && om.ala.every(x => Math.abs(x) < .1), JSON.stringify(om));
+  t('renkaan laki versaalikorkeudella', om.laki.every(x => Math.abs(x - om.cap) < .35), om.laki.map(x => x.toFixed(2)).join(', ') + ' / ' + om.cap.toFixed(2) + ' px');
+  t('alleviivaus renkaiden alakärjestä toiseen, ei nuolta', Math.abs(om.viiva[0] - om.keski) < .01 && Math.abs(om.viiva[1] - om.keski) < .01 && om.viiva[2] === '1px' &&
     om.oma === 'rgba(0, 0, 0, 0)' && !om.nuoli && om.teksti === 'ö-mappien mappi ö', JSON.stringify(om));
   if (KUVAT) await page.locator('#om-linkki').screenshot({ path: KUVAT + '/om-linkki.png' });
   if (KUVAT) await page.screenshot({ path: KUVAT + '/kellari.png', fullPage: true });
   await page.click('#om-linkki a'); await page.waitForTimeout(200);
   t('ö-mappi: hash', page.url().endsWith('#omappi'));
-  t('ö-mappi: otsikko', (await page.textContent('#lista-ots')) === 'Ö-mappien mappi ö');
+  t('ö-mappi: otsikko', (await page.textContent('#lista-ots')) === '-mappien mappi' && (await page.getAttribute('#lista-ots', 'aria-label')) === 'Ö-mappien mappi ö');
   t('ö-mappi: 1 nimike', (await page.$$('#nimikkeet li.nimike')).length === 1);
   t('ö-mappi: linkit piilossa', !(await page.isVisible('#om-linkki')) && !(await page.isVisible('#ark-linkki')) && !(await page.isVisible('#jarj-rivi')));
   t('ö-mappi: ei Takaisin pinoon -tekstiä eikä pinomerkkiä', !(await page.isVisible('#ark-takaisin')) && !(await page.isVisible('#ark-koti')));
-  // Otsikon perässä pelkkä ö (käyttäjän pyyntö 17.11.2026): musteen keskikohta versaalien keskellä kuten kammessa, rako 1 em.
-  const oM = await page.evaluate(async () => {
-    const s = document.querySelector('h2.ots .omerkki'), cs = getComputedStyle(s), pr = document.createElement('span');
-    pr.style.cssText = 'display:inline-block;width:0;height:0'; s.appendChild(pr); const bl = pr.getBoundingClientRect().bottom, x0 = pr.getBoundingClientRect().left; pr.remove();
-    // Kankaan mitat pyöristyvät pikseleiksi, joten mitataan 100 px:n koossa ja skaalataan.
-    const c = document.createElement('canvas').getContext('2d'), k = parseFloat(cs.fontSize) / 100; c.font = cs.fontWeight + ' 100px ' + cs.fontFamily;
-    const m0 = c.measureText('ö'), m = { actualBoundingBoxLeft: m0.actualBoundingBoxLeft * k, actualBoundingBoxAscent: m0.actualBoundingBoxAscent * k,
-      actualBoundingBoxDescent: m0.actualBoundingBoxDescent * k }, hp = s.parentNode, p2 = document.createElement('span');
-    p2.style.cssText = 'display:inline-block;width:0;height:0'; hp.insertBefore(p2, s); const hbl = p2.getBoundingClientRect().bottom; p2.remove();
-    const tn = hp.firstChild, rg = document.createRange(); rg.setStart(tn, tn.length - 1); rg.setEnd(tn, tn.length);
-    const ls = parseFloat(getComputedStyle(hp).letterSpacing), em = parseFloat(getComputedStyle(hp).fontSize);
-    // Pelkän ö:n x0 on spanin alku (välilyönti romahtaa absoluuttisen laatikon alussa).
-    const vasen = s.getBoundingClientRect().left - m.actualBoundingBoxLeft;
-    return { napa: hbl - (bl - (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2), rako: (vasen - (rg.getBoundingClientRect().right - ls)) / em,
-      koko: parseFloat(cs.fontSize) / em, paino: cs.fontWeight, iso: cs.textTransform };
+  // Otsikon molemmat ö:t mappirenkaina ilman alleviivausta (käyttäjän pyynnöt 17.11.2026): soikion keskikohta versaalien
+  // keskellä kuten kammen napa, laki versaalikorkeudella, viimeinen 1 em:n päässä kuten otsikon merkit.
+  const oM = await page.evaluate(() => {
+    const h = document.querySelector('#lista-ots'), sp = h.querySelector('.ots-merkki'), r = [...h.querySelectorAll('svg.orengas')];
+    const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; sp.appendChild(pr);
+    const bl = pr.getBoundingClientRect().bottom; pr.remove();
+    const vb = r[0].viewBox.baseVal.height, ry = 4.65;
+    const kesk = r.map(x => { const q = x.getBoundingClientRect(); return bl - (q.bottom - q.height * ry / vb); });
+    const laki = r.map(x => { const q = x.getBoundingClientRect(); return bl - (q.bottom - q.height * 2 * ry / vb); });
+    const tn = [...sp.childNodes].find(n => n.nodeType === 3), rg = document.createRange(); rg.setStart(tn, tn.length - 1); rg.setEnd(tn, tn.length);
+    const em = parseFloat(getComputedStyle(h).fontSize), ls = parseFloat(getComputedStyle(h).letterSpacing);
+    const c = document.createElement('canvas').getContext('2d'); c.font = '400 100px ' + getComputedStyle(h).fontFamily;
+    return { n: r.length, kesk, laki, cap: c.measureText('H').actualBoundingBoxAscent / 100 * em,
+      rako: (r[1].getBoundingClientRect().left - (rg.getBoundingClientRect().right - ls)) / em, nimi: h.getAttribute('aria-label') };
   });
-  t('ö-mappi: otsikon ö versaalien keskellä', Math.abs(oM.napa - linkinNapa) < .3, oM.napa.toFixed(2) + ' / ' + linkinNapa.toFixed(2) + ' px perusviivasta');
-  t('ö-mappi: otsikon ö:n rako 1 em', Math.abs(oM.rako - 1) < .03, oM.rako.toFixed(3) + ' em');
-  t('ö-mappi: otsikon ö isompi ja paksumpi, pieni ö', oM.koko > 1 && +oM.paino > 400 && oM.iso === 'none', JSON.stringify(oM));
-  t('ö-mappi: ö ei kasvata otsikkoriviä', (await page.evaluate(() => document.querySelector('.ots-rivi').getBoundingClientRect().height)) <= 31);
+  t('ö-mappi: otsikon ö:t mappirenkaina', oM.n === 2 && oM.nimi === 'Ö-mappien mappi ö', JSON.stringify(oM));
+  t('ö-mappi: renkaiden keskikohta versaalien keskellä', oM.kesk.every(x => Math.abs(x - linkinNapa) < .3), oM.kesk.map(x => x.toFixed(2)).join(', ') + ' / ' + linkinNapa.toFixed(2) + ' px');
+  t('ö-mappi: renkaiden laki versaalikorkeudella', oM.laki.every(x => Math.abs(x - oM.cap) < .35), oM.laki.map(x => x.toFixed(2)).join(', ') + ' / ' + oM.cap.toFixed(2) + ' px');
+  t('ö-mappi: viimeisen renkaan rako 1 em', Math.abs(oM.rako - 1) < .02, oM.rako.toFixed(3) + ' em');
+  t('ö-mappi: renkaat eivät kasvata otsikkoriviä', (await page.evaluate(() => document.querySelector('.ots-rivi').getBoundingClientRect().height)) <= 31);
+  if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-omappi.png' });
   // Peilattu kellarilinkki vasemmassa alakulmassa: nuoli vasemmalla, kampi tekstin oikealla puolella.
   t('ö-mappi: paluulinkki näkyy', await page.isVisible('#ark-paluu'));
   const pl = await page.evaluate(() => {
