@@ -4,11 +4,15 @@
 // syntyy vektorina sekä SVG:hen että Androidin VectorDrawableen.
 //
 // Tuottaa:
-//   icons/tusinasaa.svg            välilehden kuvake
+//   icons/tusinasaa.svg            välilehden kuvake: oma, pelkistetty muoto (käyttäjän pyyntö 17.11.2026): ei kirjaimia,
+//                                  paksumpi kehä ja suuremmat kolmiot, jotta 16–32 px:ssä näkyy muoto eikä puuroa ja
+//                                  välilehden kuvake erottuu kotinäytön ja sovelluksen kuvakkeesta
 //   icons/tusinasaa-180.png        apple-touch-icon (tumma; iOS täyttää läpinäkyvän mustalla)
 //   icons/tusinasaa-192.png, -512.png   manifest.webmanifest, any (näkyvä 72 yksikön alue)
 //   icons/tusinasaa-maskable-512.png    manifest, maskable: koko 108 kangas, koska maskin turva-alue on säde 40 %
-//   icons/tusinasaa-32.png         välilehti selaimille, jotka eivät näytä SVG-kuvaketta (Big Surin Safari)
+//   icons/tusinasaa-32.png         sama välilehtikuvake selaimille, jotka eivät näytä SVG-kuvaketta (Big Surin Safari)
+//   icons/tusinasaa-jako-1.png     linkin esikatselu (og:image; WhatsApp, Signal ym.), 600 × 600. Kun kuva muuttuu,
+//                                  nosta numeroa ja päivitä og:image: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
 //   android/app/src/main/res/…     käynnistyskuvake: adaptiivinen (Android 8+) ja monokromi (13+ teemakuvake)
 //
 // Kaikkialla tumma (vaalea viiva mustalla). Vaalea versio (VAALEA) kokeiltiin 17.11.2026: vaalealla taustakuvalla
@@ -67,15 +71,15 @@ function pikselit() {
   return osat.map(([x, y, w, h]) => `M${n(x)},${n(y)}h${n(w)}v${n(h)}h${n(-w)}Z`).join('');
 }
 
-function kolmiot() {
-  const kanta = R + KEHA / 2 + RAKO, karki = kanta + KOLMIO_K;   // kärki ulospäin
+function kolmiot(c = C, kanta = R + KEHA / 2 + RAKO, korkeus = KOLMIO_K, leveys = KOLMIO_L) {
+  const karki = kanta + korkeus;                // kärki ulospäin
   let d = '';
   for (let t = 0; t < 12; t++) {
     const a = t * Math.PI / 6;                 // 0 = klo 12
     const ux = Math.sin(a), uy = -Math.cos(a); // ulos
     const vx = Math.cos(a), vy = Math.sin(a);  // tangentti
-    const p = (r, s) => `${n(C + ux * r + vx * s)},${n(C + uy * r + vy * s)}`;
-    d += `M${p(karki, 0)}L${p(kanta, KOLMIO_L / 2)}L${p(kanta, -KOLMIO_L / 2)}Z`;
+    const p = (r, s) => `${n(c + ux * r + vx * s)},${n(c + uy * r + vy * s)}`;
+    d += `M${p(karki, 0)}L${p(kanta, leveys / 2)}L${p(kanta, -leveys / 2)}Z`;
   }
   return d;
 }
@@ -98,8 +102,19 @@ ${t}
 
 // Kotivalikon ja manifestin kuvakkeet: näkyvä 72 yksikön alue (Androidin maski) koko kuvaksi.
 const NAKYVA = `${C - 36} ${C - 36} 72 72`;
-// Välilehti: ympyrä tiiviisti, pieni reunus kolmioiden kärkien (säde 32,5) ulkopuolelle.
-const VALILEHTI = `${C - 34} ${C - 34} 68 68`;
+
+// Välilehti 32 × 32 yksikköä: 32 px:ssä (Retina-näytön välilehti) yksikkö on pikseli. Musta kiekko, kehä 2,4 px,
+// kolmiot 4 × 5 px ja niiden välissä noin pikselin rako.
+const V = { c: 16, r: 7.6, keha: 2.4, rako: 1, korkeus: 5, leveys: 4 };
+function valilehti({ pohja, muste }) {
+  const { c, r, keha, rako, korkeus, leveys } = V;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<circle cx="${c}" cy="${c}" r="16" fill="${pohja}"/>
+<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${muste}" stroke-width="${keha}"/>
+<path fill="${muste}" d="${kolmiot(c, r + keha / 2 + rako, korkeus, leveys)}"/>
+</svg>
+`;
+}
 
 async function png(sivu, sisalto, koko, tiedosto) {
   await sivu.setViewportSize({ width: koko, height: koko });
@@ -158,14 +173,15 @@ ${huom}<resources>
 
 if (require.main === module) (async () => {
   fs.mkdirSync(IKONIT, { recursive: true });
-  fs.writeFileSync(path.join(IKONIT, 'tusinasaa.svg'), svg(TUMMA, { viewBox: VALILEHTI, tausta: 'ympyra' }));
+  fs.writeFileSync(path.join(IKONIT, 'tusinasaa.svg'), valilehti(TUMMA));
   const b = await chromium.launch();
   const s = await b.newPage();
-  await png(s, svg(TUMMA, { viewBox: VALILEHTI, tausta: 'ympyra' }), 32, path.join(IKONIT, 'tusinasaa-32.png'));
+  await png(s, valilehti(TUMMA), 32, path.join(IKONIT, 'tusinasaa-32.png'));
   for (const k of [180, 192, 512]) await png(s, svg(TUMMA, { viewBox: NAKYVA }), k, path.join(IKONIT, `tusinasaa-${k}.png`));
   await png(s, svg(TUMMA), 512, path.join(IKONIT, 'tusinasaa-maskable-512.png'));
+  await png(s, svg(TUMMA), 600, path.join(IKONIT, 'tusinasaa-jako-1.png'));
   await b.close();
   android();
 })();
 
-module.exports = { svg, TUMMA, VAALEA, K, C, NAKYVA, VALILEHTI };
+module.exports = { svg, valilehti, TUMMA, VAALEA, K, C, NAKYVA };

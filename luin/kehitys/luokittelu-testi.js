@@ -1,6 +1,6 @@
-// Luokittelu ja kellarin veivihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
+// Luokittelu ja kellarin kampihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/luokittelu-testi.js [kuvakansio]
-// Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit kellarin veivihyllystössä
+// Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit kellarin kampihyllystössä
 // (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto,
 // pino mukana); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
 // tarkistus) ja etukentän kirjoitus; avaimeton uusi versio ei pyyhi asiasanoja; Muuta metatietoja näyttää ne Latomossa
