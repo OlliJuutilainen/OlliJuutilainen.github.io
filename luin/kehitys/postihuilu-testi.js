@@ -190,7 +190,8 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const v = (x1 - x0) / 3.5, kaari = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(0, 81).map(t => t.split(' ').map(Number));
       let pj = 0; kaari.forEach((q, j) => { if (q[1] > kaari[pj][1]) pj = j; });
       const harja = Math.min(...kaari.slice(pj).map(q => q[1])), suoralla = yla + (ala - yla) * (kaariLoppu[0] - (x0 - v)) / v;
-      const sylissa = Math.abs(harja - yla) < .3 && Math.abs(kaariLoppu[1] - suoralla) < .05 && Math.abs(pts[0][0] - x0) < .05 && Math.abs(pts[0][1] - ala) < .02;
+      // Harja saa olla 1,6 px yläkulmien alapuolella: alinta siirretään nousussa ulospäin (käyttäjä 17.11.2026, ks. huilu.js nousuUlos).
+      const sylissa = harja - yla > -.3 && harja - yla < 1.6 && Math.abs(kaariLoppu[1] - suoralla) < .05 && Math.abs(pts[0][0] - x0) < .05 && Math.abs(pts[0][1] - ala) < .02;
       return { sylissa, vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
