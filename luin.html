@@ -1884,7 +1884,7 @@
     var doc = LuinMD.parse(t.md);
     var id = 'p-' + LuinMD.slug(doc.title || t.nimi || 'teksti').slice(0, 60);
     var e = lisaaListaan(id, doc, { src: 'paikallinen' });
-    delete e.luettu; delete e.omappi;
+    if (!e.kasikirja) { delete e.luettu; delete e.omappi; }
     if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
     tallennaLista();
     location.replace('#id=' + encodeURIComponent(e.id));
@@ -2003,12 +2003,12 @@
     var vanha = lohkot(md0), uusi = lohkot(t.md), map = kohdista(vanha.txt, uusi.txt);
     var tiedot = p.tila === 'tiedot', korvaa = tiedot || p.valinta === 'korvaa', viedaan = korvaa || p.valinta === 'merk';
     if (tiedot) {
-      if (leipaMuuttui(vanha, uusi, map)) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(!!e0.luettu, !!e0.omappi); }
+      if (leipaMuuttui(vanha, uusi, map)) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(kellarissa(e0), omapissa(e0)); }
     }
     var s = viedaan ? siirraMerkinnat(merkit(p.id), e0.pos, vanha, uusi, map) : null, e, id;
     if (korvaa) {
       id = p.id;
-      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(!!e0.luettu, !!e0.omappi); }
+      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(kellarissa(e0), omapissa(e0)); }
       e = lisaaListaan(id, uusi.doc);
       // Latomo näytti asiasanat ja ajoituksen (lkKirjoita ennen siirtoa), joten puuttuva avain on poisto.
       lkMdsta(e, uusi.doc, true);
@@ -2039,7 +2039,7 @@
     viesti(tiedot ? 'Tiedot päivitetty: ' + nimi + '.' + irti :
       korvaa ? 'Uusi laitos korvasi alkuperäisen: ' + nimi + '.' + siirtyi + irti :
       e.laitos + '. laitos lisättiin pinoon: ' + nimi + (s ? '.' + siirtyi + irti : ' ilman merkintöjä.'));
-    naytaLista(korvaa && !!e.luettu, korvaa && !!e.omappi);
+    naytaLista(korvaa && kellarissa(e), korvaa && omapissa(e));
   }
 
   function lisaaListaan(id, doc, extra) {
@@ -2265,7 +2265,7 @@
      Kentän kirjoitus suodattaa sanastoa; Enter tai Valmis. lisää uuden. */
   function luokittele(es, rect) {
     lkTaydenna();
-    var n = es.length, ajKoskettu = false;
+    var n = es.length, ajKoskettu = false, kkSiirtyi = {};
     function tilaS(s) { var k = es.filter(function (e) { return lkOn(e, s); }).length; return k === 0 ? 'false' : k === n ? 'true' : 'mixed'; }
     function nappi(s, ehd) {
       return '<button type="button" class="lk-sana' + (ehd ? ' ehd' : '') + '" data-k="as" data-s="' + esc(s) + '" aria-pressed="' + tilaS(s) + '">' +
@@ -2304,7 +2304,11 @@
       }
       if (k === 'kk') {
         var paalle = b.getAttribute('aria-pressed') !== 'true';
-        es.forEach(function (e) { if (paalle) e.kasikirja = 1; else delete e.kasikirja; });
+        // Käsikirja lähtee pinosta ja ö-mappien ö-mapista kellarin kampihyllystön käsikirjastoon.
+        es.forEach(function (e) {
+          if (paalle) { if (!kellarissa(e)) kkSiirtyi[e.id] = 1; e.kasikirja = 1; delete e.omappi; delete valitut[e.id]; }
+          else { delete e.kasikirja; delete kkSiirtyi[e.id]; }
+        });
         b.setAttribute('aria-pressed', String(paalle));
         tallenna();
         return true;
@@ -2331,7 +2335,9 @@
       if (ajKoskettu) { es.forEach(function (e) { if (a) e.ajoitus = a.t; else delete e.ajoitus; }); tallenna(); }
       var nimi = n === 1 ? '”' + es[0].title + '”' : n + ' tekstiä';
       var as = n === 1 ? (es[0].asiasanat || []).join(', ') : '';
-      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.');
+      var siirtyi = Object.keys(kkSiirtyi).length;
+      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.' + (!siirtyi ? '' : n === 1 ? ' Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.'
+        : ' ' + siirtyi + (siirtyi === 1 ? ' teksti siirtyi' : ' tekstiä siirtyi') + ' käsikirjastoon kellarin kampihyllystöön.'));
       return true;
     }
     uusi.addEventListener('input', function () {
@@ -2371,13 +2377,20 @@
     (jarjestys || Object.keys(r)).forEach(function (k) { if (r[k]) out.push({ ots: otsikot ? otsikot(k) : k, es: r[k] }); });
     return out;
   }
+  // Käsikirjasto on aina ylimpänä omana välikorttinaan (merkitsemisjärjestyksessä) kaikissa järjestyksissä; valittu järjestys
+  // koskee muita tekstejä (käyttäjän päätös 17.11.2026: käsikirja on omassa erikoistilassaan).
   function jarjesta(nak) {
+    var kk = nak.filter(function (e) { return e.kasikirja; }), muut = jarjestaMuut(nak.filter(function (e) { return !e.kasikirja; }));
+    if (!kk.length) return muut;
+    if (muut.length === 1 && !muut[0].ots) muut = muut[0].es.length ? [{ ots: 'Luetut', es: muut[0].es }] : [];
+    return [{ ots: 'Käsikirjasto', es: kk }].concat(muut);
+  }
+  function jarjestaMuut(nak) {
     var j = jarjNyt(), luettuEnsin = function (x, y) { return (y.luettu || 0) - (x.luettu || 0); };
     if (j === 'luettu') {
-      var kk = nak.filter(function (e) { return e.kasikirja; });
-      if (!kk.length && !aset.kellariPino) return [{ es: nak }];
-      return ryhmita(nak, function (e) { return e.kasikirja ? 'k' : e.luettu ? 'l' : e.pct ? 'p' : 'u'; },
-        function (k) { return { k: 'Käsikirjasto', l: 'Luetut', p: 'Kesken pinossa', u: 'Lukematta pinossa' }[k]; }, ['k', 'l', 'p', 'u']);
+      if (!aset.kellariPino) return [{ es: nak }];
+      return ryhmita(nak, function (e) { return e.luettu ? 'l' : e.pct ? 'p' : 'u'; },
+        function (k) { return { l: 'Luetut', p: 'Kesken pinossa', u: 'Lukematta pinossa' }[k]; }, ['l', 'p', 'u']);
     }
     var a = nak.slice();
     if (j === 'tekija') {
@@ -2478,12 +2491,18 @@
      eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
      näkymä vaihtuu pinon ja kellarin kampihyllystön välillä. */
   var valitut = {};
+  // Käsikirja (e.kasikirja; käyttäjän päätös 17.11.2026) ei ole koskaan pinossa eikä ö-mappien ö-mapissa: se on aina kellarin
+  // kampihyllystössä omana käsikirjastonaan, luettuna tai ei. Postihuilun uusi versio tai Latomon tuonti ei nosta sitä pinoon,
+  // eikä sille tarjota Poimi- eikä ö-mappitoimintoa. Käsikirjastosta poistettu palaa sinne, minne e.luettu ja e.omappi sen vievät.
+  function kellarissa(e) { return !!e.kasikirja || !!e.luettu && !e.omappi; }
+  function omapissa(e) { return !!e.omappi && !e.kasikirja; }
+  function pinossa(e) { return !e.kasikirja && !e.luettu && !e.omappi; }
   function naytettavat(ark) {
     // Ö-mappien ö-mappi (käyttäjän pyyntö 17.11.2026, #omappi): kellarin kampihyllystöstä siirretyt (e.omappi = siirtoaika;
     // e.luettu jää), uusin ensin. Ne eivät näy kellarin kampihyllystössä eivätkä pinossa.
-    if (ark && tila.omappi) return lista.filter(function (e) { return e.omappi; }).sort(function (x, y) { return y.omappi - x.omappi; });
+    if (ark && tila.omappi) return lista.filter(omapissa).sort(function (x, y) { return y.omappi - x.omappi; });
     // Kellarin kampihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
-    var a = lista.filter(function (e) { return !e.omappi && (ark && aset.kellariPino || !!e.luettu === !!ark); });
+    var a = lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); });
     return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
   function naytaLista(ark, om) {
@@ -2533,9 +2552,9 @@
   function nimikeRivi(e, ark) {
     var ala = e.ala != null ? e.ala : e.sub || e.kehys;
     var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
-      ark ? (e.luettu ? 'luettu ' + pvm(e.luettu) : 'pinossa') : e.opened ? pvm(e.opened) : ''];
-    // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan).
-    if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [e.kasikirja ? 'käsikirja' : '', (e.asiasanat || []).join(', ')]);
+      ark ? (e.luettu ? 'luettu ' + pvm(e.luettu) : e.kasikirja ? '' : 'pinossa') : e.opened ? pvm(e.opened) : ''];
+    // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
+    if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [(e.asiasanat || []).join(', ')]);
     tieto = tieto.filter(Boolean).join(' · ');
     return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
       '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
@@ -2556,8 +2575,8 @@
     }).join('');
     $('#tyhja').hidden = nak.length > 0;
     taydennaAla();
-    $('#ark-linkki').hidden = ark || !lista.some(function (e) { return e.luettu; });
-    $('#om-linkki').hidden = !ark || tila.omappi || !lista.some(function (e) { return e.omappi; });
+    $('#ark-linkki').hidden = ark || !lista.some(kellarissa);
+    $('#om-linkki').hidden = !ark || tila.omappi || !lista.some(omapissa);
     // Järjestyksen valinta vain kellarin kampihyllystössä ja vain, kun järjestettävää on.
     $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
@@ -2610,13 +2629,14 @@
           var id = 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
-          // Uudelleen lähetetty teksti palaa kellarin kampihyllystöstä pinoon.
+          // Uudelleen lähetetty teksti palaa kellarin kampihyllystöstä pinoon (käsikirja ei: se pysyy käsikirjastossa).
           var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
-          delete e.luettu; delete e.omappi; delete e.huiluNahty;
+          if (!e.kasikirja) { delete e.luettu; delete e.omappi; }
+          delete e.huiluNahty;
           return e;
         }).catch(function () { return null; });
       })).then(function (es) {
-        var n = es.filter(Boolean).length;
+        var n = es.filter(function (e) { return e && pinossa(e); }).length;
         LS.set('luin-laatikko-nahdyt', nahdyt);
         if (n) {
           tallennaLista();
@@ -2968,10 +2988,11 @@
       '<button type="button" data-k="luokittele">luokittele</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
-      (e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
+      // Käsikirjalle ei Poimi- eikä ö-mappitoimintoa: se pysyy käsikirjastossa (pois luokittelemalla).
+      (e.kasikirja ? '' : e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
         : e.luettu ? '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä.</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>'
         : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>') +
-      '<button type="button" data-k="poista" class="vaara">' + (e.omappi ? 'Poista ö-mappien ö-mapista.' : e.luettu ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (omapissa(e) ? 'Poista ö-mappien ö-mapista.' : kellarissa(e) ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'omappi') { kysyOmappi([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
@@ -3093,10 +3114,12 @@
     var b = this, es = valitutEt();
     if (!es.length) return;
     var n = es.length, ark = tila.arkisto, luetut = es.filter(function (e) { return e.luettu; }).length;
-    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa.
-    var om = tila.omappi, luin = om ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
+    var kk = es.some(function (e) { return e.kasikirja; });
+    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa; käsikirjoja
+    // sisältävälle valinnalle ei Poimi- eikä ö-mappitoimintoa.
+    var om = tila.omappi, luin = om || kk ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
     // Ö-mappien ö-mappiin vain kellarin kampihyllystön teksteistä, takaisin vain ö-mappien ö-mapista.
-    var omk = om ? OM_POIS : ark && luetut === n ? OM_SISAAN : '';
+    var omk = om ? OM_POIS : ark && luetut === n && !kk ? OM_SISAAN : '';
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
@@ -3709,8 +3732,8 @@
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
     // Kellarin kampihyllystön tekstistä pinomerkki palaa kellarin kampihyllystöön.
-    var tk = $('.takaisin'), tkn = e.omappi ? 'Ö-mappien ö-mappiin' : e.luettu ? 'Kellarin kampihyllystöön' : 'Pinoon';
-    tk.setAttribute('href', e.omappi ? '#omappi' : e.luettu ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
+    var tk = $('.takaisin'), tkn = omapissa(e) ? 'Ö-mappien ö-mappiin' : kellarissa(e) ? 'Kellarin kampihyllystöön' : 'Pinoon';
+    tk.setAttribute('href', omapissa(e) ? '#omappi' : kellarissa(e) ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
     piirraTeksti();
