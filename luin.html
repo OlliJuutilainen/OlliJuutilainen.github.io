@@ -343,13 +343,18 @@
   #lista .ark-linkki { margin-top: var(--osiovali); }
   /* Ö-mappilinkissä on vain nuoli, ei kampea (kampi kuuluu kampihyllystöön). */
   .om-linkki a::before { content: none; }
-  /* Kellarin kampihyllystön otsikon kampi (käyttäjän pyyntö 17.11.2026): sama koko, rako ja navan korkeus kuin kellarilinkin
-     kammessa (napa versaalien pystykeskellä), otsikon harmaalla. Absoluuttisena se ei muuta otsikkorivin korkeutta. Rako
-     .4 em vähennettynä otsikon loppuharvennuksella .18 em; navan korkeus mitattu perusviivasta (linkissä 3,76 px, .196 em alemmas). */
-  h2.ots .ots-kampi { position: relative; }
-  h2.ots svg.kampi { position: absolute; left: calc(100% + .22em); bottom: calc(-1px - .196em); width: 1.788em; height: 1.788em; overflow: visible;
+  /* Otsikon merkit (käyttäjän pyynnöt 17.11.2026): kellarin kampihyllystön otsikon perässä kampi, pinon otsikon perässä
+     pinomerkki, molemmat hyvin pieninä otsikon harmaalla. Rako .7 em viimeisestä kirjaimesta (.52 em + otsikon loppuharvennus
+     .18 em). Merkin keskikohta (kammessa napa) on versaalien pystykeskellä kuten kellarilinkin kammen napa: .3176 em perusviivan
+     yläpuolella (mitattu 3,76 px). Spanin alareuna on .3379 em perusviivan alapuolella, joten merkin bottom on
+     .74em - 1px - f · korkeus, kun f on keskikohdan osuus alhaalta (kampi .5235, pinomerkki .5). Absoluuttisina ne eivät muuta
+     otsikkorivin korkeutta. */
+  h2.ots .ots-merkki { position: relative; }
+  h2.ots .ots-merkki svg { position: absolute; left: calc(100% + .52em); overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
-  h2.ots svg.kampi path { vector-effect: non-scaling-stroke; }
+  h2.ots .ots-merkki svg path { vector-effect: non-scaling-stroke; }
+  h2.ots svg.kampi { width: 1.45em; height: 1.45em; bottom: calc(-1px - .019em); }
+  h2.ots svg.pinom { width: 1.45em; height: 1.077em; bottom: calc(.2015em - 1px); }
   button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
   button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
@@ -1652,9 +1657,12 @@
     return esc(t.slice(0, i)) + '<span class="n-hanta">' + esc(viim) + mk + '</span>';
   }
   // Pystyssä, kärjet hipaisten, logon mittasuhteissa (leveys/korkeus 0,767) kuten huilun sormireiät.
-  // Kellarin kampihyllystön otsikon kampi (käyttäjän pyyntö 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
-  // suoraksi nuolen varreksi, vaan jatkuu kehää pitkin 40° oikealle ylös ja jyrkkenee (lähtö kompassikulmassa 140°).
-  var KAMPI = '<svg class="kampi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1.6428 1.719A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.2 .953"/></svg>';
+  // Kellarin kampihyllystön otsikon kampi (käyttäjän pyynnöt 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
+  // suoraksi nuolen varreksi, vaan jatkuu kehää pitkin 70° oikealle ylös ja jyrkkenee (lähtö kompassikulmassa 110°; ensin 40°).
+  var KAMPI = '<svg class="kampi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1.9397 1.295A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.2 .953"/></svg>';
+  // Pinon otsikon pinomerkki (käyttäjän pyyntö 17.11.2026): sama polku kuin pinomerkissä, viewBox rajattu musteeseen.
+  var PINOM = '<svg class="pinom" viewBox="5 11.1 14 10.4" aria-hidden="true"><path d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg>';
+  var OTS_PINO = '<span class="ots-merkki">Pino' + PINOM + '</span>';
   var KOLME = '<svg class="kolme" viewBox="0 0 5 17" aria-hidden="true"><path d="' + [17 / 6, 17 / 2, 17 * 5 / 6].map(function (y) {
     return sal(2.5, y, 17 / 6 * LuinHuilu.LOGO, 17 / 6); }).join('') + '"/></svg>';
   var VALITSE = '<svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
@@ -2486,7 +2494,7 @@
     $('#lista').classList.toggle('omappi', om);
     $('#ark-koti').hidden = !ark; $('#ark-takaisin').hidden = !ark;
     // Kellarin kampihyllystön otsikon perässä kampi ilman nuolen vartta (käyttäjän pyyntö 17.11.2026).
-    $('#lista-ots').innerHTML = om ? 'Ö-mappien ö-mappi' : ark ? '<span class="ots-kampi">Kellarin kampihyllystö' + KAMPI + '</span>' : 'Pino';
+    $('#lista-ots').innerHTML = om ? 'Ö-mappien ö-mappi' : ark ? '<span class="ots-merkki">Kellarin kampihyllystö' + KAMPI + '</span>' : OTS_PINO;
     document.title = om ? 'Ö-mappien ö-mappi – Luin' : ark ? 'Kellarin kampihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
     huiluPinossa();
