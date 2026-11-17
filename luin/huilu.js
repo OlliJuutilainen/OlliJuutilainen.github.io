@@ -126,7 +126,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, hamPyorista: 100, hamAlku: 18, hamLoppu: 48, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -258,15 +258,17 @@
     function syliKaari0(oi) {
       var ylinO = siirto(n - 1), alinO = siirto(0);
       if (oi === ylinO) return tasaPituus(syliReuna(oi), SYLI.pisteet);
-      if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(alinO), SYLI.pisteet)];
+      // Uloimman pohjan pyöristys (käyttäjä 17.11.2026: ulkomutka eli alin oli pohjassa liian tiukka): kevyt tasoitus vain
+      // pohjan kohdalla (näytepisteet pyoristaAlku–pyoristaLoppu, reunoilla hiipuen). Keskimmäinen lasketaan pyöristetystä.
+      if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), pyorista(tasaPituus(syliReuna(alinO), SYLI.pisteet), SYLI.norPyorista)];
       if (oi === alinO || n < 3) return reunaviivat[1];
-      var tulos = syliKaari1(oi);
-      // Pohjan pyöristys (käyttäjä 17.11.2026: keskimmäisellä neulansilmä pohjassa ilman syytä): kevyt tasoitus vain pohjan
-      // kohdalla (näytepisteet hamAlku–hamLoppu, reunoilla hiipuen), kierroksia SYLI.hamPyorista.
-      for (var kier = 0; kier < SYLI.hamPyorista; kier++) {
+      return syliKaari1(oi);
+    }
+    function pyorista(tulos, kierrokset) {
+      for (var kier = 0; kier < kierrokset; kier++) {
         tulos = tulos.map(function (p, j) {
           if (j === 0 || j === tulos.length - 1) return p;
-          var x = (j - SYLI.hamAlku) / (SYLI.hamLoppu - SYLI.hamAlku); if (x <= 0 || x >= 1) return p;
+          var x = (j - SYLI.pyoristaAlku) / (SYLI.pyoristaLoppu - SYLI.pyoristaAlku); if (x <= 0 || x >= 1) return p;
           var w = .5 * Math.sin(Math.PI * x);
           return [p[0] + w * ((tulos[j - 1][0] + tulos[j + 1][0]) / 2 - p[0]), p[1] + w * ((tulos[j - 1][1] + tulos[j + 1][1]) / 2 - p[1])];
         });
