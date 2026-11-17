@@ -65,7 +65,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Open Book Publishers (PR #852, 17.11.2026, pahvin *20 sivustosovitetta* 8): Epublius-lukunäkymästä koko kirja; kustantajan
   oma sivusto on Vercelin tarkistuksen takana, lukunäkymän palvelin ei.
   Faded Page (PR #853, 17.11.2026, pahvin *20 sivustosovitetta* 9): koko kirja fpgen-HTML:stä ilman ylläpitotekstejä.
-  Internet Archive, tekstiversiot (PR #IANRO, 17.11.2026, pahvin *20 sivustosovitetta* 10): djvu.txt-pötkö kappaleiksi.
+  Internet Archive, tekstiversiot (PR #854, 17.11.2026, pahvin *20 sivustosovitetta* 10): djvu.txt-pötkö kappaleiksi.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
