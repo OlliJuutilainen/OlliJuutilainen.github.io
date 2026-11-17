@@ -56,7 +56,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Hypotheses.org (PR #843, 17.11.2026, pahvin *20 sivustosovitetta* 3): blogikirjoitus alaviitteineen, mitattu de, fr, en.
   Manifold (PR #844, 17.11.2026, pahvin *20 sivustosovitetta* 4): palvelin renderöi osiot, joten koko kirja loppuviitteineen
   osioiden HTML:stä ja metatiedot rajapinnasta.
-  ForumMagnum: LessWrong ja EA Forum (PR #FMNRO, 17.11.2026, pahvin *20 sivustosovitetta* 5): ponnahdusalaviitteet
+  ForumMagnum: LessWrong ja EA Forum (PR #845, 17.11.2026, pahvin *20 sivustosovitetta* 5): ponnahdusalaviitteet
   alaviitteiksi, kommentit pois.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
