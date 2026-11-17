@@ -78,6 +78,11 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   referenceworks.brill.com CloudFrontin takana pilvikontista, joten testaamatta eikä sovitetta.
   Gwern.net (PR #860, 17.11.2026, pahvin *20 sivustosovitetta* 16): alaviitteet, päivämäärien ja hintojen alaindeksit siivottuina.
   Los Angeles Review of Books (PR #861, 17.11.2026, pahvin *20 sivustosovitetta* 17): kirjatiedot alkuun, tukipyynnöt pois.
+  The Marginalian (17.11.2026, pahvin *20 sivustosovitetta* 18): yleinen leikkaus riittää. Mitattu kahdella kirjoituksella: lainaukset
+  tulevat lainauslohkoina (15/15), kuvat jäävät pois, tekijä ja päivä tulevat, tukipyyntöjä ei tule; vain kuvatekstit (3) jäävät
+  kappaleiksi.
+  Boston Review (17.11.2026, pahvin *20 sivustosovitetta* 19): Cloudflare estää pilvikontin, joten testaamatta eikä sovitetta.
+  3:16 (PR #862, 17.11.2026, pahvin *20 sivustosovitetta* 20): kysymykset lihavoituina, nostolainaukset pois, haastateltava tekijäksi.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -180,7 +185,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Praefaktisch: saksalainen filosofiablogi
 - Theorieblog: poliittinen teoria
 - The Philosopher (1923), Philosophy Now
-- 3:16: filosofihaastattelut
+- 3:16: filosofihaastattelut (tehty 17.11.2026, ks. yllä)
 - Philosophers' Imprint, Ergo, JESP: avoimet lehdet
 - Con-Textos Kantianos, Kant e-Prints: avoimet Kant-lehdet
 - Open Philosophy, Open Theology (De Gruyter, avoimet)
@@ -490,13 +495,13 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Lapham's Quarterly
 - Public Domain Review
 - JSTOR Daily
-- The Marginalian
+- The Marginalian (yleinen leikkaus riittää 17.11.2026, ks. yllä)
 - Emergence Magazine (tehty 16.11.2026, ks. yllä)
 - Orion
 - Hedgehog Review
 - The New Atlantis
 - The Point
-- Boston Review
+- Boston Review (testaamatta 17.11.2026: estää pilvikontin, ks. yllä)
 - n+1
 - The Baffler
 - The Drift
