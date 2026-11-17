@@ -395,7 +395,12 @@ palvelin.listen(0, async () => {
     L.aset.janaTaso = 2; L.aset.kmJanalla = 1;
     return a; }, [vs.r.x0, vs.r.x1]);
   const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
-  const kvantti = vs.xt.every(pysakki), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
+  // Yli 10 %:n välillä kahden pysäkin välissä saa valita vapaasti (käyttäjän pyyntö 17.11.2026).
+  const vapaa = await p.evaluate(([x0, x1]) => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total;
+    const f = L.janaPysakit().map(m => o(m.k)).sort((a, b) => a - b), v = [];
+    for (let i = 1; i < f.length; i++) if (f[i] - f[i - 1] > .1) v.push([x0 + f[i - 1] * (x1 - x0), x0 + f[i] * (x1 - x0)]);
+    return v; }, [vs.r.x0, vs.r.x1]);
+  const kvantti = vs.xt.every(x => pysakki(x) || vapaa.some(([a, c]) => x > a && x < c)), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
   const perille = pys.some(s => s.k === vs.jalkeen.a.b + ':' + vs.jalkeen.a.o);
   tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && vs.raja && kvantti && piilotettu && perille && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
     'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' +

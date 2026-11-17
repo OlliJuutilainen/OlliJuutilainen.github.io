@@ -304,7 +304,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kehän sisäalaan. Merkin musteen pitää mahtua janalle, ja ensimmäisen näkyvän pääluvun vasemmalle puolelle mahtuu
   kuvitteellinen päälukumerkki (`testi.js` tarkistaa).
 - **Veto**: vierityksessä ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan). Sivutettuna osoitin pysähtyy
-  vain pysäkeille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä. Poikkeus kumpaankin (käyttäjän
+  pysäkeille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä, paitsi (käyttäjän pyyntö 17.11.2026,
+  `janaKohde()`): yli 10 %:n pysäkkivälin sisältä saa valita vapaasti, ja osuma näkyvän salmiakin musteen x-alueelle vie sen
+  keskukseen (`janaSalmiakit`). Muuta magneettia ei lisätä. Poikkeus kumpaankin lukutapaan (käyttäjän
   pyyntö 4.11.2026): osuma piirrettyyn kirjanmerkin nauhaan vie tasan kirjanmerkkiin (`janaNauhat`). Liikkeessä
   päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (e-ink).
 - ***Palaa takaisin* -laatikko vain lähdeviittauksesta, haulla (toistaiseksi) ja aikajanalta ≥ 50 %** (käyttäjän

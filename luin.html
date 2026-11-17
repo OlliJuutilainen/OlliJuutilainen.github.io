@@ -6850,8 +6850,9 @@
     });
     return pois;
   }
-  // Piirretyt kirjanmerkkinauhat maalausjärjestyksessä (päällimmäinen viimeisenä) osumaa varten, ks. janaKohde().
-  var janaNauhat = [];
+  // Piirretyt kirjanmerkkinauhat ja etappisalmiakit maalausjärjestyksessä (päällimmäinen viimeisenä) osumaa varten,
+  // ks. janaKohde().
+  var janaNauhat = [], janaSalmiakit = [];
   function piirraJana() {
     var svg = $('#jana-svg');
     if (!nyt || $('#jana').hidden || !svg.getClientRects().length) return;
@@ -6914,6 +6915,7 @@
       });
     kohteet = kohteet.filter(function (m) { return kmPois.indexOf(m) < 0; });
     var nauhatTul = [], nauhatLu = [];
+    janaSalmiakit = [];
     kohteet.forEach(function (m) {
       var f = osuus(m.k), x = X(f), on = f <= wf, d;
       // Paluumajakan kummitusmerkki: ontto kolmio ja katkoviiva nykyisen kohdan osoittimen alla.
@@ -6922,6 +6924,7 @@
       else {
         var lvl = Math.min(m.lvl, 3), r = JANA.koko[lvl];
         d = '<path class="j' + lvl + '" d="' + sal(x, y, r[0], r[1]) + '"/>';
+        janaSalmiakit.push({ x: x, karki: janaKarjet(lvl).karki, k: m.k, nimi: m.nimi });
       }
       // Etappi ja kirjanmerkki saavat osuutensa, jotta vedenjakaja() voi vaihtaa ne luetuiksi tai tuleviksi piirtämättä janaa.
       d = '<g data-f="' + f + '"' + (on ? '' : ' class="tuleva"') + '><title>' + esc(m.nimi) + '</title>' + d + '</g>';
@@ -6978,7 +6981,7 @@
     return (sivuAlut[p] = k);
   }
   // Käyttäjän päätös 21.10.2026: vierityksessä aikajanalla ei ole magneettia, vaan napautus ja veto
-  // vievät suhteelliseen kohtaan. Sivutettuna välimuotoja ei ole: osoitin pysähtyy vain merkkeihin,
+  // vievät suhteelliseen kohtaan. Sivutettuna osoitin pysähtyy merkkeihin (poikkeukset janaKohde()ssa),
   // eli tekstin alkuun, viimeisen sivun alkuun, jokaisen tason otsikoihin (myös alalukujen alalukuihin), kirjanmerkkeihin,
   // paluumajakkaan ja voimassa olevaan kohtaan (haamuun), ja lähin voittaa. Pysäkit ovat samat
   // riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. E-ink-näyttö päivittyy näin
@@ -7004,10 +7007,25 @@
     if (y >= JANA.km && y <= JANA.km + JANA.kmKorkeus)
       for (var i = janaNauhat.length - 1; i >= 0; i--) if (Math.abs(x - janaNauhat[i].x) <= JANA.kmLeveys / 2) return janaNauhat[i];
     if (aset.sivutus === 'sivut') {
-      var paras = null, ero = Infinity;
-      janaPysakit().forEach(function (m) { var d = Math.abs(osuus(m.k) - f); if (d < ero) { ero = d; paras = m; } });
-      return paras;
+      // Käyttäjän pyyntö 17.11.2026: osuma näkyvän etappisalmiakin musteen x-alueelle vie salmiakin kohtaan (päällimmäinen
+      // ensin), ja yli 10 %:n välillä kahden pysäkin välissä saa valita minkä kohdan tahansa; muuten lähin pysäkki. Muuta
+      // magneettia ei ole.
+      for (var j = janaSalmiakit.length - 1; j >= 0; j--) if (Math.abs(x - janaSalmiakit[j].x) <= janaSalmiakit[j].karki) return janaSalmiakit[j];
+      var paras = null, ero = Infinity, ala = -Infinity, yla = Infinity;
+      janaPysakit().forEach(function (m) {
+        var g = osuus(m.k), d = Math.abs(g - f);
+        if (d < ero) { ero = d; paras = m; }
+        if (g <= f && g > ala) ala = g;
+        if (g >= f && g < yla) yla = g;
+      });
+      return yla - ala > JANA_VAPAA ? janaVapaa(f) : paras;
     }
+    return janaVapaa(f);
+  }
+  // Sivutetulla aikajanalla kahden pysäkin väli, jonka sisältä saa valita vapaasti (osuus tekstin pituudesta).
+  var JANA_VAPAA = .1;
+  // Suhteellinen kohta f (0–1) tekstin kohdaksi merkkimäärän mukaan.
+  function janaVapaa(f) {
     var pos = f * nyt.total, b = 0;
     for (var i = 0; i < nyt.cum.length; i++) if (nyt.cum[i] != null && nyt.cum[i] <= pos) b = i;
     var o = clamp(Math.round(pos - nyt.cum[b]), 0, Math.max(0, nyt.txt[b].length - 1));
@@ -8047,7 +8065,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
