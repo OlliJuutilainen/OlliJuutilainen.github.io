@@ -106,6 +106,13 @@
   ul.sivustot li, .selite, h2.kirjain { position: relative; padding-left: 37px; }
   .super svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: var(--ruoste); }
   .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
+  /* Mutrudollari (käyttäjän pyyntö 17.11.2026, kokeilu): sivusto, jolle voi lahjoittaa mutta joka elää käytännössä
+     mainoksista (rahoitus: mainokset ja lahjoitukset). Oikealle 90° kiertynyt S ja vaakaviiva läpi eli makaava dollari ja
+     samalla mutrussa oleva suu. Sama sarake, koko ja keskipiste (4, 5,5) kuin supersalmiakilla; S on litistetty 0,75:een. */
+  .mutru svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: none;
+    stroke: var(--ruoste); }
+  .mutru .s { stroke-width: 1.15; }
+  .mutru .v { stroke-width: .85; }
 </style>
 </head>
 <body>
@@ -118,6 +125,9 @@
   <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>RUOSTEINEN SALMIAKKI uhoaa sertifioivan peräti ensimmäisen valioluokan
     latomustulosta. Paina samannäköistä <strong>Lukimeen</strong>-salmiakkia selaimessa jonkun tämän sivuston sisältämän
     kirjoituksen ollessa avattuna, ja sukkasi saattavat pian pyöriä ellei jopa irrota jalasta.</p>
+  <p class="johdanto selite"><span class="mutru" role="img" title="Mutrudollari: mainosten varassa, vaikka lahjoittaakin voi" aria-label="mutrudollari"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="s" d="M0.96 3.85C0.32 4.15 -0.2 4.82 -0.2 5.8C-0.2 6.7 0.43 7.45 1.58 7.45C2.74 7.45 3.48 6.7 4 5.5C4.53 4.3 5.26 3.55 6.42 3.55C7.57 3.55 8.2 4.3 8.2 5.2C8.2 6.18 7.68 6.85 7.04 7.15"/><path class="v" d="M-1.2 5.5H9.2"/></svg></span>MUTRUSUINEN DOLLARI kertoo, että sivustolle voi
+    lahjoittaa, mutta käytännössä se elää mainoksista, jotka lukimessa jäävät näkemättä. Jos yhä useampi lukisi sitä vain
+    täällä, sivuston nykyinen rahoitus voisi joutua ahtaalle. Harkitse siis lahjoitusta.</p>
 
   <nav class="aakkoset" id="aakkoset" aria-label="Alkukirjaimet" hidden></nav>
 
