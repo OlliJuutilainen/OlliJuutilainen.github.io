@@ -68,7 +68,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Internet Archive, tekstiversiot (PR #854, 17.11.2026, pahvin *20 sivustosovitetta* 10): djvu.txt-pötkö kappaleiksi.
   Joyce Project (17.11.2026, pahvin *20 sivustosovitetta* 11): ohitettu. Sivu on JavaScript-sovellus, jonka HTML on tyhjä
   kehys; teksti ja annotaatiot tulevat sovelluksen omasta rajapinnasta (pahvin sääntö 5).
-  Folger Shakespeare (PR #FONRO, 17.11.2026, pahvin *20 sivustosovitetta* 12): näytelmä puhujineen, näytöksineen, kohtauksineen
+  Folger Shakespeare (PR #855, 17.11.2026, pahvin *20 sivustosovitetta* 12): näytelmä puhujineen, näytöksineen, kohtauksineen
   ja rivinumeroineen.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
