@@ -133,6 +133,34 @@ const SOVELLUS = () => {
   // d) PageUp heti PageDownin jälkeen ei ole toistoa
   await syota([['keydown', 'PageDown', 30], ['keyup', 'PageDown', 30], ['keydown', 'PageUp', 30], ['keyup', 'PageUp', 0]]);
   tulos('PageDown ja heti PageUp: takaisin samalle sivulle', (await sivuNyt()) === d1, d1 + ' → ' + (await sivuNyt()));
+  // e) Sivu kääntyy vasta näppäimen noustessa (käyttäjän pyyntö 17.11.2026): pitkässä painalluksessa sivu ei käänny
+  // ennen hyppyä (Light Phone kävi välisivulla), ja alle 1,1 s:n pito toistoineen kääntää yhden sivun noustessaan.
+  const seuraa = (sarja) => page.evaluate((sarja) => new Promise(valmis => {
+    const nahty = [window.__luin.tila.sivu], kello = setInterval(() => { const v = window.__luin.tila.sivu; if (v !== nahty[nahty.length - 1]) nahty.push(v); }, 5);
+    let i = 0;
+    (function seur() {
+      if (i >= sarja.length) return setTimeout(() => { clearInterval(kello); valmis(nahty); }, 60);
+      const [tyyppi, avain, viive, toisto] = sarja[i++];
+      document.dispatchEvent(new KeyboardEvent(tyyppi, { key: avain, repeat: !!toisto, bubbles: true, cancelable: true }));
+      setTimeout(seur, viive);
+    })();
+  }), sarja);
+  await alku();
+  const pito = await seuraa([['keydown', 'PageDown', 500]].concat(Array.from({ length: 20 }, () => ['keydown', 'PageDown', 50, true]), [['keyup', 'PageDown', 0]]));
+  tulos('pitkä painallus: hyppy suoraan ilman välisivua', pito.length === 2 && pito[1] > pito[0] + 1, pito.join(' → '));
+  const lyhyt = await seuraa([['keydown', 'PageDown', 150], ['keyup', 'PageDown', 0]]);
+  const kesken = await page.evaluate(() => new Promise(r => {
+    const L = window.__luin, s = L.tila.sivu;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown', bubbles: true, cancelable: true }));
+    setTimeout(() => { const v = L.tila.sivu; document.dispatchEvent(new KeyboardEvent('keyup', { key: 'PageDown', bubbles: true, cancelable: true })); setTimeout(() => r([s, v, L.tila.sivu]), 50); }, 100);
+  }));
+  await tauko(200);
+  const puoli = await seuraa([['keydown', 'PageDown', 500]].concat(Array.from({ length: 6 }, () => ['keydown', 'PageDown', 50, true]), [['keyup', 'PageDown', 0]]));
+  const taakse = await seuraa([['keydown', 'PageUp', 150], ['keyup', 'PageUp', 0]]);
+  tulos('lyhyt painallus kääntää vasta noustessa, 0,8 s:n pito yhden sivun, PageUp takaisin',
+    lyhyt.length === 2 && lyhyt[1] === lyhyt[0] + 1 && kesken[1] === kesken[0] && kesken[2] === kesken[0] + 1 &&
+    puoli.length === 2 && puoli[1] === puoli[0] + 1 && taakse.length === 2 && taakse[1] === taakse[0] - 1,
+    JSON.stringify({ lyhyt, kesken, puoli, taakse }));
 
   // Sivunkäännön tavat: sovelluksessa kaikki saa sammuttaa, koska napit kääntävät aina (käyttäjän pyyntö 16.11.2026);
   // selaimessa viimeinen jää päälle.

@@ -125,7 +125,7 @@ palvelin.listen(0, async () => {
   const harha = await p.evaluate(() => {
     const L = window.__luin, v = [];
     for (let s = 0; s < L.tila.sivuja; s++) {
-      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: s ? 'ArrowRight' : 'Home', bubbles: true }));
+      for (const ty of ['keydown', 'keyup']) document.body.dispatchEvent(new KeyboardEvent(ty, { key: s ? 'ArrowRight' : 'Home', bubbles: true }));
       const s0 = L.tila.sivu; L.mene(L.tila.ankkuri);
       if (L.tila.sivu !== s0) v.push(s0 + '→' + L.tila.sivu);
     }
