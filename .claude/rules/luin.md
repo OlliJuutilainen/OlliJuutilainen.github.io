@@ -137,20 +137,26 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Luin ei taivu käyttäjälle näkyvässä tekstissä** (käyttäjän päätös 16.11.2026, opas 1.3): taivutettuna *lukin* (*lukimen pino*,
   *lukimessa*, *lukimeen*, *lukinta*), ei *luinin*, *luinissa*, *luiniin*. *Luinin* vain vahvasti koko organisaation laajuisesta
   entiteetistä (*Luinin sertifioima*, Latomon *Luinin ystäviä ovat…*), ja silloin aina isolla, erisnimenä.
-- **Pino ja kellarin kampihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
-  näkymä *Kellarin kampihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; 17.11.2026, ennen *Kellarin veivihyllystö* ja *Uumen*). Nimi on aina kokonainen, ei pelkkä
-  *kampihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
-  ei *pinolle*), samoin kellarin kampihyllystö (*kellarin kampihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+- **Pino ja cellarin campihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
+  näkymä *Cellarin campihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; käyttäjän nimi 17.11.2026, c:llä tarkoituksella; samana päivänä ennen *Kellarin kampihyllystö*, ennen *Kellarin veivihyllystö* ja *Uumen*). Nimi on aina kokonainen, ei pelkkä
+  *campihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
+  ei *pinolle*), samoin cellarin campihyllystö (*cellarin campihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
   `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *uumenta*, *hyllyä*,
-  *pölyhyllyä* eikä *arkistohyllyä* (*kellarin kampihyllystö* on käyttäjän nimeämä poikkeus).
-- **Kellarin kampihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+  *pölyhyllyä* eikä *arkistohyllyä* (*cellarin campihyllystö* on käyttäjän nimeämä poikkeus).
+- **Cellarin campihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki kellarin kampihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
-  *Luin.* ja *Poimi kellarin kampihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
-- **Ö-mappien ö-mappi** (käyttäjän pyyntö ja nimi 17.11.2026, `#omappi`, opas 2.4): kellarin kampihyllystön nimikkeen ja
-  valittujen valikossa pinoon noston rinnalla *Siirrä ö-mappien ö-mappiin.*, ö-mapista *Palauta kellarin kampihyllystöön.*
-  `e.omappi` (aika) lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki on kellarin alalaidassa
-  kuten kellarilinkki pinossa (versaali, nuoli, ei kampea) ja vain, kun siellä on jotain. Testi `omappi-testi.js`.
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki cellarin campihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
+  *Luin.* ja *Poimi cellarin campihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+- **Ö-mappien mappi ö** (käyttäjän pyyntö ja nimi 17.11.2026, ensin *ö-mappien ö-mappi*; `#omappi`, opas 2.4): taipuu
+  *ö-mappien mappiin ö*, *-mapissa ö*, *-mapista ö* (ö aina viimeisenä). Cellarin campihyllystön nimikkeen ja valittujen
+  valikossa pinoon noston rinnalla *Siirrä ö-mappien mappiin ö.*, sieltä *Palauta cellarin campihyllystöön.* `e.omappi` (aika)
+  lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`) on kellarin alalaidassa vain,
+  kun siellä on jotain: ääripäiden ö:t ovat mappisulkimen renkaita (säde kammen säde, alareuna alleviivauksella, ylhäällä keskellä
+  viisto rako, jossa ulkokaaren reunat ovat lähempänä kuin sisäkaaren; ö:n pisteet samanlaisia pieniä renkaita), alleviivaus
+  renkaan alakärjestä toiseen, ei nuolta. Ö-mapin otsikossa ei tyylittelyä: *Ö-mappien mappi* ja perässä pelkkä pieni ö
+  (`.omerkki`, 1,2 em, paino 600) otsikon merkkien tapaan (rako 1 em, musteen keskikohta kammen navan korkeudella). Ö-mapissa
+  ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki peilattuna (`#ark-paluu`:
+  nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
 - **Kellarin kampi** (käyttäjän pyynnöt 16.–17.11.2026): kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
   ylös (ensin 40°). Pinon otsikon perässä samalla idealla pinomerkki (`PINOM`). Molemmat hyvin pieninä (kampi 1,05 em, pinomerkki 1,15 em
@@ -164,12 +170,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
   (suurennettu 12.11.2026 kahdesti, ennen 28 px ja 22 px; musteen paikat ennallaan: alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
   `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
-- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (kellarin kampihyllystö ja alasivut: Latomo, ohjeet, palaute,
+- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (cellarin campihyllystö ja alasivut: Latomo, ohjeet, palaute,
   tietosuoja) vaakapaikka on sama kaikkialla eli pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
   loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
-  joten pystypaikka eroaa kellarin kampihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä pinomerkin vasemmalla
-  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja kampihyllystölinkki pinon alalaidassa on versaalia.
+  joten pystypaikka eroaa cellarin campihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Cellarin campihyllystössä pinomerkin vasemmalla
+  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja campihyllystölinkki pinon alalaidassa on versaalia. Ö-mappien mapissa ö ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, linkki, *Lataa md*,
   tiedot ja laitos, *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). *Luin.* on molemmissa salmiakkivalikoissa
@@ -188,12 +194,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (`kohdista()`), ei pelkällä katkelmahaulla (osui naapurikappaleeseen). **Pino pysyy pinona**: laitos näkyy vain tietorivin
   *2. laitos* -sanoina, ei kansioita, ryhmiä eikä erikoisvärejä (käyttäjän linjaus 15.11.2026). Testi `laitos-testi.js`. Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
 - **Luokittelu ja kellarin järjestys** (käyttäjän pyyntö 17.11.2026, opas 2.5, selvitys `docs/mietintamyssy/luin-kellarin-jarjestys.md`):
-  pino pysyy tulojärjestyksessä eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin kampihyllystössä.
+  pino pysyy tulojärjestyksessä eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain cellarin campihyllystössä.
   Nimikkeen kentät (`asiasanat`, `ajoitus`, `kasikirja`) ovat totuus ja etukentän `asiasanat:`/`ajoitus:` niiden peili: avaimeton
   tuonti ei pyyhi niitä (`lkMdsta(…, false)`), vain *Muuta metatietoja* ja korvaava laitos (`tosi`, etukenttä kirjoitetaan ennen
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
-  muistuteta (käyttäjän vaatimus: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös 17.11.2026): se on aina kellarin
-  kampihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
+  muistuteta (käyttäjän vaatimus: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös 17.11.2026): se on aina cellarin
+  campihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
   Postihuilu eivät nosta sitä; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys).
 - **Rahoitushuomautus** (käyttäjän säännöt 15.11.2026, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
@@ -550,7 +556,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio pinossa ja asetuksissa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien ö-mappi ja kellarin otsikon kampi.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien mappi ö ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Mustin ja TCF-valkaisu.
