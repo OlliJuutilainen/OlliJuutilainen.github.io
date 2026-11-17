@@ -227,7 +227,11 @@
      pystykeskellä: säde 0,894 em on mitattu versaalien keskeltä (perusviivan ja versaalikorkeuden puoliväli) alleviivauksen
      keskelle. Suora jatke on reunaviiva kuten varsi (sama pikselikohdistus), svg:nä vain kaari ja kampi; kaaren vasen reuna
      2,188 em tekstin vasemmasta reunasta (säde kahdesti ja 0,4 em:n rako). Kaari on linkin sisällä, joten sekin vie kellarin
-     veivihyllystöön. */
+     veivihyllystöön.
+     Napa (käyttäjän valinta 16.11.2026, vertailu luin/kehitys/veivinavat.html): navasta lähtee tasan ylös varsi, joka kiepsahtaa
+     vastapäivään ulkokaaren peilikuvaksi (225° pohjoisesta kaakkoon; ulkokaari 225° etelästä koilliseen). Molempien aukko on
+     idässä, ja kampi tulee aukosta. Säde 0,3915 viewBoxin yksikköä eli 0,35 em: keskiviivan halkaisija on Literatan
+     versaalikorkeus 0,70 em, joten kehä on perusviivan ja versaalilinjan välissä (mitattu: muste puolen viivan yli kuten pyöreissä kirjaimissa). */
   .ark-linkki a::before { content: ""; position: absolute; right: 100%; bottom: -1px; width: calc(1.294em + .5px); height: 0; border-bottom: 1px solid currentColor; }
   .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -1px; width: 1.788em; height: 1.788em; overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
@@ -305,11 +309,14 @@
   #huilulohko.auki button.lisaa-ots .sal { fill: currentColor; }
   #huilulohko:not(.auki) > :not(.lisaa-ots-rivi), #huilulohko:not(.auki) .lisaa-ots-rivi > :not(.lisaa-ots) { display: none; }
   /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js): vino huilu otsikon oikealla puolella (.huilu-paikka),
-     sen kellosta kulmikas kolmilinja oikealle (enintään neljä jaksoa), ja nuotit Soita huilua! -napin yläpuolelle vasta
-     painalluksesta (leveällä näytöllä, kun siksak ei ulotu napin yläpuolelle, viivaston loppupäähän napin levyiseltä matkalta).
+     sen kellosta kulmikas kolmilinja oikealle (enintään neljä jaksoa), ja kolme nuottia Soita huilua! -napin yläpuolelle
+     vasta painalluksesta.
      piirraHuilu() piirtää kuvion mitatuista paikoista lohkon päälle (svg.huilukuvio); .huilukaista on viivaston tila.
      Otsikon harmaa, ei ruostetta (ruoste = napautettava). */
   .huilulohko { position: relative; }
+  /* Pinossa lohko on enintään 24rem leveä (16.11.2026): enintään neljän jakson siksak ulottuu silloin Soita huilua! -napin
+     yläpuolelle myös leveällä näytöllä, ja nuotit soivat aina napin kohdalla. */
+  #huilulohko { max-width: 24rem; }
   svg.huilukuvio { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; color: var(--harmaa); }
   .huilu-paikka { flex: 0 0 auto; width: 24px; height: 18px; margin-left: 6px; }
   /* Korkeuden asettaa piirraHuilu() kuvion mukaan. Ei luokkaa .asetus: se on asetusrivin luokka alareunaviivoineen. */
@@ -1334,7 +1341,7 @@
   </div>
   <!-- Kellarin veivihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1 .953"/></svg>kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1 .953V.5615A.3915 .3915 0 1 0 1.2768 1.2298"/></svg>kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
@@ -1523,7 +1530,7 @@
 <script src="luin/md.js?v=379d058a"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=ef332137"></script>
+<script src="luin/huilu.js?v=3ef9ca91"></script>
 <script>
 (function () {
   'use strict';
@@ -2432,7 +2439,9 @@
      .huilukaista (viivaston tila), .huilunappi (Soita huilua!) ja pinossa .huilu-paikka otsikon vieressä. Huilu on
      68° kulmassa; viivasto kulkee kellosta lohkon oikeaan reunaan, ja nuotit (lohko._nuotit) piirtyvät napin kohdalle.
      Ne arvotaan uudelleen joka painalluksella eivätkä liiku (e-ink: ei animaatiota). */
-  var HUILU = { T: 6, sw: .75, kulma: 68 };
+  // sp: viivaväli (16.11.2026 syvennetty 5 → 8). Ylin viiva pysyy siinä, missä se oli välillä 5 (6 px huilun alapuolella
+  // + väli), joten syvennys kasvattaa kuviota alaspäin.
+  var HUILU = { T: 6, sw: .75, kulma: 68, sp: 8 };
   function piirraHuilu(lohko) {
     var svg = lohko && lohko.querySelector('svg.huilukuvio'), R = lohko && lohko.getBoundingClientRect();
     if (!svg || !R.width) return;
@@ -2445,16 +2454,16 @@
     if (paikka) { var P = paikka.getBoundingClientRect(); vasen = P.left - R.left + (P.width - r.w) / 2; yla = P.top - R.top - 8; }
     else {
       yla = kaista.top - R.top + 2;
-      var k0 = LuinHuilu.kaista({ vasen: 0, yla: yla, keskiY: yla + r.h + 11, oikea: 1e5, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma });
+      var k0 = LuinHuilu.kaista({ vasen: 0, yla: yla, keskiY: yla + r.h + 6 + HUILU.sp, oikea: 1e5, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma, sp: HUILU.sp });
       vasen = Math.max(8, nappi.right - R.left - k0.loppu - .01);
     }
-    var opt = { vasen: vasen, yla: yla, keskiY: yla + r.h + 11, oikea: R.width, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma };
+    var opt = { vasen: vasen, yla: yla, keskiY: yla + r.h + 6 + HUILU.sp, oikea: R.width, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma, sp: HUILU.sp };
     var k = LuinHuilu.kaista(opt);
     if (k.vasenReuna < 2) { opt.vasen += 2 - k.vasenReuna; k = LuinHuilu.kaista(opt); }
     var sis = k.svg;
-    // Nuotit napin yläpuolelle; jos lyhentynyt siksak (16.11.2026) loppuu ennen napin oikeaa reunaa, napin levyiselle
-    // matkalle viivaston loppuun.
-    var nx1 = Math.min(nappi.right - R.left, k.loppu), nx0 = Math.min(nappi.left - R.left, nx1 - nappi.width);
+    // Nuotit aina napin x-välille (käyttäjän vaatimus 16.11.2026), myös jos siksak loppuu ennen napin oikeaa reunaa.
+    // Pinossa lohko on siksi enintään 24rem leveä (CSS), jotta lyhyt siksak ulottuu napin yläpuolelle.
+    var nx0 = nappi.left - R.left, nx1 = Math.min(nappi.right - R.left, k.loppu);
     if (lohko._nuotit) sis += '<path class="nuotit" d="' + LuinHuilu.nuotit(k, nx0, nx1, lohko._nuotit) + '" fill="currentColor"/>';
     // Kaistan korkeus kuvion mukaan (viivasto, siksak ja nuotit mahtuvat; kenttä tai nappi alkaa 3 px alempana).
     var korkeus = Math.ceil(k.alaY - (kaista.top - R.top)) + 3 + 'px';
