@@ -76,7 +76,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   yleistetty, fi/en/lt ennallaan.
   Encyclopaedia Iranica (17.11.2026, pahvin *20 sivustosovitetta* 15): iranicaonline.org on Cloudflaren haasteen ja Brillin
   referenceworks.brill.com CloudFrontin takana pilvikontista, joten testaamatta eikä sovitetta.
-  Gwern.net (PR #GWNRO, 17.11.2026, pahvin *20 sivustosovitetta* 16): alaviitteet, päivämäärien ja hintojen alaindeksit siivottuina.
+  Gwern.net (PR #860, 17.11.2026, pahvin *20 sivustosovitetta* 16): alaviitteet, päivämäärien ja hintojen alaindeksit siivottuina.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
