@@ -6,7 +6,8 @@
 // Tuottaa:
 //   icons/tusinasaa.svg            välilehden kuvake
 //   icons/tusinasaa-180.png        apple-touch-icon (tumma; iOS täyttää läpinäkyvän mustalla)
-//   icons/tusinasaa-192.png, -512.png   manifest.webmanifest (tumma, any + maskable)
+//   icons/tusinasaa-192.png, -512.png   manifest.webmanifest, any (näkyvä 72 yksikön alue)
+//   icons/tusinasaa-maskable-512.png    manifest, maskable: koko 108 kangas, koska maskin turva-alue on säde 40 %
 //   icons/tusinasaa-32.png         välilehti selaimille, jotka eivät näytä SVG-kuvaketta (Big Surin Safari)
 //   android/app/src/main/res/…     käynnistyskuvake: adaptiivinen (Android 8+) ja monokromi (13+ teemakuvake)
 //
@@ -32,9 +33,9 @@ const K = 108, C = K / 2;
 const P = 1.8;                 // pikselin sivu
 const R = 23.4;                // kehän säde (viivan keskeltä)
 const KEHA = 1.4;              // kehän viiva
-const RAKO = 1.6;              // kehän ulkoreunasta kolmion kantaan
-const KOLMIO_K = 4.4;          // kolmion korkeus
-const KOLMIO_L = 4.8;          // kolmion kanta
+const RAKO = 2.4;              // kehän ulkoreunasta kolmion kantaan
+const KOLMIO_K = 6;            // kolmion korkeus
+const KOLMIO_L = 6.4;          // kolmion kanta
 
 const MERKIT = {
   T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
@@ -97,8 +98,8 @@ ${t}
 
 // Kotivalikon ja manifestin kuvakkeet: näkyvä 72 yksikön alue (Androidin maski) koko kuvaksi.
 const NAKYVA = `${C - 36} ${C - 36} 72 72`;
-// Välilehti: ympyrä tiiviisti, pieni reunus kolmioiden ulkopuolelle.
-const VALILEHTI = `${C - 32} ${C - 32} 64 64`;
+// Välilehti: ympyrä tiiviisti, pieni reunus kolmioiden kärkien (säde 32,5) ulkopuolelle.
+const VALILEHTI = `${C - 34} ${C - 34} 68 68`;
 
 async function png(sivu, sisalto, koko, tiedosto) {
   await sivu.setViewportSize({ width: koko, height: koko });
@@ -162,6 +163,7 @@ if (require.main === module) (async () => {
   const s = await b.newPage();
   await png(s, svg(TUMMA, { viewBox: VALILEHTI, tausta: 'ympyra' }), 32, path.join(IKONIT, 'tusinasaa-32.png'));
   for (const k of [180, 192, 512]) await png(s, svg(TUMMA, { viewBox: NAKYVA }), k, path.join(IKONIT, `tusinasaa-${k}.png`));
+  await png(s, svg(TUMMA), 512, path.join(IKONIT, 'tusinasaa-maskable-512.png'));
   await b.close();
   android();
 })();
