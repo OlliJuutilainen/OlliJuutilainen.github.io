@@ -48,6 +48,9 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   *Von* ja julkaisupäivä puuttuu.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
   on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
+  Pressbooks (PR #834, 17.11.2026, pahvin *20 sivustosovitetta* 1): alustasovite, luvun sivulta koko kirja osineen ja
+  alaviitteineen, metatiedot kirjan tietueesta. pressbooks.pub ja useimmat yliopistojen verkot estävät pilvikontin, joten mitattu
+  TMU:n ja PALNI:n palvelimilla.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -62,7 +65,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - **Hypotheses.org**: OpenEditionin tutkijablogit (fr, de, en)
 - **Open Journal Systems**: journal.fi, Études Ricoeuriennes, The Medieval Review ym. Artikkelit ovat usein pdf:nä;
   HTML-galleyt ovat vähemmistö.
-- **Pressbooks**: avoimet oppikirjat
+- **Pressbooks**: avoimet oppikirjat (tehty 17.11.2026, ks. yllä)
 - **MediaWiki**: No Subject, Rigpa Wiki, OrthodoxWiki, Scholarpedia, Wittgenstein Project, Monoskop, ortodoksi.net,
   Wikipedia muilla kielillä (de, sv, fr). Wikipedia-sovite on jo olemassa: tutki, yleistyykö se.
 - **eScholarship** (Kalifornian yliopisto)
