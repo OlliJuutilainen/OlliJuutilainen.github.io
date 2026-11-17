@@ -53,7 +53,7 @@ for (const [lev, n0, w] of [[288, 171.14, 320], [328, 211.14, 360], [358, 241.14
   // Tasaisesti kiihtyvä (käyttäjän sääntö 17.11.2026): kaarevuus (käänne pituutta kohti) muuttuu pisteestä toiseen vain vähän
   // koko kaaren ja aallon matkalla, myös kaaren ja aallon saumassa (piste 80).
   for (const vv of kaikkiPisteet) {
-    const v = vv.slice(0, 81 + 24), kap = [];
+    const v = vv.slice(0, 81), kap = [];
     // Kaarevuus jänteistä neljän pisteen päähän: koordinaatit on pyöristetty 0,01 px:iin, ja lähekkäisten pisteiden
     // käänne olisi pyöristyskohinaa.
     const W = 4;
@@ -68,13 +68,42 @@ for (const [lev, n0, w] of [[288, 171.14, 320], [328, 211.14, 360], [358, 241.14
       kap[j] = t / ((Math.hypot(v[j][0] - v[j - W][0], v[j][1] - v[j - W][1]) + Math.hypot(v[j + W][0] - v[j][0], v[j + W][1] - v[j][1])) / 2);
     }
     for (let j = W + 1; j < v.length - W; j++) nyk = Math.max(nyk, Math.abs(kap[j] - kap[j - 1]));
-    sauma = Math.max(sauma, Math.abs(kap[80 + W] - kap[80 - W]));
+    // Laakson suoraan (kaarevuus 0) splini saapuu lähes suorana.
+    sauma = Math.max(sauma, Math.abs(kap[80 - W]));
   }
   const vara = k.syli > n0;
+  // Perustuslaki (käyttäjä 17.11.2026): viivat eivät leikkaa toisiaan missään (kaari, laakso ja siksak). Suulla ne lähtevät
+  // samasta pisteestä, joten kaksi ensimmäistä janaa ohitetaan.
+  const leikkaa = (a, b, c, e) => { const r = (p, q, s2) => (q[0] - p[0]) * (s2[1] - p[1]) - (q[1] - p[1]) * (s2[0] - p[0]);
+    return r(a, b, c) * r(a, b, e) < 0 && r(c, e, a) * r(c, e, b) < 0; };
+  let ristit = 0;
+  for (let i = 0; i < kaikkiPisteet.length; i++) for (let i2 = i + 1; i2 < kaikkiPisteet.length; i2++) {
+    const A = kaikkiPisteet[i], B = kaikkiPisteet[i2];
+    for (let j = 2; j < A.length - 1; j++) for (let j2 = 2; j2 < B.length - 1; j2++) if (leikkaa(A[j], A[j + 1], B[j2], B[j2 + 1])) ristit++;
+  }
+  tulos(`syli ${w} px: viivat eivät leikkaa toisiaan`, ristit === 0, ristit + ' leikkausta');
   tulos(`syli ${w} px: alin viiva kiertää suun vasemman kautta`, vasemmalla > (w < 380 ? 7 : 12), Math.round(vasemmalla * 10) / 10 + ' px suun vasemmalla puolella');
-  tulos(`syli ${w} px: viuhkan välit eivät kasaannu eivätkä repeä paljon kaaren loppupuoliskolla`, valit[0] > .7 * k.sp && valit[1] < 2 * k.sp, valit.map(x => Math.round(x * 10) / 10).join('–') + ' px (väli ' + k.sp + ')');
+  tulos(`syli ${w} px: viuhkan viivat eivät kosketa toisiaan eivätkä välit veny ilman syytä`, valit[0] > 2 && valit[1] < 2.5 * k.sp, valit.map(x => Math.round(x * 10) / 10).join('–') + ' px (väli ' + k.sp + ')');
   tulos(`syli ${w} px: ei kärkeä kaarella (suurin käänne pisteiden välillä)`, karki < .3, Math.round(karki * 180 / Math.PI) + '°');
-  tulos(`syli ${w} px: kaarevuus muuttuu tasaisesti, myös kaaren ja aallon saumassa`, nyk < .08 && sauma < .05, 'suurin muutos ' + nyk.toFixed(4) + ', sauma ' + sauma.toFixed(4) + ' 1/px');
+  // Ulkomutka (käyttäjän ohje 17.11.2026): alimman viivan alin kohta suunnilleen suun kohdalla x-akselilla.
+  const ala0 = viivat[0].reduce((a, q) => q[1] > a[1] ? q : a), pohjaSuulla = Math.abs(ala0[0] - k.alku[0]);
+  tulos(`syli ${w} px: alimman viivan alin kohta suun kohdalla`, vara || pohjaSuulla < .35 * k.jakso / 2, Math.round(pohjaSuulla * 10) / 10 + ' px suun x:stä');
+  // Ei muhkuroita (käyttäjä 17.11.2026): alimman viivan nousussa pohjasta harjalle on yksi käänne (kaarevuuden merkki
+  // vaihtuu kerran), kuten ilman nousun siirtoa. Kaarevuus jänteistä neljän pisteen päähän ja viiden pisteen liukuva keskiarvo.
+  const N = viivat[0], kN = [];
+  let pohjaJ = 0; N.forEach((q, j) => { if (q[1] > N[pohjaJ][1]) pohjaJ = j; });
+  for (let j = 4; j < 77; j++) {
+    let t = Math.atan2(N[j + 4][1] - N[j][1], N[j + 4][0] - N[j][0]) - Math.atan2(N[j][1] - N[j - 4][1], N[j][0] - N[j - 4][0]);
+    while (t > Math.PI) t -= 2 * Math.PI; while (t < -Math.PI) t += 2 * Math.PI;
+    kN[j] = t;
+  }
+  let kaanteet = 0, merkki = 0;
+  for (let j = Math.max(pohjaJ, 6); j < 75; j++) {
+    const ka = (kN[j - 2] + kN[j - 1] + kN[j] + kN[j + 1] + kN[j + 2]) / 5, m = Math.abs(ka) < .01 ? 0 : Math.sign(ka);
+    if (m && m !== merkki) { if (merkki) kaanteet++; merkki = m; }
+  }
+  tulos(`syli ${w} px: alimman nousussa yksi käänne, ei muhkuroita`, kaanteet === 1, kaanteet + ' käännettä');
+  tulos(`syli ${w} px: kaarevuus muuttuu tasaisesti, myös kaaren ja laakson saumassa`, nyk < .08 && sauma < .05, 'suurin muutos ' + nyk.toFixed(4) + ', kaarevuus laakson saumassa ' + sauma.toFixed(4) + ' 1/px');
 }
 // Nuotit (käyttäjän säännöt 12.11.2026 ja 16.11.2026): tasan kolme napin kohdalla, viivaston sisällä, jakson keskellä, ei kahta
 // tyhjää peräkkäin, ei samaa korkeutta peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).
@@ -101,12 +130,11 @@ for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 28
     // siksak päättyy, puoli väliä sen jälkeen laskevan viivan lepokohdassa (17.11.2026; ensin 0,12 väliä).
     // Syli (17.11.2026): nouseva kaari huilun suusta tarttuu ylämäen puoliväliin 1,5 väliä ennen napin alkua (suoraa puoli väliä
     // yläkulmaan, yhtä pitkä kuin napin lopettava alamäki); varamenettelyssä napin ensimmäisen ylämäen puoliväliin.
-    // Aalto (17.11.2026): ei suoraa napin vasemmalla; harja yläkulmien korkeudella väliä ennen napin alkua (varamenettelyssä
-    // väli napin alun jälkeen), siitä jyrkkenevä ympyränkaari napin alun alakulmaan (ei loiventumista kulmaa kohti).
+    // Syli (17.11.2026): harja yläkulmien korkeudella väliä ennen napin alkua (varamenettelyssä väli napin alun jälkeen), siitä
+    // melko suora laakso napin alun alakulmaan (ei loiventumista kulmaa kohti).
     const tri = x => k.y(x, 0) - k.y(k.xz, 0), vali = k.jakso / 2, vara = !lahes(k.syli, n0 - vali);
     if (!lahes(k.loppu, n1) || !lahes(vali, (n1 - n0) / 3.5) || Math.abs(tri(n1 - .5 * vali) + k.amp) > 1e-6 || Math.abs(tri(n1)) > 1e-6 ||
-      Math.abs(tri(k.syli) + k.amp) > 1e-6 || Math.abs(tri(k.syli + vali) - k.amp) > 1e-6 ||
-      !(tri(k.syli + vali) - tri(k.syli + vali - .5) > tri(k.syli + vali / 2 + .5) - tri(k.syli + vali / 2)) || !(tri(k.syli + .5) - tri(k.syli) < .05) ||
+      Math.abs(tri(k.syli) + k.amp) > 1e-6 || Math.abs(tri(k.syli + vali) - k.amp) > 1e-6 || Math.abs(tri(k.syli + vali / 2)) > 1e-6 ||
       (vara ? !lahes(k.syli, n0 + vali) : Math.abs(tri(n0) - k.amp) > 1e-6) ||
       Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
     // Tasan kolme nuottia (käyttäjä 16.11.2026), napin kohdalla, eikä soiton sisällä kahta tyhjää jaksoa peräkkäin.
@@ -172,17 +200,19 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const kaariLoppu = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L')[80].split(' ').map(Number);
       const paa = pts.pop(), x0 = n.left - R.left, x1 = n.right - R.left, sis = pts.filter(q => q[0] > x0 - .1 && q[0] < x1 + .1);
       const ys = pts.map(q => q[1]), ala = Math.max(...ys), yla = Math.min(...ys), eka = sis[0], vika = sis[sis.length - 1];
-      // Kaaren pää on harja väliä ennen napin alkua yläkulmien korkeudella, ja siitä lasku (24 pistettä, ei suoraa) napin alun
-      // alakulmaan jyrkkenee koko matkan (ei loiventumista kulmaa kohti) ja saapuu kulmaan siksakin nousua jyrkempänä.
-      const v = (x1 - x0) / 3.5, aalto = [kaariLoppu].concat(pts.slice(0, 24)), kalt = aalto.slice(1).map((q, j) => (q[1] - aalto[j][1]) / (q[0] - aalto[j][0]));
-      const sylissa = Math.abs(kaariLoppu[0] - (x0 - v)) < .05 && Math.abs(kaariLoppu[1] - yla) < .02 && Math.abs(aalto[24][0] - x0) < .05 &&
-        Math.abs(aalto[24][1] - ala) < .02 && kalt.every((t, j) => !j || t >= kalt[j - 1] - .02) && kalt[kalt.length - 1] > (ala - yla) / v;
+      // Kaaren harja (ylin kohta pohjan jälkeen) on yläkulmien korkeudella, ja kaari päättyy laakson suoralle, joka kulkee
+      // harjan paikasta (väli ennen nappia) napin alun alakulmaan; seuraava piste on se kulma.
+      const v = (x1 - x0) / 3.5, kaari = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(0, 81).map(t => t.split(' ').map(Number));
+      let pj = 0; kaari.forEach((q, j) => { if (q[1] > kaari[pj][1]) pj = j; });
+      const harja = Math.min(...kaari.slice(pj).map(q => q[1])), suoralla = yla + (ala - yla) * (kaariLoppu[0] - (x0 - v)) / v;
+      // Harja saa olla 1 px yläkulmien alapuolella: alinta siirretään nousussa ulospäin (käyttäjä 17.11.2026, ks. huilu.js nousuUlos).
+      const sylissa = harja - yla > -.3 && harja - yla < 1 && Math.abs(kaariLoppu[1] - suoralla) < .05 && Math.abs(pts[0][0] - x0) < .05 && Math.abs(pts[0][1] - ala) < .02;
       return { sylissa, vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
     const kpOk = k => k.paa < .05 && k.vikaYla && k.yli > 13 && k.yli < 21 && k.paaAlempana;
     const kp = await kulmat('#huilulohko');
-    tulos(`${w} px: pinossa harja väliä ennen nappia, aalto napin alun alakulmaan, loppu alamäen puolivälissä`, kpOk(kp) && (w < 340 || kp.sylissa && kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
+    tulos(`${w} px: pinossa harja yläkulmien korkeudella, suora laakso napin alun alakulmaan, loppu alamäen puolivälissä`, kpOk(kp) && (w < 340 || kp.sylissa && kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
     const pino = () => p.evaluate(() => {
       const l = document.querySelector('#huilulohko'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit');
       const rg = document.createRange(); rg.selectNodeContents(document.querySelector('#lisaa-ots')); const t = rg.getBoundingClientRect();
