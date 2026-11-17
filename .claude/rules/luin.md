@@ -472,7 +472,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Syli** (17.11.2026, käyttäjän ohje): suusta
   kiihtyen alas ja vasemmalle, taite ja pitkä kaarros, **alin kohta suun kohdalla x-akselilla**, loiva nousu ja loiva harja yläkulmien
   korkeudella väliä ennen nappia, **laakso suora** (ei loiventumista) napin alun alakulmaan. Kukin viiva on C2-splini tukipisteiden kautta
-  (käyttäjän sääntö: ei tarpeettomia nopeita asteluvun kiihdytyksiä); ylin ei neulansilmää, välit saavat vähän revetä (`SYLI`, testi mittaa). **Pinon Postihuilu on oletuksena kiinni**
+  (käyttäjän sääntö: ei tarpeettomia nopeita asteluvun kiihdytyksiä); kaikki lähtevät suusta ilmavirran suuntaisesti ja aluksi
+  lähekkäin, keskimmäinen on ylimmän ja alimman painotettu keskiarvo (ääripäässä hiukan alimman puoleen). **Perustuslaki: viivat eivät
+  koskaan leikkaa toisiaan** (käyttäjä 17.11.2026); välit eivät veny ilman syytä. Muokkaa pienin askelin, älä rakenna uudelleen (`SYLI`, testi mittaa). **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen

@@ -72,8 +72,18 @@ for (const [lev, n0, w] of [[288, 171.14, 320], [328, 211.14, 360], [358, 241.14
     sauma = Math.max(sauma, Math.abs(kap[80 - W]));
   }
   const vara = k.syli > n0;
+  // Perustuslaki (käyttäjä 17.11.2026): viivat eivät leikkaa toisiaan missään (kaari, laakso ja siksak). Suulla ne lähtevät
+  // samasta pisteestä, joten kaksi ensimmäistä janaa ohitetaan.
+  const leikkaa = (a, b, c, e) => { const r = (p, q, s2) => (q[0] - p[0]) * (s2[1] - p[1]) - (q[1] - p[1]) * (s2[0] - p[0]);
+    return r(a, b, c) * r(a, b, e) < 0 && r(c, e, a) * r(c, e, b) < 0; };
+  let ristit = 0;
+  for (let i = 0; i < kaikkiPisteet.length; i++) for (let i2 = i + 1; i2 < kaikkiPisteet.length; i2++) {
+    const A = kaikkiPisteet[i], B = kaikkiPisteet[i2];
+    for (let j = 2; j < A.length - 1; j++) for (let j2 = 2; j2 < B.length - 1; j2++) if (leikkaa(A[j], A[j + 1], B[j2], B[j2 + 1])) ristit++;
+  }
+  tulos(`syli ${w} px: viivat eivät leikkaa toisiaan`, ristit === 0, ristit + ' leikkausta');
   tulos(`syli ${w} px: alin viiva kiertää suun vasemman kautta`, vasemmalla > (w < 380 ? 7 : 12), Math.round(vasemmalla * 10) / 10 + ' px suun vasemmalla puolella');
-  tulos(`syli ${w} px: viuhkan välit eivät kasaannu eivätkä repeä paljon kaaren loppupuoliskolla`, valit[0] > .65 * k.sp && valit[1] < 2.1 * k.sp, valit.map(x => Math.round(x * 10) / 10).join('–') + ' px (väli ' + k.sp + ')');
+  tulos(`syli ${w} px: viuhkan viivat eivät kosketa toisiaan eivätkä välit veny ilman syytä`, valit[0] > 2 && valit[1] < 2.5 * k.sp, valit.map(x => Math.round(x * 10) / 10).join('–') + ' px (väli ' + k.sp + ')');
   tulos(`syli ${w} px: ei kärkeä kaarella (suurin käänne pisteiden välillä)`, karki < .3, Math.round(karki * 180 / Math.PI) + '°');
   // Ulkomutka (käyttäjän ohje 17.11.2026): alimman viivan alin kohta suunnilleen suun kohdalla x-akselilla.
   const ala0 = viivat[0].reduce((a, q) => q[1] > a[1] ? q : a), pohjaSuulla = Math.abs(ala0[0] - k.alku[0]);

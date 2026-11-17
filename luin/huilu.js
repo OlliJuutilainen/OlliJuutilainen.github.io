@@ -126,7 +126,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .1, alas: .45, pohjaX: 0, syvyys: .5, harjaEnnen: .1, laakso: .35, ulosX: 1.2, ulosY: .3, pohjaUlos: 1, pohjaUlosX: .2, kulma: 10, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -220,7 +220,35 @@
       for (var j = 0; j <= kpl; j++) { var u = T * j / kpl; out.push([arvo(0, X, u), arvo(1, Y, u)]); }
       return out;
     }
+    // Välissä olevat viivat (käyttäjän toive 17.11.2026, ruudukon muunnelma pohjaUlosX 0,7 / syvyys 0,38): ylimmän ja
+    // alimman painotettu keskiarvo samoilla suhteellisilla kaaren pituuksilla. Paino kallistuu kaaren keskellä alimman
+    // puoleen (SYLI.keski): pelkällä puolivälillä keskimmäinen kulki ulkokaarroksessa lähempänä ylintä kuin alinta.
+    var reunaviivat = null;
+    function tasaPituus(pts, kpl) {
+      var s = [0];
+      for (var a = 1; a < pts.length; a++) s.push(s[a - 1] + Math.hypot(pts[a][0] - pts[a - 1][0], pts[a][1] - pts[a - 1][1]));
+      var out = [], a2 = 0;
+      for (var j = 0; j <= kpl; j++) {
+        var tavoite = s[s.length - 1] * j / kpl;
+        while (a2 < s.length - 2 && s[a2 + 1] < tavoite) a2++;
+        var w = (tavoite - s[a2]) / Math.max(1e-9, s[a2 + 1] - s[a2]);
+        out.push([pts[a2][0] + (pts[a2 + 1][0] - pts[a2][0]) * w, pts[a2][1] + (pts[a2 + 1][1] - pts[a2][1]) * w]);
+      }
+      return out;
+    }
     function syliKaari(oi) {
+      var ylinO = siirto(n - 1), alinO = siirto(0);
+      if (n < 3 || oi === ylinO || oi === alinO) return syliReuna(oi);
+      if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(alinO), SYLI.pisteet)];
+      var w0 = (oi - ylinO) / (alinO - ylinO);
+      return reunaviivat[0].map(function (q, j) {
+        var kohta = (j / SYLI.pisteet - SYLI.keskiKohta) / SYLI.keskiLeveys;
+        var kohta2 = (j / SYLI.pisteet - SYLI.keski2Kohta) / SYLI.keskiLeveys;
+        var r = reunaviivat[1][j], w = w0 + 4 * w0 * (1 - w0) * (SYLI.keski * Math.exp(-kohta * kohta) - SYLI.keski2 * Math.exp(-kohta2 * kohta2));
+        return [q[0] + (r[0] - q[0]) * w, q[1] + (r[1] - q[1]) * w];
+      });
+    }
+    function syliReuna(oi) {
       var k = (oi - siirto(n - 1)) / sp, harjaY = E[1] + oi - amp, vali = jakso / 2, ehdot = SYLI;
       var vali2 = Math.max(.3, Math.min(1, (syli - P0[0]) / (1.6 * vali))); // ahtaalla (360 px) kaarros mataloituu ja kapenee
       var ka = Math.atan2(d[1], d[0]) + ehdot.kulma * k * Math.PI / 180, s0 = [Math.cos(ka), Math.sin(ka)];
