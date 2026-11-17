@@ -126,7 +126,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, hamPyorista: 100, hamAlku: 18, hamLoppu: 48, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -240,14 +240,18 @@
     // alempia viivoja vedetään alussa ylimmän puoleen (SYLI.yhdessa), ja veto heikkenee tasaisesti nollaan matkan
     // SYLI.yhdessaMatka kohdalla. Muodot eivät muutu muualla, ja osittainen veto ei vaihda viivojen järjestystä.
     // (Yhteinen tukipiste ja lähekkäiset tukipisteet tekivät splineihin kärkiä ja leikkauksia.)
+    // Vedon kohde on keskimmäinen viiva (käyttäjä 17.11.2026: ylin kääntyi yhteydestä ulos liian aikaisin, kun vain alempia
+    // vedettiin ylimmän puoleen): ylin ja alin pysyvät alussa keskimmäisen vierellä.
+    var keskiViiva = null;
     function syliKaari(oi) {
-      var ylinO = siirto(n - 1), pts = syliKaari0(oi);
-      if (oi === ylinO || !SYLI.yhdessa) return pts;
-      if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(siirto(0)), SYLI.pisteet)];
+      var keskiO = siirto(Math.floor((n - 1) / 2)), pts = syliKaari0(oi);
+      if (oi === keskiO || !SYLI.yhdessa) return pts;
+      if (!keskiViiva) keskiViiva = syliKaari0(keskiO);
       return pts.map(function (p, j) {
         // Veto (1 − u)²: väli kasvaa suulta alkaen hitaasti ja tasaisesti, ja veto loppuu pehmeästi (käyttäjä: vierekkäin,
         // hitaasti irroten; tasainen hidastus piti ensin yhdessä ja päästi yhtäkkiä, lineaarinen loppui nykäyksellä).
-        var u = Math.min(1, j / SYLI.pisteet / SYLI.yhdessaMatka), veto = SYLI.yhdessa * (1 - u) * (1 - u), y = reunaviivat[0][j];
+        var vahvuus = oi < keskiO ? SYLI.yhdessaYlin : SYLI.yhdessa, matka = oi < keskiO ? SYLI.yhdessaYlinMatka : SYLI.yhdessaMatka;
+        var u = Math.min(1, j / SYLI.pisteet / matka), veto = vahvuus * (1 - u) * (1 - u), y = keskiViiva[j];
         return [p[0] + (y[0] - p[0]) * veto, p[1] + (y[1] - p[1]) * veto];
       });
     }
@@ -256,6 +260,21 @@
       if (oi === ylinO) return tasaPituus(syliReuna(oi), SYLI.pisteet);
       if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(alinO), SYLI.pisteet)];
       if (oi === alinO || n < 3) return reunaviivat[1];
+      var tulos = syliKaari1(oi);
+      // Pohjan pyöristys (käyttäjä 17.11.2026: keskimmäisellä neulansilmä pohjassa ilman syytä): kevyt tasoitus vain pohjan
+      // kohdalla (näytepisteet hamAlku–hamLoppu, reunoilla hiipuen), kierroksia SYLI.hamPyorista.
+      for (var kier = 0; kier < SYLI.hamPyorista; kier++) {
+        tulos = tulos.map(function (p, j) {
+          if (j === 0 || j === tulos.length - 1) return p;
+          var x = (j - SYLI.hamAlku) / (SYLI.hamLoppu - SYLI.hamAlku); if (x <= 0 || x >= 1) return p;
+          var w = .5 * Math.sin(Math.PI * x);
+          return [p[0] + w * ((tulos[j - 1][0] + tulos[j + 1][0]) / 2 - p[0]), p[1] + w * ((tulos[j - 1][1] + tulos[j + 1][1]) / 2 - p[1])];
+        });
+      }
+      return tulos;
+    }
+    function syliKaari1(oi) {
+      var ylinO = siirto(n - 1), alinO = siirto(0);
       var w0 = (oi - ylinO) / (alinO - ylinO);
       return reunaviivat[0].map(function (q, j) {
         var kohta = (j / SYLI.pisteet - SYLI.keskiKohta) / SYLI.keskiLeveys;
