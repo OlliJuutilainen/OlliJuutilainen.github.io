@@ -109,7 +109,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet, selite ja kirjainotsikot alkavat samasta x:stä; käyttäjän pyynnöt 15. ja 16.11.2026) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos. Älä lisää sitä kysymättä.
-  **Mutrudollari** (käyttäjän kokeilu 17.11.2026; makaava S ja vaakaviiva, samalla mutrusuu) samassa sarakkeessa: sivusto,
+  **Mutrudollari** (käyttäjän kokeilu 17.11.2026; makaava S ja kaksi vaakaviivaa, samalla mutrusuu) samassa sarakkeessa: sivusto,
   jolle voi lahjoittaa mutta joka elää käytännössä mainoksista (`rahoitus: mainokset ja lahjoitukset`). Toistaiseksi vain selitteessä;
   älä merkitse sillä sivustoja kysymättä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi lukulistassa, `#ratas-polku` lukijassa): pidä yhtenevinä.
