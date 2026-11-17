@@ -126,7 +126,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -236,10 +236,26 @@
       }
       return out;
     }
+    // Yhteinen alku (käyttäjä 17.11.2026: viuhka saa olla pidempään yhdessä, alin aluksi sisällä ja vasta sitten ulos):
+    // alempia viivoja vedetään alussa ylimmän puoleen (SYLI.yhdessa), ja veto heikkenee tasaisesti nollaan matkan
+    // SYLI.yhdessaMatka kohdalla. Muodot eivät muutu muualla, ja osittainen veto ei vaihda viivojen järjestystä.
+    // (Yhteinen tukipiste ja lähekkäiset tukipisteet tekivät splineihin kärkiä ja leikkauksia.)
     function syliKaari(oi) {
+      var ylinO = siirto(n - 1), pts = syliKaari0(oi);
+      if (oi === ylinO || !SYLI.yhdessa) return pts;
+      if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(siirto(0)), SYLI.pisteet)];
+      return pts.map(function (p, j) {
+        // Veto (1 − u)²: väli kasvaa suulta alkaen hitaasti ja tasaisesti, ja veto loppuu pehmeästi (käyttäjä: vierekkäin,
+        // hitaasti irroten; tasainen hidastus piti ensin yhdessä ja päästi yhtäkkiä, lineaarinen loppui nykäyksellä).
+        var u = Math.min(1, j / SYLI.pisteet / SYLI.yhdessaMatka), veto = SYLI.yhdessa * (1 - u) * (1 - u), y = reunaviivat[0][j];
+        return [p[0] + (y[0] - p[0]) * veto, p[1] + (y[1] - p[1]) * veto];
+      });
+    }
+    function syliKaari0(oi) {
       var ylinO = siirto(n - 1), alinO = siirto(0);
-      if (n < 3 || oi === ylinO || oi === alinO) return syliReuna(oi);
+      if (oi === ylinO) return tasaPituus(syliReuna(oi), SYLI.pisteet);
       if (!reunaviivat) reunaviivat = [tasaPituus(syliReuna(ylinO), SYLI.pisteet), tasaPituus(syliReuna(alinO), SYLI.pisteet)];
+      if (oi === alinO || n < 3) return reunaviivat[1];
       var w0 = (oi - ylinO) / (alinO - ylinO);
       return reunaviivat[0].map(function (q, j) {
         var kohta = (j / SYLI.pisteet - SYLI.keskiKohta) / SYLI.keskiLeveys;
