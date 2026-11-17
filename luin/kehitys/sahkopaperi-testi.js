@@ -1,10 +1,11 @@
-// Korkea kontrasti ja sähköpapyrosointi (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
+// Mustin, TCF-valkaisu ja sähköpapyrosointi (käyttäjän pyynnöt 17.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]
-// Tarkistaa: 1) Sähköpapyrosoi asetukset -nappi on Ulkoasu-otsikon rivillä (työpöytä ja 360 px), ei peitä asetusten raksia;
-// 2) painallus asettaa taulun asetukset, nappi on käänteinen PAPYRUS_MS ajan ja palaa, toinen painallus kesken ei tee
-// mitään, ja jo papyrosoiduilla asetuksilla nappi sanoo *Jo sähköpapyrosoitu*; 3) korkeassa kontrastissa tausta on täysin
-// valkoinen tai musta, eikä yhdenkään näkyvän tekstin, reunuksen tai taustan tehollinen sävy (läpikuultavuus laskettuna)
-// ole taustan puoleisella puolella sähköpaperin mustavalkokynnystä (luminanssi 128) asetuksissa eikä lukimessa.
+// Tarkistaa: 1) Sähköpapyrosoi asetukset on suorakaidenappi Ulkoasu-otsikon rivillä (työpöytä ja 360 px) eikä peitä raksia;
+// 2) painallus vatkaa vain napin neljä vaihetta lähtöteemasta riippuvassa järjestyksessä kiinteillä väreillä, asetukset
+// vaihtuvat neljännessä vaiheessa, leveys pysyy, toinen painallus kesken ei tee mitään, ja lopuksi nappi tarjoaa
+// Oletusasetukset, joka palauttaa laitteen oletukset samalla vatkauksella; 3) kontrastikytkin muuttaa vain taustan
+// (ja vaalean musteen täysmustaksi): muuttujat ja tyylisäännöt; nimi Mustin tai TCF-valkaisu teeman mukaan;
+// 4) TCF-vihje hiiren viipymästä ja kosketuksella päällä olevan kytkimen napautuksesta, ja ohi napautus vain sulkee sen.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -25,58 +26,29 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
 
 const MD = `# Koeteksti
 
-*Alaotsikko kokeeksi*
-
 ## Ensimmäinen luku
 
-Ensimmäinen kappale, jossa on alaviite.[^1] Katso [toinen luku](#toinen-luku).
-
-> Lainaus, joka on tarpeeksi pitkä erottuakseen leipätekstistä.
-
-### Osio
+Ensimmäinen kappale, jossa on alaviite.[^1]
 
 ${'Täytettä kappaleeksi. '.repeat(60)}
-
-## Toinen luku
-
-Toinen kappale.
 
 [^1]: Alaviitteen teksti.
 `;
 const SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
+const VARIT = { vaalea: 'rgb(250, 245, 234)', tumma: 'rgb(18, 14, 11)', mustin: 'rgb(0, 0, 0)', tcf: 'rgb(255, 255, 255)' };
+const MUUTTUJAT = ['--paperi', '--muste', '--harmaa', '--viiva', '--ruoste', '--okra', '--huomio', '--sitaatti', '--hius', '--valo'];
 
-// Näkyvien elementtien tehollinen sävy: väri sekoitettuna taustaan oman alfan ja esivanhempien läpikuultavuuden mukaan.
-// Palauttaa luminanssit, jotka ovat taustan puolella kynnystä, ja niiden lähteet.
-function tarkastaSavyt(juuriSel) {
-  const lum = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
-  const rgb = s => { const m = s.match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1 }; };
-  const pohja = rgb(getComputedStyle(document.body).backgroundColor);
-  const pL = lum(pohja.r, pohja.g, pohja.b), vaalea = pL > 128;
-  const huonot = [];
-  const juuri = document.querySelector(juuriSel);
-  const opas = el => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
-  const tarkista = (el, mika, c) => {
-    const v = rgb(c); if (!v || v.a === 0) return;
-    const a = v.a * opas(el), L = lum(v.r, v.g, v.b) * a + pL * (1 - a);
-    if (Math.abs(L - pL) < 0.5) return; // sama kuin tausta: ei näy
-    if (vaalea ? L > 128 : L < 128) huonot.push({ L: Math.round(L), mika, el: el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''), teksti: (el.textContent || '').trim().slice(0, 30) });
-  };
-  for (const el of juuri.querySelectorAll('*')) {
-    if (!el.getClientRects().length) continue;
-    const cs = getComputedStyle(el);
-    if (cs.visibility === 'hidden') continue;
-    const r = el.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
-    if ([...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) tarkista(el, 'teksti', cs.color);
-    if (el instanceof SVGElement) {
-      if (cs.fill && cs.fill !== 'none' && el.tagName !== 'svg') tarkista(el, 'fill', cs.fill);
-      if (cs.stroke && cs.stroke !== 'none' && el.tagName !== 'svg') tarkista(el, 'stroke', cs.stroke);
-    }
-    for (const s of ['Top', 'Right', 'Bottom', 'Left'])
-      if (parseFloat(cs['border' + s + 'Width']) > 0 && cs['border' + s + 'Style'] !== 'none') tarkista(el, 'reunus', cs['border' + s + 'Color']);
-    tarkista(el, 'tausta', cs.backgroundColor);
-  }
-  return { pohja: Math.round(pL), huonot };
+// Kirjaa napin vaiheet (data-vaihe, teksti, tausta, leveys, asetukset) jokaisesta muutoksesta.
+function kirjaaVaiheet() {
+  const n = document.getElementById('papyrosoi'), t0 = performance.now();
+  window.__vaiheet = [];
+  const kirjaa = () => window.__vaiheet.push({ t: Math.round(performance.now() - t0), vaihe: n.dataset.vaihe || '', teksti: n.textContent,
+    tausta: getComputedStyle(n).backgroundColor, leveys: Math.round(n.getBoundingClientRect().width * 10) / 10,
+    papyrus: ['teema', 'kontrasti', 'sivutus', 'sivuReuna', 'sivuPyyhka', 'sivunapit'].map(k => window.__luin.aset[k]).join(',') });
+  window.__havainnoija && window.__havainnoija.disconnect();
+  window.__havainnoija = new MutationObserver(kirjaa);
+  window.__havainnoija.observe(n, { attributes: true, attributeFilter: ['data-vaihe'], childList: true, characterData: true, subtree: true });
+  kirjaa();
 }
 
 async function aja(selain, U, kosketus) {
@@ -96,80 +68,145 @@ async function aja(selain, U, kosketus) {
   }, MD);
   await page.reload(); await page.waitForSelector('#nimikkeet li');
   const napauta = async (sel) => { if (kosketus) await page.tap(sel); else await page.click(sel); };
+  const nappi = () => page.evaluate(() => document.getElementById('papyrosoi').textContent);
 
   await napauta('.lhead .ratas');
   await page.waitForSelector('#asetukset:not([hidden])');
-  // 1. Paikka.
+  // 1. Paikka ja muoto.
   const p = await page.evaluate(() => {
     const n = document.getElementById('papyrosoi'), h = document.querySelector('.aset-ots h3'), s = document.querySelector('#asetukset .sulje');
     const nr = n.getBoundingClientRect(), hr = h.getBoundingClientRect(), sr = s.getBoundingClientRect(), pr = document.getElementById('asetukset').getBoundingClientRect();
     const o = document.elementFromPoint(sr.left + sr.width / 2, sr.top + sr.height / 2);
     const cs = getComputedStyle(n);
-    return { samaRivi: Math.abs((nr.top + nr.bottom) / 2 - (hr.top + hr.bottom) / 2) < 3, oikea: Math.round(pr.right - nr.right), leveys: Math.round(nr.width),
-      raksi: !!(o && s.contains(o)), tyyli: [cs.fontStyle, cs.fontWeight, cs.textTransform, cs.color].join(' '), teksti: n.textContent };
+    const ens = document.querySelector('#asetukset .asetus[data-a="teema"]').getBoundingClientRect();
+    return { samaRivi: Math.abs((nr.top + nr.bottom) / 2 - (hr.top + hr.bottom) / 2) < 4, oikea: Math.round(pr.right - nr.right), leveys: Math.round(nr.width),
+      korkeus: Math.round(nr.height), raksi: !!(o && s.contains(o)), tyyli: [cs.fontStyle, cs.fontWeight, cs.textTransform].join(' '),
+      reunus: cs.borderTopWidth + ' ' + cs.borderTopStyle, teksti: n.textContent, alla: Math.round(ens.top - nr.bottom) };
   });
   tulos(`${laji}: nappi Ulkoasu-otsikon rivillä`, p.samaRivi, JSON.stringify(p));
   tulos(`${laji}: nappi ei peitä raksia`, p.raksi);
-  tulos(`${laji}: kursiivi, ohut, versaali`, /^italic 380 uppercase/.test(p.tyyli), p.tyyli);
-  // Mittarin kontrolli: tavallisessa tummassa teemassa viiva (#4b3e2f) on taustan puolella kynnystä, joten löydöksiä pitää olla.
-  const kontrolli = await page.evaluate(tarkastaSavyt, '#asetukset');
-  tulos(`${laji}: mittari löytää rajasävyt tavallisesta teemasta`, kontrolli.huonot.length > 5, kontrolli.huonot.length + ' kpl, esim. ' + JSON.stringify(kontrolli.huonot[0]));
+  tulos(`${laji}: suorakaide, kursiivi, ohut, versaali, ei hakasulkeita`, /^italic 380 uppercase$/.test(p.tyyli) && p.reunus === '1px solid' && p.teksti === 'Sähköpapyrosoi asetukset', p.tyyli + ' | ' + p.reunus + ' | ' + p.teksti);
+  tulos(`${laji}: nappi ei osu Teema-riviin`, p.alla >= 4, p.alla + ' px');
+  tulos(`${laji}: kytkimen nimi tummassa Mustin`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'Mustin');
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-ennen-${kosketus ? 'kapea' : 'levea'}.png`) });
 
-  // 2. Painallus.
+  // 2. Papyrosointi tummasta.
+  await page.evaluate(kirjaaVaiheet);
   await napauta('#papyrosoi');
-  const t0 = Date.now();
-  const heti = await page.evaluate(() => ({ aset: Object.assign({}, window.__luin.aset), tehty: document.getElementById('papyrosoi').classList.contains('tehty'),
-    teksti: document.getElementById('papyrosoi').textContent, kontrasti: document.documentElement.classList.contains('kontrasti'),
-    pohja: getComputedStyle(document.body).backgroundColor, muste: getComputedStyle(document.body).color,
-    tallessa: JSON.parse(localStorage.getItem('luin-asetukset')) }));
-  const vaarat = Object.keys(SAHKOPAPERI).filter(k => heti.aset[k] !== SAHKOPAPERI[k] || heti.tallessa[k] !== SAHKOPAPERI[k]);
-  tulos(`${laji}: asetukset papyrosoitu ja tallessa`, !vaarat.length, vaarat.join(', '));
-  tulos(`${laji}: nappi käänteinen ja sanoo tehdyn`, heti.tehty && heti.teksti === '[Sähköpapyrosoitu]', heti.teksti);
-  tulos(`${laji}: korkea kontrasti valkoisella`, heti.kontrasti && heti.pohja === 'rgb(255, 255, 255)' && heti.muste === 'rgb(0, 0, 0)', heti.pohja + ' ' + heti.muste);
+  await page.waitForTimeout(700);
+  await napauta('#papyrosoi'); // kesken: ei saa vaikuttaa
+  if (KUVAT) { await page.waitForTimeout(500); await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-kuittaus-${kosketus ? 'kapea' : 'levea'}.png`) }); }
+  await page.waitForTimeout(3300);
+  let v = await page.evaluate(() => window.__vaiheet);
+  const jarj = v.filter(x => x.vaihe).reduce((a, x) => (a[a.length - 1] && a[a.length - 1].vaihe === x.vaihe && a[a.length - 1].t === x.t ? a : a.concat(x)), []);
+  const vaiheet = [...new Set(v.map((x, i) => i + ':' + x.vaihe))].map(s => s.split(':')[1]);
+  const pelkat = vaiheet.filter((x, i) => x !== vaiheet[i - 1]);
+  tulos(`${laji}: vaiheet tummasta`, pelkat.join(' ') === ' vaalea mustin tcf mustin ', pelkat.join(' '));
+  const tausta = v.filter(x => x.vaihe).every(x => x.tausta === VARIT[x.vaihe]);
+  tulos(`${laji}: vaiheiden värit kiinteät`, tausta, JSON.stringify(v.filter(x => x.vaihe).map(x => x.vaihe + ' ' + x.tausta)));
+  const leveys = new Set(v.filter(x => x.vaihe).map(x => x.leveys));
+  tulos(`${laji}: leveys pysyy vatkauksen ajan`, leveys.size === 1 && [...leveys][0] === v[0].leveys, [...leveys].join(', ') + ' / ' + v[0].leveys);
+  const ennen4 = v.filter(x => x.vaihe && x.vaihe !== 'mustin' || x.vaihe === 'mustin' && x.t < 500);
+  const papStr = Object.values(SAHKOPAPERI).join(',');
+  tulos(`${laji}: asetukset vasta neljännessä vaiheessa`, ennen4.every(x => x.papyrus !== papStr) && v.some(x => x.teksti === 'Sähköpapyrosoitu' && x.papyrus === papStr),
+    JSON.stringify(v.map(x => x.t + ' ' + x.vaihe + ' ' + x.teksti + ' ' + x.papyrus)));
+  const k4 = v.find(x => x.teksti === 'Sähköpapyrosoitu'), loppu = v[v.length - 1];
+  tulos(`${laji}: vaiheet 350 ms, kuittaus noin 2,2 s`, k4 && Math.abs(k4.t - 1050) < 150 && Math.abs(loppu.t - k4.t - 2200) < 200, k4 && (k4.t + ' → ' + loppu.t));
+  tulos(`${laji}: lopuksi Oletusasetukset`, loppu.vaihe === '' && loppu.teksti === 'Oletusasetukset', JSON.stringify(loppu));
+  const tallessa = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-asetukset')));
+  tulos(`${laji}: papyrosoitu tallessa`, Object.keys(SAHKOPAPERI).every(k => tallessa[k] === SAHKOPAPERI[k]));
   const kytkimet = await page.evaluate(() => [...document.querySelectorAll('#asetukset button[data-kytkin="kontrasti"], #asetukset button[data-kytkin^="sivu"], #asetukset .asetus[data-a="teema"] .valinnat button[data-arvo], #asetukset .asetus[data-a="sivutus"] .valinnat button[data-arvo]')].map(b => (b.dataset.kytkin || b.dataset.arvo) + '=' + b.getAttribute('aria-pressed')).join(' '));
-  tulos(`${laji}: kytkimet näyttävät uuden tilan heti`, kytkimet === 'vaalea=true tumma=false kontrasti=true vieritys=false sivut=true sivuReuna=true sivuPyyhka=false sivunapit=true', kytkimet);
-  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-painettu-${kosketus ? 'kapea' : 'levea'}.png`) });
-  // Toinen painallus kesken ei pidennä eikä muuta.
-  await page.waitForTimeout(500);
-  await napauta('#papyrosoi');
-  await page.waitForTimeout(Math.max(0, 1300 - (Date.now() - t0)));
-  const kesken = await page.evaluate(() => document.getElementById('papyrosoi').textContent);
-  tulos(`${laji}: toinen painallus kesken ei vaihda tekstiä`, kesken === '[Sähköpapyrosoitu]', kesken);
-  await page.waitForTimeout(Math.max(0, 1700 - (Date.now() - t0)));
-  const jalkeen = await page.evaluate(() => ({ tehty: document.getElementById('papyrosoi').classList.contains('tehty'), teksti: document.getElementById('papyrosoi').textContent }));
-  tulos(`${laji}: palaa noin 1,5 s:n kuluttua`, !jalkeen.tehty && jalkeen.teksti === '[Sähköpapyrosoi asetukset]', JSON.stringify(jalkeen));
-  await napauta('#papyrosoi');
-  const jo = await page.evaluate(() => document.getElementById('papyrosoi').textContent);
-  tulos(`${laji}: jo papyrosoidulla *Jo sähköpapyrosoitu*`, jo === '[Jo sähköpapyrosoitu]', jo);
-  await page.waitForTimeout(1600);
+  tulos(`${laji}: kytkimet näyttävät uuden tilan`, kytkimet === 'vaalea=true tumma=false kontrasti=true vieritys=false sivut=true sivuReuna=true sivuPyyhka=false sivunapit=true', kytkimet);
+  tulos(`${laji}: kytkimen nimi vaaleassa TCF-valkaisu`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'TCF-valkaisu');
+  const pv = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
+  tulos(`${laji}: TCF: valkoinen tausta, musta muste`, pv === 'rgb(255, 255, 255) rgb(0, 0, 0)', pv);
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-papyrosoitu-${kosketus ? 'kapea' : 'levea'}.png`) });
 
-  // 3. Sävyt asetuksissa ja lukimessa, vaalea ja tumma.
-  let s = await page.evaluate(tarkastaSavyt, '#asetukset');
-  tulos(`${laji}: asetuksissa ei haaleita sävyjä (vaalea)`, !s.huonot.length, JSON.stringify(s.huonot.slice(0, 6)));
-  await napauta('#asetukset .sulje');
-  await page.evaluate(() => { location.hash = '#id=p-koe'; });
-  await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
-  // Palkkiopas tai palkit voivat olla auki; napautus tyhjään kohtaan ei kuulu tähän, joten suljetaan opas tarvittaessa.
-  await page.evaluate(() => { const o = document.getElementById('palkkiopas'); if (o) o.hidden = true; });
-  s = await page.evaluate(tarkastaSavyt, '#lukija');
-  tulos(`${laji}: lukimessa ei haaleita sävyjä (vaalea)`, !s.huonot.length, JSON.stringify(s.huonot.slice(0, 6)));
-  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-vaalea-${kosketus ? 'kapea' : 'levea'}.png`) });
-  await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li');
-  await napauta('.lhead .ratas'); await page.waitForSelector('#asetukset:not([hidden])');
+  // 3. Kontrastikytkin muuttaa vain taustan (ja vaalean musteen).
+  const vertaa = await page.evaluate((M) => {
+    const r = document.documentElement, lue = () => { const cs = getComputedStyle(r); return M.map(m => cs.getPropertyValue(m).trim()); };
+    const tulos = {};
+    for (const t of ['vaalea', 'tumma']) {
+      r.dataset.teema = t;
+      r.classList.remove('kontrasti'); const a = lue();
+      r.classList.add('kontrasti'); const b = lue();
+      tulos[t] = M.filter((m, i) => a[i] !== b[i]).map((m, i) => m + '=' + b[M.indexOf(m)]).join(' ');
+    }
+    r.dataset.teema = window.__luin.aset.teema; r.classList.toggle('kontrasti', !!window.__luin.aset.kontrasti);
+    const saannot = [];
+    for (const ss of document.styleSheets) { try { for (const sr of ss.cssRules) if (sr.selectorText && /kontrasti/.test(sr.selectorText)) saannot.push(sr.selectorText); } catch (e) {} }
+    tulos.saannot = saannot.join(' | ');
+    return tulos;
+  }, MUUTTUJAT);
+  tulos(`${laji}: vaaleassa muuttuu vain paperi ja muste`, vertaa.vaalea === '--paperi=#ffffff --muste=#000000', vertaa.vaalea);
+  tulos(`${laji}: tummassa muuttuu vain paperi`, vertaa.tumma === '--paperi=#000000', vertaa.tumma);
+  tulos(`${laji}: ei muita kontrastisääntöjä`, vertaa.saannot === ':root.kontrasti:not([data-teema="tumma"]) | :root.kontrasti[data-teema="tumma"]', vertaa.saannot);
+
+  // 4. TCF-vihje.
+  const vihje = () => page.evaluate(() => { const v = document.getElementById('tcf-vihje'); return v.hidden ? '' : v.textContent; });
+  const TEKSTI = 'TCF: total chlorine free bleaching eli TÄYSIN klooriton taustapaperin valkaisu';
+  if (!kosketus) {
+    await page.hover('button[data-kytkin="kontrasti"]');
+    await page.waitForTimeout(600);
+    tulos(`${laji}: vihje ei vielä 0,6 s:ssa`, (await vihje()) === '');
+    await page.waitForTimeout(600);
+    tulos(`${laji}: vihje hiiren viipymästä`, (await vihje()) === TEKSTI, await vihje());
+    const vr = await page.evaluate(() => { const v = document.getElementById('tcf-vihje').getBoundingClientRect(), p = document.getElementById('asetukset').getBoundingClientRect(); return { sisalla: v.left >= p.left && v.right <= p.right }; });
+    tulos(`${laji}: vihje paneelin sisällä`, vr.sisalla);
+    if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sahkopaperi-tcf-vihje-levea.png') });
+    await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
+    const t = await page.evaluate(() => window.__luin.aset.teema);
+    tulos(`${laji}: ohi napsautus vain sulkee vihjeen`, (await vihje()) === '' && t === 'vaalea', t);
+    await page.click('button[data-kytkin="kontrasti"]');
+    tulos(`${laji}: hiirellä napsautus sammuttaa`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 0 && (await vihje()) === '');
+    await page.click('button[data-kytkin="kontrasti"]');
+    await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
+    await page.hover('button[data-kytkin="kontrasti"]'); await page.waitForTimeout(1300);
+    tulos(`${laji}: Mustin ei avaa vihjettä`, (await vihje()) === '');
+    await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
+  } else {
+    await napauta('button[data-kytkin="kontrasti"]');
+    tulos(`${laji}: päällä olevan napautus avaa vihjeen`, (await vihje()) === TEKSTI && (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1, await vihje());
+    if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sahkopaperi-tcf-vihje-kapea.png') });
+    await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
+    const t = await page.evaluate(() => window.__luin.aset.teema);
+    tulos(`${laji}: ohi napautus vain sulkee vihjeen`, (await vihje()) === '' && t === 'vaalea', t);
+    await napauta('button[data-kytkin="kontrasti"]');
+    tulos(`${laji}: seuraava napautus sammuttaa`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 0 && (await vihje()) === '');
+    await napauta('button[data-kytkin="kontrasti"]');
+    tulos(`${laji}: päälle ilman vihjettä`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1 && (await vihje()) === '');
+    await napauta('button[data-kytkin="kontrasti"]');
+    tulos(`${laji}: uusi päällekytkentä, vihje taas`, (await vihje()) === TEKSTI);
+    await napauta('#tcf-vihje');
+    tulos(`${laji}: vihjeen oma napautus sulkee`, (await vihje()) === '' && (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1);
+  }
+
+  // 5. Oletusasetukset vaaleasta.
+  tulos(`${laji}: nappi yhä Oletusasetukset`, (await nappi()) === 'Oletusasetukset', await nappi());
+  await page.evaluate(kirjaaVaiheet);
+  await napauta('#papyrosoi');
+  await page.waitForTimeout(3500);
+  v = await page.evaluate(() => window.__vaiheet);
+  const vv = v.map(x => x.vaihe).filter((x, i, a) => x !== a[i - 1]);
+  tulos(`${laji}: vaiheet vaaleasta`, vv.join(' ') === ' tumma tcf mustin tcf ', vv.join(' '));
+  tulos(`${laji}: kuittaus Palautettu`, v.some(x => x.teksti === 'Palautettu' && x.vaihe === 'tcf'));
+  const oletus = await page.evaluate(() => ['teema', 'kontrasti', 'sivutus', 'sivuReuna', 'sivuPyyhka', 'sivunapit'].map(k => window.__luin.aset[k]).join(','));
+  const odotettu = kosketus ? 'vaalea,0,sivut,1,1,1' : 'vaalea,0,vieritys,1,1,1';
+  tulos(`${laji}: laitteen oletukset palautettu`, oletus === odotettu, oletus);
+  tulos(`${laji}: nappi taas Sähköpapyrosoi asetukset`, (await nappi()) === 'Sähköpapyrosoi asetukset', await nappi());
+  const tav = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
+  tulos(`${laji}: tavallinen vaalea`, tav === 'rgb(250, 245, 234) rgb(35, 28, 20)', tav);
+
+  // 6. Mustin lukimessa: musta tausta, lämmin teksti.
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
-  s = await page.evaluate(tarkastaSavyt, '#asetukset');
-  tulos(`${laji}: asetuksissa ei tummia rajasävyjä (tumma)`, !s.huonot.length, JSON.stringify(s.huonot.slice(0, 6)));
-  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-asetukset-tumma-${kosketus ? 'kapea' : 'levea'}.png`) });
+  await napauta('button[data-kytkin="kontrasti"]');
   await napauta('#asetukset .sulje');
   await page.evaluate(() => { location.hash = '#id=p-koe'; });
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
   await page.evaluate(() => { const o = document.getElementById('palkkiopas'); if (o) o.hidden = true; });
   const tp = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
-  tulos(`${laji}: tumma korkea kontrasti mustalla`, tp === 'rgb(0, 0, 0) rgb(255, 255, 255)', tp);
-  s = await page.evaluate(tarkastaSavyt, '#lukija');
-  tulos(`${laji}: lukimessa ei tummia rajasävyjä (tumma)`, !s.huonot.length, JSON.stringify(s.huonot.slice(0, 6)));
-  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-tumma-${kosketus ? 'kapea' : 'levea'}.png`) });
+  tulos(`${laji}: Mustin lukimessa`, tp === 'rgb(0, 0, 0) rgb(235, 223, 202)', tp);
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-mustin-${kosketus ? 'kapea' : 'levea'}.png`) });
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
 }

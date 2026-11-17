@@ -142,7 +142,7 @@ async function aja(selain, U, kosketus) {
     const l0 = await nakyy('#pop button[data-k="luin"]');
     await page.waitForTimeout(800);
     const l1 = await page.$eval('#pop button[data-k="luin"]', b => { const c = getComputedStyle(b, '::after'); return c.visibility + ' ' + c.content; });
-    tulos('hiiri: Luin.-napin vihje viiveellä', l0 === 'hidden' && l1 === 'visible "vie kellarin kampihyllystöön"', l0 + ' → ' + l1);
+    tulos('hiiri: Luin.-napin vihje viiveellä', l0 === 'hidden' && l1 === 'visible "vie cellarin campihyllystöön"', l0 + ' → ' + l1);
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'ulko-vihje-luin.png') });
     await page.keyboard.press('Escape');
     await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li');

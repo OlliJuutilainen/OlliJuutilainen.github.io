@@ -1,6 +1,6 @@
-// Luokittelu ja kellarin kampihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
+// Luokittelu ja cellarin campihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/luokittelu-testi.js [kuvakansio]
-// Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit kellarin kampihyllystössä
+// Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit cellarin campihyllystössä
 // (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto
 // ylimpänä kaikissa järjestyksissä, pino mukana); käsikirja ei koskaan pinossa (ei Poimi- eikä ö-mappitoimintoa, tuonti ei nosta); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
 // tarkistus) ja etukentän kirjoitus; avaimeton uusi versio ei pyyhi asiasanoja; Muuta metatietoja näyttää ne Latomossa
@@ -249,7 +249,7 @@ const TEKSTIT = [
   md = await ls('luin-teksti:p-pinossa');
   tulos('Latomossa poistettu asiasana poistui', !e.asiasanat && !/asiasanat/.test(md), JSON.stringify(e.asiasanat) + ' ' + md.slice(0, 80));
 
-  // Käsikirja ei ole koskaan pinossa (käyttäjän päätös 17.11.2026): se on aina kellarin kampihyllystön käsikirjastossa.
+  // Käsikirja ei ole koskaan pinossa (käyttäjän päätös 17.11.2026): se on aina cellarin campihyllystön käsikirjastossa.
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
@@ -258,13 +258,13 @@ const TEKSTIT = [
   await page.click('#pop button[data-k="ok"]');
   const pinoKk = await page.evaluate(() => ({ n: [...document.querySelectorAll('#nimikkeet li.nimike .n-ots')].map(x => x.textContent.trim()),
     ark: !document.getElementById('ark-linkki').hidden, v: document.getElementById('viesti').textContent }));
-  tulos('pinosta käsikirjastoon: lähtee pinosta ja ilmoitus kertoo', !pinoKk.n.includes('Lukematon') && pinoKk.ark && /siirtyi käsikirjastoon kellarin kampihyllystöön/.test(pinoKk.v), JSON.stringify(pinoKk));
+  tulos('pinosta käsikirjastoon: lähtee pinosta ja ilmoitus kertoo', !pinoKk.n.includes('Lukematon') && pinoKk.ark && /siirtyi käsikirjastoon cellarin campihyllystöön/.test(pinoKk.v), JSON.stringify(pinoKk));
   r = await kellari('tekija');
   tulos('lukematon käsikirja kellarin käsikirjastossa ilman pinossa-merkintää', r[0] === '[Käsikirjasto 4]' && r.some(x => /^Lukematon \{\}$/.test(x)) &&
     r.indexOf('[A 1]') > r.findIndex(x => x.startsWith('Lukematon')), nimet(r));
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
   const kkNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k + ':' + b.textContent));
-  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista kellarin kampihyllystöstä.'), kkNapit.join(','));
+  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista cellarin campihyllystöstä.'), kkNapit.join(','));
   await page.mouse.click(5, 5);
   await page.click('#nimikkeet button.valitse[data-id="p-raamattu"]');
   await page.click('#nimikkeet button.valitse[data-id="p-seneca"]');
