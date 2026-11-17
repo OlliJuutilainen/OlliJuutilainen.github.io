@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks ja OpenEdition (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition ja Hypotheses.org (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3124,6 +3124,71 @@
       doi, lahde: osoite, maar, oikeus, naytto: teos || OE_NIMI };
   }
 
+  /* Hypotheses.org (OpenEditionin tutkijablogit, WordPress; käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 3:
+     blogikirjoitus alaviitteineen, fr, de, en). Blogit ovat aliverkkotunnuksia (djgd.hypotheses.org) WordPressin twenty*-teemoilla,
+     joten tunnistus verkkotunnuksesta ja yksittäisen kirjoituksen article .entry-contentista. Readability jätti alaviitteet
+     numeroiduksi luetteloksi ja merkit linkeiksi (alaviitteitä 0) ja otti mukaan sitaattiehdotuksen ja lisenssikappaleen.
+     Alaviitteet: WP Footnotes (a.footnote-identifier-link → ol.footnotes li, paluulinkki [↩]), WordPressin omat (sup[data-fn] →
+     ol.wp-block-footnotes li) ja muut samanSivunViitteet()-muodot. Pois: OpenEditionin sitaattiehdotus (.citation), jakonapit
+     (ul.soc), tekijälaatikko (.section_ppa; esittely on katkaistu, Weiterlesen) ja lisenssikappale (CC-linkki etukenttään).
+     Tekijät tekijälaatikosta (.boxauthor__name, voi olla tilin nimi), muuten .author.vcard; päivä time.entry-date; sivusto
+     og:site_name (blogin nimi); DOI citation_doi. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 17.11.2026. */
+  async function hypotheses() {
+    if (!/(^|\.)hypotheses\.org$/i.test(location.hostname)) return null;
+    const artikkelit = document.querySelectorAll('article .entry-content');
+    if (artikkelit.length !== 1) return null;
+    const art = artikkelit[0].closest('article');
+    const el = artikkelit[0].cloneNode(true);
+    el.querySelectorAll('script, style, noscript, iframe, form, button, .citation, ul.soc, .section_ppa, .boxauthor, .sharedaddy, ' +
+      '.jp-relatedposts, .wp-block-buttons').forEach(x => x.remove());
+    // Kappaleita kääriväksi jäänyt code (djgd: <p><code></p> … <p></code></p>, jäsennin sulkee sen vasta lopussa) pois.
+    [...el.querySelectorAll('code')].reverse().forEach(c => { if (c.querySelector('p, div, ul, ol, table, br, h1, h2, h3, h4')) c.replaceWith(...c.childNodes); });
+    // Lisenssikappale (Nur der Text ist unter der Lizenz CC BY-NC-SA …) etukenttään.
+    let oikeus = null;
+    el.querySelectorAll('a[href*="creativecommons.org/licenses/"], a[href*="creativecommons.org/publicdomain/"]').forEach(a => {
+      const p = a.closest('p');
+      if (!p || rivi(p.textContent).length > 400) return;
+      const cc = /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(a.href);
+      if (!oikeus) oikeus = { teksti: cc ? 'CC ' + cc[1].toUpperCase() + ' ' + cc[2] : rivi(a.textContent) || 'Creative Commons', lahde: a.href.replace(/deed\.[a-z-]+$/i, '') };
+      p.remove();
+    });
+    const maar = [], laskuri = { n: 0 };
+    const viite = (a, li, otsikko) => {
+      let t = '';
+      if (li) {
+        const k = li.cloneNode(true);
+        k.querySelectorAll('.footnote-back-link-wrapper, a.footnote-back-link, a[href^="#"][aria-label], a[href^="#"].wp-block-footnotes__backlink').forEach(x => x.remove());
+        t = muunna(k.innerHTML, 'inlined').trim().replace(/\s*\\?\[\s*\\?\]\s*$/, '');
+      }
+      if (!t) t = rivi(otsikko);
+      let kohta = a;
+      while (/^(SUP|SPAN)$/.test(kohta.parentElement.tagName) && rivi(kohta.parentElement.textContent) === rivi(a.textContent)) kohta = kohta.parentElement;
+      if (!t) { kohta.remove(); return; }
+      const tunnus = 'hy' + (++laskuri.n);
+      kohta.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    };
+    const id = h => { try { return el.querySelector('[id="' + CSS.escape(decodeURIComponent((h || '').replace(/^#/, ''))) + '"]'); } catch (e) { return null; } };
+    el.querySelectorAll('a.footnote-identifier-link, sup[data-fn] a[href^="#"], .easy-footnote a[href^="#"]').forEach(a => viite(a, id(a.getAttribute('href')), a.getAttribute('title')));
+    el.querySelectorAll('ol.footnotes, ol.wp-block-footnotes, .easy-footnotes-wrapper').forEach(x => x.remove());
+    maar.push(...samanSivunViitteet(el, 'hyx'));
+    kkLinkit(el, new RegExp('^' + location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/|$)', 'i'));
+    // Tyhjät kappaleet ja loppuun jääneet viivat pois.
+    el.querySelectorAll('p, div').forEach(p => { if (el.contains(p) && !p.querySelector('img, table, hr, iframe') && !rivi(p.textContent)) p.remove(); });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    if (kkSanoja(el) < 50) return null;
+    kkTasoita(el);
+    const otsikko = rivi((art.querySelector('.entry-title') || document.querySelector('h1.entry-title') || {}).textContent) || rivi(document.title);
+    let tekijat = [...new Set([...document.querySelectorAll('.boxauthor__name')].map(x => rivi(x.textContent)).filter(Boolean))];
+    if (!tekijat.length) tekijat = [...new Set([...art.querySelectorAll('.author.vcard, .byline .author')].map(x => rivi(x.textContent)).filter(Boolean))];
+    const aika = art.querySelector('time.entry-date[datetime], time.published[datetime]') || document.querySelector('meta[property="article:published_time"]');
+    const julkaistu = aika ? (aika.getAttribute('datetime') || aika.content || '').slice(0, 10) : '';
+    const sivusto = rivi((document.querySelector('meta[property="og:site_name"]') || {}).content) || location.hostname;
+    const doi = rivi((document.querySelector('meta[name="citation_doi"]') || {}).content);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: kkLuettelo(tekijat), sivusto, julkaistu, doi, lahde: osoite, maar, oikeus,
+      naytto: sivusto + ' (Hypotheses)' };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -4774,7 +4839,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
