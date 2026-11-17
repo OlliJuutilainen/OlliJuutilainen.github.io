@@ -62,6 +62,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Glossa; tiivistelmä, alaviitteet (otsikon viite otsikkoon) ja kirjallisuus.
   SciELO (PR #849, 17.11.2026, pahvin *20 sivustosovitetta* 7): klassinen sci_arttext-pohja kansallisilla palvelimilla;
   www.scielo.br on Bunny Shield -haasteen takana eikä sitä mitattu.
+  Open Book Publishers (PR #OBNRO, 17.11.2026, pahvin *20 sivustosovitetta* 8): Epublius-lukunäkymästä koko kirja; kustantajan
+  oma sivusto on Vercelin tarkistuksen takana, lukunäkymän palvelin ei.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -109,7 +111,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Monoskop: monoskop.org (wiki ja pdf-kirjasto)
 - Kansalliskirjaston Digi: digi.kansalliskirjasto.fi, sanomalehtien OCR
 - OAPEN, DOAB: avoimet kirjat (pdf)
-- Open Book Publishers: HTML-lukunäkymä
+- Open Book Publishers: HTML-lukunäkymä (tehty 17.11.2026, ks. yllä)
 - Punctum Books, Open Humanities Press (pdf)
 - CHS Online Books: chs.harvard.edu, avoimet klassikkokirjat HTML:nä
 

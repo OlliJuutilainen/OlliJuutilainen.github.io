@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -172,6 +172,9 @@ const SARJAT = {
     'https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0185-24502025000100103&lng=es&nrm=iso',
     'http://www.scielo.org.co/scielo.php?script=sci_arttext&pid=S0120-00622024000200009&lng=es&nrm=iso',
     'http://www.scielo.org.co/scielo.php?script=sci_arttext&pid=S0120-00622024000200027&lng=es&nrm=iso'],
+  // Open Book Publishers (17.11.2026): Lameris, Feeling Colour (osat, loppuviitteet, kirjallisuus, filmografia) luvun sivulta ja
+  // toimitettu kokoelma sisällyksestä.
+  obp: ['https://books.openbookpublishers.com/10.11647/obp.0380/ch1.xhtml', 'https://books.openbookpublishers.com/10.11647/obp.0360/contents.xhtml'],
   // Paul Grahamin esseet (16.11.2026): <br><br>-kappaleet, Notes-viitteet, päiväys ensimmäisenä kappaleena.
   pg: ['greatwork', 'hwh', 'useful'].map(p => 'https://www.paulgraham.com/' + p + '.html'),
   // Tertullian Project (16.11.2026): Porfyrioksen De abstinentia (Taylor 1823) viitenä sivuna kirjan 1 sivulta.
@@ -233,7 +236,7 @@ const palvelin = http.createServer((q, r) => {
       const tyyppi = /\.js(\?|$)/.test(u) ? 'text/javascript' : /ajax\.php/.test(u) ? 'application/json' : 'text/html; charset=utf-8';
       return h ? r.fulfill({ body: h, contentType: tyyppi }) : r.fulfill({ status: 404, body: '' });
     }
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co|books\.openbookpublishers\.com)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
