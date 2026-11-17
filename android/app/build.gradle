@@ -10,7 +10,7 @@ String quoted(Object value) {
 // Sijaintiversio ilman tokenia tai avainta avaisi vain virheilmoituksen, joten estetään
 // sellaisen rakentaminen jo Gradlessa. Perusversioon tämä ei vaikuta.
 gradle.taskGraph.whenReady { graph ->
-    ['haakis', 'kotkavuori'].each { flavor ->
+    ['haakis', 'kotkavuori', 'rantakoto'].each { flavor ->
         boolean requested = graph.allTasks.any { it.project == project && it.name.toLowerCase().contains(flavor) }
         if (requested) {
             ["tusinasaa.${flavor}.token", "tusinasaa.${flavor}.key"].each { name ->
@@ -59,6 +59,12 @@ android {
             applicationIdSuffix '.kotkavuori'
             buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.kotkavuori.token'))
             buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.kotkavuori.key'))
+        }
+        rantakoto {
+            dimension 'sijainti'
+            applicationIdSuffix '.rantakoto'
+            buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.rantakoto.token'))
+            buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.rantakoto.key'))
         }
     }
 

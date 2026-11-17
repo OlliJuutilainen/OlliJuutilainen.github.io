@@ -51,6 +51,9 @@ Sovelluksesta on kaksi varianttia (`productFlavors` tiedostossa `app/build.gradl
 - **kotkavuori** (`fi.tusinasaa.kotkavuori`, "Tusinasää Kotkavuori"): sama malli kuin Haakis;
   ominaisuudet `tusinasaa.kotkavuori.token` / `.key`, asennus `:app:installKotkavuoriDebug`.
 
+- **rantakoto** (`fi.tusinasaa.rantakoto`, "Tusinasää Rantakoto"): sama malli; ominaisuudet
+  `tusinasaa.rantakoto.token` / `.key`, asennus `:app:installRantakotoDebug`.
+
 Haakis-version token ja avain **eivät ole repossa**. Lisää ne Macin tiedostoon
 `~/.gradle/gradle.properties` (generaattorin tulosteesta: `t=` ja `k=` Android-linkistä):
 
