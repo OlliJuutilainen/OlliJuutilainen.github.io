@@ -3,8 +3,8 @@
 // kulmakiila (10) ja kaksi pystykiilaa (1 + 1). Kulmakiila täyttää kehän sisäympyrän vasemman puolikkaan (kärki ja
 // selän kulmat ympyrällä, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikealla puolikkaalla,
 // jolloin keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän ajatus). Pystykiilojen varsi kapenee
-// kärkeen ja jälkimmäinen on porrastettu alemmas: rinnakkaiset pyöreäpäiset varret keskellä näyttivät haarukalta ja
-// veitseltä lautasella (käyttäjä 17.11.2026).
+// kärkeen ("hampaat"), ja ne ovat samalla korkeudella oikean puolikkaan keskellä: pyöreäpäiset varret näyttivät
+// haarukalta ja veitseltä, ja porrastus hylättiin (käyttäjä 17.11.2026).
 // Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android); vain rajaus vaihtelee.
 //
 // Tuottaa:
@@ -40,7 +40,7 @@ const U = R - KEHA / 2 - VALI;                   // merkkien ympyrä
 // Kulmakiila: kärki vasemmalla ympyrällä, selkä x = SELKA (kulmat ympyrällä), lovi LOVI selästä sisään.
 const SELKA = -.4, LOVI = 1.5;
 // Pystykiilat: keskikohdat [x, y] (y negatiivinen ylös), koko korkeus, pään leveys ja korkeus, varren leveys kaulassa.
-const PYST = [[2.2, -1.2], [4.4, -.2]], PYST_K = 4.2, PAA = 1.6, PAA_K = 1.4, VARSI = .9;
+const PYST = [[2.3, 0], [4.3, 0]], PYST_K = 4.4, PAA = 1.8, PAA_K = 1.5, VARSI = .9;
 const KARKI = R + KEHA / 2 + RAKO + KOLMIO_K;    // kolmioiden kärkien säde (15,2)
 
 const n = x => +x.toFixed(3);
