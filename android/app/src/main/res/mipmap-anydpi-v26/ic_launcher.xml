@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tuottaa android/scripts/tusinasaa-kuvake.js; älä muokkaa käsin. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/kuvake_pohja" />
+    <foreground android:drawable="@drawable/ic_tusinasaa_merkki" />
+    <monochrome android:drawable="@drawable/ic_tusinasaa_merkki" />
+</adaptive-icon>

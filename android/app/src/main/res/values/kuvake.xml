@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tuottaa android/scripts/tusinasaa-kuvake.js; älä muokkaa käsin. -->
+<resources>
+    <!-- tusinapaja.html:n tumma teema -->
+    <color name="kuvake_pohja">#000000</color>
+    <color name="kuvake_muste">#e8e8e8</color>
+</resources>

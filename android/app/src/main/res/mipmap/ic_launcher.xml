@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tuottaa android/scripts/tusinasaa-kuvake.js; älä muokkaa käsin. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="18dp"
+        android:left="18dp"
+        android:right="18dp"
+        android:top="18dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/kuvake_pohja" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_tusinasaa_merkki" />
+</layer-list>
