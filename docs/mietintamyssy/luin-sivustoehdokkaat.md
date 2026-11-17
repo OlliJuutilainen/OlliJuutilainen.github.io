@@ -53,6 +53,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   TMU:n ja PALNI:n palvelimilla.
   OpenEdition Journals ja Books (PR #837, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
   yläindekseinä, alaviitteet, kirjallisuus ja tekijät. Anubis-botintorjunta päästää curlin oman tunnisteen läpi.
+  Hypotheses.org (PR #843, 17.11.2026, pahvin *20 sivustosovitetta* 3): blogikirjoitus alaviitteineen, mitattu de, fr, en.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -64,7 +65,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - **WordPress**, myös omilla verkkotunnuksilla: valtaosa tutkijablogeista
 - **Medium**: Eidolonin arkisto ym.
 - **Ghost**
-- **Hypotheses.org**: OpenEditionin tutkijablogit (fr, de, en)
+- **Hypotheses.org**: OpenEditionin tutkijablogit (fr, de, en; tehty 17.11.2026, ks. yllä)
 - **Open Journal Systems**: journal.fi, Études Ricoeuriennes, The Medieval Review ym. Artikkelit ovat usein pdf:nä;
   HTML-galleyt ovat vähemmistö.
 - **Pressbooks**: avoimet oppikirjat (tehty 17.11.2026, ks. yllä)
