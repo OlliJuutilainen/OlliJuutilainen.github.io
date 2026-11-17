@@ -125,7 +125,7 @@
   // Sylin keskilinjan kahvat jänteen kerrannaisina: suun puoleinen huilun suuntaan, kulman puoleinen ylämäen suuntaan
   // (pitkät kahvat vievät kaaren vasemman kautta); pysty: mistä kohtaa kaarta siirtymä alkaa kääntyä pystysuoraksi;
   // tayteen: missä kohtaa kaarta viuhkan välit ovat täydet (sen jälkeen välit pysyvät, eivät kasaannu eivätkä repeä).
-  var SYLI = { alku: 1.25, loppu: .75, pysty: .3, tayteen: .45, vahintaan: .6 };
+  var SYLI = { alku: 1.25, loppu: .75, pysty: .3, tayteen: .45, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -172,11 +172,16 @@
       // (cx), ja siitä huilun suuhun on puhdasta kaarrosta: ei suoraa eikä siksakia. Kukin viiva on oma kuutiollinen
       // Bézier-kaarensa suusta omaan yläkulmaansa; alin kaartaa leveimmin ulkokautta (pitkät kahvat), sisemmät tiukemmin.
       // Kaari lähtee huilun suuntaan ja saapuu kulmaan ylämäen suunnassa (22°), joten kulma on siksakin kulma.
-      var cx = o.alkuX - vali;
-      // Kapeassa pinossa (320 px) nappi alkaa jo huilun kohdalla, eikä kaarelle ole tilaa ennen kulmaa: silloin kaari menee
-      // seuraavaan yläkulmaan napin sisällä, ja nuotteja mahtuu kaksi.
-      if (cx < P0[0] + SYLI.vahintaan * vali) cx += 2 * vali;
-      xz = cx - vali / 2; suunta = 1; syli = cx;
+      // Kaari on vain nouseva ja tarttuu ylämäen puoliväliin ylämäen suuntaisena (käyttäjä 17.11.2026): siitä on suoraa
+      // puoli väliä yläkulmaan (yhtä pitkä kuin napin lopettava alamäki) ja sitten alamäki napin alun alakulmaan.
+      // Ahtaammalla (360 px: kohta on vain 4 px suun oikealla) kaari nousee suoraan yläkulmaan, jolloin kulma säilyy mutta
+      // suoraa ylämäkeä ei ole; kapeimmassa pinossa (320 px) kaari tarttuu napin ensimmäisen ylämäen puoliväliin, ja nuotteja
+      // mahtuu kaksi.
+      var raja = P0[0] + SYLI.vahintaan * vali;
+      if (o.alkuX - 1.5 * vali >= raja) { xz = syli = o.alkuX - 1.5 * vali; }
+      else if (o.alkuX - vali >= raja) { syli = o.alkuX - vali; xz = syli - vali / 2; }
+      else { xz = syli = o.alkuX + vali / 2; }
+      suunta = 1;
       loppu = o.loppuX;
     }
     var taitteet = [];
@@ -189,8 +194,8 @@
     var syliPisteet = null;
     function selkaranka(Cc, h0, h1) {
       var Bc = [P0, [P0[0] + d[0] * h0, P0[1] + d[1] * h0], [Cc[0] - ylos[0] * h1, Cc[1] - ylos[1] * h1], Cc], sc = 0, edc = null, out = [];
-      for (var j = 0; j <= N; j++) {
-        var tt = j / N, uu = 1 - tt;
+      for (var j = 0; j <= SYLI.pisteet; j++) {
+        var tt = j / SYLI.pisteet, uu = 1 - tt;
         var px = uu * uu * uu * Bc[0][0] + 3 * uu * uu * tt * Bc[1][0] + 3 * uu * tt * tt * Bc[2][0] + tt * tt * tt * Bc[3][0];
         var py = uu * uu * uu * Bc[0][1] + 3 * uu * uu * tt * Bc[1][1] + 3 * uu * tt * tt * Bc[2][1] + tt * tt * tt * Bc[3][1];
         var ddx = 3 * uu * uu * (Bc[1][0] - Bc[0][0]) + 6 * uu * tt * (Bc[2][0] - Bc[1][0]) + 3 * tt * tt * (Bc[3][0] - Bc[2][0]);
@@ -206,17 +211,12 @@
       return out;
     }
     if (syli != null) {
-      // Kulman puoleista kahvaa lyhennetään, kunnes kaari kääntyy koko matkan samaan suuntaan: lyhyellä matkalla (360 px)
-      // pitkä kahva teki selkärankaan taitekohdan, jonka ulommat viivat paisuttivat notkoksi.
-      var Cc = [syli, E[1] + siirto(n - 1) - amp], Dc = Math.hypot(Cc[0] - P0[0], Cc[1] - P0[1]);
-      // Alkupään kääntyminen vasemmalle kuuluu kiertoon, joten taitekohtaa haetaan vain loppupuoliskolta.
-      // Jos sitä ei löydy, lyhennetään myös suun puoleista kahvaa (kapea pino: kulma lähellä, matalampi kierto).
-      var hyva = null;
+      // Ylin viiva päättyy ylämäen lepokohtaansa (tai yläkulmaansa). Kahvat lyhenevät tarvittaessa, kunnes kaari kääntyy loppupuoliskolla
+      // samaan suuntaan (vastakäänne alle 7°): kaari on vain nouseva, ei harjaa eikä notkoa.
+      var Cc = [syli, E[1] + siirto(n - 1) + tri(syli)], Dc = Math.hypot(Cc[0] - P0[0], Cc[1] - P0[1]), hyva = null;
       for (var af = SYLI.alku; af >= .4 && !hyva; af -= .1) {
         for (var hf = SYLI.loppu; hf >= .2 && !hyva; hf -= .05) {
-          var koe = selkaranka(Cc, Dc * af, Dc * hf);
-          // Vastakäänne loppupuoliskolla (kaaren pääsuunta on kap < 0) kelpaa, jos sen kokonaiskulma on alle 7°.
-          var vasta = 0;
+          var koe = selkaranka(Cc, Dc * af, Dc * hf), vasta = 0;
           for (var jj = 1; jj < koe.length; jj++) if (koe[jj].q > .5 && koe[jj].kap > 0) vasta += koe[jj].kap * (koe[jj].s - koe[jj - 1].s);
           if (vasta < .12) hyva = koe;
         }
