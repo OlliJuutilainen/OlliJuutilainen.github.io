@@ -9,6 +9,8 @@
 //   icons/tusinasaa-192.png, -512.png   manifest.webmanifest, any (näkyvä 72 yksikön alue)
 //   icons/tusinasaa-maskable-512.png    manifest, maskable: koko 108 kangas, koska maskin turva-alue on säde 40 %
 //   icons/tusinasaa-32.png         välilehti selaimille, jotka eivät näytä SVG-kuvaketta (Big Surin Safari)
+//   icons/tusinasaa-jako-1.png     linkin esikatselu (og:image; WhatsApp, Signal ym.), 600 × 600. Kun kuva muuttuu,
+//                                  nosta numeroa ja päivitä og:image: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
 //   android/app/src/main/res/…     käynnistyskuvake: adaptiivinen (Android 8+) ja monokromi (13+ teemakuvake)
 //
 // Kaikkialla tumma (vaalea viiva mustalla). Vaalea versio (VAALEA) kokeiltiin 17.11.2026: vaalealla taustakuvalla
@@ -164,6 +166,7 @@ if (require.main === module) (async () => {
   await png(s, svg(TUMMA, { viewBox: VALILEHTI, tausta: 'ympyra' }), 32, path.join(IKONIT, 'tusinasaa-32.png'));
   for (const k of [180, 192, 512]) await png(s, svg(TUMMA, { viewBox: NAKYVA }), k, path.join(IKONIT, `tusinasaa-${k}.png`));
   await png(s, svg(TUMMA), 512, path.join(IKONIT, 'tusinasaa-maskable-512.png'));
+  await png(s, svg(TUMMA), 600, path.join(IKONIT, 'tusinasaa-jako-1.png'));
   await b.close();
   android();
 })();
