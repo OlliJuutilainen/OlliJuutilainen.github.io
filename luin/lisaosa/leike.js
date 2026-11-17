@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers ja Faded Page (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page ja Internet Archiven tekstiversiot (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -19,6 +19,8 @@
     const td = new TurndownService({ headingStyle: 'atx', hr: '___', bulletListMarker: '-', codeBlockStyle: 'fenced',
       fence: '```', emDelimiter: '*', strongDelimiter: '**', linkStyle: linkit, linkReferenceStyle: 'full' });
     td.use(turndownPluginGfm.gfm);
+    // Tekstin < kirjaimen edellä (OCR-roska <rca>, a<b) ei saa näyttää md.js:lle HTML-merkinnältä (Internet Archive 17.11.2026).
+    td.escape = s => TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])/g, '\\<');
     td.keep(['sub', 'sup']);
     td.remove(['script', 'style', 'noscript', 'iframe', 'button', 'form', 'svg']);
     td.addRule('kuvat', { filter: 'img', replacement: () => '' });
@@ -3738,6 +3740,69 @@
       oikeus: pd ? { teksti: pd.replace(/\s*IF THE BOOK.*$/i, ''), lahde: location.origin + '/showbook.php?pid=' + m[1] } : null };
   }
 
+  /* Internet Archiven tekstiversiot (archive.org/stream/<id>/<id>_djvu.txt ja /download/…_djvu.txt; käyttäjän pyyntö 17.11.2026,
+     pahvin *20 sivustosovitetta* 10: kappaleet OCR-pötköstä, toistuvat ylä- ja alatunnisteet ja rivinvaihtojen tavutukset pois).
+     Sivu on yksi <pre>: rivit päättyvät välilyöntiin, kappaleiden välissä tyhjä rivi, sivunvaihdon kohdalla kaksi tai useampia
+     tyhjiä rivejä, ja sivun alussa juokseva otsake sivunumeroineen (TRANSLATORS PREFACE. Xlll). Readability antoi koko kirjan
+     koodilohkona. Kokoaminen: sivut tyhjien rivien ryppäistä; sivun ensimmäinen yksirivinen lohko on ylätunniste, kun siinä on
+     sivunumero alussa tai lopussa tai sama teksti (kirjaimet) aloittaa vähintään kolme sivua; viimeinen yksirivinen lohko on
+     alatunniste, kun se on pelkkä numero tai arkkimerkki (B 2); sivun ensimmäinen kappale jatkaa edellistä, kun se alkaa pienellä
+     kirjaimella tai edellinen on pitkä (≥ 150 merkkiä) eikä pääty virkkeen loppuun; rivinvaihdon tavuviiva pois, kun rivi jatkuu pienellä kirjaimella;
+     kahdet välilyönnit yhdeksi; pois lohkot, joissa on alle kolme kirjainta tai alle puolet kirjaimia (OCR-roska). Otsikoita ei
+     päätellä. Tiedot /metadata/<id>-rajapinnasta (title, creator, date, publisher, licenseurl). Internet Archive pyytää
+     lahjoituksia, ei mainoksia. Mitattu 17.11.2026. */
+  const IA_NIMI = 'Internet Archive';
+  async function archiveTeksti() {
+    const m = /^\/(?:stream|download)\/([^/]+)\/.*_djvu\.txt$/i.exec(decodeURIComponent(location.pathname));
+    const pre = document.querySelector('main pre, body > pre, pre');
+    if (!/(^|\.)archive\.org$/i.test(location.hostname) || !m || !pre) return null;
+    const t = pre.textContent.replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/ /g, ' ');
+    if (t.length < 500) return null;
+    // Sivunumero otsakkeen alussa tai lopussa OCR:n kirjoittamana (Xlll, XXX1U, 12) pois ennen vertailua.
+    const NRO = /^[\dIVXLCivxlcUuJjl.,]{1,7}$/;
+    const kanta = r => { const o = r.split(/\s+/); if (o.length > 1 && NRO.test(o[0])) o.shift(); if (o.length > 1 && NRO.test(o[o.length - 1])) o.pop(); return o.join(' '); };
+    const avain = s => kanta(s).replace(/[^\p{L}]/gu, '').toUpperCase();
+    const sivut = t.split(/\n{3,}/).map(s => s.split(/\n{2}/).map(b => b.split('\n').map(r => r.trim()).filter(Boolean)).filter(b => b.length));
+    const alut = new Map();
+    sivut.forEach(s => { if (s[0] && s[0].length === 1) { const k = avain(s[0][0]); if (k) alut.set(k, (alut.get(k) || 0) + 1); } });
+    const NUMERO = /^[\divxlcIVXLC]{1,7}$/;
+    const kpl = [];
+    let jatkuu = false;
+    sivut.forEach(s => {
+      if (s.length && s[0].length === 1 && s[0][0].length <= 80) {
+        const r = s[0][0];
+        const k = kanta(r);
+        if (NUMERO.test(r) || (k !== r && k === k.toUpperCase() && /\p{L}/u.test(k)) || (alut.get(avain(r)) || 0) >= 3) s.shift();
+      }
+      const loppu = s[s.length - 1];
+      if (loppu && loppu.length === 1 && loppu[0].length <= 12 && /\d/.test(loppu[0]) && /^[\dA-Z .,*]+$/.test(loppu[0])) s.pop();
+      s.forEach((b, i) => {
+        const teksti = b.reduce((a, r) => !a ? r : /[\p{L}]-$/u.test(a) && /^\p{Ll}/u.test(r) ? a.slice(0, -1) + r : a + ' ' + r, '').replace(/ {2,}/g, ' ').trim();
+        const kirjaimia = (teksti.match(/\p{L}/gu) || []).length;
+        if (kirjaimia < 3 || kirjaimia < teksti.length * 0.5) return;
+        // Sivun alku jatkaa edellistä kappaletta: pieni alkukirjain tai pitkä kappale ilman virkkeen loppua (nimiön lyhyet rivit eivät).
+        const ed = kpl[kpl.length - 1] || '';
+        if (!i && jatkuu && ed && (/^\p{Ll}/u.test(teksti) || ed.length >= 150 && !/[.!?:”"’»)\]]$/.test(ed) && /^\p{L}/u.test(teksti))) {
+          const e = kpl[kpl.length - 1];
+          kpl[kpl.length - 1] = /[\p{L}]-$/u.test(e) && /^\p{Ll}/u.test(teksti) ? e.slice(0, -1) + teksti : e + ' ' + teksti;
+        } else kpl.push(teksti);
+      });
+      jatkuu = true;
+    });
+    if (kpl.length < 3) return null;
+    const el = document.createElement('div');
+    kpl.forEach(x => { const p = document.createElement('p'); p.textContent = x; el.appendChild(p); });
+    const md = ((await pbJson(location.origin + '/metadata/' + encodeURIComponent(m[1]))) || {}).metadata || {};
+    const lista = x => (Array.isArray(x) ? x : x ? [x] : []).map(rivi).filter(Boolean);
+    const otsikko = lista(md.title)[0] || rivi(((document.querySelector('h1 a') || {}).textContent) || document.title);
+    const lisenssi = lista(md.licenseurl)[0];
+    const cc = lisenssi && /(licenses|publicdomain)\/([a-z-]+)\/(\d\.\d)/i.exec(lisenssi);
+    return { html: el.innerHTML, otsikko, tekija: kkLuettelo(lista(md.creator)), julkaistu: (/\d{4}/.exec(lista(md.date)[0] || '') || [''])[0],
+      kustantaja: lista(md.publisher)[0] || '', sivusto: IA_NIMI, lahde: location.origin + '/details/' + m[1],
+      oikeus: lisenssi ? { teksti: cc ? (cc[1] === 'publicdomain' ? (cc[2] === 'zero' ? 'CC0 ' + cc[3] : 'Public Domain Mark ' + cc[3]) : 'CC ' + cc[2].toUpperCase() + ' ' + cc[3]) : lisenssi, lahde: lisenssi } : null,
+      naytto: IA_NIMI + ' (OCR-teksti)' };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5371,6 +5436,7 @@
     matuschak: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/quantumcountry' },
     fivebooks: { laji: 'lahjoitukset', osoite: 'https://fivebooks.com/support-us/' },
     obp: { laji: 'lahjoitukset', osoite: 'https://www.openbookpublishers.com/donate.html' },
+    archiveTeksti: { laji: 'lahjoitukset', osoite: 'https://archive.org/donate' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -5389,7 +5455,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
