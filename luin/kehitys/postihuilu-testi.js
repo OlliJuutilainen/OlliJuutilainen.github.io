@@ -36,6 +36,28 @@ for (const [T, sw] of [[4.4, .7], [6.4, .9], [8, 1]]) {
   const kapea = H.kaista({ vasen: 150, yla: -8, keskiY: 40, oikea: 330 });
   tulos('kapealla lyhenee pala palalta', kapea.loppu <= 330 && 330 - kapea.loppu < kapea.jakso / 2, kapea.loppu);
 }
+// Syli (käyttäjän palaute 17.11.2026): alin viiva kiertää huilun suun vasemman kautta, viuhkan välit ovat tasaiset (eivät
+// repeä eivätkä kasaannu) eikä millekään viivalle tule kärkeä. Pinon mitoilla 320–860 px (napin paikat lohkossa).
+for (const [lev, n0, w] of [[288, 171.14, 320], [328, 211.14, 360], [358, 241.14, 390], [360, 243.14, 860]]) {
+  const r = H.rajat(6, .75, 68), vasen = 150 + (24 - r.w) / 2, yla = -6; // huilun paikka mitattu pinosta 17.11.2026
+  const k = H.kaista({ vasen, yla, keskiY: yla + r.h + 14, oikea: lev, loppuX: lev, alkuX: n0, T: 6, sw: .75, kulma: 68, sp: 8 });
+  const viivat = k.svg.match(/d="([^"]+)"/)[1].split('M').filter(Boolean).map(v => v.split('L').slice(0, 81).map(t => t.split(' ').map(Number)));
+  const minX = Math.min(...viivat[0].map(q => q[0])), vasemmalla = k.alku[0] - minX;
+  let valit = [Infinity, 0];
+  for (let i = 0; i < 2; i++) for (let j = 40; j < 81; j++) {
+    const q = viivat[i][j], dmin = Math.min(...viivat[i + 1].map(w => Math.hypot(w[0] - q[0], w[1] - q[1])));
+    valit = [Math.min(valit[0], dmin), Math.max(valit[1], dmin)];
+  }
+  let karki = 0;
+  for (const v of viivat) for (let j = 1; j < v.length - 1; j++) {
+    const a = Math.atan2(v[j][1] - v[j - 1][1], v[j][0] - v[j - 1][0]), b = Math.atan2(v[j + 1][1] - v[j][1], v[j + 1][0] - v[j][0]);
+    let t = Math.abs(b - a); if (t > Math.PI) t = 2 * Math.PI - t; karki = Math.max(karki, t);
+  }
+  const vara = k.syli > n0;
+  tulos(`syli ${w} px: alin viiva kiertää suun vasemman kautta`, vara || vasemmalla > 4, Math.round(vasemmalla * 10) / 10 + ' px suun vasemmalla puolella');
+  tulos(`syli ${w} px: viuhkan välit tasaiset kaaren loppupuoliskolla`, valit[0] > .6 * k.sp && valit[1] < 1.35 * k.sp, valit.map(x => Math.round(x * 10) / 10).join('–') + ' px (väli ' + k.sp + ')');
+  tulos(`syli ${w} px: ei kärkeä kaarella (suurin käänne pisteiden välillä)`, karki < .6, Math.round(karki * 180 / Math.PI) + '°');
+}
 // Nuotit (käyttäjän säännöt 12.11.2026 ja 16.11.2026): tasan kolme napin kohdalla, viivaston sisällä, jakson keskellä, ei kahta
 // tyhjää peräkkäin, ei samaa korkeutta peräkkäin eikä porrasta. Eri napin leveyksillä (3–12 jaksoa).
 let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -59,16 +81,18 @@ for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 28
     }
     // 17.11.2026: napin alku alakulmassa (ruudun y suurin, +amp), kolmen välin päässä yläkulma (−amp) ja napin loppu, johon
     // siksak päättyy, puoli väliä sen jälkeen laskevan viivan lepokohdassa (17.11.2026; ensin 0,12 väliä).
-    const tri = x => k.y(x, 0) - k.y(k.xz, 0), vali = k.jakso / 2;
+    // Syli (17.11.2026): nouseva kaari huilun suusta tarttuu ylämäen puoliväliin 1,5 väliä ennen napin alkua (suoraa puoli väliä
+    // yläkulmaan, yhtä pitkä kuin napin lopettava alamäki); varamenettelyssä napin ensimmäisen ylämäen puoliväliin.
+    const tri = x => k.y(x, 0) - k.y(k.xz, 0), vali = k.jakso / 2, porras = lahes(k.syli, n0 - 1.5 * vali) ? 1 : lahes(k.syli, n0 - vali) ? 2 : 3, vara = porras === 3;
     if (!lahes(k.loppu, n1) || !lahes(vali, (n1 - n0) / 3.5) || Math.abs(tri(n1 - .5 * vali) + k.amp) > 1e-6 || Math.abs(tri(n1)) > 1e-6 ||
-      (n0 > k.xz && Math.abs(tri(n0) - k.amp) > 1e-6) ||
-      k.xz - k.loppuKaari[0] < k.sp / 2 - 1e-9 || k.xz - k.loppuKaari[0] - k.sp / 2 >= k.jakso / 2 - 1e-9 && n0 > k.xz ||
+      (porras === 2 ? Math.abs(tri(k.syli) + k.amp) > 1e-6 : Math.abs(tri(k.syli)) > 1e-6 || !(tri(k.syli + .1) < 0)) ||
+      (vara ? !lahes(k.syli, n0 + vali / 2) : Math.abs(tri(n0 - vali) + k.amp) > 1e-6 || Math.abs(tri(n0) - k.amp) > 1e-6) ||
       Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
     // Tasan kolme nuottia (käyttäjä 16.11.2026), napin kohdalla, eikä soiton sisällä kahta tyhjää jaksoa peräkkäin.
     const soi = kes.map(x => q.some(a => a.x === x)), eka = soi.indexOf(true), vika = soi.lastIndexOf(true);
     // Kolme väliä napin kohdalla, nuotti kunkin keskellä: oikea rako puoli väliä vasenta isompi (17.11.2026).
-    if (kes.length !== 3 || n0 >= k.xz && Math.abs((n1 - kes[kes.length - 1]) - (kes[0] - n0) - .5 * k.jakso / 2) > 1e-6) nv.reuna++;
-    if (q.length !== 3 || kes.length < 3 || !soi[0] || !soi[soi.length - 1] || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
+    if (kes.length !== (vara ? 2 : 3) || !vara && Math.abs((n1 - kes[kes.length - 1]) - (kes[0] - n0) - .5 * k.jakso / 2) > 1e-6) nv.reuna++;
+    if (q.length !== kes.length || !soi[0] || !soi[soi.length - 1] || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
     for (let j = eka + 1; j <= vika; j++) if (!soi[j] && !soi[j - 1]) nv.aukot++;
     if (soi.includes(false)) aukollisia++;
     const mel = q.map(a => a.p);
@@ -123,15 +147,23 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     // 320 px:ssä nappi alkaa jo viuhkan kohdalla, joten vasen reuna ei ole kulma.
     const kulmat = q => p.evaluate(q => {
       const l = document.querySelector(q), R = l.getBoundingClientRect(), n = l.querySelector('.huilunappi').getBoundingClientRect();
-      const pts = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(41).map(t => t.split(' ').map(Number));
+      const pts = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(81).map(t => t.split(' ').map(Number));
+      const kaariLoppu = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L')[80].split(' ').map(Number);
       const paa = pts.pop(), x0 = n.left - R.left, x1 = n.right - R.left, sis = pts.filter(q => q[0] > x0 - .1 && q[0] < x1 + .1);
       const ys = pts.map(q => q[1]), ala = Math.max(...ys), yla = Math.min(...ys), eka = sis[0], vika = sis[sis.length - 1];
-      return { vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
+      // Kaaren pää ylämäen puolivälissä 1,5 väliä ennen napin alkua (lepokohta), seuraava piste (suora puoli väliä) yläkulma
+      // ja sitä seuraava napin alun alakulma. Kaari on vain nouseva: sen viimeinen veto nousee.
+      const v = (x1 - x0) / 3.5, kp = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L')[79].split(' ').map(Number);
+      const sylissa = Math.abs(kaariLoppu[0] - (x0 - 1.5 * v)) < .05 && Math.abs(kaariLoppu[1] - (yla + ala) / 2) < .02 && kp[1] > kaariLoppu[1] &&
+        Math.abs(pts[0][0] - (x0 - v)) < .05 && Math.abs(pts[0][1] - yla) < .02 && Math.abs(pts[1][0] - x0) < .05;
+      // Toinen porras (ahdas): kaari nousee suoraan yläkulmaan väliä ennen napin alkua.
+      const kulmaan = Math.abs(kaariLoppu[0] - (x0 - v)) < .05 && Math.abs(kaariLoppu[1] - yla) < .02 && kp[1] > kaariLoppu[1] && Math.abs(pts[0][0] - x0) < .05;
+      return { sylissa, kulmaan, vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
     const kpOk = k => k.paa < .05 && k.vikaYla && k.yli > 13 && k.yli < 21 && k.paaAlempana;
     const kp = await kulmat('#huilulohko');
-    tulos(`${w} px: pinossa napin alku alakulmassa, kolme väliä, loppu alamäen puolivälissä`, kpOk(kp) && (w < 360 || kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
+    tulos(`${w} px: pinossa nouseva kaari ylämäen puoliväliin (360 px: yläkulmaan), napin alku alakulmassa, loppu alamäen puolivälissä`, kpOk(kp) && (w < 340 || (w < 380 ? kp.kulmaan : kp.sylissa) && kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
     const pino = () => p.evaluate(() => {
       const l = document.querySelector('#huilulohko'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit');
       const rg = document.createRange(); rg.selectNodeContents(document.querySelector('#lisaa-ots')); const t = rg.getBoundingClientRect();
@@ -164,7 +196,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: kelpaamaton lause ei soita`, !(await pino()).nuotit);
     await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
     const j = await pino();
-    tulos(`${w} px: painallus tuo kolme nuottia koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === 3 && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.vasen < 30 && j.nuotit.oikea < 36 && j.nuotit.oikea - j.nuotit.vasen > 12 && j.nuotit.oikea - j.nuotit.vasen < 22 && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
+    tulos(`${w} px: painallus tuo kolme nuottia (320 px: kaksi) koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === (w < 340 ? 2 : 3) && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && (w < 340 || j.nuotit.vasen < 30 && j.nuotit.oikea < 36 && j.nuotit.oikea - j.nuotit.vasen > 12 && j.nuotit.oikea - j.nuotit.vasen < 22) && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
     tulos(`${w} px: ei vaakavieritystä pinossa`, j.vaaka);
     if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);
@@ -178,7 +210,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
     const ka = await kulmat('#huilulohko-aset');
-    tulos(`${w} px: asetuksissa napin alku alakulmassa, kolme väliä, loppu alamäen puolivälissä`, kpOk(ka) && ka.vasen < .05 && ka.vasenAla && ka.kulmia === 4, JSON.stringify(ka));
+    tulos(`${w} px: asetuksissa napin alku alakulmassa, kolme väliä, loppu alamäen puolivälissä`, kpOk(ka) && ka.sylissa && ka.vasen < .05 && ka.vasenAla && ka.kulmia === 4, JSON.stringify(ka));
     const a = await aset();
     tulos(`${w} px: Arvo laatikkolauseen tekstikentän oikealla puolella samalla rivillä`, a.arvoKentta >= 4 && a.arvoKentta <= 12 && a.arvoRivi < 1, JSON.stringify(a));
     tulos(`${w} px: Soita huilua! oikeassa reunassa, viuhka lohkon sisällä, ei erotteluviivaa, ei nuotteja ennen painallusta`, Math.abs(a.nappi) < .5 && a.viivatLohkossa && !a.viiva && !a.nuotit, JSON.stringify(a));

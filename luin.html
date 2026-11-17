@@ -1569,7 +1569,7 @@
 <script src="luin/md.js?v=a621e8f0"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=400a6d62"></script>
+<script src="luin/huilu.js?v=4ef6bafb"></script>
 <script>
 (function () {
   'use strict';
@@ -2826,11 +2826,11 @@
     if (paikka) { var P = paikka.getBoundingClientRect(); vasen = P.left - R.left + (P.width - r.w) / 2; yla = P.top - R.top - 8; }
     else {
       yla = kaista.top - R.top + 2;
-      // Huilu niin, että siksak alkaa lepokohdastaan kaksi ja puoli väliä ennen napin vasenta reunaa (alakulma) ja viuhkan
-      // jälkeinen suora on lyhyt (puoli viivaväliä + 0,15 väliä). Napin leveys on 3,5 väliä (kaista(): valit 3, yli .5).
+      // Huilu niin, että sen suu on 1,7 väliä vasemmalla kohdasta, jossa kaari tarttuu ylämäen puoliväliin (1,5 väliä
+      // ennen napin alun alakulmaa); väliin jää sylin kaari (17.11.2026). Napin leveys on 3,5 väliä (kaista(): valit 3, yli .5).
       var k0 = LuinHuilu.kaista({ vasen: 0, yla: yla, keskiY: yla + r.h + 6 + HUILU.sp, oikea: 1e5, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma, sp: HUILU.sp });
       var vali = nappi.width / 3.5;
-      vasen = Math.max(8, nappi.left - R.left - 2.65 * vali - (k0.loppuKaari[0] + HUILU.sp / 2));
+      vasen = Math.max(8, nappi.left - R.left - 1.5 * vali - 1.7 * vali - k0.alku[0]);
     }
     // Napin alku siksakin alakulmassa, kolmen välin päässä yläkulma ja napin loppu, johon siksak päättyy, hiukan sen jälkeen
     // (käyttäjän vaatimukset 17.11.2026, alkuX ja loppuX) pinossa ja asetuksissa.
