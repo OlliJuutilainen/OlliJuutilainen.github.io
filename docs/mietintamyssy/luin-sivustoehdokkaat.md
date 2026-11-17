@@ -58,7 +58,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   osioiden HTML:stä ja metatiedot rajapinnasta.
   ForumMagnum: LessWrong ja EA Forum (PR #845, 17.11.2026, pahvin *20 sivustosovitetta* 5): ponnahdusalaviitteet
   alaviitteiksi, kommentit pois.
-  Janeway / Open Library of Humanities (PR #JWNRO, 17.11.2026, pahvin *20 sivustosovitetta* 6): alustasovite, myös Orbit, C21 ja
+  Janeway / Open Library of Humanities (PR #846, 17.11.2026, pahvin *20 sivustosovitetta* 6): alustasovite, myös Orbit, C21 ja
   Glossa; tiivistelmä, alaviitteet (otsikon viite otsikkoon) ja kirjallisuus.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
