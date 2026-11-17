@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare ja Gwern.net (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net ja Los Angeles Review of Books (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3977,6 +3977,65 @@
       tekija: 'Gwern Branwen', sivusto: 'Gwern.net', julkaistu: pv ? pv[0] : '', lahde: osoite, maar };
   }
 
+  /* Los Angeles Review of Books (lareviewofbooks.org/article/…; käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 17:
+     arvioitavan teoksen tiedot metatiedoiksi, alaviitteet). Next.js, CSS-moduulien luokat tiivisteineen (styles-module__ttejmq__
+     interstitial), joten valitsimet ovat loppuosan mukaan ([class*="__interstitial"]). Artikkeli [class*="__articleInner"]:
+     otsake [class*="__header"] (h1, h2 alaotsikko, h3: By Tekijä ja päiväys), kirjatiedot [class*="__interstitial"]
+     (kappale per kirja: Nimi by Tekijä. Kustantaja, vuosi. sivut. ja Bookshop-linkki), tukipyyntö [class*="__cta"], leipäteksti
+     p/blockquote[class*="__body"] <br>:ien välissä, osanvaihto ¤, lopussa tekijän esittely (LARB Contributor), jakonapit ja
+     suositukset. Readability antoi tekijäksi Buy on Bookshop.org, pirstoi kirjatiedot riveiksi ja otti tukipyynnön mukaan.
+     Kirjatiedot lihavoituina kappaleina tekstin alkuun (kuten NDPR), Bookshop-linkit, tukipyyntö, jakonapit ja suositukset
+     pois; ¤ osanvaihdoksi; tyhjät lainaukset pois; tekijän esittely loppuun. Alaviitteet samanSivunViitteet()-muodoissa
+     (tarkistetuissa 25 artikkelissa ei ollut yhtään). Lahjoituspyyntö, ei mainoksia. Mitattu 17.11.2026. */
+  async function larb() {
+    const a = document.querySelector('[class*="__articleInner"]');
+    if (!/(^|\.)lareviewofbooks\.org$/i.test(location.hostname) || !a) return null;
+    const el = document.createElement('div');
+    // Kirjatiedot.
+    const kirjat = a.querySelector(':scope > [class*="__interstitial"]:not([class*="__articleShare"])');
+    if (kirjat && !/LARB Contributor/i.test(kirjat.textContent)) {
+      kirjat.querySelectorAll('p').forEach(p => {
+        const k = p.cloneNode(true);
+        k.querySelectorAll('[class*="__affiliateLink"], a[href*="bookshop.org"], br').forEach(x => x.remove());
+        if (!rivi(k.textContent)) return;
+        const u = document.createElement('p'), b = document.createElement('strong');
+        b.append(...k.childNodes); u.appendChild(b); el.appendChild(u);
+      });
+      if (el.children.length) el.appendChild(document.createElement('hr'));
+    }
+    let bio = null;
+    [...a.children].forEach(c => {
+      const luokka = String(c.className || '');
+      if (/__header|__cta|__card|__articleShare|__suggested|__bookshopCta/.test(luokka) || c === kirjat || c.tagName === 'BR') return;
+      if (/__interstitial/.test(luokka)) { if (/LARB Contributor/i.test(c.textContent)) bio = c; return; }
+      const k = c.cloneNode(true);
+      if (/^(P|BLOCKQUOTE)$/.test(k.tagName) && /^\s*(¤|⁂|\*\s*\*\s*\*)\s*$/.test(k.textContent)) { el.appendChild(document.createElement('hr')); return; }
+      if (!rivi(k.textContent) && !k.querySelector('img')) return;
+      el.appendChild(k);
+    });
+    // Peräkkäiset lainaukset (yksi kappale kukin) yhdeksi.
+    el.querySelectorAll('blockquote + blockquote').forEach(q => { const e = q.previousElementSibling; if (e && e.tagName === 'BLOCKQUOTE') { const p = document.createElement('p'); p.append(...q.childNodes); e.appendChild(p); q.remove(); } });
+    el.querySelectorAll('blockquote').forEach(q => { if (!q.querySelector('p')) { const p = document.createElement('p'); p.append(...q.childNodes); q.appendChild(p); } });
+    if (bio) {
+      const h = document.createElement('h2'); h.textContent = 'LARB Contributor'; el.appendChild(h);
+      bio.querySelectorAll('p').forEach(p => { if (!/^LARB Contributor$/i.test(rivi(p.textContent))) el.appendChild(p.cloneNode(true)); });
+    }
+    const maar = samanSivunViitteet(el, 'la');
+    el.querySelectorAll('img, figure').forEach(x => x.remove());
+    el.querySelectorAll('[class]').forEach(x => x.removeAttribute('class'));
+    kkLinkit(el, /^https?:\/\/(www\.)?lareviewofbooks\.org\/(?!article\/)/i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const ots = a.querySelector('[class*="__header"]') || a;
+    const h3 = ots.querySelector('h3');
+    const tekijat = h3 ? [...h3.querySelectorAll('a[href*="/contributor/"]')].map(x => rivi(x.textContent)) : [];
+    const pvm = h3 ? [...h3.querySelectorAll('span')].map(x => rivi(x.textContent)).find(t => /\b\d{4}$/.test(t)) : '';
+    const d = pvm && new Date(pvm + ' 12:00 UTC');
+    return { html: irrota([el]).innerHTML, otsikko: rivi((ots.querySelector('h1') || {}).textContent) || rivi(document.title),
+      alaotsikko: rivi((ots.querySelector('h2') || {}).textContent), tekija: kkLuettelo(tekijat), sivusto: 'Los Angeles Review of Books',
+      julkaistu: d && !isNaN(d) ? d.toISOString().slice(0, 10) : '', lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5613,6 +5672,7 @@
     archiveTeksti: { laji: 'lahjoitukset', osoite: 'https://archive.org/donate' },
     folger: { laji: 'lahjoitukset', osoite: 'https://events.folger.edu/donate/contribute1?ct=1' },
     gwern: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/gwern' },
+    larb: { laji: 'lahjoitukset', osoite: 'https://lareviewofbooks.org/donate/' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -5631,7 +5691,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
