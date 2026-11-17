@@ -396,7 +396,7 @@
      (Pääartikkeli- ja Katso myös -ohjausrivit, Katso myös -osio): verkkoon pääsee vain sieltä ja vain, kun Luinin
      verkkolinkit ovat päällä. Tekstin sisäinen linkki luettelon kohtaan vaatisi md.js:n muutosta (ei nyt). Tekijää ei
      ole (viite alkaa otsikolla), julkaistu on luetun version muokkauspäivä. */
-  const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja|vaizdas|failas|specialus|pagalba|vikipedija|kategorija|portalas|šablonas|aptarimas|naudotojas|modulis|vikižodynas)(\s|_)*:/i;
+  const WIKI_NIMIAVARUUS = /^(file|image|special|help|wikipedia|category|portal|template|talk|user|module|draft|mediawiki|wikt|wiktionary|tiedosto|kuva|toiminnot|ohje|luokka|teemasivu|malline|keskustelu|käyttäjä|moduuli|wikiprojekti|wikisanakirja|vaizdas|failas|specialus|pagalba|vikipedija|kategorija|portalas|šablonas|aptarimas|naudotojas|modulis|vikižodynas|immagine|speciale|aiuto|categoria|portale|discussioni|utente|progetto|datei|bild|spezial|hilfe|kategorie|vorlage|diskussion|benutzer|fichier|spécial|aide|catégorie|portail|modèle|utilisateur|projet|fil|speciel|hjælp|kategori|skabelon|bruger|archivo|especial|ayuda|categoría|plantilla|discusión|usuario|anexo|fail|eri|juhend|kategooria|portaal|mall|arutelu|kasutaja|hjälp|användare|αρχείο|εικόνα|ειδικό|βοήθεια|κατηγορία|πύλη|πρότυπο|συζήτηση|χρήστης|βικιπαίδεια)(\s|_)*:/i;
   /* Wikisource (käyttäjän pyyntö 16.11.2026, pahvin A2: en, de, la, fi; sama sovite kuin Wikipediassa). Lisäksi: painetun
      lähteen sivunumerot yläindekseiksi [483] (en span.ws-pagenum[data-page-number], de span.PageNumber), otsake- ja
      tietolaatikot (.ws-header, #headertemplate, de:n #textdaten), lisenssilaatikko (ensimmäinen virke etukenttään) ja
@@ -485,8 +485,8 @@
     const LAATIKKO = '.ambox, .tmbox, .ombox, .cmbox, .mbox-small, .asbox, .stub, table.metadata, div.metadata, .noprint.noviewer';
     // fi:n Selvennä-malline on myös ilman noprint-luokkaa: yläindeksissä pelkkä linkki mallineeseen.
     const mallineet = [...el.querySelectorAll('sup:not(.reference):not(.mw-ref)')].filter(x => rivi(x.textContent).length < 40 &&
-      [...x.querySelectorAll('a[href]')].some(a => /\/wiki\/(Malline|Template|Wikipedia|Ohje):/i.test(decodeURIComponent(a.getAttribute('href')))));
-    [...el.querySelectorAll('sup.Inline-Template, sup.noprint, span.noprint'), ...mallineet].forEach(m => {
+      [...x.querySelectorAll('a[href]')].some(a => /\/wiki\/(Malline|Template|Wikipedia|Ohje|Aide|Modèle|Hilfe|Vorlage|Aiuto|Ayuda|Plantilla|Mall|Hjälp|Skabelon|Hjælp|Juhend):/i.test(decodeURIComponent(a.getAttribute('href')))));
+    [...el.querySelectorAll('sup.Inline-Template, sup.noprint, span.noprint, sup.need_ref_tag'), ...mallineet].forEach(m => {
       if (!el.contains(m) || !m.closest('p, li, dd, td, blockquote') || m.closest(LAATIKKO + ', .infobox, .navbox, .sidebar')) return;
       const nakyva = rivi(m.textContent).replace(/^\[|\]$/g, '').trim();
       const sel = rivi([m, ...m.querySelectorAll('[title]')].map(x => x.getAttribute && x.getAttribute('title') || '').filter(x => x && !/:/.test(x.slice(0, 20)) || /\(/.test(x)).join(' '));
@@ -524,17 +524,25 @@
       const k = artikkeli(a);
       if (k && !artikkelit.has(k.avain)) artikkelit.set(k.avain, k.nimi);
     });
-    el.querySelectorAll('.hatnote, .dablink, .rellink').forEach(h => {
-      if (/^\s*(pääartikkeli|pääartikkelit|katso myös|lisätietoja|main articles?|see also|further information|pagrindinis straipsnis|pagrindiniai straipsniai|taip pat skaitykite|taip pat žiūrėkite)(?![\p{L}\p{N}])/iu.test(h.textContent)) talteen(h);
+    // Ohjausrivit kielittäin (17.11.2026, pahvin *20 sivustosovitetta* 14: it, de, fr, da, es, et, sv, el); luokat vaihtelevat
+    // (de .hauptartikel/.sieheauch, fr .bandeau-section, da .detail, es .rellink), joten tunnistus myös alkusanasta.
+    el.querySelectorAll('.hatnote, .dablink, .rellink, .hauptartikel, .sieheauch, .detail, .bandeau-section, .huvudartikel, .vedi-anche').forEach(h => {
+      if (/^\s*(pääartikkeli|pääartikkelit|katso myös|lisätietoja|main articles?|see also|further information|pagrindinis straipsnis|pagrindiniai straipsniai|taip pat skaitykite|taip pat žiūrėkite|lo stesso argomento in dettaglio|voce principale|vedi anche|hauptartikel|siehe auch|articles? détaillés?|voir aussi|uddybende artikel|hovedartikel|se også|artículos? principal(es)?|véase también|põhiartikkel|pikemalt artiklis|vaata ka|huvudartikel|se även|utförligare artikel|κύριο άρθρο|δείτε επίσης)(?![\p{L}\p{N}])/iu.test(h.textContent)) talteen(h);
     });
-    const KATSO = /^(katso myös|see also|taip pat skaitykite|taip pat žiūrėkite)$/i;
-    el.querySelectorAll('h2').forEach(h => {
-      if (!KATSO.test(rivi(h.textContent.replace(/\[(muokkaa|edit)[^\]]*\]/gi, '')))) return;
-      const kaare = h.closest('section') && h.closest('section').querySelector('h2') === h ? h.closest('section') : null;
-      if (kaare && el.contains(kaare)) { talteen(kaare); kaare.remove(); return; }
+    const KATSO = /^(katso myös|see also|taip pat skaitykite|taip pat žiūrėkite|voci correlate|siehe auch|articles connexes|se også|véase también|vaata ka|se även|δείτε επίσης)$/i;
+    // Sisarprojektien luettelo (it: Altri progetti) on navigointia.
+    const POIS_OSIO = /^(altri progetti|autres projets|andere projekte)$/i;
+    el.querySelectorAll('h2, h3').forEach(h => {
+      const nimi = rivi(h.textContent.replace(/\[(muokkaa|edit)[^\]]*\]/gi, ''));
+      const pois = POIS_OSIO.test(nimi);
+      if (!el.contains(h) || !pois && !KATSO.test(nimi)) return;
+      const taso = +h.tagName[1];
+      const kaare = h.closest('section') && h.closest('section').querySelector('h2, h3') === h ? h.closest('section') : null;
+      if (kaare && el.contains(kaare)) { if (!pois) talteen(kaare); kaare.remove(); return; }
       const alku = h.closest('.mw-heading') || h;
-      while (alku.nextElementSibling && !/^H2$/.test(alku.nextElementSibling.tagName) && !alku.nextElementSibling.querySelector('h2')) {
-        talteen(alku.nextElementSibling); alku.nextElementSibling.remove();
+      const raja = e => { const x = /^H[1-6]$/.test(e.tagName) ? e : e.querySelector('h1, h2, h3, h4, h5, h6'); return x && +x.tagName[1] <= taso; };
+      while (alku.nextElementSibling && !raja(alku.nextElementSibling)) {
+        if (!pois) talteen(alku.nextElementSibling); alku.nextElementSibling.remove();
       }
       alku.remove();
     });
@@ -550,7 +558,23 @@
       'audio', 'video', '.infobox', 'table.sidebar', '.sidebar', '.navbox', '.navbox-styles', '.vertical-navbox', '.sistersitebox',
       '.side-box', '.portalbox', '.portal', '#toc', '.toc', '#coordinates', '.geo-default', '.quotebox', '.mw-references-wrap',
       'ol.references', '.reflist', '.viitteet-malline', '.references-small', '.Z3988', '.cs1-maint', '.mw-cite-backlink',
-      '.authority-control', '.NavFrame', '.navigaatiomalline', '.noprint', '.mw-kartographer-maplink', '.mw-kartographer-map'].join(', ')).forEach(x => x.remove());
+      '.authority-control', '.NavFrame', '.navigaatiomalline', '.noprint', '.mw-kartographer-maplink', '.mw-kartographer-map',
+      // Muut kielet (17.11.2026): it Controllo di autorità ja alanavigaatio, de sisarprojektit ja Normdaten, fr portaalit ja
+      // auktoriteettitiedot, da sisarprojektit.
+      'table.CdA', '.subnavbox', '.schwesterbox', '#normdaten', '.normdaten', '#bandeau-portail', '.bandeau-portail', '.liste-portails',
+      '.honsedesign-soster', '.honsedesign-portal'].join(', ')).forEach(x => x.remove());
+    // Ruotsin lainausmalline (table.cquote) lainaukseksi: lainaus ja sen alla lähde.
+    el.querySelectorAll('table.cquote').forEach(t => {
+      const q = document.createElement('blockquote');
+      [...t.querySelectorAll('td')].map(c => rivi(c.textContent)).filter(x => x && !/^[«»“”"„]$/.test(x)).forEach(x => { const p = document.createElement('p'); p.textContent = x; q.appendChild(p); });
+      t.replaceWith(q);
+    });
+    // Taulukko ilman otsikkoriviä jäisi Turndownissa HTML:ksi (de, es: teosluettelot): ruudukoksi.
+    el.querySelectorAll('table').forEach(t => {
+      if (!el.contains(t) || t.parentElement.closest('table')) return;
+      const r = t.rows[0];
+      if (!r || ![...r.cells].every(c => c.tagName === 'TH') || t.querySelector('caption')) ojsTaulukko(t);
+    });
     // Parsoidin osiot ja otsikkokääreet auki, jotta otsikot ja sisältö ovat samalla tasolla.
     el.querySelectorAll('section, div.mw-heading, div.section-heading, .mf-section-0, [class*="mf-section-"]').forEach(x => x.replaceWith(...x.childNodes));
     // Wikilinkit tekstiksi; verkkolinkit jäävät (toimivat vain Luinin verkkolinkit päällä).
@@ -570,8 +594,10 @@
       }
       if (tyhja) h.remove();
     });
+    // Parsoidin tunnisteet pois ylä- ja alaindekseistä (it: Metaphysik L<sub id="mwBfY">1</sub>): Latomo muuntaa vain paljaan merkinnän.
+    el.querySelectorAll('sup, sub').forEach(x => [...x.attributes].forEach(at => x.removeAttribute(at.name)));
     // Lähde- ja kirjallisuusluettelot kappaleiksi.
-    const BIB = /^(lähteet|lähdeteokset|kirjallisuus|kirjallisuutta|lähdekirjallisuus|aiheesta muualla kirjallisuutta|references|sources|bibliography|works cited|cited works|further reading|citations|primary sources|secondary sources|general and cited (references|sources)|selected bibliography|šaltiniai|literatūra|bibliografija)$/i;
+    const BIB = /^(lähteet|lähdeteokset|kirjallisuus|kirjallisuutta|lähdekirjallisuus|aiheesta muualla kirjallisuutta|references|sources|bibliography|works cited|cited works|further reading|citations|primary sources|secondary sources|general and cited (references|sources)|selected bibliography|šaltiniai|literatūra|bibliografija|bibliografia|literatur|bibliographie|bibliografi|litteratur|litteratur på dansk|bibliografía|kirjandus|källor|vidare läsning|βιβλιογραφία|προτεινόμενη βιβλιογραφία)$/i;
     let bib = 0;
     [...el.children].forEach(e => {
       if (ots(e)) { const t = +e.tagName[1]; if (BIB.test(rivi(e.textContent))) bib = t; else if (bib && t <= bib) bib = 0; return; }
