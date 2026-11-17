@@ -152,8 +152,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `e.omappi` (aika) lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki on kellarin alalaidassa
   kuten kellarilinkki pinossa (versaali, nuoli, ei kampea) ja vain, kun siellä on jotain. Testi `omappi-testi.js`.
 - **Kellarin kampi** (käyttäjän pyynnöt 16.–17.11.2026): kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
-  kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 40° oikealle
-  ylös. Navan korkeus perusviivasta on sama kuin linkissä (testi mittaa).
+  kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
+  ylös (ensin 40°). Pinon otsikon perässä samalla idealla pinomerkki (`PINOM`). Molemmat hyvin pieninä (leveys 1,45 em),
+  rako 0,7 em viimeisestä kirjaimesta, keskikohta samalla korkeudella perusviivasta kuin kellarilinkin kammen napa (testi mittaa).
+  Navan renkaan pää on leikattu kammen suuntaisesti molemmissa kammissa (käyttäjän pyyntö 17.11.2026: vaakasuora pää näytti
+  typerältä): rengas jatkuu 65°:een ja `clipPath` (`KAMPI_LEIKKAUS`, evenodd-lovi) leikkaa sen idän pisteen kautta.
   Nimikkeen valikkonappi on yhä `button.jako` (latomo-testi ja ulkoklikkauksen poikkeus nojaavat siihen). Zip-vienti
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
