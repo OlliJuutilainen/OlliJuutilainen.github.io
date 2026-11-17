@@ -1,6 +1,6 @@
 // Tusinasään kuvake (käyttäjän luonnos 17.11.2026): ympyrä, sen ulkopuolella kellotaulun paikoilla 12 pientä
-// sisäänpäin osoittavaa kolmiota hiukan irti kehästä, ja keskellä pikselikirjaimin TS / 12 niin, että interpunkti
-// on kehän tarkka keskipiste. Kirjaimet ovat omaa 5 × 7 -pikseliruudukkoa (ei fonttitiedostoa), jotta sama muoto
+// ulospäin osoittavaa kolmiota hiukan irti kehästä, ja keskellä pikselikirjaimin TS / 12 (ei keskipistettä:
+// interpunkti poistettiin käyttäjän pyynnöstä samana päivänä). Kirjaimet ovat omaa 5 × 7 -pikseliruudukkoa (ei fonttitiedostoa), jotta sama muoto
 // syntyy vektorina sekä SVG:hen että Androidin VectorDrawableen.
 //
 // Tuottaa:
@@ -32,9 +32,9 @@ const K = 108, C = K / 2;
 const P = 1.8;                 // pikselin sivu
 const R = 23.4;                // kehän säde (viivan keskeltä)
 const KEHA = 1.4;              // kehän viiva
-const RAKO = 1.6;              // kehän ulkoreunasta kolmion kärkeen
-const KOLMIO_K = 3.6;          // kolmion korkeus
-const KOLMIO_L = 3.8;          // kolmion kanta
+const RAKO = 1.6;              // kehän ulkoreunasta kolmion kantaan
+const KOLMIO_K = 4.4;          // kolmion korkeus
+const KOLMIO_L = 4.8;          // kolmion kanta
 
 const MERKIT = {
   T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
@@ -57,18 +57,17 @@ function pikselit() {
       i += l - 1;
     }
   });
-  // Lohko 13 × 17 pikseliä: merkki 5 × 7, väli 3 (interpunkti keskellä, pikselin rako kummallakin puolella).
+  // Lohko 13 × 17 pikseliä: merkki 5 × 7, väli 3.
   const vas = C - 6.5 * P, oik = C + 1.5 * P, yla = C - 8.5 * P, ala = C + 1.5 * P;
   merkki(MERKIT.T, vas, yla);
   merkki(MERKIT.S, oik, yla);
   merkki(MERKIT[1], vas, ala);
   merkki(MERKIT[2], oik, ala);
-  osat.push([C - P / 2, C - P / 2, P, P]);   // interpunkti
   return osat.map(([x, y, w, h]) => `M${n(x)},${n(y)}h${n(w)}v${n(h)}h${n(-w)}Z`).join('');
 }
 
 function kolmiot() {
-  const karki = R + KEHA / 2 + RAKO, kanta = karki + KOLMIO_K;
+  const kanta = R + KEHA / 2 + RAKO, karki = kanta + KOLMIO_K;   // kärki ulospäin
   let d = '';
   for (let t = 0; t < 12; t++) {
     const a = t * Math.PI / 6;                 // 0 = klo 12
