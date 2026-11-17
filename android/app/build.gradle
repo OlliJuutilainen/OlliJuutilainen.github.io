@@ -10,11 +10,13 @@ String quoted(Object value) {
 // Sijaintiversio ilman tokenia tai avainta avaisi vain virheilmoituksen, joten estetään
 // sellaisen rakentaminen jo Gradlessa. Perusversioon tämä ei vaikuta.
 gradle.taskGraph.whenReady { graph ->
-    boolean haakisRequested = graph.allTasks.any { it.project == project && it.name.contains('Haakis') }
-    if (haakisRequested) {
-        ['tusinasaa.haakis.token', 'tusinasaa.haakis.key'].each { name ->
-            if (!findProperty(name)?.toString()?.trim()) {
-                throw new GradleException("Puuttuu Gradle-ominaisuus '${name}'. Lisää se tiedostoon ~/.gradle/gradle.properties.")
+    ['haakis', 'rantakoto'].each { flavor ->
+        boolean requested = graph.allTasks.any { it.project == project && it.name.toLowerCase().contains(flavor) }
+        if (requested) {
+            ["tusinasaa.${flavor}.token", "tusinasaa.${flavor}.key"].each { name ->
+                if (!findProperty(name)?.toString()?.trim()) {
+                    throw new GradleException("Puuttuu Gradle-ominaisuus '${name}'. Lisää se tiedostoon ~/.gradle/gradle.properties.")
+                }
             }
         }
     }
@@ -51,6 +53,12 @@ android {
             applicationIdSuffix '.haakis'
             buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.haakis.token'))
             buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.haakis.key'))
+        }
+        rantakoto {
+            dimension 'sijainti'
+            applicationIdSuffix '.rantakoto'
+            buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.rantakoto.token'))
+            buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.rantakoto.key'))
         }
     }
 

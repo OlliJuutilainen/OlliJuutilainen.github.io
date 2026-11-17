@@ -67,6 +67,11 @@ Jos ominaisuudet puuttuvat, Gradle keskeyttää Haakis-rakennuksen virheeseen. H
 asetettu. Jos purku epäonnistuu (esim. tokenia ei ole KV:ssä), sivu näyttää virheen eikä
 vaihda oletussijaintiin.
 
+- **rantakoto** (`fi.tusinasaa.rantakoto`, "Tusinasää Rantakoto"): sama kuin haakis, omalla
+  token+avain-parillaan (`tusinasaa.rantakoto.token` / `.key`). Asennus:
+  `./gradlew :app:installRantakotoDebug`. Jaettavan APK:n saa komennolla
+  `./gradlew :app:assembleRantakotoDebug` (`app/build/outputs/apk/rantakoto/debug/`).
+
 Uusi sijaintiversio tehdään samalla mallilla: uusi flavor `build.gradle`en, kansio
 `app/src/<nimi>/` (`AndroidManifest.xml` + `res/values/strings.xml`) ja ominaisuudet
 `tusinasaa.<nimi>.token` / `.key`.
