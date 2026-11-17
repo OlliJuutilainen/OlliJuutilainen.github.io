@@ -177,10 +177,13 @@
   .syote select { flex: 0 0 auto; }
   button.pois { border: 0; padding: 0 4px; min-width: 30px; justify-content: center; color: var(--harmaa); font-size: 1.15rem; }
   .tulkinta { margin: 4px 0 0; font-size: .8rem; color: var(--harmaa); font-style: italic; }
+  /* Asiasanojen sanasto (17.11.2026): lukimen sanat ruosteena (napautettava) kentän alla. */
+  .sanasto { margin: 4px 0 0; font-size: .8rem; line-height: 1.9; color: var(--harmaa); }
+  .sanasto button.sana { min-height: 0; padding: 0; border: 0; font-size: inherit; color: var(--ruoste); background: none; }
   @media (min-width: 620px) {
     .kentta { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr); column-gap: 14px; align-items: center; }
     .kentta > label { margin: 0; }
-    .kentta .tulkinta { grid-column: 2; }
+    .kentta .tulkinta, .kentta .sanasto { grid-column: 2; }
   }
   .lisaa { margin: 16px 0 0; }
   .lisaa-valikko { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -407,7 +410,7 @@
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
-<script src="md.js?v=379d058a"></script>
+<script src="md.js?v=a621e8f0"></script>
 <script src="posti.js?v=5eac5539"></script>
 <script src="laatikkolause.js?v=29cb216a"></script>
 <script>
@@ -452,7 +455,11 @@
     // kun lähde kertoo. md.js näyttää sen tekstin lopussa selityksineen (oikeudet()).
     { k: 'oikeudet', nimi: 'Tekijänoikeudet', saa: 'etbk', vihje: 'esim. CC BY 4.0, © 2026 Nimi tai tekijänoikeusvapaa' },
     { k: 'lähde', nimi: 'Alkuperäinen verkko-osoite', nak: 'b', saa: 'etk', url: true, vihje: 'https://…' },
-    { k: 'haettu', nimi: 'Haettu', nak: 'b', saa: 'etk', pvm: true, tanaan: true, vihje: 'milloin teksti tallennettiin' }
+    { k: 'haettu', nimi: 'Haettu', nak: 'b', saa: 'etk', pvm: true, tanaan: true, vihje: 'milloin teksti tallennettiin' },
+    // Luokittelu (käyttäjän pyyntö 17.11.2026): asiasanat ja ajoitus järjestävät lukimen kellarin veivihyllystöä eivätkä kuulu
+    // viitteeseen (meta: luetaan etukentästä kuten tekijänoikeudet). Valinnaisia; md.js lukee myös tags-, keywords- ym. avaimet.
+    { k: 'asiasanat', nimi: 'Asiasanat', saa: 'etbk', meta: true, vihje: 'esim. filosofia, psykologia' },
+    { k: 'ajoitus', nimi: 'Ajoitus', saa: 'etbk', meta: true, vihje: 'jos muu kuin julkaisuvuosi, esim. 1807 tai 250 eaa.' }
   ];
   var KENTTA = {};
   KENTAT.forEach(function (f) { KENTTA[f.k] = f; });
@@ -496,7 +503,7 @@
         (f.k === 'julkaistu' ? '<select class="tarkkuus" aria-label="Ilmoitettava tarkkuus"></select>' : '') +
         (f.tanaan ? '<button type="button" class="pieni-nappi tanaan">tänään</button>' : '') +
         '<button type="button" class="pois" aria-label="Poista: ' + f.nimi + '" title="Poista">×</button></div>' +
-        '<p class="tulkinta" hidden></p></div>';
+        '<p class="tulkinta" hidden></p>' + (f.k === 'asiasanat' ? '<p class="sanasto" hidden></p>' : '') + '</div>';
     }).join('');
   }
   rakennaKentat();
@@ -764,7 +771,7 @@
       if (tila.koskettu[f.k]) return;
       var v = t[f.k] || '';
       // Tekijänoikeudet eivät kuulu viitteen tietoihin (md.js tiedot), joten ne luetaan etukentästä sellaisenaan.
-      if (f.k === 'oikeudet') v = (d.meta && d.meta.oikeudet) || '';
+      if (f.k === 'oikeudet' || f.meta) v = (d.meta && d.meta[f.k]) || '';
       if (f.k === 'sivusto' && !v) v = tunnettuSivusto(t['lähde']);
       if (f.k === 'tekijä' && leike) v = v.replace(/^(by|kirjoittanut|teksti:)\s+/i, '');
       if (f.pvm && v) { var p = L.pvm(v); if (p) v = L.pvmMuoto(p, 'kentta', f.k === 'haettu' ? 3 : 4); }
@@ -804,7 +811,12 @@
         var nn = L.tekijat(v, f.k === 'toimittaja');
         if (nn !== v) tx = '→ ' + nn;
       } else if (v && f.url && !/^https?:\/\/\S+$/i.test(v)) tx = 'Osoitteen pitää alkaa https://';
+      else if (v && f.k === 'ajoitus') {
+        var aj = L.ajoitus(v);
+        tx = !aj ? 'Ajoitusta ei tunnistettu: lukin järjestää vuosiluvun, välin tai vuosisadan (1807, 250 eaa., 1770–1831, 1800-luku).' : aj.t === v ? '' : '→ ' + aj.t;
+      }
       tk.textContent = tx; tk.hidden = !tx;
+      if (f.k === 'asiasanat') naytaSanasto(r, n);
       if (f.k === 'julkaistu') {
         var s = $('select', r), p2 = L.pvm(v), maks = Math.min(MAKS[c], p2 ? p2.t : 4);
         s.innerHTML = TARKKUUS.slice(1, MAKS[c] + 1).map(function (n, i) {
@@ -822,6 +834,19 @@
     $('#suositus').hidden = !(c === 'b' && !yksi(tila.arvot['tekijä']) && !yksi(tila.arvot.sivusto));
   }
 
+  /* Asiasanojen sanasto (käyttäjän pyyntö 17.11.2026): lukimen pinon ja kellarin veivihyllystön asiasanat kentän alla, jotta sama
+     sana tulee samassa muodossa eikä rinnakkaismuotoja synny. Napautus lisää sanan kenttään. */
+  function naytaSanasto(r, n) {
+    var p = $('.sanasto', r), on = {}, m = {};
+    L.asiasanat(tila.arvot.asiasanat).forEach(function (s) { on[s.toLowerCase()] = 1; });
+    lueLS('luin-lista', []).forEach(function (e) {
+      (e.asiasanat || []).forEach(function (s) { var k = s.toLowerCase(); if (!on[k] && !m[k]) m[k] = s; });
+    });
+    var a = Object.keys(m).map(function (k) { return m[k]; }).sort(function (x, y) { return x.localeCompare(y, 'fi'); });
+    p.hidden = !n || !a.length;
+    var html = a.length ? 'lukimessa: ' + a.map(function (s) { return '<button type="button" class="sana" data-s="' + esc(s) + '">' + esc(s) + '</button>'; }).join(' · ') : '';
+    if (p.innerHTML !== html) p.innerHTML = html;
+  }
   function sal(cx, cy, rx, ry) {
     var c = 0.38, P = [[cx, cy - ry], [cx + rx, cy], [cx, cy + ry], [cx - rx, cy]], d = 'M' + P[0][0] + ' ' + P[0][1];
     for (var i = 0; i < 4; i++) { var p = P[i], q = P[(i + 1) % 4]; d += 'Q' + (cx + (p[0] + q[0] - 2 * cx) * c).toFixed(2) + ' ' + (cy + (p[1] + q[1] - 2 * cy) * c).toFixed(2) + ' ' + q[0] + ' ' + q[1]; }
@@ -1049,7 +1074,7 @@
   }
   // Vanhan alun lauseet, joista ei jää jäljelle muuta kuin kenttien arvoja ja välimerkkejä, on luettu kenttiin.
   function lisatiedot(lohko) {
-    var arvot = KENTAT.map(function (f) { return yksi(tila.arvot[f.k]); }).filter(Boolean);
+    var arvot = KENTAT.filter(function (f) { return !f.meta; }).map(function (f) { return yksi(tila.arvot[f.k]); }).filter(Boolean);
     var p = L.pvm(yksi(tila.arvot.julkaistu)); if (p) arvot.push(String(p.y));
     arvot.sort(function (x, y) { return y.length - x.length; });
     var out = [];
@@ -1194,6 +1219,12 @@
     if (!k) return;
     if (ev.target.closest('.pois')) { tila.arvot[k] = ''; tila.koskettu[k] = true; delete tila.lisatyt[k]; paivita(); }
     if (ev.target.closest('.tanaan')) { tila.arvot[k] = pvmTanaan(); tila.koskettu[k] = true; paivita(); }
+    var sana = ev.target.closest('.sanasto button.sana');
+    if (sana) {
+      tila.arvot[k] = L.asiasanat(tila.arvot[k]).concat([sana.dataset.s]).join(', '); tila.koskettu[k] = true;
+      $('#k-' + k).value = tila.arvot[k];
+      paivita();
+    }
   });
   $('#tyyppi').addEventListener('change', function () {
     tila.tyyppi = this.value; tila.tyyppiKoskettu = true;

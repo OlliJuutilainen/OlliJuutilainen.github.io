@@ -382,7 +382,7 @@
           <svg class="ik kolme" viewBox="0 0 17 7" aria-hidden="true"><path d="M2.5 0.4Q3.37 2.32 4.8 3.5Q3.37 4.68 2.5 6.6Q1.63 4.68 0.2 3.5Q1.63 2.32 2.5 0.4ZM8.5 0.4Q9.37 2.32 10.8 3.5Q9.37 4.68 8.5 6.6Q7.63 4.68 6.2 3.5Q7.63 2.32 8.5 0.4ZM14.5 0.4Q15.37 2.32 16.8 3.5Q15.37 4.68 14.5 6.6Q13.63 4.68 12.2 3.5Q13.63 2.32 14.5 0.4Z"/></svg>.
           Siitä voi kopioida tekstin lähdeviitteen, kopioida linkin (verkosta avatulle tekstille), ladata tekstin
           Markdown-tiedostona (<span class="ui">lataa .md</span>), merkitä tekstin luetuksi
-          (<span class="ui">Luin.</span>) ja poistaa tekstin pinosta. Poisto vie myös tekstin merkinnät,
+          (<span class="ui">Luin.</span>), luokitella sen (alla) ja poistaa tekstin pinosta. Poisto vie myös tekstin merkinnät,
           joten se kysyy vahvistuksen.</p>
         <p>Jos tekstillä ei ole linkkiä, linkin paikalla on <span class="ui">linkitä tiedostoon</span>. Lataa teksti,
           vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy
@@ -402,7 +402,7 @@
           milloin luit tekstin ja (verkosta avatulle tekstille) mistä osoitteesta. Valinta muistetaan.</p>
         <p>Nimikkeen vasemmalla puolella oleva salmiakki valitsee tekstin, ja otsikkorivin salmiakki valitsee kaikki
           tai tyhjentää valinnan. Kun jotain on valittuna, otsikkorivin oikeaan reunaan tulee valittujen valikko:
-          <span class="ui">Vie merkinnät (zip).</span>, lähdeviitteiden kopiointi, <span class="ui">Luin.</span> ja poisto.
+          <span class="ui">Vie merkinnät (zip).</span>, lähdeviitteiden kopiointi, luokittelu, <span class="ui">Luin.</span> ja poisto.
           Zip-paketissa on jokaisesta tekstistä sama Markdown-tiedosto kuin tekstin omassa merkintöjen viennissä,
           samoilla viennin valinnoilla (ne ovat avoimen tekstin asetuksissa).</p>
         <p><span class="ui">Luin.</span> kysyy vielä varmistuksen ja siirtää tekstin <b>kellarin veivihyllystöön</b>.
@@ -412,6 +412,19 @@
           <span class="ui">Poimi kellarin veivihyllystöstä.</span>: se nostaa tekstin takaisin pinon kärkeen. Merkinnät
           ja lukukohta säilyvät kellarin veivihyllystössä. Teksti palaa pinoon myös, jos se lähetetään
           uudelleen postihuilulla tai latomosta.</p>
+        <p><span class="ui">luokittele</span> antaa tekstille <b>asiasanoja</b> (esimerkiksi <i>filosofia</i> ja
+          <i>psykologia</i>; teksti voi kuulua moneen), <b>ajoituksen</b> ja paikan <b>käsikirjastossa</b>. Asiasanan
+          napautus tallentaa heti. Kenttään kirjoittaminen suodattaa jo käytettyjä sanoja, jotta sama asia saa saman sanan.
+          Ehdotuksina ovat tunnetun sivuston ala (esimerkiksi SEP:stä <i>filosofia</i>) ja saman kirjoittajan tai sivuston
+          muiden tekstien asiasanat; mitään ei lisätä kysymättä. Ajoitus on tekstin paikka aikajanalla, jos se on muu kuin
+          julkaisuvuosi: Hegel-tutkimus Hegelin vuosille (<i>1807</i>), Septuaginta ennen ajanlaskun alkua (<i>250 eaa.</i>).
+          Käsikirjasto on teksteille, joihin palataan aina uudelleen. Kun valitset monta tekstiä, valittujen valikon
+          <span class="ui">Luokittele.</span> antaa saman asiasanan, ajoituksen tai käsikirjaston kaikille.</p>
+        <p>Pino on aina siinä järjestyksessä, jossa tekstit sinne tulivat, eikä luokittelu näy siellä. Kellarin
+          veivihyllystössä otsikon alla on <span class="ui">järjestys</span>: luetuksi merkitsemisen, tekijän, ajoituksen,
+          lajin, asiasanojen, alkuperän (poimittu verkosta, avattu linkistä, ladottu itse), merkintöjen määrän tai
+          edistymisen mukaan, ja halutessasi mukana ovat myös pinon tekstit. Asiasanat ja ajoitus tallentuvat myös tekstin
+          etukenttään, joten ne kulkevat ladatun .md-tiedoston mukana; latomossa ne ovat valinnaisia kenttiä.</p>
       </div>
     </details>
     <details class="osio">
