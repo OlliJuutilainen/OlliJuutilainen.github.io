@@ -136,7 +136,8 @@ const FINAALI1 = [
   ['sal-ontto-0.2', 'Finalisti', 'Luinin oma salmiakki (1,30 × leveys). Sopii merkistöön, mutta kammen pää salmiakin kyljessä näyttää osoittimelta, ei navalta.'],
 ];
 const FINAALI2 = [
-  ['ly-0.22-20-290', 'Valittu 17.11', 'Käyttäjän valinta 290° hieman pienempänä (r = .22, käyttäjän pyyntö 17.11.2026).'],
+  ['ly-0.2-20-290', 'Valittu 17.11', 'Käyttäjän valinta 290° kahdesti pienennettynä (r = .24 → .22 → .2, käyttäjän pyynnöt 17.11.2026).'],
+  ['ly-0.22-20-290', 'Finalisti, ensimmäinen pienennys', 'r = .22.'],
   ['ly-24-20-290', 'Finalisti, käyttäjän paras ennen pienennystä', 'Ääripäiden 220° ja 360° puoliväli; kaari päättyy tasan itään, joten aukko on idän ja lähtöpisteen välissä (70°, noin 3 px). Rengas lukeutuu renkaaksi eikä kirjaimeksi, ja aukko erottuu vielä 1×-tiheydellä. Kampi tulee renkaan kehälle 20°:ssa, joten se kallistuu 37,6° eikä 45°: ero radiaaliseen ei näy.'],
   ['ly-24-20-220', 'Finalisti', 'Avoimin ääripää: palaa alas samaan x-kohtaan kuin lähtö, ja aukko on ulkokehän tapaan idässä. Ajatuksena puhtain, mutta pienenä se lukeutuu c-kirjaimeksi (2×-tiheydellä selvä, 1×-tiheydellä kirjain).'],
   ['ly-24-20-255', 'Finalisti', 'Avoimen ja puolivälin välissä. Vielä hieman c-kirjaimen oloinen.'],
