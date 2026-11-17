@@ -82,7 +82,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   tulevat lainauslohkoina (15/15), kuvat jäävät pois, tekijä ja päivä tulevat, tukipyyntöjä ei tule; vain kuvatekstit (3) jäävät
   kappaleiksi.
   Boston Review (17.11.2026, pahvin *20 sivustosovitetta* 19): Cloudflare estää pilvikontin, joten testaamatta eikä sovitetta.
-  3:16 (PR #T3NRO, 17.11.2026, pahvin *20 sivustosovitetta* 20): kysymykset lihavoituina, nostolainaukset pois, haastateltava tekijäksi.
+  3:16 (PR #862, 17.11.2026, pahvin *20 sivustosovitetta* 20): kysymykset lihavoituina, nostolainaukset pois, haastateltava tekijäksi.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
