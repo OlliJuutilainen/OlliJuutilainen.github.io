@@ -14,6 +14,9 @@
 //   icons/tusinasaa-jako-N.png           linkin esikatselu (og:image; WhatsApp, Signal ym.), 600 × 600. Kun kuva muuttuu,
 //                                        nosta JAKO-numeroa ja päivitä og:image tusinapaja.html:ssä ja index.html:ssä:
 //                                        viestimet pitävät vanhan osoitteen kuvan välimuistissa.
+//   ?v=<SHA-1:n alku>                    index.html:n, tusinapaja.html:n ja manifestin kuvakeosoitteisiin (paitsi jako, jolla
+//                                        oma numero): selaimet pitävät välilehden kuvaketta muistissa osoitteen mukaan
+//                                        eivätkä hae uutta, vaikka palvelin antaisi (17.11.2026 Big Surin selaimessa)
 //   android/app/src/main/res/…           käynnistyskuvake: adaptiivinen (Android 8+), monokromi (13+ teemakuvake) ja
 //                                        Android 7:lle pyöreä layer-list
 //
@@ -164,6 +167,20 @@ if (require.main === module) (async () => {
   await png(s, svg({ viewBox: ESIKATSELU, tausta: 'nelio' }), 600, path.join(IKONIT, `tusinasaa-jako-${JAKO}.png`));
   await b.close();
   android();
+  versioi();
 })();
+
+// Kuvakeosoitteiden versiotunniste tiedoston sisällöstä: muuttuu vain, kun kuva muuttuu.
+function versioi() {
+  const crypto = require('crypto');
+  for (const f of ['index.html', 'tusinapaja.html', 'manifest.webmanifest']) {
+    const p = path.join(JUURI, f);
+    const s = fs.readFileSync(p, 'utf8').replace(/icons\/(tusinasaa(?!-jako)[\w-]*\.(?:svg|png))(?:\?v=[0-9a-f]+)?"/g, (m, nimi) => {
+      const v = crypto.createHash('sha1').update(fs.readFileSync(path.join(IKONIT, nimi))).digest('hex').slice(0, 8);
+      return `icons/${nimi}?v=${v}"`;
+    });
+    fs.writeFileSync(p, s);
+  }
+}
 
 module.exports = { svg, KOTI, MASKI, ESIKATSELU };
