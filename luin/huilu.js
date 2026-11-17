@@ -126,7 +126,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .25, nousuKohta: .75, nousuLeveys: .12, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .1, nousuKohta: .65, nousuLeveys: .25, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .25, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -265,9 +265,9 @@
         // Nousussa pohjan jälkeen alin ei saa tulla liian nopeasti keskimmäisen kylkeen (käyttäjä 17.11.2026: väli kapeni alle
         // viivavälin ja leveni taas): alinta siirretään siinä kohdassa kevyesti ulospäin, poispäin ylimmästä.
         var av = pyorista(tasaPituus(syliReuna(alinO), SYLI.pisteet), SYLI.norPyorista).map(function (p, j) {
-          // Kapeneminen tapahtuu juuri harjaa edeltävässä jyrkässä nousussa (kohtisuora väli = pystyväli · cos), joten siirto
-          // ulottuu harjalle: alimman harja on 1,1–1,4 px yläkulmien alapuolella. Siirto hiipuu vasta viimeisellä kymmenyksellä (nousuLoppu 1), joten laakso pysyy suorana; nousuLoppu < 1 katkaisisi siirron ennen
-          // harjaa (harja tarkalleen paikallaan, mutta väli kapenee taas harjan edessä).
+          // Siirto on matala ja leveä (käyttäjä 17.11.2026: kapea ja vahva .25/.75/.12 teki nousuun muhkuran, kolme
+          // käännettä yhden sijaan; testi laskee käänteet). Harja jää 0,7 px yläkulmien alapuolelle. Siirto hiipuu
+          // viimeisellä kymmenyksellä (nousuLoppu 1), joten laakso pysyy suorana.
           var q = j / SYLI.pisteet, x = (q - SYLI.nousuKohta) / SYLI.nousuLeveys, r = Math.max(0, Math.min(1, (SYLI.nousuLoppu - q) / .1));
           var g = SYLI.nousuUlos * Math.exp(-x * x) * r * r * (3 - 2 * r);
           return [p[0] + (p[0] - yv[j][0]) * g, p[1] + (p[1] - yv[j][1]) * g];

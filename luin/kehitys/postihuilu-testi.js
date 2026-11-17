@@ -88,6 +88,21 @@ for (const [lev, n0, w] of [[288, 171.14, 320], [328, 211.14, 360], [358, 241.14
   // Ulkomutka (käyttäjän ohje 17.11.2026): alimman viivan alin kohta suunnilleen suun kohdalla x-akselilla.
   const ala0 = viivat[0].reduce((a, q) => q[1] > a[1] ? q : a), pohjaSuulla = Math.abs(ala0[0] - k.alku[0]);
   tulos(`syli ${w} px: alimman viivan alin kohta suun kohdalla`, vara || pohjaSuulla < .35 * k.jakso / 2, Math.round(pohjaSuulla * 10) / 10 + ' px suun x:stä');
+  // Ei muhkuroita (käyttäjä 17.11.2026): alimman viivan nousussa pohjasta harjalle on yksi käänne (kaarevuuden merkki
+  // vaihtuu kerran), kuten ilman nousun siirtoa. Kaarevuus jänteistä neljän pisteen päähän ja viiden pisteen liukuva keskiarvo.
+  const N = viivat[0], kN = [];
+  let pohjaJ = 0; N.forEach((q, j) => { if (q[1] > N[pohjaJ][1]) pohjaJ = j; });
+  for (let j = 4; j < 77; j++) {
+    let t = Math.atan2(N[j + 4][1] - N[j][1], N[j + 4][0] - N[j][0]) - Math.atan2(N[j][1] - N[j - 4][1], N[j][0] - N[j - 4][0]);
+    while (t > Math.PI) t -= 2 * Math.PI; while (t < -Math.PI) t += 2 * Math.PI;
+    kN[j] = t;
+  }
+  let kaanteet = 0, merkki = 0;
+  for (let j = Math.max(pohjaJ, 6); j < 75; j++) {
+    const ka = (kN[j - 2] + kN[j - 1] + kN[j] + kN[j + 1] + kN[j + 2]) / 5, m = Math.abs(ka) < .01 ? 0 : Math.sign(ka);
+    if (m && m !== merkki) { if (merkki) kaanteet++; merkki = m; }
+  }
+  tulos(`syli ${w} px: alimman nousussa yksi käänne, ei muhkuroita`, kaanteet === 1, kaanteet + ' käännettä');
   tulos(`syli ${w} px: kaarevuus muuttuu tasaisesti, myös kaaren ja laakson saumassa`, nyk < .08 && sauma < .05, 'suurin muutos ' + nyk.toFixed(4) + ', kaarevuus laakson saumassa ' + sauma.toFixed(4) + ' 1/px');
 }
 // Nuotit (käyttäjän säännöt 12.11.2026 ja 16.11.2026): tasan kolme napin kohdalla, viivaston sisällä, jakson keskellä, ei kahta
@@ -190,8 +205,8 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const v = (x1 - x0) / 3.5, kaari = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(0, 81).map(t => t.split(' ').map(Number));
       let pj = 0; kaari.forEach((q, j) => { if (q[1] > kaari[pj][1]) pj = j; });
       const harja = Math.min(...kaari.slice(pj).map(q => q[1])), suoralla = yla + (ala - yla) * (kaariLoppu[0] - (x0 - v)) / v;
-      // Harja saa olla 1,6 px yläkulmien alapuolella: alinta siirretään nousussa ulospäin (käyttäjä 17.11.2026, ks. huilu.js nousuUlos).
-      const sylissa = harja - yla > -.3 && harja - yla < 1.6 && Math.abs(kaariLoppu[1] - suoralla) < .05 && Math.abs(pts[0][0] - x0) < .05 && Math.abs(pts[0][1] - ala) < .02;
+      // Harja saa olla 1 px yläkulmien alapuolella: alinta siirretään nousussa ulospäin (käyttäjä 17.11.2026, ks. huilu.js nousuUlos).
+      const sylissa = harja - yla > -.3 && harja - yla < 1 && Math.abs(kaariLoppu[1] - suoralla) < .05 && Math.abs(pts[0][0] - x0) < .05 && Math.abs(pts[0][1] - ala) < .02;
       return { sylissa, vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
