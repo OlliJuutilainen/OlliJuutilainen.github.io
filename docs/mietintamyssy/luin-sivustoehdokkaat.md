@@ -70,6 +70,10 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   kehys; teksti ja annotaatiot tulevat sovelluksen omasta rajapinnasta (pahvin sääntö 5).
   Folger Shakespeare (PR #855, 17.11.2026, pahvin *20 sivustosovitetta* 12): näytelmä puhujineen, näytöksineen, kohtauksineen
   ja rivinumeroineen.
+  SuttaCentral (17.11.2026, pahvin *20 sivustosovitetta* 13): ohitettu. Sivu on JavaScript-sovellus (`<sc-site-layout>`), jonka
+  HTML:ssä ei ole tekstiä (pahvin sääntö 5).
+  Wikipedia muilla kielillä: it, de, fr, da, es, et, sv, el (PR #WPNRO, 17.11.2026, pahvin *20 sivustosovitetta* 14): Wikipedia-sovite
+  yleistetty, fi/en/lt ennallaan.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -246,7 +250,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 ## Buddhalaisuus
 
-- SuttaCentral (sovellusmainen, voi olla vaikea)
+- SuttaCentral (sovellusmainen, voi olla vaikea; ohitettu 17.11.2026: vain JavaScript, ks. yllä)
 - Access to Insight
 - dhammatalks.org (Thanissaro; tehty 16.11.2026, ks. yllä)
 - Ancient Buddhist Texts

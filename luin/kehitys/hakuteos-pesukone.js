@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -185,6 +185,11 @@ const SARJAT = {
     .map(i => 'https://archive.org/stream/' + i + '/' + i + '_djvu.txt'),
   // Folger Shakespeare (17.11.2026): Hamlet kokonaan, Macbethin yksi kohtaus ja Myrskyn kokonainen näytelmä (laulut).
   folger: ['hamlet/read/', 'macbeth/read/1/3/', 'the-tempest/read/'].map(p => 'https://www.folger.edu/explore/shakespeares-works/' + p),
+  // Wikipedia muilla kielillä (17.11.2026, pahvin *20 sivustosovitetta* 14): Kant italiaksi, saksaksi, ranskaksi, tanskaksi,
+  // espanjaksi, viroksi, ruotsiksi ja kreikaksi (ohjausrivit, Katso myös -osiot, sisarprojektit, taulukot, lainausmalline).
+  wikimuut: ['it/Immanuel_Kant', 'de/Immanuel_Kant', 'fr/Emmanuel_Kant', 'da/Immanuel_Kant', 'es/Immanuel_Kant', 'et/Immanuel_Kant',
+    'sv/Immanuel_Kant', 'el/%CE%99%CE%BC%CE%BC%CE%AC%CE%BD%CE%BF%CF%85%CE%B5%CE%BB_%CE%9A%CE%B1%CE%BD%CF%84']
+    .map(p => 'https://' + p.split('/')[0] + '.wikipedia.org/wiki/' + p.split('/')[1]),
   // Paul Grahamin esseet (16.11.2026): <br><br>-kappaleet, Notes-viitteet, päiväys ensimmäisenä kappaleena.
   pg: ['greatwork', 'hwh', 'useful'].map(p => 'https://www.paulgraham.com/' + p + '.html'),
   // Tertullian Project (16.11.2026): Porfyrioksen De abstinentia (Taylor 1823) viitenä sivuna kirjan 1 sivulta.
