@@ -56,6 +56,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Hypotheses.org (PR #843, 17.11.2026, pahvin *20 sivustosovitetta* 3): blogikirjoitus alaviitteineen, mitattu de, fr, en.
   Manifold (PR #844, 17.11.2026, pahvin *20 sivustosovitetta* 4): palvelin renderöi osiot, joten koko kirja loppuviitteineen
   osioiden HTML:stä ja metatiedot rajapinnasta.
+  ForumMagnum: LessWrong ja EA Forum (PR #845, 17.11.2026, pahvin *20 sivustosovitetta* 5): ponnahdusalaviitteet
+  alaviitteiksi, kommentit pois.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -460,7 +462,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - Animal Sentience (avoin)
 - Animal Ethics: animal-ethics.org
 - Sentience Institute
-- EA Forum: pitkät tekstit
+- EA Forum: pitkät tekstit (tehty 17.11.2026 ForumMagnum-sovitteella, ks. yllä)
 
 ## Esseelehdet ja long read
 

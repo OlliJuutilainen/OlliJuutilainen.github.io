@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org ja Manifold (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold ja ForumMagnum (LessWrong, EA Forum; 17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3290,6 +3290,58 @@
       maar, naytto: (otsikko || 'Manifold') + (luettu > 1 ? ' (' + luettu + ' osiota)' : '') };
   }
 
+  /* ForumMagnum (LessWrong, EA Forum, AI Alignment Forum; alustasovite, käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 5:
+     ponnahdusalaviitteet tavallisiksi, kommentit pois). Kirjoituksen sivu /posts/<id>/<nimi>. Runko: LessWrongissa
+     .PostsPage-postContent (#postContent), EA Forumissa (Next.js, Tailwind) [data-component=ContentItemBody], joka ei ole
+     kommentti (.comment-body); EA Forum virtaa sisällön piilotettuina paloina, jotka sivun skriptit siirtävät paikalleen, joten
+     valitaan pisin ehdokas. Alaviitteet: span.footnote-reference[role=doc-noteref] a[href=#fnX] → ol.footnote-section
+     li#fnX .footnote-content (sivu näyttää ne ponnahduksina tai reunahuomautuksina). Readability jätti viitteet loppuun
+     luetteloksi ja merkit linkeiksi (alaviitteitä 0, raakaa HTML:ää 146). Pois: kommentit, upotukset (.iframe-widget), äänilukija
+     ja äänestys (rungon ulkopuolella). Etukenttään citation_title, citation_author (kaikki), päivä citation_publication_date tai
+     time[datetime], sivusto application-name tai verkkotunnus. Ei mainoksia; rahoitusta ei ole tarkistettu, joten ei
+     RAHOITUS-merkintää. Mitattu 17.11.2026. */
+  const FM_NIMET = { 'lesswrong.com': 'LessWrong', 'forum.effectivealtruism.org': 'Effective Altruism Forum', 'alignmentforum.org': 'AI Alignment Forum' };
+  async function forummagnum() {
+    const isanta = location.hostname.replace(/^www\./, '');
+    const tunnettu = FM_NIMET[isanta];
+    if (!/^\/posts\/[A-Za-z0-9]+/.test(location.pathname)) return null;
+    if (!tunnettu && !document.querySelector('.PostsPage-postContent, [data-component="PostsPage"]')) return null;
+    const ehdot = [...document.querySelectorAll('.PostsPage-postContent, [data-component="ContentItemBody"]')]
+      .filter(x => !x.closest('.comment-body, [data-component="CommentItem"], .CommentsNode-root, .CommentBody-root') && !x.classList.contains('comment-body'));
+    const runko = ehdot.sort((a, b) => kkSanoja(b) - kkSanoja(a))[0];
+    if (!runko || kkSanoja(runko) < 30) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, template, noscript, iframe, button, svg, .iframe-widget, .HydratedIframeWidget-fallback, .footnote-back-link').forEach(x => x.remove());
+    const maar = [], laskuri = { n: 0 };
+    el.querySelectorAll('.footnote-reference, [role="doc-noteref"]').forEach(r => {
+      const a = r.querySelector('a[href^="#"]') || (r.matches('a[href^="#"]') ? r : null);
+      if (!a || !el.contains(r)) return;
+      let li = null;
+      try { li = el.querySelector('[id="' + CSS.escape(decodeURIComponent(a.getAttribute('href').slice(1))) + '"]'); } catch (e) {}
+      let t = '';
+      if (li) {
+        const c = (li.querySelector('.footnote-content') || li).cloneNode(true);
+        t = muunna(c.innerHTML, 'inlined').trim();
+      }
+      if (!t) { r.remove(); return; }
+      const tunnus = 'fm' + (++laskuri.n);
+      r.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('ol.footnote-section, ol.footnotes, [role="doc-endnotes"]').forEach(x => x.remove());
+    kkLinkit(el, new RegExp('^' + location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/(?!posts/)', 'i'));
+    el.querySelectorAll('p, div').forEach(p => { if (el.contains(p) && !p.querySelector('img, table, hr, iframe') && !rivi(p.textContent)) p.remove(); });
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    const otsikko = meta('citation_title')[0] || rivi((document.querySelector('.PostsPageTitle-link, h1') || {}).textContent) || rivi(document.title);
+    let tekijat = meta('citation_author');
+    if (!tekijat.length) tekijat = [...document.querySelectorAll('.PostsAuthors-authorName a')].map(a => rivi(a.textContent)).filter(Boolean);
+    const pv = meta('citation_publication_date')[0];
+    const aika = document.querySelector('.PostsPageDate-date time[datetime], .PostsPageDate-date time[dateTime]');
+    const julkaistu = pv ? pv.replace(/\//g, '-') : aika ? (aika.getAttribute('datetime') || '').slice(0, 10) : '';
+    const sivusto = tunnettu || meta('application-name')[0] || rivi((document.querySelector('meta[property="og:site_name"]') || {}).content) || isanta;
+    return { html: irrota([el]).innerHTML, otsikko, tekija: kkLuettelo([...new Set(tekijat)]), sivusto, julkaistu, lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -4940,7 +4992,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
