@@ -51,7 +51,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('pino: otsikko', (await page.textContent('#lista-ots')) === 'Pino');
   const pNapa = await napa('h2.ots svg.pinom', .5), pRako = await rako('h2.ots svg.pinom');
   t('pinon otsikon pinomerkki versaalien keskellä', Math.abs(pNapa - linkinNapa) < .3, pNapa.toFixed(2) + ' / ' + linkinNapa.toFixed(2) + ' px perusviivasta');
-  t('pinomerkin rako .7 em', Math.abs(pRako.px / pRako.em - .7) < .02, (pRako.px / pRako.em).toFixed(3) + ' em');
+  t('pinomerkin rako 1 em', Math.abs(pRako.px / pRako.em - 1) < .02, (pRako.px / pRako.em).toFixed(3) + ' em');
   t('pinomerkki ei kasvata otsikkoriviä', (await page.evaluate(() => document.querySelector('.ots-rivi').getBoundingClientRect().height)) <= 31);
   if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-pino.png' });
   await page.click('#ark-linkki a'); await page.waitForTimeout(200);
@@ -67,7 +67,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('otsikon kammen napa linkin kammen korkeudella', Math.abs(otsNapa - linkinNapa) < .3, otsNapa.toFixed(2) + ' / ' + linkinNapa.toFixed(2) + ' px perusviivasta');
   t('kampi ei kasvata otsikkoriviä', m.rivi <= 31, m.rivi + ' px');
   const kRako = await rako('h2.ots svg.kampi');
-  t('kammen rako .7 em', Math.abs(kRako.px / kRako.em - .7) < .02, (kRako.px / kRako.em).toFixed(3) + ' em');
+  t('kammen rako 1 em', Math.abs(kRako.px / kRako.em - 1) < .02, (kRako.px / kRako.em).toFixed(3) + ' em');
   await page.click('#nimikkeet li.nimike >> nth=0 >> button.jako');
   const nap = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
   t('valikossa poiminta ja siirto', nap.includes('Poimi kellarin kampihyllystöstä.') && nap.includes('Siirrä ö-mappien ö-mappiin.'), nap.slice(-4).join(' | '));
