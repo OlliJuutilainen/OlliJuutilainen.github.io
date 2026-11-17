@@ -358,7 +358,9 @@
     'quellen und literatur', 'quellen- und literaturverzeichnis',
     // liettua (16.11.2026: Vilnan yliopiston lehdet, Lukimeen-lisäosan OJS-sovite)
     'literatūra', 'literatūros sąrašas', '(naudota|cituota) literatūra', 'šaltiniai', 'šaltinių sąrašas', 'šaltiniai ir literatūra', 'literatūra ir šaltiniai',
-    'bibliografija'
+    'bibliografija',
+    // espanja, portugali ja ranska (17.11.2026: Lukimeen-lisäosan SciELO- ja OpenEdition-sovitteet)
+    'referencias( bibliográficas)?', 'bibliografía', 'obras citadas', 'referências( bibliográficas)?', 'références( bibliographiques)?'
   ].join('|') + ')$', 'iu');
 
   /* ---------- Sivuseikkojen pääluvut ----------
@@ -368,7 +370,7 @@
      jos varsinaiset luvut ovat numeroituja eikä se ole (tai luvuissa ei ole numeroita lainkaan). Runko on tukeva, kun
      jäljelle jää vähintään kolme päälukua ja niissä on vähintään kaksi kolmasosaa tekstistä (kirjallisuusluetteloita
      lukuun ottamatta). Muuten mitään ei muuteta. Keskeltä tekstiä ei alenneta mitään. */
-  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|bibliografija|literatūra|literatūros sąrašas|šaltiniai|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|(suositeltavaa |suositeltua )?jatkolukemista|muu kirjallisuus|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
+  var OHEIS = /^(kirjallisuus|kirjallisuusluettelo|lähteet|lähdeluettelo|lähteet ja kirjallisuus|bibliografia|bibliografija|bibliografía|referencias|referencias bibliográficas|referências|referências bibliográficas|références|références bibliographiques|literatūra|literatūros sąrašas|šaltiniai|references|bibliography|works cited|sources|sisällys|sisällysluettelo|contents|table of contents|liitteet?|appendix|appendices|kiitokset|acknowledg(e)?ments?|huomautukset|viitteet|alaviitteet|notes|footnotes|endnotes|related entries|other internet resources|academic tools|see also|katso myös|further reading|suggested reading|lisälukemista|(suositeltavaa |suositeltua )?jatkolukemista|muu kirjallisuus|hakemisto|henkilöhakemisto|asiahakemisto|index|sanasto|glossary|kirjoittajasta|tekijästä|tekijät|about the authors?|kuvaluettelo|taulukkoluettelo)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Alussa vain nimen perusteella (Johdanto ilman numeroa ennen 1. lukua on varsinainen luku).
   var ALKU_OHEIS = /^(sisällys|sisällysluettelo|contents|table of contents|kiitokset|acknowledg(e)?ments?|tiivistelmä|abstract)(?![\p{L}\p{N}])|lyhent|abbreviation/iu;
   // Ylimmälle tasolle (luvut) enintään näin monta otsikkoa kaksitasoisessa tekstissä; muuten taso jää käyttämättä (parse()).

@@ -60,6 +60,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   alaviitteiksi, kommentit pois.
   Janeway / Open Library of Humanities (PR #846, 17.11.2026, pahvin *20 sivustosovitetta* 6): alustasovite, myös Orbit, C21 ja
   Glossa; tiivistelmä, alaviitteet (otsikon viite otsikkoon) ja kirjallisuus.
+  SciELO (PR #849, 17.11.2026, pahvin *20 sivustosovitetta* 7): klassinen sci_arttext-pohja kansallisilla palvelimilla;
+  www.scielo.br on Bunny Shield -haasteen takana eikä sitä mitattu.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -519,7 +521,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 
 - Treccani: Enciclopedia ja Dizionario Biografico
 - Filosofía en español: filosofia.org
-- SciELO, Redalyc, Dialnet
+- SciELO (tehty 17.11.2026, ks. yllä), Redalyc, Dialnet
 - Rivista il Mulino
 
 ## Pohjoismaat
