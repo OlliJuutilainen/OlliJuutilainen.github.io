@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition ja Hypotheses.org (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org ja Manifold (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3189,6 +3189,107 @@
       naytto: sivusto + ' (Hypotheses)' };
   }
 
+  /* Manifold (alustasovite; käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 4: kirjan mittainen teksti). Manifold on
+     React-lukija, mutta palvelin renderöi osion HTML:n (.manifold-text-section), joten sivut voi hakea. Tunnistus alustasta:
+     .manifold-text-section ja osoite /read/<teksti>/section/<osio>. Teksti ja metatiedot rajapinnasta /api/v1/texts/<teksti>
+     (toc, creatorNames, subtitle, metadata: publisher, publisherPlace, rights, restrictions, seriesTitle, seriesNumber).
+     Koko kirja sisällysluettelon osioista (KK_RAJA), pois kansi, nimiöt, sarjaluettelo, tekijänoikeussivu, sisällys, hakemisto
+     ja kuvaliite; loppuviiteosio (pelkkiä li[data-epub-type=endnote]-viitteitä) ei tule tekstiksi, vaan sen viitteet alaviitteiksi.
+     Viitemerkit a[role=doc-noteref] (enref, fnref) osoittavat toisen osion ankkuriin (…/section/<notes>#rc1en1) tai saman
+     osion ankkuriin; paluulinkki a[role=doc-backlink] pois. Readability antoi yhden osion, pudotti viitemerkit kokonaan eikä
+     löytänyt tekijää. Julkaisuvuosi vain tekijänoikeusrivistä (Copyright 2011), koska publicationDate on Manifoldiin vienti
+     (Black No More 2026). Standard Ebooksin nimiö, Imprint, Colophon ja Uncopyright pois.
+     Ei mainoksia eikä lahjoituspyyntöä (palvelimet ovat kustantajien ja yliopistojen). Mitattu 17.11.2026. */
+  const MF_POIS = /^(cover|half\s*-?title( ?page)?|series( list| page)?|title ?page|imprint|colophon|uncopyright|copyright( page)?|contents|table of contents|index|plates|also by .*|other books .*)$/i;
+  function mfRunko(d) {
+    const s = d && d.querySelector('.manifold-text-section');
+    if (!s) return null;
+    const el = s.cloneNode(true);
+    el.querySelectorAll('style, script, button, svg, .annotation-selection, [class*="annotation-"], .screen-reader-text').forEach(x => x.remove());
+    return el;
+  }
+  async function manifold() {
+    const m = /^\/read\/([^/]+)\/section\/([^/?#]+)/.exec(location.pathname);
+    if (!m || !document.querySelector('.manifold-text-section')) return null;
+    const api = await pbJson(location.origin + '/api/v1/texts/' + m[1]);
+    const a = (api && api.data && api.data.attributes) || {};
+    const md = a.metadata || {};
+    const osiot = [];
+    const kay = (t, syv) => (t || []).forEach(x => { if (x && x.id && !osiot.some(o => o.id === x.id)) osiot.push({ id: x.id, nimi: rivi(x.label), syv }); kay(x && x.children, syv + 1); });
+    kay(a.toc, 1);
+    const tama = decodeURIComponent(m[2]);
+    let valitut = osiot.filter(o => !MF_POIS.test(o.nimi));
+    if (!valitut.length) valitut = [{ id: tama, nimi: '', syv: 1 }];
+    if (valitut.length > KK_RAJA) valitut = valitut.filter(o => o.id === tama);
+    const url = id => location.origin + '/read/' + m[1] + '/section/' + id;
+    const docs = await kkHae(valitut.map(o => o.id === tama ? 'about:blank' : url(o.id)));
+    const runko = new Map();
+    valitut.forEach((o, i) => runko.set(o.id, o.id === tama ? document : docs[i]));
+    // Loppuviiteosiot: haetaan myös poisjätetyt (Notes ei ole MF_POIS-listassa, mutta varmuuden vuoksi) viitteiden kohteiksi.
+    const onViiteosio = el => { const t = kkSanoja(el), v = [...el.querySelectorAll('li[data-epub-type="endnote"], li.endnote, [role="doc-endnote"], aside[data-epub-type="footnote"], aside[role="doc-footnote"]')]; return v.length && v.reduce((n, x) => n + kkSanoja(x), 0) > 0.6 * t; };
+    const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
+    const kohde = (href, d0) => {
+      let u; try { u = new URL(href, location.href); } catch (e) { return null; }
+      const sm = /\/section\/([^/?#]+)/.exec(u.pathname), sid = sm ? decodeURIComponent(sm[1]) : null;
+      const d = sid && runko.get(sid) || (sid ? null : d0) || (u.pathname === location.pathname ? document : null);
+      const id = decodeURIComponent(u.hash.slice(1));
+      if (!d || !id) return null;
+      try { return d.querySelector('.manifold-text-section [id="' + CSS.escape(id) + '"]') || d.querySelector('[id="' + CSS.escape(id) + '"]'); } catch (e) { return null; }
+    };
+    let luettu = 0;
+    valitut.forEach(o => {
+      const d = runko.get(o.id), s = mfRunko(d);
+      if (!s || onViiteosio(s)) return;
+      s.querySelectorAll('a[role="doc-noteref"], a.enref, a.fnref, a[data-epub-type="noteref"]').forEach(x => {
+        const k = kohde(x.getAttribute('href'), d);
+        const li = k && (k.closest('li, aside, div.footnote, p') || k);
+        let t = '';
+        if (li) {
+          const c = li.cloneNode(true);
+          c.querySelectorAll('a[role="doc-backlink"], a.ennum, a.fnnum').forEach(y => y.remove());
+          kkLinkit(c, new RegExp('^' + location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/|$)', 'i'));
+          t = muunna(c.innerHTML, 'inlined').trim().replace(/^\d+\\?\.\s*/, '');
+        }
+        let kohta = x;
+        while (/^(SUP|SPAN)$/.test(kohta.parentElement.tagName) && rivi(kohta.parentElement.textContent) === rivi(x.textContent)) kohta = kohta.parentElement;
+        if (!t) { kohta.remove(); return; }
+        const tunnus = 'mf' + (++laskuri.n);
+        kohta.replaceWith(merkki(tunnus));
+        maar.push(maaritelma(tunnus, t));
+      });
+      // Saman osion alaviitteet (aside, ol.notes) on jo siirretty; jäljelle jääneet viitelohkot pois.
+      s.querySelectorAll('li[data-epub-type="endnote"], li.endnote, aside[data-epub-type="footnote"], aside[role="doc-footnote"]').forEach(x => {
+        const ol = x.closest('ol'); x.remove(); if (ol && !ol.children.length) ol.remove();
+      });
+      kkLinkit(s, new RegExp('^' + location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/|$)', 'i'));
+      if (!kkSanoja(s)) return;
+      luettu++;
+      const yksi = valitut.length === 1;
+      if (!yksi) {
+        kkSiirra(s, o.syv);
+        const ens = [...s.querySelectorAll(OTSIKOT)][0];
+        if (!ens || ens.compareDocumentPosition && [...s.querySelectorAll('p')].some(p => kkSanoja(p) > 3 && (p.compareDocumentPosition(ens) & Node.DOCUMENT_POSITION_FOLLOWING))) {
+          const h = document.createElement('h' + Math.min(6, 1 + o.syv)); h.textContent = o.nimi; s.prepend(h);
+        }
+      } else kkSiirra(s, 1);
+      el.append(...s.childNodes);
+    });
+    if (kkSanoja(el) < 20) return null;
+    kkTasoita(el);
+    el.normalize();
+    const oik = rivi(String(md.rights || '') + ' ' + String(md.restrictions || '')).replace(/<[^>]+>/g, ' ');
+    const cc = /creativecommons\.org\/(licenses|publicdomain)\/([a-z-]+)\/(\d\.\d)/i.exec(oik);
+    const ccNimi = /\((CC [A-Z-]+ \d\.\d)\)/.exec(oik);
+    const vuosi = (/copyright\s*(?:©\s*)?(\d{4})/i.exec(oik) || /©\s*(\d{4})/.exec(oik) || [])[1];
+    const linkiton = s => rivi(String(s || '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1'));
+    const otsikko = linkiton(a.titlePlaintext || a.title) || rivi(document.title);
+    return { html: irrota([el]).innerHTML, otsikko, alaotsikko: linkiton(a.subtitlePlaintext || a.subtitle), tekija: rivi(a.creatorNames).replace(/, and /g, ' & ').replace(/ and /g, ' & '),
+      sarja: [linkiton(md.seriesTitle), rivi(md.seriesNumber)].filter(Boolean).join(' '), kustantaja: rivi(md.publisher), paikka: rivi(md.publisherPlace),
+      julkaistu: vuosi || '', sivusto: 'Manifold', lahde: location.origin + '/read/' + m[1],
+      oikeus: cc ? { teksti: ccNimi ? ccNimi[1] : 'CC ' + cc[2].toUpperCase() + ' ' + cc[3], lahde: 'https://creativecommons.org/' + cc[1] + '/' + cc[2] + '/' + cc[3] + '/' } : null,
+      maar, naytto: (otsikko || 'Manifold') + (luettu > 1 ? ' (' + luettu + ' osiota)' : '') };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -4839,7 +4940,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
