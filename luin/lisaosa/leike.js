@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net ja Los Angeles Review of Books (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4036,6 +4036,50 @@
       julkaistu: d && !isNaN(d) ? d.toISOString().slice(0, 10) : '', lahde: osoite, maar };
   }
 
+  /* 3:16 (3-16am.co.uk, Richard Marshallin filosofihaastattelut; käyttäjän pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 20:
+     kysymykset ja vastaukset erotettava). Site123-alusta: haastattelu .s123-editor (kappaleet), alussa Interview by …, kuva,
+     kursiiviset nostolainaukset (kokonaan <em>-kappaleet ennen esittelyä), esittely ja sitten vuorot <strong>3:16:</strong> kysymys
+     / <strong>Nimi:</strong> vastaus. Readability otti murupolun ja nostolainaukset eikä erottanut kysymystä vastauksesta muuten
+     kuin puhujan nimellä, eikä tekijää tullut. Kysymys kokonaan lihavoiduksi kappaleeksi (pahvi: lihavoituna), nostolainaukset ja
+     Interview by -rivi pois (haastattelija alaotsikkoon: Richard Marshall interviews X), tekijäksi haastateltava (ensimmäinen
+     muu puhuja kuin 3:16). Päiväystä sivulla ei ole. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 17.11.2026. */
+  async function tri16() {
+    const runko = document.querySelector('.s123-page-data-articles .s123-editor, .s123-editor');
+    if (!/(^|\.)3-16am\.co\.uk$/i.test(location.hostname) || !runko) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('img, script, style').forEach(x => x.remove());
+    let haastattelija = '';
+    const kpl = [...el.children];
+    // Alku: Interview by … ja kokonaan kursiiviset nostolainaukset ennen ensimmäistä tavallista kappaletta.
+    for (const p of kpl) {
+      const t = rivi(p.textContent);
+      if (!t) { p.remove(); continue; }
+      const ib = /^interview by\s+(.+)$/i.exec(t);
+      if (ib) { haastattelija = ib[1]; p.remove(); continue; }
+      const kurs = [...p.querySelectorAll('em, i')].reduce((n, x) => n + rivi(x.textContent).length, 0);
+      if (kurs >= t.length * 0.9) { p.remove(); continue; }
+      break;
+    }
+    let haastateltava = '';
+    el.querySelectorAll('p').forEach(p => {
+      const s = p.querySelector('strong, b');
+      if (!s || !rivi(p.textContent).startsWith(rivi(s.textContent))) return;
+      const puhuja = rivi(s.textContent).replace(/:$/, '');
+      if (/^3:16$/.test(puhuja)) {
+        const b = document.createElement('strong');
+        b.append(...p.childNodes);
+        b.querySelectorAll('strong, b').forEach(x => x.replaceWith(...x.childNodes));
+        p.appendChild(b);
+      } else if (!haastateltava && /:$/.test(rivi(s.textContent)) && puhuja.split(/\s+/).length >= 2 && puhuja.length < 60) haastateltava = puhuja;
+    });
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent)) p.remove(); });
+    kkLinkit(el, /^https?:\/\/(www\.)?3-16am\.co\.uk\//i);
+    if (kkSanoja(el) < 100) return null;
+    const otsikko = rivi((document.querySelector('h1.s123-page-header, h1') || {}).textContent) || rivi(document.title);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: haastateltava,
+      alaotsikko: haastattelija && haastateltava ? haastattelija + ' interviews ' + haastateltava : '', sivusto: '3:16', lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5691,7 +5735,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
