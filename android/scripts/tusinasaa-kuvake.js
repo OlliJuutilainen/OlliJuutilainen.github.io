@@ -37,8 +37,9 @@ const VALI = .75;                                // kehän sisäreunasta merkkei
 const U = R - KEHA / 2 - VALI;                   // merkkien ympyrä
 // Kulmakiila: kärki vasemmalla ympyrällä, selkä x = SELKA (kulmat ympyrällä), lovi LOVI selästä sisään.
 const SELKA = -.4, LOVI = 1.5;
-// Pystykiilat: keskikohdat, koko korkeus, pään leveys ja korkeus, varren leveys (pyöreä pää). Pystysuunnassa keskellä.
-const PYST = [2, 4], PYST_K = 4.6, PAA = 1.7, PAA_K = 1.4, VARSI = .8;
+// Pystykiilat: keskikohdat, ryhmän keskikohdan y (negatiivinen ylös), koko korkeus, pään leveys ja korkeus, varren leveys
+// (pyöreä pää). Hiukan oikealle ja ylös oikean puolikkaan keskeltä (käyttäjän pyyntö 17.11.2026).
+const PYST = [2.4, 4.4], PYST_Y = -.8, PYST_K = 4.6, PAA = 1.7, PAA_K = 1.4, VARSI = .8;
 const KARKI = R + KEHA / 2 + RAKO + KOLMIO_K;    // kolmioiden kärkien säde (15,2)
 
 const n = x => +x.toFixed(3);
@@ -61,7 +62,7 @@ function kiilat() {
   const sy = ymp(SELKA);
   let d = `M${n(C - U)},${C}L${n(C + SELKA)},${n(C - sy)}L${n(C + SELKA - LOVI)},${C}L${n(C + SELKA)},${n(C + sy)}Z`;
   for (const x of PYST) {
-    const w = PAA / 2, v = VARSI / 2, yla = -PYST_K / 2, kaula = yla + PAA_K, ala = yla + PYST_K - v;
+    const w = PAA / 2, v = VARSI / 2, yla = PYST_Y - PYST_K / 2, kaula = yla + PAA_K, ala = yla + PYST_K - v;
     d += `M${n(C + x - w)},${n(C + yla)}H${n(C + x + w)}L${n(C + x + v)},${n(C + kaula)}V${n(C + ala)}` +
       `A${v},${v} 0 0 1 ${n(C + x - v)},${n(C + ala)}V${n(C + kaula)}Z`;
   }
