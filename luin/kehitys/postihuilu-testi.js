@@ -132,15 +132,16 @@ for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 28
     // yläkulmaan, yhtä pitkä kuin napin lopettava alamäki); varamenettelyssä napin ensimmäisen ylämäen puoliväliin.
     // Syli (17.11.2026): harja yläkulmien korkeudella väliä ennen napin alkua (varamenettelyssä väli napin alun jälkeen), siitä
     // melko suora laakso napin alun alakulmaan (ei loiventumista kulmaa kohti).
-    const tri = x => k.y(x, 0) - k.y(k.xz, 0), vali = k.jakso / 2, vara = !lahes(k.syli, n0 - vali);
-    if (!lahes(k.loppu, n1) || !lahes(vali, (n1 - n0) / 3.5) || Math.abs(tri(n1 - .5 * vali) + k.amp) > 1e-6 || Math.abs(tri(n1)) > 1e-6 ||
+    // Kapeassa (vara, käyttäjä 17.11.2026: aina kolme nuottia) väli on kapeampi ja harja tasan 4,5 väliä ennen napin loppua.
+    const tri = x => k.y(x, 0) - k.y(k.xz, 0), vali = k.jakso / 2, vara = !lahes(vali, (n1 - n0) / 3.5);
+    if (!lahes(k.loppu, n1) || !lahes(k.syli, n1 - 4.5 * vali) || vara && !(vali < (n1 - n0) / 3.5) || Math.abs(tri(n1 - .5 * vali) + k.amp) > 1e-6 || Math.abs(tri(n1)) > 1e-6 ||
       Math.abs(tri(k.syli) + k.amp) > 1e-6 || Math.abs(tri(k.syli + vali) - k.amp) > 1e-6 || Math.abs(tri(k.syli + vali / 2)) > 1e-6 ||
-      (vara ? !lahes(k.syli, n0 + vali) : Math.abs(tri(n0) - k.amp) > 1e-6) ||
+      (!vara && Math.abs(tri(n0) - k.amp) > 1e-6) ||
       Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
     // Tasan kolme nuottia (käyttäjä 16.11.2026), napin kohdalla, eikä soiton sisällä kahta tyhjää jaksoa peräkkäin.
     const soi = kes.map(x => q.some(a => a.x === x)), eka = soi.indexOf(true), vika = soi.lastIndexOf(true);
     // Kolme väliä napin kohdalla, nuotti kunkin keskellä: oikea rako puoli väliä vasenta isompi (17.11.2026).
-    if (kes.length !== (vara ? 2 : 3) || !vara && Math.abs((n1 - kes[kes.length - 1]) - (kes[0] - n0) - .5 * k.jakso / 2) > 1e-6) nv.reuna++;
+    if (kes.length !== 3 || !vara && Math.abs((n1 - kes[kes.length - 1]) - (kes[0] - n0) - .5 * k.jakso / 2) > 1e-6) nv.reuna++;
     if (q.length !== kes.length || !soi[0] || !soi[soi.length - 1] || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
     for (let j = eka + 1; j <= vika; j++) if (!soi[j] && !soi[j - 1]) nv.aukot++;
     if (soi.includes(false)) aukollisia++;
@@ -193,7 +194,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       ['#huilu-kysy', '#lisaa-syote', '#huilulohko .huilunappi'].every(q => document.querySelector(q).getClientRects().length) &&
       document.querySelector('#huilulohko svg.huilukuvio').innerHTML.length > 0));
     // Napin alku alakulmassa, kolme väliä, yläkulma ja napin loppu (siksakin pää) alamäen puolivälissä; napin vasemmalla aalto
-    // (käyttäjä 17.11.2026). 320 px:ssä harja on napin sisällä, joten vasen reuna ei ole kulma.
+    // (käyttäjä 17.11.2026). Alle 360 px:ssä väli on kapeampi, joten napin alku ei ole kulma (yli puoli kapeampaa väliä).
     const kulmat = q => p.evaluate(q => {
       const l = document.querySelector(q), R = l.getBoundingClientRect(), n = l.querySelector('.huilunappi').getBoundingClientRect();
       const pts = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(81).map(t => t.split(' ').map(Number));
@@ -210,7 +211,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       return { sylissa, vasen: eka && Math.abs(eka[0] - x0), vasenAla: eka && Math.abs(eka[1] - ala) < .02, kulmia: sis.length,
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
-    const kpOk = k => k.paa < .05 && k.vikaYla && k.yli > 13 && k.yli < 21 && k.paaAlempana;
+    const kpOk = k => k.paa < .05 && k.vikaYla && k.yli > (w < 340 ? 10 : 13) && k.yli < 21 && k.paaAlempana;
     const kp = await kulmat('#huilulohko');
     tulos(`${w} px: pinossa harja yläkulmien korkeudella, suora laakso napin alun alakulmaan, loppu alamäen puolivälissä`, kpOk(kp) && (w < 340 || kp.sylissa && kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
     const pino = () => p.evaluate(() => {
@@ -245,7 +246,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: kelpaamaton lause ei soita`, !(await pino()).nuotit);
     await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
     const j = await pino();
-    tulos(`${w} px: painallus tuo kolme nuottia (320 px: kaksi) koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === (w < 340 ? 2 : 3) && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && (w < 340 || j.nuotit.vasen < 30 && j.nuotit.oikea < 36 && j.nuotit.oikea - j.nuotit.vasen > 12 && j.nuotit.oikea - j.nuotit.vasen < 22) && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
+    tulos(`${w} px: painallus tuo aina kolme nuottia koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === 3 && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && (w < 340 || j.nuotit.vasen < 30 && j.nuotit.oikea < 36 && j.nuotit.oikea - j.nuotit.vasen > 12 && j.nuotit.oikea - j.nuotit.vasen < 22) && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
     tulos(`${w} px: ei vaakavieritystä pinossa`, j.vaaka);
     if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);

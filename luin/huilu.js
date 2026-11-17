@@ -128,7 +128,7 @@
   // vasemmalle); pohjaX ja syvyys = alin kohta suun kohdalla ja sen syvyys harjasta; harjaEnnen = harjan tukipisteen etäisyys
   // ennen harjan paikkaa; laakso = suoran laakson tukipiste harjan jälkeen; ulosX, ulosY, pohjaUlos, pohjaUlosX = alempien
   // viivojen tukipisteiden siirtymä viivaa kohti; kulma = alempien viivojen lähtösuunnan kääntö vasemmalle viivaa kohti.
-  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .1, nousuKohta: .65, nousuLeveys: .25, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .4, kutistus: 1.4, pisteet: 80 };
+  var SYLI = { vasen: .05, alas: .35, pohjaX: 0, syvyys: .38, harjaEnnen: .1, laakso: .35, ulosX: .8, ulosY: .3, pohjaUlos: .8, yhdessa: .5, yhdessaMatka: .4, yhdessaYlin: .7, yhdessaYlinMatka: .55, nousuUlos: .1, nousuKohta: .65, nousuLeveys: .25, nousuLoppu: 1, norPyorista: 100, pyoristaAlku: 18, pyoristaLoppu: 50, pohjaUlosX: .7, kulma: 0, keski: .1, keskiKohta: .35, keski2: 0, keski2Kohta: .55, keskiLeveys: .2, vahintaan: .6, kutistus: 1.4, pisteet: 80 };
   function kaista(o) {
     var T = o.T || 6, sw = o.sw || .75, kulma = o.kulma || 68, sp = o.sp || 8, n = o.n || 3, vw = o.vw || .6;
     var jakso = o.jakso || 48, amp = o.amp == null ? jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4 : o.amp;
@@ -169,8 +169,8 @@
     // jälkeen laskevalla viivalla (`yli` väliä, alamäen puolivälissä eli lepokohdassa), johon siksak päättyy. Nappiin mahtuu siis reilut kolme väliä, ja soiton
     // kolme nuottia ovat välien keskikohdissa (lepokohdat). Korkeus seuraa jaksoa, joten alamäki pysyy 22°:ssa. Siksakin
     // alku (lepokohta) asettuu samaan rytmiin vähintään puoli viivaväliä ja alle välin viuhkan jälkeen; suunta (ensin ylös
-    // tai alas) valitaan niin, että napin alku osuu alakulmaan. Kapeassa pinossa (320 px), jossa nappi alkaa jo viuhkan
-    // kohdalla, ensimmäinen väli alkaa lepokohdastaan napin sisällä. `palat` ei rajaa tätä.
+    // tai alas) valitaan niin, että napin alku osuu alakulmaan. Kapeassa pinossa (alle 360 px), jossa kaarelle ei jää tilaa,
+    // väli kapenee (alla). `palat` ei rajaa tätä.
     if (o.loppuX != null && o.alkuX != null && o.alkuX < o.loppuX) {
       var valit = o.valit || 3, yli = o.yli == null ? .5 : o.yli; // .5: alamäen puolivälissä (käyttäjä 17.11.2026; ensin .12)
       var vali = (o.loppuX - o.alkuX) / (valit + yli), xmin = E[0] + sp / 2;
@@ -183,10 +183,16 @@
       // Aalto (käyttäjän palaute 17.11.2026): napin vasemmalla ei ole suoraa eikä kulmia. Aaltojen rytmi on sama kuin
       // siksakin (yläkulman paikka väliä ennen nappia, napin alku alakulmassa), mutta kaari nousee yläkulmien korkeudelle
       // vaakasuoraan harjaan (syli) ja laskee siitä tavallisena aaltona (puolikas kosini) napin alun alakulmaan, josta
-      // siksak alkaa. Kapeimmassa pinossa (320 px), jossa harja osuisi huilun suun vasemmalle, harja on napin sisällä
-      // ensimmäisen yläkulman paikalla, ja nuotteja mahtuu kaksi.
-      var raja = P0[0] + SYLI.vahintaan * vali;
-      syli = o.alkuX - vali >= raja ? o.alkuX - vali : o.alkuX + vali;
+      // siksak alkaa.
+      // Kapealla näytöllä (käyttäjä 17.11.2026: aina kolme nuottia, kapeissa tapauksissa kompromissi) väli kapenee niin,
+      // että kaari (harja vahintaan väliä suun oikealla), laakso ja kolme ja puoli väliä mahtuvat suusta napin loppuun;
+      // napin alku ei silloin osu tarkalleen alakulmaan. Rajalla väli on sama kuin tavallisesti, joten muutos on jatkuva.
+      if (o.alkuX - vali - P0[0] < SYLI.vahintaan * vali) {
+        vali = (o.loppuX - P0[0]) / (SYLI.vahintaan + 1 + valit + yli);
+        jakso = 2 * vali;
+        if (o.amp == null) amp = jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4;
+      }
+      syli = o.loppuX - (1 + valit + yli) * vali;
       xz = syli - vali / 2;
       suunta = 1;
       loppu = o.loppuX;
@@ -377,9 +383,8 @@
   function jaksonKesket(k, x0, x1) {
     var rx = k.nr * LOGO, out = [];
     x1 = Math.min(x1, k.loppu);
-    // Siksakin alku xz on itsekin lepokohta: kapeassa pinossa (320 px) se on napin sisällä, ja ilman sitä nuotit
-    // painuisivat napin oikeaan päähän (17.11.2026). Leveämmällä xz on napin vasemmalla puolella eikä vaikuta.
-    for (var i = 0, x = k.xz; x <= x1 - rx - 1; x = k.xz + ++i * k.jakso / 2) if (x >= x0 + rx + 1 && (k.syli == null || x > k.syli)) out.push(x);
+    // Sylin laakson väliin (harjalta napin alun alakulmaan) ei tule nuottia: soitto on aina napin kolmessa välissä.
+    for (var i = 0, x = k.xz; x <= x1 - rx - 1; x = k.xz + ++i * k.jakso / 2) if (x >= x0 + rx + 1 && (k.syli == null || x > k.syli + k.jakso / 2 - 1e-6)) out.push(x); // ei laaksoon
     return out;
   }
   function kulkuPorras(ps) {

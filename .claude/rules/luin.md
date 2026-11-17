@@ -469,7 +469,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
   **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus). 17.11.2026: **siksak päättyy tasan napin oikeaan reunaan**,
   **napin alku aina alakulmassa, kolmen välin päässä yläkulma ja napin loppu sen jälkeen alamäen puolivälissä** (`yli` .5; ensin .12),
-  nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Syli** (17.11.2026, käyttäjän ohje): suusta
+  nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); **ei koskaan kahta nuottia vaan aina kolme** (käyttäjä 17.11.2026): kapealla (alle 360 px), jossa kaarelle ei jää tilaa, väli kapenee niin, että kaari, laakso ja 3,5 väliä mahtuvat suusta napin loppuun, eikä napin alku silloin osu alakulmaan (`SYLI.vahintaan`); samalla kaari pienenee mittasuhteet säilyttäen (`kutistus`); pinon lohko enintään 22.5rem. **Syli** (17.11.2026, käyttäjän ohje): suusta
   kiihtyen alas ja vasemmalle, taite ja pitkä kaarros, **alin kohta suun kohdalla x-akselilla**, loiva nousu ja loiva harja yläkulmien
   korkeudella väliä ennen nappia, **laakso suora** (ei loiventumista) napin alun alakulmaan. Kukin viiva on C2-splini tukipisteiden kautta
   (käyttäjän sääntö: ei tarpeettomia nopeita asteluvun kiihdytyksiä); kaikki lähtevät suusta ilmavirran suuntaisesti ja aluksi
