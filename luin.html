@@ -2315,14 +2315,23 @@
 
   /* Kellarin veivihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Pino pysyy pinona: sen järjestys on aina se, missä
      tekstit tulivat. Ryhmät ovat kortiston välikortteja (li.valiots); asiasanoittain sama teksti voi olla useassa ryhmässä. */
-  var JARJ = [['luettu', 'luetuksi merkitsemisen mukaan'], ['tekija', 'tekijän mukaan'], ['ajoitus', 'ajoituksen mukaan'],
+  var JARJ = [['luettu', 'luetuksi merkitsemisen mukaan'], ['tekija', 'tekijän mukaan'], ['kirjoittaja', 'kirjoittajan mukaan'], ['ajoitus', 'ajoituksen mukaan'],
     ['laji', 'lajin mukaan'], ['asiasana', 'asiasanojen mukaan'], ['alkupera', 'alkuperän mukaan'],
     ['merkinnat', 'merkintöjen määrän mukaan'], ['edistyminen', 'edistymisen mukaan']];
   function jarjNyt() { return JARJ.some(function (j) { return j[0] === aset.kellariJarj; }) ? aset.kellariJarj : 'luettu'; }
   function aakkos(a, b) { return String(a).localeCompare(String(b), 'fi', { sensitivity: 'base' }); }
+  // Tekijä (käyttäjän pyyntö 17.11.2026): verkkojulkaisun (blogi, lehti, hakuteos) tekijä on julkaisu, kuten pinon lisätiedossa
+  // (LuinMD.lisatieto: ei tieteellinen teksti eikä kantajasivusto), muuten ensimmäisen kirjoittajan sukunimi, ja tekijätön teos
+  // järjestetään nimensä mukaan. Areiopagin kirjoitus on Areiopagin, vaikka sen kirjoittivat Vainio ja Visala; heidät löytää
+  // järjestyksestä kirjoittajan mukaan.
+  function julkaisu(e) { return e.sivusto && LuinMD.lisatieto({ tyyppi: e.tyyppi, sivusto: e.sivusto }) === e.sivusto ? e.sivusto : ''; }
   function tekijaAvain(e) {
     var nm = LuinMD.nimet(e.author)[0];
-    return (nm ? nm.suku || nm.koko : '') || String(e.title || '').replace(/^\W+/, '');
+    return julkaisu(e) || (nm ? nm.suku || nm.koko : '') || String(e.title || '').replace(/^\W+/, '');
+  }
+  // Kirjoittajat henkilöinä: teksti on jokaisen kirjoittajansa alla (kuten asiasanoittain).
+  function kirjoittajat(e) {
+    return LuinMD.nimet(e.author).map(function (n) { return n.suku ? { k: n.suku + '\u0001' + n.etu, ots: n.suku + ', ' + n.etu } : { k: n.koko, ots: n.koko }; });
   }
   function ryhmita(es, avain, otsikot, jarjestys) {
     var r = {}, out = [];
@@ -2342,6 +2351,16 @@
     if (j === 'tekija') {
       a.sort(function (x, y) { return aakkos(tekijaAvain(x), tekijaAvain(y)) || (lkVuosi(x) || 0) - (lkVuosi(y) || 0) || aakkos(x.title, y.title); });
       return ryhmita(a, function (e) { var c = tekijaAvain(e).charAt(0).toUpperCase(); return /\p{L}/u.test(c) ? c : '#'; });
+    }
+    if (j === 'kirjoittaja') {
+      a.sort(function (x, y) { return (lkVuosi(x) || 0) - (lkVuosi(y) || 0) || aakkos(x.title, y.title); });
+      var ots = {}, avaimet = [];
+      a.forEach(function (e) { kirjoittajat(e).forEach(function (h) { var k = h.k.toLowerCase(); if (!ots[k]) { ots[k] = h.ots; avaimet.push(k); } }); });
+      avaimet.sort(aakkos);
+      return ryhmita(a, function (e) {
+        var k = kirjoittajat(e).map(function (h) { return h.k.toLowerCase(); });
+        return k.length ? k.filter(function (x, i) { return k.indexOf(x) === i; }) : '\u0000';
+      }, function (k) { return k === '\u0000' ? 'Ilman kirjoittajaa' : ots[k]; }, avaimet.concat(['\u0000']));
     }
     if (j === 'ajoitus') {
       a.sort(function (x, y) {
