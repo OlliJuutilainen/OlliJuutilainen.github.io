@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks ja OpenEdition (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2944,6 +2944,186 @@
       naytto: (kirja || PB_NIMI) + (luettu > 1 ? ' (' + luettu + ' sivua)' : '') };
   }
 
+  /* OpenEdition Journals ja Books (journals.openedition.org, books.openedition.org; käyttäjän pyyntö 17.11.2026, pahvin *20
+     sivustosovitetta* 2). Lehtiartikkeli (Lodel): #docHeader (h1#docTitle, #docSubtitle, #docAltertitle toisilla kielillä,
+     #docAuthor, #docTranslator, #doi) ja #docBody (#abstract kielivälilehtinä .tabContent[lang], #entries avainsanat
+     kielittäin, #toc, #text, #bibliography, #annexe, #notes, #quotation, #authors, #license). Kirjan luku: h1, sivut (p. 23-32),
+     #anchor-fulltext (section.section1 > h1) ja #anchor-footnotes. Kappalenumerot span.paranumber yläindekseiksi kappaleen
+     alkuun (pahvi: säilyvät, kuten LacusCurtiuksen pykälät). Alaviitteet a.footnotecall / a.endnotecall → a.FootnoteSymbol /
+     a.EndnoteSymbol (jatkokappaleet seuraavaan merkintään asti); tekstin vieressä toistetut viitteet (ul.sidenotes) pois.
+     Tiivistelmät kielen nimen kanssa (välilehden teksti) ja toisen kielen otsikko kursiivina, avainsanat kappaleina; lainaukset
+     (p.citation) lainauksiksi; kirjallisuus p.bibliographie kappaleina; tekijän esittely loppuun. Pois: pikalinkit, Plan,
+     Pour citer cet article, latauswidgetit, Haut de page, navigointi, kirjan sivun suositukset ja ostonapit. Etukenttään
+     tyyppi tieteellinen, tekijät, kääntäjä, teos (lehti tai kirja), numero, sivut, julkaistu (DC.date, kirjassa
+     citation_publication_date), kustantaja, doi ja lisenssi. Ei mainoksia eikä lahjoituspyyntöä; Freemium myy vain pdf:iä
+     ja e-kirjoja, HTML on avoin. Anubis-botintorjunta pysäyttää selaimen tunnisteen ilman JavaScriptiä; selain ratkaisee sen
+     itse, joten lisäosa näkee tavallisen sivun. Mitattu 17.11.2026. */
+  const OE_NIMI = 'OpenEdition';
+  function oeViitteet(el, juuri, maar, laskuri) {
+    el.querySelectorAll('a.footnotecall[href^="#"], a.endnotecall[href^="#"]').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      let sym = null;
+      try { sym = juuri.querySelector('[id="' + CSS.escape(id) + '"]'); } catch (e) {}
+      const p = sym && (sym.closest('p, div.footnote') || sym.parentElement);
+      let t = '';
+      if (p) {
+        const osat = [p];
+        for (let n = p.nextElementSibling; n && /^(P|BLOCKQUOTE|UL|OL)$/.test(n.tagName) && !n.querySelector('a.FootnoteSymbol, a.EndnoteSymbol'); n = n.nextElementSibling) osat.push(n);
+        const k = document.createElement('div');
+        osat.forEach(x => k.appendChild(x.cloneNode(true)));
+        k.querySelectorAll('a.FootnoteSymbol, a.EndnoteSymbol').forEach(x => x.remove());
+        k.querySelectorAll('blockquote').forEach(q => { const d = document.createElement('p'); while (q.firstChild) d.appendChild(q.firstChild); q.replaceWith(d); });
+        kkLinkit(k, /^https?:\/\/([a-z0-9-]+\.)*openedition\.org\//i);
+        t = muunna(k.innerHTML, 'inlined').trim();
+      }
+      let kohta = a;
+      while (/^(SUP|SPAN)$/.test(kohta.parentElement.tagName) && rivi(kohta.parentElement.textContent) === rivi(a.textContent)) kohta = kohta.parentElement;
+      if (!t) { kohta.remove(); return; }
+      const tunnus = 'oe' + (++laskuri.n);
+      kohta.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+  }
+  function oeSiivoa(el) {
+    el.querySelectorAll('script, style, noscript, iframe, ul.sidenotes, #widgets, .go-top, a.go-top, .textIcon, .widget--select2, ' +
+      '.plan--mobile, nav, button, form').forEach(x => x.remove());
+    // Kappalenumero yläindeksiksi kappaleen alkuun.
+    el.querySelectorAll('span.paranumber').forEach(s => {
+      const n = rivi(s.textContent);
+      if (!/^\d+[a-z]?$/i.test(n)) { s.remove(); return; }
+      const sup = document.createElement('sup'); sup.textContent = n;
+      s.replaceWith(sup, document.createTextNode(' '));
+    });
+    el.querySelectorAll('p.citation, p.citationbis, p.citationter, p.quotation').forEach(p => {
+      if (p.closest('blockquote')) return;
+      const q = document.createElement('blockquote'), u = document.createElement('p');
+      while (p.firstChild) u.appendChild(p.firstChild);
+      q.appendChild(u); p.replaceWith(q);
+    });
+    // Peräkkäiset lainaukset yhdeksi.
+    el.querySelectorAll('blockquote + blockquote').forEach(q => { const e = q.previousElementSibling; if (e && e.tagName === 'BLOCKQUOTE' && !q.className && !e.className) { e.append(...q.childNodes); q.remove(); } });
+    el.querySelectorAll('[style]').forEach(x => {
+      // Kapiteeli (Cherlin Paul Benjamin) tavalliseksi tekstiksi.
+      if (/small-caps/.test(x.getAttribute('style')) && x.tagName === 'SPAN') x.replaceWith(...x.childNodes); else x.removeAttribute('style');
+    });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*openedition\.org\//i);
+  }
+  async function openedition() {
+    if (!/(^|\.)openedition\.org$/i.test(location.hostname)) return null;
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    const runko = document.getElementById('docBody'), kirja = document.querySelector('#anchor-fulltext');
+    if (!runko && !kirja) return null;
+    const el = document.createElement('div'), maar = [], laskuri = { n: 0 };
+    const lisaa = (x, taso) => { if (!x) return; const h = document.createElement('h' + taso); h.textContent = rivi(x); el.appendChild(h); };
+    const nimet = s => rivi(s).split(/\s*;\s*/).filter(Boolean).map(x => /^([^,]+),\s*(.+)$/.test(x) ? x.replace(/^([^,]+),\s*(.+)$/, '$2 $1') : x);
+    let otsikko = '', alaotsikko = '', tekijat = [], kaantajat = [], teos = '', numero = '', sivut = '', julkaistu = '';
+    if (runko) {
+      const k = runko.cloneNode(true);
+      // Välilehtien kielten nimet ennen siivousta (kkLinkit purkaa #-linkit).
+      const kielet = new Map([...k.querySelectorAll('#abstract .tabMenu a[href^="#"]')].map(a => [a.getAttribute('href').slice(1), rivi(a.textContent)]));
+      k.querySelectorAll('#authors ul.authorid-list, #authors ul.documents, #authors h4').forEach(x => x.remove());
+      oeViitteet(k, k, maar, laskuri);
+      oeSiivoa(k);
+      otsikko = rivi((document.querySelector('#docTitle') || {}).textContent);
+      alaotsikko = rivi((document.querySelector('#docSubtitle') || {}).textContent);
+      tekijat = [...document.querySelectorAll('#docAuthor, .docAuthor')].map(x => rivi(x.textContent)).filter(Boolean);
+      if (!tekijat.length) tekijat = meta('citation_authors').flatMap(nimet).concat(meta('citation_author'));
+      kaantajat = [...document.querySelectorAll('#docTranslator, .docTranslator')].map(x => rivi(x.textContent).replace(/^(traduction|translated by|traduit par|übersetzt von)\s*:?\s*/i, '')).filter(Boolean);
+      // Tiivistelmät: kielen nimi välilehdestä, saman kielen vaihtoehtoinen otsikko kursiivina.
+      const abs = k.querySelector('#abstract');
+      if (abs) {
+        lisaa(abs.querySelector('h2') && abs.querySelector('h2').textContent, 2);
+        const alt = new Map([...document.querySelectorAll('#docAltertitle [lang]')].map(x => [x.getAttribute('lang'), rivi(x.textContent)]));
+        const osat = abs.querySelectorAll('.tabContent');
+        (osat.length ? [...osat] : [abs]).forEach(t => {
+          const kieli = t.getAttribute('lang') || '', nimi = kielet.get(t.id) || '';
+          if (osat.length > 1 && nimi) {
+            const p = document.createElement('p'), b = document.createElement('strong');
+            b.textContent = nimi + '.'; p.appendChild(b);
+            if (alt.get(kieli)) { const i = document.createElement('em'); i.textContent = alt.get(kieli); p.append(' ', i); }
+            el.appendChild(p);
+          }
+          t.querySelectorAll('h2, .tabMenu').forEach(x => x.remove());
+          el.append(...[...t.children]);
+        });
+      }
+      // Avainsanat kielittäin kappaleiksi (Mots-clés : a, b).
+      k.querySelectorAll('#entries .index').forEach(ix => {
+        const h = ix.querySelector('h3'), p = document.createElement('p'), b = document.createElement('strong');
+        b.textContent = rivi(h ? h.textContent : '').replace(/\s*:\s*$/, '') + ':';
+        if (h) h.remove();
+        p.append(b, ' ', rivi(ix.textContent));
+        el.appendChild(p);
+      });
+      const teksti = k.querySelector('#text div.text') || k.querySelector('#text');
+      if (teksti) {
+        teksti.querySelectorAll('h2.section').forEach(x => x.remove());
+        if (el.children.length) el.appendChild(document.createElement('hr'));
+        // Tekstin otsikot (h1.texte …) alkavat luvusta.
+        teksti.querySelectorAll(OTSIKOT).forEach(h => { h.querySelectorAll('a[href^="#toc"]').forEach(a => a.replaceWith(...a.childNodes)); });
+        kkSiirra(teksti, 1);
+        el.append(...[...teksti.childNodes]);
+      }
+      ['#bibliography', '#annexe', '#appendix', '#authors'].forEach(s => {
+        const o = k.querySelector(s);
+        if (!o || !rivi(o.textContent)) return;
+        const h = o.querySelector('h2');
+        lisaa(h && h.textContent, 2);
+        if (h) h.remove();
+        o.querySelectorAll('h3').forEach(x => { const u = document.createElement('h3'); u.textContent = rivi(x.textContent); x.replaceWith(u); });
+        const t = o.querySelector(':scope > .text') || o;
+        el.append(...[...t.children]);
+      });
+      teos = meta('citation_journal_title')[0] || meta('DC.source')[0] || '';
+      numero = [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':');
+      const f = meta('citation_firstpage')[0], l = meta('citation_lastpage')[0];
+      sivut = f ? f + (l && l !== f ? '–' + l : '') : '';
+      julkaistu = meta('DC.date')[0] || '';
+    } else {
+      const k = kirja.cloneNode(true);
+      oeViitteet(k, document, maar, laskuri);
+      oeSiivoa(k);
+      kkSiirra(k, 1);
+      el.append(...[...k.childNodes]);
+      // Kirjallisuus, liitteet ja tekijät (#anchor-bibliography, #anchor-appendix, #anchor-persons).
+      document.querySelectorAll('[id^="anchor-"].anchor--toc--section').forEach(o => {
+        if (/^anchor-(footnotes|completeplan|toc|fulltext)$/.test(o.id)) return;
+        const c = o.cloneNode(true), h = c.querySelector('h1, h2');
+        if (!h || !rivi(c.textContent.replace(h.textContent, ''))) return;
+        lisaa(h.textContent, 2);
+        h.remove();
+        c.querySelectorAll('ul.persons > li').forEach(li => {
+          const n = li.querySelector('strong'), u = document.createElement('div');
+          if (n) { const h3 = document.createElement('h3'); h3.textContent = rivi(n.textContent); u.appendChild(h3); n.closest('a') ? n.closest('a').remove() : n.remove(); }
+          u.append(...li.querySelectorAll('p'));
+          li.closest('ul').before(u);
+        });
+        c.querySelectorAll('ul.persons').forEach(x => x.remove());
+        oeSiivoa(c);
+        el.append(...[...c.childNodes]);
+      });
+      const h1 = document.querySelector('h1.content__list__item__title--content');
+      otsikko = rivi(h1 ? h1.textContent : '') || meta('citation_title')[0] || '';
+      tekijat = meta('citation_author');
+      teos = meta('citation_inbook_title')[0] || '';
+      const sv = h1 && [...h1.parentElement.querySelectorAll('p')].map(p => rivi(p.textContent)).find(t => /^p\.\s*\d/.test(t));
+      sivut = sv ? sv.replace(/^p\.\s*/, '').replace(/-/g, '–') : '';
+      const pv = /^(\d{4})(?:\/(\d\d))?(?:\/(\d\d))?/.exec(meta('citation_publication_date')[0] || '');
+      julkaistu = pv ? [pv[1], pv[2], pv[3]].filter(Boolean).join('-') : '';
+    }
+    if (kkSanoja(el) < 50) return null;
+    kkTasoita(el);
+    // Lisenssi: CC-linkki (lehden #license tai kirjan license__logo), muuten DC.rights.
+    const cc = [...document.querySelectorAll('#license a[href*="creativecommons.org"], a.license__logo[href*="creativecommons.org"], a[rel="license"][href]')][0];
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const oikeus = cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } :
+      meta('DC.rights')[0] && !/^https?:/.test(meta('DC.rights')[0]) ? { teksti: meta('DC.rights')[0], lahde: osoite } : null;
+    const doi = rivi((document.querySelector('#doi a') || {}).textContent).replace(/^https?:\/\/doi\.org\//i, '') || meta('citation_doi')[0] || '';
+    return { html: irrota([el]).innerHTML, otsikko, alaotsikko, tyyppi: 'tieteellinen', tekija: kkLuettelo([...new Set(tekijat)]),
+      suomentaja: kkKaantaja(kaantajat), teos, numero, sivut, julkaistu, kustantaja: (meta('citation_publisher')[0] || meta('DC.publisher')[0] || '').replace(/;\s*$/, ''),
+      doi, lahde: osoite, maar, oikeus, naytto: teos || OE_NIMI };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -4594,7 +4774,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
