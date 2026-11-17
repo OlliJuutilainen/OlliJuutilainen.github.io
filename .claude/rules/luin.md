@@ -468,7 +468,8 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   vertailu `docs/mietintamyssy/luin-postihuilu-valjempi.html`, muunnelma B): kolme viivaa, jakso 48, alamäki 22° vaakatasosta, siksak enintään
   neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
   **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus). 17.11.2026: **siksak päättyy tasan napin oikeaan reunaan**,
-  **napin reunat ovat kulmia ja niiden välissä tasan kolme väliä**, nuotti kunkin keskellä (`loppuX`, `alkuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Pinon Postihuilu on oletuksena kiinni**
+  **napin alku aina alakulmassa, kolmen välin päässä yläkulma ja napin loppu aivan hiukan sen jälkeen** (reilut kolme väliä, `yli` .12),
+  nuotti kunkin välin keskellä (`alkuX`, `loppuX`, `suunta`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen

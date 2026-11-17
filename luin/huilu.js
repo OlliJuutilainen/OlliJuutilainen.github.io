@@ -143,26 +143,31 @@
       if (ed) s += Math.hypot(x - ed[0], y - ed[1]);
       kaari.push({ x: x, y: y, nx: -dy / l, ny: dx / l, s: s }); ed = [x, y];
     }
-    var S = s, xz = E[0] + sp;
-    function tri(x) { // 0 alussa, taitteet jakson neljänneksissä
+    var S = s, xz = E[0] + sp, suunta = 1;
+    function tri(x) { // 0 alussa, taitteet jakson neljänneksissä; suunta 1: ensin ylös (ruudun y pienenee), −1: ensin alas
       if (x <= xz) return 0;
       var u = ((x - xz) / jakso) % 1;
-      return amp * (u < .25 ? -4 * u : u < .75 ? -2 + 4 * u : 4 - 4 * u);
+      return suunta * amp * (u < .25 ? -4 * u : u < .75 ? -2 + 4 * u : 4 - 4 * u);
     }
     // Siksak päättyy aina kokonaisen palan (puolijakson) lepokohtaan: kapeammalla näytöllä se lyhenee pala palalta eikä
     // katkea kesken taitteen (käyttäjän pyyntö 12.11.2026). Leveällä näytöllä se on enintään `palat` palaa pitkä.
     var loppu = o.oikea > xz ? xz + Math.min(palat || Infinity, Math.floor((o.oikea - xz) / (jakso / 2))) * (jakso / 2) : xz;
-    // o.alkuX ja o.loppuX = Soita huilua! -napin reunat (käyttäjän vaatimukset 17.11.2026): siksak päättyy tasan napin
-    // oikeaan reunaan, ja napin reunat ovat siksakin kulmia (taitteita), joiden väliin mahtuu tasan kolme kulmasta kulmaan
-    // ulottuvaa väliä (`valit`). Kunkin välin keskellä on lepokohta, ja niihin soivat soiton kolme nuottia. Jakso on siis
-    // kaksi napin kolmannesta (noin 78 px); korkeus seuraa jaksoa, joten alamäki pysyy 22°:ssa. Siksakin alku (lepokohta)
-    // asettuu samaan rytmiin vähintään puoli väliä viuhkan jälkeen; kapeassa pinossa, jossa nappi alkaa jo viuhkan
-    // kohdalla, ensimmäinen väli alkaa suoraan lepokohdastaan napin sisällä. `palat` ei rajaa tätä.
+    // o.alkuX ja o.loppuX = Soita huilua! -napin reunat (käyttäjän vaatimukset 17.11.2026): napin alku on aina siksakin
+    // alakulmassa, kolmen kulmasta kulmaan ulottuvan välin (`valit`) päässä on yläkulma, ja napin loppu on aivan hiukan sen
+    // jälkeen laskevalla viivalla (`yli` väliä), johon siksak päättyy. Nappiin mahtuu siis reilut kolme väliä, ja soiton
+    // kolme nuottia ovat välien keskikohdissa (lepokohdat). Korkeus seuraa jaksoa, joten alamäki pysyy 22°:ssa. Siksakin
+    // alku (lepokohta) asettuu samaan rytmiin vähintään puoli viivaväliä ja alle välin viuhkan jälkeen; suunta (ensin ylös
+    // tai alas) valitaan niin, että napin alku osuu alakulmaan. Kapeassa pinossa (320 px), jossa nappi alkaa jo viuhkan
+    // kohdalla, ensimmäinen väli alkaa lepokohdastaan napin sisällä. `palat` ei rajaa tätä.
     if (o.loppuX != null && o.alkuX != null && o.alkuX < o.loppuX) {
-      var vali = (o.loppuX - o.alkuX) / (o.valit || 3), xmin = E[0] + sp / 2;
+      var valit = o.valit || 3, yli = o.yli == null ? .12 : o.yli;
+      var vali = (o.loppuX - o.alkuX) / (valit + yli), xmin = E[0] + sp / 2;
       jakso = 2 * vali;
       if (o.amp == null) amp = jakso * Math.tan((90 - kulma) * Math.PI / 180) / 4;
-      xz = o.alkuX - vali / 2 - Math.floor((o.alkuX - vali / 2 - xmin) / vali + 1e-9) * vali;
+      var kk = Math.floor((o.alkuX - vali / 2 - xmin) / vali + 1e-9);
+      xz = o.alkuX - vali / 2 - kk * vali;
+      // Kulma kk (laskien siksakin alusta, 0 = ensimmäinen) on napin alku: suunnalla 1 parilliset kulmat ovat yläkulmia.
+      suunta = ((kk % 2) + 2) % 2 === 0 ? -1 : 1;
       loppu = o.loppuX;
     }
     var taitteet = [];
@@ -178,7 +183,7 @@
       var yi = E[1] + oi;
       pts.push([xz, yi]);
       taitteet.forEach(function (x) { pts.push([x, yi + tri(x)]); });
-      if (loppu > xz) pts.push([loppu, yi + tri(loppu)]); // lepokohta, napin kohdalla kulma
+      if (loppu > xz) pts.push([loppu, yi + tri(loppu)]); // lepokohta, napin kohdalla hiukan yläkulman jälkeen
       d2 += 'M' + pts.map(function (p) { return f(p[0]) + ' ' + f(p[1]); }).join('L');
     }
     return {
