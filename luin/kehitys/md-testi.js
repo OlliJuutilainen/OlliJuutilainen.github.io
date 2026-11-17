@@ -420,5 +420,14 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('liettuan kirjallisuusotsikot luetteloksi', lkm(bib, /<p class="bib/g), 2);
 })();
 
+// Lomitettu käännös (16.11.2026, Perseus): etukentän ladonta tekee lainauksista käännöksiä; lähderivi ei ole lähde.
+(() => {
+  const runko = '# Valtio\n\n^327a^ κατέβην χθὲς εἰς Πειραιᾶ.\n\n> I went down yesterday to the Peiraeus.\\\n> – Sokrates\n\n^327b^ προσευξάμενοι δὲ.\n\n> After we had said our prayers.\n';
+  const l = M.parse('---\nladonta: lomitettu käännös\n---\n' + runko), t = M.parse(runko);
+  sama('lomitettu käännös: lainaukset käännöksiksi', lkm(l.html, /<blockquote class="kaannos">/g), 2);
+  tulos('lomitettu käännös: ei lähdettä eikä mottoa', !/figure/.test(l.html) && !l.lahteet.length && l.lomitettu === true);
+  tulos('ilman ladontaa lainaus on lainaus', !/kaannos/.test(t.html) && /figure class="lainaus/.test(t.html) && !t.lomitettu);
+})();
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);

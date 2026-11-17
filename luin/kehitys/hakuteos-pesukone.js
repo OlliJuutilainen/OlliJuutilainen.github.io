@@ -137,9 +137,10 @@ const SARJAT = {
   fivebooks: ['massimo-pigliucci-stoicism', 'key-philosophical-texts-western-nigel-warburton', 'chinese-philosophy-michael-puett']
     .map(p => 'https://fivebooks.com/best-books/' + p + '/'),
   // Perseus (16.11.2026): koko kirja TEI-XML:stä. Valtio englanniksi (Stephanus, puhujat, viitteet) ja kreikaksi (Beta-koodi),
-  // Thukydides (kirja.luku.pykälä), Ilias kreikaksi (säkeet, card).
+  // Thukydides (kirja.luku.pykälä), Ilias kreikaksi (säkeet, card). Kreikankieliset sivut lomittuvat englannin kanssa
+  // (16.11.2026, ladonta: lomitettu käännös); Thukydides myös kreikaksi.
   perseus: ['1999.01.0168:book=1:section=327a', '1999.01.0167:book=1:section=327a', '1999.01.0200:book=1:chapter=1',
-    '1999.01.0133:book=1:card=1'].map(p => 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A' + p.replace(/:/g, '%3A').replace(/=/g, '%3D')),
+    '1999.01.0199:book=1:chapter=1', '1999.01.0133:book=1:card=1'].map(p => 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A' + p.replace(/:/g, '%3A').replace(/=/g, '%3D')),
   // Paul Grahamin esseet (16.11.2026): <br><br>-kappaleet, Notes-viitteet, päiväys ensimmäisenä kappaleena.
   pg: ['greatwork', 'hwh', 'useful'].map(p => 'https://www.paulgraham.com/' + p + '.html'),
   // Tertullian Project (16.11.2026): Porfyrioksen De abstinentia (Taylor 1823) viitenä sivuna kirjan 1 sivulta.

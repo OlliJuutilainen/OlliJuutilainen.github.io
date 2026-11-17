@@ -26,6 +26,8 @@
   Lainauksen lähde (käyttäjän päätös 27.10.2026): lainauksen viimeinen rivi – Nimi kenoviivan jälkeen → figure.lainaus
   (blockquote + figcaption); otsikon jälkeen ennen leipätekstiä figure.motto.
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
+  Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
+  ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
 */
 (function (root) {
   'use strict';
@@ -1996,6 +1998,9 @@
     }
 
     var tokens = blocksOf(V.L, V.N), html = '', t0 = 0, m = res.meta, head = '';
+    // Lomitettu käännös: lainaus on edellä olevan alkutekstin käännös (ei lähderiviä, ei mottoa).
+    var lomitettu = /^lomitettu käännös$/i.test(String(m.ladonta || '').replace(/\s+/g, ' ').trim());
+    if (lomitettu) res.lomitettu = true;
     var maaritelmat = [];
     [V.fn, V.cite].forEach(function (o) { Object.keys(o).forEach(function (k) { maaritelmat.push(o[k].text); }); });
     vt = viittaukset(tokens, uniq, maaritelmat);
@@ -2270,7 +2275,7 @@
         } else if (t.t === 'hr') {
           h += '<hr>';
         } else if (t.t === 'bq') {
-          var lh = !inQuote && lainauksenLahde(t.kids);
+          var lh = !inQuote && !lomitettu && lainauksenLahde(t.kids);
           if (lh) {
             // Lähteellinen lainaus; otsikon jälkeen ennen leipätekstiä se on motto (käyttäjän päätös 27.10.2026).
             var ed = list[k - 1], motto = !ed || ed.t === 'h' || ed.motto;
@@ -2278,8 +2283,8 @@
             h += '<figure class="lainaus' + (motto ? ' motto' : '') + '"><blockquote>' + render(lh.kids, true) + '</blockquote>';
             curLn = lh.ln;
             h += blk('figcaption', '', lh.text) + '</figure>';
-          } else h += '<blockquote>' + render(t.kids, true) + '</blockquote>';
-          if (!inQuote && list[k - 1] && list[k - 1].t === 'bq' && !lh && t.kids.length === 1 && t.kids[0].t === 'p' && lahdeRivi(t.kids[0].text))
+          } else h += '<blockquote' + (lomitettu && !inQuote ? ' class="kaannos"' : '') + '>' + render(t.kids, true) + '</blockquote>';
+          if (!inQuote && !lomitettu && list[k - 1] && list[k - 1].t === 'bq' && !lh && t.kids.length === 1 && t.kids[0].t === 'p' && lahdeRivi(t.kids[0].text))
             res.lahteet.push({ ln: t.kids[0].ln, rivit: 1 });
         } else if (t.t === 'list') {
           h += renderList(t.items, inQuote);

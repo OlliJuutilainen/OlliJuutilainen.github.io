@@ -34,7 +34,7 @@ const viiva = d => ({ d });            // piirretään reunaviivana
 const tayte = d => ({ d, tayte: 1 });  // piirretään täytettynä, ilman reunaviivaa
 
 const E = [];
-const lisaa = (id, ryhma, nimi, osat, huom = '') => E.push({ id, ryhma, nimi, osat, huom });
+const lisaa = (id, ryhma, nimi, osat, huom = '', kierros = 1) => E.push({ id, ryhma, nimi, osat, huom, kierros });
 
 lisaa('nolla', 'Lähtökohta', 'Nykyinen: kampi päättyy keskelle', [viiva(ULKO + kampi())]);
 
@@ -92,15 +92,56 @@ lisaa('kulma', 'Muut', 'Kulmikas kiepsahdus (ylös, vasemmalle, alas)', [viiva(U
 lisaa('kaksoiskehä', 'Muut', 'Kaksi sisäkkäistä peilikaarta', [viiva(ULKO + kampi() + 'L' + P(cx, cy - .22) + kaari(.22, 0, 135, true)), viiva('M' + P(cx, cy - .44) + kaari(.44, 0, 135, true))]);
 
 
+// 2. kierros (käyttäjän tarkennus 17.11.2026): liikenneympyrä. Rengas noin .24, lähtö kuin ulkokehällä (peilattuna):
+// kampi tulee renkaan yläreunaan ja jatkaa hyvin loivasti vasemmalle yläviistoon kiertäen vastapäivään. Vaihtelu on
+// avoimuudessa: avoimin palaa alas samaan x-kohtaan kuin lähtö (kaari 180° + 2θ), umpinaisin kiertää kiinni asti (360°).
+// θ = lähtöpisteen kompassikulma renkaalla; vastapäiväisen kierron tangentti on siinä θ vaakatasosta vasemmalle ylös.
+function ympari(r, th, kaarta, x0 = cx, y0 = cy) {
+  let s = '', a = th, jaljella = kaarta;
+  while (jaljella > 1e-9) { const d = Math.min(180, jaljella); s += kaari(r, a, a - d, true, x0, y0); a -= d; jaljella -= d; }
+  return s;
+}
+const kampiKohtaan = (x, y) => 'L' + P(x, y);
+function liikenne(r, th, kaarta, riippuu = false) {
+  // riippuu: kampi keskelle ja rengas roikkuu sen alla (keskipiste siirtyy), muuten rengas on navan ympärillä.
+  const a = th * Math.PI / 180, x0 = riippuu ? cx - r * Math.sin(a) : cx, y0 = riippuu ? cy + r * Math.cos(a) : cy;
+  const [ex, ey] = kp(r, th, x0, y0);
+  return [viiva(ULKO + kampiKohtaan(ex, ey) + ympari(r, th, kaarta, x0, y0))];
+}
+const R2 = 'Liikenneympyrä: avoimuus (r = .24, lähtö 20°)';
+for (const k of [220, 255, 290, 325, 360]) {
+  lisaa('ly-24-20-' + k, R2, (k === 220 ? 'Avoimin: palaa alas lähdön kohdalle, ' : k === 360 ? 'Umpinainen: kiertää kiinni asti, ' : 'Kaari ') + k + '°',
+    liikenne(.24, 20, k), k === 220 ? 'Lähtö 20° vaakatasosta, joten avoimin kaari on 180° + 2 · 20° = 220° ja päättyy kaakkoon samaan x-kohtaan kuin lähtö.' : '', 2);
+}
+const R2b = 'Liikenneympyrä: lähdön loivuus ja koko';
+for (const th of [10, 30]) lisaa('ly-24-' + th + '-290', R2b, 'Lähtö ' + th + '°, kaari 290°', liikenne(.24, th, 290), '', 2);
+for (const r of [.2, .28]) lisaa('ly-' + r + '-20-290', R2b, 'r = ' + r + ', lähtö 20°, kaari 290°', liikenne(r, 20, 290), '', 2);
+const R2c = 'Liikenneympyrä: täytetty (napa pienempi)';
+for (const r of [.14, .17, .2]) {
+  const [ex, ey] = kp(r, 20);
+  lisaa('ly-taysi-' + r, R2c, 'Täytetty, r = ' + r, [viiva(ULKO + kampiKohtaan(ex, ey)), tayte(ympyra(r))], '', 2);
+}
+const R2d = 'Liikenneympyrä: vertailu, rengas roikkuu navasta';
+for (const k of [220, 360]) lisaa('ly-roikkuu-' + k, R2d, 'Kampi keskelle, rengas sen alla, kaari ' + k + '°', liikenne(.24, 20, k, true),
+  k === 220 ? 'Toinen tulkinta: lähtöpiste on ulkokehän keskipiste, joten rengas painuu versaalien alaosaan ja perusviivan alle.' : '', 2);
+
 // Finalistit ja raportit (mitattu Chromiumissa luin.html:n kellarilinkissä, .74rem = 11,84 px, R = 10,58 px).
-const FINAALI = [
-  ['kiep-225-0.3915', 'Valittu', 'Käyttäjän toive sellaisenaan: keskeltä tasan ylös, kiepsahdus vastapäivään, ei kiinni. Sisäkaari on ulkokaaren vaakapeilikuva (225°, aukko idässä), ja kampi tulee sisään aukosta. Säde 0,35 em: keskiviivan halkaisija on Literatan versaalikorkeus 0,70 em, joten kehä on perusviivan ja versaalilinjan välissä; muste ylittää linjat puoli viivaa kuten pyöreät kirjaimet (mitattu 8× suurennoksesta: kehä 7,75–16,88 px, K 8,00–16,38 px). 1×-tiheydellä vielä luettava; pienemmillä säteillä kammen ja varren V-liitos tukkeutuu.'],
+const FINAALI1 = [
+  ['kiep-225-0.3915', 'Valittu 16.11., korvattu 17.11', 'Käyttäjän toive sellaisenaan: keskeltä tasan ylös, kiepsahdus vastapäivään, ei kiinni. Sisäkaari on ulkokaaren vaakapeilikuva (225°, aukko idässä), ja kampi tulee sisään aukosta. Säde 0,35 em: keskiviivan halkaisija on Literatan versaalikorkeus 0,70 em, joten kehä on perusviivan ja versaalilinjan välissä; muste ylittää linjat puoli viivaa kuten pyöreät kirjaimet (mitattu 8× suurennoksesta: kehä 7,75–16,88 px, K 8,00–16,38 px). 1×-tiheydellä vielä luettava; pienemmillä säteillä kammen ja varren V-liitos tukkeutuu.'],
   ['kiep-225-0.344', 'Finalisti', 'Sama kuvio, muste tasan versaalien rajoissa (kehä 8,25–16,38 px). Sisäkehä jää 1×-tiheydellä ahtaaksi: kammen ja pystyvarren 45°:n kulma ja kehä sulautuvat yhdeksi möykyksi.'],
   ['kiep-225-0.45', 'Finalisti', 'Näyttävin kiepsahdus, mutta sisäkehä alkaa kilpailla ulkokehän kanssa ja on versaaleja korkeampi (0,80 em).'],
   ['kiep-270-0.36', 'Finalisti', 'Pidempi kaari (pohjoisesta itään). Aukko on vain koillisneljännes, joten peilikuvan logiikka katoaa; kuvio lähestyy ©-merkkiä.'],
   ['kierre-0.42-270', 'Finalisti', 'Kasvava kierre on liikkeenä veivimäisin, mutta pienenä se lukeutuu koukuksi tai kirjaimeksi (ε, ∂), ja keskusta tukkeutuu 1×-tiheydellä.'],
   ['rengas-0.24', 'Finalisti', 'Umpinainen laakeri: selkein ja mekaanisin, kaikilla tiheyksillä tarkka. Ei heijasta ulkokehää, koska on kiinni.'],
   ['sal-ontto-0.2', 'Finalisti', 'Luinin oma salmiakki (1,30 × leveys). Sopii merkistöön, mutta kammen pää salmiakin kyljessä näyttää osoittimelta, ei navalta.'],
+];
+const FINAALI2 = [
+  ['ly-24-20-290', 'Valittu 17.11', 'Ääripäiden 220° ja 360° puoliväli; kaari päättyy tasan itään, joten aukko on idän ja lähtöpisteen välissä (70°, noin 3 px). Rengas lukeutuu renkaaksi eikä kirjaimeksi, ja aukko erottuu vielä 1×-tiheydellä. Kampi tulee renkaan kehälle 20°:ssa, joten se kallistuu 37,6° eikä 45°: ero radiaaliseen ei näy.'],
+  ['ly-24-20-220', 'Finalisti', 'Avoimin ääripää: palaa alas samaan x-kohtaan kuin lähtö, ja aukko on ulkokehän tapaan idässä. Ajatuksena puhtain, mutta pienenä se lukeutuu c-kirjaimeksi (2×-tiheydellä selvä, 1×-tiheydellä kirjain).'],
+  ['ly-24-20-255', 'Finalisti', 'Avoimen ja puolivälin välissä. Vielä hieman c-kirjaimen oloinen.'],
+  ['ly-24-20-325', 'Finalisti', 'Aukko 35° eli noin 1,5 px: 1×-tiheydellä rengas näyttää jo umpinaiselta, 2×-tiheydellä aukko erottuu.'],
+  ['ly-24-20-360', 'Finalisti', 'Umpinainen ääripää: kierto kiinni asti. Selkein laakeri, mutta liike pysähtyy.'],
+  ['ly-taysi-0.17', 'Finalisti', 'Täytetty, säde pienempi (0,17). Rauhallisin ja tummin; 1×-tiheydellä täplä, jossa kammen lähtökulma ei enää näy.'],
 ];
 
 const svgSisus = c => c.osat.map(o => o.tayte ? '<path class="t" d="' + o.d + '"/>' : '<path d="' + o.d + '"/>').join('');
@@ -110,13 +151,17 @@ const hae = id => E.find(e => e.id === id);
 const kortti = (c, ots, teksti) => '<div class="kortti"><div class="nayte"><div class="v">' + linkki(c) + '</div><div class="v tumma">' + linkki(c) + '</div></div>' +
   '<p class="nimi">' + (ots ? '<b>' + ots + '.</b> ' : '') + esc(c.nimi) + ' <code>' + c.id + '</code></p>' + (teksti ? '<p class="huom">' + esc(teksti) + '</p>' : '') + '</div>';
 
-let ryhmat = '', edellinen = '';
-const nahty = new Set();   // sama huomautus vain kerran ryhmässä
-for (const c of E) {
-  if (c.ryhma !== edellinen) { if (edellinen) ryhmat += '</div>'; ryhmat += '<h3>' + esc(c.ryhma) + '</h3><div class="ruudukko">'; edellinen = c.ryhma; }
-  ryhmat += kortti(c, '', nahty.has(c.huom) ? '' : c.huom); nahty.add(c.huom);
+function ryhmat(kierros) {
+  let h = '', edellinen = '';
+  const nahty = new Set();   // sama huomautus vain kerran
+  for (const c of E.filter(e => e.kierros === kierros)) {
+    if (c.ryhma !== edellinen) { if (edellinen) h += '</div>'; h += '<h3>' + esc(c.ryhma) + '</h3><div class="ruudukko">'; edellinen = c.ryhma; }
+    h += kortti(c, '', nahty.has(c.huom) ? '' : c.huom); nahty.add(c.huom);
+  }
+  return h + '</div>';
 }
-ryhmat += '</div>';
+const finaali = F => '<div class="finaali">' + F.map(([id, ots, t]) => kortti(hae(id), ots, t)).join('') + '</div>';
+const maara = k => E.filter(e => e.kierros === k).length;
 
 const html = `<!DOCTYPE html>
 <html lang="fi">
@@ -160,13 +205,23 @@ const html = `<!DOCTYPE html>
 <body>
 <h1>Veivikammen navat</h1>
 <p class="alku">Kellarin veivihyllystön linkin veivi: ulkokaari kiertää myötäpäivään etelästä koilliseen, ja kampi tulee napaan. Alla napaehdokkaat elävinä samoilla mitoilla kuin pinossa (kirjasinkoko .74rem, ulkokehän säde 0,894 em, viiva 1 px), vaalealla ja tummalla teemalla. Finalistit myös suurennettuina. Yksikkö on ulkokehän säde.</p>
-<h2>Finalistit</h2>
-<div class="finaali">${FINAALI.map(([id, ots, t]) => kortti(hae(id), ots, t)).join('')}</div>
-<h2>Kaikki ehdokkaat (${E.length})</h2>
-${ryhmat}
+<h2>2. kierros 17.11.2026: liikenneympyrä</h2>
+<p class="alku">Käyttäjän tarkennus: rengas noin .24, lähtö lähes kuin ulkokehällä (peilattuna) eli hyvin loivasti vasemmalle yläviistoon, kierto vastapäivään. Kiinni vain ääripäänä; vaihtelu on siinä, kuinka paljon auki. Avoimin palaa alas samaan x-kohtaan kuin lähtö.</p>
+<h3>Finalistit</h3>
+${finaali(FINAALI2)}
+<h3>Kaikki 2. kierroksen ehdokkaat (${maara(2)})</h3>
+${ryhmat(2)}
+<h2>1. kierros 16.11.2026</h2>
+<h3>Finalistit</h3>
+${finaali(FINAALI1)}
+<h3>Kaikki 1. kierroksen ehdokkaat (${maara(1)})</h3>
+${ryhmat(1)}
 <p class="foot">© TUSINASOFT 2026</p>
 </body>
 </html>
 `;
-require('fs').writeFileSync(require('path').join(__dirname, 'veivinavat.html'), html);
-console.log('veivinavat.html:', E.length, 'ehdokasta,', FINAALI.length, 'finalistia');
+module.exports = { E };
+if (require.main === module) {
+  require('fs').writeFileSync(require('path').join(__dirname, 'veivinavat.html'), html);
+  console.log('veivinavat.html:', E.length, 'ehdokasta,', FINAALI1.length + FINAALI2.length, 'finalistia');
+}

@@ -228,10 +228,10 @@
      keskelle. Suora jatke on reunaviiva kuten varsi (sama pikselikohdistus), svg:nä vain kaari ja kampi; kaaren vasen reuna
      2,188 em tekstin vasemmasta reunasta (säde kahdesti ja 0,4 em:n rako). Kaari on linkin sisällä, joten sekin vie kellarin
      veivihyllystöön.
-     Napa (käyttäjän valinta 16.11.2026, vertailu luin/kehitys/veivinavat.html): navasta lähtee tasan ylös varsi, joka kiepsahtaa
-     vastapäivään ulkokaaren peilikuvaksi (225° pohjoisesta kaakkoon; ulkokaari 225° etelästä koilliseen). Molempien aukko on
-     idässä, ja kampi tulee aukosta. Säde 0,3915 viewBoxin yksikköä eli 0,35 em: keskiviivan halkaisija on Literatan
-     versaalikorkeus 0,70 em, joten kehä on perusviivan ja versaalilinjan välissä (mitattu: muste puolen viivan yli kuten pyöreissä kirjaimissa). */
+     Napa (käyttäjän tarkennus 17.11.2026, vertailu luin/kehitys/veivinavat.html) on liikenneympyrä navan ympärillä, säde
+     0,24 viewBoxin yksikköä: kampi tulee renkaan kehälle 20° pohjoisesta itään, ja kehä lähtee siitä ulkokehän peilikuvana
+     hyvin loivasti vasemmalle yläviistoon ja kiertää vastapäivään 290° itään asti. Kampi ei siksi osoita tarkalleen keskelle.
+     Kiinni (360°) on vain ääripää, avoimin (220°) palaisi alas lähdön kohdalle; 290° on niiden puolivälissä ja aukko näkyy vielä 1×-tiheydellä. */
   .ark-linkki a::before { content: ""; position: absolute; right: 100%; bottom: -1px; width: calc(1.294em + .5px); height: 0; border-bottom: 1px solid currentColor; }
   .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -1px; width: 1.788em; height: 1.788em; overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
@@ -355,10 +355,14 @@
   /* Napin vihje hiiren alla (käyttäjän pyyntö 16.11.2026), kuten infolaatikon a.vihje: kehys, ei varjoa eikä animaatiota.
      Valikon levyinen ja rivittyvä, ettei se karkaa ruudulta (valikko on oikeassa laidassa). */
   .valikko button.vihje { position: relative; }
+  /* Hiirellä vihje näkyy vasta pienen viiveen jälkeen (käyttäjän pyyntö 17.11.2026), jottei se välähdä valikon yli
+     liikuttaessa. Viive on visibilityn porras, ei animaatio; poistuttaessa vihje katoaa heti, näppäimistöllä näkyy heti. */
   @media (hover: hover) {
-    .valikko button.vihje:hover::after, .valikko button.vihje:focus-visible::after { content: attr(data-vihje); position: absolute;
+    .valikko button.vihje::after { content: attr(data-vihje); position: absolute;
       left: 5px; right: 5px; top: calc(100% - 4px); z-index: 1; padding: 3px 9px 4px; font-size: .8rem; line-height: 1.35;
-      color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); pointer-events: none; }
+      color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); pointer-events: none; visibility: hidden; }
+    .valikko button.vihje:hover::after { visibility: visible; transition: visibility 0s linear .6s; }
+    .valikko button.vihje:focus-visible::after { visibility: visible; transition: none; }
   }
   .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
     border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
@@ -664,6 +668,9 @@
     color: var(--sitaatti); }
   #teksti blockquote p { margin: 0; }
   #teksti blockquote p + p { margin-top: .8em; }
+  /* Lomitettu käännös (md.js, etukentän ladonta: lomitettu käännös; Perseuksen alkuteksti ja käännös pykälittäin): käännös
+     lähellä alkutekstiään ja väli seuraavaan pykälään, jotta parit erottuvat. Viiva ja koko kuten lainauksessa. */
+  #teksti blockquote.kaannos, #teksti.sisennys p + blockquote.kaannos { margin: .6em 0 1.6em; }
   /* Lainauksen lähde (md: lainauksen viimeinen rivi – Nimi kenoviivan jälkeen) oikeaan reunaan lainauksen alle, ja otsikon
      jälkeen ennen leipätekstiä lainaus on motto: sisennetty, ilman pystyviivaa, tasaamaton, iso väli perässä (painetun
      kirjan käytäntö; käyttäjän päätös 27.10.2026). */
@@ -1338,7 +1345,7 @@
   </div>
   <!-- Kellarin veivihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1 .953V.5615A.3915 .3915 0 1 0 1.2768 1.2298"/></svg>kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0821 .7275A.24 .24 0 1 0 1.24 .953"/></svg>kellarin veivihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
@@ -1524,7 +1531,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=a4738694"></script>
+<script src="luin/md.js?v=379d058a"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=3ef9ca91"></script>
@@ -2548,7 +2555,8 @@
       '<button type="button" data-k="lataa">lataa .md</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
-      '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      (e.luettu ? '<button type="button" data-k="luin">Poimi kellarin veivihyllystöstä.</button>'
+        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin veivihyllystöön">Luin.</button>') +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
@@ -2669,7 +2677,8 @@
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
-      '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      (ark ? '<button type="button" data-k="luin">Poimi kellarin veivihyllystöstä.</button>'
+        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin veivihyllystöön">Luin.</button>') +
       '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
@@ -5290,7 +5299,7 @@
       y.vip = muuta && sanaLkm(et) <= 3 && el.matches('p:not([class]), li') && !el.closest('blockquote, header, figure');
     }
     var lainaus = skLainaus(t, sg.s, sg.e);
-    if (el.closest('blockquote')) { y.lainaus = true; if (!y.oma) y.oma = t; }
+    if (el.closest('blockquote:not(.kaannos)')) { y.lainaus = true; if (!y.oma) y.oma = t; }
     else if (lainaus) { y.lainaus = true; if (!y.oma) y.oma = lainaus; }
     return y;
   }
@@ -6724,7 +6733,7 @@
     return a;
   }
   function erikTekstissa(t, el, A) {
-    var R = [], bib = el && el.matches('p.bib'), bq = el && el.closest('blockquote');
+    var R = [], bib = el && el.matches('p.bib'), bq = el && el.closest('blockquote:not(.kaannos)');
     ERIK_KIRJ.forEach(function (x) {
       if (x.kirj === A.kirj || !x.testi.test(t)) return;
       var m; x.jakso.lastIndex = 0;
