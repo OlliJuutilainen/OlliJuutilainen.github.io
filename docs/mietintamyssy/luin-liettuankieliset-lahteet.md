@@ -7,9 +7,12 @@ vuodesta 2019, vanhemmista pdf-artikkeleista tiivistelmäleike), liettuan Wikipe
 liettuankieliset luettelonimet, lukijan kielentunnistus (DeepL-käännös, sanaselitys, `/liettua`) ja liettuan tavusäännöt. Alla olevat
 avoimet kysymykset ratkesivat näin: Readability antoi artikkelisivulta vain tiivistelmän; HTML on vuodesta 2019; molemmat tiivistelmät
 jäävät tekstin alkuun lähteen järjestyksessä; `citation_language` ei kelpaa (väärä Problemos 109:ssä), kieli tunnistetaan tekstistä.
-Tekemättä: VLE, Vikišaltiniai, *Filosofija. Sociologija* (`lmaleidykla.lt`) ja muut alla.
+**Toteutettu 17.11.2026: VLE** (`vle()`, opas 7.5). Avoimet kohdat ratkesivat: tekijä, päiväys ja kirjallisuus tulevat sivun
+skriptiltä (`ajax.php`), kirjallisuus on omana elementtinään ja jaetaan *R:*/*L:*-ryhmiin ja puolipisteistä kohdiksi; käyttöehdot
+pidättävät kaikki oikeudet (merkintä etukenttään). Kohdat eivät ole md.js:n tekijä–vuosi-muotoa, mutta tekstissä ei ole sulkuviittauksia.
+Tekemättä: Vikišaltiniai, *Filosofija. Sociologija* (`lmaleidykla.lt`, korkeintaan selainkoe) ja muut alla.
 
-**Seuraava helmijyvä (arvio 16.11.2026): VLE.** Tarkistettu samana päivänä:
+**Seuraava helmijyvä (arvio 16.11.2026): VLE** (toteutettu 17.11.2026, ks. yllä). Tarkistettu samana päivänä:
 
 - **Visuotinė lietuvių enciklopedija** (`vle.lt`) on ainoa jäljellä oleva, jolle sovite toisi selvästi lisää. Se on liettuan
   Logos/SEP: yleisenkyklopedia, toimitettu, tekijät nimetty, kirjallisuusluettelot, ei mainoksia eikä lahjoituspyyntöä.

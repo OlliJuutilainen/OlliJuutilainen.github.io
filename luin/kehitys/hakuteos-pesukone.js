@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit ja LacusCurtiuksen Loeb-käännökset Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -157,6 +157,10 @@ const SARJAT = {
     'https://www.experimental-history.com/p/actually-good-advice', 'https://www.experimental-history.com/p/i-like-em-thick'],
   dhamma: ['NobleStrategy/', 'MindLikeFire/Section0007.html', 'SkillInQuestions/', 'BuddhistRomanticism/Section0006.html', 'Meditations1/']
     .map(p => 'https://www.dhammatalks.org/books/' + p),
+  // Visuotinė lietuvių enciklopedija (17.11.2026): sivun omat skriptit ajetaan (välimuistista), koska ne kokoavat artikkelin,
+  // tekijän ja kirjallisuuden. Kant ja Vydūnas (R: ja L:, kolme kuvaa), Platonas (vain L: ilman R:-otsaketta), Greimas (R:
+  // pilkuin), fenomenologija (ei kuvaa), Lietuva (lyhyt yleisartikkeli ilman kirjallisuutta).
+  vle: ['immanuel-kant', 'platonas', 'vydunas', 'algirdas-julius-greimas', 'fenomenologija', 'lietuva'].map(p => 'https://www.vle.lt/straipsnis/' + p + '/'),
   korpora: ['aa04/393', 'aa08/035', 'aa05/030', 'aa09/011', 'aa07/119', 'aa03/052', 'aa10/010'].map(p => 'https://korpora.org/kant/' + p + '.html')
 };
 const SARJA = otaArvo('--sarja');
@@ -165,10 +169,11 @@ const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
 fs.mkdirSync(VALI, { recursive: true });
 
-function valimuisti(url) {
-  const f = path.join(VALI, url.replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
+// POST-pyynnön (VLE:n ajax.php) runko kuuluu välimuistin avaimeen.
+function valimuisti(url, post) {
+  const f = path.join(VALI, (url + (post ? '_' + post : '')).replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
   if (!fs.existsSync(f) && !fs.existsSync(f + '.puuttuu')) {
-    const koodi = cp.execFileSync('curl', ['-sSL', '-A', 'Mozilla/5.0', '-o', f, '-w', '%{http_code}', url]).toString();
+    const koodi = cp.execFileSync('curl', ['-sSL', '-A', 'Mozilla/5.0', ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
     if (koodi !== '200') { fs.writeFileSync(f + '.puuttuu', koodi); fs.rmSync(f, { force: true }); }
   }
   return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
@@ -189,7 +194,14 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    // VLE: sivun omat skriptit ja ajax.php (POST) välimuistista; muut palvelimet (reCAPTCHA, Pinterest, MathJax) estetään.
+    if (/^https?:\/\/www\.vle\.lt\//.test(u) && /^(script|fetch|xhr)$/.test(r.request().resourceType())) {
+      const post = r.request().method() === 'POST' ? r.request().postData() || '' : '';
+      const h = valimuisti(u, post);
+      const tyyppi = /\.js(\?|$)/.test(u) ? 'text/javascript' : /ajax\.php/.test(u) ? 'application/json' : 'text/html; charset=utf-8';
+      return h ? r.fulfill({ body: h, contentType: tyyppi }) : r.fulfill({ status: 404, body: '' });
+    }
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -205,6 +217,7 @@ const palvelin = http.createServer((q, r) => {
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);
+    if (/vle\.lt/.test(url)) await s.waitForSelector('.z-content', { timeout: 15000 }).catch(() => console.log('  (VLE: .z-content puuttuu, raaka sivu)'));
     const lahde = await s.evaluate(() => {
       const w = document.querySelector('#mw-content-text .mw-parser-output');
       // LacusCurtius: viitemerkit a.ref (saman sivun viitteisiin), otsikkoina h1 (sivuille jaetussa kirjassa vain tämä sivu).
