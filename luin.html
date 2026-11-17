@@ -355,10 +355,14 @@
   /* Napin vihje hiiren alla (käyttäjän pyyntö 16.11.2026), kuten infolaatikon a.vihje: kehys, ei varjoa eikä animaatiota.
      Valikon levyinen ja rivittyvä, ettei se karkaa ruudulta (valikko on oikeassa laidassa). */
   .valikko button.vihje { position: relative; }
+  /* Hiirellä vihje näkyy vasta pienen viiveen jälkeen (käyttäjän pyyntö 17.11.2026), jottei se välähdä valikon yli
+     liikuttaessa. Viive on visibilityn porras, ei animaatio; poistuttaessa vihje katoaa heti, näppäimistöllä näkyy heti. */
   @media (hover: hover) {
-    .valikko button.vihje:hover::after, .valikko button.vihje:focus-visible::after { content: attr(data-vihje); position: absolute;
+    .valikko button.vihje::after { content: attr(data-vihje); position: absolute;
       left: 5px; right: 5px; top: calc(100% - 4px); z-index: 1; padding: 3px 9px 4px; font-size: .8rem; line-height: 1.35;
-      color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); pointer-events: none; }
+      color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); pointer-events: none; visibility: hidden; }
+    .valikko button.vihje:hover::after { visibility: visible; transition: visibility 0s linear .6s; }
+    .valikko button.vihje:focus-visible::after { visibility: visible; transition: none; }
   }
   .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
     border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
@@ -2551,7 +2555,8 @@
       '<button type="button" data-k="lataa">lataa .md</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
-      '<button type="button" data-k="luin">' + (e.luettu ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      (e.luettu ? '<button type="button" data-k="luin">Poimi kellarin veivihyllystöstä.</button>'
+        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin veivihyllystöön">Luin.</button>') +
       '<button type="button" data-k="poista" class="vaara">' + (e.luettu ? 'Poista kellarin veivihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
@@ -2672,7 +2677,8 @@
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
-      '<button type="button" data-k="luin">' + (ark ? 'Poimi kellarin veivihyllystöstä.' : 'Luin.') + '</button>' +
+      (ark ? '<button type="button" data-k="luin">Poimi kellarin veivihyllystöstä.</button>'
+        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin veivihyllystöön">Luin.</button>') +
       '<button type="button" data-k="poista" class="vaara">' + (ark ? 'Poista kellarin veivihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
