@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page ja Internet Archiven tekstiversiot (17.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot ja Folger Shakespeare (17.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3803,6 +3803,98 @@
       naytto: IA_NIMI + ' (OCR-teksti)' };
   }
 
+  /* Folger Shakespeare (folger.edu/explore/shakespeares-works/<näytelmä>/read/ koko näytelmä tai /read/<näytös>/<kohtaus>/; käyttäjän
+     pyyntö 17.11.2026, pahvin *20 sivustosovitetta* 12: puhuja repliikin alkuun, näytös-, kohtaus- ja rivinumerot säilyvät).
+     Teksti .fdt-text-container: litteä jono, jossa div.fdt-act-break > .fdt-act-header (ACT 1, laitoksen merkit ⟨⟩),
+     div.fdt-scene-break > .fdt-scene-header, span.fdt-speaker-container (puhuja), span.fdt-stage-direction (centered: oma rivinsä,
+     muuten repliikin sisällä), span.fdt-ftln-number (Folgerin juokseva rivinumero 0001), span.fdt-line-number (kohtauksen
+     rivinumero joka viidennellä rivillä), rivit <br>:llä ja div.fdt-page-number (p. 7). Readability liimasi rivinumerot sanoihin
+     (5He.), jätti FTLN-numerot ja sivunumerot eikä antanut näytös- ja kohtausotsikoita. Näytös ##, kohtaus ###, puhuja
+     lihavoituna repliikin alkuun, säkeet riveiksi, kohtauksen rivinumero yläindeksinä rivin alkuun, näyttämöohjeet kursiivina,
+     FTLN ja sivunumerot pois, synopsis alkuun. Tekijä William Shakespeare (osoitteen osa shakespeares-works); toimittajia ja
+     lisenssiä sivulla ei mainita. Lahjoituslinkki, ei mainoksia. Mitattu 17.11.2026. */
+  async function folger() {
+    const runko = document.querySelector('.fdt-text-container');
+    if (!/(^|\.)folger\.edu$/i.test(location.hostname) || !/\/shakespeares-works\/[^/]+\/read\//.test(location.pathname) || !runko) return null;
+    const el = document.createElement('div');
+    let kpl = null, rivilla = false;
+    const ulos = () => { if (kpl && rivi(kpl.textContent)) el.appendChild(kpl); kpl = null; rivilla = false; };
+    const uusi = () => { if (!kpl) { kpl = document.createElement('p'); rivilla = false; } return kpl; };
+    const lisaa = n => { const p = uusi(); p.appendChild(n); rivilla = true; };
+    // kurs: kursiivinen jakso (laulut ja kirjeet span.italic), jonka sisällä on rivejä, rivinumeroita ja <br>:iä.
+    const kay = (solmu, kurs = false) => {
+      for (const n of [...solmu.childNodes]) {
+        if (n.nodeType === 3) {
+          const t = n.textContent.replace(/\s+/g, ' ');
+          if (!rivi(t)) continue;
+          const x = document.createTextNode(rivilla ? t : t.replace(/^\s+/, ''));
+          if (kurs) { const i = document.createElement('em'); i.appendChild(x); lisaa(i); } else lisaa(x);
+          continue;
+        }
+        if (n.nodeType !== 1 || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(n.tagName)) continue;
+        const c = n.classList;
+        if (c.contains('fdt-page-number') || c.contains('fdt-page-break') || c.contains('fdt-ftln-number') || c.contains('fdt-indent-inline') || c.contains('fdt-alignment-spacing') || n.tagName === 'A' && !n.getAttribute('href')) continue;
+        if (c.contains('fdt-act-header') || c.contains('fdt-scene-header')) {
+          ulos();
+          const h = document.createElement(c.contains('fdt-act-header') ? 'h2' : 'h3');
+          h.textContent = rivi(n.textContent);
+          el.appendChild(h);
+          continue;
+        }
+        if (c.contains('fdt-speaker-container')) {
+          ulos();
+          const b = document.createElement('strong'); b.textContent = rivi(n.textContent);
+          uusi().appendChild(b); kpl.append(' '); rivilla = false;
+          continue;
+        }
+        // Näyttämöohje kursiivina; pitkässä ohjeessa (Hamletin pantomiimi) on omia rivejään numeroineen, joten sisältö käydään läpi.
+        if (c.contains('fdt-stage-direction')) {
+          const oma = c.contains('centered') || c.contains('right') || !kpl;
+          if (oma) ulos();
+          kay(n, true);
+          if (oma) ulos();
+          continue;
+        }
+        if (c.contains('fdt-line-number')) {
+          const t = rivi(n.textContent);
+          if (t) { const s = document.createElement('sup'); s.textContent = t; uusi().append(s, ' '); }
+          continue;
+        }
+        if (n.tagName === 'BR') {
+          if (kpl && rivilla) { kpl.appendChild(document.createElement('br')); rivilla = false; }
+          else if (kpl && !rivilla && kpl.lastChild && kpl.lastChild.nodeName === 'BR') ulos();
+          continue;
+        }
+        // Synopsis (p.synopsis: jäsennin sulkee sen sisemmän <p>:n kohdalla, joten kappaleet ovat sisaruksia) otsikoksi.
+        if (n.matches('p.synopsis')) { ulos(); const h = document.createElement('h2'); h.textContent = rivi(n.textContent).replace(/:$/, '') || 'Synopsis'; el.appendChild(h); continue; }
+        if (n.tagName === 'P') { ulos(); kay(n, kurs); ulos(); continue; }
+        kay(n, kurs || /^(I|EM)$/.test(n.tagName) || c.contains('italic'));
+      }
+    };
+    kay(runko);
+    ulos();
+    // Vierekkäiset kursiivit (näyttämöohjeen osat ja laitoksen merkit ⟨⟩) yhdeksi: *a**b* olisi Markdownissa lihavointi.
+    el.querySelectorAll('p').forEach(p => {
+      for (let n = p.firstChild; n; ) {
+        const seur = n.nextSibling;
+        if (n.nodeName === 'EM') {
+          let x = seur;
+          const vali = [];
+          while (x && x.nodeType === 3 && !rivi(x.textContent)) { vali.push(x); x = x.nextSibling; }
+          if (x && x.nodeName === 'EM') { n.append(...vali, ...x.childNodes); x.remove(); continue; }
+        }
+        n = seur;
+      }
+    });
+    // Rivin lopun <br> pois kappaleen lopusta.
+    el.querySelectorAll('p').forEach(p => { while (p.lastChild && (p.lastChild.nodeName === 'BR' || p.lastChild.nodeType === 3 && !rivi(p.lastChild.textContent))) p.lastChild.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    const otsikko = rivi(document.title.split(/\s+[-|]\s+/)[0]) || rivi((document.querySelector('h1') || {}).textContent);
+    const osa = rivi((document.title.split(/\s+-\s+/)[1] || '').split('|')[0]);
+    return { html: irrota([el]).innerHTML, otsikko: osa && !/^entire play$/i.test(osa) ? otsikko + ', ' + osa : otsikko, tekija: 'William Shakespeare',
+      sivusto: 'Folger Shakespeare Library', lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -5437,6 +5529,7 @@
     fivebooks: { laji: 'lahjoitukset', osoite: 'https://fivebooks.com/support-us/' },
     obp: { laji: 'lahjoitukset', osoite: 'https://www.openbookpublishers.com/donate.html' },
     archiveTeksti: { laji: 'lahjoitukset', osoite: 'https://archive.org/donate' },
+    folger: { laji: 'lahjoitukset', osoite: 'https://events.folger.edu/donate/contribute1?ct=1' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -5455,7 +5548,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
