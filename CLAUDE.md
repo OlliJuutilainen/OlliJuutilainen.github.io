@@ -134,6 +134,8 @@ Sademäärä:
 - Nollasade on `—`. Jos pyöristetty määrä on 0 mutta selite on sateinen, näytetään `0.0 mm`.
 - Jos tällöin pyöristämätön ennustearvo on nollaa suurempi (alle 0,05 mm), näytetään
   `~0.0 mm`. Kuivalla selitteellä pieni määrä näkyy edelleen `—`.
+- Poikkeus (17.11.2026): nowcast-rivillä, jolla met.no on kuiva mutta FMI:n saman tunnin symboli on
+  heikkoa sadetta, näytetään `~0.0 mm` kuivan selitteen kanssa. Selite pysyy met.no:n; FMI vain täydentää.
 
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
 -merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee. Se on
