@@ -469,10 +469,10 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
   **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus). 17.11.2026: **siksak päättyy tasan napin oikeaan reunaan**,
   **napin alku aina alakulmassa, kolmen välin päässä yläkulma ja napin loppu sen jälkeen alamäen puolivälissä** (`yli` .5; ensin .12),
-  nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Syli**: napin alun alakulmaa
-  ennen alamäki yläkulmasta, yläkulmaan puolen välin suora ylämäki (yhtä pitkä kuin lopettava alamäki), ja **kaari on vain nouseva**: se tarttuu
-  ylämäen puoliväliin ylämäen suuntaisena, ei koskaan alamäen (yläkulma pyöristyisi pois); ylin viiva on selkäranka ja alemmat sen ulospäin siirtymiä,
-  joten alin kiertää suun vasemman kautta ja välit pysyvät tasaisina (`SYLI`; käyttäjä 17.11.2026: ei erillisiä kaaria, välit eivät saa repeytyä). **Pinon Postihuilu on oletuksena kiinni**
+  nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Syli** (17.11.2026): napin vasemmalla
+  ei suoraa eikä kulmia; harja yläkulmien korkeudella väliä ennen nappia, siitä **jyrkkenevä** ympyränkaari terävään alakulmaan (ei
+  loiventumista kuopan pohjaan). Suusta harjalle **kukin viiva on yksi tasainen Bézier-kaari** (käyttäjän sääntö: ei tarpeettomia nopeita
+  asteluvun kiihdytyksiä), alin lähtee 20° vasemmalle (sivukaarros) ja kaarevuus jatkuu laskuun ilman nykäystä (`SYLI`, testi mittaa). **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
