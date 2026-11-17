@@ -72,7 +72,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   ja rivinumeroineen.
   SuttaCentral (17.11.2026, pahvin *20 sivustosovitetta* 13): ohitettu. Sivu on JavaScript-sovellus (`<sc-site-layout>`), jonka
   HTML:ssä ei ole tekstiä (pahvin sääntö 5).
-  Wikipedia muilla kielillä: it, de, fr, da, es, et, sv, el (PR #WPNRO, 17.11.2026, pahvin *20 sivustosovitetta* 14): Wikipedia-sovite
+  Wikipedia muilla kielillä: it, de, fr, da, es, et, sv, el (PR #859, 17.11.2026, pahvin *20 sivustosovitetta* 14): Wikipedia-sovite
   yleistetty, fi/en/lt ennallaan.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
@@ -90,7 +90,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   HTML-galleyt ovat vähemmistö.
 - **Pressbooks**: avoimet oppikirjat (tehty 17.11.2026, ks. yllä)
 - **MediaWiki**: No Subject, Rigpa Wiki, OrthodoxWiki, Scholarpedia, Wittgenstein Project, Monoskop, ortodoksi.net,
-  Wikipedia muilla kielillä (de, sv, fr). Wikipedia-sovite on jo olemassa: tutki, yleistyykö se.
+  Wikipedia muilla kielillä (de, sv, fr). Wikipedia-sovite yleistetty 17.11.2026 (ks. yllä).
 - **eScholarship** (Kalifornian yliopisto)
 - **Manifold** (tehty 17.11.2026, ks. yllä), **Scalar**
 - **Janeway** / Open Library of Humanities (tehty 17.11.2026, ks. yllä)
