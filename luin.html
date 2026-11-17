@@ -343,13 +343,18 @@
   #lista .ark-linkki { margin-top: var(--osiovali); }
   /* Ö-mappilinkissä on vain nuoli, ei kampea (kampi kuuluu kampihyllystöön). */
   .om-linkki a::before { content: none; }
-  /* Kellarin kampihyllystön otsikon kampi (käyttäjän pyyntö 17.11.2026): sama koko, rako ja navan korkeus kuin kellarilinkin
-     kammessa (napa versaalien pystykeskellä), otsikon harmaalla. Absoluuttisena se ei muuta otsikkorivin korkeutta. Rako
-     .4 em vähennettynä otsikon loppuharvennuksella .18 em; navan korkeus mitattu perusviivasta (linkissä 3,76 px, .196 em alemmas). */
-  h2.ots .ots-kampi { position: relative; }
-  h2.ots svg.kampi { position: absolute; left: calc(100% + .22em); bottom: calc(-1px - .196em); width: 1.788em; height: 1.788em; overflow: visible;
+  /* Otsikon merkit (käyttäjän pyynnöt 17.11.2026): kellarin kampihyllystön otsikon perässä kampi, pinon otsikon perässä
+     pinomerkki, molemmat hyvin pieninä otsikon harmaalla (kampi 1,05 em, pinomerkki 1,15 em leveä; ennen kumpikin 1,45 em).
+     Rako 1 em viimeisestä kirjaimesta (.82 em + otsikon loppuharvennus .18 em; ennen .7 em). Merkin keskikohta (kammessa napa) on versaalien pystykeskellä kuten kellarilinkin kammen napa: .3176 em perusviivan
+     yläpuolella (mitattu 3,76 px). Spanin alareuna on .3379 em perusviivan alapuolella, joten merkin bottom on
+     .74em - 1px - f · korkeus, kun f on keskikohdan osuus alhaalta (kampi .5235, pinomerkki .5). Absoluuttisina ne eivät muuta
+     otsikkorivin korkeutta. */
+  h2.ots .ots-merkki { position: relative; }
+  h2.ots .ots-merkki svg { position: absolute; left: calc(100% + .82em); overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
-  h2.ots svg.kampi path { vector-effect: non-scaling-stroke; }
+  h2.ots .ots-merkki svg path { vector-effect: non-scaling-stroke; }
+  h2.ots svg.kampi { width: 1.05em; height: 1.05em; bottom: calc(.1903em - 1px); }
+  h2.ots svg.pinom { width: 1.15em; height: .8543em; bottom: calc(.3129em - 1px); }
   button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
   button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
@@ -1391,7 +1396,7 @@
   </div>
   <!-- Kellarin kampihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.2 .953"/></svg>kellarin kampihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>kellarin kampihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <!-- Ö-mappien ö-mappi (käyttäjän pyyntö 17.11.2026): linkki kellarin kampihyllystön alalaidassa kuten kellarilinkki pinossa, vain kun siellä on jotain. -->
   <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi">ö-mappien ö-mappi<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
@@ -1579,7 +1584,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=89197bd1"></script>
+<script src="luin/md.js?v=f25900c5"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -1652,9 +1657,21 @@
     return esc(t.slice(0, i)) + '<span class="n-hanta">' + esc(viim) + mk + '</span>';
   }
   // Pystyssä, kärjet hipaisten, logon mittasuhteissa (leveys/korkeus 0,767) kuten huilun sormireiät.
-  // Kellarin kampihyllystön otsikon kampi (käyttäjän pyyntö 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
-  // suoraksi nuolen varreksi, vaan jatkuu kehää pitkin 40° oikealle ylös ja jyrkkenee (lähtö kompassikulmassa 140°).
-  var KAMPI = '<svg class="kampi" viewBox="0 0 2 2" aria-hidden="true"><path d="M1.6428 1.719A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.2 .953"/></svg>';
+  // Kellarin kampihyllystön otsikon kampi (käyttäjän pyynnöt 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
+  // suoraksi nuolen varreksi, vaan jatkuu kehää pitkin 70° oikealle ylös ja jyrkkenee (lähtö kompassikulmassa 110°; ensin 40°).
+  // Navan renkaan pää on leikattu kammen suuntaisesti (käyttäjän pyyntö 17.11.2026; ennen pystysuora kaari päättyi idässä ja
+  // tylppä pää oli vaakasuora). Rengas jatkuu 75°:een asti, ja leikkaus (KAMPI_LEIKKAUS, evenodd-lovi) poistaa idän pisteen
+  // (1,2, .953) kautta kulkevan kammen suuntaisen suoran takaa kapean palan: lovi on .137 syvä, kampi .229 päässä suorasta.
+  // Viiva on 1 px kaikissa koissa (non-scaling-stroke), joten pienessä kammessa se on viewBoxissa paksumpi: 1,05 em:n kammessa
+  // puolikas .081, jolloin jatkeen ulkoreuna on .126 ja kammen reuna .148 suorasta. Älä pienennä kampea tai syvennä lovea
+  // tarkistamatta näitä (jatke jää näkyviin tai kampi lovettuu).
+  // Sama kellarilinkin veivissä (#veivi-leikkaus).
+  var KAMPI_LEIKKAUS = 'M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z';
+  var KAMPI = '<svg class="kampi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="kampi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="' +
+    KAMPI_LEIKKAUS + '"/></clipPath><path clip-path="url(#kampi-leikkaus)" d="M1.9397 1.295A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>';
+  // Pinon otsikon pinomerkki (käyttäjän pyyntö 17.11.2026): sama polku kuin pinomerkissä, viewBox rajattu musteeseen.
+  var PINOM = '<svg class="pinom" viewBox="5 11.1 14 10.4" aria-hidden="true"><path d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg>';
+  var OTS_PINO = '<span class="ots-merkki">Pino' + PINOM + '</span>';
   var KOLME = '<svg class="kolme" viewBox="0 0 5 17" aria-hidden="true"><path d="' + [17 / 6, 17 / 2, 17 * 5 / 6].map(function (y) {
     return sal(2.5, y, 17 / 6 * LuinHuilu.LOGO, 17 / 6); }).join('') + '"/></svg>';
   var VALITSE = '<svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>';
@@ -2486,7 +2503,7 @@
     $('#lista').classList.toggle('omappi', om);
     $('#ark-koti').hidden = !ark; $('#ark-takaisin').hidden = !ark;
     // Kellarin kampihyllystön otsikon perässä kampi ilman nuolen vartta (käyttäjän pyyntö 17.11.2026).
-    $('#lista-ots').innerHTML = om ? 'Ö-mappien ö-mappi' : ark ? '<span class="ots-kampi">Kellarin kampihyllystö' + KAMPI + '</span>' : 'Pino';
+    $('#lista-ots').innerHTML = om ? 'Ö-mappien ö-mappi' : ark ? '<span class="ots-merkki">Kellarin kampihyllystö' + KAMPI + '</span>' : OTS_PINO;
     document.title = om ? 'Ö-mappien ö-mappi – Luin' : ark ? 'Kellarin kampihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
     huiluPinossa();

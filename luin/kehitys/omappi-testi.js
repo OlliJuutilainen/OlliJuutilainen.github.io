@@ -33,25 +33,41 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('pino: kellarilinkki näkyy', await page.isVisible('#ark-linkki'));
   t('pino: ö-linkki piilossa', !(await page.isVisible('#om-linkki')));
   if (KUVAT) await page.locator('#ark-linkki').screenshot({ path: KUVAT + '/linkki.png' });
-  const napa = (sel) => page.evaluate(sel => {
+  // Merkin keskikohdan (kammessa napa, viewBoxin y .953 / 2) korkeus perusviivasta.
+  const napa = (sel, f = .953 / 2) => page.evaluate(([sel, f]) => {
     const s = document.querySelector(sel), el = s.parentNode, pr = document.createElement('span');
     pr.style.cssText = 'display:inline-block;width:0;height:0'; el.appendChild(pr);
     const bl = pr.getBoundingClientRect().bottom; pr.remove(); const r = s.getBoundingClientRect();
-    return bl - (r.top + r.height * .953 / 2);
+    return bl - (r.top + r.height * f);
+  }, [sel, f]);
+  // Rako: merkin vasen reuna viimeisen kirjaimen musteesta (Range-laatikko ilman loppuharvennusta).
+  const rako = (sel) => page.evaluate(sel => {
+    const s = document.querySelector(sel), tn = s.parentNode.firstChild, rg = document.createRange();
+    rg.setStart(tn, tn.length - 1); rg.setEnd(tn, tn.length);
+    const ls = parseFloat(getComputedStyle(s.parentNode).letterSpacing);
+    return { px: s.getBoundingClientRect().left - (rg.getBoundingClientRect().right - ls), em: parseFloat(getComputedStyle(s).fontSize) };
   }, sel);
   const linkinNapa = await napa('#ark-linkki svg.veivi');
+  t('pino: otsikko', (await page.textContent('#lista-ots')) === 'Pino');
+  const pNapa = await napa('h2.ots svg.pinom', .5), pRako = await rako('h2.ots svg.pinom');
+  t('pinon otsikon pinomerkki versaalien keskellä', Math.abs(pNapa - linkinNapa) < .3, pNapa.toFixed(2) + ' / ' + linkinNapa.toFixed(2) + ' px perusviivasta');
+  t('pinomerkin rako 1 em', Math.abs(pRako.px / pRako.em - 1) < .02, (pRako.px / pRako.em).toFixed(3) + ' em');
+  t('pinomerkki ei kasvata otsikkoriviä', (await page.evaluate(() => document.querySelector('.ots-rivi').getBoundingClientRect().height)) <= 31);
+  if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-pino.png' });
   await page.click('#ark-linkki a'); await page.waitForTimeout(200);
   t('kellari: otsikko', (await page.textContent('#lista-ots')) === 'Kellarin kampihyllystö');
   t('kellari: ö-linkki piilossa (tyhjä)', !(await page.isVisible('#om-linkki')));
   if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko.png' });
   const m = await page.evaluate(() => {
     const r = s => document.querySelector(s).getBoundingClientRect();
-    const k = r('h2.ots svg.kampi'), sp = r('h2.ots .ots-kampi');
+    const k = r('h2.ots svg.kampi'), sp = r('h2.ots .ots-merkki');
     return { kTop: k.top - sp.top, kLeft: k.left - sp.right, kH: k.height, spH: sp.height, rivi: r('.ots-rivi').height, oikea: k.right, ruutu: innerWidth };
   });
   const otsNapa = await napa('h2.ots svg.kampi');
   t('otsikon kammen napa linkin kammen korkeudella', Math.abs(otsNapa - linkinNapa) < .3, otsNapa.toFixed(2) + ' / ' + linkinNapa.toFixed(2) + ' px perusviivasta');
   t('kampi ei kasvata otsikkoriviä', m.rivi <= 31, m.rivi + ' px');
+  const kRako = await rako('h2.ots svg.kampi');
+  t('kammen rako 1 em', Math.abs(kRako.px / kRako.em - 1) < .02, (kRako.px / kRako.em).toFixed(3) + ' em');
   await page.click('#nimikkeet li.nimike >> nth=0 >> button.jako');
   const nap = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
   t('valikossa poiminta ja siirto', nap.includes('Poimi kellarin kampihyllystöstä.') && nap.includes('Siirrä ö-mappien ö-mappiin.'), nap.slice(-4).join(' | '));
