@@ -54,6 +54,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   OpenEdition Journals ja Books (PR #837, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
   yläindekseinä, alaviitteet, kirjallisuus ja tekijät. Anubis-botintorjunta päästää curlin oman tunnisteen läpi.
   Hypotheses.org (PR #843, 17.11.2026, pahvin *20 sivustosovitetta* 3): blogikirjoitus alaviitteineen, mitattu de, fr, en.
+  Manifold (PR #844, 17.11.2026, pahvin *20 sivustosovitetta* 4): palvelin renderöi osiot, joten koko kirja loppuviitteineen
+  osioiden HTML:stä ja metatiedot rajapinnasta.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -72,7 +74,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
 - **MediaWiki**: No Subject, Rigpa Wiki, OrthodoxWiki, Scholarpedia, Wittgenstein Project, Monoskop, ortodoksi.net,
   Wikipedia muilla kielillä (de, sv, fr). Wikipedia-sovite on jo olemassa: tutki, yleistyykö se.
 - **eScholarship** (Kalifornian yliopisto)
-- **Manifold**, **Scalar**
+- **Manifold** (tehty 17.11.2026, ks. yllä), **Scalar**
 - **Janeway** / Open Library of Humanities
 
 ## Tekstiarkistot ja e-kirjastot
