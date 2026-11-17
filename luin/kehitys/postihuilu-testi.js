@@ -57,11 +57,15 @@ for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 28
       const alamaki = k.y(a.x + .5, 0) > k.y(a.x - .5, 0), kl = k.nuottiKallistus(a.x);
       if (alamaki ? Math.abs(kl - 22 * Math.PI / 180) > 1e-9 : kl !== 0) nv.kallistus++;
     }
-    if (Math.abs((k.loppu - k.xz) / (k.jakso / 2) - Math.round((k.loppu - k.xz) / (k.jakso / 2))) > 1e-9 || !lahes(k.loppu, n1) || k.xz - k.loppuKaari[0] - k.sp / 2 >= k.jakso / 2 - 1e-9 || k.xz - k.loppuKaari[0] < k.sp / 2 - 1e-9 || Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
+    // 17.11.2026: napin reunat ovat kulmia (siksakin poikkeama ±amp), väliin kolme väliä, siksak päättyy oikeaan reunaan.
+    const tri = x => k.y(x, 0) - k.y(k.xz, 0), kulmassa = x => Math.abs(Math.abs(tri(x)) - k.amp) < 1e-6;
+    if (!lahes(k.loppu, n1) || !lahes(k.jakso, 2 * (n1 - n0) / 3) || !kulmassa(n1) || (n0 > k.xz && !kulmassa(n0)) ||
+      k.xz - k.loppuKaari[0] < k.sp / 2 - 1e-9 || k.xz - k.loppuKaari[0] - k.sp / 2 >= k.jakso / 2 - 1e-9 && n0 > k.xz ||
+      Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
     // Tasan kolme nuottia (käyttäjä 16.11.2026), napin kohdalla, eikä soiton sisällä kahta tyhjää jaksoa peräkkäin.
     const soi = kes.map(x => q.some(a => a.x === x)), eka = soi.indexOf(true), vika = soi.lastIndexOf(true);
-    // Napin reunat lepokohtia: nuottien rako napin reunoihin sama molemmin puolin (symmetria, 17.11.2026).
-    if (kes.length && n0 >= k.xz && Math.abs((kes[0] - n0) - (n1 - kes[kes.length - 1])) > 1e-6) nv.reuna++;
+    // Kolme väliä napin kohdalla, nuotti kunkin keskellä: rako napin reunoihin sama molemmin puolin (17.11.2026).
+    if (kes.length !== 3 || n0 >= k.xz && Math.abs((kes[0] - n0) - (n1 - kes[kes.length - 1])) > 1e-6) nv.reuna++;
     if (q.length !== 3 || kes.length < 3 || !soi[0] || !soi[soi.length - 1] || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
     for (let j = eka + 1; j <= vika; j++) if (!soi[j] && !soi[j - 1]) nv.aukot++;
     if (soi.includes(false)) aukollisia++;
@@ -113,6 +117,16 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: otsikko avaa huilun ja kentän`, await p.evaluate(() => document.querySelector('#lisaa-ots').getAttribute('aria-expanded') === 'true' &&
       ['#huilu-kysy', '#lisaa-syote', '#huilulohko .huilunappi'].every(q => document.querySelector(q).getClientRects().length) &&
       document.querySelector('#huilulohko svg.huilukuvio').innerHTML.length > 0));
+    // Napin reunat siksakin kulmissa ja niiden välissä kolme väliä (käyttäjä 17.11.2026); 320 px:ssä nappi alkaa jo viuhkan
+    // kohdalla, joten vain oikea reuna on kulma.
+    const kulmat = q => p.evaluate(q => {
+      const l = document.querySelector(q), R = l.getBoundingClientRect(), n = l.querySelector('.huilunappi').getBoundingClientRect();
+      const xs = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(41).map(t => +t.split(' ')[0]);
+      const lahin = x => Math.min(...xs.map(v => Math.abs(v - x)));
+      return { vasen: lahin(n.left - R.left), oikea: lahin(n.right - R.left), kulmia: xs.filter(x => x > n.left - R.left - .1 && x < n.right - R.left + .1).length };
+    }, q);
+    const kp = await kulmat('#huilulohko');
+    tulos(`${w} px: pinossa napin reunat siksakin kulmissa, välissä kolme väliä`, kp.oikea < .05 && (w < 360 || kp.vasen < .05 && kp.kulmia === 4), JSON.stringify(kp));
     const pino = () => p.evaluate(() => {
       const l = document.querySelector('#huilulohko'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit');
       const rg = document.createRange(); rg.selectNodeContents(document.querySelector('#lisaa-ots')); const t = rg.getBoundingClientRect();
@@ -158,6 +172,8 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
         nappi: nappi.right - arvo.right, viivatLohkossa: kuvio.x >= 0, viivatNappi: svg.querySelector('path').getBoundingClientRect().right - nappi.right, viiva: [...l.querySelectorAll('*')].some(e => parseFloat(getComputedStyle(e).borderBottomWidth) > 0 && !e.matches('button')), nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: nappi.top - nb.bottom, maara: (nu.getAttribute('d').match(/M/g) || []).length },
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
+    const ka = await kulmat('#huilulohko-aset');
+    tulos(`${w} px: asetuksissa napin reunat siksakin kulmissa, välissä kolme väliä`, ka.oikea < .05 && ka.vasen < .05 && ka.kulmia === 4, JSON.stringify(ka));
     const a = await aset();
     tulos(`${w} px: Arvo laatikkolauseen tekstikentän oikealla puolella samalla rivillä`, a.arvoKentta >= 4 && a.arvoKentta <= 12 && a.arvoRivi < 1, JSON.stringify(a));
     tulos(`${w} px: Soita huilua! oikeassa reunassa, viuhka lohkon sisällä, ei erotteluviivaa, ei nuotteja ennen painallusta`, Math.abs(a.nappi) < .5 && a.viivatLohkossa && !a.viiva && !a.nuotit, JSON.stringify(a));
