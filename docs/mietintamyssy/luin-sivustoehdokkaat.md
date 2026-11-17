@@ -48,7 +48,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   *Von* ja julkaisupäivä puuttuu.
   On Being (16.11.2026, pahvin B5): yleinen leikkaus riittää. Mitattu neljällä jaksolla: litteraatio tulee kokonaan, puhujan nimi
   on lihavoituna jokaisen puheenvuoron alussa, äänisoitin ja tilauskehotteet eivät tule mukaan; puuttuu vain julkaisupäivä.
-  Pressbooks (PR #PBNRO, 17.11.2026, pahvin *20 sivustosovitetta* 1): alustasovite, luvun sivulta koko kirja osineen ja
+  Pressbooks (PR #834, 17.11.2026, pahvin *20 sivustosovitetta* 1): alustasovite, luvun sivulta koko kirja osineen ja
   alaviitteineen, metatiedot kirjan tietueesta. pressbooks.pub ja useimmat yliopistojen verkot estävät pilvikontin, joten mitattu
   TMU:n ja PALNI:n palvelimilla.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
