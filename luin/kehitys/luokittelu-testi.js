@@ -1,8 +1,8 @@
 // Luokittelu ja kellarin kampihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/luokittelu-testi.js [kuvakansio]
 // Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit kellarin kampihyllystössä
-// (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto,
-// pino mukana); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
+// (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto
+// ylimpänä kaikissa järjestyksissä, pino mukana); käsikirja ei koskaan pinossa (ei Poimi- eikä ö-mappitoimintoa, tuonti ei nosta); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
 // tarkistus) ja etukentän kirjoitus; avaimeton uusi versio ei pyyhi asiasanoja; Muuta metatietoja näyttää ne Latomossa
 // ja niiden poisto siellä poistaa ne; Lataa .md:ssä ne ovat mukana.
 const http = require('http');
@@ -87,37 +87,37 @@ const TEKSTIT = [
 
   let r = await kellari('luettu');
   tulos('oletus: käsikirjasto ylimpänä, muut luettu-järjestyksessä', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Luetut 6] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Septuaginta | Hegel’s Phenomenology | Tiede ja usko', nimet(r));
-  tulos('tietorivillä asiasanat ja käsikirja', r.some(x => /Hegel’s.*filosofia, Hegel/.test(x)) && r.some(x => /Raamattu.*käsikirja/.test(x)), r.join(' / '));
+  tulos('tietorivillä asiasanat, käsikirjan kertoo välikortti', r.some(x => /Hegel’s.*filosofia, Hegel/.test(x)) && !r.some(x => /käsikirja/.test(x)), r.join(' / '));
   tulos('järjestysrivi näkyy', await page.evaluate(() => !document.getElementById('jarj-rivi').hidden && document.getElementById('jarj').textContent === 'luetuksi merkitsemisen mukaan'));
 
   r = await kellari('ajoitus');
-  tulos('ajoitus: eaa. ennen jaa., Hegel-tutkimus Hegelin vuoteen, Raamattu oikealla', nimet(r) ===
-    '[1000-luku eaa. 1] | Tekstejä rautakauden Levantista | [200-luku eaa. 1] | Septuaginta | [1–99 jaa. 1] | Kirjeitä Luciliukselle | [1800-luku 1] | Hegel’s Phenomenology | [1900-luku 1] | Raamattu | [2000-luku 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko', nimet(r));
+  tulos('ajoitus: käsikirjasto ylimpänä, eaa. ennen jaa., Hegel-tutkimus Hegelin vuoteen', nimet(r) ===
+    '[Käsikirjasto 1] | Raamattu | [1000-luku eaa. 1] | Tekstejä rautakauden Levantista | [200-luku eaa. 1] | Septuaginta | [1–99 jaa. 1] | Kirjeitä Luciliukselle | [1800-luku 1] | Hegel’s Phenomenology | [2000-luku 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko', nimet(r));
   tulos('ajoitus näkyy tietorivillä', r.some(x => /Septuaginta \{ajoitus 250 eaa\./.test(x)) && r.some(x => /Raamattu \{julkaistu 1992/.test(x)), r.join(' / '));
 
   r = await kellari('tekija');
-  tulos('tekijä: julkaisu (Areiopagi, SEP) tai kirjoittajan sukunimi, tekijätön nimen mukaan', nimet(r) === '[A 1] | Tiede ja usko | [P 1] | Hegel’s Phenomenology | [R 1] | Raamattu | [S 3] | Kirjeitä Luciliukselle | Septuaginta | Georg Wilhelm Friedrich Hegel | [T 1] | Tekstejä rautakauden Levantista', nimet(r));
+  tulos('tekijä: julkaisu (Areiopagi, SEP) tai kirjoittajan sukunimi, tekijätön nimen mukaan', nimet(r) === '[Käsikirjasto 1] | Raamattu | [A 1] | Tiede ja usko | [P 1] | Hegel’s Phenomenology | [S 3] | Kirjeitä Luciliukselle | Septuaginta | Georg Wilhelm Friedrich Hegel | [T 1] | Tekstejä rautakauden Levantista', nimet(r));
   tulos('tekijänä julkaisu, kirjoittajat tietorivillä', r.some(x => /^Tiede ja usko \{Olli-Pekka Vainio & Aku Visala/.test(x)), r.join(' / '));
 
   r = await kellari('kirjoittaja');
   tulos('kirjoittaja: henkilöittäin sukunimen mukaan, kahden kirjoittajan teksti kummankin alla', nimet(r) ===
-    '[Pinkard, Terry 1] | Hegel’s Phenomenology | [Seneca, Lucius Annaeus 1] | Kirjeitä Luciliukselle | [Vainio, Olli-Pekka 1] | Tiede ja usko | [Visala, Aku 1] | Tiede ja usko | [Ilman kirjoittajaa 4] | Tekstejä rautakauden Levantista | Septuaginta | Raamattu | Georg Wilhelm Friedrich Hegel', nimet(r));
+    '[Käsikirjasto 1] | Raamattu | [Pinkard, Terry 1] | Hegel’s Phenomenology | [Seneca, Lucius Annaeus 1] | Kirjeitä Luciliukselle | [Vainio, Olli-Pekka 1] | Tiede ja usko | [Visala, Aku 1] | Tiede ja usko | [Ilman kirjoittajaa 3] | Tekstejä rautakauden Levantista | Septuaginta | Georg Wilhelm Friedrich Hegel', nimet(r));
 
   r = await kellari('laji');
-  tulos('laji', nimet(r) === '[Tieteelliset 1] | Hegel’s Phenomenology | [Kaunokirjallisuus 1] | Septuaginta | [Blogit ja verkkosivut 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko | [Lajittelemattomat 3] | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Raamattu', nimet(r));
+  tulos('laji', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Tieteelliset 1] | Hegel’s Phenomenology | [Kaunokirjallisuus 1] | Septuaginta | [Blogit ja verkkosivut 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko | [Lajittelemattomat 2] | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista', nimet(r));
 
   r = await kellari('asiasana');
-  tulos('asiasanat (tags-avain luettu)', nimet(r) === '[filosofia 1] | Hegel’s Phenomenology | [Hegel 1] | Hegel’s Phenomenology | [teologia 1] | Tekstejä rautakauden Levantista | [Ilman asiasanaa 5] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Raamattu | Tiede ja usko', nimet(r));
+  tulos('asiasanat (tags-avain luettu)', nimet(r) === '[Käsikirjasto 1] | Raamattu | [filosofia 1] | Hegel’s Phenomenology | [Hegel 1] | Hegel’s Phenomenology | [teologia 1] | Tekstejä rautakauden Levantista | [Ilman asiasanaa 4] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Tiede ja usko', nimet(r));
 
   r = await kellari('alkupera');
-  tulos('alkuperä', nimet(r).startsWith('[Poimittu verkosta 2] | Tiede ja usko | Georg Wilhelm Friedrich Hegel | [Ladottu itse 5]'), nimet(r));
+  tulos('alkuperä', nimet(r).startsWith('[Käsikirjasto 1] | Raamattu | [Poimittu verkosta 2] | Tiede ja usko | Georg Wilhelm Friedrich Hegel | [Ladottu itse 4]'), nimet(r));
 
   r = await kellari('merkinnat');
-  tulos('merkinnät', nimet(r).startsWith('[Runsaasti merkityt 1] | Hegel’s Phenomenology | [Merkityt 1] | Georg Wilhelm Friedrich Hegel | [Merkitsemättömät 5]') &&
+  tulos('merkinnät', nimet(r).startsWith('[Käsikirjasto 1] | Raamattu | [Runsaasti merkityt 1] | Hegel’s Phenomenology | [Merkityt 1] | Georg Wilhelm Friedrich Hegel | [Merkitsemättömät 4]') &&
     r.some(x => /Hegel’s.*\{21 alleviivausta, 2 kirjausta/.test(x)), nimet(r));
 
   r = await kellari('edistyminen');
-  tulos('edistyminen', nimet(r).startsWith('[Luettu loppuun 2] | Georg Wilhelm Friedrich Hegel | Hegel’s Phenomenology | [Yli puolet 1] | Tekstejä rautakauden Levantista | [Alle puolet 1] | Septuaginta | [Avaamatta 3]'), nimet(r));
+  tulos('edistyminen', nimet(r).startsWith('[Käsikirjasto 1] | Raamattu | [Luettu loppuun 2] | Georg Wilhelm Friedrich Hegel | Hegel’s Phenomenology | [Yli puolet 1] | Tekstejä rautakauden Levantista | [Alle puolet 1] | Septuaginta | [Avaamatta 2]'), nimet(r));
 
   r = await kellari('luettu', true);
   tulos('pino mukana: kesken ja lukematta omina ryhminään', nimet(r).endsWith('[Kesken pinossa 1] | Havainnon fenomenologia | [Lukematta pinossa 1] | Lukematon') &&
@@ -135,7 +135,7 @@ const TEKSTIT = [
   await page.click('#jarj');
   await page.click('#pop button[data-k="j-ajoitus"]');
   tulos('järjestysvalikko vaihtaa järjestyksen ja muistaa sen', (await ls('luin-asetukset')).kellariJarj === 'ajoitus' &&
-    await page.evaluate(() => document.querySelector('#nimikkeet li.valiots').textContent.startsWith('1000-luku eaa.')));
+    await page.evaluate(() => document.querySelectorAll('#nimikkeet li.valiots')[1].textContent.startsWith('1000-luku eaa.')));
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'kellari-ajoitus.png'), fullPage: true });
 
   // Luokittele: SEP saa ehdotuksen filosofia.
@@ -248,6 +248,49 @@ const TEKSTIT = [
   e = (await ls('luin-lista')).find(x => x.id === 'p-pinossa');
   md = await ls('luin-teksti:p-pinossa');
   tulos('Latomossa poistettu asiasana poistui', !e.asiasanat && !/asiasanat/.test(md), JSON.stringify(e.asiasanat) + ' ' + md.slice(0, 80));
+
+  // Käsikirja ei ole koskaan pinossa (käyttäjän päätös 17.11.2026): se on aina kellarin kampihyllystön käsikirjastossa.
+  await lataa('#');
+  await page.waitForSelector('#nimikkeet li');
+  await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
+  await page.click('#pop button[data-k="luokittele"]');
+  await page.click('#pop button[data-k="kk"]');
+  await page.click('#pop button[data-k="ok"]');
+  const pinoKk = await page.evaluate(() => ({ n: [...document.querySelectorAll('#nimikkeet li.nimike .n-ots')].map(x => x.textContent.trim()),
+    ark: !document.getElementById('ark-linkki').hidden, v: document.getElementById('viesti').textContent }));
+  tulos('pinosta käsikirjastoon: lähtee pinosta ja ilmoitus kertoo', !pinoKk.n.includes('Lukematon') && pinoKk.ark && /siirtyi käsikirjastoon kellarin kampihyllystöön/.test(pinoKk.v), JSON.stringify(pinoKk));
+  r = await kellari('tekija');
+  tulos('lukematon käsikirja kellarin käsikirjastossa ilman pinossa-merkintää', r[0] === '[Käsikirjasto 4]' && r.some(x => /^Lukematon \{\}$/.test(x)) &&
+    r.indexOf('[A 1]') > r.findIndex(x => x.startsWith('Lukematon')), nimet(r));
+  await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
+  const kkNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k + ':' + b.textContent));
+  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista kellarin kampihyllystöstä.'), kkNapit.join(','));
+  await page.mouse.click(5, 5);
+  await page.click('#nimikkeet button.valitse[data-id="p-raamattu"]');
+  await page.click('#nimikkeet button.valitse[data-id="p-seneca"]');
+  await page.click('#val-valikko');
+  const valNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k));
+  tulos('käsikirjan sisältävässä valinnassa ei Poimi- eikä ö-mappitoimintoa', !valNapit.includes('luin') && !valNapit.includes('omappi'), valNapit.join(','));
+  await page.mouse.click(5, 5);
+  // Uusi versio (Latomon tuonti samalla tunnuksella) ei nosta käsikirjaa pinoon eikä pyyhi luettu-aikaa.
+  const raamattu0 = (await ls('luin-lista')).find(x => x.id === 'p-raamattu');
+  await page.evaluate(() => localStorage.setItem('luin-tuonti', JSON.stringify({ md: '# Raamattu\n\nUusi versio.\n' })));
+  await lataa('#tuo');
+  await page.waitForSelector('#lukija:not([hidden])');
+  e = (await ls('luin-lista')).find(x => x.id === 'p-raamattu');
+  const tk = await page.evaluate(() => document.querySelector('.takaisin').getAttribute('href'));
+  tulos('tuotu uusi versio pysyy käsikirjastossa', e.kasikirja && e.luettu === raamattu0.luettu && tk === '#arkisto', JSON.stringify({ kk: e.kasikirja, l: e.luettu, tk }));
+  // Käsikirjastosta pois: lukematon palaa pinoon.
+  r = await kellari('luettu');
+  await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
+  await page.click('#pop button[data-k="luokittele"]');
+  await page.click('#pop button[data-k="kk"]');
+  await page.click('#pop button[data-k="ok"]');
+  r = await kellari('luettu');
+  await lataa('#');
+  await page.waitForSelector('#nimikkeet li');
+  tulos('käsikirjastosta poistettu lukematon palaa pinoon', !r.some(x => x.startsWith('Lukematon')) &&
+    await page.evaluate(() => [...document.querySelectorAll('#nimikkeet .n-ots')].some(x => x.textContent.trim() === 'Lukematon')), nimet(r));
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' | '));
   await selain.close(); palvelin.close();

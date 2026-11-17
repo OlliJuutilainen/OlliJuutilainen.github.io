@@ -82,6 +82,20 @@
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d; --valo: #3f3428;
   }
+  /* Korkea kontrasti (käyttäjän pyyntö 17.11.2026, sähköpaperia varten, aset.kontrasti): tausta täysin valkoinen tai musta
+     ja vain kolme harmaata tasoa, kaikki kaukana taustasta. Sähköpaperin nopea virkistystila piirtää vain mustaa ja valkoista
+     (kynnys noin puolivälissä), joten taustan lähellä oleva haalea sävy katoaa kokonaan: viiva ja hius ovat siksi kynnyksen
+     tummalla puolella (vaaleassa) tai vaalealla puolella (tummassa). Harmaa, huomio ja sitaatti ovat yksi taso. Ruoste ja okra
+     pysyvät erivärisinä (värillinen sähköpaperi ja näyttö), mutta yhtä kaukana taustasta. Valo on paperi: kummitusneliö
+     vaalenee taustaksi eikä uudeksi sävyksi. */
+  :root.kontrasti {
+    --paperi: #ffffff; --muste: #000000; --harmaa: #333333; --viiva: #707070;
+    --ruoste: #6b3410; --okra: #8a5c00; --huomio: #333333; --sitaatti: #333333; --hius: #707070; --valo: #ffffff;
+  }
+  :root.kontrasti[data-teema="tumma"] {
+    --paperi: #000000; --muste: #ffffff; --harmaa: #d0d0d0; --viiva: #909090;
+    --ruoste: #e8955a; --okra: #f2c14e; --huomio: #d0d0d0; --sitaatti: #d0d0d0; --hius: #909090; --valo: #000000;
+  }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
@@ -609,6 +623,7 @@
      tuntematon selain hylkäisi koko säännön. */
   .osuma mark { background: var(--viiva); color: var(--muste); }
   ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
+  :root.kontrasti ::highlight(haku) { background-color: var(--muste); color: var(--paperi); }
   /* Sisälmys (käyttäjän pyyntö 4.11.2026): navin sisällysluettelo, lista vierii laatikossa.
      Kohdat ruosteella kuten tekstin sisällysluettelossa (napautettava); nykyinen osio merkitty kuten valittu hakuosuma. */
   .s-lista { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0; }
@@ -1131,6 +1146,23 @@
   .sulje svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.4; fill: none; }
   .asetus { padding: 9px 0 5px; border-bottom: 1px solid var(--viiva); }
   .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
+  /* Ulkoasun otsikko ja sähköpapyrosointi samalla rivillä (käyttäjän ehdotus 17.11.2026): nappi on otsikon kokoinen
+     versaali, mutta kursiivi, ohut ja hakasulkeissa (i-nappien kehys: hakasulkeet = nappi), joten se ei näytä kytkimeltä
+     eikä otsikolta. Painallus ei ole tila vaan tapahtuma: nappi kääntyy käänteiseksi (muste pohjana) ja sanoo, mitä tapahtui,
+     PAPYRUS_MS ajan, ja palaa sitten. Ei animaatiota: kaksi erillistä piirtoa, ja käänteinen tila kestää yli sähköpaperin
+     virkistyksen. Pohja ja reunus ovat aina samat mitat, joten painallus ei siirrä mitään. */
+  .aset-ots { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
+    margin: 24px 0 10px; }
+  .aset-ots h3 { margin: 0 !important; }
+  #papyrosoi { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; font-style: italic; font-weight: 380;
+    color: var(--harmaa); padding: 3px 5px; margin: -3px -5px; line-height: 1.3; position: relative;
+    -webkit-tap-highlight-color: transparent; }
+  /* Napautusalue 36 px korkeaksi rivin korkeutta muuttamatta. */
+  #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
+  #papyrosoi .hk { font-style: normal; letter-spacing: 0; }
+  #papyrosoi .hk:first-child { margin-right: .2em; }
+  #papyrosoi .hk:last-child { margin-left: .06em; }
+  #papyrosoi.tehty { background: var(--muste); color: var(--paperi); }
   /* Asetusten väliotsikon alla 8 px hajurakoa (h3:n ja ensimmäisen nimen väli 19 px). */
   #asetukset h3 { margin-bottom: 10px; }
   /* Sateenvarjolistan Näytä: on verbi, ei asetuksen nimi: kursiivi erottaa sen alla olevista pystyistä
@@ -1225,6 +1257,15 @@
   .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
   .valinnat.nipukka svg.sanasto { width: 16.8px; height: 14.9px; margin-left: 3px; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
+  /* Korkeassa kontrastissa ei himmennetä läpikuultavuudella (himmennys tuotti taustan lähelle uusia sävyjä): valitsematon on
+     harmaa ja valittu muste, ero näkyy salmiakin täytöstä; pois käytöstä oleva on viivan värinen. */
+  :root.kontrasti .valinnat button[aria-pressed="false"], :root.kontrasti .liik-kuva,
+  :root.kontrasti .valikko button.h-viit[aria-pressed="false"], :root.kontrasti #haku button.h-viit[aria-pressed="false"] { opacity: 1; }
+  :root.kontrasti .valinnat button:disabled, :root.kontrasti .valinnat button.pois,
+  :root.kontrasti .vienti-napit .laatikko:disabled { opacity: 1; color: var(--viiva); }
+  /* Hakuosuma käänteisenä: musta teksti viivan harmaalla olisi nopeassa tilassa mustaa mustalla. */
+  :root.kontrasti .osuma mark { background: var(--muste); color: var(--paperi); }
+  :root.kontrasti #kummitus .ik-ali.teksti { border-bottom-color: var(--ruoste); }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
   .vienti-napit { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
@@ -1454,8 +1495,11 @@
 <!-- ===== Asetukset ===== -->
 <div class="paneeli" id="asetukset" hidden role="dialog" aria-label="Asetukset">
   <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
-  <h3>Ulkoasu</h3>
-  <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div></div>
+  <!-- Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, ei kytkin. Asettaa SAHKOPAPERI-taulun asetukset kerralla;
+       sen jälkeen jokaista voi muuttaa omasta kytkimestään. Ulkoasun otsikon rivillä hienovaraisena, ks. CSS #papyrosoi. -->
+  <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi"><span class="hk">[</span><span class="p-teksti">Sähköpapyrosoi asetukset</span><span class="hk">]</span></button></div>
+  <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
+    <div class="valinnat nipukka" data-k="kontrasti:Korkea kontrasti"></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
@@ -1681,7 +1725,7 @@
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei, myöskään kirjallisuusluettelon DOI-linkit).
-  var OLETUS = { teema: 'vaalea', koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', kontrasti: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0,
@@ -1884,7 +1928,7 @@
     var doc = LuinMD.parse(t.md);
     var id = 'p-' + LuinMD.slug(doc.title || t.nimi || 'teksti').slice(0, 60);
     var e = lisaaListaan(id, doc, { src: 'paikallinen' });
-    delete e.luettu; delete e.omappi;
+    if (!e.kasikirja) { delete e.luettu; delete e.omappi; }
     if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
     tallennaLista();
     location.replace('#id=' + encodeURIComponent(e.id));
@@ -2003,12 +2047,12 @@
     var vanha = lohkot(md0), uusi = lohkot(t.md), map = kohdista(vanha.txt, uusi.txt);
     var tiedot = p.tila === 'tiedot', korvaa = tiedot || p.valinta === 'korvaa', viedaan = korvaa || p.valinta === 'merk';
     if (tiedot) {
-      if (leipaMuuttui(vanha, uusi, map)) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(!!e0.luettu, !!e0.omappi); }
+      if (leipaMuuttui(vanha, uusi, map)) { viesti('Leipäteksti oli muuttunut, joten tietoja ei tallennettu. Tekstiä voi muuttaa uutena laitoksena.'); return naytaLista(kellarissa(e0), omapissa(e0)); }
     }
     var s = viedaan ? siirraMerkinnat(merkit(p.id), e0.pos, vanha, uusi, map) : null, e, id;
     if (korvaa) {
       id = p.id;
-      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(!!e0.luettu, !!e0.omappi); }
+      if (!LS.set('luin-teksti:' + id, t.md)) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(kellarissa(e0), omapissa(e0)); }
       e = lisaaListaan(id, uusi.doc);
       // Latomo näytti asiasanat ja ajoituksen (lkKirjoita ennen siirtoa), joten puuttuva avain on poisto.
       lkMdsta(e, uusi.doc, true);
@@ -2039,7 +2083,7 @@
     viesti(tiedot ? 'Tiedot päivitetty: ' + nimi + '.' + irti :
       korvaa ? 'Uusi laitos korvasi alkuperäisen: ' + nimi + '.' + siirtyi + irti :
       e.laitos + '. laitos lisättiin pinoon: ' + nimi + (s ? '.' + siirtyi + irti : ' ilman merkintöjä.'));
-    naytaLista(korvaa && !!e.luettu, korvaa && !!e.omappi);
+    naytaLista(korvaa && kellarissa(e), korvaa && omapissa(e));
   }
 
   function lisaaListaan(id, doc, extra) {
@@ -2265,7 +2309,7 @@
      Kentän kirjoitus suodattaa sanastoa; Enter tai Valmis. lisää uuden. */
   function luokittele(es, rect) {
     lkTaydenna();
-    var n = es.length, ajKoskettu = false;
+    var n = es.length, ajKoskettu = false, kkSiirtyi = {};
     function tilaS(s) { var k = es.filter(function (e) { return lkOn(e, s); }).length; return k === 0 ? 'false' : k === n ? 'true' : 'mixed'; }
     function nappi(s, ehd) {
       return '<button type="button" class="lk-sana' + (ehd ? ' ehd' : '') + '" data-k="as" data-s="' + esc(s) + '" aria-pressed="' + tilaS(s) + '">' +
@@ -2304,7 +2348,11 @@
       }
       if (k === 'kk') {
         var paalle = b.getAttribute('aria-pressed') !== 'true';
-        es.forEach(function (e) { if (paalle) e.kasikirja = 1; else delete e.kasikirja; });
+        // Käsikirja lähtee pinosta ja ö-mappien ö-mapista kellarin kampihyllystön käsikirjastoon.
+        es.forEach(function (e) {
+          if (paalle) { if (!kellarissa(e)) kkSiirtyi[e.id] = 1; e.kasikirja = 1; delete e.omappi; delete valitut[e.id]; }
+          else { delete e.kasikirja; delete kkSiirtyi[e.id]; }
+        });
         b.setAttribute('aria-pressed', String(paalle));
         tallenna();
         return true;
@@ -2331,7 +2379,9 @@
       if (ajKoskettu) { es.forEach(function (e) { if (a) e.ajoitus = a.t; else delete e.ajoitus; }); tallenna(); }
       var nimi = n === 1 ? '”' + es[0].title + '”' : n + ' tekstiä';
       var as = n === 1 ? (es[0].asiasanat || []).join(', ') : '';
-      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.');
+      var siirtyi = Object.keys(kkSiirtyi).length;
+      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.' + (!siirtyi ? '' : n === 1 ? ' Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.'
+        : ' ' + siirtyi + (siirtyi === 1 ? ' teksti siirtyi' : ' tekstiä siirtyi') + ' käsikirjastoon kellarin kampihyllystöön.'));
       return true;
     }
     uusi.addEventListener('input', function () {
@@ -2371,13 +2421,20 @@
     (jarjestys || Object.keys(r)).forEach(function (k) { if (r[k]) out.push({ ots: otsikot ? otsikot(k) : k, es: r[k] }); });
     return out;
   }
+  // Käsikirjasto on aina ylimpänä omana välikorttinaan (merkitsemisjärjestyksessä) kaikissa järjestyksissä; valittu järjestys
+  // koskee muita tekstejä (käyttäjän päätös 17.11.2026: käsikirja on omassa erikoistilassaan).
   function jarjesta(nak) {
+    var kk = nak.filter(function (e) { return e.kasikirja; }), muut = jarjestaMuut(nak.filter(function (e) { return !e.kasikirja; }));
+    if (!kk.length) return muut;
+    if (muut.length === 1 && !muut[0].ots) muut = muut[0].es.length ? [{ ots: 'Luetut', es: muut[0].es }] : [];
+    return [{ ots: 'Käsikirjasto', es: kk }].concat(muut);
+  }
+  function jarjestaMuut(nak) {
     var j = jarjNyt(), luettuEnsin = function (x, y) { return (y.luettu || 0) - (x.luettu || 0); };
     if (j === 'luettu') {
-      var kk = nak.filter(function (e) { return e.kasikirja; });
-      if (!kk.length && !aset.kellariPino) return [{ es: nak }];
-      return ryhmita(nak, function (e) { return e.kasikirja ? 'k' : e.luettu ? 'l' : e.pct ? 'p' : 'u'; },
-        function (k) { return { k: 'Käsikirjasto', l: 'Luetut', p: 'Kesken pinossa', u: 'Lukematta pinossa' }[k]; }, ['k', 'l', 'p', 'u']);
+      if (!aset.kellariPino) return [{ es: nak }];
+      return ryhmita(nak, function (e) { return e.luettu ? 'l' : e.pct ? 'p' : 'u'; },
+        function (k) { return { l: 'Luetut', p: 'Kesken pinossa', u: 'Lukematta pinossa' }[k]; }, ['l', 'p', 'u']);
     }
     var a = nak.slice();
     if (j === 'tekija') {
@@ -2478,12 +2535,18 @@
      eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
      näkymä vaihtuu pinon ja kellarin kampihyllystön välillä. */
   var valitut = {};
+  // Käsikirja (e.kasikirja; käyttäjän päätös 17.11.2026) ei ole koskaan pinossa eikä ö-mappien ö-mapissa: se on aina kellarin
+  // kampihyllystössä omana käsikirjastonaan, luettuna tai ei. Postihuilun uusi versio tai Latomon tuonti ei nosta sitä pinoon,
+  // eikä sille tarjota Poimi- eikä ö-mappitoimintoa. Käsikirjastosta poistettu palaa sinne, minne e.luettu ja e.omappi sen vievät.
+  function kellarissa(e) { return !!e.kasikirja || !!e.luettu && !e.omappi; }
+  function omapissa(e) { return !!e.omappi && !e.kasikirja; }
+  function pinossa(e) { return !e.kasikirja && !e.luettu && !e.omappi; }
   function naytettavat(ark) {
     // Ö-mappien ö-mappi (käyttäjän pyyntö 17.11.2026, #omappi): kellarin kampihyllystöstä siirretyt (e.omappi = siirtoaika;
     // e.luettu jää), uusin ensin. Ne eivät näy kellarin kampihyllystössä eivätkä pinossa.
-    if (ark && tila.omappi) return lista.filter(function (e) { return e.omappi; }).sort(function (x, y) { return y.omappi - x.omappi; });
+    if (ark && tila.omappi) return lista.filter(omapissa).sort(function (x, y) { return y.omappi - x.omappi; });
     // Kellarin kampihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
-    var a = lista.filter(function (e) { return !e.omappi && (ark && aset.kellariPino || !!e.luettu === !!ark); });
+    var a = lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); });
     return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
   function naytaLista(ark, om) {
@@ -2533,9 +2596,9 @@
   function nimikeRivi(e, ark) {
     var ala = e.ala != null ? e.ala : e.sub || e.kehys;
     var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
-      ark ? (e.luettu ? 'luettu ' + pvm(e.luettu) : 'pinossa') : e.opened ? pvm(e.opened) : ''];
-    // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan).
-    if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [e.kasikirja ? 'käsikirja' : '', (e.asiasanat || []).join(', ')]);
+      ark ? (e.luettu ? 'luettu ' + pvm(e.luettu) : e.kasikirja ? '' : 'pinossa') : e.opened ? pvm(e.opened) : ''];
+    // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
+    if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [(e.asiasanat || []).join(', ')]);
     tieto = tieto.filter(Boolean).join(' · ');
     return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
       '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
@@ -2556,8 +2619,8 @@
     }).join('');
     $('#tyhja').hidden = nak.length > 0;
     taydennaAla();
-    $('#ark-linkki').hidden = ark || !lista.some(function (e) { return e.luettu; });
-    $('#om-linkki').hidden = !ark || tila.omappi || !lista.some(function (e) { return e.omappi; });
+    $('#ark-linkki').hidden = ark || !lista.some(kellarissa);
+    $('#om-linkki').hidden = !ark || tila.omappi || !lista.some(omapissa);
     // Järjestyksen valinta vain kellarin kampihyllystössä ja vain, kun järjestettävää on.
     $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
@@ -2610,13 +2673,14 @@
           var id = 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
-          // Uudelleen lähetetty teksti palaa kellarin kampihyllystöstä pinoon.
+          // Uudelleen lähetetty teksti palaa kellarin kampihyllystöstä pinoon (käsikirja ei: se pysyy käsikirjastossa).
           var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
-          delete e.luettu; delete e.omappi; delete e.huiluNahty;
+          if (!e.kasikirja) { delete e.luettu; delete e.omappi; }
+          delete e.huiluNahty;
           return e;
         }).catch(function () { return null; });
       })).then(function (es) {
-        var n = es.filter(Boolean).length;
+        var n = es.filter(function (e) { return e && pinossa(e); }).length;
         LS.set('luin-laatikko-nahdyt', nahdyt);
         if (n) {
           tallennaLista();
@@ -2968,10 +3032,11 @@
       '<button type="button" data-k="luokittele">luokittele</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
-      (e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
+      // Käsikirjalle ei Poimi- eikä ö-mappitoimintoa: se pysyy käsikirjastossa (pois luokittelemalla).
+      (e.kasikirja ? '' : e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
         : e.luettu ? '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä.</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>'
         : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>') +
-      '<button type="button" data-k="poista" class="vaara">' + (e.omappi ? 'Poista ö-mappien ö-mapista.' : e.luettu ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (omapissa(e) ? 'Poista ö-mappien ö-mapista.' : kellarissa(e) ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'omappi') { kysyOmappi([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
@@ -3093,10 +3158,12 @@
     var b = this, es = valitutEt();
     if (!es.length) return;
     var n = es.length, ark = tila.arkisto, luetut = es.filter(function (e) { return e.luettu; }).length;
-    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa.
-    var om = tila.omappi, luin = om ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
+    var kk = es.some(function (e) { return e.kasikirja; });
+    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa; käsikirjoja
+    // sisältävälle valinnalle ei Poimi- eikä ö-mappitoimintoa.
+    var om = tila.omappi, luin = om || kk ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
     // Ö-mappien ö-mappiin vain kellarin kampihyllystön teksteistä, takaisin vain ö-mappien ö-mapista.
-    var omk = om ? OM_POIS : ark && luetut === n ? OM_SISAAN : '';
+    var omk = om ? OM_POIS : ark && luetut === n && !kk ? OM_SISAAN : '';
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
@@ -3548,7 +3615,28 @@
     // yläreunan tason mukaan, jotta koodeksi ei siirry sivusuunnassa.
     ko.style.top = Math.round(kaY + 21 - 16.15) + 'px';
   }
+  /* Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, joka asettaa nämä kerralla. Ei tila: mitään ei muisteta,
+     eikä nappi tiedä, ovatko asetukset yhä papyrosoidut. Lisää uusi asetus tähän tauluun. */
+  var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
+  var PAPYRUS_MS = 1500;
+  var papyrusAjastin = null;
+  function papyrosoi() {
+    var n = $('#papyrosoi');
+    if (papyrusAjastin) return;
+    var ennen = Object.assign({}, aset), muuttui = false;
+    Object.keys(SAHKOPAPERI).forEach(function (k) { if (aset[k] !== SAHKOPAPERI[k]) { aset[k] = SAHKOPAPERI[k]; muuttui = true; } });
+    // Sivunkäännön tavat: vähintään yksi päällä (SIVUTAVAT) pätee taulussakin, koska reuna ja painikkeet ovat päällä.
+    n.classList.add('tehty');
+    $('.p-teksti', n).textContent = muuttui ? 'Sähköpapyrosoitu' : 'Jo sähköpapyrosoitu';
+    if (muuttui) { tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen); }
+    papyrusAjastin = setTimeout(function () {
+      papyrusAjastin = null;
+      n.classList.remove('tehty');
+      $('.p-teksti', n).textContent = 'Sähköpapyrosoi asetukset';
+    }, PAPYRUS_MS);
+  }
   $('#asetukset').addEventListener('click', function (e) {
+    if (e.target.closest('#papyrosoi')) { papyrosoi(); return; }
     var v = e.target.closest('button[data-vie]');
     if (v) { aset[v.dataset.vie] = aset[v.dataset.vie] ? 0 : 1; tallennaAset(); piirraVienti(); return; }
     var tv = e.target.closest('button[data-tuo]');
@@ -3585,6 +3673,7 @@
 
   function sovellaTeema() {
     document.documentElement.dataset.teema = aset.teema;
+    document.documentElement.classList.toggle('kontrasti', !!aset.kontrasti);
     document.documentElement.style.setProperty('--koko', aset.koko + 'px');
     document.documentElement.classList.toggle('ali-piilo', !aset.alTekstissa);
     document.documentElement.classList.toggle('oma-maalaus', omaMaalaus());
@@ -3709,8 +3798,8 @@
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
     // Kellarin kampihyllystön tekstistä pinomerkki palaa kellarin kampihyllystöön.
-    var tk = $('.takaisin'), tkn = e.omappi ? 'Ö-mappien ö-mappiin' : e.luettu ? 'Kellarin kampihyllystöön' : 'Pinoon';
-    tk.setAttribute('href', e.omappi ? '#omappi' : e.luettu ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
+    var tk = $('.takaisin'), tkn = omapissa(e) ? 'Ö-mappien ö-mappiin' : kellarissa(e) ? 'Kellarin kampihyllystöön' : 'Pinoon';
+    tk.setAttribute('href', omapissa(e) ? '#omappi' : kellarissa(e) ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
     piirraTeksti();
