@@ -42,7 +42,8 @@ let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
 const nv = { paikka: 0, ulos: 0, reuna: 0, aukot: 0, porras: 0, toisto: 0, paallekkain: 0, kallistus: 0, loppu: 0 }; let kerrat = 0, aukollisia = 0;
 for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 288]]) {
   // Nuottien väli kuten piirraHuilu(): aina napin kohta (16.11.2026), siksakin loppuun asti.
-  const k = H.kaista({ vasen: 150, yla: -8, keskiY: 40, oikea: n1 }), x1 = Math.min(n1, k.loppu), x0 = n0, kes = H.jaksonKeskit(k, x0, x1);
+  // 17.11.2026: siksak päättyy napin oikeaan reunaan (loppuX), nuotit koko napin leveydelle.
+  const k = H.kaista({ vasen: 150, yla: -8, keskiY: 40, oikea: n1 + 40, loppuX: n1, alkuX: n0 }), x1 = n1, x0 = n0, kes = H.jaksonKeskit(k, x0, x1);
   for (let i = 0; i < 2000; i++) {
     const q = H.nuottiPaikat(k, x0, x1, H.arvoNuotit(rnd)); kerrat++;
     for (const a of q) {
@@ -56,10 +57,12 @@ for (const [n0, n1] of [[241, 358], [237, 344], [267, 384], [260, 377], [171, 28
       const alamaki = k.y(a.x + .5, 0) > k.y(a.x - .5, 0), kl = k.nuottiKallistus(a.x);
       if (alamaki ? Math.abs(kl - 22 * Math.PI / 180) > 1e-9 : kl !== 0) nv.kallistus++;
     }
-    if (Math.abs((k.loppu - k.xz) / (k.jakso / 2) - Math.round((k.loppu - k.xz) / (k.jakso / 2))) > 1e-9 || k.loppu > n1 || (n1 - k.loppu >= k.jakso / 2 && !lahes(k.loppu - k.xz, 4 * k.jakso))) nv.loppu++;
+    if (Math.abs((k.loppu - k.xz) / (k.jakso / 2) - Math.round((k.loppu - k.xz) / (k.jakso / 2))) > 1e-9 || !lahes(k.loppu, n1) || k.xz - k.loppuKaari[0] - k.sp / 2 >= k.jakso / 2 - 1e-9 || k.xz - k.loppuKaari[0] < k.sp / 2 - 1e-9 || Math.abs(Math.atan(4 * k.amp / k.jakso) * 180 / Math.PI - 22) > 1e-9) nv.loppu++;
     // Tasan kolme nuottia (käyttäjä 16.11.2026), napin kohdalla, eikä soiton sisällä kahta tyhjää jaksoa peräkkäin.
     const soi = kes.map(x => q.some(a => a.x === x)), eka = soi.indexOf(true), vika = soi.lastIndexOf(true);
-    if (q.length !== Math.min(3, kes.length) || kes.length < 3 || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
+    // Napin reunat lepokohtia: nuottien rako napin reunoihin sama molemmin puolin (symmetria, 17.11.2026).
+    if (kes.length && n0 >= k.xz && Math.abs((kes[0] - n0) - (n1 - kes[kes.length - 1])) > 1e-6) nv.reuna++;
+    if (q.length !== 3 || kes.length < 3 || !soi[0] || !soi[soi.length - 1] || q.some(a => a.x - k.nr * H.LOGO < n0 || a.x + k.nr * H.LOGO > n1)) nv.reuna++;
     for (let j = eka + 1; j <= vika; j++) if (!soi[j] && !soi[j - 1]) nv.aukot++;
     if (soi.includes(false)) aukollisia++;
     const mel = q.map(a => a.p);
@@ -123,7 +126,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const perus = mk.getBoundingClientRect().bottom, hr = hs.getBoundingClientRect(); mk.remove();
       return { kysyRako: Math.min(...pts.map(q => q.x)) - kysy.right, keski: (perus - (hr.top + hr.bottom) / 2) / fs,
         viivatVasen: svg.querySelector('path').getBBox().x - (t.right - l.getBoundingClientRect().left),
-        viivatOikea: l.getBoundingClientRect().right - viivat.right, viivatLeveys: viivat.width, viivatLoppu: viivat.right - nappi.left,
+        viivatOikea: l.getBoundingClientRect().right - viivat.right, viivatNappi: viivat.right - nappi.right,
         nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, maara: (nu.getAttribute('d').match(/M/g) || []).length,
           ala: syote.top - nb.bottom, viivastonAlle: nb.bottom - viivat.bottom },
         merkityt: document.querySelectorAll('.n-ots svg.merkitty').length,
@@ -136,14 +139,13 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: huilutetun huilun keskikohta 0,29 em perusviivan yläpuolella`, Math.abs(e.keski - .29) < .02, Math.round(e.keski * 1000) / 1000);
     tulos(`${w} px: ei nuotteja ennen painallusta`, !e.nuotit);
     tulos(`${w} px: merkintöjen merkki vain merkityllä, huilu sen oikealla puolella samalla rivillä`, e.merkityt === 1 && e.merkkiRako[0] && e.merkkiRako[1] > 2, e.merkkiRako[1].toFixed(1));
-    tulos(`${w} px: siksak päättyy lohkon sisällä, kapealla puolijakson päähän reunasta, leveällä enintään neljä jaksoa`,
-      e.viivatOikea >= 0 && (e.viivatOikea < 24.5 || e.viivatLeveys < 4 * 48 + 40), Math.round(e.viivatOikea * 10) / 10 + ' px oikeaan reunaan, leveys ' + Math.round(e.viivatLeveys));
+    tulos(`${w} px: siksak päättyy tasan Soita huilua! -napin oikeaan reunaan`, Math.abs(e.viivatNappi) < .6, Math.round(e.viivatNappi * 100) / 100);
     tulos(`${w} px: huilutettu vain kantautuneella, nimet ennallaan`, e.huilutetut === 1 && e.nOts.join('|') === 'Kant ja eläinetiikka|Käyttöohje');
     await p.fill('#lisaa-syote', 'lyhyt'); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(200);
     tulos(`${w} px: kelpaamaton lause ei soita`, !(await pino()).nuotit);
     await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
     const j = await pino();
-    tulos(`${w} px: painallus tuo kolme nuottia napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === 3 && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
+    tulos(`${w} px: painallus tuo kolme nuottia koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === 3 && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && j.nuotit.vasen < 30 && j.nuotit.oikea < 30 && Math.abs(j.nuotit.vasen - j.nuotit.oikea) < 4 && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
     tulos(`${w} px: ei vaakavieritystä pinossa`, j.vaaka);
     if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);
@@ -153,7 +155,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       const arvo = document.querySelector('#laatikko-arvo').getBoundingClientRect(), kentta = document.querySelector('#laatikko-koodi').getBoundingClientRect();
       const kysy = document.querySelector('#laatikko-kysy').getBoundingClientRect(), nappi = l.querySelector('.huilunappi').getBoundingClientRect();
       return { arvoKentta: arvo.left - kentta.right, arvoRivi: Math.abs((arvo.top + arvo.bottom) / 2 - (kentta.top + kentta.bottom) / 2),
-        nappi: nappi.right - arvo.right, viivatLohkossa: kuvio.x >= 0, viiva: [...l.querySelectorAll('*')].some(e => parseFloat(getComputedStyle(e).borderBottomWidth) > 0 && !e.matches('button')), nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: nappi.top - nb.bottom, maara: (nu.getAttribute('d').match(/M/g) || []).length },
+        nappi: nappi.right - arvo.right, viivatLohkossa: kuvio.x >= 0, viivatNappi: svg.querySelector('path').getBoundingClientRect().right - nappi.right, viiva: [...l.querySelectorAll('*')].some(e => parseFloat(getComputedStyle(e).borderBottomWidth) > 0 && !e.matches('button')), nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, ala: nappi.top - nb.bottom, maara: (nu.getAttribute('d').match(/M/g) || []).length },
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
     const a = await aset();
@@ -161,7 +163,8 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: Soita huilua! oikeassa reunassa, viuhka lohkon sisällä, ei erotteluviivaa, ei nuotteja ennen painallusta`, Math.abs(a.nappi) < .5 && a.viivatLohkossa && !a.viiva && !a.nuotit, JSON.stringify(a));
     await p.fill('#laatikko-koodi', LAUSE); await p.click('#laatikko-tallenna'); await p.waitForTimeout(400);
     const a2 = await aset();
-    tulos(`${w} px: asetuksissa painallus tuo kolme nuottia napin x-välille`, a2.nuotit && a2.nuotit.maara === 3 && a2.nuotit.vasen >= 0 && a2.nuotit.oikea >= 0 && a2.nuotit.ala > 2, JSON.stringify(a2.nuotit));
+    tulos(`${w} px: asetuksissa siksak päättyy tasan napin oikeaan reunaan`, Math.abs(a2.viivatNappi) < .6, Math.round(a2.viivatNappi * 100) / 100);
+    tulos(`${w} px: asetuksissa painallus tuo kolme nuottia koko napin x-välille`, a2.nuotit && a2.nuotit.maara === 3 && a2.nuotit.vasen >= 0 && a2.nuotit.oikea >= 0 && a2.nuotit.vasen < 30 && a2.nuotit.oikea < 30 && Math.abs(a2.nuotit.vasen - a2.nuotit.oikea) < 4 && a2.nuotit.ala > 2, JSON.stringify(a2.nuotit));
     tulos(`${w} px: ei vaakavieritystä asetuksissa`, a2.vaaka);
     if (KUVAT) await (await p.$('#laatikko-osio')).screenshot({ path: path.join(KUVAT, `postihuilu-asetukset-${w}.png`) });
     tulos(`${w} px: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
