@@ -1,7 +1,7 @@
 // Mustin, TCF-valkaisu ja sähköpapyrosointi (käyttäjän pyynnöt 17.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]
 // Tarkistaa: 1) Sähköpapyrosoi asetukset on suorakaidenappi Ulkoasu-otsikon rivillä (työpöytä ja 360 px) eikä peitä raksia;
-// 2) painallus vatkaa vain napin neljä vaihetta lähtöteemasta riippuvassa järjestyksessä kiinteillä väreillä, asetukset
+// 2) painallus tanssittaa vain napin (tausta, teksti, kehä) Mustin–TCF-vuorottelua neljä vaihetta lopputilaan, asetukset
 // vaihtuvat neljännessä vaiheessa, leveys pysyy, toinen painallus kesken ei tee mitään, ja lopuksi nappi tarjoaa
 // Oletusasetukset, joka palauttaa laitteen oletukset samalla vatkauksella; 3) kontrastikytkin muuttaa vain taustan
 // (ja vaalean musteen täysmustaksi): muuttujat ja tyylisäännöt; nimi Mustin tai TCF-valkaisu teeman mukaan;
@@ -35,7 +35,8 @@ ${'Täytettä kappaleeksi. '.repeat(60)}
 [^1]: Alaviitteen teksti.
 `;
 const SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
-const VARIT = { vaalea: 'rgb(250, 245, 234)', tumma: 'rgb(18, 14, 11)', mustin: 'rgb(0, 0, 0)', tcf: 'rgb(255, 255, 255)' };
+// Tanssin värit: tausta, teksti ja kehä (Mustimman vitivalkoinen teksti on tanssin poikkeus).
+const VARIT = { mustin: 'rgb(0, 0, 0) rgb(255, 255, 255) rgb(255, 255, 255)', tcf: 'rgb(255, 255, 255) rgb(0, 0, 0) rgb(0, 0, 0)' };
 const MUUTTUJAT = ['--paperi', '--muste', '--harmaa', '--viiva', '--ruoste', '--okra', '--huomio', '--sitaatti', '--hius', '--valo'];
 
 // Kirjaa napin vaiheet (data-vaihe, teksti, tausta, leveys, asetukset) jokaisesta muutoksesta.
@@ -43,7 +44,7 @@ function kirjaaVaiheet() {
   const n = document.getElementById('papyrosoi'), t0 = performance.now();
   window.__vaiheet = [];
   const kirjaa = () => window.__vaiheet.push({ t: Math.round(performance.now() - t0), vaihe: n.dataset.vaihe || '', teksti: n.textContent,
-    tausta: getComputedStyle(n).backgroundColor, leveys: Math.round(n.getBoundingClientRect().width * 10) / 10,
+    tausta: getComputedStyle(n).backgroundColor, varit: [getComputedStyle(n).backgroundColor, getComputedStyle(n).color, getComputedStyle(n).borderTopColor].join(' '), leveys: Math.round(n.getBoundingClientRect().width * 10) / 10,
     papyrus: ['teema', 'kontrasti', 'sivutus', 'sivuReuna', 'sivuPyyhka', 'sivunapit'].map(k => window.__luin.aset[k]).join(',') });
   window.__havainnoija && window.__havainnoija.disconnect();
   window.__havainnoija = new MutationObserver(kirjaa);
@@ -95,23 +96,23 @@ async function aja(selain, U, kosketus) {
   await napauta('#papyrosoi');
   await page.waitForTimeout(700);
   await napauta('#papyrosoi'); // kesken: ei saa vaikuttaa
-  if (KUVAT) { await page.waitForTimeout(500); await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-kuittaus-${kosketus ? 'kapea' : 'levea'}.png`) }); }
-  await page.waitForTimeout(3300);
+  if (KUVAT) { await page.waitForTimeout(1500); await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-kuittaus-${kosketus ? 'kapea' : 'levea'}.png`) }); }
+  await page.waitForTimeout(KUVAT ? 2400 : 3900);
   let v = await page.evaluate(() => window.__vaiheet);
   const jarj = v.filter(x => x.vaihe).reduce((a, x) => (a[a.length - 1] && a[a.length - 1].vaihe === x.vaihe && a[a.length - 1].t === x.t ? a : a.concat(x)), []);
   const vaiheet = [...new Set(v.map((x, i) => i + ':' + x.vaihe))].map(s => s.split(':')[1]);
   const pelkat = vaiheet.filter((x, i) => x !== vaiheet[i - 1]);
-  tulos(`${laji}: vaiheet tummasta`, pelkat.join(' ') === ' vaalea mustin tcf mustin ', pelkat.join(' '));
-  const tausta = v.filter(x => x.vaihe).every(x => x.tausta === VARIT[x.vaihe]);
-  tulos(`${laji}: vaiheiden värit kiinteät`, tausta, JSON.stringify(v.filter(x => x.vaihe).map(x => x.vaihe + ' ' + x.tausta)));
+  tulos(`${laji}: vaiheet tummasta`, pelkat.join(' ') === ' mustin tcf mustin tcf ', pelkat.join(' '));
+  const tausta = v.filter(x => x.vaihe).every(x => x.varit === VARIT[x.vaihe]);
+  tulos(`${laji}: tausta, teksti ja kehä tanssivat`, tausta, JSON.stringify(v.filter(x => x.vaihe).map(x => x.vaihe + ' ' + x.varit)));
   const leveys = new Set(v.filter(x => x.vaihe).map(x => x.leveys));
   tulos(`${laji}: leveys pysyy vatkauksen ajan`, leveys.size === 1 && [...leveys][0] === v[0].leveys, [...leveys].join(', ') + ' / ' + v[0].leveys);
-  const ennen4 = v.filter(x => x.vaihe && x.vaihe !== 'mustin' || x.vaihe === 'mustin' && x.t < 500);
+  const ennen4 = v.filter(x => x.t < 1900);
   const papStr = Object.values(SAHKOPAPERI).join(',');
   tulos(`${laji}: asetukset vasta neljännessä vaiheessa`, ennen4.every(x => x.papyrus !== papStr) && v.some(x => x.teksti === 'Sähköpapyrosoitu' && x.papyrus === papStr),
     JSON.stringify(v.map(x => x.t + ' ' + x.vaihe + ' ' + x.teksti + ' ' + x.papyrus)));
   const k4 = v.find(x => x.teksti === 'Sähköpapyrosoitu'), loppu = v[v.length - 1];
-  tulos(`${laji}: vaiheet 350 ms, kuittaus noin 2,2 s`, k4 && Math.abs(k4.t - 1050) < 150 && Math.abs(loppu.t - k4.t - 2200) < 200, k4 && (k4.t + ' → ' + loppu.t));
+  tulos(`${laji}: vaiheet 700 ms, kuittaus noin 2,2 s`, k4 && k4.vaihe === 'tcf' && Math.abs(k4.t - 2100) < 150 && Math.abs(loppu.t - k4.t - 2200) < 200, k4 && (k4.t + ' → ' + loppu.t));
   tulos(`${laji}: lopuksi Oletusasetukset`, loppu.vaihe === '' && loppu.teksti === 'Oletusasetukset', JSON.stringify(loppu));
   const tallessa = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-asetukset')));
   tulos(`${laji}: papyrosoitu tallessa`, Object.keys(SAHKOPAPERI).every(k => tallessa[k] === SAHKOPAPERI[k]));
@@ -185,10 +186,10 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: nappi yhä Oletusasetukset`, (await nappi()) === 'Oletusasetukset', await nappi());
   await page.evaluate(kirjaaVaiheet);
   await napauta('#papyrosoi');
-  await page.waitForTimeout(3500);
+  await page.waitForTimeout(4700);
   v = await page.evaluate(() => window.__vaiheet);
   const vv = v.map(x => x.vaihe).filter((x, i, a) => x !== a[i - 1]);
-  tulos(`${laji}: vaiheet vaaleasta`, vv.join(' ') === ' tumma tcf mustin tcf ', vv.join(' '));
+  tulos(`${laji}: vaiheet vaaleaan oletukseen`, vv.join(' ') === ' mustin tcf mustin tcf ', vv.join(' '));
   tulos(`${laji}: kuittaus Palautettu`, v.some(x => x.teksti === 'Palautettu' && x.vaihe === 'tcf'));
   const oletus = await page.evaluate(() => ['teema', 'kontrasti', 'sivutus', 'sivuReuna', 'sivuPyyhka', 'sivunapit'].map(k => window.__luin.aset[k]).join(','));
   const odotettu = kosketus ? 'vaalea,0,sivut,1,1,1' : 'vaalea,0,vieritys,1,1,1';

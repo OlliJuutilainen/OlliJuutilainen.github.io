@@ -1166,9 +1166,8 @@
   .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
   /* Ulkoasun otsikko ja sähköpapyrosointi samalla rivillä (käyttäjän ehdotus 17.11.2026): nappi on otsikkoa pienempi ja
      asteen himmeämpi (--huomio, käyttäjän pyyntö 17.11.2026) versaali, kursiivi, ohut ja ohuen suorakaiteen sisällä (käyttäjän päätös 17.11.2026; aamulla hakasulkeissa).
-     Painallus on tapahtuma eikä tila: vain napin suorakaide vatkaa sähköpaperin virkistyksen tapaan neljä vaihetta
-     (papyrosoi(): vastakkainen teema, oman teeman ääripää, vastakkainen ääripää, oman ääripää; viimeisessä kuittaus jää
-     PAPYRUS_MS ajaksi). Vaiheiden värit ovat kiinteät, koska sivun teema vaihtuu kesken. Leveys lukitaan vatkauksen ajaksi. */
+     Painallus on tapahtuma eikä tila: vain napin suorakaide kehineen tanssii sähköpaperin virkistyksen tapaan Mustimman ja
+     TCF:n välillä neljä vaihetta (papyrosoi(); viimeisessä lopputilan väri ja kuittaus, joka jää PAPYRUS_MS ajaksi). Vaiheiden värit ovat kiinteät, koska sivun teema vaihtuu kesken. Leveys lukitaan vatkauksen ajaksi. */
   .aset-ots { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
     margin: 24px 0 10px; }
   .aset-ots h3 { margin: 0 !important; }
@@ -1177,9 +1176,9 @@
     line-height: 1.3; white-space: nowrap; text-align: center; position: relative; -webkit-tap-highlight-color: transparent; }
   /* Napautusalue 36 px korkeaksi rivin korkeutta muuttamatta. */
   #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
-  #papyrosoi[data-vaihe="vaalea"] { background: #faf5ea; color: #231c14; border-color: #231c14; }
-  #papyrosoi[data-vaihe="tumma"] { background: #120e0b; color: #ebdfca; border-color: #ebdfca; }
-  #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ebdfca; border-color: #ebdfca; }
+  /* Tanssissa Mustimman teksti ja kehä ovat poikkeuksellisesti vitivalkoiset (käyttäjän pyyntö 17.11.2026: tanssin
+     selkeyttämiseksi; muuten Mustimman teksti on tumman teeman lämmin valkoinen). */
+  #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ffffff; border-color: #ffffff; }
   #papyrosoi[data-vaihe="tcf"] { background: #ffffff; color: #000000; border-color: #000000; }
   /* TCF-vihje (käyttäjän pyyntö 17.11.2026): hiiren pitkä viipymä TCF-valkaisun päällä tai kosketuksella päällä olevan
      kytkimen napautus (kerran päällekytkentää kohden). Sulkeutuu vain napautuksesta, ohi napautus vain sulkee (nielaise()). */
@@ -3652,7 +3651,7 @@
      laitteen ensikäytön oletuksina). Lisää uusi asetus tähän tauluun ja laitteenOletus()-funktioon. */
   var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
   // Vatkauksen kolme ensimmäistä vaihetta ja kuittauksen kesto (käyttäjän pyyntö: pidempi kuin aamun 1,5 s).
-  var PAPYRUS_VAIHE = 350, PAPYRUS_MS = 2200;
+  var PAPYRUS_VAIHE = 700, PAPYRUS_MS = 2200;
   var papyrusKay = false;
   function papyrosoitu() { return Object.keys(SAHKOPAPERI).every(function (k) { return aset[k] === SAHKOPAPERI[k]; }); }
   function laitteenOletus() {
@@ -3663,13 +3662,14 @@
   function paivitaPapyrus() {
     if (!papyrusKay) $('#papyrosoi').textContent = papyrosoitu() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
   }
-  /* Vatkaus (käyttäjän pyyntö 17.11.2026, vain napin suorakaide): lähtöteemasta katsoen vastakkainen tavallinen teema, oman
-     teeman ääripää, vastakkainen ääripää ja taas oman ääripää, johon kuittaus jää. Tummasta: vaalea, Mustin, TCF, Mustin.
+  /* Tanssi (käyttäjän pyynnöt 17.11.2026, vain napin suorakaide kehineen): pelkkä Mustin ja TCF vuorotellen, ei tavallisten
+     teemojen välisävyjä. Neljännessä vaiheessa jää lopputilan oikea väri: papyrosointi ja vaalea oletus Mustin, TCF, Mustin,
+     TCF; tumma oletus päinvastoin. Lähtöteema ei vaikuta, ensimmäinen vaihe vain erottuu siitä enemmän tai vähemmän.
      Asetukset vaihtuvat neljännen vaiheen alussa, jolloin kuittaus on totta. */
   function papyrosoi() {
     if (papyrusKay) return;
     var n = $('#papyrosoi'), takaisin = papyrosoitu(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
-    var vaiheet = aset.teema === 'tumma' ? ['vaalea', 'mustin', 'tcf', 'mustin'] : ['tumma', 'tcf', 'mustin', 'tcf'];
+    var vaiheet = uusi.teema === 'tumma' ? ['tcf', 'mustin', 'tcf', 'mustin'] : ['mustin', 'tcf', 'mustin', 'tcf'];
     papyrusKay = true;
     n.style.width = n.getBoundingClientRect().width + 'px';
     var i = 0;
