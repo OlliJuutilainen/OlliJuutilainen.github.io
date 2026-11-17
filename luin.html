@@ -82,20 +82,12 @@
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d; --valo: #3f3428;
   }
-  /* Korkea kontrasti (käyttäjän pyyntö 17.11.2026, sähköpaperia varten, aset.kontrasti): tausta täysin valkoinen tai musta
-     ja vain kolme harmaata tasoa, kaikki kaukana taustasta. Sähköpaperin nopea virkistystila piirtää vain mustaa ja valkoista
-     (kynnys noin puolivälissä), joten taustan lähellä oleva haalea sävy katoaa kokonaan: viiva ja hius ovat siksi kynnyksen
-     tummalla puolella (vaaleassa) tai vaalealla puolella (tummassa). Harmaa, huomio ja sitaatti ovat yksi taso. Ruoste ja okra
-     pysyvät erivärisinä (värillinen sähköpaperi ja näyttö), mutta yhtä kaukana taustasta. Valo on paperi: kummitusneliö
-     vaalenee taustaksi eikä uudeksi sävyksi. */
-  :root.kontrasti {
-    --paperi: #ffffff; --muste: #000000; --harmaa: #333333; --viiva: #707070;
-    --ruoste: #6b3410; --okra: #8a5c00; --huomio: #333333; --sitaatti: #333333; --hius: #707070; --valo: #ffffff;
-  }
-  :root.kontrasti[data-teema="tumma"] {
-    --paperi: #000000; --muste: #ffffff; --harmaa: #d0d0d0; --viiva: #909090;
-    --ruoste: #e8955a; --okra: #f2c14e; --huomio: #d0d0d0; --sitaatti: #d0d0d0; --hius: #909090; --valo: #000000;
-  }
+  /* Mustin ja TCF-valkaisu (käyttäjän pyyntö 17.11.2026, aset.kontrasti; aamulla korkea kontrasti): vain tausta on ääripää,
+     #000 tummassa (Mustin) ja #fff vaaleassa (TCF-valkaisu). Vaaleassa muste on lisäksi täysmusta; tumman lämmin
+     tekstivalkoinen pysyy (käyttäjä: Light Phonella täydellisen pehmeä). Muut sävyt ovat teeman omat: sähköpaperin hidas
+     tila toistaa harmaat, sotkuinen on vain ei-ihan-valkoinen tai ei-ihan-musta tausta. */
+  :root.kontrasti:not([data-teema="tumma"]) { --paperi: #ffffff; --muste: #000000; }
+  :root.kontrasti[data-teema="tumma"] { --paperi: #000000; }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
@@ -623,7 +615,6 @@
      tuntematon selain hylkäisi koko säännön. */
   .osuma mark { background: var(--viiva); color: var(--muste); }
   ::highlight(haku) { background-color: var(--viiva); color: var(--muste); }
-  :root.kontrasti ::highlight(haku) { background-color: var(--muste); color: var(--paperi); }
   /* Sisälmys (käyttäjän pyyntö 4.11.2026): navin sisällysluettelo, lista vierii laatikossa.
      Kohdat ruosteella kuten tekstin sisällysluettelossa (napautettava); nykyinen osio merkitty kuten valittu hakuosuma. */
   .s-lista { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 5px 0; }
@@ -1147,22 +1138,28 @@
   .asetus { padding: 9px 0 5px; border-bottom: 1px solid var(--viiva); }
   .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
   /* Ulkoasun otsikko ja sähköpapyrosointi samalla rivillä (käyttäjän ehdotus 17.11.2026): nappi on otsikon kokoinen
-     versaali, mutta kursiivi, ohut ja hakasulkeissa (i-nappien kehys: hakasulkeet = nappi), joten se ei näytä kytkimeltä
-     eikä otsikolta. Painallus ei ole tila vaan tapahtuma: nappi kääntyy käänteiseksi (muste pohjana) ja sanoo, mitä tapahtui,
-     PAPYRUS_MS ajan, ja palaa sitten. Ei animaatiota: kaksi erillistä piirtoa, ja käänteinen tila kestää yli sähköpaperin
-     virkistyksen. Pohja ja reunus ovat aina samat mitat, joten painallus ei siirrä mitään. */
+     versaali, mutta kursiivi, ohut ja ohuen suorakaiteen sisällä (käyttäjän päätös 17.11.2026; aamulla hakasulkeissa).
+     Painallus on tapahtuma eikä tila: vain napin suorakaide vatkaa sähköpaperin virkistyksen tapaan neljä vaihetta
+     (papyrosoi(): vastakkainen teema, oman teeman ääripää, vastakkainen ääripää, oman ääripää; viimeisessä kuittaus jää
+     PAPYRUS_MS ajaksi). Vaiheiden värit ovat kiinteät, koska sivun teema vaihtuu kesken. Leveys lukitaan vatkauksen ajaksi. */
   .aset-ots { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
     margin: 24px 0 10px; }
   .aset-ots h3 { margin: 0 !important; }
   #papyrosoi { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; font-style: italic; font-weight: 380;
-    color: var(--harmaa); padding: 3px 5px; margin: -3px -5px; line-height: 1.3; position: relative;
-    -webkit-tap-highlight-color: transparent; }
+    color: var(--harmaa); border: 1px solid var(--harmaa); padding: 3px calc(8px - .16em) 3px 8px; margin: -4px 0;
+    line-height: 1.3; white-space: nowrap; text-align: center; position: relative; -webkit-tap-highlight-color: transparent; }
   /* Napautusalue 36 px korkeaksi rivin korkeutta muuttamatta. */
   #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
-  #papyrosoi .hk { font-style: normal; letter-spacing: 0; }
-  #papyrosoi .hk:first-child { margin-right: .2em; }
-  #papyrosoi .hk:last-child { margin-left: .06em; }
-  #papyrosoi.tehty { background: var(--muste); color: var(--paperi); }
+  #papyrosoi[data-vaihe="vaalea"] { background: #faf5ea; color: #231c14; border-color: #231c14; }
+  #papyrosoi[data-vaihe="tumma"] { background: #120e0b; color: #ebdfca; border-color: #ebdfca; }
+  #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ebdfca; border-color: #ebdfca; }
+  #papyrosoi[data-vaihe="tcf"] { background: #ffffff; color: #000000; border-color: #000000; }
+  /* TCF-vihje (käyttäjän pyyntö 17.11.2026): hiiren pitkä viipymä TCF-valkaisun päällä tai kosketuksella päällä olevan
+     kytkimen napautus (kerran päällekytkentää kohden). Sulkeutuu vain napautuksesta, ohi napautus vain sulkee (nielaise()). */
+  .asetus[data-a="teema"] { position: relative; }
+  #tcf-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(19rem, calc(100% - 8px)); padding: 6px 10px 7px;
+    font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); cursor: pointer; }
+  #tcf-vihje p { margin: 0; }
   /* Asetusten väliotsikon alla 8 px hajurakoa (h3:n ja ensimmäisen nimen väli 19 px). */
   #asetukset h3 { margin-bottom: 10px; }
   /* Sateenvarjolistan Näytä: on verbi, ei asetuksen nimi: kursiivi erottaa sen alla olevista pystyistä
@@ -1257,15 +1254,6 @@
   .valinnat .sukkela-s { font-style: italic; font-weight: 380; }
   .valinnat.nipukka svg.sanasto { width: 16.8px; height: 14.9px; margin-left: 3px; }
   .vienti-napit .laatikko:disabled { opacity: .3; cursor: default; }
-  /* Korkeassa kontrastissa ei himmennetä läpikuultavuudella (himmennys tuotti taustan lähelle uusia sävyjä): valitsematon on
-     harmaa ja valittu muste, ero näkyy salmiakin täytöstä; pois käytöstä oleva on viivan värinen. */
-  :root.kontrasti .valinnat button[aria-pressed="false"], :root.kontrasti .liik-kuva,
-  :root.kontrasti .valikko button.h-viit[aria-pressed="false"], :root.kontrasti #haku button.h-viit[aria-pressed="false"] { opacity: 1; }
-  :root.kontrasti .valinnat button:disabled, :root.kontrasti .valinnat button.pois,
-  :root.kontrasti .vienti-napit .laatikko:disabled { opacity: 1; color: var(--viiva); }
-  /* Hakuosuma käänteisenä: musta teksti viivan harmaalla olisi nopeassa tilassa mustaa mustalla. */
-  :root.kontrasti .osuma mark { background: var(--muste); color: var(--paperi); }
-  :root.kontrasti #kummitus .ik-ali.teksti { border-bottom-color: var(--ruoste); }
   .vienti-sis .huomio { margin-top: 6px; }
   .vienti-sis .huomio:empty { display: none; }
   .vienti-napit { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
@@ -1496,10 +1484,13 @@
 <div class="paneeli" id="asetukset" hidden role="dialog" aria-label="Asetukset">
   <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
   <!-- Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, ei kytkin. Asettaa SAHKOPAPERI-taulun asetukset kerralla;
-       sen jälkeen jokaista voi muuttaa omasta kytkimestään. Ulkoasun otsikon rivillä hienovaraisena, ks. CSS #papyrosoi. -->
-  <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi"><span class="hk">[</span><span class="p-teksti">Sähköpapyrosoi asetukset</span><span class="hk">]</span></button></div>
+       sen jälkeen jokaista voi muuttaa omasta kytkimestään. Kun asetukset ovat taulun mukaiset, samassa paikassa on
+       Oletusasetukset, joka palauttaa taulun asetukset laitteen oletuksiin. Ks. CSS #papyrosoi. Kontrastikytkimen nimi
+       riippuu teemasta: Mustin tai TCF-valkaisu (piirraAsetukset()). -->
+  <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi" aria-live="polite">Sähköpapyrosoi asetukset</button></div>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
-    <div class="valinnat nipukka" data-k="kontrasti:Korkea kontrasti"></div></div>
+    <div class="valinnat nipukka" data-k="kontrasti:TCF-valkaisu"></div>
+    <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
@@ -3558,6 +3549,7 @@
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
+        if (kv[0] === 'kontrasti') kv[1] = aset.teema === 'tumma' ? 'Mustin' : 'TCF-valkaisu';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
         // Vierityksessä sivunkäännön lisäkytkimet ovat himmeät mutta napautettavissa: napautus valitsee Sivunkäännön.
         var himmea = tapa && aset.sivutus !== 'sivut';
@@ -3572,6 +3564,7 @@
     // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
     $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
     piirraVienti();
+    paivitaPapyrus();
     sijoitaNipukka();
   }
   // Sivunvaihtopainikkeiden kytkin Sivut-vaihtoehdon alle, 16 px sisennettynä kuten Sukkela alleviivaus
@@ -3615,26 +3608,75 @@
     // yläreunan tason mukaan, jotta koodeksi ei siirry sivusuunnassa.
     ko.style.top = Math.round(kaY + 21 - 16.15) + 'px';
   }
-  /* Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, joka asettaa nämä kerralla. Ei tila: mitään ei muisteta,
-     eikä nappi tiedä, ovatko asetukset yhä papyrosoidut. Lisää uusi asetus tähän tauluun. */
+  /* Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, joka asettaa nämä kerralla. Ei tila eikä muisti: nappi
+     katsoo vain, ovatko asetukset nyt taulun mukaiset, ja tarjoaa silloin Oletusasetukset (laitteenOletus(): samat avaimet
+     laitteen ensikäytön oletuksina). Lisää uusi asetus tähän tauluun ja laitteenOletus()-funktioon. */
   var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
-  var PAPYRUS_MS = 1500;
-  var papyrusAjastin = null;
-  function papyrosoi() {
-    var n = $('#papyrosoi');
-    if (papyrusAjastin) return;
-    var ennen = Object.assign({}, aset), muuttui = false;
-    Object.keys(SAHKOPAPERI).forEach(function (k) { if (aset[k] !== SAHKOPAPERI[k]) { aset[k] = SAHKOPAPERI[k]; muuttui = true; } });
-    // Sivunkäännön tavat: vähintään yksi päällä (SIVUTAVAT) pätee taulussakin, koska reuna ja painikkeet ovat päällä.
-    n.classList.add('tehty');
-    $('.p-teksti', n).textContent = muuttui ? 'Sähköpapyrosoitu' : 'Jo sähköpapyrosoitu';
-    if (muuttui) { tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen); }
-    papyrusAjastin = setTimeout(function () {
-      papyrusAjastin = null;
-      n.classList.remove('tehty');
-      $('.p-teksti', n).textContent = 'Sähköpapyrosoi asetukset';
-    }, PAPYRUS_MS);
+  // Vatkauksen kolme ensimmäistä vaihetta ja kuittauksen kesto (käyttäjän pyyntö: pidempi kuin aamun 1,5 s).
+  var PAPYRUS_VAIHE = 350, PAPYRUS_MS = 2200;
+  var papyrusKay = false;
+  function papyrosoitu() { return Object.keys(SAHKOPAPERI).every(function (k) { return aset[k] === SAHKOPAPERI[k]; }); }
+  function laitteenOletus() {
+    var tumma = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    return { teema: tumma ? 'tumma' : 'vaalea', kontrasti: OLETUS.kontrasti, sivutus: sivutusOletus() ? 'sivut' : 'vieritys',
+      sivuReuna: 1, sivuPyyhka: 1, sivunapit: 1 };
   }
+  function paivitaPapyrus() {
+    if (!papyrusKay) $('#papyrosoi').textContent = papyrosoitu() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
+  }
+  /* Vatkaus (käyttäjän pyyntö 17.11.2026, vain napin suorakaide): lähtöteemasta katsoen vastakkainen tavallinen teema, oman
+     teeman ääripää, vastakkainen ääripää ja taas oman ääripää, johon kuittaus jää. Tummasta: vaalea, Mustin, TCF, Mustin.
+     Asetukset vaihtuvat neljännen vaiheen alussa, jolloin kuittaus on totta. */
+  function papyrosoi() {
+    if (papyrusKay) return;
+    var n = $('#papyrosoi'), takaisin = papyrosoitu(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
+    var vaiheet = aset.teema === 'tumma' ? ['vaalea', 'mustin', 'tcf', 'mustin'] : ['tumma', 'tcf', 'mustin', 'tcf'];
+    papyrusKay = true;
+    n.style.width = n.getBoundingClientRect().width + 'px';
+    var i = 0;
+    (function askel() {
+      if (i === vaiheet.length) {
+        papyrusKay = false; n.removeAttribute('data-vaihe'); n.style.width = ''; paivitaPapyrus(); return;
+      }
+      n.dataset.vaihe = vaiheet[i];
+      if (i === vaiheet.length - 1) {
+        n.textContent = takaisin ? 'Palautettu' : 'Sähköpapyrosoitu';
+        var ennen = Object.assign({}, aset);
+        Object.keys(uusi).forEach(function (k) { aset[k] = uusi[k]; });
+        tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
+      }
+      setTimeout(askel, ++i === vaiheet.length ? PAPYRUS_MS : PAPYRUS_VAIHE);
+    })();
+  }
+  /* TCF-vihje (käyttäjän pyyntö 17.11.2026). Hiirellä viipymä TCF-valkaisun päällä avaa sen; kosketuksella päällä olevan
+     kytkimen napautus avaa sen kerran päällekytkentää kohden (tcfNahty), ja seuraava napautus sammuttaa kytkimen, jotta
+     sen voi yhä sammuttaa. Vihjeen oma tai ohi napautus sulkee (ohi napautus ei tee muuta). */
+  var TCF_VIIVE = 1000, tcfAjastin = null, tcfNahty = false;
+  function naytaTcf(b) {
+    var v = $('#tcf-vihje'), as = v.parentNode;
+    tcfNahty = true;
+    v.hidden = false;
+    var A = as.getBoundingClientRect(), r = b.getBoundingClientRect();
+    v.style.left = Math.round(Math.max(4, Math.min(r.left - A.left, as.clientWidth - v.offsetWidth - 4))) + 'px';
+    v.style.top = Math.round(r.bottom - A.top + 2) + 'px';
+  }
+  function suljeTcf() { clearTimeout(tcfAjastin); tcfAjastin = null; $('#tcf-vihje').hidden = true; }
+  $('#asetukset').addEventListener('mouseover', function (e) {
+    var b = e.target.closest('button[data-kytkin="kontrasti"]');
+    if (!b || aset.teema === 'tumma' || tcfAjastin || !$('#tcf-vihje').hidden || !(window.matchMedia && matchMedia('(hover: hover)').matches)) return;
+    tcfAjastin = setTimeout(function () { tcfAjastin = null; if (b.isConnected && b.matches(':hover')) naytaTcf(b); }, TCF_VIIVE);
+  });
+  $('#asetukset').addEventListener('mouseout', function (e) {
+    var b = e.target.closest('button[data-kytkin="kontrasti"]');
+    if (b && !b.contains(e.relatedTarget)) { clearTimeout(tcfAjastin); tcfAjastin = null; }
+  });
+  document.addEventListener('click', function (e) {
+    var v = $('#tcf-vihje');
+    if (v.hidden) return;
+    if (!v.contains(e.target)) nielaise(e);
+    suljeTcf();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') suljeTcf(); });
   $('#asetukset').addEventListener('click', function (e) {
     if (e.target.closest('#papyrosoi')) { papyrosoi(); return; }
     var v = e.target.closest('button[data-vie]');
@@ -3650,6 +3692,7 @@
     var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
     if (!b) return;
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
+    if (b.dataset.kytkin === 'kontrasti' && aset.kontrasti && aset.teema !== 'tumma' && !tcfNahty && MOBIILI && MOBIILI.matches) { naytaTcf(b); return; }
     if (b.dataset.kytkin && b.classList.contains('pois')) aset.sivutus = 'sivut';
     else if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
@@ -3684,6 +3727,7 @@
   var ASETTELU = ['koko', 'kappale', 'tasaus', 'marginaali', 'tavutus', 'sivutus', 'sisallys'];
   function sovellaAsetukset(ennen) {
     sovellaTeema();
+    if (!ennen.kontrasti && aset.kontrasti) tcfNahty = false;
     if (!nyt) return;
     var a = tila.ankkuri;
     if (ennen.tavutus !== aset.tavutus || ennen.sisallys !== aset.sisallys) { piirraTeksti(); }
