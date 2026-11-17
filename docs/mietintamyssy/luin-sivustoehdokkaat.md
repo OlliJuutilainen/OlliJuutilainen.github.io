@@ -62,7 +62,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Glossa; tiivistelmä, alaviitteet (otsikon viite otsikkoon) ja kirjallisuus.
   SciELO (PR #849, 17.11.2026, pahvin *20 sivustosovitetta* 7): klassinen sci_arttext-pohja kansallisilla palvelimilla;
   www.scielo.br on Bunny Shield -haasteen takana eikä sitä mitattu.
-  Open Book Publishers (PR #OBNRO, 17.11.2026, pahvin *20 sivustosovitetta* 8): Epublius-lukunäkymästä koko kirja; kustantajan
+  Open Book Publishers (PR #852, 17.11.2026, pahvin *20 sivustosovitetta* 8): Epublius-lukunäkymästä koko kirja; kustantajan
   oma sivusto on Vercelin tarkistuksen takana, lukunäkymän palvelin ei.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
