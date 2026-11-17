@@ -218,7 +218,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   teeman mukaan: *Mustin* tai *TCF-valkaisu*. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
   olevan kytkimen napautuksesta kerran päällekytkentää kohden (muuten kytkintä ei voisi sammuttaa). *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
-  (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita); painallus vatkaa **vain napin
+  (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita), otsikkoa pienempi ja `--huomio`n värinen; painallus vatkaa **vain napin
   alaa** neljä vaihetta kiinteillä väreillä (tummasta: vaalea, Mustin, TCF, Mustin; vaaleasta peilikuva), asetukset vaihtuvat
   neljännessä, jossa kuittaus jää `PAPYRUS_MS` (2,2 s). Tämä on käyttäjän tilaama tarkoituksellinen poikkeus
   animaatiokiellosta (sähköpaperin virkistysvitsi); koko näytön valoshowta käyttäjä ei halunnut. Taulun sisältö on käyttäjän
