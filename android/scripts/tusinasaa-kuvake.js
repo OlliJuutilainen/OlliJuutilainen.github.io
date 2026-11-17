@@ -1,8 +1,10 @@
 // Tusinasään kuvake (käyttäjän linjaukset 17.11.2026): musta kiekko, paksu kehä, sen ulkopuolella kellotaulun
 // paikoilla 12 ulospäin osoittavaa kolmiota irti kehästä, ja kehän sisällä babylonialainen luku 12 nuolenpääkirjoituksella:
 // kulmakiila (10) ja kaksi pystykiilaa (1 + 1). Kulmakiila täyttää kehän sisäympyrän vasemman puolikkaan (kärki ja
-// selän kulmat ympyrällä, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikean puolikkaan
-// keskellä, jolloin keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän ajatus).
+// selän kulmat ympyrällä, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikealla puolikkaalla,
+// jolloin keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän ajatus). Pystykiilojen varsi kapenee
+// kärkeen ja jälkimmäinen on porrastettu alemmas: rinnakkaiset pyöreäpäiset varret keskellä näyttivät haarukalta ja
+// veitseltä lautasella (käyttäjä 17.11.2026).
 // Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android); vain rajaus vaihtelee.
 //
 // Tuottaa:
@@ -37,9 +39,8 @@ const VALI = .75;                                // kehän sisäreunasta merkkei
 const U = R - KEHA / 2 - VALI;                   // merkkien ympyrä
 // Kulmakiila: kärki vasemmalla ympyrällä, selkä x = SELKA (kulmat ympyrällä), lovi LOVI selästä sisään.
 const SELKA = -.4, LOVI = 1.5;
-// Pystykiilat: keskikohdat, ryhmän keskikohdan y (negatiivinen ylös), koko korkeus, pään leveys ja korkeus, varren leveys
-// (pyöreä pää). Hiukan oikealle ja ylös oikean puolikkaan keskeltä (käyttäjän pyyntö 17.11.2026).
-const PYST = [2.4, 4.4], PYST_Y = -.8, PYST_K = 4.6, PAA = 1.7, PAA_K = 1.4, VARSI = .8;
+// Pystykiilat: keskikohdat [x, y] (y negatiivinen ylös), koko korkeus, pään leveys ja korkeus, varren leveys kaulassa.
+const PYST = [[2.2, -1.2], [4.4, -.2]], PYST_K = 4.2, PAA = 1.6, PAA_K = 1.4, VARSI = .9;
 const KARKI = R + KEHA / 2 + RAKO + KOLMIO_K;    // kolmioiden kärkien säde (15,2)
 
 const n = x => +x.toFixed(3);
@@ -61,10 +62,10 @@ function kolmiot() {
 function kiilat() {
   const sy = ymp(SELKA);
   let d = `M${n(C - U)},${C}L${n(C + SELKA)},${n(C - sy)}L${n(C + SELKA - LOVI)},${C}L${n(C + SELKA)},${n(C + sy)}Z`;
-  for (const x of PYST) {
-    const w = PAA / 2, v = VARSI / 2, yla = PYST_Y - PYST_K / 2, kaula = yla + PAA_K, ala = yla + PYST_K - v;
-    d += `M${n(C + x - w)},${n(C + yla)}H${n(C + x + w)}L${n(C + x + v)},${n(C + kaula)}V${n(C + ala)}` +
-      `A${v},${v} 0 0 1 ${n(C + x - v)},${n(C + ala)}V${n(C + kaula)}Z`;
+  for (const [x, y] of PYST) {
+    const w = PAA / 2, v = VARSI / 2, yla = y - PYST_K / 2, kaula = yla + PAA_K, karki = yla + PYST_K;
+    d += `M${n(C + x - w)},${n(C + yla)}H${n(C + x + w)}L${n(C + x + v)},${n(C + kaula)}L${n(C + x)},${n(C + karki)}` +
+      `L${n(C + x - v)},${n(C + kaula)}Z`;
   }
   return d;
 }
