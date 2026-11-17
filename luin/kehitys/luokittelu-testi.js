@@ -33,6 +33,7 @@ const TEKSTIT = [
   ['p-seneca', T('tekijä: Lucius Annaeus Seneca\najoitus: 65 jaa.', 'Kirjeitä Luciliukselle'), { luettu: NYT - 2 * PAIVA }],
   ['p-sep', T('tyyppi: blogi\nsivusto: Stanford Encyclopedia of Philosophy\nlähde: https://plato.stanford.edu/entries/hegel/\nhaettu: 2026-11-01\njulkaistu: 2020', 'Georg Wilhelm Friedrich Hegel'), { luettu: NYT - 1 * PAIVA, pct: 100 }],
   ['p-raamattu', T('julkaistu: 1992', 'Raamattu'), { luettu: NYT - 6 * PAIVA, kasikirja: 1 }],
+  ['p-areiopagi', T('tyyppi: blogi\nsivusto: Areiopagi\ntekijä: Olli-Pekka Vainio & Aku Visala\njulkaistu: 2024\nlähde: https://www.areiopagi.fi/2024/tiede-ja-usko/', 'Tiede ja usko'), { luettu: NYT - 7 * PAIVA }],
   ['p-pinossa', T('tekijä: Maurice Merleau-Ponty\nasiasanat: filosofia, psykologia', 'Havainnon fenomenologia'), { pct: 12 }],
   ['p-pinossa-2', T('', 'Lukematon'), {}]
 ];
@@ -85,33 +86,38 @@ const TEKSTIT = [
   const nimet = a => a.map(x => x.replace(/ \{.*\}$/, '')).join(' | ');
 
   let r = await kellari('luettu');
-  tulos('oletus: käsikirjasto ylimpänä, muut luettu-järjestyksessä', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Luetut 5] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Septuaginta | Hegel’s Phenomenology', nimet(r));
+  tulos('oletus: käsikirjasto ylimpänä, muut luettu-järjestyksessä', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Luetut 6] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Septuaginta | Hegel’s Phenomenology | Tiede ja usko', nimet(r));
   tulos('tietorivillä asiasanat ja käsikirja', r.some(x => /Hegel’s.*filosofia, Hegel/.test(x)) && r.some(x => /Raamattu.*käsikirja/.test(x)), r.join(' / '));
   tulos('järjestysrivi näkyy', await page.evaluate(() => !document.getElementById('jarj-rivi').hidden && document.getElementById('jarj').textContent === 'luetuksi merkitsemisen mukaan'));
 
   r = await kellari('ajoitus');
   tulos('ajoitus: eaa. ennen jaa., Hegel-tutkimus Hegelin vuoteen, Raamattu oikealla', nimet(r) ===
-    '[1000-luku eaa. 1] | Tekstejä rautakauden Levantista | [200-luku eaa. 1] | Septuaginta | [1–99 jaa. 1] | Kirjeitä Luciliukselle | [1800-luku 1] | Hegel’s Phenomenology | [1900-luku 1] | Raamattu | [2000-luku 1] | Georg Wilhelm Friedrich Hegel', nimet(r));
+    '[1000-luku eaa. 1] | Tekstejä rautakauden Levantista | [200-luku eaa. 1] | Septuaginta | [1–99 jaa. 1] | Kirjeitä Luciliukselle | [1800-luku 1] | Hegel’s Phenomenology | [1900-luku 1] | Raamattu | [2000-luku 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko', nimet(r));
   tulos('ajoitus näkyy tietorivillä', r.some(x => /Septuaginta \{ajoitus 250 eaa\./.test(x)) && r.some(x => /Raamattu \{julkaistu 1992/.test(x)), r.join(' / '));
 
   r = await kellari('tekija');
-  tulos('tekijä: sukunimen kirjain, tekijätön nimen mukaan', nimet(r) === '[G 1] | Georg Wilhelm Friedrich Hegel | [P 1] | Hegel’s Phenomenology | [R 1] | Raamattu | [S 2] | Kirjeitä Luciliukselle | Septuaginta | [T 1] | Tekstejä rautakauden Levantista', nimet(r));
+  tulos('tekijä: julkaisu (Areiopagi, SEP) tai kirjoittajan sukunimi, tekijätön nimen mukaan', nimet(r) === '[A 1] | Tiede ja usko | [P 1] | Hegel’s Phenomenology | [R 1] | Raamattu | [S 3] | Kirjeitä Luciliukselle | Septuaginta | Georg Wilhelm Friedrich Hegel | [T 1] | Tekstejä rautakauden Levantista', nimet(r));
+  tulos('tekijänä julkaisu, kirjoittajat tietorivillä', r.some(x => /^Tiede ja usko \{Olli-Pekka Vainio & Aku Visala/.test(x)), r.join(' / '));
+
+  r = await kellari('kirjoittaja');
+  tulos('kirjoittaja: henkilöittäin sukunimen mukaan, kahden kirjoittajan teksti kummankin alla', nimet(r) ===
+    '[Pinkard, Terry 1] | Hegel’s Phenomenology | [Seneca, Lucius Annaeus 1] | Kirjeitä Luciliukselle | [Vainio, Olli-Pekka 1] | Tiede ja usko | [Visala, Aku 1] | Tiede ja usko | [Ilman kirjoittajaa 4] | Tekstejä rautakauden Levantista | Septuaginta | Raamattu | Georg Wilhelm Friedrich Hegel', nimet(r));
 
   r = await kellari('laji');
-  tulos('laji', nimet(r) === '[Tieteelliset 1] | Hegel’s Phenomenology | [Kaunokirjallisuus 1] | Septuaginta | [Blogit ja verkkosivut 1] | Georg Wilhelm Friedrich Hegel | [Lajittelemattomat 3] | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Raamattu', nimet(r));
+  tulos('laji', nimet(r) === '[Tieteelliset 1] | Hegel’s Phenomenology | [Kaunokirjallisuus 1] | Septuaginta | [Blogit ja verkkosivut 2] | Georg Wilhelm Friedrich Hegel | Tiede ja usko | [Lajittelemattomat 3] | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Raamattu', nimet(r));
 
   r = await kellari('asiasana');
-  tulos('asiasanat (tags-avain luettu)', nimet(r) === '[filosofia 1] | Hegel’s Phenomenology | [Hegel 1] | Hegel’s Phenomenology | [teologia 1] | Tekstejä rautakauden Levantista | [Ilman asiasanaa 4] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Raamattu', nimet(r));
+  tulos('asiasanat (tags-avain luettu)', nimet(r) === '[filosofia 1] | Hegel’s Phenomenology | [Hegel 1] | Hegel’s Phenomenology | [teologia 1] | Tekstejä rautakauden Levantista | [Ilman asiasanaa 5] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Raamattu | Tiede ja usko', nimet(r));
 
   r = await kellari('alkupera');
-  tulos('alkuperä', nimet(r).startsWith('[Poimittu verkosta 1] | Georg Wilhelm Friedrich Hegel | [Ladottu itse 5]'), nimet(r));
+  tulos('alkuperä', nimet(r).startsWith('[Poimittu verkosta 2] | Tiede ja usko | Georg Wilhelm Friedrich Hegel | [Ladottu itse 5]'), nimet(r));
 
   r = await kellari('merkinnat');
-  tulos('merkinnät', nimet(r).startsWith('[Runsaasti merkityt 1] | Hegel’s Phenomenology | [Merkityt 1] | Georg Wilhelm Friedrich Hegel | [Merkitsemättömät 4]') &&
+  tulos('merkinnät', nimet(r).startsWith('[Runsaasti merkityt 1] | Hegel’s Phenomenology | [Merkityt 1] | Georg Wilhelm Friedrich Hegel | [Merkitsemättömät 5]') &&
     r.some(x => /Hegel’s.*\{21 alleviivausta, 2 kirjausta/.test(x)), nimet(r));
 
   r = await kellari('edistyminen');
-  tulos('edistyminen', nimet(r).startsWith('[Luettu loppuun 2] | Georg Wilhelm Friedrich Hegel | Hegel’s Phenomenology | [Yli puolet 1] | Tekstejä rautakauden Levantista | [Alle puolet 1] | Septuaginta | [Avaamatta 2]'), nimet(r));
+  tulos('edistyminen', nimet(r).startsWith('[Luettu loppuun 2] | Georg Wilhelm Friedrich Hegel | Hegel’s Phenomenology | [Yli puolet 1] | Tekstejä rautakauden Levantista | [Alle puolet 1] | Septuaginta | [Avaamatta 3]'), nimet(r));
 
   r = await kellari('luettu', true);
   tulos('pino mukana: kesken ja lukematta omina ryhminään', nimet(r).endsWith('[Kesken pinossa 1] | Havainnon fenomenologia | [Lukematta pinossa 1] | Lukematon') &&

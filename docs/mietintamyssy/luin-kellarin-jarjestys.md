@@ -83,7 +83,8 @@ Käyttäjän luettelo ja muutama lisä, kukin luokiteltuna sen mukaan, kuka tied
 | Laji | tieteellinen / blogi / kaunokirjallinen | latomo, lisäosa (automaattinen) | `tyyppi:` | ✓ järjestys *lajin mukaan* |
 | Kauno vai asia | kaunokirjallinen / muu | sama kuin laji | `tyyppi:` | ✓ (lajin osana) |
 | Alkuperä | poimittu verkosta / ladottu itse / linkistä | automaattinen | `lähde:`, `haettu:`, `e.src` | ✓ *alkuperän mukaan*, sivuston mukaan sisällä |
-| Kirjoittaja | Hegel, Pinkard | automaattinen | `e.author` | ✓ *tekijän mukaan* (sukunimen kirjain) |
+| Tekijä | Areiopagi (blogi), Pinkard (kirja) | automaattinen | `e.sivusto`, `e.author` | ✓ *tekijän mukaan*: verkkojulkaisun kirjoituksella julkaisu, muuten kirjoittaja |
+| Kirjoittaja | Vainio, Visala (sama kirjoitus kummallakin) | automaattinen | `e.author` | ✓ *kirjoittajan mukaan*, henkilöittäin |
 | Tiedeala, aihe | filosofia, psykologia (monta) | lukija; ehdotus sivustosta | `asiasanat:` | ✓ *asiasanojen mukaan* |
 | Kronologia | Septuaginta → Seneca → Hegel → ev.-lut. Raamattu | lukija; oletus julkaisuvuodesta | `ajoitus:` | ✓ *ajoituksen mukaan* (vuosisadoittain) |
 | Merkintämäärä | eniten merkityt | automaattinen | `luin-merkit` | ✓ *merkintöjen määrän mukaan* |
@@ -351,6 +352,9 @@ Kirjastonhoitajan ja arkistonhoitajan päiväunista otettiin vain se, mikä palv
 - **Ajoitus**: arkeologin sana. *Tekstejä rautakauden Levantista* saa ajoituksen *1000–586 eaa.*, ja vuosisatojen
   välikortit ovat suomalaiset (*200-luku eaa.*).
 - **Käsikirjasto**: lainaamaton kokoelma, joka on aina käsillä.
+- **Yhteisötekijä**: luetteloinnissa yhteisö voi olla teoksen tekijä. Areiopagin kirjoituksen tekijä on Areiopagi
+  (järjestys *tekijän mukaan*), kirjoittajat Olli-Pekka Vainio ja Aku Visala (järjestys *kirjoittajan mukaan*, kirjoitus
+  kummankin kortin alla). Käyttäjän tarkennus 17.11.2026.
 - **Tekijätön teos nimen mukaan**: luettelointisäännön mukaan anonyymi teos järjestetään nimensä mukaan. Raamattu on R:n kohdalla.
 - **Kellarin veivihyllystö** pysyy kokonaisena nimenä. Selvityksessä se on lyhennetty kellariksi vain siksi, että tämä on
   kehittäjän teksti.
@@ -389,7 +393,7 @@ enintään 80 riviä.
 ## 9. Toteutettu ensimmäinen versio (17.11.2026)
 
 - md.js: `LuinMD.asiasanat()`, `LuinMD.ajoitus()` ja avainten yhtenäistys.
-- luin.html: `luokittele()` (nimikkeen valikko ja valittujen valikko), kellarin järjestykset `jarjesta()` ja välikortit,
+- luin.html: `luokittele()` (nimikkeen valikko ja valittujen valikko), kellarin järjestykset `jarjesta()` (yhdeksän; *kirjoittajan mukaan* ja julkaisu tekijänä lisätty samana päivänä) ja välikortit,
   `lkMdsta()`, `lkKirjoita()`, `asetaAvain()`, ehdotukset `LK_EHDOTUS` ja `lkEhdotukset()`, asetukset `kellariJarj` ja
   `kellariPino`.
 - Latomo: kentät *Asiasanat* (sanasto alla) ja *Ajoitus* (tulkinta), valinnaisina.
