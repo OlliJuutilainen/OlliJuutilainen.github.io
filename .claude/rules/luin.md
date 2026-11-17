@@ -462,14 +462,16 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 68°, nokka ylhäällä oikealla.
   Pinossa huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
-  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena ja jatkuvat sitten
+  samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena (syli, alla) ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
   mitat isoja (huilu 6 px, viivaväli 8 px, siksak ±4,85 px): ohut viiva ei ole lupa pienentää. **Väljä kolmilinja** (käyttäjän pyyntö 16.11.2026,
   vertailu `docs/mietintamyssy/luin-postihuilu-valjempi.html`, muunnelma B): kolme viivaa, jakso 48, alamäki 22° vaakatasosta, siksak enintään
   neljä jaksoa. Samana päivänä: väli 8 (ylin viiva paikallaan, alin kaartuu syvemmin alas ja vasemmalle, `KAARROS`), nuotti välin korkuinen,
   **soitossa tasan kolme nuottia, aina napin x-välillä** (käyttäjän vaatimus). 17.11.2026: **siksak päättyy tasan napin oikeaan reunaan**,
   **napin alku aina alakulmassa, kolmen välin päässä yläkulma ja napin loppu sen jälkeen alamäen puolivälissä** (`yli` .5; ensin .12),
-  nuotti kunkin välin keskellä (`alkuX`, `loppuX`, `suunta`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Pinon Postihuilu on oletuksena kiinni**
+  nuotti kunkin välin keskellä (`alkuX`, `loppuX`; jakso joustaa, 22° pysyy); pinon lohko enintään 22.5rem. **Syli**: napin alun alakulmaa
+  ennen yksi suora veto yläkulmaan, siitä suuhun puhdasta kaarrosta; ylin viiva on selkäranka ja alemmat sen ulospäin siirtymiä,
+  joten alin kiertää suun vasemman kautta ja välit pysyvät tasaisina (`SYLI`; käyttäjä 17.11.2026: ei erillisiä kaaria, välit eivät saa repeytyä). **Pinon Postihuilu on oletuksena kiinni**
   (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
