@@ -58,6 +58,8 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   osioiden HTML:stä ja metatiedot rajapinnasta.
   ForumMagnum: LessWrong ja EA Forum (PR #845, 17.11.2026, pahvin *20 sivustosovitetta* 5): ponnahdusalaviitteet
   alaviitteiksi, kommentit pois.
+  Janeway / Open Library of Humanities (PR #JWNRO, 17.11.2026, pahvin *20 sivustosovitetta* 6): alustasovite, myös Orbit, C21 ja
+  Glossa; tiivistelmä, alaviitteet (otsikon viite otsikkoon) ja kirjallisuus.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
   osiot ja pilkkoi dialogit. European Journal of Psychoanalysis (15.11.2026): Readability antoi leipätekstin, mutta
@@ -77,7 +79,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   Wikipedia muilla kielillä (de, sv, fr). Wikipedia-sovite on jo olemassa: tutki, yleistyykö se.
 - **eScholarship** (Kalifornian yliopisto)
 - **Manifold** (tehty 17.11.2026, ks. yllä), **Scalar**
-- **Janeway** / Open Library of Humanities
+- **Janeway** / Open Library of Humanities (tehty 17.11.2026, ks. yllä)
 
 ## Tekstiarkistot ja e-kirjastot
 
