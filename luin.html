@@ -347,20 +347,26 @@
   #lista .vain-lista > .huilulohko > .lisaa-ots-rivi { margin-top: var(--osiovali); }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
-  /* Ö-mappien mappi ö -linkki (käyttäjän pyynnöt 17.11.2026): ääripäiden ö:t ovat mappisulkimen renkaita. Rengas on
-     x-akselilla litistetty soikio (leveys .85 korkeudesta), jonka hypoteettisen täyden soikion laki on versaalien korkeudella ja
-     alareuna alleviivauksella (ulkokorkeus 15,72 px = perusviivasta alleviivauksen alareunaan 7,31 px + versaalikorkeus 8,41 px,
-     mitattu .74rem:n koossa). Viiva on täytetty muoto, ei vetoa: kyljissä 1,8 px, laella 1,3 px ja alhaalla 1 px, jotta
-     alleviivaus jatkuu renkaan pohjaksi samanpaksuisena. Laella keskellä leveä irvistysrako (ulkoreunat 1,6 px, sisäreunat 3,4 px
-     toisistaan; leikkauksen kolmion kärki renkaan ulkopuolella). Ö:n pisteet ovat samanlaisia litistettyjä rakorenkaita (2,4 px,
-     viiva .7–.85 px, rako .45/.9 px). Mitat ja polut tuottaa luin/kehitys/orengas.js. Alleviivaus kulkee renkaiden alakärjestä
-     toiseen (a:n oma reunus on läpinäkyvä, jotta rivin mitat pysyvät kellarilinkin mittoina). Raot tekstiin .2 em (yhdysviiva)
-     ja .4 em (sanaväli kuten kammen ja tekstin välillä). */
-  .om-linkki a { padding: 0 calc(1.129em + .4em - .14em) 0 calc(1.129em + .2em); border-bottom-color: transparent; }
-  .om-linkki a::before { left: .564em; right: .564em; width: auto; }
-  .om-linkki svg.orengas { position: absolute; bottom: -1px; width: 1.129em; height: 1.868em; overflow: visible; fill: currentColor; }
+  /* Ö-mappien mappiin ö -linkki (käyttäjän pyynnöt 17.11.2026, kolme kierrosta): ääripäiden ö:t ovat mappisulkimen renkaita.
+     Rengas on x-akselilla litistetty soikio (leveys .81 korkeudesta). Renkaan viivan sisäreunan laki on versaalikorkeudella
+     (8,51 px = .7188 em) ja ulkoreunan alakärki 3,8 px perusviivan alla (nostettu alleviivauksen 7,31 px:stä, jotta renkaan
+     keskikohta, 3,1 px, olisi lähempänä versaalien keskeä 4,25 px). Viiva on täytetty muoto: kyljissä 2,1 px, laella 1,5 px,
+     alhaalla .85 px kuten alleviivaus. Laella leveä viisto irvistysrako (ulkoreunat 1,6 px, sisäreunat 3,4 px toisistaan).
+     Ö:n pisteet ovat samanlaisia litistettyjä rakorenkaita. Mitat ja polut tuottaa luin/kehitys/orengas.js.
+     Alleviivaus (svg.oalla, .85 px, ei reunusviiva: murto-osainen paksuus) kulkee renkaiden alakärjestä toiseen, ja sen
+     alareuna on tasan renkaiden alakärjessä (sama bottom). Padding-laatikon alareuna on 6,31 px perusviivan alla, joten
+     bottom 2,51 px. a:n oma reunus on läpinäkyvä, jotta rivin mitat pysyvät kellarilinkin mittoina.
+     Yhdysviiva (span.oyv) on piirretty: keskikohta 3,68 px perusviivan yläpuolella eli versaalien keskeltä (4,25) ja renkaan
+     keskeltä (3,1) puoliväliin, 1,15 px paksu (fontin viiva .93 px), musteen paikka ja leveys kuten fontin yhdysviivassa
+     (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Raot tekstiin .2 em ja .4 em. */
+  .om-linkki a { padding: 0 calc(.945em + .4em - .14em) 0 calc(.945em + .2em); border-bottom-color: transparent; }
+  .om-linkki a::before { content: none; }
+  .om-linkki svg.orengas { position: absolute; bottom: 2.51px; width: .945em; height: 1.707em; overflow: visible; fill: currentColor; }
   .om-linkki svg.vas { left: 0; }
   .om-linkki svg.oik { right: 0; }
+  .om-linkki svg.oalla { position: absolute; bottom: 2.51px; left: .472em; width: calc(100% - 2 * .472em); height: 3px; overflow: visible; fill: currentColor; }
+  .om-linkki .oyv { display: inline-block; position: relative; width: .351em; height: 0; margin-right: .14em; }
+  .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: 0; width: 3.33px; height: 6px; overflow: visible; fill: currentColor; }
   /* Paluu ö-mappien mapista ö (käyttäjän pyyntö 17.11.2026): kellarilinkki peilikuvana vasemmassa alakulmassa, nuoli vasemmalle
      ja kampi tekstin oikealla puolella. Teksti ei peilaudu. */
   .ark-linkki.paluu { text-align: left; }
@@ -383,11 +389,11 @@
      otsikon kampi on kellarilinkin kampi ilman vartta. Rengas on linkin renkaan muoto pienennettynä samassa suhteessa kuin kampi
      (ulkosäde pystyyn 4,65 px): soikion keskikohta versaalien pystykeskellä (.3176 em perusviivasta kuten kammen napa) ja laki
      versaalien korkeudella, joten alareuna .0754 em perusviivan alla. Ensimmäinen on Ö:n paikalla (.2 em yhdysviivaan),
-     viimeinen otsikon merkkinä 1 em:n päässä (spanin alareuna on .3379 em perusviivan alla: .3379 − .0754 = .2625). */
+     viimeinen otsikon merkkinä .8 em:n päässä (käyttäjän pyyntö 17.11.2026, ennen 1 em kuten muut merkit; spanin alareuna on .3379 em perusviivan alla: .3379 − .0754 = .2625). */
   h2.ots .ots-o { display: inline-block; position: relative; width: .668em; height: 0; margin-right: .2em; }
   h2.ots svg.orengas { position: absolute; width: .668em; height: 1.182em; overflow: visible; fill: currentColor; stroke: none; }
   h2.ots .ots-o svg.orengas { left: 0; bottom: -.0754em; }
-  h2.ots .ots-merkki > svg.orengas { left: calc(100% + .82em); bottom: .2625em; }
+  h2.ots .ots-merkki > svg.orengas { left: calc(100% + .62em); bottom: .2625em; }
   button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
   button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
@@ -1450,12 +1456,12 @@
   </div>
   <!-- Cellarin campihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>cellarin campihyllystö<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>cellarin campihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   <!-- Ö-mappien mappi ö (käyttäjän pyynnöt 17.11.2026): linkki cellarin campihyllystön alalaidassa kuten kellarilinkki pinossa, vain kun
        siellä on jotain. Ääripäiden ö:t ovat mappisulkimen renkaita alleviivauksen päissä. -->
-  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappien mappi ö"><svg class="orengas vas" viewBox="0 0 13.362 22.12" aria-hidden="true"><clipPath id="orengas-leikkaus-1" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H33.362V42.12H-20ZM6.681 4.978L10.181 11.447L3.181 11.447ZM3.608 -.797L4.508 2.449L2.708 2.449ZM9.754 -.797L10.654 2.449L8.854 2.449Z"/></clipPath><path clip-path="url(#orengas-leikkaus-1)" fill-rule="evenodd" d="M6.681 22.12A6.681 7.86 0 1 1 6.681 6.4A6.681 7.86 0 1 1 6.681 22.12ZM6.681 21.12A4.881 6.71 0 1 1 6.681 7.7A4.881 6.71 0 1 1 6.681 21.12ZM3.608 4.8A2.04 2.4 0 1 1 3.608 0A2.04 2.4 0 1 1 3.608 4.8ZM3.608 4.1A1.19 1.7 0 1 1 3.608 .7A1.19 1.7 0 1 1 3.608 4.1ZM9.754 4.8A2.04 2.4 0 1 1 9.754 0A2.04 2.4 0 1 1 9.754 4.8ZM9.754 4.1A1.19 1.7 0 1 1 9.754 .7A1.19 1.7 0 1 1 9.754 4.1Z"/></svg><span aria-hidden="true">-mappien mappi</span><svg class="orengas oik" viewBox="0 0 13.362 22.12" aria-hidden="true"><clipPath id="orengas-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H33.362V42.12H-20ZM6.681 4.978L10.181 11.447L3.181 11.447ZM3.608 -.797L4.508 2.449L2.708 2.449ZM9.754 -.797L10.654 2.449L8.854 2.449Z"/></clipPath><path clip-path="url(#orengas-leikkaus-2)" fill-rule="evenodd" d="M6.681 22.12A6.681 7.86 0 1 1 6.681 6.4A6.681 7.86 0 1 1 6.681 22.12ZM6.681 21.12A4.881 6.71 0 1 1 6.681 7.7A4.881 6.71 0 1 1 6.681 21.12ZM3.608 4.8A2.04 2.4 0 1 1 3.608 0A2.04 2.4 0 1 1 3.608 4.8ZM3.608 4.1A1.19 1.7 0 1 1 3.608 .7A1.19 1.7 0 1 1 3.608 4.1ZM9.754 4.8A2.04 2.4 0 1 1 9.754 0A2.04 2.4 0 1 1 9.754 4.8ZM9.754 4.1A1.19 1.7 0 1 1 9.754 .7A1.19 1.7 0 1 1 9.754 4.1Z"/></svg></a></p>
+  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappien mappiin ö"><svg class="orengas vas" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-1" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-1)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><span aria-hidden="true"><span class="oyv"><svg viewBox="0 0 3.33 6" aria-hidden="true"><rect y="1.745" width="3.33" height="1.15"/></svg></span>mappien mappiin</span><svg class="orengas oik" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-2)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><svg class="oalla" aria-hidden="true"><rect y="2.15" width="100%" height=".85"/></svg></a></p>
   <!-- Paluu ö-mappien mapista ö cellarin campihyllystöön (käyttäjän pyyntö 17.11.2026): kellarilinkki peilattuna, vasemmassa alakulmassa. -->
-  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg>cellarin campihyllystö<svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></a></p>
+  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg>cellarin campihyllystöön<svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 

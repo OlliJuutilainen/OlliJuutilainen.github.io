@@ -152,12 +152,13 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   valikossa pinoon noston rinnalla *Siirrä ö-mappien mappiin ö.*, sieltä *Palauta cellarin campihyllystöön.* `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`) on kellarin alalaidassa vain,
   kun siellä on jotain: ääripäiden ö:t ovat mappisulkimen renkaita, alleviivaus renkaan alakärjestä toiseen, ei nuolta.
-  Rengas (käyttäjän pyynnöt 17.11.2026, toinen kierros): x-akselilla litistetty soikio (.85), täyden soikion laki versaalien
-  korkeudella ja alareuna alleviivauksella; täytetty muoto, viiva kyljissä paksumpi ja alhaalla 1 px, jotta alleviivaus jatkuu
-  sen pohjaksi; laella leveä viisto irvistysrako (ulkoreunat lähempänä kuin sisäreunat); ö:n pisteet samanlaisia pieniä
+  Linkkien tekstit ovat aina illatiivissa (käyttäjän korjaus 17.11.2026): *cellarin campihyllystöön*, *ö-mappien mappiin ö*.
+  Rengas (käyttäjän pyynnöt 17.11.2026, kolmas kierros): x-akselilla litistetty soikio (.81), viivan sisäreunan laki versaalien
+  korkeudella, alakärki 3,8 px perusviivan alla ja alleviivauksen (svg, .85 px) alareuna tasan siinä; täytetty muoto, viiva
+  kyljissä paksumpi ja alhaalla alleviivauksen paksuinen; yhdysviiva piirretty versaalien ja renkaan keskikohtien puoliväliin; laella leveä viisto irvistysrako (ulkoreunat lähempänä kuin sisäreunat); ö:n pisteet samanlaisia pieniä
   rakorenkaita. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikossa molemmat ö:t ovat samoja renkaita ilman alleviivausta (`OTS_OMAPPI`, pienennettynä kuten otsikon kampi:
-  keskikohta kammen navan korkeudella, laki versaalikorkeudella, viimeinen 1 em:n päässä; nimi `aria-label`issa). Ö-mapissa
+  keskikohta kammen navan korkeudella, laki versaalikorkeudella, viimeinen .8 em:n päässä; nimi `aria-label`issa). Ö-mapissa
   ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki peilattuna (`#ark-paluu`:
   nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
 - **Kellarin kampi** (käyttäjän pyynnöt 16.–17.11.2026): kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
