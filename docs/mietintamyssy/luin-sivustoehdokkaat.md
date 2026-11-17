@@ -54,7 +54,7 @@ Tuetut sivustot ovat sivulla `luin/sivustot.html` ja kehittäjän oppaan luvussa
   OpenEdition Journals ja Books (PR #837, 17.11.2026, pahvin *20 sivustosovitetta* 2): tiivistelmät kielittäin, kappalenumerot
   yläindekseinä, alaviitteet, kirjallisuus ja tekijät. Anubis-botintorjunta päästää curlin oman tunnisteen läpi.
   Hypotheses.org (PR #843, 17.11.2026, pahvin *20 sivustosovitetta* 3): blogikirjoitus alaviitteineen, mitattu de, fr, en.
-  Manifold (PR #MFNRO, 17.11.2026, pahvin *20 sivustosovitetta* 4): palvelin renderöi osiot, joten koko kirja loppuviitteineen
+  Manifold (PR #844, 17.11.2026, pahvin *20 sivustosovitetta* 4): palvelin renderöi osiot, joten koko kirja loppuviitteineen
   osioiden HTML:stä ja metatiedot rajapinnasta.
   Psyche valittiin psykoterapeutin näkökulmasta (psykoanalyysi, Jung, kiintymyssuhde) sillä perusteella, että Luin
   parantaa lukemista eniten: Readability toisti nostolainaukset kesken kappaleiden, hukkasi osanvaihdot ja oppaiden
