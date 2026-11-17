@@ -2131,7 +2131,16 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   let rainObj = null;
   let rainSource = null;
   let rainFallbackFromNowcast = false;
-  if (isNowcastHour && nowcast && typeof nowcast.val === 'number'){
+  /* Tutka ei näe matalasta pilvestä tulevaa tihkua: nowcast antaa 0.0 mm ja 'cloudy', vaikka
+     sääasema havaitsee heikkoa sadetta (17.11.2026 Helsinki: wawa 61/81 koko aamun, mittari
+     0.0 mm/h). Kun nowcast on kuiva mutta FMI:n saman tunnin symboli on heikkoa (alle 0,3 mm)
+     sadetta ilman ukkosta tai rakeita, rivi on kokonaan FMI:n rivi. */
+  const ssInfo = smartSymbolInfo(smartSymbolCode);
+  const ncDryFmiWet = !!(isNowcastHour && nowcast && typeof nowcast.val === 'number' && nowcast.val < 0.1
+    && !(nowcast.sym && ncIsPrecip(nowcast.sym))
+    && ssInfo && ssInfo.precip && !ssInfo.thunder && !ssInfo.hail
+    && typeof hour.precipitationRaw === 'number' && hour.precipitationRaw > 0 && hour.precipitationRaw < 0.3);
+  if (isNowcastHour && nowcast && typeof nowcast.val === 'number' && !ncDryFmiWet){
     rainVal = nowcast.val < 0.1 ? 0 : nowcast.val;
     rainSource = 'nowcast';
     rainObj = rainCell(rainVal, { source: rainSource });
@@ -2277,6 +2286,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     descExtra += ` <span class="soft" style="font-size:12px">${tagText}</span>`;
     if (nowcast?.meta && nowcast.meta !== 'NC'){
       descExtra += ` <span class="soft" style="font-size:12px">[${nowcast.meta}]</span>`;
+    }
+    if (ncDryFmiWet){
+      descExtra += ` <span class="soft" style="font-size:12px">[NC kuiva→FMI]</span>`;
     }
     if (twDbg && !twDbg.startsWith('[TW!err]')){
       descExtra += ` <span class="soft" style="font-size:12px">${twDbg}</span>`;
