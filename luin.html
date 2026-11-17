@@ -1569,7 +1569,7 @@
 <script src="luin/md.js?v=a621e8f0"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=b70e5f83"></script>
+<script src="luin/huilu.js?v=6a853af1"></script>
 <script>
 (function () {
   'use strict';
@@ -2826,11 +2826,14 @@
     if (paikka) { var P = paikka.getBoundingClientRect(); vasen = P.left - R.left + (P.width - r.w) / 2; yla = P.top - R.top - 8; }
     else {
       yla = kaista.top - R.top + 2;
+      // Huilu niin, että siksak alkaa lepokohdastaan kaksi ja puoli väliä ennen napin vasenta reunaa (kulma) ja viuhkan
+      // jälkeinen suora on lyhyt (puoli viivaväliä + 0,15 väliä).
       var k0 = LuinHuilu.kaista({ vasen: 0, yla: yla, keskiY: yla + r.h + 6 + HUILU.sp, oikea: 1e5, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma, sp: HUILU.sp });
-      vasen = Math.max(8, nappi.right - R.left - k0.loppu - .01);
+      var vali = nappi.width / 3;
+      vasen = Math.max(8, nappi.left - R.left - 2.65 * vali - (k0.loppuKaari[0] + HUILU.sp / 2));
     }
-    // Siksak päättyy tasan napin oikeaan reunaan, ja napin reunat ovat lepokohtia (käyttäjän vaatimus 17.11.2026, loppuX
-    // ja alkuX) pinossa ja asetuksissa.
+    // Siksak päättyy tasan napin oikeaan reunaan, ja napin reunat ovat kulmia, joiden välissä on kolme väliä (käyttäjän
+    // vaatimukset 17.11.2026, loppuX ja alkuX) pinossa ja asetuksissa.
     var opt = { vasen: vasen, yla: yla, keskiY: yla + r.h + 6 + HUILU.sp, oikea: R.width, loppuX: nappi.right - R.left, alkuX: nappi.left - R.left, T: HUILU.T, sw: HUILU.sw, kulma: HUILU.kulma, sp: HUILU.sp };
     var k = LuinHuilu.kaista(opt);
     if (k.vasenReuna < 2) { opt.vasen += 2 - k.vasenReuna; k = LuinHuilu.kaista(opt); }
