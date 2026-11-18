@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers ja Center for Hellenic Studies (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5286,6 +5286,160 @@
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija, julkaistu, sivusto, lahde: osoite, maar };
   }
 
+  /* Zeithistorische Forschungen / Studies in Contemporary History (zeithistorische-forschungen.de, ZZF Potsdam; käyttäjän pyyntö
+     18.11.2026, pahvin *10 sivustosovitetta* varakohde 15). Drupal: otsikko h1.page-title, alaotsikko .untertitel, teksti
+     .node--type-beitrag .field--name-body, viitteet a[href="#footnote-049"] > span 1 → div#footnote-049 (paluulinkki ja teksti)
+     Anmerkungen:-kappaleen (p.Anmerkungen) jälkeen, kuvat media-lohkoina kuvateksteineen, tekijä .all-author, päivä .datetime
+     (16. Juni 2026), lisenssi .lizenz (CC BY-SA 4.0), sitaatti .zitation (… 22 (2026), H. 1, … DOI: …, Druckausgabe: S. 201-212).
+     Readability antoi tekstin, mutta otsikon ilman avaavaa lainausmerkkiä ja sivuston nimen kanssa, viitteet linkkeinä (alaviitteitä
+     0), kuvatekstit ja kuvien oikeusrivit tekstin väliin eikä alaotsikkoa, lehteä eikä numeroa. Sovite: kuvat ja videot
+     kuvateksteineen pois, Anmerkungen-otsake, tyhjä ankkurikappale ja viiva pois, viitteet samanSivunViitteet():llä; etukenttään
+     tyyppi tieteellinen, alaotsikko, tekijät, teos, numero (vuosikerta:vihko sitaatista), julkaistu, sivut (Druckausgabe), DOI ja
+     lisenssi. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 18.11.2026. */
+  const ZF_KUUKAUDET = ['januar', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'dezember'];
+  async function zeithistorische() {
+    if (!/(^|\.)zeithistorische-forschungen\.de$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('.node--type-beitrag .field--name-body'), h1 = document.querySelector('h1.page-title');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, img, iframe, .media, figure, drupal-media, .caption').forEach(x => x.remove());
+    el.querySelectorAll('p.Anmerkungen').forEach(x => x.remove());
+    el.querySelectorAll('a#anm, a[name="anm"]').forEach(a => { const p = a.closest('p'); (p && !rivi(p.textContent) ? p : a).remove(); });
+    const maar = samanSivunViitteet(el, 'zf');
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, table')) x.remove(); });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*zeithistorische-forschungen\.de\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const zit = rivi((document.querySelector('.zitation .accordion-body, .zitation') || {}).textContent);
+    const vk = /,\s*(\d+)\s*\((\d{4})\),\s*H\.\s*(\d+)/.exec(zit), sv = /Druckausgabe:\s*S\.\s*([\d–-]+)/.exec(zit);
+    const doi = /doi\.org\/(\S+?)\s*,?\s*(?:Druckausgabe|$)/.exec(zit);
+    const pm = /(\d{1,2})\.\s*(\p{L}+)\s+(\d{4})/u.exec(rivi((document.querySelector('.datetime') || {}).textContent));
+    const kk = pm ? ZF_KUUKAUDET.indexOf(pm[2].toLowerCase()) : -1;
+    const liz = rivi((document.querySelector('.lizenz') || {}).textContent), cc = /CC\s+[A-Z-]+\s+\d\.\d/.exec(liz);
+    const tekijat = [...new Set([...document.querySelectorAll('.all-author')].map(x => rivi(x.textContent)).filter(Boolean))];
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), alaotsikko: rivi((document.querySelector('.untertitel') || {}).textContent),
+      tyyppi: 'tieteellinen', tekija: kkLuettelo(tekijat), teos: 'Zeithistorische Forschungen', numero: vk ? vk[1] + ':' + vk[3] : '',
+      sivut: sv ? sv[1].replace(/-/g, '–') : '', julkaistu: kk >= 0 ? pm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pm[1].padStart(2, '0') : vk ? vk[2] : '',
+      doi: doi ? doi[1].replace(/[,.]$/, '') : '', lahde: osoite, maar,
+      oikeus: cc ? { teksti: cc[0], lahde: (document.querySelector('.lizenz a[href*="creativecommons"]') || {}).href || osoite } : null,
+      naytto: 'Zeithistorische Forschungen' };
+  }
+
+  /* BOMB Magazine (bombmagazine.org; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 16: taiteilijat ja kirjailijat
+     haastattelevat toisiaan, myös proosaa). Craft CMS ja Tailwind: otsake .article-heading-section (lajin linkki, h1.title-heading,
+     h2 ingressi, h6 päiväys, by <a href="/author/…">), teksti .articleContent .inner-article-template -lohkoina, haastattelussa puhuja
+     span.initials > strong (nimen perässä välilyönti strongin sisällä, joten Turndown liimasi nimen vastaukseen: **Sasha Vasilyuk**I
+     think), kuvat .article-image kuvateksteineen, tukipyyntö .supportBlock, tunnisteet, uutiskirjelomake, mainospaikat
+     (broadstreet-zone) ja READ MORE -suositukset. Readability: otsikossa BOMB Magazine |, puhujanimet kiinni vastauksissa, READ MORE
+     -otsikko, ei tekijää eikä päivää. Sovite: tekstilohkot ilman kuvia, tukipyyntöä ja lomakkeita, puhujanimi lihavoituna ja
+     välilyönnillä erotettuna, ingressi alaotsikoksi, tekijät otsakkeen /author/-linkeistä (haastattelussa otsikon by-osa: X by Y →
+     Y, kuten BOMBin viitteissä), päiväys. Mainokset (Broadstreet) ja
+     lahjoitusmahdollisuus (Donate) näkyvät sivulla (RAHOITUS: mainokset ja lahjoitukset). Mitattu 18.11.2026. */
+  async function bomb() {
+    if (!/(^|\.)bombmagazine\.org$/i.test(location.hostname)) return null;
+    const lohkot = [...document.querySelectorAll('.articleContent .inner-article-template')];
+    const h1 = document.querySelector('h1.title-heading');
+    if (!lohkot.length || !h1) return null;
+    const el = document.createElement('div');
+    lohkot.forEach(l => el.append(...[...l.cloneNode(true).childNodes]));
+    el.querySelectorAll('script, style, img, figure, .article-image, .caption, .supportBlock, form, broadstreet-zone, iframe, button').forEach(x => x.remove());
+    el.querySelectorAll('span.initials').forEach(s => { const b = document.createElement('strong'); b.textContent = rivi(s.textContent); s.replaceWith(b, ' '); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, br')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*bombmagazine\.org\//i);
+    if (kkSanoja(el) < 100) return null;
+    const otsake = h1.closest('.article-heading-section') || h1.parentElement;
+    let tekijat = [...new Set([...otsake.querySelectorAll('a[href*="/author/"]')].map(a => rivi(a.textContent)).filter(Boolean))];
+    // Haastattelu (Sasha Vasilyuk by Alia Volz): kirjoittaja on by-osan haastattelija, kuten BOMBin omissa viitteissä.
+    const by = /^.+?\s+by\s+(.+)$/.exec(rivi(h1.textContent));
+    if (!tekijat.length && by) tekijat = [by[1]];
+    const pm = /(\p{L}+)\s+(\d{1,2}),\s*(\d{4})/u.exec(rivi((otsake.querySelector('h6') || {}).textContent));
+    const kk = pm ? EN_KUUKAUDET.indexOf(pm[1].toLowerCase()) : -1;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), alaotsikko: rivi((otsake.querySelector('h2') || {}).textContent),
+      tekija: kkLuettelo(tekijat), julkaistu: kk >= 0 ? pm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pm[2].padStart(2, '0') : '',
+      sivusto: 'BOMB Magazine', lahde: osoite };
+  }
+
+  /* PsychOpen GOLD (ZPID; OJS 3.1; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 17: ottaako OJS-sovite
+     iframe-gallerian). Ei ota: galleria on OJS:n kehyksessä iframe#article-html-frame (src …/article/download/N/N.html?inline=1),
+     ja sen sisältö on PsychOpenin oma JATS-renderöinti (htmlgalley-v04: #HTMLgalley, #article-front, #article-body, #article-back),
+     joten ojs() päätyi tiivistelmäleikkeeseen (260 sanaa) ja gallerian sivulla Readability antoi 10 sanaa. Tämä sovite ajetaan ojs():n
+     edellä ja tunnistaa gallerian rakenteesta: suoraan (#HTMLgalley), gallerian sivulta iframen osoitteesta tai OJS-artikkelisivulta
+     citation_fulltext_html_url → iframe (kaksi hakua; muilla OJS-lehdillä ensimmäinen haku on sama, jonka ojs() tekee, ja välimuisti
+     jakaa sen). Tiivistelmät (.abstracts: Abstract, Highlights) ja avainsanat, osanvaihto, teksti (h3/h4.section-title otsikoiksi),
+     lähdeviittaukset a.reftooltip tekstiksi ilman APA-pilkkua, viitteet a.notetooltip → .footnote#fnN (samanSivunViitteet), kuvat
+     pois ja kuvateksti kursiiviksi, taulukot otsikkoineen ruudukoiksi, kirjallisuus ul.ref-list p.citation kappaleiksi. Etukenttään
+     gallerian tiedoista: tekijät (.contrib-group .authors), teos ja numero (Article information: Social Psychological Bulletin,
+     2026, Vol. 21, Article e12465), julkaistu (Published (VoR)), DOI, CC-lisenssi. Ei mainoksia eikä lahjoituspyyntöä.
+     Mitattu 18.11.2026. */
+  async function psychopen() {
+    const galleria = d => d && d.querySelector('#HTMLgalley #article-body') ? d : null;
+    let G = galleria(document);
+    if (!G) {
+      let kehys = document.querySelector('iframe#article-html-frame[src]');
+      if (!kehys) {
+        const u = (document.querySelector('meta[name="citation_fulltext_html_url"]') || {}).content;
+        if (!u || !/open journal systems/i.test((document.querySelector('meta[name="generator"]') || {}).content || '')) return null;
+        const V = await hae(new URL(u, osoite).href);
+        G = galleria(V);
+        kehys = !G && V && V.querySelector('iframe#article-html-frame[src]');
+      }
+      if (!G && kehys) G = galleria(await hae(new URL(kehys.getAttribute('src'), osoite).href));
+    }
+    if (!G) return null;
+    const el = document.createElement('div');
+    const etu = G.querySelector('#article-front');
+    G.querySelectorAll('#abstracts .abstract').forEach(a => {
+      const k = a.cloneNode(true);
+      const h = k.querySelector('h2'); if (h) { const u = document.createElement('h2'); u.textContent = rivi(h.textContent); h.replaceWith(u); }
+      el.append(...[...k.childNodes]);
+      const av = a.nextElementSibling;
+      if (av && av.tagName === 'P' && /^keywords?:/i.test(rivi(av.textContent))) el.appendChild(av.cloneNode(true));
+    });
+    if (el.children.length) el.appendChild(document.createElement('hr'));
+    const k = document.createElement('div');
+    k.append(G.querySelector('#article-body').cloneNode(true));
+    const taka = G.querySelector('#article-back');
+    if (taka) k.append(taka.cloneNode(true));
+    k.querySelectorAll('script, style, svg, img, .fancybox').forEach(x => x.remove());
+    k.querySelectorAll('a.reftooltip').forEach(a => a.replaceWith(rivi(a.textContent).replace(/(\p{L}[^,()]*?),\s+((?:1[5-9]|20)\d\d[a-z]?)\b/gu, '$1 $2')));
+    k.querySelectorAll('a[href^="#"]:not(.notetooltip)').forEach(a => { if (!/^fn/.test(a.getAttribute('href').slice(1))) a.replaceWith(...a.childNodes); });
+    const maar = samanSivunViitteet(k, 'po');
+    k.querySelectorAll('.back-section#notes').forEach(n => { if (!n.querySelector('.footnote')) n.remove(); });
+    // Kuvat: kuvateksti kursiiviksi.
+    k.querySelectorAll('.fig').forEach(f => {
+      const t = [rivi((f.querySelector('.label') || {}).textContent), rivi((f.querySelector('.caption') || {}).textContent)].filter(Boolean).join(' ');
+      if (!t) return f.remove();
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); f.replaceWith(p);
+    });
+    k.querySelectorAll('.table-wrap.panel, .table-wrap.body').forEach(w => {
+      if (!k.contains(w) || w.parentElement.closest('.table-wrap')) return;
+      const t = [rivi((w.querySelector('.label') || {}).textContent), rivi((w.querySelector('.caption') || {}).textContent)].filter(Boolean).join(' ');
+      const pala = document.createDocumentFragment();
+      if (t) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); pala.appendChild(p); }
+      w.querySelectorAll('table').forEach(tb => { const d = document.createElement('div'); d.appendChild(tb); pala.appendChild(d); ojsTaulukko(tb); });
+      w.querySelectorAll('.table-wrap-foot p, .fn p').forEach(p => pala.appendChild(p));
+      w.replaceWith(pala);
+    });
+    k.querySelectorAll('ul.ref-list').forEach(l => { l.querySelectorAll('p.citation').forEach(p => l.before(p)); l.remove(); });
+    k.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => { const t = rivi(h.textContent); if (!t) return h.remove(); const u = document.createElement(h.tagName); u.textContent = t; h.replaceWith(u); });
+    k.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.append(...[...k.childNodes]);
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*psychopen\.eu\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    // Tietolaatikon kappaleet välilyönnein (textContent liimaisi DOI:n seuraavaan kappaleeseen: …12465Received:).
+    const tiedot = [...G.querySelectorAll('#info-box p')].map(p => rivi(p.textContent)).join(' ');
+    const lehti = /^(.+?),\s*(\d{4}),\s*Vol\.\s*(\d+)(?:\([\d-]+\))?,\s*(?:Article\s+(\S+?),|([\d–-]+),)/i.exec(tiedot);
+    const pv = /Published \(VoR\):\s*(\d{4}-\d\d-\d\d)/.exec(tiedot), doi = /doi\.org\/(\S+?)(?:\s|$)/.exec(tiedot);
+    const tek = etu ? (() => { const a = etu.querySelector('.authors'); if (!a) return []; const c = a.cloneNode(true); c.querySelectorAll('sup, a[href*="orcid"], svg').forEach(x => x.remove()); return rivi(c.textContent).split(/\s*,\s*/).map(rivi).filter(Boolean); })() : [];
+    const cc = /creativecommons\.org\/licenses\/([a-z-]+)\/(\d\.\d)/i.exec(tiedot);
+    return { html: irrota([el]).innerHTML, otsikko: rivi((G.querySelector('h1.document-title') || {}).textContent), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(tek), teos: lehti ? lehti[1] : '', numero: lehti ? lehti[3] : '', sivut: lehti ? (lehti[4] || lehti[5] || '') : '',
+      julkaistu: pv ? pv[1] : lehti ? lehti[2] : '', doi: doi ? doi[1].replace(/[.,]$/, '') : '', lahde: osoite.replace(/\?inline=1$/, ''), maar,
+      oikeus: cc ? { teksti: 'CC ' + cc[1].toUpperCase() + ' ' + cc[2], lahde: 'https://' + cc[0] } : null, naytto: lehti ? lehti[1] : '' };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6937,6 +7091,7 @@
     gwern: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/gwern' },
     larb: { laji: 'lahjoitukset', osoite: 'https://lareviewofbooks.org/donate/' },
     cdli: { laji: 'lahjoitukset', osoite: 'https://opencollective.com/cdli/donate' },
+    bomb: { laji: 'mainokset ja lahjoitukset', osoite: 'https://bombmagazine.org/donate' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -6955,7 +7110,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

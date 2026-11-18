@@ -1,7 +1,8 @@
 // LUiN.HTML-logon generaattori. Ajo: node luin/kehitys/logo.js → tulostaa SVG:n, joka on
 // kopioitu sellaisenaan luin.html:ään ja luin/latomo.html:ään.
 // Yksikkö: ylärivin versaalikorkeus 100 (perusviiva y = 100). Paksu runko T = 15, hiusviiva t = 3,4.
-// i:n piste ja loppupiste ovat salmiakkeja (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
+// i:n piste on Lukimeen-salmiakki (käyttäjän pyyntö 18.11.2026; ks. glis, ontto) ja loppupiste koverakylkinen
+// salmiakki (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
 // pisteestä päätepisteeseen ja leikkaa N:n vinoviivan noin 61 %:n korkeudella; tiiviillä N:llä
 // vinoviiva on niin jyrkkä, ettei sama suora voi kulkea sitä pitkin (piste nousisi y ≈ −140:een).
 // i:n piste on ruosteinen, loppupiste tekstin värinen. Alarivi HTML on ohut (2,5) ja levitetty
@@ -26,8 +27,13 @@ function leik(p, d, q, e) {
 // i:n pisteen oikea yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja viivan kaltevia, joten
 // viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
 // joko i:n pisteen keskikohta (yd, oletus 12) tai yläkärki (yla) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
+// ontto (oletus, käyttäjän pyyntö 18.11.2026): i:n piste on Lukimeen-salmiakki eli välilehtikuvakkeen kuvake.svg
+// samoin mittasuhtein (suora ulkoreuna, reunan paksuus so ja täytetty sisus ki ulkoreunan ja keskipisteen etäisyydestä).
+// Kärki on versaalien korkeudella (yla 0), ja viivan yläreuna jatkaa ulkoreunan koillissärmää. ontto: false = vanha
+// täytetty koverakylkinen piste (drx 7,5, yd 12, lw 1,8).
 function glis(o) {
-  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, w = o.lw ?? 1.8;
+  const ontto = o.ontto ?? true;
+  const cx = 125.5, rx = o.drx ?? (ontto ? 10 : 7.5), prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, w = o.lw ?? (ontto ? 2.2 : 1.8);
   let px = o.px ?? 212;
   const E = cy => [cx + rx, cy];
   // py: loppupisteen keskikohdan eli sivukärkien korkeus, oletus 100 = perusviiva (käyttäjän valinta
@@ -36,7 +42,7 @@ function glis(o) {
   const Wp = s => [px - prx, PY ?? pb - s * prx];
   // i:n pisteen keskikohta yd (oletus 12, käyttäjän valinta 21.10.2026) tai yläkärjen korkeus yla
   // (0 = versaalien lakipiste); jälkimmäisessä keskikohta = yla + s·rx
-  const yla = o.yla ?? null;
+  const yla = o.yla ?? (ontto ? 0 : null);
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
@@ -63,6 +69,31 @@ function glis(o) {
   // viivan loppu: yläreuna leikkaa loppupisteen WN-särmän tangentin kulmassa W
   const qWN = [px - prx * c, py - pry * c];
   const pUp = leik(e, d, W, [qWN[0] - W[0], qWN[1] - W[1]]);
+  if (ontto) {
+    // Reiän särmät ovat ulkoreunan särmät siirrettyinä so:n verran sisään; sisus on ulkoreunan ki-kertainen.
+    const so = o.so ?? 3, dd = rx * ry / Math.hypot(rx, ry), k = (dd - so) / dd, ki = o.ki ?? 0.4;
+    const rombi = (kk, myota) => { const a = rx * kk, b = ry * kk, i = myota ? 1 : -1;
+      return `M${f(cx)} ${f(cy - b)}L${f(cx + i * a)} ${f(cy)}L${f(cx)} ${f(cy + b)}L${f(cx - i * a)} ${f(cy)}Z`; };
+    // Viivan alareuna päättyy pisteen kaakkoissärmään; viiva ei jatku pisteen sisään (reikä näkyisi läpi).
+    const lo = leik([e[0] + n[0], e[1] + n[1]], d, e, [-rx, ry]);
+    const G = {
+      s, cy, ry, py, px, W: px + prx,
+      piste: rombi(1, true) + rombi(k, false) + rombi(ki, true),
+      loppu: dia(px, py, prx, pry, [c, c, 0.5, c]),
+      viiva: poly([e, pUp, [px, py], W, lo]),
+    };
+    if (o.vaijeri ?? 'taakse') {
+      // Vaijeri: viiva on salmiakista N:n vinoviivaan asti ruostetta ja katkeaa vinoviivan vasempaan reunaan;
+      // N:n alta tuleva pätkä on musteen värinen (käyttäjän luonnos 18.11.2026). 'taakse' = N:n vasen
+      // pystyviiva peittää vaijerin, 'eteen' = vaijeri kulkee pystyviivan yli.
+      const N0 = [152, 0], Nd = [22.5, 100];
+      const yI = leik(e, d, N0, Nd), aI = leik([e[0] + n[0], e[1] + n[1]], d, N0, Nd);
+      G.vaijeri = poly([e, yI, aI, lo]);
+      G.viiva = poly([yI, pUp, [px, py], W, aI]);
+      G.taakse = o.vaijeri !== 'eteen';
+    }
+    return G;
+  }
   return {
     s, cy, ry, py, px, W: px + prx,
     piste: dia(cx, cy, rx, ry, [0.5, c, c, c]),
@@ -90,32 +121,49 @@ function logo(o = {}) {
   const dot = [125.5, yd];
   const G = (o.glis ?? true) ? glis(o) : null; // glis: false = vanha keskeltä keskelle -viiva
   const W = G ? G.W : per[0] + 6.5;
-  // HTML: musteen vasen reuna on L:n pystyviivan vasemmassa reunassa (x 7; käyttäjän päätös
+  // HTML (hlinja: false): musteen vasen reuna on L:n pystyviivan vasemmassa reunassa (x 7; käyttäjän päätös
   // 27.10.2026, ennen L:n alapäätteen reunassa x 0, hx0: 0) ja oikea N:n oikean päätteen reunassa
-  // (196,6), ei loppupisteen alla. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan pystypääte
-  // (kuten ylärivin L:ssä).
+  // (196,6), ei loppupisteen alla; kirjaimet tasavälein. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
+  // pystypääte (kuten ylärivin L:ssä). Oletuksena (hlinja) kirjaimet on linjattu ylärivin reunoihin, ks. alla.
   const y0 = o.hy ?? 112, y1 = y0 + (o.hh ?? 18), sw = o.sw ?? 2.5, ser = 2.6, sp = 1.5;
-  const sw2 = sw / 2, X0 = o.hx0 ?? 7, X1 = 196.6;
-  const widths = [13, 13, 17, 11];
-  const a0 = X0 + ser - sw2, aL = X1 - widths[3];
-  const gap = (aL - a0 - widths[0] - widths[1] - widths[2]) / 3;
-  const xs = [a0, a0 + widths[0] + gap, a0 + widths[0] + widths[1] + 2 * gap, aL];
+  const linja = o.hlinja ?? 'keski';
+  // keski (oletus): kukin kirjain keskellä yläpuolellaan olevaa paksua runkoa (käyttäjän pyyntö 18.11.2026): H L:n rungon (7–22),
+  // T U:n vasemman rungon (62–77), M i:n rungon (118–133) ja L N:n vinoviivan jalan (174,5–190) keskellä. H, T ja M ovat
+  // rungon levyisiä (15, ennen 13, 13 ja 17), joten ne ovat samalla reunoistaan linjassa. hlinja: true = reunalinjaus.
+  const widths = o.hlev ?? (linja === 'keski' ? [15, 15, 15, 11] : [13, 13, linja ? (o.mw ?? 15) : 17, 11]);
+  const keskit = o.keskit ?? [14.5, 69.5, 125.5, 182.25];
+  const sw2 = sw / 2, X0 = o.hx0 ?? 7,
+    X1 = linja === 'keski' ? keskit[3] + widths[3] / 2 : linja ? 190 : 196.6;
+  let xs;
+  if (linja === 'keski') {
+    xs = keskit.map((k, i) => k - widths[i] / 2);
+  } else if (linja) {
+    // Käyttäjän pyyntö 18.11.2026: H:n vasen pystyviiva L:n pystyviivan vasemman reunan linjassa (x 7), T:n poikkiviivan
+    // vasen pää U:n vasemman reunan (62), M i:n rungon reunojen (118–133) ja L:n oikea pää N:n oikean reunan (190) linjassa.
+    xs = [7, 62, o.mx ?? 118, X1 - widths[3]];
+  } else {
+    const a0 = X0 + ser - sw2, aL = X1 - widths[3];
+    const gap = (aL - a0 - widths[0] - widths[1] - widths[2]) / 3;
+    xs = [a0, a0 + widths[0] + gap, a0 + widths[0] + widths[1] + 2 * gap, aL];
+  }
+  const mw = widths[2];
   const st = [];
   const ln = (x0, y0_, x1, y1_) => st.push(`M${f(x0)} ${f(y0_)}L${f(x1)} ${f(y1_)}`);
   // H
-  let a = xs[0]; ln(a + sw2, y0, a + sw2, y1); ln(a + 13 - sw2, y0, a + 13 - sw2, y1); ln(a + sw2, (y0 + y1) / 2, a + 13 - sw2, (y0 + y1) / 2);
+  const hw = widths[0], tw = widths[1];
+  let a = xs[0]; ln(a + sw2, y0, a + sw2, y1); ln(a + hw - sw2, y0, a + hw - sw2, y1); ln(a + sw2, (y0 + y1) / 2, a + hw - sw2, (y0 + y1) / 2);
   // T
-  a = xs[1]; ln(a, y0 + sw2, a + 13, y0 + sw2); ln(a + 6.5, y0, a + 6.5, y1);
+  a = xs[1]; ln(a, y0 + sw2, a + tw, y0 + sw2); ln(a + tw / 2, y0, a + tw / 2, y1);
   // M
-  a = xs[2]; ln(a + sw2, y1, a + sw2, y0); ln(a + sw2, y0, a + 8.5, y1); ln(a + 8.5, y1, a + 17 - sw2, y0); ln(a + 17 - sw2, y0, a + 17 - sw2, y1);
+  a = xs[2]; ln(a + sw2, y1, a + sw2, y0); ln(a + sw2, y0, a + mw / 2, y1); ln(a + mw / 2, y1, a + mw - sw2, y0); ln(a + mw - sw2, y0, a + mw - sw2, y1);
   // L
   a = xs[3]; ln(a + sw2, y0, a + sw2, y1); ln(a, y1 - sw2, X1, y1 - sw2);
   const serifs = [];
   const hs = (cx, y, w) => serifs.push(rect(cx - w, y - sp / 2, cx + w, y + sp / 2));
   // pikkupäätteet
-  a = xs[0]; [a + sw2, a + 13 - sw2].forEach(cx => { hs(cx, y0 + sp / 2, ser); hs(cx, y1 - sp / 2, ser); });
-  a = xs[1]; hs(a + 6.5, y1 - sp / 2, ser);
-  a = xs[2]; [a + sw2, a + 17 - sw2].forEach(cx => hs(cx, y1 - sp / 2, ser));
+  a = xs[0]; [a + sw2, a + hw - sw2].forEach(cx => { hs(cx, y0 + sp / 2, ser); hs(cx, y1 - sp / 2, ser); });
+  a = xs[1]; hs(a + tw / 2, y1 - sp / 2, ser);
+  a = xs[2]; [a + sw2, a + mw - sw2].forEach(cx => hs(cx, y1 - sp / 2, ser));
   a = xs[3]; hs(a + sw2, y0 + sp / 2, ser);
   // L:n alaviivan pystypääte kuten ylärivin L:ssä; 24 % korkeudesta jäi alaviivan paksuuden
   // vuoksi lähes näkymättömäksi, joten pääte on 36 %
@@ -132,8 +180,9 @@ function logo(o = {}) {
     // vari: 'piste' = i:n piste ruosteinen, muu musta; 'musta' = kaikki musta; 'ruoste' = piste, viiva ja loppupiste ruosteiset
     const v = o.vari ?? 'piste', R = ' fill="var(--ruoste)"';
     const vr = v === 'ruoste' ? R : '', pr = v === 'musta' ? '' : R;
+    const vaij = G.vaijeri ? `<path${pr} d="${G.vaijeri}"/>` : '';
     return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.HTML">` +
-      `<path d="${P.join('')}"/>` +
+      (G.taakse ? vaij : '') + `<path d="${P.join('')}"/>` + (G.taakse ? '' : vaij) +
       `<path${vr} d="${G.viiva}"/><path${vr} d="${G.loppu}"/><path${pr} d="${G.piste}"/>` + html + `</svg>`;
   }
   return `<svg class="logo" viewBox="${vb}" role="img" aria-label="LUiN.HTML">` +
