@@ -17,6 +17,10 @@ Kriteerit:
 4. Ei pääosin lyhyiden juttujen sivustoja.
 5. Siisti ja helposti kopioitava teksti ei sulje pois: pituus on jo itsessään peruste.
 
+## Tehty ja ohitettu (pahvi *10 sivustosovitetta*, 18.11.2026)
+
+- Oikeustapaukset: EUR-Lex ja Find Case Law tehty 18.11., PR #867. BAILII ja AustLII ohitettu (kontin esto: Anubis, 403).
+
 ## Miten mitattu
 
 Toisin kuin ensimmäinen lista, tämä on mitattu. Pilvikontista 17.11.2026 curlilla ja skriptillä: tila, ohjaukset,
