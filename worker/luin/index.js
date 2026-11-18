@@ -29,7 +29,7 @@ function handleLuinJako(req) {
 <title>${o}</title>
 <meta property="og:title" content="${o}">
 <meta property="og:site_name" content="Luin.">
-${kuvaus ? `<meta property="og:description" content="${htmlEsc(kuvaus)}">\n` : ""}<meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma-2.png">
+${kuvaus ? `<meta property="og:description" content="${htmlEsc(kuvaus)}">\n` : ""}<meta property="og:image" content="https://ollijuutilainen.github.io/luin/kuvakkeet/jako-logo-tumma-3.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="LUiN.HTML">

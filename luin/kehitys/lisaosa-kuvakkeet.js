@@ -1,7 +1,7 @@
 // Luinin kuvakkeet: Lukimeen-lisäosan logo eli Latomon kytkimen salmiakki (ulkoreuna ja täytetty sisus)
 // ruosteella. Samasta lähteestä syntyvät lisäosan kuvakkeet (luin/lisaosa/kuvakkeet/) ja Luinin sivujen välilehti- ja
 // kotivalikkokuvakkeet (luin/kuvakkeet/: kuvake.svg, 32.png, 180.png) sekä Android-kääreen käynnistyskuvake (android/luin/).
-// Linkin esikatselukuva jako-logo-tumma-2.png on LUiN.HTML-logo (logo.js) tumman teeman väreillä.
+// Linkin esikatselukuva jako-logo-tumma-3.png on LUiN.HTML-logo (logo.js) tumman teeman väreillä.
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lisaosa-kuvakkeet.js
 const fs = require('fs');
 const path = require('path');
@@ -48,7 +48,7 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
   await p.setViewportSize({ width: 1200, height: 630 });
   await p.setContent(`<html><body style="margin:0;width:1200px;height:630px;display:flex;align-items:center;justify-content:center;
     background:${PAPERI_TUMMA};color:${MUSTE_TUMMA};--ruoste:${RUOSTE_TUMMA}">${logo().replace('<svg ', '<svg style="width:520px;height:auto;display:block;fill:currentColor;overflow:visible" ')}</body></html>`);
-  await p.screenshot({ path: path.join(SIVUT, 'jako-logo-tumma-2.png'), clip: { x: 0, y: 0, width: 1200, height: 630 } });
+  await p.screenshot({ path: path.join(SIVUT, 'jako-logo-tumma-3.png'), clip: { x: 0, y: 0, width: 1200, height: 630 } });
   await b.close();
   android();
 })();

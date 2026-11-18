@@ -96,12 +96,14 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu seitsemään sivuun (luin.html, Latomo, Latomon ohje,
   käyttöohje, tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
   i:n piste on Lukimeen-salmiakki (käyttäjän pyyntö 18.11.2026, `glis()`:n `ontto`): `kuvake.svg`:n mittasuhteet, kärki versaalien
-  korkeudella, ja ulkoreunan koillissärmä jatkuu glissandoviivan yläreunaksi. Loppupiste on yhä täytetty koverakylkinen.
+  korkeudella, ja ulkoreunan koillissärmä jatkuu glissandoviivan yläreunaksi. Viiva on ruostetta N:n vinoviivaan asti ja kulkee N:n
+  takaa (`vaijeri`, käyttäjän luonnos 18.11.2026; `'eteen'` kokeiltu, toimii myös); N:n alta loppupisteeseen musteella. Loppupiste on
+  yhä täytetty koverakylkinen. HTML-rivi on linjattu ylärivin reunoihin (`hlinja`, käyttäjän pyyntö 18.11.2026; mitat `logo.js`:ssä).
 - Luinin kuvake on Lukimeen-lisäosan salmiakki (käyttäjän pyyntö 9.11.2026): `luin/kuvakkeet/` (välilehden SVG
   tumman teeman ruosteineen, 32 px Safarille, 180 px kotivalikkoon paperitaustalla), linkitetty samoihin viiteen
   sivuun. Neliöt ovat salmiakkia. Linkin esikatselu (`og:image`, absoluuttinen osoite) on tumman teeman väreillä, koska
   viestimet ovat useimmiten tummia (käyttäjän linjaus 9.11.2026): kaikilla sivuilla, myös Latomossa, leveä LUiN.HTML-logo
-  (`jako-logo-tumma-2.png`, 1200 × 630, niin kapea, että keskineliöksi rajattunakin näkyy kokonaan; salmiakkineliö oli korttina
+  (`jako-logo-tumma-3.png`, 1200 × 630, niin kapea, että keskineliöksi rajattunakin näkyy kokonaan; salmiakkineliö oli korttina
   liian korkea).
   Kun kuva muuttuu, vaihda tiedostonimi: viestimet pitävät vanhan osoitteen kuvan välimuistissa.
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
