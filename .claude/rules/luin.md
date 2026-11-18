@@ -83,6 +83,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   ei sivun ankkuriin. Pdf-artikkelista tiivistelmäleike metatiedoista. Testi myös `hakuteos-pesukone.js --sarja ojs`.
   VLE-sovite (vle.lt, 17.11.2026, opas 7.5) lukee sivun skriptin renderöimän rungon tai, ilman sitä, raa'an rungon ja `ajax.php`:n:
   pidä polut samana (ne antavat saman leikkeen). Hakuteospesukone ajaa vle.lt:n omat skriptit; testi `--sarja vle`.
+  EUR-Lex-sovite (18.11.2026, opas 7.5): TXT/HTML-sivun XHTML jäsentyy text/html-tyyppinä rikki (tyhjä `<a id>` jää auki ja kopioituu),
+  joten kääreiden purku alussa on tarpeen. EUR-Lex haastaa toistuvat haut (AWS WAF, myös curl): pesukoneen välimuistin voi täyttää
+  Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
