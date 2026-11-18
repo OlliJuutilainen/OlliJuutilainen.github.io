@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал ja Fabula (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula ja Folktexts (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5105,6 +5105,84 @@
       lahde: osoite, maar, oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: lehti };
   }
 
+  /* Folktexts (D. L. Ashliman, sites.pitt.edu/~dash; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 11:
+     kansantarinat satutyypeittäin). Käsin kirjoitettua HTML:ää 1990-luvulta: alussa keskitetty otsake (h1, kuvaus, translated
+     and/or edited by D. L. Ashliman, ©), Contents-luettelo #-linkkeineen, sitten tarinat: h2 (nimi), h3 (lähde: maa, kerääjä),
+     teksti, moraali yksirivisenä taulukkona (Moral: | …), lähdeluettelo ul (Source: …, Return to the table of contents) ja
+     lopussa Return to: -lohko ja Revised December 16, 2022. Readability antoi tarinat, mutta otsakkeen linkkeineen, sisällys-
+     luettelon, h3-lähderivit otsikkoina (md.js luki h3:n 1001 Nights numeroksi: varoitus), moraalitaulukon raa'aksi HTML:ksi
+     eikä toimittajaa tai päivää. Sovite: otsake pois (kuvaus alaotsikoksi, Ashliman toimittajaksi; yksittäisen sadun sivulla h2
+     tekijäksi, Jacob and Wilhelm Grimm), Contents, Return to -rivit ja Links to related sites pois, h3-lähderivi kursiivikappaleeksi, moraalitaulukko kappaleeksi, päivitysrivi julkaisupäiväksi. Ei mainoksia eikä
+     lahjoituspyyntöä. Mitattu 18.11.2026. */
+  async function folktexts() {
+    if (!/(^|\.)pitt\.edu$/i.test(location.hostname) || !/^\/~dash\//.test(location.pathname)) return null;
+    const h1 = document.querySelector('h1');
+    if (!h1 || !document.querySelector('h2')) return null;
+    const el = document.body.cloneNode(true);
+    el.querySelectorAll('script, style, img').forEach(x => x.remove());
+    // Otsake: center-lohko (h1, kuvaus, toimittaja).
+    let kuvaus = '', toimittaja = '', tekija = '';
+    const keski = el.querySelector('center');
+    if (keski && keski.querySelector('h1')) {
+      // Yksittäinen satu (Grimm 053): h2 tekijänä (Jacob and Wilhelm Grimm).
+      const h2k = keski.querySelector('h2');
+      if (h2k) tekija = rivi(h2k.textContent);
+      const p = keski.querySelector('p');
+      if (p) {
+        const r = p.cloneNode(true); r.querySelectorAll('br').forEach(b => b.replaceWith('\n'));
+        const rivit = r.textContent.split('\n').map(rivi).filter(Boolean);
+        const i = rivit.findIndex(x => /edited by|translated by/i.test(x));
+        kuvaus = rivit.slice(0, i < 0 ? rivit.length : i).filter(x => !/^©/.test(x)).join(' ');
+        toimittaja = i >= 0 ? (rivit[i + 1] || '').replace(/^©.*$/, '') : '';
+      }
+      keski.remove();
+    } else el.querySelectorAll('h1').forEach(x => x.remove());
+    // Sisällysluettelo ja Return to -rivit pois.
+    el.querySelectorAll('h2').forEach(h => {
+      if (!/^contents$/i.test(rivi(h.textContent))) return;
+      const n = h.nextElementSibling;
+      if (n && /^(OL|UL)$/.test(n.tagName)) n.remove();
+      h.remove();
+    });
+    el.querySelectorAll('li, p').forEach(x => { if (el.contains(x) && /^(return to\b|link to\b)/i.test(rivi(x.textContent))) x.remove(); });
+    // Bodyn suora tekstijakso (Return to D. L. Ashliman's folktexts, …) lohkojen välissä.
+    let jakso = [];
+    const tyhjenna = () => { if (/^return to\b/i.test(rivi(jakso.map(n => n.textContent).join('')))) jakso.forEach(n => n.remove()); jakso = []; };
+    [...el.childNodes].forEach(n => { if (n.nodeType === 1 && /^(P|DIV|H\d|UL|OL|HR|TABLE|BLOCKQUOTE|CENTER|PRE|DL)$/.test(n.tagName)) tyhjenna(); else jakso.push(n); });
+    tyhjenna();
+    // Linkit muille sivuille -osio pois.
+    el.querySelectorAll('h2').forEach(h => { if (/^links to related sites$/i.test(rivi(h.textContent))) { const n = h.nextElementSibling; if (n && /^(UL|OL)$/.test(n.tagName)) n.remove(); h.remove(); } });
+    // Päivitysrivi (kappaleena tai bodyn tekstinä) julkaisupäiväksi.
+    let julkaistu = '';
+    [...el.querySelectorAll('p'), ...[...el.childNodes].filter(n => n.nodeType === 3)].forEach(p => {
+      const m = /^revised\s+(\p{L}+)\s+(\d{1,2}),\s*(\d{4})\.?$/iu.exec(rivi(p.textContent));
+      if (!m) return;
+      const kk = EN_KUUKAUDET.indexOf(m[1].toLowerCase());
+      if (kk >= 0) julkaistu = m[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + m[2].padStart(2, '0');
+      p.remove();
+    });
+    // Lähderivi (h3 heti h2:n jälkeen) kursiivikappaleeksi.
+    el.querySelectorAll('h2 + h3').forEach(h => { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = rivi(h.textContent); p.appendChild(em); h.replaceWith(p); });
+    // Moraali (yksirivinen taulukko) kappaleeksi.
+    el.querySelectorAll('table').forEach(t => {
+      if (t.rows.length !== 1) { const d = document.createElement('div'); t.replaceWith(d); d.appendChild(t); return ojsTaulukko(t); }
+      const p = document.createElement('p');
+      [...t.rows[0].cells].forEach(c => { if (!rivi(c.textContent)) return; if (p.childNodes.length) p.append(' '); p.append(...c.childNodes); });
+      p.querySelectorAll('p').forEach(x => x.replaceWith(...x.childNodes));
+      t.replaceWith(p);
+    });
+    el.querySelectorAll('font').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('ul, ol').forEach(l => { if (!rivi(l.textContent)) l.remove(); });
+    el.querySelectorAll('hr + hr').forEach(h => h.remove());
+    while (el.firstElementChild && el.firstElementChild.tagName === 'HR') el.firstElementChild.remove();
+    while (el.lastElementChild && /^(HR|P)$/.test(el.lastElementChild.tagName) && !rivi(el.lastElementChild.textContent)) el.lastElementChild.remove();
+    el.querySelectorAll('h2 a[name], h2 a:not([href])').forEach(a => a.replaceWith(...a.childNodes));
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*pitt\.edu\//i);
+    if (kkSanoja(el) < 100) return null;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), alaotsikko: kuvaus, toimittaja: rivi(toimittaja), tekija,
+      julkaistu, sivusto: 'Folktexts', lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6774,7 +6852,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
