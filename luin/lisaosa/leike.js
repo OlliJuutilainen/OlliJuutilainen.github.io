@@ -4527,6 +4527,13 @@
     }
     return ulos.normalize('NFC');
   }
+  /* Latinan teksti XML:ssä (de Finibus, Teubner 1915; mitattu 18.11.2026): treema on vokaalin perässä + (coe+rceri, poe+tis)
+     ja säelainausten iktus / (au/t, de/nique, qui/). Hopperin sivukin näyttää ne raakoina. Vokaali ja yhdistyvä merkki, NFC.
+     Apparaatin | (käsikirjoituksen rivinvaihto, neg|glig.) jää; verkko-osoitteisiin ei kosketa. */
+  function psLatina(t) {
+    if (!/[+\/]/.test(t) || /:\/\/|www\./.test(t)) return t;
+    return t.replace(/([aeiouyAEIOUY])\+(?=[a-z])/g, '$1\u0308').replace(/(\p{L}[aeiouyAEIOUY]|\b[aeiouyAEIOUY])\/(?=[\p{L}\s'’,.;:!?—)\]]|$)/gu, '$1\u0301').normalize('NFC');
+  }
   function psXml(u) {
     const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 20000);
     return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '')
@@ -4550,7 +4557,11 @@
     const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, tila.luku, n].filter(Boolean).join('.');
     // Sisäinen muunnos: TEI-solmu → HTML-solmut (inline).
     function inline(n, gr) {
-      if (n.nodeType === 3) return [document.createTextNode((gr ? psBeta(n.nodeValue) : n.nodeValue).replace(/\s+/g, ' '))];
+      if (n.nodeType === 3) {
+        const kieli = gr ? '' : ((n.parentNode && n.parentNode.closest && n.parentNode.closest('[lang]')) || { getAttribute: () => '' }).getAttribute('lang');
+        const t = gr ? psBeta(n.nodeValue) : /^(la|lat|latin)$/i.test(kieli || '') ? psLatina(n.nodeValue) : n.nodeValue;
+        return [document.createTextNode(t.replace(/\s+/g, ' '))];
+      }
       if (n.nodeType !== 1) return [];
       const tag = n.tagName, lang = (n.getAttribute('lang') || '').toLowerCase();
       const g = lang ? lang === 'greek' : gr;
@@ -4585,6 +4596,8 @@
       const tag = n.tagName, lang = (n.getAttribute('lang') || '').toLowerCase();
       const g = lang ? lang === 'greek' : gr;
       if (/^div\d?$/.test(tag)) {
+        // Koko teoksesta hakemisto pois (de Finibus: INDEX NOMINUM ET RERUM, viittaa painetun laitoksen sivuihin ja riveihin).
+        if (juuri === body && /^index$/i.test(n.getAttribute('n') || n.getAttribute('type') || '')) return;
         if (n !== juuri && /^chapter$/i.test(n.getAttribute('type') || '')) tila.luku = n.getAttribute('n') || '';
         if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) tila.kirja = n.getAttribute('n') || '';
         [...n.childNodes].forEach(c => lohko(c, g));

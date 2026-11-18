@@ -139,8 +139,10 @@ const SARJAT = {
   // Perseus (16.11.2026): koko kirja TEI-XML:stä. Valtio englanniksi (Stephanus, puhujat, viitteet) ja kreikaksi (Beta-koodi),
   // Thukydides (kirja.luku.pykälä), Ilias kreikaksi (säkeet, card). Kreikankieliset sivut lomittuvat englannin kanssa
   // (16.11.2026, ladonta: lomitettu käännös); Thukydides myös kreikaksi.
+  // Perseus: Valtio englanniksi ja kreikaksi, Thukydides, Ilias kreikaksi, de Finibus latinaksi koko teoksena (18.11.2026:
+  // treema + ja iktus /, hakemisto pois).
   perseus: ['1999.01.0168:book=1:section=327a', '1999.01.0167:book=1:section=327a', '1999.01.0200:book=1:chapter=1',
-    '1999.01.0199:book=1:chapter=1', '1999.01.0133:book=1:card=1'].map(p => 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A' + p.replace(/:/g, '%3A').replace(/=/g, '%3D')),
+    '1999.01.0199:book=1:chapter=1', '1999.01.0133:book=1:card=1', '2007.01.0036'].map(p => 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A' + p.replace(/:/g, '%3A').replace(/=/g, '%3D')),
   // Pressbooks (17.11.2026): pressbooks.pub ja useimmat yliopistojen verkot estävät pilvikontin, joten TMU:n ja PALNI:n palvelimet.
   // Toimitettu kokoelma (luvun tekijät, Pressbooksin alaviitteet), Wordin alaviitteet (_ftn) ja osiot, 13 osan klassikko
   // käännöksineen kirjan etusivulta, oppikirja (luvut ilman osia).
