@@ -26,6 +26,7 @@ Kriteerit:
 - Political Concepts tehty 18.11., PR #871.
 - Project Vox tehty 18.11., PR #872 (käännökset ovat HTML:nä ja menevät samalla sovitteella).
 - Embryo Project tehty 18.11., PR #873 (yleinen leikkaus lähes riitti; sovite tekijöille, lähteille ja päivälle).
+- Cuneiform Digital Library Journal tehty 18.11., PR #874; sama sovite kattaa CDLB:n ja CDLN:n.
 
 ## Miten mitattu
 

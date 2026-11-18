@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox ja Embryo Project (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project ja CDLI:n lehdet (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4820,6 +4820,128 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null };
   }
 
+  /* Cuneiform Digital Library Journal, Bulletin ja Notes (cdli.earth/articles/cdlj|cdlb|cdln; käyttäjän pyyntö 18.11.2026, pahvin
+     *10 sivustosovitetta* 8: assyriologian vertaisarvioitu lehti HTML:nä). Tunnistus: #content article ja citation_publisher Cuneiform
+     Digital Library Initiative. Artikkeli on article-elementissä: §-numeroidut kappaleet (<b>§0.1.</b> teksti), otsikot h2/h3
+     lihavoituina tai vanhassa CDLB:ssä kappaleen alussa (<b>§1. <i>The Textual Record</i></b><br><b>§1.1.</b> …), viitteet
+     sup > a#rN[href="#fN"] → li#fN (CDLB: a[name=fnN] → taulukon solun kappale a#fnnN), kirjallisuus otsakkeen Bibliography
+     (keskitetty lihavoitu kappale viivojen välissä) tai References alla ol > li > div.csl-entry, translitteraatiot taulukoina
+     (obverse, translation; sila<sub>4</sub>, <sup>d</sup>). Readability jätti viitteet ja kirjallisuuden tunnistamatta (alaviitteitä
+     0, p.bib 0), taulukot raa'aksi HTML:ksi (CDLB 60, CDLN 177 merkintää) eikä tekijöitä tullut. §-numero yläindeksiksi kappaleen
+     alkuun (kuten EUR-Lexin kappalenumerot), CDLB:n kappaleen alun §-otsikko omaksi otsikokseen, viitteet samanSivunViitteet()-
+     muodossa, kirjallisuus kappaleiksi (csl-entry, CDLN:n luettelo ja CDLB:n kirjallisuustaulukko), tyhjä Notes-otsikko pois, taulukot ruudukoiksi niin, että solujen ylä- ja alaindeksit ja kursiivit säilyvät
+     (translitteraatio). Kuvat pois, kuvateksti kursiiviksi. Etukenttään tyyppi tieteellinen, tekijät (citation_author), teos, numero
+     (vuosikerta:numero), julkaistu vuosikerrasta (citation_publication_date on 1970/01/01), kustantaja ja CC-lisenssi.
+     Lahjoitusnappi (Donate, Open Collective) on sivuston yläpalkissa, mainoksia ei ole (RAHOITUS). Mitattu 18.11.2026. */
+  function cdTaulukko(t) {
+    const ruudukko = [];
+    [...t.rows].forEach((r, i) => {
+      const rv = ruudukko[i] = ruudukko[i] || [];
+      let j = 0;
+      [...r.cells].forEach(c => {
+        while (rv[j] !== undefined) j++;
+        const k = c.cloneNode(true);
+        k.querySelectorAll('meta, br').forEach(x => x.replaceWith(' '));
+        k.querySelectorAll('*').forEach(x => { if (!/^(SUB|SUP|I|EM|B|STRONG)$/.test(x.tagName)) x.replaceWith(...x.childNodes); else [...x.attributes].forEach(a => x.removeAttribute(a.name)); });
+        const cs = Math.max(1, c.colSpan || 1);
+        for (let b = 0; b < cs; b++) rv[j + b] = b ? '' : k.innerHTML.replace(/\s+/g, ' ').trim();
+        j += cs;
+      });
+    });
+    const n = Math.max(0, ...ruudukko.map(r => r.length));
+    if (n < 2 || ruudukko.length < 2) return ojsTaulukko(t);
+    const u = document.createElement('table'), tb = document.createElement('tbody');
+    ruudukko.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < n; j++) { const c = document.createElement(i ? 'td' : 'th'); c.innerHTML = r[j] || ''; tr.appendChild(c); }
+      tb.appendChild(tr);
+    });
+    u.appendChild(tb);
+    t.replaceWith(u);
+  }
+  async function cdli() {
+    const art = document.querySelector('#content article');
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    if (!art || !/cuneiform digital library/i.test(meta('citation_publisher')[0] || '')) return null;
+    const el = art.cloneNode(true);
+    el.querySelectorAll('script, style, img, button').forEach(x => x.remove());
+    el.querySelectorAll('center').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('figure').forEach(f => {
+      const c = f.querySelector('figcaption');
+      if (!c || !rivi(c.textContent)) return f.remove();
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = rivi(c.textContent); p.appendChild(em); f.replaceWith(p);
+    });
+    // Viitteet ennen taulukoita (CDLB:n viitteet ovat taulukon soluissa).
+    const maar = samanSivunViitteet(el, 'cd');
+    el.querySelectorAll('ol, ul').forEach(l => { if (!rivi(l.textContent)) l.remove(); });
+    // Kirjallisuuden otsake (keskitetty lihavoitu kappale viivojen välissä) otsikoksi, kohdat kappaleiksi.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      if (!/^(bibliography|references|works cited|notes)$/i.test(t) || !p.querySelector('b, strong')) return;
+      const h = document.createElement('h2'); h.textContent = t; p.replaceWith(h);
+    });
+    el.querySelectorAll('.csl-entry').forEach(c => {
+      const p = document.createElement('p'); p.append(...c.childNodes);
+      const li = c.closest('li');
+      (li || c).replaceWith(p);
+    });
+    el.querySelectorAll('ol, ul').forEach(l => { if (!l.querySelector('li')) l.replaceWith(...l.childNodes); });
+    // Kirjallisuusotsikon jälkeinen luettelo (CDLN) tai taulukko (CDLB: tekijä, vuosi, nimi soluina) kappaleiksi.
+    el.querySelectorAll('h1, h2, h3, h4, p').forEach(h => {
+      if (!/^(bibliography|references|works cited|sources)$/i.test(rivi(h.textContent))) return;
+      let n = h.nextElementSibling;
+      while (n && n.tagName === 'HR') n = n.nextElementSibling;
+      if (n && /^(OL|UL)$/.test(n.tagName)) { [...n.children].forEach(li => { const p = document.createElement('p'); p.append(...li.childNodes); n.before(p); }); n.remove(); }
+      else if (n && n.tagName === 'TABLE') {
+        // Tekijä omalla rivillään (colspan), teokset vuosineen sen alla: tekijä jokaisen kohdan alkuun.
+        let tekija = '';
+        [...n.rows].forEach(r => {
+          const solut = [...r.cells].filter(c => rivi(c.textContent));
+          if (solut.length === 1 && solut[0].colSpan > 1) { tekija = rivi(solut[0].textContent); return; }
+          const p = document.createElement('p');
+          if (tekija) p.append(tekija.replace(/\.?$/, '.') + ' ');
+          solut.forEach((c, i) => { if (i) p.append(' '); p.append(...c.childNodes); });
+          if (rivi(p.textContent)) n.before(p);
+        });
+        n.remove();
+      }
+    });
+    el.querySelectorAll('hr').forEach(h => { const s = h.nextElementSibling, e = h.previousElementSibling; if (s && /^H\d$/.test(s.tagName) || e && /^H\d$/.test(e.tagName)) h.remove(); });
+    // CDLB: kappaleen alun §-otsikko (<b>§1. <i>Otsikko</i></b><br>) omaksi otsikokseen.
+    el.querySelectorAll('p').forEach(p => {
+      const b = p.firstElementChild, br = b && b.nextElementSibling;
+      if (!b || !/^(B|STRONG)$/.test(b.tagName) || !br || br.tagName !== 'BR' || !/^§\s?[\d.]+\s+\p{L}/u.test(rivi(b.textContent))) return;
+      if (rivi(p.textContent).indexOf(rivi(b.textContent)) !== 0) return;
+      const h = document.createElement('h2'); h.textContent = rivi(b.textContent);
+      p.before(h); b.remove(); br.remove();
+    });
+    // §-numero kappaleen alussa yläindeksiksi.
+    el.querySelectorAll('p').forEach(p => {
+      const b = p.querySelector('b, strong');
+      if (!b || rivi(p.textContent).indexOf(rivi(b.textContent)) !== 0 || !/^§\s?\d+(\.\d+)*\.?$/.test(rivi(b.textContent))) return;
+      const sup = document.createElement('sup'); sup.textContent = rivi(b.textContent).replace(/\.$/, '').replace(/^§\s?/, '§');
+      b.replaceWith(sup, ' ');
+    });
+    el.querySelectorAll('table').forEach(t => { if (!rivi(t.textContent)) return t.remove(); const d = document.createElement('div'); t.replaceWith(d); d.appendChild(t); cdTaulukko(t); });
+    el.querySelectorAll(OTSIKOT).forEach(h => { const t = rivi(h.textContent).replace(MERKKI, '').trim(); if (!t) return h.remove(); h.querySelectorAll('b, strong').forEach(x => x.replaceWith(...x.childNodes)); });
+    // Tyhjäksi jäänyt Notes-otsikko (viitteet siirtyivät) pois.
+    el.querySelectorAll(OTSIKOT).forEach(h => { let n = h.nextElementSibling; while (n && n.tagName === 'HR') n = n.nextElementSibling; if (/^notes?$/i.test(rivi(h.textContent)) && (!n || /^H\d$/.test(n.tagName))) h.remove(); });
+    el.querySelectorAll('hr + hr').forEach(h => h.remove());
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' ')) && !p.querySelector('br, hr')) p.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*cdli\.earth\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const vk = meta('citation_volume')[0] || '';
+    const cc = document.querySelector('a[href*="creativecommons.org/licenses"]');
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const teos = meta('citation_journal_title')[0];
+    return { html: irrota([el]).innerHTML, otsikko: meta('citation_title')[0] || rivi(document.title), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(meta('citation_author')), teos, numero: [vk, meta('citation_issue')[0]].filter(Boolean).join(':'),
+      julkaistu: /^\d{4}$/.test(vk) ? vk : '', kustantaja: meta('citation_publisher')[0] || '', lahde: osoite, maar,
+      oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6470,6 +6592,7 @@
     folger: { laji: 'lahjoitukset', osoite: 'https://events.folger.edu/donate/contribute1?ct=1' },
     gwern: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/gwern' },
     larb: { laji: 'lahjoitukset', osoite: 'https://lareviewofbooks.org/donate/' },
+    cdli: { laji: 'lahjoitukset', osoite: 'https://opencollective.com/cdli/donate' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -6488,7 +6611,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
