@@ -126,11 +126,18 @@ function logo(o = {}) {
   // (196,6), ei loppupisteen alla; kirjaimet tasavälein. Ääripäinä H:n vasemmat päätteet ja L:n alaviivan
   // pystypääte (kuten ylärivin L:ssä). Oletuksena (hlinja) kirjaimet on linjattu ylärivin reunoihin, ks. alla.
   const y0 = o.hy ?? 112, y1 = y0 + (o.hh ?? 18), sw = o.sw ?? 2.5, ser = 2.6, sp = 1.5;
-  const linja = o.hlinja ?? true;
-  const sw2 = sw / 2, X0 = o.hx0 ?? 7, X1 = linja ? 190 : 196.6;
-  const widths = [13, 13, linja ? (o.mw ?? 15) : 17, 11];
+  const linja = o.hlinja ?? 'keski';
+  // keski (oletus): kukin kirjain keskellä yläpuolellaan olevaa paksua runkoa (käyttäjän pyyntö 18.11.2026): H L:n rungon (7–22),
+  // T U:n vasemman rungon (62–77), M i:n rungon (118–133) ja L N:n vinoviivan jalan (174,5–190) keskellä. H, T ja M ovat
+  // rungon levyisiä (15, ennen 13, 13 ja 17), joten ne ovat samalla reunoistaan linjassa. hlinja: true = reunalinjaus.
+  const widths = o.hlev ?? (linja === 'keski' ? [15, 15, 15, 11] : [13, 13, linja ? (o.mw ?? 15) : 17, 11]);
+  const keskit = o.keskit ?? [14.5, 69.5, 125.5, 182.25];
+  const sw2 = sw / 2, X0 = o.hx0 ?? 7,
+    X1 = linja === 'keski' ? keskit[3] + widths[3] / 2 : linja ? 190 : 196.6;
   let xs;
-  if (linja) {
+  if (linja === 'keski') {
+    xs = keskit.map((k, i) => k - widths[i] / 2);
+  } else if (linja) {
     // Käyttäjän pyyntö 18.11.2026: H:n vasen pystyviiva L:n pystyviivan vasemman reunan linjassa (x 7), T:n poikkiviivan
     // vasen pää U:n vasemman reunan (62), M i:n rungon reunojen (118–133) ja L:n oikea pää N:n oikean reunan (190) linjassa.
     xs = [7, 62, o.mx ?? 118, X1 - widths[3]];
@@ -143,9 +150,10 @@ function logo(o = {}) {
   const st = [];
   const ln = (x0, y0_, x1, y1_) => st.push(`M${f(x0)} ${f(y0_)}L${f(x1)} ${f(y1_)}`);
   // H
-  let a = xs[0]; ln(a + sw2, y0, a + sw2, y1); ln(a + 13 - sw2, y0, a + 13 - sw2, y1); ln(a + sw2, (y0 + y1) / 2, a + 13 - sw2, (y0 + y1) / 2);
+  const hw = widths[0], tw = widths[1];
+  let a = xs[0]; ln(a + sw2, y0, a + sw2, y1); ln(a + hw - sw2, y0, a + hw - sw2, y1); ln(a + sw2, (y0 + y1) / 2, a + hw - sw2, (y0 + y1) / 2);
   // T
-  a = xs[1]; ln(a, y0 + sw2, a + 13, y0 + sw2); ln(a + 6.5, y0, a + 6.5, y1);
+  a = xs[1]; ln(a, y0 + sw2, a + tw, y0 + sw2); ln(a + tw / 2, y0, a + tw / 2, y1);
   // M
   a = xs[2]; ln(a + sw2, y1, a + sw2, y0); ln(a + sw2, y0, a + mw / 2, y1); ln(a + mw / 2, y1, a + mw - sw2, y0); ln(a + mw - sw2, y0, a + mw - sw2, y1);
   // L
@@ -153,8 +161,8 @@ function logo(o = {}) {
   const serifs = [];
   const hs = (cx, y, w) => serifs.push(rect(cx - w, y - sp / 2, cx + w, y + sp / 2));
   // pikkupäätteet
-  a = xs[0]; [a + sw2, a + 13 - sw2].forEach(cx => { hs(cx, y0 + sp / 2, ser); hs(cx, y1 - sp / 2, ser); });
-  a = xs[1]; hs(a + 6.5, y1 - sp / 2, ser);
+  a = xs[0]; [a + sw2, a + hw - sw2].forEach(cx => { hs(cx, y0 + sp / 2, ser); hs(cx, y1 - sp / 2, ser); });
+  a = xs[1]; hs(a + tw / 2, y1 - sp / 2, ser);
   a = xs[2]; [a + sw2, a + mw - sw2].forEach(cx => hs(cx, y1 - sp / 2, ser));
   a = xs[3]; hs(a + sw2, y0 + sp / 2, ser);
   // L:n alaviivan pystypääte kuten ylärivin L:ssä; 24 % korkeudesta jäi alaviivan paksuuden
