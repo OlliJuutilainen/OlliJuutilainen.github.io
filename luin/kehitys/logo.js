@@ -1,7 +1,8 @@
 // LUiN.HTML-logon generaattori. Ajo: node luin/kehitys/logo.js → tulostaa SVG:n, joka on
 // kopioitu sellaisenaan luin.html:ään ja luin/latomo.html:ään.
 // Yksikkö: ylärivin versaalikorkeus 100 (perusviiva y = 100). Paksu runko T = 15, hiusviiva t = 3,4.
-// i:n piste ja loppupiste ovat salmiakkeja (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
+// i:n piste on Lukimeen-salmiakki (käyttäjän pyyntö 18.11.2026; ks. glis, ontto) ja loppupiste koverakylkinen
+// salmiakki (c < 0,5 = kyljet hieman koverat). Hiusviiva kulkee
 // pisteestä päätepisteeseen ja leikkaa N:n vinoviivan noin 61 %:n korkeudella; tiiviillä N:llä
 // vinoviiva on niin jyrkkä, ettei sama suora voi kulkea sitä pitkin (piste nousisi y ≈ −140:een).
 // i:n piste on ruosteinen, loppupiste tekstin värinen. Alarivi HTML on ohut (2,5) ja levitetty
@@ -26,8 +27,13 @@ function leik(p, d, q, e) {
 // i:n pisteen oikea yläsärmä ja loppupisteen vasen alasärmä ovat suoria ja viivan kaltevia, joten
 // viivan yläreuna jatkaa edellistä ja alareuna jälkimmäistä ilman porrasta. Kaltevuus s ratkaistaan:
 // joko i:n pisteen keskikohta (yd, oletus 12) tai yläkärki (yla) annetaan ja s haetaan, tai s annetaan ja korkeus lasketaan.
+// ontto (oletus, käyttäjän pyyntö 18.11.2026): i:n piste on Lukimeen-salmiakki eli välilehtikuvakkeen kuvake.svg
+// samoin mittasuhtein (suora ulkoreuna, reunan paksuus so ja täytetty sisus ki ulkoreunan ja keskipisteen etäisyydestä).
+// Kärki on versaalien korkeudella (yla 0), ja viivan yläreuna jatkaa ulkoreunan koillissärmää. ontto: false = vanha
+// täytetty koverakylkinen piste (drx 7,5, yd 12, lw 1,8).
 function glis(o) {
-  const cx = 125.5, rx = o.drx ?? 7.5, prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, w = o.lw ?? 1.8;
+  const ontto = o.ontto ?? true;
+  const cx = 125.5, rx = o.drx ?? (ontto ? 10 : 7.5), prx = o.prx ?? 6.5, pb = o.pb ?? 100.5, w = o.lw ?? (ontto ? 2.2 : 1.8);
   let px = o.px ?? 212;
   const E = cy => [cx + rx, cy];
   // py: loppupisteen keskikohdan eli sivukärkien korkeus, oletus 100 = perusviiva (käyttäjän valinta
@@ -36,7 +42,7 @@ function glis(o) {
   const Wp = s => [px - prx, PY ?? pb - s * prx];
   // i:n pisteen keskikohta yd (oletus 12, käyttäjän valinta 21.10.2026) tai yläkärjen korkeus yla
   // (0 = versaalien lakipiste); jälkimmäisessä keskikohta = yla + s·rx
-  const yla = o.yla ?? null;
+  const yla = o.yla ?? (ontto ? 0 : null);
   let s = o.s, cy = o.yd ?? 12;
   if (s != null) {
     const W = Wp(s); cy = W[1] - s * (W[0] - cx - rx) - w * Math.hypot(1, s);
@@ -63,6 +69,20 @@ function glis(o) {
   // viivan loppu: yläreuna leikkaa loppupisteen WN-särmän tangentin kulmassa W
   const qWN = [px - prx * c, py - pry * c];
   const pUp = leik(e, d, W, [qWN[0] - W[0], qWN[1] - W[1]]);
+  if (ontto) {
+    // Reiän särmät ovat ulkoreunan särmät siirrettyinä so:n verran sisään; sisus on ulkoreunan ki-kertainen.
+    const so = o.so ?? 3, dd = rx * ry / Math.hypot(rx, ry), k = (dd - so) / dd, ki = o.ki ?? 0.4;
+    const rombi = (kk, myota) => { const a = rx * kk, b = ry * kk, i = myota ? 1 : -1;
+      return `M${f(cx)} ${f(cy - b)}L${f(cx + i * a)} ${f(cy)}L${f(cx)} ${f(cy + b)}L${f(cx - i * a)} ${f(cy)}Z`; };
+    // Viivan alareuna päättyy pisteen kaakkoissärmään; viiva ei jatku pisteen sisään (reikä näkyisi läpi).
+    const lo = leik([e[0] + n[0], e[1] + n[1]], d, e, [-rx, ry]);
+    return {
+      s, cy, ry, py, px, W: px + prx,
+      piste: rombi(1, true) + rombi(k, false) + rombi(ki, true),
+      loppu: dia(px, py, prx, pry, [c, c, 0.5, c]),
+      viiva: poly([e, pUp, [px, py], W, lo]),
+    };
+  }
   return {
     s, cy, ry, py, px, W: px + prx,
     piste: dia(cx, cy, rx, ry, [0.5, c, c, c]),
