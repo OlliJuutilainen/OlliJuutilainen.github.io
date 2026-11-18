@@ -2158,6 +2158,12 @@
   function avaaOsoite(u) {
     var abs = dropbox(u), id = 'u-' + fnv(abs);
     var vanha = LS.get('luin-teksti:' + id, null), oma = lista.filter(function (x) { return x.id === id; })[0];
+    // Toisesta laitteesta huilutettu saman osoitteen teksti (huiluta(): laatikossa u-<tiiviste>, täällä p-u-<tiiviste>)
+    // avataan pinosta merkintöineen eikä haeta toiseksi kappaleeksi.
+    if (!oma) {
+      var huilu = lista.filter(function (x) { return x.id === 'p-' + id; })[0], hmd = huilu && LS.get('luin-teksti:' + huilu.id, null);
+      if (hmd != null) return avaa(huilu, hmd);
+    }
     // Latomossa muokattu (tiedot tai korvaava laitos) avataan pinosta eikä haeta uudelleen.
     if (oma && oma.muokattu && vanha != null) return avaa(oma, vanha);
     fetch(abs, { cache: 'no-cache' }).then(function (r) {
@@ -2705,7 +2711,8 @@
       var uudet = (d.texts || []).filter(function (x) { return nahdyt[k + ':' + x.id] !== x.t; });
       return Promise.all(uudet.map(function (x) {
         return haeLaatikosta(osoite + '&id=' + encodeURIComponent(x.id)).then(function (md) {
-          var id = 'p-' + x.id;
+          // Osoitteesta avattu teksti, joka huilutettiin pinosta (huiluta()), päivittää saman osoitteen tekstin, jos se on jo täällä.
+          var id = /^u-/.test(x.id) && lista.some(function (e) { return e.id === x.id; }) ? x.id : 'p-' + x.id;
           if (!LS.set('luin-teksti:' + id, md)) return null;
           nahdyt[k + ':' + x.id] = x.t;
           // Uudelleen lähetetty teksti palaa cellarin campihyllystöstä pinoon (käsikirja ei: se pysyy käsikirjastossa).
@@ -2845,6 +2852,57 @@
     });
   }
   function kello(t) { var d = new Date(t); return d.getHours() + '.' + ('0' + d.getMinutes()).slice(-2); }
+
+  /* Huiluta laatikkoon (käyttäjän pyyntö 18.11.2026): pinon tekstin runko laatikkoon nimikkeen valikosta. Ennen tätä
+     tekstin lähettivät vain latomo ja lukimeen-lisäosa; lukin lähetti vain merkinnät, joten pinossa jo ollut teksti ei
+     siirtynyt toiseen laitteeseen, vaikka i-ohje lupasi. Laatikon tunnus on merkintäpostin avain (P.avain), joten toisen
+     laitteen pino saa saman tunnuksen (p-<slug>) ja merkinnät osuvat siihen. Osoitteesta avatun (u-<tiiviste>) mukaan
+     kirjoitetaan etukentän osoite:, jotta vastaanottaja tuntee lähteen (Kopioi linkki) ja saman osoitteen avaus löytää
+     tämän (avaaOsoite). Oma lähetys kirjataan nähdyksi, jottei oma haku tuo sitä takaisin (pinoon nosto, huilumerkki).
+     Merkinnät lähtevät perässä vain, jos Huiluta myös merkintöjä on valittu (yleisesti tai tekstille). */
+  var HUILU_ID = /^[a-z0-9-]{1,60}$/, huilutetaan = {};
+  function huilutettava(e) {
+    lkKirjoita(e);
+    var md = LS.get('luin-teksti:' + e.id, null);
+    if (md == null || !String(md).trim()) return null;
+    if (/^u-/.test(e.id) && e.url && !e.osoite) md = asetaOsoite(md, dropbox(e.url));
+    return md;
+  }
+  function huiluta(e, nappi) {
+    var k = laatikonKoodi(), a = P.avain(e.id);
+    function kerro(t, ok) { nappi.textContent = t; nappi.disabled = !!ok; sijoitaPop(); }
+    if (huilutetaan[e.id]) return;
+    if (!k) return kerro('Anna ensin laatikkolause pinon postihuiluun.');
+    if (P.koodiVirhe(k) || !LAATIKKO_RE.test(k)) return kerro('Tällä laatikkolauseella voi vain lukea: lähettäminen vaatii 24–52 merkkiä.');
+    if (!HUILU_ID.test(a)) return kerro('Tämän tekstin tunnusta ei voi huiluttaa.');
+    var md = huilutettava(e);
+    if (md == null) return kerro('Tekstiä ei ole tämän laitteen pinossa.');
+    if (!window.fetch) return kerro('Selain ei osaa huiluttaa.');
+    huilutetaan[e.id] = 1; nappi.disabled = true; nappi.textContent = 'Huilutetaan…';
+    fetch(LAATIKKO_API, {
+      method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ l: k, id: a, md: md })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; });
+    }).then(function (x) {
+      delete huilutetaan[e.id];
+      if (!(x.s === 200 && x.j.ok)) {
+        kerro(x.s === 429 ? (x.j.error === 'daily_limit' ? 'Postilaatikon päivän lähetysraja on täynnä. Yritä huomenna uudelleen.'
+          : 'Liian monta lähetystä hetken sisällä. Yritä minuutin päästä uudelleen.')
+          : x.s === 413 ? 'Teksti on liian suuri huilutettavaksi (yli 5 Mt).'
+          : 'Huilutus ei onnistunut (' + x.s + (x.j.error ? ', ' + x.j.error : '') + ').');
+        return;
+      }
+      var n = LS.get('luin-laatikko-nahdyt', {}); n[k + ':' + a] = x.j.t; LS.set('luin-laatikko-nahdyt', n);
+      var v = postiValinnat(e.id), merk = onMerkintoja(e.id) || !!e.pos;
+      if (v.on) { postiLikainen(e.id); postiLahetaLikaiset(); }
+      kerro('Huilutettu klo ' + kello(x.j.t || Date.now()) + '.' + (v.on && merk ? ' Merkinnät seuraavat.'
+        : onMerkintoja(e.id) ? ' Merkinnät jäivät: Huiluta myös merkintöjä ei ole valittu.' : ''), true);
+    }, function () {
+      delete huilutetaan[e.id];
+      kerro('Ei yhteyttä postilaatikkoon. Yritä uudelleen.');
+    });
+  }
   // Asetusten kerrokset: laatikkolause (pitkä) → Huiluta myös merkintöjä → lajit. Lukulistassa yleinen valinta, avoimessa
   // tekstissä vain sen tekstin. Selitys merkintöjen lähtöhetkestä vain tekstin asetuksissa (käyttäjän pyyntö 10.11.2026).
   function piirraPosti() {
@@ -3064,6 +3122,8 @@
       // Linkittömällä tekstillä linkin paikalla linkitä tiedostoon; lataa .md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
       (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="merkinnät eivät siirry jaettavassa linkissä">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
       '<button type="button" data-k="lataa">lataa .md</button>' +
+      // Huiluta laatikkoon (käyttäjän pyyntö 18.11.2026): tekstin runko toisten laitteiden pinoihin (huiluta()).
+      '<button type="button" data-k="huiluta" class="vihje" data-vihje="toisten laitteittesi pinoihin">huiluta laatikkoon</button>' +
       '<button type="button" data-k="luokittele">luokittele</button>' +
       '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
@@ -3075,6 +3135,7 @@
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'omappi') { kysyOmappi([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
+      if (k === 'huiluta') { huiluta(e, nappi); return true; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
       if (k === 'luokittele') { luokittele([e], b.getBoundingClientRect()); return true; }
       // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
@@ -8258,6 +8319,7 @@
     merkinnatMd: function (v) { return merkinnatMd(v); }, tuo: function (md) { return tuoMerkinnat(md); },
     // Merkintäposti (posti-testi.js): tallennus kuten käyttäjän muutoksessa ja lähetys heti.
     tallennaMerkit: function () { return tallennaMerkit(); }, postiLaheta: function () { return postiLahetaLikaiset(); },
+    haeLaatikko: function () { return haeLaatikko(true); },
     etsi: function (q, viit) { return nyt && etsi(hakuehdot(q), viit); } };
 })();
 </script>
