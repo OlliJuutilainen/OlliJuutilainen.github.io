@@ -63,7 +63,7 @@
      vanhan salmiakin koko (20 → 18 × 26). */
   button.kysy svg { width: 18px; height: 26px; fill: currentColor; }
   button.kysy[aria-expanded="true"] { color: var(--ruoste); }
-  #postihuilu svg.huilu { display: inline-block; height: 1.2em; width: 3.82em; margin-left: .42em; vertical-align: middle; }
+  #postihuilu svg.huilu { display: inline-block; height: 1.183em; width: 3.785em; margin-left: .42em; vertical-align: middle; }
   button[aria-expanded="true"]#postihuilu { color: var(--ruoste); border-color: var(--ruoste); }
   .ohje { margin: 6px 0 0; padding: 0 10px; border: 1px solid var(--viiva); font-size: .76rem; line-height: 1.45; color: var(--harmaa); }
   .ohje p { margin: 7px 0; }
@@ -93,12 +93,13 @@
     <div class="napit" id="lisat" hidden>
       <button type="button" id="latomoon" disabled>Säädä latomossa</button>
       <button type="button" id="lataa" disabled>Lataa .md</button>
-      <!-- Huilu ja viivasto (käyttäjän pyynnöt 12.11. ja 16.11.2026): vino huilu kuten Luinin huilutetun tekstin merkki
-           (LuinHuilu.vino(), T 6,4, sw 0,9; kopio, koska lisäosa ei lataa sivuston tiedostoja) ja sen oikealla irrallinen
-           siksak-nelilinja, kaksi jaksoa (viivaväli 5, siksak ±3, jakso 30, viiva 1,1, rako huiluun 5). Viivaston keskilinja on
-           huilun keskikohdan korkeudella, ja vertical-align: middle keskittää molemmat tekstin keskilinjaan. Ei viuhkaa:
-           napissa viivasto ei lähde huilusta. -->
-      <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu<svg class="huilu" viewBox="-14.54 -1.65 98.04 30.82" aria-hidden="true"><g transform="rotate(112)"><path d="M29.69 -3.2H5.25L0.68 -1.83Q0 -1.6 0 -0.68V0.68Q0 1.6 0.68 1.83L5.25 3.2H29.69Z" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/><path d="M6.57 -1.33L9.24 -1.33L9.88 -0.69L9.88 0.69L9.24 1.34L6.57 1.34" fill="none" stroke="currentColor" stroke-width="0.63" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M5.52 -1.65H6.57V1.65H5.52ZM17.58 -1.79Q18.47 -0.68 19.91 0Q18.47 0.68 17.58 1.79Q16.7 0.68 15.25 0Q16.7 -0.68 17.58 -1.79ZM22.24 -1.79Q23.13 -0.68 24.57 0Q23.13 0.68 22.24 1.79Q21.36 0.68 19.91 0Q21.36 -0.68 22.24 -1.79ZM26.9 -1.79Q27.79 -0.68 29.24 0Q27.79 0.68 26.9 1.79Q26.02 0.68 24.57 0Q26.02 -0.68 26.9 -1.79Z" fill="currentColor"/></g><path d="M22.95 22.91L30.45 19.91L45.45 25.91L60.45 19.91L75.45 25.91L82.95 22.91M22.95 17.91L30.45 14.91L45.45 20.91L60.45 14.91L75.45 20.91L82.95 17.91M22.95 12.91L30.45 9.91L45.45 15.91L60.45 9.91L75.45 15.91L82.95 12.91M22.95 7.91L30.45 4.91L45.45 10.91L60.45 4.91L75.45 10.91L82.95 7.91" transform="translate(-14.54 -1.65)" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-miterlimit="12"/></svg></button>
+      <!-- Huilu ja viivasto (käyttäjän pyynnöt 12.11. ja 16.11.2026, 0.12.0: 18.11.2026): vino huilu kuten Luinin huilutetun
+           tekstin merkki (LuinHuilu.vino(), 64° eli HUILUKULMA, T 6,4, sw 0,9, sormireiät REIKA 0,5; kopio, koska lisäosa ei lataa
+           sivuston tiedostoja) ja sen oikealla irrallinen väljä kolmilinja kuten pinon kaistassa: väli 8, jakso 48, alamäki 22°
+           (siksak ±4,85), puolitoista jaksoa, viiva 1,1, rako huiluun 5. Mittakaava sama kuin ennen (1,2 em / 30,82 yksikköä).
+           Viivaston keskilinja on huilun keskikohdan korkeudella, ja vertical-align: middle keskittää molemmat tekstin
+           keskilinjaan. Ei viuhkaa: napissa viivasto ei lähde huilusta. -->
+      <button type="button" id="postihuilu" aria-expanded="false" aria-controls="posti-osa">Postihuilu<svg class="huilu" viewBox="-16.34 -1.85 97.22 30.39" aria-hidden="true"><g transform="rotate(116)"><path d="M29.69 -3.2H5.25L0.68 -1.83Q0 -1.6 0 -0.68V0.68Q0 1.6 0.68 1.83L5.25 3.2H29.69Z" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/><path d="M6.57 -1.33L9.24 -1.33L9.88 -0.69L9.88 0.69L9.24 1.34L6.57 1.34" fill="none" stroke="currentColor" stroke-width="0.63" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M5.52 -1.65H6.57V1.65H5.52ZM20.27 -1.37Q20.95 -0.52 22.06 0Q20.95 0.52 20.27 1.38Q19.59 0.52 18.48 0Q19.59 -0.52 20.27 -1.37ZM23.86 -1.37Q24.54 -0.52 25.65 0Q24.54 0.52 23.86 1.38Q23.18 0.52 22.06 0Q23.18 -0.52 23.86 -1.37ZM27.44 -1.37Q28.12 -0.52 29.24 0Q28.12 0.52 27.44 1.38Q26.76 0.52 25.65 0Q26.76 -0.52 27.44 -1.37Z" fill="currentColor"/></g><path d="M8.33 5.34L20.33 0.49L32.33 5.34L44.33 10.19L56.33 5.34L68.33 0.49L80.33 5.34M8.33 13.34L20.33 8.49L32.33 13.34L44.33 18.19L56.33 13.34L68.33 8.49L80.33 13.34M8.33 21.34L20.33 16.49L32.33 21.34L44.33 26.19L56.33 21.34L68.33 16.49L80.33 21.34" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="miter" stroke-miterlimit="12"/></svg></button>
       <div class="posti" id="posti-osa" hidden>
         <div class="koodi"><input type="text" id="koodi" aria-label="Laatikkolause" placeholder="Laatikkolause" autocomplete="off" autocapitalize="off" spellcheck="false">
           <button type="button" class="paa" id="soita" disabled>Soita huilua!</button>
