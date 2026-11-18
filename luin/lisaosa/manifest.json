@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lukimeen",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Leikkaa verkkoartikkelin lukimen pinoon latomon kautta tai postihuilulla muihin laitteisiin. Alaviitteet haetaan sivustolta.",
   "icons": {
     "16": "kuvakkeet/16.png",

@@ -243,6 +243,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   animaatiokiellosta (sähköpaperin virkistysvitsi); koko näytön valoshowta käyttäjä ei halunnut. Taulun sisältö on käyttäjän
   (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
+- **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
+  yläindeksinumeroista aikajanan kohtia ja vedon pysäkkejä (`res.kohdat`, `nyt.kohdat`), **ei otsikoita eikä `toc`-rivejä**:
+  `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen
+  kohdan numero-osa on osio (Valtio: Stephanus-sivu 327, kohta 327a; käyttäjän kokeilu 18.11.2026). Ciceron luvut (caput) eivät
+  ole tasoa: viitenumeron tasot luetaan teoksen `refsDecl`istä.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. Sähköpaperi: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.
@@ -532,7 +537,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   käyttäjän valinta 12.11.2026, nokkahuilun ikkuna): melko ylhäällä matala täytetty siivu reikien värillä, sen päiden linjasta
   kelloa kohti tyhjä ääriviiva, jonka alaosassa leukaperät ja leveä leuka (45° sisäänpäin, puolivälissä keskiviivalle vaakaan). Ei ruostetta. Kaistan luokka ei saa olla
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
-  Postihuilu-napissa on `vino()`-huilu ja sen oikealla **irrallinen** siksak-nelilinja (kaksi jaksoa, käyttäjä 16.11.2026): viivaston, huilun
+  Postihuilu-napissa on `vino()`-huilu ja sen oikealla **irrallinen** siksak-kolmilinja (0.12.0: väli 8, jakso 48, puolitoista jaksoa; ennen nelilinja kaksi jaksoa, käyttäjä 16.11.2026): viivaston, huilun
   ja tekstin keskilinjat ovat samalla korkeudella (`vertical-align: middle`). Ei viuhkaa huilusta: se kokeiltiin napissa eikä toiminut. Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
   vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa, viisi reikää ja viisi viivaa).
   Viuhkan sisäviivojen jyrkkä käännös on tarkoituksellinen (`kaista()`): älä korjaa sitä kysymättä (historia commitissa f3f21b3).
