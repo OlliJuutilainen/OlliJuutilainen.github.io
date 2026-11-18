@@ -20,6 +20,7 @@ Kriteerit:
 ## Tehty ja ohitettu (pahvi *10 sivustosovitetta*, 18.11.2026)
 
 - Oikeustapaukset: EUR-Lex ja Find Case Law tehty 18.11., PR #867. BAILII ja AustLII ohitettu (kontin esto: Anubis, 403).
+- PubMed Central tehty 18.11., PR #868. NCBI Bookshelf testaamatta (reCAPTCHA heti), sovite ei kata sitä.
 
 ## Miten mitattu
 
