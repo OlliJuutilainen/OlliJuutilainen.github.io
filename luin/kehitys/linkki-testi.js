@@ -75,7 +75,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
 
   // 1. Järjestys.
   let j = await avaa('p-koeteksti');
-  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'lisa,viite,linkita,lataa,luokittele,tiedot,laitos,luin,poista', j);
+  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'lisa,viite,linkita,lataa,huiluta,luokittele,tiedot,laitos,luin,poista', j);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'linkki-valikko.png') });
 
   // 2. Lataa md.
@@ -111,7 +111,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   tulos('pinossa osoite, md.js lukee sen', l1[0].osoite === DB && await page.evaluate(m => LuinMD.parse(m).meta.osoite, md1) === DB);
   tulos('merkinnät ennallaan', JSON.stringify(await ls('luin-merkit:p-koeteksti')) === JSON.stringify(merkit0));
   j = await avaa('p-koeteksti');
-  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'lisa,viite,linkki,lataa,luokittele,tiedot,laitos,luin,poista', j);
+  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'lisa,viite,linkki,lataa,huiluta,luokittele,tiedot,laitos,luin,poista', j);
   await page.keyboard.press('Escape');
 
   // 5. Teksti ilman etukenttää.
