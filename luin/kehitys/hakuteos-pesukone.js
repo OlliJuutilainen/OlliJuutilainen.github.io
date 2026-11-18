@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -197,6 +197,14 @@ const SARJAT = {
     .map(p => 'https://lareviewofbooks.org/article/' + p + '/'),
   // 3:16 (17.11.2026): kaksi End Times -haastattelua (nostolainaukset alussa, kysymykset 3:16:, vastaajan nimi tai nimikirjaimet).
   tri16: ['being', 'camus-and-fanon'].map(p => 'https://www.3-16am.co.uk/articles/' + p),
+  // EUR-Lex (18.11.2026, pahvin *10 sivustosovitetta* 1A): Schrems I englanniksi ja suomeksi (vanha muoto), Botin ratkaisuehdotus
+  // samassa asiassa, Meta Platforms 2023 (coj-muoto, sisällysluettelo) ja Rantosin ratkaisuehdotus (coj), tuore tuomio 2024 suomeksi.
+  eurlex: ['EN/TXT/?uri=CELEX:62014CJ0362', 'FI/TXT/?uri=CELEX:62014CJ0362', 'EN/TXT/HTML/?uri=CELEX:62014CC0362',
+    'EN/TXT/HTML/?uri=CELEX:62021CJ0252', 'EN/TXT/HTML/?uri=CELEX:62021CC0252', 'FI/TXT/HTML/?uri=CELEX:62023CJ0021']
+    .map(p => 'https://eur-lex.europa.eu/legal-content/' + p),
+  // Find Case Law (18.11.2026, pahvin 1B): UKSC (puhujarivi, alakohdat, lainaukset), Rwanda-tuomio (kaksi puhujaa, numerottomat
+  // lainaukset), EWCA Civ (kursiiviset ja alleviivatut väliotsikot), EWHC (Ch) (I:-otsikot, alakohdat).
+  fcl: ['uksc/2024/12', 'uksc/2023/42', 'ewca/civ/2022/379', 'ewhc/ch/2024/1'].map(p => 'https://caselaw.nationalarchives.gov.uk/' + p),
   // Paul Grahamin esseet (16.11.2026): <br><br>-kappaleet, Notes-viitteet, päiväys ensimmäisenä kappaleena.
   pg: ['greatwork', 'hwh', 'useful'].map(p => 'https://www.paulgraham.com/' + p + '.html'),
   // Tertullian Project (16.11.2026): Porfyrioksen De abstinentia (Taylor 1823) viitenä sivuna kirjan 1 sivulta.
@@ -230,7 +238,7 @@ fs.mkdirSync(VALI, { recursive: true });
 function valimuisti(url, post) {
   const f = path.join(VALI, (url + (post ? '_' + post : '')).replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
   if (!fs.existsSync(f) && !fs.existsSync(f + '.puuttuu')) {
-    const koodi = cp.execFileSync('curl', ['-sSL', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org/.test(url) ? [] : ['-A', 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
+    const koodi = cp.execFileSync('curl', ['-sSL', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org|eur-lex\.europa\.eu/.test(url) ? [] : ['-A', 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
     if (koodi !== '200') { fs.writeFileSync(f + '.puuttuu', koodi); fs.rmSync(f, { force: true }); }
   }
   return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
@@ -258,7 +266,7 @@ const palvelin = http.createServer((q, r) => {
       const tyyppi = /\.js(\?|$)/.test(u) ? 'text/javascript' : /ajax\.php/.test(u) ? 'application/json' : 'text/html; charset=utf-8';
       return h ? r.fulfill({ body: h, contentType: tyyppi }) : r.fulfill({ status: 404, body: '' });
     }
-    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co|books\.openbookpublishers\.com|fadedpage\.com|archive\.org|folger\.edu|gwern\.net|lareviewofbooks\.org|themarginalian\.org|3-16am\.co\.uk)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+    if (/^https?:\/\/([a-z0-9-]+\.)*(filosofia\.fi|wikipedia\.org|marxists\.org|waitbutwhy\.com|oecs\.knowledgefutures\.org|oecs\.mit\.edu|encyclopedia\.com|online\.flippingbook\.com|saet\.ac\.uk|gutenberg\.org|newadvent\.org|ccel\.org|psyche\.co|aeon\.co|journal-psychoanalysis\.eu|journals\.vu\.lt|penelope\.uchicago\.edu|korpora\.org|dhammatalks\.org|wikisource\.org|substack\.com|experimental-history\.com|iep\.utm\.edu|oyc\.yale\.edu|ndpr\.nd\.edu|iltascabile\.com|doppiozero\.com|bmcr\.brynmawr\.edu|revistas\.ucm\.es|perseus\.tufts\.edu|noemamag\.com|emergencemagazine\.org|andymatuschak\.org|numinous\.productions|fivebooks\.com|paulgraham\.com|tertullian\.org|vle\.lt|pressbooks\.library\.torontomu\.ca|pressbooks\.palni\.org|openedition\.org|hypotheses\.org|manifold\.umn\.edu|cuny\.manifoldapp\.org|lesswrong\.com|forum\.effectivealtruism\.org|openlibhums\.org|glossa-journal\.org|scielo\.org\.mx|scielo\.org\.ar|scielo\.pt|scielo\.org\.za|scielo\.org\.co|books\.openbookpublishers\.com|fadedpage\.com|archive\.org|folger\.edu|gwern\.net|lareviewofbooks\.org|themarginalian\.org|3-16am\.co\.uk|eur-lex\.europa\.eu|caselaw\.nationalarchives\.gov\.uk)\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
       return h ? r.fulfill({ body: h, contentType: 'text/html; charset=utf-8' }) : r.fulfill({ status: 404, body: '' });
     }
@@ -270,7 +278,7 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/journals\.vu\.lt|revistas\.ucm\.es/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    const nimi = (/journals\.vu\.lt|revistas\.ucm\.es/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook/.test(url) ? osat.slice(-3) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
     if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);
