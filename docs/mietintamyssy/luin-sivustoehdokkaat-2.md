@@ -30,6 +30,7 @@ Kriteerit:
 - Журнальный зал tehty 18.11., PR #875. Venäjän tavutus puuttuu md.js:stä (kyrillinen teksti näkyy tavuttamatta): tarve kirjattu.
 - Fabula (Acta fabula ja LhT) tehty 18.11., PR #876: oma sovite OpenEditionin Lodel-apufunktioilla, koska OpenEdition-sovitteen tunnistus ei osu.
 - Folktexts (varakohde 11) tehty 18.11., PR #877.
+- A Celebration of Women Writers (varakohde 12) tehty 18.11., PR #878: yleinen leikkaus ei riittänyt (taulukot raakana HTML:nä).
 
 ## Miten mitattu
 
