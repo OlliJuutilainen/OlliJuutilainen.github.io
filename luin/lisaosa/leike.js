@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula ja Folktexts (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts ja A Celebration of Women Writers (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5183,6 +5183,55 @@
       julkaistu, sivusto: 'Folktexts', lahde: osoite };
   }
 
+  /* A Celebration of Women Writers (digital.library.upenn.edu/women; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta*
+     varakohde 12: naisten kirjoja kokonaisina sivuina). Vuoden 2020 kirjapohja (stylesheets/book-2020.css): body[itemtype*=Book],
+     header (sivuston linkki), section#metadata (h1, schema.org-määreet name, author givenName ja familyName, publisher,
+     addressLocality, copyrightYear), section#frontmatter (nimiösivu taulukkona, sisällys ja errata taulukkoina #-linkein), section#main
+     (joskus puuttuu: teksti jatkuu frontmatterissa), section#about (About This Edition) ja footer. Sivunvaihdot span.pagenumber ja
+     .pagecounter (CSS:n [Page xx]) ja hr.pagination. Readability jätti taulukot raa'aksi HTML:ksi (Finch 1713: 21 merkintää) ja
+     sivuston linkin otsikoksi, eikä julkaisutietoja tullut. Sovite: header, metadata ja footer pois, sisällys- ja erratataulukot
+     (enimmäkseen #-linkkejä) ja niiden tyhjät otsikot pois, erratan jäänteet pois (errata on korjattu tekstiin), muut taulukot (nimiösivu, runo) kappaleiksi, sivunvaihtomerkit ja tyhjät kappaleet pois,
+     otsikoiden <br> välilyönneiksi, About This Edition omaksi luvukseen. Etukenttään tekijä, julkaistu (copyrightYear), paikka ja
+     kustantaja. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 18.11.2026. */
+  async function womenwriters() {
+    const metat = document.querySelector('section#metadata');
+    if (!metat || !metat.querySelector('[itemprop="name"]') || !/schema\.org\/Book/.test(document.body.getAttribute('itemtype') || '')) return null;
+    const ip = (n, juuri = metat) => rivi((juuri.querySelector('[itemprop="' + n + '"]') || {}).textContent);
+    const el = document.body.cloneNode(true);
+    el.querySelectorAll('header, section#metadata, footer, script, style, img, nav').forEach(x => x.remove());
+    el.querySelectorAll('.pagenumber, .pagecounter, hr.pagination, hr.pagereset').forEach(x => x.remove());
+    el.querySelectorAll('table').forEach(t => {
+      const linkit = [...t.querySelectorAll('a[href^="#"]')].reduce((n, a) => n + rivi(a.textContent).length, 0);
+      if (linkit > rivi(t.textContent).length * 0.4) return t.remove();
+      const pala = document.createDocumentFragment();
+      t.querySelectorAll('td, th').forEach(c => { if (!rivi(c.textContent)) return; const kpl = c.querySelectorAll('p, h1, h2, h3, h4'); if (kpl.length) pala.append(...kpl); else { const p = document.createElement('p'); p.append(...c.childNodes); pala.appendChild(p); } });
+      (t.closest('blockquote') && rivi(t.closest('blockquote').textContent) === rivi(t.textContent) ? t.closest('blockquote') : t).replaceWith(pala);
+    });
+    el.querySelectorAll('h1, h2, h3, h4, h5').forEach(h => { h.querySelectorAll('br').forEach(b => b.replaceWith(' ')); const t = rivi(h.textContent); if (!t) return h.remove(); h.textContent = t; });
+    el.querySelectorAll('section#about a').forEach(a => { if (a.querySelector('h2')) a.replaceWith(...a.childNodes); });
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.querySelectorAll('span').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    // Sisällyksen otsikko jäi tyhjäksi (taulukko pois); errata on korjattu tekstiin (About This Edition), joten sen jäänteet
+    // seuraavaan viivaan tai otsikkoon asti pois.
+    el.querySelectorAll('h1, h2, h3, h4, h5').forEach(h => {
+      const t = rivi(h.textContent), n = h.nextElementSibling;
+      if (/^(the\s+)?errata\.?$/i.test(t)) { for (let x = h.nextElementSibling; x && !/^(H\d|HR)$/.test(x.tagName);) { const y = x.nextElementSibling; x.remove(); x = y; } h.remove(); }
+      else if (/^(the\s+)?(table|contents)\.?$/i.test(t) && (!n || /^(H\d|HR)$/.test(n.tagName))) h.remove();
+    });
+    el.querySelectorAll('hr + hr').forEach(h => h.remove());
+    while (el.firstElementChild && el.firstElementChild.tagName === 'HR') el.firstElementChild.remove();
+    kkLinkit(el, /^https?:\/\/digital\.library\.upenn\.edu\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const a = metat.querySelector('[itemprop="author"]');
+    const tekija = a ? rivi([ip('givenName', a), ip('familyName', a)].join(' ')) || ip('name', a) : '';
+    const pub = metat.querySelector('[itemprop="publisher"]');
+    return { html: irrota([el]).innerHTML, otsikko: ip('name').replace(/\.$/, ''), tekija, julkaistu: ip('copyrightYear') || ip('datePublished'),
+      paikka: pub ? ip('addressLocality', pub) : '', kustantaja: pub ? rivi((pub.querySelector('[itemprop="address"] [itemprop="name"], [itemprop="name"]') || {}).textContent) : '',
+      sivusto: 'A Celebration of Women Writers', lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6852,7 +6901,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
