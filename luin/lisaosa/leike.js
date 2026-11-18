@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project ja CDLI:n lehdet (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet ja Журнальный зал (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4942,6 +4942,94 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
+  /* Журнальный зал (magazines.gorky.media; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 9: venäläisten
+     kirjallisuuslehtien arkisto, Новый мир, Знамя, Новый Журнал ym.). WordPress: section.article, tekijä h4.article-header,
+     otsikko h2.article-title, julkaisutieto .article-body-pub-info (Опубликовано в журнале <a>Новый Журнал</a>, <a>номер 305,
+     2021</a>). Teksti on template#article_template-elementissä, jonka sivun skripti kopioi #article_container-lohkoon; sovite
+     lukee täytetyn lohkon tai sen puuttuessa templaten sisällön (ei riipu skriptistä). Templaten lopussa on Wordin tyylilohko.
+     Wordin loppuviitteet: merkki a[href="#_ednN"] tai #_ftnN tekstinä [i], kohde a[name="_ednN"] kappaleen alussa viivan
+     jälkeen; roomalaisia tunnuksia samanSivunViitteet() ei tunne, joten ne käsitellään tässä. Linkittömät yläindeksit (<sup>1</sup>)
+     yhdistetään lopun numeroituihin kappaleisiin (1. «Современные записки» …) numeron mukaan, jos vähintään puolet löytyy. Keskitetty lyhyt kappale (luvun
+     nimi ОПОЗДАНИЕ) otsikoksi, tähdet osanvaihdoksi. Etukenttään tekijä, teos (lehti) ja numero kuten NDPR:ssä, julkaistu
+     (vuosi), sivusto. Readability (sivun skripti ajettuna) antoi tekstin, mutta otsikkoon sivuston nimen, viitteet linkkeinä
+     ([i]) eikä tekijää, lehteä eikä numeroa. md.js tavuttaa vain suomen ja liettuan säännöin: kyrillinen teksti jää
+     tavuttamatta (venäjän tavutus kirjattu tarpeeksi). Ei mainoksia (vain Google Analytics) eikä lahjoituspyyntöä.
+     Mitattu 18.11.2026. */
+  const ZZ_NIMI = 'Журнальный зал';
+  async function zhurnal() {
+    const tpl = document.getElementById('article_template'), info = document.querySelector('.article-body-pub-info');
+    const h2 = document.querySelector('section.article h2.article-title, h2.article-title');
+    if (!tpl || !info || !h2) return null;
+    const astia = document.getElementById('article_container');
+    const el = document.createElement('div');
+    el.append(astia && rivi(astia.textContent) ? astia.cloneNode(true) : tpl.content.cloneNode(true));
+    el.querySelectorAll('style, script, img, iframe').forEach(x => x.remove());
+    // Loppuviitteet: [i] → a[name=_ednN] (tai _ftnN) kappaleen alussa.
+    const maar = [], laskuri = { n: 0 };
+    el.querySelectorAll('a[href^="#_edn"], a[href^="#_ftn"]').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      if (/ref\d/.test(id)) return;
+      const k = el.querySelector('a[name="' + id + '"], [id="' + id + '"]');
+      const p = k && k.closest('p');
+      if (!p || p.contains(a)) return;
+      const osat = [p];
+      for (let n = p.nextElementSibling; n && n.tagName === 'P' && !n.querySelector('a[name^="_edn"], a[name^="_ftn"]') && rivi(n.textContent.replace(/ /g, ' ')); n = n.nextElementSibling) osat.push(n);
+      const d = document.createElement('div');
+      osat.forEach(o => d.appendChild(o.cloneNode(true)));
+      d.querySelectorAll('a[name^="_edn"], a[name^="_ftn"], a[href^="#_edn"], a[href^="#_ftn"]').forEach(x => x.remove());
+      d.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+      const t = muunna(d.innerHTML, 'inlined').trim();
+      osat.forEach(o => o.remove());
+      const kohta = a.parentElement && a.parentElement.tagName === 'SUP' && rivi(a.parentElement.textContent) === rivi(a.textContent) ? a.parentElement : a;
+      if (!t) { kohta.remove(); return; }
+      const tunnus = 'zz' + (++laskuri.n);
+      kohta.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    // Linkittömät yläindeksiviitteet (Кузнецова: »¹ ja lopussa numeroidut kappaleet 1. «Современные записки» …): numeron mukaan.
+    if (!maar.length) {
+      const supit = [...el.querySelectorAll('sup')].filter(x => /^\d{1,3}$/.test(rivi(x.textContent)));
+      const kpl = new Map();
+      [...el.querySelectorAll('p')].forEach(p => { const m = /^(\d{1,3})\\?\.\s/.exec(rivi(p.textContent)); if (m && !kpl.has(m[1]) && !p.querySelector('sup')) kpl.set(m[1], p); });
+      if (supit.length && supit.filter(x => kpl.has(rivi(x.textContent))).length >= supit.length / 2) {
+        const tehty = new Map();
+        supit.forEach(x => {
+          const n = rivi(x.textContent), p = kpl.get(n);
+          if (!p || !(x.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+          if (!tehty.has(n)) {
+            const d = p.cloneNode(true);
+            d.querySelectorAll('[style]').forEach(y => y.removeAttribute('style'));
+            const t = muunna(d.innerHTML, 'inlined').trim().replace(/^(\*{0,2})\d{1,3}\\?\.\s+/, '$1');
+            tehty.set(n, t ? 'zz' + n : '');
+            if (t) maar.push(maaritelma('zz' + n, t));
+          }
+          if (tehty.get(n)) x.replaceWith(merkki(tehty.get(n)));
+        });
+        tehty.forEach((t, n) => { if (t) kpl.get(n).remove(); });
+      }
+    }
+    // Viite tekstin alussa yksinään (otsikon viite: Лауреат … премии) otsikon perään.
+    let otsikkoMerkit = '';
+    const ens = [...el.querySelectorAll('p')].find(p => rivi(p.textContent.replace(/ /g, ' ')));
+    if (ens && /^XLUINVIITE\w+?X$/.test(rivi(ens.textContent))) { otsikkoMerkit = rivi(ens.textContent); ens.remove(); }
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent.replace(/ /g, ' '));
+      if (!t) return p.remove();
+      if (/^[*•⁂\s]+$/.test(t)) return p.replaceWith(document.createElement('hr'));
+      if (/center/.test(p.getAttribute('style') || '') && t.length <= 80 && !/[.,;:!?…»”"]$/.test(t)) { const h = document.createElement('h2'); h.textContent = t; p.replaceWith(h); }
+    });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*gorky\.media\//i);
+    if (kkSanoja(el) < 50) return null;
+    kkTasoita(el);
+    const linkit = [...info.querySelectorAll('a')].map(a => rivi(a.textContent));
+    const nro = /номер\s+([\w–-]+)/i.exec(rivi(info.textContent)), v = /\b(1[89]\d\d|20\d\d)\b/.exec(rivi(info.textContent));
+    const tekijat = [...document.querySelectorAll('section.article .article-header a, section.article h4.article-header')].map(x => rivi(x.textContent)).filter(Boolean);
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h2.textContent), tekija: kkLuettelo([...new Set(tekijat)]),
+      teos: linkit[0] || '', numero: nro ? nro[1] : '', julkaistu: v ? v[1] : '', sivusto: ZZ_NIMI, lahde: osoite, maar, otsikkoMerkit };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6611,7 +6699,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
