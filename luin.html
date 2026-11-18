@@ -701,13 +701,14 @@
   body.mobiili:not(.palkit-auki) .ylapalkki { display: none; }
   /* --reuna: marginaali (asetus), asettele() asettaa; reunushuomioiden kanssa aina 16 px. */
   #sivu { position: relative; padding: calc(var(--yv) + 30px) var(--reuna, 16px) calc(var(--ala) + 56px); }
-  .wrap { position: relative; font-size: var(--koko); max-width: 33em; margin: 0 auto; }
-  body.reunat .wrap { max-width: calc(33em + 2.2em + 13em); }
+  /* --mitta: rivin enimmäismitta em:inä (mitta(), asettele() asettaa): 33, Mikro-marginaalilla 40. */
+  .wrap { position: relative; font-size: var(--koko); max-width: calc(var(--mitta, 33) * 1em); margin: 0 auto; }
+  body.reunat .wrap { max-width: calc(var(--mitta, 33) * 1em + 2.2em + 13em); }
 
   /* overflow-wrap: sana, joka ei mahdu edes yksin riville (verkko-osoite, DOI, pitkä tunnus), katkeaa eikä levitä sivua
      sivusuunnassa (29.10.2026: SEP:n Dewey-leike oli vierityksessä 360 px:n puhelimella 690 px leveä). */
   #teksti { --hl: calc(var(--koko) * 13); --hv: calc(var(--koko) * 2.2);
-    font-family: var(--antiikva); font-size: var(--koko); line-height: 1.62; max-width: 33em;
+    font-family: var(--antiikva); font-size: var(--koko); line-height: 1.62; max-width: calc(var(--mitta, 33) * 1em);
     font-kerning: normal; font-variant-ligatures: common-ligatures; text-rendering: optimizeLegibility;
     hyphens: manual; -webkit-hyphens: manual; overflow-wrap: break-word; }
   #teksti.tavu-ei { hyphens: none; -webkit-hyphens: none; }
@@ -1542,8 +1543,8 @@
     <button class="askel" type="button" data-askel="-1" aria-label="Pienempi">−</button><span class="arvo" id="koko-arvo"></span><button class="askel" type="button" data-askel="1" aria-label="Suurempi">+</button></div></div>
   <div class="asetus" data-a="kappale"><span class="nimi">Kappalejako</span><div class="valinnat" data-v="vali:Väli|sisennys:Sisennys"></div></div>
   <div class="asetus" data-a="tasaus"><span class="nimi">Reunat</span><div class="valinnat" data-v="liehu:Liehu|tasattu:Tasattu"></div></div>
-  <!-- Marginaali (käyttäjän pyyntö 22.10.2026; latinaksi ilman lukumerkkejä 6.11.2026, isoin alkukirjaimin 7.11.2026): yksi arvo molemmille sivuille. Näkyy vain, kun ruutu on
-       niin kapea, että marginaali vaikuttaa (piirraAsetukset); leveällä tekstin mitta 33 em ratkaisee. -->
+  <!-- Marginaali (käyttäjän pyyntö 22.10.2026; latinaksi ilman lukumerkkejä 6.11.2026, isoin alkukirjaimin 7.11.2026): yksi arvo molemmille sivuille.
+       Näkyy aina (18.11.2026): kapealla ruudulla vaikuttaa marginaali, leveällä Mikron pidempi rivi (mitta()). -->
   <div class="asetus" data-a="marginaali" id="marg-rivi"><span class="nimi">Marginaali</span><div class="valinnat" data-v="kapea:Mikro|meso:Meso|reilu:Makro"></div></div>
   <div class="asetus" data-a="tavutus"><span class="nimi">Tavutus</span><div class="valinnat" data-v="ei:Ei|varovainen:Maltillinen|tihea:Innokas"></div></div>
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
@@ -1857,7 +1858,12 @@
   // (noin 60 % entisen Reilun 36 ja Syvimmän 90 välillä) (käyttäjän pyyntö: kattaus ei ollut mitenkään syvä); ne vaikuttavat vasta
   // leveällä ruudulla, ja kapealla puhelimella tasattu teksti harvenee, mikä on valitsijan oma päätös.
   var MARG = { kapea: 0, meso: 32, reilu: 60 };
-  var MARG_SYVIN = 60;
+  /* Rivin enimmäismitta em:inä (käyttäjän havainto Note Airilla 18.11.2026). Leveällä ruudulla 33 em:n mitta ratkaisi eikä
+     marginaali vaikuttanut: 14 px:n kirjasimella palsta jäi 462 px:iin, ja marginaalit olivat 108 px eli Makroa leveämmät
+     kaikilla valinnoilla. Mikro on siksi myös pidempi rivi: 40 em (noin 92 merkkiä, 33 em:llä 76), jolla Note Airin
+     14 px:n marginaali on Makron luokkaa (59 px) ja 16 px:llä ruutu täyttyy Mikron marginaaliin. Meso ja Makro ennallaan. */
+  var MITTA = { kapea: 40 };
+  function mitta() { return MITTA[aset.marginaali] || 33; }
   var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
   // Android-kääre (android/luin/) antaa sillan nimellä LuinApp; siellä laitteen napit kääntävät sivua aina.
   var NAPIT_AINA = !!window.LuinApp;
@@ -3469,11 +3475,11 @@
      marginaaleihin ei mahdu, kolmannekset kuten ennen. */
   var LAATIKKO_MIN = 16, LAATIKKO_KAISTA = .3125;   // rem
   function remPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
-  // Vieritys reunushuomioineen (body.reunat): palsta (33 em) ja huomiot (2,2 + 13 em) ovat .wrapissa, joka on keskitetty.
+  // Vieritys reunushuomioineen (body.reunat): palsta (mi em, ks. asettele()) ja huomiot (2,2 + 13 em) ovat .wrapissa, joka on keskitetty.
   // Palsta siirretään keskelle ruutua, kuitenkin niin, että huomioiden oikealle puolelle jää #sivun 16 px:n reuna. Siirto
   // tehdään vain, jos laatikot mahtuvat silloin marginaaleihin (muuten kolmannekset peittävät palstan joka tapauksessa).
-  function palstanSiirto(vw, em) {
-    var rem = remPx(), k = LAATIKKO_KAISTA * rem, min = LAATIKKO_MIN * rem - .5, cw = 33 * em, w = (33 + 2.2 + 13) * em, L0 = (vw - w) / 2;
+  function palstanSiirto(vw, em, mi) {
+    var rem = remPx(), k = LAATIKKO_KAISTA * rem, min = LAATIKKO_MIN * rem - .5, cw = mi * em, w = (mi + 2.2 + 13) * em, L0 = (vw - w) / 2;
     var L = Math.max(L0, Math.min((vw - cw) / 2, vw - w - 16));
     return L - k >= min && vw - L - cw - k >= min ? Math.round(L - L0) : 0;
   }
@@ -3666,8 +3672,6 @@
       }).join('');
     });
     $('#koko-arvo').textContent = aset.koko + ' px';
-    // Leveimmälläkin marginaalilla vaikutusta vain, jos teksti ei mahdu mittaansa (33 em).
-    $('#marg-rivi').hidden = innerWidth >= 33 * aset.koko + 2 * MARG_SYVIN;
     piirraVienti();
     paivitaPapyrus();
     sijoitaNipukka();
@@ -4239,15 +4243,19 @@
       aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
     document.body.classList.toggle('sivutus', sivut);
     document.documentElement.classList.toggle('palkkivara', sivut && mob);
+    // Reunushuomiot ratkaistaan 33 em:n mitalla, ja Mikron pidempi rivi saa niiden kanssa vain sen, mikä huomioilta jää:
+    // muuten Mikro olisi vienyt huomiot esim. 900 px:n ikkunassa 16 px:llä (mitattu 18.11.2026).
     var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
+    var mi = reunat ? Math.max(33, Math.min(mitta(), Math.floor(((innerWidth - 48) / koko - 15.2) * 100) / 100)) : mitta();
+    document.documentElement.style.setProperty('--mitta', mi);
     document.body.classList.toggle('reunat', reunat);
     document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
     // Reunushuomioiden kanssa palsta siirtyy oikealle, jos vasempaan marginaaliin ei muuten mahtuisi Merkinnät (palstanSiirto()).
-    art.parentNode.style.left = reunat ? palstanSiirto(sivuEl.clientWidth, koko) + 'px' : '';
+    art.parentNode.style.left = reunat ? palstanSiirto(sivuEl.clientWidth, koko, mi) + 'px' : '';
     if (sivut) {
       art.style.transform = 'none';
       var vw = sivuEl.clientWidth, mr = Math.max(vw < 480 ? 16 : 20, marginaali());
-      var W = vw < 480 ? vw - 2 * mr : Math.min(vw - 2 * mr, Math.round(33 * koko));
+      var W = vw < 480 ? vw - 2 * mr : Math.min(vw - 2 * mr, Math.round(mi * koko));
       var G = vw - W;
       tila.W = W; tila.stride = W + G;
       art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
