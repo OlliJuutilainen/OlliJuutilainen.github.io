@@ -25,6 +25,7 @@ Kriteerit:
 - SPIP tehty 18.11., PR #870 (Vacarme, La Vie des idées, Books & Ideas, LMSI, remue.net).
 - Political Concepts tehty 18.11., PR #871.
 - Project Vox tehty 18.11., PR #872 (käännökset ovat HTML:nä ja menevät samalla sovitteella).
+- Embryo Project tehty 18.11., PR #873 (yleinen leikkaus lähes riitti; sovite tekijöille, lähteille ja päivälle).
 
 ## Miten mitattu
 
