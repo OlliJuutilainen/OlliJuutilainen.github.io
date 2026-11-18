@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies ja Zeithistorische Forschungen (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen ja BOMB (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5326,6 +5326,40 @@
       naytto: 'Zeithistorische Forschungen' };
   }
 
+  /* BOMB Magazine (bombmagazine.org; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 16: taiteilijat ja kirjailijat
+     haastattelevat toisiaan, myös proosaa). Craft CMS ja Tailwind: otsake .article-heading-section (lajin linkki, h1.title-heading,
+     h2 ingressi, h6 päiväys, by <a href="/author/…">), teksti .articleContent .inner-article-template -lohkoina, haastattelussa puhuja
+     span.initials > strong (nimen perässä välilyönti strongin sisällä, joten Turndown liimasi nimen vastaukseen: **Sasha Vasilyuk**I
+     think), kuvat .article-image kuvateksteineen, tukipyyntö .supportBlock, tunnisteet, uutiskirjelomake, mainospaikat
+     (broadstreet-zone) ja READ MORE -suositukset. Readability: otsikossa BOMB Magazine |, puhujanimet kiinni vastauksissa, READ MORE
+     -otsikko, ei tekijää eikä päivää. Sovite: tekstilohkot ilman kuvia, tukipyyntöä ja lomakkeita, puhujanimi lihavoituna ja
+     välilyönnillä erotettuna, ingressi alaotsikoksi, tekijät otsakkeen /author/-linkeistä (haastattelussa otsikon by-osa: X by Y →
+     Y, kuten BOMBin viitteissä), päiväys. Mainokset (Broadstreet) ja
+     lahjoitusmahdollisuus (Donate) näkyvät sivulla (RAHOITUS: mainokset ja lahjoitukset). Mitattu 18.11.2026. */
+  async function bomb() {
+    if (!/(^|\.)bombmagazine\.org$/i.test(location.hostname)) return null;
+    const lohkot = [...document.querySelectorAll('.articleContent .inner-article-template')];
+    const h1 = document.querySelector('h1.title-heading');
+    if (!lohkot.length || !h1) return null;
+    const el = document.createElement('div');
+    lohkot.forEach(l => el.append(...[...l.cloneNode(true).childNodes]));
+    el.querySelectorAll('script, style, img, figure, .article-image, .caption, .supportBlock, form, broadstreet-zone, iframe, button').forEach(x => x.remove());
+    el.querySelectorAll('span.initials').forEach(s => { const b = document.createElement('strong'); b.textContent = rivi(s.textContent); s.replaceWith(b, ' '); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, br')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*bombmagazine\.org\//i);
+    if (kkSanoja(el) < 100) return null;
+    const otsake = h1.closest('.article-heading-section') || h1.parentElement;
+    let tekijat = [...new Set([...otsake.querySelectorAll('a[href*="/author/"]')].map(a => rivi(a.textContent)).filter(Boolean))];
+    // Haastattelu (Sasha Vasilyuk by Alia Volz): kirjoittaja on by-osan haastattelija, kuten BOMBin omissa viitteissä.
+    const by = /^.+?\s+by\s+(.+)$/.exec(rivi(h1.textContent));
+    if (!tekijat.length && by) tekijat = [by[1]];
+    const pm = /(\p{L}+)\s+(\d{1,2}),\s*(\d{4})/u.exec(rivi((otsake.querySelector('h6') || {}).textContent));
+    const kk = pm ? EN_KUUKAUDET.indexOf(pm[1].toLowerCase()) : -1;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), alaotsikko: rivi((otsake.querySelector('h2') || {}).textContent),
+      tekija: kkLuettelo(tekijat), julkaistu: kk >= 0 ? pm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pm[2].padStart(2, '0') : '',
+      sivusto: 'BOMB Magazine', lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6977,6 +7011,7 @@
     gwern: { laji: 'lahjoitukset', osoite: 'https://www.patreon.com/gwern' },
     larb: { laji: 'lahjoitukset', osoite: 'https://lareviewofbooks.org/donate/' },
     cdli: { laji: 'lahjoitukset', osoite: 'https://opencollective.com/cdli/donate' },
+    bomb: { laji: 'mainokset ja lahjoitukset', osoite: 'https://bombmagazine.org/donate' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -6995,7 +7030,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
