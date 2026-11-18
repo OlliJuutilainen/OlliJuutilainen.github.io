@@ -1653,7 +1653,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/md.js?v=7ca35178"></script>
+<script src="luin/md.js?v=8b0ac8e4"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -3907,7 +3907,10 @@
   function janaTasotNyt() {
     var toc = nyt && tila.nakyma !== 'lista' ? nyt.doc.toc : [], on = null;
     if (toc.length) { on = {}; toc.forEach(function (t) { on[Math.min(t.lvl, 3)] = 1; }); }
-    if (on && nyt && nyt.kohdat && nyt.kohdat.length) on[3] = 1;
+    if (on && nyt && nyt.kohdat && nyt.kohdat.length) {
+      on[3] = 1;
+      if (nyt.kohdat.some(function (y) { return y.lvl === 2; })) on[2] = 1;
+    }
     return { on: on, raja: tocRaja(aset.janaTaso, toc), siirto: tasoSiirto(toc) };
   }
   function piirraTeksti() {
@@ -3951,7 +3954,10 @@
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
       ykKaytetyt.push(sup);
-      nyt.kohdat.push({ k: { b: y.b, o: lohkoon(el, tn, 0) }, nimi: y.s });
+      var kk = { b: y.b, o: lohkoon(el, tn, 0) };
+      // Osio (Stephanus-sivu) samaan paikkaan kuin sen ensimmäinen kohta.
+      if (y.osio) nyt.kohdat.push({ k: kk, nimi: y.osio, lvl: 2 });
+      nyt.kohdat.push({ k: kk, nimi: y.s, lvl: 3 });
     });
     // Merkintöjen kohdat tarkistetaan (tekstistä on voinut tulla uusi versio).
     var muuttui = false;
@@ -7008,7 +7014,7 @@
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
     var jr = tocRaja(aset.janaTaso, nyt.doc.toc);
     nyt.doc.toc.forEach(function (t) { if (t.lvl <= jr) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
-    if (jr >= 3) (nyt.kohdat || []).forEach(function (y) { a.push({ k: y.k, nimi: y.nimi, lvl: 3 }); });
+    (nyt.kohdat || []).forEach(function (y) { if (jr >= y.lvl) a.push({ k: y.k, nimi: y.nimi, lvl: y.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }

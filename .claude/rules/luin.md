@@ -245,7 +245,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
   yläindeksinumeroista aikajanan kohtia ja vedon pysäkkejä (`res.kohdat`, `nyt.kohdat`), **ei otsikoita eikä `toc`-rivejä**:
-  `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta, ei välitasoa.
+  `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen
+  kohdan numero-osa on osio (Valtio: Stephanus-sivu 327, kohta 327a; käyttäjän kokeilu 18.11.2026). Ciceron luvut (caput) eivät
+  ole tasoa: viitenumeron tasot luetaan teoksen `refsDecl`istä.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. Sähköpaperi: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.

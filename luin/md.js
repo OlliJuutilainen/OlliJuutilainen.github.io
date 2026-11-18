@@ -30,6 +30,7 @@
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
   Kohdat yläindekseinä (käyttäjän pyyntö 18.11.2026, Perseuksen kirja ja pykälä): etukentän kohdat: yläindeksit tekee
   leipätekstin yläindeksinumeroista (^1.11^, ^327a^) aikajanan kohtia (res.kohdat), ei otsikoita: teksti ei muutu.
+  Kirjaimellisen kohdan numero-osa on osio (Stephanus-sivu 327 kohdista 327a–e; käyttäjän kokeilu 18.11.2026).
 */
 (function (root) {
   'use strict';
@@ -2313,7 +2314,11 @@
           if (km) kohtaEhd.push({ b: b, s: km[1] ? '§ ' + km[1] : km[2], n: km[1] || km[2], pyk: !!km[1], piste: !!km[2] && km[2].indexOf('.') > 0 });
           if (ylaKohdat && !inQuote && !inBib) {
             var yk, ykRe = /(^|[^\\^])\^(\d{1,4}(?:\.\d{1,4}){0,2}[a-e]?)\^/g;
-            while ((yk = ykRe.exec(t.text))) res.kohdat.push({ b: b, s: yk[2] });
+            while ((yk = ykRe.exec(t.text))) {
+              // Osio alkaa, kun kirjaimellisen kohdan numero-osa vaihtuu (327a → osio 327; Stephanus-sivu).
+              var ykOs = /^(\d+)[a-e]$/.exec(yk[2]), ykEd = res.kohdat[res.kohdat.length - 1];
+              res.kohdat.push(ykOs && (!ykEd || ykEd.n !== ykOs[1]) ? { b: b, s: yk[2], n: ykOs[1], osio: ykOs[1] } : { b: b, s: yk[2], n: ykOs ? ykOs[1] : '' });
+            }
           }
           h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).

@@ -5929,7 +5929,10 @@
         edKohta = k; lukuVaihtui = false;
       }
     }
-    const lukuPois = juoksee && !nollautuu;
+    // Ensisijaisesti teoksen oma viittausjärjestelmä (refsDecl: state unit=book/chapter/section; de Finibus book, section;
+    // Valtio book, page, section): luku pois, jos sitä ei ole siinä. Ilman refsDecliä päättely kohtien juoksusta.
+    const tilat = [...X.getElementsByTagName('state')].map(e => (e.getAttribute('unit') || '').toLowerCase().replace(/[^a-z]/g, '')); // Thukydides: chapter*
+    const lukuPois = tilat.length ? !tilat.includes('chapter') : juoksee && !nollautuu;
     const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, lukuPois ? '' : tila.luku, n].filter(Boolean).join('.');
     // Sisäinen muunnos: TEI-solmu → HTML-solmut (inline).
     function inline(n, gr) {
