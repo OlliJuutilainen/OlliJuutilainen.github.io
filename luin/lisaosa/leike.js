@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press ja SPIP (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP ja Political Concepts (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4654,6 +4654,97 @@
       julkaistu: (/^\d{4}-\d\d-\d\d/.exec(aika) || [''])[0], sivusto, lahde: osoite, maar };
   }
 
+  /* Political Concepts: A Critical Lexicon (politicalconcepts.org; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 5).
+     WordPress taulukkoasettelulla: artikkeli td.entry-content-right, otsikko h1.entry-title (Käsite: Tekijä). Alussa kuva, sen
+     kuvateksti ja otsikko isolla keskitettyinä kappaleina; väliotsikot lihavoituja kappaleita (1. Introduction); viitteet Wordista
+     liitettyinä: merkki a[href="#fnN"] > sup tekstissä, ja keskitetyn tähden ja viivan (hr.wp-block-separator) jälkeen kappaleet,
+     joiden sup alkaa numerolla (1. …) ja joissa on paluulinkki ↩. Viitteiden id:t eivät ole luotettavia (Consciousness-Raising:
+     fn32 toistuu 32 kertaa, merkeissä fn29 kahdesti), joten merkki yhdistetään viitteeseen sen numerotekstin mukaan. Readability
+     jätti viitteet raa'aksi HTML:ksi (110–260 jäännettä, 24–63 md.js-varoitusta), otti kuvatekstin ja otsikon kahdesti eikä
+     tekijää ja päivää tullut. Otsikko käsitteeksi ja tekijä otsikon loppuosasta, päivä kommentoidusta entry-metasta (January 31,
+     2026), alun keskitetyt kappaleet ja sisällysluettelo (#-linkit) pois, lihavoidut numeroidut väliotsikot (1. Introduction)
+     otsikoiksi, keskitetty tähti osanvaihdoksi, Published on -rivi, Wordin tyhjät ankkurit (_ftn) ja h5-väliköt pois.
+     Ei mainoksia eikä lahjoituspyyntöä. Mitattu 18.11.2026. */
+  const PC_NIMI = 'Political Concepts: A Critical Lexicon';
+  async function politicalconcepts() {
+    if (!/(^|\.)politicalconcepts\.org$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('td.entry-content-right'), h1 = document.querySelector('h1.entry-title');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, img, h5, a[name^="_ftn"]:not([href]), a[href^="#_ftnref"]:empty').forEach(x => x.remove());
+    // Viitteet: viimeisen viivan jälkeiset numerolla alkavat kappaleet (jatkokappaleineen).
+    const viivat = [...el.querySelectorAll('hr')];
+    const viiva = viivat.reverse().find(h => [...el.querySelectorAll('p')].some(p => (h.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING) && /^\d+\.\s/.test(rivi(p.textContent))));
+    const viitteet = new Map(), maar = [];
+    if (viiva) {
+      let nyt = null;
+      for (let n = viiva.nextElementSibling; n; n = n.nextElementSibling) {
+        const m = /^(\d+)\.\s/.exec(rivi(n.textContent));
+        if (m && !viitteet.has(m[1])) { nyt = [n]; viitteet.set(m[1], nyt); } else if (nyt && rivi(n.textContent)) nyt.push(n);
+      }
+    }
+    const tunnukset = new Map();
+    el.querySelectorAll('a[href^="#"]').forEach(a => {
+      const n = rivi(a.textContent);
+      if (!/^\d+$/.test(n) || !viitteet.has(n) || !viiva || !(a.compareDocumentPosition(viiva) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+      if (!tunnukset.has(n)) {
+        const d = document.createElement('div');
+        viitteet.get(n).forEach(x => d.appendChild(x.cloneNode(true)));
+        d.querySelectorAll('a[href^="#"]').forEach(x => /^[↩↑]︎?$/.test(rivi(x.textContent)) ? x.remove() : x.replaceWith(...x.childNodes));
+        d.querySelectorAll('sup').forEach(x => x.replaceWith(...x.childNodes));
+        d.querySelectorAll('[style], [class], [id]').forEach(x => { x.removeAttribute('style'); x.removeAttribute('class'); x.removeAttribute('id'); });
+        const t = muunna(d.innerHTML, 'inlined').trim().replace(/^\d+\\?\.\s+/, '');
+        tunnukset.set(n, t ? 'pc' + n : '');
+        if (t) maar.push(maaritelma('pc' + n, t));
+      }
+      const tun = tunnukset.get(n);
+      if (!tun) return;
+      const kohta = a.parentElement.tagName === 'SUP' && rivi(a.parentElement.textContent) === n ? a.parentElement : a;
+      kohta.replaceWith(merkki(tun));
+    });
+    if (viiva) {
+      // Viiva, sen edellä oleva tähti ja viitteet pois.
+      for (let n = viiva.nextElementSibling; n;) { const s = n.nextElementSibling; n.remove(); n = s; }
+      const ed = viiva.previousElementSibling;
+      if (ed && /^\*$/.test(rivi(ed.textContent))) ed.remove();
+      viiva.remove();
+    }
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.querySelectorAll('span').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, br')) x.remove(); });
+    // Alun kuvateksti ja iso otsikko (keskitetyt kappaleet ennen tekstiä).
+    const keskitetty = [...runko.querySelectorAll('p[style*="center"]')].map(p => rivi(p.textContent)).filter(Boolean);
+    for (let p = el.firstElementChild; p && p.tagName === 'P' && keskitetty.includes(rivi(p.textContent)); p = el.firstElementChild) p.remove();
+    // Alun sisällysluettelo (Spontaneity: lihavoidut linkit #introduction …) pois.
+    el.querySelectorAll('p').forEach(p => {
+      const a = p.querySelectorAll('a[href^="#"]');
+      if (a.length && rivi(p.textContent) === [...a].map(x => rivi(x.textContent)).join(' ').trim() && !p.textContent.includes('XLUINVIITE')) p.remove();
+    });
+    // Kokonaan lihavoitu numeroitu kappale (1. Introduction) väliotsikoksi; tähti (*) osanvaihdoksi.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent), b = [...p.querySelectorAll('b, strong')].reduce((n, x) => n + rivi(x.textContent).length, 0);
+      if (/^[*⁂]+$/.test(t)) return p.replaceWith(document.createElement('hr'));
+      if (!t || t.length > 120 || b < t.length - 1 || !/^([IVX]+|\d+)\.\s+\p{L}/u.test(t)) return;
+      const h = document.createElement('h2'); h.textContent = t; p.replaceWith(h);
+    });
+    // Lopun Published on -rivi (päivä on etukentässä).
+    el.querySelectorAll('p').forEach(p => { if (/^published on\s/i.test(rivi(p.textContent)) && rivi(p.textContent).length < 60) p.remove(); });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*politicalconcepts\.org\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const ots = rivi(h1.textContent), jako = ots.lastIndexOf(': ');
+    let pvm = '';
+    const w = document.createTreeWalker(document.querySelector('.post_title') || document.body, NodeFilter.SHOW_COMMENT);
+    for (let c; (c = w.nextNode());) {
+      const m = /entry-date">\s*(\p{L}+)\s+(\d{1,2}),\s*(\d{4})/u.exec(c.data);
+      const kk = m ? EN_KUUKAUDET.indexOf(m[1].toLowerCase()) : -1;
+      if (kk >= 0) { pvm = m[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + m[2].padStart(2, '0'); break; }
+    }
+    return { html: irrota([el]).innerHTML, otsikko: rivi(jako > 0 ? ots.slice(0, jako) : ots), tekija: jako > 0 ? rivi(ots.slice(jako + 2)) : '',
+      julkaistu: pvm, sivusto: PC_NIMI, lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6322,7 +6413,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
