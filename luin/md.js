@@ -28,6 +28,8 @@
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
+  Kohdat yläindekseinä (käyttäjän pyyntö 18.11.2026, Perseuksen kirja ja pykälä): etukentän kohdat: yläindeksit tekee
+  leipätekstin yläindeksinumeroista (^1.11^, ^327a^) aikajanan kohtia (res.kohdat), ei otsikoita: teksti ei muutu.
 */
 (function (root) {
   'use strict';
@@ -2000,7 +2002,7 @@
   */
   function parse(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
-    var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], notes: 0, blocks: 0, html: '', warnings: [], lahteet: [],
+    var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], kohdat: [], notes: 0, blocks: 0, html: '', warnings: [], lahteet: [],
       viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [], kehys: '' };
     var ek = etukentta(src);
     res.meta = ek.meta; res.raaka = ek.raaka;
@@ -2042,6 +2044,7 @@
     // Lomitettu käännös: lainaus on edellä olevan alkutekstin käännös (ei lähderiviä, ei mottoa).
     var lomitettu = /^lomitettu käännös$/i.test(String(m.ladonta || '').replace(/\s+/g, ' ').trim());
     if (lomitettu) res.lomitettu = true;
+    var ylaKohdat = /^yläindeksit$/i.test(String(m.kohdat || '').trim());
     var maaritelmat = [];
     [V.fn, V.cite].forEach(function (o) { Object.keys(o).forEach(function (k) { maaritelmat.push(o[k].text); }); });
     vt = viittaukset(tokens, uniq, maaritelmat);
@@ -2308,6 +2311,10 @@
           // Pykälä tai pisteellinen numero kappaleen alussa (§ 12. …, Tractatus 6.54 …) on kohtamerkki: paikannin kappaleen tarkkuudella.
           var km = !inQuote && !inBib && /^(?:§§?\s*(\d{1,4}[a-z]?)|(\d{1,3}(?:\.\d{1,3})*))(?=[.\s])/.exec(plain(t.text.slice(0, 40)).trim());
           if (km) kohtaEhd.push({ b: b, s: km[1] ? '§ ' + km[1] : km[2], n: km[1] || km[2], pyk: !!km[1], piste: !!km[2] && km[2].indexOf('.') > 0 });
+          if (ylaKohdat && !inQuote && !inBib) {
+            var yk, ykRe = /(^|[^\\^])\^(\d{1,4}(?:\.\d{1,4}){0,2}[a-e]?)\^/g;
+            while ((yk = ykRe.exec(t.text))) res.kohdat.push({ b: b, s: yk[2] });
+          }
           h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');

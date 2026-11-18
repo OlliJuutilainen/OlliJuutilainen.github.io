@@ -5916,7 +5916,21 @@
     const el = document.createElement('div');
     let laskuri = 0, kpl = null;
     const tila = { kirja: osa && /^book$/i.test(osa.getAttribute('type') || '') ? osa.getAttribute('n') : '', luku: '' };
-    const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, tila.luku, n].filter(Boolean).join('.');
+    // Kirja ja kohta ilman lukua, kun kohdat juoksevat kirjan läpi lukujen yli (de Finibus 1.11, ei 1.4.11; käyttäjän linjaus
+    // 18.11.2026: book on luku ja section kohta, ei välitasoa). Lukujen alusta alkavat kohdat (Caesar 1.1.1, 1.2.1) pitävät luvun.
+    let edKohta = null, lukuVaihtui = false, juoksee = false, nollautuu = false;
+    for (const e of [juuri, ...juuri.getElementsByTagName('*')]) {
+      const ty = (e.getAttribute('type') || e.getAttribute('unit') || '').toLowerCase();
+      if (/^div\d?$/.test(e.tagName) && ty === 'book') { edKohta = null; lukuVaihtui = false; }
+      else if ((/^div\d?$/.test(e.tagName) || e.tagName === 'milestone') && ty === 'chapter') lukuVaihtui = true;
+      else if (e.tagName === 'milestone' && ty === 'section' && /^\d+$/.test(e.getAttribute('n') || '')) {
+        const k = +e.getAttribute('n');
+        if (edKohta !== null && lukuVaihtui) { if (k > edKohta) juoksee = true; else nollautuu = true; }
+        edKohta = k; lukuVaihtui = false;
+      }
+    }
+    const lukuPois = juoksee && !nollautuu;
+    const viite = (n) => /[a-z]/i.test(n) && !/^\d+$/.test(n) ? n : [tila.kirja, lukuPois ? '' : tila.luku, n].filter(Boolean).join('.');
     // Sisäinen muunnos: TEI-solmu → HTML-solmut (inline).
     function inline(n, gr) {
       if (n.nodeType === 3) {
@@ -6159,11 +6173,14 @@
     const km = /^(.*?),?\s+translated by\s+(.+)$/i.exec(lt);
     const kaantaja = km ? km[2] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
     const vuosi = (/(1[5-9]\d\d|20\d\d)/.exec(ek(sd, 'date')) || [])[1] || '';
+    const kohtia = el.querySelectorAll('sup[data-ps]').length;
     el.querySelectorAll('sup[data-ps]').forEach(x => x.removeAttribute('data-ps'));
     // Lomitetussa leikkeessä kääntäjä on käännöksen; muut tiedot (laitos, kustantaja, vuosi) alkutekstin.
     const kaa = lomitus ? lomitus.kaantaja : kaantaja;
     return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + ', ' + osaNimi : nimi, tekija: ek(ts, 'author'),
       ladonta: lomitus ? 'lomitettu käännös' : '',
+      // Viitenumerot (section, card) ovat lukimen aikajanan kohtia (md.js: kohdat: yläindeksit).
+      kohdat: kohtia ? 'yläindeksit' : '',
       suomentaja: kaa ? kkKaantaja(kkNimet(kaa)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
       sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaNimi ? ':' + avaimet.find(([k, v]) => osaNimi.toLowerCase() === (k + ' ' + v).toLowerCase()).join('=') : '')),
       maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : lomitusSyy ? ' (vain alkuteksti: ' + lomitusSyy + ')' : '') };
@@ -7162,6 +7179,7 @@
   kentta('kustantaja', blogi && blogi.kustantaja);
   kentta('doi', blogi && blogi.doi);
   kentta('ladonta', blogi && blogi.ladonta);
+  kentta('kohdat', blogi && blogi.kohdat);
   kentta('lähde', blogi && blogi.lahde || osoite);
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
