@@ -24,6 +24,7 @@ Kriteerit:
 - Ubiquity Press tehty 18.11., PR #869 (IRSP, Utrecht Law Review, JOPD, Journal of Cognition).
 - SPIP tehty 18.11., PR #870 (Vacarme, La Vie des idées, Books & Ideas, LMSI, remue.net).
 - Political Concepts tehty 18.11., PR #871.
+- Project Vox tehty 18.11., PR #872 (käännökset ovat HTML:nä ja menevät samalla sovitteella).
 
 ## Miten mitattu
 

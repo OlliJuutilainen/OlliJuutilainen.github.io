@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP ja Political Concepts (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts ja Project Vox (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4745,6 +4745,45 @@
       julkaistu: pvm, sivusto: PC_NIMI, lahde: osoite, maar };
   }
 
+  /* Project Vox (projectvox.org, Duke; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 6: varhaismodernit naisfilosofit,
+     yksi pitkä sivu filosofia kohti, myös käännökset kuten Shepherd en français omina HTML-sivuinaan). WordPress (Sydney-teema),
+     tunnistus rakenteesta: sisällysluettelo #page_menu, jonka linkeissä on data-vox-section (1., 1.1 …), ja .entry-content.
+     Osiot ovat h3-otsikoita (1. Biography, 1.1 Portraits … 3.3 Annotated Bibliography, 4. Philosophy Guide …), joiden teksti
+     on Wordin span- ja b-kääreissä; aikajanat Wordin taulukoita (DATE, EVENT); kuvat figure.wp-caption kuvateksteineen tekstin
+     lomassa; alussa viittaus- ja tekijätietolaatikko (taulukko, linkki Citation & Credits -sivulle). Readability jätti aikajanat
+     raa'aksi HTML:ksi (Tullia d'Aragona 436 jäännettä, Shepherd 462), kuvatekstit tekstin väliin ja sisällysluettelon otsikot
+     numerovaroituksin. Sisällysluettelo, kuvat kuvateksteineen ja tietolaatikko pois, taulukot ruudukoiksi (ojsTaulukko),
+     otsikot pelkäksi tekstiksi ja tasoiksi numeroinnin mukaan (1. → luku, 1.1 → osio, numeroton → kohta). Tekijä DC.creatorista
+     (Project Vox Team; tekijät ovat Credits-sivulla). Cavendishin, Conwayn ja Shepherdin sivuilta puuttuu osio 1.1 (myös sivun
+     omasta sisällysluettelosta), joten md.js varoittaa numeroinnista; otsikoita ei numeroida uudelleen. Ei mainoksia eikä lahjoituspyyntöä (Duke). Mitattu 18.11.2026. */
+  const VOX_NIMI = 'Project Vox';
+  async function projectvox() {
+    const valikko = document.querySelector('#page_menu'), runko = document.querySelector('.entry-content');
+    if (!valikko || !runko || !valikko.querySelector('a[data-vox-section]')) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('#page_menu, figure, .wp-caption, .gallery, img, script, style, iframe, .so-widget-sow-image').forEach(x => x.remove());
+    el.querySelectorAll('table').forEach(t => { if (t.querySelector('a[href*="/credits"]') && kkSanoja(t) < 40) t.remove(); });
+    el.querySelectorAll('table').forEach(t => { const d = document.createElement('div'); t.replaceWith(d); d.appendChild(t); ojsTaulukko(t); });
+    el.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      const t = rivi(h.textContent);
+      if (!t) return h.remove();
+      const m = /^(\d+)(\.\d+)?\.?\s/.exec(t);
+      const u = document.createElement('h' + (m ? (m[2] ? 3 : 2) : 4));
+      u.textContent = t;
+      h.replaceWith(u);
+    });
+    el.querySelectorAll('[data-contrast], [data-ccp-props]').forEach(x => { x.removeAttribute('data-contrast'); x.removeAttribute('data-ccp-props'); });
+    el.querySelectorAll('span').forEach(x => x.replaceWith(...x.childNodes));
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('table, hr, br')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*projectvox\.org\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const meta = n => rivi((document.querySelector('meta[name="' + n + '"], meta[property="' + n + '"]') || {}).content);
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('h1.entry-title, h1') || {}).textContent) || rivi(document.title),
+      tekija: meta('DC.creator') || meta('author'), julkaistu: (meta('article:published_time') || '').slice(0, 10), sivusto: VOX_NIMI, lahde: osoite };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6413,7 +6452,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
