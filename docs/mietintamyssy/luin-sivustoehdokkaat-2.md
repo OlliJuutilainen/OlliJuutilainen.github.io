@@ -35,6 +35,7 @@ Kriteerit:
 - Center for Hellenic Studies (varakohde 14) tehty 18.11., PR #879: Classical Inquiries ja Classics@; CHS Online Books ovat esittelysivuja, ei tekstiä.
 - Zeithistorische Forschungen (varakohde 15) tehty 18.11., PR #880.
 - BOMB (varakohde 16) tehty 18.11., PR #881: mainokset (Broadstreet) ja lahjoitukset, rahoitushuomautus.
+- PsychOpen GOLD (varakohde 17): nykyinen OJS-sovite ei ottanut iframe-galleriaa (oma JATS-renderöinti); oma sovite tehty 18.11., PR #882.
 
 ## Miten mitattu
 

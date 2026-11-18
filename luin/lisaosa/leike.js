@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen ja BOMB (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5360,6 +5360,86 @@
       sivusto: 'BOMB Magazine', lahde: osoite };
   }
 
+  /* PsychOpen GOLD (ZPID; OJS 3.1; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 17: ottaako OJS-sovite
+     iframe-gallerian). Ei ota: galleria on OJS:n kehyksessä iframe#article-html-frame (src …/article/download/N/N.html?inline=1),
+     ja sen sisältö on PsychOpenin oma JATS-renderöinti (htmlgalley-v04: #HTMLgalley, #article-front, #article-body, #article-back),
+     joten ojs() päätyi tiivistelmäleikkeeseen (260 sanaa) ja gallerian sivulla Readability antoi 10 sanaa. Tämä sovite ajetaan ojs():n
+     edellä ja tunnistaa gallerian rakenteesta: suoraan (#HTMLgalley), gallerian sivulta iframen osoitteesta tai OJS-artikkelisivulta
+     citation_fulltext_html_url → iframe (kaksi hakua; muilla OJS-lehdillä ensimmäinen haku on sama, jonka ojs() tekee, ja välimuisti
+     jakaa sen). Tiivistelmät (.abstracts: Abstract, Highlights) ja avainsanat, osanvaihto, teksti (h3/h4.section-title otsikoiksi),
+     lähdeviittaukset a.reftooltip tekstiksi ilman APA-pilkkua, viitteet a.notetooltip → .footnote#fnN (samanSivunViitteet), kuvat
+     pois ja kuvateksti kursiiviksi, taulukot otsikkoineen ruudukoiksi, kirjallisuus ul.ref-list p.citation kappaleiksi. Etukenttään
+     gallerian tiedoista: tekijät (.contrib-group .authors), teos ja numero (Article information: Social Psychological Bulletin,
+     2026, Vol. 21, Article e12465), julkaistu (Published (VoR)), DOI, CC-lisenssi. Ei mainoksia eikä lahjoituspyyntöä.
+     Mitattu 18.11.2026. */
+  async function psychopen() {
+    const galleria = d => d && d.querySelector('#HTMLgalley #article-body') ? d : null;
+    let G = galleria(document);
+    if (!G) {
+      let kehys = document.querySelector('iframe#article-html-frame[src]');
+      if (!kehys) {
+        const u = (document.querySelector('meta[name="citation_fulltext_html_url"]') || {}).content;
+        if (!u || !/open journal systems/i.test((document.querySelector('meta[name="generator"]') || {}).content || '')) return null;
+        const V = await hae(new URL(u, osoite).href);
+        G = galleria(V);
+        kehys = !G && V && V.querySelector('iframe#article-html-frame[src]');
+      }
+      if (!G && kehys) G = galleria(await hae(new URL(kehys.getAttribute('src'), osoite).href));
+    }
+    if (!G) return null;
+    const el = document.createElement('div');
+    const etu = G.querySelector('#article-front');
+    G.querySelectorAll('#abstracts .abstract').forEach(a => {
+      const k = a.cloneNode(true);
+      const h = k.querySelector('h2'); if (h) { const u = document.createElement('h2'); u.textContent = rivi(h.textContent); h.replaceWith(u); }
+      el.append(...[...k.childNodes]);
+      const av = a.nextElementSibling;
+      if (av && av.tagName === 'P' && /^keywords?:/i.test(rivi(av.textContent))) el.appendChild(av.cloneNode(true));
+    });
+    if (el.children.length) el.appendChild(document.createElement('hr'));
+    const k = document.createElement('div');
+    k.append(G.querySelector('#article-body').cloneNode(true));
+    const taka = G.querySelector('#article-back');
+    if (taka) k.append(taka.cloneNode(true));
+    k.querySelectorAll('script, style, svg, img, .fancybox').forEach(x => x.remove());
+    k.querySelectorAll('a.reftooltip').forEach(a => a.replaceWith(rivi(a.textContent).replace(/(\p{L}[^,()]*?),\s+((?:1[5-9]|20)\d\d[a-z]?)\b/gu, '$1 $2')));
+    k.querySelectorAll('a[href^="#"]:not(.notetooltip)').forEach(a => { if (!/^fn/.test(a.getAttribute('href').slice(1))) a.replaceWith(...a.childNodes); });
+    const maar = samanSivunViitteet(k, 'po');
+    k.querySelectorAll('.back-section#notes').forEach(n => { if (!n.querySelector('.footnote')) n.remove(); });
+    // Kuvat: kuvateksti kursiiviksi.
+    k.querySelectorAll('.fig').forEach(f => {
+      const t = [rivi((f.querySelector('.label') || {}).textContent), rivi((f.querySelector('.caption') || {}).textContent)].filter(Boolean).join(' ');
+      if (!t) return f.remove();
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); f.replaceWith(p);
+    });
+    k.querySelectorAll('.table-wrap.panel, .table-wrap.body').forEach(w => {
+      if (!k.contains(w) || w.parentElement.closest('.table-wrap')) return;
+      const t = [rivi((w.querySelector('.label') || {}).textContent), rivi((w.querySelector('.caption') || {}).textContent)].filter(Boolean).join(' ');
+      const pala = document.createDocumentFragment();
+      if (t) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); pala.appendChild(p); }
+      w.querySelectorAll('table').forEach(tb => { const d = document.createElement('div'); d.appendChild(tb); pala.appendChild(d); ojsTaulukko(tb); });
+      w.querySelectorAll('.table-wrap-foot p, .fn p').forEach(p => pala.appendChild(p));
+      w.replaceWith(pala);
+    });
+    k.querySelectorAll('ul.ref-list').forEach(l => { l.querySelectorAll('p.citation').forEach(p => l.before(p)); l.remove(); });
+    k.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => { const t = rivi(h.textContent); if (!t) return h.remove(); const u = document.createElement(h.tagName); u.textContent = t; h.replaceWith(u); });
+    k.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.append(...[...k.childNodes]);
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*psychopen\.eu\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    // Tietolaatikon kappaleet välilyönnein (textContent liimaisi DOI:n seuraavaan kappaleeseen: …12465Received:).
+    const tiedot = [...G.querySelectorAll('#info-box p')].map(p => rivi(p.textContent)).join(' ');
+    const lehti = /^(.+?),\s*(\d{4}),\s*Vol\.\s*(\d+)(?:\([\d-]+\))?,\s*(?:Article\s+(\S+?),|([\d–-]+),)/i.exec(tiedot);
+    const pv = /Published \(VoR\):\s*(\d{4}-\d\d-\d\d)/.exec(tiedot), doi = /doi\.org\/(\S+?)(?:\s|$)/.exec(tiedot);
+    const tek = etu ? (() => { const a = etu.querySelector('.authors'); if (!a) return []; const c = a.cloneNode(true); c.querySelectorAll('sup, a[href*="orcid"], svg').forEach(x => x.remove()); return rivi(c.textContent).split(/\s*,\s*/).map(rivi).filter(Boolean); })() : [];
+    const cc = /creativecommons\.org\/licenses\/([a-z-]+)\/(\d\.\d)/i.exec(tiedot);
+    return { html: irrota([el]).innerHTML, otsikko: rivi((G.querySelector('h1.document-title') || {}).textContent), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(tek), teos: lehti ? lehti[1] : '', numero: lehti ? lehti[3] : '', sivut: lehti ? (lehti[4] || lehti[5] || '') : '',
+      julkaistu: pv ? pv[1] : lehti ? lehti[2] : '', doi: doi ? doi[1].replace(/[.,]$/, '') : '', lahde: osoite.replace(/\?inline=1$/, ''), maar,
+      oikeus: cc ? { teksti: 'CC ' + cc[1].toUpperCase() + ' ' + cc[2], lahde: 'https://' + cc[0] } : null, naytto: lehti ? lehti[1] : '' };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -7030,7 +7110,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
