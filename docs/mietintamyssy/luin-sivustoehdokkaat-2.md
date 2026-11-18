@@ -23,6 +23,7 @@ Kriteerit:
 - PubMed Central tehty 18.11., PR #868. NCBI Bookshelf testaamatta (reCAPTCHA heti), sovite ei kata sitä.
 - Ubiquity Press tehty 18.11., PR #869 (IRSP, Utrecht Law Review, JOPD, Journal of Cognition).
 - SPIP tehty 18.11., PR #870 (Vacarme, La Vie des idées, Books & Ideas, LMSI, remue.net).
+- Political Concepts tehty 18.11., PR #871.
 
 ## Miten mitattu
 
