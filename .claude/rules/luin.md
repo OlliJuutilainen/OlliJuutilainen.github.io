@@ -86,6 +86,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   EUR-Lex-sovite (18.11.2026, opas 7.5): TXT/HTML-sivun XHTML jäsentyy text/html-tyyppinä rikki (tyhjä `<a id>` jää auki ja kopioituu),
   joten kääreiden purku alussa on tarpeen. EUR-Lex haastaa toistuvat haut (AWS WAF, myös curl): pesukoneen välimuistin voi täyttää
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
+  PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta
