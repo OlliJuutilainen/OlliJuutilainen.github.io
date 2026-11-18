@@ -5964,18 +5964,21 @@
         if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) {
           tila.kirja = n.getAttribute('n') || '';
           // Koko teoksessa kirjalle väliotsikko, jos sillä ei ole omaa headia (Valtio kreikaksi ja englanniksi: div1 type=book
-          // ilman otsikkoa, joten kirjan vaihtuminen ei näkynyt; käyttäjän palaute 18.11.2026). Lomituksessa käännöksen
+          // ilman otsikkoa, joten kirjan vaihtuminen ei näkynyt eikä aikajanalla ollut yhtään salmiakkia; käyttäjän palaute
+          // 18.11.2026). Kirja on luku (h2, aikajanan iso salmiakki), kuten kirjan oma head (alla). Lomituksessa käännöksen
           // otsikot jäävät pois kuten ennenkin.
           const eka = [...n.childNodes].find(c => c.nodeType === 1);
           if (juuri === body && /^\d+$/.test(tila.kirja) && !(eka && eka.tagName === 'head')) {
-            const h = document.createElement('h3'); h.textContent = 'Book ' + tila.kirja; el.appendChild(h); kpl = null;
+            const h = document.createElement('h2'); h.textContent = 'Book ' + tila.kirja; el.appendChild(h); kpl = null;
           }
         }
         [...n.childNodes].forEach(c => lohko(c, g));
         kpl = null; return;
       }
       if (tag === 'head') {
-        const h = document.createElement('h3'); h.append(...[...n.childNodes].flatMap(c => inline(c, g)));
+        // Koko teoksessa kirjan oma otsikko (de Finibus: LIBER PRIMUS) on luku; muut otsikot ja osan leikkeet kuten ennen.
+        const p = n.parentNode, kirjanOts = juuri === body && p && p !== juuri && /^div\d?$/.test(p.tagName) && /^book$/i.test(p.getAttribute('type') || '');
+        const h = document.createElement(kirjanOts ? 'h2' : 'h3'); h.append(...[...n.childNodes].flatMap(c => inline(c, g)));
         if (rivi(h.textContent)) el.appendChild(h);
         kpl = null; return;
       }
@@ -6065,7 +6068,7 @@
   // Runko jaksoiksi viitenumeroiden (sup[data-ps]) kohdalta; kappale katkeaa kahtia, jos numero on sen keskellä.
   function psJaksot(el) {
     const jaksot = [{ n: '', solmut: [] }];
-    const lisaa = x => { if (x.tagName === 'H3' || rivi(x.textContent)) jaksot[jaksot.length - 1].solmut.push(x); };
+    const lisaa = x => { if (/^H[23]$/.test(x.tagName) || rivi(x.textContent)) jaksot[jaksot.length - 1].solmut.push(x); };
     [...el.children].forEach(lohko => {
       if (!lohko.querySelector('sup[data-ps]')) { lisaa(lohko); return; }
       let nyt = lohko.cloneNode(false);
@@ -6105,7 +6108,7 @@
       const i = j.n && paikka.has(j.n) ? paikka.get(j.n) : !j.n ? 0 : ed;
       ed = Math.max(ed, i);
       j.solmut.forEach(x => {
-        if (x.tagName === 'H3') return;
+        if (/^H[23]$/.test(x.tagName)) return;
         x.querySelectorAll('sup[data-ps]').forEach(s => s.remove());
         if (x.firstChild && x.firstChild.nodeType === 3) x.firstChild.nodeValue = x.firstChild.nodeValue.replace(/^\s+/, '');
         if (rivi(x.textContent)) kaannos[i].push(x);
@@ -6115,7 +6118,7 @@
     A.forEach((j, i) => {
       // Jakson lopun väliotsikot (seuraavan kirjan Book N) käännöksen jälkeen, muuten käännös jäisi otsikon alle.
       let k = j.solmut.length;
-      while (k > 0 && j.solmut[k - 1].tagName === 'H3') k--;
+      while (k > 0 && /^H[23]$/.test(j.solmut[k - 1].tagName)) k--;
       el.append(...j.solmut.slice(0, k));
       if (kaannos[i].length) {
         const bq = document.createElement('blockquote');
