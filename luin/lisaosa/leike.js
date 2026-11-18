@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts ja A Celebration of Women Writers (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers ja Center for Hellenic Studies (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5232,6 +5232,60 @@
       sivusto: 'A Celebration of Women Writers', lahde: osoite };
   }
 
+  /* Center for Hellenic Studies: Classical Inquiries ja Classics@ (classical-inquiries.chs.harvard.edu, classics-at.chs.harvard.edu;
+     käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* varakohde 14). CHS:n omat WordPress-teemat. Classical Inquiries:
+     section#main.articleContent, alussa rivi 2016.06.02 | By Gregory Nagy (sivun byline on käyttäjätunnus gnagy), §-kappaleet,
+     Wordin viitteet [<a href="#_ftn1">1</a>] → lopun Notes-kappaleet <a name="_ftn1">, lihavoitu Bibliography-kappale. Classics@:
+     .postContent (h1.articleH1, .articleByline, .postCitation, div.Paragraph), viitteet span.noteref [<a href="#n.3">3</a>] →
+     div.ftNote: span.noteref <a name="n.3"> [back], lihavoitu numero 3. Readability: Classical Inquiriesissa viitteet linkkeinä
+     (alaviitteitä 0) eikä kirjallisuutta tunnistettu (p.bib 0); Classics@ antoi tekstin ja kirjallisuuden, mutta viitteet
+     katosivat. Sovite: alun byline-rivi tekijäksi ja päiväksi, Notes-otsake pois, Bibliography-kappale otsikoksi, viitteet
+     alaviitteiksi (Classics@: back-linkki ja lihavoitu numero pois ensin), sitaattirivi (.postCitation) pois vuoden talteen ottaen,
+     kuvat ja jakolinkit pois. CHS Online Books (chs.harvard.edu/book/…) on kirjan esittelysivu, ei teksti; ei katettu. Ei mainoksia
+     eikä lahjoituspyyntöä artikkelisivuilla. Mitattu 18.11.2026. */
+  async function chs() {
+    if (!/(^|\.)chs\.harvard\.edu$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('.articleBody.postContent, section#main.articleContent');
+    const h1 = document.querySelector('h1.articleH1, .coverContent h1, article h1, h1');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, img, noscript, figure, .postHeadLinks, [data-html2canvas-ignore], .rp4wp-related-posts, .wp-caption').forEach(x => x.remove());
+    let tekija = '', julkaistu = '';
+    // Classical Inquiries: alun 2016.06.02 | By Gregory Nagy.
+    const eka = [...el.querySelectorAll('p')].find(p => rivi(p.textContent));
+    const m = eka && /^(\d{4})\.(\d\d)\.(\d\d)\s*\|\s*by\s+(.+)$/i.exec(rivi(eka.textContent));
+    if (m) { julkaistu = m[1] + '-' + m[2] + '-' + m[3]; tekija = m[4]; eka.remove(); }
+    // Classics@: sitaattirivi pois, vuosi talteen.
+    el.querySelectorAll('.postCitation').forEach(c => { const v = /\b(19|20)\d\d\b/.exec(rivi(c.textContent)); if (v && !julkaistu) julkaistu = v[0]; c.remove(); });
+    // Classics@: viitteen [ back ] ja lihavoitu numero pois ennen alaviitteitä (ankkuri a[name] jää).
+    el.querySelectorAll('.ftNote').forEach(n => {
+      n.querySelectorAll('a[href^="#noteref"]').forEach(a => a.remove());
+      n.querySelectorAll('span.noteref').forEach(s => [...s.childNodes].forEach(c => { if (c.nodeType === 3) c.remove(); }));
+      const b = n.querySelector('span[style*="bold"], b, strong');
+      if (b && /^\d+\.$/.test(rivi(b.textContent))) b.replaceWith(rivi(b.textContent) + ' ');
+    });
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    const maar = samanSivunViitteet(el, 'ch');
+    // Lihavoidut otsakekappaleet: Notes (tyhjä) pois, Bibliography ym. otsikoiksi.
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent), b = p.querySelector('strong, b');
+      if (!b || rivi(b.textContent) !== t || t.length > 60) return;
+      if (/^(notes?|footnotes|endnotes)$/i.test(t)) return p.remove();
+      const h = document.createElement('h2'); h.textContent = t; p.replaceWith(h);
+    });
+    el.querySelectorAll('.ftNotes, .ftNote').forEach(x => { if (!rivi(x.textContent)) x.remove(); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, table')) x.remove(); });
+    el.querySelectorAll('hr + hr').forEach(h => h.remove());
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*chs\.harvard\.edu\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    if (!tekija) tekija = kkLuettelo([...document.querySelectorAll('.articleByline a')].map(a => rivi(a.textContent)).filter(n => n && !/^[a-z0-9-]+$/.test(n)));
+    if (!julkaistu) julkaistu = rivi((document.querySelector('meta[property="article:published_time"]') || {}).content).slice(0, 10);
+    const sivusto = /classics-at/.test(location.hostname) ? 'Classics@' : /classical-inquiries/.test(location.hostname) ? 'Classical Inquiries' : 'Center for Hellenic Studies';
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija, julkaistu, sivusto, lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6901,7 +6955,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
