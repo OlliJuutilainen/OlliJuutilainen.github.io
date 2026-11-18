@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers ja Center for Hellenic Studies (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies ja Zeithistorische Forschungen (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5286,6 +5286,46 @@
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija, julkaistu, sivusto, lahde: osoite, maar };
   }
 
+  /* Zeithistorische Forschungen / Studies in Contemporary History (zeithistorische-forschungen.de, ZZF Potsdam; käyttäjän pyyntö
+     18.11.2026, pahvin *10 sivustosovitetta* varakohde 15). Drupal: otsikko h1.page-title, alaotsikko .untertitel, teksti
+     .node--type-beitrag .field--name-body, viitteet a[href="#footnote-049"] > span 1 → div#footnote-049 (paluulinkki ja teksti)
+     Anmerkungen:-kappaleen (p.Anmerkungen) jälkeen, kuvat media-lohkoina kuvateksteineen, tekijä .all-author, päivä .datetime
+     (16. Juni 2026), lisenssi .lizenz (CC BY-SA 4.0), sitaatti .zitation (… 22 (2026), H. 1, … DOI: …, Druckausgabe: S. 201-212).
+     Readability antoi tekstin, mutta otsikon ilman avaavaa lainausmerkkiä ja sivuston nimen kanssa, viitteet linkkeinä (alaviitteitä
+     0), kuvatekstit ja kuvien oikeusrivit tekstin väliin eikä alaotsikkoa, lehteä eikä numeroa. Sovite: kuvat ja videot
+     kuvateksteineen pois, Anmerkungen-otsake, tyhjä ankkurikappale ja viiva pois, viitteet samanSivunViitteet():llä; etukenttään
+     tyyppi tieteellinen, alaotsikko, tekijät, teos, numero (vuosikerta:vihko sitaatista), julkaistu, sivut (Druckausgabe), DOI ja
+     lisenssi. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 18.11.2026. */
+  const ZF_KUUKAUDET = ['januar', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'dezember'];
+  async function zeithistorische() {
+    if (!/(^|\.)zeithistorische-forschungen\.de$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('.node--type-beitrag .field--name-body'), h1 = document.querySelector('h1.page-title');
+    if (!runko || !h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('script, style, img, iframe, .media, figure, drupal-media, .caption').forEach(x => x.remove());
+    el.querySelectorAll('p.Anmerkungen').forEach(x => x.remove());
+    el.querySelectorAll('a#anm, a[name="anm"]').forEach(a => { const p = a.closest('p'); (p && !rivi(p.textContent) ? p : a).remove(); });
+    const maar = samanSivunViitteet(el, 'zf');
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, table')) x.remove(); });
+    while (el.lastElementChild && el.lastElementChild.tagName === 'HR') el.lastElementChild.remove();
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*zeithistorische-forschungen\.de\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const zit = rivi((document.querySelector('.zitation .accordion-body, .zitation') || {}).textContent);
+    const vk = /,\s*(\d+)\s*\((\d{4})\),\s*H\.\s*(\d+)/.exec(zit), sv = /Druckausgabe:\s*S\.\s*([\d–-]+)/.exec(zit);
+    const doi = /doi\.org\/(\S+?)\s*,?\s*(?:Druckausgabe|$)/.exec(zit);
+    const pm = /(\d{1,2})\.\s*(\p{L}+)\s+(\d{4})/u.exec(rivi((document.querySelector('.datetime') || {}).textContent));
+    const kk = pm ? ZF_KUUKAUDET.indexOf(pm[2].toLowerCase()) : -1;
+    const liz = rivi((document.querySelector('.lizenz') || {}).textContent), cc = /CC\s+[A-Z-]+\s+\d\.\d/.exec(liz);
+    const tekijat = [...new Set([...document.querySelectorAll('.all-author')].map(x => rivi(x.textContent)).filter(Boolean))];
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), alaotsikko: rivi((document.querySelector('.untertitel') || {}).textContent),
+      tyyppi: 'tieteellinen', tekija: kkLuettelo(tekijat), teos: 'Zeithistorische Forschungen', numero: vk ? vk[1] + ':' + vk[3] : '',
+      sivut: sv ? sv[1].replace(/-/g, '–') : '', julkaistu: kk >= 0 ? pm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pm[1].padStart(2, '0') : vk ? vk[2] : '',
+      doi: doi ? doi[1].replace(/[,.]$/, '') : '', lahde: osoite, maar,
+      oikeus: cc ? { teksti: cc[0], lahde: (document.querySelector('.lizenz a[href*="creativecommons"]') || {}).href || osoite } : null,
+      naytto: 'Zeithistorische Forschungen' };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6955,7 +6995,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
