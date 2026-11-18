@@ -5894,8 +5894,10 @@
     if (!/[+\/]/.test(t) || /:\/\/|www\./.test(t)) return t;
     return t.replace(/([aeiouyAEIOUY])\+(?=[a-z])/g, '$1\u0308').replace(/(\p{L}[aeiouyAEIOUY]|\b[aeiouyAEIOUY])\/(?=[\p{L}\s'’,.;:!?—)\]]|$)/gu, '$1\u0301').normalize('NFC');
   }
+  // Aikaraja 60 s (18.11.2026; ennen 20 s): Valtion käännös on 2,2 Mt, ja hitaalla yhteydellä 20 s riitti alkutekstille
+  // mutta ei käännökselle (käyttäjän leike Firefoxilla: kreikka ilman käännöstä; toistettu viivästetyllä haulla).
   function psXml(u) {
-    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 20000);
+    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 60000);
     return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '')
       .then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null).finally(() => clearTimeout(ajastin));
   }
@@ -5959,7 +5961,16 @@
         // Koko teoksesta hakemisto pois (de Finibus: INDEX NOMINUM ET RERUM, viittaa painetun laitoksen sivuihin ja riveihin).
         if (juuri === body && /^index$/i.test(n.getAttribute('n') || n.getAttribute('type') || '')) return;
         if (n !== juuri && /^chapter$/i.test(n.getAttribute('type') || '')) tila.luku = n.getAttribute('n') || '';
-        if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) tila.kirja = n.getAttribute('n') || '';
+        if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) {
+          tila.kirja = n.getAttribute('n') || '';
+          // Koko teoksessa kirjalle väliotsikko, jos sillä ei ole omaa headia (Valtio kreikaksi ja englanniksi: div1 type=book
+          // ilman otsikkoa, joten kirjan vaihtuminen ei näkynyt; käyttäjän palaute 18.11.2026). Lomituksessa käännöksen
+          // otsikot jäävät pois kuten ennenkin.
+          const eka = [...n.childNodes].find(c => c.nodeType === 1);
+          if (juuri === body && /^\d+$/.test(tila.kirja) && !(eka && eka.tagName === 'head')) {
+            const h = document.createElement('h3'); h.textContent = 'Book ' + tila.kirja; el.appendChild(h); kpl = null;
+          }
+        }
         [...n.childNodes].forEach(c => lohko(c, g));
         kpl = null; return;
       }
@@ -6078,14 +6089,16 @@
     const doc = psKaannosLinkki(), dm = /^(Perseus:text:[\d.]+)/.exec(doc);
     if (!dm) return null;
     const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+    // Epäonnistuessa syy näkyy ponnahduksessa (naytto), jotta käännöksen puuttuminen ei jää arvoitukseksi.
+    if (!X) return { syy: 'käännöstä ei saatu' };
     const maar = [], R = psRunko(X, avaimet, false, 'pk', maar);
-    if (!R || kkSanoja(R.el) < 50) return null;
+    if (!R || kkSanoja(R.el) < 50) return { syy: 'käännös tyhjä' };
     const A = psJaksot(alku.cloneNode(true)), K = psJaksot(R.el);
     const paikka = new Map();
     A.forEach((j, i) => { if (j.n && !paikka.has(j.n)) paikka.set(j.n, i); });
     const numeroita = A.filter(j => j.n).length;
     const osuu = K.filter(j => j.n && paikka.has(j.n)).length;
-    if (!numeroita || osuu < 0.8 * numeroita) return null;
+    if (!numeroita || osuu < 0.8 * numeroita) return { syy: 'käännöksen kohdat eivät osu, ' + osuu + '/' + numeroita };
     const kaannos = A.map(() => []);
     let ed = 0;
     K.forEach(j => {
@@ -6100,11 +6113,16 @@
     });
     const el = document.createElement('div');
     A.forEach((j, i) => {
-      el.append(...j.solmut);
-      if (!kaannos[i].length) return;
-      const bq = document.createElement('blockquote');
-      bq.append(...kaannos[i]);
-      el.appendChild(bq);
+      // Jakson lopun väliotsikot (seuraavan kirjan Book N) käännöksen jälkeen, muuten käännös jäisi otsikon alle.
+      let k = j.solmut.length;
+      while (k > 0 && j.solmut[k - 1].tagName === 'H3') k--;
+      el.append(...j.solmut.slice(0, k));
+      if (kaannos[i].length) {
+        const bq = document.createElement('blockquote');
+        bq.append(...kaannos[i]);
+        el.appendChild(bq);
+      }
+      el.append(...j.solmut.slice(k));
     });
     // Kääntäjä käännöksen teiHeaderista: lähdeteoksen nimi (… translated by Paul Shorey; The Iliad with an English
     // Translation by A.T. Murray, Ph.D. in two volumes.) tai editor role=translator. Crawleyn Thukydideessa nimeä ei ole.
@@ -6127,6 +6145,8 @@
     if (!R || kkSanoja(R.el) < 50) return null;
     let { el, osaNimi } = R, lomitus = null;
     if (!/(^|\s)en(\s|$)/.test((document.querySelector('.text_container') || {}).className || '')) lomitus = await psLomitus(avaimet, el);
+    let lomitusSyy = '';
+    if (lomitus && !lomitus.el) { lomitusSyy = lomitus.syy; lomitus = null; }
     if (lomitus) { el = lomitus.el; maar.push(...lomitus.maar); }
     const ts = X.getElementsByTagName('titleStmt')[0], sd = X.getElementsByTagName('sourceDesc')[0];
     const ek = (r, t) => r && r.getElementsByTagName(t)[0] ? rivi(r.getElementsByTagName(t)[0].textContent) : '';
@@ -6143,7 +6163,7 @@
       ladonta: lomitus ? 'lomitettu käännös' : '',
       suomentaja: kaa ? kkKaantaja(kkNimet(kaa)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
       sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaNimi ? ':' + avaimet.find(([k, v]) => osaNimi.toLowerCase() === (k + ' ' + v).toLowerCase()).join('=') : '')),
-      maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : '') };
+      maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : lomitusSyy ? ' (vain alkuteksti: ' + lomitusSyy + ')' : '') };
   }
 
   /* Tertullian Project (tertullian.org/fathers, Roger Pearsen litteroinnit; käyttäjän pyyntö 16.11.2026, pahvin valinnainen:

@@ -531,7 +531,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   käyttäjän valinta 12.11.2026, nokkahuilun ikkuna): melko ylhäällä matala täytetty siivu reikien värillä, sen päiden linjasta
   kelloa kohti tyhjä ääriviiva, jonka alaosassa leukaperät ja leveä leuka (45° sisäänpäin, puolivälissä keskiviivalle vaakaan). Ei ruostetta. Kaistan luokka ei saa olla
   `.asetus` (asetusrivin alareunaviiva). Nimikkeen kolme salmiakkia ovat pystyssä kärjet hipaisten. Lisäosan
-  Postihuilu-napissa on `vino()`-huilu ja sen oikealla **irrallinen** siksak-nelilinja (kaksi jaksoa, käyttäjä 16.11.2026): viivaston, huilun
+  Postihuilu-napissa on `vino()`-huilu ja sen oikealla **irrallinen** siksak-kolmilinja (0.12.0: väli 8, jakso 48, puolitoista jaksoa; ennen nelilinja kaksi jaksoa, käyttäjä 16.11.2026): viivaston, huilun
   ja tekstin keskilinjat ovat samalla korkeudella (`vertical-align: middle`). Ei viuhkaa huilusta: se kokeiltiin napissa eikä toiminut. Testi `postihuilu-testi.js`. Älä tarjoa hylättyjä
   vaihtoehtoja (vaakahuilu, aaltoileva viivasto, lomittuvat reiät, terävä taite alussa, viisi reikää ja viisi viivaa).
   Viuhkan sisäviivojen jyrkkä käännös on tarkoituksellinen (`kaista()`): älä korjaa sitä kysymättä (historia commitissa f3f21b3).
