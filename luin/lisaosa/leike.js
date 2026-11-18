@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet ja Журнальный зал (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал ja Fabula (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -5030,6 +5030,81 @@
       teos: linkit[0] || '', numero: nro ? nro[1] : '', julkaistu: v ? v[1] : '', sivusto: ZZ_NIMI, lahde: osoite, maar, otsikkoMerkit };
   }
 
+  /* Fabula: Acta fabula ja Fabula-LhT (fabula.org/revue, /lht; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 10:
+     kirjallisuustieteen lehdet). Lodel kuten OpenEdition, mutta oma teema: OpenEdition-sovitteen tunnistus (verkkotunnus ja
+     #docBody) ei osu, joten tämä on oma sovite, joka käyttää sen Lodel-apufunktioita (oeViitteet(): a.footnotecall →
+     p.notesbaspage > a.FootnoteSymbol jatkokappaleineen; oeSiivoa(): span.paranumber yläindeksiksi, p.quotation lainaukseksi,
+     kapiteeli tavalliseksi). Tunnistus Lodelin merkinnöistä: #item-text.le-texte, jossa p.texte ja span.paranumber. Otsake:
+     .auteur, h1, vaihtoehtoinen otsikko div[lang], .precisions (DOI ja Acta fabulassa arvioitavan kirjan tiedot, jotka tulevat
+     tekstin alkuun lihavoituna kappaleena kuten NDPR:ssä). Tiivistelmät #resumes .resumes[lang] (ranska ja englanti) tekstin
+     alkuun kielen nimen ja saman kielen otsikon kanssa, sitten osanvaihto; kirjallisuus #bibliographie p.bibliographie otsikon
+     Bibliographie alle. Anfangi (span.lettrine) liitetään sanaansa. Etukenttään tyyppi tieteellinen, tekijät (citation_authors),
+     teos (lehti), numero (vol. 27, n° 4 → 27:4; LhT:ssä n° 30 sivun otsakkeesta), julkaistu (citation_date ranskaksi), doi,
+     kustantaja ja CC-lisenssi. Readability jätti viitteet irrallisiksi (alaviitteitä 0), kirjallisuuden ja viitteiden yläindeksit
+     raa'aksi HTML:ksi (LhT: 14 jäännettä, 6 md.js-varoitusta) eikä tekijää, lehteä eikä päivää tullut. Ei mainoksia eikä
+     lahjoituspyyntöä. Mitattu 18.11.2026. */
+  const FB_KIELET = { fr: 'Français', en: 'English', eng: 'English', de: 'Deutsch', it: 'Italiano', es: 'Español' };
+  async function fabula() {
+    const teksti = document.querySelector('#item-text.le-texte, .le-texte');
+    if (!teksti || !teksti.querySelector('p.texte span.paranumber')) return null;
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    const el = document.createElement('div'), maar = [], laskuri = { n: 0 };
+    const otsake = document.querySelector('header.entete') || document;
+    const h1 = otsake.querySelector('h1') || document.querySelector('h1.mb-0');
+    const alt = [...otsake.querySelectorAll('.titres > div[lang]')].map(d => ({ kieli: d.getAttribute('lang'), t: rivi(d.textContent) }));
+    // Acta fabula: arvioitavan kirjan tiedot (precisions ilman DOI:ta) lihavoituna kappaleena.
+    [...otsake.querySelectorAll('.precisions')].filter(p => rivi(p.textContent) && !/^doi\s*:/i.test(rivi(p.textContent))).forEach(p => {
+      const u = document.createElement('p'), b = document.createElement('strong');
+      b.append(...p.cloneNode(true).childNodes); u.appendChild(b); el.appendChild(u);
+    });
+    // Tiivistelmät kielittäin.
+    const tiiv = [...document.querySelectorAll('#resumes .resumes')];
+    tiiv.forEach(r => {
+      const kieli = r.getAttribute('lang') || (/resume(\w+)/.exec(r.id) || [])[1] || 'fr', k = kieli.slice(0, 2);
+      if (tiiv.length > 1) {
+        const p = document.createElement('p'), b = document.createElement('strong');
+        b.textContent = (FB_KIELET[kieli] || FB_KIELET[k] || kieli) + '.'; p.appendChild(b);
+        const a = alt.find(x => x.kieli && x.kieli.slice(0, 2) === k);
+        if (a) { const i = document.createElement('em'); i.textContent = a.t; p.append(' ', i); }
+        el.appendChild(p);
+      }
+      const c = r.cloneNode(true); c.querySelectorAll('h4').forEach(x => x.remove());
+      el.append(...[...c.childNodes]);
+    });
+    if (el.children.length) el.appendChild(document.createElement('hr'));
+    const k = teksti.cloneNode(true);
+    k.querySelectorAll('span.lettrine').forEach(x => x.replaceWith(...x.childNodes));
+    oeViitteet(k, document, maar, laskuri);
+    oeSiivoa(k);
+    el.append(...[...k.childNodes]);
+    const bib = document.querySelector('#bibliographie');
+    if (bib && bib.querySelector('p')) {
+      const h = document.createElement('h2'); h.textContent = 'Bibliographie'; el.appendChild(h);
+      const b = bib.cloneNode(true); b.querySelectorAll('h4').forEach(x => x.remove());
+      oeSiivoa(b);
+      el.append(...b.querySelectorAll('p'));
+    }
+    el.querySelectorAll('p.resume, p.texte, p.bibliographie').forEach(p => p.removeAttribute('class'));
+    // Kursiivin sisällä <sup><em>e</em></sup> (xvii<sup>e</sup> siècle) jäisi raa'aksi HTML:ksi: korostus pois yläindeksistä.
+    el.querySelectorAll('sup em, sup i, sup b, sup strong, sub em, sub i').forEach(x => x.replaceWith(...x.childNodes));
+    maar.forEach((m, i) => { maar[i] = m.replace(/<(sup|sub)><(?:em|i|b|strong)>([^<]*)<\/(?:em|i|b|strong)><\/\1>/g, '<$1>$2</$1>'); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*fabula\.org\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const lehti = meta('citation_journal_title')[0] || '';
+    const iss = meta('citation_issue')[0] || rivi(((document.querySelector('.entete') || document.body).previousElementSibling || {}).textContent || '');
+    const vol = /vol\.?\s*(\d+)/i.exec(iss), nro = /n°\s*(\d+)/i.exec(iss) || /n°\s*(\d+)/i.exec(rivi((document.querySelector('main') || document.body).textContent).slice(0, 4000));
+    const doi = otsake.querySelector('.precisions a[href*="doi.org"]');
+    const cc = document.querySelector('a[href*="creativecommons.org/licenses"]');
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const tekijat = meta('citation_authors').flatMap(x => x.split(/\s*;\s*/)).map(rivi).filter(Boolean);
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : '') || meta('citation_title')[0], tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(tekijat.length ? tekijat : [rivi((otsake.querySelector('.auteur') || {}).textContent)].filter(Boolean)),
+      teos: lehti, numero: [vol && vol[1], nro && nro[1]].filter(Boolean).join(':'), julkaistu: euPvm(meta('citation_date')[0] || ''),
+      doi: doi ? rivi(doi.textContent).replace(/^https?:\/\/doi\.org\//i, '') : '', kustantaja: meta('citation_publisher')[0] || '',
+      lahde: osoite, maar, oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: lehti };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6699,7 +6774,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
