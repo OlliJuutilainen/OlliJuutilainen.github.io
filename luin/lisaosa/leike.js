@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central ja Ubiquity Press (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press ja SPIP (18.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -4556,6 +4556,104 @@
       naytto: teos };
   }
 
+  /* SPIP (alusta; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 4: ranskalaiset ajatus- ja kirjallisuuslehdet Vacarme,
+     La Vie des idées, Books & Ideas, Les mots sont importants, remue.net ym.). Tunnistus: meta[name=generator] SPIP. Teemat
+     vaihtelevat, joten sovite nojaa SPIP-ytimen merkintöihin: Crayons-luokat (article-titre-N, -soustitre-N, -chapo-N, -texte-N,
+     -ps-N) tai niiden puuttuessa luokat .chapo, .texte ja .soustitre; alaviitteet span.spip_note_ref > a.spip_note[href="#nbN"] →
+     div#nbN (tai vanha <a id="nbN"> kappaleen alussa) paluulinkkeineen #nhN; tekijät span.vcard.author .fn (#LESAUTEURS) otsikon
+     lähellä tai meta author; päivä bepress_citation_date, article:published_time, time[datetime], [itemprop=datePublished] tai
+     abbr.published[title]; väliotsikot h2/h3.spip ja muut otsikot. Tekstiksi valitaan suurin .texte, ja jos se on alle 60 %
+     kaikkien .texte-lohkojen tekstistä (rubriikin luettelo, remue.netin notes de lecture -sivu), leikkaa Readability. Chapo
+     tavallisina kappaleina ja osanvaihto, sitten teksti, post-scriptum (oma otsikkonsa tai Post-scriptum) ja alaviitteet.
+     Kuvat (.spip_document) pois kuvateksteineen. Etukenttään alaotsikko (soustitre), tekijät, julkaistu, sivusto (og:site_name tai
+     sivun nimen loppu). Rahoitus vaihtelee sivustoittain (remue.netissä tukisivu, muilla ei mainoksia: vain Google Analytics),
+     joten RAHOITUS-merkintää ei ole, kuten Bloggerissa ja Substackissa. Readability: La Vie des idéesin pitkästä arviosta
+     296 sanaa (luettelolohko), alaviitteet viitelinkkeinä (Vacarme) tai poissa (Books & Ideas), ei päivää eikä alaotsikkoa.
+     Mitattu 18.11.2026. */
+  async function spip() {
+    const gen = document.querySelector('meta[name="generator"]');
+    if (!/^SPIP\b/i.test(gen && gen.content || '')) return null;
+    const crayon = n => document.querySelector('[class*="article-' + n + '-"]');
+    let texte = crayon('texte');
+    if (!texte) {
+      const t = [...document.querySelectorAll('.texte')].filter(x => !x.parentElement.closest('.texte'));
+      const koko = x => rivi(x.textContent).length, kaikki = t.reduce((n, x) => n + koko(x), 0);
+      texte = t.sort((a, b) => koko(b) - koko(a))[0];
+      if (!texte || koko(texte) < kaikki * 0.6) return null;
+    }
+    const titreEl = crayon('titre') || document.querySelector('h1');
+    const chapo = crayon('chapo') || document.querySelector('.chapo');
+    const ps = crayon('ps') || document.querySelector('.ps');
+    const el = document.createElement('div'), maar = [], laskuri = { n: 0 };
+    const siivoa = x => {
+      x.querySelectorAll('script, style, img, figure, .spip_document, .spip_documents, [class*="spip_document_"], button, form, iframe, nav').forEach(y => y.remove());
+      x.querySelectorAll('[style]').forEach(y => y.removeAttribute('style'));
+      // SPIP:n typografia: <sup class="typo_exposants">e</sup> jäisi raa'aksi HTML:ksi.
+      x.querySelectorAll('sup, sub').forEach(y => [...y.attributes].forEach(a => y.removeAttribute(a.name)));
+    };
+    // Alaviitteet: merkki span.spip_note_ref, kohde #nbN (div tai a kappaleen alussa) koko dokumentissa.
+    const viitteet = x => x.querySelectorAll('a.spip_note[href^="#nb"], a[href^="#nb"][rel="appendix"]').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      let k = null;
+      try { k = document.querySelector('[id="' + CSS.escape(id) + '"]'); } catch (e) {}
+      const kohta = a.closest('.spip_note_ref') && x.contains(a.closest('.spip_note_ref')) ? a.closest('.spip_note_ref') : a;
+      if (!k) return;
+      const osat = [];
+      if (k.tagName === 'A') {
+        const p = k.closest('p, div') || k;
+        osat.push(p);
+        for (let n = p.nextElementSibling; n && n.tagName === 'P' && !n.querySelector('a.spip_note, [id^="nb"]'); n = n.nextElementSibling) osat.push(n);
+      } else osat.push(k);
+      const d = document.createElement('div');
+      osat.forEach(o => d.appendChild(o.cloneNode(true)));
+      d.querySelectorAll('.spip_note_ref, a.spip_note, a[id^="nb"]').forEach(y => y.remove());
+      d.querySelectorAll('[id]').forEach(y => y.removeAttribute('id'));
+      siivoa(d);
+      kkLinkit(d, new RegExp('^https?://([a-z0-9-]+\\.)*' + location.hostname.replace(/^www\./, '').replace(/\./g, '\\.') + '/', 'i'));
+      const t = muunna(d.innerHTML, 'inlined').trim().replace(/^\\?\[?\s*\\?\]?\s*/, '');
+      const ed = kohta.previousSibling;
+      if (ed && ed.nodeType === 3) ed.data = ed.data.replace(/[\s ]+$/, '');
+      if (!t) { kohta.remove(); return; }
+      const tunnus = 'sp' + (++laskuri.n);
+      kohta.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    if (chapo && !texte.contains(chapo)) {
+      const c = chapo.cloneNode(true); siivoa(c); viitteet(c);
+      if (rivi(c.textContent)) { el.append(...[...c.childNodes]); el.appendChild(document.createElement('hr')); }
+    }
+    const t = texte.cloneNode(true); siivoa(t); viitteet(t);
+    el.append(...[...t.childNodes]);
+    if (ps && !texte.contains(ps) && rivi(ps.textContent)) {
+      const p = ps.cloneNode(true); siivoa(p); viitteet(p);
+      if (!p.querySelector('h2, h3, h4')) { const h = document.createElement('h2'); h.textContent = 'Post-scriptum'; el.appendChild(h); }
+      el.append(...[...p.childNodes]);
+    }
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent.replace(/ /g, ' ')) && !x.querySelector('hr, table, br')) x.remove(); });
+    kkLinkit(el, new RegExp('^https?://([a-z0-9-]+\\.)*' + location.hostname.replace(/^www\./, '').replace(/\./g, '\\.') + '/', 'i'));
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const meta = n => rivi((document.querySelector('meta[name="' + n + '"], meta[property="' + n + '"]') || {}).content);
+    // Tekijät otsikon lähiympäristöstä (sivupalkkien luettelot pois), muuten meta.
+    const alue = titreEl && (titreEl.closest('header, .cartouche, .entry-header, article') || titreEl.parentElement.parentElement);
+    // Kääntäjät (Books & Ideas: div.lestraducteurs translated by <span class="vcard author">) erikseen.
+    const nimet = valinta => alue ? [...new Set([...alue.querySelectorAll(valinta)].map(x => rivi(x.textContent)).filter(Boolean))] : [];
+    const kaantajat = nimet('.lestraducteurs .vcard .fn');
+    let tekijat = nimet('.vcard.author .fn, .vcard.author a, a[rel="author"]').filter(n => !kaantajat.includes(n));
+    if (!tekijat.length && meta('author')) tekijat = meta('author').split(/\s*,\s*/);
+    const attr = (sel, a) => { const e = document.querySelector(sel); return e ? e.getAttribute(a) || '' : ''; };
+    const aika = meta('bepress_citation_date') || meta('article:published_time') || meta('DC.date') || attr('time[datetime]', 'datetime') ||
+      attr('[itemprop="datePublished"][content]', 'content') || attr('abbr.published[title]', 'title');
+    const sivusto = meta('og:site_name') || rivi(document.title).split(/\s+[-–|]\s+/).slice(1).join(' - ') || location.hostname.replace(/^www\./, '');
+    // Otsikko: crayon tai h1:n .titre (La Vie des idées: h1 > div.titre + div.descriptif À propos de : …), alaotsikko crayon,
+    // otsikkoalueen .soustitre tai h1:n .descriptif (sivupalkin luetteloissa on omia .soustitre-lohkoja).
+    const titre = crayon('titre') || titreEl && titreEl.querySelector('.titre') || titreEl;
+    const ala = crayon('soustitre') || alue && alue.querySelector('.soustitre') || titreEl && titreEl.querySelector('.descriptif');
+    return { html: irrota([el]).innerHTML, otsikko: rivi(titre ? titre.textContent : '') || meta('DC.title') || rivi(document.title),
+      alaotsikko: rivi(ala ? ala.textContent : ''), tekija: kkLuettelo(tekijat), suomentaja: kkKaantaja(kaantajat),
+      julkaistu: (/^\d{4}-\d\d-\d\d/.exec(aika) || [''])[0], sivusto, lahde: osoite, maar };
+  }
+
   /* Paul Grahamin esseet (paulgraham.com; käyttäjän lisäkohde 16.11.2026). Sivu on taulukkoasettelua: essee yhdessä font-
      elementissä, kappaleet <br><br>, otsikko kuvana (img alt) ja title-elementissä, ensimmäinen kappale päiväys (June 2021),
      viitemerkit [<a href="#f1n">1</a>], lopussa <b>Notes</b> ja merkinnät [<a name="f1n">1</a>] … sekä Thanks-kappale.
@@ -6224,7 +6322,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
