@@ -443,8 +443,10 @@ async function handlePalaute(req, env) {
   if (!(await luinLaskuri(env, "paiva", ip))) return errorResponse("daily_limit", 429);
   const t = Date.now();
   // Suomen aika otsikkoon (Luinin lukulistassa näkyy otsikko); rivinvaihdot ja Markdownin otsikkomerkit pois kentistä.
-  const aika = new Intl.DateTimeFormat("fi-FI", { timeZone: "Europe/Helsinki", day: "numeric", month: "numeric", year: "numeric",
-    hour: "2-digit", minute: "2-digit" }).format(new Date(t)).replace(" klo", "").replace(/\s+/, " klo ");
+  // Kellonaika aina HH:MM (käyttäjä 19.11.2026); fi-FI antaisi pisteen.
+  const osat = Object.fromEntries(new Intl.DateTimeFormat("fi-FI", { timeZone: "Europe/Helsinki", day: "numeric", month: "numeric",
+    year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(t)).map((o) => [o.type, o.value]));
+  const aika = osat.day + "." + osat.month + "." + osat.year + " klo " + osat.hour.padStart(2, "0") + ":" + osat.minute;
   const rivi = (x) => x.replace(/\s+/g, " ").replace(/^[#>*\-+\s]+/, "");
   const md = "# Palaute: " + (rivi(k.nimi) || rivi(k.sposti) || "nimetön") + "\n\n" +
     [k.nimi && "Nimi: " + rivi(k.nimi), k.sposti && "Sähköposti: " + rivi(k.sposti), "Lähetetty " + aika,

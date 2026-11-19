@@ -139,7 +139,7 @@ function muistiKV() {
   tulos('429: viesti, ei kirjoitusta', /Liian monta lähetystä/.test(h.t) && !KV.m.has('luin:' + KOODI + ':' + AV), h.t);
   h = await huiluta(a, PID);
   const md1 = KV.m.get('luin:' + KOODI + ':' + AV);
-  tulos('huilutettu: kuittaus ja merkinnät jäivät', /^Huilutettu klo \d+\.\d\d\. Merkinnät jäivät: Huiluta myös merkintöjä ei ole valittu\.$/.test(h.t), h.t);
+  tulos('huilutettu: kuittaus ja merkinnät jäivät', /^Huilutettu klo \d\d:\d\d\. Merkinnät jäivät: Huiluta myös merkintöjä ei ole valittu\.$/.test(h.t), h.t);
   tulos('laatikossa teksti samalla tunnuksella, tavulleen sama', md1 && md1.v === KANT, md1 ? md1.v.length + ' / ' + KANT.length : 'ei');
   tulos('merkinnät eivät lähteneet', !KV.m.has('luinm:' + KOODI + ':' + AV));
   const nahdyt = await LS(a, 'luin-laatikko-nahdyt');
@@ -154,7 +154,7 @@ function muistiKV() {
   await a.goto(OSOITE + 'luin.html#arkisto'); await a.reload();
   await a.waitForSelector(`#nimikkeet button.jako[data-id="${PID}"]`);
   h = await huiluta(a, PID);
-  tulos('cellarista: huilutettu, merkinnät seuraavat', /^Huilutettu klo \d+\.\d\d\. Merkinnät seuraavat\.$/.test(h.t), h.t);
+  tulos('cellarista: huilutettu, merkinnät seuraavat', /^Huilutettu klo \d\d:\d\d\. Merkinnät seuraavat\.$/.test(h.t), h.t);
   for (let i = 0; i < 40 && !KV.m.has('luinm:' + KOODI + ':' + AV); i++) await odota(100);
   const m1 = KV.m.has('luinm:' + KOODI + ':' + AV) && JSON.parse(KV.m.get('luinm:' + KOODI + ':' + AV).v);
   tulos('merkinnät laatikossa', m1 && m1.al.length === 2 && m1.km.length === 1, m1 ? JSON.stringify({ al: m1.al.length, km: m1.km.length }) : 'ei');

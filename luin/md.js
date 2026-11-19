@@ -1276,7 +1276,7 @@
 
   /* ---------- Päivämäärät ----------
      pvm(teksti) → { y, m, d, h, mi, t } tai null; t on tarkkuus: 1 vuosi, 2 kuukausi, 3 päivä, 4 minuutti.
-     Kelpaavat ISO (2026-10-08T14:05), 8.10.2026 (klo 14.05), 8. lokakuuta 2026, lokakuussa 2026,
+     Kelpaavat ISO (2026-10-08T14:05), 8.10.2026 (klo 14.05 tai 14:05), 8. lokakuuta 2026, lokakuussa 2026,
      lokakuu/2026, 10/2026 (myös 10/26 = lokakuu 2026, vain koko kentän arvona), englanninkieliset kuukaudet ja pelkkä vuosi. Etukenttään tallennetaan ISO
      siihen tarkkuuteen, joka halutaan ilmoittaa (2026-10 = kuukausi). */
   var KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
@@ -1317,7 +1317,7 @@
     if (t === 1) return String(p.y);
     if (t === 2) return tapa === 'kentta' ? p.m + '/' + p.y : KK[p.m - 1] + 'kuu' + (tapa === 'viite' ? '/' : ' ') + p.y;
     var d = p.d + '.' + p.m + '.' + p.y;
-    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' + p.h + ':' : ' klo ' + p.h + '.') + kaksi(p.mi);
+    return t === 3 ? d : d + (tapa === 'kentta' ? ' ' : ' klo ') + kaksi(p.h) + ':' + kaksi(p.mi);
   }
   function pvmIso(p, t) {
     if (!p) return '';
