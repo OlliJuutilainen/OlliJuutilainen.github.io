@@ -4696,6 +4696,10 @@
     var od = osioSuunta(e);
     if (od) {
       e.preventDefault();
+      /* Napautus jättää fokuksen painikkeelle, ja näppäin tekee siitä :focus-visible-tilan: sivunkääntönapin ympärille tuli
+         ruosteinen kehys (käyttäjän havainto 19.11.2026, Note Air3). Sivunkääntönäppäin ei käytä painiketta, joten fokus pois. */
+      var f = document.activeElement;
+      if (f && f.matches && f.matches('button')) f.blur();
       if (osioToisto(e)) {
         // Jos keyup-tapahtuma jäi ajastimelta pois tai ajastin keskeytyi, pitkä painallus tunnistetaan toistosta.
         if (osioNappi && osioNappi.k === k && !osioNappi.tehty && Date.now() - osioNappi.t >= OSIO_MS && !verhoAuki()) {
