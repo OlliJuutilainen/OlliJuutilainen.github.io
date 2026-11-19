@@ -76,6 +76,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Kirjan nimi alkutekstin kielellä (`psKirja()`, käyttäjän päätökset 19.11.2026): Ilias Α–Ω ja Odysseia α–ω aakkosin, muu kreikka
   numeroin keraialla (*Republic Αʹ*, 6 = Ϛʹ; keraia U+0374, ei U+02B9, jota Literatassa ei ole), latina roomalaisin (*de Finibus I*),
   vain englanninkielinen *Book 1*. Ei englantilaista *Book*ia alkukieliseen tekstiin.
+  Kreikkalaisen teoksen nimi kreikaksi (*Πολιτεία Αʹ*), kun leikkeessä on alkuteksti: Perseus antaa nimen vain englanniksi, joten
+  nimet ovat taulukossa `PS_KREIKKA_NIMET` (NFC); puuttuva jää englanniksi. Lisää uusi teos taulukkoon.
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
