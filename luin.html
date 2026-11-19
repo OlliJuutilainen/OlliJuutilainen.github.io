@@ -4339,6 +4339,18 @@
     if (!auki[n] && nb) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, nb.getBoundingClientRect().top - y); }
   }
 
+  /* Sivumäärä luetaan viimeisestä näkyvästä elementistä. Laatikottomat (display: contents -kääre div.pari, piilotettu kieli)
+     ohitetaan: Kielet = Alkuteksti teki tekstistä yksisivuisen, kun viimeinen pari päättyi piilotettuun käännökseen
+     (Perseus ilman tekijänoikeusosiota; käyttäjän havainto Light Phonella 19.11.2026). Kääreen sisään mennään, piilotetun ei. */
+  function viimeinenLaatikko(juuri) {
+    for (var el = juuri.lastElementChild; el; el = el.previousElementSibling) {
+      var rs = el.getClientRects();
+      if (rs.length) return rs[rs.length - 1];
+      if (el.firstElementChild && getComputedStyle(el).display === 'contents') { var r = viimeinenLaatikko(el); if (r) return r; }
+    }
+    return null;
+  }
+
   function asettele(k) {
     tila.asetteluja++;
     sovellaTeema();
@@ -4378,10 +4390,7 @@
       tavutaPitkat();
       alalukujenAlut();
       liehutaLyhyet();
-      var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
-      while (viim && viim.matches('.pari, .pari-alku') && viim.lastElementChild) viim = viim.lastElementChild;
-      var rs = viim ? viim.getClientRects() : [];
-      var r = rs.length ? rs[rs.length - 1] : null;
+      var r = viimeinenLaatikko(art), al = art.getBoundingClientRect().left;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
     } else {
       art.style.cssText = '';
