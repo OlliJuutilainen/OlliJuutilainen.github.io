@@ -1,6 +1,9 @@
 # Luin: Perseus-leikkeen valinnat lisäosassa
 
-Hyllyyn 19.11.2026 (käyttäjän ajatus). Ei toteutettu.
+Hyllyyn 19.11.2026 (käyttäjän ajatus). **Toteutettu samana päivänä** (`perseus-valinnat-testi.js`): kielet (molemmat,
+alkuteksti, käännös) ja kirjat (numeronapit ja kaikki; valitut yhdeksi tekstiksi). Huomio *Iso paketti* yli 60 000 sanan
+leikkeestä (`PS_ISO`, `ponnahdus.js`), vain niillä keinoilla, jotka valinnassa ovat vielä käytössä. Ei toteutettu: kirjat
+erillisiksi teksteiksi yhdellä kertaa (Latomo ottaa yhden tekstin). Alla kirjoitushetken suunnitelma.
 
 ## Ajatus
 

@@ -14,6 +14,10 @@
   // Alaviitteen paikka Turndownin läpi: pelkkiä kirjaimia ja numeroita, joita Turndown ei suojaa.
   // Ei-ahne: vierekkäiset merkit (Wikipedia: kolme viitettä peräkkäin) eivät sulaudu yhdeksi.
   const MERKKI = /XLUINVIITE([0-9A-Za-z]+?)X/g;
+  // Perseuksen valinnat (kielet, kirjat; käyttäjän pyyntö 19.11.2026): ponnahdusikkuna asettaa ne ennen ajoa. Luetaan ja
+  // nollataan heti, jotta seuraava ajo samalla sivulla alkaa oletuksista. Muut sovitteet eivät katso niitä.
+  const PS_VALINNAT = globalThis.__lukimeenPs || null;
+  globalThis.__lukimeenPs = null;
 
   function muunna(html, linkit = 'referenced') {
     const td = new TurndownService({ headingStyle: 'atx', hr: '___', bulletListMarker: '-', codeBlockStyle: 'fenced',
@@ -5896,10 +5900,16 @@
   }
   // Aikaraja 60 s (18.11.2026; ennen 20 s): Valtion käännös on 2,2 Mt, ja hitaalla yhteydellä 20 s riitti alkutekstille
   // mutta ei käännökselle (käyttäjän leike Firefoxilla: kreikka ilman käännöstä; toistettu viivästetyllä haulla).
+  // Teksti jää sivun muistiin (lisäosan eristetty maailma säilyy välilehdellä sivun ajan): valintojen vaihto ajaa leikkurin
+  // uudelleen, eikä Valtion 2,2 Mt:n käännöstä haeta joka kerta. Epäonnistunut haku ei jää muistiin.
   function psXml(u) {
-    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 60000);
-    return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '')
-      .then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null).finally(() => clearTimeout(ajastin));
+    const muisti = globalThis.__lukimeenPsXml || (globalThis.__lukimeenPsXml = new Map());
+    if (!muisti.has(u)) {
+      const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 60000);
+      muisti.set(u, fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.text() : '').catch(() => '')
+        .finally(() => clearTimeout(ajastin)).then(t => { if (!t) muisti.delete(u); return t; }));
+    }
+    return muisti.get(u).then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null);
   }
   // TEI-XML:n runko HTML:ksi: osoitteen ylin jako (avaimet), kreikka Unicodeksi, alaviitteet maar-listaan tunnuksin etu+N.
   /* Kirjan nimi alkutekstin kielen mukaan (käyttäjän pyyntö 19.11.2026: englantilainen Book 1 on alkukielisessä tekstissä
@@ -5966,7 +5976,8 @@
   function psKreikkaNimi(nimi) {
     return PS_KREIKKA_NIMET[nimi.toLowerCase().replace(/^the\s+/, '').replace(/\s+/g, ' ').trim()] || nimi;
   }
-  function psRunko(X, avaimet, kreikka, etu, maar, kieli) {
+  // Valitut kirjat (Set kirjan numeroista) koko teoksen rungosta; muut kirjat ohitetaan. null: kaikki.
+  function psRunko(X, avaimet, kreikka, etu, maar, kieli, valitut) {
     const body = X && X.getElementsByTagName('body')[0];
     if (!body) return null;
     // Osoitteen ylin jako, jolle löytyy div (book=1 → div1 type=book n=1).
@@ -6041,6 +6052,7 @@
       if (/^div\d?$/.test(tag)) {
         // Koko teoksesta hakemisto pois (de Finibus: INDEX NOMINUM ET RERUM, viittaa painetun laitoksen sivuihin ja riveihin).
         if (juuri === body && /^index$/i.test(n.getAttribute('n') || n.getAttribute('type') || '')) return;
+        if (valitut && juuri === body && n !== juuri && /^book$/i.test(n.getAttribute('type') || '') && !valitut.has(n.getAttribute('n') || '')) return;
         if (n !== juuri && /^chapter$/i.test(n.getAttribute('type') || '')) tila.luku = n.getAttribute('n') || '';
         if (n !== juuri && /^book$/i.test(n.getAttribute('type') || '')) {
           tila.kirja = n.getAttribute('n') || '';
@@ -6169,13 +6181,13 @@
     }));
     return jaksot.filter(j => j.n || j.solmut.length);
   }
-  async function psLomitus(avaimet, alku) {
+  async function psLomitus(avaimet, alku, valitut) {
     const doc = psKaannosLinkki(), dm = /^(Perseus:text:[\d.]+)/.exec(doc);
     if (!dm) return null;
     const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
     // Epäonnistuessa syy näkyy ponnahduksessa (naytto), jotta käännöksen puuttuminen ei jää arvoitukseksi.
     if (!X) return { syy: 'käännöstä ei saatu' };
-    const maar = [], R = psRunko(X, avaimet, false, 'pk', maar);
+    const maar = [], R = psRunko(X, avaimet, false, 'pk', maar, '', valitut);
     if (!R || kkSanoja(R.el) < 50) return { syy: 'käännös tyhjä' };
     const A = psJaksot(alku.cloneNode(true)), K = psJaksot(R.el);
     const paikka = new Map();
@@ -6216,22 +6228,54 @@
     const kaantaja = km ? km[1] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
     return { el, maar, kaantaja, pareja: osuu, numeroita };
   }
+  /* Valittujen kirjojen nimi otsikkoon: peräkkäiset väliviivalla (Πολιτεία Αʹ–Γʹ, Ϛʹ; de Finibus I–III; Republic, Books 1–3, 6).
+     Kaksi peräkkäistä pilkulla (Αʹ, Βʹ). */
+  function psKirjaLuettelo(nrot, kieli) {
+    const ryhmat = [];
+    nrot.map(Number).sort((a, b) => a - b).forEach(i => { const r = ryhmat[ryhmat.length - 1]; if (r && r[1] === i - 1) r[1] = i; else ryhmat.push([i, i]); });
+    const nimi = i => psKirja(String(i), kieli).replace(/^Book /, '');
+    const t = ryhmat.map(([a, b]) => a === b ? nimi(a) : nimi(a) + (b === a + 1 ? ', ' : '–') + nimi(b)).join(', ');
+    return /^Book /.test(psKirja('1', kieli)) ? 'Books ' + t : t;
+  }
+  /* Valinnat (PS_VALINNAT, ponnahdusikkunasta; käyttäjän pyyntö 19.11.2026): kielet 'molemmat' (lomitus, oletus), 'alku' (vain
+     alkuteksti) tai 'kaannos' (vain sivupalkin englanninkielinen käännös omana tekstinään), ja kirjat: luettelo kirjojen
+     numeroista. Yksi kirja leikataan kuten osoitteen book=N, kaikki kuten koko teos, muut valitut yhdeksi tekstiksi kirja
+     kerrallaan otsikoin (kuten koko teos). Ilman valintoja leike on sama kuin ennen: osoitteen kirja, lomitus jos käännös on.
+     Tulokseen ps: teoksen kirjat ja tehty valinta, joista ikkuna piirtää valitsimet. */
   async function perseus() {
     if (!/(^|\.)perseus\.tufts\.edu$/i.test(location.hostname) || !/\/hopper\/text/.test(location.pathname)) return null;
     let doc = '';
     try { doc = new URL(osoite).searchParams.get('doc') || ''; } catch (e) { return null; }
     const dm = /^(Perseus:text:[\d.]+)(?::(.*))?$/.exec(doc);
     if (!dm) return null;
-    const avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
-    const kreikka = !!document.querySelector('.text_container.greek');
+    const V = PS_VALINNAT || {};
+    let avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
+    const sivuKreikka = !!document.querySelector('.text_container.greek');
     const tc = (document.querySelector('.text_container') || {}).className || '';
-    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
+    const enSivu = /(^|\s)en(\s|$)/.test(tc);
+    const sivunKieli = sivuKreikka ? 'kreikka' : /(^|\s)(la|latin)(\s|$)/.test(tc) ? 'latina' : 'englanti';
+    const kaannosDoc = enSivu ? '' : (/^(Perseus:text:[\d.]+)/.exec(psKaannosLinkki()) || [])[1] || '';
+    const vainKaannos = V.kielet === 'kaannos' && !!kaannosDoc;
+    const tekstiDoc = vainKaannos ? kaannosDoc : dm[1];
+    const kreikka = sivuKreikka && !vainKaannos;
+    const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(tekstiDoc));
     const ots = X && X.getElementsByTagName('title')[0] ? X.getElementsByTagName('title')[0].textContent : '';
-    const kieli = !kreikka ? (/(^|\s)(la|latin)(\s|$)/.test(tc) ? 'latina' : '') : /^\s*Iliad\b/i.test(ots) ? 'ilias' : /^\s*Odyssey\b/i.test(ots) ? 'odysseia' : 'kreikka';
-    const maar = [], R = psRunko(X, avaimet, kreikka, 'ps', maar, kieli);
+    const kieli = vainKaannos ? '' : !kreikka ? (sivunKieli === 'latina' ? 'latina' : '') : /^\s*Iliad\b/i.test(ots) ? 'ilias' : /^\s*Odyssey\b/i.test(ots) ? 'odysseia' : 'kreikka';
+    // Teoksen kirjat (div type=book n=numero) valitsimeksi.
+    const xb = X && X.getElementsByTagName('body')[0];
+    const kirjat = xb ? [...new Set([...xb.getElementsByTagName('*')].filter(e => /^div\d?$/.test(e.tagName) &&
+      /^book$/i.test(e.getAttribute('type') || '') && /^\d+$/.test(e.getAttribute('n') || '')).map(e => e.getAttribute('n')))] : [];
+    let valitut = null;
+    if (Array.isArray(V.kirjat) && kirjat.length) {
+      const vk = kirjat.filter(n => V.kirjat.includes(n));
+      if (vk.length === 1) { if (!avaimet.some(([k, v]) => /^book$/i.test(k) && v === vk[0])) avaimet = [['book', vk[0]]]; }
+      else if (vk.length) { avaimet = []; if (vk.length < kirjat.length) valitut = new Set(vk); }
+    }
+    const maar = [], R = psRunko(X, avaimet, kreikka, 'ps', maar, kieli, valitut);
     if (!R || kkSanoja(R.el) < 50) return null;
     let { el, osaNimi, osaAvain } = R, lomitus = null;
-    if (!/(^|\s)en(\s|$)/.test((document.querySelector('.text_container') || {}).className || '')) lomitus = await psLomitus(avaimet, el);
+    if (valitut) osaNimi = psKirjaLuettelo([...valitut], kieli);
+    if (!enSivu && !vainKaannos && V.kielet !== 'alku') lomitus = await psLomitus(avaimet, el, valitut);
     let lomitusSyy = '';
     if (lomitus && !lomitus.el) { lomitusSyy = lomitus.syy; lomitus = null; }
     if (lomitus) { el = lomitus.el; maar.push(...lomitus.maar); }
@@ -6248,13 +6292,18 @@
     el.querySelectorAll('sup[data-ps]').forEach(x => x.removeAttribute('data-ps'));
     // Lomitetussa leikkeessä kääntäjä on käännöksen; muut tiedot (laitos, kustantaja, vuosi) alkutekstin.
     const kaa = lomitus ? lomitus.kaantaja : kaantaja;
-    return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + (/ /.test(osaNimi) ? ', ' : ' ') + osaNimi : nimi, tekija: ek(ts, 'author'),
+    // Englantilainen jaon nimi (Book 1, Books 1–3, Section 2) pilkulla, alkukielinen (Αʹ, I–III) välilyönnillä.
+    const erotin = /^[A-Z][a-z]+ /.test(osaNimi) ? ', ' : ' ';
+    const kirjaNyt = (/^book=(\d+)$/i.exec(osaAvain) || [])[1];
+    return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + erotin + osaNimi : nimi, tekija: ek(ts, 'author'),
       ladonta: lomitus ? 'lomitettu käännös' : '',
       // Viitenumerot (section, card) ovat lukimen aikajanan kohtia (md.js: kohdat: yläindeksit).
       kohdat: kohtia ? 'yläindeksit' : '',
       suomentaja: kaa ? kkKaantaja(kkNimet(kaa)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
-      sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaAvain ? ':' + osaAvain : '')),
-      maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : lomitusSyy ? ' (vain alkuteksti: ' + lomitusSyy + ')' : '') };
+      sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(tekstiDoc + (osaAvain ? ':' + osaAvain : '')),
+      maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : vainKaannos ? ' (käännös)' : V.kielet === 'alku' && kaannosDoc ? ' (alkuteksti)' : lomitusSyy ? ' (vain alkuteksti: ' + lomitusSyy + ')' : ''),
+      ps: { kirjat, valitut: valitut ? [...valitut] : kirjaNyt ? [kirjaNyt] : osaAvain ? [] : kirjat.slice(),
+        kieli: sivunKieli, kaannos: !!kaannosDoc, kielet: lomitus ? 'molemmat' : vainKaannos ? 'kaannos' : 'alku' } };
   }
 
   /* Tertullian Project (tertullian.org/fathers, Roger Pearsen litteroinnit; käyttäjän pyyntö 16.11.2026, pahvin valinnainen:
@@ -7269,6 +7318,8 @@
     otsikko, sivusto: (blogi && (blogi.naytto || blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
     koko: koko && koko.md ? alku + koko.md + '\n' : '', kokoSanoja: koko ? sanoja(koko.md) : 0, kokoViitteita: koko ? koko.viitteita : 0,
     valinta: valinta && valinta.md ? alku + valinta.md + '\n' : '', valintaSanoja: valinta ? sanoja(valinta.md) : 0,
-    valintaViitteita: valinta ? valinta.viitteita : 0
+    valintaViitteita: valinta ? valinta.viitteita : 0,
+    // Perseus: kirjat ja kielet ponnahdusikkunan valitsimille.
+    ps: (blogi && blogi.ps) || null
   };
 })();
