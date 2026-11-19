@@ -45,7 +45,10 @@ const TEKSTIT = [
   const page = await (await selain.newContext({ viewport: { width: 900, height: 1000 } })).newPage();
   const virheet = [];
   page.on('pageerror', e => virheet.push(e.message));
-  const ls = (k) => page.evaluate(k => JSON.parse(localStorage.getItem(k)), k);
+  // Tekstit ovat tekstikannassa (luin/tekstit.js, 19.11.2026), muu localStoragessa.
+  // Etukentän kirjoitus kantaan on asynkroninen, joten tekstiä luettaessa odotetaan hetki.
+  const ls = async (k) => { if (k.startsWith('luin-teksti:')) await page.waitForTimeout(300);
+    return page.evaluate(k => k.startsWith('luin-teksti:') ? LuinTekstit.lue(k.slice(12)) : JSON.parse(localStorage.getItem(k)), k); };
   await page.goto(U + 'luin.html#');
   await page.evaluate(([TEKSTIT]) => {
     localStorage.clear();

@@ -51,7 +51,8 @@ const LAITOS = MD.replace('## 1. Johdanto\n\n', '## 1. Johdanto\n\nUusi alkukapp
   const page = await (await selain.newContext({ viewport: { width: 1100, height: 900 } })).newPage();
   const virheet = [];
   page.on('pageerror', e => virheet.push(e.message));
-  const ls = (k) => page.evaluate(k => JSON.parse(localStorage.getItem(k)), k);
+  // Tekstit ovat tekstikannassa (luin/tekstit.js, 19.11.2026), muu localStoragessa.
+  const ls = (k) => page.evaluate(k => k.startsWith('luin-teksti:') ? LuinTekstit.lue(k.slice(12)) : JSON.parse(localStorage.getItem(k)), k);
   const lista = () => ls('luin-lista');
   async function pinoon() { await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li'); }
   async function valikko(id, k) {

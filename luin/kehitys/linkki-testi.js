@@ -56,7 +56,8 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
     if (body == null) return r.fulfill({ status: 404, body: 'ei', headers: { 'Access-Control-Allow-Origin': '*' } });
     r.fulfill({ status: 200, body, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Access-Control-Allow-Origin': '*' } });
   });
-  const ls = (k) => page.evaluate(k => JSON.parse(localStorage.getItem(k)), k);
+  // Tekstit ovat tekstikannassa (luin/tekstit.js, 19.11.2026), muu localStoragessa.
+  const ls = (k) => page.evaluate(k => k.startsWith('luin-teksti:') ? LuinTekstit.lue(k.slice(12)) : JSON.parse(localStorage.getItem(k)), k);
 
   await page.goto(U + 'luin.html#');
   await page.evaluate(([md, ilman]) => {

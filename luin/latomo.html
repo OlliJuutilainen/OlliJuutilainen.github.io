@@ -410,6 +410,7 @@
 </main>
 <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 
+<script src="tekstit.js?v=8e563b11"></script>
 <script src="md.js?v=f0e18a6e"></script>
 <script src="posti.js?v=5eac5539"></script>
 <script src="laatikkolause.js?v=29cb216a"></script>
@@ -1341,10 +1342,11 @@
     if (!t) return;
     var siirto = { md: t.md, nimi: nimi };
     if (pino) siirto.pinosta = { id: pino.id, tila: pino.tila, valinta: pino.valinta };
-    var json = JSON.stringify(siirto);
-    try { localStorage.setItem('luin-tuonti', json); }
-    catch (e) { alert(tilaLoppui(json.length)); return; }
-    location.href = '../luin.html#tuo';
+    // Siirto kulkee tekstikannassa (luin/tekstit.js, 19.11.2026); localStorage vain, jos kanta ei avaudu.
+    LuinTekstit.asetaSiirto(siirto).then(function (ok) {
+      if (!ok) { alert(tilaLoppui(JSON.stringify(siirto).length)); return; }
+      location.href = '../luin.html#tuo';
+    });
   });
   $('#lataa').addEventListener('click', function () {
     var t = nykyinen();
@@ -1518,8 +1520,11 @@
   function pinoon() {
     var m = /^#(tiedot|laitos)=(.+)$/.exec(location.hash);
     if (!m) return;
-    var id = decodeURIComponent(m[2]), lista = lueLS('luin-lista', []), e = lista.filter(function (x) { return x.id === id; })[0];
-    var teksti = lueLS('luin-teksti:' + id, null);
+    var id = decodeURIComponent(m[2]);
+    LuinTekstit.lue(id).then(function (teksti) { pinoonTeksti(m, id, teksti); });
+  }
+  function pinoonTeksti(m, id, teksti) {
+    var lista = lueLS('luin-lista', []), e = lista.filter(function (x) { return x.id === id; })[0];
     $('#pinosta').hidden = false;
     if (!e || typeof teksti !== 'string') {
       $('#pinosta-lappu').textContent = 'Pinosta';

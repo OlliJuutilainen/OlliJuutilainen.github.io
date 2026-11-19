@@ -75,7 +75,8 @@ function muistiKV() {
   }
   const a = await laite('A'), b = await laite('B');
   const odota = ms => new Promise(v => setTimeout(v, ms));
-  const LS = (s, k) => s.evaluate(k => JSON.parse(localStorage.getItem(k)), k);
+  // Tekstit ovat tekstikannassa (luin/tekstit.js, 19.11.2026), muu localStoragessa.
+  const LS = (s, k) => s.evaluate(k => k.startsWith('luin-teksti:') ? LuinTekstit.lue(k.slice(12)) : JSON.parse(localStorage.getItem(k)), k);
   const nimike = async (s, id) => (await LS(s, 'luin-lista')).filter(e => e.id === id)[0];
   async function lista(s) {
     await s.evaluate(() => { location.hash = ''; });
