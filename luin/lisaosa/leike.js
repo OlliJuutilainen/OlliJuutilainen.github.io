@@ -5902,15 +5902,31 @@
       .then(t => t ? new DOMParser().parseFromString(t, 'text/xml') : null).catch(() => null).finally(() => clearTimeout(ajastin));
   }
   // TEI-XML:n runko HTML:ksi: osoitteen ylin jako (avaimet), kreikka Unicodeksi, alaviitteet maar-listaan tunnuksin etu+N.
-  function psRunko(X, avaimet, kreikka, etu, maar) {
+  /* Kirjan nimi alkutekstin kielen mukaan (käyttäjän pyyntö 19.11.2026: englantilainen Book 1 on alkukielisessä tekstissä
+     mauton): kreikassa aakkosjärjestys versaalein (Α, Β, Γ … Ω, Homeroksen tapa: 6 on Ζ, ei Ϛ), latinassa roomalaiset
+     numerot, englanninkielisessä teoksessa Book 1. Yli 24 kreikassa ja muu kuin numero pysyvät Book-muodossa. */
+  const PS_AAKKOSET = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ';
+  function psRooma(i) {
+    let t = '';
+    [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']]
+      .forEach(([a, m]) => { while (i >= a) { t += m; i -= a; } });
+    return t;
+  }
+  function psKirja(n, kieli) {
+    const i = /^\d+$/.test(n) ? +n : 0;
+    if (kieli === 'kreikka' && i >= 1 && i <= PS_AAKKOSET.length) return PS_AAKKOSET[i - 1];
+    if (kieli === 'latina' && i >= 1 && i < 4000) return psRooma(i);
+    return 'Book ' + n;
+  }
+  function psRunko(X, avaimet, kreikka, etu, maar, kieli) {
     const body = X && X.getElementsByTagName('body')[0];
     if (!body) return null;
     // Osoitteen ylin jako, jolle löytyy div (book=1 → div1 type=book n=1).
-    let osa = null, osaNimi = '';
+    let osa = null, osaNimi = '', osaAvain = '';
     const divit = [...body.getElementsByTagName('*')].filter(e => /^div\d?$/.test(e.tagName));
     for (const [k, v] of avaimet) {
       osa = divit.find(d => (d.getAttribute('type') || '').toLowerCase() === k.toLowerCase() && d.getAttribute('n') === v);
-      if (osa) { osaNimi = k.charAt(0).toUpperCase() + k.slice(1).toLowerCase() + ' ' + v; break; }
+      if (osa) { osaAvain = k + '=' + v; osaNimi = /^book$/i.test(k) ? psKirja(v, kieli) : k.charAt(0).toUpperCase() + k.slice(1).toLowerCase() + ' ' + v; break; }
     }
     const juuri = osa || body;
     const el = document.createElement('div');
@@ -5986,7 +6002,7 @@
           // otsikot jäävät pois kuten ennenkin.
           const eka = [...n.childNodes].find(c => c.nodeType === 1);
           if (juuri === body && /^\d+$/.test(tila.kirja) && !(eka && eka.tagName === 'head')) {
-            const h = document.createElement('h2'); h.textContent = 'Book ' + tila.kirja; el.appendChild(h); kpl = null;
+            const h = document.createElement('h2'); h.textContent = psKirja(tila.kirja, kieli); el.appendChild(h); kpl = null;
           }
         }
         [...n.childNodes].forEach(c => lohko(c, g));
@@ -6062,7 +6078,7 @@
       if (s && s.tagName === 'P') { s.prepend(...p.childNodes, ' '); p.remove(); }
     });
     el.normalize();
-    return { el, osaNimi };
+    return { el, osaNimi, osaAvain };
   }
   /* Lomitettu käännös (semi-interlineaari; käyttäjän pyyntö 16.11.2026). Alkukielisellä sivulla (kreikka) Hopperin
      sivupalkin käännöswidget (div.widget#translationN, otsikko English (1969), focus-linkki text?doc=…) kertoo saman teoksen
@@ -6160,10 +6176,12 @@
     if (!dm) return null;
     const avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
     const kreikka = !!document.querySelector('.text_container.greek');
+    const tc = (document.querySelector('.text_container') || {}).className || '';
+    const kieli = kreikka ? 'kreikka' : /(^|\s)(la|latin)(\s|$)/.test(tc) ? 'latina' : '';
     const X = await psXml(location.origin + '/hopper/dltext?doc=' + encodeURIComponent(dm[1]));
-    const maar = [], R = psRunko(X, avaimet, kreikka, 'ps', maar);
+    const maar = [], R = psRunko(X, avaimet, kreikka, 'ps', maar, kieli);
     if (!R || kkSanoja(R.el) < 50) return null;
-    let { el, osaNimi } = R, lomitus = null;
+    let { el, osaNimi, osaAvain } = R, lomitus = null;
     if (!/(^|\s)en(\s|$)/.test((document.querySelector('.text_container') || {}).className || '')) lomitus = await psLomitus(avaimet, el);
     let lomitusSyy = '';
     if (lomitus && !lomitus.el) { lomitusSyy = lomitus.syy; lomitus = null; }
@@ -6180,12 +6198,12 @@
     el.querySelectorAll('sup[data-ps]').forEach(x => x.removeAttribute('data-ps'));
     // Lomitetussa leikkeessä kääntäjä on käännöksen; muut tiedot (laitos, kustantaja, vuosi) alkutekstin.
     const kaa = lomitus ? lomitus.kaantaja : kaantaja;
-    return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + ', ' + osaNimi : nimi, tekija: ek(ts, 'author'),
+    return { html: irrota([el]).innerHTML, otsikko: osaNimi ? nimi + (/ /.test(osaNimi) ? ', ' : ' ') + osaNimi : nimi, tekija: ek(ts, 'author'),
       ladonta: lomitus ? 'lomitettu käännös' : '',
       // Viitenumerot (section, card) ovat lukimen aikajanan kohtia (md.js: kohdat: yläindeksit).
       kohdat: kohtia ? 'yläindeksit' : '',
       suomentaja: kaa ? kkKaantaja(kkNimet(kaa)) : '', teos: km ? km[1] : lt, kustantaja: ek(sd, 'publisher'), julkaistu: vuosi,
-      sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaNimi ? ':' + avaimet.find(([k, v]) => osaNimi.toLowerCase() === (k + ' ' + v).toLowerCase()).join('=') : '')),
+      sivusto: PS_NIMI, lahde: location.origin + '/hopper/text?doc=' + encodeURIComponent(dm[1] + (osaAvain ? ':' + osaAvain : '')),
       maar, naytto: PS_NIMI + (lomitus ? ' (alkuteksti ja käännös)' : lomitusSyy ? ' (vain alkuteksti: ' + lomitusSyy + ')' : '') };
   }
 
