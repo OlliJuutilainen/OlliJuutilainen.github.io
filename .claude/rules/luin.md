@@ -251,6 +251,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Kielet** (käyttäjän pyyntö 19.11.2026, `aset.lomitus`, opas 3.2): lomitetussa käännöksessä molemmat, alkuteksti tai käännös
   pelkällä CSS-luokalla; piilotettu kieli pysyy DOMissa (kohdat, merkinnät ja aikajana eivät muutu). Älä poista piilotettua tekstiä
   DOMista äläkä jäsennä tekstiä tilan mukaan uudelleen. `asettele()`:n `art.className` pyyhkii luokan, siksi `lomitusLuokat()`.
+  Hyvin leveällä vierityksessä *Molemmat* on rinnakkain (`div.pari`, opas 3.2): alkuteksti absoluuttisesti ja pari sen korkuinen
+  (`rinnakkainKorkeudet()`), ei reunushuomioita. Ruudukko ja kellutus kokeiltiin, eivätkä ne toimi reunushuomioiden kanssa.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. Sähköpaperi: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.
