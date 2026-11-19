@@ -13,7 +13,17 @@ const LATOMO = 'https://ollijuutilainen.github.io/luin/latomo.html#lisaosa';
 const TIEDOSTOT = ['kirjastot/Readability.js', 'kirjastot/turndown.js', 'kirjastot/turndown-plugin-gfm.js', 'leike.js'];
 const $ = id => document.getElementById(id);
 const luku = n => n.toLocaleString('fi-FI') + (n === 1 ? ' sana' : ' sanaa');
-let leike = null, arvottu = null;
+let leike = null, arvottu = null, tab = null;
+
+/* Perseuksen valinnat (käyttäjän pyyntö 19.11.2026): kielet (alkuteksti ja käännös lomitettuna, alkuteksti tai käännös) ja
+   kirjat (numeronapit ja kaikki). Muutos ajaa leikkurin uudelleen samalla välilehdellä (leike.js lukee valinnat muuttujasta
+   __lukimeenPs; teoksen XML on sivun muistissa, joten sitä ei haeta uudelleen). Napit odottavat hetken, jotta useamman kirjan
+   napautus tekee yhden ajon. Kielivalinta muistetaan (psKielet), kirjat tulevat aina osoitteesta.
+   PS_ISO: sanamäärä, jonka ylittyessä ikkuna ehdottaa pienempää pakettia. Valtion kirja on kahdella kielellä noin 31 000
+   sanaa, koko teos 305 000; käyttäjän laitteilla koko teos on ollut raskas (19.11.2026). Kun suuret paketit toimivat sulavasti,
+   nosta rajaa tai poista huomio. */
+const PS_ISO = 60000;
+let psValinta = null, psKesken = false, psAjo = false, psJono = false, psAjastin = null;
 
 // Sama kuin luin/posti.js: koodi() ja koodiVirhe().
 function koodi(s) {
@@ -56,9 +66,73 @@ function nayta() {
   $('meta').textContent = [leike.sivusto, sanoja ? luku(sanoja) : '',
     viitteita ? viitteita + (viitteita === 1 ? ' alaviite' : ' alaviitettä') + ' haettu' : ''].filter(Boolean).join(' · ');
   const tyhja = !(valittu() ? leike.valinta : leike.koko);
-  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja;
-  $('soita').disabled = tyhja || !!kv;
-  $('tila').textContent = tyhja ? 'Sivulta ei löytynyt artikkelia. Maalaa luettava kohta ja avaa ikkuna uudelleen.' : '';
+  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja || psKesken;
+  $('soita').disabled = tyhja || !!kv || psKesken;
+  $('tila').textContent = psKesken ? 'Poimitaan valintojen mukaan…'
+    : tyhja ? 'Sivulta ei löytynyt artikkelia. Maalaa luettava kohta ja avaa ikkuna uudelleen.' : '';
+  psPiirra();
+}
+
+async function aja(valinnat) {
+  try {
+    await api.scripting.executeScript({ target: { tabId: tab.id }, func: v => { globalThis.__lukimeenPs = v; }, args: [valinnat || null] });
+    const r = await api.scripting.executeScript({ target: { tabId: tab.id }, files: TIEDOSTOT });
+    return r && r[0] && r[0].result;
+  } catch (e) { return null; }
+}
+
+function psPiirra() {
+  const ps = leike && leike.ps;
+  $('ps').hidden = !ps;
+  if (!ps) return;
+  if (!psValinta) psValinta = { kielet: ps.kielet, kirjat: ps.valitut.length ? ps.valitut.slice() : ps.kirjat.slice() };
+  $('ps-kielet').hidden = !ps.kaannos;
+  $('ps-molemmat').textContent = ps.kieli + ' ja englanti';
+  $('ps-alku').textContent = ps.kieli;
+  document.querySelectorAll('input[name="kielet"]').forEach(r => { r.checked = r.value === psValinta.kielet; });
+  $('ps-kirjat-osa').hidden = ps.kirjat.length < 2;
+  const k = $('ps-kirjat');
+  if (k.dataset.kirjat !== ps.kirjat.join()) {
+    k.dataset.kirjat = ps.kirjat.join();
+    k.textContent = '';
+    ps.kirjat.forEach(n => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = n; b.dataset.n = n; b.setAttribute('aria-label', 'Kirja ' + n);
+      k.appendChild(b);
+    });
+    const kaikki = document.createElement('button');
+    kaikki.type = 'button'; kaikki.className = 'kaikki'; kaikki.textContent = 'kaikki';
+    k.appendChild(kaikki);
+  }
+  const kaikkiValittu = psValinta.kirjat.length === ps.kirjat.length;
+  k.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.n ? psValinta.kirjat.includes(b.dataset.n) : kaikkiValittu)));
+  // Huomio vain valmiista leikkeestä: pienempi paketti niillä keinoilla, jotka tässä valinnassa vielä ovat käytössä.
+  const keinot = [];
+  if (leike.ps.kielet === 'molemmat') keinot.push('yksi kieli');
+  if (leike.ps.valitut.length !== 1 && ps.kirjat.length > 1) keinot.push('kirja kerrallaan');
+  $('ps-huomio').textContent = !psKesken && leike.kokoSanoja > PS_ISO && keinot.length
+    ? 'Iso paketti. Jos lukeminen tökkii, kokeile pienempää: ' + keinot.join(' tai ') + '.' : '';
+}
+
+function psMuuta() {
+  psKesken = true;
+  nayta();
+  clearTimeout(psAjastin);
+  psAjastin = setTimeout(psLeikkaa, 500);
+}
+
+async function psLeikkaa() {
+  psAjastin = null;
+  if (psAjo) { psJono = true; return; }
+  psAjo = true;
+  const r = await aja({ kielet: psValinta.kielet, kirjat: psValinta.kirjat.slice() });
+  psAjo = false;
+  if (psJono) { psJono = false; return psLeikkaa(); }
+  if (psAjastin) return;
+  psKesken = false;
+  if (r) { leike = r; $('otsikko').textContent = leike.otsikko; }
+  nayta();
+  if (!r) $('tila').textContent = 'Poiminta epäonnistui. Avaa ikkuna uudelleen.';
 }
 
 function muista() {
@@ -79,7 +153,7 @@ async function laheta(avaa, posti, lataa) {
 }
 
 async function aloita() {
-  const { posti, lisat } = await api.storage.local.get(['posti', 'lisat']);
+  const { posti, lisat, psKielet } = await api.storage.local.get(['posti', 'lisat', 'psKielet']);
   asetaLisat(lisat === true);
   $('plussa').addEventListener('click', () => {
     const auki = !lisatAuki();
@@ -110,11 +184,8 @@ async function aloita() {
   nayta();
   // ?valilehti= antaa testin osoittaa välilehden (testissä ikkuna on itse aktiivinen välilehti).
   const pakko = Number(new URLSearchParams(location.search).get('valilehti'));
-  const [tab] = pakko ? [await api.tabs.get(pakko)] : await api.tabs.query({ active: true, currentWindow: true });
-  try {
-    const r = await api.scripting.executeScript({ target: { tabId: tab.id }, files: TIEDOSTOT });
-    leike = r && r[0] && r[0].result;
-  } catch (e) { leike = null; }
+  [tab] = pakko ? [await api.tabs.get(pakko)] : await api.tabs.query({ active: true, currentWindow: true });
+  leike = await aja(psKielet ? { kielet: psKielet } : null);
   if (!leike) {
     $('otsikko').textContent = 'Tätä sivua ei voi leikata';
     $('tila').textContent = 'Selaimen omat sivut ja lisäosakaupat ovat lisäosilta suljettuja.';
@@ -123,6 +194,25 @@ async function aloita() {
   $('otsikko').textContent = leike.otsikko;
   if (leike.valinta) { $('valintarivi').hidden = false; $('valinta').checked = true; }
   $('valinta').addEventListener('change', nayta);
+  document.querySelectorAll('input[name="kielet"]').forEach(r => r.addEventListener('change', () => {
+    if (!r.checked || !psValinta) return;
+    psValinta.kielet = r.value;
+    api.storage.local.set({ psKielet: r.value });
+    psMuuta();
+  }));
+  $('ps-kirjat').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || !psValinta || !leike || !leike.ps) return;
+    const kaikki = leike.ps.kirjat;
+    if (!b.dataset.n) {
+      if (psValinta.kirjat.length === kaikki.length) return;
+      psValinta.kirjat = kaikki.slice();
+    } else if (psValinta.kirjat.includes(b.dataset.n)) {
+      if (psValinta.kirjat.length === 1) return;
+      psValinta.kirjat = psValinta.kirjat.filter(n => n !== b.dataset.n);
+    } else psValinta.kirjat = kaikki.filter(n => n === b.dataset.n || psValinta.kirjat.includes(n));
+    psMuuta();
+  });
   $('lukimeen').addEventListener('click', () => laheta(true, null));
   $('lataa').addEventListener('click', () => laheta(false, null, true));
   // Säädä Latomossa (0.8.0; ennen Muokkaa Latomossa) täyttää kelpaavan lauseen valmiiksi, kun Postihuilu on auki, mutta ei lähetä.

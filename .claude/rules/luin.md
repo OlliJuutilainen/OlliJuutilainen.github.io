@@ -14,7 +14,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 
 - `luin.html` (juuressa, koska ohjelman nimi on luin.html): lukulista ja lukija samalla sivulla. Kaikki on selaimen
   localStoragessa (opas 2.3); palvelinta ei ole, paitsi postilaatikko.
-- `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle.
+- `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle. Tekstin tunnus pinossa ja Postihuilussa
+  on `tekstiTunnus()`, ei `slug()`: slug antaa jokaiselle kreikkalaiselle tai kyrilliselle otsikolle saman `osio`n (19.11.2026).
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin avaimella `luin-tuonti`
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
 - `luin/mika-on-markdown.md` (käyttäjän pyyntö 12.11.2026): *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
@@ -78,6 +79,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   vain englanninkielinen *Book 1*. Ei englantilaista *Book*ia alkukieliseen tekstiin.
   Kreikkalaisen teoksen nimi kreikaksi (*Πολιτεία Αʹ*), kun leikkeessä on alkuteksti: Perseus antaa nimen vain englanniksi, joten
   nimet ovat taulukossa `PS_KREIKKA_NIMET` (NFC); puuttuva jää englanniksi. Lisää uusi teos taulukkoon.
+  Valinnat ponnahdusikkunassa (käyttäjän pyyntö 19.11.2026, opas 7.5): kielet ja kirjat menevät leikkurille muuttujassa
+  `__lukimeenPs` (ikkuna asettaa sen `executeScript`-funktiolla ennen tiedostoja), ja XML pysyy sivun muistissa (`__lukimeenPsXml`).
+  Ilman valintoja leike on tavulleen sama kuin ennen; testi `perseus-valinnat-testi.js` (vertaa pesukoneen leikkeisiin).
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`

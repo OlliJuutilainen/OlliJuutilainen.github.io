@@ -78,12 +78,37 @@
   .posti label.heti { margin: 6px 0 0; min-height: 28px; font-size: .76rem; color: var(--harmaa); gap: 6px; }
   .posti label.heti .sal { width: 14px; height: 18px; }
   .posti label.heti .sal svg { width: 8px; height: 11px; }
+  /* Perseuksen valinnat (käyttäjän pyyntö 19.11.2026): kielet salmiakkivalintoina, kirjat numeronappeina. Valittu kirja on
+     täytetty (sähköpaperilla erottuu ilman värejä). */
+  .ps { margin: 0 0 12px; padding: 8px 10px 4px; border: 1px solid var(--viiva); }
+  .ps-nimi { display: block; font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; color: var(--harmaa); margin: 0 0 2px; }
+  .ps label { margin: 0; min-height: 30px; font-size: .86rem; }
+  .ps fieldset { border: 0; margin: 0 0 8px; padding: 0; min-width: 0; }
+  .ps legend { padding: 0; }
+  .ps-kirjat { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 6px; }
+  .ps-kirjat button { min-width: 34px; min-height: 34px; padding: 0 6px; font-size: .86rem; border-color: var(--viiva); color: var(--harmaa); }
+  .ps-kirjat button[aria-pressed="true"] { background: var(--muste); border-color: var(--muste); color: var(--paperi); }
+  .ps-kirjat button.kaikki { padding: 0 10px; }
+  #ps-huomio { font-size: .8rem; font-style: italic; line-height: 1.4; color: var(--harmaa); margin: 2px 0 6px; }
+  #ps-huomio:empty { display: none; }
 </style>
 </head>
 <body>
 <main>
   <h1 id="otsikko">Luetaan sivua…</h1>
   <p class="meta" id="meta"></p>
+  <!-- Perseus (käyttäjän pyyntö 19.11.2026): mitä teoksesta poimitaan. Leikkuri ajetaan valinnan muuttuessa uudelleen. -->
+  <div class="ps" id="ps" hidden>
+    <fieldset id="ps-kielet"><legend class="ps-nimi">Kielet</legend>
+      <label><span class="sal"><input type="radio" name="kielet" value="molemmat"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> <span id="ps-molemmat">alkuteksti ja käännös</span></label>
+      <label><span class="sal"><input type="radio" name="kielet" value="alku"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> <span id="ps-alku">alkuteksti</span></label>
+      <label><span class="sal"><input type="radio" name="kielet" value="kaannos"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> <span>englanninkielinen käännös</span></label>
+    </fieldset>
+    <fieldset id="ps-kirjat-osa"><legend class="ps-nimi">Kirjat</legend>
+      <div class="ps-kirjat" id="ps-kirjat"></div>
+    </fieldset>
+    <p id="ps-huomio"></p>
+  </div>
   <label id="valintarivi" hidden><span class="sal"><input type="checkbox" id="valinta"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span> Vain valittu kohta</label>
   <div class="napit">
     <button type="button" class="paa" id="lukimeen" disabled>Poimi lukimeen</button>

@@ -323,6 +323,17 @@
     return s.toLowerCase().replace(/[äå]/g, 'a').replace(/ö/g, 'o').replace(/[éè]/g, 'e').replace(/ü/g, 'u')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'osio';
   }
+  /* Tekstin tunnuksen pohja otsikosta (Luinin pino ja Postihuilu; 19.11.2026). slug() pudottaa muut kuin latinalaiset
+     kirjaimet, joten kreikkalaiset ja kyrilliset otsikot saivat kaikki tunnuksen osio, ja Πολιτεία Βʹ korvasi pinossa
+     Πολιτεία Αʹ:n merkintöineen. Otsikko ilman a–z- ja 0–9-merkkejä saa slugin sijaan tiivisteen (FNV-1a NFC-muodosta). */
+  function tekstiTunnus(s) {
+    s = String(s || '');
+    if (/[a-z0-9]/i.test(s) || !s.trim()) return slug(s);
+    s = s.normalize('NFC');
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return 't' + (h >>> 0).toString(36);
+  }
 
   // Lainauksen lähde (käyttäjän päätös 27.10.2026): lainauksen viimeinen rivi, joka alkaa ajatus- tai em-viivalla ja
   // välilyönnillä ja jota edeltää pakotettu rivinvaihto (\, kaksi välilyöntiä tai <br>) tai lainauksen sisäinen tyhjä
@@ -2576,5 +2587,5 @@
 
   root.LuinMD = { parse: parse, tunnus: tunnus, luuranko: luuranko, etukentta: etukentta, arvaaViite: arvaaViite, kokoaViite: kokoaViite, lisatieto: lisatieto, KENTAT: KENTAT,
     tyyppiAvain: tyyppiAvain, tietorivi: tietorivi, avain: avain, pvm: pvm, pvmMuoto: pvmMuoto, pvmIso: pvmIso, tekijat: tekijat, nimet: nimet, asiasanat: asiasanat, ajoitus: ajoitus,
-    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
+    iaAlaviitteet: iaAlaviitteet, lahteetLainaukseen: lahteetLainaukseen, plain: plain, slug: slug, tekstiTunnus: tekstiTunnus, OHEIS: OHEIS, tavurajat: tavurajat, tavuta: tavuta, tavutaLt: tavutaLt, tavutaDOM: tavutaDOM, esc: esc };
 })(typeof window !== 'undefined' ? window : globalThis);
