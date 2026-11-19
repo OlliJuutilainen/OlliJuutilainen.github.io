@@ -1198,6 +1198,8 @@
      asteen himmeämpi (--huomio, käyttäjän pyyntö 17.11.2026) versaali, kursiivi, ohut ja ohuen suorakaiteen sisällä (käyttäjän päätös 17.11.2026; aamulla hakasulkeissa).
      Painallus on tapahtuma eikä tila: vain napin suorakaide kehineen tanssii sähköpaperin virkistyksen tapaan Mustimman ja
      TCF:n välillä neljä vaihetta (papyrosoi(); viimeisessä lopputilan väri ja kuittaus, joka jää PAPYRUS_MS ajaksi). Vaiheiden värit ovat kiinteät, koska sivun teema vaihtuu kesken. Leveys lukitaan vatkauksen ajaksi. */
+  /* Raskaan tekstin ilmoitus Asetusten ylälaidassa (sovellaTaiLykkaa()). */
+  #raskas-tieto { font-size: .8rem; font-style: italic; line-height: 1.4; color: var(--harmaa); margin: 12px 0 -8px; }
   .aset-ots { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
     margin: 24px 0 10px; }
   .aset-ots h3 { margin: 0 !important; }
@@ -1542,6 +1544,8 @@
 <!-- ===== Asetukset ===== -->
 <div class="paneeli" id="asetukset" hidden role="dialog" aria-label="Asetukset">
   <header><h2>Asetukset</h2><button class="ikoni sulje" type="button" aria-label="Sulje"><svg viewBox="0 0 14 14"><path d="M1 1L13 13M13 1L1 13"/></svg></button></header>
+  <!-- Raskas teksti (käyttäjän pyyntö 19.11.2026): ladonnan muutokset tehdään kerralla, kun Asetukset suljetaan (sovellaTaiLykkaa()). -->
+  <p id="raskas-tieto" hidden>Tämä teksti on raskas latoa, joten ladonnan muutokset tehdään kerralla, kun suljet asetukset.</p>
   <!-- Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, ei kytkin. Asettaa SAHKOPAPERI-taulun asetukset kerralla;
        sen jälkeen jokaista voi muuttaa omasta kytkimestään. Kun asetukset ovat taulun mukaiset, samassa paikassa on
        Oletusasetukset, joka palauttaa taulun asetukset laitteen oletuksiin. Ks. CSS #papyrosoi. Kontrastikytkimen nimi
@@ -1951,7 +1955,7 @@
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
   var nyt = null;      // { e, doc, blocks, txt, cum, total, merk }
-  var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0, asetteluja: 0 };
+  var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0, asetteluja: 0, asetteluMs: 0 };
   var art = $('#teksti'), sivuEl = $('#sivu'), pop = $('#pop');
 
   function tallennaLista() {
@@ -3660,6 +3664,7 @@
     sijoitaPaneeli();
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
     $('#lomitus-rivi').hidden = !(nyt && nyt.doc.lomitettu);
+    $('#raskas-tieto').hidden = !raskas();
     $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = laatikonKoodi(); $('#laatikko-tieto').textContent = koodiTieto(laatikonKoodi());
     $('#laatikko-arvottu').hidden = true;
@@ -3780,7 +3785,7 @@
         n.textContent = takaisin ? 'Palautettu' : 'Sähköpapyrosoitu';
         var ennen = Object.assign({}, aset);
         Object.keys(uusi).forEach(function (k) { aset[k] = uusi[k]; });
-        tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
+        tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ennen);
       }
       setTimeout(askel, ++i === vaiheet.length ? PAPYRUS_MS : PAPYRUS_VAIHE);
     })();
@@ -3848,13 +3853,14 @@
       }
     }
     else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
-    tallennaAset(); piirraAsetukset(); sovellaAsetukset(ennen);
+    tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ennen);
   });
 
-  function sovellaTeema() {
+  // eiKokoa: raskaan tekstin odottava koko (sovellaTaiLykkaa()) ei saa asettaa --kokoa, koska selain asettelisi tekstin sen mukaan.
+  function sovellaTeema(eiKokoa) {
     document.documentElement.dataset.teema = aset.teema;
     document.documentElement.classList.toggle('kontrasti', !!aset.kontrasti);
-    document.documentElement.style.setProperty('--koko', aset.koko + 'px');
+    if (!eiKokoa) document.documentElement.style.setProperty('--koko', aset.koko + 'px');
     document.documentElement.classList.toggle('ali-piilo', !aset.alTekstissa);
     document.documentElement.classList.toggle('oma-maalaus', omaMaalaus());
   }
@@ -3873,6 +3879,41 @@
     if (ASETTELU.some(function (x) { return ennen[x] !== aset[x]; })) asettele(a); else paivita();
     // Asetukset pysyvät auki, kun niissä vaihdetaan Vieritys/Sivut; muut paneelit suljetaan.
     if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); sijoitaNipukka(); }
+  }
+  /* Raskas teksti (käyttäjän pyyntö 19.11.2026; Perseuksen kaksikielinen Valtio: koon napautus 1,4 s ja tavutuksen 2,1 s
+     neljäsosaan hidastetulla suorittimella). Kun avoimen tekstin edellinen asettelu (tila.asetteluMs) kesti yli RASKAS_MS,
+     ladonnan asetukset (ASETTELU) eivät asettele tekstiä napautuksesta: arvo tallentuu ja paneeli päivittyy, ja teksti
+     asetellaan kerran, kun Asetukset suljetaan. Ilmoitus #raskas-tieto paneelin ylälaidassa. Muut asetukset (teema, kontrasti,
+     näytettävät merkinnät) toimivat heti myös odotuksen aikana; niiden takia ei saa kutsua lomitusLuokat()ia eikä asetella,
+     koska kielten luokka tai asettelu toisi odottavan ladonnan näkyviin puolittain. lykatty on ensimmäistä odottavaa muutosta
+     edeltänyt asetustila, joten sulkiessa vertailu kattaa kaikki muutokset (takaisin peruttu ei asettele).
+     RASKAS_MS on asettele()n oma kesto (mitattu 19.11.2026, Chromium, suoritin hidastettuna neljäsosaan, 393 × 452: Valtio 448 ms,
+     jolloin koon napautus kesti 1,1 s; pelkkä englanninkielinen kirja 297 ms ja napautus 0,6 s). Jos teksti osoittautuu raskaaksi
+     vasta paneelin ollessa auki (ensimmäinen napautus), ilmoitus tulee näkyviin ja seuraavat napautukset odottavat. */
+  var RASKAS_MS = 350, lykatty = null;
+  function raskas() { return !!(nyt && !$('#lukija').hidden && tila.asetteluMs > RASKAS_MS); }
+  function sovellaTaiLykkaa(ennen) {
+    var ladonta = ASETTELU.some(function (x) { return ennen[x] !== aset[x]; });
+    if (!lykatty && !(ladonta && raskas() && !$('#asetukset').hidden)) {
+      sovellaAsetukset(ennen);
+      if (!$('#asetukset').hidden) $('#raskas-tieto').hidden = !raskas();
+      return;
+    }
+    if (!lykatty) lykatty = ennen;
+    sovellaTeema(true);
+    if (!ennen.kontrasti && aset.kontrasti) tcfNahty = false;
+    if (ennen.verkkolinkit !== aset.verkkolinkit) paivitaLinkit();
+    if (ennen.sivutus !== aset.sivutus) sijoitaNipukka(); // Sivunkäännön lisäkytkimet paneelissa
+    if (!ladonta) paivita();
+  }
+  // Sulkiessa ensin suljettu paneeli ruutuun (sähköpaperilla näkyy heti, että sulkeminen tehosi), sitten asettelu.
+  function sovellaLykatyt() {
+    if (!lykatty) return;
+    requestAnimationFrame(function () { setTimeout(function () {
+      if (!lykatty || !$('#asetukset').hidden) return;
+      var e = lykatty; lykatty = null;
+      if (nyt && !$('#lukija').hidden) sovellaAsetukset(e);
+    }, 0); });
   }
 
   /* ---------- tekstin solmut ja kohdat ----------
@@ -3983,6 +4024,7 @@
     if (e.src === 'laatikko') e.huiluNahty = 1;
     lista = [e].concat(lista.filter(function (x) { return x !== e; }));
     tallennaLista();
+    lykatty = null; // uusi teksti asetellaan joka tapauksessa voimassa olevin asetuksin
     nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };
     nyt.kuva = P.kuva(nyt.merk);
     tila.nakyma = 'lukija';
@@ -4357,6 +4399,7 @@
 
   function asettele(k) {
     tila.asetteluja++;
+    var asT0 = performance.now();
     sovellaTeema();
     sivuAlut = {};
     var sivut = aset.sivutus === 'sivut', mob = !!(MOBIILI && MOBIILI.matches);
@@ -4406,6 +4449,7 @@
     sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
     sijoitaLaatikot();
+    tila.asetteluMs = performance.now() - asT0;
   }
 
   // yla: vierityksessä kohdan rivin paikka, jos se ei ole YLA (hyppy mobiilin palkkien ollessa auki).
@@ -4784,6 +4828,7 @@
   var sivutusAsetuksiin = null;
   new MutationObserver(function () {
     if (!$('#asetukset').hidden) { sivutusAsetuksiin = aset.sivutus; return; }
+    sovellaLykatyt();
     if (sivutusAsetuksiin !== null && sivutusAsetuksiin !== 'sivut' && aset.sivutus === 'sivut') naytaPalkkiopas();
     sivutusAsetuksiin = null;
   }).observe($('#asetukset'), { attributes: true, attributeFilter: ['hidden'] });
@@ -8450,7 +8495,7 @@
   reitti();
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },

@@ -491,6 +491,9 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   `ed` sivua ennen sitä.
 - Sivutettuna `hr.ennen-lukua` (`---` juuri ennen `##`:tä) piilotetaan, koska viiva jäisi yksin omalle sivulleen.
 - Vierityksessä pelkkä ikkunan korkeuden muutos ei asettele tekstiä uudelleen (mobiilin osoiterivi).
+- **Raskas teksti** (käyttäjän pyyntö 19.11.2026, `sovellaTaiLykkaa()`, opas 4.5): kun `tila.asetteluMs` > `RASKAS_MS`, `ASETTELU`-asetukset
+  asetellaan kerran Asetusten sulkiessa, ja paneelin ylälaidassa on ilmoitus (`#raskas-tieto`, käyttäjän vaatimus). Odotuksen aikana
+  ei saa asettaa `--koko`a eikä kielten luokkaa tai kutsua `asettele()`a. Uusi asetusnappi kulkee `sovellaTaiLykkaa()`n kautta. Testi `raskas-testi.js`.
 - `tavutaPitkat()` mittaa ensin kaikki ja kirjoittaa vasta lopuksi, ja `sovellaAsetukset()` asettelee vain
   `ASETTELU`-listan asetuksilla. Älä lomita kirjoituksia mittausten väliin: sivutettuna jokainen asetuksen napautus
   kesti pitkällä tekstillä sekunteja.
@@ -595,6 +598,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Mustin ja TCF-valkaisu.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
