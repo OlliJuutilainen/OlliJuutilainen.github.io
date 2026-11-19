@@ -760,6 +760,26 @@
   /* Lomitettu käännös (md.js, etukentän ladonta: lomitettu käännös; Perseuksen alkuteksti ja käännös pykälittäin): käännös
      lähellä alkutekstiään ja väli seuraavaan pykälään, jotta parit erottuvat. Viiva ja koko kuten lainauksessa. */
   #teksti blockquote.kaannos, #teksti.sisennys p + blockquote.kaannos { margin: .6em 0 1.6em; }
+  /* Kielet (käyttäjän pyyntö 19.11.2026, aset.lomitus): vain alkuteksti piilottaa käännökset; vain käännös piilottaa alkutekstin
+     mutta jättää sen kohtanumerot (327a) omalle rivilleen, jotta aikajanan kohdat, kirjanmerkit ja paikannin pysyvät, ja
+     käännös ladotaan leipätekstinä. Piilotettu teksti on DOMissa, joten kohtien laskenta (lohkoteksti) ei muutu tilan mukana. */
+  #teksti.lomitus-alku blockquote.kaannos { display: none; }
+  #teksti.lomitus-kaannos p.alku .alku-teksti, #teksti.lomitus-kaannos p.alku-tyhja { display: none; }
+  #teksti.lomitus-kaannos p.alku { margin: 1.2em 0 .2em; text-indent: 0; }
+  #teksti.lomitus-kaannos blockquote.kaannos { margin: .6em 0 1.6em; padding: 0; border: 0; font-size: 1em; line-height: inherit; color: inherit; }
+  /* Rinnakkain (käyttäjän pyyntö 19.11.2026): hyvin leveällä ruudulla vierityksessä Molemmat-tilassa alkuteksti ja käännös
+     vierekkäin kohta kohdalta (div.pari: div.pari-alku ja blockquote.kaannos). Muuten kääreet ovat display: contents, jolloin
+     ladonta on sama kuin ilman niitä. Palsta on kahden mitan levyinen (asettele(), RINN_VALI); muu teksti pysyy mitan levyisenä. */
+  #teksti div.pari, #teksti div.pari-alku { display: contents; }
+  /* Ei ruudukkoa eikä kellutusta (mitattu 19.11.2026): ruudukon solu sulkee käännöksen reunushuomiot (float) sisäänsä ja venyy
+     niiden mittaiseksi, ja kelluva alkuteksti ei voi nousta edellisen parin alemmas jääneen huomion yläreunaa ylemmäs (alkoi
+     20 px käännöstä alempaa). Käännös on virrassa, joten huomiot kelluvat kuten muussa tekstissä; alkuteksti on parin
+     yläreunassa absoluuttisesti, ja asettele() antaa parille alkutekstin korkeuden vähimmäiskorkeudeksi (rinnakkainKorkeudet). */
+  #teksti.rinnakkain div.pari { display: block; position: relative; padding: 1px 0 1.1em; }
+  #teksti.rinnakkain div.pari-alku { display: block; position: absolute; left: 0; top: 1px; width: calc(50% - 1em); }
+  #teksti.rinnakkain div.pari > blockquote.kaannos { margin: 0 0 0 calc(50% + 1em); padding: 0; border: 0; font-size: 1em; line-height: inherit; color: inherit; }
+  #teksti.rinnakkain div.pari-alku > p:first-child, #teksti.rinnakkain div.pari > blockquote.kaannos > p:first-child { margin-top: 0; }
+  #teksti.rinnakkain > :not(.pari) { max-width: 33em; }
   /* Lainauksen lähde (md: lainauksen viimeinen rivi – Nimi kenoviivan jälkeen) oikeaan reunaan lainauksen alle, ja otsikon
      jälkeen ennen leipätekstiä lainaus on motto: sisennetty, ilman pystyviivaa, tasaamaton, iso väli perässä (painetun
      kirjan käytäntö; käyttäjän päätös 27.10.2026). */
@@ -1550,6 +1570,9 @@
   <!-- Sateenvarjolistat (käyttäjän päätös 21.10.2026): otsikkona pelkkä kursiivinen Näytä:, data-k = päälle/pois-kytkimet, data-v = yksi vaihtoehdoista.
        Sukkela alleviivaus on alleviivausten alla pienenä lisäkytkimenä. -->
   <h3>Teksti</h3>
+  <!-- Lomitettu käännös (käyttäjän pyyntö 19.11.2026; md.js ladonta: lomitettu käännös, Perseus): molemmat, vain alkuteksti tai
+       vain käännös. Näkyy vain lomitetussa tekstissä (#lomitus-rivi). -->
+  <div class="asetus" data-a="lomitus" id="lomitus-rivi" hidden><span class="nimi">Kielet</span><div class="valinnat" data-v="molemmat:Molemmat|alku:Alkuteksti|kaannos:Käännös"></div></div>
   <div class="asetus"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat pino" data-k="sisallys:Sisällysluettelo|kmTekstissa:Kirjanmerkit|alTekstissa:Alleviivaukset"></div>
     <div class="valinnat nipukka" data-k="auto:Sukkela alleviivaus"></div>
@@ -1759,7 +1782,7 @@
   var OLETUS = { teema: 'vaalea', kontrasti: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
-    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0,
+    maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
     postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 8 };
   // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): cellarin campihyllystön järjestys (JARJ) ja pinon tekstit mukana.
   // postiMerk (käyttäjän pyyntö 9.11.2026): Huiluta myös merkintöjä (ent. Lähetä myös merkinnät) postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
@@ -3633,6 +3656,7 @@
     if (!$('#lukija').hidden) avaaJana(false); // navi ja asetukset eivät ole yhtä aikaa auki: tekstin napautus sulkee asetukset
     sijoitaPaneeli();
     $('#vienti').hidden = !nyt; $('#vie-osio').open = $('#tuo-osio').open = false;
+    $('#lomitus-rivi').hidden = !(nyt && nyt.doc.lomitettu);
     $('#laatikko-osio').open = false;
     $('#laatikko-koodi').value = laatikonKoodi(); $('#laatikko-tieto').textContent = koodiTieto(laatikonKoodi());
     $('#laatikko-arvottu').hidden = true;
@@ -3834,7 +3858,7 @@
   // Asetukset, jotka muuttavat tekstin asettelua. Muiden vaihto (teema, kirjanmerkit, alleviivaukset, verkkolinkit,
   // aikajana, sivunkäännön tavat) piirtää vain palkit ja merkit: koko asettelu on pitkässä tekstissä raskas, ja e-ink-
   // laitteella jokainen napautus odotti sitä (käyttäjän havainto 29.10.2026).
-  var ASETTELU = ['koko', 'kappale', 'tasaus', 'marginaali', 'tavutus', 'sivutus', 'sisallys'];
+  var ASETTELU = ['koko', 'kappale', 'tasaus', 'marginaali', 'tavutus', 'sivutus', 'sisallys', 'lomitus'];
   function sovellaAsetukset(ennen) {
     sovellaTeema();
     if (!ennen.kontrasti && aset.kontrasti) tcfNahty = false;
@@ -3842,6 +3866,7 @@
     var a = tila.ankkuri;
     if (ennen.tavutus !== aset.tavutus || ennen.sisallys !== aset.sisallys) { piirraTeksti(); }
     if (ennen.verkkolinkit !== aset.verkkolinkit) paivitaLinkit();
+    lomitusLuokat();
     if (ASETTELU.some(function (x) { return ennen[x] !== aset[x]; })) asettele(a); else paivita();
     // Asetukset pysyvät auki, kun niissä vaihdetaan Vieritys/Sivut; muut paneelit suljetaan.
     if (ennen.sivutus !== aset.sivutus) { $$('.paneeli:not(#asetukset)').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); sijoitaNipukka(); }
@@ -3908,7 +3933,9 @@
       if (rs.length) return rs[rs.length - 1];
     }
     var er = el.getClientRects();
-    return er.length ? er[0] : el.getBoundingClientRect();
+    if (er.length) return er[0];
+    for (var b = k.b - 1; b >= 0; b--) { var e2 = nyt.blocks[b], r2 = e2 && e2.getClientRects(); if (r2 && r2.length) return r2[r2.length - 1]; }
+    return el.getBoundingClientRect();
   }
   function osuus(k) { return nyt.total ? clamp((nyt.cum[k.b] + k.o) / nyt.total, 0, 1) : 0; }
   function katkelma(k, n) { return (nyt.txt[k.b] || '').slice(k.o, k.o + (n || 40)); }
@@ -3987,6 +4014,55 @@
     }
     return { on: on, raja: tocRaja(aset.janaTaso, toc), siirto: tasoSiirto(toc) };
   }
+  /* Lomitettu käännös: alkutekstin kappale on ylimmän tason p, jota seuraa (muiden alkutekstin kappaleiden jälkeen) käännös
+     ennen seuraavaa otsikkoa. Sen teksti kääritään span.alku-teksti-kääreisiin; kohtanumero (sup ilman linkkiä) jää kääreen
+     ulkopuolelle. Kappale ilman kohtanumeroa on p.alku-tyhja (vain käännös -tilassa kokonaan pois). */
+  function merkitseAlkuteksti() {
+    if (!nyt.doc.lomitettu) return;
+    var kaannos = false, lapset = [].slice.call(art.children).reverse();
+    lapset.forEach(function (el) {
+      if (el.matches('blockquote.kaannos')) { kaannos = true; return; }
+      if (el.tagName !== 'P' || !kaannos) { kaannos = false; return; }
+      el.classList.add('alku');
+      var kohta = function (n) { return n.nodeType === 1 && n.tagName === 'SUP' && !n.querySelector('a') && !n.matches('.fnref'); };
+      if (![].slice.call(el.childNodes).some(kohta)) el.classList.add('alku-tyhja');
+      var span = null;
+      [].slice.call(el.childNodes).forEach(function (n) {
+        if (kohta(n)) { span = null; return; }
+        if (!span) { span = document.createElement('span'); span.className = 'alku-teksti'; n.parentNode.insertBefore(span, n); }
+        span.appendChild(n);
+      });
+    });
+    // Parit rinnakkaisasettelua varten: käännöstä edeltävät alkutekstin kappaleet ja käännös samaan kääreeseen.
+    $$('blockquote.kaannos', art).forEach(function (bq) {
+      if (bq.parentNode !== art) return;
+      var alku = [], e = bq.previousElementSibling;
+      while (e && e.matches('p.alku')) { alku.unshift(e); e = e.previousElementSibling; }
+      if (!alku.length) return;
+      var pari = document.createElement('div'), pa = document.createElement('div');
+      pari.className = 'pari'; pa.className = 'pari-alku';
+      art.insertBefore(pari, alku[0]);
+      alku.forEach(function (x) { pa.appendChild(x); });
+      pari.appendChild(pa); pari.appendChild(bq);
+    });
+  }
+  var RINN_VALI = 2; // rinnakkaisten palstojen väli em:inä (CSS: 50 % ± 1em)
+  // Rinnakkain: alkuteksti on absoluuttisesti, joten pari saa sen korkeuden vähimmäiskorkeudeksi (padding mukaan, border-box).
+  // Ensin mitataan kaikki, sitten kirjoitetaan (mittausten väliin kirjoittaminen asettelisi joka kerta).
+  // Avattu huomio muuttaa alkutekstin korkeutta (huomio kreikan puolella), joten parit mitataan uudelleen.
+  art.addEventListener('change', function (e) { if (e.target.classList.contains('fntoggle') && art.classList.contains('rinnakkain')) rinnakkainKorkeudet(true); });
+  function rinnakkainKorkeudet(on) {
+    var parit = [].slice.call(art.querySelectorAll('div.pari'));
+    if (!on) { parit.forEach(function (p) { if (p.style.minHeight) p.style.minHeight = ''; }); return; }
+    var cs = parit.length && getComputedStyle(parit[0]), lisa = cs ? parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) : 0;
+    var h = parit.map(function (p) { return p.firstElementChild.getBoundingClientRect().height; });
+    parit.forEach(function (p, i) { p.style.minHeight = Math.ceil(h[i] + lisa) + 'px'; });
+  }
+  function lomitusLuokat() {
+    var l = nyt && nyt.doc.lomitettu ? aset.lomitus : '';
+    art.classList.toggle('lomitus-alku', l === 'alku');
+    art.classList.toggle('lomitus-kaannos', l === 'kaannos');
+  }
   function piirraTeksti() {
     var d = nyt.doc, html = d.html;
     if (aset.sisallys && d.toc.length) {
@@ -4005,6 +4081,8 @@
     $('#sis-avaa').hidden = !sisalmysKohdat().length;
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
+    merkitseAlkuteksti();
+    lomitusLuokat();
     // Liettuaksi tunnistettu kappale tavuttuu liettuan säännöin (md.js, 16.11.2026). Lyhyessä kappaleessa tekstin kieli, ellei
     // siinä ole yhtäkään toisen kielen yleistä sanaa (liettuankielisen artikkelin Keywords-rivi: theory of parallelism).
     if (aset.tavutus === 'varovainen' || aset.tavutus === 'tihea') {
@@ -4270,12 +4348,19 @@
     asetaYla(mob);
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
       aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
+    lomitusLuokat(); // className korvaa luokat: lomitettu käännös (aset.lomitus) takaisin
     document.body.classList.toggle('sivutus', sivut);
     document.documentElement.classList.toggle('palkkivara', sivut && mob);
     // Reunushuomiot ratkaistaan 33 em:n mitalla, ja Mikron pidempi rivi saa niiden kanssa vain sen, mikä huomioilta jää:
     // muuten Mikro olisi vienyt huomiot esim. 900 px:n ikkunassa 16 px:llä (mitattu 18.11.2026).
-    var koko = aset.koko, reunat = !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
-    var mi = reunat ? Math.max(33, Math.min(mitta(), Math.floor(((innerWidth - 48) / koko - 15.2) * 100) / 100)) : mitta();
+    // Rinnakkain (käyttäjän pyyntö 19.11.2026: erittäin leveä selain) vain, kun kaksi 33 em:n palstaa mahtuvat väljästi. Silloin
+    // ei reunushuomioita: käännös vie rinnakkain vain noin puolet korkeudestaan, ja Shoreyn 2 767 huomiota ajautuivat
+    // viitenumeroistaan (mediaani 561 px, enintään 8 064 px; ilman rinnakkaisuutta 23 px), joten huomiot aukeavat numerosta.
+    var koko = aset.koko;
+    var rinn = !!(!sivut && !mob && nyt && nyt.doc.lomitettu && aset.lomitus === 'molemmat' && innerWidth >= (2 * 33 + RINN_VALI + 2.2 + 13) * koko + 48);
+    art.classList.toggle('rinnakkain', rinn);
+    var reunat = !rinn && !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
+    var mi = rinn ? 2 * 33 + RINN_VALI : reunat ? Math.max(33, Math.min(mitta(), Math.floor(((innerWidth - 48) / koko - 15.2) * 100) / 100)) : mitta();
     document.documentElement.style.setProperty('--mitta', mi);
     document.body.classList.toggle('reunat', reunat);
     document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
@@ -4294,6 +4379,7 @@
       alalukujenAlut();
       liehutaLyhyet();
       var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
+      while (viim && viim.matches('.pari, .pari-alku') && viim.lastElementChild) viim = viim.lastElementChild;
       var rs = viim ? viim.getClientRects() : [];
       var r = rs.length ? rs[rs.length - 1] : null;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
@@ -4303,6 +4389,7 @@
       tavutaPitkat();
       liehutaLyhyet();
     }
+    rinnakkainKorkeudet(rinn);
     sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
     sijoitaLaatikot();
