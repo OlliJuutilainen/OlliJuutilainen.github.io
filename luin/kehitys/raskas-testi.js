@@ -79,7 +79,7 @@ const MD = '---\nladonta: lomitettu käännös\nkohdat: yläindeksit\n---\n\n# K
   for (let i = 0; i < 6; i++) { await page.keyboard.down('PageDown'); await page.keyboard.up('PageDown'); await page.waitForTimeout(150); }
   await avaa();
   a = await tila();
-  tulos('raskas: ilmoitus Asetusten ylälaidassa', a.tieto && /kerralla, kun suljet asetukset/.test(a.tietoTeksti), a.tietoTeksti);
+  tulos('raskas: ilmoitus Asetusten ylälaidassa', a.tieto && /^Tämä teksti on raskas, joten asetusten muutokset tulevat tekstiin kerralla, kun suljet asetukset\.$/.test(a.tietoTeksti), a.tietoTeksti);
   const paikka = await page.evaluate(() => {
     const t = document.getElementById('raskas-tieto').getBoundingClientRect(), h = document.querySelector('#asetukset header').getBoundingClientRect(),
       o = document.querySelector('#asetukset .aset-ots').getBoundingClientRect();
