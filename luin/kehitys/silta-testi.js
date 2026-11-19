@@ -205,7 +205,7 @@ const SOVELLUS = () => {
   await page.click('#pop button[data-k="lataa"]');
   await odota(() => window.__app.tallenna.length > 0);
   const tall = (await app()).tallenna[0];
-  const alkup = await page.evaluate(id => JSON.parse(localStorage.getItem('luin-teksti:' + id)), id);
+  const alkup = await page.evaluate(id => LuinTekstit.lue(id), id);
   const sama = Buffer.from(tall.b, 'base64').toString('utf8') === alkup;
   tulos('Lataa md: nimi, tyyppi ja sisältö tavulleen sillan kautta', sama && /\.md$/.test(tall.n) && /^text\/markdown/.test(tall.t), tall.n + ' ' + tall.t + ' ' + Buffer.from(tall.b, 'base64').length + ' t');
   const ladatut = await page.evaluate(() => document.querySelectorAll('a[download]').length);

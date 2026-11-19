@@ -762,10 +762,12 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   // 3. Poimi lukimeen: Latomo painaa itse Avaa lukimessa, ja teksti on Luinin lukulistassa.
   await avaaIkkuna();
   const luin = await paina('#lukimeen', /luin\.html#id=/);
-  const lista = await luin.evaluate(() => ({ lista: JSON.parse(localStorage.getItem('luin-lista') || '[]'), avain: Object.keys(localStorage).filter(k => k.startsWith('luin-teksti:')),
-    tuonti: localStorage.getItem('luin-tuonti') }));
+  // Teksti on tekstikannassa (luin/tekstit.js, 19.11.2026), ei localStoragessa.
+  const lista = await luin.evaluate(async () => { const l = JSON.parse(localStorage.getItem('luin-lista') || '[]'); await LuinTekstit.valmis;
+    return { lista: l, avain: l.filter(e => LuinTekstit.on(e.id)).map(e => e.id), ls: Object.keys(localStorage).filter(k => k.startsWith('luin-teksti:')),
+      tuonti: localStorage.getItem('luin-tuonti') }; });
   const e = lista.lista[0] || {};
-  tulos('Poimi lukimeen: pinossa', lista.lista.length === 1 && e.title === 'Kokeilukirjoitus' && e.author && lista.avain.length === 1 && lista.tuonti === null,
+  tulos('Poimi lukimeen: pinossa', lista.lista.length === 1 && e.title === 'Kokeilukirjoitus' && e.author && lista.avain.length === 1 && !lista.ls.length && lista.tuonti === null,
     JSON.stringify({ n: lista.lista.length, title: e.title, author: e.author, sivusto: e.sivusto, avain: lista.avain }));
   const luinTeksti = await luin.evaluate(() => document.body.innerText);
   tulos('Luin näyttää tekstin', /Kokeilukirjoitus/.test(luinTeksti) && /Väliotsikko/.test(luinTeksti));

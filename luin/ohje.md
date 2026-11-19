@@ -86,14 +86,31 @@ Dropbox-jakolinkki muutetaan muotoon `dl.dropboxusercontent.com`, jotta sen voi 
 
 ### 2.3 Tallennus
 
-Kaikki on selaimen localStoragessa, joka on yhteinen muiden ollijuutilainen.github.io-sivujen kanssa (noin 5 Mt):
+Tekstien sisältö on IndexedDB:ssä (19.11.2026, `luin/tekstit.js`, yhteinen luin.html:lle ja Latomolle, `?v=` kuten md.js:n),
+kaikki muu localStoragessa. localStorage on yhteinen muiden ollijuutilainen.github.io-sivujen kanssa ja Chromiumissa noin
+5,24 miljoonaa merkkiä (mitattu 19.11.2026): koko kaksikielinen Valtio (1,81 milj.) ei mahtunut muiden tekstien rinnalle.
+IndexedDB:n kiintiö on osuus levystä (Chromium 10 737 Mt; 20 Valtiota kirjoittui 224 ms:ssa, luku 14 ms).
 
+- Kanta `luin`, varasto `tekstit`: tunnus → tekstin Markdown sellaisenaan (ennen localStoragen `luin-teksti:<tunnus>`).
+  `LuinTekstit.lue()`, `kirjoita()` ja `poista()` ovat lupauksia; `on(id)` on synkroninen avainluettelosta. Ensimmäisellä
+  latauksella vanhat `luin-teksti:`-avaimet siirretään kantaan ja poistetaan vasta valmiin kirjoituksen jälkeen; luku katsoo
+  localStoragen, jos kannassa ei ole. Ilman IndexedDB:tä kaikki on localStoragessa kuten ennen. Luin odottaa kannan
+  (`TX.valmis`) ennen ensimmäistä reittiä. `navigator.storage.persist()`ia ei pyydetä (Firefox kysyisi luvan); kanta on
+  saman siivouksen alainen kuin localStorage.
+- Varasto `siirto`, avain `tuonti`: Latomon siirto lukimeen (ennen `luin-tuonti`, jota luetaan yhä vanhan Latomon takia).
 - `luin-asetukset` – asetukset (luku 4.5).
 - `luin-lista` – lukulista: tunnus, nimi, alaotsikko, tekijä, vuosi, viite, osoite, lukukohta, prosentti, lisätty ja avattu; luokittelu (luku 2.5) `asiasanat`, `ajoitus`, `kasikirja` sekä etukentästä luetut `tyyppi`, `host`, `verkosta`, `jvuosi` ja versio `lk`.
-- `luin-teksti:<tunnus>` – tekstin Markdown sellaisenaan.
 - `luin-merkit:<tunnus>` – kirjanmerkit (`km`) ja alleviivaukset (`al`). Alleviivauksen kirjaus on sen kentässä `n`.
 
-Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne, verkkotekstin `u-` + osoitteen tiiviste. Saman otsikon uusi versio Latomosta korvaa vanhan ja säilyttää merkinnät.
+Paikallisen tekstin tunnus on `p-` + otsikosta tehty lyhenne (`tekstiTunnus()`), verkkotekstin `u-` + osoitteen tiiviste. Saman otsikon uusi versio Latomosta korvaa vanhan ja säilyttää merkinnät.
+
+**Tusina** (käyttäjän päätös 19.11.2026, `tusina()`): pinossa on enintään 12 tekstiä (`TUSINA`). Kun pinoon tulee teksti (Latomo,
+linkistä haettu uusi teksti, postihuilu, uusi laitos, *Poimi cellarin campihyllystöstä*; `pinoonTuli()` asettaa `e.pinoon`), ylimääräiset
+laskeutuvat cellarin campihyllystöön pisimpään koskemattomasta alkaen (`max(pinoon tai added, opened)`; juuri tulleet viimeisinä).
+Laskeutunut saa `e.luettu`-ajan (sijainti kuten luetulla) ja merkin `e.laskeutui`: tietorivi *laskeutui pvm*, kellarin
+luettu-järjestyksessä pinon kanssa oma välikortti *Pinosta laskeutuneet*. Pinoon palatessa kumpikin poistuu, ja *Luin.* poistaa
+merkin. Ilmoitus nimeää laskeutuneen (`tusinaLisa()` liittää sen samaan viestiin). Pinoa, jossa on jo yli tusina, ei karsita ennen
+seuraavaa tuloa; silloin ylimääräiset laskeutuvat kerralla. Testi `tallennus-testi.js`.
 
 ### 2.4 Käyttöohje ja pinon linkit
 
