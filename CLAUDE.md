@@ -84,7 +84,9 @@ avautuu puhelimessa renderöitynä sivuna eikä lähdekoodina.
 
 **PR:n jälkeen kysy vain "yhdistetäänkö?"** Älä tarjoudu seuraamaan PR:ää: repossa ei ole
 CI-tarkistuksia eikä muita katselmoijia. Käyttäjän **"yhiistä!"** tarkoittaa aina: yhdistä
-(merge) kyseinen PR. **"pryhiistä!"** tarkoittaa: tee PR kehityshaarasta ja yhdistä se heti.
+(merge) kyseinen PR. **"pryhiistä!"** tarkoittaa: tee PR kehityshaarasta ja yhdistä se heti. Kun toteutettavasta asiasta on
+päästy yhteisymmärrykseen (käyttäjä on sanonut esim. "tee"), toimi kuin hän olisi sanonut "pryhiistä!" eikä kysy erikseen
+(käyttäjän vaatimus 19.11.2026).
 
 **MACIN REPO EI PÄIVITY ITSESTÄÄN.** Käyttäjän Macin klooni (`~/OlliJuutilainen.github.io`) ei seuraa
 GitHubia automaattisesti, eikä se välttämättä ole edes `main`-haarassa (9.11.2026: se oli vanhassa
