@@ -183,7 +183,7 @@ palvelin.listen(0, async () => {
   await p.fill('#k-sivusto', 'Tusinablogi');
   await p.waitForTimeout(300);
   t = await T();
-  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14.05.' && /^julkaistu: 2026-10-08 14:05$/m.test(t.md), t.koottu);
+  tulos('kirjoitettu aika minuutilleen', t.koottu === 'Kokeilu (2026). *Tusinablogi* 8.10.2026 klo 14:05.' && /^julkaistu: 2026-10-08 14:05$/m.test(t.md), t.koottu);
   tulos('otsikko tekstin alkuun', /---\n\n# Kokeilu\n\nEnsimmäinen rivi/.test(t.md));
   await p.click('.ehdotus button:has-text("Tee jokaisesta rivistä kappale")');
   await p.waitForTimeout(300);
@@ -223,7 +223,7 @@ palvelin.listen(0, async () => {
   const v0 = await p.textContent('#pop .v-teksti');
   await p.click('#pop button[data-k="lisa"]');
   const v1 = await p.textContent('#pop .v-teksti');
-  tulos('lukutiedot vain valittaessa', v0 === 'Kokeilu (2026). Tusinablogi 8.10.2026 klo 14.05.' && /Luettu HTML-versiona \d+\.\d+\.\d{4}\.$/.test(v1), v0 + ' → ' + v1);
+  tulos('lukutiedot vain valittaessa', v0 === 'Kokeilu (2026). Tusinablogi 8.10.2026 klo 14:05.' && /Luettu HTML-versiona \d+\.\d+\.\d{4}\.$/.test(v1), v0 + ' → ' + v1);
   await kuva('3-jako');
 
   // 7b. Kaunokirjallinen: kenttä Kokoelma näkyy oletuksena, ja kokoelma on alaotsikon paikalla.

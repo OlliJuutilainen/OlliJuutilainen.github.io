@@ -8,6 +8,9 @@ kerro mitä teit ja mitä mittasit.
 Sano **sähköpaperi**, ei *e-ink* (käyttäjän vaatimus 17.11.2026: vierasperäistä termiä ei koskaan ensisijaisesti), niin
 käyttäjälle näkyvässä tekstissä, sääntötiedostoissa kuin vastauksissa.
 
+**Kellonaika on aina `HH:MM`** (kaksoispiste, tunti kahdella numerolla: `09:05`), ei `9.05` (käyttäjän vaatimus 19.11.2026)
+kaikissa ohjelmissa, kuittauksissa ja tuotetussa tekstissä. `Intl`/`toLocaleTimeString` `fi-FI` antaa pisteen: kokoa osista.
+
 ## Ohjelmakohtaiset ohjeet
 
 KEICK•WALKin ja Luinin säännöt ovat omissa tiedostoissaan (käyttäjän päätös 3.11.2026; ennen ne olivat

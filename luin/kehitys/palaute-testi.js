@@ -80,7 +80,7 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
   const t5 = await tila(), avain = [...m.keys()][0] || '', md = avain ? m.get(avain).v : '';
   tulos('lähetys: kiitos, viesti tyhjäksi, teksti kehittäjän laatikossa', t5 === 'Kiitos! Viesti on perillä.' && await s.inputValue('#viesti') === '' &&
     new RegExp('^luin:' + LAUSE + ':palaute-[0-9a-z]+$').test(avain) &&
-    /^# Palaute: Kaveri\n\nNimi: Kaveri {2}\nSähköposti: kaveri@esimerkki\.test {2}\nLähetetty \d{1,2}\.\d{1,2}\.\d{4} klo \d\d\.\d\d {2}\nSivulta: latomo\n\n## Viesti\n\nLatomo ei tunne Hegel-sivustoa\.\n$/.test(md),
+    /^# Palaute: Kaveri\n\nNimi: Kaveri {2}\nSähköposti: kaveri@esimerkki\.test {2}\nLähetetty \d{1,2}\.\d{1,2}\.\d{4} klo \d\d:\d\d {2}\nSivulta: latomo\n\n## Viesti\n\nLatomo ei tunne Hegel-sivustoa\.\n$/.test(md),
     t5 + ' | ' + md.replace(/\n/g, ' ⏎ '));
   if (KUVAT) await s.screenshot({ path: path.join(KUVAT, 'palaute.png'), fullPage: true });
 
