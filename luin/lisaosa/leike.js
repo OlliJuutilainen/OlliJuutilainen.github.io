@@ -5923,6 +5923,49 @@
     if (kieli === 'latina' && i >= 1 && i < 4000) return psRooma(i);
     return 'Book ' + n;
   }
+  /* Kreikkalaisen teoksen nimi kreikaksi (käyttäjän pyyntö 19.11.2026: kun leikkeessä on alkuteksti, myös otsikko on alkukielellä,
+     Πολιτεία Αʹ). Perseuksen teiHeaderissa ja luettelossa nimi on vain englanniksi tai latinaksi (Republic, Respublica; mitattu
+     19.11.2026), joten nimet ovat tässä. Avain on englantilainen nimi pienin kirjaimin ilman The-alkua; puuttuva jää englanniksi.
+     Ksenofonin Economics jätetty pois (Aristoteleen Οἰκονομικά samalla nimellä). Nimet NFC-muodossa. */
+  const PS_KREIKKA_NIMET = {
+    // Platon
+    'republic': 'Πολιτεία', 'laws': 'Νόμοι', 'symposium': 'Συμπόσιον', 'phaedo': 'Φαίδων', 'phaedrus': 'Φαῖδρος',
+    'apology': 'Ἀπολογία Σωκράτους', 'crito': 'Κρίτων', 'euthyphro': 'Εὐθύφρων', 'cratylus': 'Κρατύλος', 'theaetetus': 'Θεαίτητος',
+    'sophist': 'Σοφιστής', 'statesman': 'Πολιτικός', 'parmenides': 'Παρμενίδης', 'philebus': 'Φίληβος', 'charmides': 'Χαρμίδης',
+    'laches': 'Λάχης', 'lysis': 'Λύσις', 'euthydemus': 'Εὐθύδημος', 'protagoras': 'Πρωταγόρας', 'gorgias': 'Γοργίας',
+    'meno': 'Μένων', 'greater hippias': 'Ἱππίας μείζων', 'lesser hippias': 'Ἱππίας ἐλάττων', 'ion': 'Ἴων', 'menexenus': 'Μενέξενος',
+    'cleitophon': 'Κλειτοφῶν', 'timaeus': 'Τίμαιος', 'critias': 'Κριτίας', 'minos': 'Μίνως', 'epinomis': 'Ἐπινομίς',
+    'letters': 'Ἐπιστολαί', 'lovers': 'Ἐρασταί', 'theages': 'Θεάγης', 'hipparchus': 'Ἵππαρχος',
+    // Homeros ja Hesiodos
+    'iliad': 'Ἰλιάς', 'odyssey': 'Ὀδύσσεια', 'theogony': 'Θεογονία', 'works and days': 'Ἔργα καὶ ἡμέραι',
+    'shield of heracles': 'Ἀσπὶς Ἡρακλέους',
+    // historioitsijat
+    'histories': 'Ἱστορίαι', 'peloponnesian war': 'Ἱστορίαι',
+    // Aristoteles
+    'nicomachean ethics': 'Ἠθικὰ Νικομάχεια', 'eudemian ethics': 'Ἠθικὰ Εὐδήμεια', 'politics': 'Πολιτικά',
+    'poetics': 'Περὶ ποιητικῆς', 'rhetoric': 'Ῥητορική', 'metaphysics': 'Τὰ μετὰ τὰ φυσικά',
+    'athenian constitution': 'Ἀθηναίων πολιτεία',
+    // Ksenofon
+    'memorabilia': 'Ἀπομνημονεύματα', 'anabasis': 'Κύρου ἀνάβασις', 'cyropaedia': 'Κύρου παιδεία', 'hellenica': 'Ἑλληνικά',
+    // Aiskhylos
+    'agamemnon': 'Ἀγαμέμνων', 'libation bearers': 'Χοηφόροι', 'eumenides': 'Εὐμενίδες', 'prometheus bound': 'Προμηθεὺς δεσμώτης',
+    'persians': 'Πέρσαι', 'seven against thebes': 'Ἑπτὰ ἐπὶ Θήβας', 'suppliant women': 'Ἱκέτιδες', 'suppliants': 'Ἱκέτιδες',
+    // Sofokles
+    'oedipus tyrannus': 'Οἰδίπους τύραννος', 'oedipus at colonus': 'Οἰδίπους ἐπὶ Κολωνῷ', 'antigone': 'Ἀντιγόνη', 'ajax': 'Αἴας',
+    'electra': 'Ἠλέκτρα', 'trachiniae': 'Τραχίνιαι', 'philoctetes': 'Φιλοκτήτης',
+    // Euripides
+    'medea': 'Μήδεια', 'bacchae': 'Βάκχαι', 'hippolytus': 'Ἱππόλυτος', 'alcestis': 'Ἄλκηστις', 'andromache': 'Ἀνδρομάχη',
+    'hecuba': 'Ἑκάβη', 'helen': 'Ἑλένη', 'heracles': 'Ἡρακλῆς', 'heracleidae': 'Ἡρακλεῖδαι', 'orestes': 'Ὀρέστης',
+    'phoenissae': 'Φοίνισσαι', 'rhesus': 'Ῥῆσος', 'trojan women': 'Τρῳάδες', 'cyclops': 'Κύκλωψ',
+    'iphigenia in aulis': 'Ἰφιγένεια ἡ ἐν Αὐλίδι', 'iphigenia in tauris': 'Ἰφιγένεια ἡ ἐν Ταύροις',
+    // Aristofanes
+    'acharnians': 'Ἀχαρνῆς', 'knights': 'Ἱππῆς', 'clouds': 'Νεφέλαι', 'wasps': 'Σφῆκες', 'peace': 'Εἰρήνη', 'birds': 'Ὄρνιθες',
+    'lysistrata': 'Λυσιστράτη', 'thesmophoriazusae': 'Θεσμοφοριάζουσαι', 'frogs': 'Βάτραχοι', 'ecclesiazusae': 'Ἐκκλησιάζουσαι',
+    'plutus': 'Πλοῦτος', 'wealth': 'Πλοῦτος'
+  };
+  function psKreikkaNimi(nimi) {
+    return PS_KREIKKA_NIMET[nimi.toLowerCase().replace(/^the\s+/, '').replace(/\s+/g, ' ').trim()] || nimi;
+  }
   function psRunko(X, avaimet, kreikka, etu, maar, kieli) {
     const body = X && X.getElementsByTagName('body')[0];
     if (!body) return null;
@@ -6196,6 +6239,7 @@
     const ek = (r, t) => r && r.getElementsByTagName(t)[0] ? rivi(r.getElementsByTagName(t)[0].textContent) : '';
     // Otsake (teiHeader) on latinalaisin kirjaimin myös kreikankielisessä teoksessa.
     let nimi = ek(ts, 'title').replace(/\s*\((English|Greek|Latin)\)\s*/i, ' ').replace(/\.?\s*Machine readable text\.?$/i, '').trim();
+    if (/^(kreikka|ilias|odysseia)$/.test(kieli)) nimi = psKreikkaNimi(nimi);
     const lt = ek(sd, 'title');
     const km = /^(.*?),?\s+translated by\s+(.+)$/i.exec(lt);
     const kaantaja = km ? km[2] : [...(sd ? sd.getElementsByTagName('editor') : [])].filter(e => /transl/i.test(e.getAttribute('role') || '')).map(e => rivi(e.textContent)).join(' & ');
