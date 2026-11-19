@@ -770,16 +770,15 @@
   #teksti.lomitus-kaannos p.alku .alku-teksti, #teksti.lomitus-kaannos p.alku-tyhja { display: none; }
   #teksti.lomitus-kaannos p.alku { margin: 1.2em 0 .2em; text-indent: 0; }
   #teksti.lomitus-kaannos blockquote.kaannos { margin: .6em 0 1.6em; padding: 0; border: 0; font-size: 1em; line-height: inherit; color: inherit; }
-  /* Rinnakkain (käyttäjän pyyntö 19.11.2026): hyvin leveällä ruudulla vierityksessä Molemmat-tilassa alkuteksti ja käännös
-     vierekkäin kohta kohdalta (div.pari: div.pari-alku ja blockquote.kaannos). Muuten kääreet ovat display: contents, jolloin
-     ladonta on sama kuin ilman niitä. Palsta on kahden mitan levyinen (asettele(), RINN_VALI); muu teksti pysyy mitan levyisenä. */
+  /* Rinnakkain (käyttäjän pyynnöt 19.11.2026): Molemmat-tilassa alkuteksti ja käännös vierekkäin kohta kohdalta (div.pari:
+     div.pari-alku ja blockquote.kaannos) aina, kun kaksi vähintään RINN_MIN em:n palstaa mahtuvat, myös sivutettuna ja
+     kosketusnäytöllä. Muuten kääreet ovat display: contents, jolloin ladonta on sama kuin ilman niitä. Palstat ja väli: asettele().
+     Alkuteksti kelluu vasemmalla ja käännös on virrassa; pari on oma muotoilukontekstinsa (flow-root), joten kellukkeet eivät
+     vuoda pariin ulos. Kellutus jakautuu sivutuksen palstoihin (column) kuten virta, joten pitkän parin molemmat puolet jatkuvat
+     seuraavan sivun yläreunasta. Reunushuomioita ei rinnakkain ole (asettele()), joten huomiot eivät kellu. */
   #teksti div.pari, #teksti div.pari-alku { display: contents; }
-  /* Ei ruudukkoa eikä kellutusta (mitattu 19.11.2026): ruudukon solu sulkee käännöksen reunushuomiot (float) sisäänsä ja venyy
-     niiden mittaiseksi, ja kelluva alkuteksti ei voi nousta edellisen parin alemmas jääneen huomion yläreunaa ylemmäs (alkoi
-     20 px käännöstä alempaa). Käännös on virrassa, joten huomiot kelluvat kuten muussa tekstissä; alkuteksti on parin
-     yläreunassa absoluuttisesti, ja asettele() antaa parille alkutekstin korkeuden vähimmäiskorkeudeksi (rinnakkainKorkeudet). */
-  #teksti.rinnakkain div.pari { display: block; position: relative; padding: 1px 0 1.1em; }
-  #teksti.rinnakkain div.pari-alku { display: block; position: absolute; left: 0; top: 1px; width: calc(50% - 1em); }
+  #teksti.rinnakkain div.pari { display: flow-root; padding: 0 0 1.1em; }
+  #teksti.rinnakkain div.pari-alku { display: block; float: left; width: calc(50% - 1em); }
   #teksti.rinnakkain div.pari > blockquote.kaannos { margin: 0 0 0 calc(50% + 1em); padding: 0; border: 0; font-size: 1em; line-height: inherit; color: inherit; }
   #teksti.rinnakkain div.pari-alku > p:first-child, #teksti.rinnakkain div.pari > blockquote.kaannos > p:first-child { margin-top: 0; }
   #teksti.rinnakkain > :not(.pari) { max-width: 33em; }
@@ -1008,6 +1007,7 @@
   body.sivutus #teksti hr.ennen-lukua { display: none; }
   /* Alaluku, jolle sivun pohjalla jäisi vain otsikko tai otsikko ja yksi rivi, alkaa uudelta sivulta (alalukujenAlut()). */
   body.sivutus #teksti h3.sivulle { break-before: column; -webkit-column-break-before: always; margin-top: 0; }
+  body.sivutus #teksti.rinnakkain div.pari.sivulle { break-before: column; -webkit-column-break-before: always; }
 
   /* alapalkki ja aikajana (palkkien remontti, käyttäjän päätökset 22.10.2026)
      Työpöydällä alapalkki on pysyvä: kirjanmerkki vasemmalla, sivunapit ja palkkinuoli oikealla. Natsaa ja
@@ -4050,17 +4050,7 @@
     });
   }
   var RINN_VALI = 2; // rinnakkaisten palstojen väli em:inä (CSS: 50 % ± 1em)
-  // Rinnakkain: alkuteksti on absoluuttisesti, joten pari saa sen korkeuden vähimmäiskorkeudeksi (padding mukaan, border-box).
-  // Ensin mitataan kaikki, sitten kirjoitetaan (mittausten väliin kirjoittaminen asettelisi joka kerta).
-  // Avattu huomio muuttaa alkutekstin korkeutta (huomio kreikan puolella), joten parit mitataan uudelleen.
-  art.addEventListener('change', function (e) { if (e.target.classList.contains('fntoggle') && art.classList.contains('rinnakkain')) rinnakkainKorkeudet(true); });
-  function rinnakkainKorkeudet(on) {
-    var parit = [].slice.call(art.querySelectorAll('div.pari'));
-    if (!on) { parit.forEach(function (p) { if (p.style.minHeight) p.style.minHeight = ''; }); return; }
-    var cs = parit.length && getComputedStyle(parit[0]), lisa = cs ? parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) : 0;
-    var h = parit.map(function (p) { return p.firstElementChild.getBoundingClientRect().height; });
-    parit.forEach(function (p, i) { p.style.minHeight = Math.ceil(h[i] + lisa) + 'px'; });
-  }
+  var RINN_MIN = 20, RINN_MAX = 33; // rinnakkaisen palstan leveys em:inä: kapeampi ei mahdu, leveämpi ei leviä
   function lomitusLuokat() {
     var l = nyt && nyt.doc.lomitettu ? aset.lomitus : '';
     art.classList.toggle('lomitus-alku', l === 'alku');
@@ -4246,6 +4236,22 @@
   // työnnetään ylämarginaalilla seuraavalle palstalle (`pakotettu`, alkuperäinen marginaali siirtyy täytteeksi, joten
   // paikka palstassa on sama kuin CSS:n vaihdolla). Otsikot käydään järjestyksessä, koska jokainen siirto muuttaa
   // myöhempien paikkoja. Sivun ensimmäistä otsikkoa ei siirretä.
+  /* Rinnakkain sivutettuna pari alkaa molemmilta puolilta samalla sivulla. Kun vain toisen puolen ensimmäinen rivi mahtuu sivun
+     alalaitaan (alkutekstin rivi on kohtanumeron takia korkeampi; Valtio 337a, 19.11.2026), koko pari siirretään seuraavalle sivulle
+     kuten alalukujenAlut() otsikon: break-before ja, jos selain ei noudata sitä, yläreunus. Mitataan järjestyksessä, koska siirto
+     muuttaa seuraavien parien paikat (asettelu kerran siirtoa kohti). Luokat nollaa alalukujenAlut(). */
+  function parienAlut() {
+    if (!art.classList.contains('rinnakkain')) return;
+    var ar = art.getBoundingClientRect(), parit = $$('div.pari', art);
+    for (var i = 0, n = 0; i < parit.length && n < 500; i++) {
+      var p = parit[i], ra = p.firstElementChild.getClientRects(), rk = p.lastElementChild.getClientRects();
+      if (!ra.length || !rk.length || Math.abs(ra[0].top - rk[0].top) <= 2) continue;
+      n++;
+      p.classList.add('sivulle');
+      var r = p.getClientRects()[0];
+      if (r && r.top - ar.top > 2) { p.classList.add('pakotettu'); p.style.marginTop = Math.ceil(ar.bottom - r.top + 1) + 'px'; }
+    }
+  }
   function alalukujenAlut() {
     $$('.sivulle, .pakotettu', art).forEach(function (h) {
       h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = '';
@@ -4369,14 +4375,17 @@
     document.documentElement.classList.toggle('palkkivara', sivut && mob);
     // Reunushuomiot ratkaistaan 33 em:n mitalla, ja Mikron pidempi rivi saa niiden kanssa vain sen, mikä huomioilta jää:
     // muuten Mikro olisi vienyt huomiot esim. 900 px:n ikkunassa 16 px:llä (mitattu 18.11.2026).
-    // Rinnakkain (käyttäjän pyyntö 19.11.2026: erittäin leveä selain) vain, kun kaksi 33 em:n palstaa mahtuvat väljästi. Silloin
-    // ei reunushuomioita: käännös vie rinnakkain vain noin puolet korkeudestaan, ja Shoreyn 2 767 huomiota ajautuivat
+    // Rinnakkain (käyttäjän pyynnöt 19.11.2026: ensin erittäin leveä selain, sitten mahdollisimman usein, myös sivutettuna
+    // Note Airilla): kun tekstialueelle mahtuu kaksi vähintään RINN_MIN em:n palstaa ja väli. Palsta on enintään RINN_MAX em.
+    // Silloin ei reunushuomioita: käännös vie rinnakkain vain noin puolet korkeudestaan, ja Shoreyn 2 767 huomiota ajautuivat
     // viitenumeroistaan (mediaani 561 px, enintään 8 064 px; ilman rinnakkaisuutta 23 px), joten huomiot aukeavat numerosta.
-    var koko = aset.koko;
-    var rinn = !!(!sivut && !mob && nyt && nyt.doc.lomitettu && aset.lomitus === 'molemmat' && innerWidth >= (2 * 33 + RINN_VALI + 2.2 + 13) * koko + 48);
+    var koko = aset.koko, vw = sivuEl.clientWidth;
+    var mr = sivut ? Math.max(vw < 480 ? 16 : 20, marginaali()) : Math.max(16, marginaali());
+    var rp = Math.min(RINN_MAX, Math.floor(((vw - 2 * mr) / koko - RINN_VALI) / 2 * 100) / 100);
+    var rinn = !!(nyt && nyt.doc.lomitettu && aset.lomitus === 'molemmat' && rp >= RINN_MIN);
     art.classList.toggle('rinnakkain', rinn);
     var reunat = !rinn && !sivut && innerWidth >= (33 + 2.2 + 13) * koko + 48;
-    var mi = rinn ? 2 * 33 + RINN_VALI : reunat ? Math.max(33, Math.min(mitta(), Math.floor(((innerWidth - 48) / koko - 15.2) * 100) / 100)) : mitta();
+    var mi = rinn ? 2 * rp + RINN_VALI : reunat ? Math.max(33, Math.min(mitta(), Math.floor(((innerWidth - 48) / koko - 15.2) * 100) / 100)) : mitta();
     document.documentElement.style.setProperty('--mitta', mi);
     document.body.classList.toggle('reunat', reunat);
     document.documentElement.style.setProperty('--reuna', (reunat ? 16 : Math.max(16, marginaali())) + 'px');
@@ -4384,7 +4393,6 @@
     art.parentNode.style.left = reunat ? palstanSiirto(sivuEl.clientWidth, koko, mi) + 'px' : '';
     if (sivut) {
       art.style.transform = 'none';
-      var vw = sivuEl.clientWidth, mr = Math.max(vw < 480 ? 16 : 20, marginaali());
       var W = vw < 480 ? vw - 2 * mr : Math.min(vw - 2 * mr, Math.round(mi * koko));
       var G = vw - W;
       tila.W = W; tila.stride = W + G;
@@ -4393,6 +4401,7 @@
       art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
       tavutaPitkat();
       alalukujenAlut();
+      parienAlut();
       liehutaLyhyet();
       var r = viimeinenLaatikko(art), al = art.getBoundingClientRect().left;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
@@ -4402,7 +4411,6 @@
       tavutaPitkat();
       liehutaLyhyet();
     }
-    rinnakkainKorkeudet(rinn);
     sovitaHuomiot();
     mene(k || { b: 0, o: 0 });
     sijoitaLaatikot();
