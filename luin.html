@@ -3933,6 +3933,15 @@
     nyt.doc.toc.forEach(function (t) { if (t.b <= k.b) o = t; });
     return o;
   }
+  // Aikajanan ylärivin nimi: otsikko ja, jos tekstissä on yläindeksien osioita (Stephanus-sivu, md.js kohdat), viimeisin
+  // niistä perään (käyttäjän pyyntö 19.11.2026: Book 4 · 412). Sisälmykseen sivut eivät mene.
+  function kohdanNimi(k) {
+    var o = osioKohdassa(k), nimi = o ? o.text : nyt.e.title, s = null;
+    (nyt.kohdat || []).forEach(function (y) { if (y.lvl === 2 && (y.k.b < k.b || y.k.b === k.b && y.k.o <= k.o)) s = y; });
+    return s ? nimi + ' · ' + s.nimi : nimi;
+  }
+  // Yläindeksin osion tai kohdan oma nimi vedettäessä: otsikko edellä (Book 4 · 412b).
+  function ykNimi(y) { var o = osioKohdassa(y.k); return o ? o.text + ' · ' + y.nimi : y.nimi; }
 
   /* ---------- avaaminen ja piirtäminen ---------- */
   function avaa(e, md, doc) {
@@ -4410,12 +4419,12 @@
 
   function paivita() {
     if (!nyt) return;
-    var k = tila.ankkuri, o = osioKohdassa(k);
+    var k = tila.ankkuri;
     // Edistyminen näkyy aina, mutta vain aikajanakerroksen ylärivillä (käyttäjän päätös 22.10.2026).
     var pros = aset.sivutus === 'sivut' ? (tila.sivu + 1) + ' / ' + tila.sivuja : Math.round(osuus(k) * 100) + ' %';
     $('#jana-pros').textContent = pros;
     $('#sivunapit').hidden = aset.sivutus !== 'sivut' || !aset.sivunapit;
-    $('#jana-kohta').textContent = o ? o.text : nyt.e.title;
+    $('#jana-kohta').textContent = kohdanNimi(k);
     majakanSuunta();
     piirraKirjanmerkit();
     var lit = nakyvatKirjanmerkit().length > 0;
@@ -7083,7 +7092,7 @@
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
     var jr = tocRaja(aset.janaTaso, nyt.doc.toc);
     nyt.doc.toc.forEach(function (t) { if (t.lvl <= jr) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
-    (nyt.kohdat || []).forEach(function (y) { if (jr >= y.lvl) a.push({ k: y.k, nimi: y.nimi, lvl: y.lvl }); });
+    (nyt.kohdat || []).forEach(function (y) { if (jr >= y.lvl) a.push({ k: y.k, nimi: ykNimi(y), lvl: y.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
@@ -7262,7 +7271,7 @@
   // riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. E-ink-näyttö päivittyy näin
   // vedettäessä vain pysäkiltä toiselle siirryttäessä.
   function janaPysakit() {
-    var a = [], nimi = function (k) { var o = osioKohdassa(k); return o ? o.text : nyt.e.title; };
+    var a = [], nimi = kohdanNimi;
     // Majakka ja nykyinen kohta ensin, jotta ne voittavat samassa kohdassa olevan merkin.
     if (nyt.majakka) a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
     if (tila.ankkuri) a.push({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
@@ -7271,7 +7280,7 @@
     // (tutkielmassa Kirjallisuus, 52 / 56), eikä loppuun päässyt kuin sivua kääntämällä.
     if (tila.sivuja > 1) { var vika = sivunAlku(tila.sivuja - 1); a.push({ k: vika, nimi: nimi(vika) }); }
     nyt.doc.toc.forEach(function (t) { a.push({ k: { b: t.b, o: 0 }, nimi: t.text }); });
-    (nyt.kohdat || []).forEach(function (y) { a.push({ k: y.k, nimi: y.nimi }); });
+    (nyt.kohdat || []).forEach(function (y) { a.push({ k: y.k, nimi: ykNimi(y) }); });
     nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
     return a;
   }
