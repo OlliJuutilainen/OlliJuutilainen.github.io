@@ -73,8 +73,9 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   Wikisource kulkee `wikipedia()`-funktiossa (`ws`; opas 7.5): kun muutat sitä, aja sekä `--sarja wikipedia` (leikkeiden pitää
   pysyä ennallaan) että `--sarja wikisource`.
   Perseus-sovite (16.11.2026, opas 7.5) lukee teoksen TEI-XML:n XML:nä, ei `hae()`:lla (HTML-jäsennin rikkoo tyhjät `milestone`it).
-  Kirjan nimi alkutekstin kielellä (`psKirja()`, käyttäjän pyyntö 19.11.2026): kreikassa aakkosin Α, Β, Γ (*Republic Α*), latinassa
-  roomalaisin (*de Finibus I*), vain englanninkielisessä *Book 1*. Ei englantilaista *Book*ia alkukieliseen tekstiin.
+  Kirjan nimi alkutekstin kielellä (`psKirja()`, käyttäjän päätökset 19.11.2026): Ilias Α–Ω ja Odysseia α–ω aakkosin, muu kreikka
+  numeroin keraialla (*Republic Αʹ*, 6 = Ϛʹ; keraia U+0374, ei U+02B9, jota Literatassa ei ole), latina roomalaisin (*de Finibus I*),
+  vain englanninkielinen *Book 1*. Ei englantilaista *Book*ia alkukieliseen tekstiin.
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
