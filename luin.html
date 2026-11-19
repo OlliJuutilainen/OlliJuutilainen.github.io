@@ -760,6 +760,9 @@
   /* Lomitettu käännös (md.js, etukentän ladonta: lomitettu käännös; Perseuksen alkuteksti ja käännös pykälittäin): käännös
      lähellä alkutekstiään ja väli seuraavaan pykälään, jotta parit erottuvat. Viiva ja koko kuten lainauksessa. */
   #teksti blockquote.kaannos, #teksti.sisennys p + blockquote.kaannos { margin: .6em 0 1.6em; }
+  /* Kohtanumerot (327a; etukentän kohdat: yläindeksit, sup.kohta piirraTeksti()ssä) harmaina kuten painetun laitoksen
+     reunanumerot: viitekoneistoa, ei leipätekstiä (käyttäjän pyyntö 19.11.2026). Ei okra (merkinnät) eikä ruoste (napautettava). */
+  #teksti sup.kohta { color: var(--harmaa); }
   /* Kielet (käyttäjän pyyntö 19.11.2026, aset.lomitus): vain alkuteksti piilottaa käännökset; vain käännös piilottaa alkutekstin
      mutta jättää sen kohtanumerot (327a) omalle rivilleen, jotta aikajanan kohdat, kirjanmerkit ja paikannin pysyvät, ja
      käännös ladotaan leipätekstinä. Piilotettu teksti on DOMissa, joten kohtien laskenta (lohkoteksti) ei muutu tilan mukana. */
@@ -4106,6 +4109,7 @@
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
       ykKaytetyt.push(sup);
+      sup.classList.add('kohta');
       var kk = { b: y.b, o: lohkoon(el, tn, 0) };
       // Osio (Stephanus-sivu) samaan paikkaan kuin sen ensimmäinen kohta.
       if (y.osio) nyt.kohdat.push({ k: kk, nimi: y.osio, lvl: 2 });
@@ -4339,6 +4343,18 @@
     if (!auki[n] && nb) { tila.hiljaa = Date.now() + 250; window.scrollBy(0, nb.getBoundingClientRect().top - y); }
   }
 
+  /* Sivumäärä luetaan viimeisestä näkyvästä elementistä. Laatikottomat (display: contents -kääre div.pari, piilotettu kieli)
+     ohitetaan: Kielet = Alkuteksti teki tekstistä yksisivuisen, kun viimeinen pari päättyi piilotettuun käännökseen
+     (Perseus ilman tekijänoikeusosiota; käyttäjän havainto Light Phonella 19.11.2026). Kääreen sisään mennään, piilotetun ei. */
+  function viimeinenLaatikko(juuri) {
+    for (var el = juuri.lastElementChild; el; el = el.previousElementSibling) {
+      var rs = el.getClientRects();
+      if (rs.length) return rs[rs.length - 1];
+      if (el.firstElementChild && getComputedStyle(el).display === 'contents') { var r = viimeinenLaatikko(el); if (r) return r; }
+    }
+    return null;
+  }
+
   function asettele(k) {
     tila.asetteluja++;
     sovellaTeema();
@@ -4378,10 +4394,7 @@
       tavutaPitkat();
       alalukujenAlut();
       liehutaLyhyet();
-      var viim = art.lastElementChild, al = art.getBoundingClientRect().left;
-      while (viim && viim.matches('.pari, .pari-alku') && viim.lastElementChild) viim = viim.lastElementChild;
-      var rs = viim ? viim.getClientRects() : [];
-      var r = rs.length ? rs[rs.length - 1] : null;
+      var r = viimeinenLaatikko(art), al = art.getBoundingClientRect().left;
       tila.sivuja = r ? Math.floor((r.left - al + 2) / tila.stride) + 1 : 1;
     } else {
       art.style.cssText = '';
