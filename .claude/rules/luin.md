@@ -493,7 +493,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
 - Sivutettuna `hr.ennen-lukua` (`---` juuri ennen `##`:tä) piilotetaan, koska viiva jäisi yksin omalle sivulleen.
 - Vierityksessä pelkkä ikkunan korkeuden muutos ei asettele tekstiä uudelleen (mobiilin osoiterivi).
 - **Raskas teksti** (käyttäjän pyyntö 19.11.2026, `sovellaTaiLykkaa()`, opas 4.5): kun `tila.asetteluMs` > `RASKAS_MS`, `ASETTELU`-asetukset
-  asetellaan kerran Asetusten sulkiessa, ja paneelin ylälaidassa on ilmoitus (`#raskas-tieto`, käyttäjän vaatimus). Odotuksen aikana
+  asetellaan kerran Asetusten sulkiessa, ja paneelin ylälaidassa on ilmoitus (`#raskas-tieto`, käyttäjän vaatimus; sanoissa ei *latoa* eikä *ladonta*, ettei sekoitu Latomoon). Odotuksen aikana
   ei saa asettaa `--koko`a eikä kielten luokkaa tai kutsua `asettele()`a. Uusi asetusnappi kulkee `sovellaTaiLykkaa()`n kautta. Testi `raskas-testi.js`.
 - `tavutaPitkat()` mittaa ensin kaikki ja kirjoittaa vasta lopuksi, ja `sovellaAsetukset()` asettelee vain
   `ASETTELU`-listan asetuksilla. Älä lomita kirjoituksia mittausten väliin: sivutettuna jokainen asetuksen napautus
