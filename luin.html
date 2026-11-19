@@ -4780,10 +4780,12 @@
     kosketus = { x: t0.clientX, y: t0.clientY, t: Date.now() };
     // Pitkä reunanapautus: sama alue kuin reunanapautuksessa (30 % laidoilla), ei linkin, merkin eikä alapalkin kohdalla.
     // Tekstin maalaus ehtii alkaa (PITKA) ennen tätä; hyppy perii sen, joten laidalla paikallaan pidetty sormi ei maalaa.
+    // Poikkeus: Sukkelan sanaselityksen sana voittaa (sanaSukkelana()). Sähköpaperilla luonnos näkyy viiveellä, joten sormi
+    // pysyi sanalla usein yli OSIO_MS:n, ja hyppy pyyhki luonnoksen ennen selitystä (käyttäjän havainto Note Air3:lla 19.11.2026).
     var x = t0.clientX / innerWidth;
     if ((x < 0.3 || x > 0.7) && aset.sivuReuna && !(tg.closest && tg.closest('a[href], a[data-go], .fnref, .km, .kirm, mark.ali, .luin-ui, #ala'))) {
       osioAloita(x < 0.3 ? -1 : 1, tila.sivu, function () {
-        if (!kosketus || t0.clientY >= alaRaja()) return false;
+        if (!kosketus || t0.clientY >= alaRaja() || sanaSukkelana()) return false;
         peruMaalaus(); poistaLuonnos(); kosketus = null;
         return true;
       }, true);
@@ -5853,6 +5855,10 @@
     else naytaValintaPop(segs, alRect(luonnos));
   }
   function sukkelaSanasto() { return !!aset.sukSana; }
+  // Kosketuksen pitkä painallus on nyt yhdellä sanalla, ja irrotus avaisi Sukkelan sanaselityksen (laidan osiohyppy väistää).
+  function sanaSukkelana() {
+    return !!(maal && maal.tapa === 'kosketus' && maal.aktiivinen && !maal.laajeni && sukkelaSanasto() && yksiSana(luonnos.segs));
+  }
   function maalausSallittu(t) {
     return omaMaalaus() && nyt && tila.nakyma === 'lukija' && !verhoAuki() && !muokkaus &&
       !(t && t.closest && t.closest('a[href], a[data-go], .fnref, .km, .kirm, label, input, textarea, .luin-ui'));
