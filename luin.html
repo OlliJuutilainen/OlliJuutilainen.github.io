@@ -1786,7 +1786,7 @@
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
-    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 8 };
+    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 9 };
   // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): cellarin campihyllystön järjestys (JARJ) ja pinon tekstit mukana.
   // postiMerk (käyttäjän pyyntö 9.11.2026): Huiluta myös merkintöjä (ent. Lähetä myös merkinnät) postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
   // postiEd: lähetettävät lajit, oletuksena kaikki. Tekstikohtainen valinta ohittaa nämä (luin-posti:<id>).
@@ -1841,8 +1841,7 @@
     return kosketus || eink;
   }
   if (!tallennetut && sivutusOletus()) { aset.sivutus = 'sivut'; aset.sivunapit = 1; aset.sivuReuna = 1; aset.sivuPyyhka = 1; }
-  // Aikajanan oletus on kaikilla laitteilla kaikki tasot (käyttäjän päätös 7.11.2026; aiemmin pääluvut ja alaluvut, mobiilissa
-  // 22.10.2026 vain pääluvut). Sukkela alleviivaus on oletuksena pois (sama päätös). Uusi oletus koskee vain ensikäyttöä.
+  // Sukkela alleviivaus on oletuksena pois (käyttäjän päätös 7.11.2026). Uusi oletus koskee vain ensikäyttöä.
   // Lukijan mobiiliasettelu (body.mobiili, asettele()) ratkaistaan syöttötavasta eikä leveydestä (käyttäjän päätös
   // 22.10.2026): kosketusnäyttö on mobiili, hiiri työpöytä myös kapeassa tai suurennetussa ikkunassa, jossa
   // palkit piiloutuivat, kun ehtona oli myös leveys enintään 700 px.
@@ -1862,6 +1861,10 @@
     return clamp(Math.floor((s - 2 * 32) / 33), OLETUS.koko, 24);
   }
   if (!aset.kokoKasin) aset.koko = oletusKoko();
+  /* Aikajanan oletus (käyttäjän päätös 19.11.2026): kosketusnäytöllä Osiot, hiirellä Kohdat. av 9: mobiilissa tallennettu
+     Kohdat oli av 7:n asettama oletus eikä valinta, joten se vaihdetaan kerran Osioiksi. */
+  if (!tallennetut && MOBIILI && MOBIILI.matches) aset.janaTaso = 2;
+  if (tallennetut && !(tallennetut.av >= 9)) { if (MOBIILI && MOBIILI.matches && aset.janaTaso === 3) aset.janaTaso = 2; aset.av = 9; }
   /* Turvakaistan varasääntö (käyttäjän pyyntö 8.11.2026: jos selain ei tunnista kameran aluetta, musta kaista silti).
      Selaimen ilmoittama loven korkeus (env(safe-area-inset-top), #turva-env) on ensisijainen. Jos se on 0, mutta
      kosketusnäytöllä pystyasennossa sivu peittää näytön koko korkeuden (kokoruutu ilman selaimen omaa mustaa reunusta) ja
