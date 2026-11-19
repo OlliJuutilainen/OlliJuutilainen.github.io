@@ -250,6 +250,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen
   kohdan numero-osa on osio (Valtio: Stephanus-sivu 327, kohta 327a; käyttäjän kokeilu 18.11.2026). Ciceron luvut (caput) eivät
   ole tasoa: viitenumeron tasot luetaan teoksen `refsDecl`istä.
+  Kohtanumero on `sup.kohta` ja harmaa (`--harmaa`, käyttäjän päätös 19.11.2026; okra on merkintöjen, ruoste napautettavan).
 - **Kielet** (käyttäjän pyyntö 19.11.2026, `aset.lomitus`, opas 3.2): lomitetussa käännöksessä molemmat, alkuteksti tai käännös
   pelkällä CSS-luokalla; piilotettu kieli pysyy DOMissa (kohdat, merkinnät ja aikajana eivät muutu). Älä poista piilotettua tekstiä
   DOMista äläkä jäsennä tekstiä tilan mukaan uudelleen. `asettele()`:n `art.className` pyyhkii luokan, siksi `lomitusLuokat()`.

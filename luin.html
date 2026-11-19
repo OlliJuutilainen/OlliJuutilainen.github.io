@@ -760,6 +760,9 @@
   /* Lomitettu käännös (md.js, etukentän ladonta: lomitettu käännös; Perseuksen alkuteksti ja käännös pykälittäin): käännös
      lähellä alkutekstiään ja väli seuraavaan pykälään, jotta parit erottuvat. Viiva ja koko kuten lainauksessa. */
   #teksti blockquote.kaannos, #teksti.sisennys p + blockquote.kaannos { margin: .6em 0 1.6em; }
+  /* Kohtanumerot (327a; etukentän kohdat: yläindeksit, sup.kohta piirraTeksti()ssä) harmaina kuten painetun laitoksen
+     reunanumerot: viitekoneistoa, ei leipätekstiä (käyttäjän pyyntö 19.11.2026). Ei okra (merkinnät) eikä ruoste (napautettava). */
+  #teksti sup.kohta { color: var(--harmaa); }
   /* Kielet (käyttäjän pyyntö 19.11.2026, aset.lomitus): vain alkuteksti piilottaa käännökset; vain käännös piilottaa alkutekstin
      mutta jättää sen kohtanumerot (327a) omalle rivilleen, jotta aikajanan kohdat, kirjanmerkit ja paikannin pysyvät, ja
      käännös ladotaan leipätekstinä. Piilotettu teksti on DOMissa, joten kohtien laskenta (lohkoteksti) ei muutu tilan mukana. */
@@ -4106,6 +4109,7 @@
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
       ykKaytetyt.push(sup);
+      sup.classList.add('kohta');
       var kk = { b: y.b, o: lohkoon(el, tn, 0) };
       // Osio (Stephanus-sivu) samaan paikkaan kuin sen ensimmäinen kohta.
       if (y.osio) nyt.kohdat.push({ k: kk, nimi: y.osio, lvl: 2 });
