@@ -4112,16 +4112,46 @@
      verkkotunnuksesta. Readability antoi tekstin ilman tekijää, otti sitaattiehdotuksen ja menetti alaviitteet ja kirjallisuuden.
      Tiivistelmä ja avainsanat (citation_keywords) alkuun, osanvaihto, teksti; viittauslinkit tekstiksi; kuvatekstit jäävät.
      Etukenttään tyyppi tieteellinen, tekijät, lehti, vuosikerta:numero, julkaisupäivä, kustantaja, DOI ja CC-lisenssi
-     (DC.Rights). Ei mainoksia eikä lahjoituspyyntöä (OLH on kirjastokonsortion rahoittama). Anubis kuten OpenEditionissa:
+     (DC.Rights). Ei mainoksia eikä lahjoituspyyntöä (OLH on kirjastokonsortion rahoittama). Michigan Publishing (Ergo,
+     Philosophers' Imprint; 20.11.2026, sivustoehdokkaat-3 kärki 4): <article id="main_article"> ilman article-body-luokkaa,
+     tiivistelmä #article-lohkossa h3:n alla (ei .card-contentia) ja citation_issue 0 (numerosta pois). MathML-kaavat tekstiksi
+     (mathTeksti()), otsikottomat taulukot ojsTaulukko():lla ja korostus ala- ja yläindeksien sisältä pois. Anubis kuten OpenEditionissa:
      selain ratkaisee haasteen, pesukone hakee curlin omalla tunnisteella. Mitattu 17.11.2026. */
+  // MathML tekstiksi (Philosophers' Imprint: 722 rivinsisäistä kaavaa, {Socrates}, □p): ala- ja yläindeksit HTML:nä, murtoluku a/b,
+  // muut elementit sisältönsä mukaan. Luin ei näytä MathML:ää, ja Turndown jättäisi sen raa'aksi HTML:ksi.
+  function mathTeksti(m) {
+    const nimi = n => (n.localName || n.nodeName || '').toLowerCase().replace(/^mml:/, '');
+    const lapset = n => [...n.childNodes].filter(x => x.nodeType === 1);
+    const kaanna = n => {
+      if (n.nodeType === 3) return n.nodeValue.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;');
+      if (n.nodeType !== 1) return '';
+      const t = nimi(n), l = lapset(n);
+      if (/^(annotation|annotation-xml)$/.test(t)) return '';
+      // Indeksin sisältö litteänä ja ilman välilyöntejä: Latomon ~…~- ja ^…^-muoto ei sisäkkäisty eikä salli välilyöntiä
+      // (□ alaindeksinä x₁,…,xₙ).
+      const ind = (x, tag) => { const v = kaanna(x).replace(/<\/?(sub|sup)>/g, '').replace(/\s+/g, ''); return v ? '<' + tag + '>' + v + '</' + tag + '>' : ''; };
+      if (t === 'msub' && l.length >= 2) return kaanna(l[0]) + ind(l[1], 'sub');
+      if (t === 'msup' && l.length >= 2) return kaanna(l[0]) + ind(l[1], 'sup');
+      if (t === 'msubsup' && l.length >= 3) return kaanna(l[0]) + ind(l[1], 'sub') + ind(l[2], 'sup');
+      if (t === 'mfrac' && l.length >= 2) return kaanna(l[0]) + '/' + kaanna(l[1]);
+      if (/^(munder|mover|munderover)$/.test(t) && l.length) return kaanna(l[0]);
+      if (t === 'msqrt') return '√(' + l.map(kaanna).join('') + ')';
+      if (t === 'mspace') return ' ';
+      return [...n.childNodes].map(kaanna).join('');
+    };
+    const html = kaanna(m).replace(/\s+/g, ' ').trim();
+    const d = jasenna('<div>' + html + '</div>').body.firstChild;
+    return [...d.childNodes];
+  }
   async function janeway() {
-    const runko = document.querySelector('#main_article.article-body, #main_article[itemprop="articleBody"]');
+    // Michigan Publishing (Ergo, Philosophers' Imprint): <article id="main_article"> ilman article-body-luokkaa.
+    const runko = document.querySelector('#main_article.article-body, #main_article[itemprop="articleBody"], article#main_article');
     if (!runko || !runko.querySelector('.article-section') || !/\/article\/id\/\d+/.test(location.pathname)) return null;
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     const el = document.createElement('div'), maar = [], laskuri = { n: 0 };
     // Tiivistelmä (#article-kortin h2 Abstract ja sitä seuraavat kappaleet).
-    const kortti = document.querySelector('#article .card-content');
-    const abs = kortti && [...kortti.querySelectorAll('h2')].find(h => /^(abstract|résumé|zusammenfassung|resumen|riassunto|tiivistelmä)$/i.test(rivi(h.textContent)));
+    const kortti = document.querySelector('#article .card-content') || document.getElementById('article');
+    const abs = kortti && [...kortti.querySelectorAll('h2, h3')].find(h => /^(abstract|résumé|zusammenfassung|resumen|riassunto|tiivistelmä)$/i.test(rivi(h.textContent)));
     if (abs) {
       const h = document.createElement('h2'); h.textContent = rivi(abs.textContent); el.appendChild(h);
       for (let n = abs.nextElementSibling; n && !/^H[1-6]$/.test(n.tagName) && n.id !== 'article_how_to_cite'; n = n.nextElementSibling) {
@@ -4136,9 +4166,13 @@
     if (el.children.length) el.appendChild(document.createElement('hr'));
     const k = (runko.querySelector('.card-content') || runko).cloneNode(true);
     k.querySelectorAll('#metatags, meta, script, style, #article_footer_block, .fig-inline-img, .fig-expansion > a, button').forEach(x => x.remove());
+    k.querySelectorAll('math').forEach(m => m.replaceWith(...mathTeksti(m)));
+    // Otsikoton kaava- tai asettelutaulukko ruudukoksi (Philosophers' Imprint); otsikolliset jäävät Turndownin GFM-taulukoiksi.
+    k.querySelectorAll('table').forEach(t => { if (!t.querySelector('th')) ojsTaulukko(t); });
     const kaytetyt = new Set();
     const viiteTeksti = li => {
       const c = li.cloneNode(true);
+      c.querySelectorAll('sup em, sup i, sub em, sub i').forEach(x => x.replaceWith(...x.childNodes));
       c.querySelectorAll('a.footnotemarker').forEach(x => x.remove());
       c.querySelectorAll('a.xref-bibr, a[href^="#"]').forEach(x => x.replaceWith(...x.childNodes));
       return muunna(c.innerHTML, 'inlined').trim();
@@ -4169,6 +4203,8 @@
       ol.remove();
     });
     k.querySelectorAll('a.xref-bibr, a.xref-fig, a.xref-table, a[href^="#"]').forEach(x => x.replaceWith(...x.childNodes));
+    // Korostus ala- tai yläindeksin sisällä (Ergo: <sub><em>) jäisi raa'aksi HTML:ksi.
+    k.querySelectorAll('sup em, sup i, sub em, sub i').forEach(x => x.replaceWith(...x.childNodes));
     // Kuvan numero (Figure 1:) jää kuvatekstiin; tyhjä fig-label pois.
     k.querySelectorAll('.fig-label').forEach(x => { if (!rivi(x.textContent)) x.remove(); });
     kkLinkit(k, new RegExp('^' + location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/|$)', 'i'));
@@ -4181,7 +4217,7 @@
     const ccNimi = /\((CC[- ][A-Z-]+ \d\.\d)\)/.exec(oik);
     return { html: irrota([el]).innerHTML, otsikko: meta('citation_title')[0] || rivi((document.querySelector('h1') || {}).textContent),
       tyyppi: 'tieteellinen', tekija: kkLuettelo([...new Set(meta('citation_author'))]), teos: meta('citation_journal_title')[0] || '',
-      numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'), julkaistu: meta('citation_publication_date')[0] || meta('citation_date')[0] || '',
+      numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(x => x && x !== '0').join(':'), julkaistu: meta('citation_publication_date')[0] || meta('citation_date')[0] || '',
       kustantaja: meta('citation_publisher')[0] || '', doi: meta('citation_doi')[0] || '', lahde: osoite, maar, otsikkoMerkit,
       oikeus: cc ? { teksti: ccNimi ? ccNimi[1].replace(/^CC-/, 'CC ') : 'CC ' + cc[2].toUpperCase() + ' ' + cc[3], lahde: 'https://creativecommons.org/' + cc[1] + '/' + cc[2] + '/' + cc[3] + '/' } : null,
       naytto: meta('citation_journal_title')[0] || 'Janeway' };
