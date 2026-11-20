@@ -215,7 +215,7 @@ alusta: yksi sovite.
 4. **Religion Online**: kirja koottuna ja alaviitteet.
 5. **PoPuPS**: Lodel-apufunktiot Fabulasta.
 6. **SLS:n editiot** ja **Snellman**: suomalainen pari.
-7. **Projekt Gutenberg-DE**: kirja koottuna; tarkista rahoitus ensin.
+7. **Projekt Gutenberg-DE**: kirja koottuna; tarkista rahoitus ensin. *Tehty 20.11.2026* (`gutenbergDe()`): lahjoitukset, ei mainosverkkoja.
 8. Yleisen leikkauksen mittaus ennen sovitetta: Book of Concord, Nova Vulgata, Girardian Lectionary, Phenomenology Online,
    Lacan Online, Hedgehog Review, The Immanent Frame, Edition Open Access.
 9. Estetyt (Érudit, Persée, Springer, DTA, Signo) vain, jos ne saa mitattua selaimessa.

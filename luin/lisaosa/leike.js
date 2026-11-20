@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE (20.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2520,6 +2520,121 @@
     const tekija = versaali ? isoAlku(ylin.nimi) : tek !== 'schaff' && alku ? rivi(alku[1]) : pyha ? rivi(pyha[1]) : '';
     return { html: irrota([el]).innerHTML, otsikko, tekija, teos: kirja && kirja !== otsikko ? kirja : '', sivusto: CCEL_NIMI, lahde: juuri.href,
       maar, naytto: CCEL_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
+  }
+
+  /* Projekt Gutenberg-DE (projekt-gutenberg.org; käyttäjän pyyntö 20.11.2026, sivustoehdokkaat-3 kärki 8). Sivusto uudistettiin
+     2026 WordPressiksi: kirja on luvuittain osoitteissa /authors/<tekijä>/books/<kirja>/chapter/N, ja kirjan sivu näyttää luvun 1.
+     Leikkuri kokoaa koko kirjan sivupalkin sisällysluettelosta (aside.book-reader__chapter-nav, enintään KK_RAJA lukua) kuten CCEL.
+     Luvun teksti on .book-reader__chapter-content-wrapper (sama teksti on toisen kerran lukutilassa #gl-reading-mode, ei siitä),
+     otsikko h2.book-reader__chapter-heading. Alaviitteet ovat tekstin sisällä span.footnote-elementteinä (title on numero):
+     alaviitteiksi. Harvennus ja korostus span.em ja span.spaced kursiiviksi. Sivumerkit (a[name^=page], a.pageref) pois kuten
+     Gutenbergissä. Titelseite-luku pois (nimiö toistaa otsikon), samoin luvut, joissa on vain kuvia (Hegelin Lesarten). Luvun
+     alun otsikko pois, kun se toistaa luvun nimen; sivuston lukuotsikossa on sivunumero ja se katkeaa <br>:ään (Freud: 151 IV), joten
+     silloin nimeksi siivottu sisäotsikko (IV. Die Traumentstellung). Pelkkä osan nimi (Kapitel I, Erster Abschnitt) yhdistetään luvun
+     alun otsikkoon (Kapitel I. Grundeinteilung). Otsikoton asettelutaulukko riveittäin kappaleiksi. Etukenttään tekijä
+     (.book-reader__author-link), kustantaja ja vuosi kuvausriviltä (Verlag: … | Jahr: …; painos, josta teksti on otettu).
+     Rahoitus: lahjoitukset (Unterstützen); kumppanilinkit (Amazon, Thalia) eivät ole mainoksia (vrt. Wait But Why).
+     Mitattu 20.11.2026. */
+  const PGDE_NIMI = 'Projekt Gutenberg-DE';
+  const PGDE_ISANTA = /^https?:\/\/([a-z0-9-]+\.)*projekt-gutenberg\.org(\/|$)/i;
+  const PGDE_OSA = /^(?:(?:kapitel|teil|buch|abschnitt|band|book|chapter|part)\s+(?:[IVXLC]+|\d+)|(?:erster|zweiter|dritter|vierter|fünfter|sechster|siebenter|siebter|achter|neunter|zehnter)\s+(?:abschnitt|teil|band|buch))\.?$/i;
+  function pgdeLuku(d, maar, laskuri) {
+    const w = d && [...d.querySelectorAll('.book-reader__chapter-content-wrapper')].find(x => !x.closest('#gl-reading-mode'));
+    if (!w) return null;
+    const el = w.cloneNode(true);
+    // Sisäotsikon raaka teksti ennen sivunumeron poistoa: sivuston lukuotsikko katkeaa <br>:ään ja sisältää numeron (Freud: 29 I).
+    const ens0 = [...el.querySelectorAll('*')].find(x => /^H[1-6]$/.test(x.tagName) || (x.tagName === 'P' && rivi(x.textContent)));
+    const ensRaaka = ens0 && /^H[1-6]$/.test(ens0.tagName) ? rivi(ens0.textContent) : '';
+    el.querySelectorAll('script, style, img, a.pageref, a[name^="page"]').forEach(x => x.remove());
+    // Otsikon rivinvaihto: numero tai kirjain ja nimi (IV<br>Die Traumentstellung → IV. Die Traumentstellung), muuten kaksoispiste.
+    el.querySelectorAll(OTSIKOT).forEach(h => {
+      if (!h.querySelector('br')) return;
+      h.querySelectorAll('br').forEach(b => b.replaceWith('\u0001'));
+      const osat = h.textContent.split('\u0001').map(rivi).filter(Boolean);
+      h.textContent = osat.reduce((a, x) => !a ? x : /^([IVXLC]+|\d+|[A-Z])\.?$/.test(a) ? a.replace(/\.?$/, '. ') + x : a + (/[.:;!?]$/.test(a) ? ' ' : ': ') + x, '');
+    });
+    el.querySelectorAll('span.footnote').forEach(s => {
+      if (!el.contains(s)) return;
+      const k = s.cloneNode(true);
+      k.querySelectorAll('a[name]').forEach(a => a.replaceWith(...a.childNodes));
+      const t = muunna(k.innerHTML, 'inlined').trim();
+      const ed = s.previousSibling;
+      if (ed && ed.nodeType === 3) ed.nodeValue = ed.nodeValue.replace(/\s+$/, '');
+      if (!t) { s.remove(); return; }
+      const tunnus = 'gd' + (++laskuri.n);
+      s.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('span.em, span.spaced').forEach(s => {
+      const em = document.createElement('em');
+      while (s.firstChild) em.appendChild(s.firstChild);
+      s.replaceWith(em);
+    });
+    el.querySelectorAll('a[name]').forEach(a => a.replaceWith(...a.childNodes));
+    // Vaihtoehtoiset sanat murtolukuna (die/ein): tekstiksi, koska sup ja sub jäisivät Luinissa raaoiksi merkinnöiksi.
+    el.querySelectorAll('sup.fract, sub.fract').forEach(x => x.replaceWith(...x.childNodes));
+    // Otsikoton asettelutaulukko (Freudin unitekstin vaihtoehdot) riveittäin kappaleiksi: Luinissa raaka HTML näkyisi tekstinä.
+    el.querySelectorAll('table').forEach(t => {
+      if (t.querySelector('th, table')) return;
+      const kpl = [...t.querySelectorAll('tr')].map(tr => {
+        const p = document.createElement('p');
+        [...tr.children].forEach((td, i) => {
+          if (i && rivi(td.textContent)) p.append(' ');
+          [...td.childNodes].forEach(n => { if (n.nodeName === 'P') p.append(...n.childNodes, ' '); else p.append(n); });
+        });
+        return p;
+      }).filter(p => rivi(p.textContent));
+      t.replaceWith(...kpl);
+    });
+    kkLinkit(el, PGDE_ISANTA);
+    return { el, otsikko: rivi((d.querySelector('h2.book-reader__chapter-heading') || {}).textContent), ensRaaka };
+  }
+  async function gutenbergDe() {
+    if (!/(^|\.)projekt-gutenberg\.org$/i.test(location.hostname)) return null;
+    const polku = /^(\/authors\/[^/]+\/books\/[^/]+)\/?(?:chapter\/(\d+)\/?)?$/.exec(location.pathname);
+    if (!polku || !document.querySelector('.book-reader__chapter-content-wrapper')) return null;
+    const nykyNro = polku[2] ? +polku[2] : 1, luvut = [];
+    document.querySelectorAll('aside.book-reader__chapter-nav li a[href]').forEach(a => {
+      const u = new URL(a.getAttribute('href'), osoite).href, nro = (/\/chapter\/(\d+)\/?$/.exec(u) || [])[1];
+      if (nro && !luvut.some(l => l.u === u)) luvut.push({ u, nro: +nro, nimi: rivi((a.querySelector('.book-reader__chapter-title') || a).textContent) });
+    });
+    const valitut = luvut.length && luvut.length <= KK_RAJA ? luvut : [{ u: osoite, nro: nykyNro, nimi: '' }];
+    const haettavat = valitut.filter(l => l.nro !== nykyNro);
+    const haetut = await kkHae(haettavat.map(l => l.u));
+    const doc = l => l.nro === nykyNro ? document : haetut[haettavat.indexOf(l)];
+    const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
+    const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    let sivuja = 0;
+    for (const l of valitut) {
+      if (/^(titelseite|titelblatt|impressum|inhalt|inhaltsverzeichnis)\.?$/i.test(l.nimi)) continue;
+      const r = pgdeLuku(doc(l), maar, laskuri);
+      if (!r || kkSanoja(r.el) < 3) continue;
+      sivuja++;
+      let nimi = r.otsikko || l.nimi;
+      const ens = [...r.el.querySelectorAll('*')].find(x => /^H[1-6]$/.test(x.tagName) || (x.tagName === 'P' && rivi(x.textContent)));
+      if (ens && /^H[1-6]$/.test(ens.tagName) && nimi) {
+        const a = tiivis(ens.textContent), b = tiivis(nimi), raaka = tiivis(r.ensRaaka);
+        // Sivuston otsikko on sisäotsikon alku tai sama sivunumeroineen (Freud: 29 I Die wissenschaftliche …): luvun nimeksi
+        // siivottu sisäotsikko (I. Die wissenschaftliche …).
+        if (raaka && b && raaka.startsWith(b) && a) { nimi = rivi(ens.textContent); ens.remove(); }
+        else if (a && (a === b || b.includes(a) || a.includes(b))) ens.remove();
+        // Pelkkä osan nimi (Kapitel I, Erster Abschnitt) ja varsinainen nimi luvun alussa yhdeksi: Kapitel I. Grundeinteilung.
+        else if (a && PGDE_OSA.test(nimi)) { nimi = nimi.replace(/\.?$/, '. ') + rivi(ens.textContent); ens.remove(); }
+      }
+      kkSiirra(r.el, 2);
+      if (valitut.length > 1 && nimi) { const h = document.createElement('h2'); h.textContent = nimi; el.appendChild(h); }
+      el.append(...r.el.childNodes);
+    }
+    if (kkSanoja(el) < 20) return null;
+    kkTasoita(el);
+    el.normalize();
+    const kuvaus = rivi((document.querySelector('.book-reader__description') || {}).textContent);
+    const kust = (/Verlag:\s*([^|]+)/.exec(kuvaus) || [])[1], vuosi = (/Jahr:\s*(\d{4})/.exec(kuvaus) || [])[1];
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('h1.book-reader__title') || {}).textContent) || rivi(document.title),
+      tekija: rivi((document.querySelector('.book-reader__author-link') || {}).textContent),
+      kustantaja: kust && !/gutenberg/i.test(kust) ? rivi(kust) : '', julkaistu: vuosi || '',
+      sivusto: PGDE_NIMI, lahde: valitut.length > 1 ? location.origin + polku[1] + '/' : osoite, maar,
+      naytto: PGDE_NIMI + (sivuja > 1 ? ' (' + sivuja + ' lukua)' : '') };
   }
 
   /* Emergence Magazine (emergencemagazine.org; käyttäjän pyyntö 16.11.2026, pahvin B7: mittaa ensin kuten Noema). Mitattu:
@@ -7330,6 +7445,7 @@
     larb: { laji: 'lahjoitukset', osoite: 'https://lareviewofbooks.org/donate/' },
     cdli: { laji: 'lahjoitukset', osoite: 'https://opencollective.com/cdli/donate' },
     bomb: { laji: 'mainokset ja lahjoitukset', osoite: 'https://bombmagazine.org/donate' },
+    gutenbergDe: { laji: 'lahjoitukset', osoite: 'https://projekt-gutenberg.org/ueber-uns/finanzielle-unterstuetzung/' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -7348,7 +7464,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
