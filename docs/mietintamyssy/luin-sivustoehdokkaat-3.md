@@ -206,6 +206,20 @@ renessanssiosiossa jäi mittaamatta Philological Museum (varmenneketju); nyt se 
 - Ei löytynyt: Erasmuksen *Opera omnia* (ASD) ja *Collected Works* (Toronto) ovat maksullisia, *I Tatti Renaissance Library* samoin.
   Erasmus Center (erasmus.org) ohjaa Rotterdamin kirjaston sivulle.
 
+## Augustinus, Nāgārjuna, Spinoza ja Descartes (lisäys 20.11.2026)
+
+Käyttäjän kysymys henkilölistan ulkopuolelta. Mitattu kontista 20.11.2026.
+
+- **augustinus.it** (Nuova Biblioteca Agostiniana, Città Nuova): koko tuotanto latinaksi ja italiaksi, kirja yhdellä sivulla
+  (*Confessiones* I: latina 5 421, italia 7 284 sanaa; *De civitate Dei* I 11 821), samat kappaleankkurit kummassakin. *Tehty
+  20.11.2026* (`augustinus()`): lomitettu käännös. Sivusto katkoo yhteyksiä toistuvista hauista (curl 35).
+- **GRETIL** (Göttingen): *Mūlamadhyamakakārikā* yhdellä sivulla (7 375 sanaa sanskritia), *Vigrahavyāvartanī* 5 861.
+- **Spinoza:** spinozaweb.org on luettelo (teossivulla 35 sanaa); ethicadb.org: *Ethica* kymmenenä versiona (latina Gebhardt,
+  Appuhn, Elwes, Stern, Misrahi ym.), mutta osien sivut antoivat kontille 404, ei mitattu. la.wikisourcessa *Ethica*-hakemisto.
+- **Descartes:** fr.wikisource (*Méditations métaphysiques*) ja la.wikisource (*Meditationes*): nykyinen Wikisource-sovite.
+  Latin Libraryssä ei Descartes-sivua (404).
+- **Augustinus muualla:** New Advent ja CCEL (englanti) ja Latin Library (*Confessiones* I: 5 218 sanaa) ovat jo sovitteita.
+
 ## Yleisemmät ympäristöt
 
 - **KB:n tekstiportaali**, **Religion Online**, **Michigan Publishing**, **PoPuPS**, **SLS**, **Gutenberg-DE**, **Edition Open
