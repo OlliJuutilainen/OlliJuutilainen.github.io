@@ -113,6 +113,70 @@ Merkinnät: *sanat* mitattu; *ei mitattu* (syy); *(?)* muistitieto; *katettu* = 
 - **Kant-lehdet** (käyttäjän maininta): Estudos Kantianos ja Kantian Journal (kantiana.ru): pdf; Revista de Estudios Kantianos:
   Anubis ja 429, ei mitattu. Con-Textos Kantianos ja Korpora *katettu*; Ergo (kärki 4) julkaisee Kant-artikkeleita.
 
+## Raamatunkäännökset ja alkukieliset tekstit (lisäys 20.11.2026)
+
+Käyttäjän rajaus: suomeksi, ranskaksi, englanniksi ja saksaksi joko tutkimuksellisesti arvostetut (kriittisen tekstin
+pohjalta tehdyt) tai historiallisesti merkittävät käännökset, hyvälaatuisesta lähteestä. Ei seurojen omia
+herätyskäännöksiä eikä KJV:tä roskaversiona. Suomessa jo Kirkkoraamattu 1933/38 kelpaa; ranskassa, saksassa ja englannissa
+korkeampi rima, mutta Lutherbibel ja KJV hyvällä laadulla käyvät. Lisäksi kreikka ja latina: myös ei-kriittiset mutta
+historiallisesti merkittävät (Textus Receptus, Hieronymuksen Vulgata, Septuaginta) ja moderni kriittinen latina.
+
+**Pääosin jo katettu: Wikisource.** Nykyinen Wikisource-sovite tunnistaa kaikki kielet, ja Wikisourcessa on yksi kirja
+yhdellä sivulla. Mitattu (sanat kirjasivulla):
+
+| Käännös | Wikisource | Näyte |
+|---|---|---|
+| **Agricola, *Se Wsi Testamenti* 1548** | fi | Matteus: 24 301 |
+| **Biblia 1776** | fi (*Raamattu 1776/…*) | Roomalaiskirje: 7 839 |
+| **Luther, syyskuun testamentti 1522** | de (*Lutherbibel/… (1522)* ja *Das Newe Testament Deutzsch/…*) | Roomalaiskirje: 16 807 |
+| **Lemaistre de Sacy (Port-Royal)** | fr (*Bible Sacy/…*) | Luukas: 28 869 |
+| **Crampon 1923** (katolinen, aikanaan filologinen, viitteet) | fr | Apostolien teot: 26 596 (koko teksti 36 548 viitteineen) |
+| **Segond 1910** | fr | Luukas: 27 125 |
+| **Wycliffe** (myös *Early Wycliffe*) | en | Johannes: 19 857 |
+| **Tyndale** | en | Johannes: 19 946 |
+| **Geneva** | en | Roomalaiskirje: 9 986 |
+| **Bishops' Bible** | en | Luukas: 27 170 |
+| **King James** | en | 1. Mooseksen kirja: 42 274 |
+| **Douay–Rheims (Challoner)** | en | 1. Mooseksen kirja: 42 396 |
+| **American Standard Version 1901** (Revised Versionin amerikkalainen laitos, Westcott–Hortin kauden kriittinen teksti) | en | Johannes: 19 889 |
+| **Brenton 1879** (Septuagintan englanninnos) | en (*Septuagint (Brenton 1879)/…*) | 1. Mooseksen kirja: 73 836 sanaa, taulukossa (kreikka ja englanti rinnakkain?) |
+| **Vulgata Clementina** | la | Johannes: 15 956 |
+| **Castellio, *Biblia Sacra* 1551** (humanistilatina) | la | Roomalaiskirje: 7 391 |
+| **Septuaginta (Rahlfs)** | el (*Η Παλαιά Διαθήκη (Rahlfs)*) | 1. Mooseksen kirja: 34 260 |
+| **Kreikkalainen UT, Konstantinopolin patriarkaatin teksti** (1904) | el (*Καινή Διαθήκη*) | hakemisto mitattu, kirjoja ei |
+
+English Revised Versionista (1881–1885) on Wikisourcessa vain esipuhe. Brentonin sivu on taulukko (`<p>`-sanoja 0), joten
+tarkista leike ennen kuin pidät sitä katettuna.
+
+**Uusi alusta: raamattuseurojen lukupalvelu** (raamattu.fi ja die-bibel.de). Molemmissa sama osoitemalli
+(`/raamattu/KR38/MAT.1`, `/en/bible/NA28/JHN.1`, USFM-kirjakoodit) ja sama CloudFront-virhesivu, joten ilmeisesti sama
+alusta: yksi sovite.
+
+- **raamattu.fi** (Suomen Pipliaseura): **Kirkkoraamattu 1933/38** (`KR38`) ja **Raamattu 1992** (`KR92`) luku kerrallaan,
+  Matteus 1: 354 ja 307 sanaa, viitemerkkejä yli 250 sivulla. `KR33` ja `R1776` 404. Sovite kokoaisi kirjan luvuista.
+- **die-bibel.de** (Deutsche Bibelgesellschaft): **Nestle–Aland 28** luku kerrallaan (Joh. 1: 865 sanaa, ei apparaattia);
+  sivuston esittelysivut *Biblia Sacra Vulgata* (Stuttgartin kriittinen Vulgata, Weber–Gryson) ja *Septuaginta* (Rahlfs)
+  ovat olemassa, mutta lukusivujen koodeja ei saatu selville ennen kuin CloudFront alkoi antaa 403:a kaikille hauille.
+  Lutherbibel 2017, Zürcher Bibel 2007 ja Einheitsübersetzung 2016: ei mitattu (403). Rahoitus: Raamattuseura, lahjoitukset;
+  mainosmerkkien osuma epäselvä.
+- Kontti estyi molemmissa muutaman haun jälkeen. Sovitteen pitää koota kirja maltillisesti (luvut peräkkäin, ei rinnakkain).
+
+**Muut:**
+
+- **Nova Vulgata** (vatican.va, kärki 11): moderni kriittinen latina, oli jo kuormassa.
+- **AELF** (aelf.org): Ranskan katolisen kirkon liturginen käännös (2013), luku sivulla (Room. 1: 846 sanaa). Kriittispohjainen,
+  mutta kirkollinen; rajatapaus.
+- **NET Bible** (netbible.org): Joh. 1: 1 356 sanaa ja paljon käännösviitteitä, Cloudflare-merkki. Evankelikaalinen laitos,
+  jonka viitteet ovat tekstikriittisesti perusteellisia; käyttäjä päättää.
+- **laparola.net** (kärki 12): Westcott–Hort, Tischendorf ja bysanttilainen teksti varianttien kanssa.
+- **Textus Receptus:** ei löytynyt hyvälaatuista lähdettä. Wikisourcessa ei ole; textusreceptusbibles.com on
+  tunnustuksellinen KJV-only-sivusto (etusivu 130 sanaa), ei mitattu tarkemmin. Lähin: patriarkaatin teksti (yllä) ja
+  laparola.netin bysanttilainen teksti.
+- **Ei löytynyt vapaasti verkosta:** Bible de Jérusalem, TOB, NRSVue (vain BibleGatewayssa, joka on karsittu jaesovelluksena ja
+  mainosten takia), Buber–Rosenzweig (tekijänoikeus voimassa 2035 asti).
+- raamattu.uskonkirjat.net: harrastajasivusto, sivu näytti lomakkeen (394 sanaa); ei suositella, kun raamattu.fi ja Wikisource
+  kattavat samat.
+
 ## Yleisemmät ympäristöt
 
 - **KB:n tekstiportaali**, **Religion Online**, **Michigan Publishing**, **PoPuPS**, **SLS**, **Gutenberg-DE**, **Edition Open
