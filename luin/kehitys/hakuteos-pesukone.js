@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
-// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
+// marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit sekä augustinus.it:n Augustinus Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -327,6 +327,10 @@ const SARJAT = {
   np: ['THEM00046', 'THEM00054', 'THEM00073', 'NATP00023'].map(p => 'https://www.newtonproject.ox.ac.uk/view/texts/normalized/' + p),
   // The Latin Library (20.11.2026): Erasmuksen Moriae encomium, Querela pacis, Colloquia (sisällyssivu) ja Ciceron De officiis I.
   ll: ['erasmus/moriae.shtml', 'erasmus/querela.shtml', 'erasmus/coll.shtml', 'cicero/off1.shtml'].map(p => 'https://www.thelatinlibrary.com/' + p),
+  // augustinus.it (20.11.2026): Tunnustukset kehyksistä (index2.htm, kirja 1 sisäkehyksessä) ja italiasta, De civitate Dei 1
+  // (luvun tiivistelmät), De Trinitate 1, Sermo 1 (H5-otsikot, numero ilman lukua) ja Soliloquia 1.
+  aug: ['latino/confessioni/index2.htm#kehys=conf_01.htm', 'italiano/confessioni/conf_04_libro.htm', 'latino/cdd/cdd_01_libro.htm', 'latino/trinita/trinita_01_libro.htm',
+    'latino/discorsi/discorso_001_testo.htm', 'latino/soliloqui/soliloqui_1_testo.htm'].map(p => 'https://www.augustinus.it/' + p),
   korpora: ['aa04/393', 'aa08/035', 'aa05/030', 'aa09/011', 'aa07/119', 'aa03/052', 'aa10/010'].map(p => 'https://korpora.org/kant/' + p + '.html')
 };
 const SARJA = otaArvo('--sarja');
@@ -339,7 +343,7 @@ fs.mkdirSync(VALI, { recursive: true });
 function valimuisti(url, post) {
   const f = path.join(VALI, (url + (post ? '_' + post : '')).replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
   if (!fs.existsSync(f) && !fs.existsSync(f + '.puuttuu')) {
-    const koodi = cp.execFileSync('curl', ['-sSL', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org|eur-lex\.europa\.eu|publishing\.umich\.edu/.test(url) ? [] : ['-A', 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
+    const koodi = cp.execFileSync('curl', ['-sSL', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org|eur-lex\.europa\.eu|publishing\.umich\.edu/.test(url) ? [] : ['-A', /augustinus\.it/.test(url) ? 'Mozilla/5.0 (X11; Linux x86_64) Firefox/128.0' : 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
     if (koodi !== '200') { fs.writeFileSync(f + '.puuttuu', koodi); fs.rmSync(f, { force: true }); }
   }
   return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
@@ -360,6 +364,12 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
+    // augustinus.it: windows-1252, joten tavut sellaisinaan (välimuistin UTF-8-luku rikkoisi italian kirjaimet).
+    if (/^https?:\/\/www\.augustinus\.it\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
+      const h = valimuisti(u);
+      const f = h === null ? null : path.join(VALI, u.replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
+      return f ? r.fulfill({ body: fs.readFileSync(f), contentType: 'text/html; charset=windows-1252' }) : r.fulfill({ status: 404, body: '' });
+    }
     // VLE: sivun omat skriptit ja ajax.php (POST) välimuistista; muut palvelimet (reCAPTCHA, Pinterest, MathJax) estetään.
     if (/^https?:\/\/www\.vle\.lt\//.test(u) && /^(script|fetch|xhr)$/.test(r.request().resourceType())) {
       const post = r.request().method() === 'POST' ? r.request().postData() || '' : '';
@@ -379,10 +389,13 @@ const palvelin = http.createServer((q, r) => {
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
-    const nimi = (/publishing\.umich/.test(url) ? [osat[3], osat[osat.length - 1]] : /edition-open|mprl-series/.test(url) ? osat.slice(2, -1) : /newtonproject/.test(url) ? ['newton', osat[osat.length - 1]] : /thelatinlibrary/.test(url) ? osat.slice(-2) : /popups\.uliege/.test(url) ? ['popups', url.split('id=')[1]] : /journals\.vu\.lt|revistas\.ucm\.es|psychopen\.eu/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook|projekt-gutenberg|bookofconcord|sls\.fi|isidore\.co|philological/.test(url) ? osat.slice(-2) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /cdli\.earth|fabula\.org|zeithistorische/.test(url) ? osat.slice(-2) : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
-    if (!valimuisti(url)) { console.log('=====', nimi, 'ei saatu'); continue; }
+    const nimi = (/publishing\.umich/.test(url) ? [osat[3], osat[osat.length - 1]] : /edition-open|mprl-series/.test(url) ? osat.slice(2, -1) : /newtonproject/.test(url) ? ['newton', osat[osat.length - 1]] : /thelatinlibrary/.test(url) ? osat.slice(-2) : /augustinus\.it/.test(url) ? ['aug', ...osat.slice(-3)] : /popups\.uliege/.test(url) ? ['popups', url.split('id=')[1]] : /journals\.vu\.lt|revistas\.ucm\.es|psychopen\.eu/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook|projekt-gutenberg|bookofconcord|sls\.fi|isidore\.co|philological/.test(url) ? osat.slice(-2) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /cdli\.earth|fabula\.org|zeithistorische/.test(url) ? osat.slice(-2) : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
+    if (!valimuisti(url.split('#')[0])) { console.log('=====', nimi, 'ei saatu'); continue; }
     const s = await ctx.newPage();
     await s.goto(url);
+    // Kehyssivusto (augustinus.it): #kehys=<tiedosto> avaa tiedoston principale-kehykseen kuten käyttäjän napautus sisällysluettelossa.
+    const kehys = /#kehys=(.+)$/.exec(url);
+    if (kehys) { await s.frame({ name: 'principale' }).goto(new URL(kehys[1], url).href); await s.waitForTimeout(1000); }
     if (/vle\.lt/.test(url)) await s.waitForSelector('.z-content', { timeout: 15000 }).catch(() => console.log('  (VLE: .z-content puuttuu, raaka sivu)'));
     const lahde = await s.evaluate(() => {
       const w = document.querySelector('#mw-content-text .mw-parser-output');
