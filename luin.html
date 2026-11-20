@@ -82,12 +82,18 @@
     --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
     --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272; --sitaatti: #c2af94; --hius: #2f261d; --valo: #3f3428;
   }
-  /* Mustin ja TCF-valkaisu (käyttäjän pyyntö 17.11.2026, aset.kontrasti; aamulla korkea kontrasti): vain tausta on ääripää,
-     #000 tummassa (Mustin) ja #fff vaaleassa (TCF-valkaisu). Vaaleassa muste on lisäksi täysmusta; tumman lämmin
-     tekstivalkoinen pysyy (käyttäjä: Light Phonella täydellisen pehmeä). Muut sävyt ovat teeman omat: sähköpaperin hidas
-     tila toistaa harmaat, sotkuinen on vain ei-ihan-valkoinen tai ei-ihan-musta tausta. */
+  /* TCF-valkaisu (käyttäjän pyyntö 17.11.2026, aset.kontrasti): vain tausta on ääripää #fff ja muste täysmusta. Muut sävyt
+     ovat teeman omat: sähköpaperin hidas tila toistaa harmaat, sotkuinen on vain ei-ihan-valkoinen tausta. */
   :root.kontrasti:not([data-teema="tumma"]) { --paperi: #ffffff; --muste: #000000; }
-  :root.kontrasti[data-teema="tumma"] { --paperi: #000000; }
+  /* Sysi (käyttäjän pyyntö 20.11.2026, sama aset.kontrasti tummassa; korvasi Mustimman, jossa vain tausta oli #000): tausta
+     sysimusta ja paletti himmeämpi ja lämpimämpi. Ei yötila eikä meripihkaa. Käyttäjän kokeilut: kontrasti 5,0 ja 8,4 liian
+     sysi, 13,0 liian lähellä Mustinta; nyt keskitie 10,5 (Mustin 15,9). Muste OKLCH(0.781 0.053 82), sivuvärit 8,4:n ja 13:n
+     version puolivälissä, ruoste h 65 (ei oranssiin). Viivat ja taustasävyt (viiva 1,6, hius 1,2, valo 1,45 mustaa vasten)
+     ovat himmeämmät kuin tummassa, koska tausta on musta eikä tummanruskea (käyttäjä). */
+  :root.kontrasti[data-teema="tumma"] {
+    --paperi: #000000; --muste: #c9b592; --harmaa: #978263; --viiva: #392e22;
+    --ruoste: #9d7145; --okra: #bf9335; --huomio: #8d795a; --sitaatti: #aa9473; --hius: #211a13; --valo: #31281e;
+  }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
@@ -1196,7 +1202,7 @@
   .asetus .nimi { display: block; font-size: .88rem; margin-bottom: 1px; }
   /* Ulkoasun otsikko ja sähköpapyrosointi samalla rivillä (käyttäjän ehdotus 17.11.2026): nappi on otsikkoa pienempi ja
      asteen himmeämpi (--huomio, käyttäjän pyyntö 17.11.2026) versaali, kursiivi, ohut ja ohuen suorakaiteen sisällä (käyttäjän päätös 17.11.2026; aamulla hakasulkeissa).
-     Painallus on tapahtuma eikä tila: vain napin suorakaide kehineen tanssii sähköpaperin virkistyksen tapaan Mustimman ja
+     Painallus on tapahtuma eikä tila: vain napin suorakaide kehineen tanssii sähköpaperin virkistyksen tapaan mustan (vaihe mustin) ja
      TCF:n välillä neljä vaihetta (papyrosoi(); viimeisessä lopputilan väri ja kuittaus, joka jää PAPYRUS_MS ajaksi). Vaiheiden värit ovat kiinteät, koska sivun teema vaihtuu kesken. Leveys lukitaan vatkauksen ajaksi. */
   /* Raskaan tekstin ilmoitus Asetusten ylälaidassa (sovellaTaiLykkaa()). */
   #raskas-tieto { font-size: .8rem; font-style: italic; line-height: 1.4; color: var(--harmaa); margin: 12px 0 -8px; }
@@ -1208,8 +1214,8 @@
     line-height: 1.3; white-space: nowrap; text-align: center; position: relative; -webkit-tap-highlight-color: transparent; }
   /* Napautusalue 36 px korkeaksi rivin korkeutta muuttamatta. */
   #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
-  /* Tanssissa Mustimman teksti ja kehä ovat poikkeuksellisesti vitivalkoiset (käyttäjän pyyntö 17.11.2026: tanssin
-     selkeyttämiseksi; muuten Mustimman teksti on tumman teeman lämmin valkoinen). */
+  /* Tanssin mustassa vaiheessa teksti ja kehä ovat poikkeuksellisesti vitivalkoiset (käyttäjän pyyntö 17.11.2026: tanssin
+     selkeyttämiseksi; vaihe on sähköpaperin virkistysvälähdys, ei Sysi). */
   #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ffffff; border-color: #ffffff; }
   #papyrosoi[data-vaihe="tcf"] { background: #ffffff; color: #000000; border-color: #000000; }
   /* TCF-vihje (käyttäjän pyyntö 17.11.2026): hiiren pitkä viipymä TCF-valkaisun päällä tai kosketuksella päällä olevan
@@ -1549,7 +1555,7 @@
   <!-- Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, ei kytkin. Asettaa SAHKOPAPERI-taulun asetukset kerralla;
        sen jälkeen jokaista voi muuttaa omasta kytkimestään. Kun asetukset ovat taulun mukaiset, samassa paikassa on
        Oletusasetukset, joka palauttaa taulun asetukset laitteen oletuksiin. Ks. CSS #papyrosoi. Kontrastikytkimen nimi
-       riippuu teemasta: Mustin tai TCF-valkaisu (piirraAsetukset()). -->
+       riippuu teemasta: Sysi tai TCF-valkaisu (piirraAsetukset()). -->
   <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi" aria-live="polite">Sähköpapyrosoi asetukset</button></div>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
     <div class="valinnat nipukka" data-k="kontrasti:TCF-valkaisu"></div>
@@ -3768,7 +3774,7 @@
     $$('#asetukset .valinnat[data-k]').forEach(function (v) {
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
-        if (kv[0] === 'kontrasti') kv[1] = aset.teema === 'tumma' ? 'Mustin' : 'TCF-valkaisu';
+        if (kv[0] === 'kontrasti') kv[1] = aset.teema === 'tumma' ? 'Sysi' : 'TCF-valkaisu';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
         // Vierityksessä sivunkäännön lisäkytkimet ovat himmeät mutta napautettavissa: napautus valitsee Sivunkäännön.
         var himmea = tapa && aset.sivutus !== 'sivut';
@@ -3841,8 +3847,8 @@
   function paivitaPapyrus() {
     if (!papyrusKay) $('#papyrosoi').textContent = papyrosoitu() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
   }
-  /* Tanssi (käyttäjän pyynnöt 17.11.2026, vain napin suorakaide kehineen): pelkkä Mustin ja TCF vuorotellen, ei tavallisten
-     teemojen välisävyjä. Neljännessä vaiheessa jää lopputilan oikea väri: papyrosointi ja vaalea oletus Mustin, TCF, Mustin,
+  /* Tanssi (käyttäjän pyynnöt 17.11.2026, vain napin suorakaide kehineen): pelkkä musta (mustin) ja TCF vuorotellen, ei tavallisten
+     teemojen välisävyjä. Neljännessä vaiheessa jää lopputilan oikea väri: papyrosointi ja vaalea oletus musta, TCF, musta,
      TCF; tumma oletus päinvastoin. Lähtöteema ei vaikuta, ensimmäinen vaihe vain erottuu siitä enemmän tai vähemmän.
      Asetukset vaihtuvat neljännen vaiheen alussa, jolloin kuittaus on totta. */
   function papyrosoi() {
