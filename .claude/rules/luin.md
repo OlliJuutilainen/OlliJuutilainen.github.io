@@ -246,11 +246,12 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa hakasulkeet ovat 0.10.0:sta, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
 - **Sysi, TCF-valkaisu ja sähköpapyrosointi** (käyttäjän pyynnöt 17.11.2026, `aset.kontrasti`, `SAHKOPAPERI`): vaaleassa
   kontrastikytkin (*TCF-valkaisu*) muuttaa **vain taustan** #fff:ksi ja musteen täysmustaksi, ei muita sävyjä (hidas
-  sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa sama kytkin on *Sysi* (20.11.2026, korvasi *Mustimman*,
+  sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa vastaava kytkin on *Sysi* (`aset.sysi`, 20.11.2026, korvasi *Mustimman*,
   joka muutti vain taustan): tausta #000, tekstivärit himmeämpiä ja lämpimämpiä, viivat himmeämpiä kuin tummassa. Ei yötila eikä
   meripihkaa. Käyttäjän kokeilut 20.11.2026: muste-kontrasti 5 ja 8,4 liian sysi, 13 liian lähellä Mustinta; nyt keskitie 10,5
-  (Mustin 15,9). Sivuvärit ovat musteesta kauempana kuin tummassa (käyttäjä 20.11.2026: lomitetun käännöksen englanti ei erottunut kreikasta); älä kavenna eroja. Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
-  olevan kytkimen napautuksesta kerran päällekytkentää kohden (muuten kytkintä ei voisi sammuttaa). *Sähköpapyrosoi asetukset*
+  (Mustin 15,9). Sivuvärit ovat musteesta kauempana kuin tummassa (käyttäjä 20.11.2026: lomitetun käännöksen englanti ei erottunut kreikasta); älä kavenna eroja. Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat; käyttäjän pyynnöt 20.11.2026): hiirellä
+  viipymästä (1 s), ja hiiren lähtö kytkimeltä sulkee heti; kosketuksella pois olevan TCF:n napautus avaa vihjeen kysymyksenä, jonka
+  oikean alakulman ruosteinen *OK.* kytkee TCF:n päälle ja sulkee; ohi napautus vain sulkee, päällä olevan napautus sammuttaa ilman vihjettä. *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
   (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita), otsikkoa pienempi ja `--huomio`n värinen; painallus tanssittaa **vain napin
   alaa kehineen**: pelkkä musta (`mustin`, ei Sysi) ja TCF vuorotellen, ei tavallisten teemojen välisävyjä (käyttäjä 17.11.2026), 0,7 s vaihe;
@@ -260,15 +261,20 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
 - **Sysin** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.sysin`, Sysin oikealla): Sysin ensimmäisen kokeilun yölukutila,
   jota käyttäjä piti hämäryyden ylärajana (muste 5,0: **ei himmeämmäksi kysymättä**). Sivuvärien Y-suhde musteeseen kuten Sysissä
-  (erottuvuus), ruoste poikkeuksena .42, ettei näytä harmaalta. Arvot CSS:n kommentissa. Sysi, Sysin ja CLARVS sulkevat toisensa
-  pois (`PALETIT`, `ainoaPaletti()`).
+  (erottuvuus), ruoste poikkeuksena .42, ettei näytä harmaalta. Arvot CSS:n kommentissa. CLARVS sulkee
+  Sysin (ja Sysinin) pois. **Sysin on Sysin alakytkin** (käyttäjän pyyntö 20.11.2026): vielä pienempi, näkyvissä vain Sysin ollessa valittuna
+  (paikka varataan `visibility`llä, ei hyppelyä); arvo säilyy Sysin alla.
+- **Teeman alakytkimet** (käyttäjän sääntö 20.11.2026, `yksiPaletti()`, `av 10`): kumpikin teema muistaa omat alakytkimensä
+  (`aset.kontrasti` = TCF, `aset.sysi` = Sysi, `aset.sysin`), ja teemaan palatessa ne palaavat. Toisen teeman alakytkimen napautus
+  valitsee **vain teeman**, kuten Sivunkäännön lisäkytkin rullatessa: ensin teeman piiriin, sitten sen alavalintoihin. CLARVS on
+  molempien yhteinen ja pitää kutinsa teemaa vaihdettaessa; se sulkee TCF:n ja Sysin kummastakin teemasta, ja TCF tai Sysi sulkee sen.
 - **CLARVS · ET · DISTINCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
   valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
   (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä vasemmassa laidassa
   hyvin leveästi harvennettu CLARVS. Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
-  valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42) > toisen teeman alakytkin (`.pois`, .25, napautus
-  valitsee teeman ja kytkimen). Sama `aset.kontrasti` kummallekin teemalle (`data-teema`). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
+  valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42) > toisen teeman alakytkin (`.pois`, .14; käyttäjä
+  20.11.2026: himmeämmäksi kuin Sivunkäännön .25). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
   (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
