@@ -211,7 +211,7 @@ alusta: yksi sovite.
 
 1. **Michigan Publishing**: Janeway-tunnistimen laajennus; todennäköisesti pienin työ.
 2. **KB:n tekstiportaali** (SKS): koko teos sivulla, kommentit alaviitteiksi, sivunumerot; yksi sovite viidelle kokoelmalle.
-3. **isidore.co/aquinas**: rinnakkaistaulukko lomitetuksi käännökseksi; Perseuksen `ladonta` on valmiina.
+3. **isidore.co/aquinas**: rinnakkaistaulukko lomitetuksi käännökseksi; Perseuksen `ladonta` on valmiina. *Tehty 20.11.2026* (`aquinas()`).
 4. **Religion Online**: kirja koottuna ja alaviitteet. *Tehty 20.11.2026* (`religionOnline()`): kolme viitemuotoa, OCR-sivunumerot.
 5. **PoPuPS**: Lodel-apufunktiot Fabulasta. *Tehty 20.11.2026* (`popups()`).
 6. **SLS:n editiot** ja **Snellman**: suomalainen pari. *Tehty 20.11.2026* (`sls()`, `snellman()`). Topeliuksen romaanin osat 2 ja 3 eivät tulleet palvelimelta (selain hakee ne rajapinnasta), joten niistä leikataan avattu osa.
