@@ -272,7 +272,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   (`aset.kontrasti` = TCF, `aset.sysi` = Sysi, `aset.sysin`), ja teemaan palatessa ne palaavat. **Toisen teeman alakytkimet eivät
   näy lainkaan** (`.piilossa`, paikka varattuna): vaaleassa ei Sysiä eikä Sysiniä, tummassa ei TCF:ää. CLARVS on molempien yhteinen
   ja pitää kutinsa teemaa vaihdettaessa; se **peittää** TCF:n ja Sysin muistia pyyhkimättä, joten sen sammutus palauttaa edellisen
-  (esim. Sysinin). TCF:n tai Sysin napautus CLARVSin alla kytkee ne päälle ja CLARVSin pois.
+  (esim. Sysinin). **CLARVSin ollessa päällä mikään alakytkin ei näy** (käyttäjän pyyntö 20.11.2026; paikka varattuna).
 - **CLĀRVS · ET · DISTĪNCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, makronit anakronistisesti saman päivän pyynnöstä; Literatassa
   ei ole valmiita Ā- ja Ī-merkkejä, joten ne ovat yhdistyvällä makronilla U+0304, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,

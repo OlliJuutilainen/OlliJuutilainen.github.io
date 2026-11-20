@@ -1313,8 +1313,8 @@
   /* Teeman ruudukko (käyttäjän pyynnöt 20.11.2026): kiinteät paikat, ei hyppelyä. Vaalea ja sen alla TCF-valkaisu, Tumma
      ja sen alla Sysi; Tumma on niin oikealla, että TCF-valkaisu mahtuu sen vasemmalle puolelle. Alimmalla rivillä vasemmassa
      laidassa CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
-     Sysin aset.sysin; data-teema); toisen teeman kytkimet ovat piilossa (.piilossa), ja oman teeman valitsematon kytkin
-     (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
+     Sysin aset.sysin; data-teema); toisen teeman kytkimet ja CLARVSin alla kaikki alakytkimet ovat piilossa (.piilossa),
+     ja oman teeman valitsematon kytkin (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
      pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, hyvin leveä harvennus. */
   .teema-ruudukko { display: grid; grid-template-columns: max-content max-content max-content; column-gap: 16px; align-items: center; justify-content: start; }
   /* Paikat kiinteästi; Tumma ulottuu Sysin ja Sysinin sarakkeiden yli, jotta Sysin on tavallisen välin päässä Sysistä. */
@@ -3858,10 +3858,10 @@
         // valittuna. Sysin on Sysin alakytkin: näkyvissä ja päällä vain Sysin ollessa valittuna.
         var kTeema = kt[1], paalla = kTeema ? !!aset[kt[0]] && aset.teema === kTeema : !!aset[kv[0]];
         kv[0] = kt[0];
-        // Toisen teeman alakytkimet eivät näy (käyttäjän pyyntö 20.11.2026). CLARVSin ollessa päällä TCF ja Sysi näkyvät pois
-        // päältä, mutta niiden arvo säilyy: CLARVSin sammutus palauttaa ne (myös Sysinin).
+        // Toisen teeman alakytkimet eivät näy, eivätkä CLARVSin ollessa päällä mitkään alakytkimet (käyttäjän pyynnöt 20.11.2026).
+        // Niiden arvo säilyy: CLARVSin sammutus palauttaa ne (myös Sysinin).
         if (kt[0] === 'kontrasti' || kt[0] === 'sysi' || kt[0] === 'sysin') paalla = paalla && !aset.clarus;
-        var piilo = kTeema && aset.teema !== kTeema || kv[0] === 'sysin' && !(aset.sysi && !aset.clarus);
+        var piilo = kTeema && (aset.teema !== kTeema || !!aset.clarus) || kv[0] === 'sysin' && !(aset.sysi && !aset.clarus);
         if (kv[0] === 'sysin') paalla = paalla && !piilo;
         if (kv[0] === 'clarus') kv[1] = '<span class="clarus" lang="la">' + kv[1] + '</span>';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
@@ -4011,8 +4011,6 @@
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
     if (b.classList.contains('piilossa')) return;
     if (b.dataset.kytkin && b.classList.contains('pois')) aset.sivutus = 'sivut';
-    // CLARVSin alla TCF ja Sysi näkyvät pois päältä, vaikka muistissa olisi päällä: napautus kytkee ne päälle.
-    else if ((b.dataset.kytkin === 'kontrasti' || b.dataset.kytkin === 'sysi') && aset.clarus) { aset[b.dataset.kytkin] = 1; aset.clarus = 0; }
     else if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
       aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
@@ -4030,8 +4028,8 @@
 
   /* Paletit (käyttäjän säännöt 20.11.2026): kummankin teeman alakytkimet muistavat arvonsa, ja teemaan palatessa sen viimeisin
      alavalinta palaa (vaalea: TCF; tumma: Sysi ja sen alakytkin Sysin). CLARVS on molempien yhteinen ja pysyy teemaa
-     vaihdettaessa. Se peittää TCF:n ja Sysin muistia pyyhkimättä: CLARVSin sammutus palauttaa edellisen (esim. Sysinin).
-     TCF tai Sysi sammuttaa CLARVSin. */
+     vaihdettaessa. Se peittää TCF:n ja Sysin muistia pyyhkimättä ja piilottaa alakytkimet: CLARVSin sammutus palauttaa
+     edellisen (esim. Sysinin). */
   function yksiPaletti(k) {
     if (k === 'kontrasti' || k === 'sysi') aset.clarus = 0;
   }
