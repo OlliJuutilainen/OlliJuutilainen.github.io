@@ -795,6 +795,10 @@
   /* Kohtanumerot (327a; etukentän kohdat: yläindeksit, sup.kohta piirraTeksti()ssä) harmaina kuten painetun laitoksen
      reunanumerot: viitekoneistoa, ei leipätekstiä (käyttäjän pyyntö 19.11.2026). Ei okra (merkinnät) eikä ruoste (napautettava). */
   #teksti sup.kohta { color: var(--harmaa); }
+  /* Vakiosivu (md.js span.vsivu, etukentän vakiosivut: AA; maalauskoneen jatko 20.11.2026): painetun laitoksen sivunumero
+     tekstin seassa pienenä ja harmaana kuten kohtanumero, edessä hiusviiva (ei tekstisolmu: paikannin ja merkinnät eivät näe sitä). */
+  #teksti .vsivu { font-size: .62em; color: var(--harmaa); vertical-align: .45em; line-height: 0; white-space: nowrap; }
+  #teksti .vsivu::before { content: '|'; margin-right: .12em; font-weight: 300; }
   /* Kielet (käyttäjän pyyntö 19.11.2026, aset.lomitus): vain alkuteksti piilottaa käännökset; vain käännös piilottaa alkutekstin
      mutta jättää sen kohtanumerot (327a) omalle rivilleen, jotta aikajanan kohdat, kirjanmerkit ja paikannin pysyvät, ja
      käännös ladotaan leipätekstinä. Piilotettu teksti on DOMissa, joten kohtien laskenta (lohkoteksti) ei muutu tilan mukana. */
@@ -1752,7 +1756,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=88dcee93"></script>
+<script src="luin/md.js?v=7001b805"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -4319,6 +4323,23 @@
       if (y.osio) nyt.kohdat.push({ k: kk, nimi: y.osio, lvl: 2 });
       nyt.kohdat.push({ k: kk, nimi: y.s, lvl: 3 });
     });
+    // Vakiosivut (md.js span.vsivu; etukentän vakiosivut): paikantimen sivunumerot. Kun etukentässä on vakiosivut ja kohdat
+    // ovat yläindeksejä (Korpora: 4:393), kohdat ovat itse vakiosivuja.
+    nyt.vsivut = [];
+    if (nyt.doc.vakiosivut) {
+      nyt.blocks.forEach(function (el, b) {
+        if (el) $$('span.vsivu', el).forEach(function (sp) { var tn = solmut(sp)[0]; if (tn) nyt.vsivut.push({ b: b, o: lohkoon(el, tn, 0), s: sp.textContent.trim() }); });
+      });
+      // Ilman {…}-merkkejä sivunumeroina luetaan linkittömät yläindeksit, jotka näyttävät sivunumeroilta (Korpora AA ^4:393^,
+      // KB:n SKS ^4:99^).
+      if (!nyt.vsivut.length) nyt.blocks.forEach(function (el, b) {
+        if (el) $$('sup', el).forEach(function (sp) {
+          var tn = solmut(sp)[0], t = sp.textContent.trim();
+          if (tn && !sp.querySelector('a') && /^(?:[A-Za-z]{1,3}\s?)?\d{1,4}(?:[:.]\d{1,4})?[a-z]?\d{0,2}$/.test(t)) nyt.vsivut.push({ b: b, o: lohkoon(el, tn, 0), s: t });
+        });
+      });
+      nyt.vsivut.sort(function (x, y) { return x.b - y.b || x.o - y.o; });
+    }
     // Merkintöjen kohdat tarkistetaan (tekstistä on voinut tulla uusi versio).
     var muuttui = false;
     nyt.merk.km.forEach(function (k) { var p = paikanna(k); if (p && (p.b !== k.b || p.o !== k.o)) { k.b = p.b; k.o = p.o; muuttui = true; } k.orpo = !p; });
@@ -6115,7 +6136,11 @@
   // numerointi alkaa alusta (lexikonin hakusana), joten sen nimi tulee eteen, ja ilman tunnisteita paikannin on luvun nimi.
   // Kappaleen alun kohtamerkki (§ 12, Tractatuksen 6.54) on tarkempi kuin otsikko, jonka alla se on. Ennen ensimmäistä
   // otsikkoa paikanninta ei ole, ellei kohtamerkkiä ole.
-  function paikannin(b) {
+  function paikannin(b, o) {
+    // Vakiosivu (etukentän vakiosivut): valinnan alkua edeltävä sivunumero (AA 4:429) menee otsikoiden edelle.
+    var vs = null;
+    (nyt.vsivut || []).forEach(function (v) { if (v.b < b || (v.b === b && v.o <= (o || 0))) vs = v; });
+    if (vs) return { n: vs.s, s: nyt.doc.vakiosivut + ' ' + vs.s, vs: true };
     var polku = [];
     nyt.doc.toc.forEach(function (t) {
       if (t.b > b) return;
@@ -6129,8 +6154,14 @@
     return polku.length ? { s: '”' + polku[polku.length - 1].text + '”' } : null;
   }
   function sijainti(segs) {
-    var a = paikannin(segs[0].b), z = paikannin(segs[segs.length - 1].b);
+    var a = paikannin(segs[0].b, segs[0].s), z = paikannin(segs[segs.length - 1].b, segs[segs.length - 1].e - 1);
     if (!a) return '';
+    // Vakiosivujen väli: saman niteen sivut lyhyesti (AA 4:429–430), muuten kokonaan (KrV A 12–B 25).
+    if (a.vs) {
+      if (!z || !z.vs || z.n === a.n) return a.s;
+      var ia = a.n.lastIndexOf(':'), iz = z.n.lastIndexOf(':');
+      return a.s + '–' + (ia >= 0 && ia === iz && a.n.slice(0, ia) === z.n.slice(0, iz) ? z.n.slice(iz + 1) : z.n);
+    }
     return z && a.n && z.n && z.n !== a.n && z.s.slice(0, -z.n.length) === a.s.slice(0, -a.n.length) ? a.s + '–' + z.n : a.s;
   }
   // Lyhyt viite Teologian tyylin alaviitteen tapaan (Sukunimi vuosi; kaksi tekijää &:llä, useampi et al.) tekstin
@@ -6146,7 +6177,8 @@
   function kopioNimi() { return aset.kopioViite === 'lyhyt' ? 'Kopioi viittauksen kanssa' : aset.kopioViite === 'pitka' ? 'Kopioi koko lähteen kanssa' : 'Kopioi'; }
   function kopioiViitteella(segs) {
     var ote = segs.map(function (x) { return x.x; }).join('\n\n'), loc = sijainti(segs), e = nyt.e;
-    if (aset.kopioViite === 'lyhyt') return kopioi(ote + ' (' + lyhytViite() + (loc ? ', ' + loc : '') + ')');
+    // Vakiosivu on itse lyhyt viite (AA 4:429, KrV A 12): ei tekijää eikä vuotta, kuten Kant-tutkimuksessa.
+    if (aset.kopioViite === 'lyhyt') return kopioi(ote + ' (' + (loc && nyt.doc.vakiosivut && loc.indexOf(nyt.doc.vakiosivut + ' ') === 0 ? loc : lyhytViite() + (loc ? ', ' + loc : '')) + ')');
     if (aset.kopioViite !== 'pitka') return kopioi(ote);
     var v = (e.viite || LuinMD.arvaaViite(e) || '').trim();
     if (v && !/[.!?]\*?$/.test(v)) v += '.';
@@ -8707,7 +8739,7 @@
   TX.valmis.then(reitti);
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
