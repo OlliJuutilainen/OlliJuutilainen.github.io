@@ -1,10 +1,10 @@
-// Mustin, TCF-valkaisu ja sähköpapyrosointi (käyttäjän pyynnöt 17.11.2026). Ajo repon juuressa:
+// Sysi, TCF-valkaisu ja sähköpapyrosointi (käyttäjän pyynnöt 17.11. ja 20.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]
 // Tarkistaa: 1) Sähköpapyrosoi asetukset on suorakaidenappi Ulkoasu-otsikon rivillä (työpöytä ja 360 px) eikä peitä raksia;
-// 2) painallus tanssittaa vain napin (tausta, teksti, kehä) Mustin–TCF-vuorottelua neljä vaihetta lopputilaan, asetukset
+// 2) painallus tanssittaa vain napin (tausta, teksti, kehä) musta–TCF-vuorottelua neljä vaihetta lopputilaan, asetukset
 // vaihtuvat neljännessä vaiheessa, leveys pysyy, toinen painallus kesken ei tee mitään, ja lopuksi nappi tarjoaa
-// Oletusasetukset, joka palauttaa laitteen oletukset samalla vatkauksella; 3) kontrastikytkin muuttaa vain taustan
-// (ja vaalean musteen täysmustaksi): muuttujat ja tyylisäännöt; nimi Mustin tai TCF-valkaisu teeman mukaan;
+// Oletusasetukset, joka palauttaa laitteen oletukset samalla vatkauksella; 3) vaaleassa kontrastikytkin (TCF) muuttaa vain
+// taustan ja musteen, tummassa (Sysi) koko paletin: muuttujat ja tyylisäännöt; nimi Sysi tai TCF-valkaisu teeman mukaan;
 // 4) TCF-vihje hiiren viipymästä ja kosketuksella päällä olevan kytkimen napautuksesta, ja ohi napautus vain sulkee sen.
 const http = require('http');
 const fs = require('fs');
@@ -35,7 +35,7 @@ ${'Täytettä kappaleeksi. '.repeat(60)}
 [^1]: Alaviitteen teksti.
 `;
 const SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
-// Tanssin värit: tausta, teksti ja kehä (Mustimman vitivalkoinen teksti on tanssin poikkeus).
+// Tanssin värit: tausta, teksti ja kehä (mustan vaiheen vitivalkoinen teksti on tanssin poikkeus).
 const VARIT = { mustin: 'rgb(0, 0, 0) rgb(255, 255, 255) rgb(255, 255, 255)', tcf: 'rgb(255, 255, 255) rgb(0, 0, 0) rgb(0, 0, 0)' };
 const MUUTTUJAT = ['--paperi', '--muste', '--harmaa', '--viiva', '--ruoste', '--okra', '--huomio', '--sitaatti', '--hius', '--valo'];
 
@@ -88,7 +88,7 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: nappi ei peitä raksia`, p.raksi);
   tulos(`${laji}: suorakaide, kursiivi, ohut, versaali, ei hakasulkeita`, /^italic 380 uppercase$/.test(p.tyyli) && p.reunus === '1px solid' && p.teksti === 'Sähköpapyrosoi asetukset', p.tyyli + ' | ' + p.reunus + ' | ' + p.teksti);
   tulos(`${laji}: nappi ei osu Teema-riviin`, p.alla >= 4, p.alla + ' px');
-  tulos(`${laji}: kytkimen nimi tummassa Mustin`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'Mustin');
+  tulos(`${laji}: kytkimen nimi tummassa Sysi`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'Sysi');
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-ennen-${kosketus ? 'kapea' : 'levea'}.png`) });
 
   // 2. Papyrosointi tummasta.
@@ -123,7 +123,7 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: TCF: valkoinen tausta, musta muste`, pv === 'rgb(255, 255, 255) rgb(0, 0, 0)', pv);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-papyrosoitu-${kosketus ? 'kapea' : 'levea'}.png`) });
 
-  // 3. Kontrastikytkin muuttaa vain taustan (ja vaalean musteen).
+  // 3. TCF muuttaa vain taustan ja musteen, Sysi koko paletin.
   const vertaa = await page.evaluate((M) => {
     const r = document.documentElement, lue = () => { const cs = getComputedStyle(r); return M.map(m => cs.getPropertyValue(m).trim()); };
     const tulos = {};
@@ -140,7 +140,7 @@ async function aja(selain, U, kosketus) {
     return tulos;
   }, MUUTTUJAT);
   tulos(`${laji}: vaaleassa muuttuu vain paperi ja muste`, vertaa.vaalea === '--paperi=#ffffff --muste=#000000', vertaa.vaalea);
-  tulos(`${laji}: tummassa muuttuu vain paperi`, vertaa.tumma === '--paperi=#000000', vertaa.tumma);
+  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#927749 --harmaa=#705d41 --viiva=#372c1e --ruoste=#895f35 --okra=#9f792b --huomio=#66553b --sitaatti=#806a44 --hius=#201911 --valo=#2e2519', vertaa.tumma);
   tulos(`${laji}: ei muita kontrastisääntöjä`, vertaa.saannot === ':root.kontrasti:not([data-teema="tumma"]) | :root.kontrasti[data-teema="tumma"]', vertaa.saannot);
 
   // 4. TCF-vihje.
@@ -163,7 +163,7 @@ async function aja(selain, U, kosketus) {
     await page.click('button[data-kytkin="kontrasti"]');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
     await page.hover('button[data-kytkin="kontrasti"]'); await page.waitForTimeout(1300);
-    tulos(`${laji}: Mustin ei avaa vihjettä`, (await vihje()) === '');
+    tulos(`${laji}: Sysi ei avaa vihjettä`, (await vihje()) === '');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   } else {
     await napauta('button[data-kytkin="kontrasti"]');
@@ -198,7 +198,7 @@ async function aja(selain, U, kosketus) {
   const tav = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
   tulos(`${laji}: tavallinen vaalea`, tav === 'rgb(250, 245, 234) rgb(35, 28, 20)', tav);
 
-  // 6. Mustin lukimessa: musta tausta, lämmin teksti.
+  // 6. Sysi lukimessa: musta tausta, himmeä hunajainen teksti.
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
   await napauta('button[data-kytkin="kontrasti"]');
   await napauta('#asetukset .sulje');
@@ -206,8 +206,8 @@ async function aja(selain, U, kosketus) {
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
   await page.evaluate(() => { const o = document.getElementById('palkkiopas'); if (o) o.hidden = true; });
   const tp = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
-  tulos(`${laji}: Mustin lukimessa`, tp === 'rgb(0, 0, 0) rgb(235, 223, 202)', tp);
-  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-mustin-${kosketus ? 'kapea' : 'levea'}.png`) });
+  tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(146, 119, 73)', tp);
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
 }
