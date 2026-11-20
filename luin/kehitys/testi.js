@@ -386,13 +386,13 @@ palvelin.listen(0, async () => {
   // Sivutettuna välimuotoja ei ole (käyttäjän päätös 21.10.2026): osoitin pysähtyy vain tekstin
   // alkuun, otsikoihin, kirjanmerkkeihin, majakkaan ja voimassa olevaan kohtaan, myös kun
   // aikajanalla näkyvät vain pääluvut eikä kirjanmerkkejä.
-  await p.evaluate(() => { const L = window.__luin; L.aset.janaTaso = 1; L.aset.kmJanalla = 0; L.mene({ b: 0, o: 0 }); });
+  await p.evaluate(() => { const L = window.__luin; L.aset.janaTasot = [1]; L.aset.kmJanalla = 0; L.mene({ b: 0, o: 0 }); });
   const vs = await veto(0.2, 0.3, 40);
   const pys = await p.evaluate(([x0, x1]) => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total, a = [];
     a.push({ x: x0 + o({ b: 0, o: 0 }) * (x1 - x0), k: '0:0' });
     n.doc.toc.forEach(t => a.push({ x: x0 + o({ b: t.b, o: 0 }) * (x1 - x0), k: t.b + ':0', lvl: t.lvl }));
     n.merk.km.forEach(k => a.push({ x: x0 + o(k) * (x1 - x0), k: k.b + ':' + k.o }));
-    L.aset.janaTaso = 2; L.aset.kmJanalla = 1;
+    L.aset.janaTasot = [1, 2, 3]; L.aset.kmJanalla = 1;
     return a; }, [vs.r.x0, vs.r.x1]);
   const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
   // Yli 10 %:n välillä kahden pysäkin välissä saa valita vapaasti (käyttäjän pyyntö 17.11.2026).
@@ -637,11 +637,12 @@ palvelin.listen(0, async () => {
   m.on('pageerror', e => sivuvirheet.push(e.message));
   await m.goto(BASE + 'luin.html');
   // av 6 -tallennus vanhoilla valinnoilla: av 7 asettaa 7.11.2026 päätetyt oletukset kerran.
+  // Aikajanan kaikki tasot (av 7) vaihtuvat kosketusnäytöllä luvuiksi ja osioiksi (av 9, av 11: janaTasot [1, 2]).
   await m.evaluate(md => { localStorage.setItem('luin-tuonti', JSON.stringify({ md, nimi: 'testi' })); localStorage.setItem('luin-asetukset', JSON.stringify({ av: 6, sivunapit: 0, sivuReuna: 0, sivuPyyhka: 0, kappale: 'rako', auto: 1, janaTaso: 2, sivutus: 'vieritys' })); }, MD);
   await m.goto(BASE + 'luin.html#tuo'); await m.waitForTimeout(600);
   await m.reload(); await m.waitForTimeout(400);
-  const siirto = await m.evaluate(() => { const a = window.__luin.aset; return { n: a.sivunapit, r: a.sivuReuna, p: a.sivuPyyhka, k: a.kappale, au: a.auto, j: a.janaTaso, s: a.sivutus, av: a.av }; });
-  tulos('av 7: sivunkäännön tavat, sisennys, ei sukkelaa, kaikki tasot kerran; sivutus säilyy', siirto.n === 1 && siirto.r === 1 && siirto.p === 1 && siirto.k === 'sisennys' && siirto.au === 0 && siirto.j === 3 && siirto.s === 'vieritys' && siirto.av >= 7, JSON.stringify(siirto));
+  const siirto = await m.evaluate(() => { const a = window.__luin.aset; return { n: a.sivunapit, r: a.sivuReuna, p: a.sivuPyyhka, k: a.kappale, au: a.auto, j: a.janaTasot.join(''), s: a.sivutus, av: a.av }; });
+  tulos('av 7: sivunkäännön tavat, sisennys, ei sukkelaa, kaikki tasot kerran; sivutus säilyy', siirto.n === 1 && siirto.r === 1 && siirto.p === 1 && siirto.k === 'sisennys' && siirto.au === 0 && siirto.j === '12' && siirto.s === 'vieritys' && siirto.av >= 7, JSON.stringify(siirto));
   // Kaistan napautus nuolen kohdalta (koko kaista on nappi; nuoli ei ota napautuksia).
   const nuoliKohta = () => m.evaluate(() => { const r = document.querySelector('#palkki-nuoli').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   const kaista = async () => { const k = await nuoliKohta(); await m.mouse.click(k.x, k.y); await m.waitForTimeout(100); };
@@ -868,7 +869,7 @@ palvelin.listen(0, async () => {
   const as0 = await lp.evaluate(() => window.__luin.tila.asetteluja);
   await lp.click('#asetukset [data-kytkin="verkkolinkit"]');
   await lp.click('#asetukset [data-a="teema"] button[data-arvo="tumma"]');
-  await lp.click('#asetukset [data-a="janaTaso"] button[data-arvo="2"]');
+  await lp.click('#asetukset [data-a="janaTasot"] button[data-arvo="2"]');
   const as1 = await lp.evaluate(() => window.__luin.tila.asetteluja), vl1 = await linkit();
   await lp.click('#asetukset [data-a="marginaali"] button[data-arvo="reilu"]');
   const as2 = await lp.evaluate(() => window.__luin.tila.asetteluja);

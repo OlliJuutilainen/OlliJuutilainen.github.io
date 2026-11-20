@@ -321,7 +321,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa
   järkevältä. Latomon ohje ei mainosta iA Writeria eikä neuvo sen käyttöä; se mainitaan vain, kun se vastaa
   kysymykseen *miksi juuri näin*.
-- **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kosketusnäytöllä Osiot, hiirellä Kohdat (päätös 19.11.2026, `av 9`); kosketusnäytöllä ja sähköpaperilla sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). Sähköpaperin tunnistusta ei ole todennettu oikealla laitteella.
+- **Ensikäytön oletukset** (käyttäjän päätös 7.11.2026): aikajanalla kosketusnäytöllä luvut ja osiot, hiirellä kaikki tasot (`aset.janaTasot`, tasot erillisiä kytkimiä 20.11.2026, `av 11`); kosketusnäytöllä ja sähköpaperilla sivunkääntö ja kaikki sen tavat (myös painikkeet) päällä, hiirellä vieritys (`sivutusOletus()`). Sähköpaperin tunnistusta ei ole todennettu oikealla laitteella.
 - **Mikro-marginaali on myös pidempi rivi** (18.11.2026, `MITTA`, `mitta()`, CSS `--mitta`): 40 em, Meso ja Makro 33 em. Siksi Marginaali-rivi näkyy aina. Vierityksen reunushuomiot ratkaistaan 33 em:llä, ja Mikro pitenee niiden kanssa vain jäljelle jäävään tilaan. Uusi mittaa käyttävä laskelma käyttää `mitta()`a tai `asettele()`n `mi`:tä, ei kiinteää 33:a.
 - **Kirjasinkoon oletus kosketusnäytöllä riippuu ruudusta** (16.11.2026, `oletusKoko()`, käyttäjän havainto Note Airilla): kunnes käyttäjä säätää kokoa (`aset.kokoKasin`), `aset.koko` lasketaan joka latauksella. Uusi koon muuttaja asettaa `kokoKasin = 1`. Käyttöliittymän (palkit, napit) koko on laitteen tiheyden asia, ei tämän.
 - Uusi oletus koskee vain ensikäyttöä. Tallennettuja asetuksia muutetaan vain kerran, `aset.av`-numeron avulla. Tallennetut asetukset ohittavat OLETUKSEN, joten päätetty oletus ei näy vanhalla käyttäjällä ilman `av`-siirtoa (7.11.2026 päätökset jäivät ilman, korjattu `av 7`:llä 8.11.2026: sivunkäännön kaikki tavat, sisennys, ei sukkelaa alleviivausta, aikajanan kaikki tasot; sivutuksen valintaa ei kosketa). Muuttaessasi oletusta nosta `av` ja siirrä.
@@ -497,8 +497,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
 - **Tasojen nimet ovat luku, osio ja kohta** (`h2`/`h3`/`h4`, käyttäjän päätös 7.11.2026; ennen pääluku, alaluku, alaluvun alaluku).
   **Ylin taso jää käyttämättä** (pilotti, md.js `laske`, opas 3.2): korkeintaan kaksi tasoa ja yli 10 lukua → kaikki tasoa alemmas,
   sivuseikkojen alennus perutaan (SEP:n Bibliography on osio). Käyttäjä haluaa myöhemmin parempia perusteita; raja on raja-aita.
-  Sisällys, Sisälmys ja aikajana lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`), ja avoimen tekstin puuttuvat
-  tasot ovat asetuksissa himmeitä (`janaTasotNyt()`).
+  Sisällys ja Sisälmys lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`). **Aikajana ei siirrä tasoja**: Luvut, Osiot ja Kohdat
+  ovat erillisiä kytkimiä (käyttäjän päätös 20.11.2026), ja avoimen tekstin puuttuvat tasot ovat himmeitä (`janaTasotNyt()`).
 - **Tekijänoikeusmerkintä** (käyttäjän pyyntö ja säännöt 10.11.2026, md.js `oikeudet()`/`oikeusTaso()`, opas 3.2): etukentän
   `oikeudet:` (ja `oikeudet-lähde:`) → tekstin loppuun otsikko *Tekijänoikeudet*, merkintä sellaisenaan, kaverillinen selitys
   (käyttäjän toivoma rento sävy) ja virallinen linkki. Lisäosa kirjoittaa sen vain, kun lähde kertoo (SEP, Logos, Wikipedia,
@@ -511,7 +511,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   alaotsikot osioina; alennukset (sivuseikat, `laske`) perutaan vain siltä. Beauvoirissa näin käy (30 %).
 - **Pykälä on korkeintaan alaluvun alaluku** (käyttäjän sääntö 6.11.2026, `pykalaSarjat()`, opas 3.2): Husserlin tapainen
   lyhyehkö pykälä, merkillä tai ilman, ladotaan `h4`:ksi myös ilman yläotsikoita. Pelkkien pykälien tekstissä
-  sisällysluettelot ja aikajana näyttävät ylimmän olemassa olevan tason (`tocRaja()`).
+  sisällysluettelot näyttävät ylimmän olemassa olevan tason (`tocRaja()`).
 - **Liettuan tavutus** (16.11.2026, opas 5, md.js `tavutaLt()`): vain kappaleelle, jonka lukija tunnistaa liettuaksi (`tavutaDOM()`:n
   kolmas parametri); muu teksti tavuttuu suomen säännöin kuten ennen. Liettua on myös `KIELET`-listassa (käännös, sanaselitys,
   `/liettua`): listaan ei sanoja, jotka ovat toisen kielen listassa. md.js:n `BIB`/`OHEIS` tuntevat liettuan luettelonimet.
