@@ -4403,12 +4403,90 @@
      2024 Nov 25), doi ja lisenssi (Copyright and License -paneelin CC-linkki). Ei mainoksia eikä lahjoituspyyntöä (NLM).
      Kontti sai reCAPTCHA-sivun (Checking your browser) noin neljännestä peräkkäisestä hausta; NCBI Bookshelf antoi sen heti,
      joten Bookshelf on testaamatta. Mitattu 18.11.2026. */
+  /* Numeroidut lähdeviittaukset (Vancouver; käyttäjän pyyntö 20.11.2026, J Cell Mol Med: yläindeksit <a><sup>2</sup></a>,
+     Polish J Radiol: hakasulut [<a>4</a>-<a>6</a>]) alaviitteiksi, joissa on viitatun kirjallisuuden kohdan teksti numeroineen:
+     muuten ne jäivät tekstiin numeroiksi, joista ei päässyt viitteeseen. Saman kohdan vierekkäiset viittaukset (2, 4; 4-6)
+     ovat yksi alaviite, kohdat omina kappaleinaan, kuten Latomon ryhmitaViitteet(); väliviiva tuo välin kohdat. Sama ryhmä
+     käyttää samaa tunnusta. Kirjallisuusluettelo jää loppuun. Tekijä–vuosi-viittaukset (Medical History) eivät ole numeroita. */
+  function pmcNumeroviitteet(el) {
+    const kohta = a => {
+      if (!/^\d{1,4}$/.test(rivi(a.textContent))) return null;
+      let k = null;
+      try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
+      return k && k.matches('.ref-list li') ? k : null;
+    };
+    const luettelo = new Map();
+    el.querySelectorAll('.ref-list li').forEach(li => {
+      const n = rivi((li.querySelector(':scope > .label') || {}).textContent || '').replace(/\.$/, '');
+      if (/^\d+$/.test(n)) luettelo.set(n, li);
+    });
+    // Kohdan teksti: cite tai kohta ilman numeroa ja hakulinkkejä.
+    const teksti = li => {
+      const k = (li.querySelector('cite') || li).cloneNode(true);
+      k.querySelectorAll(':scope > .label').forEach(x => x.remove());
+      k.querySelectorAll('a').forEach(a => { if (/^(doi|pubmed|google scholar|pmc free article|crossref|europe pmc)$/i.test(rivi(a.textContent))) a.remove(); });
+      k.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+      return k.innerHTML.replace(/\s*\[\s*\]/g, '').trim();
+    };
+    const merkit = [...el.querySelectorAll('a[href^="#"]')].filter(a => kohta(a));
+    const kaytetty = new Set(), tunnukset = new Map(), maar = [];
+    // Merkin ulkoin kääre: sup, jossa ei ole muuta.
+    const kaare = a => a.parentElement.tagName === 'SUP' && rivi(a.parentElement.textContent) === rivi(a.textContent) ? a.parentElement : a;
+    for (const a of merkit) {
+      if (kaytetty.has(a)) continue;
+      const ryhma = [a], erot = [];
+      let n = kaare(a);
+      // Seuraava solmu on pilkku, puolipiste tai väliviiva ja sen jälkeen seuraava merkki (myös saman supin sisällä).
+      for (;;) {
+        const v = n.nextSibling, s = v && v.nodeType === 3 ? v.nextSibling : v;
+        const ero = v && v.nodeType === 3 ? v.textContent : '';
+        if (!s || s.nodeType !== 1 || !/^\s*([,;]|[-–‐])?\s*$/.test(ero)) break;
+        const b = s.tagName === 'A' ? s : s.tagName === 'SUP' && s.children.length === 1 && s.firstElementChild.tagName === 'A' && rivi(s.textContent) === rivi(s.firstElementChild.textContent) ? s.firstElementChild : null;
+        if (!b || !merkit.includes(b)) break;
+        ryhma.push(b); erot.push(ero.trim()); n = kaare(b);
+      }
+      ryhma.forEach(x => kaytetty.add(x));
+      // Numerot, väliviivan väli täytettynä luettelon numeroilla.
+      const nrot = [];
+      ryhma.forEach((x, i) => {
+        const nro = rivi(x.textContent);
+        if (i && /[-–‐]/.test(erot[i - 1])) for (let j = +rivi(ryhma[i - 1].textContent) + 1; j < +nro; j++) if (luettelo.has(String(j))) nrot.push(String(j));
+        nrot.push(nro);
+      });
+      const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => rivi(r.textContent) === x))]).filter(x => x[1]);
+      const avain = kohdat.map(x => x[0]).join(',');
+      if (!tunnukset.has(avain)) {
+        const t = 'pmv' + (tunnukset.size + 1);
+        const md = muunna(kohdat.map(([x, li]) => '<p>' + x + '. ' + teksti(li) + '</p>').join(''), 'inlined').trim();
+        tunnukset.set(avain, t);
+        maar.push(maaritelma(t, md));
+      }
+      // Korvataan ensimmäisestä viimeiseen merkkiin; hakasulut tai sulut ympäriltä ja niitä edeltävä välilyönti pois.
+      const alku = kaare(ryhma[0]), loppu = kaare(ryhma[ryhma.length - 1]);
+      let ens = alku, vik = loppu;
+      const yla = alku.parentElement;
+      if (yla === loppu.parentElement && yla.tagName === 'SUP' && !alku.previousSibling && !loppu.nextSibling) ens = vik = yla;
+      const ed = ens.previousSibling, jal = vik.nextSibling;
+      if (ed && ed.nodeType === 3 && jal && jal.nodeType === 3 && /[[(]\s*$/.test(ed.textContent) && /^\s*[\])]/.test(jal.textContent) &&
+        '[('.indexOf(ed.textContent.trim().slice(-1)) === '])'.indexOf(jal.textContent.trim()[0])) {
+        ed.textContent = ed.textContent.replace(/\s*[[(]\s*$/, '');
+        jal.textContent = jal.textContent.replace(/^\s*[\])]/, '');
+      }
+      const r = document.createRange();
+      r.setStartBefore(ens); r.setEndAfter(vik);
+      r.deleteContents();
+      r.insertNode(merkki(tunnukset.get(avain)));
+    }
+    return maar;
+  }
   async function pmc() {
     const runko = document.querySelector('section.main-article-body');
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length) return null;
     const el = runko.cloneNode(true);
-    el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden]').forEach(x => x.remove());
+    el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
+    el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
+    const vmaar = pmcNumeroviitteet(el);
     // Lähdeviittaukset (#cit0008, #R1, #B12) ja taulukko- ja kuvaviittaukset tekstiksi ennen alaviitteitä.
     el.querySelectorAll('a[href^="#"]').forEach(a => {
       let k = null;
@@ -4464,7 +4542,7 @@
     const teos = meta('citation_journal_title')[0];
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
       tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
-      sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu, doi: meta('citation_doi')[0] || '', lahde: osoite, maar,
+      sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu, doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
