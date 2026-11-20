@@ -1,4 +1,4 @@
-// Sysi, TCF-valkaisu, CLARVS·ET·DISTINCTVS ja sähköpapyrosointi (käyttäjän pyynnöt 17.11. ja 20.11.2026). Ajo repon juuressa:
+// Sysi, Sysin, TCF-valkaisu, CLARVS·ET·DISTINCTVS ja sähköpapyrosointi (käyttäjän pyynnöt 17.11. ja 20.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]
 // Tarkistaa: 1) Sähköpapyrosoi asetukset on suorakaidenappi Ulkoasu-otsikon rivillä (työpöytä ja 360 px) eikä peitä raksia;
 // 2) painallus tanssittaa vain napin (tausta, teksti, kehä) musta–TCF-vuorottelua neljä vaihetta lopputilaan, asetukset
@@ -135,7 +135,7 @@ async function aja(selain, U, kosketus) {
     }
     r.dataset.teema = window.__luin.aset.teema; r.classList.toggle('kontrasti', !!window.__luin.aset.kontrasti);
     const saannot = [];
-    for (const ss of document.styleSheets) { try { for (const sr of ss.cssRules) if (sr.selectorText && /kontrasti/.test(sr.selectorText)) saannot.push(sr.selectorText); } catch (e) {} }
+    for (const ss of document.styleSheets) { try { for (const sr of ss.cssRules) if (sr.selectorText && /^:root\.kontrasti/.test(sr.selectorText)) saannot.push(sr.selectorText); } catch (e) {} }
     tulos.saannot = saannot.join(' | ');
     return tulos;
   }, MUUTTUJAT);
@@ -258,7 +258,25 @@ async function aja(selain, U, kosketus) {
   await napauta('button[data-teema="tumma"]');
   pc = await paletti();
   tulos(`${laji}: himmeä Sysi valitsee tumman ja Sysin`, (await page.evaluate(() => window.__luin.aset.teema)) === 'tumma' && pc.k === 1 && pc.c === 0, JSON.stringify(pc));
-  await napauta('button[data-teema="tumma"]');
+  // 8. Sysin (käyttäjän pyyntö 20.11.2026): yölukuun himmein, Sysin oikealla samalla rivillä, sulkee Sysin ja CLARVSin pois.
+  const SN = 'button[data-kytkin="sysin"]', SY = 'button[data-kytkin="kontrasti"][data-teema="tumma"]';
+  await napauta(SN);
+  pc = await paletti();
+  const sn = await page.evaluate(([a, b]) => { const r = s => document.querySelector(s).getBoundingClientRect(), x = r(a), y = r(b);
+    return { rivi: Math.abs(x.top - y.top) < 1 && y.left > x.right, nimi: document.querySelector(b).textContent, sn: window.__luin.aset.sysin,
+      painettu: document.querySelector(b).getAttribute('aria-pressed') + document.querySelector(a).getAttribute('aria-pressed') }; }, [SY, SN]);
+  tulos(`${laji}: Sysin Sysin oikealla, päällä, Sysi pois`, sn.rivi && sn.nimi === 'Sysin' && sn.sn === 1 && pc.k === 0 && sn.painettu === 'truefalse' && pc.luokat === '', JSON.stringify(sn) + ' ' + JSON.stringify(pc));
+  tulos(`${laji}: Sysinin paletti`, pc.arvot === '#000000 #1c150e #2a2116 #32281b #4c3e2b #53452f #604d31 #6e521b #6f4a22 #927749', pc.arvot);
+  const snLuokka = await page.evaluate(() => document.documentElement.classList.contains('sysin'));
+  tulos(`${laji}: Sysinin luokka`, snLuokka);
+  await napauta('button[data-kytkin="clarus"]');
+  pc = await paletti();
+  const sn2 = await page.evaluate(() => window.__luin.aset.sysin);
+  tulos(`${laji}: CLARVS sulkee Sysinin`, sn2 === 0 && pc.c === 1 && pc.luokat === 'clarus', JSON.stringify(pc));
+  await napauta(SN);
+  await napauta(SN);
+  const sn3 = await page.evaluate(() => [window.__luin.aset.sysin, window.__luin.aset.clarus, window.__luin.aset.kontrasti].join(','));
+  tulos(`${laji}: Sysin päälle ja pois, muut pysyvät pois`, sn3 === '0,0,0', sn3);
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
