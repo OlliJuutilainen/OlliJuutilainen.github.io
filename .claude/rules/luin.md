@@ -244,16 +244,18 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   kilpailija). Virallinen kuvaus on *internetin lukemisen tyyssija* (infolaatikko, käyttöohje, `og:description`, jakoworker).
   i-nappien kehys on hakasulkeet, ei salmiakki (pinon tietoa, Postihuilu, laatikkolause Luinissa ja Latomossa; salmiakit
   ovat täällä valintoja, luettelomerkkejä ja kunniamerkkejä). Lisäosan ponnahduksessa hakasulkeet ovat 0.10.0:sta, ja sen valintaruudut ovat asetusten kytkimen salmiakkeja (16.11.2026).
-- **Mustin, TCF-valkaisu ja sähköpapyrosointi** (käyttäjän pyynnöt 17.11.2026, `aset.kontrasti`, `SAHKOPAPERI`): kontrastikytkin
-  muuttaa **vain taustan** ääripääksi (#000 tai #fff) ja vaaleassa musteen täysmustaksi; tumman lämmin teksti pysyy, eikä
-  muita sävyjä tai himmennyksiä muuteta (käyttäjä: hidas sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Nimi
-  teeman mukaan: *Mustin* tai *TCF-valkaisu*. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
+- **Sysi, TCF-valkaisu ja sähköpapyrosointi** (käyttäjän pyynnöt 17.11.2026, `aset.kontrasti`, `SAHKOPAPERI`): vaaleassa
+  kontrastikytkin (*TCF-valkaisu*) muuttaa **vain taustan** #fff:ksi ja musteen täysmustaksi, ei muita sävyjä (hidas
+  sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa sama kytkin on *Sysi* (20.11.2026, korvasi *Mustimman*,
+  joka muutti vain taustan): yölukemiseen pimeässä OLED-näytöllä, tausta #000 ja **koko paletti** himmeä ja lämmin, sähköpaperin
+  kustannuksella. Käyttäjän rajat: kellertävää eikä oranssia tai punaista, mutta ennemmin lämmin keltainen kuin vihertävä
+  (OKLCH-sävykulma 80–84; yli kääntyy oliiviksi). Arvot ja kontrastit CSS:n kommentissa. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
   olevan kytkimen napautuksesta kerran päällekytkentää kohden (muuten kytkintä ei voisi sammuttaa). *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
   (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita), otsikkoa pienempi ja `--huomio`n värinen; painallus tanssittaa **vain napin
-  alaa kehineen**: pelkkä Mustin ja TCF vuorotellen, ei tavallisten teemojen välisävyjä (käyttäjä 17.11.2026), 0,7 s vaihe;
-  neljännessä jää lopputilan oikea väri (papyrosointi: Mustin, TCF, Mustin, TCF lähtöteemasta riippumatta), asetukset
-  vaihtuvat siinä ja kuittaus jää `PAPYRUS_MS` (2,2 s). Tanssin Mustimmassa teksti ja kehä ovat poikkeuksellisesti #fff. Tämä on käyttäjän tilaama tarkoituksellinen poikkeus
+  alaa kehineen**: pelkkä musta (`mustin`, ei Sysi) ja TCF vuorotellen, ei tavallisten teemojen välisävyjä (käyttäjä 17.11.2026), 0,7 s vaihe;
+  neljännessä jää lopputilan oikea väri (papyrosointi: musta, TCF, musta, TCF lähtöteemasta riippumatta), asetukset
+  vaihtuvat siinä ja kuittaus jää `PAPYRUS_MS` (2,2 s). Tanssin mustassa teksti ja kehä ovat poikkeuksellisesti #fff. Tämä on käyttäjän tilaama tarkoituksellinen poikkeus
   animaatiokiellosta (sähköpaperin virkistysvitsi); koko näytön valoshowta käyttäjä ei halunnut. Taulun sisältö on käyttäjän
   (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
@@ -606,7 +608,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien mappi ö ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Mustin ja TCF-valkaisu.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
