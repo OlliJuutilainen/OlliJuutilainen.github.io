@@ -258,6 +258,10 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   vaihtuvat siinä ja kuittaus jää `PAPYRUS_MS` (2,2 s). Tanssin mustassa teksti ja kehä ovat poikkeuksellisesti #fff. Tämä on käyttäjän tilaama tarkoituksellinen poikkeus
   animaatiokiellosta (sähköpaperin virkistysvitsi); koko näytön valoshowta käyttäjä ei halunnut. Taulun sisältö on käyttäjän
   (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
+- **Sysin** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.sysin`, Sysin oikealla): Sysin ensimmäisen kokeilun yölukutila,
+  jota käyttäjä piti hämäryyden ylärajana (muste 5,0: **ei himmeämmäksi kysymättä**). Sivuvärien Y-suhde musteeseen kuten Sysissä
+  (erottuvuus), ruoste poikkeuksena .42, ettei näytä harmaalta. Arvot CSS:n kommentissa. Sysi, Sysin ja CLARVS sulkevat toisensa
+  pois (`PALETIT`, `ainoaPaletti()`).
 - **CLARVS · ET · DISTINCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
   valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
