@@ -88,7 +88,7 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: nappi ei peitä raksia`, p.raksi);
   tulos(`${laji}: suorakaide, kursiivi, ohut, versaali, ei hakasulkeita`, /^italic 380 uppercase$/.test(p.tyyli) && p.reunus === '1px solid' && p.teksti === 'Sähköpapyrosoi asetukset', p.tyyli + ' | ' + p.reunus + ' | ' + p.teksti);
   tulos(`${laji}: nappi ei osu Teema-riviin`, p.alla >= 4, p.alla + ' px');
-  tulos(`${laji}: kytkimen nimi tummassa Sysi`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'Sysi');
+  tulos(`${laji}: kytkimen nimi tummassa Sysi`, await page.evaluate(() => document.querySelector('button[data-teema="tumma"]').textContent) === 'Sysi');
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-ennen-${kosketus ? 'kapea' : 'levea'}.png`) });
 
   // 2. Papyrosointi tummasta.
@@ -116,9 +116,9 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: lopuksi Oletusasetukset`, loppu.vaihe === '' && loppu.teksti === 'Oletusasetukset', JSON.stringify(loppu));
   const tallessa = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-asetukset')));
   tulos(`${laji}: papyrosoitu tallessa`, Object.keys(SAHKOPAPERI).every(k => tallessa[k] === SAHKOPAPERI[k]));
-  const kytkimet = await page.evaluate(() => [...document.querySelectorAll('#asetukset button[data-kytkin="kontrasti"], #asetukset button[data-kytkin^="sivu"], #asetukset .asetus[data-a="teema"] .valinnat button[data-arvo], #asetukset .asetus[data-a="sivutus"] .valinnat button[data-arvo]')].map(b => (b.dataset.kytkin || b.dataset.arvo) + '=' + b.getAttribute('aria-pressed')).join(' '));
+  const kytkimet = await page.evaluate(() => [...document.querySelectorAll('#asetukset button[data-teema="vaalea"], #asetukset button[data-kytkin^="sivu"], #asetukset .asetus[data-a="teema"] .valinnat button[data-arvo], #asetukset .asetus[data-a="sivutus"] .valinnat button[data-arvo]')].map(b => (b.dataset.kytkin || b.dataset.arvo) + '=' + b.getAttribute('aria-pressed')).join(' '));
   tulos(`${laji}: kytkimet näyttävät uuden tilan`, kytkimet === 'vaalea=true tumma=false kontrasti=true vieritys=false sivut=true sivuReuna=true sivuPyyhka=false sivunapit=true', kytkimet);
-  tulos(`${laji}: kytkimen nimi vaaleassa TCF-valkaisu`, await page.evaluate(() => document.querySelector('button[data-kytkin="kontrasti"]').textContent) === 'TCF-valkaisu');
+  tulos(`${laji}: kytkimen nimi vaaleassa TCF-valkaisu`, await page.evaluate(() => document.querySelector('button[data-teema="vaalea"]').textContent) === 'TCF-valkaisu');
   const pv = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
   tulos(`${laji}: TCF: valkoinen tausta, musta muste`, pv === 'rgb(255, 255, 255) rgb(0, 0, 0)', pv);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-papyrosoitu-${kosketus ? 'kapea' : 'levea'}.png`) });
@@ -147,7 +147,7 @@ async function aja(selain, U, kosketus) {
   const vihje = () => page.evaluate(() => { const v = document.getElementById('tcf-vihje'); return v.hidden ? '' : v.textContent; });
   const TEKSTI = 'TCF: total chlorine free bleaching eli TÄYSIN klooriton taustapaperin valkaisu';
   if (!kosketus) {
-    await page.hover('button[data-kytkin="kontrasti"]');
+    await page.hover('button[data-teema="vaalea"]');
     await page.waitForTimeout(600);
     tulos(`${laji}: vihje ei vielä 0,6 s:ssa`, (await vihje()) === '');
     await page.waitForTimeout(600);
@@ -158,25 +158,25 @@ async function aja(selain, U, kosketus) {
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
     const t = await page.evaluate(() => window.__luin.aset.teema);
     tulos(`${laji}: ohi napsautus vain sulkee vihjeen`, (await vihje()) === '' && t === 'vaalea', t);
-    await page.click('button[data-kytkin="kontrasti"]');
+    await page.click('button[data-teema="vaalea"]');
     tulos(`${laji}: hiirellä napsautus sammuttaa`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 0 && (await vihje()) === '');
-    await page.click('button[data-kytkin="kontrasti"]');
+    await page.click('button[data-teema="vaalea"]');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
-    await page.hover('button[data-kytkin="kontrasti"]'); await page.waitForTimeout(1300);
+    await page.hover('button[data-teema="tumma"]'); await page.waitForTimeout(1300);
     tulos(`${laji}: Sysi ei avaa vihjettä`, (await vihje()) === '');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   } else {
-    await napauta('button[data-kytkin="kontrasti"]');
+    await napauta('button[data-teema="vaalea"]');
     tulos(`${laji}: päällä olevan napautus avaa vihjeen`, (await vihje()) === TEKSTI && (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1, await vihje());
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sahkopaperi-tcf-vihje-kapea.png') });
     await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
     const t = await page.evaluate(() => window.__luin.aset.teema);
     tulos(`${laji}: ohi napautus vain sulkee vihjeen`, (await vihje()) === '' && t === 'vaalea', t);
-    await napauta('button[data-kytkin="kontrasti"]');
+    await napauta('button[data-teema="vaalea"]');
     tulos(`${laji}: seuraava napautus sammuttaa`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 0 && (await vihje()) === '');
-    await napauta('button[data-kytkin="kontrasti"]');
+    await napauta('button[data-teema="vaalea"]');
     tulos(`${laji}: päälle ilman vihjettä`, (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1 && (await vihje()) === '');
-    await napauta('button[data-kytkin="kontrasti"]');
+    await napauta('button[data-teema="vaalea"]');
     tulos(`${laji}: uusi päällekytkentä, vihje taas`, (await vihje()) === TEKSTI);
     await napauta('#tcf-vihje');
     tulos(`${laji}: vihjeen oma napautus sulkee`, (await vihje()) === '' && (await page.evaluate(() => window.__luin.aset.kontrasti)) === 1);
@@ -200,7 +200,7 @@ async function aja(selain, U, kosketus) {
 
   // 6. Sysi lukimessa: musta tausta, hienovaraisesti himmennetty lämmin teksti.
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
-  await napauta('button[data-kytkin="kontrasti"]');
+  await napauta('button[data-teema="tumma"]');
   await napauta('#asetukset .sulje');
   await page.evaluate(() => { location.hash = '#id=p-koe'; });
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
@@ -209,39 +209,57 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(201, 181, 146)', tp);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
 
-  // 7. CLARVS·ET·DISTINCTVS (käyttäjän pyynnöt 20.11.2026): sama valinta kummassakin teemassa, sulkee Sysin/TCF:n pois, kaksi
-  // välisävyä; alakytkimet allekkain valitun teeman alla, salmiakit sen salmiakin laidassa, Sivunkäännön lisäkytkimiä pienempinä.
+  // 7. CLARVS·ET·DISTINCTVS ja teeman ruudukko (käyttäjän pyynnöt 20.11.2026): CLARVS on sama valinta kummassakin teemassa,
+  // sulkee Sysin/TCF:n pois, kaksi välisävyä. Ruudukossa kiinteät paikat: Vaalea, TCF ja CLARVS samassa vasemmassa laidassa,
+  // Tumma ja Sysi samassa, Tumma TCF:n oikealla puolella; paikat eivät muutu teeman mukana. Himmeys: valitsematon CLARVS >
+  // valitsematon oman teeman alakytkin > toisen teeman alakytkin. Alakytkimet pienempiä kuin Sivunkäännön lisäkytkimet.
   await page.evaluate(() => { location.hash = '#'; });
   await page.waitForSelector('#nimikkeet li');
   await napauta('.lhead .ratas');
   await page.waitForSelector('#asetukset:not([hidden])');
-  const alla = () => page.evaluate(() => {
-    const vas = s => document.querySelector(s + ' .sal-ulko').getBoundingClientRect().left, r = s => document.querySelector(s).getBoundingClientRect();
-    const sel = document.querySelector('.asetus[data-a="teema"] button[aria-pressed="true"]').dataset.arvo;
-    const k = r('button[data-kytkin="kontrasti"]'), c = r('button[data-kytkin="clarus"]');
-    return { sel, laita: Math.max(Math.abs(vas('button[data-arvo="' + sel + '"]') - vas('button[data-kytkin="kontrasti"]')), Math.abs(vas('button[data-kytkin="kontrasti"]') - vas('button[data-kytkin="clarus"]'))),
-      allekkain: c.top >= k.bottom - 1, pienempi: parseFloat(getComputedStyle(document.querySelector('button[data-kytkin="clarus"]')).fontSize) < parseFloat(getComputedStyle(document.querySelector('button[data-kytkin="sivunapit"]')).fontSize),
-      nimi: document.querySelector('button[data-kytkin="clarus"]').textContent };
+  const ruutu = () => page.evaluate(() => {
+    const B = s => document.querySelector(s), R = s => B(s).getBoundingClientRect(), vas = s => B(s + ' .sal-ulko').getBoundingClientRect().left;
+    const S = { V: 'button[data-arvo="vaalea"]', T: 'button[data-arvo="tumma"]', TCF: 'button[data-teema="vaalea"]', SY: 'button[data-teema="tumma"]', CD: 'button[data-kytkin="clarus"]' };
+    const o = {}; for (const [n, s] of Object.entries(S)) o[n] = { x: Math.round(vas(s) * 10) / 10, y: Math.round(R(s).top), op: +getComputedStyle(B(s)).opacity };
+    const tcfTeksti = document.createRange(); tcfTeksti.selectNodeContents(B(S.TCF)); const tcfOik = Math.max(...[...tcfTeksti.getClientRects()].map(r => r.right));
+    return { o, tilaa: vas(S.T) > tcfOik, nimet: B(S.TCF).textContent + '|' + B(S.SY).textContent + '|' + B(S.CD).textContent,
+      pienempi: parseFloat(getComputedStyle(B(S.CD)).fontSize) < parseFloat(getComputedStyle(B('button[data-kytkin="sivunapit"]')).fontSize) };
   });
-  let nk = await alla();
-  tulos(`${laji}: alakytkimet allekkain ${nk.sel}-teeman laidassa`, nk.sel === 'tumma' && nk.laita < 0.5 && nk.allekkain, JSON.stringify(nk));
-  tulos(`${laji}: alakytkimet pienempiä kuin Sivunkäännön, nimi`, nk.pienempi && nk.nimi === 'CLARVS · ET · DISTINCTVS', nk.nimi);
+  const paikat = r => [r.o.V.x, r.o.T.x, r.o.TCF.x, r.o.SY.x, r.o.CD.x, r.o.V.y, r.o.TCF.y, r.o.CD.y].join(',');
+  let ru = await ruutu();
+  const p0 = paikat(ru);
+  tulos(`${laji}: ruudukon sarakkeet ja rivit`, Math.abs(ru.o.V.x - ru.o.TCF.x) < .5 && Math.abs(ru.o.V.x - ru.o.CD.x) < .5 && Math.abs(ru.o.T.x - ru.o.SY.x) < .5 &&
+    ru.o.T.y === ru.o.V.y && ru.o.SY.y === ru.o.TCF.y && ru.o.V.y < ru.o.TCF.y && ru.o.TCF.y < ru.o.CD.y && ru.tilaa, JSON.stringify(ru.o));
+  tulos(`${laji}: nimet ja koko`, ru.nimet === 'TCF-valkaisu|Sysi|CLARVS · ET · DISTINCTVS' && ru.pienempi, ru.nimet);
+  tulos(`${laji}: himmeys tummassa Sysi päällä: TCF erityisen himmeä`, ru.o.SY.op === 1 && ru.o.TCF.op < ru.o.CD.op, JSON.stringify([ru.o.TCF.op, ru.o.SY.op, ru.o.CD.op]));
   const paletti = () => page.evaluate((m) => { const cs = getComputedStyle(document.documentElement), a = window.__luin.aset;
     return { k: a.kontrasti, c: a.clarus, luokat: ['kontrasti', 'clarus'].filter(x => document.documentElement.classList.contains(x)).join('+'),
       arvot: [...new Set(m.map(x => cs.getPropertyValue(x).trim()))].sort().join(' ') }; }, MUUTTUJAT);
   await napauta('button[data-kytkin="clarus"]');
   let pc = await paletti();
+  ru = await ruutu();
+  tulos(`${laji}: paikat eivät hypi`, paikat(ru) === p0, paikat(ru) + ' / ' + p0);
   tulos(`${laji}: CLARVS tummassa sulkee Sysin`, pc.k === 0 && pc.c === 1 && pc.luokat === 'clarus', JSON.stringify(pc));
   tulos(`${laji}: CLARVS tummassa: musta, valkoinen, harmaa, ruoste`, pc.arvot === '#000000 #a3a3a3 #e8955a #ffffff', pc.arvot);
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
-  nk = await alla();
-  tulos(`${laji}: alakytkimet siirtyvät Vaalean laitaan`, nk.sel === 'vaalea' && nk.laita < 0.5 && nk.allekkain, JSON.stringify(nk));
+  ru = await ruutu();
+  tulos(`${laji}: paikat eivät hypi teemaa vaihtaessa`, paikat(ru) === p0, paikat(ru) + ' / ' + p0);
   pc = await paletti();
   tulos(`${laji}: CLARVS vaaleassa: valkoinen, musta, harmaa, ruoste`, pc.c === 1 && pc.arvot === '#000000 #595959 #803510 #ffffff', pc.arvot);
-  await napauta('button[data-kytkin="kontrasti"]');
+  await napauta('button[data-teema="vaalea"]');
   pc = await paletti();
   tulos(`${laji}: TCF sulkee CLARVSin`, pc.k === 1 && pc.c === 0 && pc.luokat === 'kontrasti', JSON.stringify(pc));
-  await napauta('button[data-kytkin="kontrasti"]');
+  await napauta('button[data-teema="vaalea"]');
+  // Kosketuksella päällä olevan TCF:n ensimmäinen napautus avaa vihjeen; vihjeen napautus sulkee sen, seuraava sammuttaa.
+  if (await vihje()) { await napauta('#tcf-vihje'); await napauta('button[data-teema="vaalea"]'); }
+  ru = await ruutu();
+  tulos(`${laji}: himmeys: CLARVS > TCF > Sysi`, ru.o.CD.op > ru.o.TCF.op && ru.o.TCF.op > ru.o.SY.op, JSON.stringify([ru.o.CD.op, ru.o.TCF.op, ru.o.SY.op]));
+  // Himmeän Sysin napautus valitsee tumman teeman ja Sysin.
+  await napauta('button[data-teema="tumma"]');
+  pc = await paletti();
+  tulos(`${laji}: himmeä Sysi valitsee tumman ja Sysin`, (await page.evaluate(() => window.__luin.aset.teema)) === 'tumma' && pc.k === 1 && pc.c === 0, JSON.stringify(pc));
+  await napauta('button[data-teema="tumma"]');
+  await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
 }

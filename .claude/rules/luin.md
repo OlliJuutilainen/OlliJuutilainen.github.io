@@ -260,8 +260,11 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
 - **CLARVS · ET · DISTINCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
-  valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. Alakytkimet (Sysi/TCF, sen alla CLARVS) allekkain
-  valitun teeman alla sen salmiakin laidassa ja Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja; `sijoitaNipukka()`). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
+  valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
+  (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä vasemmassa laidassa
+  hyvin leveästi harvennettu CLARVS. Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
+  valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42) > toisen teeman alakytkin (`.pois`, .25, napautus
+  valitsee teeman ja kytkimen). Sama `aset.kontrasti` kummallekin teemalle (`data-teema`). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
   (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
