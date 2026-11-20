@@ -277,8 +277,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   ei ole valmiita Ā- ja Ī-merkkejä, joten ne ovat yhdistyvällä makronilla U+0304, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
   valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
-  (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä vasemmassa laidassa
-  hyvin leveästi harvennettu CLARVS. Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
+  (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä hyvin leveästi harvennettu CLARVS,
+  vaaleassa vasemmassa laidassa ja tummassa Tumman kohdalla (käyttäjän pyyntö 20.11.2026; ahtaalla harvennus tiivistyy, `sijoitaClarus()`). Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
   valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
   (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.

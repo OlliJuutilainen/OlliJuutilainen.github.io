@@ -1311,12 +1311,12 @@
   /* Sivunkäännön neljä tapaa (Laitteen painikkeet 20.11.2026) tiiviimmin ja hiukan pienempinä, jottei lista veny (käyttäjän pyyntö). */
   #sivunapit-kytkin button { min-height: 25px; font-size: .76rem; }
   /* Teeman ruudukko (käyttäjän pyynnöt 20.11.2026): kiinteät paikat, ei hyppelyä. Vaalea ja sen alla TCF-valkaisu, Tumma
-     ja sen alla Sysi; Tumma on niin oikealla, että TCF-valkaisu mahtuu sen vasemmalle puolelle. Alimmalla rivillä vasemmassa
-     laidassa CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
+     ja sen alla Sysi; Tumma on niin oikealla, että TCF-valkaisu mahtuu sen vasemmalle puolelle. Alimmalla rivillä vaaleassa vasemmassa
+     laidassa, tummassa Tumman kohdalla, CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
      Sysin aset.sysin; data-teema); toisen teeman kytkimet ja CLARVSin alla kaikki alakytkimet ovat piilossa (.piilossa),
      ja oman teeman valitsematon kytkin (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
      pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, hyvin leveä harvennus. */
-  .teema-ruudukko { display: grid; grid-template-columns: max-content max-content max-content; column-gap: 16px; align-items: center; justify-content: start; }
+  .teema-ruudukko { display: grid; grid-template-columns: max-content max-content max-content 1fr; column-gap: 16px; align-items: center; justify-content: start; }
   /* Paikat kiinteästi; Tumma ulottuu Sysin ja Sysinin sarakkeiden yli, jotta Sysin on tavallisen välin päässä Sysistä. */
   .teema-ruudukko button[data-arvo="vaalea"] { grid-area: 1 / 1; }
   .teema-ruudukko button[data-arvo="tumma"] { grid-area: 1 / 2 / 2 / 4; justify-self: start; }
@@ -1327,6 +1327,9 @@
   #teema-nipukka button { font-size: .74rem; }
   #teema-nipukka button[data-teema] { margin-top: -7px; }
   #teema-nipukka button[data-kytkin="clarus"] { grid-row: 3; grid-column: 1 / -1; justify-self: start; }
+  /* Tummassa CLARVS alkaa Tumman kohdalta (käyttäjän pyyntö 20.11.2026). Neljäs sarake on 1fr, jotta CLARVS ei levennä
+     Sysin ja Sysinin sarakkeita; ahtaalla harvennus tiivistyy (sijoitaClarus()). */
+  #teema-nipukka button[data-kytkin="clarus"].tummassa { grid-column: 2 / -1; }
   /* Sysin on Sysin alakytkin (käyttäjän pyyntö 20.11.2026): vielä pienempi, ja näkyvissä vain, kun Sysi on valittuna. Toisen
      teeman alakytkimet eivät näy lainkaan (käyttäjän pyyntö 20.11.2026). Paikka varataan piilossakin (visibility), jottei
      ruudukko muutu. */
@@ -1334,7 +1337,7 @@
   #teema-nipukka button[data-kytkin="sysin"] svg { width: 6px; height: 8.3px; }
   #teema-nipukka button.piilossa { visibility: hidden; }
   .valinnat button.ala[aria-pressed="false"] { opacity: .42; }
-  .valinnat .clarus { font-size: .82em; letter-spacing: .2em; }
+  .valinnat .clarus { font-size: .82em; letter-spacing: .2em; white-space: nowrap; }
   /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
      lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkissa 7 suoraa riviä; vasemmassa yläkulmassa alas
@@ -3622,7 +3625,7 @@
     if (!$('#lukija').hidden) { var b = $('#ala-rivi').getBoundingClientRect(); if (b.height) v = Math.max(0, Math.round(innerHeight - b.top)); }
     document.documentElement.style.setProperty('--paneeli-ala', v + 'px');
   }
-  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) sijoitaPaneeli(); sijoitaLaatikot(); });
+  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) { sijoitaPaneeli(); sijoitaClarus(); } sijoitaLaatikot(); });
   function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); }
   // Navin laatikon raksi sulkee vain sen laatikon, Asetusten raksi kaikki paneelit.
   $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', function () {
@@ -3882,7 +3885,24 @@
   }
   // Sivunvaihtopainikkeiden kytkin Sivut-vaihtoehdon alle, 16 px sisennettynä kuten Sukkela alleviivaus
   // Alleviivausten alla. Mitataan vasta näkyvästä paneelista (kirjasin vaihtelee).
+  // Tummassa CLARVS on Tumman kohdalla (käyttäjän pyyntö 20.11.2026). Jos se ei mahdu ruudukkoon, harvennus tiivistyy
+  // (käyttäjän lupa), kuitenkin vähintään nollaan.
+  function sijoitaClarus() {
+    var b = $('#teema-nipukka button[data-kytkin="clarus"]');
+    if (!b) return;
+    b.classList.toggle('tummassa', aset.teema === 'tumma');
+    var t = $('.clarus', b);
+    t.style.letterSpacing = '';
+    if (!b.offsetParent || aset.teema !== 'tumma') return;
+    var rg = document.createRange(); rg.selectNodeContents(t);
+    var oik = Math.max.apply(null, [].map.call(rg.getClientRects(), function (r) { return r.right; }));
+    var yli = oik - b.closest('.teema-ruudukko').getBoundingClientRect().right;
+    if (yli <= 0) return;
+    var ls = parseFloat(getComputedStyle(t).letterSpacing) || 0, n = t.textContent.replace(/\p{M}/gu, '').length;
+    t.style.letterSpacing = Math.max(0, ls - Math.ceil(yli * 100 / n) / 100) + 'px';
+  }
   function sijoitaNipukka() {
+    sijoitaClarus();
     var s = $('#asetukset button[data-arvo="sivut"]');
     if (!s || !s.offsetParent) return;
     var n = $('#sivunapit-kytkin');

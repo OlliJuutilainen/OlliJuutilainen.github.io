@@ -229,10 +229,11 @@ async function aja(selain, U, kosketus) {
     return { o, tilaa: vas(S.T) > tcfOik, nimet: B(S.TCF).textContent + '|' + B(S.SY).textContent + '|' + B(S.CD).textContent,
       pienempi: parseFloat(getComputedStyle(B(S.CD)).fontSize) < parseFloat(getComputedStyle(B('button[data-kytkin="sivunapit"]')).fontSize) };
   });
-  const paikat = r => [r.o.V.x, r.o.T.x, r.o.TCF.x, r.o.SY.x, r.o.CD.x, r.o.V.y, r.o.TCF.y, r.o.CD.y].join(',');
+  // CLARVSin x riippuu teemasta (tummassa Tumman kohdalla), joten se tarkistetaan erikseen.
+  const paikat = r => [r.o.V.x, r.o.T.x, r.o.TCF.x, r.o.SY.x, r.o.V.y, r.o.TCF.y, r.o.CD.y].join(',');
   let ru = await ruutu();
   const p0 = paikat(ru);
-  tulos(`${laji}: ruudukon sarakkeet ja rivit`, Math.abs(ru.o.V.x - ru.o.TCF.x) < .5 && Math.abs(ru.o.V.x - ru.o.CD.x) < .5 && Math.abs(ru.o.T.x - ru.o.SY.x) < .5 &&
+  tulos(`${laji}: ruudukon sarakkeet ja rivit`, Math.abs(ru.o.V.x - ru.o.TCF.x) < .5 && Math.abs(ru.o.T.x - ru.o.CD.x) < .5 && Math.abs(ru.o.T.x - ru.o.SY.x) < .5 &&
     ru.o.T.y === ru.o.V.y && ru.o.SY.y === ru.o.TCF.y && ru.o.V.y < ru.o.TCF.y && ru.o.TCF.y < ru.o.CD.y && ru.tilaa, JSON.stringify(ru.o));
   tulos(`${laji}: nimet makroneineen ja koko`, ru.nimet === 'TCF-valkaisu|Sysi|CLĀRVS · ET · DISTĪNCTVS' && ru.pienempi, ru.nimet);
   tulos(`${laji}: tummassa TCF piilossa, Sysi näkyy`, !ru.o.TCF.nakyy && ru.o.SY.nakyy && ru.o.SY.op === 1, JSON.stringify([ru.o.TCF, ru.o.SY]));
@@ -248,6 +249,7 @@ async function aja(selain, U, kosketus) {
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   ru = await ruutu();
   tulos(`${laji}: paikat eivät hypi teemaa vaihtaessa`, paikat(ru) === p0, paikat(ru) + ' / ' + p0);
+  tulos(`${laji}: vaaleassa CLARVS Vaalean kohdalla`, Math.abs(ru.o.V.x - ru.o.CD.x) < .5, JSON.stringify([ru.o.V, ru.o.CD]));
   pc = await paletti();
   tulos(`${laji}: CLARVS vaaleassa: valkoinen, musta, harmaa, ruoste`, pc.c === 1 && pc.arvot === '#000000 #595959 #803510 #ffffff', pc.arvot);
   ru = await ruutu();
