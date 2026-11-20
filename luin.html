@@ -1246,9 +1246,6 @@
   #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
   /* Tanssin mustassa vaiheessa teksti ja kehä ovat poikkeuksellisesti vitivalkoiset (käyttäjän pyyntö 17.11.2026: tanssin
      selkeyttämiseksi; vaihe on sähköpaperin virkistysvälähdys, ei Sysi). */
-  /* Sysinissä nappi on Oletusasetukset ja tavallista kirkkaampi (käyttäjän pyyntö 20.11.2026): majakka, jos Sysin on valittu
-     vahingossa kirkkaassa päivänvalossa. */
-  :root.sysin[data-teema="tumma"] #papyrosoi:not([data-vaihe]) { color: var(--muste); border-color: var(--muste); }
   #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ffffff; border-color: #ffffff; }
   #papyrosoi[data-vaihe="tcf"] { background: #ffffff; color: #000000; border-color: #000000; }
   /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026): vain hiirellä. Pitkä viipymä TCF-valkaisun päällä avaa, ja hiiren siirto
@@ -3923,17 +3920,13 @@
   var PAPYRUS_VAIHE = 700, PAPYRUS_MS = 2200;
   var papyrusKay = false;
   function papyrosoitu() { return Object.keys(SAHKOPAPERI).every(function (k) { return aset[k] === SAHKOPAPERI[k]; }); }
-  // Sysinissä nappi tarjoaa aina Oletusasetukset (käyttäjän pyyntö 20.11.2026): paluu maan kamaralle, jos Sysin on valittu
-  // vahingossa päivänvalossa. CSS tekee siitä silloin tavallista kirkkaamman.
-  function sysinPaalla() { return aset.teema === 'tumma' && !!aset.sysi && !!aset.sysin && !aset.clarus; }
-  function tarjoaOletus() { return papyrosoitu() || sysinPaalla(); }
   function laitteenOletus() {
     var tumma = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
     return { teema: tumma ? 'tumma' : 'vaalea', kontrasti: OLETUS.kontrasti, sysi: OLETUS.sysi, sysin: OLETUS.sysin, clarus: OLETUS.clarus, sivutus: sivutusOletus() ? 'sivut' : 'vieritys',
       sivuReuna: 1, sivuPyyhka: 1, sivunapit: 1, sivuLaite: 1 };
   }
   function paivitaPapyrus() {
-    if (!papyrusKay) $('#papyrosoi').textContent = tarjoaOletus() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
+    if (!papyrusKay) $('#papyrosoi').textContent = papyrosoitu() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
   }
   /* Tanssi (käyttäjän pyynnöt 17.11.2026, vain napin suorakaide kehineen): pelkkä musta (mustin) ja TCF vuorotellen, ei tavallisten
      teemojen välisävyjä. Neljännessä vaiheessa jää lopputilan oikea väri: papyrosointi ja vaalea oletus musta, TCF, musta,
@@ -3941,7 +3934,7 @@
      Asetukset vaihtuvat neljännen vaiheen alussa, jolloin kuittaus on totta. */
   function papyrosoi() {
     if (papyrusKay) return;
-    var n = $('#papyrosoi'), takaisin = tarjoaOletus(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
+    var n = $('#papyrosoi'), takaisin = papyrosoitu(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
     var vaiheet = uusi.teema === 'tumma' ? ['tcf', 'mustin', 'tcf', 'mustin'] : ['mustin', 'tcf', 'mustin', 'tcf'];
     papyrusKay = true;
     n.style.width = n.getBoundingClientRect().width + 'px';

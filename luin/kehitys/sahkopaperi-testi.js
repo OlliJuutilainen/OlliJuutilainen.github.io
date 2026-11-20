@@ -8,7 +8,7 @@
 // 4) TCF-vihje vain hiiren viipymästä (sulkeutuu heti hiiren lähtiessä kytkimeltä), kosketuksella ei lainkaan;
 // 7–8) teeman ruudukko, CLARVS ja teemojen alakytkimet (käyttäjän säännöt 20.11.2026): toisen teeman alakytkimet eivät näy,
 // teema palauttaa muistamansa alakytkimet, CLARVS pitää kutinsa teemaa vaihdettaessa eikä pyyhi muistia, Sysin on Sysin
-// alakytkin, ja Sysinissä papyrosointinappi on kirkkaampi Oletusasetukset.
+// alakytkin, ja papyrosointinappi on Sysinissäkin tavallinen.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -291,7 +291,7 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: Sysin päälle Sysin alle`, pc.s === 1 && pc.n === 1 && pc.luokat === 'sysin' && sn.painettu === 'truetrue', JSON.stringify(sn) + ' ' + JSON.stringify(pc));
   tulos(`${laji}: Sysinin paletti`, pc.arvot === '#000000 #1c150e #2a2116 #32281b #4c3e2b #53452f #604d31 #6e521b #6f4a22 #927749', pc.arvot);
   pn = await papNappi();
-  tulos(`${laji}: Sysinissä nappi Oletusasetukset musteen värinen`, pn.teksti === 'Oletusasetukset' && pn.vari === rgb(pn.muste) && pn.kehys === rgb(pn.muste), JSON.stringify(pn));
+  tulos(`${laji}: Sysinissä nappi tavallinen (ei Oletusasetukset-poikkeusta)`, pn.teksti === 'Sähköpapyrosoi asetukset' && pn.vari === rgb(pn.huomio), JSON.stringify(pn));
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-sysin-${kosketus ? 'kapea' : 'levea'}.png`) });
   // CLARVS Sysinin päälle ja pois: Sysin palaa.
   await napauta(CD);
@@ -312,14 +312,6 @@ async function aja(selain, U, kosketus) {
   await napauta(TUMMA);
   pc = await paletti();
   tulos(`${laji}: Tumma palauttaa Sysinin`, pc.t === 'tumma' && pc.luokat === 'sysin', JSON.stringify(pc));
-  // Oletusasetukset Sysinistä: laitteen oletus (tässä vaalea).
-  await napauta('#papyrosoi');
-  await page.waitForTimeout(4700);
-  pc = await paletti();
-  tulos(`${laji}: Sysinin Oletusasetukset palauttaa laitteen oletukset`, pc.t === 'vaalea' && pc.s === 0 && pc.n === 0 && pc.k === 0 && pc.luokat === '' && (await papNappi()).teksti === 'Sähköpapyrosoi asetukset', JSON.stringify(pc));
-  await napauta(TUMMA);
-  await napauta(SY);
-  await napauta(SN);
   await napauta(SY);
   pc = await paletti();
   sn = await sysin();
