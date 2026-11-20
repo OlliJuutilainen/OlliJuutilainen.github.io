@@ -253,34 +253,40 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa vastaava kytkin on *Sysi* (`aset.sysi`, 20.11.2026, korvasi *Mustimman*,
   joka muutti vain taustan): tausta #000, tekstivärit himmeämpiä ja lämpimämpiä, viivat himmeämpiä kuin tummassa. Ei yötila eikä
   meripihkaa. Käyttäjän kokeilut 20.11.2026: muste-kontrasti 5 ja 8,4 liian sysi, 13 liian lähellä Mustinta; nyt keskitie 10,5
-  (Mustin 15,9). Sivuvärit ovat musteesta kauempana kuin tummassa (käyttäjä 20.11.2026: lomitetun käännöksen englanti ei erottunut kreikasta); älä kavenna eroja. Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat; käyttäjän pyynnöt 20.11.2026): hiirellä
-  viipymästä (1 s), ja hiiren lähtö kytkimeltä sulkee heti; kosketuksella pois olevan TCF:n napautus avaa vihjeen kysymyksenä, jonka
-  oikean alakulman ruosteinen *OK.* kytkee TCF:n päälle ja sulkee; ohi napautus vain sulkee, päällä olevan napautus sammuttaa ilman vihjettä. *Sähköpapyrosoi asetukset*
+  (Mustin 15,9). Sivuvärit ovat musteesta kauempana kuin tummassa (käyttäjä 20.11.2026: lomitetun käännöksen englanti ei erottunut kreikasta); älä kavenna eroja. Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat; käyttäjän pyynnöt 20.11.2026): **vain hiirellä**
+  viipymästä (1 s), ja hiiren lähtö kytkimeltä sulkee heti; kosketusnäytöllä ei vihjettä lainkaan (liikaa häiriötä; *OK.*-kysymys kokeiltiin). *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
   (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita), otsikkoa pienempi ja `--huomio`n värinen; painallus tanssittaa **vain napin
   alaa kehineen**: pelkkä musta (`mustin`, ei Sysi) ja TCF vuorotellen, ei tavallisten teemojen välisävyjä (käyttäjä 17.11.2026), 0,7 s vaihe;
   neljännessä jää lopputilan oikea väri (papyrosointi: musta, TCF, musta, TCF lähtöteemasta riippumatta), asetukset
   vaihtuvat siinä ja kuittaus jää `PAPYRUS_MS` (2,2 s). Tanssin mustassa teksti ja kehä ovat poikkeuksellisesti #fff. Tämä on käyttäjän tilaama tarkoituksellinen poikkeus
   animaatiokiellosta (sähköpaperin virkistysvitsi); koko näytön valoshowta käyttäjä ei halunnut. Taulun sisältö on käyttäjän
-  (vaalea, TCF, sivunkääntö, reuna ja painikkeet, ei pyyhkäisyä). Testi `sahkopaperi-testi.js`.
+  (vaalea, TCF, sivunkääntö, reuna ja nuolinapit, ei pyyhkäisyä; laitteen painikkeet lisätty 20.11.2026). Testi `sahkopaperi-testi.js`.
 - **Sysin** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.sysin`, Sysin oikealla): Sysin ensimmäisen kokeilun yölukutila,
   jota käyttäjä piti hämäryyden ylärajana (muste 5,0: **ei himmeämmäksi kysymättä**). Sivuvärien Y-suhde musteeseen kuten Sysissä
   (erottuvuus), ruoste poikkeuksena .42, ettei näytä harmaalta. Arvot CSS:n kommentissa. CLARVS sulkee
   Sysin (ja Sysinin) pois. **Sysin on Sysin alakytkin** (käyttäjän pyyntö 20.11.2026): vielä pienempi, näkyvissä vain Sysin ollessa valittuna
-  (paikka varataan `visibility`llä, ei hyppelyä); arvo säilyy Sysin alla.
-- **Teeman alakytkimet** (käyttäjän sääntö 20.11.2026, `yksiPaletti()`, `av 10`): kumpikin teema muistaa omat alakytkimensä
-  (`aset.kontrasti` = TCF, `aset.sysi` = Sysi, `aset.sysin`), ja teemaan palatessa ne palaavat. Toisen teeman alakytkimen napautus
-  valitsee **vain teeman**, kuten Sivunkäännön lisäkytkin rullatessa: ensin teeman piiriin, sitten sen alavalintoihin. CLARVS on
-  molempien yhteinen ja pitää kutinsa teemaa vaihdettaessa; se sulkee TCF:n ja Sysin kummastakin teemasta, ja TCF tai Sysi sulkee sen.
-- **CLARVS · ET · DISTINCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, `aset.clarus`): korkea kontrasti samana valintana
+  (paikka varataan `visibility`llä, ei hyppelyä); arvo säilyy Sysin alla. **Sysinissä papyrosointinappi on aina *Oletusasetukset***
+  ja musteen värinen (`sysinPaalla()`, käyttäjän pyyntö 20.11.2026): majakka, jos Sysin valitaan vahingossa päivänvalossa.
+- **Teeman alakytkimet** (käyttäjän säännöt 20.11.2026, `yksiPaletti()`, `av 10`): kumpikin teema muistaa omat alakytkimensä
+  (`aset.kontrasti` = TCF, `aset.sysi` = Sysi, `aset.sysin`), ja teemaan palatessa ne palaavat. **Toisen teeman alakytkimet eivät
+  näy lainkaan** (`.piilossa`, paikka varattuna): vaaleassa ei Sysiä eikä Sysiniä, tummassa ei TCF:ää. CLARVS on molempien yhteinen
+  ja pitää kutinsa teemaa vaihdettaessa; se **peittää** TCF:n ja Sysin muistia pyyhkimättä, joten sen sammutus palauttaa edellisen
+  (esim. Sysinin). TCF:n tai Sysin napautus CLARVSin alla kytkee ne päälle ja CLARVSin pois.
+- **CLĀRVS · ET · DISTĪNCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, makronit anakronistisesti saman päivän pyynnöstä; Literatassa
+  ei ole valmiita Ā- ja Ī-merkkejä, joten ne ovat yhdistyvällä makronilla U+0304, `aset.clarus`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
   valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
   (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä vasemmassa laidassa
   hyvin leveästi harvennettu CLARVS. Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
-  valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42) > toisen teeman alakytkin (`.pois`, .14; käyttäjä
-  20.11.2026: himmeämmäksi kuin Sivunkäännön .25). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
+  valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
   (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
+- **Sivunkäännön tavat** (opas 4): *Reunanapautus*, *Pyyhkäisy*, *Nuolinapit* (`sivunapit`, ennen *Painikkeet*) ja pahnan pohjimmaisena
+  *Laitteen painikkeet* (`sivuLaite`, käyttäjän pyyntö 20.11.2026; näppäimistö, sivunkääntönäppäimet, äänenvoimakkuus; pois ollessaan
+  näppäimet eivät käännä, äänenvoimakkuutta ei estetä). Pakollinen viimeinen tapa vain kolmesta ensimmäisestä (`PAKKOTAVAT`), koska
+  selaimessa ei tiedetä, onko laitteessa painikkeita; Android-sovelluksessa myös laitteen painikkeet kelpaavat. Lista on tiiviimpi
+  (25 px, .76rem) kuin muut nipukat, jottei neljä riviä veny.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
   yläindeksinumeroista aikajanan kohtia ja vedon pysäkkejä (`res.kohdat`, `nyt.kohdat`), **ei otsikoita eikä `toc`-rivejä**:
   `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen

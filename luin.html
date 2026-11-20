@@ -1242,20 +1242,17 @@
   #papyrosoi::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 36px; margin-top: -18px; }
   /* Tanssin mustassa vaiheessa teksti ja kehä ovat poikkeuksellisesti vitivalkoiset (käyttäjän pyyntö 17.11.2026: tanssin
      selkeyttämiseksi; vaihe on sähköpaperin virkistysvälähdys, ei Sysi). */
+  /* Sysinissä nappi on Oletusasetukset ja tavallista kirkkaampi (käyttäjän pyyntö 20.11.2026): majakka, jos Sysin on valittu
+     vahingossa kirkkaassa päivänvalossa. */
+  :root.sysin[data-teema="tumma"] #papyrosoi:not([data-vaihe]) { color: var(--muste); border-color: var(--muste); }
   #papyrosoi[data-vaihe="mustin"] { background: #000000; color: #ffffff; border-color: #ffffff; }
   #papyrosoi[data-vaihe="tcf"] { background: #ffffff; color: #000000; border-color: #000000; }
-  /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026): hiirellä pitkä viipymä TCF-valkaisun päällä avaa, ja hiiren siirto pois
-     kytkimeltä sulkee heti. Kosketuksella pois päältä olevan kytkimen napautus avaa vihjeen kysymyksenä (.kysyy), jonka
-     oikeassa alakulmassa on ruosteinen OK.: se kytkee TCF:n päälle ja sulkee; ohi napautus vain sulkee (nielaise()). */
+  /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026): vain hiirellä. Pitkä viipymä TCF-valkaisun päällä avaa, ja hiiren siirto
+     pois kytkimeltä sulkee heti. Kosketusnäytöllä ei vihjettä lainkaan (käyttäjä 20.11.2026: liikaa häiriötä). */
   .asetus[data-a="teema"] { position: relative; }
   #tcf-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(19rem, calc(100% - 8px)); padding: 6px 10px 7px;
     font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); cursor: pointer; }
   #tcf-vihje p { margin: 0; }
-  #tcf-vihje.kysyy { cursor: default; }
-  #tcf-ok { display: none; position: relative; margin: 1px 0 0 auto; padding: 0 0 0 12px; color: var(--ruoste); }
-  #tcf-vihje.kysyy #tcf-ok { display: block; }
-  /* Napautusalue suuremmaksi laatikon kokoa muuttamatta. */
-  #tcf-ok::after { content: ""; position: absolute; left: -6px; right: -10px; top: -9px; bottom: -8px; }
   /* Asetusten väliotsikon alla 8 px hajurakoa (h3:n ja ensimmäisen nimen väli 19 px). */
   #asetukset h3 { margin-bottom: 10px; }
   /* Sateenvarjolistan Näytä: on verbi, ei asetuksen nimi: kursiivi erottaa sen alla olevista pystyistä
@@ -1310,11 +1307,13 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  /* Sivunkäännön neljä tapaa (Laitteen painikkeet 20.11.2026) tiiviimmin ja hiukan pienempinä, jottei lista veny (käyttäjän pyyntö). */
+  #sivunapit-kytkin button { min-height: 25px; font-size: .76rem; }
   /* Teeman ruudukko (käyttäjän pyynnöt 20.11.2026): kiinteät paikat, ei hyppelyä. Vaalea ja sen alla TCF-valkaisu, Tumma
      ja sen alla Sysi; Tumma on niin oikealla, että TCF-valkaisu mahtuu sen vasemmalle puolelle. Alimmalla rivillä vasemmassa
      laidassa CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
-     Sysin aset.sysin; data-teema); toisen teeman kytkin on erityisen himmeä (.pois), ja oman teeman valitsematon kytkin
-     (.ala) himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
+     Sysin aset.sysin; data-teema); toisen teeman kytkimet ovat piilossa (.piilossa), ja oman teeman valitsematon kytkin
+     (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
      pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, hyvin leveä harvennus. */
   .teema-ruudukko { display: grid; grid-template-columns: max-content max-content max-content; column-gap: 16px; align-items: center; justify-content: start; }
   /* Paikat kiinteästi; Tumma ulottuu Sysin ja Sysinin sarakkeiden yli, jotta Sysin on tavallisen välin päässä Sysistä. */
@@ -1327,13 +1326,12 @@
   #teema-nipukka button { font-size: .74rem; }
   #teema-nipukka button[data-teema] { margin-top: -7px; }
   #teema-nipukka button[data-kytkin="clarus"] { grid-row: 3; grid-column: 1 / -1; justify-self: start; }
-  /* Sysin on Sysin alakytkin (käyttäjän pyyntö 20.11.2026): vielä pienempi, ja näkyvissä vain, kun Sysi on valittuna. Paikka
-     varataan piilossakin (visibility), jottei ruudukko muutu. */
+  /* Sysin on Sysin alakytkin (käyttäjän pyyntö 20.11.2026): vielä pienempi, ja näkyvissä vain, kun Sysi on valittuna. Toisen
+     teeman alakytkimet eivät näy lainkaan (käyttäjän pyyntö 20.11.2026). Paikka varataan piilossakin (visibility), jottei
+     ruudukko muutu. */
   #teema-nipukka button[data-kytkin="sysin"] { font-size: .66rem; gap: 5px; }
   #teema-nipukka button[data-kytkin="sysin"] svg { width: 6px; height: 8.3px; }
   #teema-nipukka button.piilossa { visibility: hidden; }
-  /* Toisen teeman alakytkimet vielä himmeämpiä kuin Sivunkäännön lisäkytkimet rullatessa (käyttäjän pyyntö 20.11.2026). */
-  #teema-nipukka button.pois { opacity: .14; }
   .valinnat button.ala[aria-pressed="false"] { opacity: .42; }
   .valinnat .clarus { font-size: .82em; letter-spacing: .2em; }
   /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
@@ -1622,18 +1620,20 @@
        Oletusasetukset, joka palauttaa taulun asetukset laitteen oletuksiin. Ks. CSS #papyrosoi. Teeman ruudukko: ks. CSS .teema-ruudukko. -->
   <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi" aria-live="polite">Sähköpapyrosoi asetukset</button></div>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="teema-ruudukko"><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
-    <div class="valinnat nipukka" id="teema-nipukka" data-k="kontrasti@vaalea:TCF-valkaisu|sysi@tumma:Sysi|sysin@tumma:Sysin|clarus:CLARVS · ET · DISTINCTVS"></div></div>
-    <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p><button type="button" id="tcf-ok">OK.</button></div></div>
+    <div class="valinnat nipukka" id="teema-nipukka" data-k="kontrasti@vaalea:TCF-valkaisu|sysi@tumma:Sysi|sysin@tumma:Sysin|clarus:CLĀRVS · ET · DISTĪNCTVS"></div></div>
+    <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
        yksi on pakko olla päällä (SIVUTAVAT, viimeistä ei saa sammuttaa). Poikkeus: Android-sovelluksessa (window.LuinApp)
-       kaikki saa sammuttaa, koska äänenvoimakkuusnapit kääntävät siellä aina sivua (käyttäjän pyyntö 16.11.2026).
+       myös laitteen painikkeet (sivuLaite) ovat tapa, koska äänenvoimakkuusnapit kääntävät siellä sivua (käyttäjän pyyntö
+       16.11.2026). Laitteen painikkeet (käyttäjän pyyntö 20.11.2026): näppäimistö, sivunkääntönäppäimet ja äänenvoimakkuus;
+       pois ollessaan ne eivät käännä sivua. Nuolinapit oli ennen Painikkeet.
        Vaihtoehtojen kuvat (käyttäjän pyyntö 7.11.2026, pilotti): käärö Rullaus-sanan alla ja koodeksi Sivunkäännön
        lisäkytkinten oikealla puolella, suunnat kuvan sisällä. Ne ovat vaihtoehtonsa värisiä ja valitsevat sen; paikka
        mitataan (sijoitaNipukka). -->
   <div class="asetus" data-a="sivutus"><span class="nimi">Liikkuminen:</span><div class="valinnat" data-v="vieritys:Rullaus|sivut:Sivunkääntö"></div>
-    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Painikkeet"></div>
+    <div class="valinnat nipukka pino" id="sivunapit-kytkin" data-k="sivuReuna:Reunanapautus|sivuPyyhka:Pyyhkäisy|sivunapit:Nuolinapit|sivuLaite:Laitteen painikkeet"></div>
     <button type="button" class="liik-kuva" id="liik-kaaro" data-arvo="vieritys" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 23 42"><path class="lk-t" d="M0 4Q0.95 3.35 1.5 2.5Q2.05 3.35 3 4Q2.05 4.65 1.5 5.5Q0.95 4.65 0 4ZM20 4Q20.95 3.35 21.5 2.5Q22.05 3.35 23 4Q22.05 4.65 21.5 5.5Q20.95 4.65 20 4ZM0 38Q0.95 37.35 1.5 36.5Q2.05 37.35 3 38Q2.05 38.65 1.5 39.5Q0.95 38.65 0 38ZM20 38Q20.95 37.35 21.5 36.5Q22.05 37.35 23 38Q22.05 38.65 21.5 39.5Q20.95 38.65 20 38Z"/><path class="lk-v" d="M4.5 1H18.5A1 3 0 0 1 18.5 7H4.5A1 3 0 0 1 4.5 1ZM4.5 35H18.5A1 3 0 0 1 18.5 41H4.5A1 3 0 0 1 4.5 35ZM4.5 7V35M18.5 7V35"/><path class="lk-r" d="M12 12H16.6M12 15H16.6M12 18H16.6M6.4 21H16.6M6.4 24H16.6M6.4 27H16.6M6.4 30H16.6"/><path class="lk-n" d="M6.4 10.7Q7.93 11.77 8.7 13.49Q9.47 11.77 11 10.7Q9.59 14.14 8.7 19.3Q7.81 14.14 6.4 10.7Z"/></svg></button>
     <button type="button" class="liik-kuva" id="liik-koodeksi" data-arvo="sivut" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 44 32"><path class="lk-v" d="M2 2.5H42V26H2ZM22 2.5V26M2 26V28.4H42V26M20.2 28.4V28.96Q20.2 29.8 22 29.8Q23.8 29.8 23.8 28.96V28.4"/><path class="lk-r" d="M4.5 6.65H19.5M4.5 10.45H19.5M4.5 14.25H19.5M4.5 18.05H9.4M4.5 21.85H9.4"/><path class="lk-n" d="M10.9 17.65Q11.97 19.18 13.7 19.95Q11.97 20.72 10.9 22.25Q14.34 20.84 19.5 19.95Q14.34 19.06 10.9 17.65Z"/></svg></button></div>
   <div class="asetus" data-a="koko"><span class="nimi">Kirjasinkoko</span><div class="valinnat">
@@ -1858,7 +1858,7 @@
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei, myöskään kirjallisuusluettelon DOI-linkit).
   var OLETUS = { teema: 'vaalea', kontrasti: 0, sysi: 0, sysin: 0, clarus: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
-    sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
+    sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sivuLaite: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
     postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 10 };
@@ -1971,9 +1971,11 @@
      14 px:n marginaali on Makron luokkaa (59 px) ja 16 px:llä ruutu täyttyy Mikron marginaaliin. Meso ja Makro ennallaan. */
   var MITTA = { kapea: 40 };
   function mitta() { return MITTA[aset.marginaali] || 33; }
-  var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
-  // Android-kääre (android/luin/) antaa sillan nimellä LuinApp; siellä laitteen napit kääntävät sivua aina.
+  // Android-kääre (android/luin/) antaa sillan nimellä LuinApp; siellä laitteen painikkeet ovat varma sivunkääntötapa.
+  // Selaimessa ei tiedetä, onko laitteessa painikkeita, joten ne eivät riitä ainoaksi tavaksi.
   var NAPIT_AINA = !!window.LuinApp;
+  var SIVUTAVAT = ['sivuReuna', 'sivuPyyhka', 'sivunapit', 'sivuLaite'];
+  var PAKKOTAVAT = NAPIT_AINA ? SIVUTAVAT : ['sivuReuna', 'sivuPyyhka', 'sivunapit'];
   function marginaali() { return MARG[aset.marginaali] || 0; }
   // Piilotetuksi alleviivausta ei tehdä automaattisesti.
   function autoAli() { return !!(aset.auto && aset.alTekstissa); }
@@ -3845,17 +3847,18 @@
         // valittuna. Sysin on Sysin alakytkin: näkyvissä ja päällä vain Sysin ollessa valittuna.
         var kTeema = kt[1], paalla = kTeema ? !!aset[kt[0]] && aset.teema === kTeema : !!aset[kv[0]];
         kv[0] = kt[0];
-        var piilo = kv[0] === 'sysin' && !(aset.teema === 'tumma' && aset.sysi);
+        // Toisen teeman alakytkimet eivät näy (käyttäjän pyyntö 20.11.2026). CLARVSin ollessa päällä TCF ja Sysi näkyvät pois
+        // päältä, mutta niiden arvo säilyy: CLARVSin sammutus palauttaa ne (myös Sysinin).
+        if (kt[0] === 'kontrasti' || kt[0] === 'sysi' || kt[0] === 'sysin') paalla = paalla && !aset.clarus;
+        var piilo = kTeema && aset.teema !== kTeema || kv[0] === 'sysin' && !(aset.sysi && !aset.clarus);
         if (kv[0] === 'sysin') paalla = paalla && !piilo;
         if (kv[0] === 'clarus') kv[1] = '<span class="clarus" lang="la">' + kv[1] + '</span>';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
         // Vierityksessä sivunkäännön lisäkytkimet ovat himmeät mutta napautettavissa: napautus valitsee Sivunkäännön.
-        // Samoin toisen teeman alakytkin: napautus valitsee vain teeman (käyttäjän sääntö 20.11.2026), ja teeman muistamat
-        // alakytkimet palaavat.
-        var himmea = tapa && aset.sivutus !== 'sivut' || kTeema && aset.teema !== kTeema;
-        var viimeinen = tapa && !NAPIT_AINA && aset[kv[0]] && SIVUTAVAT.filter(function (t) { return aset[t]; }).length === 1;
+        var himmea = tapa && aset.sivutus !== 'sivut';
+        var viimeinen = PAKKOTAVAT.indexOf(kv[0]) >= 0 && aset[kv[0]] && PAKKOTAVAT.filter(function (t) { return aset[t]; }).length === 1;
         return '<button type="button" data-kytkin="' + kv[0] + '"' + (kTeema ? ' data-teema="' + kTeema + '"' : '') + ' aria-pressed="' + paalla + '"' + (pois ? ' disabled' : '') +
-          (himmea || kTeema ? ' class="' + (himmea ? 'pois' : 'ala') + (piilo ? ' piilossa' : '') + '"' : '') +
+          (himmea ? ' class="pois"' : kTeema ? ' class="ala' + (piilo ? ' piilossa' : '') + '"' : '') + (piilo ? ' tabindex="-1" aria-hidden="true"' : '') +
           (viimeinen ? ' aria-disabled="true" title="Yksi tapa on pakko olla päällä"' : '') + '>' + SAL_IKONI +
           (kv[0] === 'auto' ? '<span class="sukkela">' + kv[1] + '</span>' : kv[0] === 'sukSana' ? '<span class="sukkela-s">' + kv[1] + '</span>' + IK_SANASTO :
           (/ \(/.test(kv[1]) ? '<span>' + kv[1].replace(/ \((.+)\)$/, ' <span class="palvelu">(<i>$1</i>)</span>') + '</span>' : kv[1])) + '</button>';
@@ -3911,18 +3914,22 @@
      katsoo vain, ovatko asetukset nyt taulun mukaiset, ja tarjoaa silloin Oletusasetukset (laitteenOletus(): samat avaimet
      laitteen ensikäytön oletuksina, lisäksi tumman alakytkimet sysi ja sysin). Lisää uusi asetus tähän tauluun ja
      laitteenOletus()-funktioon. Tumman alakytkimet eivät ole taulussa: vaaleassa teemassa ne eivät näy eivätkä vaikuta. */
-  var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, clarus: 0, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
+  var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, clarus: 0, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1, sivuLaite: 1 };
   // Vatkauksen kolme ensimmäistä vaihetta ja kuittauksen kesto (käyttäjän pyyntö: pidempi kuin aamun 1,5 s).
   var PAPYRUS_VAIHE = 700, PAPYRUS_MS = 2200;
   var papyrusKay = false;
   function papyrosoitu() { return Object.keys(SAHKOPAPERI).every(function (k) { return aset[k] === SAHKOPAPERI[k]; }); }
+  // Sysinissä nappi tarjoaa aina Oletusasetukset (käyttäjän pyyntö 20.11.2026): paluu maan kamaralle, jos Sysin on valittu
+  // vahingossa päivänvalossa. CSS tekee siitä silloin tavallista kirkkaamman.
+  function sysinPaalla() { return aset.teema === 'tumma' && !!aset.sysi && !!aset.sysin && !aset.clarus; }
+  function tarjoaOletus() { return papyrosoitu() || sysinPaalla(); }
   function laitteenOletus() {
     var tumma = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
     return { teema: tumma ? 'tumma' : 'vaalea', kontrasti: OLETUS.kontrasti, sysi: OLETUS.sysi, sysin: OLETUS.sysin, clarus: OLETUS.clarus, sivutus: sivutusOletus() ? 'sivut' : 'vieritys',
-      sivuReuna: 1, sivuPyyhka: 1, sivunapit: 1 };
+      sivuReuna: 1, sivuPyyhka: 1, sivunapit: 1, sivuLaite: 1 };
   }
   function paivitaPapyrus() {
-    if (!papyrusKay) $('#papyrosoi').textContent = papyrosoitu() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
+    if (!papyrusKay) $('#papyrosoi').textContent = tarjoaOletus() ? 'Oletusasetukset' : 'Sähköpapyrosoi asetukset';
   }
   /* Tanssi (käyttäjän pyynnöt 17.11.2026, vain napin suorakaide kehineen): pelkkä musta (mustin) ja TCF vuorotellen, ei tavallisten
      teemojen välisävyjä. Neljännessä vaiheessa jää lopputilan oikea väri: papyrosointi ja vaalea oletus musta, TCF, musta,
@@ -3930,7 +3937,7 @@
      Asetukset vaihtuvat neljännen vaiheen alussa, jolloin kuittaus on totta. */
   function papyrosoi() {
     if (papyrusKay) return;
-    var n = $('#papyrosoi'), takaisin = papyrosoitu(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
+    var n = $('#papyrosoi'), takaisin = tarjoaOletus(), uusi = takaisin ? laitteenOletus() : SAHKOPAPERI;
     var vaiheet = uusi.teema === 'tumma' ? ['tcf', 'mustin', 'tcf', 'mustin'] : ['mustin', 'tcf', 'mustin', 'tcf'];
     papyrusKay = true;
     n.style.width = n.getBoundingClientRect().width + 'px';
@@ -3949,15 +3956,12 @@
       setTimeout(askel, ++i === vaiheet.length ? PAPYRUS_MS : PAPYRUS_VAIHE);
     })();
   }
-  /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026). Hiirellä viipymä TCF-valkaisun päällä avaa sen, ja hiiren siirto pois
-     kytkimeltä sulkee heti; kytkimen napsautus toimii ja sulkee vihjeen, muu napsautus (myös vihjeen) vain sulkee.
-     Kosketuksella pois päältä olevan TCF:n napautus avaa vihjeen kysymyksenä (kysy): sen OK. kytkee TCF:n päälle ja sulkee,
-     ohi napautus vain sulkee, ja vihjeen muu napautus ei tee mitään. Päällä olevan napautus sammuttaa ilman vihjettä. */
+  /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026), vain hiirellä (hover: hover; kosketusnäytöllä liikaa häiriötä). Viipymä
+     TCF-valkaisun päällä avaa sen, ja hiiren siirto pois kytkimeltä sulkee heti; kytkimen napsautus toimii ja sulkee vihjeen,
+     muu napsautus (myös vihjeen) vain sulkee. */
   var TCF_VIIVE = 1000, tcfAjastin = null;
-  function naytaTcf(b, kysy) {
+  function naytaTcf(b) {
     var v = $('#tcf-vihje'), as = v.parentNode;
-    v.classList.toggle('kysyy', !!kysy);
-    v.setAttribute('role', kysy ? 'dialog' : 'tooltip');
     v.hidden = false;
     var A = as.getBoundingClientRect(), r = b.getBoundingClientRect();
     v.style.left = Math.round(Math.max(4, Math.min(r.left - A.left, as.clientWidth - v.offsetWidth - 4))) + 'px';
@@ -3973,26 +3977,18 @@
   $('#asetukset').addEventListener('mouseout', function (e) {
     var b = e.target.closest('button[data-kytkin="kontrasti"][data-teema="vaalea"]');
     if (!b || b.contains(e.relatedTarget)) return;
-    clearTimeout(tcfAjastin); tcfAjastin = null;
-    // Kosketuksen yhteensopivuustapahtumat eivät saa sulkea kysymystä ennen ohi napautusta (se nielaistaan).
-    if (!$('#tcf-vihje').classList.contains('kysyy')) suljeTcf();
+    suljeTcf();
   });
   document.addEventListener('click', function (e) {
-    var v = $('#tcf-vihje'), kysyy = v.classList.contains('kysyy');
+    var v = $('#tcf-vihje');
     if (v.hidden) return;
-    if (v.contains(e.target)) { if (!kysyy) suljeTcf(); return; } // kysymyksen sulkee vain OK. (alla) tai ohi napautus
-    if (!kysyy && e.target.closest('button[data-kytkin="kontrasti"][data-teema="vaalea"]')) { suljeTcf(); return; }
+    if (v.contains(e.target) || e.target.closest('button[data-kytkin="kontrasti"][data-teema="vaalea"]')) { suljeTcf(); return; }
     nielaise(e);
     suljeTcf();
   }, true);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') suljeTcf(); });
   $('#asetukset').addEventListener('click', function (e) {
     if (e.target.closest('#papyrosoi')) { papyrosoi(); return; }
-    if (e.target.closest('#tcf-ok')) {
-      var ek = Object.assign({}, aset);
-      suljeTcf(); aset.kontrasti = 1; yksiPaletti('kontrasti');
-      tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ek); return;
-    }
     var v = e.target.closest('button[data-vie]');
     if (v) { aset[v.dataset.vie] = aset[v.dataset.vie] ? 0 : 1; tallennaAset(); piirraVienti(); return; }
     var tv = e.target.closest('button[data-tuo]');
@@ -4006,10 +4002,10 @@
     var b = e.target.closest('button[data-arvo], button[data-askel], button[data-kytkin]');
     if (!b) return;
     var a = b.closest('.asetus').dataset.a, ennen = Object.assign({}, aset);
-    if (b.dataset.teema === 'vaalea' && b.dataset.kytkin && !aset.kontrasti && aset.teema === 'vaalea' && MOBIILI && MOBIILI.matches) { naytaTcf(b, true); return; }
-    // Toisen teeman alakytkin valitsee vain teeman (käyttäjän sääntö 20.11.2026: ensin teeman piiriin, sitten sen alavalintoihin).
-    if (b.dataset.teema && b.classList.contains('pois')) aset.teema = b.dataset.teema;
-    else if (b.dataset.kytkin && b.classList.contains('pois')) aset.sivutus = 'sivut';
+    if (b.classList.contains('piilossa')) return;
+    if (b.dataset.kytkin && b.classList.contains('pois')) aset.sivutus = 'sivut';
+    // CLARVSin alla TCF ja Sysi näkyvät pois päältä, vaikka muistissa olisi päällä: napautus kytkee ne päälle.
+    else if ((b.dataset.kytkin === 'kontrasti' || b.dataset.kytkin === 'sysi') && aset.clarus) { aset[b.dataset.kytkin] = 1; aset.clarus = 0; }
     else if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
       aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
@@ -4031,13 +4027,12 @@
     tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ennen);
   });
 
-  /* Paletit (käyttäjän sääntö 20.11.2026): kummankin teeman alakytkimet muistavat arvonsa, ja teemaan palatessa sen viimeisin
+  /* Paletit (käyttäjän säännöt 20.11.2026): kummankin teeman alakytkimet muistavat arvonsa, ja teemaan palatessa sen viimeisin
      alavalinta palaa (vaalea: TCF; tumma: Sysi ja sen alakytkin Sysin). CLARVS on molempien yhteinen ja pysyy teemaa
-     vaihdettaessa; se sulkee TCF:n ja Sysin pois kummastakin teemasta, ja TCF tai Sysi sulkee sen. Sysinin arvo säilyy
-     Sysin alla, kuten Sivunkäännön lisäkytkimet rullatessa. */
+     vaihdettaessa. Se peittää TCF:n ja Sysin muistia pyyhkimättä: CLARVSin sammutus palauttaa edellisen (esim. Sysinin).
+     TCF tai Sysi sammuttaa CLARVSin. */
   function yksiPaletti(k) {
-    if (k === 'clarus') { aset.kontrasti = 0; aset.sysi = 0; }
-    else if (k === 'kontrasti' || k === 'sysi') aset.clarus = 0;
+    if (k === 'kontrasti' || k === 'sysi') aset.clarus = 0;
   }
   // eiKokoa: raskaan tekstin odottava koko (sovellaTaiLykkaa()) ei saa asettaa --kokoa, koska selain asettelisi tekstin sen mukaan.
   function sovellaTeema(eiKokoa) {
@@ -4903,6 +4898,7 @@
   document.addEventListener('keyup', function (e) {
     if (!osioSuunta(e)) return;
     osioPeru();
+    if (!aset.sivuLaite) { osioNappi = null; return; }
     var n = osioNappi;
     if (!n || n.k !== e.key) return;
     n.ylos = true;
@@ -4929,6 +4925,12 @@
     // Paneelin omat säätimet: valinta ja painikkeet käyttävät nuolia ja välilyöntiä itse.
     if (e.target.closest && e.target.closest('select')) return;
     if (k === ' ' && e.target.closest && e.target.closest('button, summary, a')) return;
+    // Laitteen painikkeet pois (käyttäjän pyyntö 20.11.2026): näppäimet eivät käännä sivua. Äänenvoimakkuus jää laitteelle,
+    // muiden sivunkääntönäppäinten oletus estetään, ettei sivutettu näkymä vieri.
+    if (!aset.sivuLaite) {
+      if ((osioSuunta(e) || k === 'Home' || k === 'End') && !/^AudioVolume/.test(k)) e.preventDefault();
+      return;
+    }
     // Laitteen sivunkääntönäppäin: kääntää sivun noustessaan (keyup), pidettynä hyppää osioon eikä käännä sivuja toistolla.
     var od = osioSuunta(e);
     if (od) {
