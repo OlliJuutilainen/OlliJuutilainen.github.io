@@ -1316,7 +1316,8 @@
      laidassa, tummassa Tumman kohdalla, CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
      Sysin aset.sysin; data-teema); toisen teeman kytkimet ja CLARVSin alla kaikki alakytkimet ovat piilossa (.piilossa),
      ja oman teeman valitsematon kytkin (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
-     pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, hyvin leveä harvennus. */
+     pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, harvennus
+     sijoitaClarus()ssa (vaaleassa viimeinen kirjain päättyy Tumma-sanan oikeaan reunaan). */
   .teema-ruudukko { display: grid; grid-template-columns: max-content max-content max-content 1fr; column-gap: 16px; align-items: center; justify-content: start; }
   /* Paikat kiinteästi; Tumma ulottuu Sysin ja Sysinin sarakkeiden yli, jotta Sysin on tavallisen välin päässä Sysistä. */
   .teema-ruudukko button[data-arvo="vaalea"] { grid-area: 1 / 1; }
@@ -3887,21 +3888,29 @@
   }
   // Sivunvaihtopainikkeiden kytkin Sivut-vaihtoehdon alle, 16 px sisennettynä kuten Sukkela alleviivaus
   // Alleviivausten alla. Mitataan vasta näkyvästä paneelista (kirjasin vaihtelee).
-  // Tummassa CLARVS on Tumman kohdalla (käyttäjän pyyntö 20.11.2026). Jos se ei mahdu ruudukkoon, harvennus tiivistyy
-  // (käyttäjän lupa), kuitenkin vähintään nollaan.
+  // Tummassa CLARVS on Tumman kohdalla (käyttäjän pyyntö 20.11.2026). Harvennus (käyttäjän pyyntö 20.11.2026) on kummassakin
+  // teemassa sama: sellainen, että vaaleassa (CLARVS Vaalean kohdalla) viimeisen kirjaimen oikea reuna on tasan Tumma-sanan
+  // oikeassa reunassa. Harvennus tulee jokaisen kirjaimen perään, myös viimeisen, mutta ei yhdistyvän makronin. Jos CLARVS
+  // ei tummassa mahdu ruudukkoon, harvennus tiivistyy (käyttäjän lupa), kuitenkin vähintään nollaan.
   function sijoitaClarus() {
     var b = $('#teema-nipukka button[data-kytkin="clarus"]');
     if (!b) return;
     b.classList.toggle('tummassa', aset.teema === 'tumma');
     var t = $('.clarus', b);
     t.style.letterSpacing = '';
-    if (!b.offsetParent || aset.teema !== 'tumma') return;
-    var rg = document.createRange(); rg.selectNodeContents(t);
-    var oik = Math.max.apply(null, [].map.call(rg.getClientRects(), function (r) { return r.right; }));
-    var yli = oik - b.closest('.teema-ruudukko').getBoundingClientRect().right;
-    if (yli <= 0) return;
-    var ls = parseFloat(getComputedStyle(t).letterSpacing) || 0, n = t.textContent.replace(/\p{M}/gu, '').length;
-    t.style.letterSpacing = Math.max(0, ls - Math.ceil(yli * 100 / n) / 100) + 'px';
+    if (!b.offsetParent) return;
+    var R = b.closest('.teema-ruudukko'), ru = R.getBoundingClientRect(), n = t.textContent.replace(/\p{M}/gu, '').length;
+    var rg = document.createRange(); rg.selectNodeContents($('button[data-arvo="tumma"]', R));
+    var tummaOik = Math.max.apply(null, [].map.call(rg.getClientRects(), function (r) { return r.right; }));
+    t.style.letterSpacing = '0px';
+    var tr = t.getBoundingClientRect(), alku = tr.left - b.getBoundingClientRect().left;
+    // Vaaleassa CLARVS-nappi alkaa ruudukon vasemmasta reunasta.
+    var ls = Math.max(0, (tummaOik - ru.left - alku - tr.width) / (n - 1));
+    if (aset.teema === 'tumma') {
+      var yli = tr.right + n * ls - ru.right;
+      if (yli > 0) ls = Math.max(0, ls - Math.ceil(yli * 100 / n) / 100);
+    }
+    t.style.letterSpacing = ls.toFixed(2) + 'px';
   }
   function sijoitaNipukka() {
     sijoitaClarus();

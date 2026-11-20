@@ -262,6 +262,14 @@ async function aja(selain, U, kosketus) {
   ru = await ruutu();
   tulos(`${laji}: paikat eivät hypi teemaa vaihtaessa`, paikat(ru) === p0, paikat(ru) + ' / ' + p0);
   tulos(`${laji}: vaaleassa CLARVS Vaalean kohdalla`, Math.abs(ru.o.V.x - ru.o.CD.x) < .5, JSON.stringify([ru.o.V, ru.o.CD]));
+  // Harvennus (käyttäjän pyyntö 20.11.2026): vaaleassa viimeisen kirjaimen oikea reuna Tumma-sanan oikeassa reunassa,
+  // tummassa sama harvennus (ellei ahtaus tiivistä).
+  const harv = () => page.evaluate(() => { const B = s => document.querySelector(s), t = B('.teema-ruudukko .clarus'), ls = parseFloat(getComputedStyle(t).letterSpacing);
+    const tn = [...t.childNodes].filter(n => n.nodeType === 3).pop(), r = document.createRange(); r.setStart(tn, tn.data.length - 1); r.setEnd(tn, tn.data.length);
+    const k = document.createRange(); k.selectNodeContents(B('button[data-arvo="tumma"]'));
+    return { ls, ero: Math.abs(r.getBoundingClientRect().right - ls - Math.max(...[...k.getClientRects()].map(x => x.right))) }; });
+  const hv = await harv();
+  tulos(`${laji}: vaaleassa CLARVS päättyy Tumma-sanan oikeaan reunaan`, hv.ero < .5 && hv.ls > 0, JSON.stringify(hv));
   pc = await paletti();
   tulos(`${laji}: CLARVS vaaleassa: valkoinen, musta, harmaa, ruoste`, pc.c === 1 && pc.arvot === '#000000 #595959 #803510 #ffffff', pc.arvot);
   ru = await ruutu();
