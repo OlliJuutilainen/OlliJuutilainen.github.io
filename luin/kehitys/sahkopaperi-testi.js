@@ -140,7 +140,7 @@ async function aja(selain, U, kosketus) {
     return tulos;
   }, MUUTTUJAT);
   tulos(`${laji}: vaaleassa muuttuu vain paperi ja muste`, vertaa.vaalea === '--paperi=#ffffff --muste=#000000', vertaa.vaalea);
-  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#b9a175 --harmaa=#8c785a --viiva=#423627 --ruoste=#9b7145 --okra=#bc913a --huomio=#827054 --sitaatti=#a08a65 --hius=#271f16 --valo=#362c1f', vertaa.tumma);
+  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#d9caaf --harmaa=#a28c6c --ruoste=#a46f42 --okra=#c39430 --huomio=#998361 --sitaatti=#b39e81', vertaa.tumma);
   tulos(`${laji}: ei muita kontrastisääntöjä`, vertaa.saannot === ':root.kontrasti:not([data-teema="tumma"]) | :root.kontrasti[data-teema="tumma"]', vertaa.saannot);
 
   // 4. TCF-vihje.
@@ -198,7 +198,7 @@ async function aja(selain, U, kosketus) {
   const tav = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
   tulos(`${laji}: tavallinen vaalea`, tav === 'rgb(250, 245, 234) rgb(35, 28, 20)', tav);
 
-  // 6. Sysi lukimessa: musta tausta, himmeä hunajainen teksti.
+  // 6. Sysi lukimessa: musta tausta, hienovaraisesti himmennetty lämmin teksti.
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
   await napauta('button[data-kytkin="kontrasti"]');
   await napauta('#asetukset .sulje');
@@ -206,7 +206,7 @@ async function aja(selain, U, kosketus) {
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
   await page.evaluate(() => { const o = document.getElementById('palkkiopas'); if (o) o.hidden = true; });
   const tp = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
-  tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(185, 161, 117)', tp);
+  tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(217, 202, 175)', tp);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();

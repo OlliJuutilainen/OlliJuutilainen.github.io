@@ -85,15 +85,13 @@
   /* TCF-valkaisu (käyttäjän pyyntö 17.11.2026, aset.kontrasti): vain tausta on ääripää #fff ja muste täysmusta. Muut sävyt
      ovat teeman omat: sähköpaperin hidas tila toistaa harmaat, sotkuinen on vain ei-ihan-valkoinen tausta. */
   :root.kontrasti:not([data-teema="tumma"]) { --paperi: #ffffff; --muste: #000000; }
-  /* Sysi (käyttäjän pyyntö 20.11.2026, sama aset.kontrasti tummassa; korvasi Mustimman, jossa vain tausta oli #000): sysimusta
-     tausta ja koko paletti himmeämpi ja lämpimämpi, öljylampun hunajaa. Ei pelkkä yötila: toimii siedettävästi myös muualla
-     kuin säkkipimeässä (käyttäjä). Ensimmäinen versio (muste OKLCH L 0.585, kontrasti 5,0) oli käyttäjälle "liian sysi",
-     joten älä himmennä tästä. Muste OKLCH(0.72 0.066 82) eli sama sävykulma kuin tumman musteen, kontrasti mustaa vasten 8,4
-     (Mustin 15,9), valoa noin puolet. Ei oranssiin eikä punaiseen (käyttäjä): ruoste on ruskeampi (h 66) kuin tummassa.
-     Sävykulma yli 84 kääntyy himmeänä oliiviksi. Kontrastit: sitaatti 6,3, harmaa 5,0, huomio 4,4, ruoste 4,8, okra 7,3. */
+  /* Sysi (käyttäjän pyyntö 20.11.2026, sama aset.kontrasti tummassa; korvasi Mustimman, jossa vain tausta oli #000): tausta
+     sysimusta ja tumman teeman värit hienovaraisesti kallistettuina, aavistuksen himmeämpiä ja lämpimämpiä. Ei yötila eikä
+     meripihkaa (käyttäjä): kontrastit 5,0 ja 8,4 olivat liikaa, joten älä himmennä tai kellasta tästä. Muste OKLCH(0.844 0.040 82)
+     eli tumman muste (0.908 0.031 82) 7 % himmeämpänä: kontrasti 13,0 (Mustin 15,9), valoa noin 80 %. Sivuvärit samoin 7 %
+     himmeämpiä ja hiukan kylläisempiä, ruoste 4° ruskeampi (ei oranssiin). Viivat ja taustasävyt ovat tumman teeman. */
   :root.kontrasti[data-teema="tumma"] {
-    --paperi: #000000; --muste: #b9a175; --harmaa: #8c785a; --viiva: #423627;
-    --ruoste: #9b7145; --okra: #bc913a; --huomio: #827054; --sitaatti: #a08a65; --hius: #271f16; --valo: #362c1f;
+    --paperi: #000000; --muste: #d9caaf; --harmaa: #a28c6c; --ruoste: #a46f42; --okra: #c39430; --huomio: #998361; --sitaatti: #b39e81;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
