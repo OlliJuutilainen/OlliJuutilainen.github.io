@@ -177,6 +177,18 @@ async function aja(selain, U, kosketus) {
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="tumma"]');
     await page.hover('button[data-kytkin="sysi"]'); await page.waitForTimeout(1300);
     tulos(`${laji}: Sysi ei avaa vihjettä`, (await vihje()) === '');
+    // CLARVS-vihje (käyttäjän pyyntö 20.11.2026): sama viive ja sulku, tummassakin, CLARVSin alla sen vasemmasta reunasta.
+    const cdVihje = () => page.evaluate(() => { const v = document.getElementById('cd-vihje'); return v.hidden ? '' : v.querySelector('p').textContent; });
+    await page.mouse.move(5, 5);
+    await page.hover('button[data-kytkin="clarus"]'); await page.waitForTimeout(600);
+    tulos(`${laji}: CLARVS-vihje ei vielä 0,6 s:ssa`, (await cdVihje()) === '');
+    await page.waitForTimeout(600);
+    const cv = await page.evaluate(() => { const v = document.getElementById('cd-vihje').getBoundingClientRect(), b = document.querySelector('button[data-kytkin="clarus"]').getBoundingClientRect();
+      return { alla: v.top >= b.bottom, vasen: Math.round(v.left - b.left) }; });
+    tulos(`${laji}: CLARVS-vihje viipymästä CLARVSin alla`, (await cdVihje()) === 'kirkkaasti erottuva' && cv.alla && cv.vasen === 0, (await cdVihje()) + ' ' + JSON.stringify(cv));
+    if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sahkopaperi-cd-vihje-levea.png') });
+    await page.mouse.move(5, 5);
+    tulos(`${laji}: CLARVS-vihje sulkeutuu hiiren lähtiessä`, (await cdVihje()) === '' && (await vihje()) === '');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
   } else {
     await napauta(TCF);

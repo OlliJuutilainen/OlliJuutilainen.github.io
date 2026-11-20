@@ -280,7 +280,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä hyvin leveästi harvennettu CLARVS,
   vaaleassa vasemmassa laidassa ja tummassa Tumman kohdalla (käyttäjän pyyntö 20.11.2026; ahtaalla harvennus tiivistyy, `sijoitaClarus()`). Alakytkimet Sivunkäännön lisäkytkimiä pienempinä (asiantuntijan valintoja). Himmeys:
   valitsematon CLARVS (.6) > oman teeman valitsematon alakytkin (`.ala`, .42). Nimi Descartesin nimiösivun tapaan (V eikä U), interpunkti väleineen
-  (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit).
+  (ilman välejä ahdas; käyttäjän järjestys: väleittä, väleineen, pelkät välit). Hiirellä viipymästä vihje *kirkkaasti erottuva*
+  (käyttäjän sanat 20.11.2026, `#cd-vihje`), muuten kuten TCF-vihje (`VIHJEET`).
 - **Viitenumerot näkyvät aina**; niitä ei saa asetuksista pois.
 - **Sivunkäännön tavat** (opas 4): *Reunanapautus*, *Pyyhkäisy*, *Nuolinapit* (`sivunapit`, ennen *Painikkeet*) ja pahnan pohjimmaisena
   *Laitteen painikkeet* (`sivuLaite`, käyttäjän pyyntö 20.11.2026; näppäimistö, sivunkääntönäppäimet, äänenvoimakkuus; pois ollessaan
