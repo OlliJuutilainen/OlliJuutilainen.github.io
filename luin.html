@@ -1665,7 +1665,8 @@
   <div class="asetus"><span class="nimi kehote">Valikossa:</span>
     <div class="valinnat pino" data-k="sanakirja:Sanaselitys|kaannos:Lausekäännös"></div></div>
   <h3>Aikajana</h3>
-  <div class="asetus" data-a="janaTaso"><span class="nimi kehote">Näytä:</span>
+  <!-- Tasot ovat toisistaan riippumattomia kytkimiä (käyttäjän päätös 20.11.2026); avoimesta tekstistä puuttuvat himmeinä. -->
+  <div class="asetus" data-a="janaTasot"><span class="nimi kehote">Näytä:</span>
     <div class="valinnat" data-v="1:Luvut|2:Osiot|3:Kohdat"></div>
     <div class="valinnat pino" data-k="kmJanalla:Kirjanmerkit"></div></div>
   <!-- Koskee avointa tekstiä, joten lukulistassa piilossa. Vienti ja tuonti ovat erillisiä
@@ -1859,10 +1860,10 @@
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei, myöskään kirjallisuusluettelon DOI-linkit).
   var OLETUS = { teema: 'vaalea', kontrasti: 0, sysi: 0, sysin: 0, clarus: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
-    sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sivuLaite: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
+    sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sivuLaite: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTasot: [1, 2, 3], kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
-    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 10 };
+    postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 11 };
   // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): cellarin campihyllystön järjestys (JARJ) ja pinon tekstit mukana.
   // postiMerk (käyttäjän pyyntö 9.11.2026): Huiluta myös merkintöjä (ent. Lähetä myös merkinnät) postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
   // postiEd: lähetettävät lajit, oletuksena kaikki. Tekstikohtainen valinta ohittaa nämä (luin-posti:<id>).
@@ -1939,11 +1940,20 @@
   if (!aset.kokoKasin) aset.koko = oletusKoko();
   /* Aikajanan oletus (käyttäjän päätös 19.11.2026): kosketusnäytöllä Osiot, hiirellä Kohdat. av 9: mobiilissa tallennettu
      Kohdat oli av 7:n asettama oletus eikä valinta, joten se vaihdetaan kerran Osioiksi. */
-  if (!tallennetut && MOBIILI && MOBIILI.matches) aset.janaTaso = 2;
   if (tallennetut && !(tallennetut.av >= 9)) { if (MOBIILI && MOBIILI.matches && aset.janaTaso === 3) aset.janaTaso = 2; aset.av = 9; }
   /* av 10 (20.11.2026): teemat muistavat alakytkimensä erikseen (käyttäjän pyyntö). Ennen aset.kontrasti oli yhteinen TCF:lle
      ja Sysille, ja Sysin sulki Sysin pois; nyt Sysi on aset.sysi ja Sysin sen alakytkin. Näkyvä tila säilyy kummassakin teemassa. */
   if (tallennetut && !(tallennetut.av >= 10)) { aset.sysi = aset.kontrasti || aset.sysin ? 1 : 0; aset.av = 10; }
+  /* av 11 (20.11.2026): aikajanan tasot (janaTasot: luku 1, osio 2, kohta 3) ovat toisistaan riippumattomia kytkimiä (käyttäjän
+     päätös: Valtion kirjassa osiot ja kohdat kytkeytyivät yhdessä). Ennen janaTaso oli tasojen määrä tekstin ylimmästä tasosta;
+     sen arvo siirretään kerran tasoiksi 1..janaTaso. Oletus: kosketusnäytöllä luvut ja osiot, hiirellä kaikki. */
+  if (!tallennetut && MOBIILI && MOBIILI.matches) aset.janaTasot = [1, 2];
+  if (tallennetut && !(tallennetut.av >= 11)) {
+    if (typeof aset.janaTaso === 'number') aset.janaTasot = [1, 2, 3].filter(function (l) { return l <= aset.janaTaso; });
+    aset.av = 11;
+  }
+  delete aset.janaTaso;
+  if (!Array.isArray(aset.janaTasot)) aset.janaTasot = OLETUS.janaTasot.slice();
   /* Turvakaistan varasääntö (käyttäjän pyyntö 8.11.2026: jos selain ei tunnista kameran aluetta, musta kaista silti).
      Selaimen ilmoittama loven korkeus (env(safe-area-inset-top), #turva-env) on ensisijainen. Jos se on 0, mutta
      kosketusnäytöllä pystyasennossa sivu peittää näytön koko korkeuden (kokoruutu ilman selaimen omaa mustaa reunusta) ja
@@ -3833,10 +3843,10 @@
       var a = v.closest('.asetus').dataset.a;
       v.innerHTML = v.dataset.v.split('|').map(function (o) {
         var kv = o.split(':'), arvo = isNaN(+kv[0]) ? kv[0] : +kv[0];
-        // Aikajanan tasot ovat kumulatiivisia: Osiot sytyttää myös Luvut, Kohdat molemmat. Avoimessa tekstissä puuttuvat
-        // tasot ovat himmeitä eivätkä napautettavissa, ja valinta lasketaan tekstin ylimmästä tasosta (janaTasotNyt()).
-        var jt = a === 'janaTaso' && janaTasotNyt(), puuttuu = jt && jt.on && !jt.on[arvo];
-        var lit = jt ? (jt.on ? !puuttuu && arvo <= jt.raja : arvo <= aset[a]) : aset[a] === arvo;
+        // Aikajanan tasot ovat kukin oma kytkimensä. Avoimesta tekstistä puuttuvat tasot ovat himmeitä eivätkä
+        // napautettavissa (janaTasotNyt()); niiden valinta säilyy muita tekstejä varten.
+        var jt = a === 'janaTasot' && janaTasotNyt(), puuttuu = !!jt && !jt[arvo];
+        var lit = a === 'janaTasot' ? !puuttuu && aset.janaTasot.indexOf(arvo) >= 0 : aset[a] === arvo;
         return '<button type="button" data-arvo="' + kv[0] + '" aria-pressed="' + lit + '"' +
           (puuttuu ? ' disabled title="Tekstissä ei ole tätä tasoa"' : '') + '>' + SAL_IKONI + kv[1] + '</button>';
       }).join('');
@@ -4009,16 +4019,10 @@
       if (aset[b.dataset.kytkin]) yksiPaletti(b.dataset.kytkin);
     }
     else if (b.dataset.askel) { aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32); aset.kokoKasin = 1; }
-    // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Luvut sammuttaa
-    // kaikki etapit); muu napautus asettaa tason (käyttäjän päätös 21.10.2026). Avoimessa tekstissä taso lasketaan
-    // tekstin ylimmästä tasosta, ja sammutettava on alin näkyvä taso (janaTasotNyt()).
-    else if (a === 'janaTaso') {
-      var jt = janaTasotNyt(), k = +b.dataset.arvo;
-      if (!jt.on) aset.janaTaso = aset.janaTaso === k ? k - 1 : k;
-      else {
-        var alin = [1, 2, 3].filter(function (x) { return jt.on[x] && x <= jt.raja; }).pop();
-        aset.janaTaso = k - jt.siirto - (k === alin ? 1 : 0);
-      }
+    // Aikajanan taso: napautus kytkee vain sen tason päälle tai pois (käyttäjän päätös 20.11.2026).
+    else if (a === 'janaTasot') {
+      var k = +b.dataset.arvo;
+      aset.janaTasot = aset.janaTasot.indexOf(k) >= 0 ? aset.janaTasot.filter(function (x) { return x !== k; }) : aset.janaTasot.concat(k).sort();
     }
     else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
     tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ennen);
@@ -4221,19 +4225,17 @@
 
   // Tasot luetaan tekstin ylimmästä olemassa olevasta tasosta (käyttäjän sääntö 6.11.2026 pelkkien pykälien tekstistä,
   // yleistetty 7.11.2026): jos tekstissä ei ole lukuja vaan ylin taso on osio (md.js: yli 10 lukua kahdessa tasossa ladotaan
-  // osioiksi), sisällysluetteloiden ja aikajanan raja siirtyy tasolla alemmas. Aikajanan Luvut näyttää silloin osiot,
-  // Osiot osiot ja kohdat. Välistä puuttuva taso ei siirrä mitään.
+  // osioiksi), sisällysluetteloiden raja siirtyy tasolla alemmas. Välistä puuttuva taso ei siirrä mitään. Aikajana ei siirrä:
+  // sen tasot ovat erilliset kytkimet (aset.janaTasot, 20.11.2026).
   function tasoSiirto(toc) { return toc.length ? Math.min.apply(null, toc.map(function (t) { return t.lvl; })) - 1 : 0; }
   function tocRaja(raja, toc) { return raja < 1 ? raja : raja + tasoSiirto(toc); }
-  // Asetusten aikajanarivi avoimessa tekstissä: tasot, jotka tekstissä on (on), näkyvien raja ja siirto. Ilman tekstiä on = null.
+  // Asetusten aikajanarivi avoimessa tekstissä: tasot, jotka tekstissä on ({ 1: 1, … }). Ilman tekstiä null (kaikki valittavissa).
   function janaTasotNyt() {
-    var toc = nyt && tila.nakyma !== 'lista' ? nyt.doc.toc : [], on = null;
-    if (toc.length) { on = {}; toc.forEach(function (t) { on[Math.min(t.lvl, 3)] = 1; }); }
-    if (on && nyt && nyt.kohdat && nyt.kohdat.length) {
-      on[3] = 1;
-      if (nyt.kohdat.some(function (y) { return y.lvl === 2; })) on[2] = 1;
-    }
-    return { on: on, raja: tocRaja(aset.janaTaso, toc), siirto: tasoSiirto(toc) };
+    if (!nyt || tila.nakyma === 'lista') return null;
+    var on = {};
+    nyt.doc.toc.forEach(function (t) { if (t.lvl <= 3) on[t.lvl] = 1; });
+    (nyt.kohdat || []).forEach(function (y) { on[y.lvl] = 1; });
+    return on;
   }
   /* Lomitettu käännös: alkutekstin kappale on ylimmän tason p, jota seuraa (muiden alkutekstin kappaleiden jälkeen) käännös
      ennen seuraavaa otsikkoa. Sen teksti kääritään span.alku-teksti-kääreisiin; kohtanumero (sup ilman linkkiä) jää kääreen
@@ -7476,9 +7478,9 @@
   function janaKohteet() {
     var a = [];
     if (nyt.majakka) { var o = osioKohdassa(nyt.majakka.k); a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + (o ? o.text : nyt.e.title), majakka: true }); }
-    var jr = tocRaja(aset.janaTaso, nyt.doc.toc);
-    nyt.doc.toc.forEach(function (t) { if (t.lvl <= jr) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
-    (nyt.kohdat || []).forEach(function (y) { if (jr >= y.lvl) a.push({ k: y.k, nimi: ykNimi(y), lvl: y.lvl }); });
+    var jt = aset.janaTasot;
+    nyt.doc.toc.forEach(function (t) { if (jt.indexOf(t.lvl) >= 0) a.push({ k: { b: t.b, o: 0 }, nimi: t.text, lvl: t.lvl }); });
+    (nyt.kohdat || []).forEach(function (y) { if (jt.indexOf(y.lvl) >= 0) a.push({ k: y.k, nimi: ykNimi(y), lvl: y.lvl }); });
     if (aset.kmJanalla) nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”', km: true }); });
     return a;
   }
@@ -8739,7 +8741,7 @@
   TX.valmis.then(reitti);
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaKohteet: function () { return janaKohteet(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
