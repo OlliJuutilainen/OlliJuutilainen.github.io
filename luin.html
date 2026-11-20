@@ -86,12 +86,13 @@
      ovat teeman omat: sähköpaperin hidas tila toistaa harmaat, sotkuinen on vain ei-ihan-valkoinen tausta. */
   :root.kontrasti:not([data-teema="tumma"]) { --paperi: #ffffff; --muste: #000000; }
   /* Sysi (käyttäjän pyyntö 20.11.2026, sama aset.kontrasti tummassa; korvasi Mustimman, jossa vain tausta oli #000): tausta
-     sysimusta ja tumman teeman värit hienovaraisesti kallistettuina, aavistuksen himmeämpiä ja lämpimämpiä. Ei yötila eikä
-     meripihkaa (käyttäjä): kontrastit 5,0 ja 8,4 olivat liikaa, joten älä himmennä tai kellasta tästä. Muste OKLCH(0.844 0.040 82)
-     eli tumman muste (0.908 0.031 82) 7 % himmeämpänä: kontrasti 13,0 (Mustin 15,9), valoa noin 80 %. Sivuvärit samoin 7 %
-     himmeämpiä ja hiukan kylläisempiä, ruoste 4° ruskeampi (ei oranssiin). Viivat ja taustasävyt ovat tumman teeman. */
+     sysimusta ja paletti himmeämpi ja lämpimämpi. Ei yötila eikä meripihkaa. Käyttäjän kokeilut: kontrasti 5,0 ja 8,4 liian
+     sysi, 13,0 liian lähellä Mustinta; nyt keskitie 10,5 (Mustin 15,9). Muste OKLCH(0.781 0.053 82), sivuvärit 8,4:n ja 13:n
+     version puolivälissä, ruoste h 65 (ei oranssiin). Viivat ja taustasävyt (viiva 1,6, hius 1,2, valo 1,45 mustaa vasten)
+     ovat himmeämmät kuin tummassa, koska tausta on musta eikä tummanruskea (käyttäjä). */
   :root.kontrasti[data-teema="tumma"] {
-    --paperi: #000000; --muste: #d9caaf; --harmaa: #a28c6c; --ruoste: #a46f42; --okra: #c39430; --huomio: #998361; --sitaatti: #b39e81;
+    --paperi: #000000; --muste: #c9b592; --harmaa: #978263; --viiva: #392e22;
+    --ruoste: #9d7145; --okra: #bf9335; --huomio: #8d795a; --sitaatti: #aa9473; --hius: #211a13; --valo: #31281e;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
