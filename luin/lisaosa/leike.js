@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE (20.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot ja Snellmanin kootut teokset (20.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -2635,6 +2635,200 @@
       kustantaja: kust && !/gutenberg/i.test(kust) ? rivi(kust) : '', julkaistu: vuosi || '',
       sivusto: PGDE_NIMI, lahde: valitut.length > 1 ? location.origin + polku[1] + '/' : osoite, maar,
       naytto: PGDE_NIMI + (sivuja > 1 ? ' (' + sivuja + ' lukua)' : '') };
+  }
+
+  /* SLS:n digitaaliset editiot (topelius.sls.fi, westermarck.sls.fi, vonwright.sls.fi; käyttäjän pyyntö 20.11.2026,
+     sivustoehdokkaat-3 kärki 6). Yhteinen Angular-alusta, jonka palvelin renderöi: lukuteksti <reading-text>-komponentissa
+     (.teiContainer) ja toimittajan kommentit samalla sivulla <comments>-komponentissa (p.teiComment.note.en<ID>: notePosition,
+     noteLemma, noteText). Kommentin paikka tekstissä on kuvake img.comment[data-id=end<ID>]: kommentit alaviitteiksi muodossa
+     *lemma* – selitys. Tekijän alaviitteet: span.footnoteindicator[data-id=ftnN] → loppuluettelon li[data-id] .footnoteText.
+     Työkaluvihjeet (span.tooltip: henkilöt, paikat, kielet, korjaukset ”original: …”), lemman alkumerkit, sivunvaihdot (pb_orig,
+     pb_edition) ja tyhjät ankkurit pois; korjattu teksti (corr) jää. Kappalenumero (span.paragraph_number, editiossa viittaamisen
+     yksikkö *stycke*, johon kommentit viittaavat) yläindeksiksi kuten OpenEditionissa. Westermarckin uudempi renderöinti: span.pNumber,
+     sivunvaihto [role=doc-pagebreak] (||), harvennus span.expanded, ajoitusrivi div.milestone ja motto p.epigraph. Säkeet (p.l) yhdeksi kappaleeksi rivinvaihdoin,
+     motto (h5.motto) lainaukseksi. Johdanto ja esipuhe (/introduction, /foreword: article .teiContainer) leikataan sellaisinaan.
+     Kokoaminen: sivun staattisesta sisällyksestä (.static-collection-toc) kokoelman tekstisivut (/text/<id>, ilman ?position-
+     linkkejä); kirjana vain, jos sisällyksessä on nimiösivu (/title) ja tekstisivuja on enintään 30 (Topeliuksen romaani kolmessa
+     osassa, Westermarckin Sex år i Marocko 12 lukua). Artikkelikokoelma (ei nimiötä) ja kirjeenvaihto (von Wright: 86 kirjettä)
+     leikataan teksti kerrallaan. Palvelin ei aina renderöi muiden osien lukutekstiä (Topelius 20.11.2026: osat 2 ja 3 virheilmoituksena;
+     selain hakee tekstin rajapinnasta, jota sovite ei käytä): silloin vain avattu teksti. Johdannon taulukot ruudukoiksi (ojsTaulukko),
+     otsikko kappaleeksi. Johdantoa ei liitetä kirjaan (Topeliuksessa 40 000 sanaa). Etukenttään tekijä sivuston mukaan,
+     teos (kokoelman nimi), sivusto (editio) ja kustantaja SLS. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 20.11.2026. */
+  const SLS_TEKIJAT = { topelius: 'Zacharias Topelius', westermarck: 'Edvard Westermarck', vonwright: 'Georg Henrik von Wright' };
+  const SLS_EDITIOT = { topelius: 'Zacharias Topelius Skrifter', westermarck: 'Edvard Westermarck', vonwright: 'Den okände von Wright' };
+  function slsRunko(d, maar, laskuri) {
+    const juuri = d && (d.querySelector('reading-text .teiContainer') ||
+      [...d.querySelectorAll('article .teiContainer, .teiContainer')].find(x => !x.matches('.toolTip, .infoOverlay') && !x.closest('comments')));
+    if (!juuri) return null;
+    const el = juuri.cloneNode(true);
+    // Tekijän alaviitteet loppuluettelosta.
+    const ftn = new Map();
+    el.querySelectorAll('li.footnoteItem[data-id]').forEach(li => ftn.set(li.getAttribute('data-id'), li.querySelector('.footnoteText')));
+    el.querySelectorAll('section[role="doc-endnotes"], ol.footnotesList').forEach(x => x.remove());
+    // Toimittajan kommentit samalta sivulta.
+    const kom = new Map();
+    const kd = d.querySelector('comments .teiContainer');
+    if (kd) kd.querySelectorAll('p.teiComment.note').forEach(p => {
+      const id = (/\ben(\d+)\b/.exec(p.className) || [])[1];
+      if (id) kom.set(id, { lemma: rivi((p.querySelector('.noteLemma') || {}).textContent), teksti: p.querySelector('.noteText') });
+    });
+    el.querySelectorAll('span.tooltip, .anchor_lemma, span.pb_orig, span.pb_edition, [role="doc-pagebreak"], a.anchor, img[alt="tomt"]').forEach(x => x.remove());
+    const viite = (x, html) => {
+      const k = jasenna('<div>' + html + '</div>').body.firstChild;
+      k.querySelectorAll('span.tooltip').forEach(t => t.remove());
+      const t = muunna(k.innerHTML, 'inlined').trim();
+      if (!t) { x.remove(); return; }
+      const tunnus = 'sls' + (++laskuri.n);
+      x.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    };
+    el.querySelectorAll('span.footnoteindicator[data-id]').forEach(s => {
+      const f = ftn.get(s.getAttribute('data-id'));
+      if (f) viite(s, f.innerHTML); else s.remove();
+    });
+    el.querySelectorAll('img.comment[data-id]').forEach(img => {
+      const k = kom.get((/^end(\d+)$/.exec(img.getAttribute('data-id')) || [])[1]);
+      if (k && k.teksti) viite(img, (k.lemma ? '<em>' + k.lemma.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;') + '</em> – ' : '') + k.teksti.innerHTML.trim());
+      else img.remove();
+    });
+    el.querySelectorAll('img').forEach(x => x.remove());
+    el.querySelectorAll('span.paragraph_number, span.pNumber').forEach(s => {
+      const n = rivi(s.textContent);
+      if (!n) { s.remove(); return; }
+      const sup = document.createElement('sup'); sup.textContent = n; s.replaceWith(sup, ' ');
+    });
+    // Uudempi renderöinti (Westermarck): ajoitusrivi div.milestone kappaleeksi, motto p.quote.epigraph lainaukseksi.
+    el.querySelectorAll('div.milestone').forEach(x => { if (!rivi(x.textContent)) { x.remove(); return; } const p = document.createElement('p'); while (x.firstChild) p.appendChild(x.firstChild); x.replaceWith(p); });
+    el.querySelectorAll('p.epigraph').forEach(x => { const q = document.createElement('blockquote'); x.replaceWith(q); q.appendChild(x); });
+    el.querySelectorAll('span.italics, span.expanded').forEach(s => { const em = document.createElement('em'); while (s.firstChild) em.appendChild(s.firstChild); s.replaceWith(em); });
+    el.querySelectorAll('span.bold').forEach(s => { const b = document.createElement('strong'); while (s.firstChild) b.appendChild(s.firstChild); s.replaceWith(b); });
+    // Säkeet: peräkkäiset p.l yhdeksi kappaleeksi.
+    el.querySelectorAll('p.l').forEach(p => {
+      const ed = p.previousElementSibling;
+      if (ed && ed.tagName === 'P' && ed.classList.contains('l')) { ed.append(document.createElement('br'), ...p.childNodes); p.remove(); }
+    });
+    el.querySelectorAll('h5.motto').forEach(h => { const q = document.createElement('blockquote'), p = document.createElement('p'); while (h.firstChild) p.appendChild(h.firstChild); q.appendChild(p); h.replaceWith(q); });
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent) && !p.querySelector('br')) p.remove(); });
+    // Johdannon taulukot: otsikko (caption, jossa voi olla alaviitemerkki) kappaleeksi ja taulukko ruudukoksi kuten OJS:ssä.
+    el.querySelectorAll('table').forEach(t => {
+      if (!rivi(t.textContent)) { t.remove(); return; }
+      const cap = t.querySelector('caption');
+      if (cap) { const p = document.createElement('p'); while (cap.firstChild) p.appendChild(cap.firstChild); cap.remove(); t.before(p); }
+      ojsTaulukko(t);
+    });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*sls\.fi(\/|$)/i);
+    return el;
+  }
+  async function sls() {
+    const sivu = (/^([a-z0-9-]+)\.sls\.fi$/i.exec(location.hostname) || [])[1];
+    const polku = /^\/([a-z]{2})\/collection\/(\d+)\/(text\/\d+(?:\/[^/?#]+)?|introduction|foreword)\/?$/.exec(location.pathname);
+    if (!sivu || !SLS_TEKIJAT[sivu] || !polku || !document.querySelector('.teiContainer')) return null;
+    const toc = document.querySelector('.static-collection-toc');
+    const kokoelma = rivi((toc && toc.querySelector('p b, p strong, p') || {}).textContent);
+    const tekstit = [];
+    if (toc) toc.querySelectorAll('a[href]').forEach(a => {
+      const u = new URL(a.getAttribute('href'), osoite);
+      if (u.search || !/\/collection\/\d+\/text\/\d+/.test(u.pathname)) return;
+      if (!tekstit.some(t => t.u === u.href)) tekstit.push({ u: u.href, nimi: rivi(a.textContent) });
+    });
+    const nimio = !!(toc && toc.querySelector('a[href$="/title"]'));
+    let kirja = /^text\//.test(polku[3]) && nimio && tekstit.length > 1 && tekstit.length <= 30;
+    const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
+    let otsikko = '', sivuja = 0;
+    const oma = osoite.split('?')[0];
+    let muut = [], haetut = [];
+    if (kirja) {
+      muut = tekstit.filter(t => t.u !== oma);
+      haetut = await kkHae(muut.map(t => t.u));
+      // Palvelin ei aina renderöi lukutekstiä (Topelius, osat 2 ja 3: Ett fel har uppstått. Lästexten kunde inte hämtas.); selain
+      // hakee sen silloin rajapinnasta. Jos yksikin osa puuttuu, leikataan vain avattu teksti, jonka selain on jo näyttänyt.
+      const ehja = d => { const r = d && d.querySelector('reading-text');
+        return !!r && kkSanoja(r) >= 50 && !/kunde inte hämtas|ei voitu hakea|could not be (retrieved|fetched)/i.test(rivi(r.textContent).slice(0, 200)); };
+      if (!tekstit.every(t => ehja(t.u === oma ? document : haetut[muut.indexOf(t)]))) kirja = false;
+    }
+    if (kirja) {
+      for (const t of tekstit) {
+        const r = slsRunko(t.u === oma ? document : haetut[muut.indexOf(t)], maar, laskuri);
+        if (!r || kkSanoja(r) < 3) continue;
+        sivuja++;
+        r.querySelectorAll('h1').forEach(h => h.remove());
+        // Luvun nimi toistuu tekstin alussa otsikkona (Westermarck: Förord, I. Min första resa …): pois.
+        const ens = [...r.querySelectorAll('*')].find(x => /^H[1-6]$/.test(x.tagName) || (x.tagName === 'P' && rivi(x.textContent)));
+        const tv = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+        if (ens && /^H[1-6]$/.test(ens.tagName) && tv(ens.textContent) && (tv(t.nimi).includes(tv(ens.textContent)) || tv(ens.textContent).includes(tv(t.nimi)))) ens.remove();
+        kkSiirra(r, 2);
+        const h = document.createElement('h2'); h.textContent = t.nimi.replace(/\.$/, ''); el.appendChild(h);
+        el.append(...r.childNodes);
+      }
+      otsikko = kokoelma;
+    } else {
+      const r = slsRunko(document, maar, laskuri);
+      if (!r) return null;
+      // Tekstin omat h1-rivit (Första delen. / Nattens barn.) otsikoksi.
+      const h1 = [...r.querySelectorAll('h1')];
+      otsikko = h1.map(h => rivi(h.textContent).replace(/\.$/, '')).filter(Boolean).join('. ');
+      h1.forEach(h => h.remove());
+      if (!otsikko) otsikko = rivi(document.title).split(/\s+-\s+/)[0];
+      const tv = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+      r.querySelectorAll(OTSIKOT).forEach(h => { if (tv(h.textContent) && tv(h.textContent) === tv(otsikko)) h.remove(); });
+      el.append(...r.childNodes);
+      sivuja = 1;
+    }
+    if (kkSanoja(el) < 20) return null;
+    kkTasoita(el);
+    el.normalize();
+    const osat = rivi(document.title).split(/\s+-\s+/);
+    return { html: irrota([el]).innerHTML, otsikko: otsikko || osat[0], tekija: SLS_TEKIJAT[sivu],
+      teos: !kirja && kokoelma && kokoelma !== otsikko ? kokoelma : '', sivusto: SLS_EDITIOT[sivu],
+      kustantaja: 'Svenska litteratursällskapet i Finland', lahde: kirja ? oma.replace(/\/text\/.*$/, '/title') : oma,
+      maar, naytto: SLS_EDITIOT[sivu] + (sivuja > 1 ? ' (' + sivuja + ' tekstiä)' : '') };
+  }
+
+  /* J. V. Snellmanin kootut teokset (snellman.kootutteokset.fi; käyttäjän pyyntö 20.11.2026, sivustoehdokkaat-3 kärki 7; Drupal 7).
+     Asiakirja (/fi/dokumentit/<nimi>) on yksi lehtikirjoitus, kirje tai lausunto: suomennos .field-name-field-suomi, alaviitteet
+     a.see-footnote → ul.footnotes li (Drupalin footnotes-moduuli), ruotsinkielinen alkuteksti .field-name-field-ruotsi (usein vielä
+     TULOSSA) ja alkukielinen pdf. Suomennos ja, jos alkuteksti on jo tekstinä, se omana lukunaan (Ruotsiksi). Tyhjät kappaleet ja
+     kappaleiden tyylit pois. Otsikko .page-title-headerista, julkaistu päiväyskentästä (28.4.1840 → 1840-04-28), laji
+     asiakirjatyypistä (Lehtikirjoitus, Kirje). Ei mainoksia eikä lahjoituspyyntöä. Mitattu 20.11.2026. */
+  const SN_NIMI = 'J. V. Snellmanin kootut teokset';
+  function snTeksti(kentta, maar, laskuri) {
+    const f = kentta && kentta.querySelector('.field-item');
+    if (!f) return null;
+    const el = f.cloneNode(true);
+    const viit = new Map();
+    el.querySelectorAll('ul.footnotes li[id]').forEach(li => viit.set(li.id, li));
+    el.querySelectorAll('ul.footnotes').forEach(x => x.remove());
+    el.querySelectorAll('a.see-footnote').forEach(a => {
+      const li = viit.get((a.getAttribute('href') || '').replace(/^#/, ''));
+      const k = li && li.cloneNode(true);
+      if (k) k.querySelectorAll('a.footnote-label').forEach(x => x.remove());
+      const t = k ? muunna(k.innerHTML, 'inlined').trim() : rivi(a.getAttribute('title'));
+      if (!t) { a.remove(); return; }
+      const tunnus = 'sn' + (++laskuri.n);
+      a.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    });
+    el.querySelectorAll('[style], [align]').forEach(x => { x.removeAttribute('style'); x.removeAttribute('align'); });
+    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    return kkSanoja(el) >= 15 ? el : null;
+  }
+  async function snellman() {
+    if (!/(^|\.)snellman\.kootutteokset\.fi$/i.test(location.hostname)) return null;
+    const fi = document.querySelector('.field-name-field-suomi');
+    if (!fi) return null;
+    const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
+    const s = snTeksti(fi, maar, laskuri), sv = snTeksti(document.querySelector('.field-name-field-ruotsi'), maar, laskuri);
+    if (!s && !sv) return null;
+    if (s) el.append(...s.childNodes);
+    if (sv) {
+      if (s) { const h = document.createElement('h2'); h.textContent = 'Ruotsiksi'; el.appendChild(h); }
+      el.append(...sv.childNodes);
+    }
+    el.normalize();
+    const pv = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(rivi((document.querySelector('.field-name-tekstilahde-daterange .field-item') || {}).textContent));
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('.page-title-header') || {}).textContent) || rivi(document.title).split('|')[0],
+      tekija: 'J. V. Snellman', sivusto: SN_NIMI, julkaistu: pv ? pv[3] + '-' + pv[2].padStart(2, '0') + '-' + pv[1].padStart(2, '0') : '',
+      laji: rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent), lahde: osoite, maar };
   }
 
   /* Emergence Magazine (emergencemagazine.org; käyttäjän pyyntö 16.11.2026, pahvin B7: mittaa ensin kuten Noema). Mitattu:
@@ -7464,7 +7658,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, sls, snellman, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
