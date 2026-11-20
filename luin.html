@@ -4840,25 +4840,37 @@
     if (aset.sivutus === 'sivut' && d > 0 && tila.sivu >= tila.sivuja - 1 && !verhoAuki()) { avaaJana(true); return; }
     seuraava(d);
   }
-  /* Erittäin pitkä painallus (OSIO_MS) hyppää seuraavan osion alkuun (käyttäjän pyyntö 8.11.2026): reunanapautus, sivunkäännön
-     painike tai laitteen sivunkääntönäppäin (PageDown/PageUp, äänenvoimakkuus). Merkkipaalu on tekstin ylin käytössä oleva
-     taso osiosta alaspäin: jos osioita on, osio tai luku; muuten luku; muuten kohta; ilman otsikoita 10 sivua. Hyppy lasketaan
-     sivulta, jolla painallus alkoi (näppäin kääntää sivun vasta noustessaan, joten ennen hyppyä ei käänny sivua). Taaksepäin: edellisen
-     merkkipaalun sivu (kesken osiota sen alku). Sivun ja luvun jälkeen ei merkkipaalua: viimeinen tai ensimmäinen sivu. */
-  var OSIO_MS = 1100, osioAjastin = 0;
+  /* Erittäin pitkä painallus (OSIO_MS) hyppää seuraavaan merkkipaaluun (käyttäjän pyyntö 8.11.2026): reunanapautus, sivunkäännön
+     painike tai laitteen sivunkääntönäppäin (PageDown/PageUp, äänenvoimakkuus). Hyppy lasketaan sivulta, jolla painallus alkoi
+     (näppäin kääntää sivun vasta noustessaan, joten ennen hyppyä ei käänny sivua). Taaksepäin: edellisen merkkipaalun sivu
+     (kesken osiota sen alku). Viimeisen merkkipaalun jälkeen viimeinen sivu, ensimmäistä ennen ensimmäinen.
+     Merkkipaalun taso (osioPaalut(), käyttäjän säännöt 20.11.2026: Valtion 1. kirjassa ainoa luku vei alusta loppuun):
+     - taso, jolla ei ole tekstissä merkitystä, ei kelpaa: sen paalut osuvat alle kahdelle eri sivulle (yksi luku);
+     - luku, jos sen keskimääräinen askel on enintään OSIO_ASKEL sivua (artikkeli), muuten osio (pitkä teksti); osio myös, kun
+       luku ei kelpaa. Osioita ovat myös yläindeksikohtien osiot (Perseus: Stephanus-sivu, nyt.kohdat lvl 2);
+     - kohta vain, jos lukua eikä osiota ei ole; ilman kelpaavaa tasoa 10 sivua.
+     Tasot ovat kumulatiivisia: osiotasolla myös luvut ovat paaluja. */
+  var OSIO_MS = 1100, OSIO_ASKEL = 20, osioAjastin = 0;
+  function osioPaalut() {
+    var al = art.getBoundingClientRect().left, s = tila.stride, B = nyt.blocks, t = [null, {}, {}, {}];
+    function lisaa(l, r) {
+      if (!r) return;
+      var x = Math.floor((r.left - al + 2) / s);
+      for (var i = Math.max(l, 1); i <= 3; i++) t[i][x] = 1;
+    }
+    nyt.doc.toc.forEach(function (o) { var rs = B[o.b] && B[o.b].getClientRects(); if (rs && rs.length) lisaa(Math.min(o.lvl, 3), rs[0]); });
+    (nyt.kohdat || []).forEach(function (y) { lisaa(y.lvl, kohdanLaatikko(y.k)); });
+    var sivut = t.map(function (o) { return o && Object.keys(o).map(Number).sort(function (a, b) { return a - b; }); });
+    var kelpaa = [1, 2, 3].filter(function (l) { return sivut[l].length >= 2; });
+    if (!kelpaa.length) return null;
+    var taso = kelpaa[0] === 1 && kelpaa.indexOf(2) >= 0 && sivut[2].length > sivut[1].length && tila.sivuja / sivut[1].length > OSIO_ASKEL ? 2 : kelpaa[0];
+    return { taso: taso, sivut: sivut[taso] };
+  }
   function osioSivu(d, s0) {
-    var toc = nyt.doc.toc, B = nyt.blocks, tasot = {}, viim = tila.sivuja - 1;
-    toc.forEach(function (t) { tasot[Math.min(t.lvl, 3)] = 1; });
-    var raja = tasot[2] ? 2 : tasot[1] ? 1 : tasot[3] ? 3 : 0;
-    if (!raja) return clamp(s0 + 10 * d, 0, viim);
-    var al = art.getBoundingClientRect().left, s = tila.stride, p = null;
-    toc.forEach(function (t) {
-      var rs = t.lvl <= raja && B[t.b] && B[t.b].getClientRects();
-      if (!rs || !rs.length) return;
-      var x = Math.floor((rs[0].left - al + 2) / s);
-      if (d > 0 ? x > s0 && (p === null || x < p) : x < s0 && (p === null || x > p)) p = x;
-    });
-    return p === null ? (d > 0 ? viim : 0) : p;
+    var viim = tila.sivuja - 1, P = osioPaalut(), p = null;
+    if (!P) return clamp(s0 + 10 * d, 0, viim);
+    P.sivut.forEach(function (x) { if (d > 0 ? x > s0 && (p === null || x < p) : x < s0 && (p === null || x > p)) p = x; });
+    return p === null ? (d > 0 ? viim : 0) : clamp(p, 0, viim);
   }
   function osioPeru() { clearTimeout(osioAjastin); osioAjastin = 0; }
   // ehto kysytään vasta ajastimen laukeamishetkellä (verho, tila ja asetukset ovat voineet muuttua).
@@ -8695,7 +8707,7 @@
   TX.valmis.then(reitti);
 
   // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
-  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
+  window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b) { return paikannin(b); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },
     selitysYmparisto: function (b, s, e) { var sg = { b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }, y = skYmparisto(sg); y.kieli = skKieli(sg, y); return y; },
