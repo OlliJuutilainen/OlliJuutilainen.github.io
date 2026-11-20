@@ -368,7 +368,7 @@
     'sources', '(further|suggested|recommended|additional) readings?', '(references|bibliography) and further readings?',
     // saksa
     '((weiterführende|ausgewählte|verwendete|zitierte) )?literatur', 'literaturverzeichnis', 'literaturhinweise',
-    'literaturangaben', '(primär|sekundär)literatur', 'bibliographie', 'bibliografie', 'quellen', 'quellenverzeichnis',
+    'literaturangaben', '(primär|sekundär)literatur', 'bibliographien?', 'bibliografie', 'quellen', 'quellenverzeichnis',
     'quellen und literatur', 'quellen- und literaturverzeichnis',
     // liettua (16.11.2026: Vilnan yliopiston lehdet, Lukimeen-lisäosan OJS-sovite)
     'literatūra', 'literatūros sąrašas', '(naudota|cituota) literatūra', 'šaltiniai', 'šaltinių sąrašas', 'šaltiniai ir literatūra', 'literatūra ir šaltiniai',
