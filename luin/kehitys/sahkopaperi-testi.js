@@ -1,4 +1,4 @@
-// Sysi, TCF-valkaisu ja sähköpapyrosointi (käyttäjän pyynnöt 17.11. ja 20.11.2026). Ajo repon juuressa:
+// Sysi, TCF-valkaisu, CLARVS·ET·DISTINCTVS ja sähköpapyrosointi (käyttäjän pyynnöt 17.11. ja 20.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]
 // Tarkistaa: 1) Sähköpapyrosoi asetukset on suorakaidenappi Ulkoasu-otsikon rivillä (työpöytä ja 360 px) eikä peitä raksia;
 // 2) painallus tanssittaa vain napin (tausta, teksti, kehä) musta–TCF-vuorottelua neljä vaihetta lopputilaan, asetukset
@@ -208,6 +208,35 @@ async function aja(selain, U, kosketus) {
   const tp = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
   tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(201, 181, 146)', tp);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
+
+  // 7. CLARVS·ET·DISTINCTVS (käyttäjän pyyntö 20.11.2026): sama valinta kummassakin teemassa, sulkee Sysin/TCF:n pois, kaksi
+  // välisävyä; nelikentän alarivi alkaa Vaalean salmiakin kohdalta ja CLARVS on samalla rivillä Sysin/TCF:n oikealla.
+  await page.evaluate(() => { location.hash = '#'; });
+  await page.waitForSelector('#nimikkeet li');
+  await napauta('.lhead .ratas');
+  await page.waitForSelector('#asetukset:not([hidden])');
+  const nk = await page.evaluate(() => {
+    const vas = s => document.querySelector(s + ' .sal-ulko').getBoundingClientRect().left, r = s => document.querySelector(s).getBoundingClientRect();
+    return { laita: Math.abs(vas('button[data-arvo="vaalea"]') - vas('button[data-kytkin="kontrasti"]')),
+      rivi: Math.abs(r('button[data-kytkin="kontrasti"]').top - r('button[data-kytkin="clarus"]').top) < 2 && r('button[data-kytkin="clarus"]').left > r('button[data-kytkin="kontrasti"]').right,
+      nimi: document.querySelector('button[data-kytkin="clarus"]').textContent };
+  });
+  tulos(`${laji}: nelikentän alarivi Vaalean laidasta`, nk.laita < 0.5, nk.laita.toFixed(2) + ' px');
+  tulos(`${laji}: CLARVS samalla rivillä oikealla`, nk.rivi && nk.nimi === 'CLARVS · ET · DISTINCTVS', nk.nimi);
+  const paletti = () => page.evaluate((m) => { const cs = getComputedStyle(document.documentElement), a = window.__luin.aset;
+    return { k: a.kontrasti, c: a.clarus, luokat: ['kontrasti', 'clarus'].filter(x => document.documentElement.classList.contains(x)).join('+'),
+      arvot: [...new Set(m.map(x => cs.getPropertyValue(x).trim()))].sort().join(' ') }; }, MUUTTUJAT);
+  await napauta('button[data-kytkin="clarus"]');
+  let pc = await paletti();
+  tulos(`${laji}: CLARVS tummassa sulkee Sysin`, pc.k === 0 && pc.c === 1 && pc.luokat === 'clarus', JSON.stringify(pc));
+  tulos(`${laji}: CLARVS tummassa: musta, valkoinen, harmaa, ruoste`, pc.arvot === '#000000 #a3a3a3 #e8955a #ffffff', pc.arvot);
+  await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
+  pc = await paletti();
+  tulos(`${laji}: CLARVS vaaleassa: valkoinen, musta, harmaa, ruoste`, pc.c === 1 && pc.arvot === '#000000 #595959 #803510 #ffffff', pc.arvot);
+  await napauta('button[data-kytkin="kontrasti"]');
+  pc = await paletti();
+  tulos(`${laji}: TCF sulkee CLARVSin`, pc.k === 1 && pc.c === 0 && pc.luokat === 'kontrasti', JSON.stringify(pc));
+  await napauta('button[data-kytkin="kontrasti"]');
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
 }

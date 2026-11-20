@@ -96,6 +96,20 @@
     --paperi: #000000; --muste: #c9b592; --harmaa: #7b694e; --viiva: #392e22;
     --ruoste: #8a5f33; --okra: #a67c20; --huomio: #726046; --sitaatti: #8b775a; --hius: #211a13; --valo: #31281e;
   }
+  /* CLARVS·ET·DISTINCTVS (käyttäjän pyyntö 20.11.2026, aset.clarus; pohjana 17.11.2026 aamun Korkea kontrasti): sama valinta
+     kummassakin teemassa, ratkaistuna valkoiseen tai mustaan. Merkitykset ovat mustan ja valkoisen eroja; välisävyjä on vain
+     kaksi: yksi harmaa (harmaa, huomio, sitaatti, viivat) ja ruoste (napautettava). Okra on muste (vierekkäiset alleviivaukset
+     vuorottelevat ruostetta ja mustetta), valo on paperi (kummitusneliö vaalenee taustaksi eikä uudeksi sävyksi).
+     Ei yhtä aikaa Sysin tai TCF-valkaisun kanssa. Kontrastit taustaa vasten: harmaa 7,0, ruoste 8,6 (vaalea);
+     harmaa 8,3, ruoste 8,9 (tumma). */
+  :root.clarus {
+    --paperi: #ffffff; --muste: #000000; --harmaa: #595959; --viiva: #595959;
+    --ruoste: #803510; --okra: #000000; --huomio: #595959; --sitaatti: #595959; --hius: #595959; --valo: #ffffff;
+  }
+  :root.clarus[data-teema="tumma"] {
+    --paperi: #000000; --muste: #ffffff; --harmaa: #a3a3a3; --viiva: #a3a3a3;
+    --ruoste: #e8955a; --okra: #ffffff; --huomio: #a3a3a3; --sitaatti: #a3a3a3; --hius: #a3a3a3; --valo: #000000;
+  }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
@@ -1236,6 +1250,8 @@
   .valinnat button { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; color: var(--harmaa); font-size: .9rem; }
   .valinnat button[aria-pressed="true"] { color: var(--muste); }
   .valinnat button[aria-pressed="false"] { opacity: .6; }
+  /* CLARVS: valitsematon on harmaa ilman himmennystä, ettei läpikuultavuus tee kolmatta välisävyä. */
+  :root.clarus .valinnat button[aria-pressed="false"] { opacity: 1; }
   .valinnat svg { width: 9px; height: 12.4px; flex: 0 0 auto; }
   .valinnat .sal-ulko { fill: none; stroke: currentColor; stroke-width: .9; }
   .valinnat .sal-sisa { fill: none; }
@@ -1278,6 +1294,11 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
+  /* Teeman nelikenttä (käyttäjän pyyntö 20.11.2026): Vaalea ja Tumma, alla Sysi tai TCF-valkaisu samasta vasemmasta laidasta
+     kuin Vaalea (ei sisennystä) ja sen oikealla CLARVS·ET·DISTINCTVS. Nimi on kuin Descartesin nimiösivulla: versaalit
+     (U on V), interpunkti sanojen välissä väleineen (ilman välejä ET sulautui naapureihinsa). */
+  #teema-nipukka { padding-left: 0; }
+  .valinnat .clarus { font-size: .82em; letter-spacing: .06em; }
   /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
      lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkissa 7 suoraa riviä; vasemmassa yläkulmassa alas
@@ -1560,7 +1581,7 @@
        riippuu teemasta: Sysi tai TCF-valkaisu (piirraAsetukset()). -->
   <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi" aria-live="polite">Sähköpapyrosoi asetukset</button></div>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
-    <div class="valinnat nipukka" data-k="kontrasti:TCF-valkaisu"></div>
+    <div class="valinnat nipukka" id="teema-nipukka" data-k="kontrasti:TCF-valkaisu|clarus:CLARVS · ET · DISTINCTVS"></div>
     <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
@@ -1795,7 +1816,7 @@
   // kmKiinni, alKiinni: merkintälistan supistetut osiot. hakuViit: haku kattaa myös alaviitteet.
   // viiteLisa: jakovalikon lähdeviitteen perään lukutiedot (luettu HTML-versiona), oletuksena ei.
   // verkkolinkit: tekstin linkit muualle toimivat (oletuksena ei, myöskään kirjallisuusluettelon DOI-linkit).
-  var OLETUS = { teema: 'vaalea', kontrasti: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
+  var OLETUS = { teema: 'vaalea', kontrasti: 0, clarus: 0, koko: 16, kappale: 'sisennys', tasaus: 'tasattu', marginaali: 'meso', tavutus: 'varovainen',
     sivutus: 'vieritys', sivunapit: 1, sivuReuna: 1, sivuPyyhka: 1, sisallys: 1, kmTekstissa: 1, alTekstissa: 1, auto: 0, verkkolinkit: 0, janaTaso: 3, kmJanalla: 1,
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
@@ -3777,6 +3798,7 @@
       v.innerHTML = v.dataset.k.split('|').map(function (o) {
         var kv = o.split(':'), tapa = SIVUTAVAT.indexOf(kv[0]) >= 0;
         if (kv[0] === 'kontrasti') kv[1] = aset.teema === 'tumma' ? 'Sysi' : 'TCF-valkaisu';
+        if (kv[0] === 'clarus') kv[1] = '<span class="clarus" lang="la">' + kv[1] + '</span>';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
         // Vierityksessä sivunkäännön lisäkytkimet ovat himmeät mutta napautettavissa: napautus valitsee Sivunkäännön.
         var himmea = tapa && aset.sivutus !== 'sivut';
@@ -3836,14 +3858,14 @@
   /* Sähköpapyrosointi (käyttäjän pyyntö 17.11.2026): kertanappi, joka asettaa nämä kerralla. Ei tila eikä muisti: nappi
      katsoo vain, ovatko asetukset nyt taulun mukaiset, ja tarjoaa silloin Oletusasetukset (laitteenOletus(): samat avaimet
      laitteen ensikäytön oletuksina). Lisää uusi asetus tähän tauluun ja laitteenOletus()-funktioon. */
-  var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
+  var SAHKOPAPERI = { teema: 'vaalea', kontrasti: 1, clarus: 0, sivutus: 'sivut', sivuReuna: 1, sivuPyyhka: 0, sivunapit: 1 };
   // Vatkauksen kolme ensimmäistä vaihetta ja kuittauksen kesto (käyttäjän pyyntö: pidempi kuin aamun 1,5 s).
   var PAPYRUS_VAIHE = 700, PAPYRUS_MS = 2200;
   var papyrusKay = false;
   function papyrosoitu() { return Object.keys(SAHKOPAPERI).every(function (k) { return aset[k] === SAHKOPAPERI[k]; }); }
   function laitteenOletus() {
     var tumma = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-    return { teema: tumma ? 'tumma' : 'vaalea', kontrasti: OLETUS.kontrasti, sivutus: sivutusOletus() ? 'sivut' : 'vieritys',
+    return { teema: tumma ? 'tumma' : 'vaalea', kontrasti: OLETUS.kontrasti, clarus: OLETUS.clarus, sivutus: sivutusOletus() ? 'sivut' : 'vieritys',
       sivuReuna: 1, sivuPyyhka: 1, sivunapit: 1 };
   }
   function paivitaPapyrus() {
@@ -3923,6 +3945,9 @@
     else if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
       aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+      // CLARVS ja Sysi/TCF sulkevat toisensa pois: kumpikin on koko paletti.
+      if (b.dataset.kytkin === 'clarus' && aset.clarus) aset.kontrasti = 0;
+      if (b.dataset.kytkin === 'kontrasti' && aset.kontrasti) aset.clarus = 0;
     }
     else if (b.dataset.askel) { aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32); aset.kokoKasin = 1; }
     // Aikajanan taso: valitun tason napautus sammuttaa sen ja jättää ylemmät (Luvut sammuttaa
@@ -3943,7 +3968,8 @@
   // eiKokoa: raskaan tekstin odottava koko (sovellaTaiLykkaa()) ei saa asettaa --kokoa, koska selain asettelisi tekstin sen mukaan.
   function sovellaTeema(eiKokoa) {
     document.documentElement.dataset.teema = aset.teema;
-    document.documentElement.classList.toggle('kontrasti', !!aset.kontrasti);
+    document.documentElement.classList.toggle('kontrasti', !!aset.kontrasti && !aset.clarus);
+    document.documentElement.classList.toggle('clarus', !!aset.clarus);
     if (!eiKokoa) document.documentElement.style.setProperty('--koko', aset.koko + 'px');
     document.documentElement.classList.toggle('ali-piilo', !aset.alTekstissa);
     document.documentElement.classList.toggle('oma-maalaus', omaMaalaus());
