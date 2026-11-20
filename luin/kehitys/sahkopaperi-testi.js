@@ -140,7 +140,7 @@ async function aja(selain, U, kosketus) {
     return tulos;
   }, MUUTTUJAT);
   tulos(`${laji}: vaaleassa muuttuu vain paperi ja muste`, vertaa.vaalea === '--paperi=#ffffff --muste=#000000', vertaa.vaalea);
-  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#c9b592 --harmaa=#978263 --viiva=#392e22 --ruoste=#9d7145 --okra=#bf9335 --huomio=#8d795a --sitaatti=#aa9473 --hius=#211a13 --valo=#31281e', vertaa.tumma);
+  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#c9b592 --harmaa=#887558 --viiva=#392e22 --ruoste=#906539 --okra=#b3872b --huomio=#7f6c50 --sitaatti=#9c8869 --hius=#211a13 --valo=#31281e', vertaa.tumma);
   tulos(`${laji}: ei muita kontrastisääntöjä`, vertaa.saannot === ':root.kontrasti:not([data-teema="tumma"]) | :root.kontrasti[data-teema="tumma"]', vertaa.saannot);
 
   // 4. TCF-vihje.

@@ -249,7 +249,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
   sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa sama kytkin on *Sysi* (20.11.2026, korvasi *Mustimman*,
   joka muutti vain taustan): tausta #000, tekstivärit himmeämpiä ja lämpimämpiä, viivat himmeämpiä kuin tummassa. Ei yötila eikä
   meripihkaa. Käyttäjän kokeilut 20.11.2026: muste-kontrasti 5 ja 8,4 liian sysi, 13 liian lähellä Mustinta; nyt keskitie 10,5
-  (Mustin 15,9). Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
+  (Mustin 15,9). Sivuvärit pysyvät musteesta yhtä kaukana kuin tummassa (muuten lainaus ei erotu). Ei oranssiin eikä punaiseen. Arvot CSS:n kommentissa. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
   olevan kytkimen napautuksesta kerran päällekytkentää kohden (muuten kytkintä ei voisi sammuttaa). *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
   (`laitteenOletus()`, vain taulun avaimet). Ohut suorakaidenappi (ei enää hakasulkeita), otsikkoa pienempi ja `--huomio`n värinen; painallus tanssittaa **vain napin
