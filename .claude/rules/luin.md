@@ -247,8 +247,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - **Sysi, TCF-valkaisu ja sähköpapyrosointi** (käyttäjän pyynnöt 17.11.2026, `aset.kontrasti`, `SAHKOPAPERI`): vaaleassa
   kontrastikytkin (*TCF-valkaisu*) muuttaa **vain taustan** #fff:ksi ja musteen täysmustaksi, ei muita sävyjä (hidas
   sähköpaperitila toistaa harmaat, sotkuinen on vain tausta). Tummassa sama kytkin on *Sysi* (20.11.2026, korvasi *Mustimman*,
-  joka muutti vain taustan): yölukemiseen pimeässä OLED-näytöllä, tausta #000 ja **koko paletti** himmeä ja lämmin, sähköpaperin
-  kustannuksella. Käyttäjän rajat: kellertävää eikä oranssia tai punaista, mutta ennemmin lämmin keltainen kuin vihertävä
+  joka muutti vain taustan): tausta #000 ja **koko paletti** himmeämpi ja lämpimämpi. Ei pelkkä yötila, vaan siedettävä muuallakin
+  kuin säkkipimeässä; ensimmäinen versio (kontrasti 5) oli käyttäjälle "liian sysi", joten **ei himmeämmäksi** kuin nyt (8,4). Käyttäjän rajat: kellertävää eikä oranssia tai punaista, mutta ennemmin lämmin keltainen kuin vihertävä
   (OKLCH-sävykulma 80–84; yli kääntyy oliiviksi). Arvot ja kontrastit CSS:n kommentissa. TCF-vihje (käyttäjän sanat) hiiren viipymästä (1 s) tai kosketuksella päällä
   olevan kytkimen napautuksesta kerran päällekytkentää kohden (muuten kytkintä ei voisi sammuttaa). *Sähköpapyrosoi asetukset*
   on **kertanappi, ei kytkin** eikä muista mitään: kun asetukset ovat taulun mukaiset, samassa paikassa on *Oletusasetukset*
