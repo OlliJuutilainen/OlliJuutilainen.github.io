@@ -209,20 +209,23 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(201, 181, 146)', tp);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
 
-  // 7. CLARVS·ET·DISTINCTVS (käyttäjän pyyntö 20.11.2026): sama valinta kummassakin teemassa, sulkee Sysin/TCF:n pois, kaksi
-  // välisävyä; nelikentän alarivi alkaa Vaalean salmiakin kohdalta ja CLARVS on samalla rivillä Sysin/TCF:n oikealla.
+  // 7. CLARVS·ET·DISTINCTVS (käyttäjän pyynnöt 20.11.2026): sama valinta kummassakin teemassa, sulkee Sysin/TCF:n pois, kaksi
+  // välisävyä; alakytkimet allekkain valitun teeman alla, salmiakit sen salmiakin laidassa, Sivunkäännön lisäkytkimiä pienempinä.
   await page.evaluate(() => { location.hash = '#'; });
   await page.waitForSelector('#nimikkeet li');
   await napauta('.lhead .ratas');
   await page.waitForSelector('#asetukset:not([hidden])');
-  const nk = await page.evaluate(() => {
+  const alla = () => page.evaluate(() => {
     const vas = s => document.querySelector(s + ' .sal-ulko').getBoundingClientRect().left, r = s => document.querySelector(s).getBoundingClientRect();
-    return { laita: Math.abs(vas('button[data-arvo="vaalea"]') - vas('button[data-kytkin="kontrasti"]')),
-      rivi: Math.abs(r('button[data-kytkin="kontrasti"]').top - r('button[data-kytkin="clarus"]').top) < 2 && r('button[data-kytkin="clarus"]').left > r('button[data-kytkin="kontrasti"]').right,
+    const sel = document.querySelector('.asetus[data-a="teema"] button[aria-pressed="true"]').dataset.arvo;
+    const k = r('button[data-kytkin="kontrasti"]'), c = r('button[data-kytkin="clarus"]');
+    return { sel, laita: Math.max(Math.abs(vas('button[data-arvo="' + sel + '"]') - vas('button[data-kytkin="kontrasti"]')), Math.abs(vas('button[data-kytkin="kontrasti"]') - vas('button[data-kytkin="clarus"]'))),
+      allekkain: c.top >= k.bottom - 1, pienempi: parseFloat(getComputedStyle(document.querySelector('button[data-kytkin="clarus"]')).fontSize) < parseFloat(getComputedStyle(document.querySelector('button[data-kytkin="sivunapit"]')).fontSize),
       nimi: document.querySelector('button[data-kytkin="clarus"]').textContent };
   });
-  tulos(`${laji}: nelikentän alarivi Vaalean laidasta`, nk.laita < 0.5, nk.laita.toFixed(2) + ' px');
-  tulos(`${laji}: CLARVS samalla rivillä oikealla`, nk.rivi && nk.nimi === 'CLARVS · ET · DISTINCTVS', nk.nimi);
+  let nk = await alla();
+  tulos(`${laji}: alakytkimet allekkain ${nk.sel}-teeman laidassa`, nk.sel === 'tumma' && nk.laita < 0.5 && nk.allekkain, JSON.stringify(nk));
+  tulos(`${laji}: alakytkimet pienempiä kuin Sivunkäännön, nimi`, nk.pienempi && nk.nimi === 'CLARVS · ET · DISTINCTVS', nk.nimi);
   const paletti = () => page.evaluate((m) => { const cs = getComputedStyle(document.documentElement), a = window.__luin.aset;
     return { k: a.kontrasti, c: a.clarus, luokat: ['kontrasti', 'clarus'].filter(x => document.documentElement.classList.contains(x)).join('+'),
       arvot: [...new Set(m.map(x => cs.getPropertyValue(x).trim()))].sort().join(' ') }; }, MUUTTUJAT);
@@ -231,6 +234,8 @@ async function aja(selain, U, kosketus) {
   tulos(`${laji}: CLARVS tummassa sulkee Sysin`, pc.k === 0 && pc.c === 1 && pc.luokat === 'clarus', JSON.stringify(pc));
   tulos(`${laji}: CLARVS tummassa: musta, valkoinen, harmaa, ruoste`, pc.arvot === '#000000 #a3a3a3 #e8955a #ffffff', pc.arvot);
   await napauta('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
+  nk = await alla();
+  tulos(`${laji}: alakytkimet siirtyvät Vaalean laitaan`, nk.sel === 'vaalea' && nk.laita < 0.5 && nk.allekkain, JSON.stringify(nk));
   pc = await paletti();
   tulos(`${laji}: CLARVS vaaleassa: valkoinen, musta, harmaa, ruoste`, pc.c === 1 && pc.arvot === '#000000 #595959 #803510 #ffffff', pc.arvot);
   await napauta('button[data-kytkin="kontrasti"]');
