@@ -10,6 +10,9 @@ paths:
 Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yksityiskohdat ovat kehittäjän oppaassa
 `luin/ohje.md` (luvut mainittu alla), historia commit-viesteissä.
 
+Käyttäjälle näkyvä teksti puhuu yksikössä, ei *meistä* (*kerro*, ei *kerro meille*), koska kehittäjä on yksi ihminen; poikkeus
+on leikillinen puhetapa kuten *Tusinasoftin johtoryhmä* (käyttäjän linjaus 20.11.2026).
+
 ### Tiedostot
 
 - `luin.html` (juuressa, koska ohjelman nimi on luin.html): lukulista ja lukija samalla sivulla. Tekstien sisältö on
@@ -124,7 +127,7 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 - `luin/palaute.html` (käyttäjän pyyntö 10.11.2026): viesti kehittäjälle (nimi ja sähköposti vapaaehtoisia, vain viesti pakollinen) reitille
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
   joten se kantautuu Luinin lukulistaan Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; pinosta pois käyttäjän pyynnöstä 12.11.2026), käyttöohjeen loppu ja
-  Latomon plussan takana *kuulemme mielellämme* (`?mista=`). Testi `palaute-testi.js`.
+  Latomon plussan takana *kerro* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa (käyttäjän pyyntö 10.11.2026) avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta;
   käyttäjän pyyntö 13.11.2026, lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`,

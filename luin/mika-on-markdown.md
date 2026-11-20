@@ -1,6 +1,6 @@
 # Mikä on Markdown, ja miksi se on lukimen kannalta olennainen käsite?
 
-Tusinasoft\
+Olli\
 marraskuu 2026
 
 ## Pelkkää tekstiä
@@ -79,7 +79,7 @@ Tämän Markdown-esittelyn puitteissa ei ole rahkeita syventyä Zettelkastenin a
 
 Jos haluat hypätä erittäin syvään kaninkoloon, voit lukea aiheesta esimerkiksi Zettelkasten.de-sivuston johdannosta (https://zettelkasten.de/introduction/), Wikipediasta (https://en.wikipedia.org/wiki/Zettelkasten) tai tutkia menetelmän isän, sosiologi Niklas Luhmannin, digitoitua lappuarkistoa (https://niklas-luhmann-archiv.de/).
 
-> TOIM. HUOM. Lukimessa tekstin verkkolinkit ovat lukurauhan tueksi oletuksena pois päältä. Nauti siis käsityöstä ja kopioi verkko-osoite suluista selaimen uuden välilehden osoiteriville, tai kytke verkkolinkit päälle (suosittelemme, että vain väliaikaisesti) lukimen asetuksista: asetusten kiekko yläpalkin oikeassa reunassa, *Teksti* ja *Verkkolinkit*.
+> TOIM. HUOM. Lukimessa tekstin verkkolinkit ovat lukurauhan tueksi oletuksena pois päältä. Nauti siis käsityöstä ja kopioi verkko-osoite suluista selaimen uuden välilehden osoiteriville, tai kytke verkkolinkit päälle (suosittelen, että vain väliaikaisesti) lukimen asetuksista: asetusten kiekko yläpalkin oikeassa reunassa, *Teksti* ja *Verkkolinkit*.
 
 Älä kuitenkaan anna innostuneiden Zettelkasten-apostolien pelästyttää. Pohjimmiltaan Zettelkastenissakin (jonka jo nimikin voi herättää pelkoa) ihanne on nimenomaan **helppous**.
 
