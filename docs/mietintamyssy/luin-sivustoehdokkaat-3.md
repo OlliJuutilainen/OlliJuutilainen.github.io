@@ -177,6 +177,35 @@ alusta: yksi sovite.
 - raamattu.uskonkirjat.net: harrastajasivusto, sivu näytti lomakkeen (394 sanaa); ei suositella, kun raamattu.fi ja Wikisource
   kattavat samat.
 
+## Erasmus ja renessanssihumanistit (lisäys 20.11.2026)
+
+Käyttäjän pyyntö: Erasmus Rotterdamilainen ja muut renessanssihumanistit, jos löytyy jotain järkevää. Toisen satsin
+renessanssiosiossa jäi mittaamatta Philological Museum (varmenneketju); nyt se aukesi uudesta osoitteesta.
+
+- **The Philological Museum** (philological.cal.bham.ac.uk, Dana F. Suttonin uuslatinan kirjasto, noin 290 teosta
+  1400–1800-luvuilta, painottuu brittiläiseen uuslatinaan: Buchanan, Bacon, Milton, Camden, jesuiittadraama; Erasmuksesta adagio
+  *Herculei labores*). Latina ja käännös ovat erillisillä sivuilla, joita vihreä neliö linkittää samaan ankkuriin, ja siniset
+  neliöt vievät kommentaariin ja tekstikritiikkiin. *Tehty 20.11.2026* (`philological()`): lomitettu käännös kuten Perseuksessa ja
+  Akvinolaisessa, kommentit alaviitteinä. Mitattu: Erasmuksen adagio, Garnet (Camdenin latinannos), Forsettin *Pedantius* (näytös 1),
+  Miltonin *In quintum Novembris*; ennen vain avattu kieli ilman kommentteja (Miltonista 1 440 sanaa), nyt lomitettuna 26–30
+  käännöslohkoa teosta kohti ja 37–131 kommenttia. Erasmus-sivun kommenttiankkurit ovat lähteessä pykälän väärässä kohdassa; sovite
+  korjaa lemman perusteella.
+- **The Latin Library** (thelatinlibrary.com/erasmus.html, *Neo-Latin*-osasto): Erasmuksen *Moriae Encomium* yhdellä sivulla
+  (24 939 sanaa), *Querela Pacis* (9 954), *Institutio Principis Christiani*, *Antibarbari*, *Colloquia* (sisällyssivu, 515 sanaa) ja
+  *Scripta selecta*; neo.html-osastolla myös muita humanisteja. Pelkkä latina ilman koneistoa: yleinen leikkaus todennäköisesti
+  riittää (ei mitattu pesukoneella).
+- **CAMENA** (mateo.uni-mannheim.de, varhaismodernin latinan korpus, ITALI-osasto: Alberti, Alciati ym.): sivut ovat skannauksia
+  (tekstisivulla 0 sanaa), karsittu.
+- **DBNL** (dbnl.org): Erasmuksesta lähinnä artikkeleita ja vanhoja hollanninnoksia (*De menschelijke zotheid*: 455 sanaa); alusta
+  on iso, mutta humanistitekstien kannalta ohut.
+- **Center for Thomas More Studies** (thomasmorestudies.org): CTMS- ja opetuslaitokset pdf:inä (28 ja 19 pdf-linkkiä), karsittu.
+- **MONLOE** (Montaigne à l'œuvre, Tours) ja **BVH**: sivustot vastaavat, tekstisivuja ei mitattu; ARTFL:n Montaigne (Chicago):
+  yhteys katkesi.
+- Jo katettu: Wikisource (la, it, fr: Erasmus, Valla, Ficino, Rabelais, Montaigne), Gutenberg (*Praise of Folly*, *Colloquies*,
+  *Utopia*), Castellion latinankielinen Raamattu (yllä).
+- Ei löytynyt: Erasmuksen *Opera omnia* (ASD) ja *Collected Works* (Toronto) ovat maksullisia, *I Tatti Renaissance Library* samoin.
+  Erasmus Center (erasmus.org) ohjaa Rotterdamin kirjaston sivulle.
+
 ## Yleisemmät ympäristöt
 
 - **KB:n tekstiportaali**, **Religion Online**, **Michigan Publishing**, **PoPuPS**, **SLS**, **Gutenberg-DE**, **Edition Open
