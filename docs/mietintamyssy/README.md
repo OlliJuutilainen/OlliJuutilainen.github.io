@@ -4,10 +4,30 @@ Hyllyyn laitetut konsepti-ideoinnit: pohdintoja mahdollisia myöhempiä toteutuk
 tästä kansiosta ei ole toteutettu eikä päätetty. Kun idea otetaan työn alle, lue sen tiedosto ensin,
 mutta tarkista väitteet uudelleen: tiedot ovat kirjoitushetken tilanne.
 
+## Jatka tästä (käyttäjän kuuden kohdan lista 20.11.2026)
+
+Käyttäjä pyysi 20.11.2026 viittä mietintämyssyn kärkikohtaa ja kuudenneksi maalauskoneen vakiosivut. Tehty: augustinus.it-sovite,
+GRETIL-sovite ja vakiosivut (opas 3.2 *Vakiosivut*, `vakiosivu-testi.js`). Keskeytetty käyttäjän pyynnöstä; jäljellä järjestyksessä:
+
+1. **Kellarin sanaston huolto**: asiasanan nimeäminen uudelleen ja kahden yhdistäminen koko kokoelmassa
+   ([luin-kellarin-jarjestys.md](luin-kellarin-jarjestys.md), *Ehdotetut seuraavat askeleet* 1; opas 2.5 ja 6.3). Nimikkeen
+   kentät `asiasanat` ovat totuus ja etukenttä peili (`.claude/rules/luin.md`, *Luokittelu ja kellarin järjestys*). Testi
+   `luokittelu-testi.js`.
+2. **Perseus: erilliset tekstit** ([luin-perseus-valinnat.md](luin-perseus-valinnat.md): laajuus *kaikki kirjat erikseen*):
+   `perseus()` ja `psLomitus()` leike.js:ssä, valitsimet `ponnahdus.js`:n `psPiirra()`, testi `perseus-valinnat-testi.js`
+   (ilman valintoja leike tavulleen sama).
+3. **Viiden sivuston yleisen leikkauksen mittaus** ([luin-sivustoehdokkaat-3.md](luin-sivustoehdokkaat-3.md), järjestyksen kohta 8):
+   Girardian Lectionary, Phenomenology Online, Lacan Online, The Hedgehog Review ja The Immanent Frame. Lisää pesukoneeseen sarja,
+   mittaa yleinen leike ja tee sovite vain, jos se ei riitä.
+
+Tehdyistä avoimeksi jäi: augustinus.it ei kokoa koko teosta sisällysluettelosta (vain kehyksessä avatun kirjan), GRETILin luvuilla
+ei ole otsikoita (säenumerot 1.1 … 27.30 ovat aikajanan kohtia), ja vakiosivu näkyy tekstin seassa eikä reunanumerona.
+augustinus.it ja kb.dk katkoivat kontin toistuvat haut (curl 35): hae välimuisti hitaasti, jos sarjat `aug` tai `kb` pitää ajaa uudelleen.
+
 | Tiedosto | Aihe | Hyllyyn |
 |---|---|---|
 | [luin-volumenapit.md](luin-volumenapit.md) | Luin: sivunkääntö äänenvoimakkuusnapeilla (Light Phone 3, oma Android-kääre, ulkopuoliset käyttäjät) | 2.11.2026 |
-| [luin-maalauskone.md](luin-maalauskone.md) | Luin: maalauskoneen jatko (vakiosivunumerot kopioon, käännös Luinin sisällä, kytkin alapalkkiin, laitetestit) | 5.11.2026 |
+| [luin-maalauskone.md](luin-maalauskone.md) | Luin: maalauskoneen jatko (vakiosivunumerot kopioon, käännös Luinin sisällä, kytkin alapalkkiin, laitetestit); vakiosivut tehty 20.11.2026 | 5.11.2026 |
 | [luin-lisaosa-md-lataus.md](luin-lisaosa-md-lataus.md) | Luin: Lisää lukimeen -leikkeen lataus koneelle .md-tiedostona | 9.11.2026 |
 | [luin-postihuilu-kuvitus.md](luin-postihuilu-kuvitus.md) | Luin: Postihuilun visualisointi-ideat (huilut, salmiakkinuotit, viivastot, tilamerkit), esittelysivut kierroksilta 1 ja 2 | 12.11.2026 |
 | [luin-postihuilu-aaniaukko.html](luin-postihuilu-aaniaukko.html) | Luin: Postihuilun ääniaukko nokkahuilun ikkunan tapaan (täytetty matala siivu ja sen reunoilta alas tyhjä suorakulmio), kuusi versiota ja sormireikien koko 0,85 / 0,75 / 0,65; valittu versio 5 reiät 0,65 leualla, toteutettu `luin/huilu.js`:ään 12.11.2026; samana päivänä kokeiltu viittä reikää ja viittä viivaa, hylätty ja palautettu kolme reikää ja vanha viuhka | 12.11.2026 |

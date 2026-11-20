@@ -3247,7 +3247,7 @@
     const ukm = /^(.*?)\s+((?:1[5-9]|20)\d\d)$/.exec(udgiver);
     return { html: irrota([el]).innerHTML, otsikko: rivi(document.title).replace(/\s*-\s*Det Kgl\. Biblioteks tekstportal\s*$/i, ''),
       tekija, teos, toimittaja: toim ? kkLuettelo(toim.split(/\s*;\s*/).map(rivi).filter(Boolean)) : '',
-      kustantaja: ukm ? ukm[1] : udgiver, julkaistu: vuosi, sivusto: KB_NIMI, lahde: osoite.split('#')[0], maar,
+      kustantaja: ukm ? ukm[1] : udgiver, julkaistu: vuosi, sivusto: KB_NIMI, lahde: osoite.split('#')[0], maar, vakiosivut: bind ? 'SKS' : '',
       oikeus: lisenssi ? { teksti: /zero/.test(lisenssi.href) ? 'CC0 1.0' : rivi(lisenssi.textContent), lahde: lisenssi.href } : null,
       naytto: teos || KB_NIMI };
   }
@@ -3409,6 +3409,78 @@
     return { html: irrota([el]).innerHTML, otsikko: er[0] || lr[0] || rivi(document.title), tekija: tt.length > 1 ? tt[0] : '',
       teos: tt.length > 1 ? tt.slice(1).join(': ') : '', sivusto: 'The Philological Museum', ladonta: 'lomitettu käännös', lahde: kansio + tiedosto(lat === document ? osoite : kansio + v[0]),
       maar, naytto: 'The Philological Museum' };
+  }
+
+  /* GRETIL (Göttingen Register of Electronic Texts in Indian Languages; käyttäjän pyyntö 20.11.2026, mietintämyssyn kärki 2:
+     Nāgārjuna). Sanskritkorpuksen TEI-tiedostojen HTML-muunnokset (/gretil/corpustei/transformations/html/sa_….htm), kaikki samalla
+     pohjalla: h1 Tekijä: Teos, otsakeosa (Data entry, Source, Licence, Notes) ja h2 Text, jonka jälkeen teksti div[xml:lang]:ssa.
+     Säe on <p>, rivit <br>:llä, ja säkeen viite joko lopussa tekstinä (// MMK_1.1 //) tai span.ref (KMgD_1): numero yläindeksiksi
+     säkeen alkuun (kohdat: yläindeksit), dandat jäävät. Painoksen sivut span.note > span.bold (Vv 216) ja kappaleen sisällä (Vv 222)
+     vakiosivuiksi {216}, etukenttään vakiosivut: Vv; lähdepainoksen määritelmä (… = Vv.) otsakkeen Source-kohdasta, joka on myös
+     alaotsikko. Muut span.note-merkinnät hakasulkeisiin kuten sivun CSS. Lisenssi otsakkeen CC-linkistä. Yleinen leikkaus otti
+     otsakkeen tekstiin eikä erottanut viitteitä. Ei mainoksia eikä lahjoituspyyntöä. Mitattu 20.11.2026. */
+  function gretil() {
+    if (!/(^|\.)gretil\.sub\.uni-goettingen\.de$/i.test(location.hostname)) return null;
+    const teksti = [...document.querySelectorAll('h2')].find(h => /^text$/i.test(rivi(h.textContent)));
+    if (!teksti) return null;
+    const lahdeLi = (() => { const h = [...document.querySelectorAll('h4')].find(x => /source/i.test(x.textContent)); const ul = h && h.nextElementSibling; return ul && ul.tagName === 'UL' ? rivi(ul.textContent) : ''; })();
+    const lyh = (/=\s*([A-Za-z]{1,6})\.?\s*$/.exec(lahdeLi) || [])[1] || '';
+    const SIVU = /^([A-Za-z]{1,6})\.?\s*(\d{1,4}[a-z]?)$/;
+    const el = document.createElement('div');
+    let kohtia = 0, sivuja = 0, odottava = null;
+    const sivuMerkki = t => { const m = SIVU.exec(rivi(t)); return m && (!lyh || m[1] === lyh) ? m[2] : null; };
+    const kasittele = p => {
+      const k = p.cloneNode(true);
+      k.removeAttribute('id'); k.removeAttribute('class');
+      // Sivu kappaleen sisällä: (<span class="bold">Vv 222</span>).
+      k.querySelectorAll('span.bold, span.pb, span.note').forEach(s => {
+        const n = sivuMerkki(s.textContent);
+        if (n == null) { if (s.classList.contains('note') || s.classList.contains('pb')) s.replaceWith(' [' + rivi(s.textContent) + '] '); return; }
+        const e = s.previousSibling, j = s.nextSibling;
+        if (e && e.nodeType === 3 && /\(\s*$/.test(e.nodeValue) && j && j.nodeType === 3 && /^\s*\)/.test(j.nodeValue)) { e.nodeValue = e.nodeValue.replace(/\(\s*$/, ''); j.nodeValue = j.nodeValue.replace(/^\s*\)/, ''); }
+        s.replaceWith('{' + n + '}'); sivuja++;
+      });
+      // Säkeen viite: span.ref tai loppu // MMK_1.1 //.
+      let nro = '';
+      const ref = k.querySelector('span.ref');
+      if (ref) { nro = (/_([\d.]+[a-z]?)$/.exec(rivi(ref.textContent)) || [])[1] || ''; ref.remove(); }
+      else {
+        const w = document.createTreeWalker(k, NodeFilter.SHOW_TEXT); let viim = null;
+        while (w.nextNode()) if (rivi(w.currentNode.nodeValue)) viim = w.currentNode;
+        const m = viim && /\/\/\s*[A-Za-z]+_([\d.]+[a-z]?)\s*\/\/\s*$/.exec(viim.nodeValue);
+        if (m) { nro = m[1]; viim.nodeValue = viim.nodeValue.slice(0, m.index) + '//'; }
+      }
+      k.querySelectorAll('span.hi, span.it, span.i').forEach(s => { const i = document.createElement('i'); i.append(...s.childNodes); s.replaceWith(i); });
+      k.querySelectorAll('span').forEach(s => s.replaceWith(...s.childNodes));
+      k.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+      const tyhja = n => n && (n.nodeName === 'BR' || (n.nodeType === 3 && !rivi(n.nodeValue)));
+      while (tyhja(k.lastChild)) k.lastChild.remove();
+      // Säenumero alkuun ja sivu sen eteen ({220} ^2^ atha …): sivu alkaa ennen säettä.
+      if (nro) { const sup = document.createElement('sup'); sup.textContent = nro; k.insertBefore(document.createTextNode(' '), k.firstChild); k.insertBefore(sup, k.firstChild); kohtia++; }
+      if (odottava) { k.insertBefore(document.createTextNode('{' + odottava + '} '), k.firstChild); odottava = null; }
+      if (rivi(k.textContent)) el.appendChild(k);
+    };
+    const kay = solmu => {
+      for (const x of solmu.children) {
+        if (x.tagName === 'P') { kasittele(x); continue; }
+        // Sivu kappaleiden välissä (<span class="note"><span class="bold">Vv 216</span></span>): seuraavan kappaleen alkuun.
+        if (x.tagName === 'SPAN') { const n = sivuMerkki(x.textContent); if (n != null) { odottava = n; sivuja++; } continue; }
+        if (/^H[1-6]$/.test(x.tagName)) { const h = document.createElement('h2'); h.textContent = rivi(x.textContent); el.appendChild(h); continue; }
+        if (x.children.length) kay(x);
+      }
+    };
+    for (let n = teksti.nextElementSibling; n; n = n.nextElementSibling) {
+      if (n.tagName === 'P') kasittele(n); else if (n.tagName === 'SPAN') { const v = sivuMerkki(n.textContent); if (v != null) { odottava = v; sivuja++; } } else kay(n);
+    }
+    if (kkSanoja(el) < 30) return null;
+    el.normalize();
+    const h1 = rivi((document.querySelector('h1') || {}).textContent), kp = h1.indexOf(':');
+    const lisenssi = document.querySelector('a[href*="creativecommons.org/licenses"]');
+    return { html: irrota([el]).innerHTML, otsikko: kp > 0 ? rivi(h1.slice(kp + 1)) : h1 || rivi(document.title).replace(/\s*\(GRETIL\)\s*$/, ''),
+      tekija: kp > 0 ? rivi(h1.slice(0, kp)) : '', alaotsikko: lahdeLi.length > 3 ? lahdeLi.replace(/\s*=\s*[A-Za-z]{1,6}\.?\s*$/, '') : '',
+      sivusto: 'GRETIL', kohdat: kohtia > 2 ? 'yläindeksit' : '', vakiosivut: sivuja && lyh ? lyh : '', lahde: osoite,
+      oikeus: lisenssi ? { teksti: rivi(lisenssi.textContent).replace(/^Distributed under an? /i, '').replace(/\.$/, ''), lahde: lisenssi.href } : null,
+      maar: [], naytto: 'GRETIL' };
   }
 
   /* augustinus.it (Sant'Agostino – Augustinus Hipponensis, Nuova Biblioteca Agostiniana ja Città Nuova; käyttäjän pyyntö 20.11.2026,
@@ -8319,7 +8391,7 @@
     if (!tekstia) return null;
     const tekija = 'Immanuel Kant';
     const tulos = { html: irrota([el]).innerHTML, otsikko: otsikko || nimio.replace(/^AA\s+[IVXLC]+,\s*/, ''), tekija, tyyppi: 'tieteellinen', sivusto: KO_NIMI,
-      teos: 'Kant’s gesammelte Schriften', numero: String(osa), sivut: sivut.length > 1 ? sivut[0].n + '–' + sivut[sivut.length - 1].n : String(sivu),
+      teos: 'Kant’s gesammelte Schriften', vakiosivut: 'AA', numero: String(osa), sivut: sivut.length > 1 ? sivut[0].n + '–' + sivut[sivut.length - 1].n : String(sivu),
       julkaistu: vuosi, lahde: sivut.length > 1 ? osoite3(sivut[0].n) : u, maar, naytto: KO_NIMI + (sivut.length > 1 ? ' (' + sivut.length + ' sivua)' : '') };
     if (teos) tulos.otsikko = teos + ': ' + otsikko;
     return tulos;
@@ -8953,7 +9025,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, gretil, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
@@ -8983,6 +9055,8 @@
   kentta('doi', blogi && blogi.doi);
   kentta('ladonta', blogi && blogi.ladonta);
   kentta('kohdat', blogi && blogi.kohdat);
+  // Vakiosivut (20.11.2026, opas 3.2): sivunumerojärjestelmän lyhenne kopion paikantimeen (AA 4:393, SKS 4:99).
+  kentta('vakiosivut', blogi && blogi.vakiosivut);
   kentta('lähde', blogi && blogi.lahde || osoite);
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }

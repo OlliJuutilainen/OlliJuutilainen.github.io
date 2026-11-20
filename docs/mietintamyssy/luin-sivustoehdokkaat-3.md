@@ -213,7 +213,8 @@ Käyttäjän kysymys henkilölistan ulkopuolelta. Mitattu kontista 20.11.2026.
 - **augustinus.it** (Nuova Biblioteca Agostiniana, Città Nuova): koko tuotanto latinaksi ja italiaksi, kirja yhdellä sivulla
   (*Confessiones* I: latina 5 421, italia 7 284 sanaa; *De civitate Dei* I 11 821), samat kappaleankkurit kummassakin. *Tehty
   20.11.2026* (`augustinus()`): lomitettu käännös. Sivusto katkoo yhteyksiä toistuvista hauista (curl 35).
-- **GRETIL** (Göttingen): *Mūlamadhyamakakārikā* yhdellä sivulla (7 375 sanaa sanskritia), *Vigrahavyāvartanī* 5 861.
+- **GRETIL** (Göttingen): *Mūlamadhyamakakārikā* yhdellä sivulla (7 375 sanaa sanskritia), *Vigrahavyāvartanī* 5 861. *Tehty
+  20.11.2026* (`gretil()`): säkeet, säenumerot kohdiksi, painoksen sivut vakiosivuiksi.
 - **Spinoza:** spinozaweb.org on luettelo (teossivulla 35 sanaa); ethicadb.org: *Ethica* kymmenenä versiona (latina Gebhardt,
   Appuhn, Elwes, Stern, Misrahi ym.), mutta osien sivut antoivat kontille 404, ei mitattu. la.wikisourcessa *Ethica*-hakemisto.
 - **Descartes:** fr.wikisource (*Méditations métaphysiques*) ja la.wikisource (*Meditationes*): nykyinen Wikisource-sovite.

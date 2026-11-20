@@ -70,6 +70,8 @@
 
   // Kenoviiva suojaa kaikki ASCII-välimerkit (CommonMark; MarkDownload suojaa oletuksena).
   var SUOJATTAVA = /[!-\/:-@\[-`{-~]/;
+  // Vakiosivun merkki: valinnainen järjestelmän kirjain (KrV A/B), numero, valinnainen nide tai jakso (4:429) ja kirjain (327a, 1094a12).
+  var RE_VSIVU = /^\{((?:[A-Za-z]{1,3}\s?)?\d{1,4}(?:[:.]\d{1,4})?[a-z]?\d{0,2})\}/;
 
   // Korostuksen loppumerkki: n kappaletta merkkiä c, ei välilyönnin perässä.
   // Alaviitteet ja koodi ohitetaan, jottei niiden sisällä oleva * sulje ulompaa korostusta.
@@ -143,6 +145,12 @@
     }
     while (i < s.length) {
       var c = s[i];
+      // Vakiosivu (opas 3.2, 20.11.2026): etukentän vakiosivut: AA tekee merkeistä {4:429}, {A 12} ja {327a} harmaita
+      // sivunumeroita, joista kopion paikannin ottaa sijainnin (AA 4:429). Ilman etukenttää aaltosulkeet ovat tekstiä.
+      if (c === '{' && ctx.vs) {
+        var vsm = RE_VSIVU.exec(s.slice(i, i + 24));
+        if (vsm) { flush(); out += '<span class="vsivu">' + esc(vsm[1]) + '</span>'; i += vsm[0].length; continue; }
+      }
       if (c === '\\') {
         // Kenoviiva rivin lopussa on rivinvaihto, myös välilyöntien kanssa; tekstin lopussa se jätetään pois.
         var bm = /^\\[ \t]*(\n|$)/.exec(s.slice(i, i + 64));
@@ -2057,6 +2065,8 @@
     var lomitettu = /^lomitettu käännös$/i.test(String(m.ladonta || '').replace(/\s+/g, ' ').trim());
     if (lomitettu) res.lomitettu = true;
     var ylaKohdat = /^yläindeksit$/i.test(String(m.kohdat || '').trim());
+    var vakiosivut = String(m.vakiosivut || '').replace(/\s+/g, ' ').trim();
+    if (vakiosivut) { res.vakiosivut = vakiosivut; leipa.vs = true; }
     var maaritelmat = [];
     [V.fn, V.cite].forEach(function (o) { Object.keys(o).forEach(function (k) { maaritelmat.push(o[k].text); }); });
     vt = viittaukset(tokens, uniq, maaritelmat);
