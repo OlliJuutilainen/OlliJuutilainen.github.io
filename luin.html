@@ -87,12 +87,13 @@
   :root.kontrasti:not([data-teema="tumma"]) { --paperi: #ffffff; --muste: #000000; }
   /* Sysi (käyttäjän pyyntö 20.11.2026, sama aset.kontrasti tummassa; korvasi Mustimman, jossa vain tausta oli #000): tausta
      sysimusta ja paletti himmeämpi ja lämpimämpi. Ei yötila eikä meripihkaa. Käyttäjän kokeilut: kontrasti 5,0 ja 8,4 liian
-     sysi, 13,0 liian lähellä Mustinta; nyt keskitie 10,5 (Mustin 15,9). Muste OKLCH(0.781 0.053 82), sivuvärit 8,4:n ja 13:n
-     version puolivälissä, ruoste h 65 (ei oranssiin). Viivat ja taustasävyt (viiva 1,6, hius 1,2, valo 1,45 mustaa vasten)
+     sysi, 13,0 liian lähellä Mustinta; nyt keskitie 10,5 (Mustin 15,9). Muste OKLCH(0.781 0.053 82). Sivuvärien
+     OKLCH-valoisuus on musteesta yhtä kaukana kuin tummassa (sitaatti −0,145, harmaa −0,208, huomio −0,238, okra −0,13; ruoste
+     −0,24, h 65 ei oranssiin): puoliväliin keskiarvoistettuina englanninkielinen käännös ei erottunut alkutekstistä (käyttäjä). Viivat ja taustasävyt (viiva 1,6, hius 1,2, valo 1,45 mustaa vasten)
      ovat himmeämmät kuin tummassa, koska tausta on musta eikä tummanruskea (käyttäjä). */
   :root.kontrasti[data-teema="tumma"] {
-    --paperi: #000000; --muste: #c9b592; --harmaa: #978263; --viiva: #392e22;
-    --ruoste: #9d7145; --okra: #bf9335; --huomio: #8d795a; --sitaatti: #aa9473; --hius: #211a13; --valo: #31281e;
+    --paperi: #000000; --muste: #c9b592; --harmaa: #887558; --viiva: #392e22;
+    --ruoste: #906539; --okra: #b3872b; --huomio: #7f6c50; --sitaatti: #9c8869; --hius: #211a13; --valo: #31281e;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
