@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online ja isidore.co:n Akvinolainen (20.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen ja Det Kgl. Biblioteks tekstportal (20.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3122,6 +3122,134 @@
     const km = /translated by\s+(.+?)(?:\s+(?:Chicago|New York|London|Notre Dame|Garden City|Html|\(|\d{4})|\s+[A-Z]{4,}\b|$)/.exec(kaant.replace(/translated by/i, 'translated by'));
     return { html: irrota([el]).innerHTML, otsikko: ots, tekija: 'Thomas Aquinas', teos: teos !== ots ? teos : '',
       suomentaja: km ? kkKaantaja([rivi(km[1]).replace(/[,.;]+$/, '')]) : '', sivusto: 'isidore.co', ladonta: 'lomitettu käännös', lahde: osoite };
+  }
+
+  /* Det Kgl. Biblioteks tekstportal (tekster.kb.dk; käyttäjän pyyntö 20.11.2026, sivustoehdokkaat-3 kärki 1): Søren Kierkegaards
+     Skrifter (sks.dk ohjaa tänne), Arkiv for Dansk Litteratur ym. Rails/Blacklight, palvelin renderöi koko teoksen yhdelle sivulle
+     (/text/<kokoelma>-…-root; Frygt og Bæven 40 996 sanaa). Teksti #root.collection-<kokoelma>. Merkinnät: henkilöt, paikat,
+     teokset, kommentit ja lainauslinkit symboleina (span.symbol: 👤, 📌, ►, ✂) ja a.quote-linkkeinä: pois, teksti jää. SKS:n sivut
+     (a.pagination > small.symbol.pagination.edition) yläindeksiksi niteen kanssa kuten Korporassa (4:99; nide käytetystä laitoksesta
+     Bd. 4), ensipainoksen sivut (pagination.other) ja ADL:n sivunvaihdot (span.pageBreak, p.eg) pois, otsikoissa myös SKS:n.
+     Alaviitteet: tekijän viitteet SKS:ssä sup[id^=ref] > a[href=#fb.1] → span.note_content#fb.1 (luettelo div:ssä kappaleen perässä,
+     pois), ADL:ssä a.note ja piilotettu span.note_content heti perässä. Tekstikritiikki span.apparatus-criticus (piilotettu, lemma
+     ] lukutapa ja todistaja em.witness) alaviitteeksi; ⓘ-symboli ja sen skripti pois. SKS:n selitykset: a.comment (#fb-N) on
+     lemman ympärillä, selitys on erillisellä sivulla (a#Tekstkommentarer, yksi haku): p#fb-N, jossa ◄-linkki lemmaan ja : selitys;
+     alaviitteeksi muodossa *lemma*: selitys. Tekijän viitteet käsitellään ensin ja niistä puretaan selitys- ja tekstikritiikkimerkinnät
+     (viite viitteessä ei toimi), otsikon viitemerkki siirretään seuraavan kappaleen alkuun (Luin ei näytä otsikon alaviitettä).
+     ADL:n nimiösivu (div.title-page) pois. Etukenttään tekijä, teos (Søren Kierkegaards
+     Skrifter, Bd. 4), toimittajat (udg. af …), kustantaja ja vuosi (Udgiver) ja CC0 (rel=license). Ei mainoksia eikä
+     lahjoituspyyntöä. Mitattu 20.11.2026. */
+  const KB_NIMI = 'Det Kgl. Biblioteks tekstportal';
+  async function kbTeksti() {
+    if (!/(^|\.)tekster\.kb\.dk$/i.test(location.hostname) || !/^\/text\//.test(location.pathname)) return null;
+    const juuri = document.querySelector('#root[class*="collection-"]');
+    if (!juuri) return null;
+    const meta = otsake => {
+      const s = [...document.querySelectorAll('dl.document-metadata strong')].find(x => rivi(x.textContent).replace(/:$/, '').toLowerCase() === otsake);
+      const d = s && s.closest('div');
+      if (!d) return null;
+      const k = d.cloneNode(true); k.querySelector('strong').remove(); return k;
+    };
+    const tekija = rivi(((meta('forfatter') || {}).textContent) || '');
+    const udg = meta('anvendt udgave'), udgT = udg ? rivi(udg.textContent) : '';
+    const teos = rivi(((udg && udg.querySelector('em')) || {}).textContent);
+    const bind = (/\bBd\.\s*(\d+)/.exec(teos) || [])[1] || '';
+    const toim = (/udg\. af\s+(.+?),\s*(?:[^,;]+(?:Forskningscenteret|Selskab|Sprog|Litteratur|Forlag|Borgen|Gyldendal)|\d{4})/i.exec(udgT) || [])[1] || '';
+    const udgiver = rivi(((meta('udgiver') || {}).textContent) || '').replace(/\s+Udgivelses.*$/, '');
+    const vuosi = (/(1[5-9]\d\d|20\d\d)\s*$/.exec(udgiver) || /(1[5-9]\d\d|20\d\d)\s*\.?\s*$/.exec(udgT) || [])[1] || '';
+    const el = juuri.cloneNode(true), maar = [], laskuri = { n: 0 };
+    const viite = (kohta, html) => {
+      const t = muunna(html, 'inlined').trim();
+      if (!t) { kohta.remove(); return; }
+      const tunnus = 'kb' + (++laskuri.n);
+      kohta.replaceWith(merkki(tunnus));
+      maar.push(maaritelma(tunnus, t));
+    };
+    el.querySelectorAll('script, style, noscript, a.quote, div.title-page, p.eg').forEach(x => x.remove());
+    el.querySelectorAll('[id^="expose_link_"]').forEach(x => { if (!rivi(x.textContent)) x.remove(); });
+    // Sivut.
+    el.querySelectorAll('a.pagination').forEach(a => {
+      const ed = a.querySelector('small.pagination.edition, small.edition');
+      const kehys = a.parentElement && a.parentElement.tagName === 'SPAN' && a.parentElement.children.length === 1 ? a.parentElement : a;
+      if (!ed || a.closest('h1, h2, h3, h4, h5, h6')) { kehys.remove(); return; }
+      const sup = document.createElement('sup'); sup.textContent = (bind ? bind + ':' : '') + rivi(ed.textContent); kehys.replaceWith(sup);
+    });
+    el.querySelectorAll('span.pageBreak').forEach(x => x.remove());
+    // Tekijän viitteet ensin (SKS: sup > a#…; ADL: a.note + span.note_content): niiden sisältä selitys- ja tekstikritiikkimerkinnät
+    // puretaan, koska Luinissa ei ole viitettä viitteen sisällä (Frygt og Bævenin viitteissä Lessing ja tekstikritiikki).
+    const siisti = nc => {
+      const k = nc.cloneNode(true); k.removeAttribute('style');
+      k.querySelectorAll('span.apparatus-criticus, span.symbol, .debug, script').forEach(x => x.remove());
+      k.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+      return k;
+    };
+    el.querySelectorAll('sup[id^="ref"] > a[href^="#"]').forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      const nc = [...el.querySelectorAll('span.note_content')].find(x => x.id === id);
+      if (nc) viite(a.parentElement, siisti(nc).innerHTML);
+    });
+    el.querySelectorAll('a.note').forEach(a => {
+      const nc = a.nextElementSibling && a.nextElementSibling.matches('span.note_content') ? a.nextElementSibling : null;
+      if (!nc) return;
+      const k = siisti(nc);
+      const ens = k.firstChild; if (ens && ens.nodeType === 3) ens.nodeValue = ens.nodeValue.replace(/^\s*[*†‡\d]+\)?\s*/, '');
+      nc.remove(); viite(a, k.innerHTML);
+    });
+    el.querySelectorAll('ol').forEach(ol => { if (ol.querySelector('span.note_content')) { const d = ol.parentElement; (d && d !== el && d.children.length === 1 ? d : ol).remove(); } });
+    // Tekstikritiikki.
+    el.querySelectorAll('span.apparatus-criticus').forEach(ap => {
+      const k = ap.cloneNode(true); k.removeAttribute('style');
+      k.querySelectorAll('em.witness').forEach(w => { w.textContent = rivi(w.textContent) + (w.getAttribute('title') ? ' (' + rivi(w.getAttribute('title')) + ')' : ''); });
+      viite(ap, k.innerHTML);
+    });
+    el.querySelectorAll('span.symbol, .debug').forEach(x => x.remove());
+    // SKS:n selitykset erilliseltä sivulta.
+    const kommentit = [...el.querySelectorAll('a.comment[href*="#"]')];
+    let kd = null;
+    const kl = document.querySelector('a#Tekstkommentarer[href]');
+    if (kommentit.length && kl) kd = await hae(new URL(kl.getAttribute('href'), osoite).href);
+    kommentit.forEach(a => {
+      const lemma = a.querySelector('[title="Kommentar"]') || a;
+      const id = decodeURIComponent((a.getAttribute('href') || '').split('#')[1] || '');
+      const p = kd && id ? kd.getElementById(id) : null;
+      let html = '';
+      if (p) {
+        const k = p.cloneNode(true);
+        const lk = k.querySelector('a[href*="#"]'); const lt = lk ? rivi(lk.textContent).replace(/^◄\s*/, '') : '';
+        if (lk) (lk.parentElement && lk.parentElement.tagName === 'SPAN' && lk.parentElement.children.length === 1 ? lk.parentElement : lk).remove();
+        k.querySelectorAll('span.symbol, .debug, script').forEach(x => x.remove());
+        html = (lt ? '<em>' + lt.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;') + '</em>' : '') + k.innerHTML.replace(/^\s*/, '');
+      }
+      const teksti = document.createDocumentFragment(); teksti.append(...lemma.cloneNode(true).childNodes);
+      if (!html) { a.replaceWith(teksti); return; }
+      const paikka = document.createElement('span');
+      a.replaceWith(teksti, paikka);
+      viite(paikka, html);
+    });
+    // Otsikon selitys (Problemata, Foreløbig Expectoration) seuraavan kappaleen alkuun: Luin ei näytä otsikon alaviitettä.
+    el.querySelectorAll(OTSIKOT).forEach(h => {
+      const merkit = (h.textContent.match(MERKKI) || []);
+      if (!merkit.length) return;
+      const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+      for (let n = w.nextNode(); n; n = w.nextNode()) n.nodeValue = n.nodeValue.replace(MERKKI, '');
+      let p = h.nextElementSibling;
+      while (p && p.tagName !== 'P') p = p.nextElementSibling;
+      if (p) p.insertBefore(document.createTextNode(merkit.join('') + ' '), p.firstChild);
+    });
+    // Muut sivuston linkit tekstiksi.
+    el.querySelectorAll('a').forEach(a => { const h = a.getAttribute('href') || ''; if (!/^https?:/i.test(h) || /tekster\.kb\.dk/i.test(h)) a.replaceWith(...a.childNodes); });
+    el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
+    el.querySelectorAll('p, div').forEach(p => { if (el.contains(p) && !rivi(p.textContent) && !p.querySelector('br, img, hr')) p.remove(); });
+    if (kkSanoja(el) < 50) return null;
+    kkTasoita(el);
+    el.normalize();
+    const lisenssi = document.querySelector('a[rel="license"][href*="creativecommons"]');
+    const ukm = /^(.*?)\s+((?:1[5-9]|20)\d\d)$/.exec(udgiver);
+    return { html: irrota([el]).innerHTML, otsikko: rivi(document.title).replace(/\s*-\s*Det Kgl\. Biblioteks tekstportal\s*$/i, ''),
+      tekija, teos, toimittaja: toim ? kkLuettelo(toim.split(/\s*;\s*/).map(rivi).filter(Boolean)) : '',
+      kustantaja: ukm ? ukm[1] : udgiver, julkaistu: vuosi, sivusto: KB_NIMI, lahde: osoite.split('#')[0], maar,
+      oikeus: lisenssi ? { teksti: /zero/.test(lisenssi.href) ? 'CC0 1.0' : rivi(lisenssi.textContent), lahde: lisenssi.href } : null,
+      naytto: teos || KB_NIMI };
   }
 
   /* Emergence Magazine (emergencemagazine.org; käyttäjän pyyntö 16.11.2026, pahvin B7: mittaa ensin kuten Noema). Mitattu:
@@ -8028,7 +8156,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, sls, snellman, religionOnline, aquinas, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, sls, snellman, religionOnline, aquinas, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
