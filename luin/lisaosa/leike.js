@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen ja Det Kgl. Biblioteks tekstportal (20.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal ja The Philological Museum (20.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -3250,6 +3250,165 @@
       kustantaja: ukm ? ukm[1] : udgiver, julkaistu: vuosi, sivusto: KB_NIMI, lahde: osoite.split('#')[0], maar,
       oikeus: lisenssi ? { teksti: /zero/.test(lisenssi.href) ? 'CC0 1.0' : rivi(lisenssi.textContent), lahde: lisenssi.href } : null,
       naytto: teos || KB_NIMI };
+  }
+
+  /* The Philological Museum (philological.cal.bham.ac.uk, Dana F. Suttonin uuslatinan kirjasto, noin 290 teosta 1400–1800-luvuilta,
+     myös Erasmuksen adagio; käyttäjän pyyntö 20.11.2026: renessanssihumanistit). Teos on kansiossaan: latina ja käännös eri sivuilla
+     (text.html | trans.html, 1lat.html | 1eng.html, act1.html | act1trans.html), ja kappaleen vihreä neliö (img grsqr) linkittää
+     vastinsivun samaan ankkuriin (a[name=N]). Leike on lomitettu käännös kuten Perseuksessa ja Akvinolaisessa: sivut jaetaan
+     ankkureittain jaksoiksi (lohko kuuluu viimeisimpään ankkuriin), ja kunkin latinan jakson perään tulee saman ankkurin
+     käännös lainauksena; käännöksen jakso, jonka ankkuria latinassa ei ole, liittyy edelliseen. Siniset neliöt (kommentaari
+     notes.html, tekstikritiikki appcrit.html) alaviitteiksi: kohdesivulla merkintä on ankkurista seuraavaan ankkuriin <br>-rivien
+     välissä (Range). Erasmuksen adagiossa ankkurit ovat lähteessä pykälän väärässä kohdassa: jos merkinnän lihavoitu lemma ei osu
+     viitemerkkiä edeltävään tekstiin mutta edellisen merkinnän lemma osuu, käytetään edellistä. Jaksot aloittavat vain ankkurit,
+     jotka ovat molemmilla sivuilla (Miltonin säekappaleessa myös kommenttien ankkureita), ja kappale pilkotaan niiden kohdalta.
+     Sulkematon x-claris-window (Claris Home Page) puretaan. Käännössivulta leikattaessa vastinsivu on latina. Täytekuvat, fontit ja ohjerivi (Click a blue square …,
+     Tessera caerulea …) pois. Otsikko käännössivun keskitetystä otsakkeesta (Herculei labores / Desiderius Erasmus: Adagia III.1.1:
+     tekijä ja teos kaksoispisteen molemmin puolin). Haetaan vastinsivu ja enintään kaksi viitesivua. Ei mainoksia eikä
+     lahjoituspyyntöä. Mitattu 20.11.2026. */
+  async function philological() {
+    if (!/(^|\.)philological\.(cal\.)?bham\.ac\.uk$/i.test(location.hostname)) return null;
+    const tiedosto = u => (/[^/]*$/.exec(new URL(u, osoite).pathname) || [''])[0];
+    const nelio = a => a.querySelector('img[src*="grsqr" i], img[src*="green" i]');
+    const vastine = d => {
+      const lask = new Map();
+      d.querySelectorAll('a[href*="#"]').forEach(a => { if (!nelio(a)) return; const f = tiedosto(a.getAttribute('href')); if (f && f !== tiedosto(osoite)) lask.set(f, (lask.get(f) || 0) + 1); });
+      return [...lask].sort((a, b) => b[1] - a[1])[0];
+    };
+    const v = vastine(document);
+    if (!v || v[1] < 3) return null;
+    const oma = tiedosto(osoite), kansio = osoite.split('#')[0].replace(/[^/]*$/, '');
+    const englantiOma = /(trans|eng)/i.test(oma) && !/(trans|eng)/i.test(v[0]);
+    const vd = await hae(kansio + v[0]);
+    if (!vd) return null;
+    const lat = englantiOma ? vd : document, eng = englantiOma ? document : vd;
+    const maar = [], laskuri = { n: 0 }, viiteSivut = new Map();
+    // Viitesivun merkintä ankkurista seuraavaan ankkuriin: { teksti, lemma } (lemma = lihavoitu alku ilman rivinumeroa).
+    const merkinta = (d, i) => {
+      const ankkurit = [...d.querySelectorAll('a[name]')];
+      if (i < 0 || i >= ankkurit.length) return null;
+      const r = d.createRange(); r.setStartAfter(ankkurit[i]);
+      if (ankkurit[i + 1]) r.setEndBefore(ankkurit[i + 1]); else r.setEndAfter(d.body.lastChild);
+      const k = document.createElement('div'); k.appendChild(r.cloneContents());
+      k.querySelectorAll('img, script, style').forEach(x => x.remove());
+      k.querySelectorAll('font, span').forEach(x => x.replaceWith(...x.childNodes));
+      k.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+      const b = k.querySelector('strong, b');
+      return { teksti: muunna(k.innerHTML.replace(/(<br\s*\/?>\s*)+$/i, ''), 'inlined').trim().replace(/\s*\n+\s*/g, ' '),
+        lemma: b ? rivi(b.textContent).replace(/^[\dIVXLC.]+\s+/, '') : '' };
+    };
+    const sanat = t => rivi(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter(w => w.length > 2);
+    // Lemma osuu, kun sen sanoista yli puolet on viitemerkkiä edeltävässä tekstissä.
+    const lemmaOsuu = (lemma, ennen) => { const l = sanat(lemma), e = new Set(sanat(ennen)); return l.length > 0 && l.filter(w => e.has(w)).length * 2 > l.length; };
+    const siirto = new Map(), kaytetty = new Set();
+    const viitteet = async (el, d) => {
+      for (const a of [...el.querySelectorAll('a[href*="#"]')]) {
+        const h = a.getAttribute('href'), f = tiedosto(h), nimi = decodeURIComponent(h.split('#')[1] || '');
+        if (!a.querySelector('img') || !f || f === v[0] || f === oma || !nimi) continue;
+        if (!viiteSivut.has(f) && viiteSivut.size < 2) viiteSivut.set(f, await hae(kansio + f));
+        const vd2 = viiteSivut.get(f);
+        const i = vd2 ? [...vd2.querySelectorAll('a[name]')].findIndex(x => x.getAttribute('name') === nimi) : -1;
+        let m = vd2 ? merkinta(vd2, i) : null, ii = i;
+        // Ankkuri pykälän väärässä kohdassa lähteessä (Erasmuksen adagio: #3 on merkinnän Deinde ubi pertuleris lopussa): jos oma
+        // lemma ei osu viitemerkkiä edeltävään tekstiin mutta edellisen merkinnän lemma osuu, käytetään edellistä. Kun vertailua
+        // ei voi tehdä (käännöksen englanti, latinalainen lemma), käytetään sivun enemmistön ratkaisua (latina käsitellään ensin).
+        const tila = siirto.get(f) || { omat: 0, edelliset: 0 }; siirto.set(f, tila);
+        const ed = vd2 ? merkinta(vd2, i - 1) : null;
+        const r = el.ownerDocument.createRange(); r.setStart(el, 0); r.setEndBefore(a);
+        const ennen = r.toString().slice(-300);
+        if (m && m.lemma && lemmaOsuu(m.lemma, ennen)) tila.omat++;
+        else if (ed && ed.lemma && lemmaOsuu(ed.lemma, ennen)) { tila.edelliset++; m = ed; ii = i - 1; }
+        else if (ed && tila.edelliset > tila.omat) { m = ed; ii = i - 1; }
+        // Sama merkintä vain kerran (latinan puolella; käännöksen kopio jäisi rinnakkain toiseksi alaviitteeksi).
+        const avain = f + '#' + ii;
+        if (!m || !m.teksti || kaytetty.has(avain)) { a.remove(); continue; }
+        kaytetty.add(avain);
+        const tunnus = 'pm' + (++laskuri.n);
+        a.replaceWith(merkki(tunnus));
+        maar.push(maaritelma(tunnus, m.teksti));
+      }
+    };
+    const LOHKO = 'p, h1, h2, h3, h4, h5, h6, li, center, blockquote, div';
+    // Sivu jaksoiksi: [{ nimi, lohkot }].
+    // Sivu jaksoiksi: [{ nimi, lohkot }]. Jakson aloittavat vain ankkurit, jotka ovat myös vastinsivulla (sallitut): Miltonin
+    // säekappaleessa on lisäksi kommenttien ankkureita (20, 35), ja käännös on kohdistettu vain kohtiin 1, 31, 48 …
+    const nimet = d => new Set([...d.querySelectorAll('a[name]')].map(a => rivi(a.getAttribute('name'))).filter(Boolean));
+    const jaksot = async (d, sallitut) => {
+      const runko = d.body.cloneNode(true);
+      runko.querySelectorAll('script, style').forEach(x => x.remove());
+      // Claris Home Pagen jäänne voi jäädä sulkematta ja sisältää koko sivun (Forsett): puretaan, ei poisteta.
+      runko.querySelectorAll('x-claris-window, x-claris-tagview').forEach(x => x.replaceWith(...x.childNodes));
+      // Dokumenttijärjestyksessä: ankkuri aloittaa jakson, olipa se tekstilohkossa, pelkkien neliöiden lohkossa (Forsett) tai
+      // lohkojen välissä (Milton: <A NAME=1> ennen CENTERiä). Sama nimi peräkkäin (Miltonin viisi 1-ankkuria) ei aloita uutta.
+      const tulos = [{ nimi: '', lohkot: [] }];
+      const ok = a => { const n = rivi(a.getAttribute('name')); return n && sallitut.has(n) ? n : ''; };
+      const uusi = n => { if (n && tulos[tulos.length - 1].nimi !== n) tulos.push({ nimi: n, lohkot: [] }); };
+      const lehti = x => x.matches(LOHKO) && !x.querySelector(LOHKO);
+      const ohje = t => /^(click a (blue|green) square|to see a commentary note|tessera caerulea)/i.test(t);
+      // Lehtilohko palasiksi sallittujen ankkurien kohdalta: [{ nimi, el }] (nimi '' = jatkaa edellistä jaksoa).
+      const pilko = x => {
+        const anks = [...x.querySelectorAll('a[name]')].filter(ok);
+        if (anks.length < 2) return [{ nimi: anks[0] ? ok(anks[0]) : '', el: x }];
+        const doc = x.ownerDocument, palat = [];
+        const pala = (alku, loppu, nimi) => {
+          const r = doc.createRange();
+          if (alku) r.setStartBefore(alku); else r.setStart(x, 0);
+          if (loppu) r.setEndBefore(loppu); else r.setEnd(x, x.childNodes.length);
+          const e = doc.createElement(x.tagName === 'CENTER' ? 'center' : 'p'); e.appendChild(r.cloneContents());
+          if (rivi(e.textContent)) palat.push({ nimi, el: e });
+        };
+        pala(null, anks[0], '');
+        anks.forEach((a, i) => pala(a, anks[i + 1] || null, ok(a)));
+        return palat;
+      };
+      let otsake = null;
+      const w = runko.ownerDocument.createTreeWalker(runko, NodeFilter.SHOW_ELEMENT);
+      for (let x = w.nextNode(); x; x = w.nextNode()) {
+        if (x.tagName === 'A' && x.getAttribute('name')) { const l = x.closest(LOHKO); if (!l || !lehti(l)) uusi(ok(x)); continue; }
+        if (!lehti(x)) continue;
+        const t = rivi(x.textContent.replace(/\u00a0/g, ' '));
+        if (!otsake && t && x.tagName === 'CENTER' && !ohje(t)) { otsake = x; const a = x.querySelector('a[name]'); if (a) uusi(ok(a)); continue; }
+        for (const pl of pilko(x)) {
+          uusi(pl.nimi);
+          const tt = rivi(pl.el.textContent.replace(/\u00a0/g, ' '));
+          if (!tt || ohje(tt)) continue;
+          tulos[tulos.length - 1].lohkot.push(pl.el);
+        }
+      }
+      for (const j of tulos) for (const b of j.lohkot) {
+        b.querySelectorAll('a').forEach(a => { if (nelio(a) || (!a.getAttribute('href') && !a.textContent.trim())) a.remove(); });
+        await viitteet(b, d);
+        b.querySelectorAll('img').forEach(x => x.remove());
+        b.querySelectorAll('font, span').forEach(x => x.replaceWith(...x.childNodes));
+        b.querySelectorAll('a[href]').forEach(a => { if (!/^https?:/i.test(a.getAttribute('href')) || /bham\.ac\.uk/.test(a.getAttribute('href'))) a.replaceWith(...a.childNodes); });
+        [...b.attributes].forEach(x => b.removeAttribute(x.name));
+      }
+      return { jaksot: tulos.filter(j => j.lohkot.length), otsake };
+    };
+    const nl = nimet(lat), ne = nimet(eng);
+    const L = await jaksot(lat, ne), E = await jaksot(eng, nl);
+    const paikka = new Map();
+    L.jaksot.forEach((j, i) => { if (j.nimi && !paikka.has(j.nimi)) paikka.set(j.nimi, i); });
+    const osuu = E.jaksot.filter(j => j.nimi && paikka.has(j.nimi)).length;
+    if (osuu < 3) return null;
+    const kaannos = L.jaksot.map(() => []);
+    let ed = 0;
+    E.jaksot.forEach(j => { const i = j.nimi && paikka.has(j.nimi) ? paikka.get(j.nimi) : ed; ed = Math.max(ed, i); kaannos[i].push(...j.lohkot); });
+    const el = document.createElement('div');
+    const lohkoksi = b => { const p = document.createElement(/^H[1-6]$/.test(b.tagName) ? b.tagName : 'p'); p.append(...b.childNodes); return p; };
+    L.jaksot.forEach((j, i) => {
+      el.append(...j.lohkot.map(lohkoksi));
+      if (kaannos[i].length) { const q = document.createElement('blockquote'); q.append(...kaannos[i].map(lohkoksi)); el.appendChild(q); }
+    });
+    if (kkSanoja(el) < 50) return null;
+    kkTasoita(el);
+    el.normalize();
+    const rivit = o => o ? aqRivit(o) : [];
+    const er = rivit(E.otsake), lr = rivit(L.otsake);
+    const tt = (er[1] || '').split(/:\s*/);
+    return { html: irrota([el]).innerHTML, otsikko: er[0] || lr[0] || rivi(document.title), tekija: tt.length > 1 ? tt[0] : '',
+      teos: tt.length > 1 ? tt.slice(1).join(': ') : '', sivusto: 'The Philological Museum', ladonta: 'lomitettu käännös', lahde: kansio + tiedosto(lat === document ? osoite : kansio + v[0]),
+      maar, naytto: 'The Philological Museum' };
   }
 
   /* Emergence Magazine (emergencemagazine.org; käyttäjän pyyntö 16.11.2026, pahvin B7: mittaa ensin kuten Noema). Mitattu:
@@ -8192,7 +8351,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, sls, snellman, religionOnline, aquinas, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, sls, snellman, religionOnline, aquinas, philological, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
