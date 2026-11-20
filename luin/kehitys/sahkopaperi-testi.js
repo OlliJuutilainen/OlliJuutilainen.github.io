@@ -140,7 +140,7 @@ async function aja(selain, U, kosketus) {
     return tulos;
   }, MUUTTUJAT);
   tulos(`${laji}: vaaleassa muuttuu vain paperi ja muste`, vertaa.vaalea === '--paperi=#ffffff --muste=#000000', vertaa.vaalea);
-  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#927749 --harmaa=#705d41 --viiva=#372c1e --ruoste=#895f35 --okra=#9f792b --huomio=#66553b --sitaatti=#806a44 --hius=#201911 --valo=#2e2519', vertaa.tumma);
+  tulos(`${laji}: Sysin paletti`, vertaa.tumma === '--paperi=#000000 --muste=#b9a175 --harmaa=#8c785a --viiva=#423627 --ruoste=#9b7145 --okra=#bc913a --huomio=#827054 --sitaatti=#a08a65 --hius=#271f16 --valo=#362c1f', vertaa.tumma);
   tulos(`${laji}: ei muita kontrastisääntöjä`, vertaa.saannot === ':root.kontrasti:not([data-teema="tumma"]) | :root.kontrasti[data-teema="tumma"]', vertaa.saannot);
 
   // 4. TCF-vihje.
@@ -206,7 +206,7 @@ async function aja(selain, U, kosketus) {
   await page.waitForSelector('#lukija:not([hidden])', { state: 'attached' }); await page.waitForTimeout(600);
   await page.evaluate(() => { const o = document.getElementById('palkkiopas'); if (o) o.hidden = true; });
   const tp = await page.evaluate(() => getComputedStyle(document.body).backgroundColor + ' ' + getComputedStyle(document.body).color);
-  tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(146, 119, 73)', tp);
+  tulos(`${laji}: Sysi lukimessa`, tp === 'rgb(0, 0, 0) rgb(185, 161, 117)', tp);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, `sahkopaperi-lukin-sysi-${kosketus ? 'kapea' : 'levea'}.png`) });
   tulos(`${laji}: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
   await ctx.close();
