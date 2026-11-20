@@ -1294,10 +1294,11 @@
   .valinnat.nipukka { padding-left: 16px; margin-top: -7px; }
   .valinnat.nipukka button { min-height: 30px; font-size: .8rem; gap: 6px; }
   .valinnat.nipukka svg { width: 7px; height: 9.6px; }
-  /* Teeman nelikenttä (käyttäjän pyyntö 20.11.2026): Vaalea ja Tumma, alla Sysi tai TCF-valkaisu samasta vasemmasta laidasta
-     kuin Vaalea (ei sisennystä) ja sen oikealla CLARVS·ET·DISTINCTVS. Nimi on kuin Descartesin nimiösivulla: versaalit
-     (U on V), interpunkti sanojen välissä väleineen (ilman välejä ET sulautui naapureihinsa). */
-  #teema-nipukka { padding-left: 0; }
+  /* Teeman alakytkimet (käyttäjän pyynnöt 20.11.2026): Sysi tai TCF-valkaisu ja sen alla CLARVS · ET · DISTINCTVS
+     allekkain valitun teeman (Vaalea tai Tumma) alla, salmiakit sen salmiakin laidassa (sijoitaNipukka()). Asiantuntijan
+     valintoja, siksi Sivunkäännön lisäkytkimiä pienemmät, etteivät häiritse oletusnäkymää. Nimi on kuin Descartesin
+     nimiösivulla: versaalit (U on V), interpunkti sanojen välissä väleineen (ilman välejä ET sulautui naapureihinsa). */
+  #teema-nipukka button { font-size: .74rem; }
   .valinnat .clarus { font-size: .82em; letter-spacing: .06em; }
   /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
@@ -1581,7 +1582,7 @@
        riippuu teemasta: Sysi tai TCF-valkaisu (piirraAsetukset()). -->
   <div class="aset-ots"><h3>Ulkoasu</h3><button type="button" id="papyrosoi" aria-live="polite">Sähköpapyrosoi asetukset</button></div>
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
-    <div class="valinnat nipukka" id="teema-nipukka" data-k="kontrasti:TCF-valkaisu|clarus:CLARVS · ET · DISTINCTVS"></div>
+    <div class="valinnat nipukka pino" id="teema-nipukka" data-k="kontrasti:TCF-valkaisu|clarus:CLARVS · ET · DISTINCTVS"></div>
     <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
@@ -3819,6 +3820,10 @@
   function sijoitaNipukka() {
     var s = $('#asetukset button[data-arvo="sivut"]');
     if (!s || !s.offsetParent) return;
+    // Teeman alakytkimet valitun teeman alle: salmiakkien vasemmat laidat samaan kohtaan.
+    var tv = $('#asetukset .asetus[data-a="teema"] button[aria-pressed="true"] .sal-ulko'), tn = $('#teema-nipukka');
+    tn.style.paddingLeft = '0';
+    if (tv) tn.style.paddingLeft = Math.max(0, Math.round(tv.getBoundingClientRect().left - $('.sal-ulko', tn).getBoundingClientRect().left)) + 'px';
     var n = $('#sivunapit-kytkin');
     n.style.paddingLeft = '0';
     n.style.paddingLeft = Math.round(s.getBoundingClientRect().left - n.getBoundingClientRect().left + 16) + 'px';
@@ -3906,7 +3911,8 @@
     v.hidden = false;
     var A = as.getBoundingClientRect(), r = b.getBoundingClientRect();
     v.style.left = Math.round(Math.max(4, Math.min(r.left - A.left, as.clientWidth - v.offsetWidth - 4))) + 'px';
-    v.style.top = Math.round(r.bottom - A.top + 2) + 'px';
+    // Alakytkinten alle, ettei vihje peitä alempaa kytkintä.
+    v.style.top = Math.round(Math.max(r.bottom, $('#teema-nipukka').getBoundingClientRect().bottom) - A.top + 2) + 'px';
   }
   function suljeTcf() { clearTimeout(tcfAjastin); tcfAjastin = null; $('#tcf-vihje').hidden = true; }
   $('#asetukset').addEventListener('mouseover', function (e) {
