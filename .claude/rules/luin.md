@@ -266,8 +266,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   jota käyttäjä piti hämäryyden ylärajana (muste 5,0: **ei himmeämmäksi kysymättä**). Sivuvärien Y-suhde musteeseen kuten Sysissä
   (erottuvuus), ruoste poikkeuksena .42, ettei näytä harmaalta. Arvot CSS:n kommentissa. CLARVS sulkee
   Sysin (ja Sysinin) pois. **Sysin on Sysin alakytkin** (käyttäjän pyyntö 20.11.2026): vielä pienempi, näkyvissä vain Sysin ollessa valittuna
-  (paikka varataan `visibility`llä, ei hyppelyä); arvo säilyy Sysin alla. **Sysinissä papyrosointinappi on aina *Oletusasetukset***
-  ja musteen värinen (`sysinPaalla()`, käyttäjän pyyntö 20.11.2026): majakka, jos Sysin valitaan vahingossa päivänvalossa.
+  (paikka varataan `visibility`llä, ei hyppelyä); arvo säilyy Sysin alla. Papyrosointinappi on Sysinissäkin tavallinen (käyttäjä
+  20.11.2026: Oletusasetukset-poikkeus vain hämäsi, ja muut asetukset ovat yhtä kirkkaita).
 - **Teeman alakytkimet** (käyttäjän säännöt 20.11.2026, `yksiPaletti()`, `av 10`): kumpikin teema muistaa omat alakytkimensä
   (`aset.kontrasti` = TCF, `aset.sysi` = Sysi, `aset.sysin`), ja teemaan palatessa ne palaavat. **Toisen teeman alakytkimet eivät
   näy lainkaan** (`.piilossa`, paikka varattuna): vaaleassa ei Sysiä eikä Sysiniä, tummassa ei TCF:ää. CLARVS on molempien yhteinen
