@@ -210,7 +210,7 @@ alusta: yksi sovite.
 ## Ehdotettu järjestys, jos työ otetaan alle
 
 1. **Michigan Publishing**: Janeway-tunnistimen laajennus; todennäköisesti pienin työ.
-2. **KB:n tekstiportaali** (SKS): koko teos sivulla, kommentit alaviitteiksi, sivunumerot; yksi sovite viidelle kokoelmalle.
+2. **KB:n tekstiportaali** (SKS): koko teos sivulla, kommentit alaviitteiksi, sivunumerot; yksi sovite viidelle kokoelmalle. *Tehty 20.11.2026* (`kbTeksti()`; mitattu SKS ja ADL).
 3. **isidore.co/aquinas**: rinnakkaistaulukko lomitetuksi käännökseksi; Perseuksen `ladonta` on valmiina. *Tehty 20.11.2026* (`aquinas()`).
 4. **Religion Online**: kirja koottuna ja alaviitteet. *Tehty 20.11.2026* (`religionOnline()`): kolme viitemuotoa, OCR-sivunumerot.
 5. **PoPuPS**: Lodel-apufunktiot Fabulasta. *Tehty 20.11.2026* (`popups()`).
