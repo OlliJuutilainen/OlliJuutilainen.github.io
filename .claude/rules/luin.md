@@ -11,7 +11,8 @@ Tässä on vain se, mitä koodista ei näe tai minkä voisi helposti rikkoa. Yks
 `luin/ohje.md` (luvut mainittu alla), historia commit-viesteissä.
 
 Käyttäjälle näkyvä teksti puhuu yksikössä, ei *meistä* (*kerro*, ei *kerro meille*), koska kehittäjä on yksi ihminen; poikkeus
-on leikillinen puhetapa kuten *Tusinasoftin johtoryhmä* (käyttäjän linjaus 20.11.2026).
+on leikillinen puhetapa kuten *Tusinasoftin johtoryhmä*. Kehittäjä on käyttäjälle *Olli* (*suoraan Ollille*, ei *kehittäjälle*);
+lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026).
 
 ### Tiedostot
 

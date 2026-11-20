@@ -102,7 +102,7 @@ function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   '
     uusi: document.querySelector('#lisaosa-lisa a[href="sivustot.html"]').target === '_blank',
     vari: getComputedStyle(document.querySelector('#plussa')).color === getComputedStyle(document.querySelector('.lisaosa .nimi')).color }));
   tulos('Latomo: plussa avaa palautelinkin ja linkin tuettuihin sivustoihin', ennen.piilo && ennen.nappi === '+' && !jalkeen.piilo && jalkeen.nappi === '–' && jalkeen.vari &&
-    jalkeen.linkit.join(' | ') === 'kuulemme mielellämme>palaute.html?mista=latomo | tähän mennessä tuettujen sivustojen lista>sivustot.html' &&
+    jalkeen.linkit.join(' | ') === 'kerro>palaute.html?mista=latomo | tähän mennessä tuettujen sivustojen lista>sivustot.html' &&
     jalkeen.uusi,
     JSON.stringify(jalkeen));
   if (KUVAT) { await s.setViewportSize({ width: 412, height: 900 }); await s.locator('.lisaosa').screenshot({ path: path.join(KUVAT, 'latomo-plussa.png') });
