@@ -2,4 +2,7 @@
     <!-- luin.html:n vaalean teeman paperi; ikkunan tausta ennen kuin sivu kertoo oman teemansa. -->
     <color name="paperi">#faf5ea</color>
     <color name="ruoste">#8c5426</color>
+    <!-- Käynnistyskuvake on vaalea myös tummassa järjestelmäteemassa: ei values-night-vastinetta. -->
+    <color name="kuvake_paperi">#faf5ea</color>
+    <color name="kuvake_ruoste">#8c5426</color>
 </resources>

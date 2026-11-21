@@ -7,7 +7,7 @@
         android:right="18dp"
         android:top="18dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/paperi" />
+            <solid android:color="@color/kuvake_paperi" />
             <corners android:radius="12dp" />
         </shape>
     </item>
