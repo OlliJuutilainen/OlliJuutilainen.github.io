@@ -8038,13 +8038,29 @@
      numeroista. Yksi kirja leikataan kuten osoitteen book=N, kaikki kuten koko teos, muut valitut yhdeksi tekstiksi kirja
      kerrallaan otsikoin (kuten koko teos). Ilman valintoja leike on sama kuin ennen: osoitteen kirja, lomitus jos käännös on.
      Tulokseen ps: teoksen kirjat ja tehty valinta, joista ikkuna piirtää valitsimet. */
+  /* Kirjat erillisinä teksteinä (V.erikseen, käyttäjän pyyntö 19.11.2026, mietintämyssyn luin-perseus-valinnat.md): kukin
+     valittu kirja leikataan kuten yksittäinen kirja, ja tulokseen tulee sarja; Latomo latoo jokaisen ja lukin tuo ne pinoon
+     erillisinä. Ensimmäinen kirja on myös tavallinen leike (esikatselu, vanha Latomo). */
   async function perseus() {
+    const V = PS_VALINNAT || {};
+    if (V.erikseen && Array.isArray(V.kirjat) && V.kirjat.length > 1) {
+      const sarja = [];
+      for (const n of V.kirjat) { const o = await perseusOsa({ kielet: V.kielet, kirjat: [n] }); if (o) sarja.push(o); }
+      if (sarja.length > 1) {
+        const eka = sarja[0];
+        eka.sarja = sarja;
+        eka.ps = Object.assign({}, eka.ps, { valitut: [...new Set(sarja.flatMap(o => o.ps ? o.ps.valitut : []))], erikseen: true });
+        return eka;
+      }
+    }
+    return perseusOsa(V);
+  }
+  async function perseusOsa(V) {
     if (!/(^|\.)perseus\.tufts\.edu$/i.test(location.hostname) || !/\/hopper\/text/.test(location.pathname)) return null;
     let doc = '';
     try { doc = new URL(osoite).searchParams.get('doc') || ''; } catch (e) { return null; }
     const dm = /^(Perseus:text:[\d.]+)(?::(.*))?$/.exec(doc);
     if (!dm) return null;
-    const V = PS_VALINNAT || {};
     let avaimet = (dm[2] || '').split(':').map(x => x.split('=')).filter(x => x.length === 2);
     const sivuKreikka = !!document.querySelector('.text_container.greek');
     const tc = (document.querySelector('.text_container') || {}).className || '';
@@ -9130,54 +9146,68 @@
 
   const otsikko = blogi ? blogi.otsikko || osoite
     : siisti(rivi(artikkeli && artikkeli.title || document.title), rivi(artikkeli && artikkeli.siteName)) || osoite;
-  const p = new Date(), pv = n => String(n).padStart(2, '0');
-  const etu = ['---'];
-  const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
-  kentta('tyyppi', blogi && blogi.tyyppi);
-  kentta('alaotsikko', blogi && blogi.alaotsikko);
-  kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
-  kentta('teos', blogi && blogi.teos);
-  kentta('numero', blogi && blogi.numero);
-  kentta('sivut', blogi && blogi.sivut);
-  kentta('toimittaja', blogi && blogi.toimittaja);
-  kentta('sarja', blogi && blogi.sarja);
-  kentta('laji', blogi && blogi.laji);
-  kentta('suomentaja', blogi && blogi.suomentaja);
-  kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
-  kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
-  kentta('paikka', blogi && blogi.paikka);
-  kentta('kustantaja', blogi && blogi.kustantaja);
-  kentta('doi', blogi && blogi.doi);
-  kentta('ladonta', blogi && blogi.ladonta);
-  kentta('kohdat', blogi && blogi.kohdat);
-  // Vakiosivut (20.11.2026, opas 3.2): sivunumerojärjestelmän lyhenne kopion paikantimeen (AA 4:393, SKS 4:99).
-  kentta('vakiosivut', blogi && blogi.vakiosivut);
-  kentta('lähde', blogi && blogi.lahde || osoite);
-  // Lähdeosion tiedot (md.js lahdeOsio(), 21.11.2026): sivuston ylläpitäjä, osasto ja alkukielinen laitos.
-  kentta('ylläpitäjä', blogi && blogi.yllapitaja);
-  let polku = blogi && blogi.polku || '';
-  if (!polku && !sep) try { polku = murupolku(otsikko); } catch (e) { polku = ''; }
-  kentta('polku', polku);
-  kentta('alkuteksti', blogi && blogi.alkuteksti);
-  let oikeus = null;
-  try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
-  if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
-  const raha = RAHOITUS[sovitin];
-  if (raha) { kentta('rahoitus', raha.laji); kentta('lahjoitusosoite', typeof raha.osoite === 'function' ? raha.osoite() : raha.osoite); }
-  kentta('leikattu', p.getFullYear() + '-' + pv(p.getMonth() + 1) + '-' + pv(p.getDate()));
-  // Otsikon oma viitemerkki (marxists.org: Porvarit ja proletaarit[23]) #-rivin perään.
-  const otsikkoMd = blogi && blogi.otsikkoMerkit ? blogi.otsikkoMerkit.replace(MERKKI, '[^viite-$1]') : '';
-  etu.push('---', '# ' + otsikko + otsikkoMd, '', '');
-  const alku = etu.join('\n');
+  // Etukenttä ja otsikkorivi (sarjan leikkeille sama kuin pääleikkeelle; Perseuksen kirjat erikseen, 21.11.2026).
+  function alkuOf(blogi, otsikko) {
+    const p = new Date(), pv = n => String(n).padStart(2, '0');
+    const etu = ['---'];
+    const kentta = (avain, arvo) => { if (rivi(arvo)) etu.push(avain + ': ' + rivi(arvo)); };
+    kentta('tyyppi', blogi && blogi.tyyppi);
+    kentta('alaotsikko', blogi && blogi.alaotsikko);
+    kentta('tekijä', blogi ? blogi.tekija : artikkeli && artikkeli.byline);
+    kentta('teos', blogi && blogi.teos);
+    kentta('numero', blogi && blogi.numero);
+    kentta('sivut', blogi && blogi.sivut);
+    kentta('toimittaja', blogi && blogi.toimittaja);
+    kentta('sarja', blogi && blogi.sarja);
+    kentta('laji', blogi && blogi.laji);
+    kentta('suomentaja', blogi && blogi.suomentaja);
+    kentta('sivusto', blogi ? blogi.sivusto : artikkeli && artikkeli.siteName);
+    kentta('julkaistu', blogi ? blogi.julkaistu : artikkeli && artikkeli.publishedTime);
+    kentta('paikka', blogi && blogi.paikka);
+    kentta('kustantaja', blogi && blogi.kustantaja);
+    kentta('doi', blogi && blogi.doi);
+    kentta('ladonta', blogi && blogi.ladonta);
+    kentta('kohdat', blogi && blogi.kohdat);
+    // Vakiosivut (20.11.2026, opas 3.2): sivunumerojärjestelmän lyhenne kopion paikantimeen (AA 4:393, SKS 4:99).
+    kentta('vakiosivut', blogi && blogi.vakiosivut);
+    kentta('lähde', blogi && blogi.lahde || osoite);
+    // Lähdeosion tiedot (md.js lahdeOsio(), 21.11.2026): sivuston ylläpitäjä, osasto ja alkukielinen laitos.
+    kentta('ylläpitäjä', blogi && blogi.yllapitaja);
+    let polku = blogi && blogi.polku || '';
+    if (!polku && !sep) try { polku = murupolku(otsikko); } catch (e) { polku = ''; }
+    kentta('polku', polku);
+    kentta('alkuteksti', blogi && blogi.alkuteksti);
+    let oikeus = null;
+    try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
+    if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
+    const raha = RAHOITUS[sovitin];
+    if (raha) { kentta('rahoitus', raha.laji); kentta('lahjoitusosoite', typeof raha.osoite === 'function' ? raha.osoite() : raha.osoite); }
+    kentta('leikattu', p.getFullYear() + '-' + pv(p.getMonth() + 1) + '-' + pv(p.getDate()));
+    // Otsikon oma viitemerkki (marxists.org: Porvarit ja proletaarit[23]) #-rivin perään.
+    const otsikkoMd = blogi && blogi.otsikkoMerkit ? blogi.otsikkoMerkit.replace(MERKKI, '[^viite-$1]') : '';
+    etu.push('---', '# ' + otsikko + otsikkoMd, '', '');
+    const alku = etu.join('\n');
+    return { alku, otsikkoMd };
+  }
+  const { alku, otsikkoMd } = alkuOf(blogi, otsikko);
 
   const [koko, valinta] = await Promise.all([sisalto ? valmista(sisalto, omat, otsikkoMd) : null, valintaHtml ? valmista(valintaHtml) : null]);
   const sanoja = s => (s.match(/\S+/g) || []).length;
+  // Sarja (Perseuksen kirjat erillisinä teksteinä): kukin oma leikkeensä etukenttineen; ensimmäinen on myös koko.
+  const sarja = [];
+  if (blogi && Array.isArray(blogi.sarja) && blogi.sarja.length > 1) {
+    for (const b of blogi.sarja) {
+      const o = b.otsikko || otsikko, a = alkuOf(b, o), m = await valmista(b.html, b.maar || [], a.otsikkoMd);
+      if (m && m.md) sarja.push({ md: a.alku + m.md + '\n', otsikko: o, sanoja: sanoja(m.md) });
+    }
+  }
   return {
     otsikko, sivusto: (blogi && (blogi.naytto || blogi.sivusto || blogi.otsikko)) || rivi(artikkeli && artikkeli.siteName) || location.hostname.replace(/^www\./, ''),
     koko: koko && koko.md ? alku + koko.md + '\n' : '', kokoSanoja: koko ? sanoja(koko.md) : 0, kokoViitteita: koko ? koko.viitteita : 0,
     valinta: valinta && valinta.md ? alku + valinta.md + '\n' : '', valintaSanoja: valinta ? sanoja(valinta.md) : 0,
     valintaViitteita: valinta ? valinta.viitteita : 0,
     // Perseus: kirjat ja kielet ponnahdusikkunan valitsimille.
-    ps: (blogi && blogi.ps) || null
+    ps: (blogi && blogi.ps) || null,
+    sarja: sarja.length > 1 ? sarja : null
   };
 })();

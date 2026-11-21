@@ -127,7 +127,7 @@ const ilmanPaivaa = s => String(s || '').replace(/^leikattu: .*$/m, '');
   tulos('kirjat 1–3: otsikko ja kirjojen väliotsikot', t.otsikko === 'Πολιτεία Αʹ–Γʹ' && h2(t.md) === '## Αʹ | ## Βʹ | ## Γʹ' && t.kirjat.startsWith('1* 2* 3* 4 '),
     t.otsikko + ' / ' + h2(t.md) + ' / ' + t.kirjat);
   tulos('kirjat 1–3: lomitettu, lähde koko teos', /^ladonta: lomitettu käännös$/m.test(t.md) && /^lähde: .*1999\.01\.0167$/m.test(t.md), (t.md.match(/^lähde: .*/m) || [''])[0]);
-  tulos('kirjat 1–3: iso paketti, huomio', /^Iso paketti\. .*yksi kieli tai kirja kerrallaan\.$/.test(t.huomio), t.sanoja + ' sanaa: ' + t.huomio);
+  tulos('kirjat 1–3: iso paketti, huomio', /^Iso paketti\. .*yksi kieli tai kirja kerrallaan tai kukin omaksi tekstikseen\.$/.test(t.huomio), t.sanoja + ' sanaa: ' + t.huomio);
   if (KUVAT) await ikkuna.screenshot({ path: path.join(KUVAT, 'ps-kirjat-1-3.png'), fullPage: true });
   // Kirjat 1, 2 ja 5.
   await kirja('3'); await kirja('5'); await valmis();
@@ -147,7 +147,7 @@ const ilmanPaivaa = s => String(s || '').replace(/^leikattu: .*$/m, '');
   await ikkuna.click('#ps-kirjat button.kaikki'); await kieli('kaannos'); await valmis();
   t = await tila();
   const vke = vertailu(KOKO_EN);
-  tulos('kaikki, vain käännös: sama kuin englanninkielinen koko teos', vke && ilmanPaivaa(t.md) === ilmanPaivaa(vke) && /kirja kerrallaan\.$/.test(t.huomio) && !/yksi kieli/.test(t.huomio), t.sanoja + ' sanaa: ' + t.huomio);
+  tulos('kaikki, vain käännös: sama kuin englanninkielinen koko teos', vke && ilmanPaivaa(t.md) === ilmanPaivaa(vke) && /kirja kerrallaan tai kukin omaksi tekstikseen\.$/.test(t.huomio) && !/yksi kieli/.test(t.huomio), t.sanoja + ' sanaa: ' + t.huomio);
   // Yksi kirja: kaikki pois paitsi 4, otsikko Republic, Book 4.
   for (const n of ['1', '2', '3', '5', '6', '7', '8', '9', '10']) await kirja(n);
   await valmis();
@@ -194,6 +194,31 @@ const ilmanPaivaa = s => String(s || '').replace(/^leikattu: .*$/m, '');
   await luin2.waitForSelector('#lukija:not([hidden]) h1', { timeout: 30000 });
   const pino = await luin2.evaluate(() => JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.id + ' ' + e.title));
   tulos('kaksi kreikkalaista kirjaa pinossa eri tunnuksin', pino.length === 2 && new Set(pino.map(x => x.split(' ')[0])).size === 2 && !pino.some(x => /^p-osio /.test(x)), pino.join(' | '));
+
+  // 10. Kirjat 2 ja 3 kukin omaksi tekstikseen (21.11.2026): ikkuna kertoo kaksi tekstiä, ja Latomon kautta pinoon tulee kaksi
+  // tekstiä, joista kirja 2 on päällimmäisenä ja auki; kumpikin on sama kuin kirjan oma leike.
+  await avaa(GR1);
+  await kirja('2'); await kirja('3'); await kirja('1'); await valmis();
+  tulos('laajuus näkyy, kun kirjoja on useampi', await ikkuna.evaluate(() => !document.querySelector('#ps-laajuus').hidden &&
+    document.querySelector('input[name="laajuus"]:checked').value === 'yhteen'));
+  await ikkuna.click('input[name="laajuus"][value="erikseen"]'); await valmis();
+  const s10 = await ikkuna.evaluate(() => ({ n: leike.sarja ? leike.sarja.length : 0, ots: leike.sarja ? leike.sarja.map(x => x.otsikko).join(' | ') : '', meta: document.querySelector('#meta').textContent,
+    kirja: leike.sarja ? leike.sarja.map(x => x.md) : [] }));
+  tulos('erikseen: sarjassa kaksi kirjaa', s10.n === 2 && s10.ots === 'Πολιτεία Βʹ | Πολιτεία Γʹ' && /2 tekstiä/.test(s10.meta), s10.ots + ' / ' + s10.meta);
+  if (KUVAT) await ikkuna.screenshot({ path: path.join(KUVAT, 'ps-erikseen.png'), fullPage: true });
+  // Vertailu: kirja 3 yksin (osoitteen kirja) on sama leike kuin sarjan toinen.
+  const pino0 = await luin2.evaluate(() => JSON.parse(localStorage.getItem('luin-lista') || '[]').length);
+  const uusi3 = ctx.waitForEvent('page');
+  await ikkuna.click('#lukimeen');
+  const luin3 = await uusi3;
+  await luin3.waitForURL(/luin\.html#id=/, { timeout: 60000 });
+  await luin3.waitForSelector('#lukija:not([hidden]) h1', { timeout: 30000 });
+  const p3 = await luin3.evaluate(() => ({ auki: document.querySelector('#lukija h1').textContent, lista: JSON.parse(localStorage.getItem('luin-lista') || '[]').map(e => e.title) }));
+  tulos('erikseen: pinoon kaksi tekstiä, kirja 2 päällimmäisenä ja auki', p3.lista.length === pino0 + 2 && p3.lista[0] === 'Πολιτεία Βʹ' && p3.lista[1] === 'Πολιτεία Γʹ' && /Πολιτεία Βʹ/.test(p3.auki),
+    p3.auki + ' / ' + p3.lista.join(' | '));
+  const kolmas = await luin3.evaluate(() => { const e = JSON.parse(localStorage.getItem('luin-lista')).find(x => x.title === 'Πολιτεία Γʹ'); return LuinTekstit.lue(e.id); });
+  tulos('erikseen: kirja 3 on ladottu (yläindeksit ja etukenttä)', /^ladonta: lomitettu käännös$/m.test(kolmas || '') && /\^\d/.test(kolmas || '') && !/<sup>/.test(kolmas || '') && /^# Πολιτεία Γʹ$/m.test(kolmas || ''),
+    String(kolmas).slice(0, 120));
 
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await ctx.close(); palvelin.close();

@@ -22,6 +22,12 @@
   if (!md) return;
   md.value = odottaa.md;
   md.dispatchEvent(new Event('input', { bubbles: true }));
+  // Sarja (0.13.0, Perseuksen kirjat erikseen): muut tekstit Latomon piilokenttään #sarja (JSON), josta Latomo latoo ne
+  // samoin ja vie lukimeen, lataa tai postittaa erillisinä. Vanha Latomo ilman kenttää ottaa vain ensimmäisen.
+  if (Array.isArray(odottaa.sarja) && odottaa.sarja.length && $('sarja')) {
+    $('sarja').value = JSON.stringify(odottaa.sarja);
+    $('sarja').dispatchEvent(new Event('input', { bubbles: true }));
+  }
   const posti = odottaa.posti;
   if (posti && posti.k && $('laatikko-koodi') && $('laheta')) {
     if (posti.eiMuistia) $('laatikko-koodi').setAttribute('data-ei-muistia', '');
