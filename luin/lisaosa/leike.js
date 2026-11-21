@@ -6552,8 +6552,8 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
-  /* Springer Nature (link.springer.com, BMC:n lehdet ja nature.com; käyttäjän kysymys 21.11.2026: mitä sosiaalilääketieteen
-     tutkija lukisi, esimerkiksi Journal of Eating Disorders, BMC Public Health, International Journal for Equity in Health,
+  /* Springer Nature (link.springer.com, BMC:n lehdet ja nature.com; käyttäjän kysymys 21.11.2026: sosiaalilääketieteen
+     lähteet, esimerkiksi Journal of Eating Disorders, BMC Public Health, International Journal for Equity in Health,
      International Journal of Obesity, Social Psychiatry and Psychiatric Epidemiology, Eating and Weight Disorders). BMC:n
      lehtien osoitteet (jeatdisord.biomedcentral.com ym.) ohjautuvat nyt link.springer.comiin, ja sivupohja on kaikilla sama:
      div.c-article-body, osiot section[data-title] (Abstract, Plain language summary, teksti, Data availability, Abbreviations,

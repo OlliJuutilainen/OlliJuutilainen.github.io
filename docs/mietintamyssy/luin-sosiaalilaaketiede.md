@@ -1,8 +1,7 @@
-# Luin: sosiaalilääketieteen tutkija lukijana
+# Luin: sosiaalilääketieteen lähteet
 
-Hyllyyn 21.11.2026. Käyttäjän kysymys: miten Helsingin yliopiston sosiaalilääketieteen post doc -tutkija (ei lääketieteen
-taustaa; aiheina esimerkiksi lihavuus, syömishäiriöt ja huono-osaisen taustan vaikutukset) voisi hyötyä lukimesta, mihin asti
-se taipuu ja mitä apajia vielä olisi. Tilastografiikkaa ei toisteta, eikä sitä haluta minimalistiseen md-pakkaan.
+Hyllyyn 21.11.2026. Käyttäjän kysymys: miten sosiaalilääketieteen lukija (aiheina esimerkiksi lihavuus, syömishäiriöt ja huono-osaisen
+taustan vaikutukset) voisi hyötyä lukimesta, mihin asti se taipuu ja mitä apajia vielä olisi. Tilastografiikkaa ei toisteta, eikä sitä haluta minimalistiseen md-pakkaan.
 
 Samana päivänä tehty (opas 7.5, `--sarja slt`): Springer Nature- (BMC, Springer, nature.com), PLOS- ja Frontiers-sovitteet,
 PMC:n tekijä–vuosi-viittaukset ilman APA-pilkkua ja OJS:n tiivistelmäleikkeen erilliset DOI:t edellisen kohdan perään.
@@ -45,4 +44,4 @@ Mitattu pilvikontista 21.11.2026; *esto* = kontti ei päässyt, selaimessa lisä
 
 1. PubMed-tiivistelmäsivu: mittaa selaimessa, mitä yleinen leike antaa; tiivistelmäleike vain, jos se on huono.
 2. The Conversation ja Duodecim yleisellä leikkeellä.
-3. Elsevierin ja Wileyn OA-artikkelin sivu selaimessa (käyttäjän tai tutkijan koneelta), jos niitä luetaan muualta kuin PMC:stä.
+3. Elsevierin ja Wileyn OA-artikkelin sivu selaimessa (käyttäjän koneelta), jos niitä luetaan muualta kuin PMC:stä.
