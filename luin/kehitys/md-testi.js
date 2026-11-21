@@ -223,7 +223,8 @@ sama('verkkolinkkien luokat', (vl.match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n')
 const si = M.parse('---\nlähde: https://e.org/art/\n---\n\n# T\n\n- [1. Alku][1]\n- [2.1 Osa][2]\n\nKatso [kohta 2.1][2], [luku 1](https://e.org/art/#x9), ' +
   '[tuntematon][3] ja [muu sivu](https://e.org/toinen/#Alku).\n\n## 1. Alku\n\nA.\n\n## 2. Keski\n\n### 2.1 Osa\n\nB.\n\n' +
   '[1]: https://e.org/art//#Alku\n[2]: https://e.org/art/index.html#Osa\n[3]: https://e.org/art/#Zzz\n').html;
-sama('sisäiset linkit', (si.match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n'), ['<a href="#luku-1">1. Alku</a>', '<a href="#luku-2-1">2.1 Osa</a>',
+// Lähdeosion osoite (lahdeOsio()) jää vertailun ulkopuolelle; sitä mitataan alempana.
+sama('sisäiset linkit', (si.split('<h4 id="lahde"')[0].match(/<a[^>]*>[^<]*<\/a>/g) || []).join('\n'), ['<a href="#luku-1">1. Alku</a>', '<a href="#luku-2-1">2.1 Osa</a>',
   '<a href="#luku-2-1">kohta 2.1</a>', '<a href="#luku-1">luku 1</a>', '<a href="https://e.org/art/#Zzz">tuntematon</a>',
   '<a href="https://e.org/toinen/#Alku">muu sivu</a>'].join('\n'));
 
@@ -236,7 +237,20 @@ tulos('SEP: viitenumerot alaviitteiksi ilman Notes-sivua', sp1.notes === 2 && sp
 const sp2 = M.parse(SEP + '\n---\nlähde: https://plato.stanford.edu/entries/x/notes.html\n---\n\n# X > Notes (Stanford Encyclopedia of Philosophy)\n\n' +
   '[1.][1] Ensimmäinen viite.\n\n[2.][2] Toinen alkaa\n\n> lainaus jatkuu.\n\n[1]: https://plato.stanford.edu/entries/x/index.html#ref-1\n');
 tulos('SEP: Notes-sivun leike alaviitteiksi', sp2.notes === 2 && sp2.html.includes('<span class="fnnum">1</span>Ensimmäinen viite.</span>') &&
-  sp2.html.includes('<span class="fnnum">2</span>Toinen alkaa<br>lainaus jatkuu.</span>') && sp2.toc.length === 0 && !/Notes|lähde:/.test(sp2.html), sp2.html);
+  sp2.html.includes('<span class="fnnum">2</span>Toinen alkaa<br>lainaus jatkuu.</span>') && sp2.toc.filter(t => t.text !== 'Lähde').length === 0 && !/Notes|lähde:/.test(sp2.html), sp2.html);
+
+// Lähdeosio (käyttäjän vaatimus 21.11.2026): verkosta haetun tekstin loppuun lähde sanoin ja osoitteena tekijänoikeuksien edelle.
+const lo = M.parse('---\nsivusto: J. V. Snellmanin kootut teokset\nylläpitäjä: Snellman-instituutti\npolku: Dokumentit › Essee\n' +
+  'lähde: https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328\nhaettu: 2026-11-21\n' +
+  'alkuteksti: https://snellman.kootutteokset.fi/sites/default/files/01085.pdf\noikeudet: CC BY 4.0\n---\n\n# T\n\nTeksti.\n');
+sama('lähdeosio', lo.html.slice(lo.html.indexOf('<h4 id="lahde"'), lo.html.indexOf('<h4 id="tekijanoikeudet"')),
+  '<h4 id="lahde" class="sec caps" data-b="3">Lähde</h4><p data-b="4">Teksti on haettu lukimeen 21.11.2026 sivustolta ' +
+  '<em>J. V. Snellmanin kootut teokset</em> (ylläpitäjä Snellman-instituutti), osastosta Dokumentit › Essee.<br>' +
+  'Osoite:<br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
+  'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br>Alkukielinen teksti (pdf):<br>' +
+  '<a href="https://snellman.kootutteokset.fi/sites/default/files/01085.pdf">snellman.kootutteokset.fi/sites/default/files/01085.pdf</a></p>');
+tulos('lähdeosio vain verkko-osoitteesta', !/id="lahde"/.test(M.parse('---\nlähde: Kirjan sivu 12\n---\n\n# T\n\nA.\n').html) &&
+  !/id="lahde"/.test(M.parse('# T\n\nA.\n').html) && !!lo.lahdeOsio);
 // Yleinen sivun lopun viite paluulinkillä (WordPress, Pandoc): ^1^ ja numeroitu kohta, jossa ↩ …#fnref1.
 const wp = M.parse('# T\n\nVäite.^1^ Toinen.^2^\n\n1. Ensimmäinen. [↩](https://e.org/p/#fnref1)\n2. Toinen. [↩][9]\n\n[9]: https://e.org/p/#fnref2\n');
 tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes('<span class="fnnum">2</span>Toinen.</span>') && !/<ol/.test(wp.html), wp.html);

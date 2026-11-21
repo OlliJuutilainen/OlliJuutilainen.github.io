@@ -531,6 +531,38 @@
     if (u) { r.linkki = u; r.linkkiTeksti = 'lähteen omat ehdot'; }
     return r;
   }
+  /* ---------- Lähde ----------
+     Käyttäjän vaatimus 21.11.2026: verkosta haetun tekstin loppuun lähde sanoin ja osoitteena (ennen osoite oli vain
+     etukentässä ja lähdeviitteessä), kunnioituksesta tekstin julkaisijaa kohtaan. Syntyy etukentän `lähde:`-osoitteesta
+     tekijänoikeusosion edelle; muut tiedot vain, jos ne ovat etukentässä: `sivusto`, `ylläpitäjä` (sivuston pitäjä, ei
+     teoksen kustantaja), `polku` (sivuston osasto, lisäosan murupolusta), `haettu` ja `alkuteksti` (alkukielinen laitos,
+     esim. Snellmanin koottujen teosten pdf). Osoite näkyy kirjoitettuna kuten tekijänoikeusosiossa (verkkolinkit ovat
+     oletuksena pois); prosenttikoodaus puretaan näkyvästä tekstistä (1826%E2%80%9328 → 1826–28). → { kappaleet } tai null */
+  var LAHDE_OTSIKKO = 'Lähde';
+  function suojaaMd(x) { return String(x).replace(/[\\`*_[\]<>#|~^=$]/g, '\\$&'); }
+  function osoiteMd(u) {
+    u = String(u || '').trim().replace(/[<>\s()]/g, encodeURIComponent);
+    var nak = u;
+    try { nak = decodeURI(u); } catch (e) { nak = u; }
+    nak = nak.replace(/^https?:\/\/(www\.)?/i, '').replace(/\s/g, encodeURIComponent);
+    return '[' + suojaaMd(nak) + '](' + u + ')';
+  }
+  function lahdeOsio(meta) {
+    var k = function (x) { return String(meta[x] || '').replace(/\s+/g, ' ').trim(); };
+    var u = k('lähde');
+    if (!/^https?:\/\/[^\s]+$/i.test(u)) return null;
+    var host = '';
+    try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return null; }
+    var hp = pvm(meta.haettu), sivusto = k('sivusto'), yp = k('ylläpitäjä'), polku = k('polku'), alku = k('alkuteksti');
+    var t = 'Teksti on haettu lukimeen' + (hp ? ' ' + pvmMuoto(hp, 'viite', 3) : '') + ' sivustolta ' +
+      (sivusto ? '*' + suojaaMd(sivusto) + '*' : suojaaMd(host)) + (yp && yp !== sivusto ? ' (ylläpitäjä ' + suojaaMd(yp) + ')' : '') +
+      (polku ? ', osastosta ' + suojaaMd(polku) : '') + '.';
+    // Osoitteet rivinvaihdoin samaan kappaleeseen (omina kappaleinaan Osoite sai kappalesisennyksen) ja omille riveilleen
+    // (pitkä osoite rivittyi muuten seuraavalle riville, ja tasaus harvensi edellisen).
+    t += '<br>Osoite:<br>' + osoiteMd(u);
+    if (/^https?:\/\/[^\s]+$/i.test(alku)) t += '<br>Alkukielinen teksti' + (/\.pdf([?#]|$)/i.test(alku) ? ' (pdf)' : '') + ':<br>' + osoiteMd(alku);
+    return { kappaleet: [t], osoite: u };
+  }
   /* ---------- Rahoitushuomautus ----------
      Käyttäjän säännöt 15.11.2026: lisäosan sovitesivustoilta (ei muilta) leikatun tekstin alkuun hakasulkeinen yläotsake,
      kun sivusto elää mainoksista tai lahjoituksista. Luin voisi muuten näyttää hyväksyneen sivun vapaaksi riistaksi.
@@ -2218,10 +2250,10 @@
     })();
     res.laskettu = laske;
     bibLuku(tokens, t0).forEach(function (i) { tokens[i].bibLuku = true; });
-    // Tekijänoikeusmerkintä loppuun vasta tasojen laskennan jälkeen, joten se ei muuta muiden otsikoiden tasoja eikä
-    // lohkojen numeroita (kirjanmerkit).
-    var oik = oikeudet(m);
-    if (oik) {
+    // Lähde ja tekijänoikeusmerkintä loppuun vasta tasojen laskennan jälkeen, joten ne eivät muuta muiden otsikoiden tasoja
+    // eikä lohkojen numeroita (kirjanmerkit).
+    var lah = lahdeOsio(m), oik = oikeudet(m);
+    if (lah || oik) {
       var nakyvat = [];
       for (var oi = t0; oi < tokens.length; oi++) {
         var ot = tokens[oi];
@@ -2232,13 +2264,20 @@
         if (ot.bibLuku) ol = o0;
         nakyvat.push({ lvl: ol, nimi: lukuNimi(ot.text.replace(/\s+\[[^\]]+\]$/, '')) });
       }
-      var oln = tokens.length ? tokens[tokens.length - 1].ln : 1, suojaa = function (x) { return x.replace(/[\\`*_[\]<>#|~^=$]/g, '\\$&'); };
-      tokens.push({ t: 'h', lvl: oikeusTaso(nakyvat), text: 'Tekijänoikeudet', ln: oln, oik: true });
-      tokens.push({ t: 'p', text: '*Merkintä lähteessä:* ' + suojaa(oik.koodi), ln: oln, oik: true });
+      var oln = tokens.length ? tokens[tokens.length - 1].ln : 1, otaso = oikeusTaso(nakyvat);
+    }
+    if (lah) {
+      tokens.push({ t: 'h', lvl: otaso, text: LAHDE_OTSIKKO, ln: oln, oik: true });
+      lah.kappaleet.forEach(function (k) { tokens.push({ t: 'p', text: k, ln: oln, oik: true }); });
+      res.lahdeOsio = lah;
+    }
+    if (oik) {
+      tokens.push({ t: 'h', lvl: otaso, text: 'Tekijänoikeudet', ln: oln, oik: true });
+      tokens.push({ t: 'p', text: '*Merkintä lähteessä:* ' + suojaaMd(oik.koodi), ln: oln, oik: true });
       if (oik.selitys) tokens.push({ t: 'p', text: oik.selitys, ln: oln, oik: true });
       // Osoite kirjoitettuna (käyttäjän linjaus 10.11.2026): verkkolinkit ovat oletuksena pois, joten pelkkä linkkiteksti
       // ei kertoisi, mistä lisätiedot löytyvät. Paljas osoite on linkki vain verkkolinkit päällä.
-      if (oik.linkki) tokens.push({ t: 'p', text: 'Lisätietoja: ' + suojaa(oik.linkkiTeksti) + ' osoitteessa <' + oik.linkki.replace(/[<>\s]/g, encodeURIComponent) + '>', ln: oln, oik: true });
+      if (oik.linkki) tokens.push({ t: 'p', text: 'Lisätietoja: ' + suojaaMd(oik.linkkiTeksti) + ' osoitteessa <' + oik.linkki.replace(/[<>\s]/g, encodeURIComponent) + '>', ln: oln, oik: true });
       res.oikeudet = oik;
     }
     function renderList(items, inQuote) {

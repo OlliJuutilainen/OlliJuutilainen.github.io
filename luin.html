@@ -1763,7 +1763,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=7001b805"></script>
+<script src="luin/md.js?v=c5c16fa6"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -2134,8 +2134,12 @@
   function lohkot(md) {
     var doc = LuinMD.parse(md), d = document.implementation.createHTMLDocument('').createElement('div'), txt = [], laji = [], oik = -1;
     d.innerHTML = doc.html;
-    // Tekijänoikeusosio (md.js oikeudet()) syntyy etukentästä tekstin loppuun, joten se saa muuttua kuten otsikkolohko.
-    if (doc.oikeudet) $$('h2,h3,h4,h5', d).forEach(function (h) { if (h.textContent.trim() === 'Tekijänoikeudet' && h.dataset.b) oik = +h.dataset.b; });
+    // Lähde- ja tekijänoikeusosio (md.js lahdeOsio() ja oikeudet()) syntyvät etukentästä tekstin loppuun, joten ne saavat
+    // muuttua kuten otsikkolohko. Kummankin oma otsikko on viimeinen samanniminen (tekstissä voi olla oma Lähde-luku).
+    var ots = {};
+    $$('h2,h3,h4,h5', d).forEach(function (h) { if (h.dataset.b) ots[h.textContent.trim()] = +h.dataset.b; });
+    if (doc.lahdeOsio && ots['Lähde'] != null) oik = ots['Lähde'];
+    else if (doc.oikeudet && ots['Tekijänoikeudet'] != null) oik = ots['Tekijänoikeudet'];
     $$('[data-b]', d).forEach(function (el) {
       var b = +el.dataset.b;
       txt[b] = lohkoteksti(el);

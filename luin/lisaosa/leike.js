@@ -2826,9 +2826,17 @@
     }
     el.normalize();
     const pv = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(rivi((document.querySelector('.field-name-tekstilahde-daterange .field-item') || {}).textContent));
+    // Epätarkka päiväys (Pvm ei ole tarkka; Teosofia [1826–28] on 31.12.1826): vain vuosi. 32/79 asiakirjaa 21.11.2026.
+    const epatarkka = /ei ole tarkka|ei (ole )?tiedossa|tarkka pvm ei/i.test(rivi((document.querySelector('.field-name-field-pvm-kommenti .field-item') || {}).textContent));
+    const laji = rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent);
+    // Alkukielinen pdf (78/79 asiakirjaa 21.11.2026) lähdeosioon (md.js lahdeOsio()): alkuteksti on sivulla tekstinä
+    // 0/79:ssä, ja pdf:n tekstikerros on huonoa OCR:ää (Veriden, ali dess poiitik) tai tyhjä (käsin kirjoitetut kirjeet),
+    // joten sitä ei leikata eikä lomiteta.
+    const pdf = document.querySelector('.field-name-field-alkukielinen-pdf a[href$=".pdf"]');
     return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('.page-title-header') || {}).textContent) || rivi(document.title).split('|')[0],
-      tekija: 'J. V. Snellman', sivusto: SN_NIMI, julkaistu: pv ? pv[3] + '-' + pv[2].padStart(2, '0') + '-' + pv[1].padStart(2, '0') : '',
-      laji: rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent), lahde: osoite, maar };
+      tekija: 'J. V. Snellman', sivusto: SN_NIMI, julkaistu: pv ? (epatarkka ? pv[3] : pv[3] + '-' + pv[2].padStart(2, '0') + '-' + pv[1].padStart(2, '0')) : '',
+      laji, lahde: osoite, maar, yllapitaja: 'Snellman-instituutti', polku: 'Dokumentit' + (laji ? ' › ' + laji : ''),
+      alkuteksti: pdf ? pdf.href : '' };
   }
 
   /* Religion Online (religion-online.org; käyttäjän pyyntö 20.11.2026, sivustoehdokkaat-3 kärki 3: Whitehead ja prosessiajattelu,
@@ -9011,6 +9019,58 @@
     newadvent: { laji: 'mainokset' }
   };
 
+  /* Murupolku (käyttäjän vaatimus 21.11.2026: lähde sanoin tekstin loppuun, md.js lahdeOsio()): sivuston osasto, josta
+     teksti on, etukentän `polku:`-avaimeen. Vain sivun oma rakennetieto: schema.org BreadcrumbList (JSON-LD tai mikrodata)
+     tai aria-label- tai luokkanimeltään murupolku. Etusivu alusta ja tekstin oma nimi tai osoite lopusta pois; yli viisi
+     nimeä tai yli 60 merkin nimi ei kelpaa. Sovite voi antaa oman (Snellman). → 'Osasto › Alaosasto' tai '' */
+  function murupolku(otsikko) {
+    const nimet = [];
+    const lisaa = (nimi, href) => nimet.push({ nimi: rivi(nimi), href: href ? String(href) : '' });
+    const listat = [];
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+      let j = null;
+      try { j = JSON.parse(s.textContent); } catch (e) { return; }
+      (function etsi(x, syv) {
+        if (!x || typeof x !== 'object' || syv > 4) return;
+        if (Array.isArray(x)) { x.forEach(y => etsi(y, syv + 1)); return; }
+        if ([].concat(x['@type'] || []).includes('BreadcrumbList') && Array.isArray(x.itemListElement)) listat.push(x.itemListElement);
+        else if (x['@graph']) etsi(x['@graph'], syv + 1);
+      })(j, 0);
+    });
+    if (listat.length) {
+      listat[0].slice().sort((a, b) => (+a.position || 0) - (+b.position || 0)).forEach(e => {
+        const it = e.item && typeof e.item === 'object' ? e.item : {};
+        lisaa(e.name || it.name, typeof e.item === 'string' ? e.item : it['@id'] || it.url);
+      });
+    } else {
+      const md = document.querySelector('[itemtype$="schema.org/BreadcrumbList"]');
+      const nav = md || document.querySelector('nav[aria-label*="breadcrumb" i], nav[aria-label*="murupolku" i], .breadcrumb, .breadcrumbs, #breadcrumb, #breadcrumbs');
+      if (!nav) return '';
+      if (md) md.querySelectorAll('[itemprop="itemListElement"]').forEach(li => {
+        const n = li.querySelector('[itemprop="name"]'), a = li.querySelector('a[href]');
+        lisaa(n ? n.textContent : li.textContent, a && a.href);
+      });
+      else {
+        const lit = nav.querySelectorAll('li');
+        if (lit.length) lit.forEach(li => { const a = li.querySelector('a[href]'); lisaa(li.textContent, a && a.href); });
+        else nav.querySelectorAll('a[href]').forEach(a => lisaa(a.textContent, a.href));
+      }
+    }
+    const juuri = location.origin + '/', oma = location.href.split('#')[0].replace(/\/$/, ''), ots = rivi(otsikko).toLowerCase();
+    let osat = nimet.map(n => ({ nimi: n.nimi.replace(/^[›»>\/|·•\s]+|[›»>\/|·•\s]+$/g, ''), href: n.href })).filter(n => n.nimi);
+    if (osat.length && (/^(home|etusivu|koti|start|startsida|startseite|accueil|inicio|início|home ?page|главная|pradžia|pagrindinis)$/i.test(osat[0].nimi)
+      || osat[0].href === juuri || osat[0].href === location.origin)) osat.shift();
+    // Viimeinen voi olla tekstin oma nimi katkaistuna (OpenEdition: Introduction : le travail social à trave...).
+    while (osat.length) {
+      const v = osat[osat.length - 1], kat = /(\.\.\.|…)$/.test(v.nimi), vn = v.nimi.replace(/\s*(\.\.\.|…)$/, '').toLowerCase();
+      if ((v.href && v.href.split('#')[0].replace(/\/$/, '') === oma) || (ots && (vn === ots || ots.startsWith(vn) && (kat || vn.length > 20)))) osat.pop();
+      else break;
+    }
+    if (!osat.length || osat.length > 5 || osat.some(n => n.nimi.length > 60 || /(\.\.\.|…)$/.test(n.nimi))) return '';
+    // Osoitteen palasista tehdyt pienikirjaimiset nimet (Encyclopedia.com: social sciences) isolla alkukirjaimella.
+    return osat.map(n => n.nimi === n.nimi.toLowerCase() ? n.nimi.charAt(0).toUpperCase() + n.nimi.slice(1) : n.nimi).join(' › ');
+  }
+
   // Valinta ennen Readabilityä.
   let valintaHtml = '';
   const sel = window.getSelection();
@@ -9058,6 +9118,12 @@
   // Vakiosivut (20.11.2026, opas 3.2): sivunumerojärjestelmän lyhenne kopion paikantimeen (AA 4:393, SKS 4:99).
   kentta('vakiosivut', blogi && blogi.vakiosivut);
   kentta('lähde', blogi && blogi.lahde || osoite);
+  // Lähdeosion tiedot (md.js lahdeOsio(), 21.11.2026): sivuston ylläpitäjä, osasto ja alkukielinen laitos.
+  kentta('ylläpitäjä', blogi && blogi.yllapitaja);
+  let polku = blogi && blogi.polku || '';
+  if (!polku && !sep) try { polku = murupolku(otsikko); } catch (e) { polku = ''; }
+  kentta('polku', polku);
+  kentta('alkuteksti', blogi && blogi.alkuteksti);
   let oikeus = null;
   try { oikeus = blogi && blogi.oikeus || oikeudet(); } catch (e) { oikeus = null; }
   if (oikeus) { kentta('oikeudet', oikeus.teksti); kentta('oikeudet-lähde', oikeus.lahde); }
