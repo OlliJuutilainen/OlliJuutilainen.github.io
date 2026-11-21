@@ -335,7 +335,7 @@ Tässä luokittelu on näkyvää ja hyödyllistä:
 Tärkeysjärjestyksessä:
 
 1. **Sanaston huolto**: asiasanan nimeäminen uudelleen ja kahden yhdistäminen koko kokoelmassa (*filo* → *filosofia*).
-   Yksi siirto korjaa vuoden huolimattomuuden. Paras paimennuksen työkalu; ei vielä toteutettu.
+   Yksi siirto korjaa vuoden huolimattomuuden. Paras paimennuksen työkalu. *Tehty 21.11.2026* (järjestysrivin *sanasto*, opas 2.5).
 2. **Suodatus**: välikortin napautus näyttää vain sen ryhmän, jolloin *Ilman asiasanaa* -ryhmän voi käydä läpi
    valitsemalla kaikki ja antamalla sanan.
 3. **Ehdotus monivalinnalle**: jo toteutettu yhdelle ja monelle (ehdotukset lasketaan valituista).
@@ -413,7 +413,7 @@ Käyttäjän päätettäviä nimiä: *asiasana* (vai *aihe*, *tunniste*), *ajoit
 
 Ehdotetut seuraavat askeleet tärkeysjärjestyksessä:
 
-1. **Sanaston huolto**: nimeä uudelleen ja yhdistä asiasanoja koko kokoelmassa (6.3).
+1. **Sanaston huolto**: nimeä uudelleen ja yhdistä asiasanoja koko kokoelmassa (6.3). *Tehty 21.11.2026.*
 2. **Suodatus**: välikortin napautus näyttää vain sen ryhmän; toinen napautus palauttaa kaikki.
 3. **Laitteiden välinen luokittelu**: merkintäposti (`posti.js`) kuljettamaan asiasanat, ajoituksen ja käsikirjaston.
    Nyt toisella laitteella tehty luokittelu siirtyy vain, kun teksti lähetetään uudelleen etukenttineen.

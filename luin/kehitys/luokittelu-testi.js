@@ -295,6 +295,48 @@ const TEKSTIT = [
   tulos('käsikirjastosta poistettu lukematon palaa pinoon', !r.some(x => x.startsWith('Lukematon')) &&
     await page.evaluate(() => [...document.querySelectorAll('#nimikkeet .n-ots')].some(x => x.textContent.trim() === 'Lukematon')), nimet(r));
 
+  // Sanaston huolto (käyttäjän pyyntö 20.11.2026): nimeäminen uudelleen ja yhdistäminen koko kokoelmassa.
+  await page.evaluate(() => {
+    const l = JSON.parse(localStorage.getItem('luin-lista'));
+    const aseta = (id, a) => { const e = l.find(x => x.id === id); e.asiasanat = a; };
+    aseta('p-seneca', ['filo', 'stoa']); aseta('p-septuaginta', ['filo']); aseta('p-levantti', ['teologia', 'filo', 'filosofia']);
+    aseta('p-hegel-tutkimus', ['filosofia', 'Hegel']); aseta('p-pinossa', ['filo']);
+    localStorage.setItem('luin-lista', JSON.stringify(l));
+  });
+  await kellari('asiasana');
+  tulos('sanasto-linkki järjestysrivillä', await page.evaluate(() => !document.getElementById('sanasto-osa').hidden));
+  await page.click('#sanasto');
+  const sv = await page.evaluate(() => [...document.querySelectorAll('#pop button.sv')].map(b => b.dataset.s + ':' + b.querySelector('.sv-lkm').textContent));
+  tulos('sanasto: kaikki asiasanat määrineen, myös pinon', sv.includes('filo:4') && sv.includes('filosofia:3') && sv.includes('stoa:1'), sv.join(','));
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sanasto.png') });
+  await page.click('#pop button.sv[data-s="filo"]');
+  await page.fill('#pop input.sv-nimi', 'Filosofia');
+  const yh = await page.evaluate(() => ({ ok: document.querySelector('#pop button[data-k="ok"]').textContent, t: document.querySelector('#pop .tila').textContent }));
+  tulos('olemassa olevaksi nimetty: Yhdistä ja selite', yh.ok === 'Yhdistä.' && /Yhdistyy asiasanaan filosofia \(3 tekstiä\)/.test(yh.t), JSON.stringify(yh));
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'sanasto-yhdista.png') });
+  await page.click('#pop button[data-k="ok"]');
+  let l2 = await ls('luin-lista');
+  const as = id => JSON.stringify(l2.find(x => x.id === id).asiasanat);
+  tulos('yhdistetty kaikkiin teksteihin sanaston kirjoitusasulla', as('p-seneca') === '["filosofia","stoa"]' && as('p-septuaginta') === '["filosofia"]' &&
+    as('p-pinossa') === '["filosofia"]' && as('p-hegel-tutkimus') === '["filosofia","Hegel"]', ['p-seneca', 'p-septuaginta', 'p-pinossa', 'p-hegel-tutkimus'].map(as).join(' '));
+  tulos('sama teksti saa sanan vain kerran', as('p-levantti') === '["teologia","filosofia"]', as('p-levantti'));
+  md = await ls('luin-teksti:p-seneca');
+  tulos('etukenttä kirjoitettu', /^asiasanat: filosofia, stoa$/m.test(md), md.slice(0, 120));
+  tulos('ilmoitus yhdistämisestä', /Asiasana filo yhdistettiin asiasanaan filosofia: 4 tekstiä\./.test(await page.textContent('#viesti')), await page.textContent('#viesti'));
+  await page.click('#sanasto');
+  await page.click('#pop button.sv[data-s="stoa"]');
+  await page.fill('#pop input.sv-nimi', 'Stoa');
+  tulos('kirjainkoon muutos on nimeäminen', await page.textContent('#pop button[data-k="ok"]') === 'Nimeä.');
+  await page.press('#pop input.sv-nimi', 'Enter');
+  l2 = await ls('luin-lista');
+  tulos('nimetty uudelleen', as('p-seneca') === '["filosofia","Stoa"]' && /Asiasana stoa on nyt Stoa: 1 teksti\./.test(await page.textContent('#viesti')), as('p-seneca') + ' ' + await page.textContent('#viesti'));
+  await page.click('#sanasto');
+  await page.click('#pop button.sv[data-s="Hegel"]');
+  await page.click('#pop button[data-k="ei"]');
+  tulos('älä! palaa sanastoon muuttamatta', await page.evaluate(() => document.querySelectorAll('#pop button.sv').length) > 2 &&
+    JSON.stringify((await ls('luin-lista')).find(x => x.id === 'p-hegel-tutkimus').asiasanat) === '["filosofia","Hegel"]');
+  await page.mouse.click(5, 5);
+
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' | '));
   await selain.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'Kaikki kunnossa.');
