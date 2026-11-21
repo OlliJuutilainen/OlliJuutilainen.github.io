@@ -3454,6 +3454,85 @@
       maar, naytto: 'The Philological Museum' };
   }
 
+  /* Kolme WordPress-sivustoa (käyttäjän pyyntö 20.11.2026, sivustoehdokkaat-3 kohta 8: yleinen leikkaus ensin, sovite vain jos se ei
+     riitä; mitattu 21.11.2026). Yleinen leike sai tekstin kaikista, mutta tiedot puuttuivat tai olivat väärin:
+     - Lacan Online (lacanonline.com, Owen Hewitson): ei tekijää eikä päiväystä; tekijä on tekstin lopun allekirjoituksessa
+       (By Owen Hewitson, LacanOnline.com), jonka perässä lisenssikappale. Väliotsikot ovat lihavoituja kappaleita.
+     - Phenomenology Online (phenomenologyonline.com, Divi): tekijäksi tuli admin ja päiväykseksi tekstin vientipäivä; Textoriumin
+       otsikko on Sukunimi, Etunimi. Otsikko, ja tekstin alussa otsikko ja tekijä toistuvat lihavoituina kappaleina.
+     - Girardian Lectionary (girardianlectionary.net, Paul Nuechterlein): ei tekijää eikä päiväystä; alussa h6 Last revised: …
+       ja ohje Click Reload. Tekijä vain viikkopohdinnoille (reflections/) ja Nuechterlein on … -teksteille.
+     Lihavoitu yksinäinen kappale (alle 120 merkkiä) on väliotsikko. Ei mainoksia; Girardian Lectionary pyytää lahjoituksia. */
+  function wpLihavatOtsikoiksi(el) {
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent), b = p.querySelector('strong, b');
+      if (!t || t.length > 120 || !b || rivi(b.textContent) !== t || p.querySelector('a, img')) return;
+      const h = document.createElement('h2'); h.textContent = t.replace(/[.:]$/, ''); p.replaceWith(h);
+    });
+  }
+  function lacanOnline() {
+    if (!/(^|\.)lacanonline\.com$/i.test(location.hostname)) return null;
+    const sis = document.querySelector('article .entry-content');
+    if (!sis) return null;
+    const el = sis.cloneNode(true);
+    el.querySelectorAll('script, style, .sharedaddy, .jp-relatedposts, .wp-block-buttons, figure img').forEach(x => x.remove());
+    let tekija = '';
+    el.querySelectorAll('p').forEach(p => {
+      const t = rivi(p.textContent);
+      const m = /^By\s+(.+?),\s*LacanOnline\.com$/i.exec(t);
+      if (m) { tekija = m[1]; p.remove(); return; }
+      if (/^All content on LacanOnline\.com is licensed/i.test(t)) p.remove();
+    });
+    wpLihavatOtsikoiksi(el);
+    if (kkSanoja(el) < 100) return null;
+    const aika = document.querySelector('time.entry-date.published, time.published');
+    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('.entry-title') || {}).textContent) || rivi(document.title),
+      tekija, julkaistu: aika ? (aika.getAttribute('datetime') || '').slice(0, 10) : '', sivusto: 'Lacan Online', lahde: osoite, maar: [], naytto: 'Lacan Online' };
+  }
+  function phenomenologyOnline() {
+    if (!/(^|\.)phenomenologyonline\.com$/i.test(location.hostname)) return null;
+    const sis = document.querySelector('.et_pb_post_content');
+    if (!sis) return null;
+    const el = sis.cloneNode(true);
+    el.querySelectorAll('script, style').forEach(x => x.remove());
+    const h1 = rivi((document.querySelector('h1.entry-title') || {}).textContent);
+    // Textorium: Baldursson, Stefan. The Nature of At-Homeness → tekijä Stefan Baldursson, otsikko loput.
+    const m = /^([^,.]+),\s*([^.]+?)\.\s+(.+)$/.exec(h1);
+    const otsikko = m ? m[3] : h1, tekija = m ? m[2] + ' ' + m[1] : '';
+    // Otsikon ja tekijän toisto tekstin alussa.
+    const toisto = new Set([otsikko, h1, m ? m[1] + ', ' + m[2] : ''].map(x => x.toLowerCase()).filter(Boolean));
+    for (let p = el.firstElementChild; p && p.tagName === 'P';) {
+      const s = p.nextElementSibling;
+      if (toisto.has(rivi(p.textContent).replace(/[.:]$/, '').toLowerCase())) p.remove(); else break;
+      p = s;
+    }
+    wpLihavatOtsikoiksi(el);
+    if (kkSanoja(el) < 50) return null;
+    // Murupolku olisi sivun otsikko; osasto osoitteesta.
+    const polku = /\/sources\/textorium\//.test(location.pathname) ? 'Sources › Textorium' : /\/scholars\//.test(location.pathname) ? 'Scholars' : '';
+    return { html: irrota([el]).innerHTML, otsikko, tekija, polku, sivusto: 'Phenomenology Online', lahde: osoite, maar: [], naytto: 'Phenomenology Online' };
+  }
+  function girardianLectionary() {
+    if (!/(^|\.)girardianlectionary\.net$/i.test(location.hostname)) return null;
+    const sis = document.querySelector('.pf-content');
+    if (!sis) return null;
+    const el = sis.cloneNode(true);
+    el.querySelectorAll('script, style, .printfriendly').forEach(x => x.remove());
+    let julkaistu = '';
+    el.querySelectorAll('h6').forEach(h => {
+      const t = rivi(h.textContent);
+      if (!/last revised|first posted|click reload/i.test(t)) return;
+      const m = /Last revised:\s*([A-Z][a-z]+ \d{1,2}, \d{4})/i.exec(t) || /First Posted:\s*([A-Z][a-z]+ \d{1,2}, \d{4})/i.exec(t);
+      if (m) { const d = new Date(m[1] + ' 12:00 UTC'); if (!isNaN(d)) julkaistu = d.toISOString().slice(0, 10); }
+      h.remove();
+    });
+    if (kkSanoja(el) < 100) return null;
+    const otsikko = rivi((document.querySelector('.entry-title, h1') || {}).textContent) || rivi(document.title);
+    const oma = /\/reflections\//.test(location.pathname) || /^Nuechterlein on\b/i.test(otsikko);
+    return { html: irrota([el]).innerHTML, otsikko, tekija: oma ? 'Paul Nuechterlein' : '', julkaistu, sivusto: 'Girardian Lectionary',
+      lahde: osoite, maar: [], naytto: 'Girardian Lectionary' };
+  }
+
   /* GRETIL (Göttingen Register of Electronic Texts in Indian Languages; käyttäjän pyyntö 20.11.2026, mietintämyssyn kärki 2:
      Nāgārjuna). Sanskritkorpuksen TEI-tiedostojen HTML-muunnokset (/gretil/corpustei/transformations/html/sa_….htm), kaikki samalla
      pohjalla: h1 Tekijä: Teos, otsakeosa (Data entry, Source, Licence, Notes) ja h2 Text, jonka jälkeen teksti div[xml:lang]:ssa.
@@ -9066,6 +9145,7 @@
     bomb: { laji: 'mainokset ja lahjoitukset', osoite: 'https://bombmagazine.org/donate' },
     gutenbergDe: { laji: 'lahjoitukset', osoite: 'https://projekt-gutenberg.org/ueber-uns/finanzielle-unterstuetzung/' },
     newton: { laji: 'lahjoitukset', osoite: 'https://www.newtonproject.ox.ac.uk/support-us' },
+    girardianLectionary: { laji: 'lahjoitukset', osoite: 'https://girardianlectionary.net/donate-connect/' },
     encyclopediaCom: { laji: 'mainokset' },
     newadvent: { laji: 'mainokset' }
   };
@@ -9136,7 +9216,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, gretil, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, gretil, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }

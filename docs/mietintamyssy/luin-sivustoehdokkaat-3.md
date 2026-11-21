@@ -265,6 +265,7 @@ Käyttäjän kysymys henkilölistan ulkopuolelta. Mitattu kontista 20.11.2026.
    artiklan sivulta koko tunnustus), Nova Vulgata (`novaVulgata()`: luvut, jaenumerot, kappaleet ja säkeet), Edition Open Sources ja
    MPRL (`eoa()`: koko kirja alaviitteineen), Newton Project (`newton()`: Readability pudotti alun ja viitteet) ja The Latin Library
    (`latinLibrary()`: yleinen leikkaus sai tekstin, sovite tekijän, otsikon ja pykälät). raamattu.fi ohitettu: CloudFront esti
-   kontin jo toisella haulla (403), joten sovitetta ei voi todentaa. Jäljellä mittaamatta Girardian Lectionary, Phenomenology
-   Online, Lacan Online, Hedgehog Review, The Immanent Frame.
+   kontin jo toisella haulla (403), joten sovitetta ei voi todentaa. *Mitattu 21.11.2026* (`--sarja viisi`): The Immanent Frame
+   riittää yleisellä leikkeellä; Lacan Online, Phenomenology Online ja Girardian Lectionary saivat kevyet sovitteet (tekijä,
+   päiväys, väliotsikot; opas 7.5); The Hedgehog Review antoi kontille 403:n, ei mitattu.
 9. Estetyt (Érudit, Persée, Springer, DTA, Signo) vain, jos ne saa mitattua selaimessa.
