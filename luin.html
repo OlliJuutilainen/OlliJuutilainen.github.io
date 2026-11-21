@@ -760,7 +760,7 @@
   #teksti h4 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
   #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
   #teksti p { margin: 0 0 1.1em; }
-  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: justify; }
+  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.vali) { text-align: justify; }
   /* Kaksirivinen kappale, jonka ainoa tasattu rivi levenisi yli LIEHU_RAJA:n sanaväleihin, liehuu (liehutaLyhyet()).
      Spesifisyys yli tasaussäännön. */
   #teksti.tasattu p.liehu:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
@@ -795,6 +795,10 @@
   /* Kohtanumerot (327a; etukentän kohdat: yläindeksit, sup.kohta piirraTeksti()ssä) harmaina kuten painetun laitoksen
      reunanumerot: viitekoneistoa, ei leipätekstiä (käyttäjän pyyntö 19.11.2026). Ei okra (merkinnät) eikä ruoste (napautettava). */
   #teksti sup.kohta { color: var(--harmaa); }
+  /* Osanvaihto (md.js p.vali: –––, * * *, ⁂; kohdat (i), (ii) … ilman otsikkoa, käyttäjän pyyntö 21.11.2026) keskelle kuten
+     painetussa; sen jälkeinen kappale ilman sisennystä kuten jakson ensimmäinen. */
+  #teksti p.vali, #teksti.sisennys p.vali, #teksti.sisennys p + p.vali { text-align: center; text-indent: 0; margin: .9em 0; break-after: avoid; }
+  #teksti.sisennys p.vali + p { text-indent: 0; }
   /* Vakiosivu (md.js span.vsivu, etukentän vakiosivut: AA; maalauskoneen jatko 20.11.2026): painetun laitoksen sivunumero
      tekstin seassa pienenä ja harmaana kuten kohtanumero, edessä hiusviiva (ei tekstisolmu: paikannin ja merkinnät eivät näe sitä). */
   #teksti .vsivu { font-size: .62em; color: var(--harmaa); vertical-align: .45em; line-height: 0; white-space: nowrap; }
@@ -1763,7 +1767,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=c5c16fa6"></script>
+<script src="luin/md.js?v=493d03d5"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -4355,6 +4359,8 @@
     (nyt.doc.kohdat || []).forEach(function (y) {
       var el = nyt.blocks[y.b];
       if (!el) return;
+      // Osanvaihdon kohta (md.js RE_VALI, 21.11.2026): jakson alku tai osanvaihtomerkki, nimi (i), (ii) …
+      if (y.vali) { nyt.kohdat.push({ k: { b: y.b, o: 0 }, nimi: y.s, lvl: 3 }); return; }
       var sup = $$('sup', el).filter(function (x) { return !x.querySelector('a') && x.textContent.trim() === y.s && ykKaytetyt.indexOf(x) < 0; })[0];
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
