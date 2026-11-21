@@ -249,6 +249,14 @@ sama('lähdeosio', lo.html.slice(lo.html.indexOf('<h4 id="lahde"'), lo.html.inde
   'Osoite:<br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
   'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br>Alkukielinen teksti (pdf):<br>' +
   '<a href="https://snellman.kootutteokset.fi/sites/default/files/01085.pdf">snellman.kootutteokset.fi/sites/default/files/01085.pdf</a></p>');
+// Osanvaihdot kohdiksi (käyttäjän pyyntö 21.11.2026): –––, * * *, --- ja ⁂ tekevät otsikottomasta jaksosta kohdat (i), (ii) …
+// vaihdon jälkeiseen lohkoon; numerointi alkaa alusta otsikon jälkeen, lopun merkki ei ole kohta, yläindeksikohdat ohittavat.
+const ov = M.parse('# T\n\nAlku on tässä kappaleessa, joka on niin pitkä, ettei se ole tietorivi otsikkolohkossa vaan leipätekstiä.\n\n' +
+  '–––\n\nB.\n\n* * *\n\nC.\n\n## Luku\n\nD.\n\n---\n\nE.\n\n⁂\n');
+sama('osanvaihdot kohdiksi', ov.kohdat.map(k => k.s + '@' + k.b).join(' ') + ' | ' + (ov.html.match(/<p class="vali"[^>]*>[^<]*<\/p>/g) || []).join(''),
+  '(i)@1 (ii)@3 (iii)@4 (i)@6 (ii)@7 | <p class="vali" data-b="2">–––</p><p class="vali" data-b="8">⁂</p>');
+tulos('osanvaihdot: yksi jakso ilman vaihtoa ei tee kohtia, yläindeksikohdat ohittavat', !M.parse('# T\n\nA.\n\nB.\n').kohdat.length &&
+  M.parse('---\nkohdat: yläindeksit\n---\n\n# T\n\nEnsimmäinen ^1^ kappale on niin pitkä, ettei se ole otsikkolohkon tietorivi vaan leipätekstiä.\n\n–––\n\nToinen ^2^ kappale.\n').kohdat.map(k => k.s).join() === '1,2');
 tulos('lähdeosio vain verkko-osoitteesta', !/id="lahde"/.test(M.parse('---\nlähde: Kirjan sivu 12\n---\n\n# T\n\nA.\n').html) &&
   !/id="lahde"/.test(M.parse('# T\n\nA.\n').html) && !!lo.lahdeOsio);
 // Yleinen sivun lopun viite paluulinkillä (WordPress, Pandoc): ^1^ ja numeroitu kohta, jossa ↩ …#fnref1.

@@ -294,6 +294,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   näppäimet eivät käännä, äänenvoimakkuutta ei estetä). Pakollinen viimeinen tapa vain kolmesta ensimmäisestä (`PAKKOTAVAT`), koska
   selaimessa ei tiedetä, onko laitteessa painikkeita; Android-sovelluksessa myös laitteen painikkeet kelpaavat. Lista on tiiviimpi
   (25 px, .76rem) kuin muut nipukat, jottei neljä riviä veny.
+- **Kohdat osanvaihdoista** (käyttäjän pyyntö 21.11.2026, opas 3.2, md.js `RE_VALI`): otsikottoman jakson `–––`/`* * *`/`---`/⁂
+  tekevät kohdat (i), (ii) … (`res.kohdat`, `vali`), eivät otsikoita eivätkä Sisälmystä. Kohta on vaihdon jälkeinen lohko, ei merkki.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
   yläindeksinumeroista aikajanan kohtia ja vedon pysäkkejä (`res.kohdat`, `nyt.kohdat`), **ei otsikoita eikä `toc`-rivejä**:
   `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen

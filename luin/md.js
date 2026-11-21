@@ -2041,6 +2041,17 @@
     return r.join('\n');
   }
 
+  /* Osanvaihto (käyttäjän pyyntö 21.11.2026, Snellmanin virkaanastujaisluento: neljä keskitettyä –––): kappale, jossa on
+     vain kolme viivaa, tähteä tai pistettä tai ⁂, sekä vaakaviiva (---, ***). Osanvaihdot tekevät otsikottomasta jaksosta
+     kohtia (i), (ii), (iii) … res.kohtiin (`vali`), ei otsikoita: teksti ja Sisälmys eivät muutu, mutta aikajana, veto ja
+     osiohyppy saavat merkkipaalut. Numerointi alkaa alusta jokaisen otsikon jälkeen; ensimmäinen kohta on jakson alku. */
+  var RE_VALI = /^(?:(?:[–—]\s*){2,}[–—]|(?:[*∗·•]\s*){2}[*∗·•]|⁂)$/;
+  function roomalainen(n) {
+    var r = '', A = [[1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']];
+    A.forEach(function (a) { while (n >= a[0]) { r += a[1]; n -= a[0]; } });
+    return r;
+  }
+
   /*
     parse(md) → {
       meta: etukentän avaimet yhtenäistettyinä (viite, osoite, otsikko, tekijä, julkaistu, sivusto …), raaka,
@@ -2306,10 +2317,29 @@
       while (i < items.length) out += ryhma(items[i].lvl);
       return out;
     }
+    // Osanvaihtojen kohdat (RE_VALI): jakson alku ja vaihdot, kirjataan jakson päättyessä (otsikko tai tekstin loppu).
+    var vali = { alku: null, merkit: [], odottaa: null };
+    function valiJakso() {
+      if (vali.merkit.length && !ylaKohdat) {
+        res.kohdat.push({ b: vali.alku, s: '(i)', vali: true });
+        vali.merkit.forEach(function (x, i) { res.kohdat.push({ b: x, s: '(' + roomalainen(i + 2) + ')', vali: true }); });
+      }
+      vali = { alku: null, merkit: [], odottaa: null };
+    }
     function render(list, inQuote) {
       var h = '';
       list.forEach(function (t, k) {
         curLn = t.ln;
+        if (!inQuote) {
+          if (t.t === 'h') valiJakso();
+          else if (!inBib && (t.t === 'hr' || t.t === 'p' && RE_VALI.test(plain(t.text).trim()))) { if (vali.alku !== null) vali.odottaa = true; }
+          else if (!inBib) {
+            // Kohta on vaihdon jälkeinen ensimmäinen lohko (jakson alku), joten lopun merkki ei ole kohta.
+            if (vali.alku === null) vali.alku = b;
+            else if (vali.odottaa) vali.merkit.push(b);
+            vali.odottaa = null;
+          }
+        }
         if (t.t === 'h') {
           // Otsikkotasoja on neljä: # nimi, ## pääluku, ### alaluku, #### alaluvun alaluku.
           if (t.lvl > 4) warn('Otsikkotasoja on neljä (# – ####): ' + '#'.repeat(t.lvl) + ' näkyy ####-otsikkona.');
@@ -2380,7 +2410,7 @@
               res.kohdat.push(ykOs && (!ykEd || ykEd.n !== ykOs[1]) ? { b: b, s: yk[2], n: ykOs[1], osio: ykOs[1] } : { b: b, s: yk[2], n: ykOs ? ykOs[1] : '' });
             }
           }
-          h += blk('p', inBib && !inQuote ? 'bib' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
+          h += blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');
           if (!inQuote && list[k - 1] && list[k - 1].t === 'bq' && lahdeRivi(tr[0]) && tr.slice(1).every(function (x) { return RE_TYHJA_BR.test(x); }))
@@ -2430,6 +2460,7 @@
       return h;
     }
     html += render(tokens.slice(t0), false);
+    valiJakso();
     res.tunnisteet = paikat(res.toc);
     // Kohtamerkit vasta sarjasta: vähintään kaksi pykälää tai kolme pisteellistä numeroa (luvut 1, 2 … vain niiden seurana).
     var pyk = kohtaEhd.filter(function (k) { return k.pyk; }), pis = kohtaEhd.filter(function (k) { return k.piste; });
