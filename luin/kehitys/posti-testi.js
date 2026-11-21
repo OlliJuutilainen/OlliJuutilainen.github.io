@@ -89,11 +89,10 @@ function muistiKV() {
   const ohje = await a.evaluate(() => ({ auki: !document.querySelector('#laatikko-ohje').hidden, t: document.querySelector('#laatikko-ohje').textContent }));
   const osio = await a.evaluate(() => ({ ots: document.querySelector('#laatikko-osio summary').textContent,
     teksti: document.querySelector('#laatikko-osio .huomio.jatko').textContent, rivi: document.querySelector('#laatikko-osio .koodirivi label').textContent.trim(),
-    nappi: document.querySelector('#laatikko-tallenna').textContent, lista: document.querySelector('#lisaa-ots').textContent,
-    paikka: document.querySelector('#lisaa-syote').placeholder, lisaa: document.querySelector('#lisaa-kentta button').textContent }));
-  tulos('Postihuilu: asetusten ja lukulistan tekstit', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
-    osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla laatikkolauseella varustetut pinot.' && osio.lista === 'Postihuilu' &&
-    osio.paikka === 'Laatikkolause tai linkki' && osio.lisaa === 'Soita huilua!', JSON.stringify(osio));
+    nappi: document.querySelector('#laatikko-tallenna').textContent, pinossa: !!document.querySelector('#lisaa-syote') }));
+  // Pinosta Postihuilu poistettiin 21.11.2026 (käyttäjän pyyntö); lause annetaan asetuksissa tai #l=-linkistä.
+  tulos('Postihuilu: asetusten tekstit, pinossa ei kenttää', osio.ots === 'Postihuilu' && osio.rivi === 'Laatikkolause:' && osio.nappi === 'Soita huilua!' &&
+    osio.teksti === 'Huilun soittaminen yhdistää kaikki valitulla laatikkolauseella varustetut pinot.' && !osio.pinossa, JSON.stringify(osio));
   tulos('i-ohje: haarukka 24–52, muita merkkejä ei hyväksytä, esimerkit, 30 päivää', ohje.auki && /merkkihaarukka on 24–52/.test(ohje.t) &&
     /MUITA MERKKEJÄ JA VÄLILYÖNTEJÄ EI HYVÄKSYTÄ\./.test(ohje.t) && /tori-kaffeilla-on-hemmetin-mukavaa/.test(ohje.t) &&
     /torikaffeillaonhemmetinmukavaa/.test(ohje.t) && /kestää 30 päivää/.test(ohje.t), ohje.t.slice(0, 90));
@@ -156,19 +155,21 @@ function muistiKV() {
   // --- 3. Laite B: vastaanotto ilman omaa lähetysvalintaa ---
   const b = B.sivu;
   await b.goto(OSOITE + 'luin.html');
-  await b.click('#lisaa-ots'); // pinon Postihuilu on oletuksena kiinni (16.11.2026)
-  await b.fill('#lisaa-syote', 'torikaffeilla on hemmetin mukavaa');
-  await b.press('#lisaa-syote', 'Enter');
+  tulos('B: ilman lausetta ei Soita postihuilua', !(await b.isVisible('#soita-postihuilua')));
+  await b.goto(OSOITE + 'luin.html#l=' + encodeURIComponent('torikaffeilla on hemmetin mukavaa'));
   await b.waitForFunction(() => /Ei kelpaa/.test(document.querySelector('#viesti').textContent));
-  tulos('B: Postihuilu-kenttä hylkää välilyönnit', (await LS(b, 'luin-laatikko')) === null);
-  await b.fill('#lisaa-syote', 'https://ollijuutilainen.github.io/luin.html#l=' + encodeURIComponent('TORIKAFFEILLAonhemmetinmukavaa'));
-  await b.press('#lisaa-syote', 'Enter');
+  tulos('B: #l= hylkää välilyönnit', (await LS(b, 'luin-laatikko')) === null);
+  await b.goto(OSOITE + 'luin.html#l=' + encodeURIComponent('TORIKAFFEILLAonhemmetinmukavaa'));
   await b.waitForFunction(() => /teksti|käytössä/.test(document.querySelector('#viesti').textContent));
   const viestiB = await b.evaluate(() => document.querySelector('#viesti').textContent);
   tulos('B: ilmoitus Postihuilun kautta kantautui teksti', viestiB === 'Postihuilun kautta kantautui teksti.', viestiB);
   for (let i = 0; i < 40; i++) { if ((await LS(b, 'luin-merkit:p-kant-ja-elainetiikka'))) break; await odota(100); }
   const mB = await LS(b, 'luin-merkit:p-kant-ja-elainetiikka'), eB = (await LS(b, 'luin-lista')).filter(e => e.id === 'p-kant-ja-elainetiikka')[0];
   tulos('B: linkin lause pienillä', (await LS(b, 'luin-laatikko')) === KOODI);
+  tulos('B: lauseen kanssa Soita postihuilua pinossa', await b.isVisible('#soita-postihuilua'));
+  await b.click('#soita-postihuilua');
+  await b.waitForFunction(() => /^Uusia tekstejä ei kantautunut\.$/.test(document.querySelector('#viesti').textContent));
+  tulos('B: Soita postihuilua hakee laatikon', true);
   tulos('B: alleviivaukset, kirjaus ja kirjanmerkki tulivat', mB && mB.al.length === 2 && mB.km.length === 1 && mB.al.filter(h => h.n === 'Laitteen A kirjaus').length === 1,
     mB ? JSON.stringify({ al: mB.al.map(h => h.id + (h.n ? '+' : '')), km: mB.km.map(k => k.id) }) : 'ei');
   tulos('B: lukukohta tuli', eB && eB.pos && eB.pos.b === ankA.b && eB.pct === laatikossa.pct && eB.pct > 0, eB && JSON.stringify(eB.pos) + ' ' + eB.pct + ' %');

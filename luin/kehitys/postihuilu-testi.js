@@ -179,22 +179,9 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     });
     await p.goto('file://' + path.join(JUURI, 'luin.html'));
     await p.waitForTimeout(600);
-    // Pinossa Postihuilu on oletuksena kiinni (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko, ei huilua eikä kenttää.
-    const kiinni = await p.evaluate(() => {
-      const l = document.querySelector('#huilulohko'), nak = q => { const e = document.querySelector(q); return !!(e && e.getClientRects().length); };
-      const o = document.querySelector('#lisaa-ots');
-      return { ots: nak('#lisaa-ots'), versaali: getComputedStyle(o).textTransform, aria: o.getAttribute('aria-expanded'),
-        muut: ['#huilu-kysy', '#huilulohko .huilu-paikka', '#huilulohko .huilukaista', '#lisaa-kentta', '#lisaa-syote'].filter(nak),
-        kuvio: l.querySelector('svg.huilukuvio').innerHTML.length };
-    });
-    tulos(`${w} px: pinon Postihuilu oletuksena kiinni, vain versaaliotsikko`, kiinni.ots && kiinni.versaali === 'uppercase' && kiinni.aria === 'false' && !kiinni.muut.length && !kiinni.kuvio, JSON.stringify(kiinni));
-    if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-kiinni-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
-    await p.click('#lisaa-ots'); await p.waitForTimeout(150);
-    tulos(`${w} px: otsikko avaa huilun ja kentän`, await p.evaluate(() => document.querySelector('#lisaa-ots').getAttribute('aria-expanded') === 'true' &&
-      ['#huilu-kysy', '#lisaa-syote', '#huilulohko .huilunappi'].every(q => document.querySelector(q).getClientRects().length) &&
-      document.querySelector('#huilulohko svg.huilukuvio').innerHTML.length > 0));
-    // Napin alku alakulmassa, kolme väliä, yläkulma ja napin loppu (siksakin pää) alamäen puolivälissä; napin vasemmalla aalto
-    // (käyttäjä 17.11.2026). Alle 360 px:ssä väli on kapeampi, joten napin alku ei ole kulma (yli puoli kapeampaa väliä).
+    // Pinossa ei ole Postihuilua (käyttäjän pyyntö 21.11.2026): ei otsikkoa, kenttää eikä kuviota. Soita postihuilua vain,
+    // kun laatikkolause on annettu; se on kellarilinkin alla vasemmalla samassa koossa.
+    // Kulmat ja syli mitataan asetusten kuviosta (alla).
     const kulmat = q => p.evaluate(q => {
       const l = document.querySelector(q), R = l.getBoundingClientRect(), n = l.querySelector('.huilunappi').getBoundingClientRect();
       const pts = l.querySelector('svg.huilukuvio path').getAttribute('d').split('M')[1].split('L').slice(81).map(t => t.split(' ').map(Number));
@@ -212,42 +199,26 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
         vikaYla: vika && Math.abs(vika[1] - yla) < .02, yli: vika && x1 - vika[0], paa: Math.abs(paa[0] - x1), paaAlempana: paa[1] > yla };
     }, q);
     const kpOk = k => k.paa < .05 && k.vikaYla && k.yli > (w < 340 ? 10 : 13) && k.yli < 21 && k.paaAlempana;
-    const kp = await kulmat('#huilulohko');
-    tulos(`${w} px: pinossa harja yläkulmien korkeudella, suora laakso napin alun alakulmaan, loppu alamäen puolivälissä`, kpOk(kp) && (w < 340 || kp.sylissa && kp.vasen < .05 && kp.vasenAla && kp.kulmia === 4), JSON.stringify(kp));
     const pino = () => p.evaluate(() => {
-      const l = document.querySelector('#huilulohko'), svg = l.querySelector('svg.huilukuvio'), nu = svg.querySelector('path.nuotit');
-      const rg = document.createRange(); rg.selectNodeContents(document.querySelector('#lisaa-ots')); const t = rg.getBoundingClientRect();
-      const runko = svg.querySelector('g path'), bb = runko.getBBox(), m = runko.getScreenCTM();
-      const pts = [[bb.x, bb.y], [bb.x + bb.width, bb.y], [bb.x, bb.y + bb.height], [bb.x + bb.width, bb.y + bb.height]].map(([x, y]) => new DOMPoint(x, y).matrixTransform(m));
-      const nappi = l.querySelector('.huilunappi').getBoundingClientRect(), syote = document.querySelector('#lisaa-syote').getBoundingClientRect(), nb = nu && nu.getBoundingClientRect();
-      const kysy = document.querySelector('#huilu-kysy').getBoundingClientRect();
-      const viivat = svg.querySelector('path').getBoundingClientRect();
       const os = document.querySelector('.n-ots'), hs = os.querySelector('svg.huilutettu'), fs = parseFloat(getComputedStyle(os).fontSize);
       const mk = document.createElement('span'); mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; hs.parentNode.insertBefore(mk, hs);
       const perus = mk.getBoundingClientRect().bottom, hr = hs.getBoundingClientRect(); mk.remove();
-      return { kysyRako: Math.min(...pts.map(q => q.x)) - kysy.right, keski: (perus - (hr.top + hr.bottom) / 2) / fs,
-        viivatVasen: svg.querySelector('path').getBBox().x - (t.right - l.getBoundingClientRect().left),
-        viivatOikea: l.getBoundingClientRect().right - viivat.right, viivatNappi: viivat.right - nappi.right,
-        nuotit: nb && { vasen: nb.left - nappi.left, oikea: nappi.right - nb.right, maara: (nu.getAttribute('d').match(/M/g) || []).length,
-          ala: syote.top - nb.bottom, viivastonAlle: nb.bottom - viivat.bottom },
+      const nak = q => { const e = document.querySelector(q); return !!(e && e.getClientRects().length); };
+      return { keski: (perus - (hr.top + hr.bottom) / 2) / fs,
+        huiluPinossa: ['#huilulohko', '#lisaa-ots', '#lisaa-syote', '#huilu-kysy', '#lista svg.huilukuvio'].filter(q => document.querySelector(q)),
+        soita: nak('#soita-postihuilua'),
         merkityt: document.querySelectorAll('.n-ots svg.merkitty').length,
         merkkiRako: (() => { const m = os.querySelector('svg.merkitty').getBoundingClientRect(); return [m.top < hr.bottom && m.bottom > hr.top, hr.left - m.right]; })(),
         huilutetut: document.querySelectorAll('.n-ots svg.huilutettu').length, nOts: [...document.querySelectorAll('.n-ots')].map(x => x.textContent),
         vaaka: document.documentElement.scrollWidth <= innerWidth };
     });
     const e = await pino();
-    tulos(`${w} px: huilu i-napin oikealla puolella, ei kosketa siihen`, e.kysyRako > 0, Math.round(e.kysyRako * 10) / 10);
+    tulos(`${w} px: pinossa ei Postihuilua`, !e.huiluPinossa.length, e.huiluPinossa.join(' '));
+    tulos(`${w} px: ilman laatikkolausetta ei Soita postihuilua`, !e.soita);
     tulos(`${w} px: huilutetun huilun keskikohta 0,29 em perusviivan yläpuolella`, Math.abs(e.keski - .29) < .02, Math.round(e.keski * 1000) / 1000);
-    tulos(`${w} px: ei nuotteja ennen painallusta`, !e.nuotit);
     tulos(`${w} px: merkintöjen merkki vain merkityllä, huilu sen oikealla puolella samalla rivillä`, e.merkityt === 1 && e.merkkiRako[0] && e.merkkiRako[1] > 2, e.merkkiRako[1].toFixed(1));
-    tulos(`${w} px: siksak päättyy tasan Soita huilua! -napin oikeaan reunaan`, Math.abs(e.viivatNappi) < .6, Math.round(e.viivatNappi * 100) / 100);
     tulos(`${w} px: huilutettu vain kantautuneella, nimet ennallaan`, e.huilutetut === 1 && e.nOts.join('|') === 'Kant ja eläinetiikka|Käyttöohje');
-    await p.fill('#lisaa-syote', 'lyhyt'); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(200);
-    tulos(`${w} px: kelpaamaton lause ei soita`, !(await pino()).nuotit);
-    await p.fill('#lisaa-syote', LAUSE); await p.click('#lisaa-kentta .huilunappi'); await p.waitForTimeout(400);
-    const j = await pino();
-    tulos(`${w} px: painallus tuo aina kolme nuottia koko napin x-välille, eivät viivaston alle`, j.nuotit && j.nuotit.maara === 3 && j.nuotit.vasen >= 0 && j.nuotit.oikea >= 0 && (w < 340 || j.nuotit.vasen < 30 && j.nuotit.oikea < 36 && j.nuotit.oikea - j.nuotit.vasen > 12 && j.nuotit.oikea - j.nuotit.vasen < 22) && j.nuotit.ala > 2 && j.nuotit.viivastonAlle <= 1, JSON.stringify(j.nuotit));
-    tulos(`${w} px: ei vaakavieritystä pinossa`, j.vaaka);
+    tulos(`${w} px: ei vaakavieritystä pinossa`, e.vaaka);
     if (KUVAT) await p.screenshot({ path: path.join(KUVAT, `postihuilu-pino-${w}.png`), clip: { x: 0, y: 0, width: w, height: 640 } });
     await p.click('.ratas'); await p.click('#laatikko-osio > summary'); await p.waitForTimeout(200);
     const aset = () => p.evaluate(() => {
@@ -270,6 +241,15 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: asetuksissa painallus tuo kolme nuottia koko napin x-välille`, a2.nuotit && a2.nuotit.maara === 3 && a2.nuotit.vasen >= 0 && a2.nuotit.oikea >= 0 && a2.nuotit.vasen < 30 && a2.nuotit.oikea < 36 && a2.nuotit.oikea - a2.nuotit.vasen > 12 && a2.nuotit.oikea - a2.nuotit.vasen < 22 && a2.nuotit.ala > 2, JSON.stringify(a2.nuotit));
     tulos(`${w} px: ei vaakavieritystä asetuksissa`, a2.vaaka);
     if (KUVAT) await (await p.$('#laatikko-osio')).screenshot({ path: path.join(KUVAT, `postihuilu-asetukset-${w}.png`) });
+    // Lause annettu: pinossa Soita postihuilua vasemmalla palstan laidassa, kellarilinkin kokoisena (kellari tyhjä: linkki piilossa).
+    await p.goto('file://' + path.join(JUURI, 'luin.html')); await p.waitForTimeout(400);
+    const sp = await p.evaluate(() => {
+      const b = document.querySelector('#soita-postihuilua'), r = b.getBoundingClientRect(), cs = getComputedStyle(b);
+      const lista = document.querySelector('#nimikkeet').getBoundingClientRect(), lisaa = document.querySelector('.lisaa').getBoundingClientRect();
+      return { nak: !!b.getClientRects().length, vasen: r.left - lista.left, koko: cs.fontSize, versaali: cs.textTransform, ennenLinkkeja: r.bottom < lisaa.top,
+        ark: document.querySelector('#ark-linkki').hidden };
+    });
+    tulos(`${w} px: lauseen kanssa Soita postihuilua vasemmalla .64rem:n versaalina ennen linkkejä`, sp.nak && Math.abs(sp.vasen) < .5 && sp.koko === '10.24px' && sp.versaali === 'uppercase' && sp.ennenLinkkeja, JSON.stringify(sp));
     tulos(`${w} px: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
     await p.close();
   }
