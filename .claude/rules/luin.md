@@ -38,7 +38,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
 - `luin/lisaosa/` (*Luin*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja (0.8.0, *Lataa .md*) `#lataa` (`latomoon.js`; taustavälilehti sulkeutuu vain, jos `#lataa` lisää `body`yn `a[download]`-linkin, ja kirjoittaa odotuksen ajaksi Latomon kuittauksen `#lataa-tila` perään sulkeutumisesta):
   jos nimeät ne uudelleen, lisäosa lakkaa toimimasta. Postihuilu käyttää lisäksi `#laatikko-koodi` (attribuutti `data-ei-muistia`), `#laheta`, `#kk-tila`
-  (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
+  (alkaa *Ladottu postitettavaksi*; 0.4.0 odottaa *Lähetetty*) ja `#kk-virhe` sekä `#laatikko-virhe`; vanhat asennetut lisäosat käyttävät niitä yhä.
+  Sarja (21.11.2026, Perseuksen kirjat erikseen) käyttää lisäksi `#sarja`a. Leikkeen etukentän korvamerkki `leikattu:` kytkee Latomon
   leikesiivouksen (`siivoa()`: yläindeksit, otsikkoriviton HTML-taulukko, tyhjät linkit, peräkkäiset alaviitemerkit yhdeksi `[^ryhma-N]`:ksi,
   käyttäjän pyyntö 12.11.2026 Wikipedian takia: yksi merkki avaa kaikki); muuta niitä yhdessä. Haetut alaviitteet
   (`[^viite-N]`, jatkorivit sisennettyinä ilman `>`:tä) ja SEP-sovite toistavat md.js:n `sivunViitteet()`:n ja
@@ -48,7 +49,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Ei odottavia (0.12.0, 18.11.2026: Postihuilu-napin kolmilinja, pienemmät sormireiät ja huilu 64°:ssa). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa (21.11.2026): Perseuksen *kukin omaksi tekstikseen* (`ponnahdus.html`, `ponnahdus.js`, `latomoon.js`; sivuston Latomo ja lukin ovat valmiit). Edellinen 0.12.0 (18.11.2026: Postihuilu-napin kolmilinja, pienemmät sormireiät ja huilu 64°:ssa). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -90,6 +91,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Valinnat ponnahdusikkunassa (käyttäjän pyyntö 19.11.2026, opas 7.5): kielet ja kirjat menevät leikkurille muuttujassa
   `__lukimeenPs` (ikkuna asettaa sen `executeScript`-funktiolla ennen tiedostoja), ja XML pysyy sivun muistissa (`__lukimeenPsXml`).
   Ilman valintoja leike on tavulleen sama kuin ennen; testi `perseus-valinnat-testi.js` (vertaa pesukoneen leikkeisiin).
+  *Kukin omaksi tekstikseen* (21.11.2026, opas 7.5): leikkeen `sarja` → `odottaa.sarja` → Latomon piilokenttä `#sarja` (JSON,
+  uusi lisäosarajapinta) → siirron `sarja` → lukimen `tuo()`. Muuta ketju yhdessä.
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`

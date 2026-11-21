@@ -2119,14 +2119,28 @@
     TX.otaSiirto().then(function (t) {
       if (!t || !t.md) { viesti('Siirrettävää tekstiä ei löytynyt. Avaa teksti uudelleen latomosta.'); return naytaLista(); }
       if (t.pinosta) return tuoPinosta(t);
-      var doc = LuinMD.parse(t.md);
-      var id = 'p-' + LuinMD.tekstiTunnus(doc.title || t.nimi || 'teksti').slice(0, 60);
-      return TX.kirjoita(id, t.md).then(function (ok) {
-        if (!ok) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
-        var e = lisaaListaan(id, doc, { src: 'paikallinen' });
-        if (!e.kasikirja) { pinoonTuli(e); tusina([e]); }
+      // Sarja (Latomo, lisäosan Perseus-valinta kukin omaksi tekstikseen, 21.11.2026): kaikki pinoon erillisinä, ensimmäinen
+      // päällimmäiseksi ja auki. Myöhempi kirja on pinossa vanhempi, joten tusinan ylittyessä viimeiset laskeutuvat.
+      var mdt = [t.md].concat(Array.isArray(t.sarja) ? t.sarja : []), nyt0 = Date.now(), tulleet = [];
+      var tallenna1 = function (i) {
+        if (i < 0) return Promise.resolve(true);
+        var doc = LuinMD.parse(mdt[i]);
+        var id = 'p-' + LuinMD.tekstiTunnus(doc.title || (i ? '' : t.nimi) || 'teksti').slice(0, 60);
+        return TX.kirjoita(id, mdt[i]).then(function (ok) {
+          if (!ok) return false;
+          var e = lisaaListaan(id, doc, { src: 'paikallinen' });
+          if (!e.kasikirja) { pinoonTuli(e); e.pinoon = nyt0 - i; }
+          tulleet.unshift(e);
+          return tallenna1(i - 1);
+        });
+      };
+      return tallenna1(mdt.length - 1).then(function (ok) {
+        if (!ok && !tulleet.length) { viesti('Tallennustila on täynnä: tekstiä ei voitu tallentaa.'); return naytaLista(); }
+        tusina(tulleet.filter(function (e) { return !e.kasikirja; }));
         tallennaLista();
-        location.replace('#id=' + encodeURIComponent(e.id));
+        if (!ok) viesti('Tallennustila loppui: ' + tulleet.length + ' / ' + mdt.length + ' tekstiä tallentui.');
+        else if (tulleet.length > 1 && !laskeutuneet) viesti(tulleet.length + ' tekstiä tuli pinoon.');
+        location.replace('#id=' + encodeURIComponent(tulleet[0].id));
       });
     });
   }

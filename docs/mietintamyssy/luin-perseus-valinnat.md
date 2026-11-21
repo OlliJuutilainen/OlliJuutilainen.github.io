@@ -2,8 +2,8 @@
 
 Hyllyyn 19.11.2026 (käyttäjän ajatus). **Toteutettu samana päivänä** (`perseus-valinnat-testi.js`): kielet (molemmat,
 alkuteksti, käännös) ja kirjat (numeronapit ja kaikki; valitut yhdeksi tekstiksi). Huomio *Iso paketti* yli 60 000 sanan
-leikkeestä (`PS_ISO`, `ponnahdus.js`), vain niillä keinoilla, jotka valinnassa ovat vielä käytössä. Ei toteutettu: kirjat
-erillisiksi teksteiksi yhdellä kertaa (Latomo ottaa yhden tekstin). Alla kirjoitushetken suunnitelma.
+leikkeestä (`PS_ISO`, `ponnahdus.js`), vain niillä keinoilla, jotka valinnassa ovat vielä käytössä. Kirjat erillisiksi
+teksteiksi yhdellä kertaa *toteutettu 21.11.2026* (*kukin omaksi tekstikseen*, Latomon `#sarja`, opas 7.5). Alla kirjoitushetken suunnitelma.
 
 ## Ajatus
 

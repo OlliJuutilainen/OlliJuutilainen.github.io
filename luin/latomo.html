@@ -301,6 +301,10 @@
     <button type="button" class="kytkin" id="ann" aria-pressed="false"><svg viewBox="0 0 8 11" aria-hidden="true"><path class="sal-ulko" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path class="sal-sisa" d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg>Piilota annotaatiot</button>
   </div>
   <p class="pieni" id="leike-tila" hidden></p>
+  <!-- Sarja (21.11.2026): lukimeen-lisäosa jättää tähän muut tekstit JSON-luettelona (Perseuksen kirjat erikseen). Ne ladotaan
+       kuten tekstikentän teksti ja viedään lukimeen, ladataan tai postitetaan erillisinä. Rajapinta lisäosaan: #sarja. -->
+  <textarea id="sarja" hidden aria-hidden="true" tabindex="-1"></textarea>
+  <p class="pieni" id="sarja-tila" hidden></p>
 
   <section class="tarkistus" id="tarkistus" hidden>
     <div class="tiedot" id="tiedot"></div>
@@ -1204,7 +1208,11 @@
   /* ---------- tapahtumat ---------- */
   var ajastin = null;
   function myohemmin(ms) { clearTimeout(ajastin); ajastin = setTimeout(paivita, ms || 200); }
-  md.addEventListener('input', function () { $('#lataa-tila').hidden = true; if (!md.value.trim()) { alusta(); nimi = ''; } myohemmin(250); });
+  md.addEventListener('input', function () {
+    $('#lataa-tila').hidden = true;
+    if (!md.value.trim()) { alusta(); nimi = ''; if (sarja.length) { $('#sarja').value = ''; lueSarja(); } }
+    myohemmin(250);
+  });
   $('#kentat').addEventListener('input', function (ev) {
     var r = ev.target.closest('.kentta'), k = r && r.dataset.k;
     if (!k) return;
@@ -1324,6 +1332,33 @@
   });
 
   function nykyinen() { clearTimeout(ajastin); paivita(); return tulos; }
+  /* Sarja (21.11.2026, lisäosan Perseus-valinta kukin omaksi tekstikseen): #sarja-kentän tekstit ladotaan samalla koneella
+     kuin tekstikentän teksti, mutta kenttiin koskematta: käyttäjän muutokset koskevat vain näkyvää tekstiä. Tila ja kenttä
+     palautetaan. Tyhjennys tai uusi teksti tyhjentää sarjan. */
+  var sarja = [];
+  function lueSarja() {
+    try { sarja = JSON.parse($('#sarja').value || '[]'); } catch (e) { sarja = []; }
+    if (!Array.isArray(sarja)) sarja = [];
+    sarja = sarja.filter(function (x) { return typeof x === 'string' && x.trim(); });
+    var t = $('#sarja-tila');
+    t.textContent = sarja.length ? 'Sarja: tämän lisäksi ' + sarja.length + (sarja.length === 1 ? ' teksti' : ' tekstiä') +
+      ', jotka ladotaan samoin ja viedään lukimeen, ladataan tai postitetaan erillisinä. Säädöt koskevat vain yllä olevaa tekstiä.' : '';
+    t.hidden = !sarja.length;
+  }
+  $('#sarja').addEventListener('input', lueSarja);
+  function sarjaLadottu() {
+    if (!sarja.length) return [];
+    clearTimeout(ajastin);
+    var talteen = { v: md.value, tila: tila, nimi: nimi, osoite: osoite.value }, ulos = [];
+    sarja.forEach(function (x) {
+      alusta(); nimi = ''; osoite.value = ''; md.value = x;
+      paivita();
+      if (tulos && tulos.md) ulos.push({ md: tulos.md, otsikko: tulos.doc.title || 'teksti' });
+    });
+    md.value = talteen.v; tila = talteen.tila; nimi = talteen.nimi; osoite.value = talteen.osoite;
+    paivita();
+    return ulos;
+  }
   /* Tallennustila loppui (käyttäjän kysymys 19.11.2026: koko kaksikielinen Valtio, 1,8 milj. merkkiä, ei mennyt läppärillä
      lukimeen). localStorage on koko sivuston yhteinen, ja Chromium antaa sille noin 5,2 miljoonaa merkkiä (mitattu 19.11.2026);
      pinon tekstit vievät saman tilan. Ilmoitus kertoo koot, jotta syy ei jää arvoitukseksi. Jos tilaa ei ole käytetty juuri
@@ -1342,6 +1377,7 @@
     if (!t) return;
     var siirto = { md: t.md, nimi: nimi };
     if (pino) siirto.pinosta = { id: pino.id, tila: pino.tila, valinta: pino.valinta };
+    else if (sarja.length) siirto.sarja = sarjaLadottu().map(function (x) { return x.md; });
     // Siirto kulkee tekstikannassa (luin/tekstit.js, 19.11.2026); localStorage vain, jos kanta ei avaudu.
     LuinTekstit.asetaSiirto(siirto).then(function (ok) {
       if (!ok) { alert(tilaLoppui(JSON.stringify(siirto).length)); return; }
@@ -1351,6 +1387,15 @@
   $('#lataa').addEventListener('click', function () {
     var t = nykyinen();
     if (!t) return;
+    // Sarjan tekstit omina tiedostoinaan (selain voi kysyä luvan useaan lataukseen).
+    sarjaLadottu().forEach(function (x, i) {
+      setTimeout(function () {
+        var b = new Blob([x.md], { type: 'text/markdown;charset=utf-8' }), y = document.createElement('a');
+        y.href = URL.createObjectURL(b); y.download = (L.slug(x.otsikko).slice(0, 60) || 'teksti') + '.md';
+        document.body.appendChild(y); y.click(); y.remove();
+        setTimeout(function () { URL.revokeObjectURL(y.href); }, 2000);
+      }, 300 * (i + 1));
+    });
     var blob = new Blob([t.md], { type: 'text/markdown;charset=utf-8' }), a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = (L.slug(t.doc.title || nimi || 'teksti').slice(0, 60)) + '.md';
@@ -1417,7 +1462,16 @@
     if (lahettaa || !paivitaLahetys()) return;
     var d = lahetysTiedot();
     lahettaa = true; $('#kk-laheta').disabled = true; kkTila('Lähetetään…');
-    postita({ l: d.k, id: d.id, md: d.t.md }).then(function (v) {
+    // Sarja: ensimmäisen jälkeen muut järjestyksessä samaan laatikkoon; kuittaus vasta, kun kaikki ovat perillä.
+    var muut = sarjaLadottu().map(function (x) { return { l: d.k, id: L.tekstiTunnus(x.otsikko).slice(0, 60) || 'teksti', md: x.md }; });
+    var postitaKaikki = function () {
+      return postita({ l: d.k, id: d.id, md: d.t.md }).then(function seuraava(v) {
+        if (!(v.s === 200 && v.j.ok) || !muut.length) return v;
+        return postita(muut.shift()).then(seuraava);
+      });
+    };
+    if (muut.length) d.otsikko += ' ja ' + muut.length + (muut.length === 1 ? ' muu teksti' : ' muuta tekstiä');
+    postitaKaikki().then(function (v) {
       if (v.s === 200 && v.j.ok) {
         $('#kk-kayttoonotto').hidden = true;
         // Käyttäjän sanamuoto 10.11.2026 (ennen Lähetetty klo …: lähetys tapahtuu jo paneelin avauksesta, joten kuittaus

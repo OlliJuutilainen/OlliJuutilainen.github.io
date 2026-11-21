@@ -63,7 +63,8 @@ function nayta() {
   if (!leike) return;
   const sanoja = valittu() ? leike.valintaSanoja : leike.kokoSanoja;
   const viitteita = valittu() ? leike.valintaViitteita : leike.kokoViitteita;
-  $('meta').textContent = [leike.sivusto, sanoja ? luku(sanoja) : '',
+  const sarja = !valittu() && leike.sarja;
+  $('meta').textContent = [leike.sivusto, sarja ? sarja.length + ' tekstiä' : '', sarja ? luku(sarja.reduce((n, x) => n + x.sanoja, 0)) : sanoja ? luku(sanoja) : '',
     viitteita ? viitteita + (viitteita === 1 ? ' alaviite' : ' alaviitettä') + ' haettu' : ''].filter(Boolean).join(' · ');
   const tyhja = !(valittu() ? leike.valinta : leike.koko);
   $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja || psKesken;
@@ -85,7 +86,10 @@ function psPiirra() {
   const ps = leike && leike.ps;
   $('ps').hidden = !ps;
   if (!ps) return;
-  if (!psValinta) psValinta = { kielet: ps.kielet, kirjat: ps.valitut.length ? ps.valitut.slice() : ps.kirjat.slice() };
+  if (!psValinta) psValinta = { kielet: ps.kielet, kirjat: ps.valitut.length ? ps.valitut.slice() : ps.kirjat.slice(), erikseen: false };
+  // Laajuus vain, kun valittuna on useampi kirja.
+  $('ps-laajuus').hidden = psValinta.kirjat.length < 2;
+  document.querySelectorAll('input[name="laajuus"]').forEach(r => { r.checked = r.value === (psValinta.erikseen ? 'erikseen' : 'yhteen'); });
   $('ps-kielet').hidden = !ps.kaannos;
   $('ps-molemmat').textContent = ps.kieli + ' ja englanti';
   $('ps-alku').textContent = ps.kieli;
@@ -109,8 +113,10 @@ function psPiirra() {
   // Huomio vain valmiista leikkeestä: pienempi paketti niillä keinoilla, jotka tässä valinnassa vielä ovat käytössä.
   const keinot = [];
   if (leike.ps.kielet === 'molemmat') keinot.push('yksi kieli');
-  if (leike.ps.valitut.length !== 1 && ps.kirjat.length > 1) keinot.push('kirja kerrallaan');
-  $('ps-huomio').textContent = !psKesken && leike.kokoSanoja > PS_ISO && keinot.length
+  if (leike.ps.valitut.length !== 1 && ps.kirjat.length > 1 && !leike.sarja) keinot.push('kirja kerrallaan tai kukin omaksi tekstikseen');
+  $('ps-huomio').textContent = !psKesken && leike.sarja && leike.sarja.length > 12
+    ? 'Pinoon mahtuu tusina tekstiä: pinoon jäävät 12 ensimmäistä kirjaa, ja muut sekä pinon aiemmat tekstit laskeutuvat cellarin campihyllystöön.'
+    : !psKesken && leike.kokoSanoja > PS_ISO && keinot.length
     ? 'Iso paketti. Jos lukeminen tökkii, kokeile pienempää: ' + keinot.join(' tai ') + '.' : '';
 }
 
@@ -125,7 +131,7 @@ async function psLeikkaa() {
   psAjastin = null;
   if (psAjo) { psJono = true; return; }
   psAjo = true;
-  const r = await aja({ kielet: psValinta.kielet, kirjat: psValinta.kirjat.slice() });
+  const r = await aja({ kielet: psValinta.kielet, kirjat: psValinta.kirjat.slice(), erikseen: psValinta.erikseen && psValinta.kirjat.length > 1 });
   psAjo = false;
   if (psJono) { psJono = false; return psLeikkaa(); }
   if (psAjastin) return;
@@ -147,7 +153,9 @@ const ANDROID = /Android/i.test(navigator.userAgent);
 async function laheta(avaa, posti, lataa) {
   $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = $('soita').disabled = true;
   const taustalla = !!lataa && !ANDROID;
-  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, avaa, posti, lataa: !!lataa, taustalla, aika: Date.now() } });
+  // Sarja (Perseuksen kirjat erikseen): ensimmäinen on md, muut sarjassa; Latomo latoo ne ja lukin tuo ne erillisinä.
+  const sarja = !valittu() && leike.sarja ? leike.sarja.slice(1).map(x => x.md) : null;
+  await api.storage.local.set({ odottaa: { md: valittu() ? leike.valinta : leike.koko, sarja, avaa, posti, lataa: !!lataa, taustalla, aika: Date.now() } });
   await api.tabs.create({ url: LATOMO, active: !taustalla });
   window.close();
 }
@@ -198,6 +206,11 @@ async function aloita() {
     if (!r.checked || !psValinta) return;
     psValinta.kielet = r.value;
     api.storage.local.set({ psKielet: r.value });
+    psMuuta();
+  }));
+  document.querySelectorAll('input[name="laajuus"]').forEach(r => r.addEventListener('change', () => {
+    if (!r.checked || !psValinta) return;
+    psValinta.erikseen = r.value === 'erikseen';
     psMuuta();
   }));
   $('ps-kirjat').addEventListener('click', e => {

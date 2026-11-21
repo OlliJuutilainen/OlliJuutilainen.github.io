@@ -10,9 +10,7 @@ Käyttäjä pyysi 20.11.2026 viittä mietintämyssyn kärkikohtaa ja kuudenneksi
 GRETIL-sovite ja vakiosivut (opas 3.2 *Vakiosivut*, `vakiosivu-testi.js`). Keskeytetty käyttäjän pyynnöstä; jäljellä järjestyksessä:
 
 1. ~~Kellarin sanaston huolto~~ *tehty 21.11.2026* (järjestysrivin *sanasto*, opas 2.5).
-2. **Perseus: erilliset tekstit** ([luin-perseus-valinnat.md](luin-perseus-valinnat.md): laajuus *kaikki kirjat erikseen*):
-   `perseus()` ja `psLomitus()` leike.js:ssä, valitsimet `ponnahdus.js`:n `psPiirra()`, testi `perseus-valinnat-testi.js`
-   (ilman valintoja leike tavulleen sama).
+2. ~~Perseus: erilliset tekstit~~ *tehty 21.11.2026* (*kukin omaksi tekstikseen*, opas 7.5). Tarvitsee lisäosan uuden version.
 3. **Viiden sivuston yleisen leikkauksen mittaus** ([luin-sivustoehdokkaat-3.md](luin-sivustoehdokkaat-3.md), järjestyksen kohta 8):
    Girardian Lectionary, Phenomenology Online, Lacan Online, The Hedgehog Review ja The Immanent Frame. Lisää pesukoneeseen sarja,
    mittaa yleinen leike ja tee sovite vain, jos se ei riitä.
