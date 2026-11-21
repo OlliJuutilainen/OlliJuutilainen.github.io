@@ -153,7 +153,8 @@
       // sivunumeroita, joista kopion paikannin ottaa sijainnin (AA 4:429). Ilman etukenttää aaltosulkeet ovat tekstiä.
       if (c === '{' && ctx.vs) {
         var vsm = RE_VSIVU.exec(s.slice(i, i + 24));
-        if (vsm) { flush(); out += '<span class="vsivu">' + esc(vsm[1]) + '</span>'; i += vsm[0].length; continue; }
+        // Reunanumero (21.11.2026): numero omassa span.vs-nrossa, jonka lukija kelluttaa vasempaan marginaaliin.
+        if (vsm) { flush(); out += '<span class="vsivu"><span class="vs-nro">' + esc(vsm[1]) + '</span></span>'; i += vsm[0].length; continue; }
       }
       if (c === '\\') {
         // Kenoviiva rivin lopussa on rivinvaihto, myös välilyöntien kanssa; tekstin lopussa se jätetään pois.

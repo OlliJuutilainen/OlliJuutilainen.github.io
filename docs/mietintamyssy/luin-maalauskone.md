@@ -6,7 +6,7 @@ toteutettu, ks. `luin/ohje.md` 4.3. Tässä on se, mikä jäi pilotin ulkopuolel
 ## Vakiosivunumerot (Akademie-Ausgabe, KrV A/B, Stephanus, Bekker)
 
 *Tehty 20.11.2026* (opas 3.2, *Vakiosivut*): etukentän `vakiosivut: AA` ja merkit `{4:429}`; Korporan ja SKS:n yläindeksit
-käyvät merkeistä. Reunanumero jäi tekemättä: sivu näkyy tekstin seassa pienenä ja harmaana. Alla alkuperäinen pohdinta.
+käyvät merkeistä. Reunanumero *tehty 21.11.2026* (opas 3.2): numero vasemmassa marginaalissa, kun se mahtuu, puhelimella tekstissä. Alla alkuperäinen pohdinta.
 
 Kopion paikannin on nyt luvun numero. Vakiosivunumeroa Luin ei voi tietää, koska teksteissä ei ole sille merkintää.
 Tarvitaan Markdown-konventio, esimerkiksi rivin sisäinen merkki `{4:429}` ja etukenttään järjestelmä
