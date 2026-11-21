@@ -238,6 +238,10 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   rahoituksesta. 2) Mainokset ja lahjoitus: ensin *Huom. huom.!*, sitten kehotus harkita lahjoitusta. 3) Lahjoitukset ilman
   mainoksia: vähemmän moralisoiva toteamus. Vain sovitesivustoille, ei yleiselle leikkeelle eikä Bloggerille. Uudelle
   sovitteelle tarkista sivuston mainokset ja lahjoitusmahdollisuus.
+- **Lähde tekstin lopussa** (käyttäjän vaatimus 21.11.2026: lähteen kunnioitus, ei vain etukentässä; opas 3.2, md.js `lahdeOsio()`):
+  verkko-osoitteellisen `lähde:`n tekstin loppuun ennen Tekijänoikeuksia *Lähde*-osio sanoin (sivusto, `ylläpitäjä`, `polku`,
+  haettu) ja osoitteena, myös `alkuteksti`. Ei pois kytkettävä. Lisää uudelle sovitteelle `yllapitaja` ja `polku`, kun sivu kertoo
+  ne (Snellman). Snellmanin alkuteksti on vain huono OCR-pdf (0/79 tekstinä), joten siitä ei tehdä kielivalintaa eikä lomitusta.
 - **Lisätieto** (käyttäjän hierarkia 12.11.2026, opas 7.3): nimen jälkeinen rivi pinossa ja jakolinkin esikatselussa on
   `LuinMD.lisatieto()`: verkkojulkaisun sivusto (ei tekijä) › alaotsikko › kirjan osan teos › tekijä. Gutenbergin kaltainen
   kantajasivusto ei ole julkaisu. Pidä pino ja jakolinkki samassa funktiossa. Julkaisupäivä pinossa on avoin kysymys.

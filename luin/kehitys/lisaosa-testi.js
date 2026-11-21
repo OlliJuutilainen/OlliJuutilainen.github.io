@@ -872,7 +872,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   const lgL = await latomo6.evaluate(md => { const r = window.LuinMD.parse(md); const d = new DOMParser().parseFromString('<div>' + r.html + '</div>', 'text/html');
     return { lahde: [...d.querySelectorAll('.sidenote a.lahde')].map(a => a.textContent + '>' + a.getAttribute('href')), bib: d.querySelectorAll('p.bib').length,
       meta: [...d.querySelectorAll('header .meta')].map(x => x.innerHTML),
-      oik: [...d.querySelectorAll('h2, h3, h4')].slice(-3).map(h => h.tagName + ' ' + h.textContent).join(' | '),
+      oik: [...d.querySelectorAll('h2, h3, h4')].slice(-4).map(h => h.tagName + ' ' + h.textContent).join(' | '),
       oikP: d.querySelector('#tekijanoikeudet') && d.querySelector('#tekijanoikeudet').nextElementSibling ? d.querySelector('#tekijanoikeudet').nextElementSibling.className : 'ei' }; }, lg);
   await latomo6.close();
   tulos('Logos: etukenttä, tekijärivi ja otsikot, sisällys pois', /^tekijä: Maija Kirjoittaja\nsivusto: Ensyklopedia Logos\njulkaistu: 2018-05-05$/m.test(lg) &&
@@ -887,7 +887,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     lgL.bib === 2 && lgL.meta.join('|') === 'Maija Kirjoittaja<br>Julkaistu 5.5.2018', JSON.stringify(lgL));
   // Tekijänoikeusmerkintä (10.11.2026): Logoksen ehto etukenttään, Luinissa kohtana kirjallisuusluettelon alla, ei p.bib.
   tulos('Logos: tekijänoikeus etukenttään ja Luinissa kohtana kirjallisuuden alla', /^oikeudet: Tekijänoikeus on alkuperäisellä tekijällä, joka on luovuttanut Filosofia\.fi-portaalille luvan kertajulkaisuun\. Muusta julkaisemisesta on sovittava tekijän kanssa\.$/m.test(lg) &&
-    /^oikeudet-lähde: https:\/\/filosofia\.fi\/fi\/tekijanoikeudet-ja-filosofiafi$/m.test(lg) && lgL.oik === 'H2 Kirjallisuus | H3 Ensyklopedia Logoksen artikkelit | H4 Tekijänoikeudet' && lgL.oikP === '',
+    /^oikeudet-lähde: https:\/\/filosofia\.fi\/fi\/tekijanoikeudet-ja-filosofiafi$/m.test(lg) && lgL.oik === 'H2 Kirjallisuus | H3 Ensyklopedia Logoksen artikkelit | H4 Lähde | H4 Tekijänoikeudet' && lgL.oikP === '',
     lgL.oik + ' / ' + lgL.oikP);
 
   // 10. Wikipedia (10.11.2026): siistitty, viitteet ja lähde? alaviitteinä, käännöshuomautus alaviitteenä, wikilinkit
@@ -968,7 +968,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   tulos('Encyclopedia.com: ikkunassa hakuteos ja artikkelin järjestysnumero', encIk.otsikko === 'Koe, Aihe' &&
     /^Encyclopedia\.com · International Encyclopedia of the Social Sciences \(1\/2\) · \d+ sanaa$/.test(encIk.meta), JSON.stringify(encIk));
   const en = await leikeLuin(ENC);
-  tulos('Encyclopedia.com: etukenttä (allekirjoitus tekijäksi, teos, oma osoite, ei päiväystä, mainosrahoitus ilman lahjoitusosoitetta)', /^---\ntekijä: Jolanda Testi\nteos: International Encyclopedia of the Social Sciences\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/social-sciences\/koe\/koe-aihe\nrahoitus: mainokset\nleikattu: /.test(en.md),
+  tulos('Encyclopedia.com: etukenttä (allekirjoitus tekijäksi, teos, oma osoite, ei päiväystä, mainosrahoitus ilman lahjoitusosoitetta)', /^---\ntekijä: Jolanda Testi\nteos: International Encyclopedia of the Social Sciences\nsivusto: Encyclopedia\.com\nlähde: https:\/\/www\.encyclopedia\.com\/social-sciences\/koe\/koe-aihe\npolku: People\nrahoitus: mainokset\nleikattu: /.test(en.md),
     en.md.split('\n').slice(0, 8).join(' | '));
   tulos('Encyclopedia.com: oma sisällys ja otsikon toisto pois, sisäiset linkit tekstiksi, ulkoinen jää, toinen artikkeli ei mukana', en.ots === '# Koe, Aihe | ## Early career | ## Later work | ## BIBLIOGRAPHY' &&
     /studied at Burghölzli and read a place and \[an outside site\]\[\d+\]\./.test(en.md) && /and another person, enough/.test(en.md) && !/\(#A\)|\[Early career\]|second article|updated|Cite this/.test(en.md),
