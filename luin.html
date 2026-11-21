@@ -1343,6 +1343,9 @@
   .valinnat button.ala[aria-pressed="false"] { opacity: .42; }
   /* Kursiivi (käyttäjän pyyntö 21.11.2026); harvennus mitataan kursiivista (sijoitaClarus()). */
   .valinnat .clarus { font-size: .82em; letter-spacing: .2em; white-space: nowrap; font-style: italic; }
+  /* Makronikirjain (Ā, Ī) omana inline-block-laatikkonaan ilman harvennusta: kursiivissa harvennus irrotti yhdistävän makronin kirjaimestaan
+     (käyttäjä 21.11.2026). Harvennus tulee laatikon perään marginaalina (--ls, sijoitaClarus()). */
+  .valinnat .clarus .mk { display: inline-block; letter-spacing: 0; margin-right: var(--ls, .2em); }
   /* Liikkumisen kuvat (käyttäjän pyyntö 7.11.2026, uudistukset 7.–8.11.): ei nuolia kuvan ulkopuolella. Käärö 23 × 42 px:
      arkki 14 × 28, eli kahden käden välissä pidettävä rulla, ei parvekkeelta roikkuva; rullien päädyt ovat edestä katsotun
      lieriön loivia puoliellipsejä (vaakasäde 1 px, pystysäde 3 px). Arkissa 7 suoraa riviä; vasemmassa yläkulmassa alas
@@ -3929,7 +3932,7 @@
         if (kt[0] === 'kontrasti' || kt[0] === 'sysi' || kt[0] === 'sysin') paalla = paalla && !aset.clarus;
         var piilo = kTeema && (aset.teema !== kTeema || !!aset.clarus) || kv[0] === 'sysin' && !(aset.sysi && !aset.clarus);
         if (kv[0] === 'sysin') paalla = paalla && !piilo;
-        if (kv[0] === 'clarus') kv[1] = '<span class="clarus" lang="la">' + kv[1] + '</span>';
+        if (kv[0] === 'clarus') kv[1] = '<span class="clarus" lang="la">' + kv[1].replace(/\p{L}\u0304/gu, '<span class="mk">$&</span>') + '</span>';
         var pois = kv[0] === 'auto' && !aset.alTekstissa;
         // Vierityksessä sivunkäännön lisäkytkimet ovat himmeät mutta napautettavissa: napautus valitsee Sivunkäännön.
         var himmea = tapa && aset.sivutus !== 'sivut';
@@ -3957,7 +3960,7 @@
     if (!b) return;
     b.classList.toggle('tummassa', aset.teema === 'tumma');
     var t = $('.clarus', b);
-    t.style.letterSpacing = '';
+    t.style.letterSpacing = ''; t.style.setProperty('--ls', '0px');
     if (!b.offsetParent) return;
     var R = b.closest('.teema-ruudukko'), ru = R.getBoundingClientRect(), n = t.textContent.replace(/\p{M}/gu, '').length;
     var rg = document.createRange(); rg.selectNodeContents($('button[data-arvo="tumma"]', R));
@@ -3971,6 +3974,7 @@
       if (yli > 0) ls = Math.max(0, ls - Math.ceil(yli * 100 / n) / 100);
     }
     t.style.letterSpacing = ls.toFixed(2) + 'px';
+    t.style.setProperty('--ls', ls.toFixed(2) + 'px');
   }
   function sijoitaNipukka() {
     sijoitaClarus();
