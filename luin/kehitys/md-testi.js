@@ -20,7 +20,7 @@ sama('alaviitteet ([^…], [^tunnus], ^[…], sitaatit)', d.notes, 6);
 tulos('alaviite tekstin seassa', h.includes('<span class="fnnum">1</span>Näin sanoo Koistinen 2013, 42</span>'));
 tulos('alaviitteen määritelmä ja toinen kappale', h.includes('Ensimmäinen kappale jatkuu laiskasti.<br>Toinen kappale sisennettynä.'));
 tulos('sitaatti ja paikannin', h.includes('Vanity Press, 2006, s. 23.</span>'));
-sama('rivinvaihdot (\\, kaksi välilyöntiä, <br>)', lkm(/<p data-b="4">.*?<\/p>/.exec(h)[0], /<br>/g), 3);
+sama('rivinvaihdot (\\, kaksi välilyöntiä, <br>)', lkm(/<p (?:class="rivit" )?data-b="4">.*?<\/p>/.exec(h)[0], /<br>/g), 3);
 tulos('otsikkolohkon kenoviiva pois tietoriviltä', d.lines[0] === 'Lokakuussa 2026', d.lines[0]);
 tulos('yliviivaus, korostus, ylä- ja alaindeksit', h.includes('<del>yliviivattu</del>') && h.includes('<span class="korostus">korostettu</span>') &&
   h.includes('100m<sup>2</sup>') && h.includes('y<sup>(a+b)</sup>') && h.includes('H<sub>2</sub>O'));
@@ -255,7 +255,13 @@ const ak = '---\ntekijä: Alexander Armfelt\nlaji: Virkakirje, sähke\njulkaistu
   'Senaatin esitykseen on suostuttu.\n';
 const ak1 = M.parse(ak), ak2 = M.parse(ak.replace('ladonta: asiakirja\n', ''));
 tulos('ladonta: asiakirja: alun rivit tekstiin, tietorivit etukentästä', ak1.lines.join(' / ') === 'Alexander Armfelt / Virkakirje, sähke, 28.8.1863' &&
-  /<p data-b="\d+">Senaattori Snellman<\/p>/.test(ak1.html) && ak2.lines.join(' / ') === 'Senaattori Snellman / Helsinki', ak1.lines.join(' / ') + ' | ' + ak2.lines.join(' / '));
+  /<p (?:class="rivit" )?data-b="\d+">Senaattori Snellman<\/p>/.test(ak1.html) && ak2.lines.join(' / ') === 'Senaattori Snellman / Helsinki', ak1.lines.join(' / ') + ' | ' + ak2.lines.join(' / '));
+// Rivitetty kappale (käyttäjän linjaus 21.11.2026: sisennys vain leipätekstiin): kenoviivarivinvaihdot tai lyhyt yksirivinen
+// ilman välimerkkiä lopussa on p.rivit; virke, repliikki, osanvaihto, lähdeosio ja kirjallisuus eivät.
+const rv = M.parse('---\nlähde: https://example.org/x\nladonta: asiakirja\n---\n\n# T\n\nKokkolassa 26.9.1827\\\nHerra Joh. Wilh. Snellman\\\nTurku\n\n' +
+  'Olet siis toisen kerran nähnyt maailman hirvittävimpiin kuuluvan tulipalon.\n\nRakas veli\n\nNiin.\n\n”Ei kai\n\n–––\n\nAugust\n');
+sama('rivitetty kappale', (rv.html.match(/<p[^>]*data-b="\d+">[^<]*/g) || []).map(x => (/class="rivit"/.test(x) ? 'R ' : '- ') + x.replace(/<[^>]*>/, '').slice(0, 12)).join(' | '),
+  'R Kokkolassa 2 | - Olet siis to | R Rakas veli | - Niin. | - ”Ei kai | - ––– | R August | - Teksti on ha');
 // Osanvaihdot kohdiksi (käyttäjän pyyntö 21.11.2026): –––, * * *, --- ja ⁂ tekevät otsikottomasta jaksosta kohdat (i), (ii) …
 // vaihdon jälkeiseen lohkoon; numerointi alkaa alusta otsikon jälkeen, lopun merkki ei ole kohta, yläindeksikohdat ohittavat.
 const ov = M.parse('# T\n\nAlku on tässä kappaleessa, joka on niin pitkä, ettei se ole tietorivi otsikkolohkossa vaan leipätekstiä.\n\n' +

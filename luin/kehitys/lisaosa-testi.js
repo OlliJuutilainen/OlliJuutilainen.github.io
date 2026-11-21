@@ -876,7 +876,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
       oikP: d.querySelector('#tekijanoikeudet') && d.querySelector('#tekijanoikeudet').nextElementSibling ? d.querySelector('#tekijanoikeudet').nextElementSibling.className : 'ei' }; }, lg);
   await latomo6.close();
   tulos('Logos: etukenttä, tekijärivi ja otsikot, sisällys pois', /^tekijä: Maija Kirjoittaja\nsivusto: Ensyklopedia Logos\njulkaistu: 2018-05-05$/m.test(lg) &&
-    /^# Koe, Artikkeli\n\nMaija Kirjoittaja {2}\nJulkaistu 5\.5\.2018\n\nJohdannon kappale/m.test(lg) && (lg.match(/^#+ .*$/gm) || []).join(' | ') === '# Koe, Artikkeli | ## Ensimmäinen luku | ### Pieni osio | ## Kirjallisuus | ### Ensyklopedia Logoksen artikkelit' &&
+    /^# Koe, Artikkeli\n\nMaija Kirjoittaja\\\nJulkaistu 5\.5\.2018\n\nJohdannon kappale/m.test(lg) && (lg.match(/^#+ .*$/gm) || []).join(' | ') === '# Koe, Artikkeli | ## Ensimmäinen luku | ### Pieni osio | ## Kirjallisuus | ### Ensyklopedia Logoksen artikkelit' &&
     !/Ensimmäinen%20luku|\]\(#|^___$/m.test(lg), (lg.match(/^#+ .*$/gm) || []).join(' | '));
   tulos('Logos: ks.-sulkeet alaviitteeksi, muu viittaus jää, linkki tekstiksi', /kehitykseen\.\[\^viite-logos1\] Seuraava virke viittaa kirjaan \(Kirjoittaja 2010, 3\)\./.test(lg) &&
     /mainitaan myös ”Toinen artikkeli”\[\^viite-logos2\] ilman/.test(lg) && /\(ks\. Kirjoittaja 2010; ”Toinen artikkeli”\[\^viite-logos3\]\)/.test(lg) &&
@@ -935,7 +935,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   tulos('marxists.org: etukenttä nimiöstä (tekijä, teos, kirjoitusvuosi) ja Copyleft CC BY-SA 2.0', /^---\ntekijä: Maija Kirjoittaja\nteos: The Test Work\nsivusto: Marxists Internet Archive\njulkaistu: 1917\nlähde: https:\/\/www\.marxists\.org\/archive\/koe\/works\/1917\/teos\/ch01\.htm\noikeudet: Copyleft: Marxists Internet Archive \(marxists\.org\) 2000\. Permission is granted under the terms of the Creative Commons ShareAlike License\.\noikeudet-lähde: https:\/\/creativecommons\.org\/licenses\/by-sa\/2\.0\/\n/.test(mia.md),
     mia.md.split('\n').slice(0, 9).join(' | '));
   tulos('marxists.org: luvun nimi otsikoksi, osiot, tietolohko loppuun, navigointi ja sisällys pois', mia.ots === '# Chapter I: Class Society | ## 1\\. The First Section | ## 2\\. The Second Section | ## Marxists Internet Archive' &&
-    !/Next|Chapter Two|Index|Last updated|The Test Work\n|\(#s1\)/.test(mia.md.split('---').slice(2).join('---')) && /^## Marxists Internet Archive\n\nWritten: August 1917; {2}\nSource: Collected Works, Volume 1\. {2}\nCopyleft:/m.test(mia.md), mia.ots);
+    !/Next|Chapter Two|Index|Last updated|The Test Work\n|\(#s1\)/.test(mia.md.split('---').slice(2).join('---')) && /^## Marxists Internet Archive\n\nWritten: August 1917;\\\nSource: Collected Works, Volume 1\.\\\nCopyleft:/m.test(mia.md), mia.ots);
   const miaOsat = [/^> “An indented quotation\.”\n> ?\n> Second paragraph of the quotation\.$/m, /number 3 has enough[^\n]*\n\n___\n\nBody paragraph number 4/,
     /A mark\[\^viite-mia1\] is here\./, /The other page\[\^viite-2\] too\./, /^\[\^viite-mia1\]: First note text\.\n\n {4}Continuation of the first note\.$/m,
     /^\[\^viite-2\]: Second note on the other page\.$/m].map(re => re.test(mia.md));
@@ -1153,7 +1153,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     lc.ots === '# The Koe Annals, Book I' && /^\*\*1\*\* In the first year\[\^viite-lc1\] the \*res publica\* stood\.\[\^viite-lc2\] <sup>2<\/sup> The ⟨II⟩ legions marched\[\^viite-lc3\] two hundred paces to the Forum and\[\^viite-lc4\] sang:$/m.test(lcRunko) &&
     /^\*\*2\*\* The second chapter\.\[\^viite-lc5\]$/m.test(lcRunko), lcRunko.replace(/\n/g, ' | ').slice(0, 700));
   tulos('LacusCurtius: säkeet lainaukseksi, vuosilukutaulukko kappaleeksi; sivunumerot, liput, pallot, erottimet ja sivuhuomautus pois',
-    /^> "First line of the song, {2}\n> Second line\."$/m.test(lcRunko) && /^B\.C\. 44 Duration of time\.$/m.test(lcRunko) &&
+    /^> "First line of the song,\\\n> Second line\."$/m.test(lcRunko) && /^B\.C\. 44 Duration of time\.$/m.test(lcRunko) &&
     !/p5|p3|Vol\. II\)|Latin|❦|º|•|e-mailing|continued|beginning|Editor's Notes|Thayer's Notes|<table|⁠/.test(lcRunko), lcRunko.replace(/\n/g, ' | ').slice(0, 900));
   tulos('LacusCurtius: Loebin viite Thayerin jatkoineen, Thayerin kirjainviite ja ponnahdukset Thayer\'s Note -alaviitteinä, toisen sivun viite',
     /^\[\^viite-lc1\]: The year 14\.\n\n {4}Thayer's Note: See \[Koe 2\.3\]\(https:\/\/penelope\.uchicago\.edu\/Thayer\/E\/Roman\/Texts\/Koe\/2\*\.html#3\)\.$/m.test(lcRunko) &&

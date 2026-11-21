@@ -20,8 +20,10 @@
   globalThis.__lukimeenPs = null;
 
   function muunna(html, linkit = 'referenced') {
+    // Rivinvaihto kenoviivalla (iA Writer, md.js; 21.11.2026): Turndownin oletus oli kaksi välilyöntiä, jotka eivät näy
+    // editorissa ja katoavat rivien lopun siivouksessa.
     const td = new TurndownService({ headingStyle: 'atx', hr: '___', bulletListMarker: '-', codeBlockStyle: 'fenced',
-      fence: '```', emDelimiter: '*', strongDelimiter: '**', linkStyle: linkit, linkReferenceStyle: 'full' });
+      fence: '```', emDelimiter: '*', strongDelimiter: '**', linkStyle: linkit, linkReferenceStyle: 'full', br: '\\' });
     td.use(turndownPluginGfm.gfm);
     // Tekstin < kirjaimen edellä (OCR-roska <rca>, a<b) ei saa näyttää md.js:lle HTML-merkinnältä (Internet Archive 17.11.2026).
     td.escape = s => TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])/g, '\\<');
@@ -2806,7 +2808,14 @@
      runoissa, romaanien ja näytelmän laulunsäkeissä, väitöskirjan mottossa ja luetteloissa (a) …, metallirahana 8 985 277).
      Pienellä alkava enintään 12 sanan kappale liitetään edelliseen rivinvaihdolla, kun edellinen rivi on lyhyt eikä pääty
      virkkeen loppuun; runossa ja laulussa säkeistön kaikki rivit. Tyhjä kappale on säkeistöraja. 89 asiakirjan otoksessa
-     osumat olivat säkeitä, luetteloita, taulukkorivejä ja kirjeiden loppukohteliaisuuksia; proosakappaleita 0. */
+     osumat olivat säkeitä, luetteloita, taulukkorivejä ja kirjeiden loppukohteliaisuuksia; proosakappaleita 0.
+     Lisäksi (käyttäjän linjaus 21.11.2026: rivinvaihto kenoviivalla, kun ei ole otsikkoa eikä osanvaihtoa; sisennys vain
+     leipätekstiin) peräkkäiset lyhyet rivit, jotka eivät pääty virkkeeseen eivätkä ole otsikkoehdokkaita: kirjeen alku
+     (Kokkolassa 26.9.1827 | Herra Joh. Wilh. Snellman | Turku), sähkeen vastaanottaja, loppukohteliaisuus ja allekirjoitus,
+     näytelmän henkilöluettelo. */
+  const snVersaali = t => snSanoja(t) <= 12 && t === t.toUpperCase() && !/\d/.test(t) &&
+    (t.match(/\p{Lu}{3,}/gu) || []).some(w => !SN_ROOM.test(w));
+  const snLyhyt = t => snSanoja(t) <= 8 && !/[.!?…]["”’)]?$/.test(t) && !/^["”“–—-]/.test(t) && !SN_ROOM.test(t) && !snVersaali(t);
   function snRivit(el, laji) {
     const runo = /runo|laulu/i.test(laji || '');
     let ed = null;
@@ -2818,7 +2827,8 @@
       let edRivi = '';
       for (let n = ed && ed.lastChild; n && n.nodeName !== 'BR'; n = n.previousSibling) edRivi = n.textContent + edRivi;
       edRivi = rivi(edRivi.replace(/\u00a0/g, ' '));
-      if (ed && snSanoja(t) <= 12 && snSanoja(edRivi) <= 12 && (runo || (/^\p{Ll}/u.test(t) && !/[.!?…]["”’)]?$/.test(edRivi)))) {
+      if (ed && snSanoja(t) <= 12 && snSanoja(edRivi) <= 12 && (runo || (/^\p{Ll}/u.test(t) && !/[.!?…]["”’)]?$/.test(edRivi)) ||
+        snLyhyt(t) && snLyhyt(edRivi) && !ed.querySelector('h1, h2, h3'))) {
         ed.append(document.createElement('br'), ...p.childNodes);
         p.remove();
         return;
@@ -2843,8 +2853,7 @@
   function snOtsikot(el, laji) {
     const ps = [...el.children].filter(x => x.tagName === 'P'), tx = ps.map(snTx);
     const sanoja = snSanoja;
-    const versaali = t => sanoja(t) <= 12 && t === t.toUpperCase() && !/\d/.test(t) &&
-      (t.match(/\p{Lu}{3,}/gu) || []).some(w => !SN_ROOM.test(w));
+    const versaali = snVersaali;
     const versaaliAlku = t => sanoja(t) <= 10 && !/[.]$/.test(t) && /^(?=[IVXL])(XL|L?X{0,3})(IX|IV|V?I{0,3})\.\s+\p{Lu}{2,}(\s+\p{Lu}{2,})+,?\s+\p{Ll}/u.test(t);
     const vapaa = !/kirje|sähke|runo|laulu/i.test(laji || '');
     const kaikki = ps.map((p, k) => {
