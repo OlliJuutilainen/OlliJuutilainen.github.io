@@ -2933,6 +2933,41 @@
     u.append(th, tb);
     t.replaceWith(u);
   }
+  /* Lainaukset lähteineen (käyttäjän havainto 21.11.2026: väitöskirjan motto Cornelius Agrippalta näkyi tavallisina riveinä):
+     säkeistö (vähintään kaksi riviä, joista jokin muu kuin ensimmäinen alkaa pienellä; ei numeroita eikä luettelon kohtia),
+     jota seuraa pelkkä nimirivi (enintään kolme isolla alkavaa sanaa, ei versaalia eikä pisteeseen päättyvää: Cornelius
+     Agrippa, Stagnelius), on lainaus, ja nimi sen viimeiseksi riviksi muodossa – Nimi (md.js: lainauksen lähde,
+     otsikon jälkeen motto). Samoin tekstin ensimmäinen lyhyt virke, jonka perässä on nimi sulkeissa (Mikään ei ole joka
+     suhteessa onnellista. (Horatius)). 98 asiakirjan otoksessa kolme osumaa; allekirjoitus (Konsistorin puolesta | Nils
+     Abrah. Ursin | A. V. Wegelius.), oppikirjan sisällysluettelo ennen JOHDANTO-otsikkoa ja taulukon otsikko (… 1.
+     maaliskuuta … | Vastattavaa) eivät täytä ehtoja. */
+  const SN_NIMI_RIVI = /^\p{Lu}[\p{L}’'-]*\.?(?:\s+(?:\p{Lu}[\p{L}’'-]*\.?|von|af|de|van)){0,2}$/u;
+  function snLainaukset(el) {
+    const lainaus = (p, nimi) => {
+      const bq = document.createElement('blockquote');
+      p.replaceWith(bq);
+      p.append(document.createElement('br'), '– ' + nimi);
+      bq.appendChild(p);
+    };
+    [...el.children].forEach(p => {
+      const n = p.nextElementSibling;
+      if (p.tagName !== 'P' || !n || n.tagName !== 'P' || n.querySelector('br') || !p.querySelector('br') || /\d/.test(snTx(p))) return;
+      // Säkeet: jokin rivi ensimmäisen jälkeen alkaa pienellä, eikä mikään rivi ole luettelon kohta (a. …, C. …).
+      const rivit = p.innerHTML.split(/<br\s*\/?>/i).map(h => rivi(jasenna(h).body.textContent));
+      if (!rivit.slice(1).some(r => /^\p{Ll}/u.test(r)) || rivit.some(r => /^[\p{L}\d]{1,3}[.)]\s/u.test(r))) return;
+      const nimi = snTx(n);
+      // Nimi, ei otsikko (JOHDANTO) eikä virkkeeseen päättyvä allekirjoitus (A. V. Wegelius.).
+      if (!SN_NIMI_RIVI.test(nimi) || nimi === nimi.toUpperCase() || /\p{L}{2}\.$/u.test(nimi)) return;
+      n.remove();
+      lainaus(p, nimi);
+    });
+    const eka = el.firstElementChild;
+    const m = eka && eka.tagName === 'P' && !eka.querySelector('br') && /^(.{5,200}?[.!?…”])\s*\((\p{Lu}[^()]{1,40})\)$/u.exec(snTx(eka));
+    if (m && snSanoja(m[1]) <= 25 && m[2].split(/\s+/).every(w => /^(\p{Lu}|von$|af$|de$|van$)/u.test(w))) {
+      eka.textContent = m[1];
+      lainaus(eka, m[2]);
+    }
+  }
   function snTeksti(kentta, maar, laskuri, laji) {
     const f = kentta && kentta.querySelector('.field-item');
     if (!f) return null;
@@ -2954,6 +2989,7 @@
     el.querySelectorAll('[style], [align]').forEach(x => { x.removeAttribute('style'); x.removeAttribute('align'); });
     snRivit(el, laji);
     el.querySelectorAll('p').forEach(p => { if (!snTx(p)) p.remove(); });
+    snLainaukset(el);
     snOtsikot(el, laji);
     // Lyhytkin teksti kelpaa (sähke 28.8.1863: 9 sanaa; runo 12 sanaa putosivat ennen 15 sanan rajaan yleiseen leikkeeseen,
     // joka toi sivuston valikot ja hakemistot). Tyhjä kenttä on ruotsinkielisessä usein TULOSSA.
