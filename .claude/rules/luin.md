@@ -20,8 +20,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   IndexedDB:ssä (`luin/tekstit.js`, `LuinTekstit`, lupauksia; 19.11.2026), kaikki muu localStoragessa (opas 2.3); palvelinta ei ole,
   paitsi postilaatikko. Älä palauta tekstejä localStorageen (5,2 milj. merkkiä koko sivustolle). Testit lukevat tekstin
   `LuinTekstit.lue()`:lla; testin localStorageen kylvämät `luin-teksti:`-avaimet siirtyvät kantaan latauksessa. `tekstit.js?v=` kuten md.js:n.
-- **Tusina** (käyttäjän päätös 19.11.2026, opas 2.3): pinossa enintään 12; tuleva teksti laskee pisimpään koskemattoman cellarin
-  campihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
+- **Tusina** (käyttäjän päätös 19.11.2026, opas 2.3): pinossa enintään 12; tuleva teksti laskee pisimpään koskemattoman kellarin
+  kampihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
 - `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle. Tekstin tunnus pinossa ja Postihuilussa
   on `tekstiTunnus()`, ei `slug()`: slug antaa jokaiselle kreikkalaiselle tai kyrilliselle otsikolle saman `osio`n (19.11.2026).
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin tekstikannan siirrolla (`asetaSiirto()`, ennen `luin-tuonti`)
@@ -49,7 +49,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Ei odottavia (21.11.2026). Edellinen 0.14.0 (21.11.2026: Perseuksen *kukin omaksi tekstikseen*, Snellmanin kunniallisuuskierros, rivinvaihto kenoviivana). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: *kellarin kampihyllystö* (21.11.2026; lisäosassa vielä *cellarin campihyllystö*). Edellinen 0.14.0 (21.11.2026: Perseuksen *kukin omaksi tekstikseen*, Snellmanin kunniallisuuskierros, rivinvaihto kenoviivana). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -170,22 +170,26 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
 - **Luin ei taivu käyttäjälle näkyvässä tekstissä** (käyttäjän päätös 16.11.2026, opas 1.3): taivutettuna *lukin* (*lukimen pino*,
   *lukimessa*, *lukimeen*, *lukinta*), ei *luinin*, *luinissa*, *luiniin*. *Luinin* vain vahvasti koko organisaation laajuisesta
   entiteetistä (*Luinin sertifioima*, Latomon *Luinin ystäviä ovat…*), ja silloin aina isolla, erisnimenä.
-- **Pino ja cellarin campihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
-  näkymä *Cellarin campihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; käyttäjän nimi 17.11.2026, c:llä tarkoituksella; samana päivänä ennen *Kellarin kampihyllystö*, ennen *Kellarin veivihyllystö* ja *Uumen*). Nimi on aina kokonainen, ei pelkkä
-  *campihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
-  ei *pinolle*), samoin cellarin campihyllystö (*cellarin campihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+- **Pino ja kellarin kampihyllystö** (käyttäjän päätökset 12.11. ja 15.11.2026): käyttöliittymässä lukulista on *Pino* ja luettujen
+  näkymä *Kellarin kampihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; k:lla, käyttäjän päätös 21.11.2026: 17.–21.11. *Cellarin campihyllystö*, ennen *Kellarin veivihyllystö* ja *Uumen*). Nimi on aina kokonainen, ei pelkkä
+  *kampihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
+  ei *pinolle*), samoin kellarin kampihyllystö (*kellarin kampihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
   `tila.arkisto`, reitti `#arkisto`) jäivät ennalleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *uumenta*, *hyllyä*,
-  *pölyhyllyä* eikä *arkistohyllyä* (*cellarin campihyllystö* on käyttäjän nimeämä poikkeus).
-- **Cellarin campihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
+  *pölyhyllyä* eikä *arkistohyllyä* (*kellarin kampihyllystö* on käyttäjän nimeämä poikkeus).
+- **Kellarin kampihyllystö ja valinta** (käyttäjän pyyntö 10.11.2026): luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki cellarin campihyllystöön on pinon alalaidassa himmeänä ja vain, kun siellä on jotain. Sanat
-  *Luin.* ja *Poimi cellarin campihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
+- **Pinon alla** (käyttäjän pyyntö 21.11.2026, `.pino-ala`): 1. kellarilinkki vasemmalla (kampi palstan laidasta), 2. *Soita postihuilua*
+  vasemmalla samassa koossa ja tyylissä, vain kun laatikkolause on annettu (pelkkä teksti, hakee laatikon heti), 3. linkit. **Postihuilu
+  on poissa pinosta tällä erää** (käyttäjä: esitäyttämätön laatikko epätyydyttävä, laatikkolauseelle liian näkyvä paikka); lause annetaan
+  asetuksissa tai `#l=`:llä. Kellarilinkki, ö-mapin linkki ja paluulinkki ovat .64rem (ennen .74rem); mitat em:inä, joten ne pienenevät yhdessä. Sanat
+  *Luin.* ja *Poimi kellarin kampihyllystöstä.* (15.11.2026, ennen *Poimi uumenesta.* ja *Puhalla pölyt.*) ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappien mappi ö** (käyttäjän pyyntö ja nimi 17.11.2026, ensin *ö-mappien ö-mappi*; `#omappi`, opas 2.4): taipuu
-  *ö-mappien mappiin ö*, *-mapissa ö*, *-mapista ö* (ö aina viimeisenä). Cellarin campihyllystön nimikkeen ja valittujen
-  valikossa pinoon noston rinnalla *Siirrä ö-mappien mappiin ö.*, sieltä *Palauta cellarin campihyllystöön.* `e.omappi` (aika)
+  *ö-mappien mappiin ö*, *-mapissa ö*, *-mapista ö* (ö aina viimeisenä). Kellarin kampihyllystön nimikkeen ja valittujen
+  valikossa pinoon noston rinnalla *Siirrä ö-mappien mappiin ö.*, sieltä *Palauta kellarin kampihyllystöön.* `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`) on kellarin alalaidassa vain,
   kun siellä on jotain: ääripäiden ö:t ovat mappisulkimen renkaita, alleviivaus renkaan alakärjestä toiseen, ei nuolta.
-  Linkkien tekstit ovat aina illatiivissa (käyttäjän korjaus 17.11.2026): *cellarin campihyllystöön*, *ö-mappien mappiin ö*.
+  Linkkien tekstit ovat aina illatiivissa (käyttäjän korjaus 17.11.2026): *kellarin kampihyllystöön*, *ö-mappien mappiin ö*.
   Rengas (käyttäjän pyynnöt 17.11.2026, kolmas kierros): x-akselilla litistetty soikio (.81), viivan sisäreunan laki versaalien
   korkeudella, alakärki 3,8 px perusviivan alla ja alleviivauksen (svg, .85 px) alareuna tasan siinä; täytetty muoto, viiva
   kyljissä paksumpi ja alhaalla alleviivauksen paksuinen; yhdysviiva piirretty versaalien ja renkaan keskikohtien puoliväliin; laella leveä viisto irvistysrako (ulkoreunat lähempänä kuin sisäreunat); ö:n pisteet samanlaisia pieniä
@@ -207,12 +211,12 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
   (suurennettu 12.11.2026 kahdesti, ennen 28 px ja 22 px; musteen paikat ennallaan: alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
   `a.kotimerkki`, `#ark-koti`) jäivät. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
-- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (cellarin campihyllystö ja alasivut: Latomo, ohjeet, palaute,
+- **Pinomerkin paikka** (käyttäjän pyynnöt 12.11.2026): yläoikealla (kellarin kampihyllystö ja alasivut: Latomo, ohjeet, palaute,
   tietosuoja) vaakapaikka on sama kaikkialla eli pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
   loppupisteen alakärjen tasolla kuten ennen pirtin lattiaviiva (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
-  joten pystypaikka eroaa cellarin campihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Cellarin campihyllystössä pinomerkin vasemmalla
-  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja campihyllystölinkki pinon alalaidassa on versaalia. Ö-mappien mapissa ö ei paluutekstiä eikä merkkiä (yllä).
+  joten pystypaikka eroaa kellarin kampihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki pinoon** (käyttäjän pyyntö 12.11.2026): luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä pinomerkin vasemmalla
+  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä; ennen *Takaisin ylihyllyyn*) ja kampihyllystölinkki pinon alla on versaalia. Ö-mappien mapissa ö ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain lukulistan nimikkeen pieni valikkonappi (lähdeviite, linkki, *Lataa md*,
   tiedot ja laitos, *Luin.*, poisto; kolme salmiakkia, ennen jakomerkki). *Luin.* on molemmissa salmiakkivalikoissa
@@ -231,12 +235,12 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   (`kohdista()`), ei pelkällä katkelmahaulla (osui naapurikappaleeseen). **Pino pysyy pinona**: laitos näkyy vain tietorivin
   *2. laitos* -sanoina, ei kansioita, ryhmiä eikä erikoisvärejä (käyttäjän linjaus 15.11.2026). Testi `laitos-testi.js`. Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
 - **Luokittelu ja kellarin järjestys** (käyttäjän pyyntö 17.11.2026, opas 2.5, selvitys `docs/mietintamyssy/luin-kellarin-jarjestys.md`):
-  pino pysyy tulojärjestyksessä eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain cellarin campihyllystössä.
+  pino pysyy tulojärjestyksessä eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin kampihyllystössä.
   Nimikkeen kentät (`asiasanat`, `ajoitus`, `kasikirja`) ovat totuus ja etukentän `asiasanat:`/`ajoitus:` niiden peili: avaimeton
   tuonti ei pyyhi niitä (`lkMdsta(…, false)`), vain *Muuta metatietoja* ja korvaava laitos (`tosi`, etukenttä kirjoitetaan ennen
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
-  muistuteta (käyttäjän vaatimus: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös 17.11.2026): se on aina cellarin
-  campihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
+  muistuteta (käyttäjän vaatimus: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös 17.11.2026): se on aina kellarin
+  kampihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
   Postihuilu eivät nosta sitä; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto** (21.11.2026,
   järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa (ei pyydetty).
@@ -584,7 +588,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   että `tusinasaa-worker` on julkaistu tämän repon koodilla (`npx -y wrangler@3.114.17 deploy` repon juuressa).
 - **Postihuilun kuvio** (käyttäjän valinnat 12.11.2026; ideointi `docs/mietintamyssy/luin-postihuilu-kuvitus*`): `luin/huilu.js`
   (`?v=` kuten md.js:n), piirto `piirraHuilu()`. **Yksikään huilu ei ole vaakatasossa**: aina 64° (`HUILUKULMA`, käyttäjän pyyntö 17.11.2026: hiukan myötäpäivään, svengaa ulkomutkan kanssa; ennen 68°), nokka ylhäällä oikealla. Kaistassa huilu kiertyy suunsa ympäri, joten viuhka ei muutu; siksakin 22° ja nuottien kallistus pysyvät 68°:n mukaisina.
-  Pinossa huilu on i-napin oikealla puolella (`.huilu-paikka`, ei otsikon ja i-napin välissä), asetuksissa *Soita huilua!*
+  Pinossa huilu oli (21.11.2026 asti) i-napin oikealla puolella (`.huilu-paikka`), asetuksissa *Soita huilua!*
   -napin (oikeassa reunassa) yläpuolella oikealle siirrettynä; Arvo on laatikkolauseen tekstikentän oikealla puolella
   samalla rivillä (`.koodikentta`). **Vain alkuviuhka kaartuu**: viivat lähtevät alimman reiän kärjestä sileänä kaarena (syli, alla) ja jatkuvat sitten
   kulmikkaana siksakkina, selvin taittein (käyttäjä: aaltomuodon loputtomuudesta kvantteihin). Viivat ovat ohuita, mutta
@@ -598,8 +602,8 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   korkeudella väliä ennen nappia, **laakso suora** (ei loiventumista) napin alun alakulmaan. Kukin viiva on C2-splini tukipisteiden kautta
   (käyttäjän sääntö: ei tarpeettomia nopeita asteluvun kiihdytyksiä); kaikki lähtevät suusta ilmavirran suuntaisesti ja aluksi
   lähekkäin, keskimmäinen on ylimmän ja alimman painotettu keskiarvo (ääripäässä hiukan alimman puoleen). **Perustuslaki: viivat eivät
-  koskaan leikkaa toisiaan** (käyttäjä 17.11.2026); välit eivät veny ilman syytä. Muokkaa pienin askelin, älä rakenna uudelleen (`SYLI`, testi mittaa). **Pinon Postihuilu on oletuksena kiinni**
-  (käyttäjän pyyntö 16.11.2026): vain versaaliotsikko pienine salmiakkeineen (`#lisaa-ots`, `#huilulohko.auki`), tila ei tallennu. Nuotit ilmestyvät vasta
+  koskaan leikkaa toisiaan** (käyttäjä 17.11.2026); välit eivät veny ilman syytä. Muokkaa pienin askelin, älä rakenna uudelleen (`SYLI`, testi mittaa). Pinon Postihuilu (16.–21.11.2026 oletuksena
+  kiinni, `#lisaa-ots`) on poissa pinosta, ks. *Pinon alla*. Nuotit ilmestyvät vasta
   painalluksesta (kelpaava lause), vain napin yläpuolelle, joka kerta uutena arvontana (ei portaita), eivätkä liiku.
   **Nuotti aina viivalla tai välissä, ei koskaan viivaston ulkopuolella, ja aina siksakin jakson keskellä**; ensimmäinen
   ja viimeinen soiva jakso rajaavat soiton, ei kahta tyhjää peräkkäin; **yksi nuotti jaksoa kohti, ei koskaan kahta ääntä päällekkäin**;
@@ -625,7 +629,7 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
   lisäosaan ja päivitä `laatikkolause.js?v=` kuten md.js:n.
 - **Huiluta laatikkoon** (käyttäjän pyyntö 18.11.2026, opas 2.2, `huiluta()`): nimikkeen valikosta pinon tekstin runko laatikkoon
   tunnuksella `P.avain(id)`, jotta toinen laite saa saman tunnuksen ja merkinnät osuvat. Lähettäjä kirjaa lähetyksen nähdyksi
-  (muuten oma haku nostaisi tekstin cellarista pinoon). Merkinnät perässä vain *Huiluta myös merkintöjä* -valinnalla. Testi `huiluta-testi.js`.
+  (muuten oma haku nostaisi tekstin kellarista pinoon). Merkinnät perässä vain *Huiluta myös merkintöjä* -valinnalla. Testi `huiluta-testi.js`.
 - **Merkintäposti** (käyttäjän pyyntö 9.11.2026, opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (lukulistassa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
@@ -651,7 +655,7 @@ Aja repon juuressa:
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/huiluta-testi.js [kuvakansio]`: pinon tekstin huilutus kahdella laitteella (myös `#u=`-tekstit).
-- `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` ja kuvio pinossa ja asetuksissa.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien mappi ö ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.

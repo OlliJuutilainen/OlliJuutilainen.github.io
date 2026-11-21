@@ -1292,7 +1292,7 @@
     pages: 'sivut', series: 'sarja', edition: 'painos', journal: 'teos', container: 'teos', lehti: 'teos', volume: 'numero', issue: 'numero',
     booktitle: 'teos', 'container-title': 'teos', 'publisher-location': 'paikka',
     // Luokittelu (käyttäjän pyyntö 17.11.2026): asiasanat ja ajoitus eivät kuulu viitteeseen (KENTAT), vaan lukimen
-    // cellarin campihyllystön järjestyksiin. Obsidianin, iA Writerin ja MarkDownloadin tags käy sellaisenaan.
+    // kellarin kampihyllystön järjestyksiin. Obsidianin, iA Writerin ja MarkDownloadin tags käy sellaisenaan.
     tags: 'asiasanat', tag: 'asiasanat', keywords: 'asiasanat', avainsanat: 'asiasanat', tunnisteet: 'asiasanat', asiasana: 'asiasanat'
   };
   function avain(a) { a = String(a || '').trim().toLowerCase(); return ALIAS[a] || a; }

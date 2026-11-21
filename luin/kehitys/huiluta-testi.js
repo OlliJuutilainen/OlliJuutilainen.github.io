@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/huiluta-testi.js [kuvakansio]
 // Kaksi laitetta (erilliset selainkontekstit) ja workerin oikea koodi muistissa olevalla KV:llä kuten posti-testi.js.
 // Tarkistaa: virheet ilman lausetta ja lukukoodilla, pinon tekstin runko laatikkoon samalla tunnuksella, merkinnät
-// perässä vain valittuina, oma lähetys ei palaa omaan pinoon (eikä nosta cellarin campihyllystöstä), toinen laite saa
+// perässä vain valittuina, oma lähetys ei palaa omaan pinoon (eikä nosta kellarin kampihyllystöstä), toinen laite saa
 // tekstin ja merkinnät, osoitteesta avattu teksti kulkee osoite:-rivin kanssa, merkinnät osuvat samoihin kohtiin ja
 // saman osoitteen avaus toisella laitteella ei tee toista kappaletta; 429:n viesti.
 const http = require('http');
@@ -123,7 +123,7 @@ function muistiKV() {
   // --- 2. Virheet: ei lausetta, lukukoodi ---
   let h = await huiluta(a, PID);
   tulos('valikossa huiluta laatikkoon', h.ennen === 'huiluta laatikkoon', h.ennen);
-  tulos('ilman lausetta: neuvo', h.t === 'Anna ensin laatikkolause pinon postihuiluun.', h.t);
+  tulos('ilman lausetta: neuvo', h.t === 'Anna ensin laatikkolause asetusten postihuiluun.', h.t);
   await a.evaluate(() => localStorage.setItem('luin-laatikko', JSON.stringify('lyhytkoodi')));
   await a.reload(); await a.waitForFunction(() => !document.querySelector('#lista').hidden);
   h = await huiluta(a, PID);
@@ -146,7 +146,7 @@ function muistiKV() {
   const nahdyt = await LS(a, 'luin-laatikko-nahdyt');
   tulos('oma lähetys kirjattu nähdyksi', nahdyt && nahdyt[KOODI + ':' + AV] === md1.meta.t, JSON.stringify(nahdyt));
 
-  // --- 4. Merkintäposti päälle, huilutus cellarin campihyllystöstä ---
+  // --- 4. Merkintäposti päälle, huilutus kellarin kampihyllystöstä ---
   await a.click('#lista .ratas');
   await a.click('#laatikko-osio summary');
   await a.click('#posti-paalla button');
@@ -155,7 +155,7 @@ function muistiKV() {
   await a.goto(OSOITE + 'luin.html#arkisto'); await a.reload();
   await a.waitForSelector(`#nimikkeet button.jako[data-id="${PID}"]`);
   h = await huiluta(a, PID);
-  tulos('cellarista: huilutettu, merkinnät seuraavat', /^Huilutettu klo \d\d:\d\d\. Merkinnät seuraavat\.$/.test(h.t), h.t);
+  tulos('kellarista: huilutettu, merkinnät seuraavat', /^Huilutettu klo \d\d:\d\d\. Merkinnät seuraavat\.$/.test(h.t), h.t);
   for (let i = 0; i < 40 && !KV.m.has('luinm:' + KOODI + ':' + AV); i++) await odota(100);
   const m1 = KV.m.has('luinm:' + KOODI + ':' + AV) && JSON.parse(KV.m.get('luinm:' + KOODI + ':' + AV).v);
   tulos('merkinnät laatikossa', m1 && m1.al.length === 2 && m1.km.length === 1, m1 ? JSON.stringify({ al: m1.al.length, km: m1.km.length }) : 'ei');
@@ -166,9 +166,7 @@ function muistiKV() {
 
   // --- 5. Laite B: teksti ja merkinnät ---
   await b.goto(OSOITE + 'luin.html');
-  await b.click('#lisaa-ots');
-  await b.fill('#lisaa-syote', KOODI);
-  await b.press('#lisaa-syote', 'Enter');
+  await b.goto(OSOITE + 'luin.html#l=' + encodeURIComponent(KOODI));
   await b.waitForFunction(() => /kantautui/.test(document.querySelector('#viesti').textContent));
   for (let i = 0; i < 40; i++) { if (await LS(b, 'luin-merkit:' + PID)) break; await odota(100); }
   const eB = await nimike(b, PID), mdB = await LS(b, 'luin-teksti:' + PID), mB = await LS(b, 'luin-merkit:' + PID);

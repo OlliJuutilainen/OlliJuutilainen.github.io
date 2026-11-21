@@ -22,12 +22,11 @@
   Sivu ei lähetä mitään verkkoon. Verkosta luetaan vain #u=-osoitteen teksti ja asetuksissa annetun
   postilaatikon tekstit (workerin /api/luin; Postihuilu Latomossa, Lukimeen-lisäosassa ja täällä).
   Reitit: #           pino
-          #arkisto    cellarin campihyllystö (luetuiksi merkityt)
-          #omappi     ö-mappien mappi ö (cellarin campihyllystöstä siirretyt)
+          #arkisto    kellarin kampihyllystö (luetuiksi merkityt)
+          #omappi     ö-mappien mappi ö (kellarin kampihyllystöstä siirretyt)
           #id=<id>    lukulistan teksti
           #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
-          #l=<koodi>  laatikkolause talteen ja laatikon haku (lukulistan Postihuilu-kenttä kelpuuttaa
-                      lauseen tai linkin)
+          #l=<koodi>  laatikkolause talteen ja laatikon haku
           #tuo        Latomosta (luin/latomo.html) siirretty teksti
   Käyttöohje: luin/kayttoohje.html (lukulistan linkki).
   Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md; ei linkkiä lukulistassa).
@@ -240,9 +239,9 @@
   button.valitse[aria-pressed="true"] { color: var(--muste); }
   button.valitse[aria-pressed="true"] .sal-sisa { fill: currentColor; }
   button.valitse[aria-pressed="mixed"] .sal-sisa { stroke: currentColor; stroke-width: .6; }
-  /* Cellarin campihyllystö (ent. uumen, pölyhylly ja arkistohylly): vain logo, kotilinkki, asetukset, pino ja alatunniste. */
+  /* Kellarin kampihyllystö (ent. uumen, pölyhylly ja arkistohylly): vain logo, kotilinkki, asetukset, pino ja alatunniste. */
   .loikea { display: flex; align-items: flex-start; }
-  /* Cellarin campihyllystön pinomerkki (käyttäjän pyyntö 12.11.2026): musteen alareuna logon loppupisteen alakärjen tasolla kuten
+  /* Kellarin kampihyllystön pinomerkki (käyttäjän pyyntö 12.11.2026): musteen alareuna logon loppupisteen alakärjen tasolla kuten
      alasivuilla ja ennen pirtin lattiaviiva, ei kiekon keskilinjalla. Kärki 24 + 6 + 64 · 110,48/138 = 81,24 px, musteen
      alareuna 36,58 px 40 px:n svg:n yläreunasta (viewBoxin y 21,95) ja svg 2 px laatikon yläreunasta: 81,24 − 36,58 − 2 − 24 =
      18,66. Merkki 40 px (suurennettu 12.11.2026 toisen kerran, ennen 28 px ja 22 px), viiva 1,05 px kuten ennen (0,9
@@ -253,7 +252,9 @@
   /* Etusivun kiekko harmaa kuten lukijan kiekko ja info-merkki (käyttäjän pyyntö 16.11.2026; ennen muste). */
   .lhead .ratas { color: var(--harmaa); }
   #lista.arkisto .vain-lista, #lista.arkisto button.info, #lista.arkisto .tietoa { display: none; }
-  .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
+  /* Koko .64rem (käyttäjän pyyntö 21.11.2026, ennen .74rem) kaikissa kolmessa: kellarilinkki, ö-mapin linkki ja paluulinkki.
+     Mitat ovat em:iä, joten linkit pienenivät suhteessa; vain nuoli ja reunaviiva ovat pikseleitä. */
+  .ark-linkki { margin: 10px 0 0; text-align: right; font-size: .64rem; line-height: 1.8; color: var(--harmaa); }
   .ark-linkki a { color: var(--harmaa); text-transform: uppercase; letter-spacing: .14em; }
   /* Kampihyllystölinkin alla kapea nuoli (käyttäjän pyynnöt 12.11. ja 15.11.2026): nuoli on alleviivauksen paikalla ja mittainen,
      alleviivausta ei ole. Varsi on reunaviiva eikä svg:n viiva, koska selain kohdistaa reunan pikseliin kuten alleviivauksen;
@@ -265,8 +266,8 @@
      (alhaalta lännen ja pohjoisen kautta koilliseen), josta kampivarsi tulee napaan eli ympyrän keskelle. Napa on versaalien
      pystykeskellä: säde 0,894 em on mitattu versaalien keskeltä (perusviivan ja versaalikorkeuden puoliväli) alleviivauksen
      keskelle. Suora jatke on reunaviiva kuten varsi (sama pikselikohdistus), svg:nä vain kaari ja kampi; kaaren vasen reuna
-     2,188 em tekstin vasemmasta reunasta (säde kahdesti ja 0,4 em:n rako). Kaari on linkin sisällä, joten sekin vie cellarin
-     campihyllystöön.
+     2,188 em tekstin vasemmasta reunasta (säde kahdesti ja 0,4 em:n rako). Kaari on linkin sisällä, joten sekin vie kellarin
+     kampihyllystöön.
      Napa (käyttäjän tarkennus 17.11.2026, vertailu luin/kehitys/veivinavat.html) on liikenneympyrä navan ympärillä, säde
      0,2 viewBoxin yksikköä (vertailusivun 0,24 kahdesti pienennettynä, käyttäjän pyynnöt 17.11.2026): kampi tulee renkaan kehälle 20° pohjoisesta itään, ja kehä lähtee siitä ulkokehän peilikuvana
      hyvin loivasti vasemmalle yläviistoon ja kiertää vastapäivään 290° itään asti. Kampi ei siksi osoita tarkalleen keskelle.
@@ -275,7 +276,7 @@
   .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -1px; width: 1.788em; height: 1.788em; overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
   .ark-linkki svg.veivi path { vector-effect: non-scaling-stroke; }
-  /* Cellarin campihyllystön paluuteksti pinomerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
+  /* Kellarin kampihyllystön paluuteksti pinomerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
      Pino-otsikko. Voi rivittyä kahdelle riville, koska 360 px:n ruudulle ei mahdu logo, teksti, merkki ja kiekko yhdelle. */
   .lhead a.ark-takaisin { align-self: flex-start; margin: 0 2px 0 0; height: 59.5px; display: flex; align-items: flex-end; justify-content: flex-end;
     text-align: right; font-size: .5rem; line-height: 1.3; letter-spacing: .14em; text-transform: uppercase; color: var(--harmaa);
@@ -287,7 +288,7 @@
      kasvoi 360 → 1440 px, ja ruutuun sovittava WebView (Native Alpha, Light Phone) pienensi koko listan. */
   #lista { overflow-wrap: anywhere; }
   ul.nimikkeet { list-style: none; margin: 0; padding: 0; }
-  /* Cellarin campihyllystön järjestys ja kortiston välikortit (käyttäjän pyyntö 17.11.2026): versaali, harva, harmaa; ei viivoja,
+  /* Kellarin kampihyllystön järjestys ja kortiston välikortit (käyttäjän pyyntö 17.11.2026): versaali, harva, harmaa; ei viivoja,
      salmiakkeja eikä värejä, koska nimikkeiden omat viivat erottavat jo. */
   .jarj-rivi { margin: 0 0 4px; font-size: .74rem; line-height: 1.6; color: var(--harmaa); letter-spacing: .02em; }
   #lista:not(.arkisto) .jarj-rivi { display: none; }
@@ -341,44 +342,31 @@
      Oma jakoviiva oli liikaa (Postihuilun details.vienti on jo viivan päällä), joten erottelu on ilmaa. */
   .aset-palaute { margin: 52px 0 0; font-size: .74rem; line-height: 1.8; color: var(--harmaa); }
   .aset-palaute a { color: var(--harmaa); text-underline-offset: 3px; text-transform: uppercase; letter-spacing: .12em; }
-  /* Postihuilu (käyttäjän pyyntö 10.11.2026): versaaliotsikko kentän yläpuolella, napissa Soita huilua! */
-  .lisaa-ots { margin: 22px 0 0; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--harmaa); }
-  .lisaa-kentta { display: flex; gap: 8px; margin: 22px 0 0; }
-  .lisaa-ots + .lisaa-kentta { margin-top: 8px; }
-  /* Postihuilun i-nappi otsikon oikealla puolella (käyttäjän pyyntö 10.11.2026): pieni, otsikon mittainen rivi. */
-  .lisaa-ots-rivi { display: flex; align-items: center; gap: 0; margin: 22px 0 0; }
-  .lisaa-ots-rivi .lisaa-ots { margin: 0; }
-  /* Pinon Postihuilu on oletuksena kiinni (käyttäjän pyyntö 16.11.2026): näkyy vain versaaliotsikko, jonka perässä on
-     m-osion tapaan pieni salmiakki (ontto kiinni, täytetty auki). Otsikko avaa huilun, viivaston, i-napin ja kentän.
-     Tila ei tallennu: pino avautuu aina kiinni. */
-  .lisaa-ots-rivi button.lisaa-ots { display: inline-flex; align-items: center; gap: 7px; padding: 6px 0; margin: -6px 0; border: 0;
-    background: none; font-family: inherit; line-height: inherit; cursor: pointer; }
-  button.lisaa-ots svg { width: 6px; height: 7.4px; flex: 0 0 auto; position: relative; top: -.5px; }
-  button.lisaa-ots .sal { fill: none; stroke: currentColor; stroke-width: 1.1; }
-  #huilulohko.auki button.lisaa-ots .sal { fill: currentColor; }
-  #huilulohko:not(.auki) > :not(.lisaa-ots-rivi), #huilulohko:not(.auki) .lisaa-ots-rivi > :not(.lisaa-ots) { display: none; }
-  /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js): vino huilu otsikon oikealla puolella (.huilu-paikka),
-     sen kellosta kulmikas kolmilinja oikealle (enintään neljä jaksoa), ja kolme nuottia Soita huilua! -napin yläpuolelle
-     vasta painalluksesta.
+  /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js): vino huilu, sen kellosta kulmikas kolmilinja oikealle
+     (enintään neljä jaksoa), ja kolme nuottia Soita huilua! -napin yläpuolelle vasta painalluksesta. Pinosta Postihuilu
+     poistettiin tällä erää 21.11.2026 (käyttäjän pyyntö); kuvio on nyt vain asetuksissa.
      piirraHuilu() piirtää kuvion mitatuista paikoista lohkon päälle (svg.huilukuvio); .huilukaista on viivaston tila.
      Otsikon harmaa, ei ruostetta (ruoste = napautettava). */
   .huilulohko { position: relative; }
-  /* Pinossa lohko on enintään 22.5rem leveä (16.11.2026 24rem, 17.11.2026 puhelimen 390 px:n mittaan): siksak päättyy
-     Soita huilua! -napin oikeaan reunaan, joten lohkon leveys rajaa viivaston pituuden myös leveällä näytöllä. */
-  #huilulohko { max-width: 22.5rem; }
   svg.huilukuvio { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; color: var(--harmaa); }
-  .huilu-paikka { flex: 0 0 auto; width: 24px; height: 18px; margin-left: 6px; }
   /* Korkeuden asettaa piirraHuilu() kuvion mukaan. Ei luokkaa .asetus: se on asetusrivin luokka alareunaviivoineen. */
   .huilukaista { display: block; height: 30px; }
   .huilukaista.kaista-aset { height: 56px; margin: 4px 0 6px; }
   .huilunapit { display: flex; justify-content: flex-end; }
-  .huilukaista + .kysy-ohje { margin: 4px 0 0; }
-  .huilukaista + .kysy-ohje + .lisaa-kentta, .huilukaista + .lisaa-kentta { margin-top: 8px; }
-  /* Pinon osioiden hajurako (käyttäjän pyyntö 16.11.2026): pino, huilu, linkkilista ja kellarilinkki erillään reilulla ilmalla. */
+  /* Pinon osioiden hajurako (käyttäjän pyyntö 16.11.2026): pino, kellarilinkki ja Soita postihuilua, linkkilista erillään
+     reilulla ilmalla. Kellarilinkki ja Soita postihuilua (käyttäjän pyyntö 21.11.2026) ovat pinon alla vasemmalla samaa
+     kokoa ja tyyliä peräkkäisinä riveinä; kellarilinkin kampi on tekstin vasemmalla, joten rivi alkaa sen musteesta
+     (kaaren vasen reuna 2,188 em tekstin vasemmasta reunasta) ja Soita postihuilua palstan laidasta. */
   #lista { --osiovali: 52px; }
-  #lista .vain-lista > .huilulohko > .lisaa-ots-rivi { margin-top: var(--osiovali); }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
+  #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; }
+  .pino-ala { margin-top: var(--osiovali); }
+  .pino-ala:not(:has(> p:not([hidden]))) { display: none; }
+  .huilu-soita { margin: 0; font-size: .64rem; line-height: 1.8; }
+  .ark-linkki:not([hidden]) + .huilu-soita { margin-top: 12px; }
+  .huilu-soita button { padding: 6px 0; margin: -6px 0; border: 0; background: none; font: inherit; line-height: inherit;
+    color: var(--harmaa); text-transform: uppercase; letter-spacing: .14em; cursor: pointer; }
   /* Ö-mappien mappiin ö -linkki (käyttäjän pyynnöt 17.11.2026, kolme kierrosta): ääripäiden ö:t ovat mappisulkimen renkaita.
      Rengas on x-akselilla litistetty soikio (leveys .81 korkeudesta). Renkaan viivan sisäreunan laki on versaalikorkeudella
      (8,51 px = .7188 em) ja ulkoreunan alakärki 3,8 px perusviivan alla (nostettu alleviivauksen 7,31 px:stä, jotta renkaan
@@ -387,25 +375,26 @@
      Ö:n pisteet ovat samanlaisia litistettyjä rakorenkaita. Mitat ja polut tuottaa luin/kehitys/orengas.js.
      Alleviivaus (svg.oalla, .85 px, ei reunusviiva: murto-osainen paksuus) kulkee renkaiden alakärjestä toiseen, ja sen
      alareuna on tasan renkaiden alakärjessä (sama bottom). Padding-laatikon alareuna on 6,31 px perusviivan alla, joten
-     bottom 2,51 px. a:n oma reunus on läpinäkyvä, jotta rivin mitat pysyvät kellarilinkin mittoina.
+     bottom 2,51 px. Pikselimitat koskevat .74rem:n kokoa (11,84 px); 21.11.2026 lähtien ne ovat em:iä (px / 11,84), jotta
+     linkki pienenee kokonaisena (.64rem: 3,8 px → 3,29 px, .85 px → .74 px). a:n oma reunus on läpinäkyvä, jotta rivin mitat pysyvät kellarilinkin mittoina.
      Yhdysviiva (span.oyv) on piirretty: keskikohta 3,68 px perusviivan yläpuolella eli versaalien keskeltä (4,25) ja renkaan
      keskeltä (3,1) puoliväliin, 1,15 px paksu (fontin viiva .93 px), musteen paikka ja leveys kuten fontin yhdysviivassa
      (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Raot tekstiin .2 em ja .4 em. */
   .om-linkki a { padding: 0 calc(.945em + .4em - .14em) 0 calc(.945em + .2em); border-bottom-color: transparent; }
   .om-linkki a::before { content: none; }
-  .om-linkki svg.orengas { position: absolute; bottom: 2.51px; width: .945em; height: 1.707em; overflow: visible; fill: currentColor; }
+  .om-linkki svg.orengas { position: absolute; bottom: .212em; width: .945em; height: 1.707em; overflow: visible; fill: currentColor; }
   .om-linkki svg.vas { left: 0; }
   .om-linkki svg.oik { right: 0; }
-  .om-linkki svg.oalla { position: absolute; bottom: 2.51px; left: .472em; width: calc(100% - 2 * .472em); height: 3px; overflow: visible; fill: currentColor; }
+  .om-linkki svg.oalla { position: absolute; bottom: .212em; left: .472em; width: calc(100% - 2 * .472em); height: .2534em; overflow: visible; fill: currentColor; }
   .om-linkki .oyv { display: inline-block; position: relative; width: .351em; height: 0; margin-right: .14em; }
-  .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: 0; width: 3.33px; height: 6px; overflow: visible; fill: currentColor; }
+  .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: 0; width: .2813em; height: .5068em; overflow: visible; fill: currentColor; }
   /* Paluu ö-mappien mapista ö (käyttäjän pyyntö 17.11.2026): kellarilinkki peilikuvana vasemmassa alakulmassa, nuoli vasemmalle
      ja kampi tekstin oikealla puolella. Teksti ei peilaudu. */
   .ark-linkki.paluu { text-align: left; }
   .paluu svg.nuoli { right: auto; left: 0; }
   .paluu a::before { right: auto; left: 100%; }
   .paluu svg.veivi { right: auto; left: calc(100% + .4em); transform: scaleX(-1); }
-  /* Otsikon merkit (käyttäjän pyynnöt 17.11.2026): cellarin campihyllystön otsikon perässä kampi, pinon otsikon perässä
+  /* Otsikon merkit (käyttäjän pyynnöt 17.11.2026): kellarin kampihyllystön otsikon perässä kampi, pinon otsikon perässä
      pinomerkki, molemmat hyvin pieninä otsikon harmaalla (kampi 1,05 em, pinomerkki 1,15 em leveä; ennen kumpikin 1,45 em).
      Rako 1 em viimeisestä kirjaimesta (.82 em + otsikon loppuharvennus .18 em; ennen .7 em). Merkin keskikohta (kammessa napa) on versaalien pystykeskellä kuten kellarilinkin kammen napa: .3176 em perusviivan
      yläpuolella (mitattu 3,76 px). Spanin alareuna on .3379 em perusviivan alapuolella, joten merkin bottom on
@@ -426,13 +415,7 @@
   h2.ots svg.orengas { position: absolute; width: .668em; height: 1.182em; overflow: visible; fill: currentColor; stroke: none; }
   h2.ots .ots-o svg.orengas { left: 0; bottom: -.0754em; }
   h2.ots .ots-merkki > svg.orengas { left: calc(100% + .62em); bottom: .2625em; }
-  button.kysy.pieni { width: 30px; height: 30px; margin: -4px 0 -4px 2px; }
-  button.kysy.pieni svg { width: 12.6px; height: 18.2px; }
   .kysy-ohje a { color: var(--ruoste); text-underline-offset: 3px; }
-  .lisaa-kentta input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; font: inherit; font-size: 1rem; color: var(--muste);
-    background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
-  .lisaa-kentta input:focus { outline: none; border-color: var(--harmaa); }
-  .lisaa-kentta button { flex: 0 0 auto; padding: 0 14px; min-height: 38px; border: 1px solid var(--harmaa); font-size: .9rem; }
   .viesti { margin: 14px 0 0; padding: 9px 12px; border-left: 2px solid var(--ruoste); font-size: .88rem; line-height: 1.45; }
   .foot { margin: auto 0 0; padding-top: 44px; text-align: center; color: var(--harmaa); font-size: .64rem;
     letter-spacing: .16em; }
@@ -1522,7 +1505,7 @@
     vain sallii sen.</p>
     <p>Jos haluat käyttää lukinta usealla laitteella<button type="button" class="t-sana t-kysy" aria-expanded="false" aria-controls="vihje-laite" aria-label="Esimerkki">?</button>,
     <button type="button" class="t-sana t-huilu" aria-expanded="false" aria-controls="vihje-huilu"><b>huilu</b></button>
-    on ystäväsi (ks. sivun alaosa). Merkintäsi voit myös viedä
+    on ystäväsi (ks. asetukset). Merkintäsi voit myös viedä
     <b><a class="vihje" href="luin.html#u=luin/mika-on-markdown.md" target="_blank" rel="noopener" data-vihje="Avaa lukimessa: Mikä on Markdown?">Markdown</a></b>-tiedostona:
     silloin lukeminen jatkuu omissa muistiinpanoissasi, ja laitteelta toiselle voit kantaa ne itse, huilun ohi.</p>
     <!-- Loppusanat (käyttäjän sanamuoto 20.11.2026). -->
@@ -1546,26 +1529,25 @@
       Kuka tahansa, joka tietää laatikkolauseesi, saa huilunsoitolla tekstit ja merkinnät taikottua omalle
       laitteelleen. Hyvässä ja pahassa: samoinhan toimivat mökin avaimetkin.</p><button type="button" class="t-vihje-sulje" aria-label="Sulje vihje" title="Sulje"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5H10"/></svg></button></div></div>
   <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
-       on valittuna, oikeaan nurkkaan tulee valittujen valikko. Cellarin campihyllystössä sama rivi otsikolla Cellarin campihyllystö. -->
+       on valittuna, oikeaan nurkkaan tulee valittujen valikko. Kellarin kampihyllystössä sama rivi otsikolla Kellarin kampihyllystö. -->
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
     <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
-  <!-- Cellarin campihyllystön järjestys (käyttäjän pyyntö 17.11.2026): pino on aina tulojärjestyksessä. -->
+  <!-- Kellarin kampihyllystön järjestys (käyttäjän pyyntö 17.11.2026): pino on aina tulojärjestyksessä. -->
   <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button><span id="sanasto-osa" hidden> · <button type="button" id="sanasto" aria-haspopup="true">sanasto</button></span></p>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
     linkistä, joka avaa tekstin lukimessa.</p>
   <p class="viesti" id="viesti" hidden></p>
-  <!-- Lisää-kenttä (käyttäjän pyyntö 25.10.2026, kuten KEICK•WALKin tunnuskenttä): laatikkolause tai linkki
-       (tekstin osoite tai Luin-linkki). Otsikko Postihuilu ja nappi Soita huilua! käyttäjän pyynnöstä 10.11.2026. -->
+  <!-- Pinon alla (käyttäjän pyyntö 21.11.2026): kellarilinkki ja Soita postihuilua vasemmalla, sitten linkit. Postihuilu
+       (otsikko, kenttä ja kuvio) poistettiin pinosta tällä erää; laatikkolause annetaan asetuksissa. Soita postihuilua näkyy
+       vain, kun laatikkolause on annettu, ja hakee laatikon heti. -->
   <div class="vain-lista">
-  <div class="huilulohko" id="huilulohko"><svg class="huilukuvio" aria-hidden="true"></svg>
-  <div class="lisaa-ots-rivi"><button type="button" class="lisaa-ots" id="lisaa-ots" aria-expanded="false" aria-controls="lisaa-kentta">Postihuilu<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg></button>
-    <button type="button" class="kysy pieni" id="huilu-kysy" aria-expanded="false" aria-controls="huilu-ohje" aria-label="Tietoa: postihuilu"><svg viewBox="0 0 18 26" aria-hidden="true"><path d="M2.84 4.53H5.48V5.19H3.72V23.1H5.48V23.76H2.84Z"/><path d="M15.16 4.53H12.52V5.19H14.28V23.1H12.52V23.76H15.16Z"/><path d="M9 8.74Q9.42 9.63 10.12 10.19Q9.42 10.74 9 11.64Q8.58 10.74 7.88 10.19Q8.58 9.63 9 8.74ZM8.25 12.96H9.75V20H8.25Z"/></svg></button><span class="huilu-paikka" aria-hidden="true"></span></div>
-  <div class="huilukaista" aria-hidden="true"></div>
-  <div class="kysy-ohje" id="huilu-ohje" hidden><p>Postihuilu tuo pinoosi sisältöä toisten laitteittesi pinoista ja uusimman luettavan kappaleen <a href="luin/latomo.html">latomosta</a>. Yhteissoittoon toisen huilun ja siten yhteiseen luetun ja luettavan ymmärrykseen pääset syöttämällä oikean <i>laatikkolauseen</i>.</p></div>
-  <form class="lisaa-kentta" id="lisaa-kentta"><input id="lisaa-syote" type="text" aria-labelledby="lisaa-ots"
-    placeholder="Laatikkolause tai linkki" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="submit" class="huilunappi">Soita huilua!</button></form>
+  <div class="pino-ala" id="pino-ala">
+  <!-- Kellarin kampihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
+       on jotain. -->
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>kellarin kampihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="huilu-soita" id="huilu-soita" hidden><button type="button" id="soita-postihuilua">Soita postihuilua</button></p>
   </div>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
        oppaaseen (luin/ohje.md) ei ole linkkiä lukulistassa; se avautuu osoitteesta #u=luin/ohje.md. -->
@@ -1575,14 +1557,11 @@
     <a href="luin/sivustot.html">Luettavaa</a></p>
   <p class="lisaa uusi"><a href="luin/latomo.html">Uusi teksti LATOMOSSA</a></p>
   </div>
-  <!-- Cellarin campihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
-       on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg>cellarin campihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
-  <!-- Ö-mappien mappi ö (käyttäjän pyynnöt 17.11.2026): linkki cellarin campihyllystön alalaidassa kuten kellarilinkki pinossa, vain kun
+  <!-- Ö-mappien mappi ö (käyttäjän pyynnöt 17.11.2026): linkki kellarin kampihyllystön alalaidassa kuten kellarilinkki pinossa, vain kun
        siellä on jotain. Ääripäiden ö:t ovat mappisulkimen renkaita alleviivauksen päissä. -->
-  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappien mappiin ö"><svg class="orengas vas" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-1" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-1)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><span aria-hidden="true"><span class="oyv"><svg viewBox="0 0 3.33 6" aria-hidden="true"><rect y="1.745" width="3.33" height="1.15"/></svg></span>mappien mappiin</span><svg class="orengas oik" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-2)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><svg class="oalla" aria-hidden="true"><rect y="2.15" width="100%" height=".85"/></svg></a></p>
-  <!-- Paluu ö-mappien mapista ö cellarin campihyllystöön (käyttäjän pyyntö 17.11.2026): kellarilinkki peilattuna, vasemmassa alakulmassa. -->
-  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg>cellarin campihyllystöön<svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></a></p>
+  <p class="ark-linkki om-linkki" id="om-linkki" hidden><a href="#omappi" aria-label="ö-mappien mappiin ö"><svg class="orengas vas" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-1" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-1)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><span aria-hidden="true"><span class="oyv"><svg viewBox="0 0 3.33 6" aria-hidden="true"><rect y="1.745" width="3.33" height="1.15"/></svg></span>mappien mappiin</span><svg class="orengas oik" viewBox="0 0 11.186 20.21" aria-hidden="true"><clipPath id="orengas-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-20 -20H31.186V40.21H-20ZM5.593 4.557L9.093 12.931L2.093 12.931ZM2.797 -.941L3.697 2.888L1.897 2.888ZM8.39 -.941L9.29 2.888L7.49 2.888Z"/></clipPath><path clip-path="url(#orengas-leikkaus-2)" fill-rule="evenodd" d="M5.593 20.21A5.593 6.905 0 1 1 5.593 6.4A5.593 6.905 0 1 1 5.593 20.21ZM5.593 19.36A3.493 5.73 0 1 1 5.593 7.9A3.493 5.73 0 1 1 5.593 19.36ZM2.797 4.8A1.944 2.4 0 1 1 2.797 0A1.944 2.4 0 1 1 2.797 4.8ZM2.797 4A.994 1.6 0 1 1 2.797 .8A.994 1.6 0 1 1 2.797 4ZM8.39 4.8A1.944 2.4 0 1 1 8.39 0A1.944 2.4 0 1 1 8.39 4.8ZM8.39 4A.994 1.6 0 1 1 8.39 .8A.994 1.6 0 1 1 8.39 4Z"/></svg><svg class="oalla" viewBox="0 0 1 3" preserveAspectRatio="none" aria-hidden="true"><rect y="2.15" width="1" height=".85"/></svg></a></p>
+  <!-- Paluu ö-mappien mapista ö kellarin kampihyllystöön (käyttäjän pyyntö 17.11.2026): kellarilinkki peilattuna, vasemmassa alakulmassa. -->
+  <p class="ark-linkki paluu" id="ark-paluu" hidden><a href="#arkisto"><svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M4.8 .8L.8 4L4.8 7.2"/></svg>kellarin kampihyllystöön<svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus-2" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus-2)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></a></p>
   <p class="foot"><svg viewBox="-550 -550 1100 1100" role="img" aria-label="©"><path class="k" d="M0 -600 L460 0 L0 600 L-460 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
 </section>
 
@@ -1783,7 +1762,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=c95ffaa4"></script>
+<script src="luin/md.js?v=12bd2368"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -1856,7 +1835,7 @@
     return esc(t.slice(0, i)) + '<span class="n-hanta">' + esc(viim) + mk + '</span>';
   }
   // Pystyssä, kärjet hipaisten, logon mittasuhteissa (leveys/korkeus 0,767) kuten huilun sormireiät.
-  // Cellarin campihyllystön otsikon kampi (käyttäjän pyynnöt 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
+  // Kellarin kampihyllystön otsikon kampi (käyttäjän pyynnöt 17.11.2026): kellarilinkin kampi, mutta ulkokaari ei käänny alhaalta
   // suoraksi nuolen varreksi, vaan jatkuu kehää pitkin 70° oikealle ylös ja jyrkkenee (lähtö kompassikulmassa 110°; ensin 40°).
   // Navan renkaan pää on leikattu kammen suuntaisesti (käyttäjän pyyntö 17.11.2026; ennen pystysuora kaari päättyi idässä ja
   // tylppä pää oli vaakasuora). Rengas jatkuu 75°:een asti, ja leikkaus (KAMPI_LEIKKAUS, evenodd-lovi) poistaa idän pisteen
@@ -1890,7 +1869,7 @@
     vieAl: 1, vieKm: 0, vieKi: 1, vieEd: 0, kmKiinni: 0, alKiinni: 0, hakuViit: 1, viiteLisa: 0,
     maalaus: 'luin', kopioViite: 'ei', sanakirja: 1, kaannos: 0, sukSana: 1, kokoruutu: 0, lomitus: 'molemmat',
     postiMerk: 0, postiAl: 1, postiKi: 1, postiKm: 1, postiEd: 1, kokoKasin: 0, kellariJarj: 'luettu', kellariPino: 0, av: 11 };
-  // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): cellarin campihyllystön järjestys (JARJ) ja pinon tekstit mukana.
+  // kellariJarj, kellariPino (käyttäjän pyyntö 17.11.2026): kellarin kampihyllystön järjestys (JARJ) ja pinon tekstit mukana.
   // postiMerk (käyttäjän pyyntö 9.11.2026): Huiluta myös merkintöjä (ent. Lähetä myös merkinnät) postilaatikkoon (oletus pois); postiAl, postiKi, postiKm,
   // postiEd: lähetettävät lajit, oletuksena kaikki. Tekstikohtainen valinta ohittaa nämä (luin-posti:<id>).
   var P = window.LuinPosti;
@@ -2080,8 +2059,8 @@
   // Tekstien sisältö on IndexedDB:ssä (luin/tekstit.js, käyttäjän pyyntö 19.11.2026); pino, asetukset ja merkinnät localStoragessa.
   var TX = window.LuinTekstit;
   /* Tusina (käyttäjän päätös 19.11.2026): pinossa on enintään TUSINA tekstiä. Kun pinoon tulee teksti (latomo, linkki,
-     postihuilu, Poimi cellarin campihyllystöstä) ja niitä on enemmän, se, johon on koskettu pisimpään sitten (tullut pinoon
-     tai avattu), laskeutuu cellarin campihyllystöön. Tulleet laskeutuvat vasta viimeisinä. Laskeutunut saa e.luettu-ajan
+     postihuilu, Poimi kellarin kampihyllystöstä) ja niitä on enemmän, se, johon on koskettu pisimpään sitten (tullut pinoon
+     tai avattu), laskeutuu kellarin kampihyllystöön. Tulleet laskeutuvat vasta viimeisinä. Laskeutunut saa e.luettu-ajan
      (sijainti kuten luetulla, kellarissa()) ja merkin e.laskeutui, jotta tietorivi sanoo laskeutui eikä luettu; pinoon
      palatessa kumpikin poistuu. Laskeutuneet kerrotaan viestillä. */
   var TUSINA = 12;
@@ -2095,8 +2074,8 @@
     p.sort(function (x, y) { return (tullut[x.id] ? 1 : 0) - (tullut[y.id] ? 1 : 0) || aika(x) - aika(y); });
     var pois = p.slice(0, p.length - TUSINA), t = Date.now();
     pois.forEach(function (e) { e.luettu = t; e.laskeutui = 1; });
-    laskeutuneet = pois.length === 1 ? '”' + pois[0].title + '” laskeutui cellarin campihyllystöön: pinossa on tusina tekstiä.'
-      : pois.length + ' tekstiä laskeutui cellarin campihyllystöön: pinossa on tusina tekstiä.';
+    laskeutuneet = pois.length === 1 ? '”' + pois[0].title + '” laskeutui kellarin kampihyllystöön: pinossa on tusina tekstiä.'
+      : pois.length + ' tekstiä laskeutui kellarin kampihyllystöön: pinossa on tusina tekstiä.';
     viesti(laskeutuneet);
     return pois;
   }
@@ -2463,7 +2442,7 @@
      (lkKirjoita), jotta ne kulkevat .md-tiedoston mukana. Tuleva teksti asettaa ne vain, jos sen etukentässä ne ovat: avaimeton
      uusi versio (Postihuilu, Latomon Avaa lukimessa) ei pyyhi niitä, kuten ei merkintöjäkään. Muuta metatietoja ja korvaava
      laitos ovat poikkeus (tosi): Latomo näki ne, joten puuttuva avain on poisto. Käsikirjasto on lukijan oma tila eikä mene
-     etukenttään. Pino pysyy pinona: luokittelu näkyy ja järjestää vain cellarin campihyllystössä. */
+     etukenttään. Pino pysyy pinona: luokittelu näkyy ja järjestää vain kellarin kampihyllystössä. */
   var LK_V = 1;
   function lkMdsta(e, d, tosi) {
     var m = d.meta || {}, r = d.raaka || {};
@@ -2529,7 +2508,7 @@
     });
   }
   function lkOn(e, s) { var k = s.toLowerCase(); return (e.asiasanat || []).some(function (x) { return x.toLowerCase() === k; }); }
-  // Kaikkien tekstien (pino ja cellarin campihyllystö) asiasanat aakkosjärjestyksessä: sama sanasto kaikkialla ehkäisee
+  // Kaikkien tekstien (pino ja kellarin kampihyllystö) asiasanat aakkosjärjestyksessä: sama sanasto kaikkialla ehkäisee
   // rinnakkaismuotoja (filo / filosofia).
   function lkSanasto() {
     var m = {};
@@ -2615,7 +2594,7 @@
       }
       if (k === 'kk') {
         var paalle = b.getAttribute('aria-pressed') !== 'true';
-        // Käsikirja lähtee pinosta ja ö-mappien mapista ö cellarin campihyllystön käsikirjastoon.
+        // Käsikirja lähtee pinosta ja ö-mappien mapista ö kellarin kampihyllystön käsikirjastoon.
         es.forEach(function (e) {
           if (paalle) { if (!kellarissa(e)) kkSiirtyi[e.id] = 1; e.kasikirja = 1; delete e.omappi; delete valitut[e.id]; }
           else { delete e.kasikirja; delete kkSiirtyi[e.id]; }
@@ -2647,8 +2626,8 @@
       var nimi = n === 1 ? '”' + es[0].title + '”' : n + ' tekstiä';
       var as = n === 1 ? (es[0].asiasanat || []).join(', ') : '';
       var siirtyi = Object.keys(kkSiirtyi).length;
-      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.' + (!siirtyi ? '' : n === 1 ? ' Teksti siirtyi käsikirjastoon cellarin campihyllystöön.'
-        : ' ' + siirtyi + (siirtyi === 1 ? ' teksti siirtyi' : ' tekstiä siirtyi') + ' käsikirjastoon cellarin campihyllystöön.'));
+      viesti('Luokiteltu: ' + nimi + (as ? ' (' + as + ')' : '') + '.' + (!siirtyi ? '' : n === 1 ? ' Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.'
+        : ' ' + siirtyi + (siirtyi === 1 ? ' teksti siirtyi' : ' tekstiä siirtyi') + ' käsikirjastoon kellarin kampihyllystöön.'));
       return true;
     }
     uusi.addEventListener('input', function () {
@@ -2662,7 +2641,7 @@
     ajKentta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); $('button[data-k="ok"]', pop).click(); } });
   }
 
-  /* Cellarin campihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Pino pysyy pinona: sen järjestys on aina se, missä
+  /* Kellarin kampihyllystön järjestykset (käyttäjän pyyntö 17.11.2026). Pino pysyy pinona: sen järjestys on aina se, missä
      tekstit tulivat. Ryhmät ovat kortiston välikortteja (li.valiots); asiasanoittain sama teksti voi olla useassa ryhmässä. */
   var JARJ = [['luettu', 'luetuksi merkitsemisen mukaan'], ['tekija', 'tekijän mukaan'], ['kirjoittaja', 'kirjoittajan mukaan'], ['ajoitus', 'ajoituksen mukaan'],
     ['laji', 'lajin mukaan'], ['asiasana', 'asiasanojen mukaan'], ['alkupera', 'alkuperän mukaan'],
@@ -2766,7 +2745,7 @@
     return ryhmita(a, function (e) { var p = e.pct || 0; return p >= 95 ? 'a' : p >= 50 ? 'b' : p > 0 ? 'c' : 'd'; },
       function (k) { return { a: 'Luettu loppuun', b: 'Yli puolet', c: 'Alle puolet', d: 'Avaamatta' }[k]; }, ['a', 'b', 'c', 'd']);
   }
-  // Cellarin campihyllystön tietorivin lisät järjestyksen mukaan.
+  // Kellarin kampihyllystön tietorivin lisät järjestyksen mukaan.
   function jarjTieto(e) {
     var j = jarjNyt(), t = [];
     if (j === 'ajoitus') { var a = lkAjoitus(e); t.push(a ? 'ajoitus ' + a.t : lkJulkaistu(e) ? 'julkaistu ' + lkJulkaistu(e) : ''); }
@@ -2779,7 +2758,7 @@
   }
   $('#jarj').addEventListener('click', function () {
     var b = this;
-    naytaPop(b.getBoundingClientRect(), '<div class="esi">Järjestä cellarin campihyllystö</div>' +
+    naytaPop(b.getBoundingClientRect(), '<div class="esi">Järjestä kellarin kampihyllystö</div>' +
       JARJ.map(function (j) {
         return '<button type="button" class="vk" data-k="j-' + j[0] + '" aria-pressed="' + (jarjNyt() === j[0]) + '">' + VALITSE + '<span>' + j[1] + '</span></button>';
       }).join('') +
@@ -2797,7 +2776,7 @@
   });
 
   /* Sanaston huolto (käyttäjän pyyntö 20.11.2026, mietintämyssyn luin-kellarin-jarjestys.md 6.3): asiasanan nimeäminen
-     uudelleen koko kokoelmassa (pino, cellarin campihyllystö ja ö-mappien mappi ö). Olemassa olevaksi nimetty yhdistyy siihen
+     uudelleen koko kokoelmassa (pino, kellarin kampihyllystö ja ö-mappien mappi ö). Olemassa olevaksi nimetty yhdistyy siihen
      (filo → filosofia), ja sama teksti saa sanan vain kerran. Vain kirjainkoon muutos (hegel → Hegel) on nimeäminen.
      Etukenttä kirjoitetaan kuten luokittelussa (lkKirjoita). */
   function lkNimea(vanha, uusi) {
@@ -2857,10 +2836,10 @@
   $('#sanasto').addEventListener('click', function () { sanasto(this.getBoundingClientRect()); });
 
   /* ---------- pinonäkymä (ent. hylly ja lukulista) ----------
-     Cellarin campihyllystö (ent. uumen, pölyhylly ja arkistohylly; käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
-     listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Cellarin campihyllystössä ei ole Postihuilua, ohjeita
+     Kellarin kampihyllystö (ent. uumen, pölyhylly ja arkistohylly; käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
+     listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Kellarin kampihyllystössä ei ole Postihuilua, ohjeita
      eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
-     näkymä vaihtuu pinon ja cellarin campihyllystön välillä. */
+     näkymä vaihtuu pinon ja kellarin kampihyllystön välillä. */
   var valitut = {};
   // Käsikirja (e.kasikirja; käyttäjän päätös 17.11.2026) ei ole koskaan pinossa eikä ö-mappien mapissa ö: se on aina kellarin
   // kampihyllystössä omana käsikirjastonaan, luettuna tai ei. Postihuilun uusi versio tai Latomon tuonti ei nosta sitä pinoon,
@@ -2869,10 +2848,10 @@
   function omapissa(e) { return !!e.omappi && !e.kasikirja; }
   function pinossa(e) { return !e.kasikirja && !e.luettu && !e.omappi; }
   function naytettavat(ark) {
-    // Ö-mappien mappi ö (käyttäjän pyyntö 17.11.2026, #omappi): cellarin campihyllystöstä siirretyt (e.omappi = siirtoaika;
-    // e.luettu jää), uusin ensin. Ne eivät näy cellarin campihyllystössä eivätkä pinossa.
+    // Ö-mappien mappi ö (käyttäjän pyyntö 17.11.2026, #omappi): kellarin kampihyllystöstä siirretyt (e.omappi = siirtoaika;
+    // e.luettu jää), uusin ensin. Ne eivät näy kellarin kampihyllystössä eivätkä pinossa.
     if (ark && tila.omappi) return lista.filter(omapissa).sort(function (x, y) { return y.omappi - x.omappi; });
-    // Cellarin campihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
+    // Kellarin kampihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
     var a = lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); });
     return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
@@ -2893,15 +2872,14 @@
     // Ö-mappien mapissa ö ei ole Takaisin pinoon -tekstiä eikä pinomerkkiä (käyttäjän pyyntö 17.11.2026): logo vie pinoon
     // suoraan ja peilattu kellarilinkki vasemmassa alakulmassa välillisesti.
     $('#ark-koti').hidden = !ark || om; $('#ark-takaisin').hidden = !ark || om;
-    // Cellarin campihyllystön otsikon perässä kampi ilman nuolen vartta, ö-mappien mapin ö perässä pelkkä ö merkkinä
+    // Kellarin kampihyllystön otsikon perässä kampi ilman nuolen vartta, ö-mappien mapin ö perässä pelkkä ö merkkinä
     // (käyttäjän pyynnöt 17.11.2026).
-    $('#lista-ots').innerHTML = om ? OTS_OMAPPI : ark ? '<span class="ots-merkki">Cellarin campihyllystö' + KAMPI + '</span>' : OTS_PINO;
+    $('#lista-ots').innerHTML = om ? OTS_OMAPPI : ark ? '<span class="ots-merkki">Kellarin kampihyllystö' + KAMPI + '</span>' : OTS_PINO;
     if (om) $('#lista-ots').setAttribute('aria-label', 'Ö-mappien mappi ö'); else $('#lista-ots').removeAttribute('aria-label');
-    document.title = om ? 'Ö-mappien mappi ö – Luin' : ark ? 'Cellarin campihyllystö – Luin' : 'Luin';
+    document.title = om ? 'Ö-mappien mappi ö – Luin' : ark ? 'Kellarin kampihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
-    huiluPinossa();
-    $('#tyhja').textContent = om ? 'Ö-mappien mappi ö on tyhjä. Teksti tulee tänne cellarin campihyllystöstä.'
-      : ark ? 'Cellarin campihyllystö on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
+    $('#tyhja').textContent = om ? 'Ö-mappien mappi ö on tyhjä. Teksti tulee tänne kellarin kampihyllystöstä.'
+      : ark ? 'Kellarin kampihyllystö on tyhjä. Teksti tulee tänne, kun merkitset sen luetuksi (Luin.).'
       : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
     haePinoon();
@@ -2927,7 +2905,7 @@
     var ala = e.ala != null ? e.ala : e.sub || e.kehys;
     var tieto = [e.laitos ? e.laitos + '. laitos' : '', (e.author !== ala && e.author) || (e.sivusto !== ala && e.sivusto) || '', e.pct != null ? e.pct + ' %' : '',
       ark ? (e.luettu ? (e.laskeutui ? 'laskeutui ' : 'luettu ') + pvm(e.luettu) : e.kasikirja ? '' : 'pinossa') : e.opened ? pvm(e.opened) : ''];
-    // Cellarin campihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
+    // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
     if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [(e.asiasanat || []).join(', ')]);
     tieto = tieto.filter(Boolean).join(' · ');
     return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
@@ -2950,9 +2928,10 @@
     $('#tyhja').hidden = nak.length > 0;
     taydennaAla();
     $('#ark-linkki').hidden = ark || !lista.some(kellarissa);
+    $('#huilu-soita').hidden = ark || !LAATIKKO_RE.test(laatikonKoodi());
     $('#om-linkki').hidden = !ark || tila.omappi || !lista.some(omapissa);
     $('#ark-paluu').hidden = !tila.omappi;
-    // Järjestyksen valinta vain cellarin campihyllystössä ja vain, kun järjestettävää on.
+    // Järjestyksen valinta vain kellarin kampihyllystössä ja vain, kun järjestettävää on.
     $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
     $('#sanasto-osa').hidden = !lista.some(function (e) { return e.asiasanat && e.asiasanat.length; });
@@ -3007,7 +2986,7 @@
           return TX.kirjoita(id, md).then(function (ok) {
             if (!ok) return null;
             nahdyt[k + ':' + x.id] = x.t;
-            // Uudelleen lähetetty teksti palaa cellarin campihyllystöstä pinoon (käsikirja ei: se pysyy käsikirjastossa).
+            // Uudelleen lähetetty teksti palaa kellarin kampihyllystöstä pinoon (käsikirja ei: se pysyy käsikirjastossa).
             var e = lisaaListaan(id, LuinMD.parse(md), { src: 'laatikko' });
             if (!e.kasikirja) pinoonTuli(e);
             delete e.huiluNahty;
@@ -3166,7 +3145,7 @@
     var k = laatikonKoodi(), a = P.avain(e.id);
     function kerro(t, ok) { nappi.textContent = t; nappi.disabled = !!ok; sijoitaPop(); }
     if (huilutetaan[e.id]) return;
-    if (!k) return kerro('Anna ensin laatikkolause pinon postihuiluun.');
+    if (!k) return kerro('Anna ensin laatikkolause asetusten postihuiluun.');
     if (P.koodiVirhe(k) || !LAATIKKO_RE.test(k)) return kerro('Tällä laatikkolauseella voi vain lukea: lähettäminen vaatii 24–52 merkkiä.');
     if (!HUILU_ID.test(a)) return kerro('Tämän tekstin tunnusta ei voi huiluttaa.');
     if (!window.fetch) return kerro('Selain ei osaa huiluttaa.');
@@ -3252,19 +3231,6 @@
       viesti('Laatikkolause ' + k + ' on käytössä, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen.');
     });
   }
-  // Postihuilu-kenttä: Luin-linkki seuraa omaa #-osaansa (jakolinkki u-parametriaan), muu verkko-osoite avataan tekstinä (#u=), muuten laatikkolause.
-  $('#lisaa-kentta').addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var v = $('#lisaa-syote').value.trim(), x = null;
-    if (!v) return;
-    $('#lisaa-syote').value = ''; $('#lisaa-syote').blur();
-    try { x = /^https?:\/\//i.test(v) ? new URL(v) : null; } catch (e) {}
-    if (!x && !P.koodiVirhe(P.koodi(v))) soitaHuilua($('#huilulohko'));
-    if (x && /luin\.html$/.test(x.pathname) && /^#(u|l|id)=/.test(x.hash)) location.hash = x.hash;
-    else if (x && x.href.split('?')[0] === JAKO_API && x.searchParams.get('u')) location.hash = 'u=' + encodeURIComponent(x.searchParams.get('u'));
-    else if (x) location.hash = 'u=' + encodeURIComponent(v);
-    else location.hash = 'l=' + encodeURIComponent(v);
-  });
   $('#laatikko-tallenna').addEventListener('click', function () {
     var raaka = $('#laatikko-koodi').value, k = P.koodi(raaka), tieto = $('#laatikko-tieto');
     if (!raaka.trim()) { LS.del('luin-laatikko'); tieto.textContent = 'Laatikkolause poistettu. Pino ei hae postilaatikosta.'; piirraPosti(); return; }
@@ -3303,7 +3269,7 @@
     o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
   });
   /* Postihuilun kuvio (käyttäjän valinnat 12.11.2026, luin/huilu.js). Lohkossa on svg.huilukuvio koko lohkon päällä,
-     .huilukaista (viivaston tila), .huilunappi (Soita huilua!) ja pinossa .huilu-paikka otsikon vieressä. Huilu on
+     .huilukaista (viivaston tila), .huilunappi (Soita huilua!) ja pinossa (21.11.2026 asti) .huilu-paikka otsikon vieressä. Huilu on
      68° kulmassa; viivasto kulkee kellosta lohkon oikeaan reunaan, ja nuotit (lohko._nuotit) piirtyvät napin kohdalle.
      Ne arvotaan uudelleen joka painalluksella eivätkä liiku (e-ink: ei animaatiota). */
   // sp: viivaväli (16.11.2026 syvennetty 5 → 8). Ylin viiva pysyy siinä, missä se oli välillä 5 (6 px huilun alapuolella
@@ -3312,10 +3278,9 @@
   function piirraHuilu(lohko) {
     var svg = lohko && lohko.querySelector('svg.huilukuvio'), R = lohko && lohko.getBoundingClientRect();
     if (!svg || !R.width) return;
-    if (lohko.id === 'huilulohko' && !lohko.classList.contains('auki')) { svg.innerHTML = ''; return; }
     var kaistaEl = lohko.querySelector('.huilukaista'), kaista = kaistaEl.getBoundingClientRect(), nappi = lohko.querySelector('.huilunappi').getBoundingClientRect();
     var paikka = lohko.querySelector('.huilu-paikka'), r = LuinHuilu.rajat(HUILU.T, HUILU.sw, HUILU.kulma), vasen, yla;
-    // Pinossa huilu i-napin oikealla puolella hiukan rivin yläpuolelle nousten; asetuksissa kuvio on napin yläpuolella
+    // Pinossa (21.11.2026 asti, .huilu-paikka säilyi palautusta varten) huilu i-napin oikealla puolella hiukan rivin yläpuolelle nousten; asetuksissa kuvio on napin yläpuolella
     // oikealla, ei vasemmasta laidasta alkaen: huilu siirretään niin, että täysimittainen siksak (16.11.2026: enintään
     // neljä jaksoa) päättyy napin oikeaan reunaan (viuhka noin 110 px ennen napin vasenta reunaa kuten ennenkin).
     if (paikka) { var P = paikka.getBoundingClientRect(); vasen = P.left - R.left + (P.width - r.w) / 2; yla = P.top - R.top - 8; }
@@ -3344,30 +3309,26 @@
     svg.innerHTML = sis;
   }
   function soitaHuilua(lohko) { lohko._nuotit = LuinHuilu.arvoNuotit(); lohko._soi = Date.now(); piirraHuilu(lohko); }
-  // Pinoon palattaessa edellisen soiton nuotit ovat poissa (paitsi heti painalluksen jälkeen, kun otaLaatikko näyttää pinon).
-  function huiluPinossa() {
-    var l = $('#huilulohko');
-    if (l._nuotit && Date.now() - l._soi > 3000) l._nuotit = null;
-    piirraHuilu(l);
-  }
-  function piirraHuilut() { piirraHuilu($('#huilulohko')); piirraHuilu($('#huilulohko-aset')); }
+  function piirraHuilut() { piirraHuilu($('#huilulohko-aset')); }
   window.addEventListener('resize', piirraHuilut);
   // Otsikon leveys muuttuu, kun Literata latautuu (fonts.ready voi valmistua jo ennen latausta), joten seurataan kokoa.
-  if (window.ResizeObserver) { var huiluRo = new ResizeObserver(piirraHuilut); ['#lisaa-ots', '#huilulohko', '#huilulohko-aset'].forEach(function (q) { huiluRo.observe($(q)); }); }
+  if (window.ResizeObserver) { var huiluRo = new ResizeObserver(piirraHuilut); huiluRo.observe($('#huilulohko-aset')); }
   else if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', piirraHuilut);
   $('#laatikko-osio').addEventListener('toggle', function () {
     var l = $('#huilulohko-aset');
     if (this.open) { if (l._nuotit && Date.now() - l._soi > 3000) l._nuotit = null; piirraHuilu(l); }
   });
 
-  $('#lisaa-ots').addEventListener('click', function () {
-    var l = $('#huilulohko'), auki = l.classList.toggle('auki');
-    this.setAttribute('aria-expanded', String(auki));
-    piirraHuilu(l);
-  });
-  $('#huilu-kysy').addEventListener('click', function () {
-    var o = $('#huilu-ohje'), auki = o.hidden;
-    o.hidden = !auki; this.setAttribute('aria-expanded', String(auki));
+  // Soita postihuilua (käyttäjän pyyntö 21.11.2026): pinossa vain, kun laatikkolause on annettu. Hakee laatikon heti
+  // minuutin rajasta välittämättä, kuten lauseen tallennus asetuksissa.
+  $('#soita-postihuilua').addEventListener('click', function () {
+    if (!LAATIKKO_RE.test(laatikonKoodi())) return;
+    viesti('Huilu soi…');
+    haeLaatikko(true).then(function (r) {
+      if (r && !r.n) viesti(r.kaikki ? 'Uusia tekstejä ei kantautunut.' : 'Laatikko on tyhjä.');
+    }, function (err) {
+      viesti('Laatikkoa ei tavoitettu (' + err.message + '). Yritä uudelleen.');
+    });
   });
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && tila.nakyma === 'lista') haePinoon();
@@ -3427,9 +3388,9 @@
       '<button type="button" data-k="laitos">lado uusi laitos</button>' +
       // Käsikirjalle ei Poimi- eikä ö-mappitoimintoa: se pysyy käsikirjastossa (pois luokittelemalla).
       (e.kasikirja ? '' : e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
-        : e.luettu ? '<button type="button" data-k="luin">Poimi cellarin campihyllystöstä.</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>'
-        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie cellarin campihyllystöön">Luin.</button>') +
-      '<button type="button" data-k="poista" class="vaara">' + (omapissa(e) ? 'Poista ö-mappien mapista ö.' : kellarissa(e) ? 'Poista cellarin campihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
+        : e.luettu ? '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä.</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>'
+        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>') +
+      '<button type="button" data-k="poista" class="vaara">' + (omapissa(e) ? 'Poista ö-mappien mapista ö.' : kellarissa(e) ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
       if (k === 'omappi') { kysyOmappi([e], b.getBoundingClientRect()); return true; }
       if (k === 'lataa') { lataaMd(e); return; }
@@ -3551,25 +3512,25 @@
     $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
     paivitaValinta();
   });
-  // Valittujen valikko: Luin. (cellarin campihyllystössä Poimi cellarin campihyllystöstä.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
+  // Valittujen valikko: Luin. (kellarin kampihyllystössä Poimi kellarin kampihyllystöstä.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
   $('#val-valikko').addEventListener('click', function () {
     var b = this, es = valitutEt();
     if (!es.length) return;
     var n = es.length, ark = tila.arkisto, luetut = es.filter(function (e) { return e.luettu; }).length;
     var kk = es.some(function (e) { return e.kasikirja; });
-    // Kun pino on mukana cellarin campihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa; käsikirjoja
+    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa; käsikirjoja
     // sisältävälle valinnalle ei Poimi- eikä ö-mappitoimintoa.
-    var om = tila.omappi, luin = om || kk ? '' : luetut === n ? 'Poimi cellarin campihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
-    // Ö-mappien mappiin ö vain cellarin campihyllystön teksteistä, takaisin vain ö-mappien mapista ö.
+    var om = tila.omappi, luin = om || kk ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
+    // Ö-mappien mappiin ö vain kellarin kampihyllystön teksteistä, takaisin vain ö-mappien mapista ö.
     var omk = om ? OM_POIS : ark && luetut === n && !kk ? OM_SISAAN : '';
     naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
       '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
       '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
       '<button type="button" data-k="luokittele">Luokittele.</button>' +
-      (luin === 'Luin.' ? '<button type="button" data-k="luin" class="vihje" data-vihje="vie cellarin campihyllystöön">Luin.</button>'
+      (luin === 'Luin.' ? '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>'
         : luin ? '<button type="button" data-k="luin">' + luin + '</button>' : '') +
       (omk ? '<button type="button" data-k="omappi">' + omk + '</button>' : '') +
-      '<button type="button" data-k="poista" class="vaara">' + (om ? 'Poista ö-mappien mapista ö.' : ark ? 'Poista cellarin campihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
+      '<button type="button" data-k="poista" class="vaara">' + (om ? 'Poista ö-mappien mapista ö.' : ark ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
       if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
       if (k === 'omappi') { kysyOmappi(es, b.getBoundingClientRect()); return true; }
       if (k === 'luokittele') { luokittele(es, b.getBoundingClientRect()); return true; }
@@ -3589,34 +3550,34 @@
       }
     }, 'oikea');
   });
-  // Luin. ja Poimi cellarin campihyllystöstä. kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  // Luin. ja Poimi kellarin kampihyllystöstä. kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
     var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin pinoon?' : 'Nostetaanko ' + n + ' tekstiä takaisin pinoon?')
-      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään cellarin campihyllystöön?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään cellarin campihyllystöön?');
+      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään kellarin kampihyllystöön?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään kellarin kampihyllystöön?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
-      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi cellarin campihyllystöstä.' : 'Luin.') + '</button>' +
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä.' : 'Luin.') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
       es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; } });
-      // Cellarin campihyllystöstä nostettu teksti nousee pinon kärkeen.
+      // Kellarin kampihyllystöstä nostettu teksti nousee pinon kärkeen.
       if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
       if (ark) tusina(es);
       tallennaLista();
       es.forEach(function (e) { delete valitut[e.id]; });
       piirraNimikkeet();
       viesti((ark ? (n === 1 ? 'Teksti palasi pinoon.' : n + ' tekstiä palasi pinoon.')
-        : (n === 1 ? 'Teksti siirtyi cellarin campihyllystöön.' : n + ' tekstiä siirtyi cellarin campihyllystöön.')) + tusinaLisa());
+        : (n === 1 ? 'Teksti siirtyi kellarin kampihyllystöön.' : n + ' tekstiä siirtyi kellarin kampihyllystöön.')) + tusinaLisa());
     }, 'oikea');
   }
 
-  /* Ö-mappien mappi ö (käyttäjän pyyntö 17.11.2026): cellarin campihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
-     sieltä se palaa cellarin campihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
-  var OM_SISAAN = 'Siirrä ö-mappien mappiin ö.', OM_POIS = 'Palauta cellarin campihyllystöön.';
+  /* Ö-mappien mappi ö (käyttäjän pyyntö 17.11.2026): kellarin kampihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
+     sieltä se palaa kellarin kampihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
+  var OM_SISAAN = 'Siirrä ö-mappien mappiin ö.', OM_POIS = 'Palauta kellarin kampihyllystöön.';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
-    var kys = om ? (n === 1 ? 'Palautetaanko teksti cellarin campihyllystöön?' : 'Palautetaanko ' + n + ' tekstiä cellarin campihyllystöön?')
+    var kys = om ? (n === 1 ? 'Palautetaanko teksti kellarin kampihyllystöön?' : 'Palautetaanko ' + n + ' tekstiä kellarin kampihyllystöön?')
       : (n === 1 ? 'Siirretäänkö teksti ö-mappien mappiin ö?' : 'Siirretäänkö ' + n + ' tekstiä ö-mappien mappiin ö?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (om ? OM_POIS : OM_SISAAN) + '</button>' +
@@ -3626,7 +3587,7 @@
       es.forEach(function (e) { if (om) delete e.omappi; else e.omappi = t; delete valitut[e.id]; });
       tallennaLista();
       piirraNimikkeet();
-      viesti(om ? (n === 1 ? 'Teksti palasi cellarin campihyllystöön.' : n + ' tekstiä palasi cellarin campihyllystöön.')
+      viesti(om ? (n === 1 ? 'Teksti palasi kellarin kampihyllystöön.' : n + ' tekstiä palasi kellarin kampihyllystöön.')
         : (n === 1 ? 'Teksti siirtyi ö-mappien mappiin ö.' : n + ' tekstiä siirtyi ö-mappien mappiin ö.'));
     }, 'oikea');
   }
@@ -4347,8 +4308,8 @@
     $('#lista').hidden = true; $('#lukija').hidden = false;
     document.title = e.title + ' – Luin';
     $('#y-nimi').textContent = e.title;
-    // Cellarin campihyllystön tekstistä pinomerkki palaa cellarin campihyllystöön.
-    var tk = $('.takaisin'), tkn = omapissa(e) ? 'Ö-mappien mappiin ö' : kellarissa(e) ? 'Cellarin campihyllystöön' : 'Pinoon';
+    // Kellarin kampihyllystön tekstistä pinomerkki palaa kellarin kampihyllystöön.
+    var tk = $('.takaisin'), tkn = omapissa(e) ? 'Ö-mappien mappiin ö' : kellarissa(e) ? 'Kellarin kampihyllystöön' : 'Pinoon';
     tk.setAttribute('href', omapissa(e) ? '#omappi' : kellarissa(e) ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
