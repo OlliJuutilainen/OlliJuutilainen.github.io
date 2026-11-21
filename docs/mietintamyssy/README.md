@@ -4,20 +4,21 @@ Hyllyyn laitetut konsepti-ideoinnit: pohdintoja mahdollisia myöhempiä toteutuk
 tästä kansiosta ei ole toteutettu eikä päätetty. Kun idea otetaan työn alle, lue sen tiedosto ensin,
 mutta tarkista väitteet uudelleen: tiedot ovat kirjoitushetken tilanne.
 
-## Jatka tästä (käyttäjän kuuden kohdan lista 20.11.2026)
+## Jatka tästä (neljän kohdan lista 21.11.2026)
 
-Käyttäjä pyysi 20.11.2026 viittä mietintämyssyn kärkikohtaa ja kuudenneksi maalauskoneen vakiosivut. Tehty: augustinus.it-sovite,
-GRETIL-sovite ja vakiosivut (opas 3.2 *Vakiosivut*, `vakiosivu-testi.js`). Keskeytetty käyttäjän pyynnöstä; jäljellä järjestyksessä:
+Käyttäjä pyysi 21.11.2026 mietintämyssystä neljän tehtävän rimpsun. Edellinen, kuuden kohdan lista (20.11.2026) on tehty;
+sen avoimet päät ovat tässä mukana. Järjestys on ehdotus:
 
-1. ~~Kellarin sanaston huolto~~ *tehty 21.11.2026* (järjestysrivin *sanasto*, opas 2.5).
-2. ~~Perseus: erilliset tekstit~~ *tehty 21.11.2026* (*kukin omaksi tekstikseen*, opas 7.5). Tarvitsee lisäosan uuden version.
-3. ~~Viiden sivuston yleisen leikkauksen mittaus~~ *tehty 21.11.2026* (The Immanent Frame riittää, kolme kevyttä sovitetta,
-   Hedgehog Review 403; opas 7.5).
+1. **Vakiosivujen reunanumero** ([luin-maalauskone.md](luin-maalauskone.md)): `{4:429}` näkyy nyt tekstin seassa pienenä ja
+   harmaana; painetun laitoksen tapaan marginaaliin. Koskee Korporan, SKS:n ja muiden vakiosivullisten tekstien lukemista.
+2. **augustinus.it: koko teos sisällysluettelosta**: sovite kokoaa nyt vain kehyksessä avatun kirjan (esim. Tunnustusten kirja 1).
+3. **laparola.net/greco** ([luin-sivustoehdokkaat-3.md](luin-sivustoehdokkaat-3.md) kärki 12, kärjen ainoa tekemätön): UT:n
+   kriittinen teksti luvuittain, tekstivariantit siglumeineen; mittaa ensin, mitä yleinen leikkaus antaa.
+4. **Liettuan lähteet loppuun** ([luin-liettuankieliset-lahteet.md](luin-liettuankieliset-lahteet.md)): Vikišaltiniai ja
+   *Filosofija. Sociologija* -selainkoe (tiivistelmäleike OJS-sovitteella, nimiösivusta ei leikettä).
 
-Kaikki kuusi kohtaa on tehty. Lisäosan *kukin omaksi tekstikseen* odottaa uutta lisäosaversiota (`.claude/rules/luin.md`).
+Varalla edellisestä: GRETILin luvuille otsikot (säenumerot 1.1 … 27.30 ovat nyt vain aikajanan kohtia).
 
-Tehdyistä avoimeksi jäi: augustinus.it ei kokoa koko teosta sisällysluettelosta (vain kehyksessä avatun kirjan), GRETILin luvuilla
-ei ole otsikoita (säenumerot 1.1 … 27.30 ovat aikajanan kohtia), ja vakiosivu näkyy tekstin seassa eikä reunanumerona.
 augustinus.it ja kb.dk katkoivat kontin toistuvat haut (curl 35): hae välimuisti hitaasti, jos sarjat `aug` tai `kb` pitää ajaa uudelleen.
 
 | Tiedosto | Aihe | Hyllyyn |

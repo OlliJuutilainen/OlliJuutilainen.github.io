@@ -28,6 +28,9 @@
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
+  Asiakirja (21.11.2026, Snellmanin kootut teokset): etukentän ladonta: asiakirja pitää tekstin alun lyhyet rivit
+  (kirjeen paikka ja päiväys, puhuttelu, sähkeen vastaanottaja, [joulukuussa 1849]) tekstissä; otsikkolohkon tiedot
+  tulevat etukentästä. Ilman sitä ne olivat tietorivejä, ja etukentän tekijä ja päiväys jäivät pois (26/98 asiakirjaa).
   Kohdat yläindekseinä (käyttäjän pyyntö 18.11.2026, Perseuksen kirja ja pykälä): etukentän kohdat: yläindeksit tekee
   leipätekstin yläindeksinumeroista (^1.11^, ^327a^) aikajanan kohtia (res.kohdat), ei otsikoita: teksti ei muutu.
   Kirjaimellisen kohdan numero-osa on osio (Stephanus-sivu 327 kohdista 327a–e; käyttäjän kokeilu 18.11.2026).
@@ -2107,6 +2110,7 @@
     // Lomitettu käännös: lainaus on edellä olevan alkutekstin käännös (ei lähderiviä, ei mottoa).
     var lomitettu = /^lomitettu käännös$/i.test(String(m.ladonta || '').replace(/\s+/g, ' ').trim());
     if (lomitettu) res.lomitettu = true;
+    var asiakirja = /^asiakirja$/i.test(String(m.ladonta || '').trim());
     var ylaKohdat = /^yläindeksit$/i.test(String(m.kohdat || '').trim());
     var vakiosivut = String(m.vakiosivut || '').replace(/\s+/g, ' ').trim();
     if (vakiosivut) { res.vakiosivut = vakiosivut; leipa.vs = true; }
@@ -2143,7 +2147,7 @@
       res.title = plain(tokens[0].text);
       head = '<header class="tt">' + blk('h1', '', tokens[0].text);
       t0 = 1;
-      while (t0 < tokens.length && tokens[t0].t === 'p') {
+      while (!asiakirja && t0 < tokens.length && tokens[t0].t === 'p') {
         var tx = tokens[t0].text.trim();
         curLn = tokens[t0].ln;
         var em = alaotsikkoon(tx);

@@ -249,6 +249,13 @@ sama('lähdeosio', lo.html.slice(lo.html.indexOf('<h4 id="lahde"'), lo.html.inde
   'Osoite:<br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
   'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br>Alkukielinen teksti (pdf):<br>' +
   '<a href="https://snellman.kootutteokset.fi/sites/default/files/01085.pdf">snellman.kootutteokset.fi/sites/default/files/01085.pdf</a></p>');
+// Asiakirja (21.11.2026, Snellmanin kirjeet ja sähkeet): ladonta: asiakirja pitää alun lyhyet rivit tekstissä, ja otsikkolohkon
+// tiedot tulevat etukentästä; ilman sitä rivit ovat tietorivejä.
+const ak = '---\ntekijä: Alexander Armfelt\nlaji: Virkakirje, sähke\njulkaistu: 1863-08-28\nladonta: asiakirja\n---\n\n# T\n\nSenaattori Snellman\n\nHelsinki\n\n' +
+  'Senaatin esitykseen on suostuttu.\n';
+const ak1 = M.parse(ak), ak2 = M.parse(ak.replace('ladonta: asiakirja\n', ''));
+tulos('ladonta: asiakirja: alun rivit tekstiin, tietorivit etukentästä', ak1.lines.join(' / ') === 'Alexander Armfelt / Virkakirje, sähke, 28.8.1863' &&
+  /<p data-b="\d+">Senaattori Snellman<\/p>/.test(ak1.html) && ak2.lines.join(' / ') === 'Senaattori Snellman / Helsinki', ak1.lines.join(' / ') + ' | ' + ak2.lines.join(' / '));
 // Osanvaihdot kohdiksi (käyttäjän pyyntö 21.11.2026): –––, * * *, --- ja ⁂ tekevät otsikottomasta jaksosta kohdat (i), (ii) …
 // vaihdon jälkeiseen lohkoon; numerointi alkaa alusta otsikon jälkeen, lopun merkki ei ole kohta, yläindeksikohdat ohittavat.
 const ov = M.parse('# T\n\nAlku on tässä kappaleessa, joka on niin pitkä, ettei se ole tietorivi otsikkolohkossa vaan leipätekstiä.\n\n' +
