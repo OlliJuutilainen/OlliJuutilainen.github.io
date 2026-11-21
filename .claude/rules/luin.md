@@ -290,7 +290,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   ja pitää kutinsa teemaa vaihdettaessa; se **peittää** TCF:n ja Sysin muistia pyyhkimättä, joten sen sammutus palauttaa edellisen
   (esim. Sysinin). **CLARVSin ollessa päällä mikään alakytkin ei näy** (käyttäjän pyyntö 20.11.2026; paikka varattuna).
 - **CLĀRVS · ET · DISTĪNCTVS** (käyttäjän pyyntö ja nimi 20.11.2026, makronit anakronistisesti saman päivän pyynnöstä; Literatassa
-  ei ole valmiita Ā- ja Ī-merkkejä, joten ne ovat yhdistyvällä makronilla U+0304, `aset.clarus`): korkea kontrasti samana valintana
+  ei ole valmiita Ā- ja Ī-merkkejä, joten ne ovat yhdistyvällä makronilla U+0304, `aset.clarus`; kursiivissa harvennus irrotti makronin kirjaimestaan, joten Ā ja Ī ovat `span.mk`-laatikoissa, joiden harvennus on marginaalina `--ls`): korkea kontrasti samana valintana
   kummassakin teemassa (valkoinen/musta). Välisävyjä enintään kaksi: yksi harmaa ja ruoste (okra = muste, valo = paperi,
   valitsemattomilla ei himmennystä); älä lisää kolmatta. Sulkee Sysin/TCF:n pois. **Teeman ruudukko, kiinteät paikat, ei hyppelyä**
   (`.teema-ruudukko`): Vaalea ja alla TCF, Tumma ja alla Sysi (Tumma TCF:n oikealla), alimmalla rivillä harvennettu CLARVS,
