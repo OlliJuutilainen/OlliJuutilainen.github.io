@@ -231,7 +231,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   muistuteta (käyttäjän vaatimus: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös 17.11.2026): se on aina cellarin
   campihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
   Postihuilu eivät nosta sitä; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
-  *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys).
+  *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto** (21.11.2026,
+  järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa (ei pyydetty).
 - **Rahoitushuomautus** (käyttäjän säännöt 15.11.2026, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
   hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-

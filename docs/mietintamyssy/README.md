@@ -9,10 +9,7 @@ mutta tarkista väitteet uudelleen: tiedot ovat kirjoitushetken tilanne.
 Käyttäjä pyysi 20.11.2026 viittä mietintämyssyn kärkikohtaa ja kuudenneksi maalauskoneen vakiosivut. Tehty: augustinus.it-sovite,
 GRETIL-sovite ja vakiosivut (opas 3.2 *Vakiosivut*, `vakiosivu-testi.js`). Keskeytetty käyttäjän pyynnöstä; jäljellä järjestyksessä:
 
-1. **Kellarin sanaston huolto**: asiasanan nimeäminen uudelleen ja kahden yhdistäminen koko kokoelmassa
-   ([luin-kellarin-jarjestys.md](luin-kellarin-jarjestys.md), *Ehdotetut seuraavat askeleet* 1; opas 2.5 ja 6.3). Nimikkeen
-   kentät `asiasanat` ovat totuus ja etukenttä peili (`.claude/rules/luin.md`, *Luokittelu ja kellarin järjestys*). Testi
-   `luokittelu-testi.js`.
+1. ~~Kellarin sanaston huolto~~ *tehty 21.11.2026* (järjestysrivin *sanasto*, opas 2.5).
 2. **Perseus: erilliset tekstit** ([luin-perseus-valinnat.md](luin-perseus-valinnat.md): laajuus *kaikki kirjat erikseen*):
    `perseus()` ja `psLomitus()` leike.js:ssä, valitsimet `ponnahdus.js`:n `psPiirra()`, testi `perseus-valinnat-testi.js`
    (ilman valintoja leike tavulleen sama).

@@ -615,6 +615,9 @@
   .valikko button.lk-sana { display: inline-flex; align-items: center; gap: 6px; width: auto; min-height: 34px; padding: 3px 7px; }
   .valikko button.lk-sana[hidden] { display: none; }
   .valikko button.lk-sana.ehd span { font-style: italic; }
+  /* Sanaston huolto (21.11.2026): asiasanan perässä sen tekstien määrä kuten välikortissa. */
+  .valikko button.lk-sana .sv-lkm { color: var(--harmaa); font-size: .8em; letter-spacing: .04em; }
+  .valikko.sanasto .lk-selite { margin: 2px 0 6px; }
   .valikko button.vk { display: flex; align-items: center; gap: 10px; }
   .valikko.luokittelu button.vk { padding: 8px 0; margin-top: 4px; }
   .valikko button.vk.erotin { border-top: 1px solid var(--viiva); margin-top: 4px; }
@@ -1535,7 +1538,7 @@
     <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <!-- Cellarin campihyllystön järjestys (käyttäjän pyyntö 17.11.2026): pino on aina tulojärjestyksessä. -->
-  <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button></p>
+  <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button><span id="sanasto-osa" hidden> · <button type="button" id="sanasto" aria-haspopup="true">sanasto</button></span></p>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
     linkistä, joka avaa tekstin lukimessa.</p>
@@ -2766,6 +2769,66 @@
       }, 'vasen');
   });
 
+  /* Sanaston huolto (käyttäjän pyyntö 20.11.2026, mietintämyssyn luin-kellarin-jarjestys.md 6.3): asiasanan nimeäminen
+     uudelleen koko kokoelmassa (pino, cellarin campihyllystö ja ö-mappien mappi ö). Olemassa olevaksi nimetty yhdistyy siihen
+     (filo → filosofia), ja sama teksti saa sanan vain kerran. Vain kirjainkoon muutos (hegel → Hegel) on nimeäminen.
+     Etukenttä kirjoitetaan kuten luokittelussa (lkKirjoita). */
+  function lkNimea(vanha, uusi) {
+    var v = vanha.toLowerCase(), u = uusi.toLowerCase(), es = [];
+    lista.forEach(function (e) {
+      if (!lkOn(e, vanha)) return;
+      var a = [];
+      (e.asiasanat || []).forEach(function (x) {
+        var y = x.toLowerCase() === v ? uusi : x;
+        if (!a.some(function (z) { return z.toLowerCase() === y.toLowerCase(); })) a.push(y);
+      });
+      // Yhdistyvän sanan vanha kirjoitusasu väistyy uuden tieltä myös toisella nimellä (filosofia ja Filosofia → uusi).
+      e.asiasanat = a.map(function (x) { return x.toLowerCase() === u ? uusi : x; });
+      es.push(e);
+    });
+    es.forEach(lkKirjoita);
+    tallennaLista();
+    piirraNimikkeet();
+    return es.length;
+  }
+  function sanasto(rect) {
+    var lista0 = lkSanasto();
+    naytaPop(rect, '<div class="esi">Sanasto</div><div class="lk"><div class="lk-selite">Napauta asiasanaa nimetäksesi sen uudelleen kaikissa ' +
+      'teksteissä. Jo olemassa olevaksi nimetty yhdistyy siihen.</div><div class="lk-sanat">' +
+      lista0.map(function (x) { return '<button type="button" class="lk-sana sv" data-k="sv" data-s="' + esc(x.s) + '"><span>' + esc(x.s) + '</span><span class="sv-lkm">' + x.n + '</span></button>'; }).join('') +
+      '</div></div>', 'kysely luokittelu sanasto', function (k, b) { if (k === 'sv') { sanastoNimea(rect, b.dataset.s); return true; } }, 'vasen');
+  }
+  function sanastoNimea(rect, s) {
+    var n = lkSanasto().filter(function (x) { return x.s === s; })[0], m = n ? n.n : 0;
+    naytaPop(rect, '<div class="esi">Asiasana ' + esc(s) + ' · ' + m + (m === 1 ? ' teksti' : ' tekstiä') + '</div>' +
+      '<div class="lk"><div class="kentta"><input type="text" class="lk-uusi sv-nimi" spellcheck="false" autocomplete="off" value="' + esc(s) + '" aria-label="Uusi nimi"></div>' +
+      '<div class="tila" hidden></div></div>' +
+      '<div class="napit"><button type="button" data-k="ok">Nimeä.</button><button type="button" data-k="ei" class="ei">älä!</button></div>',
+      'kysely luokittelu sanasto', function (k) {
+        if (k === 'ei') { sanasto(rect); return true; }
+        if (k !== 'ok') return true;
+        var uusi = LuinMD.asiasanat(kentta.value)[0] || '';
+        if (!uusi || uusi === s) { kentta.focus(); return true; }
+        var kohde = lkSanasto().filter(function (x) { return x.s !== s && x.s.toLowerCase() === uusi.toLowerCase(); })[0];
+        if (kohde) uusi = kohde.s;
+        var tehty = lkNimea(s, uusi);
+        viesti((kohde ? 'Asiasana ' + s + ' yhdistettiin asiasanaan ' + uusi : 'Asiasana ' + s + ' on nyt ' + uusi) + ': ' + tehty + (tehty === 1 ? ' teksti.' : ' tekstiä.'));
+      }, 'vasen');
+    var kentta = $('input.sv-nimi', pop), tilaEl = $('.tila', pop), ok = $('button[data-k="ok"]', pop);
+    function paivita() {
+      var u = (LuinMD.asiasanat(kentta.value)[0] || '').toLowerCase();
+      var kohde = lkSanasto().filter(function (x) { return x.s !== s && x.s.toLowerCase() === u; })[0];
+      ok.textContent = kohde ? 'Yhdistä.' : 'Nimeä.';
+      tilaEl.textContent = kohde ? 'Yhdistyy asiasanaan ' + kohde.s + ' (' + kohde.n + (kohde.n === 1 ? ' teksti' : ' tekstiä') + ').' : '';
+      tilaEl.hidden = !kohde;
+      sijoitaPop();
+    }
+    kentta.addEventListener('input', paivita);
+    kentta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ok.click(); } });
+    kentta.focus(); kentta.select();
+  }
+  $('#sanasto').addEventListener('click', function () { sanasto(this.getBoundingClientRect()); });
+
   /* ---------- pinonäkymä (ent. hylly ja lukulista) ----------
      Cellarin campihyllystö (ent. uumen, pölyhylly ja arkistohylly; käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026, #arkisto): luetuiksi merkityt tekstit (e.luettu = merkintäaika) ovat samassa
      listassa kuin muut, joten mitään ei siirretä eikä kopioida; näkymä vain suodattaa. Cellarin campihyllystössä ei ole Postihuilua, ohjeita
@@ -2865,6 +2928,7 @@
     // Järjestyksen valinta vain cellarin campihyllystössä ja vain, kun järjestettävää on.
     $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
+    $('#sanasto-osa').hidden = !lista.some(function (e) { return e.asiasanat && e.asiasanat.length; });
     paivitaValinta();
   }
   function valitutEt() { return naytettavat(tila.arkisto).filter(function (e) { return valitut[e.id]; }); }
