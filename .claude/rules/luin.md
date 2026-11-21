@@ -49,7 +49,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*, käyttäjän päätös 16.11.2026; 15.11. *Luin*) ja sen ensimmäinen
   nappi *Poimi lukimeen* (käyttäjän päätös 16.11.2026; 15.11. *Vie lukimeen*, ennen kumpikin *Lisää lukimeen*). Lisäosassa ne ovat 0.10.0:sta (käyttäjän
   pyyntö 16.11.2026, samalla pienet alkukirjaimet ja i-napin hakasulkeet). Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: *kellarin kampihyllystö* (21.11.2026; lisäosassa vielä *cellarin campihyllystö*). Edellinen 0.14.0 (21.11.2026: Perseuksen *kukin omaksi tekstikseen*, Snellmanin kunniallisuuskierros, rivinvaihto kenoviivana). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Edellinen 0.14.1 (21.11.2026: Snellmanin tarkistuspesu koko korpuksella, *kellarin kampihyllystö*). Lisäosan versionumero ei yksin kerro koodia: sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva (18.11.2026 käyttäjän 0.11.0 oli ennen Perseus-sovitetta). Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (käyttäjän pyyntö 10.11.2026, opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
   koska moottoria ei saanut muuttaa: Logoksen viittaukset ovat alaviitteitä, joiden tekijä–vuosi md.js linkittää kirjallisuus-
@@ -96,7 +96,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Rivinvaihto lisäosan leikkeessä on kenoviiva (Turndown `br: '\\'`), ei kaksi välilyöntiä; md.js:n `p.rivit` (kenoviivarivit tai
   lyhyt yksirivinen) on sisentämätön kummallakin kappalejaolla (käyttäjän linjaus 21.11.2026: sisennys vain leipätekstiin, opas 3.2).
   `ladonta: asiakirja` (Snellman-sovite 21.11.2026, opas 7.5): md.js ottaa otsikkolohkon vain etukentästä, ja tekstin alun lyhyet rivit
-  (kirjeen paikka ja päiväys, puhuttelu) jäävät tekstiin. Latomo säilyttää avaimen tuntemattomana kuten lomitetun käännöksen.
+  (kirjeen paikka ja päiväys, puhuttelu) jäävät tekstiin. Latomo säilyttää avaimen tuntemattomana kuten lomitetun käännöksen. Latomo päättelee
+  etukentän poikkeamat samalla ladonnalla (`valmis()`, 21.11.2026): ilman sitä kirjeen päiväysrivi pudotti `julkaistu`n 1 210 asiakirjalta.
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (16.11.2026, opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
@@ -141,7 +142,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   käyttäjän pyyntö 13.11.2026, lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet, selite ja kirjainotsikot alkavat samasta x:stä; käyttäjän pyynnöt 15. ja 16.11.2026) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
-  Ensyklopedia Logos. Älä lisää sitä kysymättä.
+  Ensyklopedia Logos ja Snellmanin kootut teokset (käyttäjän päätös 21.11.2026 koko korpuksen pesun jälkeen; `snellman-pesukone.js`). Älä lisää sitä kysymättä.
   **Mutrudollari** (käyttäjän kokeilu 17.11.2026; makaava S ja kaksi vaakaviivaa, samalla mutrusuu) samassa sarakkeessa: sivusto,
   jolle voi lahjoittaa mutta joka elää käytännössä mainoksista (`rahoitus: mainokset ja lahjoitukset`). Toistaiseksi vain selitteessä;
   älä merkitse sillä sivustoja kysymättä.
@@ -307,7 +308,9 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   selaimessa ei tiedetä, onko laitteessa painikkeita; Android-sovelluksessa myös laitteen painikkeet kelpaavat. Lista on tiiviimpi
   (25 px, .76rem) kuin muut nipukat, jottei neljä riviä veny.
 - **Kohdat osanvaihdoista** (käyttäjän pyyntö 21.11.2026, opas 3.2, md.js `RE_VALI`): otsikottoman jakson `–––`/`* * *`/`---`/⁂
-  tekevät kohdat (i), (ii) … (`res.kohdat`, `vali`), eivät otsikoita eivätkä Sisälmystä. Kohta on vaihdon jälkeinen lohko, ei merkki.
+  tekevät kohdat (i), (ii) … (`res.kohdat`, `vali`), eivät otsikoita. Kohta on vaihdon jälkeinen lohko, ei merkki. Sisälmyksessä
+  ne ovat alkusanoineen (käyttäjän toive 21.11.2026, `sisalmysKohdat()`, `alkusanat()`; testi `sisalmys-vali-testi.js`): tekstin oma
+  sisällysluettelo ja `toc` eivät muutu.
 - **Kohdat yläindekseistä** (käyttäjän pyyntö 18.11.2026, opas 3.2): etukentän `kohdat: yläindeksit` (Perseus-sovite) tekee
   yläindeksinumeroista aikajanan kohtia ja vedon pysäkkejä (`res.kohdat`, `nyt.kohdat`), **ei otsikoita eikä `toc`-rivejä**:
   `toc`in varassa ovat Sisälmys, merkintöjen osiot ja paikannin. Perseuksessa book on luku ja section kohta; kirjaimellisen
@@ -653,6 +656,10 @@ Aja repon juuressa:
   artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden ja rikkinäisten lähdelinkkien pitää olla 0.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/snellman-pesukone.js [--vali kansio]`: Snellmanin koko korpus (2 949 asiakirjaa)
+  lisäosan, Latomon ja md.js:n läpi, teksti sanoittain lähteeseen; kun muutat Snellman-sovitetta tai `ladonta: asiakirja`a,
+  kadonneiden sanojen, viitesanojen, varoitusten ja jäänteiden pitää olla 0 (supersalmiakin ehto). Välimuistin täyttö kestää noin tunnin.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sisalmys-vali-testi.js [kuvakansio]`: osanvaihtojen kohdat Sisälmyksessä.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laatikkolause-testi.js [kuvakansio]`: laatikkolauseen arpoja ja Latomon Arvo.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/huiluta-testi.js [kuvakansio]`: pinon tekstin huilutus kahdella laitteella (myös `#u=`-tekstit).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.

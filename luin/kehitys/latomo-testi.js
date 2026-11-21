@@ -401,6 +401,16 @@ palvelin.listen(0, async () => {
   await tiedostona('muu2.md', '---\nlähde: https://e.org/toinen/notes.html\n---\n\n# Muu\n\nTeksti.\n');
   tulos('eri sivuston notes.html korvaa tekstin', (await p.inputValue('#md')).startsWith('---\nlähde: https://e.org/toinen/notes.html'));
 
+  // 17. Asiakirjan julkaisuaika (21.11.2026, Snellmanin koko korpus): ladonta: asiakirja ottaa otsikkolohkon vain etukentästä,
+  // joten kirjeen alun päiväysrivi ei saa pudottaa julkaistu-avainta (ennen pois 1 210 asiakirjalta 2 949:stä).
+  await syota('---\ntekijä: J. V. Snellman\nlaji: Virkakirje\njulkaistu: 1868-10-23\nladonta: asiakirja\nlähde: https://snellman.kootutteokset.fi/fi/dokumentit/x\nleikattu: 2026-11-21\n---\n# Adolf Edvard Arppelle\n\n' +
+    'Helsingissä 23.10.1868\n\nJalosukuinen Herra Valtioneuvos\n\nKunnianarvoisassa virkakirjeessään tämän kuun 21. päivältä Teidän Korkea-arvoisuutenne on ilmoittanut minulle asian.\n');
+  const ak = await T(), akDoc = await p.evaluate(m => LuinMD.parse(m), ak.md);
+  tulos('asiakirja: julkaistu säilyy etukentässä ja tietorivillä', /\njulkaistu: 1868-10-23\n/.test(ak.md) && akDoc.year === '1868' && /23\.10\.1868/.test(akDoc.lines.join(' ')), ak.md.slice(0, 260) + ' | ' + JSON.stringify(akDoc.lines));
+  await syota('---\ntekijä: J. V. Snellman\njulkaistu: 1868-10-23\nlähde: https://e.org/x\n---\n# Kirje\n\nHelsingissä 23.10.1868\n\nJalosukuinen Herra.\n\nAsia on tämä ja se on pitkä virke, jossa on paljon sanoja kerrottavana lukijalle.\n');
+  const ak2 = await T();
+  tulos('ilman ladontaa ennallaan (tekstistä päätelty voi korvata kentän)', !/ladonta/.test(ak2.md), ak2.md.slice(0, 200));
+
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');

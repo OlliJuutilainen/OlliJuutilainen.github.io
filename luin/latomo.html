@@ -737,11 +737,17 @@
   }
   function valmis() {
     var ek = L.etukentta(lahde()), body = ek.body.replace(/^\n+/, ''), lisatty = '';
-    var d0 = L.parse(body), ots = arvo('otsikko'), ala = arvo('alaotsikko');
+    /* Tekstistä päätelty samalla ladonnalla kuin lopullinen teksti (21.11.2026, Snellmanin koko korpuksen pesu): asiakirjan
+       otsikkolohko tulee md.js:ssä vain etukentästä, mutta ilman ladontaa kirjeen alun päiväysrivi (Helsingissä 23.10.1868)
+       luettiin päätellyksi julkaisuajaksi, ja julkaistu jäi pois etukentästä 1 210 asiakirjalta 2 949:stä: vuosi puuttui
+       tietoriviltä ja lähdeviitteestä. */
+    var ladK = Object.keys(ek.raaka).filter(function (k) { return L.avain(k) === 'ladonta' && ek.raaka[k] !== ''; })[0];
+    var lad = ladK ? '---\n' + ladK + ': ' + ek.raaka[ladK] + '\n---\n\n' : '';
+    var d0 = L.parse(lad + body), ots = arvo('otsikko'), ala = arvo('alaotsikko');
     if (!d0.paatelty.otsikko && ots) {
       lisatty = '# ' + ots + '\n\n' + (ala ? '*' + ala + '*\n\n' : '');
       body = lisatty + body;
-      d0 = L.parse(body);
+      d0 = L.parse(lad + body);
     }
     var pt = d0.paatelty, m = {}, tunnetut = { viite: 1, osoite: 1, vuosi: 1, tyyppi: 1 };
     if (tila.tyyppi) m.tyyppi = tila.tyyppi;

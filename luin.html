@@ -675,6 +675,9 @@
   #sisalmys button.s-kohta:hover .s-nimi { text-decoration: underline; text-underline-offset: 3px; }
   #sisalmys button.s-kohta[aria-current] { border-left: 2px solid var(--ruoste); padding-left: 12px; }
   #sisalmys button.s-kohta.t2[aria-current] { padding-left: 32px; }
+  /* Osanvaihdon kohta (i), (ii) … alkusanoineen (sisalmysKohdat()); kolmas taso vain niille. */
+  #sisalmys button.s-kohta.t3 { padding-left: 54px; font-size: .84rem; }
+  #sisalmys button.s-kohta.t3[aria-current] { padding-left: 52px; }
   .s-sivu { margin-left: auto; font-size: .74rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
 
   /* ---------- lukija ---------- */
@@ -4391,7 +4394,6 @@
     if (luonnos) luonnos.segs = [];
     if (kahvaH) piilotaKahvat();
     art.innerHTML = html;
-    $('#sis-avaa').hidden = !sisalmysKohdat().length;
     // Sivutuksessa pääluku alkaa uudelta sivulta, joten sitä edeltävä --- jäisi yksin sivulle.
     $$('hr', art).forEach(function (h) { var n = h.nextElementSibling; if (n && n.tagName === 'H2') h.className = 'ennen-lukua'; });
     merkitseAlkuteksti();
@@ -4416,7 +4418,7 @@
       var el = nyt.blocks[y.b];
       if (!el) return;
       // Osanvaihdon kohta (md.js RE_VALI, 21.11.2026): jakson alku tai osanvaihtomerkki, nimi (i), (ii) …
-      if (y.vali) { nyt.kohdat.push({ k: { b: y.b, o: 0 }, nimi: y.s, lvl: 3 }); return; }
+      if (y.vali) { nyt.kohdat.push({ k: { b: y.b, o: 0 }, nimi: y.s, lvl: 3, vali: true }); return; }
       var sup = $$('sup', el).filter(function (x) { return !x.querySelector('a') && x.textContent.trim() === y.s && ykKaytetyt.indexOf(x) < 0; })[0];
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
@@ -4427,6 +4429,8 @@
       if (y.osio) nyt.kohdat.push({ k: kk, nimi: y.osio, lvl: 2 });
       nyt.kohdat.push({ k: kk, nimi: y.s, lvl: 3 });
     });
+    // Sisälmyksen nappi vasta kohtien jälkeen: osanvaihtojen kohdat ovat Sisälmyksessä (sisalmysKohdat()).
+    $('#sis-avaa').hidden = !sisalmysKohdat().length;
     // Vakiosivut (md.js span.vsivu; etukentän vakiosivut): paikantimen sivunumerot. Kun etukentässä on vakiosivut ja kohdat
     // ovat yläindeksejä (Korpora: 4:393), kohdat ovat itse vakiosivuja.
     nyt.vsivut = [];
@@ -8100,14 +8104,38 @@
      tekstin napautus sulkee vain laatikon, navi jää auki (sivuEl:n verho). Kohdan valinta on hyppy kuten haussa:
      lähtökohtaan jää majakka, navi jää auki. */
   function sisalmysAuki() { return !sisEl.hidden; }
-  function sisalmysKohdat() { return nyt ? nyt.doc.toc.filter(function (t) { return t.lvl <= tocRaja(2, nyt.doc.toc); }) : []; }
+  /* Osanvaihtojen kohdat (i), (ii) … (md.js RE_VALI; käyttäjän toive 21.11.2026: otsikottomat lohkot navigaattoriin mahdollisimman
+     vähän epäluontevasti) ovat Sisälmyksessä alkusanoineen kuten vanhojen kirjojen incipit-luetteloissa: numero ja kursiivilla
+     lohkon ensimmäiset sanat (`alkusanat()`), taso yhtä alempana kuin edeltävä näkyvä otsikko. Tekstin oma sisällysluettelo ei muutu. */
+  function alkusanat(t) {
+    var s = String(t || '').replace(/\s+/g, ' ').trim(), w = s.split(' '), o = '';
+    for (var i = 0; i < w.length && (!o || (o + ' ' + w[i]).length <= 34); i++) o += (o ? ' ' : '') + w[i];
+    // Lyhyt kokonainen virke (vähintään kolme sanaa) riittää ilman katkoa: Toinen jakso alkaa näin.
+    var v = /^((?:\S+\s+){2,}\S*\p{Ll}[.!?])(\s|$)/u.exec(o);
+    if (v) return v[1];
+    return o.length < s.length ? o.replace(/[\s,;:.–—-]+$/, '') + '…' : o;
+  }
+  function sisalmysKohdat() {
+    if (!nyt) return [];
+    var siirto = tasoSiirto(nyt.doc.toc), raja = tocRaja(2, nyt.doc.toc);
+    var T = nyt.doc.toc.filter(function (t) { return t.lvl <= raja; }).map(function (t) { return { b: t.b, text: t.text, taso: t.lvl - siirto }; });
+    var V = (nyt.kohdat || []).filter(function (y) { return y.vali; });
+    if (!V.length) return T;
+    var kaikki = T.slice();
+    V.forEach(function (y) {
+      var ylempi = null;
+      T.forEach(function (t) { if (t.b <= y.k.b) ylempi = t; });
+      kaikki.push({ b: y.k.b, text: y.nimi, alku: alkusanat(nyt.txt[y.k.b]), taso: ylempi ? Math.min(3, ylempi.taso + 1) : 1 });
+    });
+    return kaikki.sort(function (a, b) { return a.b - b.b; });
+  }
   function taytaSisalmys() {
     var T = sisalmysKohdat(), sivut = aset.sivutus === 'sivut', k = tila.ankkuri || { b: 0, o: 0 }, nyky = -1;
     if (!T.length) return false;
     T.forEach(function (t, i) { if (t.b <= k.b) nyky = i; });
     $('.s-lista', sisEl).innerHTML = T.map(function (t, i) {
-      return '<button type="button" class="s-kohta t' + (t.lvl - tasoSiirto(nyt.doc.toc)) + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
-        '<span class="s-nimi">' + esc(t.text) + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
+      return '<button type="button" class="s-kohta t' + t.taso + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
+        '<span class="s-nimi">' + esc(t.text) + (t.alku ? ' <i class="s-alku">' + esc(t.alku) + '</i>' : '') + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
     }).join('');
     return true;
   }

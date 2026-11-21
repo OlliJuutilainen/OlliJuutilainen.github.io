@@ -115,7 +115,7 @@ function psPiirra() {
   if (leike.ps.kielet === 'molemmat') keinot.push('yksi kieli');
   if (leike.ps.valitut.length !== 1 && ps.kirjat.length > 1 && !leike.sarja) keinot.push('kirja kerrallaan tai kukin omaksi tekstikseen');
   $('ps-huomio').textContent = !psKesken && leike.sarja && leike.sarja.length > 12
-    ? 'Pinoon mahtuu tusina tekstiä: pinoon jäävät 12 ensimmäistä kirjaa, ja muut sekä pinon aiemmat tekstit laskeutuvat cellarin campihyllystöön.'
+    ? 'Pinoon mahtuu tusina tekstiä: pinoon jäävät 12 ensimmäistä kirjaa, ja muut sekä pinon aiemmat tekstit laskeutuvat kellarin kampihyllystöön.'
     : !psKesken && leike.kokoSanoja > PS_ISO && keinot.length
     ? 'Iso paketti. Jos lukeminen tökkii, kokeile pienempää: ' + keinot.join(' tai ') + '.' : '';
 }
