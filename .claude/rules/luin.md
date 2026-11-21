@@ -113,7 +113,7 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   Springer Nature-, PLOS- ja Frontiers-sovitteet (21.11.2026, opas 7.5) käyttävät PMC:n `pmcNumeroviitteet()`ia asetuksin: kun muutat
-  sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja slt`. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
+  sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (Clauden ratkaisu 21.11.2026, käyttäjä ei ole ottanut kantaa).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti

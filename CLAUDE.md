@@ -167,9 +167,11 @@ Luinin sivuilla ©-merkki on SVG (ks. `.claude/rules/luin.md`). Muiden ohjelmien
 myöhempiä toteutuksia varten, ei toteutettuja eikä päätettyjä. Lisää uusi idea omana tiedostonaan ja riville
 kansion `README.md`:hen. Älä toteuta niistä mitään pyytämättä.
 
-**Repo on julkinen: ei henkilökuvia** (käyttäjän vaatimus 21.11.2026). Myssyyn, oppaisiin, koodin kommentteihin, commit-viesteihin
-ja PR:iin ei kirjata kysyjän eikä kolmannen osapuolen henkilökuvaa (organisaatio, titteli, tausta, henkilöön kytketyt
-tutkimusaiheet), vaan pelkkä aihealue: *sosiaalilääketieteen lähteet*, ei *yliopiston X post doc -tutkija*.
+**Kuvitellut profiilit ovat vain alkusysäyksiä; repo on julkinen** (käyttäjän linjaus 21.11.2026). Kun käyttäjä kysyy, mitä
+joku (titteli, työpaikka, aiheet) saisi ohjelmasta, profiili ei tallennu minnekään: ei myssyyn, oppaisiin, koodin kommentteihin,
+commit-viesteihin, PR:iin eikä käyttäjälle näkyvään tekstiin, eikä se ohjaa ohjelman logiikkaa. Ei myöskään profiilin
+aihepalettia. Jäljelle jää se, mihin työ johti (alustat, sovitteet, mittaukset), ja ideat menevät myssyn yleisiin tiedostoihin,
+ei profiilin omaan tiedostoon.
 
 `arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
 `tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
