@@ -1258,7 +1258,7 @@
   /* TCF-vihje (käyttäjän pyynnöt 17. ja 20.11.2026): vain hiirellä. Pitkä viipymä TCF-valkaisun päällä avaa, ja hiiren siirto
      pois kytkimeltä sulkee heti. Kosketusnäytöllä ei vihjettä lainkaan (käyttäjä 20.11.2026: liikaa häiriötä). */
   .asetus[data-a="teema"] { position: relative; }
-  /* CLARVS-vihje samoin (käyttäjän pyyntö 20.11.2026), kummassakin teemassa. */
+  /* CLARVS-vihje samoin (käyttäjän pyyntö 20.11.2026), kummassakin teemassa; teksti kursiivilla (käyttäjän pyyntö 21.11.2026). */
   #tcf-vihje, #cd-vihje { position: absolute; z-index: 6; width: max-content; max-width: min(19rem, calc(100% - 8px)); padding: 6px 10px 7px;
     font-size: .8rem; line-height: 1.45; color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); cursor: pointer; }
   #tcf-vihje p, #cd-vihje p { margin: 0; }
@@ -1635,7 +1635,7 @@
   <div class="asetus" data-a="teema"><span class="nimi">Teema</span><div class="teema-ruudukko"><div class="valinnat" data-v="vaalea:Vaalea|tumma:Tumma"></div>
     <div class="valinnat nipukka" id="teema-nipukka" data-k="kontrasti@vaalea:TCF-valkaisu|sysi@tumma:Sysi|sysin@tumma:Sysin|clarus:CLĀRVS · ET · DISTĪNCTVS"></div></div>
     <div id="tcf-vihje" role="tooltip" hidden><p><b>TCF</b>: <i>total chlorine free bleaching</i> eli TÄYSIN klooriton taustapaperin valkaisu</p></div>
-    <div id="cd-vihje" role="tooltip" hidden><p>kirkkaasti erottuva</p></div></div>
+    <div id="cd-vihje" role="tooltip" hidden><p><i>kirkkaasti erottuva</i></p></div></div>
   <!-- Sivunkäännön tavat (käyttäjän pyyntö 26.10.2026; sivunvaihtopainikkeet 22.10.2026): reunan napautus, pyyhkäisy
        ja painikkeet ovat Sukkelan alleviivauksen tapaan lisäkytkimiä, jotka kuuluvat Sivut-vaihtoehtoon: ne on
        sisennetty Sivut-sanan alle (sijoitaNipukka) ja pois käytöstä vierityksessä. Mikä tahansa yhdistelmä käy, mutta
