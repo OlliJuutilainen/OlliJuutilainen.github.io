@@ -812,6 +812,12 @@
      tekstin seassa pienenä ja harmaana kuten kohtanumero, edessä hiusviiva (ei tekstisolmu: paikannin ja merkinnät eivät näe sitä). */
   #teksti .vsivu { font-size: .62em; color: var(--harmaa); vertical-align: .45em; line-height: 0; white-space: nowrap; }
   #teksti .vsivu::before { content: '|'; margin-right: .12em; font-weight: 300; }
+  /* Reunanumero (mietintämyssyn luin-maalauskone, käyttäjän pyyntö 21.11.2026): numero vasempaan marginaaliin sen rivin
+     korkeudelle, jolla sivu alkaa, kuten painetussa laitoksessa; tekstiin jää hiusviiva. Kelluke, jonka reunuslaatikko on
+     negatiivisen levyinen, joten rivit eivät lyhene (kuten reunushuomiot oikealla). Kaksi samalla rivillä: jälkimmäinen alle.
+     Vain kun numero mahtuu marginaaliin (vsReuna(), #teksti.vs-reuna); muuten se on tekstissä hiusviivan perässä. */
+  #teksti.vs-reuna .vs-nro { float: left; clear: left; width: 5.5em; margin: 0 0 0 -7em; text-align: right; line-height: var(--vs-rivi, 2.6);
+    vertical-align: baseline; font-variant-numeric: lining-nums tabular-nums; }
   /* Kielet (käyttäjän pyyntö 19.11.2026, aset.lomitus): vain alkuteksti piilottaa käännökset; vain käännös piilottaa alkutekstin
      mutta jättää sen kohtanumerot (327a) omalle rivilleen, jotta aikajanan kohdat, kirjanmerkit ja paikannin pysyvät, ja
      käännös ladotaan leipätekstinä. Piilotettu teksti on DOMissa, joten kohtien laskenta (lohkoteksti) ei muutu tilan mukana. */
@@ -1776,7 +1782,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=e46fccef"></script>
+<script src="luin/md.js?v=c95ffaa4"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>
@@ -4728,6 +4734,14 @@
     return null;
   }
 
+  /* Reunanumero (md.js span.vs-nro, käyttäjän pyyntö 21.11.2026): vakiosivun numero vasempaan marginaaliin vain, jos se mahtuu
+     (tila: palstan vasen marginaali px; sivutettuna puolet palstojen välistä, joten numero ei näy myöskään edellisen sivun
+     oikeassa reunassa). Puhelimen 16–32 px:n marginaaliin se ei mahdu (mitattu 412 px: numero leikkautui), joten siellä numero
+     on tekstissä hiusviivan perässä kuten ennen. Luokka asetetaan ennen sivutusta ja tavutusta, koska se muuttaa rivitystä. */
+  var VS_TILA = 3.4;
+  function vsReuna(tila) {
+    art.classList.toggle('vs-reuna', !!(nyt && nyt.doc.vakiosivut) && tila >= VS_TILA * aset.koko);
+  }
   function asettele(k) {
     tila.asetteluja++;
     var asT0 = performance.now();
@@ -4763,6 +4777,7 @@
       art.style.transform = 'none';
       var W = vw < 480 ? vw - 2 * mr : Math.min(vw - 2 * mr, Math.round(mi * koko));
       var G = vw - W;
+      vsReuna(Math.floor(G / 2));
       tila.W = W; tila.stride = W + G;
       art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
       art.style.columnWidth = W + 'px'; art.style.columnGap = G + 'px';
@@ -4776,6 +4791,7 @@
     } else {
       art.style.cssText = '';
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
+      vsReuna(art.getBoundingClientRect().left - sivuEl.getBoundingClientRect().left);
       tavutaPitkat();
       liehutaLyhyet();
     }

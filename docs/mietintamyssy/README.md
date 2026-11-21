@@ -9,8 +9,8 @@ mutta tarkista väitteet uudelleen: tiedot ovat kirjoitushetken tilanne.
 Käyttäjä pyysi 21.11.2026 mietintämyssystä neljän tehtävän rimpsun. Edellinen, kuuden kohdan lista (20.11.2026) on tehty;
 sen avoimet päät ovat tässä mukana. Järjestys on ehdotus:
 
-1. **Vakiosivujen reunanumero** ([luin-maalauskone.md](luin-maalauskone.md)): `{4:429}` näkyy nyt tekstin seassa pienenä ja
-   harmaana; painetun laitoksen tapaan marginaaliin. Koskee Korporan, SKS:n ja muiden vakiosivullisten tekstien lukemista.
+1. ~~Vakiosivujen reunanumero~~ *tehty 21.11.2026* ([luin-maalauskone.md](luin-maalauskone.md), opas 3.2): numero vasemmassa
+   marginaalissa, kun se mahtuu; puhelimella tekstissä kuten ennen. Koskee `{…}`-merkkejä, ei Korporan ja SKS:n yläindeksejä.
 2. **augustinus.it: koko teos sisällysluettelosta**: sovite kokoaa nyt vain kehyksessä avatun kirjan (esim. Tunnustusten kirja 1).
 3. **laparola.net/greco** ([luin-sivustoehdokkaat-3.md](luin-sivustoehdokkaat-3.md) kärki 12, kärjen ainoa tekemätön): UT:n
    kriittinen teksti luvuittain, tekstivariantit siglumeineen; mittaa ensin, mitä yleinen leikkaus antaa.

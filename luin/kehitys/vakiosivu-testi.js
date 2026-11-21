@@ -54,6 +54,23 @@ const tulos = (nimi, ok, tieto) => { if (!ok) virheita++; console.log((ok ? 'OK 
   tulos('merkit pieninä', merkit.every(m => Math.abs(m.koko - .62) < .02), merkit.map(m => m.koko.toFixed(2)).join());
   const harmaa = await sivu.evaluate(() => { const d = document.createElement('span'); d.style.color = 'var(--harmaa)'; document.getElementById('teksti').appendChild(d); const v = getComputedStyle(d).color; d.remove(); return v; });
   tulos('merkit harmaina', merkit.every(m => m.vari === harmaa), merkit[0].vari + ' / ' + harmaa);
+  // Reunanumero (21.11.2026): leveällä ruudulla numero on vasemmassa marginaalissa sen rivin korkeudella, jolla hiusviiva on;
+  // puhelimen leveydellä (412 px) se on tekstissä eikä leikkaudu ruudun reunaan.
+  const reuna = () => sivu.evaluate(() => ({ luokka: document.getElementById('teksti').classList.contains('vs-reuna'),
+    n: [...document.querySelectorAll('#teksti .vs-nro')].map(n => {
+      const r = n.getBoundingClientRect(), v = n.parentElement.getBoundingClientRect(), rr = document.createRange();
+      rr.selectNodeContents(n); const t = rr.getBoundingClientRect();
+      const p = n.closest('p').getBoundingClientRect();
+      return { vasen: Math.round(t.left), oikea: Math.round(t.right), palsta: Math.round(p.left), dy: Math.round((r.top + r.bottom) / 2 - (v.top + v.bottom) / 2) };
+    }) }));
+  const leve = await reuna();
+  tulos('reunanumero marginaalissa (1000 px)', leve.luokka && leve.n.every(x => x.oikea <= x.palsta - 8 && x.vasen >= 0 && Math.abs(x.dy) <= 6), JSON.stringify(leve));
+  await sivu.setViewportSize({ width: 412, height: 824 });
+  await sivu.waitForTimeout(600);
+  const kapea = await reuna();
+  tulos('kapealla numero tekstissä (412 px)', !kapea.luokka && kapea.n.every(x => x.vasen >= x.palsta - 1), JSON.stringify(kapea));
+  await sivu.setViewportSize({ width: 1000, height: 800 });
+  await sivu.waitForTimeout(600);
   tulos('aaltosulkeet eivät jää tekstiin', !(await sivu.evaluate(() => /[{}]/.test(document.getElementById('teksti').textContent))));
   const b1 = await lohko('4:393'), b2 = await lohko('Verstand'), b3 = await lohko('Der gute');
   tulos('ensimmäinen kappale: AA 4:393', (await paikka(b1, 10, 30)) === 'AA 4:393', await paikka(b1, 10, 30));
