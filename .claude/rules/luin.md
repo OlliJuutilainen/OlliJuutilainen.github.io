@@ -93,6 +93,8 @@ lisäosan tietosuojasivu jää muodolliseksi (käyttäjän linjaukset 20.11.2026
   Ilman valintoja leike on tavulleen sama kuin ennen; testi `perseus-valinnat-testi.js` (vertaa pesukoneen leikkeisiin).
   *Kukin omaksi tekstikseen* (21.11.2026, opas 7.5): leikkeen `sarja` → `odottaa.sarja` → Latomon piilokenttä `#sarja` (JSON,
   uusi lisäosarajapinta) → siirron `sarja` → lukimen `tuo()`. Muuta ketju yhdessä.
+  Rivinvaihto lisäosan leikkeessä on kenoviiva (Turndown `br: '\\'`), ei kaksi välilyöntiä; md.js:n `p.rivit` (kenoviivarivit tai
+  lyhyt yksirivinen) on sisentämätön kummallakin kappalejaolla (käyttäjän linjaus 21.11.2026: sisennys vain leipätekstiin, opas 3.2).
   `ladonta: asiakirja` (Snellman-sovite 21.11.2026, opas 7.5): md.js ottaa otsikkolohkon vain etukentästä, ja tekstin alun lyhyet rivit
   (kirjeen paikka ja päiväys, puhuttelu) jäävät tekstiin. Latomo säilyttää avaimen tuntemattomana kuten lomitetun käännöksen.
   Kreikan sivulta lomitettu käännös (`psLomitus()`, käyttäjän pyyntö 16.11.2026): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä

@@ -802,6 +802,12 @@
      painetussa; sen jälkeinen kappale ilman sisennystä kuten jakson ensimmäinen. */
   #teksti p.vali, #teksti.sisennys p.vali, #teksti.sisennys p + p.vali { text-align: center; text-indent: 0; margin: .9em 0; break-after: avoid; }
   #teksti.sisennys p.vali + p { text-indent: 0; }
+  /* Rivitetty kappale (md.js p.rivit: kenoviivarivinvaihdot tai lyhyt yksirivinen; käyttäjän linjaus 21.11.2026: sisennys sopii
+     vain leipätekstiin): sisennysasetuksella ei sisennystä, vaan väli ympärille, ja seuraava kappale alkaa tasalaidasta kuten
+     otsikon jälkeen. Väliasetuksella se on kuin muut kappaleet. Tasattuna liehuva: rivit ovat säkeitä ja osoitteita. */
+  #teksti.sisennys p.rivit, #teksti.sisennys p + p.rivit { text-indent: 0; margin: .7em 0; }
+  #teksti.sisennys p.rivit + p { text-indent: 0; }
+  #teksti.tasattu p.rivit:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
   /* Vakiosivu (md.js span.vsivu, etukentän vakiosivut: AA; maalauskoneen jatko 20.11.2026): painetun laitoksen sivunumero
      tekstin seassa pienenä ja harmaana kuten kohtanumero, edessä hiusviiva (ei tekstisolmu: paikannin ja merkinnät eivät näe sitä). */
   #teksti .vsivu { font-size: .62em; color: var(--harmaa); vertical-align: .45em; line-height: 0; white-space: nowrap; }
@@ -1770,7 +1776,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=1318ea4c"></script>
+<script src="luin/md.js?v=e46fccef"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=4ddbbf03"></script>

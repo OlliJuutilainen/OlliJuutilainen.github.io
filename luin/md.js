@@ -28,6 +28,7 @@
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
+  Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()).
   Asiakirja (21.11.2026, Snellmanin kootut teokset): etukentän ladonta: asiakirja pitää tekstin alun lyhyet rivit
   (kirjeen paikka ja päiväys, puhuttelu, sähkeen vastaanottaja, [joulukuussa 1849]) tekstissä; otsikkolohkon tiedot
   tulevat etukentästä. Ilman sitä ne olivat tietorivejä, ja etukentän tekijä ja päiväys jäivät pois (26/98 asiakirjaa).
@@ -1885,6 +1886,17 @@
     var sanoja = p.split(' ').length;
     return /[!?]/.test(loppu[1]) ? sanoja >= 2 : sanoja >= 4;
   }
+  /* Rivitetty kappale (käyttäjän linjaus 21.11.2026: sisennys sopii vain leipätekstiin): kenoviivarivinvaihdoin kirjoitetut
+     säkeet, kirjeen alku ja loppu, osoitteet ja luettelorivit sekä yksirivinen, enintään neljän sanan rivi ilman
+     välimerkkiä lopussa (allekirjoitus, paikka ja vuosi, puhuttelu). Luin ei sisennä sitä eikä sen jälkeistä kappaletta
+     sisennysasetuksella, vaan erottaa sen välillä; väliasetuksella se on kuin muut kappaleet. Tasattuna liehuva. */
+  function rivitetty(t) {
+    var r = String(t).split('\n');
+    if (r.slice(0, -1).some(function (l) { return RE_PAKKO.test(l); }) || /<br\s*\/?>\s*\S/i.test(t)) return true;
+    if (r.length > 1) return false;
+    var p = plain(t).replace(/\s+/g, ' ').trim();
+    return !!p && p.split(' ').length <= 4 && !/[.!?…:;,]["”’»)\]]*$/.test(p) && !/^["”“«»'‘’–—-]/.test(p);
+  }
   // Monirivinen kappale on proosaa vain, jos missään sen rivissä ei ole julkaisutietoa (pdf:n kirjan tietorivit).
   function tietorivi(t) {
     var r = t.split('\n');
@@ -2414,7 +2426,7 @@
               res.kohdat.push(ykOs && (!ykEd || ykEd.n !== ykOs[1]) ? { b: b, s: yk[2], n: ykOs[1], osio: ykOs[1] } : { b: b, s: yk[2], n: ykOs ? ykOs[1] : '' });
             }
           }
-          h += blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
+          h += blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');
           if (!inQuote && list[k - 1] && list[k - 1].t === 'bq' && lahdeRivi(tr[0]) && tr.slice(1).every(function (x) { return RE_TYHJA_BR.test(x); }))
