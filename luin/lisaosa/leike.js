@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -1745,7 +1745,11 @@
         el.appendChild(q);
       }
     });
-    const viitteet = ojsMeta(L, 'citation_reference');
+    // Pelkkä DOI omana kohtanaan (Sosiaalilääketieteellinen aikakauslehti: doi: 10.2307/2136404, 21.11.2026) edellisen perään.
+    const viitteet = ojsMeta(L, 'citation_reference').reduce((k, v) => {
+      if (k.length && /^(doi:\s*|https?:\/\/(dx\.)?doi\.org\/)\S+$/i.test(v)) k[k.length - 1] += ' ' + v; else k.push(v);
+      return k;
+    }, []);
     if (viitteet.length) {
       const h = document.createElement('h2'); h.textContent = nimi('.item.references .label, section.references h2', 'References');
       el.appendChild(h);
@@ -6387,7 +6391,8 @@
      alaviitteet a[href="#fnN"] > sup → section.fn-group div.fn#fnN (sup ja p.display-inline), kirjallisuus section.ref-list
      ul > li (span.label, cite, [DOI] [PubMed] [Google Scholar]). Readability antoi tekstin, mutta alaviitteet jäivät loppuun
      irrallisiksi numeroiksi ja tekstiksi, merkit viitelinkeiksi (Medical History: 130 viitelinkkiä), eikä tekijää, lehteä ja
-     päivää tullut. Alaviitteet samanSivunViitteet()-muodossa (tyhjä Footnotes-osio pois), lähdeviittaukset ([8] → #cit0008) ja
+     päivää tullut. Alaviitteet samanSivunViitteet()-muodossa (tyhjä Footnotes-osio pois), lähdeviittaukset ([8] → #cit0008;
+     tekijä–vuosi ilman APA-pilkkua, 21.11.2026) ja
      taulukko- ja kuvaviittaukset tekstiksi, kirjallisuuden kohdat kappaleiksi (md.js:n p.bib) ilman hakulinkkejä, kuvista
      kuvateksti kursiivikappaleena, taulukko ruudukoksi (ojsTaulukko) otsikkoineen. Etukenttään kuten OJS:ssä: tyyppi
      tieteellinen, tekijät (citation_author), teos (lehti), numero (vuosikerta:numero), sivut, julkaistu (citation_publication_date
@@ -6399,26 +6404,31 @@
      muuten ne jäivät tekstiin numeroiksi, joista ei päässyt viitteeseen. Saman kohdan vierekkäiset viittaukset (2, 4; 4-6)
      ovat yksi alaviite, kohdat omina kappaleinaan, kuten Latomon ryhmitaViitteet(); väliviiva tuo välin kohdat. Sama ryhmä
      käyttää samaa tunnusta. Kirjallisuusluettelo jää loppuun. Tekijä–vuosi-viittaukset (Medical History) eivät ole numeroita. */
-  function pmcNumeroviitteet(el) {
+  // Asetukset (Springer Nature ja PLOS, 21.11.2026; oletus PMC): lista = kirjallisuuden kohtien valitsin, nro(li) = kohdan
+  // numero, kohde(k) = viittauksen kohde-elementistä kohta (tai null), teksti(li) = kohdan HTML, etu = alaviitteen tunnuksen alku.
+  function pmcNumeroviitteet(el, o = {}) {
+    const lista = o.lista || '.ref-list li';
+    const kohde = o.kohde || (k => k.matches(lista) ? k : null);
     const kohta = a => {
       if (!/^\d{1,4}$/.test(rivi(a.textContent))) return null;
       let k = null;
       try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
-      return k && k.matches('.ref-list li') ? k : null;
+      return k && kohde(k);
     };
+    const nroOf = o.nro || (li => rivi((li.querySelector(':scope > .label') || {}).textContent || '').replace(/\.$/, ''));
     const luettelo = new Map();
-    el.querySelectorAll('.ref-list li').forEach(li => {
-      const n = rivi((li.querySelector(':scope > .label') || {}).textContent || '').replace(/\.$/, '');
+    el.querySelectorAll(lista).forEach(li => {
+      const n = nroOf(li);
       if (/^\d+$/.test(n)) luettelo.set(n, li);
     });
     // Kohdan teksti: cite tai kohta ilman numeroa ja hakulinkkejä.
-    const teksti = li => {
+    const teksti = o.teksti || (li => {
       const k = (li.querySelector('cite') || li).cloneNode(true);
       k.querySelectorAll(':scope > .label').forEach(x => x.remove());
       k.querySelectorAll('a').forEach(a => { if (/^(doi|pubmed|google scholar|pmc free article|crossref|europe pmc)$/i.test(rivi(a.textContent))) a.remove(); });
       k.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
       return k.innerHTML.replace(/\s*\[\s*\]/g, '').trim();
-    };
+    });
     const merkit = [...el.querySelectorAll('a[href^="#"]')].filter(a => kohta(a));
     const kaytetty = new Set(), tunnukset = new Map(), maar = [];
     // Merkin ulkoin kääre: sup, jossa ei ole muuta.
@@ -6447,7 +6457,7 @@
       const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => rivi(r.textContent) === x))]).filter(x => x[1]);
       const avain = kohdat.map(x => x[0]).join(',');
       if (!tunnukset.has(avain)) {
-        const t = 'pmv' + (tunnukset.size + 1);
+        const t = (o.etu || 'pmv') + (tunnukset.size + 1);
         const md = muunna(kohdat.map(([x, li]) => '<p>' + x + '. ' + teksti(li) + '</p>').join(''), 'inlined').trim();
         tunnukset.set(avain, t);
         maar.push(maaritelma(t, md));
@@ -6482,7 +6492,12 @@
     el.querySelectorAll('a[href^="#"]').forEach(a => {
       let k = null;
       try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
-      if (k && (k.closest('.ref-list') || k.matches('section.tw, figure, .fig, section.fig, .disp-formula'))) a.replaceWith(...a.childNodes);
+      if (!k || !(k.closest('.ref-list') || k.matches('section.tw, figure, .fig, section.fig, .disp-formula'))) return;
+      // Tekijä–vuosi-viittaus ilman APA-pilkkua (Thorndike, 1904 → Thorndike 1904; 21.11.2026), jotta md.js linkittää sen
+      // kirjallisuuden kohtaan kuten OECS:ssä ja Ubiquityssä.
+      const t = rivi(a.textContent), v = t.replace(/(\p{L}[^,()]*?),\s+((?:1[5-9]|20)\d\d[a-z]?)\b/gu, '$1 $2');
+      if (k.closest('.ref-list') && v !== t) a.replaceWith(v);
+      else a.replaceWith(...a.childNodes);
     });
     const maar = samanSivunViitteet(el, 'pm');
     el.querySelectorAll('section.fn-group').forEach(s => { if (!rivi([...s.childNodes].filter(n => !/^H\d$/.test(n.nodeName)).map(n => n.textContent).join(''))) s.remove(); });
@@ -6534,6 +6549,346 @@
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
       tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu, doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
+      oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
+  }
+
+  /* Springer Nature (link.springer.com, BMC:n lehdet ja nature.com; käyttäjän kysymys 21.11.2026: mitä sosiaalilääketieteen
+     tutkija lukisi, esimerkiksi Journal of Eating Disorders, BMC Public Health, International Journal for Equity in Health,
+     International Journal of Obesity, Social Psychiatry and Psychiatric Epidemiology, Eating and Weight Disorders). BMC:n
+     lehtien osoitteet (jeatdisord.biomedcentral.com ym.) ohjautuvat nyt link.springer.comiin, ja sivupohja on kaikilla sama:
+     div.c-article-body, osiot section[data-title] (Abstract, Plain language summary, teksti, Data availability, Abbreviations,
+     References, Acknowledgements, Funding, Author information, Ethics declarations, Additional information, Supplementary
+     information, Rights and permissions, About this article; nimen perässä voi olla rivinvaihto) ja suositukset (Inline
+     Recommendations) tiivistelmän perässä; kommentissa teksti on suoraan .main-contentissa ilman osioita. Viittaukset
+     a[data-test=citation-ref] (href /article/…#ref-CR5) → ol.c-article-references > li[data-counter="5."] >
+     p.c-article-references__text: numeroviittaukset alaviitteiksi viitteen tekstein kuten PMC:ssä (pmcNumeroviitteet()),
+     tekijä–vuosi-viittaukset tekstiksi. Taulukot ovat omilla sivuillaan (figcaption ja Full size table -linkki …/tables/N):
+     sovite hakee ne (sama sivusto, yksi sivu taulukkoa kohti), solun kappaleet välilyönnein, ruudukoksi (ojsTaulukko), ja
+     taulukon alaviitteet (.c-article-table-footer) kappaleiksi. Kuvista kuvateksti (Fig. 1 ja .c-article-section__figure-description)
+     kursiivikappaleeksi. Kirjallisuus loppuun kuten PMC:ssä, numero vain numeroviittausten kanssa. Pois: suositukset,
+     tekijöiden tiedot (paitsi Contributions), Publisher's note, lisäaineistojen tiedostolinkit, oikeudet (etukenttään) ja artikkelin tiedot (avainsanat
+     tiivistelmän perään). Etukenttään tyyppi tieteellinen, tekijät, lehti, numero (vuosikerta:numero), sivut (BMC:ssä
+     artikkelinumero), julkaistu (citation_online_date eli verkkojulkaisu; citation_publication_date on numeron kuukausi), doi ja
+     lisenssi. Sivulla on DoubleClick-mainospaikkoja, mutta kustantaja elää tilauksista ja artikkelimaksuista eikä mainoksista
+     (vrt. Ubiquity Press), joten RAHOITUS-merkintää ei ole. Readability: BMC Public Healthista suositukset (Similar content being
+     viewed by others), tekijä- ja artikkelitiedot tekstiksi, kirjallisuus yhdeksi kohdaksi ja numeroviitteet irrallisiksi
+     numeroiksi (26 md.js-varoitusta), taulukoista vain otsikot. Mitattu 21.11.2026. */
+  const SN_POIS = /^(inline recommendations|author information|additional information|supplementary information|electronic supplementary material|rights and permissions|about this article|change history|peer review information)$/i;
+  async function springerNature() {
+    const runko = document.querySelector('div.c-article-body');
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    if (!runko || !meta('citation_journal_title').length || !runko.querySelector('.c-article-section__content, .main-content')) return null;
+    const el = runko.cloneNode(true);
+    const otsake = s => rivi(s.getAttribute('data-title'));
+    const osio = re => [...el.querySelectorAll('section[data-title]')].find(s => re.test(otsake(s)));
+    // Avainsanat (About this article: Keywords) ja lisenssi ennen kuin osiot poistetaan.
+    const tiedot = osio(/^about this article$/i);
+    const avH = tiedot && [...tiedot.querySelectorAll('h3')].find(h => /^keywords$/i.test(rivi(h.textContent)));
+    const av = avH && avH.nextElementSibling ? [...avH.nextElementSibling.querySelectorAll('li')].map(li => rivi(li.textContent)).filter(Boolean) : [];
+    const cc = document.querySelector('a[rel="license"][href*="creativecommons.org"], section[data-title^="Rights"] a[href*="creativecommons.org"]');
+    // Tekijätiedoista jää vain tekijöiden osuus (Contributions), kuten PMC:n Author contributions.
+    el.querySelectorAll('section[data-title]').forEach(s => {
+      if (!SN_POIS.test(otsake(s))) return;
+      const osuus = /^author information$/i.test(otsake(s)) && [...s.querySelectorAll('h3')].find(h => /^contributions$/i.test(rivi(h.textContent)));
+      if (!osuus) return s.remove();
+      const pala = [s.querySelector('h2'), osuus];
+      for (let x = osuus.nextElementSibling; x && !/^H\d$/.test(x.tagName); x = x.nextElementSibling) pala.push(x);
+      s.replaceWith(...pala.filter(Boolean));
+    });
+    // Saman sivun ankkurit (/article/10.1186/…#ref-CR5) muotoon #ref-CR5.
+    el.querySelectorAll('a[href*="#"]').forEach(a => {
+      const h = a.getAttribute('href'), i = h.indexOf('#');
+      let p = null;
+      try { p = new URL(h.slice(0, i) || location.href, location.href).pathname; } catch (e) {}
+      if (i > 0 && p === location.pathname) a.setAttribute('href', h.slice(i));
+    });
+    // Taulukot omilta sivuiltaan.
+    await Promise.all([...el.querySelectorAll('div.c-article-table')].map(async w => {
+      const ots = rivi((w.querySelector('figcaption') || {}).textContent);
+      const l = w.querySelector('a[data-test="table-link"], a[href*="/tables/"]');
+      let d = null;
+      try { d = l ? await hae(new URL(l.getAttribute('href'), location.href).href) : null; } catch (e) {}
+      const pala = document.createDocumentFragment();
+      if (ots) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = ots; p.appendChild(em); pala.appendChild(p); }
+      const t = d && d.querySelector('.c-article-table-container table');
+      if (t) {
+        const t2 = document.importNode(t, true), div = document.createElement('div');
+        t2.querySelectorAll('td, th').forEach(c => c.querySelectorAll('p').forEach((p, i) => { if (i) p.before(' '); }));
+        div.appendChild(t2); pala.appendChild(div); ojsTaulukko(t2);
+        d.querySelectorAll('.c-article-table-footer li, .c-article-table-footer > p').forEach(f => {
+          const p = document.createElement('p'); p.textContent = rivi(f.textContent); if (rivi(p.textContent)) pala.appendChild(p);
+        });
+      }
+      w.replaceWith(pala);
+    }));
+    el.querySelectorAll('script, style, noscript, button, svg, picture, img, .c-article-recommendations, [data-test="cobranding-download"], .c-article-section__figure-link, .u-hide-print, .c-article-references__links, .c-article-references__download, .c-article-references__links-item, .js-ad, .c-ad, .app-peer-review, .app-explore-related-subjects, #researcher-profile-container').forEach(x => x.remove());
+    // Kuvat: kuvateksti kursiivikappaleeksi.
+    el.querySelectorAll('div.c-article-section__figure').forEach(f => {
+      const t = [rivi((f.querySelector('figcaption') || {}).textContent), rivi((f.querySelector('.c-article-section__figure-description') || {}).textContent)].filter(Boolean).join(' ');
+      if (!t) return f.remove();
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); f.replaceWith(p);
+    });
+    const vmaar = pmcNumeroviitteet(el, { lista: 'ol.c-article-references > li', etu: 'snv',
+      nro: li => rivi(li.getAttribute('data-counter')).replace(/\.$/, ''),
+      kohde: k => k.closest('ol.c-article-references > li'),
+      teksti: li => {
+        const k = (li.querySelector('.c-article-references__text') || li).cloneNode(true);
+        k.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+        return k.innerHTML.trim();
+      } });
+    // Muut saman sivun viittaukset (tekijä–vuosi, taulukot, kuvat, osiot, lisäaineisto) tekstiksi; alaviitteet (#Fn1) jäävät.
+    el.querySelectorAll('a[href^="#"]').forEach(a => { if (!/^#Fn\d/.test(a.getAttribute('href'))) a.replaceWith(...a.childNodes); });
+    const maar = samanSivunViitteet(el, 'sn');
+    el.querySelectorAll('section[data-title]').forEach(s => { if (/^notes$/i.test(otsake(s)) && !rivi([...s.querySelectorAll('p, li')].map(x => x.textContent).join(''))) s.remove(); });
+    // Kirjallisuus kappaleiksi ja loppuun.
+    const kirj = osio(/^references$/i), loppu = [];
+    if (kirj) {
+      const h = document.createElement('h2'); h.textContent = rivi((kirj.querySelector('h2') || {}).textContent) || 'References'; loppu.push(h);
+      kirj.querySelectorAll('ol.c-article-references > li').forEach(li => {
+        const p = document.createElement('p'), n = rivi(li.getAttribute('data-counter')), t = li.querySelector('.c-article-references__text') || li;
+        if (n && vmaar.length) p.append(n + ' ');
+        p.append(...t.childNodes); loppu.push(p);
+      });
+      kirj.remove();
+    }
+    // Avainsanat tiivistelmän perään.
+    const tiiv = osio(/^abstract$/i);
+    if (tiiv && av.length) {
+      const p = document.createElement('p'), b = document.createElement('strong'); b.textContent = 'Keywords:'; p.append(b, ' ' + av.join(', '));
+      (tiiv.querySelector('.c-article-section__content') || tiiv).appendChild(p);
+    }
+    el.append(...loppu);
+    el.querySelectorAll('h2, h3, h4, h5').forEach(h => { h.removeAttribute('class'); h.removeAttribute('id'); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('table, hr')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*(springer\.com|nature\.com|biomedcentral\.com|springernature\.com|scholar\.google\.com|ncbi\.nlm\.nih\.gov)\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const nimet = meta('citation_author').map(n => n.replace(/^([^,]+),\s*(.+)$/, '$2 $1'));
+    const pv = /^(\d{4})\/(\d{1,2})(?:\/(\d{1,2}))?/.exec(meta('citation_online_date')[0] || meta('citation_publication_date')[0] || '');
+    const f = meta('citation_firstpage')[0], l = meta('citation_lastpage')[0];
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const h1 = document.querySelector('h1.c-article-title');
+    const teos = meta('citation_journal_title')[0];
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(nimet), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
+      sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu: pv ? pv[1] + '-' + pv[2].padStart(2, '0') + (pv[3] ? '-' + pv[3].padStart(2, '0') : '') : '',
+      doi: meta('citation_doi')[0] || '', lahde: osoite.replace(/\?.*$/, ''), maar: vmaar.concat(maar),
+      oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
+  }
+
+  /* PLOS (journals.plos.org: PLOS ONE, PLOS Medicine, PLOS Global Public Health ym.; 21.11.2026 samasta kysymyksestä). Teksti
+     #artText: tiivistelmä ja Author summary (div.abstract), osiot div.section (h2, h3), tyhjät ankkurit a.link-target, kuvat ja
+     taulukot div.figure (taulukkokin on sivulla vain kuvana: div.figcaption Table 1. ja otsikko). Viittaukset a.ref-tip
+     (href #pmed.1004371.ref001) → ol.references > li (span.order 1., ul.reflinks hakulinkit): numeroviittaukset alaviitteiksi
+     kuten PMC:ssä. Taulukot haetaan artikkelin JATS-XML:stä (sivun linkki …/article/file?id=…&type=manuscript, sama sivusto,
+     yksi haku): table-wrap, jonka object-id on kuvan data-doi, HTML-taulukoksi (break välilyönniksi) ja ruudukoksi, alaviitteet
+     (table-wrap-foot) kappaleiksi. Pois: artikkelin tietolaatikko (viittausohje, toimittaja, päivät, oikeudet, rahoitus,
+     sidonnaisuudet: etukenttä kertoo lehden, päivän ja lisenssin), lisäaineisto (Supporting information), kuvien lataus- ja
+     suurennuslinkit ja kaavakuvat. Etukenttään tyyppi tieteellinen, tekijät, lehti, numero, sivut (artikkelinumero e1004371),
+     julkaistu (citation_date, Mar 28, 2024), doi ja lisenssi tietolaatikon CC-linkistä. Sivulla on mainospaikkoja, mutta PLOS
+     elää artikkelimaksuista (voittoa tavoittelematon kustantaja), joten RAHOITUS-merkintää ei ole. Readability: otsikko kahdesti,
+     Figures-otsikko, kirjallisuus ilman kohtia (p.bib 0) ja taulukoista pelkät otsikot. Mitattu 21.11.2026. */
+  async function plos() {
+    const art = document.getElementById('artText');
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    if (!art || !/public library of science/i.test(meta('citation_publisher').join(' ')) || !meta('citation_journal_title').length) return null;
+    const el = art.cloneNode(true);
+    const cc = el.querySelector('.articleinfo a[href*="creativecommons.org"]');
+    el.querySelectorAll('a.link-target').forEach(a => { if (!a.closest('ol.references')) a.remove(); });
+    el.querySelectorAll('.articleinfo, script, style, .img-box, .figure-inline-download, .caption_target, .caption_object, ul.reflinks, ul.find-nolinks, .inline-formula img, img').forEach(x => x.remove());
+    [...el.querySelectorAll('div.section')].forEach(s => {
+      const h = s.querySelector(':scope > h2');
+      if (h && /^supporting information$/i.test(rivi(h.textContent))) s.remove();
+    });
+    // Taulukot JATS-XML:stä.
+    const taulut = [...el.querySelectorAll('div.figure')].filter(f => /\.t\d+$/.test(f.getAttribute('data-doi') || ''));
+    let xml = null;
+    const xl = document.querySelector('a[href*="type=manuscript"]');
+    if (taulut.length && xl) {
+      const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 8000);
+      try {
+        const r = await fetch(new URL(xl.getAttribute('href'), location.href).href, { credentials: 'same-origin', signal: ohi.signal });
+        if (r.ok) xml = new DOMParser().parseFromString(await r.text(), 'application/xml');
+        if (xml && xml.querySelector('parsererror')) xml = null;
+      } catch (e) {}
+      clearTimeout(ajastin);
+    }
+    const xteksti = x => rivi([...x.childNodes].map(n => n.nodeType === 1 && n.localName === 'break' ? ' ' : n.textContent).join(''));
+    el.querySelectorAll('div.figure').forEach(f => {
+      const c = f.querySelector('.figcaption');
+      const t = [c && rivi(c.textContent), ...[...f.querySelectorAll(':scope > p')].map(p => rivi(p.textContent))].filter(Boolean).join(' ');
+      const pala = document.createDocumentFragment();
+      if (t) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); pala.appendChild(p); }
+      const doi = f.getAttribute('data-doi') || '';
+      const tw = xml && [...xml.getElementsByTagName('table-wrap')].find(w => [...w.getElementsByTagName('object-id')].some(o => rivi(o.textContent) === doi));
+      const xt = tw && tw.getElementsByTagName('table')[0];
+      if (xt) {
+        const ht = document.createElement('table'), div = document.createElement('div');
+        [...xt.getElementsByTagName('tr')].forEach(tr => {
+          const r = ht.insertRow();
+          [...tr.children].filter(c => /^t[hd]$/.test(c.localName)).forEach(c => {
+            const s = document.createElement(c.localName);
+            s.textContent = xteksti(c);
+            if (+c.getAttribute('colspan') > 1) s.colSpan = +c.getAttribute('colspan');
+            if (+c.getAttribute('rowspan') > 1) s.rowSpan = +c.getAttribute('rowspan');
+            r.appendChild(s);
+          });
+        });
+        div.appendChild(ht); pala.appendChild(div); ojsTaulukko(ht);
+        [...tw.getElementsByTagName('table-wrap-foot')].forEach(ft => [...ft.getElementsByTagName('p')].forEach(x => {
+          const p = document.createElement('p'); p.textContent = xteksti(x); if (rivi(p.textContent)) pala.appendChild(p);
+        }));
+      }
+      f.replaceWith(pala);
+    });
+    const vmaar = pmcNumeroviitteet(el, { lista: 'ol.references > li', etu: 'plv',
+      nro: li => rivi((li.querySelector(':scope > .order') || {}).textContent).replace(/\.$/, ''),
+      kohde: k => k.closest('ol.references > li'),
+      teksti: li => {
+        const k = li.cloneNode(true);
+        k.querySelectorAll(':scope > .order').forEach(x => x.remove());
+        k.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+        return k.innerHTML.trim();
+      } });
+    el.querySelectorAll('a[href^="#"]').forEach(a => a.replaceWith(...a.childNodes));
+    // Kirjallisuus kappaleiksi.
+    el.querySelectorAll('ol.references > li').forEach(li => {
+      const p = document.createElement('p'), n = li.querySelector(':scope > .order');
+      if (n && vmaar.length) p.append(rivi(n.textContent) + ' ');
+      if (n) n.remove();
+      p.append(...li.childNodes);
+      li.closest('ol').before(p);
+    });
+    el.querySelectorAll('ol.references').forEach(x => x.remove());
+    el.querySelectorAll('a.link-target').forEach(a => a.remove());
+    el.querySelectorAll('h2, h3, h4, h5').forEach(h => { h.removeAttribute('class'); h.removeAttribute('id'); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('table, hr')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*(plos\.org|scholar\.google\.com|ncbi\.nlm\.nih\.gov)\//i);
+    el.querySelectorAll('a[href]:not([href^="http"])').forEach(a => a.replaceWith(...a.childNodes));
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const pv = /^(\p{L}{3})\w*\s+(\d{1,2}),\s+(\d{4})/u.exec(meta('citation_date')[0] || '');
+    const kk = pv ? EN_KUUKAUDET.findIndex(k => k.startsWith(pv[1].toLowerCase())) : -1;
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const h1 = document.getElementById('artTitle');
+    const teos = meta('citation_journal_title')[0];
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
+      sivut: meta('citation_firstpage')[0] || '', julkaistu: pv && kk >= 0 ? pv[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pv[2].padStart(2, '0') : '',
+      doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar,
+      oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
+  }
+
+  /* Frontiers (frontiersin.org: Frontiers in Psychology, Psychiatry, Public Health, Nutrition ym.; 21.11.2026 samasta
+     kysymyksestä). Teksti .ArticleContent: tiivistelmä (div#h1, väliotsikot p.TitleInline-lihavointeina), osiot div#sN (h2, h3),
+     Statements (h2, div.Statement__*: aineisto, etiikka, tekijöiden osuus, rahoitus, sidonnaisuudet, generatiivinen tekoäly,
+     Publisher's note, alaviitteet) ja References (ul.References > li#BN: .References__label, .References__content,
+     .References__links). Numeroviittaukset ovat nappeja ilman osoitetta (span.ArticleReference#B1-button, jossa
+     .ArticleReference__scrollTarget ja numero): ne muutetaan #B1-linkeiksi ja alaviitteiksi viitteen tekstein kuten PMC:ssä.
+     Tekijä–vuosi-viittaukset (a.ArticleReference[href=#B25] tai span: Thorndike, 1904) tekstiksi ilman APA-pilkkua kuten
+     OECS:ssä. Alaviitteet a[href=#fn0001] > sup → p.Footnote#fn0001 (Footnote__label, paluulinkki ^) samanSivunViitteet()illä.
+     Taulukot div.ArticleTable (Table 1, __description, __content table, __foot) otsikko kursiivikappaleeksi, ruudukoksi ja
+     alaviitteet kappaleiksi; kuvat div.ArticleFigure otsikoksi. Avainsanat .Summarysta tiivistelmän perään; Publisher's note,
+     kirjeenvaihto, toimittajat ja päivät (Summary) pois. Etukenttään tyyppi tieteellinen, tekijät, lehti, numero (vuosikerta),
+     sivut (artikkelinumero), julkaistu, doi ja lisenssi. Ei mainoksia eikä lahjoituspyyntöä (artikkelimaksut). Readability:
+     tyypiksi blogi, ei kirjallisuutta, alaviitettä eikä numeroviittauksia (numerot jäivät tekstiin), tekijä–vuosi-viittaukset
+     verkkolinkkeinä, kirjeenvaihtajan sähköposti ja Disclaimer tekstissä. Mitattu 21.11.2026. */
+  async function frontiers() {
+    const sis = document.querySelector('.ArticleDetailsV4__main__content .ArticleContent') || document.querySelector('.ArticleContent');
+    const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    if (!sis || !/frontiers/i.test(meta('citation_publisher').join(' ')) || !meta('citation_journal_title').length) return null;
+    const el = sis.cloneNode(true);
+    // Kuvat: otsikko ja kuvateksti (figcaption on suurennusnapin sisällä) kursiivikappaleeksi ennen nappien poistoa.
+    el.querySelectorAll('div.ArticleFigure').forEach(f => {
+      const t = [rivi((f.querySelector('.ArticleFigure__title') || {}).textContent), rivi((f.querySelector('.ArticleFigure__description, figcaption') || {}).textContent)].filter(Boolean).join(' ');
+      if (!t) return f.remove();
+      const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); f.replaceWith(p);
+    });
+    el.querySelectorAll('button, svg, picture, img, figure, script, style, .References__links, .ArticleReference__scrollTarget, .Statement__Publishersnote, .Summary').forEach(x => x.remove());
+    // Vuen kommentit (<!--[-->) solmujen väleistä pois, jotta naapurit ovat vierekkäin.
+    const kommentit = document.createTreeWalker(el, NodeFilter.SHOW_COMMENT), poistot = [];
+    while (kommentit.nextNode()) poistot.push(kommentit.currentNode);
+    poistot.forEach(c => c.remove());
+    el.normalize();
+    // Kirjallisuuden nimet ovat erillisiä span-pareja, joiden välimerkit tulevat sivun tyyleistä: APA-lehdissä (nimikirjaimissa
+    // piste) Sukunimi, E. N., …, and Sukunimi, E., Vancouver-lehdissä Sukunimi EN, …, et al. Lehden nimen (i) ympärille välit.
+    el.querySelectorAll('.References__personGroup').forEach(g => {
+      if ([...g.children].some(c => !c.matches('.References__name, .ReferencesList_etal'))) return;
+      const nimet = [...g.querySelectorAll('.References__name')].map(n => [rivi((n.querySelector('.References__surname') || {}).textContent), rivi((n.querySelector('.References__givenNames') || {}).textContent)]);
+      if (!nimet.length) return;
+      const apa = nimet.some(n => /\./.test(n[1])), etal = g.querySelector('.ReferencesList_etal');
+      const osat = nimet.map(([a, e]) => e ? a + (apa ? ', ' : ' ') + e : a);
+      g.textContent = (apa && !etal && osat.length > 1 ? osat.slice(0, -1).join(', ') + ', and ' + osat[osat.length - 1] : osat.join(', ')) + (etal ? ', ' + rivi(etal.textContent) : '');
+    });
+    el.querySelectorAll('.References__source').forEach(i => {
+      const e = i.previousSibling, j = i.nextSibling;
+      if (e && e.nodeType === 3 && /[^\s([]$/.test(e.textContent)) i.before(' ');
+      if (j && j.nodeType === 3 && /^[\p{L}\p{N}]/u.test(j.textContent)) i.after(' ');
+    });
+    // Viittaukset: numero → #BN-linkki, tekijä–vuosi tekstiksi; alaviitteiden merkit (#fn) jäävät. Numero on viittaus vain, jos
+    // se on kohdan oma numero (Puhl and Brownell, 2001, 2003: pelkkä 2003 on vuosi).
+    el.querySelectorAll('.ArticleReference').forEach(r => {
+      const h = r.getAttribute('href') || '';
+      if (/^#fn/.test(h)) return;
+      const id = (/^(B\d+)-button$/.exec(r.id || '') || /^#(B\d+)$/.exec(h) || [])[1], t = rivi(r.textContent);
+      const li = id && el.querySelector('li[id="' + id + '"]');
+      if (li && /^\d{1,4}$/.test(t) && rivi((li.querySelector('.References__label') || {}).textContent).replace(/\.$/, '') === t) { const a = document.createElement('a'); a.setAttribute('href', '#' + id); a.textContent = t; r.replaceWith(a); }
+      else r.replaceWith(t.replace(/(\p{L}[^,()]*?),\s+((?:1[5-9]|20)\d\d[a-z]?)\b/gu, '$1 $2'));
+    });
+    // Taulukot ja kuvat.
+    el.querySelectorAll('div.ArticleTable').forEach(w => {
+      const t = [rivi((w.querySelector('.ArticleTable__title') || {}).textContent), rivi((w.querySelector('.ArticleTable__description') || {}).textContent)].filter(Boolean).join(' ');
+      const pala = document.createDocumentFragment();
+      if (t) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); pala.appendChild(p); }
+      w.querySelectorAll('.ArticleTable__content table').forEach(tb => { const d = document.createElement('div'); tb.replaceWith(d); d.appendChild(tb); ojsTaulukko(tb); pala.appendChild(d); });
+      w.querySelectorAll('.ArticleTable__foot p').forEach(f => { const p = document.createElement('p'); p.textContent = rivi(f.textContent); if (rivi(p.textContent)) pala.appendChild(p); });
+      w.replaceWith(pala);
+    });
+    const vmaar = pmcNumeroviitteet(el, { lista: 'ul.References > li', etu: 'frv',
+      nro: li => rivi((li.querySelector('.References__label') || {}).textContent).replace(/\.$/, ''),
+      kohde: k => k.closest('ul.References > li'),
+      teksti: li => {
+        const k = (li.querySelector('.References__content > p') || li.querySelector('.References__content') || li).cloneNode(true);
+        k.querySelectorAll('a[href]').forEach(a => a.setAttribute('href', a.href));
+        return k.innerHTML.trim();
+      } });
+    el.querySelectorAll('a[href^="#"]').forEach(a => { if (!/^#fn/.test(a.getAttribute('href'))) a.replaceWith(...a.childNodes); });
+    const maar = samanSivunViitteet(el, 'fr');
+    el.querySelectorAll('.Statement__Footnotes').forEach(s => { if (!rivi([...s.querySelectorAll('p')].map(x => x.textContent).join(''))) s.remove(); });
+    // Kirjallisuus kappaleiksi.
+    el.querySelectorAll('ul.References > li').forEach(li => {
+      const p = document.createElement('p'), n = rivi((li.querySelector('.References__label') || {}).textContent), c = li.querySelector('.References__content > p') || li.querySelector('.References__content') || li;
+      if (n && vmaar.length) p.append(n.replace(/\.?$/, '.') + ' ');
+      p.append(...c.childNodes);
+      li.closest('ul').before(p);
+    });
+    el.querySelectorAll('ul.References').forEach(x => x.remove());
+    // Avainsanat tiivistelmän perään.
+    const sum = document.querySelector('.Summary');
+    const avH = sum && [...sum.querySelectorAll('p.h5')].find(p => /^keywords$/i.test(rivi(p.textContent)));
+    const av = avH && avH.nextElementSibling ? rivi(avH.nextElementSibling.textContent) : '';
+    const tiiv = [...el.querySelectorAll('h2')].find(h => /^abstract$/i.test(rivi(h.textContent)));
+    if (tiiv && av) { const p = document.createElement('p'), b = document.createElement('strong'); b.textContent = 'Keywords:'; p.append(b, ' ' + av); tiiv.parentElement.appendChild(p); }
+    // Tiivistelmän väliotsikot (Introduction:) jäävät lihavoiduiksi kappaleen aluiksi kuten lähteessä.
+    el.querySelectorAll('p.TitleInline').forEach(p => {
+      const s = p.nextElementSibling;
+      if (s && s.tagName === 'P') { s.prepend(...p.childNodes, ' '); p.remove(); }
+    });
+    el.querySelectorAll('h2, h3, h4, h5').forEach(h => { h.removeAttribute('class'); h.removeAttribute('id'); h.textContent = rivi(h.textContent); });
+    el.querySelectorAll('p, div').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('table, hr')) x.remove(); });
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*(frontiersin\.org|scholar\.google\.com|ncbi\.nlm\.nih\.gov)\//i);
+    if (kkSanoja(el) < 100) return null;
+    kkTasoita(el);
+    const nimet = meta('citation_author').map(n => n.replace(/^([^,]+),\s*(.+)$/, '$2 $1'));
+    const pv = /^(\d{4})\/(\d{1,2})(?:\/(\d{1,2}))?/.exec(meta('citation_publication_date')[0] || '');
+    const cc = document.querySelector('.Summary__copyright a[href*="creativecommons.org"]');
+    const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
+    const h1 = document.querySelector('h1.ArticleDetailsV4__main__title');
+    const teos = meta('citation_journal_title')[0];
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+      tekija: kkLuettelo(nimet), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
+      sivut: meta('citation_firstpage')[0] || '', julkaistu: pv ? pv[1] + '-' + pv[2].padStart(2, '0') + (pv[3] ? '-' + pv[3].padStart(2, '0') : '') : '',
+      doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
@@ -9487,7 +9842,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, gretil, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, eoa, newton, latinLibrary, sls, snellman, religionOnline, aquinas, philological, augustinus, gretil, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, perseus, dhammatalks, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
