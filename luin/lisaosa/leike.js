@@ -2791,7 +2791,40 @@
      kappaleiden tyylit pois. Otsikko .page-title-headerista, julkaistu päiväyskentästä (28.4.1840 → 1840-04-28), laji
      asiakirjatyypistä (Lehtikirjoitus, Kirje). Ei mainoksia eikä lahjoituspyyntöä. Mitattu 20.11.2026. */
   const SN_NIMI = 'J. V. Snellmanin kootut teokset';
-  function snTeksti(kentta, maar, laskuri) {
+  /* Väliotsikot (käyttäjän havainto 21.11.2026: asiakirjat on tekstiksi tehty vaihtelevasti, ja joissain on väliotsikoita
+     tavallisina kappaleina). Mitattu 81 asiakirjasta, osumat vain otsikoihin: 1) versaalirivi (Neljä avioliittoa:
+     KAHDENLAISTA RAKKAUTTA, II. NIIN SIINÄ KÄY) on ##, ja sitä edeltävä pelkkä roomalainen numero (I.) liitetään siihen;
+     2) pelkkä roomalainen numero (Litteraturbladin I–III, romaanin luvut) on ###, kun versaaliotsikoita on, muuten ##;
+     3) muissa kuin kirjeissä, sähkeissä ja runoissa enintään kuuden sanan rivi ilman numeroita ja päätevälimerkkiä pitkien
+     (väh. 25 sanaa) kappaleiden välissä tai alussa (Teosofia: Maailma ja ihminen) on ##. Kirjeiden päiväykset, puhuttelut ja
+     allekirjoitukset sekä runojen säkeet eivät täytä ehtoja. */
+  const SN_ROOM = /^(?=[IVXL])(XL|L?X{0,3})(IX|IV|V?I{0,3})\.?$/;
+  function snOtsikot(el, laji) {
+    const ps = [...el.children].filter(x => x.tagName === 'P'), tx = ps.map(p => rivi(p.textContent.replace(/\u00a0/g, ' ')));
+    const sanoja = t => (t.match(/\S+/g) || []).length;
+    const versaali = t => sanoja(t) <= 8 && /\p{Lu}{3}/u.test(t) && t === t.toUpperCase() && !/\d/.test(t);
+    const vapaa = !/kirje|sähke|runo/i.test(laji || '');
+    const kaikki = ps.map((p, k) => {
+      const t = tx[k];
+      if (SN_ROOM.test(t)) return 'r';
+      if (versaali(t)) return 'v';
+      if (vapaa && sanoja(t) <= 6 && /^\p{Lu}/u.test(t) && !/\d/.test(t) && !/[.,;:!?…”"\])]$/.test(t) &&
+        (k === 0 || sanoja(tx[k - 1]) >= 25) && k + 1 < ps.length && sanoja(tx[k + 1]) >= 25) return 'l';
+      return '';
+    });
+    const vers = kaikki.includes('v');
+    ps.forEach((p, k) => {
+      const l = kaikki[k];
+      if (!l) return;
+      let t = tx[k];
+      if (l === 'r' && kaikki[k + 1] === 'v') return;
+      if (l === 'v' && kaikki[k - 1] === 'r') { t = tx[k - 1].replace(/\.?$/, '.') + ' ' + t; ps[k - 1].remove(); }
+      const h = document.createElement(l === 'r' && vers ? 'h3' : 'h2');
+      h.textContent = t;
+      p.replaceWith(h);
+    });
+  }
+  function snTeksti(kentta, maar, laskuri, laji) {
     const f = kentta && kentta.querySelector('.field-item');
     if (!f) return null;
     const el = f.cloneNode(true);
@@ -2810,6 +2843,7 @@
     });
     el.querySelectorAll('[style], [align]').forEach(x => { x.removeAttribute('style'); x.removeAttribute('align'); });
     el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    snOtsikot(el, laji);
     return kkSanoja(el) >= 15 ? el : null;
   }
   async function snellman() {
@@ -2817,7 +2851,8 @@
     const fi = document.querySelector('.field-name-field-suomi');
     if (!fi) return null;
     const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
-    const s = snTeksti(fi, maar, laskuri), sv = snTeksti(document.querySelector('.field-name-field-ruotsi'), maar, laskuri);
+    const laji0 = rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent);
+    const s = snTeksti(fi, maar, laskuri, laji0), sv = snTeksti(document.querySelector('.field-name-field-ruotsi'), maar, laskuri, laji0);
     if (!s && !sv) return null;
     if (s) el.append(...s.childNodes);
     if (sv) {
