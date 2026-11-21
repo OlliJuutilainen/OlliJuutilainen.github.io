@@ -2799,23 +2799,88 @@
      (väh. 25 sanaa) kappaleiden välissä tai alussa (Teosofia: Maailma ja ihminen) on ##. Kirjeiden päiväykset, puhuttelut ja
      allekirjoitukset sekä runojen säkeet eivät täytä ehtoja. */
   const SN_ROOM = /^(?=[IVXL])(XL|L?X{0,3})(IX|IV|V?I{0,3})\.?$/;
+  // Kappaleen teksti: <br> välilyönniksi (säkeiksi yhdistetyt rivit, snRivit).
+  const snTx = p => { const k = p.cloneNode(true); k.querySelectorAll('br').forEach(b => b.replaceWith(' ')); return rivi(k.textContent.replace(/ /g, ' ')); };
+  const snSanoja = t => (t.match(/\S+/g) || []).length;
+  /* Rivit säkeiksi (21.11.2026, Snellman kunniallisesti): sivuston tekstit on tehty painetusta kirjasta rivi kappaleeksi
+     runoissa, romaanien ja näytelmän laulunsäkeissä, väitöskirjan mottossa ja luetteloissa (a) …, metallirahana 8 985 277).
+     Pienellä alkava enintään 12 sanan kappale liitetään edelliseen rivinvaihdolla, kun edellinen rivi on lyhyt eikä pääty
+     virkkeen loppuun; runossa ja laulussa säkeistön kaikki rivit. Tyhjä kappale on säkeistöraja. 89 asiakirjan otoksessa
+     osumat olivat säkeitä, luetteloita, taulukkorivejä ja kirjeiden loppukohteliaisuuksia; proosakappaleita 0. */
+  function snRivit(el, laji) {
+    const runo = /runo|laulu/i.test(laji || '');
+    let ed = null;
+    [...el.children].forEach(p => {
+      if (p.tagName !== 'P') { ed = null; return; }
+      const t = snTx(p);
+      if (!t) { ed = null; return; }
+      // Edellisen kappaleen viimeinen rivi (viimeisen <br>:n jälkeen).
+      let edRivi = '';
+      for (let n = ed && ed.lastChild; n && n.nodeName !== 'BR'; n = n.previousSibling) edRivi = n.textContent + edRivi;
+      edRivi = rivi(edRivi.replace(/\u00a0/g, ' '));
+      if (ed && snSanoja(t) <= 12 && snSanoja(edRivi) <= 12 && (runo || (/^\p{Ll}/u.test(t) && !/[.!?…]["”’)]?$/.test(edRivi)))) {
+        ed.append(document.createElement('br'), ...p.childNodes);
+        p.remove();
+        return;
+      }
+      ed = p;
+    });
+  }
+  /* Väliotsikot (käyttäjän havainto 21.11.2026: asiakirjat on tekstiksi tehty vaihtelevasti, ja joissain on väliotsikoita
+     tavallisina kappaleina). Mitattu 81 asiakirjasta, osumat vain otsikoihin: 1) versaalirivi (Neljä avioliittoa:
+     KAHDENLAISTA RAKKAUTTA, II. NIIN SIINÄ KÄY) on ##, ja sitä edeltävä pelkkä roomalainen numero (I.) liitetään siihen;
+     2) pelkkä roomalainen numero (Litteraturbladin I–III, romaanin luvut) on ###, kun versaaliotsikoita on, muuten ##;
+     3) muissa kuin kirjeissä, sähkeissä ja runoissa enintään kuuden sanan rivi ilman numeroita ja päätevälimerkkiä pitkien
+     (väh. 25 sanaa) kappaleiden välissä tai alussa (Teosofia: Maailma ja ihminen) on ##. Kirjeiden päiväykset, puhuttelut ja
+     allekirjoitukset sekä runojen säkeet eivät täytä ehtoja.
+     Tarkennukset (21.11.2026, 89 asiakirjan otos): versaalissa pitää olla muu kolmen kirjaimen sana kuin roomalainen numero
+     (oikeusopin § III ei ole otsikko); roomalainen numero, piste ja versaalinimi pienellä jatkettuna (III. JOSKUS KÄY TOISINKIN,
+     hahmotelma romaanikäsikirjoitukseksi) on versaaliotsikko; versaalirivi, joka päättyy sanaan ELI, JA tai pilkkuun, jatkuu
+     seuraavalla versaalirivillä (KOLMAS OSA. … ELI | YHTEISKUNTAOPPI); kirjan oman sisällysluettelon (SISÄLLYS, [SISÄLTÖ)
+     versaalirivit eivät ole otsikoita ennen kuin luettelon ensimmäinen nimi toistuu (JOHDANTO), muuten oppikirjojen
+     sisällysluettelo toistui otsikkoina. Säkeiksi yhdistetty kappale ei ole pitkä kappale (väitöskirjan moton perässä
+     Cornelius Agrippa ei ole otsikko). */
   function snOtsikot(el, laji) {
-    const ps = [...el.children].filter(x => x.tagName === 'P'), tx = ps.map(p => rivi(p.textContent.replace(/\u00a0/g, ' ')));
-    const sanoja = t => (t.match(/\S+/g) || []).length;
-    const versaali = t => sanoja(t) <= 8 && /\p{Lu}{3}/u.test(t) && t === t.toUpperCase() && !/\d/.test(t);
-    const vapaa = !/kirje|sähke|runo/i.test(laji || '');
+    const ps = [...el.children].filter(x => x.tagName === 'P'), tx = ps.map(snTx);
+    const sanoja = snSanoja;
+    const versaali = t => sanoja(t) <= 12 && t === t.toUpperCase() && !/\d/.test(t) &&
+      (t.match(/\p{Lu}{3,}/gu) || []).some(w => !SN_ROOM.test(w));
+    const versaaliAlku = t => sanoja(t) <= 10 && !/[.]$/.test(t) && /^(?=[IVXL])(XL|L?X{0,3})(IX|IV|V?I{0,3})\.\s+\p{Lu}{2,}(\s+\p{Lu}{2,})+,?\s+\p{Ll}/u.test(t);
+    const vapaa = !/kirje|sähke|runo|laulu/i.test(laji || '');
     const kaikki = ps.map((p, k) => {
       const t = tx[k];
+      if (p.querySelector('br')) return '';
       if (SN_ROOM.test(t)) return 'r';
-      if (versaali(t)) return 'v';
+      if (versaali(t) || versaaliAlku(t)) return 'v';
       if (vapaa && sanoja(t) <= 6 && /^\p{Lu}/u.test(t) && !/\d/.test(t) && !/[.,;:!?…”"\])]$/.test(t) &&
-        (k === 0 || sanoja(tx[k - 1]) >= 25) && k + 1 < ps.length && sanoja(tx[k + 1]) >= 25) return 'l';
+        (k === 0 || sanoja(tx[k - 1]) >= 25 && !ps[k - 1].querySelector('br')) && k + 1 < ps.length && sanoja(tx[k + 1]) >= 25) return 'l';
       return '';
     });
+    // Kirjan oma sisällysluettelo: sen rivit tekstiksi, kunnes ensimmäinen nimi toistuu.
+    const nimi = t => t.replace(/[[\]().]/g, '').replace(/\s+/g, ' ').trim();
+    for (let k = 0; k < ps.length; k++) {
+      if (kaikki[k] !== 'v' || !/^\[?\s*(SISÄLLYS|SISÄLTÖ|SISÄLLYSLUETTELO)(?!\p{L})/u.test(tx[k])) continue;
+      const nahty = new Set();
+      let j = k + 1;
+      for (; j < ps.length; j++) {
+        if (kaikki[j] === 'v' && nahty.has(nimi(tx[j]))) break;
+        if (kaikki[j]) { nahty.add(nimi(tx[j])); kaikki[j] = ''; }
+      }
+      if (j === ps.length) break;
+      k = j - 1;
+    }
+    // Katkennut versaaliotsikko yhdeksi.
+    for (let k = 1; k < ps.length; k++) {
+      if (kaikki[k] === 'v' && kaikki[k - 1] === 'v' && /(\s(ELI|JA|TAI|SEKÄ)|[,–-])$/.test(tx[k - 1])) {
+        tx[k] = tx[k - 1] + ' ' + tx[k];
+        ps[k - 1].remove();
+        kaikki[k - 1] = '';
+      }
+    }
     const vers = kaikki.includes('v');
     ps.forEach((p, k) => {
       const l = kaikki[k];
-      if (!l) return;
+      if (!l || !p.parentNode) return;
       let t = tx[k];
       if (l === 'r' && kaikki[k + 1] === 'v') return;
       if (l === 'v' && kaikki[k - 1] === 'r') { t = tx[k - 1].replace(/\.?$/, '.') + ' ' + t; ps[k - 1].remove(); }
@@ -2823,6 +2888,41 @@
       h.textContent = t;
       p.replaceWith(h);
     });
+  }
+  /* Taulukot (21.11.2026): sivuston taulukot ovat painetun laitoksen asetelmia ilman otsikkoriviä (logiikan luentojen
+     kaavio Metodi | oleminen – olemassaoleminen, rahajärjestelmän kolikkotaulukko), ja solussa on monta riviä kappaleina
+     (5 markkaa | 2 markkaa | 1 markka). Turndown jättää otsikkorivittömän taulukon HTML:ksi, joka näkyi Luinissa merkintöinä.
+     Ruudukoksi (yhdistetyt solut tyhjiksi, solun rivit kauttaviivoin), tyhjät sarakkeet pois ja tyhjä otsikkorivi, jotta
+     rivien järjestys säilyy; yksisarakkeinen tai yksirivinen riveiksi. */
+  function snTaulukko(t) {
+    const solu = c => { const k = c.cloneNode(true); k.querySelectorAll('br').forEach(b => b.replaceWith('\u0001'));
+      k.querySelectorAll('p, div').forEach(p => p.append('\u0001'));
+      return k.textContent.replace(/\u00a0/g, ' ').split('\u0001').map(rivi).filter(Boolean).join(' / '); };
+    const ruudukko = [];
+    [...t.rows].forEach((r, i) => {
+      const rv = ruudukko[i] = ruudukko[i] || [];
+      let j = 0;
+      [...r.cells].forEach(c => {
+        while (rv[j] !== undefined) j++;
+        const cs = Math.max(1, c.colSpan || 1), rs = Math.max(1, c.rowSpan || 1);
+        for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) (ruudukko[i + a] = ruudukko[i + a] || [])[j + b] = a || b ? '' : solu(c);
+        j += cs;
+      });
+    });
+    const n = Math.max(0, ...ruudukko.map(r => r.length));
+    const kaytetyt = [...Array(n).keys()].filter(j => ruudukko.some(r => r[j]));
+    const rivit = ruudukko.map(r => kaytetyt.map(j => r[j] || '')).filter(r => r.some(Boolean));
+    if (kaytetyt.length < 2 || rivit.length < 2) {
+      const p = document.createElement('p');
+      rivit.map(r => r.filter(Boolean).join(' ')).forEach((x, i) => { if (i) p.appendChild(document.createElement('br')); p.append(x); });
+      return rivi(p.textContent) ? t.replaceWith(p) : t.remove();
+    }
+    const u = document.createElement('table'), th = document.createElement('thead'), tb = document.createElement('tbody'), o = document.createElement('tr');
+    kaytetyt.forEach(() => o.appendChild(document.createElement('th')));
+    th.appendChild(o);
+    rivit.forEach(r => { const tr = document.createElement('tr'); r.forEach(x => { const c = document.createElement('td'); c.textContent = x; tr.appendChild(c); }); tb.appendChild(tr); });
+    u.append(th, tb);
+    t.replaceWith(u);
   }
   function snTeksti(kentta, maar, laskuri, laji) {
     const f = kentta && kentta.querySelector('.field-item');
@@ -2841,19 +2941,87 @@
       a.replaceWith(merkki(tunnus));
       maar.push(maaritelma(tunnus, t));
     });
+    el.querySelectorAll('table').forEach(t => { if (!t.querySelector('table')) snTaulukko(t); });
     el.querySelectorAll('[style], [align]').forEach(x => { x.removeAttribute('style'); x.removeAttribute('align'); });
-    el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' '))) p.remove(); });
+    snRivit(el, laji);
+    el.querySelectorAll('p').forEach(p => { if (!snTx(p)) p.remove(); });
     snOtsikot(el, laji);
-    return kkSanoja(el) >= 15 ? el : null;
+    // Lyhytkin teksti kelpaa (sähke 28.8.1863: 9 sanaa; runo 12 sanaa putosivat ennen 15 sanan rajaan yleiseen leikkeeseen,
+    // joka toi sivuston valikot ja hakemistot). Tyhjä kenttä on ruotsinkielisessä usein TULOSSA.
+    const t = rivi(el.textContent);
+    return t && !/^TULOSSA\.?$/i.test(t) ? el : null;
+  }
+  /* Otsikko (21.11.2026, 89 asiakirjan otos ja koko luettelo): sivuston nimekkeissä on painetun nimiölehden versaaleja
+     (NELJÄ AVIOLIITTOA. TAULUJA TERBURGIN TAPAAN; FILOSOFIAN ALKEISKURSSI Ensimmäinen vihko PSYKOLOGIA Tukholma 1837) ja
+     tavutusvihjeitä (valta­istuin). Versaalijakso tavalliseksi: jakson ensimmäinen sana isolla, muut sen mukaan, miten sana
+     kirjoitetaan asiakirjan tekstissä keskellä virkettä (Terburgin, Hegelin, Leibnizin), tuntematon pienellä. Yhden
+     kirjaimen sanat (J. V.) ja roomalaiset numerot jäävät. */
+  function snOtsikko(t, kappaleet) {
+    t = rivi(String(t || '').replace(/\u00ad/g, ''));
+    const versa = w => w.length >= 2 && w === w.toUpperCase() && w !== w.toLowerCase() && !SN_ROOM.test(w);
+    const sanat = t.match(/\p{L}+/gu) || [];
+    if (!sanat.some(w => versa(w) && w.length >= 4)) return t;
+    // Sanan kirjoitusasu keskellä virkettä: [isolla, pienellä].
+    const asu = new Map();
+    kappaleet.forEach(k => {
+      let alku = true;
+      for (const x of k.matchAll(/(\p{L}+)|([.!?:]+)/gu)) {
+        if (x[2]) { alku = true; continue; }
+        const w = x[1];
+        if (!alku && w !== w.toUpperCase()) {
+          const v = asu.get(w.toLowerCase()) || [0, 0];
+          v[w[0] === w[0].toUpperCase() ? 0 : 1]++;
+          asu.set(w.toLowerCase(), v);
+        }
+        alku = false;
+      }
+    });
+    const iso = a => {
+      let v = asu.get(a);
+      if (!v) {
+        // Taivutusmuoto (TERBURGIN – Terburg): sama alku, vähintään viisi kirjainta.
+        const n = Math.max(5, a.length - 3);
+        v = [0, 0];
+        asu.forEach((x, k) => { if (k.length >= n && k.slice(0, n) === a.slice(0, n)) { v[0] += x[0]; v[1] += x[1]; } });
+      }
+      return v[0] > v[1];
+    };
+    let alku = true, ed = '';
+    return t.replace(/\p{L}+|[^\p{L}]+/gu, x => {
+      if (!/\p{L}/u.test(x)) { if (/[.!?:]/.test(x)) alku = true; return x; }
+      const w = x;
+      if (!versa(w)) { alku = false; ed = w; return x; }
+      const a = w.toLowerCase();
+      // Versaalijakson alku: otsikon alku, virkkeen alku tai versaalisana tavallisen sanan jälkeen (nimiölehden rivi).
+      const alkaa = alku || (ed && !versa(ed));
+      alku = false; ed = w;
+      return alkaa || iso(a) ? a[0].toUpperCase() + a.slice(1) : a;
+    });
+  }
+  /* Lehtikirjoituksen nimeke (21.11.2026): sivusto nimeää kirjoitukset lehden mukaan (Freja nro 97, 6.12.1839: Hegel
+     Fyrisjoen rannalla; Litteraturblad nro 1, 2, 3 ja 4, tammi-, helmi-, maalis-ja huhtikuu 1848: Ruotsalaisia siluetteja).
+     Otsikoksi kaksoispisteen jälkeinen nimi, teokseksi lehti ja numeroksi numerot, jotta lähdeviite on muotoa
+     Snellman, J. V. (1839). Hegel Fyrisjoen rannalla. Freja 97. Päiväys on etukentän julkaistu-avaimessa. Luettelon
+     2 949 asiakirjasta (21.11.2026) 607 jakautuu näin (myös lehdessä julkaistut puheet); lehtien kokonaiset numerot
+     (Saima nro 1, 2.1.1845) ja Kallaveden liitteet ovat ilman kaksoispistettä ja jäävät ennalleen. */
+  function snLehti(t) {
+    const m = /^(\p{Lu}[\p{L} ]*?) nro (\d{1,3}[a-z]?(?:(?:, | ja )\d{1,3}[a-z]?(?![.\d]))*)\b[^:]*:\s*(.+)$/u.exec(t);
+    if (!m) return null;
+    // Numerot 1, 2, 3 ja 4 → 1–4; 92, 93 ja 96 → 92, 93, 96.
+    const n = m[2].split(/, | ja /), per = n.every((x, i) => !i || +x === +n[i - 1] + 1);
+    return { otsikko: m[3], teos: m[1], numero: n.length > 1 && per ? n[0] + '–' + n[n.length - 1] : n.join(', ') };
   }
   async function snellman() {
     if (!/(^|\.)snellman\.kootutteokset\.fi$/i.test(location.hostname)) return null;
     const fi = document.querySelector('.field-name-field-suomi');
     if (!fi) return null;
     const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
-    const laji0 = rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent);
-    const s = snTeksti(fi, maar, laskuri, laji0), sv = snTeksti(document.querySelector('.field-name-field-ruotsi'), maar, laskuri, laji0);
+    // Asiakirjalla voi olla useampi tyyppi (Virkakirje, Sähke): kaikki, jälkimmäiset pienellä.
+    const laji = [...document.querySelectorAll('.field-name-field-dokumentin-tyyppi .field-item')].map(x => rivi(x.textContent)).filter(Boolean)
+      .map((x, i) => i ? x.toLowerCase() : x).join(', ');
+    const s = snTeksti(fi, maar, laskuri, laji), sv = snTeksti(document.querySelector('.field-name-field-ruotsi'), maar, laskuri, laji);
     if (!s && !sv) return null;
+    const kappaleet = [...fi.querySelectorAll('p')].map(p => rivi(p.textContent.replace(/ /g, ' '))).filter(Boolean);
     if (s) el.append(...s.childNodes);
     if (sv) {
       if (s) { const h = document.createElement('h2'); h.textContent = 'Ruotsiksi'; el.appendChild(h); }
@@ -2863,14 +3031,28 @@
     const pv = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(rivi((document.querySelector('.field-name-tekstilahde-daterange .field-item') || {}).textContent));
     // Epätarkka päiväys (Pvm ei ole tarkka; Teosofia [1826–28] on 31.12.1826): vain vuosi. 32/79 asiakirjaa 21.11.2026.
     const epatarkka = /ei ole tarkka|ei (ole )?tiedossa|tarkka pvm ei/i.test(rivi((document.querySelector('.field-name-field-pvm-kommenti .field-item') || {}).textContent));
-    const laji = rivi((document.querySelector('.field-name-field-dokumentin-tyyppi .field-item') || {}).textContent);
     // Alkukielinen pdf (78/79 asiakirjaa 21.11.2026) lähdeosioon (md.js lahdeOsio()): alkuteksti on sivulla tekstinä
     // 0/79:ssä, ja pdf:n tekstikerros on huonoa OCR:ää (Veriden, ali dess poiitik) tai tyhjä (käsin kirjoitetut kirjeet),
     // joten sitä ei leikata eikä lomiteta.
     const pdf = document.querySelector('.field-name-field-alkukielinen-pdf a[href$=".pdf"]');
-    return { html: irrota([el]).innerHTML, otsikko: rivi((document.querySelector('.page-title-header') || {}).textContent) || rivi(document.title).split('|')[0],
-      tekija: 'J. V. Snellman', sivusto: SN_NIMI, julkaistu: pv ? (epatarkka ? pv[3] : pv[3] + '-' + pv[2].padStart(2, '0') + '-' + pv[1].padStart(2, '0')) : '',
-      laji, lahde: osoite, maar, yllapitaja: 'Snellman-instituutti', polku: 'Dokumentit' + (laji ? ' › ' + laji : ''),
+    const nimi = snOtsikko(rivi((document.querySelector('.page-title-header') || {}).textContent) || rivi(document.title).split('|')[0], kappaleet);
+    const lehti = snLehti(nimi);
+    /* Snellmanille tullut kirje (21.11.2026): nimeke on lähettäjän nimi ablatiivissa (Alexander Armfeltilta, sähke 28.8.1863;
+       Anna Christina Snellmanilta), ja lähettäjä on Kirjeenvaihto-kentässä. Tekijäksi lähettäjä; ennen kaikkien tekijä oli
+       J. V. Snellman. Luettelon 2 949 asiakirjasta noin 600 on tällaisia. Snellmanin omat kirjeet ovat allatiivissa
+       (Adolf Fredrik Waseniukselle). */
+    const kv = [...document.querySelectorAll('.field-name-field-kirjeenvaihto .field-item')].map(x => rivi(x.textContent)).filter(Boolean).join(' & ');
+    const tullut = kv && /kirje|sähke/i.test(laji) && /^(?:[\p{Lu}][\p{L}'’-]*\.?\s+|(?:von|af|de|van|zu)\s+)*\p{Lu}[\p{L}'’-]*?(lta|ltä)(?!\p{L})/u.test(nimi);
+    /* Tyyppi (21.11.2026): runot, laulut, romaanit, kertomukset ja näytelmä kaunokirjallisiksi (otsikon alla sivuston nimi,
+       kellarissa Kaunokirjallisuus), muut tieteellisiksi: kootut teokset on toimitettu laitos, ja blogin muodossa (oletus)
+       lähdeviitteessä toistui päiväys sivuston perässä. Lehtikirjoituksen tietorivillä lehti (Freja, 6.12.1839) eikä
+       laji Lehtikirjoitus; osastona se säilyy. */
+    const kauno = /runo|laulu|romaani|kertomus|näytelmä/i.test(laji) || /näytelmä/i.test(nimi);
+    const laji2 = lehti ? laji.split(', ').filter(x => !/^lehtikirjoitus$/i.test(x)).join(', ').replace(/^\p{Ll}/u, c => c.toUpperCase()) : laji;
+    return { html: irrota([el]).innerHTML, otsikko: lehti ? lehti.otsikko : nimi,
+      tekija: tullut ? kv : 'J. V. Snellman', tyyppi: kauno ? 'kaunokirjallinen' : 'tieteellinen', teos: lehti ? lehti.teos : '', numero: lehti ? lehti.numero : '',
+      sivusto: SN_NIMI, julkaistu: pv ? (epatarkka ? pv[3] : pv[3] + '-' + pv[2].padStart(2, '0') + '-' + pv[1].padStart(2, '0')) : '',
+      laji: laji2, lahde: osoite, maar, yllapitaja: 'Snellman-instituutti', ladonta: 'asiakirja', polku: 'Dokumentit' + (laji ? ' › ' + laji.split(', ')[0] : ''),
       alkuteksti: pdf ? pdf.href : '' };
   }
 
