@@ -55,8 +55,9 @@ const reuna = k => k <= 16 ? 1.25 : k <= 32 ? 1.05 : .9;
 
 // Android-kääreen (android/luin/) käynnistyskuvake vektorina: sama salmiakki samoissa mittasuhteissa kuin kotivalikon
 // 180.png (näkyvä 72 dp:n ruutu vastaa sen 15,3 yksikön viewBoxia, joten koko 108 dp:n kangas on 15,3 · 108 / 72 yksikköä).
-// Värit ovat resursseja (@color/ruoste, @color/paperi), joten tummassa järjestelmäteemassa kuvake on tumman teeman väreissä
-// kuten välilehden SVG. Monokromi (Android 13:n teemakuvake) on sama salmiakki.
+// Värit ovat resursseja @color/kuvake_ruoste ja @color/kuvake_paperi, jotka on määritelty vain values/colors.xml:ssä:
+// kuvake on vaalealla paperilla myös tummassa järjestelmäteemassa (käyttäjän pyyntö 21.11.2026). Älä vaihda niitä
+// @color/paperi-resurssiin, jolla on values-night-vastine. Monokromi (Android 13:n teemakuvake) on sama salmiakki.
 function android() {
   const RES = path.resolve(__dirname, '../../android/luin/src/main/res');
   const K = 15.3 * 108 / 72, siirto = n => +(K / 2 - n).toFixed(3);
@@ -72,18 +73,18 @@ ${huom}<vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:translateY="${siirto(5.5)}">
         <path
             android:pathData="M4,0.9L7.2,5.5L4,10.1L0.8,5.5Z"
-            android:strokeColor="@color/ruoste"
+            android:strokeColor="@color/kuvake_ruoste"
             android:strokeLineJoin="miter"
             android:strokeWidth="0.9" />
         <path
-            android:fillColor="@color/ruoste"
+            android:fillColor="@color/kuvake_ruoste"
             android:pathData="M4,3.2L5.6,5.5L4,7.8L2.4,5.5Z" />
     </group>
 </vector>
 `);
   fs.writeFileSync(path.join(RES, 'mipmap-anydpi-v26/ic_launcher.xml'), `<?xml version="1.0" encoding="utf-8"?>
 ${huom}<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/paperi" />
+    <background android:drawable="@color/kuvake_paperi" />
     <foreground android:drawable="@drawable/ic_luin_salmiakki" />
     <monochrome android:drawable="@drawable/ic_luin_salmiakki" />
 </adaptive-icon>
@@ -98,7 +99,7 @@ ${huom}<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
         android:right="18dp"
         android:top="18dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/paperi" />
+            <solid android:color="@color/kuvake_paperi" />
             <corners android:radius="12dp" />
         </shape>
     </item>

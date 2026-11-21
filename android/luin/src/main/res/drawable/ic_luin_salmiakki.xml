@@ -10,11 +10,11 @@
         android:translateY="5.975">
         <path
             android:pathData="M4,0.9L7.2,5.5L4,10.1L0.8,5.5Z"
-            android:strokeColor="@color/ruoste"
+            android:strokeColor="@color/kuvake_ruoste"
             android:strokeLineJoin="miter"
             android:strokeWidth="0.9" />
         <path
-            android:fillColor="@color/ruoste"
+            android:fillColor="@color/kuvake_ruoste"
             android:pathData="M4,3.2L5.6,5.5L4,7.8L2.4,5.5Z" />
     </group>
 </vector>
