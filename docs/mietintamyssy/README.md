@@ -11,9 +11,10 @@ GRETIL-sovite ja vakiosivut (opas 3.2 *Vakiosivut*, `vakiosivu-testi.js`). Keske
 
 1. ~~Kellarin sanaston huolto~~ *tehty 21.11.2026* (järjestysrivin *sanasto*, opas 2.5).
 2. ~~Perseus: erilliset tekstit~~ *tehty 21.11.2026* (*kukin omaksi tekstikseen*, opas 7.5). Tarvitsee lisäosan uuden version.
-3. **Viiden sivuston yleisen leikkauksen mittaus** ([luin-sivustoehdokkaat-3.md](luin-sivustoehdokkaat-3.md), järjestyksen kohta 8):
-   Girardian Lectionary, Phenomenology Online, Lacan Online, The Hedgehog Review ja The Immanent Frame. Lisää pesukoneeseen sarja,
-   mittaa yleinen leike ja tee sovite vain, jos se ei riitä.
+3. ~~Viiden sivuston yleisen leikkauksen mittaus~~ *tehty 21.11.2026* (The Immanent Frame riittää, kolme kevyttä sovitetta,
+   Hedgehog Review 403; opas 7.5).
+
+Kaikki kuusi kohtaa on tehty. Lisäosan *kukin omaksi tekstikseen* odottaa uutta lisäosaversiota (`.claude/rules/luin.md`).
 
 Tehdyistä avoimeksi jäi: augustinus.it ei kokoa koko teosta sisällysluettelosta (vain kehyksessä avatun kirjan), GRETILin luvuilla
 ei ole otsikoita (säenumerot 1.1 … 27.30 ovat aikajanan kohtia), ja vakiosivu näkyy tekstin seassa eikä reunanumerona.
