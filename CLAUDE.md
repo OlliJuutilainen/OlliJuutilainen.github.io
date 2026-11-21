@@ -13,17 +13,20 @@ kaikissa ohjelmissa, kuittauksissa ja tuotetussa tekstissä. `Intl`/`toLocaleTim
 
 ## Ohjelmakohtaiset ohjeet
 
-KEICK•WALKin ja Luinin säännöt ovat omissa tiedostoissaan (käyttäjän päätös 3.11.2026; ennen ne olivat
+Ohjelmien säännöt ovat omissa tiedostoissaan (käyttäjän päätös 3.11.2026, Tusinasää 21.11.2026; ennen ne olivat
 tässä tiedostossa, joka oli kasvanut 118 000 merkkiin ja latautui jokaiseen istuntoon):
 
 - `.claude/rules/soitin.md`: KEICK•WALK eli `soitin/` (soitin, Keikkaloihdin, Omat keikkani, ohjeet,
   keikka-analyysin taitopaketti) ja Android-kääre `android/soitin/`.
+- `.claude/rules/tusinapaja.md`: Tusinasää eli `tusinapaja.html` (ainoa aktiivinen versio; vanhat versiot ovat
+  `arkisto/`ssa, eikä niihin kosketa pyytämättä), `generaattori.html`, Android-sovellus `android/app/` ja
+  `docs/tusinapaja-backlog.md`.
 - `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit), Android-kääre
   `android/luin/` ja `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Pdf:stä muunnettu teksti*).
 
 Claude Code lataa tiedoston itse, kun luet tai muokkaat sen `paths`-kuvioihin osuvaa tiedostoa. Jos
 ohjelman työ alkaa muualta (esim. `worker/src/index.js`: reitit `/api/gig`, `/api/drive*` ja `/api/dropbox`
-ovat soittimen, `/api/luin` ja `/api/palaute` Luinin) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
+ovat soittimen, `/api/luin` ja `/api/palaute` Luinin, `/api/loc` Tusinasään) tai tiedoston sisältö ei näy kontekstissa, lue se itse ennen muutoksia.
 
 Mihin kirjataan: yhden ohjelman päätös sen omaan tiedostoon, kaikkia ohjelmia koskeva tähän. Kun huomaat
 opin, joka palvelisi koko Tusinasoftin kehitystä, ehdota käyttäjälle lyhyttä kirjausta tähän tiedostoon;
@@ -56,26 +59,6 @@ Käytännössä siis:
 - Kun mittarisi antaa oudon tuloksen, epäile ensin mittaria. Se on ollut viallinen
   useammin kuin koodi.
 
-### Testaaminen ilman verkkoa
-
-Sivut hakevat dataa FMI:ltä ja met.no:lta. Testeissä ne kannattaa korvata Playwrightin
-`page.route`-siepauksella ja lukita kello `addInitScript`-Date-korvauksella. Näin saa
-toistettavan marraskuun aamun tai kesäyön riippumatta siitä mikä päivä oikeasti on.
-SunCalc ja tz-lookup löytyvät paikallisesti `android/app/src/main/assets/`-kansiosta,
-joten niitäkään ei tarvitse hakea verkosta.
-
-## Lue tämä ennen siivoamista
-
-`docs/tusinapaja-backlog.md` sisältää osion **"Tehdyt päätökset"**. Siellä on selitetty,
-mikä koodissa näyttää turhalta tai virheeltä mutta on harkittua. Lue se ennen kuin
-poistat mitään "kuolleena koodina". Ainakin nämä näyttävät jäämiltä eivätkä ole:
-
-- `class="ditto"` on ilman CSS-sääntöä tarkoituksella.
-- `forceDescWhite`, `forceRainWhite` ja `__warn` ovat kytkemättömiä koukkuja, ei roskaa.
-- `lowercaseMainDescription` on kutsumaton, mutta työlistan kohta 1 nojaa siihen.
-
-Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei ala alusta.
-
 ## Ympäristön reunaehdot
 
 **Pushaa itse.** Sinulla on oikeus pushata annetulle kehityshaaralle; aiempi 403-este on
@@ -105,50 +88,6 @@ joka käyttää eri syntaksia: `kv:key` kaksoispisteellä eikä `--remote`-lippu
 millään versiolla, koska `workerd` ei käänny Bionicille; sieltä KV-kirjoitus tehdään
 Cloudflaren REST-rajapinnalla `curl`-komennolla.
 
-## Tusinapaja on ainoa aktiivinen versio
-
-**Kaikki työ tehdään tiedostoon `tusinapaja.html`.** Kun käyttäjä sanoo "tusinasää",
-hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat versiot
-(`tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html` ym.) on siirretty
-kansioon `arkisto/`. Älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse
-niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
-
-## Tusinapajan tyylisäännöt
-
-`tusinapaja.html` näyttää tunneittaisen sään viidessä sarakkeessa: aika, lämpötila,
-selite, sade, tuuli. Hämärävaiheiden esitystä koskevat säännöt:
-
-- **Ei ajatusviivoja selitesarakkeeseen.** Jokainen merkintä on omalla rivillään.
-  Sarakkeessa näkyvä `—` on nollasateen symboli, ei ajatusviiva.
-- **Kuivalla tunnilla hämärävaihe on pääsana**, myös kesäyön tunteina. Sateisella
-  tunnilla sää on pääsana ja hämärä siirtyy pieneksi merkinnäksi.
-- **Sumu ei ole yöllä selite.** Hämärätunnilla sumu ohitetaan kuin kuiva sää, myös jos
-  tunnille on ennustettu pieni sademäärä.
-- **Sateisella tunnilla ei toisteta vaiheen nimeä** sellaisenaan. Vain ilmoitukset:
-  vaiheen alkaminen ja seuraavan vaiheen alkaminen.
-- **Alkuaikaa ei koskaan keksitä.** Jos vaiheen todellista alkamishetkeä ei tiedetä,
-  ilmoitusta ei anneta.
-- Vaiheen oma alkuaika sulkeissa pääselitteen perässä: `porvarillinen hämärä (07:29)`.
-  Sulkeutus koskee vain vaiheen omaa alkuaikaa, ei seuraavan vaiheen ilmoitusta eikä
-  aurinkotapahtumia — ne nimeävät eri asian.
-- Seuraavan vaiheen ilmoitus vain jos vaihe on **eri** kuin tunnin oma **ja** alkaa
-  minuutilla `:30` tai myöhemmin. Silloin lyhyt muoto riittää: `nauttinen 06:37`,
-  ilman sanoja *hämärä* ja *alkaa*, koska ne käyvät ilmi asiayhteydestä.
-- Ditto-rivillä (`»`) ei näytetä paljasta kellonaikaa. Seuraavan vaiheen ilmoitus saa
-  jäädä, koska se nimeää vaiheen itse.
-
-Sademäärä:
-
-- Nollasade on `—`. Jos pyöristetty määrä on 0 mutta selite on sateinen, näytetään `0.0 mm`.
-- Jos tällöin pyöristämätön ennustearvo on nollaa suurempi (alle 0,05 mm), näytetään
-  `~0.0 mm`. Kuivalla selitteellä pieni määrä näkyy edelleen `—`.
-- Poikkeus (17.11.2026): nowcast-rivillä, jolla met.no on kuiva mutta FMI:n saman tunnin symboli on
-  heikkoa sadetta, näytetään `~0.0 mm` kuivan selitteen kanssa. Selite pysyy met.no:n; FMI vain täydentää.
-
-Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
--merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee. Se on
-nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
-
 ## Alatunniste
 
 Käyttäjän päätös 21.10.2026: kaikissa repon ohjelmissa, joihin se mielekkäästi sopii, on alalaidassa
@@ -173,12 +112,6 @@ commit-viesteihin, PR:iin eikä käyttäjälle näkyvään tekstiin, eikä se oh
 aihepalettia. Jäljelle jää se, mihin työ johti (alustat, sovitteet, mittaukset), ja ideat menevät myssyn yleisiin tiedostoihin,
 ei profiilin omaan tiedostoon.
 
-`arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
-`tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
-
-`generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
-täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
-käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
-KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
+Sijaintikoordinaatit eivät saa päätyä selväkielisinä repoon (Tusinasään sijaintitoken, tusinapaja.md).
 
 Repon juuressa on `.nojekyll`: ilman sitä GitHub Pagesin Jekyll muuntaa etukentällisen `.md`-tiedoston `.html`:ksi, jolloin `.md`-osoite antaa 404 ja Luin ei saa tekstiä (mitattu 21.10.2026: `luin/ohje.md` ja `luin/tekstit/kant-ja-elainetiikka.md` 404, `.html`-versiot 200). Älä poista.
