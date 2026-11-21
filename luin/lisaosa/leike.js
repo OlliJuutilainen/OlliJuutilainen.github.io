@@ -1745,7 +1745,7 @@
         el.appendChild(q);
       }
     });
-    // Pelkkä DOI omana kohtanaan (Sosiaalilääketieteellinen aikakauslehti: doi: 10.2307/2136404, 21.11.2026) edellisen perään.
+    // Pelkkä DOI omana kohtanaan (journal.fi:n pdf-lehti: doi: 10.2307/2136404, 21.11.2026) edellisen perään.
     const viitteet = ojsMeta(L, 'citation_reference').reduce((k, v) => {
       if (k.length && /^(doi:\s*|https?:\/\/(dx\.)?doi\.org\/)\S+$/i.test(v)) k[k.length - 1] += ' ' + v; else k.push(v);
       return k;
@@ -6552,10 +6552,8 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
-  /* Springer Nature (link.springer.com, BMC:n lehdet ja nature.com; käyttäjän kysymys 21.11.2026: sosiaalilääketieteen
-     lähteet, esimerkiksi Journal of Eating Disorders, BMC Public Health, International Journal for Equity in Health,
-     International Journal of Obesity, Social Psychiatry and Psychiatric Epidemiology, Eating and Weight Disorders). BMC:n
-     lehtien osoitteet (jeatdisord.biomedcentral.com ym.) ohjautuvat nyt link.springer.comiin, ja sivupohja on kaikilla sama:
+  /* Springer Nature (link.springer.com, BMC:n lehdet ja nature.com; käyttäjän pyyntö 21.11.2026: avoimet
+     tieteelliset lehdet). BMC:n lehtien osoitteet (*.biomedcentral.com) ohjautuvat nyt link.springer.comiin, ja sivupohja on kaikilla sama:
      div.c-article-body, osiot section[data-title] (Abstract, Plain language summary, teksti, Data availability, Abbreviations,
      References, Acknowledgements, Funding, Author information, Ethics declarations, Additional information, Supplementary
      information, Rights and permissions, About this article; nimen perässä voi olla rivinvaihto) ja suositukset (Inline
@@ -6676,7 +6674,7 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
-  /* PLOS (journals.plos.org: PLOS ONE, PLOS Medicine, PLOS Global Public Health ym.; 21.11.2026 samasta kysymyksestä). Teksti
+  /* PLOS (journals.plos.org: PLOS ONE, PLOS Medicine ym.; 21.11.2026 samasta pyynnöstä). Teksti
      #artText: tiivistelmä ja Author summary (div.abstract), osiot div.section (h2, h3), tyhjät ankkurit a.link-target, kuvat ja
      taulukot div.figure (taulukkokin on sivulla vain kuvana: div.figcaption Table 1. ja otsikko). Viittaukset a.ref-tip
      (href #pmed.1004371.ref001) → ol.references > li (span.order 1., ul.reflinks hakulinkit): numeroviittaukset alaviitteiksi
@@ -6779,8 +6777,8 @@
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
   }
 
-  /* Frontiers (frontiersin.org: Frontiers in Psychology, Psychiatry, Public Health, Nutrition ym.; 21.11.2026 samasta
-     kysymyksestä). Teksti .ArticleContent: tiivistelmä (div#h1, väliotsikot p.TitleInline-lihavointeina), osiot div#sN (h2, h3),
+  /* Frontiers (frontiersin.org: Frontiers in Psychology ym.; 21.11.2026 samasta
+     pyynnöstä). Teksti .ArticleContent: tiivistelmä (div#h1, väliotsikot p.TitleInline-lihavointeina), osiot div#sN (h2, h3),
      Statements (h2, div.Statement__*: aineisto, etiikka, tekijöiden osuus, rahoitus, sidonnaisuudet, generatiivinen tekoäly,
      Publisher's note, alaviitteet) ja References (ul.References > li#BN: .References__label, .References__content,
      .References__links). Numeroviittaukset ovat nappeja ilman osoitetta (span.ArticleReference#B1-button, jossa
