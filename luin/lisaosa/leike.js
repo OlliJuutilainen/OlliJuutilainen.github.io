@@ -18,6 +18,9 @@
   // nollataan heti, jotta seuraava ajo samalla sivulla alkaa oletuksista. Muut sovitteet eivät katso niitä.
   const PS_VALINNAT = globalThis.__lukimeenPs || null;
   globalThis.__lukimeenPs = null;
+  // Numero tekstinä (Snellman-sovite 21.11.2026): Turndown suojaa rivin alun 1. vain välilyönnin kanssa, ei 1):tä eikä
+  // yksinäistä 2.:tä, jotka md.js lukee luettelon merkiksi. Sovite asettaa tämän, ja muunna() suojaa silloin nekin.
+  let SULKUNUMEROT = false;
 
   function muunna(html, linkit = 'referenced') {
     // Rivinvaihto kenoviivalla (iA Writer, md.js; 21.11.2026): Turndownin oletus oli kaksi välilyöntiä, jotka eivät näy
@@ -26,7 +29,10 @@
       fence: '```', emDelimiter: '*', strongDelimiter: '**', linkStyle: linkit, linkReferenceStyle: 'full', br: '\\' });
     td.use(turndownPluginGfm.gfm);
     // Tekstin < kirjaimen edellä (OCR-roska <rca>, a<b) ei saa näyttää md.js:lle HTML-merkinnältä (Internet Archive 17.11.2026).
-    td.escape = s => TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])/g, '\\<');
+    td.escape = s => {
+      const e = TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])/g, '\\<');
+      return SULKUNUMEROT ? e.replace(/^(\s*\d{1,3})([.)])(?=\s|$)/, '$1\\$2') : e;
+    };
     td.keep(['sub', 'sup']);
     td.remove(['script', 'style', 'noscript', 'iframe', 'button', 'form', 'svg']);
     td.addRule('kuvat', { filter: 'img', replacement: () => '' });
@@ -2801,6 +2807,8 @@
      (väh. 25 sanaa) kappaleiden välissä tai alussa (Teosofia: Maailma ja ihminen) on ##. Kirjeiden päiväykset, puhuttelut ja
      allekirjoitukset sekä runojen säkeet eivät täytä ehtoja. */
   const SN_ROOM = /^(?=[IVXL])(XL|L?X{0,3})(IX|IV|V?I{0,3})\.?$/;
+  // Sarjaotsikko: 1–4 sanan alku, roomalainen numero, muut numerot (& III, , V, ja VI) ja toimittajan huomautus hakasulkeissa.
+  const SN_SARJA = /^(\p{Lu}[\p{L}-]*(?:\s+\p{L}[\p{L}-]*){0,3})\s+(?=[IVXL])(?:XL|L?X{0,3})(?:IX|IV|V?I{0,3})(?![\p{L}\p{N}])(?:\s*(?:,|&|ja|–|-)\s*(?=[IVXL])(?:XL|L?X{0,3})(?:IX|IV|V?I{0,3})(?![\p{L}\p{N}]))*\.?(?:\s*\[[^\]]*\])?$/u;
   // Kappaleen teksti: <br> välilyönniksi (säkeiksi yhdistetyt rivit, snRivit).
   const snTx = p => { const k = p.cloneNode(true); k.querySelectorAll('br').forEach(b => b.replaceWith(' ')); return rivi(k.textContent.replace(/ /g, ' ')); };
   const snSanoja = t => (t.match(/\S+/g) || []).length;
@@ -2861,10 +2869,25 @@
       if (p.querySelector('br')) return '';
       if (SN_ROOM.test(t)) return 'r';
       if (versaali(t) || versaaliAlku(t)) return 'v';
+      // Lainauksen perässä oleva nimi (vähintään kaksi sanaa) on allekirjoitus, ei otsikko (21.11.2026: Finlands Allmänna
+      // Tidningin kirjoituksessa lainattu ilmoitus ja sen alla Carl Zuhr; yksisanainen Paradokseja on otsikko).
       if (vapaa && sanoja(t) <= 6 && /^\p{Lu}/u.test(t) && !/\d/.test(t) && !/[.,;:!?…”"\])]$/.test(t) &&
-        (k === 0 || sanoja(tx[k - 1]) >= 25 && !ps[k - 1].querySelector('br')) && k + 1 < ps.length && sanoja(tx[k + 1]) >= 25) return 'l';
+        (k === 0 || sanoja(tx[k - 1]) >= 25 && !ps[k - 1].querySelector('br') && !(/[”"»]$/.test(tx[k - 1]) && /\s/.test(t) && SN_NIMI_RIVI.test(t))) &&
+        k + 1 < ps.length && sanoja(tx[k + 1]) >= 25) return 'l';
       return '';
     });
+    /* Sarjaotsikot (21.11.2026, koko korpuksen pesu): luentosarjojen käsikirjoituksissa luennot ovat riveinä Siveysoppi I,
+       Siveysoppi II & III, Siveysoppi IV, V ja Akateeminen opiskelu VII [luvun numero kahteen kertaan]. Pituussääntö tunnisti
+       niistä vain ne, joiden naapurikappaleet olivat pitkiä (Siveysopin 18 otsikosta 9, Akateemisen opiskelun 30:stä 18). Sama alku ja roomalainen numero
+       vähintään kahdesti omina riveinään → kaikki otsikoiksi. */
+    if (vapaa) {
+      const sarja = {};
+      ps.forEach((p, k) => {
+        const m = !p.querySelector('br') && sanoja(tx[k]) <= 9 && SN_SARJA.exec(tx[k]);
+        if (m) (sarja[m[1]] = sarja[m[1]] || []).push(k);
+      });
+      Object.values(sarja).forEach(ks => { if (ks.length >= 2) ks.forEach(k => { if (!kaikki[k]) kaikki[k] = 'l'; }); });
+    }
     // Kirjan oma sisällysluettelo: sen rivit tekstiksi, kunnes ensimmäinen nimi toistuu.
     const nimi = t => t.replace(/[[\]().]/g, '').replace(/\s+/g, ' ').trim();
     for (let k = 0; k < ps.length; k++) {
@@ -2894,7 +2917,9 @@
       if (l === 'r' && kaikki[k + 1] === 'v') return;
       if (l === 'v' && kaikki[k - 1] === 'r') { t = tx[k - 1].replace(/\.?$/, '.') + ' ' + t; ps[k - 1].remove(); }
       const h = document.createElement(l === 'r' && vers ? 'h3' : 'h2');
-      h.textContent = t;
+      // Versaalit tavalliseksi kuten nimekkeessä (21.11.2026): ENSIMMÄINEN OSA. OPPI KÄSITTEESTÄ → Ensimmäinen osa. Oppi
+      // käsitteestä; erisnimet tekstin kirjoitusasun mukaan (KERTOMUS MARI APPELBERGISTA. → Kertomus Mari Appelbergista.).
+      h.textContent = snOtsikko(t, tx);
       p.replaceWith(h);
     });
   }
@@ -3021,7 +3046,7 @@
         alku = false;
       }
     });
-    const iso = a => {
+    const todiste = a => {
       let v = asu.get(a);
       if (!v) {
         // Taivutusmuoto (TERBURGIN – Terburg): sama alku, vähintään viisi kirjainta.
@@ -3029,8 +3054,22 @@
         v = [0, 0];
         asu.forEach((x, k) => { if (k.length >= n && k.slice(0, n) === a.slice(0, n)) { v[0] += x[0]; v[1] += x[1]; } });
       }
-      return v[0] > v[1];
+      return v;
     };
+    /* Nimirivi (21.11.2026, väliotsikot koko korpuksessa): kun mikään keskellä riviä oleva versaalisana ei esiinny tekstissä
+       pienellä ja jokin rivin sanoista esiintyy isolla, tuntematonkin sana on nimeä (TRI DAVID FRIEDRICH STRAUSS → Tri David
+       Friedrich Strauss, HELSINGFORS' MORGONBLAD → Helsingfors' Morgonblad; ennen Tri david, Helsingfors' morgonblad). */
+    const asema = [];
+    {
+      let alku = true, ed = '';
+      for (const x of t.match(/\p{L}+|[^\p{L}]+/gu) || []) {
+        if (!/\p{L}/u.test(x)) { if (/[.!?:]/.test(x)) alku = true; continue; }
+        if (versa(x)) asema.push({ v: todiste(x.toLowerCase()), alkaa: alku || (ed && !versa(ed)) });
+        alku = false; ed = x;
+      }
+    }
+    const nimet = asema.some(s => s.v[0] > s.v[1]) && asema.every(s => s.alkaa || s.v[0] >= s.v[1]);
+    const iso = a => { const v = todiste(a); return v[0] > v[1] || (nimet && !v[0] && !v[1]); };
     let alku = true, ed = '';
     return t.replace(/\p{L}+|[^\p{L}]+/gu, x => {
       if (!/\p{L}/u.test(x)) { if (/[.!?:]/.test(x)) alku = true; return x; }
@@ -3058,6 +3097,11 @@
   }
   async function snellman() {
     if (!/(^|\.)snellman\.kootutteokset\.fi$/i.test(location.hostname)) return null;
+    /* Rivin alun 1) ja kappaleen pelkkä 2. ovat painetun laitoksen numerointia, ei Markdownin luetteloa (21.11.2026, koko
+       korpuksen pesu): md.js teki niistä luettelon, jolloin numero muuttui pisteelliseksi tai tyhjäksi kohdaksi ja Logiikan
+       sisällysluettelon rivit (B. Refleksioarvostelma | a. … | 1) Singulaarinen arvostelma | 2) …) hajosivat luetteloksi,
+       johon seuraavat rivit valuivat. Ennen 232 numeroa 32 asiakirjassa. */
+    SULKUNUMEROT = true;
     const fi = document.querySelector('.field-name-field-suomi');
     if (!fi) return null;
     const maar = [], laskuri = { n: 0 }, el = document.createElement('div');
