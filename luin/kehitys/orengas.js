@@ -73,9 +73,9 @@ const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
 // paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä), rako suhteessa pienempi.
 const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .42, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
-// Otsikon merkki (.74rem = 11,84 px; käyttäjän linjaus: otsikon Ö on tavallinen kirjain ja rengas on merkkinä perässä kuten kellarin
-// kampi): sama muoto, renkaan runko kammen korkuinen (1,05 em) ja keskikohta kammen navan korkeudella (.3176 em = 3,76 px).
-const OEM = 11.84, ONAPA = 3.76, OK = 1.05 * OEM / LINKKI.kork;
+// Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena luontevan kirjoituksen kokoisena, ei kammen):
+// runko kuin versaali-O: ylitys OYLI px perusviivan alle ja versaalikorkeuden (OCAP) yli, keskikohta versaalien keskellä.
+const OEM = 11.84, OCAP = 8.51, OYLI = .15, OK = (OCAP + 2 * OYLI) / LINKKI.kork;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
 const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
 // Ö-mappiin-linkin nuolen kärki (käyttäjän linjaus: huolellinen, klassinen): täytetty muoto, kärki (0,0) ja varsi eli alleviivaus (1 px)
@@ -110,7 +110,7 @@ if (require.main === module) {
     console.log(JSON.stringify({
       nuoli: Object.assign(nuoliSvg(NUOLI), { t: NUOLI.t }),
       linkki: { w: e(gl.w, EM), h: e(gl.h + yla(gl, 1), EM), puoli: e(gl.r.cx, EM), svg: svg(LINKKI, PISTE, 'orengas', 1) },
-      ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(ONAPA - OTS.kork / 2, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
+      ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(-OYLI, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
   }
 }
-module.exports = { o, svg, f, karki, nuoliSvg, NUOLI, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };
+module.exports = { OCAP, OYLI, o, svg, f, karki, nuoliSvg, NUOLI, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };

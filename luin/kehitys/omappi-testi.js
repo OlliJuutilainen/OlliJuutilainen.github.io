@@ -126,24 +126,20 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   if (KUVAT) await page.screenshot({ path: KUVAT + '/kellari.png', fullPage: true });
   await page.click('#om-linkki a'); await page.waitForTimeout(200);
   t('ö-mappi: hash', page.url().endsWith('#omappi'));
-  t('ö-mappi: otsikko tavallisin kirjaimin', (await page.textContent('#lista-ots')) === 'Ö-mappi' && !(await page.getAttribute('#lista-ots', 'aria-label')));
+  t('ö-mappi: otsikko Mappi ö', (await page.textContent('#lista-ots')) === 'Mappi ' && (await page.getAttribute('#lista-ots', 'aria-label')) === 'Mappi ö');
   t('ö-mappi: 1 nimike', (await page.$$('#nimikkeet li.nimike')).length === 1);
   t('ö-mappi: linkit piilossa', !(await page.isVisible('#om-linkki')) && !(await page.isVisible('#ark-linkki')) && !(await page.isVisible('#jarj-rivi')));
   t('ö-mappi: ei Takaisin pinoon -tekstiä eikä pinomerkkiä', !(await page.isVisible('#ark-takaisin')) && !(await page.isVisible('#ark-koti')));
-  // Otsikon perässä mappirengas merkkinä kuten kellarin kampi: runko kammen korkuinen (1,05 em), keskikohta kammen navan korkeudella,
-  // rako 1 em viimeisestä kirjaimesta.
+  // Otsikon ö mappirenkaana kirjaimen kokoisena: runko kuin versaali-O (.15 px perusviivan alta .15 px versaalikorkeuden yli).
   const oM = await page.evaluate(KORK => {
     const h = document.querySelector('#lista-ots'), r = [...h.querySelectorAll('svg.orengas')];
-    const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; h.querySelector('.ots-merkki').appendChild(pr);
+    const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; h.appendChild(pr);
     const bl = pr.getBoundingClientRect().bottom; pr.remove();
     const q = r[0].getBoundingClientRect(), k = q.height / r[0].viewBox.baseVal.height;
-    return { n: r.length, em: parseFloat(getComputedStyle(h).fontSize), kesk: bl - (q.bottom - KORK / 2 * k), runko: KORK * k };
+    return { n: r.length, pohja: q.bottom - bl, laki: bl - (q.bottom - KORK * k) };
   }, R.OTS.kork);
-  t('ö-mappi: otsikon perässä mappirengas', oM.n === 1, JSON.stringify(oM));
-  t('ö-mappi: renkaan keskikohta kammen navan korkeudella', Math.abs(oM.kesk / oM.em - linkinNapa) < EMTOL, oM.kesk.toFixed(2) + ' / ' + emx(linkinNapa) + ' px');
-  t('ö-mappi: renkaan runko kammen korkuinen (1,05 em)', Math.abs(oM.runko / oM.em - 1.05) < .01, (oM.runko / oM.em).toFixed(3) + ' em');
-  const oRako = await rako('h2.ots svg.orengas');
-  t('ö-mappi: renkaan rako 1 em', Math.abs(oRako.px / oRako.em - 1) < .02, (oRako.px / oRako.em).toFixed(3) + ' em');
+  t('ö-mappi: otsikon ö mappirenkaana', oM.n === 1, JSON.stringify(oM));
+  t('ö-mappi: renkaan runko versaali-O:n kokoinen', Math.abs(oM.pohja - R.OYLI) < .1 && Math.abs(oM.laki - R.OCAP - R.OYLI) < .3, oM.pohja.toFixed(2) + ' / ' + oM.laki.toFixed(2) + ' px');
   t('ö-mappi: rengas ei kasvata otsikkoriviä', (await page.evaluate(() => document.querySelector('.ots-rivi').getBoundingClientRect().height)) <= 31);
   if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-omappi.png' });
   // Peilattu kellarilinkki vasemmassa alakulmassa: nuoli vasemmalla, kampi tekstin oikealla puolella.
