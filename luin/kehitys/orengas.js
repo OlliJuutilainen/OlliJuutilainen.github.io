@@ -69,8 +69,10 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.6, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.9, kap: 1, paa: .04, n: 30 };
-const PISTE = { lev: 3.05, kork: 2.6, nAla: 2.6, tb: .5, ts: .72, tt: .36, kTasa: 12, kMax: 78, rako: .9, kap: 1, paa: .03, pnosto: 1.25, pdx: 2.45, n: 16 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.65, kap: 1, paa: .04, n: 30 };
+// Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): samat mittasuhteet ja muoto, viiva suhteessa
+// hiukan paksumpi näkyvyyden vuoksi, rako suhteessa pienempi.
+const PISTE = { lev: 2.9, kork: 3.05, nAla: 2.15, tb: .42, ts: .55, tt: .2, kTasa: 12, kMax: 78, rako: .42, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
 // Otsikon rengas (.74rem = 11,84 px): sama muoto, laki versaalikorkeudella (8,51 px) ja keskikohta kammen navan korkeudella
 // (.3176 em = 3,76 px), joten koko on linkin renkaan kerroin OK.
 const OEM = 11.84, OCAP = 8.51, ONAPA = 3.76, OK = (2 * (OCAP - ONAPA)) / LINKKI.kork;
