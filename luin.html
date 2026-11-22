@@ -1789,7 +1789,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=8bea715a"></script>
+<script src="luin/md.js?v=590d734a"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
@@ -4310,10 +4310,12 @@
     }
     return null;
   }
+  // Etuosan (Abstract) jälkeen alkava otsikoton teksti ei kuulu tiivistelmän viimeiseen osioon (nyt.etuLoppu, sisalmysRivit()):
+  // nimenä on tekstin nimi kuten ennen ensimmäistä otsikkoa (aikajana, kirjanmerkit, haku, paluumajakka).
   function osioKohdassa(k) {
-    var o = null;
+    var o = null, e = nyt.etuLoppu >= 0 ? nyt.etuLoppu : -1;
     nyt.doc.toc.forEach(function (t) { if (t.b <= k.b) o = t; });
-    return o;
+    return o && e >= 0 && o.b < e && k.b >= e ? null : o;
   }
   // Aikajanan ylärivin nimi: otsikko ja, jos tekstissä on yläindeksien osioita (Stephanus-sivu, md.js kohdat), viimeisin
   // niistä perään (käyttäjän pyyntö 19.11.2026: Book 4 · 412). Sisälmykseen sivut eivät mene.
@@ -4460,7 +4462,11 @@
       nyt.kohdat.push({ k: kk, nimi: y.s, lvl: 3 });
     });
     // Sisälmyksen nappi vasta kohtien jälkeen: osanvaihtojen kohdat ovat Sisälmyksessä (sisalmysKohdat()).
-    $('#sis-avaa').hidden = !sisalmysKohdat().length;
+    var sisK = sisalmysKohdat();
+    $('#sis-avaa').hidden = !sisK.length;
+    // Etuosan jälkeen alkavan otsikottoman tekstin alku (sisalmysRivit()): osioKohdassa() ei anna sille tiivistelmän osiota.
+    var etuL = sisK.filter(function (t) { return t.kohta && t.taso === 1 && !t.text; })[0];
+    nyt.etuLoppu = etuL ? etuL.b : -1;
     // Vakiosivut (md.js span.vsivu; etukentän vakiosivut): paikantimen sivunumerot. Kun etukentässä on vakiosivut ja kohdat
     // ovat yläindeksejä (Korpora: 4:393), kohdat ovat itse vakiosivuja.
     nyt.vsivut = [];
@@ -8172,9 +8178,26 @@
       var ylempi = null;
       T.forEach(function (t) { if (t.b <= y.b) ylempi = t; });
       var taso = !ylempi ? 1 : y.ajo ? Math.max(1, Math.min(3 - siirto, ylempi.taso + 1)) : Math.min(3, ylempi.taso + 1);
-      kaikki.push({ b: y.b, text: y.text, alku: y.alku, taso: taso, oheis: ylempi ? ylempi.oheis : false });
+      kaikki.push({ b: y.b, text: y.text, alku: y.alku, taso: taso, oheis: ylempi ? ylempi.oheis : false, kohta: true, ajo: !!y.ajo });
     });
     kaikki.sort(function (a, b) { return a.b - b.b; });
+    /* Etuosan jälkeen alkava teksti (PMC:n NEJM ja PLoS: otsikoton johdanto tiivistelmän perässä viivan takana): etuosan
+       (Abstract) osanvaihdon kohta, joka ei ole osionsa ensimmäinen ja jota seuraa ensimmäinen varsinainen luku, aloittaa
+       varsinaisen tekstin. Se on ylimmällä tasolla pelkin alkusanoin (otsikkoa ei keksitä), ja sen jälkeiset kohdat sen alla;
+       etuosan osion ainoa jäljelle jäävä kohta (i) pois, koska osio ei enää jakaudu. Ennen johdanto näkyi tiivistelmän
+       viimeisen alaotsikon (Conclusions) kohtana (ii). */
+    var eka = T.filter(function (t) { return !t.oheis; })[0];
+    if (eka && T[0].oheis) {
+      var etu = kaikki.filter(function (x) { return x.kohta && !x.ajo && x.oheis && x.b < eka.b; });
+      var otsikkoValissa = function (a, b) { return T.some(function (t) { return t.b > a && t.b <= b; }); };
+      for (var i = 1; i < etu.length; i++) {
+        if (otsikkoValissa(etu[i - 1].b, etu[i].b)) continue;
+        etu.slice(i).forEach(function (y, j) { y.oheis = false; y.taso = j ? 2 : 1; if (!j) y.text = ''; });
+        var osio = etu.slice(0, i).filter(function (y) { return !otsikkoValissa(y.b, etu[i].b); });
+        if (osio.length === 1) kaikki.splice(kaikki.indexOf(osio[0]), 1);
+        break;
+      }
+    }
     kaikki.forEach(function (x, i) { x.ero = i > 0 && x.oheis !== kaikki[i - 1].oheis; });
     return kaikki;
   }
@@ -8191,7 +8214,7 @@
     T.forEach(function (t, i) { if (t.b <= k.b) nyky = i; });
     $('.s-lista', sisEl).innerHTML = T.map(function (t, i) {
       return '<button type="button" class="s-kohta t' + t.taso + (t.ero ? ' ero' : '') + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
-        '<span class="s-nimi">' + esc(t.text) + (t.alku ? ' <i class="s-alku">' + esc(t.alku) + '</i>' : '') + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
+        '<span class="s-nimi">' + esc(t.text) + (t.alku ? (t.text ? ' ' : '') + '<i class="s-alku">' + esc(t.alku) + '</i>' : '') + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
     }).join('');
     return true;
   }

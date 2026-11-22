@@ -496,7 +496,9 @@ const palvelin = http.createServer((q, r) => {
           irralliset: (() => {
             const k = d.getElementById('t').cloneNode(true);
             k.querySelectorAll('a.lahde, p.bib, h1, h2, h3, h4, h5, h6, header').forEach(x => x.remove());
-            return k.textContent.replace(/­/g, '').match(/\p{Lu}[\p{L}’'-]+(?:\s+et al\.,?|\s+(?:and|&)\s+\p{Lu}[\p{L}’'-]+,?)\s+\(?(?:1[5-9]|20)\d\d[a-z]?(?![\p{L}\p{N}])/gu) || [];
+            // Alaviite heti perässä (taulukon Berkman et al., 2004 + alaviite viitteen tekstein) on viittaus: merkki †, jota ei lasketa.
+            k.querySelectorAll('label.fnref').forEach(x => x.replaceWith('†'));
+            return k.textContent.replace(/­/g, '').match(/\p{Lu}[\p{L}’'-]+(?:\s+et al\.,?|\s+(?:and|&)\s+\p{Lu}[\p{L}’'-]+,?)\s+\(?(?:1[5-9]|20)\d\d[a-z]?(?![\p{L}\p{N}])(?!\)?\s*†)/gu) || [];
           })(),
           varoitukset: r.warnings.map(w => w.msg) };
       }, md);

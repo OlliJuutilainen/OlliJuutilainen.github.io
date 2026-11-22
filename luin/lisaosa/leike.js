@@ -36,6 +36,17 @@
       return SULKUNUMEROT ? e.replace(/^(\s*\d{1,3})([.)])(?=\s|$)/, '$1\\$2') : e;
     };
     td.keep(['sub', 'sup']);
+    // Taulukon solu (22.11.2026, IRSP:n Table X1: brm(Specificity | trunc(…) ja solujen <br>): pystyviiva suojataan (\|), koska
+    // md.js ja muut GFM-lukijat jakavat rivin siitä, ja rivinvaihto välilyönniksi, koska taulukon rivi ei voi jakautua. GFM:n
+    // oma solusääntö ei tehnyt kumpaakaan; tämä sääntö on lisätty sen jälkeen, joten se voittaa.
+    td.addRule('taulukonSolu', {
+      filter: ['th', 'td'],
+      replacement: (s, n) => {
+        const i = Array.prototype.indexOf.call(n.parentNode.childNodes, n);
+        const t = s.replace(/\s*\\\n\s*/g, ' ').replace(/\s*\n+\s*/g, ' ').replace(/\\\|/g, '\u0000').replace(/\|/g, '\\|').replace(/\u0000/g, '\\|');
+        return (i === 0 ? '| ' : ' ') + t + ' |';
+      }
+    });
     td.remove(['script', 'style', 'noscript', 'iframe', 'button', 'form', 'svg']);
     td.addRule('kuvat', { filter: 'img', replacement: () => '' });
     // Kuvan poistuttua linkistä jäisi [](…) tai [][4].
@@ -1684,6 +1695,14 @@
   // Taulukko ruudukoksi (yhdistetyt solut tyhjiksi soluiksi, solun kappaleet yhdeksi riviksi), ensimmäinen rivi otsikoksi:
   // GFM:n taulukko tarvitsee tasasarakkeisen ruudukon ja otsikkorivin, muuten Turndown jättää sen HTML:ksi. Yksisarakkeinen tai
   // yksirivinen kappaleeksi.
+  // Solun teksti: rivinvaihdot ja solun kappaleet välilyönneiksi (IRSP: Core Hypothesis 1<br>High- … liimautui Hypothesis 1High-:ksi).
+  function ojsSolu(c) {
+    if (!c.querySelector('br, p, div, li')) return rivi(c.textContent);
+    const k = c.cloneNode(true);
+    k.querySelectorAll('br').forEach(b => b.replaceWith(' '));
+    k.querySelectorAll('p, div, li').forEach(p => p.append(' '));
+    return rivi(k.textContent);
+  }
   function ojsTaulukko(t) {
     const ruudukko = [];
     [...t.rows].forEach((r, i) => {
@@ -1692,7 +1711,7 @@
       [...r.cells].forEach(c => {
         while (rv[j] !== undefined) j++;
         const cs = Math.max(1, c.colSpan || 1), rs = Math.max(1, c.rowSpan || 1);
-        for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) (ruudukko[i + a] = ruudukko[i + a] || [])[j + b] = a || b ? '' : rivi(c.textContent);
+        for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) (ruudukko[i + a] = ruudukko[i + a] || [])[j + b] = a || b ? '' : ojsSolu(c);
         j += cs;
       });
     });
@@ -6433,8 +6452,11 @@
   function pmcNumeroviitteet(el, o = {}) {
     const lista = o.lista || '.ref-list li';
     const kohde = o.kohde || (k => k.matches(lista) ? k : null);
+    // Numero linkin tekstistä; hakasulkeet saavat olla linkin sisällä (22.11.2026, PLoS Medicine PMC2910600: taulukon rivi
+    // Berkman et al., 2004 <a>[37]</a>; 140 viittausta jäi tekstiksi [37], kun leipätekstin [<a>37</a>] toimi).
+    const numero = a => rivi(a.textContent).replace(/^\[(\d{1,4})\]$/, '$1');
     const kohta = a => {
-      if (!/^\d{1,4}$/.test(rivi(a.textContent))) return null;
+      if (!/^\d{1,4}$/.test(numero(a))) return null;
       let k = null;
       try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
       return k && kohde(k);
@@ -6474,11 +6496,11 @@
       // Numerot, väliviivan väli täytettynä luettelon numeroilla.
       const nrot = [];
       ryhma.forEach((x, i) => {
-        const nro = rivi(x.textContent);
-        if (i && /[-–‐]/.test(erot[i - 1])) for (let j = +rivi(ryhma[i - 1].textContent) + 1; j < +nro; j++) if (luettelo.has(String(j))) nrot.push(String(j));
+        const nro = numero(x);
+        if (i && /[-–‐]/.test(erot[i - 1])) for (let j = +numero(ryhma[i - 1]) + 1; j < +nro; j++) if (luettelo.has(String(j))) nrot.push(String(j));
         nrot.push(nro);
       });
-      const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => rivi(r.textContent) === x))]).filter(x => x[1]);
+      const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => numero(r) === x))]).filter(x => x[1]);
       const avain = kohdat.map(x => x[0]).join(',');
       if (!tunnukset.has(avain)) {
         const t = (o.etu || 'pmv') + (tunnukset.size + 1);
@@ -6496,7 +6518,7 @@
         '[('.indexOf(ed.textContent.trim().slice(-1)) === '])'.indexOf(jal.textContent.trim()[0])) {
         ed.textContent = ed.textContent.replace(/\s*[[(]\s*$/, '');
         jal.textContent = jal.textContent.replace(/^\s*[\])]/, '');
-      }
+      } else if (ed && ed.nodeType === 3 && /^\[.*\]$/.test(rivi(ryhma[0].textContent))) ed.textContent = ed.textContent.replace(/\s+$/, '');
       const r = document.createRange();
       r.setStartBefore(ens); r.setEndAfter(vik);
       r.deleteContents();
@@ -7066,15 +7088,17 @@
       }
       f.remove();
     });
-    // Taulukot: otsikko kursiiviksi, viivarivit pois, ruudukoksi.
-    k.querySelectorAll('[id^="T"]').forEach(w => {
-      if (!/^T\d+$/.test(w.id)) return;
+    // Taulukot: otsikko kursiiviksi, viivarivit pois, ruudukoksi. Myös liitteiden tunnuksettomat taulukot (.table-wrapper:
+    // IRSP:n Table X1, 22.11.2026): niiden viivarivit (<tr><th colspan=4><hr>) ja solujen rivinvaihdot rikkoivat Markdown-taulukon.
+    [...k.querySelectorAll('[id^="T"]')].filter(w => /^T\d+$/.test(w.id)).concat([...k.querySelectorAll('.table-wrapper')]).forEach(w => {
+      // Jo käsitelty (T-taulukko .table-wrapperin sisällä) tai irrotettu ohitetaan.
+      if (!k.contains(w) || w.querySelector('[data-ub-taulukko]') || w.closest('[data-ub-taulukko]')) return;
       const t = w.querySelector('table'), pala = document.createDocumentFragment();
       const ots = [...w.querySelectorAll('p')].filter(p => !p.closest('table')).map(p => rivi(p.textContent)).filter(Boolean);
       if (ots.length) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = ots.slice(0, 2).join(' '); p.appendChild(em); pala.appendChild(p); }
       if (t) {
         t.querySelectorAll('tr').forEach(tr => { if (!rivi(tr.textContent) && tr.querySelector('hr')) tr.remove(); });
-        const d = document.createElement('div'); d.appendChild(t); pala.appendChild(d); ojsTaulukko(t);
+        const d = document.createElement('div'); d.dataset.ubTaulukko = '1'; d.appendChild(t); pala.appendChild(d); ojsTaulukko(t);
       }
       ots.slice(2).forEach(x => { const p = document.createElement('p'); p.textContent = x; pala.appendChild(p); });
       w.replaceWith(pala);
