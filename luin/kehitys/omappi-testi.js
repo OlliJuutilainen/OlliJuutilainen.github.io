@@ -91,7 +91,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   // svg kokonaisen pikselin korkuinen; ::before renkaan keskelle; nuoli viimeisen kirjaimen perässä; yhdysviiva versaalien ja
   // renkaan keskikohtien puolivälissä.
   const R = require('./orengas.js');
-  const om = await page.evaluate(([CAP, YLI, KORK, TB]) => {
+  const om = await page.evaluate(([CAP, YLI, KORK, L]) => {
     const a = document.querySelector('#om-linkki a'), ar = a.getBoundingClientRect(), sv = a.querySelector('svg.orengas'),
       em = parseFloat(getComputedStyle(a).fontSize), sp = a.querySelector(':scope > span'), s = em / 10.24;
     const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; sp.appendChild(pr);
@@ -105,15 +105,20 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
       reunaVari: getComputedStyle(a).borderBottomColor, korkeus: rr.height, rako: ar.left - rr.right,
       ennenVas: ar.left - parseFloat(ennen.width), keskus: rr.left + rr.width / 2, ennenAla: parseFloat(ennen.bottom),
       yv: { keski: bl - (yv.top + yv.bottom) / 2, paksu: yv.height, tavoite: ((CAP * s) / 2 + keski) / 2 },
-      nuoli: { oik: ar.right - n.right, vas: n.left - kirjain }, teksti: a.getAttribute('aria-label') };
-  }, [R.CAP, .2, R.LINKKI.kork, R.LINKKI.tb]);
+      nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, sakara: n.right - L - kirjain,
+        keski: (n.top + n.bottom) / 2 - (ar.bottom - bb / 2) }, teksti: a.getAttribute('aria-label') };
+  }, [R.CAP, .2, R.LINKKI.kork, R.NUOLI.L]);
   t('rengas tekstin vasemmalla, rako .2 em', Math.abs(om.rako / om.em - .2) < .01, (om.rako / om.em).toFixed(3) + ' em');
   t('renkaan laki versaalikorkeuden yläpuolella .2 px', Math.abs(om.laki - om.cap - .2 * om.s) < .3, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
   t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && om.bb === 1 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
   t('pohja noin 2,3 px perusviivan alla', Math.abs(om.pohja - 2.3 * om.s) < .2, om.pohja.toFixed(2) + ' px');
   t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
   t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && om.ennenAla === -1, (om.ennenVas - om.keskus).toFixed(2) + ' px');
-  t('nuoli oikeassa reunassa viimeisen kirjaimen perässä', Math.abs(om.nuoli.oik) < .1 && om.nuoli.vas > .5, JSON.stringify(om.nuoli));
+  // Oma nuolen kärki: kärki .9 px varren pään yli ja palstan reunassa, sakaroiden päät vähintään 3,5 px viimeisen kirjaimen laatikosta,
+  // svg keskellä reunaviivaa (pyöristys ei saa siirtää kärkeä viivan sivuun).
+  t('nuolen kärki palstan reunassa, .9 px varren yli', Math.abs(om.nuoli.yli - .9) < .05 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
+  t('nuolen sakarat irti viimeisestä kirjaimesta', om.nuoli.sakara >= 3.5, om.nuoli.sakara.toFixed(2) + ' px');
+  t('nuolen kärki keskellä alleviivausta', Math.abs(om.nuoli.keski) < .05, om.nuoli.keski.toFixed(3) + ' px');
   t('yhdysviiva versaalien ja renkaan keskikohtien puolivälissä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - 1) < .05,
     om.yv.keski.toFixed(2) + ' / ' + om.yv.tavoite.toFixed(2) + ' px, ' + om.yv.paksu.toFixed(2) + ' px');
   t('nimi illatiivissa', om.teksti === 'ö-mappiin' && (await page.textContent('#om-linkki a')) === 'mappiin', om.teksti);
