@@ -2429,12 +2429,27 @@
       var tr = tietorivit(m, kehys);
       if (tr.length) { head += blk('p', 'meta', tr.join('\n'), metaCtx); res.lines = tr; }
     }
+    /* Huomautuksen osoite alkaa omalta riviltään (käyttäjän päätös), ja johdantosanat (Lahjoittaa voi osoitteessa) ovat yhtä
+       (span.ennen-osoite, inline-block): jos ne eivät mahdu edellisen virkkeen perään, ne siirtyvät yhdessä seuraavalle riville,
+       eikä OSOITTEESSA jää yksin osoitteen edelle. Sitova välilyönti katkaisi kapealla ruudulla sanan (TAKAISINVETOILMOITUS OSOITTEESSA
+       on palstaa leveämpi); inline-block rivittyy silloin sisältä. */
+    function osoitteessa(teksti, sanat, u) {
+      return inline(teksti, ctx) + (u ? ' <span class="ennen-osoite">' + inline(sanat, ctx) + '</span><br>' +
+        katkoOsoite(inline('<' + u.replace(/[<>\s]/g, encodeURIComponent) + '>', ctx)) : '');
+    }
+    /* Rivinsä ylittävä osoite katkeaa mieluiten kauttaviivan jälkeen tai ?-, #- ja &-merkin edeltä (<wbr>; käyttäjän päätös),
+       ei https://-alusta; merkkien keskeltä vasta, jos pala ei mahdu riville (CSS overflow-wrap). Kopio ja linkki ennallaan. */
+    function katkoOsoite(h) {
+      return h.replace(/(<a [^>]*>)([^<]*)(<\/a>)/g, function (x, a, t, l) {
+        var m = /^(https?:\/\/)?(.*)$/i.exec(t);
+        return a + (m[1] || '') + m[2].replace(/\/(?!$)/g, '/<wbr>').replace(/([?#]|&amp;)/g, '<wbr>$1') + l;
+      });
+    }
     // Julkaisun tila otsikkolohkon alkuun ennen rahoitushuomautusta, samoin ilman lohkonumeroa.
     var tl = tila(m);
     if (tl) {
       res.tila = tl;
-      var tlHtml = '<p class="tila' + (tl.laji === 'vedetty takaisin' ? ' vakava' : '') + '">[' + inline(tl.teksti + (tl.osoite ? ' ' + tl.osoiteSana +
-        ' osoitteessa <' + tl.osoite.replace(/[<>\s]/g, encodeURIComponent) + '>' : ''), ctx) + ']</p>';
+      var tlHtml = '<p class="tila' + (tl.laji === 'vedetty takaisin' ? ' vakava' : '') + '">[' + osoitteessa(tl.teksti, tl.osoite && tl.osoiteSana + ' osoitteessa', tl.osoite) + ']</p>';
       if (head) head = head.replace(/^<header class="tt">/, function (x) { return x + tlHtml; });
       else html += tlHtml;
     }
@@ -2442,8 +2457,7 @@
     var rh = rahoitus(m);
     if (rh) {
       res.rahoitus = rh;
-      var rhHtml = '<p class="rahoitus">[' + inline(rh.teksti + (rh.osoite ? ' Lahjoittaa voi osoitteessa <' +
-        rh.osoite.replace(/[<>\s]/g, encodeURIComponent) + '>' : ''), ctx) + ']</p>';
+      var rhHtml = '<p class="rahoitus">[' + osoitteessa(rh.teksti, rh.osoite && 'Lahjoittaa voi osoitteessa', rh.osoite) + ']</p>';
       if (head) head = head.replace(/^<header class="tt">(<p class="tila[^"]*">.*?<\/p>)?/, function (x) { return x + rhHtml; });
       else html += rhHtml;
     }
