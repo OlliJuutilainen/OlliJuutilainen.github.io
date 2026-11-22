@@ -127,6 +127,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sitovin välilyönnein sisennetystä rivistä (lähdekoodin tavalliset välilyönnit eivät näy selaimessa, joten ne eivät sisennä),
   porro-ketjua seurataan vain saman tiedostoetuliitteen sivuille ja hakemiston linkkiteksti on luvun otsikko; testi `--sarja ba`.
   Access to Insight (`accesstoinsight()`) lukee tiedot sivun ATIDoc-kommentista; testi `--sarja ati`.
+  Perseids CTS (`cts()`) käyttää Perseus-sovitteen apufunktioita (`psXml`, `psJaksot`, `psKirja`, `psKreikkaNimi`): kun muutat
+  niitä, aja myös `--sarja cts`. Standard Ebooksin lukusivut ovat XHTML-asiakirjoja (`application/xhtml+xml`; pesukone antaa ne
+  samalla tyypillä): `standardEbooks()` tuo sivun HTML-asiakirjaan, koska XML-asiakirjassa `epub:type` ei osu CSS-valitsimeen
+  ja `innerHTML` kaatuu; sivuilla on ansalinkki `/honeypot` (IP-esto), jota sovite ei saa seurata. Hume Texts Online
+  (`hume()`) ja Rousseau Online kirjoittavat sivut vakiosivuiksi (`SBN`, `Mil`, `Genève`); testit `--sarja hume`, `celt`, `se`, `rousseau`.
   augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
   kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
   Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
