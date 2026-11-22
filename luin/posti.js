@@ -9,7 +9,10 @@
    - Merkintäposti: tekstin merkinnät (alleviivaukset, kirjaukset, kirjanmerkit, lukukohta) kulkevat laatikossa JSONina
      (worker: luinm:<laatikko>:<avain>). Lähettäjä hakee ensin laatikon version, yhdistää sen omiinsa ja lähettää
      yhdistetyn, joten kumpikaan laite ei kadota toisen merkintöjä. Poistot kulkevat poistomerkintöinä (del), jotta
-     poistettu ei palaa toisesta laitteesta; kirjauksen uusin muokkaus (nt) voittaa; lukukohdista uusin (posT). */
+     poistettu ei palaa toisesta laitteesta; kirjauksen uusin muokkaus (nt) voittaa; lukukohdista uusin (posT).
+   - Luokittelu (mietintämyssy 22.11.2026): nimikkeen asiasanat, ajoitus ja käsikirjasto kulkevat paketissa (lk), kun
+     tekstiä on luokiteltu tällä laitteella (e.lkT, muutoksen aika); uusin muutos voittaa kokonaisuutena. Ilman sitä luokittelu
+     siirtyisi toiselle laitteelle vain tekstin etukentän mukana. Lajivalintaa sillä ei ole: se kulkee aina merkintöjen mukana. */
 (function (g) {
   'use strict';
   var MIN = 24, MAX = 52;
@@ -82,6 +85,21 @@
     return { kuva: uusi, muuttui: muuttui };
   }
 
+  function luokittelu(e) {
+    return e && e.lkT ? { as: (e.asiasanat || []).slice(), aj: e.ajoitus || '', kk: e.kasikirja ? 1 : 0, t: e.lkT } : null;
+  }
+  // Laatikon luokittelu nimikkeeseen, jos se on uudempi kuin oma. Käsikirja ei ole ö-mappien mapissa ö. Palauttaa, muuttuiko.
+  function yhdistaLk(e, p) {
+    var l = p && p.lk;
+    if (!e || !l || typeof l.t !== 'number' || l.t <= (e.lkT || 0)) return false;
+    var as = (Array.isArray(l.as) ? l.as : []).filter(function (x) { return typeof x === 'string' && x.trim(); }).slice(0, 100);
+    if (as.length) e.asiasanat = as; else delete e.asiasanat;
+    if (typeof l.aj === 'string' && l.aj.trim()) e.ajoitus = l.aj.trim(); else delete e.ajoitus;
+    if (l.kk) { e.kasikirja = 1; delete e.omappi; } else delete e.kasikirja;
+    e.lkT = l.t;
+    return true;
+  }
+
   // Lähetettävä paketti. v: lähetettävät lajit { al, ki, km, ed }. Ilman alleviivauksia kirjaukset kulkevat
   // alleviivauksineen (kirjaus tarvitsee kohtansa), kuten viennissä.
   function paketti(id, m, e, v) {
@@ -98,11 +116,13 @@
       if (d && (d.k === 'km' ? v.km : v.al || v.ki)) p.del[id] = d;
     });
     if (v.ed && e && e.pos) { p.pos = e.pos; p.pct = e.pct; p.posT = e.posT || 0; }
+    var lk = luokittelu(e);
+    if (lk) p.lk = lk;
     return p;
   }
   // Paketin sisältö vertailua varten (lähetysaika ei kuulu siihen).
   function sisalto(p) {
-    return JSON.stringify([p.laji, p.km || null, p.al || null, p.del || {}, p.pos || null, p.posT || 0]);
+    return JSON.stringify([p.laji, p.km || null, p.al || null, p.del || {}, p.pos || null, p.posT || 0, p.lk || null]);
   }
 
   function samaKm(a, b) { return a.b === b.b && a.o === b.o; }
@@ -171,5 +191,6 @@
   }
 
   g.LuinPosti = { MIN: MIN, MAX: MAX, RE: RE, koodi: koodi, koodiVirhe: koodiVirhe, OHJE: OHJE, OHJE_YDIN: OHJE_YDIN, avain: avain,
-    paikalliset: paikalliset, kuva: kuva, kirjaaMuutokset: kirjaaMuutokset, paketti: paketti, sisalto: sisalto, yhdista: yhdista };
+    paikalliset: paikalliset, kuva: kuva, kirjaaMuutokset: kirjaaMuutokset, paketti: paketti, sisalto: sisalto, yhdista: yhdista,
+    luokittelu: luokittelu, yhdistaLk: yhdistaLk };
 })(typeof window !== 'undefined' ? window : globalThis);

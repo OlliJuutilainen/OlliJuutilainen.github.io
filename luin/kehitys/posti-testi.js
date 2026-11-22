@@ -5,7 +5,7 @@
 // (24–52 merkkiä a–z, 0–9, -; muut merkit hylätään, isot pieniksi; Luin, Lisää-kenttä, Latomo), i-ohje, Postihuilun
 // tekstit, asetusten kerrokset (lause → Huiluta myös merkintöjä → lajit), lähetys lukulistaan palattaessa, vastaanotto
 // toisessa laitteessa (alleviivaus, kirjaus, kirjanmerkki, lukukohta), poiston kulku poistomerkintänä, tekstikohtainen
-// valinta ja Latomon Postihuilu (vain teksti, ei merkintöjä).
+// valinta, luokittelun kulku (asiasanat, ajoitus ja käsikirjasto; uusin voittaa) ja Latomon Postihuilu (vain teksti, ei merkintöjä).
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -217,6 +217,51 @@ function muistiKV() {
   await a.evaluate(() => window.__luin.postiLaheta());
   const l3 = JSON.parse(KV.m.get('luinm:' + KOODI + ':kant-ja-elainetiikka').v);
   tulos('A: uusi lähetys ei palauta poistettua', l3.al.length === 1 && l3.km.length === 2 && l3.del.a2, JSON.stringify({ al: l3.al.map(h => h.id), km: l3.km.map(k => k.id) }));
+
+  // --- 5b. Luokittelu kulkee merkintäpostissa (mietintämyssy 22.11.2026): asiasanat, ajoitus ja käsikirjasto, uusin voittaa ---
+  const MK = 'luinm:' + KOODI + ':kant-ja-elainetiikka';
+  await a.evaluate(() => { location.hash = ''; });
+  await a.waitForFunction(() => !document.querySelector('#lista').hidden);
+  await a.click('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
+  await a.click('#pop button[data-k="luokittele"]');
+  await a.fill('#pop input.lk-uusi', 'eläinetiikka');
+  await a.press('#pop input.lk-uusi', 'Enter');
+  await a.fill('#pop input.lk-aj', '1785');
+  await a.click('#pop button[data-k="kk"]');
+  await a.click('#pop button[data-k="ok"]');
+  await a.evaluate(() => window.__luin.postiLaheta());
+  const l4 = JSON.parse(KV.m.get(MK).v);
+  tulos('A: luokittelu laatikossa merkintöjen kanssa', l4.lk && JSON.stringify(l4.lk.as) === '["eläinetiikka"]' && l4.lk.aj === '1785' && l4.lk.kk === 1 && l4.lk.t > 0 &&
+    l4.al.length === 1 && l4.km.length === 2, JSON.stringify(l4.lk));
+  await b.goto(OSOITE + 'luin.html?lk=1#');
+  await b.waitForFunction(() => !document.querySelector('#lista').hidden);
+  let eB2 = null;
+  for (let i = 0; i < 40; i++) { eB2 = (await LS(b, 'luin-lista')).filter(e => e.id === 'p-kant-ja-elainetiikka')[0]; if (eB2 && eB2.asiasanat) break; await odota(100); }
+  tulos('B: luokittelu tuli: asiasana, ajoitus ja käsikirjasto', eB2 && JSON.stringify(eB2.asiasanat) === '["eläinetiikka"]' && eB2.ajoitus === '1785' && eB2.kasikirja === 1 && eB2.lkT === l4.lk.t,
+    eB2 && JSON.stringify({ as: eB2.asiasanat, aj: eB2.ajoitus, kk: eB2.kasikirja, lkT: eB2.lkT }));
+  await odota(400);
+  const mdB = await b.evaluate(() => LuinTekstit.lue('p-kant-ja-elainetiikka'));
+  tulos('B: etukenttään asiasanat ja ajoitus', /^asiasanat: eläinetiikka$/m.test(mdB) && /^ajoitus: 1785$/m.test(mdB), String(mdB).slice(0, 200));
+  tulos('B: käsikirja pois pinosta', !(await b.evaluate(() => [...document.querySelectorAll('#nimikkeet a.avaa')].some(x => /id=p-kant/.test(x.getAttribute('href'))))));
+  // B lisää asiasanan kellarin kampihyllystössä: uudempi muutos kulkee A:lle, mutta A:n vanha ei palaa.
+  await b.goto(OSOITE + 'luin.html?lk=2#arkisto');
+  await b.waitForSelector('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
+  await b.click('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
+  await b.click('#pop button[data-k="luokittele"]');
+  await b.fill('#pop input.lk-uusi', 'Kant');
+  await b.press('#pop input.lk-uusi', 'Enter');
+  await b.click('#pop button[data-k="ok"]');
+  await b.evaluate(() => window.__luin.postiLaheta());
+  const l5 = JSON.parse(KV.m.get(MK).v);
+  tulos('B: lisätty asiasana laatikossa, uudempi aika', l5.lk && JSON.stringify(l5.lk.as) === '["eläinetiikka","Kant"]' && l5.lk.t > l4.lk.t && l5.lk.kk === 1, JSON.stringify(l5.lk));
+  await a.goto(OSOITE + 'luin.html?lk=3#arkisto');
+  await a.waitForFunction(() => !document.querySelector('#lista').hidden);
+  let eA3 = null;
+  for (let i = 0; i < 40; i++) { eA3 = (await LS(a, 'luin-lista')).filter(e => e.id === 'p-kant-ja-elainetiikka')[0]; if (eA3 && eA3.asiasanat && eA3.asiasanat.length === 2) break; await odota(100); }
+  await a.evaluate(() => window.__luin.postiLaheta());
+  const l6 = JSON.parse(KV.m.get(MK).v);
+  tulos('A: B:n muutos tuli, eikä A:n vanha luokittelu palannut laatikkoon', JSON.stringify(eA3.asiasanat) === '["eläinetiikka","Kant"]' && eA3.lkT === l5.lk.t &&
+    JSON.stringify(l6.lk) === JSON.stringify(l5.lk), JSON.stringify({ a: eA3.asiasanat, laatikko: l6.lk && l6.lk.as }));
 
   // --- 6. Latomo: laatikkolauseen sääntö ja Postihuilu (vain teksti; merkintäosio poistettu 10.11.2026) ---
   await a.goto(OSOITE + 'luin/latomo.html');

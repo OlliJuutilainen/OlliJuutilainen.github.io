@@ -118,6 +118,15 @@ lisäosan tietosuojasivu jää muodolliseksi.
   joten kääreiden purku alussa on tarpeen. EUR-Lex haastaa toistuvat haut (AWS WAF, myös curl): pesukoneen välimuistin voi täyttää
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
+  OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
+  GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
+  numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös, kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
+  augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
+  kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
+  Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
+  PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
+  joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
+  `app-adds`), joten se ei ole tuettujen listassa.
   Springer Nature-, PLOS- ja Frontiers-sovitteet (opas 7.5) käyttävät PMC:n `pmcNumeroviitteet()`ia asetuksin: kun muutat
   sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. PMC:n tekijä–vuosi-viittaus linkittyy, koska sovite kirjoittaa
   kohdan alkuun viittauksen nimiön `Brunton et al. (2013).` (Vancouver-kohdasta md.js ei löydä tekijää eikä vuotta) ja Cochranen
@@ -257,6 +266,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Postihuilu eivät nosta sitä; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto**
   (järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
+  **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai järjestysrivin
+  *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
+  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
   hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-
@@ -661,7 +673,10 @@ Ratkaisut, jotka näyttävät oudoilta mutta ovat mitattuja:
 - **Merkintäposti** (opas 2.2): merkinnät kulkevat laatikossa omalla avaimellaan `luinm:`, ei
   tekstien joukossa. Vastaanotto aina, lähetys valinnasta (pinossa oletus, tekstin asetuksissa tekstikohtainen).
   Lähettäjä hakee ja yhdistää laatikon version ennen lähetystä; poistot ovat poistomerkintöjä (`merk.del`), jotka
-  `tallennaMerkit()` kirjaa. Kun muutat merkintöjen tietomuotoa tai tallennusta, aja `posti-testi.js`.
+  `tallennaMerkit()` kirjaa. Kun muutat merkintöjen tietomuotoa tai tallennusta, aja `posti-testi.js`. Paketissa kulkee myös
+  luokittelu (`lk`: asiasanat, ajoitus, käsikirjasto), kun lukija on luokitellut tekstin tällä laitteella (`e.lkT`, `lkMuuttui()`;
+  ei tuonnin etukentästä); uusin voittaa kokonaisuutena (`P.yhdistaLk()`). Uusi luokittelun muuttaja kutsuu `lkMuuttui()`a.
+  `posti.js?v=` on tiedoston SHA-1:n alku kuten md.js:n (luin.html ja Latomo).
 
 ### Testit (opas 8)
 
