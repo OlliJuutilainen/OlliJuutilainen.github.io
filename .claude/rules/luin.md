@@ -249,8 +249,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   terävöityvin päin, `orengas.js`:n `NUOLI`. Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
-  otsikossa Ö on sama rengas ilman alleviivausta (`OTS_OMAPPI`, pienennettynä: keskikohta kammen navan korkeudella, laki versaalikorkeudella;
-  nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki
+  otsikko on tavallisin kirjaimin *Ö-mappi*, ja perässä on rengas merkkinä ilman alleviivausta kuten kellarin otsikon kampi (käyttäjän
+  linjaus; `OTS_OMAPPI`: runko kammen korkuinen 1,05 em, keskikohta kammen navan korkeudella, rako 1 em). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki
   peilattuna (`#ark-paluu`: nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
