@@ -1,4 +1,4 @@
-// Ö-mapin ö:n mappirengas. Tuottaa luin.html:n #om-linkin renkaan ja otsikon OTS_OMAPPI-renkaan sekä niiden CSS-mitat:
+// Ö-mapin ö:n mappirengas. Tuottaa luin.html:n #om-linkin renkaan ja nuolen kärjen sekä otsikon OTS_OMAPPI-renkaan ja niiden CSS-mitat:
 //   node luin/kehitys/orengas.js            JSON (svg:t ja mitat em:inä)
 //   node luin/kehitys/orengas.js --kuva     esikatselusivu suurennettuna (stdout, html)
 // Rengas on viiva, jolla on keskilinja ja paksuus. Keskilinja on superellipsi: alapuolisko eksponentilla nAla (> 2, joten pohja on
@@ -76,6 +76,24 @@ const PISTE = { lev: 3.05, kork: 2.6, nAla: 2.6, tb: .5, ts: .72, tt: .36, kTasa
 const OEM = 11.84, OCAP = 8.51, ONAPA = 3.76, OK = (2 * (OCAP - ONAPA)) / LINKKI.kork;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
 const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
+// Ö-mappiin-linkin nuolen kärki (käyttäjän linjaus: huolellinen, klassinen): täytetty muoto, kärki (0,0) ja varsi eli alleviivaus (1 px)
+// vasemmalta. Varren pää on x = -t (linkin oikea reuna), joten kärki on t px sen yli. Ulkoreunat suorahkot kärjestä sakaran päähän
+// (-L, ±H), sisäreunat kaartuvat sakaran päästä takaisin varren reunaan r px varren päästä; sakaran pää on terävä (hiusviiva).
+// a0, aE: ulkoreunan suunta kärjessä ja päässä (astetta), k0, kE, ki: kaarten ohjauspisteiden osuudet.
+const NUOLI = { t: .9, r: 1.6, L: 4.4, H: 2.5, a0: 29, aE: 29, k0: .33, kE: .33, ki: .3 };
+function karki(q) {
+  const rad = d => d * Math.PI / 180, T = [0, 0], E = [-q.L, -q.H], R = [-q.t - q.r, -.5];
+  const d0 = [-Math.cos(rad(q.a0)), -Math.sin(rad(q.a0))], dE = [-Math.cos(rad(q.aE)), -Math.sin(rad(q.aE))];
+  const len = Math.hypot(E[0], E[1]), lenI = Math.hypot(E[0] - R[0], E[1] - R[1]);
+  const c1 = [d0[0] * len * q.k0, d0[1] * len * q.k0], c2 = [E[0] - dE[0] * len * q.kE, E[1] - dE[1] * len * q.kE];
+  const c3 = [E[0] - dE[0] * lenI * q.kE * .8, E[1] - dE[1] * lenI * q.kE * .8], c4 = [R[0] - lenI * q.ki, R[1]];
+  const m = p => [p[0], -p[1]], P = p => f(p[0]) + ' ' + f(p[1]);
+  return 'M' + P(T) + 'C' + P(c1) + ' ' + P(c2) + ' ' + P(E) + 'C' + P(c3) + ' ' + P(c4) + ' ' + P(R) + 'L' + P(m(R)) +
+    'C' + P(m(c4)) + ' ' + P(m(c3)) + ' ' + P(m(E)) + 'C' + P(m(c2)) + ' ' + P(m(c1)) + ' ' + P(T) + 'Z';
+}
+// Svg 9 px korkea ja keskellä alleviivausta (bottom -5px): reunat ovat kokonaisten pikselien päässä reunaviivan reunoista, joten pyöristys
+// ei siirrä kärkeä viivan sivuun (8 px:n svg puolen pikselin päässä siirtyi; mitattu 1×, 2× ja 3×).
+const nuoliSvg = q => { const w = Math.ceil(q.L + 1); return { w, svg: '<svg class="nuoli" viewBox="' + -w + ' -4.5 ' + w + ' 9" aria-hidden="true"><path d="' + karki(q) + '"/></svg>' }; };
 const e = (x, em) => (Math.round(x / em * 10000) / 10000 + '').replace(/^(-?)0\./, '$1.') + 'em';
 if (require.main === module) {
   const gl = o(LINKKI, PISTE), go = o(OTS, OPISTE);
@@ -88,8 +106,9 @@ if (require.main === module) {
       '<line x1="-5" x2="30" y1="' + f(gl.h - ALA - CAP) + '" y2="' + f(gl.h - ALA - CAP) + '" stroke="#c33" stroke-width=".03"/></svg></body>');
   } else {
     console.log(JSON.stringify({
+      nuoli: Object.assign(nuoliSvg(NUOLI), { t: NUOLI.t }),
       linkki: { w: e(gl.w, EM), h: e(gl.h + yla(gl, 1), EM), puoli: e(gl.r.cx, EM), svg: svg(LINKKI, PISTE, 'orengas', 1) },
       ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(OCAP - OTS.kork, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
   }
 }
-module.exports = { o, svg, f, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };
+module.exports = { o, svg, f, karki, nuoliSvg, NUOLI, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };

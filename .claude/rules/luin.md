@@ -240,7 +240,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
   paksuimmat hiukan keskikohdan alapuolella, ja niistä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä:
   klassisemman kirjasimen tuntu), ei paksua makkaraa. Ö:n pisteet ovat samaa muotoa pienempinä. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
-  joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Alleviivaus on reunaviiva, ja svg on
+  joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
+  chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
+  terävöityvin päin, `orengas.js`:n `NUOLI`. Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikossa Ö on sama rengas ilman alleviivausta (`OTS_OMAPPI`, pienennettynä: keskikohta kammen navan korkeudella, laki versaalikorkeudella;
