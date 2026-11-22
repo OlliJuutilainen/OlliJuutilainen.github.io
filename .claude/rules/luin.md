@@ -266,6 +266,13 @@ lisäosan tietosuojasivu jää muodolliseksi.
   tai infolaatikon vihjeen ulkopuolinen napautus ei laukaise linkkiä, nappia eikä sivunkääntöä. Uusi ohimenevä laatikko
   käyttää samaa document-tason kaappauskuuntelijaa. Vain `isTrusted`-napautus nielaistaan (ohjelman `a.click()` lataa
   tiedostot ponnahduksen ollessa auki). Testi `ulkoklikkaus-testi.js`.
+- **Valikko mahtuu aina ruudulle** (käyttäjän päätös, koko Luin, `sijoitaPop()`): ruutua korkeampi ponnahdus saa ruudun
+  korkeuden ja vierii (`.vierii` vain silloin, jottei napin vihje leikkaudu muualla), ja alareuna leikkaa napin tekstin
+  (`puolikasNappi()`), koska mobiilin vierityspalkki näkyy vasta vieritettäessä. Leveys mitataan vasemmasta yläkulmasta (edellisen
+  valikon paikassa oikeassa laidassa se puristui ja valikko kasvoi). Tekstikentän ollessa ponnahduksessa rajana on `visualViewport`
+  (näppäimistö). Uusi ponnahdus kulkee `naytaPop()`n kautta, ja paikallaan kasvava sisältö kutsuu `sijoitaPop()`a. Ikkunan `resize`
+  sijoittaa avoimen valikon uudelleen vain, kun se ei mahdu tai vierii (`sovitaPop()`), jottei se hypi osoitepalkin piiloutuessa.
+  Testi `valikko-testi.js`.
 - **Tiedot ja uusi laitos** (käyttäjän nimi, opas 7.1, `tuoPinosta()`): *Muuta metatietoja* lukitsee
   leipätekstin (merkinnät eivät saa voida irrota muualta kuin otsikkolohkosta); *Uusi laitos* antaa muokata ja kysyy
   tallennettaessa: toinen laitos merkintöineen, ilman merkintöjä vai korvaava. Merkinnät siirretään lohkot rinnastamalla
@@ -730,6 +737,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien mappi ö ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
