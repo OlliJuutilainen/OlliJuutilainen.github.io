@@ -70,6 +70,8 @@ Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei al
 
 ## Sijaintitoken
 
+Arkkitehtuurin alkuperäinen suunnitelma on tusina-radassa (`oppaat/tusinasaa-token-avain.md`); voimassa olevat säännöt ovat tässä.
+
 `generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
