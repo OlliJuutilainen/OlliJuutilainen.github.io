@@ -448,6 +448,24 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('rahoitus: ilman otsikkoa tekstin alussa', /^<p class="rahoitus">/.test(ilman), ilman.slice(0, 80));
 })();
 
+// Julkaisun tila, Luinin huomautus ja lohkokaava (lääketieteen toinen kierros 22.11.2026).
+(function () {
+  const runko = '# T\n\n## A\n\nB.\n';
+  const a = M.parse(runko);
+  const v = M.parse('---\ntila: vedetty takaisin 2024-08-19\ntila-lähde: https://x.org/r\nrahoitus: lahjoitukset\nlahjoitusosoite: https://x.org/d\n---\n' + runko);
+  tulos('tila: takaisin vedetty otsikkolohkon alussa ennen rahoitusta, päiväys ja osoite', /^<header class="tt"><p class="tila vakava">\[Julkaisija on vetänyt tämän artikkelin takaisin 19\.8\.2024\. Takaisinvetoilmoitus osoitteessa <a class="url" href="https:\/\/x\.org\/r">https:\/\/x\.org\/r<\/a>\]<\/p><p class="rahoitus">/.test(v.html), v.html.slice(0, 260));
+  tulos('tila: lohkonumerot ennallaan', v.blocks === a.blocks);
+  const e = M.parse('---\ntila: esipainos\n---\n' + runko).html;
+  tulos('tila: esipainos ilman osoitetta, ei vakava', /<p class="tila">\[Tämä on esipainos, jota lehti ei ole vielä vertaisarvioinut\.\]<\/p>/.test(e), e.slice(0, 160));
+  tulos('tila: tuntematon arvo ei huomautusta', !/class="tila/.test(M.parse('---\ntila: jotain\n---\n' + runko).html));
+  const h = M.parse('# T\n\nArvo \\[kaava\\] ja \\[sic\\] ovat.\n\n\\[Kaava (3) on lähteessä kuvana.\\]\n\n*Table 1. Arvot* \\[Taulukko on lähteessä kuvana.\\]\n').html;
+  tulos('huomautus: [kaava] tekstissä span.huom, [sic] tekstiä', /Arvo <span class="huom">\[kaava\]<\/span> ja \[sic\] ovat\./.test(h), (h.match(/<p[^>]*>Arvo.*?<\/p>/) || [''])[0]);
+  tulos('huomautus: kokonainen huomautus on p.huom', /<p class="huom"[^>]*><span class="huom">\[Kaava \(3\) on lähteessä kuvana\.\]<\/span><\/p>/.test(h));
+  tulos('huomautus: kuvatekstin perässä', /<p class="kuvateksti"[^>]*><em><span class="kt-nimi">Table 1\.<\/span> Arvot<\/em> <span class="huom">\[Taulukko on lähteessä kuvana\.\]<\/span><\/p>/.test(h), (h.match(/<p class="kuvateksti.*?<\/p>/) || [''])[0]);
+  const k = M.parse('# T\n\n## A\n\nKun on niin, että\n\nx = y~i~\u2003(1)\n\nja sitoviin \u00a0\u00a0\u00a0 (2)\n\nmuu (3)\n').html;
+  tulos('lohkokaava: em-väli tai sitovat välit ennen numeroa → p.kaava, pelkkä (3) ei', (k.match(/class="kaava"/g) || []).length === 2 && /<p[^>]*>muu \(3\)<\/p>/.test(k) && !/kaava"[^>]*>muu/.test(k), k);
+})();
+
 // Liettua (16.11.2026): tavusäännöt (liudentava i, diftongit, ch/dz/dž) ja kirjallisuusluettelon otsikot.
 (() => {
   const tavut = (w, t) => M.tavutaLt(w, t).replace(/\u00ad/g, '-');

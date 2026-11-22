@@ -1,7 +1,7 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit sekä augustinus.it:n Augustinus ja GRETILin sanskritteksit ja laparola.netin Uusi testamentti, PubMedin tiivistelmät ja The Conversationin artikkelit sekä Girardian Lectionaryn, Phenomenology Onlinen, Lacan Onlinen, Hedgehog Review'n ja The Immanent Framen kirjoitukset sekä Springer Naturen (BMC, Springer, nature.com), PLOSin, Frontiersin ja journal.fi:n pdf-lehden artikkelit sekä Wisdom Libraryn, Bibliotheca Augustanan, Access to Insightin, Hume Texts Onlinen, Perseids CTS:n, CELTin, Standard Ebooksin, Rousseau Onlinen, PROPYLÄENin, Hamannin HKB:n, schleiermacher digitalin, Humboldtin kirjeiden, Liviuksen ja avesta.orgin tekstit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|laparola|pubmed|tc|viisi|lehdet|laake|wl|ba|ati|hume|cts|celt|se|rousseau|propylaen|hkb|schleiermacher|wvh|livius|avesta] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--elava] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|laparola|pubmed|tc|viisi|lehdet|laake|laake2|wl|ba|ati|hume|cts|celt|se|rousseau|propylaen|hkb|schleiermacher|wvh|livius|avesta] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
@@ -20,6 +20,10 @@ const VALI = otaArvo('--vali') || path.join(os.tmpdir(), 'hakuteos-pesukone');
 const ULOS = otaArvo('--ulos') || VALI;
 const VERTAA = otaArvo('--vertaa');
 const NAYTA = otaLippu('--nayta');
+// --elava: sivun omat skriptit, tyylit ja kirjasimet verkosta, kuten käyttäjän selaimessa (asiakirja ja sivuston haut yhä
+// välimuistista). Kaavat (Frontiers: MathJax 2, Springer Nature: MathJax 3) syntyvät vasta skriptistä: ilman tätä pesukone näkee
+// tyhjän kaavapaikan tai raa'an TeXin. NCBI:n palvelimille ei mennä (tarkistussivu).
+const ELAVA = otaLippu('--elava');
 // Muuttuneet rivit (diff): 0, kun sama; null, kun vertailukansiossa ei ole tiedostoa.
 function muuttuneet(nimi, uusi) {
   const f = VERTAA && path.join(VERTAA, nimi);
@@ -237,6 +241,17 @@ const SARJAT = {
   // BMC Med Res Methodol (kaavat), Dtsch Ärztebl (kuvatapaus), NEJM (tekijän käsikirjoitus), Lancet (RCT) ja Bull WHO.
   laake: ['PMC13583879', 'PMC9992728', 'PMC11957479', 'PMC11587887', 'PMC12005723', 'PMC12860570', 'PMC11339634', 'PMC11403163',
     'PMC12135696', 'PMC11687162', 'PMC12442802', 'PMC7616851', 'PMC7618965', 'PMC11865846'].map(p => 'https://pmc.ncbi.nlm.nih.gov/articles/' + p + '/'),
+  // Lääketieteen toinen kierros: vaikeat syötteet. Kaavat (MathML: Stat Methods Med Res, BMC Med Res Methodol; kaavat kuvina:
+  // vanhat BMC:n artikkelit PMC:ssä, PLOS), takaisin vedetyt artikkelit (PMC, Springer Nature, PLOS, Frontiers), videot (JoVE,
+  // eLife), esipainos (medRxiv PMC:ssä), Research in context -laatikko (eClinicalMedicine) ja hoitosuositus (Can Fam Physician).
+  laake2: [...['PMC10507591', 'PMC9900140', 'PMC12483616', 'PMC212708', 'PMC194902', 'PMC10746143', 'PMC11785453', 'PMC10828604',
+    'PMC10746309', 'PMC11601726', 'PMC10575658', 'PMC9983058'].map(p => 'https://pmc.ncbi.nlm.nih.gov/articles/' + p + '/'),
+    ...['10.1186/s12874-025-02615-0', '10.1186/s12874-025-02714-y', '10.1186/s12889-020-09939-0', '10.1186/s12889-024-20086-8']
+      .map(d => 'https://link.springer.com/article/' + d),
+    ...['plosmedicine/article?id=10.1371/journal.pmed.1004491', 'plosone/article?id=10.1371/journal.pone.0092230',
+      'plosmedicine/article?id=10.1371/journal.pmed.1004358'].map(p => 'https://journals.plos.org/' + p),
+    ...['psychiatry/articles/10.3389/fpsyt.2022.990678', 'public-health/articles/10.3389/fpubh.2025.1627621',
+      'public-health/articles/10.3389/fpubh.2025.1514501'].map(p => 'https://www.frontiersin.org/journals/' + p + '/full')],
   // Ubiquity Press (18.11.2026, pahvin 3): IRSP (alaviitteet, APA-viittaukset, taulukot ja kuvat), Utrecht Law Review (138
   // alaviitettä, ei kirjallisuutta), Journal of Open Psychology Data ja Journal of Cognition.
   ubiquity: ['https://rips-irsp.com/en/articles/10.5334/irsp.1284', 'https://utrechtlawreview.org/en/articles/10.36633/ulr.1185',
@@ -506,6 +521,7 @@ const palvelin = http.createServer((q, r) => {
   await ctx.route(/^https?:/, r => {
     const u = r.request().url().split('#')[0];
     if (u.startsWith(PAIK)) return r.continue();
+    if (ELAVA && /^(script|stylesheet|font)$/.test(r.request().resourceType()) && !/\.nih\.gov\//.test(u)) return r.continue();
     // augustinus.it: windows-1252, joten tavut sellaisinaan (välimuistin UTF-8-luku rikkoisi italian kirjaimet).
     if (/^https?:\/\/www\.augustinus\.it\//.test(u) && /^(document|fetch|xhr)$/.test(r.request().resourceType())) {
       const h = valimuisti(u);
@@ -547,6 +563,7 @@ const palvelin = http.createServer((q, r) => {
     try {
       const s = await ctx.newPage(); sivut.push(s);
       await s.goto(url);
+      if (ELAVA) { await s.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {}); await s.waitForTimeout(4000); }
       // Kehyssivusto (augustinus.it): #kehys=<tiedosto> avaa tiedoston principale-kehykseen kuten käyttäjän napautus sisällysluettelossa.
       const kehys = /#kehys=(.+)$/.exec(url);
       if (kehys) { await s.frame({ name: 'principale' }).goto(new URL(kehys[1], url).href); await s.waitForTimeout(1000); }
@@ -607,7 +624,7 @@ const palvelin = http.createServer((q, r) => {
           varoitukset: r.warnings.map(w => w.msg) };
       }, md);
       await L.close();
-      const JAANTEET = [/muokkaa wikitekstiä|\[muokkaa|\[edit\]/g, /<\/?(sup|span|table|div|a)\b/g, /XLUINVIITE/g, /redirects here|ohjataan tänne/g, /cite_note|CITEREF/g];
+      const JAANTEET = [/muokkaa wikitekstiä|\[muokkaa|\[edit\]/g, /<\/?(sup|sub|span|table|div|a)\b/g, /XLUINVIITE/g, /redirects here|ohjataan tänne/g, /cite_note|CITEREF/g];
       const jaanteet = JAANTEET.map(re => (md.match(re) || []).length);
       const wl = (/^## Wikipedia[- ]a(rtikkelit|rticles)\n\n((?:- .*\n?)*)/m.exec(md) || [, , ''])[2].split('\n').filter(Boolean).length;
       const tulos = { nimi, lahde, t, jaanteet, wl, viitteita: leike.kokoViitteita, sanoja: leike.kokoSanoja, muutos: muuttuneet(nimi + '.md', md) };
