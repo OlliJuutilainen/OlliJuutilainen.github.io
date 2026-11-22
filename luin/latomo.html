@@ -672,7 +672,9 @@
         tehty.ryhma++;
         return '[^' + ryhmat[avain] + ']';
       });
-      (r[i].match(/\[\^[^\]\s]+\](?!:)/g) || []).forEach(function (x) { kaytto[nimi(x.slice(2, -1))] = true; });
+      // Määritelmärivit on ohitettu, joten kaksoispisteen perässä oleva merkki on tekstin merkki (Burckhardt: ’Aphorisms’[^x]:
+      // ennen lainausta); ennen sen viite pyyhittiin käyttämättömänä. Vain rivin alun sisennetty määritelmä ei ole käyttöä.
+      (r[i].replace(/^\s*\[\^[^\]\s]+\]:/, '').match(/\[\^[^\]\s]+\]/g) || []).forEach(function (x) { kaytto[nimi(x.slice(2, -1))] = true; });
     }
     if (!n) return [];
     Object.keys(defs).forEach(function (x) {
