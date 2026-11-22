@@ -387,6 +387,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   päätös: sulut eivät ole alaviitteitä, linkkejä saa olla kuin tavallisessa lukulaitteessa,
   tappion riski hyvin pieni; `linkitaHaka()`, opas 3.4). Kun muutat viittauksia tai luettelon tunnistusta, aja
   `sep-pesukone.js`: väärä kohde ja rikki pitää olla 0.
+- **Numeroviittaukset** (Vancouver, IEEE; opas 3.4, md.js *Numeroviittaukset*): vain kun tekstissä on tasan yksi numeroitu
+  kirjallisuusluettelo 1…N. Leikkeen numerolinkki kirjallisuusankkuriin (`#bib.bib12`, `#reference-12`, `#CR12`) vie kohtaan, kun kaikki
+  sellaiset linkit osuvat luetteloon; leipätekstin hakasulut `[3, 7–9]` vain koko tekstin tunnisteella (järjestys, kattavuus, toisto).
+  Kaarisulkuja `(1)` ja yläindeksejä ei linkitetä tarkoituksella (luettelonumerot, potenssit `kg/m^2^`, laitokset `Smith^1^`).
+  Kirjallisuus-, kuva- ja taulukkoankkuri ei ohjaudu luvun otsikkoon. Ansat ovat `md-testi.js`:ssä: niiden pitää jäädä ilman linkkiä.
 - Regexien `\b` ei toimi ä:n perässä; käytä `(?![\p{L}\p{N}])`.
 - **`md.js?v=<SHA-1:n alku>`**: luin.html ja Latomo lataavat md.js:n versiotunnisteella, koska Pages antaa `max-age=600`
   ja selain pitää vanhan version. Kun muutat md.js:ää (myös kommenttia), päivitä tunniste (`md-testi.js` huomauttaa unohduksesta):
