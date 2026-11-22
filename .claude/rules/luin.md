@@ -230,22 +230,22 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Pinon alla** (`.pino-ala`): 1. kellarilinkki vasemmalla (kampi palstan laidasta), 2. *Soita postihuilua*
   vasemmalla samassa koossa ja tyylissä, vain kun laatikkolause on annettu (pelkkä teksti, hakee laatikon heti), 3. linkit. **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
-  asetuksissa tai `#l=`:llä. Kellarilinkki, ö-mapin linkki ja paluulinkki ovat .64rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
+  asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
   *Luin.* ja *Poimi kellarin kampihyllystöstä.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
-- **Ö-mappien mappi ö** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu
-  *ö-mappien mappiin ö*, *-mapissa ö*, *-mapista ö* (ö aina viimeisenä). Kellarin kampihyllystön nimikkeen ja valittujen
-  valikossa pinoon noston rinnalla *Siirrä ö-mappien mappiin ö.*, sieltä *Palauta kellarin kampihyllystöön.* `e.omappi` (aika)
-  lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`) on kellarin alalaidassa vain,
-  kun siellä on jotain: ääripäiden ö:t ovat mappisulkimen renkaita, alleviivaus renkaan alakärjestä toiseen, ei nuolta.
-  Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappien mappiin ö*.
-  Rengas: x-akselilla litistetty soikio (.81), viivan sisäreunan laki versaalien
-  korkeudella, alakärki 3,8 px perusviivan alla ja alleviivauksen (svg, .85 px) alareuna tasan siinä; täytetty muoto, viiva
-  kyljissä paksumpi ja alhaalla alleviivauksen paksuinen; yhdysviiva piirretty versaalien ja renkaan keskikohtien puoliväliin; laella leveä viisto irvistysrako (ulkoreunat lähempänä kuin sisäreunat); ö:n pisteet samanlaisia pieniä
-  rakorenkaita. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
-  otsikossa molemmat ö:t ovat samoja renkaita ilman alleviivausta (`OTS_OMAPPI`, pienennettynä kuten otsikon kampi:
-  keskikohta kammen navan korkeudella, laki versaalikorkeudella, viimeinen .8 em:n päässä; nimi `aria-label`issa). Ö-mapissa
-  ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki peilattuna (`#ark-paluu`:
-  nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
+- **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
+  nimikkeen ja valittujen valikossa pinoon noston rinnalla *Siirrä ö-mappiin.*, sieltä *Palauta kellarin kampihyllystöön.* `e.omappi` (aika)
+  lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
+  kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
+  alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
+  Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
+  paksuimmat hiukan keskikohdan alapuolella, ja viiva kevenee lakea kohti leveään viistoon irvistysrakoon (ulkoreunat lähempänä kuin
+  sisäreunat), ei paksua makkaraa. Ö:n pisteet ovat samaa muotoa pienempinä. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
+  joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Alleviivaus on reunaviiva, ja svg on
+  kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
+  renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
+  otsikossa Ö on sama rengas ilman alleviivausta (`OTS_OMAPPI`, pienennettynä: keskikohta kammen navan korkeudella, laki versaalikorkeudella;
+  nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki
+  peilattuna (`#ark-paluu`: nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
   ylös. Pinon otsikon perässä samalla idealla pinomerkki (`PINOM`). Molemmat hyvin pieninä (kampi 1,05 em, pinomerkki 1,15 em
@@ -264,7 +264,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   loppupisteen alakärjen tasolla (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
   joten pystypaikka eroaa kellarin kampihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
 - **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä pinomerkin vasemmalla
-  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mappien mapissa ö ei paluutekstiä eikä merkkiä (yllä).
+  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mapissa ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (lähdeviite, linkki, *Lataa md*,
   tiedot ja laitos, *Luin.*, poisto; kolme salmiakkia). *Luin.* on molemmissa salmiakkivalikoissa
@@ -746,7 +746,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/huiluta-testi.js [kuvakansio]`: pinon tekstin huilutus kahdella laitteella (myös `#u=`-tekstit).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappien mappi ö ja kellarin otsikon kampi.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
