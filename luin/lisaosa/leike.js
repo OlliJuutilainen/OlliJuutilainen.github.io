@@ -6455,8 +6455,10 @@
     // Numero linkin tekstistä; hakasulkeet saavat olla linkin sisällä (22.11.2026, PLoS Medicine PMC2910600: taulukon rivi
     // Berkman et al., 2004 <a>[37]</a>; 140 viittausta jäi tekstiksi [37], kun leipätekstin [<a>37</a>] toimi).
     const numero = a => rivi(a.textContent).replace(/^\[(\d{1,4})\]$/, '$1');
+    // Koko väli yhden linkin tekstinä (PLoS Medicine PMC1182327: [<a>18–20</a>]) on viittaus väliin; kohde on sen alku.
+    const vali = a => /^(\d{1,4})\s*[-–‐]\s*(\d{1,4})$/.exec(numero(a));
     const kohta = a => {
-      if (!/^\d{1,4}$/.test(numero(a))) return null;
+      if (!/^\d{1,4}$/.test(numero(a)) && !vali(a)) return null;
       let k = null;
       try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
       return k && kohde(k);
@@ -6496,11 +6498,16 @@
       // Numerot, väliviivan väli täytettynä luettelon numeroilla.
       const nrot = [];
       ryhma.forEach((x, i) => {
+        const v = vali(x);
+        if (v) {
+          for (let j = +v[1]; j <= +v[2]; j++) if (luettelo.has(String(j)) || j === +v[1]) nrot.push(String(j));
+          return;
+        }
         const nro = numero(x);
-        if (i && /[-–‐]/.test(erot[i - 1])) for (let j = +numero(ryhma[i - 1]) + 1; j < +nro; j++) if (luettelo.has(String(j))) nrot.push(String(j));
+        if (i && /[-–‐]/.test(erot[i - 1])) for (let j = +(vali(ryhma[i - 1]) || [, , numero(ryhma[i - 1])])[2] + 1; j < +nro; j++) if (luettelo.has(String(j))) nrot.push(String(j));
         nrot.push(nro);
       });
-      const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => numero(r) === x))]).filter(x => x[1]);
+      const kohdat = [...new Set(nrot)].map(x => [x, luettelo.get(x) || kohta(ryhma.find(r => numero(r) === x || (vali(r) && vali(r)[1] === x)))]).filter(x => x[1]);
       const avain = kohdat.map(x => x[0]).join(',');
       if (!tunnukset.has(avain)) {
         const t = (o.etu || 'pmv') + (tunnukset.size + 1);
