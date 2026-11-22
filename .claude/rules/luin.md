@@ -132,6 +132,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   samalla tyypillä): `standardEbooks()` tuo sivun HTML-asiakirjaan, koska XML-asiakirjassa `epub:type` ei osu CSS-valitsimeen
   ja `innerHTML` kaatuu; sivuilla on ansalinkki `/honeypot` (IP-esto), jota sovite ei saa seurata. Hume Texts Online
   (`hume()`) ja Rousseau Online kirjoittavat sivut vakiosivuiksi (`SBN`, `Mil`, `Genève`); testit `--sarja hume`, `celt`, `se`, `rousseau`.
+  PROPYLÄEN- ja HKB-sovitteet kirjoittavat poiston itse `~~…~~`:ksi, koska Turndownin GFM tekee `<del>`:stä `~x~`, jonka md.js
+  lukee alaindeksiksi; kirjeen kirjoituspaikka on otsikossa, ei `paikka`-kentässä (se on lähdeviitteessä kustannuspaikka).
+  Pesukone hakee avesta.orgia 2 s välein (429) ja antaa sen tavut ilman merkistöä; testit `--sarja propylaen`, `hkb`,
+  `schleiermacher`, `wvh`, `livius`, `avesta`.
   augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
   kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
   Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
