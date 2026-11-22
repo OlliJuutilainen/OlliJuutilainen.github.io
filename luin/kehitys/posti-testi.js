@@ -115,7 +115,7 @@ function muistiKV() {
   const tall = await a.evaluate(() => ({ k: JSON.parse(localStorage.getItem('luin-laatikko')), kentta: document.querySelector('#laatikko-koodi').value,
     t: document.querySelector('#laatikko-tieto').textContent, merk: !document.querySelector('#posti-merk').hidden,
     lajit: !document.querySelector('#posti-lajit').hidden, nappi: document.querySelector('#posti-paalla button').textContent }));
-  tulos('Luin: isot pieniksi, laatikon teksti tulee', tall.k === KOODI && tall.kentta === KOODI && tall.t === 'Laatikkolause tallennettu. Laatikossa 1 teksti, joista uusia 1.', JSON.stringify(tall));
+  tulos('Luin: isot pieniksi, laatikon teksti tulee', tall.k === KOODI && tall.kentta === KOODI && tall.t === 'Laatikkolause tallennettu. Huilua soitettiin. Postihuilun kautta kantautui teksti.', JSON.stringify(tall));
   tulos('kerros 2: Huiluta myös merkintöjä näkyy, lajit piilossa', tall.merk && !tall.lajit && tall.nappi === 'Huiluta myös merkintöjä');
   await a.click('#posti-paalla button');
   const kerros3 = await a.evaluate(() => ({ lajit: [...document.querySelectorAll('#posti-lajit button')].map(b => b.textContent + ':' + b.getAttribute('aria-pressed')),
@@ -168,7 +168,7 @@ function muistiKV() {
   tulos('B: linkin lause pienillä', (await LS(b, 'luin-laatikko')) === KOODI);
   tulos('B: lauseen kanssa Soita postihuilua pinossa', await b.isVisible('#soita-postihuilua'));
   await b.click('#soita-postihuilua');
-  await b.waitForFunction(() => /^Uusia tekstejä ei kantautunut\.$/.test(document.querySelector('#viesti').textContent));
+  await b.waitForFunction(() => /^Huilua soitettiin\.$/.test(document.querySelector('#viesti').textContent));
   tulos('B: Soita postihuilua hakee laatikon', true);
   tulos('B: alleviivaukset, kirjaus ja kirjanmerkki tulivat', mB && mB.al.length === 2 && mB.km.length === 1 && mB.al.filter(h => h.n === 'Laitteen A kirjaus').length === 1,
     mB ? JSON.stringify({ al: mB.al.map(h => h.id + (h.n ? '+' : '')), km: mB.km.map(k => k.id) }) : 'ei');

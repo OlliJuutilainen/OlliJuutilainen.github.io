@@ -227,8 +227,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Kellarin kampihyllystö ja valinta**: luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
-- **Pinon alla** (`.pino-ala`): 1. kellarilinkki vasemmalla (kampi palstan laidasta), 2. *Soita postihuilua*
-  vasemmalla samassa koossa ja tyylissä, vain kun laatikkolause on annettu (pelkkä teksti, hakee laatikon heti), 3. linkit. **Postihuilu
+- **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki, jos mahtuu (muuten
+  napin alla, kampi palstan laidasta), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
+  todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
   *Luin.* ja *Poimi kellarin kampihyllystöstä.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
