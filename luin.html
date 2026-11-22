@@ -431,6 +431,8 @@
   .valikko { position: fixed; z-index: 50; background: var(--paperi); color: var(--muste); border: 1px solid var(--muste);
     min-width: 12rem; max-width: min(22rem, calc(100vw - 24px)); padding: 4px 0; font-family: var(--antiikva);
     font-size: .92rem; line-height: 1.35; }
+  /* Ruutua korkeampi valikko vierii (sijoitaPop() asettaa luokan ja korkeuden): alimmatkin valinnat ovat aina ulottuvilla. */
+  .valikko.vierii { overflow-y: auto; overscroll-behavior: contain; }
   .valikko button { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 40px; }
   .valikko button:hover { text-decoration: underline; text-underline-offset: 3px; }
   .valikko .vaara { color: var(--ruoste); }
@@ -3678,17 +3680,34 @@
     if (muokkaus) lopetaKirjaus(true);
     muokkaus = null;
     pop.className = 'valikko' + (luokka ? ' ' + luokka : '');
+    pop.style.maxHeight = '';
     pop.innerHTML = html; pop.hidden = false; popToiminto = toiminto;
+    pop.scrollTop = 0;
     popPaikka = { rect: rect, tasaus: tasaus };
     sijoitaPop();
   }
-  // Kirjausta muokatessa rajana on näkyvä alue (visualViewport), jotta näppäimistö ei peitä muokkainta;
-  // muut valikot sijoitetaan kuten ennenkin.
+  // Tekstikenttä valikossa (kirjaus, luokittelu, linkitys, sanaston nimeäminen) tuo näppäimistön esiin.
+  function syotePopissa() {
+    var a = document.activeElement;
+    return !pop.hidden && !!a && pop.contains(a) && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT');
+  }
+  /* Valikko mahtuu aina ruudulle: ruutua korkeampi valikko saa ruudun korkeuden ja vierii (.vierii), muuten pienellä
+     näytöllä alimmat valinnat jäivät ruudun alle ulottumattomiin. Tekstikentän ollessa valikossa rajana on näkyvä alue
+     (visualViewport), jotta näppäimistö ei peitä valikkoa. Vierityskohta säilyy, kun valikko sijoitetaan uudelleen. */
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
-    var vw = innerWidth, rect = popPaikka.rect;
-    var vv = muokkaus && window.visualViewport, yla = Math.max(vv ? vv.offsetTop : 0, turva()), ala = vv ? vv.offsetTop + vv.height : innerHeight;
-    var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height;
+    var vw = innerWidth, rect = popPaikka.rect, st = pop.scrollTop;
+    var vv = (muokkaus || syotePopissa()) && window.visualViewport, yla = Math.max(vv ? vv.offsetTop : 0, turva()), ala = vv ? vv.offsetTop + vv.height : innerHeight;
+    // Mitataan vasemmasta yläkulmasta: edellisen valikon paikassa oikeassa laidassa leveys puristui, teksti rivittyi
+    // ja valikko kasvoi korkeammaksi.
+    pop.style.maxHeight = ''; pop.classList.remove('vierii'); pop.style.left = '0px'; pop.style.top = '0px';
+    var pr = pop.getBoundingClientRect(), w = pr.width, h = pr.height, tilaa = Math.max(40, Math.floor(ala - yla - 16));
+    if (h > tilaa) {
+      pop.classList.add('vierii');
+      h = puolikasNappi(tilaa);
+      pop.style.maxHeight = h + 'px';
+      pop.scrollTop = st;
+    }
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : popPaikka.tasaus === 'vasen' ? rect.left : rect.left + rect.width / 2 - w / 2;
     var y = rect.bottom + 8;
     // peita: laatikko napin päälle (tuonnin kuittaus peittää Tuo-napin, ettei sitä paineta uudestaan).
@@ -3696,6 +3715,34 @@
     else if (y + h > ala - 8) y = rect.top - h - 8;
     pop.style.left = clamp(x, 8, vw - w - 8) + 'px';
     pop.style.top = clamp(y, yla + 8, ala - h - 8) + 'px';
+  }
+  /* Vierivän valikon alareuna leikkaa napin tekstin (35–50 % napista näkyvissä), jotta puolikas nappi kertoo valikon
+     jatkuvan: mobiilin vierityspalkki näkyy vasta vieritettäessä, ja napin rajaan osuva reuna näyttäisi valikon loppuvan siihen.
+     Valikko lyhenee tästä enintään 48 px; tekstiin (alaviite, sanaselitys) osuva reuna jää ennalleen. */
+  function puolikasNappi(tilaa) {
+    var p = pop.getBoundingClientRect().top, paras = 0;
+    $$('button', pop).forEach(function (b) {
+      for (var s = b.parentNode; s !== pop; s = s.parentNode) if (s.scrollHeight > s.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(s).overflowY)) return;
+      var r = b.getBoundingClientRect(), t = r.top - p + pop.scrollTop;
+      if (r.height < 24) return;
+      var c = Math.min(t + r.height * .5, tilaa);
+      if (c >= t + r.height * .35 && c > paras) paras = c;
+    });
+    return paras && tilaa - paras <= Math.min(48, tilaa * .4) ? Math.floor(paras) : tilaa;
+  }
+  // Avoin valikko sijoitetaan uudelleen vain, jos se ei mahdu ruudulle tai vierii: muuten se pysyy paikallaan (esim. kun
+  // selaimen palkit piiloutuvat vieritettäessä, valikko ei hypi napin ylä- ja alapuolen välillä).
+  function sovitaPop() {
+    if (pop.hidden) return;
+    var r = pop.getBoundingClientRect();
+    if (pop.classList.contains('vierii') || r.bottom > innerHeight - 8 || r.top < turva() || r.left < 8 || r.right > innerWidth - 8) sijoitaPop();
+  }
+  // Pidä elementti vierivän valikon näkyvässä osassa (valikon oma vieritys, ei sivun).
+  function pidaNakyvissa(el) {
+    if (!el || pop.hidden || !pop.contains(el) || pop.scrollHeight <= pop.clientHeight) return;
+    var p = pop.getBoundingClientRect(), r = el.getBoundingClientRect(), y0 = p.top + pop.clientTop, y1 = y0 + pop.clientHeight;
+    if (r.bottom > y1) pop.scrollTop += Math.min(r.bottom - y1 + 4, r.top - y0);
+    else if (r.top < y0) pop.scrollTop -= y0 - r.top;
   }
   // Muokkaimen ulkopuolelle napautus tallentaa kirjauksen. pakko: suljetaan, vaikka tallennus epäonnistuisi.
   function suljePop(pakko) {
@@ -3736,7 +3783,11 @@
     }
     var b = e.target.closest('button[data-k]');
     if (!b || !popToiminto) return;
-    if (popToiminto(b.dataset.k, b) !== true) suljePop();
+    if (popToiminto(b.dataset.k, b) !== true) { suljePop(); return; }
+    // Paikallaan muuttunut valikko (vahvistus, kuittaus) ei saa kasvaa ruudun yli, ja napautettu nappi pysyy näkyvissä.
+    if (pop.hidden || !pop.contains(b)) return;
+    sovitaPop();
+    pidaNakyvissa(b);
   });
   document.addEventListener('click', function (e) {
     // Maalauksen ja kahvan vedon perään tuleva klikkaus ei sulje juuri näytettyjä kahvoja eikä valikkoa.
@@ -3767,7 +3818,8 @@
     if (!$('#lukija').hidden) { var b = $('#ala-rivi').getBoundingClientRect(); if (b.height) v = Math.max(0, Math.round(innerHeight - b.top)); }
     document.documentElement.style.setProperty('--paneeli-ala', v + 'px');
   }
-  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) { sijoitaPaneeli(); sijoitaClarus(); } sijoitaLaatikot(); });
+  // Valikko sovitetaan uuteen ruutuun (kierto, selaimen palkit), jotta se ei jää ruudun yli.
+  window.addEventListener('resize', function () { if (!$('#asetukset').hidden) { sijoitaPaneeli(); sijoitaClarus(); } sijoitaLaatikot(); sovitaPop(); });
   function suljePaneelit() { $$('.paneeli').forEach(function (p) { p.hidden = true; }); laatikotMuuttuivat(); }
   // Navin laatikon raksi sulkee vain sen laatikon, Asetusten raksi kaikki paneelit.
   $$('.paneeli .sulje').forEach(function (b) { b.addEventListener('click', function () {
@@ -5638,7 +5690,13 @@
     if (ta && ta.value.trim()) { muokkaus.h.n = ta.value.trim(); tallennaMerkit(); }
   }
   if (window.visualViewport) ['resize', 'scroll'].forEach(function (t) {
-    visualViewport.addEventListener(t, function () { if (muokkaus) sijoitaPop(); if (hakuAuki()) sijoitaLaatikot(); });
+    // Näppäimistön noustessa valikko sovitetaan näkyvään alueeseen ja tekstikenttä pidetään näkyvissä; laskeutuessa
+    // vierivä valikko saa taas koko korkeuden (Chrome ei aina lähetä ikkunan resize-tapahtumaa näppäimistöstä).
+    visualViewport.addEventListener(t, function () {
+      if (muokkaus || syotePopissa()) { sijoitaPop(); if (t === 'resize') pidaNakyvissa(document.activeElement); }
+      else if (t === 'resize') sovitaPop();
+      if (hakuAuki()) sijoitaLaatikot();
+    });
   });
 
   var valAjastin = null, osoitin = 'mouse';
