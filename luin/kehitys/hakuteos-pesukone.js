@@ -1,12 +1,14 @@
 // Hakuteospesukone: Ensyklopedia Logoksen, Wikipedian (fi, en) ja Open Encyclopedia of Cognitive Sciencen artikkelit sekä
 // marxists.orgin ja Wait But Whyn kirjoitukset sekä Encyclopedia.comin, IPA:n IRED-sanakirjan ja St Andrews Encyclopaedia of Theologyn artikkelit sekä Project Gutenbergin kirjat, New Adventin ja CCEL:n kirkkoisät, Psychen ja Aeonin esseet, European Journal of Psychoanalysisin artikkelit, Open Journal Systems -lehtien (Problemos ym.) artikkelit, LacusCurtiuksen Loeb-käännökset ja Visuotinė lietuvių enciklopedijan artikkelit sekä EUR-Lexin ja Find Case Law'n oikeustapaukset ja PubMed Centralin, Ubiquity Pressin ja SPIP-lehtien artikkelit sekä Political Conceptsin hakusanat ja Project Voxin filosofisivut ja Embryo Projectin artikkelit sekä CDLJ, CDLB, CDLN ja Журнальный залin tekstit sekä Fabulan artikkelit ja Folktextsin sadut sekä A Celebration of Women Writersin kirjat ja CHS:n ja Zeithistorische Forschungenin artikkelit sekä BOMBin haastattelut ja proosa ja PsychOpenin artikkelit sekä Projekt Gutenberg-DE:n kirjat, SLS:n editiot ja Snellmanin asiakirjat sekä PoPuPS-lehtien artikkelit ja Religion Onlinen kirjat ja artikkelit sekä isidore.co:n Akvinolainen ja KB:n tekstiportaalin teokset sekä Michigan Publishingin artikkelit ja Philological Museumin uuslatina sekä Book of Concordin tunnustukset, Nova Vulgatan kirjat, EOS:n ja MPRL:n kirjat, Newton Projectin transkriptiot ja The Latin Libraryn tekstit sekä augustinus.it:n Augustinus ja GRETILin sanskritteksit sekä Girardian Lectionaryn, Phenomenology Onlinen, Lacan Onlinen, Hedgehog Review'n ja The Immanent Framen kirjoitukset sekä Springer Naturen (BMC, Springer, nature.com), PLOSin, Frontiersin ja journal.fi:n pdf-lehden artikkelit Lukimeen-lisäosan, Latomon ja md.js:n läpi (käyttäjän pyynnöt
 // 10.11.2026 ja 11.11.2026; SEP:lle on sep-pesukone.js). Ajo repon juuressa:
-//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|viisi|lehdet] [osoitteet]
+//   NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--vali kansio] [--nayta] [--sarja logos|wikipedia|oecs|mia|wbw|enc|ired|saet|gutenberg|newadvent|ccel|psyche|ejp|ojs|lacus|korpora|dhamma|wikisource|substack|iep|oyc|ndpr|tascabile|bmcr|ojs2|noema|matuschak|fivebooks|perseus|pg|tertullian|vle|pressbooks|openedition|hypotheses|manifold|forummagnum|janeway|scielo|obp|fadedpage|archive|folger|wikimuut|gwern|larb|tri16|eurlex|fcl|pmc|ubiquity|spip|pc|vox|embryo|cdli|zz|fabula|folk|cww|chs|zf|bomb|ojs3|pgde|sls|snellman|popups|ro|aquinas|kb|michigan|pm|boc|nv|eoa|np|ll|aug|gretil|viisi|lehdet|laake] [osoitteet]
 // Sivut haetaan kerran välimuistiin (oletus: tmp/hakuteos-pesukone; tekstejä ei viedä repoon), myös sivut, joita lisäosa
 // pyytää (Logoksen viitatut artikkelit, marxists.orgin alaviitesivut). Mittaa lähteen ja tuloksen otsikot, alaviitteet,
 // kirjallisuusluettelon (p.bib, tunnistetut kohdat), lähdelinkit, rikkinäiset ja epäilyttävät (luettelon kohdasta puuttuu
 // linkin vuosi tai nimi), Wikipedian artikkeliluettelon pituuden ja jäänteet (muokkaa-linkit, raaka HTML, merkit).
 // --nayta tulostaa otsikot, varoitukset ja epäilyttävät kohteet. Tulos: välimuistiin <nimi>.md ja <nimi>.leike.md.
+// Ennen ja jälkeen (22.11.2026): --ulos kansio kirjoittaa tulokset muualle kuin välimuistiin (sama välimuisti kummallekin
+// ajolle), ja --vertaa kansio vertaa jokaista <nimi>.md:tä aiemman ajon samannimiseen ja kertoo muuttuneet rivit.
 // OECS:n sivut ovat oecs.knowledgefutures.orgista: oecs.mit.edu (PubPub) estää pilvikontin.
 const fs = require('fs'), os = require('os'), path = require('path'), http = require('http'), cp = require('child_process');
 const { chromium } = require('playwright');
@@ -15,7 +17,21 @@ const arg = process.argv.slice(2);
 const otaArvo = n => { const i = arg.indexOf(n); if (i < 0) return null; const v = arg[i + 1]; arg.splice(i, 2); return v; };
 const otaLippu = n => { const i = arg.indexOf(n); if (i < 0) return false; arg.splice(i, 1); return true; };
 const VALI = otaArvo('--vali') || path.join(os.tmpdir(), 'hakuteos-pesukone');
+const ULOS = otaArvo('--ulos') || VALI;
+const VERTAA = otaArvo('--vertaa');
 const NAYTA = otaLippu('--nayta');
+// Muuttuneet rivit (diff): 0, kun sama; null, kun vertailukansiossa ei ole tiedostoa.
+function muuttuneet(nimi, uusi) {
+  const f = VERTAA && path.join(VERTAA, nimi);
+  if (!f || !fs.existsSync(f)) return null;
+  if (fs.readFileSync(f, 'utf8') === uusi) return 0;
+  const g = path.join(os.tmpdir(), 'pesukone-vertaa-' + process.pid);
+  fs.writeFileSync(g, uusi);
+  let out = '';
+  try { out = cp.execFileSync('diff', [f, g], { maxBuffer: 1 << 28 }).toString(); } catch (e) { out = String(e.stdout || ''); }
+  fs.rmSync(g, { force: true });
+  return out.split('\n').filter(r => /^[<>] /.test(r)).length;
+}
 const SARJAT = {
   logos: ['https://filosofia.fi/fi/ensyklopedia/descartes-rene', 'https://filosofia.fi/fi/ensyklopedia/habermas-jurgen',
     'https://filosofia.fi/fi/ensyklopedia/bioetiikka', 'https://filosofia.fi/fi/ensyklopedia/zizek-slavoj',
@@ -210,6 +226,11 @@ const SARJAT = {
   // PubMed Central (18.11.2026, pahvin 2): Medical Historyn kaksi artikkelia (alaviitteet, tiivistelmä, avainsanat) ja kliininen
   // artikkeli (kirjallisuusluettelo, taulukot). PMC antaa kontille reCAPTCHA-sivun noin neljännestä peräkkäisestä hausta alkaen.
   pmc: ['PMC12041326', 'PMC11949638', 'PMC6334128'].map(p => 'https://pmc.ncbi.nlm.nih.gov/articles/' + p + '/'),
+  // Lääketieteen kierros PMC:ssä (22.11.2026): JAMA Netw Open (Key Points), BMJ (järjestelmällinen katsaus, joulunumero),
+  // Lancet Public Health, eLife, Cureus (tapausselostus), Cochrane, World Psychiatry, Scand J Prim Health Care (laadullinen),
+  // BMC Med Res Methodol (kaavat), Dtsch Ärztebl (kuvatapaus), NEJM (tekijän käsikirjoitus), Lancet (RCT) ja Bull WHO.
+  laake: ['PMC13583879', 'PMC9992728', 'PMC11957479', 'PMC11587887', 'PMC12005723', 'PMC12860570', 'PMC11339634', 'PMC11403163',
+    'PMC12135696', 'PMC11687162', 'PMC12442802', 'PMC7616851', 'PMC7618965', 'PMC11865846'].map(p => 'https://pmc.ncbi.nlm.nih.gov/articles/' + p + '/'),
   // Ubiquity Press (18.11.2026, pahvin 3): IRSP (alaviitteet, APA-viittaukset, taulukot ja kuvat), Utrecht Law Review (138
   // alaviitettä, ei kirjallisuutta), Journal of Open Psychology Data ja Journal of Cognition.
   ubiquity: ['https://rips-irsp.com/en/articles/10.5334/irsp.1284', 'https://utrechtlawreview.org/en/articles/10.36633/ulr.1185',
@@ -359,13 +380,23 @@ const OSOITTEET = arg.length ? arg : SARJA ? SARJAT[SARJA] : Object.values(SARJA
 const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
 fs.mkdirSync(VALI, { recursive: true });
+fs.mkdirSync(ULOS, { recursive: true });
 
 // POST-pyynnön (VLE:n ajax.php) runko kuuluu välimuistin avaimeen.
+const vmTiedosto = (url, post) => path.join(VALI, (url + (post ? '_' + post : '')).replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
+/* Tarkistussivu (PMC:n reCAPTCHA Checking your browser, Cloudflaren Just a moment, AWS WAF): curl saa sen koodilla 200,
+   ja ennen se jäi välimuistiin artikkelin paikalle, jolloin sovite palautti null ja ajo mittasi hiljaa yleisen leikkeen tai
+   tyhjää. Nyt sitä ei tallenneta: sivu on puuttuva (merkintä haaste), haetaan uudelleen seuraavalla ajolla ja luetellaan
+   yhteenvedossa. Tarkistusta ei kierretä; hae myöhemmin harvemmin. */
+const HAASTE = /<title>[^<]*(Checking your browser|Just a moment|Attention Required|Human Verification)|awswaf\.com\/[^"']*challenge|id="challenge-form"/i;
+const haasteet = new Set();
 function valimuisti(url, post) {
-  const f = path.join(VALI, (url + (post ? '_' + post : '')).replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
+  const f = vmTiedosto(url, post);
+  if (fs.existsSync(f + '.puuttuu') && fs.readFileSync(f + '.puuttuu', 'utf8') === 'haaste' && !haasteet.has(url)) fs.rmSync(f + '.puuttuu');
   if (!fs.existsSync(f) && !fs.existsSync(f + '.puuttuu')) {
     const koodi = cp.execFileSync('curl', ['-sSL', ...(/openedition\.org|hypotheses\.org|openlibhums\.org|glossa-journal\.org|eur-lex\.europa\.eu|publishing\.umich\.edu|link\.springer\.com|nature\.com|journal\.fi/.test(url) ? [] : ['-A', /augustinus\.it/.test(url) ? 'Mozilla/5.0 (X11; Linux x86_64) Firefox/128.0' : 'Mozilla/5.0']), ...(post ? ['-d', post] : []), '-o', f, '-w', '%{http_code}', url]).toString();
     if (koodi !== '200') { fs.writeFileSync(f + '.puuttuu', koodi); fs.rmSync(f, { force: true }); }
+    else if (HAASTE.test(fs.readFileSync(f, 'utf8').slice(0, 20000))) { fs.writeFileSync(f + '.puuttuu', 'haaste'); fs.rmSync(f, { force: true }); haasteet.add(url); }
   }
   return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
 }
@@ -406,75 +437,99 @@ const palvelin = http.createServer((q, r) => {
   });
   const koodi = ['kirjastot/Readability.js', 'kirjastot/turndown.js', 'kirjastot/turndown-plugin-gfm.js', 'leike.js']
     .map(f => fs.readFileSync(path.join(LISAOSA, f), 'utf8')).join('\n;\n');
-  const yht = [];
+  const yht = [], virheet = [];
   for (const url of OSOITTEET) {
     // marxists.org: luvut ovat ch01.htm monessa teoksessa, joten nimeen myös kaksi edellistä polun osaa.
     const osat = decodeURIComponent(url.replace(/\/$/, '')).split('/');
     const nimi = (/publishing\.umich/.test(url) ? [osat[3], osat[osat.length - 1]] : /frontiersin\.org/.test(url) ? osat.slice(-2, -1) : /edition-open|mprl-series/.test(url) ? osat.slice(2, -1) : /newtonproject/.test(url) ? ['newton', osat[osat.length - 1]] : /thelatinlibrary/.test(url) ? osat.slice(-2) : /girardianlectionary|phenomenologyonline|lacanonline|hedgehogreview|tif\.ssrc/.test(url) ? [osat[2].replace(/^www\./, '').split('.')[0], osat[osat.length - 1]] : /augustinus\.it/.test(url) ? ['aug', ...osat.slice(-3)] : /popups\.uliege/.test(url) ? ['popups', url.split('id=')[1]] : /journals\.vu\.lt|revistas\.ucm\.es|psychopen\.eu/.test(url) ? [osat[3], ...osat.slice(osat.indexOf('view') + 1)] : /marxists\.org|encyclopedia\.com|flippingbook|projekt-gutenberg|bookofconcord|sls\.fi|isidore\.co|philological/.test(url) ? osat.slice(-2) : /saet\.ac\.uk|uchicago|korpora|dhammatalks|oyc\.yale|fadedpage|archive\.org/.test(url) ? osat.slice(-2) : /folger\.edu/.test(url) ? osat.slice(osat.indexOf('shakespeares-works') + 1) : /perseus/.test(url) ? [url.split('text%3A')[1] || 'x'] : /cdli\.earth|fabula\.org|zeithistorische/.test(url) ? osat.slice(-2) : /eur-lex|caselaw\.national/.test(url) ? osat.slice(/eur-lex/.test(url) ? 4 : 3) : osat.slice(-1)).join('-').replace(/\.html?$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '_') + (/wikipedia|wikisource/.test(url) ? '-' + url.split('//')[1].split('.')[0] : '');
-    if (!valimuisti(url.split('#')[0])) { console.log('=====', nimi, 'ei saatu'); continue; }
-    const s = await ctx.newPage();
-    await s.goto(url);
-    // Kehyssivusto (augustinus.it): #kehys=<tiedosto> avaa tiedoston principale-kehykseen kuten käyttäjän napautus sisällysluettelossa.
-    const kehys = /#kehys=(.+)$/.exec(url);
-    if (kehys) { await s.frame({ name: 'principale' }).goto(new URL(kehys[1], url).href); await s.waitForTimeout(1000); }
-    if (/vle\.lt/.test(url)) await s.waitForSelector('.z-content', { timeout: 15000 }).catch(() => console.log('  (VLE: .z-content puuttuu, raaka sivu)'));
-    const lahde = await s.evaluate(() => {
-      const w = document.querySelector('#mw-content-text .mw-parser-output');
-      // LacusCurtius: viitemerkit a.ref (saman sivun viitteisiin), otsikkoina h1 (sivuille jaetussa kirjassa vain tämä sivu).
-      if (document.querySelector('table.headerbox, table.header') && /uchicago/.test(location.hostname)) return { otsikot: document.querySelectorAll('h1').length, viitteet: document.querySelectorAll('a.ref').length };
-      if (w) return { otsikot: w.querySelectorAll('h2, h3, h4').length, viitteet: w.querySelectorAll('sup.reference, sup.mw-ref').length };
-      const r = document.querySelector('.node-ensyklopedia .field-name-body .field-item');
-      return { otsikot: r ? [...r.children].filter(p => p.tagName === 'P' && p.querySelector('a[name] strong, a[id] strong')).length : 0,
-        viitteet: r ? [...r.querySelectorAll('a[href]')].filter(a => /\/node\/|\/ensyklopedia\//.test(a.getAttribute('href'))).length : 0 };
-    });
-    const leike = await s.evaluate(k => (0, eval)(k), koodi);
-    await s.close();
-    const L = await ctx.newPage();
-    await L.goto(PAIK + 'luin/latomo.html');
-    // Kuten latomoon.js: arvo ja input-tapahtuma. Playwrightin fill kesti Gutenbergin kirjalla (1,1 Mt) 42 s, Latomo itse 1,6 s.
-    await L.evaluate(md => { const e = document.getElementById('md'); e.value = md; e.dispatchEvent(new Event('input', { bubbles: true })); }, leike.koko);
-    await L.waitForTimeout(900);
-    const md = await L.evaluate(() => window.__latomo.tulos().md);
-    fs.writeFileSync(path.join(VALI, nimi + '.md'), md);
-    fs.writeFileSync(path.join(VALI, nimi + '.leike.md'), leike.koko);
-    const t = await L.evaluate(md => {
-      const r = window.LuinMD.parse(md);
-      const d = new DOMParser().parseFromString('<div id="t">' + r.html + '</div>', 'text/html');
-      const linkit = [...d.querySelectorAll('a.lahde')];
-      return { h2: d.querySelectorAll('#t > h2').length, h3: d.querySelectorAll('#t > h3').length, h4: d.querySelectorAll('#t > h4').length,
-        alaviitteet: d.querySelectorAll('.sidenote').length, tyhjat: [...d.querySelectorAll('.sidenote')].filter(x => /lähteen omalla sivulla/.test(x.textContent)).length,
-        bib: d.querySelectorAll('p.bib').length, kohdat: d.querySelectorAll('p.bib[id^="kirj-"]').length,
-        linkit: linkit.length, alaviitteissa: linkit.filter(x => x.closest('.sidenote')).length,
-        rikki: linkit.filter(x => !d.getElementById(x.getAttribute('href').slice(1))).length,
-        // Epäilyttävä kohde: luettelon kohdasta puuttuu linkin vuosi tai ensimmäinen nimi (Mitchell 2009 → Mitchell, M. (2009) …).
-        vaarat: linkit.filter(x => {
-          const k = d.getElementById(x.getAttribute('href').slice(1)), t = x.textContent.replace(/­/g, '');
-          if (!k) return false;
-          const v = (t.match(/(1[5-9]\d\d|20\d\d)/) || [])[1], n = (t.match(/\p{Lu}[\p{L}’'-]+/u) || [])[0];
-          // Toistoviiva (—— (2006). …) on edellisen kohdan tekijä.
-          return (v && !k.textContent.includes(v)) || (n && !/^\s*[—–-]{2,}/.test(k.textContent) && !k.textContent.replace(/­/g, '').includes(n));
-        }).map(x => x.textContent + ' → ' + d.getElementById(x.getAttribute('href').slice(1)).textContent.slice(0, 60)),
-        otsikot: [...d.querySelectorAll('#t > h2, #t > h3, #t > h4')].map(h => h.tagName[1] + ' ' + h.textContent.replace(/­/g, '')),
-        varoitukset: r.warnings.map(w => w.msg) };
-    }, md);
-    await L.close();
-    const JAANTEET = [/muokkaa wikitekstiä|\[muokkaa|\[edit\]/g, /<\/?(sup|span|table|div|a)\b/g, /XLUINVIITE/g, /redirects here|ohjataan tänne/g, /cite_note|CITEREF/g];
-    const jaanteet = JAANTEET.map(re => (md.match(re) || []).length);
-    const wl = (/^## Wikipedia[- ]a(rtikkelit|rticles)\n\n((?:- .*\n?)*)/m.exec(md) || [, , ''])[2].split('\n').filter(Boolean).length;
-    const tulos = { nimi, lahde, t, jaanteet, wl, viitteita: leike.kokoViitteita, sanoja: leike.kokoSanoja };
-    yht.push(tulos);
-    console.log('=====', nimi, '(' + url + ')');
-    console.log(`  otsikot: lähteessä ${lahde.otsikot}, tuloksessa ##/###/#### ${t.h2}/${t.h3}/${t.h4}; sanoja ${leike.kokoSanoja}`);
-    console.log(`  alaviitteet: lähteen merkkejä/linkkejä ${lahde.viitteet}, leikkeessä ${leike.kokoViitteita}, Luinissa ${t.alaviitteet} (lähteen sivulla ${t.tyhjat})`);
-    console.log(`  kirjallisuus: p.bib ${t.bib}, tunnistettu ${t.kohdat}; lähdelinkit ${t.linkit} (alaviitteissä ${t.alaviitteissa}), rikki ${t.rikki}, epäilyttävä kohde ${t.vaarat.length}`);
-    if (NAYTA) t.vaarat.slice(0, 5).forEach(v => console.log('    VÄÄRÄ? ' + v));
-    if (wl) console.log(`  Wikipedia-artikkeleita luettelossa ${wl}`);
-    console.log(`  jäänteet (muokkaa, raaka HTML, merkki, ohjausrivi, viitetunnus): ${jaanteet.join('/')}; md.js-varoituksia ${t.varoitukset.length}`);
-    if (NAYTA) { console.log('  ' + t.otsikot.join('\n  ')); t.varoitukset.slice(0, 8).forEach(v => console.log('    VAR ' + v)); }
+    if (!valimuisti(url.split('#')[0])) { console.log('=====', nimi, haasteet.has(url.split('#')[0]) ? 'ei saatu (tarkistussivu)' : 'ei saatu'); continue; }
+    // Yhden artikkelin virhe (sovite tai md.js kaatuu) kirjataan ja ajo jatkuu; ennen se pysäytti koko sarjan, eikä kaatavaa
+    // leikettä ollut tallessa. Leike tallennetaan ennen Latomoa.
+    const sivut = [];
+    try {
+      const s = await ctx.newPage(); sivut.push(s);
+      await s.goto(url);
+      // Kehyssivusto (augustinus.it): #kehys=<tiedosto> avaa tiedoston principale-kehykseen kuten käyttäjän napautus sisällysluettelossa.
+      const kehys = /#kehys=(.+)$/.exec(url);
+      if (kehys) { await s.frame({ name: 'principale' }).goto(new URL(kehys[1], url).href); await s.waitForTimeout(1000); }
+      if (/vle\.lt/.test(url)) await s.waitForSelector('.z-content', { timeout: 15000 }).catch(() => console.log('  (VLE: .z-content puuttuu, raaka sivu)'));
+      const lahde = await s.evaluate(() => {
+        const w = document.querySelector('#mw-content-text .mw-parser-output');
+        // LacusCurtius: viitemerkit a.ref (saman sivun viitteisiin), otsikkoina h1 (sivuille jaetussa kirjassa vain tämä sivu).
+        if (document.querySelector('table.headerbox, table.header') && /uchicago/.test(location.hostname)) return { otsikot: document.querySelectorAll('h1').length, viitteet: document.querySelectorAll('a.ref').length };
+        if (w) return { otsikot: w.querySelectorAll('h2, h3, h4').length, viitteet: w.querySelectorAll('sup.reference, sup.mw-ref').length };
+        const r = document.querySelector('.node-ensyklopedia .field-name-body .field-item');
+        return { otsikot: r ? [...r.children].filter(p => p.tagName === 'P' && p.querySelector('a[name] strong, a[id] strong')).length : 0,
+          viitteet: r ? [...r.querySelectorAll('a[href]')].filter(a => /\/node\/|\/ensyklopedia\//.test(a.getAttribute('href'))).length : 0 };
+      });
+      const leike = await s.evaluate(k => (0, eval)(k), koodi);
+      await s.close();
+      fs.writeFileSync(path.join(ULOS, nimi + '.leike.md'), leike.koko);
+      const L = await ctx.newPage(); sivut.push(L);
+      await L.goto(PAIK + 'luin/latomo.html');
+      // Kuten latomoon.js: arvo ja input-tapahtuma. Playwrightin fill kesti Gutenbergin kirjalla (1,1 Mt) 42 s, Latomo itse 1,6 s.
+      await L.evaluate(md => { const e = document.getElementById('md'); e.value = md; e.dispatchEvent(new Event('input', { bubbles: true })); }, leike.koko);
+      await L.waitForTimeout(900);
+      const md = await L.evaluate(() => window.__latomo.tulos().md);
+      fs.writeFileSync(path.join(ULOS, nimi + '.md'), md);
+      const t = await L.evaluate(md => {
+        const r = window.LuinMD.parse(md);
+        const d = new DOMParser().parseFromString('<div id="t">' + r.html + '</div>', 'text/html');
+        const linkit = [...d.querySelectorAll('a.lahde')];
+        return { h2: d.querySelectorAll('#t > h2').length, h3: d.querySelectorAll('#t > h3').length, h4: d.querySelectorAll('#t > h4').length,
+          alaviitteet: d.querySelectorAll('.sidenote').length, tyhjat: [...d.querySelectorAll('.sidenote')].filter(x => /lähteen omalla sivulla/.test(x.textContent)).length,
+          bib: d.querySelectorAll('p.bib').length, kohdat: d.querySelectorAll('p.bib[id^="kirj-"]').length,
+          linkit: linkit.length, alaviitteissa: linkit.filter(x => x.closest('.sidenote')).length,
+          rikki: linkit.filter(x => !d.getElementById(x.getAttribute('href').slice(1))).length,
+          // Epäilyttävä kohde: luettelon kohdasta puuttuu linkin vuosi tai ensimmäinen nimi (Mitchell 2009 → Mitchell, M. (2009) …).
+          vaarat: linkit.filter(x => {
+            const k = d.getElementById(x.getAttribute('href').slice(1)), t = x.textContent.replace(/­/g, '');
+            // Lyhenteen linkki lyhenneosion otsikkoon (HCUP → Abbreviations, PMC12573812) ei ole lähdelinkki.
+            if (!k || /^H[1-6]$/.test(k.tagName)) return false;
+            const v = (t.match(/(1[5-9]\d\d|20\d\d)/) || [])[1], n = (t.match(/\p{Lu}[\p{L}’'-]+/u) || [])[0];
+            // Toistoviiva (—— (2006). …) on edellisen kohdan tekijä.
+            return (v && !k.textContent.includes(v)) || (n && !/^\s*[—–-]{2,}/.test(k.textContent) && !k.textContent.replace(/­/g, '').includes(n));
+          }).map(x => x.textContent + ' → ' + d.getElementById(x.getAttribute('href').slice(1)).textContent.slice(0, 60)),
+          otsikot: [...d.querySelectorAll('#t > h2, #t > h3, #t > h4')].map(h => h.tagName[1] + ' ' + h.textContent.replace(/­/g, '')),
+          // Linkittämättä jääneet tekijä–vuosi-viittaukset (22.11.2026): Nimi et al. 2013 ja Nimi and Nimi 2012 tekstissä ja
+          // alaviitteissä lähdelinkin ulkopuolella. Yksinimistä (Bishop 2006) ei lasketa: liikaa vääriä (Nature 2018).
+          irralliset: (() => {
+            const k = d.getElementById('t').cloneNode(true);
+            k.querySelectorAll('a.lahde, p.bib, h1, h2, h3, h4, h5, h6, header').forEach(x => x.remove());
+            return k.textContent.replace(/­/g, '').match(/\p{Lu}[\p{L}’'-]+(?:\s+et al\.,?|\s+(?:and|&)\s+\p{Lu}[\p{L}’'-]+,?)\s+\(?(?:1[5-9]|20)\d\d[a-z]?(?![\p{L}\p{N}])/gu) || [];
+          })(),
+          varoitukset: r.warnings.map(w => w.msg) };
+      }, md);
+      await L.close();
+      const JAANTEET = [/muokkaa wikitekstiä|\[muokkaa|\[edit\]/g, /<\/?(sup|span|table|div|a)\b/g, /XLUINVIITE/g, /redirects here|ohjataan tänne/g, /cite_note|CITEREF/g];
+      const jaanteet = JAANTEET.map(re => (md.match(re) || []).length);
+      const wl = (/^## Wikipedia[- ]a(rtikkelit|rticles)\n\n((?:- .*\n?)*)/m.exec(md) || [, , ''])[2].split('\n').filter(Boolean).length;
+      const tulos = { nimi, lahde, t, jaanteet, wl, viitteita: leike.kokoViitteita, sanoja: leike.kokoSanoja, muutos: muuttuneet(nimi + '.md', md) };
+      yht.push(tulos);
+      console.log('=====', nimi, '(' + url + ')' + (tulos.muutos === null ? '' : tulos.muutos ? ' MUUTTUI ' + tulos.muutos + ' riviä' : ' ennallaan'));
+      console.log(`  otsikot: lähteessä ${lahde.otsikot}, tuloksessa ##/###/#### ${t.h2}/${t.h3}/${t.h4}; sanoja ${leike.kokoSanoja}`);
+      console.log(`  alaviitteet: lähteen merkkejä/linkkejä ${lahde.viitteet}, leikkeessä ${leike.kokoViitteita}, Luinissa ${t.alaviitteet} (lähteen sivulla ${t.tyhjat})`);
+      console.log(`  kirjallisuus: p.bib ${t.bib}, tunnistettu ${t.kohdat}; lähdelinkit ${t.linkit} (alaviitteissä ${t.alaviitteissa}), rikki ${t.rikki}, epäilyttävä kohde ${t.vaarat.length}, linkittämättä ${t.irralliset.length}`);
+      if (NAYTA) t.vaarat.slice(0, 5).forEach(v => console.log('    VÄÄRÄ? ' + v));
+      if (NAYTA && t.irralliset.length) console.log('    LINKITTÄMÄTTÄ ' + [...new Set(t.irralliset)].slice(0, 6).join('; '));
+      if (wl) console.log(`  Wikipedia-artikkeleita luettelossa ${wl}`);
+      console.log(`  jäänteet (muokkaa, raaka HTML, merkki, ohjausrivi, viitetunnus): ${jaanteet.join('/')}; md.js-varoituksia ${t.varoitukset.length}`);
+      if (NAYTA) { console.log('  ' + t.otsikot.join('\n  ')); t.varoitukset.slice(0, 8).forEach(v => console.log('    VAR ' + v)); }
+    } catch (e) {
+      virheet.push(nimi);
+      console.log('=====', nimi, '(' + url + ')\n  VIRHE ' + String(e.message || e).split('\n').slice(0, 4).join('\n    '));
+      await Promise.all(sivut.map(x => x.close().catch(() => {})));
+    }
   }
   console.log('\nYHTEENVETO');
+  if (virheet.length) console.log(`  VIRHEITÄ ${virheet.length}: ${virheet.join(', ')} (leike tuloskansiossa <nimi>.leike.md)`);
+  if (VERTAA) {
+    const m = yht.filter(y => y.muutos), e = yht.filter(y => y.muutos === 0).length, p = yht.filter(y => y.muutos === null).length;
+    console.log(`  verrattuna (${VERTAA}): ennallaan ${e}, muuttui ${m.length} (${m.reduce((n, y) => n + y.muutos, 0)} riviä), vertailusta puuttui ${p}` + (m.length ? '\n    ' + m.map(y => y.nimi + ' ' + y.muutos).join('\n    ') : ''));
+  }
   const sum = f => yht.reduce((n, y) => n + f(y), 0);
-  console.log(`  artikkeleita ${yht.length}; alaviitteitä ${sum(y => y.t.alaviitteet)}, p.bib ${sum(y => y.t.bib)}, lähdelinkkejä ${sum(y => y.t.linkit)}, rikki ${sum(y => y.t.rikki)}, epäilyttäviä ${sum(y => y.t.vaarat.length)}, jäänteitä ${sum(y => y.jaanteet.reduce((a, c) => a + c, 0))}`);
-  console.log('  välimuisti ja tulokset: ' + VALI);
+  console.log(`  artikkeleita ${yht.length}; alaviitteitä ${sum(y => y.t.alaviitteet)}, p.bib ${sum(y => y.t.bib)}, lähdelinkkejä ${sum(y => y.t.linkit)}, rikki ${sum(y => y.t.rikki)}, epäilyttäviä ${sum(y => y.t.vaarat.length)}, linkittämättä ${sum(y => y.t.irralliset.length)}, jäänteitä ${sum(y => y.jaanteet.reduce((a, c) => a + c, 0))}`);
+  if (haasteet.size) console.log(`  tarkistussivu ${haasteet.size} sivulla (ei välimuistissa, haetaan uudelleen seuraavalla ajolla):\n    ` + [...haasteet].join('\n    '));
+  console.log('  välimuisti: ' + VALI + (ULOS !== VALI ? ', tulokset: ' + ULOS : ''));
   await b.close(); palvelin.close();
 })().catch(e => { console.error(e); process.exit(1); });

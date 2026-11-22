@@ -100,6 +100,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `ladonta: asiakirja` (Snellman-sovite, opas 7.5): md.js ottaa otsikkolohkon vain etukentästä, ja tekstin alun lyhyet rivit
   (kirjeen paikka ja päiväys, puhuttelu) jäävät tekstiin. Latomo säilyttää avaimen tuntemattomana kuten lomitetun käännöksen. Latomo päättelee
   etukentän poikkeamat samalla ladonnalla (`valmis()`): muuten kirjeen päiväysrivi pudottaa `julkaistu`n.
+  Snellman-sovitteen pykälä (oma kappaleensa `§ 1`, `§ 2.`, `§ 19. Logiikasta`) on `####` kuten md.js:n pykäläsarja, ja luento
+  (`1. luento`, `Kertaus 4. ja 5. luento, § 3`) `##` (`snOts()`; käyttäjän havainto: pykälät eivät olleet väliotsikoita);
+  sääntötekstin rivin alku `§ 6 Näihin …` ja viittaus `§ 6, …` jäävät tekstiksi. `ladonta: asiakirja` -tekstissä md.js ei
+  huomauta otsikoiden numeroinnista, koska aukot ovat lähteen (luentoluonnoksesta puuttuvat 5. ja 12. luento).
   Kreikan sivulta lomitettu käännös (`psLomitus()`): etukentän `ladonta: lomitettu käännös` tekee md.js:ssä
   lainauksista `blockquote.kaannos`ia; Latomo säilyttää avaimen tuntemattomana. Kohdistus viitenumeroista (`sup[data-ps]`), ei kappaleista.
   dhammatalks.org-sovite (opas 7.5): kirjan kokoaminen nojaa etusivun `.book-toc`:hen; etukentän `alaotsikko`
@@ -115,7 +119,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   Springer Nature-, PLOS- ja Frontiers-sovitteet (opas 7.5) käyttävät PMC:n `pmcNumeroviitteet()`ia asetuksin: kun muutat
-  sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
+  sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. PMC:n tekijä–vuosi-viittaus linkittyy, koska sovite kirjoittaa
+  kohdan alkuun viittauksen nimiön `Brunton et al. (2013).` (Vancouver-kohdasta md.js ei löydä tekijää eikä vuotta) ja Cochranen
+  tutkimustunnuksen `Smith (1997a) {published data only}.` otsikon sijaan: älä poista näitä alkuja siistiäksesi luetteloa. Lehden
+  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Lääketieteen kierros: `--sarja laake`. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (käyttäjä ei ole ottanut kantaa).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
@@ -667,8 +674,11 @@ Aja repon juuressa:
   kantautuminen Luiniin ja Latomon plussa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]`: postilaatikko ja merkintäposti kahdella
   laitteella workerin oikealla koodilla (muistissa oleva KV).
-- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [osoitteet]`: Logoksen ja Wikipedian oikeat
-  artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden ja rikkinäisten lähdelinkkien pitää olla 0.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [--sarja s] [osoitteet]`: sovitteiden oikeat
+  artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden, virheiden ja rikkinäisten lähdelinkkien pitää olla 0. Ennen ja jälkeen
+  samalla välimuistilla: ensimmäinen ajo `--ulos A`, toinen `--ulos B --vertaa A` (muuttuneet rivit artikkeleittain; sama
+  `snellman-pesukone.js`:ssä). Tarkistussivua (PMC:n reCAPTCHA, Cloudflare) ei tallenneta eikä kierretä selaimella: se on
+  pääsynvalvontaa. Pesukone luettelee sen sivut; hae ne myöhemmin harvemmin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/snellman-pesukone.js [--vali kansio]`: Snellmanin koko korpus (2 949 asiakirjaa)
