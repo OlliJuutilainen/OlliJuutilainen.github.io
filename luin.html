@@ -666,6 +666,11 @@
   .valikko .lk input:focus { outline: none; border-color: var(--harmaa); }
   .valikko .lk .tila { padding: 6px 0 0; font-size: .8rem; line-height: 1.45; }
   .valikko.luokittelu .napit { margin-top: 8px; border-top: 1px solid var(--viiva); }
+  /* Pinon Vie merkinnät -laatikko (vieMerkPinosta()). */
+  .valikko.vie-merk .lk-selite { margin-top: 4px; }
+  .valikko.vie-merk .vm-valinnat { padding: 4px 15px 6px; }
+  .valikko.vie-merk button.vk { padding: 7px 0; min-height: 36px; }
+  .valikko.vie-merk .napit button:disabled { color: var(--viiva); }
   .valikko .esi.poistuu { text-decoration: line-through; text-decoration-color: var(--ruoste); }
   /* kirjauksen muokkain: kasvaa tekstin mukana enintään 30vh:n korkuiseksi */
   .valikko.kirjaus { width: min(22rem, calc(100vw - 24px)); padding: 0; }
@@ -3507,6 +3512,7 @@
         (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="Merkinnät eivät siirry jaettavassa linkissä">Kopioi linkki</button>'
           : '<button type="button" data-k="linkita">Linkitä tiedostoon</button>') +
         '<button type="button" data-k="lataa">Lataa .md</button>' +
+        '<button type="button" data-k="viemerk">Vie merkinnät</button>' +
         // Huiluta laatikkoon: tekstin runko toisten laitteiden pinoihin (huiluta()).
         '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
       { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
@@ -3516,6 +3522,7 @@
       var lt = luinToiminto(k, nappi, [e], b);
       if (lt !== undefined) return lt;
       if (k === 'lataa') { lataaMd(e); return; }
+      if (k === 'viemerk') { vieMerkPinosta(e, b.getBoundingClientRect()); return true; }
       if (k === 'huiluta') { huiluta(e, nappi); return true; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
       if (k === 'luokittele') { luokittele([e], b.getBoundingClientRect()); return true; }
@@ -3667,7 +3674,7 @@
     });
   });
   /* Luin.-alavalikko (käyttäjän linjaus) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
-     pinossa Siirrä kellarin kampihyllystöön, Siirrä käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi,
+     pinossa Pois silmistä, Siirrä käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi,
      Siirrä ö-mappiin ja Siirrä käsikirjastoon; ö-mapissa Palauta ja Siirrä käsikirjastoon. Alimpana aina punainen Poista
      (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei siirtoja: se lähtee käsikirjastosta
      luokittelemalla. Sekavalinnalle (pino ja kellari) vain käsikirjasto ja poisto. */
@@ -3675,7 +3682,9 @@
     var kk = es.some(function (e) { return e.kasikirja; }), h = '';
     var pin = es.every(pinossa), kel = es.every(function (e) { return kellarissa(e) && !e.kasikirja; }), om = es.every(omapissa);
     if (!kk) {
-      if (pin) h += '<button type="button" data-k="luin">Siirrä kellarin kampihyllystöön</button>';
+      // Pois silmistä (käyttäjän linjaus): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi
+      // ottaa pois silmistä heti, kun on sen aika; kellarin kampihyllystö mainitaan vasta vahvistuksessa.
+      if (pin) h += '<button type="button" data-k="luin">Pois silmistä</button>';
       if (kel) h += '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>';
       if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
       h += '<button type="button" data-k="kasikirja">Siirrä käsikirjastoon</button>';
@@ -3723,11 +3732,11 @@
       viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin kampihyllystöön.');
     }, 'oikea');
   }
-  // Siirto kellarin kampihyllystöön (vahvistus Luin.) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  // Pois silmistä (vahvistus Luin.) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
     var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin pinoon?' : 'Nostetaanko ' + n + ' tekstiä takaisin pinoon?')
-      : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään kellarin kampihyllystöön?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään kellarin kampihyllystöön?');
+      : (n === 1 ? 'Nakataanko kellarin kampihyllystöön?' : 'Nakataanko ' + n + ' tekstiä kellarin kampihyllystöön?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä' : 'Luin.') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
@@ -3811,7 +3820,10 @@
   }
   function porrasTapa() {
     pop.classList.remove('rinn', 'sisak'); pop.classList.add('mittaa');
-    var w = $('.p-paa', pop).getBoundingClientRect().width + $('.p-alat', pop).getBoundingClientRect().width + 2;
+    // Alavalikolle lasketaan aina vähintään sen enimmäisleveys (20 rem), jottei tapa riipu kohtien tai otsikon pituudesta:
+    // puhelin pystyssä on aina sisäkkäin, vaikka lyhyt sisältö mahtuisi rinnakkain ahtaasti.
+    var w = $('.p-paa', pop).getBoundingClientRect().width + 2 +
+      Math.max($('.p-alat', pop).getBoundingClientRect().width, parseFloat(getComputedStyle($('.p-ali', pop)).maxWidth) || 0);
     pop.classList.remove('mittaa');
     pop.classList.add(w <= innerWidth - 16 ? 'rinn' : 'sisak');
     popPaikka.leveys = innerWidth;
@@ -8795,27 +8807,32 @@
     if (!val.al && !val.ki && !val.km) { viesti('Viennin valinnoissa ei ole merkintöjä. Valinnat ovat avoimen tekstin asetuksissa.'); return; }
     Promise.all(es.map(function (e) { return TX.lue(e.id); })).then(function (mdt) { vieZipMd(es, mdt, val); });
   }
-  function vieZipMd(es, mdt, val) {
-    var oli = nyt, tiedostot = [], nimet = {}, tyhjat = 0;
+  // Avaamattoman tekstin merkinnät Markdownina (sama kuin tekstin oma vienti); '' jos vietävää ei ole.
+  function merkinnatTekstista(e, mdTeksti, val) {
+    var v = virtuaaliNyt(e, mdTeksti);
+    if (!v) return '';
+    var oli = nyt;
     try {
-      es.forEach(function (e, i) {
-        var v = virtuaaliNyt(e, mdt[i]);
-        if (!v) { tyhjat++; return; }
-        nyt = v;
-        v.merk.km.forEach(function (k) { var p = paikanna(k); if (p) { k.b = p.b; k.o = p.o; } k.orpo = !p; });
-        v.merk.al.forEach(function (h) { h.segs.forEach(function (q) {
-          var p = paikanna({ b: q.b, o: q.s, s: q.x });
-          if (p) { q.e = p.o + (q.e - q.s); q.b = p.b; q.s = p.o; }
-          q.orpo = !p;
-        }); });
-        var md = merkinnatMd(val);
-        if (!md) { tyhjat++; return; }
-        var nimi = LuinMD.slug(e.title).slice(0, 60) || 'teksti', n = nimi, i = 2;
-        while (nimet[n]) n = nimi + '-' + i++;
-        nimet[n] = 1;
-        tiedostot.push({ nimi: n + '-merkinnat.md', data: new TextEncoder().encode(md) });
-      });
+      nyt = v;
+      v.merk.km.forEach(function (k) { var p = paikanna(k); if (p) { k.b = p.b; k.o = p.o; } k.orpo = !p; });
+      v.merk.al.forEach(function (h) { h.segs.forEach(function (q) {
+        var p = paikanna({ b: q.b, o: q.s, s: q.x });
+        if (p) { q.e = p.o + (q.e - q.s); q.b = p.b; q.s = p.o; }
+        q.orpo = !p;
+      }); });
+      return merkinnatMd(val);
     } finally { nyt = oli; }
+  }
+  function vieZipMd(es, mdt, val) {
+    var tiedostot = [], nimet = {}, tyhjat = 0;
+    es.forEach(function (e, i) {
+      var md = merkinnatTekstista(e, mdt[i], val);
+      if (!md) { tyhjat++; return; }
+      var nimi = LuinMD.slug(e.title).slice(0, 60) || 'teksti', n = nimi, i = 2;
+      while (nimet[n]) n = nimi + '-' + i++;
+      nimet[n] = 1;
+      tiedostot.push({ nimi: n + '-merkinnat.md', data: new TextEncoder().encode(md) });
+    });
     if (!tiedostot.length) { viesti(es.length === 1 ? 'Tekstissä ei ole vietäviä merkintöjä.' : 'Valituissa teksteissä ei ole vietäviä merkintöjä.'); return; }
     var d = new Date(), pv = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     var a = document.createElement('a');
@@ -8825,6 +8842,39 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
     viesti('Ladattu: ' + a.download + ' (' + lkm(tiedostot.length, 'teksti', 'tekstiä') + ')' +
       (tyhjat ? '. Ilman vietäviä merkintöjä: ' + lkm(tyhjat, 'teksti', 'tekstiä') + '.' : '.'));
+  }
+  /* Vie merkinnät pinosta (nimikkeen valikon EXPORTĀTIŌ, käyttäjän linjaus): asetusten viennin tapaan laatikko, jossa otsikko,
+     valinnat (samat aset.vieAl ym. kuin asetuksissa, joten ne muistetaan yhdessä), merkintöjen määrät ja Vie. Ei asetusten pitkää
+     selitystä. Tiedosto on sama kuin avoimen tekstin viennissä. */
+  function vieMerkPinosta(e, rect) {
+    var m = merkit(e.id), al = m.al, km = m.km;
+    var maara = lkm(al.length, 'alleviivaus', 'alleviivausta') + ', ' + lkm(al.filter(function (h) { return h.n; }).length, 'kirjaus', 'kirjausta') +
+      ' ja ' + lkm(km.length, 'kirjanmerkki', 'kirjanmerkkiä');
+    naytaPop(rect, '<div class="kys">Vie merkinnät tekstitiedostoon<span class="lk-selite">”' + esc(e.title) + '”: ' + maara + '.</span></div>' +
+      '<div class="vm-valinnat">' + VIE.map(function (v) {
+        return '<button type="button" class="vk" data-k="v:' + v[0] + '" aria-pressed="' + !!aset[v[0]] + '">' + VALITSE + '<span>' + v[1] + '</span></button>';
+      }).join('') + '</div><div class="tila" hidden></div>' +
+      '<div class="napit"><button type="button" data-k="ok">Vie</button><button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely vie-merk', function (k, b) {
+      if (k.indexOf('v:') === 0) {
+        var a = k.slice(2); aset[a] = aset[a] ? 0 : 1; tallennaAset();
+        b.setAttribute('aria-pressed', String(!!aset[a])); paivita(); return true;
+      }
+      if (k !== 'ok') return;
+      var val = vieValitut();
+      TX.lue(e.id).then(function (md) {
+        var t = merkinnatTekstista(e, md, val);
+        if (!t) { viesti(md == null ? 'Tekstiä ei ole tämän laitteen pinossa.' : 'Valituissa merkinnöissä ei ole vietävää.'); return; }
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([t], { type: 'text/markdown;charset=utf-8' }));
+        a.download = (LuinMD.slug(e.title).slice(0, 60) || 'teksti') + '-merkinnat.md';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+        viesti('Ladattu: ' + a.download);
+      });
+    }, 'oikea');
+    // Pelkkä edistymisen tilanne ei ole vietävä tiedosto (kuten asetuksissa).
+    function paivita() { $('button[data-k="ok"]', pop).disabled = !(aset.vieAl || aset.vieKi || aset.vieKm); piirraVienti(); }
+    paivita();
   }
   var CRC = null;
   function crc32(b) {

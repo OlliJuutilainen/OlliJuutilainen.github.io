@@ -278,9 +278,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   versaalina ja kursiivina; makronit yhdistyvinä U+0304, koska Literatassa ei ole ā:ta eikä ō:ta, ja makronillisilla kirjaimilla
   ei harvennusta vaan ohut väli U+2009, jotta alleviivaus jatkuu), *LATOMO* (versaalina) ja *Luin.*, kukin avaa alavalikon; merkki on
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
-  lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*,
-  *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
-  pinossa *Siirrä kellarin kampihyllystöön* (vahvistus *Luin.*), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
+  lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
+  (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
+  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
+  pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
+  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Luin.*), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
   kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Siirrä ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Palauta…* ja
   käsikirjasto; alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
   loppupiste vain *Luin.*:ssa (käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien

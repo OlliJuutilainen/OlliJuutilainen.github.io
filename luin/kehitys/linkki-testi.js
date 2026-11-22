@@ -77,7 +77,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
 
   // 1. Järjestys.
   let j = await avaa('p-koeteksti');
-  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkita,lataa,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
+  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkita,lataa,viemerk,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'linkki-valikko.png') });
 
   // 2. Lataa md.
@@ -85,6 +85,29 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   const [lataus] = await Promise.all([page.waitForEvent('download'), page.click('#pop button[data-k="lataa"]')]);
   const ladattu = fs.readFileSync(await lataus.path(), 'utf8');
   tulos('Lataa md: pinon teksti tavulleen, nimi slugista', ladattu === MD && lataus.suggestedFilename() === 'koeteksti.md', lataus.suggestedFilename());
+
+  // 2b. Vie merkinnät pinosta (EXPORTĀTIŌ): laatikko otsikoineen ja valintoineen, tiedosto kuten tekstin omassa viennissä.
+  await avaa('p-koeteksti');
+  await avaaOsa(page, 'viemerk');
+  const vmJarj = await page.$$eval('#pop .p-ali.auki button[data-k]:not(.p-takaisin)', bs => bs.map(b => b.dataset.k).join());
+  await page.click('#pop button[data-k="viemerk"]');
+  const vm = await page.evaluate(() => ({ ots: document.querySelector('#pop .kys').firstChild.textContent, selite: document.querySelector('#pop .kys .lk-selite').textContent,
+    val: [...document.querySelectorAll('#pop button.vk')].map(b => b.textContent + '=' + b.getAttribute('aria-pressed')).join(), luokka: document.getElementById('pop').className }));
+  tulos('Vie merkinnät: Lataa .md:n alla, Huiluta laatikkoon -kohdan yllä', vmJarj === 'lisa,viite,linkita,lataa,viemerk,huiluta', vmJarj);
+  tulos('Vie merkinnät: otsikko tekstitiedostoon, määrät, asetusten valinnat', vm.ots === 'Vie merkinnät tekstitiedostoon' &&
+    vm.selite === '”Koeteksti”: 1 alleviivaus, 0 kirjausta ja 0 kirjanmerkkiä.' &&
+    vm.val === 'Alleviivaukset=true,Kirjaukset=true,Kirjanmerkit=false,Edistymisen tilanne=false', JSON.stringify(vm));
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'linkki-vie-merkinnat.png') });
+  await page.click('#pop button[data-k="v:vieAl"]');
+  await page.click('#pop button[data-k="v:vieKi"]');
+  const vmPois = await page.evaluate(() => ({ ok: document.querySelector('#pop button[data-k="ok"]').disabled, al: JSON.parse(localStorage.getItem('luin-asetukset')).vieAl }));
+  tulos('Vie merkinnät: valinnat muistetaan, Vie pois ilman merkintävalintoja', vmPois.ok && vmPois.al === 0, JSON.stringify(vmPois));
+  await page.click('#pop button[data-k="v:vieAl"]');
+  await page.click('#pop button[data-k="v:vieKi"]');
+  const [vmLataus] = await Promise.all([page.waitForEvent('download'), page.click('#pop button[data-k="ok"]')]);
+  const vmMd = fs.readFileSync(await vmLataus.path(), 'utf8');
+  tulos('Vie merkinnät: tiedosto ladattu ja alleviivaus mukana', vmLataus.suggestedFilename() === 'koeteksti-merkinnat.md' && /Ensimmäinen/.test(vmMd),
+    vmLataus.suggestedFilename() + ' ' + JSON.stringify(vmMd.slice(0, 160)));
 
   // 3. Hylkäykset.
   async function linkita(u) {
@@ -115,7 +138,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   tulos('pinossa osoite, md.js lukee sen', l1[0].osoite === DB && await page.evaluate(m => LuinMD.parse(m).meta.osoite, md1) === DB);
   tulos('merkinnät ennallaan', JSON.stringify(await ls('luin-merkit:p-koeteksti')) === JSON.stringify(merkit0));
   j = await avaa('p-koeteksti');
-  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkki,lataa,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
+  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkki,lataa,viemerk,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   await page.keyboard.press('Escape');
 
   // 5. Teksti ilman etukenttää.
