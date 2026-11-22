@@ -51,9 +51,9 @@ const tila = (page) => page.evaluate(() => {
 const luinKohdat = async (page, id) => {
   await page.click(`#nimikkeet button.jako[data-id="${id}"]`);
   await page.click('#pop button[data-k="ali:luin"]');
-  const t = await tila(page);
+  const t = await tila(page), nimi = await page.textContent('#pop button[data-k="ali:luin"]');
   await page.keyboard.press('Escape'); await page.evaluate(() => { document.getElementById('pop').hidden = true; });
-  return t.kohdat.filter(k => !k.startsWith('takaisin')).join(' | ');
+  return nimi + ': ' + t.kohdat.filter(k => !k.startsWith('takaisin')).join(' | ');
 };
 
 (async () => {
@@ -193,12 +193,12 @@ const luinKohdat = async (page, id) => {
 
     // Kellarin kampihyllystö, ö-mappi ja käsikirja.
     await page.goto(U + 'luin.html#arkisto'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-kellari"]');
-    tulos('kellari: Poimi, Vie ö-mappiin, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
-      'luin=Poimi kellarin kampihyllystöstä | omappi=Vie ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
-    tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'poista=Poista');
+    tulos('kellari: pääkohta Hain.; Poimi, Vie ö-mappiin, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
+      'Hain.: luin=Poimi kellarin kampihyllystöstä | omappi=Vie ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+    tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'Hain.: poista=Poista');
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
     tulos('ö-mappi: Poimi kellarin kampihyllystöön, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
-      'omappi=Poimi kellarin kampihyllystöön | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+      'Luin.: omappi=Poimi kellarin kampihyllystöön | kasikirja=Siirrä käsikirjastoon | poista=Poista');
     await ctx.close();
   }
 
