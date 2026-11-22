@@ -754,7 +754,7 @@
   #teksti h4 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
   #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
   #teksti p { margin: 0 0 1.1em; }
-  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.vali) { text-align: justify; }
+  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.tila):not(.vali):not(.huom):not(.kaava) { text-align: justify; }
   /* Kaksirivinen kappale, jonka ainoa tasattu rivi levenisi yli LIEHU_RAJA:n sanaväleihin, liehuu (liehutaLyhyet()).
      Spesifisyys yli tasaussäännön. */
   #teksti.tasattu p.liehu:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
@@ -771,6 +771,22 @@
   #teksti p.rahoitus { font-size: 1em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--harmaa);
     text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.2em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
   #teksti p.rahoitus a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  /* Julkaisun tila (md.js tila(): takaisin vedetty, korjattu, päivitetty, esipainos): sama yläotsake kuin rahoitushuomautus, ja
+     takaisin vedetyssä (p.tila.vakava) ruoste, jotta se erottuu rahoituksen harmaasta. Rahoitus perässä pienemmällä välillä. */
+  #teksti p.tila { font-size: 1em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--harmaa);
+    text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.2em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
+  #teksti p.tila.vakava { color: var(--ruoste); }
+  #teksti p.tila + p.rahoitus { margin-top: -1.2em; }
+  #teksti p.tila a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  /* Luinin huomautus (md.js huomautus(): [kaava], [Kaava (3) on lähteessä kuvana.]): lisäosan oma ääni siitä, mitä lukin ei näytä,
+     samalla tavalla kuin kuvan paikka [kuva]. Kokonainen huomautuskappale ilman sisennystä ja tasausta. */
+  #teksti .huom { color: var(--harmaa); font-style: italic; font-size: .92em; }
+  #teksti p.huom, #teksti.sisennys p.huom, #teksti.sisennys p + p.huom { text-indent: 0; text-align: left; }
+  #teksti.sisennys p.huom + p { text-indent: 0; }
+  /* Lohkokaava (md.js p.kaava, numero em-välin takana): keskellä ilman sisennystä kuten painetussa; seuraava kappale jatkaa
+     usein virkettä (where …), joten se alkaa tasalaidasta. */
+  #teksti p.kaava, #teksti.sisennys p.kaava, #teksti.sisennys p + p.kaava { text-indent: 0; text-align: center; margin: .5em 0; }
+  #teksti.sisennys p.kaava + p { text-indent: 0; }
   /* Väliotsikon ja luettelon kohdan väli optisesti sama kuin otsikon ja leipätekstin (p.bib: .9em, riviväli 1,45), jotta
      kirjanmerkin nauha mahtuu kohdan yläpuolelle eikä joudu reunukseen (käyttäjän valinta 7.11.2026; SEP:n Deweyssä h4 + p.bib
      jätti nauhalle 3,5 px, raja 4 px). Padding, koska reunus yhdistyisi otsikon alareunukseen. */
@@ -1795,7 +1811,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=4887315d"></script>
+<script src="luin/md.js?v=61e70851"></script>
 <script src="luin/posti.js?v=41c9bf4c"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>

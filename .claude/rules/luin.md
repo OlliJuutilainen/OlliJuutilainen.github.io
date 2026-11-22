@@ -146,7 +146,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. PMC:n tekijä–vuosi-viittaus linkittyy, koska sovite kirjoittaa
   kohdan alkuun viittauksen nimiön `Brunton et al. (2013).` (Vancouver-kohdasta md.js ei löydä tekijää eikä vuotta) ja Cochranen
   tutkimustunnuksen `Smith (1997a) {published data only}.` otsikon sijaan: älä poista näitä alkuja siistiäksesi luetteloa. Lehden
-  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Numeroviittauksen linkin tekstissä saa olla hakasulkeet (`<a>[37]</a>`, vanha PLoS Medicine). Lääketieteen kierros: `--sarja laake`. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
+  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Numeroviittauksen linkin tekstissä saa olla hakasulkeet (`<a>[37]</a>`, vanha PLoS Medicine). Lääketieteen kierros: `--sarja laake`. Toinen kierros (vaikeat syötteet): `--sarja laake2`; Frontiersin ja Springer Naturen kaavat syntyvät vasta sivun skriptistä, joten mittaa
+  myös `--elava`lla. Kaavat tekstiksi `mathTeksti()` (MathML: PMC, PLOSin JATS-XML, Frontiers) ja `texTeksti()` (Springer Naturen TeX): indeksin sisältö
+  ilman välilyöntejä (Latomon `~…~`), sisäkkäinen indeksi Unicodena, peräkkäiset samat indeksit pilkulla (`~a~~b~` olisi yliviivaus); tuntematon TeX
+  jää koodiksi, ei arvata. Lohkokaavan numero on em-välin takana: md.js tekee siitä `p.kaava`n. **Luinin huomautus** (käyttäjän pyyntö: omat rajat
+  tiedostava muoto) on hakasulkeissa suomeksi Luinin sanastolla (`[kaava]`, `[Kaava (3) on lähteessä kuvana.]`, `[Taulukko on lähteessä kuvana.]`):
+  md.js:n `huomautus()` tunnistaa sen alkusanasta ja lähte-sanasta (`span.huom`, harmaa kursiivi kuten `[kuva]`), joten uusi huomautus käyttää
+  samaa sanastoa. **Julkaisun tila** (takaisin vedetty, korjattu, päivitetty, esipainos) sivun ilmoituksesta etukenttään `tila:` ja `tila-lähde:`;
+  md.js:n `tila()` tekee siitä yläotsakkeen kuten rahoitushuomautuksesta (`p.tila`, takaisin vedetyssä ruoste). Arvoja on vain nämä neljä. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (käyttäjä ei ole ottanut kantaa).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
@@ -712,11 +719,12 @@ Aja repon juuressa:
   kantautuminen Luiniin ja Latomon plussa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]`: postilaatikko ja merkintäposti kahdella
   laitteella workerin oikealla koodilla (muistissa oleva KV).
-- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [--sarja s] [osoitteet]`: sovitteiden oikeat
+- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [--elava] [--sarja s] [osoitteet]`: sovitteiden oikeat
   artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden, virheiden ja rikkinäisten lähdelinkkien pitää olla 0. Ennen ja jälkeen
   samalla välimuistilla: ensimmäinen ajo `--ulos A`, toinen `--ulos B --vertaa A` (muuttuneet rivit artikkeleittain; sama
   `snellman-pesukone.js`:ssä). Tarkistussivua (PMC:n reCAPTCHA, Cloudflare) ei tallenneta eikä kierretä selaimella: se on
-  pääsynvalvontaa. Pesukone luettelee sen sivut; hae ne myöhemmin harvemmin.
+  pääsynvalvontaa. Pesukone luettelee sen sivut; hae ne myöhemmin harvemmin. `--elava`: sivun omat skriptit, tyylit ja kirjasimet verkosta (asiakirja yhä välimuistista), kun
+  sisältö syntyy vasta skriptistä (MathJax).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/snellman-pesukone.js [--vali kansio]`: Snellmanin koko korpus (2 949 asiakirjaa)
