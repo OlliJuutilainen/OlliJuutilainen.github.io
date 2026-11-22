@@ -70,9 +70,9 @@ function svg(R, P, luokka, kok) {
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.65, kap: 1, paa: .04, n: 30 };
-// Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): samat mittasuhteet ja muoto, kehä suhteessa
+// Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
 // paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä), rako suhteessa pienempi.
-const PISTE = { lev: 2.9, kork: 3.05, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .42, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
+const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .42, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
 // Otsikon rengas (.74rem = 11,84 px): sama muoto, laki versaalikorkeudella (8,51 px) ja keskikohta kammen navan korkeudella
 // (.3176 em = 3,76 px), joten koko on linkin renkaan kerroin OK.
 const OEM = 11.84, OCAP = 8.51, ONAPA = 3.76, OK = (2 * (OCAP - ONAPA)) / LINKKI.kork;
