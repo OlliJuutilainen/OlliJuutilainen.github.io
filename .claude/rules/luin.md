@@ -120,7 +120,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
-  numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös, kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
+  numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös (käyttäjän päätös: Kielet-asetuksen *käännös* on silloin analyysi), kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
   augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
   kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
   Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
