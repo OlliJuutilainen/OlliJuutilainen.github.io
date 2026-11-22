@@ -242,8 +242,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
   paksuimmat hiukan keskikohdan alapuolella, ja niistä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä:
   klassisemman kirjasimen tuntu), ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
-  (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (samat mittasuhteet ja muoto,
-  rako suhteessa pienempi), synkassa emo-ö:n kanssa. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
+  (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto hiukan matalampana,
+  kehä suhteessa paksumpi, rako suhteessa pienempi), synkassa emo-ö:n kanssa. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
   joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
   terävöityvin päin, `orengas.js`:n `NUOLI`. Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
