@@ -1,7 +1,7 @@
 // md.js:n jäsennystesti ilman selainta. Ajo repon juuressa:
 //   node luin/kehitys/md-testi.js
 // Tarkistaa iA Writerin merkinnät (ia-merkinnat.md), Teologian tyylin mukaiset viitteet
-// (kokoaViite), päivämäärät ja tekijät sekä sen, että kandidaatintutkielman ja kehittäjän oppaan
+// (kokoaViite), päivämäärät ja tekijät sekä sen, että kandidaatintutkielman ja Dialectic of Enlightenmentin
 // rakenne pysyy ennallaan.
 const fs = require('fs');
 const path = require('path');
@@ -139,8 +139,8 @@ sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.l
 }
 sama('tutkielma: tiedot', [k.title, k.sub, k.author, k.year].join(' | '), 'KANT JA ELÄINETIIKKA | Muulajisten arvokkuutta etsimässä | Olli Juutilainen | 2026');
 sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
-const o = M.parse(lue('../ohje.md'));
-tulos('opas: HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
+const o = M.parse('# Opas\n\n- Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma).');
+tulos('HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
 
 // Kehys: blogin nimi tai kaunokirjallisen kokoelma alaotsikon paikalla, ei toistoa tietorivillä.
 const PITKA = '\n\nLeipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.';
@@ -355,7 +355,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('luuranko: §-rivit ####-otsikoiksi', lr('# I\n\nERSTES KAPITEL\n\n§ 1. Titel\n\n' + hus(20) + '\n\n§ 2. Titel\n\n' + hus(20) + '\n\nZWEITES KAPITEL\n\n§ 3. Titel\n\n' + hus(20)),
     '3:## ERSTES KAPITEL | 5:#### § 1. Titel | 9:#### § 2. Titel | 13:## ZWEITES KAPITEL | 15:#### § 3. Titel');
   sama('luurangotus: ##-pykälät ####:ksi', lr('# I\n\n## Erstes Kapitel\n\n## § 1. A\n\n' + hus(20) + '\n\n## § 2. B\n\n' + hus(20)), '5:#### § 1. A | 9:#### § 2. B');
-  sama('luuranko: tutkielma ja opas ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../ohje.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
+  sama('luuranko: tutkielma ja Dialectic ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
 }
 
 // Leipätekstin haka- ja kaarisulkuviittaukset (käyttäjän päätös 6.11.2026, huomio 7.11.2026, SEP): tekijä ja vuosi sulkujen alussa (vihjesanan jälkeenkin), pilkulla

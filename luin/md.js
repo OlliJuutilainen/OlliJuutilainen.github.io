@@ -1,7 +1,7 @@
 /*
   Luin: Markdownista lukimen HTML:ksi. Yhteinen luin.html:lle ja Latomolle (luin/latomo.html).
 
-  Konventiot ovat käyttäjän aiempien md → html -muunnosten mukaiset (ks. luin/ohje.md,
+  Konventiot ovat käyttäjän aiempien md → html -muunnosten mukaiset (ks. tusina-rata: oppaat/luin-kehittajan-opas.md,
   "Merkintäkieli"):
   - Ensimmäinen #-otsikko on teoksen nimi. Sen ja ensimmäisen ##-otsikon välissä pelkästä
     kursiivista koostuva kappale on alaotsikko (.sub), muut lyhytriviset kappaleet tietoriveja

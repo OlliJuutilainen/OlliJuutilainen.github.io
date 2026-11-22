@@ -1,4 +1,4 @@
-/* Postihuilun kuvio (käyttäjän valinnat ja säännöt 12.11.2026; ideointi docs/mietintamyssy/luin-postihuilu-kuvitus*).
+/* Postihuilun kuvio (käyttäjän valinnat ja säännöt 12.11.2026; ideointi tusina-rata: myssy/luin-postihuilu-kuvitus*).
    Yksi huilu, aina vinossa pystyssä (kulma 64° vaakatasosta, HUILUKULMA; ennen 68°; nokka ylhäällä oikealla), ei koskaan vaakatasossa:
    - pinon Postihuilu-otsikon oikealla puolella ja asetusten Postihuilu-osiossa, josta lähtee kulmikas kolmilinja;
    - huilutetun (Postihuilun kautta kantautuneen) tekstin nimen perässä.

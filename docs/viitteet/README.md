@@ -61,7 +61,7 @@ Avoimet:
 - **APA-käsikirja.** Tekijänoikeuden takia turvaverkko on omin sanoin kirjoitettu tiivistelmä. Tarkistetut kohdat on
   merkitty [✓] lähteineen; muut [M] ovat muistinvaraisia.
 - **Muiden Claude-keskustelujen sisältö.** Ne eivät näy tähän ympäristöön. Täydentävä tieto on koottu repon omasta
-  historiasta: CLAUDE.md, `luin/ohje.md` (luku 7), `luin/md.js`, `luin/kehitys/md-testi.js` ja tutkielman
+  historiasta: CLAUDE.md, Luinin kehittäjän opas (luku 7; nyt yksityisessä tusina-rata-repossa), `luin/md.js`, `luin/kehitys/md-testi.js` ja tutkielman
   kirjallisuusluettelo ja alaviitteet.
 
 ## Jo toteutettu Luinissa
