@@ -241,15 +241,16 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     tulos(`${w} px: asetuksissa painallus tuo kolme nuottia koko napin x-välille`, a2.nuotit && a2.nuotit.maara === 3 && a2.nuotit.vasen >= 0 && a2.nuotit.oikea >= 0 && a2.nuotit.vasen < 30 && a2.nuotit.oikea < 36 && a2.nuotit.oikea - a2.nuotit.vasen > 12 && a2.nuotit.oikea - a2.nuotit.vasen < 22 && a2.nuotit.ala > 2, JSON.stringify(a2.nuotit));
     tulos(`${w} px: ei vaakavieritystä asetuksissa`, a2.vaaka);
     if (KUVAT) await (await p.$('#laatikko-osio')).screenshot({ path: path.join(KUVAT, `postihuilu-asetukset-${w}.png`) });
-    // Lause annettu: pinossa Soita postihuilua vasemmalla palstan laidassa, kellarilinkin kokoisena (kellari tyhjä: linkki piilossa).
+    // Lause annettu: pinossa Soita postihuilua laatikkonappina vasemmalla palstan laidassa ennen kellarilinkkiä ja linkkejä (kellari tyhjä: linkki piilossa).
     await p.goto('file://' + path.join(JUURI, 'luin.html')); await p.waitForTimeout(400);
     const sp = await p.evaluate(() => {
       const b = document.querySelector('#soita-postihuilua'), r = b.getBoundingClientRect(), cs = getComputedStyle(b);
       const lista = document.querySelector('#nimikkeet').getBoundingClientRect(), lisaa = document.querySelector('.lisaa').getBoundingClientRect();
-      return { nak: !!b.getClientRects().length, vasen: r.left - lista.left, koko: cs.fontSize, versaali: cs.textTransform, ennenLinkkeja: r.bottom < lisaa.top,
+      return { nak: !!b.getClientRects().length, vasen: r.left - lista.left, laatikko: b.classList.contains('laatikko') && cs.borderTopStyle === 'solid' && r.height >= 34,
+        ennenKellaria: b.compareDocumentPosition(document.querySelector('#ark-linkki')) === Node.DOCUMENT_POSITION_FOLLOWING, ennenLinkkeja: r.bottom < lisaa.top,
         ark: document.querySelector('#ark-linkki').hidden };
     });
-    tulos(`${w} px: lauseen kanssa Soita postihuilua vasemmalla .64rem:n versaalina ennen linkkejä`, sp.nak && Math.abs(sp.vasen) < .5 && sp.koko === '10.24px' && sp.versaali === 'uppercase' && sp.ennenLinkkeja, JSON.stringify(sp));
+    tulos(`${w} px: lauseen kanssa Soita postihuilua laatikkonappina vasemmalla ennen kellarilinkkiä ja linkkejä`, sp.nak && Math.abs(sp.vasen) < .5 && sp.laatikko && sp.ennenKellaria && sp.ennenLinkkeja, JSON.stringify(sp));
     tulos(`${w} px: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
     await p.close();
   }
