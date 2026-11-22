@@ -798,6 +798,8 @@
      otsikon jälkeen. Väliasetuksella se on kuin muut kappaleet. Tasattuna liehuva: rivit ovat säkeitä ja osoitteita. */
   #teksti.sisennys p.rivit, #teksti.sisennys p + p.rivit { text-indent: 0; margin: .7em 0; }
   #teksti.sisennys p.rivit + p { text-indent: 0; }
+  /* Juokseva otsikko (md.js p.ajo: **Corollary 4:** …) aloittaa jakson: ei sisennystä, väli edellä (käyttäjän havainto). */
+  #teksti.sisennys p.ajo, #teksti.sisennys p + p.ajo { text-indent: 0; margin-top: .9em; }
   #teksti.tasattu p.rivit:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
   /* Kuvateksti (md.js p.kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella Table 1. / Fig. 2 / Taulukko 3):
      ei leipätekstiä, joten ei sisennystä eikä tasausta kummallakaan kappalejaolla,
@@ -1793,7 +1795,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=590d734a"></script>
+<script src="luin/md.js?v=70d9af5b"></script>
 <script src="luin/posti.js?v=41c9bf4c"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
