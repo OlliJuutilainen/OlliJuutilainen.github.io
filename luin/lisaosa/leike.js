@@ -678,7 +678,9 @@
      alkaa samalla tunnuksella tai siinä on paluulinkki (#-linkki taaksepäin). Jatkokappaleet ovat seuraavia sisaruksia,
      kunnes vastaan tulee toinen viite, otsikko tai viiva. Palauttaa määritelmät; merkit korvautuvat ja lohkot poistuvat. */
   const TUNNUS = /^[[(]?\s*(\d{1,3}[a-z]?\*?|\*{1,3}|[†‡§]|[a-z]|note|n\.?\s?\d{1,3})\s*[\])]?\.?$/i;
-  const tunnusOf = t => (TUNNUS.exec(rivi(t)) || [])[1];
+  // Nelinumeroinen vain hakasulkeissa ([1000]–[1294], Burckhardtin Gutenberg-kirja): paljas 1520 on vuosiluku.
+  const TUNNUS_PITKA = /^\[\s*(\d{4})\s*\]$/;
+  const tunnusOf = t => (TUNNUS.exec(rivi(t)) || TUNNUS_PITKA.exec(rivi(t)) || [])[1];
   // jatkuu(lohko, seuraava): saako viitettä seuraava elementti olla sen jatkokappale (Gutenberg: vain saman viitelaatikon;
   // oletuksena kaikki seuraavaan viitteeseen, otsikkoon tai viivaan asti).
   function samanSivunViitteet(juuri, etuliite, jatkuu = null) {
@@ -2040,6 +2042,24 @@
     const h1 = el.querySelector('h1'), tiivis = t => rivi(t).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
     if (h1 && tiivis(otsikko) && tiivis(h1.textContent).startsWith(tiivis(otsikko).slice(0, 20))) h1.remove();
     const OTS = 'h1, h2, h3, h4, h5, h6';
+    // Hakemisto pois kuten Faded Pagessa: sen sivunumerot ovat poissa, ja lukimessa on haku. Otsikko ja kaikki sen perässä
+    // seuraavaan samantasoiseen tai ylempään otsikkoon asti (Burckhardtilla myös hakemiston perään painettu kustantajan
+    // osoite). Ennen alaviitteitä, koska hakemiston kirjainlinkki A näyttää viitemerkiltä.
+    el.querySelectorAll(OTS).forEach(h => {
+      if (!el.contains(h) || !/^((general|alphabetical|analytical) )?index( of [^.]{1,40})?[.:]?$/i.test(rivi(h.textContent))) return;
+      const taso = +h.tagName[1], ylempi = x => [x, ...x.querySelectorAll(OTS)].some(y => y.matches(OTS) && +y.tagName[1] <= taso);
+      for (let s = h.nextElementSibling, t; s && !ylempi(s); s = t) { t = s.nextElementSibling; s.remove(); }
+      h.remove();
+    });
+    // Kehystetty siirtymälaatikko ennen ensimmäistä otsikkoa (yksisoluinen taulukko, jossa vähintään kolme linkkiä kirjan
+    // sisään: Burckhardtin Contents · Index A–Z · Footnotes) ja transkriboijan korjausluettelo (taulukko, jonka ensimmäinen
+    // rivi on Typographical errors corrected …; sivuviitteet {pg 204} osoittavat poistettuihin sivuihin).
+    const ensOts = el.querySelector(OTS);
+    el.querySelectorAll('table').forEach(t => {
+      const alussa = ensOts && (t.compareDocumentPosition(ensOts) & Node.DOCUMENT_POSITION_FOLLOWING);
+      if (alussa && t.rows.length === 1 && t.rows[0].cells.length === 1 && t.querySelectorAll('a[href^="#"]').length >= 3) t.remove();
+      else if (t.rows.length && /^((typographical|printer'?s'?) )?(errors|errata|corrections)\b.{0,60}(corrected|transcriber)|^errata\.?$/i.test(rivi(t.rows[0].textContent))) t.remove();
+    });
     // Linkki otsikkoon: kohde on otsikko tai sen sisällä, sisältää otsikon tai on (tyhjä ankkuri) heti otsikon edellä.
     const otsikkoon = a => {
       const id = (a.getAttribute('href') || '').slice(1);
@@ -2117,7 +2137,11 @@
     // Jatkokappale vain samasta viitelaatikosta: vanhoissa kirjoissa p.footnote on heti kappaleensa perässä, ja sitä seuraava
     // leipäteksti valui viitteeseen (Kantin Critique of Pure Reason: 47 000 sanaa).
     const laatikko = x => x.parentElement && x.parentElement.matches('.footnote, .footnotes, .pg-viite, .tei-list-footnotes, .notes');
-    const maar = samanSivunViitteet(el, 'pg', (l, n) => n.tagName === l.tagName && (l.className ? n.className === l.className && !/^(|tei tei-p)$/.test(l.className) : laatikko(l) && n.parentElement === l.parentElement));
+    // Yhden viitteen laatikossa (DP:n div.footnote, TEI:n dd:stä koottu .pg-viite) jatkoa on kaikki sen sisällä: runo
+    // (div.poetry, div.poem-container) ja TEI:n p.tei-p, joka ennen jäi viitteestä irti Footnotes-otsikon alle.
+    const omaLaatikko = x => x.parentElement && x.parentElement.matches('div.footnote, .pg-viite');
+    const maar = samanSivunViitteet(el, 'pg', (l, n) => (omaLaatikko(l) && n.parentElement === l.parentElement) ||
+      (n.tagName === l.tagName && (l.className ? n.className === l.className && !/^(|tei tei-p)$/.test(l.className) : laatikko(l) && n.parentElement === l.parentElement)));
     // Viitemerkki <pre>-kaaviossa (Kantin paralogismien taulu): md.js ei lue alaviitteitä koodilohkosta, joten merkit kaavion perään.
     el.querySelectorAll('pre').forEach(pre => {
       const merkit = pre.textContent.match(MERKKI);
@@ -2154,6 +2178,16 @@
       const teksti = muunna(kopio.innerHTML, 'inlined').trim();
       if (teksti) maar.push(maaritelma(tunnus, teksti));
       p.remove();
+    });
+    // Tyhjäksi jäänyt viiteosion otsikko (FOOTNOTES:, Footnotes, NOTES): viitteet ovat nyt alaviitteinä.
+    el.querySelectorAll(OTS).forEach(h => {
+      if (!/^(foot ?notes|notes|end ?notes)[.:]?$/i.test(rivi(h.textContent))) return;
+      const taso = +h.tagName[1];
+      let tyhja = true;
+      for (let s = h.nextElementSibling; s && tyhja && !(s.matches(OTS) && +s.tagName[1] <= taso); s = s.nextElementSibling) {
+        if (rivi(s.textContent) || s.querySelector('img, table, hr')) tyhja = false;
+      }
+      if (tyhja) h.remove();
     });
     // Yhdistettyjä soluja sisältävä taulukko jäisi Markdownissa HTML:ksi: rivit kappaleiksi, solut ' · ':llä.
     el.querySelectorAll('table').forEach(t => {
@@ -2194,6 +2228,22 @@
       if (raja && !(p.compareDocumentPosition(raja) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
       if (SISALLYS.test(rivi(p.textContent))) p.remove();
     });
+    // Nimiön välistys rivinvaihdoilla (<p>  <br>  <br>By<br>…<br><br><br>LONDON): lohkon alun ja lopun sekä toistuvat
+    // rivinvaihdot pois, muuten ne ovat lukimessa tyhjiä kenoviivarivejä. Vain lohkon omat br:t (span-säkeiden br:t säilyvät),
+    // ja vain kun varsinainen otsikko on (Kalevalassa ei ole, joten sen säkeistöt jäävät koskematta).
+    const tyhjaSolmu = n => n && n.nodeType === 3 && !/\S/.test(n.nodeValue);
+    el.querySelectorAll('br').forEach(br => {
+      if (!raja || !(br.compareDocumentPosition(raja) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+      if (!/^(P|DIV|TD|TH)$/.test(br.parentElement.tagName)) return;
+      let e = br.previousSibling, s = br.nextSibling;
+      while (tyhjaSolmu(e)) e = e.previousSibling;
+      while (tyhjaSolmu(s)) s = s.nextSibling;
+      if (!e || !s || e.nodeName === 'BR') {
+        // Alun sitovat välilyönnit (  <br>  <br>By) pois: neljä välilyöntiä on Markdownissa koodilohko.
+        if (!e) for (let n = br.parentElement.firstChild, m; n && n !== s; n = m) { m = n.nextSibling; if (tyhjaSolmu(n)) n.remove(); }
+        br.remove();
+      }
+    });
     [...el.querySelectorAll('p, div')].reverse().forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' ')) && !p.querySelector('hr, table, img')) p.remove(); });
     // Peräkkäiset viivat (poistetun nimiön tai sisällyksen molemmin puolin) yhdeksi.
     el.querySelectorAll('hr').forEach(hr => {
@@ -2203,6 +2253,16 @@
     });
     const kaytetyt = [...new Set([...el.querySelectorAll(OTS)].map(h => +h.tagName[1]))].sort();
     el.querySelectorAll(OTS).forEach(h => {
+      // Otsikon rivinvaihdot (CHAPTER I.<br><br>INTRODUCTION.) yhdelle riville: Markdownin otsikko on yksi rivi, ja luvun nimi
+      // jäi kappaleeksi otsikon alle ja pois Sisälmyksestä. Väliin piste, ellei edellinen osa pääty välimerkkiin.
+      [...h.querySelectorAll('br')].forEach(br => {
+        const r = document.createRange();
+        r.setStart(h, 0); r.setEndBefore(br);
+        const ennen = rivi(r.toString());
+        r.setStartAfter(br); r.setEnd(h, h.childNodes.length);
+        const jalkeen = rivi(r.toString());
+        br.replaceWith(ennen && jalkeen && !/[.:;!?—–-]$/.test(ennen) ? '. ' : ' ');
+      });
       const u = document.createElement('h' + Math.min(4, kaytetyt.indexOf(+h.tagName[1]) + 2));
       while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u);
     });

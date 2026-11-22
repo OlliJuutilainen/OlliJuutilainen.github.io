@@ -65,7 +65,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   SAET-sovite (St Andrews Encyclopaedia of Theology, opas 7.5): viittaukset ovat jo SEP-muotoa; Attributions-osio
   (lähdepainos, käännökset) jää tekstiin, Copyright-rivi etukenttään.
   Gutenberg-sovite (opas 7.5) leikkaa koko kirjan. `samanSivunViitteet()`:n kolmas parametri (jatkoehto) estää
-  leipätekstin valumisen viitteeseen; ilman sitä käytös on ennallaan. Pesukone syöttää leikkeen Latomoon kuten lisäosa (ei `fill`).
+  leipätekstin valumisen viitteeseen; ilman sitä käytös on ennallaan. Yhden viitteen laatikossa (`div.footnote`, `.pg-viite`)
+  kaikki sisarukset ovat jatkoa (runot, TEI:n `p.tei-p`), muualla vain samanlainen lohko. Hakemisto (`Index`-otsikosta seuraavaan
+  samantasoiseen) poistetaan ennen alaviitteitä, koska sen kirjainlinkki A näyttää viitemerkiltä. Nelinumeroinen viitetunnus kelpaa
+  vain hakasulkeissa (`TUNNUS_PITKA`; paljas luku on vuosi). Pesukone syöttää leikkeen Latomoon kuten lisäosa (ei `fill`).
+  gutenberg.org estää pilvikontin (503); pesukoneen välimuistin voi täyttää peilistä (`aleph.gutenberg.org/cache/epub/<n>/`).
   New Advent- ja CCEL-sovitteet (opas 7.5) kokoavat lyhyen luvun sivulta koko kirjan (enintään 250 sivua samalta
   sivustolta; tietosuojasivu mainitsee). Molemmat ovat md.js:n `KANTAJA`-sivustoja, joten lisätietona on tekijä.
   Psyche–Aeon-sovite (opas 7.5): ingressi jätetään pois tarkoituksella (kursiivina se olisi Luinissa alaotsikko ja
@@ -749,6 +753,7 @@ linkki *Kokeiluteksti: Kant ja eläinetiikka* ja `robots.txt`:n rivi `Disallow: 
 `luin/tekstit/dialectic-of-enlightenment.md` (ilman linkkiä, `luin.html#u=luin/tekstit/dialectic-of-enlightenment.md`).
 Kun käyttäjä sanoo kokeilun päättyneen, poista tiedostot, linkki ja robots.txt:n rivi (`md-testi.js` käyttää molempia
 fixtureina: korvaa ne ensin). Muita käyttäjän tekstejä ei viedä repoon ilman erillistä lupaa.
+`luin/tekstit/burckhardt-renaissance.md` (Gutenberg-sovitteen leike, vapaa teksti) on jaettu jakolinkillä: poisto rikkoo linkin.
 
 ### Alatunnisteen ©-merkki
 
