@@ -70,10 +70,10 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 72, rako: .25, kap: 2, paa: .04, n: 30 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: .25, kap: 1.5, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, rako samassa suhteessa, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkerta kapenee terävästi
-// (kap 2 72°:sta) sekä emossa että pisteissä (käyttäjän linjaus).
+// (kap 1,5 78°:sta) sekä emossa että pisteissä (käyttäjän linjaus).
 const PS = 2.9 / LINKKI.lev, PV = 1.7;
 const PISTE = { lev: 2.9, kork: LINKKI.kork * PS * .94, nAla: LINKKI.nAla, tb: LINKKI.tb * PS * PV, ts: LINKKI.ts * PS * PV, tt: LINKKI.tt * PS * PV,
   kTasa: 12, kMax: LINKKI.kMax, rako: LINKKI.rako * PS, kap: LINKKI.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
