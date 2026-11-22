@@ -3517,7 +3517,8 @@
         '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
       { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
         '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
-      { k: 'luin', nimi: 'Luin.', html: luinKohdat([e]) }
+      // Kellarin kampihyllystössä (käsikirja mukaan lukien) pääkohta on Hain. (käyttäjän nimi); ö-mapissa ja pinossa Luin.
+      { k: 'luin', nimi: kellarissa(e) && !omapissa(e) ? 'Hain.' : 'Luin.', html: luinKohdat([e]) }
     ], function (k, nappi) {
       var lt = luinToiminto(k, nappi, [e], b);
       if (lt !== undefined) return lt;
