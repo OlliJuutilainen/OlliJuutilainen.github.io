@@ -70,11 +70,13 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: .25, kap: 1, paa: .04, n: 30 };
-// Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
-// paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä). Piikit kapenevat kuten emo-ö:ssä (78°:sta) ja ulottuvat melkein
-// kiinni toisiinsa (käyttäjän linjaus: myöhemmin alkava kapeneminen teki pisteistä tavallisen ö:n näköisiä).
-const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .015, kap: 1, paa: .02, pnosto: 1.05, pdx: 2.45, n: 16 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 72, rako: .25, kap: 2, paa: .04, n: 30 };
+// Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
+// 6 % emoa matalampi, rako samassa suhteessa, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkerta kapenee terävästi
+// (kap 2 72°:sta) sekä emossa että pisteissä (käyttäjän linjaus).
+const PS = 2.9 / LINKKI.lev, PV = 1.7;
+const PISTE = { lev: 2.9, kork: LINKKI.kork * PS * .94, nAla: LINKKI.nAla, tb: LINKKI.tb * PS * PV, ts: LINKKI.ts * PS * PV, tt: LINKKI.tt * PS * PV,
+  kTasa: 12, kMax: LINKKI.kMax, rako: LINKKI.rako * PS, kap: LINKKI.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
 // osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on .9 px
 // perusviivan alla (pohja pohjan viivan paksuus + .9 px perusviivan alla).
