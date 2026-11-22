@@ -109,7 +109,8 @@ ei profiilin omaan tiedostoon.
 
 **Vanhat versiot ja käyttämätön tavara siirretään repoon `OlliJuutilainen/tusina-tavaraa`** (kansio `github-io/`,
 alkuperäiset polut säilyttäen; käyttäjän päätös). Päärepoon ei jätetä arkistokansioita eikä rinnakkaisia vanhoja
-versioita, jotka häiritsevät uusimpien käsittelyä. Ajatustyö (ideat, oppaat, työlistat, lokit) menee tusina-rataan.
+versioita, jotka häiritsevät uusimpien käsittelyä. Jako: **tusina-rataan se, mistä voi olla hyötyä** (ideat, oppaat,
+suunnitelmat, työlistat, lokit, referenssit), **roskat tusina-tavaraan** (vanhat versiot, kaksoiskappaleet, kuolleet kokeilut).
 
 Sijaintikoordinaatit eivät saa päätyä selväkielisinä repoon (Tusinasään sijaintitoken, tusinapaja.md).
 
