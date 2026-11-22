@@ -1,5 +1,5 @@
 <resources>
-    <!-- Luinin pääotsikko (luin/ohje.md 1.3). -->
+    <!-- Luinin pääotsikko (kehittäjän opas 1.3, tusina-rata: oppaat/luin-kehittajan-opas.md). -->
     <string name="app_name">Luin.</string>
     <string name="load_error">Sivu ei latautunut.</string>
     <string name="load_error_offline">Ilman verkkoyhteyttä luin aukeaa vain, jos se on avattu tällä laitteella verkossa.</string>
