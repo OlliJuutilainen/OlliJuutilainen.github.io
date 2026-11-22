@@ -2548,6 +2548,13 @@
       if (ajoKohdat.length) {
         ajoKohdat.forEach(function (k) { res.kohdat.push({ b: k.b, s: k.s, vali: true, ajo: true, alku: k.alku }); });
         res.kohdat.sort(function (a, z) { return a.b - z.b; });
+        // Kappale luokalla ajo (käyttäjän havainto 22.11.2026: sisennetty Corollary 4: … näytti oudolta; lähteessä kappaleita ei
+        // sisennetä): Luin aloittaa sen sisentämättä ja välin jälkeen kuten jakson.
+        ajoKohdat.forEach(function (k) {
+          html = html.replace(new RegExp('<p( class="([^"]*)")?((?: id="[^"]*")?) data-b="' + k.b + '">'), function (x, c, cl, id) {
+            return '<p class="' + (cl ? cl + ' ' : '') + 'ajo"' + id + ' data-b="' + k.b + '">';
+          });
+        });
       }
     }
     res.tunnisteet = paikat(res.toc);
