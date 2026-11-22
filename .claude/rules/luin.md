@@ -237,13 +237,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
-  Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
-  paksuimmat hiukan keskikohdan alapuolella, ja viiva kevenee lakea kohti leveään viistoon irvistysrakoon (ulkoreunat lähempänä kuin
-  sisäreunat), ei paksua makkaraa. Ö:n pisteet ovat samaa muotoa pienempinä. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
-  joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Alleviivaus on reunaviiva, ja svg on
+  Rengas (käyttäjän linjaukset, painokkaasti): **lytistetty matalaksi ja leveäksi** (10,5 × 6,5 px eli leveys/korkeus 1,6; testi vaatii
+  ≥ 1,5), **ohut lanka** (pohja alleviivauksen 1 px, kyljet tuskin enempää) ja **selvä kevennys lakea kohti** (.35 px) leveään viistoon
+  irvistysrakoon (ulkoreunat lähempänä kuin sisäreunat); pohja litteä. Älä palauta korkeaa, kapeaa tai paksua rengasta. Ö:n pisteet ovat
+  samaa muotoa pienempinä, yläreuna versaalikorkeudella. Pohja noin 2,3 px perusviivan alla, joten alleviivaus on ylempänä kuin
+  kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Alleviivaus on reunaviiva, ja svg on
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
-  otsikossa Ö on sama rengas ilman alleviivausta (`OTS_OMAPPI`, pienennettynä: keskikohta kammen navan korkeudella, laki versaalikorkeudella;
+  otsikossa Ö on sama rengas ilman alleviivausta (`OTS_OMAPPI`, otsikon koossa: pohja perusviivalla, keskikohta kammen navan korkeudella;
   nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki
   peilattuna (`#ark-paluu`: nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
