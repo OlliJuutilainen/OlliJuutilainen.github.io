@@ -121,6 +121,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
   numero; nimeä ei keksitä), analyysisarake (padapāṭha) on lomitettu käännös, kappaleiden väliset toisinnot alaviitteitä; testi `--sarja gretil`.
+  Wisdom Library (`wisdomlib()`, opas 7.5) kokoaa puun (kirja, osa tai luku, tekstisivulta yläluku, enintään `KK_RAJA`);
+  alaviitteen tunnus on sivuston ID, koska numerointi alkaa jokaisella sivulla alusta, ja kansitietojen *by* on käännöksissä
+  kääntäjä (`suomentaja`). Bibliotheca Augustana (`augustana()`, opas 7.5): kaksi sivupohjaa; vanhassa uusi kappale alkaa
+  sitovin välilyönnein sisennetystä rivistä (lähdekoodin tavalliset välilyönnit eivät näy selaimessa, joten ne eivät sisennä),
+  porro-ketjua seurataan vain saman tiedostoetuliitteen sivuille ja hakemiston linkkiteksti on luvun otsikko; testi `--sarja ba`.
+  Access to Insight (`accesstoinsight()`) lukee tiedot sivun ATIDoc-kommentista; testi `--sarja ati`.
   augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
   kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
   Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
