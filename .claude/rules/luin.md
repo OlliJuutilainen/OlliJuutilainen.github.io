@@ -273,8 +273,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mapissa ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
-- **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *Exportātiō* (latinan *vienti*;
-  makronit yhdistyvinä U+0304, koska Literatassa ei ole ā:ta eikä ō:ta), *Latomo* ja *Luin.*, kukin avaa alavalikon. Exportātiō:
+- **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *EXPORTĀTIŌ* (latinan *vienti*;
+  versaalina ja kursiivina; makronit yhdistyvinä U+0304, koska Literatassa ei ole ā:ta eikä ō:ta, ja makronillisilla kirjaimilla
+  ei harvennusta vaan ohut väli U+2009, jotta alleviivaus jatkuu), *LATOMO* (versaalina) ja *Luin.*, kukin avaa alavalikon; merkki on
+  yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*,
   *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
   pinossa *Siirrä kellarin kampihyllystöön* (vahvistus *Luin.*), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
