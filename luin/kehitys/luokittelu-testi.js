@@ -4,7 +4,8 @@
 // (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto
 // ylimpänä kaikissa järjestyksissä, pino mukana); käsikirja ei koskaan pinossa (ei Poimi- eikä ö-mappitoimintoa, tuonti ei nosta); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
 // tarkistus) ja etukentän kirjoitus; avaimeton uusi versio ei pyyhi asiasanoja; Muuta metatietoja näyttää ne Latomossa
-// ja niiden poisto siellä poistaa ne; Lataa .md:ssä ne ovat mukana.
+// ja niiden poisto siellä poistaa ne; Lataa .md:ssä ne ovat mukana. Välikortin suodatus (22.11.2026): vain napautetun kortin
+// ryhmä, Valitse kaikki ja valittujen valikko koskevat sitä, toinen napautus, kaikki kortit ja järjestyksen vaihto palauttavat kaikki.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -83,9 +84,11 @@ const TEKSTIT = [
     await page.evaluate(([j, p]) => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.kellariJarj = j; a.kellariPino = p ? 1 : 0; localStorage.setItem('luin-asetukset', JSON.stringify(a)); }, [j, pinoMukana]);
     await lataa('#arkisto');
     await page.waitForSelector('#nimikkeet li');
-    return page.evaluate(() => [...document.querySelectorAll('#nimikkeet li')].map(li => li.classList.contains('valiots')
-      ? '[' + li.firstChild.textContent + ' ' + li.lastChild.textContent + ']' : li.querySelector('.n-ots').textContent.trim() + ' {' + li.querySelector('.n-tieto').textContent + '}'));
+    return nakyma();
   }
+  // Välikortti on nappi (button.vo), jossa nimi ja ryhmän koko.
+  const nakyma = () => page.evaluate(() => [...document.querySelectorAll('#nimikkeet li')].map(li => li.classList.contains('valiots')
+    ? '[' + li.querySelector('.vo > span').textContent + ' ' + li.querySelector('.vo-lkm').textContent + ']' : li.querySelector('.n-ots').textContent.trim() + ' {' + li.querySelector('.n-tieto').textContent + '}'));
   const nimet = a => a.map(x => x.replace(/ \{.*\}$/, '')).join(' | ');
 
   let r = await kellari('luettu');
@@ -111,6 +114,33 @@ const TEKSTIT = [
 
   r = await kellari('asiasana');
   tulos('asiasanat (tags-avain luettu)', nimet(r) === '[Käsikirjasto 1] | Raamattu | [filosofia 1] | Hegel’s Phenomenology | [Hegel 1] | Hegel’s Phenomenology | [teologia 1] | Tekstejä rautakauden Levantista | [Ilman asiasanaa 4] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Tiede ja usko', nimet(r));
+  // Välikortin suodatus (mietintämyssy 22.11.2026): napautus näyttää vain sen ryhmän, Valitse kaikki koskee sitä, toinen napautus
+  // ja järjestysrivin kaikki kortit palauttavat kaikki.
+  const kortitNakyy = () => page.evaluate(() => !document.getElementById('kortit-osa').hidden);
+  await page.click('#nimikkeet button.vo[data-ots="Ilman asiasanaa"]');
+  r = await nakyma();
+  tulos('välikortin napautus näyttää vain sen ryhmän', nimet(r) === '[Ilman asiasanaa 4] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Septuaginta | Tiede ja usko' &&
+    await kortitNakyy() && await page.getAttribute('#nimikkeet button.vo', 'aria-pressed') === 'true', nimet(r));
+  if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'kortti-suodatus.png') });
+  await page.click('#valitse-kaikki');
+  tulos('valitse kaikki valitsee vain ryhmän', await page.textContent('#val-maara') === '4 valittu', await page.textContent('#val-maara'));
+  await page.click('#val-valikko');
+  tulos('valittujen valikko: ryhmän tekstit', await page.textContent('#pop .esi') === '4 tekstiä valittu' &&
+    await page.evaluate(() => !!document.querySelector('#pop button[data-k="luokittele"]')), await page.textContent('#pop .esi'));
+  await page.mouse.click(5, 5);
+  await page.click('#nimikkeet button.vo[data-ots="Ilman asiasanaa"]');
+  r = await nakyma();
+  tulos('toinen napautus palauttaa kaikki ja nollaa valinnan', r.length === 13 && !(await kortitNakyy()) &&
+    await page.evaluate(() => document.getElementById('val-maara').hidden), r.length + ' ' + await page.textContent('#val-maara'));
+  await page.click('#nimikkeet button.vo[data-ots="teologia"]');
+  await page.click('#kortit');
+  tulos('kaikki kortit palauttaa kaikki', (await nakyma()).length === 13 && !(await kortitNakyy()));
+  await page.click('#nimikkeet button.vo[data-ots="teologia"]');
+  await page.click('#jarj');
+  await page.click('#pop button[data-k="j-luettu"]');
+  r = await nakyma();
+  tulos('järjestyksen vaihto poistaa suodatuksen', nimet(r).startsWith('[Käsikirjasto 1] | Raamattu | [Luetut 6] |') && r.length === 9 && !(await kortitNakyy()), nimet(r));
+  await page.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.kellariJarj = 'asiasana'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
 
   r = await kellari('alkupera');
   tulos('alkuperä', nimet(r).startsWith('[Käsikirjasto 1] | Raamattu | [Poimittu verkosta 2] | Tiede ja usko | Georg Wilhelm Friedrich Hegel | [Ladottu itse 4]'), nimet(r));
@@ -336,6 +366,19 @@ const TEKSTIT = [
   tulos('älä! palaa sanastoon muuttamatta', await page.evaluate(() => document.querySelectorAll('#pop button.sv').length) > 2 &&
     JSON.stringify((await ls('luin-lista')).find(x => x.id === 'p-hegel-tutkimus').asiasanat) === '["filosofia","Hegel"]');
   await page.mouse.click(5, 5);
+
+  // Suodatetun ryhmän luokittelu kerralla: Ilman asiasanaa → kaikki saavat sanan, ryhmä tyhjenee ja kaikki kortit palaavat.
+  r = await kellari('asiasana');
+  const ilman = r.find(x => /^\[Ilman asiasanaa /.test(x));
+  await page.click('#nimikkeet button.vo[data-ots="Ilman asiasanaa"]');
+  await page.click('#valitse-kaikki');
+  await page.click('#val-valikko');
+  await page.click('#pop button[data-k="luokittele"]');
+  await page.click('#pop button.lk-sana[data-s="filosofia"]');
+  await page.click('#pop button[data-k="ok"]');
+  r = await nakyma();
+  tulos('suodatetun ryhmän luokittelu: ryhmä tyhjenee, kaikki kortit palaavat', !r.some(x => /^\[Ilman asiasanaa /.test(x)) && !(await kortitNakyy()) && r.length > 5,
+    (ilman || 'ei ryhmää') + ' → ' + nimet(r));
 
   tulos('ei sivuvirheitä', virheet.length === 0, virheet.join(' | '));
   await selain.close(); palvelin.close();

@@ -297,6 +297,10 @@
     font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); font-variant-numeric: lining-nums; }
   li.valiots:first-child { padding-top: 12px; }
   li.valiots .vo-lkm { letter-spacing: .04em; }
+  /* Välikortti on suodatin (mietintämyssy 22.11.2026: napautus näyttää vain sen ryhmän, toinen palauttaa kaikki). Kortti pysyy
+     harmaana kortiston jakajana; ruosteinen *kaikki kortit* järjestysrivillä kertoo suodatuksesta. */
+  li.valiots button.vo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; text-align: left;
+    letter-spacing: inherit; text-transform: inherit; color: inherit; padding: 6px 0; margin: -6px 0; }
   li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
   li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
   .n-ots { display: block; font-size: 1.1rem; letter-spacing: .05em; line-height: 1.3; overflow-wrap: anywhere; }
@@ -1561,7 +1565,7 @@
     <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <!-- Kellarin kampihyllystön järjestys (käyttäjän pyyntö 17.11.2026): pino on aina tulojärjestyksessä. -->
-  <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button><span id="sanasto-osa" hidden> · <button type="button" id="sanasto" aria-haspopup="true">sanasto</button></span></p>
+  <p class="jarj-rivi" id="jarj-rivi" hidden>järjestys: <button type="button" id="jarj" aria-haspopup="true"></button><span id="sanasto-osa" hidden> · <button type="button" id="sanasto" aria-haspopup="true">sanasto</button></span><span id="kortit-osa" hidden> · <button type="button" id="kortit">kaikki kortit</button></span></p>
   <ul class="nimikkeet" id="nimikkeet"></ul>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
     linkistä, joka avaa tekstin lukimessa.</p>
@@ -1790,7 +1794,7 @@
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
 <script src="luin/md.js?v=590d734a"></script>
-<script src="luin/posti.js?v=5eac5539"></script>
+<script src="luin/posti.js?v=41c9bf4c"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
 <script>
@@ -2471,12 +2475,16 @@
      laitos ovat poikkeus (tosi): Latomo näki ne, joten puuttuva avain on poisto. Käsikirjasto on lukijan oma tila eikä mene
      etukenttään. Pino pysyy pinona: luokittelu näkyy ja järjestää vain kellarin kampihyllystössä. */
   var LK_V = 1;
+  // Luokittelu muuttui tällä laitteella: aika merkintäpostia varten (P.luokittelu) ja teksti lähetettäväksi, kun lähetys on päällä.
+  function lkMuuttui(e) { e.lkT = Date.now(); if (postiValinnat(e.id).on) postiLikainen(e.id); }
   function lkMdsta(e, d, tosi) {
-    var m = d.meta || {}, r = d.raaka || {};
+    var m = d.meta || {}, r = d.raaka || {}, ennen = JSON.stringify([e.asiasanat || [], e.ajoitus || '']);
     var as = m.asiasanat != null ? LuinMD.asiasanat(m.asiasanat) : [];
     if (as.length) e.asiasanat = as; else if (tosi) delete e.asiasanat;
     var aj = String(m.ajoitus || '').trim();
     if (aj) e.ajoitus = aj; else if (tosi) delete e.ajoitus;
+    // Muuta metatietoja ja korvaava laitos ovat lukijan muutoksia (tosi); tuonnin etukenttä ei ole.
+    if (tosi && e.lk && JSON.stringify([e.asiasanat || [], e.ajoitus || '']) !== ennen) lkMuuttui(e);
     e.tyyppi = (d.tiedot && d.tiedot.tyyppi) || LuinMD.tyyppiAvain(m.tyyppi);
     var jp = LuinMD.pvm(m.julkaistu);
     if (jp) e.jvuosi = jp.y; else delete e.jvuosi;
@@ -2634,7 +2642,7 @@
     }, 'oikea');
     var uusi = $('input.lk-uusi', pop), ajKentta = $('input.lk-aj', pop), tilaEl = $('.tila', pop);
     function kerro(t) { tilaEl.textContent = t; tilaEl.hidden = !t; sijoitaPop(); }
-    function tallenna() { es.forEach(lkKirjoita); tallennaLista(); if (!$('#lista').hidden) piirraNimikkeet(); }
+    function tallenna() { es.forEach(lkKirjoita); es.forEach(lkMuuttui); tallennaLista(); if (!$('#lista').hidden) piirraNimikkeet(); }
     function lisaaUusi() {
       var sanasto = lkSanasto(), lisatty = false;
       LuinMD.asiasanat(uusi.value).forEach(function (s) {
@@ -2794,10 +2802,11 @@
         if (k === 'pino') {
           aset.kellariPino = aset.kellariPino ? 0 : 1; tallennaAset();
           nappi.setAttribute('aria-pressed', String(!!aset.kellariPino));
-          valitut = {}; piirraNimikkeet();
+          valitut = {}; tila.kortti = null; piirraNimikkeet();
           return true;
         }
         aset.kellariJarj = k.slice(2); tallennaAset();
+        tila.kortti = null;
         piirraNimikkeet();
       }, 'vasen');
   });
@@ -2820,6 +2829,7 @@
       es.push(e);
     });
     es.forEach(lkKirjoita);
+    es.forEach(lkMuuttui);
     tallennaLista();
     piirraNimikkeet();
     return es.length;
@@ -2882,6 +2892,9 @@
     var a = lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); });
     return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
+  // Näkyvät nimikkeet: välikortin suodatuksessa vain sen ryhmä (tila.kortti, tila.korttiEs), muuten naytettavat(). Valinta ja
+  // Valitse kaikki koskevat näkyviä, jotta suodatetun ryhmän (Ilman asiasanaa) voi luokitella kerralla.
+  function nakyvat() { return tila.arkisto && tila.kortti && tila.korttiEs ? tila.korttiEs : naytettavat(tila.arkisto); }
   function naytaLista(ark, om) {
     ark = !!ark; om = ark && !!om;
     tallennaKohta(true);
@@ -2889,6 +2902,7 @@
     var vaihtui = ark !== !!tila.arkisto || om !== !!tila.omappi;
     if (vaihtui && tila.nakyma === 'lista') viesti('');
     if (vaihtui || tila.nakyma !== 'lista') valitut = {};
+    if (vaihtui) tila.kortti = null;
     nyt = null; tila.nakyma = 'lista'; tila.arkisto = ark; tila.omappi = om;
     document.body.classList.remove('sivutus', 'reunat');
     document.documentElement.classList.remove('palkkivara');
@@ -2943,13 +2957,18 @@
   }
   function piirraNimikkeet() {
     var ark = tila.arkisto, nak = naytettavat(ark), ul = $('#nimikkeet');
-    var nyky = {};
-    nak.forEach(function (e) { if (valitut[e.id]) nyky[e.id] = 1; });
-    valitut = nyky;
     if (ark) lkTaydenna();
     var ryhmat = ark && !tila.omappi ? jarjesta(nak) : [{ es: nak }];
+    // Välikortin suodatus: vain valittu ryhmä; jos sitä ei enää ole (järjestys vaihtui, ryhmä tyhjeni), kaikki.
+    var kortti = tila.kortti && ryhmat.filter(function (r) { return r.ots === tila.kortti; })[0];
+    if (kortti) ryhmat = [kortti]; else tila.kortti = null;
+    tila.korttiEs = kortti ? kortti.es : null;
+    var nyky = {};
+    nakyvat().forEach(function (e) { if (valitut[e.id]) nyky[e.id] = 1; });
+    valitut = nyky;
     ul.innerHTML = ryhmat.map(function (r) {
-      return (r.ots ? '<li class="valiots"><span>' + esc(r.ots) + '</span><span class="vo-lkm">' + r.es.length + '</span></li>' : '') +
+      return (r.ots ? '<li class="valiots"><button type="button" class="vo" data-ots="' + esc(r.ots) + '" aria-pressed="' + !!kortti + '" aria-label="' +
+        esc(r.ots) + ': ' + (kortti ? 'näytä kaikki kortit' : 'näytä vain tämä kortti') + '"><span>' + esc(r.ots) + '</span><span class="vo-lkm">' + r.es.length + '</span></button></li>' : '') +
         r.es.map(function (e) { return nimikeRivi(e, ark); }).join('');
     }).join('');
     $('#tyhja').hidden = nak.length > 0;
@@ -2962,11 +2981,12 @@
     $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     $('#jarj').textContent = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
     $('#sanasto-osa').hidden = !lista.some(function (e) { return e.asiasanat && e.asiasanat.length; });
+    $('#kortit-osa').hidden = !kortti;
     paivitaValinta();
   }
-  function valitutEt() { return naytettavat(tila.arkisto).filter(function (e) { return valitut[e.id]; }); }
+  function valitutEt() { return nakyvat().filter(function (e) { return valitut[e.id]; }); }
   function paivitaValinta() {
-    var n = naytettavat(tila.arkisto).length, v = valitutEt().length, k = $('#valitse-kaikki');
+    var n = nakyvat().length, v = valitutEt().length, k = $('#valitse-kaikki');
     k.hidden = !n;
     k.setAttribute('aria-pressed', !v ? 'false' : v === n ? 'true' : 'mixed');
     k.setAttribute('aria-label', v === n && n ? 'Tyhjennä valinta' : 'Valitse kaikki'); k.title = k.getAttribute('aria-label');
@@ -3084,6 +3104,8 @@
       if (auki) { nyt.kuva = P.kuva(nyt.merk); var a = tila.ankkuri; piirraTeksti(); asettele(a); paivitaMerkinnat(); }
     }
     if (r.sijainti) tallennaLista();
+    // Luokittelu (asiasanat, ajoitus, käsikirjasto) toiselta laitteelta: nimike, etukenttä ja lista.
+    if (P.yhdistaLk(e, p)) { lkKirjoita(e); tallennaLista(); if (!$('#lista').hidden) piirraNimikkeet(); }
     var v = postiValinnat(id);
     if (v.on && P.sisalto(P.paketti(id, m, e, v)) !== P.sisalto(p)) postiLikainen(id);
     return r;
@@ -3128,7 +3150,7 @@
       if (p) postiSovella(id, p);
       var m = nyt && nyt.e.id === id ? nyt.merk : merkit(id), pk = P.paketti(id, m, e, v);
       // Laatikossa on jo sama, tai lähetettävää ei ole.
-      if (p ? P.sisalto(pk) === P.sisalto(p) : !(pk.km || []).length && !(pk.al || []).length && !Object.keys(pk.del).length && !pk.pos) { valmis(); return; }
+      if (p ? P.sisalto(pk) === P.sisalto(p) : !(pk.km || []).length && !(pk.al || []).length && !Object.keys(pk.del).length && !pk.pos && !pk.lk) { valmis(); return; }
       return fetch(LAATIKKO_API, {
         method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ l: k, id: a, m: pk })
@@ -3531,9 +3553,22 @@
     $$('#nimikkeet button.valitse').forEach(function (x) { if (x.dataset.id === b.dataset.id) x.setAttribute('aria-pressed', String(!!valitut[b.dataset.id])); });
     paivitaValinta();
   });
+  // Välikortin napautus: vain sen ryhmä, toinen napautus (tai järjestysrivin kaikki kortit) palauttaa kaikki. Valinta nollautuu.
+  function suodataKortti(ots) {
+    tila.kortti = ots && tila.kortti !== ots ? ots : null;
+    valitut = {};
+    piirraNimikkeet();
+    var b = tila.kortti && $('#nimikkeet button.vo');
+    if (b) b.focus({ preventScroll: true });
+  }
+  $('#nimikkeet').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button.vo');
+    if (b) suodataKortti(b.dataset.ots);
+  });
+  $('#kortit').addEventListener('click', function () { suodataKortti(null); });
   $('#valitse-kaikki').innerHTML = VALITSE; $('#val-valikko').innerHTML = KOLME;
   $('#valitse-kaikki').addEventListener('click', function () {
-    var nak = naytettavat(tila.arkisto), kaikki = nak.length && valitutEt().length === nak.length;
+    var nak = nakyvat(), kaikki = nak.length && valitutEt().length === nak.length;
     valitut = {};
     if (!kaikki) nak.forEach(function (e) { valitut[e.id] = 1; });
     $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
