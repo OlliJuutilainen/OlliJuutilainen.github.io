@@ -281,8 +281,9 @@
         var uu = u.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
         flush(); out += '<a' + linkinLuokka(uu, uu) + ' href="' + esc(uu) + '">' + esc(uu) + '</a>'; i += u.length; continue;
       }
-      // DOI ilman osoitetta (doi:10.1093/…, SEP:n kirjallisuusluettelo) linkiksi doi.org:iin.
-      if ((c === 'd' || c === 'D') && !ctx.linkissa && /^doi:\s?10\.\d{4,9}\//i.test(s.slice(i, i + 24)) && !/[\p{L}\p{N}]/u.test(s[i - 1] || ' ')) {
+      // DOI ilman osoitetta (doi:10.1093/…, SEP:n kirjallisuusluettelo) linkiksi doi.org:iin. Vinoviivan perässä pitää olla
+      // merkki: Cochranen luettelon DOI: 10.15171/ jnp.2019.13 (välilyönti) kaatoi jäsentimen, kun alla oleva exec palautti null.
+      if ((c === 'd' || c === 'D') && !ctx.linkissa && /^doi:\s?10\.\d{4,9}\/[^\s<>"]/i.test(s.slice(i, i + 24)) && !/[\p{L}\p{N}]/u.test(s[i - 1] || ' ')) {
         var dm = karsiLoppu(/^doi:\s?10\.\d{4,9}\/[^\s<>"]+/i.exec(s.slice(i))[0]);
         var dd = dm.replace(/\\([!-\/:-@\[-`{-~])/g, '$1');
         flush(); out += '<a class="url" href="https://doi.org/' + esc(dd.replace(/^doi:\s?/i, '')) + '">' + esc(dd) + '</a>'; i += dm.length; continue;
@@ -1774,7 +1775,9 @@
     // 1907a], (Kahn 1960: 238), (Patin 1899; Graham 2002); käyttäjän päätös 6.11.2026 ja huomio 7.11.2026). Vain hakasulkeiden sisältä, sulkujen alusta alkava tekijä ja vuosi, ja vain
     // yksiselitteinen kohta; samaan sulkuun pilkulla tai puolipisteellä erotetut vuodet ja tekijät mukaan.
     // Lyhenteitä ei linkitetä leipätekstissä.
-    var HAKA = /\[([^\[\]\n]{3,160})\]|\(([^()\n]{3,160})\)/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
+    // Sulkujen sisältö enintään 600 merkkiä (22.11.2026; ennen 160): biolääketieteen viittausryhmä (e.g., Brunton et al. 2013;
+    // … seitsemän viittausta) ylitti 160 merkkiä, eikä yksikään sen viittauksista linkittynyt (eLife PMC12005723: 66).
+    var HAKA = /\[([^\[\]\n]{3,600})\]|\(([^()\n]{3,600})\)/g, HAKA_VUOSI = /^,\s*((?:1[5-9]\d\d|20\d\d)[a-z]?)(?![\p{L}\p{N}])/u;
     var aiheLista = Object.keys(aiheet), aihe = aiheLista.length === 1 && avaimet[aiheLista[0]] ? aiheLista[0] : '';
     // tila: { syv } kappaleen sulkusyvyys palasta toiseen. inline() antaa tekstin paloina muotoilun välein, joten
     // (*pace* Larmore 1995) tulee kahdessa palassa: kesken jäänyt ja jatkuva sulku luetaan pelkin tekijä–vuosi-osumin.
@@ -1863,7 +1866,16 @@
   // Luettelon kohdan tekijöiden sukunimet viittauksia varten (nimet() ennallaan, koska viitteen kokoaminen käyttää sitä):
   // nimikirjaimet pois (A. de-Shalit → de-Shalit), ja erillinen pelkkä nimikirjain kertoo kaksiosaisesta sukunimestä
   // (SEP: Padgett Walsh, K. and Lewiston, J. → nimet() lukee Padgett etunimeksi ja K.:n omaksi nimekseen).
+  // Sukunimi ja perässä nimikirjaimet (22.11.2026: Frontiersin PMC-kopio Alberga A. S., Russell-Mayhew S., von Ranson K. M.;
+  // Vancouver Brunton BW, Brody CD): nimet() lukee viimeisen nimikirjaimen sukunimeksi, eikä avainta Alberga et al. syntynyt
+  // (PMC12634050: 5 linkkiä, 30 linkittämättä; jälkeen 0). Kun jokainen nimi on tätä muotoa, sukunimi on alku.
+  var RE_JALKIKIRJAIMET = /^((?:(?:von|van|de|der|den|af|da|di|du|le|la|ten|ter)\s+)*\p{Lu}[\p{L}’'-]+(?:\s+\p{Lu}[\p{L}’'-]+)?)\s+(?:(?:\p{Lu}\.\s*)+|\p{Lu}{1,3})$/u;
   function sukunimet(tx) {
+    var osat = String(tx || '').replace(/\s+/g, ' ').trim().replace(/[,;\s]+$/, '').split(/\s*(?:;|&|,|\s+ja\s+|\s+and\s+)\s*/i).filter(Boolean);
+    var vain = osat.filter(function (o) { return !/^(?:et al\.?|ym\.?)$/i.test(o); });
+    if (vain.length && vain.every(function (o) { return RE_JALKIKIRJAIMET.test(o); })) {
+      return vain.map(function (o) { return RE_JALKIKIRJAIMET.exec(o)[1]; });
+    }
     var n = nimet(tx).slice(), alku = /^(?:\p{Lu}\.\s*)+$/u;
     for (var i = 1; i < n.length; i++) {
       if (n[i].koko && alku.test(n[i].koko) && n[i - 1].suku && n[i - 1].etu && /^\p{Lu}[\p{L}’'-]+$/u.test(n[i - 1].etu)) {
@@ -2423,7 +2435,9 @@
               var pn = parts.slice(0, d).join('.');
               warn((d === 1 ? 'Pääluvun ' : 'Alaluvun ') + pn + ' otsikko puuttuu: ' + nm[1] + ' alkaa ilman sitä.',
                 { puuttuu: pn, taso: t.lvl - 1 });
-            } else if (parts[d] !== prevN + 1 || (d > 0 && parts[d - 1] !== nums[d - 1])) {
+            } else if (!asiakirja && (parts[d] !== prevN + 1 || (d > 0 && parts[d - 1] !== nums[d - 1]))) {
+              // Asiakirjan (ladonta: asiakirja) numerointi on lähteen: Snellmanin luentoluonnoksesta puuttuvat 5. ja 12. luento,
+              // ja 8. on kahdesti. Kirjoittaja ei voi korjata sitä, joten siitä ei huomauteta.
               warn('Otsikon numero ' + nm[1] + ' ei jatka edellistä numerointia.');
             }
             nums = parts.slice();

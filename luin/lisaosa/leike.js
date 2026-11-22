@@ -29,8 +29,10 @@
       fence: '```', emDelimiter: '*', strongDelimiter: '**', linkStyle: linkit, linkReferenceStyle: 'full', br: '\\' });
     td.use(turndownPluginGfm.gfm);
     // Tekstin < kirjaimen edellä (OCR-roska <rca>, a<b) ei saa näyttää md.js:lle HTML-merkinnältä (Internet Archive 17.11.2026).
+    // Myös tekstisolmun lopussa ilman edeltävää välilyöntiä: MathML:n <mo>&lt;</mo> on oma solmunsa, ja kirjain tulee
+    // seuraavasta (eLife: ⟨r̄⟩ → <r¯n,c,t>). SEP:n URL = <linkki> jää ennalleen.
     td.escape = s => {
-      const e = TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])/g, '\\<');
+      const e = TurndownService.prototype.escape.call(td, s).replace(/<(?=[A-Za-z/!?])|(^|[^\s])<$/g, (x, a) => a === undefined ? '\\<' : a + '\\<');
       return SULKUNUMEROT ? e.replace(/^(\s*\d{1,3})([.)])(?=\s|$)/, '$1\\$2') : e;
     };
     td.keep(['sub', 'sup']);
@@ -2828,6 +2830,17 @@
   const snVersaali = t => snSanoja(t) <= 12 && t === t.toUpperCase() && !/\d/.test(t) &&
     (t.match(/\p{Lu}{3,}/gu) || []).some(w => !SN_ROOM.test(w));
   const snLyhyt = t => snSanoja(t) <= 8 && !/[.!?…]["”’)]?$/.test(t) && !/^["”“–—-]/.test(t) && !SN_ROOM.test(t) && !snVersaali(t);
+  /* Pykälät ja luennot (käyttäjän havainto 22.11.2026: Historiallinen esitys Hegelin logiikan suhteesta järjestelmän muihin
+     osiin, luentoluonnos 1843: luennot ja pykälät eivät olleet väliotsikoita). Painetun laitoksen pykälä on oma kappaleensa
+     (§ 1, § 2.), ja teksti alkaa seuraavasta; luentokäsikirjoituksissa samoin luento (1. luento, 7. luento. Kuulustelu,
+     Kertaus 4. ja 5. luento, § 3). Koko korpuksessa (2 949 asiakirjaa) 562 pykälää ja 42 luentoa 23 asiakirjassa:
+     Filosofian alkeiskurssin vihot, väitöskirjat, luentojen käsikirjoitukset, säännöt, pöytäkirjat ja hallitusmuotoesitys.
+     Ennen ne jäivät tekstiksi tai snRivit() liitti ne seuraavaan lyhyeen riviin (väitöskirjan § 1). Nimellinen pykälä vain
+     pisteellä ja enintään 12 sanan nimellä ilman pilkkua (§ 19. Logiikasta); sääntötekstin pykälä (§ 6 Näihin kokoontumisiin
+     kutsutaan …), viittaus (§ 6, jälkimmäinen momentti:) ja § 86. – Zusatz 1:n loppu … jäävät tekstiksi. */
+  const SN_PYKALA = /^§\s*\d{1,3}[a-z]?(?:\.?|\.\s+\p{Lu}[^,;:–—§]*)$/u;
+  const SN_LUENTO = /^(?:\d{1,2}\.\s+luento\b|Kertaus\s+\d{1,2}\.(?:\s+ja\s+\d{1,2}\.)?\s+luento\b)/iu;
+  const snOts = t => SN_LUENTO.test(t) && snSanoja(t) <= 8 ? 'lu' : SN_PYKALA.test(t) && snSanoja(t) <= 14 ? 'p' : '';
   function snRivit(el, laji) {
     const runo = /runo|laulu/i.test(laji || '');
     let ed = null;
@@ -2835,6 +2848,8 @@
       if (p.tagName !== 'P') { ed = null; return; }
       const t = snTx(p);
       if (!t) { ed = null; return; }
+      // Pykälä ja luento eivät liity edelliseen eikä seuraava niihin.
+      if (snOts(t)) { ed = null; return; }
       // Edellisen kappaleen viimeinen rivi (viimeisen <br>:n jälkeen).
       let edRivi = '';
       for (let n = ed && ed.lastChild; n && n.nodeName !== 'BR'; n = n.previousSibling) edRivi = n.textContent + edRivi;
@@ -2871,6 +2886,7 @@
     const kaikki = ps.map((p, k) => {
       const t = tx[k];
       if (p.querySelector('br')) return '';
+      if (snOts(t)) return snOts(t);
       if (SN_ROOM.test(t)) return 'r';
       if (versaali(t) || versaaliAlku(t)) return 'v';
       // Lainauksen perässä oleva nimi (vähintään kaksi sanaa) on allekirjoitus, ei otsikko (21.11.2026: Finlands Allmänna
@@ -2918,6 +2934,14 @@
       const l = kaikki[k];
       if (!l || !p.parentNode) return;
       let t = tx[k];
+      // Pykälä on ####, kuten md.js:n pykäläsarja (pykalaSarjat(): enintään alaluvun alaluku); luento ##.
+      if (l === 'p' || l === 'lu') {
+        const h = document.createElement(l === 'p' ? 'h4' : 'h2');
+        // Pelkän numeron piste pois (§ 2. → § 2, 15. luento. → 15. luento); nimellinen pitää tekstinsä (… teossa on jne.).
+        h.textContent = /^(?:§\s*\d+[a-z]?|\d{1,2}\.\s+luento)\.$/u.test(t) ? t.slice(0, -1) : t;
+        p.replaceWith(h);
+        return;
+      }
       if (l === 'r' && kaikki[k + 1] === 'v') return;
       if (l === 'v' && kaikki[k - 1] === 'r') { t = tx[k - 1].replace(/\.?$/, '.') + ' ' + t; ps[k - 1].remove(); }
       const h = document.createElement(l === 'r' && vers ? 'h3' : 'h2');
@@ -6480,6 +6504,23 @@
     }
     return maar;
   }
+  /* Lehden nimi (22.11.2026): citation_journal_title on NLM:n luettelon pienaakkosmuoto (The New England journal of medicine,
+     JAMA network open, The Lancet. Public health), joka näkyi lähdeviitteessä sellaisenaan. Sivun lyhenne (N Engl J Med, JAMA
+     Netw Open) kirjoittaa merkitsevät sanat isolla ja nimen sanojen järjestyksessä (ISO 4): sana, jonka kirjaimiin seuraava
+     lyhenteen osa sopii samasta alkukirjaimesta (Engl → England, Netw → Network, Natl → National, J → Journal), käyttää sen ja
+     saa ison alkukirjaimen; of, the ja and jäävät, koska niitä ei lyhenteessä ole. Ilman lyhennettä ennallaan. */
+  function pmcLehti(nimi, lyh) {
+    const pelkka = w => w.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+    const osat = (lyh || '').split(/[\s.]+/).filter(w => /^\p{Lu}/u.test(w)).map(pelkka);
+    if (!nimi || !osat.length) return nimi;
+    const sopii = (w, k) => { if (w[0] !== k[0]) return false; let i = 0; for (const c of w) if (c === k[i]) i++; return i === k.length; };
+    let j = 0;
+    return nimi.replace(/\p{L}[\p{L}'’-]*/gu, w => {
+      if (j >= osat.length || !sopii(pelkka(w), osat[j])) return w;
+      j++;
+      return /^\p{Ll}/u.test(w) ? w[0].toUpperCase() + w.slice(1) : w;
+    });
+  }
   async function pmc() {
     const runko = document.querySelector('section.main-article-body');
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
@@ -6493,9 +6534,18 @@
     const abst = [...el.querySelectorAll('section.abstract')];
     if (abst.some(a => a.querySelector('h2, h3'))) abst.forEach(a => { if (!a.querySelector('h2, h3') && rivi(a.textContent).length < 300) a.remove(); });
     el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
+    // Anfangi (NEJM PMC7616851: <strong>F</strong><span class="font-variant-small-caps">or more …) tekstiksi: muuten **F**or.
+    el.querySelectorAll('p > strong:first-child, p > b:first-child').forEach(b => {
+      const n = b.nextSibling, e = b.previousSibling;
+      if (/^\p{L}$/u.test(rivi(b.textContent)) && !(e && rivi(e.textContent)) && n && /^\p{L}/u.test(n.textContent)) b.replaceWith(rivi(b.textContent));
+    });
+    // Tiivistelmän ja tekstin välinen viiva (hr.headless) ilman tiivistelmää (Dtsch Ärztebl:n kuvatapaus PMC12442802, 22.11.2026)
+    // olisi Luinissa osanvaihto heti otsikon alla: viiva, jota ei edellä teksti, pois.
+    el.querySelectorAll('hr').forEach(h => { const r = document.createRange(); r.setStart(el, 0); r.setEndBefore(h); if (!rivi(r.toString())) h.remove(); });
     el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
     const vmaar = pmcNumeroviitteet(el);
     // Lähdeviittaukset (#cit0008, #R1, #B12) ja taulukko- ja kuvaviittaukset tekstiksi ennen alaviitteitä.
+    const nimiot = new Map();
     el.querySelectorAll('a[href^="#"]').forEach(a => {
       let k = null;
       try { k = el.querySelector('[id="' + CSS.escape(a.getAttribute('href').slice(1)) + '"]'); } catch (e) {}
@@ -6503,12 +6553,47 @@
       // Tekijä–vuosi-viittaus ilman APA-pilkkua (Thorndike, 1904 → Thorndike 1904; 21.11.2026), jotta md.js linkittää sen
       // kirjallisuuden kohtaan kuten OECS:ssä ja Ubiquityssä.
       const t = rivi(a.textContent), v = t.replace(/(\p{L}[^,()]*?),\s+((?:1[5-9]|20)\d\d[a-z]?)\b/gu, '$1 $2');
+      // Viittauksen nimiö kohdalleen (alla): Brunton et al. 2013, Sanders and Kepecs 2012, Hanks et al. (2015a).
+      const li = k.closest('.ref-list') && (k.closest('li') || k.querySelector('li'));
+      const nm = li && /^(\p{Lu}[\p{L}\p{N}'’\-\u2010 ]{0,40}?(?:\s+(?:and|&)\s+\p{Lu}[\p{L}'’\-\u2010]+|\s+et al\.)?)\s+\(?((?:1[5-9]|20)\d\d[a-z]?)\)?$/u.exec(v);
+      if (nm) { const x = nimiot.get(li) || new Map(), avain = nm[1] + '|' + nm[2]; x.set(avain, (x.get(avain) || 0) + 1); nimiot.set(li, x); }
       if (k.closest('.ref-list') && v !== t) a.replaceWith(v);
       else a.replaceWith(...a.childNodes);
     });
+    /* Tekijä–vuosi-viittaukset Vancouver-luetteloon (22.11.2026, eLife PMC12005723: Brunton et al., 2013 → Brunton BW, Botvinick
+       MM, Brody CD. … Science. 2013;340:95–98.): md.js etsii kohdasta tekijän ja vuoden alusta (Nimi (2013) tai Nimi, X.
+       (2013)), joten Vancouver-kohtia ei tunnistettu (2/57), eikä yksikään viittaus linkittynyt. PMC:n linkki kertoo, mihin
+       kohtaan viittaus osoittaa: kohdan alkuun viittauksen nimiö muodossa Brunton et al. (2013)., ellei kohdassa jo ole sulkuvuotta
+       alussa (APA, Chicago: ennallaan). Yleisin nimiö, jos kohtaan viitataan monella tavalla. */
+    nimiot.forEach((x, li) => {
+      const c = li.querySelector('cite') || li;
+      if (/^[^()]{0,300}?\((?:1[5-9]|20)\d\d[a-z]?\)/.test(rivi(c.textContent))) return;
+      const [nimi, vuosi] = [...x.entries()].sort((a, b) => b[1] - a[1])[0][0].split('|');
+      c.prepend(nimi + ' (' + vuosi + '). ');
+    });
     const maar = samanSivunViitteet(el, 'pm');
     el.querySelectorAll('section.fn-group').forEach(s => { if (!rivi([...s.childNodes].filter(n => !/^H\d$/.test(n.nodeName)).map(n => n.textContent).join(''))) s.remove(); });
-    // Kirjallisuus: kohta kappaleeksi (numero ja viite), hakulinkit pois.
+    /* Cochrane-katsaukset (22.11.2026, PMC11339634): kirjallisuus on tutkimuksittain, ja tutkimuksen tunnus on otsikkona
+       (#### Smith 1997a {published data only}) ja sen julkaisut kohtina. Tekstin viittaukset (Smith 1997a) osoittavat tunnukseen.
+       Ennen 293 tunnusta oli otsikoina Sisälmyksessä, eikä yksikään viittaus linkittynyt (julkaisun vuodesta puuttuu kirjain).
+       Tunnus ensimmäisen julkaisun alkuun muodossa Smith (1997a) {published data only}., jonka md.js lukee tekijäksi ja vuodeksi;
+       otsikko pois. Vuodeton tunnus (NCT01852318) jää alkuun vain, jos julkaisu ei jo ala sillä. Vain sisäkkäinen ryhmä, jonka
+       otsikko on tunnuksen muotoinen, joten tavallisen artikkelin References-osio ei muutu. */
+    el.querySelectorAll('section.ref-list section.ref-list').forEach(s => {
+      const h = s.querySelector(':scope > h3, :scope > h4, :scope > h5, :scope > h6'), li = s.querySelector('li');
+      if (!h || !li || s.querySelector('section.ref-list')) return;
+      const t = rivi(h.textContent);
+      // Nimessä voi olla tavuviiva U+2010 (Legroux‐Crespel 2004), perässä {published data only} tai [Computer program].
+      const m = /^(\p{Lu}[\p{L}\p{N}'’.\-\u2010\u2011 ]{0,40}?)\s+((?:1[5-9]|20)\d\d[a-z]?)(\s*(?:\{[^{}]{1,80}\}|\[[^[\]]{1,40}\]))?$/u.exec(t);
+      const vuodeton = !m && /^(\[?[\p{Lu}\d][\p{L}\p{N}./\-\u2010]{2,30}\]?)(\s*(?:\{[^{}]{1,80}\}|\[[^[\]]{1,40}\]))?$/u.exec(t);
+      if (!m && !(vuodeton && (vuodeton[2] || /^\[?NCT\d/.test(t)))) return;
+      const c = li.querySelector('cite') || li;
+      const alku = m ? m[1] + ' (' + m[2] + ')' + (m[3] || '') + '. '
+        : rivi(c.textContent).startsWith(vuodeton[1].replace(/[[\]]/g, '')) ? '' : t + '. ';
+      if (alku) c.prepend(alku);
+      h.remove();
+    });
+    // Kirjallisuus: kohta kappaleeksi (numero ja viite), hakulinkit pois. Tyhjät tunnistepaikat ([PMID: ], [DOI: ]; Cochrane) pois.
     el.querySelectorAll('.ref-list li').forEach(li => {
       const p = document.createElement('p'), nro = li.querySelector(':scope > .label'), c = li.querySelector('cite');
       if (nro && rivi(nro.textContent)) p.append(rivi(nro.textContent) + ' ');
@@ -6519,6 +6604,7 @@
         p.append(...li.childNodes);
         p.innerHTML = p.innerHTML.replace(/\s*\[\s*\]/g, '');
       }
+      p.innerHTML = p.innerHTML.replace(/\s*\[(?:PMID|DOI|PMCID|CENTRAL|EMBASE|CRSREF|CINAHL|MEDLINE):\s*\]/g, '');
       li.closest('ul, ol').before(p);
     });
     el.querySelectorAll('.ref-list ul, .ref-list ol').forEach(x => x.remove());
@@ -6580,7 +6666,7 @@
     const cc = document.querySelector('#clp_a a[href*="creativecommons.org"], .license a[href*="creativecommons.org"]');
     const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
     const h1 = document.querySelector('.front-matter h1, article h1');
-    const teos = meta('citation_journal_title')[0];
+    const teos = pmcLehti(meta('citation_journal_title')[0], rivi((document.querySelector('button[aria-controls="journal_context_menu"]') || {}).textContent));
     return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
       tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu, doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
@@ -9728,8 +9814,17 @@
     d.querySelectorAll('a[href^="#"]').forEach(a => a.setAttribute('href', osoite + a.getAttribute('href')));
     const maar = await viitteet(d);
     let md = muunna(d.body.innerHTML).replace(MERKKI, '[^viite-$1]');
-    // Sovitteen omat alaviitteet vain, jos niiden merkki on mukana (valinta voi olla osa tekstistä).
-    const kaikki = maar.concat(omat.filter(x => (md + otsikkoMd).includes('[^viite-' + /^\[\^viite-([^\]]+)\]/.exec(x)[1] + ']')));
+    // Sovitteen omat alaviitteet vain, jos niiden merkki on mukana (valinta voi olla osa tekstistä) tekstissä tai mukaan
+    // otetussa alaviitteessä. Alaviitteen sisäinen merkki (22.11.2026, JAMA Netw Open PMC13583879: taulukon huomautuksessa
+    // numeroviittaus) jäi ennen raa'aksi XLUINVIITEpmv3X:ksi, koska merkit muunnettiin vain tekstissä.
+    const omatMd = omat.map(x => x.replace(MERKKI, '[^viite-$1]'));
+    const tunnus = x => /^\[\^viite-([^\]]+)\]/.exec(x)[1];
+    const mukana = new Set();
+    for (let haku = md + otsikkoMd + maar.join('\n'), uudet = true; uudet;) {
+      uudet = false;
+      omatMd.forEach(x => { if (!mukana.has(x) && haku.includes('[^viite-' + tunnus(x) + ']')) { mukana.add(x); haku += '\n' + x; uudet = true; } });
+    }
+    const kaikki = maar.concat(omatMd.filter(x => mukana.has(x)));
     if (kaikki.length) md += '\n\n' + kaikki.join('\n\n');
     return { md, viitteita: kaikki.length };
   }

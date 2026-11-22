@@ -2,7 +2,9 @@
 // sertifiointia varten (käyttäjän pyyntö 21.11.2026: Snellman Luinin sertifioimaksi). hakuteos-pesukone.js mittaa otoksen;
 // tämä vertaa jokaisen asiakirjan lopputekstiä sanoittain lähteeseen. Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/snellman-pesukone.js [--vali kansio] [--rinn 4] [--raja N] [--tulos tiedosto.jsonl]
-//     [--lista tiedosto | osoitteet]
+//     [--ulos kansio] [--vertaa kansio] [--lista tiedosto | osoitteet]
+// --ulos kirjoittaa asiakirjojen .md:t muualle kuin välimuistiin, ja --vertaa vertaa ne aiemman ajon samannimisiin (muuttuneet
+// rivit asiakirjoittain ja yhteensä): sama välimuisti, kaksi ajoa, ennen ja jälkeen.
 // Ilman osoitteita luettelo haetaan sivuston asiakirjalistasta (295 sivua). Sivut haetaan kerran välimuistiin (oletus
 // tmp/snellman-pesukone, hakuteos-pesukoneen nimin; tekstejä ei viedä repoon), kolme kerrallaan: palvelin vastaa 1–4 s:ssa.
 // Mittaa asiakirjoittain:
@@ -23,11 +25,26 @@ const VALI = otaArvo('--vali') || path.join(os.tmpdir(), 'snellman-pesukone');
 const RINN = +(otaArvo('--rinn') || 4);
 const RAJA = +(otaArvo('--raja') || 0);
 const TULOS = otaArvo('--tulos') || path.join(VALI, 'tulos.jsonl');
+const ULOS = otaArvo('--ulos') || VALI;
+const VERTAA = otaArvo('--vertaa');
+// Muuttuneet rivit (diff): 0, kun sama; null, kun vertailukansiossa ei ole tiedostoa.
+function muuttuneet(nimi, uusi) {
+  const f = VERTAA && path.join(VERTAA, nimi);
+  if (!f || !fs.existsSync(f)) return null;
+  if (fs.readFileSync(f, 'utf8') === uusi) return 0;
+  const g = path.join(os.tmpdir(), 'pesukone-vertaa-' + process.pid + '-' + Math.random().toString(36).slice(2));
+  fs.writeFileSync(g, uusi);
+  let out = '';
+  try { out = cp.execFileSync('diff', [f, g], { maxBuffer: 1 << 28 }).toString(); } catch (e) { out = String(e.stdout || ''); }
+  fs.rmSync(g, { force: true });
+  return out.split('\n').filter(r => /^[<>] /.test(r)).length;
+}
 const LISTA = otaArvo('--lista');
 const JUURI = path.resolve(__dirname, '../..');
 const LISAOSA = path.join(JUURI, 'luin/lisaosa');
 const SIVU = 'https://snellman.kootutteokset.fi';
 fs.mkdirSync(VALI, { recursive: true });
+fs.mkdirSync(ULOS, { recursive: true });
 
 const tiedosto = u => path.join(VALI, u.replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').slice(0, 180) + '.html');
 function hae(u) {
@@ -137,7 +154,8 @@ const palvelin = http.createServer((q, r) => {
       await L.goto(PAIK + 'luin/latomo.html');
       await L.evaluate(md => { const e = document.getElementById('md'); e.value = md; e.dispatchEvent(new Event('input', { bubbles: true })); }, leike.koko);
       const md = await L.evaluate(() => window.__latomo.tulos().md);
-      fs.writeFileSync(path.join(VALI, nimi.slice(0, 150) + '.md'), md);
+      fs.writeFileSync(path.join(ULOS, nimi.slice(0, 150) + '.md'), md);
+      t.muutos = muuttuneet(nimi.slice(0, 150) + '.md', md);
       t.luin = await L.evaluate(([md, SANAT]) => {
         const sanat = eval(SANAT);
         const r = window.LuinMD.parse(md);
@@ -187,5 +205,10 @@ const palvelin = http.createServer((q, r) => {
   console.log('  alaviitteitä lähteessä', yht.reduce((s, y) => s + (y.viitteet ? y.viitteet.lahde : 0), 0), ', lukimessa', yht.reduce((s, y) => s + (y.viitteet ? y.viitteet.luin : 0), 0),
     '; viitesanoja kadonnut', yht.reduce((s, y) => s + (y.viiteDiff ? sanaa(y.viiteDiff.pois) : 0), 0), ', ylimääräisiä', yht.reduce((s, y) => s + (y.viiteDiff ? sanaa(y.viiteDiff.lisa) : 0), 0));
   console.log('  md.js-varoituksia', yht.reduce((s, y) => s + (y.luin ? y.luin.varoitukset.length : 0), 0), '; jäänteitä', yht.reduce((s, y) => s + (y.jaanteet ? y.jaanteet.html + y.jaanteet.merkki : 0), 0));
+  if (VERTAA) {
+    const m = yht.filter(y => y.muutos), e = yht.filter(y => y.muutos === 0).length, p = yht.filter(y => y.muutos === null || y.muutos === undefined).length;
+    console.log(`  verrattuna (${VERTAA}): ennallaan ${e}, muuttui ${m.length} (${m.reduce((s, y) => s + y.muutos, 0)} riviä), vertailusta puuttui ${p}`);
+    m.sort((a, b) => b.muutos - a.muutos).slice(0, 40).forEach(y => console.log('    ' + y.muutos + '  ' + y.nimi));
+  }
   console.log('  tulokset: ' + TULOS);
 })().catch(e => { console.error(e); process.exit(1); });
