@@ -92,6 +92,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Ilman valintoja leike on tavulleen sama kuin ilman valintaikkunaa; testi `perseus-valinnat-testi.js` (vertaa pesukoneen leikkeisiin).
   *Kukin omaksi tekstikseen* (opas 7.5): leikkeen `sarja` → `odottaa.sarja` → Latomon piilokenttä `#sarja` (JSON,
   lisäosarajapinta) → siirron `sarja` → lukimen `tuo()`. Muuta ketju yhdessä.
+  Kuvateksti on sovitteissa kokonaan kursiivinen kappale, joka alkaa tunnisteella (`*Table 1. …*`; opas 3.2): md.js tunnistaa sen
+  siitä (`kuvateksti()`, `p.kuvateksti`), joten älä vaihda muotoa; puuttuvan taulukon huomautus tulee perään hakasulkeissa.
+  Taulukon lyhyt solu (`td.lyhyt`) katkeaa vain välilyönnistä, ellei `ahtaatTaulukot()` merkitse taulukkoa ahtaaksi (opas 3.2).
   Rivinvaihto lisäosan leikkeessä on kenoviiva (Turndown `br: '\\'`), ei kaksi välilyöntiä; md.js:n `p.rivit` (kenoviivarivit tai
   lyhyt yksirivinen) on sisentämätön kummallakin kappalejaolla (käyttäjän päätös: sisennys vain leipätekstiin, opas 3.2).
   `ladonta: asiakirja` (Snellman-sovite, opas 7.5): md.js ottaa otsikkolohkon vain etukentästä, ja tekstin alun lyhyet rivit

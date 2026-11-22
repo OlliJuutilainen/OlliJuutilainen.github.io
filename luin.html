@@ -794,6 +794,18 @@
   #teksti.sisennys p.rivit, #teksti.sisennys p + p.rivit { text-indent: 0; margin: .7em 0; }
   #teksti.sisennys p.rivit + p { text-indent: 0; }
   #teksti.tasattu p.rivit:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
+  /* Kuvateksti (md.js p.kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella Table 1. / Fig. 2 / Taulukko 3):
+     ei leipätekstiä, joten ei sisennystä eikä tasausta kummallakaan kappalejaolla,
+     pienempi kuten taulukko, väli ympärille ja lähelle taulukkoaan; tunniste (span.kt-nimi) pystyssä. Seuraava kappale alkaa
+     tasalaidasta kuten otsikon jälkeen. */
+  #teksti p.kuvateksti, #teksti.sisennys p.kuvateksti, #teksti.sisennys p + p.kuvateksti { text-indent: 0; margin: 1.5em 0;
+    font-size: .88em; line-height: 1.45; break-inside: avoid; }
+  #teksti.tasattu p.kuvateksti:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
+  #teksti.sisennys p.kuvateksti + p { text-indent: 0; }
+  #teksti p.kuvateksti + p.kuvateksti, #teksti.sisennys p + p.kuvateksti + p.kuvateksti { margin-top: -.3em; }
+  #teksti p.kuvateksti.kt-taulukko, #teksti.sisennys p + p.kuvateksti.kt-taulukko { margin-bottom: .5em; break-after: avoid; }
+  #teksti p.kuvateksti + table.taulukko { margin-top: .5em; }
+  #teksti .kt-nimi { font-style: normal; letter-spacing: .02em; }
   /* Vakiosivu (md.js span.vsivu, etukentän vakiosivut: AA; maalauskoneen jatko 20.11.2026): painetun laitoksen sivunumero
      tekstin seassa pienenä ja harmaana kuten kohtanumero, edessä hiusviiva (ei tekstisolmu: paikannin ja merkinnät eivät näe sitä). */
   #teksti .vsivu { font-size: .62em; color: var(--harmaa); vertical-align: .45em; line-height: 0; white-space: nowrap; }
@@ -868,6 +880,10 @@
   #teksti table.taulukko th, #teksti table.taulukko td { padding: .35em .5em; border-bottom: 1px solid var(--viiva); text-align: left;
     vertical-align: top; overflow-wrap: anywhere; }
   #teksti table.taulukko th { font-weight: 400; font-style: italic; color: var(--harmaa); border-bottom-color: var(--harmaa); }
+  /* Lyhyt solu (md.js td.lyhyt, ≤ 16 merkkiä): katko vain välilyönnistä, joten taulukon asettelu ei kutista numerosaraketta
+     lukua kapeammaksi (anywhere katkaisi luvun 1.22 kahdelle riville). Pitkissä soluissa anywhere jää vararajaksi, ja jos taulukko ei silti
+     mahdu palstaan, ahtaatTaulukot() palauttaa sen kaikkiin soluihin (table.ahdas), jottei sivu levene. */
+  #teksti table.taulukko:not(.ahdas) .lyhyt { overflow-wrap: normal; }
   #teksti table.taulukko .t-center { text-align: center; } #teksti table.taulukko .t-right { text-align: right; }
   #teksti table.taulukko tr { break-inside: avoid; }
   /* +++ (iA Writer): sivutettuna uusi sivu, vierityksessä ei mitään. */
@@ -1768,7 +1784,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=2177aaae"></script>
+<script src="luin/md.js?v=43bd7850"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
@@ -4493,6 +4509,16 @@
   // joka otsikolla koko tekstin uuden asettelun, ja sivutettuna (palstat) se vei pitkässä tekstissä sekunteja
   // (29.10.2026: SEP:n Dewey 3,3 s jokaisella asetuksen napautuksella). Mittaus tehdään luokalla mittaus
   // (overflow-wrap: normal), jotta break-word ei katko sanaa jo mittaushetkellä.
+  /* Taulukon lyhyet solut (md.js td.lyhyt) katkeavat vain välilyönnistä, kun taulukko mahtuu palstaan; muuten taulukko on
+     ahdas, ja kaikki solut saavat katketa missä vain, jottei sivu levene (puhelimen leveydellä monisarakkeinen numerotaulukko
+     ei mahdu muuten). Ensin kaikki pois, sitten mittaus, lopuksi kirjoitus, kuten tavutaPitkat(). */
+  function ahtaatTaulukot() {
+    var ts = $$('table.taulukko', art);
+    if (!ts.length) return;
+    ts.forEach(function (t) { t.classList.remove('ahdas'); });
+    ts.filter(function (t) { var e = t.parentElement; return e && t.offsetWidth > e.clientWidth + 1; })
+      .forEach(function (t) { t.classList.add('ahdas'); });
+  }
   function tavutaPitkat() {
     var els = $$(SUOJATUT, art), lisaa = [];
     els.forEach(function (el) {
@@ -4752,6 +4778,7 @@
       art.style.width = W + 'px'; art.style.marginLeft = Math.floor(G / 2) + 'px';
       art.style.columnWidth = W + 'px'; art.style.columnGap = G + 'px';
       art.style.webkitColumnWidth = W + 'px'; art.style.webkitColumnGap = G + 'px';
+      ahtaatTaulukot();
       tavutaPitkat();
       alalukujenAlut();
       parienAlut();
@@ -4762,6 +4789,7 @@
       art.style.cssText = '';
       $$('.sivulle, .pakotettu', art).forEach(function (h) { h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = ''; });
       vsReuna(art.getBoundingClientRect().left - sivuEl.getBoundingClientRect().left);
+      ahtaatTaulukot();
       tavutaPitkat();
       liehutaLyhyet();
     }
