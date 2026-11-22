@@ -2,10 +2,9 @@
 //   node luin/kehitys/orengas.js            JSON (svg:t ja mitat em:inä)
 //   node luin/kehitys/orengas.js --kuva     esikatselusivu suurennettuna (stdout, html)
 // Rengas on viiva, jolla on keskilinja ja paksuus. Keskilinja on superellipsi: alapuolisko eksponentilla nAla (> 2, joten pohja on
-// litteä ja linkin alleviivaus jatkuu siitä oikealle), yläpuolisko ellipsi. Rengas on matala ja leveä (käyttäjän linjaus: lytistetty).
-// Paksuus on pohjassa alleviivauksen paksuinen, kyljissä tuskin enempää (kulma kMax pohjasta) ja kevenee siitä selvästi lakea
-// kohti (laki tt); laella leveä viisto irvistysrako (ulkoreunojen väli go, sisäreunojen gi). Ö:n pisteet ovat saman muodon pienempiä
-// renkaita.
+// litteä ja linkin alleviivaus jatkuu siitä oikealle), yläpuolisko ellipsi. Paksuus on pohjassa alleviivauksen paksuinen, suurin
+// kyljissä hiukan keskikohdan alapuolella (kulma kMax pohjasta) ja kevenee lakea kohti; laella leveä viisto irvistysrako
+// (ulkoreunojen väli go, sisäreunojen gi). Ö:n pisteet ovat saman muodon pienempiä renkaita.
 const f = x => { const s = (Math.round(x * 100) / 100 + ''); return s.replace(/^0\./, '.').replace(/^-0\./, '-.'); };
 const sstep = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
 // p: lev (ulkoleveys), kork (ulkokorkeus, litteästä pohjasta keskilinjan lakeen + puolet lakipaksuudesta), nAla, tb (pohja),
@@ -65,16 +64,14 @@ function svg(R, P, luokka, kok) {
   const g = o(R, P), y = yla(g, kok);
   return '<svg class="' + luokka + '" viewBox="0 ' + f(-y) + ' ' + f(g.w) + ' ' + f(g.h + y) + '" aria-hidden="true"><path d="' + g.d + '"/></svg>';
 }
-// Mitat px:einä linkin koossa (.64rem = 10,24 px). Pohja alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px
-// kuten kellarilinkin reunaviiva. Rengas 10,5 × 6,5 px; pisteiden yläreuna on suunnilleen versaalikorkeudella (CAP 7,36 px).
-const EM = 10.24, CAP = 7.36, ALA = 2.3;
-const LINKKI = { lev: 10.5, kork: 6.5, nAla: 2.6, tb: 1, ts: 1.05, tt: .35, kTasa: 12, kMax: 60, go: 1.7, gi: 2.7, n: 30 };
-const PISTE = { lev: 3.45, kork: 1.95, nAla: 2.6, tb: .5, ts: .53, tt: .3, kTasa: 12, kMax: 60, go: .55, gi: .9, pnosto: 1, pdx: 2.65, n: 16 };
-// Yhdysviivan keskikohta versaalien keskeltä ja renkaan keskeltä puolivälissä (px perusviivasta).
-const YV = (CAP / 2 + (LINKKI.kork / 2 - ALA)) / 2;
-// Otsikon rengas (.74rem = 11,84 px): sama muoto, pohja perusviivalla ja keskikohta kammen navan korkeudella (.3176 em = 3,76 px),
-// joten koko on linkin renkaan kerroin OK.
-const OEM = 11.84, ONAPA = 3.76, OK = 2 * ONAPA / LINKKI.kork;
+// Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
+// alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
+const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.6, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, go: 1.5, gi: 2.7, n: 30 };
+const PISTE = { lev: 3.05, kork: 2.6, nAla: 2.6, tb: .5, ts: .72, tt: .36, kTasa: 12, kMax: 78, go: .5, gi: .95, pnosto: 1.25, pdx: 2.45, n: 16 };
+// Otsikon rengas (.74rem = 11,84 px): sama muoto, laki versaalikorkeudella (8,51 px) ja keskikohta kammen navan korkeudella
+// (.3176 em = 3,76 px), joten koko on linkin renkaan kerroin OK.
+const OEM = 11.84, OCAP = 8.51, ONAPA = 3.76, OK = (2 * (OCAP - ONAPA)) / LINKKI.kork;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
 const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
 const e = (x, em) => (Math.round(x / em * 10000) / 10000 + '').replace(/^(-?)0\./, '$1.') + 'em';
@@ -89,8 +86,8 @@ if (require.main === module) {
       '<line x1="-5" x2="30" y1="' + f(gl.h - ALA - CAP) + '" y2="' + f(gl.h - ALA - CAP) + '" stroke="#c33" stroke-width=".03"/></svg></body>');
   } else {
     console.log(JSON.stringify({
-      linkki: { w: e(gl.w, EM), h: e(gl.h + yla(gl, 1), EM), puoli: e(gl.r.cx, EM), yv: e(YV, EM), svg: svg(LINKKI, PISTE, 'orengas', 1) },
-      ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(ONAPA - OTS.kork / 2, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
+      linkki: { w: e(gl.w, EM), h: e(gl.h + yla(gl, 1), EM), puoli: e(gl.r.cx, EM), svg: svg(LINKKI, PISTE, 'orengas', 1) },
+      ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(OCAP - OTS.kork, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
   }
 }
-module.exports = { o, svg, f, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA, YV };
+module.exports = { o, svg, f, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };
