@@ -6485,6 +6485,9 @@
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length) return null;
     const el = runko.cloneNode(true);
+    // Kuvana julkaistu taulukko (22.11.2026, PMC1182327: Ioannidiksen taulukot 1–4 ovat kuvia, Europe PMC:n XML:ssäkin vain
+    // <graphic>): merkitään ennen kuvien poistoa, jotta kuvatekstin perään tulee huomautus eikä se jää selityksettä.
+    el.querySelectorAll('section.tw').forEach(w => { if (!w.querySelector('table') && w.querySelector('img')) w.dataset.kuvana = '1'; });
     el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
     el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
     const vmaar = pmcNumeroviitteet(el);
@@ -6515,6 +6518,28 @@
       li.closest('ul, ol').before(p);
     });
     el.querySelectorAll('.ref-list ul, .ref-list ol').forEach(x => x.remove());
+    // Lisäaineistot (section.sm, 22.11.2026, PMC2910600): nimi, kuvaus ja koko yhdeksi kappaleeksi, latauslinkki
+    // (Click here for additional data file. (29KB, doc)) pois: tiedosto ei kulje lukimeen.
+    el.querySelectorAll('section.sm').forEach(m => {
+      m.querySelectorAll('.media').forEach(x => x.remove());
+      const osat = [...m.querySelectorAll('.caption > span, .caption > p, .caption > div')].map(x => rivi(x.textContent)).filter(Boolean);
+      if (!osat.length) return m.remove();
+      const p = document.createElement('p'), em = document.createElement('em');
+      em.textContent = osat[0].replace(/\.?$/, '.'); p.append(em, ...(osat.length > 1 ? [' ' + osat.slice(1).join(' ')] : []));
+      m.replaceWith(p);
+    });
+    // Määritelmäluettelo (dl.def-list: Abbreviations, CI | confidence interval) yhdeksi rivitetyksi kappaleeksi *CI* – confidence
+    // interval; md.js lukee lyhenneosion kursiivit lyhenteiksi (opas 3.4). Ennen jokainen termi ja selitys oli oma kappaleensa.
+    el.querySelectorAll('dl').forEach(dl => {
+      const p = document.createElement('p');
+      [...dl.querySelectorAll(':scope > dt')].forEach((dt, i) => {
+        const dd = dt.nextElementSibling && dt.nextElementSibling.tagName === 'DD' ? rivi(dt.nextElementSibling.textContent) : '';
+        if (i) p.appendChild(document.createElement('br'));
+        const em = document.createElement('em'); em.textContent = rivi(dt.textContent);
+        p.append(em, dd ? ' – ' + dd : '');
+      });
+      if (rivi(p.textContent)) dl.replaceWith(p); else dl.remove();
+    });
     // Kuvat: kuvateksti kursiivikappaleeksi.
     el.querySelectorAll('figure, section.fig').forEach(f => {
       const c = f.querySelector('figcaption, .caption'), ots = f.querySelector('.obj_head, h4, h3');
@@ -6528,7 +6553,13 @@
       const ots = w.querySelector('.obj_head'), c = w.querySelector('.caption');
       const t = [ots && rivi(ots.textContent), c && rivi(c.textContent)].filter(Boolean).join(' ');
       const pala = document.createDocumentFragment();
-      if (t) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); pala.appendChild(p); }
+      if (t) {
+        const p = document.createElement('p'), em = document.createElement('em');
+        em.textContent = t; p.appendChild(em);
+        // md.js: kuvatekstin perään hakasulkeinen huomautus (p.kuvateksti).
+        if (w.dataset.kuvana) p.append(' [Taulukko on lähteessä kuvana.]');
+        pala.appendChild(p);
+      }
       w.querySelectorAll('table').forEach(tb => { const d = document.createElement('div'); tb.replaceWith(d); d.appendChild(tb); ojsTaulukko(tb); pala.appendChild(d); });
       w.querySelectorAll('.tw-foot, .fn').forEach(f => { const p = document.createElement('p'); p.textContent = rivi(f.textContent); if (rivi(p.textContent)) pala.appendChild(p); });
       w.replaceWith(pala);
@@ -6577,6 +6608,8 @@
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length || !runko.querySelector('.c-article-section__content, .main-content')) return null;
     const el = runko.cloneNode(true);
+    // Sivuston kysymyskone (div.app-nls-widget: Ask a research question, Or ask your own question; 22.11.2026, BMC:n JEDS) ei ole tekstiä.
+    el.querySelectorAll('.app-nls-widget, [data-test="nls-component"]').forEach(x => x.remove());
     const otsake = s => rivi(s.getAttribute('data-title'));
     const osio = re => [...el.querySelectorAll('section[data-title]')].find(s => re.test(otsake(s)));
     // Avainsanat (About this article: Keywords) ja lisenssi ennen kuin osiot poistetaan.
@@ -6606,9 +6639,13 @@
       const l = w.querySelector('a[data-test="table-link"], a[href*="/tables/"]');
       let d = null;
       try { d = l ? await hae(new URL(l.getAttribute('href'), location.href).href) : null; } catch (e) {}
-      const pala = document.createDocumentFragment();
-      if (ots) { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = ots; p.appendChild(em); pala.appendChild(p); }
-      const t = d && d.querySelector('.c-article-table-container table');
+      const pala = document.createDocumentFragment(), t = d && d.querySelector('.c-article-table-container table');
+      if (ots) {
+        const p = document.createElement('p'), em = document.createElement('em'); em.textContent = ots; p.appendChild(em);
+        // Taulukkosivun haku epäonnistui (pesukoneen ensimmäinen ajo 22.11.2026: kuvateksti jäi ilman taulukkoa ja selitystä).
+        if (!t) p.append(' [Taulukko ei latautunut lähteen omalta taulukkosivulta.]');
+        pala.appendChild(p);
+      }
       if (t) {
         const t2 = document.importNode(t, true), div = document.createElement('div');
         t2.querySelectorAll('td, th').forEach(c => c.querySelectorAll('p').forEach((p, i) => { if (i) p.before(' '); }));

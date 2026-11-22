@@ -31,7 +31,8 @@ tulos('lohkot eivät ole sisäkkäin', !/<li[^>]*data-b="\d+"[^>]*>(?:(?!<\/li>)
 tulos('numeroinnin jatko kääreen jälkeen', h.includes('<li value="2" data-b="20">Kaksi</li>'));
 sama('tehtävät', lkm(h, /class="tehtava"/g) + ':' + lkm(h, /ruutu tehty/g), '2:1');
 sama('taulukon rivit', lkm(h, /<tr data-b=/g), 3);
-tulos('taulukon tasaus ja yhdistetty solu', h.includes('<td colspan="2" class="t-left">yhdistetty</td>') && h.includes('<th class="t-right">Oikea</th>'));
+// Lyhyt solu (≤ 16 merkkiä) on td.lyhyt (22.11.2026): taulukon asettelu ei kutista sitä lukua kapeammaksi.
+tulos('taulukon tasaus, yhdistetty ja lyhyt solu', h.includes('<td colspan="2" class="t-left lyhyt">yhdistetty</td>') && h.includes('<th class="t-right lyhyt">Oikea</th>'));
 tulos('ristiviittaukset', h.includes('<a href="#luku-1">Rivit ja korostukset</a>') && h.includes('<a href="#nimioity-otsikko">luku 1</a>'));
 tulos('viitelinkit', lkm(h, /href="https:\/\/example.com\/viite"/g) === 2);
 tulos('etukentän muuttuja', h.includes('Muuttuja: Tusinasoft.'));
@@ -262,6 +263,13 @@ const rv = M.parse('---\nlähde: https://example.org/x\nladonta: asiakirja\n---\
   'Olet siis toisen kerran nähnyt maailman hirvittävimpiin kuuluvan tulipalon.\n\nRakas veli\n\nNiin.\n\n”Ei kai\n\n–––\n\nAugust\n');
 sama('rivitetty kappale', (rv.html.match(/<p[^>]*data-b="\d+">[^<]*/g) || []).map(x => (/class="rivit"/.test(x) ? 'R ' : '- ') + x.replace(/<[^>]*>/, '').slice(0, 12)).join(' | '),
   'R Kokkolassa 2 | - Olet siis to | R Rakas veli | - Niin. | - ”Ei kai | - ––– | R August | - Teksti on ha');
+// Kuvateksti (22.11.2026, PMC1182327): kokonaan kursiivinen kappale, joka alkaa tunnisteella, on p.kuvateksti, tunniste pystyssä;
+// taulukon edellä kt-taulukko. Ilman tunnistetta kursiivikappale (How this fits in) ja tunnisteella alkava leipäteksti eivät ole.
+const kuvt = M.parse('# T\n\nLeipäteksti on tässä niin pitkä, ettei se ole otsikkolohkon tietorivi vaan leipätekstiä.\n\n' +
+  '*Table 1. Research Findings.* \\[Taulukko on lähteessä kuvana.\\]\n\n*Fig. 2 Mean costs (\\*PTSD).*\n\n*Table 3 Odds ratios[^a]*\n\n| A | B |\n| --- | --- |\n| 1 | 2 |\n\n' +
+  '*How this fits in*\n\nTable 4 shows that most findings are false.\n\n*1 lentelė. Duomenys*\n\n[^a]: Viite.\n');
+sama('kuvateksti', (kuvt.html.match(/<p[^>]*data-b="\d+">(?:<em>)?(?:<span class="kt-nimi">[^<]*<\/span>)?[^<]{0,6}/g) || []).map(x => (/kuvateksti kt-taulukko/.test(x) ? 'KT ' : /kuvateksti/.test(x) ? 'K ' : '- ') + x.replace(/<p[^>]*>/, '').replace(/<\/?em>/, '').replace(/<span class="kt-nimi">([^<]*)<\/span>/, '[$1]')).join(' | '),
+  '- Leipät | K [Table 1.] Resea | K [Fig. 2] Mean  | KT [Table 3] Odds  | - How th | - Table  | K [1 lentelė.] Duome');
 // Osanvaihdot kohdiksi (käyttäjän pyyntö 21.11.2026): –––, * * *, --- ja ⁂ tekevät otsikottomasta jaksosta kohdat (i), (ii) …
 // vaihdon jälkeiseen lohkoon; numerointi alkaa alusta otsikon jälkeen, lopun merkki ei ole kohta, yläindeksikohdat ohittavat.
 const ov = M.parse('# T\n\nAlku on tässä kappaleessa, joka on niin pitkä, ettei se ole tietorivi otsikkolohkossa vaan leipätekstiä.\n\n' +
