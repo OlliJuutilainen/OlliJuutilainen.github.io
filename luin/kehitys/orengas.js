@@ -69,14 +69,14 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.65, kap: 1, paa: .04, n: 30 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.35, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
 // paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä), rako suhteessa pienempi.
-const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .42, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
+const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .32, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
-// osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on perusviivalla
-// (pohja pohjan viivan paksuuden verran perusviivan alla).
-const OEM = 11.84, OCAP = 8.51, OKERT = 1.43, OK = OKERT * (OCAP + .3) / LINKKI.kork, OALA = LINKKI.tb * OK;
+// osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on karvan (.3 px)
+// perusviivan alla (pohja pohjan viivan paksuus + .3 px perusviivan alla).
+const OEM = 11.84, OCAP = 8.51, OKERT = 1.43, OK = OKERT * (OCAP + .3) / LINKKI.kork, OALA = LINKKI.tb * OK + .3;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
 const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
 // Ö-mappiin-linkin nuolen kärki (käyttäjän linjaus: huolellinen, klassinen): täytetty muoto, kärki (0,0) ja varsi eli alleviivaus (1 px)
