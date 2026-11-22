@@ -122,7 +122,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. PMC:n tekijä–vuosi-viittaus linkittyy, koska sovite kirjoittaa
   kohdan alkuun viittauksen nimiön `Brunton et al. (2013).` (Vancouver-kohdasta md.js ei löydä tekijää eikä vuotta) ja Cochranen
   tutkimustunnuksen `Smith (1997a) {published data only}.` otsikon sijaan: älä poista näitä alkuja siistiäksesi luetteloa. Lehden
-  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Lääketieteen kierros: `--sarja laake`. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
+  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Numeroviittauksen linkin tekstissä saa olla hakasulkeet (`<a>[37]</a>`, vanha PLoS Medicine). Lääketieteen kierros: `--sarja laake`. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (käyttäjä ei ole ottanut kantaa).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
@@ -540,7 +540,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   alemmas, sivuseikkojen alennus perutaan. Artikkelin otsikot ovat osioita, eivät lukuja (käyttäjän päätös); kirja, opinnäyte ja
   kolmitasoinen teksti pitävät luvut. **Juokseva otsikko** (lihavoitu numeroitu kappaleen alku sarjana, *Corollary 1:* …) on kohta
   (`res.kohdat`, `ajo`), ei otsikko. **Etu- ja loppuosat** (`toc[].oheis`) ovat Sisälmyksessä varsinaisten lukujen tasolla ja
-  erotettu välillä (`sisalmysRivit()`), ei sisennettyinä edellisen luvun alle (käyttäjän päätös).
+  erotettu välillä (`sisalmysRivit()`), ei sisennettyinä edellisen luvun alle (käyttäjän päätös). Etuosan (Abstract, Summary)
+  osanvaihdon jälkeinen otsikoton teksti ennen ensimmäistä lukua (lehtiartikkelin johdanto) on varsinaista tekstiä: Sisälmyksen
+  ylimmällä tasolla pelkin alkusanoin, ja `osioKohdassa()` (`nyt.etuLoppu`) antaa sille tekstin nimen eikä tiivistelmän
+  viimeistä alaotsikkoa. Otsikkoa ei keksitä.
   Sisällys ja Sisälmys lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`). **Aikajana ei siirrä tasoja**: Luvut, Osiot ja Kohdat
   ovat erillisiä kytkimiä (käyttäjän päätös), ja avoimen tekstin puuttuvat tasot ovat himmeitä (`janaTasotNyt()`).
 - **Tekijänoikeusmerkintä** (käyttäjän päätös, md.js `oikeudet()`/`oikeusTaso()`, opas 3.2): etukentän
