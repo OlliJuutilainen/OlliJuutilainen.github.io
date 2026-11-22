@@ -773,6 +773,13 @@
     color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva));
     text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.75em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
   #teksti p.rahoitus a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  /* Sysissä sekoitus harmaan puolelle (käyttäjän päätös): 55 % jäi mustaa taustaa vasten liian tummaksi. */
+  /* Osoitteen johdantosanat yhtenä (md.js osoitteessa()): siirtyvät yhdessä, mutta rivittyvät sisältä, jos ovat palstaa leveämmät. */
+  #teksti p.rahoitus .ennen-osoite, #teksti p.tila .ennen-osoite { display: inline-block; }
+  /* Huomautuksen osoite katkeaa md.js:n <wbr>-kohdista (kauttaviivat, ?#&), ei mistä tahansa: kumoaa a.url:n break-all:n.
+     Palaa, joka ei mahdu riville, katkaisee yhä overflow-wrap: anywhere. */
+  #teksti p.rahoitus a.url, #teksti p.tila a.url { word-break: normal; }
+  :root.kontrasti[data-teema="tumma"] #teksti p.rahoitus { color: color-mix(in srgb, var(--harmaa) 80%, var(--viiva)); }
   /* Julkaisun tila (md.js tila(): takaisin vedetty, korjattu, päivitetty, esipainos): sama yläotsake kuin rahoitushuomautus, ja
      takaisin vedetyssä (p.tila.vakava) ruoste, jotta se erottuu rahoituksen harmaasta. Rahoitus perässä pienemmällä välillä. */
   #teksti p.tila { font-size: 1em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--harmaa);
@@ -1813,7 +1820,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=61e70851"></script>
+<script src="luin/md.js?v=4312a09f"></script>
 <script src="luin/posti.js?v=41c9bf4c"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>

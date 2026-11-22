@@ -441,7 +441,9 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('rahoitus: lohkonumerot ja sisällys ennallaan', m.blocks === a.blocks && m.html.replace(/<p class="rahoitus">.*?<\/p>/, '') === a.html);
   tulos('rahoitus: mainoksiin ei lahjoitusosoitetta', !/osoitteessa/.test(M.parse(ek('mainokset', 'https://x.org/d') + runko).html));
   const l = M.parse(ek('lahjoitukset', 'https://donate.wikimedia.org/') + runko).html;
-  tulos('rahoitus: lahjoitukset osoitteineen', /\[Tämä sivusto toimii lahjoitusten varassa\. Lahjoittaa voi osoitteessa <a class="url" href="https:\/\/donate\.wikimedia\.org\/">https:\/\/donate\.wikimedia\.org\/<\/a>\]<\/p>/.test(l), (l.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
+  tulos('rahoitus: lahjoitukset osoitteineen', /\[Tämä sivusto toimii lahjoitusten varassa\. <span class="ennen-osoite">Lahjoittaa voi osoitteessa<\/span><br><a class="url" href="https:\/\/donate\.wikimedia\.org\/">https:\/\/donate\.wikimedia\.org\/<\/a>\]<\/p>/.test(l), (l.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
+  const pitka = M.parse(ek('lahjoitukset', 'https://x.org/a/b?c=1&d=2#e') + runko).html;
+  tulos('rahoitus: pitkä osoite katkeaa kauttaviivoista ja ennen ?#&, linkki ennallaan', /<br><a class="url" href="https:\/\/x\.org\/a\/b\?c=1&amp;d=2#e">https:\/\/x\.org\/<wbr>a\/<wbr>b<wbr>\?c=1<wbr>&amp;d=2<wbr>#e<\/a>\]/.test(pitka), (pitka.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
   tulos('rahoitus: mainokset ja lahjoitukset alkaa huomautuksella', /<p class="rahoitus">\[Huom\. huom\.!/.test(M.parse(ek('mainokset ja lahjoitukset', 'https://x.org/d') + runko).html));
   tulos('rahoitus: tuntematon laji tai ilman etukenttää ei huomautusta', !/rahoitus/.test(M.parse(ek('jotain') + runko).html) && !/rahoitus/.test(a.html));
   const ilman = M.parse(ek('lahjoitukset', 'https://x.org/d') + 'Pelkkä teksti.\n').html;
@@ -453,7 +455,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   const runko = '# T\n\n## A\n\nB.\n';
   const a = M.parse(runko);
   const v = M.parse('---\ntila: vedetty takaisin 2024-08-19\ntila-lähde: https://x.org/r\nrahoitus: lahjoitukset\nlahjoitusosoite: https://x.org/d\n---\n' + runko);
-  tulos('tila: takaisin vedetty otsikkolohkon alussa ennen rahoitusta, päiväys ja osoite', /^<header class="tt"><p class="tila vakava">\[Julkaisija on vetänyt tämän artikkelin takaisin 19\.8\.2024\. Takaisinvetoilmoitus osoitteessa <a class="url" href="https:\/\/x\.org\/r">https:\/\/x\.org\/r<\/a>\]<\/p><p class="rahoitus">/.test(v.html), v.html.slice(0, 260));
+  tulos('tila: takaisin vedetty otsikkolohkon alussa ennen rahoitusta, päiväys ja osoite', /^<header class="tt"><p class="tila vakava">\[Julkaisija on vetänyt tämän artikkelin takaisin 19\.8\.2024\. <span class="ennen-osoite">Takaisinvetoilmoitus osoitteessa<\/span><br><a class="url" href="https:\/\/x\.org\/r">https:\/\/x\.org\/<wbr>r<\/a>\]<\/p><p class="rahoitus">/.test(v.html), v.html.slice(0, 260));
   tulos('tila: lohkonumerot ennallaan', v.blocks === a.blocks);
   const e = M.parse('---\ntila: esipainos\n---\n' + runko).html;
   tulos('tila: esipainos ilman osoitetta, ei vakava', /<p class="tila">\[Tämä on esipainos, jota lehti ei ole vielä vertaisarvioinut\.\]<\/p>/.test(e), e.slice(0, 160));
