@@ -528,8 +528,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   puuttuessa sivunumeron näköiset yläindeksit) antavat paikantimeksi edeltävän sivun (*AA 4:429*) ja lyhyeksi viitteeksi pelkän sen.
   Ilman etukenttää aaltosulkeet ovat tekstiä; älä tee merkeistä vakiosivuja ilman sitä. Testi `vakiosivu-testi.js`.
 - **Tasojen nimet ovat luku, osio ja kohta** (`h2`/`h3`/`h4`; käyttäjän päätös).
-  **Ylin taso jää käyttämättä** (pilotti, md.js `laske`, opas 3.2): korkeintaan kaksi tasoa ja yli 10 lukua → kaikki tasoa alemmas,
-  sivuseikkojen alennus perutaan (SEP:n Bibliography on osio). Käyttäjä haluaa myöhemmin parempia perusteita; raja on raja-aita.
+  **Ylin taso jää käyttämättä** (md.js `laske`, opas 3.2): korkeintaan kaksi tasoa ja joko yli 10 lukua tai teksti on artikkeli
+  (`artikkeli()`: etukentän `teos` ja `numero`/`doi`/`sivut`, tai `sivusto` ilman kantajaa, ei kaunokirjallinen) → kaikki tasoa
+  alemmas, sivuseikkojen alennus perutaan. Artikkelin otsikot ovat osioita, eivät lukuja (käyttäjän päätös); kirja, opinnäyte ja
+  kolmitasoinen teksti pitävät luvut. **Juokseva otsikko** (lihavoitu numeroitu kappaleen alku sarjana, *Corollary 1:* …) on kohta
+  (`res.kohdat`, `ajo`), ei otsikko. **Etu- ja loppuosat** (`toc[].oheis`) ovat Sisälmyksessä varsinaisten lukujen tasolla ja
+  erotettu välillä (`sisalmysRivit()`), ei sisennettyinä edellisen luvun alle (käyttäjän päätös).
   Sisällys ja Sisälmys lukevat tasot tekstin ylimmästä tasosta (`tocRaja()`). **Aikajana ei siirrä tasoja**: Luvut, Osiot ja Kohdat
   ovat erillisiä kytkimiä (käyttäjän päätös), ja avoimen tekstin puuttuvat tasot ovat himmeitä (`janaTasotNyt()`).
 - **Tekijänoikeusmerkintä** (käyttäjän päätös, md.js `oikeudet()`/`oikeusTaso()`, opas 3.2): etukentän

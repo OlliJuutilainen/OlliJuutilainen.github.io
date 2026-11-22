@@ -6488,6 +6488,10 @@
     // Kuvana julkaistu taulukko (section.tw ilman <table>ia; datasta ei ole tekstiversiota, Europe PMC:n XML:ssäkin vain <graphic>):
     // merkitään ennen kuvien poistoa, jotta kuvatekstin perään tulee huomautus eikä se jää selityksettä.
     el.querySelectorAll('section.tw').forEach(w => { if (!w.querySelector('table') && w.querySelector('img')) w.dataset.kuvana = '1'; });
+    // Toimituksen esittelylause (PLoS: otsikoton, lyhyt section.abstract viivan takana) pois, kun varsinainen tiivistelmä on:
+    // se toistaa johdannon tai tiivistelmän ja teki tiivistelmästä ja johdannosta kolme osanvaihtojen kohtaa.
+    const abst = [...el.querySelectorAll('section.abstract')];
+    if (abst.some(a => a.querySelector('h2, h3'))) abst.forEach(a => { if (!a.querySelector('h2, h3') && rivi(a.textContent).length < 300) a.remove(); });
     el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
     el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
     const vmaar = pmcNumeroviitteet(el);
