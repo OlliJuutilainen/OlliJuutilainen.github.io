@@ -1,7 +1,7 @@
 // md.js:n jäsennystesti ilman selainta. Ajo repon juuressa:
 //   node luin/kehitys/md-testi.js
 // Tarkistaa iA Writerin merkinnät (ia-merkinnat.md), Teologian tyylin mukaiset viitteet
-// (kokoaViite), päivämäärät ja tekijät sekä sen, että kandidaatintutkielman ja kehittäjän oppaan
+// (kokoaViite), päivämäärät ja tekijät sekä sen, että kandidaatintutkielman ja Dialectic of Enlightenmentin
 // rakenne pysyy ennallaan.
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +31,7 @@ tulos('lohkot eivät ole sisäkkäin', !/<li[^>]*data-b="\d+"[^>]*>(?:(?!<\/li>)
 tulos('numeroinnin jatko kääreen jälkeen', h.includes('<li value="2" data-b="20">Kaksi</li>'));
 sama('tehtävät', lkm(h, /class="tehtava"/g) + ':' + lkm(h, /ruutu tehty/g), '2:1');
 sama('taulukon rivit', lkm(h, /<tr data-b=/g), 3);
-// Lyhyt solu (≤ 16 merkkiä) on td.lyhyt (22.11.2026): taulukon asettelu ei kutista sitä lukua kapeammaksi.
+// Lyhyt solu (≤ 16 merkkiä) on td.lyhyt: taulukon asettelu ei kutista sitä lukua kapeammaksi.
 tulos('taulukon tasaus, yhdistetty ja lyhyt solu', h.includes('<td colspan="2" class="t-left lyhyt">yhdistetty</td>') && h.includes('<th class="t-right lyhyt">Oikea</th>'));
 tulos('ristiviittaukset', h.includes('<a href="#luku-1">Rivit ja korostukset</a>') && h.includes('<a href="#nimioity-otsikko">luku 1</a>'));
 tulos('viitelinkit', lkm(h, /href="https:\/\/example.com\/viite"/g) === 2);
@@ -140,8 +140,8 @@ sama('tutkielma: Kirjallisuus alalukuna', k.toc.filter(t => t.alas).map(t => t.l
 }
 sama('tutkielma: tiedot', [k.title, k.sub, k.author, k.year].join(' | '), 'KANT JA ELÄINETIIKKA | Muulajisten arvokkuutta etsimässä | Olli Juutilainen | 2026');
 sama('tutkielma: viite etukentästä', k.viite, 'Juutilainen, Olli (2026). *Kant ja eläinetiikka: Muulajisten arvokkuutta etsimässä*. Uskonnonfilosofian kandidaatintutkielma. Helsingin yliopisto.');
-const o = M.parse(lue('../ohje.md'));
-tulos('opas: HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
+const o = M.parse('# Opas\n\n- Kirjanmerkin perässä on HTML-kommentti `<!-- kohta: … -->` (enintään 40 merkin katkelma).');
+tulos('HTML-kommentti koodissa säilyy', o.html.includes('<code>&lt;!-- kohta: … --&gt;</code>'));
 
 // Kehys: blogin nimi tai kaunokirjallisen kokoelma alaotsikon paikalla, ei toistoa tietorivillä.
 const PITKA = '\n\nLeipätekstiä, joka on niin pitkä, ettei sitä lueta otsikkolohkon tietoriviksi missään tapauksessa, vaikka se onkin ensimmäinen kappale.';
@@ -263,7 +263,7 @@ const rv = M.parse('---\nlähde: https://example.org/x\nladonta: asiakirja\n---\
   'Olet siis toisen kerran nähnyt maailman hirvittävimpiin kuuluvan tulipalon.\n\nRakas veli\n\nNiin.\n\n”Ei kai\n\n–––\n\nAugust\n');
 sama('rivitetty kappale', (rv.html.match(/<p[^>]*data-b="\d+">[^<]*/g) || []).map(x => (/class="rivit"/.test(x) ? 'R ' : '- ') + x.replace(/<[^>]*>/, '').slice(0, 12)).join(' | '),
   'R Kokkolassa 2 | - Olet siis to | R Rakas veli | - Niin. | - ”Ei kai | - ––– | R August | - Teksti on ha');
-// Kuvateksti (22.11.2026, PMC1182327): kokonaan kursiivinen kappale, joka alkaa tunnisteella, on p.kuvateksti, tunniste pystyssä;
+// Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella, on p.kuvateksti, tunniste pystyssä;
 // taulukon edellä kt-taulukko. Ilman tunnistetta kursiivikappale (How this fits in) ja tunnisteella alkava leipäteksti eivät ole.
 const kuvt = M.parse('# T\n\nLeipäteksti on tässä niin pitkä, ettei se ole otsikkolohkon tietorivi vaan leipätekstiä.\n\n' +
   '*Table 1. Research Findings.* \\[Taulukko on lähteessä kuvana.\\]\n\n*Fig. 2 Mean costs (\\*PTSD).*\n\n*Table 3 Odds ratios[^a]*\n\n| A | B |\n| --- | --- |\n| 1 | 2 |\n\n' +
@@ -363,7 +363,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   sama('luuranko: §-rivit ####-otsikoiksi', lr('# I\n\nERSTES KAPITEL\n\n§ 1. Titel\n\n' + hus(20) + '\n\n§ 2. Titel\n\n' + hus(20) + '\n\nZWEITES KAPITEL\n\n§ 3. Titel\n\n' + hus(20)),
     '3:## ERSTES KAPITEL | 5:#### § 1. Titel | 9:#### § 2. Titel | 13:## ZWEITES KAPITEL | 15:#### § 3. Titel');
   sama('luurangotus: ##-pykälät ####:ksi', lr('# I\n\n## Erstes Kapitel\n\n## § 1. A\n\n' + hus(20) + '\n\n## § 2. B\n\n' + hus(20)), '5:#### § 1. A | 9:#### § 2. B');
-  sama('luuranko: tutkielma ja opas ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../ohje.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
+  sama('luuranko: tutkielma ja Dialectic ennallaan', lr(lue('../tekstit/kant-ja-elainetiikka.md')) + lr(lue('../tekstit/dialectic-of-enlightenment.md')), '');
 }
 
 // Leipätekstin haka- ja kaarisulkuviittaukset (käyttäjän päätös 6.11.2026, huomio 7.11.2026, SEP): tekijä ja vuosi sulkujen alussa (vihjesanan jälkeenkin), pilkulla

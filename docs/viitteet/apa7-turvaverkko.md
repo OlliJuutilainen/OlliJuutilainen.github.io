@@ -51,7 +51,7 @@ mitä ja missä järjestyksessä, ja Teologian tyyli kertoo, miltä se näyttä�
 - [✓] Jos katko on pakko tehdä käsin, se tehdään kaksoiskauttaviivan jälkeen tai ennen muuta välimerkkiä,
   eikä viivaa lisätä. Lähde: Macmillanin [*Writer’s Help*](https://digfir-published.macmillanusa.com/writershelp2e_axs/writershelp2e_axs_ch8_106.html)
   -opas (APA:n 6. laitoksen aikainen).
-- **Luinissa:** kirjallisuusluetteloa (`p.bib`) ei tavuteta (päätös 28.10.2026, CLAUDE.md, `luin/ohje.md` luku 5).
+- **Luinissa:** kirjallisuusluetteloa (`p.bib`) ei tavuteta (käyttäjän päätös).
   Verkko-osoite (`a.url`) katkeaa mistä tahansa merkistä (`word-break: break-all`), eli myös keskeltä sanaa
   (`ht|tps://`). Se on APA:n mukaan sallittu automaattinen katko, mutta ei siistein mahdollinen. Avoin
   parannuskohde: katko vain välimerkkien kohdalle.

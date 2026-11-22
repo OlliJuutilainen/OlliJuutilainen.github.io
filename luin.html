@@ -29,7 +29,7 @@
           #l=<koodi>  laatikkolause talteen ja laatikon haku
           #tuo        Latomosta (luin/latomo.html) siirretty teksti
   Käyttöohje: luin/kayttoohje.html (lukulistan linkki).
-  Kehittäjän opas: luin/ohje.md (luettavissa myös Luinissa: luin.html#u=luin/ohje.md; ei linkkiä lukulistassa).
+  Kehittäjän opas: yksityinen tusina-rata-repo, oppaat/luin-kehittajan-opas.md.
 -->
 <style>
   @font-face { font-family: Literata; src: url(luin/fontit/literata.woff2) format("woff2");
@@ -794,8 +794,8 @@
   #teksti.sisennys p.rivit, #teksti.sisennys p + p.rivit { text-indent: 0; margin: .7em 0; }
   #teksti.sisennys p.rivit + p { text-indent: 0; }
   #teksti.tasattu p.rivit:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
-  /* Kuvateksti (md.js p.kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella Table 1. / Fig. 2 / Taulukko 3;
-     22.11.2026, käyttäjän esimerkki PMC1182327): ei leipätekstiä, joten ei sisennystä eikä tasausta kummallakaan kappalejaolla,
+  /* Kuvateksti (md.js p.kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella Table 1. / Fig. 2 / Taulukko 3):
+     ei leipätekstiä, joten ei sisennystä eikä tasausta kummallakaan kappalejaolla,
      pienempi kuten taulukko, väli ympärille ja lähelle taulukkoaan; tunniste (span.kt-nimi) pystyssä. Seuraava kappale alkaa
      tasalaidasta kuten otsikon jälkeen. */
   #teksti p.kuvateksti, #teksti.sisennys p.kuvateksti, #teksti.sisennys p + p.kuvateksti { text-indent: 0; margin: 1.5em 0;
@@ -881,7 +881,7 @@
     vertical-align: top; overflow-wrap: anywhere; }
   #teksti table.taulukko th { font-weight: 400; font-style: italic; color: var(--harmaa); border-bottom-color: var(--harmaa); }
   /* Lyhyt solu (md.js td.lyhyt, ≤ 16 merkkiä): katko vain välilyönnistä, joten taulukon asettelu ei kutista numerosaraketta
-     lukua kapeammaksi (PMC2910600: 1.2 | 2, 22.11.2026). Pitkissä soluissa anywhere jää vararajaksi, ja jos taulukko ei silti
+     lukua kapeammaksi (anywhere katkaisi luvun 1.22 kahdelle riville). Pitkissä soluissa anywhere jää vararajaksi, ja jos taulukko ei silti
      mahdu palstaan, ahtaatTaulukot() palauttaa sen kaikkiin soluihin (table.ahdas), jottei sivu levene. */
   #teksti table.taulukko:not(.ahdas) .lyhyt { overflow-wrap: normal; }
   #teksti table.taulukko .t-center { text-align: center; } #teksti table.taulukko .t-right { text-align: right; }
@@ -1572,7 +1572,7 @@
   <p class="huilu-soita" id="huilu-soita" hidden><button type="button" id="soita-postihuilua">Soita postihuilua</button></p>
   </div>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
-       oppaaseen (luin/ohje.md) ei ole linkkiä lukulistassa; se avautuu osoitteesta #u=luin/ohje.md. -->
+       opas ei ole julkisessa repossa. -->
   <p class="lisaa"><a href="luin/kayttoohje.html">Käyttöohje</a><br>
     <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
     <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeiluteksti: Kant ja eläinetiikka</a><br>
@@ -1784,10 +1784,10 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=82c03745"></script>
+<script src="luin/md.js?v=43bd7850"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
-<script src="luin/huilu.js?v=4ddbbf03"></script>
+<script src="luin/huilu.js?v=938e5538"></script>
 <script>
 (function () {
   'use strict';
@@ -2458,7 +2458,7 @@
     return vara();
   }
 
-  /* ---------- luokittelu (käyttäjän pyyntö 17.11.2026, docs/mietintamyssy/luin-kellarin-jarjestys.md) ----------
+  /* ---------- luokittelu (käyttäjän pyyntö 17.11.2026, tusina-rata: myssy/luin-kellarin-jarjestys.md) ----------
      Asiasanat (e.asiasanat), ajoitus (e.ajoitus) ja käsikirjasto (e.kasikirja) sekä etukentästä luetut laji (e.tyyppi) ja
      alkuperä (e.host, e.verkosta). Nimikkeen tiedot ovat totuus; asiasanat ja ajoitus kirjoitetaan myös tekstin etukenttään
      (lkKirjoita), jotta ne kulkevat .md-tiedoston mukana. Tuleva teksti asettaa ne vain, jos sen etukentässä ne ovat: avaimeton
@@ -4510,9 +4510,8 @@
   // (29.10.2026: SEP:n Dewey 3,3 s jokaisella asetuksen napautuksella). Mittaus tehdään luokalla mittaus
   // (overflow-wrap: normal), jotta break-word ei katko sanaa jo mittaushetkellä.
   /* Taulukon lyhyet solut (md.js td.lyhyt) katkeavat vain välilyönnistä, kun taulukko mahtuu palstaan; muuten taulukko on
-     ahdas, ja kaikki solut saavat katketa missä vain kuten ennen 22.11.2026, jottei sivu levene. Mitattu 16 lehtiartikkelin 52
-     taulukolla: ilman varaa 23 levisi 360 px:llä palstan yli; varalla ahtaita 23 (360 px), 6 (700 ja 1280 px), ylivuoto kuten
-     ennen. Ensin kaikki pois, sitten mittaus, lopuksi kirjoitus, kuten tavutaPitkat(). */
+     ahdas, ja kaikki solut saavat katketa missä vain, jottei sivu levene (puhelimen leveydellä monisarakkeinen numerotaulukko
+     ei mahdu muuten). Ensin kaikki pois, sitten mittaus, lopuksi kirjoitus, kuten tavutaPitkat(). */
   function ahtaatTaulukot() {
     var ts = $$('table.taulukko', art);
     if (!ts.length) return;
@@ -8909,7 +8908,7 @@
   // Tekstikanta ensin (vanhojen tekstien siirto localStoragesta, avainluettelo TX.on():lle); valmis myös virheessä.
   TX.valmis.then(reitti);
 
-  // Testejä ja kehitystä varten (ks. luin/ohje.md, "Testaus").
+  // Testejä ja kehitystä varten (ks. kehittäjän opas, tusina-rata: oppaat/luin-kehittajan-opas.md, "Testaus").
   window.__luin = { raskasRaja: function (ms) { RASKAS_MS = ms; }, osioPaalut: function () { return osioPaalut(); }, lykatty: function () { return !!lykatty; }, aset: aset, tyhjaKohta: function (x, y) { return tyhjaKohta(x, y); }, tila: tila, JANA: JANA, janaRajat: function (w) { return janaRajat(w); }, janaPysakit: function () { return janaPysakit(); }, janaKohteet: function () { return janaKohteet(); }, janaSalmiakit: function () { return janaSalmiakit; }, nyt: function () { return nyt; }, nykyinenKohta: function () { return nyt && nykyinenKohta(); }, mene: function (k) { mene(k); }, hyppaa: function (k, haku, eiMaj, tapa) { hyppaa(k, haku, eiMaj, tapa); }, majakka: function () { return nyt && nyt.majakka; }, sivunAlku: function (p) { return sivunAlku(p); }, valinta: function () { kasitteleValinta(); }, paikannin: function (b, o) { return paikannin(b, o); }, sijainti: function (segs) { return sijainti(segs); }, lyhytViite: function () { return lyhytViite(); }, kieli: function (t) { return kieliPisteet(t); }, kahvat: function () { return kahvaH; }, kummituksenPaikka: function (n) { return kummituksenPaikka(n); }, naytaKummitus: function (z) { naytaKummitus(z); }, lupa: function (x) { LUPA_KAYTOSSA = !!x; }, lupaKlooni: function (b) { return lupaKlooni(nyt.blocks[b]); },
     // Sanaselitys tekstin kohdasta (b, s, e) ja selitettävän ympäristö (sanaselitys-testi.js).
     selitys: function (b, s, e) { sanaselitys([{ b: b, s: s, e: e, x: nyt.txt[b].slice(s, e) }], nyt.blocks[b].getBoundingClientRect()); },

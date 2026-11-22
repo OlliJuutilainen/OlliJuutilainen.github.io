@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  * localStoragessa kuten selaimessa. luin.html ei tiedä sovelluksesta mitään; silta.js liittää sen siihen.
  *
  * <p>Sovellus tuo selaimeen verrattuna: äänenvoimakkuusnapit kääntävät sivua lukimessa (Chromium-selaimet eivät
- * välitä niitä sivulle, docs/mietintamyssy/luin-volumenapit.md), lataukset tallentuvat kansioon Download/Luin,
+ * välitä niitä sivulle, tusina-rata: myssy/luin-volumenapit.md), lataukset tallentuvat kansioon Download/Luin,
  * kokoruutu piilottaa järjestelmän palkit, Luin aukeaa ilman verkkoa välimuistista, tila- ja navigointipalkki ovat
  * Luinin paperin värisiä, ja tekstin tai .md-tiedoston voi jakaa latomoon.
  */

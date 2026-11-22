@@ -6485,8 +6485,8 @@
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length) return null;
     const el = runko.cloneNode(true);
-    // Kuvana julkaistu taulukko (22.11.2026, PMC1182327: Ioannidiksen taulukot 1–4 ovat kuvia, Europe PMC:n XML:ssäkin vain
-    // <graphic>): merkitään ennen kuvien poistoa, jotta kuvatekstin perään tulee huomautus eikä se jää selityksettä.
+    // Kuvana julkaistu taulukko (section.tw ilman <table>ia; datasta ei ole tekstiversiota, Europe PMC:n XML:ssäkin vain <graphic>):
+    // merkitään ennen kuvien poistoa, jotta kuvatekstin perään tulee huomautus eikä se jää selityksettä.
     el.querySelectorAll('section.tw').forEach(w => { if (!w.querySelector('table') && w.querySelector('img')) w.dataset.kuvana = '1'; });
     el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
     el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
@@ -6518,7 +6518,7 @@
       li.closest('ul, ol').before(p);
     });
     el.querySelectorAll('.ref-list ul, .ref-list ol').forEach(x => x.remove());
-    // Lisäaineistot (section.sm, 22.11.2026, PMC2910600): nimi, kuvaus ja koko yhdeksi kappaleeksi, latauslinkki
+    // Lisäaineistot (section.sm): nimi, kuvaus ja koko yhdeksi kappaleeksi, latauslinkki
     // (Click here for additional data file. (29KB, doc)) pois: tiedosto ei kulje lukimeen.
     el.querySelectorAll('section.sm').forEach(m => {
       m.querySelectorAll('.media').forEach(x => x.remove());
@@ -6529,7 +6529,7 @@
       m.replaceWith(p);
     });
     // Määritelmäluettelo (dl.def-list: Abbreviations, CI | confidence interval) yhdeksi rivitetyksi kappaleeksi *CI* – confidence
-    // interval; md.js lukee lyhenneosion kursiivit lyhenteiksi (opas 3.4). Ennen jokainen termi ja selitys oli oma kappaleensa.
+    // interval; md.js lukee lyhenneosion kursiivit lyhenteiksi (opas 3.4). Muuten jokainen termi ja selitys olisi oma kappaleensa.
     el.querySelectorAll('dl').forEach(dl => {
       const p = document.createElement('p');
       [...dl.querySelectorAll(':scope > dt')].forEach((dt, i) => {
@@ -6608,7 +6608,7 @@
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length || !runko.querySelector('.c-article-section__content, .main-content')) return null;
     const el = runko.cloneNode(true);
-    // Sivuston kysymyskone (div.app-nls-widget: Ask a research question, Or ask your own question; 22.11.2026, BMC:n JEDS) ei ole tekstiä.
+    // Sivuston kysymyskone (div.app-nls-widget: Ask a research question, Or ask your own question) ei ole tekstiä.
     el.querySelectorAll('.app-nls-widget, [data-test="nls-component"]').forEach(x => x.remove());
     const otsake = s => rivi(s.getAttribute('data-title'));
     const osio = re => [...el.querySelectorAll('section[data-title]')].find(s => re.test(otsake(s)));
@@ -6642,7 +6642,7 @@
       const pala = document.createDocumentFragment(), t = d && d.querySelector('.c-article-table-container table');
       if (ots) {
         const p = document.createElement('p'), em = document.createElement('em'); em.textContent = ots; p.appendChild(em);
-        // Taulukkosivun haku epäonnistui (pesukoneen ensimmäinen ajo 22.11.2026: kuvateksti jäi ilman taulukkoa ja selitystä).
+        // Taulukkosivun haku epäonnistui: huomautus, ettei kuvateksti jää ilman taulukkoa ja selitystä.
         if (!t) p.append(' [Taulukko ei latautunut lähteen omalta taulukkosivulta.]');
         pala.appendChild(p);
       }

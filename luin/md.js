@@ -1,7 +1,7 @@
 /*
   Luin: Markdownista lukimen HTML:ksi. Yhteinen luin.html:lle ja Latomolle (luin/latomo.html).
 
-  Konventiot ovat käyttäjän aiempien md → html -muunnosten mukaiset (ks. luin/ohje.md,
+  Konventiot ovat käyttäjän aiempien md → html -muunnosten mukaiset (ks. tusina-rata: oppaat/luin-kehittajan-opas.md,
   "Merkintäkieli"):
   - Ensimmäinen #-otsikko on teoksen nimi. Sen ja ensimmäisen ##-otsikon välissä pelkästä
     kursiivista koostuva kappale on alaotsikko (.sub), muut lyhytriviset kappaleet tietoriveja
@@ -29,7 +29,7 @@
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
   Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()).
-  Kuvateksti (22.11.2026): kokonaan kursiivinen kappale, joka alkaa tunnisteella (Table 1., Fig. 2, Taulukko 3), on p.kuvateksti
+  Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella (Table 1., Fig. 2, Taulukko 3), on p.kuvateksti
   (kuvateksti()); tunniste span.kt-nimi.
   Asiakirja (21.11.2026, Snellmanin kootut teokset): etukentän ladonta: asiakirja pitää tekstin alun lyhyet rivit
   (kirjeen paikka ja päiväys, puhuttelu, sähkeen vastaanottaja, [joulukuussa 1849]) tekstissä; otsikkolohkon tiedot
@@ -1900,12 +1900,10 @@
     var p = plain(t).replace(/\s+/g, ' ').trim();
     return !!p && p.split(' ').length <= 4 && !/[.!?…:;,]["”’»)\]]*$/.test(p) && !/^["”“«»'‘’–—-]/.test(p);
   }
-  /* Kuvateksti (22.11.2026; käyttäjän esimerkki PMC1182327, jossa kuvatekstit olivat sisennettyä ja tasattua leipätekstiä):
-     sovitteet (PMC, Springer Nature, Frontiers, PLOS, OJS, Ubiquity ym.) kirjoittavat kuvan ja taulukon tekstin kokonaan
+  /* Kuvateksti: sovitteet (PMC, Springer Nature, Frontiers, PLOS, OJS, Ubiquity ym.) kirjoittavat kuvan ja taulukon tekstin kokonaan
      kursiiviseksi kappaleeksi, joka alkaa tunnisteella (Table 1. / Table 1 / Fig. 1 / Fig 1. / Figure 1 / Taulukko 2 / 1 lentelė.).
      Perässä saa olla alaviitemerkkejä ja hakasulkeinen huomautus ([Taulukko on lähteessä kuvana.]). → tunniste tai null.
-     Ilman tunnistetta kursiivikappale on tavallinen kappale (BJGP:n How this fits in). Mitattu 15 lehtiartikkelista: 64
-     kuvatekstiä, ei muita osumia. */
+     Ilman tunnistetta kursiivikappale on tavallinen kappale (BJGP:n How this fits in). */
   var KT_NIMI = /^(?:(?:table|tab\.|figure|fig\.?|chart|graph|diagram|scheme|box|plate|map|exhibit|illustration|abbildung|abb\.|tabelle|tableau|figura|tabla|tabela|taulukko|kuva|kuvio|kaavio|рисунок|рис\.|таблица|табл\.)\s*(?:s?\d+[a-z]?(?:[.-]\d+)*|[ivxlc]+)\.?:?|\d+(?:\.\d+)?\s*(?:lentelė|pav\.|paveikslas|schema|diagrama|grafikas)\.?)(?=\s|$)/iu;
   function kuvateksti(t) {
     var x = String(t).trim().replace(/\s*\\?\[(?!\^)[^\]\n]+?\\?\]$/, '').replace(/(\[\^[^\]\s]+\])+$/, '');
@@ -2482,8 +2480,8 @@
             h += '<tr data-b="' + (b++) + '">' + r.solut.map(function (c) {
               var al = t.tasaus[sar] || '';
               sar += c.span;
-              // Lyhyt solu (enintään 16 merkkiä: 1.22, [0.91, 1.63], Type of Measure) katkeaa vain välilyönnistä (22.11.2026,
-              // PMC2910600: solujen overflow-wrap: anywhere kutisti numerosarakkeet, ja luvut katkesivat 1.2 | 2). Pitkä solu
+              // Lyhyt solu (enintään 16 merkkiä: 1.22, [0.91, 1.63], Type of Measure) katkeaa vain välilyönnistä (solujen
+              // overflow-wrap: anywhere kutistaisi numerosarakkeet, ja luvut katkeaisivat 1.2 | 2). Pitkä solu
               // saa yhä katketa missä vain, jottei pitkä sana levennä sivua kapealla ruudulla.
               var lyhyt = plain(c.text).replace(/\s+/g, ' ').trim().length <= 16;
               var lk = [al ? 't-' + al : '', lyhyt ? 'lyhyt' : ''].filter(Boolean).join(' ');

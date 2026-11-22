@@ -166,7 +166,7 @@ Toiminta:
 
 Moduuli `:luin` (`fi.tusinasaa.luin`, nimi "Luin.") avaa Luinin (`https://ollijuutilainen.github.io/luin.html`)
 WebView-näkymässä. Sivu ladataan verkosta, joten Luin päivittyy itsestään; APK päivitetään vain, kun kääre muuttuu.
-Mitä sovellus tekee selaimeen verrattuna, on kehittäjän oppaan luvussa 7.6 (`luin/ohje.md`). Lyhyesti:
+Mitä sovellus tekee selaimeen verrattuna, on kehittäjän oppaan luvussa 7.6 (yksityinen tusina-rata-repo, `oppaat/luin-kehittajan-opas.md`). Lyhyesti:
 äänenvoimakkuusnapit kääntävät sivua lukimessa (alas = seuraava, pitkä painallus hyppää osioon), lataukset menevät
 kansioon `Download/Luin`, kokoruutu piilottaa järjestelmän palkit, Luin aukeaa ilman verkkoa välimuistista, ja tekstin
 tai .md-tiedoston voi jakaa latomoon (Jaa → Luin.).

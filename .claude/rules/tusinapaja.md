@@ -1,18 +1,16 @@
 ---
 paths:
   - "tusinapaja.html"
-  - "arkisto/**"
   - "generaattori.html"
   - "android/app/**"
-  - "docs/tusinapaja-backlog.md"
 ---
 ## Tusinapaja on ainoa aktiivinen versio
 
 **Kaikki työ tehdään tiedostoon `tusinapaja.html`.** Kun käyttäjä sanoo "tusinasää",
 hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat versiot
 (`tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html` ym.) on siirretty
-kansioon `arkisto/`. Älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse
-niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
+repoon `OlliJuutilainen/tusina-tavaraa` (kansio `github-io/arkisto/`). Älä tuo niitä takaisin, älä tutki niitä, älä vertaa
+niihin äläkä mainitse niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
 
 ## Tusinapajan tyylisäännöt
 
@@ -43,7 +41,7 @@ Sademäärä:
 - Nollasade on `—`. Jos pyöristetty määrä on 0 mutta selite on sateinen, näytetään `0.0 mm`.
 - Jos tällöin pyöristämätön ennustearvo on nollaa suurempi (alle 0,05 mm), näytetään
   `~0.0 mm`. Kuivalla selitteellä pieni määrä näkyy edelleen `—`.
-- Poikkeus (17.11.2026): nowcast-rivillä, jolla met.no on kuiva mutta FMI:n saman tunnin symboli on
+- Poikkeus: nowcast-rivillä, jolla met.no on kuiva mutta FMI:n saman tunnin symboli on
   heikkoa sadetta, näytetään `~0.0 mm` kuivan selitteen kanssa. Selite pysyy met.no:n; FMI vain täydentää.
 
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
@@ -60,9 +58,9 @@ joten niitäkään ei tarvitse hakea verkosta.
 
 ## Lue tämä ennen siivoamista
 
-`docs/tusinapaja-backlog.md` sisältää osion **"Tehdyt päätökset"**. Siellä on selitetty,
-mikä koodissa näyttää turhalta tai virheeltä mutta on harkittua. Lue se ennen kuin
-poistat mitään "kuolleena koodina". Ainakin nämä näyttävät jäämiltä eivätkä ole:
+Työlista on yksityisessä tusina-rata-repossa (`backlog/tusinapaja-backlog.md`), ja sen osio **"Tehdyt päätökset"**
+selittää, mikä koodissa näyttää turhalta tai virheeltä mutta on harkittua. Lue se ennen kuin
+poistat mitään "kuolleena koodina" (lisää repo istuntoon, jos sitä ei ole). Ainakin nämä näyttävät jäämiltä eivätkä ole:
 
 - `class="ditto"` on ilman CSS-sääntöä tarkoituksella.
 - `forceDescWhite`, `forceRainWhite` ja `__warn` ovat kytkemättömiä koukkuja, ei roskaa.
@@ -70,10 +68,9 @@ poistat mitään "kuolleena koodina". Ainakin nämä näyttävät jäämiltä ei
 
 Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei ala alusta.
 
-## Arkisto ja sijaintitoken
+## Sijaintitoken
 
-`arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
-`tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
+Arkkitehtuurin alkuperäinen suunnitelma on tusina-radassa (`oppaat/tusinasaa-token-avain.md`); voimassa olevat säännöt ovat tässä.
 
 `generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
