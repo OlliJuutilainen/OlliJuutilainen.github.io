@@ -1,7 +1,6 @@
 ---
 paths:
   - "tusinapaja.html"
-  - "arkisto/**"
   - "generaattori.html"
   - "android/app/**"
 ---
@@ -10,8 +9,8 @@ paths:
 **Kaikki työ tehdään tiedostoon `tusinapaja.html`.** Kun käyttäjä sanoo "tusinasää",
 hän tarkoittaa tätä tiedostoa (sivun otsikko on `TUSINASÄÄ 12`). Vanhat versiot
 (`tusinasaa.html`, `tusinapuuska.html`, `saa_yr.html`, `saa_fmi.html` ym.) on siirretty
-kansioon `arkisto/`. Älä muokkaa niitä, älä tutki niitä, älä vertaa niihin äläkä mainitse
-niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
+repoon `OlliJuutilainen/tusina-tavaraa` (kansio `github-io/arkisto/`). Älä tuo niitä takaisin, älä tutki niitä, älä vertaa
+niihin äläkä mainitse niitä vastauksissa, ellei käyttäjä erikseen pyydä juuri sitä tiedostoa.
 
 ## Tusinapajan tyylisäännöt
 
@@ -69,10 +68,7 @@ poistat mitään "kuolleena koodina" (lisää repo istuntoon, jos sitä ei ole).
 
 Jos poistat jotain, kirjaa päätös samaan osioon, jotta seuraava kierros ei ala alusta.
 
-## Arkisto ja sijaintitoken
-
-`arkisto/`-kansion vanhentuneet sääsivut sisältävät samannäköistä logiikkaa kuin
-`tusinapaja.html`, mutta korjauksia ei viedä niihin eikä niitä ehdoteta.
+## Sijaintitoken
 
 `generaattori.html` luo salatun sijaintitokenin ja siihen liittyvän avaimen. Se toimii
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka

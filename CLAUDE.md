@@ -30,7 +30,7 @@ Ohjelmien säännöt ovat omissa tiedostoissaan (käyttäjän päätös):
 - `.claude/rules/soitin.md`: KEICK•WALK eli `soitin/` (soitin, Keikkaloihdin, Omat keikkani, ohjeet,
   keikka-analyysin taitopaketti) ja Android-kääre `android/soitin/`.
 - `.claude/rules/tusinapaja.md`: Tusinasää eli `tusinapaja.html` (ainoa aktiivinen versio; vanhat versiot ovat
-  `arkisto/`ssa, eikä niihin kosketa pyytämättä), `generaattori.html` ja Android-sovellus `android/app/`.
+  `tusina-tavaraa`-repossa, eikä niihin kosketa pyytämättä), `generaattori.html` ja Android-sovellus `android/app/`.
 - `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit), Android-kääre
   `android/luin/` ja `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Tiedostot*).
 
@@ -106,6 +106,10 @@ joku (titteli, työpaikka, aiheet) saisi ohjelmasta, profiili ei tallennu minnek
 commit-viesteihin, PR:iin eikä käyttäjälle näkyvään tekstiin, eikä se ohjaa ohjelman logiikkaa. Ei myöskään profiilin
 aihepalettia. Jäljelle jää se, mihin työ johti (alustat, sovitteet, mittaukset), ja ideat menevät myssyn yleisiin tiedostoihin,
 ei profiilin omaan tiedostoon.
+
+**Vanhat versiot ja käyttämätön tavara siirretään repoon `OlliJuutilainen/tusina-tavaraa`** (kansio `github-io/`,
+alkuperäiset polut säilyttäen; käyttäjän päätös). Päärepoon ei jätetä arkistokansioita eikä rinnakkaisia vanhoja
+versioita, jotka häiritsevät uusimpien käsittelyä. Ajatustyö (ideat, oppaat, työlistat, lokit) menee tusina-rataan.
 
 Sijaintikoordinaatit eivät saa päätyä selväkielisinä repoon (Tusinasään sijaintitoken, tusinapaja.md).
 
