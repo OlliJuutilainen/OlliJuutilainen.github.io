@@ -765,17 +765,20 @@
   #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
   /* Rahoitushuomautus (käyttäjän säännöt 15.11.2026, md.js rahoitus()): sovitesivustolta leikatun tekstin yläotsake
      isoin kirjaimin, mutta versaalina, kursiivina, ohuena (Literatan ohuin leikkaus 380), harmaana ja hakasulkeissa.
+     Pienempi ja harmaampi kuin leipäteksti, kuin vesileima, jotta näkyy, ettei se kuulu teokseen, mutta luettava myös
+     sähköpaperilla (käyttäjän päätös): harmaan ja viivan sekoitus kuten .sk-lahde, joten CLARVSissa sama harmaa; vara --huomio.
      Osoite pienaakkosin, jotta sen voi lukea ja kirjoittaa. Sääntö on #teksti.sisennys p:n jälkeen, koska spesifisyys on
-     sama (#teksti p.rahoitus); tasaus on pois tasattu-säännöstä. */
-  #teksti p.rahoitus { font-size: 1em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--harmaa);
-    text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.2em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
+     sama (#teksti p.rahoitus); tasaus on pois tasattu-säännöstä. Välit em-yksiköinä pienennetyn koon mukaan (2,2em ja −1,2em leipätekstin koossa). */
+  #teksti p.rahoitus { font-size: .8em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--huomio);
+    color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva));
+    text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.75em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
   #teksti p.rahoitus a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
   /* Julkaisun tila (md.js tila(): takaisin vedetty, korjattu, päivitetty, esipainos): sama yläotsake kuin rahoitushuomautus, ja
      takaisin vedetyssä (p.tila.vakava) ruoste, jotta se erottuu rahoituksen harmaasta. Rahoitus perässä pienemmällä välillä. */
   #teksti p.tila { font-size: 1em; line-height: 1.5; font-style: italic; font-weight: 380; color: var(--harmaa);
     text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2.2em; text-indent: 0; text-align: left; overflow-wrap: break-word; }
   #teksti p.tila.vakava { color: var(--ruoste); }
-  #teksti p.tila + p.rahoitus { margin-top: -1.2em; }
+  #teksti p.tila + p.rahoitus { margin-top: -1.5em; }
   #teksti p.tila a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
   /* Luinin huomautus (md.js huomautus(): [kaava], [Kaava (3) on lähteessä kuvana.]): lisäosan oma ääni siitä, mitä lukin ei näytä,
      samalla tavalla kuin kuvan paikka [kuva]. Kokonainen huomautuskappale ilman sisennystä ja tasausta. */
