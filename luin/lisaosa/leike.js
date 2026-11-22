@@ -6556,6 +6556,11 @@
     const abst = [...el.querySelectorAll('section.abstract')];
     if (abst.some(a => a.querySelector('h2, h3'))) abst.forEach(a => { if (!a.querySelector('h2, h3') && rivi(a.textContent).length < 300) a.remove(); });
     el.querySelectorAll('script, style, button, img, .pmc-permalink, .back-to-top, .d-buttons, .tileshop, [hidden], section.associated-data').forEach(x => x.remove());
+    // Kustantajan oman sivuston mainos (käyttäjän havainto: NEJM:n tekijän käsikirjoituksessa laatikko A Quick Take is available
+    // at NEJM.org johdannon keskellä, ennen kuvakkeineen): laatikko tai kappale, jonka koko teksti on muotoa Quick Take, video,
+    // visual abstract, audio … is available at sivusto, pois. Laatikko, jossa on muuta tekstiä (Box 1), jää.
+    const MAINOS = /^(?:an?\s+)?(?:quick take|video(?: overview)?|visual abstract|audio interview|podcast|interactive graphic)\b[^.]{0,60}\s(?:is|are) available at \S+?\.?$/i;
+    el.querySelectorAll('section.bt, p').forEach(x => { if (el.contains(x) && MAINOS.test(rivi(x.textContent))) x.remove(); });
     // Anfangi (NEJM PMC7616851: <strong>F</strong><span class="font-variant-small-caps">or more …) tekstiksi: muuten **F**or.
     el.querySelectorAll('p > strong:first-child, p > b:first-child').forEach(b => {
       const n = b.nextSibling, e = b.previousSibling;
