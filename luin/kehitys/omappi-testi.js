@@ -5,6 +5,7 @@
 // samalla korkeudella perusviivasta kuin kellarilinkin kammen napa, Ö-mappiin-linkin rengas, alleviivaus ja nuoli.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 const JUURI = path.resolve(__dirname, '../..'), KUVAT = process.argv[2];
 const TYYPIT = { '.html': 'text/html', '.js': 'text/javascript', '.md': 'text/markdown', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const palvelin = http.createServer((q, r) => {
@@ -80,8 +81,9 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('kammen rako 1 em', Math.abs(kRako.px / kRako.em - 1) < .02, (kRako.px / kRako.em).toFixed(3) + ' em');
   await page.click('#nimikkeet li.nimike >> nth=0 >> button.jako');
   const nap = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
-  t('valikossa poiminta ja siirto', nap.includes('Poimi kellarin kampihyllystöstä.') && nap.includes('Siirrä ö-mappiin.'), nap.slice(-4).join(' | '));
+  t('valikossa poiminta ja siirto', nap.includes('Poimi kellarin kampihyllystöstä') && nap.includes('Siirrä ö-mappiin'), nap.slice(-4).join(' | '));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/valikko.png' });
+  await avaaOsa(page, 'omappi');
   await page.click('#pop button[data-k="omappi"]'); await page.click('#pop button[data-k="ok"]'); await page.waitForTimeout(150);
   t('siirron viesti', (await page.textContent('#viesti')) === 'Teksti siirtyi ö-mappiin.');
   t('kellarissa 1 nimike', (await page.$$('#nimikkeet li.nimike')).length === 1);
@@ -152,20 +154,21 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('ö-mappi: paluulinkki peilattu', Math.abs(pl.vasen) < 1 && pl.nuoli < 1 && pl.kampi > 0 && /^matrix\(-1, 0, 0, 1/.test(pl.peili), JSON.stringify(pl));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/omappi.png', fullPage: true });
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
-  const v = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
-  t('valittujen valikko ö-mapissa', v.includes('Palauta kellarin kampihyllystöön.') && !v.some(x => /Poimi|Luin\./.test(x)), v.join(' | '));
+  const v = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
+  t('valittujen valikko ö-mapissa', v.includes('Palauta kellarin kampihyllystöön') && !v.some(x => /Poimi|Luin\./.test(x)), v.join(' | '));
   t('pino ei näytä ö-mappia', await page.evaluate(() => { location.hash = ''; return new Promise(r => setTimeout(() => r(document.querySelectorAll('#nimikkeet li.nimike').length === 1), 200)); }));
   await page.goto(U + 'luin.html#id=p-a'); await page.waitForTimeout(400);
   t('lukijan paluu ö-mappiin', (await page.getAttribute('.takaisin', 'href')) === '#omappi');
   await page.goto(U + 'luin.html#omappi'); await page.waitForTimeout(200);
   await page.click('#nimikkeet li.nimike >> nth=0 >> button.jako');
+  await avaaOsa(page, 'omappi');
   await page.click('#pop button[data-k="omappi"]'); await page.click('#pop button[data-k="ok"]'); await page.waitForTimeout(150);
   t('palautus', (await page.textContent('#viesti')) === 'Teksti palasi kellarin kampihyllystöön.' && (await page.$$('#nimikkeet li.nimike')).length === 0);
   await page.goto(U + 'luin.html#arkisto'); await page.waitForTimeout(200);
   t('kellarissa taas 2', (await page.$$('#nimikkeet li.nimike')).length === 2);
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
-  const v2 = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
-  t('valittujen valikko kellarissa', v2.includes('Siirrä ö-mappiin.') && v2.includes('Poimi kellarin kampihyllystöstä.'), v2.join(' | '));
+  const v2 = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
+  t('valittujen valikko kellarissa', v2.includes('Siirrä ö-mappiin') && v2.includes('Poimi kellarin kampihyllystöstä'), v2.join(' | '));
   t('ei sivuvirheitä', !virheet.length, virheet.join('; '));
   await b.close(); palvelin.close(); process.exit(vik ? 1 : 0);
 })();

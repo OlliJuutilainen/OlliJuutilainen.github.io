@@ -10,6 +10,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -173,6 +174,7 @@ const TEKSTIT = [
 
   // Luokittele: SEP saa ehdotuksen filosofia.
   await page.click('#nimikkeet button.jako[data-id="p-sep"]');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   const pop1 = await page.evaluate(() => ({ ehd: [...document.querySelectorAll('#pop button.lk-sana.ehd')].map(b => b.dataset.s),
     sanat: [...document.querySelectorAll('#pop button.lk-sana:not(.ehd)')].map(b => b.dataset.s), ph: document.querySelector('#pop input.lk-aj').placeholder }));
@@ -197,6 +199,7 @@ const TEKSTIT = [
 
   // Väärä ajoitus.
   await page.click('#nimikkeet button.jako[data-id="p-seneca"]');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   await page.fill('#pop input.lk-aj', 'antiikki');
   await page.click('#pop button[data-k="ok"]');
@@ -209,6 +212,7 @@ const TEKSTIT = [
   await page.click('#nimikkeet button.valitse[data-id="p-levantti"]');
   await page.click('#nimikkeet button.valitse[data-id="p-septuaginta"]');
   await page.click('#val-valikko');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   const seka = await page.getAttribute('#pop button.lk-sana[data-s="teologia"]', 'aria-pressed');
   await page.click('#pop button.lk-sana[data-s="teologia"]');
@@ -232,6 +236,7 @@ const TEKSTIT = [
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
   await page.click('#nimikkeet button.jako[data-id="p-georg-wilhelm-friedrich-hegel"]');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   await page.fill('#pop input.lk-uusi', 'vanha');
   await page.press('#pop input.lk-uusi', 'Enter');
@@ -249,12 +254,14 @@ const TEKSTIT = [
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
   await page.click('#nimikkeet button.jako[data-id="p-georg-wilhelm-friedrich-hegel"]');
+  await avaaOsa(page, 'lataa');
   const [lataus] = await Promise.all([page.waitForEvent('download'), page.click('#pop button[data-k="lataa"]')]);
   const ladattu = fs.readFileSync(await lataus.path(), 'utf8');
   tulos('Lataa .md:ssä asiasanat ja ajoitus', /^---\nasiasanat: vanha\najoitus: 1807\n---\n\n# Georg/.test(ladattu), ladattu.slice(0, 60));
 
   // Muuta metatietoja: Latomo näyttää asiasanat, ja niiden poisto siellä poistaa ne.
   await page.click('#nimikkeet button.jako[data-id="p-pinossa"]');
+  await avaaOsa(page, 'tiedot');
   await page.click('#pop button[data-k="tiedot"]');
   await page.waitForURL(/latomo\.html#/);
   await page.waitForSelector('#tiedot-osio:not([hidden])');
@@ -271,6 +278,7 @@ const TEKSTIT = [
   e = (await ls('luin-lista')).find(x => x.id === 'p-pinossa');
   tulos('Latomossa muutettu asiasana tallentui', JSON.stringify(e.asiasanat) === '["psykologia"]', JSON.stringify(e.asiasanat));
   await page.click('#nimikkeet button.jako[data-id="p-pinossa"]');
+  await avaaOsa(page, 'tiedot');
   await page.click('#pop button[data-k="tiedot"]');
   await page.waitForURL(/latomo\.html#/);
   await page.waitForSelector('#tiedot-osio:not([hidden])');
@@ -286,6 +294,7 @@ const TEKSTIT = [
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   await page.click('#pop button[data-k="kk"]');
   await page.click('#pop button[data-k="ok"]');
@@ -297,7 +306,7 @@ const TEKSTIT = [
     r.indexOf('[A 1]') > r.findIndex(x => x.startsWith('Lukematon')), nimet(r));
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
   const kkNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k + ':' + b.textContent));
-  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista kellarin kampihyllystöstä.'), kkNapit.join(','));
+  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista'), kkNapit.join(','));
   await page.mouse.click(5, 5);
   await page.click('#nimikkeet button.valitse[data-id="p-raamattu"]');
   await page.click('#nimikkeet button.valitse[data-id="p-seneca"]');
@@ -316,6 +325,7 @@ const TEKSTIT = [
   // Käsikirjastosta pois: lukematon palaa pinoon.
   r = await kellari('luettu');
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   await page.click('#pop button[data-k="kk"]');
   await page.click('#pop button[data-k="ok"]');
@@ -373,6 +383,7 @@ const TEKSTIT = [
   await page.click('#nimikkeet button.vo[data-ots="Ilman asiasanaa"]');
   await page.click('#valitse-kaikki');
   await page.click('#val-valikko');
+  await avaaOsa(page, 'luokittele');
   await page.click('#pop button[data-k="luokittele"]');
   await page.click('#pop button.lk-sana[data-s="filosofia"]');
   await page.click('#pop button[data-k="ok"]');

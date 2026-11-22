@@ -1,6 +1,6 @@
 // Lataa md ja Linkitä tiedostoon (käyttäjän pyyntö 16.11.2026). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]
-// Tarkistaa: nimikkeen ja valittujen valikon järjestys (Luin. toiseksi alimpana); Lataa md antaa pinon tekstin tavulleen;
+// Tarkistaa: nimikkeen ja valittujen valikon järjestys (porrasvalikko: Exportātiō, Latomo, Luin.; Poista alimpana); Lataa md antaa pinon tekstin tavulleen;
 // Linkitä tiedostoon hylkää virheellisen osoitteen, 404:n, verkkosivun ja eri tekstin muuttamatta mitään; hyväksyy
 // Dropbox-jakolinkin, jonka tiedostossa on eri otsikkolohko mutta sama leipäteksti; osoite etukenttään (myös tekstiin,
 // jossa etukenttää ei ollut), merkinnät ennallaan ja valikossa sen jälkeen Kopioi linkki.
@@ -8,6 +8,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -72,14 +73,15 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   await page.reload(); await page.waitForSelector('#nimikkeet li');
   const merkit0 = await ls('luin-merkit:p-koeteksti');
 
-  async function avaa(id) { await page.click(`#nimikkeet button.jako[data-id="${id}"]`); return page.$$eval('#pop button[data-k]', bs => bs.map(b => b.dataset.k).join()); }
+  async function avaa(id) { await page.click(`#nimikkeet button.jako[data-id="${id}"]`); return page.$$eval('#pop button[data-k]:not(.p-takaisin)', bs => bs.map(b => b.dataset.k).join()); }
 
   // 1. Järjestys.
   let j = await avaa('p-koeteksti');
-  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'lisa,viite,linkita,lataa,huiluta,luokittele,tiedot,laitos,luin,poista', j);
+  tulos('linkittömän valikko: linkita, lataa, …, luin, poista', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkita,lataa,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'linkki-valikko.png') });
 
   // 2. Lataa md.
+  await avaaOsa(page, 'lataa');
   const [lataus] = await Promise.all([page.waitForEvent('download'), page.click('#pop button[data-k="lataa"]')]);
   const ladattu = fs.readFileSync(await lataus.path(), 'utf8');
   tulos('Lataa md: pinon teksti tavulleen, nimi slugista', ladattu === MD && lataus.suggestedFilename() === 'koeteksti.md', lataus.suggestedFilename());
@@ -87,6 +89,7 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   // 3. Hylkäykset.
   async function linkita(u) {
     await avaa('p-koeteksti');
+    await avaaOsa(page, 'linkita');
     await page.click('#pop button[data-k="linkita"]');
     await page.fill('#pop input', u);
     await page.press('#pop input', 'Enter');
@@ -112,11 +115,12 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   tulos('pinossa osoite, md.js lukee sen', l1[0].osoite === DB && await page.evaluate(m => LuinMD.parse(m).meta.osoite, md1) === DB);
   tulos('merkinnät ennallaan', JSON.stringify(await ls('luin-merkit:p-koeteksti')) === JSON.stringify(merkit0));
   j = await avaa('p-koeteksti');
-  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'lisa,viite,linkki,lataa,huiluta,luokittele,tiedot,laitos,luin,poista', j);
+  tulos('linkitetyn valikko: Kopioi linkki linkin paikalla', j === 'ali:vienti,ali:latomo,ali:luin,lisa,viite,linkki,lataa,huiluta,luokittele,tiedot,laitos,luin,kasikirja,merk,poista', j);
   await page.keyboard.press('Escape');
 
   // 5. Teksti ilman etukenttää.
   await page.click('#nimikkeet button.jako[data-id="p-toinen-koe"]');
+  await avaaOsa(page, 'linkita');
   await page.click('#pop button[data-k="linkita"]');
   await page.fill('#pop input', 'https://www.dropbox.com/s/y/ilman.md?dl=0');
   await page.press('#pop input', 'Enter');
@@ -129,8 +133,8 @@ const DB = 'https://www.dropbox.com/scl/fi/abc/koe.md?rlkey=x&dl=0';
   // 6. Valittujen valikko.
   await page.click('#nimikkeet button.valitse[data-id="p-koeteksti"]');
   await page.click('#val-valikko');
-  j = await page.$$eval('#pop button[data-k]', bs => bs.map(b => b.dataset.k).join());
-  tulos('valittujen valikko: Luin. toiseksi alimpana', j === 'zip,viitteet,luokittele,luin,poista', j);
+  j = await page.$$eval('#pop button[data-k]:not(.p-takaisin)', bs => bs.map(b => b.dataset.k).join());
+  tulos('valittujen valikko: Poista alimpana', j === 'ali:vienti,ali:latomo,ali:luin,viitteet,zip,luokittele,luin,kasikirja,merk,poista', j);
 
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await selain.close(); palvelin.close();

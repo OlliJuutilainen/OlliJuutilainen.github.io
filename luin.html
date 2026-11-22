@@ -302,6 +302,8 @@
   li.valiots button.vo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; text-align: left;
     letter-spacing: inherit; text-transform: inherit; color: inherit; padding: 6px 0; margin: -6px 0; }
   li.nimike { display: flex; align-items: flex-start; border-bottom: 1px solid var(--viiva); }
+  /* Merkitse luetuksi (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä, viivan värisenä (ei läpikuultavuutta). */
+  li.nimike.luettu-merk .n-ots, li.nimike.luettu-merk .n-ala, li.nimike.luettu-merk .n-tieto, li.nimike.luettu-merk .n-ots svg.merkitty { color: var(--viiva); }
   li.nimike a.avaa { flex: 1 1 auto; min-width: 0; display: block; padding: 15px 0 14px; text-decoration: none; }
   .n-ots { display: block; font-size: 1.1rem; letter-spacing: .05em; line-height: 1.3; overflow-wrap: anywhere; }
   .n-ala { display: block; font-style: italic; color: var(--harmaa); font-size: .95rem; margin-top: 2px; }
@@ -312,8 +314,8 @@
   button.jako svg { width: 15px; height: 15px; }
   /* Nimikkeen valikko: kolme salmiakkia rivissä (käyttäjän pyyntö 10.11.2026; ennen jakomerkki). */
   /* Kolme salmiakkia pystyssä, kärjet hipaisten, logon mittasuhteissa kuten huilun sormireiät (12.11.2026). */
-  /* Pienennetty 85 %:iin (käyttäjän pyyntö 12.11.2026); viewBox 5 × 17 pitää mittasuhteet. */
-  button.jako svg.kolme { width: 4.25px; height: 14.45px; fill: currentColor; }
+  /* Koko 95 % (käyttäjän päätös); viewBox 5 × 17 pitää mittasuhteet. */
+  button.jako svg.kolme { width: 4.75px; height: 16.15px; fill: currentColor; }
   /* Huilutettu (käyttäjän valinta 12.11.2026): Postihuilun kautta kantautunut teksti (e.src 'laatikko') saa nimensä perään
      saman huilun vinossa pystyssä, 64° vaakatasosta (17.11.2026; ennen 68°), nokka ylhäällä oikealla (luin/huilu.js vino()). */
   /* Keskikohta 0,29 em perusviivan yläpuolella: pienaakkosten (x-korkeus 0,51 em) ja versaalien (0,74 em) keskikohtien
@@ -448,6 +450,45 @@
   }
   .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
     border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
+  /* Porrasvalikko (nimikkeen ja valittujen valikko, naytaPorras()): pääkohdat avaavat alavalikon. Rinnakkain (.rinn) alavalikko on
+     pääkohtien vasemmalla samassa laatikossa, väliviivana pääkohtien reuna, ja avoimen pääkohdan kohdalla viivassa on aukko.
+     Alavalikot ovat samassa ruudukon solussa (piilossa visibilityllä), joten laatikon leveys ei muutu pääkohtaa vaihdettaessa.
+     Sisäkkäin (.sisak) alavalikko on pääkohtien tilalla, ja ylärivin nuoli palaa. .mittaa on porrasTapa()n hetkellinen mittaustila.
+     Nuoli osoittaa sinne, missä alavalikko on: rinnakkain vasemmalle tekstin edessä, sisäkkäin oikealle laidassa. */
+  .valikko.porras { padding: 0; min-width: 0; max-width: calc(100vw - 16px); }
+  .valikko.porras.sisak { min-width: 12rem; max-width: min(22rem, calc(100vw - 24px)); }
+  .valikko.porras.mittaa { max-width: none; }
+  .p-runko { display: flex; flex-direction: row-reverse; align-items: stretch; }
+  .p-paa, .p-ali { padding: 4px 0; }
+  .p-alat { display: none; }
+  .valikko.porras .p-paa { flex: 1 1 auto; min-width: 0; }
+  .valikko.porras.rinn .p-paa, .valikko.porras.mittaa .p-paa { flex: none; width: max-content; min-width: 10rem; max-width: 14rem; }
+  .valikko.porras.rinn.ali-auki .p-alat, .valikko.porras.mittaa .p-alat { display: grid; flex: none; }
+  .valikko.porras.rinn .p-ali, .valikko.porras.mittaa .p-ali { grid-area: 1 / 1; width: max-content; max-width: 20rem; visibility: hidden; }
+  .valikko.porras.rinn .p-ali.auki { visibility: visible; }
+  /* Piilossa oleva alavalikko antaa ruudukolle vain leveytensä: laatikon korkeus on avoimen alavalikon. Napin yllä avautuneessa
+     (.alareuna) pääkohdat ovat alhaalla, joten ne pysyvät paikallaan laatikon kasvaessa ylöspäin. */
+  .valikko.porras.rinn .p-ali:not(.auki) { height: 0; padding: 0; overflow: hidden; }
+  .valikko.porras.rinn.alareuna .p-paa { display: flex; flex-direction: column; justify-content: flex-end; }
+  .valikko.porras.rinn.ali-auki .p-paa { border-left: 1px solid var(--muste); }
+  .valikko.porras.rinn .p-takaisin, .valikko.porras.mittaa .p-takaisin { display: none; }
+  .valikko.porras.sisak.ali-auki .p-paa { display: none; }
+  .valikko.porras.sisak.ali-auki .p-alat { display: block; flex: 1 1 auto; min-width: 0; }
+  .valikko.porras.sisak .p-ali { display: none; }
+  .valikko.porras.sisak .p-ali.auki { display: block; }
+  .valikko button.p-ots { display: flex; align-items: center; gap: 10px; }
+  .valikko.porras.sisak button.p-ots { justify-content: space-between; }
+  .valikko.porras.sisak button.p-ots svg.p-nuoli { order: 1; }
+  .valikko.porras.rinn button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { transform: scaleX(-1); }
+  .valikko.porras.rinn button.p-ots[aria-expanded="true"] { position: relative; }
+  .valikko.porras.rinn button.p-ots[aria-expanded="true"]::before { content: ''; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px;
+    background: var(--paperi); }
+  .valikko.porras.rinn .p-paa > button.p-ots:first-child[aria-expanded="true"]::before { top: -4px; }
+  .valikko button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { flex: none; width: 5.5px; height: 6.25px; fill: var(--harmaa); }
+  .valikko button.p-ots[aria-expanded="true"] svg.p-nuoli { fill: currentColor; }
+  .valikko button.p-takaisin { display: flex; align-items: center; gap: 10px; color: var(--harmaa); border-bottom: 1px solid var(--viiva);
+    margin: -4px 0 4px; }
+  .valikko button.p-takaisin svg.p-nuoli { fill: var(--ruoste); }
   .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
   .valikko.rivi button { width: auto; padding: 9px 13px; }
   .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
@@ -2114,7 +2155,7 @@
      (sijainti kuten luetulla, kellarissa()) ja merkin e.laskeutui, jotta tietorivi sanoo laskeutui eikä luettu; pinoon
      palatessa kumpikin poistuu. Laskeutuneet kerrotaan viestillä. */
   var TUSINA = 12;
-  function pinoonTuli(e) { delete e.luettu; delete e.laskeutui; delete e.omappi; e.pinoon = Date.now(); }
+  function pinoonTuli(e) { delete e.luettu; delete e.laskeutui; delete e.omappi; delete e.merkLuettu; e.pinoon = Date.now(); }
   function tusina(tulleet) {
     var p = lista.filter(pinossa);
     if (p.length <= TUSINA) return [];
@@ -2650,7 +2691,7 @@
         var paalle = b.getAttribute('aria-pressed') !== 'true';
         // Käsikirja lähtee pinosta ja ö-mapista kellarin kampihyllystön käsikirjastoon.
         es.forEach(function (e) {
-          if (paalle) { if (!kellarissa(e)) kkSiirtyi[e.id] = 1; e.kasikirja = 1; delete e.omappi; delete valitut[e.id]; }
+          if (paalle) { if (!kellarissa(e)) kkSiirtyi[e.id] = 1; e.kasikirja = 1; delete e.omappi; delete e.merkLuettu; delete valitut[e.id]; }
           else { delete e.kasikirja; delete kkSiirtyi[e.id]; }
         });
         b.setAttribute('aria-pressed', String(paalle));
@@ -2968,7 +3009,7 @@
     // Kellarin kampihyllystössä luokittelu näkyy tietorivillä (pino pysyy ennallaan). Käsikirjan kertoo sen välikortti.
     if (ark) tieto = (tila.omappi ? [] : jarjTieto(e)).concat(tieto, [(e.asiasanat || []).join(', ')]);
     tieto = tieto.filter(Boolean).join(' · ');
-    return '<li class="nimike"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
+    return '<li class="nimike' + (e.merkLuettu && pinossa(e) ? ' luettu-merk' : '') + '"><button class="valitse" type="button" data-id="' + esc(e.id) + '" aria-pressed="' + !!valitut[e.id] +
       '" aria-label="Valitse: ' + esc(e.title) + '">' + VALITSE + '</button><a class="avaa" href="#id=' + encodeURIComponent(e.id) + '">' +
       '<span class="n-ots">' + nimiMerkein(e) + '</span>' + (ala ? '<span class="n-ala">' + esc(ala) + '</span>' : '') +
       '<span class="n-tieto">' + esc(tieto) + '</span></a>' +
@@ -3445,29 +3486,28 @@
     var e = lista.filter(function (x) { return x.id === b.dataset.id; })[0];
     if (!e) return;
     var url = jakoLinkki(e);
-    naytaPop(b.getBoundingClientRect(), '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
-      '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'lisää: luettu HTML-versiona</button></div>' +
-      '<button type="button" data-k="viite">kopioi lähdeviite</button>' +
-      // Linkittömällä tekstillä linkin paikalla linkitä tiedostoon; lataa .md sen alla ja Luin. toiseksi alimpana (käyttäjän pyyntö 16.11.2026).
-      (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="merkinnät eivät siirry jaettavassa linkissä">kopioi linkki</button>' : '<button type="button" data-k="linkita">linkitä tiedostoon</button>') +
-      '<button type="button" data-k="lataa">lataa .md</button>' +
-      // Huiluta laatikkoon (käyttäjän pyyntö 18.11.2026): tekstin runko toisten laitteiden pinoihin (huiluta()).
-      '<button type="button" data-k="huiluta" class="vihje" data-vihje="toisten laitteittesi pinoihin">huiluta laatikkoon</button>' +
-      '<button type="button" data-k="luokittele">luokittele</button>' +
-      '<button type="button" data-k="tiedot">muuta metatietoja</button>' +
-      '<button type="button" data-k="laitos">lado uusi laitos</button>' +
-      // Käsikirjalle ei Poimi- eikä ö-mappitoimintoa: se pysyy käsikirjastossa (pois luokittelemalla).
-      (e.kasikirja ? '' : e.omappi ? '<button type="button" data-k="omappi">' + OM_POIS + '</button>'
-        : e.luettu ? '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä.</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>'
-        : '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>') +
-      '<button type="button" data-k="poista" class="vaara">' + (omapissa(e) ? 'Poista ö-mapista.' : kellarissa(e) ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
-      if (k === 'luin') { kysyLuin([e], b.getBoundingClientRect()); return true; }
-      if (k === 'omappi') { kysyOmappi([e], b.getBoundingClientRect()); return true; }
+    // Porrasvalikko (käyttäjän linjaus): Exportātiō, Latomo ja Luin. Lähdeviite on Exportātiōn ylimpänä, Luin.-alavalikossa
+    // siirrot ja alimpana punainen Poista. Linkittömällä tekstillä linkin paikalla Linkitä tiedostoon.
+    naytaPorras(b.getBoundingClientRect(), '', [
+      { k: 'vienti', nimi: VIENTI, html: '<div class="esi"><span class="v-teksti">' + viite(e, true) + '</span>' +
+        '<button type="button" class="h-viit v-lisa" data-k="lisa" aria-pressed="' + !!aset.viiteLisa + '">' + SAL_IKONI + 'Lisää: luettu HTML-versiona</button></div>' +
+        '<button type="button" data-k="viite">Kopioi lähdeviite</button>' +
+        (url ? '<button type="button" data-k="linkki" class="vihje" data-vihje="Merkinnät eivät siirry jaettavassa linkissä">Kopioi linkki</button>'
+          : '<button type="button" data-k="linkita">Linkitä tiedostoon</button>') +
+        '<button type="button" data-k="lataa">Lataa .md</button>' +
+        // Huiluta laatikkoon: tekstin runko toisten laitteiden pinoihin (huiluta()).
+        '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
+      { k: 'latomo', nimi: 'Latomo', html: '<button type="button" data-k="luokittele">Luokittele</button>' +
+        '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
+      { k: 'luin', nimi: 'Luin.', html: luinKohdat([e]) }
+    ], function (k, nappi) {
+      var lt = luinToiminto(k, nappi, [e], b);
+      if (lt !== undefined) return lt;
       if (k === 'lataa') { lataaMd(e); return; }
       if (k === 'huiluta') { huiluta(e, nappi); return true; }
       if (k === 'linkita') { kysyTiedosto(e, b.getBoundingClientRect()); return true; }
       if (k === 'luokittele') { luokittele([e], b.getBoundingClientRect()); return true; }
-      // Tiedot ja uusi laitos (käyttäjän pyyntö 15.11.2026): Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
+      // Tiedot ja uusi laitos: Latomo lukee tekstin pinosta ja palauttaa sen tuo()-reitillä.
       // Asiasanat ja ajoitus ensin etukenttään, jotta Latomo näyttää ne (luokittelu).
       if (k === 'tiedot' || k === 'laitos') { lkKirjoita(e).then(function () { location.href = 'luin/latomo.html#' + k + '=' + encodeURIComponent(e.id); }); return; }
       if (k === 'lisa') {
@@ -3478,11 +3518,7 @@
       }
       if (k === 'viite') { kopioi(viite(e), viite(e, true)).then(function () { nappi.textContent = 'Lähdeviite kopioitu.'; }); return true; }
       if (k === 'linkki') { kopioi(url).then(function () { nappi.textContent = 'Linkki kopioitu.'; }); return true; }
-      if (k === 'poista') {
-        if (!nappi.dataset.varmista) { nappi.dataset.varmista = 1; nappi.textContent = 'Vahvista: poista myös merkinnät.'; return true; }
-        poistaListasta([e]);
-      }
-    }, 'oikea');
+    });
   });
   /* ---------- Lataa md ja Linkitä tiedostoon (käyttäjän pyyntö 16.11.2026) ----------
      Lataa md antaa pinoon tallennetun tekstin sellaisenaan. Linkitä tiedostoon ottaa julkisen .md-tiedoston osoitteen
@@ -3595,27 +3631,20 @@
     $$('#nimikkeet button.valitse').forEach(function (x) { x.setAttribute('aria-pressed', String(!!valitut[x.dataset.id])); });
     paivitaValinta();
   });
-  // Valittujen valikko: Luin. (kellarin kampihyllystössä Poimi kellarin kampihyllystöstä.), merkintöjen vienti zip-pakettina, lähdeviitteet ja poisto.
+  // Valittujen valikko samoin portain kuin nimikkeen: Exportātiō (lähdeviitteet, merkintöjen vienti zip-pakettina), Latomo
+  // (Luokittele) ja Luin. (siirrot, Merkitse luetuksi, Poista; luinKohdat()).
   $('#val-valikko').addEventListener('click', function () {
     var b = this, es = valitutEt();
     if (!es.length) return;
-    var n = es.length, ark = tila.arkisto, luetut = es.filter(function (e) { return e.luettu; }).length;
-    var kk = es.some(function (e) { return e.kasikirja; });
-    // Kun pino on mukana kellarin kampihyllystössä, sekavalinnalle ei tarjota Luin.- eikä Poimi-toimintoa; käsikirjoja
-    // sisältävälle valinnalle ei Poimi- eikä ö-mappitoimintoa.
-    var om = tila.omappi, luin = om || kk ? '' : luetut === n ? 'Poimi kellarin kampihyllystöstä.' : luetut === 0 ? 'Luin.' : '';
-    // Ö-mappiin vain kellarin kampihyllystön teksteistä, takaisin vain ö-mapista.
-    var omk = om ? OM_POIS : ark && luetut === n && !kk ? OM_SISAAN : '';
-    naytaPop(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>' +
-      '<button type="button" data-k="zip">Vie merkinnät (zip).</button>' +
-      '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite.' : 'lähdeviitteet.') + '</button>' +
-      '<button type="button" data-k="luokittele">Luokittele.</button>' +
-      (luin === 'Luin.' ? '<button type="button" data-k="luin" class="vihje" data-vihje="vie kellarin kampihyllystöön">Luin.</button>'
-        : luin ? '<button type="button" data-k="luin">' + luin + '</button>' : '') +
-      (omk ? '<button type="button" data-k="omappi">' + omk + '</button>' : '') +
-      '<button type="button" data-k="poista" class="vaara">' + (om ? 'Poista ö-mapista.' : ark ? 'Poista kellarin kampihyllystöstä.' : 'poista') + '</button>', '', function (k, nappi) {
-      if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
-      if (k === 'omappi') { kysyOmappi(es, b.getBoundingClientRect()); return true; }
+    var n = es.length;
+    naytaPorras(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>', [
+      { k: 'vienti', nimi: VIENTI, html: '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
+        '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' },
+      { k: 'latomo', nimi: 'Latomo', html: '<button type="button" data-k="luokittele">Luokittele</button>' },
+      { k: 'luin', nimi: 'Luin.', html: luinKohdat(es) }
+    ], function (k, nappi) {
+      var lt = luinToiminto(k, nappi, es, b);
+      if (lt !== undefined) return lt;
       if (k === 'luokittele') { luokittele(es, b.getBoundingClientRect()); return true; }
       if (k === 'zip') { vieZip(es); return; }
       if (k === 'viitteet') {
@@ -3623,27 +3652,76 @@
           .then(function () { nappi.textContent = n === 1 ? 'Lähdeviite kopioitu.' : 'Lähdeviitteet kopioitu.'; });
         return true;
       }
-      if (k === 'poista') {
-        if (!nappi.dataset.varmista) {
-          nappi.dataset.varmista = 1;
-          nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät.' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen.';
-          return true;
-        }
-        poistaListasta(es);
-      }
-    }, 'oikea');
+    });
   });
-  // Luin. ja Poimi kellarin kampihyllystöstä. kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  /* Luin.-alavalikko (käyttäjän linjaus) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
+     pinossa Siirrä kellarin kampihyllystöön, Siirrä käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi,
+     Siirrä ö-mappiin ja Siirrä käsikirjastoon; ö-mapissa Palauta ja Siirrä käsikirjastoon. Alimpana aina punainen Poista
+     (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei siirtoja: se lähtee käsikirjastosta
+     luokittelemalla. Sekavalinnalle (pino ja kellari) vain käsikirjasto ja poisto. */
+  function luinKohdat(es) {
+    var kk = es.some(function (e) { return e.kasikirja; }), h = '';
+    var pin = es.every(pinossa), kel = es.every(function (e) { return kellarissa(e) && !e.kasikirja; }), om = es.every(omapissa);
+    if (!kk) {
+      if (pin) h += '<button type="button" data-k="luin">Siirrä kellarin kampihyllystöön</button>';
+      if (kel) h += '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>';
+      if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
+      h += '<button type="button" data-k="kasikirja">Siirrä käsikirjastoon</button>';
+      if (pin) h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Merkitse lukemattomaksi' : 'Merkitse luetuksi') + '</button>';
+    }
+    return h + '<button type="button" data-k="poista" class="vaara">Poista</button>';
+  }
+  // Luin.-alavalikon toiminnot. Palauttaa undefined, jos k ei ole sen; true pitää valikon auki, false sulkee.
+  function luinToiminto(k, nappi, es, b) {
+    var n = es.length;
+    if (k === 'luin') { kysyLuin(es, b.getBoundingClientRect()); return true; }
+    if (k === 'omappi') { kysyOmappi(es, b.getBoundingClientRect()); return true; }
+    if (k === 'kasikirja') { kysyKasikirja(es, b.getBoundingClientRect()); return true; }
+    if (k === 'merk') { merkitseLuetuksi(es); return false; }
+    if (k === 'poista') {
+      if (!nappi.dataset.varmista) {
+        nappi.dataset.varmista = 1;
+        nappi.textContent = n === 1 ? 'Vahvista: poista myös merkinnät' : 'Vahvista: poista ' + n + ' tekstiä merkintöineen';
+        return true;
+      }
+      poistaListasta(es);
+      return false;
+    }
+  }
+  /* Merkitse luetuksi (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä (li.luettu-merk, e.merkLuettu = aika). Sama kohta
+     palauttaa kaikkien valittujen ollessa merkittyjä (Merkitse lukemattomaksi). Merkki lähtee, kun teksti siirtyy kellarin
+     kampihyllystöön, käsikirjastoon tai palaa pinoon (pinoonTuli()). Tusinan järjestykseen se ei vaikuta. */
+  function merkitseLuetuksi(es) {
+    var pois = es.every(function (e) { return e.merkLuettu; }), t = Date.now();
+    es.forEach(function (e) { if (pois) delete e.merkLuettu; else e.merkLuettu = t; });
+    tallennaLista();
+    piirraNimikkeet();
+  }
+  // Siirrä käsikirjastoon kysyy vahvistuksen kuten muut siirrot. Käsikirja lähtee pinosta ja ö-mapista kellarin
+  // kampihyllystön käsikirjastoon kuten luokittelussa; pois siitä luokittelemalla.
+  function kysyKasikirja(es, rect) {
+    var n = es.length;
+    naytaPop(rect, '<div class="kys">' + (n === 1 ? 'Siirretäänkö teksti käsikirjastoon?' : 'Siirretäänkö ' + n + ' tekstiä käsikirjastoon?') + '</div>' +
+      '<div class="napit"><button type="button" data-k="ok">Siirrä käsikirjastoon</button>' +
+      '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
+      if (k !== 'ok') return;
+      es.forEach(function (e) { e.kasikirja = 1; delete e.omappi; delete e.merkLuettu; delete valitut[e.id]; lkMuuttui(e); });
+      tallennaLista();
+      piirraNimikkeet();
+      viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin kampihyllystöön.');
+    }, 'oikea');
+  }
+  // Siirto kellarin kampihyllystöön (vahvistus Luin.) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
     var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin pinoon?' : 'Nostetaanko ' + n + ' tekstiä takaisin pinoon?')
       : (n === 1 ? 'Merkitäänkö teksti luetuksi ja siirretään kellarin kampihyllystöön?' : 'Merkitäänkö ' + n + ' tekstiä luetuiksi ja siirretään kellarin kampihyllystöön?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
-      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä.' : 'Luin.') + '</button>' +
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä' : 'Luin.') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
-      es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; } });
+      es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; delete e.merkLuettu; } });
       // Kellarin kampihyllystöstä nostettu teksti nousee pinon kärkeen.
       if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
       if (ark) tusina(es);
@@ -3657,7 +3735,7 @@
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin kampihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
      sieltä se palaa kellarin kampihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
-  var OM_SISAAN = 'Siirrä ö-mappiin.', OM_POIS = 'Palauta kellarin kampihyllystöön.';
+  var OM_SISAAN = 'Siirrä ö-mappiin', OM_POIS = 'Palauta kellarin kampihyllystöön';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
     var kys = om ? (n === 1 ? 'Palautetaanko teksti kellarin kampihyllystöön?' : 'Palautetaanko ' + n + ' tekstiä kellarin kampihyllystöön?')
@@ -3688,6 +3766,67 @@
     popPaikka = { rect: rect, tasaus: tasaus };
     sijoitaPop();
   }
+  /* ---------- porrasvalikko (käyttäjän linjaus) ----------
+     Nimikkeen ja valittujen valikossa pääkohdat (Exportātiō, Latomo, Luin.) avaavat alavalikon. Leveällä ruudulla se avautuu
+     pääkohtien vasemmalle samaan laatikkoon (rinnakkain), kapealla pääkohtien tilalle, ja ylärivi nuolineen palaa (sisäkkäin).
+     Tapa mitataan (porrasTapa()): rinnakkain vain, kun pääkohdat ja levein alavalikko mahtuvat vierekkäin ruudulle. Se mitataan
+     uudelleen vain ikkunan leveyden muuttuessa, ei sisällön (valikko ei vaihda tapaa kesken käytön). Kaikki on #pop-elementissä,
+     joten ulkoklikkaus, mahtuminen ja vieritys toimivat kuten muissakin valikoissa. Alavalikon avaus ja paluu pitävät laatikon
+     napin puoleisen reunan paikallaan (popPaikka.reuna): napin alla avautunut kasvaa alaspäin, yllä avautunut ylöspäin, eikä
+     laatikko hyppää napin toiselle puolelle. Hiirellä pääkohta avautuu myös viipymällä (PORRAS_MS); napautus vain avaa, ei
+     sulje, jottei viipymällä avattu sulkeudu samaan napautukseen. */
+  var VIENTI = 'Exporta\u0304tio\u0304';
+  var P_NUOLI = '<svg class="p-nuoli" viewBox="-4.4 -2.5 4.4 5" aria-hidden="true"><path d="M0 0C-1.46 -.81 -2.94 -1.69 -4.4 -2.5C-3.67 -2.1 -3.44 0 -2.5 0L-2.5 0C-3.44 0 -3.67 2.1 -4.4 2.5C-2.94 1.69 -1.46 .81 0 0Z"/></svg>';
+  // porrasLukko: hiiren paikka alavalikon vaihtuessa. Viipymäavaus odottaa, että hiiri oikeasti liikkuu siitä, jottei hiiren
+  // alle siirtynyt pääkohta (laatikko kasvoi tai siirtyi) avaa seuraavaa ketjussa.
+  var PORRAS_MS = 250, porrasViive = 0, porrasHiiri = '', porrasLukko = '';
+  function naytaPorras(rect, esi, osat, toiminto) {
+    var nappi = function (o) { return P_NUOLI + '<span>' + o.nimi + '</span></button>'; };
+    naytaPop(rect, '<div class="p-runko"><div class="p-paa">' + esi + osat.map(function (o) {
+        return '<button type="button" class="p-ots" data-k="ali:' + o.k + '" aria-expanded="false">' + nappi(o);
+      }).join('') + '</div><div class="p-alat">' + osat.map(function (o) {
+        return '<div class="p-ali" data-ali="' + o.k + '"><button type="button" class="p-takaisin" data-k="takaisin">' + nappi(o) + o.html + '</div>';
+      }).join('') + '</div></div>', 'porras', function (k, b) {
+      if (k.indexOf('ali:') === 0) { avaaAli(k.slice(4)); return true; }
+      if (k === 'takaisin') { avaaAli(''); return true; }
+      return toiminto(k, b);
+    }, 'oikea');
+  }
+  function porrasTapa() {
+    pop.classList.remove('rinn', 'sisak'); pop.classList.add('mittaa');
+    var w = $('.p-paa', pop).getBoundingClientRect().width + $('.p-alat', pop).getBoundingClientRect().width + 2;
+    pop.classList.remove('mittaa');
+    pop.classList.add(w <= innerWidth - 16 ? 'rinn' : 'sisak');
+    popPaikka.leveys = innerWidth;
+  }
+  function avaaAli(k) {
+    clearTimeout(porrasViive);
+    // Ankkuri päätetään ensimmäisellä avauksella ja pidetään: muuten ylös siirtynyt laatikko vaihtaisi seuraavalla kerralla
+    // ankkurinsa ja pääkohdat hyppäisivät.
+    if (!popPaikka.reuna) {
+      var r = pop.getBoundingClientRect();
+      popPaikka.reuna = r.top >= popPaikka.rect.bottom ? { yla: r.top } : { ala: r.bottom };
+      pop.classList.toggle('alareuna', popPaikka.reuna.ala != null);
+    }
+    pop.classList.toggle('ali-auki', !!k);
+    porrasLukko = porrasHiiri;
+    $$('.p-ali', pop).forEach(function (a) { a.classList.toggle('auki', a.dataset.ali === k); });
+    $$('.p-ots', pop).forEach(function (b) { b.setAttribute('aria-expanded', String(b.dataset.k === 'ali:' + k)); });
+    pop.scrollTop = 0;
+    sijoitaPop();
+  }
+  pop.addEventListener('mouseover', function (ev) {
+    clearTimeout(porrasViive);
+    var b = ev.target.closest && ev.target.closest('button.p-ots');
+    if (!b || !pop.classList.contains('rinn') || !HIIRI() || b.getAttribute('aria-expanded') === 'true') return;
+    porrasViive = setTimeout(function () {
+      if (!porrasLukko && !pop.hidden && pop.contains(b) && b.matches(':hover')) avaaAli(b.dataset.k.slice(4));
+    }, PORRAS_MS);
+  });
+  pop.addEventListener('mousemove', function (ev) {
+    porrasHiiri = ev.clientX + ',' + ev.clientY;
+    if (porrasLukko && porrasLukko !== porrasHiiri) porrasLukko = '';
+  });
   // Tekstikenttä valikossa (kirjaus, luokittelu, linkitys, sanaston nimeäminen) tuo näppäimistön esiin.
   function syotePopissa() {
     var a = document.activeElement;
@@ -3698,6 +3837,7 @@
      (visualViewport), jotta näppäimistö ei peitä valikkoa. Vierityskohta säilyy, kun valikko sijoitetaan uudelleen. */
   function sijoitaPop() {
     if (pop.hidden || !popPaikka) return;
+    if (pop.classList.contains('porras') && popPaikka.leveys !== innerWidth) porrasTapa();
     var vw = innerWidth, rect = popPaikka.rect, st = pop.scrollTop;
     var vv = (muokkaus || syotePopissa()) && window.visualViewport, yla = Math.max(vv ? vv.offsetTop : 0, turva()), ala = vv ? vv.offsetTop + vv.height : innerHeight;
     // Mitataan vasemmasta yläkulmasta: edellisen valikon paikassa oikeassa laidassa leveys puristui, teksti rivittyi
@@ -3714,6 +3854,8 @@
     var y = rect.bottom + 8;
     // peita: laatikko napin päälle (tuonnin kuittaus peittää Tuo-napin, ettei sitä paineta uudestaan).
     if (popPaikka.tasaus === 'peita') y = rect.top - 10;
+    // Porrasvalikon alavalikko: napin puoleinen reuna pysyy (avaaAli()).
+    else if (popPaikka.reuna) y = popPaikka.reuna.yla != null ? popPaikka.reuna.yla : popPaikka.reuna.ala - h;
     else if (y + h > ala - 8) y = rect.top - h - 8;
     pop.style.left = clamp(x, 8, vw - w - 8) + 'px';
     pop.style.top = clamp(y, yla + 8, ala - h - 8) + 'px';
@@ -3726,7 +3868,8 @@
     $$('button', pop).forEach(function (b) {
       for (var s = b.parentNode; s !== pop; s = s.parentNode) if (s.scrollHeight > s.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(s).overflowY)) return;
       var r = b.getBoundingClientRect(), t = r.top - p + pop.scrollTop;
-      if (r.height < 24) return;
+      // Porrasvalikon piilotettu alavalikko (visibility) on samassa kohdassa kuin näkyvä: sen napit eivät ratkaise reunaa.
+      if (r.height < 24 || getComputedStyle(b).visibility === 'hidden') return;
       var c = Math.min(t + r.height * .5, tilaa);
       if (c >= t + r.height * .35 && c > paras) paras = c;
     });
@@ -3737,7 +3880,9 @@
   function sovitaPop() {
     if (pop.hidden) return;
     var r = pop.getBoundingClientRect();
-    if (pop.classList.contains('vierii') || r.bottom > innerHeight - 8 || r.top < turva() || r.left < 8 || r.right > innerWidth - 8) sijoitaPop();
+    // Porrasvalikon tapa (rinnakkain tai sisäkkäin) mitataan uudelleen aina leveyden muuttuessa, mahtui laatikko tai ei.
+    if (pop.classList.contains('vierii') || r.bottom > innerHeight - 8 || r.top < turva() || r.left < 8 || r.right > innerWidth - 8 ||
+      pop.classList.contains('porras') && popPaikka && popPaikka.leveys !== innerWidth) sijoitaPop();
   }
   // Pidä elementti vierivän valikon näkyvässä osassa (valikon oma vieritys, ei sivun).
   function pidaNakyvissa(el) {

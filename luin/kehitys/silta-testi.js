@@ -9,6 +9,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const SILTA = fs.readFileSync(path.join(JUURI, 'android/luin/src/main/assets/silta.js'), 'utf8');
@@ -202,6 +203,7 @@ const SOVELLUS = () => {
   await page.waitForSelector('#nimikkeet li');
   await silta();
   await page.click(`#nimikkeet button.jako[data-id="${id}"]`);
+  await avaaOsa(page, 'lataa');
   await page.click('#pop button[data-k="lataa"]');
   await odota(() => window.__app.tallenna.length > 0);
   const tall = (await app()).tallenna[0];
@@ -212,6 +214,7 @@ const SOVELLUS = () => {
   tulos('latauslinkki ei jäänyt sivulle eikä selain ladannut', ladatut === 0);
 
   await page.click(`#nimikkeet button.jako[data-id="${id}"]`);
+  await avaaOsa(page, 'viite');
   await page.click('#pop button[data-k="viite"]');
   await odota(() => window.__app.kopioi.length > 0);
   const kop = (await app()).kopioi[0];
@@ -224,6 +227,7 @@ const SOVELLUS = () => {
   await page.click(`#nimikkeet button.valitse[data-id="${id}"]`);
   await page.waitForSelector('#val-valikko:not([hidden])');
   await page.click('#val-valikko');
+  await avaaOsa(page, 'zip');
   await page.click('#pop button[data-k="zip"]');
   await odota(() => window.__app.tallenna.length > 1).catch(async () => console.log('viesti:', await page.textContent('#viesti')));
   const zip = (await app()).tallenna[1];
