@@ -3675,7 +3675,7 @@
   });
   /* Luin.-alavalikko (käyttäjän linjaus) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
      pinossa Pois silmistä, Siirrä käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi,
-     Siirrä ö-mappiin ja Siirrä käsikirjastoon; ö-mapissa Palauta ja Siirrä käsikirjastoon. Alimpana aina punainen Poista
+     Vie ö-mappiin ja Siirrä käsikirjastoon; ö-mapissa Poimi kellarin kampihyllystöön ja Siirrä käsikirjastoon. Alimpana aina punainen Poista
      (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei siirtoja: se lähtee käsikirjastosta
      luokittelemalla. Sekavalinnalle (pino ja kellari) vain käsikirjasto ja poisto. */
   function luinKohdat(es) {
@@ -3732,13 +3732,13 @@
       viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin kampihyllystöön.');
     }, 'oikea');
   }
-  // Pois silmistä (vahvistus Luin.) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  // Pois silmistä (vahvistus Nakkaa) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
-    var kys = ark ? (n === 1 ? 'Nostetaanko teksti takaisin pinoon?' : 'Nostetaanko ' + n + ' tekstiä takaisin pinoon?')
+    var kys = ark ? (n === 1 ? 'Poimitaanko teksti pinoon?' : 'Poimitaanko ' + n + ' tekstiä pinoon?')
       : (n === 1 ? 'Nakataanko kellarin kampihyllystöön?' : 'Nakataanko ' + n + ' tekstiä kellarin kampihyllystöön?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
-      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä' : 'Luin.') + '</button>' +
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä' : 'Nakkaa') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
@@ -3756,11 +3756,12 @@
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin kampihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
      sieltä se palaa kellarin kampihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
-  var OM_SISAAN = 'Siirrä ö-mappiin', OM_POIS = 'Palauta kellarin kampihyllystöön';
+  // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
+  var OM_SISAAN = 'Vie ö-mappiin', OM_POIS = 'Poimi kellarin kampihyllystöön';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
-    var kys = om ? (n === 1 ? 'Palautetaanko teksti kellarin kampihyllystöön?' : 'Palautetaanko ' + n + ' tekstiä kellarin kampihyllystöön?')
-      : (n === 1 ? 'Siirretäänkö teksti ö-mappiin?' : 'Siirretäänkö ' + n + ' tekstiä ö-mappiin?');
+    var kys = om ? (n === 1 ? 'Poimitaanko teksti kellarin kampihyllystöön?' : 'Poimitaanko ' + n + ' tekstiä kellarin kampihyllystöön?')
+      : (n === 1 ? 'Viedäänkö teksti ö-mappiin?' : 'Viedäänkö ' + n + ' tekstiä ö-mappiin?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (om ? OM_POIS : OM_SISAAN) + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {

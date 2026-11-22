@@ -235,7 +235,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
   *Luin.* ja *Poimi kellarin kampihyllystöstä* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
-  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Siirrä ö-mappiin*, sieltä *Palauta kellarin kampihyllystöön*. `e.omappi` (aika)
+  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Vie ö-mappiin*, sieltä *Poimi kellarin kampihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
@@ -274,6 +274,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mapissa ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
+- **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Nakataanko* on tarkoituksellinen poikkeus): Luin on maailman ydin ja pino
+  lähinnä sitä. Ydintä kohti liike on *poimimista* (verkosta lukimeen, kellarista pinoon, ö-mapista kellariin), siitä pois *viemistä*
+  (merkinnät pinosta, ö-mappiin). Uudet siirtonimet seuraavat tätä.
 - **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *EXPORTĀTIŌ* (latinan *vienti*;
   versaalina ja kursiivina; makronit yhdistyvinä U+0304, koska Literatassa ei ole ā:ta eikä ō:ta, ja makronillisilla kirjaimilla
   ei harvennusta vaan ohut väli U+2009, jotta alleviivaus jatkuu), *LATOMO* (versaalina) ja *Luin.*, kukin avaa alavalikon; merkki on
@@ -282,8 +285,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
   asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
-  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Luin.*), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
-  kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Siirrä ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Palauta…* ja
+  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
+  kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Vie ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Poimi kellarin kampihyllystöön* ja
   käsikirjasto; alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
   loppupiste vain *Luin.*:ssa (käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla

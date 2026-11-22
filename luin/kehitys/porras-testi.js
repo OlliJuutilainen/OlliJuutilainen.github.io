@@ -164,7 +164,7 @@ const luinKohdat = async (page, id) => {
     const kys = await page.evaluate(() => ({ k: document.querySelector('#pop .kys').textContent, ok: document.querySelector('#pop button[data-k="ok"]').textContent }));
     await page.click('#pop button[data-k="ok"]');
     const e3 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t3'));
-    tulos('Pois silmistä: Nakataanko kellarin kampihyllystöön? (Luin.), luettu, merkki pois', kys.k === 'Nakataanko kellarin kampihyllystöön?' && kys.ok === 'Luin.' && e3.luettu > 0 && !e3.merkLuettu, JSON.stringify(kys));
+    tulos('Pois silmistä: Nakataanko kellarin kampihyllystöön? (Nakkaa), luettu, merkki pois', kys.k === 'Nakataanko kellarin kampihyllystöön?' && kys.ok === 'Nakkaa' && e3.luettu > 0 && !e3.merkLuettu, JSON.stringify(kys));
     // Siirrä käsikirjastoon.
     await page.click('#nimikkeet button.jako[data-id="p-t4"]');
     await page.click('#pop button[data-k="ali:luin"]');
@@ -193,12 +193,12 @@ const luinKohdat = async (page, id) => {
 
     // Kellarin kampihyllystö, ö-mappi ja käsikirja.
     await page.goto(U + 'luin.html#arkisto'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-kellari"]');
-    tulos('kellari: Poimi, Siirrä ö-mappiin, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
-      'luin=Poimi kellarin kampihyllystöstä | omappi=Siirrä ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+    tulos('kellari: Poimi, Vie ö-mappiin, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
+      'luin=Poimi kellarin kampihyllystöstä | omappi=Vie ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
     tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'poista=Poista');
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
-    tulos('ö-mappi: Palauta, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
-      'omappi=Palauta kellarin kampihyllystöön | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+    tulos('ö-mappi: Poimi kellarin kampihyllystöön, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
+      'omappi=Poimi kellarin kampihyllystöön | kasikirja=Siirrä käsikirjastoon | poista=Poista');
     await ctx.close();
   }
 
