@@ -29,6 +29,8 @@
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
   Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()).
+  Juokseva otsikko: numeroitu lihavoitu kappaleen alku sarjana (**Corollary 1: …** …) on kohta (res.kohdat, ajo), ei otsikko.
+  Artikkeli (artikkeli()): kaksitasoisen artikkelin otsikot ovat osioita ja kohtia, eivät lukuja.
   Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella (Table 1., Fig. 2, Taulukko 3), on p.kuvateksti
   (kuvateksti()); tunniste span.kt-nimi.
   Asiakirja (21.11.2026, Snellmanin kootut teokset): etukentän ladonta: asiakirja pitää tekstin alun lyhyet rivit
@@ -429,6 +431,13 @@
     var tulos = [alku];
     for (i = alku + 1; i < tokens.length && !(tokens[i].t === 'h' && tokens[i].lvl <= 2); i++) if (tokens[i].t === 'h') tulos.push(i);
     return tulos;
+  }
+  /* Artikkeli: lehden tai kokoomateoksen osa (teos ja numero, doi tai sivut) tai verkkojulkaisu (sivusto), ei kirjan
+     kantajasivusto (KANTAJA: Gutenberg ym.) eikä kaunokirjallinen teksti. Kirja, opinnäyte ja etukentätön teksti eivät ole. */
+  function artikkeli(m) {
+    var k = function (x) { return String(m[x] || '').trim(); }, ty = tyyppiAvain(m.tyyppi);
+    if (ty === 'kaunokirjallinen' || KANTAJA.test(k('sivusto'))) return false;
+    return !!(k('teos') && (k('numero') || k('doi') || k('sivut'))) || !!(k('sivusto') && ty !== 'tieteellinen');
   }
   function lukuNimi(text) { return plain(text).trim().replace(/^((\d+(\.\d+)*|[IVXLC]+)[.):]?|[A-Z][.):])\s+/, '').trim(); }
   // Lohkon tekstin pituus [yhteensä, pisin kappale tai kohta] merkkeinä.
@@ -2279,9 +2288,11 @@
       tokens[i].alas = true;
       for (var j = i + 1; j < tokens.length && !(tokens[j].t === 'h' && tokens[j].lvl <= 2); j++) if (tokens[j].t === 'h') tokens[j].alas = true;
     });
-    // Ylin taso jää käyttämättä (pilotti, käyttäjän päätös 7.11.2026): kun tekstissä on korkeintaan kaksi otsikkotasoa ja
-    // luvuiksi tulisi yli 10 otsikkoa (SEP:n Beauvoirin 14), kaikki otsikot ladotaan tasoa alempana: luvut osioiksi ja osiot
-    // kohdiksi. Sivuseikkojen alennus (sivuLuvut()) perutaan, joten kirjallisuusluettelo on osio muiden rinnalla.
+    // Ylin taso jää käyttämättä: kun tekstissä on korkeintaan kaksi otsikkotasoa ja luvuiksi tulisi yli 10 otsikkoa, tai teksti on
+    // artikkeli (artikkeli()), kaikki otsikot ladotaan tasoa alempana: luvut osioiksi ja osiot kohdiksi. Artikkelin otsikot jakavat
+    // yhtä tekstiä, eivät ole kirjan lukuja (käyttäjän päätös). Sivuseikkojen alennus (sivuLuvut()) perutaan, joten
+    // kirjallisuusluettelo ja muut loppuosat ovat osioita muiden rinnalla. Kolmitasoinen pysyy ennallaan: tasoja on vain kolme.
+    var onArtikkeli = artikkeli(m);
     var laske = (function () {
       var tasot = {}, ylimmat = 0;
       for (var i = t0; i < tokens.length; i++) {
@@ -2291,7 +2302,7 @@
         tasot[l] = 1;
         if (l === 2 && !t.alas) ylimmat++;
       }
-      return Object.keys(tasot).length <= 2 && !(tasot[3] && tasot[4]) && ylimmat > LUKUJA_ENINTAAN;
+      return Object.keys(tasot).length <= 2 && !(tasot[3] && tasot[4]) && (ylimmat > LUKUJA_ENINTAAN || onArtikkeli && ylimmat > 0);
     })();
     res.laskettu = laske;
     bibLuku(tokens, t0).forEach(function (i) { tokens[i].bibLuku = true; });
@@ -2351,6 +2362,13 @@
       while (i < items.length) out += ryhma(items[i].lvl);
       return out;
     }
+    /* Juokseva otsikko (run-in head): kappale alkaa lihavoidulla, numeroidulla tunnisteella ja jatkuu tekstinä
+       (**Corollary 1: The smaller the studies … true.** Small sample size …; **(1)** Political economy …). Kohta kuten osanvaihto,
+       ei otsikko: teksti ei muutu. Vain sarjana (sama tunnistesana vähintään kahdesti), ja ilman numeroa (Results:, Keywords:)
+       lihavointi ei ole kohta. */
+    var ajoEhd = [];
+    var RE_AJO = /^\*\*([^*\n]{1,240}?)\*\*[ \t]*\S/;
+    var RE_AJO_NIMI = /^((?:(\p{Lu}[\p{L}-]*)\s+)?(?:\(\d+[a-z]?\)|\d+[a-z]?|[IVXLC]+))(?![\p{L}\p{N}])[.:)]?\s*([\s\S]*)$/u;
     // Osanvaihtojen kohdat (RE_VALI): jakson alku ja vaihdot, kirjataan jakson päättyessä (otsikko tai tekstin loppu).
     var vali = { alku: null, merkit: [], odottaa: null };
     function valiJakso() {
@@ -2424,7 +2442,7 @@
           (t.lyhIds || []).forEach(function (i) { lyhOhjaus[i] = id; });
           // Viittauksen kohde: nimiö, otsikko sellaisenaan ja numeroidusta otsikosta myös pelkkä nimi.
           [nimio && nimio[2], txt, nm && nm[2]].forEach(function (x) { if (x && !xrefKohde[norm(x)]) xrefKohde[norm(x)] = id; });
-          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: !laske && lvl !== lvl0 || undefined, laskettu: laske && !t.bibLuku || undefined, bibLuku: t.bibLuku && !inQuote || undefined };
+          var te = { lvl: lvl - 1, id: id, num: nm ? nm[1] : '', text: txt, b: b, alas: !laske && lvl !== lvl0 || undefined, oheis: t.alas || t.oik || undefined, laskettu: laske && !t.bibLuku || undefined, bibLuku: t.bibLuku && !inQuote || undefined };
           if (tn) te.tn = tn;
           if (t.pykala && !inQuote) te.pyk = true;
           res.toc.push(te);
@@ -2433,6 +2451,8 @@
           if (/(^|\s)\$\$|(^|\s)\$[^\s$][^$\n]*[^\s$\\]\$(?=$|[\s.,;:!?)])/.test(t.text) && !res.matikka) {
             res.matikka = true; warn('Matematiikkaa ($…$) ei ladota: lausekkeet näkyvät sellaisinaan.');
           }
+          var ajo = !inQuote && !inBib && RE_AJO.exec(t.text), ajoN = ajo && RE_AJO_NIMI.exec(plain(ajo[1]).trim());
+          if (ajoN) ajoEhd.push({ b: b, s: ajoN[1].trim(), sana: (ajoN[2] || '').toLowerCase(), alku: ajoN[3].replace(/[.:]\s*$/, '').trim() });
           // Pykälä tai pisteellinen numero kappaleen alussa (§ 12. …, Tractatus 6.54 …) on kohtamerkki: paikannin kappaleen tarkkuudella.
           var km = !inQuote && !inBib && /^(?:§§?\s*(\d{1,4}[a-z]?)|(\d{1,3}(?:\.\d{1,3})*))(?=[.\s])/.exec(plain(t.text.slice(0, 40)).trim());
           if (km) kohtaEhd.push({ b: b, s: km[1] ? '§ ' + km[1] : km[2], n: km[1] || km[2], pyk: !!km[1], piste: !!km[2] && km[2].indexOf('.') > 0 });
@@ -2506,6 +2526,15 @@
     }
     html += render(tokens.slice(t0), false);
     valiJakso();
+    if (!ylaKohdat) {
+      var ajoLkm = {};
+      ajoEhd.forEach(function (k) { ajoLkm[k.sana] = (ajoLkm[k.sana] || 0) + 1; });
+      var ajoKohdat = ajoEhd.filter(function (k) { return ajoLkm[k.sana] >= 2; });
+      if (ajoKohdat.length) {
+        ajoKohdat.forEach(function (k) { res.kohdat.push({ b: k.b, s: k.s, vali: true, ajo: true, alku: k.alku }); });
+        res.kohdat.sort(function (a, z) { return a.b - z.b; });
+      }
+    }
     res.tunnisteet = paikat(res.toc);
     // Kohtamerkit vasta sarjasta: vähintään kaksi pykälää tai kolme pisteellistä numeroa (luvut 1, 2 … vain niiden seurana).
     var pyk = kohtaEhd.filter(function (k) { return k.pyk; }), pis = kohtaEhd.filter(function (k) { return k.piste; });

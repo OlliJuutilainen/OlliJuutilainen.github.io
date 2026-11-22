@@ -677,6 +677,7 @@
   #sisalmys button.s-kohta.t2[aria-current] { padding-left: 32px; }
   /* Osanvaihdon kohta (i), (ii) … alkusanoineen (sisalmysKohdat()); kolmas taso vain niille. */
   #sisalmys button.s-kohta.t3 { padding-left: 54px; font-size: .84rem; }
+  #sisalmys button.s-kohta.ero { margin-top: 12px; }
   #sisalmys button.s-kohta.t3[aria-current] { padding-left: 52px; }
   .s-sivu { margin-left: auto; font-size: .74rem; color: var(--harmaa); font-variant-numeric: tabular-nums lining-nums; }
 
@@ -1017,6 +1018,10 @@
   nav.sisallys ol { list-style: none; margin: 0; padding: 0; }
   #teksti nav.sisallys li { margin: 0 0 .45em; padding: 0; }
   #teksti nav.sisallys li.t2 { padding-left: 1.5em; font-size: .94em; }
+  #teksti nav.sisallys li.t3 { padding-left: 3em; font-size: .94em; }
+  /* Etu- ja loppuosien raja (sisalmysRivit()): väli kuten kirjan sisällysluettelossa. */
+  #teksti nav.sisallys li.ero { margin-top: 1.2em; }
+  #teksti nav.sisallys .sis-alku { color: var(--harmaa); }
   #teksti nav.sisallys a { color: var(--ruoste); text-decoration: none; }
   nav.sisallys a:hover { text-decoration: underline; text-underline-offset: .2em; }
 
@@ -1784,7 +1789,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=43bd7850"></script>
+<script src="luin/md.js?v=7737bca5"></script>
 <script src="luin/posti.js?v=5eac5539"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
@@ -4405,8 +4410,10 @@
   function piirraTeksti() {
     var d = nyt.doc, html = d.html;
     if (aset.sisallys && d.toc.length) {
-      var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisälmys</p><ol>' + d.toc.filter(function (t) { return t.lvl <= tocRaja(2, d.toc); }).map(function (t) {
-        return '<li class="t' + (t.lvl - tasoSiirto(d.toc)) + '"><a href="#" data-go="' + t.b + '">' + esc(t.text) + '</a></li>';
+      var ajot = (d.kohdat || []).filter(function (y) { return y.ajo; }).map(function (y) { return { b: y.b, text: y.s, alku: alkusanat(y.alku), ajo: true }; });
+      var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisälmys</p><ol>' + sisalmysRivit(d.toc, ajot).map(function (t) {
+        return '<li class="t' + t.taso + (t.ero ? ' ero' : '') + '"><a href="#" data-go="' + t.b + '">' + esc(t.text) +
+          (t.alku ? ' <i class="sis-alku">' + esc(t.alku) + '</i>' : '') + '</a></li>';
       }).join('') + '</ol></nav>';
       // {{TOC}} (iA Writer) määrää paikan; muuten otsikkolohkon jälkeen.
       html = html.indexOf('<div class="toc-paikka"></div>') >= 0 ? html.replace('<div class="toc-paikka"></div>', sis)
@@ -4441,7 +4448,7 @@
       var el = nyt.blocks[y.b];
       if (!el) return;
       // Osanvaihdon kohta (md.js RE_VALI, 21.11.2026): jakson alku tai osanvaihtomerkki, nimi (i), (ii) …
-      if (y.vali) { nyt.kohdat.push({ k: { b: y.b, o: 0 }, nimi: y.s, lvl: 3, vali: true }); return; }
+      if (y.vali) { nyt.kohdat.push({ k: { b: y.b, o: 0 }, nimi: y.s, lvl: 3, vali: true, ajo: y.ajo, alku: y.alku }); return; }
       var sup = $$('sup', el).filter(function (x) { return !x.querySelector('a') && x.textContent.trim() === y.s && ykKaytetyt.indexOf(x) < 0; })[0];
       var tn = sup && solmut(sup)[0];
       if (!tn) return;
@@ -8150,26 +8157,40 @@
     if (v) return v[1];
     return o.length < s.length ? o.replace(/[\s,;:.–—-]+$/, '') + '…' : o;
   }
+  /* Sisälmyksen rivit (tekstin alku ja navin laatikko): luvut ja osiot (tocRaja), lisäksi kohdat (lisat: { b, text, alku, ajo }).
+     Osanvaihdon kohta on edeltävän otsikon alla; juokseva otsikko (md.js ajo) on kohtatasolla, joten saman tason otsikon
+     (Box 1) jälkeen se on sen rinnalla. Etu- ja loppuosat (md.js oheis: Abstract, References …) ovat varsinaisten lukujen
+     tasolla, ja ryhmän vaihtuessa rivillä on ero (väli), kuten kirjan sisällysluettelossa; alennettuina sisennettyinä ne
+     näyttäisivät edellisen luvun osilta (käyttäjän päätös). */
+  function sisalmysRivit(toc, lisat) {
+    var siirto = tasoSiirto(toc), raja = tocRaja(2, toc);
+    var T = toc.filter(function (t) { return t.lvl <= raja; }).map(function (t) {
+      return { b: t.b, text: t.text, taso: Math.max(1, t.lvl - siirto - (t.alas ? 1 : 0)), oheis: !!t.oheis };
+    });
+    var kaikki = T.slice();
+    (lisat || []).forEach(function (y) {
+      var ylempi = null;
+      T.forEach(function (t) { if (t.b <= y.b) ylempi = t; });
+      var taso = !ylempi ? 1 : y.ajo ? Math.max(1, Math.min(3 - siirto, ylempi.taso + 1)) : Math.min(3, ylempi.taso + 1);
+      kaikki.push({ b: y.b, text: y.text, alku: y.alku, taso: taso, oheis: ylempi ? ylempi.oheis : false });
+    });
+    kaikki.sort(function (a, b) { return a.b - b.b; });
+    kaikki.forEach(function (x, i) { x.ero = i > 0 && x.oheis !== kaikki[i - 1].oheis; });
+    return kaikki;
+  }
   function sisalmysKohdat() {
     if (!nyt) return [];
-    var siirto = tasoSiirto(nyt.doc.toc), raja = tocRaja(2, nyt.doc.toc);
-    var T = nyt.doc.toc.filter(function (t) { return t.lvl <= raja; }).map(function (t) { return { b: t.b, text: t.text, taso: t.lvl - siirto }; });
-    var V = (nyt.kohdat || []).filter(function (y) { return y.vali; });
-    if (!V.length) return T;
-    var kaikki = T.slice();
-    V.forEach(function (y) {
-      var ylempi = null;
-      T.forEach(function (t) { if (t.b <= y.k.b) ylempi = t; });
-      kaikki.push({ b: y.k.b, text: y.nimi, alku: alkusanat(nyt.txt[y.k.b]), taso: ylempi ? Math.min(3, ylempi.taso + 1) : 1 });
+    var V = (nyt.kohdat || []).filter(function (y) { return y.vali; }).map(function (y) {
+      return { b: y.k.b, text: y.nimi, alku: alkusanat(y.ajo ? y.alku : nyt.txt[y.k.b]), ajo: y.ajo };
     });
-    return kaikki.sort(function (a, b) { return a.b - b.b; });
+    return sisalmysRivit(nyt.doc.toc, V);
   }
   function taytaSisalmys() {
     var T = sisalmysKohdat(), sivut = aset.sivutus === 'sivut', k = tila.ankkuri || { b: 0, o: 0 }, nyky = -1;
     if (!T.length) return false;
     T.forEach(function (t, i) { if (t.b <= k.b) nyky = i; });
     $('.s-lista', sisEl).innerHTML = T.map(function (t, i) {
-      return '<button type="button" class="s-kohta t' + t.taso + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
+      return '<button type="button" class="s-kohta t' + t.taso + (t.ero ? ' ero' : '') + '" data-b="' + t.b + '"' + (i === nyky ? ' aria-current="true"' : '') + '>' +
         '<span class="s-nimi">' + esc(t.text) + (t.alku ? ' <i class="s-alku">' + esc(t.alku) + '</i>' : '') + '</span>' + (sivut ? '<span class="s-sivu">' + (sivuKohdassa({ b: t.b, o: 0 }) + 1) + '</span>' : '') + '</button>';
     }).join('');
     return true;
