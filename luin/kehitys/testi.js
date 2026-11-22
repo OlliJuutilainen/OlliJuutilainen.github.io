@@ -79,10 +79,11 @@ palvelin.listen(0, async () => {
       lahteet: document.querySelectorAll('p.bib').length, varoitukset: d.warnings.length };
   });
   tulos('rakenne', r.viitteet === r.notes && r.lohkot > 0, JSON.stringify(r));
-  // Jokainen alaviitteen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan tai lyhenteen selitykseen.
-  const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')];
-    const ok = k => k && (k.classList.contains('bib') || (/^lyh-/.test(k.id) || /^H[2-4]$/.test(k.tagName)) && k.closest('#teksti'));
-    return { n: a.length, lyh: a.filter(x => !document.getElementById(x.getAttribute('href').slice(1)).classList.contains('bib')).length, rikki: a.filter(x => !ok(document.getElementById(x.getAttribute('href').slice(1)))).length }; });
+  // Jokainen lähdeviittaus osoittaa kirjallisuusluettelon kohtaan (myös numeroidun luettelon nro-N) tai lyhenteen selitykseen.
+  const lv = await p.evaluate(() => { const a = [...document.querySelectorAll('a.lahde')], kohde = x => document.getElementById(x.getAttribute('href').slice(1));
+    const ok = k => k && (k.classList.contains('bib') || (/^(lyh|nro)-/.test(k.id) || /^H[2-4]$/.test(k.tagName)) && k.closest('#teksti'));
+    return { n: a.length, nro: a.filter(x => /^#nro-/.test(x.getAttribute('href'))).length, lyh: a.filter(x => kohde(x) && !kohde(x).classList.contains('bib') && !/^nro-/.test(kohde(x).id)).length,
+      rikki: a.filter(x => !ok(kohde(x))).length }; });
   tulos('lähdeviittaukset', lv.rikki === 0, JSON.stringify(lv));
   await kuva('1-alku');
 

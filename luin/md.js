@@ -1598,11 +1598,66 @@
   var LYH = /lyhent|abbreviation/i;
   var LYH_EM = /(^|[^*_\p{L}\p{N}])([*_])(\p{L}{2,5})\2(?![*_\p{L}\p{N}])/gu;
 
+  /* Numeroviittaukset (Vancouver, IEEE): numeroitu kirjallisuusluettelo ja viittaukset sen kohtiin, vain varmalla yhteydellä.
+     Luettelo: kirjallisuusotsikon alla kohdat 1, 2 … N tasan tässä järjestyksessä (numeroitu md-luettelo, jonka numerot ovat
+     peräkkäiset tai kaikki samat, tai kohdan alku [1], (1), 1. tai 1)), N ≥ 2. Jos tällaisia luetteloita on useampi tai
+     numerointi katkeaa, mitään ei linkitetä. Kohteen id on luettelon kohdan oma tai nro-N (käyttämätön poistetaan lopuksi).
+     Viittaus:
+     - Leikkeen linkki samalla sivulla (sisaisetLinkit): linkin teksti on pelkkä numero n (myös [n]), ja ankkuri on
+       kirjallisuusviitteen (bib, ref, cit tai B12, R12, CR12) ja päättyy samaan numeroon (#bib.bib12, #reference-12, #CR12).
+       Linkit kelpaavat vain kaikki yhdessä: jokainen numero on luettelossa ja viitattuja on vähintään puolet luettelosta.
+       Kirjallisuusviitteen ankkuri ei koskaan ohjaudu luvun n otsikkoon, eikä kuvan, taulukon tai kaavan ankkuri (#S2.T1, #fig1).
+     - Leipätekstin hakasulut [3], [3, 7], [3–5] vain, kun koko teksti näyttää numeroviittausjärjestelmältä: N ≥ 3, vähintään
+       kolme hakasulkuviittausta, kaikki numerot luettelossa (muuten ei mitään), uudet numerot tulevat järjestyksessä
+       (vähintään 90 %, ensimmäinen viittaus sisältää 1:n), viitattuja on vähintään puolet luettelosta, ja jokin viittaus
+       sisältää useamman numeron tai toistuu. Viimeinen ehto erottaa alaviitemerkit ja sivunumerot, jotka eivät toistu.
+     Kaarisulkuja (1) ja yläindeksejä ^1^ ei linkitetä: niissä ovat myös luetteloiden numerot, potenssit (kg/m^2^) ja
+     tekijöiden laitokset (Smith^1^). */
+  var RE_NRO_TUNNUS = /^\s*(?:\\?\[(\d{1,3})\\?\]|\((\d{1,3})\)|(\d{1,3})\\?[.)])\s/;
+  var RE_NRO_HAKA = /\[(\d{1,3}(?:\s*[–‐-]\s*\d{1,3})?(?:\s*,\s*\d{1,3}(?:\s*[–‐-]\s*\d{1,3})?)*)\]/g;
+  var RE_NRO_ANKKURI = /(?:^|[^a-z])(?:bib|ref|cit)[^\/]*?\d+$|(?:^|[^a-z])(?:c?r|b)[-_.]?\d+$/i;
+  var RE_KUVA_ANKKURI = /(?:^|[^a-z])(?:fig|figure|tab|table|tbl|eq|eqn|equation)[-_.]?\d+$|\.[TFE]\d+$/i;
+  function nroTunnus(teksti) { var m = RE_NRO_TUNNUS.exec(teksti); return m ? +(m[1] || m[2] || m[3]) : null; }
+  // Hakasulkujen sisältö (3, 7–9) numeroiksi; null, jos väli on takaperoinen tai yli 50 kohdan.
+  function nroLuvut(sis) {
+    var out = [], ok = true;
+    sis.split(',').forEach(function (osa) {
+      var r = osa.split(/[–‐-]/).map(function (x) { return +x.trim(); });
+      if (r.length === 1) out.push(r[0]);
+      else if (r[1] > r[0] && r[1] - r[0] <= 50) for (var x = r[0]; x <= r[1]; x++) out.push(x);
+      else ok = false;
+    });
+    return ok ? out : null;
+  }
+
   // tokens: blocksOf()-lista. Merkitsee luettelon kappaleisiin t.kirja = { nimi, vuosi, id, ots }
   // ja lyhenteen määrittelevään kappaleeseen tai luettelon kohtaan t.lyhId.
   // lisa: alaviitteiden ja sitaattien määritelmien tekstit, jotka eivät ole lohkoissa ([^tunnus]: …).
-  function viittaukset(tokens, uniq, lisa) {
+  // refs: parse()-funktion viitetiedot (numeroviittausten tunnistus lukee leipätekstin kuten renderöinti).
+  function viittaukset(tokens, uniq, lisa, refs) {
     var kohdat = [], inBib = false, bibTaso = 0, lyhTaso = 0, lyhOts = '', lyh = {}, osioTekija = '', osioTaso = 0, aiheet = {};
+    // Numeroidun luettelon ehdokkaat kirjallisuusosioittain: { kohdat: [{ n, x: kappale tai luettelon kohta }], rikki }.
+    var nroOsio = null, nroEhdokkaat = [];
+    function nroSulje() {
+      var o = nroOsio; nroOsio = null;
+      if (o && !o.rikki && o.kohdat.length >= 2 && o.kohdat.every(function (k, j) { return k.n === j + 1; })) nroEhdokkaat.push(o);
+    }
+    function nroKeraa(t) {
+      var o = nroOsio;
+      if (!o || o.rikki) return;
+      if (t.t === 'p') { var n = nroTunnus(t.text); if (n !== null) o.kohdat.push({ n: n, x: t }); return; }
+      if (t.t !== 'list') return;
+      var ylin = t.items.filter(function (it) { return it.lvl === 0; });
+      if (!ylin.length) return;
+      var luvut;
+      if (ylin.every(function (it) { return it.ord; })) {
+        // Näkyvä numero: md-luettelon numerot peräkkäin tai kaikki samat (1. 1. 1.); muu numerointi näkyisi toisin kuin lähteessä.
+        var a = ylin[0].num;
+        if (!ylin.every(function (it, j) { return it.num === a + j; }) && !ylin.every(function (it) { return it.num === a; })) { o.rikki = true; return; }
+        luvut = ylin.map(function (it, j) { return a + j; });
+      } else luvut = ylin.map(function (it) { return nroTunnus(it.text); });
+      ylin.forEach(function (it, j) { if (luvut[j] !== null) o.kohdat.push({ n: luvut[j], x: it }); });
+    }
     // Viivojen (–––) tekijä on välittömästi edeltävän luettelon kappaleen tekijä, vaikka siltä puuttuisi vuosi
     // (SEP: Robeyns, I., “Is Nancy Fraser’s…” ilman vuotta, perässä –––, 2003 …); muuten viivat periytyivät väärälle.
     var edTekija = null;
@@ -1624,7 +1679,7 @@
       var ed = edel; edel = t;
       if (t.t === 'h') {
         var lvl = t.lvl === 1 ? 2 : Math.min(t.lvl, 4), tx = plain(t.text).trim();
-        if (BIB.test(tx)) { inBib = true; bibTaso = lvl; } else if (inBib && lvl <= bibTaso) inBib = false;
+        if (BIB.test(tx)) { nroSulje(); nroOsio = { kohdat: [] }; inBib = true; bibTaso = lvl; } else if (inBib && lvl <= bibTaso) { inBib = false; nroSulje(); }
         // Luettelon osio yhden tekijän teoksille (SEP: ### Selected works by Cassirer): kohdat alkavat vuodella.
         var ot = inBib && lvl > bibTaso && RE_OSIOTEKIJA.exec(tx);
         edTekija = null;
@@ -1642,6 +1697,7 @@
         if (t.t === 'p') maarittele(t, t.text, otsikko);
         else if (t.items) t.items.forEach(function (it, j) { maarittele(it, it.text, j === 0 ? otsikko : null); });
       }
+      if (inBib) { t.vBib = true; nroKeraa(t); }
       if (!inBib || t.t !== 'p') { if (t.t !== 'p') edTekija = null; return; }
       var tx = plain(t.text).trim();
       var nm = /^([^,(]+?)\s*[,(]/.exec(tx), vm = /\((1[5-9]\d\d[a-z]?|20\d\d[a-z]?|s\.\s?a\.)\)/.exec(tx);
@@ -1673,8 +1729,21 @@
       kohdat.push(k);
       edTekija = { nimi: k.nimi, suvut: k.suvut };
     });
+    nroSulje();
+    // Numeroitu luettelo vain, kun ehdokkaita on tasan yksi. nro.id[n]: kohdan n id; nro.teksti: hakasulut linkitetään.
+    var nro = null;
+    if (nroEhdokkaat.length === 1) {
+      nro = { id: {}, N: nroEhdokkaat[0].kohdat.length, teksti: false };
+      nroEhdokkaat[0].kohdat.forEach(function (k) {
+        var x = k.x;
+        if (x.kirja) nro.id[k.n] = x.kirja.id;
+        else if (x.lyhId) { if (!x.lyhOts) nro.id[k.n] = x.lyhId; }
+        else nro.id[k.n] = x.nro = uniq('nro-' + k.n);
+      });
+      nro.teksti = nroLeipa(tokens, nro, refs);
+    }
     var lyhenteet = Object.keys(lyh);
-    if (!kohdat.length && !lyhenteet.length) return null;
+    if (!kohdat.length && !lyhenteet.length && !nro) return null;
     var avaimet = {};
     function lisaa(avain, k) { if (avaimet[avain] && avaimet[avain].indexOf(k) >= 0) return; (avaimet[avain] = avaimet[avain] || []).push(k); }
     kohdat.forEach(function (k) {
@@ -1862,8 +1931,67 @@
       if (syv && auki >= 0 && auki + 1 >= last) pelkat(auki + 1, teksti.slice(auki + 1));
       return out + esc(teksti.slice(last));
     }
-    return { kohdat: kohdat, linkita: linkita, linkitaHaka: linkitaHaka };
+    // Leipätekstin hakasulkuviittaukset [3], [3, 7], [3–5] (linkitaHaka()-funktion tulokseen, linkkien ulkopuolelta).
+    function linkitaNro(html, tila) {
+      if (!nro || !nro.teksti || tila && tila.eiNro || html.indexOf('[') < 0) return html;
+      return html.split(/(<a\b[^>]*>[\s\S]*?<\/a>)/).map(function (osa, j) {
+        return j % 2 ? osa : osa.replace(RE_NRO_HAKA, function (x, sis) {
+          var l = nroLuvut(sis);
+          if (!l || l.some(function (n) { return !nro.id[n]; })) return x;
+          return '[' + sis.replace(/\d+/g, function (d) { return '<a class="lahde" href="#' + nro.id[+d] + '">' + d + '</a>'; }) + ']';
+        });
+      }).join('');
+    }
+    // Leikkeen samalle sivulle osoittava numerolinkki (a: ankkuri, sis: linkin sisältö) → viittauksen numero tai 0.
+    function nroLinkki(a, sis) {
+      if (!nro) return 0;
+      var m = /^\[?(\d{1,3})\]?$/.exec(unesc(sis.replace(/<[^>]+>/g, '')).replace(/\u00ad/g, '').trim()), am = /(\d+)$/.exec(a);
+      return m && am && RE_NRO_ANKKURI.test(a) && +am[1] === +m[1] ? +m[1] : 0;
+    }
+    // Leikkeen numerolinkit kelpaavat vain kaikki yhdessä: jokainen numero on luettelossa ja viitattuja on vähintään puolet
+    // luettelosta (muuten luettelo on muu kuin se, johon sivun ankkurit vievät, esim. leike pudotti oikean). → { n: id } tai null.
+    function nroLinkit(luvut) {
+      var eri = {};
+      if (!nro || !luvut.length || luvut.some(function (n) { eri[n] = 1; return !nro.id[n]; }) || Object.keys(eri).length < nro.N / 2) return null;
+      return nro.id;
+    }
+    return { kohdat: kohdat, linkita: linkita, linkitaHaka: linkitaHaka, linkitaNro: linkitaNro, nroLinkki: nroLinkki, nroLinkit: nroLinkit };
   }
+  // Numeroviittausjärjestelmän tunnistus leipätekstistä (ks. Numeroviittaukset): luetaan kuten renderöinti lukee, linkit pois.
+  function nroLeipa(tokens, nro, refs) {
+    if (nro.N < 3 || !refs) return false;
+    var r = Object.assign({}, refs), viit = [], vika = false;
+    function lue(teksti) {
+      var h = inline(teksti, { note: null, br: false, refs: r }).replace(/<a\b[^>]*>[\s\S]*?<\/a>/g, ' '), m;
+      RE_NRO_HAKA.lastIndex = 0;
+      while ((m = RE_NRO_HAKA.exec(h))) {
+        var l = nroLuvut(m[1]);
+        if (!l || l.some(function (n) { return n < 1 || n > nro.N; })) vika = true;
+        else viit.push(l);
+      }
+    }
+    (function kay(list) {
+      list.forEach(function (t) {
+        if (t.vBib) return;
+        if (t.t === 'p' && !t.lyhId) lue(t.text);
+        else if (t.t === 'list') t.items.forEach(function (it) { if (!it.lyhId) lue(it.text); });
+        else if (t.t === 'bq' && t.kids) kay(t.kids);
+      });
+    })(tokens);
+    if (vika || viit.length < 3 || viit[0].indexOf(1) < 0) return false;
+    var nahty = {}, eri = 0, uusia = 0, jarj = 0, maks = 0, toisto = false;
+    viit.forEach(function (l) {
+      if (l.length > 1) toisto = true;
+      var uudet = l.filter(function (n, j) { if (nahty[n]) toisto = true; return !nahty[n] && l.indexOf(n) === j; });
+      if (!uudet.length) return;
+      uusia++;
+      if (Math.min.apply(null, uudet) === maks + 1) jarj++;
+      uudet.forEach(function (n) { nahty[n] = 1; eri++; maks = Math.max(maks, n); });
+    });
+    return toisto && jarj >= 0.9 * uusia && eri >= nro.N / 2;
+  }
+  // Kirjallisuusviitteen, kuvan, taulukon tai kaavan ankkuri ei ole luvun otsikko, vaikka linkin tekstinä olisi numero.
+  function eiLuvuksi(a) { return RE_NRO_ANKKURI.test(a) || RE_KUVA_ANKKURI.test(a); }
   // Luettelon kohdan tekijöiden sukunimet viittauksia varten (nimet() ennallaan, koska viitteen kokoaminen käyttää sitä):
   // nimikirjaimet pois (A. de-Shalit → de-Shalit), ja erillinen pelkkä nimikirjain kertoo kaksiosaisesta sukunimestä
   // (SEP: Padgett Walsh, K. and Lewiston, J. → nimet() lukee Padgett etunimeksi ja K.:n omaksi nimekseen).
@@ -2151,7 +2279,7 @@
     }
     var ctx = { note: note, br: false, warn: warn, refs: refs };
     // Leipäteksti: hakasulkuviittaukset kirjallisuusluettelon kohtiin (ei luettelossa itsessään eikä otsikoissa).
-    var leipa = { note: note, br: false, warn: warn, refs: refs, syv: 0, cite: function (t) { return vt ? vt.linkitaHaka(t, kirjaa, leipa) : esc(t); } };
+    var leipa = { note: note, br: false, warn: warn, refs: refs, syv: 0, cite: function (t) { return vt ? vt.linkitaNro(vt.linkitaHaka(t, kirjaa, leipa), leipa) : esc(t); } };
     var metaCtx = { note: note, br: true, warn: warn, refs: refs };
     function blk(tag, cls, md, c, id) {
       if (c === leipa) leipa.syv = 0;
@@ -2168,7 +2296,7 @@
     if (vakiosivut) { res.vakiosivut = vakiosivut; leipa.vs = true; }
     var maaritelmat = [];
     [V.fn, V.cite].forEach(function (o) { Object.keys(o).forEach(function (k) { maaritelmat.push(o[k].text); }); });
-    vt = viittaukset(tokens, uniq, maaritelmat);
+    vt = viittaukset(tokens, uniq, maaritelmat, refs);
 
     // Kehys: blogin nimi tai kaunokirjallisen tekstin kokoelma näkyy alaotsikon paikalla, jos alaotsikkoa ei ole
     // (käyttäjän päätös 22.10.2026). Tieteellisen tekstin lehti tai kokoomateos jää tietoriville.
@@ -2363,7 +2491,7 @@
             var lc = it.lyhId ? ctx : leipa;
             leipa.syv = 0;
             var sisalto = tm ? '<span class="ruutu' + (tm[1] === ' ' ? '' : ' tehty') + '" aria-hidden="true"></span>' + inline(it.text.slice(tm[0].length), lc) : inline(it.text, lc);
-            var id = it.lyhOts ? '' : it.lyhId || '';
+            var id = it.lyhOts ? '' : it.lyhId || it.nro || '';
             h += '<li' + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + (arvo ? ' value="' + arvo + '"' : '') + ' data-b="' + (b++) + '">' + sisalto + '</li>';
             n++;
           }
@@ -2480,7 +2608,7 @@
             }
           }
           var ktNimi = !inBib && !t.oik ? kuvateksti(t.text) : null;
-          var pHtml = blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || '');
+          var pHtml = blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
           // Tunniste pystyyn (Table 1.), loppu kursiivina kuten painetussa lehdessä.
           if (ktNimi) pHtml = pHtml.replace(/^(<p [^>]*><em>)([^<]*)/, function (k, a, b) {
             return b.indexOf(ktNimi) === 0 ? a + '<span class="kt-nimi">' + ktNimi + '</span>' + b.slice(ktNimi.length) : k;
@@ -2505,7 +2633,10 @@
           if (!inQuote && !lomitettu && list[k - 1] && list[k - 1].t === 'bq' && !lh && t.kids.length === 1 && t.kids[0].t === 'p' && lahdeRivi(t.kids[0].text))
             res.lahteet.push({ ln: t.kids[0].ln, rivit: 1 });
         } else if (t.t === 'list') {
+          // Kirjallisuusluettelon kohdan oma numero [3] ei ole viittaus.
+          leipa.eiNro = inBib || !!t.vBib;
           h += renderList(t.items, inQuote);
+          leipa.eiNro = false;
         } else if (t.t === 'table') {
           h += '<table class="taulukko"><thead>';
           t.rivit.forEach(function (r, j) {
@@ -2580,12 +2711,28 @@
     var ankkuri = {}, idt = {};
     res.toc.forEach(function (t) { idt[t.id] = 1; });
     var nimi = function (sis) { return norm(unesc(sis.replace(/<[^>]+>/g, ''))); };
-    html.replace(RE_SISA, function (x, c, a, h, sis) { var id = xrefKohde[nimi(sis)]; if (id && !ankkuri[a]) ankkuri[a] = id; return x; });
+    var nroLuvut = [];
+    html.replace(RE_SISA, function (x, c, a, h, sis) {
+      var id = xrefKohde[nimi(sis)], n = vt && vt.nroLinkki(unesc(a), sis);
+      if (id && !ankkuri[a]) ankkuri[a] = id;
+      if (n) nroLuvut.push(n);
+      return x;
+    });
+    var nroId = vt && vt.nroLinkit(nroLuvut);
     html = html.replace(RE_SISA, function (x, c, a, h, sis) {
-      var id = idt[unesc(a)] ? unesc(a) : ankkuri[a], nm = !id && /(?:^|[^\d.])(\d+(?:\.\d+)*)(?![\d.]*\d)/.exec(nimi(sis));
+      // Numeroviittaus luettelon kohtaan (Numeroviittaukset). Kirjallisuusviitteen, kuvan tai taulukon ankkuri ei ole luku.
+      var nk = nroId && vt.nroLinkki(unesc(a), sis);
+      if (nk) return '<a class="lahde" href="#' + nroId[nk] + '">' + sis + '</a>';
+      var id = idt[unesc(a)] ? unesc(a) : ankkuri[a], nm = !id && !eiLuvuksi(unesc(a)) && /(?:^|[^\d.])(\d+(?:\.\d+)*)(?![\d.]*\d)/.exec(nimi(sis));
       if (!id && nm && idt['luku-' + nm[1].split('.').join('-')]) id = 'luku-' + nm[1].split('.').join('-');
       return '<a' + (id ? '' : c) + ' href="' + (id ? '#' + id : h) + '">' + sis + '</a>';
     });
+    // Numeroidun luettelon kohdan id (nro-N) jää vain, jos siihen viitataan.
+    if (/ id="nro-/.test(html)) {
+      var nroKaytetty = {};
+      html.replace(/href="#(nro-[^"]+)"/g, function (x, i) { nroKaytetty[i] = 1; return x; });
+      html = html.replace(/ id="(nro-[^"]+)"/g, function (x, i) { return nroKaytetty[i] ? x : ''; });
+    }
     res.html = html;
     res.blocks = b;
     res.kuvia = refs.kuvia || 0;
