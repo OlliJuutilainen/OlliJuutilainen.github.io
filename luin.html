@@ -358,18 +358,18 @@
   .huilukaista.kaista-aset { height: 56px; margin: 4px 0 6px; }
   .huilunapit { display: flex; justify-content: flex-end; }
   /* Pinon osioiden hajurako (käyttäjän päätös): pino, Soita postihuilua ja kellarilinkki, linkkilista erillään reilulla
-     ilmalla. Pinon alla ensin Soita postihuilua laatikkonappina (kuten asetusten Soita huilua!) palstan laidassa, sitten väljemmin kellarilinkki
-     pienempänä (.56rem, nuoli samassa suhteessa); kellarilinkin kampi on tekstin vasemmalla, joten rivi alkaa sen musteesta
+     ilmalla. Pinon alla Soita postihuilua laatikkonappina (kuten asetusten Soita huilua!) palstan laidassa ja samalla rivillä
+     oikeassa laidassa kellarilinkki pienempänä (.56rem, nuoli samassa suhteessa); jos rivi ei mahdu, linkki rivittyy napin
+     alle väljästi. Kellarilinkin kampi on tekstin vasemmalla, joten rivittyneenä se alkaa kammen musteesta palstan laidasta
      (kaaren vasen reuna 2,188 em tekstin vasemmasta reunasta). */
   #lista { --osiovali: 52px; }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
   #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: .56rem; }
   #lista .pino-ala .ark-linkki svg.nuoli { bottom: -4px; width: 4.375px; height: 7px; }
-  .pino-ala { margin-top: var(--osiovali); }
+  .pino-ala { margin-top: var(--osiovali); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 36px 16px; }
   .pino-ala:not(:has(> p:not([hidden]))) { display: none; }
   .huilu-soita { margin: 0; }
-  #lista .pino-ala .huilu-soita:not([hidden]) + .ark-linkki { margin-top: 44px; }
   /* Ö-mappiin-linkki (käyttäjän nimi ja pyynnöt): kuten kellarilinkki, mutta kammen paikalla on Ö, mappisulkimen rengas, jonka
      litteästä pohjasta alleviivaus jatkuu oikealle nuoleen. Rengas on viiva: pohjassa alleviivauksen paksuinen (1 px linkin koossa
      .64rem), kyljissä paksuin hiukan keskikohdan alapuolella, ja siitä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi
@@ -3032,6 +3032,9 @@
       return json ? r.json() : r.text();
     });
   }
+  // Soiton kuittaus ei valittele tyhjästä laatikosta (käyttäjän päätös): soitto myös lähettää odottavat merkinnät, joten
+  // *Huilua soitettiin.* riittää, ja vain todella kantautunut posti mainitaan.
+  function kantautui(n) { return n === 1 ? 'Postihuilun kautta kantautui teksti.' : 'Postihuilun kautta kantautui ' + n + ' tekstiä.'; }
   function haeLaatikko(pakko) {
     var k = laatikonKoodi();
     if (!LAATIKKO_RE.test(k) || !window.fetch || !pakko && Date.now() - laatikkoHaettu < 60000) return Promise.resolve(null);
@@ -3060,7 +3063,7 @@
         LS.set('luin-laatikko-nahdyt', nahdyt);
         if (n) {
           tallennaLista();
-          if (tila.nakyma === 'lista' && !tila.arkisto) { naytaLista(); viesti((n === 1 ? 'Postihuilun kautta kantautui teksti.' : 'Postihuilun kautta kantautui ' + n + ' tekstiä.') + tusinaLisa()); }
+          if (tila.nakyma === 'lista' && !tila.arkisto) { naytaLista(); viesti(kantautui(n) + tusinaLisa()); }
         }
         // Merkinnät tekstien jälkeen, jotta juuri tullut teksti saa omansa.
         return postiVastaanota(k, d.merk || []).then(function () {
@@ -3289,7 +3292,7 @@
     laatikkoHaettu = Date.now(); naytaLista();
     viesti('Huilu soi laatikkolauseella ' + k + '…');
     haeLaatikko(true).then(function (r) {
-      if (!r.n) viesti('Laatikkolause ' + k + ' on käytössä. ' + (r.kaikki ? 'Uusia tekstejä ei kantautunut.' : 'Laatikko on tyhjä.'));
+      if (!r.n) viesti('Laatikkolause ' + k + ' on käytössä. Huilua soitettiin.');
     }, function (err) {
       viesti('Laatikkolause ' + k + ' on käytössä, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen.');
     });
@@ -3303,8 +3306,7 @@
     soitaHuilua($('#huilulohko-aset'));
     tieto.textContent = 'Haetaan…'; piirraPosti();
     haeLaatikko(true).then(function (r) {
-      tieto.textContent = !r.kaikki ? 'Laatikkolause tallennettu. Laatikko on tyhjä.' :
-        'Laatikkolause tallennettu. Laatikossa ' + lkm(r.kaikki, 'teksti', 'tekstiä') + ', joista uusia ' + r.n + '.';
+      tieto.textContent = 'Laatikkolause tallennettu. Huilua soitettiin.' + (r.n ? ' ' + kantautui(r.n) : '');
     }, function (err) {
       tieto.textContent = 'Laatikkolause tallennettu, mutta laatikkoa ei tavoitettu (' + err.message + '). Haku yritetään uudelleen pinossa.';
     });
@@ -3388,7 +3390,7 @@
     if (!LAATIKKO_RE.test(laatikonKoodi())) return;
     viesti('Huilu soi…');
     haeLaatikko(true).then(function (r) {
-      if (r && !r.n) viesti(r.kaikki ? 'Uusia tekstejä ei kantautunut.' : 'Laatikko on tyhjä.');
+      if (r && !r.n) viesti('Huilua soitettiin.');
     }, function (err) {
       viesti('Laatikkoa ei tavoitettu (' + err.message + '). Yritä uudelleen.');
     });
