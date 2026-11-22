@@ -190,6 +190,9 @@ async function aja(selain, U, kosketus) {
     await page.mouse.move(5, 5);
     tulos(`${laji}: CLARVS-vihje sulkeutuu hiiren lähtiessä`, (await cdVihje()) === '' && (await vihje()) === '');
     await page.click('#asetukset .asetus[data-a="teema"] button[data-arvo="vaalea"]');
+    // Teeman napautus antaa perusteeman (käyttäjän päätös), joten TCF kytketään takaisin papyrosoinnin tilaan.
+    tulos(`${laji}: Tumma ja Vaalea: perusvaalea`, (await kontrasti()) === 0);
+    await napauta(TCF); await page.mouse.move(5, 5);
   } else {
     await napauta(TCF);
     tulos(`${laji}: kosketus: päällä olevan napautus sammuttaa ilman vihjettä`, (await kontrasti()) === 0 && (await vihje()) === '');
@@ -295,13 +298,11 @@ async function aja(selain, U, kosketus) {
   const papNappi = () => page.evaluate(() => { const n = document.getElementById('papyrosoi'), cs = getComputedStyle(n), r = getComputedStyle(document.documentElement);
     return { teksti: n.textContent, vari: cs.color, kehys: cs.borderTopColor, muste: r.getPropertyValue('--muste').trim(), huomio: r.getPropertyValue('--huomio').trim() }; });
   const rgb = h => 'rgb(' + [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)).join(', ') + ')';
+  // Vaalean tai Tumman napautus antaa perusteeman (käyttäjän päätös).
   await napauta(TCF);
   await napauta(TUMMA);
   pc = await paletti();
-  tulos(`${laji}: Tumma palauttaa muistetun Sysin`, pc.t === 'tumma' && pc.k === 1 && pc.s === 1 && pc.luokat === 'kontrasti', JSON.stringify(pc));
-  await napauta(SY);
-  pc = await paletti();
-  tulos(`${laji}: Sysi pois: tavallinen tumma`, pc.s === 0 && pc.luokat === '', JSON.stringify(pc));
+  tulos(`${laji}: Tumma TCF:stä: perustumma`, pc.t === 'tumma' && pc.k === 0 && pc.s === 0 && pc.n === 0 && pc.luokat === '', JSON.stringify(pc));
   let sn = await sysin();
   tulos(`${laji}: Sysin piilossa, kun Sysi ei ole valittuna`, !sn.nakyy, JSON.stringify(sn));
   await napauta(SY);
@@ -326,22 +327,39 @@ async function aja(selain, U, kosketus) {
   await napauta(CD);
   pc = await paletti();
   tulos(`${laji}: CLARVS pois: Sysin palaa`, pc.c === 0 && pc.s === 1 && pc.n === 1 && pc.luokat === 'sysin', JSON.stringify(pc));
-  // CLARVS teeman yli: pitää kutinsa; TCF palaa vaaleassa CLARVSin sammuessa.
+  // Sysin napautus Sysinissä: tavallinen Sysi, ei kumpaakaan pois (käyttäjän päätös).
+  await napauta(SY);
+  pc = await paletti();
+  sn = await sysin();
+  tulos(`${laji}: Sysi Sysinissä: tavallinen Sysi`, pc.s === 1 && pc.n === 0 && pc.luokat === 'kontrasti' && sn.nakyy && sn.painettu === 'truefalse', JSON.stringify(sn) + ' ' + JSON.stringify(pc));
+  await napauta(SY);
+  pc = await paletti();
+  sn = await sysin();
+  tulos(`${laji}: Sysi tavallisessa Sysissä: pois`, pc.s === 0 && pc.n === 0 && pc.luokat === '' && !sn.nakyy, JSON.stringify(pc));
+  await napauta(SY); await napauta(SN);
+  await napauta(TUMMA);
+  pc = await paletti();
+  tulos(`${laji}: Tumma Sysinissä: perustumma`, pc.t === 'tumma' && pc.s === 0 && pc.n === 0 && pc.luokat === '', JSON.stringify(pc));
+  await napauta(SY);
+  await napauta(VAALEA);
+  pc = await paletti();
+  tulos(`${laji}: Vaalea Sysistä: perusvaalea`, pc.t === 'vaalea' && pc.k === 0 && pc.s === 0 && pc.n === 0 && pc.luokat === '', JSON.stringify(pc));
+  await napauta(TCF);
+  await napauta(VAALEA);
+  pc = await paletti();
+  tulos(`${laji}: Vaalea TCF:ssä: perusvaalea`, pc.t === 'vaalea' && pc.k === 0 && pc.luokat === '', JSON.stringify(pc));
+  // CLARVS teeman yli: pitää kutinsa ja peittää muistia pyyhkimättä.
+  await napauta(TUMMA); await napauta(SY); await napauta(SN);
   await napauta(CD);
   await napauta(VAALEA);
   pc = await paletti();
   tulos(`${laji}: CLARVS pitää kutinsa vaaleaan`, pc.t === 'vaalea' && pc.c === 1 && pc.luokat === 'clarus', JSON.stringify(pc));
   tulos(`${laji}: CLARVSin alla vaaleassakaan mikään alakytkin ei näy`, (await page.evaluate(() => ['vaalea', 'sysi', 'sysin'].map(k => document.querySelector(k === 'vaalea' ? 'button[data-teema="vaalea"]' : 'button[data-kytkin="' + k + '"]')).filter(b => getComputedStyle(b).visibility === 'visible').length)) === 0, '');
+  await napauta(TUMMA);
   await napauta(CD);
   pc = await paletti();
-  tulos(`${laji}: CLARVS pois vaaleassa: muistettu TCF palaa`, pc.c === 0 && pc.k === 1 && pc.luokat === 'kontrasti', JSON.stringify(pc));
+  tulos(`${laji}: CLARVSin alla teemaa vaihtaen Sysin säilyy`, pc.t === 'tumma' && pc.c === 0 && pc.luokat === 'sysin', JSON.stringify(pc));
   await napauta(TUMMA);
-  pc = await paletti();
-  tulos(`${laji}: Tumma palauttaa Sysinin`, pc.t === 'tumma' && pc.luokat === 'sysin', JSON.stringify(pc));
-  await napauta(SY);
-  pc = await paletti();
-  sn = await sysin();
-  tulos(`${laji}: Sysi pois, Sysin piiloon muistiin`, pc.s === 0 && pc.n === 1 && pc.luokat === '' && !sn.nakyy, JSON.stringify(pc));
   ru = await ruutu();
   tulos(`${laji}: paikat eivät hypi`, paikat(ru) === p0, paikat(ru) + ' / ' + p0);
   await napauta(VAALEA);

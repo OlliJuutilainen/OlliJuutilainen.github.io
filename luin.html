@@ -1334,8 +1334,8 @@
   #sivunapit-kytkin button { min-height: 25px; font-size: .76rem; }
   /* Teeman ruudukko (käyttäjän pyynnöt 20.11.2026): kiinteät paikat, ei hyppelyä. Vaalea ja sen alla TCF-valkaisu, Tumma
      ja sen alla Sysi; Tumma on niin oikealla, että TCF-valkaisu mahtuu sen vasemmalle puolelle. Alimmalla rivillä vaaleassa vasemmassa
-     laidassa, tummassa Tumman kohdalla, CLARVS · ET · DISTINCTVS. Kummankin teeman alakytkimet muistavat arvonsa (TCF aset.kontrasti, Sysi aset.sysi,
-     Sysin aset.sysin; data-teema); toisen teeman kytkimet ja CLARVSin alla kaikki alakytkimet ovat piilossa (.piilossa),
+     laidassa, tummassa Tumman kohdalla, CLARVS · ET · DISTINCTVS. Alakytkimet (TCF aset.kontrasti, Sysi aset.sysi,
+     Sysin aset.sysin; data-teema) sammuvat Vaalean tai Tumman napautuksesta; toisen teeman kytkimet ja CLARVSin alla kaikki alakytkimet ovat piilossa (.piilossa),
      ja oman teeman valitsematon kytkin (.ala) on himmeämpi kuin valitsematon CLARVS. Alakytkimet ovat asiantuntijan valintoja, siksi Sivunkäännön lisäkytkimiä
      pienempiä. Nimi on kuin Descartesin nimiösivulla: versaalit (U on V), interpunkti väleineen, harvennus
      sijoitaClarus()ssa (vaaleassa viimeinen kirjain päättyy Tumma-sanan oikeaan reunaan). */
@@ -4134,7 +4134,10 @@
     if (b.dataset.kytkin && b.classList.contains('pois')) aset.sivutus = 'sivut';
     else if (b.dataset.kytkin) {
       if (b.getAttribute('aria-disabled') === 'true') return;
-      aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
+      // Sysin on Sysin alavalinta: Sysinin ollessa päällä Sysin napautus vaihtaa tavalliseen Sysiin eikä sammuta kumpaakin
+      // (käyttäjän päätös).
+      if (b.dataset.kytkin === 'sysi' && aset.sysi && aset.sysin) aset.sysin = 0;
+      else aset[b.dataset.kytkin] = aset[b.dataset.kytkin] ? 0 : 1;
       if (aset[b.dataset.kytkin]) yksiPaletti(b.dataset.kytkin);
     }
     else if (b.dataset.askel) { aset.koko = clamp(aset.koko + +b.dataset.askel, 13, 32); aset.kokoKasin = 1; }
@@ -4143,13 +4146,17 @@
       var k = +b.dataset.arvo;
       aset.janaTasot = aset.janaTasot.indexOf(k) >= 0 ? aset.janaTasot.filter(function (x) { return x !== k; }) : aset.janaTasot.concat(k).sort();
     }
-    else aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
+    else {
+      aset[a] = isNaN(+b.dataset.arvo) ? b.dataset.arvo : +b.dataset.arvo;
+      // Vaalean tai Tumman napautus antaa aina perusteeman: TCF, Sysi ja Sysin pois (käyttäjän päätös). CLARVSin alla
+      // alakytkimet eivät ole päällä, joten sen peittämä muisti säilyy.
+      if (a === 'teema' && !aset.clarus) aset.kontrasti = aset.sysi = aset.sysin = 0;
+    }
     tallennaAset(); piirraAsetukset(); sovellaTaiLykkaa(ennen);
   });
 
-  /* Paletit (käyttäjän säännöt 20.11.2026): kummankin teeman alakytkimet muistavat arvonsa, ja teemaan palatessa sen viimeisin
-     alavalinta palaa (vaalea: TCF; tumma: Sysi ja sen alakytkin Sysin). CLARVS on molempien yhteinen ja pysyy teemaa
-     vaihdettaessa. Se peittää TCF:n ja Sysin muistia pyyhkimättä ja piilottaa alakytkimet: CLARVSin sammutus palauttaa
+  /* Paletit (käyttäjän säännöt): Vaalean tai Tumman napautus antaa perusteeman ja sammuttaa TCF:n, Sysin ja Sysinin
+     (asetusten click-käsittelijä). CLARVS on molempien yhteinen ja pysyy teemaa vaihdettaessa. Se peittää TCF:n ja Sysin muistia pyyhkimättä ja piilottaa alakytkimet: CLARVSin sammutus palauttaa
      edellisen (esim. Sysinin). */
   function yksiPaletti(k) {
     if (k === 'kontrasti' || k === 'sysi') aset.clarus = 0;
