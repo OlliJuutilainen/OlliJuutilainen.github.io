@@ -241,7 +241,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
   Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
   paksuimmat hiukan keskikohdan alapuolella, ja niistä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä:
-  klassisemman kirjasimen tuntu), ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
+  klassisemman kirjasimen tuntu), ja piikit melkein koskettavat toisiaan, kaikissa ö-renkaissa (ei varmuutta kosketuksesta), ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto hiukan matalampana,
   kehä suhteessa paksumpi, rako suhteessa pienempi), synkassa emo-ö:n kanssa. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
   joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
