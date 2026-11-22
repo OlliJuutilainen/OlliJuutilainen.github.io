@@ -159,7 +159,7 @@
   <a class="lisaosa" href="https://chromewebstore.google.com/detail/lis%C3%A4%C3%A4-lukimeen/ggohgdnkogpbbpcoahmgmddlfkbmmnbl" target="_blank" rel="noopener"><img src="lisaosa/kuvakkeet/96.png" alt=""><span><span class="nimi">Lukimeen</span><span class="mika">Selainlisäosa Chrome-pohjaisiin selaimiin työpöydällä (kuten Chrome, Brave, Edge ja Vivaldi). Androidilla vain Firefoxissa.</span></span></a>
   <p>Pinossa on enintään tusina tekstiä. Kun sinne tulee kolmastoista, se teksti, jota olet pisimpään jättänyt
     koskematta, laskeutuu kellarin kampihyllystöön. Siellä sen tietorivillä lukee <i>laskeutui</i> eikä <i>luettu</i>, ja
-    sen saa takaisin pinoon nimikkeen valikosta (<span class="ui">Poimi kellarin kampihyllystöstä.</span>). Mitään ei poisteta.
+    sen saa takaisin pinoon nimikkeen valikosta (<span class="ui">Poimi kellarin kampihyllystöstä</span>). Mitään ei poisteta.
     Tekstit tallentuvat tämän laitteen selaimeen, eikä niitä lähetetä minnekään.</p>
   <p>Tekstistä pääset takaisin pinoon yläpalkin vasemmasta kulmasta, kirjapinosta <svg class="ik koti" viewBox="0 0 24 24" aria-hidden="true"><path class="k" d="M5 21.5V17.7H16.6V21.5ZM5.8 17.7V14.3H15.6V17.7ZM8.4 14.3V11.1H19V14.3Z"/></svg>.</p>
   <p><b>Postihuilu</b> on pinon asetuksissa (<span class="ui">Postihuilu</span>). Laatikkolause ja
@@ -167,7 +167,7 @@
     latomosta tai lukimeen-lisäosasta (kummassakin <span class="ui">Postihuilu</span>) samaan laatikkoon lähetetyt
     tekstit tulevat pinoon itsestään aina, kun avaat pinon, ja pinon alla on <span class="ui">Soita postihuilua</span>,
     joka hakee laatikon heti. Pinossa (tai kellarin kampihyllystössä) jo olevan tekstin saa
-    toisten laitteittesi pinoihin nimikkeen valikosta: <span class="ui">huiluta laatikkoon</span> lähettää sen samaan
+    toisten laitteittesi pinoihin nimikkeen valikosta: <span class="ui">Huiluta laatikkoon</span> lähettää sen samaan
     laatikkoon. Toisessa laitteessa teksti saa saman tunnuksen, joten sinne huilutetut merkinnät osuvat siihen. Postihuilun kautta kantautuneen tekstin nimen perässä on pieni
     huilu. Jos tekstissä on kirjanmerkki, alleviivaus tai kirjaus, nimen perässä (huilun vasemmalla puolella) on pieni
     harmaa merkki <svg class="ik merkitty" viewBox="0 0 10 12" style="color:var(--harmaa);height:.62em;vertical-align:0" aria-hidden="true"><path d="M.5 .5H9.5V11.5H.5Z" fill="none" stroke="currentColor"/><path d="M2.3 8.7H7.7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.4 .5H7.6V5.9L6.5 4.8L5.4 5.9Z" fill="currentColor"/></svg>, sama kuin lukimen Merkinnät-napissa. Kun viet hiiren sen päälle tai napautat sitä, ponnahdus kertoo, mitä tekstissä on (alleviivauksia, kirjauksia, kirjanmerkkejä); se sulkeutuu napautuksesta muualle tai raksista. Laatikon voi ottaa käyttöön myös sen linkistä, ja
@@ -433,44 +433,52 @@
       <div>
         <p>Pinon nimikkeen oikealla puolella on valikkonappi
           <svg class="ik kolme" viewBox="0 0 17 7" aria-hidden="true"><path d="M2.5 0.4Q3.37 2.32 4.8 3.5Q3.37 4.68 2.5 6.6Q1.63 4.68 0.2 3.5Q1.63 2.32 2.5 0.4ZM8.5 0.4Q9.37 2.32 10.8 3.5Q9.37 4.68 8.5 6.6Q7.63 4.68 6.2 3.5Q7.63 2.32 8.5 0.4ZM14.5 0.4Q15.37 2.32 16.8 3.5Q15.37 4.68 14.5 6.6Q13.63 4.68 12.2 3.5Q13.63 2.32 14.5 0.4Z"/></svg>.
-          Siitä voi kopioida tekstin lähdeviitteen, kopioida linkin (verkosta avatulle tekstille), ladata tekstin
-          Markdown-tiedostona (<span class="ui">lataa .md</span>), merkitä tekstin luetuksi
-          (<span class="ui">Luin.</span>), luokitella sen (alla) ja poistaa tekstin pinosta. Poisto vie myös tekstin merkinnät,
-          joten se kysyy vahvistuksen.</p>
-        <p>Jos tekstillä ei ole linkkiä, linkin paikalla on <span class="ui">linkitä tiedostoon</span>. Lataa teksti,
+          Sen valikossa on kolme kohtaa, joista kukin avaa oman alavalikkonsa: leveällä ruudulla viereen, kapealla valikon
+          tilalle, ja ylärivin nuolesta pääsee takaisin. Kohdassa <span class="ui">Exportātiō</span> (vienti) ovat tekstin
+          lähdeviite ja sen kopiointi, linkin kopiointi (verkosta avatulle tekstille), tekstin lataaminen Markdown-tiedostona
+          (<span class="ui">Lataa .md</span>) ja <span class="ui">Huiluta laatikkoon</span>. Kohdassa
+          <span class="ui">Latomo</span> ovat luokittelu (alla) sekä tietojen ja laitoksen muuttaminen. Kohdassa
+          <span class="ui">Luin.</span> ovat siirrot kellarin kampihyllystöön ja käsikirjastoon, <span class="ui">Merkitse luetuksi</span>
+          ja alimpana <span class="ui">Poista</span>. Poisto vie myös tekstin merkinnät, joten se kysyy vahvistuksen.</p>
+        <p><span class="ui">Merkitse luetuksi</span> jättää tekstin pinoon mutta himmentää sen nimikkeen hyvin haaleaksi.
+          Samasta kohdasta (<span class="ui">Merkitse lukemattomaksi</span>) sen saa entiselleen.</p>
+        <p>Jos tekstillä ei ole linkkiä, linkin paikalla on <span class="ui">Linkitä tiedostoon</span>. Lataa teksti,
           vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy
           linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen
-          valikossa on <span class="ui">kopioi linkki</span>. Linkin saaja näkee tekstin puhtaana: merkintäsi eivät
+          valikossa on <span class="ui">Kopioi linkki</span>. Linkin saaja näkee tekstin puhtaana: merkintäsi eivät
           siirry jaettavassa linkissä.</p>
-        <p><span class="ui">muuta metatietoja</span> avaa tekstin latomoon, jossa voit muuttaa sen tietoja,
+        <p><span class="ui">Muuta metatietoja</span> avaa tekstin latomoon, jossa voit muuttaa sen tietoja,
           kuten nimeä, kirjoittajaa ja julkaisutietoja. Itse teksti on silloin lukittu, joten kirjanmerkit ja
           alleviivaukset pysyvät paikallaan. Vain otsikkoon tai tietoriveihin osuneet merkinnät voivat irrota.</p>
-        <p><span class="ui">lado uusi laitos</span> antaa muokata myös tekstiä. Tallennettaessa valitset, tuleeko
+        <p><span class="ui">Lado uusi laitos</span> antaa muokata myös tekstiä. Tallennettaessa valitset, tuleeko
           pinoon toinen laitos merkintöineen, toinen laitos ilman merkintöjä vai korvaako uusi laitos alkuperäisen.
           Kahdessa ensimmäisessä alkuperäinen jää pinoon ennalleen, ja uuden nimikkeen alla lukee esimerkiksi
           <i>2. laitos</i>. Kun merkinnät siirretään, muuttuneista kohdista osa voi irrota. Irronneet eivät katoa:
           ne näkyvät Merkinnöissä merkinnällä <i>kohtaa ei löydy</i>, ja luin kertoo tallennuksen jälkeen, montako
           niitä on.</p>
-        <p>Viitteen alla on kytkin <span class="ui">lisää: luettu HTML-versiona</span>. Se lisää viitteen perään,
+        <p>Viitteen alla on kytkin <span class="ui">Lisää: luettu HTML-versiona</span>. Se lisää viitteen perään,
           milloin luit tekstin ja (verkosta avatulle tekstille) mistä osoitteesta. Valinta muistetaan.</p>
         <p>Nimikkeen vasemmalla puolella oleva salmiakki valitsee tekstin, ja otsikkorivin salmiakki valitsee kaikki
-          tai tyhjentää valinnan. Kun jotain on valittuna, otsikkorivin oikeaan reunaan tulee valittujen valikko:
-          <span class="ui">Vie merkinnät (zip).</span>, lähdeviitteiden kopiointi, luokittelu, <span class="ui">Luin.</span> ja poisto.
+          tai tyhjentää valinnan. Kun jotain on valittuna, otsikkorivin oikeaan reunaan tulee valittujen valikko samoin
+          kolmin kohdin: kohdassa <span class="ui">Exportātiō</span> lähdeviitteiden kopiointi ja <span class="ui">Vie merkinnät (zip)</span>,
+          kohdassa <span class="ui">Latomo</span> luokittelu ja kohdassa <span class="ui">Luin.</span> siirrot,
+          <span class="ui">Merkitse luetuksi</span> ja poisto.
           Zip-paketissa on jokaisesta tekstistä sama Markdown-tiedosto kuin tekstin omassa merkintöjen viennissä,
           samoilla viennin valinnoilla (ne ovat avoimen tekstin asetuksissa).</p>
-        <p><span class="ui">Luin.</span> kysyy vielä varmistuksen ja siirtää tekstin <b>kellarin kampihyllystöön</b>.
+        <p><span class="ui">Siirrä kellarin kampihyllystöön</span> kysyy vielä varmistuksen (<span class="ui">Luin.</span>) ja siirtää
+          tekstin <b>kellarin kampihyllystöön</b>.
           Kellarin kampihyllystöön pääsee pinon alla olevasta pienestä linkistä <span class="ui">kellarin kampihyllystöön</span>,
           joka näkyy, kun kellarin kampihyllystössä on jotain. Kellarin kampihyllystön tekstejä voi avata, valita ja
-          käsitellä kuten pinossa, mutta <span class="ui">Luin.</span> on siellä
-          <span class="ui">Poimi kellarin kampihyllystöstä.</span>: se nostaa tekstin takaisin pinon kärkeen. Merkinnät
+          käsitellä kuten pinossa, mutta siirron paikalla on siellä
+          <span class="ui">Poimi kellarin kampihyllystöstä</span>: se nostaa tekstin takaisin pinon kärkeen. Merkinnät
           ja lukukohta säilyvät kellarin kampihyllystössä. Teksti palaa pinoon myös, jos se lähetetään
           uudelleen postihuilulla tai latomosta.</p>
         <p>Kellarin kampihyllystöstä tekstin voi siirtää vielä syvemmälle, <b>ö-mappiin</b>
-          (<span class="ui">Siirrä ö-mappiin.</span>). Sinne pääsee kellarin kampihyllystön alalaidan linkistä
+          (<span class="ui">Siirrä ö-mappiin</span>). Sinne pääsee kellarin kampihyllystön alalaidan linkistä
           <span class="ui">ö-mappiin</span>, joka näkyy, kun siellä on jotain.
-          <span class="ui">Palauta kellarin kampihyllystöön.</span> tuo tekstin takaisin. Ö-mapista pääsee pinoon
+          <span class="ui">Palauta kellarin kampihyllystöön</span> tuo tekstin takaisin. Ö-mapista pääsee pinoon
           logosta ja kellarin kampihyllystöön vasemman alakulman linkistä.</p>
-        <p><span class="ui">luokittele</span> antaa tekstille <b>asiasanoja</b> (esimerkiksi <i>filosofia</i> ja
+        <p><span class="ui">Luokittele</span> antaa tekstille <b>asiasanoja</b> (esimerkiksi <i>filosofia</i> ja
           <i>psykologia</i>; teksti voi kuulua moneen), <b>ajoituksen</b> ja paikan <b>käsikirjastossa</b>. Asiasanan
           napautus tallentaa heti. Kenttään kirjoittaminen suodattaa jo käytettyjä sanoja, jotta sama asia saa saman sanan.
           Ehdotuksina ovat tunnetun sivuston ala (esimerkiksi SEP:stä <i>filosofia</i>) ja saman kirjoittajan tai sivuston
@@ -478,8 +486,9 @@
           julkaisuvuosi: Hegel-tutkimus Hegelin vuosille (<i>1807</i>), Septuaginta ennen ajanlaskun alkua (<i>250 eaa.</i>).
           Käsikirjasto on teksteille, joihin palataan aina uudelleen. Käsikirja ei ole koskaan pinossa: se on aina kellarin
           kampihyllystössä ylimpänä omana käsikirjastonaan järjestyksestä riippumatta, eikä sitä poimita pinoon eikä siirretä
-          ö-mappiin. Kun otat sen pois käsikirjastosta, se palaa sinne, missä se oli (lukematon pinoon). Kun valitset monta tekstiä, valittujen valikon
-          <span class="ui">Luokittele.</span> antaa saman asiasanan, ajoituksen tai käsikirjaston kaikille.</p>
+          ö-mappiin. Käsikirjastoon pääsee myös suoraan kohdasta <span class="ui">Luin.</span> (<span class="ui">Siirrä käsikirjastoon</span>).
+          Kun otat sen pois käsikirjastosta, se palaa sinne, missä se oli (lukematon pinoon). Kun valitset monta tekstiä, valittujen valikon
+          <span class="ui">Luokittele</span> antaa saman asiasanan, ajoituksen tai käsikirjaston kaikille.</p>
         <p>Pino on aina siinä järjestyksessä, jossa tekstit sinne tulivat, eikä luokittelu näy siellä. Kellarin
           kampihyllystössä otsikon alla on <span class="ui">järjestys</span>: luetuksi merkitsemisen, tekijän (blogin, lehden tai
           hakuteoksen kirjoituksella julkaisu, muuten kirjoittaja), kirjoittajan (jokainen kirjoittaja omana ryhmänään), ajoituksen,

@@ -11,6 +11,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -223,6 +224,7 @@ function muistiKV() {
   await a.evaluate(() => { location.hash = ''; });
   await a.waitForFunction(() => !document.querySelector('#lista').hidden);
   await a.click('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
+  await avaaOsa(a, 'luokittele');
   await a.click('#pop button[data-k="luokittele"]');
   await a.fill('#pop input.lk-uusi', 'eläinetiikka');
   await a.press('#pop input.lk-uusi', 'Enter');
@@ -247,6 +249,7 @@ function muistiKV() {
   await b.goto(OSOITE + 'luin.html?lk=2#arkisto');
   await b.waitForSelector('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
   await b.click('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
+  await avaaOsa(b, 'luokittele');
   await b.click('#pop button[data-k="luokittele"]');
   await b.fill('#pop input.lk-uusi', 'Kant');
   await b.press('#pop input.lk-uusi', 'Enter');

@@ -226,16 +226,16 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *pölyhyllyä* eikä *arkistohyllyä* (*kellarin kampihyllystö* on käyttäjän nimeämä poikkeus).
 - **Kellarin kampihyllystö ja valinta**: luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Muuta metatietoja* ja *Uusi laitos*, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
   (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki alleviivaus napin alareunan tasolla, jos mahtuu (muuten
   napin alla, kampi palstan laidasta), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
-  *Luin.* ja *Poimi kellarin kampihyllystöstä.* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+  *Luin.* ja *Poimi kellarin kampihyllystöstä* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
-  nimikkeen ja valittujen valikossa pinoon noston rinnalla *Siirrä ö-mappiin.*, sieltä *Palauta kellarin kampihyllystöön.* `e.omappi` (aika)
+  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Siirrä ö-mappiin*, sieltä *Palauta kellarin kampihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
@@ -272,9 +272,23 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä pinomerkin vasemmalla
   on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mapissa ei paluutekstiä eikä merkkiä (yllä).
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
-- **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (lähdeviite, linkki, *Lataa md*,
-  tiedot ja laitos, *Luin.*, poisto; kolme salmiakkia). *Luin.* on molemmissa salmiakkivalikoissa
-  toiseksi alimpana, vain poisto sen alla.
+- **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
+- **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *Exportātiō* (latinan *vienti*;
+  makronit yhdistyvinä U+0304, koska Literatassa ei ole ā:ta eikä ō:ta), *Latomo* ja *Luin.*, kukin avaa alavalikon. Exportātiō:
+  lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*,
+  *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
+  pinossa *Siirrä kellarin kampihyllystöön* (vahvistus *Luin.*), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
+  kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Siirrä ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Palauta…* ja
+  käsikirjasto; alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
+  loppupiste vain *Luin.*:ssa (käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
+  vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
+  ylärivin paluunuolella (`.sisak`); tapa mitataan (`porrasTapa()`) eikä sitä päätellä laitteesta. Pääkohdat eivät saa liikkua:
+  ankkuri (`popPaikka.reuna`) päätetään ensimmäisellä avauksella, piilotettu alavalikko antaa vain leveytensä, ja viipymäavaus odottaa
+  hiiren todellista liikettä (`porrasLukko`). Kaikki on `#pop`issa, joten ulkoklikkaus ja mahtuminen ovat yhteiset. Testi `porras-testi.js`;
+  muut testit avaavat pääkohdan `porras-apu.js`:n `avaaOsa()`lla.
+- **Merkitse luetuksi** (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä (`e.merkLuettu`, `li.luettu-merk`, `--viiva`);
+  sama kohta palauttaa (*Merkitse lukemattomaksi*). Merkki lähtee kellariin, käsikirjastoon ja pinoon palatessa. Tusinan
+  järjestykseen se ei vaikuta.
 - **Linkitä tiedostoon** (`kysyTiedosto()`): linkittömällä tekstillä *Kopioi linkin* paikalla.
   Hyväksyy julkisen .md-osoitteen (Dropbox muunnetaan kuten Latomossa), jos leipäteksti on sama kuin pinossa
   (`leipaMuuttui()`, sama sääntö kuin tietojen säädössä), ja kirjoittaa sen etukentän `osoite:`-riviksi, jotta
@@ -302,7 +316,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
   muistuteta (käyttäjän päätös: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös): se on aina kellarin
   kampihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
-  Postihuilu eivät nosta sitä; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
+  Postihuilu eivät nosta sitä; valikossa *Siirrä käsikirjastoon*, pois vain luokittelemalla; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto**
   (järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
   **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai järjestysrivin
@@ -756,6 +770,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/porras-testi.js [kuvakansio]`: porrasvalikko (rakenne, rinnakkain ja sisäkkäin, ankkurit, kierto, Luin.-alavalikko eri sijainneissa, Merkitse luetuksi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.

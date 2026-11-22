@@ -3,11 +3,12 @@
 // Tarkistaa hiirellä ja kosketuksella: pinossa nimikkeen valikon ja linkitysponnahduksen ohi napautettu nimike ei avaa
 // tekstiä eikä asetuskiekko asetuksia; infolaatikon kiinnitetyn vihjeen ohi napautettu nimike ei avaa tekstiä; lukimessa
 // alaviitteen ponnahduksen ohi napautettu sisäinen linkki ei hyppää. Lisäksi linkitysponnahduksen teksti ja Kopioi linkki
-// -napin ja Luin.-napin vihje hiiren alla viiveellä (sisältö ja mahtuminen ruutuun).
+// -napin ja Huiluta laatikkoon -napin vihje hiiren alla viiveellä (sisältö ja mahtuminen ruutuun).
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -57,7 +58,8 @@ async function aja(selain, U, kosketus) {
   // Painetaan elementin kohtaan, jota ponnahdus ei peitä (kapealla ruudulla valikko peittää osan nimikkeistä).
   const paina = async (sel) => {
     const p = await page.evaluate((sel) => {
-      const el = document.querySelector(sel);
+      const el = document.querySelector(sel), r0 = el.getBoundingClientRect();
+      if (r0.bottom > innerHeight || r0.top < 0) el.scrollIntoView({ block: 'center' });
       for (const r of el.getClientRects()) for (let d = 0; d < r.width / 2; d += 3) for (const x of [r.left + r.width / 2 - d, r.left + r.width / 2 + d]) {
         const y = r.top + r.height / 2, o = document.elementFromPoint(x, y);
         if (o && el.contains(o)) return { x, y };
@@ -85,6 +87,7 @@ async function aja(selain, U, kosketus) {
 
   // 2. Linkitysponnahdus: teksti ja ohi napautus (nimike ja asetuskiekko).
   await paina('#nimikkeet button.jako[data-id="p-koeteksti"]');
+  await avaaOsa(page, 'linkita', kosketus);
   await paina('#pop button[data-k="linkita"]');
   const kys = await page.textContent('#pop .kys');
   tulos(`${laji}: linkitysponnahduksen teksti`, kys === 'Liittämällä tähän linkin tekstin sisältämään tiedostoon, esimerkiksi pilvitallennustilasi julkisena linkkinä voit jatkossa pinossa jakaa tekstin muille luettavaksi lukimessa (puhtaana, ilman omia merkintöjäsi).', kys);
@@ -94,6 +97,7 @@ async function aja(selain, U, kosketus) {
   t = await tilanne();
   tulos(`${laji}: linkitysponnahduksen ohi napautettu nimike vain sulkee sen`, t0.pop && !t.pop && !t.lukija && t.hash === t0.hash, JSON.stringify(t));
   await paina('#nimikkeet button.jako[data-id="p-koeteksti"]');
+  await avaaOsa(page, 'linkita', kosketus);
   await paina('#pop button[data-k="linkita"]');
   await paina('.lhead .ratas');
   t = await tilanne();
@@ -118,6 +122,7 @@ async function aja(selain, U, kosketus) {
   // 4. Kopioi linkki -napin vihje (vain hiirellä).
   if (!kosketus) {
     await paina('#nimikkeet button.jako[data-id="p-linkitetty"]');
+    await avaaOsa(page, 'linkki');
     await page.hover('#pop button[data-k="linkki"]');
     // Vihje näkyy vasta pienen viiveen (0,6 s) jälkeen (käyttäjän pyyntö 17.11.2026).
     const nakyy = s => page.$eval(s, b => getComputedStyle(b, '::after').visibility);
@@ -134,15 +139,16 @@ async function aja(selain, U, kosketus) {
       const p = b.closest('#pop').getBoundingClientRect();
       return { content: cs.content, r: { l: r.left, r: r.right, t: r.top, b: r.bottom }, pop: { l: p.left, r: p.right }, vw: innerWidth };
     });
-    tulos('hiiri: kopioi linkki -napin vihje', v.content === '"merkinnät eivät siirry jaettavassa linkissä"', v.content);
+    tulos('hiiri: kopioi linkki -napin vihje', v.content === '"Merkinnät eivät siirry jaettavassa linkissä"', v.content);
     tulos('hiiri: vihje valikon levyinen', v.r.l >= v.pop.l && v.r.r <= v.pop.r && v.r.r <= v.vw, JSON.stringify(v));
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'ulko-vihje.png') });
-    // Luin.-napin vihje samoin viiveellä.
-    await page.hover('#pop button[data-k="luin"]');
-    const l0 = await nakyy('#pop button[data-k="luin"]');
+    // Huiluta laatikkoon -napin vihje samoin viiveellä.
+    await avaaOsa(page, 'huiluta');
+    await page.hover('#pop button[data-k="huiluta"]');
+    const l0 = await nakyy('#pop button[data-k="huiluta"]');
     await page.waitForTimeout(800);
-    const l1 = await page.$eval('#pop button[data-k="luin"]', b => { const c = getComputedStyle(b, '::after'); return c.visibility + ' ' + c.content; });
-    tulos('hiiri: Luin.-napin vihje viiveellä', l0 === 'hidden' && l1 === 'visible "vie kellarin kampihyllystöön"', l0 + ' → ' + l1);
+    const l1 = await page.$eval('#pop button[data-k="huiluta"]', b => { const c = getComputedStyle(b, '::after'); return c.visibility + ' ' + c.content; });
+    tulos('hiiri: Huiluta laatikkoon -napin vihje viiveellä', l0 === 'hidden' && l1 === 'visible "Toisten laitteittesi pinoihin"', l0 + ' → ' + l1);
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'ulko-vihje-luin.png') });
     await page.keyboard.press('Escape');
     await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li');

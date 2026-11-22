@@ -10,6 +10,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -85,10 +86,11 @@ function muistiKV() {
   // Valikon Huiluta laatikkoon ja lopputulos napin tekstinä.
   async function huiluta(s, id) {
     await s.click(`#nimikkeet button.jako[data-id="${id}"]`);
+    await avaaOsa(s, 'huiluta');
     const nappi = s.locator('#pop button[data-k="huiluta"]');
     const ennen = await nappi.textContent();
     await nappi.click();
-    await s.waitForFunction(() => { const n = document.querySelector('#pop button[data-k="huiluta"]'); return n && n.textContent !== 'Huilutetaan…' && n.textContent !== 'huiluta laatikkoon'; }, null, { timeout: 5000 }).catch(() => {});
+    await s.waitForFunction(() => { const n = document.querySelector('#pop button[data-k="huiluta"]'); return n && n.textContent !== 'Huilutetaan…' && n.textContent !== 'Huiluta laatikkoon'; }, null, { timeout: 5000 }).catch(() => {});
     const t = await nappi.textContent();
     if (KUVAT) await s.screenshot({ path: path.join(KUVAT, 'huiluta-' + id.slice(0, 12) + '-' + Date.now() + '.png') });
     await s.keyboard.press('Escape');
@@ -122,7 +124,7 @@ function muistiKV() {
 
   // --- 2. Virheet: ei lausetta, lukukoodi ---
   let h = await huiluta(a, PID);
-  tulos('valikossa huiluta laatikkoon', h.ennen === 'huiluta laatikkoon', h.ennen);
+  tulos('valikossa Huiluta laatikkoon', h.ennen === 'Huiluta laatikkoon', h.ennen);
   tulos('ilman lausetta: neuvo', h.t === 'Anna ensin laatikkolause asetusten postihuiluun.', h.t);
   await a.evaluate(() => localStorage.setItem('luin-laatikko', JSON.stringify('lyhytkoodi')));
   await a.reload(); await a.waitForFunction(() => !document.querySelector('#lista').hidden);

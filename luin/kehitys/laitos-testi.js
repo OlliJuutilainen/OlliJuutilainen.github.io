@@ -9,6 +9,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -57,6 +58,7 @@ const LAITOS = MD.replace('## 1. Johdanto\n\n', '## 1. Johdanto\n\nUusi alkukapp
   async function pinoon() { await page.goto(U + 'luin.html#'); await page.waitForSelector('#nimikkeet li'); }
   async function valikko(id, k) {
     await page.click(`#nimikkeet button.jako[data-id="${id}"]`);
+    await avaaOsa(page, k);
     await page.click(`#pop button[data-k="${k}"]`);
     await page.waitForURL(/latomo\.html#/);
     await page.waitForFunction(() => window.__latomo && document.querySelector('#md').value.length > 0);
@@ -108,7 +110,7 @@ const LAITOS = MD.replace('## 1. Johdanto\n\n', '## 1. Johdanto\n\nUusi alkukapp
   await pinoon();
   await page.click(`#nimikkeet button.jako[data-id="${ID}"]`);
   const kohdat = await page.$$eval('#pop button[data-k]', bs => bs.map(b => b.textContent));
-  tulos('valikossa muuta metatietoja ja lado uusi laitos', kohdat.includes('muuta metatietoja') && kohdat.includes('lado uusi laitos'), kohdat.join(' | '));
+  tulos('valikossa Muuta metatietoja ja Lado uusi laitos', kohdat.includes('Muuta metatietoja') && kohdat.includes('Lado uusi laitos'), kohdat.join(' | '));
   await page.keyboard.press('Escape');
 
   // 1. Tietojen säätö: tekijä lisää otsikkolohkoon lohkon, joten leipätekstin lohkot siirtyvät yhdellä.

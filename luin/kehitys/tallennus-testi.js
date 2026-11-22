@@ -6,6 +6,7 @@
 // IndexedDB:tä kaikki toimii localStoragessa kuten ennen.
 const fs = require('fs'), path = require('path'), http = require('http');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 const JUURI = path.resolve(__dirname, '../..'), KUVAT = process.argv[2];
 const TYYPIT = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.md': 'text/markdown', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
 let virheita = 0;
@@ -91,6 +92,7 @@ const palvelin = http.createServer((q, r) => {
   if (KUVAT) await p.screenshot({ path: path.join(KUVAT, 'tusina-kellari.png'), fullPage: true });
   // Poimi takaisin: Tusina 2 palaa, seuraavaksi pisimpään koskematon (Tusina 3) laskeutuu.
   await p.click('#nimikkeet button.jako[data-id="p-t2"]');
+  await avaaOsa(p, 'luin');
   await p.click('#pop button[data-k="luin"]');
   await p.click('#pop button[data-k="ok"]');
   const v2 = await p.textContent('#viesti');
@@ -102,13 +104,16 @@ const palvelin = http.createServer((q, r) => {
   await p.goto(U + 'luin.html#');
   await p.waitForSelector('#nimikkeet li.nimike');
   await p.click('#nimikkeet button.jako[data-id="p-t4"]');
+  await avaaOsa(p, 'luin');
   await p.click('#pop button[data-k="luin"]');
   await p.click('#pop button[data-k="ok"]');
   const e4 = (await p.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')))).find(e => e.id === 'p-t4');
   tulos('Luin. pinosta: luettu, ei laskeutunut', e4.luettu && !e4.laskeutui);
   // Poisto poistaa tekstin kannasta.
   await p.click('#nimikkeet button.jako[data-id="p-t5"]');
+  await avaaOsa(p, 'poista');
   await p.click('#pop button[data-k="poista"]');
+  await avaaOsa(p, 'poista');
   await p.click('#pop button[data-k="poista"]');
   await p.waitForTimeout(300);
   tulos('poisto poistaa tekstin kannasta', await p.evaluate(async () => (await LuinTekstit.lue('p-t5')) === null && !LuinTekstit.on('p-t5')));

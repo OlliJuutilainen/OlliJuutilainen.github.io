@@ -1,7 +1,8 @@
 // Ponnahdusvalikko pienellä ruudulla (sijoitaPop()). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]
-// Tarkistaa: ruutua korkeampi valikko mahtuu ruudulle ja vierii (.vierii), sen alareuna leikkaa napin tekstin (35–50 % napista
-// näkyvissä), kosketusveto vierittää valikkoa eikä sivua, alin nappi on napautettavissa ja vahvistus jää näkyviin; peräkkäiset
+// Tarkistaa: ruutua korkeampi valikko (porrasvalikon alavalikko matalalla ruudulla) mahtuu ruudulle ja vierii (.vierii), sen alareuna
+// leikkaa napin tekstin (35–50 % napista näkyvissä), kosketusveto vierittää valikkoa eikä sivua, alin nappi on napautettavissa ja
+// vahvistus jää näkyviin; peräkkäiset
 // valikot saavat luonnollisen leveytensä eivätkä osu ruudun reunaan; mahtuva valikko ei vieri; kierto sovittaa avoimen valikon;
 // näppäimistön noustessa (visualViewport) luokittelu mahtuu näkyvään alueeseen ja Valmis. on ulottuvilla; työpöydällä rulla
 // vierittää matalan ikkunan valikkoa eikä sivua.
@@ -9,6 +10,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -58,40 +60,52 @@ async function veda(cdp, x, y0, y1) {
   const selain = await chromium.launch();
   const virheet = [];
 
-  // 1. Matala kosketusruutu (puhelin vaakana): nimikkeen valikko vierii.
+  // 1. Matala kosketusruutu: porrasvalikon (nimikkeen valikko) alavalikko vierii, kun se ei mahdu. Piilossa olevan alavalikon
+  // napit eivät ratkaise leikkausta (sama ruudukon solu).
   {
-    const ctx = await selain.newContext({ viewport: { width: 640, height: 360 }, hasTouch: true, isMobile: true });
+    const ctx = await selain.newContext({ viewport: { width: 640, height: 240 }, hasTouch: true, isMobile: true });
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
     const cdp = await ctx.newCDPSession(page);
     await kylva(page, U);
-    await page.evaluate(() => document.querySelector('#nimikkeet button.jako[data-id="p-t5"]').scrollIntoView({ block: 'center' }));
+    await page.evaluate(() => document.querySelector('#nimikkeet button.jako[data-id="p-t5"]').scrollIntoView({ block: 'start' }));
     await page.tap('#nimikkeet button.jako[data-id="p-t5"]');
+    await page.tap('#pop button[data-k="ali:vienti"]');
     let t = await popTila(page);
-    tulos('640×360: valikko vierii ja mahtuu ruudulle', t.auki && t.vierii && t.top >= 8 && t.bottom <= t.ih - 8 && t.sh > t.ch, JSON.stringify(t));
+    tulos('640×240: Exportātiō vierii ja mahtuu ruudulle', t.auki && t.vierii && t.top >= 8 && t.bottom <= t.ih - 8 && t.sh > t.ch, JSON.stringify(t));
     const leikattu = await page.evaluate(() => {
       const p = document.getElementById('pop'), reuna = p.getBoundingClientRect().bottom - 1;
-      return [...p.querySelectorAll('button')].map(b => b.getBoundingClientRect()).filter(r => r.top < reuna && r.bottom > reuna).map(r => (reuna - r.top) / r.height);
+      return [...p.querySelectorAll('button')].filter(b => getComputedStyle(b).visibility !== 'hidden').map(b => b.getBoundingClientRect())
+        .filter(r => r.top < reuna && r.bottom > reuna).map(r => (reuna - r.top) / r.height);
     });
-    tulos('640×360: alareuna leikkaa napin tekstin (35–50 % näkyvissä)', leikattu.length === 1 && leikattu[0] >= .34 && leikattu[0] <= .51, leikattu.map(x => x.toFixed(2)).join());
+    tulos('640×240: alareuna leikkaa napin tekstin (35–50 % näkyvissä)', leikattu.length === 1 && leikattu[0] >= .34 && leikattu[0] <= .51, leikattu.map(x => x.toFixed(2)).join());
     if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'valikko-vierii.png') });
     const sy0 = await page.evaluate(() => scrollY);
-    await veda(cdp, (t.left + t.right) / 2, t.top + (t.bottom - t.top) * .7, t.top + 20);
+    await veda(cdp, t.left + 60, t.top + (t.bottom - t.top) * .7, t.top + 20);
     await page.waitForTimeout(1500);
     const t2 = await popTila(page), sy1 = await page.evaluate(() => scrollY);
-    tulos('640×360: kosketusveto vierittää valikkoa, ei sivua', t2.auki && t2.st > 0 && sy1 === sy0, 'valikko ' + t2.st + ', sivu ' + sy0 + '→' + sy1);
+    tulos('640×240: kosketusveto vierittää valikkoa, ei sivua', t2.auki && t2.st > 0 && sy1 === sy0, 'valikko ' + t2.st + ', sivu ' + sy0 + '→' + sy1);
     const p = await page.evaluate(() => {
+      const b = document.querySelector('#pop button[data-k="huiluta"]'), r = b.getBoundingClientRect();
+      const o = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2, osuu: b.contains(o) };
+    });
+    tulos('640×240: alin nappi (Huiluta laatikkoon) ulottuvilla', p.osuu, JSON.stringify(p));
+    // Luin.-alavalikko mahtuu: Poista ja sen vahvistus näkyvissä.
+    await page.evaluate(() => { document.getElementById('pop').scrollTop = 0; });
+    await page.tap('#pop button[data-k="ali:luin"]');
+    const q = await page.evaluate(() => {
       const b = document.querySelector('#pop button[data-k="poista"]'), r = b.getBoundingClientRect();
       const o = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
       return { x: r.left + r.width / 2, y: r.top + r.height / 2, osuu: b.contains(o) };
     });
-    tulos('640×360: alin nappi (poista) ulottuvilla', p.osuu, JSON.stringify(p));
-    if (p.osuu) {
-      await page.touchscreen.tap(p.x, p.y);
+    tulos('640×240: Luin.-alavalikon Poista ulottuvilla', q.osuu, JSON.stringify(q));
+    if (q.osuu) {
+      await page.touchscreen.tap(q.x, q.y);
       const v = await page.evaluate(() => {
         const b = document.querySelector('#pop button[data-k="poista"]'), r = b.getBoundingClientRect(), q = document.getElementById('pop').getBoundingClientRect();
         return { teksti: b.textContent, nakyy: r.top >= q.top && r.bottom <= q.bottom, oikea: Math.round(q.right), iw: innerWidth };
       });
-      tulos('640×360: vahvistus näkyvissä ja valikko ruudulla', /^Vahvista/.test(v.teksti) && v.nakyy && v.oikea <= v.iw - 8, JSON.stringify(v));
+      tulos('640×240: vahvistus näkyvissä ja valikko ruudulla', /^Vahvista/.test(v.teksti) && v.nakyy && v.oikea <= v.iw - 8, JSON.stringify(v));
       if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'valikko-vahvistus.png') });
     }
     await ctx.close();
@@ -120,12 +134,14 @@ async function veda(cdp, x, y0, y1) {
     await page.tap('#nimikkeet button.jako[data-id="p-t10"]');
     const b = await popTila(page);
     tulos('360×740: sama valikko toistuu samana', a.left === b.left && a.right === b.right && a.bottom === b.bottom, JSON.stringify([a.left, a.right, a.bottom, b.left, b.right, b.bottom]));
+    // Kierto avoimen alavalikon kanssa: sovitetaan uuteen ruutuun (porrasvalikko vaihtaa tavan, porras-testi.js).
+    await page.tap('#pop button[data-k="ali:vienti"]');
     await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(300);
     let t = await popTila(page);
-    tulos('kierto vaakaan: avoin valikko vierii ja mahtuu', t.auki && t.vierii && t.top >= 8 && t.bottom <= t.ih - 8 && t.right <= t.iw - 8, JSON.stringify(t));
+    tulos('kierto vaakaan: avoin valikko mahtuu', t.auki && t.top >= 8 && t.bottom <= t.ih - 8 && t.left >= 8 && t.right <= t.iw - 8, JSON.stringify(t));
     await page.setViewportSize({ width: 360, height: 740 }); await page.waitForTimeout(300);
     t = await popTila(page);
-    tulos('kierto takaisin: valikko ei enää vieri', t.auki && !t.vierii && t.bottom <= t.ih && t.right <= t.iw - 8, JSON.stringify(t));
+    tulos('kierto takaisin: valikko mahtuu eikä vieri', t.auki && !t.vierii && t.bottom <= t.ih && t.left >= 8 && t.right <= t.iw - 8, JSON.stringify(t));
     await ctx.close();
   }
 
@@ -136,6 +152,7 @@ async function veda(cdp, x, y0, y1) {
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
     await kylva(page, U);
     await page.tap('#nimikkeet button.jako[data-id="p-t2"]');
+    await avaaOsa(page, 'luokittele', true);
     await page.tap('#pop button[data-k="luokittele"]');
     await page.focus('#pop .lk-uusi');
     await page.evaluate(() => { window.__vvH = 300; visualViewport.dispatchEvent(new Event('resize')); });
@@ -160,19 +177,21 @@ async function veda(cdp, x, y0, y1) {
     await ctx.close();
   }
 
-  // 4. Työpöytä, matala ikkuna: rulla vierittää valikkoa eikä sivua.
+  // 4. Työpöytä, matala ikkuna: rulla vierittää valikkoa (Exportātiō rinnakkain) eikä sivua.
   {
-    const ctx = await selain.newContext({ viewport: { width: 1100, height: 360 } });
+    const ctx = await selain.newContext({ viewport: { width: 1100, height: 240 } });
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
     await kylva(page, U);
     await page.click('#nimikkeet button.jako[data-id="p-t0"]');
+    await page.click('#pop button[data-k="ali:vienti"]');
     const t = await popTila(page);
-    tulos('työpöytä 1100×360: valikko vierii ja mahtuu', t.vierii && t.top >= 8 && t.bottom <= t.ih - 8, JSON.stringify(t));
+    tulos('työpöytä 1100×240: valikko vierii ja mahtuu', t.vierii && t.top >= 8 && t.bottom <= t.ih - 8, JSON.stringify(t));
     const sy0 = await page.evaluate(() => scrollY);
-    await page.mouse.move((t.left + t.right) / 2, (t.top + t.bottom) / 2);
+    await page.mouse.move(t.left + 60, (t.top + t.bottom) / 2);
     await page.mouse.wheel(0, 400); await page.waitForTimeout(300);
     const t2 = await popTila(page), sy1 = await page.evaluate(() => scrollY);
     tulos('työpöytä: rulla vierittää valikkoa, ei sivua', t2.st > 0 && sy1 === sy0, 'valikko ' + t2.st + ', sivu ' + sy0 + '→' + sy1);
+    await avaaOsa(page, 'poista');
     await page.click('#pop button[data-k="poista"]', { timeout: 3000 }).catch(() => {});
     const teksti = await page.$eval('#pop button[data-k="poista"]', b => b.textContent);
     tulos('työpöytä: alin nappi klikattavissa', /^Vahvista/.test(teksti), teksti);

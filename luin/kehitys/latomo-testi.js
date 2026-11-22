@@ -9,6 +9,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { avaaOsa } = require('./porras-apu');
 
 const JUURI = path.resolve(__dirname, '../..');
 const KUVAT = process.argv[2];
@@ -221,6 +222,7 @@ palvelin.listen(0, async () => {
   tulos('lukulistassa sivusto alaotsikkona', lista[0] === 'Tusinablogi' && !/Tusinablogi/.test(lista[1]), JSON.stringify(lista));
   await p.click('.nimike button.jako');
   const v0 = await p.textContent('#pop .v-teksti');
+  await avaaOsa(p, 'lisa');
   await p.click('#pop button[data-k="lisa"]');
   const v1 = await p.textContent('#pop .v-teksti');
   tulos('lukutiedot vain valittaessa', v0 === 'Kokeilu (2026). Tusinablogi 8.10.2026 klo 14:05.' && /Luettu HTML-versiona \d+\.\d+\.\d{4}\.$/.test(v1), v0 + ' → ' + v1);
