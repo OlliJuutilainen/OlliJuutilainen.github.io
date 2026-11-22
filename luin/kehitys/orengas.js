@@ -72,9 +72,9 @@ function svg(R, P, luokka, kok) {
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: .25, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
-// paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä), rako suhteessa pienempi. Kapeneminen alkaa vasta 105°:sta, jotta
-// piikit hipovat toisiaan kuten emo-ö:ssä (78°:sta alkava jätti pieneen kehään V-loven).
-const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 105, rako: .06, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
+// paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä). Piikit kapenevat kuten emo-ö:ssä (78°:sta) ja ulottuvat melkein
+// kiinni toisiinsa (käyttäjän linjaus: myöhemmin alkava kapeneminen teki pisteistä tavallisen ö:n näköisiä).
+const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .015, kap: 1, paa: .02, pnosto: 1.05, pdx: 2.45, n: 16 };
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
 // osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on .9 px
 // perusviivan alla (pohja pohjan viivan paksuus + .9 px perusviivan alla).
