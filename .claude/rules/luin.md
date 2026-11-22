@@ -283,7 +283,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
-  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (`luinKohdat()`, sijainnin mukaan):
+  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (kellarin kampihyllystön nimikkeen valikossa, käsikirja mukaan lukien, nimeltään *Hain.*: käyttäjän nimi; `luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
   kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Siirrä käsikirjastoon*, *Merkitse luetuksi*; kellarin
   kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Vie ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Poimi kellarin kampihyllystöön* ja
