@@ -472,5 +472,38 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('ilman ladontaa lainaus on lainaus', !/kaannos/.test(t.html) && /figure class="lainaus/.test(t.html) && !t.lomitettu);
 })();
 
+// Numeroviittaukset (md.js, Numeroviittaukset): numeroitu kirjallisuusluettelo ja viittaukset sen kohtiin vain varmalla yhteydellä.
+(() => {
+  const luettelo = '## References\n\n1. Smith J. A.\n2. Lee A. B.\n3. Virtanen M. C.\n4. Brown B. D.\n5. Green G. E.\n';
+  const teksti = (leipa, kirj) => M.parse('# Otsikko\n\n## Introduction\n\n' + leipa + '\n\n' + (kirj || luettelo)).html;
+  const linkit = h => [...h.matchAll(/<a class="lahde" href="#([^"]+)">(\d+)<\/a>/g)].map(m => m[2] + '>' + m[1]).join(' ');
+  sama('numeroviittaukset: Vancouverin hakasulut kohtiin', linkit(teksti('Studies [1] showed [2, 3]. Later [4–5] and again [1].')),
+    '1>nro-1 2>nro-2 3>nro-3 4>nro-4 5>nro-5 1>nro-1');
+  tulos('numeroviittaukset: kohteen id luettelon kohdassa', /<li id="nro-3" data-b="\d+">Virtanen/.test(teksti('Studies [1] showed [2, 3]. Later [4–5] and again [1].')));
+  sama('numeroviittaukset: Turndownin suojaus ja kappaleiksi numeroitu luettelo', linkit(teksti('A\\[1\\] b\\[2,3\\] c\\[4-5\\] d\\[1\\].',
+    '## References\n\n1\\. A.\n\n2\\. B.\n\n3\\. C.\n\n4\\. D.\n\n5\\. E.\n')), '1>nro-1 2>nro-2 3>nro-3 4>nro-4 5>nro-5 1>nro-1');
+  // Ansat: ei yhtään linkkiä eikä nro-id:tä.
+  [['alaviitemerkit (ei toistoa)', 'A [1] b [2] c [3] d [4] e [5].'], ['väli [0, 1]', 'In [0, 1] and [1] [2, 3] [4–5] [1].'],
+    ['aakkosjärjestys', 'A [4] and [2, 5] then [1] and [3] and [4].'], ['alle puolet viitattu', 'A [1] and [1, 2].', luettelo + '6. F.\n7. G.\n8. H.\n9. I.\n10. J.\n'],
+    ['numero yli luettelon', 'A [1] and [2, 3] then [4–5] and [1] and [6].'], ['kaksi numeroitua luetteloa', 'A [1] and [2, 3] then [4–5] and [1].', luettelo + '\n## Further reading\n\n1. X.\n2. Y.\n'],
+    ['numeroinnin aukko', 'A [1] and [2, 3] then [4–5] and [1].', '## References\n\n- [1] A.\n- [2] B.\n- [4] D.\n- [5] E.\n'],
+    ['numeroitu muu kuin kirjallisuus', 'A [1] and [2, 3] then [4–5] and [1].', '## Appendix\n\n1. A.\n2. B.\n3. C.\n4. D.\n5. E.\n'],
+    ['kohdan oma numero ei ole viittaus', 'Teksti ilman viittauksia.', '## References\n\n- [1] A.\n- [2] B.\n- [3] C.\n']]
+    .forEach(([nimi, leipa, kirj]) => { const h = teksti(leipa, kirj); tulos('numeroviittaukset: ei linkkiä, ' + nimi, !/class="lahde"/.test(h) && !/id="nro-/.test(h), linkit(h)); });
+  // Leikkeen linkit samalle sivulle: kirjallisuusviitteen ankkuri luettelon kohtaan, kuvan ja taulukon ankkuri ei lukuun.
+  const U = 'https://x.org/a', leike = (leipa, kirj) => M.parse('---\nlähde: ' + U + '\n---\n# Otsikko\n\n## 1 Intro\n\n' + leipa + '\n\n## 2 Methods\n\nTeksti.\n\n' + (kirj || '## References\n\n-   (1) A.\n-   (2) B.\n')).html;
+  const h1 = leike('GQA \\[[2](' + U + '#bib.bib2)\\], see Table [1](' + U + '#S2.T1), Figure [2](' + U + '#fig2) and [1](' + U + '#reference-1).');
+  tulos('numeroviittaukset: leikkeen #bib.bib2 ja #reference-1 luettelon kohtiin', h1.includes('<a class="lahde" href="#nro-2">2</a>') && h1.includes('<a class="lahde" href="#nro-1">1</a>'), h1);
+  tulos('numeroviittaukset: taulukon ja kuvan ankkuri ei lukuun', h1.includes('href="' + U + '#S2.T1"') && h1.includes('href="' + U + '#fig2"') && !/href="#luku-/.test(h1), h1);
+  const h2 = leike('Viite [2](' + U + '#bib.bib2) ilman numeroitua luetteloa.', '## References\n\nA, B. 2001. *Teos*.\n');
+  tulos('numeroviittaukset: kirjallisuusviitteen ankkuri ei lukuun ilman luetteloakaan', h2.includes('href="' + U + '#bib.bib2"') && !/href="#luku-/.test(h2), h2);
+  const h3 = leike('Katso luku [2](' + U + '#S2).');
+  tulos('numeroviittaukset: luvun ankkuri lukuun kuten ennen', /href="#luku-2"/.test(h3), h3);
+  const h5 = leike('A [1](' + U + '#bib.bib1), B [2](' + U + '#bib.bib2) ja C [5](' + U + '#bib.bib5).');
+  tulos('numeroviittaukset: leikkeen numero yli luettelon, ei yhtään linkkiä kohtiin', !h5.includes('class="lahde"') && !/href="#luku-/.test(h5), h5);
+  const h4 = leike('Ankkurin numero eri [2](' + U + '#bib.bib7).');
+  tulos('numeroviittaukset: ankkurin numero eri kuin linkin teksti, ei linkkiä kohtaan', !h4.includes('class="lahde"'), h4);
+})();
+
 console.log(virheita ? virheita + ' virhettä' : 'Kaikki kunnossa.');
 process.exit(virheita ? 1 : 0);
