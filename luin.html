@@ -484,11 +484,16 @@
   .valikko.porras.rinn button.p-ots[aria-expanded="true"]::before { content: ''; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px;
     background: var(--paperi); }
   .valikko.porras.rinn .p-paa > button.p-ots:first-child[aria-expanded="true"]::before { top: -4px; }
-  .valikko button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { flex: none; width: 5.5px; height: 6.25px; fill: var(--harmaa); }
-  .valikko button.p-ots[aria-expanded="true"] svg.p-nuoli { fill: currentColor; }
+  .valikko button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { flex: none; width: 5px; height: 9px; overflow: visible;
+    fill: none; stroke: var(--harmaa); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+  .valikko button.p-ots svg.p-nuoli path, .valikko button.p-takaisin svg.p-nuoli path { vector-effect: non-scaling-stroke; }
+  .valikko button.p-ots[aria-expanded="true"] svg.p-nuoli { stroke: currentColor; }
+  .valikko .p-vers { font-size: .8rem; letter-spacing: .12em; }
+  .valikko .p-vers .mk { letter-spacing: 0; }
+  .valikko .p-kurs { font-style: italic; }
   .valikko button.p-takaisin { display: flex; align-items: center; gap: 10px; color: var(--harmaa); border-bottom: 1px solid var(--viiva);
     margin: -4px 0 4px; }
-  .valikko button.p-takaisin svg.p-nuoli { fill: var(--ruoste); }
+  .valikko button.p-takaisin svg.p-nuoli { stroke: var(--ruoste); }
   .valikko.rivi { display: flex; flex-wrap: wrap; min-width: 0; padding: 0; }
   .valikko.rivi button { width: auto; padding: 9px 13px; }
   .valikko.rivi button + button { border-left: 1px solid var(--viiva); }
@@ -3504,7 +3509,7 @@
         '<button type="button" data-k="lataa">Lataa .md</button>' +
         // Huiluta laatikkoon: tekstin runko toisten laitteiden pinoihin (huiluta()).
         '<button type="button" data-k="huiluta" class="vihje" data-vihje="Toisten laitteittesi pinoihin">Huiluta laatikkoon</button>' },
-      { k: 'latomo', nimi: 'Latomo', html: '<button type="button" data-k="luokittele">Luokittele</button>' +
+      { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
         '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
       { k: 'luin', nimi: 'Luin.', html: luinKohdat([e]) }
     ], function (k, nappi) {
@@ -3647,7 +3652,7 @@
     naytaPorras(b.getBoundingClientRect(), '<div class="esi">' + (n === 1 ? esc(es[0].title) : n + ' tekstiä valittu') + '</div>', [
       { k: 'vienti', nimi: VIENTI, html: '<button type="button" data-k="viitteet">Kopioi ' + (n === 1 ? 'lähdeviite' : 'lähdeviitteet') + '</button>' +
         '<button type="button" data-k="zip">Vie merkinnät (zip)</button>' },
-      { k: 'latomo', nimi: 'Latomo', html: '<button type="button" data-k="luokittele">Luokittele</button>' },
+      { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' },
       { k: 'luin', nimi: 'Luin.', html: luinKohdat(es) }
     ], function (k, nappi) {
       var lt = luinToiminto(k, nappi, es, b);
@@ -3782,8 +3787,13 @@
      napin puoleisen reunan paikallaan (popPaikka.reuna): napin alla avautunut kasvaa alaspäin, yllä avautunut ylöspäin, eikä
      laatikko hyppää napin toiselle puolelle. Hiirellä pääkohta avautuu myös viipymällä (PORRAS_MS); napautus vain avaa, ei
      sulje, jottei viipymällä avattu sulkeudu samaan napautukseen. */
-  var VIENTI = 'Exporta\u0304tio\u0304';
-  var P_NUOLI = '<svg class="p-nuoli" viewBox="-4.4 -2.5 4.4 5" aria-hidden="true"><path d="M0 0C-1.46 -.81 -2.94 -1.69 -4.4 -2.5C-3.67 -2.1 -3.44 0 -2.5 0L-2.5 0C-3.44 0 -3.67 2.1 -4.4 2.5C-2.94 1.69 -1.46 .81 0 0Z"/></svg>';
+  // Pääkohtien nimet (käyttäjän linjaus): EXPORTĀTIŌ ja LATOMO versaalina, EXPORTĀTIŌ lisäksi kursiivina; Luin. ennallaan.
+  // Harvennus voi irrottaa yhdistyvän makronin kirjaimestaan (kursiivi), joten makronillisilla kirjaimilla ei ole harvennusta
+  // (span.mk), ja välin tekee ohut väli U+2009 (Literatassa .125 em, harvennus .12 em): tekstinä se saa alleviivauksen, marginaali ei.
+  var VIENTI = '<span class="p-vers p-kurs" lang="la">EXPORT<span class="mk">A\u0304\u2009</span>TI<span class="mk">O\u0304\u2009</span></span>';
+  var LATOMO = '<span class="p-vers">LATOMO</span>';
+  // Alavalikon merkki: yksinkertainen natsanuoli eli ohut kulmaviiva (käyttäjän linjaus), osoittaa oikealle.
+  var P_NUOLI = '<svg class="p-nuoli" viewBox="0 0 5 9" aria-hidden="true"><path d="M1 1L4 4.5L1 8"/></svg>';
   // porrasLukko: hiiren paikka alavalikon vaihtuessa. Viipymäavaus odottaa, että hiiri oikeasti liikkuu siitä, jottei hiiren
   // alle siirtynyt pääkohta (laatikko kasvoi tai siirtyi) avaa seuraavaa ketjussa.
   var PORRAS_MS = 250, porrasViive = 0, porrasHiiri = '', porrasLukko = '';

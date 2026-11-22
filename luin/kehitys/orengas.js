@@ -84,12 +84,10 @@ const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
 // Ö-mappiin-linkin nuolen kärki (käyttäjän linjaus: huolellinen, klassinen): täytetty muoto, kärki (0,0) ja varsi eli alleviivaus (1 px)
 // vasemmalta. Varren pää on x = -t (linkin oikea reuna), joten kärki on t px sen yli. Ulkoreunat suorahkot kärjestä sakaran päähän
 // (-L, ±H), sisäreunat kaartuvat sakaran päästä takaisin varren reunaan r px varren päästä; sakaran pää on terävä (hiusviiva).
-// a0, aE: ulkoreunan suunta kärjessä ja päässä (astetta), k0, kE, ki: kaarten ohjauspisteiden osuudet. v: varren puolileveys
-// (0: irrallinen kärki ilman vartta, porrasvalikon alavalikon merkki).
+// a0, aE: ulkoreunan suunta kärjessä ja päässä (astetta), k0, kE, ki: kaarten ohjauspisteiden osuudet.
 const NUOLI = { t: .9, r: 1.6, L: 4.4, H: 2.5, a0: 29, aE: 29, k0: .33, kE: .33, ki: .3 };
 function karki(q) {
-  const v = q.v == null ? .5 : q.v;
-  const rad = d => d * Math.PI / 180, T = [0, 0], E = [-q.L, -q.H], R = [-q.t - q.r, -v];
+  const rad = d => d * Math.PI / 180, T = [0, 0], E = [-q.L, -q.H], R = [-q.t - q.r, -.5];
   const d0 = [-Math.cos(rad(q.a0)), -Math.sin(rad(q.a0))], dE = [-Math.cos(rad(q.aE)), -Math.sin(rad(q.aE))];
   const len = Math.hypot(E[0], E[1]), lenI = Math.hypot(E[0] - R[0], E[1] - R[1]);
   const c1 = [d0[0] * len * q.k0, d0[1] * len * q.k0], c2 = [E[0] - dE[0] * len * q.kE, E[1] - dE[1] * len * q.kE];
@@ -114,7 +112,6 @@ if (require.main === module) {
   } else {
     console.log(JSON.stringify({
       nuoli: Object.assign(nuoliSvg(NUOLI), { t: NUOLI.t }),
-      porras: karki(Object.assign({}, NUOLI, { v: 0 })),
       linkki: { w: e(gl.w, EM), h: e(gl.h + yla(gl, 1), EM), puoli: e(gl.r.cx, EM), svg: svg(LINKKI, PISTE, 'orengas', 1) },
       ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(-OALA, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
   }

@@ -73,7 +73,7 @@ const luinKohdat = async (page, id) => {
     tulos('kolme salmiakkia 4,75 × 16,15 px', Math.abs(kolme[0] - 4.75) < .02 && Math.abs(kolme[1] - 16.15) < .02, kolme.join(' × '));
     await page.click('#nimikkeet button.jako[data-id="p-t2"]');
     const paa = await page.$$eval('#pop .p-paa button', bs => bs.map(b => b.dataset.k + '=' + b.textContent));
-    tulos('pääkohdat Exportātiō, Latomo, Luin.', paa.join(' | ') === 'ali:vienti=Exportātiō | ali:latomo=Latomo | ali:luin=Luin.', paa.join(' | '));
+    tulos('pääkohdat EXPORTĀTIŌ, LATOMO, Luin.', paa.join(' | ') === 'ali:vienti=EXPORTĀ TIŌ  | ali:latomo=LATOMO | ali:luin=Luin.', paa.join(' | '));
     let t0 = await tila(page);
     tulos('leveällä rinnakkain, ei alavalikkoa auki', /\brinn\b/.test(t0.luokka) && !t0.ali && !t0.vierii, t0.luokka);
     await kuva(page, '1-paa');
@@ -212,7 +212,7 @@ const luinKohdat = async (page, id) => {
     tulos('kapealla sisäkkäin', /\bsisak\b/.test(k0.luokka) && k0.right <= k0.iw - 8 && k0.left >= 8, k0.luokka);
     await page.tap('#pop button[data-k="ali:vienti"]');
     const k1 = await tila(page);
-    tulos('alavalikko pääkohtien tilalla, paluurivi ylimpänä, yläreuna pysyy', !k1.paa && k1.kohdat[0] === 'takaisin=Exportātiō' && k1.top === k0.top &&
+    tulos('alavalikko pääkohtien tilalla, paluurivi ylimpänä, yläreuna pysyy', !k1.paa && k1.kohdat[0] === 'takaisin=EXPORTĀ TIŌ ' && k1.top === k0.top &&
       k1.right <= k1.iw - 8 && k1.left >= 8, JSON.stringify([k0.top, k1.top, k1.kohdat[0]]));
     await kuva(page, '6-kapea-vienti');
     await page.tap('#pop .p-ali.auki button[data-k="takaisin"]');
