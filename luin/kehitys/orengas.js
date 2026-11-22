@@ -9,7 +9,8 @@ const f = x => { const s = (Math.round(x * 100) / 100 + ''); return s.replace(/^
 const sstep = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
 // p: lev (ulkoleveys), kork (ulkokorkeus, litteästä pohjasta keskilinjan lakeen + puolet lakipaksuudesta), nAla, tb (pohja),
 // ts (suurin), tt (laen laskennallinen paksuus: keskilinjan korkeus), kTasa (pohjan tasapaksu osa, astetta), kMax, rako (keskilinjan
-// pään väli laella), kap (kapenemisen eksponentti), paa (pään paksuus).
+// pään väli laella; käyttäjän linjaus: piikit melkein koskettavat, ei varmuutta kosketuksesta), kap (kapenemisen eksponentti),
+// paa (pään paksuus).
 function rengas(p, x0, y0) {
   const N = 2000, dt = 2 * Math.PI / N, kul = d => d * Math.PI / 180;
   // Keskilinjan puoliakselit: ulkoleveyden puolikas kyljen paksuuden puolikkaalla vähennettynä, korkeus pohjan ja laen paksuuksilla.
@@ -69,10 +70,10 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.35, kap: 1, paa: .04, n: 30 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: .25, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: synkassa emo-ö:n kanssa): sama muoto hiukan matalampana, kehä suhteessa
 // paksumpi (käyttäjän linjaus; reikä näkyy vielä 2×-tiheydellä), rako suhteessa pienempi.
-const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .32, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
+const PISTE = { lev: 2.9, kork: 2.85, nAla: 2.15, tb: .56, ts: .72, tt: .28, kTasa: 12, kMax: 78, rako: .1, kap: 1, paa: .03, pnosto: 1.05, pdx: 2.45, n: 16 };
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
 // osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on .9 px
 // perusviivan alla (pohja pohjan viivan paksuus + .9 px perusviivan alla).
