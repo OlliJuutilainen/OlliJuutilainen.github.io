@@ -3,20 +3,24 @@
 //   node luin/kehitys/orengas.js --kuva     esikatselusivu suurennettuna (stdout, html)
 // Rengas on viiva, jolla on keskilinja ja paksuus. Keskilinja on superellipsi: alapuolisko eksponentilla nAla (> 2, joten pohja on
 // litteä ja linkin alleviivaus jatkuu siitä oikealle), yläpuolisko ellipsi. Paksuus on pohjassa alleviivauksen paksuinen, suurin
-// kyljissä hiukan keskikohdan alapuolella (kulma kMax pohjasta) ja kevenee lakea kohti; laella leveä viisto irvistysrako
-// (ulkoreunojen väli go, sisäreunojen gi). Ö:n pisteet ovat saman muodon pienempiä renkaita.
+// kyljissä hiukan keskikohdan alapuolella (kulma kMax pohjasta) ja kapenee siitä portaattomasti laen raon reunaan hiusviivaksi
+// (käyttäjän linjaus: ei viistettä, klassisemman kirjasimen tuntu). Ö:n pisteet ovat saman muodon pienempiä renkaita.
 const f = x => { const s = (Math.round(x * 100) / 100 + ''); return s.replace(/^0\./, '.').replace(/^-0\./, '-.'); };
 const sstep = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
 // p: lev (ulkoleveys), kork (ulkokorkeus, litteästä pohjasta keskilinjan lakeen + puolet lakipaksuudesta), nAla, tb (pohja),
-// ts (suurin), tt (laki), kTasa (pohjan tasapaksu osa, astetta), kMax, go, gi.
+// ts (suurin), tt (laen laskennallinen paksuus: keskilinjan korkeus), kTasa (pohjan tasapaksu osa, astetta), kMax, rako (keskilinjan
+// pään väli laella), kap (kapenemisen eksponentti), paa (pään paksuus).
 function rengas(p, x0, y0) {
   const N = 2000, dt = 2 * Math.PI / N, kul = d => d * Math.PI / 180;
-  const w = t => { const u = Math.abs(t); return u <= kul(p.kMax) ? p.tb + (p.ts - p.tb) * sstep((u - kul(p.kTasa)) / (kul(p.kMax) - kul(p.kTasa)))
-    : p.ts - (p.ts - p.tt) * sstep((u - kul(p.kMax)) / (Math.PI - kul(p.kMax))); };
   // Keskilinjan puoliakselit: ulkoleveyden puolikas kyljen paksuuden puolikkaalla vähennettynä, korkeus pohjan ja laen paksuuksilla.
   const a = p.lev / 2 - p.ts / 2, b = (p.kork - p.tb / 2 - p.tt / 2) / 2, cx = x0 + p.lev / 2, cy = y0 + p.kork - p.tb / 2 - b;
   const kp = t => { const s = Math.sin(t), c = Math.cos(t), n = Math.abs(t) <= Math.PI / 2 ? p.nAla : 2;
     return [cx + a * Math.sign(s) * Math.abs(s) ** (2 / n), cy + b * Math.sign(c) * Math.abs(c) ** (2 / n)]; };
+  // Pää: keskilinja päättyy, kun sen etäisyys pystyakselista on rako/2. Paksuus kapenee portaattomasti suurimmasta (kMax) päähän:
+  // cos-käyrä, joten kapeneminen alkaa pehmeästi ja viiva ohenee hiusviivaksi (ei viistettä).
+  let loppu = Math.PI; for (let t = Math.PI / 2; t <= Math.PI; t += dt / 8) if (Math.abs(kp(t)[0] - cx) <= p.rako / 2) { loppu = t; break; }
+  const w = t => { const u = Math.abs(t); if (u <= kul(p.kMax)) return p.tb + (p.ts - p.tb) * sstep((u - kul(p.kTasa)) / (kul(p.kMax) - kul(p.kTasa)));
+    const s = Math.min(1, (u - kul(p.kMax)) / (loppu - kul(p.kMax))); return p.paa + (p.ts - p.paa) * Math.cos(s * Math.PI / 2) ** p.kap; };
   const ulko = [], sisa = [];
   for (let i = 0; i <= N; i++) {
     const t = -Math.PI + i * dt, q = kp(t), e = kp(t - dt / 4), j = kp(t + dt / 4);
@@ -24,9 +28,7 @@ function rengas(p, x0, y0) {
     const nx = -ty, ny = tx, h = w(t) / 2; // t kasvaa vastapäivään ruudulla (y alas): normaali (-ty, tx) osoittaa ulos.
     ulko.push([q[0] + nx * h, q[1] + ny * h, t]); sisa.push([q[0] - nx * h, q[1] - ny * h, t]);
   }
-  // Rako: ulkoreuna katkeaa, kun |x - cx| < go/2 laen puolella, sisäreuna kun < gi/2.
-  const paa = (pis, g) => pis.filter(q => Math.abs(q[2]) < Math.PI / 2 || Math.abs(q[0] - cx) >= g / 2 - 1e-9);
-  const u = paa(ulko, p.go), s = paa(sisa, p.gi);
+  const u = ulko.filter(q => Math.abs(q[2]) <= loppu), s = sisa.filter(q => Math.abs(q[2]) <= loppu);
   return { u, s: s.reverse(), cx, alin: Math.max(...ulko.map(q => q[1])), ylin: Math.min(...u.map(q => q[1])),
     vas: Math.min(...ulko.map(q => q[0])), oik: Math.max(...ulko.map(q => q[0])) };
 }
@@ -67,8 +69,8 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.6, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, go: 1.5, gi: 2.7, n: 30 };
-const PISTE = { lev: 3.05, kork: 2.6, nAla: 2.6, tb: .5, ts: .72, tt: .36, kTasa: 12, kMax: 78, go: .5, gi: .95, pnosto: 1.25, pdx: 2.45, n: 16 };
+const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.6, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 1.9, kap: 1, paa: .04, n: 30 };
+const PISTE = { lev: 3.05, kork: 2.6, nAla: 2.6, tb: .5, ts: .72, tt: .36, kTasa: 12, kMax: 78, rako: .9, kap: 1, paa: .03, pnosto: 1.25, pdx: 2.45, n: 16 };
 // Otsikon rengas (.74rem = 11,84 px): sama muoto, laki versaalikorkeudella (8,51 px) ja keskikohta kammen navan korkeudella
 // (.3176 em = 3,76 px), joten koko on linkin renkaan kerroin OK.
 const OEM = 11.84, OCAP = 8.51, ONAPA = 3.76, OK = (2 * (OCAP - ONAPA)) / LINKKI.kork;

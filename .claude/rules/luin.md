@@ -238,8 +238,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
   Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
-  paksuimmat hiukan keskikohdan alapuolella, ja viiva kevenee lakea kohti leveään viistoon irvistysrakoon (ulkoreunat lähempänä kuin
-  sisäreunat), ei paksua makkaraa. Ö:n pisteet ovat samaa muotoa pienempinä. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
+  paksuimmat hiukan keskikohdan alapuolella, ja niistä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä:
+  klassisemman kirjasimen tuntu), ei paksua makkaraa. Ö:n pisteet ovat samaa muotoa pienempinä. Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
   joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Alleviivaus on reunaviiva, ja svg on
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
