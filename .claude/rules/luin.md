@@ -65,7 +65,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   SAET-sovite (St Andrews Encyclopaedia of Theology, opas 7.5): viittaukset ovat jo SEP-muotoa; Attributions-osio
   (lähdepainos, käännökset) jää tekstiin, Copyright-rivi etukenttään.
   Gutenberg-sovite (opas 7.5) leikkaa koko kirjan. `samanSivunViitteet()`:n kolmas parametri (jatkoehto) estää
-  leipätekstin valumisen viitteeseen; ilman sitä käytös on ennallaan. Pesukone syöttää leikkeen Latomoon kuten lisäosa (ei `fill`).
+  leipätekstin valumisen viitteeseen; ilman sitä käytös on ennallaan. Yhden viitteen laatikossa (`div.footnote`, `.pg-viite`)
+  kaikki sisarukset ovat jatkoa (runot, TEI:n `p.tei-p`), muualla vain samanlainen lohko. Hakemisto (`Index`-otsikosta seuraavaan
+  samantasoiseen) poistetaan ennen alaviitteitä, koska sen kirjainlinkki A näyttää viitemerkiltä. Nelinumeroinen viitetunnus kelpaa
+  vain hakasulkeissa (`TUNNUS_PITKA`; paljas luku on vuosi). Pesukone syöttää leikkeen Latomoon kuten lisäosa (ei `fill`).
+  gutenberg.org estää pilvikontin (503); pesukoneen välimuistin voi täyttää peilistä (`aleph.gutenberg.org/cache/epub/<n>/`).
   New Advent- ja CCEL-sovitteet (opas 7.5) kokoavat lyhyen luvun sivulta koko kirjan (enintään 250 sivua samalta
   sivustolta; tietosuojasivu mainitsee). Molemmat ovat md.js:n `KANTAJA`-sivustoja, joten lisätietona on tekijä.
   Psyche–Aeon-sovite (opas 7.5): ingressi jätetään pois tarkoituksella (kursiivina se olisi Luinissa alaotsikko ja
@@ -146,7 +150,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sitä, aja `--sarja pmc` (tavulleen ennallaan) ja `--sarja lehdet`. PMC:n tekijä–vuosi-viittaus linkittyy, koska sovite kirjoittaa
   kohdan alkuun viittauksen nimiön `Brunton et al. (2013).` (Vancouver-kohdasta md.js ei löydä tekijää eikä vuotta) ja Cochranen
   tutkimustunnuksen `Smith (1997a) {published data only}.` otsikon sijaan: älä poista näitä alkuja siistiäksesi luetteloa. Lehden
-  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Numeroviittauksen linkin tekstissä saa olla hakasulkeet (`<a>[37]</a>`, vanha PLoS Medicine). Lääketieteen kierros: `--sarja laake`. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
+  nimi kirjoitetaan sivun lyhenteen mukaan (`pmcLehti()`). Numeroviittauksen linkin tekstissä saa olla hakasulkeet (`<a>[37]</a>`, vanha PLoS Medicine). Lääketieteen kierros: `--sarja laake`. Toinen kierros (vaikeat syötteet): `--sarja laake2`; Frontiersin ja Springer Naturen kaavat syntyvät vasta sivun skriptistä, joten mittaa
+  myös `--elava`lla. Kaavat tekstiksi `mathTeksti()` (MathML: PMC, PLOSin JATS-XML, Frontiers) ja `texTeksti()` (Springer Naturen TeX): indeksin sisältö
+  ilman välilyöntejä (Latomon `~…~`), sisäkkäinen indeksi Unicodena, peräkkäiset samat indeksit pilkulla (`~a~~b~` olisi yliviivaus); tuntematon TeX
+  jää koodiksi, ei arvata. Lohkokaavan numero on em-välin takana: md.js tekee siitä `p.kaava`n. **Luinin huomautus** (käyttäjän pyyntö: omat rajat
+  tiedostava muoto) on hakasulkeissa suomeksi Luinin sanastolla (`[kaava]`, `[Kaava (3) on lähteessä kuvana.]`, `[Taulukko on lähteessä kuvana.]`):
+  md.js:n `huomautus()` tunnistaa sen alkusanasta ja lähte-sanasta (`span.huom`, harmaa kursiivi kuten `[kuva]`), joten uusi huomautus käyttää
+  samaa sanastoa. **Julkaisun tila** (takaisin vedetty, korjattu, päivitetty, esipainos) sivun ilmoituksesta etukenttään `tila:` ja `tila-lähde:`;
+  md.js:n `tila()` tekee siitä yläotsakkeen kuten rahoitushuomautuksesta (`p.tila`, takaisin vedetyssä ruoste). Arvoja on vain nämä neljä. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (käyttäjä ei ole ottanut kantaa).
   Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
@@ -719,11 +730,12 @@ Aja repon juuressa:
   kantautuminen Luiniin ja Latomon plussa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/posti-testi.js [kuvakansio]`: postilaatikko ja merkintäposti kahdella
   laitteella workerin oikealla koodilla (muistissa oleva KV).
-- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [--sarja s] [osoitteet]`: sovitteiden oikeat
+- `NODE_PATH=$(npm root -g) node luin/kehitys/hakuteos-pesukone.js [--nayta] [--elava] [--sarja s] [osoitteet]`: sovitteiden oikeat
   artikkelit lisäosan, Latomon ja md.js:n läpi; jäänteiden, virheiden ja rikkinäisten lähdelinkkien pitää olla 0. Ennen ja jälkeen
   samalla välimuistilla: ensimmäinen ajo `--ulos A`, toinen `--ulos B --vertaa A` (muuttuneet rivit artikkeleittain; sama
   `snellman-pesukone.js`:ssä). Tarkistussivua (PMC:n reCAPTCHA, Cloudflare) ei tallenneta eikä kierretä selaimella: se on
-  pääsynvalvontaa. Pesukone luettelee sen sivut; hae ne myöhemmin harvemmin.
+  pääsynvalvontaa. Pesukone luettelee sen sivut; hae ne myöhemmin harvemmin. `--elava`: sivun omat skriptit, tyylit ja kirjasimet verkosta (asiakirja yhä välimuistista), kun
+  sisältö syntyy vasta skriptistä (MathJax).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sep-pesukone.js [--nayta]`: seitsemän SEP-artikkelia lisäosan, Latomon ja
   md.js:n läpi; lähdelinkkien oikeellisuus ja linkittämättä jääneet (opas 3.4).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/snellman-pesukone.js [--vali kansio]`: Snellmanin koko korpus (2 949 asiakirjaa)
@@ -757,6 +769,7 @@ linkki *Kokeiluteksti: Kant ja eläinetiikka* ja `robots.txt`:n rivi `Disallow: 
 `luin/tekstit/dialectic-of-enlightenment.md` (ilman linkkiä, `luin.html#u=luin/tekstit/dialectic-of-enlightenment.md`).
 Kun käyttäjä sanoo kokeilun päättyneen, poista tiedostot, linkki ja robots.txt:n rivi (`md-testi.js` käyttää molempia
 fixtureina: korvaa ne ensin). Muita käyttäjän tekstejä ei viedä repoon ilman erillistä lupaa.
+`luin/tekstit/burckhardt-renaissance.md` (Gutenberg-sovitteen leike, vapaa teksti) on jaettu jakolinkillä: poisto rikkoo linkin.
 
 ### Alatunnisteen ©-merkki
 

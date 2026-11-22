@@ -678,7 +678,9 @@
      alkaa samalla tunnuksella tai siinä on paluulinkki (#-linkki taaksepäin). Jatkokappaleet ovat seuraavia sisaruksia,
      kunnes vastaan tulee toinen viite, otsikko tai viiva. Palauttaa määritelmät; merkit korvautuvat ja lohkot poistuvat. */
   const TUNNUS = /^[[(]?\s*(\d{1,3}[a-z]?\*?|\*{1,3}|[†‡§]|[a-z]|note|n\.?\s?\d{1,3})\s*[\])]?\.?$/i;
-  const tunnusOf = t => (TUNNUS.exec(rivi(t)) || [])[1];
+  // Nelinumeroinen vain hakasulkeissa ([1000]–[1294], Burckhardtin Gutenberg-kirja): paljas 1520 on vuosiluku.
+  const TUNNUS_PITKA = /^\[\s*(\d{4})\s*\]$/;
+  const tunnusOf = t => (TUNNUS.exec(rivi(t)) || TUNNUS_PITKA.exec(rivi(t)) || [])[1];
   // jatkuu(lohko, seuraava): saako viitettä seuraava elementti olla sen jatkokappale (Gutenberg: vain saman viitelaatikon;
   // oletuksena kaikki seuraavaan viitteeseen, otsikkoon tai viivaan asti).
   function samanSivunViitteet(juuri, etuliite, jatkuu = null) {
@@ -1714,8 +1716,15 @@
   // yksirivinen kappaleeksi.
   // Solun teksti: rivinvaihdot ja solun kappaleet välilyönneiksi (IRSP: Core Hypothesis 1<br>High- … liimautui Hypothesis 1High-:ksi).
   function ojsSolu(c) {
-    if (!c.querySelector('br, p, div, li')) return rivi(c.textContent);
+    if (!c.querySelector('br, p, div, li, sup, sub')) return rivi(c.textContent);
     const k = c.cloneNode(true);
+    /* Solun ylä- ja alaindeksit (lääketieteen toinen kierros): ruudukon solu on pelkkää tekstiä, joten yksikön ja alaviitteen merkki
+       katosi (kg/m2, 1.73m2)a). Unicoden ylä- ja alaindeksimerkeiksi, kun kaikki merkit löytyvät (kg/m², 10⁹/L, ᵃ); muuten teksti
+       kuten ennen. */
+    k.querySelectorAll('sup, sub').forEach(s => {
+      const kartta = s.tagName === 'SUP' ? KAAVA_YLA : KAAVA_ALA, m = [...s.textContent.replace(/\s+/g, '')];
+      if (m.length && m.length <= 6 && m.every(z => kartta[z])) s.replaceWith(m.map(z => kartta[z]).join(''));
+    });
     k.querySelectorAll('br').forEach(b => b.replaceWith(' '));
     k.querySelectorAll('p, div, li').forEach(p => p.append(' '));
     return rivi(k.textContent);
@@ -2040,6 +2049,24 @@
     const h1 = el.querySelector('h1'), tiivis = t => rivi(t).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
     if (h1 && tiivis(otsikko) && tiivis(h1.textContent).startsWith(tiivis(otsikko).slice(0, 20))) h1.remove();
     const OTS = 'h1, h2, h3, h4, h5, h6';
+    // Hakemisto pois kuten Faded Pagessa: sen sivunumerot ovat poissa, ja lukimessa on haku. Otsikko ja kaikki sen perässä
+    // seuraavaan samantasoiseen tai ylempään otsikkoon asti (Burckhardtilla myös hakemiston perään painettu kustantajan
+    // osoite). Ennen alaviitteitä, koska hakemiston kirjainlinkki A näyttää viitemerkiltä.
+    el.querySelectorAll(OTS).forEach(h => {
+      if (!el.contains(h) || !/^((general|alphabetical|analytical) )?index( of [^.]{1,40})?[.:]?$/i.test(rivi(h.textContent))) return;
+      const taso = +h.tagName[1], ylempi = x => [x, ...x.querySelectorAll(OTS)].some(y => y.matches(OTS) && +y.tagName[1] <= taso);
+      for (let s = h.nextElementSibling, t; s && !ylempi(s); s = t) { t = s.nextElementSibling; s.remove(); }
+      h.remove();
+    });
+    // Kehystetty siirtymälaatikko ennen ensimmäistä otsikkoa (yksisoluinen taulukko, jossa vähintään kolme linkkiä kirjan
+    // sisään: Burckhardtin Contents · Index A–Z · Footnotes) ja transkriboijan korjausluettelo (taulukko, jonka ensimmäinen
+    // rivi on Typographical errors corrected …; sivuviitteet {pg 204} osoittavat poistettuihin sivuihin).
+    const ensOts = el.querySelector(OTS);
+    el.querySelectorAll('table').forEach(t => {
+      const alussa = ensOts && (t.compareDocumentPosition(ensOts) & Node.DOCUMENT_POSITION_FOLLOWING);
+      if (alussa && t.rows.length === 1 && t.rows[0].cells.length === 1 && t.querySelectorAll('a[href^="#"]').length >= 3) t.remove();
+      else if (t.rows.length && /^((typographical|printer'?s'?) )?(errors|errata|corrections)\b.{0,60}(corrected|transcriber)|^errata\.?$/i.test(rivi(t.rows[0].textContent))) t.remove();
+    });
     // Linkki otsikkoon: kohde on otsikko tai sen sisällä, sisältää otsikon tai on (tyhjä ankkuri) heti otsikon edellä.
     const otsikkoon = a => {
       const id = (a.getAttribute('href') || '').slice(1);
@@ -2117,7 +2144,11 @@
     // Jatkokappale vain samasta viitelaatikosta: vanhoissa kirjoissa p.footnote on heti kappaleensa perässä, ja sitä seuraava
     // leipäteksti valui viitteeseen (Kantin Critique of Pure Reason: 47 000 sanaa).
     const laatikko = x => x.parentElement && x.parentElement.matches('.footnote, .footnotes, .pg-viite, .tei-list-footnotes, .notes');
-    const maar = samanSivunViitteet(el, 'pg', (l, n) => n.tagName === l.tagName && (l.className ? n.className === l.className && !/^(|tei tei-p)$/.test(l.className) : laatikko(l) && n.parentElement === l.parentElement));
+    // Yhden viitteen laatikossa (DP:n div.footnote, TEI:n dd:stä koottu .pg-viite) jatkoa on kaikki sen sisällä: runo
+    // (div.poetry, div.poem-container) ja TEI:n p.tei-p, joka ennen jäi viitteestä irti Footnotes-otsikon alle.
+    const omaLaatikko = x => x.parentElement && x.parentElement.matches('div.footnote, .pg-viite');
+    const maar = samanSivunViitteet(el, 'pg', (l, n) => (omaLaatikko(l) && n.parentElement === l.parentElement) ||
+      (n.tagName === l.tagName && (l.className ? n.className === l.className && !/^(|tei tei-p)$/.test(l.className) : laatikko(l) && n.parentElement === l.parentElement)));
     // Viitemerkki <pre>-kaaviossa (Kantin paralogismien taulu): md.js ei lue alaviitteitä koodilohkosta, joten merkit kaavion perään.
     el.querySelectorAll('pre').forEach(pre => {
       const merkit = pre.textContent.match(MERKKI);
@@ -2154,6 +2185,16 @@
       const teksti = muunna(kopio.innerHTML, 'inlined').trim();
       if (teksti) maar.push(maaritelma(tunnus, teksti));
       p.remove();
+    });
+    // Tyhjäksi jäänyt viiteosion otsikko (FOOTNOTES:, Footnotes, NOTES): viitteet ovat nyt alaviitteinä.
+    el.querySelectorAll(OTS).forEach(h => {
+      if (!/^(foot ?notes|notes|end ?notes)[.:]?$/i.test(rivi(h.textContent))) return;
+      const taso = +h.tagName[1];
+      let tyhja = true;
+      for (let s = h.nextElementSibling; s && tyhja && !(s.matches(OTS) && +s.tagName[1] <= taso); s = s.nextElementSibling) {
+        if (rivi(s.textContent) || s.querySelector('img, table, hr')) tyhja = false;
+      }
+      if (tyhja) h.remove();
     });
     // Yhdistettyjä soluja sisältävä taulukko jäisi Markdownissa HTML:ksi: rivit kappaleiksi, solut ' · ':llä.
     el.querySelectorAll('table').forEach(t => {
@@ -2194,6 +2235,22 @@
       if (raja && !(p.compareDocumentPosition(raja) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
       if (SISALLYS.test(rivi(p.textContent))) p.remove();
     });
+    // Nimiön välistys rivinvaihdoilla (<p>  <br>  <br>By<br>…<br><br><br>LONDON): lohkon alun ja lopun sekä toistuvat
+    // rivinvaihdot pois, muuten ne ovat lukimessa tyhjiä kenoviivarivejä. Vain lohkon omat br:t (span-säkeiden br:t säilyvät),
+    // ja vain kun varsinainen otsikko on (Kalevalassa ei ole, joten sen säkeistöt jäävät koskematta).
+    const tyhjaSolmu = n => n && n.nodeType === 3 && !/\S/.test(n.nodeValue);
+    el.querySelectorAll('br').forEach(br => {
+      if (!raja || !(br.compareDocumentPosition(raja) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+      if (!/^(P|DIV|TD|TH)$/.test(br.parentElement.tagName)) return;
+      let e = br.previousSibling, s = br.nextSibling;
+      while (tyhjaSolmu(e)) e = e.previousSibling;
+      while (tyhjaSolmu(s)) s = s.nextSibling;
+      if (!e || !s || e.nodeName === 'BR') {
+        // Alun sitovat välilyönnit (  <br>  <br>By) pois: neljä välilyöntiä on Markdownissa koodilohko.
+        if (!e) for (let n = br.parentElement.firstChild, m; n && n !== s; n = m) { m = n.nextSibling; if (tyhjaSolmu(n)) n.remove(); }
+        br.remove();
+      }
+    });
     [...el.querySelectorAll('p, div')].reverse().forEach(p => { if (!rivi(p.textContent.replace(/ /g, ' ')) && !p.querySelector('hr, table, img')) p.remove(); });
     // Peräkkäiset viivat (poistetun nimiön tai sisällyksen molemmin puolin) yhdeksi.
     el.querySelectorAll('hr').forEach(hr => {
@@ -2203,6 +2260,16 @@
     });
     const kaytetyt = [...new Set([...el.querySelectorAll(OTS)].map(h => +h.tagName[1]))].sort();
     el.querySelectorAll(OTS).forEach(h => {
+      // Otsikon rivinvaihdot (CHAPTER I.<br><br>INTRODUCTION.) yhdelle riville: Markdownin otsikko on yksi rivi, ja luvun nimi
+      // jäi kappaleeksi otsikon alle ja pois Sisälmyksestä. Väliin piste, ellei edellinen osa pääty välimerkkiin.
+      [...h.querySelectorAll('br')].forEach(br => {
+        const r = document.createRange();
+        r.setStart(h, 0); r.setEndBefore(br);
+        const ennen = rivi(r.toString());
+        r.setStartAfter(br); r.setEnd(h, h.childNodes.length);
+        const jalkeen = rivi(r.toString());
+        br.replaceWith(ennen && jalkeen && !/[.:;!?—–-]$/.test(ennen) ? '. ' : ' ');
+      });
       const u = document.createElement('h' + Math.min(4, kaytetyt.indexOf(+h.tagName[1]) + 2));
       while (h.firstChild) u.appendChild(h.firstChild); h.replaceWith(u);
     });
@@ -5727,31 +5794,340 @@
      tiivistelmä #article-lohkossa h3:n alla (ei .card-contentia) ja citation_issue 0 (numerosta pois). MathML-kaavat tekstiksi
      (mathTeksti()), otsikottomat taulukot ojsTaulukko():lla ja korostus ala- ja yläindeksien sisältä pois. Anubis kuten OpenEditionissa:
      selain ratkaisee haasteen, pesukone hakee curlin omalla tunnisteella. Mitattu 17.11.2026. */
-  // MathML tekstiksi (Philosophers' Imprint: 722 rivinsisäistä kaavaa, {Socrates}, □p): ala- ja yläindeksit HTML:nä, murtoluku a/b,
-  // muut elementit sisältönsä mukaan. Luin ei näytä MathML:ää, ja Turndown jättäisi sen raa'aksi HTML:ksi.
-  function mathTeksti(m) {
+  /* Kaavat tekstiksi (Philosophers' Imprint: 722 rivinsisäistä kaavaa, {Socrates}, □p; lääketieteen toinen kierros: PMC:n,
+     PLOSin ja Frontiersin MathML ja Springer Naturen TeX). Luin ei näytä MathML:ää eikä TeXiä, ja Turndown jättäisi MathML:n
+     merkit peräkkäin (P(Yi|Xi,…), β0 eli indeksit kadoksissa) ja TeXin raa'aksi (\(N_h\)). Tulos on tekstiä, jonka voi lukea ja
+     hakea: merkit Unicodena, ala- ja yläindeksit HTML:nä (Latomo: ~…~, ^…^), murtoluku a/b ja sulut, kun osoittaja tai nimittäjä
+     on lauseke, välit relaatioiden ja laskutoimitusten ympärille kuten kaavan piirtäjä tekee, raja-arvot (∑ alhaalta ylös) ja
+     aksentit (x\u0302, x\u0304) yhdistävinä merkkeinä. Taulukkomaiset kaavat (cases, aligned) riveittäin. */
+  const KAAVA_REL = /^(=|≠|<|>|≤|≥|≦|≧|≈|≃|≅|≡|∼|∝|∈|∉|∋|⊂|⊆|⊃|⊇|→|←|↔|⇒|⇐|⇔|↦|≪|≫|:=|≔|∣)$/;
+  const KAAVA_BIN = /^(\+|−|-|±|∓|×|·|⋅|∙|÷|∪|∩|∧|∨|⊕|⊗|∘|∗)$/;
+  const KAAVA_ISO = /^(∑|∏|∐|∫|∬|∭|∮|⋃|⋂|⋁|⋀|⨁|⨂|lim|max|min|sup|inf|arg ?max|arg ?min)$/;
+  // Aksentti yhdistäväksi merkiksi (yhden merkin päälle; usean merkin päälle merkki merkiltä). Yläindeksiin vain tuntematon
+  // merkki, joka ei ole Latomon indeksimerkki (^ ja ~ ovat taulukossa).
+  const KAAVA_AKS = { '^': '\u0302', 'ˆ': '\u0302', '\u0302': '\u0302', '¯': '\u0304', '‾': '\u0305', '_': '\u0304', '\u0304': '\u0304', '\u0305': '\u0305',
+    '~': '\u0303', '˜': '\u0303', '\u0303': '\u0303', '˙': '\u0307', '.': '\u0307', '¨': '\u0308', '→': '\u20d7', '\u20d7': '\u20d7', 'ˇ': '\u030c', '´': '\u0301', '`': '\u0300', '˘': '\u0306' };
+  const kaavaEsc = s => String(s).replace(/[<&>]/g, c => c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&amp;');
+  // Indeksin sisältö litteänä ja ilman välilyöntejä: Latomon ~…~- ja ^…^-muoto ei sisäkkäisty eikä salli välilyöntiä
+  // (□ alaindeksinä x₁,…,xₙ).
+  // Indeksin sisäinen indeksi (e^{β^T x_i}) Unicoden ylä- tai alaindeksimerkeiksi, kun kaikki merkit löytyvät (eᵝᵀˣ ei: β ja x
+  // alaindeksinä ovat, ᵀ on); muuten litteänä kuten ennen.
+  const KAAVA_YLA = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '+': '⁺', '−': '⁻', '-': '⁻', '=': '⁼',
+    '(': '⁽', ')': '⁾', a: 'ᵃ', b: 'ᵇ', c: 'ᶜ', d: 'ᵈ', e: 'ᵉ', f: 'ᶠ', g: 'ᵍ', h: 'ʰ', i: 'ⁱ', j: 'ʲ', k: 'ᵏ', l: 'ˡ', m: 'ᵐ', n: 'ⁿ',
+    o: 'ᵒ', p: 'ᵖ', r: 'ʳ', s: 'ˢ', t: 'ᵗ', u: 'ᵘ', v: 'ᵛ', w: 'ʷ', x: 'ˣ', y: 'ʸ', z: 'ᶻ', T: 'ᵀ', '′': '′', '*': '*', '∗': '*', ',': ',' };
+  const KAAVA_ALA = { 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉', '+': '₊', '−': '₋', '-': '₋', '=': '₌',
+    '(': '₍', ')': '₎', a: 'ₐ', e: 'ₑ', o: 'ₒ', x: 'ₓ', h: 'ₕ', k: 'ₖ', l: 'ₗ', m: 'ₘ', n: 'ₙ', p: 'ₚ', s: 'ₛ', t: 'ₜ', i: 'ᵢ', j: 'ⱼ',
+    r: 'ᵣ', u: 'ᵤ', v: 'ᵥ', ',': ',' };
+  const kaavaInd = (h, tag) => {
+    const v = String(h).replace(/<(sub|sup)>([^<]*)<\/\1>/g, (x, t, s) => {
+      const k = t === 'sup' ? KAAVA_YLA : KAAVA_ALA, m = [...s.replace(/\s+/g, '')];
+      return m.every(c => k[c]) ? m.map(c => k[c]).join('') : s;
+    }).replace(/<\/?(sub|sup)>/g, '').replace(/\s+/g, '');
+    return v ? '<' + tag + '>' + v + '</' + tag + '>' : '';
+  };
+  const kaavaPelkka = h => String(h).replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  function kaavaAksentti(h, merkki) {
+    const t = kaavaPelkka(h), c = KAAVA_AKS[merkki];
+    if (!c) return h + kaavaInd(kaavaEsc(merkki), 'sup');
+    if ([...t].length === 1 && !/</.test(h.replace(/<\/?em>/g, ''))) return (h + c).normalize('NFC');
+    return kaavaEsc([...t].map(x => x + (c === '\u0304' ? '\u0305' : c)).join('').normalize('NFC'));
+  }
+  // Atomien jono tekstiksi: { h: html, laji: 'rel' | 'bin' | 'punct' | 'open' | 'close' | 'iso' | 'fn' | null }.
+  function kaavaJono(atomit) {
+    let out = '', ed = null;
+    atomit.forEach((a, i) => {
+      if (!a || a.h === '' && !a.laji) return;
+      const vasen = ed && !/^(rel|bin|punct|open|iso)$/.test(ed.laji || '');
+      // Suuri operaattori lausekkeen jälkeen: väli eteen (1/(n₀n₁) ∑…).
+      if (a.laji === 'iso' && vasen && !/ $/.test(out)) out += ' ';
+      if (a.laji === 'rel') out = out.replace(/ $/, '') + (ed ? ' ' : '') + a.h + ' ';
+      else if (a.laji === 'bin' && vasen) out = out.replace(/ $/, '') + ' ' + a.h + ' ';
+      else if (a.laji === 'punct') out = out.replace(/ $/, '') + a.h + ' ';
+      else {
+        // Funktion nimen ja suuren operaattorin (∑ rajoineen) perään väli, ellei seuraava ala sululla; funktion eteen väli
+        // lausekkeen jälkeen (h₀(t) exp(…)). Murtoluku sulkuihin, kun sitä seuraa tulon tekijä: −(1/nₖ)(∂²…), ei −1/nₖ(∂²…).
+        const seur = atomit.slice(i + 1).find(x => x && (x.h !== '' || x.laji));
+        const operandi = seur && !/^(open|punct|close|rel|bin)$/.test(seur.laji || '') && !/^[)\]},;]/.test(kaavaPelkka(seur.h));
+        if (a.laji === 'fn' && vasen && !/ $/.test(out)) out += ' ';
+        out += (a.murto && operandi ? '(' + a.h + ')' : a.h) + ((a.laji === 'iso' || a.laji === 'fn') && operandi && !/^[([{⟨]/.test(kaavaPelkka(seur.h)) ? ' ' : '');
+      }
+      ed = a;
+    });
+    return out;
+  }
+  // Kaksi peräkkäistä samaa indeksiä (cases_{est} ja sen _j) yhdeksi pilkulla: Latomon ~est~~j~ olisi yliviivaus.
+  const kaavaYhdista = h => h.replace(/<\/sub><sub>/g, ',').replace(/<\/sup><sup>/g, ',');
+  // Taulukkomaisen kaavan rivit (merkki ;;): lohkokaavassa omille riveilleen, tekstin seassa puolipisteellä (pilkun jälkeen ilman).
+  const kaavaRivit = (h, lohko) => lohko ? h.split(/\s*;;\s*/).join('<br>') : h.replace(/([,;.])\s*;;\s*/g, '$1 ').replace(/\s*;;\s*/g, '; ');
+  // Murtoluvun osa sulkuihin, kun se on lauseke (a+b)/(c−d); yksittäinen merkki tai indeksoitu merkki ilman.
+  const kaavaOsa = (h, yksi) => yksi || /^(\p{N}+(\.\p{N}+)?|\p{L}\p{M}*′?)$/u.test(kaavaPelkka(h)) ? h : '(' + h + ')';
+  function mathTeksti(m, lohko) {
     const nimi = n => (n.localName || n.nodeName || '').toLowerCase().replace(/^mml:/, '');
     const lapset = n => [...n.childNodes].filter(x => x.nodeType === 1);
-    const kaanna = n => {
-      if (n.nodeType === 3) return n.nodeValue.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;');
-      if (n.nodeType !== 1) return '';
+    const tok = n => rivi(n.textContent).replace(/[\u2061-\u2064]/g, '');
+    // Yksi atomi: merkki tai indeksoitu merkki (murtoluvun ja juuren sulut).
+    const yksi = n => {
       const t = nimi(n), l = lapset(n);
-      if (/^(annotation|annotation-xml)$/.test(t)) return '';
-      // Indeksin sisältö litteänä ja ilman välilyöntejä: Latomon ~…~- ja ^…^-muoto ei sisäkkäisty eikä salli välilyöntiä
-      // (□ alaindeksinä x₁,…,xₙ).
-      const ind = (x, tag) => { const v = kaanna(x).replace(/<\/?(sub|sup)>/g, '').replace(/\s+/g, ''); return v ? '<' + tag + '>' + v + '</' + tag + '>' : ''; };
-      if (t === 'msub' && l.length >= 2) return kaanna(l[0]) + ind(l[1], 'sub');
-      if (t === 'msup' && l.length >= 2) return kaanna(l[0]) + ind(l[1], 'sup');
-      if (t === 'msubsup' && l.length >= 3) return kaanna(l[0]) + ind(l[1], 'sub') + ind(l[2], 'sup');
-      if (t === 'mfrac' && l.length >= 2) return kaanna(l[0]) + '/' + kaanna(l[1]);
-      if (/^(munder|mover|munderover)$/.test(t) && l.length) return kaanna(l[0]);
-      if (t === 'msqrt') return '√(' + l.map(kaanna).join('') + ')';
-      if (t === 'mspace') return ' ';
-      return [...n.childNodes].map(kaanna).join('');
+      if (/^(mi|mn|mtext)$/.test(t)) return true;
+      if (/^(msub|msup|msubsup)$/.test(t)) return !!l[0] && yksi(l[0]);
+      if (/^(mrow|mstyle|mpadded|semantics)$/.test(t)) { const e = l.filter(x => !/^(annotation|annotation-xml)$/.test(nimi(x))); return e.length === 1 && yksi(e[0]); }
+      return t === 'mfenced';
     };
-    const html = kaanna(m).replace(/\s+/g, ' ').trim();
+    const atomi = n => {
+      const t = nimi(n), l = lapset(n);
+      if (/^(annotation|annotation-xml|mphantom|none|mprescripts)$/.test(t)) return null;
+      if (t === 'mo') {
+        const o = tok(n);
+        if (!o) return null;
+        const laji = KAAVA_REL.test(o) ? 'rel' : KAAVA_BIN.test(o) ? 'bin' : /^[,;:]$/.test(o) ? 'punct' : /^[([{⟨⌊⌈]$/.test(o) ? 'open'
+          : /^[)\]}⟩⌋⌉]$/.test(o) ? 'close' : KAAVA_ISO.test(o) ? 'iso' : null;
+        return { h: kaavaEsc(o.replace(/^-$/, '−')), laji };
+      }
+      if (t === 'mi' && n.getAttribute('mathvariant') === 'double-struck') return { h: kaavaEsc([...tok(n)].map(c => TEX_BB[c] || c).join('')) };
+      if (t === 'mi') { const o = tok(n); return { h: kaavaEsc(o), laji: KAAVA_ISO.test(o) ? 'iso' : o.length > 1 && /^\p{L}+$/u.test(o) && n.getAttribute('mathvariant') !== 'italic' ? 'fn' : null }; }
+      if (t === 'mn') return { h: kaavaEsc(tok(n)) };
+      if (t === 'mtext' || t === 'ms') return { h: kaavaEsc((t === 'ms' ? '"' : '') + n.textContent.replace(/\s+/g, ' ') + (t === 'ms' ? '"' : '')) };
+      if (t === 'mspace') return { h: ' ' };
+      if (t === 'mglyph') return { h: kaavaEsc(n.getAttribute('alt') || '') };
+      const k = x => (x ? kaanna(x) : '');
+      // Indeksoitu merkki säilyttää lajinsa (∑ rajoineen, =_df ja →^* relaatioina).
+      const ilaji = b => /^(iso|rel|bin)$/.test(b.laji || '') ? b.laji : null;
+      if (t === 'msub' && l.length >= 2) { const b = atomi(l[0]) || { h: '' }; return { h: b.h + kaavaInd(k(l[1]), 'sub'), laji: ilaji(b) }; }
+      if (t === 'msup' && l.length >= 2) { const b = atomi(l[0]) || { h: '' }; return { h: b.h + kaavaInd(k(l[1]), 'sup'), laji: ilaji(b) }; }
+      if (t === 'msubsup' && l.length >= 3) { const b = atomi(l[0]) || { h: '' }; return { h: b.h + kaavaInd(k(l[1]), 'sub') + kaavaInd(k(l[2]), 'sup'), laji: ilaji(b) }; }
+      if (/^(mover|munder|munderover)$/.test(t) && l.length >= 2) {
+        const b = atomi(l[0]) || { h: '' };
+        // Aksentti (x\u0302, x\u0304, x\u20d7): yläpuolinen yksittäinen merkki; alaviiva jää pois.
+        if (t === 'mover' && (n.getAttribute('accent') === 'true' || (nimi(l[1]) === 'mo' && KAAVA_AKS[tok(l[1])]))) return { h: kaavaAksentti(b.h, tok(l[1])) };
+        if (t === 'munder' && (n.getAttribute('accentunder') === 'true' || /^[_‾¯\u0332]$/.test(tok(l[1])))) return b;
+        const ala = t === 'mover' ? '' : k(l[1]), yla = t === 'munder' ? '' : k(t === 'mover' ? l[1] : l[2]);
+        return { h: b.h + kaavaInd(ala, 'sub') + kaavaInd(yla, 'sup'), laji: b.laji === 'iso' || b.laji === 'fn' ? 'iso' : null };
+      }
+      if (t === 'mfrac' && l.length >= 2) return { h: kaavaOsa(k(l[0]), yksi(l[0])) + '/' + kaavaOsa(k(l[1]), yksi(l[1])), murto: true };
+      if (t === 'msqrt') return { h: '√' + kaavaOsa(kaavaJono(l.map(atomi)), l.length === 1 && yksi(l[0])) };
+      if (t === 'mroot' && l.length >= 2) return { h: kaavaInd(k(l[1]), 'sup') + '√' + kaavaOsa(k(l[0]), yksi(l[0])) };
+      if (t === 'mfenced') {
+        const auki = n.hasAttribute('open') ? n.getAttribute('open') : '(', kiinni = n.hasAttribute('close') ? n.getAttribute('close') : ')';
+        const erot = (n.getAttribute('separators') || ',').replace(/\s+/g, '');
+        return { h: kaavaEsc(auki) + l.map((x, i) => k(x) + (i < l.length - 1 ? (erot[Math.min(i, erot.length - 1)] || '') + ' ' : '')).join('') + kaavaEsc(kiinni) };
+      }
+      // Taulukko (cases, rinnastetut yhtälöt): rivit puolipisteellä, solut välilyönnillä; numeroitu rivi (mlabeledtr) numeron kanssa.
+      if (t === 'mtable') {
+        return { h: l.filter(r => /^(mtr|mlabeledtr)$/.test(nimi(r))).map(r => {
+          const s = lapset(r), nro = nimi(r) === 'mlabeledtr' && s.length > 1 ? ' ' + rivi(k(s.shift())) : '';
+          return s.map(c => rivi(k(c))).filter(Boolean).join(' ') + nro;
+        }).filter(Boolean).join(' ;; ') };
+      }
+      if (t === 'menclose' && /radical/.test(n.getAttribute('notation') || '')) return { h: '√' + kaavaOsa(kaavaJono(l.map(atomi)), l.length === 1 && yksi(l[0])) };
+      if (/^(semantics|maction)$/.test(t)) return l[0] ? atomi(l[0]) : null;
+      return { h: kaavaJono(l.map(atomi)), laji: l.length === 1 ? (atomi(l[0]) || {}).laji : null };
+    };
+    const kaanna = n => { const a = atomi(n); return a ? a.h : ''; };
+    const html = kaavaRivit(kaavaYhdista(kaanna(m).replace(/\s+/g, ' ').trim()), lohko === undefined ? m.getAttribute('display') === 'block' : lohko);
     const d = jasenna('<div>' + html + '</div>').body.firstChild;
     return [...d.childNodes];
+  }
+
+  /* TeX samaan muotoon (Springer Nature: kaava on sivulla lähteenä span.mathjax-tex, \(…\) tai $$\begin{aligned}…$$, ja
+     MathJax piirtää sen vasta selaimessa). Tunnetut komennot (kreikka, relaatiot, \frac, \sqrt, indeksit, aksentit, funktiot,
+     tyylit tekstinä, aligned ja cases riveittäin). Tuntematon komento tai ympäristö (matriisi, \binom): null, jolloin kutsuja jättää
+     lähteen koodiksi: ei arvata. → { html, rivit } tai null. */
+  const TEX_SYMBOLIT = {
+    alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ϵ', varepsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ', vartheta: 'ϑ',
+    iota: 'ι', kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', omicron: 'ο', pi: 'π', varpi: 'ϖ', rho: 'ρ', varrho: 'ϱ', sigma: 'σ',
+    varsigma: 'ς', tau: 'τ', upsilon: 'υ', phi: 'ϕ', varphi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω', Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ',
+    Lambda: 'Λ', Xi: 'Ξ', Pi: 'Π', Sigma: 'Σ', Upsilon: 'Υ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω',
+    infty: '∞', partial: '∂', nabla: '∇', forall: '∀', exists: '∃', nexists: '∄', neg: '¬', lnot: '¬', emptyset: '∅', varnothing: '∅',
+    ell: 'ℓ', hbar: 'ℏ', aleph: 'ℵ', Re: 'ℜ', Im: 'ℑ', wp: '℘', prime: '′', top: '⊤', bot: '⊥', perp: '⊥', angle: '∠', triangle: '△',
+    ldots: '…', dots: '…', cdots: '⋯', vdots: '⋮', ddots: '⋱', dotsc: '…', dotsb: '⋯', circ: '∘', bullet: '•', star: '⋆', ast: '∗',
+    dagger: '†', ddagger: '‡', checkmark: '✓', degree: '°', surd: '√', lbrace: '{', rbrace: '}', backslash: '\\', vert: '|', Vert: '‖',
+    lvert: '|', rvert: '|', lVert: '‖', rVert: '‖', mid: '∣', parallel: '∥', square: '□', Box: '□', blacksquare: '■', diamond: '⋄',
+    lfloor: '⌊', rfloor: '⌋', lceil: '⌈', rceil: '⌉', langle: '⟨', rangle: '⟩', percent: '%', colon: ':'
+  };
+  const TEX_REL = { le: '≤', leq: '≤', ge: '≥', geq: '≥', leqslant: '⩽', geqslant: '⩾', ne: '≠', neq: '≠', approx: '≈', sim: '∼', simeq: '≃',
+    cong: '≅', equiv: '≡', propto: '∝', in: '∈', notin: '∉', ni: '∋', subset: '⊂', subseteq: '⊆', supset: '⊃', supseteq: '⊇', to: '→',
+    rightarrow: '→', leftarrow: '←', gets: '←', leftrightarrow: '↔', Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔', implies: '⇒',
+    iff: '⇔', mapsto: '↦', ll: '≪', gg: '≫', models: '⊨', vdash: '⊢', approxeq: '≊', lesssim: '≲', gtrsim: '≳', coloneqq: '≔', doteq: '≐',
+    mid: '∣', uparrow: '↑', downarrow: '↓', longrightarrow: '⟶', Longrightarrow: '⟹' };
+  const TEX_BIN = { pm: '±', mp: '∓', times: '×', cdot: '·', div: '÷', cup: '∪', cap: '∩', setminus: '∖', wedge: '∧', land: '∧', vee: '∨',
+    lor: '∨', oplus: '⊕', otimes: '⊗', circ: '∘', ast: '∗', bullet: '•' };
+  const TEX_ISO = { sum: '∑', prod: '∏', coprod: '∐', int: '∫', iint: '∬', iiint: '∭', oint: '∮', bigcup: '⋃', bigcap: '⋂', bigvee: '⋁',
+    bigwedge: '⋀', bigoplus: '⨁', bigotimes: '⨂', lim: 'lim', max: 'max', min: 'min', sup: 'sup', inf: 'inf', limsup: 'lim sup',
+    liminf: 'lim inf', argmax: 'arg max', argmin: 'arg min', det: 'det', Pr: 'Pr', gcd: 'gcd' };
+  const TEX_FN = /^(log|ln|lg|exp|sin|cos|tan|cot|sec|csc|sinh|cosh|tanh|arcsin|arccos|arctan|arg|deg|dim|ker|hom|logit|var|Var|cov|Cov|E|tr|diag|rank|sgn|mod|bmod)$/;
+  const TEX_AKS = { hat: '\u0302', widehat: '\u0302', bar: '\u0304', overline: '\u0305', tilde: '\u0303', widetilde: '\u0303', dot: '\u0307',
+    ddot: '\u0308', vec: '\u20d7', overrightarrow: '\u20d7', check: '\u030c', acute: '\u0301', grave: '\u0300', breve: '\u0306' };
+  const TEX_BB = { R: 'ℝ', N: 'ℕ', Z: 'ℤ', Q: 'ℚ', C: 'ℂ', P: 'ℙ', H: 'ℍ', E: '𝔼' };
+  const TEX_TEKSTI = /^(text|textrm|textnormal|textit|textbf|textsf|texttt|mbox|hbox|emph|textup)$/;
+  const TEX_TYYLI = /^(mathrm|mathit|mathbf|mathsf|mathtt|mathnormal|boldsymbol|bm|pmb|varvec|mathcal|mathscr|mathfrak|operatorname|operatorname\*|mathop|mathbin|mathrel|mathord|text)$/;
+  const TEX_OHITA = /^(limits|nolimits|displaystyle|textstyle|scriptstyle|scriptscriptstyle|nonumber|notag|left|right|big|Big|bigg|Bigg|bigl|bigr|Bigl|Bigr|biggl|biggr|Biggl|Biggr|middle|allowbreak|nobreak|strut|mathstrut|relax|protect)$/;
+  const TEX_VALI = /^(,|:|;|>|\s|quad|qquad|enspace|thinspace|medspace|thickspace|space|nobreakspace)$/;
+  function texTeksti(lahde, lohko) {
+    const s = String(lahde).trim().replace(/^(\\\(|\\\[|\$\$?)/, '').replace(/(\\\)|\\\]|\$\$?)$/, '');
+    const t = [];
+    for (let i = 0; i < s.length;) {
+      const m = /^\\([A-Za-z]+\*?)|^\\([^A-Za-z])|^(\s+)|^([\s\S])/u.exec(s.slice(i));
+      t.push(m[1] ? { k: 'cmd', v: m[1] } : m[2] !== undefined ? { k: 'cmd', v: m[2] } : m[3] ? { k: 'sp', v: ' ' } : { k: 'ch', v: m[4] });
+      i += m[0].length;
+    }
+    let p = 0;
+    const EI = new Error('tex');
+    const ohitaValit = () => { while (t[p] && t[p].k === 'sp') p++; };
+    // Ryhmän lähde tekstinä (\text{if }): välit säilyvät.
+    const raaka = () => {
+      ohitaValit();
+      if (!t[p] || t[p].v !== '{' || t[p].k !== 'ch') { const x = t[p++]; if (!x) throw EI; return x.k === 'cmd' ? '\\' + x.v : x.v; }
+      let syv = 0, out = '';
+      for (p++; t[p]; p++) {
+        const x = t[p];
+        if (x.k === 'ch' && x.v === '{') syv++;
+        if (x.k === 'ch' && x.v === '}') { if (!syv--) { p++; return out; } }
+        out += x.k === 'cmd' ? (/^[{}%&#$_ ]$/.test(x.v) ? x.v : '\\' + x.v) : x.v;
+      }
+      throw EI;
+    };
+    // Argumentti aina atomien taulukkona: {ab} tai yksi merkki (\frac12, x^2).
+    const argumentti = () => { ohitaValit(); const x = t[p]; if (!x) throw EI; if (x.k === 'ch' && x.v === '{') { p++; return ryhma('}'); } return [atomi()]; };
+    // Yksi atomi indekseineen (n_{h,α}) ei tarvitse sulkuja; ryhmä (n_0 n_1) tarvitsee.
+    const yksiArg = a => a.filter(x => x && x.h !== '').length === 1 && !a.find(x => x && x.h !== '').laji;
+    const html = a => kaavaJono(a);
+    const erotin = () => {
+      ohitaValit();
+      const x = t[p++];
+      if (!x) throw EI;
+      if (x.k === 'ch') return x.v === '.' ? '' : x.v;
+      if (x.v === '{' || x.v === '}' || x.v === '|') return x.v === '|' ? '‖' : x.v;
+      if (TEX_SYMBOLIT[x.v]) return TEX_SYMBOLIT[x.v];
+      if (TEX_REL[x.v]) return TEX_REL[x.v];
+      throw EI;
+    };
+    function ymparisto(nimi) {
+      if (!/^(aligned|align\*?|gathered|split|cases|equation\*?)$/.test(nimi)) throw EI;
+      const rivit = [[]];
+      for (;;) {
+        ohitaValit();
+        const x = t[p];
+        if (!x) throw EI;
+        if (x.k === 'cmd' && x.v === 'end') { p++; if (raaka() !== nimi) throw EI; break; }
+        if (x.k === 'cmd' && x.v === '\\') { p++; ohitaValit(); if (t[p] && t[p].k === 'ch' && t[p].v === '[') { while (t[p] && t[p].v !== ']') p++; p++; } rivit.push([]); continue; }
+        if (x.k === 'ch' && x.v === '&') { p++; rivit[rivit.length - 1].push({ h: ' ', laji: null, ero: 1 }); continue; }
+        rivit[rivit.length - 1].push(...atomiJono());
+      }
+      const r = rivit.map(a => rivi(html(a.filter(x => !x.ero || nimi === 'cases')))).filter(Boolean);
+      return nimi === 'cases' ? { h: '{ ' + kaavaRivit(r.join(' ;; '), false) + ' }' } : { h: r.join(' ;; ') };
+    }
+    function atomi() {
+      ohitaValit();
+      const x = t[p++];
+      if (!x) throw EI;
+      if (x.k === 'ch') {
+        const c = x.v;
+        if (c === '{') { const g = ryhma('}'); return { h: html(g), laji: g.length === 1 ? g[0].laji : null }; }
+        if (/^[=<>]$/.test(c)) return { h: kaavaEsc(c), laji: 'rel' };
+        if (c === '+' || c === '-') return { h: c === '-' ? '−' : '+', laji: 'bin' };
+        if (c === '*') return { h: '∗', laji: 'bin' };
+        if (c === ',' || c === ';' || c === ':') return { h: c, laji: 'punct' };
+        if (c === '(' || c === '[') return { h: c, laji: 'open' };
+        if (c === ')' || c === ']') return { h: c, laji: 'close' };
+        if (c === "'") return { h: '′' };
+        if (c === '~') return { h: ' ' };
+        if (c === '|') return { h: '|' };
+        if (/^[&#%^_}$\\]$/.test(c)) throw EI;
+        return { h: kaavaEsc(c) };
+      }
+      const v = x.v;
+      if (TEX_VALI.test(v)) return { h: ' ' };
+      if (v === '!' || v === '/') return { h: '' };
+      if (/^[{}%&#$_|]$/.test(v)) return { h: kaavaEsc(v === '|' ? '‖' : v), laji: v === '{' ? 'open' : v === '}' ? 'close' : null };
+      if (TEX_OHITA.test(v)) {
+        if (/^(left|right|middle|big|Big|bigg|Bigg|bigl|bigr|Bigl|Bigr|biggl|biggr|Biggl|Biggr)$/.test(v)) {
+          const e = erotin();
+          return { h: kaavaEsc(e), laji: /^(left|bigl|Bigl|biggl|Biggl)$/.test(v) && e ? 'open' : /^(right|bigr|Bigr|biggr|Biggr)$/.test(v) && e ? 'close' : null };
+        }
+        return { h: '' };
+      }
+      if (TEX_SYMBOLIT[v]) return { h: kaavaEsc(TEX_SYMBOLIT[v]), laji: /^(langle|lfloor|lceil|lbrace|lvert|lVert)$/.test(v) ? 'open' : /^(rangle|rfloor|rceil|rbrace|rvert|rVert)$/.test(v) ? 'close' : null };
+      if (TEX_REL[v]) return { h: kaavaEsc(TEX_REL[v]), laji: 'rel' };
+      if (TEX_BIN[v]) return { h: kaavaEsc(TEX_BIN[v]), laji: 'bin' };
+      if (TEX_ISO[v]) return { h: TEX_ISO[v], laji: 'iso' };
+      if (TEX_FN.test(v)) return { h: v, laji: 'fn' };
+      if (v === 'not') { const a = atomi(); return { h: a.h === '=' ? '≠' : a.h === '∈' ? '∉' : a.h + '\u0338', laji: 'rel' }; }
+      if (/^(frac|dfrac|tfrac|cfrac)$/.test(v)) { const a = argumentti(), b = argumentti(); return { h: kaavaOsa(html(a), yksiArg(a)) + '/' + kaavaOsa(html(b), yksiArg(b)), murto: true }; }
+      if (v === 'sqrt') {
+        ohitaValit();
+        let ind = '';
+        if (t[p] && t[p].k === 'ch' && t[p].v === '[') { p++; const a = []; while (t[p] && !(t[p].k === 'ch' && t[p].v === ']')) a.push(atomi()); p++; ind = kaavaInd(html(a), 'sup'); }
+        const a = argumentti();
+        return { h: ind + '√' + kaavaOsa(html(a), yksiArg(a)) };
+      }
+      if (TEX_AKS[v]) { const a = argumentti(); return { h: kaavaAksentti(html(a), TEX_AKS[v]) }; }
+      if (/^(underline|underbrace|overbrace|boxed|phantom|hphantom|vphantom)$/.test(v)) { const a = argumentti(); return { h: /phantom/.test(v) ? '' : html(a), laji: /brace/.test(v) ? 'iso' : null }; }
+      if (v === 'mathbb') { const r = raaka(); return { h: kaavaEsc([...r].map(c => TEX_BB[c] || c).join('')) }; }
+      if (TEX_TEKSTI.test(v)) return { h: kaavaEsc(raaka().replace(/\\([{}%&#$_ ])/g, '$1').replace(/~/g, ' ')) };
+      if (TEX_TYYLI.test(v)) { const a = argumentti(); return { h: html(a), laji: /^operatorname/.test(v) ? 'fn' : a.length === 1 ? a[0].laji : null }; }
+      if (/^(overset|underset|stackrel)$/.test(v)) { const a = argumentti(), b = argumentti(); return { h: html(b) + kaavaInd(html(a), v === 'underset' ? 'sub' : 'sup'), laji: 'rel' }; }
+      if (v === 'color') { raaka(); return { h: '' }; }
+      if (v === 'textcolor') { raaka(); return { h: html(argumentti()) }; }
+      if (v === 'tag') return { h: '', tag: '(' + rivi(raaka()) + ')' };
+      if (v === 'label') { raaka(); return { h: '' }; }
+      if (v === 'begin') return ymparisto(raaka());
+      throw EI;
+    }
+    // Atomi indekseineen: ^ ja _ kiinnittyvät edelliseen.
+    function atomiJono() {
+      const a = atomi(), out = [a];
+      for (;;) {
+        ohitaValit();
+        const x = t[p];
+        if (x && x.k === 'cmd' && /^(limits|nolimits)$/.test(x.v)) { p++; continue; }
+        if (!x || x.k !== 'ch' || (x.v !== '^' && x.v !== '_')) break;
+        p++;
+        a.h += kaavaInd(html(argumentti()), x.v === '_' ? 'sub' : 'sup');
+      }
+      return out;
+    }
+    function ryhma(loppu) {
+      const a = [];
+      for (;;) {
+        ohitaValit();
+        const x = t[p];
+        if (!x) { if (loppu) throw EI; return a; }
+        if (loppu && x.k === 'ch' && x.v === loppu) { p++; return a; }
+        // Indeksi ilman edeltävää merkkiä (ryhmän alussa: ^{14}C).
+        if (x.k === 'ch' && (x.v === '^' || x.v === '_')) { p++; a.push({ h: kaavaInd(html(argumentti()), x.v === '_' ? 'sub' : 'sup') }); continue; }
+        a.push(...atomiJono());
+      }
+    }
+    try {
+      const a = ryhma(null), tag = (a.find(x => x && x.tag) || {}).tag || '';
+      const h = kaavaYhdista(html(a).replace(/[ \t]+/g, ' ').trim());
+      if (!h) return null;
+      return { html: kaavaRivit(h, lohko), tag };
+    } catch (e) { return null; }
+  }
+  // Lohkokaava omaksi kappaleekseen numeroineen (sisältö HTML:nä tai solmuina). Numeron edellä em-väli: md.js tunnistaa siitä
+  // kaavakappaleen (p.kaava).
+  function kaavaKappale(sisalto, nro) {
+    const p = document.createElement('p');
+    if (typeof sisalto === 'string') p.innerHTML = sisalto; else p.append(...sisalto);
+    if (nro) p.append('\u2003' + rivi(nro).replace(/^\(?(.*?)\)?$/, '($1)'));
+    return p;
+  }
+  /* Luinin huomautus (lääketieteen toinen kierros, käyttäjän pyyntö: omat rajat tiedostava muoto): hakasulkeissa, suomeksi, ja
+     md.js tunnistaa sen (span.huom: harmaa kursiivi kuten [kuva]). Kappale: [Kaava (3) on lähteessä kuvana.]; tekstin seassa
+     lyhyt [kaava]. Turndown suojaa hakasulkeet (\[…\]), joten ne eivät ole linkkejä. */
+  function huomKappale(teksti) { const p = document.createElement('p'); p.textContent = '[' + teksti + ']'; return p; }
+  /* Julkaisun tila (lääketieteen toinen kierros): takaisin vedetty, korjattu, päivitetty tai esipainos sivun omasta ilmoituksesta
+     etukenttään (tila: vedetty takaisin 2024-08-19, tila-lähde), josta md.js tekee tekstin alkuun hakasulkeisen yläotsakkeen. Ennen
+     leike näytti tavalliselta artikkelilta (PMC:n ja PLOSin otsikossa ei ole RETRACTED-sanaa). Päiväys ilmoituksen viitteestä
+     (JAMA Pediatr. 2024 Aug 19; 09 October 2024; 11 Jan 2024). */
+  function tilaPvm(s) {
+    const k = n => EN_KUUKAUDET.findIndex(x => x.startsWith(String(n).toLowerCase()));
+    let m = /\b((?:19|20)\d\d)\s+([A-Z][a-z]{2})[a-z]*\.?(?:\s+(\d{1,2}))?\b/.exec(s || '');
+    if (m && k(m[2]) >= 0) return m[1] + '-' + String(k(m[2]) + 1).padStart(2, '0') + (m[3] ? '-' + m[3].padStart(2, '0') : '');
+    m = /\b(\d{1,2})\s+([A-Z][a-z]{2})[a-z]*\.?\s+((?:19|20)\d\d)\b/.exec(s || '');
+    if (m && k(m[2]) >= 0) return m[3] + '-' + String(k(m[2]) + 1).padStart(2, '0') + '-' + m[1].padStart(2, '0');
+    return '';
   }
   async function janeway() {
     // Michigan Publishing (Ergo, Philosophers' Imprint): <article id="main_article"> ilman article-body-luokkaa.
@@ -6942,6 +7318,23 @@
     // Kuvana julkaistu taulukko (section.tw ilman <table>ia; datasta ei ole tekstiversiota, Europe PMC:n XML:ssäkin vain <graphic>):
     // merkitään ennen kuvien poistoa, jotta kuvatekstin perään tulee huomautus eikä se jää selityksettä.
     el.querySelectorAll('section.tw').forEach(w => { if (!w.querySelector('table') && w.querySelector('img')) w.dataset.kuvana = '1'; });
+    /* Kaavat (lääketieteen toinen kierros): MathML tekstiksi (mathTeksti(); ennen merkit peräkkäin ilman indeksejä: P(Yi|Xi,…)),
+       lohkokaava (table.disp-formula: td.formula, td.label) omaksi kappaleekseen numeroineen ennen kuin taulukot muuttuvat
+       ruudukoiksi. Kuvana julkaistu kaava (vanhat BMC:n artikkelit: img.inline tekstissä, kappaleen ainoa img.graphic) jäi ennen
+       pois jälkiä jättämättä (linear equation in with slope |Z|/ and intercept 0): nyt Luinin huomautus. Tunnus ja luokka
+       säilyvät, jotta viittaus kaavaan muuttuu tekstiksi kuten ennen. */
+    el.querySelectorAll('.disp-formula').forEach(f => {
+      const m = f.querySelector('math'), nro = rivi((f.querySelector('td.label, .label') || {}).textContent);
+      const p = m ? kaavaKappale(mathTeksti(m, true), nro) : f.querySelector('img') ? huomKappale('Kaava' + (nro ? ' ' + nro : '') + ' on lähteessä kuvana.') : null;
+      if (!p) return;
+      p.id = f.id; p.className = 'disp-formula'; f.replaceWith(p);
+    });
+    el.querySelectorAll('math').forEach(m => m.replaceWith(...mathTeksti(m)));
+    el.querySelectorAll('img.inline, img[alt="Inline graphic"]').forEach(i => { if (!i.closest('figure, section.tw, section.fig')) i.replaceWith('[kaava]'); });
+    el.querySelectorAll('p > img.graphic').forEach(i => {
+      const p = i.parentElement;
+      if (!rivi(p.textContent) && p.querySelectorAll('img').length === 1 && !p.closest('figure, section.tw, section.fig')) p.replaceWith(huomKappale('Kaava on lähteessä kuvana.'));
+    });
     // Toimituksen esittelylause (PLoS: otsikoton, lyhyt section.abstract viivan takana) pois, kun varsinainen tiivistelmä on:
     // se toistaa johdannon tai tiivistelmän ja teki tiivistelmästä ja johdannosta kolme osanvaihtojen kohtaa.
     const abst = [...el.querySelectorAll('section.abstract')];
@@ -6961,6 +7354,19 @@
     // olisi Luinissa osanvaihto heti otsikon alla: viiva, jota ei edellä teksti, pois.
     el.querySelectorAll('hr').forEach(h => { const r = document.createRange(); r.setStart(el, 0); r.setEndBefore(h); if (!rivi(r.toString())) h.remove(); });
     el.querySelectorAll('.media sup').forEach(s => s.replaceWith(s.textContent));
+    /* Indeksin välit (vanhat BMC:n artikkelit: SE<sub><em>N </em>+<em>n </em></sub>): Latomon ~…~ ei salli välilyöntiä, joten
+       indeksi jäi lukimeen raa'aksi HTML:ksi. Reunojen välit indeksin ulkopuolelle, sisäiset pois, ellei siinä ole sanaa. Alaviitteen
+       sanallinen nimiö (<sup>Appendix A</sup> Supplementary data…) tekstiksi. */
+    el.querySelectorAll('.fn > sup:first-child').forEach(s => { if (/\s/.test(rivi(s.textContent))) s.replaceWith(rivi(s.textContent) + '. '); });
+    el.querySelectorAll('sub, sup').forEach(s => {
+      if (!/\s/.test(s.textContent)) return;
+      const w = document.createTreeWalker(s, NodeFilter.SHOW_TEXT), t = [];
+      while (w.nextNode()) t.push(w.currentNode);
+      const alku = /^\s/.test(s.textContent), loppu = /\s$/.test(s.textContent), sana = /\p{L}{3,}/u.test(s.textContent);
+      t.forEach(n => { n.nodeValue = sana ? n.nodeValue.replace(/^\s+/, n === t[0] ? '' : '$&').replace(/\s+$/, n === t[t.length - 1] ? '' : '$&') : n.nodeValue.replace(/\s+/g, ''); });
+      if (alku) s.before(' ');
+      if (loppu) s.after(' ');
+    });
     const vmaar = pmcNumeroviitteet(el);
     // Lähdeviittaukset (#cit0008, #R1, #B12) ja taulukko- ja kuvaviittaukset tekstiksi ennen alaviitteitä.
     const nimiot = new Map();
@@ -7085,7 +7491,16 @@
     const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
     const h1 = document.querySelector('.front-matter h1, article h1');
     const teos = pmcLehti(meta('citation_journal_title')[0], rivi((document.querySelector('button[aria-controls="journal_context_menu"]') || {}).textContent));
-    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+    // Julkaisun tila: PMC:n ilmoituslaatikko (div.ra: This article has been retracted / corrected / updated. See <a>lähde</a>)
+    // tekstin ulkopuolella, esipainos sivun tunnisteesta (ncbi_pcid preprint: This is a preprint. It has not yet been peer reviewed).
+    let tila = null;
+    const ra = [...document.querySelectorAll('div.ra > div')];
+    for (const [re, laji] of [[/^This article has been retracted\b/i, 'vedetty takaisin'], [/^This article has been corrected\b/i, 'korjattu'], [/^This article has been updated\b/i, 'päivitetty']]) {
+      const d = ra.find(y => re.test(rivi(y.textContent)));
+      if (d) { const a = d.querySelector('a[href]'); tila = { laji, pvm: tilaPvm(a ? a.textContent : ''), lahde: a ? a.href : '' }; break; }
+    }
+    if (!tila && meta('ncbi_pcid').includes('preprint')) tila = { laji: 'esipainos', pvm: '', lahde: '' };
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen', tila,
       tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu, doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
       oikeus: cc ? { teksti: ccn ? 'CC ' + ccn[1].toUpperCase() + ' ' + ccn[2] : rivi(cc.textContent), lahde: cc.href } : null, naytto: teos };
@@ -7116,6 +7531,27 @@
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
     if (!runko || !meta('citation_journal_title').length || !runko.querySelector('.c-article-section__content, .main-content')) return null;
     const el = runko.cloneNode(true);
+    /* Kaavat (lääketieteen toinen kierros): sivulla TeX-lähteenä span.mathjax-tex (\(N_h\), lohkokaava div.c-article-equation:
+       $$\begin{aligned}…$$ ja numero .c-article-equation__number), jonka MathJax piirtää selaimessa. Ennen leikkeeseen tuli raaka
+       TeX (\\(N\_h\\), 132 kaavaa BMC Med Res Methodolin artikkelissa). Nyt teksti (texTeksti()); tuntematon rakenne jää TeX-
+       lähteeksi koodina (ei arvata). Jos MathJax on jo piirtänyt kaavan (mjx-container), lähde on apuväline-MathML:ssä. */
+    const texKoodi = s => { const c = document.createElement('code'); c.textContent = rivi(s); return c; };
+    const texSolmut = (lahde, lohko) => {
+      const t = texTeksti(lahde, lohko);
+      if (!t) return [texKoodi(lahde)];
+      const d = jasenna('<div>' + t.html + (t.tag ? ' ' + kaavaEsc(t.tag) : '') + '</div>').body.firstChild;
+      return [...d.childNodes];
+    };
+    el.querySelectorAll('div.c-article-equation').forEach(f => {
+      const s = f.querySelector('.c-article-equation__content .mathjax-tex, .c-article-equation__content'), m = f.querySelector('mjx-assistive-mml math');
+      if (!s && !m) return;
+      f.replaceWith(kaavaKappale(m ? mathTeksti(m, true) : texSolmut(s.textContent, true), rivi((f.querySelector('.c-article-equation__number') || {}).textContent)));
+    });
+    el.querySelectorAll('span.mathjax-tex').forEach(s => s.replaceWith(...texSolmut(s.textContent, false)));
+    el.querySelectorAll('mjx-container').forEach(c => { const m = c.querySelector('mjx-assistive-mml math'); if (m) c.replaceWith(...mathTeksti(m, false)); });
+    // Alaviitemerkin ruudunlukijateksti (<sup><a href="#Fn1"><span class="u-visually-hidden">Footnote </span>1</a></sup>) pois:
+    // muuten merkki ei ole numero, ja leikkeeseen jäi raakaa HTML:ää.
+    el.querySelectorAll('sup .u-visually-hidden').forEach(x => x.remove());
     // Sivuston kysymyskone (div.app-nls-widget: Ask a research question, Or ask your own question) ei ole tekstiä.
     el.querySelectorAll('.app-nls-widget, [data-test="nls-component"]').forEach(x => x.remove());
     const otsake = s => rivi(s.getAttribute('data-title'));
@@ -7212,7 +7648,11 @@
     const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
     const h1 = document.querySelector('h1.c-article-title');
     const teos = meta('citation_journal_title')[0];
-    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+    // Julkaisun tila: sivun tilaviesti This article was <a class="relation-link" data-track-action="view retraction article">retracted</a>
+    // on 09 October 2024 (otsikossa myös RETRACTED ARTICLE:).
+    const ret = document.querySelector('.c-status-message a.relation-link[data-track-action="view retraction article"]');
+    const tila = ret ? { laji: 'vedetty takaisin', pvm: tilaPvm(rivi(ret.parentElement.textContent)), lahde: ret.href } : null;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen', tila,
       tekija: kkLuettelo(nimet), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: f ? f + (l && l !== f ? '–' + l : '') : '', julkaistu: pv ? pv[1] + '-' + pv[2].padStart(2, '0') + (pv[3] ? '-' + pv[3].padStart(2, '0') : '') : '',
       doi: meta('citation_doi')[0] || '', lahde: osoite.replace(/\?.*$/, ''), maar: vmaar.concat(maar),
@@ -7238,6 +7678,16 @@
     const el = art.cloneNode(true);
     const cc = el.querySelector('.articleinfo a[href*="creativecommons.org"]');
     el.querySelectorAll('a.link-target').forEach(a => { if (!a.closest('ol.references')) a.remove(); });
+    /* Kaavat (lääketieteen toinen kierros): sivulla ne ovat kuvina (span.equation lohkona numeroineen span.note, span.inline-formula
+       tekstissä), ja ennen lohkokaavasta jäi vain numero (1), tekstin kaava katosi (is a set of covariates from i^th^ patients
+       and is unknown…). JATS-XML:ssä (sama, jonka taulukot haetaan) kaava on MathML:nä samalla tunnuksella: tekstiksi
+       (mathTeksti()), peräkkäiset lohkokaavat yhdeksi kappaleeksi riveittäin. Ilman XML:ää Luinin huomautus. */
+    const kaavat = [...el.querySelectorAll('span.equation, span.inline-formula')];
+    kaavat.forEach(s => {
+      const i = s.querySelector('img');
+      s.dataset.kaava = (/[?&]id=10\.\d+\/journal\.([^&]+)/.exec((i && i.getAttribute('src')) || '') || [])[1] || '';
+      s.dataset.nro = rivi((s.querySelector('.note') || {}).textContent);
+    });
     el.querySelectorAll('.articleinfo, script, style, .img-box, .figure-inline-download, .caption_target, .caption_object, ul.reflinks, ul.find-nolinks, .inline-formula img, img').forEach(x => x.remove());
     [...el.querySelectorAll('div.section')].forEach(s => {
       const h = s.querySelector(':scope > h2');
@@ -7247,7 +7697,7 @@
     const taulut = [...el.querySelectorAll('div.figure')].filter(f => /\.t\d+$/.test(f.getAttribute('data-doi') || ''));
     let xml = null;
     const xl = document.querySelector('a[href*="type=manuscript"]');
-    if (taulut.length && xl) {
+    if ((taulut.length || kaavat.length) && xl) {
       const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 8000);
       try {
         const r = await fetch(new URL(xl.getAttribute('href'), location.href).href, { credentials: 'same-origin', signal: ohi.signal });
@@ -7257,6 +7707,20 @@
       clearTimeout(ajastin);
     }
     const xteksti = x => rivi([...x.childNodes].map(n => n.nodeType === 1 && n.localName === 'break' ? ' ' : n.textContent).join(''));
+    const xmath = id => {
+      const f = id && xml && [...xml.getElementsByTagName('disp-formula'), ...xml.getElementsByTagName('inline-formula')].find(y => y.getAttribute('id') === id);
+      return f ? f.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math')[0] || null : null;
+    };
+    let edKaava = null;
+    kaavat.forEach(s => {
+      const m = xmath(s.dataset.kaava), nro = s.dataset.nro;
+      if (s.classList.contains('inline-formula')) return s.replaceWith(...(m ? mathTeksti(m, false) : ['[kaava]']));
+      const p = m ? kaavaKappale(mathTeksti(m, true), nro) : huomKappale('Kaava' + (nro ? ' ' + nro : '') + ' on lähteessä kuvana.');
+      // Edellisen lohkokaavan jatko (= λ₀(t)exp(…) (1)): samaan kappaleeseen uudelle riville.
+      const e = s.previousSibling && s.previousSibling.nodeType === 3 && !rivi(s.previousSibling.textContent) ? s.previousSibling.previousSibling : s.previousSibling;
+      if (m && edKaava && e === edKaava && el.contains(edKaava)) { edKaava.append(document.createElement('br'), ...p.childNodes); s.remove(); return; }
+      s.replaceWith(p); edKaava = m ? p : null;
+    });
     el.querySelectorAll('div.figure').forEach(f => {
       const c = f.querySelector('.figcaption');
       const t = [c && rivi(c.textContent), ...[...f.querySelectorAll(':scope > p')].map(p => rivi(p.textContent))].filter(Boolean).join(' ');
@@ -7315,7 +7779,11 @@
     const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
     const h1 = document.getElementById('artTitle');
     const teos = meta('citation_journal_title')[0];
-    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+    // Julkaisun tila: takaisinvetoilmoitus artikkelin yläpuolella (div.amendment-retraction: .amendment-date 11 Jan 2024:, DOI-linkki).
+    const am = document.querySelector('div.amendment-retraction');
+    const amA = am && (am.querySelector('.amendment-citation a[href*="doi.org"]') || am.querySelector('a.amendment-link'));
+    const tila = am ? { laji: 'vedetty takaisin', pvm: tilaPvm(rivi((am.querySelector('.amendment-date') || {}).textContent)), lahde: amA ? amA.href : '' } : null;
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen', tila,
       tekija: kkLuettelo(meta('citation_author')), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: meta('citation_firstpage')[0] || '', julkaistu: pv && kk >= 0 ? pv[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pv[2].padStart(2, '0') : '',
       doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar,
@@ -7339,8 +7807,35 @@
   async function frontiers() {
     const sis = document.querySelector('.ArticleDetailsV4__main__content .ArticleContent') || document.querySelector('.ArticleContent');
     const meta = n => [...document.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.content)).filter(Boolean);
+    /* Takaisin vedetty artikkeli (lääketieteen toinen kierros): sivulla on vain ilmoitus (div.ArticleDetailsV4__retraction, linkki
+       takaisinvetoilmoitukseen) ja viittaustiedot, ei tekstiä. Ennen Readability teki siitä blogileikkeen (tyyppi blogi, ORIGINAL
+       RESEARCH article -otsikko, Received/Accepted riveittäin). Nyt metatiedot, julkaisun tila ja Luinin huomautus. */
+    const ret = document.querySelector('.ArticleDetailsV4__retraction a[href]');
+    const fTila = ret ? { laji: 'vedetty takaisin', pvm: '', lahde: ret.href } : null;
+    if (!sis && fTila && /frontiers/i.test(meta('citation_publisher').join(' ')) && meta('citation_journal_title').length) {
+      const nimet = meta('citation_author').map(n => n.replace(/^([^,]+),\s*(.+)$/, '$2 $1'));
+      const pv = /^(\d{4})\/(\d{1,2})(?:\/(\d{1,2}))?/.exec(meta('citation_publication_date')[0] || '');
+      const h1 = document.querySelector('h1.ArticleDetailsV4__main__title, h1'), teos = meta('citation_journal_title')[0];
+      return { html: huomKappale('Lähde ei näytä takaisin vedetyn artikkelin tekstiä: sivulla on vain ilmoitus ja viittaustiedot.').outerHTML,
+        otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen', tila: fTila, tekija: kkLuettelo(nimet), teos,
+        numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'), sivut: meta('citation_firstpage')[0] || '',
+        julkaistu: pv ? pv[1] + '-' + pv[2].padStart(2, '0') + (pv[3] ? '-' + pv[3].padStart(2, '0') : '') : '',
+        doi: meta('citation_doi')[0] || '', lahde: osoite, maar: [], naytto: teos };
+    }
     if (!sis || !/frontiers/i.test(meta('citation_publisher').join(' ')) || !meta('citation_journal_title').length) return null;
     const el = sis.cloneNode(true);
+    /* Kaavat (lääketieteen toinen kierros): selaimessa MathJax 2 piirtää span.ArticleMathFormulan (lohkokaava
+       div.ArticleMathFormula--block, numero strong) ja jättää lähteen script[type="math/mml"]:ksi. Ennen leikkeeseen tuli piirron
+       merkit ja apuväline-MathML peräkkäin (δ2δ2, lohkokaavassa ⎧⎪ ⎪…): nyt lähde tekstiksi (mathTeksti()). Ilman skriptejä paikka
+       on tyhjä span, eikä kaavaa ole sivulla. */
+    el.querySelectorAll('.ArticleMathFormula').forEach(f => {
+      const s = f.querySelector('script[type="math/mml"]'), m = s ? jasenna(s.textContent).querySelector('math') : f.querySelector('.MJX_Assistive_MathML math, math');
+      if (!m) return;
+      // Lohkokaavan numero on kahdesti (strong ja säiliön .ArticleMathFormula__label): kappaleeseen kerran.
+      const sai = f.closest('.ArticleMathFormula__container');
+      if (f.classList.contains('ArticleMathFormula--block')) (sai || f).replaceWith(kaavaKappale(mathTeksti(m, true), rivi(((sai && sai.querySelector('.ArticleMathFormula__label')) || f.querySelector(':scope > strong') || {}).textContent)));
+      else f.replaceWith(...mathTeksti(m, false));
+    });
     // Kuvat: otsikko ja kuvateksti (figcaption on suurennusnapin sisällä) kursiivikappaleeksi ennen nappien poistoa.
     el.querySelectorAll('div.ArticleFigure').forEach(f => {
       const t = [rivi((f.querySelector('.ArticleFigure__title') || {}).textContent), rivi((f.querySelector('.ArticleFigure__description, figcaption') || {}).textContent)].filter(Boolean).join(' ');
@@ -7428,7 +7923,7 @@
     const ccn = cc && /licenses\/([a-z-]+)\/(\d\.\d)/i.exec(cc.href);
     const h1 = document.querySelector('h1.ArticleDetailsV4__main__title');
     const teos = meta('citation_journal_title')[0];
-    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen',
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1 ? h1.textContent : meta('citation_title')[0]), tyyppi: 'tieteellinen', tila: fTila,
       tekija: kkLuettelo(nimet), teos, numero: [meta('citation_volume')[0], meta('citation_issue')[0]].filter(Boolean).join(':'),
       sivut: meta('citation_firstpage')[0] || '', julkaistu: pv ? pv[1] + '-' + pv[2].padStart(2, '0') + (pv[3] ? '-' + pv[3].padStart(2, '0') : '') : '',
       doi: meta('citation_doi')[0] || '', lahde: osoite, maar: vmaar.concat(maar),
@@ -13624,6 +14119,7 @@
     kentta('paikka', blogi && blogi.paikka);
     kentta('kustantaja', blogi && blogi.kustantaja);
     kentta('doi', blogi && blogi.doi);
+    if (blogi && blogi.tila) { kentta('tila', blogi.tila.laji + (blogi.tila.pvm ? ' ' + blogi.tila.pvm : '')); kentta('tila-lähde', blogi.tila.lahde); }
     kentta('ladonta', blogi && blogi.ladonta);
     kentta('kohdat', blogi && blogi.kohdat);
     // Vakiosivut (20.11.2026, opas 3.2): sivunumerojärjestelmän lyhenne kopion paikantimeen (AA 4:393, SKS 4:99).

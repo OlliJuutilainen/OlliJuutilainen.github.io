@@ -161,6 +161,8 @@
         if (vsm) { flush(); out += '<span class="vsivu"><span class="vs-nro">' + esc(vsm[1]) + '</span></span>'; i += vsm[0].length; continue; }
       }
       if (c === '\\') {
+        var hm = s[i + 1] === '[' ? huomautus(s.slice(i, i + 260)) : null;
+        if (hm) { flush(); out += '<span class="huom">[' + esc(hm.t) + ']</span>'; i += hm.n; continue; }
         // Kenoviiva rivin lopussa on rivinvaihto, myös välilyöntien kanssa; tekstin lopussa se jätetään pois.
         var bm = /^\\[ \t]*(\n|$)/.exec(s.slice(i, i + 64));
         if (bm) { if (bm[1]) { buf = buf.replace(/ +$/, ''); flush(); out += '<br>'; } i += bm[0].length; continue; }
@@ -601,6 +603,36 @@
     if (!/^https?:\/\/\S+$/i.test(u) || laji === 'mainokset') u = '';
     return { laji: laji, teksti: RAHOITUS[laji], osoite: u };
   }
+  /* ---------- Julkaisun tila ----------
+     Lääketieteen toinen kierros (22.11.2026): lehti on vetänyt artikkelin takaisin tai julkaissut siihen korjauksen tai päivitetyn
+     version, tai teksti on esipainos, jota ei ole vertaisarvioitu. Lisäosa kirjoittaa sen sivun ilmoituksesta etukenttään
+     (tila: vedetty takaisin 2024-08-19, tila-lähde: ilmoituksen osoite), ja tekstin alkuun tulee hakasulkeinen yläotsake kuten
+     rahoitushuomautuksesta (p.tila; takaisin vedetyssä p.tila.vakava). Ilman tätä leike näytti tavalliselta artikkelilta. */
+  var TILA = {
+    'vedetty takaisin': ['Julkaisija on vetänyt tämän artikkelin takaisin', 'Takaisinvetoilmoitus'],
+    'korjattu': ['Artikkeliin on julkaistu korjaus', 'Korjaus'],
+    'päivitetty': ['Artikkelista on julkaistu päivitetty versio', 'Päivitetty versio'],
+    'esipainos': ['Tämä on esipainos, jota lehti ei ole vielä vertaisarvioinut', 'Julkaistu versio']
+  };
+  function tila(meta) {
+    var m = /^(vedetty takaisin|korjattu|päivitetty|esipainos)(?:\s+(\d{4})-(\d\d)(?:-(\d\d))?)?$/i.exec(String(meta.tila || '').replace(/\s+/g, ' ').trim());
+    if (!m) return null;
+    var laji = m[1].toLowerCase(), u = String(meta['tila-lähde'] || '').trim();
+    var pv = m[2] ? ' ' + (m[4] ? +m[4] + '.' : '') + +m[3] + '.' + m[2] : '';
+    return { laji: laji, teksti: TILA[laji][0] + pv + '.', osoite: /^https?:\/\/\S+$/i.test(u) ? u : '', osoiteSana: TILA[laji][1] };
+  }
+  /* Luinin huomautus (sama kierros, käyttäjän pyyntö: omat rajat tiedostava muoto): lisäosa merkitsee hakasulkeisiin suomeksi sen,
+     mitä lukin ei näytä (\[kaava\] tekstissä, \[Kaava (3) on lähteessä kuvana.\], kuvatekstin perässä \[Taulukko on lähteessä
+     kuvana.\]). Tunnistus: suojatut hakasulkeet ja Luinin sanasto (kaava tai lähte-sana), muuten hakasulkeet ovat tekstiä. → span.huom
+     (harmaa kursiivi kuten [kuva]); kokonaan huomautuksesta koostuva kappale on p.huom. */
+  var RE_HUOM = /^\\\[(kaava|(?:Kaava|Kaavat|Taulukko|Kuva|Kuvio|Video|Ääni|Animaatio|Liite|Lähde)(?![\p{L}])[^\[\]\n\\]{0,240}?)\\\]/u;
+  function huomautus(s) {
+    var m = RE_HUOM.exec(s);
+    return m && (m[1] === 'kaava' || /lähte/i.test(m[1])) ? { t: m[1], n: m[0].length } : null;
+  }
+  /* Lohkokaava (sama kierros): lisäosa kirjoittaa numeron em-välin taakse (π~i~ = n~h~/N~h~\u2003(2)); vanhoissa PMC:n
+     artikkeleissa välinä on sitovia välilyöntejä. → p.kaava: ei sisennystä, keskellä, seuraava kappale tasalaidasta. */
+  var RE_KAAVA = /(?:\u2003|\u00a0{2,}\s*)\(\d{1,3}[a-z]?\)$/;
   // Merkinnän otsikkotaso (käyttäjän säännöt 10.11.2026), tasot sellaisina kuin ne näkyvät (laske, alennukset, pykälät):
   // kohta (h4) on oletus ja kuivan loppuosion (kirjallisuus, lähteet, linkit) alla aina; ilman otsikoita kohta yksin;
   // jos tekstissä on vain yhtä tasoa eikä kuivaa loppua, sama taso (pelkät osiot → osio, pelkät luvut → luku).
@@ -2397,13 +2429,22 @@
       var tr = tietorivit(m, kehys);
       if (tr.length) { head += blk('p', 'meta', tr.join('\n'), metaCtx); res.lines = tr; }
     }
+    // Julkaisun tila otsikkolohkon alkuun ennen rahoitushuomautusta, samoin ilman lohkonumeroa.
+    var tl = tila(m);
+    if (tl) {
+      res.tila = tl;
+      var tlHtml = '<p class="tila' + (tl.laji === 'vedetty takaisin' ? ' vakava' : '') + '">[' + inline(tl.teksti + (tl.osoite ? ' ' + tl.osoiteSana +
+        ' osoitteessa <' + tl.osoite.replace(/[<>\s]/g, encodeURIComponent) + '>' : ''), ctx) + ']</p>';
+      if (head) head = head.replace(/^<header class="tt">/, function (x) { return x + tlHtml; });
+      else html += tlHtml;
+    }
     // Rahoitushuomautus otsikkolohkon alkuun ilman lohkonumeroa (data-b), joten kirjanmerkit ja merkinnät eivät siirry.
     var rh = rahoitus(m);
     if (rh) {
       res.rahoitus = rh;
       var rhHtml = '<p class="rahoitus">[' + inline(rh.teksti + (rh.osoite ? ' Lahjoittaa voi osoitteessa <' +
         rh.osoite.replace(/[<>\s]/g, encodeURIComponent) + '>' : ''), ctx) + ']</p>';
-      if (head) head = head.replace(/^<header class="tt">/, function (x) { return x + rhHtml; });
+      if (head) head = head.replace(/^<header class="tt">(<p class="tila[^"]*">.*?<\/p>)?/, function (x) { return x + rhHtml; });
       else html += rhHtml;
     }
     if (head) html += head + '</header>';
@@ -2608,7 +2649,7 @@
             }
           }
           var ktNimi = !inBib && !t.oik ? kuvateksti(t.text) : null;
-          var pHtml = blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
+          var pHtml = blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : (function (hm) { return hm && hm.n === t.text.trim().length; })(huomautus(t.text.trim())) ? 'huom' : RE_KAAVA.test(t.text.trim()) ? 'kaava' : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
           // Tunniste pystyyn (Table 1.), loppu kursiivina kuten painetussa lehdessä.
           if (ktNimi) pHtml = pHtml.replace(/^(<p [^>]*><em>)([^<]*)/, function (k, a, b) {
             return b.indexOf(ktNimi) === 0 ? a + '<span class="kt-nimi">' + ktNimi + '</span>' + b.slice(ktNimi.length) : k;
@@ -2883,7 +2924,7 @@
   // Jos yksittäinen sana ei mahdu edes yksin riville, lukija tavuttaa sen erikseen (luin.html, tavutaPitkat()).
   // Lähdeluettelo (.bib) ei tavuta lainkaan (Teologian tyyli ja APA 7: ei tavutusta, ei tavuviivaa DOI:hin eikä
   // osoitteisiin); ylipitkä sana katkeaa ilman viivaa (overflow-wrap: anywhere).
-  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
+  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.tila,.huom,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
   // kieli(lohko): valinnainen; 'lt' tavuttaa lohkon liettuan säännöin, muu arvo kuten ennen (suomen säännöt).
   var LOHKO = 'p, li, dd, dt, blockquote, td, th, figcaption, .sidenote';
   function tavutaDOM(rootEl, tila, kieli) {
