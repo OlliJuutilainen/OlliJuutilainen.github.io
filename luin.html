@@ -2185,7 +2185,7 @@
   // Tekstien sisältö on IndexedDB:ssä (luin/tekstit.js, käyttäjän pyyntö 19.11.2026); pino, asetukset ja merkinnät localStoragessa.
   var TX = window.LuinTekstit;
   /* Tusina (käyttäjän päätös 19.11.2026): pinossa on enintään TUSINA tekstiä. Kun pinoon tulee teksti (latomo, linkki,
-     postihuilu, Poimi kellarin kampihyllystöstä) ja niitä on enemmän, se, johon on koskettu pisimpään sitten (tullut pinoon
+     postihuilu, Poimi pinoon) ja niitä on enemmän, se, johon on koskettu pisimpään sitten (tullut pinoon
      tai avattu), laskeutuu kellarin kampihyllystöön. Tulleet laskeutuvat vasta viimeisinä. Laskeutunut saa e.luettu-ajan
      (sijainti kuten luetulla, kellarissa()) ja merkin e.laskeutui, jotta tietorivi sanoo laskeutui eikä luettu; pinoon
      palatessa kumpikin poistuu. Laskeutuneet kerrotaan viestillä. */
@@ -3701,8 +3701,8 @@
     });
   });
   /* Luin.-alavalikko (käyttäjän linjaus) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
-     pinossa Pois silmistä, Vie käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi,
-     Vie ö-mappiin ja Siirrä käsikirjastoon; ö-mapissa Poimi kellarin kampihyllystöön ja Poimi käsikirjastoon (suunnat: pinosta
+     pinossa Pois silmistä, Käsikirjastoon ja Merkitse luetuksi; kellarin kampihyllystössä Poimi pinoon,
+     Ö-mappiin ja Käsikirjastoon (vahvistusnapit ovat Vie/Siirrä-muotoisia); ö-mapissa Poimi kellarin kampihyllystöön ja Poimi käsikirjastoon (suunnat: pinosta
      viedään, kellarissa siirretään, ö-mapista poimitaan). Alimpana aina punainen Poista
      (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei siirtoja: se lähtee käsikirjastosta
      luokittelemalla. Sekavalinnalle (pino ja kellari) vain käsikirjasto ja poisto. */
@@ -3713,9 +3713,9 @@
       // Pois silmistä (käyttäjän linjaus): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi
       // ottaa pois silmistä heti, kun on sen aika; kellarin kampihyllystö mainitaan vasta vahvistuksessa.
       if (pin) h += '<button type="button" data-k="luin">Pois silmistä</button>';
-      if (kel) h += '<button type="button" data-k="luin">Poimi kellarin kampihyllystöstä</button><button type="button" data-k="omappi">' + OM_SISAAN + '</button>';
+      if (kel) h += '<button type="button" data-k="luin">Poimi pinoon</button><button type="button" data-k="omappi">' + OM_VALIKKO + '</button>';
       if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
-      h += '<button type="button" data-k="kasikirja">' + kkSana(es)[0] + '</button>';
+      h += '<button type="button" data-k="kasikirja">' + kkSana(es)[2] + '</button>';
       if (pin) h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Merkitse lukemattomaksi' : 'Merkitse luetuksi') + '</button>';
     }
     return h + '<button type="button" data-k="poista" class="vaara">Poista</button>';
@@ -3748,10 +3748,10 @@
     piirraNimikkeet();
   }
   // Käsikirjaston kohta suunnan mukaan (käyttäjän linjaus): pinosta viedään, kellarissa siirretään, ö-mapista poimitaan;
-  // sekavalinnalle siirretään. [kohta, kysymyksen alku]
+  // sekavalinnalle siirretään. [vahvistusnappi, kysymyksen alku, valikon kohta (pinosta ja kellarista pelkkä kohde)]
   function kkSana(es) {
-    return es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko']
-      : ['Siirrä käsikirjastoon', 'Siirretäänkö'];
+    return es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö', 'Käsikirjastoon'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko', 'Poimi käsikirjastoon']
+      : ['Siirrä käsikirjastoon', 'Siirretäänkö', 'Käsikirjastoon'];
   }
   // Käsikirjastoon vienti, siirto ja poiminta kysyvät vahvistuksen kuten muut siirrot. Käsikirja lähtee pinosta ja ö-mapista kellarin
   // kampihyllystön käsikirjastoon kuten luokittelussa; pois siitä luokittelemalla.
@@ -3768,13 +3768,13 @@
       viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin kampihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin kampihyllystöön.');
     }, 'oikea');
   }
-  // Pois silmistä (vahvistus Nakkaa) ja Poimi kellarin kampihyllystöstä kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
+  // Pois silmistä (vahvistus Nakkaa) ja Poimi pinoon kysyvät vahvistuksen (käyttäjän pyyntö 10.11.2026).
   function kysyLuin(es, rect) {
     var ark = !!es[0].luettu, n = es.length;
     var kys = ark ? (n === 1 ? 'Poimitaanko teksti pinoon?' : 'Poimitaanko ' + n + ' tekstiä pinoon?')
       : (n === 1 ? 'Nakataanko kellarin kampihyllystöön?' : 'Nakataanko ' + n + ' tekstiä kellarin kampihyllystöön?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
-      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi kellarin kampihyllystöstä' : 'Nakkaa') + '</button>' +
+      '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi pinoon' : 'Nakkaa') + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
@@ -3793,7 +3793,7 @@
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin kampihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
      sieltä se palaa kellarin kampihyllystöön. Kysyy vahvistuksen kuten Luin. ja Poimi. */
   // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
-  var OM_SISAAN = 'Vie ö-mappiin', OM_POIS = 'Poimi kellarin kampihyllystöön';
+  var OM_SISAAN = 'Vie ö-mappiin', OM_VALIKKO = 'Ö-mappiin', OM_POIS = 'Poimi kellarin kampihyllystöön';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
     var kys = om ? (n === 1 ? 'Poimitaanko teksti kellarin kampihyllystöön?' : 'Poimitaanko ' + n + ' tekstiä kellarin kampihyllystöön?')
