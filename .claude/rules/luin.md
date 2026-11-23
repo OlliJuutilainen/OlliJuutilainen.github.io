@@ -228,7 +228,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
-  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä) alleviivaus napin alareunan tasolla, jos mahtuu (mahtuu 320 px:llä; muuten
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä); kampipyörylän laki ylärivin versaalien laella (säde 1,2125 em) ja jatkeviiva linkin täytteenä, ei `::before` (murtopikselinen korkeus teki portaan) alleviivaus napin alareunan tasolla, jos mahtuu (mahtuu 320 px:llä; muuten
   napin alla, kampi palstan laidasta), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
@@ -244,8 +244,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   klassisemman kirjasimen tuntu), ja piikkien kärjet koskettavat toisiaan kaikissa ö-renkaissa, ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto, kapeneminen ja rako
   suhteessa, 6 % matalampia, viiva 1,7 × emon suhde näkyvyyden vuoksi; `orengas.js` laskee ne emosta), samaa tyyliä emo-ö:n kanssa.
-  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
-  joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
+  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Laki versaalikorkeudella, pohja 4,86 px perusviivan alla
+  (käyttäjän pyyntö: Ö niin iso, että nuolen sakarat jäävät irti tekstistä kuten kellarilinkissä; `line-height: 1.55`, linkin rengas on otsikon renkaan
+  suurennos `orengas.js`:n `ALA_L`:lla, otsikko ennallaan), ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
   terävöityvin päin, `orengas.js`:n `NUOLI`. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: noin .3 px; ei täytettä,
   viimeinen kirjain `span.vika` ilman harvennusta). Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
