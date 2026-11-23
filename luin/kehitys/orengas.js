@@ -70,19 +70,27 @@ function svg(R, P, luokka, kok) {
 // Mitat px:einä linkin koossa (.64rem = 10,24 px). Laki versaalikorkeuden (7,36 px) yläpuolella .2 px (O:n ylitys), pohja
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
-const LINKKI = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
+// LINKKI0 ja PISTE0 ovat otsikon Mappi ö renkaan mittasuhteet (otsikko skaalataan niistä, alla). Linkin rengas on niiden suurennos:
+// pohja ALA_L px perusviivan alla, jotta alleviivaus on niin alhaalla, että nuolen sakarat jäävät perusviivan alle kuten
+// kellarilinkissä (käyttäjän pyyntö: nuoli veti kiinni tekstiin; rivikorkeus 1.55, sakarat 1,86 px perusviivan alla, kellarilinkissä 1,81).
+const ALA_L = 4.86;
+const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkertaa ei laihduteta erikseen (käyttäjän linjaus:
 // pienenä ja Sysinissä yläkerta häviäisi), ja piikkien kärjet saavat koskettaa (rako 0).
-const PS = 2.9 / LINKKI.lev, PV = 1.7;
-const PISTE = { lev: 2.9, kork: LINKKI.kork * PS * .94, nAla: LINKKI.nAla, tb: LINKKI.tb * PS * PV, ts: LINKKI.ts * PS * PV, tt: LINKKI.tt * PS * PV,
-  kTasa: 12, kMax: LINKKI.kMax, rako: LINKKI.rako * PS, kap: LINKKI.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
+const PS = 2.9 / LINKKI0.lev, PV = 1.7;
+const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
+  kTasa: 12, kMax: LINKKI0.kMax, rako: LINKKI0.rako * PS, kap: LINKKI0.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
+// Linkin rengas ja pisteet suurennettuina samassa suhteessa; pohja pysyy alleviivauksen paksuisena (1 px).
+const KASVU = (CAP + YLI + ALA_L) / LINKKI0.kork;
+const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
+const LINKKI = Object.assign(skaalaa(LINKKI0, KASVU), { tb: LINKKI0.tb, kork: CAP + YLI + ALA_L });
+const PISTE = skaalaa(PISTE0, KASVU);
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
 // osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on .9 px
 // perusviivan alla (pohja pohjan viivan paksuus + .9 px perusviivan alla).
-const OEM = 11.84, OCAP = 8.51, OKERT = 1.43, OK = OKERT * (OCAP + .3) / LINKKI.kork, OALA = LINKKI.tb * OK + .9;
-const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
-const OTS = skaalaa(LINKKI, OK), OPISTE = skaalaa(PISTE, OK);
+const OEM = 11.84, OCAP = 8.51, OKERT = 1.43, OK = OKERT * (OCAP + .3) / LINKKI0.kork, OALA = LINKKI0.tb * OK + .9;
+const OTS = skaalaa(LINKKI0, OK), OPISTE = skaalaa(PISTE0, OK);
 // Ö-mappiin-linkin nuolen kärki (käyttäjän linjaus: huolellinen, klassinen): täytetty muoto, kärki (0,0) ja varsi eli alleviivaus (1 px)
 // vasemmalta. Varren pää on x = -t (linkin oikea reuna), joten kärki on t px sen yli. Ulkoreunat suorahkot kärjestä sakaran päähän
 // (-L, ±H), sisäreunat kaartuvat sakaran päästä takaisin varren reunaan r px varren päästä; sakaran pää on terävä (hiusviiva).
@@ -101,7 +109,7 @@ function karki(q) {
 // Svg 9 px korkea ja keskellä alleviivausta (bottom -5px): reunat ovat kokonaisten pikselien päässä reunaviivan reunoista, joten pyöristys
 // ei siirrä kärkeä viivan sivuun (8 px:n svg puolen pikselin päässä siirtyi; mitattu 1×, 2× ja 3×).
 const nuoliSvg = q => { const w = Math.ceil(q.L + 1); return { w, svg: '<svg class="nuoli" viewBox="' + -w + ' -4.5 ' + w + ' 9" aria-hidden="true"><path d="' + karki(q) + '"/></svg>' }; };
-const e = (x, em) => (Math.round(x / em * 10000) / 10000 + '').replace(/^(-?)0\./, '$1.') + 'em';
+const e = (x, em) => (Math.round(x / em * 1e7) / 1e7 + '').replace(/^(-?)0\./, '$1.') + 'em';
 if (require.main === module) {
   const gl = o(LINKKI, PISTE), go = o(OTS, OPISTE);
   if (process.argv.includes('--kuva')) {
@@ -109,8 +117,8 @@ if (require.main === module) {
     console.log('<!doctype html><meta charset="utf-8"><body style="background:#f8f4ea;color:#6b5a44;margin:20px">' +
       '<svg width="' + gl.w * k + '" height="' + gl.h * k + '" viewBox="0 0 ' + f(gl.w) + ' ' + f(gl.h) + '" style="overflow:visible">' +
       '<path fill="currentColor" d="' + gl.d + '"/><rect x="' + f(gl.r.cx) + '" y="' + f(gl.h - LINKKI.tb) + '" width="20" height="' + LINKKI.tb + '" fill="currentColor"/>' +
-      '<line x1="-5" x2="30" y1="' + f(gl.h - ALA) + '" y2="' + f(gl.h - ALA) + '" stroke="#c33" stroke-width=".03"/>' +
-      '<line x1="-5" x2="30" y1="' + f(gl.h - ALA - CAP) + '" y2="' + f(gl.h - ALA - CAP) + '" stroke="#c33" stroke-width=".03"/></svg></body>');
+      '<line x1="-5" x2="30" y1="' + f(gl.h - ALA_L) + '" y2="' + f(gl.h - ALA_L) + '" stroke="#c33" stroke-width=".03"/>' +
+      '<line x1="-5" x2="30" y1="' + f(gl.h - ALA_L - CAP) + '" y2="' + f(gl.h - ALA_L - CAP) + '" stroke="#c33" stroke-width=".03"/></svg></body>');
   } else {
     console.log(JSON.stringify({
       nuoli: Object.assign(nuoliSvg(NUOLI), { t: NUOLI.t }),
@@ -118,4 +126,4 @@ if (require.main === module) {
       ots: { w: e(go.w, OEM), h: e(go.h, OEM), ala: e(-OALA, OEM), svg: svg(OTS, OPISTE, 'orengas') } }, null, 1));
   }
 }
-module.exports = { OCAP, OALA, o, svg, f, karki, nuoliSvg, NUOLI, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA };
+module.exports = { OCAP, OALA, o, svg, f, karki, nuoliSvg, NUOLI, LINKKI, PISTE, OTS, OPISTE, EM, CAP, ALA: ALA_L };
