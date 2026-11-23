@@ -245,7 +245,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto, kapeneminen ja rako
   suhteessa, 6 % matalampia, viiva 1,7 × emon suhde näkyvyyden vuoksi; `orengas.js` laskee ne emosta), samaa tyyliä emo-ö:n kanssa.
   Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Iso Ö (käyttäjän valinta, koko 16,75 px): laki 11,89 px perusviivan yläpuolella, pohja 4,86 px sen alla alleviivauksella, yhdysviiva renkaan keskellä,
-  rako renkaasta tekstiin .35 em; nuolen sakarat 1,87 px perusviivan alla (`line-height: 1.55`, ei täytettä; alleviivausta säädetään täytteellä, ei rivikorkeudella, joka pyöristyy epätasaisesti);
+  rako renkaasta tekstiin .27 em; nuolen sakarat 1,87 px perusviivan alla (`line-height: 1.55`, ei täytettä; alleviivausta säädetään täytteellä, ei rivikorkeudella, joka pyöristyy epätasaisesti);
   paluulinkeillä (`.takaisin-linkki`) sama rivikorkeus ja täyte, jotta viivat ovat samalla korkeudella; kaikki ö-mapin linkin mitat em:einä ja alleviivaus `::before`/`::after`-taustapalkkeina, ei reunaviivana, koska selaimen suurennettu tekstikoko kasvattaa vain em-mittoja ja reunaviiva pyöristyy laitepikseleihin; testi mittaa tekstikoot ×1,3 ja ×1,8; linkin rengas on otsikon renkaan
   suurennos (`orengas.js`:n `LAKI_L` ja `ALA_L`), otsikko ennallaan. Nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
