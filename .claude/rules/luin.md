@@ -261,6 +261,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *pinoon* (`#ark-pinoon`, pinomerkki versaaleja korkeampana, musteen alareuna perusviivalla ja nuolen kärki sen vasemmalla): ensin symboli, sitten teksti, ja molempien alla
   koko matkan vasemmalle osoittava chevron-nuoli, viiva koko tekstin mittainen (N:n oikeaan musteeseen);
   mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä, samalla rivillä ja korkeudella kuin ö-mappiin (`.ala-linkit`). Testi `omappi-testi.js`.
+- **Viivasto** (käyttäjän vaatimus: saumat kohdalleen): alalaidan linkkien (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) viiva,
+  jatke, kaari tai rengas ja nuolen kärki ovat yhdessä `svg.viivasto`ssa, jonka origo on viivan yläreunassa. Älä palauta niitä erillisiksi
+  laatikoiksi (reunaviiva, `::before`/`::after`, erillinen svg): selain pyöristää laatikot laitepikseleihin eri tavalla kuin svg:n sisällön, ja
+  saumat menivät 0,4–1,9 laitepikseliä ohi. Testeissä sisäkkäisen svg:n näkymän rajat `getScreenCTM`:llä (`getBoundingClientRect` on muste).
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
   ylös. Pinon otsikon perässä samalla idealla pinomerkki (`PINOM`). Molemmat hyvin pieninä (kampi 1,05 em, pinomerkki 1,15 em
