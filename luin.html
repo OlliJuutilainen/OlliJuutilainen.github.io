@@ -403,7 +403,7 @@
      Alleviivaus on taustapalkki (::after), ja svg:n alareuna on sen alareunassa; ::before jatkaa sen renkaan keskelle asti. Svg on 24 px korkea (orengas.js:
      kokonainen pikseli, muuten pyöristys veisi renkaan pohjan alleviivauksesta sivuun).
      Yhdysviiva (span.oyv) on piirretty: keskikohta .3433 em perusviivan yläpuolella eli renkaan keskellä, 1 px paksu, musteen
-     paikka ja leveys kuten fontin yhdysviivassa (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Rako renkaasta .35 em (käyttäjän pyyntö: lisää väliä yhdysviivaan).
+     paikka ja leveys kuten fontin yhdysviivassa (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Rako renkaasta .27 em (käyttäjän linjaus).
      Nuolen kärki on oma (orengas.js, käyttäjän linjaus: huolellinen ja klassinen): täytetty, suorat ulkoreunat, sisään kaartuvat
      sakarat hiusviivaksi terävöityvin päin kuten renkaan rako, matalampi kuin kellarilinkin chevron, jottei se nouse tekstin
      viereen. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (alla), ja margin-right pitää sen palstan
@@ -421,8 +421,8 @@
   .om-linkki a::after { left: 0; right: 0; }
   .om-linkki .vika { letter-spacing: 0; }
   .om-linkki svg.nuoli { right: -.0459em; bottom: -.4883em; width: .5859em; height: .8789em; fill: currentColor; stroke: none; }
-  .om-linkki a::before { width: calc(.35em + .7797148em); }
-  .om-linkki svg.orengas { position: absolute; right: calc(100% + .35em); bottom: -.0977em; width: 1.5594297em; height: 2.34375em; overflow: visible; fill: currentColor; }
+  .om-linkki a::before { width: calc(.27em + .7797148em); }
+  .om-linkki svg.orengas { position: absolute; right: calc(100% + .27em); bottom: -.0977em; width: 1.5594297em; height: 2.34375em; overflow: visible; fill: currentColor; }
   .om-linkki .oyv { display: inline-block; position: relative; width: .351em; height: 0; margin-right: .14em; }
   .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: calc(.3433em - .0488em); width: .2813em; height: .0977em; fill: currentColor; }
   /* Paluulinkit alarivin vasemmassa laidassa (käyttäjän linjaus): kellarin kampihyllystöstä pinoon (pinomerkki), ö-mapista
