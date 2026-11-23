@@ -257,7 +257,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa paluu kellarin
   kampihyllystöön (`#ark-paluu`). **Paluulinkit** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
   *pinoon* (`#ark-pinoon`, pinomerkki) ja ö-mapissa *kellarin kampihyllystöön* (kampi): ensin symboli, sitten teksti, ja molempien alla
-  koko matkan vasemmalle osoittava chevron-nuoli, jonka viiva päättyy viimeisen kirjaimen keskelle (käyttäjän vaatimus: muuten ei toimi);
+  koko matkan vasemmalle osoittava chevron-nuoli; *pinoon*-linkissä viiva on koko tekstin mittainen (N:n oikeaan musteeseen), ö-mapin
+  paluussa se päättyy viimeisen kirjaimen keskelle (käyttäjän linjaukset);
   mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä, samalla rivillä ja korkeudella kuin ö-mappiin (`.ala-linkit`). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
