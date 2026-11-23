@@ -34,7 +34,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('pino: kellarilinkki näkyy', await page.isVisible('#ark-linkki') && (await page.textContent('#ark-linkki')) === 'kellarin kampihyllystöön');
   t('pino: ö-linkki piilossa', !(await page.isVisible('#om-linkki')));
   if (KUVAT) await page.locator('#ark-linkki').screenshot({ path: KUVAT + '/linkki.png' });
-  // Alalaidan linkit .85rem (mittapuu kellarin *pinoon*, käyttäjän päätös); pinon kellarilinkki yhdellä rivillä, kammen säde .894 em.
+  // Alalaidan linkit .85rem (mittapuu kellarin *pinoon*, käyttäjän päätös); pinon kellarilinkki kahdella rivillä, kammen säde 1,2125 em.
   const kl = await page.evaluate(() => {
     const p = document.querySelector('#ark-linkki'), a = p.querySelector('a'), fs = parseFloat(getComputedStyle(p).fontSize);
     const e = a.querySelector('svg.veivi svg'), m = e.getScreenCTM(), vb = e.viewBox.baseVal, ar = a.getBoundingClientRect();
@@ -42,7 +42,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
     const k = { left: v0.x, width: v1.x - v0.x };
     return { fs, rivit: a.getClientRects().length, korkeus: +(ar.height / fs).toFixed(3), kampi: +(k.width / fs).toFixed(3), keski: +((k.left + k.width / 2 - ar.left) / fs).toFixed(3) };
   });
-  t('pino: kellarilinkki .85rem, yksi rivi, kampi 1,788 em napa linkin reunassa', kl.fs === 13.6 && kl.rivit === 1 && kl.korkeus < 2 && Math.abs(kl.kampi - 1.788) < .01 && Math.abs(kl.keski) < .01, JSON.stringify(kl));
+  t('pino: kellarilinkki .85rem, kaksi riviä, kampi 2,425 em napa linkin reunassa', kl.fs === 13.6 && kl.korkeus > 2.5 && Math.abs(kl.kampi - 2.425) < .01 && Math.abs(kl.keski) < .01, JSON.stringify(kl));
   // Merkin keskikohdan (kammessa napa, viewBoxin y .953 / 2) korkeus perusviivasta.
   const napa = (sel, f = .953 / 2) => page.evaluate(([sel, f]) => {
     const s = document.querySelector(sel), el = s.parentNode, pr = document.createElement('span');
