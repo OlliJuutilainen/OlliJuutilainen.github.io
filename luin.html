@@ -850,7 +850,7 @@
   #teksti h4 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
   #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
   #teksti p { margin: 0 0 1.1em; }
-  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.tila):not(.vali):not(.huom):not(.kaava) { text-align: justify; }
+  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.tila):not(.vali):not(.huom):not(.kaava):not(.oik) { text-align: justify; }
   /* Kaksirivinen kappale, jonka ainoa tasattu rivi levenisi yli LIEHU_RAJA:n sanaväleihin, liehuu (liehutaLyhyet()).
      Spesifisyys yli tasaussäännön. */
   #teksti.tasattu p.liehu:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
@@ -860,6 +860,14 @@
   #teksti.sisennys p { margin: 0; text-indent: 0; }
   #teksti.sisennys p + p { text-indent: 1.4em; }
   #teksti.sisennys p.bib { margin: 0 0 .75em; text-indent: -1.7em; }
+  /* Sisennys on vain leipätekstin (käyttäjän päätös). Lähde- ja tekijänoikeusosion kappaleet (md.js p.oik) ovat tietoja:
+     ei sisennystä, väli kuten rivitetyssä kappaleessa. Julkaisun tila ja rahoitushuomautus ovat otsikottomassa tekstissä
+     artikkelin alussa eivätkä otsikkolohkossa, joten ne ja niiden jälkeinen kappale alkavat tasalaidasta. */
+  #teksti.sisennys p.oik, #teksti.sisennys p.tila, #teksti.sisennys p.rahoitus, #teksti.sisennys p.tila + p, #teksti.sisennys p.rahoitus + p { text-indent: 0; }
+  #teksti.sisennys p.oik + p.oik { margin-top: .7em; }
+  /* Tietojen osoite siirtyy kokonaisena omalle rivilleen, jos mahtuu (a.url:n break-all katkaisi sen mistä tahansa); pidempi
+     katkeaa yhä palstan reunasta. */
+  #teksti p.oik a.url { word-break: normal; overflow-wrap: anywhere; }
   /* Rahoitushuomautus (käyttäjän säännöt 15.11.2026, md.js rahoitus()): sovitesivustolta leikatun tekstin yläotsake
      isoin kirjaimin, mutta versaalina, kursiivina, ohuena (Literatan ohuin leikkaus 380), harmaana ja hakasulkeissa.
      Pienempi ja harmaampi kuin leipäteksti, kuin vesileima, jotta näkyy, ettei se kuulu teokseen, mutta luettava myös
@@ -1920,7 +1928,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=24e980dc"></script>
+<script src="luin/md.js?v=d7e4dea7"></script>
 <script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>

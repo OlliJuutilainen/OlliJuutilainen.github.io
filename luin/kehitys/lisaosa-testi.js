@@ -887,7 +887,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
     lgL.bib === 2 && lgL.meta.join('|') === 'Maija Kirjoittaja<br>Julkaistu 5.5.2018', JSON.stringify(lgL));
   // Tekijänoikeusmerkintä (10.11.2026): Logoksen ehto etukenttään, Luinissa kohtana kirjallisuusluettelon alla, ei p.bib.
   tulos('Logos: tekijänoikeus etukenttään ja Luinissa kohtana kirjallisuuden alla', /^oikeudet: Tekijänoikeus on alkuperäisellä tekijällä, joka on luovuttanut Filosofia\.fi-portaalille luvan kertajulkaisuun\. Muusta julkaisemisesta on sovittava tekijän kanssa\.$/m.test(lg) &&
-    /^oikeudet-lähde: https:\/\/filosofia\.fi\/fi\/tekijanoikeudet-ja-filosofiafi$/m.test(lg) && lgL.oik === 'H2 Kirjallisuus | H3 Ensyklopedia Logoksen artikkelit | H4 Lähde | H4 Tekijänoikeudet' && lgL.oikP === '',
+    /^oikeudet-lähde: https:\/\/filosofia\.fi\/fi\/tekijanoikeudet-ja-filosofiafi$/m.test(lg) && lgL.oik === 'H2 Kirjallisuus | H3 Ensyklopedia Logoksen artikkelit | H4 Lähde | H4 Tekijänoikeudet' && lgL.oikP === 'oik',
     lgL.oik + ' / ' + lgL.oikP);
 
   // 10. Wikipedia (10.11.2026): siistitty, viitteet ja lähde? alaviitteinä, käännöshuomautus alaviitteenä, wikilinkit
