@@ -230,7 +230,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
   (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä); kampipyörylän laki ylärivin versaalien laella (säde 1,2125 em) ja jatkeviiva linkin täytteenä, ei `::before` (murtopikselinen korkeus teki portaan). Linkki on .85rem, jotta kaaren laki on napin yläreunan ja alleviivaus napin alareunan tasolla (käyttäjän pyyntö), ja aina napin oikealla:
   jos se ei mahdu .85rem:nä, sitä pienennetään juuri niin paljon, että mahtuu, tasaus edelleen alareunaan (käyttäjän sääntö, `sovitaKellarilinkki()`; testi `postihuilu-testi.js`). Muut vastaavat linkit (ö-mappiin,
-  *pinoon*, ö-mapin paluu) seuraavat samaa kokoa (käyttäjän linjaus; `--kk-koko`, laskettu palstan leveydestä myös kellarinäkymässä). Alleviivaus on taustapalkki ja `svg.veivi` palkin kokoinen laatikko samassa kohdassa, kaari sisemmässä svg:ssä: muuten kaari ja viiva pyöristyvät eri laitepikseleihin (sauma), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
+  *pinoon*, ö-mapin paluu) seuraavat samaa kokoa (käyttäjän linjaus; `--kk-koko`, laskettu palstan leveydestä myös kellarinäkymässä). Alleviivaus on taustapalkki ja `svg.veivi` sekä `svg.nuoli` palkin kulmissa 1 px:n laatikkoina, kaari ja kärki sisemmissä svg:issä: muuten ne ja viiva pyöristyvät eri laitepikseleihin (sauma, ontuva kärki); palkki päättyy kärkeen, 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .85rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
@@ -295,12 +295,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
-  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Soin.*; `luinKohdat()`, sijainnin mukaan):
+  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Toin.*; `luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
   kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Käsikirjastoon*, *Merkitse luetuksi*; kellarin
   kampihyllystössä *Poimi pinoon*, *Ö-mappiin*, *Käsikirjastoon* (valikossa pelkkä kohde; vahvistusnapit ja kysymykset pitävät *Vie*/*Siirrä*-muodon, `kkSana()`, `OM_SISAAN`; *Poimi pinoon* on myös vahvistusnappi); ö-mapissa *Poimi kellarin kampihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
-  loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Soin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
+  loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Toin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
   ylärivin paluunuolella (`.sisak`); tapa mitataan (`porrasTapa()`) eikä sitä päätellä laitteesta. Pääkohdat eivät saa liikkua:
   ankkuri (`popPaikka.reuna`) päätetään ensimmäisellä avauksella, piilotettu alavalikko antaa vain leveytensä, ja viipymäavaus odottaa
