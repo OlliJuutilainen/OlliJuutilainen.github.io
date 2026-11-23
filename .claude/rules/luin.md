@@ -295,8 +295,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   hiiren todellista liikettä (`porrasLukko`). Kaikki on `#pop`issa, joten ulkoklikkaus ja mahtuminen ovat yhteiset. Testi `porras-testi.js`;
   muut testit avaavat pääkohdan `porras-apu.js`:n `avaaOsa()`lla.
 - **Merkitse luetuksi** (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä (`e.merkLuettu`, `li.luettu-merk`, `--viiva`);
-  sama kohta palauttaa (*Merkitse lukemattomaksi*). Merkki lähtee kellariin, käsikirjastoon ja pinoon palatessa. Tusinan
+  sama kohta palauttaa (*Merkitse lukemattomaksi*). Merkki lähtee kellariin, käsikirjastoon (myös merkintäpostin luokittelusta,
+  `posti.js` `yhdistaLk()`, ja latauksessa jääneenä) ja pinoon palatessa: käsikirjalla ei ole luettu-merkkiä (käyttäjän päätös). Tusinan
   järjestykseen se ei vaikuta.
+- **Pinon järjestys** (käyttäjän päätös, `pinoJarj()`): luetuksi merkityt pohjalla, muuten viimeksi koskettu ensin (`pinoAika()`:
+  avaus tai pinoon tulo; Postihuilun kautta kantautuminen on samanarvoinen kuin avaus). Järjestys lasketaan, ei `lista`n
+  järjestyksestä: testin kylvössä `added`/`pinoon`/`opened` ratkaisevat.
 - **Linkitä tiedostoon** (`kysyTiedosto()`): linkittömällä tekstillä *Kopioi linkin* paikalla.
   Hyväksyy julkisen .md-osoitteen (Dropbox muunnetaan kuten Latomossa), jos leipäteksti on sama kuin pinossa
   (`leipaMuuttui()`, sama sääntö kuin tietojen säädössä), ja kirjoittaa sen etukentän `osoite:`-riviksi, jotta
@@ -318,7 +322,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`kohdista()`), ei pelkällä katkelmahaulla (se osuu naapurikappaleeseen). **Pino pysyy pinona**: laitos näkyy vain tietorivin
   *2. laitos* -sanoina, ei kansioita, ryhmiä eikä erikoisvärejä (käyttäjän päätös). Testi `laitos-testi.js`. Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
 - **Luokittelu ja kellarin järjestys** (opas 2.5):
-  pino pysyy tulojärjestyksessä eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin kampihyllystössä.
+  pino pysyy omassa järjestyksessään (yllä) eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin kampihyllystössä.
   Nimikkeen kentät (`asiasanat`, `ajoitus`, `kasikirja`) ovat totuus ja etukentän `asiasanat:`/`ajoitus:` niiden peili: avaimeton
   tuonti ei pyyhi niitä (`lkMdsta(…, false)`), vain *Muuta metatietoja* ja korvaava laitos (`tosi`, etukenttä kirjoitetaan ennen
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
