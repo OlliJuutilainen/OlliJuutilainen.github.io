@@ -28,7 +28,8 @@
   Raakaa HTML:ää ei päästetä läpi: kaikki escapoidaan (paitsi <br>).
   Lomitettu käännös (käyttäjän pyyntö 16.11.2026, Perseuksen alkuteksti ja käännös pykälittäin): etukentän
   ladonta: lomitettu käännös tekee ylimmän tason lainauksista käännöksiä (blockquote.kaannos), ei lainauksia.
-  Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()).
+  Rivitetty kappale (21.11.2026): kenoviivarivinvaihdoin kirjoitettu tai lyhyt yksirivinen kappale on p.rivit (rivitetty()),
+  samoin pisteeseen päättyvä enintään kolmen sanan otsikoksi tai allekirjoitukseksi merkitty kappale (merkittyLyhyt()).
   Juokseva otsikko: numeroitu lihavoitu kappaleen alku sarjana (**Corollary 1: …** …) on kohta (res.kohdat, ajo), ei otsikko.
   Artikkeli (artikkeli()): kaksitasoisen artikkelin otsikot ovat osioita ja kohtia, eivät lukuja.
   Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella (Table 1., Fig. 2, Taulukko 3), on p.kuvateksti
@@ -2082,6 +2083,21 @@
     var p = plain(t).replace(/\s+/g, ' ').trim();
     return !!p && p.split(' ').length <= 4 && !/[.!?…:;,]["”’»)\]]*$/.test(p) && !/^["”“«»'‘’–—-]/.test(p);
   }
+  /* Merkitty lyhyt kappale (käyttäjän linjaus: sisennys vain leipätekstiin): yksirivinen, enintään kolmen sanan, pisteeseen
+     päättyvä kappale on p.rivit kuten välimerkitön lyhyt rivi, kun se on merkitty otsikoksi tai allekirjoitukseksi: kokonaan
+     versaalia (THE TRANSLATOR., PROOF., R. B. H.) tai kokonaan kursiivia tai lihavaa, tai jakson viimeinen kappale, jossa on
+     numero (paikka ja päiväys ennen otsikkoa). Pelkkä sanamäärä ei riitä: dialogin vastaukset (Yes., True., I nodded.) ovat
+     lyhyitä kappaleita, jotka pysyvät sisennettyinä. Lainausmerkillä, viivalla, sululla tai pienellä alkava ei kelpaa
+     (vuorosana, kappaleiksi pilkottu säe). seur on seuraava lohko. */
+  function merkittyLyhyt(t, seur, inQuote) {
+    var raaka = String(t).trim();
+    if (raaka.indexOf('\n') >= 0) return false;
+    var p = plain(raaka).replace(/\s+/g, ' ').trim();
+    if (!p || p.split(' ').length > 3 || !/\.$/.test(p) || /^["”“«»'‘’–—\-[(]/.test(p) || /^\p{Ll}/u.test(p)) return false;
+    if (/\p{Lu}/u.test(p) && p === p.toUpperCase()) return true;
+    if (/^(?:<(?:em|strong)>)+[^<]*(?:<\/(?:em|strong)>)+\.?$/.test(inline(raaka, { note: null, br: false }).trim())) return true;
+    return !inQuote && /\d/.test(p) && (!seur || seur.t === 'h' || seur.t === 'hr');
+  }
   /* Kuvateksti: sovitteet (PMC, Springer Nature, Frontiers, PLOS, OJS, Ubiquity ym.) kirjoittavat kuvan ja taulukon tekstin kokonaan
      kursiiviseksi kappaleeksi, joka alkaa tunnisteella (Table 1. / Table 1 / Fig. 1 / Fig 1. / Figure 1 / Taulukko 2 / 1 lentelė.).
      Perässä saa olla alaviitemerkkejä ja hakasulkeinen huomautus ([Taulukko on lähteessä kuvana.]). → tunniste tai null.
@@ -2664,7 +2680,7 @@
           }
           var ktNimi = !inBib && !t.oik ? kuvateksti(t.text) : null;
           // Lähde- ja tekijänoikeusosion kappaleet (p.oik) ovat tietoja, eivät leipätekstiä: ei sisennystä eikä tasausta (luin.html).
-          var pHtml = blk('p', t.oik ? 'oik' : inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : (function (hm) { return hm && hm.n === t.text.trim().length; })(huomautus(t.text.trim())) ? 'huom' : RE_KAAVA.test(t.text.trim()) ? 'kaava' : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
+          var pHtml = blk('p', t.oik ? 'oik' : inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : (function (hm) { return hm && hm.n === t.text.trim().length; })(huomautus(t.text.trim())) ? 'huom' : RE_KAAVA.test(t.text.trim()) ? 'kaava' : !t.oik && (rivitetty(t.text) || merkittyLyhyt(t.text, list[k + 1], inQuote)) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
           // Tunniste pystyyn (Table 1.), loppu kursiivina kuten painetussa lehdessä.
           if (ktNimi) pHtml = pHtml.replace(/^(<p [^>]*><em>)([^<]*)/, function (k, a, b) {
             return b.indexOf(ktNimi) === 0 ? a + '<span class="kt-nimi">' + ktNimi + '</span>' + b.slice(ktNimi.length) : k;

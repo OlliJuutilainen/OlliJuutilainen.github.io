@@ -101,6 +101,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Taulukon lyhyt solu (`td.lyhyt`) katkeaa vain välilyönnistä, ellei `ahtaatTaulukot()` merkitse taulukkoa ahtaaksi (opas 3.2).
   Rivinvaihto lisäosan leikkeessä on kenoviiva (Turndown `br: '\\'`), ei kaksi välilyöntiä; md.js:n `p.rivit` (kenoviivarivit tai
   lyhyt yksirivinen) on sisentämätön kummallakin kappalejaolla (käyttäjän päätös: sisennys vain leipätekstiin, opas 3.2).
+  Pisteeseen päättyvä lyhyt kappale on `p.rivit` vain merkittynä (`merkittyLyhyt()`: versaali, kokonaan korostettu tai jakson lopun
+  päiväys): pelkkä sanaraja tekisi dialogin vastauksista (*Yes.*, *I nodded.*) sisentämättömiä. Älä löysää ehtoja mittaamatta.
   `ladonta: asiakirja` (Snellman-sovite, opas 7.5): md.js ottaa otsikkolohkon vain etukentästä, ja tekstin alun lyhyet rivit
   (kirjeen paikka ja päiväys, puhuttelu) jäävät tekstiin. Latomo säilyttää avaimen tuntemattomana kuten lomitetun käännöksen. Latomo päättelee
   etukentän poikkeamat samalla ladonnalla (`valmis()`): muuten kirjeen päiväysrivi pudottaa `julkaistu`n.
