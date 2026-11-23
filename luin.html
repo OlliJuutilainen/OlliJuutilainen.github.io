@@ -273,7 +273,7 @@
      hyvin loivasti vasemmalle yläviistoon ja kiertää vastapäivään 290° itään asti. Kampi ei siksi osoita tarkalleen keskelle.
      Kiinni (360°) on vain ääripää, avoimin (220°) palaisi alas lähdön kohdalle; 290° on niiden puolivälissä ja aukko näkyy vielä 1×-tiheydellä. */
   .ark-linkki a::before { content: ""; position: absolute; right: 100%; bottom: -1px; width: calc(1.294em + .5px); height: 0; border-bottom: 1px solid currentColor; }
-  .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -1px; width: 1.788em; height: 1.788em; overflow: visible;
+  .ark-linkki svg.veivi { position: absolute; right: calc(100% + .4em); bottom: -.5px; width: 1.788em; height: 1.788em; overflow: visible;
     fill: none; stroke: currentColor; stroke-width: 1; stroke-linejoin: miter; }
   .ark-linkki svg.veivi path { vector-effect: non-scaling-stroke; }
   /* Kellarin kampihyllystön paluuteksti pinomerkin vasemmalla (käyttäjän pyyntö 12.11.2026): sama osoite kuin merkillä, versaalina kuten
@@ -361,25 +361,33 @@
   .huilunapit { display: flex; justify-content: flex-end; }
   /* Pinon osioiden hajurako (käyttäjän päätös): pino, Soita postihuilua ja kellarilinkki, linkkilista erillään reilulla
      ilmalla. Pinon alla Soita postihuilua laatikkonappina (kuten asetusten Soita huilua!) palstan laidassa ja samalla rivillä
-     oikeassa laidassa kellarilinkki pienempänä (.56rem, nuoli samassa suhteessa), alleviivaus napin alareunan tasolla
-     (`flex-end`: linkin reunaviiva ja napin alareuna ovat kumpikin laatikkonsa alin pikselirivi); jos rivi ei mahdu, linkki rivittyy napin
+     oikeassa laidassa kellarilinkki niin suurena (.85rem, nuoli samassa suhteessa), että kaaren laki on napin yläreunan ja alleviivaus
+     napin alareunan tasolla (käyttäjän pyyntö; kaari 2,425 em + 1 px viiva = napin 34 px; `flex-end`); jos rivi ei mahdu (alle 391 px), linkki rivittyy napin
      alle väljästi. Kellarilinkin kampi on tekstin vasemmalla, joten rivittyneenä se alkaa kammen musteesta palstan laidasta
      (kaaren vasen reuna 2,825 em tekstin vasemmasta reunasta: kahden rivin korkuinen pyörylä, alla). */
   #lista { --osiovali: 52px; }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
-  #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: .56rem; }
-  #lista .pino-ala .ark-linkki svg.nuoli { bottom: -4px; width: 4.375px; height: 7px; }
+  #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: .85rem; }
+  #lista .pino-ala .ark-linkki svg.nuoli { bottom: calc(-.390625em - .5px); width: .4883em; height: .78125em; }
+  #lista .pino-ala .ark-linkki svg.nuoli path { vector-effect: non-scaling-stroke; }
   /* Pinon kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (käyttäjän pyyntö), jotta se mahtuu Soita postihuilua
      -napin oikealle. Rivikorkeus pysyy (kammen napa ja alleviivaus mitattu sen mukaan); ylärivi vedetään lähemmäs reunuksella. */
   #lista .pino-ala .ark-linkki .kk-yla { display: block; margin-bottom: -.55em; }
   /* Kampipyörylä kahden rivin korkuinen (käyttäjän pyyntö): kaaren laki ylärivin versaalien laella, pohja alleviivauksella, säde
      1,2125 em (muste mitattu 393 px:llä). Kammen ja tekstin välinen jatke on linkin oma täyte eikä ::before: reunaviiva on silloin
-     yhtä viivaa, kun kaksirivisen linkin murtopikselinen korkeus pyöristi ::beforen ja linkin reunan eri riveille (porras). */
-  #lista .pino-ala .ark-linkki { padding-left: calc(1.2125em - .5px); }
-  #lista .pino-ala .ark-linkki a { padding-left: calc(1.6125em + .5px); }
+     yhtä viivaa, kun kaksirivisen linkin murtopikselinen korkeus pyöristi ::beforen ja linkin reunan eri riveille (porras).
+     Sauma (käyttäjän havainto): Chromium pyöristää laatikon paikan laitepikseliin mutta ei svg:n sisältöä, joten kaari jäi
+     alleviivauksesta 0,4–0,9 laitepikseliä alemmas. Siksi alleviivaus on taustapalkki (::after, reunaviiva läpinäkyvänä pitää mitat)
+     ja svg.veivi on palkin kokoinen 1 px:n laatikko tasan samassa kohdassa (vasen yläkulma = palkin), jolloin molemmat pyöristyvät
+     samoin; kaari piirretään sisemmässä svg:ssä em-mitoin palkin keskilinjalle (translate .5). Kaaren pää jatkuu .04 yksikköä palkin
+     päälle, ettei liitoskohtaan jää vaaleaa saraketta. */
+  #lista .pino-ala .ark-linkki { padding-left: 1.2125em; }
+  #lista .pino-ala .ark-linkki a { padding-left: 1.6125em; }
   #lista .pino-ala .ark-linkki a::before { display: none; }
-  #lista .pino-ala .ark-linkki svg.veivi { right: calc(100% - 1.2125em - .5px); width: 2.425em; height: 2.425em; }
+  #lista .pino-ala .ark-linkki a { border-bottom-color: transparent; }
+  #lista .pino-ala .ark-linkki a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: currentColor; }
+  #lista .pino-ala .ark-linkki svg.veivi { left: 0; right: auto; top: 100%; bottom: auto; width: 1px; height: 1px; }
   .pino-ala { margin-top: var(--osiovali); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 36px 16px; }
   .pino-ala:not(:has(> p:not([hidden]))) { display: none; }
   .huilu-soita { margin: 0; }
@@ -1693,7 +1701,7 @@
   <p class="huilu-soita" id="huilu-soita" hidden><button type="button" class="laatikko" id="soita-postihuilua">Soita postihuilua</button></p>
   <!-- Kellarin kampihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" viewBox="0 0 2 2" aria-hidden="true"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1 1.953A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg><span class="kk-yla">kellarin</span> kampihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" aria-hidden="true"><g transform="translate(0 .5)"><svg x="-1.2125em" y="-2.425em" width="2.425em" height="2.425em" viewBox="0 -.047 2 2" overflow="visible"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1.04 1.953H1A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></g></svg><span class="kk-yla">kellarin</span> kampihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
   </div>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
        opas ei ole julkisessa repossa. -->
