@@ -436,6 +436,9 @@
   .takaisin-linkki a { line-height: 1.55; padding-bottom: 0; border-bottom: 0; }
   .takaisin-linkki a::before { display: none; }
   .takaisin-linkki a::after { content: ""; position: absolute; left: 0; right: .57em; bottom: -.0977em; height: .0977em; background: currentColor; }
+  /* Pinoon-linkissä viiva on koko tekstin mittainen (käyttäjän linjaus): N:n oikean musteen kohdalle (harvennus .14 em ja N:n
+     sivuväli: mitattuna .124 em linkin oikeasta reunasta). */
+  #ark-pinoon a::after { right: .124em; }
   .takaisin-linkki svg.nuoli { right: auto; left: -.078em; bottom: -.4394em; width: .4883em; height: .7813em; }
   .takaisin-linkki svg.symb { display: inline-block; overflow: visible; fill: none; stroke: currentColor; stroke-width: .0977em;
     margin-right: .5em; }
