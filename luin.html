@@ -948,6 +948,11 @@
   #teksti.rinnakkain div.pari > blockquote.kaannos { margin: 0 0 0 calc(50% + 1em); padding: 0; border: 0; font-size: 1em; line-height: inherit; color: inherit; }
   #teksti.rinnakkain div.pari-alku > p:first-child, #teksti.rinnakkain div.pari > blockquote.kaannos > p:first-child { margin-top: 0; }
   #teksti.rinnakkain > :not(.pari) { max-width: 33em; }
+  /* Sama kirjaimisto (käyttäjän päätös): kun alkuteksti ja käännös ovat samaa kirjaimistoa (italia–englanti, latina–englanti),
+     rinnakkaiset palstat eivät erotu toisistaan, joten käännös on lainauksen värinen kuten yksipalstaisena. Eri kirjaimistolla
+     (kreikka–englanti) kirjaimet erottavat kielet, ja palstat pysyvät neutraaleina. Vain väri: pienempi koko rikkoisi palstojen
+     rivirytmin, ja --harmaa on Sysissä lukutekstille liian himmeä. */
+  #teksti.rinnakkain.sama-kirjaimisto div.pari > blockquote.kaannos { color: var(--sitaatti); }
   /* Lainauksen lähde (md: lainauksen viimeinen rivi – Nimi kenoviivan jälkeen) oikeaan reunaan lainauksen alle, ja otsikon
      jälkeen ennen leipätekstiä lainaus on motto: sisennetty, ilman pystyviivaa, tasaamaton, iso väli perässä (painetun
      kirjan käytäntö; käyttäjän päätös 27.10.2026). */
@@ -4707,7 +4712,9 @@
   /* Lomitettu käännös: alkutekstin kappale on ylimmän tason p, jota seuraa (muiden alkutekstin kappaleiden jälkeen) käännös
      ennen seuraavaa otsikkoa. Sen teksti kääritään span.alku-teksti-kääreisiin; kohtanumero (sup ilman linkkiä) jää kääreen
      ulkopuolelle. Kappale ilman kohtanumeroa on p.alku-tyhja (vain käännös -tilassa kokonaan pois). */
+  var samaKirj = false; // alkuteksti ja käännös samaa kirjaimistoa: merkitseAlkuteksti() asettaa, lomitusLuokat() käyttää
   function merkitseAlkuteksti() {
+    samaKirj = false;
     if (!nyt.doc.lomitettu) return;
     var kaannos = false, lapset = [].slice.call(art.children).reverse();
     lapset.forEach(function (el) {
@@ -4735,6 +4742,10 @@
       alku.forEach(function (x) { pa.appendChild(x); });
       pari.appendChild(pa); pari.appendChild(bq);
     });
+    // Sama kirjaimisto (#teksti.sama-kirjaimisto): pääkirjaimistoon riittää alku, 40 kappaletta ja 4000 merkkiä kummastakin.
+    var nayte = function (s) { return $$(s, art).slice(0, 40).map(function (e) { return e.textContent; }).join(' ').slice(0, 4000); };
+    var na = nayte('p.alku .alku-teksti');
+    samaKirj = !!na && paaKirjaimisto(na) === paaKirjaimisto(nayte('blockquote.kaannos'));
   }
   var RINN_VALI = 2; // rinnakkaisten palstojen väli em:inä (CSS: 50 % ± 1em)
   var RINN_MIN = 20, RINN_MAX = 33; // rinnakkaisen palstan leveys em:inä: kapeampi ei mahdu, leveämpi ei leviä
@@ -4742,6 +4753,7 @@
     var l = nyt && nyt.doc.lomitettu ? aset.lomitus : '';
     art.classList.toggle('lomitus-alku', l === 'alku');
     art.classList.toggle('lomitus-kaannos', l === 'kaannos');
+    art.classList.toggle('sama-kirjaimisto', l === 'molemmat' && samaKirj);
   }
   function piirraTeksti() {
     var d = nyt.doc, html = d.html;
@@ -8393,11 +8405,16 @@
     }
     return R;
   }
+  // Pääkirjoitusjärjestelmä: latina tai se ERIK_KIRJ:n kirjaimisto, jota tekstissä on eniten (erikAlueet(), lomitettu käännös).
+  function paaKirjaimisto(t) {
+    var kirj = 'Latin', most = (t.match(/\p{Script=Latin}/gu) || []).length;
+    ERIK_KIRJ.forEach(function (x) { var c = (t.match(new RegExp('\\p{Script=' + x.kirj + '}', 'gu')) || []).length; if (c > most) { most = c; kirj = x.kirj; } });
+    return kirj;
+  }
   // Tekstin kieli ja pääkirjoitusjärjestelmä tekstin alusta; kohdat lohkoittain (b) ja alaviitteittäin (v[b][n]).
   function erikAlueet() {
     if (nyt.erik) return nyt.erik;
-    var otos = nyt.txt.slice(0, 60).join(' '), kirj = 'Latin', most = (otos.match(/\p{Script=Latin}/gu) || []).length;
-    ERIK_KIRJ.forEach(function (x) { var c = (otos.match(new RegExp('\\p{Script=' + x.kirj + '}', 'gu')) || []).length; if (c > most) { most = c; kirj = x.kirj; } });
+    var otos = nyt.txt.slice(0, 60).join(' '), kirj = paaKirjaimisto(otos);
     var A = nyt.erik = { paa: kieliPisteet(otos, true).k || 'fi', kirj: kirj, b: [], v: [] };
     nyt.txt.forEach(function (t, b) {
       if (t == null) return;

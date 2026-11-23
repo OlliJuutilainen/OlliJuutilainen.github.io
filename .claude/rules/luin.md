@@ -420,6 +420,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *Molemmat* on rinnakkain (`div.pari`, opas 3.2) aina, kun kaksi vähintään `RINN_MIN` em:n palstaa mahtuvat, myös sivutettuna ja
   kosketusnäytöllä (mahdollisimman usein, palstat saavat kaventua). Alkuteksti kelluu, pari on `flow-root`,
   ei reunushuomioita; sivutettuna `parienAlut()` pitää parin puolet samalla sivulla.
+  Rinnakkain käännös on `--sitaatti`-värinen vain, kun alkuteksti ja käännös ovat samaa kirjaimistoa (`paaKirjaimisto()`,
+  `samaKirj`, luokka `sama-kirjaimisto` `lomitusLuokat()`issa); eri kirjaimistolla (kreikka–englanti) palstat ovat neutraalit
+  (käyttäjän päätös). Testi `lomitus-testi.js`.
 - **Värit eivät ole soittimen**: ruskea, okra, ruoste, paperi ja muste, kuusi väriä teemaa kohti. Sähköpaperi: ei varjoja,
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.
@@ -795,6 +798,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/porras-testi.js [kuvakansio]`: porrasvalikko (rakenne, rinnakkain ja sisäkkäin, ankkurit, kierto, Luin.-alavalikko eri sijainneissa, Merkitse luetuksi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-testi.js [kuvakansio]`: lomitetun käännöksen palstojen värit (sama ja eri kirjaimisto, mobiili, Sysi, Kielet).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
