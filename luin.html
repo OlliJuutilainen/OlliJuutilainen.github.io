@@ -3623,8 +3623,8 @@
       { k: 'latomo', nimi: LATOMO, html: '<button type="button" data-k="luokittele">Luokittele</button>' +
         '<button type="button" data-k="tiedot">Muuta metatietoja</button><button type="button" data-k="laitos">Lado uusi laitos</button>' },
       // Pääkohdan nimi sijainnin mukaan (käyttäjän nimet): pinossa Luin., kellarin kampihyllystössä (käsikirja mukaan lukien)
-      // Hain., ö-mapissa Soin.
-      { k: 'luin', nimi: omapissa(e) ? 'Soin.' : kellarissa(e) ? 'Hain.' : 'Luin.', html: luinKohdat([e]) }
+      // Hain., ö-mapissa Toin.
+      { k: 'luin', nimi: omapissa(e) ? 'Toin.' : kellarissa(e) ? 'Hain.' : 'Luin.', html: luinKohdat([e]) }
     ], function (k, nappi) {
       var lt = luinToiminto(k, nappi, [e], b);
       if (lt !== undefined) return lt;

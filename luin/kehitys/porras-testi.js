@@ -197,8 +197,8 @@ const luinKohdat = async (page, id) => {
       'Hain.: luin=Poimi pinoon | omappi=Ö-mappiin | kasikirja=Käsikirjastoon | poista=Poista');
     tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'Hain.: poista=Poista');
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
-    tulos('ö-mappi: pääkohta Soin.; Poimi kellarin kampihyllystöön, Poimi käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
-      'Soin.: omappi=Poimi kellarin kampihyllystöön | kasikirja=Poimi käsikirjastoon | poista=Poista');
+    tulos('ö-mappi: pääkohta Toin.; Poimi kellarin kampihyllystöön, Poimi käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
+      'Toin.: omappi=Poimi kellarin kampihyllystöön | kasikirja=Poimi käsikirjastoon | poista=Poista');
     await ctx.close();
   }
 
