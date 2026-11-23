@@ -834,7 +834,7 @@ const iredHtml = u => { const m = /^https:\/\/online\.flippingbook\.com\/view\/9
   tulos('SEP Luinissa: alaviitteiden tekstit ja kirjallisuusluettelo', L2.huom.length === 3 && /Dykhuizen 1973/.test(L2.huom[0]) && /^2Ensimmäinen kappale\.Lainaus alaviitteessä\.Jatko Jamesiin\.$/.test(L2.huom[1]) &&
     L2.bib.length === 2 && /^Dewey, John/.test(L2.bib[0]), JSON.stringify(L2).slice(0, 400));
   tulos('SEP Luinissa: rahoitushuomautus otsikkolohkon alussa (versaali, kursiivi, ohut, harmaa, hakasulkeissa, ei lohkonumeroa)',
-    L2.raha && /^\[Tämä sivusto toimii lahjoitusten varassa\. Lahjoittaa voi osoitteessa https:\/\/plato\.stanford\.edu\/support\/donate\.html\]$/.test(L2.raha.t) &&
+    L2.raha && /^\[Lähteen sivusto toimii lahjoitusten varassa\. Lahjoittaa voi osoitteessa https:\/\/plato\.stanford\.edu\/support\/donate\.html\]$/.test(L2.raha.t) &&
     !L2.raha.b && L2.raha.h1b === '0' && L2.raha.tt === 'uppercase' && L2.raha.fs === 'italic' && L2.raha.fw === '380' && L2.raha.vari &&
     L2.raha.aTt === 'none' && !L2.raha.aHref, JSON.stringify(L2.raha));
   await luin2.close();
