@@ -251,7 +251,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
         ark: document.querySelector('#ark-linkki').hidden };
     });
     tulos(`${w} px: lauseen kanssa Soita postihuilua laatikkonappina vasemmalla ennen kellarilinkkiä ja linkkejä`, sp.nak && Math.abs(sp.vasen) < .5 && sp.laatikko && sp.ennenKellaria && sp.ennenLinkkeja, JSON.stringify(sp));
-    // Kellarilinkki on aina .85rem (käyttäjän päätös), oikea reuna palstan laidassa: napin rivillä alareunat tasan, muuten napin alla.
+    // Kellarilinkki on aina .74rem (käyttäjän päätös), oikea reuna palstan laidassa: napin rivillä alareunat tasan, muuten napin alla.
     // Pino tallentaa listan taustalla (alaotsikoiden täydennys), joten odotetaan se ensin, ettei muutos katoa.
     for (let k = 0; k < 4; k++) {
       await p.waitForTimeout(300);
@@ -261,7 +261,7 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     }
     const kl = await p.evaluate(() => { const l = document.querySelector('#ark-linkki'), n = document.querySelector('#soita-postihuilua').getBoundingClientRect(), a = l.querySelector('a').getBoundingClientRect(), pa = document.getElementById('pino-ala').getBoundingClientRect();
       return { nak: !l.hidden, rivilla: l.getBoundingClientRect().top < n.bottom, ala: +(a.bottom - n.bottom).toFixed(2), oikea: +(pa.right - l.getBoundingClientRect().right).toFixed(1), fs: +parseFloat(getComputedStyle(l).fontSize).toFixed(2) }; });
-    tulos(`${w} px: kellarilinkki .85rem oikeassa laidassa, napin rivillä alareunat tasan tai napin alla`, kl.nak && (kl.rivilla ? Math.abs(kl.ala) < .05 : kl.ala > 0) && Math.abs(kl.oikea) < .5 && kl.fs === 13.6, JSON.stringify(kl));
+    tulos(`${w} px: kellarilinkki .74rem oikeassa laidassa, napin rivillä alareunat tasan tai napin alla`, kl.nak && (kl.rivilla ? Math.abs(kl.ala) < .05 : kl.ala > 0) && Math.abs(kl.oikea) < .5 && kl.fs === 11.84, JSON.stringify(kl));
     tulos(`${w} px: ei sivuvirheitä`, !virheet.length, virheet.join(' | '));
     await p.close();
   }
