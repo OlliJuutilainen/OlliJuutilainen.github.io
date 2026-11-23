@@ -534,12 +534,15 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Peitto** (opas 4.4, `karsiPaallekkaiset()`): törmäys ei ole pelkkä lomittuminen, vaan kärjet menevät toistensa
   kehän sisäalaan. Merkin musteen pitää mahtua janalle, ja ensimmäisen näkyvän pääluvun vasemmalle puolelle mahtuu
   kuvitteellinen päälukumerkki (`testi.js` tarkistaa).
-- **Veto**: vierityksessä ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan). Sivutettuna osoitin pysähtyy
-  pysäkeille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä, paitsi (`janaKohde()`):
-  yli 10 %:n pysäkkivälin sisältä saa valita vapaasti, ja osuma näkyvän salmiakin musteen x-alueelle vie sen
-  keskukseen (`janaSalmiakit`). Muuta magneettia ei lisätä. Poikkeus kumpaankin lukutapaan:
-  osuma piirrettyyn kirjanmerkin nauhaan vie tasan kirjanmerkkiin (`janaNauhat`). Liikkeessä
-  päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden (sähköpaperi).
+- **Veto**: vierityksessä ei ole magneettia (napautus ja veto vievät suhteelliseen kohtaan). Sivutettuna **veto** pysähtyy
+  portaille (`janaPysakit()`), jotka eivät riipu aikajanalle valituista merkeistä: alku, viimeinen sivu, **luvut ja osiot,
+  ei kohtia** (käyttäjän päätös: vähemmän sähköpaperin vetosotkua), kirjanmerkit, majakka ja haamu. Yli 25 %:n portaanväli
+  jaetaan tasan `floor(väli / JANA_PORRAS)` osaan (12,5 %: yli 25 % keskeltä, vähintään 37,5 % kolmasosista …).
+  **Napautus** (alle `JANA_VETO_PX` = 10 px sivuliikettä) vie mihin kohtaan tahansa kuten vierityksessä. Osuma näkyvän salmiakin
+  musteen x-alueelle vie sen keskukseen (`janaSalmiakit`; vedettäessä vain luvun ja osion). Muuta magneettia ei lisätä.
+  Poikkeus kumpaankin lukutapaan: osuma piirrettyyn kirjanmerkin nauhaan vie tasan kirjanmerkkiin (`janaNauhat`). Liikkeessä
+  päivitetään vain transform, viivojen päät ja etappien `tuleva`-luokka, kerran ruudunpäivitystä kohden, eikä mitään, kun
+  kohde ei vaihdu (sähköpaperi). Testi `jana-porras-testi.js`.
 - ***Palaa takaisin* -laatikko vain lähdeviittauksesta, haulla ja aikajanalta ≥ 50 %** (käyttäjän
   päätös): Sisälmys, Merkinnät ja tuonnin kyltti jättävät vain kummitusmerkin. Älä laajenna kysymättä.
 - **Siirtymien kumousta ei ole** (käyttäjän päätös: ei tyydyttävää visuaalista ratkaisua; lukijaa auttavat
