@@ -804,5 +804,5 @@ fixtureina: korvaa ne ensin). Muita käyttäjän tekstejä ei viedä repoon ilma
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot) ©-merkki on SVG: suora salmiakki, korkeus 1,30 × leveys, ja sen sisällä
+käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot) ©-merkki on SVG: suora salmiakki, yhtä leveä kuin korkea (käyttäjän päätös), ja sen sisällä
 Literatan oman ©-merkin sisempi C 1,1-kertaisena (`aria-label="©"`, `margin-right: .15em`). Muiden ohjelmien alatunnisteissa on tavallinen ©.
