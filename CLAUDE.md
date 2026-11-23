@@ -30,7 +30,7 @@ Ohjelmien säännöt ovat omissa tiedostoissaan (käyttäjän päätös):
 - `.claude/rules/soitin.md`: KEICK•WALK eli `soitin/` (soitin, Keikkaloihdin, Omat keikkani, ohjeet,
   keikka-analyysin taitopaketti) ja Android-kääre `android/soitin/`.
 - `.claude/rules/tusinapaja.md`: Tusinasää eli `tusinapaja.html` (ainoa aktiivinen versio; vanhat versiot ovat
-  `tusina-tavaraa`-repossa, eikä niihin kosketa pyytämättä), `generaattori.html` ja Android-sovellus `android/app/`.
+  `tusina-tavaraa`-repossa, eikä niihin kosketa pyytämättä), `generaattori.html`, julkinen `oma-tusinasaa.html` ja Android-sovellus `android/app/`.
 - `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit), Android-kääre
   `android/luin/` ja `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Tiedostot*).
 
@@ -93,7 +93,7 @@ Cloudflaren REST-rajapinnalla `curl`-komennolla.
 Kaikissa repon ohjelmissa, joihin se mielekkäästi sopii, on alalaidassa (käyttäjän päätös)
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
-myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä,
+myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä, `oma-tusinasaa.html`:ssä,
 `lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, tuettujen sivustojen sivulla, Luinin käyttöohjeessa ja palautesivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`), esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*),
 uudelleenohjaussivulla `index.html` eikä kokoruudun kelloissa (Odotushuone, Ouroboros).

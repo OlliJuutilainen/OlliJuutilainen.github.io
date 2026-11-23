@@ -2,6 +2,7 @@ package fi.tusinasaa;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -22,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEFAULT_LAT = "60.2633";
     private static final String DEFAULT_LON = "25.3244";
     private static final String DEFAULT_TITLE = "TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI";
+    // Viimeksi avattu token+avain-linkki: sovellus avaa sen, kun se käynnistetään ilman linkkiä.
+    // Vain sovelluksen omaan tallennukseen; avain ei lähde laitteelta.
+    private static final String PREFS = "tusinasaa";
+    private static final String PREF_TOKEN = "linkki.t";
+    private static final String PREF_KEY = "linkki.k";
     private WebView webView;
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -124,19 +130,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Sijaintiversio (esim. Haakis) avaa oman token+avain-parinsa. Oletuskoordinaatteja
-        // ei silloin lisätä: jos purku epäonnistuu, sivu näyttää virheen eikä hiljaa
-        // Lemminkäisen temppelin säätä väärällä nimellä.
-        boolean builtinLocation = false;
-        if (token == null && key == null && lat == null && lon == null
-                && !TextUtils.isEmpty(BuildConfig.BUILTIN_TOKEN)
-                && !TextUtils.isEmpty(BuildConfig.BUILTIN_KEY)) {
-            token = BuildConfig.BUILTIN_TOKEN;
-            key = BuildConfig.BUILTIN_KEY;
-            builtinLocation = true;
+        boolean hasBuiltin = !TextUtils.isEmpty(BuildConfig.BUILTIN_TOKEN)
+                && !TextUtils.isEmpty(BuildConfig.BUILTIN_KEY);
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        if (!hasBuiltin && token != null && key != null) {
+            prefs.edit().putString(PREF_TOKEN, token).putString(PREF_KEY, key).apply();
         }
 
-        if (!builtinLocation) {
+        // Ilman linkkiä: sijaintiversio (esim. Haakis) avaa oman token+avain-parinsa, perusversio
+        // viimeksi avatun linkin.
+        if (token == null && key == null && lat == null && lon == null) {
+            if (hasBuiltin) {
+                token = BuildConfig.BUILTIN_TOKEN;
+                key = BuildConfig.BUILTIN_KEY;
+            } else {
+                token = trimToNull(prefs.getString(PREF_TOKEN, null));
+                key = trimToNull(prefs.getString(PREF_KEY, null));
+                if (token == null || key == null) {
+                    token = null;
+                    key = null;
+                }
+            }
+        }
+
+        // Token+avain-sijainnille ei lisätä oletuskoordinaatteja eikä -otsikkoa: jos purku
+        // epäonnistuu, sivu näyttää virheen eikä hiljaa Lemminkäisen temppelin säätä, ja
+        // otsikotonta pakettia ei näytetä Lemminkäisen temppelin nimellä.
+        boolean tokenLocation = token != null && key != null;
+
+        if (!tokenLocation) {
             if (lat == null || lon == null) {
                 lat = DEFAULT_LAT;
                 lon = DEFAULT_LON;

@@ -136,6 +136,66 @@ async function handleLoc(req, env) {
   );
 }
 
+// Julkinen sijainnin tallennus (POST /api/loc, oma-tusinasaa.html). Selain salaa sijainnin itse ja lähettää vain
+// salatun paketin {v, iv, ct}; worker arpoo tokenin, eikä se näe avainta eikä koordinaatteja. Tallennettua ei voi
+// muuttaa: worker ei tunne avainta eikä siis omistajaa, joten uusi sijainti on uusi linkki.
+// Rajoitin on LuinRaja-luokka omana oliona ("loc") omilla rajoillaan; päiväraja suojaa Luinin ja keikkojen
+// KV-kirjoituksia (ilmaistason 1000 kirjoitusta päivässä).
+const LOC_RAJA_MAARA = 5;
+const LOC_PAIVA_MAX = 50;
+const LOC_CT_MAX = 1024;
+const B64U_RE = /^[A-Za-z0-9_-]+$/;
+
+function bytesToBase64Url(bytes) {
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function handleLocCreate(req, env, allowedOrigins) {
+  // Muiden sivustojen ei pidä voida tallentaa kävijöidensä selaimilla.
+  if (!allowedOrigins.has(req.headers.get("Origin") || "")) {
+    logEvent("create_bad_origin");
+    return errorResponse("forbidden", 403);
+  }
+  const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
+  if (!(await luinLaskuri(env, "osoite", ip, "loc", { maara: LOC_RAJA_MAARA }))) {
+    logEvent("create_rate_limited", { by: "address" });
+    return errorResponse("rate_limited", 429);
+  }
+  let body;
+  try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
+  const iv = body && typeof body.iv === "string" ? body.iv : "";
+  const ct = body && typeof body.ct === "string" ? body.ct : "";
+  // iv: 12 tavua = 16 merkkiä. ct: pienin mahdollinen paketti ({"lat":0,"lon":0} + GCM-tunniste) on 44 merkkiä.
+  if (!body || body.v !== 1 || iv.length !== 16 || !B64U_RE.test(iv)
+      || ct.length < 44 || ct.length > LOC_CT_MAX || !B64U_RE.test(ct)) {
+    logEvent("create_invalid_fields");
+    return errorResponse("invalid_fields", 400);
+  }
+  if (!env.LOCATIONS || typeof env.LOCATIONS.put !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
+    return errorResponse("bad_payload", 500);
+  }
+  if (!(await luinLaskuri(env, "paiva", ip, "loc", { paivaMax: LOC_PAIVA_MAX }))) {
+    logEvent("create_rate_limited", { by: "day" });
+    return errorResponse("rate_limited", 429);
+  }
+  // Sama muoto kuin generaattorin tokeneissa: 24 satunnaistavua, 32 merkkiä, ei kaksoispistettä (ei törmää
+  // luin:- ja gig:-etuliitteisiin). Metatieto erottaa julkisesti luodut omista.
+  const token = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(24)));
+  try {
+    await env.LOCATIONS.put(token, JSON.stringify({ v: 1, iv, ct }), {
+      metadata: { julkinen: 1, luotu: new Date().toISOString().slice(0, 10) },
+    });
+  } catch (e) {
+    logEvent("kv_error", { reason: "put_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+  logEvent("created");
+  return jsonResponse({ t: token }, { status: 201, headers: { "Cache-Control": "no-store" } });
+}
+
 // Keikkasoitin (soitin/): keikan tiedot ovat KV:ssä avaimella "gig:<tunnus>".
 // Valinnainen sub on otsikon alle tuleva lisätieto (päivämäärä tms.).
 // Etuliite pitää ne erillään sijaintitokeneista. Tunnus kulkee soittimen
@@ -280,12 +340,13 @@ export class LuinRaja {
     this.state = state;
     this.osoitteet = new Map();
   }
+  // Sama luokka palvelee muitakin kirjoituksia omina olioinaan (idFromName), jolloin rajat tulevat pyynnössä.
   async fetch(req) {
-    const { laji, ip } = await req.json();
+    const { laji, ip, maara = LUIN_RAJA_MAARA, paivaMax = LUIN_PAIVA_MAX } = await req.json();
     const nyt = Date.now();
     if (laji === "osoite") {
       const ajat = (this.osoitteet.get(ip) || []).filter((t) => nyt - t < LUIN_RAJA_JAKSO);
-      const ok = ajat.length < LUIN_RAJA_MAARA;
+      const ok = ajat.length < maara;
       if (ok) ajat.push(nyt);
       this.osoitteet.set(ip, ajat);
       if (this.osoitteet.size > 5000) {
@@ -296,18 +357,18 @@ export class LuinRaja {
     const paiva = new Date(nyt).toISOString().slice(0, 10);
     let p = await this.state.storage.get("paiva");
     if (!p || p.d !== paiva) p = { d: paiva, n: 0 };
-    if (p.n >= LUIN_PAIVA_MAX) return Response.json({ ok: false, n: p.n });
+    if (p.n >= paivaMax) return Response.json({ ok: false, n: p.n });
     p.n++;
     await this.state.storage.put("paiva", p);
     return Response.json({ ok: true, n: p.n });
   }
 }
 
-async function luinLaskuri(env, laji, ip) {
+async function luinLaskuri(env, laji, ip, olio = "luin", rajat = {}) {
   if (!env.LUIN_LASKURI) return true;
   try {
-    const obj = env.LUIN_LASKURI.get(env.LUIN_LASKURI.idFromName("luin"));
-    const r = await obj.fetch("https://luin-raja/", { method: "POST", body: JSON.stringify({ laji, ip }) });
+    const obj = env.LUIN_LASKURI.get(env.LUIN_LASKURI.idFromName(olio));
+    const r = await obj.fetch("https://luin-raja/", { method: "POST", body: JSON.stringify({ laji, ip, ...rajat }) });
     return !!(await r.json()).ok;
   } catch (e) {
     logEvent("luin_raja_error", { laji });
@@ -833,7 +894,7 @@ export default {
       }
       if (url.pathname === "/api/loc" || url.pathname === "/api/gig") {
         const response = url.pathname === "/api/loc"
-          ? await handleLoc(req, env)
+          ? (req.method === "POST" ? await handleLocCreate(req, env, allowedOrigins) : await handleLoc(req, env))
           : await handleGig(req, env);
         return corsify(response, {
           origin,
