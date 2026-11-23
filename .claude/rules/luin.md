@@ -228,7 +228,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
-  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki alleviivaus napin alareunan tasolla, jos mahtuu (muuten
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä) alleviivaus napin alareunan tasolla, jos mahtuu (mahtuu 320 px:llä; muuten
   napin alla, kampi palstan laidasta), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
@@ -247,7 +247,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Laki versaalikorkeudella, pohja noin 2,3 px perusviivan alla,
   joten alleviivaus on ylempänä kuin kellarilinkissä (`line-height: 1.1`) ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
-  terävöityvin päin, `orengas.js`:n `NUOLI`. Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
+  terävöityvin päin, `orengas.js`:n `NUOLI`. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: noin .3 px; ei täytettä,
+  viimeinen kirjain `span.vika` ilman harvennusta). Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikko on *Mappi ö* (käyttäjän linjaus: osastolla eri kirjoitusmuoto kuin muualla), jossa ö on rengas ilman alleviivausta kirjaimena,

@@ -100,14 +100,16 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
     const bl = pr.getBoundingClientRect().bottom; pr.remove();
     const rr = sv.getBoundingClientRect(), vb = sv.viewBox.baseVal, k = rr.height / vb.height, bb = parseFloat(getComputedStyle(a).borderBottomWidth);
     const ennen = getComputedStyle(a, '::before'), yv = a.querySelector('.oyv rect').getBoundingClientRect(), n = a.querySelector('svg.nuoli').getBoundingClientRect();
-    const tn = [...sp.childNodes].find(x => x.nodeType === 3), rg = document.createRange(); rg.setStart(tn, tn.length - 1); rg.setEnd(tn, tn.length);
-    const ls = parseFloat(getComputedStyle(a).letterSpacing), kirjain = rg.getBoundingClientRect().right - ls;
+    // Viimeisen kirjaimen (span.vika, ei harvennusta) oikea muste: merkin alku + N:n musteen oikea reuna.
+    const tn = sp.querySelector('.vika').firstChild, rg = document.createRange(); rg.setStart(tn, 0); rg.setEnd(tn, 1);
+    const cs = getComputedStyle(a), cv = document.createElement('canvas').getContext('2d'); cv.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    const muste = rg.getBoundingClientRect().left + cv.measureText('N').actualBoundingBoxRight;
     const keski = bl - (rr.bottom - KORK / 2 * k);
     return { s, em, cap: CAP * s, laki: bl - (rr.bottom - KORK * k), pohja: rr.bottom - bl, reuna: ar.bottom, svgAla: rr.bottom, bb,
       reunaVari: getComputedStyle(a).borderBottomColor, korkeus: rr.height, rako: ar.left - rr.right,
       ennenVas: ar.left - parseFloat(ennen.width), keskus: rr.left + rr.width / 2, ennenAla: parseFloat(ennen.bottom),
       yv: { keski: bl - (yv.top + yv.bottom) / 2, paksu: yv.height, tavoite: ((CAP * s) / 2 + keski) / 2 },
-      nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, sakara: n.right - L - kirjain,
+      nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, musteYli: n.right - muste,
         keski: (n.top + n.bottom) / 2 - (ar.bottom - bb / 2) }, teksti: a.getAttribute('aria-label') };
   }, [R.CAP, .2, R.LINKKI.kork, R.NUOLI.L]);
   t('rengas tekstin vasemmalla, rako .2 em', Math.abs(om.rako / om.em - .2) < .01, (om.rako / om.em).toFixed(3) + ' em');
@@ -116,10 +118,10 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('pohja noin 2,3 px perusviivan alla', Math.abs(om.pohja - 2.3 * om.s) < .2, om.pohja.toFixed(2) + ' px');
   t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
   t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && om.ennenAla === -1, (om.ennenVas - om.keskus).toFixed(2) + ' px');
-  // Oma nuolen kärki: kärki .9 px varren pään yli ja palstan reunassa, sakaroiden päät vähintään 3,5 px viimeisen kirjaimen laatikosta,
-  // svg keskellä reunaviivaa (pyöristys ei saa siirtää kärkeä viivan sivuun).
-  t('nuolen kärki palstan reunassa, .9 px varren yli', Math.abs(om.nuoli.yli - .9) < .05 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
-  t('nuolen sakarat irti viimeisestä kirjaimesta', om.nuoli.sakara >= 3.5, om.nuoli.sakara.toFixed(2) + ' px');
+  // Oma nuolen kärki: kärki .47 px varren pään yli ja palstan reunassa, ja se ylittää tekstin oikean musteen yhtä vähän kuin
+  // kellarilinkin nuoli (käyttäjän pyyntö; kellarilinkissä mitattu .3 px), svg keskellä reunaviivaa.
+  t('nuolen kärki palstan reunassa, .47 px varren yli', Math.abs(om.nuoli.yli - .47) < .05 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
+  t('nuolen kärki ylittää musteen kuin kellarilinkissä (0–0,6 px)', om.nuoli.musteYli >= 0 && om.nuoli.musteYli <= .6, om.nuoli.musteYli.toFixed(2) + ' px');
   t('nuolen kärki keskellä alleviivausta', Math.abs(om.nuoli.keski) < .05, om.nuoli.keski.toFixed(3) + ' px');
   t('yhdysviiva versaalien ja renkaan keskikohtien puolivälissä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - 1) < .05,
     om.yv.keski.toFixed(2) + ' / ' + om.yv.tavoite.toFixed(2) + ' px, ' + om.yv.paksu.toFixed(2) + ' px');
