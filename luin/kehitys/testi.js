@@ -364,15 +364,17 @@ palvelin.listen(0, async () => {
       return { l: b.left, w: b.width, y: b.top + L.JANA.y, x0: xr[0], x1: xr[1] }; });
     const ennen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY }));
     await p.mouse.move(r.l + x0 * r.w, r.y); await p.mouse.down();
-    const xt = new Set(); let pysyi = true, haamu = true, raja = true;
+    // xv: osoittimen paikat vasta, kun painallus on vetoa (luin.html JANA_VETO_PX = 10 px sivusuunnassa).
+    const xt = new Set(), xv = new Set(); let pysyi = true, haamu = true, raja = true;
     for (let i = 1; i <= askelia; i++) {
-      await p.mouse.move(r.l + (x0 + (x1 - x0) * i / askelia) * r.w, r.y); await p.waitForTimeout(20);
+      const dx = (x1 - x0) * i / askelia * r.w;
+      await p.mouse.move(r.l + x0 * r.w + dx, r.y); await p.waitForTimeout(20);
       const t = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: JSON.stringify(window.__luin.tila.ankkuri), y: scrollY,
         g: document.querySelector('#j-veto')?.getAttribute('transform'), h: !!document.querySelector('#jana-svg .haamu'),
         l: document.querySelector('#j-luettu')?.getAttribute('d'),
         e: [...document.querySelectorAll('#jana-svg g[data-f]')].map(g => [+g.dataset.f, g.classList.contains('tuleva')]) }));
       if (t.s !== ennen.s || t.a !== ennen.a || t.y !== ennen.y) pysyi = false;
-      if (!t.g || !t.h) haamu = false; else xt.add(parseFloat(t.g.slice(10)));
+      if (!t.g || !t.h) haamu = false; else { xt.add(parseFloat(t.g.slice(10))); if (Math.abs(dx) >= 10) xv.add(parseFloat(t.g.slice(10))); }
       // Luetun osan raja seuraa vedettävää osoitinta (käyttäjän pyyntö 22.10.2026).
       if (t.g) {
         const gx = parseFloat(t.g.slice(10)), lx = parseFloat(t.l.split('H').pop()), f = (gx - r.x0) / (r.x1 - r.x0);
@@ -382,30 +384,25 @@ palvelin.listen(0, async () => {
     await p.mouse.up(); await p.waitForTimeout(150);
     const jalkeen = await p.evaluate(() => ({ s: window.__luin.tila.sivu, a: window.__luin.tila.ankkuri, y: scrollY,
       g: !!document.querySelector('#j-veto'), h: !!document.querySelector('#jana-svg .haamu') }));
-    return { ennen, xt: [...xt], pysyi, haamu, raja, jalkeen, r };
+    return { ennen, xt: [...xt], xv: [...xv], pysyi, haamu, raja, jalkeen, r };
   };
-  // Sivutettuna välimuotoja ei ole (käyttäjän päätös 21.10.2026): osoitin pysähtyy vain tekstin
-  // alkuun, otsikoihin, kirjanmerkkeihin, majakkaan ja voimassa olevaan kohtaan, myös kun
-  // aikajanalla näkyvät vain pääluvut eikä kirjanmerkkejä.
+  // Sivutettuna veto pysähtyy vain portaille (janaPysakit(): tekstin alku, luvut ja osiot, kirjanmerkit, majakka, voimassa oleva
+  // kohta, viimeinen sivu ja väliportaat; kohdat eivät ole portaita), myös kun aikajanalla näkyvät vain pääluvut eikä
+  // kirjanmerkkejä. Portaat luetaan ennen vetoa, koska irrotus siirtää voimassa olevan kohdan (porras) ja majakan.
   await p.evaluate(() => { const L = window.__luin; L.aset.janaTasot = [1]; L.aset.kmJanalla = 0; L.mene({ b: 0, o: 0 }); });
+  await p.waitForTimeout(100);
+  const pys = await p.evaluate(() => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total;
+    const b = document.querySelector('#jana-svg').getBoundingClientRect(), xr = L.janaRajat(b.width);
+    return L.janaPysakit().map(m => { const t = m.k.o === 0 && n.doc.toc.find(t => t.b === m.k.b);
+      return { x: xr[0] + o(m.k) * (xr[1] - xr[0]), k: m.k.b + ':' + m.k.o, lvl: t ? t.lvl : 0 }; }); });
   const vs = await veto(0.2, 0.3, 40);
-  const pys = await p.evaluate(([x0, x1]) => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total, a = [];
-    a.push({ x: x0 + o({ b: 0, o: 0 }) * (x1 - x0), k: '0:0' });
-    n.doc.toc.forEach(t => a.push({ x: x0 + o({ b: t.b, o: 0 }) * (x1 - x0), k: t.b + ':0', lvl: t.lvl }));
-    n.merk.km.forEach(k => a.push({ x: x0 + o(k) * (x1 - x0), k: k.b + ':' + k.o }));
-    L.aset.janaTasot = [1, 2, 3]; L.aset.kmJanalla = 1;
-    return a; }, [vs.r.x0, vs.r.x1]);
+  await p.evaluate(() => { const L = window.__luin; L.aset.janaTasot = [1, 2, 3]; L.aset.kmJanalla = 1; });
   const pysakki = x => pys.find(s => Math.abs(s.x - x) < 0.01);
-  // Yli 10 %:n välillä kahden pysäkin välissä saa valita vapaasti (käyttäjän pyyntö 17.11.2026).
-  const vapaa = await p.evaluate(([x0, x1]) => { const L = window.__luin, n = L.nyt(), o = k => (n.cum[k.b] + k.o) / n.total;
-    const f = L.janaPysakit().map(m => o(m.k)).sort((a, b) => a - b), v = [];
-    for (let i = 1; i < f.length; i++) if (f[i] - f[i - 1] > .1) v.push([x0 + f[i - 1] * (x1 - x0), x0 + f[i] * (x1 - x0)]);
-    return v; }, [vs.r.x0, vs.r.x1]);
-  const kvantti = vs.xt.every(x => pysakki(x) || vapaa.some(([a, c]) => x > a && x < c)), piilotettu = vs.xt.some(x => (pysakki(x) || {}).lvl > 1);
+  const kvantti = vs.xv.length > 0 && vs.xv.every(x => pysakki(x)), piilotettu = vs.xv.some(x => (pysakki(x) || {}).lvl === 2);
   const perille = pys.some(s => s.k === vs.jalkeen.a.b + ':' + vs.jalkeen.a.o);
   tulos('aikajanan veto sivutettuna', vs.pysyi && vs.haamu && vs.raja && kvantti && piilotettu && perille && !vs.jalkeen.g && !vs.jalkeen.h && vs.jalkeen.s !== vs.ennen.s,
-    'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', osoittimen paikkoja ' + vs.xt.length + ' / 40 askelta' +
-    (kvantti ? ', kaikki pysäkkejä' : ', EI pysäkkejä') + (piilotettu ? ', myös piilotettuja alalukuja' : ', ei piilotettuja alalukuja') + (perille ? ', irrotus pysäkille' : ', irrotus EI pysäkille'));
+    'sivu ' + (vs.ennen.s + 1) + ' → ' + (vs.jalkeen.s + 1) + ', vedon paikkoja ' + vs.xv.length + ' (' + vs.xt.length + ' / 40 askelta)' +
+    (kvantti ? ', kaikki portaita' : ', EI portaita') + (piilotettu ? ', myös piilotettuja osioita' : ', ei piilotettuja osioita') + (perille ? ', irrotus portaalle' : ', irrotus EI portaalle'));
 
   // Kirjanmerkin nauha kappaleen alussa: ensimmäisen rivin yläpuolella tai sisennyksessä, ei
   // reunuksessa eikä tekstin päällä. Oletuskoossa tilaa on joka lohkon yläpuolella, paitsi
