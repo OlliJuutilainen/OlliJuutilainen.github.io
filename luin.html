@@ -404,11 +404,18 @@
      muuten pyöristys siirtää kärjen puoli pikseliä viivan sivuun. */
   /* Nuolen kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: mitattu kellarilinkissä
      .3 px): ei täytettä tekstin perässä, viimeisellä kirjaimella ei harvennusta (span.vika), ja kärki .47 px varren pään yli. */
-  .om-linkki a { line-height: 1.55; padding-bottom: 2px; padding-right: 0; margin-right: .47px; }
+  /* Mitat em:einä (1 px = .0977em linkin koossa 10,24 px): selaimen suurennettu tekstikoko kasvattaa em-mittaisen renkaan, joten
+     pikselimittainen alleviivaus, nuoli ja siirrot jäivät jälkeen (porras renkaan kohdalla, nuoli sivussa). Normaalikoossa samat
+     pikselit kuin px-arvoilla. */
+  .om-linkki a { line-height: 1.55; padding-bottom: .1953em; padding-right: 0; margin-right: .0459em; border-bottom: 0; }
+  /* Alleviivaus ja sen jatke renkaan keskelle ovat taustapalkkeja eivätkä reunaviivoja: selain pyöristää reunaviivan paksuuden
+     alaspäin kokonaisiin laitepikseleihin, svg:tä ja taustaa ei, joten suurennetulla tekstillä reunaviiva ja renkaan pohja erosivat. */
+  .om-linkki a::before, .om-linkki a::after { content: ""; position: absolute; bottom: -.0977em; height: .0977em; border: 0; background: currentColor; }
+  .om-linkki a::after { left: 0; right: 0; }
   .om-linkki .vika { letter-spacing: 0; }
-  .om-linkki svg.nuoli { right: -.47px; bottom: -5px; width: 6px; height: 9px; fill: currentColor; stroke: none; }
+  .om-linkki svg.nuoli { right: -.0459em; bottom: -.4883em; width: .5859em; height: .8789em; fill: currentColor; stroke: none; }
   .om-linkki a::before { width: calc(.2em + .671253em); }
-  .om-linkki svg.orengas { position: absolute; right: calc(100% + .2em); bottom: -1px; width: 1.342506em; height: 2.0507813em; overflow: visible; fill: currentColor; }
+  .om-linkki svg.orengas { position: absolute; right: calc(100% + .2em); bottom: -.0977em; width: 1.342506em; height: 2.0507813em; overflow: visible; fill: currentColor; }
   .om-linkki .oyv { display: inline-block; position: relative; width: .351em; height: 0; margin-right: .14em; }
   .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: calc(.1968em - .0488em); width: .2813em; height: .0977em; fill: currentColor; }
   /* Paluu ö-mapista (käyttäjän pyyntö 17.11.2026): kellarilinkki peilikuvana vasemmassa alakulmassa, nuoli vasemmalle
