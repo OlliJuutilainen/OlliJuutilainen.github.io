@@ -417,8 +417,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Kielet** (`aset.lomitus`, opas 3.2): lomitetussa käännöksessä molemmat, alkuteksti tai käännös
   pelkällä CSS-luokalla; piilotettu kieli pysyy DOMissa (kohdat, merkinnät ja aikajana eivät muutu). Älä poista piilotettua tekstiä
   DOMista äläkä jäsennä tekstiä tilan mukaan uudelleen. `asettele()`:n `art.className` pyyhkii luokan, siksi `lomitusLuokat()`.
-  Kopio vie vain näkyvän tekstin (käyttäjän päätös): valinnan palat kattavat piilotetun kielen, joten valikon kopiot supistavat ne
-  `nakyvatPalat()`illa, ja Ctrl+C:n teksti on selaimen `getSelection().toString()` (ohittaa `display: none` -tekstin); testi `lomitus-kopio-testi.js`.
+  **Valinta on yhtä kieltä** (käyttäjän päätös: käännös ei kulje alkutekstin kanssa sanasta sanaan, joten kielirajan ylittävä merkintä
+  ei tarkoita mitään): `valintaPaloiksi()` rajaa palat `yhteenKieleen()` ankkurin eli valinnan alkupään kieleen (`valinnanKieli()`;
+  yksikielisessä tilassa näkyvä kieli; otsikot ja käännöksettömät kappaleet ovat yhteisiä), ja kokonaan piilossa olevat palat jäävät pois.
+  Siksi luonnos, alleviivaus ja valikon toiminnot ovat samaa kieltä, ja merkintä näkyy samoissa merkeissä kaikissa tiloissa. Toisen kielen
+  alleviivaukset eivät ole törmäyksen esteitä (`alValit()`). Selaimen maalauksessa korostus on selaimen oma (Molemmat: molemmat kielet),
+  eikä sitä taivuteta. Vanhoja kielirajan ylittäviä merkintöjä ei korjata; kahvan veto rajaa ne kiinteän pään kieleen.
+  Valikon kopio, lausekäännös ja sanaselitys käyttävät vain näkyvää tekstiä (`nakyvatPalat()`, käyttäjän päätös), ja Ctrl+C:n teksti
+  on selaimen `getSelection().toString()` (ohittaa `display: none` -tekstin). Testit `lomitus-merkinta-testi.js` ja `lomitus-kopio-testi.js`.
   *Molemmat* on rinnakkain (`div.pari`, opas 3.2) aina, kun kaksi vähintään `RINN_MIN` em:n palstaa mahtuvat, myös sivutettuna ja
   kosketusnäytöllä (mahdollisimman usein, palstat saavat kaventua). Alkuteksti kelluu, pari on `flow-root`,
   ei reunushuomioita; sivutettuna `parienAlut()` pitää parin puolet samalla sivulla.
@@ -805,6 +811,8 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-testi.js [kuvakansio]`: lomitetun käännöksen palstojen värit (sama ja eri kirjaimisto, mobiili, Sysi, Kielet).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-kopio-testi.js [kuvakansio]`: lomitetun käännöksen kopio Kielet-tiloissa (vain näkyvä
   teksti; Ctrl+C, valikon ja alleviivauksen kopiot, molemmat maalaustavat, 1280 ja 412 px).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-merkinta-testi.js [kuvakansio]`: lomitetun käännöksen valinta yhtä kieltä (luonnos,
+  alleviivaus, kopio, lausekäännös, sanaselitys) Kielet-tiloissa ja kielirajan yli, merkintä samana tilanvaihdon jälkeen, 1280 ja 412 px.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.

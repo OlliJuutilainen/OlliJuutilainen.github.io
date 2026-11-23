@@ -5772,7 +5772,31 @@
     if (loppu) e = loppuLaajennus(t, s, e);
     return [s, e];
   }
-  function valintaPaloiksi(r) {
+  /* Lomitetun käännöksen valinta on yhtä kieltä (käyttäjän päätös): käännös ei kulje alkutekstin kanssa sanasta sanaan, joten
+     kielirajan ylittävä merkintä ei tarkoita mitään. Lohkon kieli on 'alku' (p.alku), 'kaannos' (blockquote.kaannos) tai ''
+     (yhteinen: otsikot ja käännöksettömät kappaleet, jotka jäävät valintaan). Molemmat-tilassa kieli on ankkurin eli valinnan
+     alkupään; jos ankkuri on yhteisessä lohkossa, ensimmäinen kielellinen pala ankkurista lukien. Yksikielisessä tilassa kieli on
+     näkyvä kieli (Käännös-tilassa ankkuri voi olla alkutekstin kohtanumerossa). Toisen kielen ja kokonaan piilossa olevat palat
+     jäävät pois. Rajaus tehdään palojen laskussa, joten luonnos, alleviivaus ja valikon toiminnot ovat samaa kieltä, ja
+     tallennettu merkintä näkyy samana kaikissa Kielet-tiloissa. */
+  function lohkonKieli(b) {
+    var el = nyt.doc.lomitettu && nyt.blocks[b];
+    return !el ? '' : el.closest('blockquote.kaannos') ? 'kaannos' : el.matches('p.alku') ? 'alku' : '';
+  }
+  // ank: { kieli } (jo tiedetty kieli) tai { b: ankkurin lohko, lopusta: ankkuri on valinnan lopussa }.
+  function valinnanKieli(segs, ank) {
+    if (!nyt.doc.lomitettu) return '';
+    if (ank && ank.kieli != null) return ank.kieli;
+    if (aset.lomitus === 'alku' || aset.lomitus === 'kaannos') return aset.lomitus;
+    var k = ank && ank.b != null ? lohkonKieli(ank.b) : '';
+    for (var i = 0; !k && i < segs.length; i++) k = lohkonKieli(segs[ank && ank.lopusta ? segs.length - 1 - i : i].b);
+    return k;
+  }
+  function yhteenKieleen(segs, kieli) {
+    if (!nyt.doc.lomitettu) return segs;
+    return nakyvatPalat(segs.filter(function (s) { var k = lohkonKieli(s.b); return !k || !kieli || k === kieli; }), true);
+  }
+  function valintaPaloiksi(r, ank) {
     var segs = [];
     nyt.blocks.forEach(function (el, b) {
       if (!el || !r.intersectsNode(el)) return;
@@ -5786,6 +5810,8 @@
       while (e < t.length && e > s && sanassa(t, e) && sanassa(t, e - 1)) e++;
       if (e > s) segs.push({ b: b, s: s, e: e, x: t.slice(s, e) });
     });
+    // Lomitettu käännös: yksi kieli ennen reunoja, jotta jäljelle jäävän ensimmäisen ja viimeisen palan reunat siivotaan.
+    segs = yhteenKieleen(segs, valinnanKieli(segs, ank));
     // Reunat (ks. LOPETUS): vain valinnan ensimmäisen palan alku ja viimeisen palan loppu; muualla lohkon raja on valinnan sisällä.
     for (var k = segs.length - 1; k >= 0; k--) {
       var g = segs[k], tg = nyt.txt[g.b], n = loppumerkit(tg, g.s, g.e, k === 0, k === segs.length - 1);
@@ -5964,7 +5990,9 @@
     if (!s || !s.rangeCount || s.isCollapsed) return;
     var r = s.getRangeAt(0);
     if (!art.contains(r.commonAncestorContainer) && r.commonAncestorContainer !== art) return;
-    var segs = valintaPaloiksi(r);
+    // Ankkuri (valinnan alkupää) ratkaisee lomitetun käännöksen kielen; selaimen oma korostus voi silti kattaa molemmat kielet.
+    var ankEl = lohkoOf(s.anchorNode);
+    var segs = valintaPaloiksi(r, { b: ankEl ? +ankEl.dataset.b : null, lopusta: s.anchorNode !== r.startContainer || s.anchorOffset !== r.startOffset });
     if (!segs.length) return;
     var rs = r.getClientRects(), rect = rs.length ? rs[rs.length - 1] : r.getBoundingClientRect();
     // Työpöydän tuplaklikkaus on sanaselitys (käyttäjän päätös 5.11.2026).
@@ -6021,8 +6049,10 @@
     while (e < t.length && sanassa(t, e)) e++;
     return e > s ? [{ b: k.b, s: s, e: e, x: t.slice(s, e) }] : [];
   }
-  // Kahden kohdan välinen alue kokonaisina sanoina (järjestys vapaa); sama kohta antaa sen sanan.
-  function segsValilta(p, q) {
+  // Kahden kohdan välinen alue kokonaisina sanoina (järjestys vapaa); sama kohta antaa sen sanan. Lomitetussa käännöksessä
+  // p on ankkuri (maalauksen alku, kahvan kiinteä pää), ellei kieltä anneta (valinnanKieli()).
+  function segsValilta(p, q, kieli) {
+    var ank = kieli != null ? { kieli: kieli } : { b: p.b, lopusta: !kohtaEnnen(p, q) };
     if (!kohtaEnnen(p, q)) { var x = p; p = q; q = x; }
     var A = nyt.blocks[p.b], Z = nyt.blocks[q.b];
     if (!A || !Z) return [];
@@ -6030,7 +6060,7 @@
     if (!a || !z) return [];
     var r = document.createRange();
     try { r.setStart(a.n, a.i); r.setEnd(z.n, z.i); } catch (er) { return []; }
-    return r.collapsed ? sanaKohdassa(p) : valintaPaloiksi(r);
+    return r.collapsed ? sanaKohdassa(p) : valintaPaloiksi(r, ank);
   }
   /* Törmäys (käyttäjän päätös 5.11.2026): uusi tai venytetty alue ei mene toisen alleviivauksen päälle eikä lomitu, vaan
      pysähtyy sen rajaan aloituspisteen puolelta katsoen. Kohdat lasketaan koko tekstin merkkiasemina (nyt.cum). */
@@ -6040,17 +6070,21 @@
     while (lo < hi) { var m = (lo + hi + 1) >> 1; if (nyt.cum[m] <= g) lo = m; else hi = m - 1; }
     return { b: lo, o: Math.min(g - nyt.cum[lo], (nyt.txt[lo] || '').length) };
   }
-  function alValit(ohita) {
+  // kieli: lomitetussa käännöksessä toisen kielen alleviivaukset eivät ole esteitä (alue ohittaa niiden lohkot).
+  function alValit(ohita, kieli) {
     var V = [];
     nyt.merk.al.forEach(function (h) {
       if (h === ohita) return;
-      h.segs.forEach(function (q) { if (!q.orpo && nyt.cum[q.b] != null) V.push([nyt.cum[q.b] + q.s, nyt.cum[q.b] + q.e]); });
+      h.segs.forEach(function (q) {
+        var k = kieli && lohkonKieli(q.b);
+        if (!q.orpo && nyt.cum[q.b] != null && !(k && k !== kieli)) V.push([nyt.cum[q.b] + q.s, nyt.cum[q.b] + q.e]);
+      });
     });
     return V.sort(function (a, b) { return a[0] - b[0]; });
   }
   function rajaaSegs(segs, eteen, ohita) {
     if (!segs.length) return segs;
-    var a = segs[0], z = segs[segs.length - 1], S = nyt.cum[a.b] + a.s, E = nyt.cum[z.b] + z.e, V = alValit(ohita);
+    var kieli = valinnanKieli(segs, { b: segs[0].b }), a = segs[0], z = segs[segs.length - 1], S = nyt.cum[a.b] + a.s, E = nyt.cum[z.b] + z.e, V = alValit(ohita, kieli);
     if (!V.some(function (v) { return v[0] < E && v[1] > S; })) return segs;
     var c, d, i;
     if (eteen) {
@@ -6063,7 +6097,7 @@
       for (i = 0; i < V.length; i++) if (V[i][1] <= d && V[i][1] > c) c = V[i][1];
     }
     if (d <= c) return [];
-    var r = segsValilta(gKohta(c), gKohta(d));
+    var r = segsValilta(gKohta(c), gKohta(d), kieli);
     // Varmistus: sanan tai merkkien laajennus ei saa viedä rajan yli. Rajan sisältä alkava pala alkaa vasta rajan jälkeen,
     // rajalle asti ulottuva pala leikataan rajaan; kummassakin reuna siivotaan (väli ja avaava sulku eivät tule mukaan).
     return r.map(function (q) {
@@ -6699,8 +6733,10 @@
   /* Kopioon vain näkyvästi valittu teksti (käyttäjän päätös). Palat (valintaPaloiksi()) lasketaan lohkoista, joten valinta
      kattaa myös Kielet-asetuksen piilottaman kielen (lomitettu käännös: display: none, teksti pysyy DOMissa). Kopiota varten
      pala supistetaan näkyviin merkkeihinsä, ja kokonaan piilossa oleva pala jää pois; itse palat (alleviivaukset, kohdat)
-     eivät muutu. Näkyvyys luetaan lasketusta tyylistä, ei lomitusluokista, jotta sääntö seuraa CSS:ää. */
-  function nakyvatPalat(segs) {
+     eivät muutu. Näkyvyys luetaan lasketusta tyylistä, ei lomitusluokista, jotta sääntö seuraa CSS:ää. Samoin lausekäännös ja
+     sanaselitys (käyttäjän päätös), joten vanhakin kielirajan ylittävä alleviivaus antaa niille vain näkyvän kielen.
+     vainPois: vain kokonaan piilossa olevat palat pois, muut ennallaan (valintaPaloiksi(): palan rajat pysyvät tekstin rajoina). */
+  function nakyvatPalat(segs, vainPois) {
     var muisti = new Map();
     function piilossa(el) {
       if (!el || el === art) return false;
@@ -6722,7 +6758,7 @@
       });
       if (!piiloa) return sg;
       x = x.trim();
-      return x ? { b: sg.b, s: s, e: e, x: x } : null;
+      return !x ? null : vainPois ? sg : { b: sg.b, s: s, e: e, x: x };
     }).filter(Boolean);
   }
   function kopioiViitteella(segs) {
@@ -6776,6 +6812,8 @@
   function kohdeKieli(l) { return l === 'fi' ? 'la' : 'fi'; }
   // Käännös avautuu DeepL:n verkkosivulle uuteen välilehteen (ei avainta, ei lisäosaa). Osoitteessa / on \/.
   function kaanna(segs) {
+    segs = nakyvatPalat(segs);
+    if (!segs.length) return;
     var l = tekstinKieli(segs), t = segs.map(function (s) { return s.x; }).join('\n\n');
     window.open('https://www.deepl.com/translator#' + l + '/' + kohdeKieli(l) + '/' + encodeURIComponent(t.replace(/\//g, '\\/')), '_blank', 'noopener');
   }
@@ -6808,6 +6846,7 @@
   // sanaselityksestä (käyttäjän päätös 5.11.2026). Sukkelana yhden sanan valinta avaa sanaselityksen suoraan; valikkoon lambda
   // tulee maalatulle sanalle tai enintään SK_SANAT sanan ilmaukselle.
   function lisaNapit(segs) {
+    segs = nakyvatPalat(segs);
     return (aset.sanakirja && selitettava(segs) ? ikNappi('sk', IK_SANASTO, 'Sanaselitys') : '') +
       (aset.kaannos ? ikNappi('kaanna', ikKaanna(kohdeKieli(tekstinKieli(segs))), 'Käännä: aukeaa DeepL-palveluun toiseen välilehteen') : '');
   }
@@ -7448,6 +7487,8 @@
   // surffata takaisin päin (käyttäjän linjaus 5.11.2026: Luin ei ole selain): perusmuodon linkki ja vaihtoehdon valinta
   // vievät eteenpäin, raksi sulkee.
   function sanaselitys(segs, rect) {
+    segs = nakyvatPalat(segs);
+    if (!segs.length) return;
     var sg = segs[0], haku = skHakusana(sg.x), y = skYmparisto(sg), vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
     if (!haku) return;
     y.kieli = skKieli(sg, y); y.symboli = skSymboli(haku);
