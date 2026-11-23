@@ -263,6 +263,13 @@ const rv = M.parse('---\nlähde: https://example.org/x\nladonta: asiakirja\n---\
   'Olet siis toisen kerran nähnyt maailman hirvittävimpiin kuuluvan tulipalon.\n\nRakas veli\n\nNiin.\n\n”Ei kai\n\n–––\n\nAugust\n');
 sama('rivitetty kappale', (rv.html.match(/<p[^>]*data-b="\d+">[^<]*/g) || []).map(x => (/class="rivit"/.test(x) ? 'R ' : '- ') + x.replace(/<[^>]*>/, '').slice(0, 12)).join(' | '),
   'R Kokkolassa 2 | - Olet siis to | R Rakas veli | - Niin. | - ”Ei kai | - ––– | R August | - Teksti on ha');
+// Merkitty lyhyt kappale: pisteeseen päättyvä, enintään kolmen sanan versaali, kokonaan kursiivi tai lihava tai jakson lopun
+// päiväys on p.rivit; dialogin vastaus, neljä sanaa, pieni alkukirjain, repliikki ja päiväys keskellä jaksoa eivät.
+const ml = M.parse('# T\n\nAlku on tässä kappaleessa, joka on niin pitkä, ettei se ole tietorivi otsikkolohkossa vaan leipätekstiä.\n\n' +
+  'PROOF.\n\nYes.\n\nI nodded.\n\nR. B. H.\n\n*Proof.*\n\n**Huom**.\n\nTHE FOURTH WORD HERE.\n\nand Evil.\n\n”YES.”\n\nApril 13th, 1848.\n\n' +
+  'In a few cases bracketing.\n\nKÖNIGSBERG, April 1787.\n\n## Luku\n\nTHE TRANSLATOR.\n');
+sama('merkitty lyhyt kappale', (ml.html.match(/<p[^>]*data-b="\d+">(?:<\/?(?:em|strong)>)*[^<]*/g) || []).map(x => (/class="rivit"/.test(x) ? 'R ' : '- ') + x.replace(/<[^>]*>/g, '').slice(0, 9)).join(' | '),
+  '- Alku on t | R PROOF. | - Yes. | - I nodded. | R R. B. H. | R Proof. | R Huom | - THE FOURT | - and Evil. | - ”YES.” | - April 13t | - In a few  | R KÖNIGSBER | R THE TRANS');
 // Kuvateksti: kokonaan kursiivinen kappale, joka alkaa tunnisteella, on p.kuvateksti, tunniste pystyssä;
 // taulukon edellä kt-taulukko. Ilman tunnistetta kursiivikappale (How this fits in) ja tunnisteella alkava leipäteksti eivät ole.
 const kuvt = M.parse('# T\n\nLeipäteksti on tässä niin pitkä, ettei se ole otsikkolohkon tietorivi vaan leipätekstiä.\n\n' +
