@@ -73,7 +73,7 @@ const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 // LINKKI0 ja PISTE0 ovat otsikon Mappi ö renkaan mittasuhteet (otsikko skaalataan niistä, alla). Linkin rengas on niiden suurennos:
 // pohja ALA_L px perusviivan alla, jotta alleviivaus on niin alhaalla, että nuolen sakarat jäävät perusviivan alle kuten
 // kellarilinkissä, selvästi irti (käyttäjän pyynnöt: nuoli veti kiinni tekstiin; rivikorkeus 1.55 ja täyte 2 px, sakarat 3,86 px perusviivan alla).
-const ALA_L = 6.86;
+const ALA_L = +(process.env.ALA_L || 5.86);
 const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkertaa ei laihduteta erikseen (käyttäjän linjaus:
@@ -82,12 +82,10 @@ const PS = 2.9 / LINKKI0.lev, PV = 1.7;
 const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
   kTasa: 12, kMax: LINKKI0.kMax, rako: LINKKI0.rako * PS, kap: LINKKI0.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
 // Linkin rengas ja pisteet suurennettuina samassa suhteessa; pohja pysyy alleviivauksen paksuisena (1 px).
-// Linkin Ö:n korkeus (käyttäjän linjaus): yhdysviiva (span.oyv, keskikohta YV px perusviivan yläpuolella) on koko Ö:n, pisteet mukaan
-// lukien, korkeuden keskellä, ja renkaan pohja on alleviivauksella (ALA_L). Renkaan korkeus H ratkaistaan niin, että (Ö:n yläreuna −
-// alareuna) / 2 osuu YV:hen: yläreuna = H − ALA_L + (pisteiden korkeus + rako) · H / LINKKI0.kork. Laki jää versaalien alapuolelle.
-const YV = .1968 * EM;
-const H_L = 2 * (YV + ALA_L) / (1 + (PISTE0.kork + PISTE0.pnosto) / LINKKI0.kork);
-const LAKI_L = H_L - ALA_L;
+// Linkin Ö:n korkeus (käyttäjän linjaus): rengas on iso, laki LAKI_L px perusviivan yläpuolella (pysyy), ja pohja on alleviivauksella
+// (ALA_L). Kompromissi: lähtökohta oli renkaan keskikohta yhdysviivan korkeudella (laki 10,89 px, pohja 6,86 px), josta pohja nousi
+// alleviivauksen mukana 1 px (vähemmän rakoa tekstin ja nuolen välillä), joten Ö pieneni hiukan laen pitäessä korkeutensa.
+const LAKI_L = +(process.env.LAKI_L || 10.89);
 const KASVU = (LAKI_L + ALA_L) / LINKKI0.kork;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
 const LINKKI = Object.assign(skaalaa(LINKKI0, KASVU), { tb: LINKKI0.tb, kork: LAKI_L + ALA_L });
