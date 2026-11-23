@@ -82,9 +82,15 @@ const PS = 2.9 / LINKKI0.lev, PV = 1.7;
 const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
   kTasa: 12, kMax: LINKKI0.kMax, rako: LINKKI0.rako * PS, kap: LINKKI0.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
 // Linkin rengas ja pisteet suurennettuina samassa suhteessa; pohja pysyy alleviivauksen paksuisena (1 px).
-const KASVU = (CAP + YLI + ALA_L) / LINKKI0.kork;
+// Linkin Ö:n korkeus (käyttäjän linjaus): yhdysviiva (span.oyv, keskikohta YV px perusviivan yläpuolella) on koko Ö:n, pisteet mukaan
+// lukien, korkeuden keskellä, ja renkaan pohja on alleviivauksella (ALA_L). Renkaan korkeus H ratkaistaan niin, että (Ö:n yläreuna −
+// alareuna) / 2 osuu YV:hen: yläreuna = H − ALA_L + (pisteiden korkeus + rako) · H / LINKKI0.kork. Laki jää versaalien alapuolelle.
+const YV = .1968 * EM;
+const H_L = 2 * (YV + ALA_L) / (1 + (PISTE0.kork + PISTE0.pnosto) / LINKKI0.kork);
+const LAKI_L = H_L - ALA_L;
+const KASVU = (LAKI_L + ALA_L) / LINKKI0.kork;
 const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
-const LINKKI = Object.assign(skaalaa(LINKKI0, KASVU), { tb: LINKKI0.tb, kork: CAP + YLI + ALA_L });
+const LINKKI = Object.assign(skaalaa(LINKKI0, KASVU), { tb: LINKKI0.tb, kork: LAKI_L + ALA_L });
 const PISTE = skaalaa(PISTE0, KASVU);
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
 // osa tekstiä, ei kammen kokoinen): runko OKERT kertaa versaali-O (OCAP + 2 · .15 px), ja alakaaren sisäreuna on .9 px

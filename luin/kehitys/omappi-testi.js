@@ -105,16 +105,16 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
     const tn = sp.querySelector('.vika').firstChild, rg = document.createRange(); rg.setStart(tn, 0); rg.setEnd(tn, 1);
     const cs = getComputedStyle(a), cv = document.createElement('canvas').getContext('2d'); cv.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
     const muste = rg.getBoundingClientRect().left + cv.measureText('N').actualBoundingBoxRight;
-    const keski = bl - (rr.bottom - KORK / 2 * k);
+    const keski = bl - (rr.bottom - KORK / 2 * k), ob = sv.getBBox(), okYla = rr.top + (ob.y - vb.y) * k, okAla = rr.top + (ob.y + ob.height - vb.y) * k;
     return { s, em, cap: CAP * s, laki: bl - (rr.bottom - KORK * k), pohja: rr.bottom - bl, reuna: viivaAla, svgAla: rr.bottom, bb,
       reunaVari: jalki.backgroundColor, korkeus: rr.height, rako: ar.left - rr.right,
       ennenVas: ar.left - parseFloat(ennen.width), keskus: rr.left + rr.width / 2, ennenAla: parseFloat(ennen.bottom),
-      yv: { keski: bl - (yv.top + yv.bottom) / 2, paksu: yv.height, tavoite: ((CAP * s) / 2 + keski) / 2 },
+      yv: { keski: bl - (yv.top + yv.bottom) / 2, paksu: yv.height, tavoite: ((bl - okYla) + (bl - okAla)) / 2 },
       nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, musteYli: n.right - muste,
         keski: (n.top + n.bottom) / 2 - (viivaAla - bb / 2) }, teksti: a.getAttribute('aria-label') };
   }, [R.CAP, .2, R.LINKKI.kork, R.NUOLI.L]);
   t('rengas tekstin vasemmalla, rako .2 em', Math.abs(om.rako / om.em - .2) < .01, (om.rako / om.em).toFixed(3) + ' em');
-  t('renkaan laki versaalikorkeuden yläpuolella .2 px', Math.abs(om.laki - om.cap - .2 * om.s) < .3, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
+  t('renkaan laki generaattorin mukaan (versaalien alapuolella)', Math.abs(om.laki - (R.LINKKI.kork - R.ALA) * om.s) < .3 && om.laki < om.cap, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
   t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && Math.abs(om.bb - 1) < .01 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
   t('pohja ALA px perusviivan alla (6,86 px: nuolen sakarat selvästi perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
   t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
@@ -137,7 +137,8 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
     t('tekstikoko ×' + kerroin + ': renkaan pohja ja nuoli alleviivauksella, mitat tekstin mukana', Math.abs(sk.pohja) < .02 && Math.abs(sk.keski) < .05 &&
       Math.abs(sk.paksuus - 1) < .01 && Math.abs(sk.nuoli - 9) < .02, JSON.stringify(sk));
   }
-  t('yhdysviiva versaalien ja renkaan keskikohtien puolivälissä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - 1) < .05,
+  // Yhdysviiva pysyy (käyttäjän linjaus), ja Ö on mitoitettu niin, että se on koko Ö:n (pisteet mukaan lukien) korkeuden keskellä.
+  t('yhdysviiva koko Ö:n korkeuden keskellä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - 1) < .05,
     om.yv.keski.toFixed(2) + ' / ' + om.yv.tavoite.toFixed(2) + ' px, ' + om.yv.paksu.toFixed(2) + ' px');
   t('nimi illatiivissa', om.teksti === 'ö-mappiin' && (await page.textContent('#om-linkki a')) === 'mappiin', om.teksti);
   if (KUVAT) await page.locator('#om-linkki').screenshot({ path: KUVAT + '/om-linkki.png' });
