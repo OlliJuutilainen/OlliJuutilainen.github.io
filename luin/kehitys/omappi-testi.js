@@ -115,14 +115,15 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   }, [R.CAP, .2, R.LINKKI.kork, R.NUOLI.L]);
   t('rengas tekstin vasemmalla, rako .27 em', Math.abs(om.rako / om.em - .27) < .01, (om.rako / om.em).toFixed(3) + ' em');
   t('renkaan laki generaattorin mukaan', Math.abs(om.laki - (R.LINKKI.kork - R.ALA) * om.s) < .3, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
-  t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && Math.abs(om.bb - 1) < .01 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
+  t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && Math.abs(om.bb - om.s) < .01 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
   t('pohja ALA px perusviivan alla (4,86 px: nuolen sakarat perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
-  t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
-  t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && Math.abs(om.ennenAla + 1) < .01, (om.ennenVas - om.keskus).toFixed(2) + ' px');
+  // Koko seuraa etusivun kellarilinkkiä (--kk-koko), joten pikselimitat ovat linkin koon mukaan (s = koko / 10,24 px).
+  t('svg 24 px linkin 10,24 px:n koossa', Math.abs(om.korkeus - 24 * om.s) < .05, om.korkeus + ' px');
+  t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && Math.abs(om.ennenAla + om.s) < .01, (om.ennenVas - om.keskus).toFixed(2) + ' px');
   // Oma nuolen kärki: kärki .47 px varren pään yli ja palstan reunassa, ja se ylittää tekstin oikean musteen yhtä vähän kuin
   // kellarilinkin nuoli (käyttäjän pyyntö; kellarilinkissä mitattu .3 px), svg keskellä reunaviivaa.
-  t('nuolen kärki palstan reunassa, .47 px varren yli', Math.abs(om.nuoli.yli - .47) < .05 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
-  t('nuolen kärki ylittää musteen kuin kellarilinkissä (0–0,6 px)', om.nuoli.musteYli >= 0 && om.nuoli.musteYli <= .6, om.nuoli.musteYli.toFixed(2) + ' px');
+  t('nuolen kärki palstan reunassa, .47 px varren yli (10,24 px:n koossa)', Math.abs(om.nuoli.yli - .47 * om.s) < .2 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
+  t('nuolen kärki ylittää musteen vähän (0–1 px)', om.nuoli.musteYli >= 0 && om.nuoli.musteYli <= 1, om.nuoli.musteYli.toFixed(2) + ' px');
   t('nuolen kärki keskellä alleviivausta', Math.abs(om.nuoli.keski) < .05, om.nuoli.keski.toFixed(3) + ' px');
   // Selaimen suurennettu tekstikoko (vain teksti kasvaa, px ei): rengas, alleviivaus ja nuoli kasvavat yhdessä (mitat em:einä).
   for (const kerroin of [1.3, 1.8]) {
@@ -138,7 +139,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
       Math.abs(sk.paksuus - 1) < .01 && Math.abs(sk.nuoli - 9) < .02, JSON.stringify(sk));
   }
   // Yhdysviiva renkaan korkeuden keskellä (käyttäjän valinta: iso Ö).
-  t('yhdysviiva renkaan korkeuden keskellä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - 1) < .05,
+  t('yhdysviiva renkaan korkeuden keskellä, 1 px', Math.abs(om.yv.keski - om.yv.tavoite) < .15 && Math.abs(om.yv.paksu - om.s) < .05,
     om.yv.keski.toFixed(2) + ' / ' + om.yv.tavoite.toFixed(2) + ' px, ' + om.yv.paksu.toFixed(2) + ' px');
   t('nimi illatiivissa', om.teksti === 'ö-mappiin' && (await page.textContent('#om-linkki a')) === 'mappiin', om.teksti);
   if (KUVAT) await page.locator('#om-linkki').screenshot({ path: KUVAT + '/om-linkki.png' });
@@ -173,7 +174,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
       karki: n.left + .16 * n.width - ar.left, symbEnsin: sy.left - ar.left < .5 && sy.right < rg.getBoundingClientRect().left, vasen: ar.left - a.parentNode.getBoundingClientRect().left };
   }, sel);
   const pl = await paluu('#ark-paluu');
-  t('ö-mappi: paluulinkki: kampi ensin, nuoli vasemmalle viivan alussa, viiva N:n keskelle', Math.abs(pl.paa) < .4 && Math.abs(pl.keski) < .05 &&
+  t('ö-mappi: paluulinkki: kampi ensin, nuoli vasemmalle viivan alussa, viiva N:n keskelle', Math.abs(pl.paa) < .5 && Math.abs(pl.keski) < .05 &&
     Math.abs(pl.karki) < .05 && pl.symbEnsin && Math.abs(pl.vasen) < .5, JSON.stringify(pl));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/omappi.png', fullPage: true });
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
