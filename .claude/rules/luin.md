@@ -417,6 +417,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Kielet** (`aset.lomitus`, opas 3.2): lomitetussa käännöksessä molemmat, alkuteksti tai käännös
   pelkällä CSS-luokalla; piilotettu kieli pysyy DOMissa (kohdat, merkinnät ja aikajana eivät muutu). Älä poista piilotettua tekstiä
   DOMista äläkä jäsennä tekstiä tilan mukaan uudelleen. `asettele()`:n `art.className` pyyhkii luokan, siksi `lomitusLuokat()`.
+  Kopio vie vain näkyvän tekstin (käyttäjän päätös): valinnan palat kattavat piilotetun kielen, joten valikon kopiot supistavat ne
+  `nakyvatPalat()`illa, ja Ctrl+C:n teksti on selaimen `getSelection().toString()` (ohittaa `display: none` -tekstin); testi `lomitus-kopio-testi.js`.
   *Molemmat* on rinnakkain (`div.pari`, opas 3.2) aina, kun kaksi vähintään `RINN_MIN` em:n palstaa mahtuvat, myös sivutettuna ja
   kosketusnäytöllä (mahdollisimman usein, palstat saavat kaventua). Alkuteksti kelluu, pari on `flow-root`,
   ei reunushuomioita; sivutettuna `parienAlut()` pitää parin puolet samalla sivulla.
@@ -799,6 +801,8 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sahkopaperi-testi.js [kuvakansio]`: sähköpapyrosointi, vatkaus, Oletusasetukset, Sysi ja TCF-valkaisu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/raskas-testi.js [kuvakansio]`: raskaan tekstin ladonta kerralla Asetusten sulkiessa.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-testi.js [kuvakansio]`: lomitetun käännöksen palstojen värit (sama ja eri kirjaimisto, mobiili, Sysi, Kielet).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-kopio-testi.js [kuvakansio]`: lomitetun käännöksen kopio Kielet-tiloissa (vain näkyvä
+  teksti; Ctrl+C, valikon ja alleviivauksen kopiot, molemmat maalaustavat, 1280 ja 412 px).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.

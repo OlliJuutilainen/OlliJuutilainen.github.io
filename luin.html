@@ -6693,7 +6693,38 @@
     return (nimi + (vuosi ? ' ' + vuosi : '')).trim();
   }
   function kopioNimi() { return aset.kopioViite === 'lyhyt' ? 'Kopioi viittauksen kanssa' : aset.kopioViite === 'pitka' ? 'Kopioi koko lähteen kanssa' : 'Kopioi'; }
+  /* Kopioon vain näkyvästi valittu teksti (käyttäjän päätös). Palat (valintaPaloiksi()) lasketaan lohkoista, joten valinta
+     kattaa myös Kielet-asetuksen piilottaman kielen (lomitettu käännös: display: none, teksti pysyy DOMissa). Kopiota varten
+     pala supistetaan näkyviin merkkeihinsä, ja kokonaan piilossa oleva pala jää pois; itse palat (alleviivaukset, kohdat)
+     eivät muutu. Näkyvyys luetaan lasketusta tyylistä, ei lomitusluokista, jotta sääntö seuraa CSS:ää. */
+  function nakyvatPalat(segs) {
+    var muisti = new Map();
+    function piilossa(el) {
+      if (!el || el === art) return false;
+      if (!muisti.has(el)) muisti.set(el, getComputedStyle(el).display === 'none' || piilossa(el.parentElement));
+      return muisti.get(el);
+    }
+    return segs.map(function (sg) {
+      var el = !sg.orpo && nyt.blocks[sg.b];
+      if (!el) return sg;
+      var t = nyt.txt[sg.b], c = 0, x = '', s = -1, e = -1, piiloa = false;
+      solmut(el).forEach(function (n) {
+        var a = c, z = c + pituus(n.nodeValue);
+        c = z;
+        if (z <= sg.s || a >= sg.e) return;
+        if (piilossa(n.parentElement)) { piiloa = true; return; }
+        var as = Math.max(a, sg.s), ze = Math.min(z, sg.e);
+        if (s < 0) s = as;
+        e = ze; x += t.slice(as, ze);
+      });
+      if (!piiloa) return sg;
+      x = x.trim();
+      return x ? { b: sg.b, s: s, e: e, x: x } : null;
+    }).filter(Boolean);
+  }
   function kopioiViitteella(segs) {
+    segs = nakyvatPalat(segs);
+    if (!segs.length) return Promise.resolve();
     var ote = segs.map(function (x) { return x.x; }).join('\n\n'), loc = sijainti(segs), e = nyt.e;
     // Vakiosivu on itse lyhyt viite (AA 4:429, KrV A 12): ei tekijää eikä vuotta, kuten Kant-tutkimuksessa.
     if (aset.kopioViite === 'lyhyt') return kopioi(ote + ' (' + (loc && nyt.doc.vakiosivut && loc.indexOf(nyt.doc.vakiosivut + ' ') === 0 ? loc : lyhytViite() + (loc ? ', ' + loc : '')) + ')');
