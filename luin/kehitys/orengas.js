@@ -71,15 +71,17 @@ function svg(R, P, luokka, kok) {
 // alleviivauksen alareunassa ALA px perusviivan alla, pohjan paksuus 1 px kuten kellarilinkin reunaviiva.
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 // LINKKI0 ja PISTE0 ovat otsikon Mappi ö renkaan mittasuhteet (otsikko skaalataan niistä, alla). Linkin rengas on niiden suurennos:
-// pohja ALA_L px perusviivan alla, jotta alleviivaus on niin alhaalla, että nuolen sakarat jäävät perusviivan alle kuten
-// kellarilinkissä, selvästi irti (käyttäjän pyynnöt: nuoli veti kiinni tekstiin; rivikorkeus 1.55 ja täyte 2 px, sakarat 3,86 px perusviivan alla).
-const ALA_L = +(process.env.ALA_L || 4.86);
-const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
+// pohja ALA_L px perusviivan alla eli alleviivauksella, joka on kaikissa alalaidan linkeissä rivikorkeuden 1.8 linkkilaatikon alla
+// (käyttäjän pyyntö: viiva niin alhaalla, että nuolen kärki mahtuu tekstin ja viivan väliin).
+const ALA_L = +(process.env.ALA_L || 6.46);
+// Kyljen ja laen paksuus (ts, tt) on 1,2-kertainen alkuperäiseen nähden (käyttäjän pyyntö: kaikki renkaat ja pisteet vähän paksumpia).
+const PAKSU = 1.2;
+const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3 * PAKSU, tt: .55 * PAKSU, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkertaa ei laihduteta erikseen (käyttäjän linjaus:
 // pienenä ja Sysinissä yläkerta häviäisi), ja piikkien kärjet saavat koskettaa (rako 0).
 const PS = 2.9 / LINKKI0.lev, PV = 1.7;
-const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
+const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PAKSU * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
   kTasa: 12, kMax: LINKKI0.kMax, rako: LINKKI0.rako * PS, kap: LINKKI0.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
 // Linkin rengas ja pisteet suurennettuina samassa suhteessa; pohja pysyy alleviivauksen paksuisena (1 px).
 // Linkin Ö:n korkeus (käyttäjän linjaus): iso rengas, laki LAKI_L px perusviivan yläpuolella ja pohja alleviivauksella (ALA_L px

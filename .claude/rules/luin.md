@@ -230,7 +230,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
-  (hakee laatikon heti ja lähettää odottavat merkinnät), ja oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän päätös; kellarin oma otsikko yhdellä rivillä), alarivin vasemmalla kampi yhden tekstirivin kokoisena kuten ö-mapin paluulinkissä (säde .894 em, rako .4 em; käyttäjän päätös: tekstin ja merkin koko kuin *pinoon*-linkissä, ei kahden rivin korkuista pyörylää; jatkeviiva linkin täytteenä, ei `::before`, koska murtopikselinen korkeus teki portaan): napin rivillä alareunat tasan, ja jos se ei mahdu, napin alla. **Alalaidan näkymälinkit** (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) ovat kaikki .85rem: mittapuu on kellarin *pinoon* (käyttäjän päätös). Koko ei seuraa Soita postihuilua -nappia eikä palstan leveyttä, eikä kellarilinkkiä mitoiteta napin korkuiseksi (käyttäjän päätös); testit `omappi-testi.js` ja `postihuilu-testi.js`. Alleviivaus on taustapalkki ja `svg.veivi` sekä `svg.nuoli` palkin kulmissa 1 px:n laatikkoina, kaari ja kärki sisemmissä svg:issä: muuten ne ja viiva pyöristyvät eri laitepikseleihin (sauma, ontuva kärki); palkki päättyy kärkeen, 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän päätös; kellarin oma otsikko yhdellä rivillä), alarivin vasemmalla kampi yhden tekstirivin kokoisena kuten ö-mapin paluulinkissä (säde .894 em, rako .4 em; käyttäjän päätös: tekstin ja merkin koko kuin *pinoon*-linkissä, ei kahden rivin korkuista pyörylää; jatkeviiva linkin täytteenä, ei `::before`, koska murtopikselinen korkeus teki portaan): napin rivillä alareunat tasan, ja jos se ei mahdu, napin alla. **Alalaidan näkymälinkit** (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) ovat kaikki .74rem (käyttäjän päätös). Yhtenäinen ja yksinkertainen viivasto (käyttäjän päätös): kaikissa sama pieni väkänen (.3662 × .5859 em, ei omaa täytettyä kärkeä), viiva ja väkäsen viiva .0977 em, rivikorkeus 1.8 ja viiva linkkilaatikon alla, jotta väkänen mahtuu tekstin (myös *pinoon*-linkin pinomerkin) ja viivan väliin. Koko ei seuraa Soita postihuilua -nappia eikä palstan leveyttä, eikä kellarilinkkiä mitoiteta napin korkuiseksi (käyttäjän päätös); testit `omappi-testi.js` ja `postihuilu-testi.js`. Alleviivaus on taustapalkki ja `svg.veivi` sekä `svg.nuoli` palkin kulmissa 1 px:n laatikkoina, kaari ja kärki sisemmissä svg:issä: muuten ne ja viiva pyöristyvät eri laitepikseleihin (sauma, ontuva kärki); palkki päättyy kärkeen, 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Linkkien mitat em:inä, joten kammet, renkaat ja nuolet seuraavat kokoa. Sanat
@@ -245,17 +245,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   klassisemman kirjasimen tuntu), ja piikkien kärjet koskettavat toisiaan kaikissa ö-renkaissa, ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto, kapeneminen ja rako
   suhteessa, 6 % matalampia, viiva 1,7 × emon suhde näkyvyyden vuoksi; `orengas.js` laskee ne emosta), samaa tyyliä emo-ö:n kanssa.
-  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Iso Ö (käyttäjän valinta, koko 16,75 px): laki 11,89 px perusviivan yläpuolella, pohja 4,86 px sen alla alleviivauksella, yhdysviiva renkaan keskellä,
-  rako renkaasta tekstiin .27 em; nuolen sakarat 1,87 px perusviivan alla (`line-height: 1.55`, ei täytettä; alleviivausta säädetään täytteellä, ei rivikorkeudella, joka pyöristyy epätasaisesti);
-  paluulinkeillä (`.takaisin-linkki`) sama rivikorkeus ja täyte, jotta viivat ovat samalla korkeudella; kaikki ö-mapin linkin mitat em:einä ja alleviivaus `::before`/`::after`-taustapalkkeina, ei reunaviivana, koska selaimen suurennettu tekstikoko kasvattaa vain em-mittoja ja reunaviiva pyöristyy laitepikseleihin; testi mittaa tekstikoot ×1,3 ja ×1,8; linkin rengas on otsikon renkaan
-  suurennos (`orengas.js`:n `LAKI_L` ja `ALA_L`), otsikko ennallaan. Nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
-  chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
-  terävöityvin päin, `orengas.js`:n `NUOLI`. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: noin .3 px; ei täytettä,
-  viimeinen kirjain `span.vika` ilman harvennusta). Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
-  kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
-  renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
+  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Kaikkien renkaiden ja pisteiden kyljet ja laki ovat 1,2-kertaiset
+  alkuperäiseen (`orengas.js`:n `PAKSU`, käyttäjän pyyntö). Iso Ö (käyttäjän valinta): laki 11,89 px perusviivan yläpuolella ja pohja viivalla 6,46 px sen alla
+  (linkin koossa 10,24 px, mitattu viivan paikka rivikorkeudella 1.8), yhdysviiva renkaan keskellä, rako renkaasta tekstiin .27 em; kaikki mitat em:einä, koska
+  selaimen suurennettu tekstikoko kasvattaa vain em-mittoja; testi mittaa tekstikoot ×1,3 ja ×1,8. Linkin rengas on otsikon renkaan
+  suurennos (`orengas.js`:n `LAKI_L` ja `ALA_L`; aja `orengas.js` ja kopioi polku ja mitat luin.html:ään, kun muutat niitä). Väkänen on tekstin perässä,
+  viimeinen kirjain `span.vika` ilman harvennusta, ja väkäsen musteen kärki palstan reunassa. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikko on *Mappi ö* (käyttäjän linjaus: osastolla eri kirjoitusmuoto kuin muualla), jossa ö on rengas ilman alleviivausta kirjaimena,
-  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa paluu kellarin
+  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Kellarin kampihyllystössä ja ö-mapissa ei ole ylhäällä *Takaisin pinoon* -tekstiä eikä pinomerkkiä (käyttäjän päätös: logo riittää); ö-mapin vasemmassa alakulmassa paluu kellarin
   kampihyllystöön (`#ark-paluu`, `.paluu`): **käyttäjän design, älä muuta sitä kysymättä** (kerran jo korvattu ja palautettu): kellarilinkki
   peilattuna, nuoli vasemmalle ja kampi `scaleX(-1)` tekstin oikealla, .32 em N:n jälkeisen harvennuksen takana (käyttäjän pyyntö: hiukan tiiviimpi kuin .4 em); nuolen mitat em:einä. **Paluulinkki pinoon** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
   *pinoon* (`#ark-pinoon`, pinomerkki versaaleja korkeampana, musteen alareuna perusviivalla ja nuolen kärki sen vasemmalla): ensin symboli, sitten teksti, ja molempien alla
@@ -275,15 +272,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`vieZip()`) jäsentää avaamattoman tekstin erilliseen dokumenttiin (`virtuaaliNyt()`) ja käyttää `merkinnatMd()`:tä: pidä
   tulos samana kuin tekstin oma vienti.
 - **Pinomerkki** (käyttäjän päätös): paluu pinoon on kolmen kirjan pino
-  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku kahdeksassa paikassa; muuta ne yhdessä. Koko 40 px
+  kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku monessa paikassa (etsi polulla); muuta ne yhdessä. Koko 40 px
   (musteen alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
-  `a.kotimerkki`, `#ark-koti`) ovat vanhoja nimiä. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
-- **Pinomerkin paikka**: yläoikealla (kellarin kampihyllystö ja alasivut: Latomo, ohjeet, palaute,
-  tietosuoja) vaakapaikka on sama kaikkialla eli pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon
-  loppupisteen alakärjen tasolla (ei kiekon keskilinjalla). Logot ovat eri kokoisia,
-  joten pystypaikka eroaa kellarin kampihyllystön ja alasivujen välillä. Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä pinomerkin vasemmalla
-  on versaalilinkki *Takaisin pinoon* (`#ark-takaisin`, sama osoite kuin merkillä) ja kampihyllystölinkki pinon alla on versaalia. Ö-mapissa ei paluutekstiä eikä merkkiä (yllä).
+  `a.kotimerkki`) ovat vanhoja nimiä. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
+- **Pinomerkin paikka**: yläoikealla (alasivut: Latomo, ohjeet, palaute, tietosuoja) vaakapaikka on sama kaikkialla eli
+  pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon loppupisteen alakärjen tasolla (ei kiekon keskilinjalla).
+  Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
+- **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä ja ö-mapissa ei ole
+  ylhäällä paluutekstiä eikä merkkiä (yllä); kellarista pinoon vie myös alalaidan *pinoon*.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
 - **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Nakataanko* on tarkoituksellinen poikkeus): Luin on maailman ydin ja pino
