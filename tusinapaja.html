@@ -8,6 +8,7 @@
 <link rel="icon" href="icons/tusinasaa-32.png?v=d86bb9ab" sizes="32x32">
 <link rel="icon" href="icons/tusinasaa.svg?v=a6066a5a" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=5ec1496d">
+<link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="TUSINASÄÄ 12">
 <meta property="og:image" content="https://ollijuutilainen.github.io/icons/tusinasaa-jako-3.png">
 <meta property="og:image:width" content="600">
@@ -257,7 +258,8 @@ async function fetchAndDecryptLocation(token, keyB64u){
     window.TUSINASAA_API_BASE || window.TUSINA_WORKER_BASE || window.TUSINA_API_BASE
   )) || 'https://tusinasaa-worker.ollijuutilainen.workers.dev';
   const workerBase = configuredWorkerBase.replace(/\/+$/, '');
-  const useWorkerEndpoint = /\.github\.io$/.test(host);
+  /* Workerin osoite kaikkialla paitsi paikallisessa kehityksessä, jotta oma verkkotunnus ei katkaise sijaintilinkkejä. */
+  const useWorkerEndpoint = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(host);
   const endpointBase = useWorkerEndpoint ? workerBase : '';
   const endpoint = `${endpointBase}/api/loc?t=${encodeURIComponent(token)}`;
   let res;
@@ -348,6 +350,12 @@ let LAT_STR = q.get('lat');
 let LON_STR = q.get('lon');
 let ZOOM_PARAM = q.get('z');
 let specialTitle = null;
+/* Lämpötilasarake: 'tuntuu' näyttää FMI:n tuntuu kuin -lämpötilan. Tulee salatusta sijaintipaketista
+   (kenttä lampo, oma-tusinasaa.html), kehityksessä myös ?lampo=tuntuu. */
+let FEELS_LIKE = q.get('lampo') === 'tuntuu';
+/* Viimeksi avattu sijaintilinkki talteen vain tälle laitteelle: asennettu verkkosovellus (index.html)
+   käynnistyy ilman #-osaa ja avaa tämän. Avain ei lähde laitteelta. */
+const LINK_STORAGE_KEY = 'tusinasaa.linkki';
 
 const tzOverrideRaw = q.get('tz');
 let tzOverride = null;
@@ -381,6 +389,8 @@ if (HASH_TOKEN || HASH_KEY){
         const trimmed = decrypted.title.trim();
         if (trimmed) specialTitle = trimmed.slice(0, 160);
       }
+      if (decrypted?.lampo === 'tuntuu') FEELS_LIKE = true;
+      try { localStorage.setItem(LINK_STORAGE_KEY, new URLSearchParams({ t: HASH_TOKEN, k: HASH_KEY }).toString()); } catch {}
       if (DBG){
         console.info('Sijainti purettu hash-fragmentista', { lat: LAT_STR, lon: LON_STR, z: ZOOM_PARAM, token: HASH_TOKEN });
       }
@@ -522,6 +532,11 @@ if (!specialTitle){
 if (specialTitle){
   pageTitle.textContent = specialTitle;
   pageTitle.style.display = '';
+}
+/* Sarakeotsikko kertoo, että luvut ovat tuntuu kuin -lämpötiloja. Sarake on kapea; teksti jatkuu tyhjän selitesarakkeen puolelle. */
+if (FEELS_LIKE){
+  const hdrTemp = document.querySelector('.hdr > div:nth-child(2)');
+  if (hdrTemp){ hdrTemp.className = 'caps'; hdrTemp.textContent = 'TUNTUU'; }
 }
 
 /* --------- aikaformatit --------- */
@@ -713,12 +728,12 @@ function dir8(deg){
 const FMI_SOURCES = {
   edited: {
     sq: 'fmi::forecast::edited::weather::scandinavia::point::timevaluepair',
-    params: 'Temperature,Precipitation1h,WindSpeedMS,WindDirection,SmartSymbol,HourlyMaximumGust',
+    params: 'Temperature,Precipitation1h,WindSpeedMS,WindDirection,SmartSymbol,HourlyMaximumGust,FeelsLike',
     label: 'FMI'
   },
   harmonie: {
     sq: 'fmi::forecast::harmonie::surface::point::timevaluepair',
-    params: 'temperature,precipitation1h,windspeedms,winddirection,SmartSymbol',
+    params: 'temperature,precipitation1h,windspeedms,winddirection,SmartSymbol,FeelsLike',
     label: 'HRM'
   }
 };
@@ -752,6 +767,7 @@ const extractSeries = x => {
     else if (id.includes('winddirection')) k='winddirection';
     else if (id.includes('smartsymbol')) k='SmartSymbol';
     else if (id.includes('hourlymaximumgust')) k='hourlyMaximumGust';
+    else if (id.includes('feelslike')) k='feelsLike';
     if (!k) continue;
     const map=new Map();
     const pts=s.getElementsByTagNameNS('http://www.opengis.net/waterml/2.0','MeasurementTVP');
@@ -818,6 +834,8 @@ async function fetchForecastFrom(lat, lon, sourceKey){
       key,
       time: new Date(key),
       temperature: forecastSeries.temperature?.get(key) ?? null,
+      /* FMI:n tuntuu kuin -lämpötila (hetkellinen kuten lämpötila); käytössä vain lampo=tuntuu-tilassa. */
+      feelsLike: forecastSeries.feelsLike?.get(key) ?? null,
       /* Harmonie antaa sademäärän 0,1 mm:n tarkkuudella, edited kolmella desimaalilla; ilman
          pyöristystä 0,04 mm näkyisi "0.0 mm". Harmonien arvoihin pyöristys ei vaikuta. */
       precipitation: roundTenth(forecastSeries.precipitation1h?.get(hourEnd)),
@@ -2188,10 +2206,12 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
      Netatmo-havainnoilla, Harmonie on raakaa MEPS-mallia. Tuuli jää Harmonielle, koska
      nowcastin tuuli on samaa mallia ilman havaintokorjausta. Harmonie on varalla, jos
      nowcast ei yllä tunnille tai sijainti on sen alueen ulkopuolella. */
-  const tempFromNowcast = isNowcastHour && nowcast && typeof nowcast.temp === 'number';
-  const temp = tempFromNowcast ? nowcast.temp : hour.temperature;
+  /* Tuntuu kuin -tilassa kaikki rivit FMI:n FeelsLike-arvosta: nowcastissa sitä ei ole, eikä sitä johdeta
+     nowcastin lämpötilasta. */
+  const tempFromNowcast = !FEELS_LIKE && isNowcastHour && nowcast && typeof nowcast.temp === 'number';
+  const temp = FEELS_LIKE ? hour.feelsLike : (tempFromNowcast ? nowcast.temp : hour.temperature);
   const tempSource = tempFromNowcast ? 'nowcast' : 'harmonie';
-  const tempFallbackFromNowcast = isNowcastHour && !tempFromNowcast;
+  const tempFallbackFromNowcast = !FEELS_LIKE && isNowcastHour && !tempFromNowcast;
   const rainExpectedNowcast = expectedNowcast;
   const descSelection = selectDescription({
     nowcastText: nowcastRow ? ncSymbolText(nowcastCode) : null,

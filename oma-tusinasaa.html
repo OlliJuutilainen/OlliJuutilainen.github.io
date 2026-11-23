@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Oma Tusinasää</title>
+<link rel="icon" href="icons/tusinasaa-32.png?v=d86bb9ab" sizes="32x32">
+<link rel="icon" href="icons/tusinasaa.svg?v=a6066a5a" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=5ec1496d">
+<meta property="og:title" content="OMA TUSINASÄÄ">
+<meta property="og:image" content="https://ollijuutilainen.github.io/icons/tusinasaa-jako-3.png">
+<style>
+  /* Värit kuten tusinapaja.html:ssä: tumma oletuksena, vaalea järjestelmän pyynnöstä. */
+  :root{
+    color-scheme: dark light;
+    --bg:#000; --text:#e8e8e8; --title:#9aa6b0; --muted:#7f8a93; --border:#2a2a2a;
+    --field:#0e0f10; --accent:#e8e8e8; --accent-text:#000; --error:#ff6b6b; --ok:#9fb6ff;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      color-scheme: light dark;
+      --bg:#f7f8fa; --text:#1c1f22; --title:#5a6570; --muted:#646f78; --border:#d5d9df;
+      --field:#fff; --accent:#1c1f22; --accent-text:#fff; --error:#c34242; --ok:#4a5dab;
+    }
+  }
+  html{height:100%}
+  body{
+    min-height:100%; margin:0 auto; max-width:560px; padding:22px 16px 24px; box-sizing:border-box;
+    background:var(--bg); color:var(--text);
+    font:17px/1.5 Arial,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1{ font-weight:700; font-size:15px; letter-spacing:.4px; color:var(--title); text-transform:uppercase; margin:0 0 10px }
+  h2{ font-size:12px; font-weight:400; letter-spacing:.3px; text-transform:uppercase; color:var(--muted);
+    margin:26px 0 8px; padding-top:10px; border-top:1px solid var(--border) }
+  p{ margin:0 0 10px }
+  .note{ color:var(--muted); font-size:14px }
+  .row{ display:flex; gap:8px }
+  input[type="search"], input[type="text"]{
+    flex:1; min-width:0; width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
+    color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px;
+  }
+  button{
+    font:inherit; font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer;
+    color:var(--accent-text); background:var(--accent); border:1px solid var(--accent);
+  }
+  button:disabled{ opacity:.45; cursor:default }
+  button.plain{ color:var(--text); background:transparent; border-color:var(--border) }
+  ul.results{ list-style:none; margin:10px 0 0; padding:0 }
+  ul.results li{ margin:0 0 6px }
+  ul.results button{
+    width:100%; text-align:left; color:var(--text); background:transparent; border-color:var(--border);
+    line-height:1.3;
+  }
+  ul.results small{ display:block; color:var(--muted); font-size:13px }
+  .chosen{ margin-top:10px }
+  .chosen small{ color:var(--muted); font-size:13px }
+  label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
+  label.choice small{ display:block; color:var(--muted); font-size:13px }
+  .status{ font-size:14px; margin-top:8px; white-space:pre-wrap }
+  .status.err{ color:var(--error) }
+  .status.ok{ color:var(--ok) }
+  .link{ word-break:break-all; font-size:14px; padding:8px 10px; border:1px solid var(--border); border-radius:6px; margin:6px 0 8px }
+  .link a{ color:var(--text) }
+  a{ color:inherit }
+  .foot{ margin:36px 0 0; text-align:center; color:var(--muted); opacity:.6;
+    font-size:11px; font-weight:300; letter-spacing:.14em }
+</style>
+</head>
+<body>
+<h1>Oma Tusinasää</h1>
+<p>Tee Tusinasäästä oma linkki: paikka, otsikko ja lämpötilan esitystapa.</p>
+<p class="note">Sijainti salataan tässä selaimessa. Palvelimelle tallentuu vain salattu paketti, ja sen avain on
+  pelkästään linkissä. Paikkahaun hakusana lähtee OpenStreetMapin palveluun.</p>
+
+<h2>Paikka</h2>
+<form id="searchForm" class="row" autocomplete="off">
+  <input id="query" type="search" placeholder="Paikan nimi tai osoite" aria-label="Paikan nimi tai osoite" required>
+  <button id="searchBtn" type="submit">Hae</button>
+</form>
+<p class="note" style="margin-top:6px">Suomi, Ruotsi, Norja, Tanska ja Ahvenanmaa.</p>
+<ul id="results" class="results"></ul>
+<div id="chosen" class="chosen" hidden></div>
+<div id="placeStatus" class="status" role="status"></div>
+
+<h2>Otsikko</h2>
+<input id="title" type="text" maxlength="160" value="TUSINASÄÄ 12 · " aria-label="Otsikko">
+
+<h2>Lämpötila</h2>
+<label class="choice"><input type="radio" name="lampo" value="" checked>
+  <span>Lämpötila</span></label>
+<label class="choice"><input type="radio" name="lampo" value="tuntuu">
+  <span>Tuntuu kuin<small>Ilmatieteen laitoksen arvio, jossa tuulen ja kosteuden vaikutus on mukana.</small></span></label>
+
+<h2>Linkki</h2>
+<button id="makeBtn" type="button" disabled>Tee linkki</button>
+<div id="makeStatus" class="status" role="status"></div>
+<div id="result" hidden>
+  <p>Avaa tällä linkillä:</p>
+  <div class="link"><a id="webLink" href="#"></a></div>
+  <button id="copyBtn" class="plain" type="button">Kopioi linkki</button>
+  <span id="copyStatus" class="note"></span>
+  <p class="note" style="margin-top:14px">Linkkiä ei voi hakea uudelleen eikä muuttaa, joten tallenna se. Kuka tahansa,
+    jolla linkki on, näkee paikan sään ja voi selvittää sen sijainnin.</p>
+
+  <h2>Puhelimeen</h2>
+  <p><b>Verkkosovelluksena:</b> avaa linkki puhelimen Chromessa ja valitse valikosta <i>Asenna sovellus</i> tai
+    <i>Lisää aloitusnäyttöön</i>. Sovellus avaa paikan, jonka linkin olet viimeksi avannut tällä puhelimella.</p>
+  <p><b>Android-sovelluksessa:</b> avaa puhelimella tämä linkki. Sovellus muistaa paikan.</p>
+  <div class="link"><a id="appLink" href="#"></a></div>
+</div>
+
+<p class="note" style="margin-top:30px">Paikkahaku: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMapin tekijät</a> (Nominatim).</p>
+<p class="foot">© TUSINASOFT 2026</p>
+
+<script type="module">
+const API_BASE = (window.TUSINASAA_API_BASE || 'https://tusinasaa-worker.ollijuutilainen.workers.dev').replace(/\/+$/, '');
+/* Peitto mitattu: FMI:n ennuste ja met.no:n nowcast kattavat nämä; Islanti, Färsaaret, Huippuvuoret ja Grönlanti eivät.
+   Valittu paikka tarkistetaan lisäksi FMI:ltä ennen linkin tekoa. */
+const COUNTRIES = 'fi,se,no,dk,ax';
+const TITLE_PREFIX = 'TUSINASÄÄ 12 · ';
+
+const $ = id => document.getElementById(id);
+const form = $('searchForm'), query = $('query'), searchBtn = $('searchBtn'), results = $('results');
+const chosenBox = $('chosen'), placeStatus = $('placeStatus'), titleInput = $('title');
+const makeBtn = $('makeBtn'), makeStatus = $('makeStatus'), resultBox = $('result');
+
+let chosen = null;      // { lat, lon, name }
+let lastSearch = 0;
+
+function setStatus(el, text, kind){
+  el.textContent = text || '';
+  el.className = 'status' + (kind ? ' ' + kind : '');
+}
+
+function round4(v){ return Math.round(v * 1e4) / 1e4; }
+
+/* Nominatimin käyttöehdot: haku vain pyynnöstä (ei kirjoittaessa), enintään kerran sekunnissa. */
+form.addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const q = query.value.trim();
+  if (!q) return;
+  const wait = 1100 - (Date.now() - lastSearch);
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  lastSearch = Date.now();
+  searchBtn.disabled = true;
+  results.replaceChildren();
+  setStatus(placeStatus, 'Haetaan…');
+  try {
+    const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+      q, format: 'jsonv2', countrycodes: COUNTRIES, limit: '8', 'accept-language': 'fi'
+    });
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('http ' + res.status);
+    const list = await res.json();
+    if (!Array.isArray(list) || !list.length){
+      setStatus(placeStatus, 'Paikkaa ei löytynyt. Kokeile toista nimeä tai lisää kunta.', 'err');
+      return;
+    }
+    setStatus(placeStatus, '');
+    for (const item of list){
+      const lat = parseFloat(item.lat), lon = parseFloat(item.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+      const parts = String(item.display_name || '').split(',').map(s => s.trim()).filter(Boolean);
+      const name = (item.name || parts[0] || '').trim();
+      const rest = parts.filter(p => p !== name && !/^\d{3,}$/.test(p)).slice(0, 4).join(', ');
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = name || rest;
+      if (rest){ const s = document.createElement('small'); s.textContent = rest; b.append(s); }
+      b.addEventListener('click', () => choose({ lat: round4(lat), lon: round4(lon), name: name || rest, rest }));
+      li.append(b);
+      results.append(li);
+    }
+  } catch (err) {
+    console.error('Paikkahaku epäonnistui', err);
+    setStatus(placeStatus, 'Paikkahaku ei vastannut. Yritä hetken päästä uudelleen.', 'err');
+  } finally {
+    searchBtn.disabled = false;
+  }
+});
+
+async function choose(place){
+  chosen = null;
+  makeBtn.disabled = true;
+  resultBox.hidden = true;
+  results.replaceChildren();
+  chosenBox.hidden = false;
+  chosenBox.replaceChildren();
+  const strong = document.createElement('b');
+  strong.textContent = place.name;
+  const small = document.createElement('small');
+  small.textContent = (place.rest ? place.rest + ' · ' : '') + `${place.lat}, ${place.lon}`;
+  chosenBox.append(strong, document.createElement('br'), small);
+  const t = titleInput.value.trim();
+  if (!t || t === TITLE_PREFIX.trim() || titleInput.dataset.auto === '1'){
+    titleInput.value = TITLE_PREFIX + place.name.toLocaleUpperCase('fi-FI');
+    titleInput.dataset.auto = '1';
+  }
+  setStatus(placeStatus, 'Tarkistetaan, saako paikalle ennusteen…');
+  const ok = await hasForecast(place.lat, place.lon);
+  if (ok === true){
+    chosen = place;
+    makeBtn.disabled = false;
+    setStatus(placeStatus, 'Paikalle saadaan ennuste.', 'ok');
+  } else if (ok === false){
+    setStatus(placeStatus, 'Tälle paikalle ei saada Ilmatieteen laitoksen ennustetta. Valitse toinen paikka.', 'err');
+  } else {
+    setStatus(placeStatus, 'Ilmatieteen laitos ei vastannut. Valitse paikka uudelleen hetken päästä.', 'err');
+  }
+}
+titleInput.addEventListener('input', () => { titleInput.dataset.auto = '0'; });
+
+/* Sama ennuste, jota Tusinasää käyttää. true = arvo löytyi, false = ei dataa, null = haku epäonnistui. */
+async function hasForecast(lat, lon){
+  const s = new Date(); s.setUTCMinutes(0, 0, 0);
+  const e = new Date(s.getTime() + 3600000);
+  const iso = d => d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const url = 'https://opendata.fmi.fi/wfs?' + new URLSearchParams({
+    service: 'WFS', version: '2.0.0', request: 'getFeature',
+    storedquery_id: 'fmi::forecast::edited::weather::scandinavia::point::simple',
+    latlon: `${lat},${lon}`, parameters: 'Temperature',
+    starttime: iso(s), endtime: iso(e), timestep: '60'
+  });
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    const txt = await res.text();
+    if (/<BsWfs:ParameterValue>\s*-?\d/.test(txt)) return true;
+    if (/No data available/i.test(txt)) return false;
+    return null;
+  } catch (err) {
+    console.error('FMI-tarkistus epäonnistui', err);
+    return null;
+  }
+}
+
+function toBase64Url(bytes){
+  let bin = '';
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+/* Kuten generaattori.html: AES-GCM 256, avain ja iv arvotaan tässä selaimessa. */
+async function encrypt(payload){
+  const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt']);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(payload)));
+  return { k: toBase64Url(keyBytes), iv: toBase64Url(iv), ct: toBase64Url(new Uint8Array(ct)) };
+}
+
+makeBtn.addEventListener('click', async () => {
+  if (!chosen) return;
+  makeBtn.disabled = true;
+  resultBox.hidden = true;
+  setStatus(makeStatus, 'Tehdään linkkiä…');
+  try {
+    const payload = { lat: chosen.lat, lon: chosen.lon };
+    const title = titleInput.value.trim().slice(0, 160);
+    if (title) payload.title = title;
+    const lampo = document.querySelector('input[name="lampo"]:checked')?.value;
+    if (lampo) payload.lampo = lampo;
+    const enc = await encrypt(payload);
+    let res;
+    try {
+      res = await fetch(`${API_BASE}/api/loc`, {
+        method: 'POST', credentials: 'omit', cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ v: 1, iv: enc.iv, ct: enc.ct })
+      });
+    } catch (err) {
+      throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
+    }
+    if (res.status === 429) throw new Error('Linkkejä on tehty juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+    if (!res.ok) throw new Error(`Tallennus epäonnistui (virhekoodi ${res.status}).`);
+    const { t } = await res.json();
+    if (typeof t !== 'string' || !t) throw new Error('Tallennuspalvelun vastaus oli virheellinen.');
+    const frag = `t=${t}&k=${enc.k}`;
+    const web = new URL('tusinapaja.html', location.href);
+    web.search = ''; web.hash = frag;
+    const app = `tusinasaa://open/v1#${frag}`;
+    $('webLink').href = web.href; $('webLink').textContent = web.href;
+    $('appLink').href = app; $('appLink').textContent = app;
+    $('copyStatus').textContent = '';
+    resultBox.hidden = false;
+    setStatus(makeStatus, '');
+  } catch (err) {
+    console.error(err);
+    setStatus(makeStatus, err?.message || 'Linkin teko epäonnistui.', 'err');
+  } finally {
+    makeBtn.disabled = !chosen;
+  }
+});
+
+$('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText($('webLink').href);
+    $('copyStatus').textContent = ' Kopioitu.';
+  } catch {
+    $('copyStatus').textContent = ' Kopiointi ei onnistunut; kopioi linkki käsin.';
+  }
+});
+</script>
+</body>
+</html>

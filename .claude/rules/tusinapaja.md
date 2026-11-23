@@ -2,6 +2,7 @@
 paths:
   - "tusinapaja.html"
   - "generaattori.html"
+  - "oma-tusinasaa.html"
   - "android/app/**"
 ---
 ## Tusinapaja on ainoa aktiivinen versio
@@ -76,3 +77,26 @@ Arkkitehtuurin alkuperäinen suunnitelma on tusina-radassa (`oppaat/tusinasaa-to
 täysin selaimessa eikä lähetä mitään verkkoon; se vain tulostaa valmiin komennon, jonka
 käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä Cloudflaren
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
+
+Purettu paketti on `{lat, lon, title?, z?, lampo?}`. `lampo: "tuntuu"` vaihtaa lämpötilasarakkeen FMI:n
+`FeelsLike`-arvoon kaikilla riveillä (myös nowcast-riveillä, koska nowcastissa sitä ei ole) ja sarakeotsikoksi `TUNTUU`;
+kehityksessä sama `?lampo=tuntuu`.
+
+## Oma Tusinasää (julkinen linkin teko)
+
+`oma-tusinasaa.html` on kenen tahansa käytettävissä (pieni piiri, `noindex`). Se hakee paikan Nominatimilla, tarkistaa
+FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaattori ja tallentaa sen `POST /api/loc`
+-reitillä. Worker arpoo tokenin eikä näe avainta eikä koordinaatteja.
+
+- **Vain Pohjoismaat** (käyttäjän päätös): `countrycodes=fi,se,no,dk,ax`. Islanti, Färsaaret, Huippuvuoret ja Grönlanti
+  jäävät pois, koska FMI:n ennuste ja met.no:n nowcast eivät kata niitä.
+- **Paikkahaku, ei paikannusta** (käyttäjän päätös). Nominatimin ehdot: haku vain pyynnöstä (ei kirjoittaessa),
+  enintään kerran sekunnissa, OSM-maininta näkyvissä.
+- **Tallennettua ei voi muuttaa:** worker ei tunne avainta eikä siis omistajaa. Ei ylikirjoitusta; uusi paikka on uusi linkki.
+- **Rajat:** `LuinRaja`-luokka omana oliona `loc` (5 pyyntöä minuutissa osoitetta kohden, 50 uutta sijaintia UTC-päivässä),
+  vain sallituista alkuperistä. Julkisesti luodun KV-avaimen metatiedoissa on `julkinen: 1`.
+- **Muisti:** `tusinapaja.html` tallentaa onnistuneesti puretun `#t=…&k=…`-linkin laitteen localStorageen
+  (`tusinasaa.linkki`), ja `index.html` (verkkosovelluksen `start_url`) avaa sen, kun #-osaa ei ole. Android-perusversio
+  tallentaa linkin omiin asetuksiinsa ja avaa sen ilman linkkiä käynnistettäessä. Avain ei lähde laitteelta; `start_url`iin
+  sitä ei laiteta, koska Chrome lähettää verkkosovelluksen tiedot Googlelle asennuspaketin tekoa varten.
+- `tusinapaja.html` hakee sijainnin workerilta kaikkialla paitsi localhostissa, jotta oma verkkotunnus ei katkaise linkkejä.

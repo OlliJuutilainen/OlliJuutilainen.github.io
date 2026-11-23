@@ -42,8 +42,10 @@ asennuksia, kohdenna komento vastaavaan moduuliin (esim. `./gradlew :ouroboros:i
 
 Sovelluksesta on kaksi varianttia (`productFlavors` tiedostossa `app/build.gradle`):
 
-- **perus** (`fi.tusinasaa`, "Tusinasää 12"): kuten ennenkin, avautuu deeplinkillä tai
-  oletussijaintiin.
+- **perus** (`fi.tusinasaa`, "Tusinasää 12"): avautuu deeplinkillä. Se muistaa viimeksi avatun
+  token+avain-linkin (esim. `oma-tusinasaa.html`:n tekemän) ja avaa sen, kun sovellus käynnistetään ilman linkkiä;
+  muuten oletussijaintiin. Token+avain-linkille ei lisätä oletuskoordinaatteja: jos purku epäonnistuu, sivu näyttää
+  virheen.
 - **haakis** (`fi.tusinasaa.haakis`, "Tusinasää Haakis"): asentuu perusversion rinnalle omalla
   kuvakkeellaan ja avaa aina sisäänrakennetun token+avain-parin. Sillä ei ole VIEW-suodattimia,
   joten `tusinasaa://`-linkit menevät edelleen perusversiolle.

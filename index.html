@@ -64,7 +64,18 @@
       el.style.display = 'block';
     }
 
-    const loc = readParams();
+    /* Asennettu verkkosovellus käynnistyy tästä ilman #-osaa: silloin avataan tällä laitteella viimeksi
+       avattu sijaintilinkki (tusinapaja.html tallentaa sen). */
+    function storedParams() {
+      try {
+        const p = new URLSearchParams(localStorage.getItem('tusinasaa.linkki') || '');
+        const t = p.get('t');
+        const k = p.get('k');
+        return (t && k) ? { t, k } : null;
+      } catch { return null; }
+    }
+
+    const loc = readParams() || storedParams();
     if (loc) {
       const frag = new URLSearchParams({ t: loc.t, k: loc.k }).toString();
       location.replace('./tusinapaja.html#' + frag);
