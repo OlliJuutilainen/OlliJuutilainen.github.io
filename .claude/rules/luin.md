@@ -253,8 +253,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kokonaisen pikselin korkuinen: murto-osaisen Chromium pyöristää niin, että pohja osuu viivasta sivuun. Yhdysviiva on piirretty versaalien ja
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikko on *Mappi ö* (käyttäjän linjaus: osastolla eri kirjoitusmuoto kuin muualla), jossa ö on rengas ilman alleviivausta kirjaimena,
-  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa kellarilinkki
-  peilattuna (`#ark-paluu`: nuoli vasemmalle, kampi `scaleX(-1)` tekstin oikealla). Testi `omappi-testi.js`.
+  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa paluu kellarin
+  kampihyllystöön (`#ark-paluu`). **Paluulinkit** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
+  *pinoon* (`#ark-pinoon`, pinomerkki) ja ö-mapissa *kellarin kampihyllystöön* (kampi): ensin symboli, sitten teksti, ja molempien alla
+  koko matkan vasemmalle osoittava chevron-nuoli, jonka viiva päättyy viimeisen kirjaimen keskelle (käyttäjän vaatimus: muuten ei toimi);
+  mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä, samalla rivillä ja korkeudella kuin ö-mappiin (`.ala-linkit`). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle
   ylös. Pinon otsikon perässä samalla idealla pinomerkki (`PINOM`). Molemmat hyvin pieninä (kampi 1,05 em, pinomerkki 1,15 em

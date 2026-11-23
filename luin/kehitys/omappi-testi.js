@@ -51,14 +51,9 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
     const ls = parseFloat(getComputedStyle(s.parentNode).letterSpacing);
     return { px: s.getBoundingClientRect().left - (rg.getBoundingClientRect().right - ls), em: parseFloat(getComputedStyle(s).fontSize) };
   }, sel);
-  // Vertailuksi kellarilinkin kammen napa .64rem:n koossa (ö-mapin paluulinkki on sama kampi peilattuna): pinon kellarilinkki on
-  // pienempi (.56rem), ja kammen paikka on osin pikseleinä, joten sen napa em:inä on eri.
-  const linkinNapa = await page.evaluate(() => {
-    const p = document.querySelector('#ark-paluu'), v = p.querySelector('svg.veivi'), el = v.parentNode; p.hidden = false;
-    const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; el.appendChild(pr);
-    const bl = pr.getBoundingClientRect().bottom; pr.remove(); const q = v.getBoundingClientRect(); p.hidden = true;
-    return (bl - (q.top + q.height * .953 / 2)) / parseFloat(getComputedStyle(el).fontSize);
-  });
+  // Vertailukohta: kellarilinkin kammen napa versaalien keskellä .64rem:n koossa (mitattu ö-mapin entisestä paluulinkistä, jossa oli
+  // sama kampi peilattuna; paluulinkki on nyt symboli ja teksti, joten luku on vakio).
+  const linkinNapa = .3083;
   t('pino: otsikko', (await page.textContent('#lista-ots')) === 'Pino');
   const pNapa = await napa('h2.ots svg.pinom', .5), pRako = await rako('h2.ots svg.pinom');
   t('pinon otsikon pinomerkki versaalien keskellä', Math.abs(pNapa - linkinNapa) < EMTOL, emx(pNapa) + ' / ' + emx(linkinNapa) + ' px perusviivasta (11,84 px:n koossa)');
@@ -88,6 +83,11 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('siirron viesti', (await page.textContent('#viesti')) === 'Teksti siirtyi ö-mappiin.');
   t('kellarissa 1 nimike', (await page.$$('#nimikkeet li.nimike')).length === 1);
   t('kellari: ö-linkki näkyy', await page.isVisible('#om-linkki'));
+  // Kellarin vasemmassa alakulmassa paluu pinoon (pinomerkki ja teksti) samalla rivillä kuin ö-mappiin, viivat samalla korkeudella.
+  const pn = await page.evaluate(() => { const a = document.querySelector('#ark-pinoon a'), b = document.querySelector('#om-linkki a');
+    return { nakyy: !document.getElementById('ark-pinoon').hidden, teksti: a.textContent, href: a.getAttribute('href'), viivat: a.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom,
+      vasen: a.getBoundingClientRect().left < innerWidth / 2, oikea: b.getBoundingClientRect().left > innerWidth / 2 }; });
+  t('kellari: paluu pinoon vasemmalla, ö-mappiin oikealla, viivat samalla korkeudella', pn.nakyy && pn.teksti === 'pinoon' && pn.href === '#' && Math.abs(pn.viivat) < .05 && pn.vasen && pn.oikea, JSON.stringify(pn));
   // Ö-mappiin-linkki kuten kellarilinkki: kammen paikalla Ö-rengas, jonka litteästä pohjasta alleviivaus (reunaviiva) jatkuu
   // nuoleen. Renkaan laki versaalikorkeuden yläpuolella .2 px ja pohja alleviivauksen alareunassa; pohjan paksuus = alleviivaus;
   // svg kokonaisen pikselin korkuinen; ::before renkaan keskelle; nuoli viimeisen kirjaimen perässä; yhdysviiva versaalien ja
@@ -162,12 +162,18 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-omappi.png' });
   // Peilattu kellarilinkki vasemmassa alakulmassa: nuoli vasemmalla, kampi tekstin oikealla puolella.
   t('ö-mappi: paluulinkki näkyy', await page.isVisible('#ark-paluu') && (await page.textContent('#ark-paluu')) === 'kellarin kampihyllystöön');
-  const pl = await page.evaluate(() => {
-    const a = document.querySelector('#ark-paluu a').getBoundingClientRect(), v = document.querySelector('#ark-paluu svg.veivi'),
-      n = document.querySelector('#ark-paluu svg.nuoli').getBoundingClientRect(), sis = document.querySelector('#ark-paluu').getBoundingClientRect();
-    return { vasen: a.left - sis.left, nuoli: n.left - a.left, kampi: v.getBoundingClientRect().left - a.right, peili: getComputedStyle(v).transform };
-  });
-  t('ö-mappi: paluulinkki peilattu', Math.abs(pl.vasen) < 1 && pl.nuoli < 1 && pl.kampi > 0 && /^matrix\(-1, 0, 0, 1/.test(pl.peili), JSON.stringify(pl));
+  // Paluulinkit (käyttäjän linjaus): symboli ja teksti, alla koko matkan vasemmalle osoittava nuoli, viiva päättyy N:n keskelle.
+  const paluu = (sel) => page.evaluate((sel) => {
+    const a = document.querySelector(sel + ' a'), ar = a.getBoundingClientRect(), j = getComputedStyle(a, '::after'), fs = parseFloat(getComputedStyle(a).fontSize);
+    const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT); let t, v; while ((t = w.nextNode())) if (t.textContent.trim()) v = t;
+    const rg = document.createRange(); rg.setStart(v, v.length - 1); rg.setEnd(v, v.length);
+    const ala = ar.bottom - parseFloat(j.bottom), pk = parseFloat(j.height), n = a.querySelector('svg.nuoli').getBoundingClientRect(), sy = a.querySelector('svg.symb').getBoundingClientRect();
+    return { paa: (ar.right - parseFloat(j.right)) - (rg.getBoundingClientRect().left + .41 * fs), keski: (n.top + n.bottom) / 2 - (ala - pk / 2),
+      karki: n.left + .16 * n.width - ar.left, symbEnsin: sy.left - ar.left < .5 && sy.right < rg.getBoundingClientRect().left, vasen: ar.left - a.parentNode.getBoundingClientRect().left };
+  }, sel);
+  const pl = await paluu('#ark-paluu');
+  t('ö-mappi: paluulinkki: kampi ensin, nuoli vasemmalle viivan alussa, viiva N:n keskelle', Math.abs(pl.paa) < .4 && Math.abs(pl.keski) < .05 &&
+    Math.abs(pl.karki) < .05 && pl.symbEnsin && Math.abs(pl.vasen) < .5, JSON.stringify(pl));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/omappi.png', fullPage: true });
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
   const v = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
