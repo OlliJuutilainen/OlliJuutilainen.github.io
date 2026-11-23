@@ -228,11 +228,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
   Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
-  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä); kampipyörylän laki ylärivin versaalien laella (säde 1,2125 em) ja jatkeviiva linkin täytteenä, ei `::before` (murtopikselinen korkeus teki portaan) alleviivaus napin alareunan tasolla, jos mahtuu (mahtuu 320 px:llä; muuten
-  napin alla, kampi palstan laidasta), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja samalla rivillä oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän pyyntö; kellarin oma otsikko yhdellä rivillä); kampipyörylän laki ylärivin versaalien laella (säde 1,2125 em) ja jatkeviiva linkin täytteenä, ei `::before` (murtopikselinen korkeus teki portaan). Linkki on .85rem, jotta kaaren laki on napin yläreunan ja alleviivaus napin alareunan tasolla (käyttäjän pyyntö), jos mahtuu (391 px:stä; muuten
+  napin alla, kampi palstan laidasta). Alleviivaus on taustapalkki ja `svg.veivi` palkin kokoinen laatikko samassa kohdassa, kaari sisemmässä svg:ssä: muuten kaari ja viiva pyöristyvät eri laitepikseleihin (sauma), 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
-  asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
+  asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .85rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
   *Luin.* ja *Poimi pinoon* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
   nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Ö-mappiin* (vahvistusnappi *Vie ö-mappiin*), sieltä *Poimi kellarin kampihyllystöön*. `e.omappi` (aika)
