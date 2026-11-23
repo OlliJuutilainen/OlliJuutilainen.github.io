@@ -247,9 +247,13 @@ const lo = M.parse('---\nsivusto: J. V. Snellmanin kootut teokset\nylläpitäjä
 sama('lähdeosio', lo.html.slice(lo.html.indexOf('<h4 id="lahde"'), lo.html.indexOf('<h4 id="tekijanoikeudet"')),
   '<h4 id="lahde" class="sec caps" data-b="3">Lähde</h4><p class="oik" data-b="4">Teksti on haettu lukimeen 21.11.2026 sivustolta ' +
   '<em>J. V. Snellmanin kootut teokset</em> (ylläpitäjä Snellman-instituutti), osastosta Dokumentit › Essee.<br>' +
-  'Osoite:<br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
-  'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br>Alkukielinen teksti (pdf):<br>' +
+  '<em class="etiketti">Osoite:</em><br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
+  'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br><em class="etiketti">Alkukielinen teksti (pdf):</em><br>' +
   '<a href="https://snellman.kootutteokset.fi/sites/default/files/01085.pdf">snellman.kootutteokset.fi/sites/default/files/01085.pdf</a></p>');
+// Tieto-osion nimiöt (em.etiketti, harmaa): rivin tai kappaleen alun kursiivi, jonka lopussa on kaksoispiste; sivuston nimi ei.
+tulos('tieto-osion nimiöt etiketeiksi', lkm(lo.html, /<em class="etiketti">/g) === 3 &&
+  lo.html.includes('<p class="oik" data-b="6"><em class="etiketti">Merkintä lähteessä:</em> CC BY 4.0</p>') &&
+  lo.html.includes('sivustolta <em>J. V. Snellmanin kootut teokset</em>'), lo.html.slice(lo.html.indexOf('<h4 id="lahde"')));
 // Asiakirja (21.11.2026, Snellmanin kirjeet ja sähkeet): ladonta: asiakirja pitää alun lyhyet rivit tekstissä, ja otsikkolohkon
 // tiedot tulevat etukentästä; ilman sitä rivit ovat tietorivejä.
 const ak = '---\ntekijä: Alexander Armfelt\nlaji: Virkakirje, sähke\njulkaistu: 1863-08-28\nladonta: asiakirja\n---\n\n# T\n\nSenaattori Snellman\n\nHelsinki\n\n' +

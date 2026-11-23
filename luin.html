@@ -844,6 +844,9 @@
   /* Tietojen osoite siirtyy kokonaisena omalle rivilleen, jos mahtuu (a.url:n break-all katkaisi sen mistä tahansa); pidempi
      katkeaa yhä palstan reunasta. */
   #teksti p.oik a.url { word-break: normal; overflow-wrap: anywhere; }
+  /* Tieto-osion nimiö (md.js em.etiketti) harmaana kursiivina kuten taulukon sarakeotsikko: verkkolinkit ovat oletuksena pois,
+     joten osoite on tavallista tekstiä eikä muuten erottuisi nimiöstään. Muotoilu on nimiössä eikä osoitteessa: osoite on itse tieto. */
+  #teksti p.oik em.etiketti { color: var(--harmaa); }
   /* Rahoitushuomautus (käyttäjän säännöt 15.11.2026, md.js rahoitus()): sovitesivustolta leikatun tekstin yläotsake
      isoin kirjaimin, mutta versaalina, kursiivina, ohuena (Literatan ohuin leikkaus 380), harmaana ja hakasulkeissa.
      Pienempi ja harmaampi kuin leipäteksti, kuin vesileima, jotta näkyy, ettei se kuulu teokseen, mutta luettava myös
@@ -1904,7 +1907,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=abb05dbe"></script>
+<script src="luin/md.js?v=775c5592"></script>
 <script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
