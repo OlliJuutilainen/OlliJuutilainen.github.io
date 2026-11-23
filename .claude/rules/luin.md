@@ -547,6 +547,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`liehutaLyhyet()`, opas 5). Ei ulotu pidempiin kappaleisiin kysymättä. Uusi kirjoitus asettelussa tämän ja `tavutaPitkat()`:n
   jälkeen ei saa muuttaa rivitystä, tai luokka vanhenee.
 - **Sisennys vain kappaleelle, jonka edellä on kappale** (CSS `p + p`): sisällysluettelon, otsikkolohkon, otsikon, lainauksen tai luettelon jälkeen ei sisennetä. Älä palauta poikkeusluetteloa.
+  Tieto-osioiden kappaleet (Lähde, Tekijänoikeudet: md.js `p.oik`) eivät ole leipätekstiä: ei sisennystä eikä tasausta.
+  Uusi md.js:n tuottama tietokappale saa luokan, jottei `p + p` sisennä sitä.
 - **Sivutettuna** pääluku alkaa aina uudelta sivulta (myös JS-varmistus `pakotettu`, koska kaikki työpöytäselaimet eivät
   noudata CSS:ää). **Sisällysluetteloa ei pakoteta omalle sivulleen**; se kulkee otsikkolohkon perässä.
 - Merkintöjen tuonti (opas 4.6): ei virallista tiedostomuodon tunnistetta; vientiä muutetaan vain sen verran kuin

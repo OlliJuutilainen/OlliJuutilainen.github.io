@@ -245,7 +245,7 @@ const lo = M.parse('---\nsivusto: J. V. Snellmanin kootut teokset\nylläpitäjä
   'lähde: https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328\nhaettu: 2026-11-21\n' +
   'alkuteksti: https://snellman.kootutteokset.fi/sites/default/files/01085.pdf\noikeudet: CC BY 4.0\n---\n\n# T\n\nTeksti.\n');
 sama('lähdeosio', lo.html.slice(lo.html.indexOf('<h4 id="lahde"'), lo.html.indexOf('<h4 id="tekijanoikeudet"')),
-  '<h4 id="lahde" class="sec caps" data-b="3">Lähde</h4><p data-b="4">Teksti on haettu lukimeen 21.11.2026 sivustolta ' +
+  '<h4 id="lahde" class="sec caps" data-b="3">Lähde</h4><p class="oik" data-b="4">Teksti on haettu lukimeen 21.11.2026 sivustolta ' +
   '<em>J. V. Snellmanin kootut teokset</em> (ylläpitäjä Snellman-instituutti), osastosta Dokumentit › Essee.<br>' +
   'Osoite:<br><a href="https://snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826%E2%80%9328">' +
   'snellman.kootutteokset.fi/fi/dokumentit/teosofia-hahmotelma-1826–28</a><br>Alkukielinen teksti (pdf):<br>' +
@@ -427,8 +427,12 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('tekijänoikeudet: ilman lähdesivua kaikki oikeudet ja tekijänoikeuslaki', /Kaupan joulukuusen koristeita/.test(sel) && /finlex\.fi\/fi\/lainsaadanto\/1961\/404/.test(sel));
   const sep = M.parse('---\noikeudet: Copyright © 2024 by X\noikeudet-lähde: https://plato.stanford.edu/info.html#terms\n---\n# T\n\nA.\n');
   tulos('tekijänoikeudet: lisätietojen osoite kirjoitettuna (verkkolinkit ovat oletuksena pois)',
-    /Lisätietoja: Stanford Encyclopedia of Philosophyn käyttöehdot \(Terms of Use\) osoitteessa <a class="url" href="https:\/\/plato\.stanford\.edu\/info\.html#terms">https:\/\/plato\.stanford\.edu\/info\.html#terms<\/a><\/p>/.test(sep.html),
+    /Lisätietoja: Stanford Encyclopedia of Philosophyn käyttöehdot \(Terms of Use\) osoitteessa <a class="url" href="https:\/\/plato\.stanford\.edu\/info\.html#terms">https:\/\/plato\.stanford\.edu\/<wbr>info\.html<wbr>#terms<\/a><\/p>/.test(sep.html),
     (sep.html.match(/Lisätietoja.*$/) || [''])[0]);
+  // Lähde- ja tekijänoikeusosion kappaleet ovat p.oik (luin.html: ei sisennystä eikä tasausta), leipäteksti ei.
+  const lo = M.parse('---\nlähde: https://example.org/a\noikeudet: Public domain\noikeudet-lähde: https://example.org/ehdot\n---\n# T\n\nA.\n\nB.\n').html;
+  tulos('tekijänoikeudet: osioiden kappaleet p.oik, leipäteksti ei', (lo.match(/<p class="oik"/g) || []).length === 4 &&
+    (lo.match(/<p[ >]/g) || []).length === 6, (lo.match(/<p[^>]*>/g) || []).join(' '));
   tulos('tekijänoikeudet: ei merkintää ilman etukenttää', !/tekijanoikeudet/.test(M.parse('# T\n\n## A\n\nB.\n').html));
 })();
 

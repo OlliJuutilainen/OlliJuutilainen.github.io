@@ -2663,11 +2663,14 @@
             }
           }
           var ktNimi = !inBib && !t.oik ? kuvateksti(t.text) : null;
-          var pHtml = blk('p', inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : (function (hm) { return hm && hm.n === t.text.trim().length; })(huomautus(t.text.trim())) ? 'huom' : RE_KAAVA.test(t.text.trim()) ? 'kaava' : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
+          // Lähde- ja tekijänoikeusosion kappaleet (p.oik) ovat tietoja, eivät leipätekstiä: ei sisennystä eikä tasausta (luin.html).
+          var pHtml = blk('p', t.oik ? 'oik' : inBib && !inQuote ? 'bib' : RE_VALI.test(plain(t.text).trim()) ? 'vali' : ktNimi ? 'kuvateksti' + (list[k + 1] && list[k + 1].t === 'table' ? ' kt-taulukko' : '') : (function (hm) { return hm && hm.n === t.text.trim().length; })(huomautus(t.text.trim())) ? 'huom' : RE_KAAVA.test(t.text.trim()) ? 'kaava' : !t.oik && rivitetty(t.text) ? 'rivit' : '', t.text, inBib || t.lyhId ? null : leipa, t.kirja && !inQuote ? t.kirja.id : t.lyhOts ? '' : t.lyhId || t.nro || '');
           // Tunniste pystyyn (Table 1.), loppu kursiivina kuten painetussa lehdessä.
           if (ktNimi) pHtml = pHtml.replace(/^(<p [^>]*><em>)([^<]*)/, function (k, a, b) {
             return b.indexOf(ktNimi) === 0 ? a + '<span class="kt-nimi">' + ktNimi + '</span>' + b.slice(ktNimi.length) : k;
           });
+          // Tekijänoikeusosion osoite katkeaa kuten huomautuksen (katkoOsoite()), ei keskeltä sanaa.
+          if (t.oik && pHtml.indexOf('<a class="url"') >= 0) pHtml = katkoOsoite(pHtml);
           h += pHtml;
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');
