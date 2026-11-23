@@ -113,10 +113,10 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
       nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, musteYli: n.right - muste,
         keski: (n.top + n.bottom) / 2 - (viivaAla - bb / 2) }, teksti: a.getAttribute('aria-label') };
   }, [R.CAP, .2, R.LINKKI.kork, R.NUOLI.L]);
-  t('rengas tekstin vasemmalla, rako .2 em', Math.abs(om.rako / om.em - .2) < .01, (om.rako / om.em).toFixed(3) + ' em');
+  t('rengas tekstin vasemmalla, rako .35 em', Math.abs(om.rako / om.em - .35) < .01, (om.rako / om.em).toFixed(3) + ' em');
   t('renkaan laki generaattorin mukaan', Math.abs(om.laki - (R.LINKKI.kork - R.ALA) * om.s) < .3, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
   t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && Math.abs(om.bb - 1) < .01 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
-  t('pohja ALA px perusviivan alla (5,86 px: nuolen sakarat perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
+  t('pohja ALA px perusviivan alla (4,86 px: nuolen sakarat perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
   t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
   t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && Math.abs(om.ennenAla + 1) < .01, (om.ennenVas - om.keskus).toFixed(2) + ' px');
   // Oma nuolen kärki: kärki .47 px varren pään yli ja palstan reunassa, ja se ylittää tekstin oikean musteen yhtä vähän kuin

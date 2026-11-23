@@ -395,15 +395,15 @@
      litteästä pohjasta alleviivaus jatkuu oikealle nuoleen. Rengas on viiva: pohjassa alleviivauksen paksuinen (1 px linkin koossa
      .64rem), kyljissä paksuin hiukan keskikohdan alapuolella, ja siitä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi
      (ei viistettä: klassisemman kirjasimen tuntu); piikkien kärjet koskettavat toisiaan. Alakulmat pyöreät, pohja litteä vain alleviivauksen verran. Ö:n pisteet
-     ovat renkaan pienoiskopioita (rako suhteessa pienempi). Iso Ö (käyttäjän valinta): laki 10,89 px perusviivan yläpuolella, pohja
-     5,86 px sen alla alleviivauksella, ja yhdysviiva on renkaan korkeuden keskellä (2,5 px). Alleviivaus on niin alhaalla, että nuolen
-     sakarat jäävät irti tekstistä (yläpää 2,87 px perusviivan alla; rivikorkeus 1.55 ja täyte 1 px). Alleviivausta säädetään täytteellä
+     ovat renkaan pienoiskopioita (rako suhteessa pienempi). Iso Ö (käyttäjän valinta): laki 11,89 px perusviivan yläpuolella, pohja
+     4,86 px sen alla alleviivauksella, ja yhdysviiva on renkaan korkeuden keskellä (3,5 px). Nuolen sakarat ovat 1,87 px perusviivan
+     alla (rivikorkeus 1.55, ei täytettä). Alleviivausta säädetään täytteellä
      eikä rivikorkeudella, koska perusviivan pikselipyöristys tekee rivikorkeudesta epätasaisen säätimen.
      Rengas on suurennettu kokonaan eikä venytetty pystyyn; otsikon Mappi ö rengas on ennallaan. Polut ja mitat tuottaa luin/kehitys/orengas.js.
      Alleviivaus on taustapalkki (::after), ja svg:n alareuna on sen alareunassa; ::before jatkaa sen renkaan keskelle asti. Svg on 24 px korkea (orengas.js:
      kokonainen pikseli, muuten pyöristys veisi renkaan pohjan alleviivauksesta sivuun).
-     Yhdysviiva (span.oyv) on piirretty: keskikohta .2456 em perusviivan yläpuolella eli renkaan keskellä, 1 px paksu, musteen
-     paikka ja leveys kuten fontin yhdysviivassa (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Rako renkaasta .2 em.
+     Yhdysviiva (span.oyv) on piirretty: keskikohta .3433 em perusviivan yläpuolella eli renkaan keskellä, 1 px paksu, musteen
+     paikka ja leveys kuten fontin yhdysviivassa (.0313–.3125 em, etenemä .351 em + harvennus .14 em). Rako renkaasta .35 em (käyttäjän pyyntö: lisää väliä yhdysviivaan).
      Nuolen kärki on oma (orengas.js, käyttäjän linjaus: huolellinen ja klassinen): täytetty, suorat ulkoreunat, sisään kaartuvat
      sakarat hiusviivaksi terävöityvin päin kuten renkaan rako, matalampi kuin kellarilinkin chevron, jottei se nouse tekstin
      viereen. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (alla), ja margin-right pitää sen palstan
@@ -414,34 +414,34 @@
   /* Mitat em:einä (1 px = .0977em linkin koossa 10,24 px): selaimen suurennettu tekstikoko kasvattaa em-mittaisen renkaan, joten
      pikselimittainen alleviivaus, nuoli ja siirrot jäivät jälkeen (porras renkaan kohdalla, nuoli sivussa). Normaalikoossa samat
      pikselit kuin px-arvoilla. */
-  .om-linkki a { line-height: 1.55; padding-bottom: .0977em; padding-right: 0; margin-right: .0459em; border-bottom: 0; }
+  .om-linkki a { line-height: 1.55; padding-bottom: 0; padding-right: 0; margin-right: .0459em; border-bottom: 0; }
   /* Alleviivaus ja sen jatke renkaan keskelle ovat taustapalkkeja eivätkä reunaviivoja: selain pyöristää reunaviivan paksuuden
      alaspäin kokonaisiin laitepikseleihin, svg:tä ja taustaa ei, joten suurennetulla tekstillä reunaviiva ja renkaan pohja erosivat. */
   .om-linkki a::before, .om-linkki a::after { content: ""; position: absolute; bottom: -.0977em; height: .0977em; border: 0; background: currentColor; }
   .om-linkki a::after { left: 0; right: 0; }
   .om-linkki .vika { letter-spacing: 0; }
   .om-linkki svg.nuoli { right: -.0459em; bottom: -.4883em; width: .5859em; height: .8789em; fill: currentColor; stroke: none; }
-  .om-linkki a::before { width: calc(.2em + .7797148em); }
-  .om-linkki svg.orengas { position: absolute; right: calc(100% + .2em); bottom: -.0977em; width: 1.5594297em; height: 2.34375em; overflow: visible; fill: currentColor; }
+  .om-linkki a::before { width: calc(.35em + .7797148em); }
+  .om-linkki svg.orengas { position: absolute; right: calc(100% + .35em); bottom: -.0977em; width: 1.5594297em; height: 2.34375em; overflow: visible; fill: currentColor; }
   .om-linkki .oyv { display: inline-block; position: relative; width: .351em; height: 0; margin-right: .14em; }
-  .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: calc(.2456em - .0488em); width: .2813em; height: .0977em; fill: currentColor; }
+  .om-linkki .oyv svg { position: absolute; left: .0313em; bottom: calc(.3433em - .0488em); width: .2813em; height: .0977em; fill: currentColor; }
   /* Paluulinkit alarivin vasemmassa laidassa (käyttäjän linjaus): kellarin kampihyllystöstä pinoon (pinomerkki), ö-mapista
      kellarin kampihyllystöön (kampi). Ensin symboli, sitten teksti, ja molempien alla koko matkan vasemmalle osoittava nuoli, jonka
      viiva päättyy viimeisen kirjaimen keskelle (käyttäjän vaatimus; N:n muste .06–.76 em, etenemä .812 em + harvennus .14 em, joten
      mitattuna .57 em linkin oikeasta reunasta). Mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä (suurennettu tekstikoko), viiva
-     yhtä alhaalla kuin siinä (rivikorkeus 1.55, täyte .0977 em). Symboli on versaalien kokoinen. */
+     yhtä alhaalla kuin siinä (rivikorkeus 1.55, ei täytettä); symbolit nostettu irti nuolen sakaroista. Symboli on versaalien kokoinen. */
   .ala-linkit { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; column-gap: 24px; }
   .ala-linkit .om-linkki { margin-left: auto; }
   .takaisin-linkki { text-align: left; }
-  .takaisin-linkki a { line-height: 1.55; padding-bottom: .0977em; border-bottom: 0; }
+  .takaisin-linkki a { line-height: 1.55; padding-bottom: 0; border-bottom: 0; }
   .takaisin-linkki a::before { display: none; }
   .takaisin-linkki a::after { content: ""; position: absolute; left: 0; right: .57em; bottom: -.0977em; height: .0977em; background: currentColor; }
   .takaisin-linkki svg.nuoli { right: auto; left: -.078em; bottom: -.4394em; width: .4883em; height: .7813em; }
   .takaisin-linkki svg.symb { display: inline-block; overflow: visible; fill: none; stroke: currentColor; stroke-width: .0977em;
     margin-right: .5em; }
   .takaisin-linkki svg.symb path { vector-effect: non-scaling-stroke; }
-  .takaisin-linkki svg.pinom { width: .9692em; height: .72em; vertical-align: 0; }
-  .takaisin-linkki svg.kampi { width: .9em; height: .9em; vertical-align: -.095em; }
+  .takaisin-linkki svg.pinom { width: .9692em; height: .72em; vertical-align: .1em; }
+  .takaisin-linkki svg.kampi { width: .9em; height: .9em; vertical-align: .02em; }
   /* Otsikon merkit (käyttäjän pyynnöt 17.11.2026): kellarin kampihyllystön otsikon perässä kampi, pinon otsikon perässä
      pinomerkki, molemmat hyvin pieninä otsikon harmaalla (kampi 1,05 em, pinomerkki 1,15 em leveä; ennen kumpikin 1,45 em).
      Rako 1 em viimeisestä kirjaimesta (.82 em + otsikon loppuharvennus .18 em; ennen .7 em). Merkin keskikohta (kammessa napa) on versaalien pystykeskellä kuten kellarilinkin kammen napa: .3176 em perusviivan
