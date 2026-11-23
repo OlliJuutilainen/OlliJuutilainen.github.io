@@ -4,8 +4,8 @@
 // alimpana punaisena); iso alkukirjain ja loppupiste vain Luin.:ssa; leveällä rinnakkain (pääkohdat eivät liiku, laatikon leveys ei muutu
 // alavalikkoa vaihdettaessa, aukko väliviivassa, hiirellä viipymäavaus), napin yllä avautunut kasvaa ylöspäin pääkohtien pysyessä;
 // kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; Luin.-alavalikko pinossa, kellarin
-// kampihyllystössä, ö-mapissa ja käsikirjalle; Merkitse luetuksi himmentää ja palautuu; Siirrä käsikirjastoon ja Siirrä kellarin
-// kampihyllystöön vahvistuksin; valittujen valikko; nimikkeen kolme salmiakkia.
+// kampihyllystössä, ö-mapissa ja käsikirjalle; Merkitse luetuksi himmentää ja palautuu; Vie käsikirjastoon ja Pois silmistä vahvistuksin;
+// valittujen valikko; nimikkeen kolme salmiakkia.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -106,8 +106,8 @@ const luinKohdat = async (page, id) => {
     tulos('avoimen pääkohdan napautus pitää sen auki', (await tila(page)).ali === 'latomo');
     await page.click('#pop button[data-k="ali:luin"]');
     let t3 = await tila(page);
-    tulos('Luin. pinossa: Pois silmistä, Siirrä käsikirjastoon, Merkitse luetuksi, Poista', t3.kohdat.join(' | ') ===
-      'luin=Pois silmistä | kasikirja=Siirrä käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', t3.kohdat.join(' | '));
+    tulos('Luin. pinossa: Pois silmistä, Vie käsikirjastoon, Merkitse luetuksi, Poista', t3.kohdat.join(' | ') ===
+      'luin=Pois silmistä | kasikirja=Vie käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', t3.kohdat.join(' | '));
     const vaara = await page.$eval('#pop button[data-k="poista"]', b => b.classList.contains('vaara') && !b.nextElementSibling);
     tulos('Poista alimpana punaisena', vaara);
     const kaikki = await page.$$eval('#pop button[data-k]:not(.p-ots):not(.p-takaisin):not(.h-viit)', bs => bs.map(b => b.textContent));
@@ -165,14 +165,14 @@ const luinKohdat = async (page, id) => {
     await page.click('#pop button[data-k="ok"]');
     const e3 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t3'));
     tulos('Pois silmistä: Nakataanko kellarin kampihyllystöön? (Nakkaa), luettu, merkki pois', kys.k === 'Nakataanko kellarin kampihyllystöön?' && kys.ok === 'Nakkaa' && e3.luettu > 0 && !e3.merkLuettu, JSON.stringify(kys));
-    // Siirrä käsikirjastoon.
+    // Vie käsikirjastoon (pinosta viedään).
     await page.click('#nimikkeet button.jako[data-id="p-t4"]');
     await page.click('#pop button[data-k="ali:luin"]');
     await page.click('#pop button[data-k="kasikirja"]');
     const kk = await page.evaluate(() => ({ k: document.querySelector('#pop .kys').textContent, ok: document.querySelector('#pop button[data-k="ok"]').textContent }));
     await page.click('#pop button[data-k="ok"]');
     const e4 = await page.evaluate(() => ({ e: JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-t4'), pinossa: !!document.querySelector('#nimikkeet button.jako[data-id="p-t4"]'), v: document.getElementById('viesti').textContent }));
-    tulos('Siirrä käsikirjastoon: vahvistus, käsikirja, pois pinosta', kk.k === 'Siirretäänkö teksti käsikirjastoon?' && kk.ok === 'Siirrä käsikirjastoon' && e4.e.kasikirja === 1 && !e4.pinossa,
+    tulos('Vie käsikirjastoon: vahvistus, käsikirja, pois pinosta', kk.k === 'Viedäänkö teksti käsikirjastoon?' && kk.ok === 'Vie käsikirjastoon' && e4.e.kasikirja === 1 && !e4.pinossa,
       JSON.stringify({ kk, v: e4.v }));
 
     // Valittujen valikko pinossa.
@@ -186,7 +186,7 @@ const luinKohdat = async (page, id) => {
     const vl = (await tila(page)).kohdat;
     tulos('valittujen valikko: otsikko, pääkohdat, Exportātiō ja Luin.', vp.join() === '2 tekstiä valittu,ali:vienti,ali:latomo,ali:luin' &&
       vv.join(' | ') === 'viitteet=Kopioi lähdeviitteet | zip=Vie merkinnät (zip)' &&
-      vl.join(' | ') === 'luin=Pois silmistä | kasikirja=Siirrä käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
+      vl.join(' | ') === 'luin=Pois silmistä | kasikirja=Vie käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
     await page.click('#pop button[data-k="poista"]');
     tulos('valittujen Poista: vahvistus kahdelle', await page.textContent('#pop button[data-k="poista"]') === 'Vahvista: poista 2 tekstiä merkintöineen');
     await page.keyboard.press('Escape'); await page.evaluate(() => { document.getElementById('pop').hidden = true; });
@@ -197,8 +197,8 @@ const luinKohdat = async (page, id) => {
       'Hain.: luin=Poimi kellarin kampihyllystöstä | omappi=Vie ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
     tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'Hain.: poista=Poista');
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
-    tulos('ö-mappi: Poimi kellarin kampihyllystöön, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
-      'Luin.: omappi=Poimi kellarin kampihyllystöön | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+    tulos('ö-mappi: pääkohta Soin.; Poimi kellarin kampihyllystöön, Poimi käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
+      'Soin.: omappi=Poimi kellarin kampihyllystöön | kasikirja=Poimi käsikirjastoon | poista=Poista');
     await ctx.close();
   }
 
