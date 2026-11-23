@@ -441,7 +441,7 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   tulos('rahoitus: lohkonumerot ja sisällys ennallaan', m.blocks === a.blocks && m.html.replace(/<p class="rahoitus">.*?<\/p>/, '') === a.html);
   tulos('rahoitus: mainoksiin ei lahjoitusosoitetta', !/osoitteessa/.test(M.parse(ek('mainokset', 'https://x.org/d') + runko).html));
   const l = M.parse(ek('lahjoitukset', 'https://donate.wikimedia.org/') + runko).html;
-  tulos('rahoitus: lahjoitukset osoitteineen', /\[Tämä sivusto toimii lahjoitusten varassa\. <span class="ennen-osoite">Lahjoittaa voi osoitteessa<\/span><br><a class="url" href="https:\/\/donate\.wikimedia\.org\/">https:\/\/donate\.wikimedia\.org\/<\/a>\]<\/p>/.test(l), (l.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
+  tulos('rahoitus: lahjoitukset osoitteineen', /\[Lähteen sivusto toimii lahjoitusten varassa\. <span class="ennen-osoite">Lahjoittaa voi osoitteessa<\/span><br><a class="url" href="https:\/\/donate\.wikimedia\.org\/">https:\/\/donate\.wikimedia\.org\/<\/a>\]<\/p>/.test(l), (l.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
   const pitka = M.parse(ek('lahjoitukset', 'https://x.org/a/b?c=1&d=2#e') + runko).html;
   tulos('rahoitus: pitkä osoite katkeaa kauttaviivoista ja ennen ?#&, linkki ennallaan', /<br><a class="url" href="https:\/\/x\.org\/a\/b\?c=1&amp;d=2#e">https:\/\/x\.org\/<wbr>a\/<wbr>b<wbr>\?c=1<wbr>&amp;d=2<wbr>#e<\/a>\]/.test(pitka), (pitka.match(/<p class="rahoitus">.*?<\/p>/) || [''])[0]);
   tulos('rahoitus: mainokset ja lahjoitukset alkaa huomautuksella', /<p class="rahoitus">\[Huom\. huom\.!/.test(M.parse(ek('mainokset ja lahjoitukset', 'https://x.org/d') + runko).html));

@@ -594,7 +594,7 @@
       'tiedosta, että tämä lukimen lukukokemus on mahdollinen vain sivuston oman olemassaolon ansiosta.',
     'mainokset ja lahjoitukset': 'Huom. huom.! Tämä sivusto elää osin mainoksista, jotka lukimessa jäävät näkemättä. ' +
       'Jos luet täältä, harkitse lahjoitusta sivuston ylläpitäjälle.',
-    lahjoitukset: 'Tämä sivusto toimii lahjoitusten varassa.'
+    lahjoitukset: 'Lähteen sivusto toimii lahjoitusten varassa.'
   };
   function rahoitus(meta) {
     var laji = String(meta.rahoitus || '').replace(/\s+/g, ' ').trim().toLowerCase();
