@@ -368,7 +368,7 @@
   #lista { --osiovali: 52px; }
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
-  #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: .85rem; }
+  #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: var(--kk-koko, .85rem); }
   #lista .pino-ala .ark-linkki svg.nuoli { bottom: calc(-.390625em - .5px); width: .4883em; height: .78125em; }
   #lista .pino-ala .ark-linkki svg.nuoli path { vector-effect: non-scaling-stroke; }
   /* Pinon kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (käyttäjän pyyntö), jotta se mahtuu Soita postihuilua
@@ -428,17 +428,19 @@
   /* Paluulinkit alarivin vasemmassa laidassa (käyttäjän linjaus): kellarin kampihyllystöstä pinoon (pinomerkki), ö-mapista
      kellarin kampihyllystöön (kampi). Ensin symboli, sitten teksti, ja molempien alla koko matkan vasemmalle osoittava nuoli, jonka
      viiva päättyy viimeisen kirjaimen keskelle (käyttäjän vaatimus; N:n muste .06–.76 em, etenemä .812 em + harvennus .14 em, joten
-     mitattuna .57 em linkin oikeasta reunasta). Mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä (suurennettu tekstikoko), viiva
+     mitattuna .533 em linkin oikeasta reunasta). Mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä (suurennettu tekstikoko), viiva
      yhtä alhaalla kuin siinä (rivikorkeus 1.55, ei täytettä); symbolit nostettu irti nuolen sakaroista. Symboli on versaalien kokoinen. */
+  /* Koko seuraa etusivun kellarilinkkiä (--kk-koko, sovitaKellarilinkki()). */
+  .ala-linkit .ark-linkki { font-size: var(--kk-koko, .85rem); }
   .ala-linkit { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; column-gap: 24px; }
   .ala-linkit .om-linkki { margin-left: auto; }
   .takaisin-linkki { text-align: left; }
   .takaisin-linkki a { line-height: 1.55; padding-bottom: 0; border-bottom: 0; }
   .takaisin-linkki a::before { display: none; }
-  .takaisin-linkki a::after { content: ""; position: absolute; left: 0; right: .57em; bottom: -.0977em; height: .0977em; background: currentColor; }
+  .takaisin-linkki a::after { content: ""; position: absolute; left: 0; right: .533em; bottom: -.0977em; height: .0977em; background: currentColor; }
   /* Pinoon-linkissä viiva on koko tekstin mittainen (käyttäjän linjaus): N:n oikean musteen kohdalle (harvennus .14 em ja N:n
-     sivuväli: mitattuna .124 em linkin oikeasta reunasta). */
-  #ark-pinoon a::after { right: .124em; }
+     sivuväli; mitattu koilla 9–13,6 px, ei puhtaasti verrannollinen). */
+  #ark-pinoon a::after { right: calc(.2543em - 1.23px); }
   .takaisin-linkki svg.nuoli { right: auto; left: -.078em; bottom: -.4394em; width: .4883em; height: .7813em; }
   .takaisin-linkki svg.symb { display: inline-block; overflow: visible; fill: none; stroke: currentColor; stroke-width: .0977em;
     margin-right: .5em; }
@@ -3509,17 +3511,27 @@
   function soitaHuilua(lohko) { lohko._nuotit = LuinHuilu.arvoNuotit(); lohko._soi = Date.now(); piirraHuilu(lohko); }
   function piirraHuilut() { piirraHuilu($('#huilulohko-aset')); }
   /* Pinon kellarilinkki mahtuu aina Soita postihuilua -napin oikealle (käyttäjän sääntö): jos se ei mahdu perusko'ossaan (.85rem),
-     sitä pienennetään juuri niin paljon, että mahtuu; tasaus alareunaan pysyy (flex-end). Kaikki linkin mitat ovat em:iä, joten kampi
-     ja nuoli pienenevät mukana. */
+     sitä pienennetään juuri niin paljon, että mahtuu; tasaus alareunaan pysyy (flex-end). Muut vastaavat linkit (ö-mappiin, pinoon,
+     paluu ö-mapista) seuraavat samaa kokoa (käyttäjän linjaus): koko on muuttujassa --kk-koko, ja se lasketaan palstan leveydestä,
+     joten se on sama myös kellarinäkymässä, jossa nappia ja kellarilinkkiä ei näy. Linkin leveys em:inä (KK_LEV) ja napin leveys
+     (KK_NAPPI) mitataan aina, kun ne näkyvät; alkuarvot on mitattu. Kaikki linkkien mitat ovat em:iä, joten kammet, renkaat ja
+     nuolet seuraavat kokoa. */
+  var KK_LEV = 15.468, KK_NAPPI = 132.625, KK_VARM = null;   // KK_VARM: pinossa varmistettu koko palstan leveydellä W
   function sovitaKellarilinkki() {
-    var l = $('#ark-linkki'), n = $('#huilu-soita'), pa = $('#pino-ala');
-    l.style.fontSize = '';
-    if (l.hidden || n.hidden || !pa.offsetWidth) return;
-    var tila = pa.clientWidth - n.getBoundingClientRect().width - 16, lev = l.getBoundingClientRect().width;
-    if (lev <= tila) return;
-    l.style.fontSize = Math.floor(parseFloat(getComputedStyle(l).fontSize) * tila / lev * 100) / 100 + 'px';
+    var juuri = document.documentElement, l = $('#ark-linkki'), n = $('#huilu-soita'), W = $('#nimikkeet').clientWidth;
+    var pohja = parseFloat(getComputedStyle(juuri).fontSize) * .85, koko = pohja;
+    if (!n.hidden && n.offsetWidth) KK_NAPPI = n.getBoundingClientRect().width;
+    if (!l.hidden && l.offsetWidth) KK_LEV = l.getBoundingClientRect().width / parseFloat(getComputedStyle(l).fontSize);
+    if (LAATIKKO_RE.test(laatikonKoodi()) && W) koko = Math.min(pohja, Math.floor((W - KK_NAPPI - 16) / KK_LEV * 100) / 100);
+    // Muut näkymät käyttävät pinossa varmistettua kokoa samalla palstan leveydellä (laskettu voi poiketa pyöristyksen verran).
+    if ((l.hidden || n.hidden) && KK_VARM && KK_VARM.W === W && KK_VARM.pohja === pohja && KK_VARM.lause === LAATIKKO_RE.test(laatikonKoodi())) koko = KK_VARM.koko;
+    juuri.style.setProperty('--kk-koko', koko + 'px');
     // Varmistus: pienennä, kunnes linkki on napin rivillä (pyöristys, kirjasimen leveys).
-    for (var i = 0; i < 20 && l.getBoundingClientRect().top >= n.getBoundingClientRect().bottom - 1; i++) l.style.fontSize = (parseFloat(l.style.fontSize) - .25) + 'px';
+    if (l.hidden || n.hidden || !n.offsetWidth) return;
+    for (var i = 0; i < 20 && l.getBoundingClientRect().top >= n.getBoundingClientRect().bottom - 1; i++) {
+      koko -= .25; juuri.style.setProperty('--kk-koko', koko + 'px');
+    }
+    KK_VARM = { W: W, pohja: pohja, lause: true, koko: koko };
   }
   window.addEventListener('resize', sovitaKellarilinkki);
   if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', sovitaKellarilinkki);
