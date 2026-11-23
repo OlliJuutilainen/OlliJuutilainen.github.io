@@ -233,9 +233,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Ö-mapin linkki ja paluulinkki ovat .64rem, pinon kellarilinkki .56rem; mitat em:inä, joten ne pienenevät yhdessä. Sanat
-  *Luin.* ja *Poimi kellarin kampihyllystöstä* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
+  *Luin.* ja *Poimi pinoon* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
-  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Vie ö-mappiin*, sieltä *Poimi kellarin kampihyllystöön*. `e.omappi` (aika)
+  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Ö-mappiin* (vahvistusnappi *Vie ö-mappiin*), sieltä *Poimi kellarin kampihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
@@ -287,8 +287,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
   asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Soin.*; `luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
-  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Vie käsikirjastoon*, *Merkitse luetuksi*; kellarin
-  kampihyllystössä *Poimi kellarin kampihyllystöstä*, *Vie ö-mappiin*, *Siirrä käsikirjastoon*; ö-mapissa *Poimi kellarin kampihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
+  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Käsikirjastoon*, *Merkitse luetuksi*; kellarin
+  kampihyllystössä *Poimi pinoon*, *Ö-mappiin*, *Käsikirjastoon* (valikossa pelkkä kohde; vahvistusnapit ja kysymykset pitävät *Vie*/*Siirrä*-muodon, `kkSana()`, `OM_SISAAN`; *Poimi pinoon* on myös vahvistusnappi); ö-mapissa *Poimi kellarin kampihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
   loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Soin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla

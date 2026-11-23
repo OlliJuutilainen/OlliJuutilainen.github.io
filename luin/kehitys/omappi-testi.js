@@ -81,7 +81,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('kammen rako 1 em', Math.abs(kRako.px / kRako.em - 1) < .02, (kRako.px / kRako.em).toFixed(3) + ' em');
   await page.click('#nimikkeet li.nimike >> nth=0 >> button.jako');
   const nap = await page.$$eval('#pop button', bs => bs.map(x => x.textContent));
-  t('valikossa poiminta ja siirto', nap.includes('Poimi kellarin kampihyllystöstä') && nap.includes('Vie ö-mappiin'), nap.slice(-4).join(' | '));
+  t('valikossa poiminta ja siirto', nap.includes('Poimi pinoon') && nap.includes('Ö-mappiin'), nap.slice(-4).join(' | '));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/valikko.png' });
   await avaaOsa(page, 'omappi');
   await page.click('#pop button[data-k="omappi"]'); await page.click('#pop button[data-k="ok"]'); await page.waitForTimeout(150);
@@ -170,7 +170,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('kellarissa taas 2', (await page.$$('#nimikkeet li.nimike')).length === 2);
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
   const v2 = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
-  t('valittujen valikko kellarissa', v2.includes('Vie ö-mappiin') && v2.includes('Poimi kellarin kampihyllystöstä'), v2.join(' | '));
+  t('valittujen valikko kellarissa', v2.includes('Ö-mappiin') && v2.includes('Poimi pinoon'), v2.join(' | '));
   t('ei sivuvirheitä', !virheet.length, virheet.join('; '));
   await b.close(); palvelin.close(); process.exit(vik ? 1 : 0);
 })();

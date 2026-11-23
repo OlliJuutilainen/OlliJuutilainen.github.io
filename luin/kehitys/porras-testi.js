@@ -106,8 +106,8 @@ const luinKohdat = async (page, id) => {
     tulos('avoimen pääkohdan napautus pitää sen auki', (await tila(page)).ali === 'latomo');
     await page.click('#pop button[data-k="ali:luin"]');
     let t3 = await tila(page);
-    tulos('Luin. pinossa: Pois silmistä, Vie käsikirjastoon, Merkitse luetuksi, Poista', t3.kohdat.join(' | ') ===
-      'luin=Pois silmistä | kasikirja=Vie käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', t3.kohdat.join(' | '));
+    tulos('Luin. pinossa: Pois silmistä, Käsikirjastoon, Merkitse luetuksi, Poista', t3.kohdat.join(' | ') ===
+      'luin=Pois silmistä | kasikirja=Käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', t3.kohdat.join(' | '));
     const vaara = await page.$eval('#pop button[data-k="poista"]', b => b.classList.contains('vaara') && !b.nextElementSibling);
     tulos('Poista alimpana punaisena', vaara);
     const kaikki = await page.$$eval('#pop button[data-k]:not(.p-ots):not(.p-takaisin):not(.h-viit)', bs => bs.map(b => b.textContent));
@@ -186,15 +186,15 @@ const luinKohdat = async (page, id) => {
     const vl = (await tila(page)).kohdat;
     tulos('valittujen valikko: otsikko, pääkohdat, Exportātiō ja Luin.', vp.join() === '2 tekstiä valittu,ali:vienti,ali:latomo,ali:luin' &&
       vv.join(' | ') === 'viitteet=Kopioi lähdeviitteet | zip=Vie merkinnät (zip)' &&
-      vl.join(' | ') === 'luin=Pois silmistä | kasikirja=Vie käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
+      vl.join(' | ') === 'luin=Pois silmistä | kasikirja=Käsikirjastoon | merk=Merkitse luetuksi | poista=Poista', [vp.join(), vv.join(' | '), vl.join(' | ')].join(' / '));
     await page.click('#pop button[data-k="poista"]');
     tulos('valittujen Poista: vahvistus kahdelle', await page.textContent('#pop button[data-k="poista"]') === 'Vahvista: poista 2 tekstiä merkintöineen');
     await page.keyboard.press('Escape'); await page.evaluate(() => { document.getElementById('pop').hidden = true; });
 
     // Kellarin kampihyllystö, ö-mappi ja käsikirja.
     await page.goto(U + 'luin.html#arkisto'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-kellari"]');
-    tulos('kellari: pääkohta Hain.; Poimi, Vie ö-mappiin, Siirrä käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
-      'Hain.: luin=Poimi kellarin kampihyllystöstä | omappi=Vie ö-mappiin | kasikirja=Siirrä käsikirjastoon | poista=Poista');
+    tulos('kellari: pääkohta Hain.; Poimi pinoon, Ö-mappiin, Käsikirjastoon, Poista', (await luinKohdat(page, 'p-kellari')) ===
+      'Hain.: luin=Poimi pinoon | omappi=Ö-mappiin | kasikirja=Käsikirjastoon | poista=Poista');
     tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'Hain.: poista=Poista');
     await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-omappi"]');
     tulos('ö-mappi: pääkohta Soin.; Poimi kellarin kampihyllystöön, Poimi käsikirjastoon, Poista', (await luinKohdat(page, 'p-omappi')) ===
