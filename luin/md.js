@@ -503,7 +503,7 @@
     'by-nc-nd': 'Tätä saa jakaa sellaisenaan, kunhan mainitsee tekijän eikä tee sillä rahaa. Muokattua versiota ei saa jakaa.'
   };
   var OIK_SELITYS = {
-    vapaa: '**Vapaata riistaa:** tekstillä saa tehdä mitä haluaa. Tekijän mainitseminen on silti reilua.',
+    vapaa: 'Vapaata riistaa: tekstillä saa tehdä mitä haluaa. Tekijän mainitseminen on silti reilua.',
     kaikki: 'Tekijä omistaa tekstin. Omaan käyttöön saa kopioida ja siitä saa lainata lähde mainiten, mutta omille nettisivuille tai muuhun jakoon sitä ei saa viedä ilman lupaa. Kaupan joulukuusen koristeita ei siis viedä omalle kotikirppikselle.',
     sep: 'Tämän saa lukea, ladata, tulostaa ja pitää omissa laitteissa (kuten lukimessa), ja sen saa lähettää kaverille tai enintään 30 hengen suljettuun porukkaan, kunhan siitä ei tehdä rahaa. Julkiselle nettisivulle sitä ei saa laittaa; jaa mieluummin linkki.',
     logos: 'Kirjoittaja omistaa tekstin, ja Filosofia.fi sai luvan julkaista sen kerran kaikkien luettavaksi. Omaan käyttöön sen saa pitää ja siitä saa lainata lähde mainiten, mutta muualle julkaisemisesta pitää sopia kirjoittajan kanssa.'
@@ -579,9 +579,9 @@
       (sivusto ? '*' + suojaaMd(sivusto) + '*' : suojaaMd(host)) + (yp && yp !== sivusto ? ' (ylläpitäjä ' + suojaaMd(yp) + ')' : '') +
       (polku ? ', osastosta ' + suojaaMd(polku) : '') + '.';
     // Osoitteet rivinvaihdoin samaan kappaleeseen (omina kappaleinaan Osoite sai kappalesisennyksen) ja omille riveilleen
-    // (pitkä osoite rivittyi muuten seuraavalle riville, ja tasaus harvensi edellisen).
-    t += '<br>Osoite:<br>' + osoiteMd(u);
-    if (/^https?:\/\/[^\s]+$/i.test(alku)) t += '<br>Alkukielinen teksti' + (/\.pdf([?#]|$)/i.test(alku) ? ' (pdf)' : '') + ':<br>' + osoiteMd(alku);
+    // (pitkä osoite rivittyi muuten seuraavalle riville, ja tasaus harvensi edellisen). Nimiöt kursiivina: niistä tulee em.etiketti.
+    t += '<br>*Osoite:*<br>' + osoiteMd(u);
+    if (/^https?:\/\/[^\s]+$/i.test(alku)) t += '<br>*Alkukielinen teksti' + (/\.pdf([?#]|$)/i.test(alku) ? ' (pdf)' : '') + ':*<br>' + osoiteMd(alku);
     return { kappaleet: [t], osoite: u };
   }
   /* ---------- Rahoitushuomautus ----------
@@ -2687,6 +2687,9 @@
           });
           // Tekijänoikeusosion osoite katkeaa kuten huomautuksen (katkoOsoite()), ei keskeltä sanaa.
           if (t.oik && pHtml.indexOf('<a class="url"') >= 0) pHtml = katkoOsoite(pHtml);
+          // Tieto-osion nimiö (Osoite:, Alkukielinen teksti:, Merkintä lähteessä:) on kursiivi kappaleen tai rivin alussa,
+          // kaksoispiste lopussa → em.etiketti (luin.html: harmaa kuten taulukon sarakeotsikko), jotta sen nimeämä tieto erottuu.
+          if (t.oik) pHtml = pHtml.replace(/(^<p [^>]*>|<br>)<em>([^<]*:)<\/em>/g, '$1<em class="etiketti">$2</em>');
           h += pHtml;
           // Lainauksen perään erilliseksi kappaleeksi kirjoitettu lähde (perässä voi olla pelkkiä kenovivarivejä).
           var tr = t.text.split('\n');
