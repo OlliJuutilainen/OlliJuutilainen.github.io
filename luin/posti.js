@@ -95,7 +95,7 @@
     var as = (Array.isArray(l.as) ? l.as : []).filter(function (x) { return typeof x === 'string' && x.trim(); }).slice(0, 100);
     if (as.length) e.asiasanat = as; else delete e.asiasanat;
     if (typeof l.aj === 'string' && l.aj.trim()) e.ajoitus = l.aj.trim(); else delete e.ajoitus;
-    if (l.kk) { e.kasikirja = 1; delete e.omappi; } else delete e.kasikirja;
+    if (l.kk) { e.kasikirja = 1; delete e.omappi; delete e.merkLuettu; } else delete e.kasikirja;
     e.lkT = l.t;
     return true;
   }

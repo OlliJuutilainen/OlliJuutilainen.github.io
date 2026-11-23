@@ -1878,7 +1878,7 @@
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
 <script src="luin/md.js?v=4312a09f"></script>
-<script src="luin/posti.js?v=41c9bf4c"></script>
+<script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
 <script>
@@ -2163,6 +2163,8 @@
 
   /* ---------- tila ---------- */
   var lista = LS.get('luin-lista', []);
+  // Käsikirjaan luetuksi merkitseminen ei kuulu (käyttäjän päätös): merkki pois myös silloin, kun se on jäänyt.
+  lista.forEach(function (e) { if (e.kasikirja) delete e.merkLuettu; });
   var nyt = null;      // { e, doc, blocks, txt, cum, total, merk }
   var tila = { nakyma: '', sivu: 0, sivuja: 1, stride: 1, W: 0, ankkuri: null, hiljaa: 0, asetteluja: 0, asetteluMs: 0 };
   var art = $('#teksti'), sivuEl = $('#sivu'), pop = $('#pop');
@@ -2179,13 +2181,19 @@
      palatessa kumpikin poistuu. Laskeutuneet kerrotaan viestillä. */
   var TUSINA = 12;
   function pinoonTuli(e) { delete e.luettu; delete e.laskeutui; delete e.omappi; delete e.merkLuettu; e.pinoon = Date.now(); }
+  // Viimeisin kosketus: pinoon tulo (latomo, linkki, Postihuilun kautta kantautunut, kellarista poimittu) tai avaus.
+  function pinoAika(e) { return Math.max(e.pinoon || e.added || 0, e.opened || 0); }
+  /* Pinon järjestys (käyttäjän päätös): luetuksi merkityt pohjalla, muuten viimeksi koskettu ensin (pinoAika(): avaus ja
+     pinoon tulo, myös Postihuilun kautta, ovat samanarvoisia). Lajittelu on vakaa, joten tasatilanteessa lista ratkaisee. */
+  function pinoJarj(a) {
+    return a.slice().sort(function (x, y) { return (x.merkLuettu ? 1 : 0) - (y.merkLuettu ? 1 : 0) || pinoAika(y) - pinoAika(x); });
+  }
   function tusina(tulleet) {
     var p = lista.filter(pinossa);
     if (p.length <= TUSINA) return [];
     var tullut = {};
     (tulleet || []).forEach(function (e) { if (e) tullut[e.id] = 1; });
-    var aika = function (e) { return Math.max(e.pinoon || e.added || 0, e.opened || 0); };
-    p.sort(function (x, y) { return (tullut[x.id] ? 1 : 0) - (tullut[y.id] ? 1 : 0) || aika(x) - aika(y); });
+    p.sort(function (x, y) { return (tullut[x.id] ? 1 : 0) - (tullut[y.id] ? 1 : 0) || pinoAika(x) - pinoAika(y); });
     var pois = p.slice(0, p.length - TUSINA), t = Date.now();
     pois.forEach(function (e) { e.luettu = t; e.laskeutui = 1; });
     laskeutuneet = pois.length === 1 ? '”' + pois[0].title + '” laskeutui kellarin kampihyllystöön: pinossa on tusina tekstiä.'
@@ -2971,9 +2979,10 @@
     // Ö-mappi (käyttäjän pyyntö 17.11.2026, #omappi): kellarin kampihyllystöstä siirretyt (e.omappi = siirtoaika;
     // e.luettu jää), uusin ensin. Ne eivät näy kellarin kampihyllystössä eivätkä pinossa.
     if (ark && tila.omappi) return lista.filter(omapissa).sort(function (x, y) { return y.omappi - x.omappi; });
-    // Kellarin kampihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään.
-    var a = lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); });
-    return ark ? a.slice().sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
+    // Kellarin kampihyllystössä voi olla mukana myös pino (aset.kellariPino); lajittelu on vakaa, joten pino pysyy järjestyksessään
+    // (pinoJarj()).
+    var a = pinoJarj(lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); }));
+    return ark ? a.sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
   // Näkyvät nimikkeet: välikortin suodatuksessa vain sen ryhmä (tila.kortti, tila.korttiEs), muuten naytettavat(). Valinta ja
   // Valitse kaikki koskevat näkyviä, jotta suodatetun ryhmän (Ilman asiasanaa) voi luokitella kerralla.
@@ -3720,7 +3729,8 @@
   }
   /* Merkitse luetuksi (käyttäjän linjaus): teksti jää pinoon hyvin himmeänä (li.luettu-merk, e.merkLuettu = aika). Sama kohta
      palauttaa kaikkien valittujen ollessa merkittyjä (Merkitse lukemattomaksi). Merkki lähtee, kun teksti siirtyy kellarin
-     kampihyllystöön, käsikirjastoon tai palaa pinoon (pinoonTuli()). Tusinan järjestykseen se ei vaikuta. */
+     kampihyllystöön, käsikirjastoon tai palaa pinoon (pinoonTuli()). Merkitty on pinon pohjalla (pinoJarj()); tusinan
+     järjestykseen se ei vaikuta. */
   function merkitseLuetuksi(es) {
     var pois = es.every(function (e) { return e.merkLuettu; }), t = Date.now();
     es.forEach(function (e) { if (pois) delete e.merkLuettu; else e.merkLuettu = t; });

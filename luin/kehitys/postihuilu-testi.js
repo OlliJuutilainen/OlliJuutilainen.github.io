@@ -174,8 +174,8 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
       localStorage.setItem('luin-teksti:p-kant', JSON.stringify('# Kant ja eläinetiikka\n\nTeksti.'));
       localStorage.setItem('luin-teksti:oma', JSON.stringify('# Käyttöohje\n\nTeksti.'));
       localStorage.setItem('luin-merkit:p-kant', JSON.stringify({ km: [{ id: 'k1', b: 1, o: 0 }], al: [] }));
-      localStorage.setItem('luin-lista', JSON.stringify([{ id: 'p-kant', title: 'Kant ja eläinetiikka', added: 1, src: 'laatikko' },
-        { id: 'oma', title: 'Käyttöohje', added: 2, src: 'paikallinen' }]));
+      localStorage.setItem('luin-lista', JSON.stringify([{ id: 'p-kant', title: 'Kant ja eläinetiikka', added: 2, src: 'laatikko' },
+        { id: 'oma', title: 'Käyttöohje', added: 1, src: 'paikallinen' }]));
     });
     await p.goto('file://' + path.join(JUURI, 'luin.html'));
     await p.waitForTimeout(600);

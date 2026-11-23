@@ -78,7 +78,7 @@ const TEKSTIT = [
     n: [...document.querySelectorAll('#nimikkeet li.nimike .n-ots')].map(x => x.textContent.trim()),
     tieto: [...document.querySelectorAll('#nimikkeet .n-tieto')].map(x => x.textContent), jarj: !document.getElementById('jarj-rivi').hidden }));
   tulos('pinossa ei välikortteja eikä järjestysriviä', pino.vo === 0 && !pino.jarj, JSON.stringify(pino.vo) + ' ' + pino.jarj);
-  tulos('pinon järjestys on tulojärjestys', pino.n.join('|') === 'Havainnon fenomenologia|Lukematon', pino.n.join('|'));
+  tulos('pinon järjestys on avausjärjestys (uusin tullut ensin), ei luokittelu', pino.n.join('|') === 'Lukematon|Havainnon fenomenologia', pino.n.join('|'));
   tulos('pinon tietorivillä ei asiasanoja', !pino.tieto.some(t => /filosofia/.test(t)), pino.tieto.join(' / '));
 
   async function kellari(j, pinoMukana) {
