@@ -459,6 +459,8 @@
   .valikko button { display: block; width: 100%; text-align: left; padding: 9px 14px; min-height: 40px; }
   .valikko button:hover { text-decoration: underline; text-underline-offset: 3px; }
   .valikko .vaara { color: var(--ruoste); }
+  /* Huiluta laatikkoon on pinon nimikkeen valikossa aina okraa, myös valmistuttua ja virheen jälkeen (käyttäjän päätös). */
+  .valikko button[data-k="huiluta"], .valikko button[data-k="huiluta"]:disabled { color: var(--okra); }
   /* Napin vihje hiiren alla (käyttäjän pyyntö 16.11.2026), kuten infolaatikon a.vihje: kehys, ei varjoa eikä animaatiota.
      Valikon levyinen ja rivittyvä, ettei se karkaa ruudulta (valikko on oikeassa laidassa). */
   .valikko button.vihje { position: relative; }
