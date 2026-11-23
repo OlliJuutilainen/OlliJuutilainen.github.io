@@ -252,8 +252,10 @@ const LAUSE = 'kokeilu-laatikko-lause-huilu';
     });
     tulos(`${w} px: lauseen kanssa Soita postihuilua laatikkonappina vasemmalla ennen kellarilinkkiä ja linkkejä`, sp.nak && Math.abs(sp.vasen) < .5 && sp.laatikko && sp.ennenKellaria && sp.ennenLinkkeja, JSON.stringify(sp));
     // Kellarilinkki mahtuu aina napin oikealle (käyttäjän sääntö): tarvittaessa pienennettynä, alareunat tasan, oikea reuna palstan laidassa.
+    // Pino tallentaa listan taustalla (alaotsikoiden täydennys), joten odotetaan se ensin, ettei muutos katoa.
+    await p.waitForFunction(() => JSON.parse(localStorage.getItem('luin-lista')).every(e => e.ala != null), null, { timeout: 3000 }).catch(() => {});
     await p.evaluate(() => { const l = JSON.parse(localStorage.getItem('luin-lista')); l[1].luettu = 5; localStorage.setItem('luin-lista', JSON.stringify(l)); });
-    await p.reload(); await p.waitForTimeout(400);
+    await p.reload(); await p.waitForSelector('#ark-linkki:not([hidden])', { timeout: 3000 }).catch(() => {}); await p.waitForTimeout(300);
     const kl = await p.evaluate(() => { const l = document.querySelector('#ark-linkki'), n = document.querySelector('#soita-postihuilua').getBoundingClientRect(), a = l.querySelector('a').getBoundingClientRect(), pa = document.getElementById('pino-ala').getBoundingClientRect();
       return { nak: !l.hidden, rivilla: l.getBoundingClientRect().top < n.bottom, ala: +(a.bottom - n.bottom).toFixed(2), oikea: +(pa.right - l.getBoundingClientRect().right).toFixed(1), fs: +parseFloat(getComputedStyle(l).fontSize).toFixed(2) }; });
     tulos(`${w} px: kellarilinkki napin rivillä, alareunat tasan`, kl.nak && kl.rivilla && Math.abs(kl.ala) < .05 && kl.oikea >= -.5 && (w < 391 ? kl.fs < 13.6 : kl.fs === 13.6), JSON.stringify(kl));
