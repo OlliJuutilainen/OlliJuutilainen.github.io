@@ -94,21 +94,24 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   // renkaan keskikohtien puolivälissä.
   const R = require('./orengas.js');
   const om = await page.evaluate(([CAP, YLI, KORK, L]) => {
+    // Sisäkkäisen svg:n getBoundingClientRect on musteen rajat, joten näkymän rajat lasketaan getScreenCTM:llä.
+    const vp = (e) => { const m = e.getScreenCTM(), b = e.viewBox.baseVal, p = (x, y) => new DOMPoint(x, y).matrixTransform(m), a = p(b.x, b.y), c = p(b.x + b.width, b.y + b.height); return { left: Math.min(a.x, c.x), right: Math.max(a.x, c.x), top: a.y, bottom: c.y, width: Math.abs(c.x - a.x), height: c.y - a.y }; };
     const a = document.querySelector('#om-linkki a'), ar = a.getBoundingClientRect(), sv = a.querySelector('svg.orengas'),
       em = parseFloat(getComputedStyle(a).fontSize), sp = a.querySelector(':scope > span'), s = em / 10.24;
     const pr = document.createElement('span'); pr.style.cssText = 'display:inline-block;width:0;height:0'; sp.appendChild(pr);
     const bl = pr.getBoundingClientRect().bottom; pr.remove();
-    const rr = sv.getBoundingClientRect(), vb = sv.viewBox.baseVal, k = rr.height / vb.height, jalki = getComputedStyle(a, '::after'), bb = parseFloat(jalki.height), viivaAla = ar.bottom - parseFloat(jalki.bottom);
-    // Alleviivaus on ::after-taustapalkki (ei reunaviiva): alareuna viivaAla.
-    const ennen = getComputedStyle(a, '::before'), yv = a.querySelector('.oyv rect').getBoundingClientRect(), n = a.querySelector('svg.nuoli').getBoundingClientRect();
+    const rr = vp(sv), vb = sv.viewBox.baseVal, k = rr.height / vb.height, vr = a.querySelector('svg.viivasto rect.viiva[width="100%"]'), vrr = vr.getBoundingClientRect(), bb = vrr.height, viivaAla = vrr.bottom;
+    // Viiva, jatke, rengas ja nuoli ovat samassa svg:ssä (viivasto): viivan alareuna viivaAla.
+    const jr = a.querySelector('svg.viivasto rect.viiva:not([width="100%"])').getBoundingClientRect();
+    const yv = a.querySelector('.oyv rect').getBoundingClientRect(), n = vp(a.querySelector('svg.karki'));
     // Viimeisen kirjaimen (span.vika, ei harvennusta) oikea muste: merkin alku + N:n musteen oikea reuna.
     const tn = sp.querySelector('.vika').firstChild, rg = document.createRange(); rg.setStart(tn, 0); rg.setEnd(tn, 1);
     const cs = getComputedStyle(a), cv = document.createElement('canvas').getContext('2d'); cv.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
     const muste = rg.getBoundingClientRect().left + cv.measureText('N').actualBoundingBoxRight;
     const keski = bl - (rr.bottom - KORK / 2 * k), ob = sv.getBBox(), okYla = rr.top + (ob.y - vb.y) * k, okAla = rr.top + (ob.y + ob.height - vb.y) * k;
     return { s, em, cap: CAP * s, laki: bl - (rr.bottom - KORK * k), pohja: rr.bottom - bl, reuna: viivaAla, svgAla: rr.bottom, bb,
-      reunaVari: jalki.backgroundColor, korkeus: rr.height, rako: ar.left - rr.right,
-      ennenVas: ar.left - parseFloat(ennen.width), keskus: rr.left + rr.width / 2, ennenAla: parseFloat(ennen.bottom),
+      reunaVari: getComputedStyle(vr).fill, korkeus: rr.height, rako: ar.left - rr.right,
+      ennenVas: jr.left, keskus: rr.left + rr.width / 2, ennenAla: jr.bottom - viivaAla,
       yv: { keski: bl - (yv.top + yv.bottom) / 2, paksu: yv.height, tavoite: keski },
       nuoli: { yli: n.right - ar.right, palsta: n.right - a.parentNode.getBoundingClientRect().right, musteYli: n.right - muste,
         keski: (n.top + n.bottom) / 2 - (viivaAla - bb / 2) }, teksti: a.getAttribute('aria-label') };
@@ -119,7 +122,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('pohja ALA px perusviivan alla (4,86 px: nuolen sakarat perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
   // Koko seuraa etusivun kellarilinkkiä (--kk-koko), joten pikselimitat ovat linkin koon mukaan (s = koko / 10,24 px).
   t('svg 24 px linkin 10,24 px:n koossa', Math.abs(om.korkeus - 24 * om.s) < .05, om.korkeus + ' px');
-  t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && Math.abs(om.ennenAla + om.s) < .01, (om.ennenVas - om.keskus).toFixed(2) + ' px');
+  t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && Math.abs(om.ennenAla) < .01, (om.ennenVas - om.keskus).toFixed(2) + ' px');
   // Oma nuolen kärki: kärki .47 px varren pään yli ja palstan reunassa, ja se ylittää tekstin oikean musteen yhtä vähän kuin
   // kellarilinkin nuoli (käyttäjän pyyntö; kellarilinkissä mitattu .3 px), svg keskellä reunaviivaa.
   t('nuolen kärki palstan reunassa, .47 px varren yli (10,24 px:n koossa)', Math.abs(om.nuoli.yli - .47 * om.s) < .2 && Math.abs(om.nuoli.palsta) < .1, JSON.stringify(om.nuoli));
@@ -129,8 +132,9 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   for (const kerroin of [1.3, 1.8]) {
     const sk = await page.evaluate((kerroin) => {
       document.documentElement.style.fontSize = 16 * kerroin + 'px';
-      const a = document.querySelector('#om-linkki a'), ar = a.getBoundingClientRect(), j = getComputedStyle(a, '::after');
-      const ala = ar.bottom - parseFloat(j.bottom), pk = parseFloat(j.height), rr = a.querySelector('svg.orengas').getBoundingClientRect(), n = a.querySelector('svg.nuoli').getBoundingClientRect();
+      const a = document.querySelector('#om-linkki a'), v = a.querySelector('svg.viivasto rect.viiva[width="100%"]').getBoundingClientRect();
+      const vp = (e) => { const m = e.getScreenCTM(), b = e.viewBox.baseVal, p = (x, y) => new DOMPoint(x, y).matrixTransform(m), a = p(b.x, b.y), c = p(b.x + b.width, b.y + b.height); return { left: Math.min(a.x, c.x), right: Math.max(a.x, c.x), top: a.y, bottom: c.y, width: Math.abs(c.x - a.x), height: c.y - a.y }; };
+      const ala = v.bottom, pk = v.height, rr = vp(a.querySelector('svg.orengas')), n = vp(a.querySelector('svg.karki'));
       const fs = parseFloat(getComputedStyle(a).fontSize);
       document.documentElement.style.fontSize = '';
       return { pohja: rr.bottom - ala, keski: (n.top + n.bottom) / 2 - (ala - pk / 2), paksuus: pk / fs * 10.24, nuoli: n.height / fs * 10.24 };
@@ -166,11 +170,12 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('ö-mappi: paluulinkki näkyy', await page.isVisible('#ark-paluu') && (await page.textContent('#ark-paluu')) === 'kellarin kampihyllystöön');
   // Paluu ö-mapista (käyttäjän design): kellarilinkki peilattuna, nuoli vasemmalle ja kampi tekstin oikealla.
   const pl = await page.evaluate(() => {
-    const a = document.querySelector('#ark-paluu a').getBoundingClientRect(), v = document.querySelector('#ark-paluu svg.veivi'),
-      n = document.querySelector('#ark-paluu svg.nuoli').getBoundingClientRect(), sis = document.querySelector('#ark-paluu').getBoundingClientRect();
-    return { vasen: a.left - sis.left, nuoli: n.left - a.left, kampi: v.getBoundingClientRect().left - a.right, peili: getComputedStyle(v).transform };
+    const vp = (e) => { const m = e.getScreenCTM(), b = e.viewBox.baseVal, p = (x, y) => new DOMPoint(x, y).matrixTransform(m), a = p(b.x, b.y), c = p(b.x + b.width, b.y + b.height); return { left: Math.min(a.x, c.x), right: Math.max(a.x, c.x), top: a.y, bottom: c.y, width: Math.abs(c.x - a.x), height: c.y - a.y }; };
+    const a = document.querySelector('#ark-paluu a').getBoundingClientRect(), v = document.querySelector('#ark-paluu svg.veivi-k'),
+      n = vp(document.querySelector('#ark-paluu svg.karki')), sis = document.querySelector('#ark-paluu').getBoundingClientRect();
+    return { vasen: a.left - sis.left, nuoli: n.left - a.left, kampi: vp(v).left - a.right, peili: v.querySelector('g').getAttribute('transform') };
   });
-  t('ö-mappi: paluulinkki peilattu', Math.abs(pl.vasen) < 1 && pl.nuoli < 1 && pl.kampi > 0 && /^matrix\(-1, 0, 0, 1/.test(pl.peili), JSON.stringify(pl));
+  t('ö-mappi: paluulinkki peilattu', Math.abs(pl.vasen) < 1 && pl.nuoli < 1 && pl.kampi > 0 && /scale\(-1 1\)/.test(pl.peili), JSON.stringify(pl));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/omappi.png', fullPage: true });
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
   const v = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
