@@ -256,10 +256,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   renkaan keskikohtien puoliväliin. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikko on *Mappi ö* (käyttäjän linjaus: osastolla eri kirjoitusmuoto kuin muualla), jossa ö on rengas ilman alleviivausta kirjaimena,
   luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Ö-mapissa ei ole *Takaisin pinoon* -tekstiä eikä pinomerkkiä (logo riittää); vasemmassa alakulmassa paluu kellarin
-  kampihyllystöön (`#ark-paluu`). **Paluulinkit** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
-  *pinoon* (`#ark-pinoon`, pinomerkki versaaleja korkeampana, musteen alareuna perusviivalla ja nuolen kärki sen vasemmalla) ja ö-mapissa *kellarin kampihyllystöön* (kampi): ensin symboli, sitten teksti, ja molempien alla
-  koko matkan vasemmalle osoittava chevron-nuoli; *pinoon*-linkissä viiva on koko tekstin mittainen (N:n oikeaan musteeseen), ö-mapin
-  paluussa se päättyy viimeisen kirjaimen keskelle (käyttäjän linjaukset);
+  kampihyllystöön (`#ark-paluu`, `.paluu`): **käyttäjän design, älä muuta sitä kysymättä** (kerran jo korvattu ja palautettu): kellarilinkki
+  peilattuna, nuoli vasemmalle ja kampi `scaleX(-1)` tekstin oikealla; koko seuraa `--kk-koko`a, nuolen mitat em:einä. **Paluulinkki pinoon** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
+  *pinoon* (`#ark-pinoon`, pinomerkki versaaleja korkeampana, musteen alareuna perusviivalla ja nuolen kärki sen vasemmalla): ensin symboli, sitten teksti, ja molempien alla
+  koko matkan vasemmalle osoittava chevron-nuoli, viiva koko tekstin mittainen (N:n oikeaan musteeseen);
   mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä, samalla rivillä ja korkeudella kuin ö-mappiin (`.ala-linkit`). Testi `omappi-testi.js`.
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
   kellarin otsikon perässä (`KAMPI`) sama kampi otsikon harmaalla ilman vartta, ja kaari jatkuu alhaalta kehää 70° oikealle

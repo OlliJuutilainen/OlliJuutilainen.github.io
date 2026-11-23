@@ -164,18 +164,13 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   if (KUVAT) await page.locator('.ots-rivi').screenshot({ path: KUVAT + '/otsikko-omappi.png' });
   // Peilattu kellarilinkki vasemmassa alakulmassa: nuoli vasemmalla, kampi tekstin oikealla puolella.
   t('ö-mappi: paluulinkki näkyy', await page.isVisible('#ark-paluu') && (await page.textContent('#ark-paluu')) === 'kellarin kampihyllystöön');
-  // Paluulinkit (käyttäjän linjaus): symboli ja teksti, alla koko matkan vasemmalle osoittava nuoli, viiva päättyy N:n keskelle.
-  const paluu = (sel) => page.evaluate((sel) => {
-    const a = document.querySelector(sel + ' a'), ar = a.getBoundingClientRect(), j = getComputedStyle(a, '::after'), fs = parseFloat(getComputedStyle(a).fontSize);
-    const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT); let t, v; while ((t = w.nextNode())) if (t.textContent.trim()) v = t;
-    const rg = document.createRange(); rg.setStart(v, v.length - 1); rg.setEnd(v, v.length);
-    const ala = ar.bottom - parseFloat(j.bottom), pk = parseFloat(j.height), n = a.querySelector('svg.nuoli').getBoundingClientRect(), sy = a.querySelector('svg.symb').getBoundingClientRect();
-    return { paa: (ar.right - parseFloat(j.right)) - (rg.getBoundingClientRect().left + .41 * fs), keski: (n.top + n.bottom) / 2 - (ala - pk / 2),
-      karki: n.left + .16 * n.width - ar.left, symbEnsin: sy.left - ar.left < .5 && sy.right < rg.getBoundingClientRect().left, vasen: ar.left - a.parentNode.getBoundingClientRect().left };
-  }, sel);
-  const pl = await paluu('#ark-paluu');
-  t('ö-mappi: paluulinkki: kampi ensin, nuoli vasemmalle viivan alussa, viiva N:n keskelle', Math.abs(pl.paa) < .5 && Math.abs(pl.keski) < .05 &&
-    Math.abs(pl.karki) < .05 && pl.symbEnsin && Math.abs(pl.vasen) < .5, JSON.stringify(pl));
+  // Paluu ö-mapista (käyttäjän design): kellarilinkki peilattuna, nuoli vasemmalle ja kampi tekstin oikealla.
+  const pl = await page.evaluate(() => {
+    const a = document.querySelector('#ark-paluu a').getBoundingClientRect(), v = document.querySelector('#ark-paluu svg.veivi'),
+      n = document.querySelector('#ark-paluu svg.nuoli').getBoundingClientRect(), sis = document.querySelector('#ark-paluu').getBoundingClientRect();
+    return { vasen: a.left - sis.left, nuoli: n.left - a.left, kampi: v.getBoundingClientRect().left - a.right, peili: getComputedStyle(v).transform };
+  });
+  t('ö-mappi: paluulinkki peilattu', Math.abs(pl.vasen) < 1 && pl.nuoli < 1 && pl.kampi > 0 && /^matrix\(-1, 0, 0, 1/.test(pl.peili), JSON.stringify(pl));
   if (KUVAT) await page.screenshot({ path: KUVAT + '/omappi.png', fullPage: true });
   await page.click('#valitse-kaikki'); await page.click('#val-valikko');
   const v = await page.$$eval('#pop .p-ali[data-ali="luin"] button[data-k]:not(.p-takaisin)', bs => bs.map(x => x.textContent));
