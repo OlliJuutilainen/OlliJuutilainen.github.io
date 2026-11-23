@@ -9,22 +9,24 @@ const f = x => { const s = (Math.round(x * 100) / 100 + ''); return s.replace(/^
 const sstep = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
 // p: lev (ulkoleveys), kork (ulkokorkeus, litteästä pohjasta keskilinjan lakeen + puolet lakipaksuudesta), nAla, tb (pohja),
 // ts (suurin), tt (laen laskennallinen paksuus: keskilinjan korkeus), kTasa (pohjan tasapaksu osa, astetta), kMax, rako (keskilinjan
-// pään väli laella; käyttäjän linjaus: piikit melkein koskettavat, ei varmuutta kosketuksesta), kap (kapenemisen eksponentti),
+// pään väli laella; negatiivinen: päät jatkuvat akselin ohi limittäin, käyttäjän linjaus: renkaat suljetaan), kap (kapenemisen eksponentti),
 // paa (pään paksuus).
 function rengas(p, x0, y0) {
-  const N = 2000, dt = 2 * Math.PI / N, kul = d => d * Math.PI / 180;
+  const N = 2000, kul = d => d * Math.PI / 180;
   // Keskilinjan puoliakselit: ulkoleveyden puolikas kyljen paksuuden puolikkaalla vähennettynä, korkeus pohjan ja laen paksuuksilla.
   const a = p.lev / 2 - p.ts / 2, b = (p.kork - p.tb / 2 - p.tt / 2) / 2, cx = x0 + p.lev / 2, cy = y0 + p.kork - p.tb / 2 - b;
   const kp = t => { const s = Math.sin(t), c = Math.cos(t), n = Math.abs(t) <= Math.PI / 2 ? p.nAla : 2;
     return [cx + a * Math.sign(s) * Math.abs(s) ** (2 / n), cy + b * Math.sign(c) * Math.abs(c) ** (2 / n)]; };
   // Pää: keskilinja päättyy, kun sen etäisyys pystyakselista on rako/2. Paksuus kapenee portaattomasti suurimmasta (kMax) päähän:
   // cos-käyrä, joten kapeneminen alkaa pehmeästi ja viiva ohenee hiusviivaksi (ei viistettä).
-  let loppu = Math.PI; for (let t = Math.PI / 2; t <= Math.PI; t += dt / 8) if (Math.abs(kp(t)[0] - cx) <= p.rako / 2) { loppu = t; break; }
+  // Laella keskilinja on ellipsi (x - cx = a·sin t), joten pää on suoraan kulmassa; negatiivinen rako jatkaa päitä akselin ohi
+  // limittäin, jolloin rengas sulkeutuu: kumpikin pää jää toisen paksumman kohdan sisään ja laelle jää kaula.
+  const loppu = Math.PI - Math.asin(p.rako / 2 / a);
   const w = t => { const u = Math.abs(t); if (u <= kul(p.kMax)) return p.tb + (p.ts - p.tb) * sstep((u - kul(p.kTasa)) / (kul(p.kMax) - kul(p.kTasa)));
     const s = Math.min(1, (u - kul(p.kMax)) / (loppu - kul(p.kMax))); return p.paa + (p.ts - p.paa) * Math.cos(s * Math.PI / 2) ** p.kap; };
-  const ulko = [], sisa = [];
+  const T = Math.max(Math.PI, loppu), dt = 2 * T / N, ulko = [], sisa = [];
   for (let i = 0; i <= N; i++) {
-    const t = -Math.PI + i * dt, q = kp(t), e = kp(t - dt / 4), j = kp(t + dt / 4);
+    const t = -T + i * dt, q = kp(t), e = kp(t - dt / 4), j = kp(t + dt / 4);
     let tx = j[0] - e[0], ty = j[1] - e[1]; const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
     const nx = -ty, ny = tx, h = w(t) / 2; // t kasvaa vastapäivään ruudulla (y alas): normaali (-ty, tx) osoittaa ulos.
     ulko.push([q[0] + nx * h, q[1] + ny * h, t]); sisa.push([q[0] - nx * h, q[1] - ny * h, t]);
@@ -76,10 +78,10 @@ const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 const ALA_L = +(process.env.ALA_L || 6.46);
 // Kyljen ja laen paksuus (ts, tt) on 1,2-kertainen alkuperäiseen nähden (käyttäjän pyyntö: kaikki renkaat ja pisteet vähän paksumpia).
 const PAKSU = 1.2;
-const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3 * PAKSU, tt: .55 * PAKSU, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
+const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3 * PAKSU, tt: .55 * PAKSU, kTasa: 12, kMax: 78, rako: -.4, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkertaa ei laihduteta erikseen (käyttäjän linjaus:
-// pienenä ja Sysinissä yläkerta häviäisi), ja piikkien kärjet saavat koskettaa (rako 0).
+// pienenä ja Sysinissä yläkerta häviäisi), ja piikkien kärjet limittyvät hiukan, joten rengas on kiinni (rako -.4).
 const PS = 2.9 / LINKKI0.lev, PV = 1.7;
 const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb: LINKKI0.tb * PAKSU * PS * PV, ts: LINKKI0.ts * PS * PV, tt: LINKKI0.tt * PS * PV,
   kTasa: 12, kMax: LINKKI0.kMax, rako: LINKKI0.rako * PS, kap: LINKKI0.kap, paa: .02, pnosto: 1.05, pdx: 2.45, n: 24 };
@@ -88,7 +90,8 @@ const PISTE0 = { lev: 2.9, kork: LINKKI0.kork * PS * .94, nAla: LINKKI0.nAla, tb
 // perusviivan alla); yhdysviiva on renkaan korkeuden keskellä (luin.html .oyv). Korkeus 16,75 px on käyttäjän valitsema koko.
 const LAKI_L = +(process.env.LAKI_L || 11.89);
 const KASVU = (LAKI_L + ALA_L) / LINKKI0.kork;
-const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax)$/.test(x) ? v : v * k]));
+// Kulmat, eksponentit ja polkupisteiden määrä eivät skaalaudu: kap on kapenemisen muoto, ei mitta (sama kapeneminen kaikissa koissa).
+const skaalaa = (p, k) => Object.fromEntries(Object.entries(p).map(([x, v]) => [x, /^(n|nAla|kTasa|kMax|kap)$/.test(x) ? v : v * k]));
 const LINKKI = Object.assign(skaalaa(LINKKI0, KASVU), { tb: LINKKI0.tb, kork: LAKI_L + ALA_L });
 const PISTE = skaalaa(PISTE0, KASVU);
 // Otsikon ö (.74rem = 11,84 px; käyttäjän linjaus: otsikko *Mappi ö*, rengas kirjaimena, isompi kuin versaali-O mutta tunnistettavasti
