@@ -2,8 +2,9 @@
 // piilottama kieli on DOMissa (display: none), ja valinta alkutekstin kappaleesta seuraavaan kattaa sen välissä olevan käännöksen.
 // Tilat Alkuteksti, Käännös ja Molemmat; reitit Ctrl+C (selaimen maalaus; copy-tapahtuman text/plain ja text/html sekä leikepöytä),
 // valinnan valikon Kopioi, Kopioi viittauksen kanssa ja Kopioi koko lähteen kanssa (molemmat maalaustavat, aset.maalaus) sekä
-// sukkelan alleviivauksen valikon kopio. Työpöytä 1280 px (Molemmat rinnakkain) ja 412 px (allekkain). Molemmat-tilan kopio on
-// koko valinta kuten ennen, ja alleviivauksen palat ovat samat tilasta riippumatta (piilotettu teksti pysyy DOMissa).
+// sukkelan alleviivauksen valikon kopio. Työpöytä 1280 px (Molemmat rinnakkain) ja 412 px (allekkain). Valikon kopio on valinnan
+// alkupään kieltä myös Molemmat-tilassa (yksi kieli, käyttäjän päätös; lomitus-merkinta-testi.js), Ctrl+C on selaimen valinta, ja
+// alleviivauksen palat ovat samat tilasta riippumatta (piilotettu teksti pysyy DOMissa).
 // Ajo repon juuressa: NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-kopio-testi.js [kuvakansio]
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), http = require('http');
@@ -21,12 +22,15 @@ const E1 = 'At nightfall I return home and seek my writing room, and, divesting 
 const VETO = { alku: ['Venuta', 'antique'], molemmat: ['Venuta', 'antique'], kaannos: ['nightfall', 'ancient'] };
 const OTE = {
   alku: I1 + '\n\nE rivestito condecentemente, entro nelle antique',
-  molemmat: I1 + '\n\n' + E1 + '\n\nE rivestito condecentemente, entro nelle antique',
+  molemmat: I1 + '\n\nE rivestito condecentemente, entro nelle antique',
   kaannos: E1.slice(3) + '\n\nAnd thus suitably clothed, enter within the ancient'
 };
-// Piilotetun kielen tunnussanat (eivät saa olla kopiossa) ja näkyvän valinnan sanat (pitää olla).
-const PIILO = { alku: /nightfall|mire|suitably/, kaannos: /Venuta|loto|rivestito|antique/, molemmat: null };
-const NAKYY = { alku: ['sera', 'loto', 'condecentemente'], kaannos: ['return', 'mire', 'suitably'], molemmat: ['sera', 'loto', 'nightfall', 'mire', 'condecentemente'] };
+// Piilotetun tai toisen kielen tunnussanat (eivät saa olla valikon kopiossa) ja valinnan sanat (pitää olla). Ctrl+C:n Molemmat-tilassa
+// valinta kattaa molemmat kielet kuten selaimen korostus (CTRLC).
+const PIILO = { alku: /nightfall|mire|suitably/, kaannos: /Venuta|loto|rivestito|antique/, molemmat: /nightfall|mire|suitably/ };
+const NAKYY = { alku: ['sera', 'loto', 'condecentemente'], kaannos: ['return', 'mire', 'suitably'], molemmat: ['sera', 'loto', 'condecentemente'] };
+const CTRLC = { alku: 'alku', kaannos: 'kaannos', molemmat: 'molemmatC' };
+PIILO.molemmatC = null; NAKYY.molemmatC = ['sera', 'loto', 'nightfall', 'mire', 'condecentemente'];
 
 const TYYPIT = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.md': 'text/markdown; charset=utf-8' };
 const palvelin = http.createServer((q, r) => {
@@ -144,18 +148,18 @@ const lyh = s => JSON.stringify(shy(s).replace(/(.{40}).{20,}(.{40})/s, '$1…$2
             const sel = shy(await p.evaluate(() => getSelection().toString()));
             await p.keyboard.press('Control+c'); await p.waitForTimeout(200);
             const kop = (await p.evaluate(() => window.__kopiot.slice())).pop() || {}, lk = await leike();
-            tulos(`${nimi}: Ctrl+C (copy-tapahtuma ja leikepöytä)`, nakyva(lom, sel) && kop.plain === sel && !/­/.test(kop.plain) && (!kop.html || nakyva(lom, kop.html)) &&
-              lk['text/plain'] === sel && (!lk['text/html'] || nakyva(lom, lk['text/html'])), lyh(kop.plain) + (kop.html ? ' html ' + lyh(kop.html) : ''));
+            tulos(`${nimi}: Ctrl+C (copy-tapahtuma ja leikepöytä)`, nakyva(CTRLC[lom], sel) && kop.plain === sel && !/­/.test(kop.plain) && (!kop.html || nakyva(CTRLC[lom], kop.html)) &&
+              lk['text/plain'] === sel && (!lk['text/html'] || nakyva(CTRLC[lom], lk['text/html'])), lyh(kop.plain) + (kop.html ? ' html ' + lyh(kop.html) : ''));
           }
           await ctx.close();
         }
       }
     }
   }
-  // Merkinnät eivät riipu Kielet-tilasta: sama veto alleviivaa samat palat Alkutekstissä ja Molemmissa (myös piilotetun käännöksen).
+  // Merkinnät eivät riipu Kielet-tilasta: sama veto alleviivaa samat palat Alkutekstissä ja Molemmissa (vain italian kappaleet).
   for (const laite of ['työpöytä', '412 px']) for (const maalaus of ['luin', 'selain']) {
     const a = palat[`${laite}/alku/${maalaus}`], m = palat[`${laite}/molemmat/${maalaus}`];
-    tulos(`${laite}, ${maalaus === 'luin' ? 'Luinin maalaus' : 'selaimen maalaus'}: alleviivauksen palat samat Alkutekstissä ja Molemmissa`, !!a && a === m && a.split(' ').length === 3, `${a} / ${m}`);
+    tulos(`${laite}, ${maalaus === 'luin' ? 'Luinin maalaus' : 'selaimen maalaus'}: alleviivauksen palat samat Alkutekstissä ja Molemmissa`, !!a && a === m && a.split(' ').length === 2, `${a} / ${m}`);
   }
   tulos('ei sivuvirheitä', !sivuvirheet.length, sivuvirheet.join('; '));
   await b.close(); palvelin.close();
