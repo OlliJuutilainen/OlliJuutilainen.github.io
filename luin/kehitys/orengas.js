@@ -72,8 +72,8 @@ function svg(R, P, luokka, kok) {
 const EM = 10.24, CAP = 7.36, ALA = 2.3, YLI = .2;
 // LINKKI0 ja PISTE0 ovat otsikon Mappi ö renkaan mittasuhteet (otsikko skaalataan niistä, alla). Linkin rengas on niiden suurennos:
 // pohja ALA_L px perusviivan alla, jotta alleviivaus on niin alhaalla, että nuolen sakarat jäävät perusviivan alle kuten
-// kellarilinkissä (käyttäjän pyyntö: nuoli veti kiinni tekstiin; rivikorkeus 1.55, sakarat 1,86 px perusviivan alla, kellarilinkissä 1,81).
-const ALA_L = 4.86;
+// kellarilinkissä, selvästi irti (käyttäjän pyynnöt: nuoli veti kiinni tekstiin; rivikorkeus 1.55 ja täyte 2 px, sakarat 3,86 px perusviivan alla).
+const ALA_L = 6.86;
 const LINKKI0 = { lev: 9.4, kork: CAP + YLI + ALA, nAla: 2.15, tb: 1, ts: 1.3, tt: .55, kTasa: 12, kMax: 78, rako: 0, kap: 1, paa: .04, n: 30 };
 // Pisteet ovat renkaan pienoiskopioita (käyttäjän linjaus: samaa tyyliä emo-ö:n kanssa): sama muoto ja kapeneminen, 2,9 px leveä,
 // 6 % emoa matalampi, viiva 1,7-kertainen emon suhteeseen nähden (näkyvyys). Yläkertaa ei laihduteta erikseen (käyttäjän linjaus:
