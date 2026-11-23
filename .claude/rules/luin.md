@@ -244,10 +244,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   klassisemman kirjasimen tuntu), ja piikkien kärjet koskettavat toisiaan kaikissa ö-renkaissa, ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto, kapeneminen ja rako
   suhteessa, 6 % matalampia, viiva 1,7 × emon suhde näkyvyyden vuoksi; `orengas.js` laskee ne emosta), samaa tyyliä emo-ö:n kanssa.
-  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Pohja 6,86 px perusviivan alla ja laki versaalien alapuolella niin, että yhdysviiva (.1968 em, pysyy) on koko Ö:n pisteineen korkeuden keskellä
-  (käyttäjän linjaus: viivaa ei siirretä vaan Ö:tä; `orengas.js`:n `H_L`)
-  (käyttäjän pyyntö: Ö niin iso, että nuolen sakarat ovat selvästi irti tekstistä, 3,86 px perusviivan alla; `line-height: 1.55` ja `padding-bottom: 2px`, ei rivikorkeutta, joka pyöristyy epätasaisesti; kaikki ö-mapin linkin mitat em:einä ja alleviivaus `::before`/`::after`-taustapalkkeina, ei reunaviivana, koska selaimen suurennettu tekstikoko kasvattaa vain em-mittoja ja reunaviiva pyöristyy laitepikseleihin; testi mittaa tekstikoot ×1,3 ja ×1,8; linkin rengas on otsikon renkaan
-  suurennos `orengas.js`:n `ALA_L`:lla, otsikko ennallaan), ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
+  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Iso Ö (käyttäjän valinta): laki 10,89 px perusviivan yläpuolella, pohja 5,86 px sen alla alleviivauksella, yhdysviiva renkaan keskellä;
+  nuolen sakarat irti tekstistä (`line-height: 1.55` ja täyte 1 px; alleviivausta säädetään täytteellä, ei rivikorkeudella, joka pyöristyy epätasaisesti);
+  paluulinkeillä (`.takaisin-linkki`) sama rivikorkeus ja täyte, jotta viivat ovat samalla korkeudella; kaikki ö-mapin linkin mitat em:einä ja alleviivaus `::before`/`::after`-taustapalkkeina, ei reunaviivana, koska selaimen suurennettu tekstikoko kasvattaa vain em-mittoja ja reunaviiva pyöristyy laitepikseleihin; testi mittaa tekstikoot ×1,3 ja ×1,8; linkin rengas on otsikon renkaan
+  suurennos (`orengas.js`:n `LAKI_L` ja `ALA_L`), otsikko ennallaan. Nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
   terävöityvin päin, `orengas.js`:n `NUOLI`. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: noin .3 px; ei täytettä,
   viimeinen kirjain `span.vika` ilman harvennusta). Svg 9 px ja `bottom: -5px`, jotta pyöristys ei siirrä kärkeä viivan sivuun. Alleviivaus on reunaviiva, ja svg on
