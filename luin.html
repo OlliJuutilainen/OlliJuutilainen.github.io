@@ -369,7 +369,7 @@
   #lista .vain-lista > .lisaa:not(.uusi) { margin-top: var(--osiovali); }
   #lista .ark-linkki { margin-top: var(--osiovali); }
   #lista .pino-ala .ark-linkki { margin-top: 0; text-align: left; padding-left: 2.188em; font-size: var(--kk-koko, .85rem); }
-  #lista .pino-ala .ark-linkki svg.nuoli { bottom: calc(-.390625em - .5px); width: .4883em; height: .78125em; }
+  #lista .pino-ala .ark-linkki svg.nuoli { left: 100%; right: auto; top: 100%; bottom: auto; width: 1px; height: 1px; }
   #lista .pino-ala .ark-linkki svg.nuoli path { vector-effect: non-scaling-stroke; }
   /* Pinon kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (käyttäjän pyyntö), jotta se mahtuu Soita postihuilua
      -napin oikealle. Rivikorkeus pysyy (kammen napa ja alleviivaus mitattu sen mukaan); ylärivi vedetään lähemmäs reunuksella. */
@@ -381,12 +381,14 @@
      alleviivauksesta 0,4–0,9 laitepikseliä alemmas. Siksi alleviivaus on taustapalkki (::after, reunaviiva läpinäkyvänä pitää mitat)
      ja svg.veivi on palkin kokoinen 1 px:n laatikko tasan samassa kohdassa (vasen yläkulma = palkin), jolloin molemmat pyöristyvät
      samoin; kaari piirretään sisemmässä svg:ssä em-mitoin palkin keskilinjalle (translate .5). Kaaren pää jatkuu .04 yksikköä palkin
-     päälle, ettei liitoskohtaan jää vaaleaa saraketta. */
+     päälle, ettei liitoskohtaan jää vaaleaa saraketta. Nuolen kärki samoin (käyttäjän havainto: kärki ontui): svg.nuoli on 1 px:n
+     laatikko palkin oikeassa yläkulmassa, kärki sisemmässä svg:ssä palkin keskilinjalla, ja palkki päättyy kärjen kohtaan (.0781 em
+     ennen linkin reunaa), ettei se pistä kärjen läpi. */
   #lista .pino-ala .ark-linkki { padding-left: 1.2125em; }
   #lista .pino-ala .ark-linkki a { padding-left: 1.6125em; }
   #lista .pino-ala .ark-linkki a::before { display: none; }
   #lista .pino-ala .ark-linkki a { border-bottom-color: transparent; }
-  #lista .pino-ala .ark-linkki a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: currentColor; }
+  #lista .pino-ala .ark-linkki a::after { content: ""; position: absolute; left: 0; right: .0781em; bottom: -1px; height: 1px; background: currentColor; }
   #lista .pino-ala .ark-linkki svg.veivi { left: 0; right: auto; top: 100%; bottom: auto; width: 1px; height: 1px; }
   .pino-ala { margin-top: var(--osiovali); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 36px 16px; }
   .pino-ala:not(:has(> p:not([hidden]))) { display: none; }
@@ -1720,7 +1722,7 @@
   <p class="huilu-soita" id="huilu-soita" hidden><button type="button" class="laatikko" id="soita-postihuilua">Soita postihuilua</button></p>
   <!-- Kellarin kampihyllystö, ent. uumen, pölyhylly ja arkistohylly (käyttäjän pyynnöt 10.11., 12.11. ja 15.11.2026): luetuiksi merkityt tekstit. Linkki on himmeä ja näkyy vain, kun pinossa
        on jotain. -->
-  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" aria-hidden="true"><g transform="translate(0 .5)"><svg x="-1.2125em" y="-2.425em" width="2.425em" height="2.425em" viewBox="0 -.047 2 2" overflow="visible"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1.04 1.953H1A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></g></svg><span class="kk-yla">kellarin</span> kampihyllystöön<svg class="nuoli" viewBox="0 0 5 8" aria-hidden="true"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></a></p>
+  <p class="ark-linkki" id="ark-linkki" hidden><a href="#arkisto"><svg class="veivi" aria-hidden="true"><g transform="translate(0 .5)"><svg x="-1.2125em" y="-2.425em" width="2.425em" height="2.425em" viewBox="0 -.047 2 2" overflow="visible"><clipPath id="veivi-leikkaus" clipPathUnits="userSpaceOnUse"><path clip-rule="evenodd" d="M-2 -2H4V4H-2ZM1.0448 1.0792L1.3552 .8268L1.2688 .7205L.9584 .9729Z"/></clipPath><path clip-path="url(#veivi-leikkaus)" d="M1.04 1.953H1A1 1 0 1 1 1.7071 .2459L1.0684 .7651A.2 .2 0 1 0 1.1932 .9012"/></svg></g></svg><span class="kk-yla">kellarin</span> kampihyllystöön<svg class="nuoli" aria-hidden="true"><g transform="translate(0 .5)"><svg x="-.4883em" y="-.390625em" width=".4883em" height=".78125em" viewBox="0 0 5 8" overflow="visible"><path d="M.2 .8L4.2 4L.2 7.2"/></svg></g></svg></a></p>
   </div>
   <!-- Käyttöohje, kokeiluteksti ja pienen välin jälkeen Latomo (käyttäjän päätös 22.10.2026). Kehittäjän
        opas ei ole julkisessa repossa. -->
