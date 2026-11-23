@@ -291,12 +291,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
-  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Soin.*; `luinKohdat()`, sijainnin mukaan):
+  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Toin.*; `luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
   kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Käsikirjastoon*, *Merkitse luetuksi*; kellarin
   kampihyllystössä *Poimi pinoon*, *Ö-mappiin*, *Käsikirjastoon* (valikossa pelkkä kohde; vahvistusnapit ja kysymykset pitävät *Vie*/*Siirrä*-muodon, `kkSana()`, `OM_SISAAN`; *Poimi pinoon* on myös vahvistusnappi); ö-mapissa *Poimi kellarin kampihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
-  loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Soin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
+  loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Toin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
   ylärivin paluunuolella (`.sisak`); tapa mitataan (`porrasTapa()`) eikä sitä päätellä laitteesta. Pääkohdat eivät saa liikkua:
   ankkuri (`popPaikka.reuna`) päätetään ensimmäisellä avauksella, piilotettu alavalikko antaa vain leveytensä, ja viipymäavaus odottaa
