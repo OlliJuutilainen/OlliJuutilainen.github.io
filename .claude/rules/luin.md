@@ -244,8 +244,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   klassisemman kirjasimen tuntu), ja piikkien kärjet koskettavat toisiaan kaikissa ö-renkaissa, ei paksua makkaraa. Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
   (käyttäjän linjaus: rajattu muutos on aina kohti ö:mäisyyttä). Ö:n pisteet ovat renkaan pienoiskopioita (sama muoto, kapeneminen ja rako
   suhteessa, 6 % matalampia, viiva 1,7 × emon suhde näkyvyyden vuoksi; `orengas.js` laskee ne emosta), samaa tyyliä emo-ö:n kanssa.
-  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Laki versaalikorkeudella, pohja 4,86 px perusviivan alla
-  (käyttäjän pyyntö: Ö niin iso, että nuolen sakarat jäävät irti tekstistä kuten kellarilinkissä; `line-height: 1.55`, linkin rengas on otsikon renkaan
+  Yläkertaa ei laihduteta erikseen (käyttäjän linjaus: pienenä ja Sysinissä se häviäisi). Laki versaalikorkeudella, pohja 6,86 px perusviivan alla
+  (käyttäjän pyyntö: Ö niin iso, että nuolen sakarat ovat selvästi irti tekstistä, 3,86 px perusviivan alla; `line-height: 1.55` ja `padding-bottom: 2px`, ei rivikorkeutta, joka pyöristyy epätasaisesti; linkin rengas on otsikon renkaan
   suurennos `orengas.js`:n `ALA_L`:lla, otsikko ennallaan), ja nuoli on tekstin perässä. Nuolen kärki on oma eikä kellarilinkin
   chevron (käyttäjän linjaus: huolellinen ja klassinen; chevron nousi N:n viereen): täytetty, sisään kaartuvat sakarat hiusviivaksi
   terävöityvin päin, `orengas.js`:n `NUOLI`. Kärki ylittää tekstin oikean musteen yhtä vähän kuin kellarilinkin nuoli (käyttäjän pyyntö: noin .3 px; ei täytettä,

@@ -115,7 +115,7 @@ let vik = 0; const t = (n, ok, x) => { if (!ok) vik++; console.log((ok ? 'OK   '
   t('rengas tekstin vasemmalla, rako .2 em', Math.abs(om.rako / om.em - .2) < .01, (om.rako / om.em).toFixed(3) + ' em');
   t('renkaan laki versaalikorkeuden yläpuolella .2 px', Math.abs(om.laki - om.cap - .2 * om.s) < .3, om.laki.toFixed(2) + ' / ' + om.cap.toFixed(2) + ' px');
   t('renkaan pohja alleviivauksen alareunassa', Math.abs(om.svgAla - om.reuna) < .01 && om.bb === 1 && !/0\)$|transparent/.test(om.reunaVari), om.svgAla + ' / ' + om.reuna + ', ' + om.reunaVari);
-  t('pohja ALA px perusviivan alla (4,86 px: nuolen sakarat perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
+  t('pohja ALA px perusviivan alla (6,86 px: nuolen sakarat selvästi perusviivan alle)', Math.abs(om.pohja - R.ALA * om.s) < .2, om.pohja.toFixed(2) + ' px');
   t('svg kokonaisen pikselin korkuinen', Math.abs(om.korkeus - Math.round(om.korkeus)) < .01, om.korkeus + ' px');
   t('alleviivaus jatkuu renkaan keskeltä', Math.abs(om.ennenVas - om.keskus) < .1 && om.ennenAla === -1, (om.ennenVas - om.keskus).toFixed(2) + ' px');
   // Oma nuolen kärki: kärki .47 px varren pään yli ja palstan reunassa, ja se ylittää tekstin oikean musteen yhtä vähän kuin
