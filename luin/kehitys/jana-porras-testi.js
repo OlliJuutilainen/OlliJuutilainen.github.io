@@ -1,10 +1,14 @@
 // Sivutetun aikajanan vedon portaat ja napautus (luin.html janaPysakit(), janaKohde(); käyttäjän säännöt). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/jana-porras-testi.js
-// Portaat ovat tekstin alku, viimeisen sivun alku, luvut ja osiot (myös yläindeksien osiot), kirjanmerkit, majakka ja
-// voimassa oleva kohta; kohdat eivät ole portaita. Yli 25 %:n portaanväli jaetaan floor(väli / 12,5 %) yhtä suureen osaan.
-// Veto (vähintään 10 px sivusuunnassa) pysähtyy vain portaille eikä kirjoita mitään, kun porras ei vaihdu; napautus vie
-// mihin kohtaan tahansa, paitsi näkyvän salmiakin musteelle napautus vie salmiakin kohtaan (myös kohdan). Veto ja napautus
-// sekä hiirellä että kosketuksella.
+// Portaiden laki: porras on sivu, ja sivulla on yksi porras. Merkkipaalut ovat tekstin alku, luvut ja osiot (myös yläindeksien
+// osiot); kohdat eivät ole portaita. Askel A = 12,5 % sivumäärästä kokonaisiksi sivuiksi pyöristettynä (puolikas ylöspäin,
+// vähintään 1). Yli 25 %:n merkkipaaluväli (viimeinen kirjan loppuun) jaetaan floor(väli / A) yhtä suureen osaan lähimmille
+// sivuille. Lisäksi viimeinen sivu, kirjanmerkit, majakka ja voimassa oleva kohta, jotka eivät vaikuta väliportaisiin.
+// Merkkipaaluton kirja: alle 12 sivua joka sivu, 12 sivua joka toinen sivu.
+// Samalla sivulla etusija: majakka, voimassa oleva kohta, merkkipaalu, kirjanmerkki, viimeinen sivu, väliporras.
+// Veto (vähintään 10 px sivusuunnassa) pysähtyy vain portaille (ei salmiakkiosumaa) eikä kirjoita mitään, kun porras ei
+// vaihdu; napautus vie mihin kohtaan tahansa, paitsi näkyvän salmiakin musteelle napautus vie salmiakin kohtaan (myös kohdan).
+// Veto ja napautus sekä hiirellä että kosketuksella.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -29,7 +33,7 @@ const KIRJA = '# Portaat\n\n## 1. Alku\n\n' + kpl(3) + '\n\n## 2. Pitkä luku\n\
   Array.from({ length: 6 }, (_, i) => `#### 2.0.${i + 1} Kohta\n\n` + kpl(4)).join('\n\n') +
   '\n\n## 3. Osioitu luku\n\n### 3.1 Ensimmäinen osio\n\n' + kpl(3) + '\n\n#### 3.1.1 Kohta\n\n' + kpl(3) +
   '\n\n### 3.2 Toinen osio\n\n' + kpl(6) + '\n\n## 4. Loppu\n\n' + kpl(20) + '\n';
-const ILMAN = '# Ilman otsikoita\n\n' + kpl(60) + '\n';
+const ILMAN = m => '# Ilman otsikoita\n\n' + kpl(m) + '\n';
 // Stephanus-sivut osioina, kirjaimet kohtina (yläindeksit).
 const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\n\n' +
   Array.from({ length: 5 }, (_, s) => [...'abcde'].map(k => `^${327 + s}${k}^ ${KPL}`).join('\n\n')).join('\n\n') + '\n';
@@ -54,32 +58,37 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
     await p.evaluate(() => { const L = window.__luin; L.aset.janaTasot = [1, 2, 3]; L.mene({ b: 0, o: 0 }); });
     await p.waitForTimeout(200);
   };
-  // Portaat (osuudet) ja riippumaton odotus: perusportaat koodin ulkopuolelta ja väliportaat säännöstä.
+  // Portaat ja odotus lain mukaan. Sivu, jolle porras vie, mitataan siirtymällä sinne (mene()); voimassa oleva kohta palautetaan.
   const portaat = () => p.evaluate(() => {
-    const L = window.__luin, n = L.nyt(), o = k => Math.min(1, Math.max(0, (n.cum[k.b] + k.o) / n.total));
-    const F = [...new Set(L.janaPysakit().map(m => o(m.k)))].sort((a, b) => a - b);
-    const perus = [0, o(L.tila.ankkuri)];
-    if (L.tila.sivuja > 1) perus.push(o(L.sivunAlku(L.tila.sivuja - 1)));
-    n.doc.toc.forEach(t => { if (t.lvl <= 2) perus.push(o({ b: t.b, o: 0 })); });
-    (n.kohdat || []).forEach(y => { if (y.lvl <= 2) perus.push(o(y.k)); });
-    n.merk.km.forEach(k => { if (!k.orpo) perus.push(o(k)); });
-    if (L.majakka()) perus.push(o(L.majakka().k));
-    const P = [...new Set(perus)].sort((a, b) => a - b), E = P.slice(), jaot = [];
+    const L = window.__luin, n = L.nyt(), T = L.tila, N = T.sivuja, key = k => k.b + ':' + k.o;
+    const o = k => Math.min(1, Math.max(0, (n.cum[k.b] + k.o) / n.total));
+    const S = L.janaPysakit().map(m => ({ k: m.k, key: key(m.k) }));
+    const a0 = Object.assign({}, T.ankkuri), ankkuriSivu = T.sivu, sivu = k => { L.mene(k); return T.sivu; };
+    const A = Math.max(1, Math.round(N / 8)), paalut = [0, N];
+    n.doc.toc.forEach(t => { if (t.lvl <= 2) paalut.push(sivu({ b: t.b, o: 0 })); });
+    (n.kohdat || []).forEach(y => { if (y.lvl <= 2) paalut.push(sivu(y.k)); });
+    const P = [...new Set(paalut)].sort((a, b) => a - b), E = new Set(P.filter(x => x < N)), jaot = [];
     for (let i = 1; i < P.length; i++) {
-      const g = P[i] - P[i - 1], m = g > .25 ? Math.floor(g / .125 + 1e-9) : 1;
-      if (m > 1) jaot.push(m);
-      for (let j = 1; j < m; j++) E.push(P[i - 1] + g * j / m);
+      const V = P[i] - P[i - 1], m = V / N > .25 ? Math.floor(V / A) : 1;
+      if (m > 1) jaot.push(V + ' s. → ' + m);
+      for (let j = 1; j < m; j++) E.add(P[i - 1] + Math.round(V * j / m));
     }
-    E.sort((a, b) => a - b);
-    const tol = 2 / n.total, loytyy = (A, x) => A.some(y => Math.abs(x - y) <= tol);
-    const vanhat = 2 + (L.tila.sivuja > 1 ? 1 : 0) + n.doc.toc.length + (n.kohdat || []).length;
-    let suurin = 0; for (let i = 1; i < F.length; i++) suurin = Math.max(suurin, F[i] - F[i - 1]);
-    const kohtaPortaat = n.doc.toc.filter(t => t.lvl >= 3).concat((n.kohdat || []).filter(y => y.lvl >= 3).map(y => ({ b: y.k.b, o: y.k.o })))
-      .filter(t => loytyy(F, o({ b: t.b, o: t.o || 0 })) && !loytyy(P, o({ b: t.b, o: t.o || 0 }))).length;
-    return { F, E, jaot, suurin, kohtaPortaat, vanhat, sama: F.length === E.length && F.every(x => loytyy(E, x)) && E.every(x => loytyy(F, x)),
-      kohtia: n.doc.toc.filter(t => t.lvl >= 3).length + (n.kohdat || []).filter(y => y.lvl >= 3).length, sivuja: L.tila.sivuja };
+    if (N > 1) E.add(N - 1);
+    E.add(ankkuriSivu);
+    n.merk.km.forEach(k => { if (!k.orpo) E.add(sivu(k)); });
+    if (L.majakka()) E.add(sivu(L.majakka().k));
+    const sivut = S.map(s => sivu(s.k));
+    // Kohta, joka on samassa kohdassa kuin osio (Stephanus-sivun ensimmäinen kirjain), on osion porras.
+    const osiot = new Set(n.doc.toc.filter(t => t.lvl <= 2).map(t => t.b + ':0').concat((n.kohdat || []).filter(y => y.lvl <= 2).map(y => key(y.k))));
+    const kohdat = new Set(n.doc.toc.filter(t => t.lvl >= 3).map(t => t.b + ':0').concat((n.kohdat || []).filter(y => y.lvl >= 3).map(y => key(y.k)))
+      .filter(x => !osiot.has(x)));
+    const kohtaPortaat = S.filter((s, i) => kohdat.has(s.key) && s.key !== key(L.sivunAlku(sivut[i]))).length;
+    L.mene(a0);
+    const Es = [...E].sort((a, b) => a - b), Ss = sivut.slice().sort((a, b) => a - b);
+    return { N, A, F: S.map(s => o(s.k)).sort((a, b) => a - b), E: Es, sivut: Ss, jaot, kohtaPortaat, kohtia: kohdat.size,
+      yksi: new Set(sivut).size === sivut.length, sama: Es.length === Ss.length && Es.every((x, i) => x === Ss[i]) };
   });
-  const pros = A => A.map(x => (x * 100).toFixed(1)).join(' ');
+  const sivulista = A => A.map(x => x + 1).join(' ');
   const jana = () => p.evaluate(() => { const b = document.querySelector('#jana-svg').getBoundingClientRect(), L = window.__luin, xr = L.janaRajat(b.width);
     return { l: b.left, y: b.top + L.JANA.y, x0: xr[0], x1: xr[1] }; });
   const ankkuriX = r => p.evaluate(r => { const L = window.__luin, n = L.nyt(), a = L.tila.ankkuri;
@@ -88,11 +97,24 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
   // 1. Kirja: luku- ja osiotason portaat, väliportaat.
   await avaa(KIRJA);
   const k = await portaat();
-  console.log(`  kirja: ${k.sivuja} sivua, portaat ${pros(k.F)} %, jaot ${k.jaot.join(', ')}; kohtia ${k.kohtia}, vanhalla säännöllä pysäkkejä ${k.vanhat}`);
-  tulos('kirja: portaat säännön mukaan', k.sama, 'odotus ' + pros(k.E));
+  console.log(`  kirja: ${k.N} sivua, askel ${k.A}, portaat sivuilla ${sivulista(k.sivut)}, jaot ${k.jaot.join(', ')}; kohtia ${k.kohtia}`);
+  tulos('kirja: portaat lain mukaan', k.sama, 'odotus ' + sivulista(k.E));
+  tulos('kirja: yksi porras sivua kohden', k.yksi);
   tulos('kirja: kohdat eivät ole portaita', k.kohtia > 0 && k.kohtaPortaat === 0, `kohtia ${k.kohtia}, portaina ${k.kohtaPortaat}`);
-  tulos('kirja: suurin portaanväli enintään 25 %', k.suurin <= .25 + 1e-6, (k.suurin * 100).toFixed(1) + ' %');
-  tulos('kirja: sekä kahtia että vähintään kolmeen jaettu väli', k.jaot.includes(2) && k.jaot.some(m => m >= 3), 'jaot ' + k.jaot.join(', '));
+  tulos('kirja: väli jaettu', k.jaot.length > 0, k.jaot.join(', '));
+
+  // Kirjanmerkki luvun 4 sivulla: sivun porras on luku (merkkipaalu ennen kirjanmerkkiä), ja portaiden sivut pysyvät.
+  const km = await p.evaluate(() => {
+    const L = window.__luin, n = L.nyt(), t = n.doc.toc.find(t => /^4\./.test(t.text)), b = t.b + 2;
+    L.mene({ b: t.b, o: 0 }); const s1 = L.tila.sivu; L.mene({ b, o: 0 }); const s2 = L.tila.sivu; L.mene({ b: 0, o: 0 });
+    n.merk.km.push({ id: 'testikm', b, o: 0, s: n.txt[b].slice(0, 40), t: 1, osio: t.text });
+    const P = L.janaPysakit().filter(m => m.sivu === s1);
+    return { samalla: s1 === s2, luku: t.b + ':0', porras: P.map(m => m.k.b + ':' + m.k.o).join(), n: P.length };
+  });
+  await p.waitForTimeout(200);
+  const kmP = await portaat();
+  tulos('kirja: kirjanmerkki luvun sivulla, porras on luku', km.samalla && km.n === 1 && km.porras === km.luku && kmP.sama && kmP.sivut.join() === k.sivut.join(),
+    `luku ${km.luku}, sivun porras ${km.porras}, portaat ${sivulista(kmP.sivut)}`);
 
   // 2. Veto koko janan yli: vain portaita, ei kirjoituksia ruudulle, kun porras ei vaihdu.
   const r = await jana();
@@ -117,7 +139,9 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
     if (t.g === edellinen) { if (t.m) turhat++; } else vaihdot++;
     edellinen = t.g;
   }
+  const lappu = await p.evaluate(() => document.querySelector('#jana-pros').textContent);
   await p.mouse.up(); await p.waitForTimeout(300);
+  const lappuOk = lappu === (await p.evaluate(() => (window.__luin.tila.sivu + 1) + ' / ' + window.__luin.tila.sivuja));
   const vain = paikat.every(x => portaatX.some(y => Math.abs(x - y) < .01));
   const kohtaSal = salmiakit.filter(s => s.lvl === 3), ohiKohdista = paikat.every(x => !kohtaSal.some(s => Math.abs(r.l + s.x - x) < .01 && !portaatX.some(y => Math.abs(y - x) < .01)));
   const eri = [...new Set(paikat.map(x => x.toFixed(2)))].length;
@@ -125,6 +149,13 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
   tulos('kirja: veto pysähtyy vain portaille', vain && ohiKohdista && kohtaSal.length > 0, `${eri} eri paikkaa ${askelia} askeleella, portaita ${k.F.length}, näkyviä kohtasalmiakkeja ${kohtaSal.length}`);
   tulos('kirja: veto ei kirjoita, kun porras ei vaihdu', turhat === 0, `porras vaihtui ${vaihdot} kertaa, turhia kirjoituksia ${turhat}, muutoksia yhteensä ${muutoksia}`);
   tulos('kirja: irrotus portaalle', portaatX.some(y => Math.abs(y - perilla.x) < .5), 'perillä ' + perilla.k);
+  await p.evaluate(() => window.__luin.mene({ b: 0, o: 0 })); await p.waitForTimeout(200);
+  await p.mouse.move(x0, r.y); await p.mouse.down();
+  for (let i = 1; i <= 40; i++) { await p.mouse.move(x0 + (x1 - x0) * .55 * i / 40, r.y); await p.waitForTimeout(30); }
+  const lappu2 = await p.evaluate(() => document.querySelector('#jana-pros').textContent);
+  await p.mouse.up(); await p.waitForTimeout(300);
+  const sivu2 = await p.evaluate(() => (window.__luin.tila.sivu + 1) + ' / ' + window.__luin.tila.sivuja);
+  tulos('kirja: vedon sivunumero on irrotuksen sivu', lappuOk && lappu2 === sivu2, `loppu ${lappu}, keskellä ${lappu2} → ${sivu2}`);
 
   // 3. Napautus portaiden välissä vie siihen kohtaan; pieni heilahdus (alle 10 px) on yhä napautus.
   await p.evaluate(() => window.__luin.mene({ b: 0, o: 0 })); await p.waitForTimeout(200);
@@ -151,17 +182,32 @@ const VALTIO = '---\nkohdat: yläindeksit\n---\n\n# Πολιτεία\n\n## Αʹ\
   const n3 = await ankkuriX(r1);
   tulos('kirja: napautus kohdan salmiakkiin vie kohtaan', n3.k === ks.k, `kohta ${ks.k}, perillä ${n3.k}`);
 
-  // 5. Ilman otsikoita: alku, viimeinen sivu ja väliportaat.
-  await avaa(ILMAN);
-  const i = await portaat();
-  console.log(`  ilman otsikoita: ${i.sivuja} sivua, portaat ${pros(i.F)} %`);
-  tulos('ilman otsikoita: portaat säännön mukaan', i.sama && i.jaot.length === 1 && i.suurin <= .25, 'odotus ' + pros(i.E) + ', suurin väli ' + (i.suurin * 100).toFixed(1) + ' %');
+  // 5. Merkkipaaluton kirja: alle 12 sivua joka sivu, 12 sivua joka toinen, 20 sivua askel 3. Kappalemäärä haetaan
+  // sivumäärän mukaan. Voimassa oleva kohta tulee portaaksi muuttamatta väliportaita.
+  const loyda = async N => {
+    let m = Math.round(N * 3.5);
+    for (let t = 0; t < 16; t++) { await avaa(ILMAN(m)); const s = await p.evaluate(() => window.__luin.tila.sivuja); if (s === N) return m; m += s < N ? 1 : -1; }
+    return null;
+  };
+  for (const N of [5, 11, 12, 20]) {
+    const m = await loyda(N);
+    if (m === null) { tulos(`ilman otsikoita ${N} sivua: tekstiä ei löytynyt`, false); continue; }
+    const i = await portaat();
+    console.log(`  ilman otsikoita: ${m} kappaletta, ${i.N} sivua, askel ${i.A}, portaat sivuilla ${sivulista(i.sivut)}`);
+    const odotus = { 5: '1 2 3 4 5', 11: '1 2 3 4 5 6 7 8 9 10 11', 12: '1 3 5 7 9 11 12', 20: '1 4 8 11 14 18 20' }[N];
+    tulos(`ilman otsikoita ${N} sivua`, i.sama && i.yksi && sivulista(i.sivut) === odotus, 'odotus ' + odotus);
+    if (N === 12) {
+      await p.evaluate(() => { const L = window.__luin; L.mene(L.sivunAlku(5)); }); await p.waitForTimeout(200);
+      const h = await portaat();
+      tulos('ilman otsikoita 12 sivua, sivulla 6: väliportaat ennallaan', h.sama && sivulista(h.sivut) === '1 3 5 6 7 9 11 12', 'portaat ' + sivulista(h.sivut));
+    }
+  }
 
   // 6. Yläindeksit: Stephanus-sivut (osio) ovat portaita, kirjaimet (kohta) eivät.
   await avaa(VALTIO);
   const v = await portaat();
-  console.log(`  valtio: ${v.sivuja} sivua, portaat ${pros(v.F)} %, kohtia ${v.kohtia}, vanhalla säännöllä pysäkkejä ${v.vanhat}`);
-  tulos('valtio: osiot portaita, kohdat eivät', v.sama && v.kohtia === 25 && v.kohtaPortaat === 0, `portaita ${v.F.length}`);
+  console.log(`  valtio: ${v.N} sivua, portaat sivuilla ${sivulista(v.sivut)}, kohtia ${v.kohtia}`);
+  tulos('valtio: osiot portaita, kohdat eivät', v.sama && v.yksi && v.kohtia === 20 && v.kohtaPortaat === 0, `odotus ${sivulista(v.E)}; kohtia osioiden ulkopuolella ${v.kohtia}, portaina ${v.kohtaPortaat}`);
 
   // 7. Kosketus (sähköpaperilla sormi tai kynä): veto portaille, napautus kohtaan.
   const kp = await (await b.newContext({ viewport: { width: 412, height: 824 }, hasTouch: true, isMobile: true })).newPage();
