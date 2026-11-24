@@ -54,6 +54,10 @@
     line-height:1.3;
   }
   ul.results small{ display:block; color:var(--muted); font-size:13px }
+  .titleRow{ display:flex; gap:8px; align-items:baseline }
+  .titlePrefix{ white-space:nowrap; font-size:16px; color:var(--muted) }
+  #title{ text-transform:uppercase }
+  code{ font-size:13px }
   .chosen{ margin-top:10px }
   .chosen small{ color:var(--muted); font-size:13px }
   label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
@@ -71,27 +75,30 @@
 <body>
 <h1>Oma Tusinasää</h1>
 <p>Tee Tusinasäästä oma linkki: paikka, otsikko ja lämpötilan esitystapa.</p>
-<p class="note">Sijainti salataan tässä selaimessa. Palvelimelle tallentuu vain salattu paketti, ja sen avain on
-  pelkästään linkissä. Paikkahaun hakusana lähtee OpenStreetMapin palveluun.</p>
+<p class="note">Valittu oma sijainti salataan tässä selaimessa. Palvelimelle tallentuu vain salattu paketti, ja linkissä
+  ei ole itse pakettia: vain sen avain. Paikkahaun hakusana käy OpenStreetMap-palvelun kautta.</p>
 
-<h2>Paikka</h2>
+<h2>Sääpylvään sijainti</h2>
 <form id="searchForm" class="row" autocomplete="off">
-  <input id="query" type="search" placeholder="Paikan nimi tai osoite" aria-label="Paikan nimi tai osoite" required>
+  <input id="query" type="search" placeholder="Osoite, paikka tai koordinaatit" aria-label="Sääpylvään sijainti" required>
   <button id="searchBtn" type="submit">Hae</button>
 </form>
-<p class="note" style="margin-top:6px">Suomi, Ruotsi, Norja, Tanska ja Ahvenanmaa.</p>
+<p class="note" style="margin-top:6px">Hae osoitteella tai muulla paikan nimellä (OpenStreetMap). Innokkaille kelpaavat
+  myös koordinaatit muodossa <code>60.1699, 24.9384</code>.</p>
 <ul id="results" class="results"></ul>
 <div id="chosen" class="chosen" hidden></div>
 <div id="placeStatus" class="status" role="status"></div>
 
 <h2>Otsikko</h2>
-<input id="title" type="text" maxlength="160" value="TUSINASÄÄ 12 · " aria-label="Otsikko">
+<div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span>
+  <input id="title" type="text" maxlength="145" placeholder="paikan nimi" aria-label="Paikan nimi otsikossa"></div>
 
 <h2>Lämpötila</h2>
 <label class="choice"><input type="radio" name="lampo" value="" checked>
   <span>Lämpötila</span></label>
 <label class="choice"><input type="radio" name="lampo" value="tuntuu">
-  <span>Tuntuu kuin<small>Ilmatieteen laitoksen arvio, jossa tuulen ja kosteuden vaikutus on mukana.</small></span></label>
+  <span>”<i>Tuntuu Kuin</i>” (TK)<small>Suomen Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
+    Lukemassa on otettu huomioon lämpötilan ohella tuulen ja ilmankosteuden vaikutus.</small></span></label>
 
 <h2>Linkki</h2>
 <button id="makeBtn" type="button" disabled>Tee linkki</button>
@@ -136,11 +143,28 @@ function setStatus(el, text, kind){
 
 function round4(v){ return Math.round(v * 1e4) / 1e4; }
 
+/* "60.1699, 24.9384", "60.1699 24.9384" tai pilkkudesimaalein "60,1699 24,9384" / "60,1699; 24,9384". */
+function parseCoordinates(text){
+  const num = '(-?\\d{1,3}(?:[.,]\\d+)?)';
+  const m = text.match(new RegExp(`^${num}\\s*[;\\s]\\s*${num}$`))
+    || text.match(/^(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  if (!m) return null;
+  const lat = parseFloat(m[1].replace(',', '.')), lon = parseFloat(m[2].replace(',', '.'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lat, lon };
+}
+
 /* Nominatimin käyttöehdot: haku vain pyynnöstä (ei kirjoittaessa), enintään kerran sekunnissa. */
 form.addEventListener('submit', async ev => {
   ev.preventDefault();
   const q = query.value.trim();
   if (!q) return;
+  const coords = parseCoordinates(q);
+  if (coords){
+    results.replaceChildren();
+    choose({ lat: round4(coords.lat), lon: round4(coords.lon), name: '', rest: 'koordinaatit' });
+    return;
+  }
   const wait = 1100 - (Date.now() - lastSearch);
   if (wait > 0) await new Promise(r => setTimeout(r, wait));
   lastSearch = Date.now();
@@ -190,13 +214,12 @@ async function choose(place){
   chosenBox.hidden = false;
   chosenBox.replaceChildren();
   const strong = document.createElement('b');
-  strong.textContent = place.name;
+  strong.textContent = place.name || 'Sääpylväs';
   const small = document.createElement('small');
   small.textContent = (place.rest ? place.rest + ' · ' : '') + `${place.lat}, ${place.lon}`;
   chosenBox.append(strong, document.createElement('br'), small);
-  const t = titleInput.value.trim();
-  if (!t || t === TITLE_PREFIX.trim() || titleInput.dataset.auto === '1'){
-    titleInput.value = TITLE_PREFIX + place.name.toLocaleUpperCase('fi-FI');
+  if (!titleInput.value.trim() || titleInput.dataset.auto === '1'){
+    titleInput.value = place.name.toLocaleUpperCase('fi-FI');
     titleInput.dataset.auto = '1';
   }
   setStatus(placeStatus, 'Tarkistetaan, saako paikalle ennusteen…');
@@ -258,8 +281,13 @@ makeBtn.addEventListener('click', async () => {
   setStatus(makeStatus, 'Tehdään linkkiä…');
   try {
     const payload = { lat: chosen.lat, lon: chosen.lon };
-    const title = titleInput.value.trim().slice(0, 160);
-    if (title) payload.title = title;
+    /* Otsikon alku ja interpunkti ovat kiinteät; vain paikan nimi on käyttäjän. */
+    const name = titleInput.value.trim().replace(/^·\s*/, '').toLocaleUpperCase('fi-FI');
+    if (!name){
+      titleInput.focus();
+      throw new Error('Anna paikan nimi otsikkoon.');
+    }
+    payload.title = (TITLE_PREFIX + name).slice(0, 160);
     const lampo = document.querySelector('input[name="lampo"]:checked')?.value;
     if (lampo) payload.lampo = lampo;
     const enc = await encrypt(payload);
