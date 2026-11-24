@@ -2213,6 +2213,9 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
      nowcastin lämpötilasta. */
   const tempFromNowcast = !FEELS_LIKE && isNowcastHour && nowcast && typeof nowcast.temp === 'number';
   const temp = FEELS_LIKE ? hour.feelsLike : (tempFromNowcast ? nowcast.temp : hour.temperature);
+  /* Ilman lämpötila samasta lähteestä kuin tavallisessa tilassa. Pakkas- ja hellekorostus lasketaan siitä myös
+     tuntuu kuin -tilassa: rajapyykki on virallinen ilman lämpötila (käyttäjän päätös). */
+  const airTemp = (isNowcastHour && nowcast && typeof nowcast.temp === 'number') ? nowcast.temp : hour.temperature;
   const tempSource = tempFromNowcast ? 'nowcast' : 'harmonie';
   const tempFallbackFromNowcast = !FEELS_LIKE && isNowcastHour && !tempFromNowcast;
   const rainExpectedNowcast = expectedNowcast;
@@ -2402,6 +2405,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
     timeHtml,
     timeWhite,
     temp,
+    airTemp,
     tempWhite,
     tempSource,
     tempExpectedNowcast: isNowcastHour,
@@ -2476,7 +2480,8 @@ function applyTemperatureMilestones(rows){
   const MIN_FREEZE_MILESTONE = -100;
 
   rows.forEach(row => {
-    const temp = (row && Number.isFinite(row.temp)) ? row.temp : null;
+    /* Ilman lämpötila, ei tuntuu kuin -arvo: tavallisessa tilassa sama kuin row.temp. */
+    const temp = (row && Number.isFinite(row.airTemp)) ? row.airTemp : null;
     if (temp == null) return;
     let highlight = false;
 
