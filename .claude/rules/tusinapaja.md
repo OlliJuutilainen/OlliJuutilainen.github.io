@@ -80,7 +80,7 @@ KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
 Purettu paketti on `{lat, lon, title?, z?, lampo?}`. `lampo: "tuntuu"` vaihtaa lämpötilasarakkeen FMI:n
 `FeelsLike`-arvoon kaikilla riveillä (myös nowcast-riveillä, koska nowcastissa sitä ei ole) ja sarakeotsikoksi `TK` (käyttäjän päätös);
-kehityksessä sama `?lampo=tuntuu`.
+kehityksessä sama `?lampo=tuntuu`. TK-sarake on otsikkoa myöten kursiivilla ja ilman astemerkkiä (luokka `tk`; käyttäjän päätös).
 
 ## Oma Tusinasää (julkinen linkin teko)
 
