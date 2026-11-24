@@ -93,7 +93,8 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 - **Paikkahaku, ei paikannusta** (käyttäjän päätös). Nominatimin ehdot: haku vain pyynnöstä (ei kirjoittaessa),
   enintään kerran sekunnissa, OSM-maininta näkyvissä.
   Hakukenttä hyväksyy myös koordinaatit (`60.1699, 24.9384`, pilkkudesimaalein välilyönnillä); ne ohittavat Nominatimin.
-  Maarajausta ei luetella sivulla (käyttäjän päätös: kävijä luulisi kentän kysyvän asuinmaata); FMI-tarkistus kertoo, jos paikka ei käy.
+  Maarajaus on hakuohjeen viimeisenä huomautuksena eikä kentän vieressä (käyttäjän päätös: kävijä luulisi kentän kysyvän
+  asuinmaata); FMI-tarkistus kertoo, jos paikka ei käy. Hakutulokset ovat valintanappeja, jotta valitsematon tila näkyy.
 - **Otsikko on aina `TUSINASÄÄ 12 · <PAIKAN NIMI>`** (käyttäjän päätös): alku ja interpunkti ovat kiinteät, kävijä antaa vain nimen.
 - **Android-ohjelma pyynnöstä:** nappi lähettää pyynnön `/api/palaute`-reitillä Tusinasoftin lukulistaan (`mista`:
   *Oma Tusinasää: Android-pyyntö*). Linkkiä, avainta tai sijaintia ei liitetä: sama perusversion APK käy kaikille ja muistaa

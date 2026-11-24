@@ -47,13 +47,19 @@
   }
   button:disabled{ opacity:.45; cursor:default }
   button.plain{ color:var(--text); background:transparent; border-color:var(--border) }
-  ul.results{ list-style:none; margin:10px 0 0; padding:0 }
-  ul.results li{ margin:0 0 6px }
-  ul.results button{
-    width:100%; text-align:left; color:var(--text); background:transparent; border-color:var(--border);
-    line-height:1.3;
-  }
-  ul.results small{ display:block; color:var(--muted); font-size:13px }
+  /* Hakutulokset: kehote, sisennys ja haalea väri, joka kirkastuu osoitettaessa ja valittuna. Oikean reunan merkintä
+     pyytää valitsemaan ja kertoo valinnan. Luokka .valittu asetetaan JS:llä (ei :has()-riippuvuutta). */
+  .pickHint{ font-size:14px; margin:14px 0 8px }
+  ul.results{ list-style:none; margin:10px 0 0 2px; padding:2px 0 2px 14px; border-left:1px solid var(--border) }
+  ul.results:empty{ display:none }
+  ul.results li{ margin:0 0 10px }
+  ul.results li:last-child{ margin-bottom:0 }
+  ul.results label.choice{ margin:0; line-height:1.3; color:var(--muted); transition:color .15s }
+  ul.results label.choice:hover, ul.results label.choice:focus-within, ul.results label.choice.valittu{ color:var(--text) }
+  ul.results label.choice::after{ content:''; margin-left:auto; padding-left:10px; align-self:center;
+    font-size:12px; letter-spacing:.3px; color:var(--muted); white-space:nowrap }
+  ul.results label.choice:hover::after{ content:'valitse' }
+  ul.results label.choice.valittu::after{ content:'valittu'; color:var(--ok) }
   .titleRow{ display:flex; gap:8px; align-items:baseline }
   .titlePrefix{ white-space:nowrap; font-size:16px; color:var(--muted) }
   #title{ text-transform:uppercase }
@@ -65,8 +71,6 @@
     color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px; resize:vertical }
   .apkForm button[type="submit"]{ margin-top:12px }
   .ansa{ position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden }
-  .chosen{ margin-top:10px }
-  .chosen small{ color:var(--muted); font-size:13px }
   label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
   label.choice small{ display:block; color:var(--muted); font-size:13px }
   .status{ font-size:14px; margin-top:8px; white-space:pre-wrap }
@@ -91,9 +95,10 @@
   <button id="searchBtn" type="submit">Hae</button>
 </form>
 <p class="note" style="margin-top:6px">Hae osoitteella tai muulla paikan nimellä (OpenStreetMap).<br>Reippaat voivat valita
-  sijainnin myös koordinaateilla. Anna ne muodossa <code>60.1699, 24.9384</code>.</p>
+  sijainnin myös koordinaateilla. Anna ne muodossa <code>60.1699, 24.9384</code>.<br>Palvelu toimii
+  Suomessa, Ruotsissa, Tanskassa ja Manner-Norjassa.</p>
+<p id="pickHint" class="pickHint" hidden>Valitse näistä yksi:</p>
 <ul id="results" class="results"></ul>
-<div id="chosen" class="chosen" hidden></div>
 <div id="placeStatus" class="status" role="status"></div>
 
 <h2>Otsikko</h2>
@@ -104,7 +109,7 @@
 <label class="choice"><input type="radio" name="lampo" value="" checked>
   <span>Lämpötila</span></label>
 <label class="choice"><input type="radio" name="lampo" value="tuntuu">
-  <span><i>Tuntuu kuin</i> (TK)<small>Suomen Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
+  <span><i>Tuntuu kuin</i> (TK)<small>Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
     Lukemassa on otettu huomioon lämpötilan ohella tuulen ja ilmankosteuden vaikutus.</small></span></label>
 
 <h2>Linkki</h2>
@@ -151,10 +156,46 @@ const TITLE_PREFIX = 'TUSINASÄÄ 12 · ';
 
 const $ = id => document.getElementById(id);
 const form = $('searchForm'), query = $('query'), searchBtn = $('searchBtn'), results = $('results');
-const chosenBox = $('chosen'), placeStatus = $('placeStatus'), titleInput = $('title');
+const pickHint = $('pickHint'), placeStatus = $('placeStatus'), titleInput = $('title');
 const makeBtn = $('makeBtn'), makeStatus = $('makeStatus'), resultBox = $('result');
 
 let chosen = null;      // { lat, lon, name }
+let chooseSeq = 0;      // myöhästynyt FMI-tarkistus ei saa kumota uudempaa valintaa
+let checking = false;
+
+/* Hakutulokset ovat valintanappeja kuten lämpötilavalinta: tyhjä ympyrä kertoo, ettei valintaa ole vielä tehty. */
+function showResults(places){
+  results.replaceChildren();
+  for (const place of places){
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    label.className = 'choice';
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'paikka';
+    radio.addEventListener('change', () => { if (radio.checked) choose(place); });
+    place.label = label;
+    const span = document.createElement('span');
+    span.textContent = place.name || 'Sääpylväs';
+    const small = document.createElement('small');
+    small.textContent = place.rest;
+    if (place.rest) span.append(small);
+    label.append(radio, span);
+    li.append(label);
+    results.append(li);
+    place.radio = radio;
+  }
+  pickHint.hidden = places.length < 2;
+}
+
+function clearPlace(){
+  chosen = null;
+  chooseSeq++;
+  checking = false;
+  results.replaceChildren();
+  pickHint.hidden = true;
+  resultBox.hidden = true;
+}
 let lastSearch = 0;
 
 function setStatus(el, text, kind){
@@ -182,18 +223,20 @@ form.addEventListener('submit', async ev => {
   if (!q) return;
   const coords = parseCoordinates(q);
   if (coords){
-    results.replaceChildren();
-    choose({ lat: round4(coords.lat), lon: round4(coords.lon), name: '', rest: 'koordinaatit' });
+    clearPlace();
+    const lat = round4(coords.lat), lon = round4(coords.lon);
+    const place = { lat, lon, name: '', rest: `koordinaatit ${lat}, ${lon}` };
+    showResults([place]);
+    place.radio.checked = true;
+    choose(place);
     return;
   }
   const wait = 1100 - (Date.now() - lastSearch);
   if (wait > 0) await new Promise(r => setTimeout(r, wait));
   lastSearch = Date.now();
   searchBtn.disabled = true;
-  results.replaceChildren();
   /* Uusi haku kumoaa edellisen valinnan, jottei linkki tule vanhasta paikasta. */
-  chosen = null;
-  chosenBox.hidden = true;
+  clearPlace();
   setStatus(placeStatus, 'Haetaan…');
   try {
     const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
@@ -216,19 +259,11 @@ form.addEventListener('submit', async ev => {
       /* Osoitehaussa nimi on pelkkä talonumero (83): nimeksi katu ja numero. */
       if (/^\d+\s*[a-zåäö]?$/i.test(name) && parts[1]){ skip = [name, parts[1]]; name = `${parts[1]} ${name}`; }
       const rest = parts.filter(p => !skip.includes(p) && !/^\d{3,}$/.test(p)).slice(0, 4).join(', ');
-      const li = document.createElement('li');
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = name || rest;
-      if (rest){ const s = document.createElement('small'); s.textContent = rest; b.append(s); }
-      const place = { lat: round4(lat), lon: round4(lon), name: name || rest, rest };
-      b.addEventListener('click', () => choose(place));
-      li.append(b);
-      results.append(li);
-      found.push(place);
+      found.push({ lat: round4(lat), lon: round4(lon), name: name || rest, rest });
     }
-    if (found.length === 1) choose(found[0]);
-    else setStatus(placeStatus, 'Valitse sijainti napauttamalla hakutulosta.');
+    showResults(found);
+    setStatus(placeStatus, '');
+    if (found.length === 1){ found[0].radio.checked = true; choose(found[0]); }
   } catch (err) {
     console.error('Paikkahaku epäonnistui', err);
     setStatus(placeStatus, 'Paikkahaku ei vastannut. Yritä hetken päästä uudelleen.', 'err');
@@ -238,22 +273,19 @@ form.addEventListener('submit', async ev => {
 });
 
 async function choose(place){
+  results.querySelectorAll('label.choice').forEach(l => l.classList.toggle('valittu', l === place.label));
+  const seq = ++chooseSeq;
   chosen = null;
+  checking = true;
   resultBox.hidden = true;
-  results.replaceChildren();
-  chosenBox.hidden = false;
-  chosenBox.replaceChildren();
-  const strong = document.createElement('b');
-  strong.textContent = place.name || 'Sääpylväs';
-  const small = document.createElement('small');
-  small.textContent = (place.rest ? place.rest + ' · ' : '') + `${place.lat}, ${place.lon}`;
-  chosenBox.append(strong, document.createElement('br'), small);
   if (!titleInput.value.trim() || titleInput.dataset.auto === '1'){
     titleInput.value = place.name.toLocaleUpperCase('fi-FI');
     titleInput.dataset.auto = '1';
   }
   setStatus(placeStatus, 'Tarkistetaan, saako paikalle ennusteen…');
   const ok = await hasForecast(place.lat, place.lon);
+  if (seq !== chooseSeq) return;
+  checking = false;
   if (ok === true){
     chosen = place;
     setStatus(makeStatus, '');
@@ -306,9 +338,12 @@ async function encrypt(payload){
 
 makeBtn.addEventListener('click', async () => {
   if (!chosen){
-    setStatus(makeStatus, results.children.length
-      ? 'Valitse ensin sääpylvään sijainti napauttamalla hakutulosta.'
-      : (!chosenBox.hidden ? 'Valittu sijainti ei kelpaa; katso ilmoitus sijainnin alla.' : 'Hae ensin sääpylvään sijainti.'), 'err');
+    const picked = results.querySelector('input:checked');
+    setStatus(makeStatus,
+      !results.children.length ? 'Hae ensin sääpylvään sijainti.'
+      : !picked ? 'Valitse ensin sääpylvään sijainti hakutuloksista.'
+      : checking ? 'Hetki: ennustetta tarkistetaan vielä.'
+      : 'Valittu sijainti ei kelpaa; katso ilmoitus sijainnin alla.', 'err');
     return;
   }
   makeBtn.disabled = true;
