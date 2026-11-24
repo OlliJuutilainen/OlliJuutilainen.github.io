@@ -123,7 +123,7 @@
   }
   .row > div:first-child{ border-right:1px solid var(--color-border); padding-right:10px; margin-right:4px; text-align:right }
   .muted{ color:var(--color-muted) } .soft{ color:var(--color-soft) }
-  /* Tuntuu kuin -sarake otsikkoa myöten kursiivilla ja ilman astemerkkiä: arvio, ei mittaus (käyttäjän päätös). */
+  /* Tuntuu kuin -sarakkeen luvut kursiivilla ja ilman astemerkkiä: arvio, ei mittaus. Otsake TK pystyssä (käyttäjän päätös). */
   .tk{ font-style:italic }
   .cell{ color:var(--color-text) }
   .cell.soft{ color:var(--color-soft) }
@@ -538,7 +538,7 @@ if (specialTitle){
 /* Sarakeotsikko TK (tuntuu kuin) kertoo, että luvut ovat tuntuu kuin -arvoja (käyttäjän päätös: lyhenne TK). */
 if (FEELS_LIKE){
   const hdrTemp = document.querySelector('.hdr > div:nth-child(2)');
-  if (hdrTemp){ hdrTemp.className = 'caps tk'; hdrTemp.textContent = 'TK'; }
+  if (hdrTemp){ hdrTemp.className = 'caps'; hdrTemp.textContent = 'TK'; }
 }
 
 /* --------- aikaformatit --------- */
