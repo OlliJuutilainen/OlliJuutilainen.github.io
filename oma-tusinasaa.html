@@ -104,11 +104,11 @@
 <label class="choice"><input type="radio" name="lampo" value="" checked>
   <span>Lämpötila</span></label>
 <label class="choice"><input type="radio" name="lampo" value="tuntuu">
-  <span><i>Tuntuu kuin (TK)</i><small>Suomen Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
+  <span><i>Tuntuu kuin</i> (TK)<small>Suomen Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
     Lukemassa on otettu huomioon lämpötilan ohella tuulen ja ilmankosteuden vaikutus.</small></span></label>
 
 <h2>Linkki</h2>
-<button id="makeBtn" type="button" disabled>Tee linkki</button>
+<button id="makeBtn" type="button">Tee linkki</button>
 <div id="makeStatus" class="status" role="status"></div>
 <div id="result" hidden>
   <p>Avaa tällä linkillä:</p>
@@ -191,6 +191,9 @@ form.addEventListener('submit', async ev => {
   lastSearch = Date.now();
   searchBtn.disabled = true;
   results.replaceChildren();
+  /* Uusi haku kumoaa edellisen valinnan, jottei linkki tule vanhasta paikasta. */
+  chosen = null;
+  chosenBox.hidden = true;
   setStatus(placeStatus, 'Haetaan…');
   try {
     const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
@@ -203,22 +206,29 @@ form.addEventListener('submit', async ev => {
       setStatus(placeStatus, 'Paikkaa ei löytynyt. Kokeile toista nimeä tai lisää kunta.', 'err');
       return;
     }
-    setStatus(placeStatus, '');
+    const found = [];
     for (const item of list){
       const lat = parseFloat(item.lat), lon = parseFloat(item.lon);
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
       const parts = String(item.display_name || '').split(',').map(s => s.trim()).filter(Boolean);
-      const name = (item.name || parts[0] || '').trim();
-      const rest = parts.filter(p => p !== name && !/^\d{3,}$/.test(p)).slice(0, 4).join(', ');
+      let name = (item.name || parts[0] || '').trim();
+      let skip = [name];
+      /* Osoitehaussa nimi on pelkkä talonumero (83): nimeksi katu ja numero. */
+      if (/^\d+\s*[a-zåäö]?$/i.test(name) && parts[1]){ skip = [name, parts[1]]; name = `${parts[1]} ${name}`; }
+      const rest = parts.filter(p => !skip.includes(p) && !/^\d{3,}$/.test(p)).slice(0, 4).join(', ');
       const li = document.createElement('li');
       const b = document.createElement('button');
       b.type = 'button';
       b.textContent = name || rest;
       if (rest){ const s = document.createElement('small'); s.textContent = rest; b.append(s); }
-      b.addEventListener('click', () => choose({ lat: round4(lat), lon: round4(lon), name: name || rest, rest }));
+      const place = { lat: round4(lat), lon: round4(lon), name: name || rest, rest };
+      b.addEventListener('click', () => choose(place));
       li.append(b);
       results.append(li);
+      found.push(place);
     }
+    if (found.length === 1) choose(found[0]);
+    else setStatus(placeStatus, 'Valitse sijainti napauttamalla hakutulosta.');
   } catch (err) {
     console.error('Paikkahaku epäonnistui', err);
     setStatus(placeStatus, 'Paikkahaku ei vastannut. Yritä hetken päästä uudelleen.', 'err');
@@ -229,7 +239,6 @@ form.addEventListener('submit', async ev => {
 
 async function choose(place){
   chosen = null;
-  makeBtn.disabled = true;
   resultBox.hidden = true;
   results.replaceChildren();
   chosenBox.hidden = false;
@@ -247,7 +256,7 @@ async function choose(place){
   const ok = await hasForecast(place.lat, place.lon);
   if (ok === true){
     chosen = place;
-    makeBtn.disabled = false;
+    setStatus(makeStatus, '');
     setStatus(placeStatus, 'Paikalle saadaan ennuste.', 'ok');
   } else if (ok === false){
     setStatus(placeStatus, 'Tälle paikalle ei saada Ilmatieteen laitoksen ennustetta. Valitse toinen paikka.', 'err');
@@ -296,7 +305,12 @@ async function encrypt(payload){
 }
 
 makeBtn.addEventListener('click', async () => {
-  if (!chosen) return;
+  if (!chosen){
+    setStatus(makeStatus, results.children.length
+      ? 'Valitse ensin sääpylvään sijainti napauttamalla hakutulosta.'
+      : (!chosenBox.hidden ? 'Valittu sijainti ei kelpaa; katso ilmoitus sijainnin alla.' : 'Hae ensin sääpylvään sijainti.'), 'err');
+    return;
+  }
   makeBtn.disabled = true;
   resultBox.hidden = true;
   setStatus(makeStatus, 'Tehdään linkkiä…');
@@ -339,7 +353,7 @@ makeBtn.addEventListener('click', async () => {
     console.error(err);
     setStatus(makeStatus, err?.message || 'Linkin teko epäonnistui.', 'err');
   } finally {
-    makeBtn.disabled = !chosen;
+    makeBtn.disabled = false;
   }
 });
 
