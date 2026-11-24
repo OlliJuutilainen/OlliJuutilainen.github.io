@@ -37,7 +37,7 @@
   p{ margin:0 0 10px }
   .note{ color:var(--muted); font-size:14px }
   .row{ display:flex; gap:8px }
-  input[type="search"], input[type="text"]{
+  input[type="search"], input[type="text"], input[type="email"]{
     flex:1; min-width:0; width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
     color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px;
   }
@@ -58,6 +58,13 @@
   .titlePrefix{ white-space:nowrap; font-size:16px; color:var(--muted) }
   #title{ text-transform:uppercase }
   code{ font-size:13px }
+  .apkForm{ margin-top:12px }
+  .apkForm label{ display:block; font-size:14px; margin:10px 0 4px }
+  .apkForm label small{ color:var(--muted) }
+  .apkForm textarea{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
+    color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px; resize:vertical }
+  .apkForm button[type="submit"]{ margin-top:12px }
+  .ansa{ position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden }
   .chosen{ margin-top:10px }
   .chosen small{ color:var(--muted); font-size:13px }
   label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
@@ -116,6 +123,20 @@
     <i>Lisää aloitusnäyttöön</i>. Sovellus avaa paikan, jonka linkin olet viimeksi avannut tällä puhelimella.</p>
   <p><b>Android-sovelluksessa:</b> avaa puhelimella tämä linkki. Sovellus muistaa paikan.</p>
   <div class="link"><a id="appLink" href="#"></a></div>
+  <p class="note">Android-ohjelmaa ei ladata kaupasta: Tusinasoft leipoo sen pyynnöstä ja lähettää sen sinulle.</p>
+  <button id="apkBtn" class="plain" type="button">Kyllä kiitos, haluan oman Tusinasääni Android-ohjelmana</button>
+  <form id="apkForm" class="apkForm" hidden autocomplete="on">
+    <label for="apkNimi">Nimi <small>(valinnainen)</small></label>
+    <input id="apkNimi" type="text" maxlength="200" autocomplete="name">
+    <label for="apkSposti">Sähköposti, johon ohjelma lähetetään</label>
+    <input id="apkSposti" type="email" maxlength="200" autocomplete="email">
+    <label for="apkLisa">Lisätietoa tai muu yhteystapa <small>(valinnainen)</small></label>
+    <textarea id="apkLisa" rows="3" maxlength="2000"></textarea>
+    <div class="ansa" aria-hidden="true"><label for="apkAnsa">Jätä tyhjäksi</label><input id="apkAnsa" type="text" tabindex="-1" autocomplete="off"></div>
+    <p class="note">Pyyntöön ei liitetä linkkiäsi eikä sijaintia.</p>
+    <button id="apkSend" type="submit">Lähetä pyyntö</button>
+    <div id="apkStatus" class="status" role="status"></div>
+  </form>
 </div>
 
 <p class="note" style="margin-top:30px">Paikkahaku: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMapin tekijät</a> (Nominatim).</p>
@@ -319,6 +340,45 @@ makeBtn.addEventListener('click', async () => {
     setStatus(makeStatus, err?.message || 'Linkin teko epäonnistui.', 'err');
   } finally {
     makeBtn.disabled = !chosen;
+  }
+});
+
+/* Android-pyyntö kulkee palautereittiä (/api/palaute) Tusinasoftin lukulistaan. Linkkiä ja avainta ei lähetetä:
+   sama ohjelma käy kaikille, ja se muistaa paikan, kun linkki avataan sillä kerran. */
+$('apkBtn').addEventListener('click', () => {
+  $('apkForm').hidden = false;
+  $('apkBtn').hidden = true;
+  $('apkSposti').focus();
+});
+$('apkForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const sposti = $('apkSposti').value.trim(), lisa = $('apkLisa').value.trim();
+  if (!sposti && !lisa){
+    setStatus($('apkStatus'), 'Kerro sähköposti tai muu tapa, jolla ohjelman voi toimittaa sinulle.', 'err');
+    return;
+  }
+  $('apkSend').disabled = true;
+  setStatus($('apkStatus'), 'Lähetetään…');
+  try {
+    const res = await fetch(`${API_BASE}/api/palaute`, {
+      method: 'POST', credentials: 'omit', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nimi: $('apkNimi').value.trim(), sposti,
+        viesti: 'Kyllä kiitos, haluan oman Tusinasääni Android-ohjelmana.' + (lisa ? '\n\n' + lisa : ''),
+        mista: 'Oma Tusinasää: Android-pyyntö', ansa: $('apkAnsa').value
+      })
+    });
+    if (res.status === 400 && (await res.clone().json().catch(() => ({}))).error === 'bad_email'){
+      throw new Error('Sähköpostiosoite ei näytä oikealta.');
+    }
+    if (res.status === 429) throw new Error('Pyyntöjä on tullut juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+    if (!res.ok) throw new Error(`Lähetys epäonnistui (virhekoodi ${res.status}).`);
+    setStatus($('apkStatus'), 'Pyyntö lähti. Kun ohjelma on asennettu, avaa yllä oleva linkki puhelimella kerran.', 'ok');
+    $('apkForm').querySelectorAll('input, textarea, button').forEach(e => { e.disabled = true; });
+  } catch (err) {
+    setStatus($('apkStatus'), err?.message || 'Lähetys epäonnistui.', 'err');
+    $('apkSend').disabled = false;
   }
 });
 
