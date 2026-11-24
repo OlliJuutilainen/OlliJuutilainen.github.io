@@ -8244,34 +8244,45 @@
     return (sivuAlut[p] = k);
   }
   // Vierityksessä aikajanalla ei ole magneettia (käyttäjän päätös): napautus ja veto vievät suhteelliseen kohtaan.
-  // Sivutettuna veto pysähtyy portaille (poikkeukset janaKohde()ssa), napautus ei. Portaat ovat tekstin alku, viimeisen
-  // sivun alku, luvut ja osiot (otsikot ja yläindeksien osiot; kohdat eivät ole portaita, käyttäjän päätös), kirjanmerkit,
-  // paluumajakka ja voimassa oleva kohta (haamu), ja lähin voittaa. Yli 25 %:n portaanväliin tulee väliportaita niin, että
-  // väli jakautuu tasan floor(väli / 12,5 %) osaan: yli 25 % keskelle, vähintään 37,5 % kolmasosiin ja niin edelleen.
+  // Sivutettuna veto pysähtyy portaille (poikkeukset janaKohde()ssa), napautus ei. Portaiden laki (käyttäjän päätökset):
+  // 1) Yksikkö on sivu: porras on sivu, ja samalla sivulla on yksi porras (etusija: majakka, haamu, merkkipaalu,
+  //    kirjanmerkki, viimeinen sivu, väliporras).
+  // 2) Merkkipaalut ovat tekstin alku, luvut ja osiot (otsikot ja yläindeksien osiot); kohdat eivät ole portaita.
+  // 3) Askel on 12,5 % sivumäärästä lähimpään kokonaiseen sivuun, puolikas ylöspäin, vähintään sivu: alle 12 sivua 1,
+  //    12–19 sivua 2, 20–27 sivua 3 …
+  // 4) Merkkipaalujen väli (viimeinen väli kirjan loppuun) jaetaan, kun se on yli 25 % sivumäärästä, floor(väli / askel)
+  //    yhtä suureen osaan lähimmille sivuille. Merkkipaaluton 12-sivuinen kirja: joka toinen sivu.
+  // 5) Viimeinen sivu, kirjanmerkit, majakka ja haamu ovat portaita mutta eivät vaikuta väliportaisiin.
   // Portaat ovat samat riippumatta siitä, mitkä merkit aikajanalle on valittu näkyviin. Sähköpaperi päivittyy näin
-  // vedettäessä vain portaalta toiselle siirryttäessä.
+  // vedettäessä vain portaalta toiselle siirryttäessä. Portaat lasketaan kerran vetoa kohden (sivumittaus).
   var JANA_PORRAS = .125;
   function janaPysakit() {
-    var a = [], nimi = kohdanNimi;
-    // Majakka ja nykyinen kohta ensin, jotta ne voittavat samassa kohdassa olevan merkin.
-    if (nyt.majakka) a.push({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
-    if (tila.ankkuri) a.push({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
-    a.push({ k: { b: 0, o: 0 }, nimi: nyt.e.title });
-    // Viimeinen sivu (käyttäjän pyyntö 1.11.2026): ilman tätä veto janan loppuun pysähtyi viimeiseen otsikkoon
-    // (tutkielmassa Kirjallisuus, 52 / 56), eikä loppuun päässyt kuin sivua kääntämällä.
-    if (tila.sivuja > 1) { var vika = sivunAlku(tila.sivuja - 1); a.push({ k: vika, nimi: nimi(vika) }); }
-    nyt.doc.toc.forEach(function (t) { if (t.lvl <= 2) a.push({ k: { b: t.b, o: 0 }, nimi: t.text }); });
-    (nyt.kohdat || []).forEach(function (y) { if (y.lvl <= 2) a.push({ k: y.k, nimi: ykNimi(y) }); });
-    nyt.merk.km.forEach(function (k) { if (!k.orpo) a.push({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
-    var f = a.map(function (m) { return osuus(m.k); }).sort(function (p, q) { return p - q; });
-    for (var i = 1; i < f.length; i++) {
-      var g = f[i] - f[i - 1], n = g > 2 * JANA_PORRAS ? Math.floor(g / JANA_PORRAS + 1e-9) : 1;
-      for (var j = 1; j < n; j++) { var v = janaVapaa(f[i - 1] + g * j / n).k; a.push({ k: v, nimi: nimi(v) }); }
+    var N = tila.sivuja, nimi = kohdanNimi, ehd = [], paalut = [0, N];
+    var lisaa = function (m) {
+      m.sivu = m.sivu != null ? m.sivu : m.k.b === 0 && m.k.o === 0 ? 0 : clamp(sivuKohdassa(m.k) - (m.k.ed || 0), 0, N - 1);
+      ehd.push(m);
+      return m.sivu;
+    };
+    if (nyt.majakka) lisaa({ k: nyt.majakka.k, nimi: 'Palaa takaisin: ' + nimi(nyt.majakka.k), majakka: true });
+    if (tila.ankkuri) lisaa({ k: tila.ankkuri, nimi: nimi(tila.ankkuri) });
+    lisaa({ k: { b: 0, o: 0 }, nimi: nyt.e.title });
+    nyt.doc.toc.forEach(function (t) { if (t.lvl <= 2) paalut.push(lisaa({ k: { b: t.b, o: 0 }, nimi: t.text })); });
+    (nyt.kohdat || []).forEach(function (y) { if (y.lvl <= 2) paalut.push(lisaa({ k: y.k, nimi: ykNimi(y) })); });
+    nyt.merk.km.forEach(function (k) { if (!k.orpo) lisaa({ k: k, nimi: 'Kirjanmerkki: ' + (k.osio || '') + ' “' + k.s + '…”' }); });
+    // Viimeinen sivu (käyttäjän pyyntö): ilman tätä veto janan loppuun pysähtyi viimeiseen otsikkoon, eikä loppuun päässyt
+    // kuin sivua kääntämällä.
+    if (N > 1) { var vika = sivunAlku(N - 1); lisaa({ k: vika, nimi: nimi(vika), sivu: N - 1 }); }
+    var A = Math.max(1, Math.round(N * JANA_PORRAS));
+    paalut = paalut.filter(function (x, i, a) { return a.indexOf(x) === i; }).sort(function (p, q) { return p - q; });
+    for (var i = 1; i < paalut.length; i++) {
+      var a0 = paalut[i - 1], V = paalut[i] - a0, n = V / N > 2 * JANA_PORRAS ? Math.floor(V / A) : 1;
+      for (var j = 1; j < n; j++) { var p = a0 + Math.round(V * j / n), k = sivunAlku(p); lisaa({ k: k, nimi: nimi(k), sivu: p }); }
     }
-    return a;
+    var sivuilla = {};
+    return ehd.filter(function (m) { return !sivuilla[m.sivu] && (sivuilla[m.sivu] = true); });
   }
-  // porras: sivutettuna vedetään (ei napautus eikä hiiren leijunta), jolloin kohde on porras.
-  function janaKohde(clientX, clientY, porras) {
+  // portaat: sivutettuna vedetään (ei napautus eikä hiiren leijunta), jolloin kohde on lähin näistä (janaPysakit()).
+  function janaKohde(clientX, clientY, portaat) {
     var svg = $('#jana-svg'), r = svg.getBoundingClientRect(), xr = janaRajat(r.width), x0 = xr[0], x1 = xr[1];
     var x = clientX - r.left, y = clientY - r.top, f = clamp((x - x0) / (x1 - x0), 0, 1);
     // Käyttäjän pyyntö 4.11.2026: osuma piirrettyyn kirjanmerkin nauhaan (sen rajauslaatikkoon) vie tasan kirjanmerkkiin
@@ -8279,18 +8290,15 @@
     if (y >= JANA.km && y <= JANA.km + JANA.kmKorkeus)
       for (var i = janaNauhat.length - 1; i >= 0; i--) if (Math.abs(x - janaNauhat[i].x) <= JANA.kmLeveys / 2) return janaNauhat[i];
     if (aset.sivutus === 'sivut') {
-      // Osuma näkyvän etappisalmiakin musteen x-alueelle vie salmiakin kohtaan (päällimmäinen ensin); vedettäessä vain luvun ja
-      // osion salmiakki, koska kohta ei ole porras. Muuten veto vie lähimmälle portaalle (janaPysakit()) ja napautus mihin
-      // kohtaan tahansa kuten vierityksessä (käyttäjän päätös). Muuta magneettia ei ole.
-      for (var j = janaSalmiakit.length - 1; j >= 0; j--) {
-        var s = janaSalmiakit[j];
-        if ((!porras || s.lvl <= 2) && Math.abs(x - s.x) <= s.karki) return s;
-      }
-      if (porras) {
+      // Veto vie lähimmälle portaalle (janaPysakit()) eikä muualle, jotta sivulla on yksi pysähdys (käyttäjän päätös).
+      // Napautus vie mihin kohtaan tahansa kuten vierityksessä, paitsi osuma näkyvän etappisalmiakin musteen x-alueelle vie
+      // salmiakin kohtaan (päällimmäinen ensin). Muuta magneettia ei ole.
+      if (portaat) {
         var paras = null, ero = Infinity;
-        janaPysakit().forEach(function (m) { var d = Math.abs(osuus(m.k) - f); if (d < ero) { ero = d; paras = m; } });
+        portaat.forEach(function (m) { var d = Math.abs(osuus(m.k) - f); if (d < ero) { ero = d; paras = m; } });
         return paras;
       }
+      for (var j = janaSalmiakit.length - 1; j >= 0; j--) if (Math.abs(x - janaSalmiakit[j].x) <= janaSalmiakit[j].karki) return janaSalmiakit[j];
     }
     return janaVapaa(f);
   }
@@ -8308,15 +8316,18 @@
   // Painallus on vetoa vasta, kun osoitin on liikkunut JANA_VETO_PX sivusuunnassa; muuten se on napautus.
   var janaVeto = null, JANA_VETO_PX = 10;
   (function () {
-    var svg = $('#jana-svg'), veto = false, vedetty = false, alkuX = 0, odottaa = null;
+    var svg = $('#jana-svg'), veto = false, vedetty = false, alkuX = 0, odottaa = null, portaat = null;
+    var kohde = function (clientX, clientY, v) {
+      return janaKohde(clientX, clientY, v && aset.sivutus === 'sivut' ? portaat || (portaat = janaPysakit()) : null);
+    };
     var nayta = function (clientX, clientY) {
-      var m = janaKohde(clientX, clientY, vedetty), f = osuus(m.k), g = $('#j-veto');
+      var m = kohde(clientX, clientY, vedetty), f = osuus(m.k), g = $('#j-veto');
       // Sama kohde kuin edellisellä kerralla: mitään ei kirjoiteta, jottei sähköpaperi päivitä turhaan.
       if (veto && janaVeto && g && janaVeto.f === f) return;
       $('#jana-kohta').textContent = m.nimi;
       if (!veto) return;
       // Edistyminen (sivunumero tai prosentti) seuraa vetoa heti eikä vaihdu vasta irrotettaessa (käyttäjän pyyntö 26.10.2026).
-      $('#jana-pros').textContent = aset.sivutus === 'sivut' ? (clamp(sivuKohdassa(m.k), 0, tila.sivuja - 1) + 1) + ' / ' + tila.sivuja : Math.round(osuus(m.k) * 100) + ' %';
+      $('#jana-pros').textContent = aset.sivutus === 'sivut' ? (m.sivu != null ? m.sivu : clamp(sivuKohdassa(m.k), 0, tila.sivuja - 1)) + 1 + ' / ' + tila.sivuja : Math.round(osuus(m.k) * 100) + ' %';
       var uusi = !janaVeto;
       janaVeto = { f: f };
       if (uusi || !g) { piirraJana(); return; }
@@ -8324,8 +8335,8 @@
       g.setAttribute('transform', 'translate(' + (xr[0] + f * (xr[1] - xr[0])) + ' 0)');
       vedenjakaja(f);
     };
-    var loppu = function () { veto = false; vedetty = false; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
-    svg.addEventListener('pointerdown', function (e) { veto = true; vedetty = false; alkuX = e.clientX; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX, e.clientY); });
+    var loppu = function () { veto = false; vedetty = false; portaat = null; janaVeto = null; if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } };
+    svg.addEventListener('pointerdown', function (e) { veto = true; vedetty = false; portaat = null; alkuX = e.clientX; try { svg.setPointerCapture(e.pointerId); } catch (x) {} nayta(e.clientX, e.clientY); });
     svg.addEventListener('pointermove', function (e) {
       if (!veto && e.pointerType !== 'mouse') return;
       if (veto && Math.abs(e.clientX - alkuX) >= JANA_VETO_PX) vedetty = true;
@@ -8334,7 +8345,7 @@
       odottaa = requestAnimationFrame(function () { odottaa = null; nayta(x, y); });
     });
     svg.addEventListener('pointerleave', function () { if (!veto) { if (odottaa) { cancelAnimationFrame(odottaa); odottaa = null; } paivita(); } });
-    svg.addEventListener('pointerup', function (e) { if (!veto) return; var porras = vedetty; loppu(); var m = janaKohde(e.clientX, e.clientY, porras); if (m.majakka) palaa(); else hyppaa(m.k, false, false, 'jana'); });
+    svg.addEventListener('pointerup', function (e) { if (!veto) return; var m = kohde(e.clientX, e.clientY, vedetty); loppu(); if (m.majakka) palaa(); else hyppaa(m.k, false, false, 'jana'); });
     svg.addEventListener('pointercancel', function () { if (!veto) return; loppu(); paivita(); });
   })();
 
