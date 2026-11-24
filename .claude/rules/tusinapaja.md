@@ -79,7 +79,7 @@ käyttäjä ajaa itse. `worker/src/index.js` palvelee `GET /api/loc` -reittiä C
 KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
 Purettu paketti on `{lat, lon, title?, z?, lampo?}`. `lampo: "tuntuu"` vaihtaa lämpötilasarakkeen FMI:n
-`FeelsLike`-arvoon kaikilla riveillä (myös nowcast-riveillä, koska nowcastissa sitä ei ole) ja sarakeotsikoksi `TUNTUU`;
+`FeelsLike`-arvoon kaikilla riveillä (myös nowcast-riveillä, koska nowcastissa sitä ei ole) ja sarakeotsikoksi `TK` (käyttäjän päätös);
 kehityksessä sama `?lampo=tuntuu`.
 
 ## Oma Tusinasää (julkinen linkin teko)
