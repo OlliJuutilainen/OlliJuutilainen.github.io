@@ -336,8 +336,28 @@
 
   // Merkinnätön teksti (sisällysluettelo, lähdeviite). Alaviitteet jäävät pois.
   // refs: viitelinkit [teksti][1] tekstiksi (Sisälmys, otsikon tunniste); ilman niitä hakasulkeet jäisivät näkyviin.
+  // parse() kysyy saman kappaleen merkinnättömän tekstin monesti (pituudet, kappaleen laji), ja ilman refs-parametria tulos
+  // riippuu vain tekstistä, joten se muistetaan jäsennyksen ajan (PLAIN, parse()).
+  var PLAIN = null;
   function plain(s, refs) {
+    if (!refs && PLAIN) {
+      s = String(s);
+      var v = PLAIN.get(s);
+      if (v === undefined) { v = plain0(s); PLAIN.set(s, v); }
+      return v;
+    }
+    return plain0(s, refs);
+  }
+  function plain0(s, refs) {
     return unesc(inline(String(s), { note: null, br: false, refs: refs }).replace(/<br>/g, ' ').replace(/<[^>]+>/g, ''));
+  }
+  // Merkinnätön teksti välit yhdeksi ja päistä pois (pituudet ja sanamäärät); muistetaan kuten plain().
+  var TIIVIS = null;
+  function tiivis(s) {
+    s = String(s);
+    var v = TIIVIS && TIIVIS.get(s);
+    if (v === undefined || v === null) { v = plain(s).replace(/\s+/g, ' ').trim(); if (TIIVIS) TIIVIS.set(s, v); }
+    return v;
   }
 
   function slug(s) {
@@ -446,9 +466,9 @@
   }
   function lukuNimi(text) { return plain(text).trim().replace(/^((\d+(\.\d+)*|[IVXLC]+)[.):]?|[A-Z][.):])\s+/, '').trim(); }
   // Lohkon tekstin pituus [yhteensä, pisin kappale tai kohta] merkkeinä.
-  function pit(x) { return plain(String(x || '')).replace(/\s+/g, ' ').trim().length; }
+  function pit(x) { return tiivis(x || '').length; }
   function mittaa(t) {
-    if (t.t === 'p') return [pit(t.text), pit(t.text)];
+    if (t.t === 'p') { var n = pit(t.text); return [n, n]; }
     if (t.t === 'list') return t.items.reduce(function (a, it) { var n = pit(it.text); return [a[0] + n, Math.max(a[1], n)]; }, [0, 0]);
     if (t.t === 'bq') return t.kids.reduce(function (a, k) { var m = mittaa(k); return [a[0] + m[0], Math.max(a[1], m[1])]; }, [0, 0]);
     if (t.t === 'table') return [t.rivit.reduce(function (a, r) { return a + r.solut.reduce(function (b, c) { return b + pit(c.text); }, 0); }, 0), 0];
@@ -2065,7 +2085,7 @@
     return /(1[5-9]\d\d|20\d\d)/.test(p) || RE_JULK.test(p) || RE_TIETOSANA.test(p) || !!pvm(p, true);
   }
   function proosaRivi(l) {
-    var raaka = l.replace(/\\\s*$/, '').trim(), p = plain(raaka).replace(/\s+/g, ' ').trim();
+    var raaka = l.replace(/\\\s*$/, '').trim(), p = tiivis(raaka);
     var loppu = /([.:!?…])["”’»)\]*]*$/.exec(p);
     // Kursivoituun teoksen nimeen päättyvä rivi on viitetieto (Nico Dario Müller, *Kantianism for Animals*.).
     if (!loppu || tietoMerkki(raaka) || /[*_][^*_]+[*_][.:]?$/.test(raaka)) return false;
@@ -2080,7 +2100,7 @@
     var r = String(t).split('\n');
     if (r.slice(0, -1).some(function (l) { return RE_PAKKO.test(l); }) || /<br\s*\/?>\s*\S/i.test(t)) return true;
     if (r.length > 1) return false;
-    var p = plain(t).replace(/\s+/g, ' ').trim();
+    var p = tiivis(t);
     return !!p && p.split(' ').length <= 4 && !/[.!?…:;,]["”’»)\]]*$/.test(p) && !/^["”“«»'‘’–—-]/.test(p);
   }
   /* Merkitty lyhyt kappale (käyttäjän linjaus: sisennys vain leipätekstiin): yksirivinen, enintään kolmen sanan, pisteeseen
@@ -2092,7 +2112,7 @@
   function merkittyLyhyt(t, seur, inQuote) {
     var raaka = String(t).trim();
     if (raaka.indexOf('\n') >= 0) return false;
-    var p = plain(raaka).replace(/\s+/g, ' ').trim();
+    var p = tiivis(raaka);
     if (!p || p.split(' ').length > 3 || !/\.$/.test(p) || /^["”“«»'‘’–—\-[(]/.test(p) || /^\p{Ll}/u.test(p)) return false;
     if (/\p{Lu}/u.test(p) && p === p.toUpperCase()) return true;
     if (/^(?:<(?:em|strong)>)+[^<]*(?:<\/(?:em|strong)>)+\.?$/.test(inline(raaka, { note: null, br: false }).trim())) return true;
@@ -2110,7 +2130,7 @@
     var sis = x.slice(1, -1);
     // Sisällä ei saa olla suojaamatonta samaa merkkiä (kursiivi päättyisi kesken).
     if (new RegExp('(^|[^\\\\])\\' + d).test(sis)) return null;
-    var m = KT_NIMI.exec(plain(sis).replace(/\s+/g, ' ').trim());
+    var m = KT_NIMI.exec(tiivis(sis));
     return m ? m[0] : null;
   }
   // Monirivinen kappale on proosaa vain, jos missään sen rivissä ei ole julkaisutietoa (pdf:n kirjan tietorivit).
@@ -2295,6 +2315,11 @@
     }
   */
   function parse(src) {
+    var ed = PLAIN, edT = TIIVIS;
+    PLAIN = new Map(); TIIVIS = new Map();
+    try { return jasenna(src); } finally { PLAIN = ed; TIIVIS = edT; }
+  }
+  function jasenna(src) {
     src = String(src || '').replace(/^﻿/, '').replace(/\r\n?/g, '\n');
     var res = { meta: {}, raaka: {}, title: '', sub: '', lines: [], author: '', year: '', toc: [], kohdat: [], notes: 0, blocks: 0, html: '', warnings: [], lahteet: [],
       viittaukset: [], tiedot: {}, paatelty: {}, viite: '', kuvia: 0, sisennettyKoodi: [], kehys: '' };
@@ -2726,7 +2751,7 @@
               // Lyhyt solu (enintään 16 merkkiä: 1.22, [0.91, 1.63], Type of Measure) katkeaa vain välilyönnistä (solujen
               // overflow-wrap: anywhere kutistaisi numerosarakkeet, ja luvut katkeaisivat 1.2 | 2). Pitkä solu
               // saa yhä katketa missä vain, jottei pitkä sana levennä sivua kapealla ruudulla.
-              var lyhyt = plain(c.text).replace(/\s+/g, ' ').trim().length <= 16;
+              var lyhyt = tiivis(c.text).length <= 16;
               var lk = [al ? 't-' + al : '', lyhyt ? 'lyhyt' : ''].filter(Boolean).join(' ');
               return '<' + tag + (c.span > 1 ? ' colspan="' + c.span + '"' : '') + (lk ? ' class="' + lk + '"' : '') + '>' + inline(c.text, ctx) + '</' + tag + '>';
             }).join('') + '</tr>';

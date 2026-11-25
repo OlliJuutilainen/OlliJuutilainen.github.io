@@ -1912,7 +1912,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=8e563b11"></script>
-<script src="luin/md.js?v=775c5592"></script>
+<script src="luin/md.js?v=f9ab7d59"></script>
 <script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
@@ -3051,6 +3051,16 @@
     window.scrollTo(0, 0);
     haePinoon();
     postiLahetaLikaiset();
+    esilataaFontit();
+  }
+  // Kursiivi ja kreikka ladataan pinossa valmiiksi (kerran): muuten ne latautuvat vasta tekstin ensimmäisessä asettelussa, ja
+  // fontin lataus asettelee koko tekstin toiseen kertaan. Pinossa nyt on null, joten latautuminen ei asettele mitään.
+  // Suoraan tekstiin käynnistettäessä ladataan kuten ennen vain se, mitä teksti käyttää.
+  var fontitLadattu = false;
+  function esilataaFontit() {
+    if (fontitLadattu || !document.fonts || !document.fonts.load) return;
+    fontitLadattu = true;
+    ['1em Literata', 'italic 1em Literata'].forEach(function (f) { document.fonts.load(f, 'aαἀ').catch(function () {}); });
   }
   // Ennen 12.11.2026 tallennetuilta nimikkeiltä puuttuu ala: jäsennetään tallennettu teksti kerran, yksi kerrallaan
   // taustalla, ja piirretään pino uudelleen. Siihen asti näkyy vanha rivi (alaotsikko tai kehys).
@@ -4888,6 +4898,25 @@
     ts.filter(function (t) { var e = t.parentElement; return e && t.offsetWidth > e.clientWidth + 1; })
       .forEach(function (t) { t.classList.add('ahdas'); });
   }
+  /* Esikarsinta ilman mittaus-luokkaa: luokan vaihto asettelee koko tekstin kahdesti (sivutettuna koko palstoitus), vaikkei
+     yksikään sana olisi palstaa leveämpi. Ilman luokkaa palstaa leveämpi sana katkeaa (overflow-wrap) eli saa useamman
+     laatikon, tai katkeamattomana (overflow-wrap: normal) on leveämpi kuin palsta. Jos kumpaakaan ei ole, mittaus ei
+     tavuttaisi mitään. Muuten mitataan kuten ennen. */
+  function pitkiaSanoja(els) {
+    var r = document.createRange();
+    return els.some(function (el) {
+      var cs = getComputedStyle(el), tila_ = cs.display === 'none' ? 0 : el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (tila_ <= 0) return false;
+      return suojatutSolmut(el).some(function (n) {
+        var v = n.nodeValue, re = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g, m;
+        while ((m = re.exec(v))) {
+          r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length);
+          if (r.getClientRects().length > 1 || r.getBoundingClientRect().width > tila_ + 0.5) return true;
+        }
+        return false;
+      });
+    });
+  }
   function tavutaPitkat() {
     var els = $$(SUOJATUT, art), lisaa = [];
     els.forEach(function (el) {
@@ -4896,6 +4925,7 @@
         if (vanhat) { vanhat.slice().reverse().forEach(function (i) { n.deleteData(i, 1); }); LISATYT.delete(n); }
       });
     });
+    if (!pitkiaSanoja(els)) return;
     art.classList.add('mittaus');
     els.forEach(function (el) {
       var cs = getComputedStyle(el), tila_ = cs.display === 'none' ? 0 : el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
@@ -4931,10 +4961,11 @@
     var fs = parseFloat(getComputedStyle(art).fontSize), W = art.clientWidth, maxMerk = 6 * W / fs, lisaa = [];
     var al = art.getBoundingClientRect().left, sivut = aset.sivutus === 'sivut' && tila.stride;
     var palsta = function (x) { return sivut ? Math.floor((x - al + 2) / tila.stride) : 0; };
+    var r1 = document.createRange();
     var laatikko = function (n, i) {
       if (i < 0 || i >= n.length) return null;
-      var r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1);
-      var rs = r.getClientRects(); return rs.length ? rs[rs.length - 1] : null;
+      r1.setStart(n, i); r1.setEnd(n, i + 1);
+      var rs = r1.getClientRects(); return rs.length ? rs[rs.length - 1] : null;
     };
     $$('p', art).forEach(function (el) {
       if (el.textContent.length > maxMerk) return;
@@ -4954,15 +4985,23 @@
       });
       if (rivit.length !== 2) return;
       var eka = rivit[0], rivilla = function (r) { return r && palsta(r.left) === eka.p && Math.abs(r.top + r.height / 2 - eka.y) < lh / 2; };
-      var vali = 0, w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
-      while ((n = w.nextNode())) {
+      // Rivitys etenee tekstin järjestyksessä (oikealta vasemmalle kirjoitettukin järjestetään vasta rivin sisällä), joten kun
+      // sanan alku on ensimmäistä riviä myöhemmällä rivillä, myöhempiä välejä ei mitata; raja ylittyy, kun yksikin väli ylittää
+      // sen. Yhden tekstisolmun kappaleessa kirjasin on sama ja tasaus levittää jokaista väliä yhtä paljon, joten ensimmäinen
+      // väli riittää, ellei se ole pikselin päässä rajasta. Lyhyitä kappaleita voi olla kymmeniä tuhansia (Raamatun jakeet).
+      var raja = LIEHU_RAJA * fs, yksi = el.childNodes.length === 1 && el.firstChild.nodeType === 3;
+      var vali = 0, w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n, ohi = false;
+      while (!ohi && (n = w.nextNode())) {
         for (var i = n.data.indexOf(' '); i > 0; i = n.data.indexOf(' ', i + 1)) {
           if (n.data[i - 1] === ' ' || n.data[i + 1] === ' ') continue;
           var a = laatikko(n, i - 1), b = laatikko(n, i + 1);
-          if (rivilla(a) && rivilla(b)) vali = Math.max(vali, b.left - a.right);
+          if (rivilla(a) && rivilla(b)) {
+            vali = Math.max(vali, b.left - a.right);
+            if (vali > raja || yksi && Math.abs(vali - raja) > 1) { ohi = true; break; }
+          } else if (b && (palsta(b.left) > eka.p || b.top + b.height / 2 - eka.y >= lh / 2)) { ohi = true; break; }
         }
       }
-      if (vali > LIEHU_RAJA * fs) lisaa.push(el);
+      if (vali > raja) lisaa.push(el);
     });
     lisaa.forEach(function (el) { el.classList.add('liehu'); });
   }
@@ -5114,12 +5153,13 @@
     sivuAlut = {};
     var sivut = aset.sivutus === 'sivut', mob = !!(MOBIILI && MOBIILI.matches);
     document.body.classList.toggle('mobiili', mob);
-    asetaYla(mob);
     art.className = [aset.kappale === 'sisennys' ? 'sisennys' : '',
-      aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].join(' ');
+      aset.tasaus === 'tasattu' ? 'tasattu' : '', (aset.tavutus === 'ei' ? 'tavu-ei' : '')].filter(Boolean).join(' ');
     lomitusLuokat(); // className korvaa luokat: lomitettu käännös (aset.lomitus) takaisin
     document.body.classList.toggle('sivutus', sivut);
     document.documentElement.classList.toggle('palkkivara', sivut && mob);
+    // Vasta luokkien jälkeen: turva() mittaa ja asettelee siis koko tekstin, ja vanhoin luokin asettelu menisi hukkaan.
+    asetaYla(mob);
     // Reunushuomiot ratkaistaan 33 em:n mitalla, ja Mikron pidempi rivi saa niiden kanssa vain sen, mikä huomioilta jää:
     // muuten Mikro olisi vienyt huomiot esim. 900 px:n ikkunassa 16 px:llä (mitattu 18.11.2026).
     // Rinnakkain (käyttäjän pyynnöt 19.11.2026: ensin erittäin leveä selain, sitten mahdollisimman usein, myös sivutettuna
