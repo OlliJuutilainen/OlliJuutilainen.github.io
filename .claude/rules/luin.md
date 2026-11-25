@@ -27,7 +27,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   avaimeen. Valmiista avatun tekstin `nyt.doc.html` on null; HTML:ää tarvitseva koodi jäsentää sen `nyt.md`:stä kuten
   `piirraTeksti()`. Testi `valmis-testi.js`.
 - **Tusina** (käyttäjän päätös, opas 2.3): pinossa enintään 12; tuleva teksti laskee pisimpään koskemattoman kellarin
-  kampihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
+  veivihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
 - `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle. Tekstin tunnus pinossa ja Postihuilussa
   on `tekstiTunnus()`, ei `slug()`: slug antaa jokaiselle kreikkalaiselle tai kyrilliselle otsikolle saman `osio`n.
 - `luin/sanaselitys.js` (`LuinSana`): sanaselityksen moottori (ketju, määritelmät, perusmuoto, alkuperä, istunto), yhteinen
@@ -60,7 +60,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (pääotsikko *Luin.*, alaotsikko *HTML*, virallinen *LUiN.HTML*, osoite, lyhyt muoto, työkalu *lukin*, lisäosa): opas 1.3.
   Lisäosan nimi on *Lukimeen* (juoksevassa tekstissä *lukimeen-lisäosa*) ja sen ensimmäinen nappi *Poimi lukimeen*
   (käyttäjän päätös), pienin alkukirjaimin, i-napissa hakasulkeet. Versiota ei nosteta eikä zippejä anneta pyytämättä; sivuston
-  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Lisäosan versionumero ei yksin kerro koodia:
+  uudet nimi- ja ulkoasulinjaukset viedään lisäosaan vasta silloin (kirjaa odottavat tähän). Odottaa: *kellarin veivihyllystö*
+  Perseuksen sarjan ilmoitukseen (`ponnahdus.js`, nyt *veivihyllystö*). Lisäosan versionumero ei yksin kerro koodia:
   sovitteita lisätään versiota nostamatta, joten paketoimaton asennus on sen hetken tilannekuva. Kauppaosoitteen
   `lis%C3%A4%C3%A4-lukimeen`, Firefoxin tunnisteen `lisaa-lukimeen@tusinasoft` ja `lisaa-lukimeen.xpi`:n saa jättää.
   Logos- ja Wikipedia-sovitteet (opas 7.5) tekevät vain md.js:n jo ymmärtämää Markdownia,
@@ -232,26 +233,28 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Luin ei taivu käyttäjälle näkyvässä tekstissä** (opas 1.3): taivutettuna *lukin* (*lukimen pino*,
   *lukimessa*, *lukimeen*, *lukinta*), ei *luinin*, *luinissa*, *luiniin*. *Luinin* vain vahvasti koko organisaation laajuisesta
   entiteetistä (*Luinin sertifioima*, Latomon *Luinin ystäviä ovat…*), ja silloin aina isolla, erisnimenä.
-- **Pino ja kellarin kampihyllystö**: käyttöliittymässä lukulista on *Pino* ja luettujen
-  näkymä *Kellarin kampihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; k:lla). Nimi on aina kokonainen, ei pelkkä
-  *kampihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
-  ei *pinolle*), samoin kellarin kampihyllystö (*kellarin kampihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
+- **Pino ja kellarin veivihyllystö**: käyttöliittymässä lukulista on *Pino* ja luettujen
+  näkymä *Kellarin veivihyllystö* (kaikilla Luinin sivuilla ja lisäosassa; k:lla). Nimi on aina kokonainen, ei pelkkä
+  *veivihyllystö* (pituus on käyttäjän valinta: sana toistuu harvoin). *Veivi-* eikä *kampi-* (käyttäjän päätös): hyllystöä
+  liikutetaan veivaamalla kampea, ja teko on lähempänä ymmärrystä kuin esine; merkki ja sen nimi *kampi* (`KAMPI`, *Kellarin kampi*
+  alla) jäävät. Pino taipuu sisäpaikallissijoissa (*pinoon*, *pinossa*, *pinosta*,
+  ei *pinolle*), samoin kellarin veivihyllystö (*kellarin veivihyllystöön*, *-ssä*, *-stä*). Koodin tunnisteet (`luin-lista`, `#lista`,
   `tila.arkisto`, reitti `#arkisto`) ovat vanhoja nimiä; älä nimeä niitä uudelleen. Uuteen käyttäjälle näkyvään tekstiin ei *lukulistaa*, *uumenta*, *hyllyä*,
-  *pölyhyllyä* eikä *arkistohyllyä* (*kellarin kampihyllystö* on käyttäjän nimeämä poikkeus).
-- **Kellarin kampihyllystö ja valinta**: luetuksi merkitty teksti jää `luin-lista`an lipulla
+  *pölyhyllyä* eikä *arkistohyllyä* (*kellarin veivihyllystö* on käyttäjän nimeämä poikkeus).
+- **Kellarin veivihyllystö ja valinta**: luetuksi merkitty teksti jää `luin-lista`an lipulla
   `e.luettu` (aika), ja `#arkisto` vain suodattaa, joten mitään ei kopioida. Pinossa ei ole Postihuilua, ohjeita eikä
-  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin kampihyllystöön on himmeänä ja vain, kun siellä on jotain.
+  Latomoa (käyttäjän rajaus; poikkeus nimikkeen valikon *Latomo*-kohta, alla); linkki kellarin veivihyllystöön on himmeänä ja vain, kun siellä on jotain.
 - **Pinon alla** (`.pino-ala`): 1. *Soita postihuilua* laatikkonappina palstan laidassa, vain kun laatikkolause on annettu
-  (hakee laatikon heti ja lähettää odottavat merkinnät), ja oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / KAMPIHYLLYSTÖÖN (`.kk-yla`, käyttäjän päätös; kellarin oma otsikko yhdellä rivillä), alarivin vasemmalla kampi yhden tekstirivin kokoisena kuten ö-mapin paluulinkissä (säde .894 em, rako .4 em; käyttäjän päätös: tekstin ja merkin koko kuin *pinoon*-linkissä, ei kahden rivin korkuista pyörylää; jatkeviiva linkin täytteenä, ei `::before`, koska murtopikselinen korkeus teki portaan): napin rivillä alareunat tasan, ja jos se ei mahdu, napin alla. **Alalaidan näkymälinkit** (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) ovat kaikki .74rem (käyttäjän päätös). Yhtenäinen ja yksinkertainen viivasto (käyttäjän päätös): kaikissa sama pieni väkänen (.3662 × .5859 em, ei omaa täytettyä kärkeä), viiva ja väkäsen viiva .0977 em, rivikorkeus 1.8 ja viiva linkkilaatikon alla, jotta väkänen mahtuu tekstin (myös *pinoon*-linkin pinomerkin) ja viivan väliin. Koko ei seuraa Soita postihuilua -nappia eikä palstan leveyttä, eikä kellarilinkkiä mitoiteta napin korkuiseksi (käyttäjän päätös); testit `omappi-testi.js` ja `postihuilu-testi.js`. Alleviivaus on taustapalkki ja `svg.veivi` sekä `svg.nuoli` palkin kulmissa 1 px:n laatikkoina, kaari ja kärki sisemmissä svg:issä: muuten ne ja viiva pyöristyvät eri laitepikseleihin (sauma, ontuva kärki); palkki päättyy kärkeen, 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
+  (hakee laatikon heti ja lähettää odottavat merkinnät), ja oikeassa laidassa kellarilinkki päällekkäisinä riveinä KELLARIN / VEIVIHYLLYSTÖÖN (`.kk-yla`, käyttäjän päätös; kellarin oma otsikko yhdellä rivillä), alarivin vasemmalla kampi yhden tekstirivin kokoisena kuten ö-mapin paluulinkissä (säde .894 em, rako .4 em; käyttäjän päätös: tekstin ja merkin koko kuin *pinoon*-linkissä, ei kahden rivin korkuista pyörylää; jatkeviiva linkin täytteenä, ei `::before`, koska murtopikselinen korkeus teki portaan): napin rivillä alareunat tasan, ja jos se ei mahdu, napin alla. **Alalaidan näkymälinkit** (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) ovat .74rem, paitsi pinon kaksirivinen kellarilinkki .64rem (käyttäjän päätökset: kahtena rivinä .74rem on liian iso). Yhtenäinen ja yksinkertainen viivasto (käyttäjän päätös): kaikissa sama pieni väkänen (.3662 × .5859 em, ei omaa täytettyä kärkeä), viiva ja väkäsen viiva .0977 em, rivikorkeus 1.8 ja viiva linkkilaatikon alla, jotta väkänen mahtuu tekstin ja viivan väliin. Koko ei seuraa Soita postihuilua -nappia eikä palstan leveyttä, eikä kellarilinkkiä mitoiteta napin korkuiseksi (käyttäjän päätös); testit `omappi-testi.js` ja `postihuilu-testi.js`. Alleviivaus on taustapalkki ja `svg.veivi` sekä `svg.nuoli` palkin kulmissa 1 px:n laatikkoina, kaari ja kärki sisemmissä svg:issä: muuten ne ja viiva pyöristyvät eri laitepikseleihin (sauma, ontuva kärki); palkki päättyy kärkeen, 2. linkit. Soiton kuittaus ei valittele tyhjästä laatikosta: *Huilua soitettiin.*, ja vain
   todella kantautunut posti mainitaan (käyttäjän päätös; myös asetusten *Soita huilua!* ja `#l=`). **Postihuilu
   on poissa pinosta** (käyttäjän päätös: esitäyttämätön laatikko on epätyydyttävä ja paikka laatikkolauseelle liian näkyvä); lause annetaan
   asetuksissa tai `#l=`:llä. Linkkien mitat em:inä, joten kammet, renkaat ja nuolet seuraavat kokoa. Sanat
   *Luin.* ja *Poimi pinoon* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
-- **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin kampihyllystön
-  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Ö-mappiin* (vahvistusnappi *Vie ö-mappiin*), sieltä *Poimi kellarin kampihyllystöön*. `e.omappi` (aika)
+- **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin veivihyllystön
+  nimikkeen ja valittujen valikon *Luin.*-alavalikossa pinoon noston rinnalla *Ö-mappiin* (vahvistusnappi *Vie ö-mappiin*), sieltä *Poimi kellarin veivihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappiin*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
-  alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin kampihyllystöön*, *ö-mappiin*.
+  alleviivaus jatkuu oikealle nuoleen. Linkkien tekstit ovat aina illatiivissa: *kellarin veivihyllystöön*, *ö-mappiin*.
   Rengas (käyttäjän linjaukset): viiva keskilinjoineen, ei pystyyn venynyt soikio; pohja litteä ja alleviivauksen paksuinen, kyljet
   paksuimmat hiukan keskikohdan alapuolella, ja niistä viiva kapenee portaattomasti laen raon reunaan hiusviivaksi (ei viistettä:
   klassisemman kirjasimen tuntu), ja piikkien kärjet limittyvät hiukan kaikissa ö-renkaissa, joten rengas on kiinni (`rako` -.4), ei paksua makkaraa. Kapenemisen eksponentti `kap` on 1 kaikissa koissa (ei skaalaudu renkaan mukana: suurennettuna se laihduttaisi yläkerran). Pohjan litteys vain sen verran, että alleviivaus jatkuu luontevasti; alakulmat pyöreät, ei kulmikasta leukaa
@@ -264,14 +267,15 @@ lisäosan tietosuojasivu jää muodolliseksi.
   suurennos (`orengas.js`:n `LAKI_L` ja `ALA_L`; aja `orengas.js` ja kopioi polku ja mitat luin.html:ään, kun muutat niitä). Väkänen on tekstin perässä,
   viimeinen kirjain `span.vika` ilman harvennusta, ja väkäsen musteen kärki palstan reunassa. Polut ja mitat tuottaa `luin/kehitys/orengas.js`; muuta parametreja siellä, älä polkuja käsin. Ö-mapin
   otsikko on *Mappi ö* (käyttäjän linjaus: osastolla eri kirjoitusmuoto kuin muualla), jossa ö on rengas ilman alleviivausta kirjaimena,
-  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Kellarin kampihyllystössä ja ö-mapissa ei ole ylhäällä *Takaisin pinoon* -tekstiä eikä pinomerkkiä (käyttäjän päätös: logo riittää); ö-mapin vasemmassa alakulmassa paluu kellarin
-  kampihyllystöön (`#ark-paluu`, `.paluu`): **käyttäjän design, älä muuta sitä kysymättä** (kerran jo korvattu ja palautettu): kellarilinkki
-  peilattuna, nuoli vasemmalle ja kampi `scaleX(-1)` tekstin oikealla, .32 em N:n jälkeisen harvennuksen takana (käyttäjän pyyntö: hiukan tiiviimpi kuin .4 em); nuolen mitat em:einä. **Paluulinkki pinoon** (`.takaisin-linkki`, käyttäjän linjaus): kellarin kampihyllystön vasemmassa alakulmassa
-  *pinoon* (`#ark-pinoon`, pinomerkki versaaleja korkeampana, musteen alareuna perusviivalla ja nuolen kärki sen vasemmalla): ensin symboli, sitten teksti, ja molempien alla
-  koko matkan vasemmalle osoittava chevron-nuoli, viiva koko tekstin mittainen (N:n oikeaan musteeseen);
+  luontevan kirjoituksen kokoisena (1,43 × versaali-O ja alakaaren sisäreuna .9 px perusviivan alla: isompi, mutta tunnistettavasti osa tekstiä), ei kammen kokoisena (`OTS_OMAPPI`; nimi `aria-label`issa). Kellarin veivihyllystössä ja ö-mapissa ei ole ylhäällä *Takaisin pinoon* -tekstiä eikä pinomerkkiä (käyttäjän päätös: logo riittää); ö-mapin vasemmassa alakulmassa paluu kellarin
+  veivihyllystöön (`#ark-paluu`, `.paluu`): **käyttäjän design, älä muuta sitä kysymättä** (kerran jo korvattu ja palautettu): kellarilinkki
+  peilattuna, nuoli vasemmalle ja kampi `scaleX(-1)` tekstin oikealla, .32 em N:n jälkeisen harvennuksen takana (käyttäjän pyyntö: hiukan tiiviimpi kuin .4 em); nuolen mitat em:einä. **Paluulinkki pinoon** (`.takaisin-linkki`, käyttäjän linjaus): kellarin veivihyllystön vasemmassa alakulmassa
+  *pinoon* (`#ark-pinoon`): ensin pinomerkki, sitten teksti, ja koko matkan vasemmalle osoittava chevron-nuoli, viiva koko tekstin mittainen (N:n oikeaan musteeseen).
+  Pinomerkki on ö-mappiin-linkin Ö:n kokoinen (käyttäjän päätös: vetää vertoja Ö:lle): istuu viivalla kuten Ö-rengas (alimman kirjan pohja on viiva,
+  merkki viivastossa), musteen laki Ö-renkaan musteen laen tasolla, nuolen kärki .5 em merkin vasemmalla (sakara ei osu merkkiin) ja teksti .4 em merkin jälkeen;
   mitat em:einä ja viiva taustapalkkina kuten ö-mapin linkissä, samalla rivillä ja korkeudella kuin ö-mappiin (`.ala-linkit`). Testi `omappi-testi.js`.
 - **Viivasto** (käyttäjän vaatimus: saumat kohdalleen): alalaidan linkkien (kellarilinkki, ö-mappiin, *pinoon*, ö-mapin paluu) viiva,
-  jatke, kaari tai rengas ja nuolen kärki ovat yhdessä `svg.viivasto`ssa, jonka origo on viivan yläreunassa. Älä palauta niitä erillisiksi
+  jatke, kaari, rengas tai pinomerkki ja nuolen kärki ovat yhdessä `svg.viivasto`ssa, jonka origo on viivan yläreunassa. Älä palauta niitä erillisiksi
   laatikoiksi (reunaviiva, `::before`/`::after`, erillinen svg): selain pyöristää laatikot laitepikseleihin eri tavalla kuin svg:n sisällön, ja
   saumat menivät 0,4–1,9 laitepikseliä ohi. Testeissä sisäkkäisen svg:n näkymän rajat `getScreenCTM`:llä (`getBoundingClientRect` on muste).
 - **Kellarin kampi**: kellarilinkin ulkokaari kääntyy alhaalta suoraksi nuolen varreksi;
@@ -290,7 +294,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Pinomerkin paikka**: yläoikealla (alasivut: Latomo, ohjeet, palaute, tietosuoja) vaakapaikka on sama kaikkialla eli
   pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon loppupisteen alakärjen tasolla (ei kiekon keskilinjalla).
   Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
-- **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin kampihyllystössä ja ö-mapissa ei ole
+- **Logo on aina linkki pinoon**: luin.html:ssä `a.logo-linkki`, alasivuilla `a.koti`. Kellarin veivihyllystössä ja ö-mapissa ei ole
   ylhäällä paluutekstiä eikä merkkiä (yllä); kellarista pinoon vie myös alalaidan *pinoon*.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
@@ -303,10 +307,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   yksinkertainen natsanuoli (käyttäjän linjaus: ei koristeellista kärkeä). Exportātiō:
   lähdeviite ylimpänä, *Kopioi lähdeviite*, *Kopioi linkki* tai *Linkitä tiedostoon*, *Lataa .md*, *Vie merkinnät*
   (`vieMerkPinosta()`: laatikko otsikolla *Vie merkinnät tekstitiedostoon*, asetusten viennin valinnat `aset.vieAl` ym. ilman
-  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin kampihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Toin.*; `luinKohdat()`, sijainnin mukaan):
+  asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. Latomo: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. Luin. (nimikkeen valikossa nimi sijainnin mukaan, käyttäjän nimet: kellarin veivihyllystössä, käsikirja mukaan lukien, *Hain.*, ö-mapissa *Toin.*; `luinKohdat()`, sijainnin mukaan):
   pinossa *Pois silmistä* (käyttäjän nimi: pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota;
-  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin kampihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Käsikirjastoon*, *Merkitse luetuksi*; kellarin
-  kampihyllystössä *Poimi pinoon*, *Ö-mappiin*, *Käsikirjastoon* (valikossa pelkkä kohde; vahvistusnapit ja kysymykset pitävät *Vie*/*Siirrä*-muodon, `kkSana()`, `OM_SISAAN`; *Poimi pinoon* on myös vahvistusnappi); ö-mapissa *Poimi kellarin kampihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
+  kellari mainitaan vasta vahvistuksessa *Nakataanko kellarin veivihyllystöön?*, nappi *Nakkaa*; ei koskaan *Luin.*, käyttäjän päätös), *Käsikirjastoon*, *Merkitse luetuksi*; kellarin
+  veivihyllystössä *Poimi pinoon*, *Ö-mappiin*, *Käsikirjastoon* (valikossa pelkkä kohde; vahvistusnapit ja kysymykset pitävät *Vie*/*Siirrä*-muodon, `kkSana()`, `OM_SISAAN`; *Poimi pinoon* on myös vahvistusnappi); ö-mapissa *Poimi kellarin veivihyllystöön* ja *Poimi käsikirjastoon*; käsikirjaston kohta suunnan mukaan `kkSana()`, sekavalinnalle *Siirrä*;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella, ja
   loppupiste vain pääkohdan nimessä (*Luin.*, *Hain.*, *Toin.*; käyttäjän päätös). Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
@@ -342,12 +346,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (`kohdista()`), ei pelkällä katkelmahaulla (se osuu naapurikappaleeseen). **Pino pysyy pinona**: laitos näkyy vain tietorivin
   *2. laitos* -sanoina, ei kansioita, ryhmiä eikä erikoisvärejä (käyttäjän päätös). Testi `laitos-testi.js`. Lukutietoja ei lisätä viitteeseen pakolla (kytkin `aset.viiteLisa`, oletus pois).
 - **Luokittelu ja kellarin järjestys** (opas 2.5):
-  pino pysyy omassa järjestyksessään (yllä) eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin kampihyllystössä.
+  pino pysyy omassa järjestyksessään (yllä) eikä näytä luokittelua; järjestykset ja välikortit (`li.valiots`) vain kellarin veivihyllystössä.
   Nimikkeen kentät (`asiasanat`, `ajoitus`, `kasikirja`) ovat totuus ja etukentän `asiasanat:`/`ajoitus:` niiden peili: avaimeton
   tuonti ei pyyhi niitä (`lkMdsta(…, false)`), vain *Muuta metatietoja* ja korvaava laitos (`tosi`, etukenttä kirjoitetaan ennen
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
   muistuteta (käyttäjän päätös: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös): se on aina kellarin
-  kampihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
+  veivihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
   Postihuilu eivät nosta sitä; valikossa *Vie/Siirrä/Poimi käsikirjastoon*, pois vain luokittelemalla; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto**
   (*sanasto*-linkki nappien alla): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
@@ -829,7 +833,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]`: kellarin kampihyllystön haku (osumat, välikortit, valinta, sulkeminen, 360 px).
+- `NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]`: kellarin veivihyllystön haku (osumat, välikortit, valinta, sulkeminen, 360 px).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).

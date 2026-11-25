@@ -1,4 +1,4 @@
-// Kellarin kampihyllystön haku (järjestysrivin etsi). Ajo repon juuressa:
+// Kellarin veivihyllystön haku (järjestysrivin etsi). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]
 // Tarkistaa: pinossa ei hakua; etsi avaa kentän; sanan alku otsikosta, tekijästä, sivustosta tai asiasanasta osuu, tarkkeet ja
 // kirjainkoko eivät vaikuta, sanan keskiosa ei; välikorttien luvut ja Valitse kaikki koskevat osumia; Ei osumia; tyhjennys,

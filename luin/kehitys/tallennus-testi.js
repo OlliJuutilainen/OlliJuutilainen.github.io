@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]
 // 1. Vanhat localStoragen tekstit siirtyvät kantaan ja aukeavat. 2. Latomosta lukimeen 1,9 milj. merkin teksti, kun
 // localStoragessa on 3,6 milj. merkkiä muuta (ennen: tallennustila täynnä). 3. Tusina: kolmastoista tuo pinoon, pisimpään
-// koskematon laskeutuu kellarin kampihyllystöön (laskeutui, ei luettu), Poimi nostaa ja laskee seuraavan. 4. Ilman
+// koskematon laskeutuu kellarin veivihyllystöön (laskeutui, ei luettu), Poimi nostaa ja laskee seuraavan. 4. Ilman
 // IndexedDB:tä kaikki toimii localStoragessa kuten ennen.
 const fs = require('fs'), path = require('path'), http = require('http');
 const { chromium } = require('playwright');
@@ -82,13 +82,13 @@ const palvelin = http.createServer((q, r) => {
   let P = await pino(p);
   const viesti = await p.textContent('#viesti');
   tulos('kolmastoista tuli pinoon, pinossa tusina', P.length === 12 && /^Kolmastoista/.test(P[0]) && P.some(x => /^Tusina 1 /.test(x)) && !P.some(x => /^Tusina 2 /.test(x)), P.map(x => x.split(' {')[0]).join(' | '));
-  tulos('laskeutuminen kerrotaan', /”Tusina 2” laskeutui kellarin kampihyllystöön: pinossa on tusina tekstiä\./.test(viesti), viesti);
+  tulos('laskeutuminen kerrotaan', /”Tusina 2” laskeutui kellarin veivihyllystöön: pinossa on tusina tekstiä\./.test(viesti), viesti);
   if (KUVAT) await p.screenshot({ path: path.join(KUVAT, 'tusina-pino.png'), fullPage: true });
   await p.goto(U + 'luin.html#arkisto');
   await p.waitForSelector('#nimikkeet li.nimike');
   let K = await pino(p);
   const pv = d => { const x = new Date(d); return x.getDate() + '.' + (x.getMonth() + 1) + '.' + x.getFullYear(); };
-  tulos('kellarin kampihyllystössä: laskeutui, ei luettu', K.some(x => x.startsWith('Tusina 2 {') && x.includes('laskeutui ' + pv(Date.now())) && !/luettu/.test(x)) && K.some(x => /^Kellarissa .*luettu/.test(x)), K.join(' | '));
+  tulos('kellarin veivihyllystössä: laskeutui, ei luettu', K.some(x => x.startsWith('Tusina 2 {') && x.includes('laskeutui ' + pv(Date.now())) && !/luettu/.test(x)) && K.some(x => /^Kellarissa .*luettu/.test(x)), K.join(' | '));
   if (KUVAT) await p.screenshot({ path: path.join(KUVAT, 'tusina-kellari.png'), fullPage: true });
   // Poimi takaisin: Tusina 2 palaa, seuraavaksi pisimpään koskematon (Tusina 3) laskeutuu.
   await p.click('#nimikkeet button.jako[data-id="p-t2"]');

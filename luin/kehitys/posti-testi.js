@@ -245,7 +245,7 @@ function muistiKV() {
   const mdB = await b.evaluate(() => LuinTekstit.lue('p-kant-ja-elainetiikka'));
   tulos('B: etukenttään asiasanat ja ajoitus', /^asiasanat: eläinetiikka$/m.test(mdB) && /^ajoitus: 1785$/m.test(mdB), String(mdB).slice(0, 200));
   tulos('B: käsikirja pois pinosta', !(await b.evaluate(() => [...document.querySelectorAll('#nimikkeet a.avaa')].some(x => /id=p-kant/.test(x.getAttribute('href'))))));
-  // B lisää asiasanan kellarin kampihyllystössä: uudempi muutos kulkee A:lle, mutta A:n vanha ei palaa.
+  // B lisää asiasanan kellarin veivihyllystössä: uudempi muutos kulkee A:lle, mutta A:n vanha ei palaa.
   await b.goto(OSOITE + 'luin.html?lk=2#arkisto');
   await b.waitForSelector('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
   await b.click('#nimikkeet button.jako[data-id="p-kant-ja-elainetiikka"]');
