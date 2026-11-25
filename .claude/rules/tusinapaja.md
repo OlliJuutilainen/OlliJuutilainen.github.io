@@ -98,6 +98,9 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
   Maarajaus on hakuohjeen viimeisenä huomautuksena eikä kentän vieressä (käyttäjän päätös: kävijä luulisi kentän kysyvän
   asuinmaata); FMI-tarkistus kertoo, jos paikka ei käy. Hakutulokset ovat valintanappeja, jotta valitsematon tila näkyy.
 - **Otsikko on aina `TUSINASÄÄ 12 · <PAIKAN NIMI>`** (käyttäjän päätös): alku ja interpunkti ovat kiinteät, kävijä antaa vain nimen.
+- **Lämpötilavalinta on kaksi tuotetta** (käyttäjän päätös): `TUSINASÄÄ 12 RAAKA` renkaalla (tavallinen lämpötila) ja
+  `TUSINASÄÄ 12 AVULIAS` hiutaleella (tuntuu kuin). Rengas ja hiutale ovat inline-SVG:t yläindeksinä samassa koossa.
+  Nimet ovat vain tällä sivulla; ohjelman otsikkoon ne eivät tule. Ei ™:ää eikä ®:ää.
 - **Android-ohjelma pyynnöstä:** nappi lähettää pyynnön `/api/palaute`-reitillä Tusinasoftin lukulistaan (`mista`:
   *Oma Tusinasää: Android-pyyntö*). Linkkiä, avainta tai sijaintia ei liitetä: sama perusversion APK käy kaikille ja muistaa
   paikan, kun linkki avataan sillä kerran.
