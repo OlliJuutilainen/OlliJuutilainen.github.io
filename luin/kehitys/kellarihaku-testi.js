@@ -110,6 +110,15 @@ const TEKSTIT = [
   const m = await page.evaluate(() => ({ vaaka: document.documentElement.scrollWidth - innerWidth, fs: getComputedStyle(document.querySelector('#kk-haku input')).fontSize,
     rivi: document.getElementById('jarj-rivi').getBoundingClientRect().right, kentta: document.getElementById('kk-haku').getBoundingClientRect().right, lev: innerWidth }));
   tulos('360 px: ei vaakavieritystä, kenttä 16 px ja ruudun sisällä', m.vaaka === 0 && m.fs === '16px' && m.kentta <= m.lev && m.rivi <= m.lev, JSON.stringify(m));
+  // Järjestys ja Etsi ovat laatikkonappeja: sama korkeus, ja järjestyksen nimi yhdellä rivillä (vieressä tai nimen alla).
+  for (const j of ['asiasana', 'luettu']) {
+    await page.evaluate(j => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.kellariJarj = j; localStorage.setItem('luin-asetukset', JSON.stringify(a)); }, j);
+    await lataa('#arkisto'); await page.waitForSelector('#nimikkeet li.nimike'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(100);
+    const n = await page.evaluate(() => { const a = document.getElementById('jarj-arvo'), r = document.createRange(); r.selectNodeContents(a);
+      return { jarj: Math.round(document.getElementById('jarj').getBoundingClientRect().height), etsi: Math.round(document.getElementById('kk-etsi').getBoundingClientRect().height),
+        rivit: new Set([...r.getClientRects()].map(x => Math.round(x.top))).size, pinottu: document.getElementById('jarj').classList.contains('pinottu'), arvo: a.textContent }; });
+    tulos('360 px, ' + j + ': napit samankorkuiset, nimi yhdellä rivillä', n.jarj === n.etsi && n.rivit === 1, JSON.stringify(n));
+  }
   if (KUVAT) { await kirjoita('filosofia'); await page.screenshot({ path: path.join(KUVAT, 'kellarihaku-360.png') }); }
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await selain.close(); palvelin.close();
