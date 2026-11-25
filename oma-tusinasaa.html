@@ -67,13 +67,11 @@
   .titlePrefix{ white-space:nowrap; font-size:16px; color:var(--muted) }
   #title{ text-transform:uppercase }
   code{ font-size:13px }
-  .apkForm{ margin-top:12px }
-  .apkForm label{ display:block; font-size:14px; margin:10px 0 4px }
-  .apkForm label small{ color:var(--muted) }
-  .apkForm textarea{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
-    color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px; resize:vertical }
-  .apkForm button[type="submit"]{ margin-top:12px }
-  .ansa{ position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden }
+  .appBtns{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 10px }
+  a.nappi{ display:inline-block; font-size:15px; padding:8px 14px; border-radius:6px; color:var(--text);
+    border:1px solid var(--border); text-decoration:none }
+  .appSteps{ margin:0 0 10px; padding-left:1.25em }
+  .appSteps li{ margin:0 0 4px }
   label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
   label.choice small{ display:block; color:var(--muted); font-size:13px }
   /* Tuotenimet (käyttäjän päätös): RAAKA renkaalla, AVULIAS Tusinasään hiutaleella; molemmat yläindeksinä,
@@ -134,22 +132,17 @@
   <h2>Puhelimeen</h2>
   <p><b>Verkkosovelluksena:</b> avaa linkki puhelimen Chromessa ja valitse valikosta <i>Asenna sovellus</i> tai
     <i>Lisää aloitusnäyttöön</i>. Sovellus avaa paikan, jonka linkin olet viimeksi avannut tällä puhelimella.</p>
-  <p><b>Android-sovelluksessa:</b> avaa puhelimella tämä linkki. Sovellus muistaa paikan.</p>
+  <p><b>Android-sovelluksena:</b></p>
+  <div class="appBtns"><a class="nappi" href="tusinasaa.apk" download>Lataa sovellus (APK)</a><button id="koodiBtn" class="plain" type="button">Kopioi koodi</button></div>
+  <ol class="appSteps">
+    <li>Lataa sovelluksen asennustiedosto vasemmasta painikkeesta.</li>
+    <li>Kopioi oikeanpuoleisesta painikkeesta koodi, joka on tusinasääsi aktivointiavain.</li>
+    <li>Aloita asennus avaamalla lataamasi asennustiedosto.</li>
+    <li>Liitä kopioimasi koodi, kun TUSINASÄÄ 12 pyytää sitä.</li>
+  </ol>
+  <p class="note" id="koodiStatus" role="status"></p>
+  <p class="note">Jos sovellus on jo puhelimessa, avaa sillä tämä linkki. Sovellus muistaa paikan.</p>
   <div class="link"><a id="appLink" href="#"></a></div>
-  <p class="note">Android-ohjelmaa ei ladata kaupasta: Tusinasoft leipoo sen pyynnöstä ja lähettää sen sinulle.</p>
-  <button id="apkBtn" class="plain" type="button">Kyllä kiitos, haluan oman Tusinasääni Android-ohjelmana</button>
-  <form id="apkForm" class="apkForm" hidden autocomplete="on">
-    <label for="apkNimi">Nimi <small>(valinnainen)</small></label>
-    <input id="apkNimi" type="text" maxlength="200" autocomplete="name">
-    <label for="apkSposti">Sähköposti, johon ohjelma lähetetään</label>
-    <input id="apkSposti" type="email" maxlength="200" autocomplete="email">
-    <label for="apkLisa">Lisätietoa tai muu yhteystapa <small>(valinnainen)</small></label>
-    <textarea id="apkLisa" rows="3" maxlength="2000"></textarea>
-    <div class="ansa" aria-hidden="true"><label for="apkAnsa">Jätä tyhjäksi</label><input id="apkAnsa" type="text" tabindex="-1" autocomplete="off"></div>
-    <p class="note">Pyyntöön ei liitetä linkkiäsi eikä sijaintia.</p>
-    <button id="apkSend" type="submit">Lähetä pyyntö</button>
-    <div id="apkStatus" class="status" role="status"></div>
-  </form>
 </div>
 
 <p class="note" style="margin-top:30px">Paikkahaku: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMapin tekijät</a> (Nominatim).</p>
@@ -399,6 +392,9 @@ makeBtn.addEventListener('click', async () => {
     const web = new URL('tusinapaja.html', location.href);
     web.search = ''; web.hash = frag;
     const app = `tusinasaa://open/v1#${frag}`;
+    /* Android-sovelluksen koodi kuten minun-tusinasaa.html:ssä; sovelluksen koodisivu tusinasaa-koodi.html lukee sen. */
+    koodi = `TS12-${t}.${enc.k}`;
+    $('koodiStatus').textContent = '';
     $('webLink').href = web.href; $('webLink').textContent = web.href;
     $('appLink').href = app; $('appLink').textContent = app;
     $('copyStatus').textContent = '';
@@ -412,42 +408,13 @@ makeBtn.addEventListener('click', async () => {
   }
 });
 
-/* Android-pyyntö kulkee palautereittiä (/api/palaute) Tusinasoftin lukulistaan. Linkkiä ja avainta ei lähetetä:
-   sama ohjelma käy kaikille, ja se muistaa paikan, kun linkki avataan sillä kerran. */
-$('apkBtn').addEventListener('click', () => {
-  $('apkForm').hidden = false;
-  $('apkBtn').hidden = true;
-  $('apkSposti').focus();
-});
-$('apkForm').addEventListener('submit', async ev => {
-  ev.preventDefault();
-  const sposti = $('apkSposti').value.trim(), lisa = $('apkLisa').value.trim();
-  if (!sposti && !lisa){
-    setStatus($('apkStatus'), 'Kerro sähköposti tai muu tapa, jolla ohjelman voi toimittaa sinulle.', 'err');
-    return;
-  }
-  $('apkSend').disabled = true;
-  setStatus($('apkStatus'), 'Lähetetään…');
+let koodi = '';
+$('koodiBtn').addEventListener('click', async () => {
   try {
-    const res = await fetch(`${API_BASE}/api/palaute`, {
-      method: 'POST', credentials: 'omit', cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nimi: $('apkNimi').value.trim(), sposti,
-        viesti: 'Kyllä kiitos, haluan oman Tusinasääni Android-ohjelmana.' + (lisa ? '\n\n' + lisa : ''),
-        mista: 'Oma Tusinasää: Android-pyyntö', ansa: $('apkAnsa').value
-      })
-    });
-    if (res.status === 400 && (await res.clone().json().catch(() => ({}))).error === 'bad_email'){
-      throw new Error('Sähköpostiosoite ei näytä oikealta.');
-    }
-    if (res.status === 429) throw new Error('Pyyntöjä on tullut juuri nyt liian monta. Yritä myöhemmin uudelleen.');
-    if (!res.ok) throw new Error(`Lähetys epäonnistui (virhekoodi ${res.status}).`);
-    setStatus($('apkStatus'), 'Pyyntö lähti. Kun ohjelma on asennettu, avaa yllä oleva linkki puhelimella kerran.', 'ok');
-    $('apkForm').querySelectorAll('input, textarea, button').forEach(e => { e.disabled = true; });
-  } catch (err) {
-    setStatus($('apkStatus'), err?.message || 'Lähetys epäonnistui.', 'err');
-    $('apkSend').disabled = false;
+    await navigator.clipboard.writeText(koodi);
+    $('koodiStatus').textContent = 'Koodi kopioitu.';
+  } catch {
+    $('koodiStatus').textContent = `Kopiointi ei onnistunut. Koodi: ${koodi}`;
   }
 });
 

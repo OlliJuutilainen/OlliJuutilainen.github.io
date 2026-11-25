@@ -4,6 +4,7 @@ paths:
   - "generaattori.html"
   - "oma-tusinasaa.html"
   - "minun-tusinasaa.html"
+  - "tusinasaa-koodi.html"
   - "android/app/**"
 ---
 ## Tusinapaja on ainoa aktiivinen versio
@@ -102,17 +103,17 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 - **Lämpötilavalinta on kaksi tuotetta** (käyttäjän päätös): `TUSINASÄÄ 12 RAAKA` renkaalla (tavallinen lämpötila) ja
   `TUSINASÄÄ 12 AVULIAS` hiutaleella (tuntuu kuin). Rengas ja hiutale ovat inline-SVG:t yläindeksinä samassa koossa.
   Nimet ovat vain tällä sivulla; ohjelman otsikkoon ne eivät tule. Ei ™:ää eikä ®:ää.
-- **Android-ohjelma pyynnöstä:** nappi lähettää pyynnön `/api/palaute`-reitillä Tusinasoftin lukulistaan (`mista`:
-  *Oma Tusinasää: Android-pyyntö*). Linkkiä, avainta tai sijaintia ei liitetä: sama perusversion APK käy kaikille ja muistaa
-  paikan, kun linkki avataan sillä kerran.
+- **Android-sovellus on julkinen** (käyttäjän päätös; ei pyynnöstä): *Lataa sovellus (APK)* ja *Kopioi koodi* kuten
+  paneelissa (alla, *Android-sovellus ja koodi*). Jo asennettu sovellus ottaa paikan myös avaamalla `tusinasaa://`-linkin.
 - **Tallennettua ei voi muuttaa:** worker ei tunne avainta eikä siis omistajaa. Ei ylikirjoitusta; uusi paikka on uusi linkki.
   Poikkeus on Minun oma tusinasää -profiili (alla), jonka muuttamiseen tarvitaan kirjoitusavain.
 - **Rajat:** `LuinRaja`-luokka omana oliona `loc` (5 pyyntöä minuutissa osoitetta kohden, 50 uutta sijaintia UTC-päivässä),
   vain sallituista alkuperistä. Julkisesti luodun KV-avaimen metatiedoissa on `julkinen: 1`.
 - **Muisti:** `tusinapaja.html` tallentaa onnistuneesti puretun `#t=…&k=…`-linkin laitteen localStorageen
   (`tusinasaa.linkki`), ja `index.html` (verkkosovelluksen `start_url`) avaa sen, kun #-osaa ei ole. Android-perusversio
-  tallentaa linkin omiin asetuksiinsa ja avaa sen ilman linkkiä käynnistettäessä. Avain ei lähde laitteelta; `start_url`iin
-  sitä ei laiteta, koska Chrome lähettää verkkosovelluksen tiedot Googlelle asennuspaketin tekoa varten.
+  tallentaa linkin omiin asetuksiinsa ja avaa sen ilman linkkiä käynnistettäessä; jos linkkiä ei ole, se avaa koodisivun.
+  Avain ei lähde laitteelta; `start_url`iin sitä ei laiteta, koska Chrome lähettää verkkosovelluksen tiedot Googlelle
+  asennuspaketin tekoa varten.
 - `tusinapaja.html` hakee sijainnin workerilta kaikkialla paitsi localhostissa, jotta oma verkkotunnus ei katkaise linkkejä.
 
 ## Minun oma tusinasää (hallintapaneeli)
@@ -141,3 +142,17 @@ kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sula
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
   `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
+
+## Android-sovellus ja koodi
+
+- **Julkinen APK** `tusinasaa.apk` (perusversio, release) on repon juuressa. Perusversio allekirjoitetaan debugissakin
+  repon avaimella `android/app/julkinen.jks` (ks. `android/README.md`), jotta julkinen APK ja Macin rakennus asentuvat
+  toistensa päälle. Sijaintiversiot (Haakis) pysyvät debug-avaimella. Älä vaihda avainta.
+- **Koodi** on katselulinkin t ja k muodossa `TS12-<t>.<k>`, ei koskaan kirjoitusavainta `w`. Sen antavat paneelin
+  sovellusosio (*Pitääkö minun asentaa puhelimeen taas uusi äppi?*, tekstit mallista, piilossa ensipaalutuksessa) ja
+  `oma-tusinasaa.html`.
+- **Koodisivu** `tusinasaa-koodi.html`: perusversio ilman linkkiä avaa sen parametrilla `?sovellus=1`. Sivu tarkistaa
+  koodin purkamalla paketin ennen käyttöönottoa (sovellus ei tallenna linkkiä, joka ei aukea) ja antaa tuloksen
+  `tusinasaa://open/v1#t=…&k=…`-osoitteena, jonka `TusinaWebViewClient` ohjaa `MainActivity.openLink`ille. Ilman parametria
+  tulos avautuu säätiedotuksena. Kelpaa myös kokonainen katselu-, hallinta- tai Android-linkki; `w`:tä ei käytetä.
+  Ensiavauksen muutokset (esim. *Aloita paalutus*) tehdään tälle sivulle, ei APK:hon.

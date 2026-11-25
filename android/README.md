@@ -4,11 +4,32 @@ Tämä hakemisto sisältää Android-sovelluksen, joka käynnistää Tusinasää
 (`tusinapaja.html`) WebView-näkymässä. Sovellus lataa sivun verkosta
 (`https://ollijuutilainen.github.io/tusinapaja.html`), jotta tuorein frontti päivittyy ilman
 uutta buildiä. Verkoton ympäristö ei ole tuettu, koska itse työpajasivu hakee säätiedot
-API-kutsuilla. Sovellus odottaa ensisijaisesti, että se avataan deeplinkillä (esim.
-QR-koodista), joka sisältää sijaintitiedon joko koordinaatteina tai Cloudflare Worker
--palvelusta haettavana tunnisteena. Jos sovellus käynnistetään ilman deeplinkkiä,
-oletussijaintina käytetään koordinaatteja `60.2633, 25.3244`, jolloin otsikoksi muodostuu
-**"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
+API-kutsuilla. Sijainti tulee deeplinkistä (esim. QR-koodista) joko koordinaatteina tai
+Cloudflare Worker -palvelusta haettavana tunnisteena, tai koodista, jonka käyttäjä liittää
+koodisivulle (`tusinasaa-koodi.html`). Perusversio avaa koodisivun, kun sillä ei ole linkkiä.
+Koordinaattilinkki `60.2633, 25.3244` saa otsikon **"TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI"**.
+
+## Valmis APK
+
+Julkinen APK on **https://ollijuutilainen.github.io/tusinasaa.apk** (perusversio, release). Sen latauslinkki on
+Minun oma tusinasää -sivulla ja `oma-tusinasaa.html`:ssä. Uusi versio: nosta `versionCode`/`versionName` tiedostossa
+`app/build.gradle`, rakenna ja kopioi:
+
+```bash
+./gradlew :app:assemblePerusRelease
+cp app/build/outputs/apk/perus/release/app-perus-release.apk ../tusinasaa.apk
+```
+
+Sovellus lataa sivut verkosta, joten APK päivitetään vain, kun kääre muuttuu. Ensiavauksen muutokset tehdään
+koodisivulle `tusinasaa-koodi.html`.
+
+### Allekirjoitus
+
+Perusversio (debug ja release) allekirjoitetaan repon avaimella `app/julkinen.jks` (salasana `tusinasaa`). Avain on
+julkinen tarkoituksella kuten Luinissa: Macilla rakennettu debug-versio ja julkinen APK asentuvat toistensa päälle.
+Älä vaihda sitä: eri avaimella allekirjoitettu versio vaatii vanhan poistamisen, ja poisto hävittää tallennetun linkin.
+Ennen tätä avainta Macin debug-avaimella asennettu perusversio pitää poistaa kerran
+(`adb -s <SERIAL> uninstall fi.tusinasaa`). Sijaintiversiot (Haakis) allekirjoitetaan edelleen Macin debug-avaimella.
 
 ## Rakentaminen
 
@@ -22,7 +43,7 @@ kehitysvaiheessa olevat moduulit (`:odotushuone`, `:ouroboros`), keikkasoitin
 (`:soitin`) ja Luin (`:luin`). Siksi komennossa on moduuliprefiksi `:app:` – ilman sitä Gradle rakentaa
 kaikki moduulit.
 
-Projektissa on mukana Gradlen 8.4 wrapperi ja Android Gradle Plugin 8.3.2.
+Projektissa on mukana Gradlen 8.14.3 wrapperi ja Android Gradle Plugin 8.3.2.
 
 ## Asentaminen laitteelle
 
@@ -42,9 +63,9 @@ asennuksia, kohdenna komento vastaavaan moduuliin (esim. `./gradlew :ouroboros:i
 
 Sovelluksesta on kaksi varianttia (`productFlavors` tiedostossa `app/build.gradle`):
 
-- **perus** (`fi.tusinasaa`, "Tusinasää 12"): avautuu deeplinkillä. Se muistaa viimeksi avatun
+- **perus** (`fi.tusinasaa`, "Tusinasää 12"): avautuu deeplinkillä tai koodilla. Se muistaa viimeksi avatun
   token+avain-linkin (esim. `oma-tusinasaa.html`:n tekemän) ja avaa sen, kun sovellus käynnistetään ilman linkkiä;
-  muuten oletussijaintiin. Token+avain-linkille ei lisätä oletuskoordinaatteja: jos purku epäonnistuu, sivu näyttää
+  muuten koodisivun. Token+avain-linkille ei lisätä oletuskoordinaatteja: jos purku epäonnistuu, sivu näyttää
   virheen.
 - **haakis** (`fi.tusinasaa.haakis`, "Tusinasää Haakis"): asentuu perusversion rinnalle omalla
   kuvakkeellaan ja avaa aina sisäänrakennetun token+avain-parin. Sillä ei ole VIEW-suodattimia,

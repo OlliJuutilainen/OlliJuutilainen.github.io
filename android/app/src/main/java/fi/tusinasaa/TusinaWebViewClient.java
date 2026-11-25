@@ -54,6 +54,11 @@ public class TusinaWebViewClient extends WebViewClient {
         if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
             return false;
         }
+        // Koodisivun tulos (tusinasaa://open/v1#t=…&k=…) jää tähän sovellukseen.
+        if ("tusinasaa".equalsIgnoreCase(scheme)) {
+            activity.openLink(uri);
+            return true;
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
