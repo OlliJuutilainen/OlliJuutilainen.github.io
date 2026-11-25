@@ -76,6 +76,10 @@
   .ansa{ position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden }
   label.choice{ display:flex; gap:10px; align-items:baseline; margin:0 0 8px; cursor:pointer }
   label.choice small{ display:block; color:var(--muted); font-size:13px }
+  /* Tuotenimet (käyttäjän päätös): RAAKA renkaalla, AVULIAS Tusinasään hiutaleella; molemmat yläindeksinä,
+     samankokoisina. Vain tällä sivulla: ohjelman otsikko on aina TUSINASÄÄ 12 · paikka. */
+  .tuote{ letter-spacing:.02em }
+  .tuoteMerkki{ display:inline-block; width:.66em; height:.66em; vertical-align:.2em; margin-left:.08em; overflow:visible }
   .status{ font-size:14px; margin-top:8px; white-space:pre-wrap }
   .status.err{ color:var(--error) }
   .status.ok{ color:var(--ok) }
@@ -111,9 +115,9 @@
 
 <h2>Lämpötila</h2>
 <label class="choice"><input type="radio" name="lampo" value="" checked>
-  <span>Lämpötila</span></label>
+  <span><span class="tuote">TUSINASÄÄ 12 RAAKA<svg class="tuoteMerkki" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.1"/></svg></span><small>Lämpötila.</small></span></label>
 <label class="choice"><input type="radio" name="lampo" value="tuntuu">
-  <span><i>Tuntuu kuin</i> (TK)<small>Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
+  <span><span class="tuote">TUSINASÄÄ 12 AVULIAS<svg class="tuoteMerkki" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 9.1L9.49 10.55L9.49 13.45L12 14.9L14.51 13.45L14.51 10.55ZM10.25 12L12 0.4L13.75 12ZM11.52 6.16L8.61 3.28L12.48 4.64ZM11.52 4.64L15.39 3.28L12.48 6.16ZM11.13 10.48L22.05 6.2L12.88 13.52ZM16.82 8.67L17.86 4.7L18.62 8.73ZM18.14 7.91L21.25 10.58L17.3 9.49ZM12.88 10.48L22.05 17.8L11.13 13.52ZM17.3 14.51L21.25 13.42L18.14 16.09ZM18.62 15.27L17.86 19.3L16.82 15.33ZM13.75 12L12 23.6L10.25 12ZM12.48 17.84L15.39 20.72L11.52 19.36ZM12.48 19.36L8.61 20.72L11.52 17.84ZM11.13 13.52L1.95 6.2L12.88 10.48ZM6.7 9.49L2.75 10.58L5.86 7.91ZM5.38 8.73L6.14 4.7L7.18 8.67ZM12.88 13.52L1.95 17.8L11.13 10.48ZM7.18 15.33L6.14 19.3L5.38 15.27ZM5.86 16.09L2.75 13.42L6.7 14.51Z"/></svg></span><small><i>Tuntuu kuin</i> (TK). Ilmatieteen laitoksen arvio ja arvaus kokemuksellisesta lämpötilasta.
     Lukemassa on otettu huomioon lämpötilan ohella tuulen ja ilmankosteuden vaikutus.</small></span></label>
 
 <h2>Linkki</h2>
