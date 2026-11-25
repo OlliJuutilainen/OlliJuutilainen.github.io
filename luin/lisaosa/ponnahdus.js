@@ -19,6 +19,8 @@ let leike = null, arvottu = null, tab = null;
    kirjat (numeronapit ja kaikki). Muutos ajaa leikkurin uudelleen samalla välilehdellä (leike.js lukee valinnat muuttujasta
    __lukimeenPs; teoksen XML on sivun muistissa, joten sitä ei haeta uudelleen). Napit odottavat hetken, jotta useamman kirjan
    napautus tekee yhden ajon. Kielivalinta muistetaan (psKielet), kirjat tulevat aina osoitteesta.
+   Kirjanapit ovat päälle–pois-kytkimiä, ja kaikki-nappi tyhjentää valinnan, kun kaikki ovat jo valittuina (käyttäjän päätös:
+   ei erillistä tyhjennysnappia). Tyhjällä valinnalla ei leikata, ja poimintanapit odottavat kirjaa (psTyhja()).
    PS_ISO: sanamäärä, jonka ylittyessä ikkuna ehdottaa pienempää pakettia. Valtion kirja on kahdella kielellä noin 31 000
    sanaa, koko teos 305 000; käyttäjän laitteilla koko teos on ollut raskas (19.11.2026). Kun suuret paketit toimivat sulavasti,
    nosta rajaa tai poista huomio. */
@@ -54,6 +56,8 @@ function asetaLisat(auki) {
 }
 
 function valittu() { return leike && leike.valinta && $('valinta').checked; }
+// Perseuksen kirjavalinta tyhjänä: ei leikata, eikä koko leikettä voi poimia (Vain valittu kohta ei riipu kirjoista).
+function psTyhja() { return !!(leike && leike.ps && psValinta && !psValinta.kirjat.length); }
 function huiluAuki() { return !$('posti-osa').hidden; }
 
 function nayta() {
@@ -66,10 +70,10 @@ function nayta() {
   const sarja = !valittu() && leike.sarja;
   $('meta').textContent = [leike.sivusto, sarja ? sarja.length + ' tekstiä' : '', sarja ? luku(sarja.reduce((n, x) => n + x.sanoja, 0)) : sanoja ? luku(sanoja) : '',
     viitteita ? viitteita + (viitteita === 1 ? ' alaviite' : ' alaviitettä') + ' haettu' : ''].filter(Boolean).join(' · ');
-  const tyhja = !(valittu() ? leike.valinta : leike.koko);
-  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja || psKesken;
-  $('soita').disabled = tyhja || !!kv || psKesken;
-  $('tila').textContent = psKesken ? 'Poimitaan valintojen mukaan…'
+  const tyhja = !(valittu() ? leike.valinta : leike.koko), eiKirjaa = psTyhja() && !valittu();
+  $('lukimeen').disabled = $('latomoon').disabled = $('lataa').disabled = tyhja || psKesken || eiKirjaa;
+  $('soita').disabled = tyhja || !!kv || psKesken || eiKirjaa;
+  $('tila').textContent = psKesken ? 'Poimitaan valintojen mukaan…' : eiKirjaa ? 'Valitse ainakin yksi kirja.'
     : tyhja ? 'Sivulta ei löytynyt artikkelia. Maalaa luettava kohta ja avaa ikkuna uudelleen.' : '';
   psPiirra();
 }
@@ -114,21 +118,24 @@ function psPiirra() {
   const keinot = [];
   if (leike.ps.kielet === 'molemmat') keinot.push('yksi kieli');
   if (leike.ps.valitut.length !== 1 && ps.kirjat.length > 1 && !leike.sarja) keinot.push('kirja kerrallaan tai kukin omaksi tekstikseen');
-  $('ps-huomio').textContent = !psKesken && leike.sarja && leike.sarja.length > 12
+  const valmisLeike = !psKesken && !psTyhja();
+  $('ps-huomio').textContent = valmisLeike && leike.sarja && leike.sarja.length > 12
     ? 'Pinoon mahtuu tusina tekstiä: pinoon jäävät 12 ensimmäistä kirjaa, ja muut sekä pinon aiemmat tekstit laskeutuvat kellarin kampihyllystöön.'
-    : !psKesken && leike.kokoSanoja > PS_ISO && keinot.length
+    : valmisLeike && leike.kokoSanoja > PS_ISO && keinot.length
     ? 'Iso paketti. Jos lukeminen tökkii, kokeile pienempää: ' + keinot.join(' tai ') + '.' : '';
 }
 
 function psMuuta() {
-  psKesken = true;
-  nayta();
   clearTimeout(psAjastin);
-  psAjastin = setTimeout(psLeikkaa, 500);
+  psAjastin = null;
+  psKesken = !psTyhja();
+  if (psKesken) psAjastin = setTimeout(psLeikkaa, 500);
+  nayta();
 }
 
 async function psLeikkaa() {
   psAjastin = null;
+  if (psTyhja()) { psKesken = false; return nayta(); }
   if (psAjo) { psJono = true; return; }
   psAjo = true;
   const r = await aja({ kielet: psValinta.kielet, kirjat: psValinta.kirjat.slice(), erikseen: psValinta.erikseen && psValinta.kirjat.length > 1 });
@@ -217,13 +224,9 @@ async function aloita() {
     const b = e.target.closest('button');
     if (!b || !psValinta || !leike || !leike.ps) return;
     const kaikki = leike.ps.kirjat;
-    if (!b.dataset.n) {
-      if (psValinta.kirjat.length === kaikki.length) return;
-      psValinta.kirjat = kaikki.slice();
-    } else if (psValinta.kirjat.includes(b.dataset.n)) {
-      if (psValinta.kirjat.length === 1) return;
-      psValinta.kirjat = psValinta.kirjat.filter(n => n !== b.dataset.n);
-    } else psValinta.kirjat = kaikki.filter(n => n === b.dataset.n || psValinta.kirjat.includes(n));
+    if (!b.dataset.n) psValinta.kirjat = psValinta.kirjat.length === kaikki.length ? [] : kaikki.slice();
+    else if (psValinta.kirjat.includes(b.dataset.n)) psValinta.kirjat = psValinta.kirjat.filter(n => n !== b.dataset.n);
+    else psValinta.kirjat = kaikki.filter(n => n === b.dataset.n || psValinta.kirjat.includes(n));
     psMuuta();
   });
   $('lukimeen').addEventListener('click', () => laheta(true, null));
