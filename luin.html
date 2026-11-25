@@ -293,16 +293,10 @@
   .laatikko.kk-jarj { flex: 0 1 auto; min-width: 0; text-align: left; }
   /* Voimassa oleva järjestys haalistettuna (käyttäjän päätös); nuoli musteella. */
   .kk-jarj .kk-arvo { padding: 4px 0; line-height: 1.25; color: var(--harmaa); }
-  /* Etsi otsikkorivillä viivan yläpuolella (käyttäjän päätös): tiivis laatikkonappi. Otsikon kampi (absoluuttinen) varaa
-     tilansa ja 8 px:n raon, jotta nappi ei peitä sitä; kapealla rivillä pelkkä suurennuslasi (konttikysely otsikkorivin
-     leveydestä), ja jos sekään ei mahdu, nappi siirtyy otsikon alle oikeaan laitaan, yhä viivan yläpuolelle. Luokka etsi-ots vain
-     Etsin näkyessä (paivitaValinta()): pino, ö-mappi ja valinnan aikainen otsikkorivi pysyvät ennallaan. */
-  .ots-rivi.etsi-ots { container-type: inline-size; flex-wrap: wrap; }
-  .ots-rivi.etsi-ots h2.ots .ots-merkki { margin-right: calc(1.87em + 8px); }
-  .ots-rivi #kk-etsi { flex: 0 0 auto; align-self: center; min-height: 0; height: 28px; padding: 0 8px; gap: 6px; margin: 1px 0 1px auto;
-    color: var(--muste); }
+  /* Etsi oikealla, mutta oikea reuna 17 px listan reunasta: nimikkeiden valikkonapin salmiakit (muste 7,6–12,4 px reunasta) eivät
+     ole sen kohdalla x-akselilla. Himmeänä, jotta se ei ole sivun kirkkain asia (käyttäjän päätös). */
+  #kk-etsi { flex: 0 0 auto; margin-right: 17px; color: var(--harmaa); }
   #kk-etsi svg { width: 18.08px; height: 18.08px; position: relative; top: 1.15px; }
-  @container (max-width: 331px) { .ots-rivi .kk-etsi-teksti { display: none; } }
   .jarj-linkit { margin: -2px 0 6px; font-size: .74rem; line-height: 1.6; color: var(--harmaa); letter-spacing: .02em; }
   #sanasto-osa[hidden] + #kortit-osa .erotin { display: none; }
   #lista:not(.arkisto) .kk-napit, #lista:not(.arkisto) .jarj-linkit, #lista:not(.arkisto) .kk-haku { display: none; }
@@ -1701,12 +1695,11 @@
   <!-- Valinta (käyttäjän pyyntö 10.11.2026): otsikkorivin salmiakki valitsee kaikki tai tyhjentää valinnan, ja kun jotain
        on valittuna, oikeaan nurkkaan tulee valittujen valikko. Kellarin veivihyllystössä sama rivi otsikolla Kellarin veivihyllystö. -->
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
-    <h2 class="ots" id="lista-ots">Pino</h2><button type="button" class="laatikko" id="kk-etsi" aria-expanded="false" aria-controls="kk-haku" aria-label="Etsi" title="Etsi" hidden><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg><span class="kk-etsi-teksti">Etsi</span></button><span class="val-maara" id="val-maara" hidden></span>
+    <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
   <!-- Kellarin veivihyllystön napit lukimen laatikkonappien muodossa (käyttäjän päätös): vasemmalla Järjestys, jossa on vain
-       lajittelunuoli ja voimassa oleva järjestys (nimi aria-labelissa ja vihjeenä). Etsi on otsikkorivillä viivan
-       yläpuolella (#kk-etsi). Pino on aina tulojärjestyksessä. -->
-  <div class="kk-napit" id="jarj-rivi" hidden><button type="button" class="laatikko kk-jarj" id="jarj" aria-haspopup="true" title="Järjestys"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-viiva" d="M.5 1.5H8.5M.5 5.5H6.5M.5 9.5H4.5M11.5 .5V10M9.5 8L11.5 10L13.5 8"/></svg><span class="kk-arvo" id="jarj-arvo"></span></button></div>
+       lajittelunuoli ja voimassa oleva järjestys (nimi aria-labelissa ja vihjeenä), oikealla Etsi. Pino on aina tulojärjestyksessä. -->
+  <div class="kk-napit" id="jarj-rivi" hidden><button type="button" class="laatikko kk-jarj" id="jarj" aria-haspopup="true" title="Järjestys"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-viiva" d="M.5 1.5H8.5M.5 5.5H6.5M.5 9.5H4.5M11.5 .5V10M9.5 8L11.5 10L13.5 8"/></svg><span class="kk-arvo" id="jarj-arvo"></span></button><button type="button" class="laatikko" id="kk-etsi" aria-expanded="false" aria-controls="kk-haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button></div>
   <!-- Kellarin haku: suodattaa nimikkeet kuten välikortti (kkHaku()). -->
   <div class="h-kentta kk-haku" id="kk-haku" hidden><input type="search" aria-label="Etsi kellarin veivihyllystöstä" placeholder="otsikko, tekijä tai asiasana" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="h-tyhj" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>
   <!-- Sanasto (kun asiasanoja on) ja kaikki kortit (välikortin suodatuksessa) pieninä linkkeinä nappien alla. -->
@@ -3226,9 +3219,6 @@
     k.setAttribute('aria-label', v === n && n ? 'Tyhjennä valinta' : 'Valitse kaikki'); k.title = k.getAttribute('aria-label');
     $('#val-valikko').hidden = $('#val-maara').hidden = !v;
     $('#val-maara').textContent = v + ' valittu';
-    var etsiNakyy = tila.arkisto && !tila.omappi && !$('#jarj-rivi').hidden && !v;
-    $('#kk-etsi').hidden = !etsiNakyy;
-    $('.ots-rivi').classList.toggle('etsi-ots', etsiNakyy);
   }
 
   /* ---------- postilaatikko ----------
