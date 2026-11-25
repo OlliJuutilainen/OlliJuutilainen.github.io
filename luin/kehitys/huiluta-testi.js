@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/huiluta-testi.js [kuvakansio]
 // Kaksi laitetta (erilliset selainkontekstit) ja workerin oikea koodi muistissa olevalla KV:llä kuten posti-testi.js.
 // Tarkistaa: virheet ilman lausetta ja lukukoodilla, pinon tekstin runko laatikkoon samalla tunnuksella, merkinnät
-// perässä vain valittuina, oma lähetys ei palaa omaan pinoon (eikä nosta kellarin kampihyllystöstä), toinen laite saa
+// perässä vain valittuina, oma lähetys ei palaa omaan pinoon (eikä nosta kellarin veivihyllystöstä), toinen laite saa
 // tekstin ja merkinnät, osoitteesta avattu teksti kulkee osoite:-rivin kanssa, merkinnät osuvat samoihin kohtiin ja
 // saman osoitteen avaus toisella laitteella ei tee toista kappaletta; 429:n viesti.
 const http = require('http');
@@ -148,7 +148,7 @@ function muistiKV() {
   const nahdyt = await LS(a, 'luin-laatikko-nahdyt');
   tulos('oma lähetys kirjattu nähdyksi', nahdyt && nahdyt[KOODI + ':' + AV] === md1.meta.t, JSON.stringify(nahdyt));
 
-  // --- 4. Merkintäposti päälle, huilutus kellarin kampihyllystöstä ---
+  // --- 4. Merkintäposti päälle, huilutus kellarin veivihyllystöstä ---
   await a.click('#lista .ratas');
   await a.click('#laatikko-osio summary');
   await a.click('#posti-paalla button');
