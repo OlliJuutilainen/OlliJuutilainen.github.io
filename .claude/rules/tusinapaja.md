@@ -3,6 +3,7 @@ paths:
   - "tusinapaja.html"
   - "generaattori.html"
   - "oma-tusinasaa.html"
+  - "minun-tusinasaa.html"
   - "android/app/**"
 ---
 ## Tusinapaja on ainoa aktiivinen versio
@@ -105,6 +106,7 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
   *Oma Tusinasää: Android-pyyntö*). Linkkiä, avainta tai sijaintia ei liitetä: sama perusversion APK käy kaikille ja muistaa
   paikan, kun linkki avataan sillä kerran.
 - **Tallennettua ei voi muuttaa:** worker ei tunne avainta eikä siis omistajaa. Ei ylikirjoitusta; uusi paikka on uusi linkki.
+  Poikkeus on Minun oma tusinasää -profiili (alla), jonka muuttamiseen tarvitaan kirjoitusavain.
 - **Rajat:** `LuinRaja`-luokka omana oliona `loc` (5 pyyntöä minuutissa osoitetta kohden, 50 uutta sijaintia UTC-päivässä),
   vain sallituista alkuperistä. Julkisesti luodun KV-avaimen metatiedoissa on `julkinen: 1`.
 - **Muisti:** `tusinapaja.html` tallentaa onnistuneesti puretun `#t=…&k=…`-linkin laitteen localStorageen
@@ -112,3 +114,30 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
   tallentaa linkin omiin asetuksiinsa ja avaa sen ilman linkkiä käynnistettäessä. Avain ei lähde laitteelta; `start_url`iin
   sitä ei laiteta, koska Chrome lähettää verkkosovelluksen tiedot Googlelle asennuspaketin tekoa varten.
 - `tusinapaja.html` hakee sijainnin workerilta kaikkialla paitsi localhostissa, jotta oma verkkotunnus ei katkaise linkkejä.
+
+## Minun oma tusinasää (hallintapaneeli)
+
+`minun-tusinasaa.html` hallitsee pylväsprofiilia: enintään kuusi pylvästä, valittu pylväs ja yhteinen lämpötilavalinta.
+Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun pylvään, joten paneelin valinta ohjaa
+kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
+`oppaat/tusinasaa-oma-paneeli-malli.html`.
+
+- Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, muutettu}`. `tusinapaja.html` tunnistaa
+  sen `pylvaat`-taulukosta ja näyttää valitun pylvään kuin tavallisen paketin. `lampo` on profiilin, ei pylvään.
+  Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääpylvästä*.
+- **Kirjoitusavain `w` on vain hallintalinkissä** `minun-tusinasaa.html#t=…&k=…&w=…`, ei koskaan katselulinkissä: muuten
+  esim. mökin QR-koodin lukija voisi muuttaa pylväitä. KV-tietueessa on `wh` = SHA-256(w:n UTF-8-merkkijono), ja
+  `PUT /api/loc?t=…` vertaa siihen. GET ei palauta `wh`:ta. Worker ei näe k:ta eikä koordinaatteja tässäkään.
+- Profiilin luo paneelin ensipaalutus (`POST /api/loc` kentällä `wh`) tai generaattorin valinta *Minun oma tusinasää
+  -hallintapaneeli*. Generaattori olemassa olevalla TOKENilla ja K:lla muuttaa vanhan linkin profiiliksi paikallaan:
+  jaetut linkit, QR-koodit ja sijaintiversion APK (esim. Haakis) seuraavat paneelia ilman vaihtoa. Generaattori ei
+  edelleenkään lähetä mitään verkkoon, eikä `w` päädy one-paste-komentoon (vain `wh`).
+- Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 200 UTC-päivässä). Profiilin `ct`
+  enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
+- Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
+  (välit kuten mallissa). Virhe näkyy *Pylvääni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Pylvääni nyt* -otsikko
+  on linkki säätiedotukseen.
+- Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
+  paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
+- Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
+  `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
