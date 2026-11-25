@@ -95,7 +95,7 @@ const TEKSTIT = [
   let r = await kellari('luettu');
   tulos('oletus: käsikirjasto ylimpänä, muut luettu-järjestyksessä', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Luetut 6] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Septuaginta | Hegel’s Phenomenology | Tiede ja usko', nimet(r));
   tulos('tietorivillä asiasanat, käsikirjan kertoo välikortti', r.some(x => /Hegel’s.*filosofia, Hegel/.test(x)) && !r.some(x => /käsikirja/.test(x)), r.join(' / '));
-  tulos('järjestysrivi näkyy', await page.evaluate(() => !document.getElementById('jarj-rivi').hidden && document.getElementById('jarj').textContent === 'luetuksi merkitsemisen mukaan'));
+  tulos('järjestysrivi näkyy', await page.evaluate(() => !document.getElementById('jarj-rivi').hidden && document.getElementById('jarj-arvo').textContent === 'luetuksi merkitsemisen mukaan'));
 
   r = await kellari('ajoitus');
   tulos('ajoitus: käsikirjasto ylimpänä, eaa. ennen jaa., Hegel-tutkimus Hegelin vuoteen', nimet(r) ===
