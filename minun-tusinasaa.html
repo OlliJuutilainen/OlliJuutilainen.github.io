@@ -426,8 +426,8 @@ function renderPanel(){
     if (!fr){ fr = document.createElement('button'); fr.type = 'button'; fr.dataset.id = 'vapaa'; stage.appendChild(fr); }
     fr.style.left = POS.T[0] + '%'; fr.style.top = POS.T[1] + '%';
     fr.className = 'slot free' + (state.melting === 'uusi' ? ' melting' : '');
-    fr.innerHTML = icon(state.melting === 'uusi' ? 'sula' : 'vapaa') + '<span class="nm">paaluta uusi</span>';
-    fr.setAttribute('aria-label', 'Paaluta uusi');
+    fr.innerHTML = icon(state.melting === 'uusi' ? 'sula' : 'vapaa') + '<span class="nm">paaluta</span>';
+    fr.setAttribute('aria-label', 'Paaluta uusi pylväs');
     seen.add('vapaa');
   }
   nodes.forEach((el, id) => { if (!seen.has(id)) el.remove(); });
