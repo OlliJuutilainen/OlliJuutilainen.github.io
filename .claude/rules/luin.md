@@ -428,6 +428,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *Molemmat* on rinnakkain (`div.pari`, opas 3.2) aina, kun kaksi vähintään `RINN_MIN` em:n palstaa mahtuvat, myös sivutettuna ja
   kosketusnäytöllä (mahdollisimman usein, palstat saavat kaventua). Alkuteksti kelluu, pari on `flow-root`,
   ei reunushuomioita; sivutettuna `parienAlut()` pitää parin puolet samalla sivulla.
+  Sivutettuna lomitetun käännöksen luku alkaa aina uudelta sivulta kuten pääluku (käyttäjän päätös; Valtion kirjat):
+  kun ylin otsikkotaso on osio (`h3`), `lomitetunLuvut()` antaa otsikoille `sivulle`-luokan kerralla ennen mittausta
+  (`alalukujenAlut()`). Älä palauta siirtoja otsikko kerrallaan: jokainen asettelee koko palstoituksen. Kapealla ruudulla
+  pari on `display: contents` eikä sillä ole laatikoita (`getClientRects()` tyhjä).
   Rinnakkain käännös on `--sitaatti`-värinen vain, kun alkuteksti ja käännös ovat samaa kirjaimistoa (`paaKirjaimisto()`,
   `samaKirj`, luokka `sama-kirjaimisto` `lomitusLuokat()`issa); eri kirjaimistolla (kreikka–englanti) palstat ovat neutraalit
   (käyttäjän päätös). Testi `lomitus-testi.js`.
