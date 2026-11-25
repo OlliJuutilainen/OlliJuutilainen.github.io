@@ -80,7 +80,7 @@ KV:stä. Koordinaatit eivät saa päätyä selväkielisenä repoon.
 
 Purettu paketti on `{lat, lon, title?, z?, lampo?}`. `lampo: "tuntuu"` vaihtaa lämpötilasarakkeen FMI:n
 `FeelsLike`-arvoon kaikilla riveillä (myös nowcast-riveillä, koska nowcastissa sitä ei ole) ja sarakeotsikoksi `TK` (käyttäjän päätös);
-kehityksessä sama `?lampo=tuntuu`. TK-sarakkeen luvut ovat kursiivilla ja ilman astemerkkiä (luokka `tk`), otsake `TK` pystyssä (käyttäjän päätös).
+kehityksessä sama `?lampo=tuntuu`. TK-sarake on otsaketta `TK` myöten kursiivilla ja luvut ilman astemerkkiä (luokka `tk`; käyttäjän päätös: tuntuu kuin -maailma on kursiivia).
 Pakkas- ja hellekorostus (`applyTemperatureMilestones`) lasketaan TK-tilassakin ilman lämpötilasta (`row.airTemp`), ei tuntumasta:
 rajapyykki on virallinen ilman lämpötila (käyttäjän päätös).
 
