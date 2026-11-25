@@ -354,7 +354,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
   **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai järjestysrivin
   *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
-  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa.
+  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Haku** (järjestysrivin *etsi*, `kkHaku()`)
+  suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; järjestysrivin näkyvyys lasketaan
+  suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
+  sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
   hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-
@@ -824,6 +827,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]`: kellarin kampihyllystön haku (osumat, välikortit, valinta, sulkeminen, 360 px).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
