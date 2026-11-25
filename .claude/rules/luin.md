@@ -359,9 +359,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
   harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Kellarin napit** (käyttäjän päätös):
   lukimen laatikkonapit, vasemmalla *Järjestys*: vain lajittelunuoli ja voimassa oleva järjestys haalistettuna (`--harmaa`), ei nimitekstiä (nimi
-  `aria-label`issa ja vihjeenä; pitkä järjestys rivittyy napin sisällä). *Etsi* on otsikkorivillä viivan yläpuolella
-  (`.ots-rivi.etsi-ots`, vain kellarissa ja ilman valintaa): otsikon kampi varaa tilansa, kapealla pelkkä suurennuslasi
-  (konttikysely), ja jos sekään ei mahdu, nappi otsikon alla oikealla; testi mittaa 320, 360 ja 412 px; *sanasto* ja *kaikki kortit* pieninä linkkeinä nappien alla. **Haku** (*Etsi*, `kkHaku()`)
+  `aria-label`issa ja vihjeenä; pitkä järjestys rivittyy napin sisällä). *Etsi* samalla rivillä oikealla, mutta oikea reuna
+  17 px listan reunasta, jotta nimikkeiden valikkonapin salmiakit eivät ole sen kohdalla x-akselilla, ja himmeänä (`--harmaa`):
+  ei sivun kirkkain asia (käyttäjän päätös; testi mittaa raon ja värin); *sanasto* ja *kaikki kortit* pieninä linkkeinä nappien alla. **Haku** (*Etsi*, `kkHaku()`)
   suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; nappirivin (`#jarj-rivi`) näkyvyys
   lasketaan suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
   sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
