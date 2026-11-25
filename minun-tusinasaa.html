@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Minun oma tusinasää</title>
+<link rel="icon" href="icons/tusinasaa-32.png?v=d86bb9ab" sizes="32x32">
+<link rel="icon" href="icons/tusinasaa.svg?v=a6066a5a" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=5ec1496d">
+<style>
+  /* Minun oma tusinasää: pylväsprofiilin hallintapaneeli. Ulkoasu mallista (tusina-rata, oppaat/tusinasaa-oma-paneeli):
+     leipäteksti IBM Plex Sans (isännöity itse, vendor/ibm-plex-sans, OFL), tummassa teemassa ei hohdetta. */
+  @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:400; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-normal.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:700; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-normal.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:300; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-300-italic.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:400; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-italic.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:700; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-italic.woff2) format('woff2') }
+  :root{
+    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --dim:#4b545c; --border:#2a3036;
+    --field:#0f1113; --err:#ff6b6b;
+    --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --dim:#b3bac1; --border:#d5d9df;
+      --field:#fff; --err:#c34242; color-scheme:light }
+  }
+  body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
+  .wrap{ max-width:560px; margin:0 auto; padding-block:20px 32px;
+    padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)) }
+  /* Logo 68,7 px; aforismi keskellä logon korkeudella, vasen reuna 30 px logon oikealta puolelta. */
+  .top{ position:relative; display:flex; align-items:center; gap:16px; margin:0 0 22px }
+  .logoBox{ display:block; flex:none; line-height:0; margin-top:6.75px }
+  .logo{ display:block; width:68.7px; height:68.7px }
+  .quote{ position:absolute; left:0; right:0; top:6.75px; height:68.7px; margin:0; padding:0 0 0 98.7px;
+    display:flex; align-items:flex-start; justify-content:flex-start; text-align:left;
+    /* Ylemmän rivin versaalien keskikohta logon keskikohdalle. */
+    padding-top:calc(34.35px - .7315em);
+    font-family:var(--body); font-style:italic; font-weight:400;
+    font-size:17.5px; line-height:1.4; letter-spacing:.08em; color:var(--title); pointer-events:none }
+  .quote .q1{ color:var(--brand) }
+  .quote .q2{ letter-spacing:.04em; font-size:.88em; opacity:.72; font-family:var(--body); font-weight:300 }
+  .quote span{ white-space:nowrap }
+  .quote b{ text-transform:uppercase; font-size:1.04em }
+  @media (max-width:400px){ .quote{ padding-left:90.7px; font-size:16px; letter-spacing:.05em } .quote .q2{ letter-spacing:.025em } }
+  @media (max-width:375px){ .quote{ font-size:15px; letter-spacing:.035em } .quote .q2{ letter-spacing:.02em } }
+
+  h2{ font-size:12px; font-weight:400; letter-spacing:.3px; text-transform:uppercase; color:var(--muted);
+    margin:26px 0 10px; padding-top:10px; border-top:1px solid var(--border) }
+  p{ margin:0 0 12px }
+  a{ color:inherit }
+  button{ font:inherit }
+  button:focus-visible, input:focus-visible, a:focus-visible{ outline:2px solid var(--muted); outline-offset:2px }
+  .row{ display:flex; gap:8px }
+  input[type="text"]{ flex:1; min-width:0; width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
+    color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px }
+  #t2{ text-transform:uppercase }
+  #t2::placeholder{ text-transform:none }
+  .btn{ font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer; border:1px solid var(--text); background:var(--text); color:var(--bg) }
+  .btn:disabled{ opacity:.45; cursor:default }
+  .btn.big{ font-size:14px; letter-spacing:.6px; text-transform:uppercase; padding:12px 18px }
+  .btn.ghost{ background:none; color:var(--text); border-color:var(--border) }
+  .link{ background:none; border:0; padding:0; color:inherit; cursor:pointer; text-decoration:underline; text-underline-offset:3px }
+  .note{ color:var(--muted); font-size:14px }
+  .titleRow{ display:flex; align-items:center; gap:10px }
+  .titlePrefix{ color:var(--muted); white-space:nowrap }
+  .viesti{ text-align:center; color:var(--muted); font-size:15px; margin:34px 0 }
+  .viesti.err{ color:var(--err) }
+
+  /* Tuotenimet ja merkit */
+  .merkki{ display:inline-block; width:.66em; height:.66em; vertical-align:.2em; margin-left:.02em; overflow:visible }
+  .merkki.rengas{ margin-left:-.01em }
+  .merkki:not(.rengas){ width:.6em; height:.6em; vertical-align:.24em }
+
+  /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla. */
+  .pick{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+  .opt{ display:grid; gap:2px; align-content:space-between; justify-items:center; text-align:center; padding:8px 12px 2px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--border); background:none; color:var(--muted) }
+  .opt[aria-checked="true"]{ background:var(--text); border-color:var(--text); color:var(--bg) }
+  .opt .sym{ font-size:18px; line-height:1.2; color:inherit }
+  .opt .sym i{ font-style:italic }
+  .opt .sym .tk{ display:block; font-size:9px; font-style:italic; line-height:1.3; margin-top:3px; text-transform:uppercase; letter-spacing:.09em }
+  .opt[data-lampo="raaka"] .sym .tk{ font-style:normal }
+  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--dim); opacity:.64 }
+  .opt .ref i{ font-style:italic }
+  .opt .ref .tm{ margin-right:.2em }
+  .opt[aria-checked="true"] .ref{ color:var(--bg); opacity:.45 }
+  .opt .alt{ display:none }
+  /* Ensimmäinen paalutus: tuotenimi isona, °C / TK pienenä. */
+  .pick.tuotteet .opt{ padding:8px 12px 7px }
+  .pick.tuotteet .opt .ref{ order:-1; font-size:15px; line-height:1.3; letter-spacing:.02em; padding-left:0; margin-top:0; color:inherit; opacity:1 }
+  .pick.tuotteet .opt .ref .tm{ margin-right:0 }
+  .pick.tuotteet .opt .sym{ display:none }
+  .pick.tuotteet .opt .alt{ display:block; font-size:9px; text-transform:uppercase; letter-spacing:.09em; opacity:.75; margin-top:5px }
+  .pick.tuotteet .opt[data-lampo="avulias"] .alt{ font-style:italic }
+
+  .flabel{ display:block; font-size:12px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted); margin:0 0 6px }
+  .flabel .lc{ text-transform:none; font-style:italic; letter-spacing:0 }
+
+  /* Hakutulokset valintanappeina; luokka .valittu asetetaan JS:llä (ei :has()-riippuvuutta). */
+  .results{ list-style:none; margin:10px 0 0; padding:0 }
+  .results:empty{ display:none }
+  .results .hint{ font-size:12px; color:var(--muted); margin:0 0 4px }
+  .results label{ display:flex; gap:10px; align-items:baseline; padding:3px 0; color:var(--muted); cursor:pointer }
+  .results label small{ display:block; font-size:13px; color:var(--muted) }
+  .results label.valittu{ color:var(--text) }
+  .results label.valittu::after{ content:'valittu'; margin-left:auto; padding-left:10px; font-size:12px; color:var(--muted); white-space:nowrap }
+  .hakuTila{ font-size:14px; color:var(--muted); margin:8px 0 0 }
+  .hakuTila:empty{ display:none }
+  .hakuTila.err, .tila.err, .meltMsg.err{ color:var(--err) }
+  .osm{ font-size:12px; margin:8px 0 0 }
+
+  /* Kide: pylväät kuusikulmion kärjillä. */
+  .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto }
+  .stage[hidden]{ display:none }
+  .stage svg.arms{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
+  .arm{ stroke:var(--dim); stroke-width:.5 }
+  .arm.free{ stroke-dasharray:1.4 1.6 }
+  .core{ fill:var(--dim) }
+  .slot{ position:absolute; transform:translate(-50%, -50%); display:grid; justify-items:center; gap:3px;
+    background:none; border:0; padding:6px; cursor:pointer; color:var(--muted);
+    transition:left .7s cubic-bezier(.3,.7,.2,1), top .7s cubic-bezier(.3,.7,.2,1), color .3s }
+  .slot svg{ width:26px; height:26px; overflow:visible; transition:transform .3s }
+  .slot .nm{ font-size:12px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; max-width:11ch; overflow:hidden; text-overflow:ellipsis }
+  .slot.on{ color:var(--text) }
+  .slot.on svg{ transform:scale(1.25) }
+  .slot.on .nm{ border-bottom:1px solid currentColor }
+  .slot.free{ color:var(--dim) }
+  .slot.free:hover, .slot.free:focus-visible{ color:var(--muted) }
+  .slot.melting{ color:var(--text) }
+  .now{ text-align:center; margin:2px 0 0; font-size:15px }
+  .now .lbl{ display:block; font-size:11px; letter-spacing:.6px; text-transform:uppercase; font-style:italic; color:var(--muted); margin:0 0 3px }
+  .now a{ text-decoration:none }
+  .now a:hover, .now a:focus-visible{ text-decoration:underline; text-underline-offset:3px }
+  /* Ilmoitukset vain virheistä ja ensipaalutuksesta: onnistunut tallennus ei muuta asettelua (väli kuten mallissa). */
+  .tila{ text-align:center; font-size:13px; color:var(--muted); margin:6px 0 0 }
+  .tila:empty{ display:none }
+  .melt{ border-top:1px solid var(--border); margin-top:16px; padding-top:12px }
+  .melt h3{ font-size:12px; font-weight:400; text-transform:uppercase; letter-spacing:.3px; color:var(--muted); margin:0 0 18px; display:flex; align-items:center; gap:6px }
+  .melt h3 svg{ width:13px; height:13px }
+  .melt .field{ margin:0 0 12px }
+  .melt .f1{ margin-bottom:30px }
+  .melt .f2{ margin-bottom:22px }
+  .melt .actions{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center }
+  .meltMsg{ font-size:14px; color:var(--muted) }
+  .clear{ text-align:center; font-size:13px; color:var(--muted); margin:18px 0 0 }
+  .clear .link{ color:var(--muted) }
+  .clear .danger{ color:var(--text) }
+  .clearIdle{ font-size:11.5px; opacity:.8 }
+  .full{ text-align:center; font-size:13px; color:var(--muted); margin:4px 0 0 }
+  .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
+  [hidden]{ display:none !important }
+  @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="sprite"></defs></svg>
+
+<div class="wrap">
+  <div class="top">
+    <span class="logoBox"><svg class="logo" viewBox="0 0 32 32" role="img" aria-label="TUSINASÄÄ 12"><circle cx="16" cy="16" r="16" fill="#000"/><path fill="none" stroke="#e8e8e8" stroke-width="2.2" d="M16,7.9A8.1,8.1 0 1 1 16,24.1A8.1,8.1 0 1 1 16,7.9Z"/><path fill="#e8e8e8" d="M16,0.8L18,5.8L14,5.8ZM23.6,2.836L22.832,8.167L19.368,6.167ZM29.164,8.4L25.833,12.632L23.833,9.168ZM31.2,16L26.2,18L26.2,14ZM29.164,23.6L23.833,22.832L25.833,19.368ZM23.6,29.164L19.368,25.833L22.832,23.833ZM16,31.2L14,26.2L18,26.2ZM8.4,29.164L9.168,23.833L12.632,25.833ZM2.836,23.6L6.167,19.368L8.167,22.832ZM0.8,16L5.8,14L5.8,18ZM2.836,8.4L8.167,9.168L6.167,12.632ZM8.4,2.836L12.632,6.167L9.168,8.167ZM9.75,16L15.6,9.763L14.1,16L15.6,22.237ZM17.15,13.7H18.85L18.4,15.1V17.9A0.4,0.4 0 0 1 17.6,17.9V15.1ZM19.15,13.7H20.85L20.4,15.1V17.9A0.4,0.4 0 0 1 19.6,17.9V15.1Z"/></svg></span>
+    <p class="quote" id="quote"><span><span class="q1"><b>Minun oma tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
+  </div>
+
+  <main>
+    <p class="viesti" id="viesti" role="status">Haetaan pylväitä…</p>
+    <div id="ui" hidden>
+      <div class="stage" id="stage" aria-label="Pylväät">
+        <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
+      </div>
+      <p class="now" id="now"></p>
+      <p class="tila" id="tila" role="status"></p>
+      <p class="full" id="full" hidden>Kuusi pylvästä: enempää ei mahdu.</p>
+      <section class="melt" id="melt" hidden aria-live="polite"></section>
+      <p class="clear" id="clear"></p>
+      <h2>Näytä lämpötilasarakkeessa…</h2>
+      <div class="pick" id="lampoPick" role="radiogroup" aria-label="Näytä lämpötilasarakkeessa">
+        <button class="opt" type="button" role="radio" data-lampo="raaka">
+          <span class="sym">°C <span class="tk">(ilman lämpötila)</span></span>
+          <span class="alt">(°C, ilman lämpötila)</span>
+          <span class="ref"><span class="tm">TUSINASÄÄ&nbsp;12</span> <i>RAAKA</i><svg class="merkki rengas" viewBox="0 0 24 24" aria-hidden="true"><use href="#g-rengas"/></svg></span>
+        </button>
+        <button class="opt" type="button" role="radio" data-lampo="avulias">
+          <span class="sym"><i>TK</i> <span class="tk">(tuntuu kuin)</span></span>
+          <span class="alt">(TK, tuntuu kuin)</span>
+          <span class="ref"><span class="tm">TUSINASÄÄ&nbsp;12</span> <i>AVULIAS</i><svg class="merkki" viewBox="0 0 24 24" aria-hidden="true"><use href="#g-kide"/></svg></span>
+        </button>
+      </div>
+    </div>
+    <p class="foot">© TUSINASOFT 2026</p>
+  </main>
+</div>
+
+<script type="module">
+const API_BASE = (window.TUSINASAA_API_BASE || 'https://tusinasaa-worker.ollijuutilainen.workers.dev').replace(/\/+$/, '');
+/* Peitto kuten oma-tusinasaa.html:ssä: FMI:n ennuste ja met.no:n nowcast kattavat nämä. */
+const COUNTRIES = 'fi,se,no,dk,ax';
+const PREFIX = 'TUSINASÄÄ 12 · ';
+const MAX_PYLVAAT = 6;
+/* Hallintalinkki (t, k, w) talteen tälle laitteelle; kopio viimeksi tallennetusta salatusta paketista, koska KV:n
+   muutos voi näkyä muualle viiveellä ja sivu ei saa näyttää vanhaa tilaa heti tallennuksen jälkeen. */
+const PANEELI_KEY = 'tusinasaa.paneeli';
+const KOPIO_KEY = 'tusinasaa.paneeli.kopio';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* --- Merkit (samat kuin mallissa) --- */
+const f2 = n => +n.toFixed(2), rad = d => d * Math.PI / 180;
+const pt = (cx, cy, deg, r) => [f2(cx + r * Math.cos(rad(deg))), f2(cy - r * Math.sin(rad(deg)))];
+const SIX = [90, 30, -30, -90, 150, 210];
+const wedge = (cx, cy, a, r0, r1, hb) => { const [bx, by] = pt(cx, cy, a, r0); const [p1x, p1y] = pt(bx, by, a + 90, hb), [p2x, p2y] = pt(bx, by, a - 90, hb), [tx, ty] = pt(cx, cy, a, r1); return `M${p1x} ${p1y}L${tx} ${ty}L${p2x} ${p2y}Z`; };
+const hex = (cx, cy, r) => 'M' + [0, 1, 2, 3, 4, 5].map(i => pt(cx, cy, 90 + i * 60, r).join(' ')).join('L') + 'Z';
+let kide = hex(12, 12, 2.9);
+for (const a of SIX){ kide += wedge(12, 12, a, 0, 11.6, 1.75); const [bx, by] = pt(12, 12, a, 6.6); kide += wedge(bx, by, a + 58, 0, 4, .9) + wedge(bx, by, a - 58, 0, 4, .9); }
+/* Sulamerkki: viivat sakaroiden väleissä, kiteen negaatio. */
+const sula = SIX.map(a => { const [x1, y1] = pt(12, 12, a + 30, 7.4), [x2, y2] = pt(12, 12, a + 30, 11.2); return `M${x1} ${y1}L${x2} ${y2}`; }).join('');
+$('sprite').innerHTML =
+  `<symbol id="g-kide" viewBox="0 0 24 24" overflow="visible"><path fill="currentColor" d="${kide}"/></symbol>` +
+  `<symbol id="g-sula" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.9" d="${sula}"/></symbol>` +
+  `<symbol id="g-rengas" viewBox="0 0 24 24" overflow="visible"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.8"/></symbol>` +
+  `<symbol id="g-vapaa" viewBox="0 0 24 24" overflow="visible"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 2.4" d="${hex(12, 12, 9)}"/></symbol>`;
+const icon = id => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#g-${id}"/></svg>`;
+
+/* Aforismin rivit samasta vasemmasta reunasta: tasataan ensimmäisen kirjaimen musteesta, fonttien latauduttua uudelleen. */
+function fitQuote(){
+  const q = $('quote'), q1 = q.querySelector('.q1'), q2 = q.querySelector('.q2');
+  q1.style.paddingLeft = '0px'; q2.style.paddingLeft = '0px';
+  const ctx = fitQuote.ctx || (fitQuote.ctx = document.createElement('canvas').getContext('2d'));
+  const inkLeft = (el, ch) => { const cs = getComputedStyle(el); ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; return -ctx.measureText(ch).actualBoundingBoxLeft; };
+  const b1 = q1.querySelector('b') || q1;
+  const l1 = inkLeft(b1, (b1.textContent.trim()[0] || 'M').toUpperCase()), l2 = inkLeft(q2, q2.textContent.trim()[0] || 's');
+  q1.style.paddingLeft = Math.max(0, l2 - l1) + 'px'; q2.style.paddingLeft = Math.max(0, l1 - l2) + 'px';
+}
+fitQuote();
+addEventListener('resize', fitQuote);
+if (document.fonts){
+  document.fonts.ready.then(fitQuote);
+  if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitQuote);
+}
+
+/* --- Salaus: AES-GCM 256 kuten generaattori.html ja oma-tusinasaa.html --- */
+function b64u(bytes){
+  let bin = '';
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+function unb64u(str){
+  const n = str.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(n + '='.repeat((4 - n.length % 4) % 4));
+  return Uint8Array.from(bin, c => c.charCodeAt(0));
+}
+let keyBytes = null;
+async function salaa(obj){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt']);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+  return { iv: b64u(iv), ct: b64u(new Uint8Array(ct)) };
+}
+async function pura(iv, ct){
+  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64u(iv) }, key, unb64u(ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* --- Tila --- */
+let creds = null;   // { t, k, w }
+let uid = 0;
+const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false };
+const nameOf = p => {
+  const t = typeof p.title === 'string' ? p.title.trim() : '';
+  return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄPYLVÄS');
+};
+const titleOf = p => (typeof p.title === 'string' && p.title.trim()) || PREFIX + nameOf(p);
+const placeOf = p => p.paikka || `koordinaatit ${p.lat}, ${p.lon}`;
+
+function fromProfile(obj){
+  const list = Array.isArray(obj?.pylvaat) ? obj.pylvaat : [];
+  state.slots = [];
+  state.active = null;
+  list.forEach((p, i) => {
+    if (!p || typeof p !== 'object' || !Number.isFinite(p.lat) || !Number.isFinite(p.lon)) return;
+    const s = { id: 'p' + (++uid), p };
+    state.slots.push(s);
+    if (i === obj.valittu) state.active = s.id;
+  });
+  if (!state.active && state.slots.length) state.active = state.slots[0].id;
+  state.lampo = obj?.lampo === 'tuntuu' ? 'avulias' : 'raaka';
+}
+function toProfile(){
+  const obj = {
+    pylvaat: state.slots.map(s => s.p),
+    valittu: Math.max(0, state.slots.findIndex(s => s.id === state.active)),
+    muutettu: Date.now()
+  };
+  if (state.lampo === 'avulias') obj.lampo = 'tuntuu';
+  return obj;
+}
+const katseluLinkki = () => `tusinapaja.html#${new URLSearchParams({ t: creds.t, k: creds.k })}`;
+
+/* --- Ilmoitukset --- */
+function viesti(text, kind, html){
+  const el = $('viesti');
+  el.hidden = !text && !html;
+  el.className = 'viesti' + (kind ? ' ' + kind : '');
+  if (html) el.innerHTML = html; else el.textContent = text || '';
+  $('ui').hidden = true;
+}
+function setTila(text, kind, retry){
+  const el = $('tila');
+  el.className = 'tila' + (kind ? ' ' + kind : '');
+  el.textContent = text || '';
+  if (retry){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'link'; b.textContent = 'yritä uudelleen';
+    b.addEventListener('click', retry);
+    el.append(' ', b);
+  }
+}
+
+/* --- Tallennus: koko profiili salataan uudelleen samalla avaimella; worker tarkistaa kirjoitusavaimen. --- */
+async function lahetaProfiili(obj){
+  const enc = await salaa(obj);
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(creds.t)}`, {
+      method: 'PUT', credentials: 'omit', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ v: 1, iv: enc.iv, ct: enc.ct, w: creds.w })
+    });
+  } catch (err) {
+    throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
+  }
+  if (res.status === 403){
+    const e = (await res.json().catch(() => ({}))).error;
+    throw new Error(e === 'wrong_key' ? 'Hallintalinkin kirjoitusavain ei kelpaa.'
+      : e === 'not_editable' ? 'Tämän linkin pylväitä ei voi muuttaa.' : 'Tallennus estettiin.');
+  }
+  if (res.status === 404) throw new Error('Pylväitä ei löytynyt tallennuspalvelusta.');
+  if (res.status === 429) throw new Error('Muutoksia on tehty juuri nyt liian monta. Yritä hetken päästä uudelleen.');
+  if (!res.ok) throw new Error(`Tallennus epäonnistui (virhekoodi ${res.status}).`);
+  try { localStorage.setItem(KOPIO_KEY, JSON.stringify({ t: creds.t, iv: enc.iv, ct: enc.ct })); } catch {}
+}
+let jono = Promise.resolve(), kesken = 0;
+function tallenna(){
+  if (!creds) return;
+  const obj = toProfile();
+  kesken++;
+  jono = jono.then(() => lahetaProfiili(obj)).then(
+    () => { if (--kesken === 0) setTila(''); },
+    err => { kesken--; console.error(err); setTila(err.message || 'Tallennus epäonnistui.', 'err', tallenna); }
+  );
+}
+
+/* Ensimmäinen paalutus ilman hallintalinkkiä: uusi profiili, uusi avain ja kirjoitusavain. Worker arpoo tokenin. */
+async function luoProfiili(){
+  const kb = crypto.getRandomValues(new Uint8Array(32));
+  const w = b64u(crypto.getRandomValues(new Uint8Array(32)));
+  const wh = b64u(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(w))));
+  keyBytes = kb;
+  const enc = await salaa(toProfile());
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/loc`, {
+      method: 'POST', credentials: 'omit', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ v: 1, iv: enc.iv, ct: enc.ct, wh })
+    });
+  } catch (err) {
+    throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
+  }
+  if (res.status === 429) throw new Error('Pylväitä on paalutettu juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+  if (!res.ok) throw new Error(`Paalutus epäonnistui (virhekoodi ${res.status}).`);
+  const { t } = await res.json().catch(() => ({}));
+  if (typeof t !== 'string' || !t) throw new Error('Tallennuspalvelun vastaus oli virheellinen.');
+  creds = { t, k: b64u(kb), w };
+  const frag = new URLSearchParams(creds).toString();
+  try {
+    localStorage.setItem(PANEELI_KEY, frag);
+    localStorage.setItem(KOPIO_KEY, JSON.stringify({ t, iv: enc.iv, ct: enc.ct }));
+  } catch {}
+  /* Osoiterivillä on nyt hallintalinkki: sen voi tallentaa kirjanmerkiksi. */
+  history.replaceState(null, '', '#' + frag);
+}
+
+/* --- Paneeli --- */
+/* Pylväiden paikat: täytetyt joukot pylväsmäärän mukaan, vanhin ensin; keskilinja, sitten ylempi, sitten vasen.
+   Uusi pylväs paalutetaan aina ylös. */
+const POS = { T: [50, 12], UR: [82.9, 31], LR: [82.9, 69], B: [50, 88], LL: [17.1, 69], UL: [17.1, 31] };
+const SETS = [[], ['B'], ['LL', 'LR'], ['B', 'UL', 'UR'], ['UL', 'UR', 'LL', 'LR'], ['B', 'UL', 'UR', 'LL', 'LR'], ['T', 'B', 'UL', 'UR', 'LL', 'LR']];
+const stage = $('stage');
+
+function syncPick(){ document.querySelectorAll('.opt').forEach(o => o.setAttribute('aria-checked', String(o.dataset.lampo === state.lampo))); }
+
+function renderPanel(){
+  $('viesti').hidden = true;
+  $('ui').hidden = false;
+  const n = state.slots.length, first = n === 0;
+  if (first) state.melting = 'uusi';
+  stage.hidden = first;
+  $('lampoPick').classList.toggle('tuotteet', first);
+  const set = SETS[n], free = n < MAX_PYLVAAT ? 'T' : null;
+  const nodes = new Map([...stage.querySelectorAll('.slot')].map(el => [el.dataset.id, el]));
+  const seen = new Set(), fresh = [];
+  state.slots.forEach((s, i) => {
+    let el = nodes.get(s.id);
+    if (!el){
+      el = document.createElement('button'); el.type = 'button'; el.dataset.id = s.id;
+      el.style.left = POS.T[0] + '%'; el.style.top = POS.T[1] + '%'; stage.appendChild(el); fresh.push([el, set[i]]);
+    } else { el.style.left = POS[set[i]][0] + '%'; el.style.top = POS[set[i]][1] + '%'; }
+    const on = s.id === state.active, melting = s.id === state.melting;
+    el.className = 'slot' + (on ? ' on' : '') + (melting ? ' melting' : '');
+    el.innerHTML = icon(melting ? 'sula' : 'kide') + `<span class="nm">${esc(nameOf(s.p))}</span>`;
+    el.setAttribute('aria-pressed', String(on));
+    el.setAttribute('aria-label', `${titleOf(s.p)}${on ? ', valittu' : ''}`);
+    seen.add(s.id);
+  });
+  let fr = nodes.get('vapaa');
+  if (free){
+    if (!fr){ fr = document.createElement('button'); fr.type = 'button'; fr.dataset.id = 'vapaa'; stage.appendChild(fr); }
+    fr.style.left = POS.T[0] + '%'; fr.style.top = POS.T[1] + '%';
+    fr.className = 'slot free' + (state.melting === 'uusi' ? ' melting' : '');
+    fr.innerHTML = icon(state.melting === 'uusi' ? 'sula' : 'vapaa') + '<span class="nm">paaluta uusi</span>';
+    fr.setAttribute('aria-label', 'Paaluta uusi');
+    seen.add('vapaa');
+  }
+  nodes.forEach((el, id) => { if (!seen.has(id)) el.remove(); });
+  /* Uusi pylväs ilmestyy ylös ja siirtyy sitten paikalleen. */
+  if (fresh.length) requestAnimationFrame(() => requestAnimationFrame(() => fresh.forEach(([el, p]) => { el.style.left = POS[p][0] + '%'; el.style.top = POS[p][1] + '%'; })));
+
+  const tip = p => [f2(50 + (POS[p][0] - 50) * .72), f2(50 + (POS[p][1] - 50) * .72)];
+  $('arms').innerHTML = set.map(p => `<line class="arm" x1="50" y1="50" x2="${tip(p)[0]}" y2="${tip(p)[1]}"/>`).join('') +
+    (free ? `<line class="arm free" x1="50" y1="50" x2="${tip(free)[0]}" y2="${tip(free)[1]}"/>` : '') +
+    `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
+
+  /* Valitun pylvään otsikko avaa sen säätiedotuksen. */
+  const act = state.slots.find(s => s.id === state.active);
+  $('now').innerHTML = act ? `<span class="lbl">Pylvääni nyt:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').hidden = first;
+  $('clear').hidden = first;
+  $('full').hidden = n < MAX_PYLVAAT;
+  $('clear').innerHTML = state.confirmClear
+    ? `Kaadetaanko kaikki pylväät? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
+    : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]</span>`;
+  syncPick();
+  renderMelt();
+}
+
+stage.addEventListener('click', e => {
+  const el = e.target.closest('.slot'); if (!el) return;
+  if (el.dataset.id === 'vapaa') state.melting = state.melting === 'uusi' ? null : 'uusi';
+  else if (el.dataset.id === state.active) state.melting = state.melting === state.active ? null : state.active;
+  else { state.active = el.dataset.id; state.melting = null; tallenna(); }
+  renderPanel();
+});
+$('clear').addEventListener('click', e => {
+  const id = e.target.closest('button')?.id;
+  if (id === 'clearAsk'){ state.confirmClear = true; renderPanel(); }
+  if (id === 'clearNo'){ state.confirmClear = false; renderPanel(); }
+  if (id === 'clearYes'){
+    state.slots = []; state.active = null; state.melting = null; state.confirmClear = false;
+    tallenna();
+    renderPanel();
+  }
+});
+document.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () => {
+  if (state.lampo === o.dataset.lampo) return;
+  state.lampo = o.dataset.lampo; syncPick(); tallenna();
+}));
+
+/* --- Sulatettu pylväs tai uusi pylväs kiteen alla --- */
+const haku = { valinta: null, tarkistus: false, seq: 0, viimeksi: 0 };
+let meltFor = undefined;
+const hakuKentta = () => `
+  <form class="row" id="hakuForm" autocomplete="off"><input id="q2" type="text" enterkeyhint="search" placeholder="Osoite, paikka tai 60.17, 24.94" aria-label="Hae paikkaa"><button class="btn ghost" type="submit" id="hakuBtn">Hae</button></form>
+  <ul class="results" id="r2"></ul>
+  <button class="link note" type="button" id="vaihdaValinta" hidden>vaihda</button>
+  <p class="hakuTila" id="hakuTila" role="status"></p>
+  <p class="note osm">Paikkahaku: <a href="https://www.openstreetmap.org/copyright" rel="noopener">© OpenStreetMapin tekijät</a> (Nominatim). Toimii Suomessa, Ruotsissa, Tanskassa ja Manner-Norjassa.</p>`;
+
+function renderMelt(){
+  const box = $('melt');
+  if (!state.melting){ box.hidden = true; box.innerHTML = ''; meltFor = undefined; return; }
+  box.hidden = false;
+  const first = !state.slots.length;
+  const key = state.melting + (first ? ':eka' : '');
+  if (meltFor === key) return;   // auki oleva lomake ja sen haku säilyvät
+  meltFor = key;
+  haku.valinta = null; haku.tarkistus = false; haku.seq++;
+  if (state.melting === 'uusi'){
+    box.innerHTML = `
+      <h3>${icon('sula')}${first ? 'Paaluta oma sääpylvääsi' : 'Uusi pylväs'}</h3>
+      <div class="field f1"><span class="flabel">Sääpylvään sijainti <span class="lc">(hae paikkoja osoitteen, nimen tai koordinaattien perusteella)</span></span>${hakuKentta()}</div>
+      <div class="field f2"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotuspylvään otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" placeholder="PAIKAN NIMI" aria-label="Paikan kutsumanimi"></div></div>
+      <div class="actions"><button class="btn${first ? ' big' : ''}" type="button" id="stake">Paaluta</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
+  } else {
+    const s = state.slots.find(x => x.id === state.melting);
+    box.innerHTML = `
+      <h3>${icon('sula')}Sulana: ${esc(nameOf(s.p))}</h3>
+      <div class="field"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotuspylvään otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" value="${esc(nameOf(s.p))}" aria-label="Paikan kutsumanimi"></div></div>
+      <div class="field"><span class="note">Paikka: ${esc(placeOf(s.p))}</span> <button class="link note" type="button" id="move">vaihda paikka</button><div id="moveBox" hidden>${hakuKentta()}</div></div>
+      <div class="actions"><button class="btn" type="button" id="freeze">Jäädytä</button><button class="link" type="button" id="remove">kaada pylväs</button><button class="link" type="button" id="cancel">peru</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
+  }
+  $('t2').addEventListener('input', () => { $('t2').dataset.auto = '0'; });
+}
+
+function meltMsg(text, kind){ const el = $('meltMsg'); if (el){ el.textContent = text || ''; el.className = 'meltMsg' + (kind ? ' ' + kind : ''); } }
+function hakuTila(text, kind){ const el = $('hakuTila'); if (el){ el.textContent = text || ''; el.className = 'hakuTila' + (kind ? ' ' + kind : ''); } }
+const round4 = v => Math.round(v * 1e4) / 1e4;
+
+/* "60.1699, 24.9384", "60.1699 24.9384" tai pilkkudesimaalein "60,1699 24,9384" / "60,1699; 24,9384". */
+function parseCoordinates(text){
+  const num = '(-?\\d{1,3}(?:[.,]\\d+)?)';
+  const m = text.match(new RegExp(`^${num}\\s*[;\\s]\\s*${num}$`))
+    || text.match(/^(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  if (!m) return null;
+  const lat = parseFloat(m[1].replace(',', '.')), lon = parseFloat(m[2].replace(',', '.'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lat, lon };
+}
+
+function showResults(places){
+  const ul = $('r2');
+  ul.replaceChildren();
+  if (places.length > 1){ const h = document.createElement('li'); h.className = 'hint'; h.textContent = 'Valitse oikea paikka:'; ul.append(h); }
+  for (const place of places){
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'paikka';
+    radio.addEventListener('change', () => { if (radio.checked) choose(place); });
+    const span = document.createElement('span');
+    span.textContent = place.name || 'Sääpylväs';
+    if (place.rest){ const small = document.createElement('small'); small.textContent = place.rest; span.append(small); }
+    label.append(radio, span);
+    li.append(label);
+    ul.append(li);
+    place.label = label; place.radio = radio;
+  }
+  $('vaihdaValinta').hidden = true;
+}
+
+/* Nominatimin käyttöehdot: haku vain pyynnöstä (ei kirjoittaessa), enintään kerran sekunnissa. */
+async function hae(q){
+  haku.valinta = null; haku.tarkistus = false; haku.seq++;
+  $('r2').replaceChildren();
+  const coords = parseCoordinates(q);
+  if (coords){
+    const lat = round4(coords.lat), lon = round4(coords.lon);
+    const place = { lat, lon, name: '', rest: `koordinaatit ${lat}, ${lon}` };
+    showResults([place]);
+    place.radio.checked = true; choose(place);
+    return;
+  }
+  const wait = 1100 - (Date.now() - haku.viimeksi);
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  haku.viimeksi = Date.now();
+  const btn = $('hakuBtn');
+  btn.disabled = true;
+  hakuTila('Haetaan…');
+  try {
+    const url = 'https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+      q, format: 'jsonv2', countrycodes: COUNTRIES, limit: '8', 'accept-language': 'fi'
+    });
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('http ' + res.status);
+    const list = await res.json();
+    if (!$('r2')) return;   // lomake suljettiin haun aikana
+    if (!Array.isArray(list) || !list.length){ hakuTila('Paikkaa ei löytynyt. Kokeile toista nimeä tai lisää kunta.', 'err'); return; }
+    const found = [];
+    for (const item of list){
+      const lat = parseFloat(item.lat), lon = parseFloat(item.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+      const parts = String(item.display_name || '').split(',').map(s => s.trim()).filter(Boolean);
+      let name = (item.name || parts[0] || '').trim();
+      let skip = [name];
+      /* Osoitehaussa nimi on pelkkä talonumero (83): nimeksi katu ja numero. */
+      if (/^\d+\s*[a-zåäö]?$/i.test(name) && parts[1]){ skip = [name, parts[1]]; name = `${parts[1]} ${name}`; }
+      const rest = parts.filter(p => !skip.includes(p) && !/^\d{3,}$/.test(p)).slice(0, 4).join(', ');
+      found.push({ lat: round4(lat), lon: round4(lon), name: name || rest, rest });
+    }
+    showResults(found);
+    hakuTila('');
+    if (found.length === 1){ found[0].radio.checked = true; choose(found[0]); }
+  } catch (err) {
+    console.error('Paikkahaku epäonnistui', err);
+    hakuTila('Paikkahaku ei vastannut. Yritä hetken päästä uudelleen.', 'err');
+  } finally {
+    if ($('hakuBtn')) $('hakuBtn').disabled = false;
+  }
+}
+
+async function choose(place){
+  const ul = $('r2');
+  ul.querySelectorAll('label').forEach(l => l.classList.toggle('valittu', l === place.label));
+  /* Valinnan jälkeen muut tulokset piiloon; "vaihda" tuo ne takaisin. */
+  const items = [...ul.children];
+  items.forEach(li => { li.hidden = !li.contains(place.label); });
+  $('vaihdaValinta').hidden = items.filter(li => li.querySelector('label')).length < 2;
+  const seq = ++haku.seq;
+  haku.valinta = null; haku.tarkistus = true;
+  const t2 = $('t2');
+  if (state.melting === 'uusi' && place.name && (!t2.value.trim() || t2.dataset.auto === '1')){
+    t2.value = place.name.toLocaleUpperCase('fi-FI'); t2.dataset.auto = '1';
+  }
+  hakuTila('Tarkistetaan, saako paikalle ennusteen…');
+  const ok = await hasForecast(place.lat, place.lon);
+  if (seq !== haku.seq) return;
+  haku.tarkistus = false;
+  if (ok === true){ haku.valinta = place; hakuTila('Paikalle saadaan ennuste.'); meltMsg(''); }
+  else if (ok === false) hakuTila('Tälle paikalle ei saada Ilmatieteen laitoksen ennustetta. Valitse toinen paikka.', 'err');
+  else hakuTila('Ilmatieteen laitos ei vastannut. Valitse paikka uudelleen hetken päästä.', 'err');
+}
+
+/* Sama ennuste, jota Tusinasää käyttää. true = arvo löytyi, false = ei dataa, null = haku epäonnistui. */
+async function hasForecast(lat, lon){
+  const s = new Date(); s.setUTCMinutes(0, 0, 0);
+  const e = new Date(s.getTime() + 3600000);
+  const iso = d => d.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const url = 'https://opendata.fmi.fi/wfs?' + new URLSearchParams({
+    service: 'WFS', version: '2.0.0', request: 'getFeature',
+    storedquery_id: 'fmi::forecast::edited::weather::scandinavia::point::simple',
+    latlon: `${lat},${lon}`, parameters: 'Temperature',
+    starttime: iso(s), endtime: iso(e), timestep: '60'
+  });
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    const txt = await res.text();
+    if (/<BsWfs:ParameterValue>\s*-?\d/.test(txt)) return true;
+    if (/No data available/i.test(txt)) return false;
+    return null;
+  } catch (err) {
+    console.error('FMI-tarkistus epäonnistui', err);
+    return null;
+  }
+}
+
+/* Valittu ja tarkistettu paikka, tai syy miksi sitä ei ole. */
+function valittuPaikka(){
+  if (haku.valinta) return { paikka: haku.valinta };
+  const ul = $('r2');
+  const picked = ul && ul.querySelector('input:checked');
+  return { syy: !ul || !ul.querySelector('input') ? 'Hae ensin sääpylvään sijainti.'
+    : !picked ? 'Valitse paikka hakutuloksista.'
+    : haku.tarkistus ? 'Hetki: ennustetta tarkistetaan vielä.'
+    : 'Valittu paikka ei kelpaa; katso ilmoitus hakutulosten alla.' };
+}
+/* Nimetty paikka: nimi ja lähin tarkenne (kunta tms.). Koordinaattihaussa koko "koordinaatit lat, lon". */
+const paikanSelite = pl => (pl.name ? [pl.name, (pl.rest || '').split(', ')[0]].filter(Boolean).join(', ') : pl.rest || '').slice(0, 60);
+const kutsumanimi = () => ($('t2').value || '').trim().replace(/^·\s*/, '').toLocaleUpperCase('fi-FI');
+
+$('melt').addEventListener('submit', e => {
+  if (e.target.id !== 'hakuForm') return;
+  e.preventDefault();
+  const q = $('q2').value.trim();
+  if (q) hae(q);
+});
+$('melt').addEventListener('click', async e => {
+  const id = e.target.closest('button')?.id;
+  if (id === 'vaihdaValinta'){
+    [...$('r2').children].forEach(li => { li.hidden = false; });
+    $('vaihdaValinta').hidden = true;
+  }
+  if (id === 'cancel'){ state.melting = null; renderPanel(); }
+  if (id === 'move'){ $('moveBox').hidden = false; $('move').hidden = true; $('q2').focus(); }
+  if (id === 'freeze'){
+    const s = state.slots.find(x => x.id === state.melting);
+    const nm = kutsumanimi();
+    if (!nm){ meltMsg('Anna kutsumanimi.', 'err'); $('t2').focus(); return; }
+    let uusi = null;
+    if (!$('moveBox').hidden && $('r2').querySelector('input')){
+      const v = valittuPaikka();
+      if (v.syy){ meltMsg(v.syy, 'err'); return; }
+      uusi = v.paikka;
+    }
+    const p = { ...s.p, title: (PREFIX + nm).slice(0, 160) };
+    if (uusi){ p.lat = uusi.lat; p.lon = uusi.lon; p.paikka = paikanSelite(uusi); delete p.z; }
+    s.p = p;
+    state.melting = null; tallenna(); renderPanel();
+  }
+  if (id === 'remove'){
+    state.slots = state.slots.filter(x => x.id !== state.melting);
+    if (state.active === state.melting) state.active = state.slots[0]?.id || null;
+    state.melting = null; tallenna(); renderPanel();
+  }
+  if (id === 'stake'){
+    const v = valittuPaikka();
+    if (v.syy){ meltMsg(v.syy, 'err'); return; }
+    const nm = kutsumanimi();
+    if (!nm){ meltMsg('Anna kutsumanimi.', 'err'); $('t2').focus(); return; }
+    if (state.slots.length >= MAX_PYLVAAT) return;
+    const pl = v.paikka;
+    const s = { id: 'p' + (++uid), p: { lat: pl.lat, lon: pl.lon, title: (PREFIX + nm).slice(0, 160), paikka: paikanSelite(pl) } };
+    const ennen = { slots: state.slots, active: state.active };
+    state.slots = [...state.slots, s]; state.active = s.id;
+    if (creds){ state.melting = null; tallenna(); renderPanel(); return; }
+    /* Ensimmäinen paalutus: profiili syntyy vasta, kun tallennus onnistuu. */
+    const btn = $('stake');
+    btn.disabled = true;
+    meltMsg('Paalutetaan…');
+    try {
+      await luoProfiili();
+      state.melting = null;
+      renderPanel();
+      setTila('Pylväs on pystyssä. Tämän sivun osoite on hallintalinkkisi: tallenna se.');
+    } catch (err) {
+      console.error(err);
+      state.slots = ennen.slots; state.active = ennen.active;
+      btn.disabled = false;
+      meltMsg(err.message || 'Paalutus epäonnistui.', 'err');
+    }
+  }
+});
+
+/* --- Käynnistys --- */
+async function lataa(){
+  const hp = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const t = hp.get('t'), k = hp.get('k'), w = hp.get('w');
+  if (t || k || w){
+    if (!t || !k){ viesti('Linkistä puuttuu osia. Tarkista, että kopioit koko hallintalinkin.', 'err'); return; }
+    if (!w){
+      const href = esc(`tusinapaja.html#${new URLSearchParams({ t, k })}`);
+      viesti('', '', `Tällä linkillä näkee sään, mutta pylväitä voi muuttaa vain hallintalinkillä.<br><a href="${href}">Avaa säätiedotus</a>`);
+      return;
+    }
+    creds = { t, k, w };
+    try { localStorage.setItem(PANEELI_KEY, new URLSearchParams(creds).toString()); } catch {}
+  } else {
+    try {
+      const s = new URLSearchParams(localStorage.getItem(PANEELI_KEY) || '');
+      if (s.get('t') && s.get('k') && s.get('w')) creds = { t: s.get('t'), k: s.get('k'), w: s.get('w') };
+    } catch {}
+  }
+  if (!creds){ fromProfile({ pylvaat: [] }); renderPanel(); return; }
+
+  try { keyBytes = unb64u(creds.k); } catch { keyBytes = null; }
+  if (!keyBytes || keyBytes.length !== 32){ viesti('Hallintalinkin avain on vääränlainen.', 'err'); return; }
+  viesti('Haetaan pylväitä…');
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(creds.t)}`, { cache: 'no-store', credentials: 'omit' });
+  } catch (err) {
+    viesti('Tallennuspalveluun ei saatu yhteyttä. Yritä hetken päästä uudelleen.', 'err'); return;
+  }
+  if (res.status === 404){ viesti('Pylväitä ei löytynyt. Tarkista hallintalinkki.', 'err'); return; }
+  if (!res.ok){ viesti(`Tallennuspalvelu vastasi virhekoodilla ${res.status}.`, 'err'); return; }
+  let obj;
+  try {
+    const env = await res.json();
+    obj = await pura(env.iv, env.ct);
+  } catch (err) {
+    viesti('Hallintalinkin avain ei täsmää.', 'err'); return;
+  }
+  if (!Array.isArray(obj?.pylvaat)){ viesti('Tämän linkin pylväitä ei voi hallita.', 'err'); return; }
+  /* Tuoreempi oma tallennus voittaa, jos palvelu antaa vielä vanhan version. */
+  try {
+    const c = JSON.parse(localStorage.getItem(KOPIO_KEY) || 'null');
+    if (c && c.t === creds.t){
+      const oma = await pura(c.iv, c.ct);
+      if (Array.isArray(oma?.pylvaat) && (oma.muutettu || 0) > (obj.muutettu || 0)) obj = oma;
+    }
+  } catch {}
+  fromProfile(obj);
+  renderPanel();
+}
+lataa();
+</script>
+</body>
+</html>

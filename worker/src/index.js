@@ -45,7 +45,7 @@ function corsify(resp, { origin, requestHeaders, allowedOrigins = DEFAULT_ALLOWE
   const headers = new Headers(resp.headers);
   const allowOrigin = allowedOrigins.has(origin) ? origin : "null";
   headers.set("Access-Control-Allow-Origin", allowOrigin);
-  headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
 
   if (requestHeaders && requestHeaders.trim()) {
     headers.set("Access-Control-Allow-Headers", requestHeaders);
@@ -141,10 +141,32 @@ async function handleLoc(req, env) {
 // muuttaa: worker ei tunne avainta eikä siis omistajaa, joten uusi sijainti on uusi linkki.
 // Rajoitin on LuinRaja-luokka omana oliona ("loc") omilla rajoillaan; päiväraja suojaa Luinin ja keikkojen
 // KV-kirjoituksia (ilmaistason 1000 kirjoitusta päivässä).
+//
+// Poikkeus: Minun oma tusinasää -profiili (minun-tusinasaa.html). Salatussa paketissa on pylväslista, valittu pylväs
+// ja lämpötilavalinta, ja tietueessa kirjoitusavaimen SHA-256-tiiviste wh. Vain kirjoitusavaimen haltija voi muuttaa
+// pakettia (PUT /api/loc?t=…). Katselulinkissä on vain t ja k, joten sillä ei voi muuttaa mitään. GET ei palauta wh:ta.
 const LOC_RAJA_MAARA = 5;
 const LOC_PAIVA_MAX = 50;
 const LOC_CT_MAX = 1024;
+const LOC_PROFIILI_CT_MAX = 8192;
+const LOC_MUUTOS_MAARA = 20;
+const LOC_MUUTOS_PAIVA_MAX = 200;
 const B64U_RE = /^[A-Za-z0-9_-]+$/;
+const LOC_TOKEN_RE = /^[A-Za-z0-9_-]{32}$/;
+// Kirjoitusavain ja sen tiiviste ovat 32 tavua = 43 merkkiä.
+const LOC_W_RE = /^[A-Za-z0-9_-]{43}$/;
+
+async function kirjoitusTiiviste(w) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(w));
+  return bytesToBase64Url(new Uint8Array(d));
+}
+
+function samatMerkit(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let ero = 0;
+  for (let i = 0; i < a.length; i++) ero |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return ero === 0;
+}
 
 function bytesToBase64Url(bytes) {
   let bin = "";
@@ -167,9 +189,15 @@ async function handleLocCreate(req, env, allowedOrigins) {
   try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
   const iv = body && typeof body.iv === "string" ? body.iv : "";
   const ct = body && typeof body.ct === "string" ? body.ct : "";
+  // Profiilissa on kirjoitusavaimen tiiviste wh; ilman sitä tallenne on muuttumaton yksittäinen sijainti.
+  const wh = body && body.wh !== undefined ? body.wh : null;
+  if (wh !== null && (typeof wh !== "string" || !LOC_W_RE.test(wh))) {
+    logEvent("create_invalid_fields", { field: "wh" });
+    return errorResponse("invalid_fields", 400);
+  }
   // iv: 12 tavua = 16 merkkiä. ct: pienin mahdollinen paketti ({"lat":0,"lon":0} + GCM-tunniste) on 44 merkkiä.
   if (!body || body.v !== 1 || iv.length !== 16 || !B64U_RE.test(iv)
-      || ct.length < 44 || ct.length > LOC_CT_MAX || !B64U_RE.test(ct)) {
+      || ct.length < 44 || ct.length > (wh ? LOC_PROFIILI_CT_MAX : LOC_CT_MAX) || !B64U_RE.test(ct)) {
     logEvent("create_invalid_fields");
     return errorResponse("invalid_fields", 400);
   }
@@ -184,16 +212,83 @@ async function handleLocCreate(req, env, allowedOrigins) {
   // Sama muoto kuin generaattorin tokeneissa: 24 satunnaistavua, 32 merkkiä, ei kaksoispistettä (ei törmää
   // luin:- ja gig:-etuliitteisiin). Metatieto erottaa julkisesti luodut omista.
   const token = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(24)));
+  const metadata = { julkinen: 1, luotu: new Date().toISOString().slice(0, 10) };
+  if (wh) metadata.profiili = 1;
   try {
-    await env.LOCATIONS.put(token, JSON.stringify({ v: 1, iv, ct }), {
-      metadata: { julkinen: 1, luotu: new Date().toISOString().slice(0, 10) },
-    });
+    await env.LOCATIONS.put(token, JSON.stringify(wh ? { v: 1, iv, ct, wh } : { v: 1, iv, ct }), { metadata });
   } catch (e) {
     logEvent("kv_error", { reason: "put_failed" });
     return errorResponse("bad_payload", 500);
   }
-  logEvent("created");
+  logEvent("created", wh ? { profiili: 1 } : {});
   return jsonResponse({ t: token }, { status: 201, headers: { "Cache-Control": "no-store" } });
+}
+
+// Profiilin muutos (PUT /api/loc?t=…): selain salaa uuden paketin samalla avaimella k ja lähettää sen kirjoitusavaimen
+// w kanssa. Worker vertaa w:n tiivistettä tietueen wh:hon; k:ta ja koordinaatteja se ei näe tässäkään.
+async function handleLocUpdate(req, env, allowedOrigins) {
+  if (!allowedOrigins.has(req.headers.get("Origin") || "")) {
+    logEvent("update_bad_origin");
+    return errorResponse("forbidden", 403);
+  }
+  const ip = req.headers.get("CF-Connecting-IP") || "tuntematon";
+  if (!(await luinLaskuri(env, "osoite", ip, "locmuutos", { maara: LOC_MUUTOS_MAARA }))) {
+    logEvent("update_rate_limited", { by: "address" });
+    return errorResponse("rate_limited", 429);
+  }
+  const token = (new URL(req.url).searchParams.get("t") || "").trim();
+  if (!LOC_TOKEN_RE.test(token)) {
+    logEvent("update_invalid_fields", { field: "t" });
+    return errorResponse("invalid_fields", 400);
+  }
+  let body;
+  try { body = await req.json(); } catch (e) { return errorResponse("bad_payload", 400); }
+  const iv = body && typeof body.iv === "string" ? body.iv : "";
+  const ct = body && typeof body.ct === "string" ? body.ct : "";
+  const w = body && typeof body.w === "string" ? body.w : "";
+  if (!body || body.v !== 1 || iv.length !== 16 || !B64U_RE.test(iv)
+      || ct.length < 44 || ct.length > LOC_PROFIILI_CT_MAX || !B64U_RE.test(ct) || !LOC_W_RE.test(w)) {
+    logEvent("update_invalid_fields");
+    return errorResponse("invalid_fields", 400);
+  }
+  if (!env.LOCATIONS || typeof env.LOCATIONS.getWithMetadata !== "function") {
+    logEvent("kv_error", { reason: "missing_binding" });
+    return errorResponse("bad_payload", 500);
+  }
+  let found;
+  try {
+    found = await env.LOCATIONS.getWithMetadata(token);
+  } catch (e) {
+    logEvent("kv_error", { reason: "fetch_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+  if (!found || !found.value) {
+    logEvent("update_not_found");
+    return errorResponse("not_found", 404);
+  }
+  let stored;
+  try { stored = JSON.parse(found.value); } catch (e) { stored = null; }
+  if (!stored || typeof stored.wh !== "string") {
+    logEvent("update_not_editable");
+    return errorResponse("not_editable", 403);
+  }
+  if (!samatMerkit(await kirjoitusTiiviste(w), stored.wh)) {
+    logEvent("update_wrong_key");
+    return errorResponse("wrong_key", 403);
+  }
+  if (!(await luinLaskuri(env, "paiva", ip, "locmuutos", { paivaMax: LOC_MUUTOS_PAIVA_MAX }))) {
+    logEvent("update_rate_limited", { by: "day" });
+    return errorResponse("rate_limited", 429);
+  }
+  const metadata = { ...(found.metadata || {}), muutettu: new Date().toISOString().slice(0, 10) };
+  try {
+    await env.LOCATIONS.put(token, JSON.stringify({ v: 1, iv, ct, wh: stored.wh }), { metadata });
+  } catch (e) {
+    logEvent("kv_error", { reason: "put_failed" });
+    return errorResponse("bad_payload", 500);
+  }
+  logEvent("updated");
+  return jsonResponse({ ok: true }, { headers: { "Cache-Control": "no-store" } });
 }
 
 // Keikkasoitin (soitin/): keikan tiedot ovat KV:ssä avaimella "gig:<tunnus>".
@@ -894,7 +989,9 @@ export default {
       }
       if (url.pathname === "/api/loc" || url.pathname === "/api/gig") {
         const response = url.pathname === "/api/loc"
-          ? (req.method === "POST" ? await handleLocCreate(req, env, allowedOrigins) : await handleLoc(req, env))
+          ? (req.method === "POST" ? await handleLocCreate(req, env, allowedOrigins)
+            : req.method === "PUT" ? await handleLocUpdate(req, env, allowedOrigins)
+            : await handleLoc(req, env))
           : await handleGig(req, env);
         return corsify(response, {
           origin,
