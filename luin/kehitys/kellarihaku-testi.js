@@ -58,8 +58,8 @@ const TEKSTIT = [
 
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
-  tulos('pinossa ei etsiä eikä kenttää', await page.evaluate(() => getComputedStyle(document.getElementById('jarj-rivi')).display === 'none' &&
-    getComputedStyle(document.getElementById('kk-haku')).display === 'none'));
+  tulos('pinossa ei etsiä eikä kenttää', await page.evaluate(() => document.getElementById('kk-etsi').hidden &&
+    getComputedStyle(document.getElementById('jarj-rivi')).display === 'none' && getComputedStyle(document.getElementById('kk-haku')).display === 'none'));
 
   await lataa('#arkisto');
   await page.waitForSelector('#nimikkeet li.nimike');
@@ -110,17 +110,33 @@ const TEKSTIT = [
   const m = await page.evaluate(() => ({ vaaka: document.documentElement.scrollWidth - innerWidth, fs: getComputedStyle(document.querySelector('#kk-haku input')).fontSize,
     rivi: document.getElementById('jarj-rivi').getBoundingClientRect().right, kentta: document.getElementById('kk-haku').getBoundingClientRect().right, lev: innerWidth }));
   tulos('360 px: ei vaakavieritystä, kenttä 16 px ja ruudun sisällä', m.vaaka === 0 && m.fs === '16px' && m.kentta <= m.lev && m.rivi <= m.lev, JSON.stringify(m));
-  // Järjestys ja Etsi ovat laatikkonappeja: sama korkeus; Järjestyksessä vain nuoli ja järjestys (nimi aria-labelissa),
-  // pitkä järjestys enintään kahdella rivillä.
+  // Järjestys: nuoli ja järjestys, nimi aria-labelissa, pitkä järjestys enintään kahdella rivillä. Etsi otsikkorivillä viivan
+  // yläpuolella, ei kammen päällä, otsikko yhdellä rivillä (360 px: pelkkä lasi; 320 px: otsikon alla; 412 px: lasi ja teksti).
   for (const j of ['asiasana', 'luettu']) {
     await page.evaluate(j => { const a = JSON.parse(localStorage.getItem('luin-asetukset')); a.kellariJarj = j; localStorage.setItem('luin-asetukset', JSON.stringify(a)); }, j);
     await lataa('#arkisto'); await page.waitForSelector('#nimikkeet li.nimike'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(100);
     const n = await page.evaluate(() => { const a = document.getElementById('jarj-arvo'), b = document.getElementById('jarj'), r = document.createRange(); r.selectNodeContents(a);
-      return { jarj: Math.round(b.getBoundingClientRect().height), etsi: Math.round(document.getElementById('kk-etsi').getBoundingClientRect().height),
-        rivit: new Set([...r.getClientRects()].map(x => Math.round(x.top))).size, teksti: b.textContent, aria: b.getAttribute('aria-label') }; });
-    tulos('360 px, ' + j + ': napit samankorkuiset, nuoli ja järjestys, nimi aria-labelissa', n.jarj === n.etsi && n.rivit <= 2 && !/Järjestys/.test(n.teksti) &&
-      n.aria === 'Järjestys: ' + n.teksti, JSON.stringify(n));
+      return { rivit: new Set([...r.getClientRects()].map(x => Math.round(x.top))).size, teksti: b.textContent, aria: b.getAttribute('aria-label') }; });
+    tulos('360 px, ' + j + ': Järjestys on nuoli ja järjestys, nimi aria-labelissa', n.rivit <= 2 && !/Järjestys/.test(n.teksti) && n.aria === 'Järjestys: ' + n.teksti, JSON.stringify(n));
   }
+  const etsiPaikka = () => page.evaluate(() => { const r = e => e.getBoundingClientRect(), rivi = document.querySelector('.ots-rivi'), e = r(document.getElementById('kk-etsi')),
+      k = r(document.querySelector('#lista-ots svg')), h = r(document.getElementById('lista-ots'));
+    const t = [...document.querySelector('#lista-ots .ots-merkki').childNodes].find(x => x.nodeType === 3), tr = document.createRange(); tr.selectNodeContents(t);
+    const samalla = e.top < h.bottom;
+    return { otsikkorivilla: rivi.contains(document.getElementById('kk-etsi')), viivanYlla: e.bottom <= r(rivi).bottom, samalla, eiKammenPaalla: !samalla || e.left >= k.right + 7,
+      otsRivit: new Set([...tr.getClientRects()].map(x => Math.round(x.top))).size, teksti: getComputedStyle(document.querySelector('.kk-etsi-teksti')).display !== 'none',
+      ruudulla: e.right <= innerWidth, vaaka: document.documentElement.scrollWidth - innerWidth }; });
+  for (const [lev, odotus] of [[412, { samalla: true, teksti: true }], [360, { samalla: true, teksti: false }], [320, { samalla: false, teksti: false }]]) {
+    await page.setViewportSize({ width: lev, height: 800 }); await page.waitForTimeout(150);
+    const e = await etsiPaikka();
+    tulos(lev + ' px: Etsi otsikkorivillä viivan yläpuolella, ei kammen päällä, otsikko yhdellä rivillä', e.otsikkorivilla && e.viivanYlla && e.eiKammenPaalla &&
+      e.otsRivit === 1 && e.ruudulla && !e.vaaka && e.samalla === odotus.samalla && e.teksti === odotus.teksti, JSON.stringify(e));
+  }
+  await page.setViewportSize({ width: 360, height: 800 }); await page.waitForTimeout(100);
+  await page.click('#nimikkeet button.valitse');
+  tulos('valinnan aikana Etsi piilossa, otsikkorivi ennallaan', await page.evaluate(() => document.getElementById('kk-etsi').hidden && !document.querySelector('.ots-rivi').classList.contains('etsi-ots')));
+  await page.click('#nimikkeet button.valitse');
+  tulos('valinnan jälkeen Etsi takaisin', await page.evaluate(() => !document.getElementById('kk-etsi').hidden));
   if (KUVAT) { await kirjoita('filosofia'); await page.screenshot({ path: path.join(KUVAT, 'kellarihaku-360.png') }); }
   tulos('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
   await selain.close(); palvelin.close();
