@@ -92,7 +92,8 @@ const ilmanPaivaa = s => String(s || '').replace(/^leikattu: .*$/m, '');
     kielet: (document.querySelector('input[name="kielet"]:checked') || {}).value || '',
     kielinimet: [...document.querySelectorAll('#ps-kielet label')].map(l => l.textContent.trim()).join(' | '),
     kirjat: [...document.querySelectorAll('#ps-kirjat button')].map(b => b.textContent + (b.getAttribute('aria-pressed') === 'true' ? '*' : '')).join(' '),
-    huomio: document.querySelector('#ps-huomio').textContent, poimi: !document.querySelector('#lukimeen').disabled }));
+    huomio: document.querySelector('#ps-huomio').textContent, poimi: !document.querySelector('#lukimeen').disabled,
+    napitPois: ['lukimeen', 'latomoon', 'lataa', 'soita'].every(id => document.querySelector('#' + id).disabled), tila: document.querySelector('#tila').textContent }));
   const kirja = async n => { await ikkuna.click(`#ps-kirjat button:text-is("${n}")`); };
   const kieli = async v => { await ikkuna.click(`input[name="kielet"][value="${v}"]`); };
   const h2 = md => (md.match(/^## .*/gm) || []).join(' | ');
@@ -153,10 +154,27 @@ const ilmanPaivaa = s => String(s || '').replace(/^leikattu: .*$/m, '');
   await valmis();
   t = await tila();
   tulos('yksi kirja käännöksenä: Republic, Book 4', t.otsikko === 'Republic, Book 4' && /1999\.01\.0168%3Abook%3D4$/m.test(t.md.match(/^lähde: .*/m)[0]), t.otsikko + ' / ' + t.kirjat);
-  // Viimeistä kirjaa ei voi poistaa.
+  // Napit ovat päälle–pois-kytkimiä (käyttäjän päätös): viimeisen kirjan poisto ja kaikki-nappi kaikkien ollessa valittuina
+  // tyhjentävät valinnan. Tyhjällä valinnalla leikkuria ei ajeta, ja poimintanapit ovat pois käytöstä.
+  const samaLeike = () => ikkuna.evaluate(() => leike === window.__ennen);
+  await ikkuna.evaluate(() => { window.__ennen = leike; });
   await kirja('4'); await ikkuna.waitForTimeout(700); await valmis();
   t = await tila();
-  tulos('viimeinen kirja jää valituksi', t.kirjat.includes('4*') && t.otsikko === 'Republic, Book 4', t.kirjat);
+  tulos('viimeisen kirjan poisto tyhjentää valinnan', !t.kirjat.includes('*') && t.napitPois && t.tila === 'Valitse ainakin yksi kirja.' && t.huomio === '' && await samaLeike(),
+    t.kirjat + ' / ' + t.tila);
+  if (KUVAT) await ikkuna.screenshot({ path: path.join(KUVAT, 'ps-tyhja.png'), fullPage: true });
+  await ikkuna.click('#ps-kirjat button.kaikki'); await valmis();
+  t = await tila();
+  tulos('kaikki tyhjästä: kaikki valittuina, sama kuin koko teos', vke && ilmanPaivaa(t.md) === ilmanPaivaa(vke) && t.kirjat === '1* 2* 3* 4* 5* 6* 7* 8* 9* 10* kaikki*' && t.poimi && t.tila === '',
+    t.kirjat + ', ' + t.sanoja + ' sanaa');
+  await ikkuna.evaluate(() => { window.__ennen = leike; });
+  await ikkuna.click('#ps-kirjat button.kaikki'); await ikkuna.waitForTimeout(700); await valmis();
+  t = await tila();
+  tulos('kaikki kaikkien ollessa valittuina tyhjentää valinnan', t.kirjat === '1 2 3 4 5 6 7 8 9 10 kaikki' && t.napitPois && t.tila === 'Valitse ainakin yksi kirja.' && await samaLeike(),
+    t.kirjat + ' / ' + t.tila);
+  await kirja('4'); await valmis();
+  t = await tila();
+  tulos('kirja tyhjään valintaan: Republic, Book 4', t.otsikko === 'Republic, Book 4' && t.kirjat === '1 2 3 4* 5 6 7 8 9 10 kaikki' && t.poimi && t.tila === '', t.otsikko + ' / ' + t.kirjat);
   const haut = new Set(xmlHaut);
   tulos('XML haetaan kerran teosta kohden', xmlHaut.length === haut.size && haut.size === 2, xmlHaut.length + ' hakua, ' + haut.size + ' eri');
 
