@@ -350,12 +350,15 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kampihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
   Postihuilu eivät nosta sitä; valikossa *Vie/Siirrä/Poimi käsikirjastoon*, pois vain luokittelemalla; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto**
-  (järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
-  **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai järjestysrivin
+  (*sanasto*-linkki nappien alla): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
+  **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai
   *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
-  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Haku** (järjestysrivin *etsi*, `kkHaku()`)
-  suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; järjestysrivin näkyvyys lasketaan
-  suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
+  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Kellarin napit** (käyttäjän päätös):
+  lukimen laatikkonapit, vasemmalla *Järjestys*, jossa napin nimi ja voimassa oleva järjestys on erotettu (pystyviiva, harmaa
+  kursiivi; ellei arvo mahdu nimen viereen yhdelle riville, nimen alla vaakaviivan takana, `kkJarjAsettele()`), oikealla *Etsi*
+  lukimen suurennuslasilla; *sanasto* ja *kaikki kortit* pieninä linkkeinä nappien alla. **Haku** (*Etsi*, `kkHaku()`)
+  suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; nappirivin (`#jarj-rivi`) näkyvyys
+  lasketaan suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
   sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
