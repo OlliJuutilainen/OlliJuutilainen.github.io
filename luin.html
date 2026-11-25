@@ -5029,10 +5029,20 @@
       if (r && r.top - ar.top > 2) { p.classList.add('pakotettu'); p.style.marginTop = Math.ceil(ar.bottom - r.top + 1) + 'px'; }
     }
   }
+  /* Lomitetun käännöksen luku alkaa sivutettuna aina uudelta sivulta kuten pääluku (käyttäjän päätös; Valtion kirjat). Kun
+     tekstin ylin otsikkotaso on osio (h3), sen otsikot saavat sivulle-luokan kerralla ennen mittausta: yksi asettelu eikä
+     yksi koko palstoituksen asettelu otsikkoa kohti. Ylin taso h2 alkaa uudelta sivulta jo CSS:llä. */
+  function lomitetunLuvut() {
+    if (!nyt || !nyt.doc.lomitettu || !nyt.doc.toc.length || tasoSiirto(nyt.doc.toc) !== 1) return [];
+    return nyt.doc.toc.filter(function (t) { return t.lvl === 2; }).map(function (t) { return nyt.blocks[t.b]; })
+      .filter(function (h) { return h && h.tagName === 'H3'; });
+  }
   function alalukujenAlut() {
     $$('.sivulle, .pakotettu', art).forEach(function (h) {
       h.classList.remove('sivulle', 'pakotettu'); h.style.marginTop = h.style.paddingTop = '';
     });
+    var luvut = lomitetunLuvut();
+    luvut.forEach(function (h) { h.classList.add('sivulle'); });
     var ar = art.getBoundingClientRect(), s = tila.stride;
     var sarake = function (r) { return Math.floor((r.left - ar.left + 2) / s); };
     var ensin = function (h) {
@@ -5051,9 +5061,9 @@
       h.style.marginTop = Math.ceil(ar.bottom - r.top + 1) + 'px';
     };
     $$('h2, h3', art).forEach(function (h) {
-      var r0 = h.getClientRects()[0];
-      if (!r0 || r0.top - ar.top < 2 && h.tagName !== 'H2') return;
-      if (h.tagName !== 'H3') { if (!ensin(h)) siirra(h); return; }
+      var r0 = h.getClientRects()[0], luku = h.tagName === 'H2' || luvut.indexOf(h) >= 0;
+      if (!r0 || r0.top - ar.top < 2 && !luku) return;
+      if (luku) { if (!ensin(h)) siirra(h); return; }
       var p = sarake(r0), rivit = 0, loppu = false, ensimmainen = true;
       for (var el = h.nextElementSibling; el && !loppu && rivit < 1.9; el = el.nextElementSibling) {
         var t = el.tagName;
