@@ -28,8 +28,20 @@ android {
         applicationId 'fi.tusinasaa'
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName '1.1.1'
+        versionCode 2
+        versionName '1.2.0'
+    }
+
+    // Perusversion julkinen APK (tusinasaa.apk) ja Macin debug-rakennus allekirjoitetaan samalla avaimella, jotta
+    // ne asentuvat toistensa päälle eikä tallennettu linkki katoa päivityksessä. Avain on repossa tarkoituksella
+    // kuten Luinissa ja soittimessa; se ei suojaa mitään salaista. Älä vaihda sitä.
+    signingConfigs {
+        julkinen {
+            storeFile file('julkinen.jks')
+            storePassword 'tusinasaa'
+            keyAlias 'tusinasaa'
+            keyPassword 'tusinasaa'
+        }
     }
 
     buildFeatures {
@@ -43,18 +55,25 @@ android {
     productFlavors {
         perus {
             dimension 'sijainti'
+            signingConfig signingConfigs.julkinen
             buildConfigField 'String', 'BUILTIN_TOKEN', '""'
             buildConfigField 'String', 'BUILTIN_KEY', '""'
         }
         haakis {
             dimension 'sijainti'
             applicationIdSuffix '.haakis'
+            // Sijaintiversio pysyy Macin debug-avaimella, jotta se päivittyy jo asennetun päälle.
+            signingConfig signingConfigs.debug
             buildConfigField 'String', 'BUILTIN_TOKEN', quoted(findProperty('tusinasaa.haakis.token'))
             buildConfigField 'String', 'BUILTIN_KEY', quoted(findProperty('tusinasaa.haakis.key'))
         }
     }
 
     buildTypes {
+        debug {
+            // Build typen allekirjoitus voittaisi flavorin oman: tyhjäksi, jotta perus käyttää julkista avainta.
+            signingConfig null
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

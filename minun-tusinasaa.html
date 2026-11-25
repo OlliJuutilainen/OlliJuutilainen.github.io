@@ -154,6 +154,32 @@
   .clear .danger{ color:var(--text) }
   .clearIdle{ font-size:11.5px; opacity:.8 }
   .full{ text-align:center; font-size:13px; color:var(--muted); margin:4px 0 0 }
+  /* Sovellusosio alalaidassa (piilossa ensipaalutuksessa); ulkoasu mallista. */
+  details.app{ margin:48px 0 0; font-size:13px; line-height:1.5; color:var(--muted); max-width:46ch }
+  details.app > summary{ list-style:none; cursor:pointer; display:inline-flex; gap:10px; align-items:baseline;
+    font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted) }
+  details.app summary::-webkit-details-marker{ display:none }
+  details.app summary{ list-style:none }
+  details.app > summary::after{ content:'+'; font-size:15px; line-height:1; letter-spacing:0 }
+  details.app[open] > summary::after{ content:'−' }
+  details.app summary:focus-visible{ outline:2px solid var(--muted); outline-offset:3px }
+  .appBody{ margin-top:14px }
+  .appLead{ margin:0 0 12px }
+  .appSub{ margin:12px 0 0 }
+  .appSub > summary{ cursor:pointer; display:inline-flex; gap:10px; align-items:baseline;
+    font-size:10.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted) }
+  .appSub > summary::after{ content:'+'; font-size:13px; line-height:1; letter-spacing:0 }
+  .appSub[open] > summary::after{ content:'−' }
+  .appSubBody{ margin:10px 0 4px; padding-left:14px; border-left:1px solid var(--border) }
+  .appSteps{ margin:0; padding-left:1.25em }
+  .appSteps li{ margin:0 0 4px; padding-left:.15em }
+  .appAfter{ margin:10px 0 0 }
+  .appBye{ margin:6px 0 0 }
+  .appBtns{ display:flex; flex-wrap:nowrap; gap:8px; margin:0 0 10px }
+  .btn.pieni{ font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; padding:7px 10px; color:var(--text); white-space:nowrap }
+  a.btn{ display:inline-block; text-decoration:none }
+  @media (max-width:340px){ .btn.pieni{ font-size:11px; letter-spacing:.4px; padding:7px 8px } }
+  .app + .foot{ margin-top:36px }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
   @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
@@ -193,6 +219,38 @@
         </button>
       </div>
     </div>
+    <details class="app" id="appPaneeli" hidden>
+      <summary>Pitääkö minun asentaa puhelimeen taas uusi äppi?</summary>
+      <div class="appBody">
+        <p class="appLead">Yksi TUSINASÄÄ 12:n ihanteista on vähentää sovellusten asentamisen pakkoa.<br>Jos kuitenkin haluat sovelluskokemuksen, normaalin selainkäytön ohella on olemassa seuraavat vaihtoehdot:</p>
+        <details class="appSub">
+          <summary>iPhone</summary>
+          <div class="appSubBody">
+            <span class="appBtns"><button class="btn ghost pieni copy" type="button" data-copy="linkki" data-label="Kopioi linkki" data-done="Linkki kopioitu">Kopioi linkki</button></span>
+            <ol class="appSteps">
+              <li>Kopioi oman tusinasääsi linkki painikkeesta.</li>
+              <li>Liitä linkki Safarin osoiteriville ja avaa sivu.</li>
+              <li>Napauta Jaa-painiketta (neliö, josta nuoli osoittaa ylös; uusimmassa iOS:ssä se voi olla •••-valikossa).</li>
+              <li>Valitse <i>Lisää Koti-valikkoon</i>.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="appSub">
+          <summary>Android</summary>
+          <div class="appSubBody">
+            <span class="appBtns"><a class="btn ghost pieni" href="tusinasaa.apk" download>Lataa sovellus (APK)</a><button class="btn ghost pieni copy" type="button" data-copy="koodi" data-label="Kopioi koodi" data-done="Koodi kopioitu">Kopioi koodi</button></span>
+            <ol class="appSteps">
+              <li>Lataa sovelluksen asennustiedosto vasemmasta painikkeesta.</li>
+              <li>Kopioi oikeanpuoleisesta painikkeesta koodi, joka on oman tusinasääsi aktivointiavain.</li>
+              <li>Aloita asennus avaamalla lataamasi asennustiedosto.</li>
+              <li>Liitä kopioimasi koodi, kun TUSINASÄÄ 12 pyytää sitä.</li>
+            </ol>
+            <p class="appAfter">Nyt henkilökohtainen sääpylvääsi on pystytetty myös Android-sovellukseen. Sovellus pysyy ajan tasalla Minun oma tusinasää&nbsp;-sivulla tekemistäsi valinnoista, kuten siirtymisestä kahdeksi viikoksi mökin sääpylvääseen.</p>
+            <p class="appBye">Mukavia hetkiä säätiedotusten parissa!</p>
+          </div>
+        </details>
+      </div>
+    </details>
     <p class="foot">© TUSINASOFT 2026</p>
   </main>
 </div>
@@ -303,6 +361,8 @@ function toProfile(){
   return obj;
 }
 const katseluLinkki = () => `tusinapaja.html#${new URLSearchParams({ t: creds.t, k: creds.k })}`;
+/* Android-sovelluksen koodi: katselulinkin t ja k (ei kirjoitusavainta). Sovelluksen koodisivu tusinasaa-koodi.html lukee sen. */
+const koodi = () => `TS12-${creds.t}.${creds.k}`;
 
 /* --- Ilmoitukset --- */
 function viesti(text, kind, html){
@@ -311,6 +371,7 @@ function viesti(text, kind, html){
   el.className = 'viesti' + (kind ? ' ' + kind : '');
   if (html) el.innerHTML = html; else el.textContent = text || '';
   $('ui').hidden = true;
+  $('appPaneeli').hidden = true;
 }
 function setTila(text, kind, retry){
   const el = $('tila');
@@ -445,12 +506,32 @@ function renderPanel(){
   $('now').hidden = first;
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;
+  $('appPaneeli').hidden = first || !creds;
   $('clear').innerHTML = state.confirmClear
     ? `Kaadetaanko kaikki pylväät? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
     : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]</span>`;
   syncPick();
   renderMelt();
 }
+
+/* Sovellusosion kopiointinapit: iPhonelle katselulinkki, Androidille koodi. */
+function copyText(t){
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t).catch(() => legacyCopy(t));
+  return Promise.resolve(legacyCopy(t));
+}
+function legacyCopy(t){
+  const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } finally { ta.remove(); }
+}
+document.querySelectorAll('button.copy').forEach(b => b.addEventListener('click', () => {
+  if (!creds) return;
+  const arvo = b.dataset.copy === 'koodi' ? koodi() : new URL(katseluLinkki(), location.href).href;
+  copyText(arvo).then(() => {
+    b.textContent = b.dataset.done; clearTimeout(b._t);
+    b._t = setTimeout(() => { b.textContent = b.dataset.label; }, 2500);
+  });
+}));
 
 stage.addEventListener('click', e => {
   const el = e.target.closest('.slot'); if (!el) return;

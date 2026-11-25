@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Tusinasää: liitä koodi</title>
+<link rel="icon" href="icons/tusinasaa-32.png?v=d86bb9ab" sizes="32x32">
+<link rel="icon" href="icons/tusinasaa.svg?v=a6066a5a" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=5ec1496d">
+<style>
+  /* Android-sovelluksen ensiavaus: sovellus (android/app) avaa tämän, kun sillä ei ole linkkiä. Ulkoasu kuten
+     minun-tusinasaa.html:ssä, josta koodi kopioidaan. */
+  @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:400; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-normal.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:700; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-normal.woff2) format('woff2') }
+  @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:400; font-display:swap;
+    src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-italic.woff2) format('woff2') }
+  :root{
+    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --muted:#7a858f; --border:#2a3036; --field:#0f1113; --err:#ff6b6b;
+    --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --muted:#646f78; --border:#d5d9df; --field:#fff; --err:#c34242;
+      color-scheme:light }
+  }
+  body{ margin:0; background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
+  .wrap{ max-width:560px; margin:0 auto; padding-block:20px 32px;
+    padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)) }
+  /* Välit marginaaleilla, ei flexin gapilla: sovelluksen WebView voi olla vanhempi kuin Chrome 84. */
+  .top{ display:flex; align-items:center; margin:6.75px 0 22px }
+  .logo{ display:block; flex:none; width:68.7px; height:68.7px; margin-right:30px }
+  .nimi{ margin:0; font-style:italic; font-size:17.5px; letter-spacing:.08em; color:var(--brand) }
+  h2{ font-size:12px; font-weight:400; letter-spacing:.3px; text-transform:uppercase; color:var(--muted);
+    margin:26px 0 10px; padding-top:10px; border-top:1px solid var(--border) }
+  p{ margin:0 0 12px }
+  form{ margin:0 }
+  .row{ display:flex }
+  .row .btn{ margin-left:8px }
+  input{ flex:1; min-width:0; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
+    color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px }
+  .btn{ font:inherit; font-size:15px; padding:8px 14px; border-radius:6px; cursor:pointer; white-space:nowrap;
+    border:1px solid var(--text); background:var(--text); color:var(--bg) }
+  .btn:disabled{ opacity:.45; cursor:default }
+  button:focus-visible, input:focus-visible{ outline:2px solid var(--muted); outline-offset:2px }
+  .tila{ font-size:14px; color:var(--muted); margin:10px 0 0 }
+  .tila:empty{ display:none }
+  .tila.err{ color:var(--err) }
+  .note{ color:var(--muted); font-size:14px; margin-top:22px }
+  .osoite{ overflow-wrap:anywhere }
+  .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <svg class="logo" viewBox="0 0 32 32" role="img" aria-label="TUSINASÄÄ 12"><circle cx="16" cy="16" r="16" fill="#000"/><path fill="none" stroke="#e8e8e8" stroke-width="2.2" d="M16,7.9A8.1,8.1 0 1 1 16,24.1A8.1,8.1 0 1 1 16,7.9Z"/><path fill="#e8e8e8" d="M16,0.8L18,5.8L14,5.8ZM23.6,2.836L22.832,8.167L19.368,6.167ZM29.164,8.4L25.833,12.632L23.833,9.168ZM31.2,16L26.2,18L26.2,14ZM29.164,23.6L23.833,22.832L25.833,19.368ZM23.6,29.164L19.368,25.833L22.832,23.833ZM16,31.2L14,26.2L18,26.2ZM8.4,29.164L9.168,23.833L12.632,25.833ZM2.836,23.6L6.167,19.368L8.167,22.832ZM0.8,16L5.8,14L5.8,18ZM2.836,8.4L8.167,9.168L6.167,12.632ZM8.4,2.836L12.632,6.167L9.168,8.167ZM9.75,16L15.6,9.763L14.1,16L15.6,22.237ZM17.15,13.7H18.85L18.4,15.1V17.9A0.4,0.4 0 0 1 17.6,17.9V15.1ZM19.15,13.7H20.85L20.4,15.1V17.9A0.4,0.4 0 0 1 19.6,17.9V15.1Z"/></svg>
+    <p class="nimi">TUSINASÄÄ 12</p>
+  </div>
+
+  <main>
+    <h2>Liitä koodi</h2>
+    <form id="lomake" autocomplete="off">
+      <p><label for="koodi">Liitä oman tusinasääsi koodi.</label></p>
+      <div class="row">
+        <input id="koodi" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="TS12-…">
+        <button id="ok" class="btn" type="submit">Ota käyttöön</button>
+      </div>
+      <p class="tila" id="tila" role="status"></p>
+    </form>
+    <p class="note">Koodin saat <i>Minun oma tusinasää</i> -sivun alalaidasta kohdasta <i>Pitääkö minun asentaa puhelimeen
+      taas uusi äppi?</i> Jos sääpylvästä ei vielä ole, paaluta se selaimessa osoitteessa
+      <span class="osoite">ollijuutilainen.github.io/minun-tusinasaa.html</span>.</p>
+    <p class="foot">© TUSINASOFT 2026</p>
+  </main>
+</div>
+
+<script type="module">
+const API_BASE = (window.TUSINASAA_API_BASE || 'https://tusinasaa-worker.ollijuutilainen.workers.dev').replace(/\/+$/, '');
+/* Sovellus avaa sivun parametrilla ?sovellus=1 ja ottaa tuloksen tusinasaa://-osoitteena (TusinaWebViewClient).
+   Selaimessa tulos avataan säätiedotuksena. */
+const SOVELLUKSESSA = new URLSearchParams(location.search).get('sovellus') === '1';
+const $ = id => document.getElementById(id);
+
+/* Koodi on katselulinkin t ja k muodossa TS12-<t>.<k> (minun-tusinasaa.html). Kirjoitusavainta w siinä ei ole.
+   Kelpaa myös kokonainen katselu-, hallinta- tai Android-linkki; w:tä ei käytetä. */
+function luekoodi(raaka){
+  const s = String(raaka || '').replace(/\s+/g, '');
+  const m = s.replace(/^TS12-/i, '').match(/^([A-Za-z0-9_-]{32})\.([A-Za-z0-9_-]{43})$/);
+  if (m) return { t: m[1], k: m[2] };
+  const osa = s.includes('#') ? s.slice(s.indexOf('#') + 1) : s.includes('?') ? s.slice(s.indexOf('?') + 1) : '';
+  const p = new URLSearchParams(osa);
+  const t = p.get('t'), k = p.get('k');
+  if (/^[A-Za-z0-9_-]{32}$/.test(t || '') && /^[A-Za-z0-9_-]{43}$/.test(k || '')) return { t, k };
+  return null;
+}
+function unb64u(str){
+  const n = str.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(n + '='.repeat((4 - n.length % 4) % 4));
+  return Uint8Array.from(bin, c => c.charCodeAt(0));
+}
+function tila(text, err){
+  $('tila').className = 'tila' + (err ? ' err' : '');
+  $('tila').textContent = text || '';
+}
+
+/* Koodi tarkistetaan ennen käyttöönottoa: sovellus ei saa tallentaa linkkiä, joka ei aukea. */
+async function tarkista({ t, k }){
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(t)}`, { cache: 'no-store', credentials: 'omit' });
+  } catch {
+    throw new Error('Tallennuspalveluun ei saatu yhteyttä. Tarkista verkkoyhteys ja yritä uudelleen.');
+  }
+  if (res.status === 404) throw new Error('Koodia vastaavaa sääpylvästä ei löytynyt. Tarkista koodi.');
+  if (!res.ok) throw new Error(`Tallennuspalvelu vastasi virhekoodilla ${res.status}. Yritä hetken päästä uudelleen.`);
+  try {
+    const env = await res.json();
+    const key = await crypto.subtle.importKey('raw', unb64u(k), { name: 'AES-GCM' }, false, ['decrypt']);
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64u(env.iv) }, key, unb64u(env.ct));
+    const obj = JSON.parse(new TextDecoder().decode(pt));
+    if (!Array.isArray(obj?.pylvaat) && !(Number.isFinite(obj?.lat) && Number.isFinite(obj?.lon))) throw new Error();
+  } catch {
+    throw new Error('Koodi ei täsmää. Tarkista, että kopioit koko koodin.');
+  }
+}
+
+$('lomake').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const c = luekoodi($('koodi').value);
+  if (!c){ tila('Tämä ei ole Tusinasään koodi. Koodi alkaa TS12-.', true); $('koodi').focus(); return; }
+  $('ok').disabled = true;
+  tila('Tarkistetaan…');
+  try {
+    await tarkista(c);
+  } catch (err) {
+    $('ok').disabled = false;
+    tila(err.message, true);
+    return;
+  }
+  const frag = new URLSearchParams(c).toString();
+  location.href = SOVELLUKSESSA ? `tusinasaa://open/v1#${frag}` : `tusinapaja.html#${frag}`;
+});
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
@@ -20,6 +21,9 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final String REMOTE_BASE_URL = "https://ollijuutilainen.github.io/tusinapaja.html";
+    // Ensiavaus: perusversio ilman linkkiä kysyy koodin verkkosivulla, joka antaa tuloksen
+    // tusinasaa://-osoitteena (TusinaWebViewClient ohjaa sen openLink-metodille).
+    private static final String CODE_PAGE_URL = "https://ollijuutilainen.github.io/tusinasaa-koodi.html?sovellus=1";
     private static final String DEFAULT_LAT = "60.2633";
     private static final String DEFAULT_LON = "25.3244";
     private static final String DEFAULT_TITLE = "TUSINASÄÄ 12 · LEMMINKÄISEN TEMPPELI";
@@ -66,6 +70,15 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         loadFromIntent(intent);
+    }
+
+    /** Sivulta tullut tusinasaa://-linkki: tallennetaan ja avataan kuin sovellus olisi avattu sillä.
+     *  Lataus vasta navigoinnin takaisinkutsun jälkeen. */
+    void openLink(@NonNull Uri uri) {
+        if (webView == null) {
+            return;
+        }
+        webView.post(() -> loadFromIntent(new Intent(Intent.ACTION_VIEW, uri)));
     }
 
     private void loadFromIntent(@Nullable Intent intent) {
@@ -160,11 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (!tokenLocation) {
             if (lat == null || lon == null) {
-                lat = DEFAULT_LAT;
-                lon = DEFAULT_LON;
-                if (title == null) {
-                    title = DEFAULT_TITLE;
-                }
+                // Ei linkkiä eikä tallennettua: perusversio kysyy koodin.
+                return CODE_PAGE_URL;
             } else if (title == null && coordinatesMatchDefault(lat, lon)) {
                 title = DEFAULT_TITLE;
             }
