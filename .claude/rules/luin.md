@@ -20,6 +20,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   IndexedDB:ssä (`luin/tekstit.js`, `LuinTekstit`, lupauksia), kaikki muu localStoragessa (opas 2.3); palvelinta ei ole,
   paitsi postilaatikko. Älä palauta tekstejä localStorageen (5,2 milj. merkkiä koko sivustolle). Testit lukevat tekstin
   `LuinTekstit.lue()`:lla; testin localStorageen kylvämät `luin-teksti:`-avaimet siirtyvät kantaan latauksessa. `tekstit.js?v=` kuten md.js:n.
+- **Valmis teksti** (käyttäjän päätös): pinosta avattu yli `VALMIS_RAJA`n teksti tallentuu jäsennettynä ja tavutettuna omaan
+  kantaansa `luin-valmiit` (`valmisLue`/`valmisKirjoita`, enintään kuusi), ja uudelleenavaus ohittaa jäsennyksen ja tavutuksen.
+  Valmis käytetään vain, kun `valmisAvain()` täsmää: tekstin sormenjälki, md.js:n `?v=`, tämän sivun koodin sormenjälki,
+  tavutus ja Sisälmys. Jos `piirraTeksti()`n osa ennen `piirraTeksti2()`ta alkaa riippua muusta asetuksesta, lisää se
+  avaimeen. Valmiista avatun tekstin `nyt.doc.html` on null; HTML:ää tarvitseva koodi jäsentää sen `nyt.md`:stä kuten
+  `piirraTeksti()`. Testi `valmis-testi.js`.
 - **Tusina** (käyttäjän päätös, opas 2.3): pinossa enintään 12; tuleva teksti laskee pisimpään koskemattoman kellarin
   kampihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
 - `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle. Tekstin tunnus pinossa ja Postihuilussa
@@ -823,6 +829,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/lomitus-merkinta-testi.js [kuvakansio]`: lomitetun käännöksen valinta yhtä kieltä (luonnos,
   alleviivaus, kopio, lausekäännös, sanaselitys) Kielet-tiloissa ja kielirajan yli, merkintä samana tilanvaihdon jälkeen, 1280 ja 412 px.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/tallennus-testi.js [kuvakansio]`: tekstikanta (siirto localStoragesta, iso teksti, ilman IndexedDB:tä) ja pinon tusina.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/valmis-testi.js`: valmis teksti (osuma, sama HTML ja doc, tavutuksen vaihto, muuttunut teksti, poisto, enintään kuusi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.

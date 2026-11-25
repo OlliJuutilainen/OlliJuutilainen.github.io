@@ -1911,7 +1911,7 @@
   <g id="ratas-polku"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="6.4" fill="none" stroke="currentColor" stroke-width="1"/><path stroke="currentColor" stroke-width="1.1" d="M12 1.4L12 4.4"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 2.21L15.41 3.78"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 4.5L18.29 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 7.94L20.22 8.59"/><path stroke="currentColor" stroke-width="1.1" d="M22.6 12L19.6 12"/><path stroke="currentColor" stroke-width="0.8" d="M21.79 16.06L20.22 15.41"/><path stroke="currentColor" stroke-width="0.8" d="M19.5 19.5L18.29 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M16.06 21.79L15.41 20.22"/><path stroke="currentColor" stroke-width="1.1" d="M12 22.6L12 19.6"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 21.79L8.59 20.22"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 19.5L5.71 18.29"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 16.06L3.78 15.41"/><path stroke="currentColor" stroke-width="1.1" d="M1.4 12L4.4 12"/><path stroke="currentColor" stroke-width="0.8" d="M2.21 7.94L3.78 8.59"/><path stroke="currentColor" stroke-width="0.8" d="M4.5 4.5L5.71 5.71"/><path stroke="currentColor" stroke-width="0.8" d="M7.94 2.21L8.59 3.78"/><path d="M17.16 6.84Q15.96 8.99 15.39 10.87Q13.52 11.43 11.36 12.64Q12.57 10.48 13.13 8.61Q15.01 8.04 17.16 6.84Z"/><circle cx="12" cy="12" r=".9" fill="var(--paperi)"/></g>
 </defs></svg>
 
-<script src="luin/tekstit.js?v=8e563b11"></script>
+<script src="luin/tekstit.js?v=a1858e18"></script>
 <script src="luin/md.js?v=f9ab7d59"></script>
 <script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
@@ -2481,25 +2481,27 @@
   function avaaId(id) {
     var e = lista.filter(function (x) { return x.id === id; })[0], h0 = location.hash;
     if (!e) { viesti('Tekstiä ei ole tämän laitteen pinossa.'); return naytaLista(); }
-    TX.lue(id).then(function (md) {
+    // Valmis teksti (valmisAvain()) luetaan rinnakkain tekstin kanssa.
+    Promise.all([TX.lue(id), TX.valmisLue ? TX.valmisLue(id) : null]).then(function (r) {
+      var md = r[0];
       // Toinen siirtymä ehti ennen kuin teksti luettiin: ei avata.
       if (location.hash !== h0) return;
       if (md == null) { viesti('Tekstiä ei ole tämän laitteen pinossa.'); return naytaLista(); }
-      avaaIdMd(e, id, md);
+      avaaIdMd(e, id, md, r[1] || null);
     });
   }
-  function avaaIdMd(e, id, md) {
+  function avaaIdMd(e, id, md, v) {
     // Merkintäposti: jos laatikossa on tämän tekstin merkintöjä (tai niitä lähetetään), haetaan tuoreimmat ennen avausta,
     // jotta toisella laitteella tehdyt ovat mukana ja lukukohta on uusin. Enintään 2,5 s; sitten avataan joka tapauksessa.
     var k = laatikonKoodi(), h = location.hash;
     if (window.fetch && LAATIKKO_RE.test(k) && (LS.get('luin-posti-tunnetut', {})[id] || postiValinnat(id).on) && Date.now() - laatikkoHaettu > 15000) {
       var valmis = false;
-      var aja = function () { if (valmis || location.hash !== h) return; valmis = true; avaa(e, md); };
+      var aja = function () { if (valmis || location.hash !== h) return; valmis = true; avaa(e, md, null, v); };
       postiHae(k, P.avain(id), 2500).then(function (p) { if (p && !valmis) postiSovella(id, p); }).catch(function () {}).then(aja);
       setTimeout(aja, 2600);
       return;
     }
-    avaa(e, md);
+    avaa(e, md, null, v);
   }
 
   function dropbox(u) {
@@ -4680,7 +4682,30 @@
   function ykNimi(y) { var o = osioKohdassa(y.k); return o ? o.text + ' · ' + y.nimi : y.nimi; }
 
   /* ---------- avaaminen ja piirtäminen ---------- */
-  function avaa(e, md, doc) {
+  /* Valmis teksti (käyttäjän päätös; luin/tekstit.js): pinosta avattu iso teksti tallennetaan jäsennettynä ja tavutettuna,
+     ja uudelleenavaus ohittaa jäsennyksen ja tavutuksen. Avaimessa ovat tekstin sormenjälki ja pituus, md.js:n versio (?v=),
+     tämän sivun koodin sormenjälki sekä tavutus ja Sisälmys, jotka muuttavat HTML:ää; muut asetukset tehdään avattaessa
+     kuten ennen. Muuttunut teksti tai koodi jäsennetään siis aina uudelleen. */
+  var VALMIS_RAJA = 100000, koodiEl = document.currentScript, koodiAvain = '';
+  function sormenjalki(s) {
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (var i = 0, c; i < s.length; i++) { c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  function valmisAvain(md) {
+    if (!koodiAvain) {
+      var m = document.querySelector('script[src*="md.js"]');
+      koodiAvain = sormenjalki(koodiEl ? koodiEl.textContent : String(Math.random())) + '.' + (m ? m.getAttribute('src').split('?')[1] || '' : '');
+      koodiEl = null;
+    }
+    return [sormenjalki(md), md.length, koodiAvain, aset.tavutus, aset.sisallys ? 1 : 0].join('|');
+  }
+  // v: valmis teksti pinosta avattaessa (null: ei valmista, tallennetaan); undefined muilla reiteillä (ei käytetä eikä tallenneta).
+  function avaa(e, md, doc, v) {
+    var avain = v !== undefined && !doc && md != null && md.length >= VALMIS_RAJA ? valmisAvain(md) : '', valmis = null;
+    if (avain && v && v.avain === avain && v.doc && typeof v.html === 'string') { valmis = v; doc = v.doc; }
     doc = doc || LuinMD.parse(md);
     lisaaListaan(e.id, doc);
     e.opened = Date.now();
@@ -4691,6 +4716,8 @@
     tallennaLista();
     lykatty = null; // uusi teksti asetellaan joka tapauksessa voimassa olevin asetuksin
     nyt = { e: e, doc: doc, merk: merkit(e.id), blocks: [], txt: [], cum: [], total: 0 };
+    // Valmiin tekstin doc on ilman HTML:ää; piirraTeksti() jäsentää sen tästä vain, jos asetus tai merkintäposti piirtää uudelleen.
+    if (valmis) nyt.md = md;
     nyt.kuva = P.kuva(nyt.merk);
     tila.nakyma = 'lukija';
     krOdottaa = !!aset.kokoruutu;
@@ -4702,10 +4729,18 @@
     tk.setAttribute('href', omapissa(e) ? '#omappi' : kellarissa(e) ? '#arkisto' : '#'); tk.setAttribute('aria-label', tkn); tk.title = tkn;
     avaaJana(false);
     $('#majakka').hidden = true;
-    piirraTeksti();
+    piirraTeksti(valmis, !!avain && !valmis);
     var k = paikanna(e.pos) || { b: 0, o: 0 };
     asettele(k);
     naytaPalkkiopas();
+    // Tallennus vasta avauksen jälkeen, ettei kopiointi viivästytä ensimmäistä ruutua.
+    var talteen = nyt.valmiiksi;
+    nyt.valmiiksi = null;
+    if (talteen && TX.valmisKirjoita) {
+      var dk = {};
+      Object.keys(doc).forEach(function (x) { if (x !== 'html') dk[x] = doc[x]; });
+      setTimeout(function () { TX.valmisKirjoita(e.id, { avain: avain, doc: dk, html: talteen.html, samaKirj: talteen.samaKirj }); }, 1000);
+    }
   }
 
   // Tasot luetaan tekstin ylimmästä olemassa olevasta tasosta (käyttäjän sääntö 6.11.2026 pelkkien pykälien tekstistä,
@@ -4768,8 +4803,18 @@
     art.classList.toggle('lomitus-kaannos', l === 'kaannos');
     art.classList.toggle('sama-kirjaimisto', l === 'molemmat' && samaKirj);
   }
-  function piirraTeksti() {
+  // valmis: valmis teksti (avaa()), jonka HTML on jo jäsennetty ja tavutettu. talteen: otetaan tavutettu HTML talteen.
+  function piirraTeksti(valmis, talteen) {
     var d = nyt.doc, html = d.html;
+    if (valmis) {
+      if (luonnos) luonnos.segs = [];
+      if (kahvaH) piilotaKahvat();
+      art.innerHTML = valmis.html;
+      samaKirj = !!valmis.samaKirj;
+      lomitusLuokat();
+      return piirraTeksti2();
+    }
+    if (html == null) html = d.html = LuinMD.parse(nyt.md).html;
     if (aset.sisallys && d.toc.length) {
       var ajot = (d.kohdat || []).filter(function (y) { return y.ajo; }).map(function (y) { return { b: y.b, text: y.s, alku: alkusanat(y.alku), ajo: true }; });
       var sis = '<nav class="sisallys luin-ui"><p class="sis-ots">Sisälmys</p><ol>' + sisalmysRivit(d.toc, ajot).map(function (t) {
@@ -4795,6 +4840,11 @@
       var tKieli = kieliPisteet(art.textContent.slice(0, 30000)).k;
       LuinMD.tavutaDOM(art, aset.tavutus, function (l) { var v = kieliPisteet(l.textContent); return v.p >= 2 || v.p >= 1 && v.k !== tKieli ? v.k : tKieli; });
     }
+    if (talteen) nyt.valmiiksi = { html: art.innerHTML, samaKirj: samaKirj };
+    piirraTeksti2();
+  }
+  // Valmiin ja jäsennetyn tekstin yhteinen loppu: linkit, lohkot, kohdat, vakiosivut ja merkinnät.
+  function piirraTeksti2() {
     paivitaLinkit();
     nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = []; nyt.erik = null;
     $$('[data-b]', art).forEach(function (el) {
