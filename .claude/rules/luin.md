@@ -30,6 +30,13 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kampihyllystöön (`e.luettu` + `e.laskeutui`, tietorivillä *laskeutui*). Uusi tapa tuoda teksti pinoon kutsuu `pinoonTuli()`a ja `tusina()`a.
 - `luin/md.js`: Markdown-jäsennin ja suomen tavutus, yhteinen lukijalle ja Latomolle. Tekstin tunnus pinossa ja Postihuilussa
   on `tekstiTunnus()`, ei `slug()`: slug antaa jokaiselle kreikkalaiselle tai kyrilliselle otsikolle saman `osio`n.
+- `luin/sanaselitys.js` (`LuinSana`): sanaselityksen moottori (ketju, määritelmät, perusmuoto, alkuperä, istunto), yhteinen
+  luin.html:lle ja sanaselityssivulle; luin.html:ssä vain tekstin ympäristö (`skYmparisto()`, `skKieli()`). `?v=` kuten md.js:n
+  (sivut luin.html ja `luin/sanaselitys.html`). Muutos koskee molempia: aja `sanaselitys-testi.js`, joka testaa myös sivun.
+- `luin/sanaselitys.html` (opas 4.3): sanaselitys omana sivunaan, käyttäjän oikotie, Luinin sivustolla vain paikan puutteessa:
+  ei logoa eikä pinomerkkiä. Kieli on tuntematon (`skKetju('')`, ei kielihuomautusta), paitsi kreikan kirjaimilla tai kun
+  alussa on kielikoodi ja kaksoispiste (`fi:`, `en:`, käyttäjän päätös): silloin haku on kuin sen kielen leipätekstissä.
+  Osoitteen #-osa on haku (`#fi:käsitteen`; selaimen hakusanaksi `#%s`). Raksin paikka on mitattu erikseen (ei ikkunan yläreunusta).
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin tekstikannan siirrolla (`asetaSiirto()`)
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
 - `luin/mika-on-markdown.md`: *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
@@ -347,7 +354,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (järjestysrivin *sanasto*): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
   **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai järjestysrivin
   *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
-  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa.
+  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Haku** (järjestysrivin *etsi*, `kkHaku()`)
+  suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; järjestysrivin näkyvyys lasketaan
+  suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
+  sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
   hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-
@@ -817,6 +827,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/postihuilu-testi.js [kuvakansio]`: huilun geometria, `huilu.js?v=` kuvio asetuksissa, pinossa ei Postihuilua ja Soita postihuilua.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]`: kellarin kampihyllystön haku (osumat, välikortit, valinta, sulkeminen, 360 px).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
@@ -832,7 +843,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valmis-testi.js`: valmis teksti (osuma, sama HTML ja doc, tavutuksen vaihto, muuttunut teksti, poisto, enintään kuusi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/vakiosivu-testi.js [kuvakansio]`: vakiosivujen merkit, paikannin ja Latomon säilytys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-sana-testi.js`: laidan pitkä painallus sanalla, Sukkela sanaselitys ja osiohyppy.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-taso-testi.js`: osiohypyn merkkipaalun taso (Valtio, artikkeli, pitkä teksti, pelkät kohdat).
@@ -851,5 +862,5 @@ fixtureina: korvaa ne ensin). Muita käyttäjän tekstejä ei viedä repoon ilma
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot) ©-merkki on SVG: suora salmiakki, yhtä leveä kuin korkea (käyttäjän päätös), ja sen sisällä
+käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot, sanaselitys) ©-merkki on SVG: suora salmiakki, yhtä leveä kuin korkea (käyttäjän päätös), ja sen sisällä
 Literatan oman ©-merkin sisempi C 1,1-kertaisena (`aria-label="©"`, `margin-right: .15em`). Muiden ohjelmien alatunnisteissa on tavallinen ©.
