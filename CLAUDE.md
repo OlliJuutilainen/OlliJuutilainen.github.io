@@ -94,7 +94,7 @@ Kaikissa repon ohjelmissa, joihin se mielekkäästi sopii, on alalaidassa (käyt
 hienovarainen `<p class="foot">© TUSINASOFT 2026</p>` (keskitetty, pieni, harvennettu, haalea; tyyli
 sivun omilla väreillä). Vuosiluku on vuosi, jolloin ohjelmaa viimeksi päivitettiin: kun muutat ohjelmaa
 myöhempänä vuonna, päivitä sen vuosiluku. Alatunniste on `tusinapaja.html`:ssä, `generaattori.html`:ssä, `oma-tusinasaa.html`:ssä,
-`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, tuettujen sivustojen sivulla, Luinin käyttöohjeessa ja palautesivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
+`lyriikkamuunnin.html`:ssä, `luin.html`:ssä, Latomossa, Latomon ohjeessa, tuettujen sivustojen sivulla, Luinin käyttöohjeessa, palautesivulla ja sanaselityssivulla, Keikkaloihtimessa, Omat keikkani -listassa ja
 soittimen ohjesivuilla. Sitä ei ole soitinsivulla (`soitin/index.html`), esityksissä (`vauva.html`, *Maailmankuvien kääntäjä*),
 uudelleenohjaussivulla `index.html` eikä kokoruudun kelloissa (Odotushuone, Ouroboros).
 Luinin sivuilla ©-merkki on SVG (ks. `.claude/rules/luin.md`). Muiden ohjelmien alatunnisteissa on tavallinen ©.

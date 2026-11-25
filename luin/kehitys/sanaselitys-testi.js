@@ -251,7 +251,7 @@ palvelin.listen(0, async () => {
   const p = await ctx.newPage();
   const sivuvirheet = [];
   p.on('pageerror', e => sivuvirheet.push(e.message));
-  await p.route('https://en.wiktionary.org/**', route => {
+  const wikiReitti = route => {
     const u = new URL(route.request().url()), post = route.request().method() === 'POST' ? new URLSearchParams(route.request().postData() || '') : null;
     pyynnot.push((post ? 'POST ' : '') + decodeURIComponent(u.pathname + u.search) + (post ? ' ' + [...post.keys()].filter(k => k !== 'text').map(k => k + '=' + post.get(k)).join('&') : ''));
     const h = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
@@ -267,7 +267,8 @@ palvelin.listen(0, async () => {
     }
     if (u.pathname === '/w/api.php') return route.fulfill({ status: 200, headers: h, body: JSON.stringify(api(u)) });
     return route.fulfill({ status: 404, headers: h, body: '{}' });
-  });
+  };
+  await p.route('https://en.wiktionary.org/**', wikiReitti);
   // Kuvat rajataan selitysikkunaan (tai koko ruutuun, jos ikkuna on kiinni).
   const kuva = async n => {
     if (!KUVAT) return;
@@ -738,6 +739,133 @@ palvelin.listen(0, async () => {
   tulos('fi: pituusehto (liikkeen → liike, ei liikkeenjohto)', r.ots === 'liike' && /movement/.test(r.maar[0]) && /lähin osuma/i.test(r.huom.join()), JSON.stringify(r));
   r = await selita('kuvaannon');
   tulos('fi: pituusehto ei estä tulosta, kun lyhyitä ei tule (kuvaannon → kuvaannollinen)', r.ots === 'kuvaannollinen' && /figurative/.test(r.maar[0]), JSON.stringify(r));
+
+  // Sanaselityssivu (luin/sanaselitys.html): sama moottori ilman lukijaa. Kieli on tuntematon, ellei alussa ole kielikoodia
+  // ja kaksoispistettä (fi:, en: …), jolloin haku on kuin sen kielen leipätekstissä.
+  const sivuvirheet2 = [];
+  p.on('pageerror', e => sivuvirheet2.push(e.message));
+  await p.setViewportSize({ width: 1280, height: 900 });
+  await p.goto(BASE + 'luin/sanaselitys.html');
+  const odotaSivu = () => p.waitForFunction(() => { const t = document.querySelector('#selitys .sk-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
+  const sivuTila = () => p.evaluate(() => {
+    const q = s => document.querySelector('#selitys ' + s), qa = s => [...document.querySelectorAll('#selitys ' + s)];
+    return { ots: q('.sk-o') ? q('.sk-o').textContent : '', huom: qa('.sk-huom').map(e => e.textContent), varo: qa('.sk-varo').map(e => e.textContent),
+      kielet: qa('.sk-kieli').map(e => e.textContent), maar: qa('.sk-ol li').map(e => e.textContent), vaihdot: qa('.sk-vaihto').map(e => e.textContent),
+      tieto: (q('.sk-tieto') || {}).textContent || '', lisaa: !!q('.sk-lisa'), muoto: (q('.sk-muoto') || {}).textContent || '',
+      logos: !!q('.sk-logos') && !q('.sk-logos').hidden, kentta: document.querySelector('#sana').value, osoite: decodeURIComponent(location.hash),
+      vihje: !document.querySelector('#vihje').hidden, nakyy: !document.querySelector('#selitys').hidden };
+  });
+  async function sivu(haku) {
+    pyynnot.length = 0;
+    await p.fill('#sana', haku);
+    await p.press('#sana', 'Enter');
+    await odotaSivu();
+    await p.waitForTimeout(150);
+    return sivuTila();
+  }
+  const kuvaSivu = async n => { if (KUVAT) await p.screenshot({ path: path.join(KUVAT, n + '.png'), fullPage: true }); };
+  r = await sivuTila();
+  tulos('sivu: alussa vihje näkyy, selitys ei, kenttä aktiivinen', r.vihje && !r.nakyy && await p.evaluate(() => document.activeElement.id === 'sana'), JSON.stringify(r));
+  await kuvaSivu('sivu-alku');
+  r = await sivu('kelloon');
+  tulos('sivu: kelloon → kello, taivutus pienellä, ei kielihuomautusta (kieli tuntematon), osoitteessa haku',
+    r.ots === 'kello' && r.muoto === '(”kelloon” · illative singular)' && !r.huom.length && r.logos && r.lisaa && !r.vihje && r.osoite === '#kelloon', JSON.stringify(r));
+  tulos('sivu: Enter jättää hiirellä kentän valituksi seuraavaa sanaa varten', await p.evaluate(() => {
+    const k = document.querySelector('#sana'); return document.activeElement === k && k.selectionStart === 0 && k.selectionEnd === k.value.length; }));
+  await p.click('#selitys .sk-ots button.sk-ety');
+  await p.waitForFunction(() => { const r = document.querySelector('#selitys .sk-ety-runko'); return r && !/Haetaan/.test(r.textContent); });
+  e = await p.evaluate(() => ({ ots: document.querySelector('#selitys .sk-ety-ots .sk-osa').textContent, teksti: document.querySelector('#selitys .sk-ety-runko').textContent }));
+  tulos('sivu: linssi avaa ΕΤΥΜΟΝ-laatikon', e.ots === 'ΕΤΥΜΟΝ' && /^From Proto-Finnic \*kello; compare kellua\.$/.test(e.teksti), JSON.stringify(e));
+  await kuvaSivu('sivu-kelloon');
+  // Raksin muste lisää-linkin oikean laidan tasalla kuten selitysikkunassa (±1 px).
+  e = await p.evaluate(() => {
+    const x = document.querySelector('#selitys .sk-sulje svg').getBoundingClientRect(), l = document.querySelector('#selitys .sk-lisa svg').getBoundingClientRect();
+    // Musteen oikea laita: raksin vinoviiva (1,2) päättyy 0,58 px ja plussan vaakaviiva (tylppä pää) 0,65 px laatikon reunasta.
+    return { raksi: +(x.right - .58).toFixed(2), lisa: +(l.right - .65).toFixed(2) };
+  });
+  tulos('sivu: raksin muste lisää-linkin oikean laidan tasalla (±1 px)', Math.abs(e.raksi - e.lisa) <= 1, JSON.stringify(e));
+  r = await sivu('as');
+  tulos('sivu: as ilman kieltä → kaikki kielet (englanti ensin, sitten suomi)', r.kielet[0] === 'English · Conjunction' && r.kielet[1] === 'Finnish · Noun' && r.kielet.length > 2, JSON.stringify(r));
+  r = await sivu('fi: as');
+  tulos('sivu: fi: as → vain suomi (kuten suomen leipätekstissä), otsikossa sana ilman koodia', r.ots === 'as' && r.kielet.join('|') === 'Finnish · Noun' && r.kentta === 'fi: as' && r.osoite === '#fi: as', JSON.stringify(r));
+  r = await sivu('en:is');
+  tulos('sivu: en:is → vain englanti (ei afrikaansia)', r.kielet.join('|') === 'English · Verb', JSON.stringify(r));
+  r = await sivu('is');
+  tulos('sivu: is ilman kieltä → englanti ja afrikaans', r.kielet.join('|') === 'English · Verb|Afrikaans · Verb', JSON.stringify(r));
+  r = await sivu('fi: käsitteen');
+  tulos('sivu: fi: käsitteen → käsite taulukkohaulla', r.ots === 'käsite' && r.muoto === '(”käsitteen”)' && /concept/.test(r.maar[0]), JSON.stringify(r));
+  r = await sivu('käsitteen');
+  tulos('sivu: käsitteen ilman kieltä → käsite loppunapsulla (ehdokkaana tai suoraan)', r.ots === 'käsite' || r.vaihdot.includes('käsite'), JSON.stringify(r));
+  r = await sivu('Kantin');
+  tulos('sivu: Kantin → Kant (erisnimen perusmuoto), ei kielihuomautusta', r.ots === 'Kant' && !r.huom.some(h => /ei osumaa/.test(h)), JSON.stringify(r));
+  r = await sivu('fi: Kantin');
+  tulos('sivu: fi: Kantin → Kant ja suomen kielihuomautus', r.ots === 'Kant' && /Suomesta ei osumaa/.test(r.huom.join()), JSON.stringify(r));
+  r = await sivu('pratityasamutpada');
+  tulos('sivu: majuminuluku kaikista kielistä, huomautus sanoo Haettu eikä Tekstissä (pratityasamutpada → pratītyasamutpāda)',
+    r.ots === 'pratītyasamutpāda' && r.huom.join() === 'Haettu pratityasamutpada: sama toisin kirjoitettuna.', JSON.stringify(r));
+  r = await sivu('de: Strasse');
+  tulos('sivu: de: Strasse → Straße (saksan ketju)', r.ots === 'Straße' && r.huom.join() === 'Haettu Strasse: sama toisin kirjoitettuna.', JSON.stringify(r));
+  r = await sivu('λογος');
+  tulos('sivu: kreikan kirjaimet tunnistuvat ilman koodia (λογος → λόγος)', r.ots === 'λόγος' && /Ancient Greek/.test(r.kielet[0] || ''), JSON.stringify(r));
+  r = await sivu('la: psyche');
+  tulos('sivu: la: psyche → ψυχή varoituksin (Haettu psyche, ei tekstin)', r.ots === 'ψυχή' && /^Heikoilla jäillä\. Haettu psyche kreikkalaisin kirjaimin\.$/.test(r.varo.join()), JSON.stringify(r));
+  r = await sivu('xyzzyq');
+  tulos('sivu: tuntematon sana', /^Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto) && r.lisaa, JSON.stringify(r));
+  r = await sivu('kantelx');
+  tulos('sivu: valitsin ja valinta (kantelx → kantele, kanteli)', r.vaihdot.length >= 2, JSON.stringify(r));
+  if (r.vaihdot.length >= 2) {
+    await p.click('#selitys .sk-vaihto[data-i="0"]');
+    await odotaSivu(); await p.waitForTimeout(150);
+    const v = await sivuTila();
+    tulos('sivu: vaihtoehdon valinta selittää sen', v.ots === r.vaihdot[0] && v.maar.length > 0, JSON.stringify(v));
+  }
+  r = await sivu('kelloon');
+  await p.click('#selitys .sk-logos');
+  await p.waitForFunction(() => document.querySelector('#selitys .sk-o').textContent === 'λόγος' && !/Haetaan/.test(document.querySelector('#selitys .sk-runko').textContent));
+  tulos('sivu: ΛΟΓΟΣ vie sanaan λόγος', /Ancient Greek/.test((await sivuTila()).kielet[0] || ''));
+  await p.click('#selitys .sk-sulje');
+  r = await sivuTila();
+  tulos('sivu: raksi tyhjentää selityksen, kentän ja osoitteen, vihje palaa', !r.nakyy && r.kentta === '' && r.osoite === '' && r.vihje && await p.evaluate(() => document.activeElement.id === 'sana'), JSON.stringify(r));
+  // Osoitteesta: uusi sivu #-osalla ja #-osan vaihto samalla sivulla (selaimen hakusana).
+  await p.goto(BASE + 'luin/sanaselitys.html#fi:kelloon');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('sivu: osoitteen #fi:kelloon täyttää kentän ja selittää', r.kentta === 'fi:kelloon' && r.ots === 'kello', JSON.stringify(r));
+  await p.evaluate(() => { location.hash = 'en%3Ais'; });
+  await p.waitForFunction(() => document.querySelector('#sana').value === 'en:is');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('sivu: #-osan vaihto hakee uudelleen (en:is)', r.ots === 'is' && r.kielet.join('|') === 'English · Verb', JSON.stringify(r));
+  await p.goto(BASE + 'luin/sanaselitys.html#kova+onni');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('sivu: + on väli osoitteessa (#kova+onni)', r.kentta === 'kova onni' && r.ots === 'kova onni', JSON.stringify(r));
+  // Kapea kosketusruutu: ei vaakavieritystä, otsikko ja raksi eivät mene päällekkäin, näppäimistö pois haun jälkeen.
+  const mctx = await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, deviceScaleFactor: KUVAT ? 2 : 1 });
+  const mp = await mctx.newPage();
+  mp.on('pageerror', e => sivuvirheet2.push(e.message));
+  await mp.route('https://en.wiktionary.org/**', wikiReitti);
+  await mp.goto(BASE + 'luin/sanaselitys.html');
+  await mp.fill('#sana', 'pratityasamutpadaa');
+  await mp.press('#sana', 'Enter');
+  await mp.waitForFunction(() => { const t = document.querySelector('#selitys .sk-runko'); return t && !/Haetaan/.test(t.textContent); }, null, { timeout: 5000 });
+  await mp.waitForTimeout(150);
+  e = await mp.evaluate(() => {
+    const o = document.querySelector('#selitys .sk-o').getBoundingClientRect(), x = document.querySelector('#selitys .sk-sulje svg').getBoundingClientRect();
+    return { leveys: document.documentElement.scrollWidth, ikkuna: innerWidth, paalle: o.right > x.left + .5, kentta: document.activeElement.id, ots: document.querySelector('#selitys .sk-o').textContent };
+  });
+  tulos('sivu 360 px: ei vaakavieritystä eikä päällekkäisyyttä, kenttä ei aktiivinen haun jälkeen', e.leveys <= e.ikkuna && !e.paalle && e.kentta !== 'sana', JSON.stringify(e));
+  tulos('sivu: ilman kieltä viimeisenä loppunapsu ja majuminuluku (pratityasamutpadaa → pratītyasamutpāda)', e.ots === 'pratītyasamutpāda', e.ots);
+  if (KUVAT) await mp.screenshot({ path: path.join(KUVAT, 'sivu-360.png'), fullPage: true });
+  await mctx.close();
+  // Tumma teema luin-asetuksista kuten muilla alasivuilla.
+  await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.teema = 'tumma'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });
+  await p.goto('about:blank');
+  await p.goto(BASE + 'luin/sanaselitys.html#as');
+  await odotaSivu(); await p.waitForTimeout(150);
+  tulos('sivu: tumma teema lukimen asetuksista', await p.evaluate(() => document.documentElement.dataset.teema === 'tumma' && getComputedStyle(document.body).backgroundColor === 'rgb(18, 14, 11)'));
+  await kuvaSivu('sivu-tumma');
+  tulos('sivu: ei sivuvirheitä', !sivuvirheet2.length, sivuvirheet2.join(' | '));
 
   await b.close(); palvelin.close();
   console.log(virheita ? virheita + ' vikaa' : 'kaikki kunnossa');

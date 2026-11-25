@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Sanaselitys</title>
+<link rel="icon" href="kuvakkeet/32.png" sizes="32x32">
+<link rel="icon" href="kuvakkeet/kuvake.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="kuvakkeet/180.png">
+<!--
+  Sanaselitys omana sivunaan: lukimen selitysikkunan moottori (sanaselitys.js, LuinSana) ilman lukijaa, kirjoitetulle
+  sanalle. Tekstin ympäristöä ei ole, joten kieli on tuntematon (kaikki kielet; kreikan kirjaimet tunnistetaan), ellei haun
+  alussa ole kielikoodia ja kaksoispistettä (fi:, en: … LuinSana.NIMI): silloin haku on kuin sen kielen leipätekstissä.
+  Haku osoitteessa: sanaselitys.html#fi:käsitteen (selaimen hakusanaksi: sanaselitys.html#%s). Haku vain lähetyksestä
+  (Enter), ei kirjoittaessa. Teema luin-asetuksista kuten muilla alasivuilla.
+-->
+<script>
+  try {
+    var a = JSON.parse(localStorage.getItem('luin-asetukset') || 'null');
+    var tumma = a ? a.teema === 'tumma' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.teema = tumma ? 'tumma' : 'vaalea';
+  } catch (e) {}
+</script>
+<style>
+  @font-face { font-family: Literata; src: url(fontit/literata.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kreikka.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; unicode-range: U+0370-03FF; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kreikka-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; unicode-range: U+0370-03FF; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kreikka-laaja.woff2) format("woff2");
+    font-weight: 380 700; font-style: normal; font-display: swap; unicode-range: U+1F00-1FFF; }
+  @font-face { font-family: Literata; src: url(fontit/literata-kreikka-laaja-kursiivi.woff2) format("woff2");
+    font-weight: 380 700; font-style: italic; font-display: swap; unicode-range: U+1F00-1FFF; }
+  :root {
+    --paperi: #faf5ea; --muste: #231c14; --harmaa: #67553f; --viiva: #cbb99c;
+    --ruoste: #8c5426; --okra: #b07a16; --huomio: #74624a;
+    --antiikva: Literata, Georgia, "Noto Serif", "Droid Serif", serif;
+  }
+  :root[data-teema="tumma"] {
+    --paperi: #120e0b; --muste: #ebdfca; --harmaa: #b09b7e; --viiva: #4b3e2f;
+    --ruoste: #b8794a; --okra: #d4a443; --huomio: #a69272;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paperi); color: var(--muste); font: 17px/1.55 var(--antiikva); overflow-wrap: break-word;
+    display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+  main { flex: 1 0 auto; width: 100%; max-width: 34rem; margin: 0 auto; padding: 24px 16px 40px; }
+  :focus-visible { outline: 2px solid var(--ruoste); outline-offset: 2px; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  h1 { font-weight: 400; font-size: 1.5rem; letter-spacing: .04em; margin: 0 0 14px; }
+
+  /* Hakukenttä: pelkkä viiva alla, lähetysnappina sanaselityksen merkki (lambda ja linssi kuten lukimen valikossa). */
+  form { display: flex; align-items: flex-end; gap: 10px; border-bottom: 1px solid var(--viiva); }
+  form:focus-within { border-bottom-color: var(--muste); }
+  input { flex: 1 1 auto; min-width: 0; font: 1.25rem/1.4 var(--antiikva); color: var(--muste); background: none; border: 0;
+    border-radius: 0; padding: 4px 0 5px; -webkit-appearance: none; appearance: none; }
+  input:focus { outline: none; }
+  input::placeholder { color: var(--harmaa); opacity: .7; font-style: italic; }
+  input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  button.selita { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 44px; height: 40px; margin-right: -9px;
+    color: var(--muste); }
+  button.selita svg { width: 22.5px; height: 20px; overflow: visible; }
+  .vihje { margin: 12px 0 0; font-size: .86rem; line-height: 1.5; color: var(--harmaa); }
+  .vihje i { color: var(--muste); }
+
+  /* Selitys: lukimen selitysikkunan (.valikko.sanakirja) säännöt ilman kehystä. Ikkunan rem-koot ovat tässä em:einä suhteessa
+     ikkunan .9rem:iin, joten suhteet pysyvät, vaikka koko on suurempi; pikselimitat (linssi, raksi) ennallaan. */
+  #selitys { position: relative; margin-top: 22px; font-size: 1.05rem; line-height: 1.5; --sk-raksi: 28.5px; --sk-raksi-r: -.4px; }
+  #selitys[hidden] { display: none; }
+  #selitys .sk-ots { display: flex; align-items: baseline; gap: 12px; font-size: 1.167em; font-style: italic; margin-bottom: 5px;
+    padding-right: var(--sk-raksi); }
+  #selitys .sk-o { min-width: 0; overflow-wrap: anywhere; }
+  #selitys .sk-kieli { margin-top: 9px; font-size: .867em; letter-spacing: .06em; text-transform: uppercase; color: var(--harmaa); }
+  #selitys .sk-ol { margin: 1px 0 0; padding-left: 1.35em; }
+  #selitys .sk-ol li { margin: 2px 0; }
+  #selitys button.sk-sana, #selitys button.sk-vaihto { display: inline; text-align: inherit; color: var(--ruoste);
+    text-decoration: underline; text-decoration-color: var(--viiva); text-underline-offset: 3px; }
+  #selitys .sk-tieto { margin-top: 6px; color: var(--harmaa); }
+  #selitys button.sk-sulje { position: absolute; top: 0; right: 0; width: 44px; height: 42px; color: var(--muste); }
+  /* Raksi kuten ikkunassa, mutta ikkunan 11 px:n yläreunus puuttuu: ΛΟΓΟΣ-rivillä musteen keskellä (sivun ΛΟΓΟΣ on ikkunan suurempi), ilman sitä sanan peruslinjalla. */
+  #selitys button.sk-sulje svg { position: absolute; right: var(--sk-raksi-r); top: 14px; width: 10px; height: 10px;
+    stroke: currentColor; stroke-width: 1.2; fill: none; }
+  #selitys.sk-logos-nak button.sk-sulje svg { top: 3.75px; }
+  #selitys .sk-huom { margin-top: 6px; font-size: .889em; font-style: italic; color: var(--harmaa); line-height: 1.4; }
+  #selitys .sk-varo { display: flex; align-items: center; gap: 9px; margin-top: 8px; font-size: .911em; line-height: 1.4; }
+  #selitys .sk-varo svg { flex: 0 0 auto; width: 24px; height: 24px; }
+  #selitys .sk-varo b { font-weight: 600; letter-spacing: .03em; }
+  #selitys .sk-alaots { display: flex; align-items: baseline; margin-top: 12px; font-size: 1.111em; font-style: italic; }
+  #selitys .sk-vaihdot { margin: 6px 0 0; padding: 0; list-style: none; }
+  #selitys .sk-vaihdot li { display: flex; align-items: baseline; margin: 5px 0; }
+  #selitys .sk-vaihdot button.sk-vaihto { font-size: 1.111em; font-style: italic; }
+  #selitys .sk-vk { margin-left: 8px; font-size: .822em; letter-spacing: .04em; color: var(--harmaa); }
+  #selitys .sk-ala { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
+  #selitys a.sk-lisa { display: inline-flex; align-self: center; margin: -8px -8px -8px auto; padding: 8px; line-height: 0; text-decoration: none; }
+  #selitys a.sk-lisa svg { width: 10.5px; height: 10.5px; fill: none; overflow: visible; }
+  #selitys a.sk-lisa .plus { stroke: var(--ruoste); stroke-width: 1.3; }
+  #selitys .sk-lahde { font-size: .711em; letter-spacing: .02em; color: var(--huomio); color: color-mix(in srgb, var(--harmaa) 55%, var(--viiva)); }
+  #selitys .sk-ety-nappi { display: inline; }
+  #selitys button.sk-ety { display: inline-block; position: relative; margin: 0 0 0 3px; line-height: 0; vertical-align: baseline; }
+  #selitys button.sk-ety::after { content: ''; position: absolute; inset: -9px -10px -6px -3px; }
+  #selitys button.sk-ety svg { width: 15.1px; height: 15.15px; vertical-align: -6.75px; overflow: visible; fill: none; }
+  #selitys button.sk-ety .linssi, #selitys button.sk-ety .e { stroke: var(--ruoste); }
+  #selitys button.sk-ety[aria-pressed="true"] .linssi, #selitys button.sk-ety[aria-pressed="true"] .e { stroke: var(--muste); }
+  #selitys .sk-osa { display: block; font-size: .8em; letter-spacing: .26em; line-height: 1.3; text-align: left;
+    color: var(--harmaa); color: color-mix(in srgb, var(--harmaa) 72%, var(--viiva)); }
+  #selitys button.sk-osa[hidden] { display: none; }
+  #selitys .sk-logos { margin: 0 0 8px; padding-right: var(--sk-raksi); }
+  #selitys .sk-muoto { margin-top: 10px; font-size: .889em; line-height: 1.4; padding-left: .9em; font-style: italic; color: var(--harmaa); }
+  #selitys .sk-ety-laatikko { margin-top: 11px; padding: 4px 10px 11px; border: 1px solid var(--viiva); }
+  #selitys .sk-ety-ots { display: flex; align-items: center; }
+  #selitys button.sk-ety-sulje { position: relative; margin-left: auto; width: 30px; height: 24px; margin-right: -9px; color: var(--harmaa); }
+  #selitys button.sk-ety-sulje svg { position: absolute; right: 9px; top: 8px; width: 8px; height: 8px; stroke: currentColor; stroke-width: 1.1; fill: none; }
+  #selitys .sk-ety-runko { margin-top: 6px; }
+  #selitys .sk-ety-laatikko .sk-kieli { margin-top: 6px; }
+  #selitys .sk-ety-p { margin: 4px 0 0; }
+  #selitys .sk-ety-li { padding-left: 1em; text-indent: -.7em; }
+  #selitys .sk-ety-li::before { content: '· '; color: var(--harmaa); }
+  #selitys .sk-ety-laatikko .sk-tieto, #selitys .sk-ety-laatikko .sk-huom { margin: 4px 0 0; }
+  @media (hover: hover) {
+    #selitys .sk-vaihdot li:hover button.sk-vaihto { text-decoration-color: var(--ruoste); }
+    #selitys button.sk-ety:hover .e { stroke: var(--muste); }
+    #selitys button.sk-ety-sulje:hover { color: var(--muste); }
+  }
+
+  .foot { margin: 0; padding: 0 16px 22px; text-align: center; color: var(--harmaa); font-size: .64rem; letter-spacing: .16em; }
+  .foot svg { width: 1.4em; height: 1.1em; vertical-align: -.2em; margin-right: .15em; overflow: visible; fill: currentColor; }
+  .foot .k { fill: none; stroke: currentColor; stroke-width: 58; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sanaselitys</h1>
+  <form id="haku" role="search" autocomplete="off">
+    <input id="sana" type="search" aria-label="Sana tai ilmaus" placeholder="sana tai ilmaus" autofocus
+      autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search">
+    <button type="submit" class="selita" aria-label="Selitä" title="Selitä"><svg viewBox="3.6 0 22.5 20" fill="none" aria-hidden="true"><path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="currentColor" stroke-width="1.5"/><g stroke="var(--ruoste)"><circle cx="18.19" cy="3.69" r="6" stroke-width="1.15"/><path d="M15.01 8.78L9.5 17.6" stroke-width="1.5"/></g></svg></button>
+  </form>
+  <p class="vihje" id="vihje">Kielikoodi ja kaksoispiste alkuun, niin sitä kieltä haetaan ensin: <i>fi: käsitteen</i>, <i>en: running</i>
+    (myös la, grc, el, de, fr, sv ja lt).</p>
+  <section id="selitys" hidden></section>
+</main>
+<p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
+<script src="sanaselitys.js?v=13013fbb"></script>
+<script>
+(function () {
+  'use strict';
+  var S = window.LuinSana, lomake = document.getElementById('haku'), kentta = document.getElementById('sana'),
+    tulos = document.getElementById('selitys'), vihje = document.getElementById('vihje'), nyt = null;
+  // Kosketusnäyttö kuten lukimessa (hover: none on välttämätön: Booxin Firefox ei täytä pointer: coarse -ehtoa).
+  var KOSKETUS = !!(window.matchMedia && matchMedia('(pointer: coarse), (hover: none)').matches);
+
+  // Kielikoodi ja kaksoispiste alussa (fi:, en: … vain LuinSana.NIMI:n kielet). Ilman sitä kieli on tuntematon, paitsi
+  // kreikan kirjaimilla: polytoninen merkintä on muinaiskreikkaa, muu nykykreikkaa (ketju hakee molemmista).
+  function jasenna(raaka) {
+    var m = /^\s*([a-z]{2,3})\s*:\s*([\s\S]*)$/i.exec(raaka), k = m ? m[1].toLowerCase() : '';
+    var kieli = S.NIMI.hasOwnProperty(k) ? k : '', haku = S.hakusana(kieli ? m[2] : raaka);
+    if (!kieli && /\p{Script=Greek}/u.test(haku)) kieli = /[̀̓̔͂ͅ]/.test(haku.normalize('NFD')) ? 'grc' : 'el';
+    return { kieli: kieli, haku: haku };
+  }
+  function tyhjenna() {
+    nyt = null; tulos.hidden = true; tulos.innerHTML = ''; tulos.className = ''; vihje.hidden = false;
+  }
+  // Kirjoitettu haku on kuin tekstin sana keskellä leipätekstiä: kirjainkoko on tarkoituksellinen (Kantin on erisnimi).
+  function hae(raaka) {
+    var q = jasenna(raaka);
+    if (!q.haku) { tyhjenna(); return; }
+    var y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: false, kieli: q.kieli, symboli: S.symboli(q.haku), pikkusana: false };
+    var monta = S.sanaLkm(q.haku) > 1, erisnimi = !monta && /^\p{Lu}/u.test(q.haku) && q.haku !== q.haku.toUpperCase();
+    tulos.className = ''; tulos.innerHTML = S.kehys(q.haku, q.haku); tulos.hidden = false; vihje.hidden = true;
+    var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: S.ketju(q.kieli, y, monta, erisnimi), kirjoitettu: true,
+      auki: function () { return nyt === oma && !tulos.hidden; } });
+    oma.aja();
+  }
+  // Osoitteen #-osa on haku sellaisenaan (sanaselitys.html#fi:käsitteen); + on väli kuten hakukoneiden osoitteissa.
+  function osoitteesta() {
+    try { return decodeURIComponent(location.hash.slice(1).replace(/\+/g, ' ')).trim(); } catch (e) { return ''; }
+  }
+  function osoitteeseen(v) {
+    history.replaceState(null, '', v ? '#' + encodeURIComponent(v).replace(/%3A/gi, ':') : location.pathname + location.search);
+  }
+
+  lomake.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = kentta.value.trim();
+    osoitteeseen(v);
+    hae(v);
+    // Kosketusnäytöllä näppäimistö pois selityksen tieltä; hiirellä kenttä valituksi, jotta seuraavan sanan voi kirjoittaa heti.
+    if (KOSKETUS) kentta.blur(); else kentta.select();
+  });
+  tulos.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-k]');
+    if (!b || !nyt) return;
+    e.preventDefault();
+    if (nyt.klikkaus(b.dataset.k, b) === false) {
+      tyhjenna(); kentta.value = ''; osoitteeseen(''); kentta.focus();
+      return;
+    }
+    // Uusi sana (linkki, vaihtoehto, otsikko) korvaa selityksen: sen alku näkyviin.
+    if (b.dataset.k !== 'sk-ety' && tulos.getBoundingClientRect().top < 0) tulos.scrollIntoView();
+  });
+  window.addEventListener('hashchange', function () {
+    var v = osoitteesta();
+    if (v === kentta.value.trim() && nyt) return;
+    kentta.value = v; hae(v);
+  });
+
+  var alku = osoitteesta();
+  if (alku) {
+    kentta.value = alku; hae(alku);
+    if (KOSKETUS) kentta.blur();
+  }
+})();
+</script>
+</body>
+</html>
