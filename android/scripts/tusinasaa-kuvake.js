@@ -6,7 +6,8 @@
 // ympyrällä. Kulmakiila täyttää kehän sisäalueen vasemman puolikkaan (kärki vasenta pystysivua vasten, selän kulmat vinoja
 // sivuja vasten, selkä keskilinjan tuntumassa); pystykiilat ovat huomattavasti pienemmät oikean puolikkaan keskellä, jolloin
 // keskilinjan eri puolille syntyy päivän ja yön vaikutelma (käyttäjän päätös).
-// Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android, sivujen logot); vain rajaus vaihtelee.
+// Sama muoto kaikkialla (välilehti, kotivalikko, linkin esikatselu, Android, sivujen logot); vain rajaus vaihtelee, ja
+// sivujen logossa vaalean teeman säteet ovat suuremmat (alla).
 //
 // Tuottaa:
 //   icons/tusinasaa.svg, -32.png         välilehden kuvake (32 px PNG Big Surin Safarille)
@@ -19,7 +20,10 @@
 //   ?v=<SHA-1:n alku>                    SIVUT-taulukon sivujen ja manifestin kuvakeosoitteisiin (paitsi jako, jolla oma
 //                                        numero): selaimet pitävät välilehden kuvaketta muistissa osoitteen mukaan
 //                                        eivätkä hae uutta, vaikka palvelin antaisi (Big Surin selaimet)
-//   <svg class="logo" viewBox="0 0 32 32"> SIVUT-taulukon sivuilla upotettu logo
+//   <svg class="logo" viewBox="0 0 32 32"> SIVUT-taulukon sivuilla upotettu logo: ilman taustaa sivun tekstin värillä
+//                                        (currentColor; käyttäjän päätös). Kaksi polkua, joista sivun CSS näyttää teeman
+//                                        mukaisen: .tumma ja .vaalea, jossa säteet ovat VAALEA-kertaiset, koska tummat
+//                                        piikit vaalealla pohjalla näyttävät pienemmiltä kuin vaaleat tummalla.
 //   android/app/src/main/res/…           käynnistyskuvake: adaptiivinen (Android 8+), monokromi (13+ teemakuvake) ja
 //                                        Android 7:lle pyöreä layer-list
 //
@@ -55,6 +59,7 @@ const U = SISA - VALI / S60;                     // merkkialueen (kuusikulmio) y
 const SELKA = -.4, KIILA_LOVI = 1.5;
 // Pystykiilat: keskikohdat, koko korkeus, pään leveys ja korkeus, varren leveys (pyöreä pää). Pystysuunnassa keskellä.
 const PYST = [2, 4], PYST_K = 4.6, PAA = 1.7, PAA_K = 1.4, VARSI = .8;
+const VAALEA = 1.2;                              // sivulogon säteet vaaleassa teemassa (kärjet 15,9: suurin, joka mahtuu)
 
 const n = x => +x.toFixed(3);
 const p = (x, y) => `${n(C + x * MITTA)},${n(C + y * MITTA)}`;
@@ -72,12 +77,13 @@ function sakara(t, pisteet) {
   return 'M' + pisteet.map(([r, s]) => p(ux * r + vx * s, uy * r + vy * s)).join('L') + 'Z';
 }
 
-function sateet() {
-  const h = LEVEYS / 2;
+// k suurentaa säteiden leveyttä ja pituutta; tyvet pysyvät RAKO:n päässä kehästä.
+function sateet(k = 1) {
+  const h = k * LEVEYS / 2, kantaK = LOVI - h * T30, karki = kantaK + k * KULMA_PITUUS;
   let d = '';
   for (let t = 0; t < 12; t++) d += t % 2
-    ? sakara(t, [[KARKI_S, 0], [KANTA_S, h], [KANTA_S, -h]])
-    : sakara(t, [[KARKI_S, 0], [KANTA_K, h], [LOVI, 0], [KANTA_K, -h]]);
+    ? sakara(t, [[karki, 0], [KANTA_S, h], [KANTA_S, -h]])
+    : sakara(t, [[karki, 0], [kantaK, h], [LOVI, 0], [kantaK, -h]]);
   return d;
 }
 
@@ -94,6 +100,7 @@ function kiilat() {
 }
 
 const TAYTE = kuusikulmio(ULKO) + kuusikulmio(SISA, true) + sateet() + kiilat();
+const tayte = k => kuusikulmio(ULKO) + kuusikulmio(SISA, true) + sateet(k) + kiilat();
 
 // tausta: 'kiekko' (välilehti) tai 'nelio' (koko viewBox; kotivalikko, manifest, esikatselu)
 function svg({ viewBox = '0 0 32 32', tausta = 'kiekko' } = {}) {
@@ -190,7 +197,7 @@ if (require.main === module) (async () => {
 // sivuille upotettu logo.
 function versioi() {
   const crypto = require('crypto');
-  const logo = `<circle cx="16" cy="16" r="16" fill="#000"/><path fill="${MUSTE}" d="${TAYTE}"/>`;
+  const logo = `<path class="tumma" fill="currentColor" d="${TAYTE}"/><path class="vaalea" fill="currentColor" d="${tayte(VAALEA)}"/>`;
   for (const f of SIVUT) {
     const p = path.join(JUURI, f);
     const s = fs.readFileSync(p, 'utf8').replace(/icons\/(tusinasaa(?!-jako)[\w-]*\.(?:svg|png))(?:\?v=[0-9a-f]+)?"/g, (m, nimi) => {
@@ -202,4 +209,4 @@ function versioi() {
   }
 }
 
-module.exports = { svg, KOTI, MASKI, ESIKATSELU };
+module.exports = { svg, KOTI, MASKI, ESIKATSELU, TAYTE, tayte };
