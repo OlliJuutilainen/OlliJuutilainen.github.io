@@ -32,12 +32,13 @@
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-italic.woff2) format('woff2') }
   :root{
     --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --soft:#7f8a93; --dim:#4b545c; --avain:#6a757e; --border:#2a3036;
+    --valinta:#8f9aa4;
     --field:#0f1113; --err:#ff6b6b;
     --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
     color-scheme:dark;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --soft:#68737e; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df;
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --soft:#68737e; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df; --valinta:#515b64;
       --field:#fff; --err:#c34242; color-scheme:light }
   }
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
@@ -137,16 +138,17 @@
   .merkki.rengas{ margin-left:-.01em }
   .merkki:not(.rengas){ width:.6em; height:.6em; vertical-align:.24em }
 
-  /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla. */
+  /* Lämpötilavalinta: valittu täytetty, valitsematon himmeä. Kaksi maailmaa: °C ja RAAKA pystyssä, TK ja AVULIAS kursiivilla.
+     Valitsemattoman teksti --valinta (hiukan --mutedia kirkkaampi) ja tuotenimi --dim täytenä, yhä selvästi himmeämpänä. */
   .pick{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
   .opt{ display:grid; gap:2px; align-content:space-between; justify-items:center; text-align:center; padding:8px 12px 2px; border-radius:8px; cursor:pointer;
-    border:1px solid var(--border); background:none; color:var(--muted) }
+    border:1px solid var(--border); background:none; color:var(--valinta) }
   .opt[aria-checked="true"]{ background:var(--text); border-color:var(--text); color:var(--bg) }
   .opt .sym{ font-size:18px; line-height:1.2; color:inherit }
   .opt .sym i{ font-style:italic }
   .opt .sym .tk{ display:block; font-size:9px; font-style:italic; line-height:1.3; margin-top:3px; text-transform:uppercase; letter-spacing:.09em }
   .opt[data-lampo="raaka"] .sym .tk{ font-style:normal }
-  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--dim); opacity:.64 }
+  .opt .ref{ font-size:11.5px; font-style:normal; letter-spacing:.2em; padding-left:.2em; line-height:1.45; margin-top:4px; text-wrap:balance; color:var(--dim) }
   .opt .ref i{ font-style:italic }
   .opt .ref .tm{ margin-right:.2em }
   .opt[aria-checked="true"] .ref{ color:var(--bg); opacity:.45 }

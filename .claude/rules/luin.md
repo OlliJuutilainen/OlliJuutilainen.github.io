@@ -228,7 +228,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta,
   koska lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot` koreineen (`data-aihe`, pääkori ensin,
   `yleiset` = kaikkiruokainen sivusto tai yleinen tietosanakirja; `data-laji`; `data-kieli`; sanasto sama kuin `LK_EHDOTUS`), jotta haku ja korisuodattimet
-  (näkyvät linkkirivit, mukaan/pois, pois karsii pääkorin tai pääkielen; yhden sivuston kielet *muut kielet*) löytävät sen,
+  (näkyvät linkkirivit, mukaan/pois, pois karsii pääkorin tai pääkielen; yhden sivuston kielet *muut kielet*; rivit aihe, laji ja kieli
+  ladattaessa supistettuina, nimi avaa, supistettuna näkyvät vain valitut korit, käyttäjän päätös, ei muistia) löytävät sen,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
@@ -252,9 +253,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `OR`, `NOT` ja sulut, operaattorit vain isoin kirjaimin; lainausmerkeissä kokonainen sana tai fraasi kuten lukimen haussa.
   `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
   tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
-- **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *laki ja lääketiede* (entinen jämäkori; kielet ja
-  kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
-  *kaikkiruokainen*), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
+- **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *L&L = Laki & Lääketiede* (leikillinen nimi, entinen
+  *laki ja lääketiede* ja jämäkori; kielet ja kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
+  *kaikkiruokainen*), *luonnontieteet* (ei *tiede*: luonnontieteet, matematiikka ja tekniikka; suomen laaja *tiede* kattaisi myös
+  filosofian ja historian), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
   tekijästä tai asiasanasta tusina-radan `hakemisto/korit.js`:ssä). Sivustolistassa fennomaanit on myös sivustoilla, joilla on piirin
   tekstejä (Gutenberg, Wikisource, Projekt Runeberg, Litteraturbanken; korin viimeisenä, joten se ei ole pääkori), koska Runebergilla
   ei ole omaa verkkoeditiota. Sivuston kori periytyy vain merkinnälle, jolla ei ole omia koreja; näiden sivustojen merkinnöillä on

@@ -47,9 +47,32 @@ Sademäärä:
 - Poikkeus: nowcast-rivillä, jolla met.no on kuiva mutta FMI:n saman tunnin symboli on
   heikkoa sadetta, näytetään `~0.0 mm` kuivan selitteen kanssa. Selite pysyy met.no:n; FMI vain täydentää.
 
+Maa jäässä plussalla (käyttäjän päätös):
+
+- Lämpötilan perässä alaindeksinä Tusinasään hiutale (sama kuin AVULIAAN tuotemerkki), kun maan pinta on jäässä
+  mutta lukema plussalla. Molemmissa lämpötilatiloissa, jokaisella rivillä, jolla ehto täyttyy.
+- Ehdot näkyvistä, pyöristetyistä lukemista (`groundFrozenUnderPlus`): maa enintään −1 (siis alle −0,5) ja
+  **RAAKA** (°C) vähintään 1°, **AVULIAS** (TK) vähintään 0. TK:n ja maan eroa ei voi lukemasta arvata, joten
+  näkyvällä nollalla hiutaleen puuttuminen kertoo aina, ettei maa ole jäässä (TK −0,4 näkyy nollana). Älä
+  laske TK:n rajaa ilman lämpötilasta äläkä nosta sitä ykköseen.
+- Maa on FMI Harmonien `GroundTemperature` (pintalämpötila), omana hakunaan, koska edited antaa sille NaN.
+  Hetkellinen kuten lämpötila, joten luetaan rivin omalta aikaleimalta. Jos haku epäonnistuu, hiutaleet vain
+  jäävät pois. `extractSeries` tunnistaa `groundtemperature`n ennen `temperature`a, joka sisältyy siihen.
+- Luku ja hiutale ovat katkeamattomassa `span`issa, koska kapea sarake katkaisisi hiutaleen omalle rivilleen.
+- **Maaruutu** (käyttäjän päätös): hiutaleen maan lämpötila otetaan vain kuivalta maalta, koska rannikon ja järvien
+  sekaruudussa vesi lämmittää arvoa talvella niin, että hiutale jäisi pois. `findMaaruutu` hakee `LandSeaMask`in
+  salon pisteestä ja renkaista 1,25–15 km (8 suuntaa) yhdellä pyynnöllä (`latlon` toistettuna), ja lähin piste,
+  jossa maata on vähintään 95 %, antaa maan lämpötilan. Ilman kuivaa maata (ulkosaari) ei hiutaletta. Muu sää
+  tulee salon pisteestä. Vastaus ei tule pyyntöjärjestyksessä, joten arvot kohdistetaan sijainnista.
+- Valinta talletetaan laitteelle (`tusinasaa.maaruutu`), koska maskihaku hidastaisi joka avausta: avaimena
+  koordinaattien SHA-256-tiivisteen alku, arvona pisteen järjestysnumero, ei koordinaatteja. Epäonnistunutta
+  hakua ei talleteta. **Jos muutat renkaita tai suuntien järjestystä, vaihda tiivisteen etuliite `maaruutu-1`**,
+  muuten talletetut numerot osoittavat vääriin pisteisiin.
+- Käänteistä sulamerkkiä (lukema miinuksella, maa sula) ei tehdä (käyttäjän päätös).
+
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
--merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee. Se on
-nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
+-merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee, ja `[MAA <°C> · <km>]`
+eli rivin maan lämpötilan ja maaruudun etäisyyden salosta (ei etäisyyttä, kun salon oma ruutu on kuiva). Se on nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 
 ## Testaaminen ilman verkkoa
 

@@ -104,7 +104,8 @@
      uudelleen pois (yliviivattu), kolmannen kerran ennalleen. Saman rivin mukaan-korit ovat tai, rivit keskenään ja; pois-kori
      karsii sivuston, jonka pääkori tai pääkieli se on. Luku on näkyvien sivustojen määrä korissa. Korit ovat Luinin sanasto
      (sama kuin luin.html:n LK_EHDOTUS): li-rivin data-aihe (pääkori ensin; yleiset = kaikkiruokainen sivusto tai yleinen
-     tietosanakirja, käyttäjän päätös), data-laji ja data-kieli. */
+     tietosanakirja, käyttäjän päätös), data-laji ja data-kieli. Rivit aihe, laji ja kieli ovat ladattaessa supistettuina
+     (käyttäjän päätös, ei muistia; haku-rivi aina auki): rivin nimi on nappi, ja supistetulla rivillä näkyvät vain valitut korit. */
   .suodatus { margin: 18px 0 0; font-size: .8rem; }
   .suodatus[hidden] { display: none; }
   .s-haku { margin: 0 0 10px; }
@@ -113,6 +114,13 @@
   .s-haku input:focus { outline: none; border-color: var(--harmaa); }
   .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
   .krivi .ots { font-style: italic; color: var(--harmaa); }
+  .krivi button.ots { justify-self: start; display: inline-flex; align-items: baseline; border: 0; padding: 2px 0; min-height: 24px;
+    font-size: inherit; text-align: left; }
+  /* Kulma kuten osumaryhmissä: oikealle, auki alas. */
+  .krivi button.ots::after { content: ''; flex: none; width: .36em; height: .36em; margin: 0 0 .1em .42em;
+    border: solid var(--harmaa); border-width: 0 1.5px 1.5px 0; transform: rotate(-45deg); }
+  .krivi button.ots[aria-expanded="true"]::after { transform: translate(.04em, -.12em) rotate(45deg); }
+  .krivi button.ots[aria-expanded="false"] + .kk button.kori:not([data-tila]) { display: none; }
   .krivi .kk { display: flex; flex-wrap: wrap; gap: 0 .7em; }
   button.kori { border: 0; padding: 2px 0; min-height: 24px; font-size: inherit; color: var(--ruoste); }
   button.kori .n { font-size: .84em; color: var(--harmaa); margin-left: .2em; }
@@ -214,14 +222,14 @@
       <span class="mika">ForumMagnum-foorumit (myös AI Alignment Forum); kirjoitus ilman kommentteja, ponnahdusalaviitteet tavallisina alaviitteinä</span></li>
     <li data-aihe="kulttuuri,uskonto" data-laji="essee" data-kieli="en"><a href="https://emergencemagazine.org/" target="_blank" rel="noopener">Emergence Magazine</a>
       <span class="mika">emergencemagazine.org; esseet ilman nostolainauksia ja kuvatekstejä, osanvaihdot ja tekijätiedot</span></li>
-    <li data-aihe="laki ja lääketiede,tiede,historia" data-laji="hakuteos" data-kieli="en"><a href="https://embryo.asu.edu/" target="_blank" rel="noopener">Embryo Project Encyclopedia</a>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede,luonnontieteet,historia" data-laji="hakuteos" data-kieli="en"><a href="https://embryo.asu.edu/" target="_blank" rel="noopener">Embryo Project Encyclopedia</a>
       <span class="mika">embryo.asu.edu; lääketieteen ja biologian historian hakuteoksen artikkelit lähteineen, tekijät, toimittaja ja päivä</span></li>
-    <li data-aihe="laki ja lääketiede" data-laji="ratkaisu" data-kieli="moni"><a href="https://eur-lex.europa.eu/" target="_blank" rel="noopener">EUR-Lex</a>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="ratkaisu" data-kieli="moni"><a href="https://eur-lex.europa.eu/" target="_blank" rel="noopener">EUR-Lex</a>
       <span class="mika">eur-lex.europa.eu; unionin tuomioistuimen tuomiot ja julkisasiamiesten ratkaisuehdotukset, kappalenumerot, alaviitteet,
         asianumero, päivä ja tuomioistuin</span></li>
     <li data-aihe="kirjallisuus" data-laji="tutkimus,arvio" data-kieli="fr"><a href="https://www.fabula.org/" target="_blank" rel="noopener">Fabula: Acta fabula ja Fabula-LhT</a>
       <span class="mika">fabula.org; kirjallisuustieteen artikkelit ja arviot kappalenumeroineen, alaviitteineen, tiivistelmineen ja kirjallisuuksineen</span></li>
-    <li data-aihe="laki ja lääketiede" data-laji="ratkaisu" data-kieli="en"><a href="https://caselaw.nationalarchives.gov.uk/" target="_blank" rel="noopener">Find Case Law</a>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="ratkaisu" data-kieli="en"><a href="https://caselaw.nationalarchives.gov.uk/" target="_blank" rel="noopener">Find Case Law</a>
       <span class="mika">caselaw.nationalarchives.gov.uk; Yhdistyneen kuningaskunnan sekä Englannin ja Walesin tuomioistuinten ratkaisut,
         kappalenumerot, väliotsikot ja lainaukset, neutraali viite, päivä ja tuomioistuin</span></li>
     <li data-aihe="psykologia" data-laji="tutkimus" data-kieli="en"><a href="https://www.journal-psychoanalysis.eu/" target="_blank" rel="noopener">European Journal of Psychoanalysis</a>
@@ -229,12 +237,12 @@
     <li data-aihe="yleiset" data-laji="blogi" data-kieli="fr,de,en,moni"><a href="https://hypotheses.org/" target="_blank" rel="noopener">Hypotheses</a>
       <span class="mika">hypotheses.org; OpenEditionin tutkijablogit ranskaksi, saksaksi, englanniksi ja muilla kielillä, alaviitteet,
         tekijä, päiväys ja DOI ilman sitaattiehdotusta ja jakonappeja</span></li>
-    <li data-aihe="kulttuuri,tiede,kirjallisuus" data-laji="essee" data-kieli="it"><a href="https://www.iltascabile.com/" target="_blank" rel="noopener">Il Tascabile</a>
+    <li data-aihe="kulttuuri,luonnontieteet,kirjallisuus" data-laji="essee" data-kieli="it"><a href="https://www.iltascabile.com/" target="_blank" rel="noopener">Il Tascabile</a>
       <span class="mika">iltascabile.com; esseet ja haastattelut ilman kuvia ja nostolainauksia</span></li>
     <li data-aihe="yleiset" data-laji="alkuteksti" data-kieli="moni"><a href="https://archive.org/" target="_blank" rel="noopener">Internet Archive: tekstiversiot</a>
       <span class="mika">archive.org, skannattujen kirjojen OCR-teksti (Full text, djvu.txt); kappaleet koottuina, toistuvat
         ylä- ja alatunnisteet ja rivinvaihtojen tavutukset pois</span></li>
-    <li data-aihe="tiedonhallinta,psykologia,tiede" data-laji="essee" data-kieli="en"><a href="https://gwern.net/" target="_blank" rel="noopener">Gwern.net</a>
+    <li data-aihe="tiedonhallinta,psykologia,luonnontieteet" data-laji="essee" data-kieli="en"><a href="https://gwern.net/" target="_blank" rel="noopener">Gwern.net</a>
       <span class="mika">gwern.net; esseet reunahuomautuksineen alaviitteinä, ilman ponnahduksia, tunnisteita ja koostettuja linkkiluetteloita</span></li>
     <li data-aihe="filosofia" data-laji="hakuteos" data-kieli="en"><a href="https://iep.utm.edu/" target="_blank" rel="noopener">Internet Encyclopedia of Philosophy</a>
       <span class="mika">iep.utm.edu; artikkelit tekijöineen ja kirjallisuusluetteloineen</span></li>
@@ -302,11 +310,11 @@
     <li data-aihe="uskonto" data-laji="alkuteksti" data-kieli="la"><a href="https://www.vatican.va/archive/bible/nova_vulgata/documents/nova-vulgata_index_lt.html" target="_blank" rel="noopener">Nova Vulgata</a>
       <span class="mika">vatican.va; Raamatun kriittinen latinannos kirja kerrallaan, luvut otsikkoina, jaenumerot yläindekseinä, kappaleet
         ja säkeet kuten lähteessä</span></li>
-    <li data-aihe="tiede,historia" data-laji="kirja" data-kieli="en"><a href="https://edition-open-sources.org/" target="_blank" rel="noopener">Edition Open Sources</a> ja
+    <li data-aihe="luonnontieteet,historia" data-laji="kirja" data-kieli="en"><a href="https://edition-open-sources.org/" target="_blank" rel="noopener">Edition Open Sources</a> ja
       <a href="https://www.mprl-series.mpg.de/" target="_blank" rel="noopener">Max Planck Research Library</a>
       <span class="mika">MPIWG:n tieteenhistorian kirjat (myös edition-open-access.de); luvun sivulta koko kirja alaviitteineen ja
         kirjallisuuksineen, kokoomateoksessa lukujen tekijät</span></li>
-    <li data-aihe="tiede,uskonto,historia" data-laji="kirjeet" data-kieli="en,la"><a href="https://www.newtonproject.ox.ac.uk/" target="_blank" rel="noopener">The Newton Project</a>
+    <li data-aihe="luonnontieteet,uskonto,historia" data-laji="kirjeet" data-kieli="en,la"><a href="https://www.newtonproject.ox.ac.uk/" target="_blank" rel="noopener">The Newton Project</a>
       <span class="mika">newtonproject.ox.ac.uk; Newtonin käsikirjoitukset ja kirjeet transkriptioina, viitteet alaviitteinä,
         foliot yläindekseinä</span></li>
     <li data-aihe="antiikki,kirjallisuus" data-laji="alkuteksti" data-kieli="la"><a href="https://www.thelatinlibrary.com/" target="_blank" rel="noopener">The Latin Library</a>
@@ -333,19 +341,19 @@
     <li data-aihe="yleiset" data-laji="essee" data-kieli="en"><a href="https://theconversation.com/" target="_blank" rel="noopener">The Conversation</a>
       <span class="mika">theconversation.com; tutkijoiden yleistajuiset artikkelit kaikista laitoksista tekijöineen, päiväyksineen ja
         väliotsikkoineen ilman kuvia</span></li>
-    <li data-aihe="laki ja lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a>
       <span class="mika">pubmed.ncbi.nlm.nih.gov; lääketieteen artikkelien tiivistelmät tekijöineen ja lehden tietoineen, koko tekstin
         osoite (PubMed Central, DOI) tekstinä</span></li>
-    <li data-aihe="laki ja lääketiede,tiede" data-laji="tutkimus" data-kieli="en"><a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed Central</a>
+    <li data-aihe="L&amp;L = Laki &amp; Lääketiede,luonnontieteet" data-laji="tutkimus" data-kieli="en"><a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed Central</a>
       <span class="mika">pmc.ncbi.nlm.nih.gov; avoimet lääketieteen ja lääketieteen historian artikkelit tiivistelmineen, alaviitteineen,
         kirjallisuusluetteloineen ja taulukoineen</span></li>
-    <li data-aihe="yleiset,tiede" data-laji="tutkimus" data-kieli="en"><a href="https://link.springer.com/" target="_blank" rel="noopener">Springer Nature -lehdet</a>
+    <li data-aihe="yleiset,luonnontieteet" data-laji="tutkimus" data-kieli="en"><a href="https://link.springer.com/" target="_blank" rel="noopener">Springer Nature -lehdet</a>
       <span class="mika">link.springer.com ja nature.com;
         artikkelit tiivistelmineen, taulukoineen, numeroviitteet alaviitteinä ja kirjallisuusluettelo</span></li>
-    <li data-aihe="tiede,laki ja lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://journals.plos.org/" target="_blank" rel="noopener">PLOS-lehdet</a>
+    <li data-aihe="luonnontieteet,L&amp;L = Laki &amp; Lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://journals.plos.org/" target="_blank" rel="noopener">PLOS-lehdet</a>
       <span class="mika">journals.plos.org (PLOS ONE ym.); artikkelit tiivistelmineen, taulukot tekstinä,
         numeroviitteet alaviitteinä ja kirjallisuusluettelo</span></li>
-    <li data-aihe="tiede,psykologia,laki ja lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://www.frontiersin.org/" target="_blank" rel="noopener">Frontiers-lehdet</a>
+    <li data-aihe="luonnontieteet,psykologia,L&amp;L = Laki &amp; Lääketiede" data-laji="tutkimus" data-kieli="en"><a href="https://www.frontiersin.org/" target="_blank" rel="noopener">Frontiers-lehdet</a>
       <span class="mika">frontiersin.org; artikkelit tiivistelmineen,
         taulukoineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
     <li data-aihe="yhteiskunta,kulttuuri" data-laji="essee" data-kieli="fr"><a href="https://www.spip.net/" target="_blank" rel="noopener">SPIP-lehdet</a>
@@ -412,7 +420,7 @@
     <li data-aihe="kirjallisuus" data-laji="essee" data-kieli="ru"><a href="https://magazines.gorky.media/" target="_blank" rel="noopener">Журнальный зал</a>
       <span class="mika">magazines.gorky.media; venäläisten kirjallisuuslehtien arkisto (Новый мир, Знамя, Новый Журнал …), tekijä,
         lehti ja numero, loppuviitteet alaviitteinä</span></li>
-    <li data-aihe="tiede,tiedonhallinta,psykologia" data-laji="blogi" data-kieli="en"><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
+    <li data-aihe="luonnontieteet,tiedonhallinta,psykologia" data-laji="blogi" data-kieli="en"><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
       <span class="mika">waitbutwhy.com</span></li>
     <li data-aihe="yleiset" data-laji="hakuteos" data-kieli="fi,en"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
       <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a>
@@ -556,7 +564,8 @@
       return '<button type="button" class="kori" data-f="kentta" data-v="' + k + '" aria-pressed="false">' + k + '<span class="n"></span></button>';
     }).join('') + '</span></div>' +
     FASETIT.map(function (f) {
-      return '<div class="krivi"><span class="ots">' + f + '</span><span class="kk">' + korit[f].map(function (a) {
+      return '<div class="krivi"><button type="button" class="ots" aria-expanded="false" aria-controls="kk-' + f + '">' + f + '</button>' +
+        '<span class="kk" id="kk-' + f + '">' + korit[f].map(function (a) {
         return '<button type="button" class="kori" data-f="' + f + '" data-v="' + esc(a) + '" aria-pressed="false">' + esc(a) + '<span class="n"></span></button>';
       }).join('') + '</span></div>';
     }).join('') +
@@ -689,6 +698,7 @@
   el.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    if (b.classList.contains('ots')) { b.setAttribute('aria-expanded', b.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); return; }
     if (b.id === 's-tyhjenna') { tila = { aihe: {}, laji: {}, kieli: {}, kentta: {} }; haku = ''; document.getElementById('s-haku').value = ''; }
     else if (b.classList.contains('r-otsake')) { avaa(b.getAttribute('data-sivu'), b.getAttribute('aria-expanded') !== 'true'); return; }
     else if (b.classList.contains('r-lisaa')) { avaa(b.getAttribute('data-sivu'), true, 25); return; }
