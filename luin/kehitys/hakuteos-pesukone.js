@@ -234,8 +234,10 @@ const SARJAT = {
     'EN/TXT/HTML/?uri=CELEX:62021CJ0252', 'EN/TXT/HTML/?uri=CELEX:62021CC0252', 'FI/TXT/HTML/?uri=CELEX:62023CJ0021']
     .map(p => 'https://eur-lex.europa.eu/legal-content/' + p),
   // Find Case Law (18.11.2026, pahvin 1B): UKSC (puhujarivi, alakohdat, lainaukset), Rwanda-tuomio (kaksi puhujaa, numerottomat
-  // lainaukset), EWCA Civ (kursiiviset ja alleviivatut väliotsikot), EWHC (Ch) (I:-otsikot, alakohdat).
-  fcl: ['uksc/2024/12', 'uksc/2023/42', 'ewca/civ/2022/379', 'ewhc/ch/2024/1'].map(p => 'https://caselaw.nationalarchives.gov.uk/' + p),
+  // lainaukset), EWCA Civ (kursiiviset ja alleviivatut väliotsikot), EWHC (Ch) (I:-otsikot, alakohdat), EWHC (Admin) (päiväys
+  // numeroina, puhujarivi ja ensimmäinen otsikko otsakkeessa, sivunvaihdon katkaisemat lainauksen kappaleet). Sivun skripti
+  // kirjoittaa kappalenumerot linkeiksi (Paragraph, Copy link to this paragraph), joten aja myös --elava: tulosten pitää olla samat.
+  fcl: ['uksc/2024/12', 'uksc/2023/42', 'ewca/civ/2022/379', 'ewhc/ch/2024/1', 'ewhc/admin/2026/3056'].map(p => 'https://caselaw.nationalarchives.gov.uk/' + p),
   // PubMed Central (18.11.2026, pahvin 2): Medical Historyn kaksi artikkelia (alaviitteet, tiivistelmä, avainsanat) ja kliininen
   // artikkeli (kirjallisuusluettelo, taulukot). PMC antaa kontille reCAPTCHA-sivun noin neljännestä peräkkäisestä hausta alkaen.
   pmc: ['PMC12041326', 'PMC11949638', 'PMC6334128'].map(p => 'https://pmc.ncbi.nlm.nih.gov/articles/' + p + '/'),

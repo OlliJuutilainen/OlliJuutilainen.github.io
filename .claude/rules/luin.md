@@ -140,6 +140,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   EUR-Lex-sovite (opas 7.5): TXT/HTML-sivun XHTML jäsentyy text/html-tyyppinä rikki (tyhjä `<a id>` jää auki ja kopioituu),
   joten kääreiden purku alussa on tarpeen. EUR-Lex haastaa toistuvat haut (AWS WAF, myös curl): pesukoneen välimuistin voi täyttää
   Cellarista (`publications.europa.eu/resource/celex/<CELEX>`, sama asiakirja). Leikkeen etukentässä on avain `laji` (EUR-Lex, Find Case Law).
+  Find Case Lawin skripti kirjoittaa kappalenumerot linkeiksi (piiloteksti, työkaluvihje, numeron korostus katoaa): aja `--sarja fcl` myös `--elava`lla, tulosten pitää olla samat.
   PsychOpen-sovite (`psychopen()`) on lähetysjärjestyksessä `ojs()`:n edellä, koska PsychOpen on OJS ja `ojs()` tekisi siitä tiivistelmäleikkeen.
   OJS:n metatiedot luetaan `ojsArvo()`lla (Filosofija. Sociologija koodaa entiteetit kahdesti); tyhjä tiivistelmä ei ole tiivistelmä.
   GRETIL-sovite (opas 7.5): kaksiosaisen säenumeron ensimmäinen osa on luku (otsikko lähteen nimirivistä tai kolofonista, muuten
