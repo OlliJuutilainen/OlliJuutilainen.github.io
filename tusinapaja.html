@@ -874,10 +874,87 @@ async function fetchForecastFrom(lat, lon, sourceKey){
 
 /* --------- Maan pinnan lämpötila (Harmonie) --------- */
 /* Vain hiutaletta varten: jos haku epäonnistuu, säätiedotus näkyy ilman hiutaleita. Hetkellinen
-   arvo kuten lämpötila, joten se luetaan rivin omalta aikaleimalta. */
+   arvo kuten lämpötila, joten se luetaan rivin omalta aikaleimalta.
+   Maaruutu (käyttäjän päätös): hiutaleen maan lämpötila otetaan vain kuivalta maalta. Rannikon ja järvien
+   sekaruudussa Harmonien maan lämpötilassa on mukana vettä, joka talvella lämmittää arvoa niin, että hiutale
+   jäisi pois. Siksi haetaan ensin maan osuus (LandSeaMask) salon pisteestä ja renkaista 1,25–15 km:n päästä
+   (kahdeksan suuntaa, pohjoisesta myötäpäivään), ja maan lämpötila luetaan lähimmästä pisteestä, jossa maata on
+   vähintään 95 %. Jos sellaista ei ole (ulkosaari), hiutaletta ei näytetä. Sää muuten tulee salon pisteestä.
+   Maski ei muutu, joten valinta talletetaan laitteelle, ettei maskihaku hidasta joka avausta. Talteen menee vain
+   pisteen järjestysnumero, ja avain on koordinaattien tiiviste: koordinaatteja ei tallenneta selväkielisinä. */
+const MAARUUTU_RENKAAT_KM = [1.25, 2.5, 3.75, 5, 7.5, 10, 15];
+const MAARUUTU_KUIVA = 0.95;
+let MAARUUTU = null;
+const coordKey = (lat, lon) => `${Number(lat).toFixed(4)},${Number(lon).toFixed(4)}`;
+function maaruutuCandidates(lat, lon){
+  const round4 = v => Math.round(v * 1e4) / 1e4;
+  const out = [{ km: 0, lat: round4(lat), lon: round4(lon) }];
+  const kmPerLon = 111.32 * Math.cos(lat * Math.PI / 180);
+  for (const km of MAARUUTU_RENKAAT_KM){
+    for (let k = 0; k < 8; k++){
+      const a = (90 - 45 * k) * Math.PI / 180;
+      out.push({ km, lat: round4(lat + km * Math.sin(a) / 111.32), lon: round4(lon + km * Math.cos(a) / kmPerLon) });
+    }
+  }
+  return out;
+}
+const MAARUUTU_STORAGE_KEY = 'tusinasaa.maaruutu';
+async function maaruutuStoreKey(lat, lon){
+  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`maaruutu-1:${coordKey(lat, lon)}`)));
+  return Array.from(bytes.slice(0, 8), b => b.toString(16).padStart(2, '0')).join('');
+}
+async function findMaaruutu(lat, lon){
+  const candidates = maaruutuCandidates(lat, lon);
+  let storeKey = null, stored = {};
+  try{
+    storeKey = await maaruutuStoreKey(lat, lon);
+    stored = JSON.parse(localStorage.getItem(MAARUUTU_STORAGE_KEY) || '{}') || {};
+  }catch{}
+  if (storeKey && Number.isInteger(stored[storeKey])){
+    return stored[storeKey] < 0 ? null : (candidates[stored[storeKey]] || null);
+  }
+  const chosen = await measureMaaruutu(candidates);
+  if (storeKey && chosen !== undefined){
+    try{
+      /* Enintään 24 salkoa talteen; vanhin pois ensin. */
+      const keys = Object.keys(stored).filter(k => k !== storeKey).slice(-23);
+      const next = {};
+      for (const k of keys) next[k] = stored[k];
+      next[storeKey] = chosen ? candidates.indexOf(chosen) : -1;
+      localStorage.setItem(MAARUUTU_STORAGE_KEY, JSON.stringify(next));
+    }catch{}
+  }
+  return chosen || null;
+}
+/* Palauttaa lähimmän kuivan pisteen, null jos sellaista ei ole, tai undefined, jos haku epäonnistui
+   (epäonnistumista ei talleteta). */
+async function measureMaaruutu(candidates){
+  /* Maski ei riipu ajasta: yksi tuleva tasatunti riittää. */
+  const t = new Date(Math.floor(Date.now() / 3600000) * 3600000 + 3600000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const url = 'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature' +
+    '&storedquery_id=fmi::forecast::harmonie::surface::point::simple' +
+    candidates.map(c => `&latlon=${c.lat},${c.lon}`).join('') +
+    `&parameters=LandSeaMask&starttime=${t}&endtime=${t}`;
+  const res = await fetch(url, { cache:'no-store' });
+  if (!res.ok) return undefined;
+  const x = parseXML(await res.text());
+  /* Vastaus ei tule pyyntöjärjestyksessä, joten arvot kohdistetaan sijainnista. */
+  const mask = new Map();
+  for (const el of x.getElementsByTagNameNS('http://xml.fmi.fi/schema/wfs/2.0', 'BsWfsElement')){
+    const pos = el.getElementsByTagNameNS('http://www.opengis.net/gml/3.2', 'pos')[0]?.textContent.trim().split(/\s+/);
+    const val = Number(el.getElementsByTagNameNS('http://xml.fmi.fi/schema/wfs/2.0', 'ParameterValue')[0]?.textContent);
+    if (pos?.length === 2 && Number.isFinite(val)) mask.set(coordKey(pos[0], pos[1]), val);
+  }
+  /* Tyhjä tai vajaa vastaus ei kerro, ettei kuivaa maata ole. */
+  if (candidates.some(c => !mask.has(coordKey(c.lat, c.lon)))) return undefined;
+  return candidates.find(c => mask.get(coordKey(c.lat, c.lon)) >= MAARUUTU_KUIVA) || null;
+}
 async function fetchGroundTemperature(lat, lon){
   try{
-    const res = await fetch(buildWfsForecast(lat, lon, 'maa'), { cache:'no-store' });
+    const point = await findMaaruutu(lat, lon);
+    if (!point) return null;
+    MAARUUTU = point;
+    const res = await fetch(buildWfsForecast(point.lat, point.lon, 'maa'), { cache:'no-store' });
     if (!res.ok) return null;
     return extractSeries(parseXML(await res.text())).groundTemperature || null;
   }catch(err){
@@ -2139,7 +2216,7 @@ function renderRow(row, state){
   });
   const rainTagHtml = (rain.text === '—') ? '' : tag(rainTag || '');
   const rainBadgeHtml = rainBadge ? ` ${rainBadge}` : '';
-  const groundDbg = Number.isFinite(groundTemp) ? `[MAA ${groundTemp}]` : '';
+  const groundDbg = Number.isFinite(groundTemp) ? `[MAA ${groundTemp}${MAARUUTU?.km ? ` · ${MAARUUTU.km} km` : ''}]` : '';
   const twTag = DBG && (twDbg || groundDbg) ? ` <span class="soft" style="font-size:12px">${[twDbg, groundDbg].filter(Boolean).join(' ')}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
