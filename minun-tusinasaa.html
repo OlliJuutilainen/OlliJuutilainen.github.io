@@ -584,7 +584,7 @@ function renderPanel(){
   $('clear').innerHTML = state.confirmClear
     ? `Kaadetaanko kaikki salot? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
     : state.confirmLeave
-    ? `Jätetäänkö paalupaikka? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">JÄTETÄÄN</button> · <button class="link" type="button" id="clearNo">peru</button>` +
+    ? `Jätetäänkö paalupaikka? Salot jäävät pystyyn, vain tämä laite unohtaa paneelin. <button class="link danger" type="button" id="leaveYes">JÄTÄ</button> · <button class="link" type="button" id="clearNo">peru</button>` +
       `<span class="clearNote">${state.lause ? 'Takaisin pääset salkosutkautuksella tai hallintalinkillä.'
         : 'Takaisin pääset vain hallintalinkillä. Jos sitä ei ole tallessa, kiinnitä ensin salkosutkautus.'}</span>`
     : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]` +
