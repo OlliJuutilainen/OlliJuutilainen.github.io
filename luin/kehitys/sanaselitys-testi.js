@@ -3,7 +3,8 @@
 // Wikisanakirja korvataan tekosanastolla (page.route): REST-määritelmät ja MediaWikin prefixsearch ja search luokkineen.
 // Tekopalvelimen alkuhaku taittaa kirjainkoon ja diakriitit kuten oikea haku luultavasti; --ei-taittoa ajaa saman ilman
 // taittoa (vain pienet kirjaimet), jolloin majuminuluku nojaa koko tekstin hakuun. Tarkistaa kielikohtaiset ketjut,
-// valitsimen, huomautukset, raksin, asetusten riippumattomuuden ja käännöksen oletuksen. Kuvat kuvakansioon, jos annettu.
+// valitsimen, huomautukset, raksin, asetusten riippumattomuuden ja käännöksen oletuksen sekä sanaselityssivun kielivalikon
+// (kielirajaus). Kuvat kuvakansioon, jos annettu.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +22,8 @@ const palvelin = http.createServer((q, r) => {
 });
 
 // Tekosanasto: otsikko → { kieli: [sanaluokka, määritelmä tai { muoto: 'perusmuoto' }], ... }, pop = suosituimmuus.
-const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit', af: 'Afrikaans', da: 'Danish', mul: 'Translingual' };
+const NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', sa: 'Sanskrit', af: 'Afrikaans', da: 'Danish',
+  es: 'Spanish', it: 'Italian', mul: 'Translingual' };
 const S = {
   kello: { pop: 90, fi: ['Noun', 'clock'] },
   kelloon: { pop: 5, fi: ['Noun', { muoto: 'illative singular of', k: 'kello' }] },
@@ -78,7 +80,10 @@ const S = {
   liike: { pop: 65, fi: ['Noun', 'movement'] },
   liikkeenjohto: { pop: 25, fi: ['Noun', 'management'] },
   // Vain pitkiä ehdokkaita: pituusehto ei saa estää tulosta (varalla ensimmäisen napsun pitkät).
-  kuvaannollinen: { pop: 30, fi: ['Adjective', 'figurative'] }
+  kuvaannollinen: { pop: 30, fi: ['Adjective', 'figurative'] },
+  // Kielirajaus: espanja ja italia (sanaselityssivun kielivalikko), määritelmän linkit kielen kanssa ja ilman.
+  casa: { pop: 70, es: ['Noun', 'house'], it: ['Noun', 'house, home'], la: ['Noun', 'hut, cottage'] },
+  quidditas: { pop: 10, la: ['Noun', 'whatness; compare <a rel="mw:WikiLink" href="./est#Latin" title="est">est</a> and <a rel="mw:WikiLink" href="./gut" title="gut">gut</a>'] }
 };
 const META = new Set(['pop', 'taulu']);
 // Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
@@ -840,6 +845,94 @@ palvelin.listen(0, async () => {
   await odotaSivu(); await p.waitForTimeout(150);
   r = await sivuTila();
   tulos('sivu: + on väli osoitteessa (#kova+onni)', r.kentta === 'kova onni' && r.ots === 'kova onni', JSON.stringify(r));
+  // Kielivalikko (kielirajaus): oletus kaikki kielet; valittu kieli rajaa ketjun ja selityksen siihen, ei löytynyt -viesti
+  // nimeää kielen, kreikka latinalaisin kirjaimin haetaan kreikkalaisin, ja vaihto hakee näkyvän selityksen uudelleen.
+  await p.goto(BASE + 'luin/sanaselitys.html');
+  e = await p.evaluate(() => ({ arvo: document.querySelector('#kieli').value, teksti: document.querySelector('#kieli').selectedOptions[0].textContent,
+    vaihtoehdot: [...document.querySelectorAll('#kieli option')].map(o => o.textContent) }));
+  tulos('kielivalikko: oletus kaikki kielet, kielet kuten lukemiston kielirivissä aakkosin', e.arvo === '' && e.teksti === 'kaikki kielet' &&
+    e.vaihtoehdot.join('|') === 'kaikki kielet|englanti|espanja|italia|kreikka|latina|liettua|ranska|ruotsi|saksa|suomi|tanska', JSON.stringify(e));
+  const kieleksi = v => p.selectOption('#kieli', { label: v });
+  r = await sivu('edes');
+  tulos('kielivalikko: kaikki kielet → edes suomeksi ja latinaksi', r.kielet.join('|') === 'Finnish · Adverb|Latin · Verb', JSON.stringify(r));
+  pyynnot.length = 0;
+  await kieleksi('latina');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('kielivalikko: vaihto hakee näkyvän selityksen uudelleen (edes → vain latina), kenttä ja osoite ennallaan',
+    r.kielet.join('|') === 'Latin · Verb' && r.kentta === 'edes' && r.osoite === '#edes' && !r.huom.length, JSON.stringify(r));
+  r = await sivu('fi: edes');
+  tulos('kielivalikko: rajauksen ulkopuolinen kielikoodi ei tuo kieltä (latina, fi: edes → latina)', r.ots === 'edes' && r.kielet.join('|') === 'Latin · Verb', JSON.stringify(r));
+  r = await sivu('est');
+  tulos('kielivalikko: latina, est → vain latina (ei ranskaa)', r.kielet.join('|') === 'Latin · Verb', JSON.stringify(r));
+  r = await sivu('quidditas');
+  await p.click('#selitys .sk-sana[data-sana="est"]');
+  await p.waitForFunction(() => document.querySelector('#selitys .sk-o').textContent === 'est' && !/Haetaan/.test(document.querySelector('#selitys .sk-runko').textContent));
+  r = await sivuTila();
+  tulos('kielivalikko: määritelmän linkki rajauksen kieleen (est#Latin) pysyy rajauksessa', r.kielet.join('|') === 'Latin · Verb', JSON.stringify(r));
+  await sivu('quidditas');
+  await p.click('#selitys .sk-sana[data-sana="gut"]');
+  await p.waitForFunction(() => document.querySelector('#selitys .sk-o').textContent === 'gut' && !/Haetaan/.test(document.querySelector('#selitys .sk-runko').textContent));
+  r = await sivuTila();
+  tulos('kielivalikko: kielettömästä linkistä (gut) kaikki kielet', r.kielet.length === 2, JSON.stringify(r));
+  await kieleksi('suomi');
+  r = await sivu('as');
+  tulos('kielivalikko: suomi, as → vain suomi (ei Translingualia eikä englantia)', r.kielet.join('|') === 'Finnish · Noun', JSON.stringify(r));
+  r = await sivu('käsitteen');
+  tulos('kielivalikko: suomi, käsitteen → käsite taulukkohaulla', r.ots === 'käsite' && r.muoto === '(”käsitteen”)', JSON.stringify(r));
+  r = await sivu('historiaa');
+  tulos('kielivalikko: suomi, historiaa → historia vain suomeksi', r.ots === 'historia' && r.kielet.join('|') === 'Finnish · Noun', JSON.stringify(r));
+  await kieleksi('englanti');
+  r = await sivu('is');
+  tulos('kielivalikko: englanti, is → vain englanti', r.kielet.join('|') === 'English · Verb', JSON.stringify(r));
+  r = await sivu('Kantin');
+  tulos('kielivalikko: englanti, Kantin → Kant vain englanniksi (erisnimen perusmuoto rajauksessa)', r.ots === 'Kant' && r.kielet.join('|') === 'English · Proper noun', JSON.stringify(r));
+  r = await sivu('IV');
+  tulos('kielivalikko: englanti, IV → vain englanti (symbolinkaan Translingual ei tule)', r.kielet.join('|') === 'English · Noun', JSON.stringify(r));
+  await kieleksi('tanska');
+  r = await sivu('km');
+  tulos('kielivalikko: tanska, km → vain tanska (ei Translingualia)', r.kielet.join('|') === 'Danish · Noun', JSON.stringify(r));
+  await kieleksi('italia');
+  r = await sivu('casa');
+  tulos('kielivalikko: italia, casa → vain italia', r.kielet.join('|') === 'Italian · Noun', JSON.stringify(r));
+  await kieleksi('kaikki kielet');
+  r = await sivu('es: casa');
+  tulos('kielikoodi es: kelpaa (es: casa → espanja kuten espanjan leipätekstissä)', r.ots === 'casa' && r.kielet.join('|') === 'Spanish · Noun' && r.kentta === 'es: casa', JSON.stringify(r));
+  r = await sivu('logos');
+  tulos('kielivalikko: kaikki kielet, logos → englannin logos', r.ots === 'logos' && r.kielet.join('|') === 'English · Noun', JSON.stringify(r));
+  await kieleksi('kreikka');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('kielivalikko: kreikka, logos latinalaisin kirjaimin → λόγος kreikkalaisin kirjaimin varoituksin',
+    r.ots === 'λόγος' && /Ancient Greek/.test(r.kielet.join()) && /^Heikoilla jäillä\. Haettu logos kreikkalaisin kirjaimin\.$/.test(r.varo.join()), JSON.stringify(r));
+  r = await sivu('ψυχη');
+  tulos('kielivalikko: kreikka, ψυχη → ψυχή', r.ots === 'ψυχή' && !r.varo.length, JSON.stringify(r));
+  await kieleksi('ranska');
+  r = await sivu('kello');
+  tulos('kielivalikko: ei löytynyt -viesti nimeää kielen (Ranskan sanaa …)', /^Ranskan sanaa ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto), JSON.stringify(r));
+  r = await sivu('kova onni');
+  tulos('kielivalikko: ilmaus (Ranskan ilmausta …)', /^Ranskan ilmausta ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto), JSON.stringify(r));
+  await kuvaSivu('sivu-rajaus');
+  await p.click('#selitys .sk-sulje');
+  pyynnot.length = 0;
+  await p.fill('#sana', 'edes');
+  await kieleksi('latina');
+  await p.waitForTimeout(300);
+  r = await sivuTila();
+  tulos('kielivalikko: vaihto ilman näkyvää selitystä ei hae', !r.nakyy && r.vihje && !pyynnot.length, JSON.stringify(r));
+  await p.goto('about:blank');
+  await p.goto(BASE + 'luin/sanaselitys.html#edes');
+  await odotaSivu(); await p.waitForTimeout(150);
+  r = await sivuTila();
+  tulos('kielivalikko: uusi lataus palaa kaikkiin kieliin', await p.evaluate(() => document.querySelector('#kieli').value === '') && r.kielet.length === 2, JSON.stringify(r));
+  // Rivin mitat: valikko kentän alla vasemmassa laidassa, napautusalue vähintään 36 px, nuoli tekstin oikealla.
+  e = await p.evaluate(() => {
+    const s = document.querySelector('#kieli').getBoundingClientRect(), f = document.querySelector('#haku').getBoundingClientRect(),
+      l = document.querySelector('.rajaus label').getBoundingClientRect();
+    return { vasen: l.left - f.left, korkeus: s.height, alla: s.top >= f.bottom, vari: getComputedStyle(document.querySelector('#kieli')).color };
+  });
+  tulos('kielivalikko: kentän alla vasemmassa laidassa, korkeus ≥ 36 px, ruoste', Math.abs(e.vasen) < .5 && e.korkeus >= 36 && e.alla && e.vari === 'rgb(140, 84, 38)', JSON.stringify(e));
+
   // Kapea kosketusruutu: ei vaakavieritystä, otsikko ja raksi eivät mene päällekkäin, näppäimistö pois haun jälkeen.
   const mctx = await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, deviceScaleFactor: KUVAT ? 2 : 1 });
   const mp = await mctx.newPage();

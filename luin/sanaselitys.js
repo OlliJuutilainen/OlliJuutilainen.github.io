@@ -18,8 +18,11 @@
     SK_API = 'https://en.wiktionary.org/w/api.php?action=query&format=json&formatversion=2&origin=*',
     skVarasto = {}, skHakuVarasto = {}, skVuoro = 0;
   // Ketjujen kielet: Wikisanakirjan kielikoodi ja nimi (luokat Category:Finnish lemmas ja Category:Finnish non-lemma forms).
-  var SK_NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', lt: 'Lithuanian' };
-  var SK_ELAT = { fi: 'suomesta', en: 'englannista', la: 'latinasta', grc: 'muinaiskreikasta', el: 'nykykreikasta', de: 'saksasta', fr: 'ranskasta', sv: 'ruotsista', lt: 'liettuasta' };
+  // Espanja, italia ja tanska vain sanaselityssivun kielivalikolle ja kielikoodeille (lukimen KIELET ei tunnista niitä).
+  var SK_NIMI = { fi: 'Finnish', en: 'English', la: 'Latin', grc: 'Ancient Greek', el: 'Greek', de: 'German', fr: 'French', sv: 'Swedish', lt: 'Lithuanian',
+    es: 'Spanish', it: 'Italian', da: 'Danish' };
+  var SK_ELAT = { fi: 'suomesta', en: 'englannista', la: 'latinasta', grc: 'muinaiskreikasta', el: 'nykykreikasta', de: 'saksasta', fr: 'ranskasta', sv: 'ruotsista', lt: 'liettuasta',
+    es: 'espanjasta', it: 'italiasta', da: 'tanskasta' };
   var SK_LAHDE = '<span class="sk-lahde">Wiktionary, CC BY-SA</span>';
   function haeSana(sana) {
     if (skVarasto.hasOwnProperty(sana)) return Promise.resolve(skVarasto[sana]);
@@ -206,6 +209,22 @@
     if (monta && !K.some(function (g) { return g.some(function (a) { return a.t === 'nf' && a.k === '*'; }); })) K.push([A('nf', '*')]);
     return K;
   }
+  // Kielirajaus (sanaselityssivun kielivalikko): ketjusta vain kielet R. Kaikkien kielten askel rajautuu R:ään, kielikohtaisesta
+  // jää R:n osa, ja näytettävät kielet (r) ovat aina R:n sisällä (myös Translingual pois); tyhjiksi jäävät ja jo kertaalleen
+  // ketjussa olleet askeleet pois. kreikaksi: kreikkaan rajattu haku latinalaisin kirjaimin, joten ketju on vain kreikkalaisin
+  // kirjaimin haku kuten latinan ketjun lopussa (logos → λόγος).
+  function skRajaa(K, R, kreikaksi) {
+    if (kreikaksi) K = [[{ t: 'lg-t', k: R, v: 1, r: null }], [{ t: 'lg-f', k: R, v: 1, r: null }], [{ t: 'lg-nf', k: R, v: 2, r: null }]];
+    var sis = function (x) { return R.indexOf(x) >= 0; }, nahty = {};
+    return K.map(function (g) {
+      return g.map(function (a) {
+        var k = a.k === '*' ? R.slice() : a.k.filter(sis), r = a.r ? a.r.filter(sis) : R.slice(), av = a.t + '|' + k.join() + '|' + r.join();
+        if (!k.length || nahty[av]) return null;
+        nahty[av] = 1;
+        return { t: a.t, k: k, v: a.v, r: r };
+      }).filter(Boolean);
+    }).filter(function (g) { return g.length; });
+  }
 
   function skOnKieli(j, kielet) { return !!j && Object.keys(j).some(function (k) { return Array.isArray(j[k]) && (kielet === '*' || kielet.indexOf(k) >= 0); }); }
   // Taivutusmuodon perusmuoto: muotomääritelmän (form-of-definition) linkki. Tyhjä, jos jokin sallitun kielen määritelmä on
@@ -306,16 +325,16 @@
   // { tapa, vaihdot: [...] } (arvaukset: enintään neljä vaihtoehtoa) tai null.
   function skAskel(a, haku, y) {
     var t = a.t, k = a.k, monta = sanaLkm(haku) > 1;
-    if (t === 'gl') return skTasan(skLatinaksi(haku), '*', 'gl');
-    if (t.indexOf('lg-') === 0) return skAskel({ t: t.slice(3), k: k }, skKreikaksi(haku), y);
+    if (t === 'gl') return skTasan(skLatinaksi(haku), k, 'gl', a.r);
+    if (t.indexOf('lg-') === 0) return skAskel({ t: t.slice(3), k: k, r: a.r }, skKreikaksi(haku), y);
     if (t === 't' || t === 'tv') return skTasan(t === 't' ? skMuodot(haku) : skSaksaMuodot(haku), k, t, a.r);
     if (t === 'ne') {
-      // Erisnimi keskellä virkettä (Kantin, Hegelin, Heideggerin): perusmuoto kaikista kielistä tasan samana, lopusta
-      // napsien; pisin löytyvä voittaa.
+      // Erisnimi keskellä virkettä (Kantin, Hegelin, Heideggerin): perusmuoto kaikista kielistä (kielirajauksessa sen
+      // kielistä) tasan samana, lopusta napsien; pisin löytyvä voittaa.
       var m = [], n = skNapsu(kirjaimia(haku));
       for (var i = 1; i <= Math.min(n, 4); i++) { var c = skKatkaise(haku, i); if (kirjaimia(c) >= 3) m.push(c); }
       return Promise.all(m.map(function (x) { return haeSana(x); })).then(function (js) {
-        for (var i = 0; i < m.length; i++) if (js[i]) return { tapa: 'n', vaihdot: [{ o: m[i], j: js[i], kielet: '*', tapa: 'n' }] };
+        for (var i = 0; i < m.length; i++) if (js[i] && (k === '*' || skOnKieli(js[i], k))) return { tapa: 'n', vaihdot: [{ o: m[i], j: js[i], kielet: k, tapa: 'n' }] };
         return null;
       });
     }
@@ -604,7 +623,9 @@
      o.juuri: elementti, jossa on skKehys(); o.auki(): onko kehys yhä tämän haun (myöhästyneet vastaukset eivät piirrä);
      o.sijoita(): kutsutaan sisällön muututtua (luin.html: sijoitaPop); o.haku: skHakusana(); o.y: ympäristö (kieli, alku,
      kursiivi, lainaus, vip, oma, omaKieli, pikkusana, symboli; tyhjä kieli = tuntematon); o.ketju: skKetju(); o.kirjoitettu:
-     haku on käyttäjän kirjoittama eikä tekstin sana (huomautukset sanovat Haettu x, eivät Tekstissä x). Palauttaa { aja, klikkaus(k, b) }:
+     haku on käyttäjän kirjoittama eikä tekstin sana (huomautukset sanovat Haettu x, eivät Tekstissä x); o.rajaus: sanaselityssivun
+     kielirajaus { kielet, nimi } (ketju skRajaa()lla; nimi genetiivinä, latinan), jolloin ei löytynyt -viesti nimeää kielen ja
+     määritelmän linkki pysyy rajauksessa, kun linkin kieli kuuluu siihen. Palauttaa { aja, klikkaus(k, b) }:
      klikkaus käsittelee kehyksen data-k-napit ja palauttaa false, kun kehyksen saa sulkea (raksi). */
   function istunto(o) {
     var pop = o.juuri, haku = o.haku, y = o.y, ketju = o.ketju, vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
@@ -612,7 +633,12 @@
     function sijoitaPop() { if (o.sijoita) o.sijoita(); }
     function klikkaus(k, b) {
       if (k === 'sk-sulje') return false;
-      if (k === 'sk-sana') { vuoro = ++skVuoro; suoraan(b.dataset.sana, skKieliKoodi(b.dataset.kieli || '') || y.kieli); return true; }
+      if (k === 'sk-sana') {
+        vuoro = ++skVuoro;
+        var lk = skKieliKoodi(b.dataset.kieli || '');
+        suoraan(b.dataset.sana, lk || y.kieli, o.rajaus && lk && o.rajaus.kielet.indexOf(lk) >= 0 ? o.rajaus.kielet : null);
+        return true;
+      }
       if (k === 'sk-vaihto') { vuoro = ++skVuoro; valitse(vaihdot[+b.dataset.i]); return true; }
       if (k === 'sk-ety') { alkupera(b.dataset.o); return true; }
       if (k === 'sk-osa') { vuoro = ++skVuoro; suoraanKetju(b.dataset.sana.split('|')); return true; }
@@ -724,8 +750,10 @@
       }).catch(function () { valmis('<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>'); });
     }
     function eiLoydy(v) {
+      var mita = monta ? 'ilmausta' : 'sanaa';
+      mita = o.rajaus ? o.rajaus.nimi.charAt(0).toUpperCase() + o.rajaus.nimi.slice(1) + ' ' + mita : mita.charAt(0).toUpperCase() + mita.slice(1);
       nayta(v, haku, '<div class="sk-tieto">' + (virhe ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' :
-        (monta ? 'Ilmausta' : 'Sanaa') + ' ei löytynyt englanninkielisestä Wikisanakirjasta.') + '</div>', false, virhe ? '' : haku);
+        mita + ' ei löytynyt englanninkielisestä Wikisanakirjasta.') + '</div>', false, virhe ? '' : haku);
     }
     function valitse(x) {
       if (!x) return;
@@ -735,10 +763,11 @@
         x.j = j; selitys(v, [x], alku);
       }).catch(function () { virhe = true; eiLoydy(v); });
     }
-    function suoraan(o, kieli) {
+    // rajaa: kielirajaus, kun linkin kieli kuuluu siihen; sivu ilman rajauksen kieliä näytetään kokonaan.
+    function suoraan(o, kieli, rajaa) {
       var v = skVuoro;
       nayta(v, o, '<div class="sk-tieto">Haetaan…</div>', false, o);
-      haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: '*' }], '', kieli); else nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); })
+      haeSana(o).then(function (j) { if (j) selitys(v, [{ o: o, j: j, kielet: rajaa && skOnKieli(j, rajaa) ? rajaa : '*' }], '', kieli); else nayta(v, o, '<div class="sk-tieto">Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta.</div>', false, o); })
         .catch(function () { nayta(v, o, '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>', false, ''); });
     }
     // Otsikon vitsi: ensimmäinen löytyvä sivu (ἔτυμον on Wikisanakirjassa, käyttäjä tarkisti 12.11.2026; etymon varalla),
@@ -800,7 +829,7 @@
   }
 
   window.LuinSana = {
-    NIMI: SK_NIMI, hakusana: skHakusana, symboli: skSymboli, sanaLkm: sanaLkm, ketju: skKetju, kehys: skKehys,
+    NIMI: SK_NIMI, hakusana: skHakusana, symboli: skSymboli, sanaLkm: sanaLkm, ketju: skKetju, rajaa: skRajaa, kehys: skKehys,
     istunto: istunto, IK_ETY: IK_ETY
   };
 })();

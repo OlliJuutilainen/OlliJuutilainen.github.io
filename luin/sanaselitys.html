@@ -14,7 +14,8 @@
   sanalle. Tekstin ympäristöä ei ole, joten kieli on tuntematon (kaikki kielet; kreikan kirjaimet tunnistetaan), ellei haun
   alussa ole kielikoodia ja kaksoispistettä (fi:, en: … LuinSana.NIMI): silloin haku on kuin sen kielen leipätekstissä.
   Haku osoitteessa: sanaselitys.html#fi:käsitteen (selaimen hakusanaksi: sanaselitys.html#%s). Haku vain lähetyksestä
-  (Enter), ei kirjoittaessa. Teema luin-asetuksista kuten muilla alasivuilla.
+  (Enter), ei kirjoittaessa. Kielivalikko rajaa haun ja selityksen yhteen kieleen (oletus kaikki kielet, ei muistia);
+  kielet ovat lukemiston (sivustot.html) kielirivin kielet (käyttäjän päätös). Teema luin-asetuksista kuten muilla alasivuilla.
 -->
 <script>
   try {
@@ -66,6 +67,17 @@
     color: var(--muste); }
   button.selita svg { width: 22.5px; height: 20px; overflow: visible; }
   .vihje { margin: 12px 0 0; font-size: .86rem; line-height: 1.5; color: var(--harmaa); }
+  /* Kielirajaus kentän alla: valikko napautettavana ruosteella, nuoli kuten Latomon valikoissa. Natiivi lista teeman väreissä. */
+  .rajaus { display: flex; align-items: center; gap: .5em; margin: 2px 0 0; font-size: .86rem; color: var(--harmaa); }
+  .rajaus label { font-style: italic; }
+  .rajaus select { font: inherit; color: var(--ruoste); background-color: transparent; border: 0; border-radius: 0; margin: 0;
+    padding: 0 16px 0 0; min-height: 36px; appearance: none; -webkit-appearance: none; cursor: pointer; color-scheme: light;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 4px top 55%, right 0 top 55%; background-size: 4px 4px; background-repeat: no-repeat; }
+  :root[data-teema="tumma"] .rajaus select { color-scheme: dark; }
+  .rajaus option { color: var(--muste); background-color: var(--paperi); }
+  /* Valikon leveys valitun kielen mukaan (natiivi valikko on pisimmän vaihtoehdon levyinen): mitataan tästä. */
+  .rajaus .mitta { position: absolute; visibility: hidden; white-space: pre; }
   .vihje i { color: var(--muste); }
 
   /* Selitys: lukimen selitysikkunan (.valikko.sanakirja) säännöt ilman kehystä. Ikkunan rem-koot ovat tässä em:einä suhteessa
@@ -140,17 +152,43 @@
       autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="search">
     <button type="submit" class="selita" aria-label="Selitä" title="Selitä"><svg viewBox="3.6 0 22.5 20" fill="none" aria-hidden="true"><path d="M4.6 3.6C6.6 3.4 7.7 4.4 8.7 6.6L13.4 16.6C13.9 17.6 14.6 17.9 15.6 17.5M10.6 10.3L5.4 17.6" stroke="currentColor" stroke-width="1.5"/><g stroke="var(--ruoste)"><circle cx="18.19" cy="3.69" r="6" stroke-width="1.15"/><path d="M15.01 8.78L9.5 17.6" stroke-width="1.5"/></g></svg></button>
   </form>
+  <p class="rajaus"><label for="kieli">kieli</label><select id="kieli" autocomplete="off">
+    <option value="">kaikki kielet</option>
+    <option value="en">englanti</option>
+    <option value="es">espanja</option>
+    <option value="it">italia</option>
+    <option value="grc,el">kreikka</option>
+    <option value="la">latina</option>
+    <option value="lt">liettua</option>
+    <option value="fr">ranska</option>
+    <option value="sv">ruotsi</option>
+    <option value="de">saksa</option>
+    <option value="fi">suomi</option>
+    <option value="da">tanska</option>
+  </select><span class="mitta" id="kieli-mitta" aria-hidden="true"></span></p>
   <p class="vihje" id="vihje">Kielikoodi ja kaksoispiste alkuun, niin sitä kieltä haetaan ensin: <i>fi: käsitteen</i>, <i>en: running</i>
-    (myös la, grc, el, de, fr, sv ja lt).</p>
+    (myös la, grc, el, de, fr, sv, lt, es, it ja da).</p>
   <section id="selitys" hidden></section>
 </main>
 <p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
-<script src="sanaselitys.js?v=13013fbb"></script>
+<script src="sanaselitys.js?v=9d83db0e"></script>
 <script>
 (function () {
   'use strict';
   var S = window.LuinSana, lomake = document.getElementById('haku'), kentta = document.getElementById('sana'),
-    tulos = document.getElementById('selitys'), vihje = document.getElementById('vihje'), nyt = null;
+    tulos = document.getElementById('selitys'), vihje = document.getElementById('vihje'), valikko = document.getElementById('kieli'), nyt = null;
+  // Kielirajauksen nimi genetiivinä (ei löytynyt -viesti: Latinan sanaa ei löytynyt …); arvo on Wikisanakirjan kielikoodit.
+  var RAJAUS_NIMI = { en: 'englannin', es: 'espanjan', it: 'italian', 'grc,el': 'kreikan', la: 'latinan', lt: 'liettuan', fr: 'ranskan',
+    sv: 'ruotsin', de: 'saksan', fi: 'suomen', da: 'tanskan' };
+  // Oletus aina kaikki kielet (selain voi palauttaa lomakkeen arvon uudelleenlatauksessa).
+  valikko.value = '';
+  var mitta = document.getElementById('kieli-mitta');
+  function mitoita() {
+    mitta.textContent = valikko.selectedOptions[0].textContent;
+    valikko.style.width = Math.ceil(mitta.getBoundingClientRect().width) + 16 + 'px';
+  }
+  mitoita();
+  if (document.fonts) document.fonts.ready.then(mitoita);
   // Kosketusnäyttö kuten lukimessa (hover: none on välttämätön: Booxin Firefox ei täytä pointer: coarse -ehtoa).
   var KOSKETUS = !!(window.matchMedia && matchMedia('(pointer: coarse), (hover: none)').matches);
 
@@ -166,13 +204,19 @@
     nyt = null; tulos.hidden = true; tulos.innerHTML = ''; tulos.className = ''; vihje.hidden = false;
   }
   // Kirjoitettu haku on kuin tekstin sana keskellä leipätekstiä: kirjainkoko on tarkoituksellinen (Kantin on erisnimi).
+  // Kielirajauksessa haku on kuin rajauksen kielen leipätekstissä (kielikoodi kelpaa vain rajauksen sisältä), ja ketjusta jää
+  // vain sen kieli; kreikkaan rajattu haku latinalaisin kirjaimin haetaan kreikkalaisin kirjaimin.
   function hae(raaka) {
     var q = jasenna(raaka);
     if (!q.haku) { tyhjenna(); return; }
-    var y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: false, kieli: q.kieli, symboli: S.symboli(q.haku), pikkusana: false };
+    var rajaus = valikko.value ? { kielet: valikko.value.split(','), nimi: RAJAUS_NIMI[valikko.value] } : null;
+    var kieli = rajaus && rajaus.kielet.indexOf(q.kieli) < 0 ? rajaus.kielet[0] : q.kieli;
+    var y = { kursiivi: false, lainaus: false, vip: false, oma: '', alku: false, kieli: kieli, symboli: S.symboli(q.haku), pikkusana: false };
     var monta = S.sanaLkm(q.haku) > 1, erisnimi = !monta && /^\p{Lu}/u.test(q.haku) && q.haku !== q.haku.toUpperCase();
+    var ketju = S.ketju(kieli, y, monta, erisnimi);
+    if (rajaus) ketju = S.rajaa(ketju, rajaus.kielet, rajaus.kielet.indexOf('grc') >= 0 && !/\p{Script=Greek}/u.test(q.haku));
     tulos.className = ''; tulos.innerHTML = S.kehys(q.haku, q.haku); tulos.hidden = false; vihje.hidden = true;
-    var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: S.ketju(q.kieli, y, monta, erisnimi), kirjoitettu: true,
+    var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: ketju, kirjoitettu: true, rajaus: rajaus,
       auki: function () { return nyt === oma && !tulos.hidden; } });
     oma.aja();
   }
@@ -184,14 +228,16 @@
     history.replaceState(null, '', v ? '#' + encodeURIComponent(v).replace(/%3A/gi, ':') : location.pathname + location.search);
   }
 
-  lomake.addEventListener('submit', function (e) {
-    e.preventDefault();
+  function laheta() {
     var v = kentta.value.trim();
     osoitteeseen(v);
     hae(v);
     // Kosketusnäytöllä näppäimistö pois selityksen tieltä; hiirellä kenttä valituksi, jotta seuraavan sanan voi kirjoittaa heti.
     if (KOSKETUS) kentta.blur(); else kentta.select();
-  });
+  }
+  lomake.addEventListener('submit', function (e) { e.preventDefault(); laheta(); });
+  // Kielen vaihto hakee näkyvän selityksen kentän sanan uudelleen (kuin Enter); ilman selitystä se odottaa lähetystä.
+  valikko.addEventListener('change', function () { mitoita(); if (!tulos.hidden && kentta.value.trim()) laheta(); });
   tulos.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-k]');
     if (!b || !nyt) return;
