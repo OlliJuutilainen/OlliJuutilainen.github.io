@@ -125,6 +125,9 @@
   .muted{ color:var(--color-muted) } .soft{ color:var(--color-soft) }
   /* Tuntuu kuin -sarake otsaketta TK myöten kursiivilla ja luvut ilman astemerkkiä: arvio, ei mittaus (käyttäjän päätös). */
   .tk{ font-style:italic }
+  /* Maa jäässä plussalla: Tusinasään hiutale alaindeksinä lämpötilan perässä, lämpötilan värillä (käyttäjän päätös). */
+  .maaJaassa{ display:inline-block; width:.6em; height:.6em; margin-left:.1em; vertical-align:-.2em; overflow:visible }
+  .maaJaassaLuku{ white-space:nowrap }
   .cell{ color:var(--color-text) }
   .cell.soft{ color:var(--color-soft) }
   .desc{ color:var(--color-soft) }
@@ -746,6 +749,12 @@ const FMI_SOURCES = {
     sq: 'fmi::forecast::harmonie::surface::point::timevaluepair',
     params: 'temperature,precipitation1h,windspeedms,winddirection,SmartSymbol,FeelsLike',
     label: 'HRM'
+  },
+  /* Maan pinnan lämpötila vain Harmoniesta: edited antaa GroundTemperaturelle NaN. */
+  maa: {
+    sq: 'fmi::forecast::harmonie::surface::point::timevaluepair',
+    params: 'GroundTemperature',
+    label: 'HRM'
   }
 };
 let FMI_BASE_LABEL = 'HRM';
@@ -772,7 +781,8 @@ const extractSeries = x => {
   for (const s of all){
     const id=(s.getAttribute('gml:id')||'').toLowerCase();
     let k='';
-    if (id.includes('temperature')) k='temperature';
+    if (id.includes('groundtemperature')) k='groundTemperature';
+    else if (id.includes('temperature')) k='temperature';
     else if (id.includes('precipitation1h')) k='precipitation1h';
     else if (id.includes('windspeedms')) k='windspeedms';
     else if (id.includes('winddirection')) k='winddirection';
@@ -860,6 +870,30 @@ async function fetchForecastFrom(lat, lon, sourceKey){
   });
   FMI_BASE_LABEL = FMI_SOURCES[sourceKey].label;
   return { hours, source: sourceKey };
+}
+
+/* --------- Maan pinnan lämpötila (Harmonie) --------- */
+/* Vain hiutaletta varten: jos haku epäonnistuu, säätiedotus näkyy ilman hiutaleita. Hetkellinen
+   arvo kuten lämpötila, joten se luetaan rivin omalta aikaleimalta. */
+async function fetchGroundTemperature(lat, lon){
+  try{
+    const res = await fetch(buildWfsForecast(lat, lon, 'maa'), { cache:'no-store' });
+    if (!res.ok) return null;
+    return extractSeries(parseXML(await res.text())).groundTemperature || null;
+  }catch(err){
+    console.warn('Maan lämpötilan haku epäonnistui', err);
+    return null;
+  }
+}
+
+/* Maa jäässä plussalla (käyttäjän päätös): hiutale, kun maan pyöristetty lämpötila on −1 tai alle ja näkyvä
+   lämpötila plussalla. Tuntuu kuin -tilassa raja on näkyvä 0: TK:n ja maan eroa ei voi lukemasta arvata, joten
+   nollan kohdalla hiutaleen puuttuminen kertoo aina, ettei maa ole jäässä. Vertailu pyöristetyin luvuin, koska
+   lukija näkee vain ne (−0,5 näkyy nollana). */
+const GROUND_FLAKE_SVG = '<svg class="maaJaassa" viewBox="0 0 24 24" role="img" aria-label="maa jäässä"><title>maa jäässä</title><path fill="currentColor" d="M12 9.1L9.49 10.55L9.49 13.45L12 14.9L14.51 13.45L14.51 10.55ZM10.25 12L12 0.4L13.75 12ZM11.52 6.16L8.61 3.28L12.48 4.64ZM11.52 4.64L15.39 3.28L12.48 6.16ZM11.13 10.48L22.05 6.2L12.88 13.52ZM16.82 8.67L17.86 4.7L18.62 8.73ZM18.14 7.91L21.25 10.58L17.3 9.49ZM12.88 10.48L22.05 17.8L11.13 13.52ZM17.3 14.51L21.25 13.42L18.14 16.09ZM18.62 15.27L17.86 19.3L16.82 15.33ZM13.75 12L12 23.6L10.25 12ZM12.48 17.84L15.39 20.72L11.52 19.36ZM12.48 19.36L8.61 20.72L11.52 17.84ZM11.13 13.52L1.95 6.2L12.88 10.48ZM6.7 9.49L2.75 10.58L5.86 7.91ZM5.38 8.73L6.14 4.7L7.18 8.67ZM12.88 13.52L1.95 17.8L11.13 10.48ZM7.18 15.33L6.14 19.3L5.38 15.27ZM5.86 16.09L2.75 13.42L6.7 14.51Z"/></svg>';
+function groundFrozenUnderPlus(temp, ground){
+  if (!Number.isFinite(temp) || !Number.isFinite(ground)) return false;
+  return Math.round(ground) <= -1 && Math.round(temp) >= (FEELS_LIKE ? 0 : 1);
 }
 
 /* --------- MET Nowcast – sade + puuska + lämpötila + symbol_code --------- */
@@ -2036,6 +2070,7 @@ function renderRow(row, state){
     rainTag,
     timeWhite = false,
     tempWhite = false,
+    groundTemp = null,
     skipDitto = false,
     sunAlign = false
   } = row || {};
@@ -2104,7 +2139,8 @@ function renderRow(row, state){
   });
   const rainTagHtml = (rain.text === '—') ? '' : tag(rainTag || '');
   const rainBadgeHtml = rainBadge ? ` ${rainBadge}` : '';
-  const twTag = DBG && twDbg ? ` <span class="soft" style="font-size:12px">${twDbg}</span>` : '';
+  const groundDbg = Number.isFinite(groundTemp) ? `[MAA ${groundTemp}]` : '';
+  const twTag = DBG && (twDbg || groundDbg) ? ` <span class="soft" style="font-size:12px">${[twDbg, groundDbg].filter(Boolean).join(' ')}</span>` : '';
   const descClasses = ['desc'];
   if (descWhite) descClasses.push('descWhite'); else descClasses.push('soft');
   let descCellHtml = `${displayDesc}${twTag}`;
@@ -2147,10 +2183,13 @@ function renderRow(row, state){
     fallbackFromNowcast: !!tempFallbackFromNowcast
   });
   const tempBadgeHtml = tempBadge ? ` ${tempBadge}` : '';
+  const tempNum = (temp!=null && !Number.isNaN(temp)) ? Math.round(temp)+(FEELS_LIKE?'':'°') : '–';
+  /* Luku ja hiutale samaan katkeamattomaan osaan: kapea sarake katkaisisi hiutaleen omalle rivilleen (12°). */
+  const tempText = groundFrozenUnderPlus(temp, groundTemp) ? `<span class="maaJaassaLuku">${tempNum}${GROUND_FLAKE_SVG}</span>` : tempNum;
   return (
     `<div class="row">`+
       `<div class="${timeClasses.join(' ')}">${timeHtml || '–'}</div>`+
-      `<div class="${tempClasses.join(' ')}">${(temp!=null && !Number.isNaN(temp))?Math.round(temp)+(FEELS_LIKE?'':'°'):'–'}${tempBadgeHtml}</div>`+
+      `<div class="${tempClasses.join(' ')}">${tempText}${tempBadgeHtml}</div>`+
       `<div class="${descClasses.join(' ')}">${descCellHtml}</div>`+
       `<div class="${rainClasses.join(' ')}">${rain.text}${rainTagHtml}${rainBadgeHtml}</div>`+
       `<div class="${windClasses.join(' ')}">${wind.html}${windBadgeHtml}</div>`+
@@ -2443,7 +2482,7 @@ function createHourlyRowModel({ hour, index, nowcast, twilightResolver, launchTi
   };
 }
 
-function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
+function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime, groundTemps = null }){
   if (!Array.isArray(hours) || !hours.length) return { rows: [] };
   resetTwilightState();
   const nowcastMap = nowcasts instanceof Map ? nowcasts : new Map();
@@ -2462,7 +2501,10 @@ function buildHourlyModel({ hours, nowcasts, sunPhases, launchTime }){
     const nowcast = nowcastMap.get(hour.key) || nowcastMap.get(hour.time?.toISOString()) || null;
     const prevContradiction = !!(rows.length && rows[rows.length - 1].skipDitto);
     const row = createHourlyRowModel({ hour, index, nowcast, twilightResolver: resolver, launchTime, prevContradiction });
-    if (row) rows.push(row);
+    if (row){
+      row.groundTemp = groundTemps?.get(hour.key) ?? null;
+      rows.push(row);
+    }
   });
   applyTemperatureMilestones(rows);
   return { rows };
@@ -2545,6 +2587,7 @@ function applyTemperatureMilestones(rows){
      osuu; fetchSunPhases hakee FMI:n jälkeen välimuistista ja tarvittaessa puuttuvat päivät. */
   const loadHour = floorToHour(new Date());
   const nowcastPending = fetchNowcastTimeseries(LAT, LON);
+  const groundPending = fetchGroundTemperature(LAT, LON);
   const sunPrefetch = fetchSunPhases(LAT, LON, [loadHour, new Date(loadHour.getTime() + 12*3600000)]).catch(() => null);
 
   try{
@@ -2562,13 +2605,14 @@ function applyTemperatureMilestones(rows){
     }
 
     await sunPrefetch;
-    const [nowcastRes, sunPhases] = await Promise.all([
+    const [nowcastRes, sunPhases, groundTemps] = await Promise.all([
       nowcastPending,
-      fetchSunPhases(LAT, LON, upcoming)
+      fetchSunPhases(LAT, LON, upcoming),
+      groundPending
     ]);
     const nowcasts = pickNowcasts(nowcastRes, upcoming.slice(0, 3));
 
-    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now });
+    const model = buildHourlyModel({ hours: upcoming, nowcasts, sunPhases, launchTime: now, groundTemps });
     renderHourlyModel(model);
   }catch(e){
     const msg = (e && e.message) ? e.message : String(e);
