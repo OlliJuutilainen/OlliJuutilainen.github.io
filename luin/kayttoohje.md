@@ -1,20 +1,34 @@
 ---
 tekijä: Tusinasoft
-viite: Tusinasoft (2026). *Lukimen käyttöohje*. Luonnos 26.11.2026.
+viite: Tusinasoft (2026). *Lukimen käyttöohje*.
 ---
 
 # Lukimen käyttöohje
 
-*Pino, lukin, latomo ja lukimeen-lisäosa*
+*Pino, lukeminen, latomo ja lukimeen-lisäosa*
 
 Tusinasoft\
-luonnos 26.11.2026
+marraskuu 2026
 
-Huomautus 26.11.2026: tämä ohje on kielimallin kirjoittama luonnos. Se on koottu ohjelman nykyisestä toiminnasta, mutta Olli ei ole vielä käynyt sitä läpi: sanamuodot, painotukset ja yksityiskohdat voivat muuttua, ja jokin kohta voi olla väärin. Virheistä voi kertoa palautesivulla (luku 16).
-
----
-
-{{TOC}}
+> [!huomautus]- TEKOÄLYVAROITUS [viesti kehittäjältä]; 27.11.2026
+>
+> Hyvät lukimen käyttäjät. Luin-työkalu ja sitä ympäröivä kokonaisuus ei olisi voinut tällaisenaan syntyä ilman tekoälytyökalujen vipuvartta. Ohjelma on kaikesta huolimatta kuitenkin kohtalaisen paljon minun näköiseni, ja suuri osa ominaisuuksista ja ratkaisuista on kuitenkin saanut vatkautua miljoona kertaa oman sipulini kautta.
+>
+> Vaikka himmeli on syntynyt häikäisevän nopeasti ja verrattain vaivattomasti, on työmäärä ollut toisaalta myös … verrattain suuri – etenkin huomioon ottaen, että homma liittyy pääasiallisiin elämän toimiini vain epäsuorasti.
+>
+> Koska ohjelmaan on vuodattunut sydämestä aivan hirvittävä määrä ominaisuuksia, ne ansaitsisivat tulla ymmärretyiksi, mikä vaatisi selkeää alkuun pääsemisen ohjeistusta sekä myös perusteellista ohjekirjaa. Ikävä kyllä juuri tuo suuri ominaisuuksien määrä tekee ohjeiden laatimisesta kenties vielä itse ominaisuuksien kehittämistä suuremman homman: ainakin minun luonteelleni.
+>
+> Suoraan sanoen en usko, että saan motivoitua itseäni uhraamaan hyvien ohjeiden laatimiseen vaadittavaa aikaa edes tulevan vuoden aikana tai kuka ties kenties koskaan. Jos luin ottaa omituisesti tuulta alleen, motivaationi laittaa asia kuntoon kohenee toki merkittävästi.
+>
+> Ohjelman tekoälykirjoitettuun koodiin nähden täysin tekoälygeneroitu proosateksti vasta on se suoranainen häpeäpilkku. Tarjoan tutustuville käyttäjille kuitenkin tämän täysin tekoälyllä muodostetun ohjeen. Ohje kuitenkin epäsuorasti sisältää minunkin ajatuksiani, ja varmasti kärsivällinen ihminen saa siitä pumpattua jotain irti.
+>
+> Jos olet innostunut käyttämään lukinta ja jokin ominaisuus mietityttää, kehottaisin olemaan matalalla kynnyksellä minuun yhteydessä sen sijaan, että yrittäisit epätoivoisesti etsiä tietoa alla olevasta ohjeesta. Suoraan kysymykseen ja kymmeneen vastaaminen on kuitenkin minulle satoja kertoja pienempi vaiva kuin saada mikään edes kelvollisesti läpivalaistu versio tästä manuaalista.
+>
+> Yhteydenottoonkin on kynnyksensä, tiedän sen. Mutta minä olen nyt puhunut.
+>
+> Hyviä lukemisia. Lukekaa ennemmin jotain Luinin hakemistosta kuin tätä manuaalia, sen sanon.
+>
+> –Olli
 
 ## 1. Aluksi
 
@@ -29,7 +43,7 @@ Iloa on kahdenlaista. Kirjoittaja voi jakaa oman epäkaupallisen tekstinsä luki
 ### 1.2 Osat ja nimet
 
 - **Pino** on lukimen etusivu: luettavat ja kesken olevat tekstit, enintään tusina kerrallaan.
-- **Lukin** avaa pinon tekstin luettavaksi. Pino ja lukin ovat samalla sivulla, `luin.html`.
+- Pinosta teksti avautuu **lukimeen** eli lukunäkymään. Pino ja lukunäkymä ovat samalla sivulla, `luin.html`.
 - **Kellarin veivihyllystö** on pinon alla. Sinne laskeutuvat tekstit, joihin et ole hetkeen koskenut, ja sinne voit siirtää luetut. Vielä syvemmällä on **ö-mappi**, ja kellarin veivihyllystön ylimpänä on **käsikirjasto** teksteille, joihin palaat aina uudelleen.
 - **Latomo** tarkistaa ja latoo tekstin lukimeen: oman tekstisi tai verkosta leikatun.
 - **Lukimeen** on selainlisäosa, joka leikkaa avoimen verkkosivun artikkelin latomon kautta pinoon. Juoksevassa tekstissä sitä kutsutaan lukimeen-lisäosaksi.
@@ -38,7 +52,7 @@ Iloa on kahdenlaista. Kirjoittaja voi jakaa oman epäkaupallisen tekstinsä luki
 
 ### 1.3 Suljettu lukuympäristö
 
-Luin on tehty lukemisen rauhaan. Tekstissä ei ole mainoksia, ponnahduksia eikä suosituksia. Linkit muille sivuille ovat oletuksena pois päältä, joten napautus ei vie vahingossa pois tekstistä. Kuvat näkyvät pelkkinä linkkeinä, koska lukin ei hae mitään kolmannelta osapuolelta. Lukiessa verkkoa käyttävät vain sanaselitys ja lausekäännös, ja nekin vain silloin, kun napautat niitä.
+Luin on tehty lukemisen rauhaan. Tekstissä ei ole mainoksia, ponnahduksia eikä suosituksia. Linkit muille sivuille ovat oletuksena pois päältä, joten napautus ei vie vahingossa pois tekstistä. Kuvat näkyvät pelkkinä linkkeinä, koska luin ei hae mitään kolmannelta osapuolelta. Lukiessa verkkoa käyttävät vain sanaselitys ja lausekäännös, ja nekin vain silloin, kun napautat niitä.
 
 Ulkoasu on klassinen ja hillitty: antiikvakirjasin (Literata), kuusi väriä teemaa kohti, ei varjoja, ei läpikuultavuutta eikä animaatioita, jotta sähköpaperikin näyttää kaiken siististi. **Ruosteenvärinen on napautettavaa.** Valinnat, luettelomerkit ja kunniamerkit ovat salmiakkeja, ja tietoa antavien i-nappien kehyksenä ovat hakasulkeet.
 
@@ -48,17 +62,17 @@ Tämä ohje on itsekin lukimessa luettava teksti, joten sillä voi kokeilla kaik
 
 Napit, valinnat ja kentät on kirjoitettu kursiivilla niin kuin ne näkyvät ruudulla, esimerkiksi *Poimi pinoon*. *Napauta* tarkoittaa hiirellä klikkausta. Kosketusnäytön ja hiiren erot kerrotaan siellä, missä niitä on. Sähköpaperilaite on lukimelle kosketusnäyttö.
 
-Kiireiselle on erillinen pikaohje (`luin.html#u=luin/pikaohje.md`). Sanasto lukimen omista sanoista on liitteenä tämän ohjeen lopussa.
+Kiireiselle on erillinen pikaohje (pinon alla linkki *Pikaohje*). Sanasto lukimen omista sanoista on liitteenä tämän ohjeen lopussa.
 
 ## 2. Tekstit pinoon
 
-Tekstin voi tuoda pinoon luin-linkistä, lukimeen-lisäosalla, latomosta, postihuilusta tai Android-sovelluksen jakovalikosta. Kaikki tavat päätyvät samaan pinoon, ja lukin muistaa, mistä teksti tuli.
+Tekstin voi tuoda pinoon luin-linkistä, lukimeen-lisäosalla, latomosta, postihuilusta tai Android-sovelluksen jakovalikosta. Kaikki tavat päätyvät samaan pinoon, ja luin muistaa, mistä teksti tuli.
 
 ### 2.1 Luin-linkki
 
-Luin-linkki avaa verkossa olevan Markdown-tiedoston suoraan lukimeen. Se on lukimen osoite, jonka perässä on `#u=` ja tiedoston osoite, esimerkiksi `luin.html#u=luin/mika-on-markdown.md`. Teksti tallentuu pinoon, ja myöhemmin se avautuu pinosta, vaikkei verkkoon olisi yhteyttä. Kun avaat saman linkin uudelleen, lukin hakee tekstin uusimman version, ja kirjanmerkit ja alleviivaukset pysyvät.
+Luin-linkki avaa verkossa olevan Markdown-tiedoston suoraan lukimeen. Se on lukimen osoite, jonka perässä on `#u=` ja tiedoston osoite, esimerkiksi `luin.html#u=luin/mika-on-markdown.md`. Teksti tallentuu pinoon, ja myöhemmin se avautuu pinosta, vaikkei verkkoon olisi yhteyttä. Kun avaat saman linkin uudelleen, luin hakee tekstin uusimman version, ja kirjanmerkit ja alleviivaukset pysyvät.
 
-Dropboxin jakolinkki kelpaa sellaisenaan: lukin muuttaa sen suoraksi latauslinkiksi. Google Driven linkit eivät toimi, koska Drive ei salli selaimen hakua toiselta sivustolta.
+Dropboxin jakolinkki kelpaa sellaisenaan: luin muuttaa sen suoraksi latauslinkiksi. Google Driven linkit eivät toimi, koska Drive ei salli selaimen hakua toiselta sivustolta.
 
 Jaettavan linkin saa pinosta nimikkeen valikosta (*Kopioi linkki*, luku 12.1). Sen esikatselu näyttää viestimissä tekstin nimen eikä pelkkää lukimen nimeä.
 
@@ -85,13 +99,13 @@ Perseus Digital Libraryn sivulla ikkunassa on ennen poimintaa kaksi lisävalinta
 
 ### 2.3 Mitä leike tuo mukanaan
 
-Leikkeessä ovat otsikko, tekijä, sivusto ja julkaisuaika, mikäli sivu kertoo ne, sekä artikkelin alaviitteet ja kirjallisuusluettelo. Lisäksi lukin lisää tekstiin muutaman asian, jotka eivät ole lähteessä samassa muodossa:
+Leikkeessä ovat otsikko, tekijä, sivusto ja julkaisuaika, mikäli sivu kertoo ne, sekä artikkelin alaviitteet ja kirjallisuusluettelo. Lisäksi luin lisää tekstiin muutaman asian, jotka eivät ole lähteessä samassa muodossa:
 
 - **Lähde.** Tekstin lopussa on otsikon *Lähde* alla, miltä sivustolta ja milloin teksti on haettu, sekä sen osoite. Lähteen kunnioitus kuuluu lukimen periaatteisiin, joten osiota ei voi poistaa.
 - **Tekijänoikeudet.** Jos sivu kertoo tekstin käyttöoikeuksista, ne ovat Lähteen jälkeen otsikon *Tekijänoikeudet* alla: merkintä sellaisenaan, lyhyt selitys ja linkki lisätietoihin.
 - **Rahoitushuomautus.** Joidenkin tuettujen sivustojen tekstin alussa on hakasulkeissa huomautus siitä, miten sivusto rahoittaa toimintansa. Jos sivusto elää lahjoituksista, huomautus ehdottaa harkitsemaan lahjoitusta.
 - **Julkaisun tila.** Jos lehti on vetänyt artikkelin takaisin tai julkaissut siihen korjauksen tai päivityksen tai teksti on esipainos, jota ei ole vertaisarvioitu, tekstin alussa on siitä huomautus ilmoituksen osoitteineen.
-- **Lukimen omat huomautukset.** Mitä lukin ei voi näyttää, siitä se kertoo hakasulkeissa harmaalla kursiivilla: kuvana julkaistun kaavan paikalla on *[kaava]*, kuvana julkaistun taulukon kuvatekstin perässä *[Taulukko on lähteessä kuvana.]*. Sivun merkintöinä olevat kaavat tulevat tekstinä ala- ja yläindekseineen, ja numeroitu kaava on omalla rivillään keskellä.
+- **Lukimen omat huomautukset.** Mitä luin ei voi näyttää, siitä se kertoo hakasulkeissa harmaalla kursiivilla: kuvana julkaistun kaavan paikalla on *[kaava]*, kuvana julkaistun taulukon kuvatekstin perässä *[Taulukko on lähteessä kuvana.]*. Sivun merkintöinä olevat kaavat tulevat tekstinä ala- ja yläindekseineen, ja numeroitu kaava on omalla rivillään keskellä.
 
 ### 2.4 Tuetut sivustot
 
@@ -103,7 +117,7 @@ Lista on sivulla *Lukimessa luettavaa*. Sinne pääsee pinon alalaidan linkistä
 - **Korit.** Hakukentän alla on kolme riviä koreja: aihe (esimerkiksi filosofia, uskonto, antiikki, yleiset), laji (alkuteksti, tutkimus, essee, hakuteos…) ja kieli. Korin ensimmäinen napautus ottaa sen mukaan (alleviivattu), toinen jättää sen pois (yliviivattu) ja kolmas palauttaa ennalleen. Korin luku kertoo, montako sivustoa tai otsikko-osumaa siinä on.
 - **Supersalmiakki.** Ruosteinen salmiakki nimen vasemmalla puolella merkitsee Luinin sertifioimaa sivustoa, jonka tekstit Olli on itse käynyt läpi: Stanford Encyclopedia of Philosophy, Wikipedia (suomeksi ja englanniksi), Marxists Internet Archive, Ensyklopedia Logos, J. V. Snellmanin kootut teokset ja Perseus Digital Library.
 
-Puuttuuko suosikkisi? Sivustoa voi ehdottaa palautesivulla. Maksumuurien kiertämistä lukin ei tarjoa: Luinin ystäviä ovat ensisijaisesti omaa tekstiä epäkaupallisesti jakavat ihmiset, tekijänoikeusvapaan tekstin jakaminen ja omaan käyttöön ostetun tekstin lukeminen.
+Puuttuuko suosikkisi? Sivustoa voi ehdottaa palautesivulla. Maksumuurien kiertämistä luin ei tarjoa: Luinin ystäviä ovat ensisijaisesti omaa tekstiä epäkaupallisesti jakavat ihmiset, tekijänoikeusvapaan tekstin jakaminen ja omaan käyttöön ostetun tekstin lukeminen.
 
 ### 2.5 Latomosta
 
@@ -131,7 +145,7 @@ Tyhjässä pinossa lukee, mistä tekstit tulevat.
 
 ### 3.2 Tusina
 
-Pinossa on enintään tusina eli 12 tekstiä. Pinoa ei tarvitse siivota: kun sinne tulee kolmastoista teksti, se teksti, johon olet pisimpään ollut koskematta, laskeutuu kellarin veivihyllystöön. Lukin kertoo siitä nimeltä. Laskeutuneen tekstin tietorivillä lukee *laskeutui* ja päivä, ja sen saa takaisin pinoon kellarin veivihyllystön nimikkeen valikosta (*Poimi pinoon*). Mitään ei poisteta.
+Pinossa on enintään tusina eli 12 tekstiä. Pinoa ei tarvitse siivota: kun sinne tulee kolmastoista teksti, se teksti, johon olet pisimpään ollut koskematta, laskeutuu kellarin veivihyllystöön. Luin kertoo siitä nimeltä. Laskeutuneen tekstin tietorivillä lukee *laskeutui* ja päivä, ja sen saa takaisin pinoon kellarin veivihyllystön nimikkeen valikosta (*Poimi pinoon*). Mitään ei poisteta.
 
 ### 3.3 Pinon järjestys
 
@@ -145,7 +159,7 @@ Valikko mahtuu aina ruudulle. Jos se on ruutua korkeampi, se vierii sisältä, j
 
 #### 3.4.1 ULOSTUS
 
-- **Lähdeviite** ylimpänä. Viite on tekstin oma, tai lukin kokoaa sen tiedoista Teologian tyylin mukaan (luku 10.5). Sen alla oleva kytkin *Lisää: luettu HTML-versiona* lisää viitteen perään, milloin luit tekstin ja verkosta avatulle tekstille mistä osoitteesta. Valinta muistetaan, ja se koskee myös merkintöjen viennin otsikkoa.
+- **Lähdeviite** ylimpänä. Viite on tekstin oma, tai luin kokoaa sen tiedoista Teologian tyylin mukaan (luku 10.5). Sen alla oleva kytkin *Lisää: luettu HTML-versiona* lisää viitteen perään, milloin luit tekstin ja verkosta avatulle tekstille mistä osoitteesta. Valinta muistetaan, ja se koskee myös merkintöjen viennin otsikkoa.
 - **Kopioi lähdeviite** kopioi viitteen tekstinä ja muotoiltuna, joten kursiivi säilyy esimerkiksi tekstinkäsittelyohjelmaan liitettäessä.
 - **Kopioi linkki** antaa jakolinkin verkosta avatulle tai tiedostoon linkitetylle tekstille (luku 12.1). Linkittömällä tekstillä sen paikalla on **Linkitä tiedostoon** (luku 12.2).
 - **Lataa .md** lataa tekstin Markdown-tiedostona etukenttineen. Tiedoston voi avata missä tahansa tekstieditorissa tai viedä verkkoon ja jakaa.
@@ -183,7 +197,7 @@ Pinon alla ovat
 
 - **Soita postihuilua** vasemmalla, kun laatikkolause on annettu. Se hakee laatikon heti ja lähettää odottavat merkinnät (luku 9.2).
 - **kellarin veivihyllystö** oikealla, kahtena rivinä kammen kanssa, kun kellarin veivihyllystössä on jotain.
-- linkit *Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti) ja *Luettavaa* (tuettujen sivustojen lista, luku 2.4),
+- linkit *Pikaohje* ja *Käyttöohje* (tämä teksti), *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti), *Luettavaa* (tuettujen sivustojen lista, luku 2.4) ja *Sanaselitys* (luku 7.7),
 - pienen välin jälkeen *Uusi teksti latomossa*.
 
 ## 4. Kellarin veivihyllystö, ö-mappi ja käsikirjasto
@@ -269,7 +283,7 @@ Käsikirjan HYLLYTYKSESSÄ ovat *Poimi pinoon*, *Laita ö-mappiin* ja *Irrota k�
 
 ### 5.1 Tekstin avaaminen ja lukukohta
 
-Teksti avautuu nimikkeen napautuksesta siihen kohtaan, mihin jäit. Lukukohta tallentuu itsestään, ja se säilyy, kun vaihdat kirjasinkokoa, marginaalia tai lukutapaa: lukin palaa sivulle, jolla sama kohta on.
+Teksti avautuu nimikkeen napautuksesta siihen kohtaan, mihin jäit. Lukukohta tallentuu itsestään, ja se säilyy, kun vaihdat kirjasinkokoa, marginaalia tai lukutapaa: luin palaa sivulle, jolla sama kohta on.
 
 Tekstistä pääset takaisin pinoon yläpalkin vasemmasta kulmasta, kolmen kirjan pinosta.
 
@@ -345,7 +359,7 @@ Kun hyppäät tekstissä kauas, paluureitti katoaa helposti. Siksi hypyn lähtö
 
 ### 5.7 Kokoruutu ja selaimen palkit
 
-**Kokoruutu.** Yläpalkin kulmanappi kiekon vasemmalla puolella vie kokoruutuun, jossa selaimen omat palkit ovat piilossa. Lukin muistaa valinnan: kun avaat tekstin seuraavan kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman käyttäjän elettä. Samasta napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivutettuna ruudun yläosasta alas vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen.
+**Kokoruutu.** Yläpalkin kulmanappi kiekon vasemmalla puolella vie kokoruutuun, jossa selaimen omat palkit ovat piilossa. Luin muistaa valinnan: kun avaat tekstin seuraavan kerran, ensimmäinen napautus tai sivunkääntö vie kokoruutuun, koska selain ei salli sitä ilman käyttäjän elettä. Samasta napista kokoruutu loppuu ja valinta kumoutuu. Puhelimen takaisin-eleellä tai sivutettuna ruudun yläosasta alas vetämällä pääset hetkeksi selaimen palkkeihin; kokoruutu palaa, kun avaat tekstin uudelleen.
 
 **Turvakaista.** Puhelimessa, jonka etukamera on näytön yläreunassa, ruudun yläreunaan jää kokoruudussa musta kaista, jotta kamera ei peitä tekstiä. Kaistan napautus avaa ja sulkee palkit.
 
@@ -494,7 +508,7 @@ Niin kauan kuin korostus on tekstissä, alapalkissa kirjanmerkin vieressä on sa
 
 ### 7.3 Erikoishaut
 
-Kenoviiva aloittaa erikoishaun. Kirjoita `/` ja komennon alku, niin lukin ehdottaa, mitä tekstissä on (`/k` → `/kreikka`, `/l` → `/lainaus`), ja kertoo kohtien määrän.
+Kenoviiva aloittaa erikoishaun. Kirjoita `/` ja komennon alku, niin luin ehdottaa, mitä tekstissä on (`/k` → `/kreikka`, `/l` → `/lainaus`), ja kertoo kohtien määrän.
 
 - `/lainaus` näyttää lainaukset: sisennetyt lainaukset ja vähintään kolmen sanan jaksot lainausmerkeissä.
 - `/vieras` näyttää kaikki muulla kuin tekstin kielellä kirjoitetut kohdat.
@@ -512,9 +526,9 @@ Lehtiartikkelin etu- ja loppuosat (tiivistelmä, kirjallisuus, liitteet) ovat Si
 
 Sanaselitys hakee sanan merkityksen englanninkielisestä Wikisanakirjasta (Wiktionary). Se avautuu valikon napista, kun valittuna on enintään kymmenen sanaa (esimerkiksi sanonta tai sananlasku), tai suoraan yhdestä sanasta: kosketusnäytöllä pitkällä painalluksella ilman vetoa ja hiirellä tuplaklikkauksella (*Sukkela sanaselitys*, oletuksena päällä).
 
-- **Ensin tasan tekstin muoto.** Jos sitä ei ole, lukin etsii lähimmän: taivutetun muodon perusmuodon (*ponillehan* → *poni*, *käsitteen* → *käsite*) tai diakriitit oikein kirjoitetun sanan (*pratityasamutpadaa* → *pratītyasamutpāda*), ja kertoo, että kyse on lähimmästä osumasta. Useammasta lähimmästä voi valita.
+- **Ensin tasan tekstin muoto.** Jos sitä ei ole, luin etsii lähimmän: taivutetun muodon perusmuodon (*ponillehan* → *poni*, *käsitteen* → *käsite*) tai diakriitit oikein kirjoitetun sanan (*pratityasamutpadaa* → *pratītyasamutpāda*), ja kertoo, että kyse on lähimmästä osumasta. Useammasta lähimmästä voi valita.
 - **Kieli.** Leipätekstissä arvaukset haetaan vain tekstin kielestä, ja jos selitys löytyy vain toisesta kielestä, siitä huomautetaan. Kursiivissa ja lainauksessa kelpaa mikä tahansa kieli, koska vieraskieliset sanat ovat usein kursiivissa.
-- **Perusmuoto ensin.** Pelkän taivutusmuodon sijaan lukin näyttää perusmuodon ja kertoo taivutuksen pienellä otsikon alla (*”käden” · genitive singular*), paitsi jos taivutusmuodolla on Wikisanakirjassa omia merkityksiä tai oma etymologia. Perusmuotoa voi napauttaa; takaisin ei palata.
+- **Perusmuoto ensin.** Pelkän taivutusmuodon sijaan luin näyttää perusmuodon ja kertoo taivutuksen pienellä otsikon alla (*”käden” · genitive singular*), paitsi jos taivutusmuodolla on Wikisanakirjassa omia merkityksiä tai oma etymologia. Perusmuotoa voi napauttaa; takaisin ei palata.
 - **Alkuperä.** Kun sanan alkuperä on kirjattu, sanan perässä on pieni suurennuslasi, jonka linssissä on ruosteinen epsilon. Se avaa merkitysten yläpuolelle laatikon, jossa on sanan etymologia. Laatikko sulkeutuu linssistä tai omasta raksistaan.
 - **Otsikot.** Ikkunan ylimmällä rivillä on huomaamaton ΛΟΓΟΣ ja alkuperän laatikossa ΕΤΥΜΟΝ. Ne eivät näytä linkeiltä, mutta napautettaessa ne vievät sanojen λόγος ja ἔτυμον omiin selityksiin.
 
@@ -571,7 +585,7 @@ Vaalean tai Tumman napautus antaa aina tavallisen teeman: TCF-valkaisu, Sysi ja 
 
 **Marginaali.** *Mikro*, *Meso* (oletus) tai *Makro*: tekstin sivureunojen tila. Leveällä ruudulla Mikro on myös pidempi rivi (noin 92 merkkiä, muilla noin 76).
 
-**Tavutus.** *Ei*, *Maltillinen* (oletus) tai *Innokas*. Lukin tavuttaa suomea omilla säännöillään, koska kaikki selaimet eivät osaa sitä, ja liettuaksi tunnistetun kappaleen liettuan säännöin. Otsikoita, kursiivia, lihavointeja, kirjallisuusluetteloa ja vieraan näköisiä sanoja ei tavuteta, ellei sana ole palstaa leveämpi. Tasattu palsta kapealla ruudulla tarvitsee innokkaan tavutuksen; maltillisella sanavälit venyvät.
+**Tavutus.** *Ei*, *Maltillinen* (oletus) tai *Innokas*. Luin tavuttaa suomea omilla säännöillään, koska kaikki selaimet eivät osaa sitä, ja liettuaksi tunnistetun kappaleen liettuan säännöin. Otsikoita, kursiivia, lihavointeja, kirjallisuusluetteloa ja vieraan näköisiä sanoja ei tavuteta, ellei sana ole palstaa leveämpi. Tasattu palsta kapealla ruudulla tarvitsee innokkaan tavutuksen; maltillisella sanavälit venyvät.
 
 ### 8.3 Teksti
 
@@ -608,7 +622,7 @@ Asetusten alimpana on supistettu osio *Postihuilu*: laatikkolause, *Arvo*, *Soit
 
 ### 8.8 Ensikäytön oletukset
 
-Ensimmäisellä käyttökerralla lukin valitsee asetukset laitteen mukaan:
+Ensimmäisellä käyttökerralla luin valitsee asetukset laitteen mukaan:
 
 - **Kosketusnäyttö ja sähköpaperi:** sivunkääntö kaikin tavoin (reunanapautus, pyyhkäisy, nuolinapit ja laitteen painikkeet), aikajanalla luvut ja osiot, kirjasinkoko ruudun mukaan.
 - **Hiiri:** rullaus ja aikajanalla kaikki tasot.
@@ -662,7 +676,7 @@ Toisessa laitteessa huilutettu teksti saa saman tunnuksen kuin lähettäjällä,
 
 Postihuilu voi kuljettaa myös merkinnät. Kun asetusten Postihuilu-osiossa on valittu *Huiluta myös merkintöjä* (näkyy, kun laatikkolause on annettu; oletuksena pois), sen alle avautuvat lajit: *Alleviivaukset*, *Kirjaukset*, *Kirjanmerkit* ja *Edistymisen tilanne* (oletuksena kaikki).
 
-- Merkinnät lähtevät, kun poistut tekstistä pinoon, lukin jää taustalle tai huilutat tekstin.
+- Merkinnät lähtevät, kun poistut tekstistä pinoon, luin jää taustalle tai huilutat tekstin.
 - Ne tulevat itsestään toiseen laitteeseen, jossa on sama laatikkolause ja sama teksti. Vastaanotto on aina päällä.
 - Toisessa laitteessa poistettu merkintä poistuu myös täältä, ja kirjauksen uusin muokkaus jää voimaan. Lukukohdista voittaa uusin, mutta avoimen tekstin lukukohtaa ei siirretä kesken lukemisen.
 - Merkintöjen mukana kulkee tekstin luokittelu (asiasanat, ajoitus ja käsikirjasto), ja uusin luokittelu jää voimaan. Pöly ei kulje.
@@ -693,7 +707,7 @@ Jos tekstissä on iA Writerin tekijyysmerkinnät, latomo tarjoaa niiden piilotta
 
 ### 10.3 Tarkistus ja ehdotukset
 
-Kentän alla latomo näyttää tekstin alun niin kuin lukin sen näyttää, luvut, ehdotukset ja huomautukset, ja lopussa rakenteen ja lähdeviittaukset.
+Kentän alla latomo näyttää tekstin alun niin kuin luin sen näyttää, luvut, ehdotukset ja huomautukset, ja lopussa rakenteen ja lähdeviittaukset.
 
 **Ehdotukset muuttavat tekstiä vain napista.** Niitä ovat esimerkiksi
 
@@ -743,7 +757,7 @@ Jos .md-tiedosto on verkossa, kirjoita sen osoite kenttään *Julkinen osoite*. 
 Pinon nimikkeen valikon SISUSTUKSESTA teksti avautuu latomoon kahdella tavalla:
 
 - **Muuta metatietoja**: voit muuttaa tekstin nimeä, kirjoittajaa ja julkaisutietoja. Itse teksti on lukittu, joten kirjanmerkit ja alleviivaukset pysyvät paikallaan. Vain otsikkoon tai tietoriveihin osuneet merkinnät voivat irrota. *Tallenna* vie tekstin takaisin pinoon.
-- **Lado uusi laitos**: voit muokata myös tekstiä. Tallennettaessa valitset, tuleeko pinoon *toinen laitos merkintöineen*, *toinen laitos ilman merkintöjä* vai *korvaava laitos*. Kahdessa ensimmäisessä alkuperäinen jää pinoon ennalleen, ja uuden nimikkeen tietorivillä lukee esimerkiksi *2. laitos*. Kun merkinnät siirretään, muuttuneista kohdista osa voi irrota. Irronneet eivät katoa: ne näkyvät Merkinnöissä merkinnällä *kohtaa ei löydy*, ja lukin kertoo tallennuksen jälkeen, montako niitä on.
+- **Lado uusi laitos**: voit muokata myös tekstiä. Tallennettaessa valitset, tuleeko pinoon *toinen laitos merkintöineen*, *toinen laitos ilman merkintöjä* vai *korvaava laitos*. Kahdessa ensimmäisessä alkuperäinen jää pinoon ennalleen, ja uuden nimikkeen tietorivillä lukee esimerkiksi *2. laitos*. Kun merkinnät siirretään, muuttuneista kohdista osa voi irrota. Irronneet eivät katoa: ne näkyvät Merkinnöissä merkinnällä *kohtaa ei löydy*, ja luin kertoo tallennuksen jälkeen, montako niitä on.
 
 ### 10.10 Latomon ohje
 
@@ -751,7 +765,7 @@ Latomon alun linkki *Pitkä ohje* avaa latomon ohjeen kirjoittajalle. Ohjeen alu
 
 ## 11. Oman tekstin kirjoittaminen
 
-Lukin lukee Markdownia: tavallista tekstiä, jonka sekaan muotoilut kirjoitetaan yksinkertaisin merkein. Kirjoita `*näin*`, ja saat *näin*. Lukimen merkintätapa pohjautuu iA Writerin tyyliin, ja samat merkinnät ymmärtää lähes jokainen Markdownia käsittelevä ohjelma. Taustaa ja ohjelmasuosituksia on tekstissä *Mikä on Markdown* (`luin.html#u=luin/mika-on-markdown.md`).
+Luin lukee Markdownia: tavallista tekstiä, jonka sekaan muotoilut kirjoitetaan yksinkertaisin merkein. Kirjoita `*näin*`, ja saat *näin*. Lukimen merkintätapa pohjautuu iA Writerin tyyliin, ja samat merkinnät ymmärtää lähes jokainen Markdownia käsittelevä ohjelma. Taustaa ja ohjelmasuosituksia on tekstissä *Mikä on Markdown* (`luin.html#u=luin/mika-on-markdown.md`).
 
 ### 11.1 Otsikkolohko ja otsikot
 
@@ -774,7 +788,7 @@ Lukin lukee Markdownia: tavallista tekstiä, jonka sekaan muotoilut kirjoitetaan
 
 - Alaviite suoraan tekstin sekaan: `[^Alaviitteen teksti.]`. Tai tunnuksella: tekstiin `[^1]` ja omalle rivilleen `[^1]: Alaviitteen teksti.`
 - `## Kirjallisuus` (tai *Lähteet*, *References*, *Bibliography* ym.): seuraavat kappaleet ovat kirjallisuusluettelon kohtia.
-- Alaviitteen viittaus, jolla on kirjallisuusluettelossa yksiselitteinen vastine (tekijä ja vuosi), saa linkin luettelon kohtaan. Lukin tekee linkin vain varmalla yhteydellä.
+- Alaviitteen viittaus, jolla on kirjallisuusluettelossa yksiselitteinen vastine (tekijä ja vuosi), saa linkin luettelon kohtaan. Luin tekee linkin vain varmalla yhteydellä.
 
 ### 11.4 Etukenttä
 
@@ -792,9 +806,9 @@ asiasanat: filosofia, etiikka
 
 Latomo kirjoittaa etukentän itse kentistä, joten sitä ei tarvitse osata. Etukenttään tallentuu vain se, mikä poikkeaa tekstistä päätellystä.
 
-### 11.5 Mitä lukin tekee itse
+### 11.5 Mitä luin tekee itse
 
-Lukin päättelee tekstistä paljon itse: otsikkotasot, artikkelin ja kirjan eron, sisällysluettelon, kirjallisuusluettelon, lähdeviittauslinkit, kielen ja tavutuksen. Lainausmerkkejä ei muuteta. Jos jokin näyttää lukimessa oudolta, latomon huomautukset kertovat yleensä syyn.
+Luin päättelee tekstistä paljon itse: otsikkotasot, artikkelin ja kirjan eron, sisällysluettelon, kirjallisuusluettelon, lähdeviittauslinkit, kielen ja tavutuksen. Lainausmerkkejä ei muuteta. Jos jokin näyttää lukimessa oudolta, latomon huomautukset kertovat yleensä syyn.
 
 ## 12. Jakaminen
 
@@ -806,7 +820,7 @@ Jakaminen on lukimessa sivuosassa: kaikki tapahtuu pinon nimikkeen valikosta (UL
 
 ### 12.2 Linkitä tiedostoon
 
-Latomosta tai lisäosalla tuodulla tekstillä ei ole verkko-osoitetta, joten linkin paikalla on *Linkitä tiedostoon*. Lataa teksti (*Lataa .md*), vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Lukin hakee tiedoston ja hyväksyy linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen valikossa on *Kopioi linkki*.
+Latomosta tai lisäosalla tuodulla tekstillä ei ole verkko-osoitetta, joten linkin paikalla on *Linkitä tiedostoon*. Lataa teksti (*Lataa .md*), vie tiedosto verkkoon (esimerkiksi Dropboxiin) ja anna sen jakolinkki. Luin hakee tiedoston ja hyväksyy linkin, jos tiedoston teksti on sama kuin pinossa (otsikko ja tietorivit saavat erota). Sen jälkeen valikossa on *Kopioi linkki*.
 
 ### 12.3 Lähdeviite ja tiedosto
 
@@ -883,7 +897,7 @@ Hyvä vikailmoitus kertoo laitteen ja selaimen, tekstin (tai sivuston, jolta se 
 - **latomo**: tekstin tarkistus ja ladonta lukimeen.
 - **lisätieto**: nimikkeen toinen rivi pinossa (sivusto, alaotsikko, teos tai tekijä).
 - **luin-linkki**: lukimen osoite, joka avaa verkossa olevan tekstin.
-- **lukin**: tekstin lukunäkymä; myös koko ohjelma taivutettuna (*lukimessa*, *lukimeen*).
+- **lukimessa, lukimeen**: *luin* taivutettuna (*lukimen pino*); myös lukunäkymä, johon teksti avautuu.
 - **lukimeen-lisäosa**: selainlisäosa *Lukimeen*.
 - **luku**: ylin otsikkotaso.
 - **luonnos**: katkoviivainen maalaus ennen alleviivausta.

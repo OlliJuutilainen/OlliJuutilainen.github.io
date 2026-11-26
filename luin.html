@@ -28,7 +28,7 @@
           #u=<url>    teksti osoitteesta (lisätään lukulistaan; välimuisti, jos verkko ei toimi)
           #l=<koodi>  laatikkolause talteen ja laatikon haku
           #tuo        Latomosta (luin/latomo.html) siirretty teksti
-  Käyttöohje: luin/kayttoohje.html (lukulistan linkki).
+  Pikaohje ja käyttöohje: luin/pikaohje.md ja luin/kayttoohje.md (pinon linkit, #u=).
   Kehittäjän opas: yksityinen tusina-rata-repo, oppaat/luin-kehittajan-opas.md.
 -->
 <style>
@@ -836,7 +836,7 @@
   #teksti h4 { font-size: 1em; margin: 1.8em 0 .5em; font-style: italic; }
   #teksti .caps { text-transform: uppercase; letter-spacing: .06em; font-size: .94em; }
   #teksti p { margin: 0 0 1.1em; }
-  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.tila):not(.vali):not(.huom):not(.kaava):not(.oik) { text-align: justify; }
+  #teksti.tasattu p:not(.bib):not(.meta):not(.sub):not(.rahoitus):not(.tila):not(.vali):not(.huom):not(.kaava):not(.oik):not(.saate-k) { text-align: justify; }
   /* Kaksirivinen kappale, jonka ainoa tasattu rivi levenisi yli LIEHU_RAJA:n sanaväleihin, liehuu (liehutaLyhyet()).
      Spesifisyys yli tasaussäännön. */
   #teksti.tasattu p.liehu:not(.bib):not(.meta):not(.sub):not(.rahoitus) { text-align: left; }
@@ -881,6 +881,21 @@
   #teksti p.tila.vakava { color: var(--ruoste); }
   #teksti p.tila + p.rahoitus { margin-top: -1.5em; }
   #teksti p.tila a { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  /* Saate (md.js: > [!huomautus]- heti otsikkolohkon perässä; käyttäjän pyyntö): kehittäjän viesti otsikkolohkon lopussa, oma tyyli
+     kuten rahoitushuomautuksella ja lomitetulla käännöksellä. Otsikkorivi pieni kursiivi ruosteella (napautettava) ja merkkinä
+     Merkintöjen osioiden salmiakki (ontto kiinni, täytetty auki); viesti lainauksen viivan ja värin kera, pienempänä, liehuen ja
+     sisentämättä. Ei lohkonumeroa, joten avaaminen ei siirrä kirjanmerkkejä; avaus asettelee tekstin (sivutus). */
+  #teksti details.saate { margin: 1.5em 0 0; }
+  #teksti details.saate > summary { display: inline-block; max-width: 100%; list-style: none; cursor: pointer; font-size: .8em;
+    line-height: 1.5; font-style: italic; letter-spacing: .04em; color: var(--ruoste); }
+  #teksti details.saate > summary::-webkit-details-marker { display: none; }
+  #teksti details.saate > summary svg { width: 6px; height: 7.4px; margin-left: .6em; vertical-align: 0; }
+  #teksti details.saate > summary .sal { fill: none; stroke: currentColor; stroke-width: 1.1; }
+  #teksti details.saate[open] > summary .sal { fill: currentColor; }
+  #teksti .saate-teksti { margin: .9em 0 0; padding: 0 0 0 1.5em; border-left: 1px solid var(--viiva); font-size: .88em; line-height: 1.55;
+    color: var(--sitaatti); }
+  #teksti p.saate-k, #teksti.sisennys p.saate-k, #teksti.sisennys p + p.saate-k { margin: 0; text-indent: 0; text-align: left; }
+  #teksti p.saate-k + p.saate-k { margin-top: .8em; }
   /* Luinin huomautus (md.js huomautus(): [kaava], [Kaava (3) on lähteessä kuvana.]): lisäosan oma ääni siitä, mitä lukin ei näytä,
      samalla tavalla kuin kuvan paikka [kuva]. Kokonainen huomautuskappale ilman sisennystä ja tasausta. */
   #teksti .huom { color: var(--harmaa); font-style: italic; font-size: .92em; }
@@ -1711,7 +1726,8 @@
   </div>
   <!-- Käyttöohje, kokeiluteksti, lukemisto (Luettavaa), sanaselityssivu ja pienen välin jälkeen Latomo (käyttäjän päätös).
        Kehittäjän opas ei ole julkisessa repossa. -->
-  <p class="lisaa"><a href="luin/kayttoohje.html">Käyttöohje</a><br>
+  <p class="lisaa"><a href="#u=luin/pikaohje.md">Pikaohje</a><br>
+    <a href="#u=luin/kayttoohje.md">Käyttöohje</a><br>
     <!-- Väliaikainen kokeiluteksti (käyttäjän lupa 20.10.2026); poistetaan yhdessä luin/tekstit/-kansion kanssa. -->
     <a href="#u=luin/tekstit/kant-ja-elainetiikka.md">Kokeiluteksti: Kant ja eläinetiikka</a><br>
     <a href="luin/sivustot.html">Luettavaa</a><br>
@@ -1926,7 +1942,7 @@
 </defs></svg>
 
 <script src="luin/tekstit.js?v=a1858e18"></script>
-<script src="luin/md.js?v=3fe41c92"></script>
+<script src="luin/md.js?v=689c1b7a"></script>
 <script src="luin/posti.js?v=de0c75a5"></script>
 <script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script src="luin/huilu.js?v=938e5538"></script>
@@ -4929,6 +4945,10 @@
   // Valmiin ja jäsennetyn tekstin yhteinen loppu: linkit, lohkot, kohdat, vakiosivut ja merkinnät.
   function piirraTeksti2() {
     paivitaLinkit();
+    // Saatteen otsikkoriville Merkintöjen osioiden salmiakki (ontto kiinni, täytetty auki; CSS details.saate).
+    $$('details.saate > summary', art).forEach(function (s) {
+      if (!s.querySelector('svg')) s.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 9 11" aria-hidden="true"><path class="sal" d="M4.5 .8L8.2 5.5L4.5 10.2L.8 5.5Z"/></svg>');
+    });
     nyt.blocks = []; nyt.txt = []; nyt.cum = []; nyt.total = 0; nyt.sanat = []; nyt.viit = []; nyt.erik = null;
     $$('[data-b]', art).forEach(function (el) {
       var b = +el.dataset.b, t = lohkoteksti(el);
@@ -5757,6 +5777,10 @@
     sivutusAsetuksiin = null;
   }).observe($('#asetukset'), { attributes: true, attributeFilter: ['hidden'] });
 
+  // Saatteen avaus tai sulku muuttaa otsikkolohkon korkeutta: asettelu samaan kohtaan (sivut ja reunushuomiot).
+  art.addEventListener('toggle', function (e) {
+    if (nyt && e.target.classList && e.target.classList.contains('saate')) asettele(tila.ankkuri);
+  }, true);
   /* ---------- napautukset tekstissä ---------- */
   sivuEl.addEventListener('click', function (e) {
     if (!nyt) return;
@@ -5776,6 +5800,8 @@
       else if (palkitAuki() && !paneeliAuki()) avaaJana(false);
       return;
     }
+    // Saatteen otsikkorivi avaa ja sulkee viestin (selaimen oma details): ei reunanapautusta eikä muuta.
+    if (t.closest('#teksti details.saate > summary')) return;
     var go = t.closest('a[data-go]');
     if (go) { e.preventDefault(); hyppaa({ b: +go.dataset.go, o: 0 }, false, true); return; }
     var lisaa = t.closest('.sn-lisaa');

@@ -2503,6 +2503,19 @@
       if (head) head = head.replace(/^<header class="tt">(<p class="tila[^"]*">.*?<\/p>)?/, function (x) { return x + rhHtml; });
       else html += rhHtml;
     }
+    /* Saate (käyttäjän pyyntö 27.11.2026: ohjeiden alun viesti kehittäjältä): otsikkolohkoa heti seuraava avautuva lainaus
+       Obsidianin tapaan, > [!huomautus]- Otsikko (- kiinni, + auki; sana hakasulkeissa vapaa), ladotaan otsikkolohkon loppuun
+       details.saate-lohkona ilman lohkonumeroa kuten rahoitushuomautus, joten kirjanmerkit ja merkinnät eivät siirry. Rungossa vain
+       kappaleet. Muualla tekstissä ja ilman -/+-merkkiä (GitHubin [!NOTE]) lainaus on ennallaan. */
+    var saate = head && tokens[t0] && tokens[t0].t === 'bq' && tokens[t0].kids[0] && tokens[t0].kids[0].t === 'p' &&
+      /^\[![\p{L}-]+\]([+-])[ \t]*([^\n]*)(?:\n([\s\S]*))?$/u.exec(tokens[t0].kids[0].text.trim());
+    if (saate) {
+      var saKpl = (saate[3] && saate[3].trim() ? [saate[3]] : []).concat(tokens[t0].kids.slice(1).filter(function (k) { return k.t === 'p'; }).map(function (k) { return k.text; }));
+      res.saate = { otsikko: plain(saate[2]).trim(), auki: saate[1] === '+' };
+      head += '<details class="saate"' + (saate[1] === '+' ? ' open' : '') + '><summary>' + inline(saate[2].trim(), ctx) + '</summary>' +
+        '<div class="saate-teksti">' + saKpl.map(function (k) { return '<p class="saate-k">' + inline(k.trim(), ctx) + '</p>'; }).join('') + '</div></details>';
+      t0++;
+    }
     if (head) html += head + '</header>';
     else res.warnings.push({ ln: tokens[0] ? tokens[0].ln : 1, msg: 'Teksti ei ala #-otsikolla: nimeksi tulee ensimmäinen otsikko tai tiedoston nimi.' });
 
@@ -2986,7 +2999,7 @@
   // Jos yksittäinen sana ei mahdu edes yksin riville, lukija tavuttaa sen erikseen (luin.html, tavutaPitkat()).
   // Lähdeluettelo (.bib) ei tavuta lainkaan (Teologian tyyli ja APA 7: ei tavutusta, ei tavuviivaa DOI:hin eikä
   // osoitteisiin); ylipitkä sana katkeaa ilman viivaa (overflow-wrap: anywhere).
-  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.tila,.huom,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
+  var OHITA = 'h1,h2,h3,h4,h5,h6,.sub,.meta,.rahoitus,.tila,summary,.huom,.bib,strong,th,caption,figcaption,em,code,pre,a,.fnref,.fnnum,.luin-ui';
   // kieli(lohko): valinnainen; 'lt' tavuttaa lohkon liettuan säännöin, muu arvo kuten ennen (suomen säännöt).
   var LOHKO = 'p, li, dd, dt, blockquote, td, th, figcaption, .sidenote';
   function tavutaDOM(rootEl, tila, kieli) {
