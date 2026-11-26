@@ -203,11 +203,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - Latomon lisäosarivin pikku plussa avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta,
   koska lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot` koreineen (`data-aihe`, pääkori ensin,
-  `kaikki` = kaikkiruokainen; `data-laji`; `data-kieli`; sanasto sama kuin `LK_EHDOTUS`), jotta haku ja korisuodattimet
+  `yleiset` = kaikkiruokainen sivusto tai yleinen tietosanakirja; `data-laji`; `data-kieli`; sanasto sama kuin `LK_EHDOTUS`), jotta haku ja korisuodattimet
   (näkyvät linkkirivit, mukaan/pois, pois karsii pääkorin tai pääkielen; yhden sivuston kielet *muut kielet*) löytävät sen,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
   `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
-  Ensyklopedia Logos ja Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`). Älä lisää sitä kysymättä.
+  Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on.
 - **Otsikkohaku** (käyttäjän päätös: tarkka verkko): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
@@ -217,6 +217,14 @@ lisäosan tietosuojasivu jää muodolliseksi.
   otsikkohaulla ja Gutenbergin sen jälkeen (haku toimii jo sitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
   kymmeniätuhansia: korien luvut lasketaan yhdellä läpikäynnillä (`laskeOtsikot()`) ja järjestys lokeroimalla, ei korikohtaisesti.
   Korit rajaavat osumia (merkinnän omat aihekorit ja kieli, muuten sivuston), ja korin luku on otsikkohaun aikana otsikko-osumien määrä.
+  Osumat ovat sivustoittain (käyttäjän päätös): yksi rivi sivustoa kohden (nimi ja osumien määrä), napautus avaa ja sulkee. Haku-rivi
+  (*otsikko*, *tekijä*, *asiasana*; käyttäjän päätös: kolme hakua, jotta tutkimus ei huku alkuteosten alle) toimii korien tavoin:
+  mukaan = vain nämä kentät, pois = karsii merkinnän, jos hakusana osuu kenttään. Luettelossa on siksi asiasanataulukko ja
+  muut otsikot (muoto julkaise.js:ssä).
+- **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *laki ja lääketiede* (entinen jämäkori; kielet ja
+  kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
+  *kaikkiruokainen*), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
+  tekijästä tai asiasanasta tusina-radan `hakemisto/korit.js`:ssä). Sama sanasto `LK_EHDOTUS`ssa.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi pinossa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `android/luin/` (opas 7.6): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa
   `luin.html`:n verkosta; `luin.html` tietää sovelluksesta vain `window.LuinApp`in olemassaolon (`NAPIT_AINA`: sivunkäännön tavat saa
@@ -371,7 +379,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   asia), vain lajittelunuoli ja voimassa oleva järjestys, ei nimitekstiä (nimi `aria-label`issa ja vihjeenä; pitkä järjestys
   rivittyy napin sisällä); *sanasto* ja *kaikki kortit* pieninä linkkeinä sen alla. Kellarissa ei ole hakua (käyttäjän päätös:
   ei istu veivihyllystöön; ei palauteta kysymättä). Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
-  sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
+  sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia koriin *yleiset*); uudelle sovitteelle rivi sinne.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
   hakasulkeisen yläotsakkeen. 1) Mainokset ilman lahjoitusnappia: sivusto piiloon tuettujen listasta, huomautus mainos-

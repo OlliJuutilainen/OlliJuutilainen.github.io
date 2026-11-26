@@ -4,6 +4,9 @@
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
 // vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
+// Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
+// Haku-rivi: tekijä mukaan tai pois, asiasana. Korien nimet (uskonto, laki ja lääketiede, yleiset, fennomaanit) ja Problemoksen
+// alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const JUURI = path.resolve(__dirname, '../..'), ULOS = process.argv[2];
@@ -47,27 +50,81 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('haku kant', (await nimet()).length >= 2, (await nimet()).join(' | '));
   await page.click('#s-tyhjenna');
   t('hakukenttä tyhjenee', await page.inputValue('#s-haku') === '' && await nak() === kaikki);
-  // Otsikkohaku.
-  const osumat = async q => {
-    await page.fill('#s-haku', q); await page.waitForTimeout(300);
-    await page.waitForFunction(() => !/ladataan|latautuu/.test(document.getElementById('o-tila').textContent), null, { timeout: 20000 });
-    return page.$$eval('#osumat li', l => l.map(x => ({ o: x.querySelector('a').textContent, h: x.querySelector('a').href, s: x.querySelector('.mika').textContent })));
-  };
+  // Otsikkohaku. osumat() avaa kaikki ryhmät ja palauttaa niiden näkyvät osumat (s = ryhmän sivusto, t = tekijä tai asiasana).
+  const odota = async () => { await page.waitForTimeout(300);
+    await page.waitForFunction(() => !/ladataan|latautuu/.test(document.getElementById('o-tila').textContent), null, { timeout: 30000 }); };
+  const ryhmat = () => page.$$eval('#osumat > li', l => l.map(x => ({ s: x.getAttribute('data-sivu'), n: +x.querySelector('.r-otsake .n').textContent,
+    auki: x.querySelector('.r-otsake').getAttribute('aria-expanded') === 'true', nak: x.querySelectorAll('ol.osumat > li').length })));
+  const nakyvat = () => page.$$eval('#osumat ol.osumat > li', l => l.map(x => ({ o: x.querySelector('a').textContent, h: x.querySelector('a').href,
+    s: x.closest('li[data-sivu]').getAttribute('data-sivu'), t: (x.querySelector('.mika') || {}).textContent || '' })));
+  const avaaKaikki = () => page.$$eval('#osumat button.r-otsake[aria-expanded="false"]', l => l.forEach(b => b.click()));
+  const osumat = async q => { if (q != null) await page.fill('#s-haku', q); await odota(); await avaaKaikki(); return nakyvat(); };
   t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg === 0, String(luettelo + gutenberg));
   let o = await osumat('hegel logic');
   t('hegel logic: NDPR:n arvio, slug purkautuu', o.some(x => x.o === 'Hegel’s Logic and Metaphysics' && x.h === 'https://ndpr.nd.edu/reviews/hegels-logic-and-metaphysics/'), o.slice(0, 3).map(x => x.h).join(' '));
   t('ydin ja Gutenberg ladattiin kerran', luettelo === 1 && gutenberg === 1, luettelo + ' ' + gutenberg);
   o = await osumat('kalevala');
-  t('kalevala: Gutenbergin teksti mukana', o.some(x => /^https:\/\/www\.gutenberg\.org\/ebooks\/\d+$/.test(x.h) && /Project Gutenberg/.test(x.s)), o.slice(0, 4).map(x => x.h).join(' '));
+  t('kalevala: Gutenbergin teksti mukana', o.some(x => /^https:\/\/www\.gutenberg\.org\/ebooks\/\d+$/.test(x.h) && x.s === 'Project Gutenberg'), o.slice(0, 4).map(x => x.h).join(' '));
   o = await osumat('cicero de officiis');
   t('cicero de officiis: Latin Library, etuliite purkautuu', o.some(x => x.h === 'https://www.thelatinlibrary.com/cicero/off.shtml'), o.map(x => x.h).join(' '));
   t('osoitteet ehjiä', o.every(x => /^https?:\/\/[^\s\u0001]+$/.test(x.h)));
   o = await osumat('kant');
-  const kantKaikki = Number((await page.textContent('#o-tila')).replace(/\D/g, ''));
-  await nappi('kieli', 'suomi'); await page.waitForTimeout(100);
-  o = await page.$$eval('#osumat li', l => l.map(x => x.querySelector('.mika').textContent));
-  t('kant + suomi: vain suomenkielisiä sivustoja', o.length > 0 && o.length < kantKaikki && o.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg/.test(x)) && o.some(x => /Kant, Immanuel/.test(x)), o.join(' | '));
-  t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === o.length);
+  const kantKaikki = (await ryhmat()).reduce((n, r) => n + r.n, 0);
+  t('tilarivi: osumat ja sivustot', new RegExp('^' + kantKaikki + ' osumaa \\d+ sivustolla').test(await page.textContent('#o-tila')), await page.textContent('#o-tila'));
+  await nappi('kieli', 'suomi'); await odota();
+  const kantFi = await ryhmat(), kantFiN = kantFi.reduce((n, r) => n + r.n, 0);
+  t('kant + suomi: vain suomenkielisiä sivustoja', kantFiN > 0 && kantFiN < kantKaikki && kantFi.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg/.test(x.s)), kantFi.map(x => x.s + ' ' + x.n).join(' | '));
+  t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === kantFiN);
+  await page.click('#s-tyhjenna');
+  // Ryhmät: Kierkegaard ei huku tekstiportaalin alle.
+  await page.fill('#s-haku', 'kierkegaard'); await odota();
+  let r = await ryhmat();
+  const kb = r.find(x => x.s === 'Det Kgl. Biblioteks tekstportal');
+  t('kierkegaard: sivusto kerran, nimi ja määrä', kb && kb.n > 50 && r.filter(x => x.s === kb.s).length === 1 && r.length > 3, r.map(x => x.s + ' ' + x.n).join(' | '));
+  t('ryhmät aluksi kiinni', r.every(x => !x.auki && !x.nak));
+  t('sivustojen nimet ovat listan nimiä', await page.evaluate(() => [...document.querySelectorAll('#osumat > li')].every(li =>
+    [...document.querySelectorAll('ul.sivustot li a')].some(a => a.textContent === li.getAttribute('data-sivu')))));
+  await page.click('#osumat > li[data-sivu="Det Kgl. Biblioteks tekstportal"] button.r-otsake');
+  r = await ryhmat(); let k = r.find(x => x.s === kb.s);
+  t('napautus avaa 25', k.auki && k.nak === 25 && r.filter(x => x.auki).length === 1, JSON.stringify(k));
+  await page.click('#osumat > li[data-sivu="Det Kgl. Biblioteks tekstportal"] button.r-lisaa');
+  k = (await ryhmat()).find(x => x.s === kb.s);
+  t('näytä lisää: 50', k.nak === 50, String(k.nak));
+  t('avattu ryhmä säilyy kentän vaihdossa', await (async () => { await nappi('kentta', 'otsikko'); await odota(); await nappi('kentta', 'otsikko'); await nappi('kentta', 'otsikko'); await odota();
+    const x = (await ryhmat()).find(y => y.s === kb.s); return x && x.auki; })());
+  await page.click('#osumat > li[data-sivu="Det Kgl. Biblioteks tekstportal"] button.r-otsake');
+  k = (await ryhmat()).find(x => x.s === kb.s);
+  t('toinen napautus sulkee', !k.auki && !k.nak);
+  // Haku-rivi: tekijä mukaan vain tekijäosumat, tekijä pois karsii ne (tutkimus esiin).
+  await nappi('kentta', 'tekijä'); await odota();
+  o = await osumat(); r = await ryhmat();
+  t('tekijä mukaan: tekstiportaalin teokset, kaikilla tekijänä Kierkegaard', r.find(x => x.s === kb.s).n > 50 && o.length > 25 && o.every(x => /kierkegaard/i.test(x.t)), o.filter(x => !/kierkegaard/i.test(x.t)).slice(0, 3).map(x => x.s + ': ' + x.o + ' / ' + x.t).join(' | ') + ' (' + o.length + ')');
+  await nappi('kentta', 'tekijä'); await odota();
+  o = await osumat(); r = await ryhmat();
+  t('tekijä pois: ei tekijäosumia, tutkimus jää', o.length > 10 && o.every(x => !/kierkegaard/i.test(x.t)) && !r.some(x => x.s === kb.s) && r.some(x => x.s === 'Stanford Encyclopedia of Philosophy'),
+    r.map(x => x.s + ' ' + x.n).join(' | '));
+  t('pois-kentän luku 0', await page.textContent('button.kori[data-f="kentta"][data-v="tekijä"] .n') === '0');
+  await nappi('kentta', 'tekijä'); await nappi('kentta', 'asiasana'); await odota();
+  o = await osumat();
+  t('asiasana mukaan: asiasana näkyy osumassa', o.length > 0 && o.every(x => /asiasana .*Kierkegaard/i.test(x.t)), o.map(x => x.o + ' / ' + x.t).slice(0, 3).join(' | '));
+  await page.click('#s-tyhjenna');
+  t('tyhjennä nollaa kentät', await page.$$eval('button.kori[data-f="kentta"][data-tila]', l => l.length) === 0);
+  // Korien nimet ja fennomaanit.
+  t('korit: uskonto, laki ja lääketiede, yleiset, fennomaanit; ei vanhoja', await page.evaluate(() => { const v = [...document.querySelectorAll('button.kori[data-f="aihe"]')].map(b => b.getAttribute('data-v'));
+    return ['uskonto', 'laki ja lääketiede', 'yleiset', 'fennomaanit'].every(x => v.includes(x)) && !v.some(x => /perimmäisyys|jämäkori|kaikkiruokainen|tietosanakirjat/.test(x)); }));
+  await nappi('aihe', 'yleiset');
+  t('yleiset: Wikipedia ja kaikkiruokaiset', (await page.$$eval('ul.sivustot li:not([hidden])', l => l.map(x => x.textContent))).filter(x => /Wikipedia|Project Gutenberg|Substack|Visuotinė/.test(x)).length >= 5);
+  await page.click('#s-tyhjenna');
+  await nappi('aihe', 'fennomaanit');
+  t('fennomaanit: Snellman ja SLS', (await nimet()).join('|') === 'SLS:n digitaaliset editiot|J. V. Snellmanin kootut teokset' || (await nimet()).length === 2, (await nimet()).join(' | '));
+  o = await osumat('runeberg');
+  t('runeberg + fennomaanit: Gutenberg ja SLS', o.some(x => x.s === 'Project Gutenberg') && o.every(x => x.s !== 'Det Kgl. Biblioteks tekstportal'), [...new Set(o.map(x => x.s))].join(' | '));
+  await page.click('#s-tyhjenna');
+  // Problemos: liettuankielinen artikkeli alkukielisellä otsikolla, englanninkielinen otsikko löytää sen.
+  o = await osumat('efficiency training specialists');
+  t('Problemos: englanninkielinen otsikko löytää liettuankielisen', o.some(x => x.o === 'Apie specialistų rengimo efektyvumą' && /\/problemos\/lt\/article\/view\/5770$/.test(x.h)), o.map(x => x.o + ' ' + x.h).join(' | '));
+  await nappi('kieli', 'englanti'); await odota();
+  t('Problemos: liettuankielinen ei ole englantia', !(await nakyvat()).some(x => x.o === 'Apie specialistų rengimo efektyvumą'));
   await page.click('#s-tyhjenna'); await page.fill('#s-haku', 'he'); await page.waitForTimeout(300);
   t('alle kolme kirjainta: osumat piilossa', await page.evaluate(() => document.getElementById('otsikot').hidden));
   await page.click('#s-tyhjenna');
@@ -75,7 +132,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await page.click('nav.aakkoset a[href="#k-S"]'); await page.waitForTimeout(150);
   t('kirjainhyppy S', await page.evaluate(() => { const h = document.getElementById('k-S').getBoundingClientRect(); return h.top >= 0 && h.top < 300; }));
   await page.evaluate(() => scrollTo(0, 0));
-  await nappi('aihe', 'perimmäisyys ja uskonnot');
+  await nappi('aihe', 'uskonto');
   const clip = await page.evaluate(() => { const a = document.getElementById('suodatus').getBoundingClientRect(); return { x: 0, y: a.top + scrollY - 8, width: innerWidth, height: a.height + 330 }; });
   if (ULOS) await page.screenshot({ path: path.join(ULOS, 'sivustot-suodatus-360.png'), clip, fullPage: true });
   t('ei sivuvirheitä', !virheet.length, virheet.join(' | '));
