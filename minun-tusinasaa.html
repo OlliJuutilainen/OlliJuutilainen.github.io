@@ -197,8 +197,9 @@
     padding:8px 10px; color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px;
     resize:none; overflow:hidden; overflow-wrap:anywhere; letter-spacing:.02em }
   .avainRivi{ display:flex; align-items:center; gap:10px; margin:10px 0 0 }
-  /* Sutkauta on näkymän pääasiallinen toiminto (täytetty); näkyy vain, kun lähettämisellä on vaikutus. */
-  .avainRivi .btn.sutkauta{ color:var(--bg) }
+  /* Sutkauta on näkymän päänappi: täytetty sivun kirkkaimmalla sävyllä, jotta silmä hakeutuu siihen eikä himmeään
+     Arvoon, joka korvaisi kentän lauseen. Näkyy vain, kun lähettämisellä on vaikutus. */
+  .avainRivi .btn.sutkauta{ color:var(--bg); background:var(--brand); border-color:var(--brand) }
   /* Arvo on sivutoiminto: himmeä teksti, kirkastuu osoitettaessa. */
   .avainRivi #arvo{ color:var(--muted) }
   .avainRivi #arvo:hover, .avainRivi #arvo:focus-visible{ color:var(--text) }
