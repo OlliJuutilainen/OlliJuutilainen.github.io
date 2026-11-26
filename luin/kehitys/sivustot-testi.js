@@ -111,8 +111,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await page.click('#s-tyhjenna');
   t('tyhjennä nollaa kentät', await page.$$eval('button.kori[data-f="kentta"][data-tila]', l => l.length) === 0);
   // Korien nimet ja fennomaanit.
-  t('korit: uskonto, laki ja lääketiede, yleiset, fennomaanit; ei vanhoja', await page.evaluate(() => { const v = [...document.querySelectorAll('button.kori[data-f="aihe"]')].map(b => b.getAttribute('data-v'));
-    return ['uskonto', 'laki ja lääketiede', 'yleiset', 'fennomaanit'].every(x => v.includes(x)) && !v.some(x => /perimmäisyys|jämäkori|kaikkiruokainen|tietosanakirjat/.test(x)); }));
+  t('korit: uskonto, laki ja lääketiede, yleiset, fennomaanit, luonnontiede; ei vanhoja', await page.evaluate(() => { const v = [...document.querySelectorAll('button.kori[data-f="aihe"]')].map(b => b.getAttribute('data-v'));
+    return ['uskonto', 'laki ja lääketiede', 'yleiset', 'fennomaanit', 'luonnontiede'].every(x => v.includes(x)) && !v.some(x => /perimmäisyys|jämäkori|kaikkiruokainen|tietosanakirjat|^tiede$/.test(x)); }));
   await nappi('aihe', 'yleiset');
   t('yleiset: Wikipedia ja kaikkiruokaiset', (await page.$$eval('ul.sivustot li:not([hidden])', l => l.map(x => x.textContent))).filter(x => /Wikipedia|Project Gutenberg|Substack|Visuotinė/.test(x)).length >= 5);
   await page.click('#s-tyhjenna');
