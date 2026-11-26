@@ -139,18 +139,19 @@ async function handleLoc(req, env) {
 // Julkinen sijainnin tallennus (POST /api/loc, oma-tusinasaa.html). Selain salaa sijainnin itse ja lähettää vain
 // salatun paketin {v, iv, ct}; worker arpoo tokenin, eikä se näe avainta eikä koordinaatteja. Tallennettua ei voi
 // muuttaa: worker ei tunne avainta eikä siis omistajaa, joten uusi sijainti on uusi linkki.
-// Rajoitin on LuinRaja-luokka omana oliona ("loc") omilla rajoillaan; päiväraja suojaa Luinin ja keikkojen
-// KV-kirjoituksia (ilmaistason 1000 kirjoitusta päivässä).
+// Rajoitin on LuinRaja-luokka omana oliona ("loc") omilla rajoillaan. Päivärajat jakavat ilmaistason KV:n 1000
+// kirjoitusta UTC-päivässä: Luin 500, uudet sijainnit 150, profiilien ja salkosutkautusten muutokset 300, 50 varalla.
+// Päivärajan 429 on daily_limit (sivut kertovat, milloin raja nollautuu), osoitekohtaisen minuuttirajan rate_limited.
 //
 // Poikkeus: Minun oma tusinasää -profiili (minun-tusinasaa.html). Salatussa paketissa on salkolista, valittu salko
 // ja lämpötilavalinta, ja tietueessa kirjoitusavaimen SHA-256-tiiviste wh. Vain kirjoitusavaimen haltija voi muuttaa
 // pakettia (PUT /api/loc?t=…). Katselulinkissä on vain t ja k, joten sillä ei voi muuttaa mitään. GET ei palauta wh:ta.
 const LOC_RAJA_MAARA = 5;
-const LOC_PAIVA_MAX = 50;
+const LOC_PAIVA_MAX = 150;
 const LOC_CT_MAX = 1024;
 const LOC_PROFIILI_CT_MAX = 8192;
 const LOC_MUUTOS_MAARA = 20;
-const LOC_MUUTOS_PAIVA_MAX = 200;
+const LOC_MUUTOS_PAIVA_MAX = 300;
 const B64U_RE = /^[A-Za-z0-9_-]+$/;
 const LOC_TOKEN_RE = /^[A-Za-z0-9_-]{32}$/;
 // Kirjoitusavain ja sen tiiviste ovat 32 tavua = 43 merkkiä.
@@ -207,7 +208,7 @@ async function handleLocCreate(req, env, allowedOrigins) {
   }
   if (!(await luinLaskuri(env, "paiva", ip, "loc", { paivaMax: LOC_PAIVA_MAX }))) {
     logEvent("create_rate_limited", { by: "day" });
-    return errorResponse("rate_limited", 429);
+    return errorResponse("daily_limit", 429);
   }
   // Sama muoto kuin generaattorin tokeneissa: 24 satunnaistavua, 32 merkkiä, ei kaksoispistettä (ei törmää
   // luin:- ja gig:-etuliitteisiin). Metatieto erottaa julkisesti luodut omista.
@@ -278,7 +279,7 @@ async function handleLocUpdate(req, env, allowedOrigins) {
   }
   if (!(await luinLaskuri(env, "paiva", ip, "locmuutos", { paivaMax: LOC_MUUTOS_PAIVA_MAX }))) {
     logEvent("update_rate_limited", { by: "day" });
-    return errorResponse("rate_limited", 429);
+    return errorResponse("daily_limit", 429);
   }
   const metadata = { ...(found.metadata || {}), muutettu: new Date().toISOString().slice(0, 10) };
   try {
@@ -378,7 +379,7 @@ async function handleAvain(req, env, allowedOrigins) {
   }
   if (!(await luinLaskuri(env, "paiva", ip, "locmuutos", { paivaMax: LOC_MUUTOS_PAIVA_MAX }))) {
     logEvent("avain_rate_limited", { by: "day" });
-    return errorResponse("rate_limited", 429);
+    return errorResponse("daily_limit", 429);
   }
   try {
     await env.LOCATIONS.put(avain, JSON.stringify({ v: 1, iv, ct, wh }),
