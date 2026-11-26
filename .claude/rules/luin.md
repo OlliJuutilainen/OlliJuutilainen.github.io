@@ -46,6 +46,9 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Ei `luin/tekstit/`-kansioon (robots.txt estää sen).
 - `luin/kayttoohje.html`: lukijan käyttöohje, **ei Latomon**. Kun lukijan käyttäjälle näkyvä toiminta muuttuu,
   tarkista käyttöohje.
+- `luin/kayttoohje.md` ja `luin/pikaohje.md`: koko toiminnan käyttöohje ja pikaohje kirjoina lukimessa
+  (`luin.html#u=luin/kayttoohje.md`). Kielimallin luonnoksia, jotka odottavat käyttäjän läpikäyntiä: alun huomautus pois vasta
+  käyttäjän luvalla. Kun käyttäjälle näkyvä toiminta muuttuu, tarkista myös ne. Ei `luin/tekstit/`-kansioon (robots.txt).
 - Kehittäjän opas ei ole julkisessa repossa eikä Luinissa (käyttäjän päätös). Kun toiminta muuttuu, päivitä opas tusina-radassa.
 - `luin/lisaosa/` (*Lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja `#lataa` (`latomoon.js`; taustavälilehti sulkeutuu vain, jos `#lataa` lisää `body`yn `a[download]`-linkin, ja kirjoittaa odotuksen ajaksi Latomon kuittauksen `#lataa-tila` perään sulkeutumisesta):
