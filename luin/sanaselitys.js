@@ -24,6 +24,126 @@
   var SK_ELAT = { fi: 'suomesta', en: 'englannista', la: 'latinasta', grc: 'muinaiskreikasta', el: 'nykykreikasta', de: 'saksasta', fr: 'ranskasta', sv: 'ruotsista', lt: 'liettuasta',
     es: 'espanjasta', it: 'italiasta', da: 'tanskasta' };
   var SK_LAHDE = '<span class="sk-lahde">Wiktionary, CC BY-SA</span>';
+
+  /* ---------- Tieteen termipankki (vain sanaselityssivu: istunnon o.termit) ----------
+     Lukimen ikkunassa termipankkia ei käytetä (käyttäjän päätös): kone joutuisi arvaamaan alan ja vastineen lukijan puolesta
+     (aukeava → kasvitieteen dehiscent). Sivulla lukija valitsee itse. MediaWiki ja Semantic MediaWiki, CORS sallittu
+     (origin=*), CC BY-SA 3.0. Nimitykset ovat sivuina Nimitys:<sana> (suomen sanat pienellä, saksan substantiivit isolla),
+     käsitteet alakohtaisissa nimiavaruuksissa (Filosofia:intentionaalisuus). Yksi haku antaa takalinkkeinä kaikki nimitykseen
+     linkittävät sivut wikiteksteineen: käsite on vain sivu, jolla on Käsite-malline ja hakusana Liittyvä nimitys -mallineessa
+     (pelkkä maininta toisen käsitteen määritelmässä ei kelpaa). Termipankki ei tunne taivutusta, joten haetaan kirjoitettu
+     muoto ja tarvittaessa sama toisella alkukirjaimen koolla. */
+  var TP_API = 'https://tieteentermipankki.fi/w/api.php?action=query&format=json&formatversion=2&origin=*' +
+    '&prop=revisions&rvprop=content&rvslots=main&generator=backlinks&gbllimit=50&gbltitle=',
+    TP_SIVU = 'https://tieteentermipankki.fi/wiki/', TP_AIKA = 8000, tpVarasto = {};
+  var SK_LAHDE_TP = '<span class="sk-lahde">Tieteen termipankki, CC BY-SA</span>';
+  // Termipankin kielten nimet Wikisanakirjan kielinä (vastineen napautus ja alkuperä). Kreikka vain kreikan kirjaimin (alla).
+  var TP_KIELI = { suomi: 'Finnish', englanti: 'English', saksa: 'German', ruotsi: 'Swedish', ranska: 'French', latina: 'Latin',
+    espanja: 'Spanish', italia: 'Italian', portugali: 'Portuguese', viro: 'Estonian', 'venäjä': 'Russian', unkari: 'Hungarian',
+    tanska: 'Danish', hollanti: 'Dutch', puola: 'Polish', liettua: 'Lithuanian', latvia: 'Latvian', japani: 'Japanese', kiina: 'Chinese' };
+  // Vastineiden kielijärjestys: suomen muut nimitykset, klassiset kielet, sitten suurimmat; muut sivun järjestyksessä.
+  var TP_JARJ = ['suomi', 'latina', 'kreikka', 'englanti', 'saksa', 'ranska', 'ruotsi'];
+  // Lisätietojen alkuperähuomautus: rivi alkaa kielen lyhenteellä (kr. eidos, ousia · lat. adaequare=muistuttaa, olla yhtä).
+  var TP_ETY = /^(?:lat|kr|kreik|engl|eng|saks|ransk|ruots|ital|it|esp|arab|hepr|sanskr|skr|pers|ven|muinaiskr)\.\s/i;
+  function tpWikiKieli(kieli, sana) {
+    if (kieli === 'kreikka') return /\p{Script=Greek}/u.test(sana) ? 'Ancient Greek' : '';
+    return TP_KIELI[kieli] || '';
+  }
+  // Mallineen {{nimi …}} parametrit jokaisesta esiintymästä (sisäkkäiset mallineet ja linkit ohitetaan syvyyttä laskien).
+  function tpMallineet(wt, nimi) {
+    var out = [], re = new RegExp('\\{\\{\\s*' + nimi.replace(/ /g, '[ _]') + '\\s*(?=[|}\\n])', 'g'), m;
+    while ((m = re.exec(wt))) {
+      var i = m.index + 2, syv = 1;
+      while (i < wt.length && syv) {
+        if (wt.substr(i, 2) === '{{') { syv++; i += 2; } else if (wt.substr(i, 2) === '}}') { syv--; i += 2; } else i++;
+      }
+      var runko = wt.slice(m.index + m[0].length, i - 2), p = {};
+      runko.split(/\n\s*\|/).forEach(function (x) {
+        var j = x.indexOf('=');
+        if (j > 0) p[x.slice(0, j).replace(/^\s*\|/, '').trim()] = x.slice(j + 1).trim();
+      });
+      out.push(p);
+    }
+    return out;
+  }
+  // Wikitekstin rivi HTML:ksi: linkeistä näkyvä teksti, kursiivi ja lihavointi; muut merkinnät ja mallineet pois.
+  function tpRivi(s) {
+    s = String(s).replace(/<ref[^>]*\/>|<ref[\s\S]*?<\/ref>/gi, '').replace(/\{\{[^{}]*\}\}/g, '').replace(/<[^>]*>/g, '');
+    s = new DOMParser().parseFromString('<p>' + esc(s).replace(/&amp;/g, '&') + '</p>', 'text/html').body.textContent;
+    return esc(s).replace(/\[\[([^\]|]*)\|([^\]]*)\]\]/g, '$2').replace(/\[\[([^\]]*)\]\]/g, function (x, a) { return a.replace(/^[^:]*:\s*/, ''); })
+      .replace(/'''([\s\S]*?)'''/g, '<b>$1</b>').replace(/''([\s\S]*?)''/g, '<i>$1</i>').replace(/\s+/g, ' ').trim();
+  }
+  // Rivit erottaa <br> tai rivinvaihto (Filosofia:olemus: 1. … tyhjä rivi 2. …).
+  function tpRivit(s) { return String(s || '').split(/<br\s*\/?>|\n+/i).map(tpRivi).filter(Boolean); }
+  // Käsitesivu: otsikko (suomenkielinen nimitys, joka on sivun nimi, muuten ensimmäinen suomenkielinen), ala (nimiavaruus),
+  // määritelmät, alkuperähuomautukset ja nimitykset kielittäin. osui: hakusanaa vastaava nimitys; nimi: haku on sivun nimi.
+  function tpKasite(sivu, haku) {
+    var wt = ((((sivu.revisions || [])[0] || {}).slots || {}).main || {}).content || '';
+    var k = tpMallineet(wt, 'Käsite')[0];
+    if (!k) return null;
+    var nim = tpMallineet(wt, 'Liittyvä nimitys').map(function (p) { return { kieli: (p.kieli || '').trim(), nimitys: (p.nimitys || '').trim() }; })
+      .filter(function (n) { return n.kieli && n.nimitys; });
+    var osui = nim.filter(function (n) { return n.nimitys === haku; })[0];
+    if (!osui) return null;
+    var t = String(sivu.title), kp = t.indexOf(':'), ala = kp > 0 ? t.slice(0, kp) : '', nimi = kp > 0 ? t.slice(kp + 1).trim() : t;
+    var suomi = nim.filter(function (n) { return n.kieli === 'suomi'; });
+    var o = suomi.filter(function (n) { return ekaPieni(n.nimitys) === ekaPieni(nimi); })[0] || suomi[0] ||
+      nim.filter(function (n) { return ekaPieni(n.nimitys) === ekaPieni(nimi); })[0] || { kieli: '', nimitys: nimi };
+    var maar = k['määritelmä_fi'] || Object.keys(k).filter(function (x) { return /^määritelmä_/.test(x) && k[x]; }).map(function (x) { return k[x]; })[0] || '';
+    return {
+      o: o.nimitys, okieli: o.kieli, ala: ala, sivu: t, osui: osui, nimi: ekaPieni(nimi) === ekaPieni(haku),
+      maar: tpRivit(maar).map(function (x) { return x.replace(/^\d+[.)]\s*/, ''); }),
+      ety: tpRivit(k['lisätiedot_fi']).filter(function (x) { return TP_ETY.test(x.replace(/<[^>]*>/g, '')); }),
+      nim: nim
+    };
+  }
+  // Käsitteet, joiden nimitys haku on. kielet: termipankin kielinimet (sivun kielirajaus) tai null. Järjestys: haku sivun
+  // nimenä ensin, sitten muut suomenkieliset nimitykset, sitten vieraskieliset; kunkin sisällä alan mukaan.
+  function haeTermit(haku, kielet) {
+    var avain = haku + '|' + (kielet || []).join(',');
+    if (tpVarasto[avain]) return tpVarasto[avain];
+    function hae(q) {
+      var aika, p = Promise.race([fetch(TP_API + encodeURIComponent('Nimitys:' + q)).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }), new Promise(function (ok, ei) { aika = setTimeout(function () { ei(new Error('aika')); }, TP_AIKA); })]);
+      return p.then(function (j) {
+        clearTimeout(aika);
+        return ((j && j.query && j.query.pages) || []).map(function (s) { return tpKasite(s, q); }).filter(function (x) {
+          return x && (!kielet || kielet.indexOf(x.osui.kieli) >= 0);
+        });
+      }, function (e) { clearTimeout(aika); throw e; });
+    }
+    var a = Array.from(haku), toinen = a.length ? (a[0] === a[0].toLowerCase() ? a[0].toUpperCase() : a[0].toLowerCase()) + a.slice(1).join('') : haku;
+    var p = hae(haku).then(function (ts) { return ts.length || toinen === haku ? ts : hae(toinen); }).then(function (ts) {
+      var luokka = function (x) { return x.nimi ? 0 : x.osui.kieli === 'suomi' ? 1 : 2; };
+      return ts.sort(function (a, z) { return luokka(a) - luokka(z) || a.ala.localeCompare(z.ala, 'fi') || a.o.localeCompare(z.o, 'fi'); });
+    });
+    p.catch(function () { delete tpVarasto[avain]; });
+    return (tpVarasto[avain] = p);
+  }
+  // Vastineet kielittäin napautettavina (sk-sana vie sanan Wikisanakirjan selitykseen); otsikon sana ei toistu.
+  function tpVastineet(t) {
+    var ryhmat = {}, jarj = [];
+    t.nim.forEach(function (n) {
+      if (n.kieli === t.okieli && n.nimitys === t.o) return;
+      if (!ryhmat[n.kieli]) { ryhmat[n.kieli] = []; jarj.push(n.kieli); }
+      if (ryhmat[n.kieli].indexOf(n.nimitys) < 0) ryhmat[n.kieli].push(n.nimitys);
+    });
+    var paikka = function (k) { var i = TP_JARJ.indexOf(k); return i < 0 ? TP_JARJ.length : i; };
+    jarj = jarj.map(function (k, i) { return [k, i]; }).sort(function (a, z) { return paikka(a[0]) - paikka(z[0]) || a[1] - z[1]; }).map(function (x) { return x[0]; });
+    if (!jarj.length) return '';
+    return '<div class="sk-kieli">Vastineet</div><div class="sk-vast">' + jarj.map(function (k) {
+      return '<div class="sk-vrivi"><span class="sk-vkieli">' + esc(k) + '</span> ' + ryhmat[k].map(function (w) {
+        var wk = tpWikiKieli(k, w);
+        return '<button type="button" class="sk-sana" data-k="sk-sana" data-sana="' + esc(w) + '"' + (wk ? ' data-kieli="' + esc(wk) + '"' : '') + '>' + esc(w) + '</button>';
+      }).join(', ') + '</div>';
+    }).join('') + '</div>';
+  }
+  function tpLisa(t) {
+    return '<a class="sk-lisa" title="Avaa Tieteen termipankki" aria-label="Avaa Tieteen termipankki" href="' + esc(TP_SIVU + encodeURI(t.sivu.replace(/ /g, '_'))) +
+      '"><svg viewBox="6.75 6.75 10.5 10.5" aria-hidden="true"><path class="plus" d="M12 7.4V16.6M7.4 12H16.6"/></svg></a>';
+  }
   function haeSana(sana) {
     if (skVarasto.hasOwnProperty(sana)) return Promise.resolve(skVarasto[sana]);
     return fetch(SK_URL + encodeURIComponent(sana.replace(/ /g, '_'))).then(function (r) {
@@ -625,14 +745,16 @@
      kursiivi, lainaus, vip, oma, omaKieli, pikkusana, symboli; tyhjä kieli = tuntematon); o.ketju: skKetju(); o.kirjoitettu:
      haku on käyttäjän kirjoittama eikä tekstin sana (huomautukset sanovat Haettu x, eivät Tekstissä x); o.rajaus: sanaselityssivun
      kielirajaus { kielet, nimi } (ketju skRajaa()lla; nimi genetiivinä, latinan), jolloin ei löytynyt -viesti nimeää kielen ja
-     määritelmän linkki pysyy rajauksessa, kun linkin kieli kuuluu siihen. Palauttaa { aja, klikkaus(k, b) }:
+     määritelmän linkki pysyy rajauksessa, kun linkin kieli kuuluu siihen; o.termit: sanaselityssivun termipankkihaku
+     (haeTermit()), jolloin tulokset ovat valitsimessa Wikisanakirjan osumien edellä (alla kaynnista). Palauttaa { aja, klikkaus(k, b) }:
      klikkaus käsittelee kehyksen data-k-napit ja palauttaa false, kun kehyksen saa sulkea (raksi). */
   function istunto(o) {
     var pop = o.juuri, haku = o.haku, y = o.y, ketju = o.ketju, vuoro = ++skVuoro, vaihdot = [], virhe = false, askel = null;
-    var monta = sanaLkm(haku) > 1;
+    var monta = sanaLkm(haku) > 1, termit = [], tpHaettu = false, tpEty = {};
     function sijoitaPop() { if (o.sijoita) o.sijoita(); }
     function klikkaus(k, b) {
       if (k === 'sk-sulje') return false;
+      if (k === 'sk-termi') { vuoro = ++skVuoro; termiSelitys(vuoro, termit[+b.dataset.i]); return true; }
       if (k === 'sk-sana') {
         vuoro = ++skVuoro;
         var lk = skKieliKoodi(b.dataset.kieli || '');
@@ -646,13 +768,14 @@
     }
     function ajossa(v) { return v === skVuoro && o.auki(); }
     // ety: otsikon sivu, jolle tulee alkuperän paikka (vain selityksessä, ei valitsimessa eikä viesteissä).
+    // Termiselityksessä lahde on termipankin lähderivi ja linkki käsite (tpLisa), muuten Wikisanakirjan.
     function nayta(v, otsikko, runko, lahde, linkki, ety) {
       if (!ajossa(v)) return;
       $('.sk-o', pop).innerHTML = esc(otsikko) + (ety ? skEtyPaikka(ety) : '');
       $('.sk-logos', pop).hidden = !ety;
       pop.classList.toggle('sk-logos-nak', !!ety);
       $('.sk-runko', pop).innerHTML = runko;
-      $('.sk-ala', pop).innerHTML = (lahde ? SK_LAHDE : '') + skLisa(linkki);
+      $('.sk-ala', pop).innerHTML = (lahde ? (typeof lahde === 'string' ? lahde : SK_LAHDE) : '') + (linkki && linkki.sivu ? tpLisa(linkki) : skLisa(linkki));
       sijoitaPop();
     }
     function huom(r) { return '<div class="sk-huom">' + r + '</div>'; }
@@ -690,6 +813,7 @@
         var s = skSisalto(x.j, x.kielet, etusija || y.kieli, tilaa);
         if (!s.html) return;
         etyKielet[x.o] = s.kielet.map(function (k) { return (x.j[k][0] || {}).language || ''; });
+        delete tpEty[x.o];
         var muoto = x.muoto ? '<div class="sk-muoto">(”' + esc(x.muoto.o) + '”' + (x.muoto.kuvaus ? ' · ' + esc(x.muoto.kuvaus) : '') + ')</div>' : '';
         if (i > 0) runko += '<div class="sk-alaots"><span>' + esc(x.o) + skEtyPaikka(x.o) + '</span></div>' + muoto;
         else ylin = muoto;
@@ -721,8 +845,29 @@
     function etyNapiksi(v, o, nimet) {
       haeOsiot(o).then(function (sections) {
         if (!ajossa(v) || !skEtyOsiot(sections, nimet).length) return;
-        [].forEach.call(pop.querySelectorAll('.sk-ety-nappi'), function (e) { if (e.dataset.o === o && !e.firstChild) e.innerHTML = skEtyNappi(o); });
+        etyNappi(o);
       }).catch(function () {});
+    }
+    function etyNappi(o) {
+      [].forEach.call(pop.querySelectorAll('.sk-ety-nappi'), function (e) { if (e.dataset.o === o && !e.firstChild) e.innerHTML = skEtyNappi(o); });
+    }
+    /* Termiselitys (sanaselityssivu): otsikkona käsitteen suomenkielinen nimitys ja sen alla haettu muoto, jos se on toinen
+       nimitys (”suuntautuneisuus”) tai vieraskielinen (”Dasein” · saksa), kuten taivutusmuoto Wikisanakirjan selityksessä.
+       Ala, määritelmät ja vastineet. Linssi vain, kun alkuperää on (käyttäjän päätös): termipankin alkuperähuomautus tai
+       otsikon sanan Etymology-osio Wikisanakirjassa sen kielessä. */
+    function termiSelitys(v, t) {
+      if (!t || !ajossa(v)) return;
+      var muoto = t.osui.nimitys !== t.o || t.osui.kieli !== t.okieli ?
+        '<div class="sk-muoto">(”' + esc(t.osui.nimitys) + '”' + (t.osui.kieli !== 'suomi' ? ' · ' + esc(t.osui.kieli) : '') + ')</div>' : '';
+      var runko = muoto + '<div class="sk-ety-paikka" data-o="' + esc(t.o) + '"></div><div class="sk-kieli">' + esc(t.ala) + '</div>' +
+        (t.maar.length ? '<ol class="sk-ol">' + t.maar.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>' :
+          '<div class="sk-tieto">Termipankkiin ei ole kirjattu määritelmää.</div>') + tpVastineet(t);
+      nayta(v, t.o, runko, SK_LAHDE_TP, t, t.o);
+      var wk = tpWikiKieli(t.okieli, t.o);
+      etyKielet[t.o] = wk ? [wk] : [];
+      tpEty[t.o] = t.ety;
+      if (t.ety.length) etyNappi(t.o);
+      else if (wk) etyNapiksi(v, t.o, [wk]);
     }
     // Avaa tai sulkee sivun o alkuperän (epsilon tai laatikon raksi).
     function alkupera(o) {
@@ -739,6 +884,18 @@
         if (!ajossa(v) || !paikka.isConnected || !paikka.firstChild) return;
         $('.sk-ety-runko', paikka).innerHTML = html; sijoitaPop();
       };
+      // Termiselityksessä lähteet nimetään: ensin termipankin huomautus, sitten Wikisanakirja, jos sillä on alkuperää.
+      // Pelkkä huomautus ei odota Wikisanakirjaa eikä valita sen puutteesta.
+      if (tpEty[o]) {
+        var tp = tpEty[o].length ? '<div class="sk-kieli">Tieteen termipankki</div>' + tpEty[o].map(function (x) { return '<p class="sk-ety-p">' + x + '</p>'; }).join('') : '';
+        if (!nimet.length) { valmis(tp); return; }
+        haeAlkupera(o, nimet).then(function (os) {
+          os = os.filter(function (x) { return x.html; });
+          var wk = os.map(function (x) { return '<div class="sk-kieli">Wikisanakirja' + (os.length > 1 && x.nro ? ' · ' + x.nro : '') + '</div>' + x.html; }).join('');
+          valmis(tp + wk || '<div class="sk-tieto">Wikisanakirjan alkuperää ei saatu luettua.</div>');
+        }).catch(function () { valmis(tp || '<div class="sk-tieto">Haku ei onnistunut. Onko verkkoyhteys päällä?</div>'); });
+        return;
+      }
       haeAlkupera(o, nimet).then(function (os) {
         var virhe = os.some(function (x) { return x.virhe; });
         os = os.filter(function (x) { return x.html; });
@@ -753,11 +910,13 @@
       var mita = monta ? 'ilmausta' : 'sanaa';
       mita = o.rajaus ? o.rajaus.nimi.charAt(0).toUpperCase() + o.rajaus.nimi.slice(1) + ' ' + mita : mita.charAt(0).toUpperCase() + mita.slice(1);
       nayta(v, haku, '<div class="sk-tieto">' + (virhe ? 'Haku ei onnistunut. Onko verkkoyhteys päällä?' :
-        mita + ' ei löytynyt englanninkielisestä Wikisanakirjasta.') + '</div>', false, virhe ? '' : haku);
+        mita + ' ei löytynyt englanninkielisestä Wikisanakirjasta' + (tpHaettu ? ' eikä Tieteen termipankista.' : '.')) + '</div>', false, virhe ? '' : haku);
     }
+    // x.osumat: valitsimen rivi Wikisanakirjan tasan samoille muodoille (termipankin rinnalla), huomautukset valmiina (x.alku).
     function valitse(x) {
       if (!x) return;
-      var v = skVuoro, alku = varoitus(askel) || tekstissa(x.tapa, false);
+      var v = skVuoro, alku = x.alku != null ? x.alku : varoitus(askel) || tekstissa(x.tapa, false);
+      if (x.osumat) { selitys(v, x.osumat, alku); return; }
       (x.j ? Promise.resolve(x.j) : haeSana(x.o)).then(function (j) {
         if (!j) { eiLoydy(v); return; }
         x.j = j; selitys(v, [x], alku);
@@ -796,8 +955,41 @@
         return r;
       });
     }
+    /* Sanaselityssivulla (o.termit) Wikisanakirjan ketju ja termipankki rinnakkain; termipankin virhe ei estä Wikisanakirjaa.
+       Kun termipankista löytyy jotain, valitsin (käyttäjän luonnos): ensin termipankin käsitteet alan kera, sitten Wikisanakirjan
+       osumat. Jos Wikisanakirjasta ei löydy mitään ja käsite on yksi, se aukeaa suoraan. */
     function kaynnista() {
-      aja(0).then(function (r) {
+      var tp = o.termit ? o.termit.then(function (ts) { tpHaettu = true; return ts; }, function () { return []; }) : Promise.resolve([]);
+      Promise.all([aja(0).catch(function () { virhe = true; return null; }), tp]).then(function (rr) {
+        termit = rr[1] || [];
+        if (!termit.length) { wikiTulos(rr[0]); return; }
+        if (!ajossa(vuoro)) return;
+        var r = rr[0];
+        if (!r && termit.length === 1) { termiSelitys(vuoro, termit[0]); return; }
+        var wh = '';
+        vaihdot = [];
+        if (r) {
+          askel = r.askel;
+          if (r.osumat) {
+            var x0 = r.osumat[0], eri = x0.o !== haku && ekaPieni(x0.o) !== ekaPieni(haku) && skMuodot(haku).indexOf(x0.o) < 0;
+            vaihdot = [{ o: x0.o, osumat: r.osumat, kl: skKieletNimin(x0.j, x0.kielet), alku: varoitus(r.askel) || (eri ? tekstissa('f', false) : '') }];
+          } else {
+            vaihdot = r.vaihdot;
+            wh = varoitus(r.askel) + (r.askel && r.askel.v ? '' : tekstissa(vaihdot[0].tapa, vaihdot.length > 1));
+          }
+        }
+        var rivit = function (lista, k) {
+          return '<ul class="sk-vaihdot">' + lista.map(function (x, i) {
+            return '<li><button type="button" class="sk-vaihto" data-k="' + k + '" data-i="' + i + '">' + esc(x.o) + '</button>' +
+              (x.kl || x.ala ? '<span class="sk-vk">' + esc(x.kl || x.ala) + '</span>' : '') + '</li>';
+          }).join('') + '</ul>';
+        };
+        nayta(vuoro, haku, '<div class="sk-kieli">Tieteen termipankki</div>' + rivit(termit, 'sk-termi') +
+          (vaihdot.length ? '<div class="sk-kieli">Wikisanakirja</div>' + wh + rivit(vaihdot, 'sk-vaihto') : ''), false, '');
+      }).catch(function () { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); });
+    }
+    function wikiTulos(r) {
+      try {
         if (!ajossa(vuoro)) return;
         if (!r) { eiLoydy(vuoro); return; }
         askel = r.askel;
@@ -823,13 +1015,13 @@
         }).join('') + '</ul>', false, '');
         // Valitsimessa ei ole alkuperän linssiä (käyttäjän linjaus 12.11.2026): se tulee vasta valitun sanan selitykseen, eikä
         // valitsemiseen ole syytä houkutella ennen logosta.
-      }).catch(function () { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); });
+      } catch (e) { virhe = true; if (ajossa(vuoro)) eiLoydy(vuoro); }
     }
     return { aja: kaynnista, klikkaus: klikkaus };
   }
 
   window.LuinSana = {
     NIMI: SK_NIMI, hakusana: skHakusana, symboli: skSymboli, sanaLkm: sanaLkm, ketju: skKetju, rajaa: skRajaa, kehys: skKehys,
-    istunto: istunto, IK_ETY: IK_ETY
+    istunto: istunto, termit: haeTermit, IK_ETY: IK_ETY
   };
 })();
