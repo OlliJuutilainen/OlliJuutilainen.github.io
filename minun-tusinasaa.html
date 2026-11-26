@@ -203,6 +203,8 @@
   .avainPaikka .avainNappi svg{ width:46.28px; height:109.89px }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
+  /* Avainnäkymässä myös logon napautus sulkee näkymän (käyttäjän päätös). */
+  .top:has(~ main.avainAuki) .logoBox{ cursor:pointer }
   .avainNakyma{ max-width:26rem; margin:36px auto 0 }
   /* Kaksi riviä: 52 merkin lause mahtuu kokonaan puhelimen leveydelle (16 px, jotta iOS ei suurenna sivua). */
   .avainNakyma textarea{ display:block; width:100%; box-sizing:border-box; font:inherit; font-size:16px; line-height:1.4;
@@ -1067,6 +1069,7 @@ function suljeNakyma(){
   $('avainInfo').setAttribute('aria-expanded', 'false');
 }
 avainNappi.addEventListener('click', () => { if (nakyma.hidden) avaaNakyma(); else suljeNakyma(); });
+document.querySelector('.logoBox').addEventListener('click', () => { if (!nakyma.hidden) suljeNakyma(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nakyma.hidden) suljeNakyma(); });
 $('avainInfo').addEventListener('click', () => {
   const auki = $('avainOhje').hidden;
