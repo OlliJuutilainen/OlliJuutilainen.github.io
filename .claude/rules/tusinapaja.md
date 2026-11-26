@@ -156,7 +156,7 @@ Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsa
 Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
-  hampaina; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--brand`, käyttäjän päätös) avaa näkymän, jossa on vain kenttä, *Arvo*,
+  hampaina; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen; osoitettaessa `--text`, ei `--brand`, jotta avauksen värisiirtymä säilyy) avaa näkymän, jossa on vain kenttä, *Arvo*,
   *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle niin, että kahvan
   kuusikulmio on logon kuusikulmion kokoinen ja vasen reuna kentän tekstin alun kohdalla (ei linjausta logoon), ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen tai logon napautus
   sulkee näkymän. Siirtymän käyrä on `SIIRTYMA`-vakiossa (käyttäjän säätämä: 310 ms, koko suhteellisesti, väri ja muun
