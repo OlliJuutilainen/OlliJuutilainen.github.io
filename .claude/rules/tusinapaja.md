@@ -151,8 +151,9 @@ Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla ha
 
 - **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
   hampaina; pieni ja hiukan himmeä `--avain`, koska toiminto on harvinainen) avaa näkymän, jossa on vain kenttä, *Arvo*,
-  *Sutkauta* ja i-nappi. Avautuessa avain siirtyy kentän yläpuolelle keskiakselille 80 px:n kokoon hiljaisella sävyllä
-  (Sutkauta pysyy kirkkaimpana) salkojen siirtymän käyrällä, ja sen napautus sulkee näkymän. Arvo vain, kun laitteella on paneeli;
+  *Sutkauta* ja i-nappi. Avautuessa avain siirtyy salkojen siirtymän käyrällä kentän yläpuolelle 80 px:n kokoon, kahvan
+  vasen reuna kentän vasemmassa reunassa, ja muuttuu sivun kirkkaimmaksi (`--brand`, käyttäjän päätös); sen napautus
+  sulkee näkymän. Arvo vain, kun laitteella on paneeli;
   Sutkauta (lähetys, myös Enter) vain, kun lähettämisellä on vaikutus. Kenttä on kaksirivinen ja 16 px, jotta 52 merkkiä
   mahtuu puhelimen leveydelle eikä iOS suurenna sivua.
 - **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
