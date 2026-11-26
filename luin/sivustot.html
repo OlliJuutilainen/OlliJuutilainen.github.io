@@ -125,7 +125,7 @@
   .s-tila button[hidden] { display: none; }
   ul.sivustot li[hidden], h2.kirjain[hidden], ul.sivustot[hidden] { display: none; }
   /* Otsikkohaku (käyttäjän päätös: tarkka verkko): sama kenttä etsii myös kerätyistä otsikoista (hakemisto/otsikot.txt ja
-     sen jälkeen otsikot-gutenberg.txt, ladataan vasta ensimmäisellä haulla). Osumat sivustolistan yläpuolella, korisuodattimet
+     sen jälkeen otsikot-gutenberg.txt ja otsikot-pohjola.txt, ladataan vasta ensimmäisellä haulla). Osumat sivustolistan yläpuolella, korisuodattimet
      koskevat niitäkin. Osumat sivustoittain (käyttäjän päätös): yksi rivi sivustoa kohden, tunnisteessa nimi ja osumien määrä,
      napautus avaa ja sulkee. Haku-rivin napit (otsikko, tekijä, asiasana) rajaavat kentät korien tapaan. */
   .otsikot { margin: 14px 0 0; }
@@ -290,6 +290,12 @@
         kappalenumeroineen, alaviitteineen ja kirjallisuuksineen</span></li>
     <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="de"><a href="https://projekt-gutenberg.org/" target="_blank" rel="noopener">Projekt Gutenberg-DE</a>
       <span class="mika">projekt-gutenberg.org; saksankieliset klassikot, luvun sivulta koko kirja alaviitteineen, ilman sivunumeroita</span></li>
+    <li data-aihe="kirjallisuus,yleiset,historia,fennomaanit" data-laji="alkuteksti" data-kieli="sv,no,da,fi,moni"><a href="https://runeberg.org/" target="_blank" rel="noopener">Projekt Runeberg</a>
+      <span class="mika">runeberg.org; pohjoismainen kirjasto, myös Runebergin, Fredrika Runebergin ja Topeliuksen teokset; teoksen tai
+        niteen sivulta koko teos luvuittain, skannattujen sivujen koneluettu teksti sivunumeroineen ja tieto oikoluvusta</span></li>
+    <li data-aihe="kirjallisuus,fennomaanit" data-laji="alkuteksti" data-kieli="sv"><a href="https://litteraturbanken.se/" target="_blank" rel="noopener">Litteraturbanken</a>
+      <span class="mika">litteraturbanken.se; ruotsinkielinen kirjallisuus, myös Runebergin Dikter, Fredrika Runebergin ja Snellmanin teoksia;
+        e-teksti kokonaisena sivunumeroineen, faksimilista koneluettu teksti</span></li>
     <li data-aihe="uskonto" data-laji="alkuteksti" data-kieli="en"><a href="https://bookofconcord.org/" target="_blank" rel="noopener">Book of Concord</a>
       <span class="mika">bookofconcord.org; luterilaiset tunnustuskirjat (Triglot Concordia 1921), artiklan sivulta koko tunnustus,
         kappalenumerot yläindekseinä</span></li>
@@ -376,8 +382,9 @@
     <li data-aihe="yleiset" data-laji="kirja" data-kieli="en"><a href="https://pressbooks.com/" target="_blank" rel="noopener">Pressbooks-kirjat</a>
       <span class="mika">avoimet oppikirjat ja kirjat yliopistojen ja kustantajien Pressbooks-palvelimilla; luvun sivulta koko kirja
         osineen ja lukuineen, alaviitteet, tekijät, toimittajat ja kääntäjät</span></li>
-    <li data-aihe="kirjallisuus,yleiset" data-laji="alkuteksti" data-kieli="en,moni"><a href="https://www.gutenberg.org/" target="_blank" rel="noopener">Project Gutenberg</a>
-      <span class="mika">gutenberg.org; koko kirja alaviitteineen, ilman lisenssitekstiä, sivunumeroita ja hakemistoa</span></li>
+    <li data-aihe="kirjallisuus,yleiset,fennomaanit" data-laji="alkuteksti" data-kieli="en,moni"><a href="https://www.gutenberg.org/" target="_blank" rel="noopener">Project Gutenberg</a>
+      <span class="mika">gutenberg.org; koko kirja alaviitteineen, ilman lisenssitekstiä, sivunumeroita ja hakemistoa; myös Runebergin
+        teoksia ruotsiksi ja suomennoksina</span></li>
     <li data-aihe="psykologia,filosofia" data-laji="essee" data-kieli="en"><a href="https://psyche.co/" target="_blank" rel="noopener">Psyche</a>
       <span class="mika">psyche.co; esseet ja oppaat (Guides) osioineen ilman nostolainauksia</span></li>
     <li data-aihe="yleiset" data-laji="tutkimus" data-kieli="es,pt,en"><a href="https://scielo.org/" target="_blank" rel="noopener">SciELO</a>
@@ -397,9 +404,9 @@
         tiivistelmät</span></li>
     <li data-aihe="yleiset" data-laji="hakuteos" data-kieli="lt"><a href="https://www.vle.lt/" target="_blank" rel="noopener">Visuotinė lietuvių enciklopedija</a>
       <span class="mika">vle.lt; liettuan yleisenkyklopedian artikkelit tekijöineen ja kirjallisuusluetteloineen, ilman kuvia</span></li>
-    <li data-aihe="yleiset" data-laji="alkuteksti" data-kieli="moni"><a href="https://wikisource.org/" target="_blank" rel="noopener">Wikisource</a>
-      <span class="mika">en, de, la, fi, lt (Vikišaltiniai) ja muut kielet; painetun lähteen sivunumerot merkkeinä [483], viitteet, runot
-        säkeistöinä, ilman otsake- ja selausrivejä</span></li>
+    <li data-aihe="yleiset,fennomaanit" data-laji="alkuteksti" data-kieli="moni"><a href="https://wikisource.org/" target="_blank" rel="noopener">Wikisource</a>
+      <span class="mika">en, de, la, fi, sv, lt (Vikišaltiniai) ja muut kielet; painetun lähteen sivunumerot merkkeinä [483], viitteet, runot
+        säkeistöinä, ilman otsake- ja selausrivejä; sisällysluettelosivulta koko teos (esimerkiksi Runebergin Fänrik Ståls sägner)</span></li>
     <li data-aihe="historia" data-laji="tutkimus" data-kieli="de,en"><a href="https://zeithistorische-forschungen.de/" target="_blank" rel="noopener">Zeithistorische Forschungen</a>
       <span class="mika">zeithistorische-forschungen.de; aikalaishistorian artikkelit alaviitteineen ilman kuvia, vihko, sivut, DOI ja lisenssi</span></li>
     <li data-aihe="kirjallisuus" data-laji="essee" data-kieli="ru"><a href="https://magazines.gorky.media/" target="_blank" rel="noopener">Журнальный зал</a>
@@ -508,7 +515,7 @@
 (function () {
   var NIMET = { en: 'englanti', de: 'saksa', la: 'latina', fr: 'ranska', it: 'italia', fi: 'suomi',
     grc: 'kreikka', el: 'kreikka', lt: 'liettua', es: 'espanja', sv: 'ruotsi', da: 'tanska', sa: 'sanskrit', pt: 'portugali',
-    ru: 'venäjä', et: 'viro', ga: 'iiri', moni: 'monikielinen' };
+    ru: 'venäjä', et: 'viro', ga: 'iiri', no: 'norja', is: 'islanti', moni: 'monikielinen' };
   var FASETIT = ['aihe', 'laji', 'kieli'];
   var nimi = function (v) { return NIMET[v] || v; };
   var norm = function (t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
@@ -655,16 +662,24 @@
       }
     }
   }
-  // Ydin ensin, Project Gutenberg (oma tiedostonsa, yhtä suuri) sen jälkeen: haku toimii jo Gutenbergia odottaessa.
+  // Ydin ensin, isot kaikkiruokaiset luettelot (omat tiedostonsa) sen jälkeen yksi kerrallaan: Project Gutenberg (yhtä suuri kuin
+  // ydin), sitten Projekt Runeberg ja Litteraturbanken (26.11.2026; ytimessä ne olisivat kasvattaneet sen 1,64 → 2,25 Mt gzipattuna).
+  // Haku toimii jo niitä odottaessa.
   var hae = function (t) { return fetch('hakemisto/' + t).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }); };
+  var LISAT = [['otsikot-gutenberg.txt', 'Gutenberg latautuu'], ['otsikot-pohjola.txt', 'Runeberg ja Litteraturbanken latautuvat']];
   function lataa() {
     OTS.tila = 'lataa'; piirraOtsikot();
     hae('otsikot.txt')
       .then(function (x) {
-        jasenna(x); OTS.tila = 'valmis'; OTS.gutenberg = 'lataa'; haeOtsikot();
-        hae('otsikot-gutenberg.txt').then(function (y) { jasenna(y); OTS.gutenberg = 'valmis'; })
-          .catch(function () { OTS.gutenberg = 'virhe'; })
-          .then(function () { haeOtsikot(); });
+        jasenna(x); OTS.tila = 'valmis';
+        var seuraava = function (i) {
+          OTS.lisa = LISAT[i] ? LISAT[i][1] : '';
+          haeOtsikot();
+          if (!LISAT[i]) return;
+          hae(LISAT[i][0]).then(jasenna).catch(function () { OTS.virheet = (OTS.virheet || []).concat(LISAT[i][0]); })
+            .then(function () { seuraava(i + 1); });
+        };
+        seuraava(0);
       })
       .catch(function () { OTS.tila = 'virhe'; piirraOtsikot(); });
   }
@@ -804,7 +819,7 @@
     if (OTS.tila === 'virhe') { tilaEl.textContent = 'otsikkoluettelo ei latautunut'; return; }
     var o = OTS.osumat, r = OTS.ryhmat;
     tilaEl.textContent = (o.length ? o.length + (o.length === 1 ? ' osuma ' : ' osumaa ') + r.length + ' sivustolla' : 'ei osumia hakemistossa') +
-      ({ lataa: ' · Gutenberg latautuu…', virhe: ' · Gutenberg ei latautunut' }[OTS.gutenberg] || '');
+      (OTS.lisa ? ' · ' + OTS.lisa + '…' : '') + (OTS.virheet ? ' · ' + OTS.virheet.length + (OTS.virheet.length > 1 ? ' luetteloa ei latautunut' : ' luettelo ei latautunut') : '');
     r.forEach(function (x) {
       var li = document.createElement('li');
       li.setAttribute('data-sivu', x.s.nimi);

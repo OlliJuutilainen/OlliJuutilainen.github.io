@@ -644,9 +644,10 @@
   }
   /* Luinin huomautus (sama kierros, käyttäjän pyyntö: omat rajat tiedostava muoto): lisäosa merkitsee hakasulkeisiin suomeksi sen,
      mitä lukin ei näytä (\[kaava\] tekstissä, \[Kaava (3) on lähteessä kuvana.\], kuvatekstin perässä \[Taulukko on lähteessä
-     kuvana.\]). Tunnistus: suojatut hakasulkeet ja Luinin sanasto (kaava tai lähte-sana), muuten hakasulkeet ovat tekstiä. → span.huom
-     (harmaa kursiivi kuten [kuva]); kokonaan huomautuksesta koostuva kappale on p.huom. */
-  var RE_HUOM = /^\\\[(kaava|(?:Kaava|Kaavat|Taulukko|Kuva|Kuvio|Video|Ääni|Animaatio|Liite|Lähde)(?![\p{L}])[^\[\]\n\\]{0,240}?)\\\]/u;
+     kuvana.\], koneluetun tekstin alussa \[Teksti on lähteessä koneluettu …\]). Tunnistus: suojatut hakasulkeet ja Luinin
+     sanasto (kaava tai lähte-sana), muuten hakasulkeet ovat tekstiä. → span.huom (harmaa kursiivi kuten [kuva]); kokonaan
+     huomautuksesta koostuva kappale on p.huom. */
+  var RE_HUOM = /^\\\[(kaava|(?:Kaava|Kaavat|Taulukko|Kuva|Kuvio|Video|Ääni|Animaatio|Liite|Lähde|Teksti)(?![\p{L}])[^\[\]\n\\]{0,240}?)\\\]/u;
   function huomautus(s) {
     var m = RE_HUOM.exec(s);
     return m && (m[1] === 'kaava' || /lähte/i.test(m[1])) ? { t: m[1], n: m[0].length } : null;
@@ -1515,7 +1516,7 @@
         menee sivuston edelle.
      4. Muuten (itsenäinen tieteellinen teksti, kokoomateoksen tai lehden artikkeli): tekijä.
      t: tiedot (KENTAT-avaimet) → rivi tai ''. */
-  var KANTAJA = /(^|[^\p{L}])(project gutenberg|gutenberg|wikisource|archive\.org|hathitrust|google books|google kirjat|runeberg|doria|digi\.kansalliskirjasto|encyclopedia\.com|new advent|newadvent\.org|christian classics ethereal library|ccel\.org|lacuscurtius|pressbooks|faded page|fadedpage\.com|augustinus\.it)([^\p{L}]|$)|^internet archive$/iu;
+  var KANTAJA = /(^|[^\p{L}])(project gutenberg|gutenberg|wikisource|archive\.org|hathitrust|google books|google kirjat|runeberg|litteraturbanken|doria|digi\.kansalliskirjasto|encyclopedia\.com|new advent|newadvent\.org|christian classics ethereal library|ccel\.org|lacuscurtius|pressbooks|faded page|fadedpage\.com|augustinus\.it)([^\p{L}]|$)|^internet archive$/iu;
   function lisatieto(t) {
     t = t || {};
     var k = function (x) { return String(t[x] || '').trim(); };

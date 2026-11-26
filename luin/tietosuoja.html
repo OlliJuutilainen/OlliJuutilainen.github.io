@@ -126,6 +126,12 @@
       tai sisällysluettelo, lisäosa hakee samalta sivustolta teoksen sisällysluettelon ja sen muut luvut, enintään 250 sivua.</li>
     <li>Jos leikkaat Projekt Gutenberg-DE:n (projekt-gutenberg.org) kirjan luvun, lisäosa hakee samalta sivustolta kirjan muut
       luvut, enintään 250 sivua.</li>
+    <li>Jos leikkaat Projekt Runebergin (runeberg.org) teoksen tai niteen sivun, lisäosa hakee samalta sivustolta sisällysluettelon
+      luvut ja skannattujen sivujen tekstit, enintään 600 sivua.</li>
+    <li>Jos leikkaat Litteraturbankenin (litteraturbanken.se) teoksen sivun, lisäosa hakee samalta sivustolta teoksen tiedot
+      (sivuston oma rajapinta) ja teoksen sivut, enintään 600; isommasta teoksesta avoimen sivun osan (runo, luku).</li>
+    <li>Jos leikkaat Wikisourcen sivun, jolla on teoksen nimiö ja sisällysluettelo, lisäosa hakee samalta sivustolta
+      sisällysluettelon sivut, enintään 250, ja ottaa mukaan ne, jotka kuuluvat teokseen.</li>
     <li>Jos leikkaat Svenska litteratursällskapetin digitaalisen edition (topelius.sls.fi, westermarck.sls.fi, vonwright.sls.fi)
       kirjan tekstisivun, lisäosa hakee samalta sivustolta kirjan muut tekstisivut, enintään 30.</li>
     <li>Jos leikkaat Religion Onlinen (religion-online.org) kirjan luvun tai kirjan sivun, lisäosa hakee samalta sivustolta kirjan
@@ -192,7 +198,12 @@
     on dhammatalks.org, it fetches the book’s front page and its chapters from the same site, up to 250 pages. When you clip
     an Open Yale Courses lecture, it fetches the course page from the same site for the year. When you clip a text page of the
     Perseus Digital Library, it fetches the work’s XML file from the same site (one file); from a page of a Greek text, also the XML file of the English translation the site links to (a second file). When you clip a page
-    of the Tertullian Project (tertullian.org) from a work split over several pages, it fetches the work’s other pages from the same site, up to 40. If you use Postihuilu, the extension remembers your box phrase in its local storage,
+    of the Tertullian Project (tertullian.org) from a work split over several pages, it fetches the work’s other pages from the same site, up to 40.
+    When you clip the page of a work or volume of Projekt Runeberg (runeberg.org), it fetches the chapters and scanned pages listed in
+    its table of contents from the same site, up to 600 pages. When you clip a work of Litteraturbanken (litteraturbanken.se), it
+    fetches the work’s details (the site’s own interface) and its pages from the same site, up to 600; of a larger work, the part of
+    the open page. When you clip a Wikisource page holding a work’s title page and table of contents, it fetches the listed pages from
+    the same site, up to 250, and keeps those that belong to the work. If you use Postihuilu, the extension remembers your box phrase in its local storage,
     and Latomo sends the clip to Luin’s mailbox (Cloudflare Workers service tusinasaa-worker.ollijuutilainen.workers.dev),
     where it is kept for 30 days and can be read by anyone who knows the phrase. The Latomo and Luin pages are served by
     GitHub Pages, which may log page requests like any website; the clipped text is not sent to it.</p>

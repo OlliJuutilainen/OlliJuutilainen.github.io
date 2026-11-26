@@ -158,7 +158,20 @@ lisäosan tietosuojasivu jää muodolliseksi.
   `schleiermacher`, `wvh`, `livius`, `avesta`.
   augustinus.it kokoaa koko teoksen vain teoksen kehyssivulta, kun pääkehyksessä on hakemisto tai oletussivu (`koko`); avattu
   kirja leikataan yksin tavulleen kuten ennen (`--sarja aug`). Koko teoksessa kohta sisältää kirjan (1.5.6).
-  Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`).
+  Wikisourcen *lyhyet laatikot ennen ensimmäistä pitkää kappaletta* -poisto ei saa viedä väliotsikon käärettä (`div.mw-heading`)
+  eikä kappaleen sisältävää div:iä (motto). Wikisource kokoaa teoksen sisällysluettelosivulta (`wsOsat()`, `wsKokoa()`, opas 7.5):
+  alasivut tai sivut, joiden otsake linkittää sisällysluetteloon tai toiseen osaan; puhdistus on `wikiPuhdista(el, d)` (d: sivu,
+  jonka viiteluettelosta viitteet luetaan). Yksittäisen sivun leike ei muutu: aja `--sarja wikipedia`, `wikisource` (myös sv:n
+  Fänrik Ståls sägner, Julqvällen, Vårt land) ja `wikimuut` ennen ja jälkeen.
+  Projekt Runeberg (`projektRuneberg()`, opas 7.5): teoksen tai niteen sivu kootaan sisällysluettelosta (artikkelit ja skannattujen
+  sivujen rivit), artikkelin ja skannatun sivun sivulta vain se, enintään `RB_RAJA` (600) sivua (tietosuojasivu). Koneluettu teksti
+  riveistä kappaleiksi ja runoiksi `rbLohkot()`issa: tasattu proosa ulottuu palstan reunaan, runo liehuu (mitattu; älä löysää
+  rajoja mittaamatta), ja alkuun Luinin huomautus *[Teksti on lähteessä koneluettu …]* (md.js:n `RE_HUOM` tuntee alkusanan *Teksti*).
+  Litteraturbanken (`litteraturbanken()`) on Angular-sovellus: leike lukee sivuston rajapintaa (`/api/get_work_info`,
+  `/txt/<id>/res_<n>.html` ja `ocr_<n>.html`), ei sivua, joten pesukone ajaa sen ilman sivun skriptejä. Enintään `LB_RAJA` (600)
+  sivua, muuten avoimen sivun osa; faksimilin koneluku käyttää `rbLohkot()`ia sanojen paikoista mitatuin reunoin. Pesukone hakee
+  runeberg.orgia 2 s välein (Crawl-delay), joten ensimmäinen ajo täyttää välimuistin ja vasta toinen kokoaa teokset; testit
+  `--sarja pr` ja `--sarja lb`. Kumpikin on md.js:n `KANTAJA`.
   PubMed antaa skriptittömälle haulle evästetarkistuksen (203), jota ei kierretä; Duodecim (`duodecim()`) on Angular-sovellus,
   joten pesukone ei aja sitä, ja se mitataan sivun skriptit ajavalla selaimella. Duodecimin `RAHOITUS` on *mainokset* (mainospaikka
   `app-adds`), joten se ei ole tuettujen listassa.
@@ -211,10 +224,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on.
 - **Otsikkohaku** (käyttäjän päätös: tarkka verkko): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
-  sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt` ja `otsikot-gutenberg.txt` ovat tusina-radan
+  sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt`, `otsikot-gutenberg.txt` ja `otsikot-pohjola.txt`
+  (Projekt Runeberg ja Litteraturbanken) ovat tusina-radan
   `hakemisto/julkaise.js`:n tuotteita, eivät käsin muokattavia: aja se uudelleen, kun hakemisto pestään tai listan nimiä muutetaan
   (otsake on sivuston nimi täsmälleen kuten listassa). Ei Faded Pagea eikä PROPYLÄENiä. Sivu lataa ytimen vasta ensimmäisellä
-  otsikkohaulla ja Gutenbergin sen jälkeen (haku toimii jo sitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
+  otsikkohaulla ja Gutenbergin ja pohjoismaiset sen jälkeen yksi kerrallaan (`LISAT`; haku toimii jo niitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
   kymmeniätuhansia: korien luvut lasketaan yhdellä läpikäynnillä (`laskeOtsikot()`) ja järjestys lokeroimalla, ei korikohtaisesti.
   Korit rajaavat osumia (merkinnän omat aihekorit ja kieli, muuten sivuston), ja korin luku on otsikkohaun aikana otsikko-osumien määrä.
   Osumat ovat sivustoittain (käyttäjän päätös): yksi rivi sivustoa kohden (nimi ja osumien määrä), napautus avaa ja sulkee. Haku-rivi
@@ -224,7 +238,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *laki ja lääketiede* (entinen jämäkori; kielet ja
   kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
   *kaikkiruokainen*), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
-  tekijästä tai asiasanasta tusina-radan `hakemisto/korit.js`:ssä). Sama sanasto `LK_EHDOTUS`ssa.
+  tekijästä tai asiasanasta tusina-radan `hakemisto/korit.js`:ssä). Sivustolistassa fennomaanit on myös sivustoilla, joilla on piirin
+  tekstejä (Gutenberg, Wikisource, Projekt Runeberg, Litteraturbanken; korin viimeisenä, joten se ei ole pääkori), koska Runebergilla
+  ei ole omaa verkkoeditiota. Sivuston kori periytyy vain merkinnälle, jolla ei ole omia koreja; näiden sivustojen merkinnöillä on
+  aina. Sama sanasto `LK_EHDOTUS`ssa.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi pinossa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `android/luin/` (opas 7.6): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa
   `luin.html`:n verkosta; `luin.html` tietää sovelluksesta vain `window.LuinApp`in olemassaolon (`NAPIT_AINA`: sivunkäännön tavat saa

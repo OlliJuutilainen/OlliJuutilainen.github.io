@@ -7,7 +7,7 @@
    yläindeksit HTML:nä (Latomo muuntaa ne ^1^-muotoon). Lisäksi kaksi asiaa, joihin MarkDownload ei pysty:
    tunnettujen sivujen sisältö ilman Readabilityn karsintaa (sovite) ja toiselle sivulle viittaavat alaviitteet
    haettuina Luinin alaviitteiksi. Omat sovitteet: SEP, Blogger, Ensyklopedia Logos (filosofia.fi) ja Wikipedia
-   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5). */
+   (käyttäjän pyyntö 10.11.2026) sekä marxists.org, Wait But Why ja Open Encyclopedia of Cognitive Science (11.11.2026) sekä Encyclopedia.com ja IPA:n Inter-Regional Encyclopedic Dictionary of Psychoanalysis (13.11.2026) sekä St Andrews Encyclopaedia of Theology, Project Gutenberg, New Advent, Christian Classics Ethereal Library sekä Psyche ja Aeon (14.11.2026) sekä European Journal of Psychoanalysis (15.11.2026) sekä Open Journal Systems -lehdet, ensimmäisenä Vilnan yliopiston Problemos, LacusCurtius, Korpora.org/kant, dhammatalks.org, Wikisource, Substack, Internet Encyclopedia of Philosophy, Open Yale Courses, Notre Dame Philosophical Reviews, Il Tascabile, Doppiozero, Bryn Mawr Classical Review, Noema, Emergence Magazine, Andy Matuschakin esseet, Five Books, Perseus, Paul Grahamin esseet ja Tertullian Project (16.11.2026) sekä Pressbooks, OpenEdition, Hypotheses.org, Manifold, ForumMagnum (LessWrong, EA Forum) Janeway (Open Library of Humanities), SciELO, Open Book Publishers, Faded Page, Internet Archiven tekstiversiot, Folger Shakespeare, Gwern.net, Los Angeles Review of Books ja 3:16 (17.11.2026) sekä EUR-Lex, Find Case Law, PubMed Central, Ubiquity Press, SPIP, Political Concepts, Project Vox, Embryo Project, CDLI:n lehdet, Журнальный зал, Fabula, Folktexts, A Celebration of Women Writers, Center for Hellenic Studies, Zeithistorische Forschungen, BOMB ja PsychOpen GOLD (18.11.2026) sekä Projekt Gutenberg-DE, SLS:n digitaaliset editiot, Snellmanin kootut teokset, PoPuPS, Religion Online, isidore.co:n Akvinolainen, Det Kgl. Biblioteks tekstportal, The Philological Museum, Book of Concord, Nova Vulgata, Edition Open Sources ja MPRL, The Newton Project ja The Latin Library (20.11.2026) sekä Springer Nature (BMC, Springer Link, nature.com), PLOS ja Frontiers (21.11.2026) sekä laparola.netin Uusi testamentti, PubMed, The Conversation ja Duodecim (22.11.2026) sekä Wisdom Library, Bibliotheca Augustana, Access to Insight, Hume Texts Online, Perseids CTS, CELT, Standard Ebooks, Rousseau Online, PROPYLÄEN, Hamannin HKB, schleiermacher digital, Wilhelm von Humboldtin kirjeet, Livius ja avesta.org (22.11.2026, sivustoehdokkaat-5) sekä zettelkasten.de, Projekt Runeberg ja Litteraturbanken ja Wikisourcen teokset sisällysluettelosivulta (26.11.2026). */
 (async () => {
   // MarkDownload poistaa samat näkymättömät merkit; pehmeä tavuviiva sotkisi Luinin oman tavutuksen.
   const NAKYMATON = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g;
@@ -433,7 +433,8 @@
     '.ws-license, #ws-data, .wst-footer, #footertemplate, .ws-noexport, table.otsikkomalline, table.otsikkomalline-huomiot, ' +
     'table[id="antraštėsšablonas"], table.maintenance';
   function wsTiedot() {
-    const t = id => rivi((document.getElementById(id) || {}).textContent);
+    // Tunniste (en: #ws-author) tai luokka (sv: span.ws-author otsakkeessa).
+    const t = id => rivi((document.getElementById(id) || document.querySelector('.' + id) || {}).textContent);
     const lis = document.querySelector('.licenseContainer, .wst-license, .ws-license');
     const lt = lis && rivi((lis.querySelector('.licenseText, .wst-license-text, td:last-child, p') || lis).textContent);
     // fi: otsikkomalline (Kirjoittanut Juhani Aho).
@@ -457,6 +458,128 @@
       if (sup.nextSibling && sup.nextSibling.nodeType === 3) sup.nextSibling.nodeValue = sup.nextSibling.nodeValue.replace(/^\s*/, ' ');
     });
   }
+  /* Wikisourcen teos sisällysluettelosivulta (käyttäjän pyyntö 26.11.2026: Runebergin Fänrik Ståls sägner ja Julqvällen
+     sv-Wikisourcessa antoivat vain sisällysluettelon). Teoksen pääsivu on usein nimiö ja sisällysluettelo, ja osat ovat omilla
+     sivuillaan: alasivuina (Julqvällen/Första sången) tai erillisinä sivuina, joiden otsake (selausrivi tai huomautus) linkittää
+     sisällysluetteloon tai toiseen osaan (Fänrik Stål: ← Vårt land, Molnets broder →). Teos kootaan, kun sivulla on ainakin kaksi
+     alasivulinkkiä tai kun sen teksti on linkkejä lukuun ottamatta enintään WS_LUETTELO sanaa ja ainakin kaksi linkitettyä sivua
+     kuuluu näin teokseen. Linkkiryhmän uloin lohko (luettelo, kappale, keskitetty div), jossa on vain osien linkkejä ja välimerkkejä, korvataan
+     osien tekstillä: linkin teksti osan otsikoksi pääsivun edeltävän otsikon alle, ja osan sivu puhdistetaan kuten pääsivu.
+     Enintään KK_RAJA sivua. Yksittäisen sivun leike ei muutu (pesukoneen wikipedia- ja wikisource-sarjat tavulleen ennallaan). */
+  const WS_NIMIAVARUUS = /^(author|författare|tekijä|autor|auteur|autore|auctor|page|sida|sivu|seite|página|pagina|index|indeks|hakemisto|portal|portaali|translation|wikisource|puslapis|autorius|rodyklė)(\s|_)*:/i;
+  const WS_LUETTELO = 150;
+  async function wsOsat(el) {
+    const tama = decodeURIComponent(location.pathname.slice(6)).replace(/_/g, ' ');
+    const kohde = a => {
+      let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
+      if (u.hostname !== location.hostname || !/^\/wiki\//.test(u.pathname) || a.classList.contains('new') || /[?&](redlink|action)=/.test(u.search)) return null;
+      const nimi = decodeURIComponent(u.pathname.slice(6)).replace(/_/g, ' ');
+      if (!nimi || nimi === tama || WIKI_NIMIAVARUUS.test(nimi) || WS_NIMIAVARUUS.test(nimi)) return null;
+      return { nimi, u: location.origin + u.pathname };
+    };
+    const linkit = [], nahty = new Set();
+    el.querySelectorAll('a[href]').forEach(a => {
+      if (a.closest(WS_LAATIKOT)) return;
+      const k = kohde(a);
+      if (!k || nahty.has(k.u)) return;
+      nahty.add(k.u);
+      linkit.push({ ...k, a, teksti: rivi(a.textContent) || k.nimi.split('/').pop() });
+    });
+    let ehdokkaat = linkit.filter(l => l.nimi.startsWith(tama + '/'));
+    const alasivut = ehdokkaat.length >= 2;
+    if (!alasivut) {
+      if (linkit.length < 2) return [];
+      const k = el.cloneNode(true);
+      k.querySelectorAll(WS_LAATIKOT + ', style, script, a[href]').forEach(x => x.remove());
+      if ((rivi(k.textContent).match(/\S+/g) || []).length > WS_LUETTELO) return [];
+      ehdokkaat = linkit;
+    }
+    if (ehdokkaat.length > KK_RAJA) return [];
+    const haetut = await kkHae(ehdokkaat.map(l => l.u));
+    const osat = [], polut = new Set([location.pathname, ...ehdokkaat.map(l => new URL(l.u).pathname)]);
+    const OTSAKE = WS_LAATIKOT.split(', ').map(x => x + ' a[href]').join(', ');
+    ehdokkaat.forEach((l, i) => {
+      const d = haetut[i], runko = d && d.querySelector('#mw-content-text .mw-parser-output');
+      if (!runko) return;
+      // Erillinen sivu kuuluu teokseen, jos sen otsake (selausrivi tai huomautus) linkittää tähän sivuun tai toiseen osaan
+      // (sv: Fänrik Stål → ← Vårt land, Molnets broder →; huomautuksessa Fänrik Ståls sägner).
+      if (!alasivut && ![...runko.querySelectorAll(OTSAKE)].some(a => {
+        try { const u = new URL(a.getAttribute('href'), l.u); return u.hostname === location.hostname && u.pathname !== new URL(l.u).pathname && polut.has(u.pathname); } catch (e) { return false; }
+      })) return;
+      osat.push({ ...l, d, runko });
+    });
+    if (osat.length < 2) return [];
+    // Linkkiryhmän uloin lohko, jossa on vain osien linkkejä ja välimerkkejä: paikanpitäjät (luin-osa, jota puhdistus ei poista).
+    const omat = new Set(osat.map(o => o.a));
+    const vainLinkkeja = b => {
+      if (![...b.querySelectorAll('a[href]')].every(a => omat.has(a))) return false;
+      const k = b.cloneNode(true);
+      k.querySelectorAll('a[href], style, script').forEach(a => a.remove());
+      return !/\p{L}/u.test(k.textContent);
+    };
+    const lohkot = new Map();
+    osat.forEach(o => {
+      let b = o.a;
+      while (b.parentElement && b.parentElement !== el && vainLinkkeja(b.parentElement)) b = b.parentElement;
+      if (!lohkot.has(b)) lohkot.set(b, []);
+      lohkot.get(b).push(o);
+    });
+    lohkot.forEach((os, b) => b.replaceWith(...os.map(o => {
+      const x = document.createElement('luin-osa');
+      x.textContent = 'XLUINOSA' + osat.indexOf(o) + 'X';
+      return x;
+    })));
+    return osat;
+  }
+  // Paikanpitäjät osien teksteiksi: tasot pääsivun otsikoista ennen yhtäkään lisäystä.
+  function wsKokoa(el, osat, puhdista) {
+    const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    // Nimiön otsikko, joka toistaa teoksen nimen (Julqvällen: ## JULQVÄLLEN.), pois, jotta osat ovat lukuja eivätkä sen alla.
+    const nimet = [wsTiedot().otsikko, (document.querySelector('#firstHeading, h1') || {}).textContent].map(tiivis).filter(Boolean);
+    el.querySelectorAll(OTSIKOT).forEach(h => { if (nimet.includes(tiivis(h.textContent))) h.remove(); });
+    const paikat = [...el.querySelectorAll('luin-osa')].map(x => {
+      const ed = [...el.querySelectorAll(OTSIKOT)].filter(h => h.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING).pop();
+      return { x, o: osat[+((/\d+/.exec(x.textContent) || [])[0])], taso: Math.min(6, ed ? +ed.tagName[1] + 1 : 2) };
+    });
+    let jalkeen = null;
+    paikat.forEach(({ x, o, taso }) => {
+      if (!o) { x.remove(); return; }
+      const runko = o.runko.cloneNode(true);
+      puhdista(runko, o.d);
+      // Osan alun sivunumero omana lohkonaan (^[7]^) talteen ja otsikko, joka toistaa osan nimen (Första Sången.), pois;
+      // sivunumero ensimmäisen kappaleen alkuun.
+      // Alun lohkot sisäkkäisten kääreiden läpi (sv: div > div.prp-pages-output > span > sup, h2).
+      const alku = [];
+      (function kay(e) {
+        for (const c of [...e.children]) {
+          if (alku.length >= 4) return;
+          if (!rivi(c.textContent)) continue;
+          if (c.tagName === 'DIV' && c.querySelector(OTSIKOT + ', p')) kay(c); else alku.push(c);
+        }
+      })(runko);
+      const sivunrot = [];
+      while (alku.length && alku[0].querySelector('sup') && /^(\[[^\]]{1,12}\]\s*)+$/.test(rivi(alku[0].textContent))) {
+        const e = alku.shift();
+        sivunrot.push(...e.querySelectorAll('sup'));
+        e.remove();
+      }
+      while (alku.length && /^H[1-6]$/.test(alku[0].tagName) && tiivis(alku[0].textContent) === tiivis(o.teksti)) alku.shift().remove();
+      const ekaP = runko.querySelector('p');
+      if (sivunrot.length) { if (ekaP) ekaP.prepend(...sivunrot.flatMap(x => [x, ' '])); else runko.prepend(...sivunrot); }
+      kkSiirra(runko, taso);
+      const h = document.createElement('h' + taso);
+      h.textContent = o.teksti;
+      const uudet = [h, ...runko.childNodes];
+      // Paikanpitäjä kappaleen, luettelon kohdan tai otsikon sisällä: osa sen uloimman tällaisen lohkon perään; muuten paikalleen
+      // (Fänrik Ståls sägner: luettelo div#ws-summaryssa kokoelman otsikon alla).
+      let ylin = null;
+      for (let y = x.parentElement; y && y !== el; y = y.parentElement) if (/^(P|LI|DD|DT|TD|TH|BLOCKQUOTE|H[1-6])$/.test(y.tagName)) ylin = y;
+      if (!ylin) x.replaceWith(...uudet);
+      else { (jalkeen && jalkeen.ylin === ylin ? jalkeen.viim : ylin).after(...uudet); x.remove(); }
+      jalkeen = { ylin, viim: uudet[uudet.length - 1] };
+    });
+    kkTasoita(el);
+  }
   async function wikipedia() {
     const ws = /(^|\.)wikisource\.org$/.test(location.hostname);
     const alku = (ws || /(^|\.)wikipedia\.org$/.test(location.hostname)) && /^\/wiki\/./.test(location.pathname) &&
@@ -466,6 +589,30 @@
     const PROJ = ws ? 'Wikisource' : 'Wikipedia', projRe = ws ? /(^|\.)wikisource\.org$/ : /(^|\.)wikipedia\.org$/;
     const wst = ws ? wsTiedot() : null;
     const el = alku.cloneNode(true);
+    let n = 0;
+    const maar = [];
+    const lisaa = (teksti, solmu) => { const t = 'w' + (++n); maar.push([t, teksti]); return t; };
+    // Loppuluettelon artikkelit (käyttäjän valinta 10.11.2026: kaikki wikilinkit tekivät satojen rivien luettelon, Age of
+    // Enlightenment 547): vain toimittajien omat valinnat eli Pääartikkeli-, Katso myös- ja Lisätietoja-ohjausrivien
+    // artikkelit esiintymisjärjestyksessä ja Katso myös -osio, joka siirtyy kokonaan luetteloon. Muut wikilinkit tekstiksi.
+    const artikkelit = new Map();
+    const artikkeli = a => {
+      let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
+      const sisainen = u.hostname === location.hostname || projRe.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
+      const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
+      const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
+      if (!sisainen || !nimi || punainen || WIKI_NIMIAVARUUS.test(nimi) || u.pathname === location.pathname) return null;
+      return { avain: 'https://' + location.hostname.replace(/\.m\./, '.') + '/wiki/' + u.pathname.slice(6), nimi: rivi(a.getAttribute('title')) || nimi };
+    };
+    const talteen = juuri => juuri.querySelectorAll('a[href]').forEach(a => {
+      const k = artikkeli(a);
+      if (k && !artikkelit.has(k.avain)) artikkelit.set(k.avain, k.nimi);
+    });
+    // Wikisourcen teos sisällysluettelosivulta (26.11.2026): osat haetaan ennen puhdistusta, koska se tekee linkit tekstiksi.
+    const osat = ws ? await wsOsat(el) : [];
+    wikiPuhdista(el, document);
+    // Puhdistus (pääsivu ja Wikisourcen osien sivut): d on sivu, jonka viiteluettelosta viitteiden teksti luetaan.
+    function wikiPuhdista(el, d) {
     if (ws) {
       wsSivunumerot(el);
       el.querySelectorAll(WS_LAATIKOT).forEach(x => x.remove());
@@ -476,9 +623,11 @@
         if (!el.contains(x) || x.contains(pitka) || !(x.compareDocumentPosition(pitka) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
         // Viitteellinen otsikkolohko (de: Was ist Aufklärung?*) jää, samoin väliotsikon kääre (div.mw-heading): lyhyiden artiklojen
         // tekstissä (lt Konstitucija) ensimmäinen pitkä kappale voi olla vasta monen otsikon jälkeen.
-        if (rivi(x.textContent).length < 400 && !x.querySelector('sup.reference, sup.mw-ref, h2, h3, h4, h5, h6')) x.remove();
+        // Kappaleen sisältävä laatikko on tekstiä (sv Julqvällen: motto sisennetyssä div:ssä ennen runoa), ei otsaketta.
+        if (rivi(x.textContent).length < 400 && !x.querySelector('sup.reference, sup.mw-ref, h2, h3, h4, h5, h6, luin-osa') &&
+          !(x.tagName === 'DIV' && [...x.children].some(c => c.tagName === 'P' && rivi(c.textContent)))) x.remove();
       });
-      el.querySelectorAll('div, table, center, p').forEach(x => { if (el.contains(x) && /[◄►]/.test(x.textContent) && x.querySelector('a') && rivi(x.textContent).length < 300) x.remove(); });
+      el.querySelectorAll('div, table, center, p').forEach(x => { if (el.contains(x) && /[◄►]/.test(x.textContent) && x.querySelector('a') && !x.querySelector('luin-osa') && rivi(x.textContent).length < 300) x.remove(); });
       // Runon säkeistö sisennettyinä riveinä (lt Metai: <dl><dd>rivi</dd>…</dl>): yksi kappale, rivit <br>:llä, eikä rivi kappaleena.
       // Tyhjä kappale (<p><br></p>, lt otsakkeen ja säkeistöjen välissä) pois: siitä jäisi yksinäinen \.
       el.querySelectorAll('dl').forEach(dl => {
@@ -490,15 +639,13 @@
       });
       el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent) && !p.querySelector('img')) p.remove(); });
     }
-    let n = 0;
-    const maar = [], viiteTunnus = new Map();
-    const lisaa = (teksti, solmu) => { const t = 'w' + (++n); maar.push([t, teksti]); return t; };
+    const viiteTunnus = new Map();
     // Viitteet (sup.reference, Parsoid: sup.mw-ref): teksti alkuperäisestä viiteluettelosta. Toistuva nimetty viite saa
     // saman tunnuksen.
     el.querySelectorAll('sup.reference, sup.mw-ref').forEach(sup => {
       const a = sup.querySelector('a[href*="#"]');
       const id = a && decodeURIComponent(a.getAttribute('href').split('#')[1] || '');
-      const li = id && document.getElementById(id);
+      const li = id && d.getElementById(id);
       const rt = li && (li.querySelector('.reference-text, .mw-reference-text') || li);
       if (!rt) return sup.remove();
       if (!viiteTunnus.has(id)) {
@@ -549,22 +696,6 @@
       const ed = kaikki.filter(p => p.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).pop() || kaikki[0];
       b.remove();
       if (t && ed) ed.appendChild(merkki(lisaa('*' + (fi ? PROJ + 'n huomautus' : PROJ + ' notice') + ':* ' + t)));
-    });
-    // Loppuluettelon artikkelit (käyttäjän valinta 10.11.2026: kaikki wikilinkit tekivät satojen rivien luettelon, Age of
-    // Enlightenment 547): vain toimittajien omat valinnat eli Pääartikkeli-, Katso myös- ja Lisätietoja-ohjausrivien
-    // artikkelit esiintymisjärjestyksessä ja Katso myös -osio, joka siirtyy kokonaan luetteloon. Muut wikilinkit tekstiksi.
-    const artikkelit = new Map();
-    const artikkeli = a => {
-      let u; try { u = new URL(a.getAttribute('href'), osoite); } catch (e) { return null; }
-      const sisainen = u.hostname === location.hostname || projRe.test(u.hostname) && u.hostname.split('.')[0] === location.hostname.split('.')[0];
-      const nimi = decodeURIComponent((/^\/wiki\/(.+)$/.exec(u.pathname) || [])[1] || '').replace(/_/g, ' ');
-      const punainen = a.classList.contains('new') || /[?&]redlink=1/.test(u.search) || /[?&]action=edit/.test(u.search);
-      if (!sisainen || !nimi || punainen || WIKI_NIMIAVARUUS.test(nimi) || u.pathname === location.pathname) return null;
-      return { avain: 'https://' + location.hostname.replace(/\.m\./, '.') + '/wiki/' + u.pathname.slice(6), nimi: rivi(a.getAttribute('title')) || nimi };
-    };
-    const talteen = juuri => juuri.querySelectorAll('a[href]').forEach(a => {
-      const k = artikkeli(a);
-      if (k && !artikkelit.has(k.avain)) artikkelit.set(k.avain, k.nimi);
     });
     // Ohjausrivit kielittäin (17.11.2026, pahvin *20 sivustosovitetta* 14: it, de, fr, da, es, et, sv, el); luokat vaihtelevat
     // (de .hauptartikel/.sieheauch, fr .bandeau-section, da .detail, es .rellink), joten tunnistus myös alkusanasta.
@@ -653,6 +784,8 @@
       })));
       if (/^DIV$/.test(e.tagName) && el.contains(e)) e.replaceWith(...e.childNodes);
     });
+    }
+    if (osat.length) wsKokoa(el, osat, wikiPuhdista);
     if (artikkelit.size) {
       const h = document.createElement('h2'), ul = document.createElement('ul');
       h.textContent = ws ? (fi ? 'Wikisource-sivut' : 'Wikisource pages') : fi ? 'Wikipedia-artikkelit' : 'Wikipedia articles';
@@ -669,7 +802,8 @@
     if (ws) return { html: el.innerHTML, otsikko: ala ? palat[palat.length - 1] : wst.otsikko || otsikko,
       teos: ala ? wst.otsikko || palat[0] : '', tekija: wst.tekija, sivusto: PROJ, julkaistu: wst.vuosi,
       kustantaja: wst.kustantaja, paikka: wst.paikka, suomentaja: wst.suomentaja ? kkKaantaja(kkNimet(wst.suomentaja)) : '',
-      oikeus: wst.lisenssi ? { teksti: wst.lisenssi, lahde: osoite } : null, maar: maar.map(([t, x]) => maaritelma(t, x)) };
+      oikeus: wst.lisenssi ? { teksti: wst.lisenssi, lahde: osoite } : null, maar: maar.map(([t, x]) => maaritelma(t, x)),
+      naytto: osat.length ? PROJ + ' (' + osat.length + ' sivua)' : '' };
     return { html: el.innerHTML, otsikko, tekija: '', sivusto: 'Wikipedia', julkaistu, maar: maar.map(([t, x]) => maaritelma(t, x)) };
   }
 
@@ -2758,6 +2892,529 @@
       kustantaja: kust && !/gutenberg/i.test(kust) ? rivi(kust) : '', julkaistu: vuosi || '',
       sivusto: PGDE_NIMI, lahde: valitut.length > 1 ? location.origin + polku[1] + '/' : osoite, maar,
       naytto: PGDE_NIMI + (sivuja > 1 ? ' (' + sivuja + ' lukua)' : '') };
+  }
+
+  /* Projekt Runeberg (runeberg.org; käyttäjän pyyntö 26.11.2026: Runebergin ja muiden fennomaanien teokset, sivustoehdokkaat 1 ja 5).
+     Pohjoismainen digitaalinen kirjasto vuodesta 1992, staattiset sivut. Teoksia on kahta lajia: käsin ladotut (fstal: luvut
+     1a.html …) ja faksimiliteokset, joissa jokainen skannattu sivu on oma sivunsa (0015.html: kuva, koneluettu teksti ja oikoluvun
+     tila) ja sisällysluettelon artikkelit (majsang.html) kokoavat sivujen tekstin sivunumeroineen (table[border] a[name^=page_]).
+     Teoksen tai niteen sivu (/fstal/, /runeberg/1/) kootaan sisällysluettelosta (h2 Innehåll / Table of Contents): ryhmäotsikot
+     (h2, h3) otsikoiksi, artikkelit järjestyksessä ja artikkelittomat sivurivit (Samlade skrifterin elämäkerta I–XXXII, Teckningar
+     och drömmarin Sidor …) sivujen koneluetusta tekstistä, vain numeroidut sivut (kansi-, nimiö-, tyhjät ja sisällyssivut pois).
+     Kun artikkeleita on, nimiö- ja sisällysrivit (Titel och innehåll) jäävät pois. Enintään RB_RAJA haettavaa sivua (skannatut sivut
+     ovat pieniä, ja kokonainen kirja on 200–400 sivua: Teckningar och drömmar 280); isomman
+     teoksen ja moniniteisen teoksen sivun (vain niteiden luettelo) leikkaa yleinen leike. Artikkelin sivulta vain artikkeli,
+     skannatun sivun sivulta vain sivu. Koneluettu sivu: rivit (<br>) kappaleiksi tyhjästä rivistä, rivin lopun tavuviiva yhdistää
+     sanan, ja runon (lyhyet tai sisennetyt rivit) rivit jäävät; sivun viimeinen kappale jatkuu seuraavalle sivulle, ellei se pääty
+     virkkeen loppuun. Koneluetusta tekstistä Luinin huomautus alkuun, montako sivua on oikoluettu. Digitaalisen laitoksen esipuhe
+     (Förord till den digitala utgåvan, Preface to the Electronic Edition) ja nimiösivu jäävät pois. Metatiedot sivun Dublin Core
+     -kentistä (DC.Title: Teos / Nide / Artikkeli). Rahoitus: lahjoitukset, ei mainoksia (tarkistettu 26.11.2026). */
+  const RB_NIMI = 'Projekt Runeberg', RB_RAJA = 600;
+  const RB_SIVU = /^\d{4}\.html$/;
+  const RB_TAVU = /[-\u00ad\u00ac]$/;
+  const RB_NUMERO = /^(\d+[a-z]?|[IVXLCDM]+)$/i;
+  const rbMeta = (d, n) => [...d.querySelectorAll('meta[name="' + n + '"]')].map(m => rivi(m.getAttribute('content'))).filter(Boolean);
+  // Sisältö: otsakelomakkeen jälkeiset solmut ennen alalaidan viivaa (The above contents …, tt-alatunniste).
+  function rbSisalto(d) {
+    const el = document.createElement('div'), form = d.body && [...d.body.children].find(x => x.tagName === 'FORM');
+    if (!form) return el;
+    for (let n = form.nextSibling; n; n = n.nextSibling) {
+      if (n.nodeType === 1 && n.tagName === 'HR') {
+        const s = n.nextSibling, t = s && (s.nodeType === 3 ? s.nodeValue : s.textContent || '');
+        if (!s || (s.nodeType === 1 && s.tagName === 'TT') || /^\s*(The above contents|Ovanstående innehåll)/i.test(t || '')) break;
+      }
+      el.appendChild(document.importNode(n, true));
+    }
+    el.querySelectorAll('a[href*="sponsors.html"]').forEach(a => (a.closest('p') || a).remove());
+    rbKuvitus(el);
+    el.querySelectorAll('script, style, img, form').forEach(x => x.remove());
+    // Lopun br clear=all (viivan edellä) pois.
+    while (el.lastChild && (el.lastChild.nodeType === 3 ? !rivi(el.lastChild.nodeValue) : el.lastChild.tagName === 'BR')) el.lastChild.remove();
+    return el;
+  }
+  // Kuvitus (table.ic, table.il: kuva ja kuvateksti; Fältskärns berättelserin artikkeleissa ja skannattujen sivujen tekstissä):
+  // kuva ja kuvittajan merkintä (Ill. C.L.[=Carl Larsson]) pois, muu kuvateksti kursiivikappaleeksi.
+  function rbKuvitus(el) {
+    el.querySelectorAll('table').forEach(t => {
+      if (!el.contains(t) || t.querySelector('a[name^="page_"]') || !t.querySelector('img')) return;
+      const kt = rivi(t.textContent);
+      if (!kt || /^Ill\b/i.test(kt)) { t.remove(); return; }
+      const p = document.createElement('p'), em = document.createElement('em');
+      em.textContent = kt;
+      p.appendChild(em);
+      t.replaceWith(p);
+    });
+  }
+  // Sivunumero yläindeksiksi [11] kuten Wikisourcessa; lohkon välissä oleva siirtyy seuraavan kappaleen alkuun.
+  function rbSivunumerot(el) {
+    el.querySelectorAll('table').forEach(t => {
+      if (!el.contains(t) || !t.querySelector('a[name^="page_"]')) return;
+      const nro = rivi([...t.querySelectorAll('a[href]')].map(a => a.textContent).join(''));
+      if (!nro) { t.remove(); return; }
+      const sup = document.createElement('sup');
+      sup.textContent = '[' + nro + ']';
+      t.replaceWith(sup);
+      const p = sup.parentElement;
+      if (p !== el && !/^H[1-6]$/.test(p.tagName)) return;
+      // Lohkon välissä tai otsikossa: seuraava kappale (tai luettelo, lainaus), jonka alkuun.
+      const kaikki = [...el.querySelectorAll('p, li, blockquote, dd, pre')];
+      const kohde = kaikki.find(x => sup.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING && rivi(x.textContent));
+      if (kohde) { kohde.prepend(sup, ' '); }
+    });
+  }
+  // Artikkelin teksti (käsin ladottu luku tai faksimiliteoksen artikkeli).
+  function rbArtikkeli(d) {
+    const el = rbSisalto(d);
+    // Faksimiliteoksen artikkeli kokoaa skannattujen sivujen koneluetun tekstin.
+    el.faksimili = !!el.querySelector('a[name^="page_"]');
+    rbSivunumerot(el);
+    kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*runeberg\.org(\/|$)/i);
+    return el;
+  }
+  // Skannatun sivun koneluettu teksti kommenttien <!-- mode=normal --> ja <!-- NEWIMAGE2 --> välistä riveiksi (html).
+  function rbSivu(d) {
+    if (!d || !d.body) return null;
+    const w = d.createTreeWalker(d.body, NodeFilter.SHOW_COMMENT);
+    let alku = null, loppu = null, c;
+    while ((c = w.nextNode())) {
+      if (!alku && /mode=normal/.test(c.data)) alku = c;
+      else if (alku && /NEWIMAGE2/.test(c.data)) { loppu = c; break; }
+    }
+    if (!alku) return null;
+    const r = d.createRange();
+    r.setStartAfter(alku);
+    if (loppu) r.setEndBefore(loppu); else r.setEndAfter(d.body.lastChild);
+    const tmp = document.createElement('div');
+    tmp.appendChild(document.importNode(r.cloneContents(), true));
+    rbKuvitus(tmp);
+    tmp.querySelectorAll('script, style, img, a[href*="proof.pl"], a[href*="rc.pl"]').forEach(x => x.remove());
+    // Kappaleraja (p, div) on tyhjä rivi; oikoluetun sivun otsikko (h2: 10. Kajaneborg.) omaksi lohkokseen.
+    tmp.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => { h.before(document.createElement('br'), document.createElement('br')); h.after(document.createElement('br'), document.createElement('br')); h.replaceWith(...h.childNodes); });
+    tmp.querySelectorAll('p, div').forEach(p => { p.before(document.createElement('br'), document.createElement('br')); p.replaceWith(...p.childNodes); });
+    tmp.querySelectorAll('a').forEach(a => a.replaceWith(...a.childNodes));
+    // Lihavoitu anfangi (<big><b>E</b></big>ngång) tekstiksi.
+    tmp.querySelectorAll('b, strong').forEach(b => {
+      if (rivi(b.textContent).length !== 1) return;
+      let w = b;
+      while (w.parentNode && w.parentNode !== tmp && /^(BIG|FONT|SPAN|SMALL)$/.test(w.parentNode.nodeName) && rivi(w.parentNode.textContent) === rivi(b.textContent)) w = w.parentNode;
+      const s = w.nextSibling;
+      if (s && s.nodeType === 3 && /^\p{L}/u.test(s.nodeValue)) w.replaceWith(rivi(b.textContent));
+    });
+    const oikoluettu = /has been proofread|har korrekturlästs/i.test(d.body.textContent) && !/never been proofread|aldrig korrekturlästs/i.test(d.body.textContent);
+    return { rivit: tmp.innerHTML.split(/<br\s*\/?>/i).map(h => h.replace(/\r?\n/g, ' ')), oikoluettu };
+  }
+  // Rivit lohkoiksi: tyhjä rivi erottaa. Proosan rivit yhteen (tavuviiva rivin lopussa yhdistää sanan), runon rivit jäävät.
+  // Rivit lohkoiksi: tyhjä rivi erottaa. Proosan rivit yhteen (tavuviiva rivin lopussa yhdistää sanan), runon rivit jäävät.
+  // Proosa on tasattua: lohkon rivit viimeistä lukuun ottamatta ulottuvat palstan oikeaan reunaan. Reuna mitataan sanojen
+  // paikoista, kun ne tunnetaan (Litteraturbankenin koneluku: reunat px), muuten rivin pituudesta suhteessa sivun pitkiin riveihin
+  // (90. persentiili). Sisennetyt rivit ovat runoa. Mitattu 26.11.2026: Teckningar och drömmar (proosa, 45–52 merkkiä), Samlade
+  // skrifter I:n elämäkerta (proosa ja sisennetty runo), Fänrik Ståls sägner 1860 (säkeet 25–40 merkkiä).
+  function rbLohkot(rivit, reunat) {
+    const tpl = document.createElement('template');
+    const tekstiOf = h => { tpl.innerHTML = h; return tpl.content.textContent.replace(/ /g, ' '); };
+    const tekstit = rivit.map(tekstiOf), pituus = tekstit.map(t => rivi(t).length);
+    const jarj = pituus.filter(Boolean).sort((x, y) => x - y), viite = Math.max(30, jarj[Math.floor(jarj.length * 0.9)] || 0);
+    const r = (reunat || []).filter(x => x && isFinite(x.oikea));
+    const oikea = r.length ? Math.max(...r.map(x => x.oikea)) : 0, vasen = r.length ? Math.min(...r.map(x => x.vasen)) : 0;
+    const tayteen = i => reunat && reunat[i] && isFinite(reunat[i].oikea) ? reunat[i].oikea >= oikea - (oikea - vasen) * 0.06 : pituus[i] >= viite * 0.85;
+    const lohkot = [];
+    let nyky = [];
+    rivit.forEach((h, i) => {
+      if (!pituus[i]) { if (nyky.length) lohkot.push(nyky); nyky = []; return; }
+      nyky.push({ h: h.trim(), t: rivi(tekstit[i]), sisennetty: /^\s{2,}/.test(tekstit[i]), taysi: tayteen(i) });
+    });
+    if (nyky.length) lohkot.push(nyky);
+    return lohkot.map(l => {
+      const alku = l.slice(0, -1), sisennettyja = alku.filter(x => x.sisennetty).length, taysia = alku.filter(x => x.taysi).length;
+      // Tyhjä säe täyttää palstan kuten proosa (Hannan omistusruno), mutta sen rivit alkavat isolla kirjaimella; proosan rivit
+      // jatkavat virkettä pienellä.
+      const isolla = l.slice(1).filter(x => /^\P{L}*\p{Lu}/u.test(x.t)).length;
+      const runo = l.length >= 2 && (sisennettyja > alku.length / 2 || taysia < alku.length * 0.6 || (l.length >= 4 && isolla >= (l.length - 1) * 0.8));
+      if (runo) return { runo: true, html: l.map(x => x.h).join('<br>'), loppu: l[l.length - 1].t };
+      let html = '';
+      l.forEach((x, i) => {
+        if (!i) { html = x.h; return; }
+        const ed = l[i - 1].t;
+        if (RB_TAVU.test(ed) && /^\p{Ll}/u.test(x.t)) html = html.replace(/[-­¬]\s*$/, '') + x.h;
+        else html += ' ' + x.h;
+      });
+      return { runo: false, html, loppu: l[l.length - 1].t };
+    });
+  }
+  // Sivujen lohkot kappaleiksi: sivunumero seuraavan sivun alkuun, ja kesken jäänyt proosakappale jatkuu.
+  function rbSivutTekstiksi(sivut, el) {
+    let ed = null;
+    sivut.forEach(s => {
+      if (!s.r) return;
+      const lohkot = rbLohkot(s.r.rivit, s.r.reunat);
+      lohkot.forEach((l, i) => {
+        const sup = !i ? '<sup>[' + s.nimi + ']</sup> ' : '';
+        if (!i && ed && !ed.runo && !l.runo && !/[.!?:”"»“…)]$/.test(ed.loppu)) {
+          const tpl = document.createElement('template');
+          tpl.innerHTML = l.html;
+          const yhdysviiva = RB_TAVU.test(ed.loppu) && /^\p{Ll}/u.test(rivi(tpl.content.textContent));
+          ed.p.innerHTML = (yhdysviiva ? ed.p.innerHTML.replace(/[-\u00ad\u00ac]\s*$/, '') : ed.p.innerHTML + ' ') + sup + l.html;
+          ed = { runo: false, loppu: l.loppu, p: ed.p };
+          return;
+        }
+        const p = document.createElement('p');
+        p.innerHTML = sup + l.html;
+        el.appendChild(p);
+        ed = { runo: l.runo, loppu: l.loppu, p };
+      });
+    });
+  }
+  // Sisällysluettelo riveiksi: otsikko, artikkeli, sivurivi tai nide.
+  function rbSisallys(d) {
+    const h = [...d.querySelectorAll('h2')].find(x => /Innehåll|Table of Contents|Indhold|Innhold/i.test(x.textContent));
+    if (!h) return null;
+    const rivit = [];
+    let solmut = [];
+    const paata = () => {
+      const k = document.createElement('div');
+      solmut.forEach(n => k.appendChild(document.importNode(n, true)));
+      solmut = [];
+      const linkit = [...k.querySelectorAll('a[href]')].map(a => ({ href: a.getAttribute('href'), nimi: rivi(a.textContent), tyyli: a.hasAttribute('style') }));
+      const teksti = rivi(k.textContent);
+      if (!teksti) return;
+      if (!linkit.length) { rivit.push({ laji: 'teksti', nimi: teksti }); return; }
+      const abs = x => new URL(x, d.baseURI || osoite).href;
+      if (linkit.some(a => /^[^/:?#]+\/$/.test(a.href))) { rivit.push({ laji: 'nide' }); return; }
+      const a0 = linkit[0];
+      if (/^[^/:?#]+\.html$/.test(a0.href) && !RB_SIVU.test(a0.href) && !/^index/.test(a0.href)) {
+        rivit.push({ laji: 'artikkeli', u: abs(a0.href), nimi: a0.nimi });
+        return;
+      }
+      const sivut = linkit.filter(a => RB_SIVU.test(a.href) && !a.tyyli).map(a => ({ u: abs(a.href), nimi: a.nimi }));
+      if (!sivut.length) return;
+      const nimi = a0.tyyli ? a0.nimi : rivi(teksti.split(sivut[0].nimi)[0].replace(/\s*-\s*$/, ''));
+      rivit.push({ laji: 'sivut', nimi, sivut });
+    };
+    for (let n = h.nextSibling; n; n = n.nextSibling) {
+      if (n.nodeType === 1 && (n.tagName === 'HR' || n.tagName === 'TABLE')) break;
+      if (n.nodeType === 1 && /^H[1-6]$/.test(n.tagName)) {
+        paata();
+        if (/Korrstap|Proof bar/i.test(n.textContent)) break;
+        rivit.push({ laji: 'otsikko', nimi: rivi(n.textContent) });
+        continue;
+      }
+      if (n.nodeType === 1 && n.tagName === 'BR') { paata(); continue; }
+      solmut.push(n);
+    }
+    paata();
+    return rivit;
+  }
+  async function projektRuneberg() {
+    if (!/(^|\.)runeberg\.org$/i.test(location.hostname)) return null;
+    const tiedosto = location.pathname.split('/').pop();
+    if (/^(authors|admin|tema|wiki|forum|img)\//.test(location.pathname.slice(1)) || !document.querySelector('meta[name="DC.Title"]')) return null;
+    const otsikot = (rbMeta(document, 'DC.Title')[0] || '').split(/\s+\/\s+/).map(rivi).filter(Boolean);
+    const tekija = rbMeta(document, 'DC.Creator.PersonalName').join(' & ');
+    const vuosi = (/(1[0-9]\d\d|20\d\d)/.exec(rbMeta(document, 'DC.Date')[0] || '') || [])[1] || '';
+    const perus = { tekija, julkaistu: vuosi, sivusto: RB_NIMI };
+    // Luinin huomautus koneluetusta tekstistä (md.js huomautus(): alkusana Teksti ja lähte-sana). m = 0: oikoluvun tila ei tiedossa.
+    const huom = (n, m) => {
+      const p = document.createElement('p'), sivusta = m === 1 ? 'skannatusta sivusta' : 'skannatuista sivuista';
+      p.textContent = '[Teksti on lähteessä koneluettu ' + sivusta + (!m ? '; oikoluvun tila näkyy lähteen sivuilla.]'
+        : n === m ? ' ja oikoluettu.]' : !n ? ', eikä sitä ole oikoluettu.]' : '; ' + n + '/' + m + ' sivua on oikoluettu.]');
+      return p;
+    };
+    // Skannattu sivu.
+    if (RB_SIVU.test(tiedosto)) {
+      const r = rbSivu(document);
+      if (!r) return null;
+      const el = document.createElement('div');
+      const nimi = rivi((document.querySelector('form font b, form b') || {}).textContent) || tiedosto.replace('.html', '');
+      rbSivutTekstiksi([{ r, nimi }], el);
+      if (kkSanoja(el) < 3) return null;
+      el.prepend(huom(r.oikoluettu ? 1 : 0, 1));
+      // Skannatun sivun DC.Title on *12 (Teckningar och Drömmar)* tai *V (Samlade skrifter / Första bandet …)*: teoksen nimi
+      // otsikoksi ja sivunumero sivuiksi.
+      const m = /^(.+?)\s+\((.+)\)$/.exec((rbMeta(document, 'DC.Title')[0] || ''));
+      const polku = m ? m[2].split(/\s+\/\s+/).map(rivi) : otsikot;
+      return { ...perus, html: el.innerHTML, otsikko: polku.slice(-1)[0] || rivi(document.title), teos: polku.slice(0, -1).join(' / '),
+        sivut: m ? m[1] : nimi, naytto: RB_NIMI + ' (sivu ' + nimi + ')' };
+    }
+    // Artikkeli tai luku.
+    if (/\.html$/.test(tiedosto) && !/^index\d*\.html$/.test(tiedosto)) {
+      const el = rbArtikkeli(document);
+      if (kkSanoja(el) < 3) return null;
+      const ens = el.querySelector(OTSIKOT), nimi = otsikot.slice(-1)[0] || '';
+      const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+      if (ens && tiivis(ens.textContent) === tiivis(nimi)) ens.remove();
+      kkSiirra(el, 1);
+      kkTasoita(el);
+      if (el.faksimili) el.prepend(huom(0, 0));
+      return { ...perus, html: el.innerHTML, otsikko: nimi || rivi(document.title), teos: otsikot.slice(0, -1).join(' / '), naytto: RB_NIMI };
+    }
+    // Teoksen tai niteen sivu: kootaan sisällysluettelosta.
+    const rivit = rbSisallys(document);
+    if (!rivit || rivit.some(r => r.laji === 'nide')) return null;
+    const artikkeleita = rivit.filter(r => r.laji === 'artikkeli').length;
+    const ETU = /^(titel|titelsida|titelblad|omslag|innehåll|innehållsförteckning|register|rättelser|tryckfel|tryckort|porträtt|förord till den digitala)/i;
+    const valitut = rivit.filter(r => r.laji === 'otsikko' || r.laji === 'artikkeli' || r.laji === 'sivut' && !(artikkeleita && ETU.test(r.nimi)));
+    valitut.forEach(r => { if (r.laji === 'sivut') r.sivut = r.sivut.filter(s => RB_NUMERO.test(s.nimi)); });
+    const osoitteet = valitut.flatMap(r => r.laji === 'artikkeli' ? [r.u] : r.laji === 'sivut' ? r.sivut.map(s => s.u) : []);
+    if (!osoitteet.length || osoitteet.length > RB_RAJA) return null;
+    const haetut = await kkHae(osoitteet), doc = u => haetut[osoitteet.indexOf(u)];
+    const el = document.createElement('div');
+    const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    // Ryhmäotsikon (Lyriska dikter I.) jälkeiset osat sen alle; ennen ensimmäistä ryhmää (elämäkerta) luvun tasolle.
+    let ryhma = false, faksimili = false, edelliset = [], oikoluettuja = 0, sivuja = 0, osia = 0;
+    const otsikko = (nimi, taso) => { const h = document.createElement('h' + taso); h.textContent = nimi; el.appendChild(h); edelliset = [ilmanNro(nimi), ...edelliset].slice(0, 3); };
+    // Numero pois vertailusta (2. Ädlingen utan namn / Ädlingen utan namn.).
+    const ilmanNro = x => tiivis(String(x).replace(/^\s*(\d+|[IVXLC]+)\.\s*/i, ''));
+    const toistaa = (h, nimi) => { const a = ilmanNro(h), b = ilmanNro(nimi); return a && (a === b || (a.length >= 6 && b.startsWith(a)) || edelliset.includes(a)); };
+    // Numeroitu artikkeli (1. Slaget vid Breitenfeld) numeroimattoman (Konungens ring) jälkeen on sen luku: taso alemmas.
+    const NRO = /^(\d+|[IVXLC]+)\.\s/;
+    let alaluvut = false;
+    // Artikkelin tai sivurivin taso: ryhmäotsikon alla alempana, ja numeroitu numeroimattoman jälkeen (Eld och vatten: 1.–16.)
+    // vielä alempana.
+    const rivinTaso = r => {
+      const seur = valitut[valitut.indexOf(r) + 1];
+      if (!NRO.test(r.nimi)) alaluvut = !!(seur && seur.laji !== 'otsikko' && NRO.test(seur.nimi));
+      return (ryhma ? 3 : 2) + (alaluvut && NRO.test(r.nimi) ? 1 : 0);
+    };
+    for (const r of valitut) {
+      if (r.laji === 'otsikko') { otsikko(r.nimi, 2); ryhma = true; continue; }
+      if (r.laji === 'artikkeli') {
+        const d = doc(r.u);
+        if (!d) continue;
+        const a = rbArtikkeli(d);
+        if (kkSanoja(a) < 3) continue;
+        // Artikkelin alun otsikot, jotka toistavat sen nimen (Företalet,) tai edellisen otsikon (Konungens ring. ennen lukua 1), pois.
+        for (let h = a.firstElementChild; h && /^H[1-6]$/.test(h.tagName); h = a.firstElementChild) {
+          if (toistaa(h.textContent, r.nimi)) h.remove(); else break;
+        }
+        const taso = rivinTaso(r);
+        otsikko(r.nimi, taso);
+        kkSiirra(a, taso);
+        faksimili = faksimili || a.faksimili;
+        el.append(...a.childNodes);
+        osia++;
+        continue;
+      }
+      const sivut = r.sivut.map(s => ({ nimi: s.nimi, r: rbSivu(doc(s.u)) })).filter(s => s.r);
+      if (!sivut.length) continue;
+      // Sivurivin nimi otsikoksi, paitsi kun koko teos on yksi sivurivi (Sidor …).
+      const omaOtsikko = artikkeleita || valitut.filter(x => x.laji === 'sivut').length > 1;
+      if (omaOtsikko) otsikko(r.nimi, rivinTaso(r));
+      const v = document.createElement('div');
+      rbSivutTekstiksi(sivut, v);
+      // Ensimmäinen kappale, joka toistaa rivin nimen (TILL DEN FÖRSTA KÄRLEKEN.), pois; sivunumero seuraavaan kappaleeseen.
+      const ens = v.querySelector('p'), sup = ens && ens.querySelector('sup');
+      if (omaOtsikko && ens && ilmanNro(ens.textContent.replace(/^\s*\[[^\]]*\]\s*/, '')) === ilmanNro(r.nimi)) {
+        ens.remove();
+        const toka = v.querySelector('p');
+        if (sup && toka && !toka.querySelector('sup')) toka.prepend(sup, ' ');
+      }
+      el.append(...v.childNodes);
+      sivuja += sivut.length;
+      oikoluettuja += sivut.filter(s => s.r.oikoluettu).length;
+      osia++;
+    }
+    if (kkSanoja(el) < 20) return null;
+    if (faksimili) el.prepend(huom(0, 0));
+    else if (sivuja) el.prepend(huom(oikoluettuja, sivuja));
+    kkTasoita(el);
+    el.normalize();
+    return { ...perus, html: el.innerHTML, otsikko: otsikot.slice(-1)[0] || rivi(document.title), teos: otsikot.slice(0, -1).join(' / '),
+      naytto: RB_NIMI + (artikkeleita > 1 ? ' (' + osia + ' osaa)' : sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
+  }
+
+  /* Litteraturbanken (litteraturbanken.se; käyttäjän pyyntö 26.11.2026: Runebergin ja fennomaanien teokset, sivustoehdokkaat 1
+     ja 5). Svenska Akademienin ja Kungliga bibliotekets ruotsalaisen kirjallisuuden kirjasto; sivu on Angular-sovellus, joten
+     leike ei lue sivua vaan sovelluksen omaa rajapintaa samalta sivustolta. Lukijan osoite /författare/<tekijä>/titlar/<teos>/
+     sida/<sivu>/<etext|faksimil> → /api/get_work_info?titlepath=&authorid= antaa teoksen tiedot, sivuluettelon (pagename,
+     pageindex) ja osat (parts: nimi, texttype, alku- ja loppusivu). E-teksti on sivuittain /txt/<lbworkid>/res_<pageindex>.html:
+     TEI:n kaltaiset luokat _head (otsikko, _divN:n syvyys tasona; numero ja nimi peräkkäin yhdeksi), _lg/_l (säkeistö ja säe) ja
+     _p (kappale, painetun rivin vaihto <br>, tavutus pehmeällä tavuviivalla), sanat span.w:nä. Sivun alun <br> kappaleen alussa
+     tarkoittaa edellisen sivun kappaleen jatkoa. Faksimilin koneluettu teksti on /txt/<lbworkid>/ocr_<pageindex>.html: rivit
+     div-elementteinä, sanat sijainteineen; kappaleraja rivivälistä, ja koneluetusta tekstistä Luinin huomautus (oikoluettu vai ei).
+     Koko teos enintään LB_RAJA sivua, muuten auki olevan sivun pienin osa (runo, luku), sen puuttuessa vain sivu. Pois: nimiö-,
+     painopaikka- ja sisällyssivut (luokat ja osan texttype innehållsförteckning). Sivunumerot yläindekseiksi [11] kuten
+     Projekt Runebergissa. Metatiedot rajapinnasta: tekijät (type puuttuu), toimittajat (editor), kääntäjät (translator), painovuosi,
+     kustantaja ja paikka (publisher). Ei mainoksia eikä lahjoituspyyntöä (julkisesti rahoitettu). Mitattu 26.11.2026. */
+  const LB_NIMI = 'Litteraturbanken', LB_RAJA = 600;
+  function lbJson(u) {
+    const ohi = new AbortController(), ajastin = setTimeout(() => ohi.abort(), 15000);
+    return fetch(u, { credentials: 'same-origin', signal: ohi.signal }).then(r => r.ok ? r.json() : null).catch(() => null)
+      .finally(() => clearTimeout(ajastin));
+  }
+  // span.w-sanat tekstiksi ja kappaleen painetut rivit yhteen (pehmeä tavuviiva rivin lopussa yhdistää sanan).
+  function lbRivit(el) {
+    const k = el.cloneNode(true);
+    k.querySelectorAll('span.w').forEach(w => w.replaceWith(...w.childNodes));
+    const alkaaRivilla = /^\s*<br\s*\/?>/i.test(k.innerHTML);
+    // Otsikossa rivin lopun tavuviiva on tavallinen (Tyskland: na-<br>tionalandan), leipätekstissä pehmeä.
+    if (el.classList.contains('_head')) k.innerHTML = k.innerHTML.replace(/-\s*<br\s*\/?>\s*(?=\p{Ll})/gu, '');
+    const html = k.innerHTML.replace(/^\s*(<br\s*\/?>\s*)+/i, '').replace(/\u00ad\s*<br\s*\/?>\s*/gi, '').replace(/\s*<br\s*\/?>\s*/gi, ' ').trim();
+    return { html, jatkuu: alkaaRivilla };
+  }
+  // E-tekstisivu lohkoiksi: otsikot, säkeistöt ja kappaleet.
+  function lbSivu(d) {
+    const juuri = d && d.querySelector('.pname');
+    if (!juuri) return null;
+    // Nimiö-, painopaikka- ja sisällyssivun lohkot pois. Tyhjä <div class="innehallssida"/> ei ole HTML:ssä tyhjä vaan sulkee
+    // sisäänsä sivun loput (Dikterin sivu XI: johdanto), joten ratkaisee lähin _div, ei mikä tahansa esivanhempi.
+    const ETU = /(^|\s)(tryckortssida|titelsida|innehallssida|omslag|smutstitel)(\s|$)/;
+    const lohkot = [];
+    let saeryhma = null;
+    juuri.querySelectorAll('._head, ._p, ._l').forEach(x => {
+      const div = x.closest('[class*="_div"]');
+      if (div && ETU.test(div.className)) return;
+      if (x.classList.contains('_l')) {
+        const lg = x.parentElement;
+        if (!saeryhma || saeryhma.lg !== lg) { saeryhma = { lg, rivit: [] }; lohkot.push({ laji: 'lg', ryhma: saeryhma }); }
+        saeryhma.rivit.push(lbRivit(x).html);
+        return;
+      }
+      saeryhma = null;
+      if (x.closest('._l')) return;
+      if (x.classList.contains('_head')) {
+        const taso = div ? +((/_div(\d)/.exec(div.className) || [])[1] || 1) : 1;
+        const t = lbRivit(x).html;
+        const ed = lohkot[lohkot.length - 1];
+        // Numero ja nimi peräkkäin (II. / DEN GAMLES HEMKOMST.) yhdeksi otsikoksi.
+        if (ed && ed.laji === 'h' && ed.taso === taso && /^([IVXLC]+|\d+)\.?$/.test(rivi(ed.teksti))) { ed.html += ' ' + t; ed.teksti += ' ' + rivi(x.textContent); return; }
+        lohkot.push({ laji: 'h', taso, html: t, teksti: rivi(x.textContent) });
+        return;
+      }
+      if (x.closest('._head')) return;
+      const r = lbRivit(x);
+      if (r.html) lohkot.push({ laji: 'p', html: r.html, jatkuu: r.jatkuu });
+    });
+    if (!lohkot.length) return { ohita: true };
+    return { lohkot: lohkot.map(l => l.laji === 'lg' ? { laji: 'lg', html: l.ryhma.rivit.join('<br>') } : l) };
+  }
+  // Faksimilin koneluettu sivu riveiksi: rivi on div, sanat span.w; tyhjä rivi, kun riviväli on selvästi tavallista suurempi.
+  function lbOcr(d) {
+    const px = (st, k) => parseFloat((new RegExp(k + ':\\s*(-?[\\d.]+)px').exec(st || '') || [])[1]);
+    const rivit = [...((d && d.body) ? d.body.querySelectorAll('div > div') : [])].map(r => {
+      const sanat = [...r.querySelectorAll('span.w')];
+      const top = sanat.length ? px(sanat[0].getAttribute('style'), 'top') : NaN;
+      const vasen = Math.min(...sanat.map(w => px(w.getAttribute('style'), 'left')));
+      const oikea = Math.max(...sanat.map(w => px(w.getAttribute('style'), 'left') + parseFloat(w.getAttribute('data-width') || 'NaN')));
+      const t = sanat.map(w => w.textContent).join(' ').replace(/\s+/g, ' ').replace(/\s+([,.;:!?)\]”’»])/g, '$1').replace(/([(\[“„«])\s+/g, '$1').trim();
+      return { t, top, vasen, oikea };
+    }).filter(r => r.t);
+    const valit = rivit.slice(1).map((r, i) => r.top - rivit[i].top).filter(v => v > 0).sort((a, b) => a - b);
+    const tavallinen = valit.length ? valit[Math.floor(valit.length / 2)] : 0;
+    const ulos = [], reunat = [];
+    rivit.forEach((r, i) => {
+      if (i && tavallinen && r.top - rivit[i - 1].top > tavallinen * 1.6) { ulos.push(''); reunat.push(null); }
+      ulos.push(r.t.replace(/&/g, '&amp;').replace(/</g, '&lt;'));
+      reunat.push({ vasen: r.vasen, oikea: r.oikea });
+    });
+    return { rivit: ulos, reunat };
+  }
+  async function litteraturbanken() {
+    if (!/(^|\.)litteraturbanken\.se$/i.test(location.hostname)) return null;
+    const osat = location.pathname.split('/').filter(Boolean).map(x => { try { return decodeURIComponent(x); } catch (e) { return x; } });
+    if (osat[0] !== 'författare' || osat[2] !== 'titlar' || !osat[3]) return null;
+    const tekijaId = osat[1], teosId = osat[3];
+    let sivu = '', laji = '';
+    if (osat[4] === 'sida') { sivu = osat[5] || ''; laji = osat[6] || ''; } else if (osat[4] !== 'info') laji = osat[4] || '';
+    const info = await lbJson('/api/get_work_info?' + new URLSearchParams({ titlepath: teosId, authorid: tekijaId, exclude: 'content_vector' }));
+    const kaikki = (info && info.data) || [];
+    const tiedot = kaikki.find(x => x.mediatype === (laji || 'etext')) || (!laji && kaikki.find(x => x.mediatype === 'faksimil'));
+    if (!tiedot || !/^(etext|faksimil)$/.test(tiedot.mediatype) || !(tiedot.pages || []).length) return null;
+    const eteksti = tiedot.mediatype === 'etext', id = tiedot.lbworkid;
+    const sivut = tiedot.pages.slice().sort((a, b) => a.pageindex - b.pageindex);
+    const ix = n => { const s = sivut.find(x => x.pagename === n); return s ? s.pageindex : -1; };
+    // Pois sisällysluettelo-osat; osa auki olevan sivun mukaan, jos koko teos on liian iso.
+    const ohita = new Set();
+    (tiedot.parts || []).filter(p => /innehållsförteckning|titelsida|omslag/i.test(p.texttype || '')).forEach(p => {
+      for (let i = ix(p.startpagename); i >= 0 && i <= ix(p.endpagename); i++) ohita.add(i);
+    });
+    let valitut = sivut, osa = null;
+    if (sivut.length > LB_RAJA) {
+      const nyt = ix(sivu || tiedot.startpagename);
+      osa = (tiedot.parts || []).map(p => ({ p, a: ix(p.startpagename), b: ix(p.endpagename) }))
+        .filter(x => x.a >= 0 && x.b >= x.a && x.a <= nyt && nyt <= x.b && x.b - x.a < LB_RAJA).sort((x, y) => (x.b - x.a) - (y.b - y.a))[0] || null;
+      valitut = osa ? sivut.filter(s => s.pageindex >= osa.a && s.pageindex <= osa.b) : sivut.filter(s => s.pageindex === nyt);
+    }
+    valitut = valitut.filter(s => !ohita.has(s.pageindex));
+    // Sivut, jotka eivät kuulu mihinkään osaan (puolinimiö, painopaikka), pois, kun osia on.
+    const katetut = new Set();
+    (tiedot.parts || []).filter(p => !/innehållsförteckning|titelsida|omslag/i.test(p.texttype || '')).forEach(p => {
+      for (let i = ix(p.startpagename); i >= 0 && i <= ix(p.endpagename); i++) katetut.add(i);
+    });
+    if (katetut.size) valitut = valitut.filter(s => katetut.has(s.pageindex));
+    if (!valitut.length) return null;
+    // Versaaliotsikon (I. TILL FRANZÉN.) nimi osaluettelosta (Till Franzén [1998] → Till Franzén; Dikter. Första häftet myös
+    // loppuosanaan Första häftet). Muut otsikot sellaisinaan.
+    const tiivis = x => rivi(x).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+    const osaNimet = new Map();
+    [...(tiedot.parts || []), { title: tiedot.title }, { title: tiedot.showtitle }].forEach(p => {
+      const t = rivi(String(p.title || '').replace(/\s*\[[^\]]*\]\s*$/, '')), palat = t.split(/\.\s+/);
+      palat.forEach((x, k) => { const v = palat.slice(k).join('. '); if (v && !osaNimet.has(tiivis(v))) osaNimet.set(tiivis(v), v); });
+    });
+    const otsikkoNimi = t => {
+      if (t !== t.toUpperCase()) return '';
+      const m = /^((?:[IVXLC]+|\d+)\.?\s+)?(.+?)\.?$/.exec(rivi(t));
+      const v = m && osaNimet.get(tiivis(m[2]));
+      return v ? (m[1] ? m[1].trim().replace(/\.?$/, '. ') : '') + v : '';
+    };
+    const tiedosto = s => '/txt/' + id + '/' + (eteksti ? 'res_' : 'ocr_') + String(s.pageindex).padStart(5, '0') + '.html';
+    const haetut = await kkHae(valitut.map(tiedosto));
+    const el = document.createElement('div');
+    let sivuja = 0;
+    if (eteksti) {
+      let ed = null;
+      valitut.forEach((s, i) => {
+        const r = lbSivu(haetut[i]);
+        if (!r || r.ohita) return;
+        sivuja++;
+        // Sivunumero sivun ensimmäisen kappaleen tai säkeistön alkuun (ei otsikkoon).
+        let sup = '<sup>[' + s.pagename + ']</sup>';
+        r.lohkot.forEach(l => {
+          if (l.laji === 'h') {
+            const h = document.createElement('h' + Math.min(6, l.taso + 1)), nimi = otsikkoNimi(l.teksti);
+            if (nimi) h.textContent = nimi; else h.innerHTML = l.html;
+            el.appendChild(h);
+            ed = h;
+            return;
+          }
+          const alku = sup;
+          sup = '';
+          if (l.laji === 'p' && l.jatkuu && ed && ed.tagName === 'P' && !ed.saeistö) {
+            // Edellisen sivun kappale jatkuu; pehmeä tavuviiva sivun lopussa: sana yhteen ja sivunumero sanan perään.
+            const pehmea = /\u00ad\s*$/.test(ed.innerHTML);
+            const m = pehmea && alku ? /^(\S+)(\s+|$)/.exec(l.html) : null;
+            ed.innerHTML = ed.innerHTML.replace(/\u00ad\s*$/, '') + (pehmea ? '' : ' ') +
+              (m ? m[1] + alku + ' ' + l.html.slice(m[0].length) : (alku ? alku + ' ' : '') + l.html);
+            return;
+          }
+          const p = document.createElement('p');
+          p.innerHTML = (alku ? alku + ' ' : '') + l.html;
+          if (l.laji === 'lg') p.saeistö = true;
+          el.appendChild(p);
+          ed = p;
+        });
+      });
+    } else {
+      const ocr = valitut.map((s, i) => ({ nimi: s.pagename, r: haetut[i] ? { ...lbOcr(haetut[i]), oikoluettu: !!tiedot.proofread } : null })).filter(s => s.r && s.r.rivit.length);
+      rbSivutTekstiksi(ocr, el);
+      sivuja = ocr.length;
+      if (sivuja) {
+        const p = document.createElement('p');
+        p.textContent = '[Teksti on lähteessä koneluettu ' + (sivuja === 1 ? 'skannatusta sivusta' : 'skannatuista sivuista') + (tiedot.proofread ? ' ja oikoluettu.]' : ', eikä sitä ole oikoluettu.]');
+        el.prepend(p);
+      }
+    }
+    if (kkSanoja(el) < 3) return null;
+    kkTasoita(el);
+    el.normalize();
+    const tekijat = (tiedot.authors || []).filter(a => !a.type), rooli = t => (tiedot.authors || []).filter(a => a.type === t).map(a => rivi(a.full_name));
+    const kaantajat = rooli('translator'), julkaisija = tiedot.publisher || [];
+    const lahde = location.origin + '/författare/' + encodeURIComponent(tekijaId) + '/titlar/' + encodeURIComponent(teosId) + '/sida/' +
+      encodeURIComponent(osa ? osa.p.startpagename : valitut.length === 1 ? valitut[0].pagename : tiedot.startpagename) + '/' + tiedot.mediatype;
+    return { html: el.innerHTML, otsikko: osa ? rivi(osa.p.title) : rivi(tiedot.showtitle || tiedot.title || tiedot.shorttitle),
+      teos: osa ? rivi(tiedot.showtitle || tiedot.title) : '', tekija: tekijat.map(a => rivi(a.full_name)).join(' & '),
+      toimittaja: rooli('editor').join(' & '), suomentaja: kaantajat.length ? kkKaantaja(kaantajat) : '',
+      julkaistu: tiedot.imprintyear || '', kustantaja: rivi(julkaisija[0] || ''), paikka: rivi(julkaisija[1] || ''),
+      sivusto: LB_NIMI, lahde, naytto: LB_NIMI + (sivuja > 1 ? ' (' + sivuja + ' sivua)' : '') };
   }
 
   /* SLS:n digitaaliset editiot (topelius.sls.fi, westermarck.sls.fi, vonwright.sls.fi; käyttäjän pyyntö 20.11.2026,
@@ -14042,6 +14699,7 @@
     cdli: { laji: 'lahjoitukset', osoite: 'https://opencollective.com/cdli/donate' },
     bomb: { laji: 'mainokset ja lahjoitukset', osoite: 'https://bombmagazine.org/donate' },
     gutenbergDe: { laji: 'lahjoitukset', osoite: 'https://projekt-gutenberg.org/ueber-uns/finanzielle-unterstuetzung/' },
+    projektRuneberg: { laji: 'lahjoitukset', osoite: 'https://runeberg.org/admin/sponsors.html' },
     newton: { laji: 'lahjoitukset', osoite: 'https://www.newtonproject.ox.ac.uk/support-us' },
     girardianLectionary: { laji: 'lahjoitukset', osoite: 'https://girardianlectionary.net/donate-connect/' },
     theConversation: { laji: 'lahjoitukset', osoite: 'https://donate.theconversation.com/' },
@@ -14119,7 +14777,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, projektRuneberg, litteraturbanken, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
