@@ -226,7 +226,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Ensyklopedia Logos, Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`) ja Perseus Digital Library. Älä lisää sitä kysymättä.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on. Listan selitteissä J. L. Runeberg on yksin mainittuna *Runeberg*,
-  mutta Fredrikan rinnalla kumpikin alkukirjaimin, *J. L. Runeberg* ja *F. Runeberg* (käyttäjän päätös), alkukirjaimet ja sukunimi
+  mutta Fredrikan rinnalla *J. L. Runeberg* ja *Fredrika Runeberg* (käyttäjän päätös), alkukirjaimet ja sukunimi
   `&nbsp;`-sidottuina; haun `norm()` lukee sidotun välilyönnin tavallisena.
 - **Otsikkohaku** (käyttäjän päätös: tarkka verkko): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
   sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt`, `otsikot-gutenberg.txt` ja `otsikot-pohjola.txt`
