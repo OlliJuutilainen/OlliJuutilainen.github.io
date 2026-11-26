@@ -3890,13 +3890,13 @@
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin veivihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
      sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllystä ja Poimi. Kellarista: *Laita ö-mappiin*,
-     *Laitetaanko ö-mappiin?*, *Jöö* / *Öö ei* (käyttäjän sanat). */
+     *Laitetaanko teksti mappiin ö?*, *Joo* / *Öö ei* (käyttäjän sanat). */
   // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
-  var OM_SISAAN = 'Jöö', OM_VALIKKO = 'Laita ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';
+  var OM_SISAAN = 'Joo', OM_VALIKKO = 'Laita ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';
   function kysyOmappi(es, rect) {
     var om = !!es[0].omappi, n = es.length;
     var kys = om ? (n === 1 ? 'Poimitaanko teksti kellarin veivihyllystöön?' : 'Poimitaanko ' + n + ' tekstiä kellarin veivihyllystöön?')
-      : (n === 1 ? 'Laitetaanko ö-mappiin?' : 'Laitetaanko ' + n + ' tekstiä ö-mappiin?');
+      : (n === 1 ? 'Laitetaanko teksti mappiin ö?' : 'Laitetaanko ' + n + ' tekstiä mappiin ö?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (om ? OM_POIS : OM_SISAAN) + '</button>' +
       '<button type="button" data-k="ei" class="ei">' + (om ? 'älä!' : 'Öö ei') + '</button></div>', 'kysely', function (k) {
