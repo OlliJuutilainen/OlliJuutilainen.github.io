@@ -562,10 +562,85 @@
     }).join('') +
     '<div class="s-tila"><span id="s-nakyy"></span><button type="button" id="s-tyhjenna" hidden>tyhjennä</button></div>';
   el.hidden = false;
-  var q = function () { return norm(haku).split(/\s+/).filter(Boolean).map(function (w) {
-    return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u'); }); };
-  function lapi(t, re) {
-    if (!re.every(function (r) { return r.test(t.haku); })) return false;
+  /* Hakukieli (käyttäjän päätös: perus-boolean): välilyönti tai AND = kaikkien pitää osua, OR = jonkin pitää osua, NOT = ei
+     saa osua, sulut ryhmittävät, ja lainausmerkeissä on kokonainen sana tai peräkkäiset sanat ("paul", "st paul"); muuten
+     hakusana on sanan alku. Operaattorit vain isoin kirjaimin (pienet ovat hakusanoja). OR sitoo tiukemmin kuin AND kuten
+     hakukoneissa: paul st OR saint = paul AND (st OR saint). Pariton lainausmerkki tai sulku koskee haun loppua, ja irralliset
+     operaattorit ohitetaan (kirjoitettaessa). Puu: { t: 'ja' | 'tai' | 'ei', l: [...] } tai lehti { t: 's', sanat, raaka, tarkka }. */
+  var LAINAUS = '"“”„«»';
+  function jasennaHaku(teksti) {
+    var s = String(teksti || ''), i = 0, j, c, w, merkit = [], p = 0, puu = null, x;
+    var erotin = function (c) { return /\s/.test(c) || c === '(' || c === ')' || LAINAUS.indexOf(c) >= 0; };
+    while (i < s.length) {
+      c = s.charAt(i);
+      if (/\s/.test(c)) { i++; continue; }
+      if (c === '(' || c === ')') { merkit.push({ m: c }); i++; continue; }
+      if (LAINAUS.indexOf(c) >= 0) {
+        for (j = i + 1; j < s.length && LAINAUS.indexOf(s.charAt(j)) < 0; j++);
+        merkit.push({ s: s.slice(i + 1, j), tarkka: true }); i = j + 1; continue;
+      }
+      for (j = i; j < s.length && !erotin(s.charAt(j)); j++);
+      w = s.slice(i, j); i = j;
+      merkit.push(w === 'AND' || w === 'OR' || w === 'NOT' ? { m: w } : { s: w, tarkka: false });
+    }
+    var on = function (m) { return p < merkit.length && merkit[p].m === m; };
+    var alkaa = function () { return p < merkit.length && (merkit[p].s !== undefined || merkit[p].m === '(' || merkit[p].m === 'NOT'); };
+    var ryhma = function (t, l) { l = l.filter(Boolean); return l.length > 1 ? { t: t, l: l } : l[0] || null; };
+    function ja() {
+      var l = [];
+      while (p < merkit.length && !on(')')) { if (on('AND') || on('OR')) p++; else l.push(tai()); }
+      return ryhma('ja', l);
+    }
+    function tai() {
+      var l = [ei()];
+      while (on('OR')) { p++; if (alkaa()) l.push(ei()); }
+      return ryhma('tai', l);
+    }
+    function ei() {
+      if (!on('NOT')) return perus();
+      p++;
+      var y = alkaa() ? ei() : null;
+      return y && { t: 'ei', l: [y] };
+    }
+    function perus() {
+      var y = merkit[p++];
+      if (y.m === '(') { y = ja(); if (on(')')) p++; return y; }
+      var raaka = norm(y.s), sanat = raaka.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+      return sanat.length ? { t: 's', sanat: sanat, raaka: raaka, tarkka: y.tarkka } : null;
+    }
+    while (p < merkit.length) { x = ja(); if (x) puu = ryhma('ja', [puu, x]); if (on(')')) p++; }
+    return puu;
+  }
+  // Ehtojen sanat, joiden pitää osua (ei NOT-ehtojen).
+  function myonteiset(n, kielto, sanat) {
+    if (!n) return sanat;
+    if (n.t === 's') { if (!kielto) sanat.push.apply(sanat, n.sanat); }
+    else n.l.forEach(function (x) { myonteiset(x, kielto || n.t === 'ei', sanat); });
+    return sanat;
+  }
+  var rx = function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  // Lehden lauseke: sanan alku tai lainausmerkeissä kokonainen sana, jonka sanojen välissä mikä tahansa välimerkki (ei kentän
+  // tai otsikon erotin). Ryhmä 2 on sanan jatko (tyhjä = kokonainen sana).
+  function lauseke(n) {
+    return '(^|[^\\p{L}\\p{N}])' + n.sanat.map(rx).join('[^\\p{L}\\p{N}\\u0002\\u0003|]+') +
+      (n.tarkka ? '(?![\\p{L}\\p{N}])()' : '([\\p{L}\\p{N}]?)');
+  }
+  // Sivustolistan haku: lainausmerkitön ehto sellaisenaan sanan alkuna kuten ennen hakukieltä.
+  var q = function () {
+    var puu = jasennaHaku(haku);
+    (function k(n) {
+      if (!n) return;
+      if (n.t === 's') n.re = new RegExp(n.tarkka ? lauseke(n) : '(^|[^\\p{L}\\p{N}])' + rx(n.raaka), 'u'); else n.l.forEach(k);
+    })(puu);
+    return puu;
+  };
+  function sopii(n, s) {
+    if (n.t === 's') return n.re.test(s);
+    if (n.t === 'ei') return !sopii(n.l[0], s);
+    return n.t === 'ja' ? n.l.every(function (x) { return sopii(x, s); }) : n.l.some(function (x) { return sopii(x, s); });
+  }
+  function lapi(t, puu) {
+    if (puu && !sopii(puu, t.haku)) return false;
     return korilapi(t);
   }
   function korilapi(t) {
@@ -607,7 +682,7 @@
       var a = document.querySelector('nav.aakkoset a[href="#' + h.id + '"]');
       if (a) { a.classList.toggle('tyhja', tyhja); if (tyhja) a.setAttribute('aria-disabled', 'true'); else a.removeAttribute('aria-disabled'); }
     });
-    var suodatettu = !!re.length || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
+    var suodatettu = !!re || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
     document.getElementById('s-nakyy').textContent = suodatettu ? 'sivustoja näkyvissä ' + nak.length + ' / ' + tiedot.length : tiedot.length + ' sivustoa';
     document.getElementById('s-tyhjenna').hidden = !suodatettu && !Object.keys(tila.kentta).length;
   }
@@ -631,8 +706,8 @@
     clearTimeout(ajastin); ajastin = setTimeout(haeOtsikot, 250);
   });
 
-  // Otsikkohaku kerätystä luettelosta (muoto ja purku: tusina-radan hakemisto/julkaise.js). Kaikkien hakusanojen on osuttava
-  // sanan alkuun otsikossa (myös muissa otsikoissa), tekijässä tai asiasanassa. Haku-rivi rajaa kentät (käyttäjän päätös: kolme
+  // Otsikkohaku kerätystä luettelosta (muoto ja purku: tusina-radan hakemisto/julkaise.js). Hakusanat osuvat hakukielen mukaan
+  // (yllä) sanan alkuun otsikossa (myös muissa otsikoissa), tekijässä tai asiasanassa. Haku-rivi rajaa kentät (käyttäjän päätös: kolme
   // hakua, jotta tutkimus ei huku alkuteosten alle): mukaan = vain nämä kentät, pois = karsii merkinnän, jos jokin hakusana osuu
   // kenttään. Täysi sana ja osuma otsikossa nostavat, lyhyempi otsikko ensin; sivustot parhaan osumansa järjestyksessä.
   var OTS = { tila: 'ei', m: [], osumat: [], ryhmat: [], auki: {}, kentat: {} }, sivuTiedot = {};
@@ -693,10 +768,11 @@
     f.kieliPaa = f.kieli[0];
     return (e.f = f);
   }
-  // Otsikkohaku alkaa kolmesta kirjaimesta.
+  // Otsikkohaku alkaa kolmesta kirjaimesta (ehdoissa, joiden pitää osua). Avain ilman raakaa tekstiä: välimerkin lisäys ei
+  // ole uusi haku eikä sulje avattuja ryhmiä.
   function hakusanat() {
-    var sanat = norm(haku).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-    return sanat.join('').length >= 3 ? sanat : null;
+    var puu = jasennaHaku(haku), sanat = myonteiset(puu, false, []);
+    return sanat.join('').length >= 3 ? { puu: puu, sanat: sanat, avain: JSON.stringify(puu, ['t', 'l', 'sanat', 'tarkka']) } : null;
   }
   // Sama kuin laske(osumat.map(fasetit)) mutta ilman merkintäkohtaisia olioita: sivuston korit lasketaan sivustoittain.
   function laskeOtsikot(osumat) {
@@ -721,40 +797,66 @@
     return n;
   }
   function haeOtsikot() {
-    var sanat = hakusanat(), avain = sanat ? sanat.join(' ') : '';
+    var H = hakusanat(), sanat = H && H.sanat, avain = H ? H.avain : '';
     // Uusi haku sulkee avatut ryhmät; korin tai kentän vaihto pitää ne.
     if (avain !== OTS.avain) { OTS.avain = avain; OTS.auki = {}; }
     OTS.sanat = sanat;
     if (!sanat) { piirraOtsikot(); return; }
     if (OTS.tila === 'ei') { lataa(); return; }
     if (OTS.tila !== 'valmis') return;
-    var re = sanat.map(function (w) { return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([\\p{L}\\p{N}]?)', 'gu'); });
+    // Välimerkin erottamat sanat ilman lainausmerkkejä ovat erillisiä ehtoja kuten ennen hakukieltä (s:t = s AND t).
+    var puu = (function k(n) {
+      if (n.t !== 's') return { t: n.t, l: n.l.map(k) };
+      if (!n.tarkka && n.sanat.length > 1) return { t: 'ja', l: n.sanat.map(function (w) { return k({ t: 's', sanat: [w], tarkka: false }); }) };
+      return { t: 's', sanat: n.sanat, re: new RegExp(lauseke(n), 'gu') };
+    })(H.puu);
     var muk = KENTAT.filter(function (k) { return tila.kentta[k] === 'mukaan'; });
     var sallittu = KENTAT.map(function (k) { return muk.length ? muk.indexOf(k) >= 0 : tila.kentta[k] !== 'pois'; });
     var karsii = KENTAT.map(function (k) { return tila.kentta[k] === 'pois'; });
-    var osumat = [], rajattu = FASETIT.some(function (f) { return Object.keys(tila[f]).length; }), kn = {};
-    for (var i = 0; i < OTS.m.length; i++) {
-      var e = OTS.m[i], pisteet = 0, maski = 0, ok = true, j, k;
-      for (j = 0; j < sanat.length; j++) if (e.h.indexOf(sanat[j]) < 0) break;
-      if (j < sanat.length) continue;
-      // Sanan osumat yhdellä läpikäynnillä; kenttä osumakohdasta (sana ei ylitä erotinta, koska se ei ole kirjain). Kun kentästä
-      // löytyy kokonainen sana (tai kenttä on rajattu pois), haku hyppää seuraavaan kenttään: enintään kolme osumaa sanaa kohden.
-      for (j = 0; j < re.length && ok; j++) {
-        var paras = -1, x;
-        re[j].lastIndex = 0;
-        while ((x = re[j].exec(e.h))) {
-          var kohta = x.index + x[1].length;
-          k = kohta < e.ta ? 0 : kohta < e.tb ? 1 : 2;
-          if (karsii[k]) { ok = false; break; }
-          if (sallittu[k]) { maski |= 1 << k; paras = Math.max(paras, (k ? 1 : 2) + (x[2] ? 0 : 1)); }
-          re[j].lastIndex = !x[2] || !sallittu[k] ? (k === 0 ? e.ta : k === 1 ? e.tb : e.h.length) : kohta + 1;
-          if (re[j].lastIndex >= e.h.length) break;
-        }
-        if (paras < 0) ok = false; else pisteet += paras;
+    var osumat = [], rajattu = FASETIT.some(function (f) { return Object.keys(tila[f]).length; }), kn = {}, karsi;
+    // Ehdon osumat yhdellä läpikäynnillä; kenttä osumakohdasta (sana ei ylitä erotinta, koska se ei ole kirjain). Kun kentästä
+    // löytyy kokonainen sana (tai kenttä on rajattu pois), haku hyppää seuraavaan kenttään: enintään kolme osumaa ehtoa kohden.
+    // Pisteet: otsikossa 2, muualla 1, kokonainen sana +1. Pois rajattuun kenttään osuva ehto karsii merkinnän, paitsi NOT-ehto
+    // (kielto), joka ei katso sitä kenttää.
+    function lehti(n, e, kielto) {
+      var paras = -1, maski = 0, re = n.re, x, k, kohta;
+      re.lastIndex = 0;
+      while ((x = re.exec(e.h))) {
+        kohta = x.index + x[1].length;
+        k = kohta < e.ta ? 0 : kohta < e.tb ? 1 : 2;
+        if (karsii[k] && !kielto) { karsi = true; return null; }
+        if (sallittu[k]) { maski |= 1 << k; paras = Math.max(paras, (k ? 1 : 2) + (x[2] ? 0 : 1)); }
+        re.lastIndex = !x[2] || !sallittu[k] ? (k === 0 ? e.ta : k === 1 ? e.tb : e.h.length) : kohta + 1;
+        if (re.lastIndex >= e.h.length) break;
       }
-      if (!ok || (rajattu && !korilapi(fasetit(e)))) continue;
-      osumat.push({ p: pisteet, e: e, m: maski });
-      for (k = 0; k < 3; k++) if (maski & 1 << k) kn[KENTAT[k]] = (kn[KENTAT[k]] || 0) + 1;
+      return paras < 0 ? null : { p: paras, m: maski };
+    }
+    // AND: pisteet yhteen; OR: paras osunut; NOT: osuma, kun ehto ei osu. OR käy kaikki läpi, jotta karsinta näkee jokaisen sanan.
+    function arvioi(n, e, kielto) {
+      if (n.t === 's') return lehti(n, e, kielto);
+      if (n.t === 'ei') return arvioi(n.l[0], e, true) ? null : { p: 0, m: 0 };
+      var p = 0, m = 0, osui = false, r, i;
+      for (i = 0; i < n.l.length; i++) {
+        r = arvioi(n.l[i], e, kielto);
+        if (karsi) return null;
+        if (n.t === 'ja') { if (!r) return null; p += r.p; m |= r.m; }
+        else if (r) { osui = true; p = Math.max(p, r.p); m |= r.m; }
+      }
+      return n.t === 'ja' || osui ? { p: p, m: m } : null;
+    }
+    // Pikaseula ennen lausekkeita: osumaan tarvittavat sanat merkkijonona.
+    function voi(n, h) {
+      if (n.t === 's') return n.sanat.every(function (w) { return h.indexOf(w) >= 0; });
+      if (n.t === 'ei') return true;
+      return n.t === 'ja' ? n.l.every(function (x) { return voi(x, h); }) : n.l.some(function (x) { return voi(x, h); });
+    }
+    for (var i = 0; i < OTS.m.length; i++) {
+      var e = OTS.m[i], r, k;
+      if (!voi(puu, e.h)) continue;
+      karsi = false; r = arvioi(puu, e, false);
+      if (!r || karsi || (rajattu && !korilapi(fasetit(e)))) continue;
+      osumat.push({ p: Math.min(r.p, 99), e: e, m: r.m });
+      for (k = 0; k < 3; k++) if (r.m & 1 << k) kn[KENTAT[k]] = (kn[KENTAT[k]] || 0) + 1;
     }
     // Lokerolajittelu (pisteet laskevasti, otsikon pituus nousevasti): osumia voi olla kymmeniätuhansia.
     var lokerot = [];

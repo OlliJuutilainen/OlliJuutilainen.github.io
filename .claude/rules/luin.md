@@ -244,6 +244,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (*otsikko*, *tekijä*, *asiasana*; käyttäjän päätös: kolme hakua, jotta tutkimus ei huku alkuteosten alle) toimii korien tavoin:
   mukaan = vain nämä kentät, pois = karsii merkinnän, jos hakusana osuu kenttään. Luettelossa on siksi asiasanataulukko ja
   muut otsikot (muoto julkaise.js:ssä).
+  **Hakukieli** (käyttäjän päätös: perus-boolean, ei pystyviivaa; `jasennaHaku()`, sama sivustolistassa): välilyönti tai `AND`,
+  `OR`, `NOT` ja sulut, operaattorit vain isoin kirjaimin; lainausmerkeissä kokonainen sana tai fraasi kuten lukimen haussa.
+  `OR` sitoo tiukemmin kuin `AND` (`"paul" st OR saint` = paul AND (st OR saint)). Haku ilman operaattoreita ja lainausmerkkejä antaa
+  tavulleen samat osumat kuin ennen hakukieltä; kun muutat jäsennintä, vertaa vanhaan.
 - **Korien nimet** (käyttäjän päätökset): *uskonto* (ei *perimmäisyys*), *laki ja lääketiede* (entinen jämäkori; kielet ja
   kielitiede ovat *kirjallisuutta*), *yleiset* (kaikkiruokaiset sivustot ja yleiset tietosanakirjat, myös Wikipedia; ei
   *kaikkiruokainen*), *fennomaanit* (1800-luvun suomalaisen kansallisen herätyksen piiri, myös Runeberg ja Topelius; merkinnän
