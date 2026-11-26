@@ -142,7 +142,7 @@ async function handleLoc(req, env) {
 // Rajoitin on LuinRaja-luokka omana oliona ("loc") omilla rajoillaan; päiväraja suojaa Luinin ja keikkojen
 // KV-kirjoituksia (ilmaistason 1000 kirjoitusta päivässä).
 //
-// Poikkeus: Minun oma tusinasää -profiili (minun-tusinasaa.html). Salatussa paketissa on pylväslista, valittu pylväs
+// Poikkeus: Minun oma tusinasää -profiili (minun-tusinasaa.html). Salatussa paketissa on salkolista, valittu salko
 // ja lämpötilavalinta, ja tietueessa kirjoitusavaimen SHA-256-tiiviste wh. Vain kirjoitusavaimen haltija voi muuttaa
 // pakettia (PUT /api/loc?t=…). Katselulinkissä on vain t ja k, joten sillä ei voi muuttaa mitään. GET ei palauta wh:ta.
 const LOC_RAJA_MAARA = 5;
