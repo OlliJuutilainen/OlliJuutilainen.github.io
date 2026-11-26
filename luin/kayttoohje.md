@@ -111,7 +111,7 @@ Leikkeessä ovat otsikko, tekijä, sivusto ja julkaisuaika, mikäli sivu kertoo 
 
 Lukimeen-lisäosa leikkaa minkä tahansa artikkelisivun yleisin keinoin, mutta yli sadalle sivustolle sillä on oma sovitteensa. Niiltä teksti tulee siistimpänä: alaviitteet oikeille paikoilleen, kirjallisuusluettelo luettelona, sivuston nostolainaukset ja muut sivupalkit pois, ja joskus koko kirja luvun sivulta.
 
-Lista on sivulla *Lukimessa luettavaa*. Sinne pääsee pinon alalaidan linkistä *Luettavaa* ja latomon lisäosarivin plussan takaa.
+Lista on sivulla *Lukimessa luettavaa*. Sinne pääsee pinon alalaidan linkistä *LUETTAVAA* ja latomon lisäosarivin plussan takaa.
 
 - **Haku.** Kenttä *Etsi sivustoa tai otsikkoa* etsii sivuston nimestä ja kuvauksesta. Kolmannesta kirjaimesta alkaen se etsii myös noin 150 000 tekstin nimestä, jotka on kerätty tuetuilta sivustoilta (myös Project Gutenbergin kirjat). Osumat näkyvät sivustoittain, yksi rivi sivustoa kohden osumien määrineen; rivin napautus avaa sivuston osumat 25 kerrallaan (*näytä lisää*), ja toinen napautus sulkee. Osuma avaa tekstin sivustolla uuteen välilehteen, josta sen voi poimia lukimeen. Rivi *otsikko · tekijä · asiasana* rajaa, mistä kentistä hakusanaa etsitään.
 - **Korit.** Hakukentän alla on kolme riviä koreja: aihe (esimerkiksi filosofia, uskonto, antiikki, yleiset), laji (alkuteksti, tutkimus, essee, hakuteos…) ja kieli. Korin ensimmäinen napautus ottaa sen mukaan (alleviivattu), toinen jättää sen pois (yliviivattu) ja kolmas palauttaa ennalleen. Korin luku kertoo, montako sivustoa tai otsikko-osumaa siinä on.
@@ -197,7 +197,7 @@ Pinon alla ovat
 
 - **Soita postihuilua** vasemmalla, kun laatikkolause on annettu. Se hakee laatikon heti ja lähettää odottavat merkinnät (luku 9.2).
 - **kellarin veivihyllystö** oikealla, kahtena rivinä kammen kanssa, kun kellarin veivihyllystössä on jotain.
-- linkit *Pikaohje* ja *Käyttöohje* (tämä teksti), *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti), *Luettavaa* (tuettujen sivustojen lista, luku 2.4) ja *Sanaselitys* (luku 7.7),
+- linkit *Pikaohje* ja *Pitkä ohje* (tämä teksti), *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti), *LUETTAVAA* (tuettujen sivustojen lista, luku 2.4) ja *Sanaselitys* (luku 7.7),
 - pienen välin jälkeen *Uusi teksti latomossa*.
 
 ## 4. Kellarin veivihyllystö, ö-mappi ja käsikirjasto

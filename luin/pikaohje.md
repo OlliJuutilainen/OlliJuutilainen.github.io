@@ -57,4 +57,4 @@ Tekstit ja merkinnät ovat vain tässä selaimessa. Saadaksesi ne toiseen laitte
 
 ## 8. Ongelmia?
 
-Kerro Ollille: asetusten alin linkki *palaute*. Kaikki toiminnot on kuvattu pitkässä käyttöohjeessa (pinon alla linkki *Käyttöohje*).
+Kerro Ollille: asetusten alin linkki *palaute*. Kaikki toiminnot on kuvattu pitkässä ohjeessa (pinon alla linkki *Pitkä ohje*).
