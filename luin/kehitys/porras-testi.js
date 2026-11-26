@@ -1,9 +1,10 @@
 // Porrasvalikko (nimikkeen ja valittujen valikko, luin.html naytaPorras()). Ajo repon juuressa:
 //   NODE_PATH=$(npm root -g) node luin/kehitys/porras-testi.js [kuvakansio]
 // Tarkistaa: pääkohdat ULOSTUS, SISUSTUS ja HYLLYTYS kaikissa näkymissä ja alavalikkojen järjestys (lähdeviite ULOSTUKSEN ylimpänä,
-// Poista HYLLYTYKSEN alimpana punaisena); kohdat isolla alkukirjaimella ilman loppupistettä; leveällä rinnakkain (pääkohdat eivät liiku,
+// Poista HYLLYTYKSEN alimpana punaisena); kohdat isolla alkukirjaimella ilman loppupistettä; leveällä rinnakkain oikealle (pääkohdat eivät liiku,
 // laatikon leveys ei muutu alavalikkoa vaihdettaessa, aukko väliviivassa, hiirellä viipymäavaus), napin yllä avautunut kasvaa ylöspäin
-// pääkohtien pysyessä; kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; HYLLYTYS pinossa,
+// pääkohtien pysyessä; 1280 px:n ikkunassa pitkäkin alavalikko mahtuu oikealle; ilman tilaa napin oikealla sisäkkäin, ei koskaan
+// vasemmalle; nuoli aina oikealla; kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; HYLLYTYS pinossa,
 // kellarin veivihyllystössä, ö-mapissa ja käsikirjalle; Anna pölyyntyä himmentää ja Puhalla pölyt palauttaa; pöly säilyy Hyllytä-,
 // ö-mappi- ja pinoon poiminnan siirroissa ja lähtee käsikirjastoon nostettaessa; Vie ja Nosta käsikirjastoon, Hyllytä ja Laita
 // ö-mappiin vahvistuksin; käsikirjan Poimi pinoon, Laita ö-mappiin ja Irrota käsikirjastosta (pois käsikirjastosta, lukematon
@@ -26,6 +27,11 @@ const palvelin = http.createServer((q, r) => {
 let virheita = 0;
 function tulos(nimi, ok, tieto) { if (!ok) virheita++; console.log((ok ? 'OK   ' : 'VIKA ') + nimi + (tieto ? ' – ' + tieto : '')); }
 const kuva = async (page, n) => { if (KUVAT) await page.screenshot({ path: path.join(KUVAT, 'porras-' + n + '.png') }); };
+// Pääkohtien nuolet: kaikki tekstin oikealla puolella ja osoittavat oikealle (ei peilausta).
+const nuolet = (page) => page.$$eval('#pop .p-paa button.p-ots', bs => bs.map(b => {
+  const s = b.querySelector('svg.p-nuoli'), t = b.querySelector('span');
+  return (s.getBoundingClientRect().left > t.getBoundingClientRect().right ? 'oikealla' : 'vasemmalla') + '/' + getComputedStyle(s).transform;
+}));
 
 async function kylva(page, U, lisa) {
   await page.goto(U + 'luin.html#');
@@ -79,7 +85,7 @@ const polyinen = (page, id) => page.evaluate((id) => {
 
   // 1. Leveä ruutu, hiiri.
   {
-    const ctx = await selain.newContext({ viewport: { width: 1100, height: 900 } });
+    const ctx = await selain.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
     await kylva(page, U);
     // Mitataan sivun sisällä samalla hetkellä: pino piirtyy taustalla uudelleen (alaotsikon täydennys), ja haettu elementti voi irrota.
@@ -91,19 +97,21 @@ const polyinen = (page, id) => page.evaluate((id) => {
     tulos('pääkohdat ULOSTUS, SISUSTUS, HYLLYTYS', paa.join(' | ') === 'ali:vienti=ULOSTUS | ali:latomo=SISUSTUS | ali:luin=HYLLYTYS', paa.join(' | '));
     let t0 = await tila(page);
     tulos('leveällä rinnakkain, ei alavalikkoa auki', /\brinn\b/.test(t0.luokka) && !t0.ali && !t0.vierii, t0.luokka);
+    const n0 = await nuolet(page);
+    tulos('rinnakkain nuolet oikealla, osoittavat oikealle', n0.length === 3 && n0.every(x => x === 'oikealla/none'), n0.join(' | '));
     await kuva(page, '1-paa');
     await page.click('#pop button[data-k="ali:vienti"]');
     let t1 = await tila(page);
     tulos('ULOSTUS: lähdeviite ylimpänä, sitten kopioi, linkitä, lataa, vie merkinnät, huiluta', t1.ali === 'vienti' &&
       t1.kohdat.map(k => k.split('=')[0]).join() === 'lisa,viite,linkita,lataa,viemerk,huiluta' &&
       await page.$eval('#pop .p-ali.auki', a => a.firstElementChild.nextElementSibling.classList.contains('esi')), t1.kohdat.join(' | '));
-    tulos('alavalikko avautuu vasemmalle, pääkohdat paikallaan', JSON.stringify(t1.paa) === JSON.stringify(t0.paa) && t1.right === t0.right && t1.left < t0.left && t1.top === t0.top,
-      JSON.stringify([t0.paa, t1.paa, t0.left, t1.left]));
+    tulos('alavalikko avautuu oikealle, pääkohdat paikallaan', JSON.stringify(t1.paa) === JSON.stringify(t0.paa) && t1.left === t0.left && t1.right > t0.right && t1.top === t0.top,
+      JSON.stringify([t0.paa, t1.paa, t0.right, t1.right]));
     const aukko = await page.evaluate(() => {
       const b = document.querySelector('#pop button.p-ots[aria-expanded="true"]'), c = getComputedStyle(b, '::before'), pa = getComputedStyle(b.parentNode);
-      return { tausta: c.backgroundColor, paperi: getComputedStyle(document.getElementById('pop')).backgroundColor, vasen: c.left, viiva: pa.borderLeftWidth + ' ' + pa.borderLeftStyle };
+      return { tausta: c.backgroundColor, paperi: getComputedStyle(document.getElementById('pop')).backgroundColor, oikea: c.right, viiva: pa.borderRightWidth + ' ' + pa.borderRightStyle };
     });
-    tulos('avoimen pääkohdan kohdalla aukko väliviivassa', aukko.tausta === aukko.paperi && aukko.vasen === '-1px' && aukko.viiva === '1px solid', JSON.stringify(aukko));
+    tulos('avoimen pääkohdan kohdalla aukko väliviivassa', aukko.tausta === aukko.paperi && aukko.oikea === '-1px' && aukko.viiva === '1px solid', JSON.stringify(aukko));
     await kuva(page, '2-vienti');
     // Hiirellä viipymäavaus.
     const lb = await page.$eval('#pop button[data-k="ali:latomo"]', b => { const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
@@ -309,6 +317,25 @@ const polyinen = (page, id) => page.evaluate((id) => {
     await ctx.close();
   }
 
+  // 1b. Keskileveät ikkunat: 1280 px:ssä pitkäkin alavalikko (lähdeviite rivittyy enimmäisleveyteen) mahtuu oikealle; 1100 px:ssä
+  // napin oikealla ei ole tilaa, joten alavalikko avautuu pääkohtien tilalle eikä vasemmalle.
+  for (const [w, h, odotus] of [[1280, 800, 'rinn'], [1100, 900, 'sisak']]) {
+    const ctx = await selain.newContext({ viewport: { width: w, height: h } });
+    const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
+    await kylva(page, U, { title: 'Hyvin pitkä otsikko, jonka lähdeviite rivittyy alavalikon enimmäisleveyteen asti ja vähän ylikin' });
+    await page.click('#nimikkeet button.jako[data-id="p-t2"]');
+    const m0 = await tila(page), mn = await nuolet(page), nappi = await page.$eval('#nimikkeet button.jako[data-id="p-t2"]', b => Math.round(b.getBoundingClientRect().right));
+    await page.click('#pop button[data-k="ali:vienti"]');
+    const m1 = await tila(page);
+    if (odotus === 'rinn') tulos(w + ' px: rinnakkain oikealle, pitkä alavalikko mahtuu, pääkohdat paikallaan', /\brinn\b/.test(m0.luokka) && m1.left === m0.left &&
+      m1.right > m0.right && m1.right <= m1.iw - 8 && JSON.stringify(m1.paa) === JSON.stringify(m0.paa), JSON.stringify([m0.left, m0.right, m1.left, m1.right, m1.iw]));
+    else tulos(w + ' px: sisäkkäin, alavalikko pääkohtien tilalla napin kohdalla, ei vasemmalle', /\bsisak\b/.test(m0.luokka) && !m1.paa && m1.ali === 'vienti' &&
+      m0.right === nappi && m1.right === nappi, JSON.stringify([m0.luokka, nappi, m0.right, m1.left, m1.right]));
+    tulos(w + ' px: nuolet oikealla, osoittavat oikealle', mn.length === 3 && mn.every(x => x === 'oikealla/none'), mn.join(' | '));
+    await kuva(page, '1b-' + w);
+    await ctx.close();
+  }
+
   // 2. Kapea kosketusruutu: sisäkkäin, paluu, kierto.
   {
     const ctx = await selain.newContext({ ...devices['Pixel 5'] });
@@ -317,6 +344,8 @@ const polyinen = (page, id) => page.evaluate((id) => {
     await page.tap('#nimikkeet button.jako[data-id="p-t2"]');
     const k0 = await tila(page);
     tulos('kapealla sisäkkäin', /\bsisak\b/.test(k0.luokka) && k0.right <= k0.iw - 8 && k0.left >= 8, k0.luokka);
+    const kn = await nuolet(page);
+    tulos('sisäkkäin nuolet oikealla, osoittavat oikealle', kn.length === 3 && kn.every(x => x === 'oikealla/none'), kn.join(' | '));
     await page.tap('#pop button[data-k="ali:vienti"]');
     const k1 = await tila(page);
     tulos('alavalikko pääkohtien tilalla, paluurivi ylimpänä, yläreuna pysyy', !k1.paa && k1.kohdat[0] === 'takaisin=ULOSTUS' && k1.top === k0.top &&
