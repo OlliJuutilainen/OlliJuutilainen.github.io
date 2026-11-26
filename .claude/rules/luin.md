@@ -269,7 +269,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   asetuksissa tai `#l=`:llä. Linkkien mitat em:inä, joten kammet, renkaat ja nuolet seuraavat kokoa. Sanat
   *Luin.* ja *Poimi pinoon* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin veivihyllystön
-  nimikkeen ja valittujen valikon HYLLYTYS-alavalikossa pinoon noston rinnalla *Laita ö-mappiin* (vahvistus *Laitetaanko teksti mappiin ö?*,
+  nimikkeen ja valittujen valikon HYLLYTYS-alavalikossa pinoon noston rinnalla *Laita ö-mappiin* (vahvistus *Laitetaanko mappiin ö?*,
   *Joo* / *Öö ei*; käyttäjän sanat), sieltä *Poimi kellarin veivihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappi*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
