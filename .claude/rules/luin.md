@@ -52,11 +52,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   käyttäjän (myös iA Writerin, MarkTextin, Typoran ja Obsidianin esittely; poikkeus Latomon ohjeen iA Writer -linjaan).
   Verkko-osoitteet ovat paljaina sulkeissa, koska verkkolinkit ovat lukimessa oletuksena pois ja linkkiteksti näkyisi ilman osoitetta.
   Ei `luin/tekstit/`-kansioon (robots.txt estää sen).
-- `luin/kayttoohje.html`: lukijan käyttöohje, **ei Latomon**. Kun lukijan käyttäjälle näkyvä toiminta muuttuu,
-  tarkista käyttöohje.
-- `luin/kayttoohje.md` ja `luin/pikaohje.md`: koko toiminnan käyttöohje ja pikaohje kirjoina lukimessa
-  (`luin.html#u=luin/kayttoohje.md`). Kielimallin luonnoksia, jotka odottavat käyttäjän läpikäyntiä: alun huomautus pois vasta
-  käyttäjän luvalla. Kun käyttäjälle näkyvä toiminta muuttuu, tarkista myös ne. Ei `luin/tekstit/`-kansioon (robots.txt).
+- `luin/pikaohje.md` ja `luin/kayttoohje.md`: ohjeet kirjoina lukimessa, pinon linkit *Pikaohje* (ylempänä) ja *Käyttöohje*
+  (`#u=`; käyttäjän päätös). Kielimallin kirjoittamia koko toiminnasta; alussa kehittäjän saate (Markdown-konventiot, *Saate*), jonka
+  sanat ovat käyttäjän: älä siloittele. Kun käyttäjälle näkyvä toiminta muuttuu, tarkista ne. Vanha HTML-ohje on tusina-tavarassa.
+  Ei `luin/tekstit/`-kansioon (robots.txt).
 - Kehittäjän opas ei ole julkisessa repossa eikä Luinissa (käyttäjän päätös). Kun toiminta muuttuu, päivitä opas tusina-radassa.
 - `luin/lisaosa/` (*Lukimeen*, opas 7.5): selainlisäosa (MV3, Firefox, Firefox Android ja Chromium samalla
   koodilla, ei taustaskriptiä). Rajapinta Latomoon on vain `latomo.html#lisaosa`, `#md`, `#avaa` ja `#lataa` (`latomoon.js`; taustavälilehti sulkeutuu vain, jos `#lataa` lisää `body`yn `a[download]`-linkin, ja kirjoittaa odotuksen ajaksi Latomon kuittauksen `#lataa-tila` perään sulkeutumisesta):
@@ -200,15 +199,15 @@ lisäosan tietosuojasivu jää muodolliseksi.
   samaa sanastoa. **Julkaisun tila** (takaisin vedetty, korjattu, päivitetty, esipainos) sivun ilmoituksesta etukenttään `tila:` ja `tila-lähde:`;
   md.js:n `tila()` tekee siitä yläotsakkeen kuten rahoitushuomautuksesta (`p.tila`, takaisin vedetyssä ruoste). Arvoja on vain nämä neljä. Taulukon solun pystyviiva suojataan ja rivinvaihto on välilyönti (`muunna()`:n `taulukonSolu`, `ojsSolu()`): muuten rivi hajoaa. Springer Nature ja PLOS näyttävät mainospaikkoja mutta elävät
   artikkelimaksuista, joten niillä ei ole `RAHOITUS`ta (käyttäjä ei ole ottanut kantaa).
-  Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa ja käyttöohjeessa): manifestin `description` enintään 132 merkkiä, ja kaupan
+  Lisäosa on Chrome Web Storessa listaamattomana (opas 7.5; linkki kuvakkeineen Latomossa): manifestin `description` enintään 132 merkkiä, ja kaupan
   zipistä poistetaan `browser_specific_settings`. Kun lisäosan `version` nousee ja muutos on yhdistetty, anna käyttäjälle heti
   pyytämättä molemmat zipit liitteenä (Firefoxin allekirjoitukseen ja Chrome Web Storeen, `manifest.json` juuressa), ei pakkausohjetta.
   Kun käyttäjä pyytää uutta versiota, tuo aina zipit; älä koskaan tarjoa muuta päivitysreittiä
   (paketoimattoman lataus, `git pull`), ellei käytäntöä vaihdeta (käyttäjän päätös). Firefoxiin Mozillan allekirjoittama XPI `luin/lisaa-lukimeen.xpi`
   (Latomon linkki; Mozillan kaupassa listaamaton): kun uusi versio allekirjoitetaan, korvaa tiedosto. Kaupan tietosuojaosoite on `luin/tietosuoja.html`: kun lisäosa alkaa
   lukea, säilyttää tai lähettää jotain uutta, päivitä sivu.
-- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu seitsemään sivuun (luin.html, Latomo, Latomon ohje,
-  käyttöohje, tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
+- `luin/kehitys/logo.js` tulostaa logon SVG:n, joka on kopioitu kuuteen sivuun (luin.html, Latomo, Latomon ohje,
+  tietosuoja, palaute, tuetut sivustot). Nimen tekstimuoto (aria-label, infolaatikko) on *LUiN.HTML*; tiedostonimet ja polut ovat `luin.html`.
   i:n piste on Lukimeen-salmiakki (`glis()`:n `ontto`): `kuvake.svg`:n mittasuhteet, kärki versaalien
   korkeudella, ja ulkoreunan koillissärmä jatkuu glissandoviivan yläreunaksi. Viiva on ruostetta N:n vinoviivaan asti ja kulkee N:n
   takaa (`vaijeri`; `'eteen'` toimii myös); N:n alta loppupisteeseen musteella. Loppupiste on
@@ -223,7 +222,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Kaikki kuvakkeet, myös lisäosan, syntyvät `luin/kehitys/lisaosa-kuvakkeet.js`:stä; muuta ne yhdessä.
 - `luin/palaute.html`: viesti kehittäjälle (nimi ja sähköposti vapaaehtoisia, vain viesti pakollinen) reitille
   `POST /api/palaute`. Worker toimittaa viestin kehittäjän postilaatikkoon tekstinä (salaisuus `PALAUTE_LAATIKKO`, ei repoon),
-  joten se kantautuu Luinin pinoon Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; ei pinossa), käyttöohjeen loppu,
+  joten se kantautuu Luinin pinoon Postihuilun tapaan. Linkit: Asetusten alin pieni *palaute* (`?mista=asetukset`; ei pinossa),
   infolaatikon loppusanojen *pyyntöä* (`?mista=tietoa`; loppusanat ja allekirjoitus käyttäjän) ja Latomon plussan takana *kerro* (`?mista=`). Testi `palaute-testi.js`.
 - Latomon lisäosarivin pikku plussa avaa sivustotoiveiden kappaleen (käyttäjän sanamuoto),
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta,
@@ -345,7 +344,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - **Pinomerkki** (käyttäjän päätös): paluu pinoon on kolmen kirjan pino
   kaikilla Luinin sivuilla, ei pirtti eikä kotimerkki. Sama polku monessa paikassa (etsi polulla); muuta ne yhdessä. Koko 40 px
   (musteen alareuna logon kärjen tasolla, vasen laita `--v-laita`), viiva `stroke-width: .9` eli 1,05 px. Koodin tunnisteet (`.koti`,
-  `a.kotimerkki`) ovat vanhoja nimiä. Käyttöohjeen tekstinsisäinen `.ik.koti` on tekstin kokoinen.
+  `a.kotimerkki`) ovat vanhoja nimiä.
 - **Pinomerkin paikka**: yläoikealla (alasivut: Latomo, ohjeet, palaute, tietosuoja) vaakapaikka on sama kaikkialla eli
   pinon asetuskiekon vasemmalla puolella, ja musteen alareuna on logon loppupisteen alakärjen tasolla (ei kiekon keskilinjalla).
   Navin yläpalkissa merkki on vasemmalla palkin keskilinjalla.
@@ -524,7 +523,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   ei läpikuultavuutta, ei animaatioita. **Ruoste = napautettava.** Tarkoituksellinen poikkeus: lähdeviittauslinkki
   `a.lahde` on `--harmaa` ja sillä on `--viiva`-alleviivaus.
 - **Latomon `--harmaa` poikkeaa tarkoituksella** muista Luinin sivuista (Latomon tekstistä suuri osa on pientä harmaata,
-  joka näyttäisi ruskealta ruskealla). luin.html, käyttöohje ja Latomon ohje pitävät omat arvonsa; älä yhtenäistä kysymättä.
+  joka näyttäisi ruskealta ruskealla). luin.html ja Latomon ohje pitävät omat arvonsa; älä yhtenäistä kysymättä.
 - **"Vinoneliöestetiikkaa, ei palluraestetiikkaa."** Koverakylkiset salmiakit, antiikva (Literata, `luin/fontit/`, OFL),
   klassinen tyyli. Kirjasinvalintaa ei ole: groteski palaa vain, jos koko ohjelman ulkoasu sovitetaan siihen.
   Tarkoituksellinen poikkeus: sanaselityksen merkin (`IK_SANASTO`) linssi on pyöreä.
@@ -565,6 +564,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   sellaiset linkit osuvat luetteloon; leipätekstin hakasulut `[3, 7–9]` vain koko tekstin tunnisteella (järjestys, kattavuus, toisto).
   Kaarisulkuja `(1)` ja yläindeksejä ei linkitetä tarkoituksella (luettelonumerot, potenssit `kg/m^2^`, laitokset `Smith^1^`).
   Kirjallisuus-, kuva- ja taulukkoankkuri ei ohjaudu luvun otsikkoon. Ansat ovat `md-testi.js`:ssä: niiden pitää jäädä ilman linkkiä.
+- **Saate** (käyttäjän pyyntö; md.js, CSS `details.saate`): otsikkolohkoa heti seuraava `> [!huomautus]- Otsikko` (Obsidianin
+  avautuva lainaus, `+` auki) ladotaan otsikkolohkon loppuun avautuvaksi viestiksi ilman lohkonumeroa kuten rahoitushuomautus,
+  joten se ei siirrä kirjanmerkkejä eikä näy haussa. Muualla ja ilman `-`/`+`:aa (GitHubin `[!NOTE]`) lainaus on ennallaan. Avaus
+  asettelee tekstin samaan kohtaan (`toggle` → `asettele(tila.ankkuri)`), eikä otsikkorivin napautus käännä sivua.
 - Regexien `\b` ei toimi ä:n perässä; käytä `(?![\p{L}\p{N}])`.
 - **`md.js?v=<SHA-1:n alku>`**: luin.html ja Latomo lataavat md.js:n versiotunnisteella, koska Pages antaa `max-age=600`
   ja selain pitää vanhan version. Kun muutat md.js:ää (myös kommenttia), päivitä tunniste (`md-testi.js` huomauttaa unohduksesta):
@@ -931,5 +934,5 @@ fixtureina: korvaa ne ensin). Muita käyttäjän tekstejä ei viedä repoon ilma
 ### Alatunnisteen ©-merkki
 
 Yleissääntö on juuren CLAUDE.md:n osiossa *Alatunniste*. Luinin sivuilla (`luin.html`, Latomo, Latomon ohje,
-käyttöohje, lisäosan tietosuojasivu, palaute, tuetut sivustot, sanaselitys) ©-merkki on SVG: suora salmiakki, yhtä leveä kuin korkea (käyttäjän päätös), ja sen sisällä
+lisäosan tietosuojasivu, palaute, tuetut sivustot, sanaselitys) ©-merkki on SVG: suora salmiakki, yhtä leveä kuin korkea (käyttäjän päätös), ja sen sisällä
 Literatan oman ©-merkin sisempi C 1,1-kertaisena (`aria-label="©"`, `margin-right: .15em`). Muiden ohjelmien alatunnisteissa on tavallinen ©.

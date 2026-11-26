@@ -1,6 +1,6 @@
 ---
 tekijä: Tusinasoft
-viite: Tusinasoft (2026). *Lukimen käyttöohje*. Luonnos 26.11.2026.
+viite: Tusinasoft (2026). *Lukimen käyttöohje*.
 ---
 
 # Lukimen käyttöohje
@@ -8,13 +8,27 @@ viite: Tusinasoft (2026). *Lukimen käyttöohje*. Luonnos 26.11.2026.
 *Pino, lukin, latomo ja lukimeen-lisäosa*
 
 Tusinasoft\
-luonnos 26.11.2026
+marraskuu 2026
 
-Huomautus 26.11.2026: tämä ohje on kielimallin kirjoittama luonnos. Se on koottu ohjelman nykyisestä toiminnasta, mutta Olli ei ole vielä käynyt sitä läpi: sanamuodot, painotukset ja yksityiskohdat voivat muuttua, ja jokin kohta voi olla väärin. Virheistä voi kertoa palautesivulla (luku 16).
-
----
-
-{{TOC}}
+> [!huomautus]- TEKOÄLYVAROITUS [viesti kehittäjältä]; 27.11.2026
+>
+> Hyvät lukimen käyttäjät. Luin-työkalu ja sitä ympäröivä kokonaisuus ei olisi voinut tällaisenaan syntyä ilman tekoälytyökalujen vipuvartta. Ohjelma on kaikesta huolimatta kuitenkin kohtalaisen paljon minun näköiseni, ja suuri osa ominaisuuksista ja ratkaisuista on kuitenkin saanut vatkautua miljoona kertaa oman sipulini kautta.
+>
+> Vaikka himmeli on syntynyt häikäisevän nopeasti ja verrattain vaivattomasti, on työmäärä ollut toisaalta myös … verrattain suuri – etenkin huomioon ottaen, että homma liittyy pääasiallisiin elämän toimiini vain epäsuorasti.
+>
+> Koska ohjelmaan on vuodattunut sydämestä aivan hirvittävä määrä ominaisuuksia, ne ansaitsisivat tulla ymmärretyiksi, mikä vaatisi selkeää alkuun pääsemisen ohjeistusta sekä myös perusteellista ohjekirjaa. Ikävä kyllä juuri tuo suuri ominaisuuksien määrä tekee ohjeiden laatimisesta kenties vielä itse ominaisuuksien kehittämistä suuremman homman: ainakin minun luonteelleni.
+>
+> Suoraan sanoen en usko, että saan motivoitua itseäni uhraamaan hyvien ohjeiden laatimiseen vaadittavaa aikaa edes tulevan vuoden aikana tai kuka ties kenties koskaan. Jos luin ottaa omituisesti tuulta alleen, motivaationi laittaa asia kuntoon kohenee toki merkittävästi.
+>
+> Ohjelman tekoälykirjoitettuun koodiin nähden täysin tekoälygeneroitu proosateksti vasta on se suoranainen häpeäpilkku. Tarjoan tutustuville käyttäjille kuitenkin tämän täysin tekoälyllä muodostetun ohjeen. Ohje kuitenkin epäsuorasti sisältää minunkin ajatuksiani, ja varmasti kärsivällinen ihminen saa siitä pumpattua jotain irti.
+>
+> Jos olet innostunut käyttämään lukinta ja jokin ominaisuus mietityttää, kehottaisin olemaan matalalla kynnyksellä minuun yhteydessä sen sijaan, että yrittäisit epätoivoisesti etsiä tietoa alla olevasta ohjeesta. Suoraan kysymykseen ja kymmeneen vastaaminen on kuitenkin minulle satoja kertoja pienempi vaiva kuin saada mikään edes kelvollisesti läpivalaistu versio tästä manuaalista.
+>
+> Yhteydenottoonkin on kynnyksensä, tiedän sen. Mutta minä olen nyt puhunut.
+>
+> Hyviä lukemisia. Lukekaa ennemmin jotain Luinin hakemistosta kuin tätä manuaalia, sen sanon.
+>
+> –Olli
 
 ## 1. Aluksi
 
@@ -48,7 +62,7 @@ Tämä ohje on itsekin lukimessa luettava teksti, joten sillä voi kokeilla kaik
 
 Napit, valinnat ja kentät on kirjoitettu kursiivilla niin kuin ne näkyvät ruudulla, esimerkiksi *Poimi pinoon*. *Napauta* tarkoittaa hiirellä klikkausta. Kosketusnäytön ja hiiren erot kerrotaan siellä, missä niitä on. Sähköpaperilaite on lukimelle kosketusnäyttö.
 
-Kiireiselle on erillinen pikaohje (`luin.html#u=luin/pikaohje.md`). Sanasto lukimen omista sanoista on liitteenä tämän ohjeen lopussa.
+Kiireiselle on erillinen pikaohje (pinon alla linkki *Pikaohje*). Sanasto lukimen omista sanoista on liitteenä tämän ohjeen lopussa.
 
 ## 2. Tekstit pinoon
 
@@ -183,7 +197,7 @@ Pinon alla ovat
 
 - **Soita postihuilua** vasemmalla, kun laatikkolause on annettu. Se hakee laatikon heti ja lähettää odottavat merkinnät (luku 9.2).
 - **kellarin veivihyllystö** oikealla, kahtena rivinä kammen kanssa, kun kellarin veivihyllystössä on jotain.
-- linkit *Käyttöohje*, *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti) ja *Luettavaa* (tuettujen sivustojen lista, luku 2.4),
+- linkit *Pikaohje* ja *Käyttöohje* (tämä teksti), *Kokeiluteksti: Kant ja eläinetiikka* (väliaikainen esimerkkiteksti), *Luettavaa* (tuettujen sivustojen lista, luku 2.4) ja *Sanaselitys* (luku 7.7),
 - pienen välin jälkeen *Uusi teksti latomossa*.
 
 ## 4. Kellarin veivihyllystö, ö-mappi ja käsikirjasto

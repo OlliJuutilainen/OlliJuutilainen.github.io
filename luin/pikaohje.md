@@ -1,6 +1,6 @@
 ---
 tekijä: Tusinasoft
-viite: Tusinasoft (2026). *Lukimen pikaohje*. Luonnos 26.11.2026.
+viite: Tusinasoft (2026). *Lukimen pikaohje*.
 ---
 
 # Lukimen pikaohje
@@ -8,14 +8,15 @@ viite: Tusinasoft (2026). *Lukimen pikaohje*. Luonnos 26.11.2026.
 *Alkuun pääsemiseen välttämätön*
 
 Tusinasoft\
-luonnos 26.11.2026
+marraskuu 2026
 
-Huomautus 26.11.2026: tämä pikaohje on kielimallin kirjoittama luonnos, eikä Olli ole vielä käynyt sitä läpi. Kaikki toiminnot on kuvattu pitkässä käyttöohjeessa:\
-`luin.html#u=luin/kayttoohje.md`
-
----
-
-{{TOC}}
+> [!huomautus]- KEHITTÄJÄN HUOMAUTUS; 27.11.2026
+>
+> Luinin kehittäminen on vienyt minulta juuri tarpeeksi aikaa. Raja menee nyt siinä, että en voi tarjota ytimekkäitä ja hyviä ohjeita. Jos ohjelman konepellin alla oleva koodikin on syntynyt pitkälti tekoälyn tuottamana, visioinnin keskus olen kuitenkin ollut minä itse. Toisin on näiden ohjeiden kohdalla. Alla oleva pikaohje on ikävä kyllä täysin tekoälyllä muodostettu. En aio edes lukea sitä, jotta en innostuisi käyttämään korjaamiseen ja olennaisen kiteyttämiseen tuntikausia.
+>
+> Jos saat ohjeista SILTI jotain irti, olen erittäin kiitollinen. Pahoittelen homman puolitiehen jättämistäni tähän räikeään linjanvetoon. Mutta toisaalta: eipä kukaan lukinta minulta myöskään ole tilannut, joten olkaa hyvät vaan.
+>
+> –Olli
 
 ## 1. Mikä luin on
 
@@ -56,4 +57,4 @@ Tekstit ja merkinnät ovat vain tässä selaimessa. Saadaksesi ne toiseen laitte
 
 ## 8. Ongelmia?
 
-Kerro Ollille: asetusten alin linkki *palaute*.
+Kerro Ollille: asetusten alin linkki *palaute*. Kaikki toiminnot on kuvattu pitkässä käyttöohjeessa (pinon alla linkki *Käyttöohje*).
