@@ -5161,6 +5161,36 @@
       lahde: osoite, maar };
   }
 
+  /* zettelkasten.de (Sascha Fast ja Christian Tietze; käyttäjän pyyntö 26.11.2026: Zettelkasten-aiheista luettavaa). Jekyll-
+     sivusto: kirjoitukset (/posts/…, /de/posts/…) ja oppaat (/introduction/, /communications-with-zettelkastens/) samalla pohjalla:
+     article.post--single, header (h1.post__title, ul.post__meta: time[datetime], li.author *by Sascha* tai vieraan *by Nimi
+     (@tunnus)*, sarjan details.series, kielivalinta), kramdownin alaviitteet (sup#fnref:x a.footnote → div.footnotes li#fn:x ↩),
+     kuvat figure.post-figure (selittävä kuvateksti tai kuvaajan kiitos), footer (tagit), artikkelin jälkeen uutiskirjekehotus ja
+     foorumin kommentit. Alaviitteet alaviitteiksi, kuvat pois, selittävät kuvatekstit kursiivikappaleiksi, kuvaajan kiitos pois,
+     tekijäksi koko nimi. Ei mainoksia eikä lahjoituspyyntöä (sivusto myy omaa ohjelmaansa, kurssejaan ja kirjaansa). */
+  const ZK_TEKIJAT = { Sascha: 'Sascha Fast', Christian: 'Christian Tietze' };
+  async function zettelkasten() {
+    if (!/(^|\.)zettelkasten\.de$/i.test(location.hostname)) return null;
+    const runko = document.querySelector('article.post--single');
+    const h1 = runko && runko.querySelector('h1.post__title, h1');
+    if (!h1) return null;
+    const el = runko.cloneNode(true);
+    el.querySelectorAll('header, footer, script, style, noscript, nav, details.series, img.vgwort').forEach(x => x.remove());
+    const kuvateksti = t => { const p = document.createElement('p'), em = document.createElement('em'); em.textContent = t; p.appendChild(em); return p; };
+    el.querySelectorAll('figure').forEach(f => {
+      const t = rivi((f.querySelector('figcaption') || {}).textContent);
+      if (t && !/^(photo|image|illustration|picture|foto|bild)\s+(by|von|courtesy)\b/i.test(t)) f.replaceWith(kuvateksti(t)); else f.remove();
+    });
+    el.querySelectorAll('img, video, iframe').forEach(x => x.remove());
+    const maar = samanSivunViitteet(el, 'zk');
+    el.querySelectorAll('p, div, ol').forEach(x => { if (el.contains(x) && !rivi(x.textContent) && !x.querySelector('br, hr, table, pre')) x.remove(); });
+    if (kkSanoja(el) < 100) return null;
+    const meta = runko.querySelector('.post__meta'), aika = meta && meta.querySelector('time[datetime]');
+    const tek = rivi(((meta && meta.querySelector('.author')) || {}).textContent).replace(/^(by|von)\s+/i, '').replace(/\s*\(@[^)]*\)$/, '');
+    return { html: irrota([el]).innerHTML, otsikko: rivi(h1.textContent), tekija: ZK_TEKIJAT[tek] || (/^@/.test(tek) ? '' : tek),
+      sivusto: 'zettelkasten.de', julkaistu: aika ? aika.getAttribute('datetime').slice(0, 10) : '', lahde: osoite, maar };
+  }
+
   /* Five Books (fivebooks.com; käyttäjän pyyntö 16.11.2026, pahvin B10: suositellut kirjat väliotsikoiksi, kansikuvat ja mainokset
      pois). Haastattelu #interviewcontent: kysymykset p.question, vastaukset kappaleina, kirjan käsittelyn alussa aside[data-book-id]
      (kaksi kopiota: leveä ja kapea ruutu), nostolainaukset p.pullquote, tukipyyntö .inline-box.-donate, kirjahylly
@@ -14089,7 +14119,7 @@
   try { artikkeli = new Readability(document.cloneNode(true)).parse(); } catch (e) { artikkeli = null; }
   const sep = sovite();
   let blogi = null, sovitin = sep ? 'sep' : '';
-  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
+  if (!sep) for (const f of [logos, wikipedia, oecs, encyclopediaCom, saet, gutenberg, newadvent, ccel, gutenbergDe, bookOfConcord, novaVulgata, laparola, eoa, newton, latinLibrary, sls, snellman, schleiermacher, wvh, religionOnline, aquinas, philological, augustinus, gretil, theConversation, duodecim, lacanOnline, phenomenologyOnline, girardianLectionary, kbTeksti, korpora, propylaen, hkb, hume, perseus, cts, celt, dhammatalks, wisdomlib, livius, avesta, standardEbooks, rousseauOnline, accesstoinsight, augustana, lacuscurtius, tertullian, aeonPsyche, ejp, psychopen, ojs, vle, iredLeike, iep, ndpr, bmcr, oyc, iltascabile, doppiozero, noema, emergence, matuschak, zettelkasten, fivebooks, paulgraham, pressbooks, openedition, hypotheses, manifold, forummagnum, janeway, scielo, obp, fadedpage, archiveTeksti, folger, gwern, larb, tri16, eurlex, findcaselaw, pubmed, pmc, springerNature, plos, frontiers, ubiquity, spip, politicalconcepts, projectvox, embryo, cdli, zhurnal, fabula, popups, folktexts, womenwriters, chs, zeithistorische, bomb, substack, marxists, waitbutwhy, blogger]) {
     try { blogi = await f(); } catch (e) { blogi = null; }
     if (blogi) { sovitin = f.name; break; }
   }
