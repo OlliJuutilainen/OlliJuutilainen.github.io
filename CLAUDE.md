@@ -31,7 +31,7 @@ Ohjelmien säännöt ovat omissa tiedostoissaan (käyttäjän päätös):
   keikka-analyysin taitopaketti) ja Android-kääre `android/soitin/`.
 - `.claude/rules/tusinapaja.md`: Tusinasää eli `tusinapaja.html` (ainoa aktiivinen versio; vanhat versiot ovat
   `tusina-tavaraa`-repossa, eikä niihin kosketa pyytämättä), `generaattori.html`, julkinen `oma-tusinasaa.html`,
-  hallintapaneeli `minun-tusinasaa.html`, Android-sovellus `android/app/` (julkinen `tusinasaa.apk`) ja sen koodisivu `tusinasaa-koodi.html`.
+  hallintapaneeli `minun-tusinasaa.html` (Minun oma tusinasää, kehitystyön lyhenne **MOTS**), Android-sovellus `android/app/` (julkinen `tusinasaa.apk`) ja sen koodisivu `tusinasaa-koodi.html`.
 - `.claude/rules/luin.md`: Luin eli `luin.html`, `luin/` (Latomo, `md.js`, ohjeet, tekstit), Android-kääre
   `android/luin/` ja `docs/viitteet/`. Hegel-repon `pdf_to_markdown.py`:n etukentän lukee Latomo (luin.md, *Tiedostot*).
 

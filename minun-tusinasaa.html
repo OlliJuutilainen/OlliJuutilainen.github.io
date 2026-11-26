@@ -574,7 +574,7 @@ function renderPanel(){
 
   /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
-  $('now').innerHTML = act ? `<span class="lbl">Salkoni nyt:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').innerHTML = act ? `<span class="lbl">Salkoni:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
   $('now').hidden = first;
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;
