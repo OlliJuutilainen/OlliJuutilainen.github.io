@@ -100,12 +100,16 @@
   ul.sivustot .mika { display: block; font-size: .86rem; color: var(--harmaa); }
   /* Supersalmiakki (käyttäjän pyyntö 15.11.2026, logoksi ja vasemmalle 16.11.2026): Luinin sertifioima eli käyttäjän itse
      siedettävästi läpikäymä sovite. Merkki on Luinin ja Lukimeen-lisäosan logo (luin/kuvakkeet/kuvake.svg) ruosteella.
-     Se riippuu omassa vasemmassa sarakkeessaan; nimet, selitekappale ja kirjainotsikot alkavat samasta x:stä, ja merkit
-     ovat niiden kaikkien vasemmalla (käyttäjän pyyntö 16.11.2026: kirjain ei saa olla melkein merkin yläpuolella).
+     Se riippuu omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä (selitekappale alla), ja merkit
+     ovat niiden vasemmalla (käyttäjän pyyntö 16.11.2026: kirjain ei saa olla melkein merkin yläpuolella).
      Mitat pikseleinä, koska lista, selite ja otsikot ovat eri fonttikokoa; hajurako 17,5 px. */
   ul.sivustot li, .selite, h2.kirjain { position: relative; padding-left: 37px; }
   .super svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: var(--ruoste); }
   .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
+  /* Selite erottuu listasta (käyttäjän päätös): pienempi teksti, ja koko lohko merkkeineen on sisennetty sivustojen nimien
+     kohdalle, merkki 15 px; väli ylä- ja alapuolella. */
+  .selite { margin: 16px 0 10px 37px; padding-left: 26px; font-size: .84rem; line-height: 1.5; }
+  .selite .super svg { top: .2em; width: 15px; height: 15px; }
 </style>
 </head>
 <body>
