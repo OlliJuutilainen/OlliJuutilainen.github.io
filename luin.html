@@ -288,15 +288,16 @@
   /* Järjestys- ja Etsi-napit (lukimen laatikkonapit). */
   .kk-napit { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; margin: 0 0 8px; }
   .kk-napit[hidden], .jarj-linkit[hidden] { display: none; }
-  .kk-napit .laatikko { color: var(--muste); }
+  /* Pienet ja himmeät (käyttäjän päätös): otsikon kokoinen teksti, kehys viivan värinen, merkki ja teksti harmaat. */
+  .kk-napit .laatikko { min-height: 28px; gap: 6px; padding: 0 9px; font-size: .74rem; color: var(--harmaa); border-color: var(--viiva); }
+  .kk-napit .laatikko svg { width: 12px; height: 9.43px; }
   /* Järjestys kutistuu, ja pitkä järjestys rivittyy kapealla ruudulla napin sisällä. */
   .laatikko.kk-jarj { flex: 0 1 auto; min-width: 0; text-align: left; }
-  /* Voimassa oleva järjestys haalistettuna (käyttäjän päätös); nuoli musteella. */
-  .kk-jarj .kk-arvo { padding: 4px 0; line-height: 1.25; color: var(--harmaa); }
+  .kk-jarj .kk-arvo { padding: 4px 0; line-height: 1.25; }
   /* Etsi oikealla, mutta oikea reuna 17 px listan reunasta: nimikkeiden valikkonapin salmiakit (muste 7,6–12,4 px reunasta) eivät
-     ole sen kohdalla x-akselilla. Himmeänä, jotta se ei ole sivun kirkkain asia (käyttäjän päätös). */
-  #kk-etsi { flex: 0 0 auto; margin-right: 17px; color: var(--harmaa); }
-  #kk-etsi svg { width: 18.08px; height: 18.08px; position: relative; top: 1.15px; }
+     ole sen kohdalla x-akselilla (käyttäjän päätös). */
+  #kk-etsi { flex: 0 0 auto; margin-right: 17px; }
+  #kk-etsi svg { width: 15px; height: 15px; position: relative; top: 1px; }
   .jarj-linkit { margin: -2px 0 6px; font-size: .74rem; line-height: 1.6; color: var(--harmaa); letter-spacing: .02em; }
   #sanasto-osa[hidden] + #kortit-osa .erotin { display: none; }
   #lista:not(.arkisto) .kk-napit, #lista:not(.arkisto) .jarj-linkit, #lista:not(.arkisto) .kk-haku { display: none; }
