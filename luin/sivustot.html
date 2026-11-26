@@ -18,8 +18,9 @@
 <!--
   Sivustot, joille Lukimeen-lisäosalla on oma sovite (leike.js). Avautuu Latomon plussan takaa uuteen
   välilehteen (käyttäjän pyyntö 13.11.2026: oma sivu, ei ponnahdus, koska lista kasvaa). Kun leike.js saa uuden
-  sovitteen, lisää sivusto listaan #sivustot yhtenä li-rivinä; järjestyksen ja kirjainhakemiston tekee skripti
-  (suomen aakkosjärjestys, Intl.Collator). Ilman skriptiä lista näkyy sellaisenaan. Tyylit kuten tietosuoja.html:ssä.
+  sovitteen, lisää sivusto listaan #sivustot yhtenä li-rivinä koreineen (data-aihe pääkori ensin, data-laji, data-kieli; sanasto
+  CSS:n kommentissa *Haku ja korit*); järjestyksen, kirjainhakemiston, haun ja korisuodattimet tekee skripti (suomen
+  aakkosjärjestys, Intl.Collator). Ilman skriptiä lista näkyy sellaisenaan. Testi luin/kehitys/sivustot-testi.js. Tyylit kuten tietosuoja.html:ssä.
 -->
 <script>
   try {
@@ -98,6 +99,30 @@
   ul.sivustot { list-style: none; padding: 0; }
   ul.sivustot li { margin: 0 0 10px; }
   ul.sivustot .mika { display: block; font-size: .86rem; color: var(--harmaa); }
+  /* Haku ja korit (käyttäjän päätös): näkyvät linkkirivit, ei alasvetovalikkoa. Korin napautus: mukaan (alleviivattu),
+     uudelleen pois (yliviivattu), kolmannen kerran ennalleen. Saman rivin mukaan-korit ovat tai, rivit keskenään ja; pois-kori
+     karsii sivuston, jonka pääkori tai pääkieli se on. Luku on näkyvien sivustojen määrä korissa. Korit ovat Luinin sanasto
+     (sama kuin luin.html:n LK_EHDOTUS): li-rivin data-aihe (pääkori ensin, kaikki = kaikkiruokainen), data-laji ja data-kieli. */
+  .suodatus { margin: 18px 0 0; font-size: .8rem; }
+  .suodatus[hidden] { display: none; }
+  .s-haku { margin: 0 0 10px; }
+  .s-haku input { display: block; width: 100%; padding: 6px 8px; font: inherit; font-size: 1rem; color: var(--muste); background: var(--paperi);
+    border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
+  .s-haku input:focus { outline: none; border-color: var(--harmaa); }
+  .krivi { display: grid; grid-template-columns: 3.2em 1fr; align-items: baseline; margin: 0 0 2px; }
+  .krivi .ots { font-style: italic; color: var(--harmaa); }
+  .krivi .kk { display: flex; flex-wrap: wrap; gap: 0 .7em; }
+  button.kori { border: 0; padding: 2px 0; min-height: 24px; font-size: inherit; color: var(--ruoste); }
+  button.kori .n { font-size: .84em; color: var(--harmaa); margin-left: .2em; }
+  button.kori[data-tila="mukaan"] { color: var(--muste); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  button.kori[data-tila="pois"] { color: var(--harmaa); text-decoration: line-through; }
+  button.kori.nolla { color: var(--viiva); }
+  .s-tila { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; color: var(--harmaa); margin: 4px 0 0; }
+  .s-tila button { border: 0; padding: 3px 0; min-height: 26px; font-size: inherit; color: var(--ruoste); text-decoration: underline;
+    text-decoration-color: var(--viiva); text-underline-offset: 3px; }
+  .s-tila button[hidden] { display: none; }
+  ul.sivustot li[hidden], h2.kirjain[hidden], ul.sivustot[hidden] { display: none; }
+  nav.aakkoset a.tyhja { color: var(--viiva); pointer-events: none; }
   /* Supersalmiakki (käyttäjän pyyntö 15.11.2026, logoksi ja vasemmalle 16.11.2026): Luinin sertifioima eli käyttäjän itse
      siedettävästi läpikäymä sovite. Merkki on Luinin ja Lukimeen-lisäosan logo (luin/kuvakkeet/kuvake.svg) ruosteella.
      Se riippuu omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä (selitekappale alla), ja merkit
@@ -123,239 +148,240 @@
     latomustulosta. Paina samannäköistä <strong>Lukimeen</strong>-salmiakkia selaimessa jonkun tämän sivuston sisältämän
     kirjoituksen ollessa avattuna, ja sukkasi saattavat pian pyöriä ellei jopa irrota jalasta.</p>
 
+  <div class="suodatus" id="suodatus" hidden></div>
+
   <nav class="aakkoset" id="aakkoset" aria-label="Alkukirjaimet" hidden></nav>
 
   <div id="hakemisto">
   <ul class="sivustot" id="sivustot">
-    <li><a href="https://www.3-16am.co.uk/" target="_blank" rel="noopener">3:16</a>
+    <li data-aihe="filosofia" data-laji="essee" data-kieli="en"><a href="https://www.3-16am.co.uk/" target="_blank" rel="noopener">3:16</a>
       <span class="mika">3-16am.co.uk; Richard Marshallin filosofihaastattelut, kysymykset lihavoituina, ilman nostolainauksia</span></li>
-    <li><a href="https://aeon.co/" target="_blank" rel="noopener">Aeon</a>
+    <li data-aihe="filosofia,psykologia,yhteiskunta,kulttuuri" data-laji="essee" data-kieli="en"><a href="https://aeon.co/" target="_blank" rel="noopener">Aeon</a>
       <span class="mika">aeon.co; esseet ilman nostolainauksia, osanvaihtoineen</span></li>
-    <li><a href="https://digital.library.upenn.edu/women/" target="_blank" rel="noopener">A Celebration of Women Writers</a>
+    <li data-aihe="kirjallisuus,historia" data-laji="alkuteksti" data-kieli="en"><a href="https://digital.library.upenn.edu/women/" target="_blank" rel="noopener">A Celebration of Women Writers</a>
       <span class="mika">digital.library.upenn.edu/women; naisten kirjat kokonaisina sivuina, julkaisutiedot, ilman sisällys- ja erratataulukoita</span></li>
-    <li><a href="https://www.blogger.com/" target="_blank" rel="noopener">Blogspot-blogit</a>
+    <li data-aihe="kaikki" data-laji="blogi" data-kieli="moni"><a href="https://www.blogger.com/" target="_blank" rel="noopener">Blogspot-blogit</a>
       <span class="mika">Bloggerin blogit, myös omilla verkkotunnuksillaan</span></li>
-    <li><a href="https://andymatuschak.org/" target="_blank" rel="noopener">Andy Matuschakin esseet</a>
+    <li data-aihe="tiedonhallinta,psykologia" data-laji="essee" data-kieli="en"><a href="https://andymatuschak.org/" target="_blank" rel="noopener">Andy Matuschakin esseet</a>
       <span class="mika">andymatuschak.org ja numinous.productions/ttft; reunahuomautukset alaviitteinä</span></li>
-    <li><a href="https://bombmagazine.org/" target="_blank" rel="noopener">BOMB Magazine</a>
+    <li data-aihe="kulttuuri,kirjallisuus" data-laji="essee" data-kieli="en"><a href="https://bombmagazine.org/" target="_blank" rel="noopener">BOMB Magazine</a>
       <span class="mika">bombmagazine.org; taiteilijoiden ja kirjailijoiden haastattelut puhujanimin sekä proosa, ilman kuvia ja tukipyyntöjä</span></li>
-    <li><a href="https://bmcr.brynmawr.edu/" target="_blank" rel="noopener">Bryn Mawr Classical Review</a>
+    <li data-aihe="antiikki" data-laji="arvio" data-kieli="en"><a href="https://bmcr.brynmawr.edu/" target="_blank" rel="noopener">Bryn Mawr Classical Review</a>
       <span class="mika">bmcr.brynmawr.edu; kirja-arviot arvioitavan teoksen tietoineen ja alaviitteineen</span></li>
-    <li><a href="https://ccel.org/" target="_blank" rel="noopener">Christian Classics Ethereal Library</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en"><a href="https://ccel.org/" target="_blank" rel="noopener">Christian Classics Ethereal Library</a>
       <span class="mika">ccel.org; kirkkoisät ja muut klassikot, luvun sivulta koko kirje tai kirja alaviitteineen</span></li>
-    <li><a href="https://cdli.earth/articles" target="_blank" rel="noopener">Cuneiform Digital Library Journal</a>
+    <li data-aihe="antiikki,jämäkori,historia" data-laji="tutkimus" data-kieli="en"><a href="https://cdli.earth/articles" target="_blank" rel="noopener">Cuneiform Digital Library Journal</a>
       <span class="mika">cdli.earth; CDLJ, CDLB ja CDLN: assyriologian artikkelit §-numeroineen, alaviitteineen ja kirjallisuuksineen,
         translitteraatiotaulukot ala- ja yläindekseineen</span></li>
-    <li><a href="https://www.dhammatalks.org/books/" target="_blank" rel="noopener">dhammatalks.org</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="kirja,alkuteksti" data-kieli="en"><a href="https://www.dhammatalks.org/books/" target="_blank" rel="noopener">dhammatalks.org</a>
       <span class="mika">Ṭhānissaro Bhikkhun kirjat; luvun sivulta koko kirja luvuittain, säkeet, alaviitteet ja loppuviitteet</span></li>
-    <li><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a>
+    <li data-aihe="filosofia" data-laji="hakuteos" data-kieli="fi"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://filosofia.fi/fi/ensyklopedia" target="_blank" rel="noopener">Ensyklopedia Logos</a>
       <span class="mika">filosofia.fi</span></li>
-    <li><a href="https://classical-inquiries.chs.harvard.edu/" target="_blank" rel="noopener">Center for Hellenic Studies</a>
+    <li data-aihe="antiikki,kirjallisuus" data-laji="tutkimus" data-kieli="en"><a href="https://classical-inquiries.chs.harvard.edu/" target="_blank" rel="noopener">Center for Hellenic Studies</a>
       <span class="mika">Classical Inquiries ja Classics@ (chs.harvard.edu); artikkelit alaviitteineen ja kirjallisuuksineen, tekijä ja päivä</span></li>
-    <li><a href="https://revistas.ucm.es/index.php/KANT" target="_blank" rel="noopener">Con-Textos Kantianos</a>
+    <li data-aihe="filosofia" data-laji="tutkimus" data-kieli="es,en,de"><a href="https://revistas.ucm.es/index.php/KANT" target="_blank" rel="noopener">Con-Textos Kantianos</a>
       <span class="mika">revistas.ucm.es; Kant-tutkimuksen lehti, artikkelit HTML-kokotekstinä alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.doppiozero.com/" target="_blank" rel="noopener">Doppiozero</a>
+    <li data-aihe="kulttuuri,kirjallisuus,yhteiskunta" data-laji="essee" data-kieli="it"><a href="https://www.doppiozero.com/" target="_blank" rel="noopener">Doppiozero</a>
       <span class="mika">doppiozero.com; esseet ilman kuvia ja Leggi anche -luetteloa</span></li>
-    <li><a href="https://forum.effectivealtruism.org/" target="_blank" rel="noopener">EA Forum</a> ja <a href="https://www.lesswrong.com/" target="_blank" rel="noopener">LessWrong</a>
+    <li data-aihe="tiedonhallinta,filosofia,yhteiskunta" data-laji="blogi" data-kieli="en"><a href="https://forum.effectivealtruism.org/" target="_blank" rel="noopener">EA Forum</a> ja <a href="https://www.lesswrong.com/" target="_blank" rel="noopener">LessWrong</a>
       <span class="mika">ForumMagnum-foorumit (myös AI Alignment Forum); kirjoitus ilman kommentteja, ponnahdusalaviitteet tavallisina alaviitteinä</span></li>
-    <li><a href="https://emergencemagazine.org/" target="_blank" rel="noopener">Emergence Magazine</a>
+    <li data-aihe="kulttuuri,perimmäisyys ja uskonnot" data-laji="essee" data-kieli="en"><a href="https://emergencemagazine.org/" target="_blank" rel="noopener">Emergence Magazine</a>
       <span class="mika">emergencemagazine.org; esseet ilman nostolainauksia ja kuvatekstejä, osanvaihdot ja tekijätiedot</span></li>
-    <li><a href="https://embryo.asu.edu/" target="_blank" rel="noopener">Embryo Project Encyclopedia</a>
+    <li data-aihe="jämäkori,tiede,historia" data-laji="hakuteos" data-kieli="en"><a href="https://embryo.asu.edu/" target="_blank" rel="noopener">Embryo Project Encyclopedia</a>
       <span class="mika">embryo.asu.edu; lääketieteen ja biologian historian hakuteoksen artikkelit lähteineen, tekijät, toimittaja ja päivä</span></li>
-    <li><a href="https://eur-lex.europa.eu/" target="_blank" rel="noopener">EUR-Lex</a>
+    <li data-aihe="jämäkori" data-laji="ratkaisu" data-kieli="moni"><a href="https://eur-lex.europa.eu/" target="_blank" rel="noopener">EUR-Lex</a>
       <span class="mika">eur-lex.europa.eu; unionin tuomioistuimen tuomiot ja julkisasiamiesten ratkaisuehdotukset, kappalenumerot, alaviitteet,
         asianumero, päivä ja tuomioistuin</span></li>
-    <li><a href="https://www.fabula.org/" target="_blank" rel="noopener">Fabula: Acta fabula ja Fabula-LhT</a>
+    <li data-aihe="kirjallisuus" data-laji="tutkimus,arvio" data-kieli="fr"><a href="https://www.fabula.org/" target="_blank" rel="noopener">Fabula: Acta fabula ja Fabula-LhT</a>
       <span class="mika">fabula.org; kirjallisuustieteen artikkelit ja arviot kappalenumeroineen, alaviitteineen, tiivistelmineen ja kirjallisuuksineen</span></li>
-    <li><a href="https://caselaw.nationalarchives.gov.uk/" target="_blank" rel="noopener">Find Case Law</a>
+    <li data-aihe="jämäkori" data-laji="ratkaisu" data-kieli="en"><a href="https://caselaw.nationalarchives.gov.uk/" target="_blank" rel="noopener">Find Case Law</a>
       <span class="mika">caselaw.nationalarchives.gov.uk; Yhdistyneen kuningaskunnan sekä Englannin ja Walesin tuomioistuinten ratkaisut,
         kappalenumerot, väliotsikot ja lainaukset, neutraali viite, päivä ja tuomioistuin</span></li>
-    <li><a href="https://www.journal-psychoanalysis.eu/" target="_blank" rel="noopener">European Journal of Psychoanalysis</a>
+    <li data-aihe="psykologia" data-laji="tutkimus" data-kieli="en"><a href="https://www.journal-psychoanalysis.eu/" target="_blank" rel="noopener">European Journal of Psychoanalysis</a>
       <span class="mika">journal-psychoanalysis.eu; artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://hypotheses.org/" target="_blank" rel="noopener">Hypotheses</a>
+    <li data-aihe="kaikki" data-laji="blogi" data-kieli="fr,de,en,moni"><a href="https://hypotheses.org/" target="_blank" rel="noopener">Hypotheses</a>
       <span class="mika">hypotheses.org; OpenEditionin tutkijablogit ranskaksi, saksaksi, englanniksi ja muilla kielillä, alaviitteet,
         tekijä, päiväys ja DOI ilman sitaattiehdotusta ja jakonappeja</span></li>
-    <li><a href="https://www.iltascabile.com/" target="_blank" rel="noopener">Il Tascabile</a>
+    <li data-aihe="kulttuuri,tiede,kirjallisuus" data-laji="essee" data-kieli="it"><a href="https://www.iltascabile.com/" target="_blank" rel="noopener">Il Tascabile</a>
       <span class="mika">iltascabile.com; esseet ja haastattelut ilman kuvia ja nostolainauksia</span></li>
-    <li><a href="https://archive.org/" target="_blank" rel="noopener">Internet Archive: tekstiversiot</a>
+    <li data-aihe="kaikki" data-laji="alkuteksti" data-kieli="moni"><a href="https://archive.org/" target="_blank" rel="noopener">Internet Archive: tekstiversiot</a>
       <span class="mika">archive.org, skannattujen kirjojen OCR-teksti (Full text, djvu.txt); kappaleet koottuina, toistuvat
         ylä- ja alatunnisteet ja rivinvaihtojen tavutukset pois</span></li>
-    <li><a href="https://gwern.net/" target="_blank" rel="noopener">Gwern.net</a>
+    <li data-aihe="tiedonhallinta,psykologia,tiede" data-laji="essee" data-kieli="en"><a href="https://gwern.net/" target="_blank" rel="noopener">Gwern.net</a>
       <span class="mika">gwern.net; esseet reunahuomautuksineen alaviitteinä, ilman ponnahduksia, tunnisteita ja koostettuja linkkiluetteloita</span></li>
-    <li><a href="https://iep.utm.edu/" target="_blank" rel="noopener">Internet Encyclopedia of Philosophy</a>
+    <li data-aihe="filosofia" data-laji="hakuteos" data-kieli="en"><a href="https://iep.utm.edu/" target="_blank" rel="noopener">Internet Encyclopedia of Philosophy</a>
       <span class="mika">iep.utm.edu; artikkelit tekijöineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.fadedpage.com/" target="_blank" rel="noopener">Faded Page</a>
+    <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="en"><a href="https://www.fadedpage.com/" target="_blank" rel="noopener">Faded Page</a>
       <span class="mika">fadedpage.com; Distributed Proofreaders Canadan kirjat HTML-muodossa kokonaan, alaviitteet, ilman lisenssi- ja ylläpitotekstejä,
         sisällystä, hakemistoa ja sivunumeroita</span></li>
-    <li><a href="https://sites.pitt.edu/~dash/folktexts.html" target="_blank" rel="noopener">Folktexts</a>
+    <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="en,de"><a href="https://sites.pitt.edu/~dash/folktexts.html" target="_blank" rel="noopener">Folktexts</a>
       <span class="mika">D. L. Ashlimanin kansantarinakokoelmat satutyypeittäin ja Grimmin sadut, lähderivit, ilman sisällysluetteloa ja paluulinkkejä</span></li>
-    <li><a href="https://www.folger.edu/explore/shakespeares-works/" target="_blank" rel="noopener">Folger Shakespeare</a>
+    <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="en"><a href="https://www.folger.edu/explore/shakespeares-works/" target="_blank" rel="noopener">Folger Shakespeare</a>
       <span class="mika">folger.edu; Shakespearen näytelmät kokonaan tai kohtauksittain, puhuja repliikin alussa, näytökset ja
         kohtaukset otsikkoina, rivinumerot</span></li>
-    <li><a href="https://fivebooks.com/" target="_blank" rel="noopener">Five Books</a>
+    <li data-aihe="kaikki" data-laji="essee" data-kieli="en"><a href="https://fivebooks.com/" target="_blank" rel="noopener">Five Books</a>
       <span class="mika">fivebooks.com; haastattelut, suositellut kirjat väliotsikoina, ilman kansikuvia ja nostolainauksia</span></li>
-    <li><a href="https://online.flippingbook.com/view/544664/" target="_blank" rel="noopener">IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis</a>
+    <li data-aihe="psykologia" data-laji="hakuteos" data-kieli="en"><a href="https://online.flippingbook.com/view/544664/" target="_blank" rel="noopener">IPA Inter-Regional Encyclopedic Dictionary of Psychoanalysis</a>
       <span class="mika">FlippingBook-kirja; leikkaa hakusanan, jonka sivulla olet</span></li>
-    <li><a href="https://korpora.org/kant/" target="_blank" rel="noopener">Korpora.org: Kantin Akademie-Ausgabe</a>
+    <li data-aihe="filosofia" data-laji="alkuteksti" data-kieli="de"><a href="https://korpora.org/kant/" target="_blank" rel="noopener">Korpora.org: Kantin Akademie-Ausgabe</a>
       <span class="mika">korpora.org/kant; sivulta koko teos (pitkästä teoksesta sen osa) viitteineen, Akademie-Ausgaben sivunumerot muodossa 4:393</span></li>
-    <li><a href="https://penelope.uchicago.edu/Thayer/E/Roman/Texts/home.html" target="_blank" rel="noopener">LacusCurtius</a>
+    <li data-aihe="antiikki,historia" data-laji="alkuteksti" data-kieli="en,la,grc"><a href="https://penelope.uchicago.edu/Thayer/E/Roman/Texts/home.html" target="_blank" rel="noopener">LacusCurtius</a>
       <span class="mika">penelope.uchicago.edu; Loebin vanhat käännökset ja Smithin sanakirja, luvut ja pykälät, Loebin ja Thayerin viitteet, sivuille jaettu kirja kokonaisena</span></li>
-    <li><a href="https://lareviewofbooks.org/" target="_blank" rel="noopener">Los Angeles Review of Books</a>
+    <li data-aihe="kirjallisuus,kulttuuri" data-laji="arvio,essee" data-kieli="en"><a href="https://lareviewofbooks.org/" target="_blank" rel="noopener">Los Angeles Review of Books</a>
       <span class="mika">lareviewofbooks.org; arviot ja haastattelut, arvioitavien kirjojen tiedot alkuun, ilman ostolinkkejä ja tukipyyntöjä</span></li>
-    <li><a href="https://manifoldapp.org/" target="_blank" rel="noopener">Manifold-kirjat</a>
+    <li data-aihe="kaikki" data-laji="kirja" data-kieli="en"><a href="https://manifoldapp.org/" target="_blank" rel="noopener">Manifold-kirjat</a>
       <span class="mika">esimerkiksi manifold.umn.edu (Minnesotan yliopiston kustantamo); osion sivulta koko kirja
         loppuviitteineen, tekijä, sarja ja kustantaja</span></li>
-    <li><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a>
+    <li data-aihe="yhteiskunta,filosofia,historia" data-laji="alkuteksti" data-kieli="en,moni"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://www.marxists.org/" target="_blank" rel="noopener">Marxists Internet Archive</a>
       <span class="mika">marxists.org</span></li>
-    <li><a href="https://ndpr.nd.edu/" target="_blank" rel="noopener">Notre Dame Philosophical Reviews</a>
+    <li data-aihe="filosofia" data-laji="arvio" data-kieli="en"><a href="https://ndpr.nd.edu/" target="_blank" rel="noopener">Notre Dame Philosophical Reviews</a>
       <span class="mika">ndpr.nd.edu; kirja-arviot arvioitavan teoksen tietoineen, alaviitteineen ja kirjallisuuksineen</span></li>
-    <li><a href="https://www.politicalconcepts.org/" target="_blank" rel="noopener">Political Concepts: A Critical Lexicon</a>
+    <li data-aihe="yhteiskunta,filosofia" data-laji="hakuteos" data-kieli="en"><a href="https://www.politicalconcepts.org/" target="_blank" rel="noopener">Political Concepts: A Critical Lexicon</a>
       <span class="mika">politicalconcepts.org; kriittisen teorian käsitehakuteoksen artikkelit alaviitteineen, tekijä ja päivä</span></li>
-    <li><a href="https://projectvox.org/" target="_blank" rel="noopener">Project Vox</a>
+    <li data-aihe="filosofia,historia" data-laji="hakuteos" data-kieli="en"><a href="https://projectvox.org/" target="_blank" rel="noopener">Project Vox</a>
       <span class="mika">projectvox.org; varhaismodernien naisfilosofien sivut (elämäkerta, aikajana, lähdeoppaat, kirjallisuus) myös käännöksinä,
         ilman kuvia ja sisällysluetteloa</span></li>
-    <li><a href="https://isidore.co/aquinas/" target="_blank" rel="noopener">Tuomas Akvinolainen latinaksi ja englanniksi</a>
+    <li data-aihe="perimmäisyys ja uskonnot,filosofia" data-laji="alkuteksti" data-kieli="la,en"><a href="https://isidore.co/aquinas/" target="_blank" rel="noopener">Tuomas Akvinolainen latinaksi ja englanniksi</a>
       <span class="mika">isidore.co/aquinas (Joseph Kennyn laitos); Summa, Contra Gentiles ja kiistakysymykset latinaksi ja käännös lomitettuna
         kappale kappaleelta, artiklat ja luvut otsikkoina</span></li>
-    <li><a href="https://tekster.kb.dk/" target="_blank" rel="noopener">Det Kgl. Biblioteks tekstportal</a>
+    <li data-aihe="filosofia,perimmäisyys ja uskonnot,kirjallisuus" data-laji="alkuteksti" data-kieli="da"><a href="https://tekster.kb.dk/" target="_blank" rel="noopener">Det Kgl. Biblioteks tekstportal</a>
       <span class="mika">tekster.kb.dk: Søren Kierkegaards Skrifter, Arkiv for Dansk Litteratur ym.; koko teos, toimittajan selitykset,
         tekstikritiikki ja tekijän viitteet alaviitteinä, SKS:n sivut muodossa 4:99</span></li>
-    <li><a href="https://philological.cal.bham.ac.uk/" target="_blank" rel="noopener">The Philological Museum</a>
+    <li data-aihe="kirjallisuus,historia" data-laji="alkuteksti" data-kieli="la,en"><a href="https://philological.cal.bham.ac.uk/" target="_blank" rel="noopener">The Philological Museum</a>
       <span class="mika">Dana F. Suttonin uuslatinan kirjasto (Erasmus, Buchanan, Bacon, Milton ym.); latina ja englanninnos lomitettuina,
         kommentaari ja tekstikritiikki alaviitteinä</span></li>
-    <li><a href="https://www.religion-online.org/" target="_blank" rel="noopener">Religion Online</a>
+    <li data-aihe="perimmäisyys ja uskonnot,filosofia" data-laji="kirja,tutkimus" data-kieli="en"><a href="https://www.religion-online.org/" target="_blank" rel="noopener">Religion Online</a>
       <span class="mika">religion-online.org; teologian ja uskonnonfilosofian kirjat ja artikkelit (prosessiajattelu, Whitehead, Hartshorne ym.),
         luvun sivulta koko kirja, alaviitteet, ilman painetun kirjan sivunumeroita</span></li>
-    <li><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://snellman.kootutteokset.fi/" target="_blank" rel="noopener">J. V. Snellmanin kootut teokset</a>
+    <li data-aihe="filosofia,yhteiskunta,historia" data-laji="alkuteksti,kirjeet" data-kieli="fi,sv"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://snellman.kootutteokset.fi/" target="_blank" rel="noopener">J. V. Snellmanin kootut teokset</a>
       <span class="mika">snellman.kootutteokset.fi; kirjoitukset ja kirjeet suomeksi alaviitteineen, ruotsinkielinen alkuteksti, kun se on tekstinä, muuten alkukielisen pdf:n osoite tekstin lopussa</span></li>
-    <li><a href="https://www.sls.fi/sv/digitala-utgavor-databaser/" target="_blank" rel="noopener">SLS:n digitaaliset editiot</a>
+    <li data-aihe="kirjallisuus,yhteiskunta,filosofia" data-laji="alkuteksti,kirjeet" data-kieli="sv,fi,en"><a href="https://www.sls.fi/sv/digitala-utgavor-databaser/" target="_blank" rel="noopener">SLS:n digitaaliset editiot</a>
       <span class="mika">Zacharias Topelius Skrifter, Edvard Westermarck ja Den okände von Wright (topelius.sls.fi, westermarck.sls.fi, vonwright.sls.fi);
         toimittajan kommentit ja tekijän viitteet alaviitteinä, kappalenumerot, kirja koottuna luvuistaan</span></li>
-    <li><a href="https://popups.uliege.be/" target="_blank" rel="noopener">PoPuPS</a>
+    <li data-aihe="filosofia,kaikki" data-laji="tutkimus" data-kieli="fr"><a href="https://popups.uliege.be/" target="_blank" rel="noopener">PoPuPS</a>
       <span class="mika">popups.uliege.be, Liègen yliopiston lehdet, esimerkiksi Bulletin d'analyse phénoménologique; artikkelit tiivistelmineen,
         kappalenumeroineen, alaviitteineen ja kirjallisuuksineen</span></li>
-    <li><a href="https://projekt-gutenberg.org/" target="_blank" rel="noopener">Projekt Gutenberg-DE</a>
+    <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="de"><a href="https://projekt-gutenberg.org/" target="_blank" rel="noopener">Projekt Gutenberg-DE</a>
       <span class="mika">projekt-gutenberg.org; saksankieliset klassikot, luvun sivulta koko kirja alaviitteineen, ilman sivunumeroita</span></li>
-    <li><a href="https://bookofconcord.org/" target="_blank" rel="noopener">Book of Concord</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en"><a href="https://bookofconcord.org/" target="_blank" rel="noopener">Book of Concord</a>
       <span class="mika">bookofconcord.org; luterilaiset tunnustuskirjat (Triglot Concordia 1921), artiklan sivulta koko tunnustus,
         kappalenumerot yläindekseinä</span></li>
-    <li><a href="https://www.vatican.va/archive/bible/nova_vulgata/documents/nova-vulgata_index_lt.html" target="_blank" rel="noopener">Nova Vulgata</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="la"><a href="https://www.vatican.va/archive/bible/nova_vulgata/documents/nova-vulgata_index_lt.html" target="_blank" rel="noopener">Nova Vulgata</a>
       <span class="mika">vatican.va; Raamatun kriittinen latinannos kirja kerrallaan, luvut otsikkoina, jaenumerot yläindekseinä, kappaleet
         ja säkeet kuten lähteessä</span></li>
-    <li><a href="https://edition-open-sources.org/" target="_blank" rel="noopener">Edition Open Sources</a> ja
+    <li data-aihe="tiede,historia" data-laji="kirja" data-kieli="en"><a href="https://edition-open-sources.org/" target="_blank" rel="noopener">Edition Open Sources</a> ja
       <a href="https://www.mprl-series.mpg.de/" target="_blank" rel="noopener">Max Planck Research Library</a>
       <span class="mika">MPIWG:n tieteenhistorian kirjat (myös edition-open-access.de); luvun sivulta koko kirja alaviitteineen ja
         kirjallisuuksineen, kokoomateoksessa lukujen tekijät</span></li>
-    <li><a href="https://www.newtonproject.ox.ac.uk/" target="_blank" rel="noopener">The Newton Project</a>
+    <li data-aihe="tiede,perimmäisyys ja uskonnot,historia" data-laji="kirjeet" data-kieli="en,la"><a href="https://www.newtonproject.ox.ac.uk/" target="_blank" rel="noopener">The Newton Project</a>
       <span class="mika">newtonproject.ox.ac.uk; Newtonin käsikirjoitukset ja kirjeet transkriptioina, viitteet alaviitteinä,
         foliot yläindekseinä</span></li>
-    <li><a href="https://www.thelatinlibrary.com/" target="_blank" rel="noopener">The Latin Library</a>
+    <li data-aihe="antiikki,kirjallisuus" data-laji="alkuteksti" data-kieli="la"><a href="https://www.thelatinlibrary.com/" target="_blank" rel="noopener">The Latin Library</a>
       <span class="mika">thelatinlibrary.com; klassinen, keskiajan ja uuslatina (Cicero, Erasmus ym.), tekijä ja pykälänumerot
         yläindekseinä</span></li>
-    <li><a href="https://www.lacanonline.com/" target="_blank" rel="noopener">Lacan Online</a>
+    <li data-aihe="psykologia" data-laji="blogi" data-kieli="en"><a href="https://www.lacanonline.com/" target="_blank" rel="noopener">Lacan Online</a>
       <span class="mika">lacanonline.com; Owen Hewitsonin kirjoitukset Lacanista tekijöineen ja väliotsikoineen</span></li>
-    <li><a href="https://phenomenologyonline.com/" target="_blank" rel="noopener">Phenomenology Online</a>
+    <li data-aihe="filosofia,psykologia" data-laji="tutkimus" data-kieli="en"><a href="https://phenomenologyonline.com/" target="_blank" rel="noopener">Phenomenology Online</a>
       <span class="mika">phenomenologyonline.com; fenomenologisen tutkimuksen Textorium-tekstit tekijöineen ja väliotsikoineen</span></li>
-    <li><a href="https://girardianlectionary.net/" target="_blank" rel="noopener">Girardian Lectionary</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="blogi" data-kieli="en"><a href="https://girardianlectionary.net/" target="_blank" rel="noopener">Girardian Lectionary</a>
       <span class="mika">girardianlectionary.net; Paul Nuechterleinin girardilaiset pohdinnat kirkkovuoden teksteistä päiväyksineen</span></li>
-    <li><a href="https://gretil.sub.uni-goettingen.de/gretil.html" target="_blank" rel="noopener">GRETIL</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="sa"><a href="https://gretil.sub.uni-goettingen.de/gretil.html" target="_blank" rel="noopener">GRETIL</a>
       <span class="mika">gretil.sub.uni-goettingen.de; intialaiset tekstit sanskritiksi (esimerkiksi Nāgārjuna), säkeet riveittäin,
         säenumerot yläindekseinä, luvut otsikkoina, painoksen sivut, toisinnot alaviitteinä ja analyysisarake säkeen rinnalla</span></li>
-    <li><a href="https://www.augustinus.it/" target="_blank" rel="noopener">Sant'Agostino – Augustinus Hipponensis</a>
+    <li data-aihe="perimmäisyys ja uskonnot,filosofia" data-laji="alkuteksti" data-kieli="la,it"><a href="https://www.augustinus.it/" target="_blank" rel="noopener">Sant'Agostino – Augustinus Hipponensis</a>
       <span class="mika">augustinus.it; Augustinuksen teokset latinaksi ja italiaksi lomitettuna, avattu kirja tai teoksen
         sisällysluettelosta koko teos, kappalenumerot yläindekseinä, raamatunkohdat alaviitteinä</span></li>
-    <li><a href="https://www.laparola.net/greco/" target="_blank" rel="noopener">laparola.net</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="grc"><a href="https://www.laparola.net/greco/" target="_blank" rel="noopener">laparola.net</a>
       <span class="mika">laparola.net/greco; Uuden testamentin kreikkalainen teksti (SBL) luku kerrallaan, jaenumerot yläindekseinä,
         tekstivariantit käsikirjoitussiglumeineen alaviitteinä</span></li>
-    <li><a href="https://www.psychopen.eu/" target="_blank" rel="noopener">PsychOpen GOLD -lehdet</a>
+    <li data-aihe="psykologia" data-laji="tutkimus" data-kieli="en"><a href="https://www.psychopen.eu/" target="_blank" rel="noopener">PsychOpen GOLD -lehdet</a>
       <span class="mika">psychopen.eu; psykologian artikkelit HTML-galleriasta tiivistelmineen, alaviitteineen,
         taulukoineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://theconversation.com/" target="_blank" rel="noopener">The Conversation</a>
+    <li data-aihe="kaikki" data-laji="essee" data-kieli="en"><a href="https://theconversation.com/" target="_blank" rel="noopener">The Conversation</a>
       <span class="mika">theconversation.com; tutkijoiden yleistajuiset artikkelit kaikista laitoksista tekijöineen, päiväyksineen ja
         väliotsikkoineen ilman kuvia</span></li>
-    <li><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a>
+    <li data-aihe="jämäkori" data-laji="tutkimus" data-kieli="en"><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a>
       <span class="mika">pubmed.ncbi.nlm.nih.gov; lääketieteen artikkelien tiivistelmät tekijöineen ja lehden tietoineen, koko tekstin
         osoite (PubMed Central, DOI) tekstinä</span></li>
-    <li><a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed Central</a>
+    <li data-aihe="jämäkori,tiede" data-laji="tutkimus" data-kieli="en"><a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed Central</a>
       <span class="mika">pmc.ncbi.nlm.nih.gov; avoimet lääketieteen ja lääketieteen historian artikkelit tiivistelmineen, alaviitteineen,
         kirjallisuusluetteloineen ja taulukoineen</span></li>
-    <li><a href="https://link.springer.com/" target="_blank" rel="noopener">Springer Nature -lehdet</a>
+    <li data-aihe="kaikki,tiede" data-laji="tutkimus" data-kieli="en"><a href="https://link.springer.com/" target="_blank" rel="noopener">Springer Nature -lehdet</a>
       <span class="mika">link.springer.com ja nature.com;
         artikkelit tiivistelmineen, taulukoineen, numeroviitteet alaviitteinä ja kirjallisuusluettelo</span></li>
-    <li><a href="https://journals.plos.org/" target="_blank" rel="noopener">PLOS-lehdet</a>
+    <li data-aihe="tiede,jämäkori" data-laji="tutkimus" data-kieli="en"><a href="https://journals.plos.org/" target="_blank" rel="noopener">PLOS-lehdet</a>
       <span class="mika">journals.plos.org (PLOS ONE ym.); artikkelit tiivistelmineen, taulukot tekstinä,
         numeroviitteet alaviitteinä ja kirjallisuusluettelo</span></li>
-    <li><a href="https://www.frontiersin.org/" target="_blank" rel="noopener">Frontiers-lehdet</a>
+    <li data-aihe="tiede,psykologia,jämäkori" data-laji="tutkimus" data-kieli="en"><a href="https://www.frontiersin.org/" target="_blank" rel="noopener">Frontiers-lehdet</a>
       <span class="mika">frontiersin.org; artikkelit tiivistelmineen,
         taulukoineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.spip.net/" target="_blank" rel="noopener">SPIP-lehdet</a>
+    <li data-aihe="yhteiskunta,kulttuuri" data-laji="essee" data-kieli="fr"><a href="https://www.spip.net/" target="_blank" rel="noopener">SPIP-lehdet</a>
       <span class="mika">esimerkiksi La Vie des idées ja Vacarme; artikkelit ingressin,
         alaviitteiden ja post-scriptumin kanssa, tekijä, kääntäjä ja päivä</span></li>
-    <li><a href="https://www.ubiquitypress.com/" target="_blank" rel="noopener">Ubiquity Press -lehdet</a>
+    <li data-aihe="kaikki" data-laji="tutkimus" data-kieli="en"><a href="https://www.ubiquitypress.com/" target="_blank" rel="noopener">Ubiquity Press -lehdet</a>
       <span class="mika">avoimet lehdet omilla verkkotunnuksillaan; artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.noemamag.com/" target="_blank" rel="noopener">Noema</a>
+    <li data-aihe="yhteiskunta,filosofia,kulttuuri" data-laji="essee" data-kieli="en"><a href="https://www.noemamag.com/" target="_blank" rel="noopener">Noema</a>
       <span class="mika">noemamag.com; esseet ilman nostolainauksia, kuvia ja kehotteita, tekijän esittely lopussa</span></li>
-    <li><a href="https://oecs.mit.edu/" target="_blank" rel="noopener">Open Encyclopedia of Cognitive Science</a>
+    <li data-aihe="psykologia,filosofia" data-laji="hakuteos" data-kieli="en"><a href="https://oecs.mit.edu/" target="_blank" rel="noopener">Open Encyclopedia of Cognitive Science</a>
       <span class="mika">oecs.mit.edu</span></li>
-    <li><a href="https://journals.publishing.umich.edu/" target="_blank" rel="noopener">Michigan Publishing -lehdet</a>
+    <li data-aihe="filosofia" data-laji="tutkimus" data-kieli="en"><a href="https://journals.publishing.umich.edu/" target="_blank" rel="noopener">Michigan Publishing -lehdet</a>
       <span class="mika">esimerkiksi Ergo ja Philosophers' Imprint (journals.publishing.umich.edu); filosofian artikkelit tiivistelmineen,
         alaviitteineen, kirjallisuusluetteloineen ja kaavat tekstinä</span></li>
-    <li><a href="https://www.openlibhums.org/" target="_blank" rel="noopener">Open Library of Humanities</a>
+    <li data-aihe="kaikki,kirjallisuus,jämäkori" data-laji="tutkimus" data-kieli="en"><a href="https://www.openlibhums.org/" target="_blank" rel="noopener">Open Library of Humanities</a>
       <span class="mika">olh.openlibhums.org ja muut Janeway-lehdet (Orbit, C21, Glossa); artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.openbookpublishers.com/" target="_blank" rel="noopener">Open Book Publishers</a>
+    <li data-aihe="kaikki" data-laji="kirja" data-kieli="en"><a href="https://www.openbookpublishers.com/" target="_blank" rel="noopener">Open Book Publishers</a>
       <span class="mika">books.openbookpublishers.com; HTML-lukunäkymän luvun sivulta koko kirja osineen, loppuviitteineen ja kirjallisuuksineen</span></li>
-    <li><a href="https://www.openedition.org/" target="_blank" rel="noopener">OpenEdition</a>
+    <li data-aihe="kaikki" data-laji="tutkimus,kirja" data-kieli="fr,moni"><a href="https://www.openedition.org/" target="_blank" rel="noopener">OpenEdition</a>
       <span class="mika">journals.openedition.org ja books.openedition.org; ranskalaiset ja eurooppalaiset humanististen ja yhteiskuntatieteiden
         lehdet ja kirjat, artikkelit ja luvut tiivistelmineen eri kielillä, kappalenumeroineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://oyc.yale.edu/" target="_blank" rel="noopener">Open Yale Courses</a>
+    <li data-aihe="kaikki" data-laji="luento" data-kieli="en"><a href="https://oyc.yale.edu/" target="_blank" rel="noopener">Open Yale Courses</a>
       <span class="mika">oyc.yale.edu; luennon litteraatio tiivistelmineen, luvut otsikkoina ilman aikaleimoja</span></li>
-    <li><a href="https://www.journals.vu.lt/problemos" target="_blank" rel="noopener">Problemos</a>
+    <li data-aihe="filosofia" data-laji="tutkimus" data-kieli="lt,en"><a href="https://www.journals.vu.lt/problemos" target="_blank" rel="noopener">Problemos</a>
       <span class="mika">journals.vu.lt; Vilnan yliopiston filosofian lehti liettuaksi ja englanniksi, artikkelit tiivistelmineen,
         alaviitteineen ja kirjallisuusluetteloineen (vuodesta 2019), vanhemmista tiivistelmät</span></li>
-    <li><a href="https://www.paulgraham.com/articles.html" target="_blank" rel="noopener">Paul Grahamin esseet</a>
+    <li data-aihe="tiedonhallinta" data-laji="essee" data-kieli="en"><a href="https://www.paulgraham.com/articles.html" target="_blank" rel="noopener">Paul Grahamin esseet</a>
       <span class="mika">paulgraham.com; viitteet alaviitteinä, päiväys</span></li>
-    <li><a href="https://www.perseus.tufts.edu/hopper/" target="_blank" rel="noopener">Perseus Digital Library</a>
+    <li data-aihe="antiikki,kirjallisuus" data-laji="alkuteksti" data-kieli="grc,la,en"><a href="https://www.perseus.tufts.edu/hopper/" target="_blank" rel="noopener">Perseus Digital Library</a>
       <span class="mika">perseus.tufts.edu/hopper; kohdan sivulta koko kirja kreikaksi, latinaksi tai käännöksenä, viitenumerot (327a, 1.1.1) ja viitteet; esimerkiksi Platonin Valtio kreikaksi ja englanniksi lomittain</span></li>
-    <li><a href="https://pressbooks.com/" target="_blank" rel="noopener">Pressbooks-kirjat</a>
+    <li data-aihe="kaikki" data-laji="kirja" data-kieli="en"><a href="https://pressbooks.com/" target="_blank" rel="noopener">Pressbooks-kirjat</a>
       <span class="mika">avoimet oppikirjat ja kirjat yliopistojen ja kustantajien Pressbooks-palvelimilla; luvun sivulta koko kirja
         osineen ja lukuineen, alaviitteet, tekijät, toimittajat ja kääntäjät</span></li>
-    <li><a href="https://www.gutenberg.org/" target="_blank" rel="noopener">Project Gutenberg</a>
+    <li data-aihe="kirjallisuus,kaikki" data-laji="alkuteksti" data-kieli="en,moni"><a href="https://www.gutenberg.org/" target="_blank" rel="noopener">Project Gutenberg</a>
       <span class="mika">gutenberg.org; koko kirja alaviitteineen, ilman lisenssitekstiä, sivunumeroita ja hakemistoa</span></li>
-    <li><a href="https://psyche.co/" target="_blank" rel="noopener">Psyche</a>
+    <li data-aihe="psykologia,filosofia" data-laji="essee" data-kieli="en"><a href="https://psyche.co/" target="_blank" rel="noopener">Psyche</a>
       <span class="mika">psyche.co; esseet ja oppaat (Guides) osioineen ilman nostolainauksia</span></li>
-    <li><a href="https://scielo.org/" target="_blank" rel="noopener">SciELO</a>
+    <li data-aihe="kaikki" data-laji="tutkimus" data-kieli="es,pt,en"><a href="https://scielo.org/" target="_blank" rel="noopener">SciELO</a>
       <span class="mika">Latinalaisen Amerikan, Espanjan, Portugalin ja Etelä-Afrikan avoimet tieteelliset lehdet (scielo.org.mx, .org.co, .org.ar ym.);
         artikkelit tiivistelmineen, alaviitteineen ja kirjallisuusluetteloineen</span></li>
-    <li><a href="https://www.saet.ac.uk/" target="_blank" rel="noopener">St Andrews Encyclopaedia of Theology</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="hakuteos" data-kieli="en"><a href="https://www.saet.ac.uk/" target="_blank" rel="noopener">St Andrews Encyclopaedia of Theology</a>
       <span class="mika">saet.ac.uk; kristinusko, buddhalaisuus, islam, hindulaisuus, juutalaisuus</span></li>
-    <li><a href="https://substack.com/" target="_blank" rel="noopener">Substack-julkaisut</a>
+    <li data-aihe="kaikki" data-laji="blogi" data-kieli="en,moni"><a href="https://substack.com/" target="_blank" rel="noopener">Substack-julkaisut</a>
       <span class="mika">substack.com, myös omilla verkkotunnuksillaan; alaviitteet, ilman tilaus- ja jakokehotteita</span></li>
-    <li><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a>
+    <li data-aihe="filosofia" data-laji="hakuteos" data-kieli="en"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span><a href="https://plato.stanford.edu/" target="_blank" rel="noopener">Stanford Encyclopedia of Philosophy</a>
       <span class="mika">plato.stanford.edu</span></li>
-    <li><a href="https://www.tertullian.org/fathers/" target="_blank" rel="noopener">Tertullian Project</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en,la"><a href="https://www.tertullian.org/fathers/" target="_blank" rel="noopener">Tertullian Project</a>
       <span class="mika">tertullian.org/fathers; sivuille jaettu teos kokonaisena, luvut, painetun laitoksen sivut ja viitteet</span></li>
-    <li><a href="https://www.journals.vu.lt/" target="_blank" rel="noopener">Vilnan yliopiston lehdet</a>
+    <li data-aihe="kaikki" data-laji="tutkimus" data-kieli="lt,en"><a href="https://www.journals.vu.lt/" target="_blank" rel="noopener">Vilnan yliopiston lehdet</a>
       <span class="mika">journals.vu.lt, esimerkiksi Literatūra, Religija ir kultūra, Politologija ja Kalbotyra; myös muiden
         Open Journal Systems -lehtien artikkelit, joista on HTML-kokoteksti, ja pdf-lehtien (esimerkiksi Filosofija. Sociologija)
         tiivistelmät</span></li>
-    <li><a href="https://www.vle.lt/" target="_blank" rel="noopener">Visuotinė lietuvių enciklopedija</a>
+    <li data-aihe="yleiset tietosanakirjat" data-laji="hakuteos" data-kieli="lt"><a href="https://www.vle.lt/" target="_blank" rel="noopener">Visuotinė lietuvių enciklopedija</a>
       <span class="mika">vle.lt; liettuan yleisenkyklopedian artikkelit tekijöineen ja kirjallisuusluetteloineen, ilman kuvia</span></li>
-    <li><a href="https://wikisource.org/" target="_blank" rel="noopener">Wikisource</a>
+    <li data-aihe="kaikki" data-laji="alkuteksti" data-kieli="moni"><a href="https://wikisource.org/" target="_blank" rel="noopener">Wikisource</a>
       <span class="mika">en, de, la, fi, lt (Vikišaltiniai) ja muut kielet; painetun lähteen sivunumerot merkkeinä [483], viitteet, runot
         säkeistöinä, ilman otsake- ja selausrivejä</span></li>
-    <li><a href="https://zeithistorische-forschungen.de/" target="_blank" rel="noopener">Zeithistorische Forschungen</a>
+    <li data-aihe="historia" data-laji="tutkimus" data-kieli="de,en"><a href="https://zeithistorische-forschungen.de/" target="_blank" rel="noopener">Zeithistorische Forschungen</a>
       <span class="mika">zeithistorische-forschungen.de; aikalaishistorian artikkelit alaviitteineen ilman kuvia, vihko, sivut, DOI ja lisenssi</span></li>
-    <li><a href="https://magazines.gorky.media/" target="_blank" rel="noopener">Журнальный зал</a>
+    <li data-aihe="kirjallisuus" data-laji="essee" data-kieli="ru"><a href="https://magazines.gorky.media/" target="_blank" rel="noopener">Журнальный зал</a>
       <span class="mika">magazines.gorky.media; venäläisten kirjallisuuslehtien arkisto (Новый мир, Знамя, Новый Журнал …), tekijä,
         lehti ja numero, loppuviitteet alaviitteinä</span></li>
-    <li><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
+    <li data-aihe="tiede,tiedonhallinta,psykologia" data-laji="blogi" data-kieli="en"><a href="https://waitbutwhy.com/" target="_blank" rel="noopener">Wait But Why</a>
       <span class="mika">waitbutwhy.com</span></li>
-    <li><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
+    <li data-aihe="yleiset tietosanakirjat" data-laji="hakuteos" data-kieli="fi,en"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>Wikipedia: <a href="https://fi.wikipedia.org/" target="_blank" rel="noopener">suomeksi</a> ja
       <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">englanniksi</a>
       <span class="mika">fi.wikipedia.org, en.wikipedia.org</span></li>
-    <li>Wikipedia <a href="https://lt.wikipedia.org/" target="_blank" rel="noopener">liettuaksi</a>
-      <span class="mika">lt.wikipedia.org</span></li>
-    <li>Wikipedia muilla kielillä: <a href="https://it.wikipedia.org/" target="_blank" rel="noopener">italia</a>,
+    <li data-aihe="yleiset tietosanakirjat" data-laji="hakuteos" data-kieli="lt,it,de,fr,da,es,et,sv,el">Wikipedia muilla kielillä: <a href="https://lt.wikipedia.org/" target="_blank" rel="noopener">liettua</a>,
+      <a href="https://it.wikipedia.org/" target="_blank" rel="noopener">italia</a>,
       <a href="https://de.wikipedia.org/" target="_blank" rel="noopener">saksa</a>,
       <a href="https://fr.wikipedia.org/" target="_blank" rel="noopener">ranska</a>,
       <a href="https://da.wikipedia.org/" target="_blank" rel="noopener">tanska</a>,
@@ -364,46 +390,46 @@
       <a href="https://sv.wikipedia.org/" target="_blank" rel="noopener">ruotsi</a> ja
       <a href="https://el.wikipedia.org/" target="_blank" rel="noopener">kreikka</a>
       <span class="mika">sama sovite kuin suomeksi ja englanniksi: alaviitteet, kirjallisuusluettelo, ilman navigointia ja sisarprojekteja</span></li>
-    <li><a href="https://www.wisdomlib.org/" target="_blank" rel="noopener">Wisdom Library</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en"><a href="https://www.wisdomlib.org/" target="_blank" rel="noopener">Wisdom Library</a>
       <span class="mika">wisdomlib.org; buddhalaisten, hindulaisten ja jainalaisten tekstien käännökset (esimerkiksi Visuddhimagga),
         kirjan sivulta koko kirja, luvun tai osion sivulta koko luku, alaviitteet, kääntäjä</span></li>
-    <li><a href="https://www.tha.de/~harsch/augustana.html" target="_blank" rel="noopener">Bibliotheca Augustana</a>
+    <li data-aihe="kirjallisuus,filosofia,perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="la,de,it,moni"><a href="https://www.tha.de/~harsch/augustana.html" target="_blank" rel="noopener">Bibliotheca Augustana</a>
       <span class="mika">tha.de/~harsch; kirjallisuuden kokoelma latinaksi, saksaksi, italiaksi ja muilla kielillä (Fransiskus, Goethe,
         Hamann, Fichte, Schelling, Novalis ym.), luvun sivulta koko teos, kappaleet ja säkeistöt, alaviitteet myös omalta sivultaan</span></li>
-    <li><a href="https://www.accesstoinsight.org/" target="_blank" rel="noopener">Access to Insight</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en"><a href="https://www.accesstoinsight.org/" target="_blank" rel="noopener">Access to Insight</a>
       <span class="mika">accesstoinsight.org; theravāda-buddhalaisuuden suttat ja BPS:n kommentaarikäännökset, kääntäjä, toimittaja
         ja painettu lähde, loppuviitteet alaviitteinä</span></li>
-    <li><a href="https://davidhume.org/" target="_blank" rel="noopener">Hume Texts Online</a>
+    <li data-aihe="filosofia" data-laji="alkuteksti" data-kieli="en"><a href="https://davidhume.org/" target="_blank" rel="noopener">Hume Texts Online</a>
       <span class="mika">davidhume.org; Humen teokset kriittisenä editiona: kappaleiden vakioviitteet kohdiksi, painoksen sivut
         (SBN, Miller, Kemp Smith) vakiosivuiksi, alaviitteet, sisällyssivulta koko teos</span></li>
-    <li><a href="https://cts.perseids.org/" target="_blank" rel="noopener">Perseids CTS</a>
+    <li data-aihe="antiikki,perimmäisyys ja uskonnot,filosofia" data-laji="alkuteksti" data-kieli="grc,en"><a href="https://cts.perseids.org/" target="_blank" rel="noopener">Perseids CTS</a>
       <span class="mika">cts.perseids.org (esimerkiksi Filon); koko kirja tai teos CTS-rajapinnasta, kreikka ja englanti pykälittäin
         lomitettuina, Mangeyn sivut ja apparaatti alaviitteinä</span></li>
-    <li><a href="https://celt.ucc.ie/" target="_blank" rel="noopener">CELT – Corpus of Electronic Texts</a>
+    <li data-aihe="historia,kirjallisuus" data-laji="alkuteksti" data-kieli="ga,la,en"><a href="https://celt.ucc.ie/" target="_blank" rel="noopener">CELT – Corpus of Electronic Texts</a>
       <span class="mika">celt.ucc.ie; irlantilaiset tekstit iiriksi, latinaksi ja englanniksi (esimerkiksi Berkeley, Swift), koko
         asiakirja, piilotetut alaviitteet, numeroidut pykälät kohdiksi</span></li>
-    <li><a href="https://standardebooks.org/" target="_blank" rel="noopener">Standard Ebooks</a>
+    <li data-aihe="kirjallisuus" data-laji="alkuteksti" data-kieli="en"><a href="https://standardebooks.org/" target="_blank" rel="noopener">Standard Ebooks</a>
       <span class="mika">standardebooks.org; koko kirja luku-, sisällys- tai esittelysivulta, loppuviitteet alaviitteiksi, nimiöt
         ja colophon pois, tekijä, kääntäjä ja julkaisuvuosi</span></li>
-    <li><a href="https://www.rousseauonline.ch/" target="_blank" rel="noopener">Rousseau Online</a>
+    <li data-aihe="filosofia,yhteiskunta" data-laji="alkuteksti" data-kieli="fr"><a href="https://www.rousseauonline.ch/" target="_blank" rel="noopener">Rousseau Online</a>
       <span class="mika">rousseauonline.ch; Rousseaun Genèven laitos 1780–89, alkuperäiset sivut vakiosivuiksi, alaviitteet ja
         Rousseaun loppuviitteet alaviitteiksi, toimittajan apparaatti otsikon alaviitteeksi</span></li>
-    <li><a href="https://goethe-biographica.de/" target="_blank" rel="noopener">PROPYLÄEN. Goethes Biographica</a>
+    <li data-aihe="kirjallisuus,historia" data-laji="kirjeet" data-kieli="de"><a href="https://goethe-biographica.de/" target="_blank" rel="noopener">PROPYLÄEN. Goethes Biographica</a>
       <span class="mika">goethe-biographica.de; Goethen kirjeet ja päiväkirjat, kirjeet Goethelle ja Begegnungen und Gespräche,
         otsikko lähettäjästä, vastaanottajasta ja päiväyksestä, painetun laitoksen sivut, tekstikritiikki ja kommentaari alaviitteinä</span></li>
-    <li><a href="https://hamann-ausgabe.de/HKB" target="_blank" rel="noopener">Johann Georg Hamann: Kommentierte Briefausgabe</a>
+    <li data-aihe="filosofia,perimmäisyys ja uskonnot" data-laji="kirjeet" data-kieli="de"><a href="https://hamann-ausgabe.de/HKB" target="_blank" rel="noopener">Johann Georg Hamann: Kommentierte Briefausgabe</a>
       <span class="mika">hamann-ausgabe.de; kirjeet yhtenäisinä kappaleina ilman rivinumeroita, ZH-sivut, kommentit ja tekstikritiikki
         alaviitteinä</span></li>
-    <li><a href="https://schleiermacher-digital.de/" target="_blank" rel="noopener">schleiermacher digital</a>
+    <li data-aihe="perimmäisyys ja uskonnot,filosofia" data-laji="kirjeet,luento" data-kieli="de"><a href="https://schleiermacher-digital.de/" target="_blank" rel="noopener">schleiermacher digital</a>
       <span class="mika">schleiermacher-digital.de; kirjeet ja luennot lukutekstinä, toimittajan kommentit ja Schleiermacherin
         reunahuomautukset alaviitteinä, KGA:n tai painoksen sivut, luentotunnit</span></li>
-    <li><a href="https://wvh-briefe.bbaw.de/" target="_blank" rel="noopener">Wilhelm von Humboldt: Sprachwissenschaftliche Korrespondenz</a>
+    <li data-aihe="jämäkori" data-laji="kirjeet" data-kieli="de"><a href="https://wvh-briefe.bbaw.de/" target="_blank" rel="noopener">Wilhelm von Humboldt: Sprachwissenschaftliche Korrespondenz</a>
       <span class="mika">wvh-briefe.bbaw.de; kirje lukutekstinä ilman välilehtiä, huomautukset alaviitteinä, otsikko ja lähde
         sivun viittausohjeesta</span></li>
-    <li><a href="https://www.livius.org/" target="_blank" rel="noopener">Livius.org</a>
+    <li data-aihe="antiikki,historia" data-laji="hakuteos,alkuteksti" data-kieli="en"><a href="https://www.livius.org/" target="_blank" rel="noopener">Livius.org</a>
       <span class="mika">livius.org; antiikin historian artikkelit ja lähdekäännökset (esimerkiksi Persia ja Kreikka), piilotetut
         viitteet alaviitteinä, sivuille jaettu artikkeli koottuna, tekijä ja kääntäjä</span></li>
-    <li><a href="https://www.avesta.org/" target="_blank" rel="noopener">Avesta – Zoroastrian Archives</a>
+    <li data-aihe="perimmäisyys ja uskonnot" data-laji="alkuteksti" data-kieli="en"><a href="https://www.avesta.org/" target="_blank" rel="noopener">Avesta – Zoroastrian Archives</a>
       <span class="mika">avesta.org; zarathustralaiset ja muinaispersialaiset tekstit, huomautussarake alaviitteinä, kirjan sivut,
         muinaispersia ja käännös lomitettuina, SBE-lähdetiedot</span></li>
   </ul>
@@ -446,6 +472,97 @@
   var vara = function () { document.documentElement.style.setProperty('--nav', nav.offsetHeight + 'px'); };
   vara(); addEventListener('resize', vara);
   if (location.hash && document.getElementById(location.hash.slice(1))) document.getElementById(location.hash.slice(1)).scrollIntoView();
+})();
+
+// Haku ja korit: suodattaa kirjainryhmiin kootun listan (edellinen skripti) ja himmentää tyhjien ryhmien kirjaimet.
+(function () {
+  var NIMET = { kaikki: 'kaikkiruokainen', en: 'englanti', de: 'saksa', la: 'latina', fr: 'ranska', it: 'italia', fi: 'suomi',
+    grc: 'kreikka', el: 'kreikka', lt: 'liettua', es: 'espanja', sv: 'ruotsi', da: 'tanska', sa: 'sanskrit', pt: 'portugali',
+    ru: 'venäjä', et: 'viro', ga: 'iiri', moni: 'monikielinen' };
+  var FASETIT = ['aihe', 'laji', 'kieli'];
+  var nimi = function (v) { return NIMET[v] || v; };
+  var norm = function (t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var tila = { aihe: {}, laji: {}, kieli: {} }, haku = '';
+  // Kieli, jolla on vain yksi sivusto, on rivillä muut kielet (käyttäjän linssi: muut kielet yhtenä korina).
+  var kieliLkm = {};
+  [].forEach.call(document.querySelectorAll('ul.sivustot li'), function (li) {
+    (li.getAttribute('data-kieli') || '').split(',').filter(Boolean).map(nimi).forEach(function (k, i, a) { if (a.indexOf(k) === i) kieliLkm[k] = (kieliLkm[k] || 0) + 1; });
+  });
+  var kieliNimi = function (k) { return kieliLkm[k] > 1 ? k : 'muut kielet'; };
+  var tiedot = [].map.call(document.querySelectorAll('ul.sivustot li'), function (li) {
+    var t = { li: li }, sanat = [];
+    FASETIT.forEach(function (f) {
+      var arvot = (li.getAttribute('data-' + f) || '').split(',').filter(Boolean).map(nimi);
+      if (f === 'kieli') arvot = arvot.map(kieliNimi);
+      t[f] = arvot.filter(function (a, i) { return arvot.indexOf(a) === i; });
+      t[f + 'Paa'] = arvot[0];
+      sanat = sanat.concat(t[f]);
+    });
+    t.haku = norm(li.textContent + ' ' + sanat.join(' '));
+    return t;
+  });
+  if (!tiedot.length) return;
+  var vrt = new Intl.Collator('fi'), korit = {};
+  FASETIT.forEach(function (f) {
+    var n = {};
+    tiedot.forEach(function (t) { t[f].forEach(function (a) { n[a] = (n[a] || 0) + 1; }); });
+    // Muut kielet aina rivin lopussa.
+    korit[f] = Object.keys(n).sort(function (a, b) { return (a === 'muut kielet') - (b === 'muut kielet') || n[b] - n[a] || vrt.compare(a, b); });
+  });
+  var esc = function (x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var el = document.getElementById('suodatus');
+  el.innerHTML = '<div class="s-haku"><input type="search" id="s-haku" aria-label="Etsi sivustoa" placeholder="Etsi sivustoa: nimi, aihe tai kieli" ' +
+      'enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>' +
+    FASETIT.map(function (f) {
+      return '<div class="krivi"><span class="ots">' + f + '</span><span class="kk">' + korit[f].map(function (a) {
+        return '<button type="button" class="kori" data-f="' + f + '" data-v="' + esc(a) + '" aria-pressed="false">' + esc(a) + '<span class="n"></span></button>';
+      }).join('') + '</span></div>';
+    }).join('') +
+    '<div class="s-tila"><span id="s-nakyy"></span><button type="button" id="s-tyhjenna" hidden>tyhjennä</button></div>';
+  el.hidden = false;
+  var q = function () { return norm(haku).split(/\s+/).filter(Boolean).map(function (w) {
+    return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u'); }); };
+  function lapi(t, re) {
+    if (!re.every(function (r) { return r.test(t.haku); })) return false;
+    return FASETIT.every(function (f) {
+      var muk = [], pois = [];
+      Object.keys(tila[f]).forEach(function (a) { (tila[f][a] === 'mukaan' ? muk : pois).push(a); });
+      if (muk.length && !t[f].some(function (a) { return muk.indexOf(a) >= 0; })) return false;
+      return pois.indexOf(t[f + 'Paa']) < 0;
+    });
+  }
+  function piirra() {
+    var re = q(), nak = tiedot.filter(function (t) { return lapi(t, re); });
+    tiedot.forEach(function (t) { t.li.hidden = nak.indexOf(t) < 0; });
+    [].forEach.call(el.querySelectorAll('button.kori'), function (b) {
+      var f = b.getAttribute('data-f'), v = b.getAttribute('data-v'), n = nak.filter(function (t) { return t[f].indexOf(v) >= 0; }).length;
+      b.querySelector('.n').textContent = n;
+      b.classList.toggle('nolla', n === 0 && !tila[f][v]);
+      if (tila[f][v]) b.setAttribute('data-tila', tila[f][v]); else b.removeAttribute('data-tila');
+      b.setAttribute('aria-pressed', tila[f][v] === 'mukaan' ? 'true' : tila[f][v] === 'pois' ? 'mixed' : 'false');
+    });
+    [].forEach.call(document.querySelectorAll('h2.kirjain'), function (h) {
+      var ul = h.nextElementSibling, tyhja = !ul.querySelector('li:not([hidden])');
+      h.hidden = tyhja; ul.hidden = tyhja;
+      var a = document.querySelector('nav.aakkoset a[href="#' + h.id + '"]');
+      if (a) { a.classList.toggle('tyhja', tyhja); if (tyhja) a.setAttribute('aria-disabled', 'true'); else a.removeAttribute('aria-disabled'); }
+    });
+    var suodatettu = !!re.length || FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
+    document.getElementById('s-nakyy').textContent = suodatettu ? 'näkyvissä ' + nak.length + ' / ' + tiedot.length : tiedot.length + ' sivustoa';
+    document.getElementById('s-tyhjenna').hidden = !suodatettu;
+  }
+  el.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    if (b.id === 's-tyhjenna') { tila = { aihe: {}, laji: {}, kieli: {} }; haku = ''; document.getElementById('s-haku').value = ''; }
+    else if (b.classList.contains('kori')) {
+      var f = b.getAttribute('data-f'), a = b.getAttribute('data-v'), nyt = tila[f][a];
+      if (!nyt) tila[f][a] = 'mukaan'; else if (nyt === 'mukaan') tila[f][a] = 'pois'; else delete tila[f][a];
+    }
+    piirra();
+  });
+  document.getElementById('s-haku').addEventListener('input', function () { haku = this.value; piirra(); });
+  piirra();
 })();
 </script>
 <p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
