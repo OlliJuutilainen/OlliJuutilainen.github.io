@@ -7752,8 +7752,20 @@
     IPEC: 'Intellectual Property Enterprise Court', Admlty: 'Admiralty Court', SCCO: 'Senior Courts Costs Office', Mercantile: 'Mercantile Court' };
   async function findcaselaw() {
     const art = document.querySelector('article.judgment'), runko = art && art.querySelector('section.judgment-body');
-    if (!runko || !art.querySelector('header.judgment-header') || !runko.querySelector('.judgment-body__number')) return null;
+    const otsake = art && art.querySelector('header.judgment-header');
+    if (!runko || !otsake || !runko.querySelector('.judgment-body__number')) return null;
     const el = runko.cloneNode(true);
+    // Sivun skripti (document_paragraph_tooltip_anchors) käärii kappalenumeron linkiksi #para_N, jossa on ruudunlukijan
+    // piiloteksti Paragraph ja työkaluvihje Copy link to this paragraph: ilman purkua ne tulivat jokaisen kappaleen alkuun
+    // (Paragraph 1.Copy link to this paragraph …) ja numeroidut väliotsikot jäivät tunnistamatta. Skriptitön sivu on ennallaan.
+    el.querySelectorAll('.judgment-body__number .visually-hidden, .judgment-body__copy-link-tooltip').forEach(x => x.remove());
+    el.querySelectorAll('a.judgment-body__anchor-link').forEach(a => a.replaceWith(...a.childNodes));
+    // Otsakkeen lopun luokattomat kappaleet ovat jo tekstiä: EWHC Admin 2026/3056 puhujarivi ja INTRODUCTION, EWHC Ch 2024/1
+    // hand-down-ilmoitus, asiasanat ja viitattujen ratkaisujen luettelo, jonka viimeinen kohta on rungossa. Tunnisteellinen
+    // section, joten ne käsitellään kuin rungon numeroton alku (#lvl_N).
+    const alku = [];
+    for (let x = otsake.lastElementChild; x && x.tagName === 'P' && !x.getAttribute('class'); x = x.previousElementSibling) alku.unshift(x.cloneNode(true));
+    if (alku.length) { const s = document.createElement('section'); s.id = 'otsakkeesta'; s.append(...alku); el.prepend(s); }
     el.querySelectorAll('img, script, style').forEach(x => x.remove());
     el.querySelectorAll('[style]').forEach(x => x.removeAttribute('style'));
     el.querySelectorAll('span:not([class])').forEach(x => x.replaceWith(...x.childNodes));
@@ -7778,7 +7790,10 @@
         const lapset = sisalto.filter(n => n.nodeType === 1);
         // Ei lainauksen sisällä (numeroton id:tön section) eikä ilman sanoja ((a) … poistosta).
         const lainauksessa = s.parentElement && s.parentElement.closest('section:not([id]):not([class]), blockquote');
-        if (t && !lainauksessa && lapset.length === 1 && lapset[0].tagName === 'P' && /\p{L}{2}/u.test(lapset[0].textContent) && korostettu(lapset[0]) && (nro.querySelector('i, b, u, em, strong') || !/[.:;,]$/.test(rivi(lapset[0].textContent)) && rivi(lapset[0].textContent).length < 100)) {
+        // Sivun skripti kirjoittaa numeron uudelleen tekstinä (data-number-content), jolloin sen kursiivi katoaa: silloin
+        // kappaleen korostus ratkaisee (UKSC 2023/42: 101 merkin (4) Issue 2 – …).
+        const nroKorostettu = nro.querySelector('i, b, u, em, strong') || nro.hasAttribute('data-number-content');
+        if (t && !lainauksessa && lapset.length === 1 && lapset[0].tagName === 'P' && /\p{L}{2}/u.test(lapset[0].textContent) && korostettu(lapset[0]) && (nroKorostettu || !/[.:;,]$/.test(rivi(lapset[0].textContent)) && rivi(lapset[0].textContent).length < 100)) {
           const h = document.createElement('h' + (/^\(?[ivxl]+\)/.test(t) ? 4 : /^\(/.test(t) ? 3 : 2));
           h.textContent = t + ' ' + rivi(lapset[0].textContent);
           s.replaceWith(h);
@@ -7813,19 +7828,38 @@
     el.querySelectorAll('blockquote blockquote').forEach(q => q.replaceWith(...q.childNodes));
     el.querySelectorAll('p').forEach(p => { if (!rivi(p.textContent)) p.remove(); });
     el.querySelectorAll('sup').forEach(x => { if (!rivi(x.textContent)) x.remove(); });
+    // Sivunvaihdon katkaisema kappale (EWHC Admin 2026/3056: lainatun pykälän loppu omana numerottomana kappaleenaan, … where
+    // the | mother was …): pienellä alkava kappale jatkaa edellistä, joka päättyy kesken virkkeen pieneen kirjaimeen. Luettelon
+    // kohta (iii), iv.) ei jatka. Saman korostuksen reunat yhdeksi, muuten Markdowniin tulisi *… the* *mother …*.
+    const reuna = (n, puoli) => { let x = n[puoli + 'Child']; while (x && x.nodeType === 3 && !x.textContent.trim()) x = x[puoli === 'last' ? 'previousSibling' : 'nextSibling']; return x; };
+    el.querySelectorAll('p').forEach(p => {
+      const e = p.previousElementSibling, t = rivi(p.textContent);
+      if (!e || e.tagName !== 'P' || !/\p{Ll}$/u.test(rivi(e.textContent)) || !/^\p{Ll}/u.test(t) || /^\(?([ivxlc]+|[a-z])[.)]/.test(t)) return;
+      const a = reuna(e, 'last'), b = reuna(p, 'first');
+      if (a && b && a.nodeType === 1 && b.nodeType === 1 && a.tagName === b.tagName && /^(I|EM|B|STRONG|U)$/.test(a.tagName)) {
+        a.append(/\s$/.test(a.textContent) ? '' : ' ', ...b.childNodes);
+        b.remove();
+      } else if (!/\s$/.test(e.textContent)) e.append(' ');
+      e.append(...p.childNodes);
+      p.remove();
+    });
     const maar = samanSivunViitteet(el, 'fc');
     kkLinkit(el, /^https?:\/\/([a-z0-9-]+\.)*(nationalarchives\.gov\.uk|legislation\.gov\.uk)\//i);
     if (kkSanoja(el) < 100) return null;
-    const otsake = art.querySelector('header.judgment-header');
     const ncnEl = otsake.querySelector('.judgment-header__neutral-citation');
     const ncn = rivi((ncnEl && (ncnEl.querySelector('.ncn-nowrap') || ncnEl) || {}).textContent).replace(/^.*?(\[\d{4}\][^\]]*?\d+(?:\s*\([A-Za-z]+\))?).*$/, '$1');
     const k = /^\[\d{4}\]\s+([A-Za-z]+(?:\s+(?:Civ|Crim))?)\s+\d+(?:\s*\(([A-Za-z]+)\))?/.exec(ncn);
     const tuom = k ? [FCL_TUOMIOISTUIN[k[1]] || '', k[2] && FCL_OSASTO[k[2]] ? '(' + FCL_OSASTO[k[2]] + ')' : ''].filter(Boolean).join(' ') : '';
-    const pvm = /(\d{1,2})(?:st|nd|rd|th)?\s+(\p{L}+)\s+(\d{4})/u.exec(rivi((otsake.querySelector('.judgment-header__date') || {}).textContent));
+    const pvmT = rivi((otsake.querySelector('.judgment-header__date') || {}).textContent);
+    const pvm = /(\d{1,2})(?:st|nd|rd|th)?\s+(\p{L}+)\s+(\d{4})/u.exec(pvmT);
     const kk = pvm ? EN_KUUKAUDET.indexOf(pvm[2].toLowerCase()) : -1;
+    // Numeromuoto päivä/kuukausi/vuosi (EWHC Admin 2026/3056: Date: 25/11/2026).
+    const npvm = kk < 0 && /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/.exec(pvmT);
     const otsikko = rivi(document.title).replace(/\s+-\s+Find Case Law.*$/i, '') || ncn;
     return { html: irrota([el]).innerHTML, otsikko, laji: [tuom, ncn].filter(Boolean).join(', '), numero: ncn,
-      julkaistu: kk >= 0 ? pvm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pvm[1].padStart(2, '0') : '', sivusto: FCL_NIMI, lahde: osoite, maar };
+      julkaistu: kk >= 0 ? pvm[3] + '-' + String(kk + 1).padStart(2, '0') + '-' + pvm[1].padStart(2, '0')
+        : npvm && +npvm[2] >= 1 && +npvm[2] <= 12 ? npvm[3] + '-' + npvm[2].padStart(2, '0') + '-' + npvm[1].padStart(2, '0') : '',
+      sivusto: FCL_NIMI, lahde: osoite, maar };
   }
 
   /* PubMed Central (pmc.ncbi.nlm.nih.gov; käyttäjän pyyntö 18.11.2026, pahvin *10 sivustosovitetta* 2: alusta, kaikki avoimet
