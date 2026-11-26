@@ -61,6 +61,7 @@ Maa jäässä plussalla (käyttäjän päätös):
 - Luku ja hiutale ovat katkeamattomassa `span`issa, koska kapea sarake katkaisisi hiutaleen omalle rivilleen.
 - Rannikon sekaruudussa maan arvossa on mukana merta (talvella liian lämmin), joten hiutale voi jäädä pois;
   rannikkokäytäntö on avoinna (tusina-rata).
+- Käänteistä sulamerkkiä (lukema miinuksella, maa sula) ei tehdä (käyttäjän päätös).
 
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
 -merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee, ja `[MAA <°C>]`
