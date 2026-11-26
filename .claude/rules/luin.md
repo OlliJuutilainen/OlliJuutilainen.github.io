@@ -204,7 +204,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   jossa on linkki tuettujen sivustojen listaan `luin/sivustot.html` (omana sivunaan uudessa välilehdessä, ei ponnahdusta,
   koska lista kasvaa). Kun leike.js saa uuden sovitteen, lisää sivusto sen listaan `#sivustot`,
   paitsi jos sivusto näyttää mainoksia eikä siellä ole lahjoitusnappia (alla *Rahoitushuomautus*). **Supersalmiakki** (Luinin logo eli
-  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet, selite ja kirjainotsikot alkavat samasta x:stä) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
+  `luin/kuvakkeet/kuvake.svg` ruosteella, omassa vasemmassa sarakkeessaan; nimet ja kirjainotsikot alkavat samasta x:stä; selite erottuu listasta pienempänä ja lohkona sisennettynä nimien kohdalle, käyttäjän päätös) vain Luinin sertifioimille eli käyttäjän itse siedettävästi läpikäymille: SEP, Wikipedia, marxists.org,
   Ensyklopedia Logos ja Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`). Älä lisää sitä kysymättä.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on.
