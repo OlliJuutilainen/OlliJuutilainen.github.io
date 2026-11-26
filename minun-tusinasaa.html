@@ -188,15 +188,16 @@
      taustaan yli 3); kirkastuu osoitettaessa. Merkki jää otsikkorivin yläpuolelle kaikilla
      leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
   .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
-    color:var(--avain); line-height:0 }
+    color:var(--avain); line-height:0; transition:color .4s cubic-bezier(.3,.7,.2,1) }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
   .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
-  /* Avattu näkymä: avain siirtyy kentän yläpuolelle keskiakselille ja suurenee (80 px). Iso mutta hiljainen sävy, jotta
-     Sutkauta pysyy kirkkaimpana. Yläpuolelle enemmän ilmaa kuin alle: avain painuu kohti kenttää. Napautus sulkee. */
-  .avainPaikka{ display:flex; justify-content:center; margin:0 0 14px }
-  .avainPaikka .avainNappi{ position:static; padding:8px; color:var(--avain) }
-  .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--avain) }
-  .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--muted) }
+  /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee (80 px), kahvan vasen reuna kentän vasemmassa reunassa
+     (sama pystylinja kuin kentällä ja Arvolla). Väri sivun kirkkain (--brand; käyttäjän päätös). Yläpuolelle enemmän
+     ilmaa kuin alle: avain painuu kohti kenttää. Napautus sulkee. */
+  .avainPaikka{ display:flex; justify-content:flex-start; margin:0 0 14px }
+  .avainPaikka .avainNappi{ position:static; padding:8px; margin-left:-8px; color:var(--brand) }
+  .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--brand) }
+  .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--text) }
   .avainPaikka .avainNappi svg{ width:33.69px; height:80px }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
@@ -224,7 +225,7 @@
   .avainOhje b{ color:var(--text); font-weight:400 }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
-  @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
+  @media (prefers-reduced-motion: reduce){ .slot, .slot svg, .avainNappi{ transition:none } }
 </style>
 </head>
 <body>
