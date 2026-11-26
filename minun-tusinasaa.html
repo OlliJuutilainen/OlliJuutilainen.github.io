@@ -186,12 +186,13 @@
   .app + .foot{ margin-top:36px }
   /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Harvinaisen
      tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
-     taustaan yli 3); osoitettaessa sivun kirkkain (--brand, käyttäjän päätös). Merkki jää otsikkorivin yläpuolelle kaikilla
+     taustaan yli 3); kirkastuu osoitettaessa --textiin, ei --brandiin: avauksen värisiirtymä lähtee osoitetusta väristä
+     (myös kosketus ja näppäin), ja --brand veisi siltä liukuman. Merkki jää otsikkorivin yläpuolelle kaikilla
      leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
   .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
     color:var(--avain); line-height:0 }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
-  .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--brand) }
+  .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
   /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
      kokoinen (ulkoapoteema 20,45 px; avain 110 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
      sisätyhjä 10 px), eli hieman kentän reunasta oikealle; ei linjausta logoon (käyttäjän päätös). Väri sivun kirkkain (--brand). Yläpuolelle enemmän ilmaa kuin alle:
@@ -1011,7 +1012,9 @@ function avainTila(text, kind){ const el = $('avainTila'); el.textContent = text
    (nopeus ∝ jäljellä olevan jarrutusajan 2,6. potenssi). Koko kasvaa suhteellisesti (geometrisesti), väri vaihtuu
    samassa tahdissa ja muu näkymä häivyttyy esiin samalla käyrällä. Ruudut lasketaan itse Web Animations -animaatioksi
    (FLIP: mitataan ennen ja jälkeen), koska käyrä ei ole cubic-bezier. Avaimen värille ei saa lisätä CSS-transitiota:
-   kaskadissa transitio voittaa animaation, ja väri lakkaisi seuraamasta liikettä. Vähennetyllä liikkeellä vain paikka vaihtuu. */
+   kaskadissa transitio voittaa animaation, ja väri lakkaisi seuraamasta liikettä. aria-expanded vaihdetaan muutos-kutsussa
+   ennen loppumittausta, koska se vaikuttaa väriin: muuten sulku päättyisi avoimen tilan väriin ja hyppäisi lopuksi
+   lepoväriin. Vähennetyllä liikkeellä vain paikka vaihtuu. */
 const SIIRTYMA = { kesto: 310, kiih: .82, kiihM: 1, jarr: .15, jarrM: 2.6 };
 const siirtymaKayra = (({ kiih: a, kiihM: k, jarr: d, jarrM: m }) => {
   const A = a / (k + 1), C = 1 - a - d, D = d / (m + 1), v = 1 / (A + C + D);
@@ -1051,8 +1054,8 @@ function avaaNakyma(){
   siirraAvain($('avainPaikka'), () => {
     document.querySelector('main').classList.add('avainAuki');
     nakyma.hidden = false;
+    avainNappi.setAttribute('aria-expanded', 'true');
   }, [$('avainLomake')]);
-  avainNappi.setAttribute('aria-expanded', 'true');
   kentta.value = state.lause || '';
   $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
   avainTila(''); vahvistus = null;
@@ -1063,8 +1066,8 @@ function suljeNakyma(){
   siirraAvain(avainKoti, () => {
     document.querySelector('main').classList.remove('avainAuki');
     nakyma.hidden = true;
+    avainNappi.setAttribute('aria-expanded', 'false');
   }, [$('viesti'), $('ui'), $('appPaneeli')]);
-  avainNappi.setAttribute('aria-expanded', 'false');
   $('avainOhje').hidden = true;
   $('avainInfo').setAttribute('aria-expanded', 'false');
 }
