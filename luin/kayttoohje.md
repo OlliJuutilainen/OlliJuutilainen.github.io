@@ -139,7 +139,7 @@ Pinossa ylimpänä on teksti, jonka viimeksi avasit tai joka viimeksi tuli pinoo
 
 ### 3.4 Nimikkeen valikko
 
-Nimikkeen valikossa on kolme pääkohtaa: **ULOSTUS**, **SISUSTUS** ja **HYLLYTYS**. Kukin avaa oman alavalikkonsa. Leveällä ruudulla alavalikko avautuu pääkohtien viereen (hiirellä myös viipymällä kohdan päällä), kapealla pääkohtien tilalle, ja ylärivin nuoli palaa pääkohtiin. ULOSTUS ja SISUSTUS ovat samat pinossa, kellarin veivihyllystössä ja ö-mapissa; HYLLYTYKSEN kohdat riippuvat siitä, missä teksti on.
+Nimikkeen valikossa on kolme pääkohtaa: **ULOSTUS**, **SISUSTUS** ja **HYLLYTYS**. Kukin avaa oman alavalikkonsa. Kun tilaa on, alavalikko avautuu pääkohtien oikealle puolelle (hiirellä myös viipymällä kohdan päällä), muuten pääkohtien tilalle, ja ylärivin nuoli palaa pääkohtiin. ULOSTUS ja SISUSTUS ovat samat pinossa, kellarin veivihyllystössä ja ö-mapissa; HYLLYTYKSEN kohdat riippuvat siitä, missä teksti on.
 
 Valikko mahtuu aina ruudulle. Jos se on ruutua korkeampi, se vierii sisältä, ja alareuna leikkaa napin puoliksi merkiksi siitä, että valikko jatkuu. Napautus valikon ohi vain sulkee sen: se ei avaa linkkiä eikä paina nappia. Tämä koskee kaikkia lukimen ponnahduksia.
 

@@ -484,37 +484,38 @@
   .valikko .esi { padding: 8px 14px 10px; font-size: .78rem; color: var(--harmaa); line-height: 1.45;
     border-bottom: 1px solid var(--viiva); overflow-wrap: anywhere; }
   /* Porrasvalikko (nimikkeen ja valittujen valikko, naytaPorras()): pääkohdat avaavat alavalikon. Rinnakkain (.rinn) alavalikko on
-     pääkohtien vasemmalla samassa laatikossa, väliviivana pääkohtien reuna, ja avoimen pääkohdan kohdalla viivassa on aukko.
+     pääkohtien oikealla samassa laatikossa, väliviivana pääkohtien reuna, ja avoimen pääkohdan kohdalla viivassa on aukko.
      Alavalikot ovat samassa ruudukon solussa (piilossa visibilityllä), joten laatikon leveys ei muutu pääkohtaa vaihdettaessa.
      Sisäkkäin (.sisak) alavalikko on pääkohtien tilalla, ja ylärivin nuoli palaa. .mittaa on porrasTapa()n hetkellinen mittaustila.
-     Nuoli osoittaa sinne, missä alavalikko on: rinnakkain vasemmalle tekstin edessä, sisäkkäin oikealle laidassa. */
+     Alavalikko ei avaudu vasemmalle (käyttäjän päätös), joten pääkohtien nuoli osoittaa aina oikealle laidassa. */
   .valikko.porras { padding: 0; min-width: 0; max-width: calc(100vw - 16px); }
   .valikko.porras.sisak { min-width: 12rem; max-width: min(22rem, calc(100vw - 24px)); }
   .valikko.porras.mittaa { max-width: none; }
-  .p-runko { display: flex; flex-direction: row-reverse; align-items: stretch; }
+  .p-runko { display: flex; align-items: stretch; }
   .p-paa, .p-ali { padding: 4px 0; }
   .p-alat { display: none; }
   .valikko.porras .p-paa { flex: 1 1 auto; min-width: 0; }
   .valikko.porras.rinn .p-paa, .valikko.porras.mittaa .p-paa { flex: none; width: max-content; min-width: 10rem; max-width: 14rem; }
   .valikko.porras.rinn.ali-auki .p-alat, .valikko.porras.mittaa .p-alat { display: grid; flex: none; }
-  .valikko.porras.rinn .p-ali, .valikko.porras.mittaa .p-ali { grid-area: 1 / 1; width: max-content; max-width: 20rem; visibility: hidden; }
+  /* 19,5 rem: oikealle avautuva alavalikko mahtuu vielä 1280 px:n ikkunaan (porrasTapa() varaa sille tämän leveyden). */
+  .valikko.porras.rinn .p-ali, .valikko.porras.mittaa .p-ali { grid-area: 1 / 1; width: max-content; max-width: 19.5rem; visibility: hidden; }
   .valikko.porras.rinn .p-ali.auki { visibility: visible; }
   /* Piilossa oleva alavalikko antaa ruudukolle vain leveytensä: laatikon korkeus on avoimen alavalikon. Napin yllä avautuneessa
      (.alareuna) pääkohdat ovat alhaalla, joten ne pysyvät paikallaan laatikon kasvaessa ylöspäin. */
   .valikko.porras.rinn .p-ali:not(.auki) { height: 0; padding: 0; overflow: hidden; }
   .valikko.porras.rinn.alareuna .p-paa { display: flex; flex-direction: column; justify-content: flex-end; }
-  .valikko.porras.rinn.ali-auki .p-paa { border-left: 1px solid var(--muste); }
+  .valikko.porras.rinn.ali-auki .p-paa { border-right: 1px solid var(--muste); }
   .valikko.porras.rinn .p-takaisin, .valikko.porras.mittaa .p-takaisin { display: none; }
   .valikko.porras.sisak.ali-auki .p-paa { display: none; }
   .valikko.porras.sisak.ali-auki .p-alat { display: block; flex: 1 1 auto; min-width: 0; }
   .valikko.porras.sisak .p-ali { display: none; }
   .valikko.porras.sisak .p-ali.auki { display: block; }
   .valikko button.p-ots { display: flex; align-items: center; gap: 10px; }
-  .valikko.porras.sisak button.p-ots { justify-content: space-between; }
-  .valikko.porras.sisak button.p-ots svg.p-nuoli { order: 1; }
-  .valikko.porras.rinn button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { transform: scaleX(-1); }
+  .valikko.porras button.p-ots { justify-content: space-between; }
+  .valikko.porras button.p-ots svg.p-nuoli { order: 1; }
+  .valikko button.p-takaisin svg.p-nuoli { transform: scaleX(-1); }
   .valikko.porras.rinn button.p-ots[aria-expanded="true"] { position: relative; }
-  .valikko.porras.rinn button.p-ots[aria-expanded="true"]::before { content: ''; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px;
+  .valikko.porras.rinn button.p-ots[aria-expanded="true"]::before { content: ''; position: absolute; right: -1px; top: 0; bottom: 0; width: 1px;
     background: var(--paperi); }
   .valikko.porras.rinn .p-paa > button.p-ots:first-child[aria-expanded="true"]::before { top: -4px; }
   .valikko button.p-ots svg.p-nuoli, .valikko button.p-takaisin svg.p-nuoli { flex: none; width: 5px; height: 9px; overflow: visible;
@@ -3939,10 +3940,10 @@
     sijoitaPop();
   }
   /* ---------- porrasvalikko (käyttäjän linjaus) ----------
-     Nimikkeen ja valittujen valikossa pääkohdat (ULOSTUS, SISUSTUS, HYLLYTYS) avaavat alavalikon. Leveällä ruudulla se avautuu
-     pääkohtien vasemmalle samaan laatikkoon (rinnakkain), kapealla pääkohtien tilalle, ja ylärivi nuolineen palaa (sisäkkäin).
-     Tapa mitataan (porrasTapa()): rinnakkain vain, kun pääkohdat ja levein alavalikko mahtuvat vierekkäin ruudulle. Se mitataan
-     uudelleen vain ikkunan leveyden muuttuessa, ei sisällön (valikko ei vaihda tapaa kesken käytön). Kaikki on #pop-elementissä,
+     Nimikkeen ja valittujen valikossa pääkohdat (ULOSTUS, SISUSTUS, HYLLYTYS) avaavat alavalikon: pääkohtien oikealle samaan
+     laatikkoon (rinnakkain) tai pääkohtien tilalle, ja ylärivi nuolineen palaa (sisäkkäin). Vasemmalle se ei avaudu (käyttäjän päätös).
+     Tapa mitataan (porrasTapa()): rinnakkain vain, kun levein alavalikko mahtuu ruudulle napin kohdalla olevien pääkohtien
+     oikealle. Se mitataan uudelleen vain ikkunan leveyden muuttuessa, ei sisällön (valikko ei vaihda tapaa kesken käytön). Kaikki on #pop-elementissä,
      joten ulkoklikkaus, mahtuminen ja vieritys toimivat kuten muissakin valikoissa. Alavalikon avaus ja paluu pitävät laatikon
      napin puoleisen reunan paikallaan (popPaikka.reuna): napin alla avautunut kasvaa alaspäin, yllä avautunut ylöspäin, eikä
      laatikko hyppää napin toiselle puolelle. Hiirellä pääkohta avautuu myös viipymällä (PORRAS_MS); napautus vain avaa, ei
@@ -3970,12 +3971,15 @@
   }
   function porrasTapa() {
     pop.classList.remove('rinn', 'sisak'); pop.classList.add('mittaa');
-    // Alavalikolle lasketaan aina vähintään sen enimmäisleveys (20 rem), jottei tapa riipu kohtien tai otsikon pituudesta:
-    // puhelin pystyssä on aina sisäkkäin, vaikka lyhyt sisältö mahtuisi rinnakkain ahtaasti.
-    var w = $('.p-paa', pop).getBoundingClientRect().width + 2 +
-      Math.max($('.p-alat', pop).getBoundingClientRect().width, parseFloat(getComputedStyle($('.p-ali', pop)).maxWidth) || 0);
+    // Alavalikolle lasketaan aina vähintään sen enimmäisleveys (19,5 rem), jottei tapa riipu kohtien tai otsikon pituudesta:
+    // sama valikko avautuu samassa ikkunassa aina samalla tavalla, vaikka lyhyt sisältö mahtuisi rinnakkain.
+    var paa = $('.p-paa', pop).getBoundingClientRect().width + 2,
+      ali = Math.max($('.p-alat', pop).getBoundingClientRect().width, parseFloat(getComputedStyle($('.p-ali', pop)).maxWidth) || 0);
     pop.classList.remove('mittaa');
-    pop.classList.add(w <= innerWidth - 16 ? 'rinn' : 'sisak');
+    // Pääkohdat ovat napin oikeaan reunaan tasattuina (sijoitaPop()), ja alavalikko (väliviivoineen) tulee niiden oikealle.
+    var x = clamp(popPaikka.rect.right - paa, 8, innerWidth - paa - 8), rinn = x + paa + 1 + ali <= innerWidth - 8;
+    pop.classList.add(rinn ? 'rinn' : 'sisak');
+    popPaikka.vasen = rinn ? x : null;
     popPaikka.leveys = innerWidth;
   }
   function avaaAli(k) {
@@ -4030,6 +4034,8 @@
       pop.scrollTop = st;
     }
     var x = popPaikka.tasaus === 'oikea' ? rect.right - w : popPaikka.tasaus === 'peita' ? rect.left - 6 : popPaikka.tasaus === 'vasen' ? rect.left : rect.left + rect.width / 2 - w / 2;
+    // Porrasvalikko rinnakkain: vasen reuna pysyy (porrasTapa()), joten alavalikko kasvattaa laatikkoa oikealle eivätkä pääkohdat liiku.
+    if (popPaikka.vasen != null && pop.classList.contains('rinn')) x = popPaikka.vasen;
     var y = rect.bottom + 8;
     // peita: laatikko napin päälle (tuonnin kuittaus peittää Tuo-napin, ettei sitä paineta uudestaan).
     if (popPaikka.tasaus === 'peita') y = rect.top - 10;

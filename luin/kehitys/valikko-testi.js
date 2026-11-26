@@ -60,8 +60,8 @@ async function veda(cdp, x, y0, y1) {
   const selain = await chromium.launch();
   const virheet = [];
 
-  // 1. Matala kosketusruutu: porrasvalikon (nimikkeen valikko) alavalikko vierii, kun se ei mahdu. Piilossa olevan alavalikon
-  // napit eivät ratkaise leikkausta (sama ruudukon solu).
+  // 1. Matala kosketusruutu: porrasvalikon (nimikkeen valikko) alavalikko vierii, kun se ei mahdu. Napin oikealla ei ole tilaa
+  // alavalikolle, joten se on pääkohtien tilalla (sisäkkäin); rinnakkaisen leikkaus osassa 4.
   {
     const ctx = await selain.newContext({ viewport: { width: 640, height: 240 }, hasTouch: true, isMobile: true });
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
@@ -92,7 +92,7 @@ async function veda(cdp, x, y0, y1) {
     tulos('640×240: alin nappi (Huiluta laatikkoon) ulottuvilla', p.osuu, JSON.stringify(p));
     // Luin.-alavalikko mahtuu: Poista ja sen vahvistus näkyvissä.
     await page.evaluate(() => { document.getElementById('pop').scrollTop = 0; });
-    await page.tap('#pop button[data-k="ali:luin"]');
+    await avaaOsa(page, 'poista', true);
     const q = await page.evaluate(() => {
       const b = document.querySelector('#pop button[data-k="poista"]'), r = b.getBoundingClientRect();
       const o = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
@@ -177,17 +177,26 @@ async function veda(cdp, x, y0, y1) {
     await ctx.close();
   }
 
-  // 4. Työpöytä, matala ikkuna: rulla vierittää valikkoa (Exportātiō rinnakkain) eikä sivua.
+  // 4. Työpöytä, matala ikkuna: rulla vierittää valikkoa (Exportātiō rinnakkain) eikä sivua. Piilossa olevan alavalikon napit
+  // eivät ratkaise leikkausta (sama ruudukon solu). Valikko avautuu napin yllä, joten pääkohdat ovat alhaalla ja reuna leikkaa
+  // pääkohdan ja alavalikon napin samalta korkeudelta.
   {
-    const ctx = await selain.newContext({ viewport: { width: 1100, height: 240 } });
+    const ctx = await selain.newContext({ viewport: { width: 1440, height: 240 } });
     const page = await ctx.newPage(); page.on('pageerror', e => virheet.push(e.message));
     await kylva(page, U);
     await page.click('#nimikkeet button.jako[data-id="p-t0"]');
     await page.click('#pop button[data-k="ali:vienti"]');
     const t = await popTila(page);
-    tulos('työpöytä 1100×240: valikko vierii ja mahtuu', t.vierii && t.top >= 8 && t.bottom <= t.ih - 8, JSON.stringify(t));
+    tulos('työpöytä 1440×240: rinnakkain, valikko vierii ja mahtuu', /\brinn\b/.test(await page.getAttribute('#pop', 'class')) && t.vierii && t.top >= 8 && t.bottom <= t.ih - 8, JSON.stringify(t));
+    const leikattu = await page.evaluate(() => {
+      const p = document.getElementById('pop'), reuna = p.getBoundingClientRect().bottom - 1;
+      return [...p.querySelectorAll('button')].filter(b => getComputedStyle(b).visibility !== 'hidden').map(b => b.getBoundingClientRect())
+        .filter(r => r.top < reuna && r.bottom > reuna).map(r => (reuna - r.top) / r.height);
+    });
+    tulos('työpöytä: alareuna leikkaa napin tekstin (35–50 % näkyvissä)', leikattu.length >= 1 && leikattu.every(x => x >= .34 && x <= .51), leikattu.map(x => x.toFixed(2)).join());
     const sy0 = await page.evaluate(() => scrollY);
-    await page.mouse.move(t.left + 60, (t.top + t.bottom) / 2);
+    // Rulla alavalikon päällä: pääkohdan päällä viipymä avaisi toisen alavalikon (vieritys alkuun).
+    await page.mouse.move(t.right - 60, (t.top + t.bottom) / 2);
     await page.mouse.wheel(0, 400); await page.waitForTimeout(300);
     const t2 = await popTila(page), sy1 = await page.evaluate(() => scrollY);
     tulos('työpöytä: rulla vierittää valikkoa, ei sivua', t2.st > 0 && sy1 === sy0, 'valikko ' + t2.st + ', sivu ' + sy0 + '→' + sy1);

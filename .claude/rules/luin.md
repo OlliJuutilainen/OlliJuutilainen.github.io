@@ -355,9 +355,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   vahvistusnappi on sama kuin valikon kohta, kysymys *Viedäänkö/Nostetaanko/Poimitaanko/Siirretäänkö/Irrotetaanko*), käsikirjoja ja muita
   sekoittavalle ei käsikirjaston kohtaa (Luokittele hoitaa); kaikissa näkymissä *Anna pölyyntyä* / *Puhalla pölyt* (alla), paitsi käsikirjalle;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella ja ilman
-  loppupistettä. Leveällä ruudulla alavalikko on pääkohtien
-  vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
-  ylärivin paluunuolella (`.sisak`); tapa mitataan (`porrasTapa()`) eikä sitä päätellä laitteesta. Pääkohdat eivät saa liikkua:
+  loppupistettä. Alavalikko ei avaudu vasemmalle (käyttäjän
+  päätös): pääkohtien oikealle samaan laatikkoon (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kun se mahtuu
+  napin oikeaan reunaan tasattujen pääkohtien oikealle, muuten pääkohtien tilalle ylärivin paluunuolella (`.sisak`); pääkohtien nuoli
+  osoittaa aina oikealle laidassa. Tapa mitataan (`porrasTapa()`, alavalikolle aina enimmäisleveys 19,5 rem, jolla 1280 px:n ikkuna on
+  vielä rinnakkain) eikä sitä päätellä laitteesta. Pääkohdat eivät saa liikkua:
   ankkuri (`popPaikka.reuna`) päätetään ensimmäisellä avauksella, piilotettu alavalikko antaa vain leveytensä, ja viipymäavaus odottaa
   hiiren todellista liikettä (`porrasLukko`). Kaikki on `#pop`issa, joten ulkoklikkaus ja mahtuminen ovat yhteiset. Testi `porras-testi.js`;
   muut testit avaavat pääkohdan `porras-apu.js`:n `avaaOsa()`lla.
