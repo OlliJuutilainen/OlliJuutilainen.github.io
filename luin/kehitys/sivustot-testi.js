@@ -5,7 +5,7 @@
 // vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
-// Haku-rivi: tekijä mukaan tai pois, asiasana. Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, laki ja lääketiede, yleiset, fennomaanit) ja Problemoksen
+// Haku-rivi: tekijä mukaan tai pois, asiasana. Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -111,8 +111,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   await page.click('#s-tyhjenna');
   t('tyhjennä nollaa kentät', await page.$$eval('button.kori[data-f="kentta"][data-tila]', l => l.length) === 0);
   // Korien nimet ja fennomaanit.
-  t('korit: uskonto, laki ja lääketiede, yleiset, fennomaanit, luonnontieteet; ei vanhoja', await page.evaluate(() => { const v = [...document.querySelectorAll('button.kori[data-f="aihe"]')].map(b => b.getAttribute('data-v'));
-    return ['uskonto', 'laki ja lääketiede', 'yleiset', 'fennomaanit', 'luonnontieteet'].every(x => v.includes(x)) && !v.some(x => /perimmäisyys|jämäkori|kaikkiruokainen|tietosanakirjat|^tiede$|^luonnontiede$/.test(x)); }));
+  t('korit: uskonto, L&L = Laki & Lääketiede, yleiset, fennomaanit, luonnontieteet; ei vanhoja', await page.evaluate(() => { const v = [...document.querySelectorAll('button.kori[data-f="aihe"]')].map(b => b.getAttribute('data-v'));
+    return ['uskonto', 'L&L = Laki & Lääketiede', 'yleiset', 'fennomaanit', 'luonnontieteet'].every(x => v.includes(x)) && !v.some(x => /perimmäisyys|jämäkori|kaikkiruokainen|tietosanakirjat|^tiede$|^luonnontiede$|^laki ja lääketiede$/.test(x)); }));
   await nappi('aihe', 'yleiset');
   t('yleiset: Wikipedia ja kaikkiruokaiset', (await page.$$eval('ul.sivustot li:not([hidden])', l => l.map(x => x.textContent))).filter(x => /Wikipedia|Project Gutenberg|Substack|Visuotinė/.test(x)).length >= 5);
   await page.click('#s-tyhjenna');
