@@ -191,6 +191,13 @@
     color:var(--avain); line-height:0 }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
   .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
+  /* Avattu näkymä: avain siirtyy kentän yläpuolelle keskiakselille ja suurenee (80 px). Iso mutta hiljainen sävy, jotta
+     Sutkauta pysyy kirkkaimpana. Yläpuolelle enemmän ilmaa kuin alle: avain painuu kohti kenttää. Napautus sulkee. */
+  .avainPaikka{ display:flex; justify-content:center; margin:0 0 14px }
+  .avainPaikka .avainNappi{ position:static; padding:8px; color:var(--avain) }
+  .avainPaikka .avainNappi[aria-expanded="true"]{ color:var(--avain) }
+  .avainPaikka .avainNappi:hover, .avainPaikka .avainNappi:focus-visible{ color:var(--muted) }
+  .avainPaikka .avainNappi svg{ width:33.69px; height:80px }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
   .avainNakyma{ max-width:26rem; margin:36px auto 0 }
@@ -232,6 +239,7 @@
 
   <main>
     <section class="avainNakyma" id="avainNakyma" aria-label="Salkosutkautus" hidden>
+      <div class="avainPaikka" id="avainPaikka"></div>
       <form id="avainLomake" autocomplete="off">
         <textarea id="lause" rows="2" aria-label="Salkosutkautus" placeholder="salkosutkautus" maxlength="80" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"></textarea>
         <div class="avainRivi">
@@ -972,19 +980,40 @@ async function tallennaHeti(){
 const nakyma = $('avainNakyma'), avainNappi = $('avainNappi'), kentta = $('lause');
 let vahvistus = null, kaynnissa = false;
 function avainTila(text, kind){ const el = $('avainTila'); el.textContent = text || ''; el.className = 'avainTila' + (kind ? ' ' + kind : ''); }
+/* Avain siirtyy nurkan ja näkymän välillä samalla käyrällä kuin salot paneelissa (FLIP: mitataan ennen ja jälkeen,
+   lähdetään vanhasta kohdasta ja koosta). Vähennetyllä liikkeellä vain paikka vaihtuu. */
+const avainKoti = document.querySelector('.top');
+function siirraAvain(kohde, muutos){
+  const svg = avainNappi.querySelector('svg'), ennen = svg.getBoundingClientRect();
+  muutos();
+  kohde.append(avainNappi);
+  svg.style.transition = 'none'; svg.style.transform = '';
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const jalkeen = svg.getBoundingClientRect();
+  if (!ennen.height || !jalkeen.height) return;
+  svg.style.transformOrigin = '0 0';
+  svg.style.transform = `translate(${ennen.left - jalkeen.left}px, ${ennen.top - jalkeen.top}px) scale(${ennen.height / jalkeen.height})`;
+  svg.getBoundingClientRect();
+  svg.style.transition = 'transform .7s cubic-bezier(.3,.7,.2,1)';
+  svg.style.transform = '';
+}
 function avaaNakyma(){
-  document.querySelector('main').classList.add('avainAuki');
-  nakyma.hidden = false;
+  siirraAvain($('avainPaikka'), () => {
+    document.querySelector('main').classList.add('avainAuki');
+    nakyma.hidden = false;
+  });
   avainNappi.setAttribute('aria-expanded', 'true');
   kentta.value = state.lause || '';
   $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
   avainTila(''); vahvistus = null;
   paivitaSutkauta();
-  kentta.focus();
+  kentta.focus({ preventScroll: true });
 }
 function suljeNakyma(){
-  document.querySelector('main').classList.remove('avainAuki');
-  nakyma.hidden = true;
+  siirraAvain(avainKoti, () => {
+    document.querySelector('main').classList.remove('avainAuki');
+    nakyma.hidden = true;
+  });
   avainNappi.setAttribute('aria-expanded', 'false');
   $('avainOhje').hidden = true;
   $('avainInfo').setAttribute('aria-expanded', 'false');
