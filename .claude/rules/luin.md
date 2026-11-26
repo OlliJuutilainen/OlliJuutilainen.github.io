@@ -269,8 +269,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   asetuksissa tai `#l=`:llä. Linkkien mitat em:inä, joten kammet, renkaat ja nuolet seuraavat kokoa. Sanat
   *Luin.* ja *Poimi pinoon* ovat käyttäjän. Valinnan merkki on asetusten kytkimen salmiakki (ei ruutua: "ei Windows 95").
 - **Ö-mappi** (käyttäjän nimi; `#omappi`; opas 2.4): taipuu *ö-mappiin*, *ö-mapissa*, *ö-mapista*. Kellarin veivihyllystön
-  nimikkeen ja valittujen valikon HYLLYTYS-alavalikossa pinoon noston rinnalla *Laita ö-mappiin* (vahvistus *Laitetaanko teksti mappiin ö?*,
-  *Joo* / *Öö ei*; käyttäjän sanat), sieltä *Poimi kellarin veivihyllystöön*. `e.omappi` (aika)
+  nimikkeen ja valittujen valikon HYLLYTYS-alavalikossa pinoon noston rinnalla *Laita ö-mappiin* (vahvistus *Laitetaanko ö-mappiin?*,
+  *Jöö* / *Öö ei*; käyttäjän sanat), sieltä *Poimi kellarin veivihyllystöön*. `e.omappi` (aika)
   lisätään, `e.luettu` jää; ö-mapin teksti ei näy pinossa eikä kellarissa. Linkki (`#om-linkki`, *ö-mappi*) on kellarin alalaidassa vain,
   kun siellä on jotain, ja kuin kellarilinkki (käyttäjän linjaus): kammen paikalla Ö on mappisulkimen rengas, jonka litteästä pohjasta
   alleviivaus jatkuu oikealle nuoleen. Alalaidan linkkien tekstit ovat ilman paikallissijoja (käyttäjän päätös): *kellarin veivihyllystö*,
@@ -495,7 +495,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   kirjallisuusluettelon DOI-linkit. Kuvat näkyvät linkkeinä, koska lukija ei hae mitään kolmannelta osapuolelta.
 - **Sanat ovat käyttäjän**: *kirjaus* (alleviivaukseen liitetty muistiinpano; käyttöliittymässä aina tämä sana),
   *Sisälmys* eikä *Sisällys* tai *sisällysluettelo* (ensisijainen nimi navissa, tekstin alun otsikossa ja ohjeiden otsikoissa; asetuksissa *Sisällysluettelo*, koska *Sisälmys* ei toimi yksin ilman kontekstia; ohjeiden juoksevassa tekstissä *sisällysluettelo* käy vaihteluna, ja vieraan sivuston sisällysluettelo on sisällysluettelo). Peruutusnappi on *älä!* (pienellä, huutomerkillä, kursiivi,
-  `--harmaa`), ei *Ei*; poikkeuksina käyttäjän leikilliset parit *Olen* / *En* (Hyllystä) ja *Joo* / *Öö ei* (Laita ö-mappiin). Latomon tyhjennyksen vahvistus on pelkkä *Oletko aivan varma?* ilman lainausmerkkejä ja sanojan
+  `--harmaa`), ei *Ei*; poikkeuksina käyttäjän leikilliset parit *Olen* / *En* (Hyllystä) ja *Jöö* / *Öö ei* (Laita ö-mappiin). Latomon tyhjennyksen vahvistus on pelkkä *Oletko aivan varma?* ilman lainausmerkkejä ja sanojan
   nimeä (ei sitaattivitsejä; älä palauta). Latomon pääpainike on *Avaa lukimessa*.
 - **iA Writer -pohjasta (`luin/ia-writer/`) on luovuttu**, koska se ei toimi käyttäjän iA Writerissä: älä tarjoa
   sitä ratkaisuksi äläkä kehitä sitä. Tavoite on vain, että sama md näyttää iA Writerin oletusesikatselussa
