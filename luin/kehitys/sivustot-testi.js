@@ -5,7 +5,7 @@
 // vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
 // Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 // Osumat sivustoittain: yksi rivi sivustoa kohden (nimi ja määrä), napautus avaa ja sulkee, näytä lisää, ainoa ryhmä auki.
-// Haku-rivi: tekijä mukaan tai pois, asiasana. Korien nimet (uskonto, laki ja lääketiede, yleiset, fennomaanit) ja Problemoksen
+// Haku-rivi: tekijä mukaan tai pois, asiasana. Hakukieli: lainausmerkit, OR, NOT ja sulut. Korien nimet (uskonto, laki ja lääketiede, yleiset, fennomaanit) ja Problemoksen
 // alkukieliset otsikot.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -128,6 +128,30 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   o = await osumat('fänrik ståls');
   t('fänrik ståls + fennomaanit: alkukielinen Wikisourcessa, Projekt Runebergissa ja Litteraturbankenissa', ['Wikisource', 'Projekt Runeberg', 'Litteraturbanken']
     .every(n => o.some(x => x.s === n && /Fänrik Ståls sägner/i.test(x.o))), o.map(x => x.s + ': ' + x.o).slice(0, 8).join(' | '));
+  await page.click('#s-tyhjenna');
+  // Hakukieli (käyttäjän päätös: perus-boolean): lainausmerkeissä kokonainen sana tai fraasi, OR sitoo tiukemmin kuin AND,
+  // NOT karsii, pienet and/or ovat hakusanoja ja irrallinen operaattori ohitetaan.
+  const lkm = async q => { await osumat(q); return (await ryhmat()).reduce((n, x) => n + x.n, 0); };
+  await nappi('kentta', 'otsikko');
+  const pSt = await lkm('"paul" st'), pSa = await lkm('"paul" saint'), pMol = await lkm('"paul" st saint'), pTai = await lkm('"paul" st OR saint');
+  t('"paul" st OR saint: yhdiste', pTai > pSt && pTai > pSa && pTai === pSt + pSa - pMol, [pSt, pSa, pMol, pTai].join(' / '));
+  t('sulut: "paul" (st OR saint) ja ("paul" st) OR ("paul" saint) samat', await lkm('"paul" (st OR saint)') === pTai && await lkm('("paul" st) OR ("paul" saint)') === pTai);
+  o = await osumat('"paul" st OR saint');
+  t('lainausmerkeissä kokonainen sana (ei Pauline, Paula)', o.length > 0 && o.every(x => /(^|[^\p{L}\p{N}])paul(?![\p{L}\p{N}])/iu.test(x.o)), o.filter(x => !/paul(?![\p{L}])/i.test(x.o)).map(x => x.o).slice(0, 3).join(' | '));
+  t('ilman lainausmerkkejä sanan alku (Pauline mukana)', (await osumat('paul st')).some(x => /pauline/i.test(x.o)));
+  o = await osumat('"st paul"');
+  t('fraasi: "st paul" osuu St. Pauliin ja St Pauliin', o.length > 0 && o.some(x => /St\. Paul/.test(x.o)) && o.every(x => /(^|[^\p{L}])st[^\p{L}\p{N}]+paul(?![\p{L}\p{N}])/iu.test(x.o)), o.map(x => x.o).slice(0, 4).join(' | '));
+  const eiKat = await lkm('"paul" st OR saint NOT cathedral');
+  t('NOT karsii', eiKat > 0 && eiKat < pTai && !(await nakyvat()).some(x => /cathedral/i.test(x.o)), eiKat + ' < ' + pTai);
+  const pS = await lkm('paul st');
+  t('paul AND st = paul st; irrallinen OR ja NOT ohitetaan', await lkm('paul AND st') === pS && await lkm('paul st OR') === pS && await lkm('paul st NOT') === pS);
+  t('pienet and/or ovat hakusanoja', await lkm('paul or st') < pS);
+  await page.click('#s-tyhjenna');
+  await page.fill('#s-haku', 'NOT paul'); await page.waitForTimeout(300);
+  t('pelkkä NOT ei hae otsikoita', await page.evaluate(() => document.getElementById('otsikot').hidden));
+  await page.fill('#s-haku', 'wiki NOT wikisource'); await page.waitForTimeout(300);
+  const wn = await nimet();
+  t('sivustolista: NOT ja OR', wn.length === 2 && !wn.includes('Wikisource') && (await (async () => { await page.fill('#s-haku', 'wikisource OR gutenberg'); await page.waitForTimeout(300); return nimet(); })()).length === 3, wn.join(' | '));
   await page.click('#s-tyhjenna');
   // Problemos: liettuankielinen artikkeli alkukielisellä otsikolla, englanninkielinen otsikko löytää sen.
   o = await osumat('efficiency training specialists');
