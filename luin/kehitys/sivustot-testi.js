@@ -2,19 +2,21 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]
 // Tarkistaa: kaikki sivustot alussa; korit mukaan (tai saman rivin sisällä, ja rivien välillä), pois karsii pääkorin tai
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
-// vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan.
+// vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
+// osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const JUURI = path.resolve(__dirname, '../..'), ULOS = process.argv[2];
 const palvelin = http.createServer((q, r) => { const p = path.join(JUURI, decodeURIComponent(q.url.split(/[?#]/)[0]));
   if (!fs.existsSync(p) || fs.statSync(p).isDirectory()) { r.writeHead(404); return r.end(); }
-  r.writeHead(200, { 'Content-Type': { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png' }[path.extname(p)] || 'application/octet-stream' }); fs.createReadStream(p).pipe(r); });
+  r.writeHead(200, { 'Content-Type': { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8' }[path.extname(p)] || 'application/octet-stream' }); fs.createReadStream(p).pipe(r); });
 let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK   ' : 'VIKA ') + n + (x ? ' – ' + x : '')); };
 (async () => {
   await new Promise(r => palvelin.listen(0, r)); const U = 'http://localhost:' + palvelin.address().port + '/';
   const b = await chromium.launch(), virheet = [];
   const page = await (await b.newContext({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 2 })).newPage();
   page.on('pageerror', e => virheet.push(e.message));
+  let luettelo = 0; page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; });
   await page.goto(U + 'luin/sivustot.html'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
   const nak = () => page.$$eval('ul.sivustot li:not([hidden])', l => l.length);
   const nimet = () => page.$$eval('ul.sivustot li:not([hidden]) > a:first-of-type', l => l.map(x => x.textContent.trim()));
@@ -44,6 +46,28 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('haku kant', (await nimet()).length >= 2, (await nimet()).join(' | '));
   await page.click('#s-tyhjenna');
   t('hakukenttä tyhjenee', await page.inputValue('#s-haku') === '' && await nak() === kaikki);
+  // Otsikkohaku.
+  const osumat = async q => {
+    await page.fill('#s-haku', q); await page.waitForTimeout(300);
+    await page.waitForFunction(() => !/ladataan/.test(document.getElementById('o-tila').textContent), null, { timeout: 20000 });
+    return page.$$eval('#osumat li', l => l.map(x => ({ o: x.querySelector('a').textContent, h: x.querySelector('a').href, s: x.querySelector('.mika').textContent })));
+  };
+  t('otsikkoluetteloa ei ladata ennen hakua', luettelo === 0, String(luettelo));
+  let o = await osumat('hegel logic');
+  t('hegel logic: NDPR:n arvio, slug purkautuu', o.some(x => x.o === 'Hegel’s Logic and Metaphysics' && x.h === 'https://ndpr.nd.edu/reviews/hegels-logic-and-metaphysics/'), o.slice(0, 3).map(x => x.h).join(' '));
+  t('luettelo ladattiin kerran', luettelo === 1, String(luettelo));
+  o = await osumat('cicero de officiis');
+  t('cicero de officiis: Latin Library, etuliite purkautuu', o.some(x => x.h === 'https://www.thelatinlibrary.com/cicero/off.shtml'), o.map(x => x.h).join(' '));
+  t('osoitteet ehjiä', o.every(x => /^https?:\/\/[^\s\u0001]+$/.test(x.h)));
+  o = await osumat('kant');
+  const kantKaikki = Number((await page.textContent('#o-tila')).replace(/\D/g, ''));
+  await nappi('kieli', 'suomi'); await page.waitForTimeout(100);
+  o = await page.$$eval('#osumat li', l => l.map(x => x.querySelector('.mika').textContent));
+  t('kant + suomi: vain suomenkielisiä sivustoja', o.length > 0 && o.length < kantKaikki && o.every(x => /Ensyklopedia Logos|Snellman|SLS/.test(x)), o.join(' | '));
+  t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === o.length);
+  await page.click('#s-tyhjenna'); await page.fill('#s-haku', 'he'); await page.waitForTimeout(300);
+  t('alle kolme kirjainta: osumat piilossa', await page.evaluate(() => document.getElementById('otsikot').hidden));
+  await page.click('#s-tyhjenna');
   // Kirjainhyppy toimii yhä.
   await page.click('nav.aakkoset a[href="#k-S"]'); await page.waitForTimeout(150);
   t('kirjainhyppy S', await page.evaluate(() => { const h = document.getElementById('k-S').getBoundingClientRect(); return h.top >= 0 && h.top < 300; }));
