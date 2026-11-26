@@ -96,6 +96,9 @@ const TEKSTIT = [
   tulos('oletus: käsikirjasto ylimpänä, muut luettu-järjestyksessä', nimet(r) === '[Käsikirjasto 1] | Raamattu | [Luetut 6] | Georg Wilhelm Friedrich Hegel | Kirjeitä Luciliukselle | Tekstejä rautakauden Levantista | Septuaginta | Hegel’s Phenomenology | Tiede ja usko', nimet(r));
   tulos('tietorivillä asiasanat, käsikirjan kertoo välikortti', r.some(x => /Hegel’s.*filosofia, Hegel/.test(x)) && !r.some(x => /käsikirja/.test(x)), r.join(' / '));
   tulos('järjestysrivi näkyy', await page.evaluate(() => !document.getElementById('jarj-rivi').hidden && document.getElementById('jarj-arvo').textContent === 'luetuksi merkitsemisen mukaan'));
+  // Järjestys-nappi: vain nuoli ja järjestys, nimi aria-labelissa; kellarissa ei hakua.
+  tulos('Järjestys-nappi ilman nimitekstiä, nimi aria-labelissa; ei hakua', await page.evaluate(() => { const b = document.getElementById('jarj');
+    return !/Järjestys/.test(b.textContent) && b.getAttribute('aria-label') === 'Järjestys: ' + b.textContent && !document.getElementById('kk-etsi') && !document.getElementById('kk-haku'); }));
 
   r = await kellari('ajoitus');
   tulos('ajoitus: käsikirjasto ylimpänä, eaa. ennen jaa., Hegel-tutkimus Hegelin vuoteen', nimet(r) ===

@@ -285,7 +285,7 @@
   ul.nimikkeet { list-style: none; margin: 0; padding: 0; }
   /* Kellarin veivihyllystön järjestys ja kortiston välikortit (käyttäjän pyyntö 17.11.2026): versaali, harva, harmaa; ei viivoja,
      salmiakkeja eikä värejä, koska nimikkeiden omat viivat erottavat jo. */
-  /* Järjestys- ja Etsi-napit (lukimen laatikkonapit). */
+  /* Järjestys-nappi (lukimen laatikkonappi). */
   .kk-napit { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; margin: 0 0 8px; }
   .kk-napit[hidden], .jarj-linkit[hidden] { display: none; }
   /* Pienet ja himmeät (käyttäjän päätös): otsikon kokoinen teksti, kehys viivan värinen, merkki ja teksti harmaat. */
@@ -294,16 +294,9 @@
   /* Järjestys kutistuu, ja pitkä järjestys rivittyy kapealla ruudulla napin sisällä. */
   .laatikko.kk-jarj { flex: 0 1 auto; min-width: 0; text-align: left; }
   .kk-jarj .kk-arvo { padding: 4px 0; line-height: 1.25; }
-  /* Etsi oikealla, mutta oikea reuna 17 px listan reunasta: nimikkeiden valikkonapin salmiakit (muste 7,6–12,4 px reunasta) eivät
-     ole sen kohdalla x-akselilla (käyttäjän päätös). */
-  #kk-etsi { flex: 0 0 auto; margin-right: 17px; }
-  #kk-etsi svg { width: 15px; height: 15px; position: relative; top: 1px; }
   .jarj-linkit { margin: -2px 0 6px; font-size: .74rem; line-height: 1.6; color: var(--harmaa); letter-spacing: .02em; }
   #sanasto-osa[hidden] + #kortit-osa .erotin { display: none; }
-  #lista:not(.arkisto) .kk-napit, #lista:not(.arkisto) .jarj-linkit, #lista:not(.arkisto) .kk-haku { display: none; }
-  /* Kellarin haku nappien alla: Etsi-laatikon kenttä ilman laatikon sivuvaraa. */
-  .h-kentta.kk-haku { margin: 4px 0 10px; }
-  .h-kentta.kk-haku[hidden] { display: none; }
+  #lista:not(.arkisto) .kk-napit, #lista:not(.arkisto) .jarj-linkit { display: none; }
   .jarj-linkit button { color: var(--ruoste); padding: 6px 0; text-decoration: underline; text-decoration-color: var(--viiva); text-underline-offset: 3px; }
   li.valiots { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 26px 0 3px;
     font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--harmaa); font-variant-numeric: lining-nums; }
@@ -725,13 +718,13 @@
   /* Kenttä 16 px, jotta iOS ei suurenna sivua kohdistettaessa. Selaimen oma (sininen) tyhjennysmerkki
      korvataan ohuella raksilla. */
   .h-kentta { position: relative; flex: 0 0 auto; margin: 12px 14px 0; }
-  #haku input, #kk-haku input { display: block; width: 100%; padding: 7px 36px 7px 9px; font: inherit; font-size: 1rem;
+  #haku input { display: block; width: 100%; padding: 7px 36px 7px 9px; font: inherit; font-size: 1rem;
     color: var(--muste); background: var(--paperi); border: 1px solid var(--viiva); border-radius: 0; -webkit-appearance: none; appearance: none; }
-  #haku input:focus, #kk-haku input:focus { outline: none; border-color: var(--harmaa); }
-  #haku input::-webkit-search-cancel-button, #kk-haku input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
-  #haku button.h-tyhj, #kk-haku button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
+  #haku input:focus { outline: none; border-color: var(--harmaa); }
+  #haku input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  #haku button.h-tyhj { position: absolute; top: 0; right: 0; bottom: 0; width: 36px; min-height: 0; padding: 0;
     display: inline-flex; align-items: center; justify-content: center; color: var(--harmaa); }
-  #haku button.h-tyhj svg, #kk-haku button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
+  #haku button.h-tyhj svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 1.2; fill: none; }
   .h-ala { display: flex; flex: 0 0 auto; align-items: flex-start; }
   .h-tieto { flex: 1 1 auto; padding: 7px 14px 9px; font-size: .74rem; color: var(--harmaa); line-height: 1.45; font-variant-numeric: lining-nums; }
   /* Alaviitteet mukaan -kytkin: hyvin matalalla profiililla osumatiedon oikealla puolella, asetusten
@@ -1698,15 +1691,12 @@
   <div class="ots-rivi"><button type="button" class="valitse" id="valitse-kaikki" aria-pressed="false" aria-label="Valitse kaikki" title="Valitse kaikki"></button>
     <h2 class="ots" id="lista-ots">Pino</h2><span class="val-maara" id="val-maara" hidden></span>
     <button type="button" class="jako val-valikko" id="val-valikko" aria-label="Valittujen toiminnot" title="Valittujen toiminnot" hidden></button></div>
-  <!-- Kellarin veivihyllystön napit lukimen laatikkonappien muodossa (käyttäjän päätös): vasemmalla Järjestys, jossa on vain
-       lajittelunuoli ja voimassa oleva järjestys (nimi aria-labelissa ja vihjeenä), oikealla Etsi. Pino on aina tulojärjestyksessä. -->
-  <div class="kk-napit" id="jarj-rivi" hidden><button type="button" class="laatikko kk-jarj" id="jarj" aria-haspopup="true" title="Järjestys"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-viiva" d="M.5 1.5H8.5M.5 5.5H6.5M.5 9.5H4.5M11.5 .5V10M9.5 8L11.5 10L13.5 8"/></svg><span class="kk-arvo" id="jarj-arvo"></span></button><button type="button" class="laatikko" id="kk-etsi" aria-expanded="false" aria-controls="kk-haku"><svg viewBox="0 0 18.08 18.08" aria-hidden="true"><path class="l-viiva" style="stroke-width:.9" d="M8.07 1.27L14.87 8.07L8.07 14.87L1.27 8.07ZM8.07 2.91L13.23 8.07L8.07 13.23L2.91 8.07Z"/><path class="l-viiva" style="stroke-width:1.6" d="M11.47 11.47L17.15 17.15"/></svg>Etsi</button></div>
-  <!-- Kellarin haku: suodattaa nimikkeet kuten välikortti (kkHaku()). -->
-  <div class="h-kentta kk-haku" id="kk-haku" hidden><input type="search" aria-label="Etsi kellarin veivihyllystöstä" placeholder="otsikko, tekijä tai asiasana" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="h-tyhj" aria-label="Tyhjennä" title="Tyhjennä" hidden><svg viewBox="0 0 10 10"><path d="M1 1L9 9M9 1L1 9"/></svg></button></div>
+  <!-- Kellarin veivihyllystön Järjestys lukimen laatikkonapin muodossa (käyttäjän päätös): vain lajittelunuoli ja voimassa
+       oleva järjestys (nimi aria-labelissa ja vihjeenä). Pino on aina tulojärjestyksessä. -->
+  <div class="kk-napit" id="jarj-rivi" hidden><button type="button" class="laatikko kk-jarj" id="jarj" aria-haspopup="true" title="Järjestys"><svg viewBox="0 0 14 11" aria-hidden="true"><path class="l-viiva" d="M.5 1.5H8.5M.5 5.5H6.5M.5 9.5H4.5M11.5 .5V10M9.5 8L11.5 10L13.5 8"/></svg><span class="kk-arvo" id="jarj-arvo"></span></button></div>
   <!-- Sanasto (kun asiasanoja on) ja kaikki kortit (välikortin suodatuksessa) pieninä linkkeinä nappien alla. -->
   <p class="jarj-linkit" id="jarj-linkit" hidden><span id="sanasto-osa" hidden><button type="button" id="sanasto" aria-haspopup="true">sanasto</button></span><span id="kortit-osa" hidden><span class="erotin"> · </span><button type="button" id="kortit">kaikki kortit</button></span></p>
   <ul class="nimikkeet" id="nimikkeet"></ul>
-  <p class="tyhja" id="kk-ei" hidden>Ei osumia.</p>
   <p class="tyhja" id="tyhja" hidden>Pino on tyhjä. Tekstit tulevat tänne latomosta tai
     linkistä, joka avaa tekstin lukimessa.</p>
   <p class="viesti" id="viesti" hidden></p>
@@ -3089,21 +3079,9 @@
     var a = pinoJarj(lista.filter(function (e) { return ark ? kellarissa(e) || aset.kellariPino && pinossa(e) : pinossa(e); }));
     return ark ? a.sort(function (x, y) { return (y.luettu || 0) - (x.luettu || 0); }) : a;
   }
-  // Kellarin haku (Etsi-nappi): jokaisen sanan pitää alkaa otsikosta, alaotsikosta, tekijästä, sivustosta tai
-  // asiasanasta; kirjainkoko ja tarkkeet eivät vaikuta (Nagarjuna löytää Nāgārjunan). Vain kellarin veivihyllystössä.
-  function kkNorm(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
-  function kkHaku(es) {
-    var q = tila.arkisto && !tila.omappi ? kkNorm(tila.kHaku).split(/\s+/).filter(Boolean) : [];
-    if (!q.length) return es;
-    var re = q.map(function (w) { return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'u'); });
-    return es.filter(function (e) {
-      var t = kkNorm([e.title, e.ala != null ? e.ala : e.sub, e.author, e.sivusto, (e.asiasanat || []).join(' | ')].join(' | '));
-      return re.every(function (r) { return r.test(t); });
-    });
-  }
-  // Näkyvät nimikkeet: välikortin suodatuksessa vain sen ryhmä (tila.kortti, tila.korttiEs), muuten naytettavat() haun
-  // jälkeen. Valinta ja Valitse kaikki koskevat näkyviä, jotta suodatetun ryhmän (Ilman asiasanaa) voi luokitella kerralla.
-  function nakyvat() { return tila.arkisto && tila.kortti && tila.korttiEs ? tila.korttiEs : kkHaku(naytettavat(tila.arkisto)); }
+  // Näkyvät nimikkeet: välikortin suodatuksessa vain sen ryhmä (tila.kortti, tila.korttiEs), muuten naytettavat(). Valinta ja
+  // Valitse kaikki koskevat näkyviä, jotta suodatetun ryhmän (Ilman asiasanaa) voi luokitella kerralla.
+  function nakyvat() { return tila.arkisto && tila.kortti && tila.korttiEs ? tila.korttiEs : naytettavat(tila.arkisto); }
   function naytaLista(ark, om) {
     ark = !!ark; om = ark && !!om;
     tallennaKohta(true);
@@ -3111,7 +3089,7 @@
     var vaihtui = ark !== !!tila.arkisto || om !== !!tila.omappi;
     if (vaihtui && tila.nakyma === 'lista') viesti('');
     if (vaihtui || tila.nakyma !== 'lista') valitut = {};
-    if (vaihtui) { tila.kortti = null; tila.kHaku = ''; tila.kHakuAuki = false; }
+    if (vaihtui) tila.kortti = null;
     nyt = null; tila.nakyma = 'lista'; tila.arkisto = ark; tila.omappi = om;
     document.body.classList.remove('sivutus', 'reunat');
     document.documentElement.classList.remove('palkkivara');
@@ -3174,7 +3152,7 @@
       '<button class="jako" type="button" data-id="' + esc(e.id) + '" aria-label="Toiminnot: ' + esc(e.title) + '">' + KOLME + '</button></li>';
   }
   function piirraNimikkeet() {
-    var ark = tila.arkisto, kaikki = naytettavat(ark), nak = kkHaku(kaikki), ul = $('#nimikkeet');
+    var ark = tila.arkisto, nak = naytettavat(ark), ul = $('#nimikkeet');
     if (ark) lkTaydenna();
     var ryhmat = ark && !tila.omappi ? jarjesta(nak) : [{ es: nak }];
     // Välikortin suodatus: vain valittu ryhmä; jos sitä ei enää ole (järjestys vaihtui, ryhmä tyhjeni), kaikki.
@@ -3189,8 +3167,7 @@
         esc(r.ots) + ': ' + (kortti ? 'näytä kaikki kortit' : 'näytä vain tämä kortti') + '"><span>' + esc(r.ots) + '</span><span class="vo-lkm">' + r.es.length + '</span></button></li>' : '') +
         r.es.map(function (e) { return nimikeRivi(e, ark); }).join('');
     }).join('');
-    $('#tyhja').hidden = kaikki.length > 0;
-    $('#kk-ei').hidden = !kaikki.length || nak.length > 0;
+    $('#tyhja').hidden = nak.length > 0;
     taydennaAla();
     $('#ark-linkki').hidden = ark || !lista.some(kellarissa);
     $('#huilu-soita').hidden = ark || !LAATIKKO_RE.test(laatikonKoodi());
@@ -3198,12 +3175,7 @@
     $('#ark-paluu').hidden = !tila.omappi;
     $('#ark-pinoon').hidden = !ark || tila.omappi;
     // Järjestyksen valinta vain kellarin veivihyllystössä ja vain, kun järjestettävää on.
-    $('#jarj-rivi').hidden = !ark || tila.omappi || kaikki.length < 2 && !aset.kellariPino;
-    var hakuAuki = !$('#jarj-rivi').hidden && (!!tila.kHakuAuki || !!tila.kHaku);
-    $('#kk-haku').hidden = !hakuAuki;
-    $('#kk-etsi').setAttribute('aria-expanded', String(hakuAuki));
-    if ($('#kk-haku input').value !== (tila.kHaku || '')) $('#kk-haku input').value = tila.kHaku || '';
-    $('#kk-haku .h-tyhj').hidden = !tila.kHaku;
+    $('#jarj-rivi').hidden = !ark || tila.omappi || nak.length < 2 && !aset.kellariPino;
     var jarjArvo = JARJ.filter(function (j) { return j[0] === jarjNyt(); })[0][1];
     $('#jarj-arvo').textContent = jarjArvo;
     $('#jarj').setAttribute('aria-label', 'Järjestys: ' + jarjArvo);
@@ -3795,19 +3767,6 @@
     if (b) suodataKortti(b.dataset.ots);
   });
   $('#kortit').addEventListener('click', function () { suodataKortti(null); });
-  // Kellarin haku: etsi avaa kentän, toinen napautus tai Esc sulkee ja tyhjentää; kirjoitus suodattaa heti.
-  function kkHakuTila(auki, q) {
-    tila.kHakuAuki = auki; tila.kHaku = auki ? q : '';
-    piirraNimikkeet();
-    if (auki) $('#kk-haku input').focus({ preventScroll: true });
-  }
-  $('#kk-etsi').addEventListener('click', function () { kkHakuTila(!(tila.kHakuAuki || tila.kHaku), ''); });
-  $('#kk-haku input').addEventListener('input', function () { tila.kHaku = this.value; piirraNimikkeet(); });
-  $('#kk-haku input').addEventListener('keydown', function (ev) {
-    if (ev.key === 'Escape') { ev.preventDefault(); kkHakuTila(false, ''); $('#kk-etsi').focus(); }
-    else if (ev.key === 'Enter') { ev.preventDefault(); this.blur(); }
-  });
-  $('#kk-haku .h-tyhj').addEventListener('click', function () { kkHakuTila(true, ''); });
   $('#valitse-kaikki').innerHTML = VALITSE; $('#val-valikko').innerHTML = KOLME;
   $('#valitse-kaikki').addEventListener('click', function () {
     var nak = nakyvat(), kaikki = nak.length && valitutEt().length === nak.length;
