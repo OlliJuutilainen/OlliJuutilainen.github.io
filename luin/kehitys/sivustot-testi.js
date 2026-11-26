@@ -19,8 +19,9 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const b = await chromium.launch(), virheet = [];
   const page = await (await b.newContext({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 2 })).newPage();
   page.on('pageerror', e => virheet.push(e.message));
-  let luettelo = 0, gutenberg = 0;
-  page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; if (r.url().endsWith('/hakemisto/otsikot-gutenberg.txt')) gutenberg++; });
+  let luettelo = 0, gutenberg = 0, pohjola = 0;
+  page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; if (r.url().endsWith('/hakemisto/otsikot-gutenberg.txt')) gutenberg++;
+    if (r.url().endsWith('/hakemisto/otsikot-pohjola.txt')) pohjola++; });
   await page.goto(U + 'luin/sivustot.html'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
   const nak = () => page.$$eval('ul.sivustot li:not([hidden])', l => l.length);
   const nimet = () => page.$$eval('ul.sivustot li:not([hidden]) > a:first-of-type', l => l.map(x => x.textContent.trim()));
@@ -52,17 +53,17 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('hakukenttä tyhjenee', await page.inputValue('#s-haku') === '' && await nak() === kaikki);
   // Otsikkohaku. osumat() avaa kaikki ryhmät ja palauttaa niiden näkyvät osumat (s = ryhmän sivusto, t = tekijä tai asiasana).
   const odota = async () => { await page.waitForTimeout(300);
-    await page.waitForFunction(() => !/ladataan|latautuu/.test(document.getElementById('o-tila').textContent), null, { timeout: 30000 }); };
+    await page.waitForFunction(() => !/ladataan|latautu/.test(document.getElementById('o-tila').textContent), null, { timeout: 30000 }); };
   const ryhmat = () => page.$$eval('#osumat > li', l => l.map(x => ({ s: x.getAttribute('data-sivu'), n: +x.querySelector('.r-otsake .n').textContent,
     auki: x.querySelector('.r-otsake').getAttribute('aria-expanded') === 'true', nak: x.querySelectorAll('ol.osumat > li').length })));
   const nakyvat = () => page.$$eval('#osumat ol.osumat > li', l => l.map(x => ({ o: x.querySelector('a').textContent, h: x.querySelector('a').href,
     s: x.closest('li[data-sivu]').getAttribute('data-sivu'), t: (x.querySelector('.mika') || {}).textContent || '' })));
   const avaaKaikki = () => page.$$eval('#osumat button.r-otsake[aria-expanded="false"]', l => l.forEach(b => b.click()));
   const osumat = async q => { if (q != null) await page.fill('#s-haku', q); await odota(); await avaaKaikki(); return nakyvat(); };
-  t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg === 0, String(luettelo + gutenberg));
+  t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg + pohjola === 0, String(luettelo + gutenberg + pohjola));
   let o = await osumat('hegel logic');
   t('hegel logic: NDPR:n arvio, slug purkautuu', o.some(x => x.o === 'Hegel’s Logic and Metaphysics' && x.h === 'https://ndpr.nd.edu/reviews/hegels-logic-and-metaphysics/'), o.slice(0, 3).map(x => x.h).join(' '));
-  t('ydin ja Gutenberg ladattiin kerran', luettelo === 1 && gutenberg === 1, luettelo + ' ' + gutenberg);
+  t('ydin, Gutenberg ja pohjoismaiset ladattiin kerran', luettelo === 1 && gutenberg === 1 && pohjola === 1, luettelo + ' ' + gutenberg + ' ' + pohjola);
   o = await osumat('kalevala');
   t('kalevala: Gutenbergin teksti mukana', o.some(x => /^https:\/\/www\.gutenberg\.org\/ebooks\/\d+$/.test(x.h) && x.s === 'Project Gutenberg'), o.slice(0, 4).map(x => x.h).join(' '));
   o = await osumat('cicero de officiis');
@@ -116,9 +117,17 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   t('yleiset: Wikipedia ja kaikkiruokaiset', (await page.$$eval('ul.sivustot li:not([hidden])', l => l.map(x => x.textContent))).filter(x => /Wikipedia|Project Gutenberg|Substack|Visuotinė/.test(x)).length >= 5);
   await page.click('#s-tyhjenna');
   await nappi('aihe', 'fennomaanit');
-  t('fennomaanit: Snellman ja SLS', (await nimet()).join('|') === 'SLS:n digitaaliset editiot|J. V. Snellmanin kootut teokset' || (await nimet()).length === 2, (await nimet()).join(' | '));
+  // Fennomaanit (26.11.2026): piirin sivustot ja sivustot, joilla on piirin tekstejä (Runebergin teokset Gutenbergissa,
+  // Wikisourcessa, Projekt Runebergissa ja Litteraturbankenissa).
+  const fenno = await nimet();
+  t('fennomaanit: Snellman, SLS ja neljä sivustoa, joilla on piirin tekstejä', ['J. V. Snellmanin kootut teokset', 'SLS:n digitaaliset editiot', 'Project Gutenberg',
+    'Wikisource', 'Projekt Runeberg', 'Litteraturbanken'].every(n => fenno.includes(n)) && fenno.length === 6, fenno.join(' | '));
   o = await osumat('runeberg');
-  t('runeberg + fennomaanit: Gutenberg ja SLS', o.some(x => x.s === 'Project Gutenberg') && o.every(x => x.s !== 'Det Kgl. Biblioteks tekstportal'), [...new Set(o.map(x => x.s))].join(' | '));
+  t('runeberg + fennomaanit: Gutenberg, SLS, Wikisource, Projekt Runeberg ja Litteraturbanken', ['Project Gutenberg', 'SLS:n digitaaliset editiot', 'Wikisource',
+    'Projekt Runeberg', 'Litteraturbanken'].every(n => o.some(x => x.s === n)) && o.every(x => x.s !== 'Det Kgl. Biblioteks tekstportal'), [...new Set(o.map(x => x.s))].join(' | '));
+  o = await osumat('fänrik ståls');
+  t('fänrik ståls + fennomaanit: alkukielinen Wikisourcessa, Projekt Runebergissa ja Litteraturbankenissa', ['Wikisource', 'Projekt Runeberg', 'Litteraturbanken']
+    .every(n => o.some(x => x.s === n && /Fänrik Ståls sägner/i.test(x.o))), o.map(x => x.s + ': ' + x.o).slice(0, 8).join(' | '));
   await page.click('#s-tyhjenna');
   // Problemos: liettuankielinen artikkeli alkukielisellä otsikolla, englanninkielinen otsikko löytää sen.
   o = await osumat('efficiency training specialists');

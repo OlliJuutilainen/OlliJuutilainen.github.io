@@ -479,6 +479,8 @@ tulos('sivun lopun viitteet paluulinkillä', wp.notes === 2 && wp.html.includes(
   const h = M.parse('# T\n\nArvo \\[kaava\\] ja \\[sic\\] ovat.\n\n\\[Kaava (3) on lähteessä kuvana.\\]\n\n*Table 1. Arvot* \\[Taulukko on lähteessä kuvana.\\]\n').html;
   tulos('huomautus: [kaava] tekstissä span.huom, [sic] tekstiä', /Arvo <span class="huom">\[kaava\]<\/span> ja \[sic\] ovat\./.test(h), (h.match(/<p[^>]*>Arvo.*?<\/p>/) || [''])[0]);
   tulos('huomautus: kokonainen huomautus on p.huom', /<p class="huom"[^>]*><span class="huom">\[Kaava \(3\) on lähteessä kuvana\.\]<\/span><\/p>/.test(h));
+  const ko = M.parse('# T\n\n\\[Teksti on lähteessä koneluettu skannatuista sivuista; 3/40 sivua on oikoluettu.\\]\n\nVårt land.\n').html;
+  tulos('huomautus: koneluettu teksti on p.huom', /<p class="huom"[^>]*><span class="huom">\[Teksti on lähteessä koneluettu skannatuista sivuista; 3\/40 sivua on oikoluettu\.\]<\/span><\/p>/.test(ko), ko.slice(0, 300));
   tulos('huomautus: kuvatekstin perässä', /<p class="kuvateksti"[^>]*><em><span class="kt-nimi">Table 1\.<\/span> Arvot<\/em> <span class="huom">\[Taulukko on lähteessä kuvana\.\]<\/span><\/p>/.test(h), (h.match(/<p class="kuvateksti.*?<\/p>/) || [''])[0]);
   const k = M.parse('# T\n\n## A\n\nKun on niin, että\n\nx = y~i~\u2003(1)\n\nja sitoviin \u00a0\u00a0\u00a0 (2)\n\nmuu (3)\n').html;
   tulos('lohkokaava: em-väli tai sitovat välit ennen numeroa → p.kaava, pelkkä (3) ei', (k.match(/class="kaava"/g) || []).length === 2 && /<p[^>]*>muu \(3\)<\/p>/.test(k) && !/kaava"[^>]*>muu/.test(k), k);
