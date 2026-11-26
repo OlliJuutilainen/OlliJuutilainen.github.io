@@ -359,14 +359,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   (*sanasto*-linkki nappien alla): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
   **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai
   *kaikki kortit* palauttaa kaikki. Valinta ja valittujen valikko käyttävät `nakyvat()`a, ei `naytettavat()`a. Kortti pysyy
-  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Kellarin napit** (käyttäjän päätös):
-  lukimen laatikkonapit pieninä ja himmeinä (.74rem, 28 px, kehys `--viiva`, merkki ja teksti `--harmaa`: eivät sivun kirkkain
-  asia), vasemmalla *Järjestys*: vain lajittelunuoli ja voimassa oleva järjestys, ei nimitekstiä (nimi
-  `aria-label`issa ja vihjeenä; pitkä järjestys rivittyy napin sisällä). *Etsi* samalla rivillä oikealla, mutta oikea reuna
-  17 px listan reunasta, jotta nimikkeiden valikkonapin salmiakit eivät ole sen kohdalla x-akselilla, (käyttäjän päätös; testi mittaa raon ja
-  värin); *sanasto* ja *kaikki kortit* pieninä linkkeinä nappien alla. **Haku** (*Etsi*, `kkHaku()`)
-  suodattaa ennen järjestystä, joten välikortit, valinta ja `nakyvat()` koskevat osumia; nappirivin (`#jarj-rivi`) näkyvyys
-  lasketaan suodattamattomasta. Testi `kellarihaku-testi.js`. Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
+  harmaana (kortiston jakaja ilman värejä); ruoste on vain *kaikki kortit* -napissa. **Järjestys-nappi** (käyttäjän päätös):
+  lukimen laatikkonappi pienenä ja himmeänä (.74rem, 28 px, kehys `--viiva`, merkki ja teksti `--harmaa`: ei sivun kirkkain
+  asia), vain lajittelunuoli ja voimassa oleva järjestys, ei nimitekstiä (nimi `aria-label`issa ja vihjeenä; pitkä järjestys
+  rivittyy napin sisällä); *sanasto* ja *kaikki kortit* pieninä linkkeinä sen alla. Kellarissa ei ole hakua (käyttäjän päätös:
+  ei istu veivihyllystöön; ei palauteta kysymättä). Asiasanaehdotusten `LK_EHDOTUS` on Luinin korisanasto (käyttäjän päätös:
   sama kuin sovitesivustojen koreissa, ei alakoreja, Wikipedia vain *yleiset tietosanakirjat*); uudelle sovitteelle rivi sinne.
 - **Rahoitushuomautus** (käyttäjän päätös, opas 3.2 ja 7.5): sovitteiden sivustoja ei poisteta (Luin on myös
   itsenäisen käytön väline), mutta leike.js:n `RAHOITUS` kirjoittaa etukenttään `rahoitus:` ja md.js tekee tekstin alkuun
@@ -838,7 +835,6 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/laitos-testi.js [kuvakansio]`: tiedot ja uusi laitos pinosta Latomoon ja takaisin.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/omappi-testi.js [kuvakansio]`: ö-mappi, sen linkin rengas ja kellarin otsikon kampi.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/sivustot-testi.js [kuvakansio]`: tuettujen sivustojen haku ja korisuodattimet.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/kellarihaku-testi.js [kuvakansio]`: kellarin veivihyllystön haku (osumat, välikortit, valinta, sulkeminen, 360 px).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/linkki-testi.js [kuvakansio]`: Lataa md, Linkitä tiedostoon ja valikkojärjestys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/ulkoklikkaus-testi.js [kuvakansio]`: laatikon ohi napautus hiirellä ja kosketuksella, kopioi linkki -napin vihje.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valikko-testi.js [kuvakansio]`: ponnahdusvalikko pienellä ruudulla (vieritys, puolikas nappi, kierto, näppäimistö, leveys).
