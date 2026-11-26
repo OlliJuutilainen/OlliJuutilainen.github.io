@@ -188,7 +188,7 @@
      taustaan yli 3); kirkastuu osoitettaessa. Merkki jää otsikkorivin yläpuolelle kaikilla
      leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
   .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
-    color:var(--avain); line-height:0; transition:color .4s cubic-bezier(.3,.7,.2,1) }
+    color:var(--avain); line-height:0 }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
   .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
   /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
@@ -226,7 +226,7 @@
   .avainOhje b{ color:var(--text); font-weight:400 }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
-  @media (prefers-reduced-motion: reduce){ .slot, .slot svg, .avainNappi{ transition:none } }
+  @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
 </style>
 </head>
 <body>
@@ -982,28 +982,52 @@ async function tallennaHeti(){
 const nakyma = $('avainNakyma'), avainNappi = $('avainNappi'), kentta = $('lause');
 let vahvistus = null, kaynnissa = false;
 function avainTila(text, kind){ const el = $('avainTila'); el.textContent = text || ''; el.className = 'avainTila' + (kind ? ' ' + kind : ''); }
-/* Avain siirtyy nurkan ja näkymän välillä samalla käyrällä kuin salot paneelissa (FLIP: mitataan ennen ja jälkeen,
-   lähdetään vanhasta kohdasta ja koosta). Vähennetyllä liikkeellä vain paikka vaihtuu. */
+/* Avaimen siirtymä nurkan ja näkymän välillä (käyttäjän päätös, säädetty säätöpaneelissa): 310 ms; kiihdytys 82 %
+   ajasta tasaisella kiihtyvyydellä (nopeus kasvaa lineaarisesti), lyhyt tasainen vauhti ja jarrutus 15 % muodolla 2,6
+   (nopeus ∝ jäljellä olevan jarrutusajan 2,6. potenssi). Koko kasvaa suhteellisesti (geometrisesti), väri vaihtuu
+   samassa tahdissa ja muu näkymä häivyttyy esiin samalla käyrällä. Ruudut lasketaan itse Web Animations -animaatioksi
+   (FLIP: mitataan ennen ja jälkeen), koska käyrä ei ole cubic-bezier. Avaimen värille ei saa lisätä CSS-transitiota:
+   kaskadissa transitio voittaa animaation, ja väri lakkaisi seuraamasta liikettä. Vähennetyllä liikkeellä vain paikka vaihtuu. */
+const SIIRTYMA = { kesto: 310, kiih: .82, kiihM: 1, jarr: .15, jarrM: 2.6 };
+const siirtymaKayra = (({ kiih: a, kiihM: k, jarr: d, jarrM: m }) => {
+  const A = a / (k + 1), C = 1 - a - d, D = d / (m + 1), v = 1 / (A + C + D);
+  return t => t <= 0 ? 0 : t >= 1 ? 1
+    : t < a ? v * a / (k + 1) * Math.pow(t / a, k + 1)
+    : t <= 1 - d ? v * (A + t - a)
+    : v * (A + C + D * (1 - Math.pow((1 - t) / d, m + 1)));
+})(SIIRTYMA);
 const avainKoti = document.querySelector('.top');
-function siirraAvain(kohde, muutos){
-  const svg = avainNappi.querySelector('svg'), ennen = svg.getBoundingClientRect();
+let avainAnimaatiot = [];
+const rgbOsat = c => (c.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+function siirraAvain(kohde, muutos, esiin){
+  const svg = avainNappi.querySelector('svg'), ennen = svg.getBoundingClientRect(), variEnnen = getComputedStyle(avainNappi).color;
+  avainAnimaatiot.forEach(a => a.cancel()); avainAnimaatiot = [];
   muutos();
   kohde.append(avainNappi);
-  svg.style.transition = 'none'; svg.style.transform = '';
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const jalkeen = svg.getBoundingClientRect();
+  const jalkeen = svg.getBoundingClientRect(), variJalkeen = getComputedStyle(avainNappi).color;
   if (!ennen.height || !jalkeen.height) return;
+  const s0 = ennen.height / jalkeen.height, N = 48;
+  const c0 = [ennen.left + ennen.width / 2, ennen.top + ennen.height / 2], c1 = [jalkeen.left + jalkeen.width / 2, jalkeen.top + jalkeen.height / 2];
+  const v0 = rgbOsat(variEnnen), v1 = rgbOsat(variJalkeen), liike = [], vari = [], nakyvyys = [];
+  for (let i = 0; i <= N; i++){
+    const t = i / N, e = siirtymaKayra(t), sc = Math.pow(s0, 1 - e);
+    const tx = c0[0] + (c1[0] - c0[0]) * e - jalkeen.left - jalkeen.width * sc / 2;
+    const ty = c0[1] + (c1[1] - c0[1]) * e - jalkeen.top - jalkeen.height * sc / 2;
+    liike.push({ offset: t, transform: `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${sc.toFixed(4)})` });
+    vari.push({ offset: t, color: `rgb(${v0.map((x, j) => Math.round(x + (v1[j] - x) * e)).join(',')})` });
+    nakyvyys.push({ offset: t, opacity: e.toFixed(3) });
+  }
+  const ajoitus = { duration: SIIRTYMA.kesto, easing: 'linear' };
   svg.style.transformOrigin = '0 0';
-  svg.style.transform = `translate(${ennen.left - jalkeen.left}px, ${ennen.top - jalkeen.top}px) scale(${ennen.height / jalkeen.height})`;
-  svg.getBoundingClientRect();
-  svg.style.transition = 'transform .7s cubic-bezier(.3,.7,.2,1)';
-  svg.style.transform = '';
+  avainAnimaatiot.push(svg.animate(liike, ajoitus), avainNappi.animate(vari, ajoitus),
+    ...esiin.filter(el => el && !el.hidden).map(el => el.animate(nakyvyys, ajoitus)));
 }
 function avaaNakyma(){
   siirraAvain($('avainPaikka'), () => {
     document.querySelector('main').classList.add('avainAuki');
     nakyma.hidden = false;
-  });
+  }, [$('avainLomake')]);
   avainNappi.setAttribute('aria-expanded', 'true');
   kentta.value = state.lause || '';
   $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
@@ -1015,7 +1039,7 @@ function suljeNakyma(){
   siirraAvain(avainKoti, () => {
     document.querySelector('main').classList.remove('avainAuki');
     nakyma.hidden = true;
-  });
+  }, [$('viesti'), $('ui'), $('appPaneeli')]);
   avainNappi.setAttribute('aria-expanded', 'false');
   $('avainOhje').hidden = true;
   $('avainInfo').setAttribute('aria-expanded', 'false');
