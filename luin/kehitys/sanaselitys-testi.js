@@ -83,7 +83,9 @@ const S = {
   kuvaannollinen: { pop: 30, fi: ['Adjective', 'figurative'] },
   // Kielirajaus: espanja ja italia (sanaselityssivun kielivalikko), määritelmän linkit kielen kanssa ja ilman.
   casa: { pop: 70, es: ['Noun', 'house'], it: ['Noun', 'house, home'], la: ['Noun', 'hut, cottage'] },
-  quidditas: { pop: 10, la: ['Noun', 'whatness; compare <a rel="mw:WikiLink" href="./est#Latin" title="est">est</a> and <a rel="mw:WikiLink" href="./gut" title="gut">gut</a>'] }
+  quidditas: { pop: 10, la: ['Noun', 'whatness; compare <a rel="mw:WikiLink" href="./est#Latin" title="est">est</a> and <a rel="mw:WikiLink" href="./gut" title="gut">gut</a>'] },
+  // Termipankin rinnalla (sanaselityssivu): adekvaatti on molemmissa.
+  adekvaatti: { pop: 15, fi: ['Adjective', '(medicine) adequate'] }
 };
 const META = new Set(['pop', 'taulu']);
 // Etymologiat (action=parse) kuten oikea Wikisanakirja: kielen osio h2, Etymology tai Etymology 1, 2 … (h3), sanaluokat sen alla.
@@ -99,7 +101,46 @@ const E = {
   kanteli: { Finnish: ['A made-up etymology for <i>kanteli</i>.'] },
   kantele: { Finnish: [] },
   Kant: { English: ['From the surname of <a href="/wiki/Immanuel_Kant" title="x">Immanuel Kant</a>.', 'Second sense of Kant.'], German: ['From <span class="etyl">Middle High German</span> <i><a href="/wiki/kant#Middle_High_German">kant</a></i>.'] },
-  historia: { Latin: ['From Ancient Greek <i>ἱστορία</i> (Latin).'], Finnish: ['From <span class="etyl">Ancient Greek</span> <i class="Polyt mention" lang="grc"><a href="/wiki/%E1%BC%B1%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1#Ancient_Greek">ἱστορία</a></i>.'] }
+  historia: { Latin: ['From Ancient Greek <i>ἱστορία</i> (Latin).'], Finnish: ['From <span class="etyl">Ancient Greek</span> <i class="Polyt mention" lang="grc"><a href="/wiki/%E1%BC%B1%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1#Ancient_Greek">ἱστορία</a></i>.'] },
+  adekvaatti: { Finnish: ['Borrowed from Latin <i>adaequātus</i>.'] }
+};
+// Tekotermipankki (Tieteen termipankin rajapinta: generator=backlinks sivulle Nimitys:<sana>, prop=revisions; wikiteksti kuten
+// oikeissa käsitesivuissa 26.11.2026: Käsite-malline ja Liittyvä nimitys -mallineet). m = määritelmä_fi, l = lisätiedot_fi,
+// n = nimitykset [kieli, nimitys]. Terminologiaoppi:polysemia vain mainitsee käsitteen määritelmässään: ei saa tulla käsitteeksi.
+const TP = {
+  'Filosofia:adekvaatti': { ns: 1150, m: '<br>1. pätevä, luotettava käsitys<br>2. Spinozan ja Leibnizin filosofiassa korkeatasoinen, täsmällinen idea<br>3. Husserlilla puhdas elämys',
+    l: 'lat. adaequare=muistuttaa, olla yhtä<br>ks. [[Biologia:adekvaatti|adekvaatti]] myös biologiassa', n: [['suomi', 'adekvaatti'], ['englanti', 'adequate'], ['saksa', 'adäquat']] },
+  'Biologia:adekvaatti': { ns: 1112, l: "lat. ''adaequatus'' = tasoitettu", n: [['suomi', 'adekvaatti'], ['englanti', 'adequate']] },
+  'Filosofia:täälläolo': { ns: 1150, m: 'Heideggerin yleinen tulkinta ihmisenä olemisesta',
+    n: [['suomi', 'siellä oleva'], ['saksa', 'Dasein'], ['suomi', 'täälläolo'], ['englanti', 'being-there']] },
+  'Filosofia:intentionaalisuus': { ns: 1150, m: '<br>1. fenomenologiassa tietoisuuden olemuksellinen suuntautuminen mielen ulkopuoliseen objektiin<br>2. mielenfilosofiassa kriteeri mentaalisen erottamiseksi fyysisestä',
+    l: 'lat. intendo=osoittaa, tähdätä johonkin<br>ks. myös intentionaalisuus [[Kielitiede:intentionaalisuus|kielitieteessä]].',
+    n: [['suomi', 'intentionaalisuus'], ['suomi', 'suuntautuneisuus'], ['englanti', 'intentionality'], ['saksa', 'Intentionalität']] },
+  'Filosofia:käsite': { ns: 1150, m: 'ajattelun perusyksikkö tai ajatustiivistymä', n: [['suomi', 'käsite'], ['englanti', 'concept'], ['saksa', 'Begriff']] },
+  'Terminologiaoppi:polysemia': { ns: 1122, m: 'tietyssä kielessä esiintyvä [[Nimitys:nimitys|nimitysten]] ja [[Nimitys:käsite|käsitteiden]] välinen suhde', n: [['suomi', 'polysemia']] },
+  'Historia:historia': { ns: 1206, m: 'menneisyyden tapahtumat ja niiden tutkimus', n: [['suomi', 'historia'], ['englanti', 'history']] },
+  'Filosofia:olemus': { ns: 1150, m: '1. olion piirre, joka määrittää sen, mitä on olla kyseinen olio (olion yksilöolemus) \n\n2. olion piirre, joka määrittää lajin (olion lajiolemus)',
+    l: 'kr. eidos, ousia', n: [['suomi', 'olemus'], ['englanti', 'essence'], ['saksa', 'Wesen'], ['kreikka', 'ousia']] },
+  // Vain kana: termipankki vastaa virheellä (Wikisanakirjan selityksen pitää tulla silti).
+  'Kotieläintiede:kana': { ns: 1300, virhe: true, m: 'x', n: [['suomi', 'kana']] }
+};
+const tpPyynnot = [];
+function tpWiki(t) {
+  return '{{Käsite\n' + (t.m ? '|määritelmä_fi=' + t.m + '\n' : '') + (t.l ? '|lisätiedot_fi=' + t.l + '\n' : '') + '|tarkistettu=Kyllä\n}}\n' +
+    t.n.map(([k, n]) => '{{Liittyvä nimitys\n|kieli=' + k + '\n|nimitys=' + n + '\n|otsikossa=Kyllä\n|kursivoitu=Ei\n}}').join('\n');
+}
+const tpReitti = route => {
+  const u = new URL(route.request().url()), q = u.searchParams, h = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+  tpPyynnot.push(decodeURIComponent(u.pathname + u.search));
+  const nimi = (q.get('gbltitle') || '').replace(/^Nimitys:/, '');
+  const osuvat = Object.entries(TP).filter(([t, x]) => x.n.some(([, n]) => n === nimi) || (x.m || '').includes('[[Nimitys:' + nimi + '|'));
+  if (osuvat.some(([, x]) => x.virhe)) return route.fulfill({ status: 500, headers: h, body: '{}' });
+  if (!osuvat.length) return route.fulfill({ status: 200, headers: h, body: JSON.stringify({ batchcomplete: true }) });
+  // Kohinaa kuten oikeassa vastauksessa: toisen kielen nimityssivu ja luettelosivu linkittävät nimitykseen.
+  const pages = osuvat.map(([t, x], i) => ({ pageid: 100 + i, ns: x.ns, title: t, revisions: [{ slots: { main: { contentmodel: 'wikitext', content: tpWiki(x) } } }] }))
+    .concat([{ pageid: 9, ns: 1098, title: 'Nimitys:' + nimi + 'x', revisions: [{ slots: { main: { content: '{{Nimityssivu}}\n{{Nimitys\n|kieli=suomi\n}}' } } }] },
+      { pageid: 8, ns: 0, title: 'Lista monitieteisistä termeistä', revisions: [{ slots: { main: { content: '[[Nimitys:' + nimi + ']]' } } }] }]);
+  return route.fulfill({ status: 200, headers: h, body: JSON.stringify({ batchcomplete: true, query: { pages } }) });
 };
 const NIMET = Object.fromEntries(Object.entries(NIMI).map(([k, v]) => [k, v]));
 function osioLista(o) {
@@ -274,6 +315,7 @@ palvelin.listen(0, async () => {
     return route.fulfill({ status: 404, headers: h, body: '{}' });
   };
   await p.route('https://en.wiktionary.org/**', wikiReitti);
+  await p.route('https://tieteentermipankki.fi/**', tpReitti);
   // Kuvat rajataan selitysikkunaan (tai koko ruutuun, jos ikkuna on kiinni).
   const kuva = async n => {
     if (!KUVAT) return;
@@ -745,6 +787,8 @@ palvelin.listen(0, async () => {
   r = await selita('kuvaannon');
   tulos('fi: pituusehto ei estä tulosta, kun lyhyitä ei tule (kuvaannon → kuvaannollinen)', r.ots === 'kuvaannollinen' && /figurative/.test(r.maar[0]), JSON.stringify(r));
 
+  tulos('lukin ei hae Tieteen termipankista (vain sanaselityssivu)', !tpPyynnot.length, tpPyynnot.join(' · '));
+
   // Sanaselityssivu (luin/sanaselitys.html): sama moottori ilman lukijaa. Kieli on tuntematon, ellei alussa ole kielikoodia
   // ja kaksoispistettä (fi:, en: …), jolloin haku on kuin sen kielen leipätekstissä.
   const sivuvirheet2 = [];
@@ -815,7 +859,7 @@ palvelin.listen(0, async () => {
   r = await sivu('la: psyche');
   tulos('sivu: la: psyche → ψυχή varoituksin (Haettu psyche, ei tekstin)', r.ots === 'ψυχή' && /^Heikoilla jäillä\. Haettu psyche kreikkalaisin kirjaimin\.$/.test(r.varo.join()), JSON.stringify(r));
   r = await sivu('xyzzyq');
-  tulos('sivu: tuntematon sana', /^Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto) && r.lisaa, JSON.stringify(r));
+  tulos('sivu: tuntematon sana (kumpikaan lähde)', /^Sanaa ei löytynyt englanninkielisestä Wikisanakirjasta eikä Tieteen termipankista\.$/.test(r.tieto) && r.lisaa, JSON.stringify(r));
   r = await sivu('kantelx');
   tulos('sivu: valitsin ja valinta (kantelx → kantele, kanteli)', r.vaihdot.length >= 2, JSON.stringify(r));
   if (r.vaihdot.length >= 2) {
@@ -909,9 +953,9 @@ palvelin.listen(0, async () => {
   tulos('kielivalikko: kreikka, ψυχη → ψυχή', r.ots === 'ψυχή' && !r.varo.length, JSON.stringify(r));
   await kieleksi('ranska');
   r = await sivu('kello');
-  tulos('kielivalikko: ei löytynyt -viesti nimeää kielen (Ranskan sanaa …)', /^Ranskan sanaa ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto), JSON.stringify(r));
+  tulos('kielivalikko: ei löytynyt -viesti nimeää kielen (Ranskan sanaa …)', /^Ranskan sanaa ei löytynyt englanninkielisestä Wikisanakirjasta eikä Tieteen termipankista\.$/.test(r.tieto), JSON.stringify(r));
   r = await sivu('kova onni');
-  tulos('kielivalikko: ilmaus (Ranskan ilmausta …)', /^Ranskan ilmausta ei löytynyt englanninkielisestä Wikisanakirjasta\.$/.test(r.tieto), JSON.stringify(r));
+  tulos('kielivalikko: ilmaus (Ranskan ilmausta …)', /^Ranskan ilmausta ei löytynyt englanninkielisestä Wikisanakirjasta eikä Tieteen termipankista\.$/.test(r.tieto), JSON.stringify(r));
   await kuvaSivu('sivu-rajaus');
   await p.click('#selitys .sk-sulje');
   pyynnot.length = 0;
@@ -933,11 +977,90 @@ palvelin.listen(0, async () => {
   });
   tulos('kielivalikko: kentän alla vasemmassa laidassa, korkeus ≥ 36 px, ruoste', Math.abs(e.vasen) < .5 && e.korkeus >= 36 && e.alla && e.vari === 'rgb(140, 84, 38)', JSON.stringify(e));
 
+  // Tieteen termipankki samalla haulla (vain sivu): valitsimessa termipankki ensin alan kera, sitten Wikisanakirja; termiselitys
+  // (ala, määritelmät, vastineet napautettavina, termipankin lähde ja linkki); linssi vain, kun alkuperää on (termipankin huomautus
+  // tai otsikon sanan Etymology Wikisanakirjassa).
+  const termiTila = () => p.evaluate(() => {
+    const q = s => document.querySelector('#selitys ' + s), qa = s => [...document.querySelectorAll('#selitys ' + s)];
+    return { ots: q('.sk-o') ? q('.sk-o').textContent : '', muoto: (q('.sk-muoto') || {}).textContent || '', kielet: qa('.sk-runko > .sk-kieli').map(e => e.textContent),
+      vaihdot: qa('.sk-vaihto').map(e => e.textContent + (e.nextElementSibling ? ' · ' + e.nextElementSibling.textContent : '')),
+      termi: qa('.sk-vaihto[data-k="sk-termi"]').length, maar: qa('.sk-ol li').map(e => e.textContent), vast: qa('.sk-vrivi').map(e => e.textContent),
+      linssi: !!q('.sk-ots button.sk-ety'), lahde: (q('.sk-lahde') || {}).textContent || '', lisa: q('.sk-lisa') ? q('.sk-lisa').getAttribute('href') : '',
+      logos: !!q('.sk-logos') && !q('.sk-logos').hidden, tieto: (q('.sk-runko > .sk-tieto') || {}).textContent || '', huom: qa('.sk-huom').map(e => e.textContent) };
+  });
+  const odotaRunko = async () => { await odotaSivu(); await p.waitForTimeout(250); };
+  async function termiHaku(haku) { tpPyynnot.length = 0; await sivu(haku); await p.waitForTimeout(100); return termiTila(); }
+  async function napauta(sel) { await p.click('#selitys ' + sel); await odotaRunko(); return termiTila(); }
+  async function etymon() {
+    await p.click('#selitys .sk-ots button.sk-ety');
+    await p.waitForFunction(() => { const r = document.querySelector('#selitys .sk-ety-runko'); return r && !/Haetaan/.test(r.textContent); });
+    return p.evaluate(() => ({ osat: [...document.querySelectorAll('#selitys .sk-ety-runko > *')].map(e => (e.classList.contains('sk-kieli') ? '#' : '') + e.textContent) }));
+  }
+  r = await termiHaku('adekvaatti');
+  tulos('termipankki: adekvaatti → valitsin, termipankki ensin (alat aakkosin), sitten Wikisanakirja',
+    r.kielet.join('|') === 'Tieteen termipankki|Wikisanakirja' && r.vaihdot.join('|') === 'adekvaatti · Biologia|adekvaatti · Filosofia|adekvaatti · Finnish' &&
+    r.termi === 2 && !r.linssi && !r.logos && tpPyynnot.length === 1 && /gbltitle=Nimitys:adekvaatti/.test(tpPyynnot[0]), JSON.stringify(r) + ' ' + tpPyynnot.join(' · '));
+  await kuvaSivu('termi-valitsin');
+  r = await napauta('.sk-vaihto[data-k="sk-termi"][data-i="1"]');
+  tulos('termipankki: termiselitys (ΛΟΓΟΣ, ala, kolme määritelmää ilman numeroita, vastineet, lähde ja linkki käsitteeseen)',
+    r.ots === 'adekvaatti' && r.logos && r.kielet.join('|') === 'Filosofia|Vastineet' && r.maar.length === 3 && r.maar[0] === 'pätevä, luotettava käsitys' &&
+    r.vast.join('|') === 'englanti adequate|saksa adäquat' && r.lahde === 'Tieteen termipankki, CC BY-SA' &&
+    r.lisa === 'https://tieteentermipankki.fi/wiki/Filosofia:adekvaatti' && !r.muoto && r.linssi, JSON.stringify(r));
+  e = await etymon();
+  tulos('termipankki: ΕΤΥΜΟΝ ensin termipankin huomautus, sitten Wikisanakirjan alkuperä, lähteet nimettyinä (ei ks.-riviä)',
+    e.osat.join('|') === '#Tieteen termipankki|lat. adaequare=muistuttaa, olla yhtä|#Wikisanakirja|Borrowed from Latin adaequātus.', JSON.stringify(e));
+  await kuvaSivu('termi-adekvaatti');
+  r = await termiHaku('adekvaatti');
+  r = await napauta('.sk-vaihto[data-k="sk-vaihto"]');
+  tulos('termipankki: Wikisanakirjan rivi antaa Wikisanakirjan selityksen kuten ennen', r.ots === 'adekvaatti' && /adequate/.test(r.maar[0] || '') && r.lahde === 'Wiktionary, CC BY-SA', JSON.stringify(r));
+  r = await termiHaku('Dasein');
+  tulos('termipankki: vieraskielinen haku (Dasein → täälläolo) valitsimessa suomenkielisenä', r.vaihdot[0] === 'täälläolo · Filosofia' && /^Dasein · /.test(r.vaihdot[1] || ''), JSON.stringify(r));
+  r = await napauta('.sk-vaihto[data-k="sk-termi"]');
+  tulos('termipankki: täälläolo, haettu muoto otsikon alla (”Dasein” · saksa), vastineet suomi, englanti, saksa',
+    r.ots === 'täälläolo' && r.muoto === '(”Dasein” · saksa)' && r.vast.join('|') === 'suomi siellä oleva|englanti being-there|saksa Dasein', JSON.stringify(r));
+  tulos('termipankki: ei linssiä, kun alkuperää ei ole (ei huomautusta, Wikisanakirjassa ei sanaa)', !r.linssi, JSON.stringify(r));
+  await kuvaSivu('termi-dasein');
+  r = await napauta('.sk-sana[data-sana="Dasein"]');
+  tulos('termipankki: vastineen napautus vie Wikisanakirjan selitykseen sen kielellä (Dasein, saksa ensin)', r.ots === 'Dasein' && /^German · Noun/.test(r.kielet[0] || '') && r.lahde === 'Wiktionary, CC BY-SA', JSON.stringify(r));
+  r = await termiHaku('dasein');
+  tulos('termipankki: alkukirjaimen koko toisella haulla (dasein → Nimitys:Dasein)', r.vaihdot[0] === 'täälläolo · Filosofia' && tpPyynnot.length === 2, JSON.stringify(r) + ' ' + tpPyynnot.join(' · '));
+  r = await termiHaku('suuntautuneisuus');
+  tulos('termipankki: vain termipankissa ja yksi käsite → termiselitys suoraan (synonyymi otsikon alla)',
+    r.ots === 'intentionaalisuus' && r.muoto === '(”suuntautuneisuus”)' && r.maar.length === 2 && r.vast.join('|') === 'suomi suuntautuneisuus|englanti intentionality|saksa Intentionalität' && r.linssi && !r.termi, JSON.stringify(r));
+  e = await etymon();
+  tulos('termipankki: ΕΤΥΜΟΝ pelkkä termipankin huomautus, kun Wikisanakirjassa ei ole alkuperää', e.osat.join('|') === '#Tieteen termipankki|lat. intendo=osoittaa, tähdätä johonkin', JSON.stringify(e));
+  r = await termiHaku('käsite');
+  tulos('termipankki: määritelmässä mainittu käsite ei ole osuma (Terminologiaoppi:polysemia), kohina pois',
+    r.vaihdot.join('|') === 'käsite · Filosofia|käsite · Finnish', JSON.stringify(r));
+  r = await napauta('.sk-vaihto[data-k="sk-termi"]');
+  tulos('termipankki: käsite ilman huomautusta ja Wikisanakirjan alkuperää → ei linssiä', r.ots === 'käsite' && !r.linssi, JSON.stringify(r));
+  r = await termiHaku('historia');
+  r = await napauta('.sk-vaihto[data-k="sk-termi"]');
+  tulos('termipankki: linssi Wikisanakirjan alkuperästä, kun termipankissa ei ole huomautusta (historia)', r.ots === 'historia' && r.linssi, JSON.stringify(r));
+  e = await etymon();
+  tulos('termipankki: ΕΤΥΜΟΝ vain Wikisanakirja (suomen alkuperä, ei latinan)', e.osat.join('|') === '#Wikisanakirja|From Ancient Greek ἱστορία.', JSON.stringify(e));
+  r = await termiHaku('olemus');
+  tulos('termipankki: tyhjällä rivillä erotetut määritelmät, kreikka latinalaisin kirjaimin ilman Wikisanakirjan kieltä',
+    r.ots === 'olemus' && r.maar.length === 2 && /yksilöolemus\)$/.test(r.maar[0]) && r.linssi &&
+    await p.evaluate(() => !document.querySelector('#selitys .sk-sana[data-sana="ousia"]').dataset.kieli && document.querySelector('#selitys .sk-sana[data-sana="Wesen"]').dataset.kieli === 'German'), JSON.stringify(r));
+  r = await termiHaku('kana');
+  tulos('termipankki: termipankin virhe ei estä Wikisanakirjaa (kana)', r.ots === 'kana' && /hen/.test(r.maar[0] || '') && !r.termi, JSON.stringify(r));
+  r = await termiHaku('kello');
+  tulos('termipankki: ei osumaa → Wikisanakirja kuten ennen (ei valitsinta)', r.ots === 'kello' && /clock/.test(r.maar[0] || '') && !r.termi && tpPyynnot.length === 2, JSON.stringify(r));
+  await kieleksi('englanti');
+  r = await termiHaku('Dasein');
+  tulos('termipankki: kielirajaus koskee haettua nimitystä (englanti: Dasein on saksaa → vain Wikisanakirja)', r.ots === 'Dasein' && !r.termi, JSON.stringify(r));
+  await kieleksi('saksa');
+  r = await termiHaku('Dasein');
+  tulos('termipankki: saksa: Dasein → termipankki ja Wikisanakirja', r.vaihdot[0] === 'täälläolo · Filosofia' && r.termi === 1, JSON.stringify(r));
+  await kieleksi('kaikki kielet');
+
   // Kapea kosketusruutu: ei vaakavieritystä, otsikko ja raksi eivät mene päällekkäin, näppäimistö pois haun jälkeen.
   const mctx = await b.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, deviceScaleFactor: KUVAT ? 2 : 1 });
   const mp = await mctx.newPage();
   mp.on('pageerror', e => sivuvirheet2.push(e.message));
   await mp.route('https://en.wiktionary.org/**', wikiReitti);
+  await mp.route('https://tieteentermipankki.fi/**', tpReitti);
   await mp.goto(BASE + 'luin/sanaselitys.html');
   await mp.fill('#sana', 'pratityasamutpadaa');
   await mp.press('#sana', 'Enter');
@@ -950,6 +1073,19 @@ palvelin.listen(0, async () => {
   tulos('sivu 360 px: ei vaakavieritystä eikä päällekkäisyyttä, kenttä ei aktiivinen haun jälkeen', e.leveys <= e.ikkuna && !e.paalle && e.kentta !== 'sana', JSON.stringify(e));
   tulos('sivu: ilman kieltä viimeisenä loppunapsu ja majuminuluku (pratityasamutpadaa → pratītyasamutpāda)', e.ots === 'pratītyasamutpāda', e.ots);
   if (KUVAT) await mp.screenshot({ path: path.join(KUVAT, 'sivu-360.png'), fullPage: true });
+  await mp.fill('#sana', 'adekvaatti');
+  await mp.press('#sana', 'Enter');
+  await mp.waitForFunction(() => document.querySelector('#selitys .sk-vaihto[data-k="sk-termi"]'), null, { timeout: 5000 });
+  await mp.tap('#selitys .sk-vaihto[data-k="sk-termi"][data-i="1"]');
+  await mp.waitForFunction(() => document.querySelector('#selitys .sk-ots button.sk-ety'), null, { timeout: 5000 });
+  await mp.tap('#selitys .sk-ots button.sk-ety');
+  await mp.waitForFunction(() => { const r = document.querySelector('#selitys .sk-ety-runko'); return r && !/Haetaan/.test(r.textContent); });
+  e = await mp.evaluate(() => {
+    const o = document.querySelector('#selitys .sk-o').getBoundingClientRect(), x = document.querySelector('#selitys .sk-sulje svg').getBoundingClientRect();
+    return { leveys: document.documentElement.scrollWidth, ikkuna: innerWidth, paalle: o.right > x.left + .5, vast: document.querySelectorAll('#selitys .sk-vrivi').length };
+  });
+  tulos('sivu 360 px: termiselitys ja ΕΤΥΜΟΝ ilman vaakavieritystä ja päällekkäisyyttä', e.leveys <= e.ikkuna && !e.paalle && e.vast === 2, JSON.stringify(e));
+  if (KUVAT) await mp.screenshot({ path: path.join(KUVAT, 'termi-360.png'), fullPage: true });
   await mctx.close();
   // Tumma teema luin-asetuksista kuten muilla alasivuilla.
   await p.evaluate(() => { const a = JSON.parse(localStorage.getItem('luin-asetukset') || '{}'); a.teema = 'tumma'; localStorage.setItem('luin-asetukset', JSON.stringify(a)); });

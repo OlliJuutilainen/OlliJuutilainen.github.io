@@ -40,6 +40,11 @@ lisäosan tietosuojasivu jää muodolliseksi.
   **Kielivalikko** (käyttäjän päätös: oletus *kaikki kielet*, ei muistia) rajaa ketjun ja selityksen kieleen (`LuinSana.rajaa()`,
   `o.rajaus`); vain sivu käyttää sitä, lukimen ikkuna ei. Kielet ovat lukemiston (`sivustot.html`) kielirivin kielet ilman
   sivustoluokkia *monikielinen* ja *muut kielet*: kun kielirivi saa uuden kielen, lisää se valikkoon, `SK_NIMI`in ja `SK_ELAT`iin.
+  **Tieteen termipankki vain sivulla** (`LuinSana.termit()`, istunnon `o.termit`; käyttäjän päätös: lukimessa kone arvaisi alan ja
+  vastineen lukijan puolesta). Osumat valitsimessa Wikisanakirjan edellä (*Tieteen termipankki* / *Wikisanakirja*), yksi käsite ilman
+  Wikisanakirjaa suoraan. Käsite vain Käsite-mallineen ja Liittyvä nimitys -osuman sivulta (määritelmän maininta ei kelpaa).
+  **Linssi vain, kun alkuperää on** (käyttäjän päätös): termipankin `lisätiedot_fi`:n kielilyhenteellä alkava rivi tai otsikon sanan
+  Etymology-osio Wikisanakirjassa sen kielessä. Kielirajaus koskee haetun nimityksen kieltä. Lukimen ikkuna ei saa hakea termipankista (testi).
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin tekstikannan siirrolla (`asetaSiirto()`)
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
 - `luin/mika-on-markdown.md`: *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
@@ -907,7 +912,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valmis-testi.js`: valmis teksti (osuma, sama HTML ja doc, tavutuksen vaihto, muuttunut teksti, poisto, enintään kuusi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu ja sen kielivalikko.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu, sen kielivalikko ja tekotermipankki.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/vakiosivu-testi.js [kuvakansio]`: vakiosivujen merkit, paikannin ja Latomon säilytys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-sana-testi.js`: laidan pitkä painallus sanalla, Sukkela sanaselitys ja osiohyppy.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-taso-testi.js`: osiohypyn merkkipaalun taso (Valtio, artikkeli, pitkä teksti, pelkät kohdat).

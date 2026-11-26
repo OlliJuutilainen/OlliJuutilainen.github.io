@@ -16,6 +16,8 @@
   Haku osoitteessa: sanaselitys.html#fi:käsitteen (selaimen hakusanaksi: sanaselitys.html#%s). Haku vain lähetyksestä
   (Enter), ei kirjoittaessa. Kielivalikko rajaa haun ja selityksen yhteen kieleen (oletus kaikki kielet, ei muistia);
   kielet ovat lukemiston (sivustot.html) kielirivin kielet (käyttäjän päätös). Teema luin-asetuksista kuten muilla alasivuilla.
+  Samalla haulla Tieteen termipankki (LuinSana.termit, vain tällä sivulla): löydetyt käsitteet ovat valitsimessa Wikisanakirjan
+  osumien edellä, ja kielirajaus rajaa ne käsitteisiin, joissa haettu nimitys on sitä kieltä.
 -->
 <script>
   try {
@@ -133,6 +135,10 @@
   #selitys .sk-ety-li { padding-left: 1em; text-indent: -.7em; }
   #selitys .sk-ety-li::before { content: '· '; color: var(--harmaa); }
   #selitys .sk-ety-laatikko .sk-tieto, #selitys .sk-ety-laatikko .sk-huom { margin: 4px 0 0; }
+  /* Termiselityksen vastineet: kieli harmaalla kursiivilla, sanat napautettavina (Wikisanakirjan selitys). */
+  #selitys .sk-vast { margin-top: 2px; }
+  #selitys .sk-vrivi { margin: 3px 0; padding-left: 1em; text-indent: -1em; }
+  #selitys .sk-vkieli { font-size: .889em; font-style: italic; color: var(--harmaa); margin-right: .35em; }
   @media (hover: hover) {
     #selitys .sk-vaihdot li:hover button.sk-vaihto { text-decoration-color: var(--ruoste); }
     #selitys button.sk-ety:hover .e { stroke: var(--muste); }
@@ -171,7 +177,7 @@
   <section id="selitys" hidden></section>
 </main>
 <p class="foot"><svg viewBox="-700 -550 1400 1100" role="img" aria-label="©"><path class="k" d="M0 -607 L607 0 L0 607 L-607 0Z"/><path transform="scale(1.1)" d="M24 206.5Q-41 206.5 -84 177.5Q-127 148.5 -148.5 101Q-170 53.5 -170 -0.5Q-170 -65.5 -145.5 -111.5Q-121 -157.5 -79 -182Q-37 -206.5 15 -206.5Q47 -206.5 71.5 -195.5Q96 -184.5 106 -175.5L111 -207.5H142L164 -75.5L124 -68.5Q108 -118.5 82.5 -139Q57 -159.5 16 -159.5Q-14 -159.5 -38 -141Q-62 -122.5 -75.5 -87Q-89 -51.5 -89 -1.5Q-89 30.5 -80.5 59Q-72 87.5 -56.5 109.5Q-41 131.5 -19 144Q3 156.5 30 156.5Q68 156.5 93 141Q118 125.5 143 96.5L171 123.5Q154 145.5 133.5 164.5Q113 183.5 86.5 195Q60 206.5 24 206.5Z"/></svg> TUSINASOFT 2026</p>
-<script src="sanaselitys.js?v=9d83db0e"></script>
+<script src="sanaselitys.js?v=52ae27ba"></script>
 <script>
 (function () {
   'use strict';
@@ -180,6 +186,9 @@
   // Kielirajauksen nimi genetiivinä (ei löytynyt -viesti: Latinan sanaa ei löytynyt …); arvo on Wikisanakirjan kielikoodit.
   var RAJAUS_NIMI = { en: 'englannin', es: 'espanjan', it: 'italian', 'grc,el': 'kreikan', la: 'latinan', lt: 'liettuan', fr: 'ranskan',
     sv: 'ruotsin', de: 'saksan', fi: 'suomen', da: 'tanskan' };
+  // Sama rajaus termipankin kielinimin (haetun nimityksen kieli).
+  var RAJAUS_TP = { en: 'englanti', es: 'espanja', it: 'italia', 'grc,el': 'kreikka', la: 'latina', lt: 'liettua', fr: 'ranska',
+    sv: 'ruotsi', de: 'saksa', fi: 'suomi', da: 'tanska' };
   // Oletus aina kaikki kielet (selain voi palauttaa lomakkeen arvon uudelleenlatauksessa).
   valikko.value = '';
   var mitta = document.getElementById('kieli-mitta');
@@ -217,6 +226,7 @@
     if (rajaus) ketju = S.rajaa(ketju, rajaus.kielet, rajaus.kielet.indexOf('grc') >= 0 && !/\p{Script=Greek}/u.test(q.haku));
     tulos.className = ''; tulos.innerHTML = S.kehys(q.haku, q.haku); tulos.hidden = false; vihje.hidden = true;
     var oma = nyt = S.istunto({ juuri: tulos, haku: q.haku, y: y, ketju: ketju, kirjoitettu: true, rajaus: rajaus,
+      termit: S.termit(q.haku, rajaus ? [RAJAUS_TP[valikko.value]] : null),
       auki: function () { return nyt === oma && !tulos.hidden; } });
     oma.aja();
   }

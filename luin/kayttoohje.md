@@ -534,6 +534,8 @@ Sanaselitys toimii myös ilman tekstiä omalla sivullaan, `luin/sanaselitys.html
 
 Kentän alla olevasta *kieli*-valikosta haun voi rajata yhteen kieleen, jolloin selitys näyttää vain sen kielen sanat; kielet ovat samat kuin tuettujen sivustojen listan kielirivillä. Kreikka kattaa muinais- ja nykykreikan, ja latinalaisin kirjaimin kirjoitettu sana haetaan silloin kreikkalaisin kirjaimin. Kielen vaihto hakee näkyvän selityksen sanan uudelleen. Oletus on *kaikki kielet*, ja sivu palaa siihen aina avattaessa.
 
+Samalla haulla sivu hakee sanaa myös Tieteen termipankista. Jos sieltä löytyy käsite, jonka nimitys sana on, tulokset ovat ensin listana: ylempänä termipankin käsitteet alan kanssa (*adekvaatti* · Filosofia), alempana Wikisanakirjan osumat. Napauta haluamaasi. Termipankin selityksessä on ala, määritelmät ja vastineet muilla kielillä; vastineen napautus avaa sen Wikisanakirjan selityksen. Vieraskielinen haku löytää suomenkielisen termin (*Dasein* → *täälläolo*), ja haettu sana näkyy pienellä otsikon alla. Linssi on otsikon perässä vain, kun alkuperää on: termipankin oma huomautus (*lat. adaequare*) tai sanan alkuperä Wikisanakirjassa. Kielivalikon rajaus koskee termipankissa haetun sanan kieltä. Termipankki on vain tällä sivulla, ei lukimen selitysikkunassa.
+
 Osoitteen #-osa on haku, joten sivun voi lisätä selaimen hakusanaksi muodossa `…/luin/sanaselitys.html#%s`.
 
 ## 8. Asetukset
@@ -829,7 +831,7 @@ Sovellus tuo selaimeen verrattuna:
 - **Kaikki on tässä selaimessa.** Pino, tekstit, lukukohdat, merkinnät ja asetukset tallentuvat tämän selaimen muistiin tällä laitteella. Toisessa selaimessa tai laitteessa pino on oma.
 - **Selaimen tietojen tyhjennys** tältä sivustolta vie myös pinon ja merkinnät. Tärkeät merkinnät kannattaa viedä tiedostoon (luku 6.9).
 - **Postihuilu** lähettää tekstit (30 päivää) ja valittaessa merkinnät (vuosi) lukimen postilaatikkoon (luku 9.5).
-- **Sanaselitys** lähettää valitun sanan Wikisanakirjaan ja **lausekäännös** valitun tekstin DeepL:ään, vain napautuksesta.
+- **Sanaselitys** lähettää valitun sanan Wikisanakirjaan ja **lausekäännös** valitun tekstin DeepL:ään, vain napautuksesta. Sanaselityssivu lähettää kirjoitetun sanan myös Tieteen termipankkiin.
 - **Luin-linkki** hakee tekstin sen osoitteesta.
 - **Lukimeen-lisäosa** lukee vain sen välilehden, jolla painat sen kuvaketta (ja tarvittaessa saman sivuston sivuja, joilla artikkelin alaviitteet tai kirjan muut luvut ovat), ja vie tekstin latomoon. Se ei kerää eikä lähetä tietoja kenellekään. Lisäosan tietosuojaseloste on sivulla `luin/tietosuoja.html`.
 - **Latomoon** viedyt tekstit eivät näy edes Ollille, ellei suoraa jakolinkkiä anneta.
