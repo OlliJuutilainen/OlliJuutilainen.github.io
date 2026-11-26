@@ -186,12 +186,12 @@
   .app + .foot{ margin-top:36px }
   /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Harvinaisen
      tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
-     taustaan yli 3); kirkastuu osoitettaessa. Merkki jää otsikkorivin yläpuolelle kaikilla
+     taustaan yli 3); osoitettaessa sivun kirkkain (--brand, käyttäjän päätös). Merkki jää otsikkorivin yläpuolelle kaikilla
      leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
   .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
     color:var(--avain); line-height:0 }
   .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
-  .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
+  .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--brand) }
   /* Avattu näkymä: avain siirtyy kentän yläpuolelle ja suurenee niin, että kahvan kuusikulmio on logon kuusikulmion
      kokoinen (ulkoapoteema 20,45 px; avain 110 px). Vasen reuna kentän tekstin alun kohdalla (reunaviiva 1 px +
      sisätyhjä 10 px), eli hieman kentän reunasta oikealle; ei linjausta logoon (käyttäjän päätös). Väri sivun kirkkain (--brand). Yläpuolelle enemmän ilmaa kuin alle:
