@@ -74,7 +74,7 @@
       <p class="tila" id="tila" role="status"></p>
     </form>
     <p class="note">Koodin saat <i>Minun oma tusinasää</i> -sivun alalaidasta kohdasta <i>Pitääkö minun asentaa puhelimeen
-      taas uusi äppi?</i> Jos sääpylvästä ei vielä ole, paaluta se selaimessa osoitteessa
+      taas uusi äppi?</i> Jos sääsalkoa ei vielä ole, paaluta se selaimessa osoitteessa
       <span class="osoite">ollijuutilainen.github.io/minun-tusinasaa.html</span>.</p>
     <p class="foot">© TUSINASOFT 2026</p>
   </main>
@@ -117,7 +117,7 @@ async function tarkista({ t, k }){
   } catch {
     throw new Error('Tallennuspalveluun ei saatu yhteyttä. Tarkista verkkoyhteys ja yritä uudelleen.');
   }
-  if (res.status === 404) throw new Error('Koodia vastaavaa sääpylvästä ei löytynyt. Tarkista koodi.');
+  if (res.status === 404) throw new Error('Koodia vastaavaa sääsalkoa ei löytynyt. Tarkista koodi.');
   if (!res.ok) throw new Error(`Tallennuspalvelu vastasi virhekoodilla ${res.status}. Yritä hetken päästä uudelleen.`);
   try {
     const env = await res.json();

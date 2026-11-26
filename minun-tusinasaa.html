@@ -9,7 +9,7 @@
 <link rel="icon" href="icons/tusinasaa.svg?v=66320e0d" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/tusinasaa-180.png?v=116fe9d6">
 <style>
-  /* Minun oma tusinasää: pylväsprofiilin hallintapaneeli. Ulkoasu mallista (tusina-rata, oppaat/tusinasaa-oma-paneeli):
+  /* Minun oma tusinasää: salkoprofiilin hallintapaneeli. Ulkoasu mallista (tusina-rata, oppaat/tusinasaa-oma-paneeli):
      leipäteksti IBM Plex Sans (isännöity itse, vendor/ibm-plex-sans, OFL), tummassa teemassa ei hohdetta. */
   @font-face{ font-family:'IBM Plex Sans'; font-style:normal; font-weight:400; font-display:swap;
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-400-normal.woff2) format('woff2') }
@@ -59,7 +59,7 @@
   p{ margin:0 0 12px }
   a{ color:inherit }
   button{ font:inherit }
-  button:focus-visible, input:focus-visible, a:focus-visible{ outline:2px solid var(--muted); outline-offset:2px }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible{ outline:2px solid var(--muted); outline-offset:2px }
   .row{ display:flex; gap:8px }
   input[type="text"]{ flex:1; min-width:0; width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:8px 10px;
     color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px }
@@ -119,7 +119,7 @@
   .hakuTila.err, .tila.err, .meltMsg.err{ color:var(--err) }
   .osm{ font-size:12px; margin:8px 0 0 }
 
-  /* Kide: pylväät kuusikulmion kärjillä. */
+  /* Kide: salot kuusikulmion kärjillä. */
   .stage{ position:relative; width:100%; max-width:380px; aspect-ratio:1; margin:0 auto }
   .stage[hidden]{ display:none }
   .stage svg.arms{ position:absolute; inset:0; width:100%; height:100%; overflow:visible }
@@ -183,6 +183,30 @@
   a.btn{ display:inline-block; text-decoration:none }
   @media (max-width:340px){ .btn.pieni{ font-size:11px; letter-spacing:.4px; padding:7px 8px } }
   .app + .foot{ margin-top:36px }
+  /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Merkin alareuna jää
+     otsikkorivin yläpuolelle kaikilla leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
+  .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
+    color:var(--muted); line-height:0 }
+  .avainNappi svg{ display:block; width:13.45px; height:31.93px; overflow:visible }
+  .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
+  /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
+  main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
+  .avainNakyma{ max-width:26rem; margin:36px auto 0 }
+  /* Kaksi riviä: 52 merkin lause mahtuu kokonaan puhelimen leveydelle (16 px, jotta iOS ei suurenna sivua). */
+  .avainNakyma textarea{ display:block; width:100%; box-sizing:border-box; font:inherit; font-size:16px; line-height:1.4;
+    padding:8px 10px; color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px;
+    resize:none; overflow:hidden; overflow-wrap:anywhere; letter-spacing:.02em }
+  .avainRivi{ display:flex; align-items:center; gap:10px; margin:10px 0 0 }
+  .iNappi{ margin-left:auto; background:none; border:0; padding:4px; cursor:pointer; color:var(--muted); line-height:0 }
+  .iNappi svg{ width:22px; height:22px }
+  .iNappi:hover, .iNappi:focus-visible, .iNappi[aria-expanded="true"]{ color:var(--text) }
+  .avainTila{ font-size:14px; color:var(--muted); margin:12px 0 0 }
+  .avainTila:empty{ display:none }
+  .avainTila.err{ color:var(--err) }
+  .avainOhje{ font-size:14px; line-height:1.55; color:var(--muted); margin:16px 0 0; padding-left:14px; border-left:1px solid var(--border) }
+  .avainOhje p{ margin:0 0 10px }
+  .avainOhje p:last-child{ margin-bottom:0 }
+  .avainOhje b{ color:var(--text); font-weight:400 }
   .foot{ margin:30px 0 0; text-align:center; color:var(--muted); opacity:.6; font-size:11px; font-weight:300; letter-spacing:.14em }
   [hidden]{ display:none !important }
   @media (prefers-reduced-motion: reduce){ .slot, .slot svg{ transition:none } }
@@ -195,17 +219,35 @@
   <div class="top">
     <span class="logoBox"><svg class="logo" viewBox="0 0 32 32" role="img" aria-label="TUSINASÄÄ 12"><path class="tumma" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.8L18.164,5.56L16,4.311L13.836,5.56ZM23.6,2.836L22.935,8.315L19.188,6.151ZM29.164,8.4L26.123,12.654L26.123,10.155L23.96,8.906ZM31.2,16L26.123,18.164L26.123,13.836ZM29.164,23.6L23.96,23.094L26.123,21.845L26.123,19.346ZM23.6,29.164L19.188,25.849L22.935,23.685ZM16,31.2L13.836,26.44L16,27.689L18.164,26.44ZM8.4,29.164L9.065,23.685L12.812,25.849ZM2.836,23.6L5.877,19.346L5.877,21.845L8.04,23.094ZM0.8,16L5.877,13.836L5.877,18.164ZM2.836,8.4L8.04,8.906L5.877,10.155L5.877,12.654ZM8.4,2.836L12.812,6.151L9.065,8.315ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/><path class="vaalea" fill="currentColor" d="M16,4.998L25.528,10.499L25.528,21.501L16,27.002L6.472,21.501L6.472,10.499ZM16,7.746L8.852,11.873L8.852,20.127L16,24.254L23.148,20.127L23.148,11.873ZM16,0.098L18.596,5.81L16,4.311L13.404,5.81ZM23.951,2.228L23.31,8.531L18.813,5.935ZM29.772,8.049L26.123,13.153L26.123,10.155L23.527,8.656ZM31.902,16L26.123,18.596L26.123,13.404ZM29.772,23.951L23.527,23.344L26.123,21.845L26.123,18.847ZM23.951,29.772L18.813,26.065L23.31,23.469ZM16,31.902L13.404,26.19L16,27.689L18.596,26.19ZM8.049,29.772L8.69,23.469L13.187,26.065ZM2.228,23.951L5.877,18.847L5.877,21.845L8.473,23.344ZM0.098,16L5.877,13.404L5.877,18.596ZM2.228,8.049L8.473,8.656L5.877,10.155L5.877,13.153ZM8.049,2.228L13.187,5.935L8.69,8.531ZM9.663,16L15.567,8.933L13.945,16L15.567,23.067ZM17.244,13.512L19.083,13.512L18.596,15.026L18.596,18.055A0.433,0.433 0 0 1 17.731,18.055L17.731,15.026ZM19.408,13.512L21.247,13.512L20.76,15.026L20.76,18.055A0.433,0.433 0 0 1 19.895,18.055L19.895,15.026Z"/></svg></span>
     <p class="quote" id="quote"><span><span class="q1"><b>Minun oma tusinasää</b></span><br><span class="q2">sinun ikioma ”tusina-mää”</span></span></p>
+    <button class="avainNappi" id="avainNappi" type="button" aria-label="Salkosutkautus" aria-expanded="false" aria-controls="avainNakyma"><svg viewBox="6.35 0.61 11.3 26.83" aria-hidden="true"><path fill="currentColor" d="M7.67 5.6L14.17 1.85L12.37 5.6L14.17 9.35ZM13.8 20.54L16.5 20.54L17 21.04L16.5 21.54L13.8 21.54L12.4 22.19L12.4 19.89ZM13.8 24.54L16.5 24.54L17 25.04L16.5 25.54L13.8 25.54L12.4 26.19L12.4 23.89Z"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M16.9 5.6L14.45 1.36L9.55 1.36L7.1 5.6L9.55 9.84L14.45 9.84ZM12 9.84V27.44"/></svg></button>
   </div>
 
   <main>
-    <p class="viesti" id="viesti" role="status">Haetaan pylväitä…</p>
+    <section class="avainNakyma" id="avainNakyma" aria-label="Salkosutkautus" hidden>
+      <form id="avainLomake" autocomplete="off">
+        <textarea id="lause" rows="2" aria-label="Salkosutkautus" placeholder="salkosutkautus" maxlength="80" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"></textarea>
+        <div class="avainRivi">
+          <button class="btn ghost pieni" type="button" id="arvo">Arvo</button>
+          <button class="iNappi" type="button" id="avainInfo" aria-label="Mikä on salkosutkautus?" aria-expanded="false" aria-controls="avainOhje"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M22 12L17 3.34L7 3.34L2 12L7 20.66L17 20.66Z"/><circle fill="currentColor" cx="12" cy="7.7" r="1.05"/><path fill="currentColor" d="M11.25 10.2H12.75V16.6H11.25Z"/></svg></button>
+        </div>
+        <p class="avainTila" id="avainTila" role="status"></p>
+        <div class="avainOhje" id="avainOhje" hidden>
+          <p><b>Salkosutkautus</b> on oikopolku tähän paneeliin. Hallintalinkki ja salkosutkautus ovat sama avain kahdella kirjoituksella: linkki koneen, salkosutkautus ihmisen. Kumpi tahansa avaa paneelin millä laitteella tahansa, vaikkapa hotellin koneella, jolla linkkiä ei ole.</p>
+          <p>Kirjoita salkosutkautus kenttään ja paina Enter. Laitteella, jolla paneeli on jo auki, salkosutkautus kiinnittyy siihen; muilla laitteilla sama salkosutkautus avaa paneelin. <i>Arvo</i> antaa valmiin salkosutkautuksen, jota on vaikea arvata ja helppo muistaa. Uusi salkosutkautus korvaa vanhan, ja tyhjä kenttä irrottaa sen.</p>
+          <p>Salkosutkautuksessa on 24–52 merkkiä: pieniä kirjaimia a–z ilman ääkkösiä, numeroita ja yhdysmerkkejä (-). Välilyöntejä ei hyväksytä.</p>
+          <p>Salkosutkautus antaa salkoihin samat oikeudet kuin hallintalinkki. Jaa muille katselulinkki, älä salkosutkautusta, äläkä käytä samaa lausetta missään muualla.</p>
+          <p>Uusi salkosutkautus toimii muilla laitteilla viimeistään minuutin kuluttua.</p>
+        </div>
+      </form>
+    </section>
+    <p class="viesti" id="viesti" role="status">Haetaan salkoja…</p>
     <div id="ui" hidden>
-      <div class="stage" id="stage" aria-label="Pylväät">
+      <div class="stage" id="stage" aria-label="Salot">
         <svg class="arms" viewBox="0 0 100 100" aria-hidden="true" id="arms"></svg>
       </div>
       <p class="now" id="now"></p>
       <p class="tila" id="tila" role="status"></p>
-      <p class="full" id="full" hidden>Kuusi pylvästä: enempää ei mahdu.</p>
+      <p class="full" id="full" hidden>Kuusi salkoa: enempää ei mahdu.</p>
       <section class="melt" id="melt" hidden aria-live="polite"></section>
       <p class="clear" id="clear"></p>
       <h2>Näytä lämpötilasarakkeessa…</h2>
@@ -248,7 +290,7 @@
               <li>Aloita asennus avaamalla lataamasi asennustiedosto.</li>
               <li>Liitä kopioimasi koodi, kun TUSINASÄÄ 12 pyytää sitä.</li>
             </ol>
-            <p class="appAfter">Nyt henkilökohtainen sääpylvääsi on pystytetty myös Android-sovellukseen. Sovellus pysyy ajan tasalla Minun oma tusinasää&nbsp;-sivulla tekemistäsi valinnoista, kuten siirtymisestä kahdeksi viikoksi mökin sääpylvääseen.</p>
+            <p class="appAfter">Nyt henkilökohtainen sääsalkosi on pystytetty myös Android-sovellukseen. Sovellus pysyy ajan tasalla Minun oma tusinasää&nbsp;-sivulla tekemistäsi valinnoista, kuten siirtymisestä kahdeksi viikoksi mökin sääsalkoon.</p>
             <p class="appBye">Mukavia hetkiä säätiedotusten parissa!</p>
           </div>
         </details>
@@ -258,6 +300,7 @@
   </main>
 </div>
 
+<script src="luin/laatikkolause.js?v=29cb216a"></script>
 <script type="module">
 const API_BASE = (window.TUSINASAA_API_BASE || 'https://tusinasaa-worker.ollijuutilainen.workers.dev').replace(/\/+$/, '');
 /* Peitto kuten oma-tusinasaa.html:ssä: FMI:n ennuste ja met.no:n nowcast kattavat nämä. */
@@ -318,14 +361,14 @@ function unb64u(str){
   return Uint8Array.from(bin, c => c.charCodeAt(0));
 }
 let keyBytes = null;
-async function salaa(obj){
+async function salaa(obj, kb = keyBytes){
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt']);
+  const key = await crypto.subtle.importKey('raw', kb, { name: 'AES-GCM' }, false, ['encrypt']);
   const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
   return { iv: b64u(iv), ct: b64u(new Uint8Array(ct)) };
 }
-async function pura(iv, ct){
-  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
+async function pura(iv, ct, kb = keyBytes){
+  const key = await crypto.subtle.importKey('raw', kb, { name: 'AES-GCM' }, false, ['decrypt']);
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64u(iv) }, key, unb64u(ct));
   return JSON.parse(new TextDecoder().decode(pt));
 }
@@ -333,10 +376,11 @@ async function pura(iv, ct){
 /* --- Tila --- */
 let creds = null;   // { t, k, w }
 let uid = 0;
-const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false };
+/* avainLz: profiilin avain-kenttä (salkosutkautus salattuna kirjoitusavaimesta johdetulla avaimella), lause: sama purettuna. */
+const state = { slots: [], active: null, lampo: 'raaka', melting: null, confirmClear: false, avainLz: null, lause: null, muutettu: 0 };
 const nameOf = p => {
   const t = typeof p.title === 'string' ? p.title.trim() : '';
-  return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄPYLVÄS');
+  return t.startsWith(PREFIX) ? t.slice(PREFIX.length) : (t || 'SÄÄSALKO');
 };
 const titleOf = p => (typeof p.title === 'string' && p.title.trim()) || PREFIX + nameOf(p);
 const placeOf = p => p.paikka || `koordinaatit ${p.lat}, ${p.lon}`;
@@ -353,6 +397,10 @@ function fromProfile(obj){
   });
   if (!state.active && state.slots.length) state.active = state.slots[0].id;
   state.lampo = obj?.lampo === 'tuntuu' ? 'avulias' : 'raaka';
+  const lz = obj?.avain;
+  state.avainLz = lz && typeof lz.iv === 'string' && typeof lz.ct === 'string' ? { iv: lz.iv, ct: lz.ct } : null;
+  state.lause = null;
+  state.muutettu = obj?.muutettu || 0;
 }
 function toProfile(){
   const obj = {
@@ -361,6 +409,7 @@ function toProfile(){
     muutettu: Date.now()
   };
   if (state.lampo === 'avulias') obj.lampo = 'tuntuu';
+  if (state.avainLz) obj.avain = state.avainLz;
   return obj;
 }
 const katseluLinkki = () => `tusinapaja.html#${new URLSearchParams({ t: creds.t, k: creds.k })}`;
@@ -404,12 +453,13 @@ async function lahetaProfiili(obj){
   if (res.status === 403){
     const e = (await res.json().catch(() => ({}))).error;
     throw new Error(e === 'wrong_key' ? 'Hallintalinkin kirjoitusavain ei kelpaa.'
-      : e === 'not_editable' ? 'Tämän linkin pylväitä ei voi muuttaa.' : 'Tallennus estettiin.');
+      : e === 'not_editable' ? 'Tämän linkin salkoja ei voi muuttaa.' : 'Tallennus estettiin.');
   }
-  if (res.status === 404) throw new Error('Pylväitä ei löytynyt tallennuspalvelusta.');
+  if (res.status === 404) throw new Error('Salkoja ei löytynyt tallennuspalvelusta.');
   if (res.status === 429) throw new Error('Muutoksia on tehty juuri nyt liian monta. Yritä hetken päästä uudelleen.');
   if (!res.ok) throw new Error(`Tallennus epäonnistui (virhekoodi ${res.status}).`);
   try { localStorage.setItem(KOPIO_KEY, JSON.stringify({ t: creds.t, iv: enc.iv, ct: enc.ct })); } catch {}
+  state.muutettu = Math.max(state.muutettu, obj.muutettu || 0);
 }
 let jono = Promise.resolve(), kesken = 0;
 function tallenna(){
@@ -439,7 +489,7 @@ async function luoProfiili(){
   } catch (err) {
     throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
   }
-  if (res.status === 429) throw new Error('Pylväitä on paalutettu juuri nyt liian monta. Yritä myöhemmin uudelleen.');
+  if (res.status === 429) throw new Error('Salkoja on paalutettu juuri nyt liian monta. Yritä myöhemmin uudelleen.');
   if (!res.ok) throw new Error(`Paalutus epäonnistui (virhekoodi ${res.status}).`);
   const { t } = await res.json().catch(() => ({}));
   if (typeof t !== 'string' || !t) throw new Error('Tallennuspalvelun vastaus oli virheellinen.');
@@ -454,8 +504,8 @@ async function luoProfiili(){
 }
 
 /* --- Paneeli --- */
-/* Pylväiden paikat: täytetyt joukot pylväsmäärän mukaan, vanhin ensin; keskilinja, sitten ylempi, sitten vasen.
-   Uusi pylväs paalutetaan aina ylös. */
+/* Salkojen paikat: täytetyt joukot salkomäärän mukaan, vanhin ensin; keskilinja, sitten ylempi, sitten vasen.
+   Uusi salko paalutetaan aina ylös. */
 const POS = { T: [50, 12], UR: [82.9, 31], LR: [82.9, 69], B: [50, 88], LL: [17.1, 69], UL: [17.1, 31] };
 const SETS = [[], ['B'], ['LL', 'LR'], ['B', 'UL', 'UR'], ['UL', 'UR', 'LL', 'LR'], ['B', 'UL', 'UR', 'LL', 'LR'], ['T', 'B', 'UL', 'UR', 'LL', 'LR']];
 const stage = $('stage');
@@ -491,11 +541,11 @@ function renderPanel(){
     fr.style.left = POS.T[0] + '%'; fr.style.top = POS.T[1] + '%';
     fr.className = 'slot free' + (state.melting === 'uusi' ? ' melting' : '');
     fr.innerHTML = icon(state.melting === 'uusi' ? 'sula' : 'vapaa') + '<span class="nm">paaluta</span>';
-    fr.setAttribute('aria-label', 'Paaluta uusi pylväs');
+    fr.setAttribute('aria-label', 'Paaluta uusi salko');
     seen.add('vapaa');
   }
   nodes.forEach((el, id) => { if (!seen.has(id)) el.remove(); });
-  /* Uusi pylväs ilmestyy ylös ja siirtyy sitten paikalleen. */
+  /* Uusi salko ilmestyy ylös ja siirtyy sitten paikalleen. */
   if (fresh.length) requestAnimationFrame(() => requestAnimationFrame(() => fresh.forEach(([el, p]) => { el.style.left = POS[p][0] + '%'; el.style.top = POS[p][1] + '%'; })));
 
   const tip = p => [f2(50 + (POS[p][0] - 50) * .72), f2(50 + (POS[p][1] - 50) * .72)];
@@ -503,15 +553,15 @@ function renderPanel(){
     (free ? `<line class="arm free" x1="50" y1="50" x2="${tip(free)[0]}" y2="${tip(free)[1]}"/>` : '') +
     `<path class="core" d="${hex(50, 50, 2.6)}"/>`;
 
-  /* Valitun pylvään otsikko avaa sen säätiedotuksen. */
+  /* Valitun salon otsikko avaa sen säätiedotuksen. */
   const act = state.slots.find(s => s.id === state.active);
-  $('now').innerHTML = act ? `<span class="lbl">Pylvääni nyt:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
+  $('now').innerHTML = act ? `<span class="lbl">Salkoni nyt:</span><b>${creds ? `<a href="${esc(katseluLinkki())}">${esc(titleOf(act.p))}</a>` : esc(titleOf(act.p))}</b>` : '';
   $('now').hidden = first;
   $('clear').hidden = first;
   $('full').hidden = n < MAX_PYLVAAT;
   $('appPaneeli').hidden = first || !creds;
   $('clear').innerHTML = state.confirmClear
-    ? `Kaadetaanko kaikki pylväät? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
+    ? `Kaadetaanko kaikki salot? <button class="link danger" type="button" id="clearYes">KAADETAAN</button> · <button class="link" type="button" id="clearNo">peru</button>`
     : `<span class="clearIdle">[<button class="link" type="button" id="clearAsk">pura paalupaikka</button>]</span>`;
   syncPick();
   renderMelt();
@@ -558,7 +608,7 @@ document.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () =>
   state.lampo = o.dataset.lampo; syncPick(); tallenna();
 }));
 
-/* --- Sulatettu pylväs tai uusi pylväs kiteen alla --- */
+/* --- Sulatettu salko tai uusi salko kiteen alla --- */
 const haku = { valinta: null, tarkistus: false, seq: 0, viimeksi: 0 };
 let meltFor = undefined;
 const hakuKentta = () => `
@@ -579,17 +629,17 @@ function renderMelt(){
   haku.valinta = null; haku.tarkistus = false; haku.seq++;
   if (state.melting === 'uusi'){
     box.innerHTML = `
-      <h3>${icon('sula')}${first ? 'Paaluta oma sääpylvääsi' : 'Uusi pylväs'}</h3>
-      <div class="field f1"><span class="flabel">Sääpylvään sijainti <span class="lc">(hae paikkoja osoitteen, nimen tai koordinaattien perusteella)</span></span>${hakuKentta()}</div>
-      <div class="field f2"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotuspylvään otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" placeholder="PAIKAN NIMI" aria-label="Paikan kutsumanimi"></div></div>
+      <h3>${icon('sula')}${first ? 'Paaluta oma sääsalkosi' : 'Uusi salko'}</h3>
+      <div class="field f1"><span class="flabel">Sääsalon sijainti <span class="lc">(hae paikkoja osoitteen, nimen tai koordinaattien perusteella)</span></span>${hakuKentta()}</div>
+      <div class="field f2"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotussalon otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" placeholder="PAIKAN NIMI" aria-label="Paikan kutsumanimi"></div></div>
       <div class="actions"><button class="btn${first ? ' big' : ''}" type="button" id="stake">Paaluta</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
   } else {
     const s = state.slots.find(x => x.id === state.melting);
     box.innerHTML = `
       <h3>${icon('sula')}Sulana: ${esc(nameOf(s.p))}</h3>
-      <div class="field"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotuspylvään otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" value="${esc(nameOf(s.p))}" aria-label="Paikan kutsumanimi"></div></div>
+      <div class="field"><span class="flabel">Paikan kutsumanimi <span class="lc">(näkyy oman säätiedotussalon otsikkorivillä)</span></span><div class="titleRow"><span class="titlePrefix">TUSINASÄÄ 12 ·</span><input id="t2" type="text" maxlength="145" value="${esc(nameOf(s.p))}" aria-label="Paikan kutsumanimi"></div></div>
       <div class="field"><span class="note">Paikka: ${esc(placeOf(s.p))}</span> <button class="link note" type="button" id="move">vaihda paikka</button><div id="moveBox" hidden>${hakuKentta()}</div></div>
-      <div class="actions"><button class="btn" type="button" id="freeze">Jäädytä</button><button class="link" type="button" id="remove">kaada pylväs</button><button class="link" type="button" id="cancel">peru</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
+      <div class="actions"><button class="btn" type="button" id="freeze">Jäädytä</button><button class="link" type="button" id="remove">kaada salko</button><button class="link" type="button" id="cancel">peru</button><span class="meltMsg" id="meltMsg" role="status"></span></div>`;
   }
   $('t2').addEventListener('input', () => { $('t2').dataset.auto = '0'; });
 }
@@ -620,7 +670,7 @@ function showResults(places){
     radio.type = 'radio'; radio.name = 'paikka';
     radio.addEventListener('change', () => { if (radio.checked) choose(place); });
     const span = document.createElement('span');
-    span.textContent = place.name || 'Sääpylväs';
+    span.textContent = place.name || 'Sääsalko';
     if (place.rest){ const small = document.createElement('small'); small.textContent = place.rest; span.append(small); }
     label.append(radio, span);
     li.append(label);
@@ -730,7 +780,7 @@ function valittuPaikka(){
   if (haku.valinta) return { paikka: haku.valinta };
   const ul = $('r2');
   const picked = ul && ul.querySelector('input:checked');
-  return { syy: !ul || !ul.querySelector('input') ? 'Hae ensin sääpylvään sijainti.'
+  return { syy: !ul || !ul.querySelector('input') ? 'Hae ensin sääsalon sijainti.'
     : !picked ? 'Valitse paikka hakutuloksista.'
     : haku.tarkistus ? 'Hetki: ennustetta tarkistetaan vielä.'
     : 'Valittu paikka ei kelpaa; katso ilmoitus hakutulosten alla.' };
@@ -792,7 +842,7 @@ $('melt').addEventListener('click', async e => {
       await luoProfiili();
       state.melting = null;
       renderPanel();
-      setTila('Pylväs on pystyssä. Tämän sivun osoite on hallintalinkkisi: tallenna se.');
+      setTila('Salko on pystyssä. Tämän sivun osoite on hallintalinkkisi: tallenna se.');
     } catch (err) {
       console.error(err);
       state.slots = ennen.slots; state.active = ennen.active;
@@ -810,7 +860,7 @@ async function lataa(){
     if (!t || !k){ viesti('Linkistä puuttuu osia. Tarkista, että kopioit koko hallintalinkin.', 'err'); return; }
     if (!w){
       const href = esc(`tusinapaja.html#${new URLSearchParams({ t, k })}`);
-      viesti('', '', `Tällä linkillä näkee sään, mutta pylväitä voi muuttaa vain hallintalinkillä.<br><a href="${href}">Avaa säätiedotus</a>`);
+      viesti('', '', `Tällä linkillä näkee sään, mutta salkoja voi muuttaa vain hallintalinkillä.<br><a href="${href}">Avaa säätiedotus</a>`);
       return;
     }
     creds = { t, k, w };
@@ -822,17 +872,21 @@ async function lataa(){
     } catch {}
   }
   if (!creds){ fromProfile({ pylvaat: [] }); renderPanel(); return; }
+  await avaaProfiili();
+}
 
+/* Hakee ja näyttää creds-tunnusten profiilin (käynnistyksessä ja kun salkosutkautus avaa toisen paneelin). */
+async function avaaProfiili(){
   try { keyBytes = unb64u(creds.k); } catch { keyBytes = null; }
   if (!keyBytes || keyBytes.length !== 32){ viesti('Hallintalinkin avain on vääränlainen.', 'err'); return; }
-  viesti('Haetaan pylväitä…');
+  viesti('Haetaan salkoja…');
   let res;
   try {
     res = await fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(creds.t)}`, { cache: 'no-store', credentials: 'omit' });
   } catch (err) {
     viesti('Tallennuspalveluun ei saatu yhteyttä. Yritä hetken päästä uudelleen.', 'err'); return;
   }
-  if (res.status === 404){ viesti('Pylväitä ei löytynyt. Tarkista hallintalinkki.', 'err'); return; }
+  if (res.status === 404){ viesti('Salkoja ei löytynyt. Tarkista hallintalinkki.', 'err'); return; }
   if (!res.ok){ viesti(`Tallennuspalvelu vastasi virhekoodilla ${res.status}.`, 'err'); return; }
   let obj;
   try {
@@ -841,7 +895,7 @@ async function lataa(){
   } catch (err) {
     viesti('Hallintalinkin avain ei täsmää.', 'err'); return;
   }
-  if (!Array.isArray(obj?.pylvaat)){ viesti('Tämän linkin pylväitä ei voi hallita.', 'err'); return; }
+  if (!Array.isArray(obj?.pylvaat)){ viesti('Tämän linkin salkoja ei voi hallita.', 'err'); return; }
   /* Tuoreempi oma tallennus voittaa, jos palvelu antaa vielä vanhan version. */
   try {
     const c = JSON.parse(localStorage.getItem(KOPIO_KEY) || 'null');
@@ -851,8 +905,194 @@ async function lataa(){
     }
   } catch {}
   fromProfile(obj);
+  await puraLause();
   renderPanel();
 }
+async function puraLause(){
+  if (!state.avainLz) return;
+  try { state.lause = await pura(state.avainLz.iv, state.avainLz.ct, await lauseAvain()); } catch { state.lause = null; }
+}
+
+/* --- Salkosutkautus: lause on oikopolku hallintalinkkiin (worker: /api/avain). ---
+   Lauseesta johdetaan PBKDF2:lla tunnus a (24 tavua), salausavain (32) ja kirjoitusavain (32). Älä muuta suolaa,
+   kierroksia äläkä tavujakoa: jokainen jo annettu lause lakkaisi toimimasta. Worker säilyttää hallintalinkin {t, k, w}
+   salattuna eikä näe lausetta. Profiilin avain-kentässä on lause itse salattuna hallintalinkin kirjoitusavaimesta
+   johdetulla avaimella: jokainen hallintalaite näkee nykyisen lauseen ja voi irrottaa sen, katselulinkin haltija ei. */
+const AVAIN_SUOLA = 'tusinasaa-avain-1';
+const AVAIN_KIERROKSET = 300000;
+const LAUSE_MIN = 24, LAUSE_MAX = 52;
+const lauseMuoto = s => String(s || '').trim().toLowerCase();
+function lauseVirhe(l){
+  const vaarat = [];
+  l.replace(/[^a-z0-9-]/g, c => { c = /\s/.test(c) ? 'välilyönti' : `”${c}”`; if (!vaarat.includes(c)) vaarat.push(c); return c; });
+  if (vaarat.length) return `Salkosutkautuksessa saa olla vain kirjaimia a–z, numeroita ja yhdysmerkkejä (-). Ei kelpaa: ${vaarat.join(', ')}.`;
+  if (l.length < LAUSE_MIN) return `Salkosutkautuksessa on oltava vähintään ${LAUSE_MIN} merkkiä (nyt ${l.length}).`;
+  if (l.length > LAUSE_MAX) return `Salkosutkautuksessa voi olla enintään ${LAUSE_MAX} merkkiä (nyt ${l.length}).`;
+  return '';
+}
+const tiiviste = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+const lauseAvain = () => tiiviste('tusinasaa-avain-lause:' + creds.w);
+async function johda(lause){
+  const pw = await crypto.subtle.importKey('raw', new TextEncoder().encode(lause), 'PBKDF2', false, ['deriveBits']);
+  const b = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256',
+    salt: new TextEncoder().encode(AVAIN_SUOLA), iterations: AVAIN_KIERROKSET }, pw, 88 * 8));
+  const w = b64u(b.slice(56, 88));
+  return { a: b64u(b.slice(0, 24)), avain: b.slice(24, 56), w, wh: b64u(await tiiviste(w)) };
+}
+async function avainPyynto(method, a, body){
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/api/avain?a=${encodeURIComponent(a)}`, {
+      method, credentials: 'omit', cache: 'no-store',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch (err) {
+    throw new Error('Tallennuspalveluun ei saatu yhteyttä.');
+  }
+  if (res.status === 429) throw new Error('Yrityksiä on juuri nyt liian monta. Odota hetki ja yritä uudelleen.');
+  return res;
+}
+/* Profiilin tallennus jonon kautta niin, että virhe palaa kutsujalle eikä jää jonoon. */
+async function tallennaHeti(){
+  const p = jono.then(() => lahetaProfiili(toProfile()));
+  jono = p.catch(() => {});
+  await p;
+}
+
+const nakyma = $('avainNakyma'), avainNappi = $('avainNappi'), kentta = $('lause');
+let vahvistus = null, kaynnissa = false;
+function avainTila(text, kind){ const el = $('avainTila'); el.textContent = text || ''; el.className = 'avainTila' + (kind ? ' ' + kind : ''); }
+function avaaNakyma(){
+  document.querySelector('main').classList.add('avainAuki');
+  nakyma.hidden = false;
+  avainNappi.setAttribute('aria-expanded', 'true');
+  kentta.value = state.lause || '';
+  $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
+  avainTila(''); vahvistus = null;
+  kentta.focus();
+}
+function suljeNakyma(){
+  document.querySelector('main').classList.remove('avainAuki');
+  nakyma.hidden = true;
+  avainNappi.setAttribute('aria-expanded', 'false');
+  $('avainOhje').hidden = true;
+  $('avainInfo').setAttribute('aria-expanded', 'false');
+}
+avainNappi.addEventListener('click', () => { if (nakyma.hidden) avaaNakyma(); else suljeNakyma(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nakyma.hidden) suljeNakyma(); });
+$('avainInfo').addEventListener('click', () => {
+  const auki = $('avainOhje').hidden;
+  $('avainOhje').hidden = !auki;
+  $('avainInfo').setAttribute('aria-expanded', String(auki));
+});
+$('arvo').addEventListener('click', () => {
+  if (!window.LuinLause) return;
+  kentta.value = window.LuinLause.arvo().lause;
+  vahvistus = null; avainTila('');
+});
+kentta.addEventListener('input', () => { vahvistus = null; if (!kaynnissa) avainTila(''); });
+/* Enter lähettää; rivinvaihtoa kenttään ei tule. */
+kentta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); kasittele(); } });
+$('avainLomake').addEventListener('submit', e => { e.preventDefault(); kasittele(); });
+
+/* Korvaus ja irrotus vaativat toisen Enterin samalla arvolla, jotta kirjoitusvirhe ei vaihda lausetta huomaamatta. */
+function vahvista(arvo, teksti){
+  if (vahvistus === arvo){ vahvistus = null; return true; }
+  vahvistus = arvo; avainTila(teksti); return false;
+}
+async function aja(f){
+  kaynnissa = true; kentta.readOnly = true;
+  try { await f(); }
+  catch (err) { console.error(err); avainTila(err.message || 'Jokin meni vikaan.', 'err'); }
+  finally { kaynnissa = false; kentta.readOnly = false; }
+}
+function kasittele(){
+  if (kaynnissa) return;
+  const lause = lauseMuoto(kentta.value);
+  if (!lause){
+    if (creds && state.lause){
+      if (vahvista('', 'Salkosutkautus irtoaa tästä paneelista. Vahvista painamalla Enter uudelleen.')) aja(irrota);
+      return;
+    }
+    avainTila('Kirjoita salkosutkautus.', 'err'); return;
+  }
+  const virhe = lauseVirhe(lause);
+  if (virhe){ avainTila(virhe, 'err'); return; }
+  if (creds && lause === state.lause){ suljeNakyma(); return; }
+  aja(() => avaaTaiKiinnita(lause));
+}
+async function avaaTaiKiinnita(lause){
+  avainTila('Haetaan…');
+  const j = await johda(lause);
+  const res = await avainPyynto('GET', j.a);
+  if (res.ok){
+    let hl;
+    try { const env = await res.json(); hl = await pura(env.iv, env.ct, j.avain); } catch { hl = null; }
+    if (!hl || typeof hl.t !== 'string' || typeof hl.k !== 'string' || typeof hl.w !== 'string') throw new Error('Salkosutkautuksen tallenne ei aukea.');
+    if (creds && hl.t === creds.t){
+      /* Sama paneeli: lause talteen profiiliin, jos se puuttuu sieltä. */
+      if (state.lause !== lause) await merkitseLause(lause);
+      avainTila(''); suljeNakyma(); return;
+    }
+    creds = { t: hl.t, k: hl.k, w: hl.w };
+    try { localStorage.setItem(PANEELI_KEY, new URLSearchParams(creds).toString()); } catch {}
+    /* Osoiterivin hallintalinkki voi olla toisen paneelin: pois, jotta uudelleenlataus avaa tämän. */
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    avainTila(''); suljeNakyma();
+    await avaaProfiili();
+    return;
+  }
+  if (res.status !== 404) throw new Error(`Tallennuspalvelu vastasi virhekoodilla ${res.status}.`);
+  if (!creds){ avainTila('Tällä salkosutkautuksella ei löydy salkoja.', 'err'); return; }
+  if (state.lause && !vahvista(lause, 'Uusi salkosutkautus korvaa nykyisen. Vahvista painamalla Enter uudelleen.')) return;
+  avainTila('Kiinnitetään…');
+  const enc = await salaa({ t: creds.t, k: creds.k, w: creds.w }, j.avain);
+  const put = await avainPyynto('PUT', j.a, { v: 1, iv: enc.iv, ct: enc.ct, wh: j.wh, w: j.w });
+  if (put.status === 403) throw new Error('Tämä salkosutkautus on jo toisen paneelin käytössä.');
+  if (!put.ok) throw new Error(`Kiinnitys epäonnistui (virhekoodi ${put.status}).`);
+  const vanha = await merkitseLause(lause);
+  if (vanha && vanha !== lause) await irrotaTallenne(vanha);
+  avainTila('Salkosutkautus on kiinnitetty tähän paneeliin.');
+}
+/* Lauseen muutos koskee vain avain-kenttää. Ennen tallennusta haetaan palvelun profiili: jos se on tuoreempi kuin tämän
+   laitteen näkymä (toinen laite on muuttanut salkoja tai lausetta), se otetaan pohjaksi, jotta vanha näkymä ei kumoa
+   muutosta. Palauttaa korvatun lauseen. */
+async function paivitaPohja(){
+  try {
+    const res = await fetch(`${API_BASE}/api/loc?t=${encodeURIComponent(creds.t)}`, { cache: 'no-store', credentials: 'omit' });
+    if (!res.ok) return;
+    const env = await res.json();
+    const obj = await pura(env.iv, env.ct);
+    if (!Array.isArray(obj?.pylvaat) || (obj.muutettu || 0) <= state.muutettu) return;
+    fromProfile(obj);
+    await puraLause();
+    renderPanel();
+  } catch {}
+}
+async function merkitseLause(lause){
+  await paivitaPohja();
+  const ennen = { lause: state.lause, lz: state.avainLz };
+  state.lause = lause;
+  state.avainLz = lause ? await salaa(lause, await lauseAvain()) : null;
+  try { await tallennaHeti(); }
+  catch (err) { state.lause = ennen.lause; state.avainLz = ennen.lz; throw err; }
+  return ennen.lause;
+}
+async function irrotaTallenne(lause){
+  const j = await johda(lause);
+  const res = await avainPyynto('DELETE', j.a, { w: j.w });
+  if (!res.ok && res.status !== 404) throw new Error(`Vanhan salkosutkautuksen irrotus epäonnistui (virhekoodi ${res.status}).`);
+}
+async function irrota(){
+  avainTila('Irrotetaan…');
+  await paivitaPohja();
+  if (state.lause) await irrotaTallenne(state.lause);
+  await merkitseLause(null);
+  kentta.value = '';
+  avainTila('Salkosutkautus on irrotettu.');
+}
+
 lataa();
 </script>
 </body>

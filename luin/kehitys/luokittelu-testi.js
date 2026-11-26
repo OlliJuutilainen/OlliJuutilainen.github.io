@@ -2,7 +2,7 @@
 //   NODE_PATH=$(npm root -g) node luin/kehitys/luokittelu-testi.js [kuvakansio]
 // Tarkistaa: pino ennallaan (ei välikortteja, ei uutta tietoriviä); järjestykset ja välikortit kellarin veivihyllystössä
 // (tekijä, ajoitus eaa. ennen jaa., laji, asiasanat useassa ryhmässä, alkuperä, merkinnät, edistyminen, käsikirjasto
-// ylimpänä kaikissa järjestyksissä, pino mukana); käsikirja ei koskaan pinossa (ei Poimi- eikä ö-mappitoimintoa, tuonti ei nosta); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
+// ylimpänä kaikissa järjestyksissä, pino mukana); käsikirja ei koskaan pinossa (Poimi- ja ö-mappitoiminto irrottavat sen, tuonti ei nosta); Luokittele-ponnahdus (sanasto, ehdotus sivustosta, sekatila, uusi sana sanaston muodossa, ajoituksen
 // tarkistus) ja etukentän kirjoitus; avaimeton uusi versio ei pyyhi asiasanoja; Muuta metatietoja näyttää ne Latomossa
 // ja niiden poisto siellä poistaa ne; Lataa .md:ssä ne ovat mukana. Välikortin suodatus (22.11.2026): vain napautetun kortin
 // ryhmä, Valitse kaikki ja valittujen valikko koskevat sitä, toinen napautus, kaikki kortit ja järjestyksen vaihto palauttavat kaikki.
@@ -293,7 +293,7 @@ const TEKSTIT = [
   md = await ls('luin-teksti:p-pinossa');
   tulos('Latomossa poistettu asiasana poistui', !e.asiasanat && !/asiasanat/.test(md), JSON.stringify(e.asiasanat) + ' ' + md.slice(0, 80));
 
-  // Käsikirja ei ole koskaan pinossa (käyttäjän päätös 17.11.2026): se on aina kellarin veivihyllystön käsikirjastossa.
+  // Käsikirja ei ole koskaan pinossa (käyttäjän päätös): se on aina kellarin veivihyllystön käsikirjastossa.
   await lataa('#');
   await page.waitForSelector('#nimikkeet li');
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
@@ -309,13 +309,15 @@ const TEKSTIT = [
     r.indexOf('[A 1]') > r.findIndex(x => x.startsWith('Lukematon')), nimet(r));
   await page.click('#nimikkeet button.jako[data-id="p-pinossa-2"]');
   const kkNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k + ':' + b.textContent));
-  tulos('käsikirjan valikossa ei Poimi- eikä ö-mappitoimintoa', !kkNapit.some(x => /^(luin|omappi):/.test(x)) && kkNapit.includes('poista:Poista'), kkNapit.join(','));
+  tulos('käsikirjan valikossa Poimi pinoon, Laita ö-mappiin, Irrota käsikirjastosta ja Poista, ei pölyä',
+    ['luin:Poimi pinoon', 'omappi:Laita ö-mappiin', 'kasikirja:Irrota käsikirjastosta', 'poista:Poista'].every(x => kkNapit.includes(x)) && !kkNapit.some(x => /^merk:/.test(x)), kkNapit.join(','));
   await page.mouse.click(5, 5);
   await page.click('#nimikkeet button.valitse[data-id="p-raamattu"]');
   await page.click('#nimikkeet button.valitse[data-id="p-seneca"]');
   await page.click('#val-valikko');
   const valNapit = await page.evaluate(() => [...document.querySelectorAll('#pop button')].map(b => b.dataset.k));
-  tulos('käsikirjan sisältävässä valinnassa ei Poimi- eikä ö-mappitoimintoa', !valNapit.includes('luin') && !valNapit.includes('omappi'), valNapit.join(','));
+  tulos('käsikirjan ja kellarin tekstin valinnassa Poimi ja ö-mappi, ei käsikirjaston kohtaa eikä pölyä', valNapit.includes('luin') && valNapit.includes('omappi') &&
+    !valNapit.includes('kasikirja') && !valNapit.includes('merk'), valNapit.join(','));
   await page.mouse.click(5, 5);
   // Uusi versio (Latomon tuonti samalla tunnuksella) ei nosta käsikirjaa pinoon eikä pyyhi luettu-aikaa.
   const raamattu0 = (await ls('luin-lista')).find(x => x.id === 'p-raamattu');

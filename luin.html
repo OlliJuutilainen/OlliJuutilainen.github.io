@@ -3066,9 +3066,10 @@
      eikä Latomoa, vain logo, kotilinkki, asetukset ja alatunniste. Valinta (valitut) on vain muistissa ja nollautuu, kun
      näkymä vaihtuu pinon ja kellarin veivihyllystön välillä. */
   var valitut = {};
-  // Käsikirja (e.kasikirja; käyttäjän päätös 17.11.2026) ei ole koskaan pinossa eikä ö-mapissa: se on aina kellarin
-  // veivihyllystössä omana käsikirjastonaan, luettuna tai ei. Postihuilun uusi versio tai Latomon tuonti ei nosta sitä pinoon,
-  // eikä sille tarjota Poimi- eikä ö-mappitoimintoa. Käsikirjastosta poistettu palaa sinne, minne e.luettu ja e.omappi sen vievät.
+  // Käsikirja (e.kasikirja; käyttäjän päätös) ei ole koskaan pinossa eikä ö-mapissa: se on aina kellarin veivihyllystössä
+  // omana käsikirjastonaan, luettuna tai ei. Postihuilun uusi versio tai Latomon tuonti ei nosta sitä pinoon. HYLLYTYKSEN Poimi
+  // pinoon ja Laita ö-mappiin irrottavat sen ensin käsikirjastosta (irrotaKk()), Irrota käsikirjastosta jättää sen kellarin
+  // veivihyllystöön. Luokittelussa käsikirjastosta poistettu palaa sinne, minne e.luettu ja e.omappi sen vievät.
   function kellarissa(e) { return !!e.kasikirja || !!e.luettu && !e.omappi; }
   function omapissa(e) { return !!e.omappi && !e.kasikirja; }
   function pinossa(e) { return !e.kasikirja && !e.luettu && !e.omappi; }
@@ -3108,7 +3109,7 @@
     document.title = om ? 'Ö-mappi – Luin' : ark ? 'Kellarin veivihyllystö – Luin' : 'Luin';
     piirraNimikkeet();
     $('#tyhja').textContent = om ? 'Ö-mappi on tyhjä. Teksti tulee tänne kellarin veivihyllystöstä.'
-      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne pinosta (Hyllystä).'
+      : ark ? 'Kellarin veivihyllystö on tyhjä. Teksti tulee tänne pinosta (Hyllytä).'
       : 'Pino on tyhjä. Tekstit tulevat tänne latomosta tai linkistä, joka avaa tekstin lukimessa.';
     window.scrollTo(0, 0);
     haePinoon();
@@ -3799,23 +3800,22 @@
     });
   });
   /* HYLLYTYS-alavalikko (käyttäjän nimet) tekstien sijainnin mukaan, sama nimikkeen ja valittujen valikossa:
-     pinossa Hyllystä, Vie käsikirjastoon; kellarin veivihyllystössä Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon;
-     ö-mapissa Poimi kellarin veivihyllystöön, Poimi käsikirjastoon (suunnat: pinosta viedään, kellarissa nostetaan, ö-mapista
-     poimitaan; sekavalinnalle siirretään, kkSana()). Kaikissa näkymissä Anna pölyyntyä tai Puhalla pölyt (pöly säilyy siirroissa,
-     käyttäjän päätös) ja alimpana punainen Poista (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). Käsikirjalle ei
-     siirtoja eikä pölyä: se lähtee käsikirjastosta luokittelemalla. */
+     pinossa Hyllytä, Vie käsikirjastoon; kellarin veivihyllystössä Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon;
+     käsikirjalle Poimi pinoon, Laita ö-mappiin, Irrota käsikirjastosta; ö-mapissa Poimi kellarin veivihyllystöön, Poimi
+     käsikirjastoon (suunnat: pinosta viedään, kellarissa nostetaan, ö-mapista poimitaan; sekavalinnalle siirretään, kkSana()).
+     Käsikirjoja ja muita sekoittavalle valinnalle ei käsikirjaston kohtaa (sen hoitaa Luokittele). Anna pölyyntyä tai Puhalla
+     pölyt kaikissa näkymissä (pöly säilyy siirroissa, käyttäjän päätös), mutta ei käsikirjalle (sillä ei ole pölyä), ja alimpana
+     punainen Poista (ei *Poista ö-mapista* tms.: poisto on poistoa missä tahansa). */
   function luinKohdat(es) {
-    var kk = es.some(function (e) { return e.kasikirja; }), h = '';
-    var pin = es.every(pinossa), kel = es.every(function (e) { return kellarissa(e) && !e.kasikirja; }), om = es.every(omapissa);
-    if (!kk) {
-      // Hyllystä (käyttäjän nimi): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi ottaa pois
-      // silmistä heti, kun on sen aika; vahvistus kysyy leikillisesti *Oletko aivan hylly?*.
-      if (pin) h += '<button type="button" data-k="luin">Hyllystä</button>';
-      if (kel) h += '<button type="button" data-k="luin">Poimi pinoon</button><button type="button" data-k="omappi">' + OM_VALIKKO + '</button>';
-      if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
-      h += '<button type="button" data-k="kasikirja">' + kkSana(es)[2] + '</button>';
-      h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Puhalla pölyt' : 'Anna pölyyntyä') + '</button>';
-    }
+    var kk = es.filter(function (e) { return e.kasikirja; }).length, h = '';
+    var pin = es.every(pinossa), kel = es.every(kellarissa), om = es.every(omapissa);
+    // Hyllytä (käyttäjän nimi): teksti ei vaadi siirtämistä kellariin (tusina laskee sinne itsestään), vaan sen voi ottaa pois
+    // silmistä heti, kun on sen aika; vahvistus kysyy leikillisesti *Oletko aivan hylly?*.
+    if (pin) h += '<button type="button" data-k="luin">Hyllytä</button>';
+    if (kel) h += '<button type="button" data-k="luin">Poimi pinoon</button><button type="button" data-k="omappi">' + OM_VALIKKO + '</button>';
+    if (om) h += '<button type="button" data-k="omappi">' + OM_POIS + '</button>';
+    if (!kk || kk === es.length) h += '<button type="button" data-k="kasikirja">' + kkSana(es)[2] + '</button>';
+    if (!kk) h += '<button type="button" data-k="merk">' + (es.every(function (e) { return e.merkLuettu; }) ? 'Puhalla pölyt' : 'Anna pölyyntyä') + '</button>';
     return h + '<button type="button" data-k="poista" class="vaara">Poista</button>';
   }
   // HYLLYTYS-alavalikon toiminnot. Palauttaa undefined, jos k ei ole sen; true pitää valikon auki, false sulkee.
@@ -3846,38 +3846,48 @@
     piirraNimikkeet();
   }
   // Käsikirjaston kohta suunnan mukaan (käyttäjän nimet): pinosta viedään, kellarissa nostetaan, ö-mapista poimitaan;
-  // sekavalinnalle siirretään. [vahvistusnappi, kysymyksen alku, valikon kohta]
+  // sekavalinnalle siirretään; käsikirjat irrotetaan. [vahvistusnappi, kysymyksen alku, valikon kohta]
   function kkSana(es) {
-    var k = es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko']
+    var k = es.every(function (e) { return e.kasikirja; }) ? ['Irrota käsikirjastosta', 'Irrotetaanko']
+      : es.every(pinossa) ? ['Vie käsikirjastoon', 'Viedäänkö'] : es.every(omapissa) ? ['Poimi käsikirjastoon', 'Poimitaanko']
       : es.every(kellarissa) ? ['Nosta käsikirjastoon', 'Nostetaanko'] : ['Siirrä käsikirjastoon', 'Siirretäänkö'];
     return [k[0], k[1], k[0]];
   }
-  // Käsikirjastoon vienti, siirto ja poiminta kysyvät vahvistuksen kuten muut siirrot. Käsikirja lähtee pinosta ja ö-mapista kellarin
-  // veivihyllystön käsikirjastoon kuten luokittelussa; pois siitä luokittelemalla.
+  // Käsikirjasto on luokittelua: sen muutos kulkee merkintäpostissa (lkMuuttui()).
+  function irrotaKk(e) { if (e.kasikirja) { delete e.kasikirja; lkMuuttui(e); } }
+  // Käsikirjastoon vienti, siirto ja poiminta sekä sieltä irrotus kysyvät vahvistuksen kuten muut siirrot. Käsikirja lähtee pinosta ja
+  // ö-mapista kellarin veivihyllystön käsikirjastoon kuten luokittelussa. Irrotettu jää kellarin veivihyllystöön: lukematon saa
+  // e.luettu-ajan kuten Hyllytä-kohdassa (muuten se valuisi pinoon, jonne on oma Poimi pinoon).
   function kysyKasikirja(es, rect) {
-    var n = es.length;
-    var sana = kkSana(es);
-    naytaPop(rect, '<div class="kys">' + sana[1] + (n === 1 ? ' teksti käsikirjastoon?' : ' ' + n + ' tekstiä käsikirjastoon?') + '</div>' +
+    var n = es.length, t = Date.now();
+    var sana = kkSana(es), irti = es.every(function (e) { return e.kasikirja; });
+    naytaPop(rect, '<div class="kys">' + sana[1] + (n === 1 ? ' teksti ' : ' ' + n + ' tekstiä ') + (irti ? 'käsikirjastosta?' : 'käsikirjastoon?') + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + sana[0] + '</button>' +
       '<button type="button" data-k="ei" class="ei">älä!</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
-      es.forEach(function (e) { e.kasikirja = 1; delete e.omappi; delete e.merkLuettu; delete valitut[e.id]; lkMuuttui(e); });
+      es.forEach(function (e) {
+        if (irti) { irrotaKk(e); if (!e.luettu) { e.luettu = t; delete e.laskeutui; } }
+        else { e.kasikirja = 1; delete e.omappi; delete e.merkLuettu; lkMuuttui(e); }
+        delete valitut[e.id];
+      });
       tallennaLista();
       piirraNimikkeet();
-      viesti(n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin veivihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin veivihyllystöön.');
+      viesti(irti ? (n === 1 ? 'Teksti irtosi käsikirjastosta.' : n + ' tekstiä irtosi käsikirjastosta.')
+        : n === 1 ? 'Teksti siirtyi käsikirjastoon kellarin veivihyllystöön.' : n + ' tekstiä siirtyi käsikirjastoon kellarin veivihyllystöön.');
     }, 'oikea');
   }
-  // Hyllystä ja Poimi pinoon kysyvät vahvistuksen. Hyllystä-kohdan kysymys ja vastaukset ovat käyttäjän: *Oletko aivan hylly?*
+  // Hyllytä ja Poimi pinoon kysyvät vahvistuksen. Hyllytä-kohdan kysymys ja vastaukset ovat käyttäjän: *Oletko aivan hylly?*
   // (Olen / En), sama monelle tekstille.
   function kysyLuin(es, rect) {
-    var ark = !!es[0].luettu, n = es.length;
+    // Kellarin veivihyllystöstä (myös käsikirjastosta, jossa lukemattomalla ei ole e.luettu-aikaa) poimitaan, pinosta hyllytetään.
+    var ark = !pinossa(es[0]), n = es.length;
     var kys = ark ? (n === 1 ? 'Poimitaanko teksti pinoon?' : 'Poimitaanko ' + n + ' tekstiä pinoon?') : 'Oletko aivan hylly?';
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (ark ? 'Poimi pinoon' : 'Olen') + '</button>' +
       '<button type="button" data-k="ei" class="ei">' + (ark ? 'älä!' : 'En') + '</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now(), ids = {};
-      es.forEach(function (e) { ids[e.id] = 1; if (ark) pinoonTuli(e); else { e.luettu = t; delete e.laskeutui; } });
+      es.forEach(function (e) { ids[e.id] = 1; if (ark) { irrotaKk(e); pinoonTuli(e); } else { e.luettu = t; delete e.laskeutui; } });
       // Kellarin veivihyllystöstä nostettu teksti nousee pinon kärkeen.
       if (ark) lista = lista.filter(function (x) { return ids[x.id]; }).concat(lista.filter(function (x) { return !ids[x.id]; }));
       if (ark) tusina(es);
@@ -3890,20 +3900,24 @@
   }
 
   /* Ö-mappi (käyttäjän pyyntö 17.11.2026): kellarin veivihyllystön teksti siirtyy sinne pinoon noston rinnalla, ja
-     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllystä ja Poimi. Kellarista: *Laita ö-mappiin*,
-     *Laitetaanko teksti mappiin ö?*, *Joo* / *Öö ei* (käyttäjän sanat). */
+     sieltä se palaa kellarin veivihyllystöön. Kysyy vahvistuksen kuten Hyllytä ja Poimi. Kellarista: *Laita ö-mappiin*,
+     *Laitetaanko mappiin ö?*, *Joo* / *Öö ei* (käyttäjän sanat). */
   // Suunnat (käyttäjän ajattelutapa, ei ehdoton sääntö): Luin on ydin ja pino lähinnä sitä; ydintä kohti poimitaan, siitä pois viedään.
   var OM_SISAAN = 'Joo', OM_VALIKKO = 'Laita ö-mappiin', OM_POIS = 'Poimi kellarin veivihyllystöön';
   function kysyOmappi(es, rect) {
-    var om = !!es[0].omappi, n = es.length;
+    var om = omapissa(es[0]), n = es.length;
     var kys = om ? (n === 1 ? 'Poimitaanko teksti kellarin veivihyllystöön?' : 'Poimitaanko ' + n + ' tekstiä kellarin veivihyllystöön?')
-      : (n === 1 ? 'Laitetaanko teksti mappiin ö?' : 'Laitetaanko ' + n + ' tekstiä mappiin ö?');
+      : (n === 1 ? 'Laitetaanko mappiin ö?' : 'Laitetaanko ' + n + ' tekstiä mappiin ö?');
     naytaPop(rect, '<div class="kys">' + kys + '</div>' +
       '<div class="napit"><button type="button" data-k="ok">' + (om ? OM_POIS : OM_SISAAN) + '</button>' +
       '<button type="button" data-k="ei" class="ei">' + (om ? 'älä!' : 'Öö ei') + '</button></div>', 'kysely', function (k) {
       if (k !== 'ok') return;
       var t = Date.now();
-      es.forEach(function (e) { if (om) delete e.omappi; else e.omappi = t; delete valitut[e.id]; });
+      // Käsikirja irtoaa käsikirjastosta; lukematon saa e.luettu-ajan, jotta ö-mapista poimittu palaa kellariin eikä pinoon.
+      es.forEach(function (e) {
+        if (om) delete e.omappi; else { irrotaKk(e); e.omappi = t; if (!e.luettu) { e.luettu = t; delete e.laskeutui; } }
+        delete valitut[e.id];
+      });
       tallennaLista();
       piirraNimikkeet();
       viesti(om ? (n === 1 ? 'Teksti palasi kellarin veivihyllystöön.' : n + ' tekstiä palasi kellarin veivihyllystöön.')

@@ -156,9 +156,11 @@
   .super svg { position: absolute; left: 0; top: .2em; width: 19.5px; height: 19.5px; overflow: visible; fill: var(--ruoste); }
   .super .r { fill: none; stroke: var(--ruoste); stroke-width: 1.05; stroke-linejoin: miter; }
   /* Selite erottuu listasta (käyttäjän päätös): pienempi teksti, ja koko lohko merkkeineen on sisennetty sivustojen nimien
-     kohdalle, merkki 15 px; väli ylä- ja alapuolella. */
-  .selite { margin: 16px 0 10px 37px; padding-left: 26px; font-size: .84rem; line-height: 1.5;
-    text-align: justify; hyphens: auto; }
+     kohdalle ja yhtä paljon oikeasta reunasta, merkki 15 px; väli ylä- ja alapuolella. Tasattu; tavuviivat ovat tekstissä
+     käsin (&shy;, md.js:n Innokas-tavutus), koska Chromium ei tavuta suomea: ilman niitä kapean ruudun sanavälit venyvät
+     useaan em:iin. Kun muutat tekstiä, tavuta uudet sanat samoin. */
+  .selite { margin: 16px 37px 10px; padding-left: 26px; font-size: .84rem; line-height: 1.5;
+    text-align: justify; hyphens: manual; }
   .selite .super svg { top: .2em; width: 15px; height: 15px; }
 </style>
 </head>
@@ -169,9 +171,9 @@
   <p class="johdanto">Näille sivustoille lukimeen-lisäosalla on oma sovitteensa: työpöytäselaimessa artikkeli
     tulee <a href="latomo.html">latomoon</a> siistimpänä kuin yleisin keinoin, esimerkiksi alaviitteineen. Muiltakin
     sivuilta leikkaaminen yleensä onnistuu. Puuttuuko suosikkisi? <a href="palaute.html?mista=sivustot">Kerro</a>.</p>
-  <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>RUOSTEINEN SALMIAKKI uhoaa sertifioivan peräti ensimmäisen valioluokan
-    latomustulosta. Paina samannäköistä <strong>Lukimeen</strong>-salmiakkia selaimessa jonkun tämän sivuston sisältämän
-    kirjoituksen ollessa avattuna, ja sukkasi saattavat pian pyöriä ellei jopa irrota jalasta.</p>
+  <p class="johdanto selite"><span class="super" role="img" title="Supersalmiakki: Luinin sertifioima" aria-label="supersalmiakki"><svg viewBox="-1.6 -.1 11.2 11.2" aria-hidden="true"><path class="r" d="M4 .9L7.2 5.5L4 10.1L.8 5.5Z"/><path d="M4 3.2L5.6 5.5L4 7.8L2.4 5.5Z"/></svg></span>RUOS&shy;TEI&shy;NEN SAL&shy;MI&shy;AK&shy;KI uho&shy;aa ser&shy;ti&shy;fi&shy;oi&shy;van pe&shy;rä&shy;ti en&shy;sim&shy;mäi&shy;sen va&shy;li&shy;o&shy;luo&shy;kan
+    la&shy;to&shy;mus&shy;tu&shy;los&shy;ta. Pai&shy;na sa&shy;man&shy;nä&shy;köis&shy;tä <strong>Lu&shy;ki&shy;meen</strong>-sal&shy;mi&shy;ak&shy;kia se&shy;lai&shy;mes&shy;sa jon&shy;kun tä&shy;män si&shy;vus&shy;ton si&shy;säl&shy;tä&shy;män
+    kir&shy;joi&shy;tuk&shy;sen ol&shy;les&shy;sa avat&shy;tu&shy;na, ja suk&shy;ka&shy;si saat&shy;ta&shy;vat pian pyö&shy;riä el&shy;lei jopa ir&shy;ro&shy;ta ja&shy;las&shy;ta.</p>
 
   <div class="suodatus" id="suodatus" hidden></div>
 

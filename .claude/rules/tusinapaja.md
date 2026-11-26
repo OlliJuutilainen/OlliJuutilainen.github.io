@@ -118,16 +118,18 @@ FMI:ltä, että paikalle saa ennusteen, salaa paketin selaimessa kuten generaatt
 
 ## Minun oma tusinasää (hallintapaneeli)
 
-`minun-tusinasaa.html` hallitsee pylväsprofiilia: enintään kuusi pylvästä, valittu pylväs ja yhteinen lämpötilavalinta.
-Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun pylvään, joten paneelin valinta ohjaa
-kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
+`minun-tusinasaa.html` hallitsee salkoprofiilia: enintään kuusi salkoa, valittu salko ja yhteinen lämpötilavalinta.
+Katselulinkki (`#t=…&k=…`, myös Android-sovellus ja QR-koodi) näyttää aina valitun salon, joten paneelin valinta ohjaa
+kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (salko, paalutus, sulata/jäädytä) tulevat tusina-radan mallista
 `oppaat/tusinasaa-oma-paneeli-malli.html`.
+Käyttäjälle näkyvä sana on kaikilla Tusinasään sivuilla *salko* (*sääsalko*, *salon*, *salkoa*, *salot*), ei *pylväs*
+(käyttäjän päätös). Profiilin avain `pylvaat` ja koodin tunnisteet säilyvät, koska tallennetut profiilit ja muut sivut lukevat niitä.
 
-- Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, muutettu}`. `tusinapaja.html` tunnistaa
-  sen `pylvaat`-taulukosta ja näyttää valitun pylvään kuin tavallisen paketin. `lampo` on profiilin, ei pylvään.
-  Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääpylvästä*.
+- Purettu profiili on `{pylvaat: [{lat, lon, title, z?, paikka?}], valittu, lampo?, avain?, muutettu}`. `tusinapaja.html` tunnistaa
+  sen `pylvaat`-taulukosta ja näyttää valitun salon kuin tavallisen paketin. `lampo` on profiilin, ei salon.
+  Tyhjä profiili näyttää virheen *tähän linkkiin ei ole paalutettu sääsalkoa*.
 - **Kirjoitusavain `w` on vain hallintalinkissä** `minun-tusinasaa.html#t=…&k=…&w=…`, ei koskaan katselulinkissä: muuten
-  esim. mökin QR-koodin lukija voisi muuttaa pylväitä. KV-tietueessa on `wh` = SHA-256(w:n UTF-8-merkkijono), ja
+  esim. mökin QR-koodin lukija voisi muuttaa salkoja. KV-tietueessa on `wh` = SHA-256(w:n UTF-8-merkkijono), ja
   `PUT /api/loc?t=…` vertaa siihen. GET ei palauta `wh`:ta. Worker ei näe k:ta eikä koordinaatteja tässäkään.
 - Profiilin luo paneelin ensipaalutus (`POST /api/loc` kentällä `wh`) tai generaattorin valinta *Minun oma tusinasää
   -hallintapaneeli*. Generaattori olemassa olevalla TOKENilla ja K:lla muuttaa vanhan linkin profiiliksi paikallaan:
@@ -136,12 +138,33 @@ kaikkia laitteita, joilla linkki on. Ulkoasu ja sanasto (pylväs, paalutus, sula
 - Rajat: muutoksilla oma `LuinRaja`-olio `locmuutos` (20 minuutissa osoitetta kohden, 200 UTC-päivässä). Profiilin `ct`
   enintään 8192 merkkiä; yksittäinen sijainti edelleen 1024.
 - Jokainen muutos tallennetaan heti koko profiilina. Onnistunut tallennus ei näytä ilmoitusta, jotta asettelu ei hypi
-  (välit kuten mallissa). Virhe näkyy *Pylvääni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Pylvääni nyt* -otsikko
+  (välit kuten mallissa). Virhe näkyy *Salkoni nyt* -rivin alla ja tarjoaa *yritä uudelleen*. *Salkoni nyt* -otsikko
   on linkki säätiedotukseen.
 - Laitteen muistissa `tusinasaa.paneeli` (hallintalinkki) ja `tusinasaa.paneeli.kopio` (viimeksi tallennettu salattu
   paketti). Latauksessa voittaa tuoreempi `muutettu`, koska KV:n muutos näkyy muualle viiveellä.
 - Leipäteksti IBM Plex Sans isännöitynä itse (`vendor/ibm-plex-sans/`, OFL, latin-osajoukko), tummassa teemassa pohja
   `#0c0d0e` ja teksti `#b9bec3` kuten mallissa.
+
+## Salkosutkautus (lause hallintalinkin oikopolkuna)
+
+Salkosutkautus (nimi: käyttäjän päätös) avaa paneelin laitteella, jolla hallintalinkkiä ei ole. Hallintalinkki on edelleen varsinainen avain.
+
+- **Näkymä** (käyttäjän päätös): oikean yläkulman avainmerkki (kuusikulmiokahva, jonka sisällä logon kymppi, ykköset
+  hampaina) avaa näkymän, jossa on vain kenttä, *Arvo* ja i-nappi. Arvo vain, kun laitteella on paneeli. Kenttä on
+  kaksirivinen ja 16 px, jotta 52 merkkiä mahtuu puhelimen leveydelle eikä iOS suurenna sivua; Enter lähettää.
+- **Johtaminen:** PBKDF2-SHA-256, suola `tusinasaa-avain-1`, 300 000 kierrosta, 88 tavua: tunnus `a` (24), salausavain (32),
+  kirjoitusavain (32). **Älä muuta näitä:** jokainen annettu lause lakkaisi toimimasta. Lauseen säännöt kuten lukimen
+  laatikkolauseessa (24–52 merkkiä, a–z, 0–9, `-`; isot kirjaimet pieniksi), ja Arvo on `luin/laatikkolause.js`.
+- **Worker** `/api/avain?a=…`: tietue `avain:<a>` on hallintalinkki `{t, k, w}` salattuna ja lauseesta johdetun
+  kirjoitusavaimen tiiviste `wh`. GET on rajoitettu (`avainhaku`, 10 minuutissa osoitetta kohden), koska ihmisen
+  keksimää lausetta voi yrittää arvata; PUT ja DELETE `locmuutos`-rajoin ja vain sallituista alkuperistä. Worker ei
+  näe lausetta, hallintalinkkiä eikä koordinaatteja.
+- **Profiilin `avain`-kenttä** on lause salattuna avaimella SHA-256(`tusinasaa-avain-lause:` + w): hallintalaitteet
+  näkevät nykyisen lauseen ja voivat irrottaa sen, katselulinkin haltija ei. Muut sivut ohittavat kentän; paneelin
+  `toProfile` säilyttää sen.
+- Lause kiinnittyy laitteen paneeliin, jos sitä ei löydy; ilman paneelia mitään ei luoda. Korvaus ja irrotus (tyhjä
+  kenttä) vaativat toisen Enterin. Lauseen muutos hakee ensin palvelun profiilin ja käyttää tuoreempaa pohjana, jotta
+  vanhentunut näkymä ei kumoa toisen laitteen muutosta.
 
 ## Android-sovellus ja koodi
 
