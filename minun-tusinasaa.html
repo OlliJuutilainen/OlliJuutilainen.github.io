@@ -197,6 +197,8 @@
     padding:8px 10px; color:var(--text); background:var(--field); border:1px solid var(--border); border-radius:6px;
     resize:none; overflow:hidden; overflow-wrap:anywhere; letter-spacing:.02em }
   .avainRivi{ display:flex; align-items:center; gap:10px; margin:10px 0 0 }
+  /* Sutkauta on näkymän pääasiallinen toiminto (täytetty); näkyy vain, kun lähettämisellä on vaikutus. */
+  .avainRivi .btn.sutkauta{ color:var(--bg) }
   .iNappi{ margin-left:auto; background:none; border:0; padding:4px; cursor:pointer; color:var(--muted); line-height:0 }
   .iNappi svg{ width:22px; height:22px }
   .iNappi:hover, .iNappi:focus-visible, .iNappi[aria-expanded="true"]{ color:var(--text) }
@@ -228,12 +230,13 @@
         <textarea id="lause" rows="2" aria-label="Salkosutkautus" placeholder="salkosutkautus" maxlength="80" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go"></textarea>
         <div class="avainRivi">
           <button class="btn ghost pieni" type="button" id="arvo">Arvo</button>
+          <button class="btn pieni sutkauta" type="submit" id="sutkauta" hidden>Sutkauta</button>
           <button class="iNappi" type="button" id="avainInfo" aria-label="Mikä on salkosutkautus?" aria-expanded="false" aria-controls="avainOhje"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M22 12L17 3.34L7 3.34L2 12L7 20.66L17 20.66Z"/><circle fill="currentColor" cx="12" cy="7.7" r="1.05"/><path fill="currentColor" d="M11.25 10.2H12.75V16.6H11.25Z"/></svg></button>
         </div>
         <p class="avainTila" id="avainTila" role="status"></p>
         <div class="avainOhje" id="avainOhje" hidden>
           <p><b>Salkosutkautus</b> on oikopolku tähän paneeliin. Hallintalinkki ja salkosutkautus ovat sama avain kahdella kirjoituksella: linkki koneen, salkosutkautus ihmisen. Kumpi tahansa avaa paneelin millä laitteella tahansa, vaikkapa hotellin koneella, jolla linkkiä ei ole.</p>
-          <p>Kirjoita salkosutkautus kenttään ja paina Enter. Laitteella, jolla paneeli on jo auki, salkosutkautus kiinnittyy siihen; muilla laitteilla sama salkosutkautus avaa paneelin. <i>Arvo</i> antaa valmiin salkosutkautuksen, jota on vaikea arvata ja helppo muistaa. Uusi salkosutkautus korvaa vanhan, ja tyhjä kenttä irrottaa sen.</p>
+          <p>Kirjoita salkosutkautus kenttään ja paina <i>Sutkauta</i> tai Enter. Laitteella, jolla paneeli on jo auki, salkosutkautus kiinnittyy siihen; muilla laitteilla sama salkosutkautus avaa paneelin. <i>Arvo</i> antaa valmiin salkosutkautuksen, jota on vaikea arvata ja helppo muistaa. Uusi salkosutkautus korvaa vanhan, ja tyhjä kenttä irrottaa sen.</p>
           <p>Salkosutkautuksessa on 24–52 merkkiä: pieniä kirjaimia a–z ilman ääkkösiä, numeroita ja yhdysmerkkejä (-). Välilyöntejä ei hyväksytä.</p>
           <p>Salkosutkautus antaa salkoihin samat oikeudet kuin hallintalinkki. Jaa muille katselulinkki, älä salkosutkautusta, äläkä käytä samaa lausetta missään muualla.</p>
           <p>Uusi salkosutkautus toimii muilla laitteilla viimeistään minuutin kuluttua.</p>
@@ -970,6 +973,7 @@ function avaaNakyma(){
   kentta.value = state.lause || '';
   $('arvo').hidden = !creds;          // lauseen voi kiinnittää vain olemassa olevaan paneeliin
   avainTila(''); vahvistus = null;
+  paivitaSutkauta();
   kentta.focus();
 }
 function suljeNakyma(){
@@ -986,33 +990,35 @@ $('avainInfo').addEventListener('click', () => {
   $('avainOhje').hidden = !auki;
   $('avainInfo').setAttribute('aria-expanded', String(auki));
 });
+/* Sutkauta näkyy, kun lähettämisellä on vaikutus: kentässä on tekstiä, tai tyhjä kenttä irrottaisi paneelin lauseen. */
+function paivitaSutkauta(){ $('sutkauta').hidden = !lauseMuoto(kentta.value) && !(creds && state.lause); }
 $('arvo').addEventListener('click', () => {
   if (!window.LuinLause) return;
   kentta.value = window.LuinLause.arvo().lause;
-  vahvistus = null; avainTila('');
+  vahvistus = null; avainTila(''); paivitaSutkauta();
 });
-kentta.addEventListener('input', () => { vahvistus = null; if (!kaynnissa) avainTila(''); });
+kentta.addEventListener('input', () => { vahvistus = null; if (!kaynnissa) avainTila(''); paivitaSutkauta(); });
 /* Enter lähettää; rivinvaihtoa kenttään ei tule. */
 kentta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); kasittele(); } });
 $('avainLomake').addEventListener('submit', e => { e.preventDefault(); kasittele(); });
 
-/* Korvaus ja irrotus vaativat toisen Enterin samalla arvolla, jotta kirjoitusvirhe ei vaihda lausetta huomaamatta. */
+/* Korvaus ja irrotus vaativat toisen lähetyksen samalla arvolla, jotta kirjoitusvirhe ei vaihda lausetta huomaamatta. */
 function vahvista(arvo, teksti){
   if (vahvistus === arvo){ vahvistus = null; return true; }
   vahvistus = arvo; avainTila(teksti); return false;
 }
 async function aja(f){
-  kaynnissa = true; kentta.readOnly = true;
+  kaynnissa = true; kentta.readOnly = true; $('sutkauta').disabled = true;
   try { await f(); }
   catch (err) { console.error(err); avainTila(err.message || 'Jokin meni vikaan.', 'err'); }
-  finally { kaynnissa = false; kentta.readOnly = false; }
+  finally { kaynnissa = false; kentta.readOnly = false; $('sutkauta').disabled = false; if (!nakyma.hidden) paivitaSutkauta(); }
 }
 function kasittele(){
   if (kaynnissa) return;
   const lause = lauseMuoto(kentta.value);
   if (!lause){
     if (creds && state.lause){
-      if (vahvista('', 'Salkosutkautus irtoaa tästä paneelista. Vahvista painamalla Enter uudelleen.')) aja(irrota);
+      if (vahvista('', 'Salkosutkautus irtoaa tästä paneelista. Vahvista painamalla uudelleen.')) aja(irrota);
       return;
     }
     avainTila('Kirjoita salkosutkautus.', 'err'); return;
@@ -1045,7 +1051,7 @@ async function avaaTaiKiinnita(lause){
   }
   if (res.status !== 404) throw new Error(`Tallennuspalvelu vastasi virhekoodilla ${res.status}.`);
   if (!creds){ avainTila('Tällä salkosutkautuksella ei löydy salkoja.', 'err'); return; }
-  if (state.lause && !vahvista(lause, 'Uusi salkosutkautus korvaa nykyisen. Vahvista painamalla Enter uudelleen.')) return;
+  if (state.lause && !vahvista(lause, 'Uusi salkosutkautus korvaa nykyisen. Vahvista painamalla uudelleen.')) return;
   avainTila('Kiinnitetään…');
   const enc = await salaa({ t: creds.t, k: creds.k, w: creds.w }, j.avain);
   const put = await avainPyynto('PUT', j.a, { v: 1, iv: enc.iv, ct: enc.ct, wh: j.wh, w: j.w });
