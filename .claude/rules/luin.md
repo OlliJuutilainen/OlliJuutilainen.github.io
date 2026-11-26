@@ -210,10 +210,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Ensyklopedia Logos ja Snellmanin kootut teokset (koko korpus pesty, `snellman-pesukone.js`). Älä lisää sitä kysymättä.
   Mutrudollaria (mainosten varassa elävä sivusto, jolle voi silti lahjoittaa) ei näytetä selitteessä eikä listassa, koska yksikään sivusto ei kanna sitä;
   älä palauta selitettä ennen kuin merkittäviä sivustoja on.
-- **Otsikkohaku** (käyttäjän päätös: tarkka verkko, ei raskainta hakua): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
-  sovitesivustoilta kerätyistä otsikoista. Luettelo `luin/hakemisto/otsikot.txt` on tusina-radan `hakemisto/julkaise.js`:n tuote, ei
-  käsin muokattava: aja se uudelleen, kun hakemisto pestään tai listan nimiä muutetaan (otsake on sivuston nimi täsmälleen kuten listassa).
-  Ei Project Gutenbergia, Faded Pagea eikä PROPYLÄENiä. Sivu lataa luettelon vasta ensimmäisellä otsikkohaulla, ja `robots.txt` kieltää kansion.
+- **Otsikkohaku** (käyttäjän päätös: tarkka verkko): sivustot-sivun hakukenttä etsii kolmesta kirjaimesta alkaen myös
+  sovitesivustoilta kerätyistä otsikoista. Luettelot `luin/hakemisto/otsikot.txt` ja `otsikot-gutenberg.txt` ovat tusina-radan
+  `hakemisto/julkaise.js`:n tuotteita, eivät käsin muokattavia: aja se uudelleen, kun hakemisto pestään tai listan nimiä muutetaan
+  (otsake on sivuston nimi täsmälleen kuten listassa). Ei Faded Pagea eikä PROPYLÄENiä. Sivu lataa ytimen vasta ensimmäisellä
+  otsikkohaulla ja Gutenbergin sen jälkeen (haku toimii jo sitä odottaessa); `robots.txt` kieltää kansion. Osumia voi olla
+  kymmeniätuhansia: korien luvut lasketaan yhdellä läpikäynnillä (`laskeOtsikot()`) ja järjestys lokeroimalla, ei korikohtaisesti.
   Korit rajaavat osumia (merkinnän omat aihekorit ja kieli, muuten sivuston), ja korin luku on otsikkohaun aikana otsikko-osumien määrä.
 - Asetuskiekon SVG on luin.html:ssä kahdesti (`.ratas`-nappi pinossa, `#ratas-polku` lukijassa): pidä yhtenevinä.
 - `android/luin/` (opas 7.6): Android-kääre *Luin.* (`fi.tusinasaa.luin`). WebView lataa

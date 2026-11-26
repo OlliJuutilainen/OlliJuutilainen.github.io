@@ -123,9 +123,9 @@
     text-decoration-color: var(--viiva); text-underline-offset: 3px; }
   .s-tila button[hidden] { display: none; }
   ul.sivustot li[hidden], h2.kirjain[hidden], ul.sivustot[hidden] { display: none; }
-  /* Otsikkohaku (käyttäjän päätös: tarkka verkko, ei raskainta hakua): sama kenttä etsii myös kerätyistä otsikoista
-     (hakemisto/otsikot.txt, ladataan vasta ensimmäisellä haulla). Osumat sivuston listan yläpuolella, korisuodattimet koskevat
-     niitäkin. */
+  /* Otsikkohaku (käyttäjän päätös: tarkka verkko): sama kenttä etsii myös kerätyistä otsikoista (hakemisto/otsikot.txt ja
+     sen jälkeen otsikot-gutenberg.txt, ladataan vasta ensimmäisellä haulla). Osumat sivustolistan yläpuolella, korisuodattimet
+     koskevat niitäkin. */
   .otsikot { margin: 14px 0 0; }
   .otsikot[hidden], .otsikot button[hidden] { display: none; }
   .o-tila { margin: 0 0 8px; font-size: .8rem; color: var(--harmaa); }
@@ -548,10 +548,16 @@
   }
   var nak = tiedot;
   // Korin luku: näkyvät sivustot korissa, otsikkohaun aikana näkyvät otsikko-osumat.
+  // Yksi läpikäynti: otsikko-osumia voi olla kymmeniätuhansia. Otsikoiden luvut lasketaan kerran hakua kohden.
+  function laske(joukko) {
+    var n = { aihe: {}, laji: {}, kieli: {} };
+    joukko.forEach(function (t) { FASETIT.forEach(function (f) { t[f].forEach(function (a) { n[f][a] = (n[f][a] || 0) + 1; }); }); });
+    return n;
+  }
   function luvut() {
-    var joukko = OTS.sanat && OTS.tila === 'valmis' ? OTS.osumat.map(function (x) { return fasetit(x.e); }) : nak;
+    var lkm = OTS.sanat && OTS.tila === 'valmis' ? OTS.luvut || (OTS.luvut = laskeOtsikot(OTS.osumat)) : laske(nak);
     [].forEach.call(el.querySelectorAll('button.kori'), function (b) {
-      var f = b.getAttribute('data-f'), v = b.getAttribute('data-v'), n = joukko.filter(function (t) { return t[f].indexOf(v) >= 0; }).length;
+      var f = b.getAttribute('data-f'), v = b.getAttribute('data-v'), n = lkm[f][v] || 0;
       b.querySelector('.n').textContent = n;
       b.classList.toggle('nolla', n === 0 && !tila[f][v]);
       if (tila[f][v]) b.setAttribute('data-tila', tila[f][v]); else b.removeAttribute('data-tila');
@@ -616,10 +622,17 @@
       }
     }
   }
+  // Ydin ensin, Project Gutenberg (oma tiedostonsa, yhtä suuri) sen jälkeen: haku toimii jo Gutenbergia odottaessa.
+  var hae = function (t) { return fetch('hakemisto/' + t).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }); };
   function lataa() {
     OTS.tila = 'lataa'; piirraOtsikot();
-    fetch('hakemisto/otsikot.txt').then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function (x) { jasenna(x); OTS.tila = 'valmis'; haeOtsikot(); })
+    hae('otsikot.txt')
+      .then(function (x) {
+        jasenna(x); OTS.tila = 'valmis'; OTS.gutenberg = 'lataa'; haeOtsikot();
+        hae('otsikot-gutenberg.txt').then(function (y) { jasenna(y); OTS.gutenberg = 'valmis'; })
+          .catch(function () { OTS.gutenberg = 'virhe'; })
+          .then(function () { haeOtsikot(true); });
+      })
       .catch(function () { OTS.tila = 'virhe'; piirraOtsikot(); });
   }
   // Merkinnän korit: omat aihekorit (tai sivuston, jos omia ei ole), sivuston laji ja oma kieli (tai sivuston).
@@ -637,14 +650,36 @@
     var sanat = norm(haku).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
     return sanat.join('').length >= 3 ? sanat : null;
   }
-  function haeOtsikot() {
+  // Sama kuin laske(osumat.map(fasetit)) mutta ilman merkintäkohtaisia olioita: sivuston korit lasketaan sivustoittain.
+  function laskeOtsikot(osumat) {
+    var n = { aihe: {}, laji: {}, kieli: {} }, sivut = [], omaAihe = {}, omaKieli = {};
+    var lisaa = function (f, arvot, k) { if (k) arvot.forEach(function (a) { n[f][a] = (n[f][a] || 0) + k; }); };
+    osumat.forEach(function (x) {
+      var e = x.e, s = e.s, i;
+      if (!s.lkm) { s.lkm = [0, 0, 0]; sivut.push(s); }
+      s.lkm[0]++;
+      if (e.aihe.length) for (i = 0; i < e.aihe.length; i++) omaAihe[e.aihe[i]] = (omaAihe[e.aihe[i]] || 0) + 1; else s.lkm[1]++;
+      if (e.kieli) omaKieli[e.kieli] = (omaKieli[e.kieli] || 0) + 1; else s.lkm[2]++;
+    });
+    sivut.forEach(function (s) {
+      var t = s.t || { aihe: [], laji: [], kieli: [] };
+      lisaa('laji', t.laji, s.lkm[0]);
+      lisaa('aihe', t.aihe.filter(function (a) { return a !== 'kaikkiruokainen'; }), s.lkm[1]);
+      lisaa('kieli', t.kieli, s.lkm[2]);
+      s.lkm = null;
+    });
+    Object.keys(omaAihe).forEach(function (a) { lisaa('aihe', [a], omaAihe[a]); });
+    Object.keys(omaKieli).forEach(function (k) { lisaa('kieli', [kieliNimi(nimi(k))], omaKieli[k]); });
+    return n;
+  }
+  function haeOtsikot(pidaMaara) {
     var sanat = OTS.sanat = hakusanat();
-    OTS.n = 25;
+    if (pidaMaara !== true) OTS.n = 25;
     if (!OTS.sanat) { piirraOtsikot(); return; }
     if (OTS.tila === 'ei') { lataa(); return; }
     if (OTS.tila !== 'valmis') return;
     var re = sanat.map(function (w) { return new RegExp('(^|[^\\p{L}\\p{N}])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([\\p{L}\\p{N}]?)', 'u'); });
-    var osumat = [];
+    var osumat = [], rajattu = FASETIT.some(function (f) { return Object.keys(tila[f]).length; });
     for (var i = 0; i < OTS.m.length; i++) {
       var e = OTS.m[i], pisteet = 0, j;
       for (j = 0; j < sanat.length; j++) if (e.h.indexOf(sanat[j]) < 0) break;
@@ -654,11 +689,13 @@
         if (!x) break;
         pisteet += (x.index + x[1].length < e.h.indexOf('\u0002') ? 2 : 1) + (x[2] ? 0 : 1);
       }
-      if (j < re.length || !korilapi(fasetit(e))) continue;
+      if (j < re.length || (rajattu && !korilapi(fasetit(e)))) continue;
       osumat.push({ p: pisteet, e: e });
     }
-    osumat.sort(function (a, b) { return b.p - a.p || a.e.o.length - b.e.o.length; });
-    OTS.osumat = osumat;
+    // Lokerolajittelu (pisteet laskevasti, otsikon pituus nousevasti): osumia voi olla kymmeniätuhansia.
+    var lokerot = [];
+    osumat.forEach(function (x) { var k = (99 - x.p) * 128 + Math.min(x.e.o.length, 127); (lokerot[k] || (lokerot[k] = [])).push(x); });
+    OTS.osumat = [].concat.apply([], lokerot.filter(Boolean)); OTS.luvut = null;
     piirraOtsikot();
   }
   function piirraOtsikot() {
@@ -670,7 +707,8 @@
     if (OTS.tila === 'lataa') { tilaEl.textContent = 'ladataan otsikkoluetteloa…'; return; }
     if (OTS.tila === 'virhe') { tilaEl.textContent = 'otsikkoluettelo ei latautunut'; return; }
     var o = OTS.osumat;
-    tilaEl.textContent = o.length ? 'otsikoissa ' + o.length + (o.length === 1 ? ' osuma' : ' osumaa') : 'ei osumia otsikoissa';
+    tilaEl.textContent = (o.length ? 'otsikoissa ' + o.length + (o.length === 1 ? ' osuma' : ' osumaa') : 'ei osumia otsikoissa') +
+      ({ lataa: ' · Gutenberg latautuu…', virhe: ' · Gutenberg ei latautunut' }[OTS.gutenberg] || '');
     o.slice(0, OTS.n).forEach(function (x) {
       var e = x.e, li = document.createElement('li'), a = document.createElement('a'), m = document.createElement('span');
       a.href = e.s.alku + e.k.replace('\u0001', slug(e.o)) + e.s.loppu; a.target = '_blank'; a.rel = 'noopener'; a.textContent = e.o;

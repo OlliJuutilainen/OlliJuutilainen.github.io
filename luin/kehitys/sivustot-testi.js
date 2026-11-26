@@ -3,7 +3,7 @@
 // Tarkistaa: kaikki sivustot alussa; korit mukaan (tai saman rivin sisällä, ja rivien välillä), pois karsii pääkorin tai
 // pääkielen; tyhjät kirjainryhmät piiloon ja kirjain himmeäksi; haku tarkkeetta; tyhjennä; kirjainhyppy; 360 px ilman
 // vaakavieritystä ja suodatus alle 400 px; ilman skriptiä lista sellaisenaan. Otsikkohaku: luettelo ladataan vasta haettaessa,
-// osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
+// Gutenberg sen jälkeen, osoitteet purkautuvat (slug ja etuliite), korit rajaavat osumia, alle kolme kirjainta piilottaa osumat.
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const JUURI = path.resolve(__dirname, '../..'), ULOS = process.argv[2];
@@ -16,7 +16,8 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const b = await chromium.launch(), virheet = [];
   const page = await (await b.newContext({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 2 })).newPage();
   page.on('pageerror', e => virheet.push(e.message));
-  let luettelo = 0; page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; });
+  let luettelo = 0, gutenberg = 0;
+  page.on('request', r => { if (r.url().endsWith('/hakemisto/otsikot.txt')) luettelo++; if (r.url().endsWith('/hakemisto/otsikot-gutenberg.txt')) gutenberg++; });
   await page.goto(U + 'luin/sivustot.html'); await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(200);
   const nak = () => page.$$eval('ul.sivustot li:not([hidden])', l => l.length);
   const nimet = () => page.$$eval('ul.sivustot li:not([hidden]) > a:first-of-type', l => l.map(x => x.textContent.trim()));
@@ -49,13 +50,15 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   // Otsikkohaku.
   const osumat = async q => {
     await page.fill('#s-haku', q); await page.waitForTimeout(300);
-    await page.waitForFunction(() => !/ladataan/.test(document.getElementById('o-tila').textContent), null, { timeout: 20000 });
+    await page.waitForFunction(() => !/ladataan|latautuu/.test(document.getElementById('o-tila').textContent), null, { timeout: 20000 });
     return page.$$eval('#osumat li', l => l.map(x => ({ o: x.querySelector('a').textContent, h: x.querySelector('a').href, s: x.querySelector('.mika').textContent })));
   };
-  t('otsikkoluetteloa ei ladata ennen hakua', luettelo === 0, String(luettelo));
+  t('otsikkoluetteloa ei ladata ennen hakua', luettelo + gutenberg === 0, String(luettelo + gutenberg));
   let o = await osumat('hegel logic');
   t('hegel logic: NDPR:n arvio, slug purkautuu', o.some(x => x.o === 'Hegel’s Logic and Metaphysics' && x.h === 'https://ndpr.nd.edu/reviews/hegels-logic-and-metaphysics/'), o.slice(0, 3).map(x => x.h).join(' '));
-  t('luettelo ladattiin kerran', luettelo === 1, String(luettelo));
+  t('ydin ja Gutenberg ladattiin kerran', luettelo === 1 && gutenberg === 1, luettelo + ' ' + gutenberg);
+  o = await osumat('kalevala');
+  t('kalevala: Gutenbergin teksti mukana', o.some(x => /^https:\/\/www\.gutenberg\.org\/ebooks\/\d+$/.test(x.h) && /Project Gutenberg/.test(x.s)), o.slice(0, 4).map(x => x.h).join(' '));
   o = await osumat('cicero de officiis');
   t('cicero de officiis: Latin Library, etuliite purkautuu', o.some(x => x.h === 'https://www.thelatinlibrary.com/cicero/off.shtml'), o.map(x => x.h).join(' '));
   t('osoitteet ehjiä', o.every(x => /^https?:\/\/[^\s\u0001]+$/.test(x.h)));
@@ -63,7 +66,7 @@ let viat = 0; const t = (n, ok, x) => { if (!ok) viat++; console.log((ok ? 'OK  
   const kantKaikki = Number((await page.textContent('#o-tila')).replace(/\D/g, ''));
   await nappi('kieli', 'suomi'); await page.waitForTimeout(100);
   o = await page.$$eval('#osumat li', l => l.map(x => x.querySelector('.mika').textContent));
-  t('kant + suomi: vain suomenkielisiä sivustoja', o.length > 0 && o.length < kantKaikki && o.every(x => /Ensyklopedia Logos|Snellman|SLS/.test(x)), o.join(' | '));
+  t('kant + suomi: vain suomenkielisiä sivustoja', o.length > 0 && o.length < kantKaikki && o.every(x => /Ensyklopedia Logos|Snellman|SLS|Project Gutenberg/.test(x)) && o.some(x => /Kant, Immanuel/.test(x)), o.join(' | '));
   t('korin luku seuraa otsikko-osumia', Number(await page.textContent('button.kori[data-f="kieli"][data-v="suomi"] .n')) === o.length);
   await page.click('#s-tyhjenna'); await page.fill('#s-haku', 'he'); await page.waitForTimeout(300);
   t('alle kolme kirjainta: osumat piilossa', await page.evaluate(() => document.getElementById('otsikot').hidden));
