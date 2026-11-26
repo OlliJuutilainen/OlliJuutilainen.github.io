@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Tusinasoft</title>
-<meta name="description" content="Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.">
+<meta name="description" content="Tusinasoft: pullantuoksuisin digitaalinen kotileipomo">
 <meta property="og:title" content="TUSINASOFT">
-<meta property="og:description" content="Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.">
+<meta property="og:description" content="Tusinasoft: pullantuoksuisin digitaalinen kotileipomo">
 <style>
   @font-face { font-family: Literata; src: url(luin/fontit/literata.woff2) format("woff2");
     font-weight: 380 700; font-style: normal; font-display: swap; }
@@ -29,11 +29,16 @@
   }
   main { max-width: 38rem; margin: 0 auto; padding: 4.5rem 16px 0; }
 
-  /* 1. Mainoslause isolla, tavoite sen alla */
+  /* 1. Mainoslause isolla, tavoite sen alla. Rivinvaihdot ja tyhjä rivi nimen jälkeen ovat kiinteät (käyttäjän päätös),
+     joten koko lasketaan pisimmän rivin mukaan: "digitaalinen kotileipomo" on Literatalla 11,76 em, sisennys 1 em,
+     ja jakaja 13 jättää varaa. Leveys on palstan sisäleveys (38rem tai ikkuna miinus reunat). */
   .lause {
-    margin: 0; font-weight: 500; font-size: clamp(2.1rem, 7.2vw, 3.3rem); line-height: 1.12;
-    letter-spacing: -.01em; text-wrap: balance; overflow-wrap: break-word; hyphens: manual;
+    margin: 0; font-weight: 500; line-height: 1.12; letter-spacing: -.01em;
+    font-size: min(3.3rem, calc(min(100vw - 32px, 38rem) / 13));
   }
+  .lause span { display: block; }
+  .lause .nimi { margin-bottom: 1.12em; }
+  .lause .r { margin-left: 1em; }
   .tavoite { margin: 1.4rem 0 0; font-size: 1.2rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 
   /* Väliotsikot hiljaisina kuten muissa ohjelmissa */
@@ -64,7 +69,7 @@
 <body>
 <main>
   <header>
-    <h1 class="lause">Tusinasoft on pullantuoksuisin digitaalinen kotileipomo.</h1>
+    <h1 class="lause"><span class="nimi">Tusinasoft:</span> <span class="r">pullantuoksuisin</span> <span class="r">digitaalinen kotileipomo</span></h1>
     <p class="tavoite">Tusinasoft tavoittelee digitaalista maailmaa, jossa vietetyllä ajalla olisi painoarvoa, ja vietetty aika
       olisi ylimalkaan vähäisempi.</p>
   </header>
