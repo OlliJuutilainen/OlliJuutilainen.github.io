@@ -59,13 +59,20 @@ Maa jäässä plussalla (käyttäjän päätös):
   Hetkellinen kuten lämpötila, joten luetaan rivin omalta aikaleimalta. Jos haku epäonnistuu, hiutaleet vain
   jäävät pois. `extractSeries` tunnistaa `groundtemperature`n ennen `temperature`a, joka sisältyy siihen.
 - Luku ja hiutale ovat katkeamattomassa `span`issa, koska kapea sarake katkaisisi hiutaleen omalle rivilleen.
-- Rannikon sekaruudussa maan arvossa on mukana merta (talvella liian lämmin), joten hiutale voi jäädä pois;
-  rannikkokäytäntö on avoinna (tusina-rata).
+- **Maaruutu** (käyttäjän päätös): hiutaleen maan lämpötila otetaan vain kuivalta maalta, koska rannikon ja järvien
+  sekaruudussa vesi lämmittää arvoa talvella niin, että hiutale jäisi pois. `findMaaruutu` hakee `LandSeaMask`in
+  salon pisteestä ja renkaista 1,25–15 km (8 suuntaa) yhdellä pyynnöllä (`latlon` toistettuna), ja lähin piste,
+  jossa maata on vähintään 95 %, antaa maan lämpötilan. Ilman kuivaa maata (ulkosaari) ei hiutaletta. Muu sää
+  tulee salon pisteestä. Vastaus ei tule pyyntöjärjestyksessä, joten arvot kohdistetaan sijainnista.
+- Valinta talletetaan laitteelle (`tusinasaa.maaruutu`), koska maskihaku hidastaisi joka avausta: avaimena
+  koordinaattien SHA-256-tiivisteen alku, arvona pisteen järjestysnumero, ei koordinaatteja. Epäonnistunutta
+  hakua ei talleteta. **Jos muutat renkaita tai suuntien järjestystä, vaihda tiivisteen etuliite `maaruutu-1`**,
+  muuten talletetut numerot osoittavat vääriin pisteisiin.
 - Käänteistä sulamerkkiä (lukema miinuksella, maa sula) ei tehdä (käyttäjän päätös).
 
 Debug-näkymän saa osoitteen perään lisättävällä `?dbg=1`. Se näyttää mm. `[TW <vaihe>]`
--merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee, ja `[MAA <°C>]`
-eli rivin maan lämpötilan. Se on nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
+-merkinnät, joista näkee mitä hämärävaihetta koodi kullekin tunnille päättelee, ja `[MAA <°C> · <km>]`
+eli rivin maan lämpötilan ja maaruudun etäisyyden salosta (ei etäisyyttä, kun salon oma ruutu on kuiva). Se on nopein tapa selvittää, onko vika päättelyssä vai esityksessä.
 
 ## Testaaminen ilman verkkoa
 
