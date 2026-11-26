@@ -22,13 +22,13 @@
   @font-face{ font-family:'IBM Plex Sans'; font-style:italic; font-weight:700; font-display:swap;
     src:url(vendor/ibm-plex-sans/ibm-plex-sans-latin-700-italic.woff2) format('woff2') }
   :root{
-    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --dim:#4b545c; --border:#2a3036;
+    --bg:#0c0d0e; --text:#b9bec3; --brand:#ffffff; --title:#aab4bd; --muted:#7a858f; --dim:#4b545c; --avain:#6a757e; --border:#2a3036;
     --field:#0f1113; --err:#ff6b6b;
     --body:'IBM Plex Sans', Arial, system-ui, sans-serif;
     color-scheme:dark;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --dim:#b3bac1; --border:#d5d9df;
+    :root{ --bg:#f7f8fa; --text:#1c1f22; --brand:#1c1f22; --title:#5a6570; --muted:#646f78; --dim:#b3bac1; --avain:#7e8890; --border:#d5d9df;
       --field:#fff; --err:#c34242; color-scheme:light }
   }
   body{ background:var(--bg); color:var(--text); font:17px/1.5 var(--body); -webkit-font-smoothing:antialiased }
@@ -183,11 +183,13 @@
   a.btn{ display:inline-block; text-decoration:none }
   @media (max-width:340px){ .btn.pieni{ font-size:11px; letter-spacing:.4px; padding:7px 8px } }
   .app + .foot{ margin-top:36px }
-  /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Merkin alareuna jää
-     otsikkorivin yläpuolelle kaikilla leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
+  /* Salkosutkautus: avain oikeassa yläkulmassa (kuusikulmiokahvan sisällä logon kymppi, ykköset hampaina). Harvinaisen
+     tilanteen toiminto, joten pienehkö ja hiukan himmeä (--avain: kolmannes matkasta --mutedista --dimiin, kontrasti
+     taustaan yli 3); kirkastuu osoitettaessa. Merkki jää otsikkorivin yläpuolelle kaikilla
+     leveyksillä; painike on merkkiä suurempi, jotta siihen osuu sormella. */
   .avainNappi{ position:absolute; right:-8px; top:-11.8px; padding:6px 8px; margin:0; background:none; border:0; cursor:pointer;
-    color:var(--muted); line-height:0 }
-  .avainNappi svg{ display:block; width:13.45px; height:31.93px; overflow:visible }
+    color:var(--avain); line-height:0 }
+  .avainNappi svg{ display:block; width:10.11px; height:24px; overflow:visible }
   .avainNappi:hover, .avainNappi:focus-visible, .avainNappi[aria-expanded="true"]{ color:var(--text) }
   /* Avainnäkymässä on vain kenttä, Arvo ja i (käyttäjän päätös). */
   main.avainAuki > :not(#avainNakyma):not(.foot){ display:none !important }
