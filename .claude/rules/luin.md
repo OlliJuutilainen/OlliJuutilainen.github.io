@@ -33,7 +33,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - `luin/sanaselitys.js` (`LuinSana`): sanaselityksen moottori (ketju, määritelmät, perusmuoto, alkuperä, istunto), yhteinen
   luin.html:lle ja sanaselityssivulle; luin.html:ssä vain tekstin ympäristö (`skYmparisto()`, `skKieli()`). `?v=` kuten md.js:n
   (sivut luin.html ja `luin/sanaselitys.html`). Muutos koskee molempia: aja `sanaselitys-testi.js`, joka testaa myös sivun.
-- `luin/sanaselitys.html` (opas 4.3): sanaselitys omana sivunaan, käyttäjän oikotie; pinon linkeissä *Luettavaa*-linkin alla
+- `luin/sanaselitys.html` (opas 4.3): sanaselitys omana sivunaan, käyttäjän oikotie; pinon linkeissä *LUETTAVAA*-linkin alla
   (käyttäjän päätös). Ei logoa eikä pinomerkkiä. Kieli on tuntematon (`skKetju('')`, ei kielihuomautusta), paitsi kreikan kirjaimilla tai kun
   alussa on kielikoodi ja kaksoispiste (`fi:`, `en:`, käyttäjän päätös): silloin haku on kuin sen kielen leipätekstissä.
   Osoitteen #-osa on haku (`#fi:käsitteen`; selaimen hakusanaksi `#%s`). Raksin paikka on mitattu erikseen (ei ikkunan yläreunusta).
@@ -52,7 +52,7 @@ lisäosan tietosuojasivu jää muodolliseksi.
   käyttäjän (myös iA Writerin, MarkTextin, Typoran ja Obsidianin esittely; poikkeus Latomon ohjeen iA Writer -linjaan).
   Verkko-osoitteet ovat paljaina sulkeissa, koska verkkolinkit ovat lukimessa oletuksena pois ja linkkiteksti näkyisi ilman osoitetta.
   Ei `luin/tekstit/`-kansioon (robots.txt estää sen).
-- `luin/pikaohje.md` ja `luin/kayttoohje.md`: ohjeet kirjoina lukimessa, pinon linkit *Pikaohje* (ylempänä) ja *Käyttöohje*
+- `luin/pikaohje.md` ja `luin/kayttoohje.md`: ohjeet kirjoina lukimessa, pinon linkit *Pikaohje* (ylempänä) ja *Pitkä ohje*
   (`#u=`; käyttäjän päätös). Kielimallin kirjoittamia koko toiminnasta; alussa kehittäjän saate (Markdown-konventiot, *Saate*), jonka
   sanat ovat käyttäjän: älä siloittele. Kun käyttäjälle näkyvä toiminta muuttuu, tarkista ne. Vanha HTML-ohje on tusina-tavarassa.
   Ei `luin/tekstit/`-kansioon (robots.txt).
