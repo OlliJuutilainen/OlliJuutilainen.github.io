@@ -6,7 +6,8 @@
 // pääkohtien pysyessä; kapealla sisäkkäin (paluu, yläreuna pysyy); kierto vaihtaa tavan avoimen alavalikon säilyessä; HYLLYTYS pinossa,
 // kellarin veivihyllystössä, ö-mapissa ja käsikirjalle; Anna pölyyntyä himmentää ja Puhalla pölyt palauttaa; pöly säilyy Hyllytä-,
 // ö-mappi- ja pinoon poiminnan siirroissa ja lähtee käsikirjastoon nostettaessa; Vie ja Nosta käsikirjastoon, Hyllytä ja Laita
-// ö-mappiin vahvistuksin; valittujen valikko; nimikkeen kolme salmiakkia.
+// ö-mappiin vahvistuksin; käsikirjan Poimi pinoon, Laita ö-mappiin ja Irrota käsikirjastosta (pois käsikirjastosta, lukematon
+// jää kellariin) ja käsikirjan sisältävä valinta; valittujen valikko; nimikkeen kolme salmiakkia.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -210,7 +211,9 @@ const polyinen = (page, id) => page.evaluate((id) => {
     tulos('kellari: pääkohdat samat', (await paakohdat(page, 'p-kellari')) === 'ULOSTUS | SISUSTUS | HYLLYTYS');
     tulos('kellari: Poimi pinoon, Laita ö-mappiin, Nosta käsikirjastoon, Anna pölyyntyä, Poista', (await luinKohdat(page, 'p-kellari')) ===
       'HYLLYTYS: luin=Poimi pinoon | omappi=Laita ö-mappiin | kasikirja=Nosta käsikirjastoon | merk=Anna pölyyntyä | poista=Poista');
-    tulos('käsikirja: vain Poista', (await luinKohdat(page, 'p-kasikirja')) === 'HYLLYTYS: poista=Poista');
+    tulos('käsikirja: Poimi pinoon, Laita ö-mappiin, Irrota käsikirjastosta, Poista (ei pölyä)', (await luinKohdat(page, 'p-kasikirja')) ===
+      'HYLLYTYS: luin=Poimi pinoon | omappi=Laita ö-mappiin | kasikirja=Irrota käsikirjastosta | poista=Poista');
+    tulos('käsikirja: pääkohdat samat', (await paakohdat(page, 'p-kasikirja')) === 'ULOSTUS | SISUSTUS | HYLLYTYS');
     tulos('kellari: pöly näkyy', await polyinen(page, 'p-t3'));
     tulos('kellari: pölyiselle Puhalla pölyt', (await luinKohdat(page, 'p-t3')).includes('merk=Puhalla pölyt'));
     // Laita ö-mappiin (Laitetaanko mappiin ö?, Joo / Öö ei): pöly säilyy.
@@ -254,6 +257,55 @@ const polyinen = (page, id) => page.evaluate((id) => {
     const e6 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-kellari'));
     tulos('Nosta käsikirjastoon: vahvistus, käsikirja, pöly pois', nk.k === 'Nostetaanko teksti käsikirjastoon?' && nk.ok === 'Nosta käsikirjastoon' &&
       e6.kasikirja === 1 && !e6.merkLuettu && !(await polyinen(page, 'p-kellari')), JSON.stringify(nk));
+
+    // Käsikirjan siirrot (käyttäjän päätös): Poimi pinoon ja Laita ö-mappiin vievät pois käsikirjastosta, Irrota käsikirjastosta
+    // jättää kellarin veivihyllystöön. Kaikki kolme lukemattomia käsikirjoja (ei e.luettu-aikaa).
+    await page.evaluate(() => {
+      const l = JSON.parse(localStorage.getItem('luin-lista'));
+      for (const id of ['p-kk-pino', 'p-kk-om', 'p-kk-irti']) {
+        l.push({ id, added: 1, title: id, src: 'paikallinen', kasikirja: 1 });
+        localStorage.setItem('luin-teksti:' + id, JSON.stringify('# ' + id + '\n\nKappale.\n'));
+      }
+      localStorage.setItem('luin-lista', JSON.stringify(l));
+    });
+    await page.reload(); await page.waitForSelector('#nimikkeet button.jako[data-id="p-kk-pino"]');
+    const kkSiirto = async (id, k) => {
+      await page.click(`#nimikkeet button.jako[data-id="${id}"]`);
+      await page.click('#pop button[data-k="ali:luin"]');
+      await page.click(`#pop button[data-k="${k}"]`);
+      const ky = await kysely(page);
+      await page.click('#pop button[data-k="ok"]');
+      const r = await page.evaluate((id) => ({ e: JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === id),
+        v: document.getElementById('viesti').textContent, kk: [...document.querySelectorAll('#nimikkeet li')].map(li => li.classList.contains('valiots') ? '[' + li.textContent + ']' : li.querySelector('.n-ots').textContent.trim()) }), id);
+      return Object.assign(r, { ky });
+    };
+    const kp = await kkSiirto('p-kk-pino', 'luin');
+    tulos('käsikirja Poimi pinoon: vahvistus, pois käsikirjastosta pinoon', kp.ky.k === 'Poimitaanko teksti pinoon?' && kp.ky.ok === 'Poimi pinoon' &&
+      !kp.e.kasikirja && !kp.e.luettu && kp.e.pinoon > 0 && kp.e.lkT > 0 && !kp.kk.includes('p-kk-pino') && /palasi pinoon/.test(kp.v), JSON.stringify(kp));
+    const ko = await kkSiirto('p-kk-om', 'omappi');
+    tulos('käsikirja Laita ö-mappiin: vahvistus, pois käsikirjastosta ö-mappiin, luettu-aika', ko.ky.k === 'Laitetaanko mappiin ö?' && ko.ky.ok === 'Joo' &&
+      !ko.e.kasikirja && ko.e.omappi > 0 && ko.e.luettu > 0 && ko.e.lkT > 0 && !ko.kk.includes('p-kk-om'), JSON.stringify(ko));
+    const ki = await kkSiirto('p-kk-irti', 'kasikirja');
+    tulos('Irrota käsikirjastosta: vahvistus, kellarin veivihyllystöön tavalliseksi', ki.ky.k === 'Irrotetaanko teksti käsikirjastosta?' &&
+      ki.ky.ok === 'Irrota käsikirjastosta' && ki.ky.ei === 'älä!' && !ki.e.kasikirja && ki.e.luettu > 0 && !ki.e.omappi && ki.e.lkT > 0 &&
+      ki.kk.indexOf('p-kk-irti') > ki.kk.findIndex(x => /^\[Luetut/.test(x)) && /irtosi käsikirjastosta/.test(ki.v), JSON.stringify(ki));
+    // Pinossa ja ö-mapissa ne ovat tavallisia: Hyllytä ja Poimi kellarin veivihyllystöön; ö-mapista poimittu palaa kellariin.
+    await page.goto(U + 'luin.html#omappi'); await page.waitForSelector('#nimikkeet button.jako[data-id="p-kk-om"]');
+    await page.click('#nimikkeet button.jako[data-id="p-kk-om"]');
+    await page.click('#pop button[data-k="ali:luin"]');
+    await page.click('#pop button[data-k="omappi"]');
+    await page.click('#pop button[data-k="ok"]');
+    const ko2 = await page.evaluate(() => JSON.parse(localStorage.getItem('luin-lista')).find(e => e.id === 'p-kk-om'));
+    tulos('käsikirjastosta ö-mappiin laitettu palaa ö-mapista kellariin, ei pinoon', !ko2.omappi && ko2.luettu > 0 && !ko2.kasikirja, JSON.stringify(ko2));
+    // Käsikirjan ja kellarin tekstin valinta: Poimi pinoon ja Laita ö-mappiin, ei käsikirjaston kohtaa eikä pölyä.
+    await page.goto(U + 'luin.html#arkisto'); await page.waitForSelector('#nimikkeet button.valitse[data-id="p-kasikirja"]');
+    await page.click('#nimikkeet button.valitse[data-id="p-kasikirja"]');
+    await page.click('#nimikkeet button.valitse[data-id="p-kk-irti"]');
+    await page.click('#val-valikko');
+    await page.click('#pop button[data-k="ali:luin"]');
+    const sv = (await tila(page)).kohdat.filter(k => !k.startsWith('takaisin'));
+    tulos('käsikirjan ja kellarin tekstin valinta: Poimi pinoon, Laita ö-mappiin, Poista', sv.join(' | ') === 'luin=Poimi pinoon | omappi=Laita ö-mappiin | poista=Poista', sv.join(' | '));
+    await page.keyboard.press('Escape'); await page.evaluate(() => { document.getElementById('pop').hidden = true; });
     await ctx.close();
   }
 

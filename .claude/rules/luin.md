@@ -318,8 +318,8 @@ lisäosan tietosuojasivu jää muodolliseksi.
   ylhäällä paluutekstiä eikä merkkiä (yllä); kellarista pinoon vie myös alalaidan *pino*.
 - **Ei kaveriversiota** eikä sen mainostusta. Käyttöönotto (oma worker, repo, Dropbox) on myöhempi kysymys (opas 9).
 - **Jakaminen on erittäin sivuosassa**: vain pinon nimikkeen pieni valikkonappi (kolme salmiakkia).
-- **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Hyllytä*, *Laita ö-mappiin* ja *Nosta käsikirjastoon* ovat käyttäjän
-  poikkeuksia): Luin on maailman ydin ja pino lähinnä sitä. Ydintä kohti liike on *poimimista* (verkosta lukimeen, kellarista pinoon,
+- **Suunnat** (käyttäjän ajattelutapa, ei ehdoton sääntö: *Hyllytä*, *Laita ö-mappiin*, *Nosta käsikirjastoon* ja *Irrota käsikirjastosta*
+  ovat käyttäjän poikkeuksia): Luin on maailman ydin ja pino lähinnä sitä. Ydintä kohti liike on *poimimista* (verkosta lukimeen, kellarista pinoon,
   ö-mapista kellariin), siitä pois *viemistä* (merkinnät pinosta, pinosta käsikirjastoon). Uudet siirtonimet seuraavat tätä.
 - **Porrasvalikko** (käyttäjän linjaus, `naytaPorras()`; nimikkeen ja valittujen valikko): pääkohdat *ULOSTUS*, *SISUSTUS* ja
   *HYLLYTYS* (käyttäjän nimet, versaalina; koodin avaimet `vienti`, `latomo`, `luin` ovat vanhoja nimiä), kukin avaa alavalikon; merkki on
@@ -330,9 +330,10 @@ lisäosan tietosuojasivu jää muodolliseksi.
   asetusten pitkää selitystä, tiedosto kuten tekstin oma vienti, `merkinnatTekstista()`), *Huiluta laatikkoon*. SISUSTUS: *Luokittele*, *Muuta metatietoja*, *Lado uusi laitos*. HYLLYTYS (`luinKohdat()`, sijainnin mukaan, käyttäjän nimet):
   pinossa *Hyllytä* (pino valuu kellariin itsestään, eikä nimi saa vihjata, että käyttäjän pitäisi siivota; vahvistus *Oletko aivan hylly?*,
   *Olen* / *En*, sama monelle tekstille) ja *Vie käsikirjastoon*; kellarin veivihyllystössä *Poimi pinoon*, *Laita ö-mappiin* ja *Nosta käsikirjastoon*;
+  käsikirjalle *Poimi pinoon*, *Laita ö-mappiin* ja *Irrota käsikirjastosta* (käyttäjän päätös; ULOSTUS ja SISUSTUS kuten muilla);
   ö-mapissa *Poimi kellarin veivihyllystöön* ja *Poimi käsikirjastoon*; sekavalinnalle *Siirrä käsikirjastoon* (`kkSana()`; käsikirjaston
-  vahvistusnappi on sama kuin valikon kohta, kysymys *Viedäänkö/Nostetaanko/Poimitaanko/Siirretäänkö*); kaikissa näkymissä
-  *Anna pölyyntyä* / *Puhalla pölyt* (alla);
+  vahvistusnappi on sama kuin valikon kohta, kysymys *Viedäänkö/Nostetaanko/Poimitaanko/Siirretäänkö/Irrotetaanko*), käsikirjoja ja muita
+  sekoittavalle ei käsikirjaston kohtaa (Luokittele hoitaa); kaikissa näkymissä *Anna pölyyntyä* / *Puhalla pölyt* (alla), paitsi käsikirjalle;
   alimpana aina punainen *Poista* (ei *Poista ö-mapista* tms.). Valintojen tekstit isolla alkukirjaimella ja ilman
   loppupistettä. Leveällä ruudulla alavalikko on pääkohtien
   vasemmalla samassa laatikossa (`.rinn`, aukko väliviivassa avoimen kohdalla, hiirellä avaus viipymällä), kapealla pääkohtien tilalla
@@ -373,9 +374,12 @@ lisäosan tietosuojasivu jää muodolliseksi.
   Nimikkeen kentät (`asiasanat`, `ajoitus`, `kasikirja`) ovat totuus ja etukentän `asiasanat:`/`ajoitus:` niiden peili: avaimeton
   tuonti ei pyyhi niitä (`lkMdsta(…, false)`), vain *Muuta metatietoja* ja korvaava laitos (`tosi`, etukenttä kirjoitetaan ennen
   Latomoon siirtoa). Käsikirjasto ei mene etukenttään. Ehdotukset eivät lisää mitään ilman napautusta, eikä luokittelemattomista
-  muistuteta (käyttäjän päätös: ei pelillistä). **Käsikirja ei voi tulla pinoon** (käyttäjän päätös): se on aina kellarin
-  veivihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, ei Poimi- eikä ö-mappitoimintoa, tuonti ja
-  Postihuilu eivät nosta sitä; valikossa *Vie/Nosta/Poimi/Siirrä käsikirjastoon*, pois vain luokittelemalla; sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
+  muistuteta (käyttäjän päätös: ei pelillistä). **Käsikirja ei ole pinossa eikä ö-mapissa** (käyttäjän päätös): se on aina kellarin
+  veivihyllystössä ylimpänä omana *Käsikirjasto*-välikorttinaan kaikissa järjestyksissä, tuonti ja Postihuilu eivät nosta sitä;
+  valikossa *Vie/Nosta/Poimi/Siirrä käsikirjastoon*. HYLLYTYKSEN *Poimi pinoon* ja *Laita ö-mappiin* irrottavat sen ensin käsikirjastosta
+  (`irrotaKk()`, `lkMuuttui()`), ja *Irrota käsikirjastosta* jättää sen kellarin veivihyllystöön: lukematon saa `e.luettu`-ajan kuten Hyllytä-kohdassa
+  (myös ö-mappiin laitettu, jottei se palaa sieltä pinoon). Luokittelun kytkimestä pois otettu palaa sinne, minne `e.luettu` ja `e.omappi` sen vievät
+  (lukematon pinoon). Sijainti aina `kellarissa()`/`pinossa()`/`omapissa()`-funktioilla, ei suoraan `e.luettu`sta. Sanat *asiasana*, *ajoitus*, *käsikirjasto*, *luokittele*, *järjestys* (ei *tagi*,
   *kategoria*, *hylly*). Testit `luokittelu-testi.js` ja `linkki-testi.js` (valikon järjestys). **Sanaston huolto**
   (*sanasto*-linkki nappien alla): nimeäminen koskee koko kokoelmaa, ja toiseksi sanaksi nimetty yhdistyy siihen; ei poistoa.
   **Välikortti on suodatin** (`button.vo`, `tila.kortti`): napautus näyttää vain sen ryhmän, toinen napautus tai
