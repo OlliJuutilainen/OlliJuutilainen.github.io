@@ -33,10 +33,13 @@ lisäosan tietosuojasivu jää muodolliseksi.
 - `luin/sanaselitys.js` (`LuinSana`): sanaselityksen moottori (ketju, määritelmät, perusmuoto, alkuperä, istunto), yhteinen
   luin.html:lle ja sanaselityssivulle; luin.html:ssä vain tekstin ympäristö (`skYmparisto()`, `skKieli()`). `?v=` kuten md.js:n
   (sivut luin.html ja `luin/sanaselitys.html`). Muutos koskee molempia: aja `sanaselitys-testi.js`, joka testaa myös sivun.
-- `luin/sanaselitys.html` (opas 4.3): sanaselitys omana sivunaan, käyttäjän oikotie, Luinin sivustolla vain paikan puutteessa:
-  ei logoa eikä pinomerkkiä. Kieli on tuntematon (`skKetju('')`, ei kielihuomautusta), paitsi kreikan kirjaimilla tai kun
+- `luin/sanaselitys.html` (opas 4.3): sanaselitys omana sivunaan, käyttäjän oikotie; pinon linkeissä *Luettavaa*-linkin alla
+  (käyttäjän päätös). Ei logoa eikä pinomerkkiä. Kieli on tuntematon (`skKetju('')`, ei kielihuomautusta), paitsi kreikan kirjaimilla tai kun
   alussa on kielikoodi ja kaksoispiste (`fi:`, `en:`, käyttäjän päätös): silloin haku on kuin sen kielen leipätekstissä.
   Osoitteen #-osa on haku (`#fi:käsitteen`; selaimen hakusanaksi `#%s`). Raksin paikka on mitattu erikseen (ei ikkunan yläreunusta).
+  **Kielivalikko** (käyttäjän päätös: oletus *kaikki kielet*, ei muistia) rajaa ketjun ja selityksen kieleen (`LuinSana.rajaa()`,
+  `o.rajaus`); vain sivu käyttää sitä, lukimen ikkuna ei. Kielet ovat lukemiston (`sivustot.html`) kielirivin kielet ilman
+  sivustoluokkia *monikielinen* ja *muut kielet*: kun kielirivi saa uuden kielen, lisää se valikkoon, `SK_NIMI`in ja `SK_ELAT`iin.
 - `luin/latomo.html` (*Latomo*): tarkistaa md:n, täydentää etukentän, siirtää tekstin Luiniin tekstikannan siirrolla (`asetaSiirto()`)
   tai antaa .md:n ladattavaksi. Ohje kirjoittajalle: `luin/latomo-ohje.html`.
 - `luin/mika-on-markdown.md`: *Mikä on Markdown* -teksti, avautuu lukimeen uuteen välilehteen
@@ -900,7 +903,7 @@ Aja repon juuressa:
 - `NODE_PATH=$(npm root -g) node luin/kehitys/valmis-testi.js`: valmis teksti (osuma, sama HTML ja doc, tavutuksen vaihto, muuttunut teksti, poisto, enintään kuusi).
 - `NODE_PATH=$(npm root -g) node luin/kehitys/silta-testi.js [kuvakansio]`: Android-kääreen silta Luinin sivuilla mobiiliselaimessa.
 - `node docs/viitteet/vertaa-luin.js`: viitteen kokoaminen Teologian tyylin esimerkkejä vasten.
-- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu.
+- `NODE_PATH=$(npm root -g) node luin/kehitys/sanaselitys-testi.js [kuvakansio] [--ei-taittoa]`: sanaselitys tekosanastolla, lopussa sanaselityssivu ja sen kielivalikko.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/vakiosivu-testi.js [kuvakansio]`: vakiosivujen merkit, paikannin ja Latomon säilytys.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-sana-testi.js`: laidan pitkä painallus sanalla, Sukkela sanaselitys ja osiohyppy.
 - `NODE_PATH=$(npm root -g) node luin/kehitys/osiohyppy-taso-testi.js`: osiohypyn merkkipaalun taso (Valtio, artikkeli, pitkä teksti, pelkät kohdat).

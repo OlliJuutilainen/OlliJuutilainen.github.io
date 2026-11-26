@@ -530,7 +530,9 @@ Sanaselitys ja lausekäännös ovat ainoat lukiessa verkkoa käyttävät toiminn
 
 ### 7.7 Sanaselitys omana sivunaan
 
-Sanaselitys toimii myös ilman tekstiä omalla sivullaan, `luin/sanaselitys.html`. Kirjoita sana ja paina Enter tai lambdaa. Koska kirjoitetulla sanalla ei ole tekstin kieltä, haku kattaa kaikki kielet. Kielikoodi ja kaksoispiste alkuun tekevät hausta kuin sen kielen tekstin sanan: `fi: käsitteen`, `en: running` (myös la, grc, el, de, fr, sv ja lt).
+Sanaselitys toimii myös ilman tekstiä omalla sivullaan, `luin/sanaselitys.html`; sinne vie pinon alla oleva linkki *Sanaselitys*. Kirjoita sana ja paina Enter tai lambdaa. Koska kirjoitetulla sanalla ei ole tekstin kieltä, haku kattaa kaikki kielet. Kielikoodi ja kaksoispiste alkuun tekevät hausta kuin sen kielen tekstin sanan: `fi: käsitteen`, `en: running` (myös la, grc, el, de, fr, sv, lt, es, it ja da).
+
+Kentän alla olevasta *kieli*-valikosta haun voi rajata yhteen kieleen, jolloin selitys näyttää vain sen kielen sanat; kielet ovat samat kuin tuettujen sivustojen listan kielirivillä. Kreikka kattaa muinais- ja nykykreikan, ja latinalaisin kirjaimin kirjoitettu sana haetaan silloin kreikkalaisin kirjaimin. Kielen vaihto hakee näkyvän selityksen sanan uudelleen. Oletus on *kaikki kielet*, ja sivu palaa siihen aina avattaessa.
 
 Osoitteen #-osa on haku, joten sivun voi lisätä selaimen hakusanaksi muodossa `…/luin/sanaselitys.html#%s`.
 
